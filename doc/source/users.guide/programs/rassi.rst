@@ -746,7 +746,7 @@ Keywords
   It takes an integer number specifying the number of requested SO-NOs, followed by the same number of integers
   specifying the spin--orbit (SO) coupled states.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" APPEAR="Spin-orbit natural orbitals" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED" />
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" APPEAR="Spin-orbit natural orbitals" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED">
               %%Keyword: SONOrb <advanced>
               <HELP>
               This computes the spin-orbit natural orbitals (SO-NOs) for spin-orbit coupled states.
