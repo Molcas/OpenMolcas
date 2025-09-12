@@ -164,8 +164,8 @@ subroutine procinp_caspt2
   NTIT = 0
   OUTFMT = 'DEFAULT'
   G1SECIN = .FALSE.
-  PRORB = .TRUE.
-  PRSD = .FALSE.
+  PRORB = Input%PrOrb
+  PRSD = Input%PrSD
   NCASES = 13
 
   JMS = Input%JMS
