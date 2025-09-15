@@ -11,18 +11,19 @@
 
 module UnixInfo
 
-use Definitions, only: iwp
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
+real(kind=wp) :: Heuer(4) = -huge(Heuer)
 integer(kind=iwp), protected :: hour, isdst, mday, mins, mon, pid, ppid, sec, wday, yday, year
 character(len=256), protected :: HomeDir, MolcasDir, ProgName, RealName, Shell, SuperName, UserName
 character(len=*), parameter :: Month(12) = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], &
                                Weekday(7) = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 
-public :: HomeDir, hour, init_UnixInfo, isdst, mday, mins, MolcasDir, mon, Month, pid, ppid, ProgName, RealName, sec, Shell, &
-          SuperName, UserName, wday, Weekday, yday, year
+public :: Heuer, HomeDir, hour, init_UnixInfo, isdst, mday, mins, MolcasDir, mon, Month, pid, ppid, ProgName, RealName, sec, &
+          Shell, SuperName, UserName, wday, Weekday, yday, year
 
 contains
 

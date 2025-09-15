@@ -41,9 +41,6 @@ public :: IsInMem
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: fe_cptr2loff
-end interface
 interface mma_allocate
   module procedure :: fe_mma_allo_1D, fe_mma_allo_1D_lim
 end interface
@@ -420,11 +417,8 @@ end subroutine PrgmCache
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define fe_cptr2loff, fe_mma_allo_1D, fe_mma_allo_1D_lim, fe_mma_free_1D
+! Define fe_mma_allo_1D, fe_mma_allo_1D_lim, fe_mma_free_1D
 #define _TYPE_ type(FileEntry)
-#  define _FUNC_NAME_ fe_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ fe_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'fe_mma'

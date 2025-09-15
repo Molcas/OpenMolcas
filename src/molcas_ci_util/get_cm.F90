@@ -137,7 +137,7 @@ do iAlpha=NPCNF+1,NCONF
   !CNHCNM(:) = Zero
   call cwtime(C_computeH_AB1,W_computeH_AB1)
   if (NTEST >= 30) write(u6,*) 'iAlpha = ',iAlpha
-  call GETCNF_LUCIA(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
+  call GETCNF(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
   NCSFA = NCSFTP(IATYP)
   if (NTEST >= 30) write(u6,*) 'NCSFA = ',NCSFA
   !*********************************************************************
@@ -161,7 +161,7 @@ do iAlpha=NPCNF+1,NCONF
     if (NTEST >= 30) then
       write(u6,*) 'Mindex in AB-Block',Mindex
     end if
-    call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
+    call GETCNF(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFL = NCSFTP(ILTYP)
     if (NTEST >= 30) write(u6,*) 'NCSFL = ',NCSFL
     call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)

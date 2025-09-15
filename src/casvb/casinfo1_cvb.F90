@@ -27,7 +27,7 @@ call f_inquire('JOBOLD',oldex)
 if (iphex) then
   write(u6,'(/,a)') ' Using JOBIPH interface file.'
   call Copy_JobIph('JOBIPH','JOBOLD')
-elseif (oldex) then
+else if (oldex) then
   write(u6,'(/,a)') ' Using JOBOLD interface file.'
   call Copy_JobIph('JOBOLD','JOBIPH')
 else

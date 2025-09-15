@@ -15,109 +15,112 @@
 !>   Determine whether orbital files should be read, etc.
 !>
 !> @details
-!> Sets values in common blocks in timers.fh and the modules
-!> rasscf_global.F90 and general_data.F90
+!> Sets values in the modules timers, rasscf_global and general_data.
 !***********************************************************************
 
 subroutine mcpdft_init()
-  use constants,only:zero,one
-  use definitions,only:iwp
-  Use Fock_util_global,only:DoCholesky
-  Use Cholesky,only:ChFracMem
-  use mcpdft_output,only:set_print_level
-  use general_data,only:ispin,nactel,nelec3,nhole1,stsym,nfro,nish,nash,nrs1,nrs2,nrs3,nssh,ndel,nbas
-  use rasscf_global,only:iroot,weight,DFTFOCK,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,TITLE,iXSym,iTRI
 
-  implicit none
+use Fock_util_global, only: DoCholesky
+use Cholesky, only: ChFracMem
+use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
+                  TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
+use mcpdft_output, only: set_print_level
+use general_data, only: ispin, nactel, nash, nbas, ndel, nelec3, nfro, nhole1, nish, nrs1, nrs2, nrs3, nssh, stsym
+use rasscf_global, only: DFTFOCK, ExFac, IPT2, iroot, iTRI, iTRIM, iXSym, lROOTS, NonEq, NROOTS, TITLE, weight
+use Constants, only: Zero, One
+use Definitions, only: iwp
+#ifdef _MOLCAS_MPP_
+use Definitions, only: wp
+#endif
 
-#include "timers.fh"
+implicit none
+integer(kind=iwp) :: i
 
-  integer(kind=iwp) :: i
 !----------------------------------------------------------------------*
 
 ! Set print levels, and adjust them if needed:
-  call set_print_level()
+call set_print_level()
 
 ! Cholesky-related settings:
-  Call DecideOnCholesky(DoCholesky)
+call DecideOnCholesky(DoCholesky)
 
 #ifdef _MOLCAS_MPP_
-  ChFracMem = 0.3d0
+ChFracMem = 0.3_wp
 #else
-  ChFracMem = zero
+ChFracMem = Zero
 #endif
 
 ! Default title line:
-  TITLE(1) = '(No title given)'
+TITLE(1) = '(No title given)'
 
 ! number of roots required in CI
-  NROOTS = 1
+NROOTS = 1
 ! number of roots actually used in CI-DAVIDSON
-  LROOTS = 1
+LROOTS = 1
 ! sequence numbers for roots in CI counted from lowest energy.
-  iRoot = 0
-  IROOT(1) = 1
+iRoot = 0
+IROOT(1) = 1
 ! weights used for average energy calculations
-  WEIGHT = zero
-  WEIGHT(1) = one
+WEIGHT = Zero
+WEIGHT(1) = One
 
 ! Default value for type of CASSCF (used for DFT)
-  DFTFOCK = "ROKS"
-  ExFac = zero
+DFTFOCK = 'ROKS'
+ExFac = Zero
 
 ! default spin value (singlet)
-  ISPIN = 1
+ISPIN = 1
 ! default symmetry
-  STSYM = 1
+STSYM = 1
 ! default number of active electrons
-  NACTEL = 0
+NACTEL = 0
 ! default maximum number of holes in RAS1
-  NHOLE1 = 0
+NHOLE1 = 0
 ! default maximum number of electrons in RAS3
-  NELEC3 = 0
+NELEC3 = 0
 ! This run will not be the start for a CASPT2 calculation
-  IPT2 = 0
+IPT2 = 0
 
 ! These keys will activate the calculation of the high
 ! frequency contribution to the reaction field
 ! ???
 ! This key controls if a non-equilibrium reaction field
 ! calculation is performed.
-  NonEq = .False.
+NonEq = .false.
 
 ! set default values for orbitals
-  nFro(:) = 0
-  nIsh(:) = 0
-  nAsh(:) = 0
-  nRs1(:) = 0
-  NRS2(:) = 0
-  NRS3(:) = 0
-  NSSH(:) = 0
-  NDEL(:) = 0
-  NBAS(:) = 0
-  ixsym(:) = 0
+nFro(:) = 0
+nIsh(:) = 0
+nAsh(:) = 0
+nRs1(:) = 0
+NRS2(:) = 0
+NRS3(:) = 0
+NSSH(:) = 0
+NDEL(:) = 0
+NBAS(:) = 0
+ixsym(:) = 0
 
-!     Auxiliary vector ITRI(I)=I*(I-1)/2
-  do I = 2,ITRIM
-    ITRI(I) = ITRI(I-1)+I-1
-  enddo
+! Auxiliary vector ITRI(I)=I*(I-1)/2
+do I=2,ITRIM
+  ITRI(I) = ITRI(I-1)+I-1
+end do
 
 ! Initialize Timing Variables
-  Ebel_3 = zero
-  Eterna_3 = zero
-  Rado_3 = zero
-  Rolex_3 = zero
-  Omega_3 = zero
-  Tissot_3 = zero
-  Piaget_3 = zero
-  Candino_3 = zero
-  Fortis_3 = Zero
-  Zenith_3 = zero
-  Gucci_3 = zero
-  Alfex_3 = zero
-  WTC_3 = zero
-  Longines_3 = zero
-  Oris_2 = zero
-  Movado_2 = Zero
+TimeTotal = Zero
+TimeInput = Zero
+TimeWfn = Zero
+TimeDens = Zero
+TimeSigma = Zero
+TimeHSel = Zero
+TimeHDiag = Zero
+TimeFock = Zero
+TimeAoMo = Zero
+TimeTrans = Zero
+TimeCIOpt = Zero
+TimeOrb = Zero
+TimeDavid = Zero
+TimePage = Zero
+TimeHCSCE = Zero
+TimeRelax = Zero
 
-END
+end subroutine mcpdft_init

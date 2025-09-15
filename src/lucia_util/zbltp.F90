@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine ZBLTP(ISMOST,MAXSYM,IDC,ICBLTP,IMMLST)
+subroutine ZBLTP(ISM,MAXSYM,IDC,ICBLTP,IMMLST)
 ! Generate vector ICBLTP giving type of each block
 !
 ! ICBLTP gives type of symmetry block :
@@ -18,13 +18,14 @@ subroutine ZBLTP(ISMOST,MAXSYM,IDC,ICBLTP,IMMLST)
 ! = 1 : symmetry block is included, all OO types
 ! = 2 : symmetry block is included, lower OO types
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: MAXSYM, ISMOST(MAXSYM), IDC, IMMLST(MAXSYM)
+integer(kind=iwp), intent(in) :: ISM, MAXSYM, IDC, IMMLST(MAXSYM)
 integer(kind=iwp), intent(out) :: ICBLTP(MAXSYM)
 integer(kind=iwp) :: IASYM, IBSYM
 
@@ -32,7 +33,7 @@ integer(kind=iwp) :: IASYM, IBSYM
 if (IDC <= 2) then
   ! No spatial degeneracy
   do IASYM=1,MAXSYM
-    IBSYM = ISMOST(IASYM)
+    IBSYM = Mul(IASYM,ISM)
     if ((IDC == 2) .and. (IBSYM > IASYM)) then
       ! Symmetry block excluded
       ICBLTP(IASYM) = 0
@@ -47,7 +48,7 @@ if (IDC <= 2) then
 else
   ! Also spatial degeneracy
   do IASYM=1,MAXSYM
-    IBSYM = ISMOST(IASYM)
+    IBSYM = Mul(IASYM,ISM)
     if (IBSYM == 0) cycle
     if ((((IDC == 2) .or. (IDC == 4)) .and. (IBSYM > IASYM)) .or. ((IDC == 3) .and. (IMMLST(IASYM) > IASYM))) then
       ! Symmetry block excluded

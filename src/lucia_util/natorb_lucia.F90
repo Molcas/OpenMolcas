@@ -69,7 +69,7 @@ do ISMOB=1,NSMOB
   !    TRIPAK(AUTPAK,APAK,MATDIM,NDIM)
   call TRIPAK(RHO1SM(IMTOFF),SCR,LOB,LOB)
   ! scale with -1 to get highest occupation numbers as first eigenvectors
-  SCR(1:nTri_Elem(LOB)) = -SCR(1:nTri_ELem(LOB))
+  SCR(1:nTri_Elem(LOB)) = -SCR(1:nTri_Elem(LOB))
   call unitmat(XNAT(IMTOFF),LOB)
   call NIDiag(SCR,XNAT(IMTOFF),LOB,LOB)
   call JACORD(SCR,XNAT(IMTOFF),LOB,LOB)

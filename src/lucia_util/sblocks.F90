@@ -11,9 +11,9 @@
 ! Copyright (C) 1991,1999, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST, &
-                   NSMOB,NOBPTS,MXPNGAS,MAXK,MAXI,XINT,CSCR,SSCR,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,IDOH2,ISTRFL,PS,LUC,ICJKAIB, &
-                   CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,IRESTRICT,ICONSPA,ICONSPB,SCLFAC,IH0SPC, &
+subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSM,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB, &
+                   NOBPTS,MXPNGAS,MAXK,MAXI,XINT,CSCR,SSCR,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,IDOH2,ISTRFL,PS,LUC,ICJKAIB,CJRES, &
+                   SIRES,I3,XI3S,I4,XI4S,MOCAA,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,IRESTRICT,ICONSPA,ICONSPB,SCLFAC,IH0SPC, &
                    ICBAT_RES,ICBAT_INI,ICBAT_END,IPHGAS,I_RES_AB)
 ! SUBROUTINE SBLOCKS --> 91
 !
@@ -34,24 +34,24 @@ subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,NSSOA,NSSOB,NAEL,IAGRP
 !   ISBLOCK(4,*) : Offset of block
 !
 ! ICOCOC : Allowed type combinations for C
-! ICSMOS : Symmetry array for C
-! NACOB : Number of active orbitals
-! NSSOA : Number of strings per type and symmetry for alpha strings
-! NAEL  : Number of active alpha electrons
-! NSSOB : Number of strings per type and symmetry for beta strings
-! NBEL  : Number of active beta electrons
-! NTSOB : Number of orbitals per type and symmetry
-! NOBPTS: Orbitals of given type and symmetry
+! ICSM   : Symmetry for C
+! NACOB  : Number of active orbitals
+! NSSOA  : Number of strings per type and symmetry for alpha strings
+! NAEL   : Number of active alpha electrons
+! NSSOB  : Number of strings per type and symmetry for beta strings
+! NBEL   : Number of active beta electrons
+! NTSOB  : Number of orbitals per type and symmetry
+! NOBPTS : Orbitals of given type and symmetry
 !
-! MAXIJ : Largest allowed number of orbital pairs treated simultaneously
-! MAXK  : Largest number of N-2,N-1 strings treated simultaneously
-! MAXI  : Max number of N strings treated simultaneously
+! MAXIJ  : Largest allowed number of orbital pairs treated simultaneously
+! MAXK   : Largest number of N-2,N-1 strings treated simultaneously
+! MAXI   : Max number of N strings treated simultaneously
 !
-! LI : Length of scratch array for integrals
-! LS : Length of scratch array for S
-! XINT : Scratch array for integrals
-! CSCR : Scratch array for C vector
-! SSCR : Scratch array for S vector
+! LI     : Length of scratch array for integrals
+! LS     : Length of scratch array for S
+! XINT   : Scratch array for integrals
+! CSCR   : Scratch array for C vector
+! SSCR   : Scratch array for S vector
 !
 ! ICJKAIB = 1 => construct C(Ka,Jb,j) and S(Ka,IB,i) as intermediate terms
 !         = 0 => do not construct the above montioned matrices
@@ -75,9 +75,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: NSBLOCK, ISBLOCK(8,*), NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), NSMST, ICSMOS(NSMST), &
-                                 NSSOA(NSMST,*), NSSOB(NSMST,*), NAEL, IAGRP, NBEL, IBGRP, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,*), &
-                                 MAXK, MAXI, NGAS, NELFSPGP(MXPNGAS,*), IDC, IDOH2, ISTRFL(*), LUC, ICJKAIB, MOCAA, IRESTRICT, &
+integer(kind=iwp), intent(in) :: NSBLOCK, ISBLOCK(8,*), NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), NSMST, ICSM, NSSOA(NSMST,*), &
+                                 NSSOB(NSMST,*), NAEL, IAGRP, NBEL, IBGRP, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,*), MAXK, MAXI, NGAS, &
+                                 NELFSPGP(MXPNGAS,*), IDC, IDOH2, ISTRFL(*), LUC, ICJKAIB, MOCAA, IRESTRICT, &
                                  ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB), IH0SPC(NOCTPA,NOCTPB), ICBAT_RES, ICBAT_INI, &
                                  ICBAT_END, IPHGAS(*), I_RES_AB
 real(kind=wp), intent(inout) :: CB(*), SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
@@ -129,7 +129,7 @@ call WRTVCD(CB,LUC,1,-1)
 ! 1 : Arrays for accessing C
 ! ==========================
 ! Find batches of C - strings
-call PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,ICOCOC,ICSMOS,NCBATCH,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,0)
+call PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,ICOCOC,ICSM,NCBATCH,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,0)
 ! Find the active blocks on LUC, store info in SCLFAC
 call FIND_ACTIVE_BLOCKS(LUC,-1,SCLFAC,CB)
 

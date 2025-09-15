@@ -514,7 +514,7 @@ C
 C     This routine performs a simple check with the obtained spin functions,
 C     in order to determine the phase of the spin functions.
 C     IF the phase is not the same, then the spin functions will be multiplied
-C     with the correspondind coefficient that sets the same phase to all spin
+C     with the corresponding coefficient that sets the same phase to all spin
 C     eigenfunctions
 C
 
@@ -831,7 +831,7 @@ c set the main Z axis:
            maxes(i,3)=Z(i,1)
            maxes(i,1)=Z(i,3)
            enddo
-         elseif(Z(3,1).lt.0.0d0) then
+         else if(Z(3,1).lt.0.0d0) then
            do i=1,3
            maxes(i,3)=-1.d0*Z(i,1)
            maxes(i,1)=Z(i,3)
@@ -841,7 +841,7 @@ c set the main Z axis:
            maxes(2,2)=maxes(1,1)*maxes(3,3)-maxes(1,3)*maxes(3,1)
            maxes(3,2)=maxes(1,3)*maxes(2,1)-maxes(1,1)*maxes(2,3)
 
-      elseif(diff23.gt.diff12) then
+      else if(diff23.gt.diff12) then
       gtens(3)=MAIN(3)
       gtens(2)=MAIN(2)
       gtens(1)=MAIN(1)
@@ -850,7 +850,7 @@ c set the main Z axis:
            maxes(i,3)=Z(i,3)
            maxes(i,1)=Z(i,1)
            enddo
-         elseif(Z(3,3).lt.0.0d0) then
+         else if(Z(3,3).lt.0.0d0) then
            do i=1,3
            maxes(i,3)=-1.d0*Z(i,3)
            maxes(i,1)=Z(i,1)

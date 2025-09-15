@@ -138,12 +138,6 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Get the memory size available
-
-call SetMem('Clear=Off')
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 ! If Seward is run in S_mode most of the input is already on the
 ! runfile. If Seward is run in GS_Mode it will handle the input and
 ! runfile in the conventional way.

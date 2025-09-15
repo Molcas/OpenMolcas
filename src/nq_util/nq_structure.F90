@@ -50,9 +50,6 @@ public :: Close_Info_Ang, Close_NQ_Data, Info_Ang, LMax_NQ, NQ_data, Open_NQ_Dat
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: nqd_cptr2loff
-end interface
 interface mma_allocate
   module procedure :: nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim
 end interface
@@ -106,13 +103,10 @@ end subroutine Close_NQ_Data
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define nqd_cptr2loff, nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim, nqdata_mma_free_1D
+! Define nqdata_mma_allo_1D, nqdata_mma_allo_1D_lim, nqdata_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(NQ_data_t)
 #  define _NO_GARBLE_
-#  define _FUNC_NAME_ nqd_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ nqdata_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'nqd_mma'
@@ -120,7 +114,6 @@ end subroutine Close_NQ_Data
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
-#  undef _NO_GARBLE_
 #undef _TYPE_
 
 end module NQ_Structure

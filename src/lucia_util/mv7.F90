@@ -16,8 +16,8 @@ subroutine MV7(C,HC,LUC,LUHC)
 ! Written in terms of RASG3/SBLOCK, May 1997
 
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, ISMOST, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, NIRREP, NOCTYP, &
-                      NSTSO, PSSIGN, XISPSM
+use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, NIRREP, NOCTYP, NSTSO, &
+                      PSSIGN, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -55,7 +55,7 @@ else
 end if
 ! Arrays giving block type
 call mma_allocate(CBLTP,NIRREP,Label='CBLTP')
-call ZBLTP(ISMOST(:,ISSM),NIRREP,IDC,CBLTP,SVST)
+call ZBLTP(ISSM,NIRREP,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 ! Arrays for partitioning of sigma
 NTTS = MXNTTS
@@ -75,7 +75,7 @@ if (ENVIRO == 'RASSCF') then
   LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
   if (PSSIGN /= Zero) LBLOCK = int(2*XISPSM(IREFSM,1))
 end if
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,SIOIO,ISSM,NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
 call mma_deallocate(SIOIO)
 call mma_deallocate(CBLTP)
 

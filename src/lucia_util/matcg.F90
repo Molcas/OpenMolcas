@@ -22,12 +22,10 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
-#include "intent.fh"
-
 implicit none
 integer(kind=iwp), intent(in) :: NROWI, NROWO, IROWI1, NGCOL, IGAT(NGCOL)
 real(kind=wp), intent(in) :: CIN(NROWI,*), GATSGN(NGCOL)
-real(kind=wp), intent(_OUT_) :: COUT(NROWO,NGCOL)
+real(kind=wp), intent(out) :: COUT(NROWO,NGCOL)
 integer(kind=iwp) :: IG, IGFRM
 real(kind=wp) :: SGN
 

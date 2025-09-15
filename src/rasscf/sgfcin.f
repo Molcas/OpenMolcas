@@ -52,6 +52,7 @@
       use fciqmc, only: DoNECI
       use CC_CI_mod, only: Do_CC_CI
 
+      use timers, only: TimeDens
       use lucia_data, only: INT1, INT1O
       use rasscf_global, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
      &    noneq, potnuc, rfpert,
@@ -70,8 +71,6 @@
       implicit none
 #include "rasdim.fh"
       Character(LEN=16), Parameter :: ROUTINE='SGFCIN  '
-#include "timers.fh"
-#include "SysDef.fh"
 *
       real*8, intent(in) :: CMO(*), D1I(*), D1A(*)
       real*8, intent(inout) :: FI(*), D1S(*), F(*)
@@ -81,7 +80,7 @@
 *
       real*8, parameter ::  Zero=0.0d0, One=1.0d0
       real*8 :: CASDFT_Funct, dum1, dum2, dum3, dumm(1), Emyn, Eone,
-     &  Erf1, Erf2, Erfx, Etwo,  potnuc_ref, dDot_
+     &  Erf1, Erf2, Erfx, Etwo,  potnuc_ref, Time(2)
       integer :: i, iadd, ibas, icharge, iComp,
      &  ioff, iopt, iprlev, ntmpfck,
      &  irc, iSyLbl, iSym, iTu, j,
@@ -91,6 +90,7 @@
      &                      Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:),
      &                      Tmpz(:), X0(:), X1(:), X2(:),
      &                      X3(:)
+      real*8, external :: dDot_
 
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
@@ -248,7 +248,7 @@ C Local print level (if any)
         Dff=.False.
         Do_DFT=.True.
 
-        Call Timing(Rado_1,dum1,dum2,dum3)
+        Call Timing(Time(1),dum1,dum2,dum3)
 
         Call DrvXV(Tmp5,Tmp6,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
@@ -266,9 +266,8 @@ C Local print level (if any)
             iOff = iOff + (iBas*iBas+iBas)/2
           End Do
         End If
-        Call Timing(Rado_2,dum1,dum2,dum3)
-        Rado_2 = Rado_2 - Rado_1
-        Rado_3 = Rado_3 + Rado_2
+        Call Timing(Time(2),dum1,dum2,dum3)
+        TimeDens = TimeDens + Time(2) - Time(1)
 
 
         ERF1=Zero

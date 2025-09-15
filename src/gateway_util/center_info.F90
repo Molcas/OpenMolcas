@@ -51,9 +51,6 @@ type(Distinct_centers), allocatable :: dc(:)
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: dc_cptr2loff
-end interface
 interface mma_Allocate
   module procedure :: dc_mma_allo_1D, dc_mma_allo_1D_lim
 end interface
@@ -265,13 +262,10 @@ end subroutine Center_Info_Free
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define dc_cptr2loff, dc_mma_allo_1D, dc_mma_allo_1D_lim, dc_mma_free_1D
+! Define dc_mma_allo_1D, dc_mma_allo_1D_lim, dc_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(Distinct_centers)
 #  define _NO_GARBLE_
-#  define _FUNC_NAME_ dc_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ dc_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'dc_mma'
@@ -279,7 +273,6 @@ end subroutine Center_Info_Free
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
-#  undef _NO_GARBLE_
 #undef _TYPE_
 
 end module Center_Info

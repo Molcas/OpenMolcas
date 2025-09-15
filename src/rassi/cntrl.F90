@@ -32,12 +32,12 @@ Private mxRef,mxIter,mxCiIt,mxSxIt,mxTit
   INTEGER NRNATO,NBINA,IBINA(2,MxRoot)
   INTEGER LSYM1,LSYM2,NCONF1,NCONF2
   INTEGER LCI1,LCI2,LCI3,LGAM1,LGAM2,LGAM3,LIPAIR
-  INTEGER NTSTEP,NBSTEP,LOOPDIVIDE
+  INTEGER NTSTEP,NBSTEP,LOOPDIVIDE,LOOPMAX
   INTEGER DYSEXPSF,DYSEXPSO
   INTEGER OCAN,DCHO
   CHARACTER(LEN=16) :: OCAA(20)
 ! BP - SO Natural orbital information
-! RF - SO Natural transition orbital infomation
+! RF - SO Natural transition orbital information
 ! IFARGU           Do phase factor for SO-NTOs
 ! IFCURD           Do current density stuff
 ! Do_TMOM          Do (exact) Transition MOMents

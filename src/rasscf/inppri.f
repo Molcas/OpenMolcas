@@ -70,7 +70,7 @@
       use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
      &                        NSEL,NTOT1,NASH,NBAS,NDEL,NFRO,NISH,
      &                        NRS1,NRS2,NRS3,NSSH
-      use spinfo, only: NCSASM,NDTASM
+      use spinfo, only: DoComb,NCNFTP,NCSASM,NDTASM,NDTFTP
       use spinfo, only: I_ELIMINATE_GAS_MOLCAS,NCSF_HEXS
 
       Implicit None
@@ -362,8 +362,15 @@ C.. for GAS
           Write(LF,Fmt2//'A,T40,I11)')'Number of highly excited CSFs',
      &                           nCSF_HEXS
         EndIf
-        Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
-     &                           NDTASM(STSYM)
+        If (DoComb) Then
+          Write(LF,Fmt2//'A,T40,I11)')'Number of spin combinations',
+     &                                NDTASM(STSYM)
+          Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
+     &                         2*NDTASM(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)
+        Else
+          Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
+     &                                NDTASM(STSYM)
+        EndIf
       end if
         n_Det=2
         n_unpaired_elec=(iSpin-1)

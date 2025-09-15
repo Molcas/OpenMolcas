@@ -313,7 +313,7 @@ subroutine refwfn_data
         write(u6,*) ' Program error?? Must stop.'
         call ABEND()
       end if
-      ! This should be solved elsewhere in the code...just for the now,
+      ! This should be solved elsewhere in the code...just for now,
       ! make a write of a CI vector to LUCIEX, so other routines do not get
       ! their knickers into a twist:
       NCONF = 1

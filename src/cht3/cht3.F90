@@ -112,7 +112,7 @@ write(u6,*)
 write(u6,'(A,i13,A,f9.1,A,f5.1,A)') ' Memory available for (T) calc = ',maxspace-1,' in r*8 Words', &
                                     real((maxspace-1)*8,kind=wp)/kb**2,' Mb',real((maxspace-1)*8,kind=wp)/kb**3,' Gb'
 
-!mp call GetMem('t3_ampl_bti','Allo','Real',ioff,1)
+!mp call mma_allocate(t3,1,Label='t3_ampl_bti')
 !mp ioff = ioff+1
 !mp !write(u6,*) 'ioe   = ',ioe
 !mp !write(u6,*) 'ioeh  = ',ioeh
@@ -142,7 +142,7 @@ call mma_deallocate(OE)
 call mma_deallocate(oeh)
 call mma_deallocate(oep)
 !mp ioff = ioff-1
-!mp call GetMem('t3_ampl_bti','Free','Real',ioff,1)
+!mp call mma_deallocate(t3)
 
 call mma_deallocate(DimGrpaR)
 call mma_deallocate(L1Name)
