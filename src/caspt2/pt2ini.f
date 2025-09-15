@@ -93,7 +93,7 @@ C     Cholesky
       if (DMRG) then
         ! set the lattice length (i.e. the active space size)
         qcmaquis_param%L = nasht
-        if (iprglb.ge.debug) then
+        if (iPrGlb >= debug) then
           write(6,*) 'PT2INI> qcmaquis_param%L = ', qcmaquis_param%L
         end if
       end if

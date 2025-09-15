@@ -20,7 +20,7 @@ subroutine procinp_caspt2
                              if_invar, iRoot1, iRoot2, if_invaria, &
                              ConvInvar, if_SSDM
   use caspt2_global, only: IDCIEX
-  use PrintLevel, only: terse
+  use PrintLevel, only: terse, verbose
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
@@ -482,21 +482,30 @@ subroutine procinp_caspt2
 
 #ifdef _DMRG_
   if (DMRG) then
+    ! just exit if somebody tries to do QD-CASPT2 with DMRG
+    if (IFMSCOUP) then
+      call WarningMessage(2,'Couplings with DMRG-CASPT2 not supported')
+      call Quit_OnUserError()
+    end if
+
     ! set OpenMolcas environment variables
     call getenv('Project', qcmaquis_param%project_name)
     call getenv('WorkDir', qcmaquis_param%workdir)
+
     ! save checkpoint paths for all states
-    call mma_allocate(dmrg_file%qcmaquis_checkpoint_file,nstate)
-    write(6,*) 'PROCINP> Setting checkpoint file paths...'
-    do i = 1,nstate
+    call mma_allocate(dmrg_file%qcmaquis_checkpoint_file, nstate)
+    do i = 1, nstate
       dmrg_file%qcmaquis_checkpoint_file(i) = &
       trim(qcmaquis_param%workdir)//'/'//qcm_group_names(1)%states(mstate(i))
-      write(6,*) 'PROCINP> ', dmrg_file%qcmaquis_checkpoint_file(i)
     end do
+
     ! initialize the interface using a checkpoint file
-    write(6,*) 'PROCINP> Initializing DMRG interface...'
+    if (iPrGlb >= verbose) then
+      write(6,*) 'PROCINP initializing QCMaquis DMRG interface...'
+    end if
     call qcmaquis_interface_init_checkpoint(dmrg_file%qcmaquis_checkpoint_file(1))
-    ! removed all measurements just to be sure
+
+    ! remove all measurements just to be sure
     call qcmaquis_interface_remove_param('MEASURE[1rdm]')
     call qcmaquis_interface_remove_param('MEASURE[2rdm]')
     call qcmaquis_interface_remove_param('MEASURE[3rdm]')

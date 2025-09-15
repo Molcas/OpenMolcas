@@ -237,7 +237,7 @@ C Finally, loop again over symmetries, transforming the CI:
      &      logical(.false., c_bool))
           do I=1,NSTATE
             if (JSTATE .ne. I) then
-             write(*,*) ">QCMAQUIS: Rotating TRANS RDMs", JSTATE-1, I-1
+              write(6,*) "QCMaquis> Rotating tRDMs", JSTATE-1, I-1
             CALL qcmaquis_interface_rotate_rdms(int(JSTATE-1, c_int),
      &          int(I-1, c_int), int(0, c_int), XMAT,
      &          logical(.false., c_bool))

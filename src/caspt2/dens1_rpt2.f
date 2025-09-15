@@ -63,7 +63,9 @@
 
 #ifdef _DMRG_
       if (DMRG) then
-        write (6,*) 'DENS1_RPT2> Calculating 1RDM...'
+        if (iPrGlb >= debug) then
+            write (6,*) 'DENS1_RPT2> Calculating 1RDM...'
+        end if
         call qcmaquis_interface_get_1rdm_full(G1)
         goto 99
       end if
