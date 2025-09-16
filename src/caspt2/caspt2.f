@@ -85,7 +85,10 @@ C
      &       TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14,
      &          CPE,CPUTOT,TIOE,TIOTOT
 * Indices
-      INTEGER I, J
+      INTEGER I
+#ifdef _DMRG_
+      integer J
+#endif
       INTEGER ISTATE
       INTEGER IGROUP,JSTATE_OFF
 * Convergence check

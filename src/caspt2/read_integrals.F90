@@ -13,18 +13,16 @@
 
 subroutine read_integrals()
 
-! use Symmetry_Info, only: Mul
-! use general_data, only: LUINTM, nAsh, nSym, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
-! use Cho_Tra, only: nOsh
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use caspt2_global, only: FIMO
-
+use caspt2_global, only: FIMO, iPrGlb
+use printLevel, only: debug
 use rasscf_global, only: Emy
-
-use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, qcmaquis_interface_optimize, qcmaquis_interface_set_state, qcmaquis_interface_remove_param
-
+use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, &
+                              qcmaquis_interface_optimize, &
+                              qcmaquis_interface_set_state, &
+                              qcmaquis_interface_remove_param
 use iso_c_binding, only: c_int
 
 implicit none
@@ -44,14 +42,16 @@ real*8, dimension(:), allocatable :: values
 integer :: arr_size = 0
 integer :: max_index2
 ! Offset for values and indices array
-integer(c_int) :: offset_integrals
+integer :: offset
 real*8 , parameter                :: threshold = 1.0d-16
 integer NACPAR, NACPR2
 
-write(*,*) "=== QCM: Rotating Orbitals to SS === "
+write(u6,*) "=== QCM: Rotating Orbitals to SS === "
 
-write(u6,*) 'ERI in MO-basis'
-write(u6,*) '---------------'
+if (iPrGlb >= debug) then
+  write(u6,*) 'ERI in MO-basis'
+  write(u6,*) '---------------'
+end if
 
 NACPAR = (nAshT*(nAshT + 1))/2
 NACPR2 = (NACPAR*(NACPAR + 1))/2
@@ -63,14 +63,12 @@ arr_size = 1 & ! core energy
              + max_index2 & ! one-electron integrals
              + max_index2*(max_index2+1)/2 ! two-electron integrals
 call mma_allocate(indices, 4*arr_size)
-indices=0
+indices(:) = 0
 call mma_allocate(values, arr_size)
-values=0.0d0
-
-write(*,*) "(VX|TU)"
+values(:) = 0.0d0
 
 ! Two Body
-offset_integrals = 1
+offset = 1
 do tSym=1,nSym
   t_nFro = nFro(tSym)
   t_nIsh = nIsh(tSym)
@@ -91,12 +89,14 @@ do tSym=1,nSym
     ERI(:,:) = Zero
     SCR(:,:) = Zero
 
-    write(u6,*) ' tSym = ', tSym, ' uSym = ', uSym
-    write(u6,*) ' t_nFro = ', t_nFro, ' u_nFro = ', u_nFro
-    write(u6,*) ' t_nIsh = ', t_nIsh, ' u_nIsh = ', u_nIsh
-    write(u6,*) ' t_nAsh = ', t_nAsh, ' u_nAsh = ', u_nAsh
-    write(u6,*) ' t_nOsh = ', t_nOsh, ' u_nOsh = ', u_nOsh
-    write(u6,*) ' t_nOrb = ', t_nOrb, ' u_nOrb = ', u_nOrb
+    if (iPrGlb >= debug) then
+      write(u6,*) ' tSym = ', tSym, ' uSym = ', uSym
+      write(u6,*) ' t_nFro = ', t_nFro, ' u_nFro = ', u_nFro
+      write(u6,*) ' t_nIsh = ', t_nIsh, ' u_nIsh = ', u_nIsh
+      write(u6,*) ' t_nAsh = ', t_nAsh, ' u_nAsh = ', u_nAsh
+      write(u6,*) ' t_nOsh = ', t_nOsh, ' u_nOsh = ', u_nOsh
+      write(u6,*) ' t_nOrb = ', t_nOrb, ' u_nOrb = ', u_nOrb
+    end if
 
     do vSym=1,nSym
       v_nIsh = nIsh(vSym)
@@ -129,10 +129,11 @@ do tSym=1,nSym
                 if (dabs(ERI(t,u)) < threshold) then
                   cycle
                 end if
-                values(offset_integrals) = ERI(t,u)
-                indices(4*(offset_integrals-1)+1:4*(offset_integrals-1)+4) = &
-                    (/ v - v_nIsh, x - x_nIsh, t - t_nIsh, u - u_nIsh /)
-                offset_integrals = offset_integrals + 1
+                values(offset) = ERI(t,u)
+                indices(4*(offset-1)+1:4*(offset-1)+4) = &
+                  (/ int(v - v_nIsh, kind=c_int), int(x - x_nIsh, kind=c_int), &
+                     int(t - t_nIsh, kind=c_int), int(u - u_nIsh, kind=c_int) /)
+                offset = offset + 1
               end do
             end do
           end do
@@ -157,20 +158,22 @@ do vSym=1,nSym
       if (dabs(FIMO(n)) < threshold) then
         cycle
       end if
-      values(offset_integrals) = FIMO(n)
-      indices(4*(offset_integrals-1)+1:4*(offset_integrals-1)+4) = (/ t- v_nIsh, u - v_nIsh, 0, 0 /)
-      offset_integrals = offset_integrals + 1
+      values(offset) = FIMO(n)
+      indices(4*(offset-1)+1:4*(offset-1)+4) = &
+      (/ int(t- v_nIsh, kind=c_int), int(u - v_nIsh, kind=c_int), 0_c_int, 0_c_int /)
+      offset = offset + 1
     END DO
   END DO
 END DO
 
 ! Core Energy
-offset_integrals = offset_integrals + 1
-values(offset_integrals) = EMY
-indices(4*(offset_integrals-1)+1:4*(offset_integrals-1)+4) = (/ 0, 0, 0, 0 /)
+offset = offset + 1
+values(offset) = EMY
+indices(4*(offset-1)+1:4*(offset-1)+4) = &
+(/ 0_c_int, 0_c_int, 0_c_int, 0_c_int /)
 
 ! Rotate MPS wavefunction to new orbitals
-call qcmaquis_interface_update_integrals_C(indices, values, int(offset_integrals,c_int))
+call qcmaquis_interface_update_integrals_C(indices, values, int(offset, kind=c_int))
 do n=1,NSTATE
   call qcmaquis_interface_remove_param('MEASURE[trans1rdm]')
   call qcmaquis_interface_remove_param('MEASURE[trans2rdm]')

@@ -47,7 +47,7 @@
      &                         Tot_El_Charge, Tot_Nuc_Charge, via_DFT,
      &                         iRoot, Weight, iCI, cCI, ixSym, iADR15,
      &                         Ener
-#if defined (_ENABLE_CHEMPS2_DMRG_) || defined (_DMRG_)
+#if defined (_ENABLE_CHEMPS2_DMRG_)
       use rasscf_global, only: ThrE
 #endif
 
@@ -99,9 +99,6 @@
 *      DIMENSION NXSYM(mxOrb),nUND(mxOrb)
 
       Integer, External :: Cho_X_GetTol
-#ifdef _DMRG_
-      character(len=100) :: dmrg_start_guess
-#endif
       Real*8 Dum(1)
       Integer iDum(56)
 

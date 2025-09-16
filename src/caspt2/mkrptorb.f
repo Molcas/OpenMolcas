@@ -20,7 +20,9 @@
       use fciqmc_interface, only: DoFCIQMC, NonDiagonal
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
+#if defined(_DMRG_)
       use qcmaquis_interface
+#endif
       IMPLICIT NONE
 #include "caspt2.fh"
 C Transform to orbitals that diagonalize the diagonal
