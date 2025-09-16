@@ -11,7 +11,8 @@
 
 subroutine hefval(ist, jst, dvalue)
   use definitions, only: wp, iwp, u6
-  use caspt2_global, only: luciex, idtcex
+  use caspt2_global, only: luciex, idtcex, iPrGlb
+  use printLevel, only: debug
   use eqsolv
   use stdalloc, only: mma_allocate, mma_deallocate
   implicit none
@@ -76,8 +77,10 @@ subroutine hefval(ist, jst, dvalue)
       end do
     end if
 
-    write(*,*) "=== VANILLA: Building TRANSITION-RDM === "
-    write(*,*) "between bra", ist, " and  ket", jst
+    if (iPrGlb >= debug) then
+      write(u6,*) "=== VANILLA: Building TRANSITION-RDM === "
+      write(u6,*) "between bra", ist, " and  ket", jst
+    end if
     call mktg3(stsym, stsym, ci1, ci2, ovl, tg1, tg2, ntg3, tg3)
     call mma_deallocate(ci1)
     call mma_deallocate(ci2)

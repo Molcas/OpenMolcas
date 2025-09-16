@@ -16,7 +16,9 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
 
   use stdalloc, only: mma_allocate, mma_deallocate
   use qcmaquis_interface
-  use definitions, only: wp, iwp
+  use definitions, only: wp, iwp, u6
+  use caspt2_global, only: iPrGlb
+  use printLevel, only: debug
   use gugx, only: SGS
 
   implicit none
@@ -31,16 +33,16 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
   Real(kind=wp), intent(out) :: tg3(ntg3), ovl
 
   Real(kind=wp), allocatable :: tg3_tmp(:, :, :, :, :, :)
-  Real(kind=wp) :: val
-  Integer(kind=iwp) :: t, u, v, w, x, y, z
+  Integer(kind=iwp) :: t, u, v, x, y, z
   Integer(kind=iwp) :: ituvxyz, sym_sig1, sym_sig2, sym_tau
 
   ! Detecting phase
   Real(kind=wp), allocatable :: tg1_tmp(:, :)
 
-
-  write(*,*) "=== QCM: Building TRANSITION-RDM === "
-  write(*,*) "between bra", state1, " and ket", state2
+  if (iPrGlb >= debug) then
+    write(u6,*) "=== QCM: Building TRANSITION-RDM === "
+    write(u6,*) "between bra", state1, " and ket", state2
+  end if
 
   ! This might be memory hungry
   call mma_allocate(tg3_tmp, nasht, nasht, nasht, nasht, nasht, nasht)
@@ -49,7 +51,7 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
   tg1(:,:) = 0.0
 
   ! Needed to detect phase
-  ! We compute the transition RDM in two ways in order to detect if a phase 
+  ! We compute the transition RDM in two ways in order to detect if a phase
   ! Flip occured whilst optimizing
   call mma_allocate(tg1_tmp, nasht, nasht)
 
@@ -72,27 +74,28 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
   ! TODO: Implement this check, should abort
   ! currently fails as the two TDMs are not always the same
   if (dabs(tg1(1,1)) - dabs(tg1_tmp(1,1)) > 1e-9) then
-    write(*,*) "Internal error: 1-TDM do not correspond to the same state"
-     write(*,*) "TG1:"
-     do u = 1, nasht
-       do t = 1, nasht
-        write(*, '(2I3,2F18.12)') t, u, tg1(t, u), tg1_tmp(t,u)
-       end do
-     end do
-     call exit(1)
-   end if
+    write(u6,*) "Internal error: 1-TDM do not correspond to the same state"
+    write(u6,*) "TG1:"
+    do u = 1, nasht
+      do t = 1, nasht
+        write(u6, '(2I3,2F18.12)') t, u, tg1(t, u), tg1_tmp(t,u)
+      end do
+    end do
+    call exit(1)
+  end if
 
-   ! Rotating MPS or TDM yields different phase different phase
-   if (tg1(1, 1) * tg1_tmp(1,1) < 0.0) then
-    write(*,*) "Phase flip detected: flipping phase"
+  ! Rotating MPS or TDM yields different phase different phase
+  if (tg1(1, 1) * tg1_tmp(1,1) < 0.0) then
+    write(u6,*) "Phase flip detected: flipping phase"
     tg1(:,:) = -1.0 * tg1(:,:)
-    tg2(:,:,:,:) = -1.0 * tg2(:,:,:,:) 
-    tg3_tmp(:,:,:,:,:,:) = -1.0 * tg3_tmp(:,:,:,:,:,:) 
+    tg2(:,:,:,:) = -1.0 * tg2(:,:,:,:)
+    tg3_tmp(:,:,:,:,:,:) = -1.0 * tg3_tmp(:,:,:,:,:,:)
   end if
   call mma_deallocate(tg1_tmp)
 
   ! TODO: compute the overlap, check in the original code how
   ! ovl = qcmaquis_interface_get_overlap_with_ket_bra(int(state1-1, c_int), int(state2-1, c_int))
+  ovl = 0.0_wp
 
   do z = 1, nasht
     do y = 1, nasht
@@ -100,14 +103,14 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
       sym_sig2 = mul(mul(SGS%ism(y), SGS%ism(z)), lsym2)
       do x = 1, nasht
         do v = 1, nasht
-          ! if (y + (z - 1) * nasht  < v + (x - 1) * nasht) then 
+          ! if (y + (z - 1) * nasht  < v + (x - 1) * nasht) then
           !   cycle
           ! end if
           ! symmetry of tau = E_vx|sigma2>
           sym_tau = mul(mul(SGS%ism(x), SGS%ism(v)), sym_sig2)
           do u = 1, nasht
             do t = 1, nasht
-            ! if (v + (x - 1) * nasht  < t + (u - 1) * nasht) then 
+            ! if (v + (x - 1) * nasht  < t + (u - 1) * nasht) then
             !   cycle
             ! end if
               ! symmetry of sigma1 = <Psi1|E_tu
@@ -117,9 +120,6 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
                 ! generate the flat index
                 call get_tg3_index(t, u, v, x, y, z, nasht, ituvxyz)
                 tg3(ituvxyz) = tg3_tmp(t, v, y, u, x, z)
-                ! if (tg3(ituvxyz) > 1e-3) then
-                !   write(*,*) ituvxyz, tg3(ituvxyz)
-                ! end if
               end if
             end do
           end do

@@ -698,26 +698,6 @@ C     so make sure that the _total_ fingerprint is computed
         WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F1:", dF1
         WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F2:", dF2
         WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F3:", dF3
-        write(*,*) "G1:"
-        do it = 1, nasht
-          do iu = 1, nasht
-           write(*, '(2I3,F18.12)') it, iu, G1(it, iu)
-          end do
-        end do
-        write(*,*) "G2:"
-        do it = 1, nasht
-          do iu = 1, nasht
-            do iv = 1, nasht
-              do ix = 1, nasht
-             write(*, '(4I3,F18.12)') it, iu, iv, ix, G2(it, iu, iv, ix)
-              end do
-            end do
-          end do
-        end do
-      !   write(*,*) "G3: "
-      !   do i = 1,ng3
-      !     write(*, '(I3,F18.12)') i, G3(i)
-      !   end do
       ENDIF
 
  999  continue
