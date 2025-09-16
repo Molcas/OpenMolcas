@@ -16,9 +16,10 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
 
    use stdalloc, only: mma_allocate, mma_deallocate
    use qcmaquis_interface
-   use definitions, only: wp, iwp, i1
+   use definitions, only: wp, iwp, i1, u6
+   use printLevel, only: verbose
    use gugx, only: SGS
-   use caspt2_global, only: CompressMPS
+   use caspt2_global, only: CompressMPS, iPrGlb
 
    implicit none
 
@@ -40,7 +41,9 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    call mma_allocate(TG3tmp,nasht,nasht,nasht,nasht,nasht,nasht)
    ! call mma_allocate(G4,n4,nasht,nasht,nasht,nasht,Label='G4')
 
-   write(*,*) ">QCMaquis: Computing RDMs for STATE: ", JSTATE-1
+   if (iPrGlb >= verbose) then
+      write(u6,*) ">QCMaquis: Computing RDMs for STATE: ", JSTATE-1
+   end if
 
    ! Remeasure RDM from rotated MPS
    call qcmaquis_interface_get_1rdm_full(G1)
@@ -54,7 +57,7 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    !   int(JSTATE-1, c_int), G2, int(2, c_int))
    ! call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
    !   int(JSTATE-1, c_int), G3tmp, int(3, c_int))
-   
+
    ! TODO: This should be removed in the future
    TG3tmp = 0.0_wp  ! Initialize TG3tmp to zero
    call qcmaquis_interface_get_fock_contracted_4rdm_full(EPSA, 0)
