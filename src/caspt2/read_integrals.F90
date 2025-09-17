@@ -19,10 +19,12 @@ use Definitions, only: wp, iwp, u6
 use caspt2_global, only: FIMO, iPrGlb
 use printLevel, only: debug
 use rasscf_global, only: Emy
+#if defined(_DMRG_)
 use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, &
                               qcmaquis_interface_optimize, &
                               qcmaquis_interface_set_state, &
                               qcmaquis_interface_remove_param
+#endif
 use iso_c_binding, only: c_int
 
 implicit none
