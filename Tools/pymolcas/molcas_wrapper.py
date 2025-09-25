@@ -92,17 +92,6 @@ hcbanner = '''#
 # MOLCAS_UNIX_SECURE
 # MOLCAS_ZOMBIE
 
-def _copy_any(src, dest):
-    """ Copies either file or directory from src to dest. """
-    if isfile(src):
-        copy2(src, dest)
-    elif isdir(src):
-        # append src name such that dir is copied to subdirectory with same name
-        if basename(dest) != basename(src):
-            dest = join(dest, basename(src))
-        copytree(src, dest)
-    else:
-        raise ValueError(f"Source {src} is neither a file nor a directory.")
 
 
 class MolcasException(Exception):
@@ -1044,6 +1033,18 @@ _rc_match = re_compile(r'\$(\w+)\s*=\s*(\d+)\s*;')
 _emil_newln = re_compile(r'[ \t]*[=][ \t]*')
 _emil_leadb = re_compile(r'^[ \t]*', flags=MULTILINE)
 _emil_endofinput = re_compile(r'^end\s*of\s*input', flags=MULTILINE|IGNORECASE)
+
+def _copy_any(src, dest):
+  """ Copies either file or directory from src to dest. """
+  if isfile(src):
+    copy2(src, dest)
+  elif isdir(src):
+    # append src name such that dir is copied to subdirectory with same name
+    if basename(dest) != basename(src):
+      dest = join(dest, basename(src))
+    copytree(src, dest)
+  else:
+    raise ValueError(f"Source {src} is neither a file nor a directory.")
 
 # TODO: custom .prgm, gracefully fail
 def parse_prgm(prgm_file):
