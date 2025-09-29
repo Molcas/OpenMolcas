@@ -341,7 +341,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
-      use definitions, only: MPIInt,wp
+      use definitions, only: MPIInt,RtoB,wp
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
 
@@ -1148,7 +1148,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
-      use definitions, only: MPIInt,wp
+      use definitions, only: MPIInt,RtoB,wp
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
 
