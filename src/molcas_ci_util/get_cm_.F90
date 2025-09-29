@@ -128,7 +128,7 @@ do iAlpha=NPCNF+1,NCONF
   !CNHCNM(:) = Zero
   call cwtime(C_computeH_AB1,W_computeH_AB1)
   if (NTEST >= 30) write(u6,*) 'iAlpha = ',iAlpha
-  call GETCNF_LUCIA(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
+  call GETCNF(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
   NCSFA = NCSFTP(IATYP)
   if (NTEST >= 30) write(u6,*) 'NCSFA = ',NCSFA
   !*********************************************************************
@@ -150,7 +150,7 @@ do iAlpha=NPCNF+1,NCONF
   do Mindex=1,NPCNF ! Loop over AB-Block
     !CNHCNM(:) = ZEro
     if (NTEST >= 30) write(u6,*) 'Mindex in AB-Block',Mindex
-    call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
+    call GETCNF(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFL = NCSFTP(ILTYP)
     if (NTEST >= 30) write(u6,*) 'NCSFL = ',NCSFL
     call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
@@ -215,7 +215,7 @@ do iAlpha=NPCNF+1,NCONF
     do Mindex=NPCNF+1,NCONF ! Loop over BB-Block
       !CNHCNM(:) = Zero
       !if (NTEST >= 30) write(u6,*) 'Mindex in BB-Block',Mindex
-      call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
+      call GETCNF(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
       NCSFL = NCSFTP(ILTYP)
       !if (NTEST >= 30) write(u6,*) 'NCSFL = ',NCSFL
       call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
@@ -300,7 +300,7 @@ IIAB = 1
 do Mindex=NPCNF+1,NCONF
   !CNHCNM(:) = Zero
   if (NTEST >= 30) write(u6,*) 'Mindex last do loop = ',Mindex
-  call GETCNF_LUCIA(ICNL,IATYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
+  call GETCNF(ICNL,IATYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
   NCSFA = NCSFTP(IATYP)
   if (NTEST >= 30) write(u6,*) 'NCSFA = ',NCSFA
   call CNHCN(ICNL,IATYP,ICNL,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)

@@ -110,7 +110,7 @@ if (Teee) then
   do iSym=1,nSym
     nOrb_AS(1:nD) = 0
     mOrb_AS(1:nD) = 0
-    sum_el(1:nD) = Zero
+    sum_el(:) = Zero
 
     jOrbAS = iOrbAS
     unlikelyOcc = 0.19_wp

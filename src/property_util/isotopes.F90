@@ -70,10 +70,6 @@ public :: MaxAtomNum, Isotope, ElementList, Initialize_Isotopes, Free_Isotopes, 
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: elm_cptr2loff
-  module procedure :: iso_cptr2loff
-end interface
 interface mma_Allocate
   module procedure :: element_mma_allo_1D, element_mma_allo_1D_lim
   module procedure :: isotope_mma_allo_1D, isotope_mma_allo_1D_lim
@@ -82,6 +78,8 @@ interface mma_Deallocate
   module procedure :: element_mma_free_1D
   module procedure :: isotope_mma_free_1D
 end interface
+
+#include "compiler_features.h"
 
 contains
 
@@ -99,7 +97,7 @@ subroutine Initialize_Isotopes()
   integer(kind=iwp), external :: IsFreeUnit
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc(A)
+    subroutine c_null_alloc(A) _BIND_C_
       import :: Iso_t
       type(Iso_t), allocatable :: A(:)
     end subroutine c_null_alloc
@@ -374,11 +372,8 @@ end function NuclideMass
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define elm_cptr2loff, element_mma_allo_1D, element_mma_allo_1D_lim, element_mma_free_1D
+! Define element_mma_allo_1D, element_mma_allo_1D_lim, element_mma_free_1D
 #define _TYPE_ type(element_t)
-#  define _FUNC_NAME_ elm_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ element_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'elm_mma'
@@ -388,11 +383,8 @@ end function NuclideMass
 #  undef _DEF_LABEL_
 #undef _TYPE_
 
-! Define iso_cptr2loff, isotope_mma_allo_1D, isotope_mma_allo_1D_lim, isotope_mma_free_1D
+! Define isotope_mma_allo_1D, isotope_mma_allo_1D_lim, isotope_mma_free_1D
 #define _TYPE_ type(iso_t)
-#  define _FUNC_NAME_ iso_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ isotope_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'iso_mma'

@@ -1024,12 +1024,12 @@ C Write out various input data:
       END IF
       IF(IPGLOB.GE.2) THEN
        IF(NATO.AND.(NRNATO.GT.0)) THEN
-        WRITE(6,*)' Natural orbitals will be computed for the'
-        WRITE(6,*)' lowest eigenstates. NRNATO=',NRNATO
+        WRITE(6,*)' Natural orbitals will be computed for the'//
+     &            ' lowest eigenstates. NRNATO=',NRNATO
        END IF
        IF(BINA) THEN
-        WRITE(6,*)' Bi-natural orbitals will be computed for the'
-        WRITE(6,*)' following pairs of states:'
+        WRITE(6,*)' Bi-natural orbitals will be computed for the'//
+     &            ' following pairs of states:'
         WRITE(6,'(5X,8(2X,A1,I2,A1,I2,A1))')
      &             ('(',IBINA(1,I),',',IBINA(2,I),')',I=1,NBINA)
        END IF

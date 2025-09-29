@@ -13,7 +13,7 @@
 #                                                                      *
 # Copyright (C) 2000-2012, Valera Veryazov                             *
 #               2015, Steven Vancoillie                                *
-#               2017-2020,2023-2024, Ignacio Fdez. Galván              *
+#               2017-2020,2023-2025, Ignacio Fdez. Galván              *
 #***********************************************************************
 #
 # verify
@@ -52,6 +52,9 @@
 #
 # Rearrange for better multiprocessing compatibility
 # Ignacio Fdez. Galván, June 2024
+#
+# Check err file for temporary array creation
+# Ignacio Fdez. Galván, February 2025
 
 import sys
 import os
@@ -239,6 +242,7 @@ def find_all_names_from_group(group):
 
 def special_failure(filename):
   # function to check unprintable chars in a file (previously chkunprint)
+  temparray = re.compile(b'An array temporary was created')
   segfault = re.compile(b'Segmentation *Vio')
   controlchars = re.compile(b'[\x00-\x08\x0E-\x1F]')
   extendedchars = re.compile(b'[\xA0-\xFF].*[\xA0-\xFF].*[\xA0-\xFF]')
@@ -246,6 +250,9 @@ def special_failure(filename):
   try:
     with open(filename, 'rb') as f:
       for line in f:
+        if temparray.search(line):
+          failure = 'temparray'
+          break
         if segfault.search(line):
           failure = 'segfault'
           break
@@ -438,7 +445,7 @@ def run_test(filename, shared):
     if not opt['debug']:
       # check for special cases where the return code might be 0
       # but we should still cause a failure (segfault, garbage)
-      special = special_failure(outfile)
+      special = special_failure(outfile) + special_failure(errfile)
       if special:
         rc = 30
     with shared['lock']:

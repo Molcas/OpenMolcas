@@ -52,9 +52,6 @@ public :: ex1_a, ex1_b, ex1_init, max_LRs, max_ex1a, max_ex1b, max_ex2a, max_ex2
 
 ! Extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: ex1_cptr2loff
-end interface
 interface mma_allocate
   module procedure :: ex1_mma_allo_2D, ex1_mma_allo_2D_lim
 end interface
@@ -421,11 +418,8 @@ end subroutine LRs_init
 ! Extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define ex1_cptr2loff, ex1_mma_allo_2D, ex1_mma_allo_2D_lim, ex1_mma_free_2D
+! Define ex1_mma_allo_2D, ex1_mma_allo_2D_lim, ex1_mma_free_2D
 #define _TYPE_ type(ex1_struct)
-#  define _FUNC_NAME_ ex1_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ ex1_mma
 #  define _DIMENSIONS_ 2
 #  define _DEF_LABEL_ 'ex1_mma'

@@ -53,7 +53,6 @@
 
 #define SFCTR(X) (X - X / 10)
 #define MXLINE 9
-#define PGSIZE 4096
 #define MB 1000000
 #define EMPTYE -1000
 #define PINNED_MEM 999
@@ -61,11 +60,7 @@
 #define SYS_ATIME 0
 #define ALLOC_FLD -2
 #define MINMEMPTR -577777000306848070
-#ifdef _DEBUGPRINT_MEM_
-# define MAXREC 524288
-#else
-# define MAXREC 524288 /* 8192 */
-#endif
+#define MAXREC 524288
 
 #ifdef _MEM_PROF_
 
@@ -99,7 +94,7 @@ struct mentry {
   INT offset;        /* offset relative to Fortran  xWrkSpc arrays */
   INT len;           /* len = numel*dsize(datatype)                */
   INT atime;         /* an unique ID based on the creation time    */
-  void *addr;        /* memory adress returned by malloc           */
+  void *addr;        /* memory address returned by malloc          */
 };
 
 typedef struct mstat mstat;
@@ -111,42 +106,15 @@ struct mstat {
   INT totmem;  /* initial MOLCAS_MEM                         */
 };
 
+enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
+
 mstat MlM = { 0, SYS_ATIME + 1, 0, 0, 0 };
 
-double *dptr;
-float *sptr;
-INT *iptr;
-char *cptr;
+double anchor[1];
+char *cptr = (char *)anchor;
 
 #ifdef _OPENMP
 omp_lock_t mma_lock;
-#endif
-#ifdef _TRACK_
-INT trc_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
-  INT i, j, len, nentry;
-  char *p, *base;
-  ptrdiff_t match = -1, dist = 0;
-
-  p = tmp->addr;
-
-  for (nentry = MM->nmentry, j = 0; j < nentry; j++) {
-    for (base = mentries[j].addr, len = mentries[j].len, i = 0; i < len; i++)
-      if ((match = (&base[i] - p)) == 0)
-        break;
-    if (match == 0)
-      break;
-  }
-
-  if (match == 0) {
-    printf("Tracked %p address belongs to the '%s' memory entry %p of %ld bytes\n", tmp->addr, mentries[j].elbl, mentries[j].addr,
-           LIFMT(mentries[j].len));
-    dist = (mentries[j].addr + mentries[j].len) - tmp->addr;
-  } else {
-    printf("Could not track the %p address\n", tmp->addr);
-  }
-
-  return (dist);
-}
 #endif
 #ifdef _MEM_PROF_
 void anlz_mem(mentry *tgt) {
@@ -165,12 +133,6 @@ void anlz_mem(mentry *tgt) {
     rw = (double *)tgt->addr;
     for (i = 0; i < n; i++)
       if (rw[i] == flRcnst)
-        nusd++;
-    break;
-  case 'S':
-    sw = (float *)tgt->addr;
-    for (i = 0; i < n; i++)
-      if (sw[i] == flScnst)
         nusd++;
     break;
   case 'I':
@@ -207,7 +169,7 @@ INT testmem(INT *MOLCASMEM) {
   return (rc);
 }
 
-INT allocmem(double ref[], INT *intof, INT *dblof, INT *chrof, INT *size) {
+INT allocmem(INT *size) {
   INT rc, MOLCASMEM, MAXMEM;
   char c;
   char *ptr;
@@ -274,13 +236,6 @@ INT allocmem(double ref[], INT *intof, INT *dblof, INT *chrof, INT *size) {
 
   *size = MOLCASMEM / sizeof(double);
 
-  *dblof = *intof = *chrof = 1;
-
-  dptr = ref;
-  sptr = (float *)ref;
-  iptr = (INT *)ref;
-  cptr = (char *)ref;
-
   MlM.avmem = MOLCASMEM;
   MlM.totmem = MOLCASMEM;
 # ifndef _DEMO_
@@ -336,7 +291,7 @@ INT allocmem(double ref[], INT *intof, INT *dblof, INT *chrof, INT *size) {
 #   endif
   }
 # ifdef _DEBUGPRINT_MEM_
-  printf("ref=%p\n", (void *)ref);
+  printf("ref=%p\n", (void *)cptr);
   setvbuf(stdout, NULL, _IOLBF, 0);
 # endif
 # ifdef _OPENMP
@@ -351,9 +306,6 @@ INT dsize(char datatype[]) {
   switch (datatype[0]) {
   case 'R':
     bsize = sizeof(double);
-    break;
-  case 'S':
-    bsize = sizeof(float);
     break;
   case 'I':
     bsize = sizeof(INT);
@@ -395,44 +347,25 @@ void string2UC(char *src, char *dest) {
 }
 
 INT memop(char *op) {
-# ifdef _TRACK_
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL, TRCK };
-# else
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL };
-# endif
   if (strstr(op, "ALLO"))
     return (ALLO);
   if (strstr(op, "FREE"))
     return (FREE);
-  if (strstr(op, "LENG"))
-    return (LENG);
-  if (strstr(op, "CHEC"))
-    return (CHEC);
-  if (strstr(op, "MAX"))
-    return (MAX);
   if (strstr(op, "LIST"))
     return (LIST);
   if (strstr(op, "TERM"))
     return (TERM);
-  if (strstr(op, "FLUS"))
-    return (FLUS);
-  if (strstr(op, "PINN"))
-    return (PINN);
   if (strstr(op, "RGST"))
     return (RGST);
   if (strstr(op, "EXCL"))
     return (EXCL);
-# ifdef _TRACK_
-  if (strstr(op, "TRCK"))
-    return (TRCK);
-# endif
   return (-1);
 }
 
 /*-----------------------------------------------------------------------------*/
 void dump_mentry(char *tag, mentry *curr) {
   if (curr) {
-    printf("MA_DUMP_INFO < %s > name=%s, datatype=%s, offset=%ld (adress=%p), len=%ld\n", tag, curr->elbl, curr->etyp,
+    printf("MA_DUMP_INFO < %s > name=%s, datatype=%s, offset=%ld (address=%p), len=%ld\n", tag, curr->elbl, curr->etyp,
            LIFMT(curr->offset), curr->addr, LIFMT(curr->len));
   } else {
     printf("MA_DUMP_INFO < %s >  EMPTY RECORD!\n", tag);
@@ -480,51 +413,15 @@ INT ismax_mentry(INT i) {
   }
 }
 /*-----------------------------------------------------------------------------*/
-char *woff2cptr(char etyp[], INT offset) {
+void *woff2cptr(INT offset) {
 
-  char *wrkspc = NULL;
-
-  switch (etyp[0]) {
-  case 'R':
-    wrkspc = (char *)&dptr[offset];
-    break;
-  case 'S':
-    wrkspc = (char *)&sptr[offset];
-    break;
-  case 'I':
-    wrkspc = (char *)&iptr[offset];
-    break;
-  case 'C':
-    wrkspc = &cptr[offset];
-    break;
-  default:
-    printf("MMA: not supported datatype %s\n", etyp);
-  }
-  return (wrkspc);
+  return ((void *)&cptr[offset]);
 }
 
 /*-----------------------------------------------------------------------------*/
-INT cptr2woff(char etyp[], void *c_ptr) {
+INT cptr2woff(void *c_ptr) {
 
-  ptrdiff_t dist = UNDEF_MEM;
-
-  switch (etyp[0]) {
-  case 'R':
-    dist = (double *)c_ptr - dptr;
-    break;
-  case 'S':
-    dist = (float *)c_ptr - sptr;
-    break;
-  case 'I':
-    dist = (INT *)c_ptr - iptr;
-    break;
-  case 'C':
-    dist = (char *)c_ptr - cptr;
-    break;
-  default:
-    printf("MMA: not supported datatype %s\n", etyp);
-  }
-  return (dist);
+  return ((INT)((char *)c_ptr - cptr) + 1);
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -599,19 +496,13 @@ INT add_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
 # endif
   switch (tmp->etyp[0]) {
   case 'R':
-    dist = (double *)wrkspc - dptr;
+    dist = (double *)wrkspc - (double *)cptr;
 #   ifdef _MEM_PROF_
     dcopy(&n, &flRcnst, &incx, (double *)wrkspc, &incy);
 #   endif
     break;
-  case 'S':
-    dist = (float *)wrkspc - sptr;
-#   ifdef _MEM_PROF_
-    scopy(&n, &flScnst, &incx, (float *)wrkspc, &incy);
-#   endif
-    break;
   case 'I':
-    dist = (INT *)wrkspc - iptr;
+    dist = (INT *)wrkspc - (INT *)cptr;
 #   ifdef _MEM_PROF_
     icopy(&n, &flIcnst, &incx, (INT *)wrkspc, &incy);
 #   endif
@@ -649,7 +540,7 @@ INT reg_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
   } else {
     MM->mxmem -= tmp->len;
   }
-  newe->addr = woff2cptr(tmp->etyp, tmp->offset);
+  newe->addr = woff2cptr(tmp->offset);
   newe->atime = MM->naccess;
 
 # ifdef _DEBUGPRINT_MEM_
@@ -694,10 +585,10 @@ INT del_mentry(mstat *MM, mentry mentries[], mentry *tmp, INT i) {
 
   wrkspc = tgt->addr;
 # ifdef _DEBUGPRINT_MEM_
-  printf("Deallocating memory %s at adress %p\n", tgt->elbl, wrkspc);
+  printf("Deallocating memory %s at address %p\n", tgt->elbl, wrkspc);
 # endif
 
-  //    printf("Deallocating memory %s at adress %p\n",tgt->elbl, wrkspc);
+  //    printf("Deallocating memory %s at address %p\n",tgt->elbl, wrkspc);
   //    printf("Could you see me? - 00\n"); //yma
 
   if (tgt->len)
@@ -745,50 +636,6 @@ INT exc_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
 }
 
 /*-----------------------------------------------------------------------------*/
-void flushMM(mstat *MM, mentry mentries[], mentry *tmp) {
-  mentry *tgt;
-  INT latime, i;
-
-  if (MM->nmentry == 0)
-    return;
-
-  i = find_mentry(mentries, tmp);
-# ifdef _DEBUGPRINT_MEM_
-  if ((ismax_mentry(i)) || (mentries[i].len == EMPTYE)) {
-    printf("It should never happen!\n");
-    abort();
-  }
-# else
-  if (ismax_mentry(i))
-    return;
-# endif
-  tgt = &mentries[i];
-  latime = tgt->atime;
-
-# ifdef _DEBUGPRINT_MEM_
-  dump_mentry("FLUSH", tgt);
-# endif
-# ifdef _DEBUGPRINT_MEM_
-  printf("Going to delete all memory entries older than atime=%ld\n", LIFMT(latime));
-# endif
-# ifdef _DEBUGPRINT_FLUSH_
-  printf("---------------------------------------------------------------------------------------------\n");
-  printf("  Nr.\t Label\t\tType\t\tOffset\t\tLength\t   Atime\t  Address\n");
-  printf("---------------------------------------------------------------------------------------------\n");
-  for (i = MM->nmentry - 1; i > 0; i--)
-    if (mentries[i].atime > latime)
-      printf("%3ld\t%-12s\t%4s\t%14ld\t%12ld   %9ld\t[%p]\n", LIFMT(i + 1), mentries[i].elbl, mentries[i].etyp,
-             LIFMT(mentries[i].offset), LIFMT(mentries[i].len), LIFMT(mentries[i].atime), mentries[i].addr);
-  printf("---------------------------------------------------------------------------------------------\n");
-# endif
-  for (i = MM->nmentry - 1; i > 0; i--)
-    if (mentries[i].atime > latime)
-      del_mentry(MM, mentries, &mentries[i], i);
-
-  return;
-}
-
-/*-----------------------------------------------------------------------------*/
 void list_MlM(mstat *MM, mentry mentries[]) {
 
   INT i = 1;
@@ -821,25 +668,16 @@ void print_params(char *func, char *name, char *Op, char *dtyp, INT *offset, INT
   return;
 }
 
-INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
-# ifdef _TRACK_
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL, TRCK };
-# else
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL };
-# endif
+INT c_getmem_kern(INT *op, mentry *tmp, INT *offset) {
 
   static mentry MDATA[MAXREC] = { { "\0", "\0", 0, EMPTYE, 0, NULL } };
 
-  mentry *tmpp;
-  INT rc = 1, i, allo = 1, maxMM;
+  INT rc = 1, allo = 1;
 
 # ifdef _MEMORY_MTRACE_
   mcheck_check_all();
 # endif
   switch (*op) {
-  case PINN:
-    allo = 0;
-    /* fall through */
   case ALLO:
     tmp->offset = (allo) ? UNDEF_MEM
                          : PINNED_MEM; /* Just to be sure that we are not going to allocate the PINNED memory for wrong reasons */
@@ -885,43 +723,8 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
       list_MlM(&MlM, MDATA);
 
     break;
-  case MAX:
-#   ifdef _DEBUGPRINT_MEM_
-    printf("MOLCAS_MEM=%ld byte \n", LIFMT(SFCTR(MlM.avmem)));
-#   endif
-    maxMM = SFCTR(MlM.avmem);
-
-    /* if malloc is intercepted, we should not test if the memory
-     * can be allocated (testmem) as that might result in very expensive
-     * memset calls from various memory inspection tools */
-#   ifndef _MALLOC_INTERCEPT_
-    while (maxMM > 0 && testmem(&maxMM) < 0)
-      maxMM = SFCTR(maxMM);
-#   endif
-#   ifdef _DEBUGPRINT_MEM_
-    if (maxMM != SFCTR(MlM.avmem))
-      printf("MOLCAS MAXMEM: initial = %ld, allocatable =%ld\n", LIFMT(SFCTR(MlM.avmem)), LIFMT(maxMM));
-#   endif
-    if (maxMM <= 0) {
-      printf("MEMORY ERROR: the memory limit has been reached. No window for further memory allocation.\n");
-      rc = -1;
-    }
-
-    *len = maxMM / dsize(tmp->etyp);
-
-    break;
-  case CHEC:
-#   ifdef _MEMORY_TRACE_
-    mcheck_check_all();
-#   endif
-    break;
   case LIST:
     list_MlM(&MlM, MDATA);
-    break;
-  case LENG:
-    i = find_mentry(MDATA, tmp);
-    tmpp = &MDATA[i];
-    *len = (tmpp) ? (tmpp->len / dsize(tmpp->etyp)) : 0;
     break;
   case TERM:
 #   ifdef _MEMORY_MTRACE_
@@ -940,26 +743,12 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
 #     endif
       break;
     }
-  case FLUS:
-    printf("**************************************************\n");
-    printf("MEMORY WARNING: use of FLUSH operation deprecated!\n");
-    printf("please contact the developer of this module and\n");
-    printf("ask him/her to fix this!\n");
-    printf("**************************************************\n");
-    flushMM(&MlM, MDATA, tmp);
-    break;
   case RGST:
     rc = reg_mentry(&MlM, MDATA, tmp);
     break;
   case EXCL:
     rc = exc_mentry(&MlM, MDATA, tmp);
     break;
-# ifdef _TRACK_
-  case TRCK:
-    rc = trc_mentry(&MlM, MDATA, tmp);
-    *len = rc / (dsize(tmp->etyp));
-    break;
-# endif
   default:
     rc = -1;
     printf("Unsupported memory operation !\n");
@@ -974,31 +763,7 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
   return (rc);
 }
 
-#ifdef _TRACK_
-void track_mem(char *address) {
-
-  mentry tmp;
-  char e_name[] = "TRCK", Op[] = "TRCK", e_dtyp[] = "CHAR";
-  INT offset = 0, blen = 1, op;
-
-  bzero(&tmp, sizeof(mentry));
-  set_mentry(&tmp, e_name, e_dtyp, &offset, &blen);
-  tmp.addr = address;
-
-  op = memop(Op);
-
-  c_getmem_kern(&op, &tmp, &offset, &blen);
-
-  return;
-}
-#endif
-
 INT c_getmem(char *name, char *Op, char *dtyp, INT *offset, INT *len) {
-# ifdef _TRACK_
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL, TRCK };
-# else
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL };
-# endif
 
   mentry tmp;
 
@@ -1025,7 +790,7 @@ INT c_getmem(char *name, char *Op, char *dtyp, INT *offset, INT *len) {
 # ifdef _OPENMP
   omp_set_lock(&mma_lock);
 # endif
-  rc = c_getmem_kern(&op, &tmp, offset, len);
+  rc = c_getmem_kern(&op, &tmp, offset);
 # ifdef _OPENMP
   omp_unset_lock(&mma_lock);
   if (op == TERM)
@@ -1037,10 +802,11 @@ INT c_getmem(char *name, char *Op, char *dtyp, INT *offset, INT *len) {
   return (rc);
 }
 
-char *allomblck(char *name, INT *len) {
+void *allomblck(char *name, INT *len) {
 
   mentry tmp;
-  char Op[] = "ALLO", ctyp[] = "CHAR", *mblck = NULL, e_name[MXLINE];
+  char Op[] = "ALLO", ctyp[] = "CHAR", e_name[MXLINE];
+  void *mblck = NULL;
   INT rc, op, blen, offset = 0;
 
   op = memop(Op);
@@ -1055,10 +821,10 @@ char *allomblck(char *name, INT *len) {
   set_mentry(&tmp, e_name, ctyp, &offset, &blen);
   tmp.atime = SYS_ATIME;
 
-  rc = c_getmem_kern(&op, &tmp, &offset, len);
+  rc = c_getmem_kern(&op, &tmp, &offset);
 
   if (rc >= 0) {
-    mblck = woff2cptr(ctyp, offset);
+    mblck = woff2cptr(offset);
   } else {
     print_params("C_GetMem", name, Op, ctyp, &offset, len);
   }
@@ -1066,47 +832,13 @@ char *allomblck(char *name, INT *len) {
   return (mblck);
 }
 
-char *pinnmblck(char *name, INT *len) {
-
-  char Op[] = "PINN", ctyp[] = "CHAR", *mblck = NULL;
-  INT rc, offset;
-
-  rc = c_getmem(name, Op, ctyp, &offset, len);
-  if (rc >= 0)
-    mblck = woff2cptr(ctyp, offset);
-
-  return (mblck);
-}
-
-INT freemblck(char *mblck) {
+INT freemblck(void *mblck) {
 
   char Op[] = "FREE", ctyp[] = "CHAR", name[] = "DELMEM";
   INT offset, len, rc;
 
-  offset = cptr2woff(ctyp, mblck);
+  offset = cptr2woff(mblck) - 1;
   rc = c_getmem(name, Op, ctyp, &offset, &len);
   mblck = NULL;
-  return (rc);
-}
-
-INT lengmblck(char *mblck) {
-
-  char Op[] = "LENG", ctyp[] = "CHAR", name[] = "LENMEM";
-  INT offset, len;
-
-  offset = cptr2woff(ctyp, mblck);
-  c_getmem(name, Op, ctyp, &offset, &len);
-
-  return (len);
-}
-
-INT trckmblck(char *mblck) {
-
-  char Op[] = "TRCK", ctyp[] = "CHAR", name[] = "TRACK";
-  INT offset, len, rc;
-
-  offset = cptr2woff(ctyp, mblck);
-  rc = c_getmem(name, Op, ctyp, &offset, &len);
-
   return (rc);
 }

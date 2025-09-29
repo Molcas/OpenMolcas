@@ -53,6 +53,7 @@ type Lab_Type
 end type Lab_Type
 
 ! Extend allocate/deallocate data types
+
 interface Allocate_DT
   module procedure :: Allocate_L_Full, Allocate_Lab
 end interface Allocate_DT
@@ -61,9 +62,7 @@ interface Deallocate_DT
 end interface Deallocate_DT
 
 ! Private extensions to mma interfaces
-interface cptr2loff
-  module procedure :: lfp_cptr2loff, v1_cptr2loff
-end interface
+
 interface mma_allocate
   module procedure :: lfp_mma_allo_3D, lfp_mma_allo_3D_lim, v1_mma_allo_3D, v1_mma_allo_3D_lim
 end interface
@@ -88,7 +87,7 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
 
   type(L_Full_Type), target, intent(out) :: Adam
   integer(kind=iwp), intent(in) :: nShell, iShp_rs(nTri_Elem(nShell)), JNUM, JSYM, nSym
-  integer(kind=iwp), optional, intent(out) :: Memory(2)
+  integer(kind=iwp), intent(out), optional :: Memory(2)
   integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma, iSymb, LFULL, iS, iE, MemSPB, n1, n2
 
   LFULL = 0
@@ -220,7 +219,7 @@ subroutine Allocate_Lab(Lab,JNUM,nBasSh,nBas,nShell,nSym,nDen,Memory)
 
   type(Lab_Type), target, intent(out) :: Lab
   integer(kind=iwp), intent(in) :: JNUM, nShell, nSym, nBasSh(nSym,nShell), nBas(nSym), nDen
-  integer(kind=iwp), optional, intent(out) :: Memory(2)
+  integer(kind=iwp), intent(out), optional :: Memory(2)
   integer(kind=iwp) :: iSym, iDen, Lab_Memory, iE, iS, iSh, MemKeep, MemSB
 
   Lab_Memory = 0
@@ -288,12 +287,9 @@ subroutine Deallocate_Lab(Lab)
 
 end subroutine Deallocate_Lab
 
-! Define lfp_cptr2loff, lfp_mma_allo_3D, lfp_mma_allo_3D_lim, lfp_mma_free_3D
-!        v1_cptr2loff, v1_mma_allo_3D, v1_mma_allo_3D_lim, v1_mma_free_3D
+! Define lfp_mma_allo_3D, lfp_mma_allo_3D_lim, lfp_mma_free_3D
+!        v1_mma_allo_3D, v1_mma_allo_3D_lim, v1_mma_free_3D
 #define _TYPE_ type(L_Full_Pointers)
-#  define _FUNC_NAME_ lfp_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ lfp_mma
 #  define _DIMENSIONS_ 3
 #  define _DEF_LABEL_ 'lfp_mma'
@@ -304,9 +300,6 @@ end subroutine Deallocate_Lab
 #undef _TYPE_
 
 #define _TYPE_ type(V1)
-#  define _FUNC_NAME_ v1_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ v1_mma
 #  define _DIMENSIONS_ 3
 #  define _DEF_LABEL_ 'v1_mma'

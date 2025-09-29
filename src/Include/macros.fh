@@ -34,7 +34,7 @@
 
 #  ifdef _WARNING_WORKAROUND_
 
-#    define unused_var(x) associate(tmp => x); end associate
+#    define unused_var(x) associate(tmp_unused => x); end associate
 !    For external procedures, associate doesn't work with all compilers
 #    define unused_proc(x) if (.false.) call x
 

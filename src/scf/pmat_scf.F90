@@ -14,11 +14,6 @@
 !               2003, Valera Veryazov                                  *
 !***********************************************************************
 
-! This subroutine should be in a module, to avoid explicit interfaces
-#ifndef _IN_MODULE_
-#error "This file must be compiled inside a module"
-#endif
-
 !#define _DEBUGPRINT_
 subroutine PMat_SCF(FstItr,XCf,nXCF,nD)
 !***********************************************************************
@@ -62,10 +57,10 @@ logical(kind=iwp), external :: EFP_On
 if (PmTime) call CWTime(xCPM1,xWPM1)
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
+call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat: Enter','T in iPsLst')
 call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
-call NrmClc(Vxc(1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
-call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in iPsLst')
-call NrmClc(Vxc(1,1,nDens),nBT*nD,'PMat: Enter','T in iPsLst')
+call NrmClc(Vxc(1,1,iPsLst),nBT*nD,'PMat: Enter','V in iPsLst')
+call NrmClc(Vxc(1,1,nDens),nBT*nD,'PMat: Enter','V in nDens')
 #endif
 
 ! Copy the (abs.) value of the Max Offdiag Fmat to a Common Block

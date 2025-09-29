@@ -22,6 +22,7 @@ implicit none
 integer(kind=iwp) :: Columbus, iGO, iMode, iPL, Length, nData, nsAtom
 logical(kind=iwp) :: Found
 integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 
 !                                                                      *
 !***********************************************************************
@@ -82,7 +83,7 @@ call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nsAtom)
 ! Check if method is translational or rotational variant.
 
 iPL = iPrintLevel(-1)
-if ((VarT .or. VarR) .and. (iPL > 0)) then
+if ((VarT .or. VarR) .and. (iPL > 0) .and. (.not. Reduce_Prt())) then
   write(u6,*)
   if (VarT) write(u6,*) '    Gradient is translational variant!'
   if (VarR) write(u6,*) '    Gradient is rotational variant!'

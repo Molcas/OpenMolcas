@@ -17,13 +17,11 @@ subroutine geths_cvb(arr,n)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(inout) :: n
-character(len=*), intent(inout) :: arr(n)
+integer(kind=iwp), intent(in) :: n
+character(len=*), intent(out) :: arr(n)
 integer(kind=iwp) :: i, iaux(1), iret, j, lenarr
 
-call geth_cvb(iaux,1)
-n = iaux(1)
-lenarr = len(arr(1))
+lenarr = len(arr)
 do i=1,n
   do j=1,lenarr
     call geth_cvb(iaux,1)

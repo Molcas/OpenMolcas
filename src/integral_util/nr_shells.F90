@@ -41,52 +41,21 @@ if ((Basis_Mode /= Valence_Mode) .and. (Basis_Mode /= Auxiliary_Mode) .and. (Bas
   call Abend()
 end if
 
-select case (Atomic)
-  case (.false.)
-    !                                                                  *
-    !*******************************************************************
-    !*******************************************************************
-    !                                                                  *
-    ! Molecular set up                                                 *
-    !                                                                  *
-    !*******************************************************************
-    !*******************************************************************
-    !                                                                  *
+if (.not. Atomic) then
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+  ! Molecular set up                                                   *
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
 
-    do iCnttp=1,nCnttp
-      nTest = dbsc(iCnttp)%nVal-1
-      do iCnt=1,dbsc(iCnttp)%nCntr
+  do iCnttp=1,nCnttp
+    nTest = dbsc(iCnttp)%nVal-1
+    do iCnt=1,dbsc(iCnttp)%nCntr
 
-        do iAng=0,nTest
-          iShll = dbsc(iCnttp)%iVal+iAng
-          nExpi = Shells(iShll)%nExp
-          if (nExpi == 0) cycle
-          nBasisi = Shells(iShll)%nBasis
-          if (nBasisi == 0) cycle
-
-          if ((Basis_Mode == Valence_Mode) .and. (Shells(iShll)%Aux .or. Shells(iShll)%Frag)) cycle
-          if ((Basis_Mode == Auxiliary_Mode) .and. (.not. Shells(iShll)%Aux)) cycle
-          if ((Basis_Mode == Fragment_Mode) .and. (.not. Shells(iShll)%Frag)) cycle
-          if ((Basis_Mode == With_Auxiliary_Mode) .and. Shells(iShll)%Frag) cycle
-          if ((Basis_Mode == With_Fragment_Mode) .and. Shells(iShll)%Aux) cycle
-          nSkal = nSkal+1
-        end do  ! iAng
-      end do    ! iCnt
-    end do      ! iCnttp
-
-  case (.true.)
-    !                                                                  *
-    !*******************************************************************
-    !*******************************************************************
-    !                                                                  *
-    ! Atomic set up                                                    *
-    !                                                                  *
-    !*******************************************************************
-    !*******************************************************************
-    !                                                                  *
-
-    do iCnttp=kCnttp,lCnttp
-      nTest = dbsc(iCnttp)%nVal-1
       do iAng=0,nTest
         iShll = dbsc(iCnttp)%iVal+iAng
         nExpi = Shells(iShll)%nExp
@@ -94,13 +63,43 @@ select case (Atomic)
         nBasisi = Shells(iShll)%nBasis
         if (nBasisi == 0) cycle
 
-        if (Shells(iShll)%Frag) cycle
+        if ((Basis_Mode == Valence_Mode) .and. (Shells(iShll)%Aux .or. Shells(iShll)%Frag)) cycle
+        if ((Basis_Mode == Auxiliary_Mode) .and. (.not. Shells(iShll)%Aux)) cycle
+        if ((Basis_Mode == Fragment_Mode) .and. (.not. Shells(iShll)%Frag)) cycle
+        if ((Basis_Mode == With_Auxiliary_Mode) .and. Shells(iShll)%Frag) cycle
+        if ((Basis_Mode == With_Fragment_Mode) .and. Shells(iShll)%Aux) cycle
         nSkal = nSkal+1
-
       end do  ! iAng
-    end do
-    if (dbsc(kCnttp)%Aux) nSkal = nSkal+1 ! Add dummy shell
-end select
+    end do    ! iCnt
+  end do      ! iCnttp
+
+else
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+  ! Atomic set up                                                      *
+  !                                                                    *
+  !*********************************************************************
+  !*********************************************************************
+  !                                                                    *
+
+  do iCnttp=kCnttp,lCnttp
+    nTest = dbsc(iCnttp)%nVal-1
+    do iAng=0,nTest
+      iShll = dbsc(iCnttp)%iVal+iAng
+      nExpi = Shells(iShll)%nExp
+      if (nExpi == 0) cycle
+      nBasisi = Shells(iShll)%nBasis
+      if (nBasisi == 0) cycle
+
+      if (Shells(iShll)%Frag) cycle
+      nSkal = nSkal+1
+
+    end do  ! iAng
+  end do
+  if (dbsc(kCnttp)%Aux) nSkal = nSkal+1 ! Add dummy shell
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *

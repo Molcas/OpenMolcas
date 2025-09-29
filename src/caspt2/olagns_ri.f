@@ -95,11 +95,6 @@ C
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)
       Integer nSh(8,3)
-#ifdef _DEBUGPRINT_
-      INTEGER NUMERR
-      SAVE NUMERR
-      DATA NUMERR / 0 /
-#endif
 C
       Dimension DPT2C(*),DPT2Canti(*),A_PT2(MaxVec_PT2,MaxVec_PT2)
       integer(kind=iwp),allocatable :: BGRP(:,:)

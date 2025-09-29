@@ -11,44 +11,44 @@
 
 ! TODO(matthew-hennefarth): Remove iPrLoc from MC-PDFT module
 module mcpdft_output
-  use definitions,only:iwp,u6
 
-  implicit none
-  private
+use Definitions, only: iwp, u6
 
-  integer(kind=iwp),dimension(7) :: iPrLoc
-  integer(kind=iwp) :: iPrGlb = 0
+implicit none
+private
 
-  public :: iPrGlb,iPrLoc
-  public :: set_print_level
+integer(kind=iwp) :: iPrGlb = 0, iPrLoc(7)
+
+public :: iPrGlb, iPrLoc, set_print_level
 
 contains
-  subroutine set_print_level()
-    ! Determines the global print level and local print levels
-    ! Note, that it is impossible for iPrLoc to ever differ from
-    ! iPrGlb, and therefore iPrLoc should just be removed from
-    ! this module all together
-    use printlevel,only:debug,usual,silent
 
-    logical(kind=iwp),external :: reduce_prt
-    integer(kind=iwp),external :: iPrintLevel
-    integer(kind=iwp) :: i ! dummy loop variable
+! Determines the global print level and local print levels
+! Note, that it is impossible for iPrLoc to ever differ from
+! iPrGlb, and therefore iPrLoc should just be removed from
+! this module all together
+subroutine set_print_level()
 
-    iPrGlb = iPrintLevel(-1)
-    if(reduce_prt()) then
-      ! If inside an optimization loop, set down the print level
-      ! unless we *really* want a lot of output
-      iPrGlb = max(iPrGlb-usual,silent)
-    endif
+  use printlevel, only: debug, silent, usual
 
-    iPrLoc(:) = iPrGlb
+  integer(kind=iwp) :: i
+  integer(kind=iwp), external :: iPrintLevel
+  logical(kind=iwp), external :: reduce_prt
 
-    if(iPrGlb >= debug) then
-      write(u6,*) ' set_print_level: Print levels have been set to'
-      write(u6,*) '  Global print level iPrGlb=',iPrGlb
-      write(u6,*) '  Individual sections print levels, iPrLoc:'
-      write(u6,'(1x,7I5)')(iPrLoc(i),i=1,7)
-    endif
+  iPrGlb = iPrintLevel(-1)
+  ! If inside an optimization loop, set down the print level
+  ! unless we *really* want a lot of output
+  if (reduce_prt()) iPrGlb = max(iPrGlb-usual,silent)
 
-  endsubroutine set_print_level
-endmodule mcpdft_output
+  iPrLoc(:) = iPrGlb
+
+  if (iPrGlb >= debug) then
+    write(u6,*) ' set_print_level: Print levels have been set to'
+    write(u6,*) '  Global print level iPrGlb=',iPrGlb
+    write(u6,*) '  Individual sections print levels, iPrLoc:'
+    write(u6,'(1x,7I5)') (iPrLoc(i),i=1,7)
+  end if
+
+end subroutine set_print_level
+
+end module mcpdft_output

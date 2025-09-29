@@ -64,7 +64,7 @@ INT prt_lusc_(INT *lid, char *line, INT *len, INT *isBin) {
 INT lusopen(INT *lid, char *fname, INT *fname_len) {
   FILE *fp;
   char my[MYMAXPATH];
-  int slash = '/';
+  int slash = '/', len;
   char *ptr;
   INT tmp0, tmp1;
   INT ms = 1;
@@ -73,8 +73,11 @@ INT lusopen(INT *lid, char *fname, INT *fname_len) {
   tmp0 = strlen(fname);
   ptr = strchr(fname, slash);
   if (ptr != NULL) {
-    strncpy(my, fname, MYMAXPATH - 1);
-    my[*fname_len] = 0;
+    len = *fname_len - 1;
+    if (len > MYMAXPATH - 1)
+      len = MYMAXPATH - 1;
+    memcpy(my, fname, len);
+    my[len] = 0;
   } else {
     prgmtranslatec(fname, &tmp0, my, &tmp1, &ms);
   }

@@ -95,38 +95,40 @@ do iSym=1,nSym
   ! size of the virtual-occupied block
   nv2 = (nia2-nia1+1)*(nii2-nii1+1)
 
-  if ((n1 == nOO) .and. (n2 == kOV(iD))) then
+  if ((nv1 > 0) .and. (nv2 > 0)) then
+    if ((n1 == nOO) .and. (n2 == kOV(iD))) then
 
-    ! compress
+      ! compress
 
-    pv1(1:nia2,1:nia2) => v1(ioffs+1:ioffs+nv1)
-    pv2(nia1:nia2,nii1:nii2) => v2(ivoffs:ivoffs+nv2-1)
+      pv1(1:nia2,1:nia2) => v1(ioffs+1:ioffs+nv1)
+      pv2(nia1:nia2,nii1:nii2) => v2(ivoffs:ivoffs+nv2-1)
 
-    !do ii=nii1,nii2
-    !  do ia=nia1,nia2
-    !    if (pv1(ia,ii) /= -pv1(ii,ia)) then
-    !      write(u6,*) 'inconsistency in gradient'
-    !      call Abend()
-    !    end if
-    !  end do
-    !end do
-    pv2(nia1:nia2,nii1:nii2) = pv1(nia1:nia2,nii1:nii2)
+      !do ii=nii1,nii2
+      !  do ia=nia1,nia2
+      !    if (pv1(ia,ii) /= -pv1(ii,ia)) then
+      !      write(u6,*) 'inconsistency in gradient'
+      !      call Abend()
+      !    end if
+      !  end do
+      !end do
+      pv2(nia1:nia2,nii1:nii2) = pv1(nia1:nia2,nii1:nii2)
 
-  else if ((n1 == kOV(iD)) .and. (n2 == nOO)) then
+    else if ((n1 == kOV(iD)) .and. (n2 == nOO)) then
 
-    ! decompress
+      ! decompress
 
-    pv1(nia1:nia2,nii1:nii2) => v1(ivoffs:ivoffs+nv2-1)
-    pv2(1:nia2,1:nia2) => v2(ioffs+1:ioffs+nv1)
+      pv1(nia1:nia2,nii1:nii2) => v1(ivoffs:ivoffs+nv2-1)
+      pv2(1:nia2,1:nia2) => v2(ioffs+1:ioffs+nv1)
 
-    pv2(nia1:nia2,nii1:nii2) = pv1(nia1:nia2,nii1:nii2)
-    do ii=nii1,nii2
-      pv2(ii,nia1:nia2) = -pv1(nia1:nia2,ii)
-    end do
+      pv2(nia1:nia2,nii1:nii2) = pv1(nia1:nia2,nii1:nii2)
+      do ii=nii1,nii2
+        pv2(ii,nia1:nia2) = -pv1(nia1:nia2,ii)
+      end do
+    end if
+
+    nullify(pv1,pv2)
+    ivoffs = ivoffs+nv2
   end if
-
-  nullify(pv1,pv2)
-  ivoffs = ivoffs+nv2
   ioffs = ioffs+(nOrb(iSym)*nOrb(iSym))
 end do
 
@@ -149,4 +151,5 @@ end do
 
 return
 
+#undef _DEBUGPRINT_
 end subroutine vOO2OV_inner

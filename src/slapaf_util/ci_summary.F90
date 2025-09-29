@@ -59,7 +59,7 @@ end if
 ! Ensure that the asymmetry will be positive
 ! this fixes which vector is x and which is y
 if (hh > gg) then
-  call SwapVe(g,h,n)
+  call dSwap_(n,g,1,h,1)
   aux = gg
   gg = hh
   hh = aux

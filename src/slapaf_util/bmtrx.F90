@@ -70,15 +70,17 @@ call TRPGen(nDimBC,nsAtom,Cx(:,:,iRef),mTR,.false.,TR)
 
 call mma_allocate(TRnew,3*nsAtom*mTR,Label='TRNew')
 TRNew(:) = Zero
-i = 0
-do ix=1,3*nsAtom
-  iAtom = (ix+2)/3
-  ixyz = ix-(iAtom-1)*3
-  if (Smmtrc(ixyz,iAtom)) then
-    i = i+1
-    call dcopy_(mTR,TR(i),-nDimBC,TRNew(ix),3*nsAtom)
-  end if
-end do
+if (mTR > 0) then
+  i = 0
+  do ix=1,3*nsAtom
+    iAtom = (ix+2)/3
+    ixyz = ix-(iAtom-1)*3
+    if (Smmtrc(ixyz,iAtom)) then
+      i = i+1
+      call dcopy_(mTR,TR(i),-nDimBC,TRNew(ix),3*nsAtom)
+    end if
+  end do
+end if
 call Put_dArray('TR',TRnew,3*nsAtom*mTR)
 call mma_deallocate(TRnew)
 
@@ -125,7 +127,6 @@ if (HSet .or. (.not. (Curvilinear .or. User_Def))) call LNM(Coor2,mTtAtm,EVal,Hs
                                                             nBonds,nMax,nHidden)
 
 call mma_deallocate(Scr2)
-call mma_deallocate(Coor2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -167,7 +168,11 @@ else if (Curvilinear) then
 
   ! Re-generate the bonds if there were hidden atoms
 
-  if (nHidden /= 0) call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
+  if (nHidden /= 0) then
+    call mma_deallocate(TabA)
+    call mma_deallocate(TabB)
+    call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
+  end if
   call BMtrx_Internal(nsAtom,nDimBC,nIter,mTtAtm,iRef,mTR,TR,TabAI,TabA,TabB,nBonds,nMax,iRef,nQQ,nWndw)
 
   ! Set the Labels for internal coordinates.
@@ -209,6 +214,7 @@ call mma_deallocate(TabB)
 call mma_deallocate(AN)
 call mma_deallocate(Vec)
 call mma_deallocate(TabAI)
+call mma_deallocate(Coor2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

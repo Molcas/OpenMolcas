@@ -71,8 +71,8 @@ ip = 1
 ipO = 1
 ipV = 1
 do iSym=1,nSym
-  call dCopy_(nOcc(iSym,1),EMO(ip,1),1,OccEn(ipO,1),1)
-  call dCopy_(nVir(iSym,1),EMO(ip+nOcc(iSym,1),1),1,VirEn(ipV,1),1)
+  OccEn(ipO:ipO+nOcc(iSym,1)-1,1) = EMO(ip:ip+nOcc(iSym,1)-1,1)
+  VirEn(ipV:ipV+nVir(iSym,1)-1,1) = EMO(ip+nOcc(iSym,1):ip+nOcc(iSym,1)+nVir(iSym,1)-1,1)
   ip = ip+nOrb(iSym)
   ipO = ipO+nOcc(iSym,1)
   ipV = ipV+nVir(iSym,1)
@@ -83,8 +83,8 @@ if (iUHF == 2) then
   ipO = 1
   ipV = 1
   do iSym=1,nSym
-    call dCopy_(nOcc(iSym,2),EMO(ip,2),1,OccEn(ipO,2),1)
-    call dCopy_(nVir(iSym,2),EMO(ip+nOcc(iSym,2),2),1,VirEn(ipV,2),1)
+    OccEn(ipO:ipO+nOcc(iSym,2)-1,2) = EMO(ip:ip+nOcc(iSym,2)-1,2)
+    VirEn(ipV:ipV+nVir(iSym,2)-1,2) = EMO(ip+nOcc(iSym,2):ip+nOcc(iSym,2)+nVir(iSym,2)-1,2)
     ip = ip+nOrb(iSym)
     ipO = ipO+nOcc(iSym,2)
     ipV = ipV+nVir(iSym,2)

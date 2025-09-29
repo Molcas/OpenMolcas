@@ -48,7 +48,8 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !***********************************************************************
 
 use csfbas, only: CONF, NAEL, NBEL
-use glbbas, only: DFTP, DTOC
+use timers, only: TimeHSel
+use lucia_data, only: DFTP, DTOC, IREOTS
 use rasscf_global, only: ExFac, NAC
 use general_data, only: LUDAVID, NCONF, NSEL, STSYM
 use spinfo, only: NCNASM
@@ -65,12 +66,11 @@ real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
 real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
 integer(kind=iwp), intent(_OUT_) :: ISEL(*)
 integer(kind=iwp) :: I, II, IPRINT, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
-real(kind=wp) :: dum1, dum2, dum3, ECORE
-integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
+real(kind=wp) :: dum1, dum2, dum3, ECORE, Time(2)
+integer(kind=iwp), allocatable :: CNF(:)
 real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
-#include "timers.fh"
 
-call Timing(Omega_1,dum1,dum2,dum3)
+call Timing(Time(1),dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
 
 ECORE = Zero
@@ -95,17 +95,14 @@ call Load_H_diag(nConf,DIAG,LuDavid)
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
-call mma_allocate(IREOTS,NAC,label='IREOTS')
 call mma_maxDBLE(MXXWS)
 call mma_allocate(Scr,MXXWS,label='EXHSCR')
-call GET_IREOTS(IREOTS,NAC)
 call PHPCSF(EXHAM,ISEL,CNF,MXXSEL,DTOC,DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,NSEL,NPCNF,DIAG,TUVX, &
             IPRINT,ExFac,IREOTS)
 if (IPRLEV == INSANE) then
   call Square(EXHAM,EXPLV,1,NSEL,NSEL)
   call RECPRT('Square Explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
 end if
-call mma_deallocate(IREOTS)
 call mma_deallocate(Scr)
 call mma_deallocate(CNF)
 call mma_deallocate(HONE)
@@ -140,9 +137,8 @@ if (IPRLEV >= INSANE) call IVCPRT('Configurations included in the explicit Hamil
 if (IPRLEV >= INSANE) call DVCPRT('Eigenvalues of the explicit Hamiltonian',' ',EXPLE,NSEL)
 if (IPRLEV >= INSANE) call RECPRT('Eigenvectors of the explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
 
-call Timing(Omega_2,dum1,dum2,dum3)
-Omega_2 = Omega_2-Omega_1
-Omega_3 = Omega_3+Omega_2
+call Timing(Time(2),dum1,dum2,dum3)
+TimeHSel = TimeHSel+Time(2)-Time(1)
 
 return
 

@@ -36,6 +36,7 @@ character(len=80) :: Label
 unused_var(Alpha)
 unused_var(Beta)
 unused_var(ZInv)
+unused_var(CoorO)
 unused_var(nOrdOp)
 unused_var(lOper)
 unused_var(iChO)
@@ -60,7 +61,6 @@ end if
 if (iPrint >= 49) then
   call RecPrt(' In D1Int: A',' ',A,1,3)
   call RecPrt(' In D1Int: RB',' ',RB,1,3)
-  call RecPrt(' In D1Int: CoorO',' ',CoorO,1,3)
   call RecPrt(' In D1Int: P',' ',P,nZeta,3)
   write(u6,*) ' In D1Int: la,lb=',la,lb
 end if

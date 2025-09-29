@@ -34,7 +34,7 @@
 parnell_status_t parnell_copy(int argc, char **argv) {
   parnell_status_t status = PARNELL_START;
 
-  int mode;
+  int len, mode;
   char src_name[FILENAME_MAX];
   char dst_name[FILENAME_MAX];
 
@@ -48,10 +48,16 @@ parnell_status_t parnell_copy(int argc, char **argv) {
   } else {
     mode = argv[0][0];
     if (MyRank == 0) {
-      strncpy(src_name, argv[1], FILENAME_MAX - 1);
-      src_name[FILENAME_MAX - 1] = 0;
-      strncpy(dst_name, argv[2], FILENAME_MAX - 1);
-      dst_name[FILENAME_MAX - 1] = 0;
+      len = strlen(argv[1]);
+      if (len > FILENAME_MAX - 1)
+        len = FILENAME_MAX - 1;
+      memcpy(src_name, argv[1], len);
+      src_name[len] = 0;
+      len = strlen(argv[2]);
+      if (len > FILENAME_MAX - 1)
+        len = FILENAME_MAX - 1;
+      memcpy(dst_name, argv[2], len);
+      dst_name[len] = 0;
       status = parnell_translate(src_name, dst_name);
     }
 #   ifdef _MOLCAS_MPP_

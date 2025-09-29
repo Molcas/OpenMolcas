@@ -11,7 +11,7 @@
 ! Copyright (C) 2000, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine RdInp_FFPT()
+subroutine RdInp_FFPT(LuRd)
 !***********************************************************************
 !                                                                      *
 !     Objective: Read and interprete input                             *
@@ -27,9 +27,10 @@ subroutine RdInp_FFPT()
 use FFPT_Global, only: Atoms, TranCoo, LCumulate, iSelection, Bonds, mLbl, mTit, MxTitL, nSets, MxLbl, Title, ComStk, ComVal, &
                        gLblN, gLblC, gLblW
 use stdalloc, only: mma_allocate
-use Definitions, only: wp, iwp, u5, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: LuRd
 character(len=20) :: FmtLog
 character(len=72) :: Line, Temp1, Temp2
 character(len=4) :: Token
@@ -41,6 +42,12 @@ logical(kind=iwp) :: Op0(9) = .false., Op2(3) = .false., Op3(4) = .false., Op4(8
                      skip
 
 LCumulate = .false.
+Op0(:) = .false.
+Op2(:) = .false.
+Op3(:) = .false.
+Op4(:) = .false.
+Op5(:) = .false.
+Op6(:) = .false.
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -49,7 +56,7 @@ LCumulate = .false.
 !                                                                      *
 !----------------------------------------------------------------------*
 
-call RdNlst(u5,'FFPT')
+call RdNlst(LuRd,'FFPT')
 Temp2 = ' '
 Temp1 = ' '
 Line = ' &FFPT &END'
@@ -71,7 +78,7 @@ mainLoop: do
   if (.not. skip) then
     Temp2 = Temp1
     Temp1 = Line
-    read(u5,'(A)',iostat=ctrl) Line
+    read(LuRd,'(A)',iostat=ctrl) Line
     if (ctrl /= 0) call error(991)
     newline = newline+1
     Line = adjustl(Line)
@@ -91,7 +98,7 @@ mainLoop: do
         Temp2 = Temp1
         Temp1 = Line
         newline = newline+1
-        read(u5,'(A)',iostat=ctrl) Line
+        read(LuRd,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
         Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
@@ -114,7 +121,7 @@ mainLoop: do
         Temp2 = Temp1
         Temp1 = Line
         newline = newline+1
-        read(u5,'(A)',iostat=ctrl) Line
+        read(LuRd,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
         Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
@@ -168,7 +175,7 @@ mainLoop: do
         Temp2 = Temp1
         Temp1 = Line
         newline = newline+1
-        read(u5,'(A)',iostat=ctrl) Line
+        read(LuRd,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
         Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
@@ -235,7 +242,7 @@ mainLoop: do
         Temp2 = Temp1
         Temp1 = Line
         newline = newline+1
-        read(u5,'(A)',iostat=ctrl) Line
+        read(LuRd,'(A)',iostat=ctrl) Line
         if (is_iostat_end(ctrl)) call error(991)
         Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
@@ -334,7 +341,7 @@ mainLoop: do
         Temp2 = Temp1
         Temp1 = Line
         newline = newline+1
-        read(u5,'(A)',iostat=ctrl) Line
+        read(LuRd,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
         Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
@@ -457,7 +464,7 @@ mainLoop: do
         Temp2 = Temp1
         Temp1 = Line
         newline = newline+1
-        read(u5,'(A)',iostat=ctrl) Line
+        read(LuRd,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
         Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
@@ -548,7 +555,7 @@ mainLoop: do
         Temp2 = Temp1
         Temp1 = Line
         newline = newline+1
-        read(u5,'(A)',iostat=ctrl) Line
+        read(LuRd,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
         Line = adjustl(Line)
         if (.not. (Line(1:1) == ' ' .or. Line(1:1) == '*')) exit
@@ -573,7 +580,7 @@ mainLoop: do
         Temp2 = Temp1
         Temp1 = Line
         newline = newline+1
-        read(u5,'(A)',iostat=ctrl) Line
+        read(LuRd,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
         Line = adjustl(Line)
         if (Line(1:1) == ' ' .or. Line(1:1) == '*') cycle
@@ -609,7 +616,7 @@ mainLoop: do
         Temp2 = Temp1
         Temp1 = Line
         newline = newline+1
-        read(u5,'(A)',iostat=ctrl) Line
+        read(LuRd,'(A)',iostat=ctrl) Line
         if (ctrl /= 0) call error(991)
         Line = adjustl(Line)
         if (.not. (Line(1:1) == ' ' .or. Line(1:1) == '*')) exit
@@ -621,18 +628,18 @@ mainLoop: do
       Atoms(:) = .false.
       Bonds(:,:) = .false.
       do i=1,nSets
-        read(u5,*) Atoms(i),iSelection(1,i),iSelection(2,i)
+        read(LuRd,*) Atoms(i),iSelection(1,i),iSelection(2,i)
       end do
       do i=2,nSets
         if (i < 10) write(FmtLog,'(A,I1,A)') '(',i-1,'L2)'
         if (i >= 10) write(FmtLog,'(A,I2,A)') '(',i-1,'L2)'
-        read(u5,FmtLog) (Bonds(i,j),j=1,i-1)
+        read(LuRd,FmtLog) (Bonds(i,j),j=1,i-1)
         do j=1,i-1
           Bonds(j,i) = Bonds(i,j)
         end do
       end do
-      read(u5,*) (TranCoo(k),k=1,3)
-      !read(u5,*) SiffBond
+      read(LuRd,*) (TranCoo(k),k=1,3)
+      !read(LuRd,*) SiffBond
       skip = .false.
       cycle mainLoop
 

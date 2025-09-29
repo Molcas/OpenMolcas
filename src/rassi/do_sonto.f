@@ -104,7 +104,7 @@ c These states are stored as pairs beginning in SONTO
         INTOSTATE=SONTO(1,I)
         JNTOSTATE=SONTO(2,I)
         WRITE(6,*)
-        WRITE(6,*) "CALCULATING SO-NTOs BETWEEM SO STATES: ",
+        WRITE(6,*) "CALCULATING SO-NTOs BETWEEN SO STATES: ",
      &              INTOSTATE,JNTOSTATE
         IF((INTOSTATE.GT.NSS.OR.INTOSTATE.LE.0)
      & .or.(JNTOSTATE.GT.NSS.OR.JNTOSTATE.LE.0)) THEN

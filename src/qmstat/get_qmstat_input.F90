@@ -605,7 +605,7 @@ do
             call mma_deallocate(Disp)
             call move_alloc(Tmp2,Disp)
             ! Reallocate SlExpC
-            call mma_allocate(Tmp2,4,max(size(SlExpC,2),nSlSiteC),label='Tmp')
+            call mma_allocate(Tmp2,2,max(size(SlExpC,2),nSlSiteC),label='Tmp')
             Tmp2(:,1:size(SlExpC,2)) = SlExpC
             call mma_deallocate(SlExpC)
             call move_alloc(Tmp2,SlExpC)

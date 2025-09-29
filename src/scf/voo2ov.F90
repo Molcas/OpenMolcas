@@ -12,13 +12,9 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
-! This subroutine should be in a module, to avoid explicit interfaces
-#ifndef _IN_MODULE_
-#error "This file must be compiled inside a module"
-#endif
-
 subroutine vOO2OV(v1,nOO,v2,mOV,nD,kOV)
 
+use Interfaces_SCF, only: vOO2OV_inner
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -31,6 +27,7 @@ integer(kind=iwp) :: iD, iEnd, iSt
 iEnd = 0
 v2(:) = Zero
 do iD=1,nD
+  if (kOV(iD) < 1) cycle
   iSt = iEnd+1
   iEnd = iEnd+kOV(iD)
   call vOO2OV_inner(v1(:,iD),nOO,v2(iSt:iEnd),kOV(iD),iD)

@@ -18,7 +18,7 @@
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-4.8:latest
   variables:
     cache_file: |
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (BIGOT "ON" CACHE BOOL "do not allow any warning")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -31,17 +31,17 @@
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "opt, debug info")
-      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
-      set (BUILD_STATIC_LIB "ON" CACHE STRING "build static libmolcas too")
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (BUILD_SHARED_LIBS "ON" CACHE BOOL "use shared libmolcas")
+      set (BUILD_STATIC_LIB "ON" CACHE BOOL "build static libmolcas too")
+      set (BIGOT "ON" CACHE BOOL "do not allow any warning")
       set (LINALG "Runtime" CACHE STRING "runtime blas/lapack linking")
-      set (IPO "ON" CACHE STRING "enable interprocedural optimization")
-      set (CHEMPS2 "ON" CACHE STRING "enable CheMPS2 interface")
-      set (FDE "ON" CACHE STRING "enable frozen-density-embedding (FDE) interface")
-      set (TOOLS "ON" CACHE STRING "compile Tools")
-      set (MSYM "ON" CACHE STRING "enable libmsym (needs submodule)")
-      set (WFA "ON" CACHE STRING "enable libwfa (needs submodule)")
-      set (GEN1INT "ON" CACHE STRING "enable Gen1Int")
+      set (IPO "ON" CACHE BOOL "enable interprocedural optimization")
+      set (CHEMPS2 "ON" CACHE BOOL "enable CheMPS2 interface")
+      set (FDE "ON" CACHE BOOL "enable frozen-density-embedding (FDE) interface")
+      set (TOOLS "ON" CACHE BOOL "compile Tools")
+      set (MSYM "ON" CACHE BOOL "enable libmsym (needs submodule)")
+      set (WFA "ON" CACHE BOOL "enable libwfa (needs submodule)")
+      set (GEN1INT "ON" CACHE BOOL "enable Gen1Int")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -58,9 +58,9 @@
     make: "ninja -j 1"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Fast" CACHE STRING "high opt")
-      set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (OPENMP "ON" CACHE STRING "enable OpenMP diagnostics") # workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98411
+      set (BUILD_SHARED_LIBS "ON" CACHE BOOL "use shared libmolcas")
+      set (BIGOT "ON" CACHE BOOL "do not allow any warning")
+      set (OPENMP "ON" CACHE BOOL "enable OpenMP diagnostics") # workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98411
       set (LINALG "MKL" CACHE STRING "use MKL library")
     CC: "gcc"
     CXX: "g++"
@@ -98,9 +98,9 @@
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
-      set (HDF5 "ON" CACHE STRING "turn on HDF5")
+      set (HDF5 "ON" CACHE BOOL "turn on HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (BIGOT "ON" CACHE BOOL "do not allow any warning")
       # with -fsyntax-only and only_objs we create all interface files
       set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
@@ -121,9 +121,9 @@
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
-      set (HDF5 "ON" CACHE STRING "turn on HDF5")
+      set (HDF5 "ON" CACHE BOOL "turn on HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (BIGOT "ON" CACHE BOOL "do not allow any warning")
       # with -fsyntax-only and only_objs we create all interface files
       set (EXTRA_FFLAGS "-fsyntax-only" CACHE STRING "extra Fortran flags")
     pre_compile_script: |
@@ -146,9 +146,9 @@
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
-      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (HDF5 "OFF" CACHE BOOL "turn off HDF5")
       set (LINALG "MKL" CACHE STRING "enable MKL")
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (BIGOT "ON" CACHE BOOL "do not allow any warning")
       # use python3 instead of python3.4 for better compatibility
       set (Python_EXECUTABLE "/usr/bin/python3" CACHE STRING "Python interpreter")
       # with -fsyntax-only and only_objs we create all interface files
@@ -170,15 +170,14 @@
     - intel13
 
 .nag:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-13:latest
   variables:
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
-      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
-      set (HDF5_ROOT "/opt/hdf5_v1.12.0_gnu" CACHE STRING "HDF5 location") # specific for nag runner
-      set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE STRING "use static HDF5")
-      set (HDF5 "ON" CACHE STRING "turn on HDF5")
+      set (BUILD_SHARED_LIBS "OFF" CACHE BOOL "static molcas lib" )
+      set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE BOOL "use static HDF5")
+      set (HDF5 "ON" CACHE BOOL "turn on HDF5")
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
       # -w=obs : disable fixed source form, statement function
       # -w=x77 : disable real*8
@@ -228,10 +227,10 @@
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      #set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
-      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "static molcas lib" )
-      set (HDF5 "OFF" CACHE STRING "turn off HDF5")
+      set (BIGOT "ON" CACHE BOOL "do not allow any warning")
+      #set (BOUNDS "ON" CACHE BOOL "enable bounds checking" )
+      set (BUILD_SHARED_LIBS "OFF" CACHE BOOL "static molcas lib" )
+      set (HDF5 "OFF" CACHE BOOL "turn off HDF5")
       set (DEFMOLCASMEM "300" CACHE STRING "reduce memory to get more speed")
     CC: "gcc"
     CXX: "g++"
@@ -245,9 +244,9 @@
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Release" CACHE STRING "opt, no debug info" )
-      set (BOUNDS "ON" CACHE STRING "enable bounds checking" )
+      set (BOUNDS "ON" CACHE BOOL "enable bounds checking" )
       set (DEFMOLCASMEM "300" CACHE STRING "reduce memory to get more speed")
-      set (IPO "ON" CACHE STRING "enable interprocedural optimization")
+      set (IPO "ON" CACHE BOOL "enable interprocedural optimization")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -260,8 +259,8 @@
   variables:
     cache_file: |
       set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "no opt, debug info")
-      set (BUILD_SHARED_LIBS "OFF" CACHE STRING "do not use shared libmolcas")
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (BUILD_SHARED_LIBS "OFF" CACHE BOOL "do not use shared libmolcas")
+      set (BIGOT "ON" CACHE BOOL "do not allow any warning")
       set (DEBUG_DEFS "_DEBUGPRINT_" CACHE STRING "print debug info (insane)")
     CC: "gcc"
     CXX: "g++"
@@ -275,8 +274,8 @@
   image: ${CI_REGISTRY}/molcas/dockerfiles/qcmaquis:latest
   variables:
     cache_file: |
-      set (DMRG ON CACHE STRING "Enable DMRG")
-      set (NEVPT2 ON CACHE STRING "Enable NEVPT2")
+      set (DMRG "ON" CACHE BOOL "Enable DMRG")
+      set (NEVPT2 "ON" CACHE BOOL "Enable NEVPT2")
     CC: "gcc"
     CXX: "g++"
     FC: "gfortran"
@@ -288,11 +287,11 @@
   image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
   variables:
     cache_file: |
-      set (BIGOT "ON" CACHE STRING "do not allow any warning")
-      set (MPI "ON" CACHE STRING "enable MPI parallelization")
-      set (GA "ON" CACHE STRING "enable Global Arrays")
-      set (GA_BUILD "ON" CACHE STRING "build our own Global Arrays")
-      set (OPENMP "ON" CACHE STRING "enable OpenMP diagnostics")
+      set (BIGOT "ON" CACHE BOOL "do not allow any warning")
+      set (MPI "ON" CACHE BOOL "enable MPI parallelization")
+      set (GA "ON" CACHE BOOL "enable Global Arrays")
+      set (GA_BUILD "ON" CACHE BOOL "build our own Global Arrays")
+      set (OPENMP "ON" CACHE BOOL "enable OpenMP diagnostics")
       set (LINALG "OpenBLAS" CACHE STRING "use OpenBLAS library")
       set (MPI_LAUNCHER "/usr/bin/mpiexec $$MPI_FLAGS -n $$MOLCAS_NPROCS" CACHE STRING "custom MPI launcher command line")
       set (DEFMOLCASMEM "768" CACHE STRING "reduce memory for 2 processes")

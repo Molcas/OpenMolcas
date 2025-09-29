@@ -22,6 +22,8 @@
 !> If \f$ X = Z T Z^T \f$, then \f$ \exp(X) = Z \exp(T) Z^T \f$, and \f$ exp(T) \f$ is trivial to compute since each block can
 !> be treated separately: \f$ (0, \lambda) \to (\cos(\lambda), \pm\sin(\lambda) \f$.
 !>
+!> @see ::exp_eig, ::exp_series, ::exp_series2, ::exp_svd
+!>
 !> @param[in]     N        Size of the square matrix
 !> @param[in,out] X        Antisymmetric real matrix, it is replaced by its exponential
 !> @param[out]    maxtheta Maximum rotation angle (absolute value in the Schur form)
@@ -40,8 +42,9 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(inout) :: X(N,N)
+real(kind=wp), intent(out) :: maxtheta
 integer(kind=iwp) :: i, info
-real(kind=wp) :: c, maxtheta, s, theta
+real(kind=wp) :: c, s, theta
 real(kind=wp), allocatable :: tmp(:,:), vs(:,:), work(:)
 #ifdef _USE_LAPACK_
 integer(kind=iwp) :: j, lwork, sdim

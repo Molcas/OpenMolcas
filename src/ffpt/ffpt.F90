@@ -44,13 +44,15 @@ subroutine FFPT(ireturn)
 !***********************************************************************
 
 use FFPT_Global, only: nBas, nSym, Cleanup
+use Spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, nSize, nTemp
+integer(kind=iwp) :: i, iOption, LuSpool, nSize, nTemp
 real(kind=wp), allocatable :: H0(:), RR(:), Temp(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !----------------------------------------------------------------------*
 call MkCom()
@@ -68,7 +70,10 @@ call mma_allocate(H0,nSize,label='H0')
 call mma_allocate(RR,nSize,label='RR')
 call mma_allocate(Temp,nTemp,label='Temp')
 !----------------------------------------------------------------------*
-call RdInp_FFPT()
+LuSpool = IsFreeUnit(33)
+call SpoolInp(LuSpool)
+rewind(LuSpool)
+call RdInp_FFPT(LuSpool)
 call PrInp_FFPT()
 call PtAdd(H0,RR,nSize,Temp,nTEmp)
 !----------------------------------------------------------------------*
@@ -76,9 +81,14 @@ call mma_deallocate(H0)
 call mma_deallocate(RR)
 call mma_deallocate(Temp)
 !----------------------------------------------------------------------*
+call Close_LuSpool(LuSpool)
 call FastIO('STATUS')
 !----------------------------------------------------------------------*
 call Cleanup()
+
+call Get_iScalar('System Bitswitch',iOption)
+iOption = ibset(iOption,14)
+call Put_iScalar('System Bitswitch',iOption)
 
 ireturn = 0
 

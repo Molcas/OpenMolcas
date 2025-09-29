@@ -5,7 +5,7 @@
 **************************************************
 
 > export MOLCAS_MOLDEN=OFF
-> export MOLCAS_TIMELIM=1200
+> eval MOLCAS_TIMELIM=2*$MOLCAS_TIMELIM
 
 &SEWARD  &END
 Medium cholesky

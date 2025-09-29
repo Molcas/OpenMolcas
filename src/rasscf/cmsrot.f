@@ -22,7 +22,6 @@
       use output_ras, only: LF,IPRLOC
       Implicit None
 
-#include "SysDef.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(NACPR2)::TUVX
@@ -96,7 +95,6 @@ C     Deallocating Memory
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RotMat
@@ -174,7 +172,6 @@ C     Deallocating Memory
       use rasscf_global, only: lRoots
       Implicit None
 
-#include "SysDef.fh"
 #include "warnings.h"
       INTEGER NPairs
       Real*8 SumVee
@@ -303,7 +300,6 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       use rasscf_global, only: lRoots
       Implicit None
 
-#include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RotMat
@@ -393,7 +389,6 @@ C      write(6,*)a,b,c,x(4),y(4)
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RMat
@@ -423,7 +418,6 @@ C     & IState,' is ',Vee(IState)
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
@@ -478,7 +472,6 @@ C     & IState,' is ',Vee(IState)
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(NACPR2)::TUVX
@@ -517,7 +510,6 @@ C     & IState,' is ',Vee(IState)
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GDMat
@@ -613,7 +605,6 @@ C     & IState,' is ',Vee(IState)
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
       Real*8 ang,change
       Integer I1,I2
@@ -695,7 +686,6 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       use rasscf_global, only: lRoots, NAC
       Implicit None
 
-#include "SysDef.fh"
 #include "warnings.h"
 
       Real*8 SV,A,V1,V2
@@ -859,7 +849,6 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
       INTEGER NP
       Real*8,DIMENSION(NP)::theta
@@ -907,7 +896,6 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD
       Real*8,DIMENSION(lRoots)::Vee
@@ -936,7 +924,6 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD,GD2

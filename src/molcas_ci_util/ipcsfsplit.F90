@@ -57,8 +57,8 @@ integer(kind=iwp), intent(out) :: IPCSF(MXPDIM), IPCNF(NCONF)
 real(kind=wp), intent(in) :: DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, DIAG(MXPDIM), TUVX(*), ExFac
 real(kind=wp), intent(_OUT_) :: SCR(*)
 integer(kind=iwp), intent(inout) :: NTEST
-integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, KLCONF, KLFREE, KLPHPS, MXCSFC, NCSFL, NCSFMN, NIRREP, &
-                     NJCNF, NPCNF, NPCSF
+integer(kind=iwp) :: i, ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, KLCONF, KLFREE, KLPHPS, MXCSFC, NCSFL, NCSFMN, &
+                     NIRREP, NJCNF, NPCNF, NPCSF
 real(kind=wp) :: Acc, XMAX, XMIN
 real(kind=wp), external :: FNDMNX
 
@@ -126,7 +126,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
     ! add new configuration
     NPCNF = NPCNF+1
     IPCNF(NPCNF) = IMIN
-    call ISTVC2(IPCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
+    IPCSF(NPCSF+1:NPCSF+NCSFMN) = [(i,i=ICSFMN,ICSFMN+NCSFMN-1)]
     if ((NPCSF+NCSFMN) <= MXSPLI) then
       iDimBlockA = NPCSF+NCSFMN
       iDimBlockACNF = NPCNF
@@ -143,7 +143,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
     !    DIAVAL = SCR(IPCNF(IICNF))
     !    if (abs(DIAVAL-XMIN) > 1.0e-10_wp) exit
     !    NPCNF = NPCNF-1
-    !    call GETCNF_LUCIA(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
+    !    call GETCNF(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
     !    NPCSF = NPCSF-NCSFTP(ITYP)
     !  end do
     !end if
@@ -182,7 +182,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
   do ICNL=1,NCONF
     !write(u6,*) 'IILB',IILB
     call c_f_pointer(c_loc(SCR(KLCONF)),iSCR,[1])
-    call GETCNF_LUCIA(iSCR,ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
+    call GETCNF(iSCR,ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
     nullify(iSCR)
     NCSFL = NCSFTP(ILTYP)
     !write(u6,*) 'NCSFL = ',NCSFL

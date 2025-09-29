@@ -8,7 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2021,2024, Ignacio Fdez. Galván                        *
+# Copyright (C) 2021,2024,2025, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
 import sys
@@ -19,7 +19,7 @@ import numpy as np
 from fractions import Fraction
 import h5py
 
-version = '2.1.1'
+version = '2.2'
 
 ################################################################################
 # FUNCTIONS
@@ -558,8 +558,9 @@ parser.add_argument('-d', '--desymmetrize', help='desymmetrize data', action='st
 parser.add_argument('-a', '--all', help='copy all unhandled datasets and attributes to output file (some items may be wrong!)', action='store_true')
 parser.add_argument('-f', '--transfer', help='transfer (project) orbitals from input file onto output file\n'
                                              'transf_spec: "all", "occupied", "active", or comma-separated list of input orbital indices)\n'
-                                             'incompatible with other options', metavar='transf_spec')
+                                             'incompatible with previous options', metavar='transf_spec')
 parser.add_argument('-s', '--select', help='specify which output orbitals to replace with --transfer ("help" for format)', metavar='select_spec')
+parser.add_argument('-o', '--orth', help='threshold for orthonormality checks (default: 1e-8)', type=float, metavar='threshold', default='1e-8')
 parser.add_argument('--threshold', help=argparse.SUPPRESS or 'overlap threshold for orbital projection (default: 0.5)', type=float, default=0.5, metavar='T')
 
 # Partial parse before specifying required arguments
@@ -639,8 +640,8 @@ if args['transfer']:
       C_A = desym @ C_A
     except KeyError:
       pass
-    if not np.allclose(C_A.T @ ov_A @ C_A, np.eye(nbas_A)):
-      sys.exit(f'Error: Orbitals in {infile} are not orthonormal!')
+    if not np.allclose(C_A.T @ ov_A @ C_A, np.eye(nbas_A), atol=args['orth']):
+      sys.exit(f'Error: Orbitals in {args["infile"]} are not orthonormal!')
 
   with h5py.File(args['outfile'], 'r') as f:
     nsym = f.attrs['NSYM']
@@ -658,8 +659,8 @@ if args['transfer']:
       C_B = desym @ C_B
     except KeyError:
       pass
-    if not np.allclose(C_B.T @ ov_B @ C_B, np.eye(nbas_B)):
-      sys.exit(f'Error: Orbitals in {outfile} are not orthonormal!')
+    if not np.allclose(C_B.T @ ov_B @ C_B, np.eye(nbas_B), atol=args['orth']):
+      sys.exit(f'Error: Orbitals in {args["outfile"]} are not orthonormal!')
 
   if numorbs == 'all':
     numorbs = [i for i in range(nbas_A)]
@@ -753,13 +754,13 @@ if args['transfer']:
   # symmetric orthogonalization of the result
   s, U = np.linalg.eigh(D.T @ S_B @ D)
   Dq = D @ U / np.sqrt(s) @ U.T
-  if not np.allclose(Cs_A.T @ S_AB @ Dq, 0):
+  if not np.allclose(Cs_A.T @ S_AB @ Dq, 0, atol=args['orth']):
     sys.exit('Error: complementary space is contaminated. This may be a bug')
   # fill up the columns (Cn: new coefficients)
   Cn_B = np.empty((nbas_B, nbas_B))
   Cn_B[:,sel] = Cs_B
   Cn_B[:,rest] = Dq
-  if not np.allclose(Cn_B.T @ S_B @ Cn_B, np.eye(nbas_B)):
+  if not np.allclose(Cn_B.T @ S_B @ Cn_B, np.eye(nbas_B), atol=args['orth']):
     sys.exit('Error: output orbitals are not orthonormal. This may be a bug')
 
   print('Overlap between input orbitals and projected orbitals:')

@@ -38,10 +38,10 @@
 #define _MMA_FUNC_ allocated
 #endif
 
-#ifdef _NO_GARBLE_
-#define _KEY_ 'RGSTN'
+#if (defined _GARBLE_) && (!defined _NO_GARBLE_)
+#define _GARBLE_FUNC_(ipos,length,vartyp) call garble(ipos,length,vartyp)
 #else
-#define _KEY_ 'RGST'
+#define _GARBLE_FUNC_(ipos,length,vartyp)
 #endif
 
 ! NAME_allo_xD definition
@@ -49,122 +49,143 @@
 #define _ALLO_NAME_ CAT(CAT(_SUBR_NAME_,_allo),CAT(_,CAT(_DIMENSIONS_,D)))
 
 #if _DIMENSIONS_==0
-      subroutine _ALLO_NAME_(buffer,n0,label,safe)
+subroutine _ALLO_NAME_(buffer,n0,label,safe)
 #elif _DIMENSIONS_==1
-      subroutine _ALLO_NAME_(buffer,n1,label,safe)
+subroutine _ALLO_NAME_(buffer,n1,label,safe)
 #elif _DIMENSIONS_==2
-      subroutine _ALLO_NAME_(buffer,n1,n2,label,safe)
+subroutine _ALLO_NAME_(buffer,n1,n2,label,safe)
 #elif _DIMENSIONS_==3
-      subroutine _ALLO_NAME_(buffer,n1,n2,n3,label,safe)
+subroutine _ALLO_NAME_(buffer,n1,n2,n3,label,safe)
 #elif _DIMENSIONS_==4
-      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,label,safe)
+subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,label,safe)
 #elif _DIMENSIONS_==5
-      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,label,safe)
+subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,label,safe)
+#elif _DIMENSIONS_==6
+subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,label,safe)
 #elif _DIMENSIONS_==7
-      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,n7,label,safe)
+subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,n7,label,safe)
+#endif
+
+use, intrinsic :: iso_c_binding, only: c_loc
+use mma_module, only: cptr2woff
+#if (defined _GARBLE_) && (!defined _NO_GARBLE_)
+use mma_module, only: garble
 #endif
 #ifndef _IN_STDALLOC_MOD_
-        use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
+use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
 #endif
-        implicit none
+use Definitions, only: iwp
+
+implicit none
 #if _DIMENSIONS_==0
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer
-        integer, intent(in) :: n0
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer
+integer(kind=iwp), intent(in) :: n0
 #elif _DIMENSIONS_==1
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:)
-        integer, intent(in) :: n1
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:)
+integer(kind=iwp), intent(in) :: n1
 #elif _DIMENSIONS_==2
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:)
-        integer, intent(in) :: n1,n2
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:)
+integer(kind=iwp), intent(in) :: n1, n2
 #elif _DIMENSIONS_==3
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:)
-        integer, intent(in) :: n1,n2,n3
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:)
+integer(kind=iwp), intent(in) :: n1, n2, n3
 #elif _DIMENSIONS_==4
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:)
-        integer, intent(in) :: n1,n2,n3,n4
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:)
+integer(kind=iwp), intent(in) :: n1, n2, n3, n4
 #elif _DIMENSIONS_==5
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:)
-        integer, intent(in) :: n1,n2,n3,n4,n5
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:,:)
+integer(kind=iwp), intent(in) :: n1, n2, n3, n4, n5
+#elif _DIMENSIONS_==6
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:,:,:)
+integer(kind=iwp), intent(in) :: n1, n2, n3, n4, n5, n6
 #elif _DIMENSIONS_==7
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:,:)
-        integer, intent(in) :: n1,n2,n3,n4,n5,n6,n7
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:,:,:,:)
+integer(kind=iwp), intent(in) :: n1, n2, n3, n4, n5, n6, n7
 #endif
-        character(len=*), optional, intent(in) :: label
-        character, optional, intent(in) :: safe
-        integer :: ntot,mma_avail,bufsize,loffset
-        if (_MMA_FUNC_(buffer)) then
-          if (present(safe)) return
-          if (present(label)) then
-            call mma_double_allo(label)
-          else
-            call mma_double_allo(_DEF_LABEL_)
-          end if
-        end if
-        call mma_maxBYTES(mma_avail)
+character(len=*), optional, intent(in) :: label
+character, optional, intent(in) :: safe
+integer(kind=iwp) :: ntot, mma_avail, bufsize, loffset
+character(len=32) :: lab
+
+if (present(label)) then
+  lab = label
+else
+  lab = _DEF_LABEL_
+end if
+if (_MMA_FUNC_(buffer)) then
+  if (present(safe)) return
+  call mma_double_allo(lab)
+end if
+call mma_maxBYTES(mma_avail)
 #if _DIMENSIONS_==0
-        ntot = n0
+ntot = n0
 #elif _DIMENSIONS_==1
-        ntot = n1
+ntot = n1
 #elif _DIMENSIONS_==2
-        ntot = n1*n2
+ntot = n1*n2
 #elif _DIMENSIONS_==3
-        ntot = n1*n2*n3
+ntot = n1*n2*n3
 #elif _DIMENSIONS_==4
-        ntot = n1*n2*n3*n4
+ntot = n1*n2*n3*n4
 #elif _DIMENSIONS_==5
-        ntot = n1*n2*n3*n4*n5
+ntot = n1*n2*n3*n4*n5
+#elif _DIMENSIONS_==6
+ntot = n1*n2*n3*n4*n5*n6
 #elif _DIMENSIONS_==7
-        ntot = n1*n2*n3*n4*n5*n6*n7
+ntot = n1*n2*n3*n4*n5*n6*n7
 #endif
 #if _DIMENSIONS_==0
-!       we can't use storage_size(buffer) for an unallocated character(len=:)
-        bufsize = (storage_size('a') * ntot - 1) / 8 + 1
+! we can't use storage_size(buffer) for an unallocated character(len=:)
+bufsize = (storage_size('a')*ntot-1)/8+1
 #else
-        bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
+bufsize = (storage_size(buffer)*ntot-1)/8+1
 #endif
-        if (bufsize .gt. mma_avail) then
-          call mma_oom(label,bufsize,mma_avail)
-        else
-#if _DIMENSIONS_==0
-          if (n0 .eq. 0) call abend()
-          allocate(character(len=n0) :: buffer)
-#elif _DIMENSIONS_==1
-          allocate(buffer(n1))
-#elif _DIMENSIONS_==2
-          allocate(buffer(n1,n2))
-#elif _DIMENSIONS_==3
-          allocate(buffer(n1,n2,n3))
-#elif _DIMENSIONS_==4
-          allocate(buffer(n1,n2,n3,n4))
-#elif _DIMENSIONS_==5
-          allocate(buffer(n1,n2,n3,n4,n5))
-#elif _DIMENSIONS_==7
-          allocate(buffer(n1,n2,n3,n4,n5,n6,n7))
-#endif
-          if (ntot.gt.0) then
-#if _DIMENSIONS_==0
-            loffset = cptr2loff(buffer(1:1))
-#elif _DIMENSIONS_==1
-            loffset = cptr2loff(buffer(1))
-#elif _DIMENSIONS_==2
-            loffset = cptr2loff(buffer(1,1))
-#elif _DIMENSIONS_==3
-            loffset = cptr2loff(buffer(1,1,1))
-#elif _DIMENSIONS_==4
-            loffset = cptr2loff(buffer(1,1,1,1))
-#elif _DIMENSIONS_==5
-            loffset = cptr2loff(buffer(1,1,1,1,1))
-#elif _DIMENSIONS_==7
-            loffset = cptr2loff(buffer(1,1,1,1,1,1,1))
-#endif
-            if (present(label)) then
-              call getmem(label,_KEY_,_DN_,loffset,_SIZE_)
-            else
-              call getmem(_DEF_LABEL_,_KEY_,_DN_,loffset,_SIZE_)
-            end if
-          end if
-        end if
-      end subroutine _ALLO_NAME_
+if (bufsize > mma_avail) then
+  call mma_oom(lab,bufsize,mma_avail)
+else
+# if _DIMENSIONS_==0
+  if (n0 == 0) call abend()
+  allocate(character(len=n0) :: buffer)
+# elif _DIMENSIONS_==1
+  allocate(buffer(n1))
+# elif _DIMENSIONS_==2
+  allocate(buffer(n1,n2))
+# elif _DIMENSIONS_==3
+  allocate(buffer(n1,n2,n3))
+# elif _DIMENSIONS_==4
+  allocate(buffer(n1,n2,n3,n4))
+# elif _DIMENSIONS_==5
+  allocate(buffer(n1,n2,n3,n4,n5))
+# elif _DIMENSIONS_==6
+  allocate(buffer(n1,n2,n3,n4,n5,n6))
+# elif _DIMENSIONS_==7
+  allocate(buffer(n1,n2,n3,n4,n5,n6,n7))
+# endif
+  ! Only register non-zero allocations, because we need to get a pointer to an existing element
+  if (ntot > 0) then
+#   if _DIMENSIONS_==0
+    loffset = cptr2woff(c_loc(buffer(1:1)))
+#   elif _DIMENSIONS_==1
+    loffset = cptr2woff(c_loc(buffer(1)))
+#   elif _DIMENSIONS_==2
+    loffset = cptr2woff(c_loc(buffer(1,1)))
+#   elif _DIMENSIONS_==3
+    loffset = cptr2woff(c_loc(buffer(1,1,1)))
+#   elif _DIMENSIONS_==4
+    loffset = cptr2woff(c_loc(buffer(1,1,1,1)))
+#   elif _DIMENSIONS_==5
+    loffset = cptr2woff(c_loc(buffer(1,1,1,1,1)))
+#   elif _DIMENSIONS_==6
+    loffset = cptr2woff(c_loc(buffer(1,1,1,1,1,1)))
+#   elif _DIMENSIONS_==7
+    loffset = cptr2woff(c_loc(buffer(1,1,1,1,1,1,1)))
+#   endif
+    call getmem(lab,'RGST',_DN_,loffset,_SIZE_)
+    _GARBLE_FUNC_(loffset,_SIZE_,_DN_)
+  end if
+end if
+
+end subroutine _ALLO_NAME_
 
 ! NAME_allo_xD_lim definition
 
@@ -173,115 +194,126 @@
 #define _ALLO_NAME_LIM_ CAT(_ALLO_NAME_,_lim)
 
 #if _DIMENSIONS_==1
-      subroutine _ALLO_NAME_LIM_(buffer,l1,label,safe)
+subroutine _ALLO_NAME_LIM_(buffer,l1,label,safe)
 #elif _DIMENSIONS_==2
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,label,safe)
+subroutine _ALLO_NAME_LIM_(buffer,l1,l2,label,safe)
 #elif _DIMENSIONS_==3
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,label,safe)
+subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,label,safe)
 #elif _DIMENSIONS_==4
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,label,safe)
+subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,label,safe)
 #elif _DIMENSIONS_==5
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,label,safe)
+subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,label,safe)
+#elif _DIMENSIONS_==6
+subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,label,safe)
 #elif _DIMENSIONS_==7
-      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,l7,label,     &
-     &                           safe)
+subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,l7,label,safe)
+#endif
+
+use, intrinsic :: iso_c_binding, only: c_loc
+use mma_module, only: cptr2woff
+#if (defined _GARBLE_) && (!defined _NO_GARBLE_)
+use mma_module, only: garble
 #endif
 #ifndef _IN_STDALLOC_MOD_
-        use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
+use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
 #endif
-        implicit none
+use Definitions, only: iwp
+
+implicit none
 #if _DIMENSIONS_==1
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:)
-        integer, intent(in) :: l1(2)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:)
+integer(kind=iwp), intent(in) :: l1(2)
 #elif _DIMENSIONS_==2
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:)
-        integer, intent(in) :: l1(2),l2(2)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:)
+integer(kind=iwp), intent(in) :: l1(2), l2(2)
 #elif _DIMENSIONS_==3
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:)
-        integer, intent(in) :: l1(2),l2(2),l3(2)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:)
+integer(kind=iwp), intent(in) :: l1(2), l2(2), l3(2)
 #elif _DIMENSIONS_==4
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:)
-        integer, intent(in) :: l1(2),l2(2),l3(2),l4(2)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:)
+integer(kind=iwp), intent(in) :: l1(2), l2(2), l3(2), l4(2)
 #elif _DIMENSIONS_==5
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:)
-        integer, intent(in) :: l1(2),l2(2),l3(2),l4(2),l5(2)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:,:)
+integer(kind=iwp), intent(in) :: l1(2), l2(2), l3(2), l4(2), l5(2)
+#elif _DIMENSIONS_==6
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:,:,:)
+integer(kind=iwp), intent(in) :: l1(2), l2(2), l3(2), l4(2), l5(2), l6(2)
 #elif _DIMENSIONS_==7
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:,:)
-        integer, intent(in) :: l1(2),l2(2),l3(2),l4(2),l5(2),l6(2),l7(2)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:,:,:,:)
+integer(kind=iwp), intent(in) :: l1(2), l2(2), l3(2), l4(2), l5(2), l6(2), l7(2)
 #endif
-        character(len=*), optional, intent(in) :: label
-        character, optional, intent(in) :: safe
-        integer :: ntot,mma_avail,bufsize,loffset
-        if (_MMA_FUNC_(buffer)) then
-          if (present(safe)) return
-          if (present(label)) then
-            call mma_double_allo(label)
-          else
-            call mma_double_allo(_DEF_LABEL_)
-          end if
-        end if
-        call mma_maxBYTES(mma_avail)
+character(len=*), optional, intent(in) :: label
+character, optional, intent(in) :: safe
+integer(kind=iwp) :: ntot, mma_avail, bufsize, loffset
+character(len=32) :: lab
+
+if (present(label)) then
+  lab = label
+else
+  lab = _DEF_LABEL_
+end if
+if (_MMA_FUNC_(buffer)) then
+  if (present(safe)) return
+  call mma_double_allo(lab)
+end if
+call mma_maxBYTES(mma_avail)
 #if _DIMENSIONS_==1
-        ntot = l1(2)-l1(1)+1
+ntot = l1(2)-l1(1)+1
 #elif _DIMENSIONS_==2
-        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1)
+ntot = (l1(2)-l1(1)+1)*(l2(2)-l2(1)+1)
 #elif _DIMENSIONS_==3
-        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1)
+ntot = (l1(2)-l1(1)+1)*(l2(2)-l2(1)+1)*(l3(2)-l3(1)+1)
 #elif _DIMENSIONS_==4
-        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *    &
-     &         (l4(2)-l4(1)+1)
+ntot = (l1(2)-l1(1)+1)*(l2(2)-l2(1)+1)*(l3(2)-l3(1)+1)*(l4(2)-l4(1)+1)
 #elif _DIMENSIONS_==5
-        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *    &
-     &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1)
+ntot = (l1(2)-l1(1)+1)*(l2(2)-l2(1)+1)*(l3(2)-l3(1)+1)*(l4(2)-l4(1)+1)*(l5(2)-l5(1)+1)
+#elif _DIMENSIONS_==6
+ntot = (l1(2)-l1(1)+1)*(l2(2)-l2(1)+1)*(l3(2)-l3(1)+1)*(l4(2)-l4(1)+1)*(l5(2)-l5(1)+1)*(l6(2)-l6(1)+1)
 #elif _DIMENSIONS_==7
-        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *    &
-     &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1) * (l6(2)-l6(1)+1) *    &
-     &         (l7(2)-l7(1)+1)
+ntot = (l1(2)-l1(1)+1)*(l2(2)-l2(1)+1)*(l3(2)-l3(1)+1)*(l4(2)-l4(1)+1)*(l5(2)-l5(1)+1)*(l6(2)-l6(1)+1)*(l7(2)-l7(1)+1)
 #endif
-        bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
-        if (bufsize .gt. mma_avail) then
-          call mma_oom(label,bufsize,mma_avail)
-        else
-#if _DIMENSIONS_==1
-          allocate(buffer(l1(1):l1(2)))
-#elif _DIMENSIONS_==2
-          allocate(buffer(l1(1):l1(2),l2(1):l2(2)))
-#elif _DIMENSIONS_==3
-          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2)))
-#elif _DIMENSIONS_==4
-          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),          &
-     &                    l4(1):l4(2)))
-#elif _DIMENSIONS_==5
-          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),          &
-     &                    l4(1):l4(2),l5(1):l5(2)))
-#elif _DIMENSIONS_==7
-          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),          &
-     &                    l4(1):l4(2),l5(1):l5(2),l6(1):l6(2),          &
-     &                    l7(1):l7(2)))
-#endif
-          if (ntot.gt.0) then
-#if _DIMENSIONS_==1
-            loffset = cptr2loff(buffer(l1(1)))
-#elif _DIMENSIONS_==2
-            loffset = cptr2loff(buffer(l1(1),l2(1)))
-#elif _DIMENSIONS_==3
-            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1)))
-#elif _DIMENSIONS_==4
-            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1)))
-#elif _DIMENSIONS_==5
-            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
-#elif _DIMENSIONS_==7
-            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),   &
-     &                                 l6(1),l7(1)))
-#endif
-            if (present(label)) then
-              call getmem(label,_KEY_,_DN_,loffset,_SIZE_)
-            else
-              call getmem(_DEF_LABEL_,_KEY_,_DN_,loffset,_SIZE_)
-            end if
-          end if
-        end if
-      end subroutine _ALLO_NAME_LIM_
+bufsize = (storage_size(buffer)*ntot-1)/8+1
+if (bufsize > mma_avail) then
+  call mma_oom(lab,bufsize,mma_avail)
+else
+# if _DIMENSIONS_==1
+  allocate(buffer(l1(1):l1(2)))
+# elif _DIMENSIONS_==2
+  allocate(buffer(l1(1):l1(2),l2(1):l2(2)))
+# elif _DIMENSIONS_==3
+  allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2)))
+# elif _DIMENSIONS_==4
+  allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),l4(1):l4(2)))
+# elif _DIMENSIONS_==5
+  allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),l4(1):l4(2),l5(1):l5(2)))
+# elif _DIMENSIONS_==6
+  allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),l4(1):l4(2),l5(1):l5(2),l6(1):l6(2)))
+# elif _DIMENSIONS_==7
+  allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),l4(1):l4(2),l5(1):l5(2),l6(1):l6(2),l7(1):l7(2)))
+# endif
+  ! Only register non-zero allocations, because we need to get a pointer to an existing element
+  if (ntot > 0) then
+#   if _DIMENSIONS_==1
+    loffset = cptr2woff(c_loc(buffer(l1(1))))
+#   elif _DIMENSIONS_==2
+    loffset = cptr2woff(c_loc(buffer(l1(1),l2(1))))
+#   elif _DIMENSIONS_==3
+    loffset = cptr2woff(c_loc(buffer(l1(1),l2(1),l3(1))))
+#   elif _DIMENSIONS_==4
+    loffset = cptr2woff(c_loc(buffer(l1(1),l2(1),l3(1),l4(1))))
+#   elif _DIMENSIONS_==5
+    loffset = cptr2woff(c_loc(buffer(l1(1),l2(1),l3(1),l4(1),l5(1))))
+#   elif _DIMENSIONS_==6
+    loffset = cptr2woff(c_loc(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),l6(1))))
+#   elif _DIMENSIONS_==7
+    loffset = cptr2woff(c_loc(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),l6(1),l7(1))))
+#   endif
+    call getmem(lab,'RGST',_DN_,loffset,_SIZE_)
+    _GARBLE_FUNC_(loffset,_SIZE_,_DN_)
+  end if
+end if
+
+end subroutine _ALLO_NAME_LIM_
 
 #endif
 
@@ -289,88 +321,87 @@
 
 #define _FREE_NAME_ CAT(CAT(_SUBR_NAME_,_free),CAT(_,CAT(_DIMENSIONS_,D)))
 
-      subroutine _FREE_NAME_(buffer,safe)
+subroutine _FREE_NAME_(buffer,safe)
+
+use, intrinsic :: iso_c_binding, only: c_loc
+use mma_module, only: cptr2woff
 #ifndef _IN_STDALLOC_MOD_
-        use stdalloc, only: mma_double_free
+use stdalloc, only: mma_double_free
 #endif
-        implicit none
+use Definitions, only: iwp
+
+implicit none
 #if _DIMENSIONS_==0
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer
 #elif _DIMENSIONS_==1
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:)
 #elif _DIMENSIONS_==2
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:)
 #elif _DIMENSIONS_==3
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:)
 #elif _DIMENSIONS_==4
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:)
 #elif _DIMENSIONS_==5
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:,:)
+#elif _DIMENSIONS_==6
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:,:,:)
 #elif _DIMENSIONS_==7
-        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:,:)
+_TYPE_, _MMA_ATTR_, target, intent(inout) :: buffer(:,:,:,:,:,:,:)
 #endif
-        character, optional, intent(in) :: safe
-        integer :: ntot,loffset
+character, optional, intent(in) :: safe
+integer(kind=iwp) :: ntot, loffset
 #ifndef _DATA_NAME_
-        integer :: bufsize
+integer(kind=iwp) :: bufsize
 #endif
-        if (_MMA_FUNC_(buffer)) then
-#if _DIMENSIONS_==0
-          ntot = 1
-#else
-          ntot = size(buffer)
-#endif
-#ifndef _DATA_NAME_
-          bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
-#endif
-          if (ntot.gt.0) then
-#if _DIMENSIONS_==0
-            loffset = cptr2loff(buffer(1:1))
-#elif _DIMENSIONS_==1
-            loffset = cptr2loff(buffer(lbound(buffer,1)))
-#elif _DIMENSIONS_==2
-            loffset = cptr2loff(buffer(lbound(buffer,1),                &
-     &                                 lbound(buffer,2)))
-#elif _DIMENSIONS_==3
-            loffset = cptr2loff(buffer(lbound(buffer,1),                &
-     &                                 lbound(buffer,2),                &
-     &                                 lbound(buffer,3)))
-#elif _DIMENSIONS_==4
-            loffset = cptr2loff(buffer(lbound(buffer,1),                &
-     &                                 lbound(buffer,2),                &
-     &                                 lbound(buffer,3),                &
-     &                                 lbound(buffer,4)))
-#elif _DIMENSIONS_==5
-            loffset = cptr2loff(buffer(lbound(buffer,1),                &
-     &                                 lbound(buffer,2),                &
-     &                                 lbound(buffer,3),                &
-     &                                 lbound(buffer,4),                &
-     &                                 lbound(buffer,5)))
-#elif _DIMENSIONS_==7
-            loffset = cptr2loff(buffer(lbound(buffer,1),                &
-     &                                 lbound(buffer,2),                &
-     &                                 lbound(buffer,3),                &
-     &                                 lbound(buffer,4),                &
-     &                                 lbound(buffer,5),                &
-     &                                 lbound(buffer,6),                &
-     &                                 lbound(buffer,7)))
-#endif
-            call getmem(_DEF_LABEL_,'EXCL',_DN_,loffset,_SIZE_)
-          end if
-          deallocate(buffer)
-#ifdef _IS_POINTER_
-          nullify(buffer)
-#endif
-        else if (.not. present(safe)) then
-          call mma_double_free(_DEF_LABEL_)
-        end if
-      end subroutine _FREE_NAME_
+
+if (_MMA_FUNC_(buffer)) then
+# if _DIMENSIONS_==0
+  ntot = 1
+# else
+  ntot = size(buffer)
+# endif
+# ifndef _DATA_NAME_
+  bufsize = (storage_size(buffer)*ntot-1)/8+1
+# endif
+  ! Only deregister non-zero allocations, because we need to get a pointer to an existing element
+  if (ntot > 0) then
+#   if _DIMENSIONS_==0
+    loffset = cptr2woff(c_loc(buffer(1:1)))
+#   elif _DIMENSIONS_==1
+    loffset = cptr2woff(c_loc(buffer(lbound(buffer,1))))
+#   elif _DIMENSIONS_==2
+    loffset = cptr2woff(c_loc(buffer(lbound(buffer,1),lbound(buffer,2))))
+#   elif _DIMENSIONS_==3
+    loffset = cptr2woff(c_loc(buffer(lbound(buffer,1),lbound(buffer,2),lbound(buffer,3))))
+#   elif _DIMENSIONS_==4
+    loffset = cptr2woff(c_loc(buffer(lbound(buffer,1),lbound(buffer,2),lbound(buffer,3),lbound(buffer,4))))
+#   elif _DIMENSIONS_==5
+    loffset = cptr2woff(c_loc(buffer(lbound(buffer,1),lbound(buffer,2),lbound(buffer,3),lbound(buffer,4),lbound(buffer,5))))
+#   elif _DIMENSIONS_==6
+    loffset = cptr2woff(c_loc(buffer(lbound(buffer,1),lbound(buffer,2),lbound(buffer,3),lbound(buffer,4),lbound(buffer,5), &
+                                     lbound(buffer,6))))
+#   elif _DIMENSIONS_==7
+    loffset = cptr2woff(c_loc(buffer(lbound(buffer,1),lbound(buffer,2),lbound(buffer,3),lbound(buffer,4),lbound(buffer,5), &
+                                     lbound(buffer,6),lbound(buffer,7))))
+#   endif
+    call getmem(_DEF_LABEL_,'EXCL',_DN_,loffset,_SIZE_)
+  end if
+  deallocate(buffer)
+# ifdef _IS_POINTER_
+  nullify(buffer)
+# endif
+else if (.not. present(safe)) then
+  call mma_double_free(_DEF_LABEL_)
+end if
+
+end subroutine _FREE_NAME_
 
 #undef _SIZE_
 #undef _DN_
 #undef _MMA_ATTR_
 #undef _MMA_FUNC_
-#undef _KEY_
+#undef _GARBLE_FUNC_
+#undef _NO_GARBLE_
 #undef _ALLO_NAME_
 #undef _ALLO_NAME_LIM_
 #undef _FREE_NAME_

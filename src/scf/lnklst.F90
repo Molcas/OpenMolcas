@@ -84,6 +84,7 @@
 !     Define linked lists for storage of vectors of subsequent iters   *
 !----------------------------------------------------------------------*
 !     LLGrad - linked list of gradients                                *
+!     LLlGrd - linked list of local gradients                          *
 !     LLdGrd - linked list of gradient diffs                           *
 !     LLDelt - linked list of Delta vectors                            *
 !     LLy    - linked list of y-vectors                                *
@@ -91,6 +92,7 @@
 !              (only for QNR/DIIS combination)                         *
 !----------------------------------------------------------------------*
 
+!#define _DEBUGPRINT_
 module LnkLst
 
 use InfSCF, only: MxIter
@@ -101,15 +103,14 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-integer(kind=iwp), parameter :: MAXnodes = MxIter*5, NodSiz = 6
-logical(kind=iwp), parameter :: Debug_LnkLst = .false.
+integer(kind=iwp), parameter :: MAXnodes = (MxIter+1)*6, NodSiz = 6
 
-integer(kind=iwp) :: LLDelt, LLdGrd, LLGrad, lLList = 0, LLx, LLy, nLList(MAXnodes,0:NodSiz-1)
+integer(kind=iwp) :: LLDelt, LLdGrd, LLGrad, LLlGrd, lLList = 0, LLx, LLy, nLList(MAXnodes,0:NodSiz-1)
 logical(kind=iwp) :: Init_LLs = .false.
 type(Alloc1DArray_Type) :: SCF_V(Maxnodes)
 
-public :: DmpLst, GetNod, GetVec, IniLst, Init_LLs, iVPtr, KilLst, LLDelt, LLdGrd, LLGrad, LLLen, lLList, LLx, LLy, LstPtr, &
-          nLList, NodSiz, PutVec, RclLst, SCF_V
+public :: DmpLst, GetNod, GetVec, IniLst, Init_LLs, iVPtr, KilLst, LLDelt, LLdGrd, LLGrad, LLLen, LLlGrd, lLList, LLx, LLy, &
+          LstPtr, nLList, NodSiz, PutVec, RclLst, SCF_V, StlLst
 
 contains
 
@@ -126,10 +127,10 @@ subroutine IniLst(iLList,incore)
   nLList(iLList,2) = 0
   nLList(iLList,3) = incore
 
-  if (Debug_LnkLst) then
-    write(u6,*) 'IniLst'
-    call StlLst(iLList)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'IniLst'
+  call StlLst(iLList)
+# endif
 
   return
 
@@ -152,10 +153,10 @@ subroutine PutVec(vec,lvec,iterat,opcode,iLList)
   character(len=4), intent(in) :: opcode
   integer(kind=iwp) :: iPtr2, iroot, lislen, MaxMem
 
-  if (Debug_LnkLst) then
-    write(u6,*) 'PutVec'
-    call StlLst(iLList)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'PutVec',iterat
+  call StlLst(iLList)
+# endif
 
   ! clear ErrCode
   nLList(iLList,0) = 0
@@ -167,7 +168,9 @@ subroutine PutVec(vec,lvec,iterat,opcode,iLList)
 
     case ('NOOP')
 
-      if ((iroot > 0) .and. (nLList(iroot,4) == iterat)) return
+      if (iroot > 0) then
+        if (nLList(iroot,4) == iterat) return
+      endif
 
     case ('OVWR')
       do while ((iroot > 0))
@@ -276,10 +279,10 @@ subroutine GetNod(iterat,iLList,inode)
   integer(kind=iwp), intent(in) :: iterat, iLList
   integer(kind=iwp), intent(out) :: inode
 
-  if (Debug_LnkLst) then
-    write(u6,*) 'GetNod'
-    call StlLst(iLList)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'GetNod',iterat
+  call StlLst(iLList)
+# endif
 
   ! clear ErrCode
   nLList(iLList,0) = 0
@@ -428,10 +431,10 @@ subroutine KilLst(iLList)
   integer(kind=iwp), intent(in) :: iLList
   integer(kind=iwp) :: iFlag, iroot
 
-  if (Debug_LnkLst) then
-    write(u6,*) 'KilLst'
-    call StlLst(iLList)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'KilLst'
+  call StlLst(iLList)
+# endif
 
   iroot = nLList(iLList,1)
   do while (iroot /= 0)
@@ -580,5 +583,43 @@ subroutine RclLst(iLList,LUnit,lDskPt,NoAllo)
   if (iPtr2 > 0) nLList(iLList,3) = nLList(iLList,3)-incore
 
 end subroutine RclLst
+
+subroutine StlLst(LLink)
+
+  integer(kind=iwp), intent(in) :: LLink
+  integer(kind=iwp) :: iRoot
+
+  write(u6,*)
+  write(u6,*) '*********** Status of Linked List *************'
+  write(u6,*)
+  write(u6,*) ' LLink:',LLink
+  write(u6,*)
+  write(u6,*) ' CNOD data'
+  write(u6,*) 'Error code:                       ',nLList(LLink,0)
+  write(u6,*) 'Pointer to first NODE in the list:',nLList(LLink,1)
+  write(u6,*) 'Actual length of list:            ',nLList(LLink,2)
+  write(u6,*) '# of vectors in core:             ',nLList(LLink,3)
+  write(u6,*)
+  iRoot = nLList(LLink,1)
+  do while (iRoot /= 0)
+    write(u6,*) ' NODE data'
+    write(u6,*) 'NODE @:                         ',iRoot
+    write(u6,*) 'Pointer to next NODE:           ',nLList(iRoot,0)
+    write(u6,*) 'Pointer to stored vector:       ',nLList(iRoot,1)
+    if (nLList(iRoot,5) >= 1) then
+      write(u6,*) 'Vector status:                  in Core'
+    else
+      write(u6,*) 'Vector status:                  on Disk'
+    end if
+    write(u6,*) 'Next free position:             ',nLList(iRoot,2)
+    write(u6,*) 'Length of vector:               ',nLList(iRoot,3)
+    write(u6,*) 'Iteration number:               ',nLList(iRoot,4)
+    write(u6,*)
+    iRoot = nLList(iRoot,0)
+  end do
+  write(u6,*) '************ End of Status Report *************'
+  write(u6,*)
+
+end subroutine StlLst
 
 end module LnkLst

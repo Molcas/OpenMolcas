@@ -20,94 +20,110 @@ incomplete.
 */
 
 #if (__GNUC__)
-#define GCC_VERSION (__GNUC__ * 10000  + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#  define GCC_VERSION (__GNUC__ * 10000  + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #else
-#define GCC_VERSION 0
+#  define GCC_VERSION 0
 #endif
 
 /* Allocate on assignment */
 #if ( __SUNPRO_F90 )
-#undef ALLOC_ASSIGN
+#  undef ALLOC_ASSIGN
 #else
-#define ALLOC_ASSIGN
+#  define ALLOC_ASSIGN
 #endif
 
 /* Pointer bounds remapping */
 #if ( __SUNPRO_F90 )
-#undef POINTER_REMAP
+#  undef POINTER_REMAP
 #else
-#define POINTER_REMAP
+#  define POINTER_REMAP
 #endif
 
 /* Trailing zeros in the binary representation (trailz) */
 #if ( __PGI )
-#undef TRAILING_ZEROS
+#  undef TRAILING_ZEROS
 #else
-#define TRAILING_ZEROS
+#  define TRAILING_ZEROS
 #endif
 
 /* Bit extraction (ibits) with zero length */
 #if (( __PGI ) && ( __PGIC__ < 20 ))
-#undef IBITS_LEN_ZERO
+#  undef IBITS_LEN_ZERO
 #else
-#define IBITS_LEN_ZERO
+#  define IBITS_LEN_ZERO
 #endif
 
 /* c_ptr binding */
-#if (( NAGFOR ) && ( __NAG_COMPILER_RELEASE < 61 ) )
-#undef C_PTR_BINDING
+#if (( NAGFOR ) && ( __NAG_COMPILER_RELEASE < 61 ))
+#  undef C_PTR_BINDING
 #else
-#define C_PTR_BINDING
+#  define C_PTR_BINDING
 #endif
 
 /* Internal procedures as arguments.
 With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtime! */
 #if (( __SUNPRO_F90 ) || ( __PGI ))
-#undef INTERNAL_PROC_ARG
+#  undef INTERNAL_PROC_ARG
 #else
-#define INTERNAL_PROC_ARG
+#  define INTERNAL_PROC_ARG
 #endif
 
 /* Allows files with no compilable instructions */
 #if (( NAGFOR ) || ( __PGI ))
-#undef EMPTY_FILES
+#  undef EMPTY_FILES
 #else
-#define EMPTY_FILES
+#  define EMPTY_FILES
 #endif
 
 /* Storage_size in initialization */
 #if (( __GNUC__ ) && ( GCC_VERSION < 70000 ))
-#undef SIZE_INITIALIZATION
+#  undef SIZE_INITIALIZATION
 #else
-#define SIZE_INITIALIZATION
+#  define SIZE_INITIALIZATION
 #endif
 
 /* Intrinsic functions in initialization */
 #if ( __PGI )
-#undef INTRINSIC_INITIALIZATION
+#  undef INTRINSIC_INITIALIZATION
 #else
-#define INTRINSIC_INITIALIZATION
+#  define INTRINSIC_INITIALIZATION
 #endif
 
 /* Safe character member initialization */
 #if (( __GNUC__ ) && ( GCC_VERSION < 80000 ))
-#undef CHAR_MEMBER_INIT
+#  undef CHAR_MEMBER_INIT
 #else
-#define CHAR_MEMBER_INIT
+#  define CHAR_MEMBER_INIT
+#endif
+
+/* Allocatable arguments with BIND(C) */
+#if (( __INTEL_LLVM_COMPILER ))
+#  define _ALLOC_BIND_C_
+#  define _BIND_C_ bind(C)
+#else
+#  undef _ALLOC_BIND_C_
+#  define _BIND_C_
 #endif
 
 /* Empty user-defined type initialization (annoyance in newer ifort) */
 #if (( __INTEL_COMPILER ) && ( __INTEL_COMPILER_BUILD_DATE > 20220000 ))
-#undef EMPTY_TYPE_INIT
+#  undef EMPTY_TYPE_INIT
 #else
-#define EMPTY_TYPE_INIT
+#  define EMPTY_TYPE_INIT
 #endif
 
 /* Compiler bugs (see https://community.intel.com/t5/Intel-Fortran-Compiler/Wrong-results-with-ifx-2024-0-1/td-p/1554375         */
 /*                    https://community.intel.com/t5/Intel-Fortran-Compiler/Wrong-results-in-apparently-simple-loop/m-p/1592647) */
-#if (__INTEL_LLVM_COMPILER)
-#define _BUGGY_INTEL_LLVM_
+#if ( __INTEL_LLVM_COMPILER )
+#  define _BUGGY_INTEL_LLVM_
 #endif
 #if (( __INTEL_COMPILER ) && ( __INTEL_COMPILER_BUILD_DATE < 20150000 ))
-#define _BUGGY_INTEL_OPTIM_
+#  define _BUGGY_INTEL_OPTIM_
+#endif
+
+/* Bogus warning about pointer lifetime */
+#if ( __GNUC__ )
+#  define _LIFETIME_BUG_
+#else
+#  undef _LIFETIME_BUG_
 #endif

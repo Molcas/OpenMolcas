@@ -49,9 +49,6 @@ public :: Clear_XYZ, Out_Raw, Parse_Basis, Parse_Group, Read_XYZ, Symmetry, Writ
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: xyz_cptr2loff
-end interface
 interface mma_Allocate
   module procedure :: xyz_mma_allo_1D, xyz_mma_allo_1D_lim
 end interface
@@ -75,7 +72,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 
   integer(kind=iwp), intent(in) :: Lu
   real(kind=wp), allocatable, intent(in) :: Rot(:,:,:), Trans(:,:)
-  logical(kind=iwp), optional, intent(in) :: Replace
+  logical(kind=iwp), intent(in), optional :: Replace
   integer(kind=iwp) :: i, Idx, Error, Lxyz, NumAt
   real(kind=wp) :: Factor, Mat(3,5)
   logical(kind=iwp) :: Found, Rep
@@ -773,11 +770,8 @@ end subroutine TransformGeom
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define xyz_cptr2loff, xyz_mma_allo_1D, xyz_mma_allo_1D_lim, xyz_mma_free_1D
+! Define xyz_mma_allo_1D, xyz_mma_allo_1D_lim, xyz_mma_free_1D
 #define _TYPE_ type(XYZAtom)
-#  define _FUNC_NAME_ xyz_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ xyz_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'xyz_mma'

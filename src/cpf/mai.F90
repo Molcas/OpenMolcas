@@ -50,8 +50,6 @@ subroutine MAI_INTERNAL(BUFIN)
   integer(kind=iwp), pointer :: IBUFIN(:)
   integer(kind=iwp) :: I, II, J, NA
 
-  call c_f_pointer(c_loc(BUFIN),iBUFIN,[1])
-
   !if (IDENS == 1) write(u6,876) (FC(I),I=1,NOB2)
   NK = 0 ! dummy initialize
   NSK = 0 ! dummy initialize
@@ -67,6 +65,7 @@ subroutine MAI_INTERNAL(BUFIN)
   LBUF0 = RTOI*LBUF
   LBUF1 = LBUF0+LBUF+1
   LBUF2 = LBUF1+1
+  call c_f_pointer(c_loc(BUFIN),iBUFIN,[LBUF2])
   if (KTYP == 0) IADD10 = IAD10(9)
   if (KTYP == 1) IADD10 = IAD10(7)
   do

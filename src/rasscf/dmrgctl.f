@@ -45,7 +45,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module, only: lRF
       Use casvb_global, Only: ifvb
-      use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
+      use timers, only: TimeDens
+      use lucia_data, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
       use gas_data, only: iDoGAS
       use Constants, only: Zero
       use rasscf_global, only: KSDFT, ExFac, iPCMRoot, ITER, lRoots,
@@ -57,7 +58,6 @@
       use general_data, only: ISPIN,jobiph,nactel,ntot2,nash
 
       Implicit None
-#include "timers.fh"
       Integer iFinal, IRst
       Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
@@ -71,7 +71,7 @@ c     Logical Exist
       Character(LEN=16), Parameter:: ROUTINE='DMRGCTL '
 C Local print level (if any)
       Integer iPrLev, i, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
-      Real*8 dum1, dum2, dum3, Scal
+      Real*8 dum1, dum2, dum3, Scal, Time(2)
 
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -300,7 +300,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * Ptmp: SYMMETRIC TWO-BODY DENSITY
 * PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 *
-      Call Timing(Rado_1,dum1,dum2,dum3)
+      Call Timing(Time(1),dum1,dum2,dum3)
       Call dCopy_(NACPAR,[Zero],0,D,1)
       Call dCopy_(NACPAR,[Zero],0,DS,1)
       Call dCopy_(NACPR2,[Zero],0,P,1)
@@ -383,9 +383,8 @@ c
      &              ' ',PA,NACPAR)
       END IF
       IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
-      Call Timing(Rado_2,dum1,dum2,dum3)
-      Rado_2 = Rado_2 - Rado_1
-      Rado_3 = Rado_3 + Rado_2
+      Call Timing(Time(2),dum1,dum2,dum3)
+      TimeDens = TimeDens + Time(2) - Time(1)
 *
       Call mma_deallocate(FMO)
 

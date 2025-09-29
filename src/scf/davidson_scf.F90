@@ -61,7 +61,7 @@ real(kind=wp) :: Alpha, Aux, Conv, Dum(1) = Zero, tmp
 logical(kind=iwp) :: Augmented, Last, Reduced
 integer(kind=iwp), allocatable :: Index_D(:)
 real(kind=wp), allocatable :: Ab(:,:), Diag(:), Eig_old(:), EVal(:), EVec(:), Proj(:), Sub(:,:), TAV(:), TmpVec(:), TRes(:), TVec(:)
-integer(kind=iwp), parameter :: maxiter = 300
+integer(kind=iwp), parameter :: maxiter = 100
 real(kind=wp), parameter :: Thr = 1.0e-6_wp, Thr2 = 1.0e-12_wp, Thr3 = 1.0e-16_wp
 real(kind=wp), external :: ddot_
 #ifdef _DEBUGCode_
@@ -285,15 +285,15 @@ do while (.not. Last)
   !call RecPrt('Orthonormalized subspace',' ',Sub,n,mk)
 # endif
 
-! Compute the matrix product
-!  Ab = A * Sub
-!  Only the new vectors since the last iterations need to be calculated
+  ! Compute the matrix product
+  !  Ab = A * Sub
+  !  Only the new vectors since the last iterations need to be calculated
 
-! Note that the A-matrix is the augmented Hessian of a rs-rfo
-! approach. The A matrix is not explicitly stored but rather only
-! the associated gradient is. The original Hessian is implicitly
-! there and a vector corresponding to the contraction of the updated
-! Hessian and a trial vector can be computed on-the-fly.
+  ! Note that the A-matrix is the augmented Hessian of a rs-rfo
+  ! approach. The A matrix is not explicitly stored but rather only
+  ! the associated gradient is. The original Hessian is implicitly
+  ! there and a vector corresponding to the contraction of the updated
+  ! Hessian and a trial vector can be computed on-the-fly.
 
   do j=old_mk,mk-1
 #   ifdef _DEBUGPRINT_

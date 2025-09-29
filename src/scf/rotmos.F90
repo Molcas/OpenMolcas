@@ -23,7 +23,7 @@ subroutine RotMOs(Delta,nDelta)
 !     input:                                                           *
 !       Delta   : displacement vectors used to construct unitary       *
 !                 rotation matrix via expKap                           *
-!       CMO     : orthonormal vectors from previous iteration of       *
+!       CMO_ref : orthonormal vectors from reference iteration of      *
 !                 length nCMO                                          *
 !                                                                      *
 !     output:                                                          *
@@ -32,7 +32,7 @@ subroutine RotMOs(Delta,nDelta)
 !                                                                      *
 !***********************************************************************
 
-use InfSCF, only: CMO, kOV, nBas, nD, nFro, nOcc, NoFS, nOrb, nSym, TimFld
+use InfSCF, only: CMO, CMO_ref, kOV, nBas, nD, nFro, nOcc, nOFS, nOrb, nSym, TimFld
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -40,7 +40,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nDelta
 real(kind=wp), intent(in) :: Delta(nDelta)
-integer(kind=iwp) :: iCMOpt, iD, iEnd, iSt, iSyBlpt, iSym, nOccmF, nOF, nOfNBA, nSize, nVrt
+integer(kind=iwp) :: iCMOpt, iD, iEnd, iSt, iSyBlpt, iSym, nOccmF(8), nOF, nOfNBA, nSize, nVrt
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: nCMO
 #endif
@@ -60,10 +60,12 @@ call mma_allocate(Scratch,nSize,Label='Scratch')
 
 iEnd = 0
 do iD=1,nD
+  if (kOV(iD) < 1) cycle
   iSt = iEnd+1
   iEnd = iEnd+kOV(iD)
   ! compute rotation matrix via expkap
-  call ExpKap(Delta(iSt:iEnd),kOV(id),RoM,nOcc(1,iD))
+  nOccmF(:) = nOcc(:,iD)-nFro(:)
+  call ExpKap(Delta(iSt:iEnd),kOV(id),RoM,nOccmF)
   iSyBlpt = 1
   iCMOpt = 1
 
@@ -73,20 +75,19 @@ do iD=1,nD
 
     nOF = nOrb(iSym)-nFro(iSym)
     nVrt = nOrb(iSym)-nOcc(iSym,iD)
-    nOccmF = nOcc(iSym,iD)-nFro(iSym)
     nOFnBa = nOF*nBas(iSym)
     iCMOpt = iCMOpt+nBas(iSym)*nFro(iSym)
 
-    if ((nVrt > 0) .and. (nOccmF > 0)) then
-      ! skip, if no orbitals within this irrep
-      Scratch(1:nOFnBA) = CMO(iCMOpt:iCMOpt-nOFnBa-1,iD)
+    ! skip, if no orbitals within this irrep
+    if ((nVrt > 0) .and. (nOccmF(iSym) > 0)) then
+      Scratch(1:nOFnBA) = CMO_ref(iCMOpt:iCMOpt+nOFnBa-1,iD)
       call DGEMM_('N','N',nBas(iSym),nOF,nOF, &
                   One,Scratch,nBas(iSym), &
                   RoM(iSyBlpt),nOF, &
                   Zero,CMO(iCMOpt,iD),nBas(iSym))
 #     ifdef _DEBUGPRINT_
       call NrmClc(Scratch,nBas(iSym)*nOrb(iSym),'RotMOs','Old CMOs')
-      call NrmClc(CMo(iCMOpt,iD),nBas(iSym)*nOrb(iSym),'RotMOs','New CMOs')
+      call NrmClc(CMO(iCMOpt,iD),nBas(iSym)*nOrb(iSym),'RotMOs','New CMOs')
       call RecPrt('RoM',' ',RoM(iSyBlpt),nOF,nOF)
       !call RecPrt('RotMOs: Old CMOs',' ',Scratch,nBas(iSym),nOrb(iSym))
       !call RecPrt('RotMOs: New CMOs',' ',CMO(iCMOpt,iD),nBas(iSym),nOrb(iSym))

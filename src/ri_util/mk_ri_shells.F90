@@ -400,9 +400,9 @@ else
 
     do iSh=jShll+1,iShll
       Shells(iSh)%nBasis = Shells(iSh)%nBasis_c
-      call mma_deallocate(Shells(iShll)%pCff)
-      call mma_allocate(Shells(iShll)%pCff,Shells(iSh)%nExp,Shells(iSh)%nBasis,Label='pCff')
-      Shells(iShll)%pCff(:,:) = Shells(iShll)%Cff_c(:,:,1)
+      call mma_deallocate(Shells(iSh)%pCff)
+      call mma_allocate(Shells(iSh)%pCff,Shells(iSh)%nExp,Shells(iSh)%nBasis,Label='pCff')
+      Shells(iSh)%pCff(:,:) = Shells(iSh)%Cff_c(:,:,1)
       Shells(iSh)%Aux = .true.
     end do
 

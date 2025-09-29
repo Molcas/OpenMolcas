@@ -172,6 +172,7 @@ if (lHss) then
 end if
 if (lGrd) then
   call mma_allocate(GradN,nGrad,Label='GradN')
+  GradN(:) = Zero
   call DrvN1_mck(GradN,nGrad)
   iopt = 0
   irc = -1

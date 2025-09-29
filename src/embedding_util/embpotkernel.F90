@@ -54,7 +54,6 @@ unused_var(lOper)
 unused_var(iCho)
 unused_var(iStabM)
 unused_var(PtChrg)
-unused_var(nGrid)
 unused_var(iAddPot)
 
 !***** Initialization **************************************************
@@ -166,30 +165,3 @@ call mma_deallocate(sphB)
 return
 
 end subroutine EmbPotKernel
-
-!***********************************************************************
-! Returns the radial part of the value of a GTO with given exponent,   *
-! centered at the origin.                                              *
-!***********************************************************************
-function gaussRad(alpha,r)
-
-use Constants, only: Zero
-use Definitions, only: wp, iwp
-
-implicit none
-real(kind=wp) :: gaussRad
-real(kind=wp), intent(in) :: alpha, r(3)
-integer(kind=iwp) :: i
-real(kind=wp) :: rSquare
-
-rSquare = Zero
-do i=1,3
-  rSquare = rSquare+r(i)**2
-end do
-
-! Radial part
-gaussRad = exp(-alpha*rSquare)
-
-return
-
-end function gaussRad

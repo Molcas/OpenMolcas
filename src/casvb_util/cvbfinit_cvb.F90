@@ -26,8 +26,6 @@ mxaobf = maxbfn
 iprec = 8
 iwidth = 110
 call formats_cvb()
-call setmem('trace=off')
-call setmem('clear=off')
 if (is_set /= iset) then
   ! Initializations below are only carried out once:
   call io_init_cvb()

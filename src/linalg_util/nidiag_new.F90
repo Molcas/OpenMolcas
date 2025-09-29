@@ -59,7 +59,7 @@ if (n == 0) return
 #ifdef _DEBUGPRINT_
 write(u6,*) 'New nidiag'
 #endif
-call FZero(U,nv*n)
+U(:,:) = Zero
 
 lh = n*(n+1)/2
 liwrk = 10*n
@@ -74,7 +74,7 @@ call mma_allocate(IWRK,liwrk,label='IWRK')
 call mma_allocate(RWRK,lrwrk,label='RWRK')
 call mma_allocate(HDUP,lh,label='HDUP')
 
-call dcopy_(lh,H,1,HDUP,1)
+HDUP(:) = H(1:lh)
 
 info = 0
 call dsptrd_('U',n,HDUP,DIA,OFF,TAU,info)
@@ -107,7 +107,7 @@ else
 #     endif
     else
 
-      call dcopy_(lh,HDUP,1,H,1)
+      H(1:lh) = HDUP(:)
 
       do I=1,N
         H((I*(I+1))/2) = EVL(I)

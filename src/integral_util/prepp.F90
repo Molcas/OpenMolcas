@@ -28,7 +28,7 @@ use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
 use pso_stuff, only: A_PT2, B_PT2, Bin, Case_2C, Case_3C, Case_MP2, CASPT2_On, CMO, CMOPT2, D0, DS, DSVar, DVar, FnGam, G1, G2, &
                      G_ToC, Gamma_MRCISD, Gamma_On, iD0Lbl, iOffAO, KCMO, lBin, lPSO, lSA, LuCMOPT2, LuGam, LuGamma, LuGamma_PT2, &
-                     mCMO, mDens, mG1, mG2, nBasA, nBasASQ, nBasT, nDens, nFro, nG1, nG2, nOcc, NSSDM, SO2CI, SSDM, Wrk1, Wrk2
+                     mCMO, mG1, mG2, nBasA, nBasASQ, nBasT, nDens, nFro, nG1, nG2, nOcc, NSSDM, SO2CI, SSDM, Wrk1, Wrk2
 use iSD_data, only: iSD, iSO2Sh
 use Basis_Info, only: nBas, nBas_Aux
 use Sizes_of_Seward, only: S
@@ -37,7 +37,6 @@ use RICD_Info, only: Cholesky, Do_RI, Cholesky
 use dmrginfo, only: DoDMRG, LRRAS2
 use etwas, only: CoulFac, ExFac, mBas, mIrrep, nAsh, nCMO, nDSO, nIsh
 use NAC, only: IsNAC
-use mspdft_grad, only: DoGradMSPD
 #ifdef _CD_TIMING_
 use temptime, only: PREPP_CPU, PREPP_WALL
 #endif
@@ -47,7 +46,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iost, iSeed, iSh, iSpin, iSSDM, jBas, LgToC, lRealName, MaxShlAO, &
-                     MxInShl, n, nAct, nBasI, nDim0, nDim1, nDim2, nPair, nQUad, nSA, nShell, nTsT, nXro(0:7)
+                     mDens, MxInShl, n, nAct, nBasI, nDim0, nDim1, nDim2, nPair, nQUad, nSA, nShell, nTsT, nXro(0:7)
 character(len=4096) :: RealName
 real(kind=wp) :: CoefR, CoefX
 logical(kind=iwp) :: Do_Hybrid, DoCholesky, is_error
@@ -211,11 +210,7 @@ else if ((Method == 'RASSCF') .or. (Method == 'CASSCF') .or. (Method == 'GASSCF'
   if (Method == 'MSPDFT') write(u6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
   write(u6,*)
 # endif
-  if (Method == 'MCPDFT') lSA = .true.
-  if (Method == 'MSPDFT') then
-    lSA = .true.
-    dogradmspd = .true.
-  end if
+  if ((Method == 'MCPDFT') .or.(Method == 'MSPDFT')) lSA = .true.
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -356,13 +351,17 @@ end if
 ! Read the (non) variational 1st order density matrix
 ! density matrix in AO/SO basis
 nsa = 1
-if (lsa .or. (Method == 'MCPDFT') .or. (Method == 'MSPDFT')) nsa = 5
-!AMS modification: add a fifth density slot
-mDens = nsa+1
+if (lsa) nsa = 4
+mDens = nsa
+if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
+  nsa = 5
+  !AMS modification: add another density slot
+  mDens = nsa+1
+end if
 call mma_allocate(D0,nDens,mDens,Label='D0')
 D0(:,:) = Zero
 call mma_allocate(DVar,nDens,nsa,Label='DVar')
-if (.not. gamma_mrcisd) call Get_dArray_chk('D1ao',D0(1,1),nDens)
+if (.not. gamma_mrcisd) call Get_dArray_chk('D1ao',D0(:,1),nDens)
 
 call Get_D1ao_Var(DVar,nDens)
 
@@ -509,7 +508,7 @@ if (lpso .and. (.not. gamma_mrcisd)) then
     call Get_dArray_chk('PLMO',G2(:,2),nG2)
     ndim1 = 0
     if (doDMRG) then
-      ndim0 = sum(LRras2(1:8))  !yma
+      ndim0 = sum(LRras2(:))  !yma
       ndim1 = nTri_Elem(ndim0)
       ndim2 = nTri_Elem(ndim1)
       do i=1,ng2
@@ -547,7 +546,7 @@ if (lpso .and. (.not. gamma_mrcisd)) then
     !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0)
 
     call mma_allocate(Tmp,nDens,2,Label='Tmp')
-    call Get_D1I(CMO(1,1),D0(1,1),Tmp,nIsh,nBas,nIrrep)
+    call Get_D1I(CMO(:,1),D0(:,1),Tmp,nIsh,nBas,nIrrep)
     call mma_deallocate(Tmp)
 
     !************************
@@ -560,18 +559,18 @@ if (lpso .and. (.not. gamma_mrcisd)) then
       D0(:,2) = DVar(:,1)-Half*D0(:,1)
     end if
     !RlxLbl = 'D1COMBO  '
-    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,2))
+    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(:,2))
 
     ! This is necessary for the kap-lag
 
     nG1 = nTri_Elem(nAct)
     call mma_allocate(D1AV,nG1,Label='D1AV')
     call Get_dArray_chk('D1av',D1AV,nG1)
-    call Get_D1A(CMO(1,1),D1AV,D0(1,3),nIrrep,nbas,nish,nash,ndens)
+    call Get_D1A(CMO(:,1),D1AV,D0(:,3),nIrrep,nbas,nish,nash,ndens)
     call mma_deallocate(D1AV)
     !************************
     !RlxLbl = 'D1AOA   '
-    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
+    !call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(:,3))
 
     call Get_dArray_chk('DLAO',D0(:,4),nDens)
 

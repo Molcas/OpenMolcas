@@ -46,8 +46,6 @@ set (sources
      efmem.F90
      emfint.F90
      emfmem.F90
-     epeint.F90
-     epemem.F90
      kneint.F90
      kneint_giao.F90
      knemem.F90

@@ -38,7 +38,7 @@ iPrint = nPrint(iRout)
 if (iPrint > 10) write(u6,*) ' >>> Enter MKSRT2 <<<'
 
 !----------------------------------------------------------------------*
-!     initialize various pointers, counters and disk adresses          *
+!     initialize various pointers, counters and disk addresses         *
 !----------------------------------------------------------------------*
 
 iBin = 0

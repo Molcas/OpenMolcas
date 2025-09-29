@@ -76,8 +76,8 @@ call SOS(iStabO,nStabO,llOper)
 call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
 do lDCRT=0,nDCRT-1
-  call OA(iDCRT(lDCRT),CoorO(1:3,1),TC(1:3,1))
-  call OA(iDCRT(lDCRT),CoorO(1:3,2),TC(1:3,2))
+  call OA(iDCRT(lDCRT),CoorO(:,1),TC(:,1))
+  call OA(iDCRT(lDCRT),CoorO(:,2),TC(:,2))
 
   ! Compute contribution from a,b+1
 

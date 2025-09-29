@@ -79,7 +79,7 @@ C
           call ddafile(LUAPT2,1,A_PT2,MaxVec_PT2**2,id)
         end if
 
-        ! rewind LuGamma
+        !rewind(LuGamma)
         Call PrgmTranslate('GAMMA',RealName,lRealName)
         LuGAMMA = isFreeUnit(LuGAMMA)
         Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),
@@ -230,7 +230,7 @@ C
      *                                t_hbf(1,1,ibas0,jbas0),1)
         end if
                 Write (LuGamma,Rec=iRec)
-     *            (T_hbf(i,1,iBas0,jBas0),i=1,nOcc*nOcc)
+     *            ((T_hbf(i,j,iBas0,jBas0),i=1,nOcc),j=1,nOcc)
               End Do
             End Do
           End Do
@@ -1055,7 +1055,7 @@ C
       Use Cholesky, only: INFVEC_N2, MaxVec, nnBstR
       Implicit Real*8 (A-H,O-Z)
 C
-      Dimension CHSPC(nBasT**2,*),WRK(*),ipWRK(*)
+      Dimension CHSPC(*),WRK(*),ipWRK(*)
       Dimension INFVEC(MAXVEC,INFVEC_N2,*),nDimRS(nSym0,*),iSkip(8)
 C
 C     Transform the reduced form to the full form in place
@@ -1072,7 +1072,7 @@ C
       End Do
 C
       ipVecL = 1 + kloc !! lscr*(JNUM-1)
-      jloc = NUMV
+      jloc = (NUMV-1)*nBasT**2+1
       Do iVec = NUMV, 1, -1
         If (l_NDIMRS.LT.1) Then
           lscr  = NNBSTR(iSym,3)
@@ -1082,11 +1082,11 @@ C
         End If
         ipVecL = ipVecL - lscr
         Call DCopy_(nBasT**2,[0.0D+00],0,WRK,1)
-        Call Cho_ReOrdr(irc,CHSPC(ipVecL,1),lscr,1,
+        Call Cho_ReOrdr(irc,CHSPC(ipVecL),lscr,1,
      *                  1,1,1,iSym,JREDC,2,ipWRK,WRK,
      *                  iSkip)
-        Call DCopy_(nBasT**2,WRK,1,CHSPC(1,jloc),1)
-        jloc = jloc-1
+        Call DCopy_(nBasT**2,WRK,1,CHSPC(jloc),1)
+        jloc = jloc-nBasT**2
       End Do
 C
       Return

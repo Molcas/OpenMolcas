@@ -26,7 +26,7 @@ subroutine SORT3(MaxDax)
 !     Calls to : DaFile,DCopy,MkOrd,ClsOrd,ErrOrd                      *
 !                                                                      *
 !     Calling parameters:                                              *
-!     MaxDax  : Higest disk adress of the final 2el integral file      *
+!     MaxDax  : Higest disk address of the final 2el integral file     *
 !                                                                      *
 !     local data declarations:                                         *
 !     Buf    : I/O buffer contains packed integral values              *
@@ -141,7 +141,7 @@ end if
 #endif
 
 !----------------------------------------------------------------------*
-!     Update the disk start adressed of each slice                     *
+!     Update the disk start addressed of each slice                    *
 !----------------------------------------------------------------------*
 
 j = 1

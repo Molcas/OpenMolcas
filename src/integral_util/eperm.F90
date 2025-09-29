@@ -230,7 +230,7 @@ do iGrid=1,nGrid_
 end do
 
 ! Add XF contribution to the total field
-dEF(:,:) = dEF(:,:)+xfEF(:,:)
+dEF(1:nComp,:) = dEF(1:nComp,:)+xfEF(1:nComp,:)
 
 PrPrt = Save_tmp
 

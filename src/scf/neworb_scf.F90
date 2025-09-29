@@ -393,7 +393,7 @@ do iD=1,nD
 
           tmp = sum(real(iFerm(jEOr:jEOr+nBas(iSym)-1),kind=wp)*abs(FckS((iOrb-1)*nBas(iSym)+1:iOrb*nBas(iSym))))
           Muon_i = 0                  ! electronic
-          if (tmp /= Zero) Muon_i = 1! muonic
+          if (tmp /= Zero) Muon_i = 1 ! muonic
           Muons_Present = (Muons_Present .or. (Muon_i == 1))
           !write(u6,*) 'iOrb,Muon_i,tmp=',iOrb,Muon_i,tmp
 

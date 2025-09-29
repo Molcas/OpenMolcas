@@ -26,7 +26,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nCI, nD, mOV, MxOptm, Ind(MxOptm), kOptim, kOV(2), LL
 real(kind=wp), intent(in) :: CInter(nCI,nD)
 real(kind=wp), intent(out) :: Array(mOV)
-real(kind=wp), optional, intent(out) :: DD
+real(kind=wp), intent(out), optional :: DD
 integer(kind=iwp) :: i, iD, iEnd, inode, iSt, ivec
 real(kind=wp), allocatable :: Aux(:)
 
@@ -91,4 +91,5 @@ call mma_deallocate(Aux)
 
 return
 
+#undef _DEBUGPRINT_
 end subroutine OptClc_X

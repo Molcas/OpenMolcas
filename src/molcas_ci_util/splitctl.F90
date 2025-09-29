@@ -32,7 +32,8 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !***********************************************************************
 
 use csfbas, only: CONF, NAEL, NBEL
-use GLBBAS, only: DFTP, DTOC, CFTP
+use timers, only: C_Dress, C_get_Cm, W_Dress, W_get_Cm
+use lucia_data, only: DFTP, DTOC, CFTP, IREOTS
 use splitcas_data, only: EnInSplit, EnerSplit, FordSplit, gapSpli, iDimBlockA, iDimBlockACNF, iterSplit, lRootSplit, MxIterSplit, &
                          NumSplit, percSpli, PerSplit, ThrSplit
 use rasscf_global, only: EMY, ENER, ExFac, IADR15, ICICH, iCIOnly, ICIRST, ITER, ITERCI, iTOC, n_Keep, NAC
@@ -49,15 +50,14 @@ real(kind=wp), intent(in) :: LW1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp), intent(out) :: iErrSplit
 integer(kind=iwp) :: iCaseSplit, iDimBlockTri, iDisk, idx, iJOB, iPrint, IPRLEV, j, k, MXSpli, MXXWS, nAAblock
-real(kind=wp) :: C_ABlockDim_Sel1, C_ABlockDim_sel2, condition, CSplitTot1, CSplitTot2, diffSplit, ECORE, EnFinSplit, SpliNor, &
-                 W_ABlockDim_sel1, W_ABlockDim_sel2, WSplitTot1, WSplitTot2
+real(kind=wp) :: C_ABlockDim_sel(2), condition, CSplitTot(2), Ctime(2), diffSplit, ECORE, EnFinSplit, SpliNor, W_ABlockDim_sel(2), &
+                 WSplitTot(2), Wtime(2)
 character(len=80) :: String
 logical(kind=iwp) :: DBG, Exists
-integer(kind=iwp), allocatable :: IPCNF(:), IPCNFtot(:), IPCSFtot(:), IREOTS(:), iSel(:), vkcnf(:)
+integer(kind=iwp), allocatable :: IPCNF(:), IPCNFtot(:), IPCSFtot(:), iSel(:), vkcnf(:)
 real(kind=wp), allocatable :: AABlock(:), CIVEC(:), DHAM(:), Diag(:), DiagCNF(:), HONE(:,:), Scr(:), SplitE(:), SplitV(:,:), &
                               Tmp1(:), Tmp2(:), TotSplitV(:)
 real(kind=wp), external :: ddot_
-#include "timers.fh"
 
 #include "macros.fh"
 unused_var(IFINAL)
@@ -83,7 +83,7 @@ iErrSplit = 0
 !
 ! Qui nConf rappresenta il numero totale di CSFs.
 
-call cwtime(CSplitTot1,WSplitTot1)
+call cwtime(CSplitTot(1),WSplitTot(1))
 !call Ini_David(lRootSplit,nConf,nDet,nconf,nAc,LuDavid)
 call Ini_David(1,nConf,nDet,nconf,n_keep,nAc,LuDavid)
 !-----------------------------------------------------------------------
@@ -117,7 +117,7 @@ call mma_allocate(CIVEC,NCONF,label='CIVEC')
 !  return
 !end if
 
-if (NAC > 0) call CIDIA_CI_UTIL(NCONF,STSYM,CIVEC,LUDAVID)
+if (NAC > 0) call CIDIA(NCONF,STSYM,CIVEC,LUDAVID)
 !***********************************************************************
 ! iCaseSplit = 1  : there is NOT CI-RESTART.
 ! iCaseSplit = 2  : there is CIRESTART. The code will read the CI
@@ -132,11 +132,9 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_allocate(HONE,NAC,NAC,label='HONE')
     ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
     call SQUARE(LW1,HONE,NAC,1,NAC)
-    call mma_allocate(IREOTS,NAC,label='IREOTS')
-    call GET_IREOTS(IREOTS,NAC)
     !call mma_allocate(IPCNF,NCNASM(STSYM),label='IPCNF')
 
-    call cwtime(C_ABlockDim_sel1,W_ABlockDim_sel1)
+    call cwtime(C_ABlockDim_sel(1),W_ABlockDim_sel(1))
     ECORE = Zero
     if (NumSplit) then
       !*****************************************************************
@@ -196,10 +194,10 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     end if
 
     if (DBG) then
-      call cwtime(C_ABlockDim_sel2,W_ABlockDim_sel2)
+      call cwtime(C_ABlockDim_sel(2),W_ABlockDim_sel(2))
       write(u6,*) 'Time needed to select CSFs in A-Block:'
-      write(u6,*) 'CPU timing : ',C_ABlockDim_sel2-C_ABlockDim_sel1
-      write(u6,*) 'W. timing  : ',W_ABlockDim_sel2-W_ABlockDim_sel1
+      write(u6,*) 'CPU timing : ',C_ABlockDim_sel(2)-C_ABlockDim_sel(1)
+      write(u6,*) 'W. timing  : ',W_ABlockDim_sel(2)-W_ABlockDim_sel(1)
     end if
     !*******************************************************************
     ! Let's start with SPLITCAS code                                   *
@@ -229,7 +227,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     diffSplit = ThrSplit+One
 
     iterSplit = 0
-    call cwtime(C_Dress_1,W_Dress_1)
+    call cwtime(Ctime(1),Wtime(1))
     call mma_allocate(SplitE,iDimBlockA,label='SplitE')
     call mma_allocate(SplitV,iDimBlockA,iDimBlockA,label='SplitV')
     do while ((diffSplit > ThrSplit) .and. (iterSplit < MxIterSplit))
@@ -271,12 +269,13 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       end if
       EnInSplit = EnFinSplit
     end do
-    call cwtime(C_Dress_2,W_Dress_2)
-    C_Dress_3 = C_Dress_3+C_Dress_2-C_Dress_1
-    W_Dress_3 = W_Dress_3+W_Dress_2-W_Dress_1
-    !write(u6,*) 'CPU timing in UAA diag.: ',C_Dress_2-C_Dress_1
-    !if (DBG) write(u6,*) 'CPU timing in UAA diag.: ',C_Dress_2-C_Dress_1
-    if (DBG) write(u6,*) 'W. timing  in UAA diag: ',W_Dress_2-W_Dress_1
+    call cwtime(Ctime(2),Wtime(2))
+    C_Dress = C_Dress+Ctime(2)-Ctime(1)
+    W_Dress = W_Dress+Wtime(2)-Wtime(1)
+    if (DBG) then
+      !write(u6,*) 'CPU timing in UAA diag.: ',Ctime(2)-Ctime(1)
+      write(u6,*) 'W. timing  in UAA diag: ',Wtime(2)-Wtime(1)
+    end if
 
     if ((iterSplit == MxIterSplit) .and. (diffSplit > ThrSplit)) then
       if (ICIONLY == 0) then ! Hopefully the optimization will solve the convergence problem
@@ -300,16 +299,16 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       call mma_allocate(TotSplitV,nConf,label='totSplitVec')
       !TotSplitV(:) = Zero
       !call CmSplit(IPCSFtot,IPCNFtot,
-      call cwtime(C_get_Cm1,W_get_Cm1)
+      call cwtime(Ctime(1),Wtime(1))
       call get_Cm(IPCSFtot,IPCNFtot,nConf,NCNASM(STSYM),iDimBlockA,iDimBlockACNF,SplitV(:,lRootSplit),EnFinSplit,DTOC, &
                   DFTP,CONF,STSYM,HONE,ECORE,NAC,(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS,FordSplit,TotSplitV)
-      call cwtime(C_get_Cm2,W_get_Cm2)
-      C_get_Cm3 = C_get_Cm3+C_get_Cm2-C_get_Cm1
-      W_get_Cm3 = W_get_Cm3+W_get_Cm2-W_get_Cm1
+      call cwtime(Ctime(2),Wtime(2))
+      C_get_Cm = C_get_Cm+Ctime(2)-Ctime(1)
+      W_get_Cm = W_get_Cm+Wtime(2)-Wtime(1)
       if (DBG) then
         write(u6,*) 'Get_Cm :'
-        write(u6,*) 'CPU timing : ',C_get_Cm2-C_get_Cm1
-        write(u6,*) 'W. timing  : ',W_get_Cm2-W_get_Cm1
+        write(u6,*) 'CPU timing : ',Ctime(2)-Ctime(1)
+        write(u6,*) 'W. timing  : ',Wtime(2)-Wtime(1)
       end if
       !*****************************************************************
       ! Normalization of the CI-Coefficients                           *
@@ -367,7 +366,6 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_deallocate(SplitE)
     call mma_deallocate(SplitV)
     call mma_deallocate(HONE)
-    call mma_deallocate(IREOTS)
     call mma_deallocate(IPCNF)
     !call mma_deallocate(iSel)
 
@@ -386,10 +384,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call SQUARE(LW1,HONE,NAC,1,NAC)
 
     ! Calculate the AA Block of the Hamiltonian Matrix
-    call mma_allocate(IREOTS,NAC,label='IREOTS')
     call mma_maxDBLE(MXXWS)
     call mma_allocate(Scr,MXXWS,label='EXHSCR')
-    call GET_IREOTS(IREOTS,NAC)
     call PHPCSF(AABlock,iSel,IPCNF,MXSpli,DTOC,DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL, &
                 NBEL,iDimBlockA,iDimBlockACNF,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
     call mma_deallocate(Scr)
@@ -456,7 +452,6 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     !*******************************************************************
     call mma_deallocate(HONE)
     call mma_deallocate(IPCNF)
-    call mma_deallocate(IREOTS)
     call mma_deallocate(iSel)
     call mma_deallocate(AABlock)
     call mma_deallocate(DHAM)
@@ -522,10 +517,10 @@ call Term_David(ICICH,ITERCI,1,nConf,CIVEC,JOBIPH,LuDavid,iDisk)
 call mma_deallocate(CIVEC)
 
 if (DBG) then
-  call cwtime(CSplitTot2,WSplitTot2)
+  call cwtime(CSplitTot(2),WSplitTot(2))
   write(u6,*) 'Total Time in SplitCAS:'
-  write(u6,*) 'CPU timing : ',CSplitTot2-CSplitTot1
-  write(u6,*) 'W. timing  : ',WSplitTot2-WSplitTot1
+  write(u6,*) 'CPU timing : ',CSplitTot(2)-CSplitTot(1)
+  write(u6,*) 'W. timing  : ',WSplitTot(2)-WSplitTot(1)
 end if
 
 return

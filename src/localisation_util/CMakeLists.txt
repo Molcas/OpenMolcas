@@ -13,7 +13,7 @@ set (sources
      analysis_domain.F90
      anasize_localisation.F90
      basfun_atom.F90
-     basfun_atom_.F90
+     basfun_atom_sym.F90
      bestmatch.F90
      boys.F90
      boys_iter.F90

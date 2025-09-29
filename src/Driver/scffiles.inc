@@ -14,6 +14,7 @@
  (file)  TWOHAM   "$WorkDir/$Project."TWOHAM      rw
  (file)  ONEHAM   "$WorkDir/$Project."ONEHAM      rw
  (file)  GRADIENT "$WorkDir/$Project."GRADIENT    rw
+ (file)  LOCGRAD  "$WorkDir/$Project."LOCGRAD     rw
  (file)  SOXVEC   "$WorkDir/$Project."SOXVEC      rw
  (file)  SOYVEC   "$WorkDir/$Project."SOYVEC      rw
  (file)  SODELTA  "$WorkDir/$Project."SODELTA     rw

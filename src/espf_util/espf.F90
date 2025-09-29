@@ -55,7 +55,7 @@ end if
 ! Set on the System Bit 11
 
 call Get_iScalar('System Bitswitch',iOption)
-iOption = ior(iOption,2**11)
+iOption = ibset(iOption,11)
 call Put_iScalar('System Bitswitch',iOption)
 
 ! Some initializations
@@ -169,7 +169,7 @@ else
       call mma_allocate(GradCl%A,0,0,label='GradCl',safe='*')
       call espf_grad(natom,nGrdPt,nAtQM,Ext,Grid%A,B,DB,IsMM,GradCl%A,DoTinker,DoGromacs)
       call mma_allocate(Mltp%A,nMult,label='ESPFMltp',safe='*')
-      call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp%A,Grid%A,IsMM,Ext,iPL)
+      call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp%A,Grid%A,IsMM,Ext,iPL,Cord)
     end if
     Close_Seward = .true.
 

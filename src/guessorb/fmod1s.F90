@@ -23,57 +23,32 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine Fmod1s(StandAlone)
+!#define _DEBUGPRINT_
+subroutine Fmod1s()
 
+use Index_Functions, only: nTri_Elem
 use GuessOrb_Global, only: Label, nBas, nSym, PrintMOs
 use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
-logical(kind=iwp), intent(in) :: StandAlone
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-logical(kind=iwp) :: Debug, Trace
-! Basis set indices
-integer(kind=iwp) :: iSym, iBas, jBas, kBas
-! Dimensions
-integer(kind=iwp) :: nBasMax, nBasTot, nTriTot, nSqrTot, n2Full
-! Pointers
-integer(kind=iwp) :: ipTmp1, ipTmp2, ipTmp3, ipTmp4
-! Matrix elements
-real(kind=wp) :: Sii, Sjj, Sik, Sjk, Skk
-! Various variables
-integer(kind=iwp) :: indx, iOpt, iSymlb, irc, Lu, iDummy(7,8), RC, iComp
-real(kind=wp) :: Det, dsum, eps
+integer(kind=iwp) :: iBas, iComp, iDummy(7,8), indx, iOpt, ipTmp1, ipTmp2, ipTmp3, ipTmp4, irc, iSym, iSymlb, jBas, kBas, Lu, &
+                     n2Full, nBasMax, nBasTot, nSqrTot, nTriTot, RC
+real(kind=wp) :: Det, dsum, eps, Sii, Sik, Sjj, Sjk, Skk
 character(len=80) :: Title
 character(len=8) :: Lbl
+real(kind=wp), allocatable :: Aux1(:), Aux2(:), CMOs(:), DeTr(:), Edes(:), Esym(:), Evec(:), Fdes(:), Fmo(:), Fock(:), FSym(:), &
+                              Ovl(:), Sdes(:), Smat(:), SmTr(:)
+#ifdef _DEBUGPRINT_
 character(len=32) :: Line
-real(kind=wp), allocatable :: SmTr(:), DeTr(:), Esym(:), Edes(:), Smat(:), Ovl(:), Aux1(:), Sdes(:), Fdes(:), FSym(:), Fock(:), &
-                              CMOs(:), Evec(:), Fmo(:), Aux2(:)
+#endif
 
-!----------------------------------------------------------------------*
-! Some setup                                                           *
-!----------------------------------------------------------------------*
-if (StandAlone) then
-  Debug = .false.
-  Trace = .false.
-else
-  Debug = .false.
-  Trace = .false.
-end if
-if (Trace) write(u6,*) '>>> Entering fmod1s'
 !----------------------------------------------------------------------*
 ! Should only be called if symmetry is used.                           *
 !----------------------------------------------------------------------*
-if (nSym == 1) then
-  call SysAbendMsg('fmod1s','internal error 001',' ')
-end if
+if (nSym == 1) call SysAbendMsg('fmod1s','internal error 001',' ')
 !----------------------------------------------------------------------*
 ! Setup various counters.                                              *
 !----------------------------------------------------------------------*
@@ -83,7 +58,7 @@ nTriTot = 0
 nSqrTot = 0
 do iSym=1,nSym
   if (nBasMax < nBas(iSym)) nBasMax = nBas(iSym)
-  nTriTot = nTriTot+nBas(iSym)*(nBas(iSym)+1)/2
+  nTriTot = nTriTot+nTri_Elem(nBas(iSym))
   nSqrTot = nSqrTot+nBas(iSym)*nBas(iSym)
   nBasTot = nBasTot+nBas(iSym)
 end do
@@ -95,10 +70,10 @@ call mma_allocate(SmTr,n2Full)
 call mma_allocate(DeTr,n2Full)
 call Get_dArray('SM',SmTr,n2Full)
 call Minv(SmTr,DeTr,Det,nBasTot)
-if (Debug) then
-  call RecPrt('Symmetrization transformation matrix','(10f12.6)',SmTr,nBasTot,nBasTot)
-  call RecPrt('Desymmetrization transformation matrix','(10f12.6)',DeTr,nBasTot,nBasTot)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('Symmetrization transformation matrix','(10f12.6)',SmTr,nBasTot,nBasTot)
+call RecPrt('Desymmetrization transformation matrix','(10f12.6)',DeTr,nBasTot,nBasTot)
+#endif
 !----------------------------------------------------------------------*
 ! Create model Fock operator.                                          *
 !----------------------------------------------------------------------*
@@ -110,9 +85,9 @@ if (RC /= 0) then
   call mma_deallocate(SmTr)
   return
 end if
-if (Debug) then
-  call RecPrt('Diagonal of Fock','(10f12.6)',Esym,1,nBasTot)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('Diagonal of Fock','(10f12.6)',Esym,1,nBasTot)
+#endif
 !----------------------------------------------------------------------*
 ! Desymmetrize model Fock operator                                     *
 !----------------------------------------------------------------------*
@@ -120,14 +95,12 @@ call mma_allocate(Edes,nBasTot)
 do iBas=1,nBasTot
   do kBas=1,nBasTot
     indx = kBas+nBasTot*(iBas-1)
-    if (abs(SmTr(indx)) > 1.0e-3_wp) then
-      Edes(kBas) = Esym(iBas)
-    end if
+    if (abs(SmTr(indx)) > 1.0e-3_wp) Edes(kBas) = Esym(iBas)
   end do
 end do
-if (Debug) then
-  call RecPrt('Desymmetrized diagonal of Fock','(10f12.6)',Edes,1,nBasTot)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('Desymmetrized diagonal of Fock','(10f12.6)',Edes,1,nBasTot)
+#endif
 !----------------------------------------------------------------------*
 ! Read and square overlap matrix.                                      *
 !----------------------------------------------------------------------*
@@ -138,17 +111,17 @@ iOpt = ibset(0,sNoOri)
 Lbl = 'Mltpl  0'
 iComp = 1
 call RdOne(irc,iOpt,Lbl,iComp,Ovl,iSymlb)
-call dCopy_(n2Full,[Zero],0,Smat,1)
+Smat(:) = Zero
 ipTmp1 = 1
 ipTmp2 = 1
 do iSym=1,nSym
   call Square(Ovl(ipTmp1),SMat(ipTmp2),1,nBasTot,nBas(iSym))
-  ipTmp1 = ipTmp1+nBas(iSym)*(nBas(iSym)+1)/2
+  ipTmp1 = ipTmp1+nTri_Elem(nBas(iSym))
   ipTmp2 = ipTmp2+nBas(iSym)*nBasTot+nBas(iSym)
 end do
-if (Debug) then
-  call RecPrt('Full overlap matrix','(10f12.6)',Smat,nBasTot,nBasTot)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('Full overlap matrix','(10f12.6)',Smat,nBasTot,nBasTot)
+#endif
 call mma_deallocate(Ovl)
 !----------------------------------------------------------------------*
 ! Desymmetrize overlap matrix.                                         *
@@ -157,9 +130,9 @@ call mma_allocate(Sdes,n2Full)
 call mma_allocate(Aux1,n2Full)
 call DGEMM_('N','N',nBasTot,nBasTot,nBasTot,One,Smat,nBasTot,DeTr,nBasTot,Zero,Aux1,nBasTot)
 call DGEMM_('T','N',nBasTot,nBasTot,nBasTot,One,DeTr,nBasTot,Aux1,nBasTot,Zero,Sdes,nBasTot)
-if (Debug) then
-  call RecPrt('Desymmetrized overlap matrix','(10f12.6)',Sdes,nBasTot,nBasTot)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('Desymmetrized overlap matrix','(10f12.6)',Sdes,nBasTot,nBasTot)
+#endif
 call mma_deallocate(Aux1)
 !----------------------------------------------------------------------*
 ! Build Fock matrix                                                    *
@@ -180,9 +153,9 @@ do iBas=1,nBasTot
     Fdes(iBas+nBasTot*(jBas-1)) = dsum
   end do
 end do
-if (Debug) then
-  call RecPrt('Desymmetrized Fock matrix','(10f12.6)',Fdes,nBasTot,nBasTot)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('Desymmetrized Fock matrix','(10f12.6)',Fdes,nBasTot,nBasTot)
+#endif
 !----------------------------------------------------------------------*
 ! Symmetrize Fock matrix.                                              *
 !----------------------------------------------------------------------*
@@ -190,9 +163,9 @@ call mma_allocate(Fsym,n2Full)
 call mma_allocate(Aux1,n2Full)
 call DGEMM_('N','N',nBasTot,nBasTot,nBasTot,One,Fdes,nBasTot,SmTr,nBasTot,Zero,Aux1,nBasTot)
 call DGEMM_('T','N',nBasTot,nBasTot,nBasTot,One,SmTr,nBasTot,Aux1,nBasTot,Zero,Fsym,nBasTot)
-if (Debug) then
-  call RecPrt('Symmetrized overlap matrix','(10f12.6)',Fsym,nBasTot,nBasTot)
-end if
+#ifdef _DEBUGPRINT_
+call RecPrt('Symmetrized overlap matrix','(10f12.6)',Fsym,nBasTot,nBasTot)
+#endif
 call mma_deallocate(Aux1)
 !----------------------------------------------------------------------*
 ! Compact the symmetrized Fock matrix.                                 *
@@ -208,12 +181,12 @@ do iSym=1,nSym
       indx = indx+1
     end do
   end do
-  if (Debug) then
-    write(Line,'(a,i2)') 'Fock matrix, symmetry ',iSym
-    call TriPrt(Line,'(10f12.6)',Fock(ipTmp2),nBas(iSym))
-  end if
+# ifdef _DEBUGPRINT_
+  write(Line,'(a,i2)') 'Fock matrix, symmetry ',iSym
+  call TriPrt(Line,'(10f12.6)',Fock(ipTmp2),nBas(iSym))
+# endif
   ipTmp1 = ipTmp1+nBas(iSym)*nBasTot+nBas(iSym)
-  ipTmp2 = ipTmp2+nBas(iSym)*(nBas(iSym)+1)/2
+  ipTmp2 = ipTmp2+nTri_Elem(nBas(iSym))
 end do
 !----------------------------------------------------------------------*
 ! Make ON basis                                                        *
@@ -237,22 +210,22 @@ do iSym=1,nSym
     call Square(Fock(ipTmp1),Aux1,1,nBas(iSym),nBas(iSym))
     call DGEMM_('N','N',nBas(iSym),nBas(iSym),nbas(iSym),One,Aux1,nBas(iSym),CMOs(ipTmp2),nBas(iSym),Zero,Aux2,nBas(iSym))
     call DGEMM_Tri('T','N',nBas(iSym),nBas(iSym),nBas(iSym),One,CMOs(ipTmp2),nBas(iSym),Aux2,nBas(iSym),Zero,Fmo(ipTmp3),nBas(iSym))
-    if (Debug) then
-      write(Line,'(a,i2)') 'MO Fock matrix, symmetry ',iSym
-      call TriPrt(Line,'(10f12.6)',Fmo(ipTmp3),nBas(iSym))
-    end if
+#   ifdef _DEBUGPRINT_
+    write(Line,'(a,i2)') 'MO Fock matrix, symmetry ',iSym
+    call TriPrt(Line,'(10f12.6)',Fmo(ipTmp3),nBas(iSym))
+#   endif
     !call Jacob(Fmo(ipTmp3),CMOs(ipTmp2),nBas(iSym),nBas(iSym))
     call NIdiag(Fmo(ipTmp3),CMOs(ipTmp2),nBas(iSym),nBas(iSym))
-    if (Debug) then
-      write(Line,'(a,i2)') 'Diagonal Fock matrix, symmetry ',iSym
-      call TriPrt(Line,'(10f12.6)',Fmo(ipTmp3),nBas(iSym))
-    end if
+#   ifdef _DEBUGPRINT_
+    write(Line,'(a,i2)') 'Diagonal Fock matrix, symmetry ',iSym
+    call TriPrt(Line,'(10f12.6)',Fmo(ipTmp3),nBas(iSym))
+#   endif
     call goPickup(Fmo(ipTmp3),Evec(ipTmp4),nBas(iSym))
     call goSort(Evec(ipTmp4),CMOs(ipTmp2),nBas(iSym),nBas(iSym))
   end if
-  ipTmp1 = ipTmp1+nBas(iSym)*(nBas(iSym)+1)/2
+  ipTmp1 = ipTmp1+nTri_Elem(nBas(iSym))
   ipTmp2 = ipTmp2+nBas(iSym)*nBas(iSym)
-  ipTmp3 = ipTmp3+nBas(iSym)*(nBas(iSym)+1)/2
+  ipTmp3 = ipTmp3+nTri_Elem(nBas(iSym))
   ipTmp4 = ipTmp4+nBas(iSym)
 end do
 call mma_deallocate(Fmo)
@@ -261,9 +234,7 @@ call mma_deallocate(Aux1)
 !----------------------------------------------------------------------*
 ! Present data.                                                        *
 !----------------------------------------------------------------------*
-if (PrintMOs) then
-  call PriMO('Start orbitals',.false.,.true.,Zero,1.0e6_wp,nSym,nBas,nBas,Label,Evec,Evec,CMOs,3)
-end if
+if (PrintMOs) call PriMO('Start orbitals',.false.,.true.,Zero,1.0e6_wp,nSym,nBas,nBas,Label,Evec,Evec,CMOs,3)
 call put_darray('Guessorb',CMOs,nSqrTot)
 call put_darray('Guessorb energies',Evec,nBasTot)
 call Put_iArray('nOrb',nBas,nSym)
@@ -287,8 +258,5 @@ call mma_deallocate(Edes)
 call mma_deallocate(Esym)
 call mma_deallocate(DeTr)
 call mma_deallocate(SmTr)
-if (trace) write(u6,*) '<<< Exiting fmod1s'
-
-return
 
 end subroutine Fmod1s

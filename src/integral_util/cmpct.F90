@@ -37,7 +37,7 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: na, nb, nijkl, mijkl, Ind_Pair(mijkl), iOff
-real(kind=wp), intent(in) :: abcd(mijkl,na,nb,na,nb), Zeta(mijkl), KappAB(mijkl), P(nijkl,3), Con(mijkl), Alpha(mijkl), Beta(mijkl)
+real(kind=wp), intent(in) :: abcd(mijkl,na,nb,na,nb), Zeta(mijkl), KappAB(mijkl), P(nijkl,3), Con(nijkl), Alpha(mijkl), Beta(mijkl)
 real(kind=wp), intent(inout) :: xZeta(nijkl), xKapp(nijkl), xP(nijkl,3), xZInv(nijkl), xab(nijkl), xabCon(nijkl), xAlpha(nijkl), &
                                 xBeta(nijkl)
 integer(kind=iwp), intent(inout) :: IndZ(nijkl+1), Jnd

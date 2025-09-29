@@ -81,7 +81,7 @@ do iA=1,nExt(iSymIA)+nDel(iSymIA)
         !write(u6,*) 'Symm A B',iSymIA,iSymJB
         !write(u6,*) 'IAJB',iI,iA,iJ,iB
         !write(u6,*) 'jiba',xijab
-        !write(u6,*) 'adress AP',iPoVec(iSymJB)+iJ-1+(nFro(iSymJB)+nOcc(iSymJB))*(iB-1)
+        !write(u6,*) 'address AP',iPoVec(iSymJB)+iJ-1+(nFro(iSymJB)+nOcc(iSymJB))*(iB-1)
         !write(u6,*) 'Contr coul',Fac*(xijab)*P(iPoVec(iSymIA)+iI+(nFro(iSymIA)+nOcc(iSymIA))*(iA-1))
         !---------------------------------------------------------------
         !write(u6,*) 'IA JB',iOrbI,iVirA,iOrbJ,iVirB

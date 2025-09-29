@@ -9,22 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp,Grid,IsMM,Ext,iPL)
+subroutine espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp,Grid,IsMM,Ext,iPL,Cord)
 ! Compute the expected values of the ESPF operators
 ! i.e. charges or charges+dipoles
 
 use espf_global, only: MxExtPotComp
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, Debye
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: natom, MltOrd, nMult, nGrdPt, IsMM(natom), iPL
-real(kind=wp), intent(in) :: TTT(nGrdPt,nMult), Grid(3,nGrdPt), Ext(MxExtPotComp,natom)
+real(kind=wp), intent(in) :: TTT(nGrdPt,nMult), Grid(3,nGrdPt), Ext(MxExtPotComp,natom), Cord(3,natom)
 real(kind=wp), intent(out) :: Mltp(nMult)
 #include "LenIn.fh"
 integer(kind=iwp) :: iAddPot, iAtom, iMult, jMlt, kOrd, kPnt, ncmp
-real(kind=wp) :: opnuc(1), SumOfChg, TotElecInt
+real(kind=wp) :: molecular_dipole(3), opnuc(1), SumOfChg, TotElecInt
 real(kind=wp), allocatable :: Charge(:), D2(:), EI(:)
 character(len=LenIn), allocatable :: CName(:)
 character(len=*), parameter :: Axis(3) = [' x ',' y ',' z ']
@@ -45,6 +45,7 @@ do iAtom=1,natom
 end do
 call mma_deallocate(Charge)
 opnuc = Zero
+molecular_dipole(:) = Zero
 ncmp = 1
 iAddPot = -2
 call mma_allocate(D2,nGrdPt,label='dESPF2')
@@ -72,8 +73,10 @@ if (iPL >= 3) then
       if (kOrd == 0) then
         write(u6,1000) CName(iAtom),Mltp(jMlt)
         SumOfChg = SumOfChg+Mltp(jMlt)
+        molecular_dipole(:) = molecular_dipole(:)+Mltp(jMlt)*Cord(:,iAtom)
       else
         write(u6,1001) Axis(kOrd),Mltp(jMlt+kOrd)
+        molecular_dipole(kOrd) = molecular_dipole(kOrd) + Mltp(jMlt+kOrd)
       end if
       EI(iAtom) = EI(iAtom)+Mltp(jMlt+kOrd)*Ext(kOrd+1,iAtom)
     end do
@@ -81,11 +84,11 @@ if (iPL >= 3) then
     TotElecInt = TotElecInt+EI(iAtom)
   end do
   write(u6,1002) SumOfChg
+  write(u6,1005) molecular_dipole(:)*Debye,sqrt(sum(molecular_dipole(:)**2))*Debye
   write(u6,1003) TotElecInt
   do iAtom=1,natom
     if (IsMM(iAtom) == 0) write(u6,1004) CName(iAtom),EI(iAtom)
   end do
-  write(u6,'(A)')
   call mma_deallocate(EI)
   call mma_deallocate(CName)
 end if
@@ -94,8 +97,10 @@ return
 
 1000 format('        Charge on ',A,'      = ',F10.4)
 1001 format('        + Dipole component ',A3,'= ',F10.4)
-1002 format(/,'      Total ESPF charge     = ',F10.4,/)
+1002 format(/,'      Total ESPF charge     = ',F10.4)
 1003 format(/,'      Total ESPF QM/MM interaction energy = ',F10.6,/)
 1004 format('        ',A,' individual contribution =',F10.6)
+1005 format(/,'      Total ESPF dipole moment (debye):'/, &
+            4X,'           X=',ES12.4,'           Y=',ES12.4,'           Z=',ES12.4,'           Total=',ES12.4)
 
 end subroutine espf_mltp

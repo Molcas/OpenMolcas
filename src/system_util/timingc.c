@@ -24,7 +24,6 @@
 /*                            and system cpu times                    */
 /*                                                                    */
 /*   (INT)iclock()       : returns (user) cpu clock ticks             */
-/*   (INT)inc_clock      : returns number of clock ticks per second   */
 /*--------------------------------------------------------------------*/
 /*                                                                    */
 /*    history: none                                                   */
@@ -57,13 +56,11 @@
 # define timingcinit TIMINGCINIT
 # define timingc TIMINGC
 # define iclock ICLOCK
-# define inc_clock INC_CLOCK
 #else
 # ifndef ADD_
 #  define timingcinit timingcinit_
 #  define timingc timingc_
 #  define iclock iclock_
-#  define inc_clock inc_clock_
 # endif
 #endif
 
@@ -88,13 +85,6 @@ INT iclock() {
   struct tms buf;
   (void)times(&buf);
   return ((INT)buf.tms_utime);
-# else
-  return 0;
-# endif
-}
-INT inc_clock() {
-# ifndef _WIN32_
-  return ((INT)sysconf(_SC_CLK_TCK));
 # else
   return 0;
 # endif

@@ -434,8 +434,8 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
           jSOj = jSO+jAOj-iOffA
           nijkl = nijkl+1
 
-          temp = CoulFac*(V_K(lSOl,1)*V_K(jSOj,2)+V_K(lSOl,2)*V_K(jSOj,1)+V_K(lSOl,3)*V_K(jSOj,4)+V_K(lSOl,4)*V_K(jSOj,3)+ &
-                          V_K(lSOl,1)*V_K(jSOj,5)+V_K(lSOl,5)*V_K(jSOj,1))
+          temp = CoulFac*(V_K(lSOl,1)*V_K(jSOj,2)+V_K(lSOl,2)*V_K(jSOj,1)+V_K(lSOl,3)*V_K(jSOj,4)+V_K(lSOl,4)*V_K(jSOj,3))
+          if (nSA > 4) temp = temp+CoulFac*(V_K(lSOl,1)*V_K(jSOj,5)+V_K(lSOl,5)*V_K(jSOj,1))
           temp = temp-ExFac*A(nijkl)
 
           ! Active space contribution

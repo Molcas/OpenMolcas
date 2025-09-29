@@ -10,7 +10,7 @@
 !***********************************************************************
 !----------------------------------------------------------------------*
 !                                                                      *
-!     Information pertinent to the generation of integral adresses     *
+!     Information pertinent to the generation of integral addresses    *
 !                                                                      *
 !     Square : flag which indicates the desired ordering scheme        *
 !     nSyOp  : number of irreducible representations                   *

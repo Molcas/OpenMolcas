@@ -40,6 +40,7 @@ C     Cholesky
       nbast=sum(nbas(1:nsym))
       nbsqt=sum(nbas(1:nsym)**2)
       Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nbast)
+      jstate = 1
       Call DecideOnCholesky(IfChol)
 * PAM Feb 2008: The following statement was moved here from
 * prpctl, in case prpctl call is bypassed by keyword ''NOPROP''.
@@ -140,6 +141,7 @@ C Initialize sizes, offsets etc used in equation solver.
 
 * Allocate global orbital arrays:
       CALL mma_allocate(CMOPT2,NCMO,Label='CMOPT2')
+      CMOPT2(:) = 0.0d0
 * Allocate global orbital transformation arrays:
       CALL mma_allocate(TORB,NTORB,Label='TORB')
       CALL mma_allocate(TAT,NTAT,Label='TAT')

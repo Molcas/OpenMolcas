@@ -178,7 +178,7 @@ do
     T_Eff = real(klS,kind=wp)
     ST_Eff = S_Eff*(S_Eff-One)*Half+T_Eff
     if (ST_Eff >= PP_Count) then
-      write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff*100.0_wp,'% done so far.'
+      write(SLine,'(A,F6.2,A)') 'Computing 2-electron integrals, ',ST_Eff/PP_Eff*100.0_wp,'% done so far.'
       call StatusLine('Seward: ',SLine)
       PP_Count = PP_Count+PP_Eff_delta
     end if

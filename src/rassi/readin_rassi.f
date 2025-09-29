@@ -46,7 +46,8 @@
      &                 OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO,
      &                 DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, DCHO,
      &                 DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE,
-     &                 REDUCELOOP, LOOPDIVIDE, l_Eff, Do_SK, Do_Pol,
+     &                 REDUCELOOP, LOOPDIVIDE, LOOPMAX,
+     &                 l_Eff, Do_SK, Do_Pol,
      &                 RHODYN, MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM,
      &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,
      &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
@@ -60,7 +61,7 @@
       CHARACTER(LEN=8) TRYNAME
       Real*8 tmp
       Logical lExists
-      Integer I, J, ISTATE, JSTATE, IJOB, ILINE, LINENR
+      Integer I, J, ISTATE, JSTATE, IJOB, LINENR
       Integer LuIn
       Integer NFLS
 
@@ -586,20 +587,16 @@ c BP Natural orbitals options
         Read(LuIn,*,ERR=997) SONATNSTATE
         CALL mma_allocate(SONAT,SONATNSTATE,Label='SONAT')
         Linenr=Linenr+1
-        DO ILINE=1,SONATNSTATE
-          Read(LuIn,*,ERR=997) SONAT(ILINE)
-          Linenr=Linenr+1
-        END DO
+        Read(LuIn,*,ERR=997) (SONAT(I),I=1,SONATNSTATE)
+        Linenr=Linenr+1
         GoTo 100
       Endif
       If(Line(1:4).eq.'SODI') then
         Read(LuIn,*,ERR=997) SODIAGNSTATE
         CALL mma_allocate(SODIAG,SODIAGNSTATE,Label='SODIAG')
         Linenr=Linenr+1
-        DO ILINE=1,SODIAGNSTATE
-          Read(LuIn,*,ERR=997) SODIAG(ILINE)
-          Linenr=Linenr+1
-        END DO
+        Read(LuIn,*,ERR=997) (SODIAG(I),I=1,SODIAGNSTATE)
+        Linenr=Linenr+1
         GoTo 100
       Endif
       If(Line(1:4).eq.'NOSO') then
@@ -618,10 +615,8 @@ c RF SO-NTO
         read(LuIn,*,ERR=997) SONTOSTATES
         CALL mma_allocate(SONTO,2,SONTOSTATES,Label='SONTO')
         linenr=linenr+1
-        do ILINE=1,SONTOSTATES
-          read(LuIn,*,ERR=997) SONTO(1,ILINE),SONTO(2,ILINE)
-          linenr=linenr+1
-        enddo
+        Read(LuIn,*,ERR=997) (SONTO(1,I),SONTO(2,I),I=1,SONTOSTATES)
+        linenr=linenr+1
         goto 100
       Endif
       If(line(1:4).eq.'ARGU') then
@@ -862,6 +857,13 @@ C ------------------------------------------
 ! Reduce looping in intensities. Set limit for the inner and outer loop
         REDUCELOOP=.TRUE.
         Read(LuIn,*,ERR=997) LOOPDIVIDE
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'NFIN')THEN
+! Reduce looping in intensities. Set number of final states
+        Read(LuIn,*,ERR=997) LOOPMAX
         LINENR=LINENR+1
         GOTO 100
       END IF

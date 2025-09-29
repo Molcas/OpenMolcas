@@ -125,7 +125,7 @@ contains
 
 subroutine DCOPIV_INTERNAL(S)
 
-  real(kind=wp), target, intent(out) :: S(*)
+  real(kind=wp), target, intent(out) :: S(N)
   integer(kind=iwp), pointer :: iS(:)
   integer(kind=iwp) :: I, J, K
 

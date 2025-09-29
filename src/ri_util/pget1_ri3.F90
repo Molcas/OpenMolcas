@@ -657,6 +657,7 @@ else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
     jSO_off = jSO-iOff1
 
     Factor = Zero
+    BklK(1:jBas*nKBas*nLBas) = Zero
 
     do iSO=1,2
       iMOleft = iSO
@@ -800,8 +801,8 @@ else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
               ! SA-CASSCF Coulomb contribution
 
-              temp = CoulFac*(V_k(jSOj,1)*DSO(Indkl,2)+V_k(jSOj,2)*DSO(Indkl,1)+V_k(jSOj,3)*DSO(Indkl,4)+V_k(jSOj,4)*DSO(Indkl,3)+ &
-                              V_k(jSOj,1)*DSO(Indkl,5)+V_k(jSOj,5)*DSO(Indkl,1))
+              temp = CoulFac*(V_k(jSOj,1)*DSO(Indkl,2)+V_k(jSOj,2)*DSO(Indkl,1)+V_k(jSOj,3)*DSO(Indkl,4)+V_k(jSOj,4)*DSO(Indkl,3))
+              if (nSA > 4) temp = temp+CoulFac*(V_k(jSOj,1)*DSO(Indkl,5)+V_k(jSOj,5)*DSO(Indkl,1))
 
               ! Exchange contribution: B(K,m,n)
 

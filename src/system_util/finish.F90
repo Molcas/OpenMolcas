@@ -36,8 +36,8 @@ call fin_run_use()
 call prgmfree()
 #endif
 
-call GetMem('Finish','List','Real',iDum,0)
-call GetMem('Finish','Term','Real',iDum,0)
+call GetMem('Finish','LIST','REAL',iDum,0)
+call GetMem('Finish','TERM','REAL',iDum,0)
 
 call StatusLine('Happy landing','')
 if (MaxWarnMess > 1) call WarningMessage(1,'There were warnings during the execution;Please, check the output with care!')

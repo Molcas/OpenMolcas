@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2012, Victor P. Vysotskiy                              *
+!               2025, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-
 !  GetMem
 !
 !> @brief
@@ -18,216 +18,58 @@
 !> @author Victor P. Vysotskiy
 !>
 !> @details
-!> \p NameIn, \p KeyIn, and \p TypeIn are strings of any size. They are
-!> not case sensitive, and only the four first letters matter.
-!> If \p KeyIn is '``allo``' (or '``ALLO``' or ...) then ::GETMEM will return the
-!> position of a previously unused piece of workspace, capable of holding
-!> at least \p LENGTH items, and register that piece as being in use.
-!> If \p TypeIn is '``Real``', the items will be accessible in
-!> \c WORK(IPOS) ... ``WORK(IPOS-1+LENGTH)``.
-!> If \p TypeIn is '``Inte``', the items will be accessible in
-!> \c IWORK(IPOS) ... ``IWORK(IPOS-1+LENGTH)``.
-!> If \p KeyIn is '``Free``', the piece will be returned to the free pool.
-!> If \p KeyIn is '``Chec``', the boundaries of all allocated pieces will be
-!> checked to see if the contents of guardian words, surrounding each
-!> piece, are intact or not.
-!> If \p KeyIn is '``List``', the allocated fields will be tabulated.
-!> If \p KeyIn is '``Max``', there will be no allocation made, but the length
-!> of the largest allocatable field is returned.
-!> \p NameIn has no function, except that the user provides a label to the
-!> field, which is used in error prints or listings.
-!>
-!> @note
-!> An include file, WrkSpc.fh, declares common ``/WrkSpc/``,
-!> containing two arrays,
-!> \c WORK and \c IWORK, which  are equivalenced.
-!> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
+!> This is now a simple wrapper around c_getmem, and it should not be used.
+!> Use functions from the ::stdalloc module instead.
 !>
 !> @param[in]     NameIn Arbitrary label
-!> @param[in]     KeyIn  ``Allo`` / ``Free`` / ``Check`` / ``List`` / ``Max``
-!> @param[in]     TypeIn ``Real`` / ``Inte`` / ``Char``
+!> @param[in]     KeyIn  ``RGST`` / ``EXCL`` / ``LIST`` / ``TERM``
+!> @param[in]     TypeIn ``REAL`` / ``INTE`` / ``CHAR``
 !> @param[in,out] iPos   Position
 !> @param[in,out] Length Nr of items
 !***********************************************************************
-      Subroutine GetMem (NameIn,KeyIn,TypeIn,iPos,Length)
+
+subroutine GetMem(NameIn,KeyIn,TypeIn,iPos,Length)
 !***********************************************************************
 !                                                                      *
 ! History: Victor P. Vysotskiy                                         *
 !    2012: Native Molcas's Memory Allocator; Thread safety             *
+!          Ignacio Fdez. Galvan                                        *
+!    2025: Garble using C pointers                                     *
+!    2025: Reduce to minimum expression                                *
 !                                                                      *
 !***********************************************************************
 
-Implicit None
-#include "SysCtl.fh"
+use, intrinsic :: iso_c_binding, only: c_null_char
+use mma_module, only: c_getmem, MemStat
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: NameIn, KeyIn, TypeIn
+integer(kind=iwp), intent(in) :: iPos, Length
 #include "warnings.h"
-#include "WrkSpc.fh"
-#include "mama.fh"
-!
-!
-      Character(LEN=*) NameIn,KeyIn,TypeIn
-      Character(LEN=8) FldNam,eopr,elbl,etyp
-      Character(LEN=4) Key,VarTyp
-#ifdef _GARBLE_
-      Character(LEN=5)   xKey
-      Logical       SkipGarble
-#endif
-      Integer iPos, Length, irc, iW
-      Integer, external:: kind2goff
-
-      Interface
-        Function c_getmem(name_,Op,dtyp,offset,len_) bind(C,name='c_getmem_')
-          Use, Intrinsic :: iso_c_binding, only: c_char
-          Use Definitions, only: MOLCAS_C_INT
-          Integer(kind=MOLCAS_C_INT) :: c_getmem
-          Character(kind=c_char) :: name_(*), Op(*), dtyp(*)
-          Integer(kind=MOLCAS_C_INT) :: offset, len_
-        End Function c_getmem
-      End Interface
-
+integer(kind=iwp) :: irc, itmp
+character(len=9) :: elbl, eopr, etyp
 
 !----------------------------------------------------------------------*
-!     Initialize the Common / MemCtl / the first time it is referenced *
+!     Initialize the mma module the first time it is referenced        *
 !----------------------------------------------------------------------*
-      If ( MemCtl(ipStat).ne.ON ) then
-         Call IniMem()
-      End if
-!----------------------------------------------------------------------*
-!     read default parameters from Common / MemCtl /                   *
-!----------------------------------------------------------------------*
-      iW=MemCtl(ipSysOut)
-      If ( MemCtl(ipTrace).eq.ON ) then
-         Write(iW,*) ' <<< Entering GetMem 5.0 >>>'
-         Write(iW,'(A,2X,A4)') ' Clear  =      ',MemCtl(ipClear)
-         Write(iW,'(A,2X,A4)') ' Key    =    ',KeyIn
-         Write(iW,'(A,2X,A4)') ' Name   =    ',NameIn
-         Write(iW,'(A,2X,A4)') ' Type   =    ',TypeIn
-         Write(iW,'(A,I12)') ' length =    ',Length
-         Write(iW,'(A,I12)') ' iPos   =    ',iPos
-      End If
-!----------------------------------------------------------------------*
-!     convert input strings to standard format                         *
-!----------------------------------------------------------------------*
-      Call StdFmt(NameIn,FldNam)
-      Call StdFmt(KeyIn,Key)
-      Call StdFmt(TypeIn,VarTyp)
+if (.not. MemStat) call IniMem()
+
 !----------------------------------------------------------------------*
 !     prepare passed values to the C char format                       *
 !----------------------------------------------------------------------*
-      elbl=FldNam
-      elbl(8:8)=char(0)
-      eopr=Key
-      eopr(8:8)=char(0)
-      etyp=VarTyp
-      etyp(8:8)=char(0)
+elbl = NameIn
+elbl(9:9) = c_null_char
+eopr = KeyIn
+eopr(9:9) = c_null_char
+etyp = TypeIn
+etyp(9:9) = c_null_char
 
 !----------------------------------------------------------------------*
-!     Trace memory                                                     *
+!     Call the C function                                              *
 !----------------------------------------------------------------------*
-      If (MemCtl(ipCheck).eq.ON .or. MemCtl(ipTrace).eq.ON) Then
-         Write (6,*) ' Unsupported option'
-         Call Abend()
-      End If
-#ifdef _GARBLE_
-!----------------------------------------------------------------------*
-!     Skip garble                                                      *
-!----------------------------------------------------------------------*
-      Call StdFmt(KeyIn,xKey)
-      If ((xKey.eq.'ALLON').or.(xKey.eq.'RGSTN')) Then
-        SkipGarble = .True.
-      Else
-        SkipGarble = .False.
-      End If
-#endif
-!----------------------------------------------------------------------*
-!     Allocate new memory                                              *
-!----------------------------------------------------------------------*
+itmp = iPos-1
+iRc = c_getmem(elbl,eopr,etyp,itmp,Length)
+if (iRc < 0) call Quit(_RC_MEMORY_ERROR_)
 
-      If(Key.ne.'ALLO') iPos=iPos-kind2goff(VarTyp)
-      iRc=c_getmem(elbl,eopr,etyp,iPos,Length)
-      If(iRc.lt.0) Then
-        If ( Key.eq.'ALLO' ) Then
-          Write (6,'(A)') 'MMA failed to allocate a memory block.'
-        Else If ( Key.eq.'FREE' ) Then
-          Write (6,'(A)') 'MMA failed to release the memory block for further use.'
-          Call abend()
-        Else
-          Write (6,*)
-        End If
-        Go To 777
-      End If
-
-      If ( Key.eq.'ALLO' .or. Key.eq.'LENG' .or.                        &
-       Key.eq.'FLUS' .or. Key.eq.'MAX' .or.                                                &
-       Key.eq.'CHEC' .or. Key.eq.'LIST' .or.                            &
-       Key.eq.'RGST') Then
-         iPos=iPos+kind2goff(VarTyp)
-!----------------------------------------------------------------------*
-!     Release a memory block or return length or decrease length       *
-!----------------------------------------------------------------------*
-      End If
-
-#ifdef _GARBLE_
-      If ( Key.eq.'ALLO' .or. Key.eq.'RGST') Then
-        If (.not. SkipGarble) Call Garble(iPos,Length,VarTyp)
-      End If
-#endif
-
-      Return
-!
- 777  Continue
-      Call Quit(_RC_MEMORY_ERROR_)
-
-      End
-
-
-
-
-      Integer function kind2goff(var)
-#include "mama.fh"
-      character(LEN=4) var
-      kind2goff=0
-      if(var.eq.'INTE') kind2goff=iofint
-      if(var.eq.'REAL') kind2goff=iofdbl
-      if(var.eq.'CHAR') kind2goff=iofchr
-      return
-      end function kind2goff
-
-#ifdef _GARBLE_
-      subroutine garble(ipos,length,vartyp)
-      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
-      implicit none
-!include "SysDef.fh"
-#include "WrkSpc.fh"
-      integer :: ipos, length
-      character(len=*) :: vartyp
-      real*8, parameter ::    dgarbage(1) = [huge(1.0d0)]
-      integer, parameter ::   igarbage(1) = [huge(1)]
-      integer*1, parameter :: i1garbage = huge(i1garbage)
-
-      select case(vartyp)
-      case ('REAL')
-        call dcopy_(length,dgarbage,0,work(ipos),1)
-      case ('INTE')
-        call icopy(length,igarbage,0,iwork(ipos),1)
-      case ('CHAR')
-        call garble_char(Work)
-      end select
-
-      ! This is to allow type punning without an explicit interface
-      contains
-
-      subroutine garble_char(buf)
-      use Definitions, only: RtoB
-      real*8, target :: buf(*)
-      integer*1, pointer :: ibuf(:)
-      integer :: ioff1, ioff2, foff1
-      ioff1 = (ipos-1)/RtoB+1
-      ioff2 = mod(ipos-1,RtoB)+1
-      foff1 = (ipos+length-2)/RtoB+1
-      call c_f_pointer(c_loc(buf(ioff1)),ibuf,[(foff1-ioff1+1)*RtoB])
-      ibuf(ioff2:ioff2+length-1) = i1garbage
-      nullify(ibuf)
-      end subroutine garble_char
-
-      end subroutine
-#endif
+end subroutine GetMem

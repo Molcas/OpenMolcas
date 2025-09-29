@@ -136,10 +136,10 @@ jk2 = IndK2(3,klS)
 k2data1(1:nDCR1) => k2Data(1:nDCR1,ik2)
 k2data2(1:nDCR2) => k2Data(1:nDCR2,jk2)
 
-Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
-Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
-Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
-Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(:,iAOst(1)+1:)
+Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(:,iAOst(2)+1:)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(:,iAOst(3)+1:)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(:,iAOst(4)+1:)
 
 call mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT,nSD,iSD4)
 !                                                                      *

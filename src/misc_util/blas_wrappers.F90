@@ -29,11 +29,9 @@
 ! dznrm2_
 ! idamax_
 ! scopy_
-! zaxpy_
 ! zcopy_
 ! zdscal_
 ! zgemm_
-! zscal_
 
 ! Specify if integer conversion will be needed.
 ! (real conversion is not implemented yet)
@@ -399,24 +397,6 @@ subroutine scopy_(n_,sx,incx_,sy,incy_)
 # endif
 end subroutine scopy_
 
-subroutine zaxpy_(n_,da,dx,incx_,dy,incy_)
-  use Definitions, only: BLASR8, iwp
-  _BLAS_INT_use_
-  implicit none
-  integer(kind=iwp), intent(in) :: n_, incx_, incy_
-  complex(kind=BLASR8), intent(in) :: da, dx(*)
-  complex(kind=BLASR8), intent(out) :: dy(*)
-# ifdef MOLCAS_TO_BLAS_INT
-  integer(kind=BLASInt) :: n, incx, incy
-  n = int(n_,kind=BLASInt)
-  incx = int(incx_,kind=BLASInt)
-  incy = int(incy_,kind=BLASInt)
-  call zaxpy(n,da,dx,incx,dy,incy)
-# else
-  call zaxpy(n_,da,dx,incx_,dy,incy_)
-# endif
-end subroutine zaxpy_
-
 subroutine zcopy_(n_,dx,incx_,dy,incy_)
   use Definitions, only: BLASR8, iwp
   _BLAS_INT_use_
@@ -499,20 +479,3 @@ subroutine zgemm_(transa,transb,m_,n_,k_,alpha,a,lda_,b,ldb_,beta,c,ldc_)
   end if
 # endif
 end subroutine zgemm_
-
-subroutine zscal_(n_,da,dx,incx_)
-  use Definitions, only: BLASR8, iwp
-  _BLAS_INT_use_
-  implicit none
-  integer(kind=iwp), intent(in) :: n_, incx_
-  complex(kind=BLASR8), intent(in) :: da
-  complex(kind=BLASR8), intent(inout) :: dx(*)
-# ifdef MOLCAS_TO_BLAS_INT
-  integer(kind=BLASInt) :: n, incx
-  n = int(n_,kind=BLASInt)
-  incx = int(incx_,kind=BLASInt)
-  call zscal(n,da,dx,incx)
-# else
-  call zscal(n_,da,dx,incx_)
-# endif
-end subroutine zscal_

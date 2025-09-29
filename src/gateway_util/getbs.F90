@@ -316,7 +316,7 @@ do iAng=0,lAng
       end do
     else
       do iPrim=1,nPrim
-        call Read_v(lUnit,Shells(iShll)%Cff_c(1,1,1),iPrim,nCntrc*nPrim,nPrim,Ierr)
+        call Read_v(lUnit,Shells(iShll)%Cff_c,iPrim,nCntrc*nPrim,nPrim,Ierr)
         if (Ierr /= 0) then
           call WarningMessage(2,'GetBS: Error reading coeffs in GC format')
           call Quit_OnUserError()
@@ -349,13 +349,19 @@ do iAng=0,lAng
     call mma_allocate(Temp,nPrim,max(nCntrc,mCGTO(iAng)),Label='Temp')
     Temp(:,:) = Zero
     ! read the block in the library as it is
-    do iPrim=1,nPrim
-      call Read_v(lUnit,Temp,iPrim,nPrim*mCGTO(iAng),nPrim,Ierr)
-      if (Ierr /= 0) then
-        call WarningMessage(2,'GetBS: Error reading the block')
-        call Quit_OnUserError()
-      end if
-    end do
+    if (UnContracted) then
+      do i=1,nPrim
+        Temp(i,i) = One
+      end do
+    else
+      do iPrim=1,nPrim
+        call Read_v(lUnit,Temp,iPrim,nPrim*mCGTO(iAng),nPrim,Ierr)
+        if (Ierr /= 0) then
+          call WarningMessage(2,'GetBS: Error reading the block')
+          call Quit_OnUserError()
+        end if
+      end do
+    end if
 
     ! Order the exponents
 
@@ -422,7 +428,7 @@ do iAng=0,lAng
 
   ! Order the exponents
 
-  call OrdExp(nPrim,Shells(iShll)%Exp,nCntrc,Shells(iShll)%Cff_c(1,1,1))
+  call OrdExp(nPrim,Shells(iShll)%Exp,nCntrc,Shells(iShll)%Cff_c)
   if (nPrim*nCntrc /= 0) mVal = mVal+1
 
   ! Decontract if integrals required in the primitive basis
@@ -447,15 +453,15 @@ do iAng=0,lAng
     ! the radial overlap.
 
     if (.not. UnNorm) then
-      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_c(1,1,1),nCntrc,iAng)
-      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_p(1,1,1),nPrim,iAng)
+      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_c,nCntrc,iAng)
+      call Nrmlz(Shells(iShll)%Exp,nPrim,Shells(iShll)%Cff_p,nPrim,iAng)
     end if
 
     if (iPrint >= 99) then
       nPrim = Shells(iShll)%nExp
       nCntrc = Shells(iShll)%nBasis_C
-      call RecPrt(' Coefficients (normalized)',' ',Shells(iShll)%Cff_c(1,1,1),nPrim,nCntrc)
-      call RecPrt(' Coefficients (unnormalized)',' ',Shells(iShll)%Cff_c(1,1,2),nPrim,nCntrc)
+      call RecPrt(' Coefficients (normalized)',' ',Shells(iShll)%Cff_c(:,:,1),nPrim,nCntrc)
+      call RecPrt(' Coefficients (unnormalized)',' ',Shells(iShll)%Cff_c(:,:,2),nPrim,nCntrc)
     end if
   end if
   if (nPrim == 0) cycle

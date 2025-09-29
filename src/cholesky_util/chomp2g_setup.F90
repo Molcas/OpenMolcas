@@ -118,8 +118,8 @@ do iSym=1,nSym
   MP2W_e(iSym)%A(1:nb,1:nb) => MP2W_e_full(iS:iE)
 end do
 
-! Allocate adress-field for reordered R-vectors
-! ---------------------------------------------
+! Allocate address-field for reordered R-vectors
+! ----------------------------------------------
 call mma_allocate(AdrR1,nSym,nSym,nOccT,Label='AdrR1')
 call mma_allocate(AdrR2,nSym,nSym,nVirT,Label='AdrR2')
 

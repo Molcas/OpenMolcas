@@ -14,6 +14,7 @@ set (sources
      drv1el.F90
      drv2el.F90
      drv_fck.F90
+     drv_fck_inner.F90
      input_seward.F90
      nemo_opt1.F90
      output1_seward.F90

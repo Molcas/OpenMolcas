@@ -254,7 +254,7 @@ call fileopen(nfchk,anchk,11)
 call chkfil_taskctrl(2)  ! read task information
 
 nreps = 0
-! read infomation from checkfile and moint file
+! read information from checkfile and moint file
 call chkfil_ciorbinf(2)
 nlsm_bas(1:8) = nsbas(1:8)
 nlsm_all(1:8) = nsorb(1:8)

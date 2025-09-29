@@ -24,10 +24,10 @@ module Spinfo
 ! i = 1, 5: combinations, particle hole(sigma), count_aa, count_ab, a/p_parts
 ! nSpeed, iSpeed
 !
-! Root_Molcas, norb_Molcas, bas_Molcas, nish_Molcas, gssh_molcas, igsoccx_molcas, ELIMINATED_IN_GAS_MOLCAS,
-! 2ELIMINATED_IN_GAS_MOLCAS, potnuc_Molcas, thre_Molcas, nsym_Molcas, nactel_Molcas, ms2_Molcas, ispin_Molcas, lsym_Molcas,
-! itmax_Molcas, nroots_Molcas, ipt2_Molcas, iprci_Molcas, ngas_molcas, INOCALC_MOLCAS,
-! ISAVE_EXP_MOLCAS, IEXPAND_MOLCAS, N_ELIMINATED_GAS_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, nCSF_HEXS
+! Root_Molcas, bas_Molcas, gssh_molcas, igsoccx_molcas, ELIMINATED_IN_GAS_MOLCAS, 2ELIMINATED_IN_GAS_MOLCAS, potnuc_Molcas,
+! thre_Molcas, nsym_Molcas, nactel_Molcas, ms2_Molcas, ispin_Molcas, lsym_Molcas, itmax_Molcas, nroots_Molcas, ipt2_Molcas,
+! iprci_Molcas, ngas_molcas, INOCALC_MOLCAS, ISAVE_EXP_MOLCAS, IEXPAND_MOLCAS, N_ELIMINATED_GAS_MOLCAS, N_2ELIMINATED_GAS_MOLCAS,
+! I_ELIMINATE_GAS_MOLCAS, nCSF_HEXS
 !
 ! stuff from bk_approx.fh
 !
@@ -45,16 +45,16 @@ integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 integer(kind=iwp) :: I2ELIMINATED_IN_GAS_MOLCAS(MXGAS), I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS(MXGAS), IEXPAND_MOLCAS, &
                      igsoccx_molcas(mxgas,2), INOCALC_MOLCAS, IOCCPSPC(20,2), iprci_Molcas, ipt2_Molcas, ISAVE_EXP_MOLCAS, &
                      iSpeed(nSpeed), ispin_Molcas, itmax_Molcas, lsym_Molcas, MINOP, MS2, ms2_Molcas, N_2ELIMINATED_GAS_MOLCAS, &
-                     N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, nbas_Molcas(mxSym), NCNASM(mxSym), NCNFTP(MXTYP,MXSYM), &
-                     NCSASM(mxSym), nCSF_HEXS, NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), ngas_molcas, NGASBK, &
-                     ngssh_molcas(mxgas,mxsym), nish_Molcas(mxSym), norb_Molcas(mxSym), nroots_Molcas, nsym_Molcas, NTYP
+                     N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, NCNASM(mxSym), NCNFTP(MXTYP,MXSYM), NCSASM(mxSym), nCSF_HEXS, &
+                     NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), ngas_molcas, NGASBK, ngssh_molcas(mxgas,mxsym), &
+                     nroots_Molcas, nsym_Molcas, NTYP
 real(kind=wp) :: potnuc_Molcas, thre_Molcas
-logical(kind=iwp) :: DoBKAP
+logical(kind=iwp) :: DoBKAP, DoComb
 
-public :: DoBKAP, I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, igsoccx_molcas, &
-          INOCALC_MOLCAS, IOCCPSPC, iprci_Molcas, ipt2_Molcas, ISAVE_EXP_MOLCAS, iSpeed, ispin_Molcas, itmax_Molcas, lsym_Molcas, &
-          MINOP, MS2, ms2_Molcas, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, nbas_Molcas, NCNASM, NCNFTP, &
-          NCSASM, nCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, ngas_molcas, NGASBK, ngssh_molcas, nish_Molcas, norb_Molcas, &
-          nroots_Molcas, nsym_Molcas, NTYP, potnuc_Molcas, thre_Molcas
+public :: DoBKAP, DoComb, I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, &
+          igsoccx_molcas, INOCALC_MOLCAS, IOCCPSPC, iprci_Molcas, ipt2_Molcas, ISAVE_EXP_MOLCAS, iSpeed, ispin_Molcas, &
+          itmax_Molcas, lsym_Molcas, MINOP, MS2, ms2_Molcas, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, &
+          NCNASM, NCNFTP, NCSASM, nCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, ngas_molcas, NGASBK, ngssh_molcas, nroots_Molcas, &
+          nsym_Molcas, NTYP, potnuc_Molcas, thre_Molcas
 
 end module Spinfo

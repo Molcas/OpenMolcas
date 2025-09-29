@@ -4,10 +4,17 @@ One marker per institution if possible
 */
 var dev_places = [
   {
+    "city": "Marseille, France",
+    "lat": 43.335910,
+    "lng": 5.412234,
+    "name": "Aix-Marseille University",
+    "url": "https://www.univ-amu.fr/en",
+  },
+  {
     "city": "Nantes, France",
     "lat": 47.23480,
     "lng": -1.55466,
-    "name": "CNRS, Nantes Univesity",
+    "name": "CNRS, Nantes University",
     "url": "https://www.cnrs.fr/en",
   },
   {
@@ -262,5 +269,12 @@ var dev_workshops = [
     "lng": -79.39861,
     "name": "12th OpenMolcas Developers' Workshop, 2024",
     "url": "https://hpqc.org/molcas",
+  },
+  {
+    "city": "Garching bei München, Germany",
+    "lat": 48.266835,
+    "lng": 11.672228,
+    "name": "13th OpenMolcas Developers' Workshop, 2025",
+    "url": "https://molcas2025.de",
   },
 ]

@@ -16,9 +16,9 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-integer(kind=iwp) :: lengthlast
+integer(kind=iwp) :: iOption, lengthlast
 character(len=8) :: Method
-logical(kind=iwp) :: Do_ESPF, StandAlone, FoundLastEn
+logical(kind=iwp) :: Do_ESPF, Do_FFPT, StandAlone, FoundLastEn
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -33,23 +33,26 @@ else
   call Get_cArray('Relax Method',Method,8)
 end if
 
+call Get_iScalar('System Bitswitch',iOption)
+Do_FFPT = btest(iOption,14)
+
 call DecideOnESPF(Do_ESPF)
 
-if (Method(5:7) /= 'SCF'     .and. &
-    Method(1:6) /= 'KS-DFT'  .and. &
-    Method(1:6) /= 'CASSCF'  .and. &
-    Method(1:6) /= 'RASSCF'  .and. &
-    Method(1:6) /= 'CASPT2'  .and. &
-    Method(1:5) /= 'MBPT2'   .and. &
-    Method(1:5) /= 'CCSDT'   .and. &
-    Method(1:4) /= 'CHCC'    .and. &
-    Method(1:6) /= 'MCPDFT'  .and. &
-    Method(1:6) /= 'MSPDFT'  .and. &
+if ((Method(5:7) /= 'SCF') .and. &
+    (Method(1:6) /= 'KS-DFT') .and. &
+    (Method(1:6) /= 'CASSCF') .and. &
+    (Method(1:6) /= 'RASSCF') .and. &
+    (Method(1:6) /= 'CASPT2') .and. &
+    (Method(1:5) /= 'MBPT2') .and. &
+    (Method(1:5) /= 'CCSDT') .and. &
+    (Method(1:4) /= 'CHCC') .and. &
+    (Method(1:6) /= 'MCPDFT') .and. &
+    (Method(1:6) /= 'MSPDFT') .and. &
 #   ifdef _DMRG_
-    Method(1:7) /= 'DMRGSCF' .and. &
+    (Method(1:7) /= 'DMRGSCF') .and. &
 #   endif
-    Method(1:4) /= 'CHT3'    .and. &
-    Method(1:8) /= 'EXTERNAL') then
+    (Method(1:4) /= 'CHT3') .and. &
+    (Method(1:8) /= 'EXTERNAL')) then
   write(u6,'(A,A,A)') 'Last Energy for ',Method,' is not implemented yet.'
   call Abend()
 end if
@@ -70,6 +73,19 @@ if (iReturn /= 0) then
   call Abend()
 end if
 
+! Compute FFPT
+
+if (Do_FFPT) then
+  call StartLight('ffpt')
+  call Disable_Spool()
+  call FFPT(iReturn)
+  if (iReturn /= 0) then
+    write(u6,*) 'Last_Energy failed ...'
+    write(u6,*) 'FFPT returned with return code, rc = ',iReturn
+    call Abend()
+  end if
+end if
+
 ! Compute ESPF
 
 if (Do_ESPF) then
@@ -86,11 +102,11 @@ end if
 
 ! Compute the wave function
 
-if ((Method(5:7) == 'SCF' .and. Method(1:4) /= 'DMRG') .or. &
-    Method(1:6) == 'KS-DFT' .or. &
-    Method(1:5) == 'MBPT2'  .or. &
-    Method(1:4) == 'CHCC'   .or. &
-    Method(1:4) == 'CHT3') then
+if (((Method(5:7) == 'SCF') .and. (Method(1:4) /= 'DMRG')) .or. &
+    (Method(1:6) == 'KS-DFT') .or. &
+    (Method(1:5) == 'MBPT2') .or. &
+    (Method(1:4) == 'CHCC') .or. &
+    (Method(1:4) == 'CHT3')) then
   call StartLight('scf')
   call Disable_Spool()
   call xml_open('module',' ',' ',0,'scf')
@@ -101,12 +117,12 @@ if ((Method(5:7) == 'SCF' .and. Method(1:4) /= 'DMRG') .or. &
     write(u6,*) 'SCF returned with return code, rc = ',iReturn
     call Abend()
   end if
-else if (Method(1:6) == 'RASSCF' .or. &
-         Method(1:6) == 'CASSCF' .or. &
-         Method(1:6) == 'CASPT2' .or. &
-         Method(1:6) == 'MCPDFT' .or. &
-         Method(1:6) == 'MSPDFT' .or. &
-         Method(1:5) == 'CCSDT') then
+else if ((Method(1:6) == 'RASSCF') .or. &
+         (Method(1:6) == 'CASSCF') .or. &
+         (Method(1:6) == 'CASPT2') .or. &
+         (Method(1:6) == 'MCPDFT') .or. &
+         (Method(1:6) == 'MSPDFT') .or. &
+         (Method(1:5) == 'CCSDT')) then
   call StartLight('rasscf')
   call Disable_Spool()
   call RASSCF(iReturn)
@@ -168,8 +184,8 @@ if (Method(1:5) == 'CCSDT') then
   end if
 end if
 
-if (Method(1:4) == 'CHCC' .or. &
-    Method(1:4) == 'CHT3') then
+if ((Method(1:4) == 'CHCC') .or. &
+    (Method(1:4) == 'CHT3')) then
   call StartLight('chcc')
   call Disable_Spool()
   call CHCC(iReturn)

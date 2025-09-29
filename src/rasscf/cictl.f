@@ -63,13 +63,12 @@
       use RASWfn, only: wfn_dens, wfn_spindens, wfn_cicoef
 #endif
       use csfbas, only: CONF
-      use glbbas, only: CFTP
       use casvb_global, only: ifvb
       use CMS, only: iCMSOpt,CMSGiveOpt
       use rctfld_module, only: lRF
-      use rasscf_lucia, only: PAtmp, Pscr, CIVEC, PTmp, DStmp, Dtmp
+      use lucia_data, only: CFTP, PAtmp, Pscr, PTmp, DStmp, Dtmp
 #ifdef _DMRG_
-      use rasscf_lucia, only: RF1, RF2
+      use lucia_data, only: RF1, RF2
       use RASWfn, only: wfn_dmrg_checkpoint
       use input_ras, only: KeyCION
 #endif
@@ -81,6 +80,7 @@
       use general_data, only: CRVec
       use gas_data, only: iDoGAS
       use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
+      use timers, only: TimeDens
       use rasscf_global, only: CMSStartMat, DoDMRG,
      &                         ExFac, iCIRFRoot, ICMSP, IFCRPR,
      &                         iPCMRoot, iRotPsi, ITER, IXMSP, KSDFT,
@@ -115,8 +115,6 @@
       integer, external :: IsFreeUnit
 
       Character(LEN=16), Parameter :: ROUTINE='CICTL   '
-#include "SysDef.fh"
-#include "timers.fh"
 #ifdef _HDF5_
       real*8, allocatable :: density_square(:,:)
 #endif
@@ -137,10 +135,10 @@
       real*8 rdum(1)
       Real*8, Allocatable:: CIV(:), RCT_F(:), RCT_FS(:), RCT(:),
      &                      RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:),
-     &                      RF(:), Temp(:)
+     &                      RF(:), Temp(:), CIVec(:)
       Integer, Allocatable:: kCnf(:)
       Integer LuVecDet
-      Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal
+      Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal, Time(2)
       Real*8, External:: DDot_
       Integer i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot,
      &        jRoot, kRoot, mconf
@@ -330,7 +328,7 @@ C Local print level (if any)
                  Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
                  Call mma_allocate(Pscr,NACPR2,Label='Pscr')
                  CALL Lucia_Util('Densi',
-     &                           CI_Vector=CIVEC(:))
+     &                           CI_Vector=CIVEC)
                  If (SGS%IFRAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
                  End If
@@ -547,7 +545,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * Ptmp: SYMMETRIC TWO-BODY DENSITY
 * PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 *
-      Call Timing(Rado_1,dum1,dum2,dum3)
+      Call Timing(Time(1),dum1,dum2,dum3)
       Call dCopy_(NACPAR,[0.0D0],0,D,1)
       Call dCopy_(NACPAR,[0.0D0],0,DS,1)
       Call dCopy_(NACPR2,[0.0D0],0,P,1)
@@ -611,7 +609,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 
          If ( NAC.ge.1 ) Then
            if(.not.(doDMRG)) CALL Lucia_Util('Densi',
-     &                                       CI_Vector=CIVEC(:))
+     &                                       CI_Vector=CIVEC)
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
              CALL TRIPRT('D after lucia  ',' ',Dtmp,NAC)
@@ -715,7 +713,7 @@ C and for now don't bother with 2-electron active density matrices
 * compute density matrices
         If ( NAC.ge.1 ) Then
            CALL Lucia_Util('Densi',
-     &                     CI_Vector=CIVEC(:))
+     &                     CI_Vector=CIVEC)
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Dtmp,NAC)
              CALL TRIPRT('DS after lucia',' ',DStmp,NAC)
@@ -764,9 +762,8 @@ C and for now don't bother with 2-electron active density matrices
       Call Put_dArray('D1mo',D,NACPAR) ! Put on RUNFILE
 c
       IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
-      Call Timing(Rado_2,dum1,dum2,dum3)
-      Rado_2 = Rado_2 - Rado_1
-      Rado_3 = Rado_3 + Rado_2
+      Call Timing(Time(2),dum1,dum2,dum3)
+      TimeDens = TimeDens + Time(2) - Time(1)
 *
 * C
 * IF FINAL ITERATION REORDER THE WAVEFUNCTION ACCORDING TO

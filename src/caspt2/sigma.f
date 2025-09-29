@@ -112,6 +112,7 @@ C SVC: add transposed fock matrix blocks
         NS=NSSH(ISYM)
         NO=NORB(ISYM)
 
+        IF (NO > 0) THEN
         FIT(ISYM)%A(1:NA*NI) =>
      &     FIT_Full(IOFFIT(ISYM)+1:IOFFIT(ISYM)+NA*NI)
         FTI(ISYM)%A(1:NA*NI) =>
@@ -133,6 +134,7 @@ C SVC: add transposed fock matrix blocks
      &              FTA(ISYM)%A(:),FAT(ISYM)%A(:))
 
         IFIFA=IFIFA+(NO*(NO+1))/2
+        END IF
 
       END DO
 

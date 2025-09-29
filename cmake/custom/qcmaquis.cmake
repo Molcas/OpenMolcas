@@ -283,6 +283,7 @@ if (NOT MAQUIS_DMRG_FOUND) # Does the opposite work?
                        CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
                        LIST_SEPARATOR '\'
                        INSTALL_DIR ${LOCAL_QCM_INSTALL_PATH}
+                       UPDATE_COMMAND ""
   )
 
   ExternalProject_Add_Step (${EP_PROJECT} update_hash
@@ -374,9 +375,13 @@ set (CMAKE_DISABLE_SOURCE_CHANGES ON)
 
 set (DMRG_INCLUDE ${mod_dir} PARENT_SCOPE)
 
+# kszenes: only include gsl library and not other imported targets from GSL
+# normally, it also includes cblas and blas which would overwrite the OpenMolcas BLAS
+get_target_property(GSL_LOCATION GSL::gsl IMPORTED_LOCATION)
+
 # set library paths
 if (MAQUIS_DMRG_FOUND)
-  set (MAQUIS_DMRG_LIBRARIES qcmaquis-driver ${MAQUIS_DMRG_LIBRARIES} PARENT_SCOPE)
+  set (MAQUIS_DMRG_LIBRARIES qcmaquis-driver ${Boost_LIBRARIES} ${GSL_LOCATION} PARENT_SCOPE)
 else ()
   # add static QCMaquis libraries
   set (MAQUIS_DMRG_LIBRARIES
@@ -385,7 +390,8 @@ else ()
        ${ALPS_LIBRARY}
        ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_models.a
        ${CMAKE_BINARY_DIR}/qcmaquis/lib/${CMAKE_FIND_LIBRARY_PREFIXES}dmrg_utils.a
-       ${MAQUIS_DMRG_LIBRARIES}
+       ${Boost_LIBRARIES}
+       ${GSL_LOCATION}
        PARENT_SCOPE
   )
 endif ()

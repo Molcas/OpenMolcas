@@ -31,7 +31,7 @@ public :: BLASInt, BLASR4, BLASR8, CUDAInt
 public :: LibxcInt, LibxcReal, LibxcSize
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
 public :: i1, i4, i8, r4, r8
-public :: ItoB, RtoB, RtoI, CtoB, CtoR
+public :: ItoB, RtoB, RtoI, CtoB
 public :: u0, u5, u6
 
 ! This is the working precision and should be preferably used
@@ -89,12 +89,11 @@ integer(kind=iwp), parameter :: &
                                 ItoB = storage_size(1_iwp)/storage_size('a'), &
                                 RtoB = storage_size(1.0_wp)/storage_size('a'), &
                                 RtoI = storage_size(1.0_wp)/storage_size(1_iwp), &
-                                CtoB = storage_size((1.0_wp,0.0_wp))/storage_size('a'), &
-                                CtoR = storage_size((1.0_wp,0.0_wp))/storage_size(1.0_wp)
+                                CtoB = storage_size((1.0_wp,0.0_wp))/storage_size('a')
 #elif defined (_I8_)
-                                ItoB = 8, RtoB = 8, RtoI = 1, CtoB = 16, CtoR = 2
+                                ItoB = 8, RtoB = 8, RtoI = 1, CtoB = 16
 #else
-                                ItoB = 4, RtoB = 8, RtoI = 2, CtoB = 16, CtoR = 2
+                                ItoB = 4, RtoB = 8, RtoI = 2, CtoB = 16
 #endif
 
 ! Output, input and error units, typically 6, 5 & 0, but they could be something else

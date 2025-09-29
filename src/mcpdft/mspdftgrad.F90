@@ -12,62 +12,57 @@
 !***********************************************************************
 
 module mspdftgrad
-  use definitions,only:wp
-  implicit none
-  private
 
-  real(kind=wp),allocatable :: F1MS(:,:),F2MS(:,:),FocMS(:,:),FxyMS(:,:),P2Mot(:,:),D1AOMS(:,:),DiDa(:,:),D1SaoMS(:,:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
-  public :: F1MS,F2MS,FocMS,FxyMS,P2Mot,D1AOMS,DiDa,D1SAoMS
-  public :: mspdftgrad_init,mspdftgrad_free
+implicit none
+private
+
+real(kind=wp), allocatable :: D1AOMS(:,:), D1SaoMS(:,:), DiDa(:,:), F1MS(:,:), F2MS(:,:), FocMS(:,:), FxyMS(:,:), P2Mot(:,:)
+
+public :: D1AOMS, D1SAoMS, DiDa, F1MS, F2MS, FocMS, FxyMS, mspdftgrad_free, mspdftgrad_init, P2Mot
 
 contains
 
-  subroutine mspdftgrad_init()
-    use constants,only:zero
-    use stdalloc,only:mma_allocate
-    use rasscf_global,only:nroots,nacpr2,nTot4
-    use mcpdft_input,only:mcpdft_options
-    use general_data,only:ispin,ntot1
-    implicit none
+subroutine mspdftgrad_init()
 
-    call mma_allocate(F1MS,nTot1,nRoots,label="F1MS")
-    call mma_allocate(F2MS,NacPR2,nRoots,label="F2MS")
-    call mma_allocate(FocMS,nTot1,nroots,label="FocMS")
-    call mma_allocate(FxyMS,nTot4,nRoots,label="FxyMS")
-    call mma_allocate(P2MOT,nacpr2,nroots,label="P2MO")
-    call mma_allocate(D1AOMS,ntot1,nroots,label="D1AOMS")
-    call mma_allocate(DIDA,ntot1,nroots+1,label="DIDA")
-    if(iSpin /= 1) then
-      call mma_allocate(D1SaoMS,nTot1,nRoots,label="D1SAOMS")
-    endif
+  use rasscf_global, only: nacpr2, nroots, nTot4
+  use mcpdft_input, only: mcpdft_options
+  use general_data, only: ispin, ntot1
+  use constants, only: Zero
 
-    P2MOT = zero
+  call mma_allocate(F1MS,nTot1,nRoots,label='F1MS')
+  call mma_allocate(F2MS,NacPR2,nRoots,label='F2MS')
+  call mma_allocate(FocMS,nTot1,nroots,label='FocMS')
+  call mma_allocate(FxyMS,nTot4,nRoots,label='FxyMS')
+  call mma_allocate(P2MOT,nacpr2,nroots,label='P2MO')
+  call mma_allocate(D1AOMS,ntot1,nroots,label='D1AOMS')
+  call mma_allocate(DIDA,ntot1,nroots+1,label='DIDA')
+  if (iSpin /= 1) call mma_allocate(D1SaoMS,nTot1,nRoots,label='D1SAOMS')
 
-    ! Put relevant information to the runfile
-    call Put_lScalar('isCMSNAC        ',mcpdft_options%nac)
-    call Put_iArray('cmsNACstates    ',mcpdft_options%nac_states,2)
-    call Put_lScalar('isMECIMSPD      ',mcpdft_options%meci)
+  P2MOT(:,:) = Zero
 
-  endsubroutine
+  ! Put relevant information to the runfile
+  call Put_lScalar('isCMSNAC',mcpdft_options%nac)
+  call Put_iArray('cmsNACstates',mcpdft_options%nac_states,2)
+  call Put_lScalar('isMECIMSPD',mcpdft_options%meci)
 
-  subroutine mspdftgrad_free()
-    use stdalloc,only:mma_deallocate
-    implicit none
+end subroutine mspdftgrad_init
 
-    ! Should in theory check before deallocating!
-    call mma_deallocate(F1MS)
-    call mma_deallocate(F2MS)
-    call mma_deallocate(FocMS)
-    call mma_deallocate(FxyMS)
-    call mma_deallocate(P2MOT)
-    call mma_deallocate(D1aoMS)
-    call mma_deallocate(DIDA)
+subroutine mspdftgrad_free()
 
-    if(allocated(D1SaoMS)) then
-      call mma_deallocate(D1SaoMS)
-    endif
+  ! Should in theory check before deallocating!
+  call mma_deallocate(F1MS)
+  call mma_deallocate(F2MS)
+  call mma_deallocate(FocMS)
+  call mma_deallocate(FxyMS)
+  call mma_deallocate(P2MOT)
+  call mma_deallocate(D1aoMS)
+  call mma_deallocate(DIDA)
 
-  endsubroutine
+  if (allocated(D1SaoMS)) call mma_deallocate(D1SaoMS)
 
-endmodule
+end subroutine mspdftgrad_free
+
+end module mspdftgrad

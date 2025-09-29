@@ -97,7 +97,6 @@ C looping, etc in the rest  of the routines.
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -171,7 +170,6 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
 
       DIMENSION SA(*)
       DIMENSION G3(NG3)
@@ -346,7 +344,6 @@ C  - G(xvzyut) -> SA(yvx,zut)
       use definitions, only: MPIInt,wp
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -808,7 +805,6 @@ C storage uses a triangular scheme, and the LDA passed is zero.
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 SA(*)
@@ -907,7 +903,6 @@ C Add -dyu Gvzxt
       use fake_GA, only: GA_Arrays
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -982,7 +977,6 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
 
       DIMENSION SC(*)
       DIMENSION G3(NG3)
@@ -1157,7 +1151,6 @@ C  - G(xvzyut) -> SC(zvx,yut)
       use definitions, only: MPIInt,wp
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1621,7 +1614,6 @@ C storage uses a triangular scheme, and the LDC passed is zero.
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 SC(*)
@@ -1701,7 +1693,6 @@ C Add  dtu Gvxyz + dtu dyx Gvz
 
 #include "caspt2.fh"
 
-#include "SysDef.fh"
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
 
@@ -1840,7 +1831,6 @@ C Write to disk, and save size and address.
 
 #include "caspt2.fh"
 
-#include "SysDef.fh"
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
 
@@ -1927,7 +1917,6 @@ C Write to disk
 
 #include "caspt2.fh"
 
-#include "SysDef.fh"
       INTEGER NDREF
       REAL*8 DREF(NDREF)
 
@@ -1981,7 +1970,6 @@ C Write to disk
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "caspt2.fh"
-#include "SysDef.fh"
       INTEGER NPREF
       REAL*8 PREF(NPREF)
 
@@ -2086,7 +2074,6 @@ C Write to disk
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "caspt2.fh"
-#include "SysDef.fh"
       INTEGER NDREF
       REAL*8 DREF(NDREF)
 

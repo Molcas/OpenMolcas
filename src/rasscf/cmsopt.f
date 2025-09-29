@@ -21,7 +21,6 @@
       Implicit None
 
 
-#include "SysDef.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(NACPR2)::TUVX

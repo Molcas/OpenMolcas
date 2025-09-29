@@ -22,7 +22,7 @@ subroutine PrepP_FAIEMP(nBas_Valence,nBT,nBVT)
 ! Based on PrepP                                                       *
 !***********************************************************************
 
-use pso_stuff, only: CMO, D0, DVar, DS, DSVar, G1, G2, Gamma_On, id0Lbl, kCMO, lPSO, lsa, mCMo, mDens, mG1, mG2, nDens, nG1, nG2
+use pso_stuff, only: CMO, D0, DVar, DS, DSVar, G1, G2, Gamma_On, id0Lbl, kCMO, lPSO, lsa, mCMo, mG1, mG2, nDens, nG1, nG2
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
@@ -162,9 +162,8 @@ end if
 !...  density matrix in AO/SO basis
 nsa = 1
 if (lsa) nsa = 4
-mDens = nsa
-call mma_allocate(D0,nDens,mDens,Label='D0')
-call mma_allocate(DVar,nDens,mDens,Label='DVar')
+call mma_allocate(D0,nDens,nsa,Label='D0')
+call mma_allocate(DVar,nDens,nsa,Label='DVar')
 D0(:,:) = Zero
 DVar(:,:) = Zero
 call Get_dArray_chk('D1ao',D0,nDens)

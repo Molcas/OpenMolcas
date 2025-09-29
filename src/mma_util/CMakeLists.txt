@@ -9,4 +9,19 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
 
+set (sources
+     cgetmem.c
+     c_null_alloc.c
+     getmem.F90
+     inimem.F90
+     mma_module.F90
+     stdalloc.F90
+    )
+
+# Source files defining modules that should be available to other *_util directories
+set (modfile_list
+     mma_module.F90
+     stdalloc.F90
+)
+
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
