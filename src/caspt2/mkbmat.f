@@ -515,8 +515,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      iscal = (MPIInt*4 + wp*2)/RtoB ! RtoB from module Definitions
-      !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      iscal = (MPIInt*4 + wp*2)/RtoB
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -1324,8 +1323,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      iscal = (MPIInt*4 + wp*2)/RtoB ! RtoB from module Definitions
-      !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      iscal = (MPIInt*4 + wp*2)/RtoB
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.

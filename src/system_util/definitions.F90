@@ -68,8 +68,6 @@ integer(kind=iwp), parameter :: LibxcInt = c_int, &
 !       we can support 32bit and 64bit versions.
 !       Which will require appropiate compile flags here.
 #ifdef _MOLCAS_MPP_
-!integer(kind=iwp), parameter :: MPIInt = kind(MPI_INTEGER) ! int64
-! https://rookiehpc.org/mpi/docs/mpi_address_kind/index.html
 integer(kind=iwp), parameter :: MPIInt = kind(MPI_ADDRESS_KIND)
 #else
 integer(kind=iwp), parameter :: MPIInt = int32

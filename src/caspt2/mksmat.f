@@ -394,6 +394,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
+      ! we need two real and four integer values per element
       iscal = (MPIInt*4 + wp*2)/RtoB ! RtoB from module Definitions
       !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
@@ -1201,9 +1202,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      ! we need two real and four integer values per element
-      iscal = (MPIInt*4 + wp*2)/RtoB ! RtoB from module Definitions
-      !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      iscal = (MPIInt*4 + wp*2)/RtoB
       MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
