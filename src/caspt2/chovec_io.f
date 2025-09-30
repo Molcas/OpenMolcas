@@ -291,7 +291,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       integer(kind=MPIInt) IERROR4,ITYPE
       integer(kind=MPIInt), PARAMETER :: ONE4 = 1
       INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
-      INTEGER, ALLOCATABLE:: DISP(:), SIZE(:)
+      INTEGER(kind=MPIInt), ALLOCATABLE:: DISP(:), SIZE(:)
       REAL*8, ALLOCATABLE:: TRANSP(:), RECVBUF(:)
 #ifdef _DEBUGPRINT_
       INTEGER :: MY_N,NOFF
@@ -383,9 +383,10 @@ C Avoid unused argument warnings
       use definitions, only: MPIInt
       IMPLICIT NONE
       REAL*8 SENDBUF(*), RCVBUF(*)
-      INTEGER NSEND, NRCV(*),NOFF(*)
+      INTEGER NSEND
 
       integer(kind=MPIInt) :: MPITYPES, MPITYPER, MPICOMM
+      integer(kind=MPIInt) :: NRCV(*), NOFF(*)
 
       integer(kind=MPIInt) :: NPROCS
       integer(kind=MPIInt) :: NSEND4
