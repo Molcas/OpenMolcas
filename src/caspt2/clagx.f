@@ -187,7 +187,7 @@ C
 #endif
       integer :: nAS
 
-      Do iCase = 1, 13
+      Do iCase = 1, 11
 C       cycle
 C       If (icase.ne.10.and.icase.ne.11) cycle ! G
 C       If (icase.ne.10)                 cycle ! GP
