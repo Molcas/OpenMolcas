@@ -253,22 +253,18 @@ C         write(6,*) "dimension for Vec = ", nin*nis
             call mma_deallocate(LID)
           end if
 C
-          If (iCase.ne.12.and.iCase.ne.13) Then
-            !! lg_V3 = RHS (in IC basis)
-            Call RHS_ALLO(nIN,nIS,lg_V3)
-            Call RHS_READ_SR(lg_V3,iCase,iSym,iRHS)
-            !! lg_V4 = RHS (in MO basis)
-            Call RHS_ALLO(nAS,nIS,lg_V4)
-            Call RHS_READ_C (lg_V4,iCase,iSym,iVecW)
-            !! lg_V5 = RHS2 (in IC basis)
-            If (IFMSCOUP) Then
-              Call RHS_ALLO(nIN,nIS,lg_V5)
-              Call RHS_READ_SR(lg_V5,iCase,iSym,iVecL) ! 7
-            Else
-              lg_V5 = lg_V3
-            End If
+          !! lg_V3 = RHS (in IC basis)
+          Call RHS_ALLO(nIN,nIS,lg_V3)
+          Call RHS_READ_SR(lg_V3,iCase,iSym,iRHS)
+          !! lg_V4 = RHS (in MO basis)
+          Call RHS_ALLO(nAS,nIS,lg_V4)
+          Call RHS_READ_C (lg_V4,iCase,iSym,iVecW)
+          !! lg_V5 = RHS2 (in IC basis)
+          If (IFMSCOUP) Then
+            Call RHS_ALLO(nIN,nIS,lg_V5)
+            Call RHS_READ_SR(lg_V5,iCase,iSym,iVecL) ! 7
           Else
-            Go To 100
+            lg_V5 = lg_V3
           End If
 
 #ifdef _MOLCAS_MPP_
@@ -396,11 +392,9 @@ C
 
           CALL RHS_FREE(lg_V1)
           CALL RHS_FREE(lg_V2)
-          If (iCase.ne.12.and.iCase.ne.13) Then
-            CALL RHS_FREE(lg_V3)
-            CALL RHS_FREE(lg_V4)
-            If (IFMSCOUP) CALL RHS_FREE(lg_V5)
-          End If
+          CALL RHS_FREE(lg_V3)
+          CALL RHS_FREE(lg_V4)
+          If (IFMSCOUP) CALL RHS_FREE(lg_V5)
 
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then

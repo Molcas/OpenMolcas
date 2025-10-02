@@ -1076,6 +1076,7 @@ C Wishful thinking:
       NVECS=2*NASHT**2+1
 C But what is really available?
       CALL mma_MaxDBLE(NTG3WRK)
+      NTG3WRK=NTG3WRK-3*MXCI ! for BUF1, DTU, and DYZ, allocated later
       NTG3WRK=NTG3WRK/2
       NTG3WRK=MIN(MXCI*NVECS,NTG3WRK)
       NVECS=NTG3WRK/MXCI

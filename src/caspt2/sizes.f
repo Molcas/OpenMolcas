@@ -22,6 +22,11 @@
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
       use caspt2_global, only: NCMO
+      use caspt2_global, only: do_csf, do_grad, do_nac, if_invar,
+     &                         if_invaria, nCLag, nOLag, nSLag, nWLag
+      use Fockof, only: IOFFIT,IOFFIA,IOFFTA
+      use CHOVEC_IO
+      use ChoCASPT2
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -279,8 +284,166 @@ C In DIADNS alone, NDD words are needed:
       WRITE(6,'(1x,a,i8)')'NBAST*(NBAST+1)',NBAST*(NBAST+1)
 #endif
 
+      ! (rough) memory estimation for gradients
+      ngrad = 0
+      if (do_grad) then
+        ! memory in caspt2_grad.f
+        ngrad1 = NBSQT*4 + nCLag*2 + nOLag*2 + nSLag*2 + nWLag
+     *         + NBSQT*2 + nAshT**2
+        if (IFXMS .or. IFRMS) ngrad1 = ngrad1 + NBSQT
+        if (IFDW .and. zeta >= 0.0d+00) ngrad1 = ngrad1 + nState
+        if (do_nac) ngrad1 = ngrad1 + NBSQT
+        if (nFroT /= 0) ngrad1 = ngrad1 + nFroT**2
+
+        ! "base" memory in dens.f
+        nch=0
+        If (IfChol) nch=nvloc_chobatch(1)
+        ngrad2 = NOSQT*2 + NBSQT*9 + 2*max(nbast**2,nch) + 2*nAshT**2
+        If (nFroT.ne.0 .or. .not.if_invaria) ngrad2 = ngrad2 + 2*NBSQT
+        if (do_csf) ngrad2 = ngrad2 + NBSQT
+        ngrad2 = ngrad2 + nAshT**2
+        if (.not.if_invaria) ngrad2 = ngrad2 + nAshT**2
+
+        ! gradient: residual
+        ngrad3 = NSIGMA
+
+        ! gradient: density (trdns2o)
+        ngrad4 = NDD*3/2
+
+        ! gradient: off-diagonal derivatives (sigder)
+        NFIT=0
+        NFIA=0
+        NFTA=0
+        DO ISYM=1,NSYM
+          NI=NISH(ISYM)
+          NA=NASH(ISYM)
+          NS=NSSH(ISYM)
+          IOFFIT(ISYM)=NFIT
+          IOFFIA(ISYM)=NFIA
+          IOFFTA(ISYM)=NFTA
+          NFIT=NFIT+NA*NI
+          NFIA=NFIA+NS*NI
+          NFTA=NFTA+NS*NA
+        END DO
+        NFIT=NFIT+1
+        NFIA=NFIA+1
+        NFTA=NFTA+1
+
+        MMX = 0
+        DO ICASE1=1,11
+          DO ISYM1=1,NSYM
+            NIS1=NISUP(ISYM1,ICASE1)
+            NAS1=NASUP(ISYM1,ICASE1)
+            NIN1=NINDEP(ISYM1,ICASE1)
+            NSGM2=NIS1*NAS1
+            NSGM1=0
+            IF(ICASE1.EQ.1) THEN
+              NSGM1=NASH(ISYM1)*NISH(ISYM1)
+            ELSE IF(ICASE1.EQ.4) THEN
+              NSGM1=NASH(ISYM1)*NSSH(ISYM1)
+            ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
+              NSGM1=NIS1
+            END IF
+            DO ICASE2=ICASE1+1,NCASES
+              DO ISYM2=1,NSYM
+                NIS2=NISUP(ISYM2,ICASE2)
+                NAS2=NASUP(ISYM2,ICASE2)
+                NCX=NIS2*NAS2
+                M = NSGM1 + NSGM2 + MAX(NCS*2,NSGM2*2)
+                MMX=MAX(M,MMX)
+              END DO
+            END DO
+          END DO
+        END DO
+        ngrad5 = NFIT*2 + NFIA*2 + NFTA*2 + MMX
+
+        ! gradient: CI derivatives (clagx.f)
+        ngrad6 = NG1*4 + NG2*4 + NG3*4
+        ! CLagD
+        MMX = 0
+        DO ICASE=1,11
+          DO ISYM=1,NSYM
+            NIS=NISUP(ISYM,ICASE)
+            NAS=NASUP(ISYM,ICASE)
+            NIN=NINDEP(ISYM,ICASE)
+            M = 2*NAS**2 + 3*NIN*NIS + NAS*NIS
+            IF (IFMSCOUP) M = M + NIN*NIS
+            IF (ICASE.EQ.1) THEN
+              M = M + NAS*(NAS+1)/2 + NG3
+            ELSE IF (ICASE.EQ.2 .OR. ICASE.EQ.3) THEN
+              M = M + 2*NASHT**4
+              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+            ELSE IF (ICASE.EQ.4) THEN
+              M = M + NAS*(NAS+1)/2 + NG3
+            ELSE IF (ICASE.EQ.5) THEN
+              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+            ELSE IF (ICASE.EQ.6 .OR. ICASE.EQ.7) THEN
+              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+            ELSE IF (ICASE.EQ.8 .OR. ICASE.EQ.9) THEN
+              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+            ELSE IF (ICASE.EQ.10 .OR. ICASE.EQ.11) THEN
+              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+            END IF
+            MMX = MAX(M,MMX)
+          END DO
+        END DO
+        ngrad6_1 = MMX
+        ! CnstCLag
+        ngrad6_2 = NG3 + NCONF
+        MXLFT = MXLEFT-ngrad1-ngrad2-ngrad6-ngrad6_2
+        nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
+        nbuf1_grad = nbuf1
+        MXLFT = MXLFT/2
+        MXLFT = MIN(MXCI*(3*NASHT**2+NASHT),MXLFT)
+        ngrad6_2 = ngrad6_2 + MXLFT
+        ngrad6 = ngrad6 + MAX(ngrad6_1,ngrad6_2)
+
+        ! gradient: effective Hamiltonian (DerHEff)
+        ngrad7 = NASHT**2 + NASHT**4 + (NTG1*(NTG1+1)*(NTG1+2))/6
+        ! DerHeffX
+        MAXAIS = 0
+        DO ICASE=1,13
+          DO ISYM=1,NSYM
+            NIS=NISUP(ISYM,ICASE)
+            NAS=NASUP(ISYM,ICASE)
+            NIN=NINDEP(ISYM,ICASE)
+            M = NAS*NIS
+            MAXAIS = MAX(M,MAXAIS)
+          END DO
+        END DO
+        ngrad7_1 = MAXAIS*2
+        ! DERTG3
+        ngrad7_2 = MXCI*3 + 2*NASHT**2
+        MXLFT = MXLEFT-ngrad1-ngrad2-ngrad7-ngrad7_2
+        MXLFT = MXLFT/2
+        MXLFT = MIN(MXCI*(2*NASHT**2+1),MXLFT)
+        ngrad7_2 = ngrad7_2 + MXLFT + MXCI*3
+        ngrad7 = ngrad7 + MAX(ngrad7_1,ngrad7_2)
+
+        ! gradient: iterative CI derivatives (DEPSAOffC)
+        ngrad8 = 0
+        if (if_invar) then
+          ngrad8 = nConf*nState*5 + nConf + nState**3 + nAshT**2
+     &           + nAshT**4
+        end if
+
+        ! gradient: state-specific density matrix
+        ngrad9 = 0
+        if (if_SSDM) then
+          ngrad9 = NCONF + MaxVec_PT2**2 + NCHSPC + 2*nBasT**2
+     &           + 2*MaxVec_PT2 + NCHSPC+NBSQT
+        end if
+
+        ! memory in XMS (XMS_Grad)
+        ngrad10_1 = NCONF**4 + 2*NASHT**2 + 2*NASHT**4 + NASHT**6
+        ngrad10_2 = 3*NASHT**2 + NBSQT*4 + NCONF
+        ngrad10 = MAX(ngrad10_1,ngrad10_2)
+
+        ngrad = ngrad1 + ngrad2
+      end if
+
       NPRP=0
-      IF (IFPROP) NPRP=MAX(NPRP1,NPRP2)
+      IF (IFPROP .OR. do_grad) NPRP=MAX(NPRP1,NPRP2) + ngrad
       IF ( IPRGLB.GE.USUAL) THEN
         WRITE(6,'(20A4)')('----',I=1,20)
         WRITE(6,*)'Estimated memory requirements:'
