@@ -50,7 +50,7 @@
       !! Use NG3tot (in pt2_guga.fh) for the moment
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
-        call gaigop(ng3tot,1,'+')
+        call gaigop_scal(ng3tot,'+')
       end if
 #endif
       CALL mma_allocate(DG1,NG1,Label='DG1')
