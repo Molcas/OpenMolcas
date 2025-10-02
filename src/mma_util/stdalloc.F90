@@ -53,7 +53,7 @@
 module stdalloc
 
 use, intrinsic :: iso_fortran_env, only: int32
-use Definitions, only: wp, iwp, byte, MPIInt, u6, ItoB, RtoB
+use Definitions, only: wp, iwp, byte, u6, ItoB, RtoB
 
 implicit none
 private
