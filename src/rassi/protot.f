@@ -18,8 +18,8 @@
       INTEGER ASPIN, BSPIN, UPCPL, DWNCPL
       PARAMETER (UPCPL=1, DWNCPL=0)
       PARAMETER (ASPIN=1,BSPIN=0)
-* Expand csf''s in terms of determinants by the Graebenstetter method
-*  ( I.J.Q.C.10,P142(1976) )
+* Expand csf's in terms of determinants by the Grabenstetter method
+*  (I.J.Q.C. 10, P142 (1976))
 * Recoded by PAM 1999, after Jeppe Olsen.
 *
 * Input :
