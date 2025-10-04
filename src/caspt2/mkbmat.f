@@ -462,6 +462,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
+      use definitions, only: MPIInt,RtoB,wp
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
 
@@ -472,16 +473,16 @@ C  - F(xvzyut) -> BA(yvx,zut)
       DIMENSION F3(NG3)
       INTEGER*1 idxG3(6,NG3)
 
-      INTEGER*4, ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
-      INTEGER*4, ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
-      INTEGER*4, ALLOCATABLE :: SDISPLS(:), RDISPLS(:)
-      INTEGER*4, ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SDISPLS(:), RDISPLS(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
 
-      INTEGER*4, ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
       REAL*8,    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
 
-      INTEGER*4, PARAMETER :: ONE4=1, TWO4=2
-      INTEGER*4 :: IERROR4
+      integer(kind=MPIInt), PARAMETER :: ONE4=1, TWO4=2
+      integer(kind=MPIInt) :: IERROR4
       INTEGER, PARAMETER :: I4=KIND(ONE4)
 
       INTEGER, ALLOCATABLE :: IBUF(:)
@@ -514,7 +515,8 @@ C  - F(xvzyut) -> BA(yvx,zut)
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      iscal = (MPIInt*4 + wp*2)/RtoB
+      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
       ! This guarantees that e.g. if all processes send all their data
@@ -840,8 +842,8 @@ C  - F(xvzyut) -> BA(yvx,zut)
         END DO
 
         ! Now we need to determine the receive counts.
-        CALL MPI_ALLTOALL(SCOUNTS, ONE4, MPI_INTEGER4,
-     &                    RCOUNTS, ONE4, MPI_INTEGER4,
+        CALL MPI_ALLTOALL(SCOUNTS, ONE4, MPI_INTEGER,
+     &                    RCOUNTS, ONE4, MPI_INTEGER,
      &                    MPI_COMM_WORLD, IERROR4)
 
         IOFFSET=0
@@ -863,8 +865,8 @@ C  - F(xvzyut) -> BA(yvx,zut)
         CALL MPI_ALLTOALLV(SENDVAL, SCOUNTS, SDISPLS, MPI_REAL8,
      &                     RECVVAL, RCOUNTS, RDISPLS, MPI_REAL8,
      &                     MPI_COMM_WORLD, IERROR4)
-        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER4,
-     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER4,
+        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER,
+     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER,
      &                     MPI_COMM_WORLD, IERROR4)
 
         ! Finally, fill the local chunk of the SA matrix (block of rows)
@@ -1268,6 +1270,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
+      use definitions, only: MPIInt,RtoB,wp
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
 
@@ -1278,16 +1281,16 @@ C  - F(xvzyut) -> BC(zvx,yut)
       DIMENSION F3(NG3)
       INTEGER*1 idxG3(6,NG3)
 
-      INTEGER*4, ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
-      INTEGER*4, ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
-      INTEGER*4, ALLOCATABLE :: SDISPLS(:), RDISPLS(:)
-      INTEGER*4, ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SDISPLS(:), RDISPLS(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
 
-      INTEGER*4, ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
+      integer(kind=MPIInt), ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
       REAL*8,    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
 
-      INTEGER*4, PARAMETER :: ONE4=1, TWO4=2
-      INTEGER*4 :: IERROR4
+      integer(kind=MPIInt), PARAMETER :: ONE4=1, TWO4=2
+      integer(kind=MPIInt) :: IERROR4
       INTEGER, PARAMETER :: I4=KIND(ONE4)
 
       INTEGER, ALLOCATABLE :: IBUF(:)
@@ -1320,7 +1323,8 @@ C  - F(xvzyut) -> BC(zvx,yut)
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      iscal = (MPIInt*4 + wp*2)/RtoB
+      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
       ! This guarantees that e.g. if all processes send all their data
@@ -1647,8 +1651,8 @@ C  - F(xvzyut) -> BC(zvx,yut)
         END DO
 
         ! Now we need to determine the receive counts.
-        CALL MPI_ALLTOALL(SCOUNTS, ONE4, MPI_INTEGER4,
-     &                    RCOUNTS, ONE4, MPI_INTEGER4,
+        CALL MPI_ALLTOALL(SCOUNTS, ONE4, MPI_INTEGER,
+     &                    RCOUNTS, ONE4, MPI_INTEGER,
      &                    MPI_COMM_WORLD, IERROR4)
 
         IOFFSET=0
@@ -1670,8 +1674,8 @@ C  - F(xvzyut) -> BC(zvx,yut)
         CALL MPI_ALLTOALLV(SENDVAL, SCOUNTS, SDISPLS, MPI_REAL8,
      &                     RECVVAL, RCOUNTS, RDISPLS, MPI_REAL8,
      &                     MPI_COMM_WORLD, IERROR4)
-        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER4,
-     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER4,
+        CALL MPI_ALLTOALLV(SENDIDX, SCOUNTS2, SDISPLS2, MPI_INTEGER,
+     &                     RECVIDX, RCOUNTS2, RDISPLS2, MPI_INTEGER,
      &                     MPI_COMM_WORLD, IERROR4)
 
         ! Finally, fill the local chunk of the SC matrix (block of rows)
