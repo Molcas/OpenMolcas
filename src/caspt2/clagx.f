@@ -43,14 +43,14 @@
       CALL mma_allocate(G3 ,NG3, Label='G3')
       CALL mma_allocate(F1 ,NG1, Label='F1')
       CALL mma_allocate(F2 ,NG2, Label='F2')
-      CALL mma_allocate(F3 ,NG3, Label='F3')
+!     CALL mma_allocate(F3 ,NG3, Label='F3')
 
       !! their derivative contributions
       NG3tot = NG3
       !! Use NG3tot (in pt2_guga.fh) for the moment
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
-        call gaigop(ng3tot,1,'+')
+        call gaigop_scal(ng3tot,'+')
       end if
 #endif
       CALL mma_allocate(DG1,NG1,Label='DG1')
@@ -65,7 +65,7 @@
       CALL PT2_GET(NG3,' GAMMA3',G3)
       CALL PT2_GET(NG1,' DELTA1',F1)
       CALL PT2_GET(NG2,' DELTA2',F2)
-      CALL PT2_GET(NG3,' DELTA3',F3)
+!     CALL PT2_GET(NG3,' DELTA3',F3)
 C
       !! Initialize them
       DG1(:)=0.0D0
@@ -136,7 +136,7 @@ C
       Call mma_deallocate(G3)
       Call mma_deallocate(F1)
       Call mma_deallocate(F2)
-      Call mma_deallocate(F3)
+!     Call mma_deallocate(F3)
 
       Call mma_deallocate(DG1)
       Call mma_deallocate(DG2)
