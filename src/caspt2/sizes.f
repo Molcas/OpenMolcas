@@ -342,7 +342,7 @@ C In DIADNS alone, NDD words are needed:
             NAS1=NASUP(ISYM1,ICASE1)
             NIN1=NINDEP(ISYM1,ICASE1)
             NSGM2=NIS1*NAS1
-            NSGM1=0
+            NSGM1=1
             IF(ICASE1.EQ.1) THEN
               NSGM1=NASH(ISYM1)*NISH(ISYM1)
             ELSE IF(ICASE1.EQ.4) THEN
@@ -351,32 +351,36 @@ C In DIADNS alone, NDD words are needed:
               NSGM1=NIS1
             END IF
             M11 = NSGM2 + NSGM1
-            M12 = NSGM2 + 2*iPARDIV(NSGM2,0)
-     *          + MAX(iPARDIV(NSGM2,0),NAS1*(NAS1+1)/2) + NSGM1
+            M12 = 2*iPARDIV(NSGM2,0) + NSGM2
+            IF (ICASE1.LE.11) THEN
+              M12 = M12 + iPARDIV(MAX(NSGM2,NAS1*(NAS1+1)/2),0)
+            ELSE
+              M12 = M12 + iPARDIV(NSGM2,0)
+            END IF
             DO ICASE2=ICASE1+1,NCASES
               IF (IFCOUP(ICASE2,ICASE1)==0) CYCLE
               DO ISYM2=1,NSYM
                 NIS2=NISUP(ISYM2,ICASE2)
                 NAS2=NASUP(ISYM2,ICASE2)
                 NCX=NIS2*NAS2
-                IF (ICASE2.LE.11) THEN
-                  M21 = M11 + 3*iPARDIV(NCX,0)
-                ELSE
-                  M21 = M11 + 2*iPARDIV(NCX,0)
-                END IF
+                ! first loop
+                M21 = M11 + 2*iPARDIV(NCX,0)
                 M31 = M11 - NSGM1 + iPARDIV(NCX,0)
                 IF (iCASE1.LE.11) THEN
+                  ! C1S1DER
+                  MC1S1DER = iPARDIV(NAS1*NAS1+NIN1*NIS1+NAS1*NIN1,0)
                   M31 = M31 + iPARDIV(NSGM2,0)
-     *                + MAX(iPARDIV(NSGM2,0),NAS1*NAS1)
-                  M31 = M31 + 3*iPARDIV(NCX,0) ! C1S1DER
+     *                + MAX(MC1S1DER+NAS1*NAS1,iPARDIV(NSGM2,0))
                 END IF
 
-                M22 = M12 + iPARDIV(NCX,0)
+                ! second loop
+                M22 = NSGM1 + iPARDIV(NCX,0)
                 IF (ICASE2.LE.11) THEN
-                  M22 = M22 + NAS2*NAS2 + iPARDIV(NCX,0)
-                  M22 = M22 + 3*iPARDIV(NCX,0) ! C2DER
+                  ! C2DER
+                  MC2DER = iPARDIV(NAS2*(2*NIS2+MAX(NAS2,NIS2)),0)
+                  M22 = M22 + NAS2*NAS2 + MC2DER
                 END IF
-                M = MAX(M21,M31,M22)
+                M = MAX(M21,M31,M12,M22)
                 MMX=MAX(M,MMX)
               END DO
             END DO
@@ -386,7 +390,7 @@ C In DIADNS alone, NDD words are needed:
 
         ! gradient: CI derivatives (clagx.f)
         ngrad6 = NG1*4 + NG2*4 + NG3TOT*3
-        ! CLagD
+        ! CLagD (hmm, not for the A and C subspaces in parallel)
         MMX = 0
         DO ICASE=1,11
           DO ISYM=1,NSYM
@@ -395,6 +399,8 @@ C In DIADNS alone, NDD words are needed:
             NIN=NINDEP(ISYM,ICASE)
             M = 2*NAS**2 + 3*NIN*NIS + NAS*NIS
             IF (IFMSCOUP) M = M + NIN*NIS
+            ! inside CLagDX
+            M = M + 2*NAS**2 + NAS*MIN(NAS,NIS) + NAS*NIN + NIN
             IF (ICASE.EQ.1) THEN
               M = M + NAS*(NAS+1)/2 + NG3TOT
             ELSE IF (ICASE.EQ.2 .OR. ICASE.EQ.3) THEN
@@ -482,24 +488,25 @@ C In DIADNS alone, NDD words are needed:
         ngrad = NBOTTOM + ngrad1 + ngrad2 + max(ngrad3,ngrad4,ngrad5,
      *          ngrad6,ngrad7,ngrad8,ngrad9,ngrad10,ngrad11,
      *          NPRP1-NBOTTOM)
-#ifdef _DEBUGPRINT_
-      WRITE(6,*)' PRP3) Gradient.'
-      WRITE(6,*)
-      WRITE(6,'(1x,a,i12,x,"(essential)")')'NBOTTOM        :',NBOTTOM
-      WRITE(6,'(1x,a,i12,x,"(essential)")')'caspt2_grad.f  :',ngrad1
-      WRITE(6,'(1x,a,i12,x,"(essential)")')'dens.f         :',ngrad2
-      WRITE(6,'(1x,a,i12)')'(Part of) PRP1 :',NPRP1-NBOTTOM
-      WRITE(6,'(1x,a,i12)')'caspt2_res.f   :',ngrad3
-      WRITE(6,'(1x,a,i12)')'trnds2o.f      :',ngrad4
-      WRITE(6,'(1x,a,i12)')'sigder.f       :',ngrad5
-      WRITE(6,'(1x,a,i12)')'clagx.f        :',ngrad6
-      WRITE(6,'(1x,a,i12)')'derheff.f      :',ngrad7
-      WRITE(6,'(1x,a,i12)')'DEPSAOffC      :',ngrad8
-      WRITE(6,'(1x,a,i12)')'OLagNS/OLagVVVO:',ngrad9
-      WRITE(6,'(1x,a,i12)')'CnstAB_SSDM    :',ngrad10
-      WRITE(6,'(1x,a,i12)')'XMS_Grad       :',ngrad11
-      WRITE(6,'(1x,a,a )')'----------------','------------'
-      WRITE(6,'(1x,a,i12)')'Total Estimate :',ngrad
+
+#ifdef _dEBUGPRINT_
+        WRITE(6,*)' PRP3) Gradient.'
+        WRITE(6,*)
+        WRITE(6,'(1x,a,i12,x,"(essential)")')'NBOTTOM        :',NBOTTOM
+        WRITE(6,'(1x,a,i12,x,"(essential)")')'caspt2_grad.f  :',ngrad1
+        WRITE(6,'(1x,a,i12,x,"(essential)")')'dens.f         :',ngrad2
+        WRITE(6,'(1x,a,i12)')'(Part of) PRP1 :',NPRP1-NBOTTOM
+        WRITE(6,'(1x,a,i12)')'caspt2_res.f   :',ngrad3
+        WRITE(6,'(1x,a,i12)')'trnds2o.f      :',ngrad4
+        WRITE(6,'(1x,a,i12)')'sigder.f       :',ngrad5
+        WRITE(6,'(1x,a,i12)')'clagx.f        :',ngrad6
+        WRITE(6,'(1x,a,i12)')'derheff.f      :',ngrad7
+        WRITE(6,'(1x,a,i12)')'DEPSAOffC      :',ngrad8
+        WRITE(6,'(1x,a,i12)')'OLagNS/OLagVVVO:',ngrad9
+        WRITE(6,'(1x,a,i12)')'CnstAB_SSDM    :',ngrad10
+        WRITE(6,'(1x,a,i12)')'XMS_Grad       :',ngrad11
+        WRITE(6,'(1x,a,a )')'----------------','------------'
+        WRITE(6,'(1x,a,i12)')'Total Estimate :',ngrad
 #endif
       end if
 
