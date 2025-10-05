@@ -30,7 +30,7 @@
       Real*8 DEPSA(nAshT,nAshT),VECROT(*)
 
       Real*8, Allocatable::  G1(:),  G2(:),  G3(:),
-     &                       F1(:),  F2(:),  F3(:)
+     &                       F1(:),  F2(:)
       Real*8, Allocatable:: DG1(:), DG2(:), DG3(:),
      &                      DF1(:), DF2(:), DF3(:)
 
@@ -370,7 +370,6 @@ C
 #endif
           End If
 C
- 100      Continue
           !! for non-separable density/derivative
           CALL RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
           CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
