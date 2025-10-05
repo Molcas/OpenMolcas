@@ -23,7 +23,7 @@
       use stdalloc, only: mma_MaxDBLE
       use caspt2_global, only: NCMO
       use caspt2_global, only: do_csf, do_grad, do_nac, if_invar,
-     &                         if_invaria, if_SSDM
+     &                         if_invaria, if_SSDM, ipea_shift
       use CHOVEC_IO
       use ChoCASPT2
       use Cholesky, only: NumCho
