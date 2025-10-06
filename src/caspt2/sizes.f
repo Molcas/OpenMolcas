@@ -461,9 +461,10 @@ C In DIADNS alone, NDD words are needed:
 
         ! gradient: kappa (orbital) derivatives
         !           (OLagNS_RI, OLagNS2, OLagVVVO)
-        call Get_iArray('NumCho',NumCho,nSym)
-        NumChT = sum(NumCho(1:nSym))
+        NumChT = 0
         if (IFCHOL) then
+          call Get_iArray('NumCho',NumCho,nSym)
+          NumChT = sum(NumCho(1:nSym))
           ngrad9 = NumChT**2 + 1
         else
           ngrad9 = (NISHT+NASHT)**2*NBAST**2 + 1
@@ -472,6 +473,7 @@ C In DIADNS alone, NDD words are needed:
         ! gradient: state-specific density matrix
         ngrad10 = 0
         if (if_SSDM) then
+          ! IFCHOL is always true
           ngrad10 = NCONF + NumChT**2 + 2*nBasT**2
      &           + 2*NumChT + NBSQT
         end if
