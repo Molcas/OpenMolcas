@@ -491,7 +491,7 @@ C In DIADNS alone, NDD words are needed:
      *          ngrad6,ngrad7,ngrad8,ngrad9,ngrad10,ngrad11,
      *          NPRP1-NBOTTOM)
 
-#ifdef _dEBUGPRINT_
+#ifdef _DEBUGPRINT_
         WRITE(6,*)' PRP3) Gradient.'
         WRITE(6,*)
         WRITE(6,'(1x,a,i12,x,"(essential)")')'NBOTTOM        :',NBOTTOM
@@ -538,10 +538,14 @@ C In DIADNS alone, NDD words are needed:
         IF (do_grad) THEN
           WRITE(6,'(5X,A,A)')' The property (including gradient)',
      *                       ' section will be skipped.'
+          WRITE(6,'(5X,A,A)')' If you cannot increase the memory,',
+     *                       ' consider using numerical gradients'
+          IF (IFPROP) WRITE(6,'(5X,A)')' (without PROPerty keyword)'
         ELSE
           WRITE(6,'(5X,A)')' The property section will be skipped.'
         END IF
         WRITE(6,'(5X,A)') repeat('*',26)
+        IF (do_grad) CALL Quit(_RC_MEMORY_ERROR_)
         NEED=NEED0
         IFPROP=.False.
         do_grad = .False.
