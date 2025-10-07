@@ -30,7 +30,7 @@ DerDM(:,:) = Zero
 
 ! Avoid division by zero for CPCM
 ! Note that the ASC (Q) should be zero if Eps = One, so Grd is zero accordingly
-if (Cond .and. abs(Eps-One) <= 1.0d-10) return
+if (Cond .and. abs(Eps-One) <= 1.0e-10_wp) return
 
 do IAtom=1,nAt
   do IXYZ=1,3
