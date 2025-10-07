@@ -11,7 +11,7 @@
 
 subroutine GeoDer(nAt,Cond,nTs,nS,Eps,Sphere,ISphe,NOrd,Tessera,Q,DerDM,Grd,DerTes,DerPunt,DerRad,DerCentr)
 
-use Constants, only: Zero, Half
+use Constants, only: Zero, Half, One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -27,6 +27,11 @@ real(kind=wp) :: GeoGrd, Qi, Qj
 
 Grd(:,:) = Zero
 DerDM(:,:) = Zero
+
+! Avoid division by zero
+! Note that the ASC (Q) should be zero if Eps = One, so Grd is zero accordingly
+if (abs(eps-One) <= 1.0d-10) return
+
 do IAtom=1,nAt
   do IXYZ=1,3
     ! Dielectric model
@@ -43,6 +48,7 @@ do IAtom=1,nAt
           GeoGrd = GeoGrd+Qi*DerDM(iTs,jTs)*Qj
         end do
       end do
+      GeoGrd = GeoGrd*Eps/(Eps-One)
     end if
     Grd(IXYZ,IAtom) = GeoGrd*Half
   end do
