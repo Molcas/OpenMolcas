@@ -169,7 +169,7 @@ rho_sph_t(:,:,:) = rho_init
 ! write initial values at 0th iteration
 call mma_allocate(dgl_csf,nconftot,label='dgl_csf') ! dummy
 call mma_allocate(density_csf,nconftot,nconftot,label='density_csf') ! dummy
-call pop(time,ii,dgl_csf,density_csf)
+call pop(time,ii,-1,dgl_csf,density_csf)
 
 do Ntime=1,(Nstep-1)
   write(sline,'(f10.3)') time*auToFs
@@ -185,7 +185,7 @@ do Ntime=1,(Nstep-1)
     ii = ii+1
     ! transform density matrix back
     call WERDM_back(rho_sph_t,Nstate,d,len_sph,k_ranks,q_proj,list_so_spin,list_so_proj,list_so_sf,densityt)
-    call pop(time,ii,dgl_csf,density_csf)
+    call pop(time,ii,-1,dgl_csf,density_csf)
     if (flag_fdm .and. (time >= time_fdm*jj)) then
       ! write spherical density to file
       if (ipglob > 3) then
