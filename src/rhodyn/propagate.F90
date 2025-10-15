@@ -29,7 +29,7 @@ use Constants, only: Zero, Five, Ten, Quart, auToFs
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ihh, ii, imm, iss, jj, kk, Ntime, Noutstep
+integer(kind=iwp) :: ihh, ii, imm, iss, jj, kk, Ntime
 real(kind=wp) :: dum(3), error_rk, oldstep, t_temp, time, timer(3)
 real(kind=wp), allocatable :: dgl_csf(:)
 complex(kind=wp), allocatable :: density_csf(:,:)
@@ -45,7 +45,6 @@ ii = 1 ! counts output of populations
 Ntime = 1 !counts steps
 Nstep = int((finaltime-initialtime)/timestep)+1
 Npop = int((finaltime-initialtime)/tout)+1
-Noutstep = int(tout/timestep)
 Ntime_tmp_dm = int(finaltime/time_fdm)+1 !fdm
 time = initialtime
 oldstep = timestep

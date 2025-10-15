@@ -31,7 +31,7 @@ use Constants, only: One, cZero, auToFs
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: a, b, c, i, ihh, ii, imm, iss, jj, k, K_prime, l, q, sa, sb, sc, m, Ntime, Noutstep
+integer(kind=iwp) :: a, b, c, i, ihh, ii, imm, iss, jj, k, K_prime, l, q, sa, sb, sc, m, Ntime
 real(kind=wp) :: dum(3), time, timer(3), fact3j
 character(len=64) :: sline
 real(kind=wp), allocatable :: dgl_csf(:)
@@ -143,7 +143,6 @@ end do
 ii = 1 ! counts output of populations
 Nstep = int((finaltime-initialtime)/timestep)+1
 Npop = int((finaltime-initialtime)/tout)+1
-Noutstep = int(tout/timestep)
 Ntime_tmp_dm = int(finaltime/time_fdm)+1 !fdm
 time = initialtime
 ! create and initialize h5 output file
@@ -181,7 +180,7 @@ do Ntime=1,(Nstep-1)
   end if
   if (method == 'RK4_SPH') call rk4_sph(time,rho_sph_t)
   time = initialtime+timestep*Ntime
-  if (mod(Ntime,Noutstep) == 0) then
+  if (time >= (initialtime+tout*ii)) then
     ii = ii+1
     ! transform density matrix back
     call WERDM_back(rho_sph_t,Nstate,d,len_sph,k_ranks,q_proj,list_so_spin,list_so_proj,list_so_sf,densityt)
