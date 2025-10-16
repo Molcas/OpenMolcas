@@ -276,6 +276,7 @@ if (NOT MAQUIS_DMRG_FOUND) # Does the opposite work?
                        PREFIX ${extprojpath}
                        GIT_REPOSITORY ${reference_git_repo}
                        GIT_TAG ${reference_git_commit}
+                       GIT_PROGRESS 1
                        UPDATE_DISCONNECTED ${EP_SkipUpdate}
 
                        SOURCE_SUBDIR dmrg
