@@ -11,15 +11,16 @@
 ! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
-subroutine pop(time,popcount,dgl_csf,density_csf)
+subroutine pop(time,popcount,j_tfdm,dgl_csf,density_csf)
 !***********************************************************************
 ! prints diagonal of the density matrix densityt in required basis
 ! at the current time
 !***********************************************************************
 
 use rhodyn_data, only: a_einstein, basis, CSF2SO, d, density0, densityt, dgl, dipole_basis, DM_basis, emiss, flag_dipole, &
-                       flag_emiss, lu_csf, lu_dip, lu_sf, lu_so, n_freq, nconftot, Nstate, out_dm_csf, out_dm_sf, out_dm_so, &
-                       out_emiss, out_fmt, out_fmt_csf, out_tout, pulse_vec, SO_CI, tmp, U_CI_compl
+                       flag_emiss, flag_fdm, lu_csf, lu_dip, lu_sf, lu_so, n_freq, nconftot, Nstate, out_dm_csf, out_dm_sf, &
+                       out_dm_so, out_emiss, out_fmt, out_fmt_csf, out_tout, pulse_vec, SO_CI, tmp, U_CI_compl, out_tfdm, &
+                       out_fdmr, out_fdmi
 use rhodyn_utils, only: transform
 use linalg_mod, only: mult
 use mh5, only: mh5_put_dset
@@ -29,6 +30,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: time
 integer(kind=iwp), intent(in) :: popcount
+integer(kind=iwp), intent(in) :: j_tfdm
 real(kind=wp), intent(out) :: dgl_csf(nconftot)
 complex(kind=wp), intent(out) :: density_csf(nconftot,nconftot)
 integer(kind=iwp) :: i, j, l
@@ -156,6 +158,12 @@ if (flag_emiss) then
     end do
   end do
   call mh5_put_dset(out_emiss,emiss,[1,n_freq],[popcount-1,0])
+end if
+
+if (flag_fdm .and. (j_tfdm > 0)) then
+  call mh5_put_dset(out_tfdm,[time*auToFs],[1],[j_tfdm])
+  call mh5_put_dset(out_fdmr,real(densityt),[1,d,d],[j_tfdm,0,0])
+  call mh5_put_dset(out_fdmi,aimag(densityt),[1,d,d],[j_tfdm,0,0])
 end if
 
 end subroutine pop
