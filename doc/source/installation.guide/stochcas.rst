@@ -28,7 +28,7 @@ The necessary routines in |molcas| are installed automatically,
 but for improved communication between |molcas| and :program:`NECI` it is
 recommended to compile with HDF5.
 
-The :program:`NECI` code is available at https://github.com/ghb24/NECI_STABLE.
+The :program:`NECI` code is available at https://github.com/fkfest/NECI_STABLE.
 
 The :program:`NECI` code requires some external software and libraries:
 
