@@ -52,7 +52,8 @@
 !#define _ENABLE_POINTERS_
 module stdalloc
 
-use Definitions, only: wp, iwp, byte, MPIInt, u6, ItoB, RtoB
+use, intrinsic :: iso_fortran_env, only: int32
+use Definitions, only: wp, iwp, byte, u6, ItoB, RtoB
 
 implicit none
 private
@@ -310,10 +311,11 @@ end subroutine mma_maxBYTES
 #undef _TYPE_
 #undef _DATA_NAME_
 
-! integer(kind=MPIInt) variants
+#ifdef _I8_
+! integer(kind=int32) variants
 
 #define _SUBR_NAME_ i4mma
-#define _TYPE_ integer(kind=MPIInt)
+#define _TYPE_ integer(kind=int32)
 #define _DATA_NAME_ 'INTE'
 
 #  define _DIMENSIONS_ 1
@@ -325,6 +327,8 @@ end subroutine mma_maxBYTES
 #undef _SUBR_NAME_
 #undef _TYPE_
 #undef _DATA_NAME_
+
+#endif
 
 ! byte variants
 

@@ -276,6 +276,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use caspt2_global, only: LUDRATOT
       use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: MPIInt
 #endif
       use ChoCASPT2
       IMPLICIT NONE
@@ -287,10 +288,10 @@ C always write the chunks to LUDRA, both for serial and parallel
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
-      INTEGER*4 IERROR4,ITYPE
-      INTEGER*4, PARAMETER :: ONE4 = 1
+      integer(kind=MPIInt) IERROR4,ITYPE
+      integer(kind=MPIInt), PARAMETER :: ONE4 = 1
       INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
-      INTEGER, ALLOCATABLE:: DISP(:), SIZE(:)
+      INTEGER(kind=MPIInt), ALLOCATABLE:: DISP(:), SIZE(:)
       REAL*8, ALLOCATABLE:: TRANSP(:), RECVBUF(:)
 #ifdef _DEBUGPRINT_
       INTEGER :: MY_N,NOFF
@@ -305,6 +306,7 @@ C always write the chunks to LUDRA, both for serial and parallel
 #  else
       ITYPE=MPI_INTEGER4
 #  endif
+      ITYPE=MPI_INTEGER
       IF (Is_Real_Par()) THEN
 C for true parallel, also communicate chunks to each process, write them
 C to LUDRATOT, so first allocate memory for the fully transformed
@@ -378,16 +380,18 @@ C Avoid unused argument warnings
 * Wrapper to MPI_Allgatherv dealing with ILP64 incompatibility.
 ************************************************************************
       USE MPI
+      use definitions, only: MPIInt
       IMPLICIT NONE
       REAL*8 SENDBUF(*), RCVBUF(*)
-      INTEGER NSEND, NRCV(*),NOFF(*)
+      INTEGER NSEND
 
-      INTEGER*4 MPITYPES, MPITYPER, MPICOMM
+      integer(kind=MPIInt) :: MPITYPES, MPITYPER, MPICOMM
+      integer(kind=MPIInt) :: NRCV(*), NOFF(*)
 
-      INTEGER*4 NPROCS
-      INTEGER*4 NSEND4
-      INTEGER*4,ALLOCATABLE :: NRCV4(:),NOFF4(:)
-      INTEGER*4 IERROR4
+      integer(kind=MPIInt) :: NPROCS
+      integer(kind=MPIInt) :: NSEND4
+      integer(kind=MPIInt),ALLOCATABLE :: NRCV4(:),NOFF4(:)
+      integer(kind=MPIInt) :: IERROR4
       INTEGER, PARAMETER :: I4=KIND(NSEND4)
 
       INTEGER :: I, IERROR
