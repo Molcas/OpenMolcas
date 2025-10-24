@@ -387,8 +387,13 @@ C Local print level (if any)
          Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
          iCharge=Int(Tot_Charge)
          Call PrRF(.False.,NonEq,iCharge,2)
-         Write(LF,Fmt2//'A,T45,I2)')' Reaction field from state:',
-     &                              IPCMROOT
+         if (IPCMROOT <= 0) then
+           Write(LF,Fmt2//'A,T45,T15)')' Reaction field from state:',
+     &                                 ' State-Averaged'
+         else
+           Write(LF,Fmt2//'A,T45,I2)')' Reaction field from state:',
+     &                                IPCMROOT
+         end if
       End If
       If ( RFpert ) then
          Write(LF,*)

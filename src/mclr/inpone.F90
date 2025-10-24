@@ -13,19 +13,21 @@ subroutine InpOne()
 
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
-use rctfld_module, only: lRF
-use MCLR_Data, only: CMO, Int1, KAIN1, nDens
-use input_mclr, only: iSpin, nActEl, nAtoms, nBas, nFro, nIsh, nOrb, nSym, PotNuc
+use rctfld_module, only: Conductor, lRF
+use MCLR_Data, only: CMO, Int1, KAIN1, nDens, SA
+use input_mclr, only: iSpin, nActEl, nAtoms, nBas, nFro, nIsh, nOrb, nSym, PotNuc, PT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
+use PCM_grad, only: DSCFAO, DSCFMO, iCharge_PCM, iStpPCM, PCM_grad_dens, PCM_grad_dens2, potnuc_pcm, RFPERT
 
 implicit none
 integer(kind=iwp) :: iCharge, iComp, idum(1), iiSym, iOpt, ip, ip2, iRC, iS, Leng
-real(kind=wp) :: ExFac, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
-logical(kind=iwp) :: Dff, Do_DFT, Do_ESPF, First, NonEq
+real(kind=wp) :: ERFX, ExFac, potnucsav, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
+logical(kind=iwp) :: Dff, Do_DFT, Do_ESPF, First, Found, NonEq
 character(len=8) :: Label
 real(kind=wp), allocatable :: D1ao(:), GTmp(:), HTmp(:), Nuc(:), Temp1(:), Temp2(:), Temp3(:)
+logical(kind=iwp) :: RF_On
 
 iRc = -1
 iOpt = ibset(0,sOpSiz)
@@ -68,40 +70,71 @@ Tot_El_Charge = -Two*sum(real(nFro(1:nSym)+nIsh(1:nSym),kind=wp))-real(nActEl,ki
 Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
 iCharge = int(Tot_Charge)
 call DecideOnESPF(Do_ESPF)
-if (Do_ESPF .or. lRF) then
-  if (lRF) then
+If (RF_On()) iCharge_PCM = iCharge
+if (Do_ESPF .or. (lRF.and.iStpPCM==1)) then
+  if (lRF .and. .not.(SA.or.PT2)) then
     write(u6,*) 'Sorry, MCLR+RF NYI'
+    call Quit_OnUserError()
+  end if
+  if (.not.Do_ESPF .and. .not.Conductor) then
+    write(u6,*) 'CPCM must be used for analytical gradients'
+    write(u6,*) 'Please add CONDuctor in RF-Input'
     call Quit_OnUserError()
   end if
 
   ! Scratch for one- and two-electron type contributions
   ! + variational density-matrix
+  if (RFPERT) then
+    !
+    ! Read the reaction field from RunFile or RunOld
+    !
+    Call f_Inquire('RUNOLD',Found)
+    If (Found) Call NameRun('RUNOLD')
+    Call mma_allocate(Htmp,leng,Label='RCTFLD')
+    Call Get_dScalar('RF Self Energy',ERFX)
+    potnuc = potnuc + ERFX
+    Call Get_dArray('Reaction field',Htmp,leng)
+    Temp1(:) = Temp1(:) + Htmp(:)
+    Call mma_deallocate(Htmp)
+    If (Found) Call NameRun('#Pop')
+  else
+    call mma_allocate(Htmp,leng,Label='Htmp')
+    call mma_allocate(Gtmp,leng,Label='Gtmp')
+    Htmp(:) = Zero
+    Gtmp(:) = Zero
+    call mma_allocate(D1ao,leng,Label='D1ao')
+    call Get_dArray_chk('D1ao',D1ao,leng)
+    if (lRF) then
+      !! D1ao above is the state-specific (RlxRoot) density,
+      !! but we need the density used for polarizing ASCs in SCF.
+      call PCM_grad_dens(1) ! SCF
+      call PCM_grad_dens2(1,DSCFMO,DSCFAO)
+      call fold(nSym,nBas,DSCFAO,D1ao)
+      !! save the density for ALASKA
+      Call Put_dArray('D1ao_PCM',D1ao,leng)
+    end if
 
-  call mma_allocate(Htmp,leng,Label='Htmp')
-  call mma_allocate(Gtmp,leng,Label='Gtmp')
-  Htmp(:) = Zero
-  Gtmp(:) = Zero
-  call mma_allocate(D1ao,leng,Label='D1ao')
-  call Get_dArray_chk('D1ao',D1ao,leng)
+    NonEq = .false.
+    First = .true.
+    Dff = .false.
+    Do_DFT = .true.
+    ExFac = Zero
+    call Get_dScalar('PotNuc',PotNuc)
+    potnucsav = potnuc
 
-  NonEq = .false.
-  First = .true.
-  Dff = .false.
-  Do_DFT = .true.
-  ExFac = Zero
-  call Get_dScalar('PotNuc',PotNuc)
+    ! Don't care about the last arguments: no (CAS-)DFT here I guess)
 
-  ! Don't care about the last arguments: no (CAS-)DFT here I guess)
+    call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge,iSpin,'1234',Do_DFT)
+    potnuc_pcm = potnuc - potnucsav
+    Temp1(1:leng) = Temp1(1:leng)+Htmp(:)+Gtmp(:)
 
-  call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge,iSpin,'1234',Do_DFT)
-  Temp1(1:leng) = Temp1(1:leng)+Htmp(:)
+    ! Hum, where the hell is FI (Fock Inactive) ???
 
-  ! Hum, where the hell is FI (Fock Inactive) ???
-
-  !FI(:) = FI(:)+Gtmp(:)
-  call mma_deallocate(Gtmp)
-  call mma_deallocate(Htmp)
-  call mma_deallocate(D1ao)
+    !FI(:) = FI(:)+Gtmp(:)
+    call mma_deallocate(Gtmp)
+    call mma_deallocate(Htmp)
+    call mma_deallocate(D1ao)
+  end if
 end if
 !nf
 ip = 1

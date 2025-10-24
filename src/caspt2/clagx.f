@@ -1819,7 +1819,7 @@ C
       SUBROUTINE CLagEig(if_SSDMloc,CLag,RDMEIG,nLev)
 C
       use caspt2_global, only: DREF, DWGT
-      use caspt2_global, only: OMGDER
+      use caspt2_global, only: OMGDER, Weight
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -1839,12 +1839,17 @@ C
 
       Do iState = 1, nState
         If (.not.if_SSDMloc) Then
+          if (IFSADREF) then
+            WGT = Weight(MSTATE(iState)) ! can be unequal weight
+          else
+            WGT = 1.0D+00/nState ! usually XMS
+          end if
+          if (abs(wgt).le.1.0d-09) cycle
           If (ISCF.EQ.0) Then
             Call LoadCI(CI1,iState)
           Else
             CI1(1) = 1.0D+00
           End If
-          WGT = 1.0D+00/nState
           Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
           Call Poly1_CLag(CI1,CLag(1,iState),RDMEIG,nLev)
           Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)

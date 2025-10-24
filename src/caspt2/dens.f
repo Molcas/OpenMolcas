@@ -26,7 +26,7 @@
      *                           nCLag,
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
      *                           DPT2C_AO_tot,DPT2Canti_tot,FIMO_all,
-     *                           FIFA_all,OMGDER,jStLag
+     *                           FIFA_all,OMGDER,jStLag,Weight
       use caspt2_global, only: FIMO, FIFA
       use caspt2_global, only: DREF, DMIX, CMOPT2, TORB, NDREF
       use caspt2_global, only: IDCIEX, IDTCEX
@@ -249,11 +249,11 @@ C
         Call CnstTrf(TOrb,Trf)
 C       call sqprt(trf,nbast)
 C
-        !! Construct state-averaged density matrix
+        !! Construct the density matrix used in the Fock operator
         WRK1(1:nDRef) = 0.0d+00
         If (IFSADREF) Then
           Do iState = 1, nState
-            Wgt  = 1.0D+00/nState
+            wgt = Weight(MSTATE(iState))
             Call DaXpY_(nDRef,Wgt,DMix(:,iState),1,WRK1,1)
           End Do
         Else
@@ -897,12 +897,11 @@ C
           !! roots involved in SCF.
           WRK1(1:nDRef) = 0.0d+00
           call mma_allocate(CI1,nConf,Label='CI1')
-          Wgt  = 1.0D+00/nState
           Do iState = 1, nState
             Call LoadCI_XMS('N',1,CI1,iState,U0)
-C           Call LoadCI(CI1,iState)
             call POLY1(CI1,nConf)
             call GETDREF(WRK2,nDRef)
+            wgt = Weight(MSTATE(iState))
             Call DaXpY_(nDRef,Wgt,WRK2,1,WRK1,1)
           End Do
           call mma_deallocate(CI1)

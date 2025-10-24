@@ -57,6 +57,7 @@ subroutine procinp_caspt2
   logical(kind=iwp) :: DNG, DNG_available
   integer(kind=iwp) :: iDNG
   integer(kind=iwp), external :: isStructure
+  logical(kind=iwp), external :: RF_On
 
   ! Hzero and Focktype are merged together into Hzero. We keep the
   ! variable Focktype not to break the input keyword which is documented
@@ -678,6 +679,11 @@ subroutine procinp_caspt2
     call warningMessage(2,'Analytic gradients with IPEA shift'//  &
                           ' must use the CORT or DORT option.')
     call quit_onUserError()
+  end if
+
+  if (do_grad .and. RF_On() .and. .not.if_invar) then
+    call warningMessage(1,'Analytic gradients with IPEA shift'//  &
+                          ' and PCM is not fully analytic.')
   end if
 
   !! Whether the Fock matrix (eigenvalues) is constructed with

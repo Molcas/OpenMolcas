@@ -47,9 +47,9 @@ logical(kind=iwp) bStat
   integer(kind=iwp), intent(in) :: Mode
   integer(kind=iwp), intent(inout) :: IDSAVGRD
 
-  integer(kind=iwp) :: IORW,ID,NIN,NAS,NIS,NNN,NMAX,ISYM,ICASE,iLUID
+  integer(kind=iwp) :: I,IORW,ID,NIN,NAS,NIS,NNN,NMAX,ISYM,ICASE,iLUID
 #ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: lg_ST,lg_S,lg_T,I,ISTA,IEND,JSTA,JEND,mV1,LDW,IDISK,LDM,NBLOCK
+  integer(kind=iwp) :: lg_ST,lg_S,lg_T,ISTA,IEND,JSTA,JEND,mV1,LDW,IDISK,LDM,NBLOCK
 #endif
 
   real(kind=wp), allocatable :: WRK1(:)
@@ -58,8 +58,16 @@ logical(kind=iwp) bStat
 
 ! character(len=80) :: Label
 
+  I=0
+
   !! Shift the address due to SavGradParams2
-  If (IDSAVGRD == 0) IDSAVGRD = NSTATE + 3*NSTATE**2
+  If (IDSAVGRD == 0) Then
+    IDSAVGRD = NSTATE + 3*NSTATE**2
+    if (RFpert) IDSAVGRD = IDSAVGRD + NBTRI + 1
+  End If
+#ifdef _MOLCAS_MPP_
+  myRank = GA_NODEID()
+#endif
 
   !! Decide what to do
   If (Mode == 1) Then
@@ -513,6 +521,7 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
 !
   use caspt2_global, only: LUGRAD
   use definitions, only: iwp,wp
+  use stdalloc, only: mma_allocate, mma_deallocate
 
   Implicit None
 
@@ -522,6 +531,7 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
   real(kind=wp)    , intent(inout) :: UEFF(*),U0(*),H0(*)
 
   integer(kind=iwp) :: IORW,ID
+  real(kind=wp), allocatable :: lTemp(:)
 
   !! Decide what to do
   If (Mode == 1) Then
@@ -535,5 +545,20 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
   CALL DDAFILE(LUGRAD,IORW,UEFF  ,NSTATE**2,ID)
   CALL DDAFILE(LUGRAD,IORW,U0    ,NSTATE**2,ID)
   CALL DDAFILE(LUGRAD,IORW,H0    ,NSTATE**2,ID)
+
+  if (RFpert) then
+    Call mma_allocate(lTemp,NBTRI+1,Label='lTemp')
+    if (Mode == 1) then
+      Call Get_dScalar('RF Self Energy',lTemp(1+NBTRI))
+      Call Get_dArray('Reaction field',lTemp,NBTRI)
+      CALL DDAFILE(LUGRAD,IORW,lTemp,NBTRI+1,ID)
+    else if (Mode == 2) then
+      CALL DDAFILE(LUGRAD,IORW,lTemp,NBTRI+1,ID)
+      Call Put_dScalar('RF Self Energy',lTemp(1+NBTRI))
+      ERFSelf = lTemp(1+NBTRI)
+      Call Put_dArray('Reaction field',lTemp,NBTRI)
+    end if
+    Call mma_deallocate(lTemp)
+  end if
 
 End Subroutine SavGradParams2

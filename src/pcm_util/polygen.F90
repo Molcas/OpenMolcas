@@ -255,7 +255,7 @@ else if (Ptype == Tetra) then
   end do
 end if
 NVPT = NV+1
-if (NVPT > 1000) then
+if (NVPT > MxSph) then
   write(u6,*) 'NVPT out of range in polygen',nvpt
   call Abend()
 end if
@@ -283,7 +283,7 @@ do j=1,NE0
     CV(:,NVPT) = v3(:)
     ednew(j,l+1) = NVPT
     NVPT = NVPT+1
-    if (NVPT > 1000) then
+    if (NVPT > MxSph) then
       write(u6,*) 'NVPT out of range in polygen',nvpt
       call Abend()
     end if
@@ -324,7 +324,7 @@ do j=1,NT0
       TrNew(n+1,l,j) = NVPT
 
       NVPT = NVPT+1
-      if (NVPT > 1000) then
+      if (NVPT > MxSph) then
         write(u6,*) 'NVPT out of range in polygen',nvpt
         call Abend()
       end if

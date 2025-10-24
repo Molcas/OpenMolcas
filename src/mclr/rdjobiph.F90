@@ -164,10 +164,10 @@ if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
 end if
 if ((Method == 'CASSCFSA') .or. (Method == 'CASPT2') .or. (Method == 'RASSCFSA')) then
   call Get_iScalar('SA ready',iGo)
-  if (iGO == -1) then
-    write(u6,*) 'MCLR not implemented for SA-CASSCF with non-equivalent weights!'
-    call Abend()
-  else
+! if (iGO == -1) then
+!   write(u6,*) 'MCLR not implemented for SA-CASSCF with non-equivalent weights!'
+!   call Abend()
+! else
     if (iGo /= 2) SA = .true.
     Found = .true.
     if (override) then
@@ -193,7 +193,7 @@ if ((Method == 'CASSCFSA') .or. (Method == 'CASPT2') .or. (Method == 'RASSCFSA')
       call WarningMessage(2,'Cannot relax a root not included in the SA')
       call Abend()
     end if
-  end if
+! end if
 else if ((irlxroot == 1) .and. (.not. (McKinley .or. PT2 .or. iMCPD))) then
   write(u6,*)
   write(u6,*) 'W A R N I N G !'

@@ -14,7 +14,7 @@
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
-     &                       CMOPT2, NCMO
+     &                       CMOPT2, NCMO, Weight
       use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
       use PrintLevel, only: debug, usual, verbose
@@ -97,7 +97,7 @@
           !! (STINI).
           DREF(:)=0.0D0
           Do K = 1, Nstate
-            wij = 1.0d+00/nstate
+            wij = Weight(MSTATE(K))
             CALL DAXPY_(SIZE(DREF),wij,DMIX(:,K),1,DREF,1)
           End Do
         Else

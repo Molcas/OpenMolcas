@@ -18,8 +18,10 @@ use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF, nRoots, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use pcm_grad, only: do_RF, DZACTMO, iStpPCM
+use ISRotation, only: InvSCF, ISR
 
 #include "intent.fh"
 
@@ -27,7 +29,7 @@ implicit none
 logical(kind=iwp), intent(in) :: RSP
 integer(kind=iwp), intent(in) :: iLS, iRS, iL, iR
 real(kind=wp), intent(_OUT_) :: rP(*), rD(*)
-integer(kind=iwp) :: i, IA, ij1, ij2, JA, KA, kl1, kl2, LA, nConfL, nConfR, nDim
+integer(kind=iwp) :: i, IA, ij1, ij2, j, JA, KA, kl1, kl2, LA, nConfL, nConfR, nDim
 real(kind=wp), allocatable :: De(:), Pe(:), CIL(:), CIR(:)
 
 ! LS = CI
@@ -74,6 +76,7 @@ call mma_allocate(De,n1Dens,Label='De')
 call mma_allocate(Pe,n2Dens,Label='Pe')
 rD(1:n1Dens) = Zero
 rP(1:n2Dens) = Zero
+if (do_RF) call dcopy_(n1dens,[Zero],0,DZACTMO,1)
 
 nConfL = max(ncsf(il),nint(xispsm(il,1)))
 nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
@@ -118,7 +121,66 @@ do i=1,nroots
     rp(1:n2Dens) = rp(1:n2Dens)+weight(i)*Pe(:)
     rD(1:n1Dens) = rD(1:n1Dens)+weight(i)*De(:)
   end if
+
+  ! rotations between internal states if SCF energy is non-invariant wrt internal state rotations
+  if (.not.InvSCF) then
+    if (iStpPCM == 2) then
+      call ipin(iLS)
+      Call CSF2SD(W(iLS)%A(1+(i-1)*ncsf(il)),CIL,iL)
+      call opout(iLS)
+    else if (iStpPCM == 3) then
+      call ipin(iRS)
+      Call CSF2SD(W(iRS)%A(1+(i-1)*ncsf(ir)),CIL,iR)
+      call opout(iRS)
+    end if
+    do j = 1, i
+      if (abs(ISR%p(i,j)).le.1.0e-10_wp) cycle
+      if (iStpPCM==2) then
+        call ipin(iLS)
+        Call CSF2SD(W(iLS)%A(1+(j-1)*ncsf(il)),CIR,iL)
+        call opout(iLS)
+      else if (iStpPCM==3) then
+        call ipin(iRS)
+        Call CSF2SD(W(iRS)%A(1+(j-1)*ncsf(ir)),CIR,iR)
+        call opout(iRS)
+      end if
+      call ipnout(-1)
+      icsm=iR
+      issm=iL
+      Call Densi2_MCLR(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+      call dscal_(n1dens,ISR%p(i,j),De,1)
+      call dscal_(n2dens,ISR%p(i,j),Pe,1)
+      If (RSP) Then
+         Do iA=1,nnA
+           Do jA=1,nnA
+             Do kA=1,nnA
+              Do la=1,nnA
+               ij1=nnA*(iA-1)+ja
+               ij2=nna*(ja-1)+ia
+               kl1=nnA*(ka-1)+la
+               kl2=nna*(la-1)+ka
+               if (ij1.ge.kl1) rp(itri(ij1,kl1))=rp(itri(ij1,kl1))+Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
+              End Do
+             End Do
+           End Do
+         End Do
+         Do iA=1,nnA
+            Do jA=1,nnA
+               ij1=nnA*(iA-1)+ja
+               ij2=nna*(ja-1)+ia
+               rD(ij1)=rD(ij1) + De(ij1)+De(ij2)
+            End Do
+         End Do
+      Else
+         call daxpy_(n2dens,One,Pe,1,rp,1)
+         call daxpy_(n1dens,One,De,1,rD,1)
+      End If
+    end do
+  end if
 end do
+
+! PCM: for implicit contributions
+if (do_RF) call dcopy_(n1dens,rD,1,DZACTMO,1)
 
 call mma_deallocate(CIL)
 call mma_deallocate(CIR)

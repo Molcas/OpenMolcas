@@ -29,6 +29,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+use MCLR_Data, only: INT1, ipCI, ipCM, ipMat, isNAC, iRlxRoot, LUJOB, nA, NSSA, SA
+use input_mclr, only: ERASSCF, iSpin, iToc, nConf, nCSF, nRoots, ntAsh, ntBsqr, ntBtri, PT2, State_Sym, weight
+use pcm_grad, only: do_RF, PCM_grad_init, PrepPCM, PCM_mod_ERASSCF
+use rctfld_module, only: iCharge_Ref, NonEQ_Ref, PCM
+! use DWSol, only: DWSCF_init
+use ISRotation, only: InvEne, InvSCF, InvSol
+
 implicit none
 integer(kind=iwp) :: i, iComp, Indx, iOff, iOff1, iOff2, iOpt, iRC, iSeed, iSym, iSymLbl, iType, j, lSqrDens, lTriDens, nOrbBas
 real(kind=wp) :: BufFrac
@@ -36,6 +43,7 @@ character(len=8) :: Label
 character(len=5) :: Fname
 real(kind=wp), allocatable :: Smat(:), STmat(:)
 integer(kind=iwp), external :: IsFreeUnit
+logical(kind=iwp), external :: RF_On
 
 !----------------------------------------------------------------------*
 !     start                                                            *
@@ -153,6 +161,46 @@ end if
 call DaClos(LuTri2)
 call DaClos(LuHlf2)
 call DaClos(LuHlf3)
+
+! initialize non-invariance flags (just in case)
+
+InvEne = .true.
+InvSCF = .true.
+InvSol = .true.
+
+! For dynamically weighted MCSCF
+! if (SA .or. PT2) call DWSCF_init(2,nRoots)
+
+! MCSCF with PCM
+if (RF_On()) then
+  if (NonEq_Ref) then
+    call WarningMessage(2,'Error in MCLR')
+    write(u6,*) 'NonEq=.True., invalid option'
+    call Abend()
+  end if
+  call Init_RctFld(.false.,iCharge_Ref)
+  if (.not.SA .and. .not.PT2) then ! only for SA-CASSCF grad
+    call WarningMessage(2,'Error in MCLR')
+    write(u6,*) 'PCM can be combined with SA-CASSCF or CASPT2 gradient only'
+    call Abend()
+  end if
+  if (.not.PCM) then
+    call WarningMessage(2,'Error in MCLR')
+    write(u6,*) 'PCM-model must be used in RF-Input'
+    call Abend()
+  end if
+  call PCM_grad_init(isNAC,iCharge_Ref,ipCI,iRlxRoot,iSpin, &
+                     NSSA,nconf,ncsf,nRoots,nSym,ntAsh, &
+                     ntBsqr,ntBtri,State_Sym,LUJOB, &
+                     nFro,nIsh,nAsh,nA,nBas,nOrb,ipCM,ipMat,iToc, &
+                     ERASSCF,weight)
+  !! Construct INT1 with the correct PCM contributions
+  call mma_deallocate(Int1)
+  call PrepPCM()
+  call InpOne()
+  !! Modify ERASSCF so that they are made eigenvalues
+  if (do_RF) call PCM_mod_ERASSCF(ERASSCF)
+end if
 
 call FckMat()
 call StPert()

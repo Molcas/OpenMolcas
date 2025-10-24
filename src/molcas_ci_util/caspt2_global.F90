@@ -86,7 +86,7 @@ integer(kind=iwp), allocatable :: IDSCT(:), iTasks_grad(:), LISTS(:)
 real(kind=wp), allocatable :: CLag(:,:), CLagFull(:,:), CMOPT2(:), DMIX(:,:), DPT2_AO_tot(:), DPT2_tot(:), DPT2C_AO_tot(:), &
                               DPT2C_tot(:), DPT2Canti_tot(:), DREF(:), DWGT(:,:), FAMO(:), FIFA(:), FIFA_all(:), FIFASA_all(:), &
                               FIMO(:), FIMO_all(:), HONE(:), OLag(:), OLagFull(:), OMGDER(:,:), PREF(:), SLag(:,:), TAT(:), &
-                              TORB(:), TraFro(:), WLag(:)
+                              TORB(:), TraFro(:), Weight(:), WLag(:)
 real(kind=wp), allocatable, target :: CMO_Internal(:)
 real(kind=wp), pointer :: CMO(:)
 
@@ -96,6 +96,6 @@ public :: CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, ConvInvar, 
           ipea_shift, iPrGlb, iRoot1, iRoot2, iStpGrd, iTasks_grad, iVecG, iVecL, jStLag, LISTS, LuAPT2, LUCIEX, LuCMOPT2, LUDMAT, &
           LUDRA, LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, LURHS, LUSBT, LUSOLV, LUSTD, &
           nbuf1_grad, nCLag, NCMO, NDREF, nOLag, NPREF, nSLag, nStpGrd, NTAT, nTasks_grad, NTORB, nWLag, OLag, OLagFull, OMGDER, &
-          PREF, real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, WLag
+          PREF, real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, Weight, WLag
 
 end module caspt2_global

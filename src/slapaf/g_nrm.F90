@@ -26,6 +26,7 @@ real(kind=wp), intent(in) :: Grad(nInter,Iter)
 integer(kind=iwp), intent(out) :: mIntEff
 integer(kind=iwp) :: i, j
 real(kind=wp) :: Fabs
+logical(kind=iwp), external :: RF_On
 
 ! Compute the norm of the cartesian force vector.
 !
@@ -37,6 +38,19 @@ do i=1,size(Gx,2)
     Fabs = Fabs+Degen(j,i)*Gx(j,i,Iter)**2
   end do
 end do
+! PCM gradients are rotationally non-invariant
+! Not quite sure the above cartesian force vector is contaminated or not
+if (RF_On()) then
+#ifdef _DEBUGPRINT_
+! write (u6,'(x,"Computing the norm with the internal force (in slapaf/g_nrm.F90")')
+#endif
+! Fabs = Zero
+! do i=1,nInter
+!   Fabs = Fabs+Grad(i,Iter)**2
+! end do
+! Fabs = Fabs/nInter
+end if
+
 Fabs = sqrt(Fabs)
 #ifdef _DEBUGPRINT_
 write(u6,42) Fabs
