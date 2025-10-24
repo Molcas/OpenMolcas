@@ -704,7 +704,7 @@ Keywords
               </KEYWORD>
 
 :kword:`SADRef`
-  Use the equally averaged density matrix for the generalized Fock operator, like in XMS-CASPT2.
+  Use the state-averaged density matrix, as weighted in the reference RASSCF, in the generalized Fock operator for all states.
   This keyword is mainly intended for development purposes and should not be activated in other situations.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SADREF" APPEAR="State-average density" KIND="SINGLE" LEVEL="ADVANCED">
