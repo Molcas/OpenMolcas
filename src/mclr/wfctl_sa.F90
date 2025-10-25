@@ -22,8 +22,8 @@ use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use gugx, only: CIS, EXS, SGS
 use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
-use input_mclr, only: Debug, Eps, ERASSCF, Fail, iAddressQDat, iBreak, iMethod, iSpin, kPrint, lSave, nActEl, nAsh, nConf, nCSF, &
-                      nDisp, nElec3, nHole1, nIter, NROOTS, nRS1, nRS2, nRS3, nSym, PT2, State_Sym, STEPTYPE, TWOSTEP, weight
+use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, iSpin, kPrint, lSave, nActEl, nAsh, nConf, nCSF, &
+                      nDisp, nElec3, nHole1, nIter, NROOTS, nRS1, nRS2, nRS3, nSym, PT2, State_Sym, STEPTYPE, TWOSTEP
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One
@@ -109,7 +109,7 @@ call mma_deallocate(rCHC)
 call ipOut(ipdia)
 
 ! initialize CGS and some for InvSCF/InvEne
-call ISR_Init(iPL,do_RF,PT2,nRoots,ncsf,State_Sym,def_solv,ERASSCF,weight)
+call ISR_Init(iPL,do_RF,def_solv)
 
 ! Allocate disk/memory space
 

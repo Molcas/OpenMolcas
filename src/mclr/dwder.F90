@@ -10,24 +10,20 @@
 !                                                                      *
 ! Copyright (C) 2025, Yoshio Nishimoto                                 *
 !***********************************************************************
-  Subroutine DWder_MCLR(mode,idsym,der1,nder1,der2,nder2,DWOut, &
-                        ntash,nRoots,ERASSCF,itoc,LUJOB, &
-                        nSym,nAsh,nIsh,nBas,ipCM)
+  Subroutine DWder_MCLR(mode,idsym,der1,nder1,der2,nder2,DWOut)
 
   use Constants, only: Zero, Half, One, Two
   use definitions, only: iwp,wp
   use stdalloc, only: mma_allocate, mma_deallocate
-  use ISRotation, only: weight
+  use input_mclr, only: ERASSCF, iToc, nAsh, nBas, nIsh, nRoots, nSym, ntAsh, weight
   use DWSol, only: DWSol_der
+  use MCLR_Data, only: ipCM, LUJOB
 
   implicit none
 
   integer(kind=iwp), intent(in) :: mode,idSym,nder1,nder2
   real(kind=wp), intent(in) :: der1(nder1),der2(nder2)
   real(kind=wp), intent(inout) :: DWOut(nRoots,nRoots)
-
-  integer(kind=iwp),intent(in) :: ntash,nRoots,itoc(*),LUJOB,nSym,nAsh(*),nIsh(*),nBas(*),ipCM(*)
-  real(kind=wp),intent(in) :: ERASSCF(1:nRoots)
 
   real(kind=wp), allocatable :: G1q(:),G2q(:),DERHII(:),DEROMG(:)
 

@@ -95,32 +95,21 @@ Module ISRotation
 
   type(ISR_param) :: ISR
 
-  integer(kind=iwp), pointer :: nRoots
-  integer(kind=iwp), pointer :: ncsf(:)
-  integer(kind=iwp), pointer :: State_Sym
-
-  real(kind=wp),     pointer :: ERASSCF(:)
-  real(kind=wp),     pointer :: weight(:)   ! weight of the state-averaging
-
   logical(kind=iwp), pointer :: do_RF
 
 contains
 !
 !-----------------------------------------------------------------------
 !
-  Subroutine ISR_init(iPL,do_RF_,PT2,nRoots_,ncsf_,State_Sym_,def_solv, &
-                      ERASSCF_,weight_)
+  Subroutine ISR_init(iPL,do_RF_,def_solv)
 ! use DWSol, only: DWSCF
   use cgs_mod, only: CGS
+  use input_mclr, only: nRoots, PT2, weight
 
   implicit none
 
   integer(kind=iwp), intent(in) :: iPL,def_solv
-  logical(kind=iwp), intent(in) :: PT2
   logical(kind=iwp), intent(in), target :: do_RF_
-  integer(kind=iwp), intent(in), target :: nRoots_,ncsf_(*),State_Sym_
-
-  real(kind=wp), intent(in), target :: ERASSCF_(*),weight_(*)
 
   integer(kind=iwp) :: iR
 
@@ -130,10 +119,10 @@ contains
   unequal_SA = .false.
 
   if (.not.InvSCF) InvEne = .false.
-  if (PT2 .and. nRoots_ > 0) InvEne = .false.
+  if (PT2 .and. nRoots > 0) InvEne = .false.
   if (do_RF_ .and. def_solv /= 3) InvEne = .false.
-  do iR = 2, nRoots_
-    if (weight_(1).ne.weight_(iR)) then
+  do iR = 2, nRoots
+    if (weight(1).ne.weight(iR)) then
       unequal_SA = .true.
       InvSCF = .false.
       if (do_RF_ .and. def_solv == 3) InvEne = .false.
@@ -141,13 +130,6 @@ contains
   end do
 
   do_RF             => do_RF_
-
-  nRoots            => nRoots_
-  ncsf(1:8)         => ncsf_(1:8)
-  State_Sym         => State_Sym_
-
-  ERASSCF(1:nRoots) => ERASSCF_(1:nRoots)
-  weight(1:nRoots)  => weight_(1:nRoots)
 
   !! If InvEnv = .false., we need internal state rotations
   !! Rvec may be allocated for all cases
@@ -232,6 +214,8 @@ contains
 !
   Subroutine ISR_RHS(CI,CIDER)
 
+  use input_mclr, only: ERASSCF, ncsf, nRoots, State_Sym
+
   implicit none
 
   real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots),CIDER(ncsf(State_Sym),nRoots)
@@ -267,6 +251,8 @@ contains
 !
   Subroutine ISR_projection(CI,CIDER)
 
+  use input_mclr, only: ncsf, nRoots, State_Sym
+
   implicit none
 
   real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots)
@@ -292,6 +278,8 @@ contains
 !-----------------------------------------------------------------------
 !
   Subroutine ISR_TimesE2(MODE,CI,CIDER)
+
+  use input_mclr, only: ERASSCF, ncsf, nRoots, State_Sym
 
 ! use DWSol, only: DWSCF, DWSol_Der
 
@@ -366,6 +354,8 @@ unused_var(mode)
 !-----------------------------------------------------------------------
 !
   Subroutine DMInvISR(ISRotIn,ISRotOut)
+
+  use input_mclr, only: ERASSCF, nRoots
 
   implicit none
 

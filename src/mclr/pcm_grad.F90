@@ -43,7 +43,7 @@ Module PCM_grad
   ! PCM is for PCM (must be combined with cond: C-PCM),
   ! so PCM can be false even if lRF = .true. (not considered, though)
   ! do_RF below is different: do_RF is whether PCM equation is solved in MCLR or not.
-  ! If RFPERT is true, we use the fixed reaction field and do not solve the PCM equation.
+  ! If RFPERT is true, we use the fixed reaction field and do not consider the response of the reaction field
 
   ! iStpPCM = 0 : before initization
   ! iStpPCM = 1 : after initialization, before Z-vector
@@ -110,94 +110,21 @@ Module PCM_grad
   !! ASCs induced by nuclei (negative)
   real(kind=wp) :: potnuc_pcm = Zero
 
-  integer(kind=iwp) :: iCharge_PCM
+  integer(kind=iwp) :: iCharge_PCM ! from inpone.F90
   integer(kind=iwp) :: IPCMROOT
-  integer(kind=iwp) :: nconf1, nConfL
-
-  logical(kind=iwp), pointer :: isNAC
-
-  integer(kind=iwp), pointer :: iCharge_Ref
-  integer(kind=iwp), pointer :: ipCI
-  integer(kind=iwp), pointer :: iRlxRoot
-  integer(kind=iwp), pointer :: iSpin
-  integer(kind=iwp), pointer :: NSSA(:)
-  integer(kind=iwp), pointer :: nBas(:)
-  integer(kind=iwp), pointer :: nConf
-  integer(kind=iwp), pointer :: ncsf(:)
-  integer(kind=iwp), pointer :: nRoots
-  integer(kind=iwp), pointer :: nSym
-  integer(kind=iwp), pointer :: ntAsh
-  integer(kind=iwp), pointer :: ntBsqr
-  integer(kind=iwp), pointer :: ntBtri
-  integer(kind=iwp), pointer :: State_Sym
-  integer(kind=iwp), pointer :: LUJOB
-
-  integer(kind=iwp), pointer :: nFro(:)
-  integer(kind=iwp), pointer :: nIsh(:)
-  integer(kind=iwp), pointer :: nAsh(:)
-  integer(kind=iwp), pointer :: nA(:)
-  integer(kind=iwp), pointer :: nOrb(:)
-  integer(kind=iwp), pointer :: ipCM(:)
-  integer(kind=iwp), pointer :: ipMat(:,:)
-  integer(kind=iwp), pointer :: iToc(:)
-
-  real(kind=wp), pointer :: ERASSCF(:)
-  real(kind=wp), pointer :: weight(:)
-
 
 contains
 !
 !-----------------------------------------------------------------------
 !
-  Subroutine PCM_grad_init(isNAC_, &
-                           iCharge_Ref_,ipCI_,iRlxRoot_,iSpin_,NSSA_,nConf_,ncsf_,nRoots_, nSym_, &
-                           ntAsh_,ntBsqr_,ntBtri_,State_Sym_, LUJOB_, &
-                           nFro_,nIsh_,nAsh_,nA_,nBas_,nOrb_,ipCM_,ipMat_,iToc_, &
-                           ERASSCF_,weight_)
+  Subroutine PCM_grad_init()
 
+  use input_mclr, only: ERASSCF, nRoots, ntAsh, ntBsqr
   use ISRotation, only: InvEne,InvSCF,InvSol
-  use MCLR_Data, only: xispsm
 
   implicit none
 
-  logical(kind=iwp), intent(in), target :: isNAC_
-  integer(kind=iwp), intent(in), target :: iCharge_Ref_,ipCI_, iRlxRoot_, iSpin_, NSSA_(*), nConf_, ncsf_(*), &
-    nRoots_, nSym_, ntAsh_, ntBsqr_, ntBtri_, State_Sym_, LUJOB_, &
-    nFro_(*), nIsh_(*), nAsh_(*), nA_(*), nBas_(*), nOrb_(*), ipCM_(*), ipMat_(*), iToc_(*)
-  real(kind=wp), target :: ERASSCF_(*),weight_(*)
   integer(kind=iwp) :: iR
-
-  isNAC          => isNAC_
-
-  iCharge_Ref    => iCharge_Ref_
-  ipCI           => ipCI_
-  iRlxRoot       => iRlxRoot_
-  iSpin          => iSpin_
-  NSSA(1:2)      => NSSA_(1:2)
-  nConf          => nConf_
-  ncsf(1:8)      => ncsf_(1:8)
-  nRoots         => nRoots_
-  nSym           => nSym_
-  ntAsh          => ntAsh_
-  ntBsqr         => ntBsqr_
-  ntBtri         => ntBtri_
-  State_Sym      => State_Sym_
-  LUJOB          => LUJOB_
-
-  nFro(1:8)      => nFro_(1:8)
-  nIsh(1:8)      => nIsh_(1:8)
-  nAsh(1:8)      => nAsh_(1:8)
-  nA(1:8)        => nA_(1:8)
-  nBas(1:8)      => nBas_(1:8)
-  nOrb(1:8)      => nOrb_(1:8)
-  ipCM(1:8)      => ipCM_(1:8)
-  ipMat(1:8,1:8) => ipMat_(1:64)
-  iToc(1:3)      => iToc_(1:3) !! 3 is sufficient for the moment
-
-  nConf1 = ncsf_(state_sym)
-  nConfL = Max(nConf1,int(xispsm(state_sym,1),1))
-  ERASSCF(1:nRoots) => ERASSCF_(1:nRoots)
-  weight(1:nRoots) => weight_(1:nRoots)
 
   call mma_allocate(PCMSCFAO,ntBsqr,3,Label='PCMSCFAO')
   call mma_allocate(PCMSSAO,ntBsqr,3,Label='PCMSSAO')
@@ -309,16 +236,19 @@ contains
 !-----------------------------------------------------------------------
 !
   Subroutine PrepPCM()
-!
-! Prepare PCM-related integrals etc
-!
+
+  use MCLR_Data, only: ipCM, isNAC
+  use input_mclr, only: iSpin, nBas, nSym, ntBsqr, ntBtri
+
   implicit none
 
   real(kind=wp) :: ExFac, PotNuc
   real(kind=wp), allocatable :: Htmp(:),Gtmp(:),D1ao(:)
   integer(kind=iwp) :: leng,iSym,ip1
   logical(kind=iwp) :: NonEq,First,Dff,Do_DFT,lRF
-
+!
+! Prepare PCM-related integrals etc
+!
   leng = ntBtri
   Call mma_allocate(Htmp,leng,Label='Htmp')
   Call mma_allocate(Gtmp,leng,Label='Gtmp')
@@ -401,11 +331,9 @@ contains
 !-----------------------------------------------------------------------
 !
   Subroutine PrepPCM2(mode,DMO,DAO,PCMAO,PCMMO)
-!
-! Prepare PCM-related integrals etc
-! mode = 1: gradient
-! mode = 2: non-adiabatic coupling
-!
+
+  use input_mclr, only: iSpin, nBas, nSym, ntAsh, ntBsqr, ntBtri
+
   implicit none
 
   integer(kind=iwp), intent(in) :: mode
@@ -416,7 +344,11 @@ contains
   real(kind=wp), allocatable :: Htmp(:),Gtmp(:),D1ao(:)
   integer(kind=iwp) :: leng,iSym,ip1!,i
   logical(kind=iwp) :: NonEq,First,Dff,Do_DFT,lRF
-
+!
+! Prepare PCM-related integrals etc
+! mode = 1: gradient
+! mode = 2: non-adiabatic coupling
+!
   leng = ntBtri
   Call mma_allocate(Htmp,leng,Label='Htmp')
   Call mma_allocate(Gtmp,leng,Label='Gtmp')
@@ -466,23 +398,26 @@ contains
 !-----------------------------------------------------------------------
 !
   Subroutine PCM_grad_dens(mode)
-! Compute active density in MO
-! mode=1: construct density used for PCM in SCF
-! mode=2: mostly state-specific density
 
   use ipPage, only: W
+  use MCLR_Data, only: ipCI, iRlxRoot, isNAC, NSSA, xispsm
+  use input_mclr, only: nConf, ncsf, nRoots, ntAsh, State_Sym
 
   implicit none
 
   integer(kind=iwp), intent(in) :: mode
 
-  real(kind=wp), allocatable:: CIL(:), CIR(:), G1r(:), G2r(:)
+  real(kind=wp), allocatable :: CIL(:), CIR(:), G1r(:), G2r(:)
   real(kind=wp), pointer :: G1q(:,:) => null()
-  integer(kind=iwp) :: nconfr,i,j,jR,kR,ng1,ng2
+  integer(kind=iwp) :: i, j, jR, kR, nConf1, nConfL, nConfR, ng1, ng2
 
-! nconf1 = ncsf(state_sym)
-! nConfL =Max(nconf1,int(xispsm(state_sym,1)))
-  nConfR =nConfL
+! Compute active density in MO
+! mode=1: construct density used for PCM in SCF
+! mode=2: mostly state-specific density
+
+  nconf1 = ncsf(state_sym)
+  nConfL = Max(nconf1,nint(xispsm(state_sym,1)))
+  nConfR = nConfL
 
   ng1 = ntash*ntash
   ng2 = ng1*(ng1+1)/2
@@ -497,17 +432,13 @@ contains
   G1r(:) = Zero
   G1q(:,:) = Zero
 
-! write (*,*) "PCM_grad_dens with mode = ", mode
   if (mode==1) then
     Do jR = 1, nRoots
-    ! if (mode==2 .and. jR /= iRlxRoot) cycle
       if (W_SOLV(jR).le.1.0e-10_wp) cycle
       Call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,state_sym)
       Call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIR,state_sym)
       G1r(:) = Zero
       Call Densi2_MCLR(1,G1r,G2r,CIL,CIR,0,0,0,ng1,ng2)
-!     write (*,*) "jR = ", jR
-!     call sqprt(g1r,nash(1))
       !! For RDM1
       call daxpy_(ntAsh*ntAsh,W_SOLV(jR),G1r,1,G1q,1)
     End Do
@@ -547,7 +478,9 @@ contains
 !-----------------------------------------------------------------------
 !
   Subroutine PCM_grad_dens2(mode,DMO,DAO)
-! Compute AO density using MO density (DMO)
+
+  use input_mclr, only: nAsh, nFro, nIsh, nOrb, nSym, ntAsh, ntBsqr
+  use MCLR_Data, only: nA, ipMat
 
   implicit none
 
@@ -558,6 +491,8 @@ contains
 
   integer(kind=iwp) :: iB,iiB,ijB,iOrb,iS,jB
   real(kind=wp) :: rd
+
+! Compute AO density using MO density (DMO)
 
   call mma_allocate(WRK,ntBsqr,Label='WRK')
 
@@ -595,6 +530,9 @@ contains
 !-----------------------------------------------------------------------
 !
   Subroutine PCM_grad_D2V(dens,vintMO,vintAO,first_,Dff_,NonEq_,Do_DFT_)
+
+  use input_mclr, only: iSpin, nBas, nSym, ntBsqr, ntBtri
+  use MCLR_Data, only: ipCM
 
   implicit none
 
@@ -658,7 +596,10 @@ contains
 !-----------------------------------------------------------------------
 !
   Subroutine PCM_grad_TimesE2(idSym,rKappa,FockOut,ipCIOut)
+
+  use input_mclr, only: nAsh, nBas, nIsh, nOrb, nRoots, nSym, ntBsqr, State_Sym, weight
   use ISRotation, only: ISR
+  use MCLR_Data, only: ipCI, ipCM, ipMat, nA
   use MCLR_procedures, only: CISigma_sa
 
   implicit none
@@ -787,9 +728,7 @@ contains
 
   ! consider the weight of the derivative
   if (DWSolv%DWZeta /= Zero) then
-    call DWder_MCLR(2,idsym,DZMO,SIZE(DZMO),DZMO,SIZE(DZMO),ISR%Ap, &
-                    ntash,nRoots,ERASSCF,itoc,LUJOB, &
-                    nSym,nAsh,nIsh,nBas,ipCM)
+    call DWder_MCLR(2,idsym,DZMO,SIZE(DZMO),DZMO,SIZE(DZMO),ISR%Ap)
   end if
 
   End Subroutine PCM_grad_TimesE2
@@ -798,8 +737,9 @@ contains
 !
   Subroutine PCM_grad_CLag(mode,ipCI,ipCID)
 
-  use MCLR_Data, only: nDens
+  use MCLR_Data, only: ipMat, iRlxRoot, isNAC, nDens, NSSA
   use MCLR_procedures, only: CISigma_sa
+  use input_mclr, only: nAsh, nBas, ncsf, nIsh, nRoots, nSym, State_Sym, weight
   use ipPage, only: W
   use ISRotation, only: ISR, ISR_RHS, ISR_Projection
 
@@ -869,9 +809,7 @@ contains
   !! consider the weight of the derivative
   idsym = state_sym !?
   if (DWSolv%DWZeta /= Zero) then
-    call DWder_MCLR(2,idsym,SCFcont,nDens,SCFcont,nDens,ISR%RVec, &
-                    ntash,nRoots,ERASSCF,itoc,LUJOB, &
-                    nSym,nAsh,nIsh,nBas,ipCM)
+    call DWder_MCLR(2,idsym,SCFcont,nDens,SCFcont,nDens,ISR%RVec)
   end if
 
   !! State rotations are not needed, because CI vectors are obtained by diagonalization (?)
@@ -887,13 +825,15 @@ contains
 !
   Subroutine PCM_mod_ERASSCF(ERASSCF_)
 
+  use input_mclr, only: nAsh, nIsh, nOrb, nRoots, nSym
+  use MCLR_Data, only: nA, ipMat
+
   implicit none
 
   real(kind=wp), intent(inout) :: ERASSCF_(nRoots)
 
   real(kind=wp) :: ecorr
-  integer(kind=iwp) :: iRoot,iA,jA,ip2,iS,jS,iRlxRoot_sav,idSym
-  logical(kind=iwp) :: isNAC_sav
+  integer(kind=iwp) :: iRoot,iA,jA,ip2,iS,jS,idSym
 !
 ! Subtract (add) the surplus solvation energies from ERASSCF.
 ! ERASSCF at present is not eigenvalues of the Hamiltonian, because of some additional
@@ -901,9 +841,6 @@ contains
 ! to subtract the surplus energies so that ERASSCF is an eigenvalue.
 !
   idSym = 1
-
-  iRlxRoot_sav = iRlxRoot
-  isNAC_sav    = isNAC
 
   do iRoot = 1, nRoots
 !   write (6,*) "original erasscf = ", erasscf(iroot),erasscf_(iroot)
@@ -943,6 +880,8 @@ contains
 !-----------------------------------------------------------------------
 !
   Subroutine PCM_grad_PT2()
+
+  use input_mclr, only: nBas, nSym, ntBsqr, ntBtri
 
   implicit none
 

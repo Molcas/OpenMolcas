@@ -29,8 +29,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
-use MCLR_Data, only: INT1, ipCI, ipCM, ipMat, isNAC, iRlxRoot, LUJOB, nA, NSSA, SA
-use input_mclr, only: ERASSCF, iSpin, iToc, nConf, nCSF, nRoots, ntAsh, ntBsqr, ntBtri, PT2, State_Sym, weight
+use MCLR_Data, only: INT1, SA
+use input_mclr, only: ERASSCF, PT2
 use pcm_grad, only: do_RF, PCM_grad_init, PrepPCM, PCM_mod_ERASSCF
 use rctfld_module, only: iCharge_Ref, NonEQ_Ref, PCM
 ! use DWSol, only: DWSCF_init
@@ -189,11 +189,7 @@ if (RF_On()) then
     write(u6,*) 'PCM-model must be used in RF-Input'
     call Abend()
   end if
-  call PCM_grad_init(isNAC,iCharge_Ref,ipCI,iRlxRoot,iSpin, &
-                     NSSA,nconf,ncsf,nRoots,nSym,ntAsh, &
-                     ntBsqr,ntBtri,State_Sym,LUJOB, &
-                     nFro,nIsh,nAsh,nA,nBas,nOrb,ipCM,ipMat,iToc, &
-                     ERASSCF,weight)
+  call PCM_grad_init()
   !! Construct INT1 with the correct PCM contributions
   call mma_deallocate(Int1)
   call PrepPCM()
