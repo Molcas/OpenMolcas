@@ -46,11 +46,11 @@ integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iRout, istatus, iSym(3), iTR, &
                      j, jIrrep, jOper, jPrint, jRout, jTR, k, ldsp, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, &
                      nElem, nGroup, nRoots, nSlct
-real(kind=wp) :: alpha, Fact, ovlp
+real(kind=wp) :: alpha, Fact
 logical(kind=iwp) :: TstFnc, ltype, Slct, T_Only, No_Input_OK, Skip
 character(len=80) :: KWord, Key
 integer(kind=iwp), allocatable :: IndCar(:), iTemp(:)
-real(kind=wp), allocatable :: Tmp(:), C(:,:), Scr(:,:), Temp(:,:)
+real(kind=wp), allocatable :: Tmp(:), C(:,:), Temp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrintLevel, iPrmt, NrOpr
 real(kind=wp), external :: DDot_
@@ -722,7 +722,7 @@ if (TRSymm) then
         call dscal_(ldisp(0),One/sqrt(alpha),Am(iTR,1),nTR)
       end if
     end do
-    Temp = Am
+    Temp(:,:) = Am(:,:)
     call mma_deallocate(Am)
 
     ! finally, construct the projection matrix
