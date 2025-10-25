@@ -36,6 +36,7 @@
   integer(kind=iwp) :: itri
 
   itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+  if (nRoots == 1) return
 !
 ! derivative of the dynamical weight
 ! I think this implementation uses the following constraint condition

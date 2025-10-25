@@ -8,7 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-
+!
+! Dynamically weighted solvation (reaction field)
+!
+! Could be used for dynamically weighted MCSCF (DW-MCSCF), and this was an initial plan...
+! The density matrix used for generating the reaction field is constructed by a weighted averaged
+! of state-specific density matrices. The weight is determined with the electronic energy and
+! distribution function. This is similar to the well-known DW-MCSCF.
+!
+! At present, only the Boltzmann distribution function can be used.
+! Note also that the electronic gradient and Hessian of the weight function is ignored.
+!
+! (hidden) options in &GATEWAY RF-Input
+!
+! DWSOlvation
+!   DWZeta in the code. This regulates the distribution function.
+! FIXRfroot
+!   Generate fixed weight reaction fields; it is not a dynamically weighted, of course.
+!   This is the only option written in the manual among the three.
+! DWTYpe
+!   Specifies the distribution function (see DWSol_func). Only DWTYPE = 1 is working.
+!   I think we just need to update DWSol_func and DWSol_Der (zeroth- and first-order derivatives
+!   wrt the energy)
+!
 Module DWSol
 
   use Constants, only: Zero, Half, One, Two, Three

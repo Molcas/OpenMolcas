@@ -632,7 +632,7 @@ C.. for GAS
          if (DWSolv%DWZeta == -12345d+00) then
              Write(LF,Fmt2//'A,A)')
      &         'Weights of the reaction field are specified by',
-     &         ' FIXRFROOT/DWROOT'
+     &         ' FIXRFROOT'
              Write(LF,Fmt2//'A,(T45,10F6.3))')'weights',
      &                                   (W_SOLV(i),i=1,nRoots)
          else if (DWSolv%DWZeta < 0.0d+00) then

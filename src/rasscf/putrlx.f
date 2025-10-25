@@ -15,9 +15,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: CBLBM, ENER, ExFac, iBLBM, IPCMROOT, iPr,
      &                         iRLXRoot, iSymBB, ITER, lRoots, lSquare,
-     &                         NACPAR, NACPR2, NewFock, nFint, NSXS,
-     &                         NTOT4, RlxGrd, iAdr15, ISTORP, JBLBM
-      use printlevel, only: DEBUG
+     &                         NACPAR, NACPR2, NewFock, nFint, nRoots,
+     &                         NSXS, NTOT4, RlxGrd, iAdr15, ISTORP,
+     &                         JBLBM
+      use printlevel, only: DEBUG,USUAL
       use output_ras, only: LF,IPRLOC
       use general_data, only: NTOT1,NTOT2,NSYM,JOBIPH,NBAS
       use DWSol, only: DWSolv, DWSol_wgt, W_SOLV
@@ -26,10 +27,11 @@
       Implicit None
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)
 
+      Character(LEN=8)  Fmt2
       Character(LEN=16), Parameter:: ROUTINE='PUTRLX  '
       Real*8 rdum(1)
       Integer i, iFinal, iPrLev, istmp, itmp, jDisk, jtmp, kDisk,
-     &        NFSize, NZ
+     &        left, NFSize, NZ
       Real*8 rTmp, wgt
       Real*8, External:: DNRM2_
 
@@ -193,7 +195,7 @@
 *
         call DWSol_wgt(2,ENER(:,ITER))
         kDisk = IADR15(3)
-        Do i=1,lRoots
+        Do i=1,nRoots
           wgt = W_SOLV(i)
           Call DDaFile(JOBIPH,2,WRK1,NACPAR,kDisk)
           Call DDaFile(JOBIPH,2,WRK2,NACPAR,kDisk)
@@ -218,6 +220,16 @@
 *
         Call mma_deallocate(WRK1)
         Call mma_deallocate(WRK2)
+        IF(IPRLEV.GE.USUAL .AND. DWSolv%DWZeta > 0.0d+00) THEN
+          left=6
+          Write(LF,*)
+          Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
+          Write(LF,Fmt2//'A)')
+     &      'Dynamically weighted solvation has been employed'
+          Write(LF,Fmt2//'A,(T45,10F6.3))')
+     &      'Final weights for the reaction field:',
+     &                                (W_SOLV(i),i=1,nRoots)
+        END IF
       end if
 *
       CALL SGFCIN(C,F,FI,DI,DA,DSX)
