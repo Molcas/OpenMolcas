@@ -252,7 +252,8 @@
 *
         Call mma_allocate(WRK1,nTot1,Label='WRK1')
         Call mma_allocate(WRK2,nTot1,Label='WRK2')
-        Call Fold(nSym,nBas,DX,WRK1)
+!       Call Fold(nSym,nBas,DX,WRK1)
+        Call Fold(nSym,nBas,DI,WRK1)
         Call Fold(nSym,nBas,DA,WRK2)
         Call Daxpy_(nTot1,1.0d+00,WRK1,1,WRK2,1)
         Call Put_dArray('D1ao',WRK2,nTot1)
