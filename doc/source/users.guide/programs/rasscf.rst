@@ -1334,7 +1334,7 @@ A list of these keywords is given below:
 
   specifies the generation of a reaction-field using the averaged density of `S_0` and `S_1` from a three-state averaged MCSCF calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RFROOT" APPEAR="Reaction field root" LEVEL="ADVANCED" KIND="INT">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RFROOT" APPEAR="Reaction field root" LEVEL="ADVANCED" KIND="CUSTOM" SIZE="3">
               %%Keyword: RFROot <advanced>
               <HELP>
               Enter the index number of that particular root in a state-average
