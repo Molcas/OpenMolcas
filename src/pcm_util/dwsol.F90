@@ -240,7 +240,7 @@ Subroutine DWSol_DWRO(LuInput,nRoots_,iall)
   if (iall==1) then
     nRoots_ = 0
   else
-    nRoots_ = MAXLOC(W_local(1:nRoots_),1,kind=iwp)
+    nRoots_ = MAXLOC(W_local(1:nRoots_),1)
   end if
 
   call mma_deallocate(W_local)
