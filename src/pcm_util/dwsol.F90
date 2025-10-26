@@ -172,27 +172,28 @@ End Subroutine DWSCF_init
 !
 !-----------------------------------------------------------------------
 !
-Subroutine DWSol_DWRO(LuInput,KWord_)
+Subroutine DWSol_DWRO(LuInput,nRoots_,iall)
 
   implicit none
 
-  integer(kind=iwp), intent(in) :: LuInput
-  character(len=180), intent(in) :: KWord_
+  integer(kind=iwp), intent(in) :: LuInput,iall
+  integer(kind=iwp), intent(inout) :: nRoots_
 
-  integer(kind=iwp) :: nRoots_,lRoots_,iall,i,iSum,mRoots
-  integer(kind=iwp), allocatable :: IROOT(:),Temp1(:)
+  integer(kind=iwp) :: i, iError, iSum
+  integer(kind=iwp), allocatable :: IROOT(:), Temp1(:)
   real(kind=wp), allocatable :: W_local(:)
   character(len=180) :: KWord
 
-  integer(kind=iwp), external :: nToken
+! integer(kind=iwp), external :: nToken
   character(len=180), external :: Get_Ln
+
 !
-! Determine the roots to be used for solvation
+! Determine the roots to be used for solvation by reading RFROOT
 !
-  iall = 0
-  call Get_I1(1,nRoots_)
-  call Get_I1(2,lRoots_) !! this is not used
-  if (nToken(KWord_) > 3) call Get_I1(3,iall)
+! iall = 0
+! call Get_I1(1,nRoots_)
+! call Get_I1(2,lRoots_) !! this is not used
+! if (nToken(KWord_) > 3) call Get_I1(3,iall)
 
   call mma_allocate(W_local,nRoots_,Label='W_local')
   call mma_allocate(IROOT,nRoots_,Label='IROOT')
@@ -200,27 +201,23 @@ Subroutine DWSol_DWRO(LuInput,KWord_)
   W_local(1:nRoots_) = Zero
   IROOT(1:nRoots_) = 0
 
-  if (iall==1) then
+  if (iall == 1) then
     Do i = 1, nRoots_
      iroot(i)=i
      W_local(i) = One/dble(nRoots_)
     END DO
   else
     KWord=Get_Ln(LuInput)
-    mRoots = nToken(KWord)
-    do i = 1, mRoots
-      call Get_I1(i,IROOT(i))
-    end do
-    if (nRoots_==1) then
+    Read(KWord,*,IOSTAT=iError) (IROOT(I),I=1,nRoots_)
+    if (iError /= 0) call Error(iError)
+    if (nRoots_== 1) then
       W_local(1) = One
     else
       KWord=Get_Ln(LuInput)
 
-      call mma_allocate(Temp1,mRoots,Label='Temp1')
-      Temp1 = 0
-      do i = 1, mRoots
-        call Get_I1(i,Temp1(i))
-      end do
+      call mma_allocate(Temp1,nRoots_,Label='Temp1')
+      Read(KWord,*,IOSTAT=iError) (Temp1(I),I=1,nRoots_)
+      if (iError /= 0) call Error(iError)
 
       iSum=0
       do i = 1, nRoots_
@@ -239,8 +236,33 @@ Subroutine DWSol_DWRO(LuInput,KWord_)
 
   Call Put_dArray('SolventWeight',W_local,nRoots_)
 
+  ! Set IPCMROOT
+  if (iall==1) then
+    nRoots_ = 0
+  else
+    nRoots_ = MAXLOC(W_local(1:nRoots_),1,kind=iwp)
+  end if
+
   call mma_deallocate(W_local)
   call mma_deallocate(IROOT)
+
+  return
+
+contains
+
+subroutine Error(rc)
+
+  integer(kind=iwp), intent(in) :: rc
+
+  if (rc > 0) then
+    write(u6,*) 'DWSol_DWRO: Error while reading input'
+  else
+    write(u6,*) 'DWSol_DWRORdInp: Premature end of input file'
+  end if
+  write(u6,'(A,A)') 'Last command:',KWord
+  call Abend()
+
+end subroutine Error
 
 End Subroutine DWSol_DWRO
 !

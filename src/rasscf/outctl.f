@@ -389,11 +389,9 @@ C Local print level (if any)
          iCharge=Int(Tot_Charge)
          Call PrRF(.False.,NonEq,iCharge,2)
          if (DWSolv%DWZeta == -12345d+00) then
-             Write(LF,Fmt2//'A,A)')
-     &         'Weights of the reaction field are specified by',
-     &         ' FIXRFROOT'
-             Write(LF,Fmt2//'A,(T45,10F6.3))')'weights',
-     &                                   (W_SOLV(i),i=1,nRoots)
+             Write(LF,Fmt2//'A)')
+     &         'Weights of the reaction field are specified by RFROOT'
+             Write(LF,Fmt2//'(T45,10F6.3))') (W_SOLV(i),i=1,nRoots)
          else if (DWSolv%DWZeta < 0.0d+00) then
            Call DWSol_fixed(i,j)
            if (i==0 .and. j==0) then

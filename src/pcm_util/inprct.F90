@@ -447,20 +447,6 @@ do
       KWord = Get_Ln(LuSpool)
       call Get_F1(1,DWSolv%DWZeta)
       RSlPar(53) = DWSolv%DWZeta
-    case ('FIXR')
-      !                                                                *
-      !***** FIXR ******************************************************
-      !                                                                *
-      ! Fixed state-averaged solvation density
-      KWord = Get_Ln(LuSpool)
-      call DWSol_DWRO(LuSpool,KWord)
-    case ('DWRO')
-      !                                                                *
-      !***** DWRO ******************************************************
-      !                                                                *
-      ! Fixed state-averaged solvation density
-      KWord = Get_Ln(LuSpool)
-      call DWSol_DWRO(LuSpool,KWord)
     case ('DWTY')
       !                                                                *
       !***** DWTY ******************************************************

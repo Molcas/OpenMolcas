@@ -1546,26 +1546,6 @@ Optional keywords for the PCM Model
               'Sphere radius' followed by '4 2.0' indicates that another sphere of
               radius 2 A is placed around atom 4 and so on.
 
-:kword:`FIXRfroot`
-  Specify the CI root(s) to be averaged for the density used to generate the reaction-field.
-  The syntax is identical to the `CIROot` option in `RASSCF`.
-  Note that this setting will overwrite `RFROOT` specified in `RASSCF`.
-  For instance, one can compute the averaged reaction-field of :math:`S_1` and :math:`S_2` from a three-state averaged RASSCF using the following syntax ::
-
-    FIXRfroot = 3 3; 1 2 3 ; 0 1 1
-
-  This option may be useful in situations involving near-degeneracy between states,
-  such as conical intersections, although the averaged reaction field is a crude approximation.
-
-  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="FIXRfroot" LEVEL="ADVANCED" APPEAR="CI root(s)" KIND="CUSTOM" SIZE="3">
-              %%Keyword: FIXRfroot <basic>
-              <HELP>
-              Specify the CI root(s) to be averaged for the density used to generate the reaction-field.
-              The syntax is identical to the `CIROot` option in `RASSCF`.
-              Note that this setting will overwrite `RFROOT` specified in `RASSCF`.
-              </HELP>
-              </KEYWORD>
-
 .. xmldoc:: </GROUP>
 
 .. xmldoc:: </GROUP>
