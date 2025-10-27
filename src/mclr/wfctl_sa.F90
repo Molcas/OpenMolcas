@@ -229,8 +229,8 @@ else
       end if
       W(ipST)%A(1:nconf1*nRoots) = W(ipS2)%A(1:nconf1*nRoots)
       W(ipS2)%A(1:nconf3*nRoots) = Zero
-      ! SLag /= 0 means that MS-type CASPT2
-      ! this comes from the rotation of the model state and is not directly relevant to internal rotations
+      ! If SLag is nonzero, the contribution comes from the rotation of the model state (i.e., MS-type CASPT2)
+      ! but should not be taken as the initial residue of the internal rotation, so SLag should not be added to Rvec.
 !     if (.not.InvSCF) ISR%Rvec(:,:) = ISR%Rvec(:,:) + SLag
     end if
 
