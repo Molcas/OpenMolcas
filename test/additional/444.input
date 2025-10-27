@@ -2,9 +2,9 @@
 * Molecule: CH2-NH2+
 * Basis: 6-31G
 * Symmetry: C1
-* Features tested: XMS-CASPT2 analytic gradients and NACs with CPCM and RFROOT
+* Features tested: XMS-CASPT2 analytic gradients and DCs with CPCM and RFROOT
 * Responsible person: Yoshio Nishimoto
-* Comments: XMS-CASPT2/CPCM analytic gradients and NACs with RICD
+* Comments: XMS-CASPT2/CPCM analytic gradients and DCs with RICD
 *           Reaction fields are generated for the average of S0 and S1
 *-------------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@
 &ALASKA
 
 *-------------------------------------------------------------------------------
-* XMS-CASPT2/CPCM(water) S0/S1 NAC vector of methaniminium
+* XMS-CASPT2/CPCM(water) S0/S1 derivative coupling (DC) vector of methaniminium
 *-------------------------------------------------------------------------------
 
 &CASPT2
