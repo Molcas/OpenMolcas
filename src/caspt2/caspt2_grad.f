@@ -470,6 +470,7 @@ C
         !! The implicit derivative contributions have not been
         !! considered in the CASPT2 module
         if (ifmscoup) then
+          ! I do not remember why this should be halved
           call daxpy_(NBTRI,0.5D+00,DPT2C_AO_tot,1,DPT2_AO_tot,1)
         else
           call daxpy_(NBTRI,1.0D+00,DPT2C_AO_tot,1,DPT2_AO_tot,1)
@@ -906,8 +907,8 @@ C
       iBasTr = 1
       iBasSq = 1
       Do iSym = 1, nSym
-       call OLagTrf(1,iSym,WRK1,DPT2 ,WRK3,WRK2)
-       call OLagTrf(1,iSym,WRK1,DPT2C,WRK4,WRK2)
+        call OLagTrf(1,iSym,WRK1,DPT2 ,WRK3,WRK2)
+        call OLagTrf(1,iSym,WRK1,DPT2C,WRK4,WRK2)
         nBasI = nBas(iSym)
         liBasTr = iBasTr
         liBasSq = iBasSq

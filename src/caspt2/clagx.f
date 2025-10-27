@@ -1816,7 +1816,7 @@ C
 C-----------------------------------------------------------------------
 C
       !! From poly3
-      SUBROUTINE CLagEig(if_SSDMloc,CLag,RDMEIG,nLev)
+      SUBROUTINE CLagEig(if_SSDMloc,force_weight,CLag,RDMEIG,nLev)
 C
       use caspt2_global, only: DREF, DWGT
       use caspt2_global, only: OMGDER, Weight
@@ -1828,7 +1828,7 @@ C
 C
       Integer, Intent(In)::nLev
       DIMENSION CLag(nConf,nState),RDMEIG(*)
-      Logical   if_SSDMloc
+      Logical   if_SSDMloc, force_weight
       real(kind=wp),allocatable :: CI1(:),WRK(:)
 C
 C     MODE=0: Either state-averaged or DWGT matrix
@@ -1839,10 +1839,12 @@ C
 
       Do iState = 1, nState
         If (.not.if_SSDMloc) Then
-          if (IFSADREF) then
+          if (force_weight .or. .not.IFSADREF) then
+            WGT = 1.0D+00/nState ! force equal-weight for XMS
+          else if (IFSADREF) then
             WGT = Weight(MSTATE(iState)) ! can be unequal weight
           else
-            WGT = 1.0D+00/nState ! usually XMS
+            WGT = 1.0D+00/nState ! this should not happen...
           end if
           if (abs(wgt).le.1.0d-09) cycle
           If (ISCF.EQ.0) Then

@@ -710,7 +710,7 @@ C    *              0.0D+00,RDMEIG,nAshT)
         ISAV = IDCIEX
         IDCIEX = IDTCEX
         !! Now, compute the configuration Lagrangian
-        Call CLagEig(if_SSDM,CLag,RDMEIG,nAshT)
+        Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADSUM (CLag,nCLag)
 #endif
@@ -774,7 +774,7 @@ C
           !! RDMEIG contributions
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
-          Call CLagEig(if_SSDM,CLag,RDMEIG,nAshT)
+          Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
 #ifdef _MOLCAS_MPP_
           If (Is_Real_Par()) CALL GADSUM (CLag,nCLag)
 #endif

@@ -85,7 +85,7 @@ call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
 #ifdef _MOLCAS_MPP_
 LoTs = 1
 HiTs = nTs
-! Parallel is turned for for ALASKA because drvn1 is called for the master node only
+! Parallel is turned off for ALASKA because drvn1 is called from the master node only
 if (is_real_par() .and. ProgName(1:6) /= 'alaska') then
   job_equal = nTs/nProcs
   remainder = mod(nTs,nProcs)

@@ -1065,7 +1065,7 @@ C
         Call CLagEigT(CLag,G1,SLag,EINACT)
 C
         !! 2) Implicit CI derivative
-        Call CLagEig(.False.,CLag,RDMEIG,nLev)
+        Call CLagEig(.False.,.True.,CLag,RDMEIG,nLev)
 C
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then

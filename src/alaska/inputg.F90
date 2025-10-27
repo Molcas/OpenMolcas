@@ -587,8 +587,8 @@ end if
 ! and rotational invariance of the energy.
 
 if (TRSymm) then
-! write(u6,*) 'Unsupported option: TRSymm'
-! call Abend()
+  write(u6,*) 'Unsupported option: TRSymm'
+  call Abend()
   iSym(1) = 0
   iSym(2) = 0
   iSym(3) = 0
