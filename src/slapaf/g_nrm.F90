@@ -52,7 +52,7 @@ if (RF_On()) then
       Fabs = Fabs+GxCart(j,i)**2/abs(Degen(j,i))
     end do
   end do
-  call mma_deallocate (GxCart,'*')
+  call mma_deallocate (GxCart)
 end if
 
 Fabs = sqrt(Fabs)
