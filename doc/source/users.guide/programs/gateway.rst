@@ -1265,10 +1265,10 @@ Compulsory keywords
 :kword:`RF-Input`
   Activate reaction field options.
 
-.. xmldoc:: <GROUP MODULE="GATEWAY" NAME="RF-INPUT" APPEAR="Reaction Field Options" KIND="BLOCK" LEVEL="ADVANCED">
-            <HELP>
-            Reaction field options.
-            </HELP>
+  .. xmldoc:: <GROUP MODULE="GATEWAY" NAME="RF-INPUT" APPEAR="Reaction Field Options" KIND="BLOCK" LEVEL="ADVANCED">
+              <HELP>
+              Reaction field options.
+              </HELP>
 
 :kword:`END Of RF-Input`
   This marks the end of the input to the reaction field utility.
