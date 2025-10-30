@@ -1210,9 +1210,6 @@ C
 C
       DIMENSION DPT2(*),DEPSA(nAshT,nAshT)
 C
-    !   write(6,*) "DPT2MO before active-active contribution"
-    !   call sqprt(dpt2,nbas(1)-ndel(1))
-C
       iMO1 = 1
       iMO2 = 1
       DO iSym = 1, nSym
@@ -1245,8 +1242,6 @@ C
         iMO1 = iMO1 + nOrbI1*nOrbI1
         iMO2 = iMO2 + nOrbI2*nOrbI2
       End Do
-    !   write(6,*) "DPT2MO after DEPSA"
-    !   call sqprt(dpt2,nbas(1)-ndel(1))
 C
       End Subroutine AddDEPSA
 C

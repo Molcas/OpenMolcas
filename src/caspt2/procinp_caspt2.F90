@@ -18,7 +18,7 @@ subroutine procinp_caspt2
                            ipea_shift, imag_shift, real_shift
   use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, &
                              if_invar, iRoot1, iRoot2, if_invaria, &
-                             ConvInvar, if_SSDM
+                             ConvInvar, if_equalW, if_SSDM, Weight
   use caspt2_global, only: IDCIEX
   use PrintLevel, only: terse
   use UnixInfo, only: SuperName
@@ -700,6 +700,13 @@ subroutine procinp_caspt2
   else
     if_SSDM = .true.
   end if
+
+  !! Check if unequal-weighted MCSCF or not
+  if (if_SSDM) if_equalW = .false.
+  do I = 2, NSTATE
+    if (Weight(MSTATE(1)).ne.weight(MSTATE(I))) if_equalW = .false.
+  end do
+  if (.not.if_equalW) if_SSDM = .true.
 
   !! issue #448
   if ((IFDENS .and. .not.do_grad) .and. NRAS1T+NRAS3T>0) then

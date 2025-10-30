@@ -748,6 +748,7 @@ C
      *                           CLag,CLagFull,OLag,DPT2_tot,
      *                           FIFA_all,FIFASA_all
       use caspt2_global, only: FIFA, TORB, NDREF
+      use caspt2_global, only: CMOPT2, if_equalW, weight
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
@@ -764,7 +765,7 @@ C
       real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),
      *                             TG2(:),DG1(:),DG2(:),DG3(:),G1(:,:),
      *                             RDMEIG(:,:),DPT2(:),Trf(:),
-     *                             RDMSA(:,:),WRK1(:),WRK2(:)
+     *                             RDMSA(:,:),WRK1(:),WRK2(:),DPT2_AO(:)
       Integer :: nLev
       nLev = SGS%nLev
 C
@@ -948,12 +949,11 @@ C
         call mma_allocate(WRK2,NBSQT,Label='WRK2')
 C
         !! Construct always state-averaged density; XMS basis is always
-        !! generated with the state-averaged density.
+        !! generated with the equally-averaged density.
         Call DCopy_(nDRef,[0.0D+00],0,WRK1,1)
         call mma_allocate(CI1,nConf,Label='CI1')
         Wgt  = 1.0D+00/nState
         Do iState = 1, nState
-C       Call DaXpY_(nDRef,Wgt,DMIX(:,iState),1,WRK1,1)
           Call LoadCI(CI1,iState)
           call POLY1(CI1,nConf)
           call GETDREF(WRK2,nDRef)
@@ -994,6 +994,36 @@ C
 C
         !! Finalize OLag (anti-symetrize) and construct WLag
         Call OLagFinal(OLag,Trf)
+C
+        If (.not.if_equalW) then
+          call mma_allocate(DPT2_AO,NBSQT,Label='DPT2_AO')
+C
+          !! AddDEPSA considers the frozen orbital, whereas DPT2_Trf
+          !! does not. In any case, construct DPT2 again.
+          DPT2(:) = 0.0d+00
+          CALL DPT2_Trf(DPT2,DPT2_AO,CMOPT2,G1,WRK1)
+          !! Construct the SCF density
+          WRK1(1:nDRef) = 0.0d+00
+          call mma_allocate(CI1,nConf,Label='CI1')
+          Do iState = 1, nState
+            Call LoadCI_XMS('N',1,CI1,iState,U0)
+            call POLY1(CI1,nConf)
+            call GETDREF(WRK2,nDRef)
+            wgt = Weight(MSTATE(iState))
+            Call DaXpY_(nDRef,Wgt,WRK2,1,WRK1,1)
+          End Do
+          call mma_deallocate(CI1)
+          !! WRK2 is the SCF density (for nstate=nroots)
+          Call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
+          Call DaXpY_(nAshT**2,-1.0D+00,WRK2,1,RDMSA,1)
+          !! Construct the SS minus SA density matrix in WRK1
+          Call OLagFroD(WRK1,WRK2,RDMSA,Trf)
+          !! Subtract the inactive part
+          Call DaXpY_(nBasT**2,-1.0D+00,WRK2,1,WRK1,1)
+          !! Save
+          Call CnstAB_SSDM(DPT2_AO,WRK1)
+          call mma_deallocate(DPT2_AO)
+        End If
 C
         call mma_deallocate(RDMSA)
         call mma_deallocate(WRK1)
