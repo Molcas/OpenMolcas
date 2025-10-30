@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ga4guga"
+version = "0.1.0"
+description = "A genetic algorithm designed to find a GUGA optimal ordering for a compact wave function representation"
+readme = "readme.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Maru Song", email = "maru.song.p@gamil.com"}
+]
+keywords = ["genetic algorithm", "GUGA", "quantum chemistry"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+
+dependencies = [
+    "numpy",
+    "pandas",
+]
+
+[project.urls]
+Homepage = "https://github.com/MaruSongMaru/GA4GUGA"
+Repository = "https://github.com/MaruSongMaru/GA4GUGA"
+Issues = "https://github.com/MaruSongMaru/GA4GUGA/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["GA_mod*", "FCIDUMP_tools*"]
+namespaces = false
