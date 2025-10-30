@@ -5,8 +5,8 @@ import numpy as np
 
 FILEPATH = "../extra_files/"
 
-diagelem_benchmark = np.load(FILEPATH + "Benzene_diagelem.npy")
-csfs = np.load(FILEPATH + "Singlet_6i6_CSFs.npy")
+diagelem_benchmark = np.loadtxt(FILEPATH + "Benzene_diagelem.txt")
+csfs = np.loadtxt(FILEPATH + "Singlet_6i6_CSFs.txt")
 
 IntegralClass = FCIDUMPReader(FILEPATH + "FCIDUMP_benzene_loc")
 DiagElement = DiagElement(6, IntegralClass)
