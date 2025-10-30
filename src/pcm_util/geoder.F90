@@ -11,7 +11,7 @@
 
 subroutine GeoDer(nAt,Cond,nTs,nS,Eps,Sphere,ISphe,NOrd,Tessera,Q1,Q2,DerDM,Grd,DerTes,DerPunt,DerRad,DerCentr)
 
-use Constants, only: Zero, Half, Two, One
+use Constants, only: Zero, One, Half, Two
 use Definitions, only: wp, iwp
 use PCM_alaska, only: lSA
 use NAC, only: isNAC
@@ -32,7 +32,7 @@ DerDM(:,:) = Zero
 
 ! Avoid division by zero for CPCM
 ! Note that the ASC (Q) should be zero if Eps = One, so Grd is zero accordingly
-if (Cond .and. abs(Eps-One) <= 1.0e-10_wp) return
+if (Cond .and. (abs(Eps-One) <= 1.0e-10_wp)) return
 
 do IAtom=1,nAt
   do IXYZ=1,3

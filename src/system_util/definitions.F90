@@ -16,9 +16,9 @@ module Definitions
 
 use, intrinsic :: iso_fortran_env, only: int8, int32, int64, real32, real64, error_unit, input_unit, output_unit
 use, intrinsic :: iso_c_binding, only: c_double, c_int, c_size_t
-#   ifdef _I8_
+#ifdef _I8_
 use, intrinsic :: iso_c_binding, only: c_long
-#   endif
+#endif
 #ifdef _MOLCAS_MPP_
 use MPI, only: MPI_ADDRESS_KIND
 #endif
