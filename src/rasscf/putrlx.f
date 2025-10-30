@@ -181,9 +181,11 @@
       PUVX(:)=0.0D0
       Call TraCtl2(C,PUVX,TUVX,DI,FI,DA,FA,ipr,lsquare,ExFac)
 *
+      ! DA constructed above is the density for the RLXROOT state.
       ! We should reconstruct the AO density matrix to prevent the
       ! mismatch of states for reaction field and geometry optimization
-      if (lRF .and. (IPCMROOT <= 0 .or. DWSolv%DWZeta /= 0.0d+00)) then
+      if (lRF .and. (IPCMROOT /=iRLXROOT .or. IPCMROOT <= 0
+     *          .or. DWSolv%DWZeta /= 0.0d+00)) then
         !! Polarize PCM etc with weighted density
         Call mma_allocate(DA_ave,MAX(NACPAR,NZ),Label='DA_ave')
         Call mma_allocate(DS_ave,MAX(NACPAR,NZ),Label='DS_ave')
@@ -241,7 +243,8 @@
       iTmp=newfock
       newFock=-99999
 *
-      if (lRF .and. (IPCMROOT <= 0 .or. DWSolv%DWZeta /= 0.0d+00)) then
+      if (lRF .and. (IPCMROOT /=iRLXROOT .or. IPCMROOT <= 0
+     *          .or. DWSolv%DWZeta /= 0.0d+00)) then
         ! The rest of the RASSCF program uses state-specific density
         ! (note that, it is iRlxRoot!), so restore the one constructed
         ! above, before TraCtl2
@@ -252,7 +255,6 @@
 *
         Call mma_allocate(WRK1,nTot1,Label='WRK1')
         Call mma_allocate(WRK2,nTot1,Label='WRK2')
-!       Call Fold(nSym,nBas,DX,WRK1)
         Call Fold(nSym,nBas,DI,WRK1)
         Call Fold(nSym,nBas,DA,WRK2)
         Call Daxpy_(nTot1,1.0d+00,WRK1,1,WRK2,1)
