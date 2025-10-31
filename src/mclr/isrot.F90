@@ -181,21 +181,21 @@ contains
 
   implicit none
 
-  if (allocated(ISR%Rvec))    call mma_deallocate(ISR%Rvec)
+  call mma_deallocate(ISR%Rvec,safe='*')
 
   !! Not quite safe for unequally weighted SA-RASSCF...
   if (.not.InvSCF) then
-    if (allocated(ISR%Ap))    call mma_deallocate(ISR%Ap)
-!   if (allocated(ISR%p))     call mma_deallocate(ISR%p) ! deallocated in ISR_final2
-    if (allocated(ISR%prec))  call mma_deallocate(ISR%prec)
-    if (allocated(ISR%Xvec))  call mma_deallocate(ISR%Xvec)
+    call mma_deallocate(ISR%Ap,safe='*')
+!   call mma_deallocate(ISR%p,safe='*') ! deallocated in ISR_final2
+    call mma_deallocate(ISR%prec,safe='*')
+    call mma_deallocate(ISR%Xvec,safe='*')
   end if
 
   if (CGS) then
-    if (allocated(ISR%Pvec))  call mma_deallocate(ISR%Pvec)
-    if (allocated(ISR%Qvec))  call mma_deallocate(ISR%Qvec)
-    if (allocated(ISR%Uvec))  call mma_deallocate(ISR%Uvec)
-    if (allocated(ISR%R0))    call mma_deallocate(ISR%R0)
+    call mma_deallocate(ISR%Pvec,safe='*')
+    call mma_deallocate(ISR%Qvec,safe='*')
+    call mma_deallocate(ISR%Uvec,safe='*')
+    call mma_deallocate(ISR%R0,safe='*')
   end if
 
   End Subroutine ISR_final
@@ -206,7 +206,7 @@ contains
 
   implicit none
 
-  if (.not.InvSCF .and. allocated(ISR%p)) call mma_deallocate(ISR%p)
+  if (.not.InvSCF) call mma_deallocate(ISR%p,safe='*')
 
   End Subroutine ISR_final2
 !

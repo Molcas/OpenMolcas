@@ -208,27 +208,27 @@ contains
 
   !! nullify the pointer
 
-  if (allocated(PCMSCFAO)) call mma_deallocate(PCMSCFAO)
-  if (allocated(PCMSSAO))  call mma_deallocate(PCMSSAO)
+  call mma_deallocate(PCMSCFAO,safe='*')
+  call mma_deallocate(PCMSSAO,safe='*')
 
-  if (allocated(PCMSCFMO)) call mma_deallocate(PCMSCFMO)
-  if (allocated(PCMSSMO))  call mma_deallocate(PCMSSMO)
-  if (allocated(PCMSSMOori)) call mma_deallocate(PCMSSMOori)
-  if (allocated(PCMPT2MO)) call mma_deallocate(PCMPT2MO)
+  call mma_deallocate(PCMSCFMO,safe='*')
+  call mma_deallocate(PCMSSMO,safe='*')
+  call mma_deallocate(PCMSSMOori,safe='*')
+  call mma_deallocate(PCMPT2MO,safe='*')
 
-  if (allocated(DSCFMO))   call mma_deallocate(DSCFMO)
-  if (allocated(DSSMO))    call mma_deallocate(DSSMO)
+  call mma_deallocate(DSCFMO,safe='*')
+  call mma_deallocate(DSSMO,safe='*')
 
-  if (allocated(DSCFAO))   call mma_deallocate(DSCFAO)
-  if (allocated(DSSAO))    call mma_deallocate(DSSAO)
+  call mma_deallocate(DSCFAO,safe='*')
+  call mma_deallocate(DSSAO,safe='*')
 
-  if (allocated(DZMO))     call mma_deallocate(DZMO)
-  if (allocated(DZACTMO))  call mma_deallocate(DZACTMO)
-  if (allocated(DZAO))     call mma_deallocate(DZAO)
-  if (allocated(PCMZMO))   call mma_deallocate(PCMZMO)
-  if (allocated(PCMZAO))   call mma_deallocate(PCMZAO)
+  call mma_deallocate(DZMO,safe='*')
+  call mma_deallocate(DZACTMO,safe='*')
+  call mma_deallocate(DZAO,safe='*')
+  call mma_deallocate(PCMZMO,safe='*')
+  call mma_deallocate(PCMZAO,safe='*')
 
-! if (allocated(W_SOLV))   call mma_deallocate(W_SOLV)
+! call mma_deallocate(W_SOLV,safe='*')
   call DWSol_final()
 
   End Subroutine PCM_grad_final
@@ -322,9 +322,9 @@ contains
 
   call dcopy_(ntBsqr*3,PCMSSMO,1,PCMSSMOori,1)
 
-  if (allocated(Htmp)) Call mma_deallocate(Htmp)
-  if (allocated(Gtmp)) Call mma_deallocate(Gtmp)
-  if (allocated(D1ao)) Call mma_deallocate(D1ao)
+  Call mma_deallocate(Htmp,safe='*')
+  Call mma_deallocate(Gtmp,safe='*')
+  Call mma_deallocate(D1ao,safe='*')
 
   End Subroutine PrepPCM
 !
@@ -387,9 +387,9 @@ contains
   call tcmo(PCMMO(1,2),1,1)
   call tcmo(PCMMO(1,3),1,1)
 
-  if (allocated(Htmp)) Call mma_deallocate(Htmp)
-  if (allocated(Gtmp)) Call mma_deallocate(Gtmp)
-  if (allocated(D1ao)) Call mma_deallocate(D1ao)
+  Call mma_deallocate(Htmp,safe='*')
+  Call mma_deallocate(Gtmp,safe='*')
+  Call mma_deallocate(D1ao,safe='*')
 
   return
 
@@ -585,9 +585,9 @@ contains
   call tcmo(vintMO(1,2),1,1)
   call tcmo(vintMO(1,3),1,1)
 
-  if (allocated(Htmp)) Call mma_deallocate(Htmp)
-  if (allocated(Gtmp)) Call mma_deallocate(Gtmp)
-  if (allocated(D1ao)) Call mma_deallocate(D1ao)
+  Call mma_deallocate(Htmp,safe='*')
+  Call mma_deallocate(Gtmp,safe='*')
+  Call mma_deallocate(D1ao,safe='*')
 
   Return
 

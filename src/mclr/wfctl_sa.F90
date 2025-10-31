@@ -239,7 +239,7 @@ else
     else
       call RHS_SA(Temp3,SLag,ipS2)
     end if
-    if (allocated(SLag)) call mma_deallocate(SLag)
+    call mma_deallocate(SLag,safe='*')
 
     ! Add implicit CI derivative contributions (if evaluated in rhs_sa/nac)
     ! due to the non-iterative internal state rotations
