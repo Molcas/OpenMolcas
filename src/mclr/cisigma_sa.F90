@@ -105,7 +105,7 @@ if (.not. page) then
   call ipin(ipci2)
   do i=1,nroots
     if (weight(i) == Zero) then
-       call dcopy_(nCSF(iCSM),[Zero],0,W(ipci2)%A(1+(i-1)*ncsf(issm)),1)
+       call dcopy_(nCSF(iSSM),[Zero],0,W(ipci2)%A(1+(i-1)*ncsf(issm)),1)
        cycle
     end if
     CIDET(1:nCSF(iCSM)) = W(ipCI1)%A((i-1)*ncsf(icsm)+1:i*ncsf(icsm))
