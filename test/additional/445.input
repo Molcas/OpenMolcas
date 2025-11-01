@@ -1,11 +1,15 @@
 *-------------------------------------------------------------------------------
-* Molecule: CH2-NH2+
-* Basis: 6-31G
-* Symmetry: C1
+* Molecule: 1,3-butadiene
+* Basis: ANO-S-VDZ
+* Symmetry: C2v and C1
 * Features tested: CASSCF and XMS-CASPT2 analytic gradients with unequal weight
 * Responsible person: Yoshio Nishimoto
 * Comments: CASSCF and XMS-CASPT2 analytic gradients with unequal weight
 *           Conjugate gradient squared method is employed
+*-------------------------------------------------------------------------------
+
+*-------------------------------------------------------------------------------
+* CASSCF S0 gradients of 1,3-butadiene (C2v symmetry without RI/CD)
 *-------------------------------------------------------------------------------
 
 &GATEWAY
@@ -45,6 +49,10 @@
 
 &ALASKA
 
+*-------------------------------------------------------------------------------
+* CASSCF S1 gradients of 1,3-butadiene with RI/CD
+*-------------------------------------------------------------------------------
+
 &GATEWAY
   Coord
   10
@@ -68,10 +76,6 @@
 
 &SEWARD
 
-*-------------------------------------------------------------------------------
-* CASSCF S0 gradients of methaniminium
-*-------------------------------------------------------------------------------
-
 &RASSCF
   SPIN        = 1
   NACTel      = 4
@@ -88,7 +92,7 @@
 &ALASKA
 
 *-------------------------------------------------------------------------------
-* XMS-CASPT2 S0 gradients of methaniminium
+* XMS-CASPT2 S4 gradients of 1,3-butadiene with RI/CD
 *-------------------------------------------------------------------------------
 
 &CASPT2
