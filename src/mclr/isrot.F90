@@ -80,6 +80,10 @@ Module ISRotation
   ! density matrix. If .not.InvSCF, InvSol is always false, but the
   ! converse may not be true.
   logical(kind=iwp) :: InvSol = .true.
+  ! Whether state rotations are scaled with the weight factor.
+  ! This option should not affect the computed results but I'm not sure.
+  ! Purely development purpose
+  logical(kind=iwp) :: ScalWeight = .false.
 
   type ISR_param
     real(kind=wp), Allocatable :: Ap(:,:)   ! results of A*p
@@ -279,7 +283,7 @@ contains
 !
   Subroutine ISR_TimesE2(MODE,CI,CIDER)
 
-  use input_mclr, only: ERASSCF, ncsf, nRoots, State_Sym
+  use input_mclr, only: ERASSCF, ncsf, nRoots, State_Sym, Weight
 
 ! use DWSol, only: DWSCF, DWSol_Der
 
@@ -307,16 +311,20 @@ unused_var(mode)
       do j = 1, i-1
         scal = Zero
         if (IntRotOff) then
+          !! Note that CIDER has been multiplied by Weight or W_SOLV
           scal = DDot_(ncsf(State_Sym),CI(1,i),1,CIDER(1,j),1) &
                - DDot_(ncsf(State_Sym),CI(1,j),1,CIDER(1,i),1)
         end if
-        ISR%Ap(i,j) = ISR%Ap(i,j) + scal + (ERASSCF(i)-ERASSCF(j))*ISR%p(i,j)*Two*fact
+        if (ScalWeight .and. abs(Weight(i)-Weight(j)) > 1.0e-09_wp) then
+          ISR%Ap(i,j) = ISR%Ap(i,j) + scal + (ERASSCF(i)-ERASSCF(j))*ISR%p(i,j)*Two*fact*(Weight(i)-Weight(j))
+        else
+          ISR%Ap(i,j) = ISR%Ap(i,j) + scal + (ERASSCF(i)-ERASSCF(j))*ISR%p(i,j)*Two*fact
+        end if
       end do
       !! The diagonal contribution is for dynamically weighted methods
       ISR%Ap(i,i) = ISR%Ap(i,i) + ISR%p(i,i)*fact
     end do
   end if
-! call sqprt(isr%ap,nroots)
 
   !! Derivative of H for DW-MCSCF is evaluated with CI derivatives
   !! DW solvation is evaluated in DWder_MCLR
@@ -355,7 +363,7 @@ unused_var(mode)
 !
   Subroutine DMInvISR(ISRotIn,ISRotOut)
 
-  use input_mclr, only: ERASSCF, nRoots
+  use input_mclr, only: ERASSCF, nRoots, Weight
 
   implicit none
 
@@ -363,13 +371,26 @@ unused_var(mode)
   real(kind=wp), intent(inout) :: ISRotOut(nRoots,nRoots)
 
   integer(kind=iwp) :: i,j
+  logical(kind=iwp) :: Edeg, Wdeg
 !
 ! diagonal preconditioning for the internal state rotation Hessian
 !
   do i = 1, nRoots
     do j = 1, i-1
-        ! How to avoid the zero divsion for degenerated states?
+      Edeg = .false.
+      if (abs(ERASSCF(i)-ERASSCF(j)) < 1.0e-09_wp) Edeg = .true.
+      Wdeg = .false.
+      if (ScalWeight .and. abs(Weight(i)-Weight(j)) < 1.0e-09_wp) Wdeg = .true.
+      ! How to avoid the zero divsion for degenerated states?
+      if (Edeg .and. Wdeg) then
+        ISRotOut(i,j) = +Half*ISRotIn(i,j)
+      else if (Wdeg .or. .not.ScalWeight) then
         ISRotOut(i,j) = +Half*ISRotIn(i,j)/(ERASSCF(i)-ERASSCF(j))
+      else if (Edeg .and. ScalWeight) then
+        ISRotOut(i,j) = +Half*ISRotIn(i,j)/(Weight(i)-Weight(j))
+      else
+        ISRotOut(i,j) = +Half*ISRotIn(i,j)/((ERASSCF(i)-ERASSCF(j))*(Weight(i)-Weight(j)))
+      end if
     end do
     ISRotOut(i,i) = ISRotIn(i,i)
   end do

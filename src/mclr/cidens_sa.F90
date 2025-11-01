@@ -21,7 +21,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 use pcm_grad, only: do_RF, DZACTMO, iStpPCM
-use ISRotation, only: InvSCF, ISR
+use ISRotation, only: InvSCF, ISR, ScalWeight
 
 #include "intent.fh"
 
@@ -30,6 +30,7 @@ logical(kind=iwp), intent(in) :: RSP
 integer(kind=iwp), intent(in) :: iLS, iRS, iL, iR
 real(kind=wp), intent(_OUT_) :: rP(*), rD(*)
 integer(kind=iwp) :: i, IA, ij1, ij2, j, JA, KA, kl1, kl2, LA, nConfL, nConfR, nDim
+real(kind=wp) :: scal
 real(kind=wp), allocatable :: De(:), Pe(:), CIL(:), CIR(:)
 
 ! LS = CI
@@ -134,7 +135,9 @@ do i=1,nroots
       call opout(iRS)
     end if
     do j = 1, i
-      if (abs(ISR%p(i,j)).le.1.0e-10_wp) cycle
+      scal = ISR%p(i,j)
+      if (ScalWeight .and. abs(Weight(i)-Weight(j)) > 1.0e-09_wp) scal = scal*(Weight(i)-Weight(j))
+      if (abs(scal).le.1.0e-10_wp) cycle
       if (iStpPCM==2) then
         call ipin(iLS)
         Call CSF2SD(W(iLS)%A(1+(j-1)*ncsf(il)),CIR,iL)
@@ -148,8 +151,8 @@ do i=1,nroots
       icsm=iR
       issm=iL
       Call Densi2_MCLR(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
-      call dscal_(n1dens,ISR%p(i,j),De,1)
-      call dscal_(n2dens,ISR%p(i,j),Pe,1)
+      De(1:n1dens) = scal*De(1:n1dens)
+      Pe(1:n2dens) = scal*Pe(1:n2dens)
       If (RSP) Then
          Do iA=1,nnA
            Do jA=1,nnA
@@ -172,8 +175,8 @@ do i=1,nroots
             End Do
          End Do
       Else
-         call daxpy_(n2dens,One,Pe,1,rp,1)
-         call daxpy_(n1dens,One,De,1,rD,1)
+         rp(1:n2dens) = rp(1:n2dens) + Pe(1:n2dens)
+         rD(1:n1dens) = rD(1:n1dens) + De(1:n1dens)
       End If
     end do
   end if
