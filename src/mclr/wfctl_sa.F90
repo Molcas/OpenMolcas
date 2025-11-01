@@ -263,7 +263,7 @@ else
     iRHSDisp(iDisp) = iDis
     call Compress(Temp3,Sigma,iSym)
     r1 = ddot_(nDensC,Sigma,1,Sigma,1)
-    if (PT2) R1 = R1+DDot_(nConf1*nRoots,W(ipST)%A,1,W(ipST)%A,1)
+    if (PT2 .or. do_RF) R1 = R1+DDot_(nConf1*nRoots,W(ipST)%A,1,W(ipST)%A,1)
     if (debug) write(u6,*) 'Hi how about r1',r1
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
