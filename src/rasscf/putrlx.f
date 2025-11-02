@@ -38,6 +38,7 @@
       Real*8, Allocatable:: DA(:), DA_ave(:), DI(:), DSX(:), DS_ave(:),
      &                      DX(:), F(:), B(:), Q(:), FA(:), FI(:),
      &                      PUVX(:), TUVX(:), PX(:), WRK1(:), WRK2(:)
+      Logical, external :: PCM_On
 
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -184,8 +185,9 @@
       ! DA constructed above is the density for the RLXROOT state.
       ! We should reconstruct the AO density matrix to prevent the
       ! mismatch of states for reaction field and geometry optimization
-      if (lRF .and. (IPCMROOT /=iRLXROOT .or. IPCMROOT <= 0
-     *          .or. DWSolv%DWZeta /= 0.0d+00)) then
+      ! It seems that IPCMROOT may not be defined sometimes
+      if (lRF .and. PCM_On() .and. (IPCMROOT /= iRLXROOT .or.
+     *    IPCMROOT <= 0 .or. DWSolv%DWZeta /= 0.0d+00)) then
         !! Polarize PCM etc with weighted density
         Call mma_allocate(DA_ave,MAX(NACPAR,NZ),Label='DA_ave')
         Call mma_allocate(DS_ave,MAX(NACPAR,NZ),Label='DS_ave')
@@ -243,8 +245,8 @@
       iTmp=newfock
       newFock=-99999
 *
-      if (lRF .and. (IPCMROOT /=iRLXROOT .or. IPCMROOT <= 0
-     *          .or. DWSolv%DWZeta /= 0.0d+00)) then
+      if (lRF .and. PCM_On() .and. (IPCMROOT /= iRLXROOT .or.
+     *    IPCMROOT <= 0 .or. DWSolv%DWZeta /= 0.0d+00)) then
         ! The rest of the RASSCF program uses state-specific density
         ! (note that, it is iRlxRoot!), so restore the one constructed
         ! above, before TraCtl2
