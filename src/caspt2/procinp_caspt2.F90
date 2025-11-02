@@ -701,12 +701,14 @@ subroutine procinp_caspt2
     if_SSDM = .true.
   end if
 
-  !! Check if unequal-weighted MCSCF or not
-  if (if_SSDM) if_equalW = .false.
-  do I = 2, NSTATE
-    if (Weight(1).ne.Weight(I)) if_equalW = .false.
-  end do
-  if (.not.if_equalW) if_SSDM = .true.
+  !! Check if unequal-weighted MCSCF or not. Used only for gradients.
+  if (do_grad) then
+    if (if_SSDM) if_equalW = .false.
+    do I = 2, nRoots
+      if (Weight(1).ne.Weight(I)) if_equalW = .false.
+    end do
+    if (.not.if_equalW) if_SSDM = .true.
+  end if
 
   !! issue #448
   if ((IFDENS .and. .not.do_grad) .and. NRAS1T+NRAS3T>0) then
