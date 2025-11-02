@@ -113,7 +113,7 @@ if (lSA) then
 
   !! The first Cmbn_EF_DPnt will compute (V^N+V^SA)*q^SS, so computes the ESP with D^SA,
   !! and q^SS and q^SA should be swapped
-  call dcopy_(nDens,DSA_AO,1,D1ao,1)
+  D1ao(1:nDens) = DSA_AO(1:nDens)
   call dswap_(2*nTS,PCM_SQ,1,PCM_SQ_ind,1)
   tmpchg(:) = PCM_SQ(1,:)
   PCM_SQ(1,:) = Zero ! we do not need q^N here
@@ -156,7 +156,7 @@ if (lSA) then
   if (.not.isNAC) then
     EF(:,:,:) = Zero
     ! -V^SA*q^{e,SA}/2 term (= -V^SA*q^SA; should be omitted for NAC)
-    call dcopy_(nDens,DSA_AO,1,D1ao,1)
+    D1ao(1:nDens) = DSA_AO(1:nDens)
     call Drv1_PCM(FactOp,nTs,D1ao,nDens,PCMTess,lOper,EF,nOrdOp)
     EF(:,:,:) = -EF(:,:,:)
 

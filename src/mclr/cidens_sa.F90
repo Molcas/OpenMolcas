@@ -137,12 +137,12 @@ do i=1,nroots
     do j = 1, i
       scal = ISR%p(i,j)
       if (ScalWeight .and. abs(Weight(i)-Weight(j)) > 1.0e-09_wp) scal = scal*(Weight(i)-Weight(j))
-      if (abs(scal).le.1.0e-10_wp) cycle
-      if (iStpPCM==2) then
+      if (abs(scal) <= 1.0e-10_wp) cycle
+      if (iStpPCM == 2) then
         call ipin(iLS)
         Call CSF2SD(W(iLS)%A(1+(j-1)*ncsf(il)),CIR,iL)
         call opout(iLS)
-      else if (iStpPCM==3) then
+      else if (iStpPCM == 3) then
         call ipin(iRS)
         Call CSF2SD(W(iRS)%A(1+(j-1)*ncsf(ir)),CIR,iR)
         call opout(iRS)
@@ -162,7 +162,7 @@ do i=1,nroots
                ij2=nna*(ja-1)+ia
                kl1=nnA*(ka-1)+la
                kl2=nna*(la-1)+ka
-               if (ij1.ge.kl1) rp(itri(ij1,kl1))=rp(itri(ij1,kl1))+Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
+               if (ij1 >= kl1) rp(itri(ij1,kl1))=rp(itri(ij1,kl1))+Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
               End Do
              End Do
            End Do

@@ -71,8 +71,8 @@ Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
 iCharge = int(Tot_Charge)
 call DecideOnESPF(Do_ESPF)
 If (RF_On()) iCharge_PCM = iCharge
-if (Do_ESPF .or. (lRF.and.iStpPCM==1)) then
-  if (lRF .and. .not.(SA.or.PT2)) then
+if (Do_ESPF .or. (lRF .and. iStpPCM == 1)) then
+  if (lRF .and. .not.(SA .or. PT2)) then
     write(u6,*) 'Sorry, MCLR+RF NYI'
     call Quit_OnUserError()
   end if

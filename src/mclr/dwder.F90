@@ -60,15 +60,14 @@
 
     OMGDER = Zero
     Do iS=1,nSym
-      If (nAsh(iS).gt.0) Then
+      If (nAsh(iS) > 0) Then
         jS=iEOr(is-1,iDSym-1)+1
         Do iA=1,nAsh(is)
           Do jA=1,nAsh(js)
             ij1 = itri(ia,ja)
             ip1=nIsh(iS)+iA-1 + nBas(jS)*(nIsh(js)+jA-1)+ipCM(is)
-!           write (*,*) dercont(ip1),G1q(max(iA,jA)*(max(iA,jA)-1)/2+min(iA,jA))
             OMGDER = OMGDER + der1(ip1)*G1q(ij1)
-            if (mode==1) then
+            if (mode == 1) then
               !! DW-MCSCF
               Do kA=1,nAsh(is)
                 Do lA=1,nAsh(js)
@@ -76,8 +75,8 @@
                   !! dimension of rmoaa is itri(nnA**2,nnA**2), but the actual array is similar to G2q
                   !! dimension of G2q  : itri(itri(nnA,nnA),itri(nnA,nnA))
                   scal=One
-                  if(ij1.ge.kl1 .and. kA.eq.lA) scal=Two
-                  if(ij1.lt.kl1 .and. iA.eq.jA) scal=Two
+                  if(ij1 >= kl1 .and. kA == lA) scal=Two
+                  if(ij1 <  kl1 .and. iA == jA) scal=Two
                   OMGDER = OMGDER + scal*der2(itri(ij1,kl1))*G2q(itri(ij1,kl1))*Half
                 end do
               end do
@@ -87,7 +86,6 @@
       End If
     End Do
     DEROMG(j) = OMGDER
-!   write (*,*) j,omgder
   End Do
 
   call mma_allocate(DERHII,nRoots,Label='DERHII')

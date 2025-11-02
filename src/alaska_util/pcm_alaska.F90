@@ -47,10 +47,10 @@ Module PCM_alaska
 
   Call Get_cArray('Relax Method',Method,8)
   lSA=.false.
-  if (Method=='CASSCFSA' .or. Method=='DMRGSCFS' .or. Method=='GASSCFSA' .or. &
-      Method=='RASSCFSA' .or. Method=='CASPT2  ') then
+  if (Method == 'CASSCFSA' .or. Method == 'DMRGSCFS' .or. Method == 'GASSCFSA' .or. &
+      Method == 'RASSCFSA' .or. Method == 'CASPT2  ') then
     Call Get_iScalar('SA ready',iGo)
-    if (iGO==1) lSA=.true.
+    if (iGO == 1) lSA=.true.
   end if
 
   if (.not.PCM) return
@@ -106,9 +106,9 @@ Module PCM_alaska
   if (.not.PCM) return
   if (.not.lSA) return
 
-  if (allocated(PCM_SQ_ind)) call mma_deallocate(PCM_SQ_ind)
-  if (allocated(PCMO))       call mma_deallocate(PCMO)
-  if (allocated(DSA_AO))     call mma_deallocate(DSA_AO)
+  call mma_deallocate(PCM_SQ_ind,safe='*')
+  call mma_deallocate(PCMO,safe='*')
+  call mma_deallocate(DSA_AO,safe='*')
 
   return
 
@@ -189,9 +189,9 @@ Module PCM_alaska
   iCharge=Int(Tot_Charge)
   Call DrvRF(h1,TwoHam,DSA_AO,RepNuc,nDens,First,Dff,NonEq,iCharge)
 
-  if (allocated(Dtmp))   call mma_deallocate(Dtmp)
-  if (allocated(h1))     call mma_deallocate(h1)
-  if (allocated(TwoHam)) call mma_deallocate(TwoHam)
+  call mma_deallocate(Dtmp,safe='*')
+  call mma_deallocate(h1,safe='*')
+  call mma_deallocate(TwoHam,safe='*')
 
   End Subroutine PCM_alaska_prep
 

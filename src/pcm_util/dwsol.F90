@@ -97,7 +97,7 @@ Subroutine DWSol_init(IPCMROOT_,nRoots_,NonEq_)
   W_SOLV(:) = Zero
 
   call qpg_dArray('SolventWeight',Found,mData)
-  if (Found .and. mData/=0) then
+  if (Found .and. mData /= 0) then
     if (mData /= nRoots) then
       call warningMessage(1,'The number of roots specified by FIXRFROOT/DWROOT and CIROOT may be inconsistent.')
     end if
@@ -143,9 +143,9 @@ Subroutine DWSCF_init(mode,nRoots_)
 
   nRoots    = nRoots_
 
-  if (mode==1) then
+  if (mode == 1) then
     !! call from RASSCF, nothing is done
-  else if (mode==2) then
+  else if (mode == 2) then
     !! call from MCLR, read from RunFile(?)
     Call Get_iScalar('DWTypeSCF',idum)
     Call Get_dScalar('DWZetaSCF',rdum)
@@ -239,7 +239,7 @@ Subroutine DWSol_DWRO(LuInput,nRoots_,iall)
   Call Put_dArray('SolventWeight',W_local,nRoots_)
 
   ! Set IPCMROOT
-  if (iall==1) then
+  if (iall == 1) then
     nRoots_ = 0
   else
     nRoots_ = MAXLOC(W_local(1:nRoots_),1)
@@ -274,7 +274,7 @@ Subroutine DWSol_final()
 
   implicit none
 
-  if (allocated(W_SOLV)) call mma_deallocate(W_SOLV)
+  call mma_deallocate(W_SOLV,safe='*')
 
 End Subroutine DWSol_final
 !
@@ -371,9 +371,9 @@ Function DWSol_func(xx,DWlocal)
     DWSol_func = cosh(xx/DWlocal%DWZeta)**2
   else if (DWlocal%DWType == 0) then
     !! new (?) DW-CASSCF: J. Chem. Phys. 141, 171102 (2014)
-    if (xx.le.Zero) then
+    if (xx <= Zero) then
       DWSol_func = One/nRoots
-    else if (xx.le.DWlocal%DWZeta) then
+    else if (xx <= DWlocal%DWZeta) then
       DWSol_func = One &
                  - Three*(xx/DWlocal%DWZeta)**2 &
                  + Two*(xx/DWlocal%DWZeta)**3
@@ -455,9 +455,9 @@ Subroutine DWSol_der(mode,DEROMG,DERHII,ENER,weight)
   Type (type_DW), pointer :: DWlocal
 
   !! DW-MCSCF
-  if (mode==1) DWlocal => DWSCF
+  if (mode == 1) DWlocal => DWSCF
   !! DW solvation
-  if (mode==2) DWlocal => DWSolv
+  if (mode == 2) DWlocal => DWSolv
 
   DERHII(1:nRoots) = Zero
   if (DWlocal%DWZeta <= Zero) return
@@ -465,9 +465,9 @@ Subroutine DWSol_der(mode,DEROMG,DERHII,ENER,weight)
   call mma_allocate(W_local,nRoots,Label='W_local')
 
   !! DW-MCSCF
-  if (mode==1) W_local(1:nRoots) = weight(1:nRoots)
+  if (mode == 1) W_local(1:nRoots) = weight(1:nRoots)
   !! DW solvation
-  if (mode==2) W_local(1:nRoots) = W_SOLV(1:nRoots)
+  if (mode == 2) W_local(1:nRoots) = W_SOLV(1:nRoots)
 
   i = DWlocal%DWRoot
   Ealpha = ENER(i)

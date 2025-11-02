@@ -126,7 +126,7 @@ contains
   if (PT2 .and. nRoots > 0) InvEne = .false.
   if (do_RF_ .and. def_solv /= 3) InvEne = .false.
   do iR = 2, nRoots
-    if (weight(1).ne.weight(iR)) then
+    if (weight(1) /= weight(iR)) then
       unequal_SA = .true.
       InvSCF = .false.
       if (do_RF_ .and. def_solv == 3) InvEne = .false.
@@ -334,7 +334,7 @@ unused_var(mode)
 !   if (IntRotOff) then
 !     do i = 1, nRoots
 !       ! CIDER has been scaled with the weight in cisigma_sa
-!       if (weight(i).ge.1.0e-08_wp) then
+!       if (weight(i) >= 1.0e-08_wp) then
 !         DEROMG(i) = DDot_(ncsf(State_Sym),CI(1,i),1,CIDER(1,i),1)/weight(i)
 !       else
 !         DEROMG(i) = Zero !! under consideration

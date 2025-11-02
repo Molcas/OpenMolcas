@@ -272,7 +272,7 @@ else
       if (CI) then
         ! precondition (z0 = M^{-1}*r0)
         if (CGS) then
-          Call dcopy_(nConf1*nRoots,W(ipST)%A,1,W(ipS2)%A,1)
+          W(ipS2)%A(1:nConf1*nRoots) = W(ipST)%A(1:nConf1*nRoots)
         else
           call DMinvCI_sa(ipST,W(ipS2)%A,fancy)
         end if
@@ -295,7 +295,7 @@ else
     iter = 1
     call ipIn(ipPre2)
     if (CGS) then
-      call dcopy_(nDensC,Sigma,1,Kappa,1)
+      Kappa(1:nDensC) = Sigma(1:nDensC)
     else
       call DMInvKap(W(ipPre2)%A,iPre,Sigma,Kappa,Temp3,isym,iter)
     end if
