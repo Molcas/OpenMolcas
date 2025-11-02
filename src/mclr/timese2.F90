@@ -18,7 +18,7 @@ use MCLR_Data, only: n2Dens, nConf1, nDens, nDensC, ipCI
 use input_mclr, only: nAsh, nRoots, nRS2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 use PCM_grad, only: do_RF, PCM_grad_TimesE2
@@ -54,7 +54,7 @@ call Ci_Ci(ipcid,ipS2)
 call CI_KAP(ipCid,Sc1,Sc3,isym)
 
 if (do_RF) then
-  Call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCIOUT)%A,1)
+  W(ipCIOUT)%A(1:nConf1*nRoots) = W(ipCIOUT)%A(1:nConf1*nRoots) + W(ipS2)%A(1:nConf1*nRoots)
   ! ipS2 is overwritten
   Call Uncompress(Kap,Sc1,isym)
   call PCM_grad_TimesE2(isym,Sc1,Sc3,ipS2)
