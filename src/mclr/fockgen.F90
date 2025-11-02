@@ -235,13 +235,13 @@ end if
 ! the implicit contributions are added in PCM_grad_TimesE2
 ! iStpPCM = 1   : derivative of the energy
 ! iStpPCM = 2,3 : derivative of the eigenstate (eigenenergy)
-if (do_RF .and. iStpPCM==1) then
+if (do_RF .and. iStpPCM == 1) then
   if (PT2_solv) PCMSSMO(:,3) = PCMSSMO(:,3) + PCMPT2MO(:,3)
 
   ! Compute V(rDens1) -> PCMRESMO
   ! rDens1 (MO) -> rDens1 (AO)
   Do iS=1,nSym
-    If (nBas(iS).gt.0) Then
+    If (nBas(iS) > 0) Then
       jS=iEOr(is-1,iDSym-1)+1
       Do iA=1,nAsh(is)
         Do jA=1,nAsh(js)
@@ -249,10 +249,10 @@ if (do_RF .and. iStpPCM==1) then
           ip2=nBas(iS)*(nIsh(js)+jA-1) +ipmat(is,js)
           !! implicit D^SS*V(e,SCF)
           rd=DSCFMO(iA+nA(iS),jA+nA(js))
-          Call DaXpY_(nBas(iS),+Rd,PCMSSMO(ip1,3),1,Fock(ip2),1)
+          Fock(ip2:ip2+nBas(iS)-1) = Fock(ip2:ip2+nBas(iS)-1)+Rd*PCMSSMO(ip1:ip1+nBas(iS)-1,3)
           !! explicit and implicit D^SA*V(e,SA)/2
           if (.not.isNAC) then
-          Call DaXpY_(nBas(iS),-Rd,PCMSCFMO(ip1,3),1,Fock(ip2),1)
+          Fock(ip2:ip2+nBas(iS)-1) = Fock(ip2:ip2+nBas(iS)-1)-Rd*PCMSCFMO(ip1:ip1+nBas(iS)-1,3)
           end if
         End Do
       End Do
@@ -262,13 +262,15 @@ if (do_RF .and. iStpPCM==1) then
   ! inactive
   ! explicit derivative for NAC should be with d_0,
   ! but implicit contributions should not be scaled
-  If (iDsym.eq.1) Then
+  If (iDsym == 1) Then
     Do iS=1,nSym
-      If (nBas(iS)*nIsh(iS).gt.0) then
+      If (nBas(iS)*nIsh(iS) > 0) then
         !! implicit D^SS*V(e,SCF)
-        Call DaXpY_(nBas(iS)*nIsh(is),+Two,PCMSSMO(ipMat(is,is),3),1,Fock(ipMat(is,is)),1)
+        Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) = Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) &
+                                                            + Two*PCMSSMO(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1,3)
         !! explicit + implicit erfx
-        Call DaXpY_(nBas(iS)*nIsh(is),-Two*d_0,PCMSCFMO(ipMat(is,is),3),1,Fock(ipMat(is,is)),1)
+        Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) = Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) &
+                                                            - Two*d_0*PCMSCFMO(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1,3)
       End If
     End Do
   End If
