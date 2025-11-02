@@ -21,7 +21,6 @@
   use ipPage, only: ipIn, opOut, W
   use ISRotation, only: DMInvISR, InvSCF, ISR
   use cgs_mod, only: CGSvec, PCGS
-  use Constants, only: One
 
   implicit none
 
@@ -78,15 +77,13 @@
 
   ! Algorithm 4: q_k = u_k - alpha*(A*K-1*p)
   ! Algorithm 5: q_k = u_k - alpha*(K-1*A*p)
-  call dcopy_(nDensC,CGSvec%Uvec,1,CGSvec%Qvec,1)
-  call daxpy_(nDensC,-ralpha,Temp4,1,CGSvec%Qvec,1)
-  call dcopy_(nConf1*nRoots,W(CGSvec%ipUvec)%A,1,W(CGSvec%ipQvec)%A,1)
-  call daxpy_(nConf1*nRoots,-ralpha,W(ipS1)%A,1,W(CGSvec%ipQvec)%A,1)
+  CGSvec%Qvec(1:nDensC) = CGSvec%Uvec(1:nDensC) - ralpha*Temp4(1:nDenSC)
+  W(CGSvec%ipQvec)%A(1:nConf1*nRoots) = W(CGSvec%ipUvec)%A(1:nConf1*nRoots) - ralpha*W(ipS1)%A(1:nConf1*nRoots)
   if (.not.InvSCF) ISR%Qvec(:,:) = ISR%Uvec(:,:) - ralpha*ISR%Ap(:,:)
 
   !! construct u = u + q
-  call daxpy_(nDensC,+One,CGSvec%Qvec,1,CGSvec%Uvec,1)
-  call daxpy_(nConf1*nRoots,+One,W(CGSvec%ipQvec)%A,1,W(CGSvec%ipUvec)%A,1)
+  CGSvec%Uvec(1:nDensC) = CGSvec%Uvec(1:nDensC) + CGSvec%Qvec(1:nDensC)
+  W(CGSvec%ipUvec)%A(1:nConf1*nRoots) = W(CGSvec%ipUvec)%A(1:nConf1*nRoots) + W(CGSvec%ipQvec)%A(1:nConf1*nRoots)
   if (.not.InvSCF) ISR%Uvec(:,:) = ISR%Uvec(:,:) + ISR%Qvec(:,:)
 
   if (PCGS == 4) then
@@ -103,16 +100,16 @@
     if (.not.InvSCF) Call DMInvISR(ISR%Uvec,ISR%p)
 
     !! x_k+1 = x_k + alpha*K-1*(u+q)
-    call daxpy_(nDensC,+ralpha,dKappa,1,Kappa,1)
-    Call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%A,1,W(ipCIT)%A,1)
+    Kappa(1:nDensC) = Kappa(1:nDensC) + ralpha*dKappa(1:nDensC)
+    W(ipCIT)%A(1:nConf1*nRoots) = W(ipCIT)%A(1:nConf1*nRoots) + ralpha*W(ipCId)%A(1:nConf1*nRoots)
     if (.not.InvSCF) ISR%Xvec(:,:) = ISR%Xvec(:,:) + ralpha*ISR%p(:,:)
 
     !! A*K-1*(u+q)
     Call TimesE2(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
   else if (PCGS == 5) then
     !! x_k+1 = x_k + alpha*(u+q)
-    call daxpy_(nDensC,+ralpha,CGSvec%Uvec,1,Kappa,1)
-    Call DaXpY_(nConf1*nroots,ralpha,W(CGSvec%ipUvec)%A,1,W(ipCIT)%A,1)
+    Kappa(1:nDensC) = Kappa(1:nDensC) + ralpha*CGSvec%Uvec(1:nDensC)
+    W(ipCIT)%A(1:nConf1*nRoots) = W(ipCIT)%A(1:nConf1*nRoots) + ralpha*W(CGSvec%ipUvec)%A(1:nConf1*nRoots)
     if (.not.InvSCF) ISR%Xvec(:,:) = ISR%Xvec(:,:) + ralpha*ISR%Uvec(:,:)
 
     !! A*(u+q)
@@ -137,9 +134,9 @@
   end if
 
   !! r_k+1 = r_k - alpha*A*(u+q)
-  Call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+  Sigma(1:nDensC) = Sigma(1:nDensC) - ralpha*Temp4(1:nDensC)
   resk=sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
-  Call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%A,1,W(ipST)%A,1)
+  W(ipST)%A(1:nConf1*nRoots) = W(ipST)%A(1:nConf1*nRoots) - ralpha*W(ipS1)%A(1:nConf1*nRoots)
   resci=sqrt(ddot_(nconf1*nroots,W(ipST)%A,1,W(ipST)%A,1))
   if (.not.InvSCF) then
     ISR%Rvec(:,:) = ISR%Rvec(:,:) - ralpha*ISR%Ap(:,:)
@@ -154,19 +151,14 @@
   delta=deltac+deltaK
 
   !! u_k = r_k + beta*q
-  call dcopy_(nDensC,Sigma,1,CGSvec%Uvec,1)
-  call daxpy_(nDensC,+rbeta,CGSvec%Qvec,1,CGSvec%Uvec,1)
-  call dcopy_(nConf1*nRoots,W(ipST)%A,1,W(CGSvec%ipUvec)%A,1)
-  Call DaXpY_(nConf1*nroots,+rbeta,W(CGSvec%ipQvec)%A,1,W(CGSvec%ipUvec)%A,1)
+  CGSvec%Uvec(1:nDensC) = Sigma(1:nDensC) + rbeta*CGSvec%Qvec(1:nDensC)
+  W(CGSvec%ipUvec)%A(1:nConf1*nRoots) = W(ipST)%A(1:nConf1*nRoots) + rbeta*W(CGSvec%ipQvec)%A(1:nConf1*nRoots)
   if (.not.InvSCF) ISR%Uvec(:,:) = ISR%Rvec(:,:) + rbeta*ISR%Qvec(:,:)
 
   !! p = u + beta*q + beta*beta*p
-  call dscal_(nDensC,rbeta**2,CGSvec%Pvec,1)
-  call daxpy_(nDensC,+One,CGSvec%Uvec,1,CGSvec%Pvec,1)
-  call daxpy_(nDensC,+rbeta,CGSvec%Qvec,1,CGSvec%Pvec,1)
-  call dscal_(nConf1*nRoots,rbeta**2,W(CGSvec%ipPvec)%A,1)
-  Call DaXpY_(nConf1*nroots,+One,W(CGSvec%ipUvec)%A,1,W(CGSvec%ipPvec)%A,1)
-  Call DaXpY_(nConf1*nroots,+rbeta,W(CGSvec%ipQvec)%A,1,W(CGSvec%ipPvec)%A,1)
+  CGSvec%Pvec(1:nDensC) = CGSvec%Uvec(1:nDensC) + rbeta*CGSvec%Qvec(1:nDensC) + (rbeta**2)*CGSvec%Pvec(1:nDensC)
+  W(CGSvec%ipPvec)%A(1:nConf1*nRoots) = W(CGSvec%ipUvec)%A(1:nConf1*nRoots) &
+    + rbeta*W(CGSvec%ipQvec)%A(1:nConf1*nRoots) + (rbeta**2)*W(CGSvec%ipPvec)%A(1:nConf1*nRoots)
   if (.not.InvSCF) ISR%Pvec(:,:) = ISR%Uvec(:,:) + rbeta*ISR%Qvec(:,:) + rbeta*rbeta*ISR%Pvec(:,:)
 
   End Subroutine CGS_x
