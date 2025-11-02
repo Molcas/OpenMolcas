@@ -1009,7 +1009,7 @@ C
             Call LoadCI_XMS('N',1,CI1,iState,U0)
             call POLY1(CI1,nConf)
             call GETDREF(WRK2,nDRef)
-            wgt = Weight(MSTATE(iState))
+            wgt = Weight(iState)
             Call DaXpY_(nDRef,Wgt,WRK2,1,WRK1,1)
           End Do
           call mma_deallocate(CI1)

@@ -97,7 +97,7 @@
           !! (STINI).
           DREF(:)=0.0D0
           Do K = 1, Nstate
-            wij = Weight(MSTATE(K))
+            wij = Weight(K)
             CALL DAXPY_(SIZE(DREF),wij,DMIX(:,K),1,DREF,1)
           End Do
         Else

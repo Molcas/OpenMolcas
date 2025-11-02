@@ -1842,7 +1842,7 @@ C
           if (force_equal .or. .not.IFSADREF) then
             WGT = 1.0D+00/nState ! force equal-weight for XMS
           else if (IFSADREF) then
-            WGT = Weight(MSTATE(iState)) ! can be unequal weight
+            WGT = Weight(iState) ! can be unequal weight
           else
             WGT = 1.0D+00/nState ! this should not happen...
           end if

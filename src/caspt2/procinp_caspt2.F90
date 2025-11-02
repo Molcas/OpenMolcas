@@ -704,7 +704,7 @@ subroutine procinp_caspt2
   !! Check if unequal-weighted MCSCF or not
   if (if_SSDM) if_equalW = .false.
   do I = 2, NSTATE
-    if (Weight(MSTATE(1)).ne.weight(MSTATE(I))) if_equalW = .false.
+    if (Weight(1).ne.Weight(I)) if_equalW = .false.
   end do
   if (.not.if_equalW) if_SSDM = .true.
 
