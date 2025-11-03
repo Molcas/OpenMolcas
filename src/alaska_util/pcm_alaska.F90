@@ -163,6 +163,8 @@ Module PCM_alaska
   First = .true.
   Dff = .false.
   NonEq = .false.
+  h1(:) = Zero
+  TwoHam(:) = Zero
   Call DrvPCM(h1,TwoHam,Dtmp,RepNuc,nDens,First,Dff,NonEq)
   Call Get_dArray('PCM Charges',PCM_SQ_ind,2*nTs)
 
@@ -170,6 +172,8 @@ Module PCM_alaska
   ! In the conventional implementation, the ASCs are stored in PCM_SQ.
   ! However, the ASCs have been overwritten during MCLR so the correct ASCs are newly computed here.
 
+  h1(:) = Zero
+  TwoHam(:) = Zero
   Call DrvPCM(h1,TwoHam,DSA_AO,RepNuc,nDens,First,Dff,NonEq)
   Call Get_dArray('PCM Charges',PCM_SQ,2*nTs)
 
