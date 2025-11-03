@@ -11,7 +11,7 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug,Gradient,Hessian_diag, Hdiag_small)
+subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug,Gradient,H_diag)
 ! Thomas Bondo Pedersen, December 2005.
 !
 ! Purpose: compute the gradient of the Pipek-Mezey functional.
@@ -23,7 +23,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc), Gradient(nOrb2Loc, nOrb2Loc), &
-    Hessian_diag(nOrb2Loc**2), Hdiag_small(nOrb2Loc*(nOrb2Loc+1)/2)
+    H_diag(nOrb2Loc, nOrb2Loc)
 logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAtom, i,j,k,l,kl
 real(kind=wp) :: Fun, Rjj, Q_ll, Q_kk, Q_kl
@@ -53,32 +53,14 @@ Gradient(:,:)=Four*Gradient(:,:)
 
 !Second derivative for GEK optimization: Later put this into an "if GEK=true" environment
 !Hessian diagonal according to DOI: 10.1002/jcc.23281 equation (17)
-Hessian_diag(:) = Zero
+H_diag(:,:) = Zero
 do iAtom=1,nAtoms
     do k=1,nOrb2Loc
         Q_kk=PA(k,k,iAtom)
         do l=1,nOrb2Loc
             Q_ll=PA(l,l,iAtom)
             Q_kl=PA(k,l,iAtom)
-            kl=nOrb2Loc*(k-1)+l !goes from 1 to nOrb2Loc**2
-            Hessian_diag(kl)=Hessian_diag(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Eight*Q_kl**2
-        end do
-    end do
-end do
-
-!alternative: less calculations, more complicated iteration through Hdiag:
-!then Hdiag(n(n+1)/2) rather than Hdiag(n**2)
-Hdiag_small(:) = Zero
-kl=0
-do iAtom=1,nAtoms
-    do k=1,nOrb2Loc
-        Q_kk=PA(k,k,iAtom)
-        do l=k,nOrb2Loc
-            Q_ll=PA(l,l,iAtom)
-            Q_kl=PA(k,l,iAtom)
-            kl = nOrb2Loc*(k-1) + l - k*(k-1)/2 !goes from 1 to n(n+1)/2
-            !write(u6,*)'k=',k, 'l=',l, 'kl = ', kl
-            Hdiag_small(kl)=Hdiag_small(kl) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Eight*Q_kl**2
+            H_diag(k,l)=H_diag(k,l) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Eight*Q_kl**2
         end do
     end do
 end do
@@ -91,8 +73,7 @@ if (Debug) then
     write(u6,*) 'In GetGrad_PM'
     write(u6,*) '-------------'
     call RecPrt('Gradient',' ',Gradient(:,:), nOrb2Loc, nOrb2Loc)  !this is also printed in the Gradientlist
-    !call RecPrt('Hessian_diag',' ', Hessian_diag(:), nOrb2Loc**2, 1)
-    !call RecPrt('Hdiag_small',' ', Hdiag_small(:), nOrb2Loc*(nOrb2Loc+1)/2, 1)
+    !call RecPrt('H_diag',' ', H_diag(:), nOrb2Loc**2, 1)
 end if
 
 

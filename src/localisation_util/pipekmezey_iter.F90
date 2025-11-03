@@ -32,7 +32,7 @@ logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i,k, iBas
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
-real(kind=wp), allocatable :: RMat(:,:), PACol(:,:), GradientList(:,:,:), HessianList(:,:),Hdiag_smallList(:,:), &
+real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:), GradientList(:,:,:), HessianList(:,:,:), &
                             FunctionalList(:), unitary_mat(:,:), rotated_CMO(:,:)
 
 logical(kind=iwp), parameter :: jacobisweeps = .false.
@@ -55,8 +55,7 @@ call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
 call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
 call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
 FunctionalList(:)=0
-call mma_Allocate(HessianList,nOrb2Loc*nOrb2Loc,nMxIter,Label='HessianList')
-call mma_Allocate(Hdiag_smallList,nOrb2Loc*(nOrb2Loc+1)/2,nMxIter,Label='Hdiag_smallList')
+call mma_Allocate(HessianList,nOrb2Loc,nOrb2Loc,nMxIter,Label='HessianList')
 call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
@@ -65,7 +64,7 @@ call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 FunctionalList(1)=Functional
 !write(u6,*) 'In PM_iter: FunctionalList(1) = ', FunctionalList(1)
 
-call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug, GradientList(:,:,1), HessianList(:,1), Hdiag_smallList(:,1))
+call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug, GradientList(:,:,1), HessianList(:,:,1))
 
 OldFunctional = Functional
 FirstFunctional = Functional
@@ -82,6 +81,7 @@ end if
 
 call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo') !this contains only the orbitals that are to be localized, while CMO always contains all
+call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa') !this contains only the orbitals that are to be localized, while CMO always contains all
 Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
@@ -95,11 +95,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! GRADIENT ASCENT
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! define the transformation matric
+        kappa(:,:) = Zero
+        kappa(:,:) = 1/Hessianlist(:,:,nIter+1)*GradientList(:,:,nIter+1)
+
         unitary_mat(:,:) = Zero
-        do k = 1,nOrb2Loc
-            unitary_mat(k,k) = One
-        end do
-        unitary_mat(:,:) =  unitary_mat(:,:) - 0.3 * GradientList(:,:,nIter+1)
+        call unitmat(unitary_mat(:,:),nOrb2Loc)
+        unitary_mat(:,:) =  unitary_mat(:,:) - kappa(:,:)
+        !call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,,Nv,Kvo,Nv,Zero,Koo,No)
+
 
         ! transform the orbitals
         rotated_CMO(:,:) = Zero
@@ -110,7 +113,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end do
             end do
         end do
-
 
 
         !reset CMO to be updated
@@ -129,8 +131,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     end if
 
     !calculates nxn gradient matrix for the current iteration and adds it to the List
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1), HessianList(:,nIter+1), &
-        Hdiag_smallList(:,nIter+1))
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1), HessianList(:,:,nIter+1))
 
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -157,8 +158,7 @@ if (Debug) then
     end do
     write(u6,*) ' '
     write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
-    call RecPrt('HessianList',' ',HessianList(:,:), nOrb2Loc*nOrb2Loc, nIter+1)
-    !call RecPrt('Hessian_smallList',' ',Hdiag_smallList(:,:), nOrb2Loc*(nOrb2Loc+1)/2, nIter+1)
+    call RecPrt('HessianList',' ',HessianList(:,:,:), nOrb2Loc*nOrb2Loc, nIter+1)
 end if
 
 call mma_Deallocate(PACol)
@@ -166,7 +166,6 @@ call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
 call mma_Deallocate(FunctionalList)
 call mma_Deallocate(HessianList)
-call mma_Deallocate(Hdiag_smallList)
 ! Print convergence message.
 ! --------------------------
 
