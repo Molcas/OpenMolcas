@@ -399,8 +399,8 @@ A list of these keywords is given below:
   This keyword makes the program add reaction field effects to the response
   calculation. This is done by adding the reaction field effects to the
   one-electron Hamiltonian as a constant perturbation, i.e. the reaction field
-  effect is not treated self consistently. The perturbation is extracted from RUNOLD,
-  if that file is not present if defaults to RUNFILE.
+  effect is not treated self consistently. The perturbation is extracted from :file:`RUNOLD`,
+  if that file is not present if defaults to :file:`RUNFILE`.
 
   .. xmldoc:: <KEYWORD MODULE="MCLR" NAME="RFPERT" APPEAR="Reaction field perturbation" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: RFPert  <advanced>
