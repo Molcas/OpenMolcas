@@ -27,7 +27,7 @@ use rctfld_module, only: aFac, CLim, Conductor, CORDSI, DampIter, DieDel, DipCut
 use CovRad_Data, only: CovRadT_
 use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, deg2rad, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6
-use DWSol, only: DWSolv, DWSol_DWRO
+use DWSol, only: DWSolv
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool

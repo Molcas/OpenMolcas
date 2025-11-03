@@ -31,7 +31,7 @@ use MCLR_Data, only: CMO, FIMO, ipCM, ipMat, nA, nDens, nNA
 use input_mclr, only: LuAChoVec, nAsh, nBas, NewCho, nIsh, nOrb, nSym
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 use MCLR_Data, only: isNAC

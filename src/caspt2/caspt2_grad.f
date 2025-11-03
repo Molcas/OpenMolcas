@@ -882,7 +882,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine Recompute_DPT2AO(DPT2,DPT2C,DPT2AO,DPT2CAO)
 C
-      use definitions, only: iwp,wp
+      use definitions, only: wp
       use stdalloc, only: mma_allocate,mma_deallocate
       use caspt2_global, only: LUONEM
 C

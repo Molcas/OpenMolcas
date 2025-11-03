@@ -47,7 +47,7 @@ logical(kind=iwp) bStat
   integer(kind=iwp), intent(in) :: Mode
   integer(kind=iwp), intent(inout) :: IDSAVGRD
 
-  integer(kind=iwp) :: I,IORW,ID,NIN,NAS,NIS,NNN,NMAX,ISYM,ICASE,iLUID
+  integer(kind=iwp) :: IORW,ID,NIN,NAS,NIS,NNN,NMAX,ISYM,ICASE,iLUID
 #ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: lg_ST,lg_S,lg_T,ISTA,IEND,JSTA,JEND,mV1,LDW,IDISK,LDM,NBLOCK
 #endif
@@ -57,8 +57,6 @@ logical(kind=iwp) bStat
   integer(kind=byte), allocatable :: idxG3(:,:)
 
 ! character(len=80) :: Label
-
-  I=0
 
   !! Shift the address due to SavGradParams2
   If (IDSAVGRD == 0) Then

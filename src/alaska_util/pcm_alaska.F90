@@ -128,7 +128,7 @@ Module PCM_alaska
 
   real(kind=wp), allocatable :: Dtmp(:), h1(:), TwoHam(:)
 
-  integer(kind=iwp) :: iCharge, iIrrep, nAct, nG1
+  integer(kind=iwp) :: iCharge, iIrrep, nAct
   logical(kind=iwp) :: Dff, First, NonEq
   real(kind=wp) :: RepNuc, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
 
@@ -144,7 +144,6 @@ Module PCM_alaska
     nAct = nAct + nAsh(iIrrep)
     nDens = nDens + nBas(iIrrep)*(nBas(iIrrep)+1)/2
   End Do
-  nG1 = nAct*(nAct+1)/2
 
   call mma_allocate(DSA_AO,nDens,Label='DSA_AO')
   call mma_allocate(Dtmp,nDens,Label='Dtmp') ! ntBtri length

@@ -18,7 +18,7 @@ use Gateway_global, only: PrPrt
 use Symmetry_Info, only: nIrrep
 use rctfld_module, only: nS, nTS
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, One, Two
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use PCM_alaska, only: DSA_AO, lSA, PCM_SQ_ind
 use NAC, only: isNAC

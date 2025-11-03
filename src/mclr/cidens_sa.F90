@@ -18,7 +18,7 @@ use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF, nRoots, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 use pcm_grad, only: do_RF, DZACTMO, iStpPCM
 use ISRotation, only: InvSCF, ISR, ScalWeight

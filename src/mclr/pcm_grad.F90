@@ -741,13 +741,13 @@ contains
   use MCLR_procedures, only: CISigma_sa
   use input_mclr, only: nAsh, nBas, ncsf, nIsh, nRoots, nSym, State_Sym, weight
   use ipPage, only: W
-  use ISRotation, only: ISR, ISR_RHS, ISR_Projection
+  use ISRotation, only: ISR
 
   implicit none
 
   integer(kind=iwp), intent(in) :: mode,ipCI,ipCID
 
-  integer(kind=iwp) :: nconf1,idsym,is,js,ja,jR,kR,ip1
+  integer(kind=iwp) :: nconf1,idsym,is,js,ja,ip1
   real(kind=wp) :: rtmp(1)
   real(kind=wp), allocatable :: SCFcont(:)
 !
@@ -757,13 +757,6 @@ contains
 !
   nconf1 = ncsf(State_Sym)
   rtmp(1) = Zero
-  if (isNAC) then
-    jR = NSSA(2)
-    kR = NSSA(1)
-  else
-    jR = iRlxRoot
-    kR = iRlxRoot
-  end if
 
   call mma_allocate(SCFcont,nDens,Label='SCFcont')
 !

@@ -26,12 +26,12 @@ use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, iSpin, kP
                       nDisp, nElec3, nHole1, nIter, NROOTS, nRS1, nRS2, nRS3, nSym, PT2, State_Sym, STEPTYPE, TWOSTEP
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 use pcm_grad, only: def_solv, do_RF, iStpPCM, PCM_grad_CLag, PCM_grad_PT2
 use ISRotation, only: DMInvISR, InvSCF, ISR, ISR_final, ISR_init, ISR_projection, ISR_RHS
-use cgs_mod, only: CGS, CGS_init, CGS_final, PCGS
+use cgs_mod, only: CGS, CGS_init, CGS_final
 
 implicit none
 integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp)

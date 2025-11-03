@@ -27,7 +27,7 @@
 
   real(kind=wp), allocatable :: G1q(:),G2q(:),DERHII(:),DEROMG(:)
 
-  integer(kind=iwp) :: i,iA,ij1,ip1,iS,j,jA,jS,jDisk,kA,kl1,lA,ng1,ng2,nnA
+  integer(kind=iwp) :: i,iA,ij1,ip1,iS,j,jA,jS,jDisk,kA,kl1,lA,ng1,ng2
   real(kind=wp) :: OMGDER,rdum(1),Scal
   integer(kind=iwp) :: itri
 
@@ -51,7 +51,6 @@
   DEROMG = Zero
 
   jdisk=itoc(3)
-  nnA = ntash
   Do j = 1, nRoots
     Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
     Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)

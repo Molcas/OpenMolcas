@@ -96,7 +96,7 @@
       use output_ras, only: LF,IPRLOC
       use general_data, only: ISPIN,NACTEL,NCONF,NISH,JOBIPH,NASH,NTOT2,
      &                        STSYM
-      use DWSol, only: DWSolv, DWSol_wgt
+      use DWSol, only: DWSolv!, DWSol_wgt
 
 
       Implicit None
