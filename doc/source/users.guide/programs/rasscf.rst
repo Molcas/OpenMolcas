@@ -1332,7 +1332,7 @@ A list of these keywords is given below:
 
     RFROOT = 3 3 ; 1 2 3 ; 1 1 0 
 
-  specifies the generation of a reaction-field using the averaged density of `S_0` and `S_1` from a three-state averaged MCSCF calculation.
+  specifies the generation of a reaction-field using the averaged density of :math:`S_0` and :math:`S_1` from a three-state averaged MCSCF calculation.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RFROOT" APPEAR="Reaction field root" LEVEL="ADVANCED" KIND="CUSTOM" SIZE="3">
               <ALTERNATE KIND="INT" SIZE="1" />
