@@ -737,7 +737,7 @@ contains
 !
   Subroutine PCM_grad_CLag(mode,ipCI,ipCID)
 
-  use MCLR_Data, only: ipMat, iRlxRoot, isNAC, nDens, NSSA
+  use MCLR_Data, only: ipMat, isNAC, nDens
   use MCLR_procedures, only: CISigma_sa
   use input_mclr, only: nAsh, nBas, ncsf, nIsh, nRoots, nSym, State_Sym, weight
   use ipPage, only: W
