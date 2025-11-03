@@ -168,10 +168,10 @@ contains
   end if
 
   if (iPL >= 2) then
-    if (.not.InvEne) Write(u6,'(x,A)') 'Target energy is non-invariant with respect to internal state rotations'
-    if (.not.InvSCF) Write(u6,'(x,A)') 'Internal rotations are iteratively determined'
-    if (.not.InvSol) Write(u6,'(x,A)') 'Solvent ESP is non-invariant with respect to internal state rotations'
-    if (CGS)         Write(u6,'(x,A)') 'Preconditioned conjugate gradient squared (CGS) method is used'
+    if (.not.InvEne) Write(u6,'(1X,A)') 'Target energy is non-invariant with respect to internal state rotations'
+    if (.not.InvSCF) Write(u6,'(1X,A)') 'Internal rotations are iteratively determined'
+    if (.not.InvSol) Write(u6,'(1X,A)') 'Solvent ESP is non-invariant with respect to internal state rotations'
+    if (CGS)         Write(u6,'(1X,A)') 'Preconditioned conjugate gradient squared (CGS) method is used'
     if (.not.InvEne .or. .not.InvSCF .or. .not.InvSol .or. CGS) Write(u6,*)
   end if
 
