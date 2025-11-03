@@ -35,6 +35,11 @@ real(kind=wp) :: PAst, PAts
 character(len=LenIn8) :: PALbl
 real(kind=wp), allocatable :: SBar(:,:)
 
+if (Debug) then
+    write(u6,*) 'MO coefficients before any rotation:'
+    call RecPrt('cMO',' ',cMO,nBasis,nBasis)
+end if
+
 call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')
 
 ! Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)

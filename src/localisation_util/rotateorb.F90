@@ -36,6 +36,7 @@ real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, P
 character(len=LenIn8) :: PALbl
 character(len=80) :: Txt
 
+
 xDone = Zero
 if (Debug) then
   write(u6,*) 'RotateOrb[Debug]: nBas_per_Atom: ',nBas_per_Atom(:)
@@ -112,6 +113,8 @@ do iMO1=1,nOrb2Loc-1
     if (Debug) then
       write(u6,'(a9,f10.5)') '   Ast :',Ast
       write(u6,'(a9,f10.5)') '   Bst :',Bst
+      write(u6,'(a9,f10.5)') 'cos4Alpha1 :',cos4alpha
+      write(u6,'(a9,f10.5)') 'sin4Alpha2 :',sin4alpha
       write(u6,'(a9,f10.5)') 'Alpha1 :',Alpha1
       write(u6,'(a9,f10.5)') 'Alpha2 :',Alpha2
       write(u6,'(a9,f10.5)') ' Gamma :',Gamma_rot

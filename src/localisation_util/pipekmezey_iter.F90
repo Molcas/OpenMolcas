@@ -18,7 +18,7 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_A
 ! Based on the original routines by Y. Carissan.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,12 +30,12 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*), Thrs, ThrRot, ThrGrad
 character(len=LenIn8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: nIter, i
+integer(kind=iwp) :: nIter, i,k, iBas
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:), GradientList(:,:,:), HessianList(:,:),Hdiag_smallList(:,:), &
-                            FunctionalList(:)
+                            FunctionalList(:), unitary_mat(:,:), rotated_CMO(:,:)
 
-logical(kind=iwp), parameter :: jacobisweeps = .true.
+logical(kind=iwp), parameter :: jacobisweeps = .false.
 
 
 ! Print iteration table header.
@@ -57,6 +57,7 @@ call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
 FunctionalList(:)=0
 call mma_Allocate(HessianList,nOrb2Loc*nOrb2Loc,nMxIter,Label='HessianList')
 call mma_Allocate(Hdiag_smallList,nOrb2Loc*(nOrb2Loc+1)/2,nMxIter,Label='Hdiag_smallList')
+call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
@@ -80,6 +81,7 @@ end if
 ! -----------
 
 call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
+call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo') !this contains only the orbitals that are to be localized, while CMO always contains all
 Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
@@ -89,7 +91,31 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     if (jacobisweeps) then
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,ThrRot,PctSkp,Debug)
     else
-        !call newoptimizer(GradientList, FunctionalList)
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! GRADIENT ASCENT
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! define the transformation matric
+        unitary_mat(:,:) = Zero
+        do k = 1,nOrb2Loc
+            unitary_mat(k,k) = One
+        end do
+        unitary_mat(:,:) =  unitary_mat(:,:) - 0.3 * GradientList(:,:,nIter+1)
+
+        ! transform the orbitals
+        rotated_CMO(:,:) = Zero
+        do iBas = 1, nBasis
+            do k = 1,nOrb2Loc
+                do i = 1,nOrb2Loc
+                    rotated_CMO(iBas,k) = rotated_CMO(iBas,k) + CMO(iBas,i) * unitary_mat(i,k)
+                end do
+            end do
+        end do
+
+
+
+        !reset CMO to be updated
+        ! !!this only works if we localize the occupied orbitals !!
+        CMO(:,:nOrb2Loc) = rotated_CMO(:,:)
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
     end if
 
@@ -130,9 +156,9 @@ if (Debug) then
         call RecPrt('GradientList',' ',GradientList(:,:,i), nOrb2Loc, nOrb2Loc)
     end do
     write(u6,*) ' '
-    !write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
-    !call RecPrt('HessianList',' ',HessianList(:,:), nOrb2Loc*nOrb2Loc, nIter+1)
-    call RecPrt('Hessian_smallList',' ',Hdiag_smallList(:,:), nOrb2Loc*(nOrb2Loc+1)/2, nIter+1)
+    write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
+    call RecPrt('HessianList',' ',HessianList(:,:), nOrb2Loc*nOrb2Loc, nIter+1)
+    !call RecPrt('Hessian_smallList',' ',Hdiag_smallList(:,:), nOrb2Loc*(nOrb2Loc+1)/2, nIter+1)
 end if
 
 call mma_Deallocate(PACol)
@@ -157,3 +183,12 @@ if (.not. Silent) then
 end if
 
 end subroutine PipekMezey_Iter
+
+
+
+
+
+!subroutine taylor_exp(kappa, nOrb2Loc)
+    !U(:,:)
+
+    !end subroutine
