@@ -49,7 +49,7 @@ logical(kind=iwp) bStat
 
   integer(kind=iwp) :: IORW,ID,NIN,NAS,NIS,NNN,NMAX,ISYM,ICASE,iLUID
 #ifdef _MOLCAS_MPP_
-  integer(kind=iwp) :: lg_ST,lg_S,lg_T,ISTA,IEND,JSTA,JEND,mV1,LDW,IDISK,LDM,NBLOCK
+  integer(kind=iwp) :: I,lg_ST,lg_S,lg_T,ISTA,IEND,JSTA,JEND,mV1,LDW,IDISK,LDM,NBLOCK
 #endif
 
   real(kind=wp), allocatable :: WRK1(:)
@@ -64,6 +64,7 @@ logical(kind=iwp) bStat
     if (RFpert) IDSAVGRD = IDSAVGRD + NBTRI + 1
   End If
 #ifdef _MOLCAS_MPP_
+  I = 0
   myRank = GA_NODEID()
 #endif
 
