@@ -77,7 +77,7 @@ call mma_allocate(De,n1Dens,Label='De')
 call mma_allocate(Pe,n2Dens,Label='Pe')
 rD(1:n1Dens) = Zero
 rP(1:n2Dens) = Zero
-if (do_RF) call dcopy_(n1dens,[Zero],0,DZACTMO,1)
+if (do_RF) DZACTMO(:,:) = Zero
 
 nConfL = max(ncsf(il),nint(xispsm(il,1)))
 nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
@@ -183,7 +183,7 @@ do i=1,nroots
 end do
 
 ! PCM: for implicit contributions
-if (do_RF) call dcopy_(n1dens,rD,1,DZACTMO,1)
+if (do_RF) DZACTMO(:,:) = reshape(rD(1:n1dens),[nna,nna])
 
 call mma_deallocate(CIL)
 call mma_deallocate(CIR)

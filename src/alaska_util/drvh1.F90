@@ -45,7 +45,7 @@ use Grd_interface, only: grd_kernel, grd_mem
 use rctfld_module, only: lLangevin, lMax, lRF, nTS, PCM
 use Disp, only: HF_Force
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 use PCM_alaska, only: DSA_AO, lSA, PCM_SQ_ind
 use NAC, only: isNAC
@@ -386,17 +386,17 @@ if (.not. HF_Force) then
           PCM_SQ(1,:) = Zero
           ! PCM_SQ contains q^{e,SS} only (no nuclear contributions)
         else
-          call daxpy_(2*nTS,-One,PCM_SQ_ind,1,PCM_SQ,1)
+          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS) - PCM_SQ_ind(1:2,1:nTS)
           ! PCM_SQ contains q^{e,SA} - q^{e,SS} only (no nuclear contributions)
         end if
         call OneEl_g(PCMGrd,PCMMmG,TempPCM,nGrad,DiffOp,Coor,DSA_AO,nDens,lOper,nComp,nOrdOp,Label)
         if (isNAC) then
           PCM_SQ(1,:) = PCM_SQ_ind(1,:)
           call dswap_(2*nTS,PCM_SQ_ind,1,PCM_SQ,1)
-          call daxpy_(nGrad,+One,TempPCM,1,Temp,1)
+          Temp(1:nGrad) = Temp(1:nGrad) + TempPCM(1:nGrad)
         else
-          call daxpy_(2*nTS,+One,PCM_SQ_ind,1,PCM_SQ,1)
-          call daxpy_(nGrad,-One,TempPCM,1,Temp,1)
+          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS) + PCM_SQ_ind(1:2,1:nTS)
+          Temp(1:nGrad) = Temp(1:nGrad) - TempPCM(1:nGrad)
         end if
         call mma_deallocate(TempPCM)
       end if

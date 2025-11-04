@@ -207,7 +207,7 @@ if (iPrint >= 15) then
   call PrGrad(Lab,Temp,nGrad)
 end if
 
-if (.not.isNAC) call DaXpY_(nGrad,One,Temp,1,Grad,1)
+if (.not.isNAC) Grad(1:nGrad) = Grad(1:nGrad) + Temp(1:nGrad)
 
 !***********************************************************************
 !                                                                      *

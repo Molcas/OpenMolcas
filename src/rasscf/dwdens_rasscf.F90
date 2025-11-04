@@ -46,8 +46,8 @@ Subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
   Call mma_allocate(DA_ave,NAC**2,Label='DA_ave')
   Call mma_allocate(DS_ave,NAC**2,Label='DS_ave')
   Call mma_allocate(DX,NACPAR,Label='DX')
-  call dcopy_(NACPAR,[Zero],0,DA_ave,1)
-  call dcopy_(NACPAR,[Zero],0,DS_ave,1)
+  DA_ave(1:NACPAR) = Zero
+  DS_ave(1:NACPAR) = Zero
 
   ITERcurr = 1
   if (ITER.ne.1) ITERcurr = ITER-1
@@ -62,8 +62,8 @@ Subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
       Call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
       Call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
       if (wgt < 1.0e-10_wp) cycle
-      call daxpy_(NACPAR,wgt,DX    ,1,DA_ave,1)
-      call daxpy_(NACPAR,wgt,RCT_FS,1,DS_ave,1)
+      DA_ave(1:NACPAR) = DA_ave(1:NACPAR) + wgt*DX(1:NACPAR)
+      DS_ave(1:NACPAR) = DS_ave(1:NACPAR) + wgt*RCT_FS(1:NACPAR)
     End Do
   else if (iFinal.eq.2) then
     Call mma_allocate(CIVEC,NCONF,Label='CIVEC')
@@ -95,9 +95,9 @@ Subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
           if(doDMRG)then
 #ifdef _DMRG_
             ! copy the DMs from d1rf/d2rf for ipcmroot
-            call dcopy_(NACPAR,rf1,1,Dtmp,1)
+            Dtmp(1:NACPAR) = rf1(1:NACPAR)
             if (twordm_qcm) then
-              call dcopy_(NACPR2,rf2,1,Ptmp,1)
+              Ptmp(1:NACPR2) = rf2(1:NACPR2)
             end if
             DStmp(:)=Zero
 #endif
@@ -117,8 +117,8 @@ Subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
         DStmp(:)=Zero
         Ptmp(:)=Zero
       End If
-      call daxpy_(NACPAR,wgt,Dtmp,1,DA_ave,1)
-      call daxpy_(NACPAR,wgt,DStmp,1,DS_ave,1)
+      DA_ave(1:NACPAR) = DA_ave(1:NACPAR) + wgt*Dtmp(1:NACPAR)
+      DS_ave(1:NACPAR) = DS_ave(1:NACPAR) + wgt*DStmp(1:NACPAR)
     End Do
     Call mma_deallocate(DStmp)
     Call mma_deallocate(Dtmp)
@@ -128,11 +128,11 @@ Subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
 !
 ! Construc D-ACTIVE AND D-INACTIVE IN AO BASIS
 !
-  CALL DCOPY_(NACPAR,DS_ave,1,DX,1)
+  DX(1:NACPAR) = DS_ave(1:NACPAR)
   Call DBLOCK(DX)
   CALL Get_D1A_RASSCF(CMO,DX,RCT_FS)
 
-  CALL DCOPY_(NACPAR,DA_ave,1,DX,1)
+  DX(1:NACPAR) = DA_ave(1:NACPAR)
   Call DBLOCK(DX)
   CALL Get_D1A_RASSCF(CMO,DX,D1A)
 

@@ -320,7 +320,7 @@ contains
   call tcmo(PCMSSMO(1,2),1,1)
   call tcmo(PCMSSMO(1,3),1,1)
 
-  call dcopy_(ntBsqr*3,PCMSSMO,1,PCMSSMOori,1)
+  PCMSSMOori(:,:) = PCMSSMO(:,:)
 
   Call mma_deallocate(Htmp,safe='*')
   Call mma_deallocate(Gtmp,safe='*')
@@ -407,7 +407,7 @@ contains
 
   integer(kind=iwp), intent(in) :: mode
 
-  real(kind=wp), allocatable :: CIL(:), CIR(:), G1r(:), G2r(:)
+  real(kind=wp), allocatable :: CIL(:), CIR(:), G1r(:,:), G2r(:)
   real(kind=wp), pointer :: G1q(:,:) => null()
   integer(kind=iwp) :: i, j, jR, kR, nConf1, nConfL, nConfR, ng1, ng2
 
@@ -424,12 +424,12 @@ contains
 
   call mma_allocate(CIL,nConfL,Label='CIL')
   call mma_allocate(CIR,nConfR,Label='CIR')
-  Call mma_allocate(G1r,ng1,Label='G1r')
+  Call mma_allocate(G1r,ntAsh,ntAsh,Label='G1r')
   Call mma_allocate(G2r,ng2,Label='G2r') ! not used?
 
   if (mode==1) G1q(1:ntAsh,1:ntAsh) => DSCFMO(:,1:ntAsh)
   if (mode==2) G1q(1:ntAsh,1:ntAsh) => DSSMO(:,1:ntAsh)
-  G1r(:) = Zero
+  G1r(:,:) = Zero
   G1q(:,:) = Zero
 
   if (mode==1) then
@@ -437,10 +437,10 @@ contains
       if (W_SOLV(jR).le.1.0e-10_wp) cycle
       Call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,state_sym)
       Call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIR,state_sym)
-      G1r(:) = Zero
+      G1r(:,:) = Zero
       Call Densi2_MCLR(1,G1r,G2r,CIL,CIR,0,0,0,ng1,ng2)
       !! For RDM1
-      call daxpy_(ntAsh*ntAsh,W_SOLV(jR),G1r,1,G1q,1)
+      G1q(:,:) = G1q(:,:) + W_SOLV(jR)*G1r(:,:)
     End Do
   else if (mode==2) then
     if (isNAC) then
@@ -454,7 +454,7 @@ contains
     Call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,state_sym)
     Call Densi2_MCLR(1,G1r,G2r,CIL,CIR,0,0,0,ng1,ng2)
     !! For RDM1
-    call daxpy_(ntAsh*ntAsh,One,G1r,1,G1q,1)
+    G1q(:,:) = G1q(:,:) + G1r(:,:)
     do i = 1, ntAsh
       do j = 1, i-1
         G1q(i,j) = (G1q(i,j)+G1q(j,i))*Half
@@ -469,7 +469,7 @@ contains
 
   nConf=ncsf(state_sym)
   !! use weights
-! if (mode==1) call dscal_(ntAsh**2,1.0d+00/dble(nRoots),G1q,1)
+! if (mode==1) G1q(:,:) = G1q(:,:)/dble(nRoots)
 
   Return
 
@@ -519,7 +519,7 @@ contains
     End Do
   End Do
   call tcmo(WRK,1,-2)
-  call dcopy_(ntBsqr,WRK,1,DAO,1)
+  DAO(1:ntBsqr) = WRK(1:ntBsqr)
 
   call mma_deallocate(WRK)
 
@@ -644,7 +644,7 @@ contains
       Do jA=1,nAsh(js)
 !       ip1=nOrb(iS)*(nIsh(is)+iA-1)+ipCM(is)
         ip2=nIsh(iS) + nOrb(iS)*(nIsh(js)+jA-1)+ipmat(is,js)
-        Call DaXpY_(nAsh(iS),One,DZACTMO(1+nA(iS),jA+nA(jS)),1,DZMO(ip2),1)
+        DZMO(ip2:ip2+nAsh(iS)-1) = DZMO(ip2:ip2+nAsh(iS)-1) + DZACTMO(1+nA(iS):nAsh(iS)+nA(iS),jA+nA(jS))
       End Do
     End If
   End Do
@@ -670,7 +670,7 @@ contains
           rd=DSCFMO(nA(is)+iA,nA(js)+jA) ! solvent density during SCF
           ip1=nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)
           ip2=nBas(iS)*(nIsh(js)+jA-1) +ipMat(is,js)
-          Call DaXpY_(nBas(iS),Rd,PCMZMO(ip1,3),1,DZMO(ip2),1)
+          DZMO(ip2:ip2+nBas(iS)-1) = DZMO(ip2:ip2+nBas(iS)-1) + Rd*PCMZMO(ip1:ip1+nBas(iS)-1,3)
         End Do
       End Do
     End If
@@ -679,8 +679,8 @@ contains
   If (iDsym.eq.1) Then
 ! If (state_sym.eq.1) Then !?
     Do iS=1,nSym
-      If (nBas(iS)*nIsh(iS).gt.0) &
-        Call DaXpY_(nBas(iS)*nIsh(is),Two,PCMZMO(ipMat(is,is),3),1,DZMO(ipMat(is,is)),1)
+      If (nBas(iS)*nIsh(iS).gt.0) DZMO(ipMat(iS,iS):ipMat(iS,iS)+nBas(iS)*nIsh(iS)-1) &
+        = DZMO(ipMat(iS,iS):ipMat(iS,iS)+nBas(iS)*nIsh(iS)-1) + Two*PCMZMO(ipMat(iS,iS):ipMat(iS,iS)+nBas(iS)*nIsh(iS)-1,3)
     End Do
   End If
 
@@ -694,10 +694,10 @@ contains
                      DZAO(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
       end if
     End Do
-    call daxpy_(ntBsqr,Two,DZAO,1,FockOut,1)
+    FockOut(1:ntBsqr) = FockOut(1:ntBsqr) + Two*DZAO(1:ntBsqr)
   else if (iStpPCM==3) then
     !! only for the connection term
-    call daxpy_(ntBsqr,Two,DZMO,1,FockOut,1)
+    FockOut(1:ntBsqr) = FockOut(1:ntBsqr) + Two*DZMO(1:ntBsqr)
     !! No CI response
     return
   end if
@@ -713,7 +713,7 @@ contains
 !       ip1=nIsh(iS)+1+nBas(jS)*(nIsh(js)+jA-1)!+ipCM(is)
         ip1=nIsh(iS)+1 + nBas(iS)*(nIsh(js)+jA-1)+ipMat(iS,iS)-1
         ip2=nIsh(iS)+1 + nBas(iS)*(nIsh(js)+jA-1)+ipMat(iS,jS)-1
-        call daxpy_(nAsh(iS),+One,PCMZMO(ip1,3),1,DZMO(ip2),1)
+        DZMO(ip2:ip2+nAsh(iS)-1) = DZMO(ip2:ip2+nAsh(iS)-1) + PCMZMO(ip1:ip1+nAsh(iS)-1,3)
       end do
     end if
   end do
@@ -721,9 +721,9 @@ contains
   ! Evaluate the CI derivative
   ! Note that ipCIOUT will be weighted with (2)W_SOLV
   call dswap_(nRoots,weight,1,W_SOLV,1)
-  call dscal_(nRoots,Two,weight,1)
+  Weight(:) = Two*Weight(:)
   Call CISigma_sa(0,state_sym,state_sym,DZMO,SIZE(DZMO),rdum,1,rdum,1,ipCI,ipCIOUT,.False.)
-  call dscal_(nRoots,Half,weight,1)
+  Weight(:) = Half*Weight(:)
   call dswap_(nRoots,weight,1,W_SOLV,1)
 
   ! consider the weight of the derivative
@@ -778,11 +778,11 @@ contains
         ip1=nIsh(iS)+1 + nBas(iS)*(nIsh(js)+jA-1) + ipMat(iS,jS)-1 !+ipCM(is)
         !! def_solv = 1: subtract implicit D^SS*V(e,SCF)/2
         !! def_solv = 3: implicit V(e) in FIMO
-        call daxpy_(nAsh(iS),+One,PCMSSMO(ip1,3),1,SCFcont(ip1),1)
+        SCFcont(ip1:ip1+nAsh(iS)-1) = SCFcont(ip1:ip1+nAsh(iS)-1) + PCMSSMO(ip1:ip1+nAsh(iS)-1,3)
         !! def_solv = 1: explicit and implicit D^SS*V(e,SCF)/2
         !! def_solv = 3: explicit + implicit erfx
         if (.not.isNAC .and. mode==1) then
-          call daxpy_(nAsh(iS),-One,PCMSCFMO(ip1,3),1,SCFcont(ip1),1)
+          SCFcont(ip1:ip1+nAsh(iS)-1) = SCFcont(ip1:ip1+nAsh(iS)-1) - PCMSCFMO(ip1:ip1+nAsh(iS)-1,3)
         end if
         !! sum of these contributions are usually (RlxRoot = PCMRoot) zero,
         !! because D^SS is used for polarizing ASCs
@@ -806,7 +806,7 @@ contains
   end if
 
   !! State rotations are not needed, because CI vectors are obtained by diagonalization (?)
-  call dscal_(nconf1*nRoots,Two,W(ipCID)%A(1),1)
+  W(ipCID)%A(1:nConf1*nRoots) = Two*W(ipCID)%A(1:nConf1*nRoots)
 
   call mma_deallocate(SCFcont)
 

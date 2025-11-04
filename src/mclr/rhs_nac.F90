@@ -108,7 +108,7 @@ call mma_deallocate(CIR)
 if (do_RF) then
   nconf = ncsf(State_sym)
   ! Update state-specific quantities using rotated G1r
-  call dcopy_(ntAsh**2,G1r,1,DSSMO,1)
+  DSSMO(1:ntAsh,1:ntAsh) = reshape(G1r(1:ntAsh**2),[ntAsh,ntAsh])
   call PrepPCM2(2,DSSMO,DSSAO,PCMSSAO,PCMSSMO)
   Call PCM_grad_CLag(2,ipCI,ipS2)
 end if

@@ -271,7 +271,7 @@ contains
   do i = 1, nRoots
     do j = 1, nRoots
       scal = DDot_(ncsf(State_Sym),CI(1,i),1,CIDER(1,j),1)
-      call daxpy_(ncsf(State_Sym),-scal,CI(1,i),1,CIDER(1,j),1)
+      CIDER(:,j) = CIDER(:,j) - Scal*CI(:,i)
     end do
   end do
 

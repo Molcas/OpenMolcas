@@ -713,13 +713,13 @@ if (TRSymm) then
     do iTR=1,nTR
       do jTR=1,iTR-1
         alpha = DDot_(ldisp(0),Am(jTR,1),nTR,Am(iTR,1),nTR)
-        call DaXpY_(ldisp(0),-alpha,Am(jTR,1),nTR,Am(iTR,1),nTR)
+        Am(iTR,:) = Am(iTr,:) - alpha*Am(jTR,:)
       end do
       alpha = DDot_(ldisp(0),Am(iTR,1),nTR,Am(iTR,1),nTR)
       if (abs(alpha) <= 1.0e-09_wp) then
         Am(iTR,:) = Zero ! if linearly dependent etc...
       else
-        call dscal_(ldisp(0),One/sqrt(alpha),Am(iTR,1),nTR)
+        Am(iTR,:) = Am(iTR,:)/sqrt(alpha)
       end if
     end do
     Temp(:,:) = Am(:,:)

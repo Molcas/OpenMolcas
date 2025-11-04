@@ -195,7 +195,7 @@ end do
 
 if (do_RF) then
   ! Update state-specific quantities using rotated G1r
-  call dcopy_(ntAsh**2,G1r,1,DSSMO,1)
+  DSSMO(1:ntAsh,1:ntAsh) = reshape(G1r(1:ntAsh**2),[ntAsh,ntAsh])
   call PrepPCM2(1,DSSMO,DSSAO,PCMSSAO,PCMSSMO)
   ! compute CLag again with the rotated SS density
   ! There is no need to construct the derivative twice, but
