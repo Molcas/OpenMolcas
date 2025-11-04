@@ -47,7 +47,14 @@ def perform_GA(fitness_function, num_chroms, elite_size, mutation_rates,
     # TODO: set other variables as global as well.
     config.set_ordering_params(on_site_permutation, num_prefix, num_suffix)
 
-    git_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()
+    # Get git hash from the package directory
+    try:
+        package_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        git_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'],
+                                          cwd=package_dir,
+                                          stderr=subprocess.DEVNULL).decode('ascii').strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        git_hash = "N/A (not in git repository)"
 
     pop_filename = kwargs.get('pop_file_name', 'current_pop.log')
 
