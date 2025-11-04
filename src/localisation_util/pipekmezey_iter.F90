@@ -30,12 +30,13 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*), Thrs, ThrRot, ThrGrad
 character(len=LenIn8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: nIter, i,k, iBas
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
-real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:), GradientList(:,:,:), HessianList(:,:,:), &
-                            FunctionalList(:), unitary_mat(:,:), rotated_CMO(:,:)
+integer(kind=iwp) :: nIter, i,k, iBas, cnt
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh
+real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_init(:,:), GradientList(:,:,:), HessianList(:,:,:), &
+                            FunctionalList(:), xunitary_mat(:,:), unitary_mat(:,:), rotated_CMO(:,:)
 
 logical(kind=iwp), parameter :: jacobisweeps = .false.
+real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
 
 
 ! Print iteration table header.
@@ -57,6 +58,7 @@ call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
 FunctionalList(:)=0
 call mma_Allocate(HessianList,nOrb2Loc,nOrb2Loc,nMxIter,Label='HessianList')
 call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
+call mma_Allocate(xunitary_mat,nOrb2Loc,nOrb2Loc,Label='xunitary_mat')
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
@@ -82,6 +84,7 @@ end if
 call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo') !this contains only the orbitals that are to be localized, while CMO always contains all
 call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa') !this contains only the orbitals that are to be localized, while CMO always contains all
+call mma_Allocate(kappa_init,nOrb2Loc,nOrb2Loc,Label='kappa_init') !this contains only the orbitals that are to be localized, while CMO always contains all
 Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
@@ -95,17 +98,44 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! GRADIENT ASCENT
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! define the transformation matric
+        write(u6,*) 'WHATS WRONG nIter = ', nIter
+
         kappa(:,:) = Zero
-        kappa(:,:) = 1/Hessianlist(:,:,nIter+1)*GradientList(:,:,nIter+1)
+        write(u6,*) 'WHATS WRONG nIter = ', nIter
+
+        kappa_init(:,:) = Zero
+        write(u6,*) 'WHATS WRONG nIter = ', nIter
+
+        !kappa(:,:) = 1/Hessianlist(:,:,nIter+1)*GradientList(:,:,nIter+1)
+
+        kappa(:,:) = 0.3*GradientList(:,:,nIter+1)
+        kappa_init(:,:) = kappa
 
         unitary_mat(:,:) = Zero
-        call unitmat(unitary_mat(:,:),nOrb2Loc)
-        unitary_mat(:,:) =  unitary_mat(:,:) - kappa(:,:)
-        !call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,,Nv,Kvo,Nv,Zero,Koo,No)
+        call unitmat(unitary_mat,nOrb2Loc,nOrb2Loc)
+        !unitary_mat(:,:) = 0.3*GradientList(:,:,nIter+1)
 
 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! analogous to exp_series in scf
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        cnt = 1
+        factor = One
+        ithrsh = 2.0e-16_wp
+        xunitary_mat(:,:) = Zero
+
+        unitary_mat(:,:) =  unitary_mat(:,:) - kappa_init(:,:)
+
+
+
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! transform the orbitals
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         rotated_CMO(:,:) = Zero
+        !rotated_CMO(:,:) = CMO(:,:nOrb2Loc)
+        !call dgemm_('N','N', nOrb2Loc, nOrb2Loc,nOrb2Loc,One, rotated_CMO, nOrb2Loc, unitary_mat, nOrb2Loc,&
+        !            Zero,rotated_CMO,nOrb2Loc)
         do iBas = 1, nBasis
             do k = 1,nOrb2Loc
                 do i = 1,nOrb2Loc
@@ -161,6 +191,11 @@ if (Debug) then
     call RecPrt('HessianList',' ',HessianList(:,:,:), nOrb2Loc*nOrb2Loc, nIter+1)
 end if
 
+call mma_Deallocate(kappa)
+call mma_Deallocate(rotated_CMO)
+call mma_Deallocate(kappa_init)
+call mma_Deallocate(unitary_mat)
+call mma_Deallocate(xunitary_mat)
 call mma_Deallocate(PACol)
 call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
@@ -180,14 +215,4 @@ if (.not. Silent) then
         write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
     end if
 end if
-
 end subroutine PipekMezey_Iter
-
-
-
-
-
-!subroutine taylor_exp(kappa, nOrb2Loc)
-    !U(:,:)
-
-    !end subroutine
