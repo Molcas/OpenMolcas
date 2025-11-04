@@ -98,14 +98,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! GRADIENT ASCENT
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! define the transformation matric
-        write(u6,*) 'WHATS WRONG nIter = ', nIter
 
         kappa(:,:) = Zero
-        write(u6,*) 'WHATS WRONG nIter = ', nIter
-
         kappa_init(:,:) = Zero
-        write(u6,*) 'WHATS WRONG nIter = ', nIter
-
         !kappa(:,:) = 1/Hessianlist(:,:,nIter+1)*GradientList(:,:,nIter+1)
 
         kappa(:,:) = 0.3*GradientList(:,:,nIter+1)
@@ -113,8 +108,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         unitary_mat(:,:) = Zero
         call unitmat(unitary_mat,nOrb2Loc,nOrb2Loc)
-        !unitary_mat(:,:) = 0.3*GradientList(:,:,nIter+1)
-
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! analogous to exp_series in scf
@@ -127,6 +120,29 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         unitary_mat(:,:) =  unitary_mat(:,:) - kappa_init(:,:)
 
 
+        xunitary_mat(:,:) = unitary_mat
+
+        do while (thrsh_taylor < ithrsh)
+
+            cnt = cnt+1
+            factor = factor*cnt
+            call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,kappa,nOrb2Loc,kappa_init,nOrb2Loc,Zero,&
+            kappa,norb2Loc)
+
+            ! all terms starting at n=2
+            if (mod(cnt,2) == 0) then
+                unitary_mat(:,:) =  unitary_mat(:,:) + 1/factor*kappa(:,:)
+
+            else
+                unitary_mat(:,:) =  unitary_mat(:,:) - 1/factor*kappa(:,:)
+
+            end if
+
+            ithrsh = maxval(abs(unitary_mat-xunitary_mat)/(abs(unitary_mat)+thrsh_taylor))
+
+            xunitary_mat(:,:) = unitary_mat(:,:)
+
+        end do
 
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -134,7 +150,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         rotated_CMO(:,:) = Zero
         !rotated_CMO(:,:) = CMO(:,:nOrb2Loc)
-        !call dgemm_('N','N', nOrb2Loc, nOrb2Loc,nOrb2Loc,One, rotated_CMO, nOrb2Loc, unitary_mat, nOrb2Loc,&
+        write(u6,*) 'WHATS WRONG nIter = ', nIter
+
+        !call dgemm_('N','N', nBasis, nOrb2Loc,nOrb2Loc,One, CMO(:,:nOrb2Loc), nOrb2Loc, unitary_mat, nOrb2Loc,&
         !            Zero,rotated_CMO,nOrb2Loc)
         do iBas = 1, nBasis
             do k = 1,nOrb2Loc
@@ -182,13 +200,13 @@ if (Debug) then
     write(u6,*) 'In PipekMezey_iter'
     write(u6,*) '------------------'
     write(u6,*) 'nIterTot = ', nIter
-    do i=1,nIter+1
-        write(u6,*) 'for iteration ', i-1
-        call RecPrt('GradientList',' ',GradientList(:,:,i), nOrb2Loc, nOrb2Loc)
-    end do
+    !do i=1,nIter+1
+    !    write(u6,*) 'for iteration ', i-1
+    !    call RecPrt('GradientList',' ',GradientList(:,:,i), nOrb2Loc, nOrb2Loc)
+    !end do
     write(u6,*) ' '
     write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
-    call RecPrt('HessianList',' ',HessianList(:,:,:), nOrb2Loc*nOrb2Loc, nIter+1)
+    !call RecPrt('HessianList',' ',HessianList(:,:,:), nOrb2Loc*nOrb2Loc, nIter+1)
 end if
 
 call mma_Deallocate(kappa)

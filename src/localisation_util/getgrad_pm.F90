@@ -72,7 +72,7 @@ if (Debug) then
     write(u6,*) ' '
     write(u6,*) 'In GetGrad_PM'
     write(u6,*) '-------------'
-    call RecPrt('Gradient',' ',Gradient(:,:), nOrb2Loc, nOrb2Loc)  !this is also printed in the Gradientlist
+    !call RecPrt('Gradient',' ',Gradient(:,:), nOrb2Loc, nOrb2Loc)  !this is also printed in the Gradientlist
     !call RecPrt('H_diag',' ', H_diag(:), nOrb2Loc**2, 1)
 end if
 
