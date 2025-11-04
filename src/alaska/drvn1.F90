@@ -27,14 +27,14 @@ subroutine DrvN1(Grad,Temp,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use PCM_arrays, only: PCM_SQ, PCMTess
+use PCM_alaska, only: lSA, PCM_SQ_ind
+use NAC, only: isNAC
 use External_Centers, only: iXPolType, nOrd_XF, nXF, XF
 use rctfld_module, only: Conductor, lLangevin, lMax, lRF, MM, nTS, PCM
 use Disp, only: Dirct, IndDsp
 use Symmetry_Info, only: iChBas, nIrrep
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
-use PCM_alaska, only: lSA, PCM_SQ_ind
-use NAC, only: isNAC
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -207,7 +207,7 @@ if (iPrint >= 15) then
   call PrGrad(Lab,Temp,nGrad)
 end if
 
-if (.not.isNAC) Grad(1:nGrad) = Grad(1:nGrad) + Temp(1:nGrad)
+if (.not. isNAC) Grad(1:nGrad) = Grad(1:nGrad)+Temp(1:nGrad)
 
 !***********************************************************************
 !                                                                      *

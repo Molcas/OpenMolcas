@@ -1325,14 +1325,16 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`RFROot`
-  Enter the index of that particular root in a state-average
-  calculation for which the reaction-field is generated. It is used with the PCM model.
-  With :kword:`RFROOT` = 0, the reaction-field is generated for the state-averaged density (this is unphysical).
-  More flexible state-averaging can be defined using the :kword:`CIROOT`-style input; e.g. ::
+  .. compound::
 
-    RFROOT = 3 3 ; 1 2 3 ; 1 1 0 
+    Enter the index of that particular root in a state-average
+    calculation for which the reaction-field is generated. It is used with the PCM model.
+    With :kword:`RFROOT` = 0, the reaction-field is generated for the state-averaged density (this is unphysical).
+    More flexible state-averaging can be defined using the :kword:`CIROOT`-style input; e.g. ::
 
-  specifies the generation of a reaction-field using the averaged density of :math:`S_0` and :math:`S_1` from a three-state averaged MCSCF calculation.
+      RFROOT = 3 3 ; 1 2 3 ; 1 1 0 
+
+    specifies the generation of a reaction-field using the averaged density of :math:`S_0` and :math:`S_1` from a three-state averaged MCSCF calculation.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RFROOT" APPEAR="Reaction field root" LEVEL="ADVANCED" KIND="CUSTOM" SIZE="3">
               <ALTERNATE KIND="INT" SIZE="1" />

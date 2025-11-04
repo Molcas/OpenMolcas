@@ -42,6 +42,10 @@ use Basis_Info, only: DBSC, MolWgh, Shells
 use Center_Info, only: DC
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par, myRank, nProcs
+use UnixInfo, only: ProgName
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -49,10 +53,6 @@ use Definitions, only: wp, iwp
 use define_af, only: Angtp
 use Symmetry_Info, only: ChOper
 use Definitions, only: u6
-#endif
-#ifdef _MOLCAS_MPP_
-use Para_Info, only: Is_Real_Par, myRank, nProcs
-use UnixInfo, only: ProgName
 #endif
 
 implicit none
@@ -86,17 +86,17 @@ call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
 LoTs = 1
 HiTs = nTs
 ! Parallel is turned off for ALASKA because drvn1 is called from the master node only
-if (is_real_par() .and. ProgName(1:6) /= 'alaska') then
+if (is_real_par() .and. (ProgName(1:6) /= 'alaska')) then
   job_equal = nTs/nProcs
   remainder = mod(nTs,nProcs)
 
   jS = 1
-  do iS = 1, myRank+1
+  do iS=1,myRank+1
     LoTs = jS
     if (iS <= remainder) then
-      jS = jS + job_equal+1
+      jS = jS+job_equal+1
     else
-      jS = jS + job_equal
+      jS = jS+job_equal
     end if
     HiTs = jS-1
   end do
@@ -230,7 +230,7 @@ do iS=1,nSkal
 
       ! Loop over operators
 
-      do iTile= LoTs, HiTs
+      do iTile=LoTs,HiTs
         if (FactOp(iTile) == Zero) cycle
         C(:) = Ccoor(1:3,iTile)
 
@@ -340,7 +340,7 @@ call mma_deallocate(ZI)
 call mma_deallocate(Zeta)
 
 #ifdef _MOLCAS_MPP_
-if (ProgName(1:6) /= 'alaska') CALL GADSUM(VTessera,nComp*2*nTs)
+if (ProgName(1:6) /= 'alaska') call GADSUM(VTessera,nComp*2*nTs)
 #endif
 
 return

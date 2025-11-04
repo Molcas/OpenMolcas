@@ -19,7 +19,7 @@ subroutine MatPCM(NTs,Eps,Conductor,ISphe,Coor_Sph,Tessera,DMat,SMat,SDMat,TMat,
 ! and finally returned in DMat.
 
 use PCM_Arrays, only: DiagScale
-use Constants, only: Zero, Half, One, Two, Four, Pi
+use Constants, only: Zero, One, Two, Four, Half, Pi
 use Definitions, only: wp, iwp
 
 implicit none

@@ -10,30 +10,29 @@
 !                                                                      *
 ! Copyright (C) 2025, Yoshio Nishimoto                                 *
 !***********************************************************************
-  Subroutine DWder_MCLR(mode,idsym,der1,nder1,der2,nder2,DWOut)
 
-  use Constants, only: Zero, Half, One, Two
-  use definitions, only: iwp,wp
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use input_mclr, only: ERASSCF, iToc, nAsh, nBas, nIsh, nRoots, nSym, ntAsh, weight
-  use DWSol, only: DWSol_der
-  use MCLR_Data, only: ipCM, LUJOB
+subroutine DWder_MCLR(mode,idsym,der1,nder1,der2,nder2,DWOut)
 
-  implicit none
+use Index_Functions, only: iTri, nTri_Elem
+use Symmetry_Info, only: Mul
+use input_mclr, only: ERASSCF, iToc, nAsh, nBas, nIsh, nRoots, nSym, ntAsh, weight
+use DWSol, only: DWSol_der
+use MCLR_Data, only: ipCM, LUJOB
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 
-  integer(kind=iwp), intent(in) :: mode,idSym,nder1,nder2
-  real(kind=wp), intent(in) :: der1(nder1),der2(nder2)
-  real(kind=wp), intent(inout) :: DWOut(nRoots,nRoots)
+implicit none
 
-  real(kind=wp), allocatable :: G1q(:),G2q(:),DERHII(:),DEROMG(:)
+integer(kind=iwp), intent(in) :: mode, idSym, nder1, nder2
+real(kind=wp), intent(in) :: der1(nder1), der2(nder2)
+real(kind=wp), intent(inout) :: DWOut(nRoots,nRoots)
+integer(kind=iwp) :: i, iA, ij1, ip1, iS, j, jA, jS, jDisk, kA, kl1, lA, ng1, ng2
+real(kind=wp) :: OMGDER, rdum(1), Scal
+real(kind=wp), allocatable :: G1q(:), G2q(:), DERHII(:), DEROMG(:)
 
-  integer(kind=iwp) :: i,iA,ij1,ip1,iS,j,jA,jS,jDisk,kA,kl1,lA,ng1,ng2
-  real(kind=wp) :: OMGDER,rdum(1),Scal
-  integer(kind=iwp) :: itri
+if (nRoots == 1) return
 
-  itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-  if (nRoots == 1) return
-!
 ! derivative of the dynamical weight
 ! I think this implementation uses the following constraint condition
 ! w_I^Z * (<I|H|I> - E_I)
@@ -42,69 +41,72 @@
 ! For DW-MCSCF, partial derivative of the Lagrangian wrt H_{IJ} can be evaluated with either orbital or CI rotations.
 ! At present, it is evaluated in ISR_TimesE2.
 ! For DW solvation, it is only with orbital rotations (here)?
-!
-  ng1=ntash*(ntash+1)/2
-  ng2=ng1*(ng1+1)/2
-  Call mma_allocate(G1q,ng1,Label='G1q')
-  Call mma_allocate(G2q,ng2,Label='G2q')
-  call mma_allocate(DEROMG,nRoots,Label='DEROMG')
-  DEROMG = Zero
 
-  jdisk=itoc(3)
-  Do j = 1, nRoots
-    Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
-    Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
-    Call dDaFile(LUJOB ,2,G2q,Ng2,jDisk)
-    Call dDaFile(LUJOB ,0,rdum,Ng2,jDisk)
+ng1 = nTri_Elem(ntash)
+ng2 = nTri_Elem(ng1)
+call mma_allocate(G1q,ng1,Label='G1q')
+call mma_allocate(G2q,ng2,Label='G2q')
+call mma_allocate(DEROMG,nRoots,Label='DEROMG')
+DEROMG = Zero
 
-    OMGDER = Zero
-    Do iS=1,nSym
-      If (nAsh(iS) > 0) Then
-        jS=iEOr(is-1,iDSym-1)+1
-        Do iA=1,nAsh(is)
-          Do jA=1,nAsh(js)
-            ij1 = itri(ia,ja)
-            ip1=nIsh(iS)+iA-1 + nBas(jS)*(nIsh(js)+jA-1)+ipCM(is)
-            OMGDER = OMGDER + der1(ip1)*G1q(ij1)
-            if (mode == 1) then
-              !! DW-MCSCF
-              Do kA=1,nAsh(is)
-                Do lA=1,nAsh(js)
-                  kl1 = itri(ka,la)
-                  !! dimension of rmoaa is itri(nnA**2,nnA**2), but the actual array is similar to G2q
-                  !! dimension of G2q  : itri(itri(nnA,nnA),itri(nnA,nnA))
-                  scal=One
-                  if(ij1 >= kl1 .and. kA == lA) scal=Two
-                  if(ij1 <  kl1 .and. iA == jA) scal=Two
-                  OMGDER = OMGDER + scal*der2(itri(ij1,kl1))*G2q(itri(ij1,kl1))*Half
-                end do
+jdisk = itoc(3)
+do j=1,nRoots
+  call dDaFile(LUJOB,2,G1q,ng1,jDisk)
+  call dDaFile(LUJOB,0,rdum,ng1,jDisk)
+  call dDaFile(LUJOB,2,G2q,Ng2,jDisk)
+  call dDaFile(LUJOB,0,rdum,Ng2,jDisk)
+
+  OMGDER = Zero
+  do iS=1,nSym
+    if (nAsh(iS) > 0) then
+      jS = Mul(iS,idSym)
+      do iA=1,nAsh(is)
+        do jA=1,nAsh(js)
+          ij1 = iTri(ia,ja)
+          ip1 = nIsh(iS)+iA-1+nBas(jS)*(nIsh(js)+jA-1)+ipCM(is)
+          OMGDER = OMGDER+der1(ip1)*G1q(ij1)
+          if (mode == 1) then
+            !! DW-MCSCF
+            do kA=1,nAsh(is)
+              do lA=1,nAsh(js)
+                kl1 = iTri(ka,la)
+                !! dimension of rmoaa is itri(nnA**2,nnA**2), but the actual array is similar to G2q
+                !! dimension of G2q  : itri(itri(nnA,nnA),itri(nnA,nnA))
+                scal = One
+                if ((ij1 >= kl1) .and. (kA == lA)) then
+                  scal = Two
+                else if ((ij1 < kl1) .and. (iA == jA)) then
+                  scal = Two
+                end if
+                OMGDER = OMGDER+scal*der2(itri(ij1,kl1))*G2q(itri(ij1,kl1))*Half
               end do
-            end if
-          End Do
-        End Do
-      End If
-    End Do
-    DEROMG(j) = OMGDER
-  End Do
-
-  call mma_allocate(DERHII,nRoots,Label='DERHII')
-  DERHII(:) = Zero
-
-  !! weight is optional
-  call DWSol_Der(mode,DEROMG,DERHII,ERASSCF,weight)
-
-  !! this contributions should not be treated as multipliers, I guess
-  do i = 1, nRoots
-    DWOut(i,i) = DWOut(i,i) + DERHII(i)*Half
+            end do
+          end if
+        end do
+      end do
+    end if
   end do
-! write (*,*) "dwout"
-! call sqprt(dwout,nroots)
+  DEROMG(j) = OMGDER
+end do
 
-  call mma_deallocate(G1q)
-  call mma_deallocate(G2q)
-  call mma_deallocate(DERHII)
-  call mma_deallocate(DEROMG)
+call mma_allocate(DERHII,nRoots,Label='DERHII')
+DERHII(:) = Zero
 
-  return
+!! weight is optional
+call DWSol_Der(mode,DEROMG,DERHII,ERASSCF,weight)
 
-  End Subroutine DWder_MCLR
+!! this contributions should not be treated as multipliers, I guess
+do i=1,nRoots
+  DWOut(i,i) = DWOut(i,i)+DERHII(i)*Half
+end do
+!write(u6,*) 'dwout'
+!call sqprt(dwout,nroots)
+
+call mma_deallocate(G1q)
+call mma_deallocate(G2q)
+call mma_deallocate(DERHII)
+call mma_deallocate(DEROMG)
+
+return
+
+end subroutine DWder_MCLR

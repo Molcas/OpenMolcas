@@ -14,14 +14,14 @@ subroutine PCM_EF_grd(Grad,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use PCM_arrays, only: dCntr, dPnt, PCM_SQ, PCMiSph, PCMTess
+use PCM_alaska, only: DSA_AO, lSA, PCM_SQ_ind
+use NAC, only: isNAC
 use Gateway_global, only: PrPrt
 use Symmetry_Info, only: nIrrep
 use rctfld_module, only: nS, nTS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use PCM_alaska, only: DSA_AO, lSA, PCM_SQ_ind
-use NAC, only: isNAC
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -104,7 +104,7 @@ if (lSA) then
   !! q^SA = PCM_SQ(2,:), q^SS = PCM_SQ_ind(2,:)
   call mma_allocate(tmpchg,nTs,Label='tmpchg')
   !! V^N*q^N contribution (omit for NAC)
-  if (.not.isNAC) then
+  if (.not. isNAC) then
     tmpchg(:) = PCM_SQ(2,:)
     PCM_SQ(2,:) = Zero !! No electron contributions
     call Cmbn_EF_DPnt(EF,nTs,dPnt,MaxAto,dCntr,nS,PCMiSph,PCM_SQ,Grad,nGrad)
@@ -153,7 +153,7 @@ if (lSA) then
   call Drv1_PCM(FactOp,nTs,D1ao,nDens,PCMTess,lOper,EF,nOrdOp)
   call Cmbn_EF_DPnt(EF,nTs,dPnt,MaxAto,dCntr,nS,PCMiSph,PCM_SQ,Grad,nGrad)
 
-  if (.not.isNAC) then
+  if (.not. isNAC) then
     EF(:,:,:) = Zero
     ! -V^SA*q^{e,SA}/2 term (= -V^SA*q^SA; should be omitted for NAC)
     D1ao(1:nDens) = DSA_AO(1:nDens)

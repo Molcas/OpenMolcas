@@ -16,12 +16,11 @@ use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: ipCI, ipMat, n1Dens, n2Dens, nConf1, nDens, NSSA, XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nBas, nConf, nCSF, nRoots, nSym, ntAsh, PT2, State_Sym
+use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
+use ISRotation, only: InvEne, InvSCF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
-
-use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
-use ISRotation, only: InvEne, InvSCF
 
 implicit none
 real(kind=wp), intent(out) :: Fock(nDens)
@@ -36,7 +35,7 @@ real(kind=wp), allocatable :: CIL(:), CIR(:), F(:), G1m(:), G1q(:), G1r(:), G2q(
 !                                                                      *
 ng1 = nTri_Elem(ntAsh)
 ng2 = nTri_Elem(ng1)
-if (.not.InvEne) then
+if (.not. InvEne) then
   call mma_allocate(G1q,n1Dens,Label='G1q')
   call mma_allocate(G2q,n2Dens,Label='G2q')
 else
@@ -58,10 +57,10 @@ nConfR = max(nconf1,nint(xispsm(State_sym,1)))
 call mma_allocate(CIL,nConfL,Label='CIL')
 call mma_allocate(CIR,nConfR,Label='CIR')
 
-If (PT2 .or. (.not.InvEne .and. InvSCF)) then
+if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
   ! Almost the same as the code in rhs_sa, but slightly modified
   !iR = iRLXRoot
-  if (.not.PT2) SLag(NSSA(2),NSSA(1)) = SLag(NSSA(2),NSSA(1)) + One
+  if (.not. PT2) SLag(NSSA(2),NSSA(1)) = SLag(NSSA(2),NSSA(1))+One
   do jR=1,nRoots
     do kR=1,jR
       vSLag = SLag(jR,kR)
@@ -110,7 +109,7 @@ if (do_RF) then
   ! Update state-specific quantities using rotated G1r
   DSSMO(1:ntAsh,1:ntAsh) = reshape(G1r(1:ntAsh**2),[ntAsh,ntAsh])
   call PrepPCM2(2,DSSMO,DSSAO,PCMSSAO,PCMSSMO)
-  Call PCM_grad_CLag(2,ipCI,ipS2)
+  call PCM_grad_CLag(2,ipCI,ipS2)
 end if
 
 ! Symmetrize densities

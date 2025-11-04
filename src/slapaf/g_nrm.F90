@@ -12,13 +12,13 @@
 subroutine G_Nrm(nInter,GNrm,Iter,Grad,mIntEff)
 
 use Slapaf_Info, only: BMx, Degen, Gx
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter, Iter
@@ -47,12 +47,12 @@ if (RF_On()) then
   call mma_allocate(GxCart,3,size(Gx,2),Label='GxCart')
   call DGEMM_('N','N',3*size(Gx,2),1,nInter,One,BMx,3*size(Gx,2),Grad(:,Iter),nInter,Zero,GxCart,3*size(Gx,2))
   Fabs = Zero
-  do i = 1, size(gx,2)
-    do j = 1, 3
+  do i=1,size(Gx,2)
+    do j=1,3
       Fabs = Fabs+GxCart(j,i)**2/abs(Degen(j,i))
     end do
   end do
-  call mma_deallocate (GxCart)
+  call mma_deallocate(GxCart)
 end if
 
 Fabs = sqrt(Fabs)

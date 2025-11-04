@@ -57,7 +57,7 @@ if (nconf1 > 1) then
       rout(:,iR) = rout(:,iR)- &
                    W(ipCI)%A((jR-1)*nCSF(State_Sym)+1:jR*nCSF(State_Sym))*alpha(jR)/(W(ipdia)%A(1:nCSF(State_Sym))-ERASSCF(iR))
     end do
-!   if (abs(Weight(iR)) > 1.0e-09_wp) rout(:,iR) = rout(:,iR)/Weight(iR)
+    !if (abs(Weight(iR)) > 1.0e-9_wp) rout(:,iR) = rout(:,iR)/Weight(iR)
 
   end do
 else

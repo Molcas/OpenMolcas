@@ -15,13 +15,12 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: Int1, ipCI, ipCM, ipMat, ISTATE, LuJob, n1Dens, n2Dens, nA, nConf1, nDens, nNA, XISPSM
 use input_mclr, only: Debug, iRoot, iTOC, nAsh, nBas, nConf, nCSF, nIsh, nOrb, nRoots, nSym, ntAsh, PT2
+use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
+use ISRotation, only: InvEne, InvSCF
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
-
-use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
-use ISRotation, only: InvEne, InvSCF
 
 implicit none
 real(kind=wp), intent(out) :: Fock(nDens)
@@ -68,12 +67,12 @@ call dDaFile(LUJOB,0,rdum,Ng2,jDisk)
 ! The modified density will be used in out_pt2.f and ptrans_sa.f
 ! If the target energy is not invariant, rotations that are in
 ! the SLag array is evaluated here (even if everything zero).
-if (PT2 .or. (InvSCF .and. .not.InvEne)) then
-  Do iB=1,ntash
-    Do jB=1,ntash
-      G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
-    End Do
-  End Do
+if (PT2 .or. (InvSCF .and. (.not. InvEne))) then
+  do iB=1,ntash
+    do jB=1,ntash
+      G1r(ib+(jb-1)*ntash) = G1q(iTri(ib,jb))
+    end do
+  end do
 
   nConfL = max(nconf1,nint(xispsm(1,1)))
   nConfR = max(nconf1,nint(xispsm(1,1)))
@@ -201,7 +200,7 @@ if (do_RF) then
   ! There is no need to construct the derivative twice, but
   ! we anyway have to evaluate the derivatives of energy and
   ! Lagrangian separately, so there is no much benefit to change
-  Call PCM_grad_CLag(2,ipCI,ipS2)
+  call PCM_grad_CLag(2,ipCI,ipS2)
 end if
 
 if (doDMRG) call dmrg_dim_change_mclr(RGras2,nna,0)  ! yma

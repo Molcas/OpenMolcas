@@ -22,8 +22,8 @@ use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, iST, KAIN1, KINT2, KINT2A, nConf1
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF, nRoots, nSym, Page, State_Sym, Weight
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
@@ -106,11 +106,11 @@ if (.not. page) then
   do i=1,nroots
     if (weight(i) == Zero) then
       W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm)) = Zero
-      cycle
+    else
+      CIDET(1:nCSF(iCSM)) = W(ipCI1)%A((i-1)*ncsf(icsm)+1:i*ncsf(icsm))
+      call SigmaVec(CIDET,W(ipci2)%A(1+(i-1)*ncsf(issm)),kic)
+      W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm)) = weight(i)*W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm))
     end if
-    CIDET(1:nCSF(iCSM)) = W(ipCI1)%A((i-1)*ncsf(icsm)+1:i*ncsf(icsm))
-    call SigmaVec(CIDET,W(ipci2)%A(1+(i-1)*ncsf(issm)),kic)
-    W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm)) = weight(i)*W(ipci2)%A((i-1)*ncsf(issm)+1:i*ncsf(issm))
   end do
   call mma_deallocate(CIDET)
 else

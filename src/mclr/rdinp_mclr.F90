@@ -26,11 +26,11 @@ use MCLR_Data, only: DspVec, ESTERR, FANCY_PRECONDITIONER, ISMECIMSPD, ISNAC, IS
                      NoFile, NSSA, OVERRIDE, SA, SwLbl
 use input_mclr, only: CasInt, Debug, double, Eps, iBreak, IsPop, kPrint, lCalc, lRoots, lSave, mTit, nAtoms, nDisp, NewCho, nIter, &
                       nsRot, nSym, ntPert, nUserPT, Omega, Page, RASSI, SpinPol, StepType, TimeDep, TitleIn, TwoStep, UserP, UserT
+use PCM_grad, only: RFPERT
+use cgs_mod, only: CGS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
-Use PCM_grad, only: RFPERT
-Use cgs_mod, only: CGS
 
 implicit none
 #include "rasdim.fh"
@@ -42,11 +42,11 @@ character(len=4) :: Command
 character(len=2) :: Element(MxAtom)
 real(kind=wp), allocatable :: umass(:)
 character(len=3), allocatable :: cmass(:)
-integer(kind=iwp), parameter :: nCom = 40
-character(len=*), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','    ','    ','ITER','THRE','END ','TIME', &
+integer(kind=iwp), parameter :: nCom = 38
+character(len=*), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','CGS ','RFPE','ITER','THRE','END ','TIME', &
                                                '    ','NOFI','SEWA','NOCO','NOTW','SPIN','PRIN','PCGD','RESI','NOTO', &
                                                'EXPD','NEGP','LOWM','    ','SAVE','RASS','DISO','CASI','SALA','NODE', &
-                                               'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS','CGS ','RFPE']
+                                               'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS']
 
 !----------------------------------------------------------------------*
 !     Locate "start of input"                                          *
@@ -163,6 +163,14 @@ outer: do
       read(Line,*,iostat=istatus) lRoots
       if (istatus /= 0) call Error(istatus)
       if (debug) write(u6,*) 'LROOT'
+
+    case (5)
+      !---- CGS  ------------------------------------------------------*
+      CGS = .true.
+
+    case (6)
+      !---- RFPErt ----------------------------------------------------*
+      RFPERT = .true.
 
     case (7)
       !---- ITER ------------------------------------------------------*
@@ -442,14 +450,6 @@ outer: do
       if (StepType(1:4) == 'SECO') StepType(1:4) = 'RUN2'
       TwoStep = .true.
       if (debug) write(u6,*) 'TWOSTEP kind: '//StepType
-
-    case (39)
-      !---- CGS  ------------------------------------------------------*
-      CGS = .true.
-
-    case (40)
-      !---- RFPErt ----------------------------------------------------*
-      RFPERT = .true.
 
     case default
       jCom = 0

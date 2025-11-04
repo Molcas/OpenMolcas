@@ -19,13 +19,8 @@ implicit none
 integer(kind=iwp), intent(out) :: ISlPar(100)
 real(kind=wp), intent(out) :: RSlPar(100)
 integer(kind=iwp), intent(in) :: iPrint
-integer(kind=iwp) :: I
 
 ! Initialize the integer array.
-
-do I=1,100
-  ISlPar(I) = 0
-end do
 
 ISlPar(1) = 0       ! SCRF flag
 ISlPar(2) = 0       ! derivative level
@@ -70,11 +65,9 @@ ISlPar(40) = 0      ! [unused]
 ISlPar(41) = 0      ! vacuum SCF flag
 ISlPar(42) = 0      ! number of solute atoms
 
-! Initialize the real array.
+ISlPar(43:) = 0
 
-do I=1,100
-  RSlPar(I) = Zero
-end do
+! Initialize the real array.
 
 RSlPar(1) = Zero        ! XCosmo
 RSlPar(2) = 40.0_wp     ! Omega
@@ -129,6 +122,8 @@ RSlPar(50) = Zero       ! GRep
 RSlPar(51) = Zero       ! Total Cavity surface (SCav)
 RSlPar(52) = Zero       ! Total Cavity volume (VCav)
 RSlPar(53) = Zero       ! Zeta for dynamically weighted solvation
+
+RSlPar(54:) = Zero
 
 return
 

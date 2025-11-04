@@ -28,9 +28,9 @@ use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, i
                       nAtoms, nBas, nCSF, nDel, nDisp, nElec3, NewCho, nFro, nHole1, nIsh, nIter, nOrb, nRoots, nRS1, nRS2, nRS3, &
                       nSkip, nSym, ntAsh, ntBas, ntIsh, nTPert, Perturbation, PotNuc, PT2, SpinPol, State_Sym, State_Sym, &
                       StepType, TitleIn, TwoStep, Weight
+use PCM_grad, only: RFPERT
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
-use PCM_grad, only: RFPERT
 
 implicit none
 integer(kind=iwp), intent(in) :: iPL
@@ -248,14 +248,14 @@ if (iPL >= 2) then
     end if
   end if
 
-  If ( RFpert ) then
-    Write(u6,*)
-    Write(u6,Fmt1)'Reaction field specifications:'
-    Write(u6,Fmt1)'------------------------------'
-    Write(u6,*)
-    Write(u6,'(6X,A)')'The Reaction field is added as a perturbation and has been determined in a previous calculation'
-    Write(u6,*)
-  End If
+  if (RFpert) then
+    write(u6,*)
+    write(u6,Fmt1) 'Reaction field specifications:'
+    write(u6,Fmt1) '------------------------------'
+    write(u6,*)
+    write(u6,'(6X,A)') 'The Reaction field is added as a perturbation and has been determined in a previous calculation'
+    write(u6,*)
+  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *

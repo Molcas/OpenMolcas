@@ -17,11 +17,11 @@ use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA, XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF, nRoots, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use pcm_grad, only: do_RF, DZACTMO, iStpPCM
+use ISRotation, only: InvSCF, ISR, ScalWeight
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use pcm_grad, only: do_RF, DZACTMO, iStpPCM
-use ISRotation, only: InvSCF, ISR, ScalWeight
 
 #include "intent.fh"
 
@@ -124,60 +124,62 @@ do i=1,nroots
   end if
 
   ! rotations between internal states if SCF energy is non-invariant wrt internal state rotations
-  if (.not.InvSCF) then
-    if (iStpPCM == 2) then
-      call ipin(iLS)
-      Call CSF2SD(W(iLS)%A(1+(i-1)*ncsf(il)),CIL,iL)
-      call opout(iLS)
-    else if (iStpPCM == 3) then
-      call ipin(iRS)
-      Call CSF2SD(W(iRS)%A(1+(i-1)*ncsf(ir)),CIL,iR)
-      call opout(iRS)
-    end if
-    do j = 1, i
-      scal = ISR%p(i,j)
-      if (ScalWeight .and. abs(Weight(i)-Weight(j)) > 1.0e-09_wp) scal = scal*(Weight(i)-Weight(j))
-      if (abs(scal) <= 1.0e-10_wp) cycle
-      if (iStpPCM == 2) then
+  if (.not. InvSCF) then
+    select case (iStpPCM)
+      case (2)
         call ipin(iLS)
-        Call CSF2SD(W(iLS)%A(1+(j-1)*ncsf(il)),CIR,iL)
+        call CSF2SD(W(iLS)%A(1+(i-1)*ncsf(il)),CIL,iL)
         call opout(iLS)
-      else if (iStpPCM == 3) then
+      case (3)
         call ipin(iRS)
-        Call CSF2SD(W(iRS)%A(1+(j-1)*ncsf(ir)),CIR,iR)
+        call CSF2SD(W(iRS)%A(1+(i-1)*ncsf(ir)),CIL,iR)
         call opout(iRS)
-      end if
+    end select
+    do j=1,i
+      scal = ISR%p(i,j)
+      if (ScalWeight .and. (abs(Weight(i)-Weight(j)) > 1.0e-9_wp)) scal = scal*(Weight(i)-Weight(j))
+      if (abs(scal) <= 1.0e-10_wp) cycle
+      select case (iStpPCM)
+        case (2)
+          call ipin(iLS)
+          call CSF2SD(W(iLS)%A(1+(j-1)*ncsf(il)),CIR,iL)
+          call opout(iLS)
+        case (3)
+          call ipin(iRS)
+          call CSF2SD(W(iRS)%A(1+(j-1)*ncsf(ir)),CIR,iR)
+          call opout(iRS)
+      end select
       call ipnout(-1)
-      icsm=iR
-      issm=iL
-      Call Densi2_MCLR(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+      icsm = iR
+      issm = iL
+      call Densi2_MCLR(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
       De(1:n1dens) = scal*De(1:n1dens)
       Pe(1:n2dens) = scal*Pe(1:n2dens)
-      If (RSP) Then
-         Do iA=1,nnA
-           Do jA=1,nnA
-             Do kA=1,nnA
-              Do la=1,nnA
-               ij1=nnA*(iA-1)+ja
-               ij2=nna*(ja-1)+ia
-               kl1=nnA*(ka-1)+la
-               kl2=nna*(la-1)+ka
-               if (ij1 >= kl1) rp(itri(ij1,kl1))=rp(itri(ij1,kl1))+Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
-              End Do
-             End Do
-           End Do
-         End Do
-         Do iA=1,nnA
-            Do jA=1,nnA
-               ij1=nnA*(iA-1)+ja
-               ij2=nna*(ja-1)+ia
-               rD(ij1)=rD(ij1) + De(ij1)+De(ij2)
-            End Do
-         End Do
-      Else
-         rp(1:n2dens) = rp(1:n2dens) + Pe(1:n2dens)
-         rD(1:n1dens) = rD(1:n1dens) + De(1:n1dens)
-      End If
+      if (RSP) then
+        do iA=1,nnA
+          do jA=1,nnA
+            do kA=1,nnA
+              do la=1,nnA
+                ij1 = nnA*(iA-1)+ja
+                ij2 = nna*(ja-1)+ia
+                kl1 = nnA*(ka-1)+la
+                kl2 = nna*(la-1)+ka
+                if (ij1 >= kl1) rp(itri(ij1,kl1)) = rp(itri(ij1,kl1))+Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
+              end do
+            end do
+          end do
+        end do
+        do iA=1,nnA
+          do jA=1,nnA
+            ij1 = nnA*(iA-1)+ja
+            ij2 = nna*(ja-1)+ia
+            rD(ij1) = rD(ij1)+De(ij1)+De(ij2)
+          end do
+        end do
+      else
+        rp(1:n2dens) = rp(1:n2dens)+Pe(1:n2dens)
+        rD(1:n1dens) = rD(1:n1dens)+De(1:n1dens)
+      end if
     end do
   end if
 end do
