@@ -15,7 +15,7 @@ ga_driver.py \
   --fcidump $path_to_extrafiles/FCIDUMP_20site_Heisenberg \
   --norb 20 \
   --fitness DIAG_ELEM_SMS_MAPPING \
-  --ref-csf "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2]" \
+  --sms-ref-csf "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2]" \
   --num-chroms 100 \
   --elite-size 10 \
   --mutation-rates "[0.01]" \
