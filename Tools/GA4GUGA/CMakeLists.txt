@@ -33,7 +33,7 @@ if (Python_FOUND AND Python_VERSION VERSION_GREATER_EQUAL 3.9)
 
   # Install GA_mod module
   set (GA_MOD_SRC ${CMAKE_CURRENT_LIST_DIR}/src/GA_mod)
-  set (GA_MOD_OUTDIR ${EXECUTABLE_OUTPUT_PATH}/ga4guga/GA_mod)
+  set (GA_MOD_OUTDIR ${EXECUTABLE_OUTPUT_PATH}/src/GA_mod)
   foreach (progs IN ITEMS __init__.py auxiliary_functions.py config.py crossover.py extend_ordering.py gen_ref_dicts.py GUGA_diag.py measure_fitness.py population.py run_GA.py sampling.py)
     file (COPY ${GA_MOD_SRC}/${progs}
           DESTINATION ${GA_MOD_OUTDIR}
@@ -42,13 +42,13 @@ if (Python_FOUND AND Python_VERSION VERSION_GREATER_EQUAL 3.9)
 
     install (PROGRAMS
              ${GA_MOD_OUTDIR}/${progs}
-             DESTINATION ${CMAKE_INSTALL_PREFIX}/${tooldir}/ga4guga/GA_mod
+             DESTINATION ${CMAKE_INSTALL_PREFIX}/${tooldir}/src/GA_mod
     )
   endforeach (progs)
 
   # Install FCIDUMP_tools module
   set (FCIDUMP_SRC ${CMAKE_CURRENT_LIST_DIR}/src/FCIDUMP_tools)
-  set (FCIDUMP_OUTDIR ${EXECUTABLE_OUTPUT_PATH}/ga4guga/FCIDUMP_tools)
+  set (FCIDUMP_OUTDIR ${EXECUTABLE_OUTPUT_PATH}/src/FCIDUMP_tools)
   foreach (progs IN ITEMS __init__.py IntegralClass.py xyz2heisenberg.py)
     file (COPY ${FCIDUMP_SRC}/${progs}
           DESTINATION ${FCIDUMP_OUTDIR}
@@ -57,7 +57,7 @@ if (Python_FOUND AND Python_VERSION VERSION_GREATER_EQUAL 3.9)
 
     install (PROGRAMS
              ${FCIDUMP_OUTDIR}/${progs}
-             DESTINATION ${CMAKE_INSTALL_PREFIX}/${tooldir}/ga4guga/FCIDUMP_tools
+             DESTINATION ${CMAKE_INSTALL_PREFIX}/${tooldir}/src/FCIDUMP_tools
     )
   endforeach (progs)
 
