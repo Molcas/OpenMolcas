@@ -76,22 +76,18 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Basic Heisenberg chain optimization
-  ga_driver.py --fcidump FCIDUMP_20site --norb 20 --fitness DIAG_ELEM_SMS_MAPPING \\
-               --ref-csf "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2]" \\
-               --num-chroms 100 --elite-size 10 --mutation-rates "[0.01]" \\
-               --generations 10000 --restricted-ordering-len 20 --minimize
-
-  # P-cluster optimization with restricted permutation
-  ga_driver.py --fcidump FCIDUMP_PN_48i40 --norb 40 --fitness MIN_MAX_DIFF \\
-               --num-chroms 20 --elite-size 2 --mutation-rates "[0.02]" \\
-               --generations 1000 --restricted-ordering-len 8 \\
-               --on-site-permutation "(1,2,3,4,5)" --num-suffix 0
-
-  # Restart from previous run
-  ga_driver.py --fcidump FCIDUMP_20site --norb 20 --fitness FAST_DIAG_MIN_OSONLY \\
-               --restart-file current_pop.log --num-chroms 200 --elite-size 20 \\
-               --mutation-rates "[0.01]" --generations 5000 --restricted-ordering-len 20
+  # 20-site Heisenberg chain optimization with S-Ms mapping
+    ga_driver.py \
+      --fcidump $path_to_extrafiles/FCIDUMP_20site_Heisenberg \
+      --norb 20 \
+      --fitness DIAG_ELEM_SMS_MAPPING \
+      --ref-csf "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2]" \
+      --num-chroms 100 \
+      --elite-size 10 \
+      --mutation-rates "[0.01]" \
+      --generations 1000 \
+      --restricted-ordering-len 20 \
+      --minimize
         """
     )
 
