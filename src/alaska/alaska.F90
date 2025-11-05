@@ -43,6 +43,7 @@ use spool, only: Close_LuSpool
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use PCM_alaska, only: lSA, PCM_alaska_lSA, PCM_alaska_final, PCM_alaska_prep
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -96,6 +97,8 @@ if (RF_On()) then
     call Abend()
   end if
   call Init_RctFld(.false.,iCharge_Ref)
+  !! Check SA-CASSCF or not (and some initialization)
+  call PCM_alaska_lSA()
 end if
 !                                                                      *
 !***********************************************************************
@@ -139,6 +142,10 @@ call Close_LuSpool(LuSpool)
 call Get_iScalar('Columbus',Columbus)
 call Get_iScalar('colgradmode',colgradmode)
 
+! Some preparations for SA-CASSCF gradient
+! ASC charges have been overwritten in MCLR, so compute correct ones
+if (lRF .and. PCM .and. lSA) call PCM_alaska_prep()
+
 !-- Start computing the gradients
 !                                                                      *
 !***********************************************************************
@@ -148,9 +155,12 @@ call Get_iScalar('colgradmode',colgradmode)
 if (king() .or. HF_Force) then
 
   ! per default NADC must not have nuclear contributions added
+  ! If SA-CASSCF/PCM, call DrvN1 for PCM-related contributions
 
-  if (NO_NUC .or. ((Columbus == 1) .and. (colgradmode == 3))) then
+  if ((NO_NUC .and. .not.(lRF .and. PCM .and. lSA)) .or. ((Columbus == 1) .and. (colgradmode == 3))) then
     write(u6,*) 'Skipping Nuclear Charge Contribution'
+    iRout = 33 !! as done in DrvN1
+    iPrint = nPrint(iRout)
   else
     call DrvN1(Grad,Temp,lDisp(0))
     if (iPrint >= 15) then
@@ -270,6 +280,7 @@ if (.not. Test) then
   !*********************************************************************
   !                                                                    *
 end if
+if (lRF .and. PCM .and. lSA) call PCM_alaska_final()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

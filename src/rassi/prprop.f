@@ -2870,15 +2870,15 @@ C initialization same as G-tensor, construct L+gS matrix elements
       IF(IAMZ.GT.0) CALL SMMAT(PROP,LZI,NSS,IAMZ,0)
 
       Call mma_allocate(MXR,NSS,NSS,Label='MXR')
-      Call mma_allocate(MXR,NSS,NSS,Label='MXI')
+      Call mma_allocate(MXI,NSS,NSS,Label='MXI')
       MXR(:,:)=0.0D0
       MXI(:,:)=0.0D0
       Call mma_allocate(MYR,NSS,NSS,Label='MYR')
-      Call mma_allocate(MYR,NSS,NSS,Label='MYI')
+      Call mma_allocate(MYI,NSS,NSS,Label='MYI')
       MYR(:,:)=0.0D0
       MYI(:,:)=0.0D0
       Call mma_allocate(MZR,NSS,NSS,Label='MZR')
-      Call mma_allocate(MZR,NSS,NSS,Label='MZI')
+      Call mma_allocate(MZI,NSS,NSS,Label='MZI')
       MZR(:,:)=0.0D0
       MZI(:,:)=0.0D0
 

@@ -20,8 +20,6 @@ subroutine RdInp_MCLR()
 !                                                                      *
 !***********************************************************************
 
-use Basis_Info, only: Basis_Info_Get
-use Center_Info, only: Center_Info_Get
 use OneDat, only: sOpSiz
 use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
 use MCLR_Data, only: DspVec, ESTERR, FANCY_PRECONDITIONER, ISMECIMSPD, ISNAC, ISTATE, lDisp, NACSTATES, NewPre, nexp_max, nGP, &
@@ -31,22 +29,24 @@ use input_mclr, only: CasInt, Debug, double, Eps, iBreak, IsPop, kPrint, lCalc, 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
+Use PCM_grad, only: RFPERT
+Use cgs_mod, only: CGS
 
 implicit none
 #include "rasdim.fh"
-integer(kind=iwp) :: I, ICOM, ICOMP, ID, iDum(1), iMass, IOPT, IP, IPP, IRC, IRRFNC, istatus, ISYLBL, ISYM, ITIT, J, JCOM
-logical(kind=iwp) :: Epsilon_Undef, Skip
+integer(kind=iwp) :: I, ICOM, ICOMP, ID, iDum(1), iMass, IOPT, IP, IPP, IRC, IRRFNC, istatus, ISYLBL, ISYM, ITIT, J, JCOM, nDiff
+logical(kind=iwp) :: DoRys, Epsilon_Undef, Skip
 character(len=72) :: Line
 character(len=8) :: Label, SewLab
 character(len=4) :: Command
 character(len=2) :: Element(MxAtom)
 real(kind=wp), allocatable :: umass(:)
 character(len=3), allocatable :: cmass(:)
-integer(kind=iwp), parameter :: nCom = 38
+integer(kind=iwp), parameter :: nCom = 40
 character(len=*), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','    ','    ','ITER','THRE','END ','TIME', &
                                                '    ','NOFI','SEWA','NOCO','NOTW','SPIN','PRIN','PCGD','RESI','NOTO', &
                                                'EXPD','NEGP','LOWM','    ','SAVE','RASS','DISO','CASI','SALA','NODE', &
-                                               'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS']
+                                               'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS','CGS ','RFPE']
 
 !----------------------------------------------------------------------*
 !     Locate "start of input"                                          *
@@ -57,9 +57,10 @@ call RdNLst(u5,'MCLR')
 !----------------------------------------------------------------------*
 debug = .false.
 Epsilon_Undef = .true.
-call Basis_Info_Get()
-call Center_Info_Get()
-call Get_info_Static()
+! Calling Basis_Info_Get(), Center_Info_Get(), and Get_info_Static() are replaced with IniSew below
+nDiff = 0
+DoRys = .true.
+call IniSew(DoRys,nDiff)
 istate = 1     ! State for which the Lagrangian is calc.
 override = .false.
 if (debug) write(u6,*) 'Got Basis_Info and Center_Info'
@@ -97,6 +98,8 @@ Update = .true.
 Estimate = .false.
 TwoStep = .false.
 StepType = 'xxxx'
+CGS = .false.
+RFPERT = .false.
 !----------------------------------------------------------------------*
 !     Read the input stream line by line and identify key command      *
 !----------------------------------------------------------------------*
@@ -439,6 +442,14 @@ outer: do
       if (StepType(1:4) == 'SECO') StepType(1:4) = 'RUN2'
       TwoStep = .true.
       if (debug) write(u6,*) 'TWOSTEP kind: '//StepType
+
+    case (39)
+      !---- CGS  ------------------------------------------------------*
+      CGS = .true.
+
+    case (40)
+      !---- RFPErt ----------------------------------------------------*
+      RFPERT = .true.
 
     case default
       jCom = 0

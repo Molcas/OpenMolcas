@@ -43,7 +43,7 @@ ISlPar(13) = 0      ! derivatives style (default/pcm/cond)
 ISlPar(14) = 0      ! number of explicit spheres
 ISlPar(15) = 1      ! solvent id number
 ISlPar(16) = 1      ! PCM / Conductor
-ISlPar(17) = 1      ! [unused]
+ISlPar(17) = 1      ! Type for dynamically weighted solvation
 ISlPar(18) = 1      ! [unused]
 ISlPar(19) = 0      ! [unused]
 ISlPar(20) = 0      ! non equilibrium solvation
@@ -128,6 +128,7 @@ RSlPar(49) = Zero       ! GDisp
 RSlPar(50) = Zero       ! GRep
 RSlPar(51) = Zero       ! Total Cavity surface (SCav)
 RSlPar(52) = Zero       ! Total Cavity volume (VCav)
+RSlPar(53) = Zero       ! Zeta for dynamically weighted solvation
 
 return
 

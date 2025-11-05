@@ -34,6 +34,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
+use MCLR_Data, only: isNAC
+use pcm_grad, only: do_RF, DSCFMO, iStpPCM, PCMPT2MO, PCMSCFMO, PCMSSMO, PT2_solv
+
 implicit none
 real(kind=wp), intent(in) :: d_0, rDens1(nna,nna), rDens2(*)
 real(kind=wp), intent(out) :: Fock(nDens), FockOut(nDens)
@@ -222,6 +225,59 @@ if (iDsym == 1) then
                                                           Two*d_0*FIMO(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1)
   end do
 end if
+
+! PCM contributions
+! The contribution to the free energy is kind of D1*K*D2/2
+! (usually D1 \neq D2), so each contribution is separately
+! evaluated and halved.
+
+! No additional contributions during and after Z-vector here
+! the implicit contributions are added in PCM_grad_TimesE2
+! iStpPCM = 1   : derivative of the energy
+! iStpPCM = 2,3 : derivative of the eigenstate (eigenenergy)
+if (do_RF .and. iStpPCM == 1) then
+  if (PT2_solv) PCMSSMO(:,3) = PCMSSMO(:,3) + PCMPT2MO(:,3)
+
+  ! Compute V(rDens1) -> PCMRESMO
+  ! rDens1 (MO) -> rDens1 (AO)
+  Do iS=1,nSym
+    If (nBas(iS) > 0) Then
+      jS=iEOr(is-1,iDSym-1)+1
+      Do iA=1,nAsh(is)
+        Do jA=1,nAsh(js)
+          ip1=nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)
+          ip2=nBas(iS)*(nIsh(js)+jA-1) +ipmat(is,js)
+          !! implicit D^SS*V(e,SCF)
+          rd=DSCFMO(iA+nA(iS),jA+nA(js))
+          Fock(ip2:ip2+nBas(iS)-1) = Fock(ip2:ip2+nBas(iS)-1)+Rd*PCMSSMO(ip1:ip1+nBas(iS)-1,3)
+          !! explicit and implicit D^SA*V(e,SA)/2
+          if (.not.isNAC) then
+          Fock(ip2:ip2+nBas(iS)-1) = Fock(ip2:ip2+nBas(iS)-1)-Rd*PCMSCFMO(ip1:ip1+nBas(iS)-1,3)
+          end if
+        End Do
+      End Do
+    End If
+  End Do
+
+  ! inactive
+  ! explicit derivative for NAC should be with d_0,
+  ! but implicit contributions should not be scaled
+  If (iDsym == 1) Then
+    Do iS=1,nSym
+      If (nBas(iS)*nIsh(iS) > 0) then
+        !! implicit D^SS*V(e,SCF)
+        Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) = Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) &
+                                                            + Two*PCMSSMO(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1,3)
+        !! explicit + implicit erfx
+        Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) = Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) &
+                                                            - Two*d_0*PCMSCFMO(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1,3)
+      End If
+    End Do
+  End If
+  if (PT2_solv) PCMSSMO(:,3) = PCMSSMO(:,3) - PCMPT2MO(:,3)
+end if
+
+
 do iS=1,nSym
   jS = Mul(iS,idSym)
   if (nBas(is)*nBas(jS) /= 0) &

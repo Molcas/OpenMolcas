@@ -71,6 +71,7 @@
      &                        NTOT1,NCONF,NTOT,JOBIPH,NASH,NBAS,NDEL,
      &                        NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NSSH,NTOT2
       use spinfo, only: NCSASM,NDTASM
+      use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
 
 
       Implicit None
@@ -387,8 +388,47 @@ C Local print level (if any)
          Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
          iCharge=Int(Tot_Charge)
          Call PrRF(.False.,NonEq,iCharge,2)
-         Write(LF,Fmt2//'A,T45,I2)')' Reaction field from state:',
-     &                              IPCMROOT
+         if (DWSolv%DWZeta == -12345d+00) then
+             Write(LF,Fmt2//'A)')
+     &         'Weights of the reaction field are specified by RFROOT'
+             Write(LF,Fmt2//'(T45,10F6.3))') (W_SOLV(i),i=1,nRoots)
+         else if (DWSolv%DWZeta < 0.0d+00) then
+           Call DWSol_fixed(i,j)
+           if (i==0 .and. j==0) then
+             Write(LF,Fmt2//'A)') 'Unrecognized negative DWZeta (DWSOl)'
+             Write(LF,Fmt2//'A,T51,A)')
+     &         'Dynamically weighted solvation is ',
+     &         'automatically turned off!'
+           else
+             Write(LF,Fmt2//'A,T45,I2,X,I2)')
+     &         'Reaction field from states:', i, j
+             if (max(i,j) > nRoots) then
+               Write(LF,Fmt2//'A)')
+     &           'The specified state is too high! Cannot proceed...'
+               Call Quit_OnUserError()
+             end if
+           end if
+         else if (IPCMROOT <= 0) then
+           Write(LF,Fmt2//'A,T45,T15)')' Reaction field from state:',
+     &                                 ' State-Averaged'
+           if (DWSolv%DWZeta /= 0.0d+00) then
+             Write(LF,Fmt2//'A,T51,A)')
+     &         'Dynamically weighted solvation is ',
+     &         'automatically turned off!'
+             DWSolv%DWZeta = 0.0d+00
+           end if
+         else
+           Write(LF,Fmt2//'A,T45,I2)')' Reaction field from state:',
+     &                                IPCMROOT
+           if (DWSolv%DWZeta > 0.0d+00) then
+             Write(LF,Fmt2//'A,ES10.3,A,I1,A)')
+     &         'Dynamically weighted solvation is used with DWSOlv = ',
+     &         DWSolv%DWZeta," (DWTYpe = ",DWSolv%DWType,")"
+             Write(LF,Fmt2//'A,(T45,10F6.3))')
+     &         'Final weights for the reaction field',
+     &                                   (W_SOLV(i),i=1,nRoots)
+           end if
+         end if
       End If
       If ( RFpert ) then
          Write(LF,*)
