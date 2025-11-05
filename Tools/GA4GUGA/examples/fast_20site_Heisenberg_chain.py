@@ -45,7 +45,7 @@ ga.perform_GA(
         num_chroms=200,
         restricted_ordering_len=20,
         elite_size=20,
-        mutation_rates=[0.01],
+        mutation_rates=[0.00],
         generations=10000,
         cluster_period=2,
         co_function=co.order_co,

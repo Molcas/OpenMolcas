@@ -6,22 +6,24 @@ file, performs a GA simulation using diagonal-element information, and writes a
 reordered FCIDUMP file using the best ordering found.  For details of the
 algorithm, please see Section 2 of Reference [1].
 
-## Installation
-
-```bash
-cd GA4GUGA
-pip install -e .
-```
-
-This installs the package in editable mode.
-
-### Verify installation
-
-```bash
-python test_installation.py
-```
-
 ## Quick Start
+
+You can either directly execute `ga_driver.py` with input arguments, e.g.
+```
+# This is equivalent to `20site_Heisenberg_chain.py`.
+ga_driver.py \
+  --fcidump $path_to_extrafiles/FCIDUMP_20site_Heisenberg \
+  --norb 20 \
+  --fitness DIAG_ELEM_SMS_MAPPING \
+  --ref-csf "[1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2]" \
+  --num-chroms 100 \
+  --elite-size 10 \
+  --mutation-rates "[0.01]" \
+  --generations 1000 \
+  --restricted-ordering-len 20 \
+  --minimize
+```
+or install the package with `pip` (see **Installation** below).
 
 Once installed, you can import the package with `import GA_mod.run_GA as ga`.
 Then, a GA simulation can be performed with `ga.perform_GA`.
@@ -58,6 +60,22 @@ touch WRITE_CHECKPOINT
 During a GA run, creating this file triggers writing an FCIDUMP file with the
 current best ordering.
 
+## Installation
+
+```bash
+cd GA4GUGA
+pip install -e .
+```
+
+This installs the package in editable mode.
+
+### Verify installation
+
+```bash
+python test_installation.py
+```
+
+
 ## Fitness Functions
 
 **GA4GUGA** supports fitness functions using CSF energies of various CSFs (see
@@ -72,7 +90,7 @@ energies (Subsection 3.1 of Reference [1]).
     Maximizes the highest CSF energies of a given set of CSFs.
 
 -  `MIN_DIAG_ELEM`<br/>
-    Minimizes the highest CSF energies of a given set of CSFs.
+    Minimizes the lowest CSF energies of a given set of CSFs.
 
 -  `DIAG_ELEM_SMS_MAPPING`<br/>
     Maximizes or minimizes (depending on the option) the energy of the S-Ms

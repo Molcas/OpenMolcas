@@ -13,6 +13,8 @@
 
 import sys
 import os
+import random
+import numpy as np
 from GA_mod import population as pop
 from GA_mod import sampling
 from GA_mod import measure_fitness
@@ -26,11 +28,18 @@ def perform_GA(fitness_function, num_chroms, elite_size, mutation_rates,
                restricted_ordering_len, generations, co_function, fcidump, norb,
                cluster_period=5, stagnation_limit=100,
                on_site_permutation=(1,), num_prefix=0, num_suffix=0, 
-               restart_filename=None, **kwargs):
+               restart_filename=None, seed=None, **kwargs):
     """
     Main function to perform Genetic Algorithm optimization.
     """
 
+    # Set random seed if provided for reproducibility
+    if seed is not None:
+        random.seed(seed)
+        np.random.seed(seed)
+        print(f"Random seed set to: {seed}", file=sys.stdout)
+    else:
+        print("Random seed not set", file=sys.stdout)
 
     expected_norb = num_prefix + num_suffix + restricted_ordering_len * len(on_site_permutation)
     if expected_norb != norb:

@@ -32,7 +32,7 @@ ga.perform_GA(
         restricted_ordering_len=20,
         elite_size=10,
         mutation_rates=[0.01],
-        generations=10000,
+        generations=1000,
         co_function=co.order_co,
         fcidump=fcidump,
         norb=20,

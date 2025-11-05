@@ -8,6 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #***********************************************************************
+
 if (NOT DEFINED BASE_DIR)
   set (BASE_DIR ${PROJECT_SOURCE_DIR})
 endif ()
