@@ -32,8 +32,9 @@ logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i,j,k, iBas, cnt
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh!, kappa_ij
-real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:), GradientList(:,:,:), HessianList(:,:,:), &
-                            FunctionalList(:), xunitary_mat(:,:), unitary_mat(:,:), rotated_CMO(:,:)
+real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), &
+                                GradientList(:,:,:), HessianList(:,:,:), FunctionalList(:),&
+                                xunitary_mat(:,:), unitary_mat(:,:), rotated_CMO(:,:)
 
 logical(kind=iwp), parameter :: jacobisweeps = .false.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
@@ -83,8 +84,9 @@ end if
 
 call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo') !this contains only the orbitals that are to be localized, while CMO always contains all
-call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa') !this contains only the orbitals that are to be localized, while CMO always contains all
-call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') !this contains only the orbitals that are to be localized, while CMO always contains all
+call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
+call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
+call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
 Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
@@ -101,10 +103,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         kappa(:,:) = Zero
         kappa_cnt(:,:) = Zero
+        xkappa_cnt(:,:) = Zero
         !kappa(:,:) = 1/Hessianlist(:,:,nIter+1)*GradientList(:,:,nIter+1)
 
+        write(u6,*) 'WHATS WRONG'
         kappa(:,:) = 0.3*GradientList(:,:,nIter+1)
-        kappa_cnt(:,:) = kappa(:,:) !kappa^cnt = kappa since cnt=1
+        kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
+        xkappa_cnt(:,:) = kappa_cnt
 
         unitary_mat(:,:) = Zero
         call unitmat(unitary_mat,nOrb2Loc,nOrb2Loc)
@@ -121,7 +126,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         unitary_mat(:,:) =  unitary_mat(:,:) - kappa(:,:)
 
         call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
-        call RecPrt('unitary_mat = I - kappa^1',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
+        !call RecPrt('unitary_mat = I - kappa^1',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
         xunitary_mat(:,:) = unitary_mat
 
         write(u6,*) 'Taylor expansion: more terms'
@@ -138,38 +143,27 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! initial kappa matrix (just kappa^1)
             ! C <= alpha*A*B + beta*C
             ! kappa_cnt <= 1*kappa_cnt*kappa + 0*kappa_cnt
-            call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,kappa,nOrb2Loc,kappa_cnt,nOrb2Loc,Zero,&
+            call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
             kappa_cnt,norb2Loc)
-
-            !do i = 1,nOrb2Loc
-             !   do j = 1,nOrb2Loc
-              !      kappa_ij = 0
-            !        kappa_ij = kappa(i,j)
-             !       do k = 1,nOrb2Loc
-              !          kappa_ij = kappa_ij + kappa(i,k) * kappa_cnt(k,j)
-           !         end do
-            !        kappa(i,j)=kappa_ij
-            !    end do
-            !end do
-
+            xkappa_cnt(:,:) = kappa_cnt
 
             ! differentiation of odd and even cases, because this expands exp(-kappa)
             ! all terms starting at n=2
             if (mod(cnt,2) == 0) then
-                unitary_mat(:,:) =  unitary_mat(:,:) + 1/factor*kappa(:,:)
+                unitary_mat(:,:) =  unitary_mat + 1/factor*kappa_cnt(:,:)
                 write(u6,'(A,F6.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
                     ', current ithrsh = ', ithrsh
             else
-                unitary_mat(:,:) =  unitary_mat(:,:) - 1/factor*kappa(:,:)
+                unitary_mat(:,:) =  unitary_mat - 1/factor*kappa_cnt(:,:)
                 write(u6,'(A,F6.1,A,I2,A,ES12.4)') 'term: - 1/',factor,' * kappa^',cnt, &
                     ', current ithrsh = ', ithrsh
             end if
 
             ithrsh = maxval(abs(unitary_mat-xunitary_mat)/(abs(unitary_mat)+thrsh_taylor))
-            xunitary_mat(:,:) = unitary_mat(:,:)
+            xunitary_mat(:,:) = unitary_mat
 
             call RecPrt('kappa^cnt',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
-            call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
+            !call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
 
         end do
 
@@ -240,6 +234,7 @@ end if
 call mma_Deallocate(kappa)
 call mma_Deallocate(rotated_CMO)
 call mma_Deallocate(kappa_cnt)
+call mma_Deallocate(xkappa_cnt)
 call mma_Deallocate(unitary_mat)
 call mma_Deallocate(xunitary_mat)
 call mma_Deallocate(PACol)
