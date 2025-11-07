@@ -36,7 +36,7 @@ real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xk
                                 GradientList(:,:,:), HessianList(:,:,:), FunctionalList(:),&
                                 xunitary_mat(:,:), unitary_mat(:,:), rotated_CMO(:,:)
 
-logical(kind=iwp), parameter :: jacobisweeps = .false.
+logical(kind=iwp), parameter :: jacobisweeps = .false., printmore = .true.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
 
 
@@ -218,8 +218,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         write(u6,*) 'In PM_iter: FunctionalList(nIter+1) = ', FunctionalList(nIter+1)
     end if
 
-    !write(u6,'(A,F16.10,3X,A,I5)') 'In PM_iter: FunctionalList(nIter+1) = ', FunctionalList(nIter+1), 'at iteration', nIter
-    write(u6,'(I5,3X,F16.10)') nIter,FunctionalList(nIter+1)
+    if (printmore) then
+        !call RecPrt('Hdiag',' ',HessianList(:,:,nIter+1), nOrb2Loc,nOrb2Loc)
+        !write(u6,'(A,F16.10,3X,A,I5)') 'In PM_iter: FunctionalList(nIter+1) = ', FunctionalList(nIter+1), 'at iteration', nIter
+        write(u6,'(I5,3X,F20.8)') nIter,FunctionalList(nIter+1)
+    end if
+
+
     !calculates nxn gradient matrix for the current iteration and adds it to the List
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1), HessianList(:,:,nIter+1))
 
@@ -247,7 +252,7 @@ if (Debug) then
     !end do
     write(u6,*) ' '
     write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
-    !call RecPrt('HessianList',' ',HessianList(:,:,:), nOrb2Loc*nOrb2Loc, nIter+1)
+    call RecPrt('HessianList',' ',HessianList(:,:,:), nOrb2Loc*nOrb2Loc, nIter+1)
 end if
 
 call mma_Deallocate(kappa)
