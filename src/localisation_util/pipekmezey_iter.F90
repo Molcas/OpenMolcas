@@ -35,9 +35,14 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), &
                                 GradientList(:,:,:), HessianList(:,:,:), FunctionalList(:),&
                                 xunitary_mat(:,:), unitary_mat(:,:), rotated_CMO(:,:)
+character(len=20), allocatable :: opt_method
+logical(kind=iwp), parameter :: printmore = .true.
+real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 
-logical(kind=iwp), parameter :: jacobisweeps = .false., printmore = .true.
-real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
+!opt_method = 'jacobisweeps'
+!opt_method = 'gradient_ascent'
+opt_method = 'newton_raphson'
+
 
 
 ! Print iteration table header.
@@ -89,22 +94,30 @@ call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
 call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
 Converged = .false.
 
-if (.not. jacobisweeps) then
-    write(u6,*) 'The optimization of the PM functional was done using the Newton Raphson method with gradients and'
-    write(u6,*)  'the Hessian diagonal provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
-    write(u6,'(/,A)') 'nIter:     Functional:'
+if (opt_method == 'jacobisweeps') then
+    write(u6,'(/,A)') 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
+else if (opt_method == 'gradient_ascent') then
+    write(u6,'(/,A,2X,F8.6)') 'Gradient Ascent for maximization of the PM functional with alpha =', alpha
+    write(u6,*) 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
+else if (opt_method == 'newton_raphson') then
+    write(u6,'(/,A)') 'Newton Raphson method for maximization of the PM functional'
+    write(u6,*) 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
 end if
 
+if (printmore) then
+    write(u6,'(/,A)') '               nIter:  Functional:'
+    write(u6,*) nIter,FunctionalList(nIter+1)
+end if
 do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
 
     !choose between optimization methods
-    if (jacobisweeps) then
+    if (opt_method == 'jacobisweeps') then
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! 2x2 rotations
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,ThrRot,PctSkp,Debug)
-    else
+    else if (opt_method == 'gradient_ascent' .or. opt_method == 'newton_raphson') then
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! NxN rotations
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -113,9 +126,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         kappa(:,:) = Zero
         kappa_cnt(:,:) = Zero
         xkappa_cnt(:,:) = Zero
-        kappa(:,:) = -GradientList(:,:,nIter+1)/Hessianlist(:,:,nIter+1)
 
-        !kappa(:,:) = 0.3*GradientList(:,:,nIter+1)
+        if (opt_method == 'newton_raphson') then
+            kappa(:,:) = -GradientList(:,:,nIter+1)/Hessianlist(:,:,nIter+1)
+        else if (opt_method == 'gradient_ascent') then
+            kappa(:,:) = alpha*GradientList(:,:,nIter+1)
+        end if
+
         kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
         xkappa_cnt(:,:) = kappa_cnt
 
@@ -221,7 +238,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     if (printmore) then
         !call RecPrt('Hdiag',' ',HessianList(:,:,nIter+1), nOrb2Loc,nOrb2Loc)
         !write(u6,'(A,F16.10,3X,A,I5)') 'In PM_iter: FunctionalList(nIter+1) = ', FunctionalList(nIter+1), 'at iteration', nIter
-        write(u6,'(I5,3X,F20.8)') nIter,FunctionalList(nIter+1)
+        !write(u6,'(I5,3X,F20.8)') nIter,FunctionalList(nIter+1)
+        write(u6,*) nIter,FunctionalList(nIter+1)
     end if
 
 
