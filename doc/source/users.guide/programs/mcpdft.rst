@@ -235,7 +235,7 @@ The :kword:`FUNC` is the only required keyword.
               </KEYWORD>
 
 :kword:`WJOB`
-    This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into :file:`JOBIPH` (or :file:`wavefunction.h5`). For MC-PDFT, only the energy of each state is written into :file:`JOBIPH` (or :file:`wavefunction.h5`), since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI...); for MS-PDFT, both the energy and the CI coefficients of the eigenstates are written into :file:`JOBIPH`, because an MS calculation changes the wave functions. The latter option is not yet available for DMRG-SCF reference wave functions.
+  This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into :file:`JOBIPH` (or :file:`wavefunction.h5`). For MC-PDFT, only the energy of each state is written into :file:`JOBIPH` (or :file:`wavefunction.h5`), since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI...); for MS-PDFT, both the energy and the CI coefficients of the eigenstates are written into :file:`JOBIPH`, because an MS calculation changes the wave functions. The latter option is not yet available for DMRG-SCF reference wave functions.
 
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="WJOB" APPEAR="Write into JOBIPH" KIND="SINGLE" LEVEL="BASIC">
