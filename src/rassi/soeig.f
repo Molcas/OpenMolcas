@@ -278,16 +278,20 @@ C  is multiplied by imaginary unit to keep its hermicity
       ! save the Hamiltonian
       call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
       call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
-      call dcopy_(NSS*NSS,[0.d0],0,HAMSOR,1)
-      call dcopy_(NSS*NSS,[0.d0],0,HAMSOI,1)
       call dcopy_(NSS*NSS,HTOTR,1,HAMSOR,1)
       call dcopy_(NSS*NSS,HTOTI,1,HAMSOI,1)
       call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
       call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
 #ifdef _HDF5_
+      ! unshift the diagonal
+      do ISS=1,NSS
+        HAMSOR(ISS,ISS) = HAMSOR(ISS,ISS)+EMIN
+      end do
       call mh5_put_dset(wfn_sos_hsor,HAMSOR)
       call mh5_put_dset(wfn_sos_hsoi,HAMSOI)
 #endif
+      call mma_deallocate(HAMSOR)
+      call mma_deallocate(HAMSOI)
 
       !> use complex matrix diagonalization
 #ifdef _DMRG_
@@ -361,7 +365,7 @@ C  is multiplied by imaginary unit to keep its hermicity
 !     end do
 
 #ifdef _HDF5_
-      call mh5_put_dset(wfn_sos_energy, ENSOR)
+      call mh5_put_dset(wfn_sos_energy,ENSOR(:)+EMIN)
       call mh5_put_dset(wfn_sos_coefr,USOR)
       call mh5_put_dset(wfn_sos_coefi,USOI)
 #endif
@@ -560,7 +564,7 @@ C Added by Ungur Liviu on 04.11.2009
 C Saving the ESO array in the RunFile.
        CALL Put_iscalar('NSS_SINGLE',NSS)
        CALL Put_dArray( 'ESO_SINGLE',ESO,NSS)
-       CALL Put_dArray( 'ESO_LOW'   ,ENSOR+EMIN,NSS)
+       CALL Put_dArray( 'ESO_LOW'   ,ENSOR(:)+EMIN,NSS)
        CALL MMA_DEALLOCATE(ESO)
       END IF
 
@@ -624,8 +628,5 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
       CALL mma_deallocate(MAPST)
       CALL mma_deallocate(MAPSP)
       CALL mma_deallocate(MAPMS)
-
-      call mma_deallocate(HAMSOR)
-      call mma_deallocate(HAMSOI)
 
       END SUBROUTINE SOEIG
