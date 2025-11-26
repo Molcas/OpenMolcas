@@ -77,7 +77,7 @@
 
 #ifdef _DMRG_
       integer :: idx
-      character(len=300) :: currdir
+      character(len=300) :: WorkDir
 #endif
 
 
@@ -259,7 +259,7 @@
       End If
 
 #ifdef _DMRG_
-      call getenvf("WorkDir", currdir)
+      call getenvf("WorkDir", WorkDir)
       ! Leon 5/12/2016: Fetch QCMaquis checkpoint names if requested
       if (doDMRG) then
         if(mh5_exists_dset(refwfn_id, 'QCMAQUIS_CHECKPOINT')) then
@@ -287,7 +287,7 @@
      &        '.checkpoint_state.')
             if (idx.gt.0) then
               qcm_prefixes(job)=
-     &        trim(currdir)//'/'//
+     &        trim(WorkDir)//'/'//
      &        trim(qcm_group_names(job)%states(1)
      &        (1:idx-1))
             else

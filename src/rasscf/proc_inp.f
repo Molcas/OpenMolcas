@@ -181,7 +181,7 @@
 
 #ifdef _DMRG_
 !     dmrg(QCMaquis)-stuff
-      Character(LEN=256) CurrDir
+      Character(LEN=256) WorkDir
       Character(LEN=72) ProjectName
       integer              :: LRras2_dmrg(8)
       integer, allocatable :: initial_occ(:,:)
@@ -3496,7 +3496,7 @@ C Test read failed. JOBOLD cannot be used.
 #ifdef _DMRG_
       if(keyDMRG .or. doDMRG)then
       call getenvf("Project", ProjectName)
-      call getenvf("WorkDir", CurrDir)
+      call getenvf("WorkDir", WorkDir)
       ! Initialize the new interface
 
         call qcmaquis_interface_init(
@@ -3509,7 +3509,7 @@ C Test read failed. JOBOLD cannot be used.
      &    qcmaquis_param%conv_thresh,
      &    qcmaquis_param%M,
      &    qcmaquis_param%num_sweeps,
-     &    trim(CurrDir)//"/"//trim(ProjectName),
+     &    trim(WorkDir)//"/"//trim(ProjectName),
      &    twordm_qcm,
      &    nroots,
      &    lroots,

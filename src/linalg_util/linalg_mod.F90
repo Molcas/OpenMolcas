@@ -395,8 +395,7 @@ subroutine determine_eigenspaces(lambda,dimensions)
 
 # ifdef _ADDITIONAL_RUNTIME_CHECK_
   if (any(lambda(2:) < lambda(:size(lambda)-1))) then
-    call abort_('Eigenvalues not sorted in '// &
-      __FILE__)
+    call abort_('Eigenvalues not sorted in '//__FILE__)
   end if
 # endif
 
