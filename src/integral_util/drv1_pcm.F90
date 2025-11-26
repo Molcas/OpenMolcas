@@ -42,6 +42,10 @@ use Basis_Info, only: DBSC, MolWgh, Shells
 use Center_Info, only: DC
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par, myRank, nProcs
+use UnixInfo, only: ProgName
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -64,6 +68,10 @@ real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Fnl(:), Kappa(:), Kern(:
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
 #endif
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: job_equal, remainder
+#endif
+integer(kind=iwp) :: HiTs, LoTs
 integer(kind=iwp), external :: MemSO1, n2Tri
 real(kind=wp), external :: DDot_
 
@@ -73,6 +81,33 @@ call mma_allocate(Zeta,S%m2Max,Label='Zeta')
 call mma_allocate(ZI,S%m2Max,Label='ZI')
 call mma_allocate(Kappa,S%m2Max,Label='Kappa')
 call mma_allocate(PCoor,S%m2Max,3,Label='PCoor')
+
+#ifdef _MOLCAS_MPP_
+LoTs = 1
+HiTs = nTs
+! Parallel is turned off for ALASKA because drvn1 is called from the master node only
+if (is_real_par() .and. (ProgName(1:6) /= 'alaska')) then
+  job_equal = nTs/nProcs
+  remainder = mod(nTs,nProcs)
+
+  jS = 1
+  do iS=1,myRank+1
+    LoTs = jS
+    if (iS <= remainder) then
+      jS = jS+job_equal+1
+    else
+      jS = jS+job_equal
+    end if
+    HiTs = jS-1
+  end do
+
+  VTessera(:,1,:) = VTessera(:,1,:)/real(nProcs,kind=wp)
+  VTessera(:,2,:) = Zero ! just in case
+end if
+#else
+LoTs = 1
+HiTs = nTs
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -195,7 +230,7 @@ do iS=1,nSkal
 
       ! Loop over operators
 
-      do iTile=1,nTs
+      do iTile=LoTs,HiTs
         if (FactOp(iTile) == Zero) cycle
         C(:) = Ccoor(1:3,iTile)
 
@@ -303,6 +338,10 @@ call mma_deallocate(PCoor)
 call mma_deallocate(Kappa)
 call mma_deallocate(ZI)
 call mma_deallocate(Zeta)
+
+#ifdef _MOLCAS_MPP_
+if (ProgName(1:6) /= 'alaska') call GADSUM(VTessera,nComp*2*nTs)
+#endif
 
 return
 

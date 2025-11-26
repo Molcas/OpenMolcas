@@ -15,6 +15,7 @@ use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI, nConf1
 use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: nCSF, nRoots, State_Sym
+use ISRotation, only: unequal_SA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
 use Definitions, only: wp, iwp
@@ -33,6 +34,10 @@ call ipin(ipS1)
 call ipin(ipCI)
 
 W(ipS1)%A(1:nroots*ncsf(STATE_SYM)) = Two*W(ipS1)%A(1:nroots*ncsf(STATE_SYM))
+
+! if not equally state-averaged, do not project out the internal space contributions here
+if (unequal_SA) return
+
 call mma_allocate(R,nroots,nroots,label='R')
 
 do i=1,nroots

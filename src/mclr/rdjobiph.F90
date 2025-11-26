@@ -164,35 +164,30 @@ if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
 end if
 if ((Method == 'CASSCFSA') .or. (Method == 'CASPT2') .or. (Method == 'RASSCFSA')) then
   call Get_iScalar('SA ready',iGo)
-  if (iGO == -1) then
-    write(u6,*) 'MCLR not implemented for SA-CASSCF with non-equivalent weights!'
-    call Abend()
-  else
-    if (iGo /= 2) SA = .true.
-    Found = .true.
-    if (override) then
-      if (isNAC) then
-        do j=1,2
-          NSSA(j) = 0
-          do i=1,lroots
-            if (iroot(i) == NACStates(j)) NSSA(j) = i
-          end do
-          if (NSSA(j) == 0) Found = .false.
+  if (iGo /= 2) SA = .true.
+  Found = .true.
+  if (override) then
+    if (isNAC) then
+      do j=1,2
+        NSSA(j) = 0
+        do i=1,lroots
+          if (iroot(i) == NACStates(j)) NSSA(j) = i
         end do
-      else
-        irlxroot = iroot(istate)
-      end if
-    else
-      istate = 0
-      do i=1,lroots
-        if (iroot(i) == irlxroot) istate = i
+        if (NSSA(j) == 0) Found = .false.
       end do
-      if (istate == 0) Found = .false.
+    else
+      irlxroot = iroot(istate)
     end if
-    if (.not. Found) then
-      call WarningMessage(2,'Cannot relax a root not included in the SA')
-      call Abend()
-    end if
+  else
+    istate = 0
+    do i=1,lroots
+      if (iroot(i) == irlxroot) istate = i
+    end do
+    if (istate == 0) Found = .false.
+  end if
+  if (.not. Found) then
+    call WarningMessage(2,'Cannot relax a root not included in the SA')
+    call Abend()
   end if
 else if ((irlxroot == 1) .and. (.not. (McKinley .or. PT2 .or. iMCPD))) then
   write(u6,*)

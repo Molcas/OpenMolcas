@@ -20,22 +20,22 @@ subroutine RdInp_MCLR()
 !                                                                      *
 !***********************************************************************
 
-use Basis_Info, only: Basis_Info_Get
-use Center_Info, only: Center_Info_Get
 use OneDat, only: sOpSiz
 use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
 use MCLR_Data, only: DspVec, ESTERR, FANCY_PRECONDITIONER, ISMECIMSPD, ISNAC, ISTATE, lDisp, NACSTATES, NewPre, nexp_max, nGP, &
                      NoFile, NSSA, OVERRIDE, SA, SwLbl
 use input_mclr, only: CasInt, Debug, double, Eps, iBreak, IsPop, kPrint, lCalc, lRoots, lSave, mTit, nAtoms, nDisp, NewCho, nIter, &
                       nsRot, nSym, ntPert, nUserPT, Omega, Page, RASSI, SpinPol, StepType, TimeDep, TitleIn, TwoStep, UserP, UserT
+use PCM_grad, only: RFPERT
+use cgs_mod, only: CGS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 #include "rasdim.fh"
-integer(kind=iwp) :: I, ICOM, ICOMP, ID, iDum(1), iMass, IOPT, IP, IPP, IRC, IRRFNC, istatus, ISYLBL, ISYM, ITIT, J, JCOM
-logical(kind=iwp) :: Epsilon_Undef, Skip
+integer(kind=iwp) :: I, ICOM, ICOMP, ID, iDum(1), iMass, IOPT, IP, IPP, IRC, IRRFNC, istatus, ISYLBL, ISYM, ITIT, J, JCOM, nDiff
+logical(kind=iwp) :: DoRys, Epsilon_Undef, Skip
 character(len=72) :: Line
 character(len=8) :: Label, SewLab
 character(len=4) :: Command
@@ -43,7 +43,7 @@ character(len=2) :: Element(MxAtom)
 real(kind=wp), allocatable :: umass(:)
 character(len=3), allocatable :: cmass(:)
 integer(kind=iwp), parameter :: nCom = 38
-character(len=*), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','    ','    ','ITER','THRE','END ','TIME', &
+character(len=*), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','CGS ','RFPE','ITER','THRE','END ','TIME', &
                                                '    ','NOFI','SEWA','NOCO','NOTW','SPIN','PRIN','PCGD','RESI','NOTO', &
                                                'EXPD','NEGP','LOWM','    ','SAVE','RASS','DISO','CASI','SALA','NODE', &
                                                'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS']
@@ -57,9 +57,10 @@ call RdNLst(u5,'MCLR')
 !----------------------------------------------------------------------*
 debug = .false.
 Epsilon_Undef = .true.
-call Basis_Info_Get()
-call Center_Info_Get()
-call Get_info_Static()
+! Calling Basis_Info_Get(), Center_Info_Get(), and Get_info_Static() are replaced with IniSew below
+nDiff = 0
+DoRys = .true.
+call IniSew(DoRys,nDiff)
 istate = 1     ! State for which the Lagrangian is calc.
 override = .false.
 if (debug) write(u6,*) 'Got Basis_Info and Center_Info'
@@ -97,6 +98,8 @@ Update = .true.
 Estimate = .false.
 TwoStep = .false.
 StepType = 'xxxx'
+CGS = .false.
+RFPERT = .false.
 !----------------------------------------------------------------------*
 !     Read the input stream line by line and identify key command      *
 !----------------------------------------------------------------------*
@@ -160,6 +163,14 @@ outer: do
       read(Line,*,iostat=istatus) lRoots
       if (istatus /= 0) call Error(istatus)
       if (debug) write(u6,*) 'LROOT'
+
+    case (5)
+      !---- CGS  ------------------------------------------------------*
+      CGS = .true.
+
+    case (6)
+      !---- RFPErt ----------------------------------------------------*
+      RFPERT = .true.
 
     case (7)
       !---- ITER ------------------------------------------------------*

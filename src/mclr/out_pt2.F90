@@ -15,7 +15,10 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO, ESTERR, ipCI, ipCM, ipMat, IRLXROOT, ISNAC, ISTATE, LuJob, LuPT2, LuTEMP, n1Dens, n2Dens, nA, NACSTATES, &
                      nConf1, nDens, nDensC, OVERRIDE
-use input_mclr, only: iRoot, iTOC, nAsh, nBas, nCSF, nDisp, nIsh, nRoots, nSym, ntAsh, PT2, State_Sym
+use input_mclr, only: iRoot, iTOC, nAsh, nBas, nCSF, nDisp, nIsh, nRoots, nSym, ntAsh, ntBtri, PT2, State_Sym
+use PCM_grad, only: DSCFAO, DSSAO, PCM_grad_D2v, PCMSCFAO, PCMSCFMO
+use rctfld_module, only: lRF
+use ISRotation, only: ISR_final2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half, Quart
@@ -635,6 +638,14 @@ end if
 if (override) mstate(1:1) = '+'
 call Put_cArray('MCLR Root',mstate,16)
 
+!! In the end, it may be useful to generate ASCs using the relaxed
+!! density matrix for non-equilibrium solvation model
+if (lRF) then
+  call Get_dArray('D1aoVar',DSSAO,ntBtri)
+  call unfold(DSSAO,ntot1,DSCFAO,nLCMO,nSym,nBas)
+  call PCM_grad_D2V(DSCFAO,PCMSCFMO,PCMSCFAO,.false.,.false.,.false.,.false.)
+end if
+
 call mma_deallocate(K1)
 call mma_deallocate(K2)
 call mma_deallocate(DAO)
@@ -647,6 +658,7 @@ call mma_deallocate(OCCU)
 call mma_deallocate(CMON)
 call mma_deallocate(Dtmp)
 call mma_deallocate(D_K)
+call ISR_final2()
 
 call ipclose(-1)
 

@@ -13,26 +13,32 @@
       Subroutine PutRlx(D,DS,P,DAO,C)
       use spin_correlation, only: tRootGrad
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global, only: CBLBM, ExFac, iBLBM, iPr, iRLXRoot,
-     &                         iSymBB, lRoots, lSquare, NACPAR,
-     &                         NACPR2, NewFock, nFint, NSXS, NTOT4,
-     &                         RlxGrd, iAdr15, ISTORP, JBLBM
-      use printlevel, only: DEBUG
+      use rasscf_global, only: CBLBM, ENER, ExFac, iBLBM, IPCMROOT, iPr,
+     &                         iRLXRoot, iSymBB, ITER, lRoots, lSquare,
+     &                         NACPAR, NACPR2, NewFock, nFint, nRoots,
+     &                         NSXS, NTOT4, RlxGrd, iAdr15, ISTORP,
+     &                         JBLBM
+      use printlevel, only: DEBUG,USUAL
       use output_ras, only: LF,IPRLOC
-      use general_data, only: NTOT2,NSYM,JOBIPH,NBAS
+      use general_data, only: NTOT1,NTOT2,NSYM,JOBIPH,NBAS
+      use DWSol, only: DWSolv, DWSol_wgt, W_SOLV
+      use rctfld_module, only: lRF
 
       Implicit None
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)
 
+      Character(LEN=8)  Fmt2
       Character(LEN=16), Parameter:: ROUTINE='PUTRLX  '
       Real*8 rdum(1)
       Integer i, iFinal, iPrLev, istmp, itmp, jDisk, jtmp, kDisk,
-     &        NFSize, NZ
-      Real*8 rTmp
+     &        left, NFSize, NZ
+      Real*8 rTmp, wgt
       Real*8, External:: DNRM2_
 
-      Real*8, Allocatable:: DA(:), DI(:), DSX(:), DX(:), F(:), B(:),
-     &                      Q(:), FA(:), FI(:), PUVX(:), TUVX(:), PX(:)
+      Real*8, Allocatable:: DA(:), DA_ave(:), DI(:), DSX(:), DS_ave(:),
+     &                      DX(:), F(:), B(:), Q(:), FA(:), FI(:),
+     &                      PUVX(:), TUVX(:), PX(:), WRK1(:), WRK2(:)
+      Logical, external :: PCM_On
 
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -175,6 +181,61 @@
       IF(IPRLEV.EQ.5) IPR=10
       PUVX(:)=0.0D0
       Call TraCtl2(C,PUVX,TUVX,DI,FI,DA,FA,ipr,lsquare,ExFac)
+*
+      ! DA constructed above is the density for the RLXROOT state.
+      ! We should reconstruct the AO density matrix to prevent the
+      ! mismatch of states for reaction field and geometry optimization
+      ! It seems that IPCMROOT may not be defined sometimes
+      if (lRF .and. PCM_On() .and. (IPCMROOT /= iRLXROOT .or.
+     *    IPCMROOT <= 0 .or. DWSolv%DWZeta /= 0.0d+00)) then
+        !! Polarize PCM etc with weighted density
+        Call mma_allocate(DA_ave,MAX(NACPAR,NZ),Label='DA_ave')
+        Call mma_allocate(DS_ave,MAX(NACPAR,NZ),Label='DS_ave')
+        Call mma_allocate(WRK1,MAX(NACPAR,NZ),Label='WRK1')
+        Call mma_allocate(WRK2,MAX(NACPAR,NZ),Label='WRK2')
+*
+        DA_ave(:) = 0.0d+00
+        DS_ave(:) = 0.0d+00
+*
+        call DWSol_wgt(2,ENER(:,ITER))
+        kDisk = IADR15(3)
+        Do i=1,nRoots
+          wgt = W_SOLV(i)
+          Call DDaFile(JOBIPH,2,WRK1,NACPAR,kDisk)
+          Call DDaFile(JOBIPH,2,WRK2,NACPAR,kDisk)
+          Call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
+          Call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
+          if (wgt < 1.0d-09) cycle
+          call daxpy_(NACPAR,wgt,WRK1,1,DA_ave,1)
+          call daxpy_(NACPAR,wgt,WRK2,1,DS_ave,1)
+        End Do
+*
+*       Construc D-ACTIVE AND D-INACTIVE IN AO BASIS
+*
+        CALL DCOPY_(NACPAR,DS_ave,1,DX,1)
+        call dcopy_(NZ,DSX,1,DS_ave,1)
+        Call DBLOCK(DX)
+        CALL Get_D1A_RASSCF(C,DX,DSX)
+*
+        CALL DCOPY_(NACPAR,DA_ave,1,DX,1)
+        call dcopy_(NZ,DA,1,DA_ave,1)
+        Call DBLOCK(DX)
+        CALL Get_D1A_RASSCF(C,DX,DA)
+*
+        Call mma_deallocate(WRK1)
+        Call mma_deallocate(WRK2)
+        IF(IPRLEV.GE.USUAL .AND. DWSolv%DWZeta > 0.0d+00) THEN
+          left=6
+          Write(LF,*)
+          Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
+          Write(LF,Fmt2//'A)')
+     &      'Dynamically weighted solvation has been employed'
+          Write(LF,Fmt2//'A,(T45,10F6.3))')
+     &      'Final weights for the reaction field:',
+     &                                (W_SOLV(i),i=1,nRoots)
+        END IF
+      end if
+*
       CALL SGFCIN(C,F,FI,DI,DA,DSX)
       call dcopy_(ntot4,[0.0d0],0,F,1)
       call dcopy_(ntot4,[0.0d0],0,B,1)
@@ -183,6 +244,28 @@
 *
       iTmp=newfock
       newFock=-99999
+*
+      if (lRF .and. PCM_On() .and. (IPCMROOT /= iRLXROOT .or.
+     *    IPCMROOT <= 0 .or. DWSolv%DWZeta /= 0.0d+00)) then
+        ! The rest of the RASSCF program uses state-specific density
+        ! (note that, it is iRlxRoot!), so restore the one constructed
+        ! above, before TraCtl2
+        Call dcopy_(NZ,DA_ave,1,DA,1)
+        Call dcopy_(NZ,DS_ave,1,DSX,1)
+        Call mma_deallocate(DA_ave)
+        Call mma_deallocate(DS_ave)
+*
+        Call mma_allocate(WRK1,nTot1,Label='WRK1')
+        Call mma_allocate(WRK2,nTot1,Label='WRK2')
+        Call Fold(nSym,nBas,DI,WRK1)
+        Call Fold(nSym,nBas,DA,WRK2)
+        Call Daxpy_(nTot1,1.0d+00,WRK1,1,WRK2,1)
+        Call Put_dArray('D1ao',WRK2,nTot1)
+        Call Fold(nSym,nBas,DSX,WRK1)
+        Call Put_dArray('D1sao',WRK1,nTot1)
+        Call mma_deallocate(WRK1)
+        Call mma_deallocate(WRK2)
+      end if
 *
       Call Fmat(C,PUVX,DX,DA,FI,FA)
       newFock=itmp

@@ -405,6 +405,10 @@ C ------------------------------------------
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HEXT') THEN
+        if (nState == 0) then
+          call WarningMessage(2,'HEXT needs an explicit NROFJOB')
+          call abend()
+        end if
         IFHEXT=.TRUE.
         Call mma_allocate(HAM,nState,nState,Label='HAM')
         Read(LuIn,*,ERR=997)((HAM(ISTATE,JSTATE),
@@ -437,6 +441,10 @@ C ------------------------------------------
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'HDIA') THEN
+        if (nState == 0) then
+          call WarningMessage(2,'HDIA needs an explicit NROFJOB')
+          call abend()
+        end if
         IFHDIA=.TRUE.
         Call mma_allocate(HDIAG,nState,Label='nState')
         Read(LuIn,*,ERR=997)(HDIAG(ISTATE),ISTATE=1,NSTATE)
@@ -445,6 +453,10 @@ C ------------------------------------------
       END IF
 C ------------------------------------------
       IF(LINE(1:4).EQ.'SHIF') THEN
+        if (nState == 0) then
+          call WarningMessage(2,'SHIFT needs an explicit NROFJOB')
+          call abend()
+        end if
         IFSHFT=.TRUE.
         Call mma_allocate(ESHFT,nState,Label='ESHFT')
         Read(LuIn,*,ERR=997)(ESHFT(ISTATE),ISTATE=1,NSTATE)

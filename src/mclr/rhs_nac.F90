@@ -9,20 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RHS_NAC(Fock,SLag)
+subroutine RHS_NAC(Fock,SLag,ipS2)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: ipCI, ipMat, n1Dens, n2Dens, nConf1, nDens, NSSA, XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nBas, nConf, nCSF, nRoots, nSym, ntAsh, PT2, State_Sym
+use PCM_grad, only: do_RF, DSSAO, DSSMO, PCMSSAO, PCMSSMO, PCM_grad_CLag, PrepPCM2
+use ISRotation, only: InvEne, InvSCF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(out) :: Fock(nDens)
-real(kind=wp), intent(in) :: SLag(nRoots,nRoots)
+real(kind=wp), intent(inout) :: SLag(nRoots,nRoots)
+integer(kind=iwp), intent(in) :: ipS2
 integer(kind=iwp) :: i, ij, ij2, ijkl, ijkl2, iRC, j, jR, k, kl, kl2, kR, l, LuDens, nConfL, nConfR, ng1, ng2
 real(kind=wp) :: factor, vSLag
 real(kind=wp), allocatable :: CIL(:), CIR(:), F(:), G1m(:), G1q(:), G1r(:), G2q(:), G2r(:), T(:)
@@ -32,7 +35,7 @@ real(kind=wp), allocatable :: CIL(:), CIR(:), F(:), G1m(:), G1q(:), G1r(:), G2q(
 !                                                                      *
 ng1 = nTri_Elem(ntAsh)
 ng2 = nTri_Elem(ng1)
-if (PT2) then
+if (.not. InvEne) then
   call mma_allocate(G1q,n1Dens,Label='G1q')
   call mma_allocate(G2q,n2Dens,Label='G2q')
 else
@@ -53,16 +56,14 @@ nConfL = max(nconf1,nint(xispsm(State_sym,1)))
 nConfR = max(nconf1,nint(xispsm(State_sym,1)))
 call mma_allocate(CIL,nConfL,Label='CIL')
 call mma_allocate(CIR,nConfR,Label='CIR')
-if (PT2) then
+
+if (PT2 .or. ((.not. InvEne) .and. InvSCF)) then
   ! Almost the same as the code in rhs_sa, but slightly modified
   !iR = iRLXRoot
+  if (.not. PT2) SLag(NSSA(2),NSSA(1)) = SLag(NSSA(2),NSSA(1))+One
   do jR=1,nRoots
     do kR=1,jR
-      vSLag = Zero
-      !write(u6,*) 'jr,kr= ',jr,kr
-      !write(u6,*) vslag
       vSLag = SLag(jR,kR)
-      !write(u6,*) vslag
 
       call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
       !call opout(ipCI)
@@ -102,6 +103,14 @@ else
 end if
 call mma_deallocate(CIL)
 call mma_deallocate(CIR)
+
+if (do_RF) then
+  nconf = ncsf(State_sym)
+  ! Update state-specific quantities using rotated G1r
+  DSSMO(1:ntAsh,1:ntAsh) = reshape(G1r(1:ntAsh**2),[ntAsh,ntAsh])
+  call PrepPCM2(2,DSSMO,DSSAO,PCMSSAO,PCMSSMO)
+  call PCM_grad_CLag(2,ipCI,ipS2)
+end if
 
 ! Symmetrize densities
 ! For the one-particle density, save the antisymmetric part too

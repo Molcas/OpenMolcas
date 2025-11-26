@@ -27,8 +27,9 @@ subroutine FockGen(d_0,rDens1,rdens2,Fock,FockOut,idSym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use MCLR_Data, only: CMO, FIMO, ipCM, ipMat, nA, nDens, nNA
+use MCLR_Data, only: CMO, FIMO, ipCM, ipMat, isNAC, nA, nDens, nNA
 use input_mclr, only: LuAChoVec, nAsh, nBas, NewCho, nIsh, nOrb, nSym
+use PCM_grad, only: do_RF, DSCFMO, iStpPCM, PCMPT2MO, PCMSCFMO, PCMSSMO, PT2_solv
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -74,7 +75,7 @@ if (.not. NewCho) then  ! Cho-MO
         !                                                              *
         !***************************************************************
         !                                                              *
-        if ((Mul(ipS,kS) == iDsym) .and. (nBas(ipS)*nIsh(kS) > 0)) then
+        if ((Mul(ipS,kS) == idSym) .and. (nBas(ipS)*nIsh(kS) > 0)) then
           do iA=1,nAsh(iS)
             iAA = iA+nIsh(iS)
             do jA=1,nAsh(jS)
@@ -97,7 +98,7 @@ if (.not. NewCho) then  ! Cho-MO
         !                                                              *
         !***************************************************************
         !                                                              *
-        if ((Mul(ipS,iS) == iDsym) .and. (nBas(ipS) > 0)) then
+        if ((Mul(ipS,iS) == idSym) .and. (nBas(ipS) > 0)) then
           do iA=1,nIsh(iS)
             ipF = ipMat(ipS,iS)+nBas(ipS)*(iA-1)
             do jA=1,nAsh(jS)
@@ -125,7 +126,7 @@ if (.not. NewCho) then  ! Cho-MO
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call CreQADD(Fock,rdens2,idsym,MO,Scr,n2)
+  call CreQADD(Fock,rdens2,idSym,MO,Scr,n2)
   call mma_deallocate(Scr)
   call mma_deallocate(MO)
 
@@ -204,7 +205,7 @@ end if
 
 do iS=1,nSym
   if (nBas(iS) > 0) then
-    jS = Mul(is,iDSym)
+    jS = Mul(is,idSym)
     do iA=1,nAsh(is)
       do jA=1,nAsh(js)
         rd = rDens1(iA+nA(iS),jA+nA(js))
@@ -216,12 +217,62 @@ do iS=1,nSym
   end if
 end do
 
-if (iDsym == 1) then
+if (idSym == 1) then
   do iS=1,nSym
     Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) = Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1)+ &
                                                           Two*d_0*FIMO(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1)
   end do
 end if
+
+! PCM contributions
+! The contribution to the free energy is kind of D1*K*D2/2
+! (usually D1 \neq D2), so each contribution is separately
+! evaluated and halved.
+
+! No additional contributions during and after Z-vector here
+! the implicit contributions are added in PCM_grad_TimesE2
+! iStpPCM = 1   : derivative of the energy
+! iStpPCM = 2,3 : derivative of the eigenstate (eigenenergy)
+if (do_RF .and. (iStpPCM == 1)) then
+  if (PT2_solv) PCMSSMO(:,3) = PCMSSMO(:,3)+PCMPT2MO(:,3)
+
+  ! Compute V(rDens1) -> PCMRESMO
+  ! rDens1 (MO) -> rDens1 (AO)
+  do iS=1,nSym
+    if (nBas(iS) > 0) then
+      jS = Mul(iS,idSym)
+      do iA=1,nAsh(is)
+        do jA=1,nAsh(js)
+          ip1 = nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)
+          ip2 = nBas(iS)*(nIsh(js)+jA-1)+ipmat(is,js)
+          !! implicit D^SS*V(e,SCF)
+          rd = DSCFMO(iA+nA(iS),jA+nA(js))
+          Fock(ip2:ip2+nBas(iS)-1) = Fock(ip2:ip2+nBas(iS)-1)+Rd*PCMSSMO(ip1:ip1+nBas(iS)-1,3)
+          !! explicit and implicit D^SA*V(e,SA)/2
+          if (.not. isNAC) Fock(ip2:ip2+nBas(iS)-1) = Fock(ip2:ip2+nBas(iS)-1)-Rd*PCMSCFMO(ip1:ip1+nBas(iS)-1,3)
+        end do
+      end do
+    end if
+  end do
+
+  ! inactive
+  ! explicit derivative for NAC should be with d_0,
+  ! but implicit contributions should not be scaled
+  if (idSym == 1) then
+    do iS=1,nSym
+      if (nBas(iS)*nIsh(iS) > 0) then
+        !! implicit D^SS*V(e,SCF)
+        Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) = Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1)+ &
+                                                              Two*PCMSSMO(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1,3)
+        !! explicit + implicit erfx
+        Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) = Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1)- &
+                                                              Two*d_0*PCMSCFMO(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1,3)
+      end if
+    end do
+  end if
+  if (PT2_solv) PCMSSMO(:,3) = PCMSSMO(:,3)-PCMPT2MO(:,3)
+end if
+
 do iS=1,nSym
   jS = Mul(iS,idSym)
   if (nBas(is)*nBas(jS) /= 0) &

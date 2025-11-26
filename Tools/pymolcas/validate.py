@@ -1220,7 +1220,7 @@ def test_custom(lines, keyword):
       return None
 
   elif (module == 'RASSCF'):
-    if (name == 'CIROOT'):
+    if (name in ['CIROOT', 'RFROOT']):
       try:
         parts = fortran_split(lines[l])
         n1, n2 = to_int(parts[0:2])

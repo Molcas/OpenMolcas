@@ -173,7 +173,7 @@ C Initialize sizes, offsets etc used in equation solver.
       use PT2WFN, ONLY: PT2WFN_CLOSE
       use gugx, only: SGS, CIS, EXS
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
-     &                       DWGT, CMOPT2, TAT, TORB, IDSCT
+     &                       DWGT, CMOPT2, TAT, TORB, IDSCT, Weight
       use stdalloc, only: mma_deallocate
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_deinit
@@ -250,6 +250,9 @@ C     Deallocate MAGEB, etc, superindex tables:
       call pt2wfn_close()
 C     Close all files:
       CALL CLSFLS_CASPT2()
+
+! Weight array is allocated in refwfn_info
+      call mma_deallocate(Weight)
 
 C free input struct
       CALL CleanUp_Input()

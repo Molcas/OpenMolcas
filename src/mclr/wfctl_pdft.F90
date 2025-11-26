@@ -282,7 +282,7 @@ do iDisp=1,nDisp
     call Get_dArray_chk('FockOcc',FOTr,nTri)
     ! note that the Fock matrix will be overwritten with the wf one
     ! ini rhs_sa
-    call rhs_sa(WForb,rDum)
+    call rhs_sa(WForb,rDum,ipS2)
     Temp5(:) = Temp5(:)+WF_Ratio*WForb(:)
     call mma_deallocate(WForb)
   end if

@@ -27,6 +27,8 @@ subroutine DrvN1(Grad,Temp,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use PCM_arrays, only: PCM_SQ, PCMTess
+use PCM_alaska, only: lSA, PCM_SQ_ind
+use NAC, only: isNAC
 use External_Centers, only: iXPolType, nOrd_XF, nXF, XF
 use rctfld_module, only: Conductor, lLangevin, lMax, lRF, MM, nTS, PCM
 use Disp, only: Dirct, IndDsp
@@ -205,7 +207,7 @@ if (iPrint >= 15) then
   call PrGrad(Lab,Temp,nGrad)
 end if
 
-call DaXpY_(nGrad,One,Temp,1,Grad,1)
+if (.not. isNAC) Grad(1:nGrad) = Grad(1:nGrad)+Temp(1:nGrad)
 
 !***********************************************************************
 !                                                                      *
@@ -431,10 +433,17 @@ else if (lRF .and. PCM) then
 
   Temp(:) = Zero
 
+  ! use the induced charges by the effective density matrix, if SA-MCSCF
+  if (lSA) call dswap_(2*nTS,PCM_SQ,1,PCM_SQ_ind,1)
+  ! after swap:
+  ! PCM_SQ     = induced by the effective density matrix
+  ! PCM_SQ_ind = induced by the state-averaged density matrix
+
   ! Loop over tiles
 
   do iTs=1,nTs
     ZA = PCM_SQ(1,iTs)+PCM_SQ(2,iTS)
+    if (isNAC) ZA = PCM_SQ(2,iTS) ! no nuclear-nuclear contributions for NAC
     NoLoop = ZA == Zero
     ZA = ZA/real(nIrrep,kind=wp)
     if (NoLoop) cycle
@@ -518,6 +527,9 @@ else if (lRF .and. PCM) then
       end do       ! End over centers, jCnt
     end do         ! End over basis set types, jCnttp
   end do           ! End of tiles
+
+  if (lSA) call dswap_(2*nTS,PCM_SQ,1,PCM_SQ_ind,1)
+  ! Now, PCM_SQ is induced by SA density
 
   if (iPrint >= 15) then
     Lab = ' The Nuclear Reaction Field (PCM) Contribution'

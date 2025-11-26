@@ -15,5 +15,7 @@
  (file)  AM2MSI     "$WorkDir/$Project".a.grid        rwsg
  (file)  BM2MSI     "$WorkDir/$Project".b.grid        rwsg
  (file)  LUSCUS     "$WorkDir/$Project".lus           rwsg
+ (file)  AM2L       "$WorkDir/$Project".a.lus         rwsg
+ (file)  BM2L       "$WorkDir/$Project".b.lus         rwsg
  (file)  CHARGEFILE "$WorkDir/$Project."Charge        rw
 #include "orbitals.inc"

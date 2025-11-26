@@ -40,6 +40,9 @@ set (sources
      calcomat.F90
      calcw.F90
      calcwop.F90
+     cgs_mod.F90
+     cgs_pre.F90
+     cgs_x.F90
      check_caspt2.F90
      cho_fock_mclr.F90
      cho_prec_mclr.F90
@@ -98,6 +101,7 @@ set (sources
      dminvkap_sp.F90
      dminvkap_td.F90
      dmrg_dim_change_mclr.F90
+     dwder.F90
      dxtyp.F90
      e2.F90
      e2_td.F90
@@ -170,6 +174,7 @@ set (sources
      intx.F90
      ioctp2_mclr.F90
      ippage.F90
+     isrot.F90
      isymst_mclr.F90
      kap_ci.F90
      make_conn.F90
@@ -209,6 +214,7 @@ set (sources
      output_td.F90
      outras.F90
      outras_td.F90
+     pcm_grad.F90
      pickmo_mclr.F90
      pickmo_td.F90
      pmplfm.F90

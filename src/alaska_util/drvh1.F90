@@ -34,6 +34,8 @@ subroutine Drvh1(Grad,Temp,nGrad)
 !***********************************************************************
 
 use PCM_arrays, only: PCM_SQ
+use PCM_alaska, only: DSA_AO, lSA, PCM_SQ_ind
+use NAC, only: isNAC
 use External_Centers, only: nWel, XF, Wel_Info
 use Basis_Info, only: nCnttp, dbsc, ExpB, nBas, r0
 use Symmetry_Info, only: nIrrep
@@ -42,7 +44,7 @@ use finfld, only: force
 #endif
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
-use rctfld_module, only: lLangevin, lMax, lRF, PCM
+use rctfld_module, only: lLangevin, lMax, lRF, nTS, PCM
 use Disp, only: HF_Force
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -58,7 +60,7 @@ character(len=80) :: Label
 character(len=8) :: Method
 logical(kind=iwp) :: DiffOp, lECP, lFAIEMP, lPP
 integer(kind=iwp), allocatable :: lOper(:), lOperf(:)
-real(kind=wp), allocatable :: Coor(:,:), Coorf(:,:), D_Var(:), Fock(:)
+real(kind=wp), allocatable :: Coor(:,:), Coorf(:,:), D_Var(:), Fock(:), TempPCM(:)
 procedure(grd_kernel) :: COSGrd, FragPGrd, KneGrd, M1Grd, M2Grd, NAGrd, OvrGrd, PCMGrd, PPGrd, PrjGrd, RFGrd, SROGrd, WelGrd, XFdGrd
 procedure(grd_mem) :: FragPMmG, KneMmG, M1MmG, M2MmG, NAMmG, OvrMmG, PCMMmG, PPMmG, PrjMmG, RFMmg, SROMmG, WelMmg, XFdMmg
 #ifdef _NEXTFFIELD_
@@ -353,8 +355,9 @@ if (.not. HF_Force) then
     ! The PCM / COSMO model
 
     if (iCOSMO <= 0) then
-      iPrint = 15
+      !iPrint = 15
       PCM_SQ(:,:) = PCM_SQ(:,:)/real(nIrrep,kind=wp)
+      if (lSA) PCM_SQ_ind(:,:) = PCM_SQ_ind(:,:)/real(nIrrep,kind=wp)
     end if
     lOper(1) = 1
     DiffOp = .true.
@@ -367,8 +370,36 @@ if (.not. HF_Force) then
         call PrGrad(Label,Temp,nGrad)
       end if
     else
+      ! PCM_SQ is used inside the OneEl_g
+      ! PCM_SQ = polarized by state-averaged density
       Label = ' The Electronic Reaction Field Contribution (PCM)'
       call OneEl_g(PCMGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+      if (lSA) then
+        ! PCM_SQ is induced by the state-averaged density matrix (not effective density)
+        ! The above is the explicit part of D^SS*(V^N + V^{e,SA})
+        call mma_allocate(TempPCM,nGrad,Label='TempPCM')
+
+        ! -q^{e,SA}*C*q^{e,SA}/2 term
+        ! implicit part of D^SS*V^{e,SA} and -D^{e,SA}*V^{e,SA}/2 -> -(D^SA-D^SS)*V^SA
+        if (isNAC) then
+          call dswap_(2*nTS,PCM_SQ_ind,1,PCM_SQ,1)
+          PCM_SQ(1,:) = Zero
+          ! PCM_SQ contains q^{e,SS} only (no nuclear contributions)
+        else
+          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS)-PCM_SQ_ind(1:2,1:nTS)
+          ! PCM_SQ contains q^{e,SA} - q^{e,SS} only (no nuclear contributions)
+        end if
+        call OneEl_g(PCMGrd,PCMMmG,TempPCM,nGrad,DiffOp,Coor,DSA_AO,nDens,lOper,nComp,nOrdOp,Label)
+        if (isNAC) then
+          PCM_SQ(1,:) = PCM_SQ_ind(1,:)
+          call dswap_(2*nTS,PCM_SQ_ind,1,PCM_SQ,1)
+          Temp(1:nGrad) = Temp(1:nGrad)+TempPCM(1:nGrad)
+        else
+          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS)+PCM_SQ_ind(1:2,1:nTS)
+          Temp(1:nGrad) = Temp(1:nGrad)-TempPCM(1:nGrad)
+        end if
+        call mma_deallocate(TempPCM)
+      end if
       if (iPrint >= 15) then
         Label = ' Reaction Field (PCM) Contribution'
         call PrGrad(Label,Temp,nGrad)
@@ -376,7 +407,10 @@ if (.not. HF_Force) then
     end if
 
     Grad(:) = Grad(:)+Temp(:)
-    if (iCOSMO == 0) PCM_SQ(:,:) = PCM_SQ(:,:)*real(nIrrep,kind=wp)
+    if (iCOSMO == 0) then
+      PCM_SQ(:,:) = PCM_SQ(:,:)*real(nIrrep,kind=wp)
+      if (lSA) PCM_SQ_ind(:,:) = PCM_SQ_ind(:,:)*real(nIrrep,kind=wp)
+    end if
 
   end if
 end if

@@ -1238,6 +1238,7 @@ else ()
                        PREFIX ${EP_PATH}
                        GIT_REPOSITORY ${Libxc_REPO}
                        GIT_TAG ${Libxc_HASH}
+                       GIT_PROGRESS 1
                        CMAKE_ARGS ${LibxcCMakeArgs}
                        UPDATE_DISCONNECTED ${LibxcSkipUpdate}
   )
@@ -1365,6 +1366,7 @@ if (GA AND MPI)
                          PREFIX ${EP_PATH}
                          GIT_REPOSITORY ${GA_REPO}
                          GIT_TAG ${GA_HASH}
+                         GIT_PROGRESS 1
                          CMAKE_ARGS ${GACMakeArgs}
                          UPDATE_DISCONNECTED ${GASkipUpdate}
                          LIST_SEPARATOR "|"
@@ -2009,6 +2011,7 @@ if (MolGUI)
   ExternalProject_Add (${projname}
                        GIT_REPOSITORY https://gitlab.com/Molcas/MolGUI.git
                        GIT_TAG 599b75e79fab49501adb313f3e2dfab9d8211795
+                       GIT_PROGRESS 1
                        PREFIX ${projdir}
                        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${projinstall}
                                   -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

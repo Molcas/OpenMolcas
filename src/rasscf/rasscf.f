@@ -112,9 +112,9 @@
      &                         iSymBB, ITER, ITERCI, ITERSX, JBLBM,
      &                         l_casdft,         lSquare, MaxIt, NAC,
      &                         NACPAR, NACPR2, NewFock, nFint, no2m,
-     &                         nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax,
-     &                         Start_Vectors, SXShft, Thre, ThrSX,
-     &                         THRTE, TMin, Tot_Charge, EMY,
+     &                         NonEQ, nROOTS, PotNuc, QNSTEP, QNUPDT,
+     &                         ROTMax, Start_Vectors, SXShft, Thre,
+     &                         ThrSX, THRTE, TMin, Tot_Charge, EMY,
      &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
      &                         Conv, DoDMRG, iCIRST, KSDFT_Temp
       use SplitCas_Data, only: DoSPlitCas,IterSplit,lRootSplit
@@ -124,6 +124,8 @@
      &                        NCRVEC,JOBIPH,NASH,NBAS,NDEL,NFRO,
      &                        NISH,NRS1,NRS2,NRS3,NTOT,NTOT1,NTOT2
       use spinfo, only: DOBKAP
+      use rasscf_global, only: IPCMROOT
+      use DWSol, only: DWSolv, DWSol_final, DWSol_init
 
       Implicit None
 
@@ -296,6 +298,8 @@
        IRETURN=iRc
        GOTO 9990
       End If
+      if (lRF) call DWSol_init(IPCMROOT,nRoots,NonEq)
+*     call DWSCF_init(1,nRoots)
 
 
 * Local print level may have changed:
@@ -1781,6 +1785,10 @@ c Clean-close as much as you can the CASDFT stuff...
       else
         CALL CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
       end if
+      if (lRF .and. (iPCMRoot<=0 .or. DWSolv%DWZeta/=0.0d+00)) then
+        IAD15 = IADR15(6)
+        CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
+      end if
 
       EAV=0.0d0
       If(DoSplitCAS) then
@@ -1990,6 +1998,8 @@ c  i_root>0 gives natural spin orbitals for that root
         end if
       end if
 #endif
+      if (lRF) call DWSol_final()
+*     call DWSCF_final()
 
 c deallocating TUVX memory...
       Call mma_deallocate(TUVX)
