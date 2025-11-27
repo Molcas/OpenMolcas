@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 use caspt2_global, only: FIMO, iPrGlb
 use printLevel, only: debug
 use rasscf_global, only: Emy
-#if defined(_DMRG_)
+#ifdef _DMRG_
 use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, &
                               qcmaquis_interface_optimize, &
                               qcmaquis_interface_set_state, &
@@ -173,6 +173,7 @@ indices(4*(offset-1)+1:4*(offset-1)+4) = &
 (/ 0_c_int, 0_c_int, 0_c_int, 0_c_int /)
 
 ! Rotate MPS wavefunction to new orbitals
+#ifdef _DMRG_
 call qcmaquis_interface_update_integrals_C(indices, values, int(offset, kind=c_int))
 do n=1,NSTATE
   call qcmaquis_interface_remove_param('MEASURE[trans1rdm]')
@@ -182,6 +183,7 @@ do n=1,NSTATE
   call qcmaquis_interface_set_state(int(n-1, c_int))
   call qcmaquis_interface_optimize()
 end do
+#endif
 
 call mma_deallocate(indices)
 call mma_deallocate(values)
