@@ -20,7 +20,7 @@ subroutine procinp_caspt2
                              if_invar, iRoot1, iRoot2, if_invaria, &
                              ConvInvar, if_equalW, if_SSDM, Weight
   use caspt2_global, only: IDCIEX
-  use PrintLevel, only: terse, verbose
+  use PrintLevel, only: terse
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
@@ -31,6 +31,7 @@ subroutine procinp_caspt2
   use qcmaquis_interface_cfg
   use qcmaquis_interface, only:qcmaquis_interface_init_checkpoint, &
     qcmaquis_interface_set_param, qcmaquis_interface_remove_param
+  use PrintLevel, only: verbose
 #endif
   use caspt2_global, only: CompressMPS
 ! NOT TESTED

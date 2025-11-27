@@ -32,8 +32,9 @@ implicit none
 #include "caspt2.fh"
 
 real(kind=wp), allocatable :: ERI(:,:), SCR(:,:)
-integer(kind=iwp) :: tSym, t_nFro, t_nIsh, t_nAsh, t_nOsh, t_nOrb, t_off, &
-                     uSym, u_nFro, u_nIsh, u_nAsh, u_nOsh, u_nOrb, u_off, tuSym, &
+integer(kind=iwp) :: tSym, t_nFro, t_nIsh, t_nAsh, t_nOsh, t_nOrb, &
+                     uSym, u_nFro, u_nIsh, u_nAsh, u_nOsh, u_nOrb, &
+                     tuSym, &
                      vSym, v_nIsh, v_nAsh, v_nOsh, v, &
                      xSym, x_nIsh, x_nAsh, x_nOsh, x, t, u, n
 
@@ -46,7 +47,7 @@ integer :: max_index2
 ! Offset for values and indices array
 integer :: offset
 real*8 , parameter                :: threshold = 1.0d-16
-integer NACPAR, NACPR2
+integer NACPAR
 
 write(u6,*) "=== QCM: Rotating Orbitals to SS === "
 
@@ -56,7 +57,6 @@ if (iPrGlb >= debug) then
 end if
 
 NACPAR = (nAshT*(nAshT + 1))/2
-NACPR2 = (NACPAR*(NACPAR + 1))/2
 
 ! calculate the maximum size of the integral array, can be less b/c of symmetry
 max_index2 = NACPAR*(NACPAR+1)/2
@@ -117,8 +117,6 @@ do tSym=1,nSym
         write(u6,*) ' v_nAsh = ', v_nAsh, ' x_nAsh = ', x_nAsh
         write(u6,*) ' v_nOsh = ', v_nOsh, ' x_nOsh = ', x_nOsh
 
-        t_off = t_nFro + t_nIsh
-        u_off = u_nFro + u_nIsh
         ! loop over active orbital indices only
         do v = v_nIsh+1, v_nOsh
           do x = v, x_nOsh

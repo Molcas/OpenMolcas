@@ -39,7 +39,7 @@ C The transformation matrices are returned in TORB.
       REAL*8, INTENT(INOUT) :: CMO(NCMO)
 
 C     indices
-      INTEGER I,II,IST,ISYM,ISTART,J
+      INTEGER I,II,IST,ISYM,ISTART
       INTEGER ITO,ITOSTA,ITOEND
       INTEGER ICMOSTA,ICMOEND
       INTEGER IDR,IDW

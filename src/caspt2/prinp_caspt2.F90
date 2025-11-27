@@ -34,8 +34,12 @@ subroutine prinp_caspt2()
   use caspt2_global, only: iPrGlb
   use PrintLevel, only: terse, usual, verbose
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
-                           ipea_shift, imag_shift, real_shift, compressMPS
+                           ipea_shift, imag_shift, real_shift
   use caspt2_global, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
+
+#ifdef _DMRG_
+  use caspt2_global, only: compressMPS
+#endif
 
   implicit none
 

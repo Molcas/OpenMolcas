@@ -17,9 +17,9 @@
 #ifdef _DMRG_
       use qcmaquis_interface_cfg, only: qcmaquis_param
       use caspt2_global, only: iPrGlb
+      use PrintLevel, only: debug
 #endif
       use caspt2_global, only: do_grad, iStpGrd
-      use printlevel, only: debug
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
      &                       NDREF, NPREF, NCMO

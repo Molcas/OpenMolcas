@@ -393,12 +393,14 @@ C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
       END SUBROUTINE MKTG3
 
 
-      !> @brief Calculate linear index for 3-body transition density matrix elements
+      !> @brief Calculate linear index for 3-body transition density
+      !> matrix elements
       !>
-      !> Given 6 active orbital indices (t,u,v,x,y,z), this subroutine calculates
-      !> the linear index for the corresponding transition density matrix element
-      !> used in MKTG3. The indices are first converted to three orbital pair indices,
-      !> which are then sorted in descending order to determine the final index.
+      !> Given 6 active orbital indices (t,u,v,x,y,z), this subroutine
+      !> calculates the linear index for the corresponding transition
+      !> density matrix element used in MKTG3. The indices are first
+      !> converted to three orbital pair indices, which are then sorted
+      !> in descending order to determine the final index.
       !>
       !> @param t First active orbital index
       !> @param u Second active orbital index
