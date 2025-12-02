@@ -45,7 +45,7 @@ call PrgmInit('RF2Asc')
 call f_inquire('RUNFILE',Found)
 if (.not. Found) then
   call WarningMessage(2,'RUNFILE not found')
-  return
+  stop
 end if
 call NameRun('RUNFILE')
 iOpt = 0

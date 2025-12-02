@@ -47,7 +47,7 @@ call PrgmInit('Asc2RF')
 call f_inquire('RUNASCII',Found)
 if (.not. Found) then
   call WarningMessage(2,'RUNASCII not found')
-  return
+  stop
 end if
 RUNASCII = isFreeUnit(15)
 call MOLCAS_OPEN(RUNASCII,'RUNASCII')

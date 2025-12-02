@@ -31,7 +31,7 @@ call PrgmInit('Asc2Job')
 call f_inquire('FMTIPH',Found)
 if (.not. Found) then
   call WarningMessage(2,'FMTIPH not found')
-  return
+  stop
 end if
 
 JOBIPH = isFreeUnit(15)

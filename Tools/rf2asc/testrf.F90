@@ -25,7 +25,7 @@
 program TestRF
 
 use RunFile_data, only: TypDbl, TypInt, TypStr
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -146,62 +146,62 @@ end if
 
 if (nDataA /= nDataAx) then
   write(u6,*) 'nDataA:',nDataA,nDataAx
-  return
+  stop
 end if
 
 if (nDataB /= nDataBx) then
   write(u6,*) 'nDataB:',nDataB,nDataBx
-  return
+  stop
 end if
 
 if (nDataC /= nDataCx) then
   write(u6,*) 'nDataC:',nDataC,nDataCx
-  return
+  stop
 end if
 
 if (nDataD /= nDataDx) then
   write(u6,*) 'nDataD:',nDataD,nDataDx
-  return
+  stop
 end if
 
 if (nDataE /= nDataEx) then
   write(u6,*) 'nDataE:',nDataE,nDataEx
-  return
+  stop
 end if
 
 if (nDataF /= nDataFx) then
   write(u6,*) 'nDataF:',nDataF,nDataFx
-  return
+  stop
 end if
 
 if (RecTypA /= TypDbl) then
   write(u6,*) 'RecTypA:',RecTypA,TypDbl
-  return
+  stop
 end if
 
 if (RecTypB /= TypDbl) then
   write(u6,*) 'RecTypB:',RecTypB,TypDbl
-  return
+  stop
 end if
 
 if (RecTypC /= TypInt) then
   write(u6,*) 'RecTypC:',RecTypC,TypInt
-  return
+  stop
 end if
 
 if (RecTypD /= TypInt) then
   write(u6,*) 'RecTypD:',RecTypD,TypInt
-  return
+  stop
 end if
 
 if (RecTypE /= TypStr) then
   write(u6,*) 'RecTypE:',RecTypE,TypStr
-  return
+  stop
 end if
 
 if (RecTypF /= TypStr) then
   write(u6,*) 'RecTypF:',RecTypF,TypStr
-  return
+  stop
 end if
 
 if (nDataA > 0) then
