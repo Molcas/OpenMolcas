@@ -80,7 +80,7 @@ write(Lu_9,*) nCoord
 
 write(Lu_9,*) '[FR-COORD]'
 do iCoord=1,nCoord
-  write(Lu_9,*) Element(iCoord),Coord(:,iCoord)
+  write(Lu_9,'(A,3E12.8)') Element(iCoord),Coord(:,iCoord)
 end do
 call mma_deallocate(Coord)
 call mma_deallocate(Element)
