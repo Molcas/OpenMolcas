@@ -24,8 +24,8 @@ implicit none
 real(kind=wp), intent(out) :: FockI(nDens), Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Fock(nDens)
 real(kind=wp), intent(_OUT_) :: rMO(*)
 integer(kind=iwp), intent(in) :: lOper, iDisp
-integer(kind=iwp) :: i, iOff, iOp, iOpt, iRC, iS, j, jDisp, jOff, jS
-real(kind=wp) :: rde
+integer(kind=iwp) :: i, iOff, iOp, iOpt, iRC, iS, j, jDisp, jOff, jS, nSize
+real(kind=wp) :: rde, Origin(3)
 character(len=8) :: Label
 
 !***********************************************************************
@@ -132,12 +132,58 @@ if (btest(nTPert(iDisp),1)) then ! 1 el contribution
     Label = SwLbl(idisp)
     iopt = 0
     irc = -1
-    call RdOne(irc,iopt,Label,jDisp,temp1,iop)
+    Temp1(:)=Zero
+    call RdOne(irc,iopt,Label,jDisp,Temp1,iop)
     if (iRc /= 0) then
       write(u6,*) 'IntX: Error reading MCKINT'
       write(u6,'(A,A)') 'Label=',Label
       call Abend()
     end if
+    If (Label=="MLTPL  1" .and. iOp==1) Then
+       ! check if we have to correct the dipole moment integrals. They should be expanded around the origin, (0,0,0).
+       nSize=0
+       do iS=1,nSym
+          do jS=1,iS
+             If (nBas(is)*nBas(js) /= 0) Then
+                If (Mul(iS,jS) == loper+1) Then
+                   If (iS==jS) Then
+                      nSize=nSize+nBas(iS)*(nBas(iS)+1)/2
+                   Else
+                      nSize=nSize+nBas(iS)*nBas(jS)
+                   End If
+                End If
+             End If
+          End Do
+       End Do
+       Origin(1:3)=Temp1(nSize+1: nSize+3)
+       If (Origin(jDisp)/=Zero) Then
+          ! We need to correct the matrix
+          Write (6,*) 'Label,jDisp=', Label,jDisp
+          Label = 'MLTPL  0'
+          iopt = 0
+          irc = -1
+          Temp2(:)=Zero
+          call RdOne(irc,iopt,Label,1,Temp2,iop)
+          nSize=0
+          do iS=1,nSym
+             do jS=1,iS
+                If (nBas(is)*nBas(js) /= 0) Then
+                   If (Mul(iS,jS) == loper+1) Then
+                      If (iS==jS) Then
+                         Temp1(nSize+1:nSize+nBas(iS)*(nBas(iS)+1)/2)=Temp1(nSize+1:nSize+nBas(iS)*(nBas(iS)+1)/2) &
+                                                                    + Origin(jDisp)*Temp2(nSize+1:nSize+nBas(iS)*(nBas(iS)+1)/2)
+                         nSize=nSize+nBas(iS)*(nBas(iS)+1)/2
+                      Else
+                         Write (6,*) 'Ugh!'
+                         Call abend()
+                         nSize=nSize+nBas(iS)*nBas(jS)
+                      End If
+                   End If
+                End If
+             End Do
+          End Do
+       End If
+    End If
   end if
 end if
 
