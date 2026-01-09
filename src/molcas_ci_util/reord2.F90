@@ -93,8 +93,8 @@ do ITYP=1,NTYP
     IPBAS = IPBAS+NCSFTP(ITYP-1)*(IOPEN-1)
   end if
 
-  !LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
-  !SPIN COUPLINGS
+  ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
+  ! SPIN COUPLINGS
 
   do IC=1,NCNFTP(ITYP,IREFSM)
     ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
@@ -127,11 +127,17 @@ do ITYP=1,NTYP
       ! GET PHASE PHASE FACTOR
       IP = IPHASE(SGS%nLev,SGS%nVert,SGS%DRT,SGS%UP,IWALK)
       if (IMODE == 0) then
-        CINEW(ISG) = CIOLD(ICSFJP)
-        if (IP < 0) CINEW(ISG) = -CIOLD(ICSFJP)
+        if (IP < 0) then
+          CINEW(ISG) = -CIOLD(ICSFJP)
+        else
+          CINEW(ISG) = CIOLD(ICSFJP)
+        end if
       else
-        CINEW(ICSFJP) = CIOLD(ISG)
-        if (IP < 0) CINEW(ICSFJP) = -CIOLD(ISG)
+        if (IP < 0) then
+          CINEW(ICSFJP) = -CIOLD(ISG)
+        else
+          CINEW(ICSFJP) = CIOLD(ISG)
+        end if
       end if
     end do
   end do
