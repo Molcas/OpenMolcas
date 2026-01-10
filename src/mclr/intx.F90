@@ -158,7 +158,6 @@ if (btest(nTPert(iDisp),1)) then ! 1 el contribution
        Origin(1:3)=Temp1(nSize+1: nSize+3)
        If (Origin(jDisp)/=Zero) Then
           ! We need to correct the matrix
-          Write (6,*) 'Label,jDisp=', Label,jDisp
           Label = 'MLTPL  0'
           iopt = 0
           irc = -1
