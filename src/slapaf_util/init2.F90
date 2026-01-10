@@ -182,8 +182,11 @@ else
   ! Note that the dipole moment operator should be expanded around the origin, not the center of mass.
   ! Hence, we need to correct for that.
   Call Get_dArray('Center of Mass',CoM,3)
-  Call Get_dScalar('Total Charge',q_tot)
-  DipM(:,Iter) = DipM(:,Iter) + q_tot*CoM(:)
+  Call Qpg_dScalar('Total Charge',Found)
+  If (Found) Then
+     Call Get_dScalar('Total Charge',q_tot)
+     DipM(:,Iter) = DipM(:,Iter) + q_tot*CoM(:)
+  End If
 
 end if
 !                                                                      *
