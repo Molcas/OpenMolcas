@@ -24,7 +24,7 @@ implicit none
 real(kind=wp), intent(out) :: FockI(nDens), Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Fock(nDens)
 real(kind=wp), intent(_OUT_) :: rMO(*)
 integer(kind=iwp), intent(in) :: lOper, iDisp
-integer(kind=iwp) :: i, iOff, iOp, iOpt, iRC, iS, j, jDisp, jOff, jS, nSize
+integer(kind=iwp) :: i, iOff, iOp, iOpt, iRC, iS, j, jDisp, jOff, jS, nSize, kDisp
 real(kind=wp) :: rde, Origin(3)
 character(len=8) :: Label
 
@@ -163,7 +163,8 @@ if (btest(nTPert(iDisp),1)) then ! 1 el contribution
           iopt = 0
           irc = -1
           Temp2(:)=Zero
-          call RdOne(irc,iopt,Label,1,Temp2,iop)
+          kDisp=1
+          call RdOne(irc,iopt,Label,kDisp,Temp2,iop)
           nSize=0
           do iS=1,nSym
              do jS=1,iS
