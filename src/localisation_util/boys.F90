@@ -16,7 +16,6 @@ subroutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIt
 !
 ! Purpose: Boys localisation of occupied orbitals.
 
-use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
