@@ -137,7 +137,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         xkappa_cnt(:,:) = kappa_cnt
 
         unitary_mat(:,:) = Zero
-        call unitmat(unitary_mat,nOrb2Loc,nOrb2Loc)
+        call unitmat(unitary_mat,nOrb2Loc)
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! analogous to exp_series in scf

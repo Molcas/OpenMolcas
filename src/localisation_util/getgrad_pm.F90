@@ -25,7 +25,7 @@ real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc), Gradient(nOrb2Loc, nOrb2Loc), &
     H_diag(nOrb2Loc, nOrb2Loc)
 logical(kind=iwp), intent(in) :: Debug
-integer(kind=iwp) :: iAtom, i,j,k,l,kl
+integer(kind=iwp) :: iAtom, i,j,k,l
 real(kind=wp) :: Fun, Rjj, Q_ll, Q_kk, Q_kl
 
 
