@@ -16,9 +16,12 @@ module Definitions
 
 use, intrinsic :: iso_fortran_env, only: int8, int32, int64, real32, real64, error_unit, input_unit, output_unit
 use, intrinsic :: iso_c_binding, only: c_double, c_int, c_size_t
-#   ifdef _I8_
+#ifdef _I8_
 use, intrinsic :: iso_c_binding, only: c_long
-#   endif
+#endif
+#ifdef _MOLCAS_MPP_
+use MPI, only: MPI_ADDRESS_KIND
+#endif
 
 implicit none
 private
@@ -28,7 +31,7 @@ public :: BLASInt, BLASR4, BLASR8, CUDAInt
 public :: LibxcInt, LibxcReal, LibxcSize
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
 public :: i1, i4, i8, r4, r8
-public :: ItoB, RtoB, RtoI, CtoB, CtoR
+public :: ItoB, RtoB, RtoI, CtoB
 public :: u0, u5, u6
 
 ! This is the working precision and should be preferably used
@@ -64,7 +67,11 @@ integer(kind=iwp), parameter :: LibxcInt = c_int, &
 ! NOTE: If legacy `integer*4` declarations are replaced with integer(MPIInt)
 !       we can support 32bit and 64bit versions.
 !       Which will require appropiate compile flags here.
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp), parameter :: MPIInt = kind(MPI_ADDRESS_KIND)
+#else
 integer(kind=iwp), parameter :: MPIInt = int32
+#endif
 
 ! This is the type of HDF5 arguments
 ! NOTE: If legacy `integer*4` declarations are replaced with integer(HDF5Int)
@@ -80,12 +87,11 @@ integer(kind=iwp), parameter :: &
                                 ItoB = storage_size(1_iwp)/storage_size('a'), &
                                 RtoB = storage_size(1.0_wp)/storage_size('a'), &
                                 RtoI = storage_size(1.0_wp)/storage_size(1_iwp), &
-                                CtoB = storage_size((1.0_wp,0.0_wp))/storage_size('a'), &
-                                CtoR = storage_size((1.0_wp,0.0_wp))/storage_size(1.0_wp)
+                                CtoB = storage_size((1.0_wp,0.0_wp))/storage_size('a')
 #elif defined (_I8_)
-                                ItoB = 8, RtoB = 8, RtoI = 1, CtoB = 16, CtoR = 2
+                                ItoB = 8, RtoB = 8, RtoI = 1, CtoB = 16
 #else
-                                ItoB = 4, RtoB = 8, RtoI = 2, CtoB = 16, CtoR = 2
+                                ItoB = 4, RtoB = 8, RtoI = 2, CtoB = 16
 #endif
 
 ! Output, input and error units, typically 6, 5 & 0, but they could be something else

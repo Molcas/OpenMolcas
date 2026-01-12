@@ -102,6 +102,8 @@
       use input_ras, only: KeyORBO, KeyORTH, KeyCION, KeyWRMA, KeyTDM,
      &                     KeySSCR, LuInput
       use raswfn, only: cre_raswfn, Wfn_FileID
+      use timers, only: TimeCIOpt, TimeInput, TimeOrb, TimeOutput,
+     &                  TimeRelax, TimeTotal, TimeTrans, TimeWfn
       use rasscf_global, only: KSDFT, CBLBM, CMAX, DE, DOBLOCKDMRG,
      &                         DoFaro, DoFCIDump,               ECAS,
      &                         ESX, ExFac, FDIAG, HalfQ, iBLBM,
@@ -110,9 +112,9 @@
      &                         iSymBB, ITER, ITERCI, ITERSX, JBLBM,
      &                         l_casdft,         lSquare, MaxIt, NAC,
      &                         NACPAR, NACPR2, NewFock, nFint, no2m,
-     &                         nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax,
-     &                         Start_Vectors, SXShft, Thre, ThrSX,
-     &                         THRTE, TMin, Tot_Charge, EMY,
+     &                         NonEQ, nROOTS, PotNuc, QNSTEP, QNUPDT,
+     &                         ROTMax, Start_Vectors, SXShft, Thre,
+     &                         ThrSX, THRTE, TMin, Tot_Charge, EMY,
      &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
      &                         Conv, DoDMRG, iCIRST, KSDFT_Temp
       use SplitCas_Data, only: DoSPlitCas,IterSplit,lRootSplit
@@ -122,12 +124,13 @@
      &                        NCRVEC,JOBIPH,NASH,NBAS,NDEL,NFRO,
      &                        NISH,NRS1,NRS2,NRS3,NTOT,NTOT1,NTOT2
       use spinfo, only: DOBKAP
+      use rasscf_global, only: IPCMROOT
+      use DWSol, only: DWSolv, DWSol_final, DWSol_init
 
       Implicit None
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "timers.fh"
 
       Integer IReturn, RC_RAS
       Logical DSCF
@@ -142,8 +145,9 @@
       ! function defined in misc_util/pcm_on.f
       Logical, External :: PCM_On
 #endif
-      Real*8 CASDFT_E, CASDFT_FUNCT, Certina_1, Certina_2, Certina_3,
-     &       DiffE, DiffETol, dum1, dum2, dum3, EAv, ThMax, TMXTOT
+      Real*8 CASDFT_E, CASDFT_FUNCT,
+     &       DiffE, DiffETol, dum1, dum2, dum3, EAv, ThMax, TMXTOT,
+     &       time0(2), time1(2), time2(2), time3(2)
       Real*8, External:: Get_ExFac
       Integer i, i_ROOT, iAd, iAd15, iBas,      iComp, iFinal, ihh,
      &        imm, Ind, IndT, iOff, iOpt, iPrLev, iRC, iRot, iShift,
@@ -293,6 +297,8 @@
        IRETURN=iRc
        GOTO 9990
       End If
+      if (lRF) call DWSol_init(IPCMROOT,nRoots,NonEq)
+*     call DWSCF_init(1,nRoots)
 
 
 * Local print level may have changed:
@@ -372,9 +378,11 @@
         Call mma_allocate(DSPN,NACPAR,Label='DSPN')
         DSPN(:)=0.0D0
         Call mma_allocate(DMAT,NACPAR,Label='DMat')
-        Call mma_allocate(PMAT,NACPR2,Label='PMat')
         DMAT(:)=0.0D0
+        Call mma_allocate(PMAT,NACPR2,Label='PMat')
+        PMAT(:)=0.0D0
         Call mma_allocate(PA,NACPR2,Label='PA')
+        PA(:)=0.0D0
 #ifdef _FDE_
       ! Embedding
       iDummyEmb=0
@@ -447,7 +455,8 @@
       end if
       if(ifvb.eq.1)call casinfo2_cvb()
 
-      Call Timing(dum1,dum2,Ebel_1,dum3)
+      Call Timing(dum1,dum2,time1(1),dum3)
+      TimeInput = time1(1)
 
 CGG03 Aug 03
       If(NAlter.gt.0) Call Alter_MO(CMO)
@@ -626,7 +635,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       ITER=ITER+1
       Write(STLNE2,'(A12,I3)')'Iteration ',ITER
       Call StatusLine('RASSCF: ',STLNE2)
-      Call Timing(dum1,dum2,Certina_1,dum3)
+      Call Timing(dum1,dum2,time0(1),dum3)
 #ifdef _DMRG_
       ! Leon 27/11/2017: Skip the first CI iteration if we're using
       ! DMRGCI and CIOnly.It's enabled only for DMRGCI with QCMaquis
@@ -655,7 +664,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
 *
-        Call Timing(dum1,dum2,Fortis_1,dum3)
+        Call Timing(dum1,dum2,time2(1),dum3)
 
         If (.not.DoCholesky .or. ALGO.eq.1) Then
            Call mma_allocate(PUVX,NFINT,Label='PUVX')
@@ -771,9 +780,8 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
           Call mma_deallocate(PUVX)
         EndIf
 
-        Call Timing(dum1,dum2,Fortis_2,dum3)
-        Fortis_2 = Fortis_2 - Fortis_1
-        Fortis_3 = Fortis_3 + Fortis_2
+        Call Timing(dum1,dum2,time2(2),dum3)
+        TimeTrans = TimeTrans + time2(2) - time2(1)
 
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
@@ -796,7 +804,7 @@ c         write(6,*) (UVX(ind),ind=1,NACPR2)
 *
 * Compute initial CI vectors and density matrices
 *
-        Call Timing(dum1,dum2,Zenith_1,dum3)
+        Call Timing(dum1,dum2,time3(1),dum3)
 
         if (DumpOnly) then
           call mma_allocate(orbital_E, nTot)
@@ -896,9 +904,8 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
           End Do
         end if
 
-        Call Timing(dum1,dum2,Zenith_2,dum3)
-        Zenith_2 = Zenith_2 - Zenith_1
-        Zenith_3 = Zenith_3 + Zenith_2
+        Call Timing(dum1,dum2,time3(2),dum3)
+        TimeCIOpt = TimeCIOpt + time3(2) - time3(1)
         lRf = lTemp
 
         IF( .not.l_casdft ) then
@@ -1010,7 +1017,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
 *
-      Call Timing(dum1,dum2,Fortis_1,dum3)
+      Call Timing(dum1,dum2,time2(1),dum3)
       If (.not.DoCholesky .or. ALGO.eq.1) Then
          Call mma_allocate(PUVX,NFINT,Label='PUVX')
          PUVX(:)=0.0D0
@@ -1063,13 +1070,13 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          Call mma_deallocate(PUVX)
       EndIf
 
-      Call Timing(dum1,dum2,Fortis_2,dum3)
-      Fortis_2 = Fortis_2 - Fortis_1
-      Fortis_3 = Fortis_3 + Fortis_2
+      Call Timing(dum1,dum2,time2(2),dum3)
+      TimeTrans = TimeTrans + time2(2) - time2(1)
 
 *
 * Compute the CI vectors and density matrices
 *
+      Call Timing(dum1,dum2,time3(1),dum3)
       IF (.not. l_casdft) THEN !the following is skipped in CASDFT-GLM
 
         If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Then
@@ -1270,9 +1277,8 @@ c     &              ' ',PA,NACPAR)
          iOff = iOff + iBas*iBas
         End Do
        End If
-      Call Timing(dum1,dum2,Zenith_2,dum3)
-      Zenith_2 = Zenith_2 - Zenith_1
-      Zenith_3 = Zenith_3 + Zenith_2
+      Call Timing(dum1,dum2,time3(2),dum3)
+      TimeCIOpt = TimeCIOpt + time3(2) - time3(1)
 
 *
 c      Call rasscf_xml(Iter)
@@ -1280,7 +1286,7 @@ c      Call rasscf_xml(Iter)
 *
 * SX-section
 *
-      Call Timing(dum1,dum2,Gucci_1,dum3)
+      Call Timing(dum1,dum2,time2(1),dum3)
 
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,*) ' In RASSCF bf SXCTL'
@@ -1341,9 +1347,8 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
       End IF
 
       IF (ITER.EQ.1) DE=0.0d0
-      Call Timing(dum1,dum2,Gucci_2,dum3)
-      Gucci_2 = Gucci_2 - Gucci_1
-      Gucci_3 = Gucci_3 + Gucci_2
+      Call Timing(dum1,dum2,time2(2),dum3)
+      TimeOrb = TimeOrb + time2(2) - time2(1)
       TMXTOT=MAX(TMXTOT,THMAX)
 *
 * Save energies and convergence parameters
@@ -1365,8 +1370,8 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
 *
 * Print output of energies and convergence parameters
 *
-      Call Timing(dum1,dum2,Certina_2,dum3)
-      Certina_3 = Certina_2 - Certina_1
+      Call Timing(dum1,dum2,time0(2),dum3)
+      time0(2) = time0(2) - time0(1)
 * Character indicating unconvergence/convergence criterion fulfilled:
       CTHRE=' '
       CTHRSX=' '
@@ -1388,9 +1393,9 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
          end if
         endif
 *----------------------------------
-        ihh=int(Certina_3/3600)
-        imm=int(Certina_3-ihh*3600)/60
-        iss=int(Certina_3-ihh*3600-imm*60)
+        ihh=int(time0(2)/3600)
+        imm=int(time0(2)-ihh*3600)/60
+        iss=int(time0(2)-ihh*3600-imm*60)
         if (DoSplitCAS) then
          Write(LF,'(6X,I3,I4,I5,I5,F15.8,ES12.2,A1,ES10.2,A1,2I4,I2,'//
      &            'ES10.2,A1,F6.2,F7.2,4X,A2,3X,A3,I5,A1,I2.2,A1,I2.2)')
@@ -1712,7 +1717,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *
 * Transform two-electron integrals
 *
-      Call Timing(dum1,dum2,Fortis_1,dum3)
+      Call Timing(dum1,dum2,time2(1),dum3)
       If (.not.DoCholesky .or. ALGO.eq.1) Then
          Call mma_allocate(PUVX,NFINT,Label='PUVX')
          PUVX(:)=0.0D0
@@ -1730,9 +1735,8 @@ c Clean-close as much as you can the CASDFT stuff...
           Call mma_deallocate(PUVX)
        EndIf
 
-      Call Timing(dum1,dum2,Fortis_2,dum3)
-      Fortis_2 = Fortis_2 - Fortis_1
-      Fortis_3 = Fortis_3 + Fortis_2
+      Call Timing(dum1,dum2,time2(2),dum3)
+      TimeTrans = TimeTrans + time2(2) - time2(1)
 *
 * CI-section (to obtain final wave function)
 * 1st and 2nd order density matrix in MO basis
@@ -1745,7 +1749,7 @@ c Clean-close as much as you can the CASDFT stuff...
        Write(IterFile,'(20A4)') ('****',i=1,20)
        Write(IterFile,'(15X,A)') 'RASSCF iteration: Final'
 *
-      Call Timing(dum1,dum2,Zenith_1,dum3)
+      Call Timing(dum1,dum2,time3(1),dum3)
 
       if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
@@ -1778,6 +1782,10 @@ c Clean-close as much as you can the CASDFT stuff...
       else
         CALL CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
       end if
+      if (lRF .and. (iPCMRoot<=0 .or. DWSolv%DWZeta/=0.0d+00)) then
+        IAD15 = IADR15(6)
+        CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
+      end if
 
       EAV=0.0d0
       If(DoSplitCAS) then
@@ -1793,10 +1801,10 @@ c Clean-close as much as you can the CASDFT stuff...
         Call mma_deallocate(CRVEC)
         Call mma_deallocate(CRPROJ)
       END IF
-      Call Timing(dum1,dum2,Zenith_2,dum3)
-      Zenith_2 = Zenith_2 - Zenith_1
-      Zenith_3 = Zenith_3 + Zenith_2
-      Call Timing(dum1,dum2,Ebel_2,dum3)
+      Call Timing(dum1,dum2,time3(2),dum3)
+      TimeCIOpt = TimeCIOpt + time3(2) - time3(1)
+      TimeWfn = TimeWfn + time3(2) - time1(1)
+      time1(1) = time3(2)
 *
 * Calculation of natural orbitals. These orbitals are stored on
 * JOBIPH in IADR15(12), followed by the occupation numbers.
@@ -1885,7 +1893,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *****************************************************************
 * Export all information relevant to geometry optimizations.
 * Save also the reaction field operator.
-      Call Timing(dum1,dum2,Oris_1,dum3)
+      Call Timing(dum1,dum2,time2(1),dum3)
       If (iRlxRoot.eq.0) iRlxRoot=iRoot(1)
 *
 * Replace average occ Fock with occ Fock for state iRlxRoot
@@ -1897,8 +1905,8 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
          Call Export1(IFINAL,CMO,DMAT,PMAT,Dens,FockOcc)
          Call mma_deallocate(Dens)
       End If
-      Call Timing(dum1,dum2,Oris_2,dum3)
-      Oris_2 = Oris_2 - Oris_1
+      Call Timing(dum1,dum2,time2(2),dum3)
+      TimeRelax = time2(2) - time2(1)
 *****************************************************************
 *
       EMY=EMY+CASDFT_Funct
@@ -1987,6 +1995,8 @@ c  i_root>0 gives natural spin orbitals for that root
         end if
       end if
 #endif
+      if (lRF) call DWSol_final()
+*     call DWSCF_final()
 
 c deallocating TUVX memory...
       Call mma_deallocate(TUVX)
@@ -2035,7 +2045,9 @@ c      If (iCIonly.eq.0) Then
 c        Call Grid_driver(-1,'RASSCF','RASORB',iR)
 c      End If
 
-      Call Timing(dum1,dum2,Ebel_3,dum3)
+      Call Timing(dum1,dum2,time1(2),dum3)
+      TimeTotal = time1(2)
+      TimeOutput = TimeOutput + time1(2) - time1(1)
       IF (IPRLEV.GE.3) THEN
        Call PrtTim
        Call FastIO('STATUS')

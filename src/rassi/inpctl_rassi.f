@@ -22,7 +22,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use cntrl, only: RefEne, HEff
       use Cntrl, only:  NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT,
-     &                  MLTPLT, NSTAT, MXJOB
+     &                  MLTPLT, NSTAT, MXJOB, NATO, BINA, NRNATO, NBINA,
+     &                  IBINA
       use cntrl, only: ATLBL, IGROUP, nAtoms, nGroup
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: ENUC,NBASF
@@ -41,7 +42,7 @@ C Read data from the ONEINT file:
 
       NSTATE=0
 C Read (and do some checking) the standard input.
-      CALL READIN_RASSI
+      CALL READIN_RASSI()
 * if there have been no states selected at this point, we need to read
 * the states later from the job files.
       IF(NSTATE.EQ.0) THEN
@@ -60,6 +61,18 @@ C Read (and do some checking) the standard input.
         End Do
       ELSE
         READ_STATES=.FALSE.
+      END IF
+
+      IF (NATO) THEN
+        IF (NRNATO > NSTATE) NRNATO=NSTATE
+      END IF
+      IF (BINA) THEN
+        DO I=1,NBINA
+          IF (MAXVAL(IBINA(:,I)) > NSTATE) THEN
+            CALL WarningMessage(2,'State number too high in NBINA')
+            CALL Quit_OnUserError()
+          END IF
+        END DO
       END IF
 
 #ifdef _DMRG_

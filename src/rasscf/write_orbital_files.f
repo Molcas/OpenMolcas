@@ -94,6 +94,23 @@
      &                    lRoots,nRoots,iRoot,mxRoot,
      &                    nRs1,nRs2,nRs3,
      &                    nHole1,nElec3,iPt2,Weight)
+!     if (DWSCF%do_DW) then
+!       !! recompute the weight and save on JobIph
+!       !! this is not well tested
+!       Call mma_allocate(Ene,mxRoot*mxIter,Label='Ene')
+!       Call Get_dArray('Last energies',Ene,lRoots)
+!       call DWSol_wgt(1,Ene,weight)
+!       Call mma_deallocate(Ene)
+!       iDisk = iToc(1)
+!       Call WR_RASSCF_Info(JobIph,1,iDisk,
+!    &                      nActEl,iSpin,nSym,stSym,
+!    &                      nFro,nIsh,nAsh,nDel,
+!    &                      nBas,mxSym,BName,LENIN8*mxOrb,nConf,
+!    &                      Header,144,Title,4*18*mxTit,PotNucDummy,
+!    &                      lRoots,nRoots,iRoot,mxRoot,
+!    &                      nRs1,nRs2,nRs3,
+!    &                      nHole1,nElec3,iPt2,Weight)
+!     end if
       ntot = sum(nBas(:nSym))
       ntot2 = sum(nBas(:nSym)**2)
 *----------------------------------------------------------------------*

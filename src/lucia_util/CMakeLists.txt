@@ -185,7 +185,6 @@ set (sources
      skickj.F90
      skprcd2.F90
      smdfgp_gen.F90
-     smost.F90
      spgp_ac.F90
      spgrpcon.F90
      spncom.F90
@@ -214,7 +213,6 @@ set (sources
      weight_lucia.F90
      weight_spgp.F90
      wrt_conf_list.F90
-     wrtrs2.F90
      wrttts.F90
      wrtvcd.F90
      z_blkfo.F90

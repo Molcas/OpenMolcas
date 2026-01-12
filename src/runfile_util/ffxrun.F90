@@ -75,8 +75,8 @@ item = -1
 do i=1,nToc
   CmpLab1 = Toc(i)%Lab
   CmpLab2 = Label
-  call UpCase(CmpLab1)
-  call UpCase(CmpLab2)
+  !call UpCase(CmpLab1)
+  !call UpCase(CmpLab2)
   if (CmpLab1 == CmpLab2) item = i
 end do
 if (item == -1) then

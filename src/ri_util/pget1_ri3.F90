@@ -657,6 +657,7 @@ else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
     jSO_off = jSO-iOff1
 
     Factor = Zero
+    BklK(1:jBas*nKBas*nLBas) = Zero
 
     do iSO=1,2
       iMOleft = iSO

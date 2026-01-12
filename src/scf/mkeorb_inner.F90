@@ -46,7 +46,7 @@ real(kind=wp), allocatable :: FckSqr(:)
 MaxTri = 0
 MaxSqr = 0
 do iSym=1,nSym
-  MaxTri = max(MaxTri,nTri_ELem(nBas(iSym)))
+  MaxTri = max(MaxTri,nTri_Elem(nBas(iSym)))
   MaxSqr = max(MaxSqr,nBas(iSym)**2)
 end do
 !----------------------------------------------------------------------*

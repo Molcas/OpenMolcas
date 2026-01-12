@@ -10,84 +10,78 @@
 !***********************************************************************
 
 subroutine ref_energy(mcscf_energy,nstates)
-  use definitions,only:iwp,wp,u6
-  use constants,only:zero
-  use stdalloc,only:mma_allocate,mma_deallocate
-  use printlevel,only:usual
-  use mcpdft_output,only:iprglb
-  use mcpdft_input,only:mcpdft_options
-  use mspdft,only:heff
-  use general_data,only:jobiph
+
+use printlevel, only: usual
+use mcpdft_output, only: iprglb
+use mcpdft_input, only: mcpdft_options
+use mspdft, only: heff
+use general_data, only: jobiph
 #ifdef _HDF5_
-  use mh5,only:mh5_open_file_r,mh5_close_file,mh5_fetch_dset,mh5_exists_dset
+use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-  implicit none
-
+implicit none
+integer(kind=iwp), intent(in) :: nstates
+real(kind=wp), intent(out) :: mcscf_energy(nstates)
 #include "rasdim.fh"
-  integer(kind=iwp),intent(in) :: nstates
-  real(kind=wp),intent(out) :: mcscf_energy(nstates)
-
-  integer(kind=iwp) :: state,iad19,disk,nmaybe,i,it,iadr19(15)
-  real(kind=wp) :: e,aemax
-  real(kind=wp),allocatable :: elist(:,:)
-
+integer(kind=iwp) :: disk, i, iad19, iadr19(15), it, nmaybe, state
 #ifdef _HDF5_
-  integer(kind=iwp) :: refwfn_id
+integer(kind=iwp) :: refwfn_id
 #endif
+real(kind=wp) :: aemax, e
+real(kind=wp), allocatable :: elist(:,:)
 
-  if(mcpdft_options%mspdft) then
-    if(iprglb >= usual) then
-      write(u6,*) 'Reference MC-SCF energies taken from diagonal elements of'
-      write(u6,*) 'effective Hamiltonian'
-    endif
-    do state = 1,nstates
-      mcscf_energy(state) = heff(state,state)
-    enddo
+if (mcpdft_options%mspdft) then
+  if (iprglb >= usual) then
+    write(u6,*) 'Reference MC-SCF energies taken from diagonal elements of'
+    write(u6,*) 'effective Hamiltonian'
+  end if
+  do state=1,nstates
+    mcscf_energy(state) = heff(state,state)
+  end do
+else
+  if (iprglb >= usual) write(u6,*) 'Reference MC-SCF energies taken from ',trim(mcpdft_options%wfn_file)
+  if (.not. mcpdft_options%is_hdf5_wfn) then
+    iadr19(:) = 0
+    iad19 = 0
+    call iDaFile(JOBIPH,2,iadr19,15,iad19)
+    disk = iadr19(6)
+
+    call mma_allocate(elist,mxroot,mxiter,label='EList')
+    elist(:,:) = Zero
+    call DDaFile(JOBIPH,2,elist,mxroot*mxiter,disk)
+
+    nmaybe = 0
+    do it=1,mxiter
+      aemax = Zero
+      do i=1,mxroot
+        e = elist(i,it)
+        aemax = max(aemax,abs(e))
+      end do
+      if (abs(aemax) <= 1.0e-12_wp) exit
+      nmaybe = it
+    end do
+
+    mcscf_energy(:) = elist(1:nstates,nmaybe)
+
+    call mma_deallocate(elist)
+
+# ifdef _HDF5_
   else
-    if(iprglb >= usual) then
-      write(u6,*) 'Reference MC-SCF energies taken from ',mcpdft_options%wfn_file
-    endif
-    if(.not. mcpdft_options%is_hdf5_wfn) then
-      iadr19(:) = 0
-      iad19 = 0
-      call iDaFile(JOBIPH,2,iadr19,15,iad19)
-      disk = iadr19(6)
+    refwfn_id = mh5_open_file_r(mcpdft_options%wfn_file)
+    if (.not. mh5_exists_dset(refwfn_id,'ROOT_ENERGIES')) then
+      write(u6,*) 'The HDF5 ref file does not contain ROOT_ENERGIES'
+      write(u6,*) 'Fatal error, the calculation will stop now.'
+      call Abend()
+    end if
+    write(u6,*) 'Loading mcscf energy from hdf5 file!'
+    call mh5_fetch_dset(refwfn_id,'ROOT_ENERGIES',mcscf_energy)
+    call mh5_close_file(refwfn_id)
+# endif
+  end if
+end if
 
-      call mma_allocate(elist,mxroot,mxiter,label='EList')
-      elist(:,:) = zero
-      call DDaFile(JOBIPH,2,elist,mxroot*mxiter,disk)
-
-      nmaybe = 0
-      do it = 1,mxiter
-        aemax = zero
-        do i = 1,mxroot
-          e = elist(i,it)
-          aemax = max(aemax,abs(e))
-        enddo
-        if(abs(aemax) <= 1.0D-12) then
-          exit
-        endif
-        nmaybe = it
-      enddo
-
-      mcscf_energy(:) = elist(1:nstates,nmaybe)
-
-      call mma_deallocate(elist)
-
-#ifdef _HDF5_
-    else
-      refwfn_id = mh5_open_file_r(mcpdft_options%wfn_file)
-      if(.not. mh5_exists_dset(refwfn_id,'ROOT_ENERGIES')) then
-        write(u6,*) 'The HDF5 ref file does not contain ROOT_ENERGIES'
-        write(u6,*) 'Fatal error, the calculation will stop now.'
-        call Abend()
-      endif
-      write(u6,*) 'Loading mcscf energy from hdf5 file!'
-      call mh5_fetch_dset(refwfn_id,'ROOT_ENERGIES',mcscf_energy)
-      call mh5_close_file(refwfn_id)
-#endif
-    endif
-  endif
-
-endsubroutine
+end subroutine ref_energy

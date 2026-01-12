@@ -14,7 +14,7 @@ subroutine SymTrafo(LUPROP,lOper,nComp,nBas,nIrrep,Label,MolWgh)
 !bs integrals on one file AOPROPER_MF_SYM
 
 use AMFI_global, only: Lmax, MxCart
-use index_functions, only: iTri
+use index_functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -69,7 +69,7 @@ end do
 write(u6,*) 'there are totally ',numboffunct,' functions'
 #endif
 if (numboffunct > MxOrb) call SysAbendMsg('symtrafo','increase MxOrb in Molcas.fh',' ')
-rewind isymunit
+rewind(isymunit)
 read(isymunit,*)
 read(isymunit,*)
 numbofcent = 0
@@ -145,7 +145,7 @@ do jcent=1,numbofcent
 # ifdef _DEBUGPRINT_
   write(u6,*) numballcart(icent),'functions on centre ',icent
 # endif
-  length3 = iTri(numballcart(icent),numballcart(icent))
+  length3 = nTri_Elem(numballcart(icent))
   C(iCent) = ipSCR
   read(iunit) (Scr(i,1),i=ipSCR,ipSCR+length3-1)
   read(iunit) xa2
@@ -162,7 +162,7 @@ do jcent=1,numbofcent
   end do
   Lhighcent(icent) = LLhigh
   !bs determize where the first function of a special type is..
-  not_defined = iTri(numboffunct,numboffunct)+1
+  not_defined = nTri_Elem(numboffunct)+1
   do Lrun=0,Lhighcent(icent)
     ifirstLM(Lrun,-Lrun:Lrun,icent) = not_defined
   end do

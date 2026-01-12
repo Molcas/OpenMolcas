@@ -19,7 +19,7 @@ module second_quantization
 ! are used to indicate annihilation (destroyed state). Excitation operators
 ! can be applied to the determinants and return the resulting determinant.
 !
-! Additionally, a wavefunction is represtented by a structure (derived type)
+! Additionally, a wavefunction is represented by a structure (derived type)
 ! consisting of determinant coefficients resulting from the direct product of
 ! separate alpha and beta determinants.
 !

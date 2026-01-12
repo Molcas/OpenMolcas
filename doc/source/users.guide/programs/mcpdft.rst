@@ -235,7 +235,7 @@ The :kword:`FUNC` is the only required keyword.
               </KEYWORD>
 
 :kword:`WJOB`
-    This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into :file:`JOBIPH` (or :file:`wavefunction.h5`). For MC-PDFT, only the energy of each state is written into :file:`JOBIPH` (or :file:`wavefunction.h5`), since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI...); for MS-PDFT, both the energy and the CI coefficients of the eigenstates are written into :file:`JOBIPH`, because an MS calculation changes the wave functions. The latter option is not yet available for DMRG-SCF reference wave functions.
+  This keyword allows one to write the energies and eigenstates of MC-PDFT or MS-PDFT into :file:`JOBIPH` (or :file:`wavefunction.h5`). For MC-PDFT, only the energy of each state is written into :file:`JOBIPH` (or :file:`wavefunction.h5`), since an MC-PDFT calculation is based on a previous wave function (CASSCF, SA-CASSCF, RASSCF, GASSCF, DMRG-SCF, CASCI, RASCI...); for MS-PDFT, both the energy and the CI coefficients of the eigenstates are written into :file:`JOBIPH`, because an MS calculation changes the wave functions. The latter option is not yet available for DMRG-SCF reference wave functions.
 
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="WJOB" APPEAR="Write into JOBIPH" KIND="SINGLE" LEVEL="BASIC">
@@ -452,5 +452,19 @@ The following example shows the :program:`MCPDFT` part of input to run MC23 with
   ``18`` means there are 18 parameters for the first Libxc function (M06-L exchange functional),
   ``27`` means there are 27 parameters for the second Libxc function (M06-L correlation functional).
   The third line are 18 values for the first function, and the last line are the 27 values for the second functional.
+
+  Similarly, one can use the MC25 functional by providing the MC25 parameters through an external file, :file:`MC25_params.txt` and ``lambda = 0.28`` ::
+
+    &MCPDFT
+     FUNC   = T:M06L
+     LAMB   = 0.28
+     EXPM   = MC25_params.txt
+
+  MC25 parameters are ::
+
+    2
+    18 27
+    3.465030e+00  5.375447e-01 -7.191629e-01 -9.915646e-01 2.229138e+00 5.404209e+00 -4.004898e+00 -5.983860e+00 -2.086931e+00 -8.878196e-01 4.888665e+00 2.868958e+00 -2.499939e+00 -9.852771e-03 8.596984e-03 -1.220706e-05 -1.336275e-05 0.0
+    0.06 0.0031 0.00515088 0.00304966 1.489435e+00 2.942442e+00 -6.297330e+00 -2.062505e+00 1.634904e+00 1.608843e+00 -1.233955e+00 -1.964674e+00 -2.471985e+00 -5.392796e-01 -1.509794e+00 2.794569e-02 1.061909e-01 5.095118e-04 -2.927055e-03 0.0 9.690385e-01 -4.546714e-02 4.151718e-02 1.789189e-04  1.024388e-03 0.0 1e-10
 
 .. xmldoc:: </MODULE>

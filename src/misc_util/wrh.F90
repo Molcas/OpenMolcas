@@ -21,7 +21,7 @@ integer(kind=iwp) :: I, IBAS, IORB, ISYM, KCMO, KOCC, NDIV
 character(len=40) :: FRMT
 
 FRMT = '(4ES20.12)'
-! REWIND (LU)
+!REWIND(LU)
 KCMO = 0
 NDIV = 4
 if (TITLE(1:1) /= '*') TITLE = '*'//TITLE(:len(TITLE)-1)

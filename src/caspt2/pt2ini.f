@@ -141,6 +141,7 @@ C Initialize sizes, offsets etc used in equation solver.
 
 * Allocate global orbital arrays:
       CALL mma_allocate(CMOPT2,NCMO,Label='CMOPT2')
+      CMOPT2(:) = 0.0d0
 * Allocate global orbital transformation arrays:
       CALL mma_allocate(TORB,NTORB,Label='TORB')
       CALL mma_allocate(TAT,NTAT,Label='TAT')
@@ -157,7 +158,7 @@ C Initialize sizes, offsets etc used in equation solver.
       use PT2WFN, ONLY: PT2WFN_CLOSE
       use gugx, only: SGS, CIS, EXS
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
-     &                       DWGT, CMOPT2, TAT, TORB, IDSCT
+     &                       DWGT, CMOPT2, TAT, TORB, IDSCT, Weight
       use stdalloc, only: mma_deallocate
 * NOT TESTED
 #if 0
@@ -219,6 +220,9 @@ C     Deallocate MAGEB, etc, superindex tables:
       call pt2wfn_close()
 C     Close all files:
       CALL CLSFLS_CASPT2()
+
+! Weight array is allocated in refwfn_info
+      call mma_deallocate(Weight)
 
 C free input struct
       CALL CleanUp_Input()

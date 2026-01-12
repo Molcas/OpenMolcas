@@ -70,8 +70,9 @@
       use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
      &                        NSEL,NTOT1,NASH,NBAS,NDEL,NFRO,NISH,
      &                        NRS1,NRS2,NRS3,NSSH
-      use spinfo, only: NCSASM,NDTASM
+      use spinfo, only: DoComb,NCNFTP,NCSASM,NDTASM,NDTFTP
       use spinfo, only: I_ELIMINATE_GAS_MOLCAS,NCSF_HEXS
+      use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
 
       Implicit None
       Logical lOPTO
@@ -95,7 +96,7 @@
       Real*8, Allocatable:: Tmp0(:)
       Real*8 AvailMB, WillNeedMB
       Integer i, iCharge, iComp, iDoRI, iEnd, iGAS, iOpt, iPrLev, iRC,
-     &        iRef, iStart, iSyLbl, iSym, iTemp, left, lLine, lPaper,
+     &        iRef, iStart, iSyLbl, iSym, iTemp, j, left, lLine, lPaper,
      &        MaxRem, n_paired_elec, n_unpaired_elec, nLine
 
 * Print level:
@@ -362,8 +363,15 @@ C.. for GAS
           Write(LF,Fmt2//'A,T40,I11)')'Number of highly excited CSFs',
      &                           nCSF_HEXS
         EndIf
-        Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
-     &                           NDTASM(STSYM)
+        If (DoComb) Then
+          Write(LF,Fmt2//'A,T40,I11)')'Number of spin combinations',
+     &                                NDTASM(STSYM)
+          Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
+     &                         2*NDTASM(STSYM)-NDTFTP(1)*NCNFTP(1,STSYM)
+        Else
+          Write(LF,Fmt2//'A,T40,I11)')'Number of determinants',
+     &                                NDTASM(STSYM)
+        EndIf
       end if
         n_Det=2
         n_unpaired_elec=(iSpin-1)
@@ -620,9 +628,53 @@ C.. for GAS
          Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
          iCharge=Int(Tot_Charge)
          Call PrRF(.False.,NonEq,iCharge,2)
-         Write(LF,Fmt2//'A,T45,I2)')' Reaction field from state:',
-     &                              IPCMROOT
+
+         if (DWSolv%DWZeta == -12345d+00) then
+             Write(LF,Fmt2//'A)')
+     &         'Weights of the reaction field are specified by RFROOT'
+             Write(LF,Fmt2//'(T45,10F6.3))') (W_SOLV(i),i=1,nRoots)
+         else if (DWSolv%DWZeta < 0.0d+00) then
+           Call DWSol_fixed(i,j)
+           if (i==0 .and. j==0) then
+             Write(LF,Fmt2//'A)') 'Unrecognized negative DWZeta (DWSOl)'
+             Write(LF,Fmt2//'A,T51,A)')
+     &         'Dynamically weighted solvation is ',
+     &         'automatically turned off!'
+           else
+             Write(LF,Fmt2//'A,T45,I2,X,I2)')
+     &         'Reaction field from states:', i, j
+             if (max(i,j) > nRoots) then
+               Write(LF,Fmt2//'A)')
+     &           'The specified state is too high! Cannot proceed...'
+               Call Quit_OnUserError()
+             end if
+           end if
+         else if (IPCMROOT <= 0) then
+           Write(LF,Fmt2//'A,T44,A)')'Reaction field from state:',
+     &                               ' State-Averaged'
+           if (DWSolv%DWZeta /= 0.0d+00) then
+             Write(LF,Fmt2//'A,T51,A)')
+     &         'Dynamically weighted solvation is ',
+     &         'automatically turned off!'
+             DWSolv%DWZeta = 0.0d+00
+           end if
+         else
+           Write(LF,Fmt2//'A,T44,I2)')'Reaction field from state:',
+     &                                IPCMROOT
+           if (DWSolv%DWZeta > 0.0d+00) then
+             Write(LF,Fmt2//'A,ES10.3,A,I1,A)')
+     &         'Dynamically weighted solvation is used with DWSOlv = ',
+     &         DWSolv%DWZeta," (DWTYpe = ",DWSolv%DWType,")"
+           end if
+         end if
        End If
+!      If (DWSCF%do_DW) Then
+!        Write(LF,Fmt2//'A)') 'Dynamically weighted MCSCF is enabled'
+!        Write(LF,Fmt2//'A,T44,I2)') 'Target state:', DWSCF%DWRoot
+!        Write(LF,Fmt2//'A,ES10.3,A,I1,A)')
+!    &     'Dynamically weighted MCSCF is used with DWZEta = ',
+!    &     DWSCF%DWZeta," (DWTYpe = ",DWSCF%DWType,")"
+!      End If
        Call CollapseOutput(0,'Optimization specifications:')
        If ( RFpert ) then
          Write(LF,*)

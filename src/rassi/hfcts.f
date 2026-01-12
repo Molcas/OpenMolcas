@@ -575,25 +575,25 @@ c
       if (ICOMP(KPROP).EQ.1) then
       ic=1
       jc=1
-      elseif (ICOMP(KPROP).EQ.2) then
+      else if (ICOMP(KPROP).EQ.2) then
       ic=1
       jc=2
-      elseif (ICOMP(KPROP).EQ.3) then
+      else if (ICOMP(KPROP).EQ.3) then
       ic=1
       jc=3
-      elseif (ICOMP(KPROP).EQ.4) then
+      else if (ICOMP(KPROP).EQ.4) then
       ic=2
       jc=1
-      elseif (ICOMP(KPROP).EQ.5) then
+      else if (ICOMP(KPROP).EQ.5) then
       ic=2
       jc=2
-      elseif (ICOMP(KPROP).EQ.6) then
+      else if (ICOMP(KPROP).EQ.6) then
       ic=2
       jc=3
-      elseif (ICOMP(KPROP).EQ.7) then
+      else if (ICOMP(KPROP).EQ.7) then
       ic=3
       jc=1
-      elseif (ICOMP(KPROP).EQ.8) then
+      else if (ICOMP(KPROP).EQ.8) then
       ic=3
       jc=2
       else

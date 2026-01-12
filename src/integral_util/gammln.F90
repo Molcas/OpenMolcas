@@ -20,14 +20,14 @@ function gammln(x)
 ! Dc(n) := diag(makelist(2*double_factorial(2*k-1),k,0,n));
 ! cmatrix_element[row,col]:=
 !   if is(col>row) then 0
-!   elseif row=1 and col=1 then 1/2
+!   else if row=1 and col=1 then 1/2
 !   else (-1)^(row+col)*4^(col-1)*(row-1)*(row+col-3)!/(row-col)!/(2*col-2)!;
 ! C(n) := genmatrix(cmatrix_element, n+1);
 ! f(g,n):=sqrt(2)*(%e/(2*(n+g)+1))^(n+1/2);
 ! Dr(k) := diag(append([1],makelist(-(2*n+2)!/(2*n!*(n+1)!),n,0,k-1)));
 ! bmatrix_element[row,col] :=
 !   if row = 1 then 1
-!   elseif is(row > col) then 0
+!   else if is(row > col) then 0
 !   else (-1)^(col-row)*binomial(col+row-3,2*row-3);
 ! B(k) := genmatrix(bmatrix_element,k+1);
 ! lanczos_coeff(g, n) :=

@@ -508,7 +508,7 @@ if (lpso .and. (.not. gamma_mrcisd)) then
     call Get_dArray_chk('PLMO',G2(:,2),nG2)
     ndim1 = 0
     if (doDMRG) then
-      ndim0 = sum(LRras2(1:8))  !yma
+      ndim0 = sum(LRras2(:))  !yma
       ndim1 = nTri_Elem(ndim0)
       ndim2 = nTri_Elem(ndim1)
       do i=1,ng2

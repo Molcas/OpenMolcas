@@ -80,6 +80,7 @@
       use general_data, only: CRVec
       use gas_data, only: iDoGAS
       use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
+      use timers, only: TimeDens
       use rasscf_global, only: CMSStartMat, DoDMRG,
      &                         ExFac, iCIRFRoot, ICMSP, IFCRPR,
      &                         iPCMRoot, iRotPsi, ITER, IXMSP, KSDFT,
@@ -95,6 +96,7 @@
       use output_ras, only: LF,IPRLOC
       use general_data, only: ISPIN,NACTEL,NCONF,NISH,JOBIPH,NASH,NTOT2,
      &                        STSYM
+      use DWSol, only: DWSolv!, DWSol_wgt
 
 
       Implicit None
@@ -114,8 +116,6 @@
       integer, external :: IsFreeUnit
 
       Character(LEN=16), Parameter :: ROUTINE='CICTL   '
-#include "SysDef.fh"
-#include "timers.fh"
 #ifdef _HDF5_
       real*8, allocatable :: density_square(:,:)
 #endif
@@ -139,7 +139,7 @@
      &                      RF(:), Temp(:), CIVec(:)
       Integer, Allocatable:: kCnf(:)
       Integer LuVecDet
-      Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal
+      Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal, Time(2)
       Real*8, External:: DDot_
       Integer i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot,
      &        jRoot, kRoot, mconf
@@ -217,7 +217,7 @@ C Local print level (if any)
       end if
 #endif
 
-      If ( lRf .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
+      If ((lRf .or. KSDFT.ne.'SCF' .or. Do_ESPF) .and. IPCMROOT>0) THEN
 *
 * In case of a reaction field in combination with an average CAS
 * select the potential of the appropriate state.
@@ -232,7 +232,11 @@ C Local print level (if any)
 *
         CALL mma_allocate(RCT_F,NTOT2,Label='RCT_F')
         CALL mma_allocate(RCT_FS,NTOT2,Label='RCT_FS')
-        If (IFinal.eq.0) Then
+*
+        if (IPCMROOT > 0 .and. DWSolv%DWZeta /= 0.0d+00) then
+          call DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
+          CALL SGFCIN(CMO,FMO,FI,D1I,D1A,RCT_FS)
+        Else If (IFinal.eq.0) Then
 *
 * Use normal MOs
 *
@@ -546,7 +550,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * Ptmp: SYMMETRIC TWO-BODY DENSITY
 * PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 *
-      Call Timing(Rado_1,dum1,dum2,dum3)
+      Call Timing(Time(1),dum1,dum2,dum3)
       Call dCopy_(NACPAR,[0.0D0],0,D,1)
       Call dCopy_(NACPAR,[0.0D0],0,DS,1)
       Call dCopy_(NACPR2,[0.0D0],0,P,1)
@@ -560,6 +564,8 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 #ifdef _HDF5_
       call mma_allocate(density_square, nac, nac)
 #endif
+
+!     if (DWSCF%do_DW) call DWSol_wgt(1,ENER(:,ITER),weight)
       iDisk = IADR15(4)
       jDisk = IADR15(3)
       IF (.not.DoSplitCAS) THEN
@@ -761,11 +767,12 @@ C and for now don't bother with 2-electron active density matrices
      &              ' ',PA,NACPAR)
       END IF
       Call Put_dArray('D1mo',D,NACPAR) ! Put on RUNFILE
+      if (lRf.and.IPCMROOT<=0)
+     &  Call Put_dArray('P2mo',P,NACPR2) ! Put on RUNFILE
 c
       IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
-      Call Timing(Rado_2,dum1,dum2,dum3)
-      Rado_2 = Rado_2 - Rado_1
-      Rado_3 = Rado_3 + Rado_2
+      Call Timing(Time(2),dum1,dum2,dum3)
+      TimeDens = TimeDens + Time(2) - Time(1)
 *
 * C
 * IF FINAL ITERATION REORDER THE WAVEFUNCTION ACCORDING TO
@@ -945,7 +952,7 @@ CSVC: if CISElect is used, roots should be traced regardless of orbital
 C     rotation, so in that case ignore the automatic tracing and follow
 C     the relative CISE root given in the input by the 'CIRF' keyword.
 *
-      If (lRF.and.KeyCISE.and.KeyCIRF) Then
+      If (lRF.and.KeyCISE.and.KeyCIRF.and.IPCMROOT>0) Then
         JPCMROOT=IPCMROOT
         IPCMROOT=IROOT(ICIRFROOT)
         Call Put_iScalar("RF CASSCF root",IPCMROOT)
@@ -953,7 +960,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
           Write (6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',
      &                 JPCMROOT, ' to ',IPCMROOT
         End If
-      Else If (lRF) Then
+      Else If (lRF.and.IPCMROOT>0) Then
         Call Qpg_iScalar('RF CASSCF root',Exist)
         If (.NOT.Exist) Then
 *

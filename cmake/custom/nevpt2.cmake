@@ -120,6 +120,7 @@ ExternalProject_Add(${EP_PROJECT}
                     PREFIX ${CUSTOM_NEVPT2_LOCATION}
                     GIT_REPOSITORY ${reference_git_repo}
                     GIT_TAG ${reference_git_commit}
+                    GIT_PROGRESS 1
                     UPDATE_DISCONNECTED ${EP_SkipUpdate}
                     CMAKE_ARGS "${NEVPT2CMakeArgs}"
                     INSTALL_DIR "${PROJECT_BINARY_DIR}/qcmaquis"

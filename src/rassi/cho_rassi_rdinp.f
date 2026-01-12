@@ -103,7 +103,7 @@ C      If (nToken(KWord).gt.1) call abend()
       if(ALGO.eq.1)then
         Write(6,*) 'Default CD-RASSI algorithm reset to  ',ALGO
         Write(6,*)
-      elseif (ALGO.eq.2) then
+      else if (ALGO.eq.2) then
         Write(6,*) 'Default CD-RASSI algorithm reset to  ',ALGO
         Write(6,*)
       else

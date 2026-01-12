@@ -24,6 +24,7 @@ use rctfld_module, only: aFac, CLim, Conductor, CORDSI, DampIter, DieDel, DipCut
                          lRFCav, lSparse, MXA, nExpo, nGridAverage, nGridSeed, nOrdInp, nSparse, PCM, PolSI, PreFac, RadInp, &
                          RadLat, rDS, RotAlpha, RotBeta, RotGamma, rSca, rSLPar, Scaaa, Scal14, Scala, Scalb, Scalc, Solvent, TK
 use CovRad_Data, only: CovRadT_
+use DWSol, only: DWSolv
 use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, deg2rad, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6
 
@@ -150,6 +151,11 @@ lLangevin = .false.
 ! default solvent
 Solvent = 'WATER'
 ISlPar(15) = NumSolv(Solvent)
+
+! dynamically weighted state-averaging (in DWSol)
+DWSolv%DWZeta = Zero
+DWSolv%DWType = 1
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -432,6 +438,22 @@ do
       ! Restart dipoles from scratch in each QM iteration
       ! This sometimes gives better convergence.
       lDiprestart = .true.
+    case ('DWSO')
+      !                                                                *
+      !***** DWSO ******************************************************
+      !                                                                *
+      ! Zeta for dynamically weighted state-averaged density
+      KWord = Get_Ln(LuSpool)
+      call Get_F1(1,DWSolv%DWZeta)
+      RSlPar(53) = DWSolv%DWZeta
+    case ('DWTY')
+      !                                                                *
+      !***** DWTY ******************************************************
+      !                                                                *
+      ! how to dynamically weight the solvation density
+      KWord = Get_Ln(LuSpool)
+      call Get_I1(1,DWSolv%DWType)
+      ISlPar(17) = DWSolv%DWType
     case ('END ')
       !                                                                *
       !***** END  ******************************************************

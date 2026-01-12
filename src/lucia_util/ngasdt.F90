@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine NGASDT(ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,NCOMB,XNCOMB,MXSB,MXSOOB,IBLTP,NTTSBL,LCOL,IOCOC,MXSOOB_AS)
+subroutine NGASDT(ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,NCOMB,XNCOMB,MXSOOB,IBLTP,NTTSBL,LCOL,IOCOC,MXSOOB_AS)
 ! Number of combinations with symmetry ITOTSM and
 ! occupation between IOCCMN and IOCCMX
 !
@@ -41,7 +41,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: ITOTSM, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), IBLTP(NSMST), &
                                  IOCOC(NOCTPA,NOCTPB)
-integer(kind=iwp), intent(out) :: NCOMB, MXSB, MXSOOB, NTTSBL, LCOL, MXSOOB_AS
+integer(kind=iwp), intent(out) :: NCOMB, MXSOOB, NTTSBL, LCOL, MXSOOB_AS
 real(kind=wp) :: XNCOMB
 integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ISYM, LASTR, LBSTR, LTTS_AS, LTTSBL, LTTSUP
 
@@ -57,7 +57,6 @@ call IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
 call IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
 #endif
 
-MXSB = 0
 MXSOOB = 0
 MXSOOB_AS = 0
 NCOMB = 0

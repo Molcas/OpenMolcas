@@ -151,8 +151,6 @@ module InputData
     Real(kind=wp)     :: PrWF = 0.05_wp
     ! PRSD      print the determinant expansion of CSFs
     Logical(kind=iwp) :: PrSD = .false.
-    ! NOOR      do not print any orbitals
-    Logical(kind=iwp) :: NoOrb = .false.
 
     ! UNDOCUMENTED KEYWORDS
     ! CHOL
@@ -239,7 +237,7 @@ contains
     ! for now, non-histogramming remains the default, hopefully that will change soon.
     TransformToNormalOrder = .false.
 
-    rewind (LuIn)
+    rewind(LuIn)
     call RdNLst(LuIn,'CASPT2')
 
     ! beginning of reading loop

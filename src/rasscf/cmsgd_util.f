@@ -110,7 +110,6 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       use general_data, only: JOBIPH,NCONF
       Implicit None
 
-#include "SysDef.fh"
 #include "warnings.h"
       INTEGER nGD
       Real*8 GD(nGD)

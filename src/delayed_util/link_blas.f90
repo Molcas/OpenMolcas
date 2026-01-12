@@ -11,7 +11,7 @@
 ! Copyright (C) 2015,2017, Ignacio Fdez. Galvan                        *
 !***********************************************************************
 module link_blas
-  use iso_c_binding
+  use, intrinsic :: iso_c_binding
   use iso_c_utilities
   use dlfcn
 #include "f1.fh"

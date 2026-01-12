@@ -44,13 +44,18 @@ integer(kind=iwp), intent(in) :: LuSpool
 #include "Molcas.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iRout, istatus, iSym(3), iTR, &
-                     j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, &
-                     nElem, nGroup, nRoots, nSlct
-real(kind=wp) :: alpha, Fact, ovlp
+                     j, jIrrep, jOper, jPrint, jRout, jTR, k, ldsp, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, nElem, nGroup, &
+                     nRoots, nSlct
+real(kind=wp) :: alpha, Fact
 logical(kind=iwp) :: TstFnc, ltype, Slct, T_Only, No_Input_OK, Skip
 character(len=80) :: KWord, Key
+#ifdef _NOTUSED_
+integer(kind=iwp) :: jTR, kTR
+real(kind=wp) :: ovlp
+real(kind=wp), allocatable :: Scr(:,:)
+#endif
 integer(kind=iwp), allocatable :: IndCar(:), iTemp(:)
-real(kind=wp), allocatable :: Tmp(:), C(:,:), Scr(:,:), Temp(:,:)
+real(kind=wp), allocatable :: Tmp(:), C(:,:), Temp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrintLevel, iPrmt, NrOpr
 real(kind=wp), external :: DDot_
@@ -229,6 +234,15 @@ do
       ! computation of the molecular gradient.
 
       TRSymm = .false.
+    case ('TRSY')
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
+      ! Enable the utilization of translational and
+      ! rotational invariance of the energy in the
+      ! computation of the molecular gradient.
+
+      TRSymm = .true.
     case ('SELE')
       !                                                                *
       !*****************************************************************
@@ -608,7 +622,7 @@ if (TRSymm) then
   else
     if (iPrint >= 99) write(LuWr,*) ' nTR=',nTR
     call mma_allocate(Am,nTR,lDisp(0),Label='Am')
-    call mma_allocate(Temp,nTR,nTR,Label='Temp')
+    call mma_allocate(Temp,nTR,lDisp(0),Label='Temp')
     call mma_allocate(C,4,lDisp(0),Label='C')
     call mma_allocate(IndCar,lDisp(0),Label='IndCar')
 
@@ -692,6 +706,37 @@ if (TRSymm) then
       end do
     end if
     if (iPrint >= 99) call RecPrt(' The A matrix',' ',Am,nTR,lDisp(0))
+
+    ! orthonormalize the translational and coordinate vectors to generate
+    ! rotational vectors
+
+    do iTR=1,nTR
+      do jTR=1,iTR-1
+        alpha = DDot_(ldisp(0),Am(jTR,1),nTR,Am(iTR,1),nTR)
+        Am(iTR,:) = Am(iTr,:)-alpha*Am(jTR,:)
+      end do
+      alpha = DDot_(ldisp(0),Am(iTR,1),nTR,Am(iTR,1),nTR)
+      if (abs(alpha) <= 1.0e-9_wp) then
+        Am(iTR,:) = Zero ! if linearly dependent etc...
+      else
+        Am(iTR,:) = Am(iTR,:)/sqrt(alpha)
+      end if
+    end do
+    Temp(:,:) = Am(:,:)
+    call mma_deallocate(Am)
+
+    ! finally, construct the projection matrix
+
+    call mma_allocate(Am,lDisp(0),lDisp(0),Label='Am')
+    call unitmat(Am,lDisp(0))
+    ! spectral decomposition: \sum_{v=R,T} |v><v|
+    call dgemm_('T','N',ldisp(0),ldisp(0),nTR,-One,Temp,nTR,Temp,nTR,One,Am,ldisp(0))
+
+    call mma_deallocate(Temp)
+    call mma_deallocate(C)
+    call mma_deallocate(IndCar)
+
+#   ifdef _NOTUSED_
 
     ! Now, transfer the coefficient of those gradients which will
     ! not be computed directly.
@@ -791,6 +836,7 @@ if (TRSymm) then
       ldsp = iTemp(iTR)
       Dirct(ldsp) = .false.
     end do
+#   endif
 
     write(LuWr,*)
     write(LuWr,'(20X,A)') ' Automatic utilization of translational and rotational invariance of the energy is employed.'

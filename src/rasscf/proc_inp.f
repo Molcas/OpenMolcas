@@ -122,10 +122,10 @@
      &                  IELIMINATED_IN_GAS_MOLCAS,IGSOCCX_MOLCAS,
      &                  ISPEED,NGSSH_MOLCAS
       use spinfo, only: DOBKAP,NGASBK,IOCCPSPC
+      use DWSol, only: DWSol_DWRO
 
 
       Implicit None
-#include "SysDef.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 * Lucia-stuff:
@@ -197,7 +197,7 @@
 
       Real*8 dSum, dum1, dum2,dum3, Eterna_2, POTNUCDUMMY, PRO, SUHF,
      &       TEffNChrg, TotChrg, Eterna_1
-      Integer, External:: IsFreeUnit
+      Integer, External:: IsFreeUnit, nToken
       Integer i, i1, i2, iad19, iChng1, iChng2, iDisk, iEnd, iErr,
      &        iGAS, iGrp, ii, ij, iJOB, inporb_version, iod_save,
      &        iOffSet, iOrb, iOrbData, iPrLev, iR, iRC1, iRef, iReturn,
@@ -1012,9 +1012,19 @@ C         call fileorb(Line,CMSStartMat)
       If(KeyRFRO) Then
        Call SetPos(LUInput,'RFRO',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       Line=Get_Ln(LUInput)
+       Line(80:80)='0'
+       JPCMROOT = 0
+       iall = 0
        ReadStatus=' Failure reading IPCMROOT after RFROOT keyword.'
-       Read(LUInput,*,End=9910,Err=9920) IPCMROOT
+       if (nToken(Line) >= 3) then
+         Read(Line,*,End=9910,Err=9920) IPCMROOT,JPCMROOT,iall
+         call DWSol_DWRO(LuInput,IPCMROOT,iall)
+       else
+         Read(Line,*,End=9910,Err=9920) IPCMROOT
+       end if
        ReadStatus=' O.K. reading IPCMROOT after RFROOT keyword.'
+
 *
 *      Check that the root value is not changed explicitly by input
 *

@@ -15,13 +15,14 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N, K
-integer(kind=iwp), intent(out) :: LEX(K)
+integer(kind=iwp), intent(inout) :: LEX(K)
 logical(kind=iwp), intent(inout) :: LAST
 integer(kind=iwp) :: I, J
 
 I = K
 ! Get the first position to be updated
-do while ((I > 0) .and. (LEX(I) == N-K+I))
+do while (I > 0)
+  if (LEX(I) /= N-K+I) exit
   I = I-1
 end do
 ! If still remaining combinations, update and

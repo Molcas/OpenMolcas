@@ -30,7 +30,7 @@
       Real*8 DEPSA(nAshT,nAshT),VECROT(*)
 
       Real*8, Allocatable::  G1(:),  G2(:),  G3(:),
-     &                       F1(:),  F2(:),  F3(:)
+     &                       F1(:),  F2(:)
       Real*8, Allocatable:: DG1(:), DG2(:), DG3(:),
      &                      DF1(:), DF2(:), DF3(:)
 
@@ -43,14 +43,14 @@
       CALL mma_allocate(G3 ,NG3, Label='G3')
       CALL mma_allocate(F1 ,NG1, Label='F1')
       CALL mma_allocate(F2 ,NG2, Label='F2')
-      CALL mma_allocate(F3 ,NG3, Label='F3')
+!     CALL mma_allocate(F3 ,NG3, Label='F3')
 
       !! their derivative contributions
       NG3tot = NG3
       !! Use NG3tot (in pt2_guga.fh) for the moment
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
-        call gaigop(ng3tot,1,'+')
+        call gaigop_scal(ng3tot,'+')
       end if
 #endif
       CALL mma_allocate(DG1,NG1,Label='DG1')
@@ -65,7 +65,7 @@
       CALL PT2_GET(NG3,' GAMMA3',G3)
       CALL PT2_GET(NG1,' DELTA1',F1)
       CALL PT2_GET(NG2,' DELTA2',F2)
-      CALL PT2_GET(NG3,' DELTA3',F3)
+!     CALL PT2_GET(NG3,' DELTA3',F3)
 C
       !! Initialize them
       DG1(:)=0.0D0
@@ -136,7 +136,7 @@ C
       Call mma_deallocate(G3)
       Call mma_deallocate(F1)
       Call mma_deallocate(F2)
-      Call mma_deallocate(F3)
+!     Call mma_deallocate(F3)
 
       Call mma_deallocate(DG1)
       Call mma_deallocate(DG2)
@@ -187,7 +187,7 @@ C
 #endif
       integer :: nAS
 
-      Do iCase = 1, 13
+      Do iCase = 1, 11
 C       cycle
 C       If (icase.ne.10.and.icase.ne.11) cycle ! G
 C       If (icase.ne.10)                 cycle ! GP
@@ -253,22 +253,18 @@ C         write(6,*) "dimension for Vec = ", nin*nis
             call mma_deallocate(LID)
           end if
 C
-          If (iCase.ne.12.and.iCase.ne.13) Then
-            !! lg_V3 = RHS (in IC basis)
-            Call RHS_ALLO(nIN,nIS,lg_V3)
-            Call RHS_READ_SR(lg_V3,iCase,iSym,iRHS)
-            !! lg_V4 = RHS (in MO basis)
-            Call RHS_ALLO(nAS,nIS,lg_V4)
-            Call RHS_READ_C (lg_V4,iCase,iSym,iVecW)
-            !! lg_V5 = RHS2 (in IC basis)
-            If (IFMSCOUP) Then
-              Call RHS_ALLO(nIN,nIS,lg_V5)
-              Call RHS_READ_SR(lg_V5,iCase,iSym,iVecL) ! 7
-            Else
-              lg_V5 = lg_V3
-            End If
+          !! lg_V3 = RHS (in IC basis)
+          Call RHS_ALLO(nIN,nIS,lg_V3)
+          Call RHS_READ_SR(lg_V3,iCase,iSym,iRHS)
+          !! lg_V4 = RHS (in MO basis)
+          Call RHS_ALLO(nAS,nIS,lg_V4)
+          Call RHS_READ_C (lg_V4,iCase,iSym,iVecW)
+          !! lg_V5 = RHS2 (in IC basis)
+          If (IFMSCOUP) Then
+            Call RHS_ALLO(nIN,nIS,lg_V5)
+            Call RHS_READ_SR(lg_V5,iCase,iSym,iVecL) ! 7
           Else
-            Go To 100
+            lg_V5 = lg_V3
           End If
 
 #ifdef _MOLCAS_MPP_
@@ -374,7 +370,6 @@ C
 #endif
           End If
 C
- 100      Continue
           !! for non-separable density/derivative
           CALL RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
           CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
@@ -396,11 +391,9 @@ C
 
           CALL RHS_FREE(lg_V1)
           CALL RHS_FREE(lg_V2)
-          If (iCase.ne.12.and.iCase.ne.13) Then
-            CALL RHS_FREE(lg_V3)
-            CALL RHS_FREE(lg_V4)
-            If (IFMSCOUP) CALL RHS_FREE(lg_V5)
-          End If
+          CALL RHS_FREE(lg_V3)
+          CALL RHS_FREE(lg_V4)
+          If (IFMSCOUP) CALL RHS_FREE(lg_V5)
 
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then
@@ -1125,7 +1118,6 @@ C     CALL PSBMAT_READ('T',iCase,iSym,lg_T,NAS)
 C     if (ifmscoup) then
 C     else
 C     IF (KING()) THEN
-C       CALL GETMEM('LTRANS','ALLO','REAL',LTRANS,NAS*NIN)
 C       call mma_allocate(TRANS,NAS*NIN,Label='TRANS')
 C       IDT=IDTMAT(ISYM,ICASE)
 C       CALL DDAFILE(LUSBT,2,TRANS,NAS*NIN,IDT)
@@ -1824,10 +1816,10 @@ C
 C-----------------------------------------------------------------------
 C
       !! From poly3
-      SUBROUTINE CLagEig(if_SSDMloc,CLag,RDMEIG,nLev)
+      SUBROUTINE CLagEig(if_SSDMloc,force_equal,CLag,RDMEIG,nLev)
 C
       use caspt2_global, only: DREF, DWGT
-      use caspt2_global, only: OMGDER
+      use caspt2_global, only: OMGDER, Weight
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -1836,7 +1828,7 @@ C
 C
       Integer, Intent(In)::nLev
       DIMENSION CLag(nConf,nState),RDMEIG(*)
-      Logical   if_SSDMloc
+      Logical   if_SSDMloc, force_equal
       real(kind=wp),allocatable :: CI1(:),WRK(:)
 C
 C     MODE=0: Either state-averaged or DWGT matrix
@@ -1847,12 +1839,19 @@ C
 
       Do iState = 1, nState
         If (.not.if_SSDMloc) Then
+          if (force_equal .or. .not.IFSADREF) then
+            WGT = 1.0D+00/nState ! force equal-weight for XMS
+          else if (IFSADREF) then
+            WGT = Weight(iState) ! can be unequal weight
+          else
+            WGT = 1.0D+00/nState ! this should not happen...
+          end if
+          if (abs(wgt).le.1.0d-09) cycle
           If (ISCF.EQ.0) Then
             Call LoadCI(CI1,iState)
           Else
             CI1(1) = 1.0D+00
           End If
-          WGT = 1.0D+00/nState
           Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
           Call Poly1_CLag(CI1,CLag(1,iState),RDMEIG,nLev)
           Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
@@ -2625,7 +2624,7 @@ C
       USE MPI
       USE SUPERINDEX
       USE EQSOLV
-      use definitions, only: iwp,wp
+      use definitions, only: iwp,RtoB,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -2656,7 +2655,10 @@ C
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      ! we need two real and two integer values per element
+      iscal = (iwp*2 + wp*2)/RtoB
+      !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
       MAXBUF=MAXBUF-2*NG3 !! for NELBsav and NELSsav
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -3391,7 +3393,7 @@ C
       USE SUPERINDEX
       USE EQSOLV
       USE Para_Info, only: nProcs
-      use definitions, only: iwp,wp
+      use definitions, only: iwp,RtoB,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -3423,7 +3425,10 @@ C
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      ! we need two real and two integer values per element
+      iscal = (iwp*2 + wp*2)/RtoB
+      !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
       MAXBUF=MAXBUF-2*NG3 !! for NELBsav and NELSsav
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -3922,7 +3927,6 @@ C
 C
       Implicit Real*8 (A-H,O-Z)
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "pt2_guga.fh"
 
 #include "global.fh"
@@ -5200,7 +5204,7 @@ C
       DO I=1,NAS
         SCAL=SCA(I)
 C       CALL DSCAL_(NIN,SCA,VEC(1,I),NAS)
-        CALL DSCAL_(NAS,SCAL,VEC(1,I),NAS)
+        CALL DSCAL_(NAS,SCAL,VEC(I,1),NAS)
       END DO
       call mma_deallocate(SCA)
       call mma_deallocate(S)
@@ -5217,7 +5221,7 @@ C
       call mma_allocate(LAG,NAS,NAS,Label='LAG')
       IDB=IDBoriMat(ISYM,ICASE)
       NB=NS
-      call mma_allocate(B,NAS,Label='B')
+      call mma_allocate(B,NB,Label='B')
       CALL DDAFILE(LUSTD,2,B,NB,IDB)
       call mma_allocate(F,NAS,NAS,Label='F')
       IJ=0

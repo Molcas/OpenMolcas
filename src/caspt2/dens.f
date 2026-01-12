@@ -26,7 +26,7 @@
      *                           nCLag,
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
      *                           DPT2C_AO_tot,DPT2Canti_tot,FIMO_all,
-     *                           FIFA_all,OMGDER,jStLag
+     *                           FIFA_all,OMGDER,jStLag,Weight
       use caspt2_global, only: FIMO, FIFA
       use caspt2_global, only: DREF, DMIX, CMOPT2, TORB, NDREF
       use caspt2_global, only: IDCIEX, IDTCEX
@@ -249,11 +249,11 @@ C
         Call CnstTrf(TOrb,Trf)
 C       call sqprt(trf,nbast)
 C
-        !! Construct state-averaged density matrix
+        !! Construct the density matrix used in the Fock operator
         WRK1(1:nDRef) = 0.0d+00
         If (IFSADREF) Then
           Do iState = 1, nState
-            Wgt  = 1.0D+00/nState
+            wgt = Weight(iState)
             Call DaXpY_(nDRef,Wgt,DMix(:,iState),1,WRK1,1)
           End Do
         Else
@@ -710,7 +710,7 @@ C    *              0.0D+00,RDMEIG,nAshT)
         ISAV = IDCIEX
         IDCIEX = IDTCEX
         !! Now, compute the configuration Lagrangian
-        Call CLagEig(if_SSDM,CLag,RDMEIG,nAshT)
+        Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADSUM (CLag,nCLag)
 #endif
@@ -774,7 +774,7 @@ C
           !! RDMEIG contributions
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
-          Call CLagEig(if_SSDM,CLag,RDMEIG,nAshT)
+          Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
 #ifdef _MOLCAS_MPP_
           If (Is_Real_Par()) CALL GADSUM (CLag,nCLag)
 #endif
@@ -897,12 +897,11 @@ C
           !! roots involved in SCF.
           WRK1(1:nDRef) = 0.0d+00
           call mma_allocate(CI1,nConf,Label='CI1')
-          Wgt  = 1.0D+00/nState
           Do iState = 1, nState
             Call LoadCI_XMS('N',1,CI1,iState,U0)
-C           Call LoadCI(CI1,iState)
             call POLY1(CI1,nConf)
             call GETDREF(WRK2,nDRef)
+            wgt = Weight(iState)
             Call DaXpY_(nDRef,Wgt,WRK2,1,WRK1,1)
           End Do
           call mma_deallocate(CI1)
@@ -1211,9 +1210,6 @@ C
 C
       DIMENSION DPT2(*),DEPSA(nAshT,nAshT)
 C
-    !   write(6,*) "DPT2MO before active-active contribution"
-    !   call sqprt(dpt2,nbas(1)-ndel(1))
-C
       iMO1 = 1
       iMO2 = 1
       DO iSym = 1, nSym
@@ -1246,8 +1242,6 @@ C
         iMO1 = iMO1 + nOrbI1*nOrbI1
         iMO2 = iMO2 + nOrbI2*nOrbI2
       End Do
-    !   write(6,*) "DPT2MO after DEPSA"
-    !   call sqprt(dpt2,nbas(1)-ndel(1))
 C
       End Subroutine AddDEPSA
 C
