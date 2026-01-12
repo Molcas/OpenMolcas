@@ -164,7 +164,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             cnt = cnt+1
 
             !the faculty value that the matrix will be divided by
-            factor = factor*cnt
+            factor = factor*DBLE(cnt)
 
             !calculate the cnt'th exponent of the kappa matrix
             ! this works by multiplying the matrix from the previous term (kappa^cnt) by the
@@ -173,18 +173,21 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! kappa_cnt <= 1*kappa_cnt*kappa + 0*kappa_cnt
             call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
             kappa_cnt,norb2Loc)
+            kappa_cnt(:,:) = (One/DBLE(cnt))*kappa_cnt(:,:) ! Trick to remove numerical instability
             xkappa_cnt(:,:) = kappa_cnt
 
             ! differentiation of odd and even cases, because this expands exp(-kappa)
             ! all terms starting at n=2
             if (mod(cnt,2) == 0) then
-                unitary_mat(:,:) =  unitary_mat + 1/factor*kappa_cnt(:,:)
+!               unitary_mat(:,:) =  unitary_mat + (One/factor)*kappa_cnt(:,:)
+                unitary_mat(:,:) =  unitary_mat + kappa_cnt(:,:)
                 if (debug) then
                     write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
                     ', current ithrsh = ', ithrsh
                 end if
             else
-                unitary_mat(:,:) =  unitary_mat - 1/factor*kappa_cnt(:,:)
+!               unitary_mat(:,:) =  unitary_mat - (One/factor)*kappa_cnt(:,:)
+                unitary_mat(:,:) =  unitary_mat - kappa_cnt(:,:)
                 if (debug) then
                     write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: - 1/',factor,' * kappa^',cnt, &
                     ', current ithrsh = ', ithrsh
