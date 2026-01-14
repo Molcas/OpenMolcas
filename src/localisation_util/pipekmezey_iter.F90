@@ -33,7 +33,7 @@ logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i,k, iBas, cnt
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh, DD, Thr
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), &
-                                GradientList(:,:,:), Hdiag_List(:,:,:), FunctionalList(:),&
+                                GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
                                 unitary_mat(:,:), rotated_CMO(:,:)
 character(len=20), allocatable :: opt_method
 logical(kind=iwp), parameter :: printmore = .true.
@@ -63,7 +63,7 @@ call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
 call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
 call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
 FunctionalList(:)=0
-call mma_Allocate(Hdiag_List,nOrb2Loc,nOrb2Loc,nMxIter,Label='Hdiag_List')
+call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
 call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
@@ -72,7 +72,7 @@ call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 FunctionalList(1)=Functional
 !write(u6,*) 'In PM_iter: FunctionalList(1) = ', FunctionalList(1)
 
-call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug, GradientList(:,:,1), Hdiag_List(:,:,1))
+call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug, GradientList(:,:,1), Hdiag(:,:))
 
 OldFunctional = Functional
 FirstFunctional = Functional
@@ -128,7 +128,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         xkappa_cnt(:,:) = Zero
 
         if (opt_method == 'newton_raphson') then
-            kappa(:,:) = -GradientList(:,:,nIter+1)/Hdiag_List(:,:,nIter+1)
+            kappa(:,:) = -GradientList(:,:,nIter+1)/Hdiag(:,:)
         else if (opt_method == 'gradient_ascent') then
             kappa(:,:) = alpha*GradientList(:,:,nIter+1)
         end if
@@ -243,7 +243,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     end if
 
     if (printmore) then
-        !call RecPrt('Hdiag',' ',Hdiag_List(:,:,nIter+1), nOrb2Loc,nOrb2Loc)
+        !call RecPrt('Hdiag',' ',Hdiag(:,:), nOrb2Loc,nOrb2Loc)
         !write(u6,'(A,F16.10,3X,A,I5)') 'In PM_iter: FunctionalList(nIter+1) = ', FunctionalList(nIter+1), 'at iteration', nIter
         !write(u6,'(I5,3X,F20.8)') nIter,FunctionalList(nIter+1)
         write(u6,*) nIter,FunctionalList(nIter+1)
@@ -251,7 +251,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 
     !calculates nxn gradient matrix for the current iteration and adds it to the List
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1), Hdiag_List(:,:,nIter+1))
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1), Hdiag(:,:))
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !check if converged
@@ -277,7 +277,7 @@ if (Debug) then
     !end do
     write(u6,*) ' '
     write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
-    call RecPrt('Hdiag_List',' ',Hdiag_List(:,:,:), nOrb2Loc*nOrb2Loc, nIter+1)
+    call RecPrt('Hdiag',' ',Hdiag(:,:), nOrb2Loc,nOrb2Loc)
 end if
 
 call mma_Deallocate(kappa)
@@ -289,7 +289,7 @@ call mma_Deallocate(PACol)
 call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
 call mma_Deallocate(FunctionalList)
-call mma_Deallocate(Hdiag_List)
+call mma_Deallocate(Hdiag)
 ! Print convergence message.
 ! --------------------------
 
