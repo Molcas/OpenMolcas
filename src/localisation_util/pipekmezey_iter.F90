@@ -18,7 +18,7 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_A
 ! Based on the original routines by Y. Carissan.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Pi, Two
+use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -34,7 +34,7 @@ integer(kind=iwp) :: nIter, i,k, iBas, cnt
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh, DD, Thr
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), &
                                 GradientList(:,:,:), Hdiag_List(:,:,:), FunctionalList(:),&
-                                xunitary_mat(:,:), unitary_mat(:,:), rotated_CMO(:,:)
+                                unitary_mat(:,:), rotated_CMO(:,:)
 character(len=20), allocatable :: opt_method
 logical(kind=iwp), parameter :: printmore = .true.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
@@ -65,7 +65,6 @@ call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
 FunctionalList(:)=0
 call mma_Allocate(Hdiag_List,nOrb2Loc,nOrb2Loc,nMxIter,Label='Hdiag_List')
 call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
-call mma_Allocate(xunitary_mat,nOrb2Loc,nOrb2Loc,Label='xunitary_mat')
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
@@ -135,7 +134,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
         Thr= 0.5E0_wp * Pi
-!       If (DD>=Pi) Kappa(:,:) = (Pi/(Two*DD))*Kappa(:,:)
         If (DD>=Thr)Then
 !           Write(6,*) 'Rescale Kappa(:,:)'
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
@@ -153,7 +151,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         cnt = 1
         factor = One
         ithrsh = 2.0e-16_wp
-        xunitary_mat(:,:) = Zero
 
         unitary_mat(:,:) =  unitary_mat(:,:) - kappa(:,:)
 
@@ -164,7 +161,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             write(u6,*) 'Taylor expansion: more terms'
         end if
 
-        xunitary_mat(:,:) = unitary_mat
 
         do while (ithrsh > thrsh_taylor)
 
@@ -179,11 +175,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! initial kappa matrix (just kappa^1)
             ! C <= alpha*A*B + beta*C
             ! kappa_cnt <= 1*kappa_cnt*kappa + 0*kappa_cnt
-            call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
-            kappa_cnt,norb2Loc)
-            kappa_cnt(:,:) = (One/DBLE(cnt))*kappa_cnt(:,:) ! Trick to remove numerical instability
-!           call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,(One/DBLE(cnt)),xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
-!                       kappa_cnt,norb2Loc)
+            call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,(One/DBLE(cnt)),xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
+                        kappa_cnt,norb2Loc)
             xkappa_cnt(:,:) = kappa_cnt
 
             ! differentiation of odd and even cases, because this expands exp(-kappa)
@@ -204,8 +197,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end if
             end if
 
-            ithrsh = maxval(abs(unitary_mat-xunitary_mat)/(abs(unitary_mat)+thrsh_taylor))
-            xunitary_mat(:,:) = unitary_mat
+            ithrsh = maxval(abs(xKappa_Cnt(:,:))/(abs(unitary_mat)+thrsh_taylor))
 
             if (debug) then
                 write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
@@ -293,7 +285,6 @@ call mma_Deallocate(rotated_CMO)
 call mma_Deallocate(kappa_cnt)
 call mma_Deallocate(xkappa_cnt)
 call mma_Deallocate(unitary_mat)
-call mma_Deallocate(xunitary_mat)
 call mma_Deallocate(PACol)
 call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
