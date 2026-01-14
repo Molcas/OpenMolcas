@@ -22,7 +22,7 @@ integer(kind=iwp) :: I, J
 I = K
 ! Get the first position to be updated
 do while (I > 0)
-  if (LEX(I) == N-K+I) exit
+  if (LEX(I) /= N-K+I) exit
   I = I-1
 end do
 ! If still remaining combinations, update and

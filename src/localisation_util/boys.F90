@@ -16,7 +16,6 @@ subroutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIt
 !
 ! Purpose: Boys localisation of occupied orbitals.
 
-use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -29,7 +28,8 @@ logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: iCmp, iComp, iOpt, irc, iSym, kOffC, lAux, nBasT, nFroT, nOrb2LocT
 character(len=8) :: Label
-real(kind=wp), allocatable :: Aux(:), Lbl(:,:,:), Lbl_AO(:,:,:)
+real(kind=wp), allocatable :: Aux(:), Lbl(:,:,:), Lbl_AO(:,:,:), SMat(:)
+real(kind=wp) :: CoM(3)
 integer(kind=iwp), parameter :: nComp = 3 ! 3 components of dipole operator
 character(len=*), parameter :: SecNam = 'Boys'
 
@@ -57,12 +57,22 @@ Converged = .false.
 call mma_allocate(Lbl_AO,nBasT,nBasT,nComp,label='Dipole')
 
 lAux = nBasT*(nBasT+1)/2+4
+
+call mma_allocate(SMat,lAux,label='SMat')
+Label = 'Mltpl  0'
+iCmp = 1
+irc = -1
+iOpt = 0
+iSym = 1
+call RdOne(irc,iOpt,Label,iCmp,SMat,iSym)
+Call Get_dArray('Center of Mass',CoM,3)
+
 call mma_allocate(Aux,lAux,label='DipAux')
 Label = 'Mltpl  1'
 do iComp=1,nComp
   iCmp = iComp
   irc = -1
-  iOpt = ibset(0,sNoOri)
+  iOpt = 0
   iSym = 1
   call RdOne(irc,iOpt,Label,iCmp,Aux,iSym)
   if (irc /= 0) then
@@ -77,8 +87,10 @@ do iComp=1,nComp
     write(u6,*) ' Component: ',iComp
     call TriPrt(' ',' ',Aux,nBasT)
   end if
+  Aux(:)=Aux(:) + CoM(iComp)*SMat(:)
   call Tri2Rec(Aux,Lbl_AO(:,:,iComp),nBasT,Debug)
 end do
+call mma_deallocate(SMat)
 call mma_deallocate(Aux)
 
 ! Allocate MO arrays.

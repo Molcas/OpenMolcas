@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: Columbus, i, iDummy, iMode, i_N, iRoot, j, Length, mLambda, nData, nDip, nGrad, nqInt, nQQ, nRoots
-real(kind=wp) :: Columbus_Energy(2), E0, Temp, Value_l
+real(kind=wp) :: Columbus_Energy(2), E0, Temp, Value_l, CoM(3), q_tot
 logical(kind=iwp) :: Exist_2, Found, Is_Roots_Set, lMMGrd
 real(kind=wp), allocatable :: DMs(:,:), MMGrd(:,:), Tmp(:)
 
@@ -179,7 +179,15 @@ else
       DipM(:,iter) = Zero
     end if
   end if
-  !call RecPrt('Dipole Moment',' ',DipM(:,iter),1,3)
+  ! Note that the dipole moment operator should be expanded around the origin, not the center of mass.
+  ! Hence, we need to correct for that.
+  Call Get_dArray('Center of Mass',CoM,3)
+  Call Qpg_dScalar('Total Charge',Found)
+  If (Found) Then
+     Call Get_dScalar('Total Charge',q_tot)
+     DipM(:,Iter) = DipM(:,Iter) + q_tot*CoM(:)
+  End If
+
 end if
 !                                                                      *
 !***********************************************************************

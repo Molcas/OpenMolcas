@@ -3622,7 +3622,7 @@ call SetMltplCenters()
 if (lMltpl) then
   do i=1,nTemp
     iMltpl = ITmp(i)
-    if (iMltpl <= S%nMltpl) Coor_MPM(:,iMltpl+1) = RTmp(:,i)
+    if (iMltpl <= S%nMltpl) Coor_MPM(:,iMltpl) = RTmp(:,i)
   end do
   call mma_deallocate(RTmp)
   call mma_deallocate(ITmp)
