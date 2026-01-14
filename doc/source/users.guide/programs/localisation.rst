@@ -406,6 +406,20 @@ Optional general keywords
               the Jacobi sweep optimisation algorithm. The default is 1.0d-10.
               </KEYWORD>
 
+:kword:`SCRAmble`
+  The following line specifies a factor used in the scrambling of the start orbitals to break 
+  any symmetry if present. The default is 0.0d0.
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="SCRA" APPEAR="Scrambling factor" LEVEL="ADVANCED" KIND="REAL">
+              <HELP>
+              The following line specifies a factor used in the scrambling of the start orbitals to break 
+              any symmetry if present. The default is 0.0d0.
+              </HELP>
+              %%Keyword: THRR <advanced>
+              The following line specifies a factor used in the scrambling of the start orbitals to break 
+              any symmetry if present. The default is 0.0d0.
+              </KEYWORD>
+
 :kword:`CHOStart`
   Requests that iterative localisation procedures use Cholesky orbitals
   as initial orbitals. The default is to use the orbitals from
