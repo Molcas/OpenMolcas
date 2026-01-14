@@ -30,7 +30,7 @@ subroutine RdVec_Localisation(nSym,nBas,nOrb,IndT,CMO,Occ,EOrb,FName)
 
 #include "intent.fh"
 
-use Localisation_globals, only: fileorb_id, isHDF5, ScrFac
+use Localisation_globals, only: fileorb_id, isHDF5
 #ifdef _HDF5_
 use mh5, only: mh5_close_file
 #endif
@@ -105,8 +105,6 @@ do iSym=1,nSym
   k1 = k1+n1
   k2 = k2+n2
 end do
-
-Call Scram(CMO,nSym,nBas,nBas,ScrFac)
 
 k1 = 0
 k2 = 0
