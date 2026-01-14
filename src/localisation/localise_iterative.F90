@@ -20,8 +20,10 @@ subroutine Localise_Iterative(irc,Model,Functional)
 !            Boys                [MODEL='BOYS']
 !            Edmiston-Ruedenberg [MODEL='EDMI']
 
-use Localisation_globals, only: ChoStart, CMO, Maximisation, nMxIter, nBas, nFro, nOrb2Loc, nSym, Silent, ThrGrad, ThrRot, Thrs
+use Localisation_globals, only: ChoStart, CMO, Maximisation, nMxIter, nBas, nFro, nOrb2Loc, nSym, Silent, ThrGrad, ThrRot, Thrs, &
+                                ScrFac
 use Definitions, only: wp, iwp, u6
+use Constants, only: Zero
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -63,6 +65,7 @@ if (myModel == 'PIPE') then
   write(u6,'(//,1X,A)') 'Pipek-Mezey localisation'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  If (ScrFac/=Zero) write(u6,'(1X,A,1X,ES12.4)') 'Scrambling factor     ',ScrFac
   write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
@@ -73,6 +76,7 @@ else if (myModel == 'BOYS') then
   write(u6,'(/,1X,A)') 'Boys localisation'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  If (ScrFac/=Zero) write(u6,'(1X,A,1X,ES12.4)') 'Scrambling factor     ',ScrFac
   write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
@@ -83,6 +87,7 @@ else if (myModel == 'EDMI') then
   write(u6,'(/,1X,A)') 'Edmiston-Ruedenberg localisation'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
+  If (ScrFac/=Zero) write(u6,'(1X,A,1X,ES12.4)') 'Scrambling factor     ',ScrFac
   !write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
