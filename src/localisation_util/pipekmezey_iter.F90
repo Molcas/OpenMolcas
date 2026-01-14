@@ -182,14 +182,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! differentiation of odd and even cases, because this expands exp(-kappa)
             ! all terms starting at n=2
             if (mod(cnt,2) == 0) then
-!               unitary_mat(:,:) =  unitary_mat + (One/factor)*kappa_cnt(:,:)
                 unitary_mat(:,:) =  unitary_mat + kappa_cnt(:,:)
                 if (debug) then
                     write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
                     ', current ithrsh = ', ithrsh
                 end if
             else
-!               unitary_mat(:,:) =  unitary_mat - (One/factor)*kappa_cnt(:,:)
                 unitary_mat(:,:) =  unitary_mat - kappa_cnt(:,:)
                 if (debug) then
                     write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: - 1/',factor,' * kappa^',cnt, &
@@ -197,7 +195,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end if
             end if
 
-            ithrsh = maxval(abs(xKappa_Cnt(:,:))/(abs(unitary_mat)+thrsh_taylor))
+            ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(unitary_mat)+thrsh_taylor))
 
             if (debug) then
                 write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
