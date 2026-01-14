@@ -71,6 +71,7 @@ set (sources
      rotateorbb.F90
      sort_localisation.F90
      sort_localisation_1.F90
+     scram.F90
      sq2tri.F90
      sqrtmt.F90
      tri2rec.F90

@@ -40,6 +40,7 @@ if (Debug) then
     call RecPrt('cMO',' ',cMO,nBasis,nBasis)
 end if
 
+If (.True.) Then
 call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')
 
 ! Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)
@@ -76,7 +77,7 @@ if (Debug) then
 end if
 
 call mma_deallocate(SBar)
-
-return
+Else
+End If
 
 end subroutine GenerateP

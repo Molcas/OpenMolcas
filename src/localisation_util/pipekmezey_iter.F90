@@ -18,7 +18,7 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_A
 ! Based on the original routines by Y. Carissan.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Pi, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -31,13 +31,14 @@ character(len=LenIn8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i,k, iBas, cnt
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh!, kappa_ij
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh, DD, Thr
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), &
                                 GradientList(:,:,:), Hdiag_List(:,:,:), FunctionalList(:),&
                                 xunitary_mat(:,:), unitary_mat(:,:), rotated_CMO(:,:)
 character(len=20), allocatable :: opt_method
 logical(kind=iwp), parameter :: printmore = .true.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
+real(kind=wp), External :: DDot_
 
 !opt_method = 'jacobisweeps'
 !opt_method = 'gradient_ascent'
@@ -132,6 +133,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         else if (opt_method == 'gradient_ascent') then
             kappa(:,:) = alpha*GradientList(:,:,nIter+1)
         end if
+        DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
+        Thr= 0.5E0_wp * Pi
+!       If (DD>=Pi) Kappa(:,:) = (Pi/(Two*DD))*Kappa(:,:)
+        If (DD>=Thr)Then
+!           Write(6,*) 'Rescale Kappa(:,:)'
+            Kappa(:,:) = (Thr/DD)*Kappa(:,:)
+        End If
 
         kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
         xkappa_cnt(:,:) = kappa_cnt
@@ -174,6 +182,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
             kappa_cnt,norb2Loc)
             kappa_cnt(:,:) = (One/DBLE(cnt))*kappa_cnt(:,:) ! Trick to remove numerical instability
+!           call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,(One/DBLE(cnt)),xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
+!                       kappa_cnt,norb2Loc)
             xkappa_cnt(:,:) = kappa_cnt
 
             ! differentiation of odd and even cases, because this expands exp(-kappa)
@@ -198,6 +208,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             xunitary_mat(:,:) = unitary_mat
 
             if (debug) then
+                write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
+                    ', current ithrsh = ', ithrsh
                 call RecPrt('kappa^cnt',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
                 !call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
             end if

@@ -54,15 +54,25 @@ Gradient(:,:)=Four*Gradient(:,:)
 !Second derivative for GEK optimization: Later put this into an "if GEK=true" environment
 !Hessian diagonal according to DOI: 10.1002/jcc.23281 equation (17)
 H_diag(:,:) = Zero
-do iAtom=1,nAtoms
-    do k=1,nOrb2Loc
-        Q_kk=PA(k,k,iAtom)
-        do l=1,nOrb2Loc
-            Q_ll=PA(l,l,iAtom)
-            Q_kl=PA(k,l,iAtom)
-            H_diag(k,l)=H_diag(k,l) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Eight*Q_kl**2
-        end do
-    end do
+do k=1,nOrb2Loc
+   do l=1,nOrb2Loc
+      do iAtom=1,nAtoms
+          Q_kk=PA(k,k,iAtom)
+          Q_ll=PA(l,l,iAtom)
+          Q_kl=PA(k,l,iAtom)
+          H_diag(k,l)=H_diag(k,l) + Four*Q_ll*(Q_kk-Q_ll) + Four*Q_kk*(Q_ll-Q_kk) + Eight*Q_kl**2
+      end do
+!     Make sure that element has a negative value -- we are maximizing the target function
+!     Make sure that the element is not too small, this would yield a too large displacement.
+      If (H_diag(k,l)>0.0) Then
+!        Write (*,*) 'H_diag(k,l)=',H_diag(k,l)
+         H_diag(k,l)=-H_diag(k,l)
+      End If
+      If (Abs(H_diag(k,l))<1.0e-2_wp) Then
+!        Write (*,*) 'H_diag(k,l)=',H_diag(k,l)
+         H_diag(k,l)=-1.0e-2_wp
+      End If
+   end do
 end do
 
 

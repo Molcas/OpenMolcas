@@ -18,7 +18,7 @@ subroutine Readinp_localisation()
 use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, &
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
-                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
+                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, ScrFac
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -186,6 +186,12 @@ do
 
       Line = Get_Ln(LuSpool)
       call Get_F1(1,ThrRot)
+
+    case ('SCRA')
+      ! SCRAmble
+
+      Line = Get_Ln(LuSpool)
+      call Get_F1(1,ScrFac)
 
     case ('PIPE','PM  ')
       ! PIPEk-Mezey or PM
