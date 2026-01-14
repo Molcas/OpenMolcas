@@ -48,7 +48,7 @@ integer(kind=iwp), allocatable :: Ind(:)
 character(len=LenIn8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: NamAct(:)
 real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:)
-real(kind=wp), parameter :: ScrFac=Zero
+real(kind=wp) :: ScrFac=Zero
 
 public :: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, BName, ChoStart, CMO, DoCNOs, DoDomain, EOrb, EvalER, &
           fileorb_id, Ind, isHDF5, iWave, LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MOrig, &
