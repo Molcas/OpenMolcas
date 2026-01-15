@@ -172,6 +172,10 @@ module InputData
     Logical(kind=iwp) :: RHSD = .false.
     ! CUMU
     Logical(kind=iwp) :: doCumulant = .false.
+    ! DMRG      DMRG-CASPT2 using QCMaquis
+    Logical(kind=iwp) :: DMRG = .false.
+    ! Compress MPS for (t)3-RDM computation to bond dimension given by CompressMPD
+    Integer(kind=iwp) :: CompressMPS = 0
     ! SADREF    use state-averaged density even for SS-CASPT2 with
     !           SA-CASSCF reference and MS-CASPT2 (not XMS)
     Logical :: SADREF = .False.
@@ -633,6 +637,13 @@ contains
         !Quan: Using the same variable doCumulant in Block
         Input%doCumulant = .true.
         dochemps2 = .true.
+#elif _DMRG_
+      case ('DMRG')
+        Input%DMRG = .true.
+      case ('CMPS')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%CompressMPS
+        if (iError /= 0) call IOError(Line)
 #endif
       case ('FCIQ')
         DoFciQMC = .true.

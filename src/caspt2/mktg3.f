@@ -274,7 +274,6 @@ C Now compute as many elements as possible:
          IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
          IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
 C LFROM will be start element of Sigma2=E(YZ) Psi2
-         IYZ=IY+NASHT*(IZ-1)
          IYS=IASYM(IY)
          IZS=IASYM(IZ)
          ISSG2=MUL(MUL(IYS,IZS),LSYM2)
@@ -283,7 +282,6 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           JL=P2LEV(LP2LEV2-1+IP2)
           IV=L2ACT(IL)
           IX=L2ACT(JL)
-          IVX=IV+NASHT*(IX-1)
           IVS=IASYM(IV)
           IXS=IASYM(IX)
           ISTAU=MUL(MUL(IVS,IXS),ISSG2)
@@ -304,39 +302,9 @@ C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
            IF(ISSG1.EQ.ISTAU) THEN
             L=LSGM1+MXCI*(IP1-IP1STA)
             VAL=DDOT_(NTAU,TG3WRK(LTAU),1,TG3WRK(L),1)
-            ITU=IT+NASHT*(IU-1)
 C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
 C Code to put it in correct place:
-            IF(ITU.LT.IVX) THEN
-              IF(ITU.GE.IYZ) THEN
-                JTU=IVX
-                JVX=ITU
-                JYZ=IYZ
-              ELSE IF(IVX.LT.IYZ) THEN
-                  JTU=IYZ
-                  JVX=IVX
-                  JYZ=ITU
-              ELSE
-                  JTU=IVX
-                  JVX=IYZ
-                  JYZ=ITU
-              END IF
-            ELSE
-              IF(ITU.LT.IYZ) THEN
-                JTU=IYZ
-                JVX=ITU
-                JYZ=IVX
-              ELSE IF (IVX.GE.IYZ) THEN
-                JTU=ITU
-                JVX=IVX
-                JYZ=IYZ
-              ELSE
-                JTU=ITU
-                JVX=IYZ
-                JYZ=IVX
-              END IF
-            END IF
-            JTUVXYZ=((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
+            call get_tg3_index(IT, IU, IV, IX, IY, IZ, NASHT, jtuvxyz)
             TG3(JTUVXYZ)=VAL
 
 C End of symmetry requirement IF-clause:
@@ -385,14 +353,12 @@ C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
       DO IP1=1,NASHT**2
        IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
        IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
-       ITU=IT+NASHT*(IU-1)
        ITS=IASYM(IT)
        IUS=IASYM(IU)
        IS1=MUL(MUL(ITS,IUS),LSYM1)
        DO IP2=1,IP1
         IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
         IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
-        IVX=IV+NASHT*(IX-1)
         IVS=IASYM(IV)
         IXS=IASYM(IX)
         IS2=MUL(MUL(IVS,IXS),IS1)
@@ -403,37 +369,7 @@ C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
          IZS=IASYM(IZ)
          IS3=MUL(MUL(IYS,IZS),IS2)
          IF(IS3.EQ.LSYM2) THEN
-          IYZ=IY+NASHT*(IZ-1)
-          IF(ITU.LT.IVX) THEN
-            IF(ITU.GE.IYZ) THEN
-              JTU=IVX
-              JVX=ITU
-              JYZ=IYZ
-            ELSE IF(IVX.LT.IYZ) THEN
-                JTU=IYZ
-                JVX=IVX
-                JYZ=ITU
-            ELSE
-                JTU=IVX
-                JVX=IYZ
-                JYZ=ITU
-            END IF
-          ELSE
-            IF(ITU.LT.IYZ) THEN
-              JTU=IYZ
-              JVX=ITU
-              JYZ=IVX
-            ELSE IF (IVX.GE.IYZ) THEN
-              JTU=ITU
-              JVX=IVX
-              JYZ=IYZ
-            ELSE
-              JTU=ITU
-              JVX=IYZ
-              JYZ=IVX
-            END IF
-          END IF
-          JTUVXYZ=((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
+          call get_tg3_index(IT, IU, IV, IX, IY, IZ, NASHT, jtuvxyz)
           VAL=TG3(JTUVXYZ)
           IF(IY.EQ.IX) THEN
            VAL=VAL-TG2(IT,IU,IV,IZ)
@@ -455,3 +391,72 @@ C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
       CALL mma_deallocate(P2LEV)
 
       END SUBROUTINE MKTG3
+
+
+      !> @brief Calculate linear index for 3-body transition density
+      !> matrix elements
+      !>
+      !> Given 6 active orbital indices (t,u,v,x,y,z), this subroutine
+      !> calculates the linear index for the corresponding transition
+      !> density matrix element used in MKTG3. The indices are first
+      !> converted to three orbital pair indices, which are then sorted
+      !> in descending order to determine the final index.
+      !>
+      !> @param t First active orbital index
+      !> @param u Second active orbital index
+      !> @param v Third active orbital index
+      !> @param x Fourth active orbital index
+      !> @param y Fifth active orbital index
+      !> @param z Sixth active orbital index
+      !> @param nasht Number of active orbitals
+      !> @param linear_index Output - the calculated linear index
+      subroutine get_tg3_index(t, u, v, x, y, z, nasht, ituvxyz)
+
+        use Definitions, only: iwp
+        implicit none
+
+        integer(kind=iwp), intent(in) :: t, u, v, x, y, z, nasht
+        integer(kind=iwp), intent(out) :: ituvxyz
+
+        integer(kind=iwp) :: itu, ivx, iyz, jtu, jvx, jyz
+
+        ! Convert individual orbital indices to pair indices
+        itu = t + nasht*(u-1)
+        ivx = v + nasht*(x-1)
+        iyz = y + nasht*(z-1)
+
+        ! Sort the pair indices in descending order (jtu >= jvx >= jyz)
+        if (itu < ivx) then
+          if (itu >= iyz) then
+            jtu = ivx
+            jvx = itu
+            jyz = iyz
+          else if (ivx < iyz) then
+            jtu = iyz
+            jvx = ivx
+            jyz = itu
+          else
+            jtu = ivx
+            jvx = iyz
+            jyz = itu
+          end if
+        else
+          if (itu < iyz) then
+            jtu = iyz
+            jvx = itu
+            jyz = ivx
+          else if (ivx >= iyz) then
+            jtu = itu
+            jvx = ivx
+            jyz = iyz
+          else
+            jtu = itu
+            jvx = iyz
+            jyz = ivx
+          end if
+        end if
+
+        ! Calculate the linear index using the sorted pair indices
+        ituvxyz = ((jtu+1)*jtu*(jtu-1))/6 + (jvx*(jvx-1))/2 + jyz
+
+      end subroutine get_tg3_index

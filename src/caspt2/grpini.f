@@ -17,6 +17,9 @@
      &                       CMOPT2, NCMO, Weight
       use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
+#ifdef _DMRG_
+      use qcmaquis_interface
+#endif
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
@@ -124,7 +127,7 @@ c You don't have to be beautiful to turn me on
 * NN.15, TODO:
 * the following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
-        IF (DoCumulant .or. DoFCIQMC) GoTo 100
+        IF (DoCumulant .or. DoFCIQMC .or. DMRG) GoTo 100
 
 * Loop over bra functions
         do I=1,Ngrp
@@ -279,4 +282,19 @@ c You don't have to be beautiful to turn me on
       call mma_deallocate(CMO_Internal)
       nullify(CMO)
 
+#ifdef _DMRG_
+      if (DMRG) then
+************************************************************************
+* load back two-electron integrals (pu|vx)
+************************************************************************
+        ! Load the integrals in memory
+        call read_integrals()
+
+        ! set to compute 2-, 3- and 4-rdm
+        call qcmaquis_interface_set_param('MEASURE[1rdm]','1')
+        call qcmaquis_interface_set_param('MEASURE[2rdm]','1')
+        call qcmaquis_interface_set_param('MEASURE[3rdm]','1')
+        ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
+      end if
+#endif
       end SUBROUTINE GRPINI

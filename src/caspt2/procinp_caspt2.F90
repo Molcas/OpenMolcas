@@ -25,6 +25,15 @@ subroutine procinp_caspt2
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
 #endif
+#ifdef _DMRG_
+  use stdalloc, only:mma_allocate
+  use qcmaquis_info, only:qcm_group_names
+  use qcmaquis_interface_cfg
+  use qcmaquis_interface, only:qcmaquis_interface_init_checkpoint, &
+    qcmaquis_interface_set_param, qcmaquis_interface_remove_param
+  use PrintLevel, only: verbose
+#endif
+  use caspt2_global, only: CompressMPS
 ! NOT TESTED
 #if 0
   use OFembed, only:Do_OFemb
@@ -174,6 +183,8 @@ subroutine procinp_caspt2
   NLYGROUP = 0
 
   DoCumulant = Input%DoCumulant
+  DMRG = Input%DMRG
+  CompressMPS = Input%CompressMPS
 
 !***********************************************************************
 !
@@ -471,6 +482,46 @@ subroutine procinp_caspt2
   if (BTRANS .NE. 'NO      ') SDECOM = 'YES     '
   if (SDECOM .NE. 'NO      ') SMATRIX = 'YES     '
 
+#ifdef _DMRG_
+  if (DMRG) then
+    ! just exit if somebody tries to do QD-CASPT2 with DMRG
+    if (IFMSCOUP) then
+      call WarningMessage(2,'Couplings with DMRG-CASPT2 not supported')
+      call Quit_OnUserError()
+    end if
+
+    ! set OpenMolcas environment variables
+    call getenv('Project', qcmaquis_param%project_name)
+    call getenv('WorkDir', qcmaquis_param%workdir)
+
+    ! save checkpoint paths for all states
+    call mma_allocate(dmrg_file%qcmaquis_checkpoint_file, nstate)
+    do i = 1, nstate
+      dmrg_file%qcmaquis_checkpoint_file(i) = &
+      trim(qcmaquis_param%workdir)//'/'//qcm_group_names(1)%states(mstate(i))
+    end do
+
+    ! initialize the interface using a checkpoint file
+    if (iPrGlb >= verbose) then
+      write(6,*) 'PROCINP initializing QCMaquis DMRG interface...'
+    end if
+    call qcmaquis_interface_init_checkpoint(dmrg_file%qcmaquis_checkpoint_file(1))
+
+    ! remove all measurements just to be sure
+    call qcmaquis_interface_remove_param('MEASURE[1rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[2rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[3rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[4rdm]')
+    call qcmaquis_interface_remove_param('MEASURE[1spdm]')
+    call qcmaquis_interface_remove_param('MEASURE[ChemEntropy]')
+
+    ! only set 1-rdm here and the other rdms later on in grpini
+    call qcmaquis_interface_set_param('MEASURE[1rdm]','1')
+    ! call qcmaquis_interface_set_param('MEASURE[2rdm]','1')
+    ! call qcmaquis_interface_set_param('MEASURE[3rdm]','1')
+    ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
+  end if
+#endif
 !***********************************************************************
 !
 ! Thresholds

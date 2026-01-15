@@ -1739,6 +1739,7 @@ if (DMRG)
     mcpdft
     mpssi
     nevpt2
+    caspt2
     rasscf
     rassi
     wfn_util
@@ -2443,6 +2444,7 @@ if (DMRG)
     loprop
     mcpdft
     mpssi
+    caspt2
     nevpt2
     numerical_gradient
     rasscf

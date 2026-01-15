@@ -41,7 +41,7 @@ real(kind=wp), allocatable :: readbuf(:,:)
 #include "caspt2.fh"
 
 ! Save current directory into the CurrDir string
-call GetEnvF('CurrDir',curr_dir)
+call GetEnvF('WorkDir',curr_dir)
 call GetEnvF('Project',molcas_project)
 
 ! call the Molcas routine to check whether we're using Cholesky
