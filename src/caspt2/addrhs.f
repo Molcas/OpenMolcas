@@ -1219,7 +1219,7 @@ C Read WM:
       DIMENSION idxBuf(nBuff)
       DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV,ITMP1,ITMP2
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 *      Logical Incore
 Case F:
