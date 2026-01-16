@@ -636,7 +636,7 @@ C-SVC: sanity check
       SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,
      &                           NCHOBUF,NPIQK,NADDBUF)
       USE CHOVEC_IO
-      use caspt2_global, only:iPrGlb,iStpGrd
+      use caspt2_global, only: iParRHS,iPrGlb,iStpGrd
       use PrintLevel, only: verbose
       use stdalloc, only: mma_MaxDBLE
 #ifdef _MOLCAS_MPP_
@@ -660,6 +660,9 @@ C-SVC: sanity check
      &  Active,Virtual,Inactive,Active,
      &  Active,Virtual,Inactive,Virtual,
      &  Inactive,Virtual,Inactive,Active /
+
+      call_from_grad = .false.
+      if (iStpGrd == -1) call_from_grad = .true.
 
       Call ICopy(NSYM,NISH,1,nSh(1,Inactive),1)
       Call ICopy(NSYM,NASH,1,nSh(1,Active  ),1)
@@ -750,6 +753,12 @@ C     to start, reserve space for TUVX integrals (NASHT**4)
       MAXBUFF=NINT(SQRT(DBLE(MAXPIQK)))
       MINBUFF=NINT(SQRT(DBLE(MINPIQK)))
 
+      ! In some cases, we do not use the buffer arrays
+      if (call_from_grad .or. iParRHS == 2) then
+        MAXBUFF = 1
+        MINBUFF = 1
+      end if
+
 CSVC: total number of cholesky vectors
       MXBATCH=0
       NVECTOT=0
@@ -770,8 +779,6 @@ CSVC: can we fit this all in memory?
       MINGOOD=MXRHS+MINPIQK+2*MINBUFF+2*MAXCHOL
       MINSLOW=MXRHS+MINPIQK+2*MINBUFF+2*MINCHOL
 
-      call_from_grad = .false.
-      if (iStpGrd == -1) call_from_grad = .true.
       if (call_from_grad) then
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then

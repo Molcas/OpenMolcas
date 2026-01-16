@@ -17,8 +17,9 @@ subroutine procinp_caspt2
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
   use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, &
-                             if_invar, iRoot1, iRoot2, if_invaria, &
-                             ConvInvar, if_equalW, if_SSDM, Weight
+                           if_invar, iParRHS, iRoot1, iRoot2, &
+                           if_invaria, ConvInvar, if_equalW, if_SSDM, &
+                           Weight
   use caspt2_global, only: IDCIEX
   use PrintLevel, only: terse
   use UnixInfo, only: SuperName
@@ -185,6 +186,11 @@ subroutine procinp_caspt2
   DoCumulant = Input%DoCumulant
   DMRG = Input%DMRG
   CompressMPS = Input%CompressMPS
+
+  iParRHS = 1
+#ifdef _MOLCAS_MPP_
+  if (is_real_par() .and. Input%PRHS == 2 .and. .not.RHSDIRECT) iParRHS = 2
+#endif
 
 !***********************************************************************
 !

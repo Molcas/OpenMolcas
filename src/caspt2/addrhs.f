@@ -11,15 +11,26 @@
       SUBROUTINE ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
       DIMENSION TJVX(NT,NJ,NV,NX)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
       DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
 *      Logical Incore
+#ifdef _MOLCAS_MPP_
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -58,32 +69,65 @@ C Read W:
       CALL RHS_ALLO (NAS,NIS,lg_A)
       CALL RHS_READ (NAS,NIS,lg_A,iCASE,iSYM,iVEC)
 
-      IBUF=0
-      DO IT=1,NT
-       ITABS=IT+NAES(ISYT)
-       DO IJ=1,NJ
-        DO IV=1,NV
-         IVABS=IV+NAES(ISYV)
-         DO IX=1,NX
-          IXABS=IX+NAES(ISYX)
-          IW1=KTUV(ITABS,IVABS,IXABS)-NTUVES(ISYM)
-          IW2=IJ
-          IW=IW1+NAS*(IW2-1)
-*SVC      Buff(LWA-1+IW)=Buff(LWA-1+IW)+TJVX(IT,IJ,IV,IX)
-          IBUF=IBUF+1
-          idxBuf(IBUF)=IW
-          Buff(IBUF)=TJVX(IT,IJ,IV,IX)
-          IF (IBUF.EQ.NBUFF) THEN
-            CALL RHS_SCATTER(LDA,lg_A,Buff,idxBuf,IBUF)
-            IBUF=0
-          END IF
+      if (iParRHS == 1) then
+       IBUF=0
+       DO IT=1,NT
+        ITABS=IT+NAES(ISYT)
+        DO IJ=1,NJ
+         DO IV=1,NV
+          IVABS=IV+NAES(ISYV)
+          DO IX=1,NX
+           IXABS=IX+NAES(ISYX)
+           IW1=KTUV(ITABS,IVABS,IXABS)-NTUVES(ISYM)
+           IW2=IJ
+           IW=IW1+NAS*(IW2-1)
+*SVC       Buff(LWA-1+IW)=Buff(LWA-1+IW)+TJVX(IT,IJ,IV,IX)
+           IBUF=IBUF+1
+           idxBuf(IBUF)=IW
+           Buff(IBUF)=TJVX(IT,IJ,IV,IX)
+           IF (IBUF.EQ.NBUFF) THEN
+             CALL RHS_SCATTER(LDA,lg_A,Buff,idxBuf,IBUF)
+             IBUF=0
+           END IF
+          END DO
          END DO
         END DO
        END DO
-      END DO
-      IF (IBUF.NE.0) THEN
-        CALL RHS_SCATTER(LDA,lg_A,Buff,idxBuf,IBUF)
-      END IF
+       IF (IBUF.NE.0) THEN
+         CALL RHS_SCATTER(LDA,lg_A,Buff,idxBuf,IBUF)
+       END IF
+#ifdef _MOLCAS_MPP_
+      ! Note that iParRHS = 2 only when is_real_par() is true and
+      ! PRHS = 2 is specified in the input file (see procinp_caspt2.F90)
+      else if (iParRHS == 2) then
+       CALL GADSUM(TJVX,NT*NJ*NV*NX)
+       myRank = GA_NodeID()
+       CALL GA_Distribution (lg_A,myRank,ILOV,IHIV,JLOV,JHIV)
+       if (JLOV > 0) then
+        CALL GA_Access(lg_A,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+        DO IT=1,NT
+         ITABS=IT+NAES(ISYT)
+         DO IJ=JLOV,JHIV
+          IW2=IJ
+          DO IV=1,NV
+           IVABS=IV+NAES(ISYV)
+           DO IX=1,NX
+            IXABS=IX+NAES(ISYX)
+            IW1=KTUV(ITABS,IVABS,IXABS)-NTUVES(ISYM)
+            if (IW1 >= ILOV .and. IW1 <= IHIV) then
+             DBL_MB(MV+IW1-ILOV+LDA*(IW2-JLOV))
+     *         = DBL_MB(MV+IW1-ILOV+LDA*(IW2-JLOV))
+     *         + TJVX(IT,IJ,IV,IX)
+            end if
+           END DO
+          END DO
+         END DO
+        END DO
+        CALL GA_Release_Update(lg_A,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
+      end if
+
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_A,iCASE,iSYM,iVEC)
       CALL RHS_FREE(lg_A)
@@ -98,10 +142,18 @@ C Put W on disk:
       SUBROUTINE ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
 Case B:
 * t>v j>l WP(tv,jl)=add ((tj,vl))*(1/2)
 * t>v j=l WP(tv,jl)=add ((tj,vl))*(1/2)*(SQRT(2))
@@ -116,6 +168,9 @@ Case B:
       DIMENSION idxBuf(nBuff)
       DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
+#ifdef _MOLCAS_MPP_
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -162,6 +217,9 @@ Case B:
      &            1.0D0,Cho_Bra,NT*NJ,
      &                  Cho_Ket,NV*NL,
      &            0.0D0,TJVL,NT*NJ)
+#ifdef _MOLCAS_MPP_
+      if (iParRHS == 2) CALL GADSUM(TJVL,NT*NJ*NV*NL)
+#endif
       If (NWBP.le.0) GO TO 800
 *
       IF(NINDEP(ISYM,2).GT.0) THEN
@@ -176,43 +234,85 @@ C Read WP:
        CALL RHS_ALLO (NASP,NISP,lg_BP)
        CALL RHS_READ (NASP,NISP,lg_BP,iCASE,iSYM,iVEC)
 
-       IBUF=0
-        DO IT=1,NT
-        ITABS=IT+NAES(ISYT)
-        IVMAX=NV
-        IF(ISYV.EQ.ISYT) IVMAX=IT
-        DO IV=1,IVMAX
-         IVABS=IV+NAES(ISYV)
-         SCL1=0.5D0
-         IW1=KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
-         IF(ITABS.EQ.IVABS) SCL1=0.25D0
-         DO IJ=1,NJ
-          IJABS=IJ+NIES(ISYJ)
-          DO IL=1,NL
-           ILABS=IL+NIES(ISYL)
-           SCL=SCL1
-           IF(IJABS.GE.ILABS) THEN
-            IW2=KIGEJ(IJABS,ILABS)-NIGEJES(ISYM)
-            IF(IJABS.EQ.ILABS) SCL=SQ2*SCL1
-           ELSE
-            IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
-           END IF
-           IW=IW1+NASP*(IW2-1)
-*          Buff(LWBP-1+IW)=Buff(LWBP-1+IW)+SCL*TJVL(IT,IJ,IV,IL)
-           IBUF=IBUF+1
-           idxBuf(IBUF)=IW
-           Buff(IBUF)=SCL*TJVL(IT,IJ,IV,IL)
-           IF (IBUF.EQ.NBUFF) THEN
-             CALL RHS_SCATTER(LDBP,lg_BP,Buff,idxBuf,IBUF)
-             IBUF=0
-           END IF
+       if (iParRHS == 1) then
+        IBUF=0
+         DO IT=1,NT
+         ITABS=IT+NAES(ISYT)
+         IVMAX=NV
+         IF(ISYV.EQ.ISYT) IVMAX=IT
+         DO IV=1,IVMAX
+          IVABS=IV+NAES(ISYV)
+          SCL1=0.5D0
+          IW1=KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
+          IF(ITABS.EQ.IVABS) SCL1=0.25D0
+          DO IJ=1,NJ
+           IJABS=IJ+NIES(ISYJ)
+           DO IL=1,NL
+            ILABS=IL+NIES(ISYL)
+            SCL=SCL1
+            IF(IJABS.GE.ILABS) THEN
+             IW2=KIGEJ(IJABS,ILABS)-NIGEJES(ISYM)
+             IF(IJABS.EQ.ILABS) SCL=SQ2*SCL1
+            ELSE
+             IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
+            END IF
+            IW=IW1+NASP*(IW2-1)
+*           Buff(LWBP-1+IW)=Buff(LWBP-1+IW)+SCL*TJVL(IT,IJ,IV,IL)
+            IBUF=IBUF+1
+            idxBuf(IBUF)=IW
+            Buff(IBUF)=SCL*TJVL(IT,IJ,IV,IL)
+            IF (IBUF.EQ.NBUFF) THEN
+              CALL RHS_SCATTER(LDBP,lg_BP,Buff,idxBuf,IBUF)
+              IBUF=0
+            END IF
+           END DO
           END DO
          END DO
         END DO
-       END DO
-       IF (IBUF.NE.0) THEN
-         CALL RHS_SCATTER(LDBP,lg_BP,Buff,idxBuf,IBUF)
-       END IF
+        IF (IBUF.NE.0) THEN
+          CALL RHS_SCATTER(LDBP,lg_BP,Buff,idxBuf,IBUF)
+        END IF
+#ifdef _MOLCAS_MPP_
+       else if (iParRHS == 2) then
+        myRank = GA_NodeID()
+        CALL GA_Distribution (lg_BP,myRank,ILOV,IHIV,JLOV,JHIV)
+        if (JLOV > 0) then
+         CALL GA_Access(lg_BP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+         DO IT=1,NT
+          ITABS=IT+NAES(ISYT)
+          IVMAX=NV
+          IF(ISYV.EQ.ISYT) IVMAX=IT
+          DO IV=1,IVMAX
+           IVABS=IV+NAES(ISYV)
+           SCL1=0.5D0
+           IW1=KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
+           if (IW1 < ILOV .or. IW1 > IHIV) cycle
+           IF(ITABS.EQ.IVABS) SCL1=0.25D0
+           DO IJ=1,NJ
+            IJABS=IJ+NIES(ISYJ)
+            DO IL=1,NL
+             ILABS=IL+NIES(ISYL)
+             SCL=SCL1
+             IF(IJABS.GE.ILABS) THEN
+              IW2=KIGEJ(IJABS,ILABS)-NIGEJES(ISYM)
+              IF(IJABS.EQ.ILABS) SCL=SQ2*SCL1
+             ELSE
+              IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
+             END IF
+             if (IW2 >= JLOV .and. IW2 <= JHIV) then
+              DBL_MB(MV+IW1-ILOV+LDBP*(IW2-JLOV))
+     *          = DBL_MB(MV+IW1-ILOV+LDBP*(IW2-JLOV))
+     *          + SCL*TJVL(IT,IJ,IV,IL)
+             end if
+            END DO
+           END DO
+          END DO
+         END DO
+         CALL GA_Release_Update(lg_BP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+        end if
+#endif
+       end if
+
 C Put WBP on disk:
        CALL RHS_SAVE (NASP,NISP,lg_BP,iCASE,iSYM,iVEC)
        CALL RHS_FREE(lg_BP)
@@ -233,6 +333,7 @@ C Read WM:
        CALL RHS_ALLO (NASM,NISM,lg_BM)
        CALL RHS_READ (NASM,NISM,lg_BM,iCASE,iSYM,iVEC)
 
+      if (iParRHS == 1) then
        IBUF=0
        DO IT=1,NT
         ITABS=IT+NAES(ISYT)
@@ -271,6 +372,53 @@ C Read WM:
        IF (IBUF.NE.0) THEN
          CALL RHS_SCATTER(LDBM,lg_BM,Buff,idxBuf,IBUF)
        END IF
+#ifdef _MOLCAS_MPP_
+      else if (iParRHS == 2) then
+       myRank = GA_NodeID()
+       CALL GA_Distribution (lg_BM,myRank,ILOV,IHIV,JLOV,JHIV)
+       if (JLOV > 0) then
+        CALL GA_Access(lg_BM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+
+        DO IT=1,NT
+         ITABS=IT+NAES(ISYT)
+         IVMAX=NV
+         IF(ISYV.EQ.ISYT) IVMAX=IT-1
+         DO IV=1,IVMAX
+          IVABS=IV+NAES(ISYV)
+          IW1=KTGTU(ITABS,IVABS)-NTGTUES(ISYM)
+          if (IW1 < ILOV .or. IW1 > IHIV) cycle
+          DO IJ=1,NJ
+           IJABS=IJ+NIES(ISYJ)
+           DO IL=1,NL
+            ILABS=IL+NIES(ISYL)
+            IF(IJABS.GT.ILABS) THEN
+             IW2=KIGTJ(IJABS,ILABS)-NIGTJES(ISYM)
+             if (IW2 >= JLOV .and. IW2 <= JHIV) then
+               DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
+     *           = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
+     *           + 0.5D0*TJVL(IT,IJ,IV,IL)
+             end if
+            ELSE IF (IJABS.LT.ILABS) THEN
+             IW2=KIGTJ(ILABS,IJABS)-NIGTJES(ISYM)
+             if (IW2 >= JLOV .and. IW2 <= JHIV) then
+               DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
+     *           = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
+     *           - 0.5D0*TJVL(IT,IJ,IV,IL)
+             end if
+            END IF
+            IF (IBUF.EQ.NBUFF) THEN
+              CALL RHS_SCATTER(LDBM,lg_BM,Buff,idxBuf,IBUF)
+              IBUF=0
+            END IF
+           END DO
+          END DO
+         END DO
+        END DO
+        CALL GA_Release_Update(lg_BM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
+      end if
+
 C Put WBM on disk:
        CALL RHS_SAVE (NASM,NISM,lg_BM,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_BM)
@@ -286,14 +434,25 @@ C Put WBM on disk:
       SUBROUTINE ADDRHSC(IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,AUVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
       DIMENSION AUVX(NA,NU,NV,NX)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
       DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
+#ifdef _MOLCAS_MPP_
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+#endif
 *      Logical Incore
 Case C:
 C   Allocate W. Put in W(uvx,a)=(au,vx) +
@@ -334,33 +493,62 @@ C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
 C Read W:
       CALL RHS_ALLO (NAS,NIS,lg_C)
       CALL RHS_READ (NAS,NIS,lg_C,iCASE,iSYM,iVEC)
-
-      IBUF=0
-      DO IA=1,NA
-       DO IU=1,NU
-        IUABS=IU+NAES(ISYU)
-        DO IV=1,NV
-         IVABS=IV+NAES(ISYV)
-         DO IX=1,NX
-          IXABS=IX+NAES(ISYX)
-          IW1=KTUV(IUABS,IVABS,IXABS)-NTUVES(ISYM)
-          IW2=IA
-          IW=IW1+NAS*(IW2-1)
-*         Buff(LWC-1+IW)=Buff(LWC-1+IW)+AUVX(IA,IU,IV,IX)
-          IBUF=IBUF+1
-          idxBuf(IBUF)=IW
-          Buff(IBUF)=AUVX(IA,IU,IV,IX)
-          IF (IBUF.EQ.NBUFF) THEN
-            CALL RHS_SCATTER(LDC,lg_C,Buff,idxBuf,IBUF)
-            IBUF=0
-          END IF
+      if (iParRHS == 1) then
+       IBUF=0
+       DO IA=1,NA
+        DO IU=1,NU
+         IUABS=IU+NAES(ISYU)
+         DO IV=1,NV
+          IVABS=IV+NAES(ISYV)
+          DO IX=1,NX
+           IXABS=IX+NAES(ISYX)
+           IW1=KTUV(IUABS,IVABS,IXABS)-NTUVES(ISYM)
+           IW2=IA
+           IW=IW1+NAS*(IW2-1)
+*          Buff(LWC-1+IW)=Buff(LWC-1+IW)+AUVX(IA,IU,IV,IX)
+           IBUF=IBUF+1
+           idxBuf(IBUF)=IW
+           Buff(IBUF)=AUVX(IA,IU,IV,IX)
+           IF (IBUF.EQ.NBUFF) THEN
+             CALL RHS_SCATTER(LDC,lg_C,Buff,idxBuf,IBUF)
+             IBUF=0
+           END IF
+          END DO
          END DO
         END DO
        END DO
-      END DO
-      IF (IBUF.NE.0) THEN
-        CALL RHS_SCATTER(LDC,lg_C,Buff,idxBuf,IBUF)
-      END IF
+       IF (IBUF.NE.0) THEN
+         CALL RHS_SCATTER(LDC,lg_C,Buff,idxBuf,IBUF)
+       END IF
+#ifdef _MOLCAS_MPP_
+      else if (iParRHS == 2) then
+       CALL GADSUM(AUVX,NA*NU*NV*NX)
+       myRank = GA_NodeID()
+       CALL GA_Distribution (lg_C,myRank,ILOV,IHIV,JLOV,JHIV)
+       if (JLOV > 0) then
+        CALL GA_Access(lg_C,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+        DO IA=JLOV,JHIV
+         IW2=IA
+         DO IU=1,NU
+          IUABS=IU+NAES(ISYU)
+          DO IV=1,NV
+           IVABS=IV+NAES(ISYV)
+           DO IX=1,NX
+            IXABS=IX+NAES(ISYX)
+            IW1=KTUV(IUABS,IVABS,IXABS)-NTUVES(ISYM)
+            if (IW1 >= ILOV .and. IW1 <= IHIV) then
+             DBL_MB(MV+IW1-ILOV+LDC*(IW2-JLOV))
+     *         = DBL_MB(MV+IW1-ILOV+LDC*(IW2-JLOV))
+     *         + AUVX(IA,IU,IV,IX)
+            end if
+           END DO
+          END DO
+         END DO
+        END DO
+        CALL GA_Release_Update(lg_C,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
+      end if
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_C,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_C)
@@ -376,16 +564,27 @@ C Put W on disk:
       SUBROUTINE ADDRHSD1(IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,AJVX,
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
       DIMENSION AJVX(NV,NX,*)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
       DIMENSION Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NX,NCHO)
 *      Logical Incore
       DIMENSION IOFFD(8,8)
+#ifdef _MOLCAS_MPP_
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+#endif
 Case D:
 C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
 C Compute W2(vu,al)=(au,vl)
@@ -437,6 +636,13 @@ C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
 C Read W:
       CALL RHS_ALLO (NAS,NIS,lg_D)
       CALL RHS_READ (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
+#ifdef _MOLCAS_MPP_
+      if (iParRHS == 2) then
+        myRank = GA_NodeID()
+        CALL GA_Distribution (lg_D,myRank,ILOV,IHIV,JLOV,JHIV)
+        if (JLOV > 0) CALL GA_Access(lg_D,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+      end if
+#endif
 
       NBXSZA=NSECBX
       NBXSZJ=NINABX
@@ -454,40 +660,75 @@ C Read W:
      &         Cho_Bra(IAJSTA,1),NA*NJ,
      &         0.0D0,AJVX,NV*NX)
 
-      IAJ=0
-      IBUF=0
-      DO IJ=IJSTA,IJEND
-       DO IA=IASTA,IAEND
-       IAJ=IAJ+1
+      if (iParRHS == 1) then
+       IAJ=0
+       IBUF=0
+       DO IJ=IJSTA,IJEND
+        DO IA=IASTA,IAEND
+        IAJ=IAJ+1
 
-        DO IX=1,NX
-         IXABS=IX+NAES(ISYX)
-          DO IV=1,NV
-          IVABS=IV+NAES(ISYV)
+         DO IX=1,NX
+          IXABS=IX+NAES(ISYX)
+           DO IV=1,NV
+           IVABS=IV+NAES(ISYV)
 
-          IW1=KTU(IVABS,IXABS)-NTUES(ISYM)
-          IW2=IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
-          IW=IW1+NAS*(IW2-1)
-          IBUF=IBUF+1
-*         WD=Buff(LWD-1+IW)+AJVX(IV,IX,IAJ)
-*         Buff(LWD-1+IW)=WD
-          idxBuf(IBUF)=IW
-          Buff(IBUF)=AJVX(IV,IX,IAJ)
-          IF (IBUF.EQ.NBUFF) THEN
-            CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
-            IBUF=0
-          END IF
+           IW1=KTU(IVABS,IXABS)-NTUES(ISYM)
+           IW2=IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
+           IW=IW1+NAS*(IW2-1)
+           IBUF=IBUF+1
+*          WD=Buff(LWD-1+IW)+AJVX(IV,IX,IAJ)
+*          Buff(LWD-1+IW)=WD
+           idxBuf(IBUF)=IW
+           Buff(IBUF)=AJVX(IV,IX,IAJ)
+           IF (IBUF.EQ.NBUFF) THEN
+             CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
+             IBUF=0
+           END IF
+          END DO
          END DO
         END DO
        END DO
-      END DO
-      IF (IBUF.NE.0) THEN
-        CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
-      END IF
+       IF (IBUF.NE.0) THEN
+         CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
+       END IF
+#ifdef _MOLCAS_MPP_
+      else if (iParRHS == 2) then
+       CALL GADSUM(AJVX,NV*NX*NASZ*NJSZ)
+       if (JLOV > 0) then
+        IAJ=0
+        DO IJ=IJSTA,IJEND
+         DO IA=IASTA,IAEND
+         IAJ=IAJ+1
+          IW2=IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
+          if (IW2 < JLOV .or. IW2 > JHIV) cycle
+
+          DO IX=1,NX
+           IXABS=IX+NAES(ISYX)
+            DO IV=1,NV
+            IVABS=IV+NAES(ISYV)
+
+            IW1=KTU(IVABS,IXABS)-NTUES(ISYM)
+            if (IW1 >= ILOV .and. IW1 <= IHIV) then
+             DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))
+     *         = DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))
+     *         + AJVX(IV,IX,IAJ)
+            end if
+           END DO
+          END DO
+         END DO
+        END DO
+       end if
+#endif
+      end if
 
         ENDDO
       ENDDO
 
+#ifdef _MOLCAS_MPP_
+      if (iParRHS == 2 .and. JLOV > 0) then
+        CALL GA_Release_Update(lg_D,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+      end if
+#endif
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_D)
@@ -502,16 +743,27 @@ C Put W on disk:
       SUBROUTINE ADDRHSD2(IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,AUVL,
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
       DIMENSION AUVL(NA,NU,NV,NL)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
       DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
       DIMENSION IOFFD(8,8)
+#ifdef _MOLCAS_MPP_
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+#endif
 Case D:
 C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
 C Compute W2(vu,al)=(au,vl)
@@ -564,31 +816,61 @@ C Read W:
       CALL RHS_ALLO (NAS,NIS,lg_D)
       CALL RHS_READ (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
 
-      IBUF=0
-      DO IA=1,NA
-       DO IU=1,NU
-        IUABS=IU+NAES(ISYU)
-        DO IV=1,NV
-         IVABS=IV+NAES(ISYV)
-         DO IL=1,NL
-          IW1=NAS1+KTU(IVABS,IUABS)-NTUES(ISYM)
-          IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
-          IW=IW1+NAS*(IW2-1)
-*         Buff(LWD-1+IW)=Buff(LWD-1+IW)+AUVL(IA,IU,IV,IL)
-          IBUF=IBUF+1
-          idxBuf(IBUF)=IW
-          Buff(IBUF)=AUVL(IA,IU,IV,IL)
-          IF (IBUF.EQ.NBUFF) THEN
-            CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
-            IBUF=0
-          END IF
+      if (iParRHS == 1) then
+       IBUF=0
+       DO IA=1,NA
+        DO IU=1,NU
+         IUABS=IU+NAES(ISYU)
+         DO IV=1,NV
+          IVABS=IV+NAES(ISYV)
+          DO IL=1,NL
+           IW1=NAS1+KTU(IVABS,IUABS)-NTUES(ISYM)
+           IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
+           IW=IW1+NAS*(IW2-1)
+*          Buff(LWD-1+IW)=Buff(LWD-1+IW)+AUVL(IA,IU,IV,IL)
+           IBUF=IBUF+1
+           idxBuf(IBUF)=IW
+           Buff(IBUF)=AUVL(IA,IU,IV,IL)
+           IF (IBUF.EQ.NBUFF) THEN
+             CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
+             IBUF=0
+           END IF
+          END DO
          END DO
         END DO
        END DO
-      END DO
-      IF (IBUF.NE.0) THEN
-        CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
-      END IF
+       IF (IBUF.NE.0) THEN
+         CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
+       END IF
+#ifdef _MOLCAS_MPP_
+      else if (iParRHS == 2) then
+       CALL GADSUM(AUVL,NA*NU*NV*NL)
+       myRank = GA_NodeID()
+       CALL GA_Distribution (lg_D,myRank,ILOV,IHIV,JLOV,JHIV)
+       if (JLOV > 0) then
+        CALL GA_Access(lg_D,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+        DO IA=1,NA
+         DO IU=1,NU
+          IUABS=IU+NAES(ISYU)
+          DO IV=1,NV
+           IVABS=IV+NAES(ISYV)
+           IW1=NAS1+KTU(IVABS,IUABS)-NTUES(ISYM)
+           if (IW1 < ILOV .and. IW1 > IHIV) cycle
+           DO IL=1,NL
+            IW2=IOFFD(ISYA,ISYM)+IL+NL*(IA-1)
+            if (IW2 >= JLOV .and. IW2 <= JHIV) then
+              DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))
+     *          = DBL_MB(MV+IW1-ILOV+LDD*(IW2-JLOV))
+     *          + AUVL(IA,IU,IV,IL)
+            end if
+           END DO
+          END DO
+         END DO
+        END DO
+        CALL GA_Release_Update(lg_D,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
+      end if
 *
 C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,iCASE,iSYM,iVEC)
@@ -604,10 +886,18 @@ C Put W on disk:
       SUBROUTINE ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
 
       DIMENSION AJVL(NV,NL,*)
       DIMENSION Buff(nBuff)
@@ -615,6 +905,9 @@ C Put W on disk:
       DIMENSION Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
       DIMENSION IOFF1(8),IOFF2(8)
+#ifdef _MOLCAS_MPP_
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+#endif
 Case E:
 *                                                                      *
 ************************************************************************
@@ -673,6 +966,13 @@ C    &            0.0D0,AJVL,NA*NJ)
 C Read WP:
       CALL RHS_ALLO (NAS,NISP,lg_EP)
       CALL RHS_READ (NAS,NISP,lg_EP,iCASE,iSYM,iVEC)
+#ifdef _MOLCAS_MPP_
+      if (iParRHS == 2) then
+        myRank = GA_NodeID()
+        CALL GA_Distribution (lg_EP,myRank,ILOV,IHIV,JLOV,JHIV)
+        if (JLOV > 0) CALL GA_Access(lg_EP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+      end if
+#endif
 
        NBXSZA=NSECBX
        NBXSZJ=NINABX
@@ -689,7 +989,7 @@ C Read WP:
      &          1.0D0,Cho_Ket,NV*NL,
      &          Cho_Bra(IAJSTA,1),NA*NJ,
      &          0.0D0,AJVL,NV*NL)
-
+      if (iParRHS == 1) then
        IAJ=0
        IBUF=0
        DO IJ=IJSTA,IJEND
@@ -726,10 +1026,49 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
        IF (IBUF.NE.0) THEN
          CALL RHS_SCATTER(LDEP,lg_EP,Buff,idxBuf,IBUF)
        END IF
+#ifdef _MOLCAS_MPP_
+      else
+       CALL GADSUM(AJVL,NV*NL*NASZ*NJSZ)
+       if (JLOV > 0) then
+        IAJ=0
+        DO IJ=IJSTA,IJEND
+         IJABS=IJ+NIES(ISYJ)
+         DO IA=IASTA,IAEND
+         IAJ=IAJ+1
+
+          DO IV=ILOV,IHIV
+           IW1=IV
+           DO IL=1,NL
+            ILABS=IL+NIES(ISYL)
+            SCL=SQRT(0.5D0)
+            IF(IJABS.GE.ILABS) THEN
+             JGEL=KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
+             IF(IJABS.EQ.ILABS) SCL=1.0D0
+            ELSE
+             JGEL=KIGEJ(ILABS,IJABS)-NIGEJES(ISYJL)
+            END IF
+            IW2=IA+NA*(JGEL-1)+IOFF1(ISYA)
+            if (IW2 >= JLOV .and. IW2 <= JHIV) then
+              DBL_MB(MV+IW1-ILOV+LDEP*(IW2-JLOV))
+     *          = DBL_MB(MV+IW1-ILOV+LDEP*(IW2-JLOV))
+     *          + SCL*AJVL(IV,IL,IAJ)
+            end if
+           END DO
+          END DO
+         END DO
+        END DO
+       end if
+#endif
+      end if
 
          ENDDO
        ENDDO
 
+#ifdef _MOLCAS_MPP_
+      if (iParRHS == 2 .and. JLOV > 0) then
+        CALL GA_Release_Update(lg_EP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+      end if
+#endif
       CALL RHS_SAVE (NAS,NISP,lg_EP,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_EP)
       END IF
@@ -742,6 +1081,13 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
 C Read WM:
       CALL RHS_ALLO (NAS,NISM,lg_EM)
       CALL RHS_READ (NAS,NISM,lg_EM,iCASE,iSYM,iVEC)
+#ifdef _MOLCAS_MPP_
+      if (iParRHS == 2) then
+        myRank = GA_NodeID()
+        CALL GA_Distribution (lg_EM,myRank,ILOV,IHIV,JLOV,JHIV)
+        if (JLOV > 0) CALL GA_Access(lg_EM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+      end if
+#endif
 
        NBXSZA=NSECBX
        NBXSZJ=NINABX
@@ -759,6 +1105,7 @@ C Read WM:
      &          Cho_Bra(IAJSTA,1),NA*NJ,
      &          0.0D0,AJVL,NV*NL)
 
+      if (iParRHS == 1) then
        IAJ=0
        IBUF=0
        DO IJ=IJSTA,IJEND
@@ -796,10 +1143,51 @@ C Read WM:
        IF (IBUF.NE.0) THEN
          CALL RHS_SCATTER(LDEM,lg_EM,Buff,idxBuf,IBUF)
        END IF
+#ifdef _MOLCAS_MPP_
+      else if (iParRHS == 2) then
+       CALL GADSUM(AJVL,NV*NL*NASZ*NJSZ)
+       if (JLOV > 0) then
+        IAJ=0
+        DO IJ=IJSTA,IJEND
+         IJABS=IJ+NIES(ISYJ)
+         DO IA=IASTA,IAEND
+         IAJ=IAJ+1
+
+          DO IV=ILOV,IHIV
+           IW1=IV
+           DO IL=1,NL
+            ILABS=IL+NIES(ISYL)
+            IF(IJABS.NE.ILABS) THEN
+             IF(IJABS.GT.ILABS) THEN
+              SCL=SQ32
+              JGTL=KIGTJ(IJABS,ILABS)-NIGTJES(ISYJL)
+             ELSE
+              SCL=-SQ32
+              JGTL=KIGTJ(ILABS,IJABS)-NIGTJES(ISYJL)
+             END IF
+             IW2=IA+NA*(JGTL-1)+IOFF2(ISYA)
+             if (IW2 >= JLOV .and. IW2 <= JHIV) then
+               DBL_MB(MV+IW1-ILOV+LDEM*(IW2-JLOV))
+     *           = DBL_MB(MV+IW1-ILOV+LDEM*(IW2-JLOV))
+     *           + SCL*AJVL(IV,IL,IAJ)
+             end if
+            END IF
+           END DO
+          END DO
+         END DO
+        END DO
+       end if
+#endif
+      end if
 
          ENDDO
        ENDDO
 
+#ifdef _MOLCAS_MPP_
+      if (iParRHS == 2 .and. JLOV > 0) then
+        CALL GA_Release_Update(lg_EM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+      end if
+#endif
       CALL RHS_SAVE (NAS,NISM,lg_EM,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_EM)
       END IF
@@ -814,14 +1202,25 @@ C Read WM:
       SUBROUTINE ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
       DIMENSION AUCX(NA,NU,NC,NX)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
       DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
+#ifdef _MOLCAS_MPP_
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV,ITMP1,ITMP2
+#endif
 *      Logical Incore
 Case F:
 C   WP(ux,ac)=((aucx)+(axcu))*(1-Kron(x,u)/2) /2
@@ -872,6 +1271,9 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
      &            1.0D0,Cho_Bra,NA*NU,
      &                  Cho_Ket,NC*NX,
      &            0.0D0,AUCX,NA*NU)
+#ifdef _MOLCAS_MPP_
+      IF (iParRHS == 2) CALL GADSUM(AUCX,NA*NU*NC*NX)
+#endif
 *
       IF (NWFP.le.0) GO TO 800
       IF(NINDEP(ISYM,8).GT.0) THEN
@@ -886,44 +1288,87 @@ C Read WP:
        CALL RHS_ALLO (NASP,NISP,lg_FP)
        CALL RHS_READ (NASP,NISP,lg_FP,iCASE,iSYM,iVEC)
 
-       IBUF=0
-       DO IU=1,NU
-        IUABS=IU+NAES(ISYU)
-        IXMAX=NX
-        IF(ISYU.EQ.ISYX) IXMAX=IU
-        DO IX=1,IXMAX
-         IXABS=IX+NAES(ISYX)
-         SCL1=0.5D0
-         IF(IUABS.EQ.IXABS) SCL1=0.25D0
-         IW1=KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
-         DO IA=1,NA
-          IAABS=IA+NSES(ISYA)
-          DO IC=1,NC
-           ICABS=IC+NSES(ISYC)
-           SCL=SCL1
-           IF(IAABS.GE.ICABS) THEN
-            IW2=KAGEB(IAABS,ICABS)-NAGEBES(ISYM)
-            IF(IAABS.EQ.ICABS) SCL=SQRT(2.0D0)*SCL1
-           ELSE
-            IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
-           END IF
-           IW=IW1+NASP*(IW2-1)
-*          WFP=Buff(LWFP-1+IW)+SCL*AUCX(IA,IU,IC,IX)
-*          Buff(LWFP-1+IW)=WFP
-           IBUF=IBUF+1
-           idxBuf(IBUF)=IW
-           Buff(IBUF)=SCL*AUCX(IA,IU,IC,IX)
-           IF (IBUF.EQ.NBUFF) THEN
-             CALL RHS_SCATTER(LDFP,lg_FP,Buff,idxBuf,IBUF)
-             IBUF=0
-           END IF
+       if (iParRHS == 1) then
+        IBUF=0
+        DO IU=1,NU
+         IUABS=IU+NAES(ISYU)
+         IXMAX=NX
+         IF(ISYU.EQ.ISYX) IXMAX=IU
+         DO IX=1,IXMAX
+          IXABS=IX+NAES(ISYX)
+          SCL1=0.5D0
+          IF(IUABS.EQ.IXABS) SCL1=0.25D0
+          IW1=KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
+          DO IA=1,NA
+           IAABS=IA+NSES(ISYA)
+           DO IC=1,NC
+            ICABS=IC+NSES(ISYC)
+            SCL=SCL1
+            IF(IAABS.GE.ICABS) THEN
+             IW2=KAGEB(IAABS,ICABS)-NAGEBES(ISYM)
+             IF(IAABS.EQ.ICABS) SCL=SQRT(2.0D0)*SCL1
+            ELSE
+             IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
+            END IF
+            IW=IW1+NASP*(IW2-1)
+*           WFP=Buff(LWFP-1+IW)+SCL*AUCX(IA,IU,IC,IX)
+*           Buff(LWFP-1+IW)=WFP
+            IBUF=IBUF+1
+            idxBuf(IBUF)=IW
+            Buff(IBUF)=SCL*AUCX(IA,IU,IC,IX)
+            IF (IBUF.EQ.NBUFF) THEN
+              CALL RHS_SCATTER(LDFP,lg_FP,Buff,idxBuf,IBUF)
+              IBUF=0
+            END IF
+           END DO
           END DO
          END DO
         END DO
-       END DO
-       IF (IBUF.NE.0) THEN
-         CALL RHS_SCATTER(LDFP,lg_FP,Buff,idxBuf,IBUF)
-       END IF
+        IF (IBUF.NE.0) THEN
+          CALL RHS_SCATTER(LDFP,lg_FP,Buff,idxBuf,IBUF)
+        END IF
+#ifdef _MOLCAS_MPP_
+       else if (iParRHS == 2) then
+        myRank = GA_NodeID()
+        CALL GA_Distribution (lg_FP,myRank,ILOV,IHIV,JLOV,JHIV)
+        if (JLOV > 0) then
+         CALL GA_Access(lg_FP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+         IBUF=0
+         DO IU=1,NU
+          IUABS=IU+NAES(ISYU)
+          IXMAX=NX
+          IF(ISYU.EQ.ISYX) IXMAX=IU
+          DO IX=1,IXMAX
+           IXABS=IX+NAES(ISYX)
+           SCL1=0.5D0
+           IF(IUABS.EQ.IXABS) SCL1=0.25D0
+           IW1=KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
+           if (IW1 < ILOV .or. IW1 > IHIV) cycle
+           DO IA=1,NA
+            IAABS=IA+NSES(ISYA)
+            DO IC=1,NC
+             ICABS=IC+NSES(ISYC)
+             SCL=SCL1
+             IF(IAABS.GE.ICABS) THEN
+              IW2=KAGEB(IAABS,ICABS)-NAGEBES(ISYM)
+              IF(IAABS.EQ.ICABS) SCL=SQRT(2.0D0)*SCL1
+             ELSE
+              IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
+             END IF
+             if (IW2 >= JLOV .and. IW2 <= JHIV) then
+              DBL_MB(MV+IW1-ILOV+LDFP*(IW2-JLOV))
+     *        = DBL_MB(MV+IW1-ILOV+LDFP*(IW2-JLOV))
+     *        + SCL*AUCX(IA,IU,IC,IX)
+             end if
+            END DO
+           END DO
+          END DO
+         END DO
+         CALL GA_Release_Update(lg_FP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+        end if
+#endif
+       end if
+
        CALL RHS_SAVE (NASP,NISP,lg_FP,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_FP)
       END IF
@@ -943,45 +1388,92 @@ C Read WP:
 C Read WM:
        CALL RHS_ALLO (NASM,NISM,lg_FM)
        CALL RHS_READ (NASM,NISM,lg_FM,iCASE,iSYM,iVEC)
+#ifdef _MOLCAS_MPP_
+       if (Is_Real_Par()) then
+         myRank = GA_NodeID()
+         CALL GA_Distribution (lg_FM,myRank,ILOV,IHIV,JLOV,JHIV)
+         if (JLOV > 0) CALL GA_Access(lg_FM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
 
-       IBUF=0
-       DO IU=1,NU
-        IUABS=IU+NAES(ISYU)
-        IXMAX=NX
-        IF(ISYU.EQ.ISYX) IXMAX=IU-1
-        DO IX=1,IXMAX
-         IXABS=IX+NAES(ISYX)
-         IW1=KTGTU(IUABS,IXABS)-NTGTUES(ISYM)
-         DO IA=1,NA
-          IAABS=IA+NSES(ISYA)
-          DO IC=1,NC
-           ICABS=IC+NSES(ISYC)
-           IF(IAABS.GT.ICABS) THEN
-            IW2=KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
-            IW=IW1+NASM*(IW2-1)
-*           Buff(LWFM-1+IW)=Buff(LWFM-1+IW)-0.5D0*AUCX(IA,IU,IC,IX)
-            IBUF=IBUF+1
-            idxBuf(IBUF)=IW
-            Buff(IBUF)=-0.5D0*AUCX(IA,IU,IC,IX)
-           ELSE IF(IAABS.LT.ICABS) THEN
-            IW2=KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
-            IW=IW1+NASM*(IW2-1)
-*           Buff(LWFM-1+IW)=Buff(LWFM-1+IW)+0.5D0*AUCX(IA,IU,IC,IX)
-            IBUF=IBUF+1
-            idxBuf(IBUF)=IW
-            Buff(IBUF)=0.5D0*AUCX(IA,IU,IC,IX)
-           END IF
-           IF (IBUF.EQ.NBUFF) THEN
-             CALL RHS_SCATTER(LDFM,lg_FM,Buff,idxBuf,IBUF)
-             IBUF=0
-           END IF
+       if (iParRHS == 1) then
+        IBUF=0
+        DO IU=1,NU
+         IUABS=IU+NAES(ISYU)
+         IXMAX=NX
+         IF(ISYU.EQ.ISYX) IXMAX=IU-1
+         DO IX=1,IXMAX
+          IXABS=IX+NAES(ISYX)
+          IW1=KTGTU(IUABS,IXABS)-NTGTUES(ISYM)
+          DO IA=1,NA
+           IAABS=IA+NSES(ISYA)
+           DO IC=1,NC
+            ICABS=IC+NSES(ISYC)
+            IF(IAABS.GT.ICABS) THEN
+             IW2=KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
+             IW=IW1+NASM*(IW2-1)
+*            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)-0.5D0*AUCX(IA,IU,IC,IX)
+             IBUF=IBUF+1
+             idxBuf(IBUF)=IW
+             Buff(IBUF)=-0.5D0*AUCX(IA,IU,IC,IX)
+            ELSE IF(IAABS.LT.ICABS) THEN
+             IW2=KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
+             IW=IW1+NASM*(IW2-1)
+*            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)+0.5D0*AUCX(IA,IU,IC,IX)
+             IBUF=IBUF+1
+             idxBuf(IBUF)=IW
+             Buff(IBUF)=0.5D0*AUCX(IA,IU,IC,IX)
+            END IF
+            IF (IBUF.EQ.NBUFF) THEN
+              CALL RHS_SCATTER(LDFM,lg_FM,Buff,idxBuf,IBUF)
+              IBUF=0
+            END IF
+           END DO
           END DO
          END DO
         END DO
-       END DO
-       IF (IBUF.NE.0) THEN
-         CALL RHS_SCATTER(LDFM,lg_FM,Buff,idxBuf,IBUF)
-       END IF
+        IF (IBUF.NE.0) THEN
+          CALL RHS_SCATTER(LDFM,lg_FM,Buff,idxBuf,IBUF)
+        END IF
+#ifdef _MOLCAS_MPP_
+       else if (iParRHS == 2) then
+        if (JLOV > 0) then
+         DO IU=1,NU
+          IUABS=IU+NAES(ISYU)
+          IXMAX=NX
+          IF(ISYU.EQ.ISYX) IXMAX=IU-1
+          DO IX=1,IXMAX
+           IXABS=IX+NAES(ISYX)
+           IW1=KTGTU(IUABS,IXABS)-NTGTUES(ISYM)
+           if (IW1 < ILOV .or. IW1 > IHIV) cycle
+           DO IA=1,NA
+            IAABS=IA+NSES(ISYA)
+            DO IC=1,NC
+             ICABS=IC+NSES(ISYC)
+             IF(IAABS.GT.ICABS) THEN
+              IW2=KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
+              if (IW2 >= JLOV .and. IW2 <= JHIV) then
+               DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
+     *           = DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
+     *           - 0.5D0*AUCX(IA,IU,IC,IX)
+              end if
+             ELSE IF(IAABS.LT.ICABS) THEN
+              IW2=KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
+              if (IW2 >= JLOV .and. IW2 <= JHIV) then
+               DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
+     *           = DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
+     *           + 0.5D0*AUCX(IA,IU,IC,IX)
+              end if
+             END IF
+            END DO
+           END DO
+          END DO
+         END DO
+         CALL GA_Release_Update(lg_FM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+        end if
+#endif
+       end if
+
 C Put WFM on disk:
        CALL RHS_SAVE (NASM,NISM,lg_FM,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_FM)
@@ -997,10 +1489,18 @@ C Put WFM on disk:
       SUBROUTINE ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
 
       DIMENSION AUCL(NA,NU,*)
       DIMENSION Buff(nBuff)
@@ -1008,6 +1508,9 @@ C Put WFM on disk:
       DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
 *      Logical Incore
       DIMENSION IOFF1(8),IOFF2(8)
+#ifdef _MOLCAS_MPP_
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+#endif
 Case G:
 C   WP(u,l,ac)=  ((aucl)+cual))/SQRT(2+2*Kron(ab))
 C   WM(u,l,ac)=  ((aucl)-cual))*SQRT(1.5D0)
@@ -1067,6 +1570,13 @@ C    &            0.0D0,AUCL,NA*NU)
 C Read WP:
        CALL RHS_ALLO (NAS,NISP,lg_GP)
        CALL RHS_READ (NAS,NISP,lg_GP,iCASE,iSYM,iVEC)
+#ifdef _MOLCAS_MPP_
+       if (iParRHS == 2) then
+         myRank = GA_NodeID()
+         CALL GA_Distribution (lg_GP,myRank,ILOV,IHIV,JLOV,JHIV)
+         if (JLOV > 0) CALL GA_Access(lg_GP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
 
 C to keep memory advantage, scale NL so that NC*NL fits in KCL
 C (scaling NL does not affect ordering of integrals = safe)
@@ -1093,22 +1603,23 @@ C      NBXSZJ=NINABX
      &         Cho_Ket(ICLSTA,1),NC*NL,
      &         0.0D0,AUCL,NA*NU)
 
-      ICL=0
-      IBUF=0
-      DO IL=ILSTA,ILEND
-       DO IC=ICSTA,ICEND
-        ICABS=IC+NSES(ISYC)
-        ICL=ICL+1
+      if (iParRHS == 1) then
+       ICL=0
+       IBUF=0
+       DO IL=ILSTA,ILEND
+        DO IC=ICSTA,ICEND
+         ICABS=IC+NSES(ISYC)
+         ICL=ICL+1
 
-        DO IA=1,NA
-         IAABS=IA+NSES(ISYA)
-         SCL=SQRT(0.5D0)
-         IF(IAABS.GE.ICABS) THEN
-          IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-          IF(IAABS.EQ.ICABS) SCL=1.0D0
-         ELSE
-          IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
-         END IF
+         DO IA=1,NA
+          IAABS=IA+NSES(ISYA)
+          SCL=SQRT(0.5D0)
+          IF(IAABS.GE.ICABS) THEN
+           IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
+           IF(IAABS.EQ.ICABS) SCL=1.0D0
+          ELSE
+           IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
+          END IF
           DO IU=1,NU
            IW1=IU
            IW2=IL+NL*(IAGEC-1)+IOFF1(ISYL)
@@ -1128,10 +1639,50 @@ C      NBXSZJ=NINABX
        IF (IBUF.NE.0) THEN
          CALL RHS_SCATTER(LDGP,lg_GP,Buff,idxBuf,IBUF)
        END IF
+#ifdef _MOLCAS_MPP_
+      else if (iParRHS == 2) then
+       CALL GADSUM(AUCL,NA*NU*NCSZ*NLSZ)
+       if (JLOV > 0) then
+        ICL=0
+        DO IL=ILSTA,ILEND
+         DO IC=ICSTA,ICEND
+          ICABS=IC+NSES(ISYC)
+          ICL=ICL+1
+
+          DO IA=1,NA
+           IAABS=IA+NSES(ISYA)
+           SCL=SQRT(0.5D0)
+           IF(IAABS.GE.ICABS) THEN
+            IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
+            IF(IAABS.EQ.ICABS) SCL=1.0D0
+           ELSE
+            IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
+           END IF
+           IW2 = IL+NL*(IAGEC-1)+IOFF1(ISYL)
+           if (IW2 < JLOV .or. IW2 > JHIV) cycle
+           DO IU=1,NU
+            IW1 = IU
+            if (IW1 >= ILOV .and. IW1 <= IHIV) then
+              DBL_MB(MV+IW1-ILOV+LDGP*(IW2-JLOV))
+     *          = DBL_MB(MV+IW1-ILOV+LDGP*(IW2-JLOV))
+     *          + SCL*AUCL(IA,IU,ICL)
+            end if
+           END DO
+          END DO
+         END DO
+        END DO
+       end if
+#endif
+      end if
 
          ENDDO
        ENDDO
 
+#ifdef _MOLCAS_MPP_
+       if (iParRHS == 2 .and. JLOV > 0) then
+         CALL GA_Release_Update(lg_GP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
        CALL RHS_SAVE (NAS,NISP,lg_GP,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_GP)
       END IF
@@ -1144,6 +1695,13 @@ C      NBXSZJ=NINABX
 C Read WGM:
        CALL RHS_ALLO (NAS,NISM,lg_GM)
        CALL RHS_READ (NAS,NISM,lg_GM,iCASE,iSYM,iVEC)
+#ifdef _MOLCAS_MPP_
+       if (iParRHS == 2) then
+         myRank = GA_NodeID()
+         CALL GA_Distribution (lg_GM,myRank,ILOV,IHIV,JLOV,JHIV)
+         if (JLOV > 0) CALL GA_Access(lg_GM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
 
 C to keep memory advantage, scale NL so that NC*NL fits in KCL
 C (scaling NL does not affect ordering of integrals = safe)
@@ -1170,6 +1728,7 @@ C      NBXSZJ=NINABX
      &         Cho_Ket(ICLSTA,1),NC*NL,
      &         0.0D0,AUCL,NA*NU)
 
+      if (iParRHS == 1) then
        ICL=0
        IBUF=0
        DO IL=ILSTA,ILEND
@@ -1218,10 +1777,60 @@ C      NBXSZJ=NINABX
        IF (IBUF.NE.0) THEN
          CALL RHS_SCATTER(LDGM,lg_GM,Buff,idxBuf,IBUF)
        END IF
+#ifdef _MOLCAS_MPP_
+      else if (iParRHS == 2) then
+       CALL GADSUM(AUCL,NA*NU*NCSZ*NLSZ)
+       if (JLOV > 0) then
+        ICL=0
+        DO IL=ILSTA,ILEND
+         DO IC=ICSTA,ICEND
+          ICABS=IC+NSES(ISYC)
+          ICL=ICL+1
+
+          DO IA=1,NA
+           IAABS=IA+NSES(ISYA)
+           IF(IAABS.GT.ICABS) THEN
+            IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
+            ITMP2 = IL+NL*(IAGTC-1)+IOFF2(ISYL)
+            if (ITMP2 < JLOV .or. ITMP2 > JHIV) cycle
+            SCL=SQRT(1.5D0)
+            DO IU=1,NU
+              ITMP1 = IU
+              if (ITMP1 >= ILOV .and. ITMP1 <= IHIV) then
+                DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))
+     *            = DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))
+     *            + SCL*AUCL(IA,IU,ICL)
+              end if
+            END DO
+           ELSE IF(IAABS.LT.ICABS) THEN
+            IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
+            ITMP2 = IL+NL*(IAGTC-1)+IOFF2(ISYL)
+            if (ITMP2 < JLOV .or. ITMP2 > JHIV) cycle
+            SCL=-SQRT(1.5D0)
+            DO IU=1,NU
+              ITMP1 = IU
+              if (ITMP1 >= ILOV .and. ITMP1 <= IHIV) then
+                DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))
+     *            = DBL_MB(MV+ITMP1-ILOV+LDGP*(ITMP2-JLOV))
+     *            + SCL*AUCL(IA,IU,ICL)
+              end if
+            END DO
+           END IF
+          END DO
+         END DO
+        END DO
+       end if
+#endif
+      end if
 
          ENDDO
        ENDDO
 
+#ifdef _MOLCAS_MPP_
+       if (iParRHS == 2 .and. JLOV > 0) then
+         CALL GA_Release_Update(lg_GM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
        CALL RHS_SAVE (NAS,NISM,lg_GM,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_GM)
       END IF
@@ -1235,14 +1844,25 @@ C      NBXSZJ=NINABX
       SUBROUTINE ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
       DIMENSION AJCL(NC*NL,*)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
       DIMENSION Cho_Bra(NA*NJ,NCHO), Cho_Ket(NC*NL,NCHO)
+#ifdef _MOLCAS_MPP_
+      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV,ITMP1,ITMP2
+#endif
 *      Logical Incore
 * Case H:
 C   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
@@ -1303,6 +1923,14 @@ C Read WP:
        CALL RHS_ALLO (NASP,NISP,lg_HP)
        CALL RHS_READ (NASP,NISP,lg_HP,iCASE,iSYM,iVEC)
 
+#ifdef _MOLCAS_MPP_
+       if (iParRHS == 2) then
+         myRank = GA_NodeID()
+         CALL GA_Distribution (lg_HP,myRank,ILOV,IHIV,JLOV,JHIV)
+         if (JLOV > 0) CALL GA_Access(lg_HP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
+
 C WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
 C-SVC20100313: use only part of aj but all of cl, this introduces
 C a reordered loop over parts of the RHS array.
@@ -1334,6 +1962,7 @@ C      NBXSZJ=NINABX
      &          Cho_Bra(IAJSTA,1),NA*NJ,
      &          0.0D0,AJCL,NC*NL)
 
+      if (iParRHS == 1) then
            DO ICSTA=1,NC,NBXSZC
              ICEND=MIN(ICSTA-1+NBXSZC,NC)
              NCSZ=ICEND-ICSTA+1
@@ -1389,9 +2018,73 @@ C      NBXSZJ=NINABX
 
              ENDDO
            ENDDO
+#ifdef _MOLCAS_MPP_
+      else if (iParRHS == 2) then
+        CALL GADSUM(AJCL,NC*NL*NASZ*NJSZ)
+        if (JLOV > 0) then
+
+           DO ICSTA=1,NC,NBXSZC
+             ICEND=MIN(ICSTA-1+NBXSZC,NC)
+             NCSZ=ICEND-ICSTA+1
+             DO ILSTA=1,NL,NBXSZL
+               ILEND=MIN(ILSTA-1+NBXSZL,NL)
+
+               ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
+
+       IAJ=0
+       DO IJ=IJSTA,IJEND
+         IJABS=IJ+NIES(ISYJ)
+         ILMAX=NL
+         IF(ISYJ.EQ.ISYL) ILMAX=IJ
+         DO IA=IASTA,IAEND
+           IAABS=IA+NSES(ISYA)
+           IAJ=IAJ+1
+
+           ICL=0
+           DO IL=ILSTA,MIN(ILEND,ILMAX)
+             ILABS=IL+NIES(ISYL)
+             SCL1=1.0D0
+             IJGEL=KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
+             if (IJGEL < JLOV .or. IJGEL > JHIV) then
+               ICL = ICL + ICEND-ICSTA+1
+               cycle
+             end if
+             IF(IJABS.EQ.ILABS) SCL1=SQRT(0.5D0)
+             DO IC=ICSTA,ICEND
+               ICABS=IC+NSES(ISYC)
+               ICL=ICL+1
+
+               SCL=SCL1
+               IF(IAABS.GE.ICABS) THEN
+                 IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
+                 IF(IAABS.EQ.ICABS) SCL=SQRT(2.0D0)*SCL1
+               ELSE
+                 IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
+               END IF
+               if (IAGEC >= ILOV .and. IAGEC <= IHIV) then
+                 ITMP1 = IAGEC
+                 ITMP2 = IJGEL
+                 DBL_MB(MV+ITMP1-ILOV+LDHP*(ITMP2-JLOV))
+     *             = DBL_MB(MV+ITMP1-ILOV+LDHP*(ITMP2-JLOV))
+     *             + SCL*AJCL(ICLSTA+ICL-1,IAJ)
+               end if
+             END DO
+           END DO
+         END DO
+       END DO
+             ENDDO
+           ENDDO
+         end if
+#endif
+       end if
          ENDDO
        ENDDO
 
+#ifdef _MOLCAS_MPP_
+       if (iParRHS == 2 .and. JLOV > 0) then
+         CALL GA_Release_Update(lg_HP,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+       end if
+#endif
        CALL RHS_SAVE (NASP,NISP,lg_HP,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_HP)
       END IF
@@ -1404,6 +2097,14 @@ C      NBXSZJ=NINABX
 C Read WM:
       CALL RHS_ALLO (NASM,NISM,lg_HM)
       CALL RHS_READ (NASM,NISM,lg_HM,iCASE,iSYM,iVEC)
+
+#ifdef _MOLCAS_MPP_
+      if (iParRHS == 2) then
+        myRank = GA_NodeID()
+        CALL GA_Distribution (lg_HM,myRank,ILOV,IHIV,JLOV,JHIV)
+        if (JLOV > 0) CALL GA_Access(lg_HM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+      end if
+#endif
 *
 C VM(jl,ac)=((ajcl)-(alcj))*SQRT(3.0D0)
        NBXSZA=NSECBX
@@ -1430,6 +2131,7 @@ C      NBXSZJ=NINABX
      &          Cho_Bra(IAJSTA,1),NA*NJ,
      &          0.0D0,AJCL,NC*NL)
 
+      if (iParRHS == 1) then
            DO ICSTA=1,NC,NBXSZC
              ICEND=MIN(ICSTA-1+NBXSZC,NC)
              NCSZ=ICEND-ICSTA+1
@@ -1486,9 +2188,73 @@ C      NBXSZJ=NINABX
 
              ENDDO
            ENDDO
+#ifdef _MOLCAS_MPP_
+      else if (iParRHS == 2) then
+        CALL GADSUM(AJCL,NC*NL*NASZ*NJSZ)
+        if (JLOV > 0) then
+
+           DO ICSTA=1,NC,NBXSZC
+             ICEND=MIN(ICSTA-1+NBXSZC,NC)
+             NCSZ=ICEND-ICSTA+1
+             DO ILSTA=1,NL,NBXSZL
+               ILEND=MIN(ILSTA-1+NBXSZL,NL)
+
+               ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
+
+      IAJ=0
+      DO IJ=IJSTA,IJEND
+        IJABS=IJ+NIES(ISYJ)
+        ILMAX=NL
+        IF(ISYJ.EQ.ISYL) ILMAX=IJ-1
+        DO IA=IASTA,IAEND
+          IAABS=IA+NSES(ISYA)
+          IAJ=IAJ+1
+
+          ICL=0
+          DO IL=ILSTA,MIN(ILMAX,ILEND)
+            ILABS=IL+NIES(ISYL)
+            IJGTL=KIGTJ(IJABS,ILABS)-NIGTJES(ISYJL)
+            if (IJGTL < JLOV .or. IJGTL > JHIV) then
+              ICL = ICL + ICEND-ICSTA+1
+              cycle
+            end if
+            DO IC=ICSTA,ICEND
+              ICABS=IC+NSES(ISYC)
+              ICL=ICL+1
+
+              IF (IAABS.GT.ICABS) THEN
+                IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
+                SCL= SQRT(3.0D0)
+              ELSE IF(IAABS.LT.ICABS) THEN
+                IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
+                SCL=-SQRT(3.0D0)
+              ELSE
+                cycle
+              ENDIF
+              if (IAGTC >= ILOV .and. IAGTC <= IHIV) then
+                ITMP1 = IAGTC
+                ITMP2 = IJGTL
+                DBL_MB(MV+ITMP1-ILOV+LDHM*(ITMP2-JLOV))
+     *            = DBL_MB(MV+ITMP1-ILOV+LDHM*(ITMP2-JLOV))
+     *            + SCL*AJCL(ICLSTA+ICL-1,IAJ)
+              end if
+            END DO
+          END DO
+        END DO
+      END DO
+             ENDDO
+           ENDDO
+         end if
+#endif
+      end if
          ENDDO
        ENDDO
 
+#ifdef _MOLCAS_MPP_
+      if (iParRHS == 2 .and. JLOV > 0) then
+        CALL GA_Release_Update(lg_HM,ILOV,IHIV,JLOV,JHIV,MV,LDV)
+      end if
+#endif
       CALL RHS_SAVE (NASM,NISM,lg_HM,iCASE,iSYM,iVEC)
       CALL RHS_FREE (lg_HM)
 *                                                                      *
