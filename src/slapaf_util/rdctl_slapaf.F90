@@ -23,11 +23,11 @@ use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Ten, Half, Angstrom
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 logical(kind=iwp), intent(in) :: Dummy_Call
-#include "print.fh"
 integer(kind=iwp) :: i, iAtom, iDum(1), iErr, iMEP, iNull, iOff_Iter, iPrint, iRout, istatus, iTmp, j, jStrt, kPrint, Lu_UDC, &
                      Lu_UDCTMP, Lu_UDIC, LuRd, LuTS, mPrint, NewLine, nLbl, nRP, nRx, nSaddle, nsAtom, nSupSy
 real(kind=wp) :: HSR, HSR0, Update, Valu, xWeight
@@ -42,7 +42,6 @@ character(len=180), external :: Get_Ln
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 2
 Expert = .false.
 !                                                                      *
 !***********************************************************************
@@ -51,8 +50,9 @@ Expert = .false.
 
 call Symmetry_Info_Get()
 call Init_Slapaf()
-nsAtom = size(Coor,2)
+iRout = 2
 iPrint = nPrint(iRout)
+nsAtom = size(Coor,2)
 
 call f_Inquire('UDC.Gateway',External_UDC)
 

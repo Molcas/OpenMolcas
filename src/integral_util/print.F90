@@ -15,5 +15,5 @@ private
 !     Integer :: nPrint(nRout) = [5,i=1,nRout]
 !     Logical :: Show=.False.
 !     Integer :: icolorize=0
-public nPrint,Show,iColorize
+public nPrint, Show, iColorize
 End Module Print

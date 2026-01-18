@@ -23,6 +23,7 @@ use Gateway_Info, only: UnNorm, Do_FckInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint, Show
 
 implicit none
 #include "Molcas.fh"
@@ -30,7 +31,6 @@ integer(kind=iwp), intent(in) :: LuRd, lSTDINP
 integer(kind=iwp), intent(inout) :: ifnr, mdc, iShll
 integer(kind=iwp), intent(out) :: BasisTypes(4), iErr
 character(len=180), intent(in) :: STDINP(mxAtom*2)
-#include "print.fh"
 integer(kind=iwp) :: i, ib, iend, Indx, iOff, iSh, iSTDINP, itype, jShll, lAng, Last, LenBSL, LuWr, n, nCnt
 character(len=256) :: Basis_lib, Fname
 character(len=180) :: Key, KWord, Line

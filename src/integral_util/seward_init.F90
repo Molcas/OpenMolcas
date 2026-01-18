@@ -32,9 +32,9 @@ use NAC, only: isCSF, isNAC
 use NDDO, only: twoel_NDDO
 use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp
+use Print, only: nPrint, Show
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: iPL
 character(len=180) :: Env
 integer(kind=iwp), external :: iPrintLevel

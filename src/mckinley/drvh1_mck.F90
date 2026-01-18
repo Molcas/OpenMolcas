@@ -31,10 +31,10 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use Print, only: Show
 
 implicit none
 logical(kind=iwp), intent(in) :: Nona
-#include "print.fh"
 integer(kind=iwp) :: i, iCnt, iCnttp, idCar, idcnt, iIrrep, loper, nDens, nFock
 character(len=8) :: Label
 logical(kind=iwp) :: lECP

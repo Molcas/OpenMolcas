@@ -17,10 +17,10 @@ use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use define_af, only: AngTp
 use Definitions, only: wp, iwp, u6
+use print, only: nPrint
 
 implicit none
 #include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iAddr, iAng, iAngl, ib, iBas, iBas_Aux, iBas_Frag, iBass, ic, icnt, iCnttp, iExp, iPrim, iPrim_Aux, &
                      iPrim_Frag, iPrimm, iPrint, ir, iRout, irow, iSh, iShSrt, jExp, jSh, kCmp, kExp, kSh, kShEnd, kShStr, lSh, &
                      mdc, nBasisj, ncr, nExpi, nExpj, nExpk, nSumA, nSumB
