@@ -25,7 +25,7 @@ implicit none
 #include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc, nMxIter
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
-real(kind=wp), intent(inout) :: CMO(nBasis,*)
+real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*), Thrs, ThrRot, ThrGrad
 character(len=LenIn8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
@@ -36,13 +36,13 @@ real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xk
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
                                 unitary_mat(:,:), rotated_CMO(:,:)
 character(len=20), allocatable :: opt_method
-logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false.
+logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
 !opt_method = 'jacobisweeps'
-opt_method = 'gradient_ascent'
-!opt_method = 'newton_raphson'
+!opt_method = 'gradient_ascent'
+opt_method = 'newton_raphson'
 
 
 ! Print iteration table header.
@@ -236,8 +236,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
         end do
 
         !reset CMO to be updated
-        ! !!this only works if we localize the occupied orbitals !!
-        CMO(:,:nOrb2Loc) = rotated_CMO(:,:)
+        CMO(:,:) = rotated_CMO(:,:)
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
     end if
 
@@ -246,7 +245,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
     FunctionalList(nIter+1)=Functional !first entry is from before first iteration
     if (printmore) then
-        write(u6,'(/,A)') '               nIter:  Functional:'
+!       write(u6,'(/,A)') '               nIter:  Functional:'
         write(u6,*) nIter,FunctionalList(nIter+1)
     end if
 

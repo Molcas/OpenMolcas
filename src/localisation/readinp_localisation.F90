@@ -18,8 +18,7 @@ subroutine Readinp_localisation()
 use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, &
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
-                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, ScrFac, &
-                                CMO, nBas
+                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, ScrFac
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -570,9 +569,6 @@ EvalER = EvalER .and. (LocModel /= 4)
 ! -------------------------------------------------------------
 
 Test_Localisation = Test_Localisation .or. Analysis
-
-! Scramble the starting orbitals
-If (ScrFac/=Zero) Call Scram(CMO,nSym,nBas,nBas,ScrFac)
 
 contains
 

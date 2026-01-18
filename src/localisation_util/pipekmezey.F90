@@ -21,7 +21,7 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms
+use Localisation_globals, only: BName, nAtoms, ScrFac
 
 implicit none
 #include "Molcas.fh"
@@ -52,6 +52,9 @@ Functional = -huge(Functional)
 nBasT = nBas(1)
 nOrb2LocT = nOrb2Loc(1)
 nFroT = nFro(1)
+kOffC = nBasT*nFroT+1
+
+if (ScrFac/=Zero) Call Scram(CMO,nSym,nBasT,nOrb2LocT,ScrFac)
 
 Converged = .false.
 
@@ -99,7 +102,7 @@ PA(:,:,:) = Zero
 ! Localise orbitals.
 ! ------------------
 
-kOffC = nBasT*nFroT+1
+! this offset to get to the part of CMO which should be localized.
 call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_Atom,nBas_Start,BName,nBasT,nOrb2LocT,nAtoms, &
                      nMxIter,Maximisation,Converged,Debug,Silent)
 
