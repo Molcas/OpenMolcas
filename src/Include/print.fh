@@ -8,11 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer nRout
-      Parameter(nRout=1024)
-      Integer nPrint(nRout)
-      Logical Show
-      Common /Print_common/ nPrint
+      Integer, Parameter:: nRout=1024
+      Integer :: i_XXXX
+      Integer :: nPrint(nRout)
+      Logical :: Show
+      Integer :: icolorize
+
+      Common /Print_XYZ/ nPrint
       Common/lPrint/ Show
-      Integer icolorize
       Common /icolorize/icolorize
