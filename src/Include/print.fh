@@ -12,7 +12,7 @@
       Parameter(nRout=1024)
       Integer nPrint(nRout)
       Logical Show
-      Common /Print/ nPrint
+      Common /Print_common/ nPrint
       Common/lPrint/ Show
       Integer icolorize
       Common /icolorize/icolorize
