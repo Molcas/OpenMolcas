@@ -36,14 +36,13 @@ real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xk
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
                                 unitary_mat(:,:), rotated_CMO(:,:)
 character(len=20), allocatable :: opt_method
-logical(kind=iwp), parameter :: printmore = .true.
+logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
 !opt_method = 'jacobisweeps'
-!opt_method = 'gradient_ascent'
-opt_method = 'newton_raphson'
-
+opt_method = 'gradient_ascent'
+!opt_method = 'newton_raphson'
 
 
 ! Print iteration table header.
@@ -58,19 +57,19 @@ end if
 ! -----------------------------
 
 if (.not. Silent) call CWTime(C1,W1)
-nIter = 0
+
 call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
 call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
 call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
-FunctionalList(:)=0
 call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
 call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
 
+nIter = 0
+FunctionalList(:)=0
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 
 FunctionalList(1)=Functional
-!write(u6,*) 'In PM_iter: FunctionalList(1) = ', FunctionalList(1)
 
 call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug, GradientList(:,:,1), Hdiag(:,:))
 
@@ -92,23 +91,31 @@ call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo') !this contain
 call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
 call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
 call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
+
 Converged = .false.
 
 if (opt_method == 'jacobisweeps') then
-    write(u6,'(/,A)') 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
+    if (.not. Silent) then
+        write(u6,'(/,A)') 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
+    end if
 else if (opt_method == 'gradient_ascent') then
-    write(u6,'(/,A,2X,F8.6)') 'Gradient Ascent for maximization of the PM functional with alpha =', alpha
-    write(u6,*) 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
+    if (.not. Silent) then
+        write(u6,'(/,A,2X,F8.6)') 'Gradient Ascent for maximization of the PM functional with alpha =', alpha
+        write(u6,*) 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
+    end if
 else if (opt_method == 'newton_raphson') then
-    write(u6,'(/,A)') 'Newton Raphson method for maximization of the PM functional'
-    write(u6,*) 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
+    if (.not. Silent) then
+        write(u6,'(/,A)') 'Newton Raphson method for maximization of the PM functional'
+        write(u6,*) 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
+    end if
 end if
 
 if (printmore) then
     write(u6,'(/,A)') '               nIter:  Functional:'
     write(u6,*) nIter,FunctionalList(nIter+1)
 end if
-do while ((nIter < nMxIter) .and. (.not. Converged))
+
+do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+1)<10*norb2loc))
     if (.not. Silent) call CWTime(C1,W1)
 
     !choose between optimization methods
@@ -121,7 +128,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! NxN rotations
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ! define the transformation matric
+        ! define the transformation matrix
 
         kappa(:,:) = Zero
         kappa_cnt(:,:) = Zero
@@ -154,10 +161,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         unitary_mat(:,:) =  unitary_mat(:,:) - kappa(:,:)
 
-        if (debug) then
+        if (debug_exp) then
             write(u6,*) 'Taylor expansion: n=1; current iteration = ', nIter
+            call RecPrt('unitary_mat = I - kappa^1',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
             call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
-            !call RecPrt('unitary_mat = I - kappa^1',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
             write(u6,*) 'Taylor expansion: more terms'
         end if
 
@@ -183,13 +190,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! all terms starting at n=2
             if (mod(cnt,2) == 0) then
                 unitary_mat(:,:) =  unitary_mat + kappa_cnt(:,:)
-                if (debug) then
+                if (debug_exp) then
                     write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
                     ', current ithrsh = ', ithrsh
                 end if
             else
                 unitary_mat(:,:) =  unitary_mat - kappa_cnt(:,:)
-                if (debug) then
+                if (debug_exp) then
                     write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: - 1/',factor,' * kappa^',cnt, &
                     ', current ithrsh = ', ithrsh
                 end if
@@ -197,17 +204,21 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(unitary_mat)+thrsh_taylor))
 
-            if (debug) then
+            if (debug_exp) then
                 write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
                     ', current ithrsh = ', ithrsh
                 call RecPrt('kappa^cnt',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
-                !call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
+                call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
             end if
         end do
 
         if (debug) then
-            call RecPrt('unitary transformation matrix',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
+            write(u6,"(//A)") "rotating the orbitals with:"
+            call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
+            call RecPrt('unitary transformation matrix (exp(-kappa))',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
+            write(u6,"(//A,I5,/A)") "Starting next iteration ",niter+1,"--------------"
         end if
+
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! transform the orbitals
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -224,7 +235,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             end do
         end do
 
-
         !reset CMO to be updated
         ! !!this only works if we localize the occupied orbitals !!
         CMO(:,:nOrb2Loc) = rotated_CMO(:,:)
@@ -232,21 +242,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     end if
 
     nIter = nIter+1
+
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
     FunctionalList(nIter+1)=Functional !first entry is from before first iteration
-
-    if (Debug) then
-        write(u6,*) 'nIter = ', nIter
-        write(u6,*) 'In PM_iter: FunctionalList(nIter+1) = ', FunctionalList(nIter+1)
-    end if
-
     if (printmore) then
-        !call RecPrt('Hdiag',' ',Hdiag(:,:), nOrb2Loc,nOrb2Loc)
-        !write(u6,'(A,F16.10,3X,A,I5)') 'In PM_iter: FunctionalList(nIter+1) = ', FunctionalList(nIter+1), 'at iteration', nIter
-        !write(u6,'(I5,3X,F20.8)') nIter,FunctionalList(nIter+1)
+        write(u6,'(/,A)') '               nIter:  Functional:'
         write(u6,*) nIter,FunctionalList(nIter+1)
     end if
-
 
     !calculates nxn gradient matrix for the current iteration and adds it to the List
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1), Hdiag(:,:))
@@ -264,20 +266,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 end do
 
-
-if (Debug) then
-    write(u6,*) 'In PipekMezey_iter'
-    write(u6,*) '------------------'
-    write(u6,*) 'nIterTot = ', nIter
-    !do i=1,nIter+1
-    !    write(u6,*) 'for iteration ', i-1
-    !    call RecPrt('GradientList',' ',GradientList(:,:,i), nOrb2Loc, nOrb2Loc)
-    !end do
-    write(u6,*) ' '
-    write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
-    call RecPrt('Hdiag',' ',Hdiag(:,:), nOrb2Loc,nOrb2Loc)
-end if
-
 call mma_Deallocate(kappa)
 call mma_Deallocate(rotated_CMO)
 call mma_Deallocate(kappa_cnt)
@@ -288,6 +276,7 @@ call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
 call mma_Deallocate(FunctionalList)
 call mma_Deallocate(Hdiag)
+
 ! Print convergence message.
 ! --------------------------
 

@@ -23,7 +23,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc), Gradient(nOrb2Loc, nOrb2Loc), &
-    H_diag(nOrb2Loc, nOrb2Loc)
+                              H_diag(nOrb2Loc, nOrb2Loc)
 logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAtom, i,j,k,l
 real(kind=wp) :: Fun, Rjj, Q_ll, Q_kk, Q_kl
@@ -76,18 +76,6 @@ do k=1,nOrb2Loc
 end do
 
 
-
-!!!!!!!!!!!!!!!!!!!!!
-if (Debug) then
-    write(u6,*) ' '
-    write(u6,*) 'In GetGrad_PM'
-    write(u6,*) '-------------'
-    !call RecPrt('Gradient',' ',Gradient(:,:), nOrb2Loc, nOrb2Loc)  !this is also printed in the Gradientlist
-    !call RecPrt('H_diag',' ', H_diag(:), nOrb2Loc**2, 1)
-end if
-
-
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !GradientNorm - needed for all optimization schemes
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -102,23 +90,6 @@ do iAtom=1,nAtoms
   end do
 end do
 
-
-! Trace of Rmat is the value of the PM functional
-if (Debug) then
-    write(u6,*) ' '
-    write(u6,*) 'In GetGrad_PM'
-    write(u6,*) '-------------'
-    !call RecPrt('RMat',' ',RMat(:,:), nOrb2Loc, nOrb2Loc)
-    !call RecPrt('Gradient',' ',Grad(:,:), nOrb2Loc, nOrb2Loc)  !this is also printed in the Gradientlist
-
-    Fun=Zero
-    do i=1,nOrb2Loc
-        Fun = Fun+Rmat(i,i)
-    end do
-    write(u6,*) 'GetGrad_PM: functional = Tr(R) = ',Fun
-end if
-
-
 !The Gradient Norm (always positive!) is used as threshold criterium
 GradNorm = Zero
 do i=1,nOrb2Loc-1
@@ -127,6 +98,26 @@ do i=1,nOrb2Loc-1
   end do
 end do
 GradNorm = Four*sqrt(GradNorm) !sqrt to complement previous **2
+
+
+
+if (Debug) then
+    write(u6,*) ' '
+    write(u6,*) 'In GetGrad_PM'
+    write(u6,*) '-------------'
+    call RecPrt('Gradient',' ',Gradient(:,:), nOrb2Loc, nOrb2Loc)  !this is also printed in the Gradientlist
+    call RecPrt('H_diag',' ',H_diag(:,:), nOrb2Loc, nOrb2Loc)
+    write(u6,*) ' '
+    write(u6,*) 'GradNorm = ',gradnorm
+    ! Trace of Rmat is the value of the PM functional
+    Fun=Zero
+    do i=1,nOrb2Loc
+        Fun = Fun+Rmat(i,i)
+    end do
+    !call RecPrt('RMat',' ',RMat(:,:), nOrb2Loc, nOrb2Loc)
+    !write(u6,*) 'PM_functional = Tr(R) = ',Fun
+end if
+
 
 
 end subroutine GetGrad_PM
