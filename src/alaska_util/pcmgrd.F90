@@ -37,7 +37,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, &
                      iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
                      nDiff, nip, nStb
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q, TC(3)
@@ -46,7 +46,6 @@ procedure(cff2d_kernel) :: XCff2D
 procedure(modu2_kernel) :: Fake
 procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
-#include "print.fh"
 integer(kind=iwp) :: nElem, ixyz
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
@@ -55,9 +54,6 @@ unused_var(rFinal)
 unused_var(nHer)
 unused_var(Ccoor(1))
 unused_var(nComp)
-
-iRout = 151
-iPrint = nPrint(iRout)
 
 nip = 1
 ipA = nip
@@ -109,7 +105,9 @@ do iDAO=1,nDAO
     DAO(iZeta,iDAO) = Fact*DAO(iZeta,iDAO)
   end do
 end do
-if (iPrint >= 99) call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#ifdef _DEBUGPRINT_
+call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#endif
 
 ! Generate stabilizer of C, i.e. a center of a tile.
 
@@ -124,7 +122,9 @@ do iTs=1,nTs
   ! Pick up the tile coordinates
   C(1:3) = PCMTess(1:3,iTs)
 
-  if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
+# ifdef _DEBUGPRINT_
+  call RecPrt('C',' ',C,1,3)
+# endif
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
   Fact = -Q*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
@@ -156,7 +156,9 @@ do iTs=1,nTs
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' mGrad=',mGrad
+# endif
   if (mGrad == 0) cycle
 
   do lDCRT=0,nDCRT-1

@@ -35,17 +35,16 @@ real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:lr), Zeta(nZeta), rKa
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,nComp,6), Fact(nZeta), Temp(nZeta)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 logical(kind=iwp), intent(in) :: IfGrad(3,2)
-integer(kind=iwp) :: i1, i2, iCar, iCn, iComp, iEF, iGrad, ipa, ipb, iPrint, ir, iRout, ix, ixa, ixb, iy, iya, iyaMax, iyb, &
+integer(kind=iwp) :: i1, i2, iCar, iCn, iComp, iEF, iGrad, ipa, ipb, ir, ix, ixa, ixb, iy, iya, iyaMax, iyb, &
                      iybMax, iz, iza, izb, iZeta, nDAO
 real(kind=wp) :: Fct, ps, xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
 integer(kind=iwp), external :: iPrmt
 real(kind=wp), external :: DDot_
-#include "print.fh"
 
-iRout = 134
-iPrint = nPrint(iRout)
-if (iPrint >= 99) call RecPrt(' In CmbnRF1: EF',' ',EF,nComp,1)
+#ifdef _DEBUGPRINT_
+call RecPrt(' In CmbnRF1: EF',' ',EF,nComp,1)
+#endif
 
 do iZeta=1,nZeta
   Fact(iZeta) = rKappa(iZeta)*Zeta(iZeta)**exp32
@@ -243,10 +242,10 @@ do ixa=0,la
     end do
   end do
 end do
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt('In CmbnRF1: DAO',' ',DAO,nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   call RecPrt('In CmbnRF1: rFinal',' ',rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nComp,6)
-end if
+#endif
 
 ! Trace the gradient integrals
 
