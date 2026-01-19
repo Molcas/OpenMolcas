@@ -15,12 +15,12 @@ use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nH
 real(kind=wp), intent(in) :: H(nH,nH)
 integer(kind=iwp), intent(out) :: iNeg
-#include "print.fh"
 integer(kind=iwp) :: i, ij, iPrint, iRout, j, LuTmp, nq, nQQ
 real(kind=wp) :: SumHii
 logical(kind=iwp) :: Exists
@@ -115,7 +115,5 @@ end if
 
 call mma_deallocate(EVec)
 call mma_deallocate(EVal)
-
-return
 
 end subroutine DiagMtrx
