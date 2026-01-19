@@ -60,7 +60,6 @@ unused_var(iAddPot)
 rFinal(:,:,:,:) = Zero
 
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) then
   write(u6,*) ' Result in P_Int'
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
