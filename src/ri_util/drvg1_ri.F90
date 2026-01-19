@@ -41,12 +41,12 @@ use temptime, only: CHOGET_CPU, CHOGET_WALL, DRVG1_CPU, DRVG1_WALL, PGET2_CPU, P
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "print.fh"
 integer(kind=iwp) :: i, iIrrep, ijsym, iOff, iPrint, irc, iRout, iSeed, iStart, isym, itmp, j, jStart, jSym, jtmp, kStart, kTmp, &
                      m_ij2K, mAO, nAct(0:7), nAux_Tot, nij_Eff, ntmp, nV_k_New, nVec, nZ_p_k_New, nZ_p_l
 real(kind=wp) :: BufFrac, TCpu1, TCpu2, TWall1, TWall2

@@ -27,16 +27,13 @@ use Definitions, only: wp, iwp, u6
 implicit none
 logical(kind=iwp), intent(in) :: DFonly
 integer(kind=iwp), intent(in) :: LuSpool
-#include "print.fh"
-integer(kind=iwp) :: i, iChrct, iPrint, iRout, jRout, Last, n
+integer(kind=iwp) :: i, iChrct, jRout, Last, n
 real(kind=wp) :: dmpk_dfl
 character(len=180) :: Key, KWord
 character(len=*), parameter :: SECNAM = 'CHO_SCF_RDINP'
 integer(kind=iwp), external :: iCLast
 character(len=180), external :: Get_Ln
 
-iRout = 1
-iPrint = nPrint(iRout)
 !                                                                      *
 !**** Algorithms for using Cholesky vectors in SCF *********************
 !                                                                      *
@@ -85,7 +82,6 @@ dmpk_dfl = dmpk
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iPrint = 5
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -225,22 +221,6 @@ do
       !                                                                *
       read(LuSpool,*) ChFracMem
 
-    case ('PRIN')
-      !                                                                *
-      !***** PRIN ******************************************************
-      !                                                                *
-      ! Print level
-
-      Key = Get_Ln(LuSpool)
-      KWord = Key
-      call Get_I1(1,n)
-      do i=1,n
-        KWord = Get_Ln(LuSpool)
-        call Get_I1(1,jRout)
-        call Get_I1(2,iPrint)
-        nPrint(jRout) = iPrint
-      end do
-
     case ('ENDC','END ','ENDO')
       !                                                                *
       !***** ENDOFchoinput  ********************************************
@@ -261,6 +241,5 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
 
 end subroutine CHO_SCF_RDINP

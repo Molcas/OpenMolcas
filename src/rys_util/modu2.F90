@@ -28,16 +28,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "modu2_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iPrint, iRout, iT
+integer(kind=iwp) :: iT
 
-iRout = 255
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In ModU2: U2',' ',U2,nRys,mT)
   call RecPrt(' In ModU2: ZEInv',' ',ZEInv,1,mT)
-end if
+#endif
 
 if (nRys > 1) then
   do iT=1,mT
@@ -46,7 +43,5 @@ if (nRys > 1) then
 else
   U2(1,:) = U2(1,:)*ZEInv(:)
 end if
-
-return
 
 end subroutine ModU2
