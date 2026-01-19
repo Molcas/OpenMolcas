@@ -22,8 +22,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "print.fh"
-integer(kind=iwp) :: i, ii, iIrrep, iPrint, iRout, nComp, nDens, nOrdOp
+integer(kind=iwp) :: i, ii, iIrrep, nComp, nDens, nOrdOp
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DiffOp, lECP, lPP, lFAIEMP
 character(len=80) :: Label
@@ -33,8 +32,6 @@ procedure(grd_kernel) :: FragPGrd, M1Grd, M2Grd, NAGrd, PPGrd, PrjGrd, SROGrd
 procedure(grd_mem) :: FragPMmG, M1MmG, M2MmG, NAMmG, PPMmG, PrjMmG, SROMmG
 
 !...  Prologue
-iRout = 131
-iPrint = nPrint(iRout)
 call CWTime(TCpu1,TWall1)
 call StatusLine('Alaska: ','Computing 1-el OFE gradients')
 
@@ -64,7 +61,7 @@ call NameRun('AUXRFIL') ! switch RUNFILE name
 
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_var,nDens)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'variational 1st order density matrix'
   ii = 1
   do iIrrep=0,nIrrep-1
@@ -72,7 +69,7 @@ if (iPrint >= 99) then
     call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
     ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
   end do
-end if
+#endif
 
 ! Annihilate all the components of rho_B in the bsfs of the A subsystem
 
