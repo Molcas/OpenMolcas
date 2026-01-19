@@ -43,7 +43,6 @@ character(len=80) :: Label
       call RecPrt(Label,' ',Sxyz(:,:,ia,ib),nZeta,3)
     end do
   end do
-end if
 #endif
 
 do ia=0,na
