@@ -21,13 +21,10 @@ implicit none
 integer(kind=iwp), intent(in) :: mAO, nCoor, mBas, nCmp, nOp, nDeg, iAO
 real(kind=wp), intent(in) :: AOValue(mAO,nCoor,mBas,nCmp)
 real(kind=wp), intent(inout) :: SOValue(mAO,nCoor,mBas,nCmp*nDeg)
-#include "print.fh"
-integer(kind=iwp) :: i1, iAux, iCmp, iPrint, iRout, iSO, j1
+integer(kind=iwp) :: i1, iAux, iCmp, iSO, j1
 real(kind=wp) :: Aux(8), Fact, xa
 character(len=80) :: Label
 
-iRout = 133
-iPrint = nPrint(iRout)
 if (MolWgh == 0) then
   Fact = One/nDeg
 else if (MolWgh == 1) then
@@ -44,18 +41,18 @@ do i1=1,nCmp
     xa = iChTbl(j1,nOp)
     Aux(iAux) = Fact*xa
   end do
-  if (iPrint >= 49) call RecPrt('Aux',' ',Aux,1,iAux)
+# ifdef _DEBUGPRINT_
+  call RecPrt('Aux',' ',Aux,1,iAux)
+# endif
   call DnaXpY(iAux,mAO*nCoor*mBas,Aux,1,AOValue(1,1,1,i1),1,0,SOValue(1,1,1,iSO),1,mAO*nCoor*mBas)
   iSO = iSO+iAux
 end do
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   do iCmp=1,nCmp*nDeg
     write(Label,'(A,I2,A)') 'SOValue(mAO,nCoor,mBas,',iCmp,')'
     call RecPrt(Label,' ',SOValue(1,1,1,iCmp),mAO*nCoor,mBas)
   end do
-end if
-
-return
+#endif
 
 end subroutine SOAdpt

@@ -27,12 +27,12 @@ use spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(out) :: iStop
 logical(kind=iwp), intent(out) :: Cartesian
 real(kind=wp), intent(in) :: rDelta
-#include "print.fh"
 integer(kind=iwp) :: iDisp, iRow_c, jInter, Jter, LuSpool, mInt
 logical(kind=iwp) :: Found, TSC, Error
 real(kind=wp), allocatable :: DList(:), CList(:,:), du(:), TMx(:), RefCoor(:,:)

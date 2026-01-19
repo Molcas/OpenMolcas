@@ -37,11 +37,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-#include "print.fh"
 real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact
 integer(kind=iwp) :: i, ia, iAng, ib, iBas, iCar, iCent, iCnt, iCnttp, iCurCenter, iCurCnttp, iCurMdc, iDCRT(0:7), iGamma, iLoc, &
                      ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, &
-                     iPrint, ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iRout, iS, iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, &
+                     ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, &
                      iStemp, iStrt, iuvwx(4), iVec, jAng, jBas, jCnt, jCnttp, JndGrd(3,4), jPrim, jS, jSbasis, jShll, jSize, &
                      jSlocal, ld, lDCRT, LmbdT, lOp(4), maxDensSize, mdci, mGrad, mVec, mVecAC, mVecCB, n_Her, nac, ncb, nDAO, &
                      nDCRT, nSkal, nVecAC, nVecCB
@@ -56,10 +55,7 @@ unused_var(ZInv)
 unused_var(rKappa)
 unused_var(nHer)
 
-iRout = 202
-iPrint = nPrint(iRout)
-
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In FragPGrd: Grad',' ',Grad,1,nGrad)
   call RecPrt(' In FragPGrd: A',' ',A,1,3)
   call RecPrt(' In FragPGrd: RB',' ',RB,1,3)
@@ -68,7 +64,7 @@ if (iPrint >= 49) then
   call RecPrt(' In FragPGrd: Alpha',' ',Alpha,nAlpha,1)
   call RecPrt(' In FragPGrd: Beta',' ',Beta,nBeta,1)
   write(u6,*) ' In FragPGrd: la,lb=',' ',la,lb
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -77,10 +73,10 @@ end if
 call Set_Basis_Mode('Fragments')
 call SetUp_iSD()
 call Nr_Shells(nSkal)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'looping over ',nSkal,' shells'
   write(u6,*) 'Shells()%Frag = ',(Shells(i)%Frag,i=1,10)
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -143,7 +139,9 @@ do iS=1,nSkal
       EnergyWeight = .true.
       call MakeDens(dbsc(iCurCnttp)%nFragDens,dbsc(iCurCnttp)%nFragEner,dbsc(iCurCnttp)%FragCoef,dbsc(iCurCnttp)%FragEner, &
                     EnergyWeight,Array)
-      if (iPrint >= 49) call TriPrt('Energy weighted fragment dens',' ',Array,dbsc(iCurCnttp)%nFragDens)
+#     ifdef _DEBUGPRINT_
+      call TriPrt('Energy weighted fragment dens',' ',Array,dbsc(iCurCnttp)%nFragDens)
+#     endif
       ! include the minus sign of -2eta_i
       call DScal_(dbsc(iCurCnttp)%nFragDens*(dbsc(iCurCnttp)%nFragDens+1)/2,-One,Array,1)
       if (maxDensSize < dbsc(iCurCnttp)%nFragDens*(dbsc(iCurCnttp)%nFragDens+1)/2) stop 'maxIJSize'
@@ -167,7 +165,9 @@ do iS=1,nSkal
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' mGrad=',mGrad
+# endif
   if (mGrad == 0) cycle
   !                                                                    *
   !*********************************************************************
@@ -203,7 +203,9 @@ do iS=1,nSkal
         !write(u6,*) 'Filling (',iSlocal-iSbasis+1,',',jSlocal-jSbasis+1,') from (',iSlocal,',',jSlocal,')'
       end do
     end do
-    if (iPrint >= 99) call RecPrt('W(KC,LD)',' ',Array(ipIJ),iBas*iSize,jBas*jSize)
+#   ifdef _DEBUGPRINT_
+    call RecPrt('W(KC,LD)',' ',Array(ipIJ),iBas*iSize,jBas*jSize)
+#   endif
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -277,25 +279,27 @@ do iS=1,nSkal
       ABeq(2) = .false.
       ABeq(3) = .false.
       call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*iPrim,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(n_Her)),n_Her,ABeq)
-      if (iPrint >= 49) then
+#     ifdef _DEBUGPRINT_
         write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*iPrim*3*n_Her*(la+2),Array(ipAxyz),1)
         write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*iPrim*3*n_Her*(iAng+1),Array(ipCxyz),1)
         write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*iPrim*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
-      end if
+#     endif
       call Assmbl(Array(ipQ1),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*iPrim,HerW(iHerW(n_Her)),n_Her)
       iStrt = ipA
       do iGamma=1,iPrim
         call dcopy_(nAlpha,Alpha,1,Array(iStrt),1)
         iStrt = iStrt+nAlpha
       end do
-      if (iPrint >= 49) write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*iPrim,Array(ipA),1)
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*iPrim,Array(ipA),1)
+#     endif
       call rKappa_Zeta(Array(ipK1),Array(ipZ1),iPrim*nAlpha)
       ld = 1
       call CmbnAC(Array(ipQ1),nAlpha*iPrim,la,iAng,Array(ipK1),Array(ipF1),Array(ipA),JfGrad(1,1),ld,nVecAC)
-      if (iPrint >= 49) then
+#     ifdef _DEBUGPRINT_
         write(u6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*iPrim*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
         write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*iPrim,Array(ipA),1)
-      end if
+#     endif
       ip = ip-nAlpha*iPrim*(6+3*n_Her*(la+2)+3*n_Her*(iAng+1)+3*n_Her*(nOrdOp+1)+3*(la+2)*(iAng+1)*(nOrdOp+1)+1)
       !                                                                *
       !*****************************************************************
@@ -351,25 +355,27 @@ do iS=1,nSkal
       ABeq(2) = .false.
       ABeq(3) = .false.
       call CrtCmp(Array(ipZ2),Array(ipP2),jPrim*nBeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(n_Her)),n_Her,ABeq)
-      if (iPrint >= 49) then
+#     ifdef _DEBUGPRINT_
         write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*jPrim*3*n_Her*(jAng+1),Array(ipCxyz),1)
         write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*jPrim*3*n_Her*(lb+2),Array(ipBxyz),1)
         write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*jPrim*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
-      end if
+#     endif
       call Assmbl(Array(ipQ1),Array(ipCxyz),jAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,jPrim*nBeta,HerW(iHerW(n_Her)),n_Her)
       iStrt = ipB
       do iGamma=1,jPrim
         call dcopy_(nBeta,Beta,1,Array(iStrt),jPrim)
         iStrt = iStrt+1
       end do
-      if (iPrint >= 49) write(u6,*) ' Array(ipB)=',DNrm2_(jPrim*nBeta,Array(ipB),1)
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' Array(ipB)=',DNrm2_(jPrim*nBeta,Array(ipB),1)
+#     endif
       call rKappa_Zeta(Array(ipK2),Array(ipZ2),jPrim*nBeta)
       ld = 1
       call CmbnCB(Array(ipQ1),jPrim*nBeta,jAng,lb,Array(ipK2),Array(ipF2),Array(ipB),JfGrad(1,2),ld,nVecCB)
-      if (iPrint >= 49) then
+#     ifdef _DEBUGPRINT_
         write(u6,*) ' Array(ipQ1)=',DNrm2_(jPrim*nBeta*3*(la+2)*(jAng+1)*(nOrdOp+1),Array(ipQ1),1)
         write(u6,*) ' Array(ipB)=',DNrm2_(JPrim*nBeta,Array(ipB),1)
-      end if
+#     endif
       ip = ip-nBeta*jPrim*(6+3*n_Her*(lb+2)+3*n_Her*(jAng+1)+3*n_Her*(nOrdOp+1)+3*(lb+2)*(jAng+1)*(nOrdOp+1)+1)
       nac = nTri_Elem1(la)*nTri_Elem1(iAng)*nVecAC
       ncb = nTri_Elem1(jAng)*nTri_Elem1(lb)*nVecCB
@@ -457,10 +463,10 @@ do iS=1,nSkal
 
       rFinal(:,:,:,1,:) = Zero
 
-      if (iPrint >= 99) then
+#     ifdef _DEBUGPRINT_
         call RecPrt('ipF1 (nVecAC x X)',' ',Array(ipF1),nVecAC,iBas*nAlpha*iSize)
         call RecPrt('ipF2 (nVecCB x Y)',' ',Array(ipF2),nVecCB,jBas*nBeta*jSize)
-      end if
+#     endif
 
       mVec = 0
       mVecAC = 1
@@ -479,11 +485,11 @@ do iS=1,nSkal
               mVecCB = mVecCB+1
               ipF2a = ipF2+(mVecCB-1)*jBas*nBeta*jSize*nTri_Elem1(lb)
             end if
-            if (iPrint >= 99) then
+#           ifdef _DEBUGPRINT_
               write(u6,*) 'mVecAC, mVecCB = ',mVecAC,mVecCB
               call RecPrt('ipF1a (nAlpha*aAng x iBas*iSize)',' ',Array(ipF1a),nAlpha*nTri_Elem1(la),iBas*iSize)
               call RecPrt('ipF2a (nBeta*bAng x jBas*jSize)',' ',Array(ipF2a),nBeta*nTri_Elem1(lb),jBas*jSize)
-            end if
+#           endif
 
             call FragPCont(Array(ipF1a),nAlpha,iBas,nTri_Elem1(la),iSize,Array(ipF2a),jBas,nBeta,jSize,nTri_Elem1(lb),Array(ipIJ), &
                            rFinal(:,:,:,1,mVec),Fact*Half)
@@ -491,12 +497,10 @@ do iS=1,nSkal
         end do !iCent
       end do !iCar
 
-      if (iPrint >= 49) then
+#     ifdef _DEBUGPRINT_
         do iVec=1,mVec
           write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal(:,:,:,1,iVec),1))
         end do
-      end if
-      if (iPrint >= 99) then
         write(u6,*) ' Result in FragPGrd'
         do ia=1,nTri_Elem1(la)
           do ib=1,nTri_Elem1(lb)
@@ -506,7 +510,7 @@ do iS=1,nSkal
             end do
           end do
         end do
-      end if
+#     endif
 
       !---Distribute contributions to the gradient
 
@@ -521,7 +525,5 @@ end do !iS
 ! Revert to the valence shells
 
 call Free_iSD()
-
-return
 
 end subroutine FragPGrd
