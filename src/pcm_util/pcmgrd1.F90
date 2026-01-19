@@ -37,7 +37,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, &
                      iStb(0:7), iTs, iuvwx(4), iZeta, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, nDiff, &
                      nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
@@ -46,7 +46,6 @@ procedure(cff2d_kernel) :: XCff2D
 procedure(modu2_kernel) :: Fake
 procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
-#include "print.fh"
 
 #include "macros.fh"
 unused_var(rFinal)
@@ -54,8 +53,6 @@ unused_var(nHer)
 unused_var(Ccoor(1))
 unused_var(nComp)
 
-iRout = 151
-iPrint = nPrint(iRout)
 
 ! Modify the density matrix with the prefactor
 
@@ -66,7 +63,9 @@ do iDAO=1,nDAO
     DAO(iZeta,iDAO) = Fact*DAO(iZeta,iDAO)
   end do
 end do
-if (iPrint >= 99) call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#ifdef _DEBUGPRINT_
+call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#endif
 
 nip = 1
 ipA = nip
@@ -127,7 +126,9 @@ do iTs=1,1
   ! Pick up the tile coordinates
   C(1:3) = PCMTess(1:3,iTs)
 
-  if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
+#ifdef _DEBUGPRINT_
+  call RecPrt('C',' ',C,1,3)
+#endif
 
   ! Generate stabilizer of C
 
@@ -139,7 +140,7 @@ do iTs=1,1
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
   Fact = -real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
-  if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
     write(u6,*) ' Q=',Q
     write(u6,*) ' Fact=',Fact
     call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(nOrdOp))
@@ -150,7 +151,7 @@ do iTs=1,1
     write(u6,*) ' LambdaT=',LmbdT
     write(u6,*) ' t      =',nDCRT
     write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
-  end if
+#endif
   iuvwx(3) = nStb
   iuvwx(4) = nStb
   JndGrd(:,1:2) = IndGrd
@@ -167,7 +168,9 @@ do iTs=1,1
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+#ifdef _DEBUGPRINT_
+  write(u6,*) ' mGrad=',mGrad
+#endif
   if (mGrad == 0) cycle
 
   do lDCRT=0,nDCRT-1
@@ -194,7 +197,5 @@ do iTs=1,1
   end do  ! End loop over DCRs
 
 end do     ! End loop over centers in the external field
-
-return
 
 end subroutine PCMgrd1

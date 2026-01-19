@@ -30,16 +30,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
-integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, iPrint, iRout, istatus, ITypRad, jRout, Last, n
+integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, istatus, ITypRad, jRout, Last, n
 real(kind=wp) :: aArea, epscm, poltot, r_min_Sphere, Radius, tal, Temp, val
 character(len=180) :: KWord, Key
 integer(kind=iwp), external :: iCLast, nToken, NumSolv
 real(kind=wp), external :: Anal_Gitt
 character(len=180), external :: Get_Ln
-#include "print.fh"
 
-iRout = 1
-iPrint = nPrint(iRout)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -62,7 +59,7 @@ lRFCav = .false.
 PCM = .false.
 i_sph_inp = 0
 ! Default PCM parameters
-call PCMDef(ISlPar,RSlPar,iPrint)
+call PCMDef(ISlPar,RSlPar)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -159,10 +156,6 @@ DWSolv%DWType = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iPrint = 5
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 ! Process the input
 
 do
@@ -186,19 +179,6 @@ do
       lRF = .true.
       lRFCav = .true.
       write(KWord,'(A,F10.5,A,F10.5,A,I4)') 'eps=',Eps,' radius=',rds,' higest moment=',lMax
-    case ('PRIN')
-      !                                                                *
-      !***** PRIN ******************************************************
-      !                                                                *
-      ! Print level
-      KWord = Get_Ln(LuSpool)
-      call Get_I1(1,n)
-      do i=1,n
-        KWord = Get_Ln(LuSpool)
-        call Get_I1(1,jRout)
-        call Get_I1(2,iPrint)
-        nPrint(jRout) = iPrint
-      end do
     case ('LANG')
       !                                                                *
       !***** LANG ******************************************************
