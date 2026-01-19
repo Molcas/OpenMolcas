@@ -35,7 +35,6 @@ integer(kind=iwp) :: ia, ib, iCar
 character(len=80) :: Label
 
 
-if (iPrint >= 99) then
   call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
   call RecPrt(' In Kntc: Beta ',' ',Beta,nZeta,1)
   do ia=0,na+1
