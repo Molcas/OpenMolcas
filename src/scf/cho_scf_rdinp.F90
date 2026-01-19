@@ -33,9 +33,6 @@ character(len=180) :: Key, KWord
 character(len=*), parameter :: SECNAM = 'CHO_SCF_RDINP'
 integer(kind=iwp), external :: iCLast
 character(len=180), external :: Get_Ln
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i, n
-#endif
 
 !                                                                      *
 !**** Algorithms for using Cholesky vectors in SCF *********************

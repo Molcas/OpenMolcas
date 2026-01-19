@@ -28,9 +28,6 @@
       character(LEN=16), parameter :: SECNAM = 'CHO_RASSCF_RDINP'
       Integer iChrct,Last,iCLast
       Real*8 DMPK_DFL
-#     ifdef _DEBUGPRINT_
-      Integer i,n
-#     endif
 *
 ***** Algorithms for using Cholesky vectors in RASSCF ******************
 *
