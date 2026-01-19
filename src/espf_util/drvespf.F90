@@ -20,14 +20,14 @@ use Grd_interface, only: grd_kernel, grd_mem
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 real(kind=wp), intent(in) :: CCoor(*)
-#include "print.fh"
-integer(kind=iwp) :: ii, iIrrep, iPL, iPrint, nComp, nDens, nOrdOp
+integer(kind=iwp) :: ii, iIrrep, iPL, nComp, nDens, nOrdOp
 logical(kind=iwp) :: DiffOp
 character(len=80) :: Label
 integer(kind=iwp), allocatable :: lOper(:)
@@ -37,7 +37,6 @@ procedure(grd_kernel) :: BdVGrd
 procedure(grd_mem) :: NAMmG
 
 ! Prologue
-iPrint = 1
 
 ! Allocate memory for density matrix
 
@@ -51,7 +50,7 @@ end do
 
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_Var,nDens)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'variational 1st order density matrix'
   ii = 1
   do iIrrep=0,nIrrep-1
@@ -59,7 +58,7 @@ if (iPrint >= 99) then
     call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
     ii = ii+nTri_Elem(nBas(iIrrep))
   end do
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

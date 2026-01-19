@@ -39,9 +39,8 @@ implicit none
 integer(kind=iwp), intent(in) :: ngrid, ncmp, nordop
 real(kind=wp), intent(in) :: FD(*), CCoor(3,ngrid)
 real(kind=wp), intent(out) :: pot(ncmp,ngrid)
-#include "print.fh"
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDCRT(0:7), igeo, &
-                     iPrim, iPrint, iRout, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, &
+                     iPrim, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, &
                      jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, lDCRR, lDCRT, lFinal, LmbdR, LmbdT, loper, mdci, &
                      mdcj, MemKer, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
 real(kind=wp) :: A(3), B(3), FactNd, RB(3), TA(3), TRB(3), XX, YY, ZZ
@@ -53,9 +52,6 @@ integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 112
-iPrint = nPrint(iRout)
-
 loper = 2**nIrrep-1
 nComp = nTri_Elem1(nOrdOp)
 if (ncomp /= ncmp) then
@@ -108,7 +104,9 @@ do iS=1,nSkal
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
     if (nSO == 0) cycle
-    if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#   ifdef _DEBUGPRINT_
+    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#   endif
 
     ! Call kernel routine to get memory requirement.
 
@@ -142,7 +140,9 @@ do iS=1,nSkal
     ! Find the DCR for A and B
 
     call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
-    if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+#   ifdef _DEBUGPRINT_
+    write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+#   endif
 
     ! Find the stabilizer for A and B
 
@@ -161,10 +161,10 @@ do iS=1,nSkal
     ! Project the Fock/1st order density matrix in AO
     ! basis on to the primitive basis.
 
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       call RecPrt(' Left side contraction',' ',Shells(iShll)%pCff,iPrim,iBas)
       call RecPrt(' Right side contraction',' ',Shells(jShll)%pCff,jPrim,jBas)
-    end if
+#   endif
 
     ! Transform IJ,AB to J,ABi
     call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,DSO,iBas,Shells(iShll)%pCff,iPrim,Zero,DSOp,jBas*nSO)
@@ -174,7 +174,9 @@ do iS=1,nSkal
     call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOp,iPrim*jPrim)
     call mma_deallocate(DSO)
 
-    if (iPrint >= 99) call RecPrt(' Decontracted 1st order density/Fock matrix',' ',DSOp,iPrim*jPrim,nSO)
+#   ifdef _DEBUGPRINT_
+    call RecPrt(' Decontracted 1st order density/Fock matrix',' ',DSOp,iPrim*jPrim,nSO)
+#   endif
 
     ! Loops over symmetry operations.
 
@@ -188,11 +190,11 @@ do iS=1,nSkal
       ! Find the DCR for M and S
 
       call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
-      if (iPrint >= 49) then
+#     ifdef _DEBUGPRINT_
         write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
         write(u6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),i=0,nStabO-1),')'
         write(u6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),i=0,nDCRT-1),')'
-      end if
+#     endif
 
       ! Compute normalization factor due the DCR symmetrization
       ! of the two basis functions and the operator.
@@ -212,10 +214,10 @@ do iS=1,nSkal
 
         call OA(iDCRT(lDCRT),A,TA)
         call OA(iDCRT(lDCRT),RB,TRB)
-        if (iPrint >= 49) then
+#       ifdef _DEBUGPRINT_
           write(u6,'(A,/,3(3F6.2,2X))') ' *** Centers A, B, C ***',(TA(i),i=1,3),(TRB(i),i=1,3)
           write(u6,*) ' nOp=',nOp
-        end if
+#       endif
 
         ! Desymmetrize the matrix with which we will contract the trace.
 
@@ -232,7 +234,9 @@ do iS=1,nSkal
           call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
                       RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,DAO,kk)
         end if
-        if (iPrint >= 99) call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,iPrim*jPrim,kk)
+#       ifdef _DEBUGPRINT_
+        call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,iPrim*jPrim,kk)
+#       endif
 
         ! Compute kappa and P.
 
