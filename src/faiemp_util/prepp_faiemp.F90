@@ -225,6 +225,7 @@ call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
   do iIrrep=0,nIrrep-1
     call RecPrt(' CMO''s',' ',CMO(ipTmp1,1),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
     ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
+  enddo
 #endif
 
 !...  Get additional information in the case of a RASSCF wave function
