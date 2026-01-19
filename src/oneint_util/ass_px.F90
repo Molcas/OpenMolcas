@@ -30,14 +30,10 @@ integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp
 real(kind=wp), intent(in) :: Alpha(nZeta), Slaplb(nZeta,nTri_Elem1(la+1),nTri_Elem1(lb),nComp), &
                              Slamlb(nZeta,nTri_Elem1(la-1),nTri_Elem1(lb),nComp)
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3,nComp)
-#include "print.fh"
-integer(kind=iwp) :: iComp, ipa, ipb, iPrint, iRout, ixa, ixb, ixm, ixp, iya, iyb, iym, iyp, iza, izb, izm, izp
+integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, ixm, ixp, iya, iyb, iym, iyp, iza, izb, izm, izp
+#ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-iRout = 203
-iPrint = nPrint(iRout)
-
-if (iPrint >= 99) then
   write(u6,*)
   write(u6,*) ' In Ass_pX la,lb,nComp=',la,lb,nComp
   write(u6,*)
@@ -53,7 +49,7 @@ if (iPrint >= 99) then
       call RecPrt(Label,'(10G15.8)',Slamlb(:,:,:,iComp),nZeta,nTri_Elem1(la-1)*nTri_Elem1(lb))
     end if
   end do
-end if
+#endif
 
 do iComp=1,nComp
 
@@ -106,7 +102,7 @@ do iComp=1,nComp
 
 end do
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' In Ass_pX la,lb,nComp=',la,lb,nComp
   do iComp=1,nComp
     write(u6,*)
@@ -122,8 +118,6 @@ if (iPrint >= 49) then
     write(Label,'(A,I2,A)') ' Ass_pX: pX( 3,iComp=',iComp,')'
     call RecPrt(Label,'(10G15.8)',rFinal(:,:,:,3,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
-end if
-
-return
+#endif
 
 end subroutine Ass_pX

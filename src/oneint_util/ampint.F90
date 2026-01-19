@@ -33,9 +33,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), iDum, iOrdOp, ipArr, ipB, ipOff, ipRes, iPrint, ipT, ipTm, ipTmm, ipTp, ipTpp, &
-                     iRout, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), iDum, iOrdOp, ipArr, ipB, ipOff, ipRes, ipT, ipTm, ipTmm, ipTp, ipTpp, &
+                     iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
 
@@ -43,9 +42,6 @@ integer(kind=iwp), external :: NrOpr
 unused_var(nOrdOp)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
-iRout = 220
-iPrint = nPrint(iRout)
 
 nip = 1
 ipB = nip
@@ -118,18 +114,24 @@ do lDCRT=0,nDCRT-1
     call MltPrm(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,Array(ipTm),nZeta,iComp,la,lb-1,A,RB,nHer,Array(ipArr),mArr,TC,iOrdOp,0)
   end if
 
-  if (iprint > 49) write(u6,*) ' AMPInt calling AMPr.'
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' AMPInt calling AMPr.'
+# endif
   call AMPr(Array(ipB),nZeta,Array(ipRes),la,lb,Array(ipTpp),Array(ipTp),Array(ipT),Array(ipTm),Array(ipTmm))
 
   ! Symmetry adaptation:
-  if (iprint > 49) write(u6,*) ' AMPInt calling SymAdO'
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' AMPInt calling SymAdO'
+# endif
   nOp = NrOpr(iDCRT(lDCRT))
   call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
-  if (iprint > 49) write(u6,*) ' Back to AMPInt.'
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Back to AMPInt.'
+# endif
 end do
 
-if (iprint > 49) write(u6,*) ' Leaving AMPInt.'
-
-return
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Leaving AMPInt.'
+#endif
 
 end subroutine AMPInt

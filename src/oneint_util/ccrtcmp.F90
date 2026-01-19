@@ -38,24 +38,24 @@ implicit none
 integer(kind=iwp), intent(in) :: nZeta, na, nHer
 real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), HerR(nHer), kVector(3)
 complex(kind=wp), intent(out) :: Axyz(nZeta,3,nHer,0:na)
-#include "print.fh"
-integer(kind=iwp) :: ia, iCar, iHer, iPrint, iRout
+integer(kind=iwp) :: ia, iCar, iHer
+#ifdef _DEBUGPRINT_
 character(len=80) :: Label
-
-iRout = 116
-iPrint = nPrint(iRout)
+#endif
 
 if (na < 0) then
   call WarningMessage(2,'CCrtCmp: na < 0')
   call Abend()
 end if
-if (iPrint >= 99) then
+
+#ifdef _DEBUGPRINT_
   call RecPrt(' In CCrtCmp: HerR',' ',HerR,1,nHer)
   call RecPrt(' In CCrtCmp: Zeta',' ',Zeta,nZeta,1)
   call RecPrt(' In CCrtCmp: A   ',' ',A,1,3)
   call RecPrt(' In CCrtCmp: P   ',' ',P,nZeta,3)
   call RecPrt(' In CCrtCmp: KVec',' ',kVector,1,3)
-end if
+#endif
+
 Axyz(:,:,:,0) = cOne
 
 if (na /= 0) then
@@ -72,12 +72,10 @@ if (na /= 0) then
   end do
 end if
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(Label,'(A)') ' In CCrtCmp: Axyz '
   call CRecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1),'R')
   call CRecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1),'I')
-end if
-
-return
+#endif
 
 end subroutine CCrtCmp

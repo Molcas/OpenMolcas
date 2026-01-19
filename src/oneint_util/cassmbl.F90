@@ -30,19 +30,16 @@ integer(kind=iwp), intent(in) :: la, lb, nZeta, nHer
 complex(kind=wp), intent(out) :: Rnxyz(nZeta*3,0:la,0:lb)
 complex(kind=wp), intent(in) :: Axyz(nZeta*3,nHer,0:la), Bxyz(nZeta*3,nHer,0:lb)
 real(kind=wp), intent(in) :: HerW(nHer)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iHer, iPrint, iRout
+integer(kind=iwp) :: ia, ib, iHer
+#ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-iRout = 123
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
   call RecPrt(' In CAssmbl:HerW',' ',HerW,1,nHer)
   call CRecPrt(' In CAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1),'R')
   call CRecPrt(' In CAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1),'I')
   call CRecPrt(' In CAssmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1),'R')
   call CRecPrt(' In CAssmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1),'I')
-end if
+#endif
 
 ! Initialize to zero
 
@@ -59,14 +56,12 @@ do ia=0,la
       Rnxyz(:,ia,ib) = Rnxyz(:,ia,ib)+Axyz(:,iHer,ia)*Bxyz(:,iHer,ib)*HerW(iHer)
     end do
 
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       write(Label,'(A,I2,A,I2,A)') ' In CAssmbl: Rnxyz(',ia,',',ib,')'
       call CRecPrt(Label,' ',Rnxyz(:,ia,ib),nZeta,3,'R')
       call CRecPrt(Label,' ',Rnxyz(:,ia,ib),nZeta,3,'I')
-    end if
+#   endif
   end do
 end do
-
-return
 
 end subroutine CAssmbl

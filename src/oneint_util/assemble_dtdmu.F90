@@ -31,16 +31,14 @@ integer(kind=iwp), intent(in) :: nZeta, la, lb
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3)
 real(kind=wp), intent(in) :: Elalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), Elalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),3), &
                              Beta(nZeta)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, ib_max, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, iZeta
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb, iZeta
 real(kind=wp) :: xyTmp, xzTmp, yxTmp, yzTmp, zxTmp, zyTmp
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib, ib_max, iComp
 character(len=80) :: Label
 
-iRout = 231
-iPrint = nPrint(iRout)
 
 !Fact = -1.0e6_wp*Half/c_in_au**2
-if (iPrint >= 99) then
   write(u6,*) ' In Assemble_dTdmu la,lb=',la,lb
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb+1)
@@ -64,7 +62,7 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',Elalbm(:,ia,ib,3),nZeta,1)
     end do
   end do
-end if
+#endif
 
 do ixa=la,0,-1
   do iya=la-ixa,0,-1
@@ -106,13 +104,11 @@ do ixa=la,0,-1
   end do
 end do
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   do iComp=1,3
     write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
     call RecPrt(Label,' ',rFinal(:,:,:,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
-end if
-
-return
+#endif
 
 end subroutine Assemble_dTdmu

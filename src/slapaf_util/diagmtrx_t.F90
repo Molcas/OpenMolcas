@@ -24,7 +24,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nH
 real(kind=wp), intent(in) :: H(nTri_Elem(nH))
 integer(kind=iwp), intent(out) :: iNeg
-#include "print.fh"
 integer(kind=iwp) :: i, iprint, iRout, j, LuTmp, nq, nQQ
 logical(kind=iwp) :: Exists
 character(len=16) :: filnam
