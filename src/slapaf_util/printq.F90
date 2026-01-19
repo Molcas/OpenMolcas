@@ -8,16 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine PrintQ(rK,qLbl,nq,nQQ,LuIC,rMult)
 
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nq, nQQ, LuIC
 real(kind=wp), intent(in) :: rK(nq,nQQ), rMult(nq)
 character(len=14), intent(in) :: qLbl(nq)
-#include "print.fh"
 integer(kind=iwp) :: iE, i_F, iiQQ, IncQQ, iPrint, iq, iQQ, iRout, istatus, jq, LuTmp, mQQ
 real(kind=wp) :: temp
 logical(kind=iwp) :: Start
@@ -29,15 +30,8 @@ real(kind=wp), external :: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#define _DEBUGPRINT_
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 iRout = 122
 iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
-iPrint = 99
-#endif
 
 if (iPrint > 5) then
   write(u6,*)

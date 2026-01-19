@@ -13,20 +13,22 @@ subroutine Find_Min(nOrder,XStart,A,XMin,RC,XLow,XHi,ENew)
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nOrder
 real(kind=wp), intent(in) :: XStart, A(0:nOrder), XLow, XHi
 real(kind=wp), intent(out) :: XMin, ENew
 logical(kind=iwp), intent(out) :: RC
-#include "print.fh"
 integer(kind=iwp) :: i, iPrint, iRout, j, MaxIter
 real(kind=wp) :: ddfnc, dfnc, fnc, tmp, X, XInc, XValue, XX
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
 
 iRout = 117
 iPrint = nPrint(iRout)
-if (iPrint >= 99) call RecPrt('Find_Min: A',' ',A,1,nOrder+1)
+#ifdef _DEBUGPRINT_
+call RecPrt('Find_Min: A',' ',A,1,nOrder+1)
+#endif
 XValue = XStart
 RC = .false.
 MaxIter = 100
@@ -54,7 +56,9 @@ do i=1,MaxIter
   end do
   XInc = dfnc/ddfnc
   XValue = XValue-XInc
-  if (iPrint == 99) write(u6,*) 'Fnc,dFnc,ddFnc=',Fnc,dFnc,ddFnc
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Fnc,dFnc,ddFnc=',Fnc,dFnc,ddFnc
+# endif
   if (abs(XInc) < Thr) then
     ENew = fnc
     XMin = XValue

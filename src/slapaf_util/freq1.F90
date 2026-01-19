@@ -25,9 +25,9 @@ subroutine Freq1()
 use Slapaf_Info, only: Delta, iter, mRowH, qInt, Shift
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
-# include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, jInter, kInter, nInter, nRowH
 real(kind=wp) :: Delta_
 
@@ -37,11 +37,11 @@ Delta_ = Delta/2.5_wp
 iRout = 183
 iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' [Freq1] nInter, iter, Delta =',nInter,iter,Delta_
   call RecPrt('Initial Shift:','(10F9.6)',Shift,nInter,iter)
   call RecPrt('Initial qInt:','(10F9.6)',qInt,nInter,iter+1)
-end if
+#endif
 
 ! Compute the new shift
 
@@ -66,10 +66,10 @@ if (iPrint > 5) then
   write(u6,*)
 end if
 
-if (iPrint >= 98) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' [Freq1] nInter, iter, Delta =',nInter,iter,Delta_
   call RecPrt('Final Shift:','(10F9.6)',Shift,nInter,iter)
   call RecPrt('Final  q:','(10F9.6)',qInt,nInter,iter+1)
-end if
+#endif
 
 end subroutine Freq1

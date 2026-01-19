@@ -20,21 +20,18 @@ integer(kind=iwp), intent(in) :: nCent
 real(kind=wp), intent(out) :: Fir, Bf(3,nCent), dBf(3,nCent,3,nCent)
 logical(kind=iwp), intent(in) :: lWrite, ldB, Force
 character(len=8), intent(in) :: Label
-#include "print.fh"
-integer(kind=iwp) :: i, iPrint, iRout, j, mCent, Middle
+integer(kind=iwp) :: i, j, mCent, Middle
 real(kind=wp) :: Bfi1, Bfi3, Bfj1, Bfj3, BRij(3,2), BRjk(3,2), Co, Crap, dBRij(3,2,3,2), dBRjk(3,2,3,2), dFir, R1, R2, R3, Rij1, &
                  Rjk1, Scr1(3,3), Scr2(3,3), Si, uMtrx(3,3), uVec(3,3), xxx(3,3)
 logical(kind=iwp) :: Linear
 real(kind=wp), external :: ArCos, ArSin
 
-iRout = 220
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'LBend: Force ',Force
   call RecPrt('LBend: Axis',' ',Axis,3,1)
   call RecPrt('LBend: Perp_Axis1',' ',Perp_Axis1,3,1)
-end if
+#endif
 
 uVec(:,1) = Axis(:)
 uVec(:,2) = Perp_Axis1(:)
@@ -46,11 +43,11 @@ call DGEMM_('T','N',3,3,3,One,uVec,3,Cent,3,Zero,xxx,3)
 xxx(3,1) = Zero
 xxx(3,2) = Zero
 xxx(3,3) = Zero
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt('Original coordinates','(3F24.12)',Cent,3,3)
   call RecPrt('uVec',' ',uVec,3,3)
   call RecPrt('Projected coordinates','(3F24.12)',xxx,3,3)
-end if
+#endif
 
 ! Swap atoms to ensure the complementary angle is always Pi
 
@@ -67,7 +64,9 @@ if (Force) then
 end if
 if (Middle /= 2) then
   call DSwap_(3,xxx(1,2),1,xxx(1,Middle),1)
-  if (iPrint >= 99) call RecPrt('Swapped coordinates','(3F24.12)',xxx,3,3)
+# ifdef _DEBUGPRINT_
+  call RecPrt('Swapped coordinates','(3F24.12)',xxx,3,3)
+# endif
 end if
 
 mCent = 2
@@ -86,7 +85,7 @@ do i=1,3
 end do
 Crap = sqrt(Crap)
 Linear = .true.
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt('BRij','(3F24.12)',BRij,3,2)
   call RecPrt('BRjk','(3F24.12)',BRjk,3,2)
   write(u6,*) ' Rij1=',Rij1
@@ -94,7 +93,7 @@ if (iPrint >= 99) then
   write(u6,*) ' Diff=',abs(ArCos(Co)-Pi)
   write(u6,'(A,F24.16)') ' Co=',Co
   write(u6,'(A,F24.16)') ' Crap=',Crap
-end if
+#endif
 
 ! Special care for cases close to linearity
 
@@ -113,10 +112,14 @@ end if
 
 !if (abs(Fir-Pi) > 1.0e-13_wp) then
 if (abs(Si) > 1.0e-13_wp) then
-  if (iPrint >= 99) write(u6,*) ' LBend: Use nonlinear formulae'
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' LBend: Use nonlinear formulae'
+# endif
   Linear = .false.
 else
-  if (iPrint >= 99) write(u6,*) ' LBend: Use linear formulae'
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' LBend: Use linear formulae'
+# endif
 end if
 
 dFir = Fir/deg2rad
@@ -296,11 +299,9 @@ if (Middle /= 2) then
   end if
 end if
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt('Bf',' ',Bf,3,nCent)
   if (ldB) call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
-end if
-
-return
+#endif
 
 end subroutine LBend
