@@ -55,7 +55,9 @@ use TwoDat, only: lStRec
 use sort_data, only: iDaTw0, iDIBin, iDVBin, iStBin, lSll, LuTmp, LuTwo, mInt, MxOrd, n_Int, nBin, nRec, nSln
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+#ifdef _DEBUGPRINT_
 use Print, only: nPrint
+#endif
 
 implicit none
 integer(kind=iwp), intent(out) :: MaxDax

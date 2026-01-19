@@ -41,7 +41,9 @@ use TwoDat, only: lStRec, lTop
 use sort_data, only: iDaTwo, iDVBin, LuTwo, mDaTwo, nRec
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoB
+#ifdef _DEBUGPRINT_
 use Print, only: nPrint
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iBin, nInts, lSrtA, lStk
