@@ -28,9 +28,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, ipAxyz, ipBxyz, iPrint, iRout, nip
+integer(kind=iwp) :: ipAxyz, ipBxyz, nip
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib
 character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -42,9 +44,6 @@ unused_var(lOper)
 unused_var(iChO)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
-iRout = 150
-iPrint = nPrint(iRout)
 
 nip = 1
 ipAxyz = nip
@@ -58,26 +57,24 @@ if (nip-1 > nArr*nZeta) then
   call Abend()
 end if
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In D1Int: A',' ',A,1,3)
   call RecPrt(' In D1Int: RB',' ',RB,1,3)
   call RecPrt(' In D1Int: P',' ',P,nZeta,3)
   write(u6,*) ' In D1Int: la,lb=',la,lb
-end if
+#endif
 
 ! Compute the contact terms.
 
 call Darwin(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,rFinal,iStabM,nStabM,nComp,rKappa)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') 'Darwin contact(',ia,',',ib,')'
       call RecPrt(Label,' ',rFinal(:,ia,ib,:),nZeta,nComp)
     end do
   end do
-end if
-
-return
+#endif
 
 end subroutine D1Int
