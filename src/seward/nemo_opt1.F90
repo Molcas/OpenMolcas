@@ -20,9 +20,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), Length(1), n_int(1), i, iAngr, iBas, iCmp, icnt, &
-                     iCnttp, iComp, idbg, iExp, iip, iMltPl, iOpt, iPrint, iRC, iRout, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, &
+                     iCnttp, iComp, idbg, iExp, iip, iMltPl, iOpt, iRC, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, &
                      kExp, kExpi, kExpj, kSh, kShEnd, kShStr, L, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nSym
 real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, rSum
 character(len=8) :: Label
@@ -32,14 +31,14 @@ integer(kind=iwp), parameter :: MxMltPl = 10
 
 #include "warnings.h"
 
-iRout = 77
-iPrint = nPrint(iRout)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Save basis set info from contracted run
 
-if (iprint >= 10) write(u6,*) ' In NEMO_Opt1',ncnttp
+#ifdef _DEBUGPRINT_
+write(u6,*) ' In NEMO_Opt1',ncnttp
+#endif
 kCof = 0
 kAng = 0
 kExp = 0
@@ -103,12 +102,14 @@ do iCnttp=1,nCnttp
           end do
         end do
         rNorm = One/sqrt(rSum)
-        if (iprint >= 10) write(u6,*) ' rNorm',kAng,rNorm
+#ifdef _DEBUGPRINT_
+        write(u6,*) ' rNorm',kAng,rNorm
+#endif
         do iExp=1,nPrimr(kAng)
           rCof(kCof+iExp) = rCof(kCof+iExp)*rNorm
-          if (iprint >= 10) then
+#ifdef _DEBUGPRINT_
             write(u6,'(a24,f20.6)') ' normalized coefficients',rCof(kCof+iExp)
-          end if
+#endif
         end do
         kCof = kCof+nPrimr(kAng)
       end do
@@ -117,7 +118,7 @@ do iCnttp=1,nCnttp
   end do
 end do
 
-if (iPrint >= 10) then
+#ifdef _DEBUGPRINT_
   i = 0
   do L=1,nrSym
     write(u6,*) ' Irreducible representation',L
@@ -126,7 +127,7 @@ if (iPrint >= 10) then
       write(u6,'(20i4)') i,icent(i),lnang(i),lmag(i)
     end do
   end do
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -146,10 +147,10 @@ if (iRC /= 0) call error()
 call OneBas('PRIM')
 call Get_iArray('nBas_Prim',nBas_Prim,nIrrep)
 
-if (iPrint >= 10) then
+#ifdef _DEBUGPRINT_
   write(u6,'(a,8i5)') ' Symmetries          ',nSym
   write(u6,'(a,8i5)') ' Primitive basis fcns',(nBas_Prim(i),i=0,nSym-1)
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -190,7 +191,9 @@ do iComp=1,nComp
     call Abend()
   end if
 end do
-if (iPrint >= 10) call PrMtrx('P_matrix',lOper,nComp,ip,P_Matrix)
+#ifdef _DEBUGPRINT_
+call PrMtrx('P_matrix',lOper,nComp,ip,P_Matrix)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

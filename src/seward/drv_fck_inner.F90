@@ -53,18 +53,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nComp, ip(nComp), LenTot, lOper(nComp), iStabO(0:7), nStabO, nIC
 real(kind=wp), intent(inout) :: Int1El(LenTot)
 real(kind=wp), intent(in) :: rHrmt
-#include "print.fh"
 integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ii, iIC, iIrrep, ijB, ijC, &
-                     iPrim, iPrint, iRout, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, jCmp, &
+                     iPrim, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, jCmp, &
                      jCnt, jCnttp, jPrim, jS, jShell, jShll, LmbdR, LambdT, lDCRR, lFinal, mdci, mdcj, mSO, nDCRR, nDCRT, nOp(2), &
                      nSkal, nSO, nStabM
 real(kind=wp) :: A(3), B(3), Fact, RB(3)
 real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
-
-iRout = 112
-iPrint = nPrint(iRout)
-!iPrint = 99
 
 ! Auxiliary memory allocation.
 
@@ -114,14 +109,18 @@ do iS=1,nSkal
       iSmLbl = lOper(iComp)
       nSO = nSO+MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
     end do
-    if (iPrint >= 29) write(u6,*) ' nSO=',nSO
+#ifdef _DEBUGPRINT_
+    write(u6,*) ' nSO=',nSO
+#endif
     if (nSO == 0) cycle
     call mma_allocate(SO,nSO*iBas*jBas)
     SO(:) = Zero
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#ifdef _DEBUGPRINT_
+    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#endif
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -149,7 +148,7 @@ do iS=1,nSkal
 
     call DCR(LambdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 
-    if (iPrint >= 19) then
+#ifdef _DEBUGPRINT_
       write(u6,*)
       write(u6,*) ' g      =',nIrrep
       write(u6,*) ' u      =',dc(mdci)%nStab
@@ -161,7 +160,7 @@ do iS=1,nSkal
       write(u6,'(9A)') '(R)=',(ChOper(iDCRR(ii)),ii=0,nDCRR-1)
       write(u6,*) ' m      =',nStabM
       write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    end if
+#endif
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -186,7 +185,9 @@ do iS=1,nSkal
     do lDCRR=0,0
       call OA(iDCRR(lDCRR),B,RB)
       nOp(2) = NrOpr(iDCRR(lDCRR))
-      if (iPrint >= 49) write(u6,'(A,3F6.2,2X,3F6.2)') '*',(A(i),i=1,3),(RB(i),i=1,3)
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,3F6.2,2X,3F6.2)') '*',(A(i),i=1,3),(RB(i),i=1,3)
+#     endif
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -217,9 +218,9 @@ do iS=1,nSkal
       ! At this point accumulate the batch of integrals onto the
       ! final symmetry adapted integrals.
 
-      if (iPrint >= 99) then
-        call RecPrt(' Accumulated SO integrals, so far...',' ',SO,iBas*jBas,nSO)
-      end if
+#     ifdef _DEBUGPRINT_
+      call RecPrt(' Accumulated SO integrals, so far...',' ',SO,iBas*jBas,nSO)
+#     endif
 
       !------Symmetry adapt component by component
 
@@ -245,10 +246,10 @@ do iS=1,nSkal
     ! Multiply with factors due to projection operators
 
     if (Fact /= One) SO(:) = Fact*SO(:)
-    if (iPrint >= 99) then
-      write(u6,*) ' Scaling SO''s',Fact
-      call RecPrt(' Accumulated SO integrals',' ',SO,iBas*jBas,nSO)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' Scaling SO''s',Fact
+    call RecPrt(' Accumulated SO integrals',' ',SO,iBas*jBas,nSO)
+#   endif
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -280,7 +281,5 @@ end do
 
 call mma_deallocate(ZI)
 call mma_deallocate(Zeta)
-
-return
 
 end subroutine Drv_Fck_Inner

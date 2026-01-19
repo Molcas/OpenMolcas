@@ -30,7 +30,6 @@ character(len=8) :: Method
 real(kind=wp), allocatable :: D_Var(:)
 procedure(grd_kernel) :: PCMGrd1
 procedure(grd_mem) :: PCMMmG
-#include "print.fh"
 
 ! Prologue
 call CWTime(TCpu1,TWall1)
