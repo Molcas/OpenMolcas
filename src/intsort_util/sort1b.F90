@@ -44,16 +44,15 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "print.fh"
-integer(kind=iwp) :: iBin, iOpt, iPrint, iRout
+integer(kind=iwp) :: iBin, iOpt
 
 !----------------------------------------------------------------------*
 !     pick up print level                                              *
 !----------------------------------------------------------------------*
 
-iRout = 82
-iPrint = nPrint(iRout)
-if (iPrint >= 99) write(u6,*) ' >>> Enter SORT1B <<<'
+#ifdef _DEBUGPRINT_
+write(u6,*) ' >>> Enter SORT1B <<<'
+#endif
 
 !----------------------------------------------------------------------*
 !     dump remaining integrals to disk                                 *
@@ -79,7 +78,5 @@ call mma_deallocate(lInts)
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-
-return
 
 end subroutine SORT1B

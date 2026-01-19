@@ -57,21 +57,18 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nUt
 real(kind=wp), intent(in) :: vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
-#include "print.fh"
-integer(kind=iwp) :: iBin, iOpt, iPrint, iRout, iUt, next
+integer(kind=iwp) :: iBin, iOpt, iUt, next
 
 !----------------------------------------------------------------------*
 !     pick up print level                                              *
 !----------------------------------------------------------------------*
 
-iRout = 81
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' >>> Enter SORT1A <<<'
   call dVcPrt('nSqNum',' ',nSqNum,nUt)
   call dVcPrt('nSyBlk',' ',nSyBlk,nUt)
   call dVcPrt('vInt',' ',vInt,nUt)
-end if
+#endif
 
 if (RAMD%act) then
   call Untested('Sort1a (RAMD)')

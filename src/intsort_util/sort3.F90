@@ -55,6 +55,7 @@ use TwoDat, only: lStRec
 use sort_data, only: iDaTw0, iDIBin, iDVBin, iStBin, lSll, LuTmp, LuTwo, mInt, MxOrd, n_Int, nBin, nRec, nSln
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(out) :: MaxDax
@@ -62,7 +63,6 @@ integer(kind=iwp) :: i, iB1, iB2, iBin, iDisk, iDummy, iOpt, iOrd, iRc, iRd, iTm
 real(kind=wp) :: Buf(2*lStRec)
 integer(kind=iwp), allocatable :: SrtKey(:), SrtAdr(:)
 #ifdef _DEBUGPRINT_
-#include "print.fh"
 integer(kind=iwp) :: iPrint, iRout
 #endif
 
