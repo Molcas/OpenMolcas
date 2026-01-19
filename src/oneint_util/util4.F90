@@ -31,19 +31,18 @@ integer(kind=iwp), intent(in) :: nZeta, la, lb
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),9)
 real(kind=wp), intent(in) :: Elalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), Elalb(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3), &
                              Bcoor(3), Dcoor(3)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iComp, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb
 real(kind=wp) :: BD(3), Fact
+#ifdef _DEBUGPRINT
+integer(kind=iwp) :: ia, ib, iComp
 character(len=80) :: Label
+#endif
 
-iRout = 231
-iPrint = nPrint(iRout)
 
-BD(1) = Bcoor(1)-Dcoor(1)
-BD(2) = Bcoor(2)-Dcoor(2)
-BD(3) = Bcoor(3)-Dcoor(3)
+BD(:) = Bcoor(:)-Dcoor(:)
 Fact = -1.0e-6_wp*Half/c_in_au**2
-if (iPrint >= 99) then
+
+#ifdef _DEBUGPRINT
   write(u6,*) ' In Util4 la,lb=',la,lb
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb+1)
@@ -65,7 +64,7 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',Elalb(:,ia,ib,3),nZeta,1)
     end do
   end do
-end if
+#endif
 
 do ixa=la,0,-1
   do iya=la-ixa,0,-1
@@ -96,13 +95,11 @@ do ixa=la,0,-1
   end do
 end do
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT
   do iComp=1,9
     write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
     call RecPrt(Label,' ',rFinal(:,:,:,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
-end if
-
-return
+#endif
 
 end subroutine Util4

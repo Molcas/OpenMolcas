@@ -40,7 +40,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
 integer(kind=iwp) :: iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, ipVxyz, &
                      iStabO(0:7), lDCRT, llOper, LmbdT, nDCRT, nip, nOp, nStabO
 integer(kind=iwp), external :: NrOpr

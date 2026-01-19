@@ -31,14 +31,12 @@ integer(kind=iwp), intent(in) :: nZeta, la, lb
 real(kind=wp), intent(in) :: Beta(nZeta), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1),3), &
                              Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1),3)
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),3)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iElem, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, jElem
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib, iElem, jElem
 character(len=80) :: Label
 
-iRout = 211
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
   write(u6,*) ' In Util2 la,lb=',la,lb
   call RecPrt('Beta',' ',Beta,nZeta,1)
   do ia=1,nTri_Elem1(la)
@@ -63,7 +61,7 @@ if (iPrint >= 99) then
       end do
     end do
   end if
-end if
+#endif
 
 do ixa=la,0,-1
   do iya=la-ixa,0,-1
@@ -100,7 +98,7 @@ do ixa=la,0,-1
   end do
 end do
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' In Util2 la,lb=',la,lb
   do iElem=1,nTri_Elem1(la)
     do jElem=1,nTri_Elem1(lb)
@@ -112,8 +110,6 @@ if (iPrint >= 49) then
       call RecPrt(Label,' ',rFinal(:,iElem,jElem,3),nZeta,1)
     end do
   end do
-end if
-
-return
+#endif
 
 end subroutine Util2

@@ -31,8 +31,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, iPrint, ipRxyz, ipVxyz, iRout, &
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, ipRxyz, ipVxyz, &
                      iStabO(0:7), lDCRT, llOper, LmbdT, nDCRT, nip, nOp, nStabO
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
@@ -44,8 +43,6 @@ unused_var(nOrdOp)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 195
-iPrint = nPrint(iRout)
 ABeq(:) = A == RB
 
 nip = 1
@@ -70,13 +67,13 @@ if (nip-1 > nArr*nZeta) then
   call Abend()
 end if
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In VeInt: A',' ',A,1,3)
   call RecPrt(' In VeInt: RB',' ',RB,1,3)
   call RecPrt(' In VeInt: CoorO',' ',CoorO,1,3)
   call RecPrt(' In VeInt: P',' ',P,nZeta,3)
   write(u6,*) ' In VeInt: la,lb=',la,lb
-end if
+#endif
 
 rFinal(:,:,:,:) = Zero
 
@@ -125,7 +122,5 @@ do lDCRT=0,nDCRT-1
   call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
-
-return
 
 end subroutine VeInt

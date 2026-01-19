@@ -32,9 +32,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iIC, iPrint, iRout
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib, iIC
 character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -55,11 +56,10 @@ unused_var(iStabM)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 122
-iPrint = nPrint(iRout)
 ! Observe that this code does not make any sense in case of symmetry!
 rFinal(:,:,:,:) = Zero
 
+#ifdef _DEBUGPRINT_
 if (iPrint >= 99) then
   write(u6,*) ' Result in P_Int'
   do ia=1,nTri_Elem1(la)
@@ -70,8 +70,6 @@ if (iPrint >= 99) then
       end do
     end do
   end do
-end if
-
-return
+#endif
 
 end subroutine P_Int
