@@ -14,7 +14,7 @@ subroutine Convrg(iter,kIter,nInter,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,J
 use Slapaf_Info, only: Analytic_Hessian, ApproxNADC, Baker, Coor, Cx, dqInt, E_Delta, EDiffZero, eMEPTest, Energy, FindTS, GNrm, &
                        GrdMax, Gx, HUpMet, iNeg, iOptC, Lbl, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, qInt, rMEP, &
                        SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP
-#ifdef _DEBUGPRINT
+#ifdef _DEBUGPRINT_
 use Slapaf_Info, only: Shift
 #endif
 
