@@ -18,13 +18,13 @@ use Chkpnt, only: Chkpnt_update_MEP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Four, Six, Half
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: iter, kIter, nInter, MxItr, mIntEff, mTtAtm
 integer(kind=iwp), intent(out) :: iStop
 logical(kind=iwp), intent(in) :: GoOn, Just_Frequencies
 character, intent(in) :: Step_Trunc
-#include "print.fh"
 integer(kind=iwp) :: i, iFile, iMEP, iOff_Iter, iPrint, IRC, iRout, iSaddle, iSaddle_p, iSaddle_r, iter_S, j, jSaddle, kkIter, &
                      LuInput, nAtom, nBackward, nConst, nForward, nIRC, nSaddle, nSaddle_Max
 real(kind=wp) :: CumLen, E, E0, E1, E2, E_Prod, E_Reac, echng, eDiffMEP, Fabs, Maxed, MaxErr, prevDist, rDum(1,1,1,1), refDist, &
@@ -53,14 +53,14 @@ TSReg = btest(iOptC,13)
 nSaddle_Max = 100
 iRout = 116
 iPrint = nPrint(iRout)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt('Convrg: Energy',' ',Energy,1,iter)
   call RecPrt('Convrg: Shift',' ',Shift,nInter,iter)
   call RecPrt('Convrg: qInt',' ',qInt,nInter,iter+1)
   call RecPrt('Convrg: dqInt',' ',dqInt,nInter,iter)
   call RecPrt('Convrg: Cx',' ',Cx,3*nAtom,iter+1)
   call RecPrt('Convrg: Gx',' ',Gx,3*nAtom,iter+1)
-end if
+#endif
 
 call Get_iScalar('Saddle Iter',iter_S)
 if (iter_S == 0) then

@@ -34,14 +34,10 @@ real(kind=wp), intent(inout) :: q(nInter,nIter+1), dq(nInter,nIter), g(nInter,nI
 real(kind=wp), intent(in) :: H(nInter,nInter)
 real(kind=wp), intent(out) :: error(nInter,nIter), B((nIter+1)**2), RHS(nIter+1)
 integer(kind=iwp), intent(out) :: iP(nIter)
-#include "print.fh"
-integer(kind=iwp) :: i, ii, ij, iOff, iPrint, iRc, iRout, iSave, j, jIter, MaxWdw, mIter
+integer(kind=iwp) :: i, ii, ij, iOff, iRc, iSave, j, jIter, MaxWdw, mIter
 real(kind=wp) :: Err1, Err2
 real(kind=wp), allocatable :: A(:,:), C(:)
 real(kind=wp), external :: DDot_
-
-iRout = 114
-iPrint = nPrint(iRout)
 
 call mma_allocate(A,nInter,nInter,Label='A')
 A(:,:) = H(:,:)
@@ -61,7 +57,9 @@ if (iRC /= 0) then
   write(u6,*) 'C1DIIS(DPOTRS): iRC=',iRC
   call Abend()
 end if
-if (iPrint >= 99) call RecPrt(' Error vectors',' ',error,nInter,nIter)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Error vectors',' ',error,nInter,nIter)
+#endif
 
 ! Set up small system of linear equations
 ! If more error vectors than degrees of freedom
@@ -110,7 +108,9 @@ do i=1,nIter-1
     iP(ii) = iSave
   end if
 end do
-if (iPrint >= 99) write(u6,*) ' iP=',iP
+#ifdef _DEBUGPRINT_
+write(u6,*) ' iP=',iP
+#endif
 
 MaxWdw = max(2,(nInter-nFix)/2)
 mIter = min(nIter,min(MinWdw,MaxWdw))
@@ -136,17 +136,19 @@ do i=1,mIter
   B(i*(mIter+1)) = -One
   RHS(i) = Zero
 end do
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' The B Matrix',' ',B,mIter+1,mIter+1)
   call RecPrt(' The RHS',' ',RHS,1,mIter+1)
-end if
+#endif
 
 ! Solve linear equation system
 
 call mma_allocate(C,mIter+1,label='C')
 C(:) = RHS(1:mIter+1)
 call Gauss(mIter+1,mIter+1,B,RHS,C)
-if (iPrint >= 99) call RecPrt(' The solution vector',' ',RHS,1,mIter+1)
+#ifdef _DEBUGPRINT_
+call RecPrt(' The solution vector',' ',RHS,1,mIter+1)
+#endif
 call mma_deallocate(C)
 
 ! Compute the interpolated parameter vector and
@@ -158,10 +160,10 @@ do jIter=1,mIter
   q(:,nIter+1) = q(:,nIter+1)+RHS(jIter)*q(:,iP(jIter+iOff))
   g(:,nIter+1) = g(:,nIter+1)+RHS(jIter)*g(:,iP(jIter+iOff))
 end do
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' The ipv',' ',q(:,nIter+1),1,nInter)
   call RecPrt(' The igv',' ',g(:,nIter+1),1,nInter)
-end if
+#endif
 
 ! Compute a new independent geometry by relaxation of
 ! the interpolated gradient vector.
@@ -172,14 +174,18 @@ if (iRC /= 0) then
   write(u6,*) 'C1DIIS(DPOTRS): iRC=',iRC
   call Abend()
 end if
-if (iPrint >= 99) call RecPrt(' dq',' ',dq(:,nIter),1,nInter)
+#ifdef _DEBUGPRINT_
+call RecPrt(' dq',' ',dq(:,nIter),1,nInter)
+#endif
 
 ! The shift is relative to the interpolated parameter
 ! vector and we have to change it so that it is relative to the
 ! actual parameter vector.
 
 dq(:,nIter) = dq(:,nIter)+q(:,nIter+1)-q(:,nIter)
-if (iPrint >= 99) call RecPrt(' dq(corr.)',' ',dq(:,nIter),1,nInter)
+#ifdef _DEBUGPRINT_
+call RecPrt(' dq(corr.)',' ',dq(:,nIter),1,nInter)
+#endif
 
 call mma_deallocate(A)
 
