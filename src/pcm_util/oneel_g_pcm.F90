@@ -58,7 +58,7 @@ real(kind=wp), intent(out) :: Grad(nGrad)
 logical(kind=iwp), intent(in) :: DiffOp
 real(kind=wp), intent(in) :: CCoor(3), FD(nFD)
 character(len=80), intent(in) :: Label
-integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, IndGrd(3,2), iPrim, iPrint, &
+integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, IndGrd(3,2), iPrim, iPrint, &
                      iRout, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, &
                      jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, niAng, &
                      njAng, nOp(2), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
@@ -67,6 +67,9 @@ logical(kind=iwp) :: IfGrad(3,3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Fnl(:), Kappa(:), Kern(:), PCoor(:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 logical(kind=iwp), external :: EQ
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 
 iRout = 112
 iPrint = nPrint(iRout)

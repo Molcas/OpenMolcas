@@ -11,7 +11,11 @@
 
 subroutine NEMO_Opt1()
 
+#ifdef _DEBUGPRINT_
 use Basis_Info, only: dbsc, icent, lmag, lnang, nAngr, nBas, nBasisr, nCnttp, nPrimr, nrBas, nrSym, rCof, rExp, Shells
+#else
+use Basis_Info, only: dbsc, nAngr, nBas, nBasisr, nCnttp, nPrimr, rCof, rExp, Shells
+#endif
 use Symmetry_Info, only: nIrrep
 use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -20,14 +24,17 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), Length(1), n_int(1), i, iAngr, iBas, iCmp, icnt, &
+integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), Length(1), n_int(1), iAngr, iBas, iCmp, icnt, &
                      iCnttp, iComp, idbg, iExp, iip, iMltPl, iOpt, iRC, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, &
-                     kExp, kExpi, kExpj, kSh, kShEnd, kShStr, L, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nSym
+                     kExp, kExpi, kExpj, kSh, kShEnd, kShStr, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nSym
 real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, rSum
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ipMP(:), iSm(:)
 real(kind=wp), allocatable :: P_Matrix(:), MP_Matrix(:)
 integer(kind=iwp), parameter :: MxMltPl = 10
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i, L
+#endif
 
 #include "warnings.h"
 

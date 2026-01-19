@@ -27,12 +27,15 @@ use Definitions, only: wp, iwp, u6
 implicit none
 logical(kind=iwp), intent(in) :: DFonly
 integer(kind=iwp), intent(in) :: LuSpool
-integer(kind=iwp) :: i, iChrct, jRout, Last, n
+integer(kind=iwp) :: iChrct, Last
 real(kind=wp) :: dmpk_dfl
 character(len=180) :: Key, KWord
 character(len=*), parameter :: SECNAM = 'CHO_SCF_RDINP'
 integer(kind=iwp), external :: iCLast
 character(len=180), external :: Get_Ln
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i, n
+#endif
 
 !                                                                      *
 !**** Algorithms for using Cholesky vectors in SCF *********************

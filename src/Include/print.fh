@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Integer, Parameter:: nRout=1024
-      Integer :: i_XXXX
       Integer :: nPrint(nRout)
       Logical :: Show
       Integer :: icolorize

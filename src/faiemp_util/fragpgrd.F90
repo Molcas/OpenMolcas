@@ -38,16 +38,19 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact
-integer(kind=iwp) :: i, ia, iAng, ib, iBas, iCar, iCent, iCnt, iCnttp, iCurCenter, iCurCnttp, iCurMdc, iDCRT(0:7), iGamma, iLoc, &
+integer(kind=iwp) :: i, iAng, iBas, iCar, iCent, iCnt, iCnttp, iCurCenter, iCurCnttp, iCurMdc, iDCRT(0:7), iGamma, iLoc, &
                      ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, &
                      ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, &
-                     iStemp, iStrt, iuvwx(4), iVec, jAng, jBas, jCnt, jCnttp, JndGrd(3,4), jPrim, jS, jSbasis, jShll, jSize, &
+                     iStemp, iStrt, iuvwx(4), jAng, jBas, jCnt, jCnttp, JndGrd(3,4), jPrim, jS, jSbasis, jShll, jSize, &
                      jSlocal, ld, lDCRT, LmbdT, lOp(4), maxDensSize, mdci, mGrad, mVec, mVecAC, mVecCB, n_Her, nac, ncb, nDAO, &
                      nDCRT, nSkal, nVecAC, nVecCB
 logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EnergyWeight
-character(len=80) :: Label
 real(kind=wp), external :: DNrm2_
 logical(kind=iwp), external :: EQ
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib, iVec
+character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(Zeta)
@@ -64,6 +67,8 @@ unused_var(nHer)
   call RecPrt(' In FragPGrd: Alpha',' ',Alpha,nAlpha,1)
   call RecPrt(' In FragPGrd: Beta',' ',Beta,nBeta,1)
   write(u6,*) ' In FragPGrd: la,lb=',' ',la,lb
+#else
+unused_var(P)
 #endif
 !                                                                      *
 !***********************************************************************

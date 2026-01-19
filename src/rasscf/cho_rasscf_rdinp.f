@@ -26,8 +26,11 @@
       Character(LEN=180) KWord, Key
       Character(LEN=180), External :: Get_Ln
       character(LEN=16), parameter :: SECNAM = 'CHO_RASSCF_RDINP'
-      Integer iChrct,Last,i,n,iCLast
+      Integer iChrct,Last,iCLast
       Real*8 DMPK_DFL
+#     ifdef _DEBUGPRINT_
+      Integer i,n
+#     endif
 *
 ***** Algorithms for using Cholesky vectors in RASSCF ******************
 *

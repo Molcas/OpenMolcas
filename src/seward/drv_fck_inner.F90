@@ -53,13 +53,16 @@ implicit none
 integer(kind=iwp), intent(in) :: nComp, ip(nComp), LenTot, lOper(nComp), iStabO(0:7), nStabO, nIC
 real(kind=wp), intent(inout) :: Int1El(LenTot)
 real(kind=wp), intent(in) :: rHrmt
-integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ii, iIC, iIrrep, ijB, ijC, &
+integer(kind=iwp) :: iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iIC, iIrrep, ijB, ijC, &
                      iPrim, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, jCmp, &
                      jCnt, jCnttp, jPrim, jS, jShell, jShll, LmbdR, LambdT, lDCRR, lFinal, mdci, mdcj, mSO, nDCRR, nDCRT, nOp(2), &
                      nSkal, nSO, nStabM
 real(kind=wp) :: A(3), B(3), Fact, RB(3)
 real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i, ii
+#endif
 
 ! Auxiliary memory allocation.
 

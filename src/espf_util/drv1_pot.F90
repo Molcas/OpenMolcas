@@ -39,7 +39,7 @@ implicit none
 integer(kind=iwp), intent(in) :: ngrid, ncmp, nordop
 real(kind=wp), intent(in) :: FD(*), CCoor(3,ngrid)
 real(kind=wp), intent(out) :: pot(ncmp,ngrid)
-integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDCRT(0:7), igeo, &
+integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDCRT(0:7), igeo, &
                      iPrim, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, &
                      jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, lDCRR, lDCRT, lFinal, LmbdR, LmbdT, loper, mdci, &
                      mdcj, MemKer, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
@@ -48,6 +48,9 @@ real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Kappa(:), Kern(:), PCoor(
                               ZInv(:)
 real(kind=wp), parameter :: ThreeI = One/Three
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 
 !                                                                      *
 !***********************************************************************

@@ -30,14 +30,17 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp), parameter :: lproju = 9, imax = 100, kcrs = 1
-integer(kind=iwp) :: i, ia, iAlpha, ib, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), iExp, iIrrep, iOff, iplalbm, iplalbp, iplamlb, &
-                     iplaplb, ipRef, iSh, iStrt, iuvwx(4), iVec, iZeta, JndGrd(3,4), kCnt, kdc, kSh, kShEnd, &
+integer(kind=iwp) :: i, iAlpha, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), iExp, iIrrep, iOff, iplalbm, iplalbp, iplamlb, &
+                     iplaplb, ipRef, iSh, iStrt, iuvwx(4), iZeta, JndGrd(3,4), kCnt, kdc, kSh, kShEnd, &
                      kShStr, lcr(kcrs), lDCRT, LmbdT, lOp(4), mGrad, nArray, ncr(imax), ncrr, nDAO, nDCRT, nDisp, &
                      nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), nlalbm, nlalbp, nlamlb, nlaplb, npot, nPP_S
 real(kind=wp) :: C(3), ccr(imax), Fact, TC(3), zcr(imax)
-character(len=80) :: Label
 logical(kind=iwp) :: JfGrad(3,4)
 logical(kind=iwp), external :: EQ, TF
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib, iVec
+character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(Zeta)

@@ -21,9 +21,12 @@ implicit none
 integer(kind=iwp), intent(in) :: mAO, nCoor, mBas, nCmp, nOp, nDeg, iAO
 real(kind=wp), intent(in) :: AOValue(mAO,nCoor,mBas,nCmp)
 real(kind=wp), intent(inout) :: SOValue(mAO,nCoor,mBas,nCmp*nDeg)
-integer(kind=iwp) :: i1, iAux, iCmp, iSO, j1
+integer(kind=iwp) :: i1, iAux, iSO, j1
 real(kind=wp) :: Aux(8), Fact, xa
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: iCmp
 character(len=80) :: Label
+#endif
 
 if (MolWgh == 0) then
   Fact = One/nDeg

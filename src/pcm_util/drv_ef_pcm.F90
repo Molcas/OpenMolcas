@@ -49,7 +49,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nTs, nFD, lOper(nTs), nOrdOp
 real(kind=wp), intent(in) :: FactOp(nTs), FD(nFD), CCoor(4,nTs)
 real(kind=wp), intent(inout) :: VTessera(3,nTs)
-integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ipFnlc, iPrim, iS, &
+integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ipFnlc, iPrim, iS, &
                      iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iTile, iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, &
                      jShell, jShll, kk, lDCRR, lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, &
                      niAng, njAng, nOp(3), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
@@ -57,6 +57,9 @@ real(kind=wp) :: A(3), B(3), C(3), FactNd, RB(3), TA(3), TRB(3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Fnl(:), Kappa(:), Kern(:), PCoor(:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 real(kind=wp), external :: DDot_
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 
 ! Auxiliary memory allocation.
 

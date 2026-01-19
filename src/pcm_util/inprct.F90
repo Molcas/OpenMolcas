@@ -30,12 +30,15 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
-integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, istatus, ITypRad, jRout, Last, n
+integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, istatus, ITypRad, Last
 real(kind=wp) :: aArea, epscm, poltot, r_min_Sphere, Radius, tal, Temp, val
 character(len=180) :: KWord, Key
 integer(kind=iwp), external :: iCLast, nToken, NumSolv
 real(kind=wp), external :: Anal_Gitt
 character(len=180), external :: Get_Ln
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: n
+#endif
 
 !                                                                      *
 !***********************************************************************

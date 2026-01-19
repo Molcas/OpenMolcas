@@ -27,7 +27,8 @@ integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 real(kind=wp), intent(in) :: CCoor(*)
-integer(kind=iwp) :: ii, iIrrep, iPL, nComp, nDens, nOrdOp
+
+integer(kind=iwp) :: iIrrep, iPL, nComp, nDens, nOrdOp
 logical(kind=iwp) :: DiffOp
 character(len=80) :: Label
 integer(kind=iwp), allocatable :: lOper(:)
@@ -35,6 +36,9 @@ real(kind=wp), allocatable :: D_Var(:)
 integer(kind=iwp), external :: iPL_espf
 procedure(grd_kernel) :: BdVGrd
 procedure(grd_mem) :: NAMmG
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 
 ! Prologue
 

@@ -26,9 +26,12 @@
       Integer LuSpool
       Character(len=180) KWord, Key
       Character(len=180), External:: Get_Ln
-      Integer i,iChrct,last,n
+      Integer iChrct,last
       Integer, External:: iCLast
       Real*8 dmpk_dfl
+#     ifdef _DEBUGPRINT_
+      Integer i,n
+#     endif
 *
 ***** Algorithms for using Cholesky vectors in RASSI ******************
 *

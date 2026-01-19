@@ -34,13 +34,17 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas_Valence(0:7), nBT, nBVT
-integer(kind=iwp) :: nFro(0:7), i, iBas, iGo, iIrrep, ij, ipTmp1, iSpin, jBas, nAct, nDens_Valence, nsa, nTst, iComp
+integer(kind=iwp) :: nFro(0:7), i, iBas, iGo, iIrrep, ij, iSpin, jBas, nAct, nDens_Valence, nsa, nTst, iComp
 logical(kind=iwp) :: lPrint
 real(kind=wp) :: CoefX, CoefR
-character(len=8) :: RlxLbl, Method
+character(len=8) :: Method
 character(len=80) :: KSDFT
 real(kind=wp), allocatable :: D1AV(:), Tmp(:)
 real(kind=wp), external :: Get_ExFac
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ipTmp1
+character(len=8) :: RlxLbl
+#endif
 
 !...  Prologue
 lPrint = .true.

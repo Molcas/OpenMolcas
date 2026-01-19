@@ -22,7 +22,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: i, ii, iIrrep, nComp, nDens, nOrdOp
+integer(kind=iwp) :: i, iIrrep, nComp, nDens, nOrdOp
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DiffOp, lECP, lPP, lFAIEMP
 character(len=80) :: Label
@@ -30,6 +30,9 @@ integer(kind=iwp), allocatable :: lOper(:)
 real(kind=wp), allocatable :: Coor(:,:), D_Var(:)
 procedure(grd_kernel) :: FragPGrd, M1Grd, M2Grd, NAGrd, PPGrd, PrjGrd, SROGrd
 procedure(grd_mem) :: FragPMmG, M1MmG, M2MmG, NAMmG, PPMmG, PrjMmG, SROMmG
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 
 !...  Prologue
 call CWTime(TCpu1,TWall1)

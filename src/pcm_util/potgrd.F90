@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(out) :: Grad(nGrad)
-integer(kind=iwp) :: ii, iIrrep, lOper(1), nComp, nDens, nOrdOp
+integer(kind=iwp) :: iIrrep, lOper(1), nComp, nDens, nOrdOp
 real(kind=wp) :: C(3), TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DiffOp
 character(len=80) :: Label
@@ -30,6 +30,9 @@ character(len=8) :: Method
 real(kind=wp), allocatable :: D_Var(:)
 procedure(grd_kernel) :: PCMGrd1
 procedure(grd_mem) :: PCMMmG
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 
 ! Prologue
 call CWTime(TCpu1,TWall1)

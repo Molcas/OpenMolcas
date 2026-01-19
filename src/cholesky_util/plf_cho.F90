@@ -37,22 +37,19 @@ implicit none
 integer(kind=iwp), intent(in) :: lInt, ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
 real(kind=wp), intent(inout) :: TInt(lInt)
 real(kind=wp), intent(in) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
-#include "print.fh"
-real(kind=wp), external :: ddot_
 integer(kind=iwp) :: A, AB, ABCD, B, C, CD, CDAB, D, i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, &
-                     irout, ISHLAB, ISHLCD, ISHLI, ISHLJ, ISHLK, ISHLL, iSO, iSOi, iSOs(4), jprint, jSO, jSOj, kSO, kSOk, lSO, &
+                     ISHLAB, ISHLCD, ISHLI, ISHLJ, ISHLK, ISHLL, iSO, iSOi, iSOs(4), jSO, jSOj, kSO, kSOk, lSO, &
                      lSOl, NCDAB, nijkl, NTELM, NUMA, NUMAB, NUMB, NUMC, NUMCD, NUMD
+#ifdef _DEBUGPRINT_
 real(kind=wp) :: r1, r2
+real(kind=wp), external :: ddot_
 
-irout = 109
-jprint = nprint(irout)
-if (jPrint >= 49) then
   r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
   r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
   write(u6,*) ' Sum=',r1
   write(u6,*) ' Dot=',r2
-end if
-if (jPrint >= 99) call RecPrt(' In Plf_CD: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
+  call RecPrt(' In Plf_CD: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
+#endif
 
 NUMC = NBSTSH(SHC)
 NUMD = NBSTSH(SHD)
