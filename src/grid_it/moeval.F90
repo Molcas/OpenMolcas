@@ -30,7 +30,10 @@ use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 ! nDrv: Between 0 and 2. The highest derivative to be calc.

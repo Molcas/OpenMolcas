@@ -41,7 +41,10 @@ subroutine SORT1B()
 
 use sort_data, only: lIndx, lInts, lwIBin, lwVBin, n_Int, nBin
 use stdalloc, only: mma_deallocate
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: iBin, iOpt

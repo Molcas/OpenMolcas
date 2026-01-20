@@ -25,7 +25,10 @@ subroutine AMPr(Beta,nZeta,Rslt,la,lb,Tabpp,Tabp,Tab0,Tabm,Tabmm)
 
 use Index_Functions, only: C_Ind3, nTri_Elem1
 use Constants, only: Two, Four, Eight, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb

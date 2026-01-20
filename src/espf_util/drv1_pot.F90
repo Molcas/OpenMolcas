@@ -24,16 +24,19 @@ subroutine Drv1_Pot(FD,CCoor,pot,ngrid,ncmp,nordop)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
-use Symmetry_Info, only: ChOper, nIrrep
+use Symmetry_Info, only:  nIrrep
 use Real_Spherical, only: ipSph, RSph
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
-use define_af, only: AngTp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp, u6
+#ifdef _DEBUGPRINT_
+use define_af, only: AngTp
+use Symmetry_Info, only: ChOper
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: ngrid, ncmp, nordop

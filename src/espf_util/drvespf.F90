@@ -19,8 +19,11 @@ use Basis_Info, only: nBas
 use Grd_interface, only: grd_kernel, grd_mem
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 use Print, only: nPrint
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

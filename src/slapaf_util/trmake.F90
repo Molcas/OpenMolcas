@@ -14,7 +14,10 @@ subroutine TRMake(TRVec,Coor,nAtoms,nTR,uMtrx,nDim,CofM)
 use Symmetry_Info, only: VarR, VarT
 use Slapaf_Info, only: dMass, Smmtrc
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nDim

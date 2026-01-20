@@ -22,7 +22,10 @@ subroutine Ass_pXp(Beta,nZeta,rFinal,la,lb,Slalbp,Slalbm,nComp)
 
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp

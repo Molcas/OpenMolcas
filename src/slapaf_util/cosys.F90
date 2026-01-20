@@ -18,12 +18,13 @@ implicit none
 real(kind=wp), intent(in) :: Cent(3,3)
 real(kind=wp), intent(out) :: r(3), xyz(3,2)
 integer(kind=iwp) :: i, iComp(3), j, k, nComp
-real(kind=wp) :: Co, Crap, Fi, r11, r12, r2, R21j, R21k, R23j, R23k, RR, RR1, RR2, Si
+real(kind=wp) :: Co, Crap, r11, r12, r2, R21j, R21k, R23j, R23k, RR, RR1, RR2, Si
 logical(kind=iwp) :: Linear, Retry
 real(kind=wp), parameter :: ThrAcos = 1.0e-6_wp
 real(kind=wp), external :: ArCos, ArSin
-
 #ifdef _DEBUGPRINT_
+real(kind=wp) :: Fi
+
 call RecPrt('CoSys: Cent',' ',Cent,3,3)
 #endif
 
@@ -51,11 +52,13 @@ Crap = sqrt(Crap)
 #endif
 if (Crap < 1.0e-6_wp) then
   Si = Crap
+#ifdef _DEBUGPRINT_
   if (Co < Zero) then
     Fi = Pi-ArSin(Si)
   else
     Fi = ArSin(Si)
   end if
+#endif
 else
   if ((Co > One) .and. (Co < One+ThrAcos)) Co = One
   if ((Co < -One) .and. (Co > -One-ThrAcos)) Co = -One
@@ -64,8 +67,10 @@ else
     write(u6,*) 'Error in cosys: arcos(',Co,')'
     call Abend()
   end if
-  Fi = ArCos(Co)
   Si = sqrt(One-Co**2)
+#ifdef _DEBUGPRINT_
+  Fi = ArCos(Co)
+#endif
 end if
 #ifdef _DEBUGPRINT_
   write(u6,*) 'Fi,Pi=',Fi,Pi

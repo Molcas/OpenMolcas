@@ -45,9 +45,9 @@ integer(kind=iwp) :: i, iAng, iBas, iCar, iCent, iCnt, iCnttp, iCurCenter, iCurC
                      jSlocal, ld, lDCRT, LmbdT, lOp(4), maxDensSize, mdci, mGrad, mVec, mVecAC, mVecCB, n_Her, nac, ncb, nDAO, &
                      nDCRT, nSkal, nVecAC, nVecCB
 logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EnergyWeight
-real(kind=wp), external :: DNrm2_
 logical(kind=iwp), external :: EQ
 #ifdef _DEBUGPRINT_
+real(kind=wp), external :: DNrm2_
 integer(kind=iwp) :: ia, ib, iVec
 character(len=80) :: Label
 #endif

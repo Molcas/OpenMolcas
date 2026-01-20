@@ -28,10 +28,13 @@ use Definitions, only: wp, iwp, u6
 use Print, only: nPrint
 
 implicit none
-integer(kind=iwp) :: iPrint, iRout, jInter, kInter, nInter, nRowH
+integer(kind=iwp) :: iPrint, iRout, jInter, kInter, nRowH
 real(kind=wp) :: Delta_
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: nInter
 
 nInter = size(qInt,1)
+#endif
 Delta_ = Delta/2.5_wp
 
 iRout = 183

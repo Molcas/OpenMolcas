@@ -41,14 +41,18 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
-use Symmetry_Info, only: ChOper, nIrrep
+use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
-use define_af, only: AngTp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 use Print, only: nPrint
+#ifdef _DEBUGPRINT_
+use define_af, only: AngTp
+use Definitions, only: u6
+use Symmetry_Info, only: ChOper
+#endif
 
 implicit none
 procedure(grd_kernel) :: Kernel

@@ -27,11 +27,14 @@ subroutine XFdInt( &
 use external_centers, only: nXF, XF
 use Phase_Info, only: iPhase
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
-use Symmetry_Info, only: ChOper
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Symmetry_Info, only: ChOper
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "int_interface.fh"

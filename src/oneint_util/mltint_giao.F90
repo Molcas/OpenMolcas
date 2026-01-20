@@ -28,10 +28,12 @@ subroutine MltInt_GIAO( &
 
 use Her_RW, only: HerR, HerW, iHerR, iHerW
 use Index_Functions, only: nTri_Elem1
-use Symmetry_Info, only: ChOper
 use NDDO, only: oneel_NDDO
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+#ifdef _DEBUGPRINT_
+use Symmetry_Info, only: ChOper
+#endif
 
 implicit none
 #include "int_interface.fh"

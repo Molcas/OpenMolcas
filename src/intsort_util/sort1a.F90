@@ -52,7 +52,10 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 
 use TwoDat, only: RAMD
 use sort_data, only: lBin, lwIBin, lwVBin, mInt, n_Int
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nUt

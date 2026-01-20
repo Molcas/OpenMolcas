@@ -30,10 +30,12 @@ subroutine PCMgrd1( &
 use PCM_arrays, only: PCMTess
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
-use Symmetry_Info, only: ChOper
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
+#ifdef _DEBUGPRINT_
+use Symmetry_Info, only: ChOper
+#endif
 
 implicit none
 #include "grd_interface.fh"

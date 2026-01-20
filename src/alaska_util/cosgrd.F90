@@ -35,7 +35,9 @@ subroutine COSGrd( &
 use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
+#ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
+#endif
 use rctfld_module, only: nTS
 use Disp, only: IndDsp
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel

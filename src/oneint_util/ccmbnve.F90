@@ -20,7 +20,10 @@ subroutine CCmbnVe(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,nComp,Vxyz,KVector,P)
 
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Half, Quart, OneHalf, Onei
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp

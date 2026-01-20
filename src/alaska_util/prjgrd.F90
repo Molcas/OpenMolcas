@@ -44,9 +44,9 @@ integer(kind=iwp) :: i, ia, iaC, iAng, ib, iBk, iC, iCar, iCb, iCent, iCmp, iDCR
                      nVecAC, nVecCB
 real(kind=wp) :: C(3), Fact, TC(3)
 logical(kind=iwp) :: ABeq(3), JfGrad(3,4)
-real(kind=wp), external :: DNrm2_
 logical(kind=iwp), external :: EQ, TF
 #ifdef _DEBUGPRINT_
+real(kind=wp), external :: DNrm2_
 integer(kind=iwp) :: iVec
 character(len=80) :: Label
 #endif

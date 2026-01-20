@@ -30,8 +30,11 @@ use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iAOtSO, iOffSO
 use Cholesky, only: iOff_col, iShlSO, iShP2Q, iShP2RS, iSOShl, LuPri, nBstSh, nDim_Batch, ShA, ShAB, ShB, ShC, ShCD, ShD
 use sort_data, only: nSkip
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: lInt, iCmp(4), iShell(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nSOint
@@ -42,11 +45,11 @@ integer(kind=iwp) :: A, AB, ABCD, B, C, CD, CDAB, D, i1, i12, i2, i3, i34, i4, I
                      ISHLK, ISHLL, iSO, iSOi, iSym(0:7), ISYM_AB, ISYM_CD, ISYM_RS, ix, j, j1, j12, j2, j2max, j3, j4, jCmpMx, &
                      jSO, jSOj, jSym(0:7), k12, k34, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, lSym(0:7), memSO2, nijkl, &
                      NTELM, NUMA, NUMB, NUMC, NUMD
+logical(kind=iwp) :: qij, qijij, qkl, Shij, Shkl
 #ifdef _DEBUGPRINT_
+real(kind=wp), external :: ddot_
 real(kind=wp) :: r1, r2, tr1 = Zero, tr2 = Zero
 #endif
-logical(kind=iwp) :: qij, qijij, qkl, Shij, Shkl
-real(kind=wp), external :: ddot_
 
 k12 = 0
 k34 = 0

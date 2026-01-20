@@ -24,7 +24,10 @@ subroutine CmbnRF1(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alpha
 !***********************************************************************
 
 use Symmetry_Info, only: nIrrep, iChBas
-use Index_Functions, only: C_Ind, nTri_Elem1, nTri3_Elem
+use Index_Functions, only: C_Ind, nTri3_Elem
+#ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem1
+#endif
 use Constants, only: Two, Three
 use Definitions, only: wp, iwp
 

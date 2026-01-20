@@ -27,7 +27,7 @@ use Print, only: nPrint
 
 implicit none
 integer(kind=iwp) :: Columbus, i, iAdd(0:7), iChxyz, iComp, iIrrep, iMAX, iMode, ind, iPL, isAtom, ISPIN1, ISPIN2, itest, jCoSet, &
-                     jPrint, jTest, LSYM1, LSYM2, n, nCoSet, nHess, nRM, nRoots, nStb
+                     jTest, LSYM1, LSYM2, n, nCoSet, nHess, nRM, nRoots, nStb
 real(kind=wp) :: tmp
 logical(kind=iwp) :: Do_ESPF, Exist_2, Found, Same, Skip
 character(len=8) :: CMAX
@@ -53,10 +53,6 @@ if (CMAX /= ' ') then
 else
   MxItr = MaxItr
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-jPrint = 10
 !                                                                      *
 !***********************************************************************
 !                                                                      *

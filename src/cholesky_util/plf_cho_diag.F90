@@ -30,8 +30,11 @@ subroutine PLF_Cho_Diag(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,
 use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Cholesky, only: iShlSO, iSOSHl, nBstSh, ShA, ShB
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: lInt, ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)

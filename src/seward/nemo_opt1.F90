@@ -24,16 +24,16 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), Length(1), n_int(1), iAngr, iBas, iCmp, icnt, &
+integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), ip(3), iSml(3), Length(1), n_int(1), iAngr, iBas, iCmp, icnt, &
                      iCnttp, iComp, idbg, iExp, iip, iMltPl, iOpt, iRC, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, &
-                     kExp, kExpi, kExpj, kSh, kShEnd, kShStr, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nSym
+                     kExp, kExpi, kExpj, kSh, kShEnd, kShStr, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot
 real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, rSum
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ipMP(:), iSm(:)
 real(kind=wp), allocatable :: P_Matrix(:), MP_Matrix(:)
 integer(kind=iwp), parameter :: MxMltPl = 10
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i, L
+integer(kind=iwp) :: i, L, lOper(3), nSym
 #endif
 
 #include "warnings.h"
@@ -142,7 +142,9 @@ end do
 
 nBas_Cont(:) = nBas
 
+#ifdef _DEBUGPRINT_
 nSym = nIrrep
+#endif
 iOpt = 0
 call ClsOne(iRC,iOpt)
 iOpt = 0
@@ -177,7 +179,9 @@ do iComp=1,nComp
     call Abend()
   end if
   iSml(iComp) = iSmLbl
+#ifdef _DEBUGPRINT_
   lOper(iComp) = 1
+#endif
   ip(iComp) = 1+nLength_Tot
   nLength_Tot = nLength_Tot+Length(1)+4
 end do

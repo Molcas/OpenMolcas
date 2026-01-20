@@ -29,7 +29,10 @@ subroutine AMPInt( &
 
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "int_interface.fh"

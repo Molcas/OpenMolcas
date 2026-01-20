@@ -43,11 +43,15 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
-use Symmetry_Info, only: ChOper, nIrrep
+use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
 use define_af, only: AngTp
+use Definitions, only: u6
+use Symmetry_Info, only: ChOper
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nComp, ip(nComp), LenTot, lOper(nComp), iStabO(0:7), nStabO, nIC
@@ -57,10 +61,11 @@ integer(kind=iwp) :: iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0
                      iPrim, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, jCmp, &
                      jCnt, jCnttp, jPrim, jS, jShell, jShll, LmbdR, LambdT, lDCRR, lFinal, mdci, mdcj, mSO, nDCRR, nDCRT, nOp(2), &
                      nSkal, nSO, nStabM
-real(kind=wp) :: A(3), B(3), Fact, RB(3)
+real(kind=wp) :: B(3), Fact, RB(3)
 real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 #ifdef _DEBUGPRINT_
+real(kind=wp) :: A(3)
 integer(kind=iwp) :: i, ii
 #endif
 
@@ -88,7 +93,9 @@ do iS=1,nSkal
   iShell = iSD(11,iS)
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
+# ifdef _DEBUGPRINT_
   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
+# endif
   do jS=iS,iS
     jShll = iSD(0,jS)
     jAng = iSD(1,jS)
