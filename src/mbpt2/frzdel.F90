@@ -22,6 +22,7 @@ subroutine FrzDel(NREMO,IREMO,EOCC,E1,NREME,IREME,EEXT,E2,CMO,CMO1,ISEQ)
 
 use MBPT2_Global, only: nBas
 use Definitions, only: wp, iwp
+use cOrbInf, only: nSym, nOrb, nFro, nDel, nOcc, nExt
 
 implicit none
 integer(kind=iwp), intent(in) :: NREMO(*), IREMO(8,*), NREME(*), IREME(8,*)
@@ -29,7 +30,6 @@ real(kind=wp), intent(_OUT_) :: EOCC(*), EEXT(*), CMO(*)
 real(kind=wp), intent(in) :: E1(*), E2(*), CMO1(*)
 integer(kind=iwp), intent(_OUT_) :: ISEQ(*)
 integer(kind=iwp) :: I, IAD, IAD0, IADD, IADE, IADF, IADO, IADR, IEE, IENE, IENO, IEO, ISYM, J
-#include "corbinf.fh"
 
 IAD0 = 1
 IADR = 1

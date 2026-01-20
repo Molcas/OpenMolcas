@@ -20,6 +20,7 @@ use MBPT2_Global, only: DiaA, EOcc, EVir, mAdDel, mAdFro, mAdOcc, mAdVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four
 use Definitions, only: wp, iwp
+use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -28,7 +29,6 @@ implicit none
 integer(kind=iwp) :: iA, iB, iI, iJ, iSym, iSym1, iSym2, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, xibja, xijab, xijba
 real(kind=wp), allocatable :: Int1(:), IntC(:), Scr1(:)
-#include "corbinf.fh"
 
 !                                                                      *
 !***********************************************************************

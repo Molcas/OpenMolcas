@@ -16,6 +16,7 @@ subroutine rhs_mp2_help1(iSymA,iSymB,iSymI,iSymJ,Int1,Int2,Scr1)
 use MBPT2_Global, only: Density, EMP2, EOcc, EVir, mAdDel, mAdFro, mAdOcc, mAdVir, Mp2Lagr, VECL2, WDensity
 use Constants, only: One, Two
 use Definitions, only: wp, iwp
+use cOrbInf, only: nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ
@@ -25,7 +26,6 @@ integer(kind=iwp) :: iA, iAA, iAB, iAC, iB, iBB, iBA, iBC, iBDel, iBK, iC, iCA, 
 real(kind=wp) :: EDenom, EDiff, EDiffac, EDiffbc, EDiffik, EDiffjk, fac_ab, fac_ij, T_ab, T_ba, T_ij, T_ji, Tij, Tji, xacbj, &
                  xaibj, xajbc, xajbi, xbcaj, xbiaj, xiajb, xiajc, xiakb, xibja, xibjc, xibjk, xicja, xicjb, xikjb, xjakb, xkaib, &
                  xkajb
-#include "corbinf.fh"
 
 !                                                                      *
 !***********************************************************************

@@ -30,6 +30,7 @@ subroutine PrInp_MBPT2(Eocc,Eext,iTst)
 
 use MBPT2_Global, only: iDel, iFro, iPL, nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nTit, Title
 use Definitions, only: wp, iwp, u6
+use cOrbInf, only: nSym, nFro, nOcc, nDel, nExt
 
 implicit none
 real(kind=wp), intent(in) :: Eocc(*), Eext(*)
@@ -40,7 +41,6 @@ character(len=3) :: lIrrep(8)
 character(len=8) :: Fmt1, Fmt2
 character(len=120) :: Line, StLine
 character(len=102) :: XLine
-#include "corbinf.fh"
 
 !----------------------------------------------------------------------*
 !     Start and define the paper width                                 *

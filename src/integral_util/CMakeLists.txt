@@ -41,6 +41,7 @@ set (sources
      conmax.F90
      contei.F90
      coor_setup.F90
+     corbinf.F90
      coset.F90
      covrad.F90
      covrad_data.F90
@@ -312,6 +313,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      basis_mode.F90
+     corbinf.F90
      covrad_data.F90
      dcr_mod.F90
      define_af.F90

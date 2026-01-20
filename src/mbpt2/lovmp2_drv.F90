@@ -26,6 +26,7 @@ use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use cOrbInf, only: nSym, nFro, nOcc, nDel, nExt
 
 implicit none
 #include "Molcas.fh"
@@ -46,7 +47,6 @@ integer(kind=iwp), allocatable :: iD_vir(:)
 real(kind=wp), allocatable :: EOrb(:,:), LCMO(:,:), S(:), Saa(:), SQ(:), X(:)
 character(len=LenIn8), allocatable :: UBName(:)
 real(kind=wp), external :: ddot_
-#include "corbinf.fh"
 
 irc = 0
 EMP2 = Zero
