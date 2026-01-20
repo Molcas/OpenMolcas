@@ -54,7 +54,7 @@ nOrb2LocT = nOrb2Loc(1)
 nFroT = nFro(1)
 kOffC = nBasT*nFroT+1
 
-if (ScrFac/=Zero) Call Scram(CMO,nSym,nBasT,nOrb2LocT,ScrFac)
+if (ScrFac/=Zero) Call Scram(CMO(kOffC),nSym,nBasT,nOrb2LocT,ScrFac)
 
 Converged = .false.
 
