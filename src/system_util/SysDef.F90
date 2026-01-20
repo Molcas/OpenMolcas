@@ -18,11 +18,10 @@ Module SysDef
 !----------------------------------------------------------------------*
 !     Character Arch_Type*13
 Private
-#include "SysDef.fh"
-!#ifdef _I8_
-!      Integer, Parameter:: ItoB = 8 , RtoB = 8 , RtoI = 1
-!#else
-!      Integer, Parameter:: ItoB = 4 , RtoB = 8 , RtoI = 2
-!#endif
+#ifdef _I8_
+      Integer, Parameter:: ItoB = 8 , RtoB = 8 , RtoI = 1
+#else
+      Integer, Parameter:: ItoB = 4 , RtoB = 8 , RtoI = 2
+#endif
 Public  ItoB, RtoB, RtoI
 End Module SysDef
