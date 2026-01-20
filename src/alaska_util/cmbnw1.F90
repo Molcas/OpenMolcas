@@ -34,17 +34,14 @@ real(kind=wp), intent(in) :: Welp0(nZeta,(la+2)*(la+3)/2,(lb+1)*(lb+2)/2), Welm0
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 logical(kind=iwp) :: IfGrad(3,2)
-integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ip0m, ip0p, ipa, ipb, ipm0, ipp0, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, &
-                     iybMax, iza, izb, iZeta, n0m, n0p, nDAO, nm0, np0
+integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ip0m, ip0p, ipa, ipb, ipm0, ipp0, ixa, ixb, iya, iyaMax, iyb, &
+                     iybMax, iza, izb, iZeta, nDAO
 real(kind=wp) :: Fact, ps, xa, xb, ya, yb, za, zb
 integer(kind=iwp), external :: iPrmt
 real(kind=wp), external :: DDot_
-#include "print.fh"
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) n0m, n0p, nm0, np0
 
-iRout = 134
-iPrint = nPrint(iRout)
-
-if (iPrint >= 99) then
   call RecPrt(' In CmbnW1: Zeta  ',' ',Zeta,1,nZeta)
   call RecPrt(' In CmbnW1: rKappa',' ',rKappa,1,nZeta)
   call RecPrt(' In CmbnW1: Alpha ',' ',Alpha,1,nZeta)
@@ -57,7 +54,11 @@ if (iPrint >= 99) then
   if (la >= 1) call RecPrt(' In CmbnW1: Welm0',' ',Welm0,nZeta,nm0)
   call RecPrt(' In CmbnW1: Wel0p',' ',Wel0p,nZeta,n0p)
   if (lb >= 1) call RecPrt(' In CmbnW1: Wel0m',' ',Wel0m,nZeta,n0m)
-end if
+#else
+#include "macros.fh"
+unused_var(rkappa)
+unused_var(zeta)
+#endif
 
 nDAO = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
 do ixa=0,la
@@ -171,10 +172,11 @@ end do
 
 ! Trace the gradient integrals
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' W(1)',' ',rFinal,nDAO,6)
   call RecPrt('   D ',' ',DAO,nDAO,1)
-end if
+#endif
+
 do iCn=1,2
   do iCar=1,3
     if (IndGrd(iCar,iCn) /= 0) then

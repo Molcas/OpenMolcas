@@ -44,6 +44,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter
@@ -52,7 +53,6 @@ real(kind=wp), intent(out) :: dq(nInter)
 character(len=6), intent(out) :: UpMeth
 real(kind=wp), intent(inout) :: dqHdq
 character, intent(inout) :: Step_Trunc
-#include "print.fh"
 integer(kind=iwp) :: i, ij, iPrint, iRout, iStatus, Iter, IterMx, j, k, mInter, nNeg, NumVal, nVStep
 real(kind=wp) :: A_RFO, A_RFO_long, A_RFO_short, dqdq, dqdq_long, dqdq_short, EigVal_r, EigVal_t, gv, Lambda, Thr
 logical(kind=iwp) :: Found, Iterate
@@ -62,10 +62,11 @@ real(kind=wp), external :: DDot_
 
 iRout = 215
 iPrint = nPrint(iRout)
-if (iPrint >= 99) then
+
+#ifdef _DEBUGPRINT_
   call RecPrt(' In RS_P_RFO: H','(10f10.6)',H,nInter,nInter)
   call RecPrt(' In RS_P_RFO: g','(10f10.6)',g,nInter,1)
-end if
+#endif
 
 UpMeth = 'RSPRFO'
 
@@ -121,11 +122,11 @@ do while ((i >= 0) .and. (nNeg == 0))
   if (Val(i) < Zero) nNeg = i
   i = i-1
 end do
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In RS_P_RFO: Eigenvalues',' ',Val,1,NumVal)
   call RecPrt(' In RS_P_RFO: Eigenvectors',' ',Vec,nInter,NumVal)
   write(u6,*) ' nNeg=',nNeg
-end if
+#endif
 
 if (iPrint >= 6) then
   write(u6,*)
@@ -204,11 +205,11 @@ do
     !write(u6,*) 'dqdq_max=',dqdq_max
     ! Sign
     EigVal_r = -DDot_(nInter,StepN,1,GradN,1)
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       call RecPrt('dq_r',' ',StepN,1,nInter)
       call RecPrt(' g_r',' ',GradN,1,nInter)
       write(u6,*) 'Lambda=',EigVal_r
-    end if
+#   endif
     if (EigVal_r < -Thr) then
       write(u6,*)
       write(u6,*) 'W A R N I N G !'
@@ -263,11 +264,11 @@ do
   ! dqdq_min = sqrt(DDot_(nInter,StepP,1,StepP,1))
   !write(u6,*) 'dqdq_min=',dqdq_min
   EigVal_t = -DDot_(nInter,StepP,1,GradP,1) ! Sign
-  if (iPrint >= 99) then
+# ifdef _DEBUGPRINT_
     call RecPrt('dq_t',' ',StepP,1,nInter)
     call RecPrt(' g_t',' ',GradP,1,nInter)
     write(u6,*) 'Lambda=',EigVal_t
-  end if
+# endif
   if (EigVal_t > Thr) then
     write(u6,*)
     write(u6,*) 'W A R N I N G !'
@@ -339,12 +340,10 @@ if (iPrint >= 6) then
 end if
 dqHdq = dqHdq+Lambda*Half
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'EigVal,dqHdq=',Lambda,dqHdq
   call RecPrt(' In RS_P_RFO: g','(10f10.6)',g,nInter,1)
   call RecPrt(' In RS_P_RFO:dq','(10f10.6)',dq,nInter,1)
-end if
-
-return
+#endif
 
 end subroutine RS_P_RFO

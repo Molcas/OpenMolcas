@@ -20,9 +20,9 @@ use Symmetry_Info, only: nIrrep
 use rmat, only: bParm, Dipol, EPSABS, EPSQ, EPSREL, QCoul, RMat_On, RMatR
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: i, iChxyz, iDum, iPrint, iRout, iStb(0:7), iWel, iXF, j, jCoSet(8,8), nSTab_iXF
 #ifdef _EFP_
 integer(kind=iwp) :: k
@@ -187,7 +187,5 @@ if (PrintOperators) then
   call CollapseOutput(0,'   Operator info:')
   write(u6,*)
 end if
-
-return
 
 end subroutine Print_OpInfo

@@ -18,12 +18,12 @@ use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: iStop
 logical(kind=iwp), intent(in) :: Just_Frequencies
 #include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iDo_dDipM, iIrrep, iOff, iPrint, iRout, isAtom, iTemp, j, jsAtom, LOut, Lu_xyz, N_ZMAT, nCoord, nsAtom_p, &
                      nTemp
 real(kind=wp) :: r, r_Iter, x1, x2, xWeight, y1, y2, z1, z2
@@ -241,7 +241,5 @@ end if
 !***********************************************************************
 !                                                                      *
 if (SlStop .or. do_printcoords) call CollapseOutput(0,'Geometry section')
-
-return
 
 end subroutine DstInf

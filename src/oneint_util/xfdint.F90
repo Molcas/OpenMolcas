@@ -27,16 +27,18 @@ subroutine XFdInt( &
 use external_centers, only: nXF, XF
 use Phase_Info, only: iPhase
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
-use Symmetry_Info, only: ChOper
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Symmetry_Info, only: ChOper
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: i, iAnga(4), iChxyz, iDCRT(0:7), iDum, iFd, ii, iOrdOp, ip1, ip2, ip3, ipI, ipIn, iPrint, iRout, iStb(0:7), &
+integer(kind=iwp) :: i, iAnga(4), iChxyz, iDCRT(0:7), iDum, iFd, iOrdOp, ip1, ip2, ip3, ipI, ipIn, iStb(0:7), &
                      ix, iy, iz, jCoSet(8,8), jElem, kab, lab, labcd, lcd, lDCRT, LmbdT, mabMax, mabMin, mArr, mcdMax, mcdMin, &
                      nData, nDCRT, nFLOP, nMem, nOp, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Factx, Facty, Factz, TC(3)
@@ -48,6 +50,9 @@ procedure(rys2d_kernel) :: XRys2D
 procedure(tval_kernel) :: TNAI
 integer(kind=iwp), external :: iChAtm, NrOpr
 logical(kind=iwp), external :: EQ
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -56,9 +61,6 @@ unused_var(nHer)
 unused_var(CoorO)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
-iRout = 151
-iPrint = nPrint(iRout)
 
 rFinal(:,:,:,:) = Zero
 
@@ -121,7 +123,9 @@ do iOrdOp=0,nOrdOp
     ! Pick up the center coordinates
     C(1:3) = XF(1:3,iFd)
 
-    if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
+#   ifdef _DEBUGPRINT_
+    call RecPrt('C',' ',C,1,3)
+#   endif
 
     ! Generate stabilizer of C
 
@@ -133,7 +137,7 @@ do iOrdOp=0,nOrdOp
     call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
     Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       write(u6,*) ' m      =',nStabM
       write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
       write(u6,*) ' s      =',nStb
@@ -141,7 +145,7 @@ do iOrdOp=0,nOrdOp
       write(u6,*) ' LambdaT=',LmbdT
       write(u6,*) ' t      =',nDCRT
       write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
-    end if
+#   endif
 
     do lDCRT=0,nDCRT-1
       call OA(iDCRT(lDCRT),C,TC)
@@ -225,7 +229,5 @@ end do     ! iOrdOp
 
 call mma_deallocate(ZFd)
 call mma_deallocate(ZRFd)
-
-return
 
 end subroutine XFdInt

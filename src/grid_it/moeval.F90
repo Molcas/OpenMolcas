@@ -30,7 +30,10 @@ use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 ! nDrv: Between 0 and 2. The highest derivative to be calc.
@@ -38,18 +41,16 @@ implicit none
 integer(kind=iwp), intent(in) :: nMOs, nCoor, nCMO, DoIt(nMOs), nDrv, mAO
 real(kind=wp), intent(out) :: MOValue(mAO,nCoor,nMOs)
 real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)
-#include "print.fh"
-integer(kind=iwp) :: iAng, iAO, iAOttp, iBas, iCmp, iCnt, iCnttp, iDrv, iG, iPrim, iPrint, ipx, ipy, ipz, iRout, iShll, iSkal, &
+integer(kind=iwp) :: iAng, iAO, iAOttp, iBas, iCmp, iCnt, iCnttp, iDrv, iG, iPrim, ipx, ipy, ipz, iShll, iSkal, &
                      kSh, mdc, mRad, nAngular, nAO, nCnt, nDeg, nElem, nForm, nOp, nRadial, nSO, nTerm, nTest, nxyz
 real(kind=wp) :: A(3), px, py, pz, RA(3), Thr
 integer(kind=iwp), allocatable :: Ang(:)
 real(kind=wp), allocatable :: AOs(:), Radial(:), SOs(:), xyz(:)
 integer(kind=iwp), external :: NrOpr
 
-iRout = 112
-iPrint = nPrint(iRout)
-
-if (iPrint >= 99) write(u6,*) ' In MOEval'
+#ifdef _DEBUGPRINT_
+write(u6,*) ' In MOEval'
+#endif
 MOValue(:,:,:) = Zero
 
 ! Loop over shells.
@@ -163,7 +164,5 @@ do iAng=S%iAngMx,0,-1
     end do ! iCnt
   end do
 end do
-
-return
 
 end subroutine MOEval

@@ -36,14 +36,15 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
 integer(kind=iwp) :: ia, iaC, iAng, ib, iC, iCb, iCnt, iCnttp, iComp, iDCRT(0:7), iIC, iIrrep, ip, ipaC, ipC, ipCb, ipF1, ipF2, &
-                     ipK1, ipK2, ipP1, ipP2, iPrint, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iRout, iShll, l, lDCRT, llOper, LmbdT, mArr, &
+                     ipK1, ipK2, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iShll, l, lDCRT, llOper, LmbdT, mArr, &
                      mdc, nac, ncb, nDCRT, nExpi, nOp
 real(kind=wp) :: C(3), Fact, Factor, TC(3), Xg
-character(len=80) :: Label
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
+#ifdef _DEBUGPRINT_
+character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(Zeta)
@@ -53,16 +54,16 @@ unused_var(iChO)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 191
-iPrint = nPrint(iRout)
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In SROInt: A',' ',A,1,3)
   call RecPrt(' In SROInt: RB',' ',RB,1,3)
   call RecPrt(' In SROInt: CoorO',' ',CoorO,1,3)
   call RecPrt(' In SROInt: P',' ',P,nZeta,3)
   write(u6,*) ' In SROInt: la,lb=',' ',la,lb
-end if
+#else
+unused_var(P)
+#endif
 
 rFinal(:,:,:,:) = Zero
 
@@ -88,10 +89,14 @@ do iCnttp=1,nCnttp
           ipC = ip
           ip = ip+nExpi**2
 
-          if (iPrint >= 49) call RecPrt(' The Akl matrix',' ',Shells(iShll)%Akl(:,:,1),nExpi,nExpi)
+#         ifdef _DEBUGPRINT_
+          call RecPrt(' The Akl matrix',' ',Shells(iShll)%Akl(:,:,1),nExpi,nExpi)
+#         endif
           Array(ipC:ipC+nExpi**2-1) = pack(Shells(iShll)%Akl(:,:,1),.true.)
           if (EQ(A,RB) .and. EQ(A,TC) .and. dbsc(iCnttp)%NoPair) then
-            if (iPrint >= 49) call RecPrt(' The Adl matrix',' ',Shells(iShll)%Akl(:,:,2),nExpi,nExpi)
+#           ifdef _DEBUGPRINT_
+            call RecPrt(' The Adl matrix',' ',Shells(iShll)%Akl(:,:,2),nExpi,nExpi)
+#           endif
             Array(ipC:ipC+nExpi**2-1) = Array(ipC:ipC+nExpi**2-1)+pack(Shells(iShll)%Akl(:,:,2),.true.)
           end if
 
@@ -125,7 +130,9 @@ do iCnttp=1,nCnttp
           nHer = (la+iAng+2)/2
           call MltPrm(Alpha,nAlpha,Shells(iShll)%Exp,nExpi,Array(ipZ1),Array(ipZI1),Array(ipK1),Array(ipP1),Array(ipF1), &
                       nAlpha*nExpi,iComp,la,iAng,A,TC,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
-          if (iPrint >= 99) call RecPrt('<a|srbs>',' ',Array(ipF1),nAlpha*nExpi,nac)
+#         ifdef _DEBUGPRINT_
+          call RecPrt('<a|srbs>',' ',Array(ipF1),nAlpha*nExpi,nac)
+#         endif
           ip = ip-6*nAlpha*nExpi
 
           ipF2 = ip
@@ -155,7 +162,9 @@ do iCnttp=1,nCnttp
           nHer = (iAng+lb+2)/2
           call MltPrm(Shells(iShll)%Exp,nExpi,Beta,nBeta,Array(ipZ2),Array(ipZI2),Array(ipK2),Array(ipP2),Array(ipF2),nExpi*nBeta, &
                       iComp,iAng,lb,TC,RB,nHer,Array(ip),mArr,CoorO,nOrdOp,0)
-          if (iPrint >= 99) call RecPrt('<srbs|b>',' ',Array(ipF2),nExpi*nBeta,ncb)
+#         ifdef _DEBUGPRINT_
+          call RecPrt('<srbs|b>',' ',Array(ipF2),nExpi*nBeta,ncb)
+#         endif
           ip = ip-6*nExpi*nBeta
           ipTmp = ip
           ip = ip+max(nAlpha*nExpi*nac,nExpi*nBeta*ncb)
@@ -182,7 +191,9 @@ do iCnttp=1,nCnttp
 
           call DGEMM_('T','N',nAlpha*nExpi*nTri_Elem1(la),(2*iAng+1),nTri_Elem1(iAng),One,Array(ipTmp),nTri_Elem1(iAng), &
                       RSph(ipSph(iAng)),nTri_Elem1(iAng),Zero,Array(ipF1),nAlpha*nExpi*nTri_Elem1(la))
-          if (iPrint >= 99) call RecPrt('<A|srbs>',' ',Array(ipF1),nAlpha*nExpi,nTri_Elem1(la)*(2*iAng+1))
+#         ifdef _DEBUGPRINT_
+          call RecPrt('<A|srbs>',' ',Array(ipF1),nAlpha*nExpi,nTri_Elem1(la)*(2*iAng+1))
+#         endif
 
           ! And (almost) the same thing for the righthand side, form
           ! kjCb from kjcb
@@ -201,7 +212,9 @@ do iCnttp=1,nCnttp
           call DgeTMo(Array(ipF2),nTri_Elem1(lb),nTri_Elem1(lb),nExpi*nBeta*(2*iAng+1),Array(ipTmp),nExpi*nBeta*(2*iAng+1))
           l = nExpi*nBeta*(2*iAng+1)*nTri_Elem1(lb)
           Array(ipF2:ipF2+l-1) = Array(ipTmp:ipTmp+l-1)
-          if (iPrint >= 99) call RecPrt('<srbs|B>',' ',Array(ipF2),nExpi*nBeta,(2*iAng+1)*nTri_Elem1(lb))
+#         ifdef _DEBUGPRINT_
+          call RecPrt('<srbs|B>',' ',Array(ipF2),nExpi*nBeta,(2*iAng+1)*nTri_Elem1(lb))
+#         endif
 
           ! Next Contract (ikaC)*(klC)*(ljCb) over k,l and C,
           ! producing ijab,
@@ -216,23 +229,29 @@ do iCnttp=1,nCnttp
 
           do ib=1,nTri_Elem1(lb)
             do ia=1,nTri_Elem1(la)
-              if (iPrint >= 99) write(u6,*) ' ia,ib=',ia,ib
+#             ifdef _DEBUGPRINT_
+              write(u6,*) ' ia,ib=',ia,ib
+#             endif
 
               do iC=1,(2*iAng+1)
-                if (iPrint >= 99) write(u6,*) ' iC,=',iC
+#               ifdef _DEBUGPRINT_
+                write(u6,*) ' iC,=',iC
+#               endif
                 iaC = (iC-1)*nTri_Elem1(la)+ia
                 ipaC = (iaC-1)*nAlpha*nExpi+ipF1
                 iCb = (ib-1)*(2*iAng+1)+iC
                 ipCb = (iCb-1)*nExpi*nBeta+ipF2
 
                 iIC = 0
-                if (iPrint >= 99) then
+#               ifdef _DEBUGPRINT_
                   call RecPrt('<ia|iC>',' ',Array(ipaC),nAlpha,nExpi)
                   call RecPrt('<iC|ib>',' ',Array(ipCb),nExpi,nBeta)
-                end if
+#               endif
                 do iIrrep=0,nIrrep-1
                   if (.not. btest(llOper,iIrrep)) cycle
-                  if (iPrint >= 99) write(u6,*) ' iIC=',iIC
+#                 ifdef _DEBUGPRINT_
+                  write(u6,*) ' iIC=',iIC
+#                 endif
                   iIC = iIC+1
                   nOp = NrOpr(iDCRT(lDCRT))
                   Xg = real(iChTbl(iIrrep,nOp),kind=wp)
@@ -253,7 +272,7 @@ do iCnttp=1,nCnttp
   mdc = mdc+dbsc(iCnttp)%nCntr
 end do
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' Result in SROInt'
   do ia=1,(la+1)*(la+2)/2
     do ib=1,(lb+1)*(lb+2)/2
@@ -261,8 +280,6 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',rFinal(:,ia,ib,1),nAlpha,nBeta)
     end do
   end do
-end if
-
-return
+#endif
 
 end subroutine SROInt

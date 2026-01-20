@@ -46,8 +46,6 @@ integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, ij, iOffA_, iOffB_, iSO, ix, j, j
                      k34, kSO, lSO, lSOl, lSym(0:7), memSO2, mm_, mx, nijkl, nn
 logical(kind=iwp) :: qijij
 #ifdef _DEBUGPRINT_
-#include "print.fh"
-integer(kind=iwp) :: iprint, irout
 real(kind=wp) :: r1, r2, tr1 = Zero, tr2 = Zero
 real(kind=wp), external :: ddot_
 #endif
@@ -58,9 +56,6 @@ real(kind=wp), external :: ddot_
 k12 = 0
 k34 = 0
 #ifdef _DEBUGPRINT_
-irout = 39
-iprint = nprint(irout)
-if (iPrint >= 49) then
   r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
   r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
   tr1 = tr1+r1
@@ -68,7 +63,6 @@ if (iPrint >= 49) then
   write(u6,*) ' Sum=',r1,tr1
   write(u6,*) ' Dot=',r2,tr2
   call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
-end if
 #endif
 memSO2 = 0
 

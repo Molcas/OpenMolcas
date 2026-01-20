@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PCMDef(ISlPar,RSlPar,iPrint)
+subroutine PCMDef(ISlPar,RSlPar)
 ! Set PCM defaults.
 
 use Constants, only: Zero, One
@@ -18,7 +18,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(out) :: ISlPar(100)
 real(kind=wp), intent(out) :: RSlPar(100)
-integer(kind=iwp), intent(in) :: iPrint
 
 ! Initialize the integer array.
 
@@ -54,7 +53,11 @@ ISlPar(29) = 0      ! fits charges to electrostatic potential
 ISlPar(30) = 0      ! [unused]
 ISlPar(31) = 0      ! [unused]
 ISlPar(32) = 0      ! [unused]
-ISlPar(33) = IPrint ! specific printing level for solvent routines
+#ifdef _DEBUGPRINT_
+ISlPar(33) = 99     ! specific printing level for solvent routines
+#else
+ISlPar(33) = 5      ! specific printing level for solvent routines
+#endif
 ISlPar(34) = 0      ! number of spheres
 ISlPar(35) = 0      ! number of tesserae
 ISlPar(36) = 0      ! [unused]

@@ -35,12 +35,12 @@ use Disp, only: Dirct, IndDsp
 use Symmetry_Info, only: iChBas, nIrrep
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "print.fh"
 integer(kind=iwp) :: iCar, iChxyz, iCnt, iCnttp, iComp, iDCRR(0:7), iDum, iFd, igu, igv, iIrrep, iM1xp, iM2xp, ip, iPrint, iR, &
                      iRout, iStb(0:7), iTs, ix, iy, iz, jCnt, jCntMx, jCnttp, jCoSet(8,8), LmbdR, mdc, ndc, nDCRR, nDisp, nOp, nStb
 real(kind=wp) :: A(3), B(3), CCoMx, CCoMxd, CCoMy, CCoMyd, CCoMz, CCoMzd, CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, DA(3), &
@@ -52,7 +52,6 @@ logical(kind=iwp), external :: EQ, TstFnc
 
 iRout = 33
 iPrint = nPrint(iRout)
-!iPrint = 15
 
 iIrrep = 0
 
@@ -341,7 +340,9 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
       do iy=ir-ix,0,-1
         iz = ir-ix-iy
         ip = ip+1
-        if (iPrint >= 99) write(u6,*) ' ix,iy,iz=',ix,iy,iz
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' ix,iy,iz=',ix,iy,iz
+#       endif
 
         mdc = 0
         do iCnttp=1,nCnttp
@@ -349,10 +350,10 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
           if (dbsc(iCnttp)%Charge == Zero) cycle
           if (dbsc(iCnttp)%Frag) cycle
           ZA = dbsc(iCnttp)%Charge
-          if (iPrint >= 99) then
+#         ifdef _DEBUGPRINT_
             write(u6,*) ' Charge=',ZA
             call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,dbsc(iCnttp)%nCntr)
-          end if
+#         endif
           do iCnt=1,dbsc(iCnttp)%nCntr
             A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
@@ -391,10 +392,10 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
             tempd(1) = MM(ip,2)*ZA*CCoMxd*CCoMy*CCoMz
             tempd(2) = MM(ip,2)*ZA*CCoMx*CCoMyd*CCoMz
             tempd(3) = MM(ip,2)*ZA*CCoMx*CCoMy*CCoMzd
-            if (iPrint >= 99) then
+#           ifdef _DEBUGPRINT_
               write(u6,*) CCoMx,CCoMy,CCoMz
               write(u6,*) 'tempd=',tempd
-            end if
+#           endif
 
             ! Distribute gradient
 

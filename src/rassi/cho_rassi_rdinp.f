@@ -24,15 +24,11 @@
       Implicit None
       Logical  DFonly
       Integer LuSpool
-#include "print.fh"
       Character(len=180) KWord, Key
       Character(len=180), External:: Get_Ln
-      Integer iRout,iPrint,i,iChrct,jrout,last,n
+      Integer iChrct,last
       Integer, External:: iCLast
       Real*8 dmpk_dfl
-*
-      iRout=1
-      iPrint=nPrint(iRout)
 *
 ***** Algorithms for using Cholesky vectors in RASSI ******************
 *
@@ -69,7 +65,6 @@
 *    set some parameters if not specified in ChoInput section
         PseudoChoMOs=.false.
         dmpk_dfl=1.0d-1
-        iPrint=5
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -169,17 +164,6 @@ C      If (nToken(KWord).gt.1) call abend()
           Write(6,*)'Pseudo Cholesky orbitals used in LK CD-RASSI.'
         EndIf
       Write(6,*)
-
-      case ('PRIN')
-        Key=Get_Ln(LuSpool)
-        KWord=Key
-        Call Get_I1(1,n)
-        Do i = 1, n
-          KWord=Get_Ln(LuSpool)
-          Call Get_I1(1,jRout)
-          Call Get_I1(2,iPrint)
-          nPrint(jRout)=iPrint
-        End Do
 
       case ('ENDC')
         exit

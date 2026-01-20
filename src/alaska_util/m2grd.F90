@@ -36,19 +36,15 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iBeta, iCar, iCmp, iDCRT(0:7), iIrrep, iM2xp, ipA, ipAxyz, ipB, ipBxyz, ipK, ipPx, ipPy, ipPz, &
-                     ipQxyz, iPrint, ipRxyz, ipZ, iRout, iStrt, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, lDCRT, LmbdT, &
+                     ipQxyz, ipRxyz, ipZ, iStrt, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, lDCRT, LmbdT, &
                      lOp(4), mGrad, mVec, nDAO, nDCRT, nDisp, nip
 real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
 logical(kind=iwp) :: ABeq(3), JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ, TF
-#include "print.fh"
 
 #include "macros.fh"
 unused_var(ZInv)
-
-iRout = 122
-iPrint = nPrint(iRout)
 
 iIrrep = 0
 iuvwx(1) = dc(mdc)%nStab
@@ -86,7 +82,7 @@ if (nip-1 > nArr*nZeta) then
   call Abend()
 end if
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In M2Grd: A',' ',A,1,3)
   call RecPrt(' In M2Grd: RB',' ',RB,1,3)
   call RecPrt(' In M2Grd: Ccoor',' ',Ccoor,1,3)
@@ -94,7 +90,7 @@ if (iPrint >= 49) then
   call RecPrt(' In M2Grd: Zeta',' ',Zeta,nAlpha,nBeta)
   call RecPrt(' In M2Grd: P',' ',P,nZeta,3)
   write(u6,*) ' In M2Grd: la,lb,nHer=',la,lb,nHer
-end if
+#endif
 
 iStrt = ipA
 do iBeta=1,nBeta
@@ -131,7 +127,9 @@ do kCnttp=1,nCnttp
 
       do iM2xp=1,dbsc(kCnttp)%nM2
         Gmma = dbsc(kCnttp)%M2xp(iM2xp)
-        if (iPrint >= 99) write(u6,*) ' Gmma=',Gmma
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' Gmma=',Gmma
+#       endif
 
         JndGrd(:,1:2) = IndGrd(:,:)
         do i=1,3
@@ -179,7 +177,9 @@ do kCnttp=1,nCnttp
             if (JfGrad(iCar,i)) mGrad = mGrad+1
           end do
         end do
-        if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' mGrad=',mGrad
+#       endif
         if (mGrad == 0) cycle
 
         ! Modify the original basis.
@@ -194,13 +194,13 @@ do kCnttp=1,nCnttp
           Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
           Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
         end do
-        if (iPrint >= 99) then
+#       ifdef _DEBUGPRINT_
           write(u6,*) ' The modified basis set'
           call RecPrt(' In M2Grd: Kappa',' ',Array(ipK),nAlpha,nBeta)
           call RecPrt(' In M2Grd: Zeta',' ',Array(ipZ),nAlpha,nBeta)
           call RecPrt(' In M2Grd: P',' ',Array(ipPx),nZeta,3)
           call RecPrt(' In M2Grd: TC',' ',TC,1,3)
-        end if
+#       endif
 
         ! Compute the cartesian values of the basis functions
         ! angular part
@@ -229,7 +229,9 @@ do kCnttp=1,nCnttp
 
         Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)*Fact
         call CmbnM2(Array(ipQxyz),nZeta,la,lb,Array(ipZ),Array(ipK),rFinal,Array(ipA),Array(ipB),JfGrad,Factor,mVec)
-        if (iPrint >= 99) call RecPrt(' rFinal in M2Grd',' ',rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb),mVec)
+#       ifdef _DEBUGPRINT_
+        call RecPrt(' rFinal in M2Grd',' ',rFinal,nZeta*nTri_Elem1(la)*nTri_Elem1(lb),mVec)
+#       endif
 
         ! Distribute the gradient contributions
 

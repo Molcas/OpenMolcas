@@ -55,7 +55,6 @@ real(kind=wp), intent(in) :: g(m), Fact
 real(kind=wp), intent(out) :: Eig(k)
 real(kind=wp), intent(inout) :: Vec(m+1,k)
 integer(kind=iwp), intent(out) :: iRC
-#include "print.fh"
 integer(kind=iwp) :: i, ig, ii, info, iter, j, jj, maxk, mink, mk, n, nTmp, old_mk
 real(kind=wp) :: Alpha, Aux, Conv, Dum(1) = Zero, tmp
 logical(kind=iwp) :: Augmented, Last, Reduced
@@ -67,12 +66,6 @@ real(kind=wp), external :: ddot_
 #ifdef _DEBUGCode_
 integer(kind=iwp) :: ij
 real(kind=wp), allocatable :: EVal(:), EVec(:), HAug(:,:), HM(:,:), Vec_(:)
-#endif
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
-
-iRout = 216
-iPrint = nPrint(iRout)
 #endif
 n = m+1
 
@@ -361,11 +354,9 @@ do while (.not. Last)
 #   endif
   end if
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 99) then
     !call RecPrt('Eigenvalues',' ',EVal,1,mk)
     !call SubRecPrt('Subspace Eigenvectors',' ',EVec,maxk,mk,mk)
     write(u6,*)
-  end if
 # endif
   !                                                                    *
   !*********************************************************************

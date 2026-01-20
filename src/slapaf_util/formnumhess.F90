@@ -20,8 +20,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nIter, nInter, nAtom
 real(kind=wp), intent(in) :: Delta, DipM(3,nIter)
 integer(kind=iwp), intent(out) :: iNeg
-#include "print.fh"
-integer(kind=iwp) :: i, ii, ij, iPrint, iRout, mTR, nDim, nKtB
+integer(kind=iwp) :: i, ii, ij, mTR, nDim, nKtB
 real(kind=wp) :: rDum(1)
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: dDipM(:), Degen2(:), FEq(:,:,:), H(:), HB(:), Hx(:), IRInt(:), KtB(:)
@@ -30,11 +29,6 @@ real(kind=wp), allocatable :: dDipM(:), Degen2(:), FEq(:,:,:), H(:), HB(:), Hx(:
 !***********************************************************************
 !                                                                      *
 mTR = mTROld
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-iRout = 182
-iPrint = nPrint(iRout)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -52,7 +46,9 @@ call NmHess(Shift,nInter,dqInt,nIter,H,Delta,qInt,FEq,Cubic,DipM,dDipM)
 
 write(u6,*)
 write(u6,*) ' Numerical differentiation is finished!'
-if (iPrint >= 98) call RecPrt(' Numerical force constant matrix',' ',H,nInter,nInter)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Numerical force constant matrix',' ',H,nInter,nInter)
+#endif
 
 call Add_Info('Numerical Hessian',H,nInter**2,2)
 call Put_dArray('Hss_Q',H,nInter**2)
@@ -115,6 +111,4 @@ call mma_deallocate(dDipM)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
-
 end subroutine FormNumHess

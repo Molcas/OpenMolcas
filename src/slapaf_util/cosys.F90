@@ -11,22 +11,25 @@
 
 subroutine CoSys(Cent,R,xyz)
 
-use Constants, only: Zero, One, Pi
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+#ifdef _DEBUGPRINT_
+use Constants, only: Pi
+#endif
 
 implicit none
 real(kind=wp), intent(in) :: Cent(3,3)
 real(kind=wp), intent(out) :: r(3), xyz(3,2)
-#include "print.fh"
-integer(kind=iwp) :: i, iComp(3), iPrint, iRout, j, k, nComp
-real(kind=wp) :: Co, Crap, Fi, r11, r12, r2, R21j, R21k, R23j, R23k, RR, RR1, RR2, Si
+integer(kind=iwp) :: i, iComp(3), j, k, nComp
+real(kind=wp) :: Co, Crap, r11, r12, r2, R21j, R21k, R23j, R23k, RR, RR1, RR2, Si
 logical(kind=iwp) :: Linear, Retry
 real(kind=wp), parameter :: ThrAcos = 1.0e-6_wp
+#ifdef _DEBUGPRINT_
 real(kind=wp), external :: ArCos, ArSin
+real(kind=wp) :: Fi
 
-iRout = 221
-iPrint = nPrint(iRout)
-if (iPrint >= 99) call RecPrt('CoSys: Cent',' ',Cent,3,3)
+call RecPrt('CoSys: Cent',' ',Cent,3,3)
+#endif
 
 ! Check if linear
 
@@ -46,17 +49,19 @@ do i=1,3
   Crap = Crap+((Cent(i,3)-Cent(i,2))/RR2-sign(One,Co)*(Cent(i,1)-Cent(i,2))/RR1)**2
 end do
 Crap = sqrt(Crap)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'Co=',Co
   write(u6,*) 'Crap=',Crap
-end if
+#endif
 if (Crap < 1.0e-6_wp) then
   Si = Crap
+#ifdef _DEBUGPRINT_
   if (Co < Zero) then
     Fi = Pi-ArSin(Si)
   else
     Fi = ArSin(Si)
   end if
+#endif
 else
   if ((Co > One) .and. (Co < One+ThrAcos)) Co = One
   if ((Co < -One) .and. (Co > -One-ThrAcos)) Co = -One
@@ -65,13 +70,15 @@ else
     write(u6,*) 'Error in cosys: arcos(',Co,')'
     call Abend()
   end if
-  Fi = ArCos(Co)
   Si = sqrt(One-Co**2)
+#ifdef _DEBUGPRINT_
+  Fi = ArCos(Co)
+#endif
 end if
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'Fi,Pi=',Fi,Pi
   write(u6,*) 'Pi-Fi=',Pi-Fi
-end if
+#endif
 
 Linear = abs(Si) < 1.0e-13_wp
 
@@ -88,11 +95,11 @@ else if (RR2 >= RR) then
 end if
 R(:) = R(:)/RR
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'Linear=',Linear
   write(u6,*) 'RR=',RR
   call RecPrt('R',' ',R,3,1)
-end if
+#endif
 
 Retry = .true.
 do while (Retry)
@@ -176,11 +183,15 @@ do while (Retry)
     end do
     if (RR == Zero) then
       Linear = .true.
-      if (iPrint >= 99) write(u6,*) 'Linear=',Linear
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'Linear=',Linear
+#     endif
       Retry = .true.
     else
       xyz(:,2) = xyz(:,2)/sqrt(RR)
-      if (iPrint >= 99) write(u6,*) 'RR=',RR
+#     ifdef _DEBUGPRINT_
+      write(u6,*) 'RR=',RR
+#     endif
 
       RR = Zero
       do i=1,3
@@ -190,20 +201,18 @@ do while (Retry)
         RR = RR+xyz(i,1)**2
       end do
       xyz(:,1) = xyz(:,1)/sqrt(RR)
-      if (iPrint >= 99) then
+#     ifdef _DEBUGPRINT_
         write(u6,*) 'RR=',RR
         call RecPrt('xyz',' ',xyz,3,2)
-      end if
+#     endif
     end if
 
   end if
 end do
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' Reference Axis',' ',R,3,1)
   call RecPrt(' Perpendicular Axes',' ',xyz,3,2)
-end if
-
-return
+#endif
 
 end subroutine CoSys

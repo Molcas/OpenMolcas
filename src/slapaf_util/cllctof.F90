@@ -36,9 +36,8 @@ real(kind=wp), intent(out) :: xyz(3,nCntr+mCntr), Temp(3,nCntr+mCntr), qMss(nCnt
 integer(kind=iwp), intent(out) :: Ind(nCntr+mCntr,2)
 character(len=6), intent(in) :: Typ
 character(len=8), intent(in) :: Lbl
-#include "print.fh"
 #include "Molcas.fh"
-integer(kind=iwp) :: i, iEnd, iFrst, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, nAtom, nCent, nPar1, nPar2
+integer(kind=iwp) :: i, iEnd, iFrst, iPhase, isAtom, ixyz, j, jsAtom, nAtom, nCent, nPar1, nPar2
 real(kind=wp) :: Axis(3), Dummy(1), Perp_Axis(3,2), Val
 logical(kind=iwp) :: ldB, lWarn, lWrite
 character(len=LenIn1) :: Label
@@ -47,12 +46,12 @@ character(len=3) :: Oper
 
 nAtom = size(Coor,2)
 
-iRout = 50
-iPrint = nPrint(iRout)
 ldB = .false.
 lWrite = .true.
 lWarn = .true.
-if (iPrint >= 99) call RecPrt(' In CllCtoF: Coor',' ',Coor,3,nAtom)
+#ifdef _DEBUGPRINT_
+call RecPrt(' In CllCtoF: Coor',' ',Coor,3,nAtom)
+#endif
 
 iFrst = 1
 nCent = nCntr+mCntr
@@ -132,7 +131,9 @@ do ixyz=1,nCent
   iFrst = iEnd+1
 end do
 
-if (iPrint >= 99) call RecPrt(' Coordinates',' ',xyz,3,nCent)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Coordinates',' ',xyz,3,nCent)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

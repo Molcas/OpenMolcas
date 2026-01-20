@@ -33,27 +33,30 @@ subroutine PVInt( &
 
 use Index_Functions, only: nTri_Elem1
 use Integral_interfaces, only: int_kernel
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 #include "int_interface.fh"
 procedure(int_kernel) :: Kernel
-#include "print.fh"
-integer(kind=iwp) :: i, iBeta, ipA, ipArr, ipOff, iPrint, ipS1, ipS2, iRout, kRys, mArr, nip
+integer(kind=iwp) :: iBeta, ipA, ipArr, ipOff, ipS1, ipS2, kRys, mArr, nip
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 
 #include "macros.fh"
 unused_var(nHer)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 221
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'PVInt: nIC,nComp=',nIC,nComp
   call RecPrt(' In pvint: Alpha','(5ES20.13)',Alpha,nAlpha,1)
   call RecPrt(' In pvint: Beta','(5ES20.13)',Beta,nBeta,1)
-end if
+#endif
 
 nip = 1
 ipA = nip
@@ -99,9 +102,9 @@ do iBeta=1,nBeta
   Array(ipOff+1:ipOff+nAlpha) = Alpha
   ipOff = ipOff+nAlpha
 end do
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In pvint: Alpha (expanded)','(5ES20.13)',Array(ipA),nZeta,1)
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -111,12 +114,10 @@ call Ass_pX(Array(ipA),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nIC)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   do i=1,3
     call RecPrt('pVInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
-end if
-
-return
+#endif
 
 end subroutine PVInt

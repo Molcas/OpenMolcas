@@ -30,29 +30,29 @@ subroutine PLF_Cho_2(TInt,lInt,AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBa
 use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Cholesky, only: iShlSO, iShP2Q, iShP2RS, iSOShl, LuPri, nBstSh, nnBstR, ShA, ShAB, ShB, ShC, ShCD, ShD
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: u6
+#endif
 
 implicit none
-#include "print.fh"
 integer(kind=iwp), intent(in) :: lInt, ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
 real(kind=wp), intent(inout) :: TInt(lInt)
 real(kind=wp), intent(in) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
 integer(kind=iwp) :: A, AB, ABCD, B, C, CD, CDAB, D, i1, i2, i3, i4, IAB, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, &
-                     ICD, irout, ISHLAB, ISHLCD, ISHLI, ISHLJ, ISHLK, ISHLL, iSO, iSOi, iSOs(4), jprint, jSO, jSOj, kSO, kSOk, &
+                     ICD, ISHLAB, ISHLCD, ISHLI, ISHLJ, ISHLK, ISHLL, iSO, iSOi, iSOs(4), jSO, jSOj, kSO, kSOk, &
                      lSO, lSOl, nijkl, NTELM, NUMA, NUMB, NUMC, NUMD
+#ifdef _DEBUGPRINT_
 real(kind=wp) :: r1, r2
 real(kind=wp), external :: ddot_
 
-irout = 109
-jprint = nprint(irout)
-if (jPrint >= 49) then
   r1 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,[One],0)
   r2 = DDot_(ijkl*iCmp*jCmp*kCmp*lCmp,AOInt,1,AOInt,1)
   write(u6,*) ' Sum=',r1
   write(u6,*) ' Dot=',r2
-end if
-if (jPrint >= 99) call RecPrt(' In Plf_Cho_2: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
+  call RecPrt(' In Plf_Cho_2: AOInt',' ',AOInt,ijkl,iCmp*jCmp*kCmp*lCmp)
+#endif
 
 NUMC = NBSTSH(SHC)
 NUMD = NBSTSH(SHD)

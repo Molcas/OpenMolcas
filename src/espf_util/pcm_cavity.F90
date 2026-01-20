@@ -29,7 +29,7 @@ real(kind=wp), parameter :: Rad_Cor = Two, Surf_Inc = Half
 
 ! Build the cavity.
 
-call PCMDef(ISlPar,RSlPar,iPrint)
+call PCMDef(ISlPar,RSlPar)
 RSlPar(3) = Half
 RSlPar(7) = Two
 RSlPar(9) = Rad_Cor+real(JSurf,kind=wp)*Surf_Inc

@@ -35,7 +35,9 @@ subroutine COSGrd( &
 use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
+#ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
+#endif
 use rctfld_module, only: nTS
 use Disp, only: IndDsp
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
@@ -44,8 +46,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, &
-                     iRout, iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), kat, lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, &
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, &
+                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), kat, lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, &
                      nDCRT, nDisp, nip, nRys, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
@@ -53,15 +55,15 @@ procedure(cff2d_kernel) :: Cff2D
 procedure(modu2_kernel) :: Fake
 procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
-#include "print.fh"
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 
 #include "macros.fh"
 unused_var(rFinal)
 unused_var(Ccoor(1))
 unused_var(nComp)
 
-iRout = 151
-iPrint = nPrint(iRout)
 
 nRys = nHer
 
@@ -74,7 +76,9 @@ do iDAO=1,nDAO
     DAO(iZeta,iDAO) = Fact*DAO(iZeta,iDAO)
   end do
 end do
-if (iPrint >= 99) call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#ifdef _DEBUGPRINT_
+call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#endif
 
 nip = 1
 ipA = nip
@@ -131,7 +135,9 @@ do iTs=1,nTs
   C(2) = PCMTess(2,iTs)
   C(3) = PCMTess(3,iTs)
   kat = nint(PCMTess(4,iTs))
-  if (iPrint >= 99) call RecPrt('C',' ',C,3,1)
+# ifdef _DEBUGPRINT_
+  call RecPrt('C',' ',C,3,1)
+# endif
 
   ! Generate stabilizer of C
 
@@ -143,7 +149,7 @@ do iTs=1,nTs
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
   Fact = -real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
-  if (iPrint >= 99) then
+# ifdef _DEBUGPRINT_
     write(u6,*) ' Q=',Q
     write(u6,*) ' Fact=',Fact
     call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(nOrdOp))
@@ -154,7 +160,7 @@ do iTs=1,nTs
     write(u6,*) ' LambdaT=',LmbdT
     write(u6,*) ' t      =',nDCRT
     write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
-  end if
+# endif
   iuvwx(3) = nStb
   iuvwx(4) = nStb
 
@@ -201,7 +207,9 @@ do iTs=1,nTs
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' mGrad=',mGrad
+# endif
   if (mGrad == 0) cycle
 
   do lDCRT=0,nDCRT-1

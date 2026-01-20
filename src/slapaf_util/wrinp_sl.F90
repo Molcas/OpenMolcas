@@ -17,9 +17,9 @@ use Slapaf_Info, only: Analytic_Hessian, AtomLbl, Baker, Beta, Beta_Disp, Coor, 
 use kriging_mod, only: blaAI, blavAI, blAI, blvAI, Kriging, Max_Microiterations, mblAI, nD_In, set_l
 use Constants, only: Two, auTokJmol
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, nsAtom
 real(kind=wp) :: Value_l
 

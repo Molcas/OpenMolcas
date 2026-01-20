@@ -36,11 +36,11 @@ use Disp, only: ChDisp, IndDsp, IndXEQ, InxDsp, lDisp, lEQ, nTR, TRSymm
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
+use Print, only: Show, nPrint
 
 implicit none
 logical(kind=iwp), intent(out) :: Run_MCLR
 #include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idum, iDummer, iElem, iIrrep, ijSym, iOpt, ipert, iprint, iRC, iRout, &
                      istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nd(1), nDisp, &
                      nSlct
@@ -56,12 +56,6 @@ character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrmt, NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: TF
-
-!call DecideOnCholesky(DoCholesky)
-!if (DoCholesky) then
-!  write(u6,*)'** Cholesky or RI/DF not yet implemented in McKinley '
-!  call abend()
-!end if
 
 iRout = 99
 nPrint(:) = 5
