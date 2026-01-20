@@ -542,7 +542,7 @@ contains
     do IL=1,SGS%nLev-1
       NW = 0
       do IV=SGS%LTV(IL),SGS%LTV(IL-1)-1
-        NW = NW+SGS%Raw(IV,4)-SGS%Daw(IV,4)
+        NW = NW+SGS%RAW(IV,4)-SGS%DAW(IV,4)
       end do
       NW = abs(NW)
       if (NW >= MINW) cycle
@@ -559,8 +559,8 @@ contains
     SGS%MxUp = 0
     SGS%MxDwn = 0
     do MV=SGS%MVSta,SGS%MVEnd
-      if (SGS%MxUp < SGS%Raw(MV,4)) SGS%MxUp = SGS%Raw(MV,4)
-      if (SGS%MxDwn < SGS%Daw(MV,4)) SGS%MxDwn = SGS%Daw(MV,4)
+      if (SGS%MxUp < SGS%RAW(MV,4)) SGS%MxUp = SGS%RAW(MV,4)
+      if (SGS%MxDwn < SGS%DAW(MV,4)) SGS%MxDwn = SGS%DAW(MV,4)
     end do
 
 #   ifdef _DEBUGPRINT_

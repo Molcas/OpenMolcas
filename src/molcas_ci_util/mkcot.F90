@@ -94,7 +94,7 @@ do IHALF=1,2
       ISML = 1
       if ((ISTP == 1) .or. (ISTP == 2)) ISML = SGS%ISm(LEV)
       LEV = LEV-1
-      SGS%Scr(ISYM,LEV) = MUL(ISML,SGS%Scr(ISYM,LEV+1))
+      SGS%Scr(ISYM,LEV) = Mul(ISML,SGS%Scr(ISYM,LEV+1))
       SGS%Scr(IVERT,LEV) = IVB
       SGS%Scr(ISTEP,LEV) = -1
       if (LEV > LEV2) cycle
