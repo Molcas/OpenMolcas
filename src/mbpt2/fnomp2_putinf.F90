@@ -16,11 +16,11 @@ subroutine FnoMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
 
 use ChoMP2, only: DoFNO, l_Dii
 use Definitions, only: iwp
+use cOrbInf, only: nSym, nOrb, nFro, nOcc, nExt, nDel
 
 implicit none
 integer(kind=iwp), intent(in) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 integer(kind=iwp) :: iSym
-#include "corbinf.fh"
 
 nSym = mSym
 

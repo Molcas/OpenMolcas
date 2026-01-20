@@ -21,6 +21,7 @@ use Data_Structures, only: V2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use cOrbInf, only: nFro, nOcc, nDel, nOrb
 
 implicit none
 integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8)
@@ -28,7 +29,6 @@ real(kind=wp), intent(inout) :: TriDens(nTriDens)
 type(V2), intent(in) :: MP2X_e(8)
 real(kind=wp), intent(in) :: CMO(*)
 logical(kind=iwp), intent(in) :: Diagonalize
-#include "corbinf.fh"
 integer(kind=iwp) :: i, iLen, indx, ipSymLin(8), ipSymRec(8), ipSymTri(8), iSym, iUHF, lRecTot, LuMP2, nOrbAllMax, nOrbAllTot
 character(len=30) :: Note
 real(kind=wp), allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &

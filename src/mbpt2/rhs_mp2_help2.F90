@@ -16,13 +16,13 @@ subroutine rhs_mp2_help2(iSymA,iSymB,iSymI,iSymJ,Int1,Int2,Scr1)
 use MBPT2_Global, only: Density, Mp2Lagr
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
+use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ
 real(kind=wp), intent(_OUT_) :: Int1(*), Int2(*), Scr1(*)
 integer(kind=iwp) :: iA, iAA, iAK, iB, iBB, iC, iCC, iCI, iI, iIC, iJ, iK, iKA, nB, nJ
 real(kind=wp) :: Fac, xacbi, xaibc, xiajk, xikja
-#include "corbinf.fh"
 
 !-----------------------------------------------------------------------
 !write(u6,*) 'Starting subroutine with symmetries: '

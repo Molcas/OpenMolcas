@@ -21,12 +21,12 @@ use MBPT2_Global, only: Density, EOcc, EVir, mAdDel, mAdFro, mAdOcc, mAdVir, WDe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
+use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 integer(kind=iwp) :: iA, iAA, iB, iBB, iI, iII, iJ, iP, iQ, iSym, iSym1, iSym2, iSymIJ, iSymPQ, nMaxOrb
 real(kind=wp) :: Eps_a, Eps_b, Eps_i, Eps_j, Fac, xijpq, xipjq
 real(kind=wp), allocatable :: Int1(:), IntC(:), Scr1(:)
-#include "corbinf.fh"
 
 #ifdef _WARNING_WORKAROUND_
 #include "compiler_features.h"
