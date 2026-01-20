@@ -30,7 +30,6 @@ use Index_Functions, only: iTri, nTri_Elem
 use SOAO_Info, only: iAOtSO, iOffSO
 use Cholesky, only: iShlSO, iSOShl, LuPri, nBstSh, ShA, ShB, ShC, ShD
 use sort_data, only: nSkip
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Constants, only: Zero, One

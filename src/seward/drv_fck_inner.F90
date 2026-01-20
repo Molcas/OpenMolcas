@@ -57,7 +57,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nComp, ip(nComp), LenTot, lOper(nComp), iStabO(0:7), nStabO, nIC
 real(kind=wp), intent(inout) :: Int1El(LenTot)
 real(kind=wp), intent(in) :: rHrmt
-integer(kind=iwp) :: iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iIC, iIrrep, ijB, ijC, &
+integer(kind=iwp) :: iAng, iAO, iB, iBas, iC, iCmp, iComp, iDCRR(0:7), iDCRT(0:7), iIC, iIrrep, ijB, ijC, &
                      iPrim, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, jCmp, &
                      jCnt, jCnttp, jPrim, jS, jShell, jShll, LmbdR, LambdT, lDCRR, lFinal, mdci, mdcj, mSO, nDCRR, nDCRT, nOp(2), &
                      nSkal, nSO, nStabM
@@ -66,7 +66,7 @@ real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: A(3)
-integer(kind=iwp) :: i, ii
+integer(kind=iwp) :: i, ii, iCnt, iCnttp
 #endif
 
 ! Auxiliary memory allocation.
@@ -91,9 +91,9 @@ do iS=1,nSkal
   iAO = iSD(7,iS)
   mdci = iSD(10,iS)
   iShell = iSD(11,iS)
+# ifdef _DEBUGPRINT_
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
-# ifdef _DEBUGPRINT_
   A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 # endif
   do jS=iS,iS

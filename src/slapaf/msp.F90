@@ -11,9 +11,10 @@
 
 subroutine MSP(B,rGamma,Delta,nDim)
 
-use Constants, only: One, Two
+use Constants, only: One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
+use Constants, only: Two
 use Definitions, only: u6
 #endif
 

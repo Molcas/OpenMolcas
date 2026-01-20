@@ -11,8 +11,11 @@
 
 subroutine CoSys(Cent,R,xyz)
 
-use Constants, only: Zero, One, Pi
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+#ifdef _DEBUGPRINT_
+use Constants, only: Pi
+#endif
 
 implicit none
 real(kind=wp), intent(in) :: Cent(3,3)
@@ -21,8 +24,8 @@ integer(kind=iwp) :: i, iComp(3), j, k, nComp
 real(kind=wp) :: Co, Crap, r11, r12, r2, R21j, R21k, R23j, R23k, RR, RR1, RR2, Si
 logical(kind=iwp) :: Linear, Retry
 real(kind=wp), parameter :: ThrAcos = 1.0e-6_wp
-real(kind=wp), external :: ArCos, ArSin
 #ifdef _DEBUGPRINT_
+real(kind=wp), external :: ArCos, ArSin
 real(kind=wp) :: Fi
 
 call RecPrt('CoSys: Cent',' ',Cent,3,3)
