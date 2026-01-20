@@ -30,7 +30,7 @@ subroutine PrInp_MBPT2(Eocc,Eext,iTst)
 
 use MBPT2_Global, only: iDel, iFro, iPL, nBas, nDel1, nDel2, nDsto, nFro1, nFro2, nTit, Title
 use Definitions, only: wp, iwp, u6
-use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
+use cOrbInf, only: nSym, nFro, nOcc, nDel, nExt
 
 implicit none
 real(kind=wp), intent(in) :: Eocc(*), Eext(*)

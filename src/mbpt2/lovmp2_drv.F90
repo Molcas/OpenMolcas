@@ -26,7 +26,7 @@ use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
+use cOrbInf, only: nSym, nFro, nOcc, nDel, nExt
 
 implicit none
 #include "Molcas.fh"

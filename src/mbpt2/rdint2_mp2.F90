@@ -21,7 +21,7 @@ use Symmetry_Info, only: Mul
 use trafo, only: IAD13, IADOUT, ISR, NBP, NBQ, NBR, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
+use cOrbInf, only: nSym, nOrb, nOcc
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRX

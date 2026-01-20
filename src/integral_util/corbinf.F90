@@ -23,7 +23,6 @@
 !
 Module COrbInf
 Private
-#include "corbinf.fh"
-!Integer :: nSym,nOrb(8),nOcc(8),nFro(8),nDel(8),nExt(8)
+Integer :: nSym,nOrb(8),nOcc(8),nFro(8),nDel(8),nExt(8)
 Public nSym,nOrb,nOcc,nFro,nDel,nExt
 End Module COrbInf
