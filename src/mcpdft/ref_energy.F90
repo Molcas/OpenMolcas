@@ -22,11 +22,11 @@ use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use rasdim, only: MxRoot, MxIter
 
 implicit none
 integer(kind=iwp), intent(in) :: nstates
 real(kind=wp), intent(out) :: mcscf_energy(nstates)
-#include "rasdim.fh"
 integer(kind=iwp) :: disk, i, iad19, iadr19(15), it, nmaybe, state
 #ifdef _HDF5_
 integer(kind=iwp) :: refwfn_id
