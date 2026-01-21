@@ -46,13 +46,13 @@ use k2_arrays, only: DoGrad_
 use Symmetry_Info, only: nIrrep
 use Breit, only: nComp
 use Definitions, only: iwp, u6
+use Molcas, only: lCache
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1, nSD
 integer(kind=iwp), intent(out) :: ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
-#include "Molcas.fh"
 integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBsInc, jCmp, jPrim, jPrInc, kBas, kBsInc, kCmp, &
                      kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPack, lPrim, lPrInc, lSize, mab, mabcd, mabMax, &
                      mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, &
