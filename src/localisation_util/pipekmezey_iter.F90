@@ -36,13 +36,13 @@ real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xk
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
                                 unitary_mat(:,:), rotated_CMO(:,:), Ovlp_sqrt(:,:),  Ovlp_aux(:,:), SCR(:)
 character(len=20), allocatable :: opt_method
-logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false., debug_lowdin = .false.
+logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false., debug_lowdin = .false., lowdin=.false.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
-!opt_method = 'jacobisweeps'
+opt_method = 'jacobisweeps'
 !opt_method = 'gradient_ascent'
-opt_method = 'newton_raphson'
+!opt_method = 'newton_raphson'
 
 
 ! Print iteration table header.
@@ -74,8 +74,8 @@ FunctionalList(:)=0
     call mma_allocate(SCR,lSCR, Label = "SCR")
     if (debug_lowdin) then; call RecPrt("S before taking the sqrt",' ',Ovlp,nBasis,nBasis); end if
     call SQRTMT(Ovlp,nBasis,1,Ovlp_sqrt,Ovlp_aux,SCR)
-    call RecPrt("S^{1/2}",' ',Ovlp_sqrt,nBasis, nBasis)
     if (debug_lowdin) then
+        call RecPrt("S^{1/2}",' ',Ovlp_sqrt,nBasis, nBasis)
         call RecPrt("S after taking the sqrt",' ',Ovlp,nBasis, nBasis)
         Ovlp_aux(:,:) = Zero ! i want to reuse it
         call dgemm_('N','N',nBasis,nBasis,nBasis,One,Ovlp_sqrt,nBasis,Ovlp_sqrt,nBasis,Zero,&
@@ -84,7 +84,7 @@ FunctionalList(:)=0
     end if
     call mma_deallocate(Ovlp_aux)
 !end if
-call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt)
+call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt, lowdin)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 
 FunctionalList(1)=Functional
@@ -126,6 +126,12 @@ else if (opt_method == 'newton_raphson') then
         write(u6,'(/,A)') 'Newton Raphson method for maximization of the PM functional'
         write(u6,*) 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
     end if
+end if
+
+if (lowdin) then
+    write(u6,*) "using the Loewdin framework for PM localisation."
+else
+    write(u6,*) "using the Mulliken framework for PM localisation."
 end if
 
 if (printmore) then
@@ -255,7 +261,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
 
         !reset CMO to be updated
         CMO(:,:) = rotated_CMO(:,:)
-        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt)
+        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt ,lowdin)
     end if
 
     nIter = nIter+1

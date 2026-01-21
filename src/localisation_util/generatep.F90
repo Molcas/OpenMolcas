@@ -12,7 +12,7 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt)
+subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt, lowdin)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
@@ -29,12 +29,12 @@ integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBa
 real(kind=wp), intent(in) :: Ovlp(nBasis,nBasis), cMO(nBasis,*), Ovlp_sqrt(nBasis,nBasis)
 real(kind=wp), intent(out) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 character(len=LenIn8), intent(in) :: BName(*)
-logical(kind=iwp), intent(in) :: Debug
+logical(kind=iwp), intent(in) :: Debug, lowdin
 integer(kind=iwp) :: iAt, iMO_s, iMO_t
 real(kind=wp) :: PAst, PAts
 character(len=LenIn8) :: PALbl
 real(kind=wp), allocatable :: SBar(:,:), lowdin_prod(:,:)
-logical :: debug_generatep = .true., lowdin = .true.
+logical :: debug_generatep = .false.
 
 
 if (.not. lowdin) then
@@ -105,7 +105,7 @@ Else
             call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
         end do
     end if
-
+    call mma_deallocate(lowdin_prod)
 
 End If
 
