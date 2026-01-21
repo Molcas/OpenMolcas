@@ -166,7 +166,7 @@ C Local print level (if any)
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' GASSCF: Too many GAS spaces. '
         Write(LF,*) ' Can be increased up to 16 by changing'
-        Write(LF,*) ' mxGAS in Include/Molcas.fh'
+        Write(LF,*) ' mxGAS in module Molcas.F90'
         Write(LF,*) ' **********************************'
         Call Quit(_RC_INPUT_ERROR_)
        End If
