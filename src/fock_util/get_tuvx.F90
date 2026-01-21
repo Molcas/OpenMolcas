@@ -39,13 +39,13 @@ subroutine Get_TUVX(PUVX,TUVX)
 use Index_Functions, only: nTri_Elem
 use general_data, only: NASH, NISH, NORB, NSYM
 use Definitions, only: wp, iwp
+use Molcas, only: MxSym
 
 #include "intent.fh"
 
 implicit none
 real(kind=wp), intent(in) :: PUVX(*)
 real(kind=wp), intent(_OUT_) :: TUVX(*)
-#include "Molcas.fh"
 integer(kind=iwp) :: iAsh, iIsh, iiT, iiU, iiV, iiX, ijSym, iOrb, iP, iPUVX, iStack, iSym, iT, iTemp, iTU, iTUVX, iU, iV, iVX, iX, &
                      jAsh, jSym, kAsh, kl_Orb_pairs, klSym, kSym, lAsh, lMax, lSym, off_Ash(mxSym), off_PUVX(mxSym)
 

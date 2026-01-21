@@ -34,6 +34,7 @@ use Symmetry_Info, only: Mul
 use general_data, only: LUINTM, NASH, NBAS, NFRO, NISH, NORB, NSYM, NTOT1
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Molcas, only: MxSym
 
 #include "intent.fh"
 
@@ -43,7 +44,6 @@ real(kind=wp), intent(inout) :: PUVX(*)
 real(kind=wp), intent(_OUT_) :: TUVX(*), FI(*), FA(*)
 integer(kind=iwp), intent(in) :: IPR
 logical(kind=iwp), intent(in) :: lSquare
-#include "Molcas.fh"
 integer(kind=iwp) :: iAsh, iBas, iDisk, iFro, iIsh, ij_Bas_pairs, ij_Orb_pairs, ijSym, iOff, iOrb, iStack, iSym, jAsh, jBas, jFro, &
                      jIsh, jOrb, jSym, kAsh, kBas, kFro, kIsh, kl_bas_pairs, kl_Orb_pairs, kOrb, kSym, kSymMax, lAsh, lBas, lFro, &
                      lIsh, lOrb, lSym, nPUVX, off_ltMat(mxSym), off_PUVX(mxSym,mxSym,mxSym), off_sqMat(mxSym)
