@@ -36,13 +36,13 @@ real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xk
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
                                 unitary_mat(:,:), rotated_CMO(:,:), Ovlp_sqrt(:,:),  Ovlp_aux(:,:), SCR(:)
 character(len=20), allocatable :: opt_method
-logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false., debug_lowdin = .false., lowdin=.false.
+logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false., debug_lowdin = .false., lowdin=.true.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
-!opt_method = 'jacobisweeps'
+opt_method = 'jacobisweeps'
 !opt_method = 'gradient_ascent'
-opt_method = 'newton_raphson'
+!opt_method = 'newton_raphson'
 
 if (opt_method == 'jacobisweeps') then
     if (.not. Silent) then
