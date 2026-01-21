@@ -20,9 +20,9 @@ use guga_util_global, only: IAD10, nIOCR
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: One, Two
 use Definitions, only: wp, iwp, u5, u6
+use Molcas, only: MxOrb, LenIn8
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: I, IADD10, iCmd, IDISK, IGFAC, IIN, ILIM, INTNUM, IO, IOM, iOpt, IORBS, IR, iRef, ISC(4), istatus, ISUM, &
                      ISYM, IT, IU, IV, IVA, IX1, IX2, IX3, IX4, IY1, IY2, IY3, IY4, J, jCmd, jEnd, JJ, jStart, LN1, LN2, LV, MXVC, &
                      NAMSIZ, NASHI, NASHT, NBASI, NC, NCSH(8), NCSHI, NDELI, NDELT, NDMOI, NDMOT, NFMOI, NFMOT, NFROI, NFROT, &

@@ -17,12 +17,12 @@ use guga_util_global, only: nCOP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Molcas, only: MxRoot
 
 implicit none
 real(kind=wp), intent(in) :: AREF(NREF,NREF), EREF(NREF)
 real(kind=wp), intent(out) :: CI(NCONF)
 integer(kind=iwp), intent(out) :: ICI(MBUF)
-#include "Molcas.fh"
 integer(kind=iwp) :: I, I1, I2, IAD25, ID, IR, IREF, ISTA, NN
 real(kind=wp) :: GINV
 integer(kind=iwp), allocatable :: ISTART(:)
