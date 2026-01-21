@@ -37,12 +37,12 @@ subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iPrInc,jPrInc,kPrInc,lPrInc,
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6, RtoI
+use Molcas, only: lCache
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, ipMem1, nSD
 integer(kind=iwp), intent(out) :: iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, Mem2, Mem3, Mem4, Mend
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
-#include "Molcas.fh"
 integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, jBas, jBsInc, jCmp, jPrim, kBas, kBsInc, kCmp, kPrim, kSOInt, la, &
                      lb, lBas, lBsInc, lc, lCmp, ld, lPrim, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, &
                      MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2
