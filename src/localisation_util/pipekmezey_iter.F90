@@ -36,7 +36,7 @@ real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xk
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
                                 unitary_mat(:,:), rotated_CMO(:,:), Ovlp_sqrt(:,:),  Ovlp_aux(:,:), SCR(:)
 character(len=20), allocatable :: opt_method
-logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false., lowdin = .true., debug_lowdin = .false.
+logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false., debug_lowdin = .false.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
@@ -67,7 +67,7 @@ call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
 nIter = 0
 FunctionalList(:)=0
 
-if (lowdin) then
+!if (lowdin) then
     call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
     call mma_allocate(Ovlp_aux, nBasis, nBasis,Label = "S^{-1/2}")
     lSCR = 2*nBasis**2+nBasis*(nBasis+1)/2
@@ -83,8 +83,8 @@ if (lowdin) then
         call RecPrt("S^{1/2}*S^{1/2}",' ',Ovlp_aux,nBasis,nBasis) ! should be same as S
     end if
     call mma_deallocate(Ovlp_aux)
-end if
-call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
+!end if
+call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 
 FunctionalList(1)=Functional
@@ -255,7 +255,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
 
         !reset CMO to be updated
         CMO(:,:) = rotated_CMO(:,:)
-        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
+        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt)
     end if
 
     nIter = nIter+1
@@ -293,10 +293,10 @@ call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
 call mma_Deallocate(FunctionalList)
 call mma_Deallocate(Hdiag)
-if (lowdin) then
+!if (lowdin) then
     call mma_deallocate(Ovlp_sqrt)
     call mma_deallocate(SCR)
-end if
+!end if
 
 ! Print convergence message.
 ! --------------------------

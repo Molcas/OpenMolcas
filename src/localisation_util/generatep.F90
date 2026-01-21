@@ -12,7 +12,7 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
+subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
@@ -26,15 +26,15 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBas_Start(*)
-real(kind=wp), intent(in) :: Ovlp(nBasis,nBasis), cMO(nBasis,*)
+real(kind=wp), intent(in) :: Ovlp(nBasis,nBasis), cMO(nBasis,*), Ovlp_sqrt(nBasis,nBasis)
 real(kind=wp), intent(out) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 character(len=LenIn8), intent(in) :: BName(*)
 logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAt, iMO_s, iMO_t
 real(kind=wp) :: PAst, PAts
 character(len=LenIn8) :: PALbl
-real(kind=wp), allocatable :: SBar(:,:), Ovlp_sqrt(:,:), Ovlp_sqrt_inv(:,:)
-logical :: debug_generatep = .true., lowdin = .false.
+real(kind=wp), allocatable :: SBar(:,:), lowdin_prod(:,:)
+logical :: debug_generatep = .true., lowdin = .true.
 
 
 if (.not. lowdin) then
@@ -76,15 +76,34 @@ if (.not. lowdin) then
     call mma_deallocate(SBar)
 
 Else
+    call mma_Allocate(lowdin_prod,nBasis,nOrb2Loc,Label='lowdin_prod')
+
+    !compute (lowdin_prod)_{mu,s} = sum_{nu} (S^{1/2})_{mu,nu} (C)_{nu,s}
+    call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,One,Ovlp_sqrt,nBasis,cMO,nBasis,Zero,lowdin_prod,nBasis)
+
+    !do iMO_s=1,nOrb2Loc
+    !    do iMO_t=1,nOrb2Loc
+    !        PA(iMO_s,iMO_t,iAt) = PA(iMO_s,iMO_t,iAt) + lowdin_prod(nBas_Start(iAt),iMO_s) * lowdin_prod(nBas_Start(iAt),iMO_t)
+            !call DGEMM_('T','N',nOrb2Loc,nBas_per_Atom(iAt),nOrb2Loc,One,lowdin_prod(nBas_Start(iAt),iMO_s),&
+            !nBas_per_Atom(iAt),lowdin_prod(nBas_Start(iAt),iMO_t), nOrb2Loc,Zero, PA(iMO_s,iMO_t,iAt),nOrb2Loc)
+    !    end do
+    !end do
+
+    do iAt = 1, nAtoms
+        call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,lowdin_prod(nBas_Start(iAt),1),nBasis,&
+                    lowdin_prod(nBas_Start(iAt),1),nBasis,Zero, PA(1,1,iAt),nOrb2Loc)
+    end do
 
     if (Debug_generatep) then
         write(u6,*) 'In GenerateP'
         write(u6,*) '------------'
 
-        !do iAt=1,nAtoms
-        !    PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
-        !    call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
-        !end do
+        call RecPrt("lowdin_prod", " ", lowdin_prod, nBasis, nOrb2Loc)
+
+        do iAt=1,nAtoms
+            PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
+            call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
+        end do
     end if
 
 
