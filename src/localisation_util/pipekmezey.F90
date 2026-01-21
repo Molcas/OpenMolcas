@@ -103,9 +103,11 @@ PA(:,:,:) = Zero
 ! ------------------
 
 ! this offset to get to the part of CMO which should be localized.
+call RecPrt('cMO before localization',' ',cMO,nBasT,norb2locT)
 call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_Atom,nBas_Start,BName,nBasT,nOrb2LocT,nAtoms, &
                      nMxIter,Maximisation,Converged,Debug,Silent)
 
+call RecPrt('cMO after localization^',' ',cMO,nBasT,norb2locT)
 ! De-allocations.
 ! ---------------
 

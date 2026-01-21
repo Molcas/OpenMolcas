@@ -30,13 +30,13 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*), Thrs, ThrRot, ThrGrad
 character(len=LenIn8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: nIter, i,k, iBas, cnt
+integer(kind=iwp) :: nIter, i,k, iBas, cnt, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh, DD, Thr
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), &
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
-                                unitary_mat(:,:), rotated_CMO(:,:)
+                                unitary_mat(:,:), rotated_CMO(:,:), Ovlp_sqrt(:,:),  Ovlp_sqrt_inv(:,:), SCR(:)
 character(len=20), allocatable :: opt_method
-logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false.
+logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false., lowdin = .true.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
@@ -66,6 +66,18 @@ call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
 
 nIter = 0
 FunctionalList(:)=0
+
+if (lowdin) then
+    call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
+    call mma_allocate(Ovlp_sqrt_inv, nBasis, nBasis,Label = "S^{-1/2}")
+    lSCR = 2*nBasis**2+nBasis*(nBasis+1)/2
+    call mma_allocate(SCR,lSCR, Label = "SCR")
+    call SQRTMT(Ovlp,nBasis,1,Ovlp_sqrt,Ovlp_sqrt_inv,SCR)
+    call TriPrt("S",' ',Ovlp,nBasis)
+    call RecPrt("S^{1/2}",' ',Ovlp_sqrt,nBasis, nBasis)
+    !call RecPrt("S^{-1/2}",' ',Ovlp_sqrt_inv,nBasis,nBasis) ! just zeros here
+    call mma_deallocate(Ovlp_sqrt_inv)
+end if
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 
@@ -275,6 +287,10 @@ call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
 call mma_Deallocate(FunctionalList)
 call mma_Deallocate(Hdiag)
+if (lowdin) then
+    call mma_deallocate(Ovlp_sqrt)
+    call mma_deallocate(SCR)
+end if
 
 ! Print convergence message.
 ! --------------------------

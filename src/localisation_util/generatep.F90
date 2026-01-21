@@ -33,51 +33,61 @@ logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAt, iMO_s, iMO_t
 real(kind=wp) :: PAst, PAts
 character(len=LenIn8) :: PALbl
-real(kind=wp), allocatable :: SBar(:,:)
+real(kind=wp), allocatable :: SBar(:,:), Ovlp_sqrt(:,:), Ovlp_sqrt_inv(:,:)
+logical :: debug_generatep = .true., lowdin = .false.
 
-if (Debug) then
-    write(u6,*) 'MO coefficients before any rotation:'
-    call RecPrt('cMO',' ',cMO,nBasis,nBasis)
-end if
 
-If (.True.) Then
-call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')
+if (.not. lowdin) then
+    call mma_Allocate(SBar,nBasis,nOrb2Loc,Label='SBar')
 
-! Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)
+    ! Compute Sbar(mu,s) = sum_{nu} Ovlp(mu,nu) * cMO(nu,s)
 
-call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,One,Ovlp,nBasis,cMO,nBasis,Zero,Sbar,nBasis)
+    call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,One,Ovlp,nBasis,cMO,nBasis,Zero,Sbar,nBasis)
 
-do iAt=1,nAtoms
+    do iAt=1,nAtoms
 
-  ! Compute MA(s,t) = sum_{mu_in_A} cMO(mu,s) * Sbar(mu,t)
+    ! Compute MA(s,t) = sum_{mu_in_A} cMO(mu,s) * Sbar(mu,t)
 
-  call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,cMO(nBas_Start(iAt),1),nBasis,Sbar(nBas_Start(iAt),1),nBasis,Zero, &
-              PA(1,1,iAt),nOrb2Loc)
+    call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,cMO(nBas_Start(iAt),1),nBasis,Sbar(nBas_Start(iAt),1),&
+                nBasis,Zero, PA(1,1,iAt),nOrb2Loc)
 
-  ! Compute <s|PA|t> by symmetrization of MA.
+    ! Compute <s|PA|t> by symmetrization of MA.
 
-  do iMO_s=1,nOrb2Loc
-    do iMO_t=iMO_s+1,nOrb2Loc
-      PAst = PA(iMO_s,iMO_t,iAt)
-      PAts = PA(iMO_t,iMO_s,iAt)
-      PA(iMO_s,iMO_t,iAt) = Half*(PAst+PAts)
-      PA(iMO_t,iMO_s,iAt) = PA(iMO_s,iMO_t,iAt)
-    end do !iMO_t
-  end do !iMO_s
+    do iMO_s=1,nOrb2Loc
+        do iMO_t=iMO_s+1,nOrb2Loc
+        PAst = PA(iMO_s,iMO_t,iAt)
+        PAts = PA(iMO_t,iMO_s,iAt)
+        PA(iMO_s,iMO_t,iAt) = Half*(PAst+PAts)
+        PA(iMO_t,iMO_s,iAt) = PA(iMO_s,iMO_t,iAt)
+        end do !iMO_t
+    end do !iMO_s
 
-end do !iAt
+    end do !iAt
 
-if (Debug) then
-  write(u6,*) 'In GenerateP'
-  write(u6,*) '------------'
-  do iAt=1,nAtoms
-    PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
-    call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
-  end do
-end if
+    if (Debug_generatep) then
+    write(u6,*) 'In GenerateP'
+    write(u6,*) '------------'
+    do iAt=1,nAtoms
+        PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
+        call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
+    end do
+    end if
 
-call mma_deallocate(SBar)
+    call mma_deallocate(SBar)
+
 Else
+
+    if (Debug_generatep) then
+        write(u6,*) 'In GenerateP'
+        write(u6,*) '------------'
+
+        !do iAt=1,nAtoms
+        !    PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
+        !    call RecPrt(PALbl,' ',PA(:,:,iAt),nOrb2Loc,nOrb2Loc)
+        !end do
+    end if
+
+
 End If
 
 end subroutine GenerateP
