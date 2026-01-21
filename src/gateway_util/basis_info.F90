@@ -18,6 +18,7 @@ module Basis_Info
 use define_af, only: iTabMx
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use Molcas, only: MxAO, Mxdbsc
 
 implicit none
 private
@@ -26,8 +27,6 @@ public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc
           Extend_Shells, Gaussian_Type, icent, iCnttp_Dummy, lant, lmag, lnang, Max_Shells, mGaussian_Type, MolWgh, MxPrim, &
           MxrCof, nAngr, nBas, nBas_Aux, nBas_Frag, nBasisr, nCnttp, nFrag_LineWords, nPrimr, nrBas, nrSym, Nuclear_Model, PAMExp, &
           Point_Charge, r0, rCof, rExp, Seward_Activated, Shells
-
-#include "Molcas.fh"
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -192,7 +191,7 @@ contains
 !***********************************************************************
 !
 ! This to make either the initial allocation of dbsc and Shells according to the default sizes
-! as defined by the parameters in Molcas.fh or according to the actual sizes as recorded on the
+! as defined by the parameters in Molcas.F90 or according to the actual sizes as recorded on the
 ! run file.
 
 subroutine Basis_Info_Init()

@@ -35,9 +35,9 @@ use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn, MxAtom
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)
 logical(kind=iwp) :: Found, Pseudo
 integer(kind=iwp), allocatable :: ICh(:), IsMM(:), nStab(:), NTC(:)
