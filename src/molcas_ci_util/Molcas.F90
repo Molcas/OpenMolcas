@@ -41,7 +41,8 @@ Private
       Integer, Parameter :: mxOrb = maxbfn
       Integer, Parameter :: mxSym = 8
       Integer, Parameter :: mxGAS = 16
-#include "LenIn.fh"
+
+      Integer, Parameter :: LenIn=6
       Integer, Parameter :: LENIN1=LENIN+1
       Integer, Parameter :: LENIN2=LENIN+2
       Integer, Parameter :: LENIN3=LENIN+3
