@@ -63,7 +63,7 @@ C>                   to active indices
       use PrintLevel, only: DEBUG, VERBOSE
       use gugx, only: CIS, SGS, L2ACT, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-      use SysDef, only: RtoB
+      use Definitions, only: RtoB
       use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, Mul,
      &                         EPSA
       use pt2_guga, only: MxCI, MxLev, nG1, nG2, nG3

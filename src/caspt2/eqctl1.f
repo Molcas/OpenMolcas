@@ -17,14 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL1()
-      use definitions, only: wp, iwp
+      use definitions, only: wp, iwp, ItoB, RtoI
       use caspt2_global, only: do_grad
       use caspt2_global, only: LUSOLV, LUSBT, IDSCT
       use stdalloc, only: mma_allocate
       use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX,
      &                  MxBlk, MxSct, ModVec, IDSMat, IDBMat, MxVec,
      &                  IDTMat, IDSTMat
-      use SysDef, only: ItoB, RtoI
       use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup,
      &                         nInDep
       use pt2_guga, only: nG2, nG3Tot

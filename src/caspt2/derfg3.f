@@ -24,8 +24,7 @@
 #endif
       use gugx, only: CIS, L2ACT, SGS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-      use definitions, only: iwp,wp,u6
-      use SysDef, only: RtoB
+      use definitions, only: iwp,wp,u6,RtoB
       use caspt2_module, only: nConf, nActEl, nSym, STSym, EPSA, Mul
       use pt2_guga, only: MxCI, MxLev
       use Constants, only: Zero, One, Half

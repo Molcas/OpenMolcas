@@ -102,7 +102,7 @@ C usually print info on the total number of parameters
       END SUBROUTINE SBDIAG
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
-      use definitions, only: wp, iwp
+      use definitions, only: wp, iwp, ItoB
       use constants, only: Zero, One
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
@@ -111,7 +111,6 @@ C usually print info on the total number of parameters
       use PrintLevel, only: INSANE
       use EQSOLV, only: IDTMAT, IDBMAT, IDSMAT, IDSTMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use SysDef, only: ItoB
       use caspt2_module, only: BMatrix, BSpect, BTrans, IfDOrtho,
      &                         ThrShn, ThrShs, nASup, nISup, Cases,
      &                         nInDep

@@ -82,7 +82,7 @@
       use general_data, only: CleanMask
       use PrintLevel, only: DEBUG,TERSE,VERBOSE
       use output_ras, only: LF,IPRGLB,IPRLOC
-      use SysDef, only: RtoI
+      use Definitions, only: RtoI
       use rasdim, only: MxOrb, LenIn8, MxTit, MaxBfn, MxRoot, MxSym
 
       implicit none

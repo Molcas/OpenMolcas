@@ -40,7 +40,7 @@ C
       use PrintLevel, only: DEBUG, VERBOSE
       use gugx, only: CIS, SGS, L2ACT
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-      use SysDef, only: RtoB
+      use Definitions, only: RtoB
       use caspt2_module, only: nActEl, nSym, STSym, Mul
 #ifdef _DMRG_
       use caspt2_module, only: DMRG
