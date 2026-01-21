@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !
-#include "Molcas.fh"
 !     Parameter definitions
 !     Note, these parameters define the size of the problems which
 !     can be treated by the RASSCF program. Changing any of these

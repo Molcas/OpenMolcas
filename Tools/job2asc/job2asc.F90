@@ -19,9 +19,9 @@ use general_data, only: ispin, jobiph, nactel, nash, nbas, nconf, ndel, ndel, ne
                         nsym, ntot, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use rasdim, only: LenIn8, MxOrb, MxRoot, MxSym, MxIter, MxTit
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp) :: FMTIPH, I, IAD15, ISYM, LSYM, NASHT, NFOCK, nHeader, nName, nTitle
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: ADR1(:), ADR2(:), ADR(:)

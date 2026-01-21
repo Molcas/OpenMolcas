@@ -10,6 +10,7 @@
 !***********************************************************************
 !
 Module RASDim
+use Molcas
 #include "rasdim.fh"
 !#include "Molcas.fh"
 !!     Parameter definitions
