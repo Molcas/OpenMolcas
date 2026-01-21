@@ -17,11 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL1()
+      use definitions, only: wp, iwp
       use caspt2_global, only: do_grad
       use caspt2_global, only: LUSOLV, LUSBT, IDSCT
       use stdalloc, only: mma_allocate
       use EQSOLV
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use SysDef, only: ItoB, RtoI
+      IMPLICIT None
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
 C At position IVEC=IRHS, the RHS array, in SR representation.
@@ -31,10 +33,12 @@ C At position IVEC=IVECC, the solution array, in contravariant rep.
 C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "pt2_guga.fh"
-      REAL*8 DUMMY(1)
-      INTEGER IDUM(1)
+      REAL(kind=wp) ::DUMMY(1)
+      INTEGER(kind=iwp) :: IDUM(1), ICASE, IDS, IDS1, IDS2, IDV, iPad,
+     &                     ISCT, ISYM, IVEC, LADDR, LENGTH, LSTA, MXWRT,
+     &                     NAS, NB, NBD, NCOEF, NG3MAX, NID, NIDSCT, NS,
+     &                     NT, iPARDIV, NIN, NIS, NISCT
 
       IRHS  =1
       IVECX =2

@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+Module SysDef
 !----------------------------------------------------------------------*
 ! Define data type conversion constants                                *
 ! ItoB : integer --> byte                                              *
@@ -16,8 +17,11 @@
 ! (units=Bytes)                                                        *
 !----------------------------------------------------------------------*
 !     Character Arch_Type*13
+Private
 #ifdef _I8_
       Integer, Parameter:: ItoB = 8 , RtoB = 8 , RtoI = 1
 #else
       Integer, Parameter:: ItoB = 4 , RtoB = 8 , RtoI = 2
 #endif
+Public  ItoB, RtoB, RtoI
+End Module SysDef
