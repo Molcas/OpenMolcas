@@ -16,6 +16,7 @@ module Slapaf_Info
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 implicit none
 private
@@ -101,7 +102,6 @@ private
 ! NSup                  Temporary arrays for the super symmetry case
 ! KtB                   KtB array for the BMtrx family of subroutines
 
-#include "LenIn.fh"
 integer(kind=iwp), parameter :: MaxItr = 2000
 integer(kind=iwp) :: iInt = 0, iNeg(2) = 0, iOptC = int(b'111011001000'), iOptH = int(b'100'), IRC = 0, iRef = 0, iRow = 0, &
                      iRow_c = 0, iState(2) = 0, iter = 0, Max_Center = 15, mB_Tot = 0, mdB_Tot = 0, MEPNum = 0, Mode = -1, &

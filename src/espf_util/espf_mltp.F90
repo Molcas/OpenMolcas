@@ -17,12 +17,12 @@ use espf_global, only: MxExtPotComp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Debye
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: natom, MltOrd, nMult, nGrdPt, IsMM(natom), iPL
 real(kind=wp), intent(in) :: TTT(nGrdPt,nMult), Grid(3,nGrdPt), Ext(MxExtPotComp,natom), Cord(3,natom)
 real(kind=wp), intent(out) :: Mltp(nMult)
-#include "LenIn.fh"
 integer(kind=iwp) :: iAddPot, iAtom, iMult, jMlt, kOrd, kPnt, ncmp
 real(kind=wp) :: molecular_dipole(3), opnuc(1), SumOfChg, TotElecInt
 real(kind=wp), allocatable :: Charge(:), D2(:), EI(:)

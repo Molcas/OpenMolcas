@@ -14,12 +14,12 @@ subroutine write_new_formatted_aniso(nss,nstate,multiplicity,eso_au,esfs_au,U,MM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: nss, nstate, multiplicity(nstate)
 real(kind=wp), intent(in) :: eso_au(nss), esfs_au(nstate), angmom(3,nstate,nstate), edmom(3,nstate,nstate), amfi(3,nstate,nstate)
 complex(kind=wp), intent(in) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss), HSO(nss,nss)
-#include "LenIn.fh"
 integer(kind=iwp) :: data_file_format, i, iAt, ipar, iss, ist, l, Lu, Lutmp, mult, mxjob, nAtoms, njob
 character(len=1024) :: fname, molcas, molcasversion
 character(len=128) :: Filename
