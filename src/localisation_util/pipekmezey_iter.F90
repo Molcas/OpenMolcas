@@ -36,13 +36,35 @@ real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xk
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
                                 unitary_mat(:,:), rotated_CMO(:,:), Ovlp_sqrt(:,:),  Ovlp_aux(:,:), SCR(:)
 character(len=20), allocatable :: opt_method
-logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false., debug_lowdin = .false., lowdin=.false.
+logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false., debug_lowdin = .false., lowdin=.false.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
-opt_method = 'jacobisweeps'
+!opt_method = 'jacobisweeps'
 !opt_method = 'gradient_ascent'
-!opt_method = 'newton_raphson'
+opt_method = 'newton_raphson'
+
+if (opt_method == 'jacobisweeps') then
+    if (.not. Silent) then
+        write(u6,'(/,A)') 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
+    end if
+else if (opt_method == 'gradient_ascent') then
+    if (.not. Silent) then
+        write(u6,'(/,A,2X,F8.6)') 'Gradient Ascent for maximization of the PM functional with alpha =', alpha
+        write(u6,*) 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
+    end if
+else if (opt_method == 'newton_raphson') then
+    if (.not. Silent) then
+        write(u6,'(/,A)') 'Newton Raphson method for maximization of the PM functional'
+        write(u6,*) 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
+    end if
+end if
+
+if (lowdin) then
+    write(u6,*) "using the Loewdin framework for PM localisation."
+else
+    write(u6,*) "using the Mulliken framework for PM localisation."
+end if
 
 
 ! Print iteration table header.
@@ -111,28 +133,6 @@ call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
 call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
 
 Converged = .false.
-
-if (opt_method == 'jacobisweeps') then
-    if (.not. Silent) then
-        write(u6,'(/,A)') 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
-    end if
-else if (opt_method == 'gradient_ascent') then
-    if (.not. Silent) then
-        write(u6,'(/,A,2X,F8.6)') 'Gradient Ascent for maximization of the PM functional with alpha =', alpha
-        write(u6,*) 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
-    end if
-else if (opt_method == 'newton_raphson') then
-    if (.not. Silent) then
-        write(u6,'(/,A)') 'Newton Raphson method for maximization of the PM functional'
-        write(u6,*) 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
-    end if
-end if
-
-if (lowdin) then
-    write(u6,*) "using the Loewdin framework for PM localisation."
-else
-    write(u6,*) "using the Mulliken framework for PM localisation."
-end if
 
 if (printmore) then
     write(u6,'(/,A)') '               nIter:  Functional:'
