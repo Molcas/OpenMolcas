@@ -19,9 +19,9 @@ subroutine BasFun_Atom_Sym(nBas_per_Atom,nBas_Start,BName,jBas,nBas,nAtoms,DoPri
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
+use Molcas, only: LenIn, LenIn8
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nAtoms, jBas, nBas
 integer(kind=iwp), intent(out) :: nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
 character(len=LenIn8), intent(in) :: BName(nBas)
