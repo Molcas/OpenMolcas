@@ -12,11 +12,11 @@
 module gas_data
 
 use Definitions, only: iwp
+use Molcas, only: MxGas, MxSym
 
 implicit none
 private
 
-#include "Molcas.fh"
 
 integer(kind=iwp) :: IGSOCCX(mxGAS,2) = 0, NGAS = 0, NGSSH(mxGAS,mxSym) = 0
 logical(kind=iwp) :: iDoGas = .false.
