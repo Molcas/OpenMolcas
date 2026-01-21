@@ -15,8 +15,8 @@ subroutine FNOMP2_Drv(irc,EMP2,CMOI,EOcc,EVir)
 
 use MBPT2_Global, only: nBas
 use ChoMP2, only: ChoAlg, DoDens, DoFNO, DoMP2, vkept, XEMP2
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nSym
 use Definitions, only: wp, iwp, u6
-use cOrbInf, only: nSym,nFro,nOcc,nExt,nDel
 
 implicit none
 integer(kind=iwp), intent(out) :: irc

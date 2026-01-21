@@ -9,20 +9,25 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !----------------------------------------------------------------------*
-!     Global Variables describing chemical system                      *
+! Global Variables describing chemical system                          *
 !----------------------------------------------------------------------*
-!     nSym    - number of symmetries                                   *
-!     nOrb(i) - (i = 1, nSym), number of orbitals                      *
-!     nOcc(i) - (i = 1, nSym), number of occupied orbitals             *
-!     nFro(i) - (i = 1, nSym), number of frozen orbitals               *
-!     nDel(i) - (i = 1, nSym), number of orbitals deleted by linear    *
-!               dependencies                                           *
-!     nExt(i) - (i = 1, nSym), number of virtual orbitals              *
-!                                                                      *
+! nSym    - number of symmetries                                       *
+! nOrb(i) - (i = 1, nSym), number of orbitals                          *
+! nOcc(i) - (i = 1, nSym), number of occupied orbitals                 *
+! nFro(i) - (i = 1, nSym), number of frozen orbitals                   *
+! nDel(i) - (i = 1, nSym), number of orbitals deleted by linear deps.  *
+! nExt(i) - (i = 1, nSym), number of virtual (external) orbitals       *
 !----------------------------------------------------------------------*
-!
-Module COrbInf
-Private
-Integer :: nSym,nOrb(8),nOcc(8),nFro(8),nDel(8),nExt(8)
-Public nSym,nOrb,nOcc,nFro,nDel,nExt
-End Module COrbInf
+
+module COrbInf
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: nDel(8), nExt(8), nFro(8), nOcc(8), nOrb(8), nSym
+
+public :: nDel, nExt, nFro, nOcc, nOrb, nSym
+
+end module COrbInf

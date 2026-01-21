@@ -17,10 +17,10 @@ subroutine Mp2Diag()
 !***********************************************************************
 
 use MBPT2_Global, only: DiaA, EOcc, EVir, mAdDel, mAdFro, mAdOcc, mAdVir
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four
 use Definitions, only: wp, iwp
-use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

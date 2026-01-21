@@ -23,10 +23,10 @@ subroutine LovMP2_Drv(irc,EMP2,CMO,EOcc,EVir,NamAct,n_Acta,Thrs,Do_MP2,allVir)
 use MBPT2_Global, only: nBas
 use ChoMP2, only: EOSMP2, shf, Wref, XEMP2
 use OneDat, only: sNoNuc, sNoOri
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use cOrbInf, only: nSym, nFro, nOcc, nDel, nExt
 use Molcas, only: LenIn8, LenIn, MxBas
 
 implicit none

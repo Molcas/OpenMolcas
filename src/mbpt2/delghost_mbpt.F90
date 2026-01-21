@@ -12,10 +12,10 @@
 subroutine DelGHOST_MBPT()
 
 use MBPT2_Global, only: CMO, CMO_Internal, DelGhost, EOrb, nBas, nDsto, nnB, Thr_ghs
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
 use Molcas, only: LenIn8
 
 implicit none
