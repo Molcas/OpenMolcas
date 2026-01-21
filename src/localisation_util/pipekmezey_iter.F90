@@ -34,9 +34,9 @@ integer(kind=iwp) :: nIter, i,k, iBas, cnt, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh, DD, Thr
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), &
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
-                                unitary_mat(:,:), rotated_CMO(:,:), Ovlp_sqrt(:,:),  Ovlp_sqrt_inv(:,:), SCR(:)
+                                unitary_mat(:,:), rotated_CMO(:,:), Ovlp_sqrt(:,:),  Ovlp_aux(:,:), SCR(:)
 character(len=20), allocatable :: opt_method
-logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false., lowdin = .true.
+logical(kind=iwp), parameter :: printmore = .True., debug_exp = .false., lowdin = .true., debug_lowdin = .false.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
@@ -69,14 +69,20 @@ FunctionalList(:)=0
 
 if (lowdin) then
     call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
-    call mma_allocate(Ovlp_sqrt_inv, nBasis, nBasis,Label = "S^{-1/2}")
+    call mma_allocate(Ovlp_aux, nBasis, nBasis,Label = "S^{-1/2}")
     lSCR = 2*nBasis**2+nBasis*(nBasis+1)/2
     call mma_allocate(SCR,lSCR, Label = "SCR")
-    call SQRTMT(Ovlp,nBasis,1,Ovlp_sqrt,Ovlp_sqrt_inv,SCR)
-    call TriPrt("S",' ',Ovlp,nBasis)
+    if (debug_lowdin) then; call RecPrt("S before taking the sqrt",' ',Ovlp,nBasis,nBasis); end if
+    call SQRTMT(Ovlp,nBasis,1,Ovlp_sqrt,Ovlp_aux,SCR)
     call RecPrt("S^{1/2}",' ',Ovlp_sqrt,nBasis, nBasis)
-    !call RecPrt("S^{-1/2}",' ',Ovlp_sqrt_inv,nBasis,nBasis) ! just zeros here
-    call mma_deallocate(Ovlp_sqrt_inv)
+    if (debug_lowdin) then
+        call RecPrt("S after taking the sqrt",' ',Ovlp,nBasis, nBasis)
+        Ovlp_aux(:,:) = Zero ! i want to reuse it
+        call dgemm_('N','N',nBasis,nBasis,nBasis,One,Ovlp_sqrt,nBasis,Ovlp_sqrt,nBasis,Zero,&
+                    Ovlp_aux,nBasis)
+        call RecPrt("S^{1/2}*S^{1/2}",' ',Ovlp_aux,nBasis,nBasis) ! should be same as S
+    end if
+    call mma_deallocate(Ovlp_aux)
 end if
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
