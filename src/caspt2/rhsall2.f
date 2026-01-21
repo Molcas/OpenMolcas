@@ -13,7 +13,7 @@
       use constants, only: Zero, One
       USE CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only:iPrGlb, FIMO, PIQK, Buff, idxb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM, NISH, NASH, NSSH, NASHT, NBTCHES,
      &                         NBTCH, NAES, MUL
@@ -446,7 +446,7 @@ C      the case, symmetry, and rhs vector respectively.
      &                             nSh,JSYM,IVEC,NV)
       use definitions, only: iwp, wp
       use caspt2_global, only: iPrGlb, PIQK, BUFF, idxBuff=>idxb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use caspt2_module, only: NSYM, MUL
       IMPLICIT None
       integer(kind=iwp), Intent(in):: ITI,ITP,ITK,ITQ
@@ -647,7 +647,7 @@ C-SVC: sanity check
       use definitions, only: iwp
       USE CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only: iParRHS,iPrGlb,iStpGrd
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_MaxDBLE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par

@@ -14,7 +14,7 @@ subroutine Proc_InpX(DSCF,iRc)
 use Index_Functions, only: nTri_Elem
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
-use printlevel, only: debug, insane, terse
+use PrintLevel, only: DEBUG, INSANE, TERSE
 use mcpdft_input, only: mcpdft_options
 use mcpdft_output, only: iPrLoc
 use rasscf_global, only: IPT2, iRoot, lRoots, NAC, NACPAR, NACPR2, NFR, NIN, NO2M, NORBT, NROOTS, NSEC, nTot3, nTot4, Weight
@@ -211,7 +211,7 @@ if (mcpdft_options%is_hdf5_wfn) then
 # endif
 end if
 
-iprlev = insane
+iprlev = INSANE
 
 !> read orbital space data AND CI optimiation parameters from JOBIPH
 if (IORBDATA == 0) then

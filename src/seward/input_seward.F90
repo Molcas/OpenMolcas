@@ -29,9 +29,9 @@ use Basis_Info, only: nBas
 use Gateway_global, only: Test, PrPrt, Primitive_Pass
 use Gateway_Info, only: Do_GuessOrb
 use Symmetry_Info, only: nIrrep
+use PrintLevel, only: nPrint, Show
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
-use Print, only: nPrint, Show
 use Molcas, only: LenIn, MaxBfn_Aux, LenIn8, MaxBfn
 
 implicit none

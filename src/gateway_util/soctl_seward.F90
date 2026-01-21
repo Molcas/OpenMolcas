@@ -19,10 +19,10 @@ use real_spherical, only: iSphCr, LblCBs, LblSBs
 use Gateway_global, only: Primitive_Pass
 use Sizes_of_Seward, only: S
 use define_af, only: iTabMx
+use PrintLevel, only: nPrint, Show
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint, Show
 use Molcas, only: LenIn4, LenIn8, LenIn, LenIn1, MaxBfn, MaxBfn_aux, MxAO, MxAtom
 
 implicit none

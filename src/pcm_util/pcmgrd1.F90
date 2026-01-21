@@ -31,17 +31,16 @@ use PCM_arrays, only: PCMTess
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
-use Constants, only: Zero, One, Two, Pi
-use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
 #endif
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, &
-                     iStb(0:7), iTs, iuvwx(4), iZeta, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, nDiff, &
-                     nip, nStb, nT
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, iStb(0:7), iTs, &
+                     iuvwx(4), iZeta, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: NoLoop, JfGrad(3,4)
 procedure(cff2d_kernel) :: XCff2D
@@ -57,7 +56,6 @@ unused_var(rFinal)
 unused_var(nHer)
 unused_var(Ccoor(1))
 unused_var(nComp)
-
 
 ! Modify the density matrix with the prefactor
 
@@ -131,9 +129,9 @@ do iTs=1,1
   ! Pick up the tile coordinates
   C(1:3) = PCMTess(1:3,iTs)
 
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call RecPrt('C',' ',C,1,3)
-#endif
+# endif
 
   ! Generate stabilizer of C
 
@@ -145,18 +143,18 @@ do iTs=1,1
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
   Fact = -real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
-#ifdef _DEBUGPRINT_
-    write(u6,*) ' Q=',Q
-    write(u6,*) ' Fact=',Fact
-    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(nOrdOp))
-    write(u6,*) ' m      =',nStabM
-    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(u6,*) ' s      =',nStb
-    write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
-    write(u6,*) ' LambdaT=',LmbdT
-    write(u6,*) ' t      =',nDCRT
-    write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
-#endif
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Q=',Q
+  write(u6,*) ' Fact=',Fact
+  call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(nOrdOp))
+  write(u6,*) ' m      =',nStabM
+  write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+  write(u6,*) ' s      =',nStb
+  write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
+  write(u6,*) ' LambdaT=',LmbdT
+  write(u6,*) ' t      =',nDCRT
+  write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+# endif
   iuvwx(3) = nStb
   iuvwx(4) = nStb
   JndGrd(:,1:2) = IndGrd
@@ -173,9 +171,9 @@ do iTs=1,1
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   write(u6,*) ' mGrad=',mGrad
-#endif
+# endif
   if (mGrad == 0) cycle
 
   do lDCRT=0,nDCRT-1

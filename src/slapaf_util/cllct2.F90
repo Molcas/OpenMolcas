@@ -23,10 +23,10 @@ subroutine Cllct2(Strng,Vector,dVector,Val,nAtom,nCntr,mCntr,xyz,Grad,Ind,Typ,qM
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Cx, dMass
-use Constants, only: Zero, One
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 use Molcas, only: LenIn, LenIn5, MxAtom
 
 implicit none
@@ -145,8 +145,8 @@ do ixyz=1,nCent
 end do  ! do ixyz=1,nCntr+mCntr
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' Coordinates',' ',xyz,3,nCntr+mCntr)
-  call RecPrt('qMss',' ',qMss,1,nCntr+mCntr)
+call RecPrt(' Coordinates',' ',xyz,3,nCntr+mCntr)
+call RecPrt('qMss',' ',qMss,1,nCntr+mCntr)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -220,8 +220,8 @@ Deg = sqrt(Deg)
 
 call ProjSym2(nAtom,nCent,Ind,xyz,iDCR,Grad,Vector,Hess,dVector)
 #ifdef _DEBUGPRINT_
-  call RecPrt(' symmetry adapted vector',' ',Vector,3,nAtom)
-  call RecPrt(' symmetry adapted dvector',' ',dVector,3*nAtom,3*nAtom)
+call RecPrt(' symmetry adapted vector',' ',Vector,3,nAtom)
+call RecPrt(' symmetry adapted dvector',' ',dVector,3*nAtom,3*nAtom)
 #endif
 
 call mma_deallocate(iDCR)

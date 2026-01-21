@@ -12,10 +12,10 @@
 ************************************************************************
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
+      use PrintLevel, only: VERBOSE
       use caspt2_global, only:iPrGlb
       use Constants, only: Zero
       use definitions, only: wp, iwp, u6
-      use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS
       use caspt2_module, only: NCONF, NASHT, NASH, ISCF, NSTATE, JSTATE,
@@ -85,7 +85,7 @@
      &           DF1,DF2,DF3,DEASUM,
      &           DEPSA,VECROT)
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-      IF (IPRGLB >= verbose) THEN
+      IF (IPRGLB >= VERBOSE) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(u6,'(a,2f10.2)')' CLagD   : CPU/WALL TIME=', cput,wallt
@@ -1758,7 +1758,7 @@
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: iPrGlb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use gugx, only: L2ACT
       use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
       use definitions, only: wp, iwp, byte, u6
@@ -1835,7 +1835,7 @@
         CALL DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       End If
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-      IF (IPRGLB >= verbose) THEN
+      IF (IPRGLB >= VERBOSE) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(u6,*)
@@ -1964,7 +1964,7 @@
       Subroutine CLagFinal(CLag,SLag)
 
       use caspt2_global, only: iPrGlb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: REFENE, NCONF, ISCF, NSTATE
@@ -4036,7 +4036,7 @@
       Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 
       use caspt2_global, only:IPrGlb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use caspt2_global, only: ConvInvar,SLag
       use gugx, only: SGS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
@@ -4075,7 +4075,7 @@
 
       Thres = ConvInvar !! 1.0d-07
 
-      If (IPRGLB >= verbose) Then
+      If (IPRGLB >= VERBOSE) Then
         Write (u6,*)
         Write (u6,'(3X,"Linear Equation for Non-Invariant CASPT2",
      &                 " (threshold =",ES9.2,")")') Thres
@@ -4185,7 +4185,7 @@
       Delta  = DeltaC
       Delta0 = Delta
 !
-      If (IPRGLB >= verbose) Write(u6,*)
+      If (IPRGLB >= VERBOSE) Write(u6,*)
      &      ' Iteration       Delta           Res(CI)        '//
      &      '  DeltaC'
       VecCIT(1:nConf,1:nState) = Zero
@@ -4223,7 +4223,7 @@
           VecCId(1:nConf,1:nState)
      &      = Beta*VecCId(1:nConf,1:nState) + VecS2(1:nConf,1:nState)
 
-          If (IPRGLB >= verbose)
+          If (IPRGLB >= VERBOSE)
      &    Write(u6,'(I7,4X,ES17.9,ES17.9,ES17.9)')
      &           iter,delta/delta0,resci,deltac
 
@@ -4238,7 +4238,7 @@
         End If
       end if
 
-      If (IPRGLB >= verbose) Then
+      If (IPRGLB >= VERBOSE) Then
         CALL TIMING(CPTF1,CPE,TIOTF1,TIOE)
         CPUT =CPTF1-CPTF0
         WALLT=TIOTF1-TIOTF0
@@ -4286,7 +4286,7 @@
       Call CnstDEPSA(VecST,VecCIT,INT1,G2,INT2)
       call mma_deallocate(G2)
 
-      If (IPRGLB >= verbose) Then
+      If (IPRGLB >= VERBOSE) Then
         CALL TIMING(CPTF2,CPE,TIOTF2,TIOE)
         CPUT =CPTF2-CPTF1
         WALLT=TIOTF2-TIOTF1
@@ -4349,7 +4349,7 @@
      &         - DDOT_(nConf,CI2,1,CLag(1,ilStat),1)
           Scal = Scal/(REFENE(jlStat)-REFENE(ilStat))
           SLag(ijst) = SLag(ijst) + Scal
-          IF (IPRGLB >= verbose) THEN
+          IF (IPRGLB >= VERBOSE) THEN
             write(u6,'(1x,"SLag for State ",i1,"-",i1," = ",f20.10)')
      &         ilstat,jlstat,slag(ijst)
           END IF

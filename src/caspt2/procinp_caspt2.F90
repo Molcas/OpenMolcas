@@ -21,7 +21,7 @@ subroutine procinp_caspt2
                            if_invaria, ConvInvar, if_equalW, if_SSDM, &
                            MAXBUF, Weight
   use caspt2_global, only: IDCIEX
-  use PrintLevel, only: terse
+  use PrintLevel, only: TERSE
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
   use definitions, only: MPIInt
@@ -33,7 +33,7 @@ subroutine procinp_caspt2
   use qcmaquis_interface_cfg
   use qcmaquis_interface, only:qcmaquis_interface_init_checkpoint, &
     qcmaquis_interface_set_param, qcmaquis_interface_remove_param
-  use PrintLevel, only: verbose
+  use PrintLevel, only: VERBOSE
 #endif
   use caspt2_global, only: CompressMPS
 ! NOT TESTED
@@ -520,7 +520,7 @@ subroutine procinp_caspt2
     end do
 
     ! initialize the interface using a checkpoint file
-    if (iPrGlb >= verbose) then
+    if (iPrGlb >= VERBOSE) then
       write(6,*) 'PROCINP initializing QCMaquis DMRG interface...'
     end if
     call qcmaquis_interface_init_checkpoint(dmrg_file%qcmaquis_checkpoint_file(1))

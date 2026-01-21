@@ -16,7 +16,7 @@
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug, verbose
+      use PrintLevel, only: DEBUG, VERBOSE
 #ifdef _MOLCAS_MPP_
       use caspt2_global, only: nbuf1_grad,iTasks_grad,nTasks_grad
 #else

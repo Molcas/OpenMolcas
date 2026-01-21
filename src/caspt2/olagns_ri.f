@@ -72,7 +72,7 @@
       Use CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_csf, iStpGrd
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use EQSOLV, only: IVECC2
       use ChoCASPT2, only: MaxVec_PT2
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -465,7 +465,7 @@
      &                      Cho_BraD,Cho_KetD)
 
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
 
       implicit none
 

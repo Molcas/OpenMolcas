@@ -20,7 +20,7 @@
       use definitions, only: iwp, wp, u6, byte
       use constants, only: One
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug, verbose
+      use PrintLevel, only: DEBUG, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: DREF, PREF, LUSOLV, LUSBT
       use EQSOLV, only: IDSMAT
@@ -92,7 +92,7 @@ C looping, etc in the rest  of the routines.
       SUBROUTINE MKSA(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
       use definitions, only: iwp, wp, u6, Byte
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -357,7 +357,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,G3,idxG3)
       use definitions, only: iwp, wp, MPIInt, RtoB, Byte
-      USE MPI, only: MPI_INTEGER,MPI_COMM_WORLD,MPI_REAL8
+      USE MPI
       USE SUPERINDEX, only: KTUV
       use stdalloc, only: mma_MaxDBLE
       use caspt2_module, only: IASYM,MUL,NASHT,nTUVES
@@ -941,7 +941,7 @@ C Add -dyu Gvzxt
       SUBROUTINE MKSC(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
       use definitions, only: iwp, wp, u6, Byte
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -1200,7 +1200,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
       SUBROUTINE MKSC_G3_MPP(ISYM,SC,iLo,iHi,jLo,jHi,LDC,
      &                       NG3,G3,idxG3)
       use definitions, only: iwp, wp, Byte, MPIInt, RtoB
-      USE MPI, only: MPI_INTEGER, MPI_COMM_WORLD, MPI_REAL8
+      USE MPI
       USE SUPERINDEX, only: KTUV
       use stdalloc, only: mma_MaxDBLE
       use caspt2_module, only: IASYM, MUL, NASHT, nTUVES

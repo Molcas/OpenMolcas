@@ -29,12 +29,11 @@ real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot
 character(len=14), intent(inout) :: qLbl(nB)
 integer(kind=iwp) :: i, iAtom, iCent, iDeg, iSym, iTest, ixyz, jxyz, kxyz, mB, nCent, nMass, nOrder, nqRF
 real(kind=wp) :: COM_xyz, Deg, RotAng, RotMat(3,3), RotVec(3), TMass, Trans(3), Val
-logical(kind=iwp) :: Invariant, PSPrint
+logical(kind=iwp) :: Invariant
 character(len=14) :: Label
 integer(kind=iwp), allocatable :: iDCR(:), Ind(:)
 real(kind=wp), allocatable :: currXYZ(:,:), d2RV(:,:,:), dRVdxyz(:,:,:), Grad(:,:), Hess(:,:), Ref123(:,:), xMass(:)
 character(len=*), parameter :: TR_type(6) = ['Tx ','Ty ','Tz ','Ryz','Rzx','Rxy']
-
 
 if ((.not. VarR) .and. (.not. VarT)) return
 !                                                                      *
@@ -42,11 +41,8 @@ if ((.not. VarR) .and. (.not. VarT)) return
 !                                                                      *
 nqRF = 0
 #ifdef _DEBUGPRINT_
-PSPrint = .true.
-#else
-PSPrint = .false.
+write(u6,*) ' Enter RF_Coords.'
 #endif
-if (PSPrint) write(u6,*) ' Enter RF_Coords.'
 
 ! Find nCent and allocate
 

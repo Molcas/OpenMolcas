@@ -23,7 +23,7 @@
       use definitions, only: iwp, wp, u6
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NASHT,NOMX
       IMPLICIT None

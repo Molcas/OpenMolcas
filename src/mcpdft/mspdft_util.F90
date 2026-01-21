@@ -113,7 +113,7 @@ end subroutine print_mspdft_vectors
 !     Threshold value to shift diagonal elements by when printed
 subroutine print_effective_ham(heff,nroots,digit)
 
-  use printlevel, only: silent
+  use PrintLevel, only: SILENT
   use mcpdft_output, only: iPrLoc
 
   integer(kind=iwp), intent(in) :: nroots, digit
@@ -121,7 +121,7 @@ subroutine print_effective_ham(heff,nroots,digit)
   integer(kind=iwp) :: root
   real(kind=wp) :: shift, shifted_heff(nroots,nroots)
 
-  if (iPrLoc(1) == silent) return
+  if (iPrLoc(1) == SILENT) return
 
   shifted_heff = heff
 

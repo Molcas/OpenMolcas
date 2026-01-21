@@ -25,7 +25,7 @@ C
       use rasscf_global, only: KSDFT, lRoots, NACPAR, NACPR2, iADR15,
      &                         iTri
       use SplitCas_Data, only: DoSPlitCas,lRootSplit
-      use printlevel, only: DEBUG,USUAL
+      use PrintLevel, only: DEBUG,USUAL
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,JOBIPH,NASH,NBAS,NFRO,NISH,NTOT,NTOT2
       Implicit None

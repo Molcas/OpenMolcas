@@ -31,8 +31,8 @@ subroutine MkSrt0(iSquar,nIrrep,nBas,iSkip)
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
 use sort_data, only: DimSyB, TriSyB, mxSyP, nBs, nSkip, nSyOp, Square
+use PrintLevel, only: nPrint
 use Definitions, only: iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: iSquar, nIrrep, nBas(nIrrep), iSkip(nIrrep)

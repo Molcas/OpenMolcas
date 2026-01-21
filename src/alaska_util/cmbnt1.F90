@@ -38,9 +38,7 @@ real(kind=wp), external :: DDot_
 
 !ii = la*(la+1)*(la+2)/6
 !jj = lb*(lb+1)*(lb+2)/6
-do iZeta=1,nZeta
-  rKappa(iZeta) = rKappa(iZeta)*Zeta(iZeta)**exp32
-end do
+rKappa(:) = rKappa(:)*Zeta(:)**exp32
 do ixa=0,la
   iyaMax = la-ixa
   do ixb=0,lb
@@ -266,8 +264,8 @@ end do
 
 nDAO = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
 #ifdef _DEBUGPRINT_
-  call RecPrt(' T(1)',' ',rFinal,nDAO,6)
-  call RecPrt('  D  ',' ',DAO,1,nDAO)
+call RecPrt(' T(1)',' ',rFinal,nDAO,6)
+call RecPrt('  D  ',' ',DAO,1,nDAO)
 #endif
 do iCn=1,2
   do iCar=1,3

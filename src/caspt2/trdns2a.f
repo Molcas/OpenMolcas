@@ -22,7 +22,7 @@
       use constants, only: Zero, Two
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use caspt2_module, only: nActEl, nAshT, nSym, nInDep, nISup,
      &                         nIsh, nAsh, nOrb, nAES
       IMPLICIT None

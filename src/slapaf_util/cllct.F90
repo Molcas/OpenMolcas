@@ -20,9 +20,9 @@ subroutine Cllct(Strng,Vector,Val,nAtom,Coor,nCntr,mCntr,xyz,Temp,Ind,Typ,qMss,T
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, dMass
+use PrintLevel, only: nPrint
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 use Molcas, only: LenIn, LenIn5
 
 implicit none
@@ -243,8 +243,8 @@ do ixyz=1,nCent
 end do
 call dGeMV_('N',3*nAtom,3*nCent,One,TMtrx,3*nAtom,Temp,1,Zero,Vector,1)
 #ifdef _DEBUGPRINT_
-  call RecPrt('TMtrx',' ',TMtrx,3*nAtom,3*nCent)
-  call RecPrt(' symmetry adapted vector',' ',Vector,3,nAtom)
+call RecPrt('TMtrx',' ',TMtrx,3*nAtom,3*nCent)
+call RecPrt(' symmetry adapted vector',' ',Vector,3,nAtom)
 #endif
 
 return

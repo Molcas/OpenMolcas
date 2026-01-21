@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE INTCTL1(CMO,NCMO)
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       IMPLICIT None
       INTEGER NCMO
       REAL*8 CMO(NCMO)

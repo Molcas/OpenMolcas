@@ -65,7 +65,7 @@
      &                         lRootSplit,NumSplit,iDimBlockA,
      &                         EnerSplit,GapSpli,PerSplit,PerCSpli,
      &                         fOrdSplit
-      use printlevel, only: USUAL,SILENT
+      use PrintLevel, only: USUAL,SILENT
       use output_ras, only: LF,IPRLOC
       use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
      &                        NSEL,NTOT1,NASH,NBAS,NDEL,NFRO,NISH,

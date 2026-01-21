@@ -26,7 +26,7 @@
 #ifdef _ENABLE_CHEMPS2_DMRG_
       use caspt2_module, only: DoCumulant
 #endif
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,
@@ -68,7 +68,7 @@
 
 #ifdef _DMRG_
       if (DMRG) then
-        if (iPrGlb >= debug) then
+        if (iPrGlb >= DEBUG) then
             write (6,*) 'DENS1_RPT2> Calculating 1RDM...'
         end if
         call qcmaquis_interface_get_1rdm_full(G1)

@@ -21,10 +21,10 @@ use Basis_Info, only: nBas
 use pso_stuff, only: CMO, G1
 use Symmetry_Info, only: iOper, nIrrep
 use Etwas, only: nAsh, nIsh
+use PrintLevel, only: Show
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
-use Print, only: Show
 
 implicit none
 integer(kind=iwp), intent(in) :: nrIn, jDisp, iIrrep

@@ -20,10 +20,10 @@ use Slapaf_Info, only: BMx, BSet, Coor, Cubic, Cx, dqInt, E_Delta, Fallback, Fre
 use Chkpnt, only: Chkpnt_close, Chkpnt_open, Chkpnt_update
 use kriging_mod, only: Kriging, nspAI
 use spool, only: Close_LuSpool, Spoolinp
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(out) :: iStop

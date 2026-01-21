@@ -52,10 +52,10 @@ do i1=1,nCmp
 end do
 
 #ifdef _DEBUGPRINT_
-  do iCmp=1,nCmp*nDeg
-    write(Label,'(A,I2,A)') 'SOValue(mAO,nCoor,mBas,',iCmp,')'
-    call RecPrt(Label,' ',SOValue(1,1,1,iCmp),mAO*nCoor,mBas)
-  end do
+do iCmp=1,nCmp*nDeg
+  write(Label,'(A,I2,A)') 'SOValue(mAO,nCoor,mBas,',iCmp,')'
+  call RecPrt(Label,' ',SOValue(1,1,1,iCmp),mAO*nCoor,mBas)
+end do
 #endif
 
 end subroutine SOAdpt

@@ -99,7 +99,7 @@
      &                         lRootSplit,NumSplit,EnerSplit,
      &                         PerSplit,PerCSpli,fOrdSplit,
      &                         iDimBlockA,GapSpli
-      use printlevel, only: DEBUG,VERBOSE,TERSE
+      use PrintLevel, only: DEBUG,VERBOSE,TERSE
       use output_ras, only: LF,IPRGLB,IPRLOC
       use general_data, only: MAXALTER,NALTER,JOBIPH,NSYM,INVEC,
      &                        STARTORBFILE,NBAS,LUSTARTORB,JOBOLD,NTOT,

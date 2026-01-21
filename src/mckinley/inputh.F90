@@ -33,10 +33,10 @@ use Symmetry_Info, only: iChTbl, iOper, lBsFnc, lIrrep, nIrrep
 use Gateway_global, only: Onenly, Test
 use Gateway_Info, only: CutInt
 use Disp, only: ChDisp, IndDsp, IndXEQ, InxDsp, lDisp, lEQ, nTR, TRSymm
+use PrintLevel, only: nPrint, Show
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
-use Print, only: Show, nPrint
 use Molcas, only: MxAtom
 
 implicit none

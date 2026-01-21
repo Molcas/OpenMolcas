@@ -21,7 +21,7 @@ use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: UnNorm, Do_FckInt
 use Gateway_global, only: ExtBasDir
-use Print, only: nPrint, Show
+use PrintLevel, only: nPrint, Show
 use Molcas, only: LenIn, MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
@@ -130,8 +130,8 @@ do
 
   if (Show .and. (nPrint(2) >= 6) .and. (Ref(1) /= '') .and. (Ref(2) /= '')) then
     write(LuWr,'(1x,a)') 'Basis Set Reference(s):'
-    if (Ref(1) /= '') write(LuWr,'(5x,a)') Trim(Ref(1))
-    if (Ref(2) /= '') write(LuWr,'(5x,a)') Trim(Ref(2))
+    if (Ref(1) /= '') write(LuWr,'(5x,a)') trim(Ref(1))
+    if (Ref(2) /= '') write(LuWr,'(5x,a)') trim(Ref(2))
     write(LuWr,*)
     write(LuWr,*)
   end if
@@ -161,7 +161,7 @@ do
   KWord(1:Indx-1) = BSLbl(1:Indx-1)
   call UpCase(KWord)
   if (index(KWord,'6-31G') /= 0) then
-    iSh=jShll+3
+    iSh = jShll+3
     if (iSh <= iShll) then
       Shells(iSh)%Transf = .false.
       Shells(iSh)%Prjct = .false.

@@ -19,7 +19,7 @@
       SUBROUTINE SIZES()
       use definitions, only: iwp, wp
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: usual
+      use PrintLevel, only: USUAL
       USE SUPERINDEX, only: SUPINI
       use stdalloc, only: mma_MaxDBLE
       use caspt2_global, only: NCMO

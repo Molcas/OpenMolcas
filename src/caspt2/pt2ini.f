@@ -16,7 +16,7 @@
 #ifdef _DMRG_
       use qcmaquis_interface_cfg, only: qcmaquis_param
       use caspt2_global, only: iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use caspt2_module, only: DMRG, nAshT
 #endif
       use caspt2_global, only: do_grad, iStpGrd
@@ -96,7 +96,7 @@ C     Cholesky
       if (DMRG) then
         ! set the lattice length (i.e. the active space size)
         qcmaquis_param%L = nasht
-        if (iPrGlb >= debug) then
+        if (iPrGlb >= DEBUG) then
           write(6,*) 'PT2INI> qcmaquis_param%L = ', qcmaquis_param%L
         end if
       end if

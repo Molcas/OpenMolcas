@@ -270,7 +270,7 @@
 !
       SUBROUTINE PCG_RES(ICONV)
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: terse, usual
+      use PrintLevel, only: TERSE, USUAL
       use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecX
       use caspt2_module, only: MxCase, MaxIt, rNorm, ThrConv
       use Constants, only: Zero, One

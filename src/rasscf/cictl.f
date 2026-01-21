@@ -92,7 +92,7 @@
 #endif
       use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
      &                         lRootSplit
-      use printlevel, only: DEBUG,INSANE,USUAL
+      use PrintLevel, only: DEBUG,INSANE,USUAL
       use output_ras, only: LF,IPRLOC
       use general_data, only: ISPIN,NACTEL,NCONF,NISH,JOBIPH,NASH,NTOT2,
      &                        STSYM

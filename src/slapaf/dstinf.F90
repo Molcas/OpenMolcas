@@ -15,10 +15,10 @@ use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Coor, Cx, Dmp_Slapaf, dqInt, Energy, iOptC, iter, lOld_Implicit, Max_Center, MaxItr, MF, mTROld, &
                        Numerical, qInt, RtRnc, SlStop, Weights
 use UnixInfo, only: SuperName
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 use Molcas, only: LenIn
 
 implicit none

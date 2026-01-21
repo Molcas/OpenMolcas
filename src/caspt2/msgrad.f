@@ -96,7 +96,7 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use fake_GA, only: GA_Arrays
       use caspt2_module, only: NSYM, NASHT, NASUP, NISUP, NINDEP, CASES
       use Constants, only: Zero
@@ -1670,7 +1670,7 @@
 
       use caspt2_global, only:iPrGlb
       use gugx, only: SGS, L2ACT, CIS
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: iSCF, nActEl, nAshT, STSym, Mul

@@ -258,18 +258,18 @@ do iCnttp=1,nCnttp
       !AOM<
       if (abs(Fact-One) > 1.0e-7_wp) rFinal(:,:,:,:,1:mGrad) = Fact*rFinal(:,:,:,:,1:mGrad)
       !AOM>
-#ifdef _DEBUGPRINT_
-        write(u6,*) ' Result in PPGrd'
-        write(u6,*) JfGrad
-        do ia=1,nTri_Elem1(la)
-          do ib=1,nTri_Elem1(lb)
-            do iVec=1,mGrad
-              write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
-              call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
-            end do
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' Result in PPGrd'
+      write(u6,*) JfGrad
+      do ia=1,nTri_Elem1(la)
+        do ib=1,nTri_Elem1(lb)
+          do iVec=1,mGrad
+            write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+            call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
           end do
         end do
-#endif
+      end do
+#     endif
       !                                                                *
       !*****************************************************************
       !                                                                *

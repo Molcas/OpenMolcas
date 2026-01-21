@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO,NCMO)
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: usual
+      use PrintLevel, only: USUAL
       use caspt2_global, only: DREF
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: EASUM, FockType, IfChol, nAMx, nAshT,

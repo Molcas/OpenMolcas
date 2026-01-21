@@ -16,8 +16,8 @@ use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use define_af, only: AngTp
+use PrintLevel, only: nPrint
 use Definitions, only: wp, iwp, u6
-use print, only: nPrint
 use Molcas, only: MaxBfn, MxAtom
 
 implicit none

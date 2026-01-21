@@ -27,7 +27,7 @@
       use caspt2_global, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,
      &                       LISTS
       use caspt2_global, only: LUONEM
-      use PrintLevel, only: usual, verbose
+      use PrintLevel, only: USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif

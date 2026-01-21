@@ -37,21 +37,21 @@ integer(kind=iwp) :: iComp, ipa, ipb, ixa, ixb, ixm, ixp, iya, iyb, iym, iyp, iz
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
+write(u6,*)
+write(u6,*) ' In Ass_pX la,lb,nComp=',la,lb,nComp
+write(u6,*)
+call RecPrt('Alpha','(10G15.8)',Alpha,nZeta,1)
+do iComp=1,nComp
   write(u6,*)
-  write(u6,*) ' In Ass_pX la,lb,nComp=',la,lb,nComp
+  write(u6,*) 'iComp=',iComp
   write(u6,*)
-  call RecPrt('Alpha','(10G15.8)',Alpha,nZeta,1)
-  do iComp=1,nComp
-    write(u6,*)
-    write(u6,*) 'iComp=',iComp
-    write(u6,*)
-    write(Label,'(A,I2,A)') 'Ass_pX:  Slaplb(iComp=',iComp,')'
-    call RecPrt(Label,'(10f15.8)',Slaplb(:,:,:,iComp),nZeta,nTri_Elem1(la+1)*nTri_Elem1(lb))
-    if (la > 0) then
-      write(Label,'(A,I2,A)') 'Ass_pX: Slamlb(iComp=,',iComp,')'
-      call RecPrt(Label,'(10G15.8)',Slamlb(:,:,:,iComp),nZeta,nTri_Elem1(la-1)*nTri_Elem1(lb))
-    end if
-  end do
+  write(Label,'(A,I2,A)') 'Ass_pX:  Slaplb(iComp=',iComp,')'
+  call RecPrt(Label,'(10f15.8)',Slaplb(:,:,:,iComp),nZeta,nTri_Elem1(la+1)*nTri_Elem1(lb))
+  if (la > 0) then
+    write(Label,'(A,I2,A)') 'Ass_pX: Slamlb(iComp=,',iComp,')'
+    call RecPrt(Label,'(10G15.8)',Slamlb(:,:,:,iComp),nZeta,nTri_Elem1(la-1)*nTri_Elem1(lb))
+  end if
+end do
 #endif
 
 do iComp=1,nComp
@@ -106,21 +106,21 @@ do iComp=1,nComp
 end do
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' In Ass_pX la,lb,nComp=',la,lb,nComp
-  do iComp=1,nComp
-    write(u6,*)
-    write(u6,*) 'iComp=',iComp
-    write(u6,*)
+write(u6,*) ' In Ass_pX la,lb,nComp=',la,lb,nComp
+do iComp=1,nComp
+  write(u6,*)
+  write(u6,*) 'iComp=',iComp
+  write(u6,*)
 
-    write(Label,'(A,I2,A)') ' Ass_pX: pX( 1,iComp=',iComp,')'
-    call RecPrt(Label,'(10G15.8)',rFinal(:,:,:,1,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+  write(Label,'(A,I2,A)') ' Ass_pX: pX( 1,iComp=',iComp,')'
+  call RecPrt(Label,'(10G15.8)',rFinal(:,:,:,1,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
 
-    write(Label,'(A,I2,A)') ' Ass_pX: pX( 2,iComp=',iComp,')'
-    call RecPrt(Label,'(10G15.8)',rFinal(:,:,:,2,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+  write(Label,'(A,I2,A)') ' Ass_pX: pX( 2,iComp=',iComp,')'
+  call RecPrt(Label,'(10G15.8)',rFinal(:,:,:,2,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
 
-    write(Label,'(A,I2,A)') ' Ass_pX: pX( 3,iComp=',iComp,')'
-    call RecPrt(Label,'(10G15.8)',rFinal(:,:,:,3,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  end do
+  write(Label,'(A,I2,A)') ' Ass_pX: pX( 3,iComp=',iComp,')'
+  call RecPrt(Label,'(10G15.8)',rFinal(:,:,:,3,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+end do
 #endif
 
 end subroutine Ass_pX

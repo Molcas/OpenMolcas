@@ -42,7 +42,7 @@ C
       use fciqmc, only : DoNECI
       use wadr, only: PA, DIA, SXN
       use stdalloc, only: mma_allocate, mma_deallocate
-      use printlevel, only: DEBUG,INSANE
+      use PrintLevel, only: DEBUG,INSANE
       use output_ras, only: LF,IPRLOC,RC_SX
       use rasdim, only: MxSXIt
       IMPLICIT None

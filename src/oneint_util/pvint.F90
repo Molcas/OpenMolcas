@@ -53,9 +53,9 @@ unused_var(nHer)
 !                                                                      *
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) 'PVInt: nIC,nComp=',nIC,nComp
-  call RecPrt(' In pvint: Alpha','(5ES20.13)',Alpha,nAlpha,1)
-  call RecPrt(' In pvint: Beta','(5ES20.13)',Beta,nBeta,1)
+write(u6,*) 'PVInt: nIC,nComp=',nIC,nComp
+call RecPrt(' In pvint: Alpha','(5ES20.13)',Alpha,nAlpha,1)
+call RecPrt(' In pvint: Beta','(5ES20.13)',Beta,nBeta,1)
 #endif
 
 nip = 1
@@ -103,7 +103,7 @@ do iBeta=1,nBeta
   ipOff = ipOff+nAlpha
 end do
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In pvint: Alpha (expanded)','(5ES20.13)',Array(ipA),nZeta,1)
+call RecPrt(' In pvint: Alpha (expanded)','(5ES20.13)',Array(ipA),nZeta,1)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -115,9 +115,9 @@ call Ass_pX(Array(ipA),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nIC)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-  do i=1,3
-    call RecPrt('pVInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  end do
+do i=1,3
+  call RecPrt('pVInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+end do
 #endif
 
 end subroutine PVInt

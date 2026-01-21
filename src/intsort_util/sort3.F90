@@ -55,27 +55,19 @@ use TwoDat, only: lStRec
 use sort_data, only: iDaTw0, iDIBin, iDVBin, iStBin, lSll, LuTmp, LuTwo, mInt, MxOrd, n_Int, nBin, nRec, nSln
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-#ifdef _DEBUGPRINT_
-use Print, only: nPrint
-#endif
 
 implicit none
 integer(kind=iwp), intent(out) :: MaxDax
 integer(kind=iwp) :: i, iB1, iB2, iBin, iDisk, iDummy, iOpt, iOrd, iRc, iRd, iTmp, iWr, j, j1, j2
 real(kind=wp) :: Buf(2*lStRec)
 integer(kind=iwp), allocatable :: SrtKey(:), SrtAdr(:)
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
-#endif
 
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
 !----------------------------------------------------------------------*
 
 #ifdef _DEBUGPRINT_
-iRout = 88
-iPrint = nPrint(iRout)
-if (iPrint > 5) write(u6,*) ' >>> Enter SORT3 <<<'
+write(u6,*) ' >>> Enter SORT3 <<<'
 #endif
 
 !----------------------------------------------------------------------*
@@ -96,10 +88,8 @@ do iOrd=1,MxOrd
 end do
 MaxDax = iDisk
 #ifdef _DEBUGPRINT_
-if (iPrint >= 10) then
-  call iVcPrt('Sort keys',' ',SrtKey,MxOrd)
-  call iVcPrt('Disk addresses',' ',SRtAdr,MxOrd)
-end if
+call iVcPrt('Sort keys',' ',SrtKey,MxOrd)
+call iVcPrt('Disk addresses',' ',SRtAdr,MxOrd)
 #endif
 
 !----------------------------------------------------------------------*
@@ -137,9 +127,7 @@ do i=1,MxOrd
   end if
 end do
 #ifdef _DEBUGPRINT_
-if (iPrint >= 10) then
-  call iVcPrt('Sort keys',' ',SrtKey,MxOrd)
-end if
+call iVcPrt('Sort keys',' ',SrtKey,MxOrd)
 #endif
 
 !----------------------------------------------------------------------*

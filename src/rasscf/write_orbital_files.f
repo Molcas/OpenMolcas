@@ -48,7 +48,7 @@
      &  nTot, nTot2, nConf
       use gas_data, only : nGssh
       use stdalloc, only: mma_allocate, mma_deallocate
-      use printlevel, only: USUAL
+      use PrintLevel, only: USUAL
       use output_ras, only: LF
       use rasdim, only: LenIn8, MxIter, MxOrb, MxRoot, MxSym, MxTit
       Implicit None

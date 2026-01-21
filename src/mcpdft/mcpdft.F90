@@ -22,7 +22,7 @@ subroutine mcpdft(ireturn)
 use Fock_util_global, only: DoCholesky
 use timers, only: TimeInput, TimeOutput, TimeTotal, TimeTrans
 use write_pdft_job, only: writejob
-use printlevel, only: debug, insane, terse
+use PrintLevel, only: DEBUG, INSANE, TERSE
 use mcpdft_output, only: iPrLoc
 use mcpdft_input, only: mcpdft_options, parse_input
 use mspdft_util, only: replace_diag
@@ -133,8 +133,8 @@ if (mcpdft_options%grad .and. mcpdft_options%mspdft) then
   D1I(:) = Zero
   D1A(:) = Zero
   IPR = 0
-  if (IPRLOC(2) == debug) IPR = 5
-  if (IPRLOC(2) == insane) IPR = 10
+  if (IPRLOC(2) == DEBUG) IPR = 5
+  if (IPRLOC(2) == INSANE) IPR = 10
   call TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
   call Put_dArray('TwoEIntegral',PUVX,nFINT)
   call mma_deallocate(PUVX)
@@ -174,7 +174,7 @@ else
     call put_iscalar('Relax CASSCF root',mcpdft_options%rlxroot)
     call put_carray('MCLR Root','****************',16)
   end if
-  if (iprlev >= terse) then
+  if (iprlev >= TERSE) then
     do state=1,lroots
       call PrintResult(u6,'(6X,A,I3,A,F16.8)','MCPDFT root number',state,' Total energy:',[e_states(state)],1)
     end do

@@ -41,32 +41,31 @@ integer(kind=iwp) :: ia, ib, iComp
 character(len=80) :: Label
 #endif
 
-
 BD(:) = Bcoor(:)-Dcoor(:)
 Fact = -1.0e-6_wp*Half/c_in_au**2
 
 #ifdef _DEBUGPRINT
-  write(u6,*) ' In Util4 la,lb=',la,lb
-  do ia=1,nTri_Elem1(la)
-    do ib=1,nTri_Elem1(lb+1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
-      call RecPrt(Label,' ',Elalbp(:,ia,ib,1),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',y)'
-      call RecPrt(Label,' ',Elalbp(:,ia,ib,2),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',z)'
-      call RecPrt(Label,' ',Elalbp(:,ia,ib,3),nZeta,1)
-    end do
+write(u6,*) ' In Util4 la,lb=',la,lb
+do ia=1,nTri_Elem1(la)
+  do ib=1,nTri_Elem1(lb+1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
+    call RecPrt(Label,' ',Elalbp(:,ia,ib,1),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',y)'
+    call RecPrt(Label,' ',Elalbp(:,ia,ib,2),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',z)'
+    call RecPrt(Label,' ',Elalbp(:,ia,ib,3),nZeta,1)
   end do
-  do ia=1,nTri_Elem1(la)
-    do ib=1,nTri_Elem1(lb)
-      write(Label,'(A,I2,A,I2,A)') ' Elalb(',ia,',',ib,',x)'
-      call RecPrt(Label,' ',Elalb(:,ia,ib,1),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalb(',ia,',',ib,',y)'
-      call RecPrt(Label,' ',Elalb(:,ia,ib,2),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalb(',ia,',',ib,',z)'
-      call RecPrt(Label,' ',Elalb(:,ia,ib,3),nZeta,1)
-    end do
+end do
+do ia=1,nTri_Elem1(la)
+  do ib=1,nTri_Elem1(lb)
+    write(Label,'(A,I2,A,I2,A)') ' Elalb(',ia,',',ib,',x)'
+    call RecPrt(Label,' ',Elalb(:,ia,ib,1),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalb(',ia,',',ib,',y)'
+    call RecPrt(Label,' ',Elalb(:,ia,ib,2),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalb(',ia,',',ib,',z)'
+    call RecPrt(Label,' ',Elalb(:,ia,ib,3),nZeta,1)
   end do
+end do
 #endif
 
 do ixa=la,0,-1
@@ -99,10 +98,10 @@ do ixa=la,0,-1
 end do
 
 #ifdef _DEBUGPRINT
-  do iComp=1,9
-    write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
-    call RecPrt(Label,' ',rFinal(:,:,:,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  end do
+do iComp=1,9
+  write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
+  call RecPrt(Label,' ',rFinal(:,:,:,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+end do
 #endif
 
 end subroutine Util4

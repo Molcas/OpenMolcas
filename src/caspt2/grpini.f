@@ -20,7 +20,7 @@
 #ifdef _DMRG_
       use qcmaquis_interface
 #endif
-      use PrintLevel, only: debug, usual, verbose
+      use PrintLevel, only: DEBUG, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nState, CPUFMB, CPUINT, DMRG, DoCumulant,
      &                         IEOF1M, IfDW, IfsadRef, IfXMS, jState,

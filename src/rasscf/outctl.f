@@ -65,7 +65,7 @@
      &                         Davidson_Tol, Do3RDM, HFOcc,
      &                         Max_canonical, Max_Sweep
 #endif
-      use printlevel, only: DEBUG,USUAL,TERSE,VERBOSE
+      use PrintLevel, only: DEBUG,USUAL,TERSE,VERBOSE
       use output_ras, only: LF,IPRLOC
       use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
      &                        NTOT1,NCONF,NTOT,JOBIPH,NASH,NBAS,NDEL,

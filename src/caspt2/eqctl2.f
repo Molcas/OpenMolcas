@@ -20,7 +20,7 @@
       use definitions, only: iwp, wp
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: nStpGrd, do_grad, iStpGrd
-      use PrintLevel, only: insane, usual, verbose
+      use PrintLevel, only: INSANE, USUAL, VERBOSE
       use EQSOLV, only: IRHS,IVECC,IVECC2,IVECR,IVECW,IVECX
       use ChoCASPT2, only: iALGO
       use caspt2_module, only: NINDEP, NISUP, NASUP, CPUEIG,CPULCS,

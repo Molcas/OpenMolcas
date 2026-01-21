@@ -15,7 +15,7 @@
       use constants, only: Zero
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb, Weight_ => Weight
-      use PrintLevel, only: usual
+      use PrintLevel, only: USUAL
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use gugx, only: L2ACT, LEVEL
       use caspt2_global, only: CMO, CMO_Internal, NCMO

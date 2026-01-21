@@ -21,7 +21,7 @@
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, nActEl, nAshT, nConf, STSym, Mul

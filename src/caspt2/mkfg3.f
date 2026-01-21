@@ -60,7 +60,7 @@ C>                   to active indices
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
       use caspt2_global, only: do_grad, nbuf1_grad, nStpGrd,
      *                         iTasks_grad,nTasks_grad
-      use PrintLevel, only: debug, verbose
+      use PrintLevel, only: DEBUG, VERBOSE
       use gugx, only: CIS, SGS, L2ACT, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use SysDef, only: RtoB

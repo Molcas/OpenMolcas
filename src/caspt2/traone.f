@@ -15,7 +15,7 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: HONE
       use caspt2_global, only: LUONEM
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: ECORE, ERFSELF, IEOF1M, nBMX, nBSqT,
      &                         nBTri, nFroT, nOTri, nSym, PotNuc,

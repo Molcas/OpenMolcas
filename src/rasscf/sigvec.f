@@ -21,7 +21,7 @@ C ********** IBM-3090 Release 88 09 01 **********
 C
       use rasscf_global, only: ICICP, ITER, NDIMSX, NROOT, NSXS,
      &                         SXSHFT, IROOT, ENER
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NASH,NISH,NSSH,SXDAMP
 

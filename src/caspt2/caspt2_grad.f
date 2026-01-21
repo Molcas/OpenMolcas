@@ -211,7 +211,7 @@
      &                           DPT2C_AO_tot,DPT2Canti_tot,
      &                           FIMO_all,FIFA_all,FIFASA_all,OMGDER,
      &                           iTasks_grad
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate,mma_deallocate
       use Constants, only: Zero, One, Half, Two
       use definitions, only: wp, iwp, u6

@@ -32,7 +32,7 @@ subroutine prinp_caspt2()
 !***********************************************************************
   use definitions, only: iwp, wp
   use caspt2_global, only: iPrGlb
-  use PrintLevel, only: terse, usual, verbose
+  use PrintLevel, only: TERSE, USUAL, VERBOSE
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
   use caspt2_global, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
@@ -69,7 +69,7 @@ subroutine prinp_caspt2()
 !----------------------------------------------------------------------*
 !     Print the ONEINT file identifier                                 *
 !----------------------------------------------------------------------*
-  if (iprglb >= verbose) then
+  if (iprglb >= VERBOSE) then
     write(6,*)
     write(6,fmt1) 'Header of the ONEINT file:'
     write(6,fmt1) '--------------------------'
@@ -82,13 +82,13 @@ subroutine prinp_caspt2()
 !----------------------------------------------------------------------*
 !     Print cartesian coordinates of the system                        *
 !----------------------------------------------------------------------*
-  if (iprglb >= verbose) then
+  if (iprglb >= VERBOSE) then
     call prCoor()
   end if
 !----------------------------------------------------------------------*
 !     Print orbital and wavefunction specifications                    *
 !----------------------------------------------------------------------*
-  if (iprglb >= usual) then
+  if (iprglb >= USUAL) then
     write(6,*)
     Line = ' '
     write(Line(left-2:),'(A)') 'Wave function specifications:'
@@ -159,7 +159,7 @@ subroutine prinp_caspt2()
     lIrrep(iSym) = adjustr(lIrrep(iSym))
   end do
 
-  if (iprglb >= usual) then
+  if (iprglb >= USUAL) then
     write(6,*)
     Line = ' '
     write(Line(left-2:),'(A)') 'Orbital specifications:'
@@ -179,7 +179,7 @@ subroutine prinp_caspt2()
 !----------------------------------------------------------------------*
 !     Print routing information                                        *
 !----------------------------------------------------------------------*
-  if (iprglb >= terse) then
+  if (iprglb >= TERSE) then
     if (rfpert) then
       write(6,*)
       write(6,fmt1) 'Reaction field specifications:'

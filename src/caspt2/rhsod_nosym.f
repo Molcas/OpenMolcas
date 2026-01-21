@@ -28,7 +28,7 @@
       use caspt2_module, only: nASup, nISup, nSym
 #endif
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -94,7 +94,7 @@
       USE SUPERINDEX, only: MTUV, MTREL
       USE CHOVEC_IO, only: NVTOT_ChoSym, ChoVec_Size, ChoVec_read
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use caspt2_global, only: FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
@@ -224,7 +224,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE SUPERINDEX, only: MTUV, MTREL, KTUV
       USE CHOVEC_IO, only: NVTOT_CHOSYM, CHOVEC_SIZE, CHOVEC_READ
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use caspt2_global, only: FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
@@ -376,7 +376,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE SUPERINDEX, only: MIGEJ, MIREL, MTGEU, MTREL, MIGTJ, MTGTU
       USE CHOVEC_IO, only: NVTOT_ChoSym, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
@@ -581,7 +581,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE SUPERINDEX, only: MAGEB, MAREL, MTGEU, MTREL, MAGTB, MTGTU
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
@@ -785,7 +785,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE SUPERINDEX, only: MIGEJ, MAGEB, MIGTJ, MAGTB
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
@@ -942,7 +942,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE SUPERINDEX, only: MIA, MAREL, MIREL, MTU, MTREL, KTU
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use caspt2_global, only: FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
@@ -1137,7 +1137,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE SUPERINDEX, only: MIGEJ, MIREL, MIGTJ, MIREL
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
@@ -1375,7 +1375,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE SUPERINDEX, only: MAGEB, MAREL, MAGTB
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays

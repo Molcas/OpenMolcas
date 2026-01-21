@@ -118,7 +118,7 @@
      &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
      &                         Conv, DoDMRG, iCIRST, KSDFT_Temp
       use SplitCas_Data, only: DoSPlitCas,IterSplit,lRootSplit
-      use printlevel, only: DEBUG,USUAL,TERSE
+      use PrintLevel, only: DEBUG,USUAL,TERSE
       use output_ras, only: LF,IPRLOC,RC_CI,RC_SX
       use general_data, only: NALTER,ITERFILE,NSYM,INVEC,ISPIN,NCONF,
      &                        NCRVEC,JOBIPH,NASH,NBAS,NDEL,NFRO,

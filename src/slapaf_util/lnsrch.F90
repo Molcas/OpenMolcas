@@ -11,9 +11,9 @@
 
 subroutine LnSrch(Energy,q,dq,g,nInter,nIter,dqHdq)
 
+use PrintLevel, only: nPrint
 use Constants, only: Zero, One, Two, Three, Four, Half
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter, nIter
@@ -29,12 +29,12 @@ real(kind=wp), external :: DDot_
 iRout = 200
 iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' Enter LnSrch'
-  write(u6,*) 'dqHdq=',dqHdq
-  call RecPrt('LnSrch: Energy',' ',Energy,1,nIter)
-  call RecPrt('LnSrch: q',' ',q,nInter,nIter)
-  call RecPrt('LnSrch:dq',' ',dq,nInter,nIter)
-  call RecPrt('LnSrch: g',' ',g,nInter,nIter)
+write(u6,*) ' Enter LnSrch'
+write(u6,*) 'dqHdq=',dqHdq
+call RecPrt('LnSrch: Energy',' ',Energy,1,nIter)
+call RecPrt('LnSrch: q',' ',q,nInter,nIter)
+call RecPrt('LnSrch:dq',' ',dq,nInter,nIter)
+call RecPrt('LnSrch: g',' ',g,nInter,nIter)
 #endif
 
 A(0) = Zero
@@ -173,10 +173,10 @@ dq(:,iNew-1) = q(:,iNew)-q(:,iNew-1)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-  call RecPrt('LnSrch: q',' ',q,nInter,nIter)
-  call RecPrt('LnSrch:dq',' ',dq,nInter,nIter)
-  call RecPrt('LnSrch: g',' ',g,nInter,nIter)
-  write(u6,*) ' Exit LnSrch'
+call RecPrt('LnSrch: q',' ',q,nInter,nIter)
+call RecPrt('LnSrch:dq',' ',dq,nInter,nIter)
+call RecPrt('LnSrch: g',' ',g,nInter,nIter)
+write(u6,*) ' Exit LnSrch'
 #endif
 
 end subroutine LnSrch

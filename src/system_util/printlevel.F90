@@ -16,8 +16,12 @@ use Definitions, only: iwp
 implicit none
 private
 
+integer(kind=iwp), parameter :: nRout = 1024
 integer(kind=iwp), parameter :: SILENT = 0, TERSE = 1, USUAL = 2, VERBOSE = 3, DEBUG = 4, INSANE = 5
 
-public :: DEBUG, INSANE, SILENT, TERSE, USUAL, VERBOSE
+integer(kind=iwp) :: nPrint(nRout) = INSANE ! ?
+logical(kind=iwp) :: Colorize = .true., Show = .false.
+
+public :: Colorize, DEBUG, INSANE, nPrint, Show, SILENT, TERSE, USUAL, VERBOSE
 
 end module PrintLevel

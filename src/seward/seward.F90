@@ -54,10 +54,10 @@ use Embedding_Global, only: embPot, embPotInBasis
 #endif
 use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
 use spool, only: Close_LuSpool, Spoolinp
+use PrintLevel, only: nPrint, Show
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint, Show
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn

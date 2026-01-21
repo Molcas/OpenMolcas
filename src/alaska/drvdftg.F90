@@ -31,10 +31,10 @@ use Symmetry_Info, only: nIrrep
 use Para_Info, only: King
 use nq_Info, only: nAshT, Grid_Type, Moving_Grid
 use NAC, only: isNAC, NACStates
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

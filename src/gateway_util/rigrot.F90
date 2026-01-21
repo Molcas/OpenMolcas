@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine RigRot(CoorIn,rM,nAtm)
 !***********************************************************************
 !                                                                      *
@@ -31,10 +32,10 @@ subroutine RigRot(CoorIn,rM,nAtm)
 
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CoM, PAX, Prin, rMI, TMass
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Eight, Half, auTocm, auToHz, uToau
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtm
@@ -46,7 +47,6 @@ character(len=80) :: Label
 real(kind=wp), allocatable :: Coor(:,:), En(:), Hess(:), Vec(:)
 integer(kind=iwp), external :: iprintlevel
 
-!#define _DEBUGPRINT_
 iRout = 117
 iPrint = nPrint(iRout)
 RR_Show = iPrint >= 6
@@ -69,8 +69,8 @@ if (TMass == Zero) then
 end if
 Linear = .false.
 #ifdef _DEBUPRINT_
-  call RecPrt(' In RigRot: CoorIn',' ',CoorIn,3,nAtm)
-  call RecPrt(' In RigRot: Mass',' ',rM,1,nAtm)
+call RecPrt(' In RigRot: CoorIn',' ',CoorIn,3,nAtm)
+call RecPrt(' In RigRot: Mass',' ',rM,1,nAtm)
 #endif
 if (RR_Show) then
   write(u6,*)
@@ -264,9 +264,9 @@ do j=0,S%jMax
   nTri = mDim*(mDim+1)/2
   Hess(1:nTri) = Zero
   call unitmat(Vec,mDim)
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call RecPrt(' Vec',' ',Vec,mDim,mDim)
-#endif
+# endif
   k1 = 1
   do k=-j,j
     kk = k1*(k1+1)/2
@@ -285,13 +285,13 @@ do j=0,S%jMax
     end if
     k1 = k1+1
   end do
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call TriPrt(' Hessian',' ',Hess,mDim)
-#endif
+# endif
   call Jacob(Hess,Vec,mDim,mDim)
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call TriPrt(' Hessian',' ',Hess,mDim)
-#endif
+# endif
   do i=1,mDim
     En(iEn+I-1) = Hess(i*(i+1)/2)*auTocm
   end do

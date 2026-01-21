@@ -41,9 +41,6 @@ use TwoDat, only: lStRec, lTop
 use sort_data, only: iDaTwo, iDVBin, LuTwo, mDaTwo, nRec
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoB
-#ifdef _DEBUGPRINT_
-use Print, only: nPrint
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iBin, nInts, lSrtA, lStk
@@ -51,26 +48,17 @@ integer(kind=iwp), intent(inout) :: iOrd, IOStk(lStk), nStk
 real(kind=wp), intent(in) :: SrtArr(lSrtA)
 integer(kind=iwp) :: iEnd, IntLen(4*lStRec), iOpt, iOptIO, iSave, iStart, iStk, jStk, kStk, llVRec, lVRec, mxVRec, nSave, nSaved
 real(kind=wp) :: PkVal(lStRec), Dum(1)
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
-#endif
 
 !----------------------------------------------------------------------*
 !     pick up the print level                                          *
 !----------------------------------------------------------------------*
 
 #ifdef _DEBUGPRINT_
-iRout = 86
-iPrint = nPrint(iRout)
-if (iPrint > 5) then
-  write(u6,*) ' >>> Enter SORT2B <<<'
-  write(u6,*) ' iBin  ',iBin
-  write(u6,*) ' lSrtA ',lSrtA
-  write(u6,*) ' nInts ',nInts
-end if
-if (iPrint >= 10) then
-  call iVcPrt('stack of free records',' ',IOStk,nStk)
-end if
+write(u6,*) ' >>> Enter SORT2B <<<'
+write(u6,*) ' iBin  ',iBin
+write(u6,*) ' lSrtA ',lSrtA
+write(u6,*) ' nInts ',nInts
+call iVcPrt('stack of free records',' ',IOStk,nStk)
 #endif
 
 !----------------------------------------------------------------------*
@@ -144,9 +132,7 @@ do while (nSaved < nInts)
     call dDAFILE(LuTwo,iOptIO,Dum,lStRec,mDaTwo)
   end if
 # ifdef _DEBUGPRINT_
-  if (iPrint >= 10) then
-    write(u6,*) ' write record: iOrd,iDaTwo ',iOrd,iDaTwo
-  end if
+  write(u6,*) ' write record: iOrd,iDaTwo ',iOrd,iDaTwo
 # endif
 
   ! Write out the buffer

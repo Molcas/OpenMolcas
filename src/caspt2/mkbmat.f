@@ -19,7 +19,7 @@
       SUBROUTINE MKBMAT()
       use definitions, only: iwp, wp, Byte, u6
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug, verbose
+      use PrintLevel, only: DEBUG, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: DREF, PREF
       use caspt2_global, only: LUSOLV, LUSBT
@@ -122,7 +122,7 @@ C looping, etc in the rest of the routines.
       SUBROUTINE MKBA(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
       use definitions, only: iwp, wp, Byte
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -492,7 +492,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
       SUBROUTINE MKBA_F3_MPP(ISYM,BA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,F3,idxG3)
       use definitions, only: iwp, wp, Byte
-      USE MPI, only: MPI_INTEGER,MPI_COMM_WORLD,MPI_REAL8
+      USE MPI
       USE SUPERINDEX, only: KTUV
       use stdalloc, only: mma_MaxDBLE
       use definitions, only: MPIInt,RtoB,wp
@@ -965,7 +965,7 @@ c Avoid unused argument warnings
       SUBROUTINE MKBC(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
       use definitions, only: iwp, wp, Byte
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -1323,7 +1323,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
       SUBROUTINE MKBC_F3_MPP(ISYM,BC,iLo,iHi,jLo,jHi,LDC,
      &                       NG3,F3,idxG3)
       use definitions, only: iwp, wp, Byte
-      USE MPI, only: MPI_INTEGER,MPI_COMM_WORLD,MPI_REAL8
+      USE MPI
       USE SUPERINDEX, only: KTUV
       use stdalloc, only: mma_MaxDBLE
       use definitions, only: MPIInt,RtoB,wp

@@ -62,7 +62,7 @@
 #else
       use rasscf_global, only: DoBLOCKDMRG
 #endif
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NTOT,JOBIPH,NASH,NBAS,NDEL,NFRO,NISH,
      &                        NSSH,NTOT2

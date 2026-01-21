@@ -42,7 +42,7 @@
       use SplitCas_Data, only: MxIterSplit,ThrSplit,
      &                         lRootSplit,EnerSplit,GapSpli,PerSplit,
      &                         PerCSpli,iDimBlockA
-      use printlevel, only: DEBUG,USUAL,TERSE,VERBOSE
+      use PrintLevel, only: DEBUG,USUAL,TERSE,VERBOSE
       use output_ras, only: LF,IPRLOC
       use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
      &                        NTOT1,NCONF,JOBIPH,NASH,NBAS,NDEL,NFRO,

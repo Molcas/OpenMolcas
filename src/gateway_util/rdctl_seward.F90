@@ -47,10 +47,10 @@ use Para_Info, only: MyRank
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use PrintLevel, only: nPrint, Show
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, UtoAU
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint, Show
 use Molcas, only: MxAtom, LenIn, Mxdbsc
 
 implicit none
