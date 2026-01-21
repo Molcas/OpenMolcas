@@ -99,6 +99,7 @@ set (sources
      pmat_rasscf.F90
      prttim.F90
      rasdef.F90
+     rasdim.F90
      rasscf_global.F90
      rassi_data.F90
      rd1int.F90
@@ -143,6 +144,7 @@ set (modfile_list
      general_data.F90
      gugx.F90
      input_mclr.F90
+     rasdim.F90
      rasscf_global.F90
      rassi_data.F90
      spinfo.F90

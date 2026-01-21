@@ -1,0 +1,30 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
+Module RASDim
+#include "rasdim.fh"
+!#include "Molcas.fh"
+!!     Parameter definitions
+!!     Note, these parameters define the size of the problems which
+!!     can be treated by the RASSCF program. Changing any of these
+!!     requires, that the program is totaly recompiled and linked.
+!!
+!      Integer, Parameter :: mxRef  = 5
+!!...  max number of reference configurations in root selectioning
+!      Integer, Parameter :: mxIter = 200
+!!...  max number of macro iterations
+!      Integer, Parameter :: mxCiIt = 502
+!!...  max number of micro iterations for the CI section
+!      Integer, Parameter :: mxSxIt = 100
+!!...  max number of micro iterations for the SX section
+!      Integer, Parameter :: mxTit  = 1
+!!...  max number of title lines
+End Module RASDim

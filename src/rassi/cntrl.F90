@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module Cntrl
-# include "rasdim.fh"
-! note this also includes implicitly Molcas.fh
+use rasdim, only: mxRef,mxIter,mxCiIt,mxSxIt,mxTit
+! The paramaters defined in rasdim.fh should be private
+Private mxRef,mxIter,mxCiIt,mxSxIt,mxTit
+#include "Molcas.fh"
 ! The paramaters defined in Molcas.fh should be private
 Private MaxBfn,MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, mxact, mxina, mxbas, mxOrb, &
         mxSym, mxGAS, LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
-! The paramaters defined in rasdim.fh should be private
-Private mxRef,mxIter,mxCiIt,mxSxIt,mxTit
 
   INTEGER, PARAMETER :: MXJOB=100,MXPROP=30000
   INTEGER, PARAMETER :: MXDISP=500
