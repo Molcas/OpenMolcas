@@ -10,7 +10,7 @@
 !***********************************************************************
 Module Cntrl
 use rasdim, only: mxRef,mxIter,mxCiIt,mxSxIt,mxTit
-! The paramaters defined in rasdim.fh should be private
+! The paramaters defined in module rasdin should be private
 Private mxRef,mxIter,mxCiIt,mxSxIt,mxTit
 #include "Molcas.fh"
 ! The paramaters defined in Molcas.fh should be private

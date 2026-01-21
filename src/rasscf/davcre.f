@@ -44,6 +44,7 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use printlevel, only: DEBUG,INSANE
       use output_ras, only: LF,IPRLOC,RC_SX
+      use rasdim, only: MxSXIt
       IMPLICIT None
       INTEGER NROOT,ITMAX,NDIM,ITERSX,NSXS
       Real*8 C((NROOT+NSXS)*NROOT*(ITMAX+1))
@@ -57,7 +58,6 @@ C
       Real*8 QQ(NROOT)
       Real*8 S(ITMAX*NROOT**2)
       CHARACTER(LEN=*) SXSEL
-#include "rasdim.fh"
 #include "warnings.h"
       Character(LEN=16):: ROUTINE='DAVCRE  '
       CHARACTER(LEN=4) IOUTW,IOUTX

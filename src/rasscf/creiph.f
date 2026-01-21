@@ -80,9 +80,10 @@ C
       use general_data, only: NSYM,ISPIN,JOBIPH,NACTEL,NASH,NBAS,NCONF,
      &                        NDEL,NELEC3,NFRO,NHOLE1,NISH,NRS1,NRS2,
      &                        NRS3,NTOT,NTOT2,STSYM
+      use rasdim, only: LenIn8, MxOrb, MxSym, MxRoot, MxAct, MxIter,
+     &                  MxTit
 
       IMPLICIT None
-#include "rasdim.fh"
       Real*8 Dum(1)
       Real*8, Allocatable:: HEFF(:,:)
       Integer I, IAD15, ISYM, J, NFOCK, NOO

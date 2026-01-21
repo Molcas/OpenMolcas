@@ -40,9 +40,10 @@
      &                        NRS2T,NSYM,ISPIN,STSYM,NSEL,NALTER,INVEC,
      &                        NASH,NBAS,NDEL,NFRO,NISH,NORB,NRS1,NRS2,
      &                        NRS3,NSSH,MALTER
+      use rasdim, only: MxOrb, MxAct, MxBas, MxCIIt, MxIna, MxIter,
+     &                  MxRoot, MxSXIt, MxGAS
 
       implicit none
-#include "rasdim.fh"
 #include "warnings.h"
       integer :: ierr, ierr1, ierr2
       integer :: i, iSym, iAlter

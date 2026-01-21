@@ -17,6 +17,7 @@
       use printlevel, only: DEBUG,USUAL
       use output_ras, only: LF,IPRLOC
       use general_data, only: JOBIPH,NCONF
+      use rasdim, only: MxIter, MxRoot
       Implicit None
 
 
@@ -24,8 +25,6 @@
 * history:                                                       *
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
 * ****************************************************************
-#include "rasdim.fh"
-
 
 
       Integer NHrot                ! storing info in H0_Rotate.txt

@@ -73,11 +73,11 @@
       use spinfo, only: DoComb,NCNFTP,NCSASM,NDTASM,NDTFTP
       use spinfo, only: I_ELIMINATE_GAS_MOLCAS,NCSF_HEXS
       use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
+      use rasdim, only: MxRef
 
       Implicit None
       Logical lOPTO
 
-#include "rasdim.fh"
       Character(LEN=8)   Fmt1,Fmt2,Label
       Character(LEN=120)  Line,BlLine,StLine
       Character(LEN=3) lIrrep(8)

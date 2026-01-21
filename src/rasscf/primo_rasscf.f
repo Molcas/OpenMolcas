@@ -18,12 +18,11 @@
       use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
       use output_ras, only: LF
       use general_data, only: NSYM,NASH,NBAS,NDEL,NFRO,NISH
+      use rasdim, only: LenIn8, LenIn
       Implicit None
 
       Character(LEN=*) VecTit
       Real*8 CMO(*),Occ(*),Ene(*)
-
-#include "rasdim.fh"
 
       Integer NSLCT(8)
       Logical   PrOcc,PrEne

@@ -19,7 +19,6 @@
       Character(LEN=16) Command
       Character(LEN=16) Key
 #include "warnings.h"
-#include "rasdim.fh"
       Integer IPRLEV,KLen
       Intrinsic len, min
 
