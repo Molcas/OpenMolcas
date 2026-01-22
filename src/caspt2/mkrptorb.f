@@ -22,8 +22,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
 #if defined(_DMRG_)
       use qcmaquis_interface
+      use caspt2_module, only: DMRG
 #endif
-      use caspt2_module, only: DMRG, iSCF, jState, nAshT, nConf, nOMx,
+      use caspt2_module, only: iSCF, jState, nAshT, nConf, nOMx,
      &                         nState, nSym, STSym, nIsh, nAsh, nRas1,
      &                         nRas2, nRas3, nSsh, nOrb, nBas, nFro,
      &                         jState, EPS, EPSI, EPSA, nDel, nAES,

@@ -23,8 +23,11 @@
       use PrintLevel, only: verbose
       use gugx, only: SGS, L2ACT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: DMRG, DoCumulant, iSCF, jState, nActel,
+      use caspt2_module, only: DoCumulant, iSCF, jState, nActel,
      &                         nConf, nState, STSym, EPSA, mState
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
+      use caspt2_module, only: DMRG
+#endif
       IMPLICIT NONE
 C  IBM TEST VERSION 0, 1988-06-23.
 C  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.

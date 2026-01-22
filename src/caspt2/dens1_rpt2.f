@@ -21,11 +21,12 @@
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_get_1rdm_full
+      use caspt2_module, only: DMRG
 #endif
       use PrintLevel, only: debug
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: DMRG, iSCF, jState, nActEl, nAshT, STSym,
+      use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,
      &                         Mul, mState
       IMPLICIT NONE
 

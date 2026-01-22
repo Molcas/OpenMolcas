@@ -39,11 +39,12 @@ subroutine prinp_caspt2()
 
 #ifdef _DMRG_
   use caspt2_global, only: compressMPS
+  use caspt2_module, only: DMRG
 #endif
   use caspt2_module, only: nBas, nDel, nSsh, nAsh, nIsh, nFro, mState, Header, Zeta, STSym, RFPert, Orbin, &
                            nSym, nState, nSshT, nRoots, nIshT, nHole1, nEle3, nConf, nAshT, nActel, iSpin, &
                            iSCF, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfMSCoup, IfMix, IfDW, IfDOrtho, HZero, &
-                           DWType, DMRG
+                           DWType
   implicit none
 
 #include "pt2_guga.fh"

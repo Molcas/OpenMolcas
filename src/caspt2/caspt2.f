@@ -24,11 +24,12 @@
 #ifdef _DMRG_
       use, intrinsic :: iso_c_binding, only: c_bool, c_int
       use qcmaquis_interface
+      use caspt2_module, only: DMRG
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       USE Constants, ONLY: auTocm, auToeV, auTokJmol
       use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
-      use caspt2_module, only: DMRG, E2ToT, IfChol, IfDens, IfDW,
+      use caspt2_module, only: E2ToT, IfChol, IfDens, IfDW,
      &                         IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot,
      &                         jState, nGroup, nLyGroup, nLyRoot,
      &                         nState, RefEne, Energy, nGroupState,

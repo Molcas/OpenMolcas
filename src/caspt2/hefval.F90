@@ -15,7 +15,10 @@ subroutine hefval(ist, jst, dvalue)
   use printLevel, only: debug
   use eqsolv
   use stdalloc, only: mma_allocate, mma_deallocate
-  use caspt2_module, only: DMRG, iSCF, nAshT, nConf, nState, STSym
+  use caspt2_module, only: iSCF, nAshT, nConf, nState, STSym
+#if defined _DMRG_
+  use caspt2_module, only: DMRG
+#endif
   implicit none
   ! Apart from input call parameters, we need two vectors stored on
   ! LUSOLV. Vector nr IVECC (presently=2) contains the contravariant
