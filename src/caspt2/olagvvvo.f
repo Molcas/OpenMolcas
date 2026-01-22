@@ -25,9 +25,8 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
 C
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       DIMENSION DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*),T2AO(*)
       Dimension DIA(*),DI(*),FIFA(*),FIMO(*),A_PT2(*)
@@ -681,11 +680,11 @@ C
       use ChoCASPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "warnings.h"
-#include "caspt2.fh"
 
       Real*8 vLag(nBasT,*),CMO(nBasT,*),WRK(nBasT,nBasT)
       Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
