@@ -16,13 +16,13 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use OneDat, only: sNoNuc, sNoOri
+      use caspt2_module
       Implicit real*8 (a-h,o-z)
       Dimension H1EFF(*)
 * ----------------------------------------------------------------
 * Purpose: Reads and adds one-electron naked Hamiltonian into H1EFF.
 * Dress it with reaction field (if any).
 * Also get POTNUC at the same time.
-#include "caspt2.fh"
 *
       character(len=8) :: Label
       Logical Found
