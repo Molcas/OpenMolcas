@@ -16,10 +16,10 @@
      &                               nestlb, doexch, excl, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
+      use rasdim, only: MxRoot
 
       implicit none
 ! pick up MxRoot
-#include "rasdim.fh"
       integer(kind=iwp) :: nstat1, nstat2,
      &                     run, lWKX, dimn, a, b
       integer(kind=iwp), external :: isFreeUnit

@@ -49,10 +49,10 @@
      &                        NISH,NRS1,NRS2,NRS3,NSSH,NTOT,NTOT2
       use spinfo, only: NCSASM,NDTASM
       use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
+      use rasdim, only: MxRoot
 
       Implicit None
 
-#include "rasdim.fh"
       Character(LEN=16), Parameter:: ROUTINE='OUTCTL  '
       Real*8, Allocatable:: DSave(:)
       Character(LEN=8)  Fmt2, Label

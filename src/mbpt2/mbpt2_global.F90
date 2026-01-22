@@ -13,11 +13,10 @@ module MBPT2_Global
 
 use Data_Structures, only: DSBA_Type
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 implicit none
 private
-
-#include "LenIn.fh"
 
 integer(kind=iwp) :: iPL, iPoVec(9), mAdDel(8), mAdFro(8), mAdOcc(8), mAdVir(8), nBas(8), nDel1(8), nDel2(8), nDsto(8), nFro1(8), &
                      nFro2(8), nnB, nTit

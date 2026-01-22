@@ -72,13 +72,13 @@
      &                        NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NSSH,NTOT2
       use spinfo, only: NCSASM,NDTASM
       use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
+      use rasdim, only: MxRoot, MxRef
 
 
       Implicit None
 
       Real*8 CMO(*),OCCN(*),SMAT(*)
       Logical lOPTO
-#include "rasdim.fh"
       Character(LEN=16), Parameter :: ROUTINE='OUTCTL  '
 
       Character(LEN=8)  Fmt2, Label

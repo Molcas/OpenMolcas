@@ -12,6 +12,7 @@
 module OneDat
 
 use Definitions, only: iwp, ItoB
+use Molcas, only: MxSym, MxAtom, MxBas
 
 implicit none
 private
@@ -75,7 +76,6 @@ private
 !                                                                      *
 !----------------------------------------------------------------------*
 
-#include "Molcas.fh"
 
 type FInfo_type
   integer(kind=iwp) :: ID = 4101, VN = 1024

@@ -21,7 +21,6 @@ real(kind=wp), intent(in) :: TotalM, EVal(*)
 integer(kind=iwp), intent(inout) :: nUserPT
 integer(kind=iwp), intent(in) :: nsRot, iMult, in_nFreq
 logical(kind=iwp), intent(in) :: lSlapaf
-#include "Molcas.fh"
 integer(kind=iwp) :: i, nFreq, nTR, nTr2
 real(kind=wp) :: dFreqI, Energy, ZPVE
 real(kind=wp), allocatable :: Freq(:), VibT(:)

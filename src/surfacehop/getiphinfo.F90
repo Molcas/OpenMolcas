@@ -12,11 +12,11 @@
 subroutine getIphInfo(JOBIPH,nconf,LROOTS,IADR15)
 
 use Definitions, only: wp, iwp
+use rasdim, only: LenIn8, MxRoot, MxOrb, MxSym, MxTit
 
 implicit none
 integer(kind=iwp), intent(in) :: JOBIPH, IADR15(15)
 integer(kind=iwp), intent(out) :: nconf, LROOTS
-#include "rasdim.fh"
 integer(kind=iwp) :: IAD15, NACTEL, ISPIN, NSYM, LSYM, NROOTS, NHOLE1, NELEC3, IPT2
 integer(kind=iwp) :: nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym), nBas(MxSym), iRoot(MxRoot), nRS1(MxSym), nRS2(MxSym), &
                      nRS3(MxSym)
@@ -27,7 +27,5 @@ real(kind=wp) :: POTNUC, Weight(MxRoot)
 IAD15 = IADR15(1)
 call WR_RASSCF_Info(JOBIPH,2,IAD15,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,MxSym,AtName,LENIN8*mxOrb,NCONF,HEADER,2*72, &
                     TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
-
-return
 
 end subroutine getIphInfo

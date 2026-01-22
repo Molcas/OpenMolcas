@@ -72,9 +72,9 @@ use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8, LenIn4, LenIn
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: NSYM, NBAS(*), iCase
 character(len=LenIn8), intent(in) :: BNAME(*)
 integer(kind=iwp) :: AtomA, AtomB, I, i_Component, i_Opt, i_Rc, i_SymLbl, iANr, IAtom, IB, iBlo, iBondNumb, ICNT, iDummy(1), &

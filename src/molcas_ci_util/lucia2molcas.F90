@@ -19,12 +19,12 @@ use general_data, only: ISPIN, NACTEL, NELEC3, NHOLE1, NRS1, NRS2, NSEL, NSYM, S
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, MINOP, MS2, NCNASM, NCNFTP, NCSASM, NCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
+use rasdim, only: MxSym
 
 implicit none
 integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), &
                                  NCNASM_LUCIA(MXPCSM), MXPORB, NCONF_PER_OPEN(MXPORB+1,MXPCSM), NPDTCNF(MXPORB+1), &
                                  NPCSCNF(MXPORB+1), nCSF_HEXS_LUCIA
-#include "rasdim.fh"
 integer(kind=iwp) :: ICL, IOPEN, ISYM, ITYP, LCONF, LDET, LLCONF, NEL2MN, NEL2MX, NORB1, NORB2
 
 NDTASM(1:MxSym) = NDTASM_LUCIA(1:MxSym)

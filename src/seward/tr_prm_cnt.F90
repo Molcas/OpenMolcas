@@ -20,7 +20,6 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: idbg, nBas_Cont(8), nBas_Prim(0:7)
-#include "Molcas.fh"
 integer(kind=iwp) :: i, ia, iBas, iBasL, ic, icnt, iCnttp, iCont, idx, iOff, ip, ipbasL, iPrim, iPrint, iSym, j, k, ka, kbias, la, &
                      nBas_Cont_Tot, ncnt, nSize, nSym, numck, numcl
 logical(kind=iwp) :: New_Center, New_l, New_m, Old_Center, Old_l

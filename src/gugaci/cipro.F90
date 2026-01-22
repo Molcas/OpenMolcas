@@ -16,9 +16,9 @@ use OneDat, only: sNoNuc, sNoOri, sOpSiz, sRdFst
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Molcas, only: MxSym
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: maxmolcasorb = 5000, maxpro = 50
 integer(kind=iwp) :: i, icall, icomp, idisk, idummy(1), idx_idisk0(64), iend, im, iopt, ipc, iprop, irec, iroot, irtc, ista, &
                      isymlb, nc, nc0, nc1, nc2, nlsm_del(mxSym), nmo, npro, nsiz

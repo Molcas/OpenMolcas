@@ -17,6 +17,7 @@ use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, iOptC, jStab, Magic_Bond, n
 use ddvdt, only: A_StrH, aAV, alpha_vdW, f_Const_Min, r_ref_vdW, rAV, rkr, rkr_vdW
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn4
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -29,7 +30,6 @@ real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter)
 logical(kind=iwp), intent(in) :: Process, Proc_dB
 real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), BM(nB_Tot), dBM(ndB_Tot)
 character(len=14), intent(inout) :: qLbl(nB)
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: mB = 2*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iCase, iDeg, iDCR(2), iDCRR(0:7), iE1, iE2, iF1, iF2, Ind(2), iRow, &
                      iStabM(0:7), jAtom, jAtom_, jRow, kDCRR, Lambda, nCent, nDCRR, nqB, nStabM

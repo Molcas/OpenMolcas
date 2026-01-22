@@ -19,10 +19,10 @@ use TraToc, only: ITRATOC, NTRATOC
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
+use Molcas, only: MaxBfn, LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iDisk, iExt, ij, ik, il, iLu1, iLu2, iopt, irc, iSmLbl, iSup, iToc(64), j, jk, jl, k, kaunter, kl, l, &
                      llmax, Lu_One, nBasM(MxSymQ), nBTri, nBuf1, nBuf2, nDelM(MxSymQ), nFroM(MxSymQ), nMAX, nOrbM(MxSymQ), nSize, &
                      nSymM

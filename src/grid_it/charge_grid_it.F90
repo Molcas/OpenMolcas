@@ -36,12 +36,12 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nCMO, iDoIt(*)
 real(kind=wp), intent(in) :: CMO(nCMO), OCCN(*)
 logical(kind=iwp), intent(in) :: long_prt
-#include "Molcas.fh"
 integer(kind=iwp) :: iCase, iComp, iOpt, iOrb, iRc, iSyLbl, iSym, jOcc, MxTyp, nNUC, nTot1
 character(len=8) :: Label
 real(kind=wp), allocatable :: QQ(:), S(:), Xocc(:)

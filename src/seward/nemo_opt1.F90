@@ -23,7 +23,6 @@ use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), ip(3), iSml(3), Length(1), n_int(1), iAngr, iBas, iCmp, icnt, &
                      iCnttp, iComp, idbg, iExp, iip, iMltPl, iOpt, iRC, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, &
                      kExp, kExpi, kExpj, kSh, kShEnd, kShStr, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot

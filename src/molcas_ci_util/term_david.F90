@@ -47,6 +47,7 @@ use davctl_mod, only: disk_address, LblStk, memory_vectors
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use rasdim, only: MxCIIt
 
 implicit none
 integer(kind=iwp), intent(in) :: ICICH, iter, lRoots, nConf, JOBIPH, LuDavid
@@ -54,7 +55,6 @@ real(kind=wp), intent(out) :: Vector(nConf)
 integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: iRoot
 real(kind=wp), allocatable :: Ovlp1(:,:), Ovlp2(:,:)
-#include "rasdim.fh"
 
 ! check input arguments
 if (nConf < 0) then

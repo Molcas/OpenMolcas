@@ -23,9 +23,9 @@ subroutine Rd2Int_SCF()
 
 use InfSCF, only: nBas, nSkip, nSym
 use Definitions, only: iwp, u6
+use Molcas, only: MxSym
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: iRC, iSym, nBasX(MxSym), nSymX
 logical(kind=iwp) :: SqI2
 

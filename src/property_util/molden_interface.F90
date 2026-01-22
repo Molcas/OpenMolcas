@@ -30,9 +30,9 @@ use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8, LenIn, MaxBfn, MaxBfn_aux, MxAtom
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: iUHF
 character(len=*), intent(in) :: FName, Filename
 integer(kind=iwp) :: i, iAngMx_Valence, iatom, iB, iCntr, iCnttp, icontr, iD, iData, iDeg, iDummy(1), iErr, ii, iIrrep, ik, iPL, &

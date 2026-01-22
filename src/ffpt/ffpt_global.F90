@@ -42,11 +42,10 @@
 module FFPT_global
 
 use Definitions, only: wp, iwp
+use Molcas, only: MxSym
 
 implicit none
 private
-
-#include "Molcas.fh"
 
 integer(kind=iwp), parameter :: nCom = 5, MxSub1 = 6, MxSub2 = 2, MxParm = 10
 character(len=4) :: ComTab(nCom,0:MxSub1,0:MxSub2,0:MxParm)

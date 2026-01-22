@@ -36,10 +36,10 @@
      &                        NFRO,NISH,NRS1,NRS2,NRS3,NDEL,NSYM,NTOT,
      &                        NTOT1,NTOT2,NDELT,NFROT,NTOTSP,NRS1T,
      &                        NRS2T,NRS3T,NASH,NBAS,NORB,NSSH,STSYM
+      use rasdim, only: MxTit, MxSym
 
 
       Implicit None
-#include "rasdim.fh"
 #include "warnings.h"
       Integer IGAS, II, ISYM, ITU, J, NAO, NGSSH_HI, NGSSH_LO, NT, NU
 

@@ -45,7 +45,6 @@ real(kind=wp), allocatable :: iK(:), SS(:), V(:), pVp(:), K_Save(:), K_Done(:), 
                               Auxi(:,:), Tmp(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: nProp_Int
-#include "Molcas.fh"
 
 !                                                                      *
 !***********************************************************************

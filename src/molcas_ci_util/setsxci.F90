@@ -15,12 +15,12 @@ use sxci, only: IDXCI, IDXSX
 use gas_data, only: NGAS, NGSSH
 use general_data, only: NSYM
 use Definitions, only: iwp
+use rasdim, only: MxGAS
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp) :: I, IGAS, IGSSH, IOFF_GSSH(mxgas), ISTOT, ISYM, NGSSHT
 
 !---------------------------------------------------------

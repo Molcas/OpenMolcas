@@ -13,6 +13,7 @@ module Localisation_globals
 
 use Definitions, only: wp, iwp
 use Constants, only: Zero
+use Molcas, only: MxSym, LenIn, LenIn8
 
 implicit none
 private
@@ -32,7 +33,6 @@ private
 !
 ! LC_FileOrb: orbital file for Seward to read
 
-#include "Molcas.fh"
 
 integer(kind=iwp) :: fileorb_id, iWave, LocModel, LuSpool, MxConstr, nActa, nAtoms, nBas(MxSym), nCMO, nConstr(MxSym), &
                      nFro(MxSym), nMxIter, nOccInp(MxSym), nOrb(MxSym), nOrb2Loc(MxSym), nSym, nVirInp(MxSym)
