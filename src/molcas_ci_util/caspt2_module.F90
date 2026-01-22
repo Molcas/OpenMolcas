@@ -10,9 +10,8 @@
 !***********************************************************************
 Module CASPT2_Module
 use definitions, only: wp, iwp
-!use Molcas
+use Molcas
 !use rasdim
-#include "Molcas.fh"
 #include "rasdim.fh"
       integer(kind=iwp), Parameter:: MxState=MxRoot, MxExt=MxBas-MxAct
       real(kind=wp)ENERGY(MXSTATE), REFENE(MXSTATE)
