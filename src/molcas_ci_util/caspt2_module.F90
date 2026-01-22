@@ -11,8 +11,8 @@
 Module CASPT2_Module
 use definitions, only: wp, iwp
 use Molcas
-!use rasdim
-#include "rasdim.fh"
+use rasdim
+      implicit none
       integer(kind=iwp), Parameter:: MxState=MxRoot, MxExt=MxBas-MxAct
       real(kind=wp)ENERGY(MXSTATE), REFENE(MXSTATE)
       logical(kind=iwp)  lOPTO,RHSDIRECT,                               &
