@@ -188,8 +188,8 @@ C Initialize sizes, offsets etc used in equation solver.
       use OFembed, only: FMaux
 #endif
       use ChoCASPT2, only: NASplit,NISplit,NumCho_PT2
+      use caspt2_module, only: DMRG, IfChol, nAsh, nIsh, nSsh, nSym
       IMPLICIT NONE
-#include "caspt2.fh"
 
       Integer iSym
 C     Cholesky return code

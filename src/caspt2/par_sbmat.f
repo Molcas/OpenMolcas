@@ -50,7 +50,6 @@ C tridiagonal local array at Work(lg_M)
 CSVC2010: destroy square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, free the
 C tridiagonal local array at Work(lg_M)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       Integer lg_M
 
