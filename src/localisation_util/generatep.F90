@@ -46,21 +46,21 @@ if (.not. lowdin) then
 
     do iAt=1,nAtoms
 
-    ! Compute MA(s,t) = sum_{mu_in_A} cMO(mu,s) * Sbar(mu,t)
+        ! Compute MA(s,t) = sum_{mu_in_A} cMO(mu,s) * Sbar(mu,t)
 
-    call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,cMO(nBas_Start(iAt),1),nBasis,Sbar(nBas_Start(iAt),1),&
-                nBasis,Zero, PA(1,1,iAt),nOrb2Loc)
+        call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,cMO(nBas_Start(iAt),1),nBasis,Sbar(nBas_Start(iAt),1),&
+                    nBasis,Zero, PA(1,1,iAt),nOrb2Loc)
 
-    ! Compute <s|PA|t> by symmetrization of MA.
+        ! Compute <s|PA|t> by symmetrization of MA.
 
-    do iMO_s=1,nOrb2Loc
-        do iMO_t=iMO_s+1,nOrb2Loc
-        PAst = PA(iMO_s,iMO_t,iAt)
-        PAts = PA(iMO_t,iMO_s,iAt)
-        PA(iMO_s,iMO_t,iAt) = Half*(PAst+PAts)
-        PA(iMO_t,iMO_s,iAt) = PA(iMO_s,iMO_t,iAt)
-        end do !iMO_t
-    end do !iMO_s
+        do iMO_s=1,nOrb2Loc
+            do iMO_t=iMO_s+1,nOrb2Loc
+            PAst = PA(iMO_s,iMO_t,iAt)
+            PAts = PA(iMO_t,iMO_s,iAt)
+            PA(iMO_s,iMO_t,iAt) = Half*(PAst+PAts)
+            PA(iMO_t,iMO_s,iAt) = PA(iMO_s,iMO_t,iAt)
+            end do !iMO_t
+        end do !iMO_s
 
     end do !iAt
 
@@ -80,14 +80,6 @@ Else
 
     !compute (lowdin_prod)_{mu,s} = sum_{nu} (S^{1/2})_{mu,nu} (C)_{nu,s}
     call DGEMM_('N','N',nBasis,nOrb2Loc,nBasis,One,Ovlp_sqrt,nBasis,cMO,nBasis,Zero,lowdin_prod,nBasis)
-
-    !do iMO_s=1,nOrb2Loc
-    !    do iMO_t=1,nOrb2Loc
-    !        PA(iMO_s,iMO_t,iAt) = PA(iMO_s,iMO_t,iAt) + lowdin_prod(nBas_Start(iAt),iMO_s) * lowdin_prod(nBas_Start(iAt),iMO_t)
-            !call DGEMM_('T','N',nOrb2Loc,nBas_per_Atom(iAt),nOrb2Loc,One,lowdin_prod(nBas_Start(iAt),iMO_s),&
-            !nBas_per_Atom(iAt),lowdin_prod(nBas_Start(iAt),iMO_t), nOrb2Loc,Zero, PA(iMO_s,iMO_t,iAt),nOrb2Loc)
-    !    end do
-    !end do
 
     do iAt = 1, nAtoms
         call DGEMM_('T','N',nOrb2Loc,nOrb2Loc,nBas_per_Atom(iAt),One,lowdin_prod(nBas_Start(iAt),1),nBasis,&

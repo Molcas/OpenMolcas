@@ -14,7 +14,7 @@
 subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 ! Author: Y. Carissan
 
-use Constants, only: Zero
+use Constants, only: Zero,One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -23,16 +23,44 @@ real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: Functional
 logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAt, iMO_s
+logical(kind=iwp) :: eval_func = .true.
+real(kind=wp) :: thr, d_s
 
-Functional = Zero
-do iAt=1,nAtoms
-  do iMO_s=1,nOrb2Loc
-    Functional = Functional+PA(iMO_s,iMO_s,iAt)**2
-  end do
-end do
+thr = 0.01
 
 if (Debug) then
-  write(u6,*) 'ComputeFunc: Functional: ',Functional
+    write(u6,*) "In ComputeFunc: "
+    write(u6,*) "-----------------"
+end if
+
+Functional = Zero
+do iMO_s=1,nOrb2Loc
+    ! calculating the Pipek measure of localization, that tells over how many atoms, MO s extends,
+    d_s = Zero
+    do iAt=1,nAtoms
+        d_s = d_s + PA(iMO_s,iMO_s,iAt)**2
+        !write(u6,"(A,I5,A,F10.4)") "Atom ", iAt," PA_ss = ", PA(iMO_s,iMO_s,iAt)
+    end do
+    Functional = Functional + d_s
+
+    if (d_s>1e-12) then
+        d_s = 1/d_s
+    else
+        if (eval_func) then
+            write(u6,*) "WARNING: d_s^{-1} is zero for MO ", iMO_s
+        end if
+        d_s = huge(1)
+    end if
+    if (eval_func) then
+        write(u6,"(A,I4,A,F8.3,1X,A)") "MO ",iMO_s," extends over ",d_s, " atoms"
+    end if
+end do
+
+if (eval_func) then
+    write(u6,"(A,F18.10)")  'Sum (d_s^-1)         = ',Functional
+    write(u6,"(//A,F8.4,A,F6.2,A)") "Functional / nOrb2Loc = ", Functional/nOrb2Loc, ", so we reached ", &
+                    Functional/nOrb2Loc*100, "% mean localization"
+    write(u6,*) " "
 end if
 
 return
