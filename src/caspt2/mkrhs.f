@@ -25,9 +25,8 @@
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER NERI, NFIMO
       REAL*8, ALLOCATABLE, TARGET:: ERI(:)
@@ -77,10 +76,10 @@ C INTEGRAL BUFFERS:
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
+      use caspt2_module
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO), ERI(*), SCR(*)
 
@@ -149,8 +148,8 @@ C Put W on disk:
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION ERI(*), SCR(*)
 *#define _KIGEJ_
 *#define _KIGTJ_
@@ -282,8 +281,8 @@ C  Put WM on disk
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO),ERI(*), SCR(*)
 
@@ -375,8 +374,8 @@ C   Put W on disk
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER NFIMO
       REAL*8 FIMO(NFIMO)
       REAL*8 ERI1(*),ERI2(*), SCR(*)
@@ -460,8 +459,8 @@ C   Put W on disk.
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 *#define _KIGEJ_
@@ -560,8 +559,8 @@ C   Put WP and WM on disk.
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
@@ -657,8 +656,8 @@ C   Put WM on disk
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION IOFF1(8),IOFF2(8)
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 
@@ -756,8 +755,8 @@ C   Put WP and WM on disk.
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION ERI1(*),ERI2(*), SCR(*)
 *#define _KIGEJ_
 *#define _KIGTJ_
@@ -857,9 +856,8 @@ C global array and then save that to disk in a distributed fashion.
       USE Para_Info, ONLY: Is_Real_Par
       use fake_GA, only: GA_Arrays
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)

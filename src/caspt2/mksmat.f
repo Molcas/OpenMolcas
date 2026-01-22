@@ -23,9 +23,9 @@
       use caspt2_global, only: DREF, PREF
       use caspt2_global, only: LUSOLV, LUSBT
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 C     Set up S matrices for cases 1..13.
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
@@ -95,8 +95,8 @@ C looping, etc in the rest  of the routines.
 #endif
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -168,8 +168,8 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
       SUBROUTINE MKSA_G3(ISYM,SA,NG3,G3,idxG3)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       DIMENSION SA(*)
       DIMENSION G3(NG3)
@@ -342,8 +342,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
       use definitions, only: MPIInt,RtoB,wp
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -804,8 +804,8 @@ C and LDA is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDA passed is zero.
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 SA(*)
@@ -902,8 +902,8 @@ C Add -dyu Gvzxt
 #endif
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -976,8 +976,8 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
       SUBROUTINE MKSC_G3(ISYM,SC,NG3,G3,idxG3)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module,
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       DIMENSION SC(*)
       DIMENSION G3(NG3)
@@ -1150,8 +1150,8 @@ C  - G(xvzyut) -> SC(zvx,yut)
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
       use definitions, only: MPIInt,RtoB,wp
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1611,8 +1611,8 @@ C and LDC is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDC passed is zero.
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 SC(*)
@@ -1688,9 +1688,8 @@ C Add  dtu Gvxyz + dtu dyx Gvz
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
@@ -1826,9 +1825,8 @@ C Write to disk, and save size and address.
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
@@ -1912,9 +1910,8 @@ C Write to disk
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER NDREF
       REAL*8 DREF(NDREF)
@@ -1966,9 +1963,9 @@ C Write to disk
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       INTEGER NPREF
       REAL*8 PREF(NPREF)
 
@@ -2070,9 +2067,9 @@ C Write to disk
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       INTEGER NDREF
       REAL*8 DREF(NDREF)
 

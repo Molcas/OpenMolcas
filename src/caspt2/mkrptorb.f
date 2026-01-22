@@ -23,8 +23,12 @@
 #if defined(_DMRG_)
       use qcmaquis_interface
 #endif
+      use caspt2_module, only: DMRG, iSCF, jState, nAshT, nConf, nOMx,
+     &                         nState, nSym, STSym, nIsh, nAsh, nRas1,
+     &                         nRas2, nRas3, nSsh, nOrb, nBas, nFro,
+     &                         jState, EPS, EPSI, EPSA, nDel, nAES,
+     &                         EPSE
       IMPLICIT NONE
-#include "caspt2.fh"
 C Transform to orbitals that diagonalize the diagonal
 C blocks of FIFA. Affected data sets are CMO,
 C EPS, EPSI, EPSA, and EPSE. Also, the CI arrays are
@@ -58,7 +62,7 @@ C     work-arrays
 
 
 * Allocate space for temporary square Fock matrix in each symmetry:
-* NBMX=Max number of basis functions in any symmetry, in common in caspt2.fh
+* NBMX=Max number of basis functions in any symmetry, in common in caspt2_module.F90
       NFOCK=NOMX**2
       CALL mma_allocate(FOCK,NFOCK,LABEL='FOCK')
 * Allocate space for new CMO coefficients:

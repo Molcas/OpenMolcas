@@ -18,9 +18,9 @@ subroutine MKXMAT(TORB,XMAT)
 
 use Definitions, only: wp, iwp
 use caspt2_global, only: NTORB
+use caspt2_module, only: nAshT, nSym, nIsh, nAsh, nRas1, nRas2, nRas3, nSsh, nAES
 
 implicit none
-#include "caspt2.fh"
 real(kind=wp), intent(in) :: TORB(NTORB)
 real(kind=wp), intent(out) :: XMAT(NASHT,NASHT)
 integer(kind=iwp) :: I, IR1, IR2, IR3, ISTART, ISYM, ITO, ITOEND, ITOSTA, J, JR1, JR2, JR3, NA, NI, NR1, NR2, NR3, NS
@@ -81,7 +81,5 @@ if (NASHT > 0) then
     end if
   end do
 end if
-
-return
 
 end subroutine MKXMAT
