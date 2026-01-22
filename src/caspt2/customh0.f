@@ -24,10 +24,10 @@
       SUBROUTINE NEWB()
 #if 0
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: iDSMat, iDBMat
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nSym, nASup, nISup
       IMPLICIT NONE
-#include "caspt2.fh"
 
       INTEGER ICASE,ISYM,NAS,NIS,NCOEF
       INTEGER IDS,NS,IDB,NB

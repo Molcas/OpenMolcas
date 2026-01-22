@@ -19,8 +19,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: NCMO
       use caspt2_global, only: LUONEM
+      use caspt2_module, only: IfChol, IfQCAN, NAME, nBSqT, nSym,
+     &                         nUniqAt, iAd1m, nFro, nIsh, nSsh, nDel,
+     &                         nBas, nAsh
       implicit none
-#include "caspt2.fh"
 
       Real*8, Allocatable :: CMO_X(:), DPQ(:)
       Integer IDISK
