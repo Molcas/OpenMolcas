@@ -116,8 +116,10 @@ subroutine refwfn_info()
 # endif
   use caspt2_global, only: Weight_ => Weight
   use stdalloc, only: mma_allocate, mma_deallocate
+  use caspt2_module, only: header, IFQCAN, iRoot, iSpin, LenIn8, lRoots, MxOrb, MxSym, MxTit, nActel, &
+                           name, nAsh, nConf, nDel, nDet, nEle3, nFro, nHole1, nIsh, nRas1, nRas2, nRas3, &
+                           nRoots, nSsh, nSym, PotNuc, STSym, Title, nBas, MxRoot
 
-# include "caspt2.fh"
 
 # ifdef _HDF5_
   character(len=1), allocatable :: typestring(:)
@@ -228,8 +230,9 @@ subroutine refwfn_data()
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
+  use caspt2_module, only: RefEne, DMRG, DoCumulant, IEOF1M, IFQCAN, ISCF, MxAct, MxIter, &
+                           MXRoot, nBSqt, nConf, nRoots, nState, OrbIn, iAd1m, mState
 
-# include "caspt2.fh"
 # include "pt2_guga.fh"
 
   integer(kind=iwp) :: I, IAD15, II, IDISK, ID, IAD, NEJOB, IT, NMAYBE, ISNUM
