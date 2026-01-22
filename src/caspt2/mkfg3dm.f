@@ -41,8 +41,8 @@ C
       use gugx, only: CIS, SGS, L2ACT
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use SysDef, only: RtoB
+      use caspt2_module, only: DMRG, nActEl, nSym, STSym, Mul
       IMPLICIT NONE
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       INTEGER, INTENT(IN) :: IFF, NLEV

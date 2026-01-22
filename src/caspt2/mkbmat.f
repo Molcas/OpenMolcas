@@ -23,10 +23,10 @@
       use caspt2_global, only: DREF, PREF
       use caspt2_global, only: LUSOLV, LUSBT
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 C Set up B matrices for cases 1..13.
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
@@ -108,8 +108,8 @@ C looping, etc in the rest  of the routines.
 #endif
       use fake_GA, only: GA_Arrays
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -191,8 +191,8 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER NDREF, NPREF, iSYM, iLo, iHi, jLo, jHi, LDA
       DIMENSION DREF(NDREF),PREF(NPREF)
       DIMENSION FD(NDREF),FP(NPREF)
@@ -289,8 +289,8 @@ CGG End
       SUBROUTINE MKBA_F3(ISYM,BA,NG3,F3,idxG3)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       REAL*8 BA(*)
       REAL*8 F3(NG3)
@@ -463,8 +463,8 @@ C  - F(xvzyut) -> BA(yvx,zut)
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
       use definitions, only: MPIInt,RtoB,wp
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -929,8 +929,8 @@ c Avoid unused argument warnings
 #endif
       use fake_GA, only: GA_Arrays
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1015,8 +1015,8 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER NDREF,NPREF, iSYM,iLo,iHi,jLo,jHi,LDC
       REAL*8 DREF(NDREF),PREF(NPREF)
       REAL*8 FD(NDREF),FP(NPREF)
@@ -1097,8 +1097,8 @@ CGG End
       SUBROUTINE MKBC_F3(ISYM,BC,NG3,F3,idxG3)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       DIMENSION BC(*)
       DIMENSION F3(NG3)
@@ -1271,8 +1271,8 @@ C  - F(xvzyut) -> BC(zvx,yut)
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
       use definitions, only: MPIInt,RtoB,wp
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1731,9 +1731,8 @@ c Avoid unused argument warnings
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
@@ -1948,9 +1947,8 @@ CGG End
       use caspt2_global, only:LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER NDREF,NPREF
       REAL*8 DREF(NDREF),PREF(NPREF)
@@ -2066,9 +2064,8 @@ CGG End
       use caspt2_global, only:LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER NDREF
       REAL*8 DREF(NDREF),FD(NDREF)
@@ -2149,9 +2146,8 @@ CGG End
       use caspt2_global, only:LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER NDREF,NPREF
       REAL*8 PREF(NPREF),FP(NPREF),DREF(NDREF)
@@ -2312,9 +2308,8 @@ CGG End
       use caspt2_global, only:LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER NDREF
       REAL*8 DREF(NDREF),FD(NDREF)
