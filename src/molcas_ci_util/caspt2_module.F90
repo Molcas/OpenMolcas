@@ -22,29 +22,12 @@ use definitions, only: wp, iwp
       real(kind=wp)THRCONV,THRSHN,THRSHS,THRSHF,THRENE,THROCC,          &
      &    POTNUC,ECORE,EREF,ERFSELF
 
-      LOGICAL         IFDENS,IFMIX,IFPROP,IFMSCOUP,                     &
-     &    IFXMS,IFRMS,IFDW,IFSILPRROT,IFSADREF,IFDORTHO,                &
-     &    IFINVAR,DMRG
-      COMMON/SWITCHES/IFDENS,IFMIX,IFPROP,IFMSCOUP,                     &
+      logical(kind=iwp) IFDENS,IFMIX,IFPROP,IFMSCOUP,                   &
      &    IFXMS,IFRMS,IFDW,IFSILPRROT,IFSADREF,IFDORTHO,                &
      &    IFINVAR,DMRG
 
-      INTEGER     MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,     &
-     &    NFRO,NFROT,NISH,NIES,NISHT,NRAS1,NRAS1T,NDET,                 &
-     &    NRAS2,NRAS2T,NRAS3,NRAS3T,NASH,NAES,NASHT,                    &
-     &    NOSH,NOSHT,NSSH,NSES,NSSHT,NORB,NORBT,NOTRI,                  &
-     &    NDEL,NDELT,NBAS,NBAST,NBTRI,NIMX,NAMX,NSMX,NOMX,NBMX,         &
-     &    NINABX,NSECBX,                                                &
-     &    NOSQT,NBSQT,MUL,ISCF,                                         &
-     &    IISYM,IASYM,IESYM,IINAIS,                                     &
-     &    IACTIS,IEXTIS,                                                &
-     &    NSTATE,MSTATE,JSTATE,LROOTS,NROOTS,IROOT,ROOT2STATE,          &
-     &    iRlxRoot,NGROUP,NGROUPSTATE,                                  &
-     &    IAD1M,IEOF1M,NELE3,NHOLE1,IFQCAN,                             &
-     &    NLYROOT,NLYGROUP,                                             &
-     &    DWTYPE
 ! Note: MUL(8,8) is just a copy of Mul in the Symmetry_Info module
-      COMMON/INPI/MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,     &
+      integer(kind=iwp)MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,&
      &    NFRO(8),NFROT,NISH(8),NIES(8),NISHT,NRAS1(8),NRAS1T,NDET,     &
      &    NRAS2(8),NRAS2T,NRAS3(8),NRAS3T,NASH(8),NAES(8),NASHT,        &
      &    NOSH(8),NOSHT,NSSH(8),NSES(8),NSSHT,NORB(8),NORBT,NOTRI,      &
@@ -59,10 +42,7 @@ use definitions, only: wp, iwp
      &    IAD1M(64),IEOF1M,NELE3,NHOLE1,IFQCAN,                         &
      &    NLYROOT,NLYGROUP,                                             &
      &    DWTYPE
-      REAL*8        EPS,EPSI,EPSA,EPSE,                                 &
-     &    EASUM,DENORM,ZETA,                                            &
-     &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
-      COMMON/VARIA/ EPS(MXORB),EPSI(MXINA),EPSA(MXACT),EPSE(MXEXT),     &
+      real(kind=wp) EPS(MXORB),EPSI(MXINA),EPSA(MXACT),EPSE(MXEXT),     &
      &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
 
