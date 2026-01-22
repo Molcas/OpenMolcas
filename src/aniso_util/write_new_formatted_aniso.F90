@@ -14,14 +14,14 @@ subroutine write_new_formatted_aniso(nss,nstate,multiplicity,eso_au,esfs_au,U,MM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: nss, nstate, multiplicity(nstate)
 real(kind=wp), intent(in) :: eso_au(nss), esfs_au(nstate), angmom(3,nstate,nstate), edmom(3,nstate,nstate), amfi(3,nstate,nstate)
 complex(kind=wp), intent(in) :: U(nss,nss), MM(3,nss,nss), MS(3,nss,nss), DM(3,nss,nss), HSO(nss,nss)
-#include "LenIn.fh"
 integer(kind=iwp) :: data_file_format, i, iAt, ipar, iss, ist, l, Lu, Lutmp, mult, mxjob, nAtoms, njob
-character(len=1024) :: fname, molcas, molcasversion
+character(len=1024) :: fname, cmolcas, molcasversion
 character(len=128) :: Filename
 !character(len=30) :: fmt_int, fmt_key, fmt_real
 integer(kind=iwp), allocatable :: jbnum(:), mltplt(:), nroot(:), szproj(:)
@@ -72,8 +72,8 @@ call get_iArray('NSTAT_SINGLE',nroot,mxjob)
 
 !-----------------------------------------------------------------------
 ! Get the MOLCAS version: index table
-call getenvf('MOLCAS ',molcas)
-write(fname,'(A)') trim(molcas)//'/.molcasversion'
+call getenvf('MOLCAS ',cmolcas)
+write(fname,'(A)') trim(cmolcas)//'/.molcasversion'
 Lutmp = IsFreeUnit(89)
 call molcas_open(Lutmp,fname)
 read(Lutmp,'(A180)') molcasversion
@@ -104,7 +104,7 @@ write(Lu,'(        A)') '# OPENMOLCAS interface to ANISO'
 !-----------------------------------------------------------------------
 ! ORIGIN of DATA file
 write(Lu,'(        A)') '$source '
-write(Lu,'(       2A)') 'MOLCAS  ',trim(molcas)
+write(Lu,'(       2A)') 'MOLCAS  ',trim(cmolcas)
 write(Lu,'(       2A)') 'VERSION ',trim(molcasversion)
 write(Lu,'(        A)')
 !-----------------------------------------------------------------------

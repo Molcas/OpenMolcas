@@ -29,8 +29,8 @@
       use OneDat, only: sNoNuc, sNoOri
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Molcas, only: MxAtom, LenIn, LenIn8, MxBas
       Implicit Real*8 (A-H,O-Z)
-#include "Molcas.fh"
       Integer irc, nSym
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
      &        nDel(nSym)

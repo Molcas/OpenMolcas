@@ -45,11 +45,11 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 use PCM_alaska, only: lSA, PCM_alaska_lSA, PCM_alaska_final, PCM_alaska_prep
 use Print, only: nPrint
+use Molcas, only: LenIn5, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp), intent(out) :: ireturn
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCav, nCnttp_Valence, ndc, nDiff, nsAtom
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DoRys, Found

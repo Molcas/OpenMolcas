@@ -20,9 +20,9 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_A
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc, nMxIter
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
@@ -106,7 +106,7 @@ FunctionalList(:)=0
     end if
     call mma_deallocate(Ovlp_aux)
 !end if
-call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt, lowdin)
+call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt, lowdin)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 
 FunctionalList(1)=Functional
@@ -261,7 +261,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
 
         !reset CMO to be updated
         CMO(:,:) = rotated_CMO(:,:)
-        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt ,lowdin)
+        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt ,lowdin)
     end if
 
     nIter = nIter+1

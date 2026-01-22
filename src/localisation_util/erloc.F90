@@ -58,7 +58,6 @@ real(kind=wp), intent(inout) :: CMO(*)
 real(kind=wp), intent(in) :: Thr, ThrGrad, ThrRot
 integer(kind=iwp), intent(in) :: MxIter, nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
 logical(kind=iwp), intent(in) :: Silent
-#include "Molcas.fh"
 integer(kind=iwp) :: iSym, nBasT, nOccT
 real(kind=wp) :: Functional, ThrGLoc, ThrLoc, ThrRotLoc
 logical(kind=iwp) :: Converged, Debug, Maximization

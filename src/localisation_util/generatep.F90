@@ -12,7 +12,7 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug, Ovlp_sqrt, lowdin)
+subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt, lowdin)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
@@ -22,14 +22,14 @@ subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_St
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8, LenIn
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBas_Start(*)
 real(kind=wp), intent(in) :: Ovlp(nBasis,nBasis), cMO(nBasis,*), Ovlp_sqrt(nBasis,nBasis)
 real(kind=wp), intent(out) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 character(len=LenIn8), intent(in) :: BName(*)
-logical(kind=iwp), intent(in) :: Debug, lowdin
+logical(kind=iwp), intent(in) :: lowdin
 integer(kind=iwp) :: iAt, iMO_s, iMO_t
 real(kind=wp) :: PAst, PAts
 character(len=LenIn8) :: PALbl

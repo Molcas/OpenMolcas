@@ -12,11 +12,10 @@
 module grid_it_globals
 
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 implicit none
 private
-
-#include "LenIn.fh"
 
 ! GridSparse, GridDense number of points in a.u.
 ! MAXGRID maximum number of generated grid ONLY if you set up it by hand!

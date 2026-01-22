@@ -15,9 +15,9 @@ subroutine BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBas,nAtoms,DoPrint)
 ! Author: Y. Carissan [put in separate subroutine by T.B. Pedersen]
 
 use Definitions, only: iwp, u6
+use Molcas, only: LenIn8, LenIn
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nAtoms, nBas
 integer(kind=iwp), intent(out) :: nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
 character(len=LenIn8), intent(in) :: BName(nBas)

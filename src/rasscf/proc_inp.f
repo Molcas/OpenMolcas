@@ -123,10 +123,11 @@
      &                  ISPEED,NGSSH_MOLCAS
       use spinfo, only: DOBKAP,NGASBK,IOCCPSPC
       use DWSol, only: DWSol_DWRO
+      use rasdim, only: MxTit, LenIn8, MxAct, MxGas, MxRef, MxRoot,
+     &                  MxSym, MxOrb
 
 
       Implicit None
-#include "rasdim.fh"
 #include "warnings.h"
 * Lucia-stuff:
 *

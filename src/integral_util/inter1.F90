@@ -15,11 +15,11 @@ use Basis_Info, only: DBSC, nCnttp
 use Center_Info, only: DC
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 #include "intent.fh"
 
 implicit none
-#include "LenIn.fh"
 character(len=LenIn), intent(_OUT_) :: Label(*)
 integer(kind=iwp), intent(_OUT_) :: Ibas_Lab(*)
 real(kind=wp), intent(_OUT_) :: Coor(3,*), ZNUC(*)

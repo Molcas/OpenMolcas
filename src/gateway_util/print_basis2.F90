@@ -18,9 +18,9 @@ use Symmetry_Info, only: nIrrep
 use define_af, only: AngTp
 use Definitions, only: wp, iwp, u6
 use print, only: nPrint
+use Molcas, only: MaxBfn, MxAtom
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAddr, iAng, iAngl, ib, iBas, iBas_Aux, iBas_Frag, iBass, ic, icnt, iCnttp, iExp, iPrim, iPrim_Aux, &
                      iPrim_Frag, iPrimm, iPrint, ir, iRout, irow, iSh, iShSrt, jExp, jSh, kCmp, kExp, kSh, kShEnd, kShStr, lSh, &
                      mdc, nBasisj, ncr, nExpi, nExpj, nExpk, nSumA, nSumB
@@ -90,7 +90,7 @@ do iCnttp=1,nCnttp
     if (mdc > MxAtom) then
       call WarningMessage(2,'MxAtom too small')
       write(u6,*) 'MxAtom=',MxAtom
-      write(u6,*) 'Increase MxAtom in Molcas.fh and recompile the code!'
+      write(u6,*) 'Increase MxAtom in Molcas.F90 and recompile the code!'
       call Abend()
     end if
     ! Loop over shells associated with this center

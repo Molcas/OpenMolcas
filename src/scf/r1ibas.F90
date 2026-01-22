@@ -23,9 +23,9 @@ subroutine R1IBas()
 use InfSCF, only: Atom, BName, BType, Header, nAtoms, nBas, nSym, PotNuc
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
+use Molcas, only: LenIn8, LenIn, LenIn1
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: lthBas, nBas_Tot
 
 !----------------------------------------------------------------------*

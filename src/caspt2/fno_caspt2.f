@@ -22,8 +22,8 @@
       use InputData, only: Input
       use ChoMP2, only: DeMP2, MP2_small, shf
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Molcas, only: MxBas
       Implicit Real*8 (A-H,O-Z)
-#include "Molcas.fh"
 *
       Integer irc,nSym,IFQCAN
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),

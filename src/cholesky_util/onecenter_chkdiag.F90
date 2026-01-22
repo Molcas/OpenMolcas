@@ -17,13 +17,13 @@ subroutine OneCenter_ChkDiag(Diag,l_D,Stat,DoPrint)
 use Cholesky, only: iRS2F, nBasT, nnBstRT
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn, LenIn8, MaxBfn
 
 implicit none
 integer(kind=iwp), intent(in) :: l_D
 real(kind=wp), intent(inout) :: Diag(l_D)
 real(kind=wp), intent(out) :: Stat(7)
 logical(kind=iwp), intent(in) :: DoPrint
-#include "Molcas.fh"
 integer(kind=iwp) :: ia, ib, krs
 real(kind=wp) :: Err(4)
 character(len=LenIn8) :: BName(maxbfn)

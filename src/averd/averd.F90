@@ -23,6 +23,7 @@ use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
@@ -41,8 +42,6 @@ integer(kind=iwp), external :: IsFreeUnit
 integer(kind=iwp), allocatable :: nBas(:)
 real(kind=wp), allocatable :: AUX(:), CMO(:), Dao(:), Dtemp(:), DTmp(:), Occ(:), OccNat(:), Occs(:), Orbs(:), OrtoD(:), OrtoDt(:), &
                               S(:), Si(:), Sp(:), Ss(:), St(:), Trani(:), Trans(:), Vecs(:), Zeros(:)
-#include "Molcas.fh"
-
 !-- Banner.
 
 ireturn = 99

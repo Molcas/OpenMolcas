@@ -38,10 +38,10 @@ use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use rasdim, only: Lenin8, MxIter, MxOrb, MxRoot, MxSym, MxTit
 
 implicit none
 real(kind=wp), allocatable, intent(out) :: CIVec(:,:)
-#include "rasdim.fh"
 integer(kind=iwp) :: i, iDisk, iDummer, iGo, iMode, iOpt, iRC, iS, iSym, Iter, j, jS, k, kRoots, kS, Length, lS, nAct, nAct2, &
                      nAct4, nG1, nG2
 real(kind=wp) :: PotNuc0, rdum(1), Temp

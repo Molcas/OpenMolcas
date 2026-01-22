@@ -23,6 +23,7 @@ use Slapaf_Info, only: AtomLbl, dMass
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use Print, only: nPrint
+use Molcas, only: LenIn, LenIn5
 
 implicit none
 character(len=*), intent(in) :: Strng
@@ -35,7 +36,6 @@ character(len=6), intent(in) :: Typ
 character(len=8), intent(in) :: Lbl
 logical(kind=iwp), intent(inout) :: lWrite
 logical(kind=iwp), intent(out) :: lAtom(nAtom)
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iEnd, iFrst, iIrrep, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, nCent, nPar1, nPar2
 real(kind=wp) :: Axis(3), Dummy(1), Perp_Axis(3,2), tx, ty, tz
 logical(kind=iwp) :: ldB, lWarn

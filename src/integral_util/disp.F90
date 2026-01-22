@@ -12,11 +12,11 @@
 module Disp
 
 use Definitions, only: wp, iwp
+use Molcas, only: MxAtom, LenIn6
 
 implicit none
 private
 
-#include "Molcas.fh"
 integer(kind=iwp) :: IndDsp(MxAtom,0:7), IndxEq(MxAtom*3), InxDsp(MxAtom,3), lDisp(0:7), mult_Disp(MxAtom*3), nTR
 real(kind=wp) :: CutGrd, Disp_Fac(3,0:7,MxAtom)
 logical(kind=iwp) :: Dirct(MxAtom*3), HF_Force, l2DI, lEq, TRSymm

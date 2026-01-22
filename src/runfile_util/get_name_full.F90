@@ -13,12 +13,12 @@ subroutine Get_Name_Full(Element)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
+use Molcas, only: LenIn
 
 #include "intent.fh"
 
 implicit none
 character(len=2), intent(_OUT_) :: Element(*)
-#include "Molcas.fh"
 integer(kind=iwp) :: i, nAtMM, nAtom
 logical(kind=iwp) :: Found
 character(len=LenIn), allocatable :: LabMM(:)
@@ -37,7 +37,5 @@ if (Found) then
   end do
   call mma_deallocate(LabMM)
 end if
-
-return
 
 end subroutine Get_Name_Full

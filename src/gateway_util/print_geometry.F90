@@ -32,10 +32,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
 use print, only: nPrint, Show
+use Molcas, only: LenIn, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: iOpt
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iPrint, iRout, j, jCnt, jCnttp, mCnt, nc, ndc
 character(len=16) :: frmt
 character :: help_c

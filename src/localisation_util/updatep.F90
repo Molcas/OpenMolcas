@@ -21,9 +21,9 @@ subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO
 
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8, LenIn
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nAtoms, nBas_Start(nAtoms), nOrb2Loc, iMO_s, iMO_t
 real(kind=wp), intent(out) :: PACol(nOrb2Loc,2)
 character(len=LenIn8), intent(in) :: BName(*)

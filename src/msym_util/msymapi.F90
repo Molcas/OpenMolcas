@@ -96,12 +96,12 @@ subroutine fmsym_set_ele_orb(ctx,nAtoms,Coord)
 use, intrinsic :: iso_c_binding, only: c_ptr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn
 
 implicit none
 type(c_ptr), intent(inout) :: ctx
 integer(kind=iwp), intent(in) :: nAtoms
 real(kind=wp), intent(in) :: Coord(3,nAtoms)
-#include "LenIn.fh"
 character(len=LenIn), allocatable :: AtomLabel(:)
 integer(kind=iwp), allocatable :: basis_ids(:), nBas(:)
 integer(kind=iwp) :: nSym, nMO, nCMO, iSym, ret

@@ -57,9 +57,9 @@
      &                        NBAS,NDEL,NFRO,NISH,NRS1,NRS2,NRS3,NRS3,
      &                        NSSH
       use spinfo, only: I_ELIMINATE_GAS_MOLCAS,ISPEED
+      use rasdim, only: MxCIIt, MxIter, MxOrb, MxRoot, MxSXIt, MxSym
 
       Implicit None
-#include "rasdim.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter

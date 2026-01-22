@@ -22,9 +22,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: BName, nAtoms, ScrFac
+use Molcas, only: LenIn8
 
 implicit none
-#include "Molcas.fh"
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
 real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
