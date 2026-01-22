@@ -22,6 +22,7 @@
       use PrintLevel, only: insane, usual, verbose
       use EQSOLV
       use ChoCASPT2
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -31,7 +32,6 @@ C At position IVEC=IVECR, the residual array, in SR representation.
 C At position IVEC=IVECC, the solution array, in contravariant rep.
 C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
-#include "caspt2.fh"
 
       INTEGER, EXTERNAL :: Cho_X_GetTol
 

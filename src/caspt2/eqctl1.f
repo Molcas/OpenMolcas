@@ -21,8 +21,12 @@
       use caspt2_global, only: do_grad
       use caspt2_global, only: LUSOLV, LUSBT, IDSCT
       use stdalloc, only: mma_allocate
-      use EQSOLV
+      use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecW, iVecX,
+     &                  MxBlk, MxSct, ModVec, IDSMat, IDBMat, MxVec,
+     &                  IDTMat, IDSTMat
       use SysDef, only: ItoB, RtoI
+      use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup,
+     &                         nInDep
       IMPLICIT None
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -32,7 +36,6 @@ C At position IVEC=IVECR, the residual array, in SR representation.
 C At position IVEC=IVECC, the solution array, in contravariant rep.
 C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       REAL(kind=wp) ::DUMMY(1)
       INTEGER(kind=iwp) :: IDUM(1), ICASE, IDS, IDS1, IDS2, IDV, iPad,
