@@ -46,37 +46,26 @@ use definitions, only: wp, iwp
      &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
 
-      INTEGER       NSTUV,NSTU,NSTGEU,NSTGTU,                           &
-     &    NTUV,NTU,NTGEU,NTGTU,                                         &
-     &    NIGEJ,NIGTJ,NAGEB,NAGTB,NTUVES,NTUES,                         &
-     &    NTGEUES,NTGTUES,NIGEJES,NIGTJES,NAGEBES,                      &
-     &    NAGTBES,NIAES
-      COMMON/SUPER/ NSTUV(8),NSTU(8),NSTGEU(8),NSTGTU(8),               &
+      integer(kind=iwp) NSTUV(8),NSTU(8),NSTGEU(8),NSTGTU(8),           &
      &    NTUV(8),NTU(8),NTGEU(8),NTGTU(8),                             &
      &    NIGEJ(8),NIGTJ(8),NAGEB(8),NAGTB(8),NTUVES(8),NTUES(8),       &
      &    NTGEUES(8),NTGTUES(8),NIGEJES(8),NIGTJES(8),NAGEBES(8),       &
      &    NAGTBES(8),NIAES(8)
 ! Excitation operators, sizes and offsets
-      INTEGER    MXCASE
-      PARAMETER (MXCASE=13)
-      INTEGER        NCASES,NASUP,NISUP,                                &
-     &    NINDEP,NEXC,NEXCES,                                           &
-     &    NBTCH,NBTCHES,                                                &
-     &    NSCP,NSCQ,NBATCH_TOT,NJSCT,NJSCT_TOT,                         &
-     &    IOFFRHS
-      COMMON/STRUCT_CPT2/ NCASES,NASUP(8,MXCASE),NISUP(8,MXCASE),       &
+      integer(kind=iwp), Parameter:: MXCASE=13
+      integer(kind=iwp) NCASES,NASUP(8,MXCASE),NISUP(8,MXCASE),         &
      &    NINDEP(8,MXCASE),NEXC(8,MXCASE),NEXCES(8,MXCASE),             &
      &    NBTCH(8),NBTCHES(8),                                          &
      &    NSCP,NSCQ,NBATCH_TOT,NJSCT,NJSCT_TOT,                         &
      &    IOFFRHS(8,MXCASE)
-      CHARACTER(Len=8) FOCKTYPE,ORBIT,ORBIN,ORBNAM,IINAM,IANAM,ISNAM,        &
+      CHARACTER(Len=8) FOCKTYPE,ORBIT,ORBIN,ORBNAM,IINAM,IANAM,ISNAM,   &
      &       CASES,OUTFMT,SMATRIX,SDECOM,BMATRIX,BTRANS,BSPECT
       CHARACTER(Len=32) HZERO
-      CHARACTER(LEN=4) TITLE
-      CHARACTER(LEN=LENIN8) NAME
-      CHARACTER(LEN=2) HEADER
-      COMMON/STRING/ NAME(2*MXORB),HEADER(72),TITLE(18,MxTIT),          &
-     &    CASES(MXCASE),HZERO,FOCKTYPE,SMATRIX,SDECOM,                  &
+      CHARACTER(LEN=4) TITLE(18,MxTIT)
+      CHARACTER(LEN=LENIN8) NAME (2*MXORB)
+      CHARACTER(LEN=2) HEADER (72)
+
+      COMMON/STRING/ CASES(MXCASE),HZERO,FOCKTYPE,SMATRIX,SDECOM,       &
      &    BMATRIX,BTRANS,BSPECT,ORBIT,ORBIN,OUTFMT,                     &
      &    ORBNAM(MXORB),IINAM(MXINA),IANAM(MXACT),ISNAM(MXEXT)
 
