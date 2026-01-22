@@ -13,7 +13,7 @@
 
 module Center_Info
 
-use Molcas, only: LenIn4, MxAtom
+use Molcas, only: LenIn, MxAtom
 use Definitions, only: iwp
 
 implicit none
@@ -32,7 +32,7 @@ type Distinct_centers
   integer(kind=iwp) :: iStab(0:7) = 0
   integer(kind=iwp) :: nStab = 0
   integer(kind=iwp) :: iCoSet(0:7,0:7) = 0
-  character(len=LenIn4) :: LblCnt = ''
+  character(len=LenIn+4) :: LblCnt = ''
 end type Distinct_centers
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -108,7 +108,7 @@ subroutine Center_Info_Dmp()
 
   integer(kind=iwp) :: i, j, lcDmp, licDmp
   integer(kind=iwp), allocatable :: iDmp(:)
-  character(len=LenIn4), allocatable :: cDmp(:)
+  character(len=LenIn+4), allocatable :: cDmp(:)
 
   ! Integer dc stuff
 
@@ -138,7 +138,7 @@ subroutine Center_Info_Dmp()
   do i=1,n_dc
     cDmp(i) = dc(i)%LblCnt
   end do
-  lcDmp = n_dc*LenIn4
+  lcDmp = n_dc*(LenIn+4)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'cDmp=',cDmp(1:n_dc)
 # endif
@@ -163,7 +163,7 @@ subroutine Center_Info_Get()
   integer(kind=iwp) :: i, j, lcDmp, Len1
   logical(kind=iwp) :: Found
   integer(kind=iwp), allocatable :: iDmp(:)
-  character(len=LenIn4), allocatable :: cDmp(:)
+  character(len=LenIn+4), allocatable :: cDmp(:)
 
 # ifdef _DEBUGPRINT_
   write(u6,*)
@@ -202,7 +202,7 @@ subroutine Center_Info_Get()
   end do
   call mma_deAllocate(iDmp)
 
-  lcDmp = n_dc*LenIn4
+  lcDmp = n_dc*(LenIn+4)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'lcDmp=',lcDmp
 # endif

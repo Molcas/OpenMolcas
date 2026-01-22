@@ -11,7 +11,7 @@
 
 module Disp
 
-use Molcas, only: LenIn6, MxAtom
+use Molcas, only: LenIn, MxAtom
 use Definitions, only: wp, iwp
 
 implicit none
@@ -20,7 +20,7 @@ private
 integer(kind=iwp) :: IndDsp(MxAtom,0:7), IndxEq(MxAtom*3), InxDsp(MxAtom,3), lDisp(0:7), mult_Disp(MxAtom*3), nTR
 real(kind=wp) :: CutGrd, Disp_Fac(3,0:7,MxAtom)
 logical(kind=iwp) :: Dirct(MxAtom*3), HF_Force, l2DI, lEq, TRSymm
-character(len=LenIn6) :: ChDisp(MxAtom*3)
+character(len=LenIn+6) :: ChDisp(MxAtom*3)
 
 public :: ChDisp, CutGrd, Dirct, Disp_Fac, HF_Force, IndDsp, IndxEq, InxDsp, l2DI, lDisp, lEq, mult_Disp, nTR, TRSymm
 

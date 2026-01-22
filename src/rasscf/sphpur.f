@@ -13,7 +13,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: BName, IXSYM
       use general_data, only: NSYM,NBAS,NORB
-      use Molcas, only: LenIn3
+      use Molcas, only: LenIn
 
       IMPLICIT None
       Real*8 CMO(*)
@@ -39,7 +39,7 @@
       END DO
       CALL mma_allocate(LQN,NBTOT,Label='LQN')
       DO IBAS=1,NBTOT
-       LCHAR=BName(IBAS)(LENIN3:LENIN3)
+       LCHAR=BName(IBAS)(LenIn+3:LenIn+3)
        L=-999999
        DO ITP=0,ITABMX
          IF(LCHAR.EQ.ANGTP(ITP)) L=ITP

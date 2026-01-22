@@ -12,7 +12,7 @@
 subroutine Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,BName,NamAct,nSym,nActa,mOrb,nBas,ortho,ThrSel,n_OK)
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use Molcas, only: LenIn, LenIn8
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -22,7 +22,7 @@ integer(kind=iwp), intent(in) :: nSym, nActa, mOrb(nSym), nBas(nSym)
 integer(kind=iwp), intent(out) :: irc, n_OK(nSym)
 real(kind=wp), intent(inout) :: CMO(*), Eorb(*)
 real(kind=wp), intent(in) :: XMO(*), Smat(*), Saa(*), ThrSel
-character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn+8), intent(in) :: BName(*)
 character(len=LenIn), intent(in) :: NamAct(nActa)
 logical(kind=iwp), intent(in) :: ortho
 integer(kind=iwp) :: i, ia, iOff, iSym, j, ja, km, lOff, mOx, n_KO, nBa, nBax, nBmx, nBx, nORbmx, nOx

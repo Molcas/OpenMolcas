@@ -16,13 +16,13 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iChBas, iChTbl, nIrrep
 use Real_Spherical, only: iSphCr, LblCBs, LblSBs
-use Molcas, only: LenIn, LenIn8, MaxBfn, MaxBfn_aux
+use Molcas, only: LenIn, MaxBfn, MaxBfn_aux
 use Definitions, only: iwp
 
 #include "intent.fh"
 
 implicit none
-character(len=LenIn8), intent(out) :: Label(MaxBfn+MaxBfn_Aux)
+character(len=LenIn+8), intent(out) :: Label(MaxBfn+MaxBfn_Aux)
 integer(kind=iwp), intent(_OUT_) :: cnt_ico(0:7,*), phase_ico(0:7,*)
 integer(kind=iwp) :: iAng, iChBs, iCnt, iCntrc, iCnttp, iCo, iComp, iIrrep, iSh, iSO, jComp, kComp, lComp, mc, mdc, nBasisi, &
                      nExpi, NrOpr

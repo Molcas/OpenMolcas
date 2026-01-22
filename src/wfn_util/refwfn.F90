@@ -116,11 +116,10 @@ subroutine refwfn_info()
   use caspt2_module, only: nDet
 # endif
   use caspt2_global, only: Weight_ => Weight
+  use caspt2_module, only: header, IFQCAN, iRoot, iSpin, lRoots, MxOrb, MxRoot, MxSym, MxTit, nActel, name, nAsh, nBas, nConf, &
+                           nDel, nEle3, nFro, nHole1, nIsh, nRas1, nRas2, nRas3, nRoots, nSsh, nSym, PotNuc, STSym, Title
+  use Molcas, only: LenIn
   use stdalloc, only: mma_allocate, mma_deallocate
-  use caspt2_module, only: header, IFQCAN, iRoot, iSpin, LenIn8, lRoots, MxOrb, MxSym, MxTit, nActel, &
-                           name, nAsh, nConf, nDel, nEle3, nFro, nHole1, nIsh, nRas1, nRas2, nRas3, &
-                           nRoots, nSsh, nSym, PotNuc, STSym, Title, nBas, MxRoot
-
 
 # ifdef _HDF5_
   character(len=1), allocatable :: typestring(:)
@@ -191,7 +190,7 @@ subroutine refwfn_info()
     ! Another title field is read from input a little later, it is called
     ! TITLE2. That one is printed out in PRINP_CASPT2.
     IAD15 = IADR15(1)
-    call WR_RASSCF_Info(refwfn_id,2,iAd15,NACTEL,ISPIN,REF_NSYM,STSYM,NFRO,NISH,NASH,NDEL,REF_NBAS,8,NAME,LENIN8*MXORB,NCONF, &
+    call WR_RASSCF_Info(refwfn_id,2,iAd15,NACTEL,ISPIN,REF_NSYM,STSYM,NFRO,NISH,NASH,NDEL,REF_NBAS,8,NAME,(LenIn+8)*MXORB,NCONF, &
                         HEADER,144,TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,Weight)
     nssh = ref_nbas-nfro-nish-nash-ndel
 # ifdef _HDF5_

@@ -82,7 +82,7 @@
       use general_data, only: CleanMask
       use PrintLevel, only: DEBUG,TERSE,VERBOSE
       use output_ras, only: LF,IPRGLB,IPRLOC
-      use Molcas, only: LenIn8, MaxBfn, MxOrb, MxRoot, MxSym
+      use Molcas, only: LenIn, MaxBfn, MxOrb, MxRoot, MxSym
       use RASDim, only: MxTit
       use Definitions, only: RtoI
 
@@ -105,7 +105,7 @@
       integer mh5id
       character(Len=maxbfn) typestring
 #endif
-      character(len=LENIN8*mxOrb) :: lJobH1
+      character(len=(LenIn+8)*mxOrb) :: lJobH1
       character(len=2*72) :: lJobH2
       character(len=72) :: JobTit(mxTit)
       character(len=80) :: VecTit
@@ -277,7 +277,7 @@ C Local print level (if any)
      &                      JobH(4),JobH,JobH,
      &                      JobH,JobH,JobH,
      &                      mxSym,
-     &                      lJobH1,LENIN8*mxOrb,JobH(5),
+     &                      lJobH1,(LenIn+8)*mxOrb,JobH(5),
      &                      lJobH2,2*72,JobTit,72*mxTit,
      &                      JobR(1),JobH(6),
      &                      JobH(7),JobH,mxRoot,

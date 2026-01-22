@@ -14,7 +14,7 @@ subroutine Cho_SetAtomShl(irc,iAtomShl,n)
 ! Purpose: set mapping from shell to atom (i.e., center).
 
 use Cholesky, only: IPRINT, iSOShl, LuPri, nBasT, nShell, nSym
-use Molcas, only: LenIn8
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
@@ -23,7 +23,7 @@ integer(kind=iwp), intent(in) :: n
 integer(kind=iwp), intent(out) :: irc, iAtomShl(n)
 integer(kind=iwp) :: i, i1, i2, iAtom, iBatch, iSh, iSh0, iSh1, iSh2, nAtom, nBatch, nErr, nSh, numSh
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
-character(len=LenIn8), allocatable :: AtomLabel(:)
+character(len=LenIn+8), allocatable :: AtomLabel(:)
 integer(kind=iwp), parameter :: Info_Debug = 4
 #ifdef _DEBUGPRINT_
 #define _DBG_ .true.
@@ -60,7 +60,7 @@ call Get_iScalar('Bfn Atoms',nAtom)
 ! --------------------------------------------
 
 call mma_allocate(AtomLabel,nBasT,Label='AtomLabel')
-call Get_cArray('Unique Basis Names',AtomLabel,LenIn8*nBasT)
+call Get_cArray('Unique Basis Names',AtomLabel,(LenIn+8)*nBasT)
 
 ! Allocate and get index arrays for indexation of basis functions on
 ! each atom.

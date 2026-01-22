@@ -28,11 +28,11 @@
 
 function Clean_BName(BName,Offset)
 
-use Molcas, only: LenIn8
+use Molcas, only: LenIn
 use Definitions, only: iwp
 
 implicit none
-character(len=LenIn8) :: Clean_BName
+character(len=LenIn+8) :: Clean_BName
 character(len=*), intent(in) :: BName
 integer(kind=iwp), intent(in) :: Offset
 integer(kind=iwp) :: i, Err

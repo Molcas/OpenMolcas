@@ -27,8 +27,9 @@
       use ChoCASPT2, only: InfVec_N2_PT2, MaxVec_PT2, NASPlit,NISplit,
      &                     NumCho_PT2
       use spool, only: SpoolInp, Close_LuSpool
+      use Molcas, only: LenIn
       use caspt2_module, only: nSym, Header, ifChol, jState,
-     &                         LenIn8, Name, nAsh, nBas, nIsh,
+     &                         Name, nAsh, nBas, nIsh,
      &                         nOTri, nBasT, nBSqT, nSsh, nState,
      &                         nUniqAT
       IMPLICIT NONE
@@ -47,7 +48,7 @@ C     Cholesky
       Call Get_iScalar('Unique atoms',nUniqAt)
       nbast=sum(nbas(1:nsym))
       nbsqt=sum(nbas(1:nsym)**2)
-      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nbast)
+      Call Get_cArray('Unique Basis Names',Name,(LenIn+8)*nbast)
       jstate = 1
       Call DecideOnCholesky(IfChol)
 * PAM Feb 2008: The following statement was moved here from

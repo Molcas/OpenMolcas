@@ -30,7 +30,7 @@ subroutine Rd1Int()
 
 use rasscf_global, only: BName, header, PotNuc
 use general_data, only: NBAS, NSYM
-use Molcas, only: LenIn8
+use Molcas, only: LenIn
 use Definitions, only: iwp
 
 implicit none
@@ -51,7 +51,7 @@ call Get_iArray('nBas',nBas,nSym)
 call Get_dScalar('potNuc',PotNuc)
 !---  read basis function labels --------------------------------------*
 nBas_tot = sum(nBas(1:nSym))
-call Get_cArray('Unique Basis Names',BName,LenIn8*nBas_tot)
+call Get_cArray('Unique Basis Names',BName,(LenIn+8)*nBas_tot)
 !----------------------------------------------------------------------*
 ! Exit                                                                 *
 !----------------------------------------------------------------------*

@@ -25,7 +25,7 @@ use rctfld_module, only: lrf
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
-use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
 use Definitions, only: wp, iwp, u6
 
@@ -36,7 +36,7 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: i, iad19, IADR19(15), iorbdata, iprlev, isym, ndiff
 real(kind=wp) :: potnucdummy
 logical(kind=iwp) :: DBG, keyjobi, lExists, RunFile_Exists
-character(len=LenIn8*mxOrb) :: lJobH1
+character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=72) :: JobTit(mxTit), ReadStatus
 character(len=2*72) :: lJobH2
 #ifdef _HDF5_
@@ -218,8 +218,8 @@ if (IORBDATA == 0) then
   IAD19 = 0
   call IDaFile(JOBIPH,2,IADR19,10,IAD19)
   iAd19 = iAdr19(1)
-  call WR_RASSCF_Info(JobIPH,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,mxSym,lJobH1,LENIN8*mxOrb,NCONF,lJobH2,2*72, &
-                      JobTit,4*18*mxTit,POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
+  call WR_RASSCF_Info(JobIPH,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,mxSym,lJobH1,(LenIn+8)*mxOrb,NCONF,lJobH2, &
+                      2*72,JobTit,4*18*mxTit,POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
 end if  !> IORBDATA
 
 !> read CI optimization parameters from HDF5 file

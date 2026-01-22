@@ -24,7 +24,7 @@ subroutine PrGrad_pcm(Label,Grad,nGrad,iPrint)
 
 use Symmetry_Info, only: lIrrep
 use Disp, only: ChDisp
-use Molcas, only: LenIn5, MxAtom
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -35,9 +35,9 @@ integer(kind=iwp), intent(in) :: nGrad, iPrint
 real(kind=wp), intent(in) :: Grad(nGrad)
 integer(kind=iwp) :: iCen, iGrad, mGrad
 real(kind=wp) :: Temp, TempX, TempY, TempZ
-character(len=LenIn5) :: Namei
+character(len=LenIn+5) :: Namei
 real(kind=wp), allocatable :: CGrad(:,:)
-character(len=LenIn5), allocatable :: CNames(:)
+character(len=LenIn+5), allocatable :: CNames(:)
 
 write(u6,*)
 call Banner(Label,1,len(Label)+30)

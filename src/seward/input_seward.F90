@@ -30,7 +30,7 @@ use Gateway_global, only: Test, PrPrt, Primitive_Pass
 use Gateway_Info, only: Do_GuessOrb
 use Symmetry_Info, only: nIrrep
 use PrintLevel, only: nPrint, Show
-use Molcas, only: LenIn, LenIn8, MaxBfn, MaxBfn_Aux
+use Molcas, only: LenIn, MaxBfn, MaxBfn_Aux
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
@@ -106,7 +106,7 @@ if (Primitive_Pass) then
   call Put_iArray('nBas_Prim',nBas,nIrrep)
   call Info2Runfile()
 end if
-call Put_cArray('Unique Basis Names',Mamn(1),(LENIN8)*S%nDim)
+call Put_cArray('Unique Basis Names',Mamn(1),(LenIn+8)*S%nDim)
 call Put_iArray('nBas',nBas,nIrrep)
 call mma_deallocate(Mamn)
 !                                                                      *

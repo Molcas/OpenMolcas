@@ -12,7 +12,7 @@
 module mrci_global
 
 use TraToc, only: nTraBuf
-use Molcas, only: LenIn8, MxBas, MxOrb, MxRoot
+use Molcas, only: LenIn, MxBas, MxOrb, MxRoot
 use Constants, only: Two, Half
 use Definitions, only: wp, iwp
 
@@ -33,7 +33,7 @@ integer(kind=iwp) :: IAD25S, IADABCI, ICH(MXORB), ICPF, IDFREE, IDISKC(MXVEC), I
                      NVMAX, NVPAIR(8), NVSQ, NVTOT
 real(kind=wp) :: CSEL(50), CTRSH, ENGY(MXROOT,3), ENP, ESHIFT, ESMALL(MXVEC), ETHRE, ETRSH, GFAC, PNUC(MXPROP), PORIG(3,MXPROP), &
                  POTNUC, SQNLIM, THRORB, TIBUF(nTraBuf), VALSRT(NSRTMX), VSMALL(MXVEC,MXVEC)
-character(len=LenIn8) :: BNAME(MXBAS)
+character(len=LenIn+8) :: BNAME(MXBAS)
 character(len=20) :: SSEL(50)
 character(len=8) :: PNAME(MXPROP)
 character(len=4) :: PTYPE(MXPROP)

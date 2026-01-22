@@ -133,7 +133,7 @@ module MCLR_Data
 ! Stuff from Exp
 !  H0F, H0S, NewPre, nexp, nexp_max, SBIDT
 
-use Molcas, only: LenIn6
+use Molcas, only: LenIn
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -156,7 +156,7 @@ integer(kind=iwp) :: dspvec(mxdccc), i1, I12, IACTI(MXPICI), iAllo, iAnders, IAS
 real(kind=wp) :: rms, ERAS(MXSTATE), P1(MXSTATE*(MXSTATE+1)/2), P1INV(MXSTATE*(MXSTATE+1)/2), PDFT_Ratio, PSSIGN, rbetaa, rbetas, &
                  ResQaaLag2, WF_Ratio, XISPSM(MXPCSM,MXPICI) = Zero
 logical(kind=iwp) :: Do_Hybrid, esterr, Fancy_Preconditioner, isMECIMSPD, isNAC, NewPre = .true., ngp, Nofile, override, SA, square
-character(len=LenIn6) :: ChDisp(Mxdccc*3)
+character(len=LenIn+6) :: ChDisp(Mxdccc*3)
 character(len=8) :: FNCSF2SD, FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, &
                     FNTRI5, FnTwo, SwLbl(Mxdccc)
 integer(kind=iwp), allocatable :: H0F(:), pINT1(:), pINT2(:), SBIDT(:)

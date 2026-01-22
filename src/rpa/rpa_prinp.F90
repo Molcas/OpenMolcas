@@ -19,7 +19,7 @@ subroutine RPA_PrInp()
 
 use RPA_globals, only: CMO, DFTFunctional, EMO, iPrint, nBas, nDel, nFro, nOcc, nOrb, nSym, nTitle, nVir, OccEn, Reference, Title, &
                        VirEn
-use Molcas, only: LenIn8
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -31,7 +31,7 @@ character(len=7) :: spin(2)
 character(len=8) :: Fmt1, Fmt2
 character(len=13) :: orbitals
 character(len=120) :: Line, BlLine, StLine
-character(len=LenIn8), allocatable :: UBName(:)
+character(len=LenIn+8), allocatable :: UBName(:)
 integer(kind=iwp), parameter :: lPaper = 132
 character(len=*), parameter :: SecNam = 'RPA_PrInp'
 integer(kind=iwp), external :: RPA_iUHF
@@ -205,7 +205,7 @@ if (iPrint >= 2) then
   end do
   l_Name = nB
   call mma_allocate(UBName,l_Name,label='Name')
-  call Get_cArray('Unique Basis Names',UBName,LenIn8*nB)
+  call Get_cArray('Unique Basis Names',UBName,(LenIn+8)*nB)
   do k=1,iUHF
     call PriMO(Reference//' '//orbitals//' '//spin(k),.false.,.true.,-9.9e9_wp,9.9e9_wp,nSym,nBas,nOrb,UBName,EMO(:,k),Dummy, &
                CMO(:,k),-1)

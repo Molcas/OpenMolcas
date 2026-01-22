@@ -39,7 +39,7 @@ use ccsort_global, only: cckey, clopkey, fullprint, IADR15, iokey, IPT2, ISCF, I
                          luna4, lunab, lunda1, lunda2, lunpublic, lunt3, NACTEL, NASH, NASHT, NBAS, NCONF, NDEL, ndelr, nDelX, &
                          NELE3, NFRO, nfror, nFroX, NHOLE1, NISH, NISHT, noop, NORB, NROOTS, NSSH, NSSHT, NSYM, t3key, zrkey
 use spool, only: SpoolInp, Close_LuSpool
-use Molcas, only: LenIn8, MxOrb, MxRoot
+use Molcas, only: LenIn, MxOrb, MxRoot
 use RASDim, only: MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -52,7 +52,7 @@ real(kind=wp) :: POTNUC
 character(len=72) :: Header(2), Line, Title(mxTit)
 character(len=4) :: Command
 real(kind=wp), allocatable :: Weights(:)
-character(len=LenIn8), allocatable :: CName(:)
+character(len=LenIn+8), allocatable :: CName(:)
 character(len=*), parameter :: Cmd(20) = ['TITL','END ','CCSD','CCT ','CLOS','OPEN','FROZ','DELE','PRIN','NOOP','IOKE','ZROF', &
                                           'DENO','SHIF','ACCU','ADAP','EXTR','TRIP','NOSO','ITER']
 
@@ -84,8 +84,8 @@ call iDAFILE(JOBIPH,2,IADR15,15,IAD15)
 IAD15 = IADR15(1)
 call mma_allocate(CName,mxOrb,label='CName')
 call mma_allocate(Weights,mxRoot,label='Weights')
-call WR_RASSCF_Info(JOBIPH,2,iAd15,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,8,CName,LenIn8*MxOrb,NCONF,Header,2*72,Title, &
-                    72*mxTit,POTNUC,LROOTS,NROOTS,IROOT,mxRoot,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IPT2,Weights)
+call WR_RASSCF_Info(JOBIPH,2,iAd15,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,8,CName,(LenIn+8)*MxOrb,NCONF,Header,2*72, &
+                    Title,72*mxTit,POTNUC,LROOTS,NROOTS,IROOT,mxRoot,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IPT2,Weights)
 call mma_deallocate(CName)
 call mma_deallocate(Weights)
 

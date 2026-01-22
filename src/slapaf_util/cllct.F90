@@ -21,7 +21,7 @@ subroutine Cllct(Strng,Vector,Val,nAtom,Coor,nCntr,mCntr,xyz,Temp,Ind,Typ,qMss,T
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, dMass
 use PrintLevel, only: nPrint
-use Molcas, only: LenIn, LenIn5
+use Molcas, only: LenIn
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -39,7 +39,7 @@ logical(kind=iwp), intent(out) :: lAtom(nAtom)
 integer(kind=iwp) :: i, iEnd, iFrst, iIrrep, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, nCent, nPar1, nPar2
 real(kind=wp) :: Axis(3), Dummy(1), Perp_Axis(3,2), tx, ty, tz
 logical(kind=iwp) :: ldB, lWarn
-character(len=LenIn5) :: Label
+character(len=LenIn+5) :: Label
 character(len=LenIn) :: AtName
 character(len=3) :: Oper
 real(kind=wp), external :: D_Bend, D_Bond, D_Cart, D_Trsn

@@ -23,7 +23,7 @@ subroutine RdCmo_motra(CMO,Ovlp)
 #include "intent.fh"
 
 use motra_global, only: FnInpOrb, FnJobIph, iortho, iVecTyp, LuInpOrb, LuJobIph, MxTit, nBas, nDel, nSym, nTot2, VecTit
-use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -69,9 +69,9 @@ if (iVecTyp == 3) then
     iDisk = TcJobIph(1)
     call mma_allocate(itemp2,max(9,MxSym,MxRoot),label='itemp2')
     call mma_allocate(temp2,MxRoot,label='temp2')
-    call mma_allocate(ctemp2,max(LenIn8*mxOrb,144,4*18*mxTit),label='ctemp2')
+    call mma_allocate(ctemp2,max((LenIn+8)*mxOrb,144,4*18*mxTit),label='ctemp2')
     call WR_RASSCF_Info(LuJobIph,2,iDisk,itemp2(1),itemp2(2),itemp2(3),itemp2(4),itemp2,itemp2,itemp2,itemp2,itemp2,mxSym,ctemp2, &
-                        LenIn8*mxOrb,itemp2(5),ctemp2,144,ctemp2,4*18*mxTit,temp2(1),itemp2(6),itemp2(7),itemp2,mxRoot,itemp2, &
+                        (LenIn+8)*mxOrb,itemp2(5),ctemp2,144,ctemp2,4*18*mxTit,temp2(1),itemp2(6),itemp2(7),itemp2,mxRoot,itemp2, &
                         itemp2,itemp2,itemp2(8),itemp2(9),iPt2,temp2)
     call mma_deallocate(itemp2)
     call mma_deallocate(temp2)

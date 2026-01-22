@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module Cntrl
-use Molcas, only: LenIn, LenIn8, MxAtom, MxOrb, MxRoot
+use Molcas, only: LenIn, MxAtom, MxOrb, MxRoot
 use RASDim, only: mxTit
 ! The parameters defined in module RASDim should be private
 Private mxTit
 ! The parameters defined in module Molcas should be private
-Private LenIn, LenIn8, MxAtom, MxOrb, MxRoot
+Private LenIn, MxAtom, MxOrb, MxRoot
 
   INTEGER, PARAMETER :: MXJOB=100,MXPROP=30000
   INTEGER, PARAMETER :: MXDISP=500
@@ -197,7 +197,7 @@ CHARACTER(LEN=LENIN) ATLBL(MXATOM)
 REAL*8 POTNU1
 Integer NACTE1,MPLET1,NSYM1,NFRO1(8),NISH1(8),NASH1(8),NDEL1(8),NBAS1(8),NRS11(8),NRS21(8), &
         NRS31(8),LROT1,NROOT1,IROOT1(mxRoot),NHOL11,NELE31
-CHARACTER(LEN=LENIN8) NAME(mxOrb)
+CHARACTER(LEN=LenIn+8) NAME(mxOrb)
 CHARACTER(LEN=2) HEAD1(72)
 CHARACTER(LEN=4) TITLE1(18,mxTit)
 

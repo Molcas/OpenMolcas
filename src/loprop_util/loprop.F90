@@ -22,7 +22,7 @@ subroutine LoProp(ireturn)
 
 use loprop_arrays, only: LP_context_type
 use Data_Structures, only: Allocate_DT, Alloc1DArray_Type, Deallocate_DT
-use Molcas, only: LenIn4
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -37,7 +37,7 @@ character(len=12) :: Opt_Method
 type(LP_context_type) :: LP_context
 type(Alloc1DArray_Type) :: D(0:6)
 real(kind=wp), allocatable :: EC(:,:), MP(:,:,:), MPq(:), Origin(:,:), sq_mu(:,:), sq_temp(:), tmp(:), Ttot(:,:), Ttot_Inv(:,:)
-character(len=LenIn4), allocatable :: LblCnt(:)
+character(len=LenIn+4), allocatable :: LblCnt(:)
 type(Alloc1DArray_Type), allocatable :: imu(:)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
@@ -152,7 +152,7 @@ call mma_deallocate(LP_context%center)
 ! Print out the properties
 
 call mma_allocate(LblCnt,nAtoms,label='LblCnt')
-call Get_cArray('LP_L',LblCnt,LenIn4*nAtoms)
+call Get_cArray('LP_L',LblCnt,(LenIn+4)*nAtoms)
 call LoProp_Print(MP(:,1,1),nij,nAtoms,LP_context%Q_Nuc,LblCnt,lSave)
 if (iPL >= 2) then
   call CollapseOutput(0,'   Static properties:')

@@ -37,7 +37,7 @@ subroutine PRIMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,BName,Ene,Occ,C
 !                                                                      *
 !***********************************************************************
 
-use Molcas, only: LenIn, LenIn8
+use Molcas, only: LenIn
 use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
 
@@ -46,11 +46,11 @@ character(len=*), intent(in) :: Header
 logical(kind=iwp), intent(in) :: PrOcc, PrEne
 real(kind=wp), intent(in) :: ThrOcc, ThrEne, Ene(*), Occ(*), CMO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(*), nOrb(*), iPrForm
-character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn+8), intent(in) :: BName(*)
 integer(kind=iwp) :: i, iB, IEO, IEO2, Inc, IO, iPL, iPos, ISB, ISCMO, ISO, ISX, iSym, itmp, jB, jSB, nB, nCol, NCOLS, nO, nTot
 real(kind=wp) :: Cff_Mx, Energy, Occupation, tmp, Shift(10)
 logical(kind=iwp) :: Large, Go, Header_Done
-integer(kind=iwp), parameter :: Magic = 5+1+LenIn8+1+6+3
+integer(kind=iwp), parameter :: Magic = 5+1+(LenIn+8)+1+6+3
 character(len=Magic) :: ChCMO
 character(len=180) :: Line
 character(len=24) :: FMT0, FMT1, FMT2, LABEL0, LABEL1, LABEL2
@@ -59,7 +59,7 @@ character(len=3) :: IrrepName(8)
 character(len=4) :: Star(10)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-character(len=LenIn8), external :: Clean_BName
+character(len=LenIn+8), external :: Clean_BName
 
 !                                                                      *
 !----------------------------------------------------------------------*

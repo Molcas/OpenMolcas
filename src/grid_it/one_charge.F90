@@ -15,14 +15,14 @@ subroutine One_CHARGE(NSYM,NBAS,UBNAME,CMO,OCCN,SMAT,iCase,FullMlk,MxTyp,QQ,nNuc
 
 use UnixInfo, only: ProgName
 use define_af, only: AngTp, iTabMx
-use Molcas, only: LenIn, LenIn1, LenIn4, LenIn8, MxBas
+use Molcas, only: LenIn, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase, MxTyp, nNuc
-character(len=LenIn8), intent(in) :: UBNAME(*)
+character(len=LenIn+8), intent(in) :: UBNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk
 real(kind=wp), intent(out) :: QQ(MxTyp,nNuc)
@@ -36,14 +36,14 @@ character(len=8) :: TMP
 !character(len=4) :: TLbl(MXATOM)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-character(len=LenIn8), external :: Clean_Bname
+character(len=LenIn+8), external :: Clean_Bname
 integer(kind=iwp), allocatable :: iCenter(:), ICNT(:), ITYP(:), nStab(:)
 real(kind=wp), allocatable :: Bonds(:), Charge(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), Fac(:), P(:,:), PInv(:,:), Q2(:), &
                               QSUM(:), QSUM_TOT(:), S(:,:), S_blo(:), S_tmp(:,:), Scr(:)
 real(kind=wp), allocatable, save :: DSSwap(:,:), qSwap(:)
 character(len=8), allocatable :: tName(:), tSwap(:)
 character(len=LenIn), allocatable :: CNAME(:)
-character(len=LenIn4), allocatable :: LblCnt4(:)
+character(len=LenIn+4), allocatable :: LblCnt4(:)
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: E
 real(kind=wp), external :: DDot_
@@ -142,13 +142,13 @@ outer1: do I=1,NBAST
       write(u6,*) 'Increase MxType and recompile!'
       call Abend()
     end if
-    if (UBNAME(I)(LenIn1:LenIn8) == tName(J)) then
+    if (UBNAME(I)(LenIn+1:LenIn+8) == tName(J)) then
       ITYP(I) = J
       cycle outer1
     end if
   end do
   NXTYP = NXTYP+1
-  tName(NXTYP) = UBNAME(I)(LenIn1:LenIn8)
+  tName(NXTYP) = UBNAME(I)(LenIn+1:LenIn+8)
 
   ITYP(I) = NXTYP
 end do outer1
@@ -323,7 +323,7 @@ call mma_deallocate(tSwap)
 outer2: do I=1,NBAST
   if (ICNT(I) < 0) cycle outer2 ! skip pseudo center
   do J=1,NXTYP
-    if (UBNAME(I)(LenIn1:LenIn8) == tName(J)) then
+    if (UBNAME(I)(LenIn+1:LenIn+8) == tName(J)) then
       ITYP(I) = J
       cycle outer2
     end if
@@ -410,7 +410,7 @@ if (DoBond) then
   ! Atom labels plus symmetry generator
 
   call mma_allocate(LblCnt4,tNUC,label='LblCnt4')
-  call Get_cArray('LP_L',LblCnt4,LenIn4*tNUC)
+  call Get_cArray('LP_L',LblCnt4,(LenIn+4)*tNUC)
   !do i=1,tNUC
   !  LblCnt(i)(1:LenIn) = LblCnt4(i)(1:LenIn)
   !end do

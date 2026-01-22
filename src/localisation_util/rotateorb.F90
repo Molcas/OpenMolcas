@@ -19,7 +19,7 @@ subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Array PACol introduced in argument list.
 
-use Molcas, only: LenIn, LenIn8
+use Molcas, only: LenIn
 use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
 
@@ -28,12 +28,12 @@ integer(kind=iwp), intent(in) :: nBasis, nAtoms, nOrb2Loc, nBas_per_Atom(nAtoms)
 real(kind=wp), intent(inout) :: cMO(nBasis,*), PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
 logical(kind=iwp), intent(in) :: Maximisation, Debug
-character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn+8), intent(in) :: BName(*)
 real(kind=wp), intent(in) :: ThrRot
 integer(kind=iwp) :: iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
 real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, sin4alpha, SumA, SumB, Tst, Tstc, &
                  Tsts, xDone, xOrb2Loc, xTotal
-character(len=LenIn8) :: PALbl
+character(len=LenIn+8) :: PALbl
 character(len=80) :: Txt
 
 xDone = Zero

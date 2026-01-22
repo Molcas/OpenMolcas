@@ -50,7 +50,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use PrintLevel, only: USUAL
       use output_ras, only: LF
-      use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+      use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
       use RASDim, only: MxIter, MxTit
       Implicit None
 
@@ -90,7 +90,7 @@
       Call WR_RASSCF_Info(JobIph,2,iDisk,
      &                    nActEl,iSpin,nSym,stSym,
      &                    nFro,nIsh,nAsh,nDel,
-     &                    nBas,mxSym,BName,LENIN8*mxOrb,nConf,
+     &                    nBas,mxSym,BName,(LenIn+8)*mxOrb,nConf,
      &                    Header,144,Title,4*18*mxTit,PotNucDummy,
      &                    lRoots,nRoots,iRoot,mxRoot,
      &                    nRs1,nRs2,nRs3,
@@ -106,7 +106,7 @@
 !       Call WR_RASSCF_Info(JobIph,1,iDisk,
 !    &                      nActEl,iSpin,nSym,stSym,
 !    &                      nFro,nIsh,nAsh,nDel,
-!    &                      nBas,mxSym,BName,LENIN8*mxOrb,nConf,
+!    &                      nBas,mxSym,BName,(LenIn+8)*mxOrb,nConf,
 !    &                      Header,144,Title,4*18*mxTit,PotNucDummy,
 !    &                      lRoots,nRoots,iRoot,mxRoot,
 !    &                      nRs1,nRs2,nRs3,

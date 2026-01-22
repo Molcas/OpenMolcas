@@ -22,7 +22,7 @@ subroutine Polar(ireturn)
 
 use loprop_arrays, only: LP_context_type
 use Data_Structures, only: Allocate_DT, Alloc1DArray_Type, Deallocate_DT
-use Molcas, only: LenIn, LenIn4
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -36,7 +36,7 @@ character(len=12) :: Opt_Method
 type(LP_context_type) :: LP_context
 type(Alloc1DArray_Type) :: D(0:6)
 character(len=LenIn), allocatable :: LblCnt(:)
-character(len=LenIn4), allocatable :: LblCnt4(:)
+character(len=LenIn+4), allocatable :: LblCnt4(:)
 real(kind=wp), allocatable :: Cpl(:,:), CplT(:,:), EC(:,:), Ene_Occ(:), h0(:), MP(:,:,:), MPp(:,:), MPq(:), nxMP(:), Origin(:,:), &
                               Pol(:,:), sq_mu(:,:), sq_temp(:), tmp(:), TP(:), Ttot(:,:), Ttot_Inv(:,:), xMP(:), xxMP(:)
 type(Alloc1DArray_Type), allocatable :: imu(:)
@@ -201,7 +201,7 @@ end if
 
 call mma_allocate(LbLCnt,nAtoms,label='LblCnt')
 call mma_allocate(LbLCnt4,nAtoms,label='LblCnt4')
-call Get_cArray('LP_L',LblCnt4,LenIn4*nAtoms)
+call Get_cArray('LP_L',LblCnt4,(LenIn+4)*nAtoms)
 do i=1,nAtoms
   LblCnt(i) = LblCnt4(i)(1:LenIn)
 end do

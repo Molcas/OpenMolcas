@@ -11,7 +11,7 @@
 
 module rasscf_global
 
-use Molcas, only: LenIn8, MxAct, MxOrb, MxRoot
+use Molcas, only: LenIn, MxAct, MxOrb, MxRoot
 use RASDim, only: MxIter, MxRef
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -33,7 +33,7 @@ real(kind=wp) :: CBLB(8), CBLBM = Zero, CCI(mxRoot,mxRef), CMAX, CMSThreshold, C
                  POTNUC, PRETHR, PROTHR, PRWTHR, RLXGRD, ROTMAX, S, SXSHFT = Zero, THFACT, THRE, THREN, THRSX, THRTE, TMIN, &
                  Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, VIA = Zero, VIA_DFT = Zero, WEIGHT(mxRoot)
 logical(kind=iwp) :: DoBlockDMRG, doDMRG, DoFaro, DOFCIDUMP, IfCRPR, kIvo, l_casdft, lSquare, NonEq, RFpert, Start_Vectors
-character(len=LenIn8) :: BName(mxOrb)
+character(len=LenIn+8) :: BName(mxOrb)
 character(len=256) :: CMSStartMat
 character(len=80) :: KSDFT, KSDFT_TEMP, TITLE(18)
 character(len=8) :: IPHNAME, OutFmt1, OutFmt2, PURIFY, SXSEL

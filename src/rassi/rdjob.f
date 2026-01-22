@@ -39,7 +39,7 @@
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: WFTYPE,NASH,NSSH,NDEL,NOSH,NASH,NISH,NFRO,
      &                      NBASF,NDEL,NFRO,NISH
-      use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+      use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
       use RASDim, only: MxIter, MxTit
 
       IMPLICIT NONE
@@ -427,7 +427,7 @@ C SCATTER-READ VARIOUS DATA:
       Call WR_RASSCF_Info(LUIPH,2,IAD,
      &                    NACTE1,MPLET1,NSYM1,LSYM1,
      &                    NFRO1,NISH1,NASH1,NDEL1,NBAS1,mxSym,
-     &                    NAME,LENIN8*mxOrb,NCONF1,HEAD1,2*72,
+     &                    NAME,(LenIn+8)*mxOrb,NCONF1,HEAD1,2*72,
      &                    TITLE1,4*mxTit*18,
      &                    ENUCDUMMY,LROT1,NROOT1,
      &                    IROOT1,mxRoot,NRS11,NRS21,NRS31,
@@ -732,7 +732,7 @@ C Where is the CMO data set stored?
      &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
      &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
       use cntrl, only: iTOC15, LuIph
-      use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+      use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
       use RASDim, only: MxTit
 
       IMPLICIT NONE
@@ -767,7 +767,7 @@ C SCATTER-READ VARIOUS DATA:
       Call WR_RASSCF_Info(LUIPH,2,IAD,
      &                    NACTE1,MPLET1,NSYM1,LSYM1,
      &                    NFRO1,NISH1,NASH1,NDEL1,NBAS1,mxSym,
-     &                    NAME,LENIN8*mxOrb,NCONF1,HEAD1,2*72,
+     &                    NAME,(LenIn+8)*mxOrb,NCONF1,HEAD1,2*72,
      &                    TITLE1,4*mxTit*18,
      &                    ENUCDUMMY,LROT1,NROOT1,
      &                    IROOT1,mxRoot,NRS11,NRS21,NRS31,

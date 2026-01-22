@@ -16,13 +16,14 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb, Weight_ => Weight
       use PrintLevel, only: USUAL
+      use Molcas, only: LenIn
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use gugx, only: L2ACT, LEVEL
       use caspt2_global, only: CMO, CMO_Internal, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: Nstate,DOCUMULANT,HEADER,IFMIX,IFMSCOUP,
      &                         IFQCAN,IFRMS,IFXMS,IROOT,ISCF,ISPIN,
-     &                         LENIN8,LROOTS,mxAct,MXITER,MXORB,MxRoot,
+     &                         LROOTS,mxAct,MXITER,MXORB,MxRoot,
      &                         MXTIT,NACTEL,NAME,NASH,NBAS,NBSQT,NCONF,
      &                         NDEL,NELE3,NFRO,NHOLE1,NISH,NRAS1,NRAS2,
      &                         NRAS3,NROOTS,NSYM,POTNUC,STSYM,TITLE,
@@ -117,7 +118,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
       CALL WR_RASSCF_INFO(JOBMIX,1,iAd15,
      &                    NACTEL,ISPIN,NSYM,STSYM,
      &                    NFRO,NISH,NASH,NDEL,NBAS,8,
-     &                    NAME,LENIN8*MXORB,NCONF,HEADER,144,
+     &                    NAME,(LenIn+8)*MXORB,NCONF,HEADER,144,
      &                    TITLE,4*18*MXTIT,POTNUC,
      &                    LROOTS,MROOTS,JROOT,MXROOT,NRAS1,
      &                    NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,

@@ -11,7 +11,7 @@
 
 module cpf_global
 
-use Molcas, only: LenIn8, MxBas, MxOrb
+use Molcas, only: LenIn, MxBas, MxOrb
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -40,7 +40,7 @@ integer(kind=iwp) :: IAD25S, IADABCI, IADDP(79), ICH(MXORB), ICONV, ICPF, IDENS,
                      NSM(MXORB), NSYM, NSYS(9), NTMAX, NVIR(8), NVIRT, NVMAX, NVT5
 real(kind=wp) :: CTRSH, DETOT, ETHRE, ETOT, POTNUC, WLEV
 logical(kind=iwp) :: LWSP
-character(len=LenIn8) :: BNAME(MXBAS)
+character(len=LenIn+8) :: BNAME(MXBAS)
 integer(kind=iwp), allocatable :: INDX(:), ISAB(:), JSY(:), ICASE(:)
 
 public :: BNAME, CTRSH, DETOT, ETHRE, ETOT, IAD25S, IADABCI, IADDP, ICASE, ICH, ICONV, ICPF, IDENS, IDIIS, IFIRST, ILIM, INCPF, &

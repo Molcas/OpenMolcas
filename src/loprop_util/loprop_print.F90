@@ -11,14 +11,14 @@
 
 subroutine LoProp_Print(rMP,nij,nAtoms,Q_Nuc,LblCnt,lSave)
 
-use Molcas, only: LenIn, LenIn1, LenIn4
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nij, nAtoms
 real(kind=wp), intent(in) :: rMP(nij), Q_Nuc(nAtoms)
-character(len=LenIn4), intent(in) :: LblCnt(nAtoms)
+character(len=LenIn+4), intent(in) :: LblCnt(nAtoms)
 logical(kind=iwp), intent(in) :: lSave
 integer(kind=iwp) :: i, iAtom, iEnd, ij, Inc, iPL, iSt, mAtoms
 character(len=120) :: Banner_Line(3)
@@ -64,7 +64,7 @@ mAtoms = 0
 ij = 0
 do iAtom=1,nAtoms
   ij = iAtom*(iAtom+1)/2
-  if ((LblCnt(iAtom)(LenIn1:LenIn4) == ':E  ') .or. (LblCnt(iAtom)(LenIn1:LenIn4) == '    ')) then
+  if ((LblCnt(iAtom)(LenIn+1:LenIn+4) == ':E  ') .or. (LblCnt(iAtom)(LenIn+1:LenIn+4) == '    ')) then
     mAtoms = mAtoms+1
     Q_Charge(mAtoms) = Q_nuc(iAtom)
     E_Charge(mAtoms) = rMP(ij)

@@ -33,7 +33,7 @@ subroutine Charge_GRID_IT(nSym,nBas,CMO,nCMO,OCCN,iDoIt,long_prt)
 !***********************************************************************
 
 use OneDat, only: sNoOri
-use Molcas, only: LenIn8
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -45,7 +45,7 @@ logical(kind=iwp), intent(in) :: long_prt
 integer(kind=iwp) :: iCase, iComp, iOpt, iOrb, iRc, iSyLbl, iSym, jOcc, MxTyp, nNUC, nTot1
 character(len=8) :: Label
 real(kind=wp), allocatable :: QQ(:), S(:), Xocc(:)
-character(len=LenIn8), allocatable :: UBName(:)
+character(len=LenIn+8), allocatable :: UBName(:)
 
 MxTyp = 0
 nTot1 = 0
@@ -54,7 +54,7 @@ do iSym=1,nSym
   nTot1 = nTot1+nBas(iSym)*(nBas(iSym)+1)/2
 end do
 call mma_allocate(UBName,MxTyp,label='UBName')
-call Get_cArray('Unique Basis Names',UBName,LenIn8*MxTyp)
+call Get_cArray('Unique Basis Names',UBName,(LenIn+8)*MxTyp)
 call mma_allocate(Xocc,MxTyp,label='XOCC')
 call Get_iScalar('Unique atoms',nNUC)
 call mma_allocate(QQ,MxTyp*nNuc,label='QQ')

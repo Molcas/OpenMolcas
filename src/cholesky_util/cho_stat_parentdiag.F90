@@ -21,7 +21,7 @@ subroutine Cho_Stat_ParentDiag()
 !          symmetry!
 
 use Cholesky, only: InfVec, LuPri, nBasT, nnBstRT, nSym, NumCho, NumChT
-use Molcas, only: LenIn, LenIn8, MxBas
+use Molcas, only: LenIn, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -32,7 +32,7 @@ integer(kind=iwp) :: i, i1, i2, iA, iAt, iAt0, iAt1, iAt2, iAtA, iAtB, iAtom, iB
                      nBatch, nChk, nPseudo, nTot1, nTot2
 real(kind=wp) :: R, Ratio(numAt), Rave, RClass(3), Rmax, Rmin
 logical(kind=iwp) :: Debug
-character(len=LenIn8) :: AtomLabel(MxBas)
+character(len=LenIn+8) :: AtomLabel(MxBas)
 integer(kind=iwp), allocatable :: iBF2Atom(:), mapRS2F(:,:), nBas_per_Atom(:), nBas_Start(:), nPC1(:)
 real(kind=wp), allocatable :: Coord(:,:), RC2(:)
 character(len=*), parameter :: SecNam = 'Cho_Stat_ParentDiag'
@@ -67,7 +67,7 @@ call Get_iScalar('Pseudo atoms',nPseudo)
 ! Get atomic labels and basis function labels.
 ! --------------------------------------------
 
-call Get_cArray('Unique Basis Names',AtomLabel,LenIn8*nBasT)
+call Get_cArray('Unique Basis Names',AtomLabel,(LenIn+8)*nBasT)
 
 ! Allocate and get index arrays for indexation of basis functions on
 ! each atom.

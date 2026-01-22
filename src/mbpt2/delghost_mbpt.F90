@@ -13,7 +13,7 @@ subroutine DelGHOST_MBPT()
 
 use MBPT2_Global, only: CMO, CMO_Internal, DelGhost, EOrb, nBas, nDsto, nnB, Thr_ghs
 use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
-use Molcas, only: LenIn8
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: i, iLen, irc, iStart, iStart_t, iSym, nUniqAt, nZero(8)
 real(kind=wp), allocatable :: CMO_t(:), EOrb_t(:)
-character(len=LenIn8), allocatable :: UBName(:)
+character(len=LenIn+8), allocatable :: UBName(:)
 logical(kind=iwp), parameter :: Debug = .false.
 
 if (.not. DelGHOST) return
@@ -56,7 +56,7 @@ write(u6,'(A,8I4)') ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
 call Get_iScalar('Unique atoms',nUniqAt)
 call mma_allocate(UBName,nnB,label='UBName')
-call Get_cArray('Unique Basis Names',UBName,LenIn8*nnB)
+call Get_cArray('Unique Basis Names',UBName,(LenIn+8)*nnB)
 call Delete_GHOSTS(irc,nSym,nBas,nFro,nOcc,nZero,nExt,nDel,UBName,nUniqAt,thr_ghs,.false.,CMO_t,EOrb_t)
 call mma_deallocate(UBName)
 

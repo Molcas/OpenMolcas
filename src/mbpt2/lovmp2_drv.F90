@@ -24,7 +24,7 @@ use MBPT2_Global, only: nBas
 use ChoMP2, only: EOSMP2, shf, Wref, XEMP2
 use OneDat, only: sNoNuc, sNoOri
 use cOrbInf, only: nDel, nExt, nFro, nOcc, nSym
-use Molcas, only: LenIn, LenIn8, MxBas
+use Molcas, only: LenIn, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -45,7 +45,7 @@ logical(kind=iwp) :: ortho
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: iD_vir(:)
 real(kind=wp), allocatable :: EOrb(:,:), LCMO(:,:), S(:), Saa(:), SQ(:), X(:)
-character(len=LenIn8), allocatable :: UBName(:)
+character(len=LenIn+8), allocatable :: UBName(:)
 real(kind=wp), external :: ddot_
 
 irc = 0
@@ -82,7 +82,7 @@ if (nxBasT > mxBas) then
 end if
 
 call mma_allocate(UBName,nxBasT,label='UBName')
-call Get_cArray('Unique Basis Names',UBName,(LenIn8)*nxBasT)
+call Get_cArray('Unique Basis Names',UBName,(LenIn+8)*nxBasT)
 
 !----------------------------------------------------------------------*
 !     Read the overlap matrix                                          *

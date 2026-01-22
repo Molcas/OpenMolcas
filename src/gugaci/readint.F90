@@ -406,7 +406,7 @@ end subroutine readtwoeint
 
 subroutine readtraonehead(nft,ecor,idisk)
 
-use Molcas, only: LenIn8, MaxBfn
+use Molcas, only: LenIn, MaxBfn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -416,7 +416,7 @@ real(kind=wp), intent(out) :: ecor
 integer(kind=iwp), intent(out) :: idisk
 integer(kind=iwp) :: idum(1), lenrd, nbas(8), ncone(64), ndel(8), nfro(8), norb(8)
 real(kind=wp) :: dum(1)
-character(len=LenIn8), allocatable :: bsbl(:)
+character(len=LenIn+8), allocatable :: bsbl(:)
 
 idisk = 0
 call idafile(nft,2,ncone,64,idisk)
@@ -429,7 +429,7 @@ call idafile(nft,2,norb,8,idisk)
 call idafile(nft,2,nfro,8,idisk)
 call idafile(nft,2,ndel,8,idisk)
 call mma_allocate(bsbl,maxbfn,label='bsbl')
-lenrd = LenIn8*maxbfn
+lenrd = (LenIn+8)*maxbfn
 call cdafile(nft,2,bsbl,lenrd,idisk)
 call mma_deallocate(bsbl)
 
