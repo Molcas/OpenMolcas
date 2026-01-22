@@ -259,9 +259,9 @@ C
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: terse, usual
       use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecX
+      use caspt2_module, only: MxCase, MaxIt, rNorm, ThrConv
       IMPLICIT NONE
 
-#include "caspt2.fh"
 
       INTEGER ICONV
 
