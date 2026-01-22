@@ -26,8 +26,8 @@
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
       use SysDef, only: RtoB
+      use caspt2_module, only: nConf, nActEl, nSym, STSym, EPSA, Mul
       IMPLICIT NONE
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       LOGICAL, External:: RSV_TSK
@@ -820,6 +820,7 @@ C
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use gugx, only: SGS, LEVEL
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION DF1(NASHT,NASHT),DF2(NASHT,NASHT,NASHT,NASHT),DF3(*)
       DIMENSION G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
@@ -830,7 +831,6 @@ C
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
 #include "pt2_guga.fh"
-#include "caspt2.fh"
 
       LOGICAL RSV_TSK
       Integer :: nLev

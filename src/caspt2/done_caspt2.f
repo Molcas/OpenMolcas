@@ -36,12 +36,15 @@
 *                                                                      *
 ************************************************************************
 
+      use definitions, only: iwp, wp
+      use Constants, only: Zero, Two
+      use caspt2_module, only: nSym, nBas
       Implicit Real*8 (A-H,O-Z)
+      real(kind=wp), intent(in):: CMO(*) , OCC(*)
+      real(kind=wp), intent(out):: D(*)
 
-      Dimension CMO(*) , OCC(*) , D(*)
-
-
-#include "caspt2.fh"
+      integer(kind=iwp) iOff1, iOff2, iOff3, iSym, iBas, i, ii, j
+      real(kind=wp) :: Sum
 
       iOff1 = 0
       iOff2 = 0
@@ -52,13 +55,13 @@
           Do i = 1,iBas
             ii = (i*i-i)/2
             Do j = 1,i
-              Sum = 0.0d0
+              Sum = Zero
               Do k = 1,iBas
                 Sum = Sum + OCC(iOff3+k)
      &                    * CMO(iOff1+(k-1)*iBas+i)
      &                    * CMO(iOff1+(k-1)*iBas+j)
               End Do
-              D(iOff2+ii+j) = 2.0d0*Sum
+              D(iOff2+ii+j) = Two*Sum
               If (j.eq.i) D(iOff2+ii+j) = Sum
             End Do
           End Do
@@ -68,5 +71,4 @@
         iOff3 = iOff3 + iBas
       End Do
 
-      Return
-      End
+      End Subroutine Done_CASPT2

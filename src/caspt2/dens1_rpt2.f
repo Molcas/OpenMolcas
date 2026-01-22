@@ -25,9 +25,10 @@
       use PrintLevel, only: debug
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: DMRG, iSCF, jState, nActEl, nAshT, STSym,
+     &                         Mul, mState
       IMPLICIT NONE
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
