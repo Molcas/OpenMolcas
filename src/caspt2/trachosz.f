@@ -17,12 +17,13 @@
       use caspt2_global, only: do_grad
       use stdalloc, only: mma_MaxDBLE
       use caspt2_global, only: LUDRA, LUDRATOT
-      use EQSOLV
-      use ChoCASPT2
+      use ChoCASPT2, only: MxCharR, MxNVC, nChSpc, nFtSpc, nHtSpc,
+     &                     nKsh, NumCho_pt2, nPsh
+      use caspt2_module, only: nBasT, nBatch_tot, nJSct, nSym, mul,
+     &                         nBas, nFro, nBtches, nBtch, nIsh, nAsh
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "warnings.h"
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

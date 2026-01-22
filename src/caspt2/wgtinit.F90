@@ -16,10 +16,10 @@ subroutine wgtinit(H)
   use caspt2_global,only:iPrGlb
   use PrintLevel, only: debug, verbose
   use caspt2_global, only: DWGT
+  use caspt2_module, only: nState, DWType, IfDW, IfXMS, Zeta
 
   implicit none
 
-#include "caspt2.fh"
 
   Real(kind=wp),intent(in) :: H(nState,nState)
 

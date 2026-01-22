@@ -15,8 +15,17 @@
 *
 ************************************************************************
       use caspt2_global, only: NTAT, NTORB, NPREF, NDREF
+      use caspt2_module, only: iSCF, iSpin, MxAct, MxExt, MxIna, MxOrb,
+     &                         nActEl, nAmx, nAshT, nBasT, nBMx, nBSqT,
+     &                         nBTri, nDelT, nIMx, nInaBx, nIshT, nOMx,
+     &                         nOrbT, nOshT, nOSqT, nOTri, nRas1T,
+     &                         nRas2T, nRas3T, nSecBx, nSMx, nSshT,
+     &                         nSym, nIes, nAes, nSes, nOsh, nFroT,
+     &                         nAsh, nSsh, nDel, nOrb, nIsh, nFro,
+     &                         nRas1, nRas2, nRas3, nBas, OrbNam,
+     &                         IINAIS, IINAM, iActIS, IANAM, iExtIS,
+     &                         iiSym, iaSym, ieSym, ISNAM
       implicit none
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       Integer NASHT2

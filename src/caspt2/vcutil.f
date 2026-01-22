@@ -19,10 +19,10 @@
       SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT)
       use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VSCT(*)
 
-#include "caspt2.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
