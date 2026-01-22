@@ -23,9 +23,8 @@
       use InputData, only: Input
       use constants, only: Zero, One
       use ChoMP2, only: DeMP2, MP2_small, shf
-      use stdalloc, only: mma_allocate, mma_deallocate
       use Molcas, only: MxBas
-      Implicit None
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
       Integer(kind=iwp), intent(out):: irc
       Integer(kind=iwp), intent(in):: nSym

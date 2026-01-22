@@ -21,10 +21,10 @@ subroutine Cho_Stat_ParentDiag()
 !          symmetry!
 
 use Cholesky, only: InfVec, LuPri, nBasT, nnBstRT, nSym, NumCho, NumChT
+use Molcas, only: LenIn, LenIn8, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, MxBas, LenIn
 
 implicit none
 integer(kind=iwp), parameter :: numAt = 6

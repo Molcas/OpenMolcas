@@ -42,7 +42,7 @@
      &                 Do_SK, SaveDens, MLTPLT, NPROP
       use cntrl, only: LuExc, LuOne, LuTDM
       use rassi_data, only: NBASF,NBSQ,NBST,NTDMZZ
-      use rasdim, only: MxRoot
+      use Molcas, only: MxRoot
 
 
       IMPLICIT None

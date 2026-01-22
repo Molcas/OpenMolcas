@@ -18,7 +18,7 @@
       use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
       use output_ras, only: LF
       use general_data, only: NSYM,NASH,NBAS,NDEL,NFRO,NISH
-      use rasdim, only: LenIn8, LenIn
+      use Molcas, only: LenIn, LenIn8
       Implicit None
 
       Character(LEN=*) VecTit

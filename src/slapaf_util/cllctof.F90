@@ -26,9 +26,9 @@ subroutine CllCtoF(Strng,nCntr,mCntr,xyz,Temp,Ind,Typ,qMss,Lbl)
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Coor, dMass
+use Molcas, only: LenIn, LenIn1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn1
 
 implicit none
 character(len=*), intent(in) :: Strng

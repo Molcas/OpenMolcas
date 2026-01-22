@@ -94,9 +94,9 @@ end subroutine fmsym_release_context
 subroutine fmsym_set_ele_orb(ctx,nAtoms,Coord)
 
 use, intrinsic :: iso_c_binding, only: c_ptr
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn
 
 implicit none
 type(c_ptr), intent(inout) :: ctx

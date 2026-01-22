@@ -11,9 +11,9 @@
 
 module InfSCF
 
+use Molcas, only: LenIn, LenIn8, MxSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym, LenIn8, LenIn
 
 implicit none
 private

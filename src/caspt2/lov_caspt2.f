@@ -28,9 +28,9 @@
 ************************************************************************
       use definitions, only: iwp, wp, u6
       use OneDat, only: sNoNuc, sNoOri
+      use Molcas, only: LenIn, LenIn8, MxAtom, MxBas
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Molcas, only: MxAtom, LenIn, LenIn8, MxBas
       Implicit None
       integer(kind=iwp), intent(out):: irc
       integer(kind=iwp), intent(in)::  nSym

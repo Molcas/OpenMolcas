@@ -39,9 +39,10 @@ use ccsort_global, only: cckey, clopkey, fullprint, IADR15, iokey, IPT2, ISCF, I
                          luna4, lunab, lunda1, lunda2, lunpublic, lunt3, NACTEL, NASH, NASHT, NBAS, NCONF, NDEL, ndelr, nDelX, &
                          NELE3, NFRO, nfror, nFroX, NHOLE1, NISH, NISHT, noop, NORB, NROOTS, NSSH, NSSHT, NSYM, t3key, zrkey
 use spool, only: SpoolInp, Close_LuSpool
+use Molcas, only: LenIn8, MxOrb, MxRoot
+use RASDim, only: MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use rasdim, only: MxRoot, MxTit, LenIn8, MxOrb
 
 implicit none
 logical(kind=iwp), intent(out) :: run_triples, run_sort

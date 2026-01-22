@@ -39,7 +39,8 @@
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: WFTYPE,NASH,NSSH,NDEL,NOSH,NASH,NISH,NFRO,
      &                      NBASF,NDEL,NFRO,NISH
-      use rasdim, only: MxSym, MxRoot, LENIN8, MxOrb, MxTit, MxIter
+      use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+      use RASDim, only: MxIter, MxTit
 
       IMPLICIT NONE
 #ifdef _HDF5_
@@ -731,7 +732,8 @@ C Where is the CMO data set stored?
      &                 NBAS1,NRS11,NRS21,NRS31,LROT1,NROOT1,IROOT1,
      &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
       use cntrl, only: iTOC15, LuIph
-      use rasdim, only: MxRoot, LenIn8, MxOrb, MxTit, MxSym
+      use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+      use RASDim, only: MxTit
 
       IMPLICIT NONE
 #ifdef _HDF5_

@@ -9,14 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module Cntrl
-use rasdim, only: mxRef,mxIter,mxCiIt,mxSxIt,mxTit
-use Molcas, only: MaxBfn,MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, mxact, mxina, mxbas, mxOrb, &
-                  mxSym, mxGAS, LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
-! The paramaters defined in module rasdin should be private
-Private mxRef,mxIter,mxCiIt,mxSxIt,mxTit
-! The paramaters defined in module Molcas should be private
-Private MaxBfn,MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, mxact, mxina, mxbas, mxOrb, &
-        mxSym, mxGAS, LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
+use Molcas, only: LenIn, LenIn8, MxAtom, MxOrb, MxRoot
+use RASDim, only: mxTit
+! The parameters defined in module RASDim should be private
+Private mxTit
+! The parameters defined in module Molcas should be private
+Private LenIn, LenIn8, MxAtom, MxOrb, MxRoot
 
   INTEGER, PARAMETER :: MXJOB=100,MXPROP=30000
   INTEGER, PARAMETER :: MXDISP=500

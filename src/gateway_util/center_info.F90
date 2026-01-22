@@ -13,8 +13,8 @@
 
 module Center_Info
 
-use Definitions, only: iwp
 use Molcas, only: LenIn4, MxAtom
+use Definitions, only: iwp
 
 implicit none
 private
@@ -63,8 +63,8 @@ contains
 !***********************************************************************
 !
 ! This to make either the initial allocation of dc according to the default sizes
-! as defined by the parameters in Molcas.F90 or according to the actual sizes as recorded on the
-! run file.
+! as defined by the parameters in the Molcas module or according to the actual sizes as recorded
+! on the run file.
 
 subroutine Center_Info_Init()
 

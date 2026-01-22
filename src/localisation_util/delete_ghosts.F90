@@ -22,10 +22,10 @@ subroutine Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,nUniqAt,Th
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn, LenIn8, MxAtom, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn8, MxAtom, MxBas
 
 implicit none
 integer(kind=iwp), intent(out) :: irc

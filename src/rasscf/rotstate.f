@@ -17,7 +17,8 @@
       use PrintLevel, only: DEBUG,USUAL
       use output_ras, only: LF,IPRLOC
       use general_data, only: JOBIPH,NCONF
-      use rasdim, only: MxIter, MxRoot
+      use Molcas, only: MxRoot
+      use RASDim, only: MxIter
       Implicit None
 
 

@@ -28,8 +28,8 @@
 
 function Clean_BName(BName,Offset)
 
-use Definitions, only: iwp
 use Molcas, only: LenIn8
+use Definitions, only: iwp
 
 implicit none
 character(len=LenIn8) :: Clean_BName

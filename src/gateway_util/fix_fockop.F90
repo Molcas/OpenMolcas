@@ -38,10 +38,10 @@ use Isotopes, only: PTab
 use Index_Functions, only: nTri_Elem1
 use define_af, only: iTabMx
 use Integral_interfaces, only: prm_kernel
+use Molcas, only: MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Six, Eight, Ten, Twelve
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxAtom, Mxdbsc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd

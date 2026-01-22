@@ -25,9 +25,9 @@ use rctfld_module, only: lrf
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+use RASDim, only: MxTit
 use Definitions, only: wp, iwp, u6
-!use rasdim, only: MxTit, LenIn8, MxRoot, MxSym
-use rasdim
 
 implicit none
 logical(kind=iwp), intent(in) :: dscf
@@ -40,7 +40,7 @@ character(len=LenIn8*mxOrb) :: lJobH1
 character(len=72) :: JobTit(mxTit), ReadStatus
 character(len=2*72) :: lJobH2
 #ifdef _HDF5_
-integer(kind=iwp) :: mh5id, NBAS_L(8), nsym_l
+integer(kind=iwp) :: mh5id, NBAS_L(MxSym), nsym_l
 character, allocatable :: typestring(:)
 #endif
 integer(kind=iwp), external :: isFreeUnit

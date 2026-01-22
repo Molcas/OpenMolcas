@@ -23,9 +23,9 @@ subroutine RdCmo_motra(CMO,Ovlp)
 #include "intent.fh"
 
 use motra_global, only: FnInpOrb, FnJobIph, iortho, iVecTyp, LuInpOrb, LuJobIph, MxTit, nBas, nDel, nSym, nTot2, VecTit
+use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
 
 implicit none
 real(kind=wp), intent(_OUT_) :: CMO(*)

@@ -11,14 +11,13 @@
 
 module mrci_global
 
+use TraToc, only: nTraBuf
+use Molcas, only: LenIn8, MxBas, MxOrb, MxRoot
 use Constants, only: Two, Half
 use Definitions, only: wp, iwp
-use TraToc, only: nTraBuf
-use Molcas, only: MxOrb, MxRoot, MxBas, LenIn8
 
 implicit none
 private
-
 
 integer(kind=iwp), parameter :: IDVER = 1, IVVER = 0, MCHAIN = 40000, MXPROP = 30, MXREF = 1000, MXVEC = 50, MXZ = 4*MXROOT, &
                                 NSECT = 256, NSRTMX = nTraBuf

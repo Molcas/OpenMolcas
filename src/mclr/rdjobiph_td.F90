@@ -31,10 +31,11 @@ use MCLR_Data, only: CMO, FnJob, G1t, G2sq, G2t, LuJob, nA, nNA
 use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iSpin, iTOC, iTocIph, lRoots, nActEl, nAsh, nBas, nCOnf, nDel, nElec3, nFro, &
                       nHole1, nIsh, nOrb, nRoots, nRS1, nRS2, nRS3, nSym, ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, &
                       ntISqr, ntITri, State_Sym, TitleJP, Weight
+use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
-use rasdim, only: LenIn8, MxIter, MxOrb, MxRoot, MxSym, MxTit
 
 implicit none
 real(kind=wp), allocatable, intent(out) :: CIVec(:,:)

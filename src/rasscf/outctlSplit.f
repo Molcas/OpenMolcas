@@ -49,7 +49,7 @@
      &                        NISH,NRS1,NRS2,NRS3,NSSH,NTOT,NTOT2
       use spinfo, only: NCSASM,NDTASM
       use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
-      use rasdim, only: MxRoot
+      use Molcas, only: MxRoot
 
       Implicit None
 

@@ -40,8 +40,8 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use TwoDat, only: AuxTwo, isBas, isDAdr, isMxDa, isOrd, isPkPa, isPkTh, isSkip, isSym, nBatch, rcTwo, TocTwo
 use Pack_mod, only: isPack, PkThrs
-use Definitions, only: iwp
 use Molcas, only: MxBas, MxOrb
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: rc, nSym, nBas(0:7), nSkip(0:7)

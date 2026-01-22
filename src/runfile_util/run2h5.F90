@@ -27,9 +27,9 @@ subroutine run2h5_molinfo(fileid)
 !   DESYM_MATRIX, PRIMITIVE_IDS, PRIMITIVES
 
 use mh5, only: mh5_close_dset, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, mh5_init_attr, mh5_put_dset
+use Molcas, only: LenIn, LenIn4
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn, LenIn4
 
 implicit none
 integer(kind=iwp), intent(in) :: fileid

@@ -24,10 +24,10 @@ subroutine PrGrad_pcm(Label,Grad,nGrad,iPrint)
 
 use Symmetry_Info, only: lIrrep
 use Disp, only: ChDisp
+use Molcas, only: LenIn5, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn5, MxAtom
 
 implicit none
 character(len=*), intent(in) :: Label

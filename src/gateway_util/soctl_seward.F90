@@ -20,10 +20,10 @@ use Gateway_global, only: Primitive_Pass
 use Sizes_of_Seward, only: S
 use define_af, only: iTabMx
 use PrintLevel, only: nPrint, Show
+use Molcas, only: LenIn, LenIn1, LenIn4, LenIn8, MaxBfn, MaxBfn_aux, MxAO, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn4, LenIn8, LenIn, LenIn1, MaxBfn, MaxBfn_aux, MxAO, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: nMamn

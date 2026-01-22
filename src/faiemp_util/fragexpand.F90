@@ -29,10 +29,10 @@ subroutine FragExpand(LuRd)
 use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
 use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
+use Molcas, only: LenIn2, MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn2, MxAtom, Mxdbsc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd

@@ -16,8 +16,9 @@ subroutine rdjobiph_cvb(fnjob)
 
 use jobiph_j, only: iadr15_j, iroot_j, ispin_j, lroots_j, lsym_j, nactel_j, nash_j, nbas_j, nconf_j, ndel_j, nelec3_j, nfro_j, &
                     nhole1_j, nish_j, nroots_j, nrs1_j, nrs2_j, nrs3_j, nsym_j, title_j, weight_j
+use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+use RASDim, only: MxTit
 use Definitions, only: wp, iwp, u6
-use rasdim, only: LenIn8, MxOrb, MxRoot, MxSym, MxTit
 
 implicit none
 character(len=*), intent(in) :: fnjob

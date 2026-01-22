@@ -82,8 +82,9 @@
       use general_data, only: CleanMask
       use PrintLevel, only: DEBUG,TERSE,VERBOSE
       use output_ras, only: LF,IPRGLB,IPRLOC
+      use Molcas, only: LenIn8, MaxBfn, MxOrb, MxRoot, MxSym
+      use RASDim, only: MxTit
       use Definitions, only: RtoI
-      use rasdim, only: MxOrb, LenIn8, MxTit, MaxBfn, MxRoot, MxSym
 
       implicit none
 

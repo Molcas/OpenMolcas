@@ -123,9 +123,8 @@
      &                  ISPEED,NGSSH_MOLCAS
       use spinfo, only: DOBKAP,NGASBK,IOCCPSPC
       use DWSol, only: DWSol_DWRO
-      use rasdim, only: MxTit, LenIn8, MxAct, MxGas, MxRef, MxRoot,
-     &                  MxSym, MxOrb
-
+      use Molcas, only: LenIn8, MxAct, MxGAS, MxOrb, MxRoot, MxSym
+      use RASDim, only: MxRef, MxTit
 
       Implicit None
 #include "warnings.h"

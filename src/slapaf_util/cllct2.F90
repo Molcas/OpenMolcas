@@ -24,10 +24,10 @@ subroutine Cllct2(Strng,Vector,dVector,Val,nAtom,nCntr,mCntr,xyz,Grad,Ind,Typ,qM
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Cx, dMass
 use PrintLevel, only: nPrint
+use Molcas, only: LenIn, LenIn5, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn5, MxAtom
 
 implicit none
 character(len=*), intent(in) :: Strng

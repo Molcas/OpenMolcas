@@ -11,8 +11,8 @@
 
 module Disp
 
+use Molcas, only: LenIn6, MxAtom
 use Definitions, only: wp, iwp
-use Molcas, only: MxAtom, LenIn6
 
 implicit none
 private

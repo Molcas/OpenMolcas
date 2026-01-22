@@ -11,6 +11,7 @@
 ! Copyright (C) 2004, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine OutOfPlane_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,rMult,LuIC,Indq,iPrv,Proc_dB,iTabBonds, &
                            nBonds,iTabAI,mAtoms,iTabAtoms,nMax,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
 !***********************************************************************
@@ -21,10 +22,9 @@ subroutine OutOfPlane_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fc
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, vdW_Bond
 use ddvdt, only: aAV, f_Const_Min, rAV, rko
+use Molcas, only: LenIn4
 use Constants, only: Zero, Pi, deg2rad
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn4
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

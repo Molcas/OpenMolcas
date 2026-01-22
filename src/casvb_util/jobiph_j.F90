@@ -11,12 +11,11 @@
 
 module Jobiph_J
 
+use Molcas, only: MxRoot, MxSym
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym, MxRoot
 
 implicit none
 private
-
 
 integer(kind=iwp) :: iadr15_j(15), iroot_j(mxroot), ispin_j, lroots_j, lsym_j, nactel_j, nash_j(mxsym), nbas_j(mxsym), nconf_j, &
                      ndel_j(mxsym), nelec3_j, nfro_j(mxsym), nhole1_j, nish_j(mxsym), nroots_j, nrs1_j(mxsym), nrs2_j(mxsym), &

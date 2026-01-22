@@ -11,10 +11,10 @@
 
 subroutine GF_Print(EVal,EVec,dDipM,iel,nDoF,nDim,ictl,IRInt,RedM,Lu_10,iOff)
 
+use Molcas, only: LenIn6
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, Four, aTokg, cLight, diel, elcharge, rNAVO
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn6
 
 implicit none
 integer(kind=iwp), intent(in) :: iel, nDoF, nDim, ictl, Lu_10, iOff

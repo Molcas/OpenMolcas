@@ -15,10 +15,10 @@ subroutine One_CHARGE(NSYM,NBAS,UBNAME,CMO,OCCN,SMAT,iCase,FullMlk,MxTyp,QQ,nNuc
 
 use UnixInfo, only: ProgName
 use define_af, only: AngTp, iTabMx
+use Molcas, only: LenIn, LenIn1, LenIn4, LenIn8, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, LenIn4, Lenin, Lenin1, MxBas
 
 implicit none
 integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase, MxTyp, nNuc

@@ -13,10 +13,10 @@ subroutine Annihil_rho(Dmat,nBas)
 
 #include "intent.fh"
 
+use Molcas, only: LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 real(kind=wp), intent(_OUT_) :: Dmat(*)

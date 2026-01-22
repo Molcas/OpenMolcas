@@ -19,9 +19,9 @@ subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Array PACol introduced in argument list.
 
+use Molcas, only: LenIn, LenIn8
 use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: nBasis, nAtoms, nOrb2Loc, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)

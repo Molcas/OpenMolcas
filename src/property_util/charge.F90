@@ -17,10 +17,10 @@ subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 use SpinAV, only: Do_SpinAV, DSc
 use UnixInfo, only: ProgName
 use define_af, only: AngTp, iTabMx
+use Molcas, only: LenIn, LenIn1, LenIn4, LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn4, LenIn8, LenIn1
 
 implicit none
 integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase

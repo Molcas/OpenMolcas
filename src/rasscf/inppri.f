@@ -73,7 +73,7 @@
       use spinfo, only: DoComb,NCNFTP,NCSASM,NDTASM,NDTFTP
       use spinfo, only: I_ELIMINATE_GAS_MOLCAS,NCSF_HEXS
       use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
-      use rasdim, only: MxRef
+      use RASDim, only: MxRef
 
       Implicit None
       Logical lOPTO

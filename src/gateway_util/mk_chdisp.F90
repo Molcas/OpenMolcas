@@ -28,9 +28,9 @@ subroutine Mk_ChDisp()
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Molcas, only: LenIn4, LenIn6
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
-use Molcas, only: LenIn6, LenIn4
 
 implicit none
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iDisp, iIrrep, mc, mdc, mDisp, nCnttp_Valence, nDisp(0:7)

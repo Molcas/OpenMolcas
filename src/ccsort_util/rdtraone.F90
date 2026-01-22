@@ -18,9 +18,9 @@ subroutine RdTraOne()
 !***********************************************************************
 
 use ccsort_global, only: nBasX, nDelX, nFroX, nSymX
+use Molcas, only: LenIn8, MxOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn8, MxOrb
 
 implicit none
 integer(kind=iwp) :: iDisk, LuTraOne, nOrbX(8), TocTraOne(64)

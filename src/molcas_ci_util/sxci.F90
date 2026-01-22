@@ -11,8 +11,8 @@
 
 module sxci
 
-use Definitions, only: iwp
 use Molcas, only: MxAct
+use Definitions, only: iwp
 
 implicit none
 private

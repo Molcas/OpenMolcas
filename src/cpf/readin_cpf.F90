@@ -19,10 +19,10 @@ use cpf_global, only: BNAME, CTRSH, ETHRE, ETOT, ICASE, ICH, ICONV, ICPF, IFIRST
                       IROW, ISAB, ISC, ISDCI, ISMAX, ITOC17, IV0, IV1, JJS, JSY, LN, LSYM, Lu_CIGuga, Lu_TraOne, LWSP, MAXIT, &
                       MAXITP, N, NASH, NBAS, NFRO, NISH, NORB, NORBT, NPFRO, NREF, NSM, NSYM, NVIR, NVIRT, POTNUC, WLEV
 use guga_util_global, only: IAD10, nIOCR
+use Molcas, only: LenIn8, MxOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
-use Molcas, only: LenIn8, MxOrb
 
 implicit none
 integer(kind=iwp), parameter :: mxTit = 10

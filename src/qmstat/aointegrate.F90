@@ -12,10 +12,10 @@
 subroutine AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,AOint,oV2,N,lmax,Inside)
 
 use qmstat_global, only: CasOri, Cordst, iOrb, iPrint, iQn, nCent, nCnC_C, SavOri, V3
+use Molcas, only: LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, N, lmax

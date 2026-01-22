@@ -27,10 +27,10 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, lIrrep
 use Sizes_of_Seward, only: S
 use UnixInfo, only: SuperName
+use Molcas, only: LenIn, LenIn8, MaxBfn, MaxBfn_aux, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, LenIn, MaxBfn, MaxBfn_aux, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: iUHF

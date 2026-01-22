@@ -19,10 +19,10 @@ subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,BName,nBas,nOrb2Loc,nFr
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
 
 use OneDat, only: sNoOri
+use Molcas, only: LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 real(kind=wp), intent(out) :: Functional

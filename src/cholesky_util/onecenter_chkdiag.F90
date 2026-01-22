@@ -15,9 +15,9 @@
 subroutine OneCenter_ChkDiag(Diag,l_D,Stat,DoPrint)
 
 use Cholesky, only: iRS2F, nBasT, nnBstRT
+use Molcas, only: LenIn, LenIn8, MaxBfn
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn8, MaxBfn
 
 implicit none
 integer(kind=iwp), intent(in) :: l_D

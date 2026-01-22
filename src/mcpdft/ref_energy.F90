@@ -19,10 +19,11 @@ use general_data, only: jobiph
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 #endif
+use Molcas, only: MxRoot
+use RASDim, only: MxIter
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use rasdim, only: MxRoot, MxIter
 
 implicit none
 integer(kind=iwp), intent(in) :: nstates

@@ -15,9 +15,9 @@ subroutine Bond_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,fconst,rMult,
 use Symmetry_Info, only: nIrrep, iOper
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, iOptC, jStab, Magic_Bond, nStab, vdW_Bond
 use ddvdt, only: A_StrH, aAV, alpha_vdW, f_Const_Min, r_ref_vdW, rAV, rkr, rkr_vdW
+use Molcas, only: LenIn4
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn4
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

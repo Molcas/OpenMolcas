@@ -32,10 +32,10 @@ use Cholesky, only: Cho_1Center
 use Gateway_Info, only: CoC, CoM, DoFMM
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn, MxAtom
 
 implicit none
 integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)

@@ -24,10 +24,10 @@ use MBPT2_Global, only: nBas
 use ChoMP2, only: EOSMP2, shf, Wref, XEMP2
 use OneDat, only: sNoNuc, sNoOri
 use cOrbInf, only: nDel, nExt, nFro, nOcc, nSym
+use Molcas, only: LenIn, LenIn8, MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, LenIn, MxBas
 
 implicit none
 integer(kind=iwp), intent(out) :: irc

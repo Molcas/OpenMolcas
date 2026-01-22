@@ -14,9 +14,9 @@ subroutine Cho_SetAtomShl(irc,iAtomShl,n)
 ! Purpose: set mapping from shell to atom (i.e., center).
 
 use Cholesky, only: IPRINT, iSOShl, LuPri, nBasT, nShell, nSym
+use Molcas, only: LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
-use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: n

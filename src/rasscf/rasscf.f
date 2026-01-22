@@ -126,7 +126,8 @@
       use spinfo, only: DOBKAP
       use rasscf_global, only: IPCMROOT
       use DWSol, only: DWSolv, DWSol_final, DWSol_init
-      use rasdim, only: MxIter, MxRoot
+      use Molcas, only: MxRoot
+      use RASDim, only: MxIter
 
       Implicit None
 

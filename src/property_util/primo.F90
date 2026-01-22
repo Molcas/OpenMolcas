@@ -37,9 +37,9 @@ subroutine PRIMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,BName,Ene,Occ,C
 !                                                                      *
 !***********************************************************************
 
+use Molcas, only: LenIn, LenIn8
 use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, LenIn
 
 implicit none
 character(len=*), intent(in) :: Header

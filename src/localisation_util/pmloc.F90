@@ -48,10 +48,10 @@
 
 subroutine PMLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,nFro,nSym,Silent)
 
+use Molcas, only: LenIn8, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn8, MxAtom
 
 implicit none
 integer(kind=iwp), intent(out) :: irc

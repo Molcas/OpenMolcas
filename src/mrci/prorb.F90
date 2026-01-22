@@ -12,8 +12,8 @@
 subroutine PRORB(CNO,OCC)
 
 use mrci_global, only: BNAME, NBAS, NBAST, NCMO, NSYM, THRORB
+use Molcas, only: LenIn, LenIn8
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, LenIn
 
 implicit none
 real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST)

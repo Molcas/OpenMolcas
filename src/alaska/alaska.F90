@@ -42,10 +42,10 @@ use NAC, only: DoCSF, EDiff, isNAC
 use spool, only: Close_LuSpool
 use PCM_alaska, only: lSA, PCM_alaska_lSA, PCM_alaska_final, PCM_alaska_prep
 use PrintLevel, only: nPrint
+use Molcas, only: LenIn5, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn5, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool

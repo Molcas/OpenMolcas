@@ -21,9 +21,9 @@ subroutine Cllct(Strng,Vector,Val,nAtom,Coor,nCntr,mCntr,xyz,Temp,Ind,Typ,qMss,T
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, dMass
 use PrintLevel, only: nPrint
+use Molcas, only: LenIn, LenIn5
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn5
 
 implicit none
 character(len=*), intent(in) :: Strng

@@ -69,10 +69,10 @@ subroutine NAT_BOND_ORDER(NSYM,NBAS,BNAME,iCase)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn, LenIn4, LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, LenIn4, LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: NSYM, NBAS(*), iCase

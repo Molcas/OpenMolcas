@@ -11,9 +11,9 @@
 
 subroutine LoProp_Print(rMP,nij,nAtoms,Q_Nuc,LblCnt,lSave)
 
+use Molcas, only: LenIn, LenIn1, LenIn4
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn1, LenIn4
 
 implicit none
 integer(kind=iwp), intent(in) :: nij, nAtoms

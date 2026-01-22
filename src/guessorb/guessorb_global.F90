@@ -11,8 +11,8 @@
 
 module GuessOrb_Global
 
+use Molcas, only: LenIn, LenIn8, MxAtom, MxSym
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn, LenIn8, MxSym, MxAtom
 
 implicit none
 private
@@ -30,8 +30,8 @@ integer(kind=iwp) :: wfn_energy, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene,
 real(kind=wp) :: xCharge(MxAtom)
 #endif
 
-public :: AtName, GapThr, iPrFmt, Label, MxAtom, MxBasis, MxSym, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, PrintPop, &
-          PrThr, SThr, TThr
+public :: AtName, GapThr, iPrFmt, Label, MxBasis, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, PrintPop, PrThr, SThr, &
+          TThr
 #ifdef _HDF5_
 public :: wfn_energy, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif

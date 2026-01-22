@@ -11,10 +11,10 @@
 
 subroutine Print_T_Values(T_Values,iT_Sets,iANr,EC,Bond_Threshold,nAtoms,nij,Standard,iWarnings,Num_Warnings,iPrint)
 
+use Molcas, only: LenIn, Lenin4
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, Lenin4
 
 implicit none
 integer(kind=iwp), intent(in) :: nij, iT_Sets(nij), nAtoms, iANr(nAtoms), iWarnings(nij), Num_Warnings, iPrint

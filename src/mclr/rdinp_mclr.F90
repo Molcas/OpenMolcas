@@ -28,10 +28,11 @@ use input_mclr, only: CasInt, Debug, double, Eps, iBreak, IsPop, kPrint, lCalc, 
                       nsRot, nSym, ntPert, nUserPT, Omega, Page, RASSI, SpinPol, StepType, TimeDep, TitleIn, TwoStep, UserP, UserT
 use PCM_grad, only: RFPERT
 use cgs_mod, only: CGS
+use Molcas, only: MxAtom
+use RASDim, only: MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
-use rasdim, only: MxAtom, MxTit
 
 implicit none
 integer(kind=iwp) :: I, ICOM, ICOMP, ID, iDum(1), iMass, IOPT, IP, IPP, IRC, IRRFNC, istatus, ISYLBL, ISYM, ITIT, J, JCOM, nDiff

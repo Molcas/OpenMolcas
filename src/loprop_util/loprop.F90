@@ -22,10 +22,10 @@ subroutine LoProp(ireturn)
 
 use loprop_arrays, only: LP_context_type
 use Data_Structures, only: Allocate_DT, Alloc1DArray_Type, Deallocate_DT
+use Molcas, only: LenIn4
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn4
 
 implicit none
 integer(kind=iwp), intent(inout) :: ireturn

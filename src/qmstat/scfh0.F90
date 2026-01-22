@@ -16,10 +16,10 @@ use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, MxSymQ
 use Index_Functions, only: iTri, nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use TraToc, only: ITRATOC, NTRATOC
+use Molcas, only: LenIn8, MaxBfn
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MaxBfn, LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)

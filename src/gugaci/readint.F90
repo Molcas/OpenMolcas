@@ -406,9 +406,9 @@ end subroutine readtwoeint
 
 subroutine readtraonehead(nft,ecor,idisk)
 
+use Molcas, only: LenIn8, MaxBfn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn8, MaxBfn
 
 implicit none
 integer(kind=iwp), intent(in) :: nft

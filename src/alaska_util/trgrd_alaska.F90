@@ -26,9 +26,9 @@ use Basis_Info, only: DBSC, nCnttp
 use Center_Info, only: DC
 use Symmetry_Info, only: nIrrep
 use Disp, only: IndDsp
+use Molcas, only: LenIn5, MxAtom
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn5, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

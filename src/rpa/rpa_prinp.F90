@@ -19,9 +19,9 @@ subroutine RPA_PrInp()
 
 use RPA_globals, only: CMO, DFTFunctional, EMO, iPrint, nBas, nDel, nFro, nOcc, nOrb, nSym, nTitle, nVir, OccEn, Reference, Title, &
                        VirEn
+use Molcas, only: LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp) :: iUHF, lLine, nLine, l_orbitals, i, j, k, left, iSym, nB, l_Name, iCount

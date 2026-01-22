@@ -11,8 +11,8 @@
 
 module motra_global
 
+use Molcas, only: LenIn8, MxSym
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym, LenIn8
 
 implicit none
 private

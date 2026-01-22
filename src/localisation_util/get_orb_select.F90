@@ -12,10 +12,10 @@
 subroutine Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,BName,NamAct,nSym,nActa,mOrb,nBas,ortho,ThrSel,n_OK)
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use Molcas, only: LenIn, LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn, LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nSym, nActa, mOrb(nSym), nBas(nSym)

@@ -14,10 +14,10 @@ subroutine MoReduce(nBas,MOsToKeep)
 use qmstat_global, only: AvRed, BigT, iPrint, MxSymQ, nState, ThrsRedOcc
 use Index_Functions, only: iTri, nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)

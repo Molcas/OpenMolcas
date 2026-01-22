@@ -23,9 +23,9 @@ subroutine PrGrad(Label,Grad,nGrad)
 !***********************************************************************
 
 use Symmetry_Info, only: lIrrep
+use Molcas, only: LenIn5, MxAtom
 use Disp, only: ChDisp
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn5, MxAtom
 
 implicit none
 character(len=*), intent(in) :: Label

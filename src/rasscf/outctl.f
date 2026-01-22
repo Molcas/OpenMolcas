@@ -72,8 +72,8 @@
      &                        NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NSSH,NTOT2
       use spinfo, only: NCSASM,NDTASM
       use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
-      use rasdim, only: MxRoot, MxRef
-
+      use Molcas, only: MxRoot
+      use RASDim, only: MxRef
 
       Implicit None
 

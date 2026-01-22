@@ -17,9 +17,10 @@ program JOB2ASC
 use rasscf_global, only: BName, Header, IADR15, iPT2, iRoot, lRoots, NACPAR, NACPR2, NORBT, nRoots, NTOT3, PotNuc, Title, Weight
 use general_data, only: ispin, jobiph, nactel, nash, nbas, nconf, ndel, ndel, nelec3, nfro, nhole1, nish, norb, nrs1, nrs2, nrs3, &
                         nsym, ntot, ntot2
+use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use rasdim, only: LenIn8, MxOrb, MxRoot, MxSym, MxIter, MxTit
 
 implicit none
 integer(kind=iwp) :: FMTIPH, I, IAD15, ISYM, LSYM, NASHT, NFOCK, nHeader, nName, nTitle

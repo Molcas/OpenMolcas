@@ -30,9 +30,9 @@ use Gateway_global, only: Test, PrPrt, Primitive_Pass
 use Gateway_Info, only: Do_GuessOrb
 use Symmetry_Info, only: nIrrep
 use PrintLevel, only: nPrint, Show
+use Molcas, only: LenIn, LenIn8, MaxBfn, MaxBfn_Aux
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
-use Molcas, only: LenIn, MaxBfn_Aux, LenIn8, MaxBfn
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO

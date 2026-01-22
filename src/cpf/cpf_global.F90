@@ -11,9 +11,9 @@
 
 module cpf_global
 
+use Molcas, only: LenIn8, MxBas, MxOrb
 use Constants, only: Two
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn8, MxOrb, MxBas
 
 implicit none
 private
@@ -29,7 +29,6 @@ private
 ! Lu_CI     - CI VECTOR
 ! Lu_27     - SCRATCH IN IIJJ
 ! Lu_30
-
 
 integer(kind=iwp), parameter :: KBUFF1 = 2*9600, MADR = 20000
 real(kind=wp), parameter :: SQ2 = sqrt(Two)

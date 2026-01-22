@@ -29,10 +29,10 @@ use Sizes_of_Seward, only: S
 use Gateway_Info, only: Rtrnc
 use Symmetry_Info, only: nIrrep
 use PrintLevel, only: nPrint, Show
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: iOpt

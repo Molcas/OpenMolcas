@@ -36,10 +36,10 @@ use pso_stuff, only: No_Nuc
 use Disp, only: ChDisp, CutGrd, Dirct, Disp_Fac, HF_Force, IndDsp, IndxEQ, InxDsp, l2DI, lDisp, lEQ, Mult_Disp, nTR, TRSymm
 use NAC, only: DoCSF, EDiff, isCSF, isNAC, NACStates
 use PrintLevel, only: nPrint, Show
+use Molcas, only: MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool

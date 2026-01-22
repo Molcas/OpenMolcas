@@ -11,8 +11,8 @@
 
 module Localisation_globals
 
+use Molcas, only: LenIn, LenIn8, MxSym
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym, LenIn, LenIn8
 
 implicit none
 private
@@ -31,7 +31,6 @@ private
 ! BName   : Basis function names
 !
 ! LC_FileOrb: orbital file for Seward to read
-
 
 integer(kind=iwp) :: fileorb_id, iWave, LocModel, LuSpool, MxConstr, nActa, nAtoms, nBas(MxSym), nCMO, nConstr(MxSym), &
                      nFro(MxSym), nMxIter, nOccInp(MxSym), nOrb(MxSym), nOrb2Loc(MxSym), nSym, nVirInp(MxSym)

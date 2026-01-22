@@ -20,10 +20,10 @@ subroutine Averd(ireturn)
 
 use Averd_global, only: Wset
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn

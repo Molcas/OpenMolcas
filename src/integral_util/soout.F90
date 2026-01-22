@@ -16,8 +16,8 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iChBas, iChTbl, nIrrep
 use Real_Spherical, only: iSphCr, LblCBs, LblSBs
+use Molcas, only: LenIn, LenIn8, MaxBfn, MaxBfn_aux
 use Definitions, only: iwp
-use Molcas, only: LenIn8, MaxBfn, MaxBfn_aux, LenIn
 
 #include "intent.fh"
 

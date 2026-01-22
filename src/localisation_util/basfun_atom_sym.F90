@@ -17,9 +17,9 @@ subroutine BasFun_Atom_Sym(nBas_per_Atom,nBas_Start,BName,jBas,nBas,nAtoms,DoPri
 ! Author: Y. Carissan / T. B. Pedersen
 !         [adapted to cases with symmetry by F. Aquilante]
 
+use Molcas, only: LenIn, LenIn8
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
-use Molcas, only: LenIn, LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, jBas, nBas

@@ -11,8 +11,9 @@
 
 subroutine getIphInfo(JOBIPH,nconf,LROOTS,IADR15)
 
+use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+use RASDim, only: MxTit
 use Definitions, only: wp, iwp
-use rasdim, only: LenIn8, MxRoot, MxOrb, MxSym, MxTit
 
 implicit none
 integer(kind=iwp), intent(in) :: JOBIPH, IADR15(15)

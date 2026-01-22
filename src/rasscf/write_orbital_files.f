@@ -50,7 +50,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use PrintLevel, only: USUAL
       use output_ras, only: LF
-      use rasdim, only: LenIn8, MxIter, MxOrb, MxRoot, MxSym, MxTit
+      use Molcas, only: LenIn8, MxOrb, MxRoot, MxSym
+      use RASDim, only: MxIter, MxTit
       Implicit None
 
       integer, intent(in) :: JobIph, iPrlev

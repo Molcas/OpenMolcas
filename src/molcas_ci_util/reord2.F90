@@ -57,8 +57,8 @@ use gugx, only: CIS, EXS, SGS
 use output_ras, only: IPRLOC
 use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use PrintLevel, only: DEBUG
+use Molcas, only: MxAct
 use Definitions, only: wp, iwp, u6
-use rasdim, only: MxAct
 
 #include "intent.fh"
 

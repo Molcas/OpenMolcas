@@ -38,9 +38,9 @@ use Symmetry_Info, only: nIrrep, VarR, VarT
 use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
 use spool, only: Close_LuSpool, Spoolinp
 use PrintLevel, only: nPrint
+use Molcas, only: LenIn, LenIn8, MaxBfn, MaxBfn_aux, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn, LenIn8, MxAtom, MaxBfn, MaxBfn_aux
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn

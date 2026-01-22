@@ -13,7 +13,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: BName, IXSYM
       use general_data, only: NSYM,NBAS,NORB
-      use rasdim, only: LenIn3
+      use Molcas, only: LenIn3
 
       IMPLICIT None
       Real*8 CMO(*)

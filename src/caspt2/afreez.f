@@ -37,10 +37,9 @@
 *****************************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use definitions, only: iwp, wp, u6
-      use constants, only: Zero
+      use Molcas, only: LenIn8, MxBas
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
-      use Molcas, only: MxBas, LenIn8
       IMPLICIT None
 *
       integer(kind=iwp), intent(in):: NSYM

@@ -22,10 +22,11 @@ use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use Lucia_Interface, only: Lucia_Util
 use output_ras, only: IPRLOC, RC_CI
 use PrintLevel, only: DEBUG, USUAL
+use Molcas, only: MxRoot
+use RASDim, only: MxCIIt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use rasdim, only: MxRoot, MxCIIt
 
 implicit none
 integer(kind=iwp), intent(in) :: nDet, iSel(nSel)

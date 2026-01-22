@@ -22,10 +22,10 @@ subroutine Mk_Dummy_Shell()
 use Basis_Info, only: dbsc, iCnttp_Dummy, Max_Shells, nCnttp, Shells
 use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
+use Molcas, only: MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 use Definitions, only: iwp, u6
-use Molcas, only: MxAtom, Mxdbsc
 
 implicit none
 integer(kind=iwp) :: iShll, mdc, nCnt, nCntrc, nPrim

@@ -19,9 +19,9 @@ subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO
 !    - October 6, 2005 (Thomas Bondo Pedersen):
 !      Reduce operation count and use BLAS.
 
+use Molcas, only: LenIn, LenIn8
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8, LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_Start(nAtoms), nOrb2Loc, iMO_s, iMO_t

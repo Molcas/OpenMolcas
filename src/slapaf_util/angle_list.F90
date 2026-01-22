@@ -15,9 +15,9 @@ subroutine Angle_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, vdW_Bond
 use ddvdt, only: A_Bend, aAV, f_Const_Min, rAV, rkf
+use Molcas, only: LenIn4
 use Constants, only: Zero, One, Two, Pi, deg2rad
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn4
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
