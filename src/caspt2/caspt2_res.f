@@ -15,9 +15,9 @@ C
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_global, only: jStLag,iVecL,iVecG
       use EQSOLV
+      use caspt2_module
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 C
       DIMENSION VECROT(*)
 C
@@ -124,9 +124,9 @@ C
 #endif
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       REAL*8 DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
@@ -256,10 +256,9 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE PCG_RES(ICONV)
-      USE INPUTDATA
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: terse, usual
-      use EQSOLV
+      use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecX
       IMPLICIT NONE
 
 #include "caspt2.fh"
@@ -374,7 +373,5 @@ C---------------------
        WRITE(6,'(25A5)')('-----',I=1,25)
        WRITE(6,*)
       END IF
-
-      RETURN
 
       END SUBROUTINE PCG_RES
