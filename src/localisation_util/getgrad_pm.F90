@@ -11,20 +11,20 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug,Gradient,H_diag)
+subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Gradient,H_diag)
 ! Thomas Bondo Pedersen, December 2005.
 !
 ! Purpose: compute the gradient of the Pipek-Mezey functional.
 
 use Constants, only: Zero, Four, Eight
 use Definitions, only: wp, iwp, u6
+use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc), Gradient(nOrb2Loc, nOrb2Loc), &
                               H_diag(nOrb2Loc, nOrb2Loc)
-logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAtom, i,j,k,l
 real(kind=wp) :: Fun, Rjj, Q_ll, Q_kk, Q_kl
 

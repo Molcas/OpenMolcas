@@ -12,7 +12,7 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas_per_Atom,nBas_Start,ThrRot,PctSkp,Debug)
+subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas_per_Atom,nBas_Start,ThrRot,PctSkp)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
@@ -22,12 +22,13 @@ subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas
 use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn8, LenIn
+use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nBasis, nAtoms, nOrb2Loc, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
 real(kind=wp), intent(inout) :: cMO(nBasis,*), PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
-logical(kind=iwp), intent(in) :: Maximisation, Debug
+logical(kind=iwp), intent(in) :: Maximisation
 character(len=LenIn8), intent(in) :: BName(*)
 real(kind=wp), intent(in) :: ThrRot
 integer(kind=iwp) :: iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
@@ -123,8 +124,8 @@ do iMO1=1,nOrb2Loc-1
     Tsts = abs(sin(Gamma_rot))
     Tstc = One-abs(cos(Gamma_rot))
     if ((Tsts > ThrRot) .or. (Tstc > ThrRot)) then
-      call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot,Debug)
-      call UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,Gamma_rot,iMO_s,iMO_t,Debug)
+      call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot)
+      call UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,Gamma_rot,iMO_s,iMO_t)
       xDone = xDone+One
     end if
 

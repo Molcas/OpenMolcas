@@ -11,17 +11,17 @@
 ! Copyright (C) Yannick Carissan                                       *
 !***********************************************************************
 
-subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
+subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional)
 ! Author: Y. Carissan
 
 use Constants, only: Zero,One
 use Definitions, only: wp, iwp, u6
+use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: Functional
-logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAt, iMO_s
 logical(kind=iwp) :: eval_func = .true.
 real(kind=wp) :: thr, d_s

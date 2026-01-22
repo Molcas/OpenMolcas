@@ -12,7 +12,7 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO_t,Debug)
+subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO_t)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
@@ -22,6 +22,7 @@ subroutine UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,gamma_rot,iMO_s,iMO
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn8, LenIn
+use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_Start(nAtoms), nOrb2Loc, iMO_s, iMO_t
@@ -29,7 +30,6 @@ real(kind=wp), intent(out) :: PACol(nOrb2Loc,2)
 character(len=LenIn8), intent(in) :: BName(*)
 real(kind=wp), intent(inout) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(in) :: gamma_rot
-logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iAt
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: PA_ts, Tst

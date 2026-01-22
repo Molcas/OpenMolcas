@@ -12,7 +12,7 @@
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug,Silent)
+subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Silent)
 ! Author: Y. Carissan [modified by T.B. Pedersen].
 !
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
@@ -21,7 +21,7 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms, ScrFac
+use Localisation_globals, only: BName, nAtoms, ScrFac, Debug
 use Molcas, only: LenIn8
 
 implicit none
@@ -29,7 +29,7 @@ real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
 real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
-logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
+logical(kind=iwp), intent(in) :: Maximisation, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, kOffC, lOaux, nBasT, nFroT, nOrb2LocT
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
@@ -84,7 +84,7 @@ if (Debug) then
   call TriPrt('Overlap',' ',Oaux,nBasT)
 end if
 
-call Tri2Rec(Oaux,Ovlp,nBasT,Debug)
+call Tri2Rec(Oaux,Ovlp,nBasT)
 call mma_deallocate(Oaux)
 
 ! Allocate and get index arrays for basis functions per atom.
@@ -92,7 +92,7 @@ call mma_deallocate(Oaux)
 
 call mma_allocate(nBas_per_Atom,nAtoms,label='nB_per_Atom')
 call mma_allocate(nBas_Start,nAtoms,label='nB_Start')
-call BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBasT,nAtoms,Debug)
+call BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBasT,nAtoms, Debug)
 
 ! Allocate PA array.
 ! ------------------
@@ -105,7 +105,7 @@ PA(:,:,:) = Zero
 ! this offset to get to the part of CMO which should be localized.
 if (debug) then; call RecPrt('cMO before localization',' ',cMO,nBasT,norb2locT); end if
 call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_Atom,nBas_Start,BName,nBasT,nOrb2LocT,nAtoms, &
-                     nMxIter,Maximisation,Converged,Debug,Silent)
+                     nMxIter,Maximisation,Converged,Silent)
 if (debug) then; call RecPrt('cMO after localization',' ',cMO,nBasT,norb2locT); end if
 ! De-allocations.
 ! ---------------

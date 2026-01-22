@@ -51,6 +51,7 @@ subroutine PMLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,nFro,nSym,Silent)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 use Molcas, only: LenIn8, MxAtom
+use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -60,7 +61,7 @@ integer(kind=iwp), intent(in) :: MxIter, nSym, nBas(nSym), nOcc(nSym), nFro(nSym
 logical(kind=iwp), intent(in) :: Silent
 integer(kind=iwp) :: iSym, nBasT, nOccT
 real(kind=wp) :: Functional, ThrGLoc, ThrLoc, ThrRotLoc
-logical(kind=iwp) :: Converged, Debug, Maximization
+logical(kind=iwp) :: Converged, Maximization
 character(len=*), parameter :: SecNam = 'PMLoc'
 
 ! Initialization.
@@ -112,7 +113,7 @@ end if
 Maximization = .true.
 Converged = .false.
 Debug = .false.
-call PipekMezey(Functional,CMO,ThrLoc,ThrRotLoc,ThrGLoc,nBas,nOcc,nFro,nSym,MxIter,Maximization,Converged,Debug,Silent)
+call PipekMezey(Functional,CMO,ThrLoc,ThrRotLoc,ThrGLoc,nBas,nOcc,nFro,nSym,MxIter,Maximization,Converged,Silent)
 
 ! Check convergence.
 ! ------------------
