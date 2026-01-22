@@ -24,8 +24,8 @@
       use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV
       use stdalloc, only: mma_allocate,mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       Real*8 HEFF(NSTATE,NSTATE)
       Real*8, Allocatable :: CI(:),SGM(:),BRACI(:)
 

@@ -12,8 +12,8 @@
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       INTEGER NDREF
       REAL*8 DREF(NDREF)
