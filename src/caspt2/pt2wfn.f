@@ -36,8 +36,13 @@
       use caspt2_global, only: do_grad
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+      use caspt2_module, only: DMRG, IfMix, IfMSCOUP, IfProp, iSpin,
+     &                         lRoots, mState, MxAct, nActEl, nBas,
+     &                         nBasT, nBSqT, nConf, nDel, nDet, nEle3,
+     &                         nFro, nHole1, nIsh, nRas1, nRas2, nRas3,
+     &                         nRas3T, nSsh, nState, nSym, Root2State,
+     &                         STSym, nOrb, nRas1T
       implicit none
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 #ifdef _HDF5_
 
@@ -194,8 +199,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: NCMO, LUCIEX, IDCIEX, LUONEM
 #endif
+      use caspt2_module, only: DMRG, nConf, nState, iAd1m
       implicit none
-#include "caspt2.fh"
 #ifdef _HDF5_
       real*8, allocatable :: BUF(:)
       integer :: ISTATE, IDISK
@@ -224,8 +229,8 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
+      use caspt2_module, only: nState, Energy, IfMSCOUP, RefEne
       implicit none
-#include "caspt2.fh"
       real*8 :: Heff(nstate,nstate)
 #ifdef _HDF5_
       If (pt2wfn_is_h5) Then
@@ -246,8 +251,8 @@ c Avoid unused argument warnings
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
+      use caspt2_module, only: jState
       implicit none
-#include "caspt2.fh"
       integer :: nDmat
       real*8 :: Dmat(nDmat)
 #ifdef _HDF5_

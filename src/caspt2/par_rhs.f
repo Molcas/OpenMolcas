@@ -25,10 +25,13 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_INIT()
+      use definitions, only: iwp, wp
       use caspt2_global, only: LURHS
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
-      REAL*8 DUMMY(1)
+      use caspt2_module, only: nSym, nISup, nASup, iOffRHS
+      IMPLICIT None
+      REAL(kind=wp) DUMMY(1)
+      integer(kind=iwp) iDisk, iCase, iSym, NAS, NIS, NW, NRHS, iLo,
+     &                  iHi, jLo, jHi
 
 C-SVC: loop over symmetry/cases, get local patch of RHS, write, and then
 C update the disk address in IOFFRHS

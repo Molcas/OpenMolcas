@@ -19,7 +19,6 @@
       SUBROUTINE PT2_GET(NSIZE,LAB,VEC)
       use caspt2_global, only: LUDMAT
       IMPLICIT NONE
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       INTEGER NSIZE

@@ -27,8 +27,11 @@
       use ChoCASPT2, only: InfVec_N2_PT2, MaxVec_PT2, NASPlit,NISplit,
      &                     NumCho_PT2
       use spool, only: SpoolInp, Close_LuSpool
+      use caspt2_module, only: nSym, DMRG, Header, ifChol, jState,
+     &                         LenIn8, Name, nAsh, nBas, nAshT, nIsh,
+     &                         nOTri, nBasT, nBSqT, nSsh, nState,
+     &                         nUniqAT
       IMPLICIT NONE
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "compiler_features.h"
 

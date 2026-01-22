@@ -26,10 +26,11 @@
       use caspt2_global, only: LISTS
       use PrintLevel, only: terse, usual
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
+      use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecX, NLSTOT
+      use caspt2_module, only: DeNorm, E2Corr, E2Tot, MxCase, ERef,
+     &                         IfChol, MaxIt, nSym, RefWgt, rNorm,
+     &                         ThrConv, Cases
       IMPLICIT NONE
-
-#include "caspt2.fh"
 
       INTEGER ICONV
 

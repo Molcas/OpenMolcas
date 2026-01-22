@@ -31,8 +31,8 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       Logical FullMlk,lSave,Do_ESPF
 
       Character(Len=8) Label
@@ -64,7 +64,7 @@
 * for the (individual) state nr JSTATE in 1,2,..,NSTATE.
 * The corresponding CI-root from rasscf, the root state for this PT2,
 * is number MSTATE(JSTATE) on the input JOBIPH file.
-* JSTATE,NSTATE and MSTATE() are in common in the caspt2.fh file.
+* JSTATE,NSTATE and MSTATE() are in the caspt2_module.F90 file.
       IERR=0
       IF(NSTATE.GT.1) THEN
        N=MSTATE(JSTATE)

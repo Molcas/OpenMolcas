@@ -18,8 +18,8 @@
       Use mh5, Only: mh5_open_file_r, mh5_fetch_dset
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nState, nConf, STSym, mState
       Implicit None
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       Real*8 :: EigVec(nState,nState)
       Integer :: iState, iiState, iDisk
