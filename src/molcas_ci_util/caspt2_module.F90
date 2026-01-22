@@ -9,23 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module CASPT2_Module
+use definitions, only: wp, iwp
 !use Molcas
 !use rasdim
 #include "Molcas.fh"
 #include "rasdim.fh"
-      Integer    MxState,       MxExt
-      Parameter (MxState=MxRoot,MxExt=MxBas-MxAct)
-      REAL*8         ENERGY, REFENE
-      COMMON /MULTI/ ENERGY(MXSTATE), REFENE(MXSTATE)
-      LOGICAL      lOPTO,RHSDIRECT,                                     &
+      integer(kind=iwp), Parameter:: MxState=MxRoot, MxExt=MxBas-MxAct
+      real(kind=wp)ENERGY(MXSTATE), REFENE(MXSTATE)
+      logical(kind=iwp)  lOPTO,RHSDIRECT,                               &
      &    RFPERT,G1SECIN,PRORB,PRSD,Found2,IfDirect,IfChol,             &
      &    MODE_DGA_COMPAT,DoCumulant,JMS
-      COMMON/INPL/ lOPTO,RHSDIRECT,                                     &
-     &    RFPERT,G1SECIN,PRORB,PRSD,Found2,IfDirect,IfChol,             &
-     &    MODE_DGA_COMPAT,DoCumulant,JMS
-      REAL*8       THRCONV,THRSHN,THRSHS,THRSHF,THRENE,THROCC,          &
-     &    POTNUC,ECORE,EREF,ERFSELF
-      COMMON/INPR/ THRCONV,THRSHN,THRSHS,THRSHF,THRENE,THROCC,          &
+      real(kind=wp)THRCONV,THRSHN,THRSHS,THRSHF,THRENE,THROCC,          &
      &    POTNUC,ECORE,EREF,ERFSELF
 
       LOGICAL         IFDENS,IFMIX,IFPROP,IFMSCOUP,                     &
