@@ -976,7 +976,7 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
       SUBROUTINE MKSC_G3(ISYM,SC,NG3,G3,idxG3)
       USE SUPERINDEX
       use EQSOLV
-      use caspt2_module,
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION SC(*)

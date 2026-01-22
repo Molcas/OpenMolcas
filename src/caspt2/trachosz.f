@@ -21,6 +21,10 @@
      &                     nKsh, NumCho_pt2, nPsh
       use caspt2_module, only: nBasT, nBatch_tot, nJSct, nSym, mul,
      &                         nBas, nFro, nBtches, nBtch, nIsh, nAsh
+#ifdef _MOLCAS_MPP_
+      use ChoCASPT2, only: NFTSPC_TOT
+      use caspt2_module, only: NJSCT_TOT
+#endif
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "warnings.h"
