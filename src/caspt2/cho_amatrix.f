@@ -20,9 +20,10 @@
       USE CHOVEC_IO, ONLY: NVLOC_CHOBATCH
       USE stdalloc, ONLY: mma_allocate, mma_deallocate
       USE Constants, ONLY: Zero, One, Half
+      use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT, Mul,
+     &                         nOrb, nBtch, nBtches
 
       IMPLICIT NONE
-#include "caspt2.fh"
       INTEGER :: NCMO, NATR
       REAL*8 :: XMAT(NOSQT), CMO(NCMO), DDTR(NATR)
       INTEGER :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP, MXCHOBUF,

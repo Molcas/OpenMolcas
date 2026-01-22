@@ -62,10 +62,10 @@ C Modify B matrix, using S matrix and some other data.
       SUBROUTINE NEWDIA()
 #if 0
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nSym, nInDep, nASup, nISup
       IMPLICIT NONE
-#include "caspt2.fh"
 
       INTEGER ICASE,ISYM,NIN,NAS,NIS,I
       INTEGER JD
