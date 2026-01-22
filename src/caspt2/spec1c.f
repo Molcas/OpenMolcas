@@ -18,8 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE SPEC1C(IFC,FACT,ISYM,X,Y)
       USE SUPERINDEX, only: KTUV
-      use caspt2_module, only: nTUV, nAsh, nIsh, nAES, nTUVES, nAshT,
-     &                         nSsh
+      use caspt2_module, only: nTUV, nAsh, nAES, nTUVES, nAshT, nSsh
       IMPLICIT NONE
       INTEGER IFC,ISYM
       REAL*8 FACT,X(*),Y(*)

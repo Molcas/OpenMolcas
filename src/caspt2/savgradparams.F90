@@ -23,6 +23,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
                              NBUF1_GRAD, iTasks_grad, nTasks_grad
 #ifdef _MOLCAS_MPP_
   use caspt2_global, only: LURHS
+  use caspt2_module, only: IOFFRHS
 #endif
   use caspt2_global, only: DREF, PREF
   use caspt2_global, only: LUSOLV, LUSBT

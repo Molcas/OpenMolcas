@@ -24,9 +24,10 @@ use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, &
                               qcmaquis_interface_optimize, &
                               qcmaquis_interface_set_state, &
                               qcmaquis_interface_remove_param
+      use caspt2_module, only: nState
 #endif
 use iso_c_binding, only: c_int
-      use caspt2_module, only: nAshT, nState, nSym, nFro, nIsh, nAsh, nOsh, nOrb, Mul
+      use caspt2_module, only: nAshT, nSym, nFro, nIsh, nAsh, nOsh, nOrb, Mul
 
 implicit none
 
