@@ -51,10 +51,9 @@ C Read coefficient vector from LUSOLV (C repres).
       SUBROUTINE RDBLKC(ISYM,ICASE,IVEC,VEC)
       use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VEC(*)
-
-#include "caspt2.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
@@ -93,10 +92,10 @@ C Read coefficient vector from LUSOLV (C repres).
       SUBROUTINE PSCAVEC (FACT,IVEC,JVEC)
       use caspt2_global, ONLY: iPrGlb
       USE PrintLevel, ONLY: usual
-      use EQSOLV
-      IMPLICIT NONE
+      use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep,
+     &                         niSup
 
-#include "caspt2.fh"
+      IMPLICIT NONE
 
       REAL*8 FACT
       INTEGER IVEC,JVEC
@@ -143,8 +142,8 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE POVLVEC (IVEC,JVEC,OVLAPS)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       REAL*8 OVLAPS(0:8,0:MXCASE)
 
@@ -197,9 +196,8 @@ C sum in OVLAPS(0,0).
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PLCVEC (ALPHA,BETA,IVEC,JVEC)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
 C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
@@ -252,9 +250,9 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOC (ITYPE,IVEC,JVEC)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
 
 C Transform RHS vectors from SR format to C format.
 C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
@@ -301,9 +299,8 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOSR (ITYPE,IVEC,JVEC)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
 C Transform RHS vectors from SR format to C format.
 C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix

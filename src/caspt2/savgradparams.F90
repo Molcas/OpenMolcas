@@ -34,9 +34,11 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   USE Para_Info, ONLY: Is_Real_Par, King, myRank
 #endif
 
+  use caspt2_module, only: E2Tot, EASum, ERef, jState, MxCase, nAshT, nBTri, nState, nSym, RFPert, nCases, &
+                           nInDep, nISup, nASup, RefEne
+
   Implicit None
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -521,10 +523,9 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
   use caspt2_global, only: LUGRAD
   use definitions, only: iwp,wp
   use stdalloc, only: mma_allocate, mma_deallocate
+  use caspt2_module, only: Energy, ERFSelf, nBTri, nState, RFPert
 
   Implicit None
-
-#include "caspt2.fh"
 
   integer(kind=iwp), intent(in) :: Mode
   real(kind=wp)    , intent(inout) :: UEFF(*),U0(*),H0(*)
