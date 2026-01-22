@@ -10,8 +10,8 @@
 ************************************************************************
       SUBROUTINE REF_NATO(DREF,CMO,OCC,CNAT)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       REAL*8 DREF(*),CMO(*),OCC(*),CNAT(*)
 
       REAL*8, ALLOCATABLE:: TMP(:)

@@ -16,6 +16,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
       use ChoCASPT2
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 * ----------------------------------------------------------------
 * Code for processing all the cholesky vectors
@@ -23,7 +24,6 @@
 * Also form the active two-electron integrals 'TUVX'.
 * ================================================================
 #include "warnings.h"
-#include "caspt2.fh"
       Integer IVEC
 *
       Integer, Parameter :: Inactive=1, Active=2, Virtual=3
@@ -421,8 +421,8 @@ C      the case, symmetry, and rhs vector respectively.
      &                                IBSTA,IBEND)
       USE CHOVEC_IO
       use caspt2_global, only: LUDRA
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       Real*8  Array(*)
 
       ! ugly hack to convert separate k/q orbital types into a specific
@@ -459,8 +459,8 @@ C      the case, symmetry, and rhs vector respectively.
      &                             IVEC,NV)
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
       DIMENSION BUFF(nBuff),idxBuff(nBuff),PIQK(mxPIQK)
       Integer nSh(8,3)
@@ -642,8 +642,8 @@ C-SVC: sanity check
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION LBGRP(2,NBGRP)
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)

@@ -26,10 +26,10 @@ use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, &
                               qcmaquis_interface_remove_param
 #endif
 use iso_c_binding, only: c_int
+      use caspt2_module, only: nAshT, nState, nSym, nFro, nIsh, nAsh, nOsh, nOrb, Mul
 
 implicit none
 
-#include "caspt2.fh"
 
 real(kind=wp), allocatable :: ERI(:,:), SCR(:,:)
 integer(kind=iwp) :: tSym, t_nFro, t_nIsh, t_nAsh, t_nOsh, t_nOrb, &

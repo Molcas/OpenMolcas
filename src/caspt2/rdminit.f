@@ -21,9 +21,9 @@
       use qcmaquis_interface, only:qcmaquis_interface_set_state
       use iso_c_binding, only: c_int
 #endif
+      use caspt2_module
       implicit real(8) (A-H,O-Z)
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       REAL*8, ALLOCATABLE:: CI(:)
