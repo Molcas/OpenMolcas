@@ -91,7 +91,7 @@ else if (myModel == 'EDMI') then
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
-  call EdmistonRuedenberg(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Silent)
+  call EdmistonRuedenberg(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Silent)
 else
   write(Txt,'(A,A4)') 'Model = ',Model
   call SysAbendMsg(SecNam,'Unknown model',Txt)
