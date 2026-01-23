@@ -170,8 +170,8 @@ contains
     use fciqmc_interface, only: DoFCIQMC
     use gugx, only: L2ACT, LEVEL
     use caspt2_module, only: DoCumulant, nAshT, nSym, nAsh
+    implicit none
 
-#   include "pt2_guga.fh"
     integer(kind=iwp) :: ILEV, iq, ISYM, IT, ITABS, nLev
 
     NLEV = NASHT
