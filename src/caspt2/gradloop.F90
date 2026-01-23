@@ -34,7 +34,6 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   Implicit None
 
 #include "warnings.h"
-#include "pt2_guga.fh"
 
   character(len=60) :: STLNE2
 
