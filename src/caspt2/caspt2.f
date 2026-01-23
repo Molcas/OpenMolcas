@@ -94,7 +94,6 @@ C     HDF5 SUPPORT BY S. VANCOILLIE (2016)
 C
 ************************************************************************
 #include "warnings.h"
-#include "pt2_guga.fh"
       CHARACTER(len=60) STLNE2
 * Timers
       REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
