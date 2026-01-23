@@ -17,12 +17,12 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       use caspt2_module
+      use pt2_guga
 C
 C     Compute the derivative of E^PT2 with respct to the T amplitude
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "pt2_guga.fh"
 
       INTEGER IST,JST
       REAL*8 DVALUE
@@ -1155,12 +1155,12 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       use caspt2_module
+      use pt2_guga
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: nProcs, Is_Real_Par
 #endif
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "pt2_guga.fh"
 C
       DIMENSION CLag(nConf,nState),RDMEIG(*),SLag(*)
       real(kind=wp),allocatable :: CI1(:),CI2(:)
@@ -1214,11 +1214,11 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       use caspt2_module, only: nConf
+      use pt2_guga, only: MxCI, iAdr10, cLab10
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-#include "pt2_guga.fh"
 
       REAL*8, INTENT(IN) :: CI1(NCONF),CI2(NCONF)
 
@@ -1237,7 +1237,7 @@ C
       END IF
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in common block in pt2_guga.fh
+* The fields IADR10 and CLAB10 are kept in pt2_guga.F90
 * CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
@@ -1266,9 +1266,8 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp
       use caspt2_module, only: nConf, STSym, Mul
+      use pt2_guga, only: MxCI
       IMPLICIT NONE
-
-#include "pt2_guga.fh"
 
       INTEGER, INTENT(IN):: nLev
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI)
@@ -1294,7 +1293,7 @@ C     REAL*8 GTU
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.fh
+* Translation tables L2ACT and LEVEL, in pt2_guga.F90
 
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -1726,9 +1725,8 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp
       use caspt2_module, only: iSCF, nActEl, nAshT, STSym, Mul
+      use pt2_guga, only: MxCI, nG1
       IMPLICIT NONE
-
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
 

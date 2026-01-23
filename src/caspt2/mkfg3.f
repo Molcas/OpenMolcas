@@ -66,8 +66,8 @@ C>                   to active indices
       use SysDef, only: RtoB
       use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, Mul,
      &                         EPSA
+      use pt2_guga, only: MxCI, MxLev, nG1, nG2, nG3
       IMPLICIT NONE
-#include "pt2_guga.fh"
 
 
       INTEGER, INTENT(IN) :: IFF, NLEV
