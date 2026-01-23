@@ -9,20 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module pt2_guga
-#include "pt2_guga.fh"
-#ifdef _NEW_
-!use definitions, only: iwp, wp
-      ! MXLEV should be taken from the gugx module
-      integer(kind=iwp), PARAMETER :: MXLEV=100 ,MXL3=(MXLEV*(MXLEV+1))/2
+use definitions, only: iwp, wp
+! MXLEV should be taken from the gugx module
+integer(kind=iwp), PARAMETER :: MXLEV=100 ,MXL3=(MXLEV*(MXLEV+1))/2
 
-      real(kind=wp) ETA(MXLEV),CITHR,PKPREC
+real(kind=wp) ETA(MXLEV),CITHR,PKPREC
 
-      CHARACTER(Len=8)CLAB10(64)
+CHARACTER(Len=8)CLAB10(64)
 
-      integer(kind=iwp)                  LCI,MXCI,                      &
-     &     NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,                  &
-     &     IADR10(64,2),IDTAB(MXL3)
+integer(kind=iwp)LCI,MXCI,NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,IADR10(64,2),IDTAB(MXL3)
 
-      integer(kind=iwp) NPLBUF,IPLBUF,JPLBUF,ISYMA,NSGMA,ISYMB,NSGMB
-#endif
+integer(kind=iwp) NPLBUF,IPLBUF,JPLBUF,ISYMA,NSGMA,ISYMB,NSGMB
 End Module pt2_guga
