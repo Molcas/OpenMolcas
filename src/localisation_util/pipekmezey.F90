@@ -21,7 +21,7 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms, ScrFac, Debug
+use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, Silent, opt_method
 use Molcas, only: LenIn8
 
 implicit none
@@ -42,6 +42,25 @@ if (nSym /= 1) then
   call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
 end if
 
+! Choosing the maximizer
+! ----------------------
+opt_method = 'JACO'
+!opt_method = 'GASC'
+!opt_method = 'NEWT'
+
+if (.not. Silent) then
+    if (opt_method == 'JACO') then
+        write(u6,"(1X,A)") 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
+    else if (opt_method == 'GASC') then
+        write(u6,"(1X,A)") 'Gradient Ascent for maximization of the PM functional'
+        write(u6,"(1X,A)") 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
+    else if (opt_method == 'NEWT') then
+        write(u6,"(1X,A)") 'Newton Raphson method for maximization of the PM functional'
+        write(u6,"(1X,A)") 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
+    end if
+end if
+
+
 ! Initializations.
 ! ----------------
 
@@ -51,6 +70,7 @@ nBasT = nBas(1)
 nOrb2LocT = nOrb2Loc(1)
 nFroT = nFro(1)
 kOffC = nBasT*nFroT+1
+
 
 if (ScrFac/=Zero) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],ScrFac)
 

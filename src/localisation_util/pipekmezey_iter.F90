@@ -20,7 +20,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn8
-use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent, nMxIter
+use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent, nMxIter, opt_method
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
@@ -34,30 +34,9 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), &
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
                                 unitary_mat(:,:), rotated_CMO(:,:), Ovlp_sqrt(:,:),  Ovlp_aux(:,:), SCR(:)
-character(len=20), allocatable :: opt_method
 logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false., debug_lowdin = .false., lowdin=.false.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
-
-opt_method = 'JACO'
-!opt_method = 'GASC'
-!opt_method = 'NEWT'
-
-if (opt_method == 'JACO') then
-    if (.not. Silent) then
-        write(u6,'(/,A)') 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
-    end if
-else if (opt_method == 'GASC') then
-    if (.not. Silent) then
-        write(u6,'(/,A,2X,F8.6)') 'Gradient Ascent for maximization of the PM functional with alpha =', alpha
-        write(u6,*) 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
-    end if
-else if (opt_method == 'NEWT') then
-    if (.not. Silent) then
-        write(u6,'(/,A)') 'Newton Raphson method for maximization of the PM functional'
-        write(u6,*) 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
-    end if
-end if
 
 if (lowdin) then
     write(u6,*) "using the Loewdin framework for PM localisation."
