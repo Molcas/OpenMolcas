@@ -69,7 +69,7 @@ if (myModel == 'PIPE') then
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
-  call PipekMezey        (Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Silent)
+  call PipekMezey        (Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Silent)
 else if (myModel == 'BOYS') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'Boys localisation'
@@ -80,7 +80,7 @@ else if (myModel == 'BOYS') then
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
-  call Boys              (Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Silent)
+  call Boys              (Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Silent)
 else if (myModel == 'EDMI') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'Edmiston-Ruedenberg localisation'

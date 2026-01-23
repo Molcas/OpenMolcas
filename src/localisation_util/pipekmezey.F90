@@ -12,7 +12,7 @@
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Silent)
+subroutine PipekMezey(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Silent)
 ! Author: Y. Carissan [modified by T.B. Pedersen].
 !
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
@@ -27,7 +27,6 @@ use Molcas, only: LenIn8
 implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
-real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
 logical(kind=iwp), intent(in) :: Maximisation, Silent
 logical(kind=iwp), intent(out) :: Converged
@@ -104,7 +103,7 @@ PA(:,:,:) = Zero
 
 ! this offset to get to the part of CMO which should be localized.
 if (debug) then; call RecPrt('cMO before localization',' ',cMO,nBasT,norb2locT); end if
-call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_Atom,nBas_Start,BName,nBasT,nOrb2LocT,nAtoms, &
+call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasT,nOrb2LocT,nAtoms, &
                      nMxIter,Maximisation,Converged,Silent)
 if (debug) then; call RecPrt('cMO after localization',' ',cMO,nBasT,norb2locT); end if
 ! De-allocations.

@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine Boys_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,Lbl_AO,Lbl,nBas,nOrb2Loc,nComp,nMxIter,Maximisation,Converged,Silent)
+subroutine Boys_Iter(Functional,CMO,Lbl_AO,Lbl,nBas,nOrb2Loc,nComp,nMxIter,Maximisation,Converged,Silent)
 ! Author: T.B. Pedersen
 !
 ! Purpose: Boys localisation of orbitals.
@@ -19,12 +19,12 @@ subroutine Boys_Iter(Functional,CMO,Thrs,ThrRot,ThrGrad,Lbl_AO,Lbl,nBas,nOrb2Loc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-
+use Localisation_globals, only: Thrs,ThrGrad
 implicit none
 integer(kind=iwp), intent(in) :: nComp, nBas, nOrb2Loc, nMxIter
 real(kind=wp), intent(out) :: Functional, Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(inout) :: CMO(nBas,*)
-real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad, Lbl_AO(nBas,nBas,nComp)
+real(kind=wp), intent(in) :: Lbl_AO(nBas,nBas,nComp)
 logical(kind=iwp), intent(in) :: Maximisation, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter
@@ -65,7 +65,7 @@ end if
 call mma_allocate(Col,nOrb2Loc,2,label='Col')
 do while ((nIter < nMxIter) .and. (.not. Converged))
   if (.not. Silent) call CWTime(C1,W1)
-  call RotateOrbB(CMO,Col,Lbl,nComp,nBas,nOrb2Loc,Maximisation,ThrRot,PctSkp)
+  call RotateOrbB(CMO,Col,Lbl,nComp,nBas,nOrb2Loc,Maximisation,PctSkp)
   call ComputeFuncB2(nOrb2Loc,Lbl,nComp,Functional)
   call GetGrad_Boys(nOrb2Loc,Lbl,nComp,Rmat,GradNorm)
   nIter = nIter+1
