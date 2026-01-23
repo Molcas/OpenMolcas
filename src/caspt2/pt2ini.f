@@ -18,7 +18,7 @@
       use qcmaquis_interface_cfg, only: qcmaquis_param
       use caspt2_global, only: iPrGlb
       use PrintLevel, only: debug
-      use caspt2_module, only: DMRG
+      use caspt2_module, only: DMRG, nAshT
 #endif
       use caspt2_global, only: do_grad, iStpGrd
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
@@ -29,7 +29,7 @@
      &                     NumCho_PT2
       use spool, only: SpoolInp, Close_LuSpool
       use caspt2_module, only: nSym, Header, ifChol, jState,
-     &                         LenIn8, Name, nAsh, nBas, nAshT, nIsh,
+     &                         LenIn8, Name, nAsh, nBas, nIsh,
      &                         nOTri, nBasT, nBSqT, nSsh, nState,
      &                         nUniqAT
       IMPLICIT NONE
