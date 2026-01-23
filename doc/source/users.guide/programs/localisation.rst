@@ -277,10 +277,10 @@ Optional general keywords
               This is the default.
               </KEYWORD>
 
-:kword:`OPTM`
+:kword:`OPTMethod`
   The next line specifies the optimization method used to maximize the Pipek--Mezey functional.
   Options: 
-    - consecutive 2x2 rotations (Jacobi Sweeps) = 'JACO'
+    - Jacobi Sweeps (Default) = 'JACO'
     - Newton Raphson method = 'NEWT'
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="STRING" LEVEL="BASIC">
@@ -288,11 +288,26 @@ Optional general keywords
               <HELP>
               The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
               Options: 
-                - consecutive 2x2 rotations (Jacobi Sweeps) = 'JACO'
+                - Jacobi Sweeps (Default) = 'JACO'
                 - Newton Raphson method = 'NEWT'
               </HELP>
               </KEYWORD>
 
+:kword:`CHARgeType`
+  The next line specifies the type of partial charges used within the Pipek--Mezey localisation.
+  Options: 
+    - Mulliken charges (Default) = 'JACO'
+    - Loewdin charges = 'LOWD' or 'LOEW'
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHAR" APPEAR="Type of partial charges used for PM localisation" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: CHAR <basic>
+              <HELP>
+              The next line specifies the type of partial charges used within the Pipek-Mezey localisation.
+              Options: 
+                - Mulliken charges (Default) = 'JACO'
+                - Loewdin charges = 'LOWD' or 'LOEW'
+              </HELP>
+              </KEYWORD>
 
 :kword:`BOYS`
   Requests Boys localisation. The default is Pipek--Mezey.
