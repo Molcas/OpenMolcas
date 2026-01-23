@@ -23,6 +23,9 @@
       use qcmaquis_interface, only:qcmaquis_interface_get_1rdm_full
       use caspt2_module, only: DMRG
 #endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use caspt2_module, only: DoCumulant
+#endif
       use PrintLevel, only: debug
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate

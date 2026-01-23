@@ -35,13 +35,14 @@
       use gugx, only: L2ACT, LEVEL
       use caspt2_global, only: do_grad
       use stdalloc, only: mma_allocate, mma_deallocate
-#endif
       use caspt2_module, only: DMRG, IfMix, IfMSCOUP, IfProp, iSpin,
-     &                         lRoots, mState, MxAct, nActEl, nBas,
+     &                         lRoots, mState, nActEl, nBas,
      &                         nBasT, nBSqT, nConf, nDel, nDet, nEle3,
      &                         nFro, nHole1, nIsh, nRas1, nRas2, nRas3,
      &                         nRas3T, nSsh, nState, nSym, Root2State,
      &                         STSym, nOrb, nRas1T
+#endif
+      use caspt2_module, only: MxAct
       implicit none
 #include "pt2_guga.fh"
 #ifdef _HDF5_
@@ -198,8 +199,8 @@
       use mh5, only: mh5_put_dset
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: NCMO, LUCIEX, IDCIEX, LUONEM
-#endif
       use caspt2_module, only: DMRG, nConf, nState, iAd1m
+#endif
       implicit none
 #ifdef _HDF5_
       real*8, allocatable :: BUF(:)
@@ -228,8 +229,9 @@
       subroutine pt2wfn_estore(Heff)
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
+      use caspt2_module, only: Energy, IfMSCOUP, RefEne
 #endif
-      use caspt2_module, only: nState, Energy, IfMSCOUP, RefEne
+      use caspt2_module, only: nState
       implicit none
       real*8 :: Heff(nstate,nstate)
 #ifdef _HDF5_
@@ -250,8 +252,8 @@ c Avoid unused argument warnings
       subroutine pt2wfn_densstore(Dmat,nDmat)
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
-#endif
       use caspt2_module, only: jState
+#endif
       implicit none
       integer :: nDmat
       real*8 :: Dmat(nDmat)

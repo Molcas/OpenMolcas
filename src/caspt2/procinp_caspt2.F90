@@ -32,7 +32,6 @@ subroutine procinp_caspt2
   use qcmaquis_interface, only:qcmaquis_interface_init_checkpoint, &
     qcmaquis_interface_set_param, qcmaquis_interface_remove_param
   use PrintLevel, only: verbose
-  use caspt2_module, only: DMRG
 #endif
   use caspt2_global, only: CompressMPS
 ! NOT TESTED
@@ -44,7 +43,7 @@ subroutine procinp_caspt2
                            PrOrb, nTit, nSym, nState, nRas3T, nRas1T, nRoots, nLYRoot, nLYGroup, nGroup, nCases,  &
                            MxSym, MxRoot, MaxIt, nRoots, iRoot, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfProp, JMS,    &
                            IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, ieoF1m, HZero, G1SECIN, FockType,     &
-                           DWType, DoCumulant, BTrans, BSpect, BMatrix
+                           DWType, DoCumulant, BTrans, BSpect, BMatrix, DMRG
 
   implicit none
 

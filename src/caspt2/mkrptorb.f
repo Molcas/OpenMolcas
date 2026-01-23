@@ -24,7 +24,10 @@
       use qcmaquis_interface
       use caspt2_module, only: DMRG
 #endif
-      use caspt2_module, only: iSCF, jState, nAshT, nConf, nOMx,
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_DMRG_)
+      use caspt2_module, only: jState, nAshT
+#endif
+      use caspt2_module, only: iSCF, nAshT, nConf, nOMx,
      &                         nState, nSym, STSym, nIsh, nAsh, nRas1,
      &                         nRas2, nRas3, nSsh, nOrb, nBas, nFro,
      &                         jState, EPS, EPSI, EPSA, nDel, nAES,
