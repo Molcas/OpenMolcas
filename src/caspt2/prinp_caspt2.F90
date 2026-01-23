@@ -45,6 +45,9 @@ subroutine prinp_caspt2()
                            nSym, nState, nSshT, nRoots, nIshT, nHole1, nEle3, nConf, nAshT, nActel, iSpin, &
                            iSCF, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfMSCoup, IfMix, IfDW, IfDOrtho, HZero, &
                            DWType
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
+  use caspt2_module, only: DoCumulant
+#endif
   implicit none
 
 #include "pt2_guga.fh"
