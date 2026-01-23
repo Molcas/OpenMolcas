@@ -274,6 +274,8 @@ C always write the chunks to LUDRA, both for serial and parallel
       use caspt2_global, only: LUDRATOT
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: MPIInt
+      use chocaspt2, only: NFTSPC_TOT
+      use caspt2_module, only: RHSDirect
 #endif
       IMPLICIT NONE
 #include "warnings.h"

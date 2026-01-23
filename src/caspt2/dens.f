@@ -1681,7 +1681,7 @@ C
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
-      use caspt2_module,
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
 C
