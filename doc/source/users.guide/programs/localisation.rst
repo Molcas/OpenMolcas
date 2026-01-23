@@ -277,6 +277,23 @@ Optional general keywords
               This is the default.
               </KEYWORD>
 
+:kword:`OPTM`
+  The next line specifies the optimization method used to maximize the Pipek--Mezey functional.
+  Options: 
+    - consecutive 2x2 rotations (Jacobi Sweeps) = 'JACO'
+    - Newton Raphson method = 'NEWT'
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: OPTM <basic>
+              <HELP>
+              The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
+              Options: 
+                - consecutive 2x2 rotations (Jacobi Sweeps) = 'JACO'
+                - Newton Raphson method = 'NEWT'
+              </HELP>
+              </KEYWORD>
+
+
 :kword:`BOYS`
   Requests Boys localisation. The default is Pipek--Mezey.
 
