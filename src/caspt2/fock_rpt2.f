@@ -21,8 +21,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use ChoCASPT2
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "pt2_guga.fh"
 
       Real*8, Allocatable:: BUF(:)
 

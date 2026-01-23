@@ -27,6 +27,7 @@
       use SysDef, only: ItoB, RtoI
       use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup,
      &                         nInDep
+      use pt2_guga, only: nG2, nG3Tot
       IMPLICIT None
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -36,7 +37,6 @@ C At position IVEC=IVECR, the residual array, in SR representation.
 C At position IVEC=IVECC, the solution array, in contravariant rep.
 C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
-#include "pt2_guga.fh"
       REAL(kind=wp) ::DUMMY(1)
       INTEGER(kind=iwp) :: IDUM(1), ICASE, IDS, IDS1, IDS2, IDV, iPad,
      &                     ISCT, ISYM, IVEC, LADDR, LENGTH, LSTA, MXWRT,

@@ -21,8 +21,8 @@
       use PrintLevel, only: debug, usual
       use caspt2_module, only: CPUFG3, ERef, jState, nAshT, EASUM,
      &                         TIOFG3, EPSA, mState, RefEne
+      use pt2_guga, only: iAdr10, CLab10
       IMPLICIT NONE
-#include "pt2_guga.fh"
       CHARACTER(LEN=50)  STLNE2
 C     timers
       REAL*8 CPU0,CPU1,CPU,
