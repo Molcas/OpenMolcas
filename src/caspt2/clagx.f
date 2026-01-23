@@ -47,7 +47,7 @@
 
       !! their derivative contributions
       NG3tot = NG3
-      !! Use NG3tot (in pt2_guga.fh) for the moment
+      !! Use NG3tot (in pt2_guga.F90) for the moment
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
         call gaigop_scal(ng3tot,'+')
@@ -4825,6 +4825,7 @@ C
      *                    INT1,INT2,Fancy,nLev,nMidV)
       use gugx, only: SGS, CIS
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER, INTENT(IN) :: nLev
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -4834,7 +4835,6 @@ C
       REAL*8 INT1(NLEV,NLEV),INT2(NLEV,NLEV,NLEV,NLEV)
       REAL*8 Fancy(nRoots,nRoots,nRoots)
 
-#include "pt2_guga.fh"
       DIMENSION ICS(MXLEV)
       Integer :: nIpWlk
       nIpWlk = CIS%nIpWlk
