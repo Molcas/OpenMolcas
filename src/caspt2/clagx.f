@@ -17,11 +17,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS
       use caspt2_module
+      use pt2_guga
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       Implicit Real*8 (A-H,O-Z)
-#include "pt2_guga.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #endif
@@ -161,13 +161,13 @@ C
       use definitions, only: wp
       use fake_GA, only: GA_Arrays
       use caspt2_module
+      use pt2_guga
 #ifdef _MOLCAS_MPP_
       use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
       use definitions, only: u6
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "pt2_guga.fh"
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1508,13 +1508,12 @@ C
       use Sigma_data
       use definitions, only: wp
       use caspt2_module
+      use pt2_guga
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "pt2_guga.fh"
 C
       DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*),VEC5(*)
       DIMENSION VECROT(*),BDERmat(*),SDERmat(*)
@@ -1725,8 +1724,8 @@ C
       use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
       use definitions, only: wp
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "pt2_guga.fh"
 
 C
       Integer, Intent(In):: nLev
@@ -1823,8 +1822,8 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "pt2_guga.fh"
 C
       Integer, Intent(In)::nLev
       DIMENSION CLag(nConf,nState),RDMEIG(*)
@@ -2001,11 +2000,11 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       use caspt2_module, only: nConf
+      use pt2_guga, only: MxCI, iAdr10, cLab10
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-#include "pt2_guga.fh"
       INTEGER, INTENT(IN) :: nLev
       REAL*8, INTENT(IN) :: CI(NCONF)
 
@@ -2021,8 +2020,7 @@ C
 C     return !! for test purpose
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in common included from
-! pt2_guga.fh
+* The fields IADR10 and CLAB10 are kept in pt2_guga.F90
 * CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
@@ -2050,9 +2048,8 @@ C
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King, nProcs
 #endif
+      use pt2_guga, only: MxCI
       IMPLICIT NONE
-
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
       INTEGER, INTENT(IN):: nLev
@@ -2077,7 +2074,7 @@ C     REAL*8 GTU
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.fh
+* Translation tables L2ACT and LEVEL, in pt2_guga.F90
 
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -2627,8 +2624,8 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "pt2_guga.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -3395,10 +3392,10 @@ C
       use definitions, only: iwp,RtoB,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       use caspt2_module
+      use pt2_guga
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "pt2_guga.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -3924,9 +3921,9 @@ C
       use definitions, only: wp
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
+      use pt2_guga
 C
       Implicit Real*8 (A-H,O-Z)
-#include "pt2_guga.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -4652,9 +4649,9 @@ C
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 C
       use gugx, only: SGS
+      use pt2_guga
       Implicit Real*8 (A-H,O-Z)
 C
-#include "pt2_guga.fh"
 C
       Dimension CI(nConf,nState),CIT(nConf,nState),G1(nAshT,nAshT),
      *          G2(nAshT,nAshT,nAshT,nAshT)

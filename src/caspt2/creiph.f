@@ -19,6 +19,7 @@
       use caspt2_global, only: CMO, CMO_Internal, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
 C CMO's and CI arrays of the JOBIPH, except that the CI arrays have
@@ -27,7 +28,6 @@ C using coefficients taken from the eigenvectors of the effective
 C Hamiltonian.
 C Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 C energies.
-#include "pt2_guga.fh"
       real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
 
       integer JOBIPH, JOBMIX
