@@ -18,6 +18,7 @@
 #endif
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -32,7 +33,6 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-#include "caspt2.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -153,6 +153,7 @@ C Sum-reduce the per-process contributions
      &                     TG1,TG2,TG3)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -161,7 +162,6 @@ C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       DIMENSION V1(*), V2(*)
 

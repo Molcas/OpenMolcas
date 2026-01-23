@@ -23,9 +23,8 @@
       use EQSOLV
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       INTEGER ISYM, ICASE
       REAL*8 VEC1(*),VEC2(*)

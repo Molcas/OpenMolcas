@@ -9,9 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ASIND(IAS,ISYM,ICASE,IP,IQ,IR)
-      USE SUPERINDEX
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
+      USE SUPERINDEX, only: MAGEB, MAGTB
+      use caspt2_module, only: NAGEBES, NAGTBES, IEXTIS
+      IMPLICIT None
+      integer, intent(in) :: IAS, ISYM, ICASE
+      integer, intent(out) :: IP, IQ, IR
+      integer IABABS,  IAABS, IBABS
 
       GOTO (12,13) ICASE
 
@@ -25,9 +28,9 @@
       IAABS=MAGTB(1,IABABS)
       IBABS=MAGTB(2,IABABS)
  1213 CONTINUE
+
       IP=IEXTIS(IAABS)
       IQ=IEXTIS(IBABS)
       IR=0
-      RETURN
 
-      END
+      END SUBROUTINE ASIND

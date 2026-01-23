@@ -21,8 +21,11 @@
       use PrintLevel, only: usual
       use caspt2_global, only: DREF
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: EASUM, FockType, IfChol, nAMx, nAshT,
+     &                         nIMx, nOMx, nOSqT, nSMx, nSym, nIsh,
+     &                         nAsh, nSsh, nAES, nOrb, EPS, EPSA,
+     &                         EPSE, EPSI
       IMPLICIT NONE
-#include "caspt2.fh"
       INTEGER NFIFA, NCMO
       REAL*8 FIFA(NFIFA),CMO(NCMO)
 

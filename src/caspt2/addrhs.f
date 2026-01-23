@@ -13,8 +13,8 @@
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION TJVX(NT,NJ,NV,NX)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -100,8 +100,8 @@ C Put W on disk:
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 Case B:
 * t>v j>l WP(tv,jl)=add ((tj,vl))*(1/2)
 * t>v j=l WP(tv,jl)=add ((tj,vl))*(1/2)*(SQRT(2))
@@ -288,8 +288,8 @@ C Put WBM on disk:
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION AUVX(NA,NU,NV,NX)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -378,8 +378,8 @@ C Put W on disk:
      &                    Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION AJVX(NV,NX,*)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -504,8 +504,8 @@ C Put W on disk:
      &                    Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION AUVL(NA,NU,NV,NL)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -606,8 +606,8 @@ C Put W on disk:
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       DIMENSION AJVL(NV,NL,*)
       DIMENSION Buff(nBuff)
@@ -816,8 +816,8 @@ C Read WM:
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION AUCX(NA,NU,NC,NX)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -999,8 +999,8 @@ C Put WFM on disk:
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       DIMENSION AUCL(NA,NU,*)
       DIMENSION Buff(nBuff)
@@ -1237,8 +1237,8 @@ C      NBXSZJ=NINABX
      &                   Cho_Bra,Cho_Ket,NCHO)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION AJCL(NC*NL,*)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)

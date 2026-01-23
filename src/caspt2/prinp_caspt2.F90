@@ -39,11 +39,17 @@ subroutine prinp_caspt2()
 
 #ifdef _DMRG_
   use caspt2_global, only: compressMPS
+  use caspt2_module, only: DMRG
 #endif
-
+  use caspt2_module, only: nBas, nDel, nSsh, nAsh, nIsh, nFro, mState, Header, Zeta, STSym, RFPert, Orbin, &
+                           nSym, nState, nSshT, nRoots, nIshT, nHole1, nEle3, nConf, nAshT, nActel, iSpin, &
+                           iSCF, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfMSCoup, IfMix, IfDW, IfDOrtho, HZero, &
+                           DWType
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
+  use caspt2_module, only: DoCumulant
+#endif
   implicit none
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
   integer(kind=iwp)  :: i,iSym,left,lLine,lPaper

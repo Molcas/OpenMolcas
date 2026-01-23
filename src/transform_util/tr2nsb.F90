@@ -45,6 +45,7 @@ use trafo, only: IAD13, ISP, ISQ, ISR, ISS, LMOP2, LMOQ2, LMOR2, LMOS2, LTUPQ, N
                  NOS, NPQ
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use caspt2_module, only: nSym
 
 #include "intent.fh"
 
@@ -53,7 +54,6 @@ integer(kind=iwp), intent(in) :: NCMO, lBuf, MAXRS
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*)
 real(kind=wp), intent(inout) :: PQRS(*), TURS(*)
-#include "caspt2.fh"
 integer(kind=iwp) :: IAD3, IAD3S, icc, iOpt, IPQ, IPQMX3, IPQST, iRc, IRS, IRSST, ISPQRS, ITU, IX2, Kread, Length, LPQ, LRS, NOTU, &
                      NP, NQ, NR, Nread, Nrest, NRS, NS, NSYMP, NT, NU, Num, NumPQ, NumRS
 

@@ -25,8 +25,8 @@
       use EQSOLV
       use Sigma_data
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       Integer IVEC, JVEC, NDPT2
       Real*8 DPT2(*), SCAL
 

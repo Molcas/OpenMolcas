@@ -41,13 +41,13 @@ use trafo, only: IAD13, ISP, ISQ, ISR, ISS, LMOP, LMOP2, LMOQ, LMOQ2, LMOS, LMOS
                  NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use caspt2_module, only: nSym
 
 implicit none
 integer(kind=iwp), intent(in) :: NCMO, nX1, nX2, npqUS, npqrU
 real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(out) :: X1(nX1), X2(nX2)
 real(kind=wp), intent(inout) :: pqUS(npqUS), pqrU(npqrU)
-#include "caspt2.fh"
 integer(kind=iwp) :: IAD1S, IAD2, IAD2S, icxc3, icxc7, IPQMX1, IPQMX2, IPQST, IRU, IS, ISPQRS, IST, ITU, IUS, KKTU, LAS, LS, NA, &
                      NAT, NORU, NOTU, NOUS, NS, NSYMP, NT, NTM, NTMAX, NU, Num, NUMAX
 

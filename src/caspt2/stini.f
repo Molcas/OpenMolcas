@@ -14,12 +14,14 @@
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_set_state
       use iso_c_binding, only: c_int
+      use caspt2_module, only: DMRG
 #endif
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF, PREF
       use PrintLevel, only: debug, usual
+      use caspt2_module, only: CPUFG3, ERef, jState, nAshT, EASUM,
+     &                         TIOFG3, EPSA, mState, RefEne
       IMPLICIT NONE
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       CHARACTER(LEN=50)  STLNE2
 C     timers

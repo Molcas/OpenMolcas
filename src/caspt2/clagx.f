@@ -16,11 +16,11 @@
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       Implicit Real*8 (A-H,O-Z)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -160,13 +160,13 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       use fake_GA, only: GA_Arrays
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
       use definitions, only: u6
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
 #ifdef _MOLCAS_MPP_
@@ -1507,13 +1507,13 @@ C
       use EQSOLV
       use Sigma_data
       use definitions, only: wp
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 C
       DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*),VEC5(*)
@@ -1724,8 +1724,8 @@ C
       use gugx, only: L2ACT
       use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
       use definitions, only: wp
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
 C
@@ -1822,8 +1822,8 @@ C
       use caspt2_global, only: OMGDER, Weight
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 C
       Integer, Intent(In)::nLev
@@ -1925,12 +1925,12 @@ C
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 C
       Dimension CLag(nConf,nState),SLag(*)
       real(kind=wp),allocatable :: CI1(:),CI2(:)
 C
-#include "caspt2.fh"
 
       call mma_allocate(CI1,nConf,Label='CI1')
       call mma_allocate(CI2,nConf,Label='CI2')
@@ -2000,11 +2000,11 @@ C
       SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG,nLev)
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module, only: nConf
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       INTEGER, INTENT(IN) :: nLev
       REAL*8, INTENT(IN) :: CI(NCONF)
@@ -2046,12 +2046,12 @@ C
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp
+      use caspt2_module, only: nConf, nState, STSym, Mul
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King, nProcs
 #endif
       IMPLICIT NONE
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
@@ -2185,9 +2185,8 @@ C
       SUBROUTINE CLagX_TrfCI(CI)
 C
       use caspt2_global, only: TAT, TORB
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       REAL*8 CI(*)
 C
@@ -2415,10 +2414,10 @@ C
 C
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
       Dimension DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),
@@ -2627,8 +2626,8 @@ C
       use definitions, only: iwp,RtoB,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
 #include "global.fh"
@@ -2934,13 +2933,13 @@ C
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs
 #endif
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #endif
@@ -3186,10 +3185,10 @@ C
 C
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 C
       Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
       Dimension DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),
@@ -3395,10 +3394,10 @@ C
       USE Para_Info, only: nProcs
       use definitions, only: iwp,RtoB,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
+      use caspt2_module
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
 #include "global.fh"
@@ -3713,13 +3712,13 @@ C
       use caspt2_global, only:ipea_shift
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs
 #endif
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #endif
@@ -3924,9 +3923,9 @@ C
       USE Para_Info, only: nProcs
       use definitions, only: wp
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
 #include "global.fh"
@@ -4004,12 +4003,12 @@ C
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 C
       Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
      *          WRK1(nBasT,nBasT),WRK2(*),U0(nState,nState)
@@ -4828,6 +4827,7 @@ C
       SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
      *                    INT1,INT2,Fancy,nLev,nMidV)
       use gugx, only: SGS, CIS
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER, INTENT(IN) :: nLev
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -4837,7 +4837,6 @@ C
       REAL*8 INT1(NLEV,NLEV),INT2(NLEV,NLEV,NLEV,NLEV)
       REAL*8 Fancy(nRoots,nRoots,nRoots)
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       DIMENSION ICS(MXLEV)
       Integer :: nIpWlk
@@ -5081,10 +5080,10 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine DEPSAOffO(OLag,DEPSA,FIFA)
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 C
       Dimension OLag(*),DEPSA(nAshT,nAshT),FIFA(*)
 C
@@ -5130,10 +5129,10 @@ C
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 C
       DIMENSION WGRONK(2)
       Dimension BDer(*),SDer(*)
@@ -5296,13 +5295,13 @@ C
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 
 #include "global.fh"
 #include "mafdecls.fh"

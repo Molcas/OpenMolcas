@@ -20,7 +20,6 @@
 CSVC2010: create square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, create
 C tridiagonal local array at Work(lg_M)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       Integer lg_M, nSize
       CHARACTER(len=*) cNAME
@@ -51,7 +50,6 @@ C tridiagonal local array at Work(lg_M)
 CSVC2010: destroy square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, free the
 C tridiagonal local array at Work(lg_M)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       Integer lg_M
 
@@ -83,8 +81,6 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
       use fake_ga, only: GA_arrays
-      IMPLICIT None
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       Integer iCase, iSym, lg_M, nSize
       CHARACTER(LEN=*) cNAME
@@ -157,7 +153,6 @@ C LUSBT into WORK(lg_M)
       use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
       use fake_ga, only: GA_arrays
       IMPLICIT None
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       INTEGER iCASE,iSym,lg_M,nSize
       CHARACTER(LEN=*) cNAME

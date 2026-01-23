@@ -17,12 +17,17 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKLIST(LIST)
-      USE SUPERINDEX
-      use EQSOLV
+      USE SUPERINDEX, only: MTU, KTUV, MTGEU, MTGTU, KTU, KTGEU, KTGTU,
+     &                      KIGEJ, KIGTJ, KAGEB, KAGTB
+      use EQSOLV, only: llist, nlist
+      use caspt2_module, only: nAshT, nSym, Mul, nAES, NTUES, NTUVES,
+     &                         NTU, nAsh, NTGEUES, NTGEU, NTGTUES,
+     &                         NTGTU, NTGEUES, NTGTUES, NIES, NIGEJES,
+     &                         NIGTJES, NIGEJES, NIGTJES, nIsh, NSES,
+     &                         NAGEBES, NAGTBES, NAGEBES, nSsh
       IMPLICIT NONE
 C Subroutine for setting up the 17 lists of coupling
 C  coefficients -- See sgm.f and sgm.ol for usage.
-#include "caspt2.fh"
 
       INTEGER LIST(*)
 
@@ -489,6 +494,4 @@ C Add to list 16: IA,IB,IAB,V= Sqr(2)
         END DO
        END DO
 
-
-      RETURN
       END

@@ -32,8 +32,16 @@
 *--------------------------------------------*
       SUBROUTINE SUPINI
       use stdalloc, only: mma_allocate
+      use caspt2_module, only: nInDep, MxCase, nAshT, nCases, nIshT,
+     &                         nAshT, nSym, nTUVEs, nAsh, nSshT,
+     &                         Mul, nAes, nSTUV, nTUV, nTUES,
+     &                         nTGEUES, nTGTUES, nSTGTU, nTU, nTGEU,
+     &                         nTGTU, nIGEJES, nIGTJES, nIsh, nSTU,
+     &                         nSTGEU, nIES, nIGEJ, nIGTJ, nAGEBES,
+     &                         nAGTBES, nSsh, nSES, nAGEB, nIAES,
+     &                         nSES, nSsh, nAGTB, Cases, nASUP, nISUP,
+     &                         nEXCES, nEXC
       IMPLICIT NONE
-#include "caspt2.fh"
       CHARACTER(LEN=8) CSNAME(MXCASE)
       DATA CSNAME / 'VJTU    ','VJTIP   ','VJTIM   ',
      &     'ATVX    ','AIVX    ','VJAIP   ','VJAIM   ','BVATP   ',

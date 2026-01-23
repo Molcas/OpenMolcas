@@ -24,7 +24,6 @@
 *
       IMPLICIT NONE
 *
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 *
       INTEGER, INTENT(IN) :: IFF

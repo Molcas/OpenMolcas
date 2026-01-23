@@ -11,15 +11,17 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
       SUBROUTINE TRACHO3(CMO,NCMO)
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVLOC_ChoBatch, npq_ChoType, ChoVec_Save,
+     &                     ChoVec_load, ChoVec_Coll
       use Cholesky, only: InfVec
-      use EQSOLV
-      use ChoCASPT2
+      use ChoCASPT2, only: MxNVc, nChSpc, nHtSpc, NumCho_PT2, nFtSpc
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nInaBx, nSecBx, nSym, RHSDirect, nBas,
+     &                         nBtches, Mul, nFro, nIsh, nAsh, nSsh,
+     &                         nBtch
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "warnings.h"
-#include "caspt2.fh"
       INTEGER NCMO
       REAL*8 CMO(NCMO)
 

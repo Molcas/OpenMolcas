@@ -12,10 +12,10 @@
 ************************************************************************
       SUBROUTINE Backtransform(Heff,Ueff,U0)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 C Back-transform Heff and Ueff to the basis of the original
 C CASSCF states.
-#include "caspt2.fh"
       real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
       real(8),allocatable :: U0transpose(:,:),Utmp(:,:)
 
@@ -43,6 +43,4 @@ C CASSCF states.
 
       end if
 
-
-      RETURN
-      END
+      END SUBROUTINE Backtransform

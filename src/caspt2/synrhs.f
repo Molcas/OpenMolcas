@@ -10,8 +10,8 @@
 ************************************************************************
       SUBROUTINE PCOLLVEC(IVEC,iTYPE)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 
 ***************************************************************
@@ -31,15 +31,13 @@
        END DO
       END DO
 
-
-      RETURN
       END
 
 #if 0
       SUBROUTINE PDISTVEC(IVEC,iTYPE)
+      use caspt2_module
       use EQSOLV
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 
 ***************************************************************
@@ -59,7 +57,5 @@
        END DO
       END DO
 
-
-      RETURN
       END
 #endif

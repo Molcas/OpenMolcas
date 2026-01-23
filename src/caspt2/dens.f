@@ -39,10 +39,9 @@
       use ChoCASPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
-
 #include "pt2_guga.fh"
       DIMENSION DMAT(*),UEFF(nState,nState),U0(nState,nState)
       Dimension VECROT(nState)
@@ -1067,11 +1066,10 @@ C
       Subroutine CnstTrf(Trf0,Trf)
 C
       use caspt2_global, only: TraFro
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
-
       Dimension Trf0(*),Trf(*)
 
       iSQ = 0
@@ -1205,8 +1203,8 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE AddDEPSA(DPT2,DEPSA)
 C
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 C
       DIMENSION DPT2(*),DEPSA(nAshT,nAshT)
 C
@@ -1249,8 +1247,8 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE AddDPTC(DPTC,DSUM)
 C
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 C
       DIMENSION DPTC(*),DSUM(*)
 C
@@ -1294,9 +1292,8 @@ C
 C
       use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       DIMENSION nFroTmp(8),nOshTmp(8),nOrbTmp(8)
 C
@@ -1338,9 +1335,8 @@ C-----------------------------------------------------------------------
 C
       Subroutine DPT2_TrfStore(Scal,DPT2q,DPT2n,Trf,WRK)
 C
+      use caspt2_module
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension DPT2q(*),DPT2n(*),Trf(*),WRK(*)
 C
@@ -1369,9 +1365,9 @@ C
 C
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 C
       DIMENSION DPT2(*),DPT2AO(*),CMO(*),DEPSA(nAshT,nAshT),DSUM(*)
       real(kind=wp),allocatable :: WRK(:)
@@ -1438,9 +1434,9 @@ C
       use caspt2_global, only: OLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 C
       DIMENSION DPT2(*),DPT2C(*),FPT2AO(*),FPT2CAO(*),RDMEIG(*),CMO(*),
      *          Trf(*)
@@ -1600,9 +1596,9 @@ C
       use caspt2_global, only: OLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 C
       DIMENSION RDMEIG(*),Trf(*)
       DIMENSION FIFA(*),RDMSA(*),DEPSA(*),WRK1(*),WRK2(*)
@@ -1685,10 +1681,9 @@ C
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension DEPSA(nAshT,nAshT),FPT2(*),WRK1(*),WRk2(*)
       real(kind=wp),allocatable :: DAO(:),DMO(:)
@@ -1793,14 +1788,13 @@ C
       use ChoCASPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       use definitions, only: iwp
       USE Para_Info, ONLY: Is_Real_Par, nProcs, myRank
 #endif
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
 #include "warnings.h"
 #ifdef _MOLCAS_MPP_

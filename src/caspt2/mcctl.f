@@ -21,9 +21,8 @@
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
+      use caspt2_module, only: nState, E2Corr, jState, NLYRoot, mState
       IMPLICIT NONE
-#include "caspt2.fh"
       REAL*8 HEFF(NSTATE,NSTATE)
 
       INTEGER ISTATE

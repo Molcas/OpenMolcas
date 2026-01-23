@@ -10,8 +10,8 @@
 ************************************************************************
       SUBROUTINE MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded for OP2, OP3, but
 C index pair C permutation symmetry is used.
@@ -45,8 +45,8 @@ C as operating on the CASSCF space.
       USE SUPERINDEX
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -255,9 +255,8 @@ C Deallocate temporary space:
       USE SUPERINDEX
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -486,8 +485,8 @@ C Deallocate matrix product
       USE SUPERINDEX
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -654,9 +653,8 @@ C Deallocate temporary space:
       USE SUPERINDEX
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -772,9 +770,8 @@ C Deallocate matrix product:
       SUBROUTINE MKWWOPE(IVEC,JVEC,OP0,OP1)
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded.
       Integer IVEC, JVEC
@@ -851,9 +848,8 @@ C End of loop over cases.
       USE SUPERINDEX
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
@@ -1044,9 +1040,8 @@ C Deallocate matrix product:
       SUBROUTINE MKWWOPG(IVEC,JVEC,OP1)
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
 C Presently symmetry blocking is disregarded.
       INTEGER IVEC, JVEC
@@ -1121,9 +1116,9 @@ C End of loop over cases.
       SUBROUTINE MKWWOPH(IVEC,JVEC,OP0)
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       INTEGER IVEC, JVEC
       REAL*8 OP0
 

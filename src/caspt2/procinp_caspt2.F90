@@ -38,11 +38,15 @@ subroutine procinp_caspt2
 #if 0
   use OFembed, only:Do_OFemb
 #endif
-  use ChoCASPT2
+  use caspt2_module, only: nGroupState, mState, Mul, nDel, nSsh, nFro, nIsh, iAd1m, Zeta, ThrSHS, ThrSHN, ThrOCC, &
+                           ThrEne, ThrConv, SMatrix, SDECOM, Root2State, RHSDirect, RFPERT, PRSD, OutFmt, OrbIn,  &
+                           PrOrb, nTit, nSym, nState, nRas3T, nRas1T, nRoots, nLYRoot, nLYGroup, nGroup, nCases,  &
+                           MxSym, MxRoot, MaxIt, nRoots, iRoot, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfProp, JMS,    &
+                           IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, ieoF1m, HZero, G1SECIN, FockType,     &
+                           DWType, DoCumulant, BTrans, BSpect, BMatrix, DMRG
 
   implicit none
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
   integer(kind=iwp) :: iDummy

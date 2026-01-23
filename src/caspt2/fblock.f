@@ -18,7 +18,6 @@
 *--------------------------------------------*
       SUBROUTINE FBLOCK(FIFA,NO,NI,NA,NS,FIT,FTI,FIA,FAI,FTA,FAT)
       IMPLICIT NONE
-#include "caspt2.fh"
       INTEGER NO,NI,NA,NS
       REAL*8 FIFA((NO*(NO+1))/2)
       REAL*8 FIT(NI,NA),FIA(NI,NS),FTA(NA,NS)
@@ -57,5 +56,4 @@ C low-level sgm subroutines
         END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE FBLOCK

@@ -20,11 +20,11 @@
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 ALPHA, BETA
       INTEGER IVEC, JVEC
 
-#include "caspt2.fh"
       INTEGER ICASE, ISYM, NIN, NAS, NIS, JD
       REAL*8, ALLOCATABLE:: BD(:), ID(:)
 

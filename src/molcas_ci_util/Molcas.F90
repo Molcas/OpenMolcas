@@ -10,8 +10,6 @@
 !***********************************************************************
 Module Molcas
 Private
-!define _NEW_
-#ifdef _NEW_
 #ifndef _DEMO_
       Integer, Parameter:: MaxBfn=10000
 #else
@@ -50,9 +48,6 @@ Private
       Integer, Parameter :: LENIN5=LENIN+5
       Integer, Parameter :: LENIN6=LENIN+6
       Integer, Parameter :: LENIN8=LENIN+8
-#else
-#include "Molcas.fh"
-#endif
 Public MaxBfn, MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, &
        mxact, mxina, mxbas, mxOrb, mxSym, mxGAS, LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
 End Module Molcas

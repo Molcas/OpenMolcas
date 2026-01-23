@@ -16,10 +16,11 @@
      &                  refwfn_filename, refwfn_close, iadr15
 #ifdef _HDF5_
       Use mh5, Only: mh5_open_file_r, mh5_fetch_dset
+      use caspt2_module, only: mState
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nState, nConf, STSym
       Implicit None
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       Real*8 :: EigVec(nState,nState)
       Integer :: iState, iiState, iDisk

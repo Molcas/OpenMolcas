@@ -23,10 +23,10 @@
       use PrintLevel, only: verbose
       use EQSOLV
       use Sigma_data
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
-#include "caspt2.fh"
       INTEGER IVEC, JVEC, NDPT2
       REAL*8 DPT2(NDPT2)
       INTEGER :: NACTD(13)=[1, 2, 2,-1, 0, 1, 1,-2,-2,-1,-1, 0, 0]

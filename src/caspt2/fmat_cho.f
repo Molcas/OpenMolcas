@@ -13,8 +13,8 @@
       use caspt2_global, only: FIFA, DREF
       use caspt2_global, only: LUONEM
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       Integer NCMO, NHONE, NFIMO, NFAMO
       Real*8  CMO(NCMO)
       Real*8 FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
