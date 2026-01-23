@@ -159,6 +159,12 @@ subroutine procinp_caspt2
   RHSDIRECT = .False.
 #endif
 
+  iParRHS = 1
+#ifdef _MOLCAS_MPP_
+  if (is_real_par() .and. Input%PRHS == 0 .and. .not.RHSDIRECT) iParRHS = 2
+#endif
+  if (Input%PRHS /= 0) iParRHS = Input%PRHS
+
   ! Cholesky: set defaults if it was not called during input
   if (.NOT. (Input%ChoI .or. Input%Chol)) then
     call Cho_caspt2_rdInp(.True.,iDummy)
@@ -186,11 +192,6 @@ subroutine procinp_caspt2
   DoCumulant = Input%DoCumulant
   DMRG = Input%DMRG
   CompressMPS = Input%CompressMPS
-
-  iParRHS = 1
-#ifdef _MOLCAS_MPP_
-  if (is_real_par() .and. Input%PRHS == 2 .and. .not.RHSDIRECT) iParRHS = 2
-#endif
 
 !***********************************************************************
 !
