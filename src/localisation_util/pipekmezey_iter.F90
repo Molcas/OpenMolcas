@@ -39,20 +39,20 @@ logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false., debug_
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
-opt_method = 'jacobisweeps'
-!opt_method = 'gradient_ascent'
-!opt_method = 'newton_raphson'
+opt_method = 'JACO'
+!opt_method = 'GASC'
+!opt_method = 'NEWT'
 
-if (opt_method == 'jacobisweeps') then
+if (opt_method == 'JACO') then
     if (.not. Silent) then
         write(u6,'(/,A)') 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
     end if
-else if (opt_method == 'gradient_ascent') then
+else if (opt_method == 'GASC') then
     if (.not. Silent) then
         write(u6,'(/,A,2X,F8.6)') 'Gradient Ascent for maximization of the PM functional with alpha =', alpha
         write(u6,*) 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
     end if
-else if (opt_method == 'newton_raphson') then
+else if (opt_method == 'NEWT') then
     if (.not. Silent) then
         write(u6,'(/,A)') 'Newton Raphson method for maximization of the PM functional'
         write(u6,*) 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
@@ -142,12 +142,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
     if (.not. Silent) call CWTime(C1,W1)
 
     !choose between optimization methods
-    if (opt_method == 'jacobisweeps') then
+    if (opt_method == 'JACO') then
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! 2x2 rotations
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
-    else if (opt_method == 'gradient_ascent' .or. opt_method == 'newton_raphson') then
+    else if (opt_method == 'GASC' .or. opt_method == 'NEWT') then
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! NxN rotations
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -157,9 +157,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
         kappa_cnt(:,:) = Zero
         xkappa_cnt(:,:) = Zero
 
-        if (opt_method == 'newton_raphson') then
+        if (opt_method == 'NEWT') then
             kappa(:,:) = -GradientList(:,:,nIter+1)/Hdiag(:,:)
-        else if (opt_method == 'gradient_ascent') then
+        else if (opt_method == 'GASC') then
             kappa(:,:) = alpha*GradientList(:,:,nIter+1)
         end if
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
