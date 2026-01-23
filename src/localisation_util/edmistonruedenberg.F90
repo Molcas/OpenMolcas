@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine EdmistonRuedenberg(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged, &
+subroutine EdmistonRuedenberg(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged, &
                               Silent)
 ! Author: T.B. Pedersen
 !
@@ -23,7 +23,7 @@ implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
-logical(kind=iwp), intent(in) :: Maximisation, Silent
+logical(kind=iwp), intent(in) :: Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: irc, kOffC, nBasT, nFroT, nOrb2LocT
 real(kind=wp) :: FracMem
@@ -60,7 +60,7 @@ end if
 ! ------------------
 
 kOffC = nBasT*nFroT+1
-call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),nBasT,nOrb2LocT,nMxIter,Maximisation,Converged,Silent)
+call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),nBasT,nOrb2LocT,nMxIter,Converged,Silent)
 
 ! Finalizations.
 ! --------------

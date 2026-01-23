@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms, &
-                           nMxIter,Maximisation,Converged,Silent)
+                           nMxIter,Converged,Silent)
 ! Author: T.B. Pedersen
 !
 ! Based on the original routines by Y. Carissan.
@@ -29,7 +29,7 @@ real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn8), intent(in) :: BName(nBasis)
-logical(kind=iwp), intent(in) :: Maximisation, Silent
+logical(kind=iwp), intent(in) :: Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i,k, iBas, cnt, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh, DD, Thr
@@ -148,7 +148,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! 2x2 rotations
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
+        call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
     else if (opt_method == 'gradient_ascent' .or. opt_method == 'newton_raphson') then
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! NxN rotations

@@ -12,7 +12,7 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
+subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,nOrb2loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
@@ -22,13 +22,12 @@ subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas
 use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn8, LenIn
-use Localisation_globals, only: Debug, ThrRot
+use Localisation_globals, only: Debug, ThrRot, Maximisation
 
 implicit none
 integer(kind=iwp), intent(in) :: nBasis, nAtoms, nOrb2Loc, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
 real(kind=wp), intent(inout) :: cMO(nBasis,*), PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
-logical(kind=iwp), intent(in) :: Maximisation
 character(len=LenIn8), intent(in) :: BName(*)
 integer(kind=iwp) :: iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
 real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, sin4alpha, SumA, SumB, Tst, Tstc, &
