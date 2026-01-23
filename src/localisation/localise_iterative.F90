@@ -20,7 +20,7 @@ subroutine Localise_Iterative(irc,Model,Functional)
 !            Boys                [MODEL='BOYS']
 !            Edmiston-Ruedenberg [MODEL='EDMI']
 
-use Localisation_globals, only: ChoStart, CMO, nBas, nFro, nOrb2Loc, nSym, ThrGrad, ThrRot, Thrs, ScrFac
+use Localisation_globals, only: ChoStart, CMO, nBas, nFro, nOrb2Loc, nSym, ThrGrad, ThrRot, Thrs, ScrFac,OptMeth, ChargeType
 use Definitions, only: wp, iwp, u6
 use Constants, only: Zero
 
@@ -67,6 +67,16 @@ if (myModel == 'PIPE') then
   write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
+  If (OptMeth == 1) then
+    write(u6,'(1X,A)') 'Optimization Method  : Jacobi Sweeps'
+  else if (OptMeth == 2) then
+    write(u6,'(1X,A)') 'Optimization Method  : Newton Raphson'
+  end if
+  If (ChargeType == 1) then
+    write(u6,'(1X,A)') 'Framework for PMLoc  : Mulliken charges'
+  else if (OptMeth == 2) then
+    write(u6,'(1X,A)') 'Framework for PMLoc  : Loewdin charges'
+  end if
   !end if
   call PipekMezey        (Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
 else if (myModel == 'BOYS') then

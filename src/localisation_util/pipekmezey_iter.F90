@@ -34,16 +34,9 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:),kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), &
                                 GradientList(:,:,:), Hdiag(:,:), FunctionalList(:),&
                                 unitary_mat(:,:), rotated_CMO(:,:), Ovlp_sqrt(:,:),  Ovlp_aux(:,:), SCR(:)
-logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false., debug_lowdin = .false., lowdin=.false.
+logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false., debug_lowdin = .false.
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
-
-if (lowdin) then
-    write(u6,*) "using the Loewdin framework for PM localisation."
-else
-    write(u6,*) "using the Mulliken framework for PM localisation."
-end if
-
 
 ! Print iteration table header.
 ! -----------------------------
@@ -84,7 +77,7 @@ FunctionalList(:)=0
     end if
     call mma_deallocate(Ovlp_aux)
 !end if
-call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt, lowdin)
+call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional)
 
 FunctionalList(1)=Functional
@@ -239,7 +232,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
 
         !reset CMO to be updated
         CMO(:,:) = rotated_CMO(:,:)
-        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt ,lowdin)
+        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
     end if
 
     nIter = nIter+1

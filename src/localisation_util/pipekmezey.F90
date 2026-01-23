@@ -21,7 +21,7 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, Silent, OptMeth
+use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, Silent
 use Molcas, only: LenIn8
 
 implicit none
@@ -41,25 +41,6 @@ character(len=*), parameter :: SecNam = 'PipekMezey'
 if (nSym /= 1) then
   call SysAbendMsg(SecNam,'Symmetry not implemented!','Sorry!')
 end if
-
-! Choosing the maximizer
-! ----------------------
-!OptMeth = 'JACO'
-!OptMeth = 'GASC'
-!OptMeth = 'NEWT'
-
-if (.not. Silent) then
-    if (OptMeth == 1) then
-        write(u6,"(1X,A)") 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
-    else if (OptMeth == 3) then
-        write(u6,"(1X,A)") 'Gradient Ascent for maximization of the PM functional'
-        write(u6,"(1X,A)") 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
-    else if (OptMeth == 2) then
-        write(u6,"(1X,A)") 'Newton Raphson method for maximization of the PM functional'
-        write(u6,"(1X,A)") 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
-    end if
-end if
-
 
 ! Initializations.
 ! ----------------

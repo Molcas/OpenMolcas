@@ -19,7 +19,7 @@ use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, An
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
                                 Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
-                                ScrFac, OptMeth
+                                ScrFac, OptMeth, ChargeType
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -73,6 +73,7 @@ else
 end if
 LocModel = 1  ! Pipek-Mezey localisation
 OptMeth = 1 ! PM localisation done with Jacobi Sweeps
+ChargeType = 1 ! PM localisation done within the Mulliken population framework
 if (nSym > 1) LocModel = 3  ! Cholesky localisation
 LocModel_UsrDef = .false.
 Test_Localisation = .false.
@@ -203,6 +204,7 @@ do
 
     case ('OPTM')
         Line = Get_Ln(LuSpool)
+        Key(:) = ""
         call Get_s(1,Key(1:4),1)
 
         select case (Key(1:4))
@@ -217,6 +219,29 @@ do
             case default
                 write(u6,*) 'WARNING!!!'
                 write(u6,*) 'The specified optimization method for PM localisation does not exist'
+                write(u6,*) 'using the default instead'
+                call FindErrorLine()
+        end select
+
+
+    case ('CHAR')
+        ! choosing between Mulliken and Loewdin charge framework for PM localisation
+        Line = Get_Ln(LuSpool)
+        Key(:) = ""
+        call Get_s(1,Key(1:4),1)
+
+        select case (Key(1:4))
+            ! Mulliken
+            case('MULL')
+            ChargeType = 1
+
+            case ('LOWD','LOEW')
+            ! Loewdin
+            ChargeType = 2
+
+            case default
+                write(u6,*) 'WARNING!!!'
+                write(u6,*) 'The specified framework for PM localisation does not exist'
                 write(u6,*) 'using the default instead'
                 call FindErrorLine()
         end select
