@@ -92,6 +92,7 @@ C Read coefficient vector from LUSOLV (C repres).
       SUBROUTINE PSCAVEC (FACT,IVEC,JVEC)
       use caspt2_global, ONLY: iPrGlb
       USE PrintLevel, ONLY: usual
+      use EQSOLV
       use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep,
      &                         niSup
 
@@ -298,9 +299,18 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOSR (ITYPE,IVEC,JVEC)
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp, wp
+      use Constants, only: Zero
+      use caspt2_module, only: nSym, nInDep, nASup, nISup, nCases,
+     &                         CPUVec, TIOVec
+      IMPLICIT None
+
+      integer(kind=iwp), intent(In):: iTYPE, iVec, jVec
+
+      integer(kind=iwp) :: iCase, iSym, nIn, nAs, nIs
+      integer(kind=iwp) :: lg_v1, lg_v2
+      real(kind=wp) CPU1, CPU0, TIO1, TIO0, CPU, TIO
+
 
 C Transform RHS vectors from SR format to C format.
 C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
@@ -325,7 +335,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
      &                       lg_V1,lg_V2,ICASE,ISYM)
               CALL RHS_FREE (lg_V2)
             ELSE
-              CALL RHS_SCAL (NIN,NIS,lg_V1,0.0D0)
+              CALL RHS_SCAL (NIN,NIS,lg_V1,Zero)
             END IF
           ELSE
             CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)

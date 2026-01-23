@@ -173,6 +173,11 @@ C-SVC: start PCG routine, set timers.
       CPUOVL=0
       CPUSGM=0
       CPUVEC=0
+      TIOSCA=0
+      TIOLCS=0
+      TIOOVL=0
+      TIOSGM=0
+      TIOVEC=0
 
 C Transform RHS of CASPT2 equations to eigenbasis for H0:
       CALL PTRTOSR(1,IVECW,IRHS)
