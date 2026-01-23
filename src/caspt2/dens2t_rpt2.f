@@ -25,9 +25,9 @@
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, nActEl, nAshT, nConf, STSym, Mul
+      use pt2_guga, only: MxCI, nG1, nG2
       IMPLICIT NONE
 
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
       Integer, Intent(In):: nLev

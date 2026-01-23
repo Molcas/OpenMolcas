@@ -31,9 +31,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,
      &                         Mul, mState
+      use pt2_guga, only: MxCI, nG1
       IMPLICIT NONE
 
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
 
