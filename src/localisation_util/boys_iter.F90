@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine Boys_Iter(Functional,CMO,Lbl_AO,Lbl,nBas,nOrb2Loc,nComp,nMxIter,Converged)
+subroutine Boys_Iter(Functional,CMO,Lbl_AO,Lbl,nBas,nOrb2Loc,nComp,Converged)
 ! Author: T.B. Pedersen
 !
 ! Purpose: Boys localisation of orbitals.
@@ -19,10 +19,10 @@ subroutine Boys_Iter(Functional,CMO,Lbl_AO,Lbl,nBas,nOrb2Loc,nComp,nMxIter,Conve
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Thrs,ThrGrad, Silent
+use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter
 
 implicit none
-integer(kind=iwp), intent(in) :: nComp, nBas, nOrb2Loc, nMxIter
+integer(kind=iwp), intent(in) :: nComp, nBas, nOrb2Loc
 real(kind=wp), intent(out) :: Functional, Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(inout) :: CMO(nBas,*)
 real(kind=wp), intent(in) :: Lbl_AO(nBas,nBas,nComp)

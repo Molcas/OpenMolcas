@@ -11,8 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms, &
-                           nMxIter,Converged)
+subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
 !
 ! Based on the original routines by Y. Carissan.
@@ -21,10 +20,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn8
-use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent
+use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent, nMxIter
 
 implicit none
-integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc, nMxIter
+integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*)

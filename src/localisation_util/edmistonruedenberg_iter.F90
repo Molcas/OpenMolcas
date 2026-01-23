@@ -11,7 +11,7 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine EdmistonRuedenberg_Iter(Functional,CMO,nBasis,nOrb2Loc,nMxIter,Converged)
+subroutine EdmistonRuedenberg_Iter(Functional,CMO,nBasis,nOrb2Loc,Converged)
 ! Thomas Bondo Pedersen, November 2005.
 !
 ! Purpose: ER localisation of orbitals.
@@ -29,11 +29,11 @@ subroutine EdmistonRuedenberg_Iter(Functional,CMO,nBasis,nOrb2Loc,nMxIter,Conver
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug, Thrs,ThrRot,ThrGrad, Maximisation, Silent
+use Localisation_globals, only: Debug, Thrs,ThrRot,ThrGrad, Maximisation, Silent, nMxIter
 
 implicit none
 real(kind=wp), intent(out) :: Functional
-integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nMxIter
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter

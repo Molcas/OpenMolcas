@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine EdmistonRuedenberg(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged)
+subroutine EdmistonRuedenberg(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
 ! Author: T.B. Pedersen
 !
 ! Purpose: Edmiston-Ruedenberg localisation of occupied orbitals.
@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: irc, kOffC, nBasT, nFroT, nOrb2LocT
 real(kind=wp) :: FracMem
@@ -58,7 +58,7 @@ end if
 ! ------------------
 
 kOffC = nBasT*nFroT+1
-call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),nBasT,nOrb2LocT,nMxIter,Converged)
+call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),nBasT,nOrb2LocT,Converged)
 
 ! Finalizations.
 ! --------------
