@@ -18,7 +18,8 @@ subroutine Readinp_localisation()
 use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, &
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
-                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, ScrFac
+                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
+                                ScrFac, OptMeth
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -71,6 +72,7 @@ else
   Silent = .false.
 end if
 LocModel = 1  ! Pipek-Mezey localisation
+OptMeth = 1 ! PM localisation done with Jacobi Sweeps
 if (nSym > 1) LocModel = 3  ! Cholesky localisation
 LocModel_UsrDef = .false.
 Test_Localisation = .false.
@@ -199,7 +201,27 @@ do
       LocModel = 1
       LocModel_UsrDef = .true.
 
-    case ('BOYS')
+    case ('OPTM')
+        Line = Get_Ln(LuSpool)
+        call Get_s(1,Key(1:4),1)
+
+        select case (Key(1:4))
+            ! Jacobi Sweeps for PM localisation
+            case('JACO')
+            OptMeth = 1
+
+            case ('NEWT')
+            ! Newton Raphson for PM localisation
+            OptMeth = 2
+
+            case default
+                write(u6,*) 'WARNING!!!'
+                write(u6,*) 'The specified optimization method for PM localisation does not exist'
+                write(u6,*) 'using the default instead'
+                call FindErrorLine()
+        end select
+
+      case ('BOYS')
       ! BOYS
 
       LocModel = 2

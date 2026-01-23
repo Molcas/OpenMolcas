@@ -35,7 +35,7 @@ private
 
 
 integer(kind=iwp) :: fileorb_id, iWave, LocModel, LuSpool, MxConstr, nActa, nAtoms, nBas(MxSym), nCMO, nConstr(MxSym), &
-                     nFro(MxSym), nMxIter, nOccInp(MxSym), nOrb(MxSym), nOrb2Loc(MxSym), nSym, nVirInp(MxSym)
+                     nFro(MxSym), nMxIter, nOccInp(MxSym), nOrb(MxSym), nOrb2Loc(MxSym), nSym, nVirInp(MxSym), OptMeth
 #ifdef _HDF5_
 integer(kind=iwp) :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif
@@ -45,7 +45,6 @@ logical(kind=iwp) :: AnaAtom, AnaDomain, Analysis, AnaPAO, AnaPAO_Save, ChoStart
                      Wave, Debug = .false.
 character(len=512) :: LC_FileOrb
 character(len=3) :: AnaNrm
-character(len=4) :: opt_method
 integer(kind=iwp), allocatable :: Ind(:)
 character(len=LenIn8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: NamAct(:)
@@ -56,7 +55,7 @@ public :: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, BName, ChoS
           fileorb_id, Ind, isHDF5, iWave, LC_FileOrb, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MOrig, &
           MxConstr, nActa, NamAct, nAtoms, nBas, nCMO, nConstr, nFro, nMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Occ, Order, &
           PrintMOs, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave,&
-          ScrFac,Debug, opt_method
+          ScrFac,Debug, OptMeth
 #ifdef _HDF5_
 public :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif

@@ -21,7 +21,7 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, Silent, opt_method
+use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, Silent, OptMeth
 use Molcas, only: LenIn8
 
 implicit none
@@ -44,17 +44,17 @@ end if
 
 ! Choosing the maximizer
 ! ----------------------
-opt_method = 'JACO'
-!opt_method = 'GASC'
-!opt_method = 'NEWT'
+!OptMeth = 'JACO'
+!OptMeth = 'GASC'
+!OptMeth = 'NEWT'
 
 if (.not. Silent) then
-    if (opt_method == 'JACO') then
+    if (OptMeth == 1) then
         write(u6,"(1X,A)") 'Jacobi Sweeps (conventional 2x2 rotations) for maximization of the PM functional'
-    else if (opt_method == 'GASC') then
+    else if (OptMeth == 3) then
         write(u6,"(1X,A)") 'Gradient Ascent for maximization of the PM functional'
         write(u6,"(1X,A)") 'using gradient formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
-    else if (opt_method == 'NEWT') then
+    else if (OptMeth == 2) then
         write(u6,"(1X,A)") 'Newton Raphson method for maximization of the PM functional'
         write(u6,"(1X,A)") 'using gradient and Hessian diagonal formula provided by Hoyvik et al. 2013 (doi:10.1002/jcc.23281) '
     end if

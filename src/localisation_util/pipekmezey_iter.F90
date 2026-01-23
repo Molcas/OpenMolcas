@@ -20,7 +20,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn8
-use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent, nMxIter, opt_method
+use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent, nMxIter, OptMeth
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
@@ -121,12 +121,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
     if (.not. Silent) call CWTime(C1,W1)
 
     !choose between optimization methods
-    if (opt_method == 'JACO') then
+    if (OptMeth == 1) then
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! 2x2 rotations
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
-    else if (opt_method == 'GASC' .or. opt_method == 'NEWT') then
+    else if (OptMeth == 2 .or. OptMeth == 3) then
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! NxN rotations
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -136,9 +136,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
         kappa_cnt(:,:) = Zero
         xkappa_cnt(:,:) = Zero
 
-        if (opt_method == 'NEWT') then
+        if (OptMeth == 2) then
             kappa(:,:) = -GradientList(:,:,nIter+1)/Hdiag(:,:)
-        else if (opt_method == 'GASC') then
+        else if (OptMeth == 3) then
             kappa(:,:) = alpha*GradientList(:,:,nIter+1)
         end if
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
