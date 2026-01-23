@@ -43,7 +43,7 @@ C     indices
       END IF
 
 * Reinitialize labels for saving density matrices on disk.
-* The fields IADR10 and CLAB10 are kept in common from pt2_guga.fh
+* The fields IADR10 and CLAB10 are kept in the module pt2_guga.F90
       DO I=1,64
         IADR10(I,1)=-1
         IADR10(I,2)=0

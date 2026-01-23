@@ -19,11 +19,11 @@
       SUBROUTINE POLY1(CI,NCI)
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
+      use pt2_guga, only: MxCI, nG1, iAdr10, cLab10
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-#include "pt2_guga.fh"
 
       INTEGER, INTENT(IN) :: NCI
       REAL*8, INTENT(IN) :: CI(NCI)
@@ -41,7 +41,7 @@
       END IF
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in common included from pt2_guga.fh
+* The fields IADR10 and CLAB10 are kept in pt2_guga.F90
 * CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1

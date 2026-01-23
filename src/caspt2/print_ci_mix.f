@@ -20,8 +20,8 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nState, nConf, STSym
+      use pt2_guga, only: CIThr
       Implicit None
-#include "pt2_guga.fh"
       Real*8 :: EigVec(nState,nState)
       Integer :: iState, iiState, iDisk
       Real*8, Allocatable, Dimension(:) :: cCI, mCI
