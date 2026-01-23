@@ -20,8 +20,7 @@ subroutine Localise_Iterative(irc,Model,Functional)
 !            Boys                [MODEL='BOYS']
 !            Edmiston-Ruedenberg [MODEL='EDMI']
 
-use Localisation_globals, only: ChoStart, CMO,  nMxIter, nBas, nFro, nOrb2Loc, nSym, Silent, ThrGrad, ThrRot, Thrs, &
-                                ScrFac
+use Localisation_globals, only: ChoStart, CMO,  nMxIter, nBas, nFro, nOrb2Loc, nSym, ThrGrad, ThrRot, Thrs, ScrFac
 use Definitions, only: wp, iwp, u6
 use Constants, only: Zero
 
@@ -69,7 +68,7 @@ if (myModel == 'PIPE') then
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
-  call PipekMezey        (Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged,Silent)
+  call PipekMezey        (Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged)
 else if (myModel == 'BOYS') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'Boys localisation'
@@ -80,7 +79,7 @@ else if (myModel == 'BOYS') then
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
-  call Boys              (Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged,Silent)
+  call Boys              (Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged)
 else if (myModel == 'EDMI') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'Edmiston-Ruedenberg localisation'
@@ -91,7 +90,7 @@ else if (myModel == 'EDMI') then
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
-  call EdmistonRuedenberg(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged,Silent)
+  call EdmistonRuedenberg(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged)
 else
   write(Txt,'(A,A4)') 'Model = ',Model
   call SysAbendMsg(SecNam,'Unknown model',Txt)

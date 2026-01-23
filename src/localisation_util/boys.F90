@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine Boys(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged,Silent)
+subroutine Boys(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,nMxIter,Converged)
 ! Author: T.B. Pedersen
 !
 ! Purpose: Boys localisation of occupied orbitals.
@@ -24,7 +24,6 @@ implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
-logical(kind=iwp), intent(in) :: Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: iCmp, iComp, iOpt, irc, iSym, kOffC, lAux, nBasT, nFroT, nOrb2LocT
 character(len=8) :: Label
@@ -102,8 +101,7 @@ call mma_allocate(Lbl,nOrb2LocT,nOrb2LocT,nComp,label='MO_dip')
 ! ------------------
 
 kOffC = 1+nBasT*nFroT
-call Boys_Iter(Functional,CMO(kOffC),Lbl_AO,Lbl,nBasT,nOrb2LocT,nComp,nMxIter,Converged, &
-               Silent)
+call Boys_Iter(Functional,CMO(kOffC),Lbl_AO,Lbl,nBasT,nOrb2LocT,nComp,nMxIter,Converged)
 
 ! De-allocations.
 ! ---------------

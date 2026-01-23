@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms, &
-                           nMxIter,Converged,Silent)
+                           nMxIter,Converged)
 ! Author: T.B. Pedersen
 !
 ! Based on the original routines by Y. Carissan.
@@ -21,7 +21,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn8
-use Localisation_globals, only: Debug, Thrs,ThrGrad
+use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc, nMxIter
@@ -29,7 +29,6 @@ real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn8), intent(in) :: BName(nBasis)
-logical(kind=iwp), intent(in) :: Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i,k, iBas, cnt, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh, DD, Thr
