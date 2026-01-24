@@ -100,6 +100,7 @@ set (sources
      phpcsf.F90
      pmat_rasscf.F90
      prttim.F90
+     pt2_guga.F90
      rasdef.F90
      rasdim.F90
      rasscf_global.F90
@@ -148,6 +149,7 @@ set (modfile_list
      gugx.F90
      input_mclr.F90
      Molcas.F90
+     pt2_guga.F90
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90

@@ -20,6 +20,7 @@
       use gugx, only: SGS, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer, Intent(In):: nMidV
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -29,7 +30,6 @@
       CHARACTER(LEN=1) CODE(0:3)
       DATA CODE /'0','u','d','2'/
 
-#include "pt2_guga.fh"
       INTEGER ICS(MXLEV)
       Integer :: nLev, nIpWlk
       INTEGER, ALLOCATABLE:: LEX(:)

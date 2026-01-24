@@ -25,9 +25,9 @@
      &                         nAshT, nEle3, nHole1, nRas1T, nRas2T,
      &                         nRas3T, nSym, STSym, nAsh
 
+      use pt2_guga, only: MxCI
       IMPLICIT NONE
 
-#include "pt2_guga.fh"
 
       Integer nLev
 

@@ -29,10 +29,10 @@
       use Cholesky, only: NumCho
       use EQSOLV
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "warnings.h"
-#include "pt2_guga.fh"
 
 
 

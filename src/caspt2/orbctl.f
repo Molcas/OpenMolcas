@@ -29,7 +29,6 @@
      &                         ThrEne, ThrOcc, iAd1M, nFro, nOrb, nBasT,
      &                         EPS, nDel
       IMPLICIT NONE
-#include "pt2_guga.fh"
       INTEGER NCMO
       REAL*8 CMO(NCMO)
 

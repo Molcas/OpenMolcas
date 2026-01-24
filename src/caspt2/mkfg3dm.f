@@ -45,8 +45,8 @@ C
 #ifdef _DMRG_
       use caspt2_module, only: DMRG
 #endif
+      use pt2_guga, only: MxLev, MxCI, nG1, nG2, nG3
       IMPLICIT NONE
-#include "pt2_guga.fh"
 
       INTEGER, INTENT(IN) :: IFF, NLEV
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)

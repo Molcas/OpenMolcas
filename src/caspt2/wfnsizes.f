@@ -25,8 +25,8 @@
      &                         nRas1, nRas2, nRas3, nBas, OrbNam,
      &                         IINAIS, IINAM, iActIS, IANAM, iExtIS,
      &                         iiSym, iaSym, ieSym, ISNAM
+      use pt2_guga, only: nG1, nG2, nG3Tot
       implicit none
-#include "pt2_guga.fh"
 
       Integer NASHT2
       Integer NI, NR1, NR2, NR3, NS, N123

@@ -18,10 +18,10 @@
 *--------------------------------------------*
       SUBROUTINE DIELMV(ICASE,JCASE,NUP,NDWN,EMU)
       use gugx, only: SGS, CIS
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION ICASE(*),JCASE(*)
       DIMENSION EMU(NUP,NDWN)
-#include "pt2_guga.fh"
       Integer nLev, nIpWlk
       nLev  = SGS%nLev
       nIpWlk= CIS%nIpWlk

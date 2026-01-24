@@ -16,11 +16,10 @@
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
       use caspt2_module
+      use pt2_guga
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "pt2_guga.fh"
-
       INTEGER IST,JST
 
       INTEGER I
@@ -814,9 +813,9 @@ C
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (a-h,o-z)
 
-#include "pt2_guga.fh"
       Real*8 DTG1(NASHT,NASHT),DTG2(NASHT,NASHT,NASHT,NASHT)
       Real*8 DTG3(NTG3)
       Real*8 CI1(MXCI),CI2(MXCI)
