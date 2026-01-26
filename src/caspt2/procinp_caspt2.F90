@@ -163,11 +163,14 @@ subroutine procinp_caspt2
   RHSDIRECT = .False.
 #endif
 
+  if (Input%PRHS < 0 .or. Input%PRHS > 2) then
+    call WarningMessage(1,'The selected PRHS is not supported. Going to use the default value.')
+    Input%PRHS = 0
+  end if
   iParRHS = 1
 #ifdef _MOLCAS_MPP_
-  if (is_real_par() .and. Input%PRHS == 0 .and. .not.RHSDIRECT) iParRHS = 2
+  if (is_real_par() .and. (Input%PRHS == 0 .or. Input%PRHS == 2) .and. .not.RHSDIRECT) iParRHS = 2
 #endif
-  if (Input%PRHS /= 0) iParRHS = Input%PRHS
 
   ! Cholesky: set defaults if it was not called during input
   if (.NOT. (Input%ChoI .or. Input%Chol)) then
