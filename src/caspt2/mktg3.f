@@ -9,11 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, One, Two
       use gugx, only: EXS, SGS,L2ACT, CIS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-      use caspt2_module, only: NASHT, ISCF, NACTEL, IASYM, MUL
+      use caspt2_module, only: NASHT, ISCF, NACTEL, IASYM
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs, MyRank
 #endif
@@ -173,7 +174,7 @@ C Translate to levels in the SGUGA coupling order:
         IZ=L2ACT(JL)
         IYS=IASYM(IY)
         IZS=IASYM(IZ)
-        ISSG2=MUL(MUL(IYS,IZS),LSYM2)
+        ISSG2=Mul(Mul(IYS,IZS),LSYM2)
         CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
@@ -196,7 +197,7 @@ C Translate to levels:
          IU=L2ACT(JL)
          ITS=IASYM(IT)
          IUS=IASYM(IU)
-         ISSG1=MUL(MUL(ITS,IUS),LSYM1)
+         ISSG1=Mul(Mul(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
          CALL SIGMA1(SGS,CIS,EXS,
      &               IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
@@ -219,7 +220,7 @@ C Now compute as many elements as possible:
 C LFROM will be start element of Sigma2=E(YZ) Psi2
          IYS=IASYM(IY)
          IZS=IASYM(IZ)
-         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
+         ISSG2=Mul(Mul(IYS,IZS),LSYM2)
          DO IP2=IP3,IP1END
           IL=P2LEV(LP2LEV1-1+IP2)
           JL=P2LEV(LP2LEV2-1+IP2)
@@ -227,7 +228,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           IX=L2ACT(JL)
           IVS=IASYM(IV)
           IXS=IASYM(IX)
-          ISTAU=MUL(MUL(IVS,IXS),ISSG2)
+          ISTAU=Mul(Mul(IVS,IXS),ISSG2)
           NTAU=CIS%NCSF(ISTAU)
           CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
@@ -241,7 +242,7 @@ C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
            IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
            ITS=IASYM(IT)
            IUS=IASYM(IU)
-           ISSG1=MUL(MUL(ITS,IUS),LSYM1)
+           ISSG1=Mul(Mul(ITS,IUS),LSYM1)
            IF(ISSG1.EQ.ISTAU) THEN
             L=LSGM1+MXCI*(IP1-IP1STA)
             VAL=DDOT_(NTAU,TG3WRK(LTAU),1,TG3WRK(L),1)
@@ -298,19 +299,19 @@ C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
        IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
        ITS=IASYM(IT)
        IUS=IASYM(IU)
-       IS1=MUL(MUL(ITS,IUS),LSYM1)
+       IS1=Mul(Mul(ITS,IUS),LSYM1)
        DO IP2=1,IP1
         IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
         IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
         IVS=IASYM(IV)
         IXS=IASYM(IX)
-        IS2=MUL(MUL(IVS,IXS),IS1)
+        IS2=Mul(Mul(IVS,IXS),IS1)
         DO IP3=1,IP2
          IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
          IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
          IYS=IASYM(IY)
          IZS=IASYM(IZ)
-         IS3=MUL(MUL(IYS,IZS),IS2)
+         IS3=Mul(Mul(IYS,IZS),IS2)
          IF(IS3.EQ.LSYM2) THEN
           call get_tg3_index(IT, IU, IV, IX, IY, IZ, NASHT, jtuvxyz)
           VAL=TG3(JTUVXYZ)

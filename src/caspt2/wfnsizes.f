@@ -14,17 +14,18 @@
 * Compute various orbital sizes
 *
 ************************************************************************
+      use Molcas, only: MxAct, MxIna, MxOrb
       use caspt2_global, only: NTAT, NTORB, NPREF, NDREF
-      use caspt2_module, only: iSCF, iSpin, MxAct, MxExt, MxIna, MxOrb,
+      use caspt2_module, only: iSCF, iSpin, MxExt,
      &                         nActEl, nAmx, nAshT, nBasT, nBMx, nBSqT,
-     &                         nBTri, nDelT, nIMx, nInaBx, nIshT, nOMx,
-     &                         nOrbT, nOshT, nOSqT, nOTri, nRas1T,
+     &                         nBTri, nIMx, nInaBx, nIshT, nOMx,
+     &                         nOrbT, nOSqT, nOTri, nRas1T,
      &                         nRas2T, nRas3T, nSecBx, nSMx, nSshT,
      &                         nSym, nIes, nAes, nSes, nOsh, nFroT,
      &                         nAsh, nSsh, nDel, nOrb, nIsh, nFro,
      &                         nRas1, nRas2, nRas3, nBas, OrbNam,
-     &                         IINAIS, IINAM, iActIS, IANAM, iExtIS,
-     &                         iiSym, iaSym, ieSym, ISNAM
+     &                         IINAIS, iExtIS,
+     &                         iiSym, iaSym, ISNAM
       use pt2_guga, only: nG1, nG2, nG3Tot
       implicit none
 
@@ -33,9 +34,9 @@
       Integer I, iSym
 
 * Table sizes
-      Integer IIABS, ITABS, IAABS
-      Integer II, IA, IS, IO
-      Integer ITOT, IINA, IACT, IEXT
+      Integer IIABS, ITABS
+      Integer IS, IO
+      Integer ITOT, IINA, IEXT
 
       NFROT=0
       NISHT=0
@@ -43,9 +44,7 @@
       NRAS1T=0
       NRAS2T=0
       NRAS3T=0
-      NOSHT=0
       NSSHT=0
-      NDELT=0
       NORBT=0
       NBAST=0
       NOSQT=0
@@ -68,12 +67,10 @@
         NFROT=NFROT+NFRO(ISYM)
         NISHT=NISHT+NISH(ISYM)
         NASHT=NASHT+NASH(ISYM)
-        NOSHT=NOSHT+NOSH(ISYM)
         NRAS1T=NRAS1T+NRAS1(ISYM)
         NRAS2T=NRAS2T+NRAS2(ISYM)
         NRAS3T=NRAS3T+NRAS3(ISYM)
         NSSHT=NSSHT+NSSH(ISYM)
-        NDELT=NDELT+NDEL(ISYM)
         NBAST=NBAST+NBAS(ISYM)
         NIMX=MAX(NIMX,NISH(ISYM))
         NAMX=MAX(NAMX,NASH(ISYM))
@@ -126,12 +123,9 @@ C  Identify the wave function type
 * Create orbital name vector
 *
 ************************************************************************
-      II=0
-      IA=0
       IS=0
       ITOT=0
       IINA=0
-      IACT=0
       IEXT=0
       DO ISYM=1,NSYM
         IO=0
@@ -148,18 +142,12 @@ C  Identify the wave function type
           IO=IO+1
           WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')
      &      'In',ISYM,'.',IO
-          II=II+1
-          IINAM(II)=ORBNAM(ITOT)
         END DO
         DO I=1,NASH(ISYM)
           ITOT=ITOT+1
-          IACT=IACT+1
-          IACTIS(IACT)=ITOT
           IO=IO+1
           WRITE(ORBNAM(ITOT),'(A2,I1,A1,I3.3,1X)')
      &      'Ac',ISYM,'.',IO
-          IA=IA+1
-          IANAM(IA)=ORBNAM(ITOT)
         END DO
         DO I=1,NSSH(ISYM)
           ITOT=ITOT+1
@@ -186,7 +174,6 @@ C  Identify the wave function type
 ************************************************************************
       IIABS=0
       ITABS=0
-      IAABS=0
       DO ISYM=1,NSYM
         DO I=1,NORB(ISYM)
           IF(I.LE.NISH(ISYM)) THEN
@@ -195,9 +182,6 @@ C  Identify the wave function type
           ELSE IF(I.LE.NISH(ISYM)+NASH(ISYM)) THEN
             ITABS=ITABS+1
             IASYM(ITABS)=ISYM
-          ELSE
-            IAABS=IAABS+1
-            IESYM(IAABS)=ISYM
           END IF
         END DO
       END DO

@@ -16,7 +16,7 @@
      &                         do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
      &                         idBoriMat,TraFro,
      &                         CLag,CLagFull,OLag,OLagFull,SLag,WLag,
-     &                         nCLag,nOLag,nSLag,nWLag,
+     &                         nCLag,nOLag,nWLag,
      &                         DPT2_tot,DPT2C_tot,DPT2_AO_tot,
      &                         DPT2C_AO_tot,DPT2Canti_tot,
      &                         FIMO_all,FIFA_all,FIFASA_all,idSDMat,
@@ -92,7 +92,6 @@
       ! but for the time being we only support the case nState=nRoots
       nCLag = nconf*nState
       nOLag = NBSQT
-      nSLag = nState*nState
       nWLag = NBTRI
 
       call mma_allocate(DPT2_tot    ,NBSQT,Label='DPT2_tot')
@@ -121,8 +120,8 @@
       OLagFull(:)   = Zero
       SLag(:,:)     = Zero
       WLag(:)       = Zero
-!     write(6,*) 'nclag,nolag,nslag'
-!     write(6,*)  nclag, nolag, nslag
+!     write(6,*) 'nclag,nolag'
+!     write(6,*)  nclag, nolag
 
       call mma_allocate(FIMO_all,NBSQT,Label='FIMO_all')
       call mma_allocate(FIFA_all,NBSQT,Label='FIFA_all')

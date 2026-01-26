@@ -19,6 +19,7 @@
 
       SUBROUTINE DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LIST)
 
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
       use caspt2_global, only: do_grad
@@ -27,7 +28,7 @@
      &                      NLST1,VAL1
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NIMX,NSMX,NSYM,NINDEP,NISUP,NASUP,NISH,
-     &                         NORB,MUL,NIGEJ,NIGTJ,NAGEB,NAGTB,NORB,
+     &                         NORB,NIGEJ,NIGTJ,NAGEB,NAGTB,NORB,
      &                         NASH,NSSH
       IMPLICIT NONE
 
@@ -87,7 +88,7 @@ C Set up various offset arrays:
         ICGP=0
         ICGM=0
         DO JS=1,NSYM
-          IJS=MUL(IS,JS)
+          IJS=Mul(IS,JS)
           IOFCD(IS,JS)=ICD
           ICD =ICD +NSSH(JS)*NISH(IJS)
           ICEP=ICEP+NSSH(JS)*NIGEJ(IJS)
@@ -138,7 +139,7 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
       DO ISYMK=1,NSYM
-       ISYMI=MUL(ISYMK,ISYM)
+       ISYMI=Mul(ISYMK,ISYM)
        NK=NISH(ISYMK)
        NI=NISH(ISYMI)
        NKI=NK*NI
@@ -194,7 +195,7 @@ C Case D
       DO ISYMA=1,NSYM
        NS=NSSH(ISYMA)
        NOA=NORB(ISYMA)
-       ISYMI=MUL(ISYMA,ISYM)
+       ISYMI=Mul(ISYMA,ISYM)
        NI=NISH(ISYMI)
        NOI=NORB(ISYMI)
        IV=1+NIN*IOFCD(ISYM,ISYMA)
@@ -233,7 +234,7 @@ C Case EM
       call mma_allocate(X2,NX,LABEL='X2')
       IYOFF=0
       DO ISYMA=1,NSYM
-       ISYMKI=MUL(ISYMA,ISYM)
+       ISYMKI=Mul(ISYMA,ISYM)
        NA=NSSH(ISYMA)
        NOA=NORB(ISYMA)
        IF(ICASE.EQ.6) NKIY=NIGEJ(ISYMKI)
@@ -242,7 +243,7 @@ C Case EM
 C First, contributions to DIJ.
 C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
        DO ISYMK=1,NSYM
-        ISYMI=MUL(ISYMK,ISYMKI)
+        ISYMI=Mul(ISYMK,ISYMKI)
         NK=NISH(ISYMK)
         NI=NISH(ISYMI)
         NAKI=NA*NK*NI
@@ -304,7 +305,7 @@ C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
       DO ISYMC=1,NSYM
-       ISYMA=MUL(ISYMC,ISYM)
+       ISYMA=Mul(ISYMC,ISYM)
        NC=NSSH(ISYMC)
        NA=NSSH(ISYMA)
        NCA=NC*NA
@@ -349,7 +350,7 @@ C Case GM
       call mma_allocate(X2,NX,LABEL='X2')
       IYOFF=0
       DO ISYMI=1,NSYM
-       ISYMCA=MUL(ISYMI,ISYM)
+       ISYMCA=Mul(ISYMI,ISYM)
        NI=NISH(ISYMI)
        NOI=NORB(ISYMI)
        IF(ICASE.EQ.10) NCAY=NAGEB(ISYMCA)
@@ -358,7 +359,7 @@ C Case GM
 C First, contributions to DAB.
 C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
        DO ISYMC=1,NSYM
-        ISYMA=MUL(ISYMC,ISYMCA)
+        ISYMA=Mul(ISYMC,ISYMCA)
         NC=NSSH(ISYMC)
         NA=NSSH(ISYMA)
         NICA=NI*NC*NA
@@ -420,7 +421,7 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
       DO ISYMK=1,NSYM
-       ISYMI=MUL(ISYMK,ISYM)
+       ISYMI=Mul(ISYMK,ISYM)
        NK=NISH(ISYMK)
        NI=NISH(ISYMI)
        NKI=NK*NI
@@ -461,7 +462,7 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
       Call mma_allocate(X1,NX,LABEL='X1')
       call mma_allocate(X2,NX,LABEL='X2')
       DO ISYMC=1,NSYM
-       ISYMA=MUL(ISYMC,ISYM)
+       ISYMA=Mul(ISYMC,ISYM)
        NC=NSSH(ISYMC)
        NA=NSSH(ISYMA)
        NCA=NC*NA

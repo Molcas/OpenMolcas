@@ -17,7 +17,7 @@
       use caspt2_global, only: LUONEM
       use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: ECORE, ERFSELF, IEOF1M, nBMX, nBSqT,
+      use caspt2_module, only: ERFSELF, IEOF1M, nBMX, nBSqT,
      &                         nBTri, nFroT, nOTri, nSym, PotNuc,
      &                         RFPert, nBas, nFro, nDel, nOrb, iAd1M
       IMPLICIT None
@@ -30,7 +30,7 @@
       character(len=8) :: Label
       real(kind=wp), allocatable:: WFLT(:), Temp(:), WDLT(:), WDSQ(:),
      &                      WFMO(:), WTMP(:)
-      real(kind=wp) EONE, ETWO, ExFac
+      real(kind=wp) ECORE, EONE, ETWO, ExFac
       integer(kind=iwp) I, iAO, IB, ICMO, ICOMP, IDISK, IERR, IFTEST,
      &                  IJ, IMO, IOFF, IOPT, IRC, ISTLT, ISTMO, ISTSQ,
      &                  ISYLBL, ISYM, JB, NB, NF, NSYMXX, nTemp, NWTMP

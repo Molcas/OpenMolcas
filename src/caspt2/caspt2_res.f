@@ -13,7 +13,7 @@
       Subroutine CASPT2_Res(VECROT)
 
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
-      use caspt2_global, only: jStLag,iVecL,iVecG
+      use caspt2_global, only: jStLag,iVecL
       use EQSOLV, only: IRHS, IVECX, IVECR, IVECC, IVECC2, IVECW
       use caspt2_module, only: IFMSCOUP, NSTATE
       use Constants, only: Zero, One, Half, Two
@@ -25,6 +25,7 @@
 
       real(kind=wp) :: SAV, SAVI, savreg, Scal
       integer(kind=iwp) :: iVecXbk, iVecRbk, iRHSbk, iStLag, ICONV
+      integer(kind=iwp), parameter :: iVecG = 8
 
       !! 1) Calculate the derivative of the CASPT2 energy with respect
       !!    to the amplitude.

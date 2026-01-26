@@ -34,7 +34,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV, only: IVECX, NLSTOT
       use caspt2_module, only: NSTATE, IFMSCOUP, IFPROP, irlxroot,
-     &                         ISCF, JSTATE, NAME, NASHT, NBAST, NCONF,
+     &                         ISCF, JSTATE, BNAME, NASHT, NBAST, NCONF,
      &                         NSYM, OUTFMT, PRORB, THRENE, THROCC,
      &                         NORB, NBAS, NISH, NASH, IAD1M, NFRO,
      &                         NRAS1, NRAS2, NRAS3, MSTATE, NDEL,
@@ -320,7 +320,7 @@ C Write natural orbitals to standard output.
          END IF
          CALL PRIMO('Output orbitals from CASPT2',
      &           .TRUE.,.FALSE.,THROCC,THRENE,NSYM,NBAS,
-     &            NBAS,NAME,DUM,OCC,CNAT,-1)
+     &            NBAS,BNAME,DUM,OCC,CNAT,-1)
        END IF
       END IF
 
@@ -341,7 +341,7 @@ C Write natural orbitals to standard output.
         Call RdOne(iRc,iOpt,Label,iComp,Scr,iSyLbl)
         If ( iRc.eq.0 ) then
            lSave = MSTATE(JSTATE) .eq. irlxroot
-           Call Charge(nSym,nBas,Name,
+           Call Charge(nSym,nBas,bName,
      &               CNAT,OCC,Scr,2,FullMlk,lSave)
         End If
         call mma_deallocate(Scr)

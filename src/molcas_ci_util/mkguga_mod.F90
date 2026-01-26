@@ -169,8 +169,7 @@ contains
 
     use fciqmc_interface, only: DoFCIQMC
     use gugx, only: L2ACT, LEVEL
-    use caspt2_module, only: DoCumulant, nAshT, nSym, nAsh
-    implicit none
+    use caspt2_module, only: DoCumulant, nAsh, nAshT, nSym
 
     integer(kind=iwp) :: ILEV, iq, ISYM, IT, ITABS, nLev
 

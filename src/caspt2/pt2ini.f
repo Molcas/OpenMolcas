@@ -29,9 +29,8 @@
       use spool, only: SpoolInp, Close_LuSpool
       use Molcas, only: LenIn
       use caspt2_module, only: nSym, Header, ifChol, jState,
-     &                         Name, nAsh, nBas, nIsh,
-     &                         nOTri, nBasT, nBSqT, nSsh, nState,
-     &                         nUniqAT
+     &                         bName, nAsh, nBas, nIsh,
+     &                         nOTri, nBasT, nBSqT, nSsh, nState
       IMPLICIT NONE
 #include "compiler_features.h"
 
@@ -45,10 +44,9 @@ C     Cholesky
       Call Get_cArray('Seward Title',Header,144)
       Call Get_iScalar('nSym',nSym)
       Call Get_iArray('nBas',nBas,nSym)
-      Call Get_iScalar('Unique atoms',nUniqAt)
       nbast=sum(nbas(1:nsym))
       nbsqt=sum(nbas(1:nsym)**2)
-      Call Get_cArray('Unique Basis Names',Name,(LenIn+8)*nbast)
+      Call Get_cArray('Unique Basis Names',bName,(LenIn+8)*nbast)
       jstate = 1
       Call DecideOnCholesky(IfChol)
 * PAM Feb 2008: The following statement was moved here from

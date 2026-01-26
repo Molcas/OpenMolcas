@@ -1279,10 +1279,11 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use Symmetry_Info, only: Mul
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: nConf, STSym, Mul
+      use caspt2_module, only: nConf, STSym
       use pt2_guga, only: MxCI
 
       IMPLICIT NONE
@@ -1351,8 +1352,8 @@
         ! LTU=iTask
         ISU=SGS%ISM(LU)
         IU=L2ACT(LU)
-        ISTU=MUL(IST,ISU)
-        ISSG=MUL(ISTU,STSYM)
+        ISTU=Mul(IST,ISU)
+        ISSG=Mul(ISTU,STSYM)
         NSGM=CIS%NCSF(ISSG)
         IF(NSGM == 0) cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
@@ -1668,12 +1669,13 @@
 !
       SUBROUTINE DENS1T_RPT2 (CI1,CI2,SGM1,G1,NLEV)
 
+      use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use gugx, only: SGS, L2ACT, CIS
       use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: iSCF, nActEl, nAshT, STSym, Mul
+      use caspt2_module, only: iSCF, nActEl, nAshT, STSym
       use pt2_guga, only: MxCI, nG1
       use Constants, only: Zero, One, Two
 
@@ -1747,8 +1749,8 @@
           ! LTU=iTask
           ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
-          ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,STSYM)
+          ISTU=Mul(IST,ISU)
+          ISSG=Mul(ISTU,STSYM)
           NSGM=CIS%NCSF(ISSG)
           IF(NSGM == 0) cycle
           CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)

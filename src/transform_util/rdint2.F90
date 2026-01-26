@@ -42,11 +42,12 @@ subroutine RDINT2(IPRX,DoTCVA)
 ! IAD2M(3,iSymIJAB)   EXCHANGE INTEGRALS <AB|TU> FOR SYM T < SYM U
 ! THE LAST ADDRESS IS ZERO IF SYM T = SYM U
 
+use Symmetry_Info, only: Mul
 use caspt2_global, only: LUINTM
+use caspt2_module, only: nAsh, nBas, nDel, nFro, nISh, nOrb, nOSh, nSsh, nSym
 use trafo, only: IAD13, ISR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use caspt2_module, only: nSym, nBas, nFro, nDel, nISh, nAsh, nOrb, nOSh, nSsh, Mul
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRX

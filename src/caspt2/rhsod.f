@@ -84,6 +84,7 @@
 
 *|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
       SUBROUTINE RHSOD_A(IVEC)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       USE SUPERINDEX, only: MTUV, MTREL
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
@@ -94,8 +95,7 @@
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NSYM,NTUV,NISH,NACTEL,NORB,NTUVES,MUL,
-     &                         NASH
+      use caspt2_module, only: NSYM,NTUV,NISH,NACTEL,NORB,NTUVES,NASH
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
 
@@ -170,7 +170,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IX  =MTREL(1,IXABS)
             ISYX=MTREL(2,IXABS)
 ! compute integrals (tiuv)
-            NV=NVTOT_CHOSYM(MUL(ISYT,ISYJ)) ! JSYM=ISYT*ISYI=ISYU*ISYV
+            NV=NVTOT_CHOSYM(Mul(ISYT,ISYJ)) ! JSYM=ISYT*ISYI=ISYU*ISYV
             ITJ=IT-1+NASH(ISYT)*(IJ-1)
             IVX=IV-1+NASH(ISYV)*(IX-1)
             IOFFTJ=1+IOBRA(ISYT,ISYJ)+NV*ITJ
@@ -211,6 +211,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_C(IVEC)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero
       USE SUPERINDEX, only: MTUV, MTREL, KTUV
@@ -223,8 +224,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module, only: NACTEL, NASHT, NSYM, NASUP, NISUP,
-     &                         NTUVES, MUL, NSSH, NASH, NISH, NAES,
-     &                         NORB
+     &                         NTUVES, NSSH, NASH, NISH, NAES, NORB
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
 
@@ -299,7 +299,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IX  =MTREL(1,IXABS)
             ISYX=MTREL(2,IXABS)
 ! compute integrals (at,vx)
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYT)) ! JSYM=ISYT*ISYI=ISYU*ISYV
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYT)) ! JSYM=ISYT*ISYI=ISYU*ISYV
             IAT=IA-1+NSSH(ISYA)*(IT-1)
             IVX=IV-1+NASH(ISYV)*(IX-1)
             IOFFAT=1+IOBRA(ISYA,ISYT)+NV*IAT
@@ -362,6 +362,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_B(IVEC)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half
       USE SUPERINDEX, only: MIGEJ, MIREL, MTGEU, MTREL, MIGTJ, MTREL,
@@ -374,7 +375,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module, only: NSYM, NASUP, NISUP, NIGEJES, NTGEUES,
-     &                         MUL, NASH, NASH, NIGTJES, NTGTUES
+     &                         NASH, NASH, NIGTJES, NTGTUES
 
       IMPLICIT None
 
@@ -454,14 +455,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IV  =MTREL(1,IVABS)
             ISYV=MTREL(2,IVABS)
 ! compute integrals (ajcl) and (alcj)
-            NV=NVTOT_CHOSYM(MUL(ISYT,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
+            NV=NVTOT_CHOSYM(Mul(ISYT,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
             ITJ=IT-1+NASH(ISYT)*(IJ-1)
             IVL=IV-1+NASH(ISYV)*(IL-1)
             IOFFTJ=1+IOSYM(ISYT,ISYJ)+NV*ITJ
             IOFFVL=1+IOSYM(ISYV,ISYL)+NV*IVL
             TJVL=DDOT_(NV,CHOBUF(IOFFTJ),1,CHOBUF(IOFFVL),1)
 
-            NV=NVTOT_CHOSYM(MUL(ISYT,ISYL))
+            NV=NVTOT_CHOSYM(Mul(ISYT,ISYL))
             ITL=IT-1+NASH(ISYT)*(IL-1)
             IVJ=IV-1+NASH(ISYV)*(IJ-1)
             IOFFTL=1+IOSYM(ISYT,ISYL)+NV*ITL
@@ -528,14 +529,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IV  =MTREL(1,IVABS)
             ISYV=MTREL(2,IVABS)
 ! compute integrals (tj,vl) and (tlvj)
-            NV=NVTOT_CHOSYM(MUL(ISYT,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
+            NV=NVTOT_CHOSYM(Mul(ISYT,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
             ITJ=IT-1+NASH(ISYT)*(IJ-1)
             IVL=IV-1+NASH(ISYV)*(IL-1)
             IOFFTJ=1+IOSYM(ISYT,ISYJ)+NV*ITJ
             IOFFVL=1+IOSYM(ISYV,ISYL)+NV*IVL
             TJVL=DDOT_(NV,CHOBUF(IOFFTJ),1,CHOBUF(IOFFVL),1)
 
-            NV=NVTOT_CHOSYM(MUL(ISYT,ISYL))
+            NV=NVTOT_CHOSYM(Mul(ISYT,ISYL))
             ITL=IT-1+NASH(ISYT)*(IL-1)
             IVJ=IV-1+NASH(ISYV)*(IJ-1)
             IOFFTL=1+IOSYM(ISYT,ISYL)+NV*ITL
@@ -570,6 +571,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_F(IVEC)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half
       USE SUPERINDEX, only: MAGEB, MAREL, MTGEU, MTREL, MAGTB, MAREL,
@@ -582,7 +584,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module, only: NSYM, NASUP, NISUP, NAGEBES, NTGEUES,
-     &                         MUL, NSSH, NAGTBES, NTGTUES
+     &                         NSSH, NAGTBES, NTGTUES
 
       IMPLICIT None
 
@@ -661,14 +663,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IV  =MTREL(1,IVABS)
             ISYV=MTREL(2,IVABS)
 ! compute integrals (ta,vc) and (tc,va)
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYT)) ! JSYM=ISYA*ISYA=ISYC*ISYC
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYT)) ! JSYM=ISYA*ISYA=ISYC*ISYC
             IAT=IA-1+NSSH(ISYA)*(IT-1)
             ICV=IC-1+NSSH(ISYC)*(IV-1)
             IOFFAT=1+IOSYM(ISYA,ISYT)+NV*IAT
             IOFFCV=1+IOSYM(ISYC,ISYV)+NV*ICV
             ATCV=DDOT_(NV,CHOBUF(IOFFAT),1,CHOBUF(IOFFCV),1)
 
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYV)) ! JSYM=ISYA*ISYA=ISYC*ISYC
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYV)) ! JSYM=ISYA*ISYA=ISYC*ISYC
             IAV=IA-1+NSSH(ISYA)*(IV-1)
             ICT=IC-1+NSSH(ISYC)*(IT-1)
             IOFFAV=1+IOSYM(ISYA,ISYV)+NV*IAV
@@ -735,14 +737,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IV  =MTREL(1,IVABS)
             ISYV=MTREL(2,IVABS)
 ! compute integrals (at,cv) and (av,ct)
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYT)) ! JSYM=ISYA*ISYA=ISYC*ISYC
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYT)) ! JSYM=ISYA*ISYA=ISYC*ISYC
             IAT=IA-1+NSSH(ISYA)*(IT-1)
             ICV=IC-1+NSSH(ISYC)*(IV-1)
             IOFFAT=1+IOSYM(ISYA,ISYT)+NV*IAT
             IOFFCV=1+IOSYM(ISYC,ISYV)+NV*ICV
             ATCV=DDOT_(NV,CHOBUF(IOFFAT),1,CHOBUF(IOFFCV),1)
 
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYV)) ! JSYM=ISYA*ISYA=ISYC*ISYC
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYV)) ! JSYM=ISYA*ISYA=ISYC*ISYC
             IAV=IA-1+NSSH(ISYA)*(IV-1)
             ICT=IC-1+NSSH(ISYC)*(IT-1)
             IOFFAV=1+IOSYM(ISYA,ISYV)+NV*IAV
@@ -777,6 +779,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_H(IVEC)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half, One, Three
       USE SUPERINDEX, only: MIGEJ, MIREL, MAGEB, MAREL, MIGTJ, MAGTB
@@ -788,8 +791,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module, only: NSYM, NAGEB, NIGEJ, NIGEJES, NAGEBES,
-     &                         MUL, NSSH, NAGTB, NIGTJ, NIGTJES,
-     &                         NAGTBES
+     &                         NSSH, NAGTB, NIGTJ, NIGTJES, NAGTBES
 
       IMPLICIT None
 
@@ -867,14 +869,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IC  =MAREL(1,ICABS)
             ISYC=MAREL(2,ICABS)
 ! compute integrals (ajcl) and (alcj)
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
             IAJ=IA-1+NSSH(ISYA)*(IJ-1)
             ICL=IC-1+NSSH(ISYC)*(IL-1)
             IOFFAJ=1+IOSYM(ISYA,ISYJ)+NV*IAJ
             IOFFCL=1+IOSYM(ISYC,ISYL)+NV*ICL
             AJCL=DDOT_(NV,CHOBUF(IOFFAJ),1,CHOBUF(IOFFCL),1)
 
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYL))
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYL))
             IAL=IA-1+NSSH(ISYA)*(IL-1)
             ICJ=IC-1+NSSH(ISYC)*(IJ-1)
             IOFFAL=1+IOSYM(ISYA,ISYL)+NV*IAL
@@ -941,14 +943,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IC  =MAREL(1,ICABS)
             ISYC=MAREL(2,ICABS)
 ! compute integrals (ajcl) and (alcj)
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYJ)) ! JSYM=ISYA*ISYJ=ISYC*ISYL
             IAJ=IA-1+NSSH(ISYA)*(IJ-1)
             ICL=IC-1+NSSH(ISYC)*(IL-1)
             IOFFAJ=1+IOSYM(ISYA,ISYJ)+NV*IAJ
             IOFFCL=1+IOSYM(ISYC,ISYL)+NV*ICL
             AJCL=DDOT_(NV,CHOBUF(IOFFAJ),1,CHOBUF(IOFFCL),1)
 
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYL))
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYL))
             IAL=IA-1+NSSH(ISYA)*(IL-1)
             ICJ=IC-1+NSSH(ISYC)*(IJ-1)
             IOFFAL=1+IOSYM(ISYA,ISYL)+NV*IAL
@@ -982,6 +984,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_D(IVEC)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: One
       USE SUPERINDEX, only: MIA, MAREL, MIREL, MTU, MTREL, KTU
@@ -994,7 +997,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module, only: NACTEL, NASHT, NSYM, NORB, NASUP, NISUP,
-     &                         NIAES, NTUES, MUL, NSSH, NASH, NISH
+     &                         NIAES, NTUES, NSSH, NASH, NISH
 
       IMPLICIT None
 
@@ -1100,7 +1103,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IV  =MTREL(1,IVABS)
             ISYV=MTREL(2,IVABS)
 ! compute integral (aj,tv)
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ))
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYJ))
             IOAJ=IA-1+NSSH(ISYA)*(IJ-1)
             IOTV=IT-1+NASH(ISYT)*(IV-1)
             IOFFAJ=1+IOBRA1(ISYA,ISYJ)+NV*IOAJ
@@ -1140,7 +1143,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IV  =MTREL(1,IVABS)
             ISYV=MTREL(2,IVABS)
 ! compute integral (av,tj)
-            NV=NVTOT_CHOSYM(MUL(ISYA,ISYV))
+            NV=NVTOT_CHOSYM(Mul(ISYA,ISYV))
             IOAV=IA-1+NSSH(ISYA)*(IV-1)
             IOTJ=IT-1+NASH(ISYT)*(IJ-1)
             IOFFAV=1+IOBRA2(ISYA,ISYV)+NV*IOAV
@@ -1177,6 +1180,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_E(IVEC)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half, OneHalf
       USE SUPERINDEX, only: MIGEJ, MIREL, MIGTJ
@@ -1187,7 +1191,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NSYM, NASUP, NISUP, MUL, NSSH, NIGEJ,
+      use caspt2_module, only: NSYM, NASUP, NISUP, NSSH, NIGEJ,
      &                         NIGEJES, NASH, NIGTJ, NIGTJES
 
       IMPLICIT None
@@ -1264,7 +1268,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ! find start and end block
         IOFF=0
         DO ISYA=1,NSYM
-          ISYJL=MUL(ISYA,ISYM)
+          ISYJL=Mul(ISYA,ISYM)
           ISYV=ISYM
 
           NA=NSSH(ISYA)
@@ -1285,14 +1289,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             ISYL=MIREL(2,ILABS)
             DO IV=IASTA,IAEND ! these are always all elements
 ! compute integrals (ajvl) and (alvj)
-              NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ))
+              NV=NVTOT_CHOSYM(Mul(ISYA,ISYJ))
               IAJ=IA-1+NSSH(ISYA)*(IJ-1)
               IVL=IV-1+NASH(ISYV)*(IL-1)
               IOFFAJ=1+IOBRA(ISYA,ISYJ)+NV*IAJ
               IOFFVL=1+IOKET(ISYV,ISYL)+NV*IVL
               AJVL=DDOT_(NV,BRABUF(IOFFAJ),1,KETBUF(IOFFVL),1)
 
-              NV=NVTOT_CHOSYM(MUL(ISYA,ISYL))
+              NV=NVTOT_CHOSYM(Mul(ISYA,ISYL))
               IAL=IA-1+NSSH(ISYA)*(IL-1)
               IVJ=IV-1+NASH(ISYV)*(IJ-1)
               IOFFAL=1+IOBRA(ISYA,ISYL)+NV*IAL
@@ -1350,7 +1354,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ! find start and end block
         IOFF=0
         DO ISYA=1,NSYM
-          ISYJL=MUL(ISYA,ISYM)
+          ISYJL=Mul(ISYA,ISYM)
           ISYV=ISYM
 
           NA=NSSH(ISYA)
@@ -1371,14 +1375,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             ISYL=MIREL(2,ILABS)
             DO IV=IASTA,IAEND ! these are always all elements
 ! compute integrals (ajvl) and (alvj)
-              NV=NVTOT_CHOSYM(MUL(ISYA,ISYJ))
+              NV=NVTOT_CHOSYM(Mul(ISYA,ISYJ))
               IAJ=IA-1+NSSH(ISYA)*(IJ-1)
               IVL=IV-1+NASH(ISYV)*(IL-1)
               IOFFAJ=1+IOBRA(ISYA,ISYJ)+NV*IAJ
               IOFFVL=1+IOKET(ISYV,ISYL)+NV*IVL
               AJVL=DDOT_(NV,BRABUF(IOFFAJ),1,KETBUF(IOFFVL),1)
 
-              NV=NVTOT_CHOSYM(MUL(ISYA,ISYL))
+              NV=NVTOT_CHOSYM(Mul(ISYA,ISYL))
               IAL=IA-1+NSSH(ISYA)*(IL-1)
               IVJ=IV-1+NASH(ISYV)*(IJ-1)
               IOFFAL=1+IOBRA(ISYA,ISYL)+NV*IAL
@@ -1414,6 +1418,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_G(IVEC)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half, OneHalf
       USE SUPERINDEX, only: MAGEB, MAREL, MAGTB
@@ -1424,7 +1429,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module, only: NSYM, NASUP, NISUP, MUL, NISH, NAGEB,
+      use caspt2_module, only: NSYM, NASUP, NISUP, NISH, NAGEB,
      &                         NAGEBES, NSSH, NAGTB, NAGTBES
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
@@ -1500,7 +1505,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ! find start and end block
         IOFF=0
         DO ISYJ=1,NSYM
-          ISYAC=MUL(ISYJ,ISYM)
+          ISYAC=Mul(ISYJ,ISYM)
           ISYV=ISYM
 
           NJ=NISH(ISYJ)
@@ -1521,14 +1526,14 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             ISYC=MAREL(2,ICABS)
             DO IV=IASTA,IAEND ! these are always all elements
 ! compute integrals (ajvl) and (alvj)
-              NV=NVTOT_CHOSYM(MUL(ISYA,ISYV))
+              NV=NVTOT_CHOSYM(Mul(ISYA,ISYV))
               IAV=IA-1+NSSH(ISYA)*(IV-1)
               ICJ=IC-1+NSSH(ISYC)*(IJ-1)
               IOFFAV=1+IOBRA(ISYA,ISYV)+NV*IAV
               IOFFCJ=1+IOKET(ISYC,ISYJ)+NV*ICJ
               AVCJ=DDOT_(NV,BRABUF(IOFFAV),1,KETBUF(IOFFCJ),1)
 
-              NV=NVTOT_CHOSYM(MUL(ISYC,ISYV))
+              NV=NVTOT_CHOSYM(Mul(ISYC,ISYV))
               ICV=IC-1+NSSH(ISYC)*(IV-1)
               IAJ=IA-1+NSSH(ISYA)*(IJ-1)
               IOFFCV=1+IOBRA(ISYC,ISYV)+NV*ICV
@@ -1586,7 +1591,7 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
 ! find start and end block
         IOFF=0
         DO ISYJ=1,NSYM
-          ISYAC=MUL(ISYJ,ISYM)
+          ISYAC=Mul(ISYJ,ISYM)
           ISYV=ISYM
 
           NJ=NISH(ISYJ)
@@ -1607,14 +1612,14 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
             ISYC=MAREL(2,ICABS)
             DO IV=IASTA,IAEND ! these are always all elements
 ! compute integrals (ajvl) and (alvj)
-              NV=NVTOT_CHOSYM(MUL(ISYA,ISYV))
+              NV=NVTOT_CHOSYM(Mul(ISYA,ISYV))
               IAV=IA-1+NSSH(ISYA)*(IV-1)
               ICJ=IC-1+NSSH(ISYC)*(IJ-1)
               IOFFAV=1+IOBRA(ISYA,ISYV)+NV*IAV
               IOFFCJ=1+IOKET(ISYC,ISYJ)+NV*ICJ
               AVCJ=DDOT_(NV,BRABUF(IOFFAV),1,KETBUF(IOFFCJ),1)
 
-              NV=NVTOT_CHOSYM(MUL(ISYC,ISYV))
+              NV=NVTOT_CHOSYM(Mul(ISYC,ISYV))
               ICV=IC-1+NSSH(ISYC)*(IV-1)
               IAJ=IA-1+NSSH(ISYA)*(IJ-1)
               IOFFCV=1+IOBRA(ISYC,ISYV)+NV*ICV

@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE NSIND(INS,ISYM,ICASE,IP,IQ,IR)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, u6
       USE SUPERINDEX, only: MIGEJ,MIGTJ,MAGTB,MAGEB
       use caspt2_module, only: NIES,IINAIS,NIGEJES,NSES,NSYM,NIGTJES,
-     &                         IEXTIS,MUL,NISH,NSSH,NIGEJ,NIGTJ,NAGEBES,
+     &                         IEXTIS,NISH,NSSH,NIGEJ,NIGTJ,NAGEBES,
      &                         NAGTBES,NAGEB,NAGTB
       IMPLICIT None
       integer(kind=iwp), intent(in):: INS,ISYM,ICASE
@@ -51,7 +52,7 @@
       Case(5)
       IIA=INS
       DO ISYMA=1,NSYM
-        ISYMI=MUL(ISYMA,ISYM)
+        ISYMI=Mul(ISYMA,ISYM)
         NIA=NISH(ISYMI)*NSSH(ISYMA)
         IF(IIA.LE.NIA) THEN
           IA=1+(IIA-1)/NISH(ISYMI)
@@ -71,7 +72,7 @@
       IAIJ=INS
       NIJ = 0 ! dummy initialize
       DO ISYMA=1,NSYM
-        ISYMIJ=MUL(ISYMA,ISYM)
+        ISYMIJ=Mul(ISYMA,ISYM)
         IF(ICASE.EQ.6) NIJ=NIGEJ(ISYMIJ)
         IF(ICASE.EQ.7) NIJ=NIGTJ(ISYMIJ)
         NA=NSSH(ISYMA)
@@ -116,7 +117,7 @@
       IIAB=INS
       NAB = 0 ! dummy initialize
       DO ISYMI=1,NSYM
-        ISYMAB=MUL(ISYMI,ISYM)
+        ISYMAB=Mul(ISYMI,ISYM)
         IF(ICASE.EQ.10) NAB=NAGEB(ISYMAB)
         IF(ICASE.EQ.11) NAB=NAGTB(ISYMAB)
         NI=NISH(ISYMI)

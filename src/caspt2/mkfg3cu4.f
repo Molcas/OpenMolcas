@@ -22,6 +22,7 @@
 *
 * Written by N. Nakatani, Oct. 2014
 *
+      use Symmetry_Info, only: Mul
       IMPLICIT NONE
 *
 *

@@ -25,10 +25,10 @@ subroutine tr2NsA1(CMO,NCMO,X1,nX1,X2,nX2,X3,nX3,pqUS,npqUS,pqRU,npqRU,pqTU,npqT
 ! (TA/UB) IF ISQ >= ISS AND ISP /= ISQ
 
 use caspt2_global, only: LUHLF1, LUHLF2, LUHLF3
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
 use trafo, only: ISP, ISQ, ISR, ISS, LMOR2, LMOS2, LRUPQ, LTUPQ, LURPQ, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOCP, NOCQ, NOCR, NOCS, &
                  NOP, NOQ, NOR, NOS, NPQ
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NCMO, nX1, nX2, nX3, npqUS, npqRU, npqTU, lBuf

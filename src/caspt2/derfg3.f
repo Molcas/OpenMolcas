@@ -17,16 +17,17 @@
 #endif
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG, VERBOSE
-#ifdef _MOLCAS_MPP_
-      use caspt2_global, only: nbuf1_grad,iTasks_grad,nTasks_grad
-#else
       use caspt2_global, only: nbuf1_grad
+#ifdef _MOLCAS_MPP_
+      use caspt2_global, only: iTasks_grad,nTasks_grad
 #endif
+      use Symmetry_Info, only: Mul
       use gugx, only: CIS, L2ACT, SGS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp,u6,RtoB
-      use caspt2_module, only: nConf, nActEl, nSym, STSym, EPSA, Mul
-      use pt2_guga, only: MxCI, MxLev
+      use caspt2_module, only: nConf, nActEl, nSym, STSym, EPSA
+      use gugx, only: MxLev
+      use pt2_guga, only: MxCI
       use Constants, only: Zero, One, Half
 
       IMPLICIT NONE
@@ -328,7 +329,7 @@
 * A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
       DO issg1=1,nsym
-       isp1=mul(issg1,STSYM)
+       isp1=Mul(issg1,STSYM)
        nsgm1=CIS%ncsf(issg1)
        !! Work(LBufD) = \sum_t <I|E_{tt}|I>*f_{tt}
        CALL H0DIAG_CASPT2(ISSG1,BUFD,CIS%NOW,CIS%IOW,nMidV)
@@ -340,7 +341,7 @@
       DO ip1=1,nlev2
         itlev=idx2ij(1,ip1)
         iulev=idx2ij(2,ip1)
-        istu=mul(SGS%ism(itlev),SGS%ism(iulev))
+        istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
         IF (istu == isp1) THEN
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
@@ -464,7 +465,7 @@
           do ip1i=ip1sta,ip1end
            itlev=idx2ij(1,ip1i)
            iulev=idx2ij(2,ip1i)
-           istu=mul(SGS%ism(itlev),SGS%ism(iulev))
+           istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
            it=L2ACT(itlev)
            iu=L2ACT(iulev)
            if(istu == isp1) then
@@ -543,8 +544,8 @@
 * The indices corresponding to pair index p3:
         iylev=idx2ij(1,ip3)
         izlev=idx2ij(2,ip3)
-        isyz=mul(SGS%ism(iylev),SGS%ism(izlev))
-        issg2=mul(isyz,STSYM)
+        isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
+        issg2=Mul(isyz,STSYM)
         nsgm2=CIS%ncsf(issg2)
         iy=L2ACT(iylev)
         iz=L2ACT(izlev)
@@ -599,10 +600,10 @@
           do ip2=ip3,ntri2
             ivlev=idx2ij(1,ip2)
             ixlev=idx2ij(2,ip2)
-            isvx=mul(SGS%ism(ivlev),SGS%ism(ixlev))
+            isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
             iv=L2ACT(ivlev)
             ix=L2ACT(ixlev)
-            if(isvx /= mul(issg1,issg2)) cycle
+            if(isvx /= Mul(issg1,issg2)) cycle
             !! <I|EvxEyz|0>
             If (IXLEV == IXLEV0) BUFT(1:nsgm1) = BUFX(1:nsgm1,IVLEV)
 *-----------

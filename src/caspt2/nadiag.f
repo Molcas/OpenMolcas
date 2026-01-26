@@ -17,13 +17,14 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE NADIAG()
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, u6
       USE SUPERINDEX, only: MIGEJ, MIGTJ, MAGEB, MAGTB
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM, NINDEP, NISUP, NASUP, NIES, EPSI,
-     &                         NIGEJES, NSES, MUL, NIGTJES, EPSE, NSSH,
+     &                         NIGEJES, NSES, NIGTJES, EPSE, NSSH,
      &                         NISH, NIGEJ, NAGEBES, NAGEBES, NAGEB,
      &                         NIGTJ, NAGTBES, NAGTB
       IMPLICIT NONE
@@ -86,7 +87,7 @@ C ATVX  CASE:
 C AIVX  CASE:
              IIS=0
              DO ISYMA=1,NSYM
-               ISYMI=MUL(ISYMA,ISYM)
+               ISYMI=Mul(ISYMA,ISYM)
                DO IA=1,NSSH(ISYMA)
                  IAABS=IA+NSES(ISYMA)
                  DO II=1,NISH(ISYMI)
@@ -102,7 +103,7 @@ C AIVX  CASE:
 C VJAIP CASE:
              IIS=0
              DO ISYMA=1,NSYM
-               ISYMIJ=MUL(ISYMA,ISYM)
+               ISYMIJ=Mul(ISYMA,ISYM)
                DO I2=1,NIGEJ(ISYMIJ)
                  I2ABS=I2+NIGEJES(ISYMIJ)
                  IIABS=MIGEJ(1,I2ABS)
@@ -120,7 +121,7 @@ C VJAIP CASE:
 C VJAIM CASE:
              IIS=0
              DO ISYMA=1,NSYM
-               ISYMIJ=MUL(ISYMA,ISYM)
+               ISYMIJ=Mul(ISYMA,ISYM)
                DO I2=1,NIGTJ(ISYMIJ)
                  I2ABS=I2+NIGTJES(ISYMIJ)
                  IIABS=MIGTJ(1,I2ABS)
@@ -156,7 +157,7 @@ C BVATM CASE:
 C BJATP CASE:
              IIS=0
              DO ISYMI=1,NSYM
-               ISYMAB=MUL(ISYMI,ISYM)
+               ISYMAB=Mul(ISYMI,ISYM)
                DO I2=1,NAGEB(ISYMAB)
                  I2ABS=I2+NAGEBES(ISYMAB)
                  IAABS=MAGEB(1,I2ABS)
@@ -174,7 +175,7 @@ C BJATP CASE:
 C BJATM CASE:
              IIS=0
              DO ISYMI=1,NSYM
-               ISYMAB=MUL(ISYMI,ISYM)
+               ISYMAB=Mul(ISYMI,ISYM)
                DO I2=1,NAGTB(ISYMAB)
                  I2ABS=I2+NAGTBES(ISYMAB)
                  IAABS=MAGTB(1,I2ABS)

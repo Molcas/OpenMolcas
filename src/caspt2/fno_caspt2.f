@@ -358,7 +358,7 @@ C
 ************************************************************************
       Subroutine Check_Amp(nSym,nOcc,nVir,iSkip)
       use definitions, only: iwp
-      use SYmmetry_Info, only: Mul
+      use Symmetry_Info, only: Mul
 
       Implicit None
       integer(kind=iwp), intent(in)::  nSym, nOcc(nSym), nVir(nSym)

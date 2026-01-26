@@ -147,7 +147,6 @@ set (modfile_list
      general_data.F90
      gugx.F90
      input_mclr.F90
-     pt2_guga.F90
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90

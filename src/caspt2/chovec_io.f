@@ -38,7 +38,7 @@ C   3 = secondary,active
 C   4 = secondary,inactive
 C
 C Symmetry is determined by total symmetry JSYM and the symmetry of one
-C of the orbital cases ISYQ, thus all values of MUL(ISYQ,JSYM).
+C of the orbital cases ISYQ, thus all values of Mul(ISYQ,JSYM).
 C
 C When reading the vectors, we group all batches of the same type
 C together, so that we have all vectors of one type as one block,
@@ -77,7 +77,8 @@ C as this is how they are used to compute the integrals for RHS.
 * the _lower_ orbital partition (e.g. inactive for active,inactive),
 * which is also the slowest varying index of the pair P,Q.
 ************************************************************************
-      use caspt2_module, only: Mul, nAsh, nIsh, nSSh
+      use Symmetry_Info, only: Mul
+      use caspt2_module, only: nAsh, nIsh, nSSh
       IMPLICIT NONE
 
       INTEGER(KIND=IWP) NPQ_CHOTYPE
@@ -86,7 +87,7 @@ C as this is how they are used to compute the integrals for RHS.
 
       INTEGER(KIND=IWP) :: ISYP,NP,NQ
 
-      ISYP=MUL(ISYQ,JSYM)
+      ISYP=Mul(ISYQ,JSYM)
       SELECT CASE(ICASE)
       CASE(1)
         NP=NASH(ISYP)
@@ -114,7 +115,8 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
 * Allocate a buffer to hold all cholesky vectors of type ITK,ITQ
 ************************************************************************
-      use caspt2_module, only: nSym, Mul
+      use Symmetry_Info, only: Mul
+      use caspt2_module, only: nSym
       IMPLICIT NONE
 
       INTEGER(KIND=IWP), INTENT(IN) :: ICASE
@@ -127,7 +129,7 @@ C as this is how they are used to compute the integrals for RHS.
       DO JSYM=1,NSYM
         NVTOT=NVTOT_CHOSYM(JSYM)
         DO ISYQ=1,NSYM
-          ISYK=MUL(ISYQ,JSYM)
+          ISYK=Mul(ISYQ,JSYM)
           IOFF(ISYK,ISYQ)=NCHOBUF
           NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
           NCHOBUF=NCHOBUF+NPQ*NVTOT

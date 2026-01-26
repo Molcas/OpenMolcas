@@ -40,10 +40,11 @@ subroutine procinp_caspt2
 #if 0
   use OFembed, only:Do_OFemb
 #endif
-  use caspt2_module, only: nGroupState, mState, Mul, nDel, nSsh, nFro, nIsh, iAd1m, Zeta, ThrSHS, ThrSHN, ThrOCC, &
+  use Molcas, only: MxRoot, MxSym
+  use caspt2_module, only: nGroupState, mState, nDel, nSsh, nFro, nIsh, iAd1m, Zeta, ThrSHS, ThrSHN, ThrOCC, &
                            ThrEne, ThrConv, SMatrix, SDECOM, Root2State, RHSDirect, RFPERT, PRSD, OutFmt, OrbIn,  &
-                           PrOrb, nTit, nSym, nState, nRas3T, nRas1T, nRoots, nLYRoot, nLYGroup, nGroup, nCases,  &
-                           MxSym, MxRoot, MaxIt, nRoots, iRoot, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfProp, JMS,    &
+                           PrOrb, nSym, nState, nRas3T, nRas1T, nRoots, nLYRoot, nLYGroup, nGroup, nCases,  &
+                           MaxIt, nRoots, iRoot, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfProp, JMS,    &
                            IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, ieoF1m, HZero, G1SECIN, FockType,     &
                            DWType, DoCumulant, BTrans, BSpect, BMatrix, DMRG
 
@@ -64,7 +65,7 @@ subroutine procinp_caspt2
   character(Len=16) :: mstate1
   logical(kind=iwp) :: Found
 
-  integer(kind=iwp) :: I,J,M,N
+  integer(kind=iwp) :: I,J
   integer(kind=iwp) :: iSym
   ! State selection
   integer(kind=iwp) :: iGroup,iOff
@@ -189,7 +190,6 @@ subroutine procinp_caspt2
   end do
   RFpert = Input%RFPert
 
-  NTIT = 0
   OUTFMT = 'DEFAULT'
   G1SECIN = .FALSE.
   PRORB = Input%PrOrb
@@ -232,7 +232,7 @@ subroutine procinp_caspt2
   ! nGroup = 1
   ! nGroupState(nGroup): 4
   NSTATE = 0
-  MSTATE = 0
+  MSTATE(:) = 0
   NGROUP = 0
   NGROUPSTATE = 0
   ! This is the case for MS-CASPT2 and DW-CASPT2
@@ -245,7 +245,7 @@ subroutine procinp_caspt2
     ! was used, so first we check the keyword all
     if (Input%AllMult) then
       NSTATE = NROOTS
-      MSTATE = IROOT
+      MSTATE(:) = IROOT
       NGROUP = NSTATE
       NGROUPSTATE(1:NGROUP) = 1
     else
@@ -273,7 +273,7 @@ subroutine procinp_caspt2
     if (Input%DWMS) then
       if (Input%AllXMult) then
         NSTATE = NROOTS
-        MSTATE = IROOT
+        MSTATE(:) = IROOT
         NGROUP = NSTATE
         NGROUPSTATE(1:NGROUP) = 1
       else
@@ -288,7 +288,7 @@ subroutine procinp_caspt2
     else
       if (Input%AllXMult) then
         NSTATE = NROOTS
-        MSTATE = IROOT
+        MSTATE(:) = IROOT
         NGROUP = 1
         NGROUPSTATE(1) = NSTATE
       else
@@ -310,7 +310,7 @@ subroutine procinp_caspt2
     end if
     if (Input%AllRMult) then
       NSTATE = NROOTS
-      MSTATE = IROOT
+      MSTATE(:) = IROOT
       NGROUP = NSTATE
       NGROUPSTATE(1:NGROUP) = 1
     else
@@ -350,7 +350,7 @@ subroutine procinp_caspt2
   ! roots that were part of the rasscf orbital optimization.
   if (NSTATE .EQ. 0) then
     NSTATE = NROOTS
-    MSTATE = IROOT
+    MSTATE(:) = IROOT
     NGROUP = NSTATE
     NGROUPSTATE(1:NGROUP) = 1
   end if
@@ -561,19 +561,6 @@ subroutine procinp_caspt2
   CMPTHR = Input%CMPTHR
   CNTTHR = Input%CNTTHR
 
-  !---  Create the symmetry multiplication table
-  MUL(1,1) = 1
-  M = 1
-  do N = 1,3
-    do I = 1,M
-      do J = 1,M
-        MUL(I + M,J) = M + MUL(I,J)
-        MUL(I,J + M) = MUL(I + M,J)
-        MUL(I + M,J + M) = MUL(I,J)
-      end do
-    end do
-    M = 2*M
-  end do
 !***********************************************************************
 !
 ! Gradients

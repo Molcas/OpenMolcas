@@ -40,12 +40,12 @@ subroutine tr2NsB(CMO,NCMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
 ! subroutine does.
 
 use caspt2_global, only: LUHLF3, LUINTM
+use caspt2_module, only: nSym
 use Intgrl, only: IAD2M
 use trafo, only: IAD13, ISP, ISQ, ISR, ISS, LMOP2, LMOQ2, LMOR2, LMOS2, LTUPQ, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOCP, NOCQ, NOR, &
                  NOS, NPQ
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use caspt2_module, only: nSym
 
 #include "intent.fh"
 

@@ -20,11 +20,12 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: iSCF, nActEl, nAshT, nConf, STSym, Mul
+      use caspt2_module, only: iSCF, nActEl, nAshT, nConf, STSym
       use pt2_guga, only: MxCI, nG1, nG2
       IMPLICIT NONE
 
@@ -124,8 +125,8 @@ C         LTU=LTU+1
           ! LTU=iTask
           ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
-          ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,STSYM)
+          ISTU=Mul(IST,ISU)
+          ISSG=Mul(ISTU,STSYM)
           NSGM=CIS%NCSF(ISSG)
 C         IF(NSGM.EQ.0) GOTO 130
           IF(NSGM.EQ.0) GOTO 500
@@ -148,7 +149,7 @@ C           G1(IU,IT)=GTU
               LVX=LVX+1
 C             IF(LVX.GT.LTU) GOTO 500
               ISX=SGS%ISM(LX)
-              ISVX=MUL(ISV,ISX)
+              ISVX=Mul(ISV,ISX)
               IF(ISVX.NE.ISTU) GOTO 110
               IX=L2ACT(LX)
 C             IF(LX.EQ.LT) THEN
@@ -188,7 +189,7 @@ C             G2(IT,IU,IX,IV)=GTUXV
               LVX=LVX+1
 C             IF(LVX.GT.LTU) GOTO 500
               ISX=SGS%ISM(LX)
-              ISVX=MUL(ISV,ISX)
+              ISVX=Mul(ISV,ISX)
 C             IF(ISVX.NE.ISTU) GOTO 110
               IX=L2ACT(LX)
               CALL GETSGM2(LX,LV,ISSG,SGM1,SGM2)
