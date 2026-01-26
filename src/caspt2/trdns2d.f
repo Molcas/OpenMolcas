@@ -55,27 +55,27 @@ C CASPT2 wave functions in vectors nr IVEC, JVEC on LUSOLV.
 
 C Inact/Inact and Virt/Virt blocks:
       DO ICASE=1,13
-C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
+C       if (icase/=12 .and. icase.ne.13) cycle ! H
         DO ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.EQ.0) CYCLE
+          IF(NIN==0) CYCLE
           NIS=NISUP(ISYM,ICASE)
           NVEC=NIN*NIS
-          IF(NVEC.EQ.0) CYCLE
+          IF(NVEC==0) CYCLE
           !! lg_V1: T+lambda
           !! lg_V2: T
           !! IVEC = iVecX
           !! JVEC = iVecR
           CALL RHS_ALLO(NIN,NIS,lg_V1)
           CALL RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
-          IF(IVEC.EQ.JVEC) THEN
+          IF(IVEC==JVEC) THEN
             lg_V2=lg_V1
           ELSE
             CALL RHS_ALLO(NIN,NIS,lg_V2)
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
             If (do_grad) Then
               CALL RHS_SCAL(NIN,NIS,lg_V1,SCAL)
-              if (sigma_p_epsilon .ne. Zero) then
+              if (sigma_p_epsilon /= Zero) then
                 !! derivative of the numerator
                 nAS = nASUP(iSym,iCase)
                 Call mma_allocate(BD,nAS,Label='BD')
@@ -100,7 +100,7 @@ C full array in case we are running in parallel
               ! copy global array to local buffer
               CALL mma_allocate(VEC1,NVEC,Label='VEC1')
               CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
-              IF(IVEC.EQ.JVEC) THEN
+              IF(IVEC==JVEC) THEN
                 CALL DIADNS(ISYM,ICASE,VEC1,VEC1,DPT2,LISTS)
               ELSE
                 CALL mma_allocate(VEC2,NVEC,Label='VEC2')
@@ -118,8 +118,8 @@ C full array in case we are running in parallel
 #ifdef _MOLCAS_MPP_
           END IF
 #endif
-          If (do_grad .and. (imag_shift .ne.Zero
-     *                  .or. sigma_p_epsilon .ne. Zero)) Then
+          If (do_grad .and. (imag_shift /=Zero
+     *                  .or. sigma_p_epsilon /= Zero)) Then
             !! for sigma-p CASPT2, derivative of the denominator
             nAS = nASUP(iSym,iCase)
             Call mma_allocate(BD,nAS,Label='BD')
@@ -139,7 +139,7 @@ C
                 ! copy global array to local buffer
                 CALL mma_allocate(VEC1,NVEC,Label='VEC1')
                 CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
-                IF(IVEC.EQ.JVEC) THEN
+                IF(IVEC==JVEC) THEN
                   CALL DIADNS(ISYM,ICASE,VEC1,VEC1,DPT2,LISTS)
                 ELSE
                   CALL mma_allocate(VEC2,NVEC,Label='VEC2')
@@ -164,7 +164,7 @@ C
           End IF
 
           CALL RHS_FREE(lg_V1)
-          IF(IVEC.NE.JVEC) CALL RHS_FREE(lg_V2)
+          IF(IVEC/=JVEC) CALL RHS_FREE(lg_V2)
         End Do
       End Do
 #ifdef _MOLCAS_MPP_
