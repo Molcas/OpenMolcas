@@ -21,14 +21,19 @@
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_get_1rdm_full
+      use caspt2_module, only: DMRG
+#endif
+#ifdef _ENABLE_CHEMPS2_DMRG_
+      use caspt2_module, only: DoCumulant
 #endif
       use PrintLevel, only: debug
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,
+     &                         Mul, mState
+      use pt2_guga, only: MxCI, nG1
       IMPLICIT NONE
 
-#include "caspt2.fh"
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
 
@@ -93,7 +98,7 @@
 * have to take account of orbital order.
 * We will use level indices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.fh
+* Translation tables L2ACT and LEVEL, in pt2_guga.F90
 
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM

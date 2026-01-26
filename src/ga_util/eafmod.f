@@ -76,8 +76,7 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Return
-      End
+      End Subroutine EAFOpen
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -109,14 +108,14 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Return
-      End
+      End Subroutine EAFClose
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFAWrite(Lu,Buf,nBuf,Disk,id)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
+      use SysDef, only: ItoB
 #endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf), id
@@ -124,7 +123,6 @@
 #ifdef _MOLCAS_MPP_
       Integer  iRC
 #include "molcas_eaf.fh"
-#include "SysDef.fh"
 #endif
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
@@ -146,14 +144,14 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Return
-      End
+      End Subroutine EAFAWrite
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFARead(Lu,Buf,nBuf,Disk,id)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
+      use SysDef, only: ItoB
 #endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf), id
@@ -161,7 +159,6 @@
 #ifdef _MOLCAS_MPP_
       Integer  iRC
 #include "molcas_eaf.fh"
-#include "SysDef.fh"
 #endif
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
@@ -183,14 +180,14 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Return
-      End
+      End Subroutine EAFARead
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFWrite(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
+      use SysDef, only: ItoB
 #endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf)
@@ -199,7 +196,6 @@
 #ifdef _MOLCAS_MPP_
       Integer  iRC
 #include "molcas_eaf.fh"
-#include "SysDef.fh"
 #endif
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
@@ -222,14 +218,14 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Return
-      End
+      End Subroutine EAFWrite
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Subroutine EAFRead(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
+      use SysDef, only: ItoB
 #endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf)
@@ -238,7 +234,6 @@
 #ifdef _MOLCAS_MPP_
       Integer  iRC
 #include "molcas_eaf.fh"
-#include "SysDef.fh"
 #endif
 #ifdef _MOLCAS_MPP_
       If(Is_Real_Par()) Then
@@ -261,8 +256,7 @@
 #ifdef _MOLCAS_MPP_
       End If
 #endif
-      Return
-      End
+      End Subroutine EAFRead
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -298,6 +292,6 @@ c Avoid unused argument warnings
          Call Unused_integer(id)
       End If
 #endif
-      End
+      End Subroutine EAFWait
 *                                                                      *
 ************************************************************************

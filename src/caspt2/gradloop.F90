@@ -24,12 +24,16 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   use PrintLevel, only: usual, verbose
   use definitions, only: iwp,wp,u6
   use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
+  use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, &
+                           CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, CPUPRP, CPUPT2, CPURHS, CPUSBM, &
+                           TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, TIONAD, TIOOVL, TIOPCG, &
+                           TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC, TIOPRP, TIOPT2, TIORHS, TIOSBM, &
+                           Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot, jState, &
+                           nGroup, nState, nGroupState, mState
 
   Implicit None
 
 #include "warnings.h"
-#include "caspt2.fh"
-#include "pt2_guga.fh"
 
   character(len=60) :: STLNE2
 

@@ -26,6 +26,8 @@ use Slapaf_Info, only: AtomLbl, Cx, dMass
 use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
+use Molcas, only: LenIn, LenIn5, MxAtom
 
 implicit none
 character(len=*), intent(in) :: Strng
@@ -36,8 +38,6 @@ integer(kind=iwp), intent(out) :: Ind(nCntr+mCntr,2)
 character(len=6), intent(in) :: Typ
 character(len=8), intent(in) :: Lbl
 logical(kind=iwp), intent(inout) :: lWrite
-#include "print.fh"
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iEnd, iFrst, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, lStrng, nCent, nPar1, nPar2
 real(kind=wp) :: Axis(3), Perp_Axis(3,2)
 character(len=LenIn5) :: Label
@@ -144,10 +144,10 @@ do ixyz=1,nCent
 
 end do  ! do ixyz=1,nCntr+mCntr
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' Coordinates',' ',xyz,3,nCntr+mCntr)
   call RecPrt('qMss',' ',qMss,1,nCntr+mCntr)
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -219,13 +219,11 @@ end if
 Deg = sqrt(Deg)
 
 call ProjSym2(nAtom,nCent,Ind,xyz,iDCR,Grad,Vector,Hess,dVector)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' symmetry adapted vector',' ',Vector,3,nAtom)
   call RecPrt(' symmetry adapted dvector',' ',dVector,3*nAtom,3*nAtom)
-end if
+#endif
 
 call mma_deallocate(iDCR)
-
-return
 
 end subroutine Cllct2

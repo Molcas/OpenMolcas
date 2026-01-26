@@ -12,11 +12,10 @@
 subroutine Set_nbmx(nbmx_)
 
 use Definitions, only: iwp
+use caspt2_module, only: nBMx
 
 implicit none
 integer(kind=iwp), intent(in) :: nbmx_
-
-#include "caspt2.fh"
 
 nbmx = nbmx_
 

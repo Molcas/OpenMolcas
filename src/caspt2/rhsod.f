@@ -26,8 +26,8 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 
       IF (IPRGLB.GE.VERBOSE) THEN
@@ -88,8 +88,8 @@
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER IVEC
 
       INTEGER IOBRA(8,8), IOKET(8,8)
@@ -206,8 +206,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER IVEC
 
       INTEGER IOBRA(8,8), IOKET(8,8)
@@ -345,8 +345,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER IVEC
 
       INTEGER IOSYM(8,8)
@@ -543,8 +543,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER IVEC
 
       INTEGER IOSYM(8,8)
@@ -740,8 +740,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER IVEC
 
       INTEGER IOSYM(8,8)
@@ -938,8 +938,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER IVEC
 
       INTEGER IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
@@ -1120,8 +1120,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER IVEC
 
       INTEGER IOBRA(8,8), IOKET(8,8)
@@ -1349,8 +1349,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER IVEC
 
       INTEGER IOBRA(8,8), IOKET(8,8)

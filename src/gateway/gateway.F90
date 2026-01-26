@@ -39,11 +39,11 @@ use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
 use spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use Print, only: nPrint
+use Molcas, only: LenIn, LenIn8, MxAtom, MaxBfn, MaxBfn_aux
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iNuc, iOption, iRc, iter_S, LuSpool, mdc, nDNA, nNuc
 integer(kind=iwp), parameter :: nMamn = MaxBfn+MaxBfn_Aux
 character(len=LenIn) :: xLblCnt(MxAtom)

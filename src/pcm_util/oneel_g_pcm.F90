@@ -41,13 +41,18 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
-use Symmetry_Info, only: ChOper, nIrrep
+use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
-use define_af, only: AngTp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+use Print, only: nPrint
+#ifdef _DEBUGPRINT_
+use define_af, only: AngTp
+use Definitions, only: u6
+use Symmetry_Info, only: ChOper
+#endif
 
 implicit none
 procedure(grd_kernel) :: Kernel
@@ -57,7 +62,7 @@ real(kind=wp), intent(out) :: Grad(nGrad)
 logical(kind=iwp), intent(in) :: DiffOp
 real(kind=wp), intent(in) :: CCoor(3), FD(nFD)
 character(len=80), intent(in) :: Label
-integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, IndGrd(3,2), iPrim, iPrint, &
+integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ijS, IndGrd(3,2), iPrim, iPrint, &
                      iRout, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, &
                      jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, niAng, &
                      njAng, nOp(2), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
@@ -66,10 +71,13 @@ logical(kind=iwp) :: IfGrad(3,3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Fnl(:), Kappa(:), Kern(:), PCoor(:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 logical(kind=iwp), external :: EQ
-#include "print.fh"
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 
 iRout = 112
 iPrint = nPrint(iRout)
+
 Grad(:) = Zero
 
 ! Auxiliary memory allocation.
@@ -135,9 +143,10 @@ do ijS=1,nTasks
 
   call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
   if ((.not. DiffOp) .and. (nDCRR == 1) .and. EQ(A,B)) cycle
-  if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
-
-  if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#ifdef _DEBUGPRINT_
+  write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+  write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#endif
 
   ! Call kernel routine to get memory requirement.
 
@@ -194,10 +203,10 @@ do ijS=1,nTasks
   ! Project the Fock/1st order density matrix in AO
   ! basis on to the primitive basis.
 
-  if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
     call RecPrt(' Left side contraction',' ',Shells(iShll)%pCff,iPrim,iBas)
     call RecPrt(' Right side contraction',' ',Shells(jShll)%pCff,jPrim,jBas)
-  end if
+#endif
 
   ! Transform IJ,AB to J,ABi
   call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,DSO,iBas,Shells(iShll)%pCff,iPrim,Zero,DSOp,jBas*nSO)
@@ -207,7 +216,9 @@ do ijS=1,nTasks
   call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOp,iPrim*jPrim)
   call mma_deallocate(DSO)
 
-  if (iPrint >= 99) call RecPrt(' Decontracted 1st order density/Fock matrix',' ',DSOp,iPrim*jPrim,nSO)
+#ifdef _DEBUGPRINT_
+  call RecPrt(' Decontracted 1st order density/Fock matrix',' ',DSOp,iPrim*jPrim,nSO)
+#endif
 
   ! Loops over symmetry operations.
 
@@ -229,9 +240,9 @@ do ijS=1,nTasks
         end do
       end if
 
-      if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
         write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
-      end if
+#endif
 
       llOper = lOper(1)
       do iComp=2,nComp
@@ -251,9 +262,9 @@ do ijS=1,nTasks
         FactNd = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp)
       end if
 
-      if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
         write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
-      end if
+#endif
 
       ! Desymmetrize the matrix with which we will contract the trace.
 
@@ -271,7 +282,9 @@ do ijS=1,nTasks
         call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
                     RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,DAO,kk)
       end if
-      if (iPrint >= 99) call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,iPrim*jPrim,kk)
+#ifdef _DEBUGPRINT_
+      call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,iPrim*jPrim,kk)
+#endif
 
       ! Compute kappa and P.
 
@@ -282,7 +295,9 @@ do ijS=1,nTasks
 
       call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
                   MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,nComp,iStabM,nStabM)
-      if (iPrint >= 49) call PrGrad_pcm(' In Oneel',Grad,nGrad,5)
+#ifdef _DEBUGPRINT_
+      call PrGrad_pcm(' In Oneel',Grad,nGrad,5)
+#endif
 
     end do
   end if
@@ -303,7 +318,5 @@ call mma_deallocate(Kappa)
 call mma_deallocate(PCoor)
 
 if (iPrint >= 15) call PrGrad_pcm(Label,Grad,nGrad,5)
-
-return
 
 end subroutine OneEl_g_pcm

@@ -17,6 +17,7 @@ use Data_Structures, only: DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use cOrbInf, only: nFro, nOcc, nDel, nOrb
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -33,7 +34,6 @@ integer(kind=iwp), allocatable :: IndT(:,:)
 real(kind=wp), allocatable :: AORecBlock(:), AOTriBlock(:), EigenValBlock(:), EigenValTot(:), EigenVecBlock(:), EigenVecTot(:), &
                               Energies(:), MOTriBlock(:), TmpRecBlock(:)
 integer(kind=iwp), external :: IsFreeUnit
-#include "corbinf.fh"
 
 nOrbAllTot = nOrbAll(1)
 nOrbAllMax = nOrbAll(1)

@@ -13,11 +13,10 @@ module rasscf_global
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use rasdim, only: MxOrb, MxRoot, MxRef, MxAct, MxIter, LenIn8
 
 implicit none
 private
-
-#include "rasdim.fh"
 
 integer(kind=iwp), parameter :: ITRIM = mxAct*(mxAct+1)/2
 

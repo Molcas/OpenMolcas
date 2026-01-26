@@ -16,11 +16,11 @@ use Isotopes, only: PTab
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: Iter, nAtIn
 real(kind=wp), intent(in) :: Coord(3*nAtIn,Iter)
-#include "LenIn.fh"
 integer(kind=iwp) :: i, iAtIn, iAtNum, iAtOut, iAtTot, iFirst, k, Lu_XYZ, nAtOut, nAtTot
 logical(kind=iwp) :: Found, isMMI, isMMO, isQM
 character(len=LenIn) :: Symbol

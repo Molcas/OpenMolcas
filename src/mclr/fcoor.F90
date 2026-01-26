@@ -25,11 +25,11 @@ use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: LUT
 real(kind=wp), intent(in) :: COOR(3,*)
-#include "LenIn.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iCo, ii, kop, mdc
 real(kind=wp) :: A(3), B(3)
 character(len=LenIn) :: Lab
@@ -53,7 +53,5 @@ do iCnttp=1,nCnttp
   end do
 end do
 write(LUT,'(A)') '*END COORDINATES'
-
-return
 
 end subroutine FCOOR

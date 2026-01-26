@@ -21,11 +21,13 @@
       use fciqmc_interface, only: DoFCIQMC
       use stdalloc, only: mma_allocate
       use gugx, only: SGS, L2ACT, LEVEL, CIS, EXS
+      use caspt2_module, only: DMRG, DoCumulant, iSCF, iSpin, nActEl,
+     &                         nAshT, nEle3, nHole1, nRas1T, nRas2T,
+     &                         nRas3T, nSym, STSym, nAsh
 
+      use pt2_guga, only: MxCI
       IMPLICIT NONE
 
-#include "caspt2.fh"
-#include "pt2_guga.fh"
 
       Integer nLev
 

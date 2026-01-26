@@ -16,11 +16,11 @@ subroutine Annihil_rho(Dmat,nBas)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8
 
 implicit none
 real(kind=wp), intent(_OUT_) :: Dmat(*)
 integer(kind=iwp), intent(in) :: nBas
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAt, iAt_B, ijj, j, jj, Length, nAA, nAt_B, nAtoms, nBas_A, nBas_B
 real(kind=wp) :: ZA, ZB
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)

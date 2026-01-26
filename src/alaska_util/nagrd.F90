@@ -46,10 +46,6 @@ logical(kind=iwp), external :: TF
 procedure(cff2d_kernel) :: Cff2D, vCff2D
 procedure(modu2_kernel) :: Fake, ModU2
 procedure(tval1_kernel) :: TERI1, TNAI1
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iPrint, iRout
-#include "print.fh"
-#endif
 
 #include "macros.fh"
 unused_var(rFinal)
@@ -58,13 +54,9 @@ unused_var(nOrdOp)
 unused_var(nComp)
 
 #ifdef _DEBUGPRINT_
-iRout = 150
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
   write(u6,*) ' In NAGrd: nArr=',nArr
   nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
   call RecPrt('DAO',' ',DAO,nZeta,nDAO)
-end if
 #endif
 
 nRys = nHer
@@ -122,7 +114,7 @@ if (Nuclear_Model == Point_Charge) then
     end do
   end do
 end if
-!if (iPrint >= 99) call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+!call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 
 ! Loop over nuclear centers
 
@@ -208,7 +200,7 @@ do kCnttp=1,nCnttp
         if (JfGrad(iCar,i)) mGrad = mGrad+1
       end do
     end do
-    !if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
+    !write(u6,*) ' mGrad=',mGrad
     if (mGrad == 0) cycle
 
     do lDCRT=0,nDCRT-1

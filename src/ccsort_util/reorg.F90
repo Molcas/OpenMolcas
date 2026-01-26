@@ -40,11 +40,11 @@ use ccsort_global, only: clopkey, Escf, fullprint, IADR15, JOBIPH, LROOT, LUINTM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use rasdim, only: MxIter, MxRoot
 
 implicit none
 logical(kind=iwp), intent(out) :: run_triples
 integer(kind=iwp), intent(out) :: IRETURN
-#include "rasdim.fh"
 integer(kind=iwp) :: i, iad15, ij, j, lad15, NOIPSB(106), ntot2, ntot3
 logical(kind=iwp) :: run_sort
 real(kind=wp), allocatable :: Ene(:,:), EPS(:), EPSRAS(:), FI(:), FIRAS(:), FOKA(:), FOKB(:)

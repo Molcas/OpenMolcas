@@ -44,11 +44,11 @@ use Slapaf_Info, only: Analytic_Hessian, ANr, ApproxNADC, AtomLbl, Baker, Beta, 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn, MxAtom
 
 implicit none
 real(kind=wp), intent(in) :: Modes(*), Freq(*)
 integer(kind=iwp), intent(in) :: nModes, lModes, lDisp(nIrrep)
-#include "Molcas.fh"
 integer(kind=iwp) :: Bk_iInt, Bk_iOptC, Bk_iOptH, Bk_IRC, Bk_iRef, Bk_iRow, Bk_iRow_c, Bk_iState(2), Bk_iter, Bk_Max_Center, &
                      Bk_mB_Tot, Bk_mdB_Tot, Bk_MEPnum, Bk_mode, Bk_mq, Bk_mTROld, Bk_mTtAtm, Bk_MxItr, Bk_nBVec, Bk_nDimBC, &
                      Bk_nFix, Bk_nLambda, Bk_nMEP, Bk_NmIter, Bk_nsRot, Bk_nUserPT, Bk_nWndw, i, iB, iErr, ii, im, iq, j, LuIC, &

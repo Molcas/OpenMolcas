@@ -40,9 +40,10 @@
      &                        NRS2T,NSYM,ISPIN,STSYM,NSEL,NALTER,INVEC,
      &                        NASH,NBAS,NDEL,NFRO,NISH,NORB,NRS1,NRS2,
      &                        NRS3,NSSH,MALTER
+      use rasdim, only: MxOrb, MxAct, MxBas, MxCIIt, MxIna, MxIter,
+     &                  MxRoot, MxSXIt, MxGAS
 
       implicit none
-#include "rasdim.fh"
 #include "warnings.h"
       integer :: ierr, ierr1, ierr2
       integer :: i, iSym, iAlter
@@ -165,7 +166,7 @@ C Local print level (if any)
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' GASSCF: Too many GAS spaces. '
         Write(LF,*) ' Can be increased up to 16 by changing'
-        Write(LF,*) ' mxGAS in Include/Molcas.fh'
+        Write(LF,*) ' mxGAS in module Molcas.F90'
         Write(LF,*) ' **********************************'
         Call Quit(_RC_INPUT_ERROR_)
        End If

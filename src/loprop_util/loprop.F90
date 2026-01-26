@@ -25,10 +25,10 @@ use Data_Structures, only: Allocate_DT, Alloc1DArray_Type, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn4
 
 implicit none
 integer(kind=iwp), intent(inout) :: ireturn
-#include "Molcas.fh"
 integer(kind=iwp) :: iPert, iPL, iPlot, iPrint, lMax, mElem, nAtoms, nBas(8), nBas1, nBas2, nBasMax, nij, nOrb(8), nPert, nSize, &
                      nStateF, nStateI, nSym, nTemp
 real(kind=wp) :: Bond_Threshold, CoC(3), SubScale

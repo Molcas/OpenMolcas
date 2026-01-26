@@ -24,10 +24,27 @@
 #ifdef _DMRG_
       use, intrinsic :: iso_c_binding, only: c_bool, c_int
       use qcmaquis_interface
+      use caspt2_module, only: DMRG
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       USE Constants, ONLY: auTocm, auToeV, auTokJmol
       use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
+      use caspt2_module, only: E2ToT, IfChol, IfDens, IfDW,
+     &                         IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot,
+     &                         jState, nGroup, nLyGroup, nLyRoot,
+     &                         nState, RefEne, Energy, nGroupState,
+     &                         mState,
+     &                         CPUGIN,CPUINT,CPUFMB,
+     &                         CPUSIN,CPUFG3,
+     &                        CPUPT2,CPUSBM,CPUEIG,CPUNAD,CPURHS,CPUSER,
+     &                        CPUPCG,CPUSCA,CPULCS,CPUOVL,CPUVEC,CPUSGM,
+     &                         CPUPRP,CPUGRD,
+     &                         TIOGIN,TIOINT,TIOFMB,
+     &                         TIOSIN,TIOFG3,
+     &                        TIOPT2,TIOSBM,TIOEIG,TIONAD,TIORHS,TIOSER,
+     &                        TIOPCG,TIOSCA,TIOLCS,TIOOVL,TIOVEC,TIOSGM,
+     &                         TIOPRP,TIOGRD
+
       IMPLICIT NONE
       INTEGER IRETURN
 *----------------------------------------------------------------------*
@@ -77,8 +94,6 @@ C     HDF5 SUPPORT BY S. VANCOILLIE (2016)
 C
 ************************************************************************
 #include "warnings.h"
-#include "caspt2.fh"
-#include "pt2_guga.fh"
       CHARACTER(len=60) STLNE2
 * Timers
       REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,

@@ -25,9 +25,9 @@ use printlevel, only: DEBUG, USUAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use rasdim, only: MxRoot, MxCIIt
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr

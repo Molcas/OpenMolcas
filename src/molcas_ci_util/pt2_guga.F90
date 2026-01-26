@@ -8,20 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-#include "Molcas.fh"
-!     Parameter definitions
-!     Note, these parameters define the size of the problems which
-!     can be treated by the RASSCF program. Changing any of these
-!     requires, that the program is totaly recompiled and linked.
-!
-      Integer, Parameter :: mxRef  = 5
-!...  max number of reference configurations in root selectioning
-      Integer, Parameter :: mxIter = 200
-!...  max number of macro iterations
-      Integer, Parameter :: mxCiIt = 502
-!...  max number of micro iterations for the CI section
-      Integer, Parameter :: mxSxIt = 100
-!...  max number of micro iterations for the SX section
-      Integer, Parameter :: mxTit  = 1
-!...  max number of title lines
+Module pt2_guga
+use definitions, only: iwp, wp
+! MXLEV should be taken from the gugx module
+integer(kind=iwp), PARAMETER :: MXLEV=100 ,MXL3=(MXLEV*(MXLEV+1))/2
+
+real(kind=wp) ETA(MXLEV),CITHR,PKPREC
+
+CHARACTER(Len=8)CLAB10(64)
+
+integer(kind=iwp)LCI,MXCI,NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,IADR10(64,2),IDTAB(MXL3)
+
+integer(kind=iwp) NPLBUF,IPLBUF,JPLBUF,ISYMA,NSGMA,ISYMB,NSGMB
+End Module pt2_guga

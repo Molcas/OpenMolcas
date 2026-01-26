@@ -25,9 +25,10 @@
       use caspt2_global, only: LUONEM
       use ChoCASPT2
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: iEOF1M, Name, nBas, nSym, OutFmt, PrOrb,
+     &                         ThrEne, ThrOcc, iAd1M, nFro, nOrb, nBasT,
+     &                         EPS, nDel
       IMPLICIT NONE
-#include "caspt2.fh"
-#include "pt2_guga.fh"
       INTEGER NCMO
       REAL*8 CMO(NCMO)
 

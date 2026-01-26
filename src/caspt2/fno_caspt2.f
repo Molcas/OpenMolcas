@@ -22,8 +22,8 @@
       use InputData, only: Input
       use ChoMP2, only: DeMP2, MP2_small, shf
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Molcas, only: MxBas
       Implicit Real*8 (A-H,O-Z)
-#include "Molcas.fh"
 *
       Integer irc,nSym,IFQCAN
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
@@ -299,11 +299,14 @@ C
      &                  DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def,
      &                  MxQualMP2, OED_Thr, set_cd_thr, SOS_mp2,
      &                  Span_Def, SpanMP2, ThrMP2, Verbose
-      Implicit REAL*8 (A-H,O-Z)
-      Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-C
-#include "corbinf.fh"
-C
+      use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
+
+      Implicit None
+      Integer, intent(in):: mSym
+      Integer, intent(in)::  lnOrb(8), lnOcc(8), lnFro(8), lnDel(8),
+     &                       lnVir(8)
+
+      Integer :: iSym
 C
       nSym = mSym
 C

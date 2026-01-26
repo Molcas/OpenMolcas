@@ -10,8 +10,9 @@
 !***********************************************************************
 
 ! Global variables of the CASPT2 module
-! TODO: move here all variables from CASPT2 common blocks defined in caspt2.fh
+! TODO: move here all variables from CASPT2 common blocks defined in caspt2_module.F90
 module caspt2_global
+use caspt2_module, only: jState, mState, nActel
 
 ! UNIT numbers:
 ! IDCIEX, IDTCEX, LUCIEX, LUDMAT, LUDRA, LUDRATOT, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LURHS, LUSBT, LUSOLV
@@ -63,12 +64,11 @@ module caspt2_global
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use pt2_guga, only: nG3
 
 implicit none
 private
 
-#include "caspt2.fh"
-#include "pt2_guga.fh"
 public :: jState, mState, nActEl, nG3
 
 integer(kind=iwp), parameter :: iVecG = 8, iVecL = 7

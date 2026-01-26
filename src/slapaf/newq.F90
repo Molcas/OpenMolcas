@@ -25,6 +25,7 @@ use Slapaf_Info, only: E_Delta, iOptC, Line_Search, UpMeth
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter, nIter, nScrt1, nFix
@@ -33,11 +34,10 @@ real(kind=wp), intent(out) :: error(nInter,nIter+1), B((nIter+1)**2), RHS(nIter+
 real(kind=wp), intent(in) :: Beta, Energy(nIter), Thr_RS
 integer(kind=iwp), intent(out) :: iP(nIter)
 character, intent(inout) :: Step_Trunc
-#include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, MinWdw
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iSave, ix
+integer(kind=iwp) :: ix
 #endif
 real(kind=wp) :: Beta_New
 real(kind=wp), allocatable :: t_dq(:), t_g(:), t_q(:)
@@ -50,10 +50,7 @@ write(u6,*) ' Newq: nIter,Beta=',nIter,Beta
 call RecPrt(' Newq (Enter): q',' ',q,nInter,nIter+1)
 call RecPrt(' Newq (Enter): dq',' ',dq,nInter,nIter)
 call RecPrt(' Newq (Enter): g',' ',g,nInter,nIter)
-iSave = nPrint(21)
-nPrint(21) = 99
 call DiagMtrx(H,nInter,ix)
-nPrint(21) = iSave
 #endif
 
 E_Delta = Zero
@@ -189,22 +186,22 @@ end if
 ! In case of a line search restore some data and add the replacements.
 
 if (Line_Search .and. (nIter >= 2)) then
-  if (iPrint >= 99) then
+# ifdef _DEBUGPRINT_
     call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
     call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
     call RecPrt(' Newq: g ',' ',g,nInter,nIter)
-  end if
+# endif
   q(:,nIter+1) = q(:,nIter)+dq(:,nIter)
   q(:,nIter) = t_q(:)
   dq(:,nIter) = q(:,nIter+1)-q(:,nIter)
 
   dq(:,nIter-1) = t_dq(:)
   g(:,nIter) = t_g(:)
-  if (iPrint >= 99) then
+# ifdef _DEBUGPRINT_
     call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
     call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
     call RecPrt(' Newq: g ',' ',g,nInter,nIter)
-  end if
+# endif
 
   call mma_deallocate(t_q)
   call mma_deallocate(t_g)
@@ -234,7 +231,5 @@ call RecPrt('Newq (Exit): q',' ',q,nInter,nIter+1)
 call RecPrt('Newq (Exit): dq',' ',dq,nInter,nIter)
 call RecPrt('Newq (Exit): g',' ',g,nInter,nIter)
 #endif
-
-return
 
 end subroutine Newq

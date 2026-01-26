@@ -34,8 +34,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iBeta, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, iSym_p1, &
+integer(kind=iwp) :: iBeta, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr, ipB, ipOff, ipS1, ipS2, iSym_p1, &
                      iSym_p2, iSym_p3, iSym_pX, iSym_pXp, iTemp, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, mArr, nip
 integer(kind=iwp), allocatable :: kChO(:,:), kOper(:,:)
 integer(kind=iwp), external :: IrrFnc
@@ -43,9 +42,6 @@ procedure(int_kernel) :: pXint
 
 #include "macros.fh"
 unused_var(nHer)
-
-iRout = 220
-iPrint = nPrint(iRout)
 
 rFinal(:,:,:,:) = Zero
 Array(:) = Zero
@@ -142,9 +138,9 @@ do iBeta=1,nBeta
   ipOff = ipOff+nAlpha
 end do
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In pXpint: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -156,8 +152,8 @@ call Ass_pXp(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2),nComp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (iPrint >= 49) call RecPrt('pXpInt: rFinal',' ',rFinal(:,:,:,1),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-
-return
+#ifdef _DEBUGPRINT_
+call RecPrt('pXpInt: rFinal',' ',rFinal(:,:,:,1),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+#endif
 
 end subroutine pXpInt

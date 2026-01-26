@@ -21,6 +21,7 @@ use Data_Structures, only: Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
+use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 real(kind=wp), intent(out) :: E2BJAI, REFC
@@ -28,7 +29,6 @@ integer(kind=iwp) :: i, iA, iAdr, iI, iSym, iSymIA, iSymJB, Iter, iVecOff(8), j,
 real(kind=wp) :: Eps, res, TotLagr
 logical(kind=iwp) :: Done
 real(kind=wp), allocatable :: AP(:), AOTriDens(:), Mult(:), MultN(:), P(:), PN(:), R(:), RN(:), WAOTriDens(:), Z(:), ZN(:)
-#include "corbinf.fh"
 
 !                                                                      *
 !***********************************************************************

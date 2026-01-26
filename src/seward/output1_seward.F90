@@ -40,11 +40,10 @@ use rctfld_module, only: lLangevin, lRF, PCM
 use rmat, only: RMat_On
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nTtl
 real(kind=wp) :: temp
 logical(kind=iwp) :: l_aCD_Thr, Found, lNoPair, lPam2, lECP, lPP

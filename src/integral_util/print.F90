@@ -8,4 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       Integer, Parameter :: LenIn=6
+Module Print
+private
+Integer, parameter:: nRout=1024
+Integer :: i
+Integer :: nPrint(nRout) = [(5,i=1,nRout)]
+Logical :: Show=.False.
+Integer :: icolorize=0
+public nPrint, Show, iColorize
+End Module Print

@@ -28,9 +28,9 @@ subroutine MkSrt2()
 
 use sort_data, only: iDIBin, iDVBin, mSyBlk, n_Int, nRec, nSln
 use Definitions, only: iwp, u6
+use Print, only: nPrint
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: iBin, iPrint, iRout, iSlice, iSyBlk, nSlice
 
 iRout = 80

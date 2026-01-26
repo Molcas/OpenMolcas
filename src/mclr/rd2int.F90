@@ -32,10 +32,10 @@ subroutine Rd2Int(iPL)
 
 use input_mclr, only: CasInt, nBas, nSkip, nSym, TimeDep
 use Definitions, only: iwp, u6
+use Molcas, only: MxSym
 
 implicit none
 integer(kind=iwp), intent(in) :: iPL
-#include "Molcas.fh"
 integer(kind=iwp) :: iRC, iSym, nBasX(mxSym), nSymX, ntSkip
 logical(kind=iwp) :: SqSym
 

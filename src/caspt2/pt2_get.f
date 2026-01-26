@@ -18,9 +18,8 @@
 *--------------------------------------------*
       SUBROUTINE PT2_GET(NSIZE,LAB,VEC)
       use caspt2_global, only: LUDMAT
+      use pt2_guga, only: CLab10, iAdr10
       IMPLICIT NONE
-#include "caspt2.fh"
-#include "pt2_guga.fh"
 
       INTEGER NSIZE
       CHARACTER(len=*) LAB

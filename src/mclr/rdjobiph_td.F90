@@ -34,10 +34,10 @@ use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iSpin, iTOC, iTocIph, lRoo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
+use rasdim, only: LenIn8, MxIter, MxOrb, MxRoot, MxSym, MxTit
 
 implicit none
 real(kind=wp), allocatable, intent(out) :: CIVec(:,:)
-#include "rasdim.fh"
 integer(kind=iwp) :: i, iB, iDij, iDij2, iDisk, iDkl, iDkl2, iIJKL, iIJKL2, iS, iSym, Iter, jB, jS, kB, kRoots, kS, lB, Length, &
                      lS, nAct, nAct2, nAct4, nG1, nG2
 real(kind=wp) :: Fact, Fact2, Factij, Factkl, PotNuc0, rdum(1), Temp

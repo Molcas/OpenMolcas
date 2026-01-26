@@ -82,13 +82,13 @@
       use general_data, only: CleanMask
       use printlevel, only: DEBUG,TERSE,VERBOSE
       use output_ras, only: LF,IPRGLB,IPRLOC
+      use SysDef, only: RtoI
+      use rasdim, only: MxOrb, LenIn8, MxTit, MaxBfn, MxRoot, MxSym
 
       implicit none
 
 *     global data declarations
-#include "rasdim.fh"
       Character(LEN=16), Parameter :: ROUTINE='READVC  '
-#include "SysDef.fh"
 #include "warnings.h"
 
       real*8 :: CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)

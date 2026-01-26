@@ -21,7 +21,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nel_c, norb_c, i2s_c, isym_c, neltot_c
-#include "rasdim.fh"
 integer(kind=iwp) :: i, j
 real(kind=wp) :: wgt
 

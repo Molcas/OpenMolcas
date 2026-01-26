@@ -11,32 +11,36 @@
 
 subroutine MSP(B,rGamma,Delta,nDim)
 
-use Constants, only: One, Two
-use Definitions, only: wp, iwp, u6
+use Constants, only: One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Constants, only: Two
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nDim
 real(kind=wp), intent(inout) :: B(nDim,nDim)
 real(kind=wp), intent(in) :: rGamma(nDim), Delta(nDim)
-#include "print.fh"
-integer(kind=iwp) :: i, iPrint, iRout
-real(kind=wp) :: dd, e_msp, gd, gg, phi
+integer(kind=iwp) :: i
+real(kind=wp) :: dd, gd, gg, phi
 real(kind=wp), external :: DDot_
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: e_msp
+#endif
 
 !                          T       T            ( T)
 !                |(1-phi)/d g phi/d d|        | (g )
 !                |     T       T    T         | ( T)
 ! B = B + (g  d )|phi/d d    -Phi*d g/(d d)**2| (d )
 
-iRout = 212
-iPrint = nPrint(iRout)
-
 gd = DDot_(nDim,rGamma,1,Delta,1)
 dd = DDot_(nDim,Delta,1,Delta,1)
 gg = DDot_(nDim,rGamma,1,rGamma,1)
 phi = (One-((gd**2)/(dd*gg)))
-e_msp = (gd/dd)**2*((Two/(One-Phi*sqrt(Phi)))-One)
-if (iPrint >= 99) then
+
+#ifdef _DEBUGPRINT_
+  e_msp = (gd/dd)**2*((Two/(One-Phi*sqrt(Phi)))-One)
   call RecPrt(' MSP: Hessian',' ',B,nDim,nDim)
   call RecPrt(' MSP: Delta',' ',Delta,nDim,1)
   call RecPrt(' MSP: Gamma',' ',rGamma,nDim,1)
@@ -44,13 +48,14 @@ if (iPrint >= 99) then
   write(u6,*) 'gd,dd,gg=',gd,dd,gg
   write(u6,*) 'MSP: a=',sqrt(Phi)
   write(u6,*) 'MSP: E_msp=',E_msp
-end if
+#endif
+
 do i=1,nDim
   B(:,i) = B(:,i)+((One-phi)/gd)*rGamma(:)*rGamma(i)+phi*((rGamma(:)*Delta(i)+Delta(:)*rGamma(i))/dd-gd*Delta(:)*Delta(i)/dd**2)
 end do
 
-if (iPrint >= 99) call RecPrt(' MSP: Updated Hessian',' ',B,nDim,nDim)
-
-return
+#ifdef _DEBUGPRINT_
+call RecPrt(' MSP: Updated Hessian',' ',B,nDim,nDim)
+#endif
 
 end subroutine MSP

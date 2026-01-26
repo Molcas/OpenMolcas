@@ -44,6 +44,7 @@ use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp, u6
+use Molcas, only: lCache
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1, nSD
@@ -55,7 +56,6 @@ integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), I
                      nabcd, nCache, nFac, nPam(4,0:7), nTmp1, nTmp2, nVec1
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
-#include "Molcas.fh"
 
 la = iSD4(1,1)
 lb = iSD4(1,2)

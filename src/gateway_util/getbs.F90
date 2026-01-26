@@ -37,9 +37,9 @@ use define_af, only: AngTp, iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
+use Molcas, only: MxAtom
 
 implicit none
-#include "Molcas.fh"
 character(len=*), intent(in) :: DDname, ExtBasDir
 character(len=80), intent(inout) :: BSLbl
 integer(kind=iwp), intent(inout) :: iShll, iSTDINP

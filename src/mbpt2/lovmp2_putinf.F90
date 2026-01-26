@@ -18,12 +18,12 @@ use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoFNO, EOSMP2, F
                   set_cd_thr, SOS_mp2, Span_Def, SpanMP2, ThrMP2, Verbose
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 integer(kind=iwp), intent(in) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
 logical(kind=iwp), intent(in) :: isFNO
 integer(kind=iwp) :: iSym
-#include "corbinf.fh"
 
 nSym = mSym
 

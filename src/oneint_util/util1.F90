@@ -24,7 +24,10 @@ subroutine Util1(Alpha,Beta,nZeta,rFinal,la,lb,Slaplb,Slamlb,Slalbp,Slalbm)
 
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Two
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb
@@ -32,14 +35,12 @@ real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta), Slaplb(nZeta,nTri_Elem1(
                              Slamlb(nZeta,nTri_Elem1(la-1),nTri_Elem1(lb)), Slalbp(nZeta,nTri_Elem1(la),nTri_Elem1(lb+1)), &
                              Slalbm(nZeta,nTri_Elem1(la),nTri_Elem1(lb-1))
 real(kind=wp), intent(out) :: rFinal(nZeta,3,nTri_Elem1(la),nTri_Elem1(lb))
-#include "print.fh"
-integer(kind=iwp) :: ib, iElem, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyb, iza, izb, jElem
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ib, iElem, jElem
 character(len=80) :: Label
 
-iRout = 203
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
   write(u6,*) ' In Util1 la,lb=',la,lb
   call RecPrt('Alpha',' ',Alpha,nZeta,1)
   call RecPrt('Beta',' ',Beta,nZeta,1)
@@ -63,7 +64,7 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',Slalbm(:,:,ib),nZeta,nTri_Elem1(la))
     end do
   end if
-end if
+#endif
 
 do ixa=la,0,-1
   do iya=la-ixa,0,-1
@@ -123,7 +124,7 @@ do ixa=la,0,-1
   end do
 end do
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' In Util1 la,lb=',la,lb
   do iElem=1,nTri_Elem1(la)
     do jElem=1,nTri_Elem1(lb)
@@ -131,8 +132,6 @@ if (iPrint >= 49) then
       call RecPrt(Label,' ',rFinal(:,:,iElem,jElem),nZeta,3)
     end do
   end do
-end if
-
-return
+#endif
 
 end subroutine Util1

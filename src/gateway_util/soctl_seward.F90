@@ -22,12 +22,12 @@ use define_af, only: iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint, Show
+use Molcas, only: LenIn4, LenIn8, LenIn, LenIn1, MaxBfn, MaxBfn_aux, MxAO, MxAtom
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nMamn
 character(len=LenIn8), intent(out) :: Mamn(nMamn)
-#include "print.fh"
 integer(kind=iwp) :: i, iAng, iAO, iAtoms, iBas, iBas_Aux, iBas_Frag, iChBs, iChxyz, iCnt, iCntrc, iCnttp, iCo, iComp, iCounter, &
                      iIrrep, imc, iPrint, iR, iRout, iSh, iShell, iSO, iSO_, iSO_Aux, iSO_Frag, iSO_Tot, isymunit, itest1, itest2, &
                      ixxx, iyy, j, jAO, jCnttp, jComp, jCounter, jIrrep, jOffSO(0:7), jSO, jxxx, k, kComp, kculf, kIrrep, lComp, &

@@ -21,9 +21,9 @@ use RPA_globals, only: CMO, DFTFunctional, EMO, iPrint, nBas, nDel, nFro, nOcc, 
                        VirEn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: iUHF, lLine, nLine, l_orbitals, i, j, k, left, iSym, nB, l_Name, iCount
 real(kind=wp) :: Dummy(1)
 character(len=3) :: lIrrep(8)

@@ -49,12 +49,13 @@ use Disp, only: HF_Force
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: i, iComp, iCOSMO, ii, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, nComp, nCompf, nDens, nFock, nOrdOp, nOrdOpf
+integer(kind=iwp) :: i, iComp, iCOSMO, iIrrep, iMltpl, iPrint, iRout, iWel, ix, iy, nComp, nCompf, nDens, nFock, nOrdOp, nOrdOpf
 real(kind=wp) :: Fact, TCpu1, TCpu2, TWall1, TWall2
 character(len=80) :: Label
 character(len=8) :: Method
@@ -63,6 +64,9 @@ integer(kind=iwp), allocatable :: lOper(:), lOperf(:)
 real(kind=wp), allocatable :: Coor(:,:), Coorf(:,:), D_Var(:), Fock(:), TempPCM(:)
 procedure(grd_kernel) :: COSGrd, FragPGrd, KneGrd, M1Grd, M2Grd, NAGrd, OvrGrd, PCMGrd, PPGrd, PrjGrd, RFGrd, SROGrd, WelGrd, XFdGrd
 procedure(grd_mem) :: FragPMmG, KneMmG, M1MmG, M2MmG, NAMmG, OvrMmG, PCMMmG, PPMmG, PrjMmG, RFMmg, SROMmG, WelMmg, XFdMmg
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 #ifdef _NEXTFFIELD_
 !AOM<
 integer(kind=iwp) :: ncmp, nextfld
@@ -71,7 +75,6 @@ procedure(grd_kernel) :: MltGrd
 procedure(grd_mem) :: MltMmG
 !AOM>
 #endif
-#include "print.fh"
 
 ! Prologue
 iRout = 131
@@ -106,7 +109,7 @@ call Get_cArray('Relax Method',Method,8)
 
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_Var,nDens)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'variational 1st order density matrix'
   ii = 1
   do iIrrep=0,nIrrep-1
@@ -114,7 +117,7 @@ if (iPrint >= 99) then
     call TriPrt(Label,' ',D_Var(ii),nBas(iIrrep))
     ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
   end do
-end if
+#endif
 
 ! Read the generalized Fock matrix
 ! Fock matrix in AO/SO basis
@@ -122,7 +125,7 @@ end if
 if (.not. HF_Force) then
   call mma_allocate(Fock,nDens,Label='Fock')
   call Get_dArray_chk('FockOcc',Fock,nDens)
-  if (iPrint >= 99) then
+# ifdef _DEBUGPRINT_
     write(u6,*) 'generalized Fock matrix'
     ii = 1
     do iIrrep=0,nIrrep-1
@@ -130,7 +133,7 @@ if (.not. HF_Force) then
       call TriPrt(Label,' ',Fock(ii),nBas(iIrrep))
       ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
     end do
-  end if
+# endif
 end if
 !                                                                      *
 !***********************************************************************
@@ -355,7 +358,6 @@ if (.not. HF_Force) then
     ! The PCM / COSMO model
 
     if (iCOSMO <= 0) then
-      !iPrint = 15
       PCM_SQ(:,:) = PCM_SQ(:,:)/real(nIrrep,kind=wp)
       if (lSA) PCM_SQ_ind(:,:) = PCM_SQ_ind(:,:)/real(nIrrep,kind=wp)
     end if

@@ -46,6 +46,7 @@ use InfSCF, only: nAtoms
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
+use Molcas, only: MxSym
 
 implicit none
 integer(kind=iwp) :: iBas, iCMO, iD, iFld, iFock, iiOrb, ij, IndType(7,8), iOpt, iOrb, iRC, iRef, iSym, iSymLb, iVirt, iWFType, &
@@ -59,7 +60,6 @@ character(len=8) :: Method, RlxLbl, What
 real(kind=wp), allocatable :: CMOn(:), DMat(:,:), E_Or(:,:), Epsn(:), Etan(:), GVFck(:,:), Scrt1(:,:), Scrt2(:,:), Temp(:)
 logical(kind=iwp), external :: RF_On, Langevin_On, PCM_On
 #ifdef _HDF5_
-#include "Molcas.fh"
 integer(kind=iwp) :: IndTypeT(8,7), nSSh(mxSym), nZero(mxSym)
 character, allocatable :: typestring(:)
 #endif

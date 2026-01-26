@@ -28,11 +28,11 @@
       use ChoCASPT2
       use Cholesky, only: NumCho
       use EQSOLV
+      use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "warnings.h"
-#include "caspt2.fh"
-#include "pt2_guga.fh"
 
 
 
@@ -592,6 +592,4 @@ C This is a Cholesky calculation, only give recommended amount
        END IF
       END IF
 
-
-      RETURN
       END

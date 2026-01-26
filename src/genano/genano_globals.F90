@@ -68,11 +68,11 @@
 module Genano_globals
 
 use Definitions, only: wp, iwp
+use Molcas, only: MxSym, LenIn
 
 implicit none
 private
 
-#include "Molcas.fh"
 !--- MkS is set to 90 to circumvent a logical error in the code!
 !#define MxS 90
 !#define MxP 25

@@ -8,6 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+Module Molcas
+Private
 #ifndef _DEMO_
       Integer, Parameter:: MaxBfn=10000
 #else
@@ -37,7 +39,8 @@
       Integer, Parameter :: mxOrb = maxbfn
       Integer, Parameter :: mxSym = 8
       Integer, Parameter :: mxGAS = 16
-#include "LenIn.fh"
+
+      Integer, Parameter :: LenIn=6
       Integer, Parameter :: LENIN1=LENIN+1
       Integer, Parameter :: LENIN2=LENIN+2
       Integer, Parameter :: LENIN3=LENIN+3
@@ -45,3 +48,6 @@
       Integer, Parameter :: LENIN5=LENIN+5
       Integer, Parameter :: LENIN6=LENIN+6
       Integer, Parameter :: LENIN8=LENIN+8
+Public MaxBfn, MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, &
+       mxact, mxina, mxbas, mxOrb, mxSym, mxGAS, LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
+End Module Molcas

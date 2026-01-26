@@ -25,8 +25,7 @@ character(len=8), intent(inout) :: Label
 integer(kind=iwp), intent(in) :: nComp, lOper(nComp), nOrdOp, iChO(nComp), ipad, iopadr(*), idirect, isyop, nGrid, iAddPot
 integer(kind=iwp), intent(out) :: ip(nComp)
 real(kind=wp), intent(in) :: CCoor(3,nComp), rNuc(nComp), rHrmt, opmol(*), opnuc(*), PtChrg(nGrid)
-#include "print.fh"
-integer(kind=iwp) :: iadr, iComp, iIrrep, iOpt, iPrint, iRC, iRout, iSmLbl, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
+integer(kind=iwp) :: iadr, iComp, iIrrep, iOpt, iRC, iSmLbl, iStabO(0:7), LenInt, LenTot, llOper, nIC, nStabO
 real(kind=wp), allocatable :: Int1El(:)
 integer(kind=iwp), external :: n2Tri
 
@@ -47,9 +46,7 @@ unused_var(iAddPot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 112
-iPrint = nPrint(iRout)
-if (iPrint >= 19) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' In OneEl: Label',Label
   write(u6,*) ' In OneEl: nComp'
   write(u6,'(1X,8I5)') nComp
@@ -61,7 +58,7 @@ if (iPrint >= 19) then
   end do
   write(u6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
   call RecPrt(' CCoor',' ',CCoor,3,nComp)
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -76,7 +73,9 @@ do iComp=1,nComp
     if (btest(lOper(iComp),iIrrep)) nIC = nIC+1
   end do
 end do
-if (iPrint >= 20) write(u6,*) ' nIC =',nIC
+#ifdef _DEBUGPRINT_
+write(u6,*) ' nIC =',nIC
+#endif
 if (nIC == 0) return
 call SOS(iStabO,nStabO,llOper)
 !                                                                      *
@@ -118,7 +117,9 @@ call Drv_Fck_Inner(ip,Int1El,LenTot,lOper,nComp,rHrmt,iStabO,nStabO,nIC)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (iPrint >= 10) call PrMtrx(Label,lOper,nComp,ip,Int1El)
+#ifdef _DEBUGPRINT_
+call PrMtrx(Label,lOper,nComp,ip,Int1El)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

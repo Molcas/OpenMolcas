@@ -39,8 +39,8 @@ C so each chunk has all the row indices (full columns).
       use EQSOLV
       use Sigma_data
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       REAL*8 X1(*), X2(*)
       INTEGER LIST(*)
       INTEGER IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),

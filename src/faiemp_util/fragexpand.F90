@@ -32,10 +32,10 @@ use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn2, MxAtom, Mxdbsc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: storageSize = 200, LineWords = storageSize/8
 real(kind=wp) :: eqBasis(LineWords), x1, y1, z1
 integer(kind=iwp) :: BasisTypes(4), LenLbl, iAtom, ib, iBas, iCnttp, iCntr, ii, Indx, iSh, iShll, jShll, lAng, Last, LenBSL, &

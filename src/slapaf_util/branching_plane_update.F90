@@ -45,12 +45,12 @@ subroutine Branching_Plane_Update(AGV,DGV,CDV,n,nIter)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: n, nIter
 real(kind=wp), intent(in) :: AGV(n,nIter), DGV(n,nIter)
 real(kind=wp), intent(inout) :: CDV(n)
-#include "print.fh"
 integer(kind=iwp) :: iPrint, iRout, iter
 real(kind=wp) :: alpha, beta, r, xx, yx, yx_xx
 real(kind=wp), allocatable :: x0(:), x1(:)

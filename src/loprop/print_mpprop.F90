@@ -18,9 +18,9 @@ subroutine Print_MPPROP(rMP,xrMP,xnrMP,nij,nElem,lMax,EC,Polar,Lbl,nAtoms,iANr,N
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nij, nElem, lMax, nAtoms, iANr(nAtoms), nOcOb, MpProp_Level, nReal_Centers
 real(kind=wp), intent(in) :: rMP(nij,nElem), xrMP(nij,nElem), EC(3,nij), Polar(6,nij), CoC(3), Coor(3,nAtoms), &
                              Energy_Without_FFPT, Ene_Occ(nOcOb), Bond_Threshold

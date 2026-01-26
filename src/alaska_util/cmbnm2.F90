@@ -32,26 +32,22 @@ logical(kind=iwp), intent(in) :: IfGrad(3,2)
 real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Zeta(nZeta), Alpha(nZeta), Beta(nZeta), Fact
 real(kind=wp), intent(inout) :: rKappa(nZeta)
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
-integer(kind=iwp) :: ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
 real(kind=wp) :: xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
-#include "print.fh"
-
-iRout = 134
-iPrint = nPrint(iRout)
 
 !ii = la*(la+1)*(la+2)/6
 !jj = lb*(lb+1)*(lb+2)/6
 do iZeta=1,nZeta
   rKappa(iZeta) = Fact*rKappa(iZeta)*Zeta(iZeta)**exp32
 end do
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In CmbnM2: Zeta  ',' ',Zeta,1,nZeta)
   call RecPrt(' In CmbnM2: rKappa',' ',rKappa,1,nZeta)
   call RecPrt(' In CmbnM2: Alpha ',' ',Alpha,1,nZeta)
   call RecPrt(' In CmbnM2: Beta  ',' ',Beta,1,nZeta)
   call RecPrt(' In CmbnM2: Rnxyz ',' ',Rnxyz,nZeta*3,(la+2)*(lb+2))
-end if
+#endif
 do ixa=0,la
   iyaMax = la-ixa
   do ixb=0,lb

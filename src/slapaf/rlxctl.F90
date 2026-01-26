@@ -23,10 +23,10 @@ use spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(out) :: iStop
-#include "print.fh"
 integer(kind=iwp) :: i, iErr, iOff, j, kIter, LuSpool, mInt, mIntEff, nGB, nHQ, nHX, nHX2, nIntCoor, nKtB, nQQ
 real(kind=wp) :: rDum(1), ThrGrd
 logical(kind=iwp) :: Do_ESPF, Error, Found, GoOn, Just_Frequencies, NewCarDone

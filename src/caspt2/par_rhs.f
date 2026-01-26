@@ -25,10 +25,13 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_INIT()
+      use definitions, only: iwp, wp
       use caspt2_global, only: LURHS
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
-      REAL*8 DUMMY(1)
+      use caspt2_module, only: nSym, nISup, nASup, iOffRHS
+      IMPLICIT None
+      REAL(kind=wp) DUMMY(1)
+      integer(kind=iwp) iDisk, iCase, iSym, NAS, NIS, NW, NRHS, iLo,
+     &                  iHi, jLo, jHi
 
 C-SVC: loop over symmetry/cases, get local patch of RHS, write, and then
 C update the disk address in IOFFRHS
@@ -54,8 +57,8 @@ C update the disk address in IOFFRHS
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_FPRINT(CTYPE,IVEC)
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       REAL*8 :: FP(8)
       CHARACTER(LEN=*) :: CTYPE
@@ -94,8 +97,8 @@ C-SVC: print out DNRM2 of the all RHS components
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ZERO(IVEC)
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 C-SVC: zero out the entire RHS vector on IVEC
       DO ICASE=1,13
@@ -443,8 +446,8 @@ Cmatching part of a replicate array.
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ_C (lg_W,iCASE,iSYM,iVEC)
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_READ (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
@@ -452,8 +455,8 @@ Cmatching part of a replicate array.
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ_SR (lg_W,iCASE,iSYM,iVEC)
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       NIN=NINDEP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_READ (NIN,NIS,lg_W,ICASE,ISYM,IVEC)
@@ -468,8 +471,8 @@ CSVC: this routine reads an RHS array in SR format from disk
       use caspt2_global, only: LURHS
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -505,8 +508,8 @@ CSVC: this routine reads an RHS array in SR format from disk
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE_C (lg_W,iCASE,iSYM,iVEC)
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_SAVE (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
@@ -514,8 +517,8 @@ CSVC: this routine reads an RHS array in SR format from disk
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE_SR (lg_W,iCASE,iSYM,iVEC)
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       NIN=NINDEP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_SAVE (NIN,NIS,lg_W,ICASE,ISYM,IVEC)
@@ -530,8 +533,8 @@ CSVC: this routine reads an RHS array in SR format from disk
       use caspt2_global, only: LURHS
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -625,8 +628,8 @@ C     place and transition is no longer needed.
       use caspt2_global, only: LUSOLV
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -695,8 +698,8 @@ C     place and transition is no longer needed.
       use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -802,8 +805,8 @@ C     (ITYP=1).
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -924,8 +927,8 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1072,9 +1075,9 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
 #endif
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       DIMENSION DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
@@ -1116,9 +1119,9 @@ C-SVC: get the local vertical stripes of the lg_W vector
 #endif
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       DIMENSION DIN(*),DIS(*)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array

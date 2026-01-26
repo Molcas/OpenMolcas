@@ -9,12 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKEPS(FIFA,DREF)
+      use caspt2_module, only: nSym, nIsh, nAsh, nOrb, EPS, EPSI, EPSA,
+     &                         EPSE, NAES, EASUM, nAshT
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: nIshT, nOrbT, nSshT
+#endif
       IMPLICIT NONE
-#include "caspt2.fh"
+      REAL*8 FIFA(*),DREF(*)
+
       INTEGER I, ID, IEPS, IEPSA, IEPSE, IEPSI, ISTLT, ISYM
       INTEGER ITOT, NA, NI, NO
       REAL*8 E
-      REAL*8 FIFA(*),DREF(*)
 
 
 c   Orbital energies, EPS, EPSI,EPSA,EPSE:
@@ -88,5 +93,4 @@ C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
 #endif
 
 
-      RETURN
       END

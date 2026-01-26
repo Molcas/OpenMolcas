@@ -31,9 +31,9 @@ use cgs_mod, only: CGS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
+use rasdim, only: MxAtom, MxTit
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp) :: I, ICOM, ICOMP, ID, iDum(1), iMass, IOPT, IP, IPP, IRC, IRRFNC, istatus, ISYLBL, ISYM, ITIT, J, JCOM, nDiff
 logical(kind=iwp) :: DoRys, Epsilon_Undef, Skip
 character(len=72) :: Line

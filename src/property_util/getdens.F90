@@ -11,7 +11,7 @@
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine GetDens(FName,Density,iPrint)
+subroutine GetDens(FName,Density)
 !***********************************************************************
 ! Object: to get the 1 particle density from file INPORB               *
 !                                                                      *
@@ -34,7 +34,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 character(len=*), intent(in) :: FName
 logical(kind=iwp), intent(in) :: Density
-integer(kind=iwp), intent(in) :: iPrint
 integer(kind=iwp) :: iadDen, iadOcc, iadVec, iBas, icd, ico, ictd, icto, ictv, icv, iDummy(1), iErr, iIrrep, j1, j2, LuVec
 #ifdef _HDF5_
 integer(kind=iwp) :: id_file
@@ -105,10 +104,10 @@ if (Density) then
   iadOcc = iadDen
   nOcc = nDen
   nVec = nDen
-  if (iPrint >= 10) call PrMtrx(' Density matrix',[1],1,[iadDen],Den)
+# ifdef _DEBUGPRINT_
+  call PrMtrx(' Density matrix',[1],1,[iadDen],Den)
+# endif
 
 end if
-
-return
 
 end subroutine GetDens

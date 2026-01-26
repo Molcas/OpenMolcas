@@ -23,8 +23,8 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -98,6 +98,8 @@ C usually print info on the total number of parameters
       END SUBROUTINE SBDIAG
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
+      use definitions, only: wp, iwp
+      use constants, only: Zero, One
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
      *                         idBoriMat
@@ -105,20 +107,32 @@ C usually print info on the total number of parameters
       use PrintLevel, only: insane
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use SysDef, only: ItoB
+      use caspt2_module, only: BMatrix, BSpect, BTrans, IfDOrtho,
+     &                         ThrShn, ThrShs, nASup, nISup, Cases,
+     &                         nInDep
 
-#include "caspt2.fh"
+      use pt2_guga, only: nG3
+      IMPLICIT None
 
-#include "SysDef.fh"
-#include "pt2_guga.fh"
+      integer(kind=iwp), Intent(in):: iSym, iCase
+      real(kind=wp), Intent(out):: CondNr, CPU
 
 * For fooling some compilers:
-      REAL*8 WGRONK(2)
+      REAL(kind=wp) WGRONK(2)
 
-      REAL*8, allocatable:: S(:), SD(:), SCA(:)
-      REAL*8, allocatable:: VEC(:), EIG(:), SCRATCH(:)
-      REAL*8, allocatable:: B(:), BD(:), BX(:), XBX(:)
-      REAL*8, allocatable:: TRANS(:), AUX(:), ST(:)
+      REAL(kind=wp), allocatable:: S(:), SD(:), SCA(:)
+      REAL(kind=wp), allocatable:: VEC(:), EIG(:), SCRATCH(:)
+      REAL(kind=wp), allocatable:: B(:), BD(:), BX(:), XBX(:)
+      REAL(kind=wp), allocatable:: TRANS(:), AUX(:), ST(:)
+
+      REAL(kind=wp) :: CPU1, CPU2, CPUE, EVAL, FACT, FP, SDIAG, SZ,
+     &                 SZMAX, SZMIN, TIO, TIOE
+      REAL(kind=wp), external :: DNRM2_
+      integer(kind=iwp) :: I, IDB, IDB2, IDIAG, IDS, IDST, IDT, IDTMP,
+     &                     IDTMP0, IJ, INFO, iPad, J, KEND, KSTA,
+     &                     LTRANS1, LVNEW, LVSTA, NAS, NAUX, NB, NBNEW,
+     &                     NCOEF, NCOL, NIN, NIS, NS, NSCRATCH, JOFF
 
 C On entry, the file LUSBT contains overlap matrices SMAT at disk
 C addresses IDSMAT(ISYM,ICASE), ISYM=1..NSYM, ICASE=1..11, and
@@ -139,10 +153,10 @@ C reserved on LUSBT to allow this overlay.
 C LUSOLV is assumed not to be in use yet, so we use it
 C for temporary storage.
 
-      SDiag = 0.0D0 ! dummy initialize
+      SDiag = Zero ! dummy initialize
 
-      CPU=0.0D0
-      CONDNR=0.0D0
+      CPU=Zero
+      CONDNR=Zero
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       NCOEF=NAS*NIS
@@ -192,13 +206,13 @@ C Extremely small values give scale factor exactly zero.
         IDIAG=IDIAG+I
         SDiag=S(IDIAG)
         If (IFDORTHO) then
-          SCA(I)=1.0D+00
+          SCA(I)=One
         Else
           IF(SDiag.GT.THRSHN) THEN
 * Small variations of the scale factor were beneficial
-            SCA(I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
+            SCA(I)=(One+DBLE(I)*3.0D-6)/SQRT(SDiag)
           ELSE
-            SCA(I)=0.0D0
+            SCA(I)=Zero
           END IF
         End If
       END DO
@@ -248,7 +262,7 @@ C Form orthonormal vectors by scaling eigenvectors
       DO I=1,NAS
         EVAL=EIG(I)
         IF(EVAL.LT.THRSHS) CYCLE
-        FACT=1.0D00/SQRT(EVAL)
+        FACT=One/SQRT(EVAL)
         NIN=NIN+1
         LVSTA=1+NAS*(I-1)
         IF(NIN.EQ.I) THEN
@@ -269,7 +283,7 @@ C Addition, for the scaled symmetric ON.
 C The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN
         SZMIN=1.0D99
-        SZMAX=0.0D0
+        SZMAX=Zero
         DO I=1,NIN
           SZ=DNRM2_(NAS,VEC(1+NAS*(I-1):),1)
           SZMIN=MIN(SZMIN,SZ)
@@ -369,23 +383,23 @@ C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY VEC
       CALL mma_allocate(XBX,NAS,Label='XBX')
       DO J=NIN,1,-1
         LVSTA=1+NAS*(J-1)
-        BX(:)=0.0D0
+        BX(:)=Zero
 #ifdef _CRAY_C90_
-        CALL SSPMV('U',NAS,1.0D+00,B,VEC(LVSTA),1,
-     &                           1.0D+00,BX,1)
+        CALL SSPMV('U',NAS,One,B,VEC(LVSTA),1,
+     &                           One,BX,1)
 #else
-*        CALL DSLMX(NAS,1.0D+00,B,VEC(LVSTA),1,
+*        CALL DSLMX(NAS,One,B,VEC(LVSTA),1,
 *     &                                   BX,1)
-        CALL DSPMV_('U',NAS,1.0D+00,B,VEC(LVSTA),1,
-     &                           1.0D+00,BX,1)
+        CALL DSPMV_('U',NAS,One,B,VEC(LVSTA),1,
+     &                           One,BX,1)
 #endif
 C BX: B * Vector number J.
-        CALL DCOPY_(J,[0.0D0],0,XBX,1)
+        CALL DCOPY_(J,[Zero],0,XBX,1)
         CALL DGEMM_('T','N',
      &              J,1,NAS,
-     &              1.0d0,VEC,NAS,
+     &              One,VEC,NAS,
      &              BX,NAS,
-     &              0.0d0,XBX,J)
+     &              Zero,XBX,J)
 C XBX CONTAINS NOW THE UPPERTRIANGULAR
 C ELEMENTS OF THE J-th COLUMN OF TRANSFORMED B MATRIX.
         CALL DCOPY_(J,XBX,1,VEC(LVSTA),1)
@@ -462,9 +476,9 @@ C full matrices, plus an additional 19 columns of results.
       IF(BTRANS.EQ.'YES') THEN
         CALL DGEMM_('N','N',
      &              NAS,NIN,NAUX,
-     &              1.0d0,AUX,NAS,
+     &              One,AUX,NAS,
      &              VEC,NIN,
-     &              0.0d0,TRANS,NAS)
+     &              Zero,TRANS,NAS)
       ELSE
         CALL DCOPY_(NAS*NAUX,AUX,1,TRANS,1)
       END IF
@@ -473,9 +487,9 @@ C full matrices, plus an additional 19 columns of results.
         NCOL=1+KEND-KSTA
         CALL DDAFILE(LUSOLV,2,AUX,NAS*NCOL,IDTMP)
         IF(BTRANS.EQ.'YES') THEN
-          CALL DGEMM_('N','N',NAS,NIN,NCOL,1.0D00,
+          CALL DGEMM_('N','N',NAS,NIN,NCOL,One,
      &              AUX,NAS,VEC(KSTA),NIN,
-     &              1.0D00,TRANS,NAS)
+     &              One,TRANS,NAS)
         ELSE
           LTRANS1=1+NAS*(KSTA-1)
           CALL DCOPY_(NAS*NCOL,AUX,1,TRANS(LTRANS1),1)
@@ -497,8 +511,8 @@ C      utilities.
       IDS=IDSMAT(ISYM,ICASE)
       CALL DDAFILE(LUSBT,2,S,NS,IDS)
       CALL mma_allocate(ST,NAS*NIN,Label='ST')
-      ST(:)=0.0D0
-      CALL TRIMUL(NAS,NIN,1.0D00,S,TRANS,NAS,ST,NAS)
+      ST(:)=Zero
+      CALL TRIMUL(NAS,NIN,One,S,TRANS,NAS,ST,NAS)
       CALL mma_deallocate(S)
       CALL mma_deallocate(TRANS)
       IDST=IDSTMAT(ISYM,ICASE)
@@ -528,8 +542,8 @@ C divided over processors.
      *                         idBoriMat
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 C-SVC20100902: global arrays header files
 #include "global.fh"
@@ -971,8 +985,8 @@ C replicate array.  FIXME: Should be removed later.
 
       SUBROUTINE S_SCALE (NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       REAL*8 SCA(NAS),S(LDS,*)
       DO J=jLo,jHi
         DO I=iLo,iHi
@@ -983,8 +997,8 @@ C replicate array.  FIXME: Should be removed later.
 
       SUBROUTINE V_SCALE (EIG,SCA,V,nRows,NAS,LDV,NIN,COND)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       REAL*8 EIG(NAS),SCA(NAS),V(LDV,*),COND(NIN)
       jVEC=0
       DO J=1,NAS

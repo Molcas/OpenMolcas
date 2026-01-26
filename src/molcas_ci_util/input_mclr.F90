@@ -74,11 +74,10 @@ module Input_MCLR
 ! Bit 5 McKinley(1) Seward(0)
 
 use Definitions, only: wp, iwp
+use rasdim, only: MxSym, MxAtom, MxRoot, MxTit, LenIn
 
 implicit none
 private
-
-#include "rasdim.fh"
 
 integer(kind=iwp), parameter :: itociph = 64, mxPer = 255
 

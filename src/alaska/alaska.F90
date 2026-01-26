@@ -44,12 +44,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 use PCM_alaska, only: lSA, PCM_alaska_lSA, PCM_alaska_final, PCM_alaska_prep
+use Print, only: nPrint
+use Molcas, only: LenIn5, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
 integer(kind=iwp), intent(out) :: ireturn
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCav, nCnttp_Valence, ndc, nDiff, nsAtom
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DoRys, Found
@@ -114,10 +114,10 @@ if (RF_On()) then
     ! Get the multipole moments
     nCav = (lMax+1)*(lMax+2)*(lMax+3)/6
     call Get_dArray('RCTFLD',MM,nCav*2)
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       call RecPrt('Total Multipole Moments',' ',MM(:,1),1,nCav)
       call RecPrt('Total Electric Field',' ',MM(:,2),1,nCav)
-    end if
+#   endif
   end if
 end if
 
@@ -257,10 +257,10 @@ if (.not. Test) then
   !-- Apply the translational and rotational invariance of the energy.
 
   if (TRSymm) then
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0))
       call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
-    end if
+#   endif
     Temp(1:lDisp(0)) = Grad(1:lDisp(0))
 
     call dGeMV_('N',lDisp(0),lDisp(0),One,Am,lDisp(0),Temp,1,Zero,Grad,1)

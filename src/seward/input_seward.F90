@@ -31,11 +31,11 @@ use Gateway_Info, only: Do_GuessOrb
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
+use Print, only: nPrint, Show
+use Molcas, only: LenIn, MaxBfn_Aux, LenIn8, MaxBfn
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
-#include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: iRout
 logical(kind=iwp), save :: Show_Save
 logical(kind=iwp), external :: Reduce_Prt

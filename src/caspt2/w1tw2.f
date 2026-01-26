@@ -19,9 +19,9 @@
       SUBROUTINE W1TW2(IVEC,JVEC,CI,SGM)
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
 
       Integer IVEC, JVEC
       Real*8 ci(*),sgm(*)

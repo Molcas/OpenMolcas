@@ -40,7 +40,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "hss_interface.fh"
 integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iDAO, iDCRT(0:7), iIrrep, idx(3,4), ipA, ipAOff, ipB, ipBOff, ipDAO, &
-                     iPrint, iRout, iStb(0:7), iTs, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), &
+                     iStb(0:7), iTs, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), &
                      JndHss(0:3,0:2,0:3,0:2,0:7), lDCRT, LmbdT, mOp(4), mRys, nArray, nDAO, nDCRT, nDiff, nFinal, nip, nla, nlb, &
                      nOOp, nStb
 real(kind=wp) :: Coori(3,4), CoorAC(3,2), C(3), EInv, Eta, Fact, TC(3), q_i
@@ -49,7 +49,6 @@ procedure(cff2d_kernel) :: XCff2D
 procedure(modu2_kernel) :: Fake
 procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: NrOpr
-#include "print.fh"
 
 #include "macros.fh"
 unused_var(rFinal)
@@ -66,9 +65,6 @@ unused_var(lOper)
 ! 2) Sum(ij) V_in^y Q_ij V_je^x
 ! 3) Sum(ij) V_ie^y Q_ij V_je^x
 ! Maurizio to add comments for the last two terms!
-
-iRout = 151
-iPrint = nPrint(iRout)
 
 nla = (la+1)*(la+2)/2
 nlb = (lb+1)*(lb+2)/2
@@ -124,7 +120,9 @@ do iDAO=1,nDAO
     DAO(iZeta,iDAO) = Fact*DAO(iZeta,iDAO)
   end do
 end do
-if (iPrint >= 99) call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#ifdef _DEBUGPRINT_
+call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+#endif
 
 ! Generate stabilizer of C, i.e. a center of a tile.
 
@@ -140,7 +138,9 @@ do iTs=1,nTs
   ! Pick up the tile coordinates
   C(1:3) = PCMTess(1:3,iTs)
 
-  if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
+#ifdef _DEBUGPRINT_
+  call RecPrt('C',' ',C,1,3)
+#endif
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
   Fact = -q_i*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
@@ -213,7 +213,5 @@ do iTs=1,nTs
   end do  ! End loop over DCRs
 
 end do    ! End loop over centers in the external field
-
-return
 
 end subroutine PCMHss

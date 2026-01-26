@@ -44,11 +44,10 @@
       use rasscf_global, only: PrwThr, nSm
       use output_ras, only: LF
       use spinfo, only: NTYP,MINOP,NCNFTP,NCSFTP
+      use rasdim, only: MxAct
 
       Implicit None
 
-#include "rasdim.fh"
-C
       Integer nOrb, nEl
       Integer ICONF(*),ISPIN(*)
       Real*8 CICOEF(*)

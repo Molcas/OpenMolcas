@@ -40,14 +40,11 @@ implicit none
 integer(kind=iwp) :: PageNo
 integer(kind=iwp), intent(in) :: iRoot
 integer(kind=iwp) :: itmp1
-#include "rasdim.fh"
 
 itmp1 = iRoot
 if (iRoot > n_Roots) then
   itmp1 = n_Roots+mod(istart+iRoot-n_Roots-1,nvec-n_Roots)+1
 end if
 PageNo = itmp1
-
-return
 
 end function PageNo

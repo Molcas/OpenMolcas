@@ -82,11 +82,11 @@ C
       use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "warnings.h"
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -432,8 +432,8 @@ C
 C
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 C     DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
       DIMENSION Cho_Bra(*), Cho_Ket(*)
       DIMENSION Cho_BraD(*), Cho_KetD(*)
@@ -2289,8 +2289,8 @@ C
       Subroutine Cholesky_Vectors(MODE,ITK,ITQ,JSYM,Array,nArray,
      *                            IBSTA,IBEND)
       USE CHOVEC_IO
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       Real*8  Array(*)
 
       ! ugly hack to convert separate k/q orbital types into a specific

@@ -17,9 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SPEC1D(IFC,FACT,X,Y)
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KTU
+      USE caspt2_module, only: nAshT, nASup, nISup
       IMPLICIT NONE
-#include "caspt2.fh"
       INTEGER IFC
       REAL*8 FACT,X(*),Y(*)
       INTEGER NAS,NIS,ITQ,ITT
@@ -42,5 +42,4 @@ C the conjugate expression (summing into Y, values from X).
           CALL DAXPY_(NIS,FACT,X(ITT),NAS,Y,1)
   30    CONTINUE
       END IF
-      RETURN
       END

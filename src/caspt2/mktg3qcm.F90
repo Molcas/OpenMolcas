@@ -20,11 +20,9 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
   use caspt2_global, only: iPrGlb
   use printLevel, only: debug
   use gugx, only: SGS
+  use caspt2_module, only: nAshT, Mul
 
   implicit none
-
-#include "caspt2.fh"
-! #include "pt2_guga.fh"
 
   ! state 1: bra
   ! state 2: ket

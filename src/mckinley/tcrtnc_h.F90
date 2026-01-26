@@ -30,7 +30,11 @@ subroutine Tcrtnc_h(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4, &
 !             Modified to back transformation, January '92.            *
 !***********************************************************************
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+use Molcas, only: lCache
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -40,23 +44,17 @@ real(kind=wp), intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,
 real(kind=wp), intent(out) :: Scrtch(nScr)
 ! FIXME: This should be intent(out), but the aliasing/overlap (see above) prevents it
 real(kind=wp), intent(_OUT_) :: ACOut(n1*n2*n3*n4,mabcd)
-#include "print.fh"
-#include "Molcas.fh"
-integer(kind=iwp) :: IncVec, ipA2, ipA3, iPrint, iRout, lsize, lZE, nA3, nCache, nVec
+integer(kind=iwp) :: IncVec, ipA2, ipA3, lsize, lZE, nA3, nCache, nVec
 
-iRout = 18
-iPrint = nPrint(iRout)
-!iPrint = 99
-
-if (iPrint >= 19) call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
+  call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
   call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,m1*m2,m3*m4*mabcd)
   call RecPrt(' Coef1',' ',Coef1,n1,m1)
   call RecPrt(' Coef2',' ',Coef2,n2,m2)
   call RecPrt(' Coef3',' ',Coef3,n3,m3)
   call RecPrt(' Coef4',' ',Coef4,n4,m4)
   write(u6,*) n1,n2,n3,n4
-end if
+#endif
 
 ! Reduce for contraction matrix
 nCache = (3*lCache)/4-n1*m1-n2*m2
@@ -83,9 +81,9 @@ else
   call TncHlf_h(Coef3,m3,n3,Coef4,m4,n4,lEta,nVec,IncVec,Scrtch(ipA3),Scrtch(ipA2),ACOut,IndEta)
 end if
 
-if (iPrint >= 59) call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZE)
-if (iPrint >= 19) call WrCheck('Tcrtnc:P(ab|cd)',ACOut,lZE*mabcd)
-
-return
+#ifdef _DEBUGPRINT_
+call RecPrt(' In Tcrtnc: P(ab|cd) ',' ',ACOut,mabcd,lZE)
+call WrCheck('Tcrtnc:P(ab|cd)',ACOut,lZE*mabcd)
+#endif
 
 end subroutine Tcrtnc_h

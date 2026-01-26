@@ -15,13 +15,11 @@
       use PrintLevel, only: debug
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nBTri
       IMPLICIT None
-#include "caspt2.fh"
-#include "pt2_guga.fh"
       LOGICAL IF_TRNSF
 
       Real*8, Allocatable:: FFAO(:), FIAO(:), FAAO(:)
-
 
 * Compute using Cholesky vectors.
 * Frozen, inactive and active Fock matrix in AO basis:

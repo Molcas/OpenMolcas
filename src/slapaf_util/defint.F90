@@ -28,13 +28,13 @@ use Slapaf_Info, only: AtomLbl, iRow, Redundant
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, Pi
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nBVct, nQQ, nAtom, nDim
 real(kind=wp), intent(out) :: BMtrx(3*nAtom,nQQ), rInt(nQQ)
 character(len=8), intent(out) :: Lbl(nQQ)
 real(kind=wp), intent(in) :: Coor(3,nAtom)
-#include "print.fh"
 integer(kind=iwp) :: i, i1, i2, i3, iBMtrx, iBVct, iDiff, iEnd, iFrst, iInt, iLines, iPrint, iRout, jBVct, jEnd, jLines, Lu_UDIC, &
                      mCntr, msAtom, nCntr, nDefPICs, neq, nGo, nGo2, nMinus, nPlus, nTemp
 real(kind=wp) :: Fact, RR, Sgn, Tmp, Value_Temp
@@ -78,7 +78,9 @@ call molcas_open(Lu_UDIC,filnam)
 rewind(Lu_UDIC)
 
 rMult(:) = Zero
-if (iPrint == 99) First = .true.
+#ifdef _DEBUGPRINT_
+First = .true.
+#endif
 if (lWrite) then
   write(u6,*)
   write(u6,'(A)') repeat('*',60)
@@ -278,8 +280,10 @@ if (.not. Found) then
 end if
 
 nDefPICs = iBVct
-if (iPrint >= 59) call RecPrt(' The B-vectors',' ',BVct,3*nAtom,nBVct)
-if (iPrint >= 19) call RecPrt(' Values of primitive internal coordinates / au or rad',' ',Val,nBVct,1)
+#ifdef _DEBUGPRINT_
+call RecPrt(' The B-vectors',' ',BVct,3*nAtom,nBVct)
+call RecPrt(' Values of primitive internal coordinates / au or rad',' ',Val,nBVct,1)
+#endif
 
 ! Step 2. Define internal coordinates as linear combinations of
 ! the previously defined primitive internal coordinates.
@@ -438,7 +442,9 @@ do
   call UpCase(Temp)
 end do
 
-if (iPrint >= 99) call RecPrt(' The B-matrix',' ',BMtrx,3*nAtom,nQQ)
+#ifdef _DEBUGPRINT_
+call RecPrt(' The B-matrix',' ',BMtrx,3*nAtom,nQQ)
+#endif
 
 if (lWrite) then
   write(u6,*)

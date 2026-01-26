@@ -19,17 +19,20 @@ subroutine NewCar(Iter,nAtom,Coor,mTtAtm,Error)
 !***********************************************************************
 
 use Symmetry_Info, only: VarR, VarT
-use Slapaf_Info, only: AtomLbl, BMx, BSet, Curvilinear, Cx, Degen, HSet, Lbl, lOld, qInt, RefGeo, Shift, User_Def, &
+use Slapaf_Info, only: BMx, BSet, Curvilinear, Cx, Degen, HSet, Lbl, lOld, qInt, RefGeo, Shift, User_Def, &
                        WeightedConstraints
+#ifdef _DEBUGPRINT_
+use Slapaf_Info, only: AtomLbl
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: Iter, nAtom, mTtAtm
 real(kind=wp), intent(inout) :: Coor(3,nAtom)
 logical(kind=iwp), intent(inout) :: Error
-#include "print.fh"
 logical(kind=iwp) :: BSet_Save, Converged, HSet_Save, lOld_Save
 integer(kind=iwp) :: i, iAtom, iInter, iMax, iPrint, iRout, iterMx, jter, M, N, nQQ, nWndw
 real(kind=wp) :: denom, dx2, dx_RMS, rMax
@@ -66,9 +69,6 @@ rInt(:) = rInt(:)+dss(:)
 !                                                                      *
 iRout = 33
 iPrint = nPrint(iRout)
-#ifdef _DEBUGPRINT_
-iPrint = 99
-#endif
 if (iPrint >= 11) then
   write(u6,*)
   write(u6,*) ' *** Transforming internal coordinates to Cartesian ***'
@@ -76,13 +76,13 @@ if (iPrint >= 11) then
   write(u6,*) ' Iter  Internal  Error'
 end if
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*) ' In NewCar: Shifts'
   write(u6,*)
   write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
   call RecPrt(' In NewCar: qInt',' ',qInt,nQQ,Iter+1)
-end if
+#endif
 
 ! Compute the final internal coordinates, plus sign due to the use
 ! of forces and not gradients.
@@ -126,7 +126,9 @@ do jter=1,iterMx
   call Eq_Solver('T',M,N,NRHS,BMx,Curvilinear,Degen,dSS,DFC)
   call mma_deallocate(BMx)
 
-  if (iPrint >= 99) call PrList('Symmetry Distinct Nuclear Displacements',AtomLbl,nAtom,DFC,3,nAtom)
+# ifdef _DEBUGPRINT_
+  call PrList('Symmetry Distinct Nuclear Displacements',AtomLbl,nAtom,DFC,3,nAtom)
+# endif
 
   ! Compute the RMS in Cartesian Coordinates.
 
@@ -153,7 +155,9 @@ do jter=1,iterMx
   end do
 
   Cx(:,:,Iter+1) = Coor(:,:)
-  if (iPrint >= 99) call PrList('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,nAtom,Coor,3,nAtom)
+# ifdef _DEBUGPRINT_
+  call PrList('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,nAtom,Coor,3,nAtom)
+# endif
 
   ! Compute new values q and the Wilson B-matrix for the new
   ! geometry with the current new set of Cartesian coordinates.
@@ -190,12 +194,12 @@ do jter=1,iterMx
     exit
   end if
 
-  if (iPrint >= 99) then
+# ifdef _DEBUGPRINT_
     write(u6,*)
     write(u6,*) ' Displacement of internal coordinates'
     write(u6,*)
     write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
-  end if
+# endif
 
 end do
 !                                                                      *

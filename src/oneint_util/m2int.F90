@@ -35,12 +35,14 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: ia, iab, ib, iDCRT(0:7), iM2xp, ipab, ipAxyz, ipBxyz, ipK, ipPx, ipPy, ipPz, ipQxyz, ipRes, iPrint, ipRxyz, &
-                     ipZ, iRout, iZeta, kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT, nip
+integer(kind=iwp) :: iDCRT(0:7), iM2xp, ipAxyz, ipBxyz, ipK, ipPx, ipPy, ipPz, ipQxyz, ipRes, ipRxyz, &
+                     ipZ, iZeta, kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT, nip
 real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
-character(len=80) :: Label
 logical(kind=iwp) :: ABeq(3)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, iab, ib, ipab
+character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -51,9 +53,6 @@ unused_var(lOper)
 unused_var(iChO)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
-iRout = 122
-iPrint = nPrint(iRout)
 
 nip = 1
 ipAxyz = nip
@@ -83,14 +82,14 @@ if (nip-1 > nArr*nZeta) then
   call Abend()
 end if
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In M2Int: A',' ',A,1,3)
   call RecPrt(' In M2Int: RB',' ',RB,1,3)
   call RecPrt(' In M2Int: Kappa',' ',rKappa,nAlpha,nBeta)
   call RecPrt(' In M2Int: Zeta',' ',Zeta,nAlpha,nBeta)
   call RecPrt(' In M2Int: P',' ',P,nZeta,3)
   write(u6,*) ' In M2Int: la,lb,nHer=',la,lb,nHer
-end if
+#endif
 
 rFinal(:,:,:,:) = Zero
 
@@ -113,7 +112,9 @@ do kCnttp=1,nCnttp
 
       do iM2xp=1,dbsc(kCnttp)%nM2
         Gmma = dbsc(kCnttp)%M2xp(iM2xp)
-        if (iPrint >= 99) write(u6,*) ' Gamma=',Gmma
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' Gamma=',Gmma
+#       endif
 
         ! Modify the original basis.
 
@@ -127,12 +128,12 @@ do kCnttp=1,nCnttp
           Array(ipPy+iZeta-1) = (Zeta(iZeta)*P(iZeta,2)+Gmma*TC(2))/Tmp0
           Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
         end do
-        if (iPrint >= 99) then
+#       ifdef _DEBUGPRINT_
           write(u6,*) ' The modified basis set'
           call RecPrt(' In M2Int: Kappa',' ',Array(ipK),nAlpha,nBeta)
           call RecPrt(' In M2Int: Zeta',' ',Array(ipZ),nAlpha,nBeta)
           call RecPrt(' In M2Int: P',' ',Array(ipPx),nZeta,3)
-        end if
+#       endif
 
         ! Compute the cartesian values of the basis functions angular part
 
@@ -153,7 +154,7 @@ do kCnttp=1,nCnttp
         ! Combine the cartesian components to the full one electron integral.
 
         call CmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Array(ipZ),Array(ipK),Array(ipRes),nComp)
-        if (iPrint >= 99) then
+#       ifdef _DEBUGPRINT_
           write(u6,*) ' Intermediate result in M2Int'
           do ia=1,nTri_Elem1(la)
             do ib=1,nTri_Elem1(lb)
@@ -167,12 +168,14 @@ do kCnttp=1,nCnttp
               end if
             end do
           end do
-        end if
+#       endif
 
         ! Multiply result by Zeff*Const
 
         Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M2cf(iM2xp)*Fact
-        if (iPrint >= 99) write(u6,*) ' Factor=',Factor
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' Factor=',Factor
+#       endif
         call DaXpY_(size(rFinal),Factor,Array(ipRes),1,rFinal,1)
 
       end do
@@ -182,7 +185,7 @@ do kCnttp=1,nCnttp
 
 end do
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' Result in M2Int'
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
@@ -190,8 +193,6 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',rFinal(:,ia,ib,1),nAlpha,nBeta)
     end do
   end do
-end if
-
-return
+#endif
 
 end subroutine M2Int

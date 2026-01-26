@@ -34,7 +34,6 @@ logical(kind=iwp), intent(in) :: DSCF
 real(kind=wp), intent(in) :: EThr
 real(kind=wp), intent(inout) :: SIntTh
 character(len=*), intent(in) :: KSDFT
-#include "print.fh"
 integer(kind=iwp) :: nDiff
 logical(kind=iwp), external :: EFP_On, Langevin_On, PCM_On, RF_On
 
@@ -53,7 +52,5 @@ if (DSCF) then
   ThrInt = Cutint
   SIntTh = CutInt
 end if
-
-return
 
 end subroutine IniSew_scf

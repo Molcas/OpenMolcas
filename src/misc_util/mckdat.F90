@@ -12,6 +12,7 @@
 module MckDat
 
 use Definitions, only: iwp, ItoB
+use Molcas, only: MxSym
 
 implicit none
 private
@@ -74,7 +75,6 @@ private
 !                                                                      *
 !----------------------------------------------------------------------*
 
-#include "Molcas.fh"
 
 type FInfo_type
   integer(kind=iwp) :: ID = 4097, VN = 1024

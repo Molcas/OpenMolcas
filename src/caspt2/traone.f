@@ -15,9 +15,9 @@
       use caspt2_global, only: LUONEM
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "warnings.h"
-#include "caspt2.fh"
       INTEGER NCMO
       REAL*8 CMO(NCMO)
 

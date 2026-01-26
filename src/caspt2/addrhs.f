@@ -14,11 +14,11 @@
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -148,11 +148,11 @@ C Put W on disk:
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -445,11 +445,11 @@ C Put WBM on disk:
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -578,11 +578,11 @@ C Put W on disk:
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -760,11 +760,11 @@ C Put W on disk:
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -906,16 +906,15 @@ C Put W on disk:
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-
       DIMENSION AJVL(NV,NL,*)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -1228,11 +1227,11 @@ C Read WM:
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1520,16 +1519,15 @@ C Put WFM on disk:
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-
       DIMENSION AUCL(NA,NU,*)
       DIMENSION Buff(nBuff)
       DIMENSION idxBuf(nBuff)
@@ -1881,11 +1879,11 @@ C      NBXSZJ=NINABX
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

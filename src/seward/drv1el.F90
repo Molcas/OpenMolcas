@@ -46,10 +46,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
                      iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCmp, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, &
-                     iLow, iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, &
+                     iLow, iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iRC, iSym, iSymBx, iSymBy, iSymBz, iSymC, &
                      iSymCX, iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, &
                      iSymxLx, iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, &
                      iSymzLz, iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, &
@@ -90,9 +89,6 @@ procedure(int_mem) :: DumMem
 #endif
 
 #include "warnings.h"
-
-iRout = 131
-iPrint = nPrint(iRout)
 
 call StatusLine('Seward: ','Computing 1-electron integrals')
 
@@ -137,7 +133,7 @@ if (DKroll .and. Primitive_Pass) then
 end if
 if (Prprt) then
   FName = SW_FileOrb
-  call GetDens(trim(FName),short,iPrint)
+  call GetDens(trim(FName),short)
   call CollapseOutput(1,'   Molecular properties:')
   write(u6,'(3X,A)') '   ---------------------'
   write(u6,*)
@@ -1202,7 +1198,9 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
   end if  ! nWel /= 0
 
   Label = 'OneHam  '
-  if (iPrint >= 10) call PrMtrx(Label,[lOper],1,[1],NA_Int)
+#ifdef _DEBUGPRINT_
+  call PrMtrx(Label,[lOper],1,[1],NA_Int)
+#endif
   iRC = -1
   call WrOne(iRC,iOpt,Label,1,NA_Int,lOper)
   if (iRC /= 0) then

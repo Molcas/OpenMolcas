@@ -12,8 +12,6 @@
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       IMPLICIT None
-#include "caspt2.fh"
-#include "pt2_guga.fh"
       INTEGER NCMO
       REAL*8 CMO(NCMO)
 

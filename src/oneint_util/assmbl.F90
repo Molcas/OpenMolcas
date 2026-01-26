@@ -29,18 +29,15 @@ implicit none
 integer(kind=iwp), intent(in) :: la, lr, lb, nZeta, nHer
 real(kind=wp), intent(out) :: Rnxyz(nZeta*3,0:la,0:lb,0:lr)
 real(kind=wp), intent(in) :: Axyz(nZeta*3,nHer,0:la), Rxyz(nZeta*3,nHer,0:lr), Bxyz(nZeta*3,nHer,0:lb), HerW(nHer)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iHer, iPrint, ir, iRout
+integer(kind=iwp) :: ia, ib, iHer, ir
+#ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-iRout = 123
-iPrint = nPrint(iRout)
-if (iPrint >= 99) then
   call RecPrt(' In Assmbl:HerW',' ',HerW,1,nHer)
   call RecPrt(' In Assmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1))
   call RecPrt(' In Assmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1))
   call RecPrt(' In Assmbl:Rxyz',' ',Rxyz,nZeta*3,nHer*(lr+1))
-end if
+#endif
 
 Rnxyz(:,:,:,:) = Zero
 do ia=0,la
@@ -55,14 +52,12 @@ do ia=0,la
         Rnxyz(:,ia,ib,ir) = Rnxyz(:,ia,ib,ir)+Axyz(:,iHer,ia)*Rxyz(:,iHer,ir)*Bxyz(:,iHer,ib)*HerW(iHer)
       end do
 
-      if (iPrint >= 99) then
+#     ifdef _DEBUGPRINT_
         write(Label,'(A,I2,A,I2,A,I2,A)') ' In Assmbl: Rnxyz(',ia,',',ib,',',ir,')'
         call RecPrt(Label,' ',Rnxyz(:,ia,ib,ir),nZeta,3)
-      end if
+#     endif
     end do
   end do
 end do
-
-return
 
 end subroutine Assmbl

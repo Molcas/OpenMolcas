@@ -135,11 +135,11 @@ module MCLR_Data
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn6
 
 implicit none
 private
 
-#include "Molcas.fh"
 
 integer(kind=iwp), parameter :: Mxdccc = 500, MXINKA = 200, MXPCSM = 8, MXPCTP = 30, MXPICI = 30, MXPNGAS = 3, MXPOBS = 20, &
                                 MXPORB = 500, MXPR4T = 10, MXSTATE = 10

@@ -16,6 +16,7 @@ subroutine FNOMP2_Drv(irc,EMP2,CMOI,EOcc,EVir)
 use MBPT2_Global, only: nBas
 use ChoMP2, only: ChoAlg, DoDens, DoFNO, DoMP2, vkept, XEMP2
 use Definitions, only: wp, iwp, u6
+use cOrbInf, only: nSym,nFro,nOcc,nExt,nDel
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -24,7 +25,6 @@ real(kind=wp), intent(inout) :: CMOI(*), EOcc(*), EVir(*)
 integer(kind=iwp) :: ChoAlg_
 logical(kind=iwp) :: DoDens_
 real(kind=wp) :: Dum(2)
-#include "corbinf.fh"
 
 DoDens_ = DoDens
 DoDens = .false.
@@ -42,7 +42,5 @@ DoDens = DoDens_
 DoFNO = .false.
 call ChoMP2_Drv(irc,EMP2,CMOI,EOcc,EVir,Dum(1),Dum(2))
 EMP2 = EMP2+XEMP2
-
-return
 
 end subroutine FNOMP2_Drv
