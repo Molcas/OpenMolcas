@@ -21,11 +21,17 @@
       use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV, only: MxSCT, ModVec
       use caspt2_module, only: NASUP, NISUP, MxCASE
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: cases
+#endif
       IMPLICIT NONE
       real(kind=wp), intent(out) :: VSCT(*)
       integer(kind=iwp), intent(In):: ISCT, iSYM, ICASE, IVEC
 
       integer(kind=iwp) iDS, MDVEC, NAS, NIS, NCOEF, NCOL, NSCT
+#ifdef _DEBUGPRINT_
+      integer(kind=iwp) I
+#endif
 
 
 C Read coefficient vector from LUSOLV (C repres).

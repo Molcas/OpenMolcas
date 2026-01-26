@@ -16,9 +16,9 @@
       IMPLICIT None
 * Compute 1-RDM from 2-RDM
 * Written by N. Nakatani, Oct. 2014
+      integer(kind=iwp), intent(in):: NA, NE
       real(kind=wp), intent(in):: G2(NA,NA,NA,NA)
       real(kind=wp), Intent(out):: G1(NA,NA)
-      integer(kind=iwp), intent(in):: NA, NE
 
       integer(kind=iwp) I, J, K
       real(kind=wp) G1TMP

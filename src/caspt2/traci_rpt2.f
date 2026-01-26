@@ -16,7 +16,7 @@
       IMPLICIT None
       integer(kind=iwp), intent(in):: ISTART, NDIM, STSym, NCI
       real(kind=wp), intent(inout):: XMAT(NDIM,NDIM)
-      real(kind=wp), intent(in):: CI(NCI)
+      real(kind=wp), intent(inout):: CI(NCI)
 
       real(kind=wp), ALLOCATABLE:: XSAV(:,:), TVEC(:), SGM(:)
       real(kind=wp) Fact, SCL, XJM
