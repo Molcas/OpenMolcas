@@ -76,7 +76,7 @@ C Transform to standard representation, contravariant form.
       IF(IVEC.NE.JVEC) CALL PTRTOC(0,JVEC,JVEC)
       NLOOP=2
       IF(IVEC.EQ.JVEC) NLOOP=1
-      DO 1000 ILOOP=1,NLOOP
+      DO ILOOP=1,NLOOP
         ! IF(ILOOP.EQ.1) THEN
         !   IBRA=IVEC
         !   IKET=JVEC
@@ -86,13 +86,13 @@ C Transform to standard representation, contravariant form.
         ! END IF
 
 C Loop over types and symmetry block of VEC1 vector:
-      DO 400 ICASE1=1,13
-        DO 401 ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 401
+      DO ICASE1=1,13
+        DO ISYM1=1,NSYM
+          IF(NINDEP(ISYM1,ICASE1).EQ.0) Cycle
           NIS1=NISUP(ISYM1,ICASE1)
           NAS1=NASUP(ISYM1,ICASE1)
           NVEC1=NIS1*NAS1
-          IF(NVEC1.EQ.0) GOTO 401
+          IF(NVEC1.EQ.0) Cycle
 C Form VEC1 from the BRA vector, transformed to covariant form.
           CALL RHS_ALLO(NAS1,NIS1,LVEC1)
           CALL RHS_SCAL(NAS1,NIS1,LVEC1,Zero)
@@ -159,14 +159,14 @@ C Form WEC1 from VEC1, if needed.
           END IF
 C Note: WEC1 is identical to <IBRA| E(p,q) |0> for the cases
 C (p,q)=(t,i), (a,t), and (a,i), resp.
-          DO 300 ICASE2=ICASE1+1,13
-            IF(IFCOUP(ICASE2,ICASE1).EQ.0) GOTO 300
-            DO 200 ISYM2=1,NSYM
-              IF(NINDEP(ISYM2,ICASE2).EQ.0) GOTO 200
+          DO ICASE2=ICASE1+1,13
+            IF(IFCOUP(ICASE2,ICASE1).EQ.0) Cycle
+            DO ISYM2=1,NSYM
+              IF(NINDEP(ISYM2,ICASE2).EQ.0) Cycle
               NIS2=NISUP(ISYM2,ICASE2)
               NAS2=NASUP(ISYM2,ICASE2)
               NVEC2=NIS2*NAS2
-              IF(NVEC2.EQ.0) GOTO 200
+              IF(NVEC2.EQ.0) Cycle
               CALL RHS_ALLO(NAS2,NIS2,LVEC2)
               CALL RHS_READ(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IVEC) !! IKET)
               IF (IVEC.NE.JVEC.AND.ILOOP.EQ.2) THEN
@@ -195,14 +195,14 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
               END IF
 #endif
               CALL RHS_FREE(LVEC2)
- 200        CONTINUE
- 300      CONTINUE
+            End Do
+          End Do
           CALL RHS_FREE(LVEC1)
           Call mma_deallocate(WEC1)
- 401    CONTINUE
- 400  CONTINUE
+        End Do
+      End Do
 
- 1000 CONTINUE
+      End Do
 
       CALL GADSUM(DPT2,NDPT2)
 
