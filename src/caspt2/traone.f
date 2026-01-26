@@ -9,23 +9,32 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRAONE(CMO,NCMO)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, Half, One, Two
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: HONE
       use caspt2_global, only: LUONEM
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: ECORE, ERFSELF, IEOF1M, nBMX, nBSqT,
+     &                         nBTri, nFroT, nOTri, nSym, PotNuc,
+     &                         RFPert, nBas, nFro, nDel, nOrb, iAd1M
+      IMPLICIT None
 #include "warnings.h"
-      INTEGER NCMO
-      REAL*8 CMO(NCMO)
+      integer(kind=iwp), intent(in):: NCMO
+      real(kind=wp), intent(in)::  CMO(NCMO)
 
-      INTEGER nBasXX(8),Keep(8)
-      Logical iSquar, Found
+      integer(kind=iwp) nBasXX(8),Keep(8)
+      logical(kind=iwp) iSquar, Found
       character(len=8) :: Label
-      Real*8, allocatable:: WFLT(:), Temp(:), WDLT(:), WDSQ(:),
+      real(kind=wp), allocatable:: WFLT(:), Temp(:), WDLT(:), WDSQ(:),
      &                      WFMO(:), WTMP(:)
+      real(kind=wp) EONE, ETWO, ExFac
+      integer(kind=iwp) I, iAO, IB, ICMO, ICOMP, IDISK, IERR, IFTEST,
+     &                  IJ, IMO, IOFF, IOPT, IRC, ISTLT, ISTMO, ISTSQ,
+     &                  ISYLBL, ISYM, JB, NB, NF, NSYMXX, nTemp, NWTMP
+      real(kind=wp), External:: DDot_
 
 c Objective: Transformation of one-electron integrals
 c (effective one electron Hamiltonian) for CASPT2.
@@ -112,7 +121,7 @@ c the nuclear attraction by the cavity self-energy
          Call Get_dArray('Reaction field',Temp,nTemp)
          If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
-         Call Daxpy_(nTemp,1.0D0,Temp,1,WFLT,1)
+         Call Daxpy_(nTemp,One,Temp,1,WFLT,1)
 *
          Call mma_deallocate(Temp)
          IF ( IFTEST.NE.0 ) THEN
@@ -128,8 +137,8 @@ c the nuclear attraction by the cavity self-energy
          END IF
       End If
 
-      EONE=0.0d0
-      ETWO=0.0d0
+      EONE=Zero
+      ETWO=Zero
 c The following section is needed for frozen orbitals:
       IF(NFROT.EQ.0) GOTO 300
       CALL mma_allocate(WDLT,NBTRI,LABEL='WDLT')
@@ -138,8 +147,8 @@ c Compute the density matrix of the frozen orbitals
 c The DLT matrix contains the same data as DSQ, but
 c with symmetry blocks in lower triangular format, and
 c with non-diagonal elements doubled.
-      WDLT(:)=0.0D0
-      WDSQ(:)=0.0D0
+      WDLT(:)=Zero
+      WDSQ(:)=Zero
       ISTMO=1
       ISTSQ=1
       ISTLT=1
@@ -148,15 +157,15 @@ c with non-diagonal elements doubled.
         NB=NBAS(ISYM)
         IF(NB.EQ.0) GOTO 100
         IF(NF.EQ.0) GOTO 110
-        CALL DGEMM_('N','T',NB,NB,NF,2.0D0,CMO(ISTMO),NB,
-     &             CMO(ISTMO),NB,0.0D0,WDSQ(ISTSQ),NB)
+        CALL DGEMM_('N','T',NB,NB,NF,Two,CMO(ISTMO),NB,
+     &             CMO(ISTMO),NB,Zero,WDSQ(ISTSQ),NB)
         IJ=ISTLT-1
         DO 130 IB=1,NB
           DO 140 JB=1,IB
             IJ=IJ+1
-            WDLT(IJ)=2.0D0*WDSQ(ISTSQ+JB-1+(IB-1)*NB)
+            WDLT(IJ)=Two*WDSQ(ISTSQ+JB-1+(IB-1)*NB)
 140       CONTINUE
-          WDLT(IJ)=0.5D0*WDLT(IJ)
+          WDLT(IJ)=Half*WDLT(IJ)
 130     CONTINUE
 110     CONTINUE
         ISTMO=ISTMO+NB*NB
@@ -175,7 +184,7 @@ c  one-electron hamiltonian.
 *     and compute the total core energy
 *     Look out-- we temporarily allocate all available memory.
 *
-      ExFac=1.0D0
+      ExFac=One
          Call FTwo_Drv(nSym,nBas,nFro,KEEP,
      &                 WDLT,WDSQ,WFLT,NBTRI,
      &                 ExFac,nBMX,CMO)
@@ -184,7 +193,7 @@ c  one-electron hamiltonian.
 ************************************************************************
 *                                                                      *
 c Compute the two-electron contribution to the core energy
-      ETWO=0.5D0*(DDOT_(NBTRI,WDLT,1,WFLT,1)-EONE)
+      ETWO=Half*(DDOT_(NBTRI,WDLT,1,WFLT,1)-EONE)
       CALL mma_deallocate(WDSQ)
       CALL mma_deallocate(WDLT)
 c Previous section was bypassed if NFROT.EQ.0.
@@ -203,8 +212,8 @@ c Allocate FMO, TMP:
       CALL mma_allocate(WTMP,NWTMP,LABEL='WTMP')
 
 c Transform one-electron effective Hamiltonian:
-      WFMO(:)=0.0D0
-      WTMP(:)=0.0D0
+      WFMO(:)=Zero
+      WTMP(:)=Zero
       ICMO=1
       IAO =1
       IMO =1
@@ -215,13 +224,13 @@ c Transform one-electron effective Hamiltonian:
            CALL SQUARE(WFLT(IAO),WTMP,1,NBAS(ISYM),NBAS(ISYM))
 
            CALL DGEMM_('T','N',NORB(ISYM),NBAS(ISYM),NBAS(ISYM),
-     &                  1.0d0,CMO(ICMO),NBAS(ISYM),WTMP,
-     &                  NBAS(ISYM),0.0d0,WTMP(IOFF),NORB(ISYM))
+     &                  One,CMO(ICMO),NBAS(ISYM),WTMP,
+     &                  NBAS(ISYM),Zero,WTMP(IOFF),NORB(ISYM))
 
            Call DGEMM_Tri('N','N',NORB(ISYM),NORB(ISYM),NBAS(ISYM),
-     &                    1.0D0,WTMP(IOFF),NORB(ISYM),
+     &                    One,WTMP(IOFF),NORB(ISYM),
      &                          CMO(ICMO),NBAS(ISYM),
-     &                    0.0D0,WFMO(IMO),NORB(ISYM))
+     &                    Zero,WFMO(IMO),NORB(ISYM))
          END IF
          ICMO=ICMO+NBAS(ISYM)*(NORB(ISYM)+NDEL(ISYM))
          IAO =IAO +NBAS(ISYM)*(NBAS(ISYM)+1)/2
