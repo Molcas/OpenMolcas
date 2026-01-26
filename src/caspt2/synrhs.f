@@ -9,15 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PCOLLVEC(IVEC,iTYPE)
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp
+      use caspt2_module, only: nCases, nSym, nInDep, nASup, nISup
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: iVec, iType
 
+      integer(kind=iwp) iCase, iSym, NAS, NIS, NW
 
 ***************************************************************
       DO ICASE=1,NCASES
        DO ISYM=1,NSYM
-        IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 100
+        IF(NINDEP(ISYM,ICASE).EQ.0) Cycle
         IF (ITYPE.EQ.0) THEN
           NAS=NINDEP(ISYM,ICASE)
         ELSE
@@ -25,25 +27,26 @@
         END IF
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
-        IF(NW.EQ.0) GOTO 100
+        IF(NW.EQ.0) Cycle
         CALL DRA2SOLV (NAS,NIS,iCASE,iSYM,iVEC)
- 100    CONTINUE
        END DO
       END DO
 
-      END
+      END SUBROUTINE PCOLLVEC
 
 #if 0
       SUBROUTINE PDISTVEC(IVEC,iTYPE)
-      use caspt2_module
-      use EQSOLV
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp
+      use caspt2_module, only: nCases, nSym, nInDep, nASup, nISup
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: iVec, iType
 
+      integer(kind=iwp) iCase, iSym, NAS, NIS, NW
 
 ***************************************************************
       DO ICASE=1,NCASES
        DO ISYM=1,NSYM
-        IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 100
+        IF(NINDEP(ISYM,ICASE).EQ.0) Cycle
         IF (ITYPE.EQ.0) THEN
           NAS=NINDEP(ISYM,ICASE)
         ELSE
@@ -51,11 +54,10 @@
         END IF
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
-        IF(NW.EQ.0) GOTO 100
+        IF(NW.EQ.0) Cycle
         CALL SOLV2DRA (NAS,NIS,iCASE,iSYM,iVEC)
- 100    CONTINUE
        END DO
       END DO
 
-      END
+      END SUBROUTINE PDISTVEC
 #endif
