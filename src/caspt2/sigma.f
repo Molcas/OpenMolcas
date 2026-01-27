@@ -18,19 +18,36 @@
 * 1999: GEMINAL R12 ENABLED                  *
 *--------------------------------------------*
       SUBROUTINE SIGMA_CASPT2(ALPHA,BETA,IVEC,JVEC)
-      use Fockof
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
+      use Fockof, only: FIT, FAI_Full, FIA_Full, FIT_Full, FTA_Full,
+     &                  IOFFIT, IOFFIA, IOFFTA, FTI, FIA, FTI_Full,
+     &                  FAI, FTA, FAT, FAT_Full
       use caspt2_global, only: FIFA, LISTS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
-      use Sigma_data
+      use EQSOLV, only: IFCoup
+      use Sigma_data, only: IFTEST, NFDXP, NFMV, NFR1, NFSCA
       use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,
      &                   GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 :: ALPHA, BETA
-      INTEGER :: IVEC, JVEC
+      use caspt2_module, only: CPUSGM, TIOSGM, FockType, G1SecIn, MaxIt,
+     &                         nActEl, nCases, nSym, ThrShn, ThrShS,
+     &                         nIsh, nAsh, nSsh, nOrb, nInDep, nISup,
+     &                         nASup
+      IMPLICIT None
+      real(kind=wp), intent(in) :: ALPHA, BETA
+      integer(kind=iwp), intent(in) :: IVEC, JVEC
 
-      REAL*8, ALLOCATABLE:: SGM1(:), SGM2(:), D1(:), D2(:)
+      real(kind=wp), ALLOCATABLE:: SGM1(:), SGM2(:), D1(:), D2(:)
+      real(kind=wp) CPU, CPU0, CPU1
+      real(kind=wp) TIO, TIO0, TIO1
+      real(kind=wp) Fact, XTST
+      real(kind=wp), external:: RHS_DDot, DDot_
+      integer(kind=iwp) iCASE1, iCase2, IfC, IFIFA, IMLTOP, ISYM,
+     &                  ISYM1, ISYM2, lCX, lg_CX, lg_D2, lg_Sgm2,
+     &                  lg_SgmX, lSgm2_Sta, lSgmX, lSgmX_Sta,
+     &                  Max_MESG_Size, NA, NAS1, NAS2, nCX, ND1,
+     &                  ND2, NFIA, NFIT, NFTA, NI, NIS1, NIS2, NO, NS,
+     &                  nSgm1, nSgm2, nSgm2_Blk, nSgmX, nSgmX_blk
 
 C Compute |JVEC> := BETA* |JVEC> + ALPHA* (H0-E0)* |IVEC>
 C where the vectors are represented in transformed basis and
@@ -63,7 +80,7 @@ C Flop counts:
 C First compute diagonal block contributions:
 CTEST      WRITE(6,*)' First, do it for (H0(diag)-E0).'
       CALL PSGMDIA(ALPHA,BETA,IVEC,JVEC)
-      IF(ALPHA.EQ.0.0D0) GOTO 99
+      IF(ALPHA.EQ.Zero) GOTO 99
       IF(MAXIT.EQ.0) GOTO 99
 CTEST      WRITE(6,*)
 CTEST     & ' From now on, scaling with BETA is already done.'
@@ -150,7 +167,7 @@ C Loop over types and symmetry block of sigma vector:
           IF(NSGM2.EQ.0) GOTO 301
 
           CALL mma_allocate(SGM2,NSGM2,Label='SGM2')
-          SGM2(:)=0.0D0
+          SGM2(:)=Zero
 
           IF(ICASE1.EQ.1) THEN
             NSGM1=NASH(ISYM1)*NISH(ISYM1)
@@ -162,7 +179,7 @@ C Loop over types and symmetry block of sigma vector:
             NSGM1=0
           END IF
           CALL mma_allocate(SGM1,MAX(1,NSGM1),LABEL='SGM1')
-          SGM1(:)=0.0D0
+          SGM1(:)=Zero
 
           IMLTOP=0
           DO 200 ICASE2=ICASE1+1,NCASES
@@ -247,7 +264,7 @@ C-SVC: sum the replicate arrays:
           END IF
 
 C       XTST2=DDOT_(NSGM2,SGM2,1,SGM2,1)
-C       XTST1=0.0D0
+C       XTST1=Zero
 C       IF(NSGM1.GT.0)XTST1=DDOT_(NSGM1,SGM1,1,SGM1,1)
 C       WRITE(6,'(1x,a,a,i2,2f16.6)')
 C    & 'Contr. SGM2, SGM1, ',cases(icase1),isym1,xtst2,xtst1
@@ -255,7 +272,7 @@ C    & 'Contr. SGM2, SGM1, ',cases(icase1),isym1,xtst2,xtst1
 C If there are 1-electron contributions, add them into the 2-el
 C part (This requires a non-empty active space.)
           IF(NSGM1.GT.0) THEN
-            FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+            FACT=One/(DBLE(MAX(1,NACTEL)))
             IF (ICASE1.EQ.1) THEN
               CALL SPEC1A(IMLTOP,FACT,ISYM1,SGM2,SGM1)
             ELSE IF(ICASE1.EQ.4) THEN
@@ -324,7 +341,7 @@ C Loop over types and symmetry block of CX vector:
           IF(ND2.EQ.0) GOTO 601
 
           CALL RHS_ALLO (NAS1,NIS1,lg_D2)
-          CALL RHS_SCAL (NAS1,NIS1,lg_D2,0.0D0)
+          CALL RHS_SCAL (NAS1,NIS1,lg_D2,Zero)
 C Contract S*CX to form D2. Also form D1 from D2, if needed.
 
           NCX=ND2
@@ -358,26 +375,26 @@ CPAM Sanity check:
 
           ND1=0
           IMLTOP=1
-          FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+          FACT=One/(DBLE(MAX(1,NACTEL)))
           IF(ICASE1.EQ.1) THEN
             ND1=NASH(ISYM1)*NISH(ISYM1)
             IF(ND1.GT.0) THEN
               CALL mma_allocate(D1,ND1,Label='D1')
-              D1(:)=0.0D0
+              D1(:)=Zero
               CALL SPEC1A(IMLTOP,FACT,ISYM1,D2,D1)
             END IF
           ELSE IF(ICASE1.EQ.4) THEN
             ND1=NASH(ISYM1)*NSSH(ISYM1)
             IF(ND1.GT.0) THEN
               CALL mma_allocate(D1,ND1,Label='D1')
-              D1(:)=0.0D0
+              D1(:)=Zero
               CALL SPEC1C(IMLTOP,FACT,ISYM1,D2,D1)
             END IF
           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
             ND1=NIS1
             IF(ND1.GT.0) THEN
               CALL mma_allocate(D1,ND1,Label='D1')
-              D1(:)=0.0D0
+              D1(:)=Zero
               CALL SPEC1D(IMLTOP,FACT,D2,D1)
             END IF
           END IF
