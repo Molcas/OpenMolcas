@@ -69,6 +69,9 @@ C Read coefficient vector from LUSOLV (C repres).
 
       integer(kind=iwp) NAS, NIS, NCOEF, MDVEC, IDV, LVEC, IISTA,
      &                  NCOL, NBLK
+#ifdef _DEBUGPRINT_
+      integer(kind=iwp) I
+#endif
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
