@@ -11,7 +11,7 @@
       SUBROUTINE ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
-      use caspt2_global, only: iParRHS, MAXBUF
+      use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
@@ -2266,8 +2266,8 @@ C      NBXSZJ=NINABX
       use caspt2_global, only: MAXBUF
       use definitions, only: iwp,wp
       implicit none
-      real(kind=wp), intent(inout) :: buff(nbuff)
       integer(kind=iwp), intent(in) :: nbuff
+      real(kind=wp), intent(inout) :: buff(nbuff)
       integer(kind=iwp) :: istart
       ! GADSUM wrapper: avoid the 2 GB limit of 32-bit MPI
       do istart = 1, nbuff, MAXBUF
