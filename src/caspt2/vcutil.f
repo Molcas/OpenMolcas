@@ -63,6 +63,9 @@ C Read coefficient vector from LUSOLV (C repres).
       use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV, only: MxSct, ModVec
       use caspt2_module, only: NASUP, NISUP, MxCase
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: CASES
+#endif
       IMPLICIT None
       real(kind=wp), intent(out):: VEC(*)
       integer(kind=iwp), intent(in):: iSym,iCase,iVec
