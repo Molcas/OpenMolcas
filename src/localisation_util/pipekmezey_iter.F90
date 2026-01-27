@@ -38,14 +38,6 @@ logical(kind=iwp), parameter :: printmore = .false., debug_exp = .false., debug_
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
 real(kind=wp), External :: DDot_
 
-! Print iteration table header.
-! -----------------------------
-
-if (.not. Silent) then
-  write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
-                               'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
-end if
-
 ! Initialization (iteration 0).
 ! -----------------------------
 
@@ -78,7 +70,13 @@ FunctionalList(:)=0
     call mma_deallocate(Ovlp_aux)
 !end if
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional)
+
+if (.not. Silent) then
+    write(u6,"(/A)") "MO extension before localisation:"
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
+else
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+end if
 
 FunctionalList(1)=Functional
 
@@ -87,7 +85,13 @@ call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat, GradientList(:,:,1), Hdiag(:,:
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
+
+! Print iteration table header.
+! -----------------------------
+
 if (.not. Silent) then
+  write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
+                               'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
@@ -237,7 +241,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
 
     nIter = nIter+1
 
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional)
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
     FunctionalList(nIter+1)=Functional !first entry is from before first iteration
     if (printmore) then
 !       write(u6,'(/,A)') '               nIter:  Functional:'
@@ -259,6 +263,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
     end if
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 end do
+
+! print info about each localized MO
+if (.not. Silent) then
+    write(u6,"(/A)") "MO extension after localisation:"
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
+end if
 
 call mma_Deallocate(kappa)
 call mma_Deallocate(rotated_CMO)

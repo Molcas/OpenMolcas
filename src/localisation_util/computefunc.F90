@@ -11,7 +11,7 @@
 ! Copyright (C) Yannick Carissan                                       *
 !***********************************************************************
 
-subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional)
+subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional, eval_func)
 ! Author: Y. Carissan
 
 use Constants, only: Zero,One
@@ -22,8 +22,8 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: Functional
+logical(kind=iwp), intent(in) :: eval_func
 integer(kind=iwp) :: iAt, iMO_s
-logical(kind=iwp) :: eval_func = .true.
 real(kind=wp) :: thr, d_s
 
 thr = 0.01
@@ -57,10 +57,10 @@ do iMO_s=1,nOrb2Loc
 end do
 
 if (eval_func) then
-    write(u6,"(A,F18.10)")  'Sum (d_s^-1)         = ',Functional
-    write(u6,"(//A,F8.4,A,F6.2,A)") "Functional / nOrb2Loc = ", Functional/nOrb2Loc, ", so we reached ", &
-                    Functional/nOrb2Loc*100, "% mean localization"
-    write(u6,*) " "
+    !write(u6,"(A,F18.10)")  'Sum (d_s^-1)         = ',Functional
+    !write(u6,"(//A,F8.4,A,F6.2,A)") "Functional / nOrb2Loc = ", Functional/nOrb2Loc, ", so a mean localisation of ", &
+    !                Functional/nOrb2Loc*100, "% was reached"
+    write(u6,"(/A, F6.2,A,/)") "Mean localisation (Functional/nOrb2Loc) = ", Functional/nOrb2Loc*100, " %"
 end if
 
 return

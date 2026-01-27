@@ -296,7 +296,7 @@ Optional general keywords
 :kword:`CHARgeType`
   The next line specifies the type of partial charges used within the Pipek--Mezey localisation.
   Options: 
-    - Mulliken charges (Default) = 'JACO'
+    - Mulliken charges (Default) = 'MULL'
     - Loewdin charges = 'LOWD' or 'LOEW'
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHAR" APPEAR="Type of partial charges used for PM localisation" KIND="STRING" LEVEL="BASIC">
@@ -304,7 +304,7 @@ Optional general keywords
               <HELP>
               The next line specifies the type of partial charges used within the Pipek-Mezey localisation.
               Options: 
-                - Mulliken charges (Default) = 'JACO'
+                - Mulliken charges (Default) = 'MULL'
                 - Loewdin charges = 'LOWD' or 'LOEW'
               </HELP>
               </KEYWORD>
