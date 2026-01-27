@@ -46,6 +46,9 @@ C so each chunk has all the row indices (full columns).
       use caspt2_module, only: Mul, nIsh, nAsh, nSSh, nSym, nISUP,
      &                         nASUP, nIGEJ, nIGTJ, nAGEB, nAGTB, nTGEU,
      &                         nTUV, nTGTU, nTGEU
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: Cases
+#endif
 
       IMPLICIT None
 
