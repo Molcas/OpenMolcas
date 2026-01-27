@@ -722,7 +722,6 @@ contains
       case ('PRHS')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         call StdFmt(Line,Input%PRHS)
-        if (iError /= 0) call IOError(Line)
 
         ! OBSOLETE KEYWORDS
 
