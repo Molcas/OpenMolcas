@@ -545,10 +545,11 @@ C divided over processors.
       USE Para_Info, ONLY: King
       use caspt2_global, only: LUSBT
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
-     *                         idBoriMat
-      use EQSOLV
+     &                         idBoriMat
+      use EQSOLV, only: IDSMAT, IDTMAT, IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: nASup, nISup, Cases, IfDOrtho, ThrShn,
+     &                         ThrShs, nInDep, BMATRIX, BTRANS, BSPECT
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: iSym, iCase
