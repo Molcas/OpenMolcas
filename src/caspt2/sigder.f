@@ -191,20 +191,20 @@ C     ket overlap and bra and ket wavefunctions are not identical, so
 C     it seems impossible to reduce?
 C
       NLOOP=2
-      DO 1000 ILOOP=1,NLOOP
+      DO ILOOP=1,NLOOP
         !! ILOOP1 : <T+lambda|H|T       >
         !! ILOOP2 : <T       |H|T+lambda>
 
 C Loop over types and symmetry block of sigma vector:
-      DO 300 ICASE1=1,11
-*     DO 300 ICASE1=1,NCASES
-        DO 301 ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 301
+      DO ICASE1=1,11
+*     DO ICASE1=1,NCASES
+        DO ISYM1=1,NSYM
+          IF(NINDEP(ISYM1,ICASE1).EQ.0) Cycle
           NIS1=NISUP(ISYM1,ICASE1)
           NAS1=NASUP(ISYM1,ICASE1)
           NIN1=NINDEP(ISYM1,ICASE1)
           NSGM2=NIS1*NAS1
-          IF(NSGM2.EQ.0) GOTO 301
+          IF(NSGM2.EQ.0) Cycle
 
           CALL mma_allocate(SGM2,NSGM2,Label='SGM2')
           SGM2(:)=Zero
@@ -222,15 +222,15 @@ C         LSGM1=1
           SGM1(:) = Zero
 
           IMLTOP=0
-          DO 200 ICASE2=ICASE1+1,NCASES
+          DO ICASE2=ICASE1+1,NCASES
             IFC=IFCOUP(ICASE2,ICASE1)
-            IF(IFC.EQ.0) GOTO 200
-            DO 100 ISYM2=1,NSYM
-              IF(NINDEP(ISYM2,ICASE2).EQ.0) GOTO 100
+            IF(IFC.EQ.0) Cycle
+            DO ISYM2=1,NSYM
+              IF(NINDEP(ISYM2,ICASE2).EQ.0) Cycle
               NIS2=NISUP(ISYM2,ICASE2)
               NAS2=NASUP(ISYM2,ICASE2)
               NCX=NIS2*NAS2
-              IF(NCX.EQ.0) GOTO 100
+              IF(NCX.EQ.0) Cycle
 
               CALL RHS_ALLO(NAS2,NIS2,lg_CX)
               CALL RHS_READ(NAS2,NIS2,lg_CX,ICASE2,ISYM2,IVEC)
@@ -270,8 +270,8 @@ C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               ELSE
                 Call Deallocate_GA_Array(LCX)
               END IF
- 100        CONTINUE
- 200      CONTINUE
+            End Do
+          End Do
 
 C-SVC: sum the replicate arrays:
           MAX_MESG_SIZE = 2**27
@@ -342,19 +342,19 @@ C    &                      ICASE1,ISYM1)
 C Write SGMX to disk.
 C         CALL RHS_SAVE (NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
 C         CALL RHS_FREE (lg_SGMX)
- 301    CONTINUE
- 300  CONTINUE
+        End Do
+      End Do
 
       IMLTOP=1
 C Loop over types and symmetry block of CX vector:
-      DO 600 ICASE1=1,11
-*     DO 600 ICASE1=1,NCASES
-        DO 601 ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 601
+      DO ICASE1=1,11
+*     DO ICASE1=1,NCASES
+        DO ISYM1=1,NSYM
+          IF(NINDEP(ISYM1,ICASE1).EQ.0) Cycle
           NIS1=NISUP(ISYM1,ICASE1)
           NAS1=NASUP(ISYM1,ICASE1)
           ND2=NIS1*NAS1
-          IF(ND2.EQ.0) GOTO 601
+          IF(ND2.EQ.0) Cycle
 
           CALL RHS_ALLO (NAS1,NIS1,lg_D2)
           CALL RHS_SCAL (NAS1,NIS1,lg_D2,Zero)
@@ -414,15 +414,15 @@ C         LD1=1
           If (.NOT.ALLOCATED(D1)) CALL mma_allocate(D1,1,Label='D1')
 
           !! No need to compute for ICASE2 = 12 and 13
-          DO 500 ICASE2=ICASE1+1,11 !! NCASES
-            IF(IFCOUP(ICASE2,ICASE1).EQ.0) GOTO 500
-            DO 400 ISYM2=1,NSYM
-              IF(NINDEP(ISYM2,ICASE2).EQ.0) GOTO 400
+          DO ICASE2=ICASE1+1,11 !! NCASES
+            IF(IFCOUP(ICASE2,ICASE1).EQ.0) Cycle
+            DO ISYM2=1,NSYM
+              IF(NINDEP(ISYM2,ICASE2).EQ.0) Cycle
               NIS2=NISUP(ISYM2,ICASE2)
               NAS2=NASUP(ISYM2,ICASE2)
               NIN2=NINDEP(ISYM2,ICASE2)
               NSGMX=NIS2*NAS2
-              IF(NSGMX.EQ.0) GOTO 400
+              IF(NSGMX.EQ.0) Cycle
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
@@ -474,14 +474,14 @@ C             CALL RHS_SAVE (NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)
               ELSE
                 Call Deallocate_GA_Array(LSGMX)
               END IF
- 400        CONTINUE
- 500      CONTINUE
+            End Do
+          End Do
           CALL mma_deallocate(D2)
           call mma_deallocate(D1)
- 601    CONTINUE
- 600  CONTINUE
+        End Do
+      End Do
 
- 1000 CONTINUE
+      End Do
 C
 C
 C
