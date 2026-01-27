@@ -57,7 +57,6 @@
       integer(kind=iwp) MaxLen
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       logical(kind=iwp) :: bStat
-      logical(kind=iwp), External: GA_Destroy
 #endif
 C
 C     Work in the MO basis
@@ -516,6 +515,9 @@ C
       real(kind=wp), intent(inout):: SDER(*)
 
       integer(kind=iwp) iType
+#if defined(_MOLCAS_MPP_) && defined(_GA_)
+      integer(kind=iwp) lg_SDER
+#endif
 C
 C     (T2Ct2*f)py * (T1Ct1)pz * dS1yz/da
 C     -1/2 (T2Ct2*f*S1*C1*Ct1)pt * (T1Ct1)pu * dS1tu/da
@@ -585,6 +587,9 @@ C
       real(kind=wp), intent(inout):: SDER(*)
 
       integer(kind=iwp) iType, lg_Sgm, lg_v2
+#if defined(_MOLCAS_MPP_) && defined(_GA_)
+      integer(kind=iwp) lg_SDER
+#endif
 C
 C     -1/2 (T2Ct2)pu * dS2tu/da * (T1Ct1St1*f*C2*Ct2)pt
 C
