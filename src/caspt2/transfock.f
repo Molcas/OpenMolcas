@@ -12,15 +12,16 @@
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nSym, nRas1, nRas2, nRas3, nSsh, nIsh
+      use caspt2_module, only: nOMx, nIsh, nRas1, nRas2, nRas3, nSsh,
+     &                         nSym
       IMPLICIT None
       integer(kind=iwp), intent(in):: NTORB, NF, IDIR
-      real(kind=wp), intent(in):: TORB(NTORB)
-      real(kind=wp), intent(out):: F(NF)
+      real(kind=wp), intent(in)::  TORB(NTORB)
+      real(kind=wp), intent(inout):: F(NF)
 
       real(kind=wp), ALLOCATABLE:: FSQ(:), TSQ(:), TMP(:)
-      integer(kind=iwp) I, II, IJ, IJOFF, IOFF, ISYM, ITOFF, J, JJ,
-     &                  NI, NO, NR1, NR2, NR3, NS, NT, nOMx
+      integer(kind=iwp) NT, NI, NR1, NR2, NR3, NS, NO, IJOFF,
+     &                  ITOFF, I, J, II, JJ, IJ, ISYM, IOFF
 * Purpose: given an orbital transformation array and some
 * one-electron matrix in storage format as e.g. HONE, FIFA,
 * transform the matrix to use the new orbital basis.
@@ -49,7 +50,7 @@
         NR3=NRAS3(ISYM)
         NS=NSSH(ISYM)
         NO=NI+NR1+NR2+NR3+NS
-        IF (NO.eq.0) GOTO 99
+        IF (NO.eq.0) Cycle
 * Copy the matrices to square storage: first fill with zeroes.
         TSQ(1:NO**2)=Zero
 * Copy inactive TORB block to TSQ
@@ -133,7 +134,6 @@
        END DO
        IJOFF=IJOFF+(NO*(NO+1))/2
 * and repeat, using next symmetry block.
-  99   CONTINUE
       END DO
       CALL mma_deallocate(FSQ)
       CALL mma_deallocate(TSQ)
