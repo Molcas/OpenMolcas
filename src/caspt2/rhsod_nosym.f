@@ -22,14 +22,23 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_NOSYM(IVEC)
+      use definitions, only: iwp
+#ifdef _DEBUGPRINT_
+      use definitions, only: wp
+      use caspt2_module, only: nASup, nISup, nSym
+#endif
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), Intent(In):: IVEC
+#ifdef _DEBUGPRINT_
+      integer(kind=iwp) iCase, iSym, NAS, NIS, lg_W
+      real(kind=wp) DNRM2
+      real(kind=wp), external :: RHS_DDot
+#endif
 
 
       IF (IPRGLB.GE.VERBOSE) THEN
@@ -72,8 +81,7 @@
       END DO
 #endif
 
-
-      END
+      END SUBROUTINE RHSOD_NOSYM
 
 
 ************************************************************************
@@ -82,22 +90,32 @@
 
 *|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
       SUBROUTINE RHSOD_A_NOSYM(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      USE SUPERINDEX, only: MTUV, MTREL
+      USE CHOVEC_IO, only: NVTOT_ChoSym, ChoVec_Size, ChoVec_read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_global, only: FIMO
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: nSym, NTUV, nIsh, nTUVES, MUL, nAsh,
+     &                         nOrb, nActEl
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRA(:), KET(:)
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
+      real(kind=wp) ATVXJ, FTJ, TJVX
+      real(kind=wp), External:: DDot_
+      integer(kind=iwp) iAEnd, iASta, iCase, IDX, IIEnd, IJ, IOFFTJ,
+     &                  IOFFVX, ISYJ, iSym, iSYT, iSYV, iSYX, IT, ITABS,
+     &                  ITJ, ITTOT, ITVX, ITVXTOT, IV, IVABS,
+     &                  iVX, iX, iXABS, lg_W, mW, nAS, nBra, nFIMOES,
+     &                  nIS, nKet, nV, nW, IISTA
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -195,27 +213,37 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL mma_deallocate(BRA)
       CALL mma_deallocate(KET)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_A_NOSYM
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_C_NOSYM(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use Constants, only: Zero
+      USE SUPERINDEX, only: MTUV, MTREL, KTUV
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, CHOVEC_SIZE, CHOVEC_READ
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_global, only: FIMO
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: nActEl, nAshT, nSym, nASup, nISup,
+     &                         NTUVES, Mul, nSsh, nAsh, nIsh, NAES,
+     &                         nOrb
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IVEC
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRA(:), KET(:)
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
+      real(kind=wp) AddOne, ATVX, FAT, SUMU
+      real(kind=wp), External:: DDot_
+      integer(kind=iwp) IA, IAEND, IASTA, IAT, IATOT, iCASE, IDX,
+     &                  IIEND, IISTA, IOFFAT, IOFFVX, ISYA, iSym,
+     &                  ISYT, ISYV, ISYX, IT, ITABS, ITTOT, ITVV,
+     &                  ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS, IVX,
+     &                  IX, IXABS, lg_W, mW, NAS, NBRA, NFIMOES, NIS,
+     &                  NKET, NV, NW
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -296,7 +324,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
           DO IT=1,NASH(ISYM)
             ITTOT=IT+NISH(ISYM)
             FAT=FIMO(NFIMOES+(IATOT*(IATOT-1))/2+ITTOT)
-            SUMU=0.0D0
+            SUMU=Zero
             ITABS=NAES(ISYM)+IT
             DO IUABS=1,NASHT
               IUUT=KTUV(IUABS,IUABS,ITABS)-NTUVES(ISYM)
@@ -335,8 +363,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL mma_deallocate(BRA)
       CALL mma_deallocate(KET)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_C_NOSYM
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_B_NOSYM(IVEC)
