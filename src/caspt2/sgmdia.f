@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PSGMDIA(ALPHA,BETA,IVEC,JVEC)
       use definitions, only: iwp, wp
-      use constants, only: Zero, One
+      use constants, only: Zero
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDBMat
       use stdalloc, only: mma_allocate, mma_deallocate
