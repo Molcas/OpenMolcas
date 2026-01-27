@@ -11,7 +11,7 @@
       SUBROUTINE ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
-      use caspt2_global, only: iParRHS
+      use caspt2_global, only: iParRHS, MAXBUF
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
@@ -100,10 +100,7 @@ C Read W:
       ! Note that iParRHS = 2 only when is_real_par() is true and
       ! PRHS = 2 is specified in the input file (see procinp_caspt2.F90)
       else if (iParRHS == 2) then
-       MAXBUF=250000000
-       do istart = 1, NT*NJ*NV*NX, MAXBUF
-        CALL GADSUM(TJVX(istart,1,1,1),MIN(NT*NJ*NV*NX-istart+1,MAXBUF))
-       end do
+       call GADSUM_ADDRHS(TJVX,NT*NJ*NV*NX)
        myRank = GA_NodeID()
        CALL GA_Distribution (lg_A,myRank,ILOV,IHIV,JLOV,JHIV)
        if (JLOV > 0) then
@@ -221,12 +218,7 @@ Case B:
      &                  Cho_Ket,NV*NL,
      &            0.0D0,TJVL,NT*NJ)
 #ifdef _MOLCAS_MPP_
-      if (iParRHS == 2) then
-       MAXBUF=250000000
-       do istart = 1, NT*NJ*NV*NL, MAXBUF
-        CALL GADSUM(TJVL(istart,1,1,1),MIN(NT*NJ*NV*NL-istart+1,MAXBUF))
-       end do
-      end if
+      if (iParRHS == 2) call GADSUM_ADDRHS(TJVL,NT*NJ*NV*NL)
 #endif
       If (NWBP.le.0) GO TO 800
 *
@@ -530,10 +522,7 @@ C Read W:
        END IF
 #ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-       MAXBUF=250000000
-       do istart = 1, NA*NU*NV*NX, MAXBUF
-        CALL GADSUM(AUVX(istart,1,1,1),MIN(NA*NU*NV*NX-istart+1,MAXBUF))
-       end do
+       call GADSUM_ADDRHS(AUVX,NA*NU*NV*NX)
        myRank = GA_NodeID()
        CALL GA_Distribution (lg_C,myRank,ILOV,IHIV,JLOV,JHIV)
        if (JLOV > 0) then
@@ -704,10 +693,7 @@ C Read W:
        END IF
 #ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-       MAXBUF=250000000
-       do istart = 1, NV*NX*NASZ*NJSZ, MAXBUF
-      CALL GADSUM(AJVX(istart,1,1),MIN(NV*NX*NASZ*NJSZ-istart+1,MAXBUF))
-       end do
+       call GADSUM_ADDRHS(AJVX,NV*NX*NASZ*NJSZ)
        if (JLOV > 0) then
         IAJ=0
         DO IJ=IJSTA,IJEND
@@ -858,10 +844,7 @@ C Read W:
        END IF
 #ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-       MAXBUF=250000000
-       do istart = 1, NA*NU*NV*NL, MAXBUF
-        CALL GADSUM(AUVL(istart,1,1,1),MIN(NA*NU*NV*NL-istart+1,MAXBUF))
-       end do
+       call GADSUM_ADDRHS(AUVL,NA*NU*NV*NL)
        myRank = GA_NodeID()
        CALL GA_Distribution (lg_D,myRank,ILOV,IHIV,JLOV,JHIV)
        if (JLOV > 0) then
@@ -1044,10 +1027,7 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
        END IF
 #ifdef _MOLCAS_MPP_
       else
-       MAXBUF=250000000
-       do istart = 1, NV*NL*NASZ*NJSZ, MAXBUF
-      CALL GADSUM(AJVL(istart,1,1),MIN(NV*NL*NASZ*NJSZ-istart+1,MAXBUF))
-       end do
+       call GADSUM_ADDRHS(AJVL,NV*NL*NASZ*NJSZ)
        if (JLOV > 0) then
         IAJ=0
         DO IJ=IJSTA,IJEND
@@ -1164,10 +1144,7 @@ C Read WM:
        END IF
 #ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-       MAXBUF=250000000
-       do istart = 1, NV*NL*NASZ*NJSZ, MAXBUF
-      CALL GADSUM(AJVL(istart,1,1),MIN(NV*NL*NASZ*NJSZ-istart+1,MAXBUF))
-       end do
+       call GADSUM_ADDRHS(AJVL,NV*NL*NASZ*NJSZ)
        if (JLOV > 0) then
         IAJ=0
         DO IJ=IJSTA,IJEND
@@ -1294,12 +1271,7 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
      &                  Cho_Ket,NC*NX,
      &            0.0D0,AUCX,NA*NU)
 #ifdef _MOLCAS_MPP_
-      IF (iParRHS == 2) then
-       MAXBUF=250000000
-       do istart = 1, NA*NU*NC*NX, MAXBUF
-        CALL GADSUM(AUCX(istart,1,1,1),MIN(NA*NU*NC*NX-istart+1,MAXBUF))
-       end do
-      end if
+      IF (iParRHS == 2) call GADSUM_ADDRHS(AUCX,NA*NU*NC*NX)
 #endif
 *
       IF (NWFP.le.0) GO TO 800
@@ -1667,10 +1639,7 @@ C      NBXSZJ=NINABX
        END IF
 #ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-       MAXBUF=250000000
-       do istart = 1, NA*NU*NCSZ*NLSZ, MAXBUF
-      CALL GADSUM(AUCL(istart,1,1),MIN(NA*NU*NCSZ*NLSZ-istart+1,MAXBUF))
-       end do
+       call GADSUM_ADDRHS(AUCL,NA*NU*NCSZ*NLSZ)
        if (JLOV > 0) then
         ICL=0
         DO IL=ILSTA,ILEND
@@ -1808,10 +1777,7 @@ C      NBXSZJ=NINABX
        END IF
 #ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-       MAXBUF=250000000
-       do istart = 1, NA*NU*NCSZ*NLSZ, MAXBUF
-      CALL GADSUM(AUCL(istart,1,1),MIN(NA*NU*NCSZ*NLSZ-istart+1,MAXBUF))
-       end do
+       call GADSUM_ADDRHS(AUCL,NA*NU*NCSZ*NLSZ)
        if (JLOV > 0) then
         ICL=0
         DO IL=ILSTA,ILEND
@@ -2052,10 +2018,7 @@ C      NBXSZJ=NINABX
            ENDDO
 #ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-        MAXBUF=250000000
-        do istart = 1, NC*NL*NASZ*NJSZ, MAXBUF
-        CALL GADSUM(AJCL(istart,1),MIN(NC*NL*NASZ*NJSZ-istart+1,MAXBUF))
-        end do
+       call GADSUM_ADDRHS(AJCL,NC*NL*NASZ*NJSZ)
         if (JLOV > 0) then
 
            DO ICSTA=1,NC,NBXSZC
@@ -2225,10 +2188,7 @@ C      NBXSZJ=NINABX
            ENDDO
 #ifdef _MOLCAS_MPP_
       else if (iParRHS == 2) then
-        MAXBUF=250000000
-        do istart = 1, NC*NL*NASZ*NJSZ, MAXBUF
-        CALL GADSUM(AJCL(istart,1),MIN(NC*NL*NASZ*NJSZ-istart+1,MAXBUF))
-        end do
+        call GADSUM_ADDRHS(AJCL,NC*NL*NASZ*NJSZ)
         if (JLOV > 0) then
 
            DO ICSTA=1,NC,NBXSZC
@@ -2301,3 +2261,16 @@ C      NBXSZJ=NINABX
  900  CONTINUE
       RETURN
       END
+
+      subroutine GADSUM_ADDRHS(buff,nbuff)
+      use caspt2_global, only: MAXBUF
+      use definitions, only: iwp,wp
+      implicit none
+      real(kind=wp), intent(inout) :: buff(nbuff)
+      integer(kind=iwp), intent(in) :: nbuff
+      integer(kind=iwp) :: istart
+      ! GADSUM wrapper: avoid the 2 GB limit of 32-bit MPI
+      do istart = 1, nbuff, MAXBUF
+       CALL GADSUM(buff(istart),MIN(nbuff-istart+1,MAXBUF))
+      end do
+      end subroutine GADSUM_ADDRHS

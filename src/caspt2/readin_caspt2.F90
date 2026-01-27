@@ -202,7 +202,8 @@ module InputData
     !           and secondary orbital rotations. Development purpose
     Logical :: IAINVAR = .True.
     ! PRHS      Parallel strategy for RHS construction
-    Integer(kind=iwp) :: PRHS = 0
+    !           '0' = 'DEFAULT', '1' = 'CONVENT', '2' = 'NEW', '3' = 'DIRECT'
+    Character(len=7) :: PRHS = 'DEFAULT'
 
   end type ! end of type InputTable
 
@@ -720,7 +721,7 @@ contains
 
       case ('PRHS')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%PRHS
+        call StdFmt(Line,Input%PRHS)
         if (iError /= 0) call IOError(Line)
 
         ! OBSOLETE KEYWORDS
