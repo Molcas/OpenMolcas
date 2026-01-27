@@ -35,23 +35,35 @@ C so each chunk has all the row indices (full columns).
 
       SUBROUTINE SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
      &               X1,X2,lg_Y,LIST)
+      use definitions, only: iwp, wp
+      use Constants, only: One,  Two, Three, Six
       use Fockof, only: IOFFIA, FIT, FTI, FIA, FAI, FTA, FAT
-      use EQSOLV
-      use Sigma_data
+      use EQSOLV, only: nList, LList, IfCoup
+      use Sigma_data, only: Val1, Val2, INCF1, INCF2, INCX1, INCX2,
+     &                      INCX3, INCY1, INCY2, INCY3, LEN1, LEN2,
+     &                      nLst1, nLst2
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 X1(*), X2(*)
-      INTEGER LIST(*)
-      INTEGER IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
-     &          IOFCGM(8,8)
+      use caspt2_module, only: Mul, nIsh, nAsh, nSSh, nSym, nISUP,
+     &                         nASUP, nIGEJ, nIGTJ, nAGEB, nAGTB, nTGEU,
+     &                         nTUV, nTGTU, nTGEU
+
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2
+      real(kind=wp), intent(in) ::  X1(*), X2(*)
+      integer(kind=iwp), intent(in) ::  LIST(*)
+
+      integer(kind=iwp) IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
+     &                  IOFCGM(8,8)
 C Various constants:
-      SQR2=SQRT(2.0D00)
-      SQR3=SQRT(3.0D00)
-      SQR6=SQRT(6.0D00)
-      SQRI2=1.0D00/SQR2
-      SQRI6=1.0D00/SQR6
-      SQR32=SQR3*SQRI2
+      real(kind=wp), parameter:: SQR2=SQRT(Two), SQR3=SQRT(Three),
+     &                           SQR6=SQRT(Six), SQRI2=One/SQR2,
+     &                           SQRI6=One/SQR6, SQR32=SQR3*SQRI2
+      integer(kind=iwp) lg_Y, ICD, ICEM, ICEP, ICGM, ICGP, IJSYM, ISYM,
+     &                  ISYM12, ISYMA, ISYMAB, ISYMB, ISYMI, ISYMIJ,
+     &                  ISYMJ, IX, IXIA, IXTA, IXTI, IY, JSYM, JXOFF,
+     &                  KOD, LLST1, LLST2, NA, NAS1, NAS2, NB, NFA, NFI,
+     &                  NFT, NI, NIS1, NIS2, NJ, NT, NU
 
 C Compute a contribution from a single block (ISYM2,ICASE2)
 C of expansion vector to a single block (ISYM1,ICASE1)
@@ -118,12 +130,12 @@ C  A&BP One-el
         LLST1=LLIST(ISYM1,ISYM2,12)
         NLST1=NLIST(ISYM1,ISYM2,12)
         IF(NLST1.NE.0) THEN
-          VAL1(1)=1.0D00
-          VAL1(2)=2.0D00
+          VAL1(1)=One
+          VAL1(2)=Two
           LLST2=LLIST(ISYM1,ISYM2,14)
           NLST2=NLIST(ISYM1,ISYM2,14)
           IF(NLST2.NE.0) THEN
-            VAL2(1)=1.0D00
+            VAL2(1)=One
             VAL2(2)=SQR2
             IXTI=1
             INCX1=1
@@ -144,12 +156,12 @@ C  A&BP Two-el
         LLST1=LLIST(ISYM1,ISYM2, 3)
         NLST1=NLIST(ISYM1,ISYM2, 3)
         IF(NLST1.NE.0) THEN
-          VAL1(1)=-1.0D00
-          VAL1(2)=-2.0D00
+          VAL1(1)=-One
+          VAL1(2)=-Two
           LLST2=LLIST(ISYM1,ISYM2,14)
           NLST2=NLIST(ISYM1,ISYM2,14)
           IF(NLST2.NE.0) THEN
-            VAL2(1)=1.0D00
+            VAL2(1)=One
             VAL2(2)=SQR2
             IX=1
             INCX1=1
@@ -174,17 +186,17 @@ C A&BM One-el
         LLST1=LLIST(ISYM1,ISYM2,13)
         NLST1=NLIST(ISYM1,ISYM2,13)
         IF(NLST1.NE.0) THEN
-          VAL1(1)= 3.0D00
-          VAL1(2)=-3.0D00
+          VAL1(1)= Three
+          VAL1(2)=-Three
           LLST2=LLIST(ISYM1,ISYM2,15)
           NLST2=NLIST(ISYM1,ISYM2,15)
           IF(NLST2.NE.0) THEN
 * Original:
-*           VAL2(1)=-1.0D00
-*           VAL2(2)= 1.0D00
+*           VAL2(1)=-One
+*           VAL2(2)= One
 * Fix for sign error noted by Takeshi, May 2015:
-            VAL2(1)= 1.0D00
-            VAL2(2)=-1.0D00
+            VAL2(1)= One
+            VAL2(2)=-One
             IXTI=1
             INCX1=1
             INCX2=NASH(ISYM1)
@@ -204,17 +216,17 @@ C A&BM Two-el
         LLST1=LLIST(ISYM1,ISYM2, 4)
         NLST1=NLIST(ISYM1,ISYM2, 4)
         IF(NLST1.NE.0) THEN
-          VAL1(1)=-1.0D00
-          VAL1(2)= 1.0D00
+          VAL1(1)=-One
+          VAL1(2)= One
           LLST2=LLIST(ISYM1,ISYM2,15)
           NLST2=NLIST(ISYM1,ISYM2,15)
           IF(NLST2.NE.0) THEN
 * Original:
-*           VAL2(1)=-1.0D00
-*           VAL2(2)= 1.0D00
+*           VAL2(1)=-One
+*           VAL2(2)= One
 * Fix for sign error noted by Takeshi, May 2015:
-            VAL2(1)= 1.0D00
-            VAL2(2)=-1.0D00
+            VAL2(1)= One
+            VAL2(2)=-One
             IX=1
             INCX1=1
             INCX2=NTUV(ISYM1)
@@ -238,8 +250,8 @@ C  A&D  Two-el
         LLST1=LLIST(ISYM1,ISYM2, 1)
         NLST1=NLIST(ISYM1,ISYM2, 1)
         IF(NLST1.NE.0) THEN
-          VAL1(1)= 1.0D00
-          VAL1(2)= 1.0D00
+          VAL1(1)= One
+          VAL1(2)= One
           IX=1
           INCX1=1
           INCX2=NAS1
@@ -272,7 +284,7 @@ C  A&EP One-el
               LLST1=LLIST(ISYM1,ISYMIJ,14)
               NLST1=NLIST(ISYM1,ISYMIJ,14)
               IF(NLST1.NE.0) THEN
-                VAL1(1)= 1.0D00
+                VAL1(1)= One
                 VAL1(2)= SQR2
                 IXTI=1
                 INCX1=NT
@@ -407,8 +419,8 @@ C  C&D  One-el
           LLST1=LLIST(ISYM1,ISYM2,11)
           NLST1=NLIST(ISYM1,ISYM2,11)
           IF(NLST1.NE.0) THEN
-            VAL1(1)= 2.0D00
-            VAL1(2)= 1.0D00
+            VAL1(1)= Two
+            VAL1(2)= One
             IXTA=1
             INCX1=1
             INCX2=NASH(ISYM1)
@@ -433,8 +445,8 @@ C  C&D  Two-el
           LLST1=LLIST(ISYM1,ISYM2, 2)
           NLST1=NLIST(ISYM1,ISYM2, 2)
           IF(NLST1.NE.0) THEN
-            VAL1(1)=-1.0D00
-            VAL1(2)=-1.0D00
+            VAL1(1)=-One
+            VAL1(2)=-One
             IX=1
             INCX1=1
             INCX2=NAS1
@@ -461,12 +473,12 @@ C  C&FP One-el
         LLST1=LLIST(ISYM1,ISYM2,12)
         NLST1=NLIST(ISYM1,ISYM2,12)
         IF(NLST1.NE.0) THEN
-          VAL1(1)=-1.0D00
-          VAL1(2)=-2.0D00
+          VAL1(1)=-One
+          VAL1(2)=-Two
           LLST2=LLIST(ISYM1,ISYM2,16)
           NLST2=NLIST(ISYM1,ISYM2,16)
           IF(NLST2.NE.0) THEN
-            VAL2(1)=1.0D00
+            VAL2(1)=One
             VAL2(2)=SQR2
             IXTA=1
             INCX1=1
@@ -487,12 +499,12 @@ C  C&FP Two-el
         LLST1=LLIST(ISYM1,ISYM2, 5)
         NLST1=NLIST(ISYM1,ISYM2, 5)
         IF(NLST1.NE.0) THEN
-          VAL1(1)= 1.0D00
-          VAL1(2)= 2.0D00
+          VAL1(1)= One
+          VAL1(2)= Two
           LLST2=LLIST(ISYM1,ISYM2,16)
           NLST2=NLIST(ISYM1,ISYM2,16)
           IF(NLST2.NE.0) THEN
-            VAL2(1)=1.0D00
+            VAL2(1)=One
             VAL2(2)=SQR2
             IX=1
             INCX1=1
@@ -517,13 +529,13 @@ C  C&FM One-el
         LLST1=LLIST(ISYM1,ISYM2,13)
         NLST1=NLIST(ISYM1,ISYM2,13)
         IF(NLST1.NE.0) THEN
-          VAL1(1)=-1.0D00
-          VAL1(2)= 1.0D00
+          VAL1(1)=-One
+          VAL1(2)= One
           LLST2=LLIST(ISYM1,ISYM2,17)
           NLST2=NLIST(ISYM1,ISYM2,17)
           IF(NLST2.NE.0) THEN
-            VAL2(1)=1.0D00
-            VAL2(2)=-1.0D00
+            VAL2(1)=One
+            VAL2(2)=-One
             IXTA=1
             INCX1=1
             INCX2=NASH(ISYM1)
@@ -543,13 +555,13 @@ C  C&FM Two-el
         LLST1=LLIST(ISYM1,ISYM2, 6)
         NLST1=NLIST(ISYM1,ISYM2, 6)
         IF(NLST1.NE.0) THEN
-          VAL1(1)=-1.0D00
-          VAL1(2)= 1.0D00
+          VAL1(1)=-One
+          VAL1(2)= One
           LLST2=LLIST(ISYM1,ISYM2,17)
           NLST2=NLIST(ISYM1,ISYM2,17)
           IF(NLST2.NE.0) THEN
-            VAL2(1)=1.0D00
-            VAL2(2)=-1.0D00
+            VAL2(1)=One
+            VAL2(2)=-One
             IX=1
             INCX1=1
             INCX2=NTUV(ISYM1)
@@ -581,7 +593,7 @@ C  C&GP One-el
               NLST1=NLIST(ISYM1,ISYMAB,16)
               IF(NLST1.NE.0) THEN
                 VAL1(1)= SQRI2
-                VAL1(2)= 1.0D00
+                VAL1(2)= One
                 IXTA=1
                 INCX1=NT
                 INCX2=1
@@ -659,7 +671,7 @@ C  D&EP One-el
                 NLST1=NLIST(ISYMI,ISYMIJ,14)
                 IF(NLST1.NE.0) THEN
                   VAL1(1)= SQRI2
-                  VAL1(2)= 1.0D00
+                  VAL1(2)= One
                   IXIA=1+IOFFIA(ISYMI)
                   INCX1=1
                   INCX2=NI
@@ -686,8 +698,8 @@ C  D&EP Two-el
         LLST1=LLIST(ISYM1,ISYM2, 7)
         NLST1=NLIST(ISYM1,ISYM2, 7)
         IF(NLST1.NE.0) THEN
-          VAL1(1)=-1.0D00
-          VAL1(2)=-1.0D00
+          VAL1(1)=-One
+          VAL1(2)=-One
           NU=NASH(ISYM2)
           IF(NU.NE.0) THEN
             DO ISYMA=1,NSYM
@@ -701,7 +713,7 @@ C  D&EP Two-el
                 NLST2=NLIST(ISYMI,ISYMIJ,14)
                 IF(NLST2.NE.0) THEN
                   VAL2(1)= SQRI2
-                  VAL2(2)= 1.0D00
+                  VAL2(2)= One
                   IX=1+NAS1*IOFCD(ISYM1,ISYMA)
                   INCX1=1
                   INCX2=NAS1
@@ -769,8 +781,8 @@ C  D&EM Two-el
         LLST1=LLIST(ISYM1,ISYM2, 7)
         NLST1=NLIST(ISYM1,ISYM2, 7)
         IF(NLST1.NE.0) THEN
-          VAL1(1)=-1.0D00
-          VAL1(2)= 1.0D00
+          VAL1(1)=-One
+          VAL1(2)= One
           NU=NASH(ISYM2)
           IF(NU.NE.0) THEN
             DO ISYMA=1,NSYM
@@ -815,8 +827,8 @@ C  D&GP Two-el
         LLST1=LLIST(ISYM1,ISYM2, 8)
         NLST1=NLIST(ISYM1,ISYM2, 8)
         IF(NLST1.NE.0) THEN
-          VAL1(1)= 1.0D00
-          VAL1(2)= 1.0D00
+          VAL1(1)= One
+          VAL1(2)= One
           NU=NASH(ISYM2)
           IF(NU.NE.0) THEN
             DO ISYMA=1,NSYM
@@ -828,7 +840,7 @@ C  D&GP Two-el
               NLST2=NLIST(ISYMA,ISYMAB,16)
               IF(NLST2.NE.0) THEN
                 VAL2(1)= SQRI2
-                VAL2(2)= 1.0D00
+                VAL2(2)= One
                 IX=1+NAS1*IOFCD(ISYM1,ISYMA)
                 INCX1=1
                 INCX2=NAS1*NI
@@ -858,8 +870,8 @@ C  D&GM Two-el
         LLST1=LLIST(ISYM1,ISYM2, 8)
         NLST1=NLIST(ISYM1,ISYM2, 8)
         IF(NLST1.NE.0) THEN
-          VAL1(1)=-1.0D00
-          VAL1(2)= 1.0D00
+          VAL1(1)=-One
+          VAL1(2)= One
           NU=NASH(ISYM2)
           IF(NU.NE.0) THEN
             DO ISYMA=1,NSYM
@@ -904,7 +916,7 @@ C  EP&HP Two-el
           NLST1=NLIST(ISYM12,ISYM2,16)
           IF(NLST1.NE.0) THEN
             VAL1(1)= SQRI2
-            VAL1(2)= 1.0D00
+            VAL1(2)= One
             JXOFF=IOFCEP(ISYM1,ISYM12)
             INCX3=NAS1*NA
             NFT=NASH(ISYM1)
@@ -1008,7 +1020,7 @@ C  GP&HP Two-el
         NLST1=NLIST(ISYM12,ISYM2,14)
         IF(NLST1.NE.0) THEN
           VAL1(1)= -SQRI2
-          VAL1(2)= -1.0D00
+          VAL1(2)= -One
           JXOFF=IOFCGP(ISYM1,ISYM12)
           INCX3=NAS1*NISH(ISYM12)
           NFT=NASH(ISYM1)
