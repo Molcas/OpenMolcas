@@ -12,7 +12,7 @@ subroutine procinp_caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
   use inputData, only: input
-  use definitions, only: iwp,wp,MPIInt,RtoB
+  use definitions, only: iwp,wp,RtoB
   use caspt2_global, only: iPrGlb, cmpThr, cntThr, dnmThr
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
@@ -24,6 +24,7 @@ subroutine procinp_caspt2
   use PrintLevel, only: terse
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
+  use definitions, only: MPIInt
   use Para_Info, only:Is_Real_Par, nProcs
 #endif
 #ifdef _DMRG_
