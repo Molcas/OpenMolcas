@@ -54,6 +54,9 @@
      &                  nSgm1, nSgm2, nSigma, nSigma_inner,
      &                  nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT,
      &                  nV, nVCUtil, nWLag, NX, M31, NIS2
+#ifdef _DEBUGPRINT_
+      integer(kind=iwp) NAMX
+#endif
       integer(kind=iwp), external :: iParDiv
       real(kind=wp) XX, YY
 
