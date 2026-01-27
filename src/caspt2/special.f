@@ -94,16 +94,17 @@ C ISCF=1 for closed-shell, =2 for hispin
 C SVC20100908 initialize the series of tasks
       Call Init_Tsk(ID, nTask)
 
-      Do
+      Outer : Do
 #ifdef _MOLCAS_MPP_
-      IF ((NG3-iG3).LT.NLEV2) Exit
+      IF ((NG3-iG3).LT.NLEV2) Exit Outer
 #endif
 
- 502  IF (.NOT.Rsv_Tsk(ID,iTask)) Exit
-
-      IND1=MOD(iTask-1,NLEV2)+1
-      IND2=((iTask-IND1)/(NLEV2))+1
-      IF(IND2.GT.IND1) GOTO 502
+      Inner : Do
+         IF (.NOT.Rsv_Tsk(ID,iTask)) Exit Outer
+         IND1=MOD(iTask-1,NLEV2)+1
+         IND2=((iTask-IND1)/(NLEV2))+1
+         IF(IND2<=IND1) Exit Inner
+      End Do Inner
 
       IT1=MOD(IND1-1,NASHT)+1
       IU1=(IND1-IT1)/NASHT+1
@@ -162,7 +163,7 @@ C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
 
-      End Do
+      End Do Outer
 
 C SVC2010: no more tasks, wait here for the others.
       CALL Free_Tsk(ID)
