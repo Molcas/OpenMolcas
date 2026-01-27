@@ -1000,10 +1000,16 @@ C replicate array.  FIXME: Should be removed later.
       END SUBROUTINE SBDIAG_MPP
 
       SUBROUTINE S_SCALE (NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 SCA(NAS),S(LDS,*)
+      use definitions, only: iwp, wp
+
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: NAS, iLo, iHi, jLo, jHi, LDS
+      real(kind=wp), intent(In) :: SCA(NAS)
+      real(kind=wp), intent(InOut)::  S(LDS,*)
+
+      integer(kind=iwp) J, I
+
       DO J=jLo,jHi
         DO I=iLo,iHi
         S(I-iLo+1,J-jLo+1)=SCA(I)*SCA(J)*S(I-iLo+1,J-jLo+1)
@@ -1012,16 +1018,26 @@ C replicate array.  FIXME: Should be removed later.
       END SUBROUTINE S_SCALE
 
       SUBROUTINE V_SCALE (EIG,SCA,V,nRows,NAS,LDV,NIN,COND)
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 EIG(NAS),SCA(NAS),V(LDV,*),COND(NIN)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
+      use caspt2_module, only: ThrShS
+
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: nRows, NAS, LDV, NIN
+      real(kind=wp), intent(in):: EIG(NAS),SCA(NAS)
+      real(kind=wp), Intent(inout):: V(LDV,*)
+      real(kind=wp), Intent(out):: COND(NIN)
+
+      integer(kind=iwp) jVEC, J, I, iVec
+      real(kind=wp) EVAL, FACT, SZ
+
       jVEC=0
       DO J=1,NAS
         EVAL=EIG(J)
         IF(EVAL.GE.THRSHS) THEN
           jVEC=jVEC+1
-          FACT=1.0D00/SQRT(EVAL)
+          FACT=One/SQRT(EVAL)
           IF(jVEC.EQ.J) THEN
             CALL DSCAL_(nRows,FACT,V(1,J),1)
           ELSE
@@ -1041,7 +1057,7 @@ C Addition, for the scaled symmetric ON.
 C The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN
         DO jVEC=1,NIN
-          SZ=0.0D0
+          SZ=Zero
           DO iVEC=1,nRows
             SZ=SZ+V(iVEC,jVEC)**2
           END DO
