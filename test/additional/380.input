@@ -46,7 +46,8 @@ EndChoInput
 End of input
 
  &CASPT2 &END
-RHSD
+PRHS
+ 3
 Frozen
  1 0 0 0
 MultiState

@@ -38,7 +38,7 @@ NoLK
 EndChoInput
 
  &CASPT2
-RHSD
+PRHS = Direct
 Frozen = 1
 MultiState =  2  1 4
 OnlyRoot = 1
@@ -46,7 +46,7 @@ MaxIter = 40
 PROPerties
 
  &CASPT2
-RHSD
+PRHS = Direct
 Frozen = 1
 MultiState =  2  1 4
 OnlyRoot = 2
@@ -54,7 +54,7 @@ MaxIter = 40
 PROPerties
 
  &CASPT2
-RHSD
+PRHS = Direct
 Frozen = 1
 MultiState =  2  1 4
 * Note: extra long lines to test they're not truncated
