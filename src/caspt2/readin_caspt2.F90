@@ -200,7 +200,10 @@ module InputData
     Logical :: CSF = .True.
     ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
     !           and secondary orbital rotations. Development purpose
-    Logical :: IAINVAR  = .True.
+    Logical :: IAINVAR = .True.
+    ! PRHS      Parallel strategy for RHS construction
+    !           '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
+    Character(len=7) :: PRHS = 'DEFAULT'
 
   end type ! end of type InputTable
 
@@ -715,6 +718,10 @@ contains
 
       Case('IAIN')
         Input%IAINVAR = .false.
+
+      case ('PRHS')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        call StdFmt(Line,Input%PRHS)
 
         ! OBSOLETE KEYWORDS
 
