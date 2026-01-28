@@ -643,8 +643,7 @@ C-SVC: sanity check
 *
       End Subroutine ADDTUVX
 
-      SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,
-     &                           NCHOBUF,NPIQK,NADDBUF)
+      SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,NCHOBUF,NPIQK,NADDBUF)
       use definitions, only: iwp, wp
       USE CHOVEC_IO
       use caspt2_global, only: iParRHS,iPrGlb,iStpGrd
@@ -654,22 +653,26 @@ C-SVC: sanity check
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_module
+
       IMPLICIT REAL*8 (A-H,O-Z)
-      integer(kind=iwp) LBGRP(2,NBGRP)
+      integer(kind=iwp), intent(out):: NBGRP
+      integer(kind=iwp), intent(out):: LBGRP(2,*)
+      integer(kind=iwp), intent(out) :: NCHOBUF,NPIQK,NADDBUF
+
       integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
       integer(kind=iwp) nSh(8,3)
       Logical(kind=iwp) :: call_from_grad
-      integer(kind=iwp) ITYPE(4,9)
-      DATA ITYPE /
-     &  Inactive,Active,Active,Active,
-     &  Inactive,Active,Inactive,Active,
-     &  Inactive,Virtual,Active,Active,
-     &  Inactive,Virtual,Inactive,Virtual,
-     &  Active,Virtual,Active,Active,
-     &  Active,Virtual,Active,Virtual,
-     &  Active,Virtual,Inactive,Active,
-     &  Active,Virtual,Inactive,Virtual,
-     &  Inactive,Virtual,Inactive,Active /
+      integer(kind=iwp) :: ITYPE(4,9)=reshape([
+     &                                Inactive,Active,Active,Active,
+     &                                Inactive,Active,Inactive,Active,
+     &                                Inactive,Virtual,Active,Active,
+     &                                Inactive,Virtual,Inactive,Virtual,
+     &                                Active,Virtual,Active,Active,
+     &                                Active,Virtual,Active,Virtual,
+     &                                Active,Virtual,Inactive,Active,
+     &                                Active,Virtual,Inactive,Virtual,
+     &                                Inactive,Virtual,Inactive,Active]
+     &                               ,[4,9])
       integer(kind=iwp) ISYM
 
       call_from_grad = .false.
