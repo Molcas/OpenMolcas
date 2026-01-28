@@ -144,7 +144,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISH(ISYM) !NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 1
+        IF(NW.EQ.0) THEN
+          NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
+          Cycle
+        END IF
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -194,7 +197,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 1      CONTINUE
 
         NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
 
@@ -271,7 +273,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE) !NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 4
+        IF(NW.EQ.0) THEN
+          NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
+          Cycle
+        END IF
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -343,7 +348,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 4      CONTINUE
 
         NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
 
@@ -411,7 +415,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 2
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -470,7 +474,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 2      CONTINUE
       END DO
 ************************************************************************
 
@@ -486,7 +489,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 3
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -545,7 +548,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 3      CONTINUE
       END DO
 ************************************************************************
 
@@ -608,7 +610,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 8
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -667,7 +669,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 8      CONTINUE
       END DO
 ************************************************************************
 
@@ -683,7 +684,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 9
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -742,7 +743,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 9      CONTINUE
       END DO
 ************************************************************************
 
@@ -806,7 +806,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NIGEJ(ISYM)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 12
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -865,7 +865,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 12     CONTINUE
       END DO
 ************************************************************************
 
@@ -881,7 +880,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NIGTJ(ISYM)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 13
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -938,7 +937,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 13     CONTINUE
       END DO
 ************************************************************************
 
@@ -1023,7 +1021,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 8
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1116,7 +1114,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 8      CONTINUE
 
       END DO
 ************************************************************************
@@ -1198,7 +1195,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 6
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1269,7 +1266,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 6      CONTINUE
       END DO
 ************************************************************************
 
@@ -1285,7 +1281,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 7
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1351,7 +1347,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 7      CONTINUE
       END DO
 ************************************************************************
 
@@ -1427,7 +1422,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 10
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1498,7 +1493,6 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 10     CONTINUE
       END DO
 ************************************************************************
 
@@ -1514,7 +1508,7 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 11
+        IF(NW.EQ.0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1580,7 +1574,6 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
         CALL RHS_Release_Update (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 11     CONTINUE
       END DO
 ************************************************************************
 
