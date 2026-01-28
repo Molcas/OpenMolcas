@@ -21,16 +21,22 @@
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD(IVEC)
       use definitions, only: iwp
+#ifdef _DEBUGPRINT_
+      use definitions, only: wp
+      use caspt2_module, only: NSYM, NASUP, NISUP
+#endif
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT real(kind=wp) (A-H,O-Z)
-      integer(kind=iwp) , intent(in):: iVec
-
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: iVec
+#ifdef _DEBUGPRINT_
+      real(kind=wp) DNRM2
+      real(kind=wp), external:: RHS_DDot
+      integer(kind=iwp) ICASE, ISYM, NAS, NIS, lg_W
+#endif
 
       IF (IPRGLB.GE.VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using RHS on-demand algorithm'
@@ -71,7 +77,6 @@
 #endif
 
       END SUBROUTINE RHSOD
-
 
 ************************************************************************
 * SUBROUTINES FOR THE SEPARATE CASES
