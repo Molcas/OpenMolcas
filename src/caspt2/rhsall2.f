@@ -587,9 +587,24 @@ C-SVC: sanity check
      &                   TUVX,nTUVX,PIQK,nPIQK,
      &                   NUMERR)
       use definitions, only: iwp, wp
-      Implicit Real*8 (A-H,O-Z)
+#ifndef _DEBUGPRINT_
+      use Constants, only: One
+#endif
+      Implicit None
+      integer(kind=iwp), intent(in):: NP,NI,NQ,NK,NASHT,iOffP,iOffI,
+     &                                iOffQ,iOffK
       integer(kind=iwp), intent(in):: nTUVX, nPIQK
-      real(kind=wp) TUVX(nTUVX), PIQK(nPIQK)
+      real(kind=wp), intent(in)::  PIQK(nPIQK)
+      real(kind=wp), intent(inout):: TUVX(nTUVX)
+      integer(kind=iwp), intent(inout):: NUMERR
+
+      integer(kind=iwp) iU, iUVX1, iUVX2, iV, iVX1, iVX2, iX, iX1, iX2
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+      unused_var(NUMERR)
+#else
+      integer(kind=iwp) iPIQK, iT, iTUVX
+#endif
 *
 * Add into correct positions in TUVX:
 *
@@ -619,10 +634,8 @@ C-SVC: sanity check
                   TUVX(iTUVX)=TUVX(iTUVX)+PIQK(iPIQK)
                END DO
 #else
-               Call DaXpY_(nP,1.0D0,PIQK(1+      iUVX2),1,
+               Call DaXpY_(nP,One,PIQK(1+      iUVX2),1,
      &                             TUVX(1+iOffP+iUVX1),1)
-* Avoid unused argument warnings
-               IF (.FALSE.) Call Unused_integer(NUMERR)
 #endif
             END DO
          END DO
