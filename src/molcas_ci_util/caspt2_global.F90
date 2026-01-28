@@ -12,7 +12,8 @@
 ! Global variables of the CASPT2 module
 ! TODO: move here all variables from CASPT2 common blocks defined in caspt2_module.F90
 module caspt2_global
-use caspt2_module, only: jState, mState, nActel
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 ! UNIT numbers:
 ! IDCIEX, IDTCEX, LUCIEX, LUDMAT, LUDRA, LUDRATOT, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LURHS, LUSBT, LUSOLV
@@ -62,8 +63,7 @@ use caspt2_module, only: jState, mState, nActel
 ! number of CI vectors per batch in mkfg3.f and derfg3.f
 ! nbuf1_grad
 
-use Constants, only: Zero
-use Definitions, only: wp, iwp
+use caspt2_module, only: jState, mState, nActel
 use pt2_guga, only: nG3
 
 implicit none

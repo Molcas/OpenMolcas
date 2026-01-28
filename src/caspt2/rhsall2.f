@@ -34,6 +34,7 @@
       integer(kind=iwp), SAVE :: NUMERR=0
       real(kind=wp), allocatable:: TUVX(:), PIQK(:), BUFF(:),
      &                             BRA(:), KET(:)
+
       integer(kind=iwp),allocatable:: BGRP(:,:), IDXB(:)
       integer(kind=iwp) IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK,
      &                  iOffp, iOffQ, ISYI, ISYK, ISYP, ISYQ, JSYM,
@@ -430,13 +431,16 @@ C      the case, symmetry, and rhs vector respectively.
      &                                Array,nArray,
      &                                IBSTA,IBEND)
       use definitions, only: iwp, wp
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NPQ_CHOTYPE, NVLOC_CHOBATCH, IDLOC_CHOGROUP
       use caspt2_global, only: LUDRA
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      real(kind=wp)  Array(*)
+      use caspt2_module, only: NSYM
+      IMPLICIT None
+      integer(kind=iwp), Intent(in):: ITK,ITQ,JSYM,IBSTA,IBEND
+      integer(kind=iwp), Intent(Out):: nArray
+      real(kind=wp), intent(Out):: Array(*)
 
-      integer(kind=iwp) ICASE
+      integer(kind=iwp) ICASE, LKETSM, ISYK, NQK, IB, NV, NKETSM, IDISK
+
       ! ugly hack to convert separate k/q orbital types into a specific
       ! case
       ICASE=ITK*ITQ
@@ -474,33 +478,38 @@ C      the case, symmetry, and rhs vector respectively.
       use PrintLevel, only: debug
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      real(kind=wp) Cho_Bra(nBra), Cho_Ket(nKet)
-      real(kind=wp) BUFF(nBuff), PIQK(mxPIQK)
+      integer(kind=iwp), Intent(In):: ITI,ITP,ITK,ITQ
+      Character(LEN=2), intent(in)::  Case
+      integer(kind=iwp), intent(In):: nBra, nKet
+      real(kind=wp), intent(IN):: Cho_Bra(nBra), Cho_Ket(nKet)
+      real(kind=wp), intent(InOut):: BUFF(nBuff)
       integer(kind=iwp) idxBuff(nBuff)
+      real(kind=wp), intent(inOut):: PIQK(mxPIQK)
+
       integer(kind=iwp) nSh(8,3)
-      Character(LEN=2) Case
 *
 *
       IF (iPrGlb.GE.DEBUG) THEN
         WRITE(6,*) 'Processing RHS block '//Case
       END IF
+
       LBRASM=1
       DO ISYI=1,NSYM
          NI=NSH(ISYI,ITI)
-         IF(NI.EQ.0) GOTO 125
+         IF(NI.EQ.0) Cycle
          ISYP=MUL(ISYI,JSYM)
          NP=NSH(ISYP,ITP)
-         IF(NP.EQ.0) GOTO 125
+         IF(NP.EQ.0) Cycle
          NPI=NP*NI
          NBRASM=NPI*NV
 *
          LKETSM=1
          DO ISYK=1,NSYM
             NK=NSH(ISYK,ITK)
-            IF(NK.EQ.0) GOTO 122
+            IF(NK.EQ.0) Cycle
             ISYQ=MUL(ISYK,JSYM)
             NQ=NSH(ISYQ,ITQ)
-            IF(NQ.EQ.0) GOTO 122
+            IF(NQ.EQ.0) Cycle
             NQK=NQ*NK
             NKETSM=NQK*NV
 *
@@ -594,10 +603,8 @@ C-SVC: sanity check
             End If
 *
          LKETSM=LKETSM+NKETSM
- 122     CONTINUE
         END DO
         LBRASM=LBRASM+NBRASM
- 125    CONTINUE
       END DO
 *
       End Subroutine Process_RHS_Block
