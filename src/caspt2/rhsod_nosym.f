@@ -937,6 +937,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_D_NOSYM(IVEC)
+      use definitions, only: iwp, wp
+      use constants, only: One
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
@@ -948,17 +950,29 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
 
-      INTEGER IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
-      REAL*8, ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8),
+     &                  IOKET2(8,8)
+      real(kind=wp), ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
      &                      BRABUF2(:), KETBUF2(:)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER NFIMOES(8)
+      integer(kind=iwp) NFIMOES(8)
+      real(kind=wp) ACTINV, AJTV, AVTJ, FAJ, ONEADD
+      integer(kind=iwp) IA, IAABS, NAS, NIS, lg_W, IASTA, IAEND, IISTA,
+     &                  IIEND, MW, IAEND1, IAEND2, IAJ, IAJTOT, IASTA1,
+     &                  IASTA2, IATOT, iCASE, IDX, IFIMOES, IJ, IJABS,
+     &                  IOAJ, IOAV, IOFFAJ, IOFFAV, IOFFTJ, IOFFTV,
+     &                  IOTJ, IOTV, ISYA, ISYJ, ISYM, ISYT, ISYV, IT,
+     &                  ITABS, ITV, IUABS, IUU, IV, IVABS, NAS1,
+     &                  NBRABUF1, NBRABUF2, NKETBUF1, NKETBUF2, NV, NW
+      real(kind=wp), external:: DDot_
 
       IF (iPrGlb.GE.DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case D'
@@ -996,7 +1010,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 * outer loop over symmetry blocks in the RHS
 ************************************************************************
       ! set up FIMO access
-      ACTINV=1.0D0/DBLE(MAX(1,NACTEL))
+      ACTINV=One/DBLE(MAX(1,NACTEL))
       IFIMOES=0
       DO ISYM=1,NSYM
         NFIMOES(ISYM)=IFIMOES
