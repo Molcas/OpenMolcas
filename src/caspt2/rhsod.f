@@ -85,22 +85,28 @@
 *|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
       SUBROUTINE RHSOD_A(IVEC)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      USE SUPERINDEX, only: MTUV, MTREL
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_global, only: FIMO
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT real(kind=wp) (A-H,O-Z)
-      integer(kind=iwp) IVEC
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
       real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
+      real(kind=wp) ATVXJ,  FTJ, TJVX
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  ICASE, IDX, IJ, IOFFTJ, IOFFVX, ISYJ, ISYM,
+     &                  ISYT, ISYV, ISYX, IT, ITABS, ITJ, ITTOT, ITVX,
+     &                  ITVXTOT, IV, IVABS, IVX, IX, IXABS, NBRA,
+     &                  NFIMOES, NKET, NV, NW
+      real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -204,21 +210,21 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_C(IVEC)
       use definitions, only: iwp, wp
       USE SUPERINDEX
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_global, only: FIMO
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
       IMPLICIT real(kind=wp) (A-H,O-Z)
-      integer(kind=iwp) IVEC
+      integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
       real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
+      real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -344,20 +350,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_B(IVEC)
       use definitions, only: iwp, wp
       USE SUPERINDEX
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
       IMPLICIT real(kind=wp) (A-H,O-Z)
-      integer(kind=iwp) IVEC
+      integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOSYM(8,8)
       real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -542,20 +548,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_F(IVEC)
       use definitions, only: iwp, wp
       USE SUPERINDEX
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
       IMPLICIT real(kind=wp) (A-H,O-Z)
-      integer(kind=iwp) IVEC
+      integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOSYM(8,8)
       real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -739,20 +745,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_H(IVEC)
       use definitions, only: iwp, wp
       USE SUPERINDEX
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
       IMPLICIT real(kind=wp) (A-H,O-Z)
-      integer(kind=iwp) IVEC
+      integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOSYM(8,8)
       real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -936,23 +942,23 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_D(IVEC)
       use definitions, only: iwp, wp
       USE SUPERINDEX
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
       IMPLICIT real(kind=wp) (A-H,O-Z)
-      integer(kind=iwp) IVEC
+      integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8),
      &                  IOKET2(8,8)
       real(kind=wp), ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
      &                      BRABUF2(:), KETBUF2(:)
+      real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1120,20 +1126,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_E(IVEC)
       use definitions, only: iwp, wp
       USE SUPERINDEX
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
       IMPLICIT real(kind=wp) (A-H,O-Z)
-      integer(kind=iwp) IVEC
+      integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
       real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1349,20 +1355,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_G(IVEC)
       use definitions, only: iwp, wp
       USE SUPERINDEX
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
       IMPLICIT real(kind=wp) (A-H,O-Z)
-      integer(kind=iwp) IVEC
+      integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
       real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
