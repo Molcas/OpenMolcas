@@ -939,17 +939,17 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       SUBROUTINE RHSOD_D_NOSYM(IVEC)
       use definitions, only: iwp, wp
       use constants, only: One
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      USE SUPERINDEX, only: MIA, MAREL, MIREL, MTU, MTREL, KTU
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_global, only: FIMO
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
+      use caspt2_module, only: NACTEL, NASHT, NSYM, NORB, NASUP, NISUP,
+     &                         NIAES, NTUES, MUL, NSSH, NASH, NISH, NISH
 
       IMPLICIT None
 
@@ -1132,8 +1132,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_E_NOSYM(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use Constants, only: Half, OneHalf
+      USE SUPERINDEX, only: MIGEJ, MIREL, MIGTJ, MIREL
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use EQSOLV
@@ -1142,11 +1144,23 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      real(kind=wp), parameter:: SQRTH=SQRT(Half), SQRTA=SQRT(OneHalf)
+      real(kind=wp) AJVL, ALVJ, EM, EP, SCL
+      integer(kind=iwp) IA, NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND,
+     &                  MW, IAJ, IAJGEL, IAJGELEND, IAJGELSTA, IAJGTL,
+     &                  IAJGTLEND, IAJGTLSTA, IAL, iCASE, IDX, IJ,
+     &                  IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL,
+     &                  ILABS, IOFF, IOFFAJ, IOFFAL, IOFFVJ, IOFFVL,
+     &                  ISYA, ISYJ, ISYJL, ISYL, ISYM, ISYV, IV, IVJ,
+     &                  IVL, NA, NBRABUF, NJL, NKETBUF, NV, NW
+      real(kind=wp), External:: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1171,8 +1185,6 @@ C EM(v,ajl)=((aj,vl)-(al,vj))*SQRT(3/2)
 * be determined by integer division. This could be optimized by combining
 * it with loop peeling (on the todo list?).
 
-      SQRTH=SQRT(0.5D0)
-      SQRTA=SQRT(1.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -1245,7 +1257,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ! EP(v,ajl)=((aj,vl)+(al,vj))/SQRT(2+2*Kron(j,l))
               IF (ILABS.EQ.IJABS) THEN
-                SCL=0.5D0
+                SCL=Half
               ELSE
                 SCL=SQRTH
               END IF
