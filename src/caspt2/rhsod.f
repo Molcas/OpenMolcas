@@ -982,7 +982,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_D(IVEC)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
+      use constants, only: One
+      USE SUPERINDEX, only: MIA, MAREL, MIREL, MTU, MTREL, KTU
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
@@ -991,20 +992,31 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT real(kind=wp) (A-H,O-Z)
+      use caspt2_module, only: NACTEL, NASHT, NSYM, NORB, NASUP, NISUP,
+     &                         NIAES, NTUES, MUL, NSSH, NASH, NISH
+
+      IMPLICIT None
+
       integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8),
      &                  IOKET2(8,8)
       real(kind=wp), ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
      &                      BRABUF2(:), KETBUF2(:)
+      real(kind=wp) ACTINV, AJTV, AVTJ, FAJ, ONEADD
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAABS, IAEND1, IAEND2, IAJ, IAJTOT, IASTA1,
+     &                  IASTA2, IATOT, iCASE, IDX, IFIMOES,  IJ, IJABS,
+     &                  IOAJ, IOAV, IOFFAJ, IOFFAV, IOFFTJ, IOFFTV,
+     &                  IOTJ, IOTV, ISYA, ISYJ, ISYM, ISYT, ISYV, IT,
+     &                  ITABS, ITV, IUABS, IUU, IV, IVABS, NAS1,
+     &                  NBRABUF1, NBRABUF2, NKETBUF1, NKETBUF2, NV, NW
       real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION NFIMOES(8)
+      integer(kind=iwp) NFIMOES(8)
 
       IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case D'
@@ -1042,7 +1054,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 * outer loop over symmetry blocks in the RHS
 ************************************************************************
       ! set up FIMO access
-      ACTINV=1.0D0/DBLE(MAX(1,NACTEL))
+      ACTINV=One/DBLE(MAX(1,NACTEL))
       IFIMOES=0
       DO ISYM=1,NSYM
         NFIMOES(ISYM)=IFIMOES
