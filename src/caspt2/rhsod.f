@@ -38,7 +38,7 @@
       integer(kind=iwp) ICASE, ISYM, NAS, NIS, lg_W
 #endif
 
-      IF (IPRGLB.GE.VERBOSE) THEN
+      IF (IPRGLB>=VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using RHS on-demand algorithm'
       END IF
 
@@ -66,7 +66,7 @@
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-          IF (NAS*NIS.NE.0) THEN
+          IF (NAS*NIS/=0) THEN
             CALL RHS_ALLO (NAS,NIS,lg_W)
             CALL RHS_READ (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
             DNRM2 = RHS_DDOT(NAS,NIS,lg_W,lg_W)
@@ -112,7 +112,7 @@
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case A'
       END IF
 
@@ -144,7 +144,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISH(ISYM) !NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) THEN
+        IF(NW==0) THEN
           NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
           Cycle
         END IF
@@ -176,7 +176,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IOFFVX=1+IOKET(ISYV,ISYX)+NV*IVX
             TJVX=DDOT_(NV,BRA(IOFFTJ),1,KET(IOFFVX),1)
 ! A(tvx,j) = (tjvx) + FIMO(t,j)*delta(v,x)/NACTEL
-            IF (ISYT.EQ.ISYJ.AND.IVABS.EQ.IXABS) THEN
+            IF (ISYT==ISYJ.AND.IVABS==IXABS) THEN
               ITTOT=IT+NISH(ISYT)
               FTJ=FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+IJ)
               ATVXJ=TJVX+FTJ/DBLE(MAX(1,NACTEL))
@@ -241,7 +241,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case C'
       END IF
 
@@ -273,7 +273,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE) !NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) THEN
+        IF(NW==0) THEN
           NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
           Cycle
         END IF
@@ -396,7 +396,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case B'
       END IF
 
@@ -427,7 +427,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -469,8 +469,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ! BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
             SCL=Half
-            IF (ITABS.EQ.IVABS) SCL=SCL*Half
-            IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
+            IF (ITABS==IVABS) SCL=SCL*Half
+            IF (ILABS==IJABS) SCL=SCL*SQRTH
             BPTVJL=SCL*(TJVL+TLVJ)
 ! write element HP(ac,jl)
             IDX=ITGEU+NAS*(IJGEL-IISTA)
@@ -501,7 +501,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -543,8 +543,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ! BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
             SCL=Half
-            !IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
-            !IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
+            !IF (ITABS==IVABS) SCL=SCL*0.5D0
+            !IF (ILABS==IJABS) SCL=SCL*SQRTH
             BMTVJL=SCL*(TJVL-TLVJ)
 ! write element BM(tv,jl)
             IDX=ITGTU+NAS*(IJGTL-IISTA)
@@ -591,7 +591,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case F'
       END IF
 
@@ -622,7 +622,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -664,8 +664,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ! FP(tv,ac)=((at,cv)+(av,ct))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(a,c))
             SCL=0.5D0
-            IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
-            IF (IAABS.EQ.ICABS) SCL=SCL*SQRTH
+            IF (ITABS==IVABS) SCL=SCL*0.5D0
+            IF (IAABS==ICABS) SCL=SCL*SQRTH
             FPTVAC=SCL*(ATCV+AVCT)
 ! write element FP(tv,ac)
             IDX=ITGEU+NAS*(IAGEB-IISTA)
@@ -696,7 +696,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -738,8 +738,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ! FM(tv,ac)= -((at,cv)-(av,ct))/(2*SQRT(1+Kron(a,c))
             SCL=0.5D0
-            !IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
-            !IF (IAABS.EQ.ICABS) SCL=SCL*SQRTH
+            !IF (ITABS==IVABS) SCL=SCL*0.5D0
+            !IF (IAABS==ICABS) SCL=SCL*SQRTH
             FMTVAC=SCL*(AVCT-ATCV)
 ! write element FM(tv,ac)
             IDX=ITGTU+NAS*(IAGTB-IISTA)
@@ -786,7 +786,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case H'
       END IF
 
@@ -818,7 +818,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NIGEJ(ISYM)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -860,8 +860,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ! HP(ac,jl)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
             SCL=1.0D0
-            IF (IAABS.EQ.ICABS) SCL=SCL*SQRTH
-            IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
+            IF (IAABS==ICABS) SCL=SCL*SQRTH
+            IF (ILABS==IJABS) SCL=SCL*SQRTH
             HPACJL=SCL*(AJCL+ALCJ)
 ! write element HP(ac,jl)
             IDX=IAGEB+NAS*(IJGEL-IISTA)
@@ -892,7 +892,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NIGTJ(ISYM)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -984,7 +984,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
       DIMENSION NFIMOES(8)
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case D'
       END IF
 
@@ -1033,7 +1033,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1082,7 +1082,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
 ! now, dress with FIMO(a,j), only if T==V, so ISYT==ISYV, so if ISYM==1
-          IF (ISYM.EQ.1) THEN
+          IF (ISYM==1) THEN
             IATOT=IA+NISH(ISYA)+NASH(ISYA)
             FAJ=FIMO(NFIMOES(ISYA)+(IATOT*(IATOT-1))/2+IJ)
             ONEADD=FAJ*ACTINV
@@ -1164,7 +1164,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case E'
       END IF
 
@@ -1207,7 +1207,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1255,7 +1255,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               ALVJ=DDOT_(NV,BRABUF(IOFFAL),1,KETBUF(IOFFVJ),1)
 
 ! EP(v,ajl)=((aj,vl)+(al,vj))/SQRT(2+2*Kron(j,l))
-              IF (ILABS.EQ.IJABS) THEN
+              IF (ILABS==IJABS) THEN
                 SCL=0.5D0
               ELSE
                 SCL=SQRTH
@@ -1293,7 +1293,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1391,7 +1391,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case G'
       END IF
 
@@ -1434,7 +1434,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1482,7 +1482,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               CVAJ=DDOT_(NV,BRABUF(IOFFCV),1,KETBUF(IOFFAJ),1)
 
 C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
-              IF (IAABS.EQ.ICABS) THEN
+              IF (IAABS==ICABS) THEN
                 SCL=0.5D0
               ELSE
                 SCL=SQRTH
@@ -1520,7 +1520,7 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) Cycle
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
