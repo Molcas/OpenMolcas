@@ -10,31 +10,41 @@
 ************************************************************************
       SUBROUTINE RHSALL2(IVEC)
       use definitions, only: iwp, wp
-      USE CHOVEC_IO
-      use caspt2_global, only:iPrGlb
-      use caspt2_global, only: FIMO
+      use constants, only: Zero, One
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH
+      use caspt2_global, only:iPrGlb, FIMO
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
-      use ChoCASPT2
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM, NISH, NASH, NSSH, NASHT, NBTCHES,
+     &                         NBTCH, NAES, MUL
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: NASUP, NISUP
+#endif
+      IMPLICIT None
 * ----------------------------------------------------------------
 * Code for processing all the cholesky vectors
 * in construction of caspt2 right-hand-side array
 * Also form the active two-electron integrals 'TUVX'.
 * ================================================================
 #include "warnings.h"
-      integer(kind=iwp) IVEC
+      integer(kind=iwp), intent(in):: IVEC
 *
       integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
       integer(kind=iwp) nSh(8,3)
-#ifdef _DEBUGPRINT_
       integer(kind=iwp), SAVE :: NUMERR=0
-#endif
       real(kind=wp), allocatable:: TUVX(:), PIQK(:), BUFF(:),
      &                             BRA(:), KET(:)
       integer(kind=iwp),allocatable:: BGRP(:,:), IDXB(:)
+      integer(kind=iwp) IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK,
+     &                  iOffp, iOffQ, ISYI, ISYK, ISYP, ISYQ, JSYM,
+     &                  LBRASM, LKETSM, MXBGRP, MXPIQK, NADDBUF, NBGRP,
+     &                  nBra, NBRASM, NCHOBUF, NG1, NG2, NI, NK, nKet,
+     &                  NKETSM, NP, NPI, NQ, NQK, NTUVX, NV
+#ifdef _DEBUGPRINT_
+      real(kind=wp) DNRM2
+      real(kind=wp), external:: RHS_DDot
+      integer(kind=iwp) ISYM, lg_W, NAS, NIS, ICASE
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -75,7 +85,7 @@
       NG2=NG1**2
       NTUVX=NG2
       CALL mma_allocate(TUVX,NTUVX,Label='TUVX')
-      TUVX(:)=0.0D0
+      TUVX(:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -169,8 +179,8 @@
            WRITE(6,*) 'NPIQK larger than mxPIQK in TUVX, bug?'
            Call AbEnd()
          END IF
-         CALL DGEMM_('N','T',NPI,NQK,NV,1.0D0,KET(LBRASM),NPI,
-     &        KET(LKETSM),NQK,0.0D0,PIQK,NPI)
+         CALL DGEMM_('N','T',NPI,NQK,NV,One,KET(LBRASM),NPI,
+     &        KET(LKETSM),NQK,Zero,PIQK,NPI)
 *
          Call ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,
      &                TUVX,nTUVX,PIQK,NPI*NQK,NUMERR)
