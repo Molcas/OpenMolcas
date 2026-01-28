@@ -41,7 +41,7 @@
 #endif
 
 
-      IF (IPRGLB.GE.VERBOSE) THEN
+      IF (IPRGLB>=VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using special RHS on-demand algorithm,'
         WRITE(6,'(1X,A)') ' optimized for non-symmetric molecules'
       END IF
@@ -121,7 +121,7 @@
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case A'
       END IF
 
@@ -251,7 +251,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case C'
       END IF
 
@@ -404,7 +404,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case B'
       END IF
 
@@ -609,7 +609,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case F'
       END IF
 
@@ -812,7 +812,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       real(kind=wp), ALLOCATABLE :: AIBJ(:,:)
       real(kind=wp), parameter:: SQRT3=SQRT(Three), SQRTH=SQRT(Half)
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case H'
       END IF
 
@@ -974,7 +974,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
      &                  NBRABUF1, NBRABUF2, NKETBUF1, NKETBUF2, NV, NW
       real(kind=wp), external:: DDot_
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case D'
       END IF
 
@@ -1167,7 +1167,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case E'
       END IF
 
@@ -1405,7 +1405,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case G'
       END IF
 
