@@ -20,6 +20,7 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD(IVEC)
+      use definitions, only: iwp
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: verbose
 #ifdef _MOLCAS_MPP_
@@ -27,7 +28,8 @@
 #endif
       use EQSOLV
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT real(kind=wp) (A-H,O-Z)
+      integer(kind=iwp) , intent(in):: iVec
 
 
       IF (IPRGLB.GE.VERBOSE) THEN
@@ -68,8 +70,7 @@
       END DO
 #endif
 
-
-      END
+      END SUBROUTINE RHSOD
 
 
 ************************************************************************
@@ -78,6 +79,7 @@
 
 *|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
       SUBROUTINE RHSOD_A(IVEC)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
@@ -89,11 +91,11 @@
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      IMPLICIT real(kind=wp) (A-H,O-Z)
+      integer(kind=iwp) IVEC
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRA(:), KET(:)
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -191,11 +193,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL mma_deallocate(BRA)
       CALL mma_deallocate(KET)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_A
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_C(IVEC)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
@@ -207,11 +209,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      IMPLICIT real(kind=wp) (A-H,O-Z)
+      integer(kind=iwp) IVEC
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRA(:), KET(:)
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -331,11 +333,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL mma_deallocate(BRA)
       CALL mma_deallocate(KET)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_C
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_B(IVEC)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
@@ -346,11 +348,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      IMPLICIT real(kind=wp) (A-H,O-Z)
+      integer(kind=iwp) IVEC
 
-      INTEGER IOSYM(8,8)
-      REAL*8, ALLOCATABLE:: CHOBUF(:)
+      integer(kind=iwp) IOSYM(8,8)
+      real(kind=wp), ALLOCATABLE:: CHOBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -529,11 +531,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
       CALL mma_deallocate(CHOBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_B
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_F(IVEC)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
@@ -544,11 +546,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      IMPLICIT real(kind=wp) (A-H,O-Z)
+      integer(kind=iwp) IVEC
 
-      INTEGER IOSYM(8,8)
-      REAL*8, ALLOCATABLE:: CHOBUF(:)
+      integer(kind=iwp) IOSYM(8,8)
+      real(kind=wp), ALLOCATABLE:: CHOBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -726,11 +728,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
       CALL mma_deallocate(CHOBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_F
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_H(IVEC)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
@@ -741,11 +743,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      IMPLICIT real(kind=wp) (A-H,O-Z)
+      integer(kind=iwp) IVEC
 
-      INTEGER IOSYM(8,8)
-      REAL*8, ALLOCATABLE:: CHOBUF(:)
+      integer(kind=iwp) IOSYM(8,8)
+      real(kind=wp), ALLOCATABLE:: CHOBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -922,12 +924,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
       CALL mma_deallocate(CHOBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_H
 
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_D(IVEC)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
@@ -939,11 +941,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      IMPLICIT real(kind=wp) (A-H,O-Z)
+      integer(kind=iwp) IVEC
 
-      INTEGER IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
-      REAL*8, ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
+      integer(kind=iwp) IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8),
+     &                  IOKET2(8,8)
+      real(kind=wp), ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
      &                      BRABUF2(:), KETBUF2(:)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1106,11 +1109,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ************************************************************************
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_D
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_E(IVEC)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
@@ -1121,11 +1124,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      IMPLICIT real(kind=wp) (A-H,O-Z)
+      integer(kind=iwp) IVEC
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1147,7 +1150,7 @@ C EM(v,ajl)=((aj,vl)-(al,vj))*SQRT(3/2)
 * them. Instead, the code loops over symmetry blocks of A-JL and figures
 * out if the indices on the processor fall within a block or not. Within
 * a A-JL symmetry block, NA(ISYA) and NIGEJ(ISYJL) are known, so they can
-* be determined by integer division. This could be optimized by combining
+* be determined by integer(kind=iwp) division. This could be optimized by combining
 * it with loop peeling (on the todo list?).
 
       SQRTH=SQRT(0.5D0)
@@ -1335,11 +1338,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL mma_deallocate(BRABUF)
       CALL mma_deallocate(KETBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_E
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_G(IVEC)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
@@ -1350,11 +1353,11 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       use fake_GA, only: GA_Arrays
 #endif
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      IMPLICIT real(kind=wp) (A-H,O-Z)
+      integer(kind=iwp) IVEC
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1376,7 +1379,7 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
 * them. Instead, the code loops over symmetry blocks of J-AC and figures
 * out if the indices on the processor fall within a block or not. Within
 * a J-AC symmetry block, NJ(ISYJ) and NAGEB(ISYAC) are known, so they can
-* be determined by integer division. This could be optimized by combining
+* be determined by integer(kind=iwp) division. This could be optimized by combining
 * it with loop peeling (on the todo list?).
 
       SQRTH=SQRT(0.5D0)
@@ -1564,5 +1567,4 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
       CALL mma_deallocate(BRABUF)
       CALL mma_deallocate(KETBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_G
