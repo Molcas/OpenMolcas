@@ -367,22 +367,34 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_B_NOSYM(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use constants, only: Half
+      USE SUPERINDEX, only: MIGEJ, MIREL, MTGEU, MTREL, MIGTJ, MTGTU
+      USE CHOVEC_IO, only: NVTOT_ChoSym, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: nSym, nASup, nISup, NIGEJES, NTGEUES,
+     &                         Mul, nAsh, NIGTJES, NTGTUES
 
-      INTEGER IOSYM(8,8)
-      REAL*8, ALLOCATABLE:: CHOBUF(:)
-*      Logical Incore
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in) :: iVec
+
+      integer(kind=iwp) IOSYM(8,8)
+      real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), parameter:: SQRTH=SQRT(Half)
+      real(kind=wp) BMTVJL, BPTVJL, SCL, TJVL, TLVJ
+      integer(kind=iwp) IAEND, IASTA, iCASE, IDX, IIEND,
+     &              IISTA, IJ, IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT,
+     &              IL, ILABS, IOFFTJ, IOFFTL, IOFFVJ, IOFFVL, ISYJ,
+     &              ISYL, ISYM, ISYT, ISYV, IT, ITABS, ITGEU,
+     &              ITGEUTOT, ITGTU, ITGTUTOT, ITJ, ITL, IV, IVABS,
+     &              IVJ, IVL, lg_W, MW, NAS, NCHOBUF, NIS, NV, NW
+      real(kind=wp), external:: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -399,7 +411,6 @@ C   BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
 C   BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
 ************************************************************************
 
-      SQRTH=SQRT(0.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -461,8 +472,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             TLVJ=DDOT_(NV,CHOBUF(IOFFTL),1,CHOBUF(IOFFVJ),1)
 
 ! BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
-            SCL=0.5D0
-            IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
+            SCL=Half
+            IF (ITABS.EQ.IVABS) SCL=SCL*Half
             IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
             BPTVJL=SCL*(TJVL+TLVJ)
 ! write element HP(ac,jl)
@@ -536,7 +547,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             TLVJ=DDOT_(NV,CHOBUF(IOFFTL),1,CHOBUF(IOFFVJ),1)
 
 ! BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
-            SCL=0.5D0
+            SCL=Half
             !IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
             !IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
             BMTVJL=SCL*(TJVL-TLVJ)
@@ -560,8 +571,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
       CALL mma_deallocate(CHOBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_B_NOSYM
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_F_NOSYM(IVEC)
