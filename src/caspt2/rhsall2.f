@@ -155,11 +155,11 @@
        DO ISYI=1,NSYM
         NI=NASH(ISYI)
         iOffi=NAES(iSYI)
-        IF(NI.EQ.0) GOTO 115
+        IF(NI.EQ.0) Cycle
         ISYP=MUL(ISYI,JSYM)
         NP=NASH(ISYP)
         iOffp=NAES(iSYP)
-        IF(NP.EQ.0) GOTO 115
+        IF(NP.EQ.0) Cycle
         NPI=NP*NI
         NBRASM=NPI*NV
         LKETSM=1
@@ -167,11 +167,11 @@
         DO ISYK=1,NSYM
          NK=NASH(ISYK)
          iOffK=NAES(iSYK)
-         IF(NK.EQ.0) GOTO 112
+         IF(NK.EQ.0) Cycle
          ISYQ=MUL(ISYK,JSYM)
          NQ=NASH(ISYQ)
          iOffQ=NAES(iSYQ)
-         IF(NQ.EQ.0) GOTO 112
+         IF(NQ.EQ.0) Cycle
          NQK=NQ*NK
          NKETSM=NQK*NV
 *
@@ -186,10 +186,8 @@
      &                TUVX,nTUVX,PIQK,NPI*NQK,NUMERR)
 *
          LKETSM=LKETSM+NKETSM
- 112     CONTINUE
         END DO
         LBRASM=LBRASM+NBRASM
- 115    CONTINUE
        END DO
 *                                                                      *
 ************************************************************************
