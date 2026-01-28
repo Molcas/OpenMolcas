@@ -12,7 +12,7 @@
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       USE CHOVEC_IO, only: NVLOC_CHOBATCH
-      use caspt2_global, only:iPrGlb, FIMO
+      use caspt2_global, only:iPrGlb, FIMO, PIQK
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM, NISH, NASH, NSSH, NASHT, NBTCHES,
@@ -32,7 +32,7 @@
       integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
       integer(kind=iwp) nSh(8,3)
       integer(kind=iwp), SAVE :: NUMERR=0
-      real(kind=wp), allocatable:: TUVX(:), PIQK(:), BUFF(:),
+      real(kind=wp), allocatable:: TUVX(:), BUFF(:),
      &                             BRA(:), KET(:)
 
       integer(kind=iwp),allocatable:: BGRP(:,:), IDXB(:)
@@ -113,10 +113,12 @@
          WRITE(6,'(A,I12)') '  Number of batch groups:     ',NBGRP
          WRITE(6,*)
        END IF
+
 * buffers are kept allocated until the end of JSYM loop.
        CALL mma_allocate(PIQK,MXPIQK,Label='PIQK')
        CALL mma_allocate(BUFF,NADDBUF,Label='BUFF')
        CALL mma_allocate(IDXB,NADDBUF,Label='IDXB')
+
        CALL mma_allocate(BRA,NCHOBUF,Label='BRA')
        CALL mma_allocate(KET,NCHOBUF,Label='KET')
 *
@@ -207,7 +209,6 @@
       Call Process_RHS_Block(Inactive,Active,Active,Active,
      &                       'A ',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
      &                       BUFF,IDXB,nAddBuf,
      &                       nSh,JSYM,
      &                       IVEC,NV)
@@ -220,7 +221,6 @@
       Call Process_RHS_Block(Inactive,Active,Inactive,Active,
      &                       'B ',
      &                       BRA,nBra,BRA,nBra,
-     &                       PIQK,mxPIQK,
      &                       BUFF,IDXB,nAddBuf,
      &                       nSh,JSYM,
      &                       IVEC,NV)
@@ -242,7 +242,6 @@
       Call Process_RHS_Block(Inactive,Virtual,Active,Active,
      &                       'D1',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
      &                       BUFF,IDXB,nAddBuf,
      &                       nSh,JSYM,
      &                       IVEC,NV)
@@ -255,7 +254,6 @@
       Call Process_RHS_Block(Inactive,Virtual,Inactive,Virtual,
      &                       'H ',
      &                       BRA,nBra,BRA,nBra,
-     &                       PIQK,mxPIQK,
      &                       BUFF,IDXB,nAddBuf,
      &                       nSh,JSYM,
      &                       IVEC,NV)
@@ -276,7 +274,6 @@
       Call Process_RHS_Block(Active,Virtual,Active,Active,
      &                       'C ',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
      &                       BUFF,IDXB,nAddBuf,
      &                       nSh,JSYM,
      &                       IVEC,NV)
@@ -289,7 +286,6 @@
       Call Process_RHS_Block(Active,Virtual,Active,Virtual,
      &                       'F ',
      &                       BRA,nBra,BRA,nBra,
-     &                       PIQK,mxPIQK,
      &                       BUFF,IDXB,nAddBuf,
      &                       nSh,JSYM,
      &                       IVEC,NV)
@@ -310,7 +306,6 @@
       Call Process_RHS_Block(Active,Virtual,Inactive,Active,
      &                       'D2',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
      &                       BUFF,IDXB,nAddBuf,
      &                       nSh,JSYM,
      &                       IVEC,NV)
@@ -331,7 +326,6 @@
       Call Process_RHS_Block(Active,Virtual,Inactive,Virtual,
      &                       'G ',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
      &                       BUFF,IDXB,nAddBuf,
      &                       nSh,JSYM,
      &                       IVEC,NV)
@@ -360,7 +354,6 @@
       Call Process_RHS_Block(Inactive,Virtual,Inactive,Active,
      &                       'E ',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
      &                       BUFF,IDXB,nAddBuf,
      &                       nSh,JSYM,
      &                       IVEC,NV)
@@ -469,24 +462,25 @@ C      the case, symmetry, and rhs vector respectively.
       Subroutine Process_RHS_Block(ITI,ITP,ITK,ITQ,
      &                             Case,
      &                             Cho_Bra,nBra,Cho_Ket,nKet,
-     &                             PIQK,mxPIQK,
      &                             BUFF,idxBuff,nBUFF,
      &                             nSh,JSYM,
      &                             IVEC,NV)
       use definitions, only: iwp, wp
-      use caspt2_global, only:iPrGlb
+      use caspt2_global, only: iPrGlb, PIQK
       use PrintLevel, only: debug
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      integer(kind=iwp), Intent(In):: ITI,ITP,ITK,ITQ
+      integer(kind=iwp), Intent(in):: ITI,ITP,ITK,ITQ
       Character(LEN=2), intent(in)::  Case
-      integer(kind=iwp), intent(In):: nBra, nKet
-      real(kind=wp), intent(IN):: Cho_Bra(nBra), Cho_Ket(nKet)
-      real(kind=wp), intent(InOut):: BUFF(nBuff)
-      integer(kind=iwp) idxBuff(nBuff)
-      real(kind=wp), intent(inOut):: PIQK(mxPIQK)
+      integer(kind=iwp), intent(in):: nBra, nKet
+      real(kind=wp), intent(in):: Cho_Bra(nBra), Cho_Ket(nKet)
+      real(kind=wp), intent(inout):: BUFF(nBuff)
+      integer(kind=iwp), intent(inout):: idxBuff(nBuff)
+      integer(kind=iwp), intent(in):: nSh(8,3), JSYM
+      integer(kind=iwp), intent(in):: iVec, nV
 
-      integer(kind=iwp) nSh(8,3)
+      integer(kind=iwp) mxPIQK
+      mxPIQK=Size(PIQK)
 *
 *
       IF (iPrGlb.GE.DEBUG) THEN
