@@ -156,10 +156,10 @@ subroutine procinp_caspt2
 
 ! RHS algorithm selection
   if (Input%PRHS == '0') Input%PRHS = 'DEFAULT'
-  if (Input%PRHS == '1') Input%PRHS = 'CONVENT'
+  if (Input%PRHS == '1') Input%PRHS = 'OLD'
   if (Input%PRHS == '2') Input%PRHS = 'NEW'
   if (Input%PRHS == '3') Input%PRHS = 'DIRECT'  ! synonym of the DIREct keyword (undocumented)
-  if (Input%PRHS /= 'DEFAULT' .and. Input%PRHS /= 'CONVENT' .and. Input%PRHS /= 'NEW' .and. Input%PRHS /= 'DIRECT') then
+  if (Input%PRHS /= 'DEFAULT' .and. Input%PRHS /= 'OLD' .and. Input%PRHS /= 'NEW' .and. Input%PRHS /= 'DIRECT') then
     call WarningMessage(1,'The selected PRHS is not supported. Going to use the default strategy.')
     Input%PRHS = 'DEFAULT'
   end if

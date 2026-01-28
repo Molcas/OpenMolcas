@@ -202,7 +202,7 @@ module InputData
     !           and secondary orbital rotations. Development purpose
     Logical :: IAINVAR = .True.
     ! PRHS      Parallel strategy for RHS construction
-    !           '0' = 'DEFAULT', '1' = 'CONVENT', '2' = 'NEW', '3' = 'DIRECT'
+    !           '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
     Character(len=7) :: PRHS = 'DEFAULT'
 
   end type ! end of type InputTable
