@@ -28,6 +28,7 @@ use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: iRI_Type
 use Gateway_Info, only: UnNorm
+use Gateway_global, only: ExtBasDir
 use getline_mod, only: Quit_On_Error
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -372,7 +373,7 @@ else
 
     jShll = iShll
     dbsc(nCnttp)%Bsl_old = dbsc(nCnttp)%Bsl
-    call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,lSTDINP,.false.,.true.,' ')
+    call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,lSTDINP,.false.,.true.,ExtBasDir)
 
     dbsc(nCnttp)%Aux = .true.
     dbsc(nCnttp)%Charge = Zero

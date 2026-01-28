@@ -46,7 +46,7 @@ OrbAppear = Full
  &CASPT2
 MultiState = 3 1 2 3
 MaxIter = 20
-RHSD
+PRHS = Direct
 PROPerties
 
 ********************************************************************************
