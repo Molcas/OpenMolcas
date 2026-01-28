@@ -1414,7 +1414,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_G(IVEC)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
+      use constants, only: Half, OneHalf
+      USE SUPERINDEX, only: MAGEB, MAREL, MAGTB
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
@@ -1422,12 +1423,22 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT real(kind=wp) (A-H,O-Z)
+      use caspt2_module, only: NSYM, NASUP, NISUP, MUL, NISH, NAGEB,
+     &                         NAGEBES, NSSH, NAGTB, NAGTBES
+      IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
       real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      real(kind=wp), parameter :: SQRTH=SQRT(Half), SQRTA=SQRT(OneHalf)
+      real(kind=wp) AVCJ, CVAJ, GM, GP, SCL
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAABS, IAGEC, IAGECTOT, IAGTC, IAGTCTOT,
+     &                  IAJ, IAV, IC, ICABS, iCASE, ICJ, ICV, IDX, IJ,
+     &                  IJAGEC, IJAGECEND, IJAGECSTA, IJAGTC, IJAGTCEND,
+     &                  IJAGTCSTA, IOFF, IOFFAJ, IOFFAV, IOFFCJ, IOFFCV,
+     &                  ISYA, ISYAC, ISYC, ISYJ, ISYM, ISYV, IV, NAC,
+     &                  NBRABUF, NJ, NKETBUF, NV, NW
       real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
@@ -1453,8 +1464,6 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
 * be determined by integer(kind=iwp) division. This could be optimized by combining
 * it with loop peeling (on the todo list?).
 
-      SQRTH=SQRT(0.5D0)
-      SQRTA=SQRT(1.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -1527,7 +1536,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
               IF (IAABS==ICABS) THEN
-                SCL=0.5D0
+                SCL=Half
               ELSE
                 SCL=SQRTH
               END IF
