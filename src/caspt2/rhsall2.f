@@ -645,20 +645,31 @@ C-SVC: sanity check
 
       SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,NCHOBUF,NPIQK,NADDBUF)
       use definitions, only: iwp, wp
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only: iParRHS,iPrGlb,iStpGrd
       use PrintLevel, only: verbose
       use stdalloc, only: mma_MaxDBLE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_module
+      use caspt2_module, only: NSYM, NASHT, NISUP, NISH, MUL, NASH,
+     &                         NSSH, NTU, NTUV, NASH, NIGEJ, NIGTJ,
+     &                         NAGEB, NAGTB, NTGEU, NTGTU, NBTCHES,
+     &                         NBTCH
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: JSYM
       integer(kind=iwp), intent(out):: NBGRP
       integer(kind=iwp), intent(out):: LBGRP(2,*)
       integer(kind=iwp), intent(out) :: NCHOBUF,NPIQK,NADDBUF
 
+      integer(kind=iwp) IB, IB1, IB2, IBGRP, ICASE, ISYI, ISYK, ISYP,
+     &                  ISYQ, MAXBUFF, MAXCHOL, MAXPIQK, MINBUFF,
+     &                  MINCHOL, MINGOOD, MINNICE, MINPIQK, MINSLOW,
+     &                  MXAVAIL, MXBATCH, MXCHOVEC, MXNPITOT, MXRHS,
+     &                  NCHOVEC, NCHUNK, NI, NK, NP, NPI, NQ, NQK, NV,
+     &                  NVECTOT
+      integer(kind=iwp), external:: iPARDIV
       integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
       integer(kind=iwp) nSh(8,3)
       Logical(kind=iwp) :: call_from_grad
