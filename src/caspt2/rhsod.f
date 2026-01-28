@@ -362,7 +362,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_B(IVEC)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
+      use constants, only: Half
+      USE SUPERINDEX, only: MIGEJ, MIREL, MTGEU, MTREL, MIGTJ, MTREL,
+     &                      MTGTU
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
@@ -370,12 +372,23 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT real(kind=wp) (A-H,O-Z)
+      use caspt2_module, only: NSYM, NASUP, NISUP, NIGEJES, NTGEUES,
+     &                         MUL, NASH, NASH, NIGTJES, NTGTUES
+
+      IMPLICIT None
+
       integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOSYM(8,8)
       real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), parameter :: SQRTH=SQRT(Half)
+      real(kind=wp) BMTVJL, BPTVJL, SCL, TJVL, TLVJ
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  iCASE, IDX, IJ, IJABS, IJGEL, IJGELTOT, IJGTL,
+     &                  IJGTLTOT, IL, ILABS, IOFFTJ, IOFFTL, IOFFVJ,
+     &                  IOFFVL, ISYJ, ISYL, ISYM, ISYT, ISYV, IT, ITABS,
+     &                  ITGEU, ITGEUTOT, ITGTU, ITGTUTOT, ITJ, ITL, IV,
+     &                  IVABS, IVJ, IVL, NCHOBUF, NV, NW
       real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
@@ -394,7 +407,6 @@ C   BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
 C   BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
 ************************************************************************
 
-      SQRTH=SQRT(0.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -456,8 +468,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             TLVJ=DDOT_(NV,CHOBUF(IOFFTL),1,CHOBUF(IOFFVJ),1)
 
 ! BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
-            SCL=0.5D0
-            IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
+            SCL=Half
+            IF (ITABS.EQ.IVABS) SCL=SCL*Half
             IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
             BPTVJL=SCL*(TJVL+TLVJ)
 ! write element HP(ac,jl)
@@ -530,7 +542,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             TLVJ=DDOT_(NV,CHOBUF(IOFFTL),1,CHOBUF(IOFFVJ),1)
 
 ! BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
-            SCL=0.5D0
+            SCL=Half
             !IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
             !IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
             BMTVJL=SCL*(TJVL-TLVJ)
