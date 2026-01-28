@@ -1177,7 +1177,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_E(IVEC)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
+      use constants, only: Half, OneHalf
+      USE SUPERINDEX, only: MIGEJ, MIREL, MIGTJ
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
@@ -1185,12 +1186,24 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT real(kind=wp) (A-H,O-Z)
+      use caspt2_module, only: NSYM, NASUP, NISUP, MUL, NSSH, NIGEJ,
+     &                         NIGEJES, NASH, NIGTJ, NIGTJES
+
+      IMPLICIT None
+
       integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
       real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      real(kind=wp), parameter:: SQRTH=SQRT(Half), SQRTA=SQRT(OneHalf)
+      real(kind=wp) AJVL, ALVJ, EM, EP, SCL
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAJ, IAJGEL, IAJGELEND, IAJGELSTA, IAJGTL,
+     &                  IAJGTLEND, IAJGTLSTA, IAL, iCASE, IDX, IJ,
+     &                  IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL,
+     &                  ILABS, IOFF, IOFFAJ, IOFFAL, IOFFVJ, IOFFVL,
+     &                  ISYA, ISYJ, ISYJL, ISYL, ISYM, ISYV, IV, IVJ,
+     &                  IVL, NA, NBRABUF, NJL, NKETBUF, NV, NW
       real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
@@ -1215,9 +1228,6 @@ C EM(v,ajl)=((aj,vl)-(al,vj))*SQRT(3/2)
 * a A-JL symmetry block, NA(ISYA) and NIGEJ(ISYJL) are known, so they can
 * be determined by integer(kind=iwp) division. This could be optimized by combining
 * it with loop peeling (on the todo list?).
-
-      SQRTH=SQRT(0.5D0)
-      SQRTA=SQRT(1.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -1290,7 +1300,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ! EP(v,ajl)=((aj,vl)+(al,vj))/SQRT(2+2*Kron(j,l))
               IF (ILABS==IJABS) THEN
-                SCL=0.5D0
+                SCL=Half
               ELSE
                 SCL=SQRTH
               END IF
