@@ -570,7 +570,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_F(IVEC)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
+      use constants, only: Half
+      USE SUPERINDEX, only: MAGEB, MAREL, MTGEU, MTREL, MAGTB, MAREL,
+     &                      MTGTU
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
@@ -578,12 +580,23 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT real(kind=wp) (A-H,O-Z)
+      use caspt2_module, only: NSYM, NASUP, NISUP, NAGEBES, NTGEUES,
+     &                         MUL, NSSH, NAGTBES, NTGTUES
+
+      IMPLICIT None
+
       integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOSYM(8,8)
       real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), parameter :: SQRTH=SQRT(Half)
+      real(kind=wp) ATCV, AVCT, FMTVAC, FPTVAC, SCL
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAABS, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT,
+     &                  IAT, IAV, IC, ICABS, iCASE, ICT, ICV, IDX,
+     &                  IOFFAT, IOFFAV, IOFFCT, IOFFCV, ISYA, ISYC,
+     &                  ISYM, ISYT, ISYV, IT, ITABS, ITGEU, ITGEUTOT,
+     &                  ITGTU, ITGTUTOT, IV, IVABS, NCHOBUF, NV, NW
       real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
@@ -601,7 +614,6 @@ C FP(tv,ac)=((at,cv)+(av,ct))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(a,c))
 C FM(tv,ac)= -((at,cv)-(av,ct))/(2*SQRT(1+Kron(a,c))
 ************************************************************************
 
-      SQRTH=SQRT(0.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -663,8 +675,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             AVCT=DDOT_(NV,CHOBUF(IOFFAV),1,CHOBUF(IOFFCT),1)
 
 ! FP(tv,ac)=((at,cv)+(av,ct))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(a,c))
-            SCL=0.5D0
-            IF (ITABS==IVABS) SCL=SCL*0.5D0
+            SCL=Half
+            IF (ITABS==IVABS) SCL=SCL*Half
             IF (IAABS==ICABS) SCL=SCL*SQRTH
             FPTVAC=SCL*(ATCV+AVCT)
 ! write element FP(tv,ac)
@@ -737,7 +749,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             AVCT=DDOT_(NV,CHOBUF(IOFFAV),1,CHOBUF(IOFFCT),1)
 
 ! FM(tv,ac)= -((at,cv)-(av,ct))/(2*SQRT(1+Kron(a,c))
-            SCL=0.5D0
+            SCL=Half
             !IF (ITABS==IVABS) SCL=SCL*0.5D0
             !IF (IAABS==ICABS) SCL=SCL*SQRTH
             FMTVAC=SCL*(AVCT-ATCV)
