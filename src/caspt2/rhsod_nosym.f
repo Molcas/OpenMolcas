@@ -780,28 +780,37 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_H_NOSYM(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use constants, only: Zero, Half, One, Three
+      USE SUPERINDEX, only: MIGEJ, MAGEB, MIGTJ, MAGTB
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: NSSHT, NAGEB, NIGEJ, NAGTB, NIGTJ
 
-      INTEGER IOSYM(8,8)
-      REAL*8, ALLOCATABLE:: CHOBUF(:)
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) IOSYM(8,8)
+      real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp) AJCL, ALCJ, HMACJL, HPACJL, SCL
+      integer(kind=iwp) IA, IASTA, IAEND, IISTA, IIEND, MW, IAGEB,
+     &                  IAGTB, IC, iCASE, IDX, IJ, IJGEL, IJGTL, IL,
+     &                  lg_W, LIJOFF, LILOFF, NAS, NBLOCK, NCHOBUF,
+     &                  NIS, NV, NW
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER, PARAMETER :: NOSYM = 1
-      REAL*8, ALLOCATABLE :: AIBJ(:,:)
+      integer(kind=iwp), PARAMETER :: NOSYM = 1
+      real(kind=wp), ALLOCATABLE :: AIBJ(:,:)
+      real(kind=wp), parameter:: SQRT3=SQRT(Three), SQRTH=SQRT(Half)
 
       IF (iPrGlb.GE.DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case H'
@@ -813,11 +822,8 @@ C   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
 C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(3.0D0)
 ************************************************************************
 
-      SQRT3=SQRT(3.0D0)
-      SQRTH=SQRT(0.5D0)
-
       NV=NVTOT_CHOSYM(NOSYM)
-      ALLOCATE(AIBJ(NSSHT,NSSHT))
+      Call mma_ALLOCATE(AIBJ,NSSHT,NSSHT,Label='AIBJ')
       NBLOCK=NV*NSSHT
 
 ************************************************************************
@@ -848,15 +854,15 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         LILOFF=1+NBLOCK*(IL-1)
         ! precompute integral blocks
         CALL DGEMM_('T','N',NSSHT,NSSHT,NV,
-     &              1.0D0,CHOBUF(LIJOFF),NV,CHOBUF(LILOFF),NV,
-     &              0.0D0,AIBJ,NSSHT)
+     &              One,CHOBUF(LIJOFF),NV,CHOBUF(LILOFF),NV,
+     &              Zero,AIBJ,NSSHT)
         DO IAGEB=IASTA,IAEND ! these are always all elements
           IA=MAGEB(1,IAGEB)
           IC=MAGEB(2,IAGEB)
           AJCL=AIBJ(IA,IC)
           ALCJ=AIBJ(IC,IA)
 ! HP(ac,jl)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
-          SCL=1.0D0
+          SCL=One
           IF (IA.EQ.IC) SCL=SCL*SQRTH
           IF (IL.EQ.IJ) SCL=SCL*SQRTH
           HPACJL=SCL*(AJCL+ALCJ)
@@ -895,8 +901,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         LILOFF=1+NBLOCK*(IL-1)
         ! precompute integral blocks
         CALL DGEMM_('T','N',NSSHT,NSSHT,NV,
-     &              1.0D0,CHOBUF(LIJOFF),NV,CHOBUF(LILOFF),NV,
-     &              0.0D0,AIBJ,NSSHT)
+     &              One,CHOBUF(LIJOFF),NV,CHOBUF(LILOFF),NV,
+     &              Zero,AIBJ,NSSHT)
         DO IAGTB=IASTA,IAEND ! these are always all elements
           IA=MAGTB(1,IAGTB)
           IC=MAGTB(2,IAGTB)
@@ -924,7 +930,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
       CALL mma_deallocate(CHOBUF)
 
-      DEALLOCATE(AIBJ)
+      call mma_DEALLOCATE(AIBJ)
 
       END SUBROUTINE RHSOD_H_NOSYM
 
