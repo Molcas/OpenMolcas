@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RHSALL2(IVEC)
+      use definitions, only: iwp, wp
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
@@ -24,15 +25,16 @@
 * Also form the active two-electron integrals 'TUVX'.
 * ================================================================
 #include "warnings.h"
-      Integer IVEC
+      integer(kind=iwp) IVEC
 *
-      Integer, Parameter :: Inactive=1, Active=2, Virtual=3
-      Integer nSh(8,3)
+      integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
+      integer(kind=iwp) nSh(8,3)
 #ifdef _DEBUGPRINT_
-      INTEGER, SAVE :: NUMERR=0
+      integer(kind=iwp), SAVE :: NUMERR=0
 #endif
-      Real*8, allocatable:: TUVX(:), PIQK(:), BUFF(:), BRA(:), KET(:)
-      Integer,allocatable:: BGRP(:,:), IDXB(:)
+      real(kind=wp), allocatable:: TUVX(:), PIQK(:), BUFF(:),
+     &                             BRA(:), KET(:)
+      integer(kind=iwp),allocatable:: BGRP(:,:), IDXB(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -419,12 +421,14 @@ C      the case, symmetry, and rhs vector respectively.
       Subroutine Get_Cholesky_Vectors(ITK,ITQ,JSYM,
      &                                Array,nArray,
      &                                IBSTA,IBEND)
+      use definitions, only: iwp, wp
       USE CHOVEC_IO
       use caspt2_global, only: LUDRA
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8  Array(*)
+      real(kind=wp)  Array(*)
 
+      integer(kind=iwp) ICASE
       ! ugly hack to convert separate k/q orbital types into a specific
       ! case
       ICASE=ITK*ITQ
@@ -448,8 +452,8 @@ C      the case, symmetry, and rhs vector respectively.
       END DO
       nArray=LKETSM-1
 *
-      Return
-      End
+      End Subroutine Get_Cholesky_Vectors
+
       Subroutine Process_RHS_Block(ITI,ITP,ITK,ITQ,
      &                             Case,
      &                             Cho_Bra,nBra,Cho_Ket,nKet,
@@ -457,14 +461,16 @@ C      the case, symmetry, and rhs vector respectively.
      &                             BUFF,idxBuff,nBUFF,
      &                             nSh,JSYM,
      &                             IVEC,NV)
+      use definitions, only: iwp, wp
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
-      DIMENSION BUFF(nBuff),idxBuff(nBuff),PIQK(mxPIQK)
-      Integer nSh(8,3)
-      Character Case*2
+      real(kind=wp) Cho_Bra(nBra), Cho_Ket(nKet)
+      real(kind=wp) BUFF(nBuff), PIQK(mxPIQK)
+      integer(kind=iwp) idxBuff(nBuff)
+      integer(kind=iwp) nSh(8,3)
+      Character(LEN=2) Case
 *
 *
       IF (iPrGlb.GE.DEBUG) THEN
@@ -586,13 +592,15 @@ C-SVC: sanity check
  125    CONTINUE
       END DO
 *
-      Return
-      End
+      End Subroutine Process_RHS_Block
+
       Subroutine ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,
      &                   TUVX,nTUVX,PIQK,nPIQK,
      &                   NUMERR)
+      use definitions, only: iwp, wp
       Implicit Real*8 (A-H,O-Z)
-      Real*8 TUVX(nTUVX), PIQK(nPIQK)
+      integer(kind=iwp), intent(in):: nTUVX, nPIQK
+      real(kind=wp) TUVX(nTUVX), PIQK(nPIQK)
 *
 * Add into correct positions in TUVX:
 *
@@ -631,10 +639,11 @@ C-SVC: sanity check
          END DO
       END DO
 *
-      Return
-      End
+      End Subroutine ADDTUVX
+
       SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,
      &                           NCHOBUF,NPIQK,NADDBUF)
+      use definitions, only: iwp, wp
       USE CHOVEC_IO
       use caspt2_global, only:iPrGlb,iStpGrd
       use PrintLevel, only: verbose
@@ -644,12 +653,11 @@ C-SVC: sanity check
 #endif
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION LBGRP(2,NBGRP)
-      Integer Active, Inactive, Virtual
-      Parameter (Inactive=1, Active=2, Virtual=3)
-      Integer nSh(8,3)
-      DIMENSION ITYPE(4,9)
-      Logical :: call_from_grad
+      integer(kind=iwp) LBGRP(2,NBGRP)
+      integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
+      integer(kind=iwp) nSh(8,3)
+      Logical(kind=iwp) :: call_from_grad
+      integer(kind=iwp) ITYPE(4,9)
       DATA ITYPE /
      &  Inactive,Active,Active,Active,
      &  Inactive,Active,Inactive,Active,
@@ -660,6 +668,7 @@ C-SVC: sanity check
      &  Active,Virtual,Inactive,Active,
      &  Active,Virtual,Inactive,Virtual,
      &  Inactive,Virtual,Inactive,Active /
+      integer(kind=iwp) ISYM
 
       Call ICopy(NSYM,NISH,1,nSh(1,Inactive),1)
       Call ICopy(NSYM,NASH,1,nSh(1,Active  ),1)
