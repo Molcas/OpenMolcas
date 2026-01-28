@@ -777,7 +777,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_H(IVEC)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
+      use constants, only: Half, One, Three
+      USE SUPERINDEX, only: MIGEJ, MIREL, MAGEB, MAREL, MIGTJ, MAGTB
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
@@ -785,12 +786,24 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT real(kind=wp) (A-H,O-Z)
+      use caspt2_module, only: NSYM, NAGEB, NIGEJ, NIGEJES, NAGEBES,
+     &                         MUL, NSSH, NAGTB, NIGTJ, NIGTJES,
+     &                         NAGTBES
+
+      IMPLICIT None
+
       integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOSYM(8,8)
       real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), parameter:: SQRT3=SQRT(Three), SQRTH=SQRT(Half)
+      real(kind=wp) :: AJCL, ALCJ, HMACJL, HPACJL, SCL
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAABS, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT,
+     &                  IAJ, IAL, IC, ICABS, iCASE, ICJ, ICL, IDX, IJ,
+     &                  IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL,
+     &                  ILABS, IOFFAJ, IOFFAL, IOFFCJ, IOFFCL, ISYA,
+     &                  ISYC, ISYJ, ISYL, ISYM, NCHOBUF, NV, NW
       real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
@@ -807,9 +820,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 C   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
 C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(3.0D0)
 ************************************************************************
-
-      SQRT3=SQRT(3.0D0)
-      SQRTH=SQRT(0.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -871,7 +881,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             ALCJ=DDOT_(NV,CHOBUF(IOFFAL),1,CHOBUF(IOFFCJ),1)
 
 ! HP(ac,jl)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
-            SCL=1.0D0
+            SCL=One
             IF (IAABS==ICABS) SCL=SCL*SQRTH
             IF (ILABS==IJABS) SCL=SCL*SQRTH
             HPACJL=SCL*(AJCL+ALCJ)
