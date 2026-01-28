@@ -19,7 +19,8 @@ use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, An
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
                                 Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
-                                ScrFac, OptMeth, ChargeType
+                                ScrFac, OptMeth, ChargeType, LocOrb,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
+                                Freeze
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
@@ -29,11 +30,9 @@ use Constants, only: Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iPL, istatus, iSym, j, LocOrb
+integer(kind=iwp) :: i, iPL, istatus, iSym, j
 character(len=180) :: Key, Line
-logical(kind=iwp) :: Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef, Freeze
 integer(kind=iwp), parameter :: Occupied = 0, Virtual = 1, AllOrb = 2
-real(kind=wp), parameter :: ThrsDef = 1.0e-6_wp, ThrRotDef = 1.0e-10_wp, ThrGradDef = 1.0e-2_wp
 character(len=*), parameter :: SecNam = 'Readinp_localisation'
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 character(len=180), external :: Get_Ln
@@ -49,62 +48,14 @@ call RdNLst(LuSpool,'LOCALISATION')
 ! Get print level
 
 iPL = iPrintLevel(-1)
-
-! Default Parameters
-
-do iSym=1,nSym
-  nOrb2Loc(iSym) = 0
-  nFro(iSym) = 0
-  nConstr(iSym) = 0
-end do
-Skip = .false.
-LocOrb = Occupied
-!LocVir = .false.
-Thrs_UsrDef = .false.
-nOrb2Loc_UsrDef = .false.
-nFro_UsrDef = .false.
-Freeze = .false.
-Maximisation = .true.
-ChoStart = .false.
 if (iPL < 3) then
   Silent = .true.
 else
   Silent = .false.
 end if
-LocModel = 1  ! Pipek-Mezey localisation
-OptMeth = 1 ! PM localisation done with Jacobi Sweeps
-ChargeType = 1 ! PM localisation done within the Mulliken population framework
-if (nSym > 1) LocModel = 3  ! Cholesky localisation
-LocModel_UsrDef = .false.
-Test_Localisation = .false.
-NMxIter = 300
-Thrs = ThrsDef
-ThrRot = ThrRotDef
-ThrGrad = ThrGradDef
-Analysis = .false.
-AnaAtom = nSym == 1
-AnaNrm = 'Fro'
-PrintMOs = .true.
-Timing = .true.
-EvalER = .false.
-Order = .false.
-LocPAO = .false.
-AnaPAO = .false.
-AnaPAO_Save = AnaPAO
-DoDomain = .false.
-AnaDomain = .false.
-ThrDomain(1) = 0.9_wp
-ThrDomain(2) = 2.0e-2_wp
-ThrPairDomain(1) = 1.0e-10_wp
-ThrPairDomain(2) = Ten
-ThrPairDomain(3) = 15.0_wp
-LocNatOrb = .false.
-LocCanOrb = .false.
-Wave = .false.
-iWave = 0
-DoCNOs = .false.
 
-! End Default Parameters
+! set default parameters
+call localisation_init()
 
 do
   Key = Get_Ln(LuSpool)
@@ -624,5 +575,66 @@ subroutine Error()
   write(u6,*) ' atoms in keyword LOCN'
   call Abend()
 end subroutine Error
-
 end subroutine Readinp_localisation
+
+subroutine localisation_init()
+use Localisation_globals, only: nSym, nOrb2Loc, nFro, nConstr, Skip, LocOrb, Thrs_UsrDef, nOrb2Loc_UsrDef, nFro_UsrDef, Freeze,&
+                                Maximisation, ChoStart, LocModel, OptMeth, ChargeType, LocModel_UsrDef,Test_Localisation, &
+                                NMxIter, Thrs, ThrRot, ThrGrad, Analysis, AnaAtom, AnaNrm, PrintMOs, Timing, EvalER, Order,&
+                                LocPAO, AnaPAO, AnaPAO_Save, DoDomain, AnaDomain, ThrDomain, ThrPairDomain, LocNatOrb, &
+                                LocCanOrb, Wave, iWave, DoCNOs
+use definitions, only: iwp, wp
+use constants, only: Ten
+
+implicit none
+integer(kind=iwp) :: iSym
+integer(kind=iwp), parameter :: Occupied = 0
+real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, ThrRotDef=1.0e-10_wp, ThrGradDef=1.0e-2_wp
+
+do iSym=1,nSym
+  nOrb2Loc(iSym) = 0
+  nFro(iSym) = 0
+  nConstr(iSym) = 0
+end do
+Skip = .false.
+LocOrb = Occupied
+Thrs_UsrDef = .false.
+nOrb2Loc_UsrDef = .false.
+nFro_UsrDef = .false.
+Freeze = .false.
+Maximisation = .true.
+ChoStart = .false.
+LocModel = 1  ! Pipek-Mezey localisation
+OptMeth = 1 ! PM localisation done with Jacobi Sweeps
+ChargeType = 1 ! PM localisation done within the Mulliken population framework
+if (nSym > 1) LocModel = 3  ! Cholesky localisation
+LocModel_UsrDef = .false.
+Test_Localisation = .false.
+NMxIter = 300
+Thrs = ThrsDef
+ThrRot = ThrRotDef
+ThrGrad = ThrGradDef
+Analysis = .false.
+AnaAtom = nSym == 1
+AnaNrm = 'Fro'
+PrintMOs = .true.
+Timing = .true.
+EvalER = .false.
+Order = .false.
+LocPAO = .false.
+AnaPAO = .false.
+AnaPAO_Save = AnaPAO
+DoDomain = .false.
+AnaDomain = .false.
+ThrDomain(1) = 0.9_wp
+ThrDomain(2) = 2.0e-2_wp
+ThrPairDomain(1) = 1.0e-10_wp
+ThrPairDomain(2) = Ten
+ThrPairDomain(3) = 15.0_wp
+LocNatOrb = .false.
+LocCanOrb = .false.
+Wave = .false.
+iWave = 0
+DoCNOs = .false.
+end subroutine localisation_init
+
