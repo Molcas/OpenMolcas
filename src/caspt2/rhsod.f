@@ -209,7 +209,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_C(IVEC)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
+      use constants, only: Zero
+      USE SUPERINDEX, only: MTUV, MTREL, KTUV
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
@@ -218,12 +219,20 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT real(kind=wp) (A-H,O-Z)
+      use caspt2_module, only: NACTEL, NASHT, NSYM, NASUP, NISUP,
+     &                         NTUVES, MUL, NSSH, NASH, NISH, NAES,
+     &                         NORB
+      IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
       real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
+      real(kind=wp) ADDONE, ATVX, FAT, SUMU
+      integer(kind=iwp) IA, NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND,
+     &                  MW, IAT, IATOT, ICASE, IDX, IOFFAT, IOFFVX,
+     &                  ISYA, ISYM, ISYT, ISYV, ISYX, IT, ITABS, ITTOT,
+     &                  ITVV, ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS,
+     &                  IVX, IX, IXABS, NBRA, NFIMOES, NKET, NV, NW
       real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -305,7 +314,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
           DO IT=1,NASH(ISYM)
             ITTOT=IT+NISH(ISYM)
             FAT=FIMO(NFIMOES+(IATOT*(IATOT-1))/2+ITTOT)
-            SUMU=0.0D0
+            SUMU=Zero
             ITABS=NAES(ISYM)+IT
             DO IUABS=1,NASHT
               IUUT=KTUV(IUABS,IUABS,ITABS)-NTUVES(ISYM)
