@@ -1138,12 +1138,12 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
+      use caspt2_module, only: NSYM, NASUP, NISUP, MUL, NSSH, NIGEJ,
+     &                         NASH, NIGEJES, NIGTJ, NIGTJES
 
       IMPLICIT None
 
