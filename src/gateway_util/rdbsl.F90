@@ -13,6 +13,7 @@
 !               Valera Veryazov                                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Rdbsl(BasDir,BSLbl,bType,nCGTO,mCGTO,lAng,lCGTO,lUnit,iAtmNr,BasisTypes,ExtBasDir)
 !***********************************************************************
 ! Object: Decode the basis set label and read the basis set            *
