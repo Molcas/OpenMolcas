@@ -59,7 +59,7 @@ C update the disk address in IOFFRHS
       SUBROUTINE RHS_FPRINT(CTYPE,IVEC)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero
-      use caspt2_module
+      use caspt2_module, only: NSYM, NASUP, NINDEP, NISUP
       IMPLICIT None
 
       integer(kind=iwp), Intent(in):: IVEC
