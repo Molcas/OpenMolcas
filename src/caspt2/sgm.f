@@ -130,55 +130,51 @@ C ICASE1= 1
 C ICASE2= 2
 
 C  A&BP One-el
-        LLST1=LLIST(ISYM1,ISYM2,12)
         NLST1=NLIST(ISYM1,ISYM2,12)
-        IF(NLST1.NE.0) THEN
+        NLST2=NLIST(ISYM1,ISYM2,14)
+        IF(NLST1*NLST2/=0) THEN
+          LLST1=LLIST(ISYM1,ISYM2,12)
           VAL1(1)=One
           VAL1(2)=Two
           LLST2=LLIST(ISYM1,ISYM2,14)
-          NLST2=NLIST(ISYM1,ISYM2,14)
-          IF(NLST2.NE.0) THEN
-            VAL2(1)=One
-            VAL2(2)=SQR2
-            IXTI=1
-            INCX1=1
-            INCX2=NASH(ISYM1)
-            INCF1=NISH(ISYM12)
-            INCF2=1
-            IY=1
-            INCY1=1
-            INCY2=NTGEU(ISYM2)
-            CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                  X1(IXTI),
-     &                  FIT(ISYM12)%A,
-     &                  GA_Arrays(lg_Y)%A(IY))
-          END IF
+          VAL2(1)=One
+          VAL2(2)=SQR2
+          IXTI=1
+          INCX1=1
+          INCX2=NASH(ISYM1)
+          INCF1=NISH(ISYM12)
+          INCF2=1
+          IY=1
+          INCY1=1
+          INCY2=NTGEU(ISYM2)
+          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &                X1(IXTI),
+     &                FIT(ISYM12)%A,
+     &                GA_Arrays(lg_Y)%A(IY))
         END IF
 
 C  A&BP Two-el
-        LLST1=LLIST(ISYM1,ISYM2, 3)
         NLST1=NLIST(ISYM1,ISYM2, 3)
-        IF(NLST1.NE.0) THEN
+        NLST2=NLIST(ISYM1,ISYM2,14)
+        IF(NLST1*NLST2/=0) THEN
+          LLST1=LLIST(ISYM1,ISYM2, 3)
           VAL1(1)=-One
           VAL1(2)=-Two
           LLST2=LLIST(ISYM1,ISYM2,14)
-          NLST2=NLIST(ISYM1,ISYM2,14)
-          IF(NLST2.NE.0) THEN
-            VAL2(1)=One
-            VAL2(2)=SQR2
-            IX=1
-            INCX1=1
-            INCX2=NTUV(ISYM1)
-            INCF1=NISH(ISYM12)
-            INCF2=1
-            IY=1
-            INCY1=1
-            INCY2=NTGEU(ISYM2)
-            CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                  X2(IX),
-     &                  FIT(ISYM12)%A,
-     &                  GA_Arrays(lg_Y)%A(IY))
-          END IF
+          VAL2(1)=One
+          VAL2(2)=SQR2
+          IX=1
+          INCX1=1
+          INCX2=NTUV(ISYM1)
+          INCF1=NISH(ISYM12)
+          INCF2=1
+          IY=1
+          INCY1=1
+          INCY2=NTGEU(ISYM2)
+          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &                X2(IX),
+     &                FIT(ISYM12)%A,
+     &                GA_Arrays(lg_Y)%A(IY))
         END IF
 C  -----------------------------------------------
       CASE (2)
@@ -186,63 +182,59 @@ C ICASE1= 1
 C ICASE2= 3
 
 C A&BM One-el
-        LLST1=LLIST(ISYM1,ISYM2,13)
         NLST1=NLIST(ISYM1,ISYM2,13)
-        IF(NLST1.NE.0) THEN
+        NLST2=NLIST(ISYM1,ISYM2,15)
+        IF(NLST1*NLST2/=0) THEN
+          LLST1=LLIST(ISYM1,ISYM2,13)
           VAL1(1)= Three
           VAL1(2)=-Three
           LLST2=LLIST(ISYM1,ISYM2,15)
-          NLST2=NLIST(ISYM1,ISYM2,15)
-          IF(NLST2.NE.0) THEN
 * Original:
-*           VAL2(1)=-One
-*           VAL2(2)= One
+*         VAL2(1)=-One
+*         VAL2(2)= One
 * Fix for sign error noted by Takeshi, May 2015:
-            VAL2(1)= One
-            VAL2(2)=-One
-            IXTI=1
-            INCX1=1
-            INCX2=NASH(ISYM1)
-            INCF1=NISH(ISYM12)
-            INCF2=1
-            IY=1
-            INCY1=1
-            INCY2=NTGTU(ISYM2)
-            CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                  X1(IXTI),
-     &                  FIT(ISYM12)%A,
-     &                  GA_Arrays(lg_Y)%A(IY))
-          END IF
+          VAL2(1)= One
+          VAL2(2)=-One
+          IXTI=1
+          INCX1=1
+          INCX2=NASH(ISYM1)
+          INCF1=NISH(ISYM12)
+          INCF2=1
+          IY=1
+          INCY1=1
+          INCY2=NTGTU(ISYM2)
+          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &                X1(IXTI),
+     &                FIT(ISYM12)%A,
+     &                GA_Arrays(lg_Y)%A(IY))
         END IF
 
 C A&BM Two-el
-        LLST1=LLIST(ISYM1,ISYM2, 4)
         NLST1=NLIST(ISYM1,ISYM2, 4)
-        IF(NLST1.NE.0) THEN
+        NLST2=NLIST(ISYM1,ISYM2,15)
+        IF(NLST1*NLST2/=0) THEN
+          LLST1=LLIST(ISYM1,ISYM2, 4)
           VAL1(1)=-One
           VAL1(2)= One
           LLST2=LLIST(ISYM1,ISYM2,15)
-          NLST2=NLIST(ISYM1,ISYM2,15)
-          IF(NLST2.NE.0) THEN
 * Original:
-*           VAL2(1)=-One
-*           VAL2(2)= One
+*         VAL2(1)=-One
+*         VAL2(2)= One
 * Fix for sign error noted by Takeshi, May 2015:
-            VAL2(1)= One
-            VAL2(2)=-One
-            IX=1
-            INCX1=1
-            INCX2=NTUV(ISYM1)
-            INCF1=NISH(ISYM12)
-            INCF2=1
-            IY=1
-            INCY1=1
-            INCY2=NTGTU(ISYM2)
-            CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                  X2(IX),
-     &                  FIT(ISYM12)%A,
-     &                  GA_Arrays(lg_Y)%A(IY))
-          END IF
+          VAL2(1)= One
+          VAL2(2)=-One
+          IX=1
+          INCX1=1
+          INCX2=NTUV(ISYM1)
+          INCF1=NISH(ISYM12)
+          INCF2=1
+          IY=1
+          INCY1=1
+          INCY2=NTGTU(ISYM2)
+          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &                X2(IX),
+     &                FIT(ISYM12)%A,
+     &                GA_Arrays(lg_Y)%A(IY))
         END IF
 C  -----------------------------------------------
       CASE (3)
