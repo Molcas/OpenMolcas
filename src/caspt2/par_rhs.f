@@ -508,8 +508,11 @@ CSVC: this routine reads an RHS array in SR format from disk
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE_C (lg_W,iCASE,iSYM,iVEC)
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp
+      use caspt2_module, only: NASUP, NISUP
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: lg_W,iCASE,iSYM,iVEC
+      integer(kind=iwp) NAS, NIS
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_SAVE (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
@@ -517,8 +520,11 @@ CSVC: this routine reads an RHS array in SR format from disk
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE_SR (lg_W,iCASE,iSYM,iVEC)
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp
+      use caspt2_module, only: NINDEP, NISUP
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: lg_W,iCASE,iSYM,iVEC
+      integer(kind=iwp) NIN, NIS
       NIN=NINDEP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_SAVE (NIN,NIS,lg_W,ICASE,ISYM,IVEC)
