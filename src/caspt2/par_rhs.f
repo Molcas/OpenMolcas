@@ -474,7 +474,7 @@ Cmatching part of a replicate array.
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ_C (lg_W,iCASE,iSYM,iVEC)
       use definitions, only: iwp
-      use caspt2_module
+      use caspt2_module, only: NASUP, NISUP
       IMPLICIT None
       integer(kind=iwp), Intent(In):: lg_W,iCASE,iSYM,iVEC
       integer(kind=iwp) NAS,NIS
