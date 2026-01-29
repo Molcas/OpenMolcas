@@ -187,13 +187,19 @@ CSVC: Destroy the global array
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_DISTRIBUTION (NAS,NIS,iLo,iHi,jLo,jHi)
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), intent(in) :: NAS,NIS
+      integer(kind=iwp), intent(out) :: iLo,iHi,jLo,jHi
+
+
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      integer(kind=iwp) MYRANK, NPROCS, NBASE, NREST
 #endif
 
       iLo=1
