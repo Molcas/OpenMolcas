@@ -631,21 +631,26 @@ CSVC: global array RHS matrix expects 2 index buffers
 CSVC: FIXME: this temporary routine copies the RHS arrays from DRAs to
 C     LUSOLV and should be removed once the full parallelization is in
 C     place and transition is no longer needed.
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+      use definitions, only: u6
 #endif
-      use caspt2_global, only: IDSCT
-      use caspt2_global, only: LUSOLV
-      use EQSOLV
+      use caspt2_global, only: IDSCT, LUSOLV
+      use EQSOLV, only: MXSCT
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: MXCASE
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NAS,NIS,iCASE,iSYM,iVEC
+
+      integer(kind=iwp) IDISK, lg_W
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 *     LOGICAL bStat
-      Real*8, allocatable:: TMPW(:)
+      real(kind=wp), allocatable:: TMPW(:)
+      integer(kind=iwp) iMax, NCOL, NW, ISTA, IEND
 #endif
 
 CSVC: Read the global array from disk
@@ -668,7 +673,7 @@ C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
           iMax=MIN(NINT(0.95D0*iMax),134217728)
           NCOL=MIN(iMAX,NAS*NIS)/NAS
           IF (NCOL.LE.0) THEN
-            WRITE(6,*) 'Not enough memory in DRA2SOLV, aborting...'
+            WRITE(u6,*) 'Not enough memory in DRA2SOLV, aborting...'
             CALL AbEnd()
           END IF
           NW=NAS*NCOL
