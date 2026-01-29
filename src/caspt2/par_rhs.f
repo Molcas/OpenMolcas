@@ -536,6 +536,7 @@ CSVC: this routine reads an RHS array in SR format from disk
 CSVC: this routine reads an RHS array in SR format from disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use definitions, only: u6
 #endif
       use caspt2_global, only: LURHS
       use fake_GA, only: GA_Arrays
@@ -556,7 +557,7 @@ CSVC: this routine reads an RHS array in SR format from disk
         IF (IEND-ISTA+1.EQ.NIN .AND. ISTA.GT.0) THEN
           CALL GA_Access (lg_W,ISTA,IEND,JSTA,JEND,mpt_W,LDW)
           IF (LDW.NE.NIN) THEN
-            WRITE(6,*) 'RHS_SAVE: Assumption NIN==LDW wrong'
+            WRITE(u6,*) 'RHS_SAVE: Assumption NIN==LDW wrong'
             CALL AbEnd()
           END IF
           NWPROC=NIN*(JEND-JSTA+1)
@@ -580,18 +581,25 @@ CSVC: this routine reads an RHS array in SR format from disk
       SUBROUTINE RHS_SCATTER (LDW,lg_W,Buff,idxW,nBuff)
 CSVC: this routine scatters + adds values of a buffer array into the RHS
 C     array at positions given by the buffer index array.
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       use fake_GA, only: GA_Arrays
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8 Buff(nBuff)
-      Integer idxW(nBuff)
+      IMPLICIT None
+      Integer(kind=iwp), intent(in):: LDW,lg_W,nBuff
+      real(kind=wp), intent(in):: Buff(nBuff)
+      Integer(kind=iwp), intent(in):: idxW(nBuff)
+
+      Integer(kind=iwp) I
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      Integer, allocatable:: TMPW1(:), TMPW2(:)
+      Integer(kind=iwp), allocatable:: TMPW1(:), TMPW2(:)
+#else
+#include "macros.fh"
+      unused_var(LDW)
 #endif
 
 #ifdef _MOLCAS_MPP_
@@ -614,11 +622,6 @@ CSVC: global array RHS matrix expects 2 index buffers
         END DO
 #ifdef _MOLCAS_MPP_
       END IF
-#endif
-
-#ifndef _MOLCAS_MPP_
-C Avoid unused argument warnings
-      IF (.FALSE.) Call Unused_integer(LDW)
 #endif
 
       END SUBROUTINE RHS_SCATTER
