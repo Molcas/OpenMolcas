@@ -17,22 +17,29 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR,nMidV)
+      use definitions, only: iwp, wp, u6
       use gugx, only: SGS, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Integer, Intent(In):: nMidV
-      DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
-      DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      DIMENSION CI(*)
-      CHARACTER(LEN=256) LINE
-      CHARACTER(LEN=1) CODE(0:3)
-      DATA CODE /'0','u','d','2'/
+      use caspt2_module, only: NSYM, ISPIN, PRSD, MUL
+      use pt2_guga, only: MxLev
+      IMPLICIT None
+      Integer(kind=iwp), Intent(In):: ISYCI, nMidV
+      integer(kind=iwp), intent(in):: NOCSF(NSYM,NMIDV,NSYM),
+     &                                IOCSF(NSYM,NMIDV,NSYM)
+      integer(kind=iwp), intent(in):: NOW(2,NSYM,NMIDV),
+     &                                IOW(2,NSYM,NMIDV)
+      real(kind=wp), intent(in):: CI(*), THR
 
-      INTEGER ICS(MXLEV)
-      Integer :: nLev, nIpWlk
-      INTEGER, ALLOCATABLE:: LEX(:)
+      CHARACTER(LEN=256) LINE
+      CHARACTER(LEN=1) :: CODE(0:3)=['0','u','d','2']
+      integer(kind=iwp) ICS(MXLEV)
+      integer(kind=iwp) :: nLev, nIpWlk
+      integer(kind=iwp), ALLOCATABLE:: LEX(:)
+      real(kind=wp) COEF
+      integer(kind=iwp) IC1, ICDPOS, ICDWN, ICONF, ICUP, ICUPOS, IDW0,
+     &                  IDWN, IDWNSV, IMS, ISY, ISYDWN, ISYUP, IUP,
+     &                  IUW0, K, LENCSF, LEV, MV, NCI, NDWN, NNN, NUP
+
       nLev  = SGS%nLev
       nIpWlk= CIS%nIpWlk
 
@@ -59,11 +66,11 @@ C SVC: set up a CSF string length as LENCSF
      &       2X,A,2(2X,F13.6))
 
 C Size of occup/spin coupling part of line:
-      WRITE(6,*)' Occupation of active orbitals, and spin coupling'
-      WRITE(6,*)' of open shells. (u,d: Spin up or down).'
-      WRITE(6,*)' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
+      WRITE(u6,*)' Occupation of active orbitals, and spin coupling'
+      WRITE(u6,*)' of open shells. (u,d: Spin up or down).'
+      WRITE(u6,*)' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
       LINE(1:10)='Occupation'
-      WRITE(6,100)
+      WRITE(u6,100)
      & 'Conf','SGUGA info      ',LINE(1:LENCSF),
      & 'Coefficient','Weight'
 
@@ -139,7 +146,7 @@ C -- PRINT IT!
                 K=K+1
                 LINE(K:K)=CODE(ICS(LEV))
               END DO
-              WRITE(6,200)
+              WRITE(u6,200)
      &               ICONF,MV,ISYUP,IUP,IDWN,
      &               LINE(1:LENCSF),COEF,COEF**2
 C     SVC2010 experimental: add determinant expansion
@@ -147,9 +154,9 @@ C     SVC2010 experimental: add determinant expansion
 c     Specify projected spin in half integer units
 C     Default: use maximum spin projection
                IMS = ISPIN-1
-               WRITE(6,*)
+               WRITE(u6,*)
                CALL EXPCSF (ICS, NLEV, IMS, LEX, coef, 0)
-               WRITE(6,*)
+               WRITE(u6,*)
               ENDIF
   31        CONTINUE
   30      CONTINUE
@@ -157,6 +164,6 @@ C     Default: use maximum spin projection
   40  CONTINUE
 C     SVC2010: free scratch for determinant expansion
       IF (PRSD) CALL mma_deallocate(LEX)
-      WRITE(6,*)
+      WRITE(u6,*)
 
       END SUBROUTINE PRWF1_CP2
