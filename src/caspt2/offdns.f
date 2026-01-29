@@ -47,7 +47,7 @@ C again with wave functions interchanged.
       IFTEST=0
       IMLTOP=2
       KOD=IFCOUP(ICASE2,ICASE1)
-      IF(KOD.EQ.0) RETURN
+      IF(KOD==0) RETURN
 
       ISYM12=MUL(ISYM1,ISYM2)
       NAS1=NASUP(ISYM1,ICASE1)
@@ -87,51 +87,50 @@ C Set up various offset arrays:
 C  -----------------------------------------------
       Case(1)
 C  A&BP One-el
-      LLST1=LLIST(ISYM1,ISYM2,12)
       NLST1=NLIST(ISYM1,ISYM2,12)
-      IF(NLST1.EQ.0) GOTO 91
-      VAL1(1)=One
-      VAL1(2)=Two
-      LLST2=LLIST(ISYM1,ISYM2,14)
       NLST2=NLIST(ISYM1,ISYM2,14)
-      IF(NLST2.EQ.0) GOTO 91
-      VAL2(1)=One
-      VAL2(2)=SQR2
-      IXTI=1
-      INCX1=1
-      INCX2=NASH(ISYM1)
-      IDIT=1+IOFDIT(ISYM12)
-      INCF1=NORB(ISYM12)
-      INCF2=1
-      IY=1
-      INCY1=1
-      INCY2=NTGEU(ISYM2)
-      CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &            X1(IXTI),DPT2(IDIT),Y(IY))
-  91  CONTINUE
+      IF(NLST1*NLST2/=0) THEN
+        LLST1=LLIST(ISYM1,ISYM2,12)
+        VAL1(1)=One
+        VAL1(2)=Two
+        LLST2=LLIST(ISYM1,ISYM2,14)
+        VAL2(1)=One
+        VAL2(2)=SQR2
+        IXTI=1
+        INCX1=1
+        INCX2=NASH(ISYM1)
+        IDIT=1+IOFDIT(ISYM12)
+        INCF1=NORB(ISYM12)
+        INCF2=1
+        IY=1
+        INCY1=1
+        INCY2=NTGEU(ISYM2)
+        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &              X1(IXTI),DPT2(IDIT),Y(IY))
+      END IF
 
 C  A&BP Two-el
-      LLST1=LLIST(ISYM1,ISYM2, 3)
       NLST1=NLIST(ISYM1,ISYM2, 3)
-      IF(NLST1.EQ.0) RETURN
-      VAL1(1)=-One
-      VAL1(2)=-Two
-      LLST2=LLIST(ISYM1,ISYM2,14)
       NLST2=NLIST(ISYM1,ISYM2,14)
-      IF(NLST2.EQ.0) RETURN
-      VAL2(1)=One
-      VAL2(2)=SQR2
-      IX=1
-      INCX1=1
-      INCX2=NTUV(ISYM1)
-      IDIT=1+IOFDIT(ISYM12)
-      INCF1=NORB(ISYM12)
-      INCF2=1
-      IY=1
-      INCY1=1
-      INCY2=NTGEU(ISYM2)
-      CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &            X2(IX),DPT2(IDIT),Y(IY))
+      IF(NLST1*NLST2/=0) THEN
+        LLST1=LLIST(ISYM1,ISYM2, 3)
+        VAL1(1)=-One
+        VAL1(2)=-Two
+        LLST2=LLIST(ISYM1,ISYM2,14)
+        VAL2(1)=One
+        VAL2(2)=SQR2
+        IX=1
+        INCX1=1
+        INCX2=NTUV(ISYM1)
+        IDIT=1+IOFDIT(ISYM12)
+        INCF1=NORB(ISYM12)
+        INCF2=1
+        IY=1
+        INCY1=1
+        INCY2=NTGEU(ISYM2)
+        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &              X2(IX),DPT2(IDIT),Y(IY))
+      END IF
 C  -----------------------------------------------
       Case(2)
 C A&BM One-el
