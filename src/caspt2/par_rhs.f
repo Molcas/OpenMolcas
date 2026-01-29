@@ -778,11 +778,15 @@ CSVC: Destroy the global array
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SCAL (NAS,NIS,lg_W,FACT)
 CSVC: this routine multiplies the RHS array with FACT
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: GA_Arrays
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NAS,NIS,lg_W
+      real(kind=wp), intent(in):: FACT
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -790,20 +794,20 @@ CSVC: this routine multiplies the RHS array with FACT
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
-        IF (FACT.EQ.0.0D0) THEN
+        IF (FACT.EQ.Zero) THEN
 C          CALL GA_Fill (lg_W,0.0D0)
            CALL GA_Zero (lg_W)
         ELSE
-          IF (FACT.NE.1.0D0) THEN
+          IF (FACT.NE.One) THEN
             CALL GA_Scale (lg_W,FACT)
           END IF
         END IF
       ELSE
 #endif
-        IF(FACT.EQ.0.0D0) THEN
-            CALL DCOPY_(NAS*NIS,[0.0D0],0,GA_Arrays(lg_W)%A,1)
+        IF(FACT.EQ.Zero) THEN
+            CALL DCOPY_(NAS*NIS,[Zero],0,GA_Arrays(lg_W)%A,1)
         ELSE
-          IF(FACT.NE.1.0D00) THEN
+          IF(FACT.NE.One) THEN
             CALL DSCAL_(NAS*NIS,FACT,GA_Arrays(lg_W)%A,1)
           END IF
         END IF
