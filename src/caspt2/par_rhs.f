@@ -438,32 +438,33 @@ C which is 2**30 bytes).
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ADD (NAS,NIS,lg_W,W)
 CSVC: this routine adds to the local part of a global RHS array the
+      use definitions, only: iwp, wp
+      use constants, only: One
 Cmatching part of a replicate array.
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: GA_Arrays
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NAS, NIS, lg_W
-      REAL*8 W(NAS,*)
+      IMPLICIT None
+      integer(kind=iwp), Intent(in):: NAS,NIS,lg_W
+      real(kind=wp), Intent(In):: W(NAS,*)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#endif
+      integer(kind=iwp) myRank,iLo,iHi,jLo,jHi,NW,mW,LDW
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         myRank = GA_NodeID()
         CALL GA_Distribution (lg_W,myRank,iLo,iHi,jLo,jHi)
         IF (iLo.NE.0.AND.jLo.NE.0) THEN
           NW=(iHi-iLo+1)*(jHi-jLo+1)
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL DAXPY_(NW,1.0D0,W(iLo,jLo),1,DBL_MB(mW),1)
+          CALL DAXPY_(NW,One,W(iLo,jLo),1,DBL_MB(mW),1)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
       ELSE
 #endif
-        CALL DAXPY_(NAS*NIS,1.0D0,W,1,GA_Arrays(lg_W)%A,1)
+        CALL DAXPY_(NAS*NIS,One,W,1,GA_Arrays(lg_W)%A,1)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
