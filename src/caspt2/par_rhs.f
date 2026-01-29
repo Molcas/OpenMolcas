@@ -839,6 +839,7 @@ C     (ITYP=1).
 
       Real(kind=wp), Allocatable:: T(:)
       integer(kind=iwp) IDT
+
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -847,9 +848,7 @@ C     (ITYP=1).
      &                               iLoV2,iHiV2,jLoV2,jHiV2,
      &                  NROW1, NROW2, NCOL1, NCOL2,
      &                  mV1,LDV1,mV2,LDV2
-#endif
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         IF (ICASE.EQ.1 .OR. ICASE.EQ.4) THEN
 C-SVC: if case is A or C, the S/ST matrices are loaded as global arrays,
@@ -955,23 +954,30 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
       SUBROUTINE RHS_STRANS (NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,ISYM)
 CSVC: this routine transforms RHS array V1 by multiplying on the left
 C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
+      use definitions, only: u6
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,
+     &                                ISYM
+
+      real(kind=wp), Allocatable:: S(:)
+      integer(kind=iwp) IDS, NS
+
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL bStat
-#endif
-      Real*8, Allocatable:: S(:)
+      LOGICAL(kind=iwp) bStat
+      integer(kind=iwp) lg_S,myRank,iLoV1,iHiV1,jLoV1,jHiV1,
+     &                              iLoV2,iHiV2,jLoV2,jHiV2,
+     &                  NROW1,NROW2,NCOL1,NCOL2,mV1,LDV1,mV2,LDV2
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         IF (ICASE.EQ.1 .OR. ICASE.EQ.4) THEN
 C-SVC: if case is A or C, the S/ST matrices are loaded as global arrays,
@@ -1002,11 +1008,11 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
             NCOL2=jHiV2-jLoV2+1
             IF (NCOL1.NE.NCOL2 .OR. NROW1.NE.NROW2 .OR.
      &          NROW1.NE.NAS) THEN
-              WRITE(6,*) 'RHS_STRANS: inconsistent stripe size'
-              WRITE(6,'(A,I3)') 'ICASE = ', ICASE
-              WRITE(6,'(A,I3)') 'ISYM  = ', ISYM
-              WRITE(6,'(A,2I6)') 'NCOL1, NCOL2 = ', NCOL1, NCOL2
-              WRITE(6,'(A,2I6)') 'NROW1, NROW2 = ', NROW1, NROW2
+              WRITE(u6,*) 'RHS_STRANS: inconsistent stripe size'
+              WRITE(u6,'(A,I3)') 'ICASE = ', ICASE
+              WRITE(u6,'(A,I3)') 'ISYM  = ', ISYM
+              WRITE(u6,'(A,2I6)') 'NCOL1, NCOL2 = ', NCOL1, NCOL2
+              WRITE(u6,'(A,2I6)') 'NROW1, NROW2 = ', NROW1, NROW2
               CALL AbEnd()
             END IF
             CALL GA_Access (lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
