@@ -388,18 +388,20 @@ C GA_Get in batches smaller than 2**31-1 bytes (I took 2**30).
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_PUT (NAS,NIS,lg_W,W)
 CSVC: this routine copies a local buffer to a global array
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
+      use definitions, only: u6
 #endif
       use fake_GA, only: GA_Arrays
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION W(NAS*NIS)
+      IMPLICIT None
+      integer(kind=iwp), Intent(In):: NAS,NIS,lg_W
+      real(kind=wp), Intent(in):: W(NAS*NIS)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#endif
+      integer(kind=iwp) MAX_MESG_SIZE, NIS_BATCH, NIS_STA, NIS_END, IOFF
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         IF (KING()) THEN
 C SVC: when the _total_ size of a message exceeds 2**31-1 _bytes_,
@@ -411,8 +413,8 @@ C which is 2**30 bytes).
           IF (NAS*NIS.GT.MAX_MESG_SIZE) THEN
             NIS_BATCH = MAX_MESG_SIZE / NAS
             IF (NIS_BATCH.EQ.0) THEN
-              WRITE(6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
-              WRITE(6,'(1X,I12,A,I12)') NAS, ' > ', MAX_MESG_SIZE
+              WRITE(u6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
+              WRITE(u6,'(1X,I12,A,I12)') NAS, ' > ', MAX_MESG_SIZE
               CALL AbEnd
             END IF
             DO NIS_STA=1,NIS,NIS_BATCH
