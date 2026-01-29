@@ -631,11 +631,11 @@ CSVC: global array RHS matrix expects 2 index buffers
 CSVC: FIXME: this temporary routine copies the RHS arrays from DRAs to
 C     LUSOLV and should be removed once the full parallelization is in
 C     place and transition is no longer needed.
-      use definitions, only: iwp, wp
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-      use definitions, only: u6
+      use definitions, only: wp, u6
 #endif
       use caspt2_global, only: IDSCT, LUSOLV
       use EQSOLV, only: MXSCT
@@ -707,20 +707,26 @@ CSVC: Destroy the global array
 CSVC: FIXME: this temporary routine copies the RHS arrays from DRAs to
 C     LUSOLV and should be removed once the full parallelization is in
 C     place and transition is no longer needed.
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
+      use definitions, only: wp, u6
       USE Para_Info, ONLY: Is_Real_Par, King
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
 #endif
       use caspt2_global, only: LUSOLV, IDSCT
-      use EQSOLV
+      use EQSOLV, only: MXSCT
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: MXCASE
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NAS,NIS,iCASE,iSYM,iVEC
+
+      integer(kind=iwp) IDISK, lg_W, NW
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 *     LOGICAL bStat
-      Real*8, allocatable:: TMPW(:)
+      real(kind=wp), allocatable:: TMPW(:)
+      integer(kind=iwp) iMax, NCOL, ISTA, IEND
 #endif
 
       CALL RHS_ALLO (NAS,NIS,lg_W)
@@ -738,7 +744,7 @@ C-SVC: GA_Get does not like large buffer sizes, put upper limit at 1GB
           iMax=MIN(NINT(0.95D0*iMax),134217728)
           NCOL=MIN(iMAX,NAS*NIS)/NAS
           IF (NCOL.LE.0) THEN
-            WRITE(6,*) 'Not enough memory in SOLV2DRA, aborting...'
+            WRITE(u6,*) 'Not enough memory in SOLV2DRA, aborting...'
             CALL AbEnd()
           END IF
           NW=NAS*NCOL
