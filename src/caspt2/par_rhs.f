@@ -532,21 +532,23 @@ CSVC: this routine reads an RHS array in SR format from disk
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_SAVE (NIN,NIS,lg_W,iCASE,iSYM,iVEC)
+      use definitions, only: iwp
 CSVC: this routine reads an RHS array in SR format from disk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_global, only: LURHS
-      use EQSOLV
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: IOFFRHS
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NIN,NIS,lg_W,iCASE,iSYM,iVEC
+
+      integer(kind=iwp) IDISK, NW
 #ifdef _MOLCAS_MPP_
+      integer(kind=iwp) myRank,ISTA,IEND,JSTA,JEND,mpt_W,LDW,NWPROC
 #include "global.fh"
 #include "mafdecls.fh"
-#endif
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         CALL GA_Sync()
         myRank = GA_NodeID()
