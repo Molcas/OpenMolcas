@@ -498,6 +498,7 @@ Cmatching part of a replicate array.
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ (NIN,NIS,lg_W,iCASE,iSYM,iVEC)
 CSVC: this routine reads an RHS array in SR format from disk
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -505,13 +506,15 @@ CSVC: this routine reads an RHS array in SR format from disk
       use EQSOLV
       use fake_GA, only: GA_Arrays
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), Intent(In):: NIN,NIS,lg_W,iCASE,iSYM,iVEC
+
+      integer(kind=iwp) IDISK, NWPROC
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#endif
+      integer(kind=iwp) myRank,ISTA,IEND,JSTA,JEND,mpt_W,LDW
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         CALL GA_Sync()
         myRank = GA_NodeID()
@@ -530,9 +533,9 @@ CSVC: this routine reads an RHS array in SR format from disk
         CALL GA_Sync()
       ELSE
 #endif
-        NW=NIN*NIS
+        NWPROC=NIN*NIS
         IDISK=IOFFRHS(ISYM,ICASE)
-        CALL DDAFILE(LURHS(IVEC),2,GA_Arrays(lg_W)%A,NW,IDISK)
+        CALL DDAFILE(LURHS(IVEC),2,GA_Arrays(lg_W)%A,NWPROC,IDISK)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
