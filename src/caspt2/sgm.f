@@ -634,30 +634,28 @@ C  D&EP One-el
           IF(NT.NE.0) THEN
             DO ISYMI=1,NSYM
             NI=NISH(ISYMI)
-            IF(NI.NE.0) THEN
-              NA=NSSH(ISYMI)
-              ISYMIJ=MUL(ISYMI,ISYM2)
-              NLST1=NLIST(ISYMI,ISYMIJ,14)
-              IF(NA*NLST1/=0) THEN
-                LLST1=LLIST(ISYMI,ISYMIJ,14)
-                VAL1(1)= SQRI2
-                VAL1(2)= One
-                IXIA=1+IOFFIA(ISYMI)
-                INCX1=1
-                INCX2=NI
-                INCF1=NASH(ISYM2)
-                INCF2=1
-                IY=1+NAS2*IOFCEP(ISYM2,ISYMI)
-                INCY1=NT*NA
-                INCY2=NT
-                INCY3=1
-                LEN1=NA
-                LEN2=NT
-                CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                     X1(IXIA),
-     &                     FTI(ISYM2)%A,
-     &                     GA_Arrays(lg_Y)%A(IY))
-              END IF
+            NA=NSSH(ISYMI)
+            ISYMIJ=MUL(ISYMI,ISYM2)
+            NLST1=NLIST(ISYMI,ISYMIJ,14)
+            IF(NI*NA*NLST1/=0) THEN
+              LLST1=LLIST(ISYMI,ISYMIJ,14)
+              VAL1(1)= SQRI2
+              VAL1(2)= One
+              IXIA=1+IOFFIA(ISYMI)
+              INCX1=1
+              INCX2=NI
+              INCF1=NASH(ISYM2)
+              INCF2=1
+              IY=1+NAS2*IOFCEP(ISYM2,ISYMI)
+              INCY1=NT*NA
+              INCY2=NT
+              INCY3=1
+              LEN1=NA
+              LEN2=NT
+              CALL MLTMV(IMLTOP,LIST(LLST1),
+     &                   X1(IXIA),
+     &                   FTI(ISYM2)%A,
+     &                   GA_Arrays(lg_Y)%A(IY))
             END IF
             END DO
           END IF
@@ -673,31 +671,29 @@ C  D&EP Two-el
           IF(NU.NE.0) THEN
             DO ISYMA=1,NSYM
             NA=NSSH(ISYMA)
-            IF(NA.NE.0) THEN
-              ISYMI=MUL(ISYMA,ISYM1)
-              NI=NISH(ISYMI)
-              ISYMIJ=MUL(ISYMI,ISYM12)
-              NLST2=NLIST(ISYMI,ISYMIJ,14)
-              IF(NI*NLST2/=0) THEN
-                LLST2=LLIST(ISYMI,ISYMIJ,14)
-                VAL2(1)= SQRI2
-                VAL2(2)= One
-                IX=1+NAS1*IOFCD(ISYM1,ISYMA)
-                INCX1=1
-                INCX2=NAS1
-                INCX3=NAS1*NI
-                INCF1=NISH(ISYM12)
-                INCF2=1
-                IY=1+NU*IOFCEP(ISYM2,ISYMA)
-                INCY1=1
-                INCY2=NU*NA
-                INCY3=NU
-                LEN1=NA
-                CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                      X2(IX),
-     &                      FIT(ISYM12)%A,
-     &                      GA_Arrays(lg_Y)%A(IY))
-              END IF
+            ISYMI=MUL(ISYMA,ISYM1)
+            NI=NISH(ISYMI)
+            ISYMIJ=MUL(ISYMI,ISYM12)
+            NLST2=NLIST(ISYMI,ISYMIJ,14)
+            IF(NA*NI*NLST2/=0) THEN
+              LLST2=LLIST(ISYMI,ISYMIJ,14)
+              VAL2(1)= SQRI2
+              VAL2(2)= One
+              IX=1+NAS1*IOFCD(ISYM1,ISYMA)
+              INCX1=1
+              INCX2=NAS1
+              INCX3=NAS1*NI
+              INCF1=NISH(ISYM12)
+              INCF2=1
+              IY=1+NU*IOFCEP(ISYM2,ISYMA)
+              INCY1=1
+              INCY2=NU*NA
+              INCY3=NU
+              LEN1=NA
+              CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &                    X2(IX),
+     &                    FIT(ISYM12)%A,
+     &                    GA_Arrays(lg_Y)%A(IY))
             END IF
             END DO
           END IF
@@ -713,30 +709,28 @@ C  D&EM One-el
           IF(NT.NE.0) THEN
             DO ISYMI=1,NSYM
             NI=NISH(ISYMI)
-            IF(NI.NE.0) THEN
-              NA=NSSH(ISYMI)
-              ISYMIJ=MUL(ISYMI,ISYM2)
-              NLST1=NLIST(ISYMI,ISYMIJ,15)
-              IF(NA*NLST1/=0) THEN
-                LLST1=LLIST(ISYMI,ISYMIJ,15)
-                VAL1(1)= SQR32
-                VAL1(2)=-SQR32
-                IXIA=1+IOFFIA(ISYMI)
-                INCX1=1
-                INCX2=NI
-                INCF1=NASH(ISYM2)
-                INCF2=1
-                IY=1+NAS2*IOFCEM(ISYM2,ISYMI)
-                INCY1=NT*NA
-                INCY2=NT
-                INCY3=1
-                LEN1=NA
-                LEN2=NT
-                CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                     X1(IXIA),
-     &                     FTI(ISYM2)%A,
-     &                     GA_Arrays(lg_Y)%A(IY))
-              END IF
+            NA=NSSH(ISYMI)
+            ISYMIJ=MUL(ISYMI,ISYM2)
+            NLST1=NLIST(ISYMI,ISYMIJ,15)
+            IF(NI*NA*NLST1/=0) THEN
+              LLST1=LLIST(ISYMI,ISYMIJ,15)
+              VAL1(1)= SQR32
+              VAL1(2)=-SQR32
+              IXIA=1+IOFFIA(ISYMI)
+              INCX1=1
+              INCX2=NI
+              INCF1=NASH(ISYM2)
+              INCF2=1
+              IY=1+NAS2*IOFCEM(ISYM2,ISYMI)
+              INCY1=NT*NA
+              INCY2=NT
+              INCY3=1
+              LEN1=NA
+              LEN2=NT
+              CALL MLTMV(IMLTOP,LIST(LLST1),
+     &                   X1(IXIA),
+     &                   FTI(ISYM2)%A,
+     &                   GA_Arrays(lg_Y)%A(IY))
             END IF
             END DO
           END IF
@@ -752,31 +746,29 @@ C  D&EM Two-el
           IF(NU.NE.0) THEN
             DO ISYMA=1,NSYM
             NA=NSSH(ISYMA)
-            IF(NA.NE.0) THEN
               ISYMI=MUL(ISYMA,ISYM1)
               NI=NISH(ISYMI)
               ISYMIJ=MUL(ISYMI,ISYM12)
               NLST2=NLIST(ISYMI,ISYMIJ,15)
-              IF(NI*NLST2/=0) THEN
-                LLST2=LLIST(ISYMI,ISYMIJ,15)
-                VAL2(1)= SQRI6
-                VAL2(2)=-SQRI6
-                IX=1+NAS1*IOFCD(ISYM1,ISYMA)
-                INCX1=1
-                INCX2=NAS1
-                INCX3=NAS1*NI
-                INCF1=NISH(ISYM12)
-                INCF2=1
-                IY=1+NU*IOFCEM(ISYM2,ISYMA)
-                INCY1=1
-                INCY2=NU*NA
-                INCY3=NU
-                LEN1=NA
-                CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                            X2(IX),
-     &                            FIT(ISYM12)%A,
-     &                            GA_Arrays(lg_Y)%A(IY))
-              END IF
+            IF(NA*NI*NLST2/=0) THEN
+              LLST2=LLIST(ISYMI,ISYMIJ,15)
+              VAL2(1)= SQRI6
+              VAL2(2)=-SQRI6
+              IX=1+NAS1*IOFCD(ISYM1,ISYMA)
+              INCX1=1
+              INCX2=NAS1
+              INCX3=NAS1*NI
+              INCF1=NISH(ISYM12)
+              INCF2=1
+              IY=1+NU*IOFCEM(ISYM2,ISYMA)
+              INCY1=1
+              INCY2=NU*NA
+              INCY3=NU
+              LEN1=NA
+              CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &                          X2(IX),
+     &                          FIT(ISYM12)%A,
+     &                          GA_Arrays(lg_Y)%A(IY))
             END IF
             END DO
           END IF
@@ -1019,25 +1011,23 @@ C  D&HP One-el
               IF(NJ.NE.0) THEN
                 ISYMB=ISYMJ
                 NB=NSSH(ISYMB)
-                IF(NB.NE.0) THEN
-                  NLST1=NLIST(ISYMI,ISYM2,14)
-                  NLST2=NLIST(ISYMA,ISYM2,16)
-                  IF(NLST1*NLST2/=0) THEN
-                    LLST1=LLIST(ISYMI,ISYM2,14)
-                    VAL1(1)=SQRI2
-                    VAL1(2)=One
-                    LLST2=LLIST(ISYMA,ISYM2,16)
-                    VAL2(1)=SQRI2
-                    VAL2(2)=One
-                    IXIA=1+IOFFIA(ISYMI)
-                    INCX1=1
-                    INCX2=NI
-                    CALL PMLTSCA(KOD,IMLTOP,
-     &                           LIST(LLST1),LIST(LLST2),
-     &                           X1(IXIA),NI,NA,
-     &                           FIA(ISYMB)%A,NJ,NB,
-     &                           lg_Y,NAS2,NIS2)
-                  END IF
+                NLST1=NLIST(ISYMI,ISYM2,14)
+                NLST2=NLIST(ISYMA,ISYM2,16)
+                IF(NB*NLST1*NLST2/=0) THEN
+                  LLST1=LLIST(ISYMI,ISYM2,14)
+                  VAL1(1)=SQRI2
+                  VAL1(2)=One
+                  LLST2=LLIST(ISYMA,ISYM2,16)
+                  VAL2(1)=SQRI2
+                  VAL2(2)=One
+                  IXIA=1+IOFFIA(ISYMI)
+                  INCX1=1
+                  INCX2=NI
+                  CALL PMLTSCA(KOD,IMLTOP,
+     &                         LIST(LLST1),LIST(LLST2),
+     &                         X1(IXIA),NI,NA,
+     &                         FIA(ISYMB)%A,NJ,NB,
+     &                         lg_Y,NAS2,NIS2)
                 END IF
               END IF
             END IF
@@ -1062,25 +1052,23 @@ C  D&HM One-el
               IF(NJ.NE.0) THEN
                 ISYMB=ISYMJ
                 NB=NSSH(ISYMB)
-                IF(NB.NE.0) THEN
-                  NLST1=NLIST(ISYMI,ISYM2,15)
-                  NLST2=NLIST(ISYMA,ISYM2,17)
-                  IF(NLST1*NLST2/=0) THEN
-                    LLST1=LLIST(ISYMI,ISYM2,15)
-                    VAL1(1)=SQR3*Half
-                    VAL1(2)=-VAL1(1)
-                    LLST2=LLIST(ISYMA,ISYM2,17)
-                    VAL2(1)= One
-                    VAL2(2)=-One
-                    IXIA=1+IOFFIA(ISYMI)
-                    INCX1=1
-                    INCX2=NI
-                    CALL PMLTSCA(KOD,IMLTOP,
-     &                           LIST(LLST1),LIST(LLST2),
-     &                           X1(IXIA),NI,NA,
-     &                           FIA(ISYMB)%A,NJ,NB,
-     &                           lg_Y,NAS2,NIS2)
-                  END IF
+                NLST1=NLIST(ISYMI,ISYM2,15)
+                NLST2=NLIST(ISYMA,ISYM2,17)
+                IF(NB*NLST1*NLST2/=0) THEN
+                  LLST1=LLIST(ISYMI,ISYM2,15)
+                  VAL1(1)=SQR3*Half
+                  VAL1(2)=-VAL1(1)
+                  LLST2=LLIST(ISYMA,ISYM2,17)
+                  VAL2(1)= One
+                  VAL2(2)=-One
+                  IXIA=1+IOFFIA(ISYMI)
+                  INCX1=1
+                  INCX2=NI
+                  CALL PMLTSCA(KOD,IMLTOP,
+     &                         LIST(LLST1),LIST(LLST2),
+     &                         X1(IXIA),NI,NA,
+     &                         FIA(ISYMB)%A,NJ,NB,
+     &                         lg_Y,NAS2,NIS2)
                 END IF
               END IF
             END IF
