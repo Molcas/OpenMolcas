@@ -95,12 +95,12 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
           IUW0=1-NIPWLK+IOW(1,ISYUP,MV)
           IDW0=1-NIPWLK+IOW(2,ISYDWN,MV)
           IDWNSV=0
-          DO 30 IDWN=1,NDWN
-            DO 31 IUP=1,NUP
+          DO IDWN=1,NDWN
+            DO IUP=1,NUP
               ICONF=ICONF+1
               COEF=CI(ICONF)
 C -- SKIP OR PRINT IT OUT?
-              IF(ABS(COEF).LT.THR) GOTO  31
+              IF(ABS(COEF).LT.THR) Cycle
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=CIS%ICASE(ICDPOS)
@@ -158,10 +158,11 @@ C     Default: use maximum spin projection
                CALL EXPCSF (ICS, NLEV, IMS, LEX, coef, 0)
                WRITE(u6,*)
               ENDIF
-  31        CONTINUE
-  30      CONTINUE
+            End Do
+          End Do
   41    CONTINUE
   40  CONTINUE
+
 C     SVC2010: free scratch for determinant expansion
       IF (PRSD) CALL mma_deallocate(LEX)
       WRITE(u6,*)
