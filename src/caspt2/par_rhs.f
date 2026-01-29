@@ -1070,20 +1070,23 @@ CSVC: this routine computes the DDOT of the RHS arrays V1 and V2
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_DAXPY (NAS,NIS,ALPHA,lg_V1,lg_V2)
 CSVC: this routine computes product ALPHA * V1 and adds to V2
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: GA_Arrays
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NAS, NIS
-      REAL*8 ALPHA
-      INTEGER lg_V1, lg_V2
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NAS, NIS
+      real(kind=wp), intent(in):: ALPHA
+      integer(kind=iwp), intent(in):: lg_V1, lg_V2
+
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#endif
+      integer(kind=iwp) myRank,iLoV1,iHiV1,jLoV1,jHiV1,
+     &                         iLoV2,iHiV2,jLoV2,jHiV2,
+     &                  NV1,NV2,mV1,LDV1,mV2,LDV2
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         myRank = GA_NodeID()
         CALL GA_Distribution (lg_V1,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
