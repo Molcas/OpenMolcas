@@ -134,81 +134,81 @@ C  A&BP Two-el
 C  -----------------------------------------------
       Case(2)
 C A&BM One-el
-      LLST1=LLIST(ISYM1,ISYM2,13)
       NLST1=NLIST(ISYM1,ISYM2,13)
-      IF(NLST1.EQ.0) GOTO 92
-      VAL1(1)= Three
-      VAL1(2)=-Three
-      LLST2=LLIST(ISYM1,ISYM2,15)
       NLST2=NLIST(ISYM1,ISYM2,15)
-      IF(NLST2.EQ.0) GOTO 92
+      IF(NLST1*NLST2/=0) THEN
+        LLST1=LLIST(ISYM1,ISYM2,13)
+        VAL1(1)= Three
+        VAL1(2)=-Three
+        LLST2=LLIST(ISYM1,ISYM2,15)
 * Original:
-*     VAL2(1)=-One
-*     VAL2(2)= One
+*       VAL2(1)=-One
+*       VAL2(2)= One
 * Fix for sign error noted by Takeshi, May 2015:
-      VAL2(1)= One
-      VAL2(2)=-One
-      IXTI=1
-      INCX1=1
-      INCX2=NASH(ISYM1)
-      IDIT=1+IOFDIT(ISYM12)
-      INCF1=NORB(ISYM12)
-      INCF2=1
-      IY=1
-      INCY1=1
-      INCY2=NTGTU(ISYM2)
-      CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &            X1(IXTI),DPT2(IDIT),Y(IY))
-  92  CONTINUE
+        VAL2(1)= One
+        VAL2(2)=-One
+        IXTI=1
+        INCX1=1
+        INCX2=NASH(ISYM1)
+        IDIT=1+IOFDIT(ISYM12)
+        INCF1=NORB(ISYM12)
+        INCF2=1
+        IY=1
+        INCY1=1
+        INCY2=NTGTU(ISYM2)
+        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &              X1(IXTI),DPT2(IDIT),Y(IY))
+      END IF
 
 C A&BM Two-el
-      LLST1=LLIST(ISYM1,ISYM2, 4)
       NLST1=NLIST(ISYM1,ISYM2, 4)
-      IF(NLST1.EQ.0) RETURN
-      VAL1(1)=-One
-      VAL1(2)= One
-      LLST2=LLIST(ISYM1,ISYM2,15)
       NLST2=NLIST(ISYM1,ISYM2,15)
-      IF(NLST2.EQ.0) RETURN
+      IF(NLST1*NLST2/=0) THEN
+        LLST1=LLIST(ISYM1,ISYM2, 4)
+        VAL1(1)=-One
+        VAL1(2)= One
+        LLST2=LLIST(ISYM1,ISYM2,15)
 * Original:
-*     VAL2(1)=-One
-*     VAL2(2)= One
+*       VAL2(1)=-One
+*       VAL2(2)= One
 * Fix for sign error noted by Takeshi, May 2015:
-      VAL2(1)= One
-      VAL2(2)=-One
-      IX=1
-      INCX1=1
-      INCX2=NTUV(ISYM1)
-      IDIT=1+IOFDIT(ISYM12)
-      INCF1=NORB(ISYM12)
-      INCF2=1
-      IY=1
-      INCY1=1
-      INCY2=NTGTU(ISYM2)
-      CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &            X2(IX),DPT2(IDIT),Y(IY))
+        VAL2(1)= One
+        VAL2(2)=-One
+        IX=1
+        INCX1=1
+        INCX2=NTUV(ISYM1)
+        IDIT=1+IOFDIT(ISYM12)
+        INCF1=NORB(ISYM12)
+        INCF2=1
+        IY=1
+        INCY1=1
+        INCY2=NTGTU(ISYM2)
+        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &              X2(IX),DPT2(IDIT),Y(IY))
+      END IF
 C  -----------------------------------------------
       Case(3)
 
 C  A&D  Two-el
       LLST1=LLIST(ISYM1,ISYM2, 1)
       NLST1=NLIST(ISYM1,ISYM2, 1)
-      IF(NLST1.EQ.0) RETURN
-      VAL1(1)= One
-      VAL1(2)= One
-      IX=1
-      INCX1=1
-      INCX2=NAS1
-      IDTA=1+IOFDTA(ISYM12)
-      INCF1=1
-      INCF2=NORB(ISYM12)
-      IY=1+NAS2*IOFCD(ISYM2,ISYM12)
-      INCY1=1
-      INCY2=NAS2
-      INCY3=NAS2*NISH(ISYM1)
-      LEN1=NISH(ISYM1)
-      LEN2=NSSH(ISYM12)
-      CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
+      IF(NLST1/=0) THEN
+        VAL1(1)= One
+        VAL1(2)= One
+        IX=1
+        INCX1=1
+        INCX2=NAS1
+        IDTA=1+IOFDTA(ISYM12)
+        INCF1=1
+        INCF2=NORB(ISYM12)
+        IY=1+NAS2*IOFCD(ISYM2,ISYM12)
+        INCY1=1
+        INCY2=NAS2
+        INCY3=NAS2*NISH(ISYM1)
+        LEN1=NISH(ISYM1)
+        LEN2=NSSH(ISYM12)
+        CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
+      END IF
 C  -----------------------------------------------
       Case(4)
 
@@ -219,26 +219,25 @@ C  A&EP One-el
        DO ISYMIJ=1,NSYM
         ISYMA=MUL(ISYMIJ,ISYM1)
         NA=NSSH(ISYMA)
-        IF(NA.EQ.0) GOTO 94
-        LLST1=LLIST(ISYM1,ISYMIJ,14)
         NLST1=NLIST(ISYM1,ISYMIJ,14)
-        IF(NLST1.EQ.0) GOTO 94
-        VAL1(1)= One
-        VAL1(2)= SQR2
-        IXTI=1
-        INCX1=NT
-        INCX2=1
-        IDIA=1+IOFDIA(ISYMA)
-        INCF1=1
-        INCF2=NORB(ISYMA)
-        IY=1+NAS2*IOFCEP(ISYM2,ISYMA)
-        INCY1=NT*NA
-        INCY2=1
-        INCY3=NT
-        LEN1=NT
-        LEN2=NA
-        CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXTI),DPT2(IDIA),Y(IY))
-  94    CONTINUE
+        IF(NA*NLST1/=0) THEN
+          LLST1=LLIST(ISYM1,ISYMIJ,14)
+          VAL1(1)= One
+          VAL1(2)= SQR2
+          IXTI=1
+          INCX1=NT
+          INCX2=1
+          IDIA=1+IOFDIA(ISYMA)
+          INCF1=1
+          INCF2=NORB(ISYMA)
+          IY=1+NAS2*IOFCEP(ISYM2,ISYMA)
+          INCY1=NT*NA
+          INCY2=1
+          INCY3=NT
+          LEN1=NT
+          LEN2=NA
+          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXTI),DPT2(IDIA),Y(IY))
+        END IF
        END DO
       END IF
 C  -----------------------------------------------
@@ -251,26 +250,25 @@ C  A&EM One-el
        DO ISYMIJ=1,NSYM
         ISYMA=MUL(ISYMIJ,ISYM1)
         NA=NSSH(ISYMA)
-        IF(NA.EQ.0) GOTO 95
-        LLST1=LLIST(ISYM1,ISYMIJ,15)
         NLST1=NLIST(ISYM1,ISYMIJ,15)
-        IF(NLST1.EQ.0) GOTO 95
-        VAL1(1)=-SQR3
-        VAL1(2)= SQR3
-        IXTI=1
-        INCX1=NT
-        INCX2=1
-        IDIA=1+IOFDIA(ISYMA)
-        INCF1=1
-        INCF2=NORB(ISYMA)
-        IY=1+NAS2*IOFCEM(ISYM2,ISYMA)
-        INCY1=NT*NA
-        INCY2=1
-        INCY3=NT
-        LEN1=NT
-        LEN2=NA
-        CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXTI),DPT2(IDIA),Y(IY))
-  95    CONTINUE
+        IF(NA*NLST1/=0) THEN
+          LLST1=LLIST(ISYM1,ISYMIJ,15)
+          VAL1(1)=-SQR3
+          VAL1(2)= SQR3
+          IXTI=1
+          INCX1=NT
+          INCX2=1
+          IDIA=1+IOFDIA(ISYMA)
+          INCF1=1
+          INCF2=NORB(ISYMA)
+          IY=1+NAS2*IOFCEM(ISYM2,ISYMA)
+          INCY1=NT*NA
+          INCY2=1
+          INCY3=NT
+          LEN1=NT
+          LEN2=NA
+          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXTI),DPT2(IDIA),Y(IY))
+        END IF
        END DO
       END IF
 C  -----------------------------------------------
