@@ -232,13 +232,17 @@ CSVC: Destroy the global array
 CSVC: this routine gives a pointer to the process-local part of the RHS
 C     If there is no valid local block, then the routine returns 0 for
 C     iLo and jLo, and -1 for iHi and jHi. This way, loops from lower
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NAS,NIS,lg_W
+      integer(kind=iwp), intent(out):: iLo,iHi,jLo,jHi,MW
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      integer(kind=iwp) myRank, LDW
 #endif
 
 #ifdef _MOLCAS_MPP_
