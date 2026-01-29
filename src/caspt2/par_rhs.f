@@ -1042,19 +1042,21 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
       END SUBROUTINE RHS_STRANS
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      REAL*8 FUNCTION RHS_DDOT(NAS,NIS,lg_V1,lg_V2)
+      FUNCTION RHS_DDOT(NAS,NIS,lg_V1,lg_V2)
 CSVC: this routine computes the DDOT of the RHS arrays V1 and V2
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: GA_Arrays
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      real(kind=wp) RHS_DDOT
+      Integer(kind=iwp), intent(in):: NAS,NIS,lg_V1,lg_V2
+      real(kind=wp), external:: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#endif
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         RHS_DDOT = GA_DDOT(lg_V1,lg_V2)
       ELSE
