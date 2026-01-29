@@ -127,17 +127,20 @@ C-SVC: zero out the entire RHS vector on IVEC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ALLO (NAS,NIS,lg_W)
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: Allocate_GA_Array
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NAS,NIS
+      integer(kind=iwp), intent(out):: lg_W
+
+      integer(kind=iwp) NW
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#endif
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         CALL GA_CREATE_STRIPED ('V',NAS,NIS,'RHS',LG_W)
       ELSE
