@@ -49,13 +49,6 @@ C again with wave functions interchanged.
       KOD=IFCOUP(ICASE2,ICASE1)
       IF(KOD.EQ.0) RETURN
 
-CPAM      IF(KOD.EQ.23 .OR. KOD.EQ.24) IFTEST=1
-CPAM      if(iftest.eq.1) then
-CPAM      WRITE(u6,*)' OFFDNS ICASE1=',ICASE1
-CPAM      WRITE(u6,*)'        ICASE2=',ICASE2
-CPAM      WRITE(u6,*)'        IFTEST=',IFTEST
-CPAM      end if
-
       ISYM12=MUL(ISYM1,ISYM2)
       NAS1=NASUP(ISYM1,ICASE1)
       NIS1=NISUP(ISYM1,ICASE1)
@@ -90,12 +83,9 @@ C Set up various offset arrays:
         END DO
       END DO
 
-      GOTO (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
-     &      16,17,18,19,20,21,22,23,24) KOD
-      RETURN
-
+      Select case (KOD)
 C  -----------------------------------------------
-   1  CONTINUE
+      Case(1)
 C  A&BP One-el
       LLST1=LLIST(ISYM1,ISYM2,12)
       NLST1=NLIST(ISYM1,ISYM2,12)
@@ -142,9 +132,8 @@ C  A&BP Two-el
       INCY2=NTGEU(ISYM2)
       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &            X2(IX),DPT2(IDIT),Y(IY))
-      RETURN
 C  -----------------------------------------------
-   2  CONTINUE
+      Case(2)
 C A&BM One-el
       LLST1=LLIST(ISYM1,ISYM2,13)
       NLST1=NLIST(ISYM1,ISYM2,13)
@@ -199,9 +188,8 @@ C A&BM Two-el
       INCY2=NTGTU(ISYM2)
       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &            X2(IX),DPT2(IDIT),Y(IY))
-      RETURN
 C  -----------------------------------------------
-   3  CONTINUE
+      Case(3)
 
 C  A&D  Two-el
       LLST1=LLIST(ISYM1,ISYM2, 1)
@@ -222,9 +210,8 @@ C  A&D  Two-el
       LEN1=NISH(ISYM1)
       LEN2=NSSH(ISYM12)
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
-      RETURN
 C  -----------------------------------------------
-   4  CONTINUE
+      Case(4)
 
 C  A&EP One-el
       IF(ISYM2.EQ.ISYM1) THEN
@@ -255,9 +242,8 @@ C  A&EP One-el
   94    CONTINUE
        END DO
       END IF
-      RETURN
 C  -----------------------------------------------
-   5  CONTINUE
+      Case(5)
 
 C  A&EM One-el
       IF(ISYM2.EQ.ISYM1) THEN
@@ -288,9 +274,8 @@ C  A&EM One-el
   95    CONTINUE
        END DO
       END IF
-      RETURN
 C  -----------------------------------------------
-   6  CONTINUE
+      Case(6)
 
 C  BP&EP Two-el
       NA=NSSH(ISYM12)
@@ -313,9 +298,8 @@ C  BP&EP Two-el
       LEN1=NIS1
       LEN2=NA
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
-      RETURN
 C  -----------------------------------------------
-   7  CONTINUE
+      Case(7)
 
 C  BM&EM Two-el
       NA=NSSH(ISYM12)
@@ -342,9 +326,8 @@ C  BM&EM Two-el
       LEN1=NIS1
       LEN2=NA
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
-      RETURN
 C  -----------------------------------------------
-   8  CONTINUE
+      Case(8)
 
 C  C&D  One-el
       NI=NISH(ISYM12)
@@ -390,9 +373,8 @@ C  C&D  Two-el
       LEN1=NSSH(ISYM1)
       LEN2=NI
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      RETURN
 C  -----------------------------------------------
-   9  CONTINUE
+      Case(9)
 
 C  C&FP One-el
       LLST1=LLIST(ISYM1,ISYM2,12)
@@ -440,9 +422,8 @@ C  C&FP Two-el
       INCY2=NTGEU(ISYM2)
       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &            X2(IX),DPT2(IDTA),Y(IY))
-      RETURN
 C  -----------------------------------------------
-  10  CONTINUE
+      Case(10)
 
 C  C&FM One-el
       LLST1=LLIST(ISYM1,ISYM2,13)
@@ -490,9 +471,8 @@ C  C&FM Two-el
       INCY2=NTGTU(ISYM2)
       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &            X2(IX),DPT2(IDTA),Y(IY))
-      RETURN
 C  -----------------------------------------------
-  11  CONTINUE
+      Case(11)
 
 C  C&GP One-el
       IF(ISYM2.EQ.ISYM1) THEN
@@ -523,9 +503,8 @@ C  C&GP One-el
  911    CONTINUE
        END DO
       END IF
-      RETURN
 C  -----------------------------------------------
-  12  CONTINUE
+      Case(12)
 
 C  C&GM One-el
       IF(ISYM2.EQ.ISYM1) THEN
@@ -556,9 +535,8 @@ C  C&GM One-el
  912    CONTINUE
        END DO
       END IF
-      RETURN
 C  -----------------------------------------------
-  13  CONTINUE
+      Case(13)
 
 C  D&EP One-el
       IF(ISYM1.EQ.1) THEN
@@ -635,9 +613,8 @@ C  D&EP Two-el
      &              X2(IX),DPT2(IDIT),Y(IY))
  713    CONTINUE
       END DO
-      RETURN
 C  -----------------------------------------------
-  14  CONTINUE
+      Case(14)
 
 C  D&EM One-el
       IF(ISYM1.EQ.1) THEN
@@ -714,9 +691,8 @@ C  D&EM Two-el
      &              X2(IX),DPT2(IDIT),Y(IY))
  714    CONTINUE
       END DO
-      RETURN
 C  -----------------------------------------------
-  15  CONTINUE
+      Case(15)
 
 C  D&GP Two-el
       LLST1=LLIST(ISYM1,ISYM2, 8)
@@ -752,9 +728,8 @@ C  D&GP Two-el
      &              X2(IX),DPT2(IDTA),Y(IY))
  915    CONTINUE
       END DO
-      RETURN
 C  -----------------------------------------------
-  16  CONTINUE
+      Case(16)
 
 C  D&GM Two-el
       LLST1=LLIST(ISYM1,ISYM2, 8)
@@ -790,9 +765,8 @@ C  D&GM Two-el
      &              X2(IX),DPT2(IDTA),Y(IY))
  916    CONTINUE
       END DO
-      RETURN
 C  -----------------------------------------------
-  17  CONTINUE
+      Case(17)
 
 C  EP&HP Two-el
       NA=NSSH(ISYM12)
@@ -815,9 +789,8 @@ C  EP&HP Two-el
       LEN1=NAS1
       LEN2=NIGEJ(ISYM2)
       CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
-      RETURN
 C  -----------------------------------------------
-  18  CONTINUE
+      Case(18)
 
 C  EM&HM Two-el
       NA=NSSH(ISYM12)
@@ -842,7 +815,7 @@ C  EM&HM Two-el
       CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
       RETURN
 C  -----------------------------------------------
-  19  CONTINUE
+      Case(19)
 
 C  FP&GP Two-el
       NI=NISH(ISYM12)
@@ -865,9 +838,8 @@ C  FP&GP Two-el
       LEN1=NIS1
       LEN2=NI
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      RETURN
 C  -----------------------------------------------
-  20  CONTINUE
+      Case(20)
 
 C  FM&GM Two-el
       NI=NISH(ISYM12)
@@ -890,9 +862,8 @@ C  FM&GM Two-el
       LEN1=NIS1
       LEN2=NI
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      RETURN
 C  -----------------------------------------------
-  21  CONTINUE
+      Case(21)
 
 C  GP&HP Two-el
       LLST1=LLIST(ISYM12,ISYM2,14)
@@ -913,9 +884,8 @@ C  GP&HP Two-el
       LEN1=NAS1
       LEN2=NAS2
       CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      RETURN
 C  -----------------------------------------------
-  22  CONTINUE
+      Case(22)
 
 C  GM&HM Two-el
       LLST1=LLIST(ISYM12,ISYM2,15)
@@ -936,9 +906,8 @@ C  GM&HM Two-el
       LEN1=NAS1
       LEN2=NAS2
       CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      RETURN
 C  -----------------------------------------------
-  23  CONTINUE
+      Case(23)
 
 C  D&HP One-el
       IF(ISYM1.NE.1) RETURN
@@ -979,11 +948,10 @@ C  D&HP One-el
 923    CONTINUE
        IOXIA=IOXIA+NI*NA
       END DO
-      RETURN
 
 C  ---------------------------
+      Case(24)
 
-  24  CONTINUE
 C  D&HM One-el
       IF(ISYM1.NE.1) RETURN
       IOXIA=0
@@ -1023,5 +991,8 @@ C  D&HM One-el
  924   CONTINUE
        IOXIA=IOXIA+NI*NA
       END DO
+      Case default
+        Call Abend()
+      End Select
 
       END SUBROUTINE OFFDNS

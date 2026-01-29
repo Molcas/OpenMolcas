@@ -92,6 +92,7 @@ CPAM      IF(ICASE1.EQ.5.AND.ICASE2.GT.11) IFTEST=1
 
 C SVC: IFCOUP is set in SIGMA_CASPT2
       KOD=IFCOUP(ICASE2,ICASE1)
+      IF(KOD.EQ.0) RETURN
 
       ISYM12=MUL(ISYM1,ISYM2)
       NAS1=NASUP(ISYM1,ICASE1)
@@ -121,7 +122,6 @@ C SVC: IFCOUP is set in SIGMA_CASPT2
 
 C SVC: this is an extra check, since coupling cases that are 0 should
 C not have entered the sgm subroutine
-      IF(KOD.EQ.0) RETURN
 
       SELECT CASE (KOD)
 C  -----------------------------------------------
