@@ -473,8 +473,11 @@ Cmatching part of a replicate array.
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_READ_C (lg_W,iCASE,iSYM,iVEC)
+      use definitions, only: iwp
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), Intent(In):: lg_W,iCASE,iSYM,iVEC
+      integer(kind=iwp) NAS,NIS
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       CALL RHS_READ (NAS,NIS,lg_W,ICASE,ISYM,IVEC)
