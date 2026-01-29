@@ -17,31 +17,31 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,X2,DPT2,Y,LIST)
+      use definitions, only: iwp, wp
+      use constants, only: One, Two, Three, Six
       use EQSOLV
       use Sigma_data
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      DIMENSION X1(*),X2(*),Y(*)
-      DIMENSION DPT2(*)
-      DIMENSION LIST(*)
-      DIMENSION IOFDIT(8),IOFDIA(8),IOFDTA(8)
-      DIMENSION IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
-     &          IOFCGM(8,8)
+      integer(kind=iwp) ISYM1,ICASE1,ISYM2,ICASE2
+      real(kind=wp) X1(*),X2(*),Y(*)
+      real(kind=wp) DPT2(*)
+      integer(kind=iwp) LIST(*)
+
+      integer(kind=iwp) IOFDIT(8),IOFDIA(8),IOFDTA(8)
+      integer(kind=iwp) IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
+     &                  IOFCGM(8,8)
+C Various constants:
+      real(kind=wp), parameter:: SQR2=SQRT(Two), SQR3=SQRT(Three),
+     &                           SQR6=SQRT(Six), SQRI2=One/SQR2,
+     &                           SQRI6=One/SQR6, SQR32=SQR3*SQRI2
 C Compute off-diagonal contributions to a trans density matrix.
 C Sub-diagonal blocks only. If a density matrix is required,
 C i.e. both wave functions equal, use symmetry. Else, call
 C again with wave functions interchanged.
 
-C Various constants:
-      SQR2=SQRT(2.0D00)
-      SQR3=SQRT(3.0D00)
-      SQR6=SQRT(6.0D00)
-      SQRI2=1.0D00/SQR2
-      SQRI6=1.0D00/SQR6
-      SQR32=SQR3*SQRI2
 
-*
       NA = 0 ! dummy initialize
 *
       IFTEST=0
@@ -51,9 +51,9 @@ C Various constants:
 
 CPAM      IF(KOD.EQ.23 .OR. KOD.EQ.24) IFTEST=1
 CPAM      if(iftest.eq.1) then
-CPAM      WRITE(*,*)' OFFDNS ICASE1=',ICASE1
-CPAM      WRITE(*,*)'        ICASE2=',ICASE2
-CPAM      WRITE(*,*)'        IFTEST=',IFTEST
+CPAM      WRITE(u6,*)' OFFDNS ICASE1=',ICASE1
+CPAM      WRITE(u6,*)'        ICASE2=',ICASE2
+CPAM      WRITE(u6,*)'        IFTEST=',IFTEST
 CPAM      end if
 
       ISYM12=MUL(ISYM1,ISYM2)
@@ -100,12 +100,12 @@ C  A&BP One-el
       LLST1=LLIST(ISYM1,ISYM2,12)
       NLST1=NLIST(ISYM1,ISYM2,12)
       IF(NLST1.EQ.0) GOTO 91
-      VAL1(1)=1.0D00
-      VAL1(2)=2.0D00
+      VAL1(1)=One
+      VAL1(2)=Two
       LLST2=LLIST(ISYM1,ISYM2,14)
       NLST2=NLIST(ISYM1,ISYM2,14)
       IF(NLST2.EQ.0) GOTO 91
-      VAL2(1)=1.0D00
+      VAL2(1)=One
       VAL2(2)=SQR2
       IXTI=1
       INCX1=1
@@ -123,13 +123,13 @@ C  A&BP One-el
 C  A&BP Two-el
       LLST1=LLIST(ISYM1,ISYM2, 3)
       NLST1=NLIST(ISYM1,ISYM2, 3)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)=-1.0D00
-      VAL1(2)=-2.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)=-One
+      VAL1(2)=-Two
       LLST2=LLIST(ISYM1,ISYM2,14)
       NLST2=NLIST(ISYM1,ISYM2,14)
-      IF(NLST2.EQ.0) GOTO 100
-      VAL2(1)=1.0D00
+      IF(NLST2.EQ.0) RETURN
+      VAL2(1)=One
       VAL2(2)=SQR2
       IX=1
       INCX1=1
@@ -142,24 +142,24 @@ C  A&BP Two-el
       INCY2=NTGEU(ISYM2)
       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &            X2(IX),DPT2(IDIT),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
    2  CONTINUE
 C A&BM One-el
       LLST1=LLIST(ISYM1,ISYM2,13)
       NLST1=NLIST(ISYM1,ISYM2,13)
       IF(NLST1.EQ.0) GOTO 92
-      VAL1(1)= 3.0D00
-      VAL1(2)=-3.0D00
+      VAL1(1)= Three
+      VAL1(2)=-Three
       LLST2=LLIST(ISYM1,ISYM2,15)
       NLST2=NLIST(ISYM1,ISYM2,15)
       IF(NLST2.EQ.0) GOTO 92
 * Original:
-*     VAL2(1)=-1.0D00
-*     VAL2(2)= 1.0D00
+*     VAL2(1)=-One
+*     VAL2(2)= One
 * Fix for sign error noted by Takeshi, May 2015:
-      VAL2(1)= 1.0D00
-      VAL2(2)=-1.0D00
+      VAL2(1)= One
+      VAL2(2)=-One
       IXTI=1
       INCX1=1
       INCX2=NASH(ISYM1)
@@ -176,18 +176,18 @@ C A&BM One-el
 C A&BM Two-el
       LLST1=LLIST(ISYM1,ISYM2, 4)
       NLST1=NLIST(ISYM1,ISYM2, 4)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)=-1.0D00
-      VAL1(2)= 1.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)=-One
+      VAL1(2)= One
       LLST2=LLIST(ISYM1,ISYM2,15)
       NLST2=NLIST(ISYM1,ISYM2,15)
-      IF(NLST2.EQ.0) GOTO 100
+      IF(NLST2.EQ.0) RETURN
 * Original:
-*     VAL2(1)=-1.0D00
-*     VAL2(2)= 1.0D00
+*     VAL2(1)=-One
+*     VAL2(2)= One
 * Fix for sign error noted by Takeshi, May 2015:
-      VAL2(1)= 1.0D00
-      VAL2(2)=-1.0D00
+      VAL2(1)= One
+      VAL2(2)=-One
       IX=1
       INCX1=1
       INCX2=NTUV(ISYM1)
@@ -199,16 +199,16 @@ C A&BM Two-el
       INCY2=NTGTU(ISYM2)
       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &            X2(IX),DPT2(IDIT),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
    3  CONTINUE
 
 C  A&D  Two-el
       LLST1=LLIST(ISYM1,ISYM2, 1)
       NLST1=NLIST(ISYM1,ISYM2, 1)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)= 1.0D00
-      VAL1(2)= 1.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)= One
+      VAL1(2)= One
       IX=1
       INCX1=1
       INCX2=NAS1
@@ -222,14 +222,14 @@ C  A&D  Two-el
       LEN1=NISH(ISYM1)
       LEN2=NSSH(ISYM12)
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
    4  CONTINUE
 
 C  A&EP One-el
       IF(ISYM2.EQ.ISYM1) THEN
        NT=NASH(ISYM1)
-       IF(NT.EQ.0) GOTO 100
+       IF(NT.EQ.0) RETURN
        DO ISYMIJ=1,NSYM
         ISYMA=MUL(ISYMIJ,ISYM1)
         NA=NSSH(ISYMA)
@@ -237,7 +237,7 @@ C  A&EP One-el
         LLST1=LLIST(ISYM1,ISYMIJ,14)
         NLST1=NLIST(ISYM1,ISYMIJ,14)
         IF(NLST1.EQ.0) GOTO 94
-        VAL1(1)= 1.0D00
+        VAL1(1)= One
         VAL1(2)= SQR2
         IXTI=1
         INCX1=NT
@@ -255,14 +255,14 @@ C  A&EP One-el
   94    CONTINUE
        END DO
       END IF
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
    5  CONTINUE
 
 C  A&EM One-el
       IF(ISYM2.EQ.ISYM1) THEN
        NT=NASH(ISYM1)
-       IF(NT.EQ.0) GOTO 100
+       IF(NT.EQ.0) RETURN
        DO ISYMIJ=1,NSYM
         ISYMA=MUL(ISYMIJ,ISYM1)
         NA=NSSH(ISYMA)
@@ -288,16 +288,16 @@ C  A&EM One-el
   95    CONTINUE
        END DO
       END IF
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
    6  CONTINUE
 
 C  BP&EP Two-el
       NA=NSSH(ISYM12)
-      IF(NA.EQ.0) GOTO 100
+      IF(NA.EQ.0) RETURN
       LLST1=LLIST(ISYM1,ISYM2, 9)
       NLST1=NLIST(ISYM1,ISYM2, 9)
-      IF(NLST1.EQ.0) GOTO 100
+      IF(NLST1.EQ.0) RETURN
       VAL1(1)= SQRI2
       VAL1(2)= SQRI2
       IX=1
@@ -313,16 +313,16 @@ C  BP&EP Two-el
       LEN1=NIS1
       LEN2=NA
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
    7  CONTINUE
 
 C  BM&EM Two-el
       NA=NSSH(ISYM12)
-      IF(NA.EQ.0) GOTO 100
+      IF(NA.EQ.0) RETURN
       LLST1=LLIST(ISYM1,ISYM2,10)
       NLST1=NLIST(ISYM1,ISYM2,10)
-      IF(NLST1.EQ.0) GOTO 100
+      IF(NLST1.EQ.0) RETURN
 * Original:
 *     VAL1(1)=-SQRI6
 *     VAL1(2)= SQRI6
@@ -342,7 +342,7 @@ C  BM&EM Two-el
       LEN1=NIS1
       LEN2=NA
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
    8  CONTINUE
 
@@ -352,8 +352,8 @@ C  C&D  One-el
       LLST1=LLIST(ISYM1,ISYM2,11)
       NLST1=NLIST(ISYM1,ISYM2,11)
       IF(NLST1.EQ.0) GOTO 98
-      VAL1(1)= 2.0D00
-      VAL1(2)= 1.0D00
+      VAL1(1)= Two
+      VAL1(2)= One
       IXTA=1
       INCX1=1
       INCX2=NASH(ISYM1)
@@ -371,12 +371,12 @@ C  C&D  One-el
 
 C  C&D  Two-el
       NI=NISH(ISYM12)
-      IF(NI.EQ.0) GOTO 100
+      IF(NI.EQ.0) RETURN
       LLST1=LLIST(ISYM1,ISYM2, 2)
       NLST1=NLIST(ISYM1,ISYM2, 2)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)=-1.0D00
-      VAL1(2)=-1.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)=-One
+      VAL1(2)=-One
       IX=1
       INCX1=1
       INCX2=NAS1
@@ -390,7 +390,7 @@ C  C&D  Two-el
       LEN1=NSSH(ISYM1)
       LEN2=NI
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
    9  CONTINUE
 
@@ -398,12 +398,12 @@ C  C&FP One-el
       LLST1=LLIST(ISYM1,ISYM2,12)
       NLST1=NLIST(ISYM1,ISYM2,12)
       IF(NLST1.EQ.0) GOTO 99
-      VAL1(1)=-1.0D00
-      VAL1(2)=-2.0D00
+      VAL1(1)=-One
+      VAL1(2)=-Two
       LLST2=LLIST(ISYM1,ISYM2,16)
       NLST2=NLIST(ISYM1,ISYM2,16)
       IF(NLST2.EQ.0) GOTO 99
-      VAL2(1)=1.0D00
+      VAL2(1)=One
       VAL2(2)=SQR2
       IXTA=1
       INCX1=1
@@ -421,13 +421,13 @@ C  C&FP One-el
 C  C&FP Two-el
       LLST1=LLIST(ISYM1,ISYM2, 5)
       NLST1=NLIST(ISYM1,ISYM2, 5)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)= 1.0D00
-      VAL1(2)= 2.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)= One
+      VAL1(2)= Two
       LLST2=LLIST(ISYM1,ISYM2,16)
       NLST2=NLIST(ISYM1,ISYM2,16)
-      IF(NLST2.EQ.0) GOTO 100
-      VAL2(1)=1.0D00
+      IF(NLST2.EQ.0) RETURN
+      VAL2(1)=One
       VAL2(2)=SQR2
       IX=1
       INCX1=1
@@ -440,7 +440,7 @@ C  C&FP Two-el
       INCY2=NTGEU(ISYM2)
       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &            X2(IX),DPT2(IDTA),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   10  CONTINUE
 
@@ -448,13 +448,13 @@ C  C&FM One-el
       LLST1=LLIST(ISYM1,ISYM2,13)
       NLST1=NLIST(ISYM1,ISYM2,13)
       IF(NLST1.EQ.0) GOTO 910
-      VAL1(1)=-1.0D00
-      VAL1(2)= 1.0D00
+      VAL1(1)=-One
+      VAL1(2)= One
       LLST2=LLIST(ISYM1,ISYM2,17)
       NLST2=NLIST(ISYM1,ISYM2,17)
       IF(NLST2.EQ.0) GOTO 910
-      VAL2(1)=1.0D00
-      VAL2(2)=-1.0D00
+      VAL2(1)=One
+      VAL2(2)=-One
       IXTA=1
       INCX1=1
       INCX2=NASH(ISYM1)
@@ -471,14 +471,14 @@ C  C&FM One-el
 C  C&FM Two-el
       LLST1=LLIST(ISYM1,ISYM2, 6)
       NLST1=NLIST(ISYM1,ISYM2, 6)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)=-1.0D00
-      VAL1(2)= 1.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)=-One
+      VAL1(2)= One
       LLST2=LLIST(ISYM1,ISYM2,17)
       NLST2=NLIST(ISYM1,ISYM2,17)
-      IF(NLST2.EQ.0) GOTO 100
-      VAL2(1)=1.0D00
-      VAL2(2)=-1.0D00
+      IF(NLST2.EQ.0) RETURN
+      VAL2(1)=One
+      VAL2(2)=-One
       IX=1
       INCX1=1
       INCX2=NTUV(ISYM1)
@@ -490,14 +490,14 @@ C  C&FM Two-el
       INCY2=NTGTU(ISYM2)
       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
      &            X2(IX),DPT2(IDTA),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   11  CONTINUE
 
 C  C&GP One-el
       IF(ISYM2.EQ.ISYM1) THEN
        NT=NASH(ISYM1)
-       IF(NT.EQ.0) GOTO 100
+       IF(NT.EQ.0) RETURN
        DO ISYMAB=1,NSYM
         ISYMI=MUL(ISYMAB,ISYM1)
         NI=NISH(ISYMI)
@@ -506,7 +506,7 @@ C  C&GP One-el
         NLST1=NLIST(ISYM1,ISYMAB,16)
         IF(NLST1.EQ.0) GOTO 911
         VAL1(1)= SQRI2
-        VAL1(2)= 1.0D00
+        VAL1(2)= One
         IXTA=1
         INCX1=NT
         INCX2=1
@@ -523,14 +523,14 @@ C  C&GP One-el
  911    CONTINUE
        END DO
       END IF
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   12  CONTINUE
 
 C  C&GM One-el
       IF(ISYM2.EQ.ISYM1) THEN
        NT=NASH(ISYM1)
-       IF(NT.EQ.0) GOTO 100
+       IF(NT.EQ.0) RETURN
        DO ISYMAB=1,NSYM
         ISYMI=MUL(ISYMAB,ISYM1)
         NI=NISH(ISYMI)
@@ -556,7 +556,7 @@ C  C&GM One-el
  912    CONTINUE
        END DO
       END IF
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   13  CONTINUE
 
@@ -576,7 +576,7 @@ CPAM98 Added line:
         NLST1=NLIST(ISYMI,ISYMIJ,14)
         IF(NLST1.EQ.0) GOTO 813
         VAL1(1)= SQRI2
-        VAL1(2)= 1.0D00
+        VAL1(2)= One
 CPAM98        IXIA=1+IOFDIA(ISYMI)
 CPAM98 Added line:
         IXIA=IOXIA+1
@@ -602,11 +602,11 @@ CPAM98 Added line:
 C  D&EP Two-el
       LLST1=LLIST(ISYM1,ISYM2, 7)
       NLST1=NLIST(ISYM1,ISYM2, 7)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)=-1.0D00
-      VAL1(2)=-1.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)=-One
+      VAL1(2)=-One
       NU=NASH(ISYM2)
-      IF(NU.EQ.0) GOTO 100
+      IF(NU.EQ.0) RETURN
       DO ISYMA=1,NSYM
         NA=NSSH(ISYMA)
         IF(NA.EQ.0) GOTO 713
@@ -618,7 +618,7 @@ C  D&EP Two-el
         NLST2=NLIST(ISYMI,ISYMIJ,14)
         IF(NLST2.EQ.0) GOTO 713
         VAL2(1)= SQRI2
-        VAL2(2)= 1.0D00
+        VAL2(2)= One
         IX=1+NAS1*IOFCD(ISYM1,ISYMA)
         INCX1=1
         INCX2=NAS1
@@ -635,7 +635,7 @@ C  D&EP Two-el
      &              X2(IX),DPT2(IDIT),Y(IY))
  713    CONTINUE
       END DO
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   14  CONTINUE
 
@@ -681,11 +681,11 @@ CPAM98 Added line:
 C  D&EM Two-el
       LLST1=LLIST(ISYM1,ISYM2, 7)
       NLST1=NLIST(ISYM1,ISYM2, 7)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)=-1.0D00
-      VAL1(2)= 1.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)=-One
+      VAL1(2)= One
       NU=NASH(ISYM2)
-      IF(NU.EQ.0) GOTO 100
+      IF(NU.EQ.0) RETURN
       DO ISYMA=1,NSYM
         NA=NSSH(ISYMA)
         IF(NA.EQ.0) GOTO 714
@@ -714,18 +714,18 @@ C  D&EM Two-el
      &              X2(IX),DPT2(IDIT),Y(IY))
  714    CONTINUE
       END DO
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   15  CONTINUE
 
 C  D&GP Two-el
       LLST1=LLIST(ISYM1,ISYM2, 8)
       NLST1=NLIST(ISYM1,ISYM2, 8)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)= 1.0D00
-      VAL1(2)= 1.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)= One
+      VAL1(2)= One
       NU=NASH(ISYM2)
-      IF(NU.EQ.0) GOTO 100
+      IF(NU.EQ.0) RETURN
       DO ISYMA=1,NSYM
         ISYMI=MUL(ISYMA,ISYM1)
         NI=NISH(ISYMI)
@@ -735,7 +735,7 @@ C  D&GP Two-el
         NLST2=NLIST(ISYMA,ISYMAB,16)
         IF(NLST2.EQ.0) GOTO 915
         VAL2(1)= SQRI2
-        VAL2(2)= 1.0D00
+        VAL2(2)= One
         IX=1+NAS1*IOFCD(ISYM1,ISYMA)
         INCX1=1
         INCX2=NAS1*NI
@@ -752,18 +752,18 @@ C  D&GP Two-el
      &              X2(IX),DPT2(IDTA),Y(IY))
  915    CONTINUE
       END DO
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   16  CONTINUE
 
 C  D&GM Two-el
       LLST1=LLIST(ISYM1,ISYM2, 8)
       NLST1=NLIST(ISYM1,ISYM2, 8)
-      IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)=-1.0D00
-      VAL1(2)= 1.0D00
+      IF(NLST1.EQ.0) RETURN
+      VAL1(1)=-One
+      VAL1(2)= One
       NU=NASH(ISYM2)
-      IF(NU.EQ.0) GOTO 100
+      IF(NU.EQ.0) RETURN
       DO ISYMA=1,NSYM
         ISYMI=MUL(ISYMA,ISYM1)
         NI=NISH(ISYMI)
@@ -790,18 +790,18 @@ C  D&GM Two-el
      &              X2(IX),DPT2(IDTA),Y(IY))
  916    CONTINUE
       END DO
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   17  CONTINUE
 
 C  EP&HP Two-el
       NA=NSSH(ISYM12)
-      IF(NA.EQ.0) GOTO 100
+      IF(NA.EQ.0) RETURN
       LLST1=LLIST(ISYM12,ISYM2,16)
       NLST1=NLIST(ISYM12,ISYM2,16)
-      IF(NLST1.EQ.0) GOTO 100
+      IF(NLST1.EQ.0) RETURN
       VAL1(1)= SQRI2
-      VAL1(2)= 1.0D00
+      VAL1(2)= One
       IX=1+NAS1*IOFCEP(ISYM1,ISYM12)
       INCX1=NAS1
       INCX2=1
@@ -815,16 +815,16 @@ C  EP&HP Two-el
       LEN1=NAS1
       LEN2=NIGEJ(ISYM2)
       CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   18  CONTINUE
 
 C  EM&HM Two-el
       NA=NSSH(ISYM12)
-      IF(NA.EQ.0) GOTO 100
+      IF(NA.EQ.0) RETURN
       LLST1=LLIST(ISYM12,ISYM2,17)
       NLST1=NLIST(ISYM12,ISYM2,17)
-      IF(NLST1.EQ.0) GOTO 100
+      IF(NLST1.EQ.0) RETURN
       VAL1(1)= SQRI2
       VAL1(2)=-SQRI2
       IX=1+NAS1*IOFCEM(ISYM1,ISYM12)
@@ -840,16 +840,16 @@ C  EM&HM Two-el
       LEN1=NAS1
       LEN2=NIGTJ(ISYM2)
       CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   19  CONTINUE
 
 C  FP&GP Two-el
       NI=NISH(ISYM12)
-      IF(NI.EQ.0) GOTO 100
+      IF(NI.EQ.0) RETURN
       LLST1=LLIST(ISYM1,ISYM2, 9)
       NLST1=NLIST(ISYM1,ISYM2, 9)
-      IF(NLST1.EQ.0) GOTO 100
+      IF(NLST1.EQ.0) RETURN
       VAL1(1)=-SQRI2
       VAL1(2)=-SQRI2
       IX=1
@@ -865,16 +865,16 @@ C  FP&GP Two-el
       LEN1=NIS1
       LEN2=NI
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   20  CONTINUE
 
 C  FM&GM Two-el
       NI=NISH(ISYM12)
-      IF(NI.EQ.0) GOTO 100
+      IF(NI.EQ.0) RETURN
       LLST1=LLIST(ISYM1,ISYM2,10)
       NLST1=NLIST(ISYM1,ISYM2,10)
-      IF(NLST1.EQ.0) GOTO 100
+      IF(NLST1.EQ.0) RETURN
       VAL1(1)=-SQRI6
       VAL1(2)= SQRI6
       IX=1
@@ -890,16 +890,16 @@ C  FM&GM Two-el
       LEN1=NIS1
       LEN2=NI
       CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   21  CONTINUE
 
 C  GP&HP Two-el
       LLST1=LLIST(ISYM12,ISYM2,14)
       NLST1=NLIST(ISYM12,ISYM2,14)
-      IF(NLST1.EQ.0) GOTO 100
+      IF(NLST1.EQ.0) RETURN
       VAL1(1)= -SQRI2
-      VAL1(2)= -1.0D00
+      VAL1(2)= -One
       IX=1+NAS1*IOFCGP(ISYM1,ISYM12)
       INCX1=NAS1
       INCX2=1
@@ -913,14 +913,14 @@ C  GP&HP Two-el
       LEN1=NAS1
       LEN2=NAS2
       CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   22  CONTINUE
 
 C  GM&HM Two-el
       LLST1=LLIST(ISYM12,ISYM2,15)
       NLST1=NLIST(ISYM12,ISYM2,15)
-      IF(NLST1.EQ.0) GOTO 100
+      IF(NLST1.EQ.0) RETURN
       VAL1(1)= SQRI2
       VAL1(2)=-SQRI2
       IX=1+NAS1*IOFCGM(ISYM1,ISYM12)
@@ -936,12 +936,12 @@ C  GM&HM Two-el
       LEN1=NAS1
       LEN2=NAS2
       CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
-      GOTO 100
+      RETURN
 C  -----------------------------------------------
   23  CONTINUE
 
 C  D&HP One-el
-      IF(ISYM1.NE.1) GOTO 100
+      IF(ISYM1.NE.1) RETURN
       IOXIA=0
       DO ISYMI=1,NSYM
        NI=NISH(ISYMI)
@@ -979,13 +979,13 @@ C  D&HP One-el
 923    CONTINUE
        IOXIA=IOXIA+NI*NA
       END DO
-      GOTO 100
+      RETURN
 
 C  ---------------------------
 
   24  CONTINUE
 C  D&HM One-el
-      IF(ISYM1.NE.1) GOTO 100
+      IF(ISYM1.NE.1) RETURN
       IOXIA=0
       DO ISYMI=1,NSYM
        NI=NISH(ISYMI)
@@ -1007,8 +1007,8 @@ C  D&HM One-el
        LLST2=LLIST(ISYMA,ISYM2,17)
        NLST2=NLIST(ISYMA,ISYM2,17)
        IF(NLST2.EQ.0) GOTO 924
-       VAL2(1)=1.0D0
-       VAL2(2)=-1.0D0
+       VAL2(1)= One
+       VAL2(2)=-One
        IXIA=IOXIA+1
        INCX1=1
        INCX2=NI
@@ -1023,9 +1023,5 @@ C  D&HM One-el
  924   CONTINUE
        IOXIA=IOXIA+NI*NA
       END DO
-      GOTO 100
-C  -----------------------------------------------
- 100  CONTINUE
 
-      RETURN
-      END
+      END SUBROUTINE OFFDNS
