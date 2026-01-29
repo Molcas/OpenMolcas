@@ -103,8 +103,13 @@ C-SVC: print out DNRM2 of the all RHS components
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_ZERO(IVEC)
-      use caspt2_module
+      use definitions, only: iwp
+      use constants, only: Zero
+      use caspt2_module, only: NSYM,NASUP,NISUP
       IMPLICIT REAL*8 (A-H,O-Z)
+      Integer(kind=iwp), Intent(inout):: IVEC
+
+      Integer(kind=iwp) ICASE, ISYM, NAS, NIS, NW, lg_W
 
 C-SVC: zero out the entire RHS vector on IVEC
       DO ICASE=1,13
@@ -116,7 +121,7 @@ C-SVC: zero out the entire RHS vector on IVEC
 
           IF (NW.NE.0) THEN
             CALL RHS_ALLO(NAS,NIS,lg_W)
-            CALL RHS_SCAL(NAS,NIS,lg_W,0.0D0)
+            CALL RHS_SCAL(NAS,NIS,lg_W,Zero)
             CALL RHS_SAVE(NAS,NIS,lg_W,iCASE,iSYM,iVEC)
             CALL RHS_FREE(lg_W)
           END IF
