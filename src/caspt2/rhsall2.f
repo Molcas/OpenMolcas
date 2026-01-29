@@ -644,7 +644,7 @@ C-SVC: sanity check
       End Subroutine ADDTUVX
 
       SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,NCHOBUF,NPIQK,NADDBUF)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp
       USE CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only: iParRHS,iPrGlb,iStpGrd
       use PrintLevel, only: verbose
