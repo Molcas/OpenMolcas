@@ -156,18 +156,18 @@ C-SVC: zero out the entire RHS vector on IVEC
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_FREE (lg_W)
 CSVC: this routine writes the RHS array to disk
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: Deallocate_GA_Array
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), intent(inout):: lg_w
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL bStat
-#endif
+      LOGICAL(kind=iwp) bStat
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
 CSVC: Destroy the global array
         bStat=GA_Destroy(lg_W)
