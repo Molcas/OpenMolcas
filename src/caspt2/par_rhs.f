@@ -57,11 +57,17 @@ C update the disk address in IOFFRHS
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_FPRINT(CTYPE,IVEC)
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
-      REAL*8 :: FP(8)
-      CHARACTER(LEN=*) :: CTYPE
+      integer(kind=iwp), Intent(in):: IVEC
+      CHARACTER(LEN=*), intent(in):: CTYPE
+
+      real(kind=wp) :: FP(8)
+      integer(kind=iwp) NROW, ICASE, ISYM, NAS, NIN, NIS, lg_W
+      real(kind=wp), external:: RHS_DDOT
 
 C-SVC: print out DNRM2 of the all RHS components
       NROW=0 ! dummy initialize
@@ -77,7 +83,7 @@ C-SVC: print out DNRM2 of the all RHS components
           ELSE IF (CTYPE.EQ.'SR') THEN
             NROW=NIN
           ELSE
-            WRITE(6,'(1X,A)') 'RHS_FPRINT: invalid type: '//CTYPE
+            WRITE(u6,'(1X,A)') 'RHS_FPRINT: invalid type: '//CTYPE
             CALL ABEND()
           END IF
 
@@ -87,10 +93,10 @@ C-SVC: print out DNRM2 of the all RHS components
             FP(ISYM)=SQRT(RHS_DDOT(NROW,NIS,lg_W,lg_W))
             CALL RHS_FREE(lg_W)
           ELSE
-            FP(ISYM)=0.0D0
+            FP(ISYM)=Zero
           END IF
         END DO
-        WRITE(6,'(1X,I2,1X,8F21.14)') ICASE, FP(1:NSYM)
+        WRITE(u6,'(1X,I2,1X,8F21.14)') ICASE, FP(1:NSYM)
       END DO
 
       END SUBROUTINE RHS_FPRINT
