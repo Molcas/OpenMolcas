@@ -313,30 +313,29 @@ C Avoid unused argument warnings
       SUBROUTINE RHS_RELEASE_UPDATE (lg_W,iLo,iHi,jLo,jHi)
 CSVC: this routine releases a local block that was written to back to
 C the global array
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), Intent(inout):: lg_W,iLo,iHi,jLo,jHi
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#endif
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         IF (iLo.GT.0 .AND. jLo.GT.0) THEN
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
       END IF
 #else
+#include "macros.fh"
 C Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(lg_W)
-        CALL Unused_integer(iLo)
-        CALL Unused_integer(iHi)
-        CALL Unused_integer(jLo)
-        CALL Unused_integer(jHi)
-      END IF
+      unused_var(lg_W)
+      unused_var(iLo)
+      unused_var(iHi)
+      unused_var(jLo)
+      unused_var(jHi)
 #endif
 
       END SUBROUTINE RHS_RELEASE_UPDATE
