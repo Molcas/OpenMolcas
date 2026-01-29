@@ -1114,26 +1114,27 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHS_RESDIA(NIN,NIS,lg_W,DIN,DIS,DOVL)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
+      use constants, only: Zero
 #endif
-      use EQSOLV
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
-      DIMENSION DIN(*),DIS(*)
+      integer(kind=iwp), intent(in):: NIN,NIS,lg_W
+      real(kind=wp), Intent(in):: DIN(*),DIS(*)
+      real(kind=wp), Intent(Out):: DOVL
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-#endif
+      integer(kind=iwp) myRank,iLo,iHi,jLo,jHi,NROW,NCOL,mW,LDW
 
-#ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
-        DOVL=0.0D0
+        DOVL=Zero
         CALL GA_Sync()
         myRank = GA_NodeID()
 C-SVC: get the local vertical stripes of the lg_W vector
