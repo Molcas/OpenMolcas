@@ -52,7 +52,7 @@ C SVC: set up a CSF string length as LENCSF
       LENCSF=0
       ISY=0
       DO LEV=1,NLEV
-        IF(ISY.NE.SGS%ISM(LEV)) THEN
+        IF(ISY/=SGS%ISM(LEV)) THEN
           ISY=SGS%ISM(LEV)
           LENCSF=LENCSF+1
         END IF
@@ -61,16 +61,13 @@ C SVC: set up a CSF string length as LENCSF
       LENCSF=MIN(LENCSF,256)
       LENCSF=MAX(LENCSF,10)
 
- 100  FORMAT(2X,A10,2X,A16,2X,A,2(2X,A13))
- 200  FORMAT(2X,I10,2X,'(',I2,':',I1,':',I4,'/',I4,')',
-     &       2X,A,2(2X,F13.6))
 
 C Size of occup/spin coupling part of line:
       WRITE(u6,*)' Occupation of active orbitals, and spin coupling'
       WRITE(u6,*)' of open shells. (u,d: Spin up or down).'
       WRITE(u6,*)' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
       LINE(1:10)='Occupation'
-      WRITE(u6,100)
+      WRITE(u6,'(2X,A10,2X,A16,2X,A,2(2X,A13))')
      & 'Conf','SGUGA info      ',LINE(1:LENCSF),
      & 'Coefficient','Weight'
 
@@ -84,10 +81,10 @@ C     allocate scratch memory for determinant expansion
 
 C -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-      DO 40 MV=1,NMIDV
-        DO 41 ISYUP=1,NSYM
+      DO MV=1,NMIDV
+        DO ISYUP=1,NSYM
           NCI=NOCSF(ISYUP,MV,ISYCI)
-          IF(NCI.EQ.0) GOTO 41
+          IF(NCI==0) Cycle
           NUP=NOW(1,ISYUP,MV)
           ISYDWN=MUL(ISYUP,ISYCI)
           NDWN=NOW(2,ISYDWN,MV)
@@ -100,15 +97,15 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
               ICONF=ICONF+1
               COEF=CI(ICONF)
 C -- SKIP OR PRINT IT OUT?
-              IF(ABS(COEF).LT.THR) Cycle
-              IF(IDWNSV.NE.IDWN) THEN
+              IF(ABS(COEF)<THR) Cycle
+              IF(IDWNSV/=IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=CIS%ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
-                DO 10 LEV=1,SGS%MIDLEV
+                DO LEV=1,SGS%MIDLEV
                   NNN=NNN+1
-                  IF(NNN.EQ.16) THEN
+                  IF(NNN==16) THEN
                     NNN=1
                     ICDPOS=ICDPOS+1
                     ICDWN=CIS%ICASE(ICDPOS)
@@ -116,7 +113,7 @@ C -- UNPACK LOWER WALK.
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
                   ICDWN=IC1
-  10            CONTINUE
+                End Do
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
@@ -125,7 +122,7 @@ C -- UNPACK UPPER WALK:
               NNN=0
               DO LEV=SGS%MIDLEV+1,NLEV
                 NNN=NNN+1
-                IF(NNN.EQ.16) THEN
+                IF(NNN==16) THEN
                   NNN=1
                   ICUPOS=ICUPOS+1
                   ICUP=CIS%ICASE(ICUPOS)
@@ -138,7 +135,7 @@ C -- PRINT IT!
               K=0
               ISY=0
               DO LEV=1,NLEV
-                IF(ISY.NE.SGS%ISM(LEV)) THEN
+                IF(ISY/=SGS%ISM(LEV)) THEN
                   ISY=SGS%ISM(LEV)
                   K=K+1
                   LINE(K:K)=' '
@@ -146,7 +143,8 @@ C -- PRINT IT!
                 K=K+1
                 LINE(K:K)=CODE(ICS(LEV))
               END DO
-              WRITE(u6,200)
+              WRITE(u6,"(2X,I10,2X,'(',I2,':',I1,':',I4,'/',I4,')',
+     &       2X,A,2(2X,F13.6))")
      &               ICONF,MV,ISYUP,IUP,IDWN,
      &               LINE(1:LENCSF),COEF,COEF**2
 C     SVC2010 experimental: add determinant expansion
@@ -160,8 +158,8 @@ C     Default: use maximum spin projection
               ENDIF
             End Do
           End Do
-  41    CONTINUE
-  40  CONTINUE
+        End Do
+      End Do
 
 C     SVC2010: free scratch for determinant expansion
       IF (PRSD) CALL mma_deallocate(LEX)
