@@ -469,9 +469,8 @@ C  -----------------------------------------------
       Case(11)
 
 C  C&GP One-el
-      IF(ISYM2.EQ.ISYM1) THEN
-       NT=NASH(ISYM1)
-       IF(NT.EQ.0) RETURN
+      NT=NASH(ISYM1)
+      IF(ISYM2.EQ.ISYM1 .AND. NT/=0) THEN
        DO ISYMAB=1,NSYM
         ISYMI=MUL(ISYMAB,ISYM1)
         NI=NISH(ISYMI)
@@ -500,9 +499,8 @@ C  -----------------------------------------------
       Case(12)
 
 C  C&GM One-el
-      IF(ISYM2.EQ.ISYM1) THEN
-       NT=NASH(ISYM1)
-       IF(NT.EQ.0) RETURN
+      NT=NASH(ISYM1)
+      IF(ISYM2.EQ.ISYM1 .AND. NT/=0) THEN
        DO ISYMAB=1,NSYM
         ISYMI=MUL(ISYMAB,ISYM1)
         NI=NISH(ISYMI)
