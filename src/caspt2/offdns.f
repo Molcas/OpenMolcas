@@ -533,118 +533,104 @@ C  -----------------------------------------------
 C  D&EP One-el
       IF(ISYM1.EQ.1) THEN
        NT=NASH(ISYM2)
-       IF(NT.EQ.0) GOTO 913
-CPAM98 Added line:
+       IF(NT/=0) THEN
        IOXIA=0
        DO ISYMI=1,NSYM
         NI=NISH(ISYMI)
-        IF(NI.EQ.0) GOTO 813
         NA=NSSH(ISYMI)
-        IF(NA.EQ.0) GOTO 813
         ISYMIJ=MUL(ISYMI,ISYM2)
         LLST1=LLIST(ISYMI,ISYMIJ,14)
         NLST1=NLIST(ISYMI,ISYMIJ,14)
-        IF(NLST1.EQ.0) GOTO 813
-        VAL1(1)= SQRI2
-        VAL1(2)= One
-CPAM98        IXIA=1+IOFDIA(ISYMI)
-CPAM98 Added line:
-        IXIA=IOXIA+1
-        INCX1=1
-        INCX2=NI
-        IDIT=1+IOFDIT(ISYM2)
-        INCF1=1
-        INCF2=NORB(ISYM2)
-        IY=1+NAS2*IOFCEP(ISYM2,ISYMI)
-        INCY1=NT*NA
-        INCY2=NT
-        INCY3=1
-        LEN1=NA
-        LEN2=NT
-        CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXIA),DPT2(IDIT),Y(IY))
- 813    CONTINUE
-CPAM98 Added line:
+        IF(NI*NA*NLST1/=0) THEN
+          VAL1(1)= SQRI2
+          VAL1(2)= One
+          IXIA=IOXIA+1
+          INCX1=1
+          INCX2=NI
+          IDIT=1+IOFDIT(ISYM2)
+          INCF1=1
+          INCF2=NORB(ISYM2)
+          IY=1+NAS2*IOFCEP(ISYM2,ISYMI)
+          INCY1=NT*NA
+          INCY2=NT
+          INCY3=1
+          LEN1=NA
+          LEN2=NT
+          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXIA),DPT2(IDIT),Y(IY))
+        END IF
         IOXIA=IOXIA+NI*NA
        END DO
- 913   CONTINUE
+       END IF
       END IF
 
 C  D&EP Two-el
-      LLST1=LLIST(ISYM1,ISYM2, 7)
       NLST1=NLIST(ISYM1,ISYM2, 7)
-      IF(NLST1.EQ.0) RETURN
+      NU=NASH(ISYM2)
+      IF(NLST1*NU/=0) THEN
+      LLST1=LLIST(ISYM1,ISYM2, 7)
       VAL1(1)=-One
       VAL1(2)=-One
-      NU=NASH(ISYM2)
-      IF(NU.EQ.0) RETURN
       DO ISYMA=1,NSYM
         NA=NSSH(ISYMA)
-        IF(NA.EQ.0) GOTO 713
         ISYMI=MUL(ISYMA,ISYM1)
         NI=NISH(ISYMI)
-        IF(NI.EQ.0) GOTO 713
         ISYMIJ=MUL(ISYMI,ISYM12)
         LLST2=LLIST(ISYMI,ISYMIJ,14)
         NLST2=NLIST(ISYMI,ISYMIJ,14)
-        IF(NLST2.EQ.0) GOTO 713
-        VAL2(1)= SQRI2
-        VAL2(2)= One
-        IX=1+NAS1*IOFCD(ISYM1,ISYMA)
-        INCX1=1
-        INCX2=NAS1
-        INCX3=NAS1*NI
-        IDIT=1+IOFDIT(ISYM12)
-        INCF1=NORB(ISYM12)
-        INCF2=1
-        IY=1+NU*IOFCEP(ISYM2,ISYMA)
-        INCY1=1
-        INCY2=NU*NA
-        INCY3=NU
-        LEN1=NA
-        CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X2(IX),DPT2(IDIT),Y(IY))
- 713    CONTINUE
+        IF(NA*NI*NLST2/=0) THEN
+          VAL2(1)= SQRI2
+          VAL2(2)= One
+          IX=1+NAS1*IOFCD(ISYM1,ISYMA)
+          INCX1=1
+          INCX2=NAS1
+          INCX3=NAS1*NI
+          IDIT=1+IOFDIT(ISYM12)
+          INCF1=NORB(ISYM12)
+          INCF2=1
+          IY=1+NU*IOFCEP(ISYM2,ISYMA)
+          INCY1=1
+          INCY2=NU*NA
+          INCY3=NU
+          LEN1=NA
+          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &                X2(IX),DPT2(IDIT),Y(IY))
+        END IF
       END DO
+      END IF
 C  -----------------------------------------------
       Case(14)
 
 C  D&EM One-el
       IF(ISYM1.EQ.1) THEN
        NT=NASH(ISYM2)
-       IF(NT.EQ.0) GOTO 914
-CPAM98 Added line:
+       IF(NT/=0) THEN
        IOXIA=0
        DO ISYMI=1,NSYM
         NI=NISH(ISYMI)
-        IF(NI.EQ.0) GOTO 814
         NA=NSSH(ISYMI)
-        IF(NI.EQ.0) GOTO 814
         ISYMIJ=MUL(ISYMI,ISYM2)
         LLST1=LLIST(ISYMI,ISYMIJ,15)
         NLST1=NLIST(ISYMI,ISYMIJ,15)
-        IF(NLST1.EQ.0) GOTO 814
-        VAL1(1)= SQR32
-        VAL1(2)=-SQR32
-CPAM98        IXIA=1+IOFDIA(ISYMI)
-CPAM98 Added line:
-        IXIA=IOXIA+1
-        INCX1=1
-        INCX2=NI
-        IDIT=1+IOFDIT(ISYM2)
-        INCF1=1
-        INCF2=NORB(ISYM2)
-        IY=1+NAS2*IOFCEM(ISYM2,ISYMI)
-        INCY1=NT*NA
-        INCY2=NT
-        INCY3=1
-        LEN1=NA
-        LEN2=NT
-        CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXIA),DPT2(IDIT),Y(IY))
- 814    CONTINUE
-CPAM98 Added line:
+        IF(NI*NLST1/=0) THEN
+          VAL1(1)= SQR32
+          VAL1(2)=-SQR32
+          IXIA=IOXIA+1
+          INCX1=1
+          INCX2=NI
+          IDIT=1+IOFDIT(ISYM2)
+          INCF1=1
+          INCF2=NORB(ISYM2)
+          IY=1+NAS2*IOFCEM(ISYM2,ISYMI)
+          INCY1=NT*NA
+          INCY2=NT
+          INCY3=1
+          LEN1=NA
+          LEN2=NT
+          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXIA),DPT2(IDIT),Y(IY))
+        END IF
         IOXIA=IOXIA+NI*NA
        END DO
- 914   CONTINUE
+       END IF
       END IF
 
 C  D&EM Two-el
@@ -657,31 +643,29 @@ C  D&EM Two-el
       IF(NU.EQ.0) RETURN
       DO ISYMA=1,NSYM
         NA=NSSH(ISYMA)
-        IF(NA.EQ.0) GOTO 714
         ISYMI=MUL(ISYMA,ISYM1)
         NI=NISH(ISYMI)
-        IF(NI.EQ.0) GOTO 714
         ISYMIJ=MUL(ISYMI,ISYM12)
-        LLST2=LLIST(ISYMI,ISYMIJ,15)
         NLST2=NLIST(ISYMI,ISYMIJ,15)
-        IF(NLST2.EQ.0) GOTO 714
-        VAL2(1)= SQRI6
-        VAL2(2)=-SQRI6
-        IX=1+NAS1*IOFCD(ISYM1,ISYMA)
-        INCX1=1
-        INCX2=NAS1
-        INCX3=NAS1*NI
-        IDIT=1+IOFDIT(ISYM12)
-        INCF1=NORB(ISYM12)
-        INCF2=1
-        IY=1+NU*IOFCEM(ISYM2,ISYMA)
-        INCY1=1
-        INCY2=NU*NA
-        INCY3=NU
-        LEN1=NA
-        CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X2(IX),DPT2(IDIT),Y(IY))
- 714    CONTINUE
+        IF(NA*NI*NLST2/=0) THEN
+          LLST2=LLIST(ISYMI,ISYMIJ,15)
+          VAL2(1)= SQRI6
+          VAL2(2)=-SQRI6
+          IX=1+NAS1*IOFCD(ISYM1,ISYMA)
+          INCX1=1
+          INCX2=NAS1
+          INCX3=NAS1*NI
+          IDIT=1+IOFDIT(ISYM12)
+          INCF1=NORB(ISYM12)
+          INCF2=1
+          IY=1+NU*IOFCEM(ISYM2,ISYMA)
+          INCY1=1
+          INCY2=NU*NA
+          INCY3=NU
+          LEN1=NA
+          CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &                X2(IX),DPT2(IDIT),Y(IY))
+        END IF
       END DO
 C  -----------------------------------------------
       Case(15)
@@ -984,6 +968,7 @@ C  D&HM One-el
        IOXIA=IOXIA+NI*NA
       END DO
       Case default
+        WRITE(6,*)' INTERNAL ERROR: OffDns reached invalid KOD=',KOD
         Call Abend()
       End Select
 

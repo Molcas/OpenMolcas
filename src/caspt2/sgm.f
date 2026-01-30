@@ -243,7 +243,7 @@ C ICASE2= 5
 
 C  A&D  Two-el
         NLST1=NLIST(ISYM1,ISYM2, 1)
-        IF(NLST1.NE.0) THEN
+        IF(NLST1/=0) THEN
           LLST1=LLIST(ISYM1,ISYM2, 1)
           VAL1(1)= One
           VAL1(2)= One
@@ -271,7 +271,7 @@ C ICASE2= 6
 C  A&EP One-el
         IF(ISYM2.EQ.ISYM1) THEN
           NT=NASH(ISYM1)
-          IF(NT.NE.0) THEN
+          IF(NT/=0) THEN
             DO ISYMIJ=1,NSYM
             ISYMA=MUL(ISYMIJ,ISYM1)
             NA=NSSH(ISYMA)
@@ -307,7 +307,7 @@ C ICASE2= 7
 C  A&EM One-el
         IF(ISYM2.EQ.ISYM1) THEN
           NT=NASH(ISYM1)
-          IF(NT.NE.0) THEN
+          IF(NT/=0) THEN
             DO ISYMIJ=1,NSYM
             ISYMA=MUL(ISYMIJ,ISYM1)
             NA=NSSH(ISYMA)
@@ -559,7 +559,7 @@ C ICASE2= 10
 C  C&GP One-el
         IF(ISYM2.EQ.ISYM1) THEN
           NT=NASH(ISYM1)
-          IF(NT.NE.0) THEN
+          IF(NT/=0) THEN
             DO ISYMAB=1,NSYM
             ISYMI=MUL(ISYMAB,ISYM1)
             NI=NISH(ISYMI)
@@ -595,7 +595,7 @@ C ICASE2= 11
 C  C&GM One-el
         IF(ISYM2.EQ.ISYM1) THEN
           NT=NASH(ISYM1)
-          IF(NT.NE.0) THEN
+          IF(NT/=0) THEN
             DO ISYMAB=1,NSYM
             ISYMI=MUL(ISYMAB,ISYM1)
             NI=NISH(ISYMI)
@@ -631,7 +631,7 @@ C ICASE2= 6
 C  D&EP One-el
         IF(ISYM1.EQ.1) THEN
           NT=NASH(ISYM2)
-          IF(NT.NE.0) THEN
+          IF(NT/=0) THEN
             DO ISYMI=1,NSYM
             NI=NISH(ISYMI)
             NA=NSSH(ISYMI)
@@ -664,11 +664,11 @@ C  D&EP One-el
 C  D&EP Two-el
         LLST1=LLIST(ISYM1,ISYM2, 7)
         NLST1=NLIST(ISYM1,ISYM2, 7)
-        IF(NLST1.NE.0) THEN
+        IF(NLST1/=0) THEN
           VAL1(1)=-One
           VAL1(2)=-One
           NU=NASH(ISYM2)
-          IF(NU.NE.0) THEN
+          IF(NU/=0) THEN
             DO ISYMA=1,NSYM
             NA=NSSH(ISYMA)
             ISYMI=MUL(ISYMA,ISYM1)
@@ -706,7 +706,7 @@ C ICASE2= 7
 C  D&EM One-el
         IF(ISYM1.EQ.1) THEN
           NT=NASH(ISYM2)
-          IF(NT.NE.0) THEN
+          IF(NT/=0) THEN
             DO ISYMI=1,NSYM
             NI=NISH(ISYMI)
             NA=NSSH(ISYMI)
@@ -739,11 +739,11 @@ C  D&EM One-el
 C  D&EM Two-el
         LLST1=LLIST(ISYM1,ISYM2, 7)
         NLST1=NLIST(ISYM1,ISYM2, 7)
-        IF(NLST1.NE.0) THEN
+        IF(NLST1/=0) THEN
           VAL1(1)=-One
           VAL1(2)= One
           NU=NASH(ISYM2)
-          IF(NU.NE.0) THEN
+          IF(NU/=0) THEN
             DO ISYMA=1,NSYM
             NA=NSSH(ISYMA)
               ISYMI=MUL(ISYMA,ISYM1)
@@ -781,11 +781,11 @@ C ICASE2= 10
 C  D&GP Two-el
         LLST1=LLIST(ISYM1,ISYM2, 8)
         NLST1=NLIST(ISYM1,ISYM2, 8)
-        IF(NLST1.NE.0) THEN
+        IF(NLST1/=0) THEN
           VAL1(1)= One
           VAL1(2)= One
           NU=NASH(ISYM2)
-          IF(NU.NE.0) THEN
+          IF(NU/=0) THEN
             DO ISYMA=1,NSYM
             ISYMI=MUL(ISYMA,ISYM1)
             NI=NISH(ISYMI)
@@ -822,11 +822,11 @@ C ICASE2= 11
 C  D&GM Two-el
         LLST1=LLIST(ISYM1,ISYM2, 8)
         NLST1=NLIST(ISYM1,ISYM2, 8)
-        IF(NLST1.NE.0) THEN
+        IF(NLST1/=0) THEN
           VAL1(1)=-One
           VAL1(2)= One
           NU=NASH(ISYM2)
-          IF(NU.NE.0) THEN
+          IF(NU/=0) THEN
             DO ISYMA=1,NSYM
             ISYMI=MUL(ISYMA,ISYM1)
             NI=NISH(ISYMI)
@@ -961,7 +961,7 @@ C ICASE2= 12
 C  GP&HP Two-el
         LLST1=LLIST(ISYM12,ISYM2,14)
         NLST1=NLIST(ISYM12,ISYM2,14)
-        IF(NLST1.NE.0) THEN
+        IF(NLST1/=0) THEN
           VAL1(1)= -SQRI2
           VAL1(2)= -One
           JXOFF=IOFCGP(ISYM1,ISYM12)
@@ -981,7 +981,7 @@ C ICASE2= 13
 C  GM&HM Two-el
         LLST1=LLIST(ISYM12,ISYM2,15)
         NLST1=NLIST(ISYM12,ISYM2,15)
-        IF(NLST1.NE.0) THEN
+        IF(NLST1/=0) THEN
           VAL1(1)= SQRI2
           VAL1(2)=-SQRI2
           JXOFF=IOFCGM(ISYM1,ISYM12)
@@ -1002,35 +1002,33 @@ C  D&HP One-el
         IF(ISYM1.EQ.1) THEN
           DO ISYMI=1,NSYM
           NI=NISH(ISYMI)
-          IF(NI.NE.0) THEN
+          IF(NI/=0) THEN
             ISYMA=ISYMI
             NA=NSSH(ISYMA)
-            IF(NA.NE.0) THEN
+            IF(NA/=0) THEN
               ISYMJ=MUL(ISYMI,ISYM2)
               NJ=NISH(ISYMJ)
-              IF(NJ.NE.0) THEN
-                ISYMB=ISYMJ
-                NB=NSSH(ISYMB)
-                NLST1=NLIST(ISYMI,ISYM2,14)
-                NLST2=NLIST(ISYMA,ISYM2,16)
-                IF(NB*NLST1*NLST2/=0) THEN
-                  LLST1=LLIST(ISYMI,ISYM2,14)
-                  VAL1(1)=SQRI2
-                  VAL1(2)=One
-                  LLST2=LLIST(ISYMA,ISYM2,16)
-                  VAL2(1)=SQRI2
-                  VAL2(2)=One
-                  IXIA=1+IOFFIA(ISYMI)
-                  INCX1=1
-                  INCX2=NI
-                  CALL PMLTSCA(KOD,IMLTOP,
-     &                         LIST(LLST1),LIST(LLST2),
-     &                         X1(IXIA),NI,NA,
-     &                         FIA(ISYMB)%A,NJ,NB,
-     &                         lg_Y,NAS2,NIS2)
-                END IF
-              END IF
-            END IF
+              ISYMB=ISYMJ
+              NB=NSSH(ISYMB)
+              NLST1=NLIST(ISYMI,ISYM2,14)
+              NLST2=NLIST(ISYMA,ISYM2,16)
+              IF(NJ*NB*NLST1*NLST2/=0) THEN
+                LLST1=LLIST(ISYMI,ISYM2,14)
+                VAL1(1)=SQRI2
+                VAL1(2)=One
+                LLST2=LLIST(ISYMA,ISYM2,16)
+                VAL2(1)=SQRI2
+                VAL2(2)=One
+                IXIA=1+IOFFIA(ISYMI)
+                INCX1=1
+                INCX2=NI
+                CALL PMLTSCA(KOD,IMLTOP,
+     &                       LIST(LLST1),LIST(LLST2),
+     &                       X1(IXIA),NI,NA,
+     &                       FIA(ISYMB)%A,NJ,NB,
+     &                       lg_Y,NAS2,NIS2)
+             END IF
+           END IF
           END IF
           END DO
         END IF
@@ -1043,33 +1041,31 @@ C  D&HM One-el
         IF(ISYM1.EQ.1) THEN
           DO ISYMI=1,NSYM
           NI=NISH(ISYMI)
-          IF(NI.NE.0) THEN
+          IF(NI/=0) THEN
             ISYMA=ISYMI
             NA=NSSH(ISYMA)
-            IF(NA.NE.0) THEN
+            IF(NA/=0) THEN
               ISYMJ=MUL(ISYMI,ISYM2)
               NJ=NISH(ISYMJ)
-              IF(NJ.NE.0) THEN
-                ISYMB=ISYMJ
-                NB=NSSH(ISYMB)
-                NLST1=NLIST(ISYMI,ISYM2,15)
-                NLST2=NLIST(ISYMA,ISYM2,17)
-                IF(NB*NLST1*NLST2/=0) THEN
-                  LLST1=LLIST(ISYMI,ISYM2,15)
-                  VAL1(1)=SQR3*Half
-                  VAL1(2)=-VAL1(1)
-                  LLST2=LLIST(ISYMA,ISYM2,17)
-                  VAL2(1)= One
-                  VAL2(2)=-One
-                  IXIA=1+IOFFIA(ISYMI)
-                  INCX1=1
-                  INCX2=NI
-                  CALL PMLTSCA(KOD,IMLTOP,
-     &                         LIST(LLST1),LIST(LLST2),
-     &                         X1(IXIA),NI,NA,
-     &                         FIA(ISYMB)%A,NJ,NB,
-     &                         lg_Y,NAS2,NIS2)
-                END IF
+              ISYMB=ISYMJ
+              NB=NSSH(ISYMB)
+              NLST1=NLIST(ISYMI,ISYM2,15)
+              NLST2=NLIST(ISYMA,ISYM2,17)
+              IF(NJ*NB*NLST1*NLST2/=0) THEN
+                LLST1=LLIST(ISYMI,ISYM2,15)
+                VAL1(1)=SQR3*Half
+                VAL1(2)=-VAL1(1)
+                LLST2=LLIST(ISYMA,ISYM2,17)
+                VAL2(1)= One
+                VAL2(2)=-One
+                IXIA=1+IOFFIA(ISYMI)
+                INCX1=1
+                INCX2=NI
+                CALL PMLTSCA(KOD,IMLTOP,
+     &                       LIST(LLST1),LIST(LLST2),
+     &                       X1(IXIA),NI,NA,
+     &                       FIA(ISYMB)%A,NJ,NB,
+     &                       lg_Y,NAS2,NIS2)
               END IF
             END IF
           END IF
