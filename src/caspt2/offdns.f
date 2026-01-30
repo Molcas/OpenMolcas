@@ -24,10 +24,10 @@
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      integer(kind=iwp) ISYM1,ICASE1,ISYM2,ICASE2
-      real(kind=wp) X1(*),X2(*),Y(*)
-      real(kind=wp) DPT2(*)
-      integer(kind=iwp) LIST(*)
+      integer(kind=iwp), intent(in)::  ISYM1,ICASE1,ISYM2,ICASE2
+      real(kind=wp), intent(inout):: X1(*),X2(*),Y(*)
+      real(kind=wp), intent(inout):: DPT2(*)
+      integer(kind=iwp), intent(in):: LIST(*)
 
       integer(kind=iwp) IOFDIT(8),IOFDIA(8),IOFDTA(8)
       integer(kind=iwp) IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
@@ -925,7 +925,7 @@ C  ---------------------------
       Case(24)
 
 C  D&HM One-el
-      IF(ISYM1.NE.1) RETURN
+      IF(ISYM1==1) THEN
       IOXIA=0
       DO ISYMI=1,NSYM
        NI=NISH(ISYMI)
@@ -958,6 +958,8 @@ C  D&HM One-el
        END IF
        IOXIA=IOXIA+NI*NA
       END DO
+      END IF
+C  ---------------------------
       Case default
         WRITE(6,*)' INTERNAL ERROR: OffDns reached invalid KOD=',KOD
         Call Abend()

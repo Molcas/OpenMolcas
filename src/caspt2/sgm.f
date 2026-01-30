@@ -983,7 +983,7 @@ C ICASE1= 5
 C ICASE2= 12
 
 C  D&HP One-el
-        IF(ISYM1.EQ.1) THEN
+        IF(ISYM1==1) THEN
           DO ISYMI=1,NSYM
           NI=NISH(ISYMI)
           ISYMA=ISYMI
@@ -1018,7 +1018,7 @@ C ICASE1= 5
 C ICASE2= 13
 
 C  D&HM One-el
-        IF(ISYM1.EQ.1) THEN
+        IF(ISYM1==1) THEN
           DO ISYMI=1,NSYM
           NI=NISH(ISYMI)
           ISYMA=ISYMI
