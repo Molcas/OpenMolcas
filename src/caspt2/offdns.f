@@ -213,9 +213,8 @@ C  -----------------------------------------------
       Case(4)
 
 C  A&EP One-el
-      IF(ISYM2.EQ.ISYM1) THEN
-       NT=NASH(ISYM1)
-       IF(NT.EQ.0) RETURN
+      NT=NASH(ISYM1)
+      IF(ISYM2==ISYM1 .AND. NT/=0) THEN
        DO ISYMIJ=1,NSYM
         ISYMA=MUL(ISYMIJ,ISYM1)
         NA=NSSH(ISYMA)
@@ -244,9 +243,8 @@ C  -----------------------------------------------
       Case(5)
 
 C  A&EM One-el
-      IF(ISYM2.EQ.ISYM1) THEN
-       NT=NASH(ISYM1)
-       IF(NT.EQ.0) RETURN
+      NT=NASH(ISYM1)
+      IF(ISYM2==ISYM1 .AND. NT/=0) THEN
        DO ISYMIJ=1,NSYM
         ISYMA=MUL(ISYMIJ,ISYM1)
         NA=NSSH(ISYMA)
