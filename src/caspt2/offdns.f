@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,X2,DPT2,Y,LIST)
       use definitions, only: iwp, wp
-      use constants, only: One, Two, Three, Six
+      use constants, only: Half, One, Two, Three, Six
       use EQSOLV
       use Sigma_data
       use caspt2_module
@@ -929,38 +929,33 @@ C  D&HM One-el
       IOXIA=0
       DO ISYMI=1,NSYM
        NI=NISH(ISYMI)
-       IF(NI.EQ.0) GOTO 924
        ISYMA=ISYMI
        NA=NSSH(ISYMA)
-       IF(NA.EQ.0) GOTO 924
        ISYMJ=MUL(ISYMI,ISYM2)
        NJ=NISH(ISYMJ)
-       IF(NJ.EQ.0) GOTO 924
        ISYMB=ISYMJ
        NB=NSSH(ISYMB)
-       IF(NB.EQ.0) GOTO 924
-       LLST1=LLIST(ISYMI,ISYM2,15)
        NLST1=NLIST(ISYMI,ISYM2,15)
-       IF(NLST1.EQ.0) GOTO 924
-       VAL1(1)=SQR3*0.5D0
-       VAL1(2)=-VAL1(1)
-       LLST2=LLIST(ISYMA,ISYM2,17)
        NLST2=NLIST(ISYMA,ISYM2,17)
-       IF(NLST2.EQ.0) GOTO 924
-       VAL2(1)= One
-       VAL2(2)=-One
-       IXIA=IOXIA+1
-       INCX1=1
-       INCX2=NI
-       IDJB=1+IOFDIA(ISYMB)
-       INCF1=1
-       INCF2=NORB(ISYMJ)
-       IY=1
-       INCY1=NAGTB(ISYM2)
-       INCY2=1
-       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &            X1(IXIA),DPT2(IDJB),Y(IY))
- 924   CONTINUE
+       IF(NI*NA*NJ*NB*NLST1*NLST2/=0) THEN
+         LLST1=LLIST(ISYMI,ISYM2,15)
+         VAL1(1)=SQR3*Half
+         VAL1(2)=-VAL1(1)
+         LLST2=LLIST(ISYMA,ISYM2,17)
+         VAL2(1)= One
+         VAL2(2)=-One
+         IXIA=IOXIA+1
+         INCX1=1
+         INCX2=NI
+         IDJB=1+IOFDIA(ISYMB)
+         INCF1=1
+         INCF2=NORB(ISYMJ)
+         IY=1
+         INCY1=NAGTB(ISYM2)
+         INCY2=1
+         CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &              X1(IXIA),DPT2(IDJB),Y(IY))
+       END IF
        IOXIA=IOXIA+NI*NA
       END DO
       Case default
