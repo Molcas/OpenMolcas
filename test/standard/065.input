@@ -54,6 +54,28 @@
   SCRAmble=0.1
   FileOrb = LOCORB
 
+* Now within the Löwdin charge framework
+&LOCALISATION
+  Occupied
+  CHARge=LOWDin
+  FileOrb = SCFORB
+
+&LOCALISATION
+  Virtual
+  CHARge=LOWDin
+  FileOrb = LOCORB
+
+* Now with Newton Raphson method
+&LOCALISATION
+  Occupied
+  OPTMethod=NEWTon
+  FileOrb = SCFORB
+
+&LOCALISATION
+  Virtual
+  OPTMethod=NEWTon
+  FileOrb = LOCORB
+
 * Other localisation methods
 &LOCALISATION
   Boys

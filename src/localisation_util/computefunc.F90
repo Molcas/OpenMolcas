@@ -40,9 +40,9 @@ do iMO_s=1,nOrb2Loc
     do iAt=1,nAtoms
         d_s = d_s + PA(iMO_s,iMO_s,iAt)**2
         !write(u6,"(A,I5,A,F10.4)") "Atom ", iAt," PA_ss = ", PA(iMO_s,iMO_s,iAt)
-        if (eval_func) then
-            write(u6,"(A,I5,A,F10.4)") "Contribution from Atom ", iAt," Q_A = ", PA(iMO_s,iMO_s,iAt)
-        end if
+        !if (eval_func) then
+        !    write(u6,"(A,I5,A,F10.4)") "Contribution from Atom ", iAt," Q_A = ", PA(iMO_s,iMO_s,iAt)
+        !end if
     end do
     Functional = Functional + d_s
 
