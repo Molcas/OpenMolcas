@@ -118,11 +118,18 @@ CSVC: determine outer loop properties
       SUBROUTINE MLTSCA_DH(IMLTOP,LST1,LST2,
      &                     X,NXI,NXA,F,NFI,NFA,
      &                     Y,NAS2,jYLo,jYHi)
-      use Sigma_data
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(NXI,NXA),F(NFI,NFA),Y(NAS2,jYHi-jYLo+1)
-      DIMENSION LST1(4,NLST1), LST2(4,NLST2)
+      use definitions, only: iwp, wp
+      use Sigma_data, only: NLST1, NLST2, VAL1, VAL2
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IMLTOP,NXI,NXA,NFI,NFA,NAS2,jYLo,
+     &                                jYHi
+      real(kind=wp), intent(inout):: X(NXI,NXA),F(NFI,NFA),
+     &                               Y(NAS2,jYHi-jYLo+1)
+      integer(kind=iwp), intent(in)::  LST1(4,NLST1), LST2(4,NLST2)
 
+      integer(kind=iwp) ILST1, ILST2, JY, L11, L12, L13, L14, L21, L23,
+     &                  L24, L22
+      real(kind=wp) V1, V2
 C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L11,L12,L13,L14 for short, for a given
 C item, and with V1=VAL1(L14), and similar for the other list,
