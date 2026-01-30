@@ -30,7 +30,7 @@ Frozen = 40
 MaxIter = 25
 Imag = 0.10
 NoMult
-RHSD
+PRHS = Direct
 
 >> FILE paddlewheel.xyz
 64

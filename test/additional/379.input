@@ -63,7 +63,8 @@ ITERation
 End of input
 *-------------------------------------------------------------------------------
  &CASPT2 &END
-RHSD
+PRHS
+ Direct
 MAXITER
  25
 PROPerties

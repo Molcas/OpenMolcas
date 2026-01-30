@@ -69,8 +69,7 @@
       REAL*8 Rtensor(6)
       REAL*8, Allocatable:: SOPRR(:,:), SOPRI(:,:)
 #ifdef _HDF5_
-      REAL*8 TMPL(NSTATE,NSTATE,3),TMPE(NSTATE,NSTATE,3)
-      REAL*8 TMPA(NSTATE,NSTATE,3)
+      REAL*8, Allocatable:: TMP(:,:,:)
 #endif
       Integer, allocatable:: PMAP(:)
 ! Dipole
@@ -299,17 +298,15 @@ C Addition of ANGMOM to Runfile.
       IFANGM=.FALSE.
       IFDIP1=.FALSE.
       IFAMFI=.FALSE.
+      ANGMOME(:,:,:) = 0.0D0
+      EDIP1MOM(:,:,:) = 0.0D0
+      AMFIINT(:,:,:) = 0.0D0
       DO IPROP=1,NPROP
          IF(PNAME(IPROP)(1:6).EQ.'ANGMOM') THEN
             IFANGM=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE
-                  ANGMOME(ICOMP(IPROP),I,J)=0.0D0
                   ANGMOME(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
-#ifdef _HDF5_
-                  TMPL(I,J,ICOMP(IPROP))=0.0D0
-                  TMPL(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
-#endif
                ENDDO
             ENDDO
          ENDIF
@@ -319,12 +316,7 @@ c add dipole moment integrals:
             IFDIP1=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE
-                  EDIP1MOM(ICOMP(IPROP),I,J)=0.0D0
                   EDIP1MOM(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
-#ifdef _HDF5_
-                  TMPE(I,J,ICOMP(IPROP))=0.0D0
-                  TMPE(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
-#endif
                ENDDO
             ENDDO
          ENDIF
@@ -333,37 +325,36 @@ c add spin-orbit AMFI integrals:
             IFAMFI=.TRUE.
             DO I=1,NSTATE
                DO J=1,NSTATE
-                  AMFIINT(ICOMP(IPROP),I,J)=0.0D0
                   AMFIINT(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
-#ifdef _HDF5_
-                  TMPA(I,J,ICOMP(IPROP))=0.0D0
-                  TMPA(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
-#endif
                ENDDO
             ENDDO
          ENDIF
       ENDDO
-      IF(IFANGM.EQV..TRUE.) THEN
-       CALL Put_dArray('ANGM_SINGLE',ANGMOME,3*NSTATE*NSTATE)
+      IF(IFANGM) CALL Put_dArray('ANGM_SINGLE',ANGMOME,3*NSTATE*NSTATE)
+      IF(IFDIP1) CALL Put_dArray('DIP1_SINGLE',EDIP1MOM,3*NSTATE*NSTATE)
+      IF(IFAMFI) CALL Put_dArray('AMFI_SINGLE',AMFIINT,3*NSTATE*NSTATE)
 #ifdef _HDF5_
-       call mh5_put_dset(wfn_sfs_angmom,TMPL(:,:,:),
-     $      [NSTATE,NSTATE,3], [0,0,0])
+      call mma_allocate(TMP,NSTATE,NSTATE,3,Label='TMP')
+      if (IFANGM) then
+        do i=1,3
+          TMP(:,:,i) = ANGMOME(i,:,:)
+        end do
+        call mh5_put_dset(wfn_sfs_angmom,TMP,[NSTATE,NSTATE,3],[0,0,0])
+      end if
+      if (IFDIP1) then
+        do i=1,3
+          TMP(:,:,i) = EDIP1MOM(i,:,:)
+        end do
+        call mh5_put_dset(wfn_sfs_edipmom,TMP,[NSTATE,NSTATE,3],[0,0,0])
+      end if
+      if (IFAMFI) then
+        do i=1,3
+          TMP(:,:,i) = AMFIINT(i,:,:)
+        end do
+        call mh5_put_dset(wfn_sfs_amfi,TMP,[NSTATE,NSTATE,3],[0,0,0])
+      end if
+      call mma_deallocate(TMP)
 #endif
-      ENDIF
-      IF(IFDIP1.EQV..TRUE.) THEN
-       CALL Put_dArray('DIP1_SINGLE',EDIP1MOM,3*NSTATE*NSTATE)
-#ifdef _HDF5_
-       call mh5_put_dset(wfn_sfs_edipmom,TMPE(:,:,:),
-     $      [NSTATE,NSTATE,3], [0,0,0])
-#endif
-      ENDIF
-      IF(IFAMFI.EQV..TRUE.) THEN
-       CALL Put_dArray('AMFI_SINGLE',AMFIINT,3*NSTATE*NSTATE)
-#ifdef _HDF5_
-       call mh5_put_dset(wfn_sfs_amfi,TMPA(:,:,:),
-     $      [NSTATE,NSTATE,3], [0,0,0])
-#endif
-      ENDIF
 *******************************************************
 * printout of properties over the spin-orbit states
 *******************************************************
