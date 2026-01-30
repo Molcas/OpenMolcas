@@ -17,14 +17,20 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTSCA(IMLTOP,LST1,LST2,X,F,Y)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
-      use Sigma_data
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(*),F(*),Y(*)
-      DIMENSION LST1(4,NLST1), LST2(4,NLST2)
+      use Sigma_data, only: NLST1, NLST2, INCF1, INCF2, INCX1, INCX2,
+     &                      INCY1, INCY2, NFSCA, VAL1, VAL2
+      IMPLICIT None
+      real(kind=wp), intent(inout):: IMLTOP
+      real(kind=wp), intent(inout):: X(*),F(*),Y(*)
+      integer(kind=iwp), intent(in)::  LST1(4,NLST1), LST2(4,NLST2)
 
+      integer(kind=iwp) IF, ILST1, ILST1_IOFF, ILST1_SKIP, ILST2,
+     &                  IX, IY, L11, L12, L13, L14, L21, L22, L23, L24
+      real(kind=wp) V1, V2
 C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L11,L12,L13,L14 for short, for a given
 C item, and with V1=VAL1(L14), and similar for the other list,
@@ -107,8 +113,8 @@ CSVC: determine outer loop properties
       END IF
 
       NFSCA=NFSCA+4*NLST1*NLST2
-      RETURN
-      END
+      END SUBROUTINE MLTSCA
+
       SUBROUTINE MLTSCA_DH(IMLTOP,LST1,LST2,
      &                     X,NXI,NXA,F,NFI,NFA,
      &                     Y,NAS2,jYLo,jYHi)
@@ -186,8 +192,7 @@ C     F(L12,L22) := Add V1*V2*X(L11,L21)*Y(L13,L23)
       END IF
 
 *     NFSCA=NFSCA+4*NLST1*NLST2
-      RETURN
-      END
+      END SUBROUTINE MLTSCA_DH
 
       SUBROUTINE PMLTSCA(KOD,IMLTOP,LST1,LST2,
      &                   X,NXI,NXA,F,NFI,NFA,
