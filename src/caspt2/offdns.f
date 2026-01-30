@@ -817,111 +817,109 @@ C  -----------------------------------------------
 
 C  FM&GM Two-el
       NI=NISH(ISYM12)
-      IF(NI.EQ.0) RETURN
-      LLST1=LLIST(ISYM1,ISYM2,10)
       NLST1=NLIST(ISYM1,ISYM2,10)
-      IF(NLST1.EQ.0) RETURN
-      VAL1(1)=-SQRI6
-      VAL1(2)= SQRI6
-      IX=1
-      INCX1=1
-      INCX2=NAS1
-      IDIT=1+IOFDIT(ISYM12)
-      INCF1=NORB(ISYM12)
-      INCF2=1
-      IY=1+NAS2*IOFCGM(ISYM2,ISYM12)
-      INCY1=1
-      INCY2=NAS2*NI
-      INCY3=NAS2
-      LEN1=NIS1
-      LEN2=NI
-      CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+      IF(NI*NLST1/=0) THEN
+        LLST1=LLIST(ISYM1,ISYM2,10)
+        VAL1(1)=-SQRI6
+        VAL1(2)= SQRI6
+        IX=1
+        INCX1=1
+        INCX2=NAS1
+        IDIT=1+IOFDIT(ISYM12)
+        INCF1=NORB(ISYM12)
+        INCF2=1
+        IY=1+NAS2*IOFCGM(ISYM2,ISYM12)
+        INCY1=1
+        INCY2=NAS2*NI
+        INCY3=NAS2
+        LEN1=NIS1
+        LEN2=NI
+        CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+      END IF
 C  -----------------------------------------------
       Case(21)
 
 C  GP&HP Two-el
       LLST1=LLIST(ISYM12,ISYM2,14)
       NLST1=NLIST(ISYM12,ISYM2,14)
-      IF(NLST1.EQ.0) RETURN
-      VAL1(1)= -SQRI2
-      VAL1(2)= -One
-      IX=1+NAS1*IOFCGP(ISYM1,ISYM12)
-      INCX1=NAS1
-      INCX2=1
-      INCX3=NAS1*NISH(ISYM12)
-      IDIT=1+IOFDIT(ISYM1)
-      INCF1=1
-      INCF2=NORB(ISYM1)
-      IY=1
-      INCY1=NAS2
-      INCY2=1
-      LEN1=NAS1
-      LEN2=NAS2
-      CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+      IF(NLST1/=0) THEN
+        VAL1(1)= -SQRI2
+        VAL1(2)= -One
+        IX=1+NAS1*IOFCGP(ISYM1,ISYM12)
+        INCX1=NAS1
+        INCX2=1
+        INCX3=NAS1*NISH(ISYM12)
+        IDIT=1+IOFDIT(ISYM1)
+        INCF1=1
+        INCF2=NORB(ISYM1)
+        IY=1
+        INCY1=NAS2
+        INCY2=1
+        LEN1=NAS1
+        LEN2=NAS2
+        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+      END IF
 C  -----------------------------------------------
       Case(22)
 
 C  GM&HM Two-el
       LLST1=LLIST(ISYM12,ISYM2,15)
       NLST1=NLIST(ISYM12,ISYM2,15)
-      IF(NLST1.EQ.0) RETURN
-      VAL1(1)= SQRI2
-      VAL1(2)=-SQRI2
-      IX=1+NAS1*IOFCGM(ISYM1,ISYM12)
-      INCX1=NAS1
-      INCX2=1
-      INCX3=NAS1*NISH(ISYM12)
-      IDIT=1+IOFDIT(ISYM1)
-      INCF1=1
-      INCF2=NORB(ISYM1)
-      IY=1
-      INCY1=NAS2
-      INCY2=1
-      LEN1=NAS1
-      LEN2=NAS2
-      CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+      IF(NLST1/=0) THEN
+        VAL1(1)= SQRI2
+        VAL1(2)=-SQRI2
+        IX=1+NAS1*IOFCGM(ISYM1,ISYM12)
+        INCX1=NAS1
+        INCX2=1
+        INCX3=NAS1*NISH(ISYM12)
+        IDIT=1+IOFDIT(ISYM1)
+        INCF1=1
+        INCF2=NORB(ISYM1)
+        IY=1
+        INCY1=NAS2
+        INCY2=1
+        LEN1=NAS1
+        LEN2=NAS2
+        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+      END IF
 C  -----------------------------------------------
       Case(23)
 
 C  D&HP One-el
-      IF(ISYM1.NE.1) RETURN
+      IF(ISYM1==1) THEN
       IOXIA=0
       DO ISYMI=1,NSYM
        NI=NISH(ISYMI)
-       IF(NI.EQ.0) GOTO 923
        ISYMA=ISYMI
        NA=NSSH(ISYMA)
-       IF(NA.EQ.0) GOTO 923
        ISYMJ=MUL(ISYMI,ISYM2)
        NJ=NISH(ISYMJ)
-       IF(NJ.EQ.0) GOTO 923
        ISYMB=ISYMJ
        NB=NSSH(ISYMB)
-       IF(NB.EQ.0) GOTO 923
-       LLST1=LLIST(ISYMI,ISYM2,14)
        NLST1=NLIST(ISYMI,ISYM2,14)
-       IF(NLST1.EQ.0) GOTO 923
-       VAL1(1)=SQRI2
-       VAL1(2)=1.0D0
-       LLST2=LLIST(ISYMA,ISYM2,16)
        NLST2=NLIST(ISYMA,ISYM2,16)
-       IF(NLST2.EQ.0) GOTO 923
-       VAL2(1)=SQRI2
-       VAL2(2)=1.0D0
-       IXIA=IOXIA+1
-       INCX1=1
-       INCX2=NI
-       IDJB=1+IOFDIA(ISYMB)
-       INCF1=1
-       INCF2=NORB(ISYMJ)
-       IY=1
-       INCY1=NAGEB(ISYM2)
-       INCY2=1
-       CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X1(IXIA),DPT2(IDJB),Y(IY))
-923    CONTINUE
+       IF(NI*NA*NJ*NB*NLST1*NLST2/=0) Then
+         LLST1=LLIST(ISYMI,ISYM2,14)
+         VAL1(1)=SQRI2
+         VAL1(2)=One
+         LLST2=LLIST(ISYMA,ISYM2,16)
+         VAL2(1)=SQRI2
+         VAL2(2)=One
+         IXIA=IOXIA+1
+         INCX1=1
+         INCX2=NI
+         IDJB=1+IOFDIA(ISYMB)
+         INCF1=1
+         INCF2=NORB(ISYMJ)
+         IY=1
+         INCY1=NAGEB(ISYM2)
+         INCY2=1
+         CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
+     &                X1(IXIA),DPT2(IDJB),Y(IY))
+       END IF
        IOXIA=IOXIA+NI*NA
       END DO
+      END IF
 
 C  ---------------------------
       Case(24)
