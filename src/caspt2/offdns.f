@@ -527,9 +527,8 @@ C  -----------------------------------------------
       Case(13)
 
 C  D&EP One-el
-      IF(ISYM1.EQ.1) THEN
-       NT=NASH(ISYM2)
-       IF(NT/=0) THEN
+      NT=NASH(ISYM2)
+      IF(ISYM1==1 .AND. NT/=0) THEN
        IOXIA=0
        DO ISYMI=1,NSYM
         NI=NISH(ISYMI)
@@ -556,7 +555,6 @@ C  D&EP One-el
         END IF
         IOXIA=IOXIA+NI*NA
        END DO
-       END IF
       END IF
 
 C  D&EP Two-el
@@ -597,9 +595,8 @@ C  -----------------------------------------------
       Case(14)
 
 C  D&EM One-el
-      IF(ISYM1.EQ.1) THEN
-       NT=NASH(ISYM2)
-       IF(NT/=0) THEN
+      NT=NASH(ISYM2)
+      IF(ISYM1==1 .AND. NT/=0) THEN
        IOXIA=0
        DO ISYMI=1,NSYM
         NI=NISH(ISYMI)
@@ -626,7 +623,6 @@ C  D&EM One-el
         END IF
         IOXIA=IOXIA+NI*NA
        END DO
-       END IF
       END IF
 
 C  D&EM Two-el
