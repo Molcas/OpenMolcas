@@ -11,9 +11,9 @@
       SUBROUTINE MODRHS(IVEC,FIMO,NFIMO)
       use definitions, only: iwp, wp
       USE SUPERINDEX, only: KTUV, KTU
+      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM,NINDEP,NTUV,NISH,NASH,NAES,NACTEL,
-     &                         NASHT,NTUVES,NORB,NSSH,NISUP,NASUP,NTUES
+      use caspt2_module
       IMPLICIT None
       integer(kind=iwp), intent(In):: IVEC, NFIMO
       real(kind=wp), Intent(in):: FIMO(NFIMO)
