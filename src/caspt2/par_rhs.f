@@ -107,7 +107,7 @@ C-SVC: print out DNRM2 of the all RHS components
       use constants, only: Zero
       use caspt2_module, only: NSYM,NASUP,NISUP
       IMPLICIT None
-      Integer(kind=iwp), Intent(inout):: IVEC
+      Integer(kind=iwp), Intent(in):: IVEC
 
       Integer(kind=iwp) ICASE, ISYM, NAS, NIS, NW, lg_W
 
