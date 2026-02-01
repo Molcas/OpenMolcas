@@ -987,7 +987,7 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
       END SUBROUTINE RHS_SR2C
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RHS_STRANS (NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,ISYM)
+      SUBROUTINE RHS_STRANS(NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,ISYM)
 CSVC: this routine transforms RHS array V1 by multiplying on the left
 C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
       use definitions, only: iwp, wp
@@ -1000,8 +1000,8 @@ C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
       IMPLICIT None
-      integer(kind=iwp), intent(in):: NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,
-     &                                ISYM
+      integer(kind=iwp), intent(in):: NAS,NIS,lg_V1,lg_V2,ICASE,ISYM
+      real(kind=wp), intent(in):: ALPHA
 
       real(kind=wp), Allocatable:: S(:)
       integer(kind=iwp) IDS, NS

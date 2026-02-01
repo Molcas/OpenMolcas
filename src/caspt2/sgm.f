@@ -53,7 +53,7 @@ C so each chunk has all the row indices (full columns).
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2
-      real(kind=wp), intent(in) ::  X1(*), X2(*)
+      real(kind=wp), intent(inout) ::  X1(*), X2(*)
       integer(kind=iwp), intent(in) ::  LIST(*)
 
       integer(kind=iwp) IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),

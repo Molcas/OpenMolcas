@@ -24,7 +24,7 @@
       use Sigma_data, only: NLST1, NLST2, INCF1, INCF2, INCX1, INCX2,
      &                      INCY1, INCY2, NFSCA, VAL1, VAL2
       IMPLICIT None
-      integer(kind=iwp), intent(inout):: IMLTOP
+      integer(kind=iwp), intent(in):: IMLTOP
       real(kind=wp), intent(inout):: X(*),F(*),Y(*)
       integer(kind=iwp), intent(in)::  LST1(4,NLST1), LST2(4,NLST2)
 
