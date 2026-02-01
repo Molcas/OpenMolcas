@@ -23,7 +23,7 @@
       IMPLICIT None
       integer(kind=iwp), intent(in):: NSIZE
       CHARACTER(len=*), intent(in):: LAB
-      real(kind=wp), intent(in):: VEC(*)
+      real(kind=wp):: VEC(*)
 
       CHARACTER(len=8) LAB1
       integer(kind=iwp) I, IAD

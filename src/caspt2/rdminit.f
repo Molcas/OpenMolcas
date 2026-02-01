@@ -22,8 +22,9 @@
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_set_state
       use iso_c_binding, only: c_int
+      use caspt2_module, only: DMRG, mState
 #endif
-      use caspt2_module, only: DMRG, ISCF, nConf, nState, iAd1m, mState
+      use caspt2_module, only: ISCF, nConf, nState, iAd1m
       implicit None
 
 

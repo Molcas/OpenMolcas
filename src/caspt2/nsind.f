@@ -9,9 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE NSIND(INS,ISYM,ICASE,IP,IQ,IR)
+      use definitions, only: iwp, u6
       USE SUPERINDEX
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: INS,ISYM,ICASE
+      integer(kind=iwp), intent(out):: IP,IQ,IR
+
+      integer(kind=iwp) IA, IAABS, IAB, IABABS, IAIJ, IBABS, II, IIA,
+     &                  IIAB, IIABS, IIJ, IIJABS, IJABS, ISYMA, ISYMAB,
+     &                  ISYMI, ISYMIJ, NA, NAB, NAIJ, NI, NIA, NIAB, NIJ
 
       Select case(ICASE)
       Case(1)
@@ -56,7 +63,7 @@
         END IF
         IIA=IIA-NIA
       END DO
-      WRITE(6,*)'NSIND AIVX: Impossible situation.'
+      WRITE(u6,*)'NSIND AIVX: Impossible situation.'
       CALL ABEND()
       Case(6,7)
       IAIJ=INS
@@ -87,7 +94,7 @@
         END IF
         IAIJ=IAIJ-NAIJ
       END DO
-      WRITE(6,*)'NSIND VJAI: Impossible situation.'
+      WRITE(u6,*)'NSIND VJAI: Impossible situation.'
       CALL ABEND()
       CASE(8)
       IABABS=INS+NAGEBES(ISYM)
@@ -133,7 +140,7 @@
         IIAB=IIAB-NIAB
       END DO
       CASE DEFAULT
-      WRITE(6,*)'NSIND BJAT: Impossible situation.'
+      WRITE(u6,*)'NSIND BJAT: Impossible situation.'
       CALL ABEND()
       End Select
 
