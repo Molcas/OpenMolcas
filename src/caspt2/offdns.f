@@ -19,10 +19,14 @@
       SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,X2,DPT2,Y,LIST)
       use definitions, only: iwp, wp
       use constants, only: Half, One, Two, Three, Six
-      use EQSOLV
-      use Sigma_data
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use EQSOLV, only: IFCOUP, NLIST, LLIST
+      use Sigma_data, only: VAL1, VAL2, IFTEST, INCF1, INCF2, INCX1,
+     &                      INCX2, INCX3, INCY1, INCY2, INCY3, LEN1,
+     &                      LEN2, NLST1, NLST2
+      use caspt2_module, only: NSYM, MUL, NISUP, NASUP, NASH, NORB,
+     &                         NSSH, NISH, NIGEJ, NIGTJ, NAGEB, NAGTB,
+     &                         NTGEU, NTUV, NTGTU
+      IMPLICIT None
 
       integer(kind=iwp), intent(in)::  ISYM1,ICASE1,ISYM2,ICASE2
       real(kind=wp), intent(inout):: X1(*),X2(*),Y(*)
@@ -36,6 +40,11 @@ C Various constants:
       real(kind=wp), parameter:: SQR2=SQRT(Two), SQR3=SQRT(Three),
      &                           SQR6=SQRT(Six), SQRI2=One/SQR2,
      &                           SQRI6=One/SQR6, SQR32=SQR3*SQRI2
+      Integer(kind=iwp) ICD, ICEM, ICEP, ICGM, ICGP, IDIA, IDIT, IDJB,
+     &                  IDOFF, IDTA, IJSYM, IMLTOP, IOXIA, ISYM, ISYM12,
+     &                  ISYMA, ISYMAB, ISYMB, ISYMI, ISYMIJ, ISYMJ, IX,
+     &                  IXIA, IXTA, IXTI, IY, JSYM, KOD, LLST1, LLST2,
+     &                  NA, NAS1, NAS2, NB, NI, NIS1, NJ, NO, NT, NU
 C Compute off-diagonal contributions to a trans density matrix.
 C Sub-diagonal blocks only. If a density matrix is required,
 C i.e. both wave functions equal, use symmetry. Else, call
@@ -47,7 +56,7 @@ C again with wave functions interchanged.
       IFTEST=0
       IMLTOP=2
       KOD=IFCOUP(ICASE2,ICASE1)
-      IF(KOD==0) RETURN
+      IF (KOD==0) RETURN
 
       ISYM12=MUL(ISYM1,ISYM2)
       NAS1=NASUP(ISYM1,ICASE1)

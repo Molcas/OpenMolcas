@@ -13,38 +13,33 @@
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      GOTO (1,2,3,4,5,6,7,8,9,10,11,12,13) ICASE
-
-   1  CONTINUE
+      Select case(ICASE)
+      Case(1)
       IIABS=INS+NIES(ISYM)
       IP=IINAIS(IIABS)
       IQ=0
       IR=0
-      RETURN
-   2  CONTINUE
-  12  CONTINUE
-        IIJABS=INS+NIGEJES(ISYM)
-        IIABS=MIGEJ(1,IIJABS)
-        IJABS=MIGEJ(2,IIJABS)
-      GOTO 1213
-   3  CONTINUE
-  13  CONTINUE
-        IIJABS=INS+NIGTJES(ISYM)
-        IIABS=MIGTJ(1,IIJABS)
-        IJABS=MIGTJ(2,IIJABS)
- 1213 CONTINUE
+      Case(2,12)
+      IIJABS=INS+NIGEJES(ISYM)
+      IIABS=MIGEJ(1,IIJABS)
+      IJABS=MIGEJ(2,IIJABS)
       IP=IINAIS(IIABS)
       IQ=IINAIS(IJABS)
       IR=0
-      RETURN
-   4  CONTINUE
+      Case(3,13)
+      IIJABS=INS+NIGTJES(ISYM)
+      IIABS=MIGTJ(1,IIJABS)
+      IJABS=MIGTJ(2,IIJABS)
+      IP=IINAIS(IIABS)
+      IQ=IINAIS(IJABS)
+      IR=0
+      Case(4)
       IAABS=INS+NSES(ISYM)
-CFUE  IP=IINAIS(IAABS)
       IP=IEXTIS(IAABS)
       IQ=0
       IR=0
       RETURN
-   5  CONTINUE
+      Case(5)
       IIA=INS
       DO ISYMA=1,NSYM
         ISYMI=MUL(ISYMA,ISYM)
@@ -63,8 +58,7 @@ CFUE  IP=IINAIS(IAABS)
       END DO
       WRITE(6,*)'NSIND AIVX: Impossible situation.'
       CALL ABEND()
-   6  CONTINUE
-   7  CONTINUE
+      Case(6,7)
       IAIJ=INS
       NIJ = 0 ! dummy initialize
       DO ISYMA=1,NSYM
@@ -95,22 +89,21 @@ CFUE  IP=IINAIS(IAABS)
       END DO
       WRITE(6,*)'NSIND VJAI: Impossible situation.'
       CALL ABEND()
-   8  CONTINUE
-        IABABS=INS+NAGEBES(ISYM)
-        IAABS=MAGEB(1,IABABS)
-        IBABS=MAGEB(2,IABABS)
-      GOTO 89
-   9  CONTINUE
-        IABABS=INS+NAGTBES(ISYM)
-        IAABS=MAGTB(1,IABABS)
-        IBABS=MAGTB(2,IABABS)
-  89  CONTINUE
+      CASE(8)
+      IABABS=INS+NAGEBES(ISYM)
+      IAABS=MAGEB(1,IABABS)
+      IBABS=MAGEB(2,IABABS)
       IP=IEXTIS(IAABS)
       IQ=IEXTIS(IBABS)
       IR=0
-      RETURN
-  10  CONTINUE
-  11  CONTINUE
+      CASE(9)
+      IABABS=INS+NAGTBES(ISYM)
+      IAABS=MAGTB(1,IABABS)
+      IBABS=MAGTB(2,IABABS)
+      IP=IEXTIS(IAABS)
+      IQ=IEXTIS(IBABS)
+      IR=0
+      CASE(10,11)
       IIAB=INS
       NAB = 0 ! dummy initialize
       DO ISYMI=1,NSYM
@@ -139,7 +132,9 @@ CFUE  IP=IINAIS(IAABS)
         END IF
         IIAB=IIAB-NIAB
       END DO
+      CASE DEFAULT
       WRITE(6,*)'NSIND BJAT: Impossible situation.'
       CALL ABEND()
+      End Select
 
-      END
+      END SUBROUTINE NSIND
