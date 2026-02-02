@@ -651,7 +651,7 @@ C
 C       write(6,*) 'jState in gradprep: ',jstate
         VECROT(jState) = One
       End If
-      jStLag    = jState
+      jStLag = jState
 
       End Subroutine GradPrep
 C

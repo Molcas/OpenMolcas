@@ -118,7 +118,7 @@ C
 C
       RETURN
 C
-      END
+      end subroutine CASPT2_Res
 C
 C-----------------------------------------------------------------------
 C
@@ -208,7 +208,8 @@ C
       do j = 1, nCol
         do i = 1, nRow
           scal = Zero
-          if (Mode == 1) then
+          select case (mode)
+          case (1)
             ! energy denominator plus real shift
             delta = dIn(i) + dIs(j) + real_shift
             ! inverse denominator plus imaginary shift
@@ -228,7 +229,7 @@ C
 !
             W1(i,j) = scal*W1(i,j)
             W2(i,j) = scal*W2(i,j)
-          else if (Mode == 2) then
+          case (2)
             if (imag_shift /= Zero) then
               scal = imag_shift/(dIn(i)+dIs(j))
               W1(i,j) = scal*W1(i,j)
@@ -248,10 +249,10 @@ C
      *                  *(SIGN(One,delta)**p)
               W2(i,j) = delta_inv*W2(i,j)
 C             W2(i,j) = delta_inv*p*(delta_ps)*expscal*W2(i,j)
-C    *                  *(SIGN(1.0_wp,delta)**p)
+C    *                  *(SIGN(One,delta)**p)
 C             W1(i,j) = delta_inv*W1(i,j)
             end if
-          else if (Mode == 3) then
+          case (3)
             ! derivative of the numerator of sigma-p CASPT2
             ! always real_shift = imag_shift = 0
             delta     = dIn(i)+dIs(j)
@@ -261,7 +262,7 @@ C             W1(i,j) = delta_inv*W1(i,j)
             expscal = exp(-sigma*abs(delta)**p)
             delta_inv = One/(One - expscal)
             W1(i,j) = delta_inv*W1(i,j)
-          end if
+          end select
         end do
       end do
 
