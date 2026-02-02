@@ -1167,15 +1167,19 @@ C End of loop over cases.
       END SUBROUTINE MKWWOPG
 
       SUBROUTINE MKWWOPH(IVEC,JVEC,OP0)
-      use EQSOLV
+      use definitions, only: iwp, wp
+      use EQSOLV, only: MODVEC
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP
+      IMPLICIT None
 
-      INTEGER IVEC, JVEC
-      REAL*8 OP0
+      integer(kind=iwp), intent(in):: IVEC, JVEC
+      real(kind=wp), intent(inout):: OP0
 
-      REAL*8, ALLOCATABLE:: W1(:), W2(:)
+      real(kind=wp), ALLOCATABLE:: W1(:), W2(:)
+      integer(kind=iwp) ICASE, ISYM, NAS, NIS, MDVEC, ISCT, IISTA,
+     &                  IIEND, NCOL, NSCT
+      real(kind=wp), external:: DDot_
 
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for
