@@ -665,7 +665,7 @@ C
       use definitions, only: iwp, wp, u6
       use constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
       integer(kind=iwp), intent(in):: nSym
       integer(kind=iwp), intent(in):: nBas(nSym), nFro(nSym), nIsh(nSym)
       integer(kind=iwp), intent(in):: nAsh(nSym), nSsh(nSym), nDel(nSym)
@@ -676,6 +676,9 @@ C
      &                  lnVir(8)
       real(kind=wp) Dummy(1)
       real(kind=wp), Allocatable:: Eorb(:), CMOX(:)
+      integer(kind=iwp) iE, ifr, ioff, irc, iSkip, iSym, ito, joff, k,
+     &                  kEOcc, kEVir, kfr, koff, kto, nBB, nOA, nOrb,
+     &                  nVV
 *
 *
       Call Izero(nAct,nSym)
