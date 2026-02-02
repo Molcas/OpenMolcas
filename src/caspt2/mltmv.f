@@ -60,7 +60,8 @@ CSVC: determine outer loop properties
       ENDIF
 #endif
 
-      IF(IMLTOP.EQ.0) THEN
+      SELECT CASE (IMLTOP)
+      CASE(0)
         DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
           L1=LST1(1,ILST1)
           L2=LST1(2,ILST1)
@@ -77,7 +78,7 @@ C    X(L1,i) := Add V*F(L2,a)*Y(L3,i,a), i=1..LEN1, a=1..LEN2
             IY=IY+INCY2
           END DO
         END DO
-      ELSE IF(IMLTOP.EQ.1) THEN
+      CASE(1)
         DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
           L1=LST1(1,ILST1)
           L2=LST1(2,ILST1)
@@ -95,7 +96,7 @@ C or Y(L3,i,a):= Add V*F(L2,a)*X(L1,i), i=1..LEN1, a=1..LEN2
             IF=IF+INCF2
           END DO
         END DO
-      ELSE
+      CASE DEFAULT
         DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
           L1=LST1(1,ILST1)
           L2=LST1(2,ILST1)
@@ -113,7 +114,7 @@ C     F(L2,a) := Add V*X(L1,i)*Y(L3,i,a)
             IY=IY+INCY2
           END DO
         END DO
-      END IF
+      END SELECT
 
       NFMV =NFMV +2*NLST1*LEN1*LEN2
 
