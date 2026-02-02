@@ -887,21 +887,29 @@ C End of loop over cases.
       END SUBROUTINE MKWWOPE
 
       SUBROUTINE MKWWOPF(IVEC,JVEC,NOP2,OP2)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One, Two
+      USE SUPERINDEX, only: MTGEU, MTGTU
+      use EQSOLV, only: MODVEC
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP,
+     &                         NTGEUES, NTGTUES
+      IMPLICIT None
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
-      INTEGER IVEC, JVEC, NOP2
-      REAL*8 OP2(NOP2)
+      integer(kind=iwp), intent(in):: IVEC, JVEC, NOP2
+      real(kind=wp), intent(inout):: OP2(NOP2)
 
-      REAL*8, ALLOCATABLE, TARGET:: W1(:), W2_H(:)
-      REAL*8, ALLOCATABLE:: WPROD(:)
-      REAL*8, POINTER:: W2(:)
+      real(kind=wp), ALLOCATABLE, TARGET:: W1(:), W2_H(:)
+      real(kind=wp), ALLOCATABLE:: WPROD(:)
+      real(kind=wp), POINTER:: W2(:)
+      integer(kind=iwp) ICASE, ISYM, NAS, NIS, MDVEC, NWPROD, ISCT,
+     &                  IISTA, IIEND, NCOL, IW1, ITABS, IW2,
+     &                  IWPROD, IXABS, ITU, ITUABS, ITX, ITY, IUABS,
+     &                  IUX, IUY, IXY, IXYABS, IYABS, JTXUY, JTYUX
+      real(kind=wp) W_PROD
 
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for
@@ -935,7 +943,7 @@ C Pick up a symmetry block of W1 and W2
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
-        WPROD(:)=0.0D0
+        WPROD(:)=Zero
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -947,9 +955,9 @@ C Allocate space for the contraction:
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,W1,NAS,
+     &              One,W1,NAS,
      &              W2,NAS,
-     &              1.0d0,WPROD,NAS)
+     &              One,WPROD,NAS)
          END DO
 C Deallocate W1 and W2
         CALL mma_deallocate(W1)
@@ -982,14 +990,14 @@ C Contrib to 2-particle operator, from 2 Etxuy:
             ELSE
               JTXUY=(IUY*(IUY-1))/2+ITX
             END IF
-            OP2(JTXUY)=OP2(JTXUY)+2.0D0*W_PROD
+            OP2(JTXUY)=OP2(JTXUY)+Two*W_PROD
 C Contrib to 2-particle operator, from 2 Etyux:
             IF(ITY.GE.IUX) THEN
               JTYUX=(ITY*(ITY-1))/2+IUX
             ELSE
               JTYUX=(IUX*(IUX-1))/2+ITY
             END IF
-            OP2(JTYUX)=OP2(JTYUX)+2.0D0*W_PROD
+            OP2(JTYUX)=OP2(JTYUX)+Two*W_PROD
           END DO
         END DO
 C Deallocate matrix product:
@@ -1015,7 +1023,7 @@ C Pick up a symmetry block of W1 and W2
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
-        WPROD(:)=0.0D0
+        WPROD(:)=Zero
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -1027,9 +1035,9 @@ C Allocate space for the contraction:
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,W1,NAS,
+     &              One,W1,NAS,
      &              W2,NAS,
-     &              1.0d0,WPROD,NAS)
+     &              One,WPROD,NAS)
         END DO
 C Deallocate W1 and W2
         CALL mma_deallocate(W1)
@@ -1062,14 +1070,14 @@ C Contrib to 2-particle operator, from 2 Etxuy:
             ELSE
               JTXUY=(IUY*(IUY-1))/2+ITX
             END IF
-            OP2(JTXUY)=OP2(JTXUY)+2.0D0*W_PROD
+            OP2(JTXUY)=OP2(JTXUY)+Two*W_PROD
 C Contrib to 2-particle operator, from -2 Etyux:
             IF(ITY.GE.IUX) THEN
               JTYUX=(ITY*(ITY-1))/2+IUX
             ELSE
               JTYUX=(IUX*(IUX-1))/2+ITY
             END IF
-            OP2(JTYUX)=OP2(JTYUX)-2.0D0*W_PROD
+            OP2(JTYUX)=OP2(JTYUX)-Two*W_PROD
           END DO
         END DO
 C Deallocate matrix product:
