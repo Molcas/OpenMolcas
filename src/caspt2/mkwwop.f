@@ -1086,16 +1086,22 @@ C Deallocate matrix product:
       END SUBROUTINE MKWWOPF
 
       SUBROUTINE MKWWOPG(IVEC,JVEC,OP1)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
 C Presently symmetry blocking is disregarded.
-      INTEGER IVEC, JVEC
-      DIMENSION OP1(NASHT,NASHT)
+      integer(kind=iwp), intent(in):: IVEC, JVEC
+      real(kind=wp), intent(inout):: OP1(NASHT,NASHT)
 
-      REAL*8, ALLOCATABLE:: W1(:), W2(:), WPROD(:)
+      real(kind=wp), ALLOCATABLE:: W1(:), W2(:), WPROD(:)
+      integer(kind=iwp) ICASE, ISYM, NAS, NIS, MDVEC, NWPROD, ISCT,
+     &                  IISTA, IIEND, NCOL, IW1, ITABS, IW2, IT, IX,
+     &                  IWPROD, IXABS
+      real(kind=wp) W_PROD
 
 C Given the coefficients for two excitation operators, available in
 C vectors numbered IVEC and JVEC on file, use the blocks for
@@ -1120,7 +1126,7 @@ C Allocate space for one section of excitation amplitudes:
         NWPROD=NAS**2
 C Allocate space for the contraction:
         CALL mma_allocate(WPROD,NWPROD,Label='WPROD')
-        WPROD(:)=0.0D0
+        WPROD(:)=Zero
 * Sectioning loop added:
         ISCT=0
         DO IISTA=1,NIS,MDVEC
@@ -1132,9 +1138,9 @@ C Allocate space for the contraction:
 C Multiply WProd = (W1)*(W2 transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
-     &              1.0d0,W1,NAS,
+     &              One,W1,NAS,
      &              W2,NAS,
-     &              1.0d0,WPROD,NAS)
+     &              One,WPROD,NAS)
         END DO
 C Deallocate space for this block of excitation amplitudes:
         CALL mma_deallocate(W1)
