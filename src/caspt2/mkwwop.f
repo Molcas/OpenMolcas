@@ -500,20 +500,30 @@ C Deallocate matrix product
       END SUBROUTINE MKWWOPB
 
       SUBROUTINE MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      USE SUPERINDEX, only: MTUV
+      use EQSOLV, only: MODVEC
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP, NTUVES
+      IMPLICIT None
 
 C Presently symmetry blocking is disregarded, but index pair
 C permutation symmetry is used.
 C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 C NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
-      INTEGER IVEC, JVEC, NOP2, NOP3
-      REAL*8 OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+      integer(kind=iwp), intent(in)::  IVEC, JVEC, NOP2, NOP3
+      real(kind=wp), intent(inout):: OP1(NASHT,NASHT),OP2(NOP2),
+     &                               OP3(NOP3)
 
-      REAL*8, ALLOCATABLE:: W1(:), W2(:), WPROD(:)
+      real(kind=wp), ALLOCATABLE:: W1(:), W2(:), WPROD(:)
+      integer(kind=iwp) ICASE, IIEND, IISTA, ISCT, ISYM, ITABS,
+     &                  IUABS, IW1, IW2, IWPROD, IXABS, IYABS,
+     &                  MDVEC, NAS, NCOL, NIS, NWPROD,
+     &                  ITUV, ITUVABS, ITUVEND, ITUVSTA, ITX, ITZ,
+     &                  IVABS, IVU, IVX, IVZ, IXYZ, IXYZABS, IXYZEND,
+     &                  IXYZSTA, IYZ, IZABS, JTX, JVU, JVUTXYZ, JVUTZ,
+     &                  JVXYZ, JVZTX, JYZ, LW1A, LW2A, MWS1, MWS2, NWSCT
+      real(kind=wp) W_PROD
 C Given the coefficients for two excitation operators of the
 C type ATVX = Case C, available in vectors numbered IVEC and
 C JVEC on file, construct the zero-, one-, two-, and three-body
