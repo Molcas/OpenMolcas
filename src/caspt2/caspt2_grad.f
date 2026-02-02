@@ -669,8 +669,8 @@ C
 
       implicit none
 
-      real(kind=wp), intent(inout) :: OLagLoc(:)
-      real(kind=wp), intent(in) :: Trf(:)
+      real(kind=wp), intent(inout) :: OLagLoc(1:nOLag)
+      real(kind=wp), intent(in) :: Trf(1:NBSQT)
 
       real(kind=wp), allocatable :: WRK(:), WLagLoc(:)
       integer(kind=iwp) :: iBasTr, iBasSq, iSym, nBasI, liBasTr,
