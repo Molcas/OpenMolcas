@@ -2956,8 +2956,8 @@ C     LDA /= 0, if parallel    ; SA is square
 C     In both cases, BDER and SDER are square
 C
       ISADR=0
-      if (isadr /= 0) write (u6,*) lda !! just for avoid compiling error
-      if (isadr /= 0) write (u6,*) lg_S !! just for avoid compiling error
+      if (isadr /= 0) write (u6,*) lda
+      if (isadr /= 0) write (u6,*) lg_S
       NROW = 0
       iLoS = 0
       jLoS = 0
@@ -3763,8 +3763,8 @@ C     LDC /= 0, if parallel    ; SC is square
 C     In both cases, BDER and SDER are square
 C
       ISADR=0
-      if (isadr /= 0) write (u6,*) ldc !! just for avoid compiling error
-      if (isadr /= 0) write (u6,*) lg_S !! just for avoid compiling error
+      if (isadr /= 0) write (u6,*) ldc
+      if (isadr /= 0) write (u6,*) lg_S
       NROW = 0
       iLoS = 0
       jLoS = 0
@@ -5377,7 +5377,7 @@ C
 #endif
       logical(kind=iwp) :: bStat
       integer(kind=iwp) :: lg_S, myRank, lg_Vec, NSCRATCH, iLo, iHi,
-     &  jLo, jHi, mV, LDV, I, lg_Lag, lg_B, IDB, mB, LDB, J
+     &  jLo, jHi, mV, LDV, I, lg_Lag, lg_B, IDB, mB, LDB, J, info
       real(kind=wp) :: EVAL, FACT
       real(kind=wp), allocatable :: EIG(:),VEC(:),SCRATCH(:)
 C
