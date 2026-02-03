@@ -17,13 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF,NBUF,BUF)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       use constants, only: Half, One, Two
       use caspt2_global, only: LUINTM
       use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES
       IMPLICIT None
       integer(kind=iwp), intent(in):: NFIMO, NFAMO, NDREF, NBUF
-      real(kind=wp), intent(out):: FIMO(NFIMO),FAMO(NFAMO)
+      real(kind=wp), intent(inout):: FIMO(NFIMO),FAMO(NFAMO)
       real(kind=wp), intent(inout):: BUF(NBUF)
       real(kind=wp), intent(in)::DREF(NDREF)
 
@@ -63,14 +63,14 @@ C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
           NIP=NISH(ISYP)
           NOP=NOSH(ISYP)
           NAESP=NAES(ISYP)
-          IF(NOP.EQ.0) Cycle
+          IF(NOP.EQ.0) CYCLE
           ISYQ=ISYP
           IS3PQ=(ISYP*(ISYP+1))/2
           ISADDR=IS3RS+NDIM2M*(IS3PQ-1)
           IDISK1=IAD2M(1,ISADDR)
           IF(IDISK1.EQ.0) THEN
-            WRITE(6,*)' FMAT: COULOMB INTEGRAL BUFFER MISSING!'
-            WRITE(6,'(1X,A,4I4)')'SYMMETRY BLOCK:',ISYP,ISYQ,ISYR,ISYS
+            WRITE(u6,*)' FMAT: COULOMB INTEGRAL BUFFER MISSING!'
+            WRITE(u6,'(1X,A,4I4)')'SYMMETRY BLOCK:',ISYP,ISYQ,ISYR,ISYS
             CALL ABEND()
           END IF
           DO IT=1,NOP
@@ -100,7 +100,7 @@ C ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
       IFSTA=1
       DO ISYR=1,NSYM
         NBR=NORB(ISYR)
-        IF(NBR.EQ.0) Cycle
+        IF(NBR.EQ.0) CYCLE
         NB3=(NBR**2+NBR)/2
         NBNB=NBR**2
         ISYS=ISYR
@@ -109,14 +109,14 @@ C ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
           NIP=NISH(ISYP)
           NOP=NOSH(ISYP)
           NAESP=NAES(ISYP)
-          IF(NOP.EQ.0) Cycle
+          IF(NOP.EQ.0) CYCLE
           ISYQ=ISYP
           IS3PQ=(ISYP*(ISYP+1))/2
           ISADDR=IS3RS+NDIM2M*(IS3PQ-1)
           IDISK2=IAD2M(2,ISADDR)
           IF(IDISK2.EQ.0) THEN
-            WRITE(6,*)' FMAT: EXCH-1  INTEGRAL BUFFER MISSING!'
-            WRITE(6,'(1X,A,4I4)')'SYMMETRY BLOCK:',ISYP,ISYQ,ISYR,ISYS
+            WRITE(u6,*)' FMAT: EXCH-1  INTEGRAL BUFFER MISSING!'
+            WRITE(u6,'(1X,A,4I4)')'SYMMETRY BLOCK:',ISYP,ISYQ,ISYR,ISYS
             CALL ABEND()
           END IF
           DO IT=1,NOP
@@ -132,7 +132,7 @@ C ADD -1* BUFFER INTO CORRECT POSITION OF  FIMO.
                 IUABS=NAESP+(IU-NIP)
                 ITU=(ITABS*(ITABS-1))/2 + IUABS
                 DTU=DREF(ITU)
-                IF(IT.EQ.IU) DTU=0.5D0*DTU
+                IF(IT.EQ.IU) DTU=Half*DTU
                 CALL DDAFILE(LUINTM,2,BUF,NBNB,IDISK2)
                 CALL TRIANG(NBR,BUF)
                 CALL DAXPY_(NB3,-DTU,BUF,1,FAMO(IFSTA),1)

@@ -1570,6 +1570,7 @@ C Put WFM on disk:
       integer(kind=iwp) IOFF1(8),IOFF2(8)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+      integer(kind=iwp) :: ITMP1, ITMP2
 #endif
       integer(kind=iwp) IBUF,ICASE,ISYM,IW,IW1,IW2
       integer(kind=iwp) IA,IAABS,IAGEC,IAGTC,IC,ICABS,ICEND,ICL,ICLSTA,
