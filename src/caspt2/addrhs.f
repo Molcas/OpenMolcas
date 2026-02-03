@@ -30,7 +30,8 @@
       real(kind=wp), Intent(out):: TJVX(NT,NJ,NV,NX)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp) Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
+      real(kind=wp), intent(in):: Cho_Bra(NT,NJ,NCHO),
+     &                            Cho_Ket(NV,NX,NCHO)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
@@ -62,7 +63,7 @@
 *                                                                      *
       CALL DGEMM_('N','T',NT*NJ,NV*NX,NCHO,
      &            One,Cho_Bra,NT*NJ,
-     &                  Cho_Ket,NV*NX,
+     &                Cho_Ket,NV*NX,
      &            Zero,TJVX,NT*NJ)
 *
 C Compute W(tvx,j)=(tj,vx) + FIMO(t,j)*delta(v,x)/NACTEL
@@ -172,7 +173,8 @@ Case B:
       real(kind=wp), intent(out):: TJVL(NT,NJ,NV,NL)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp) Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
+      real(kind=wp), intent(in):: Cho_Bra(NT,NJ,NCHO),
+     &                            Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
@@ -457,7 +459,8 @@ C Put WBM on disk:
       real(kind=wp), intent(out):: AUVX(NA,NU,NV,NX)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
+      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),
+     &                            Cho_Ket(NV,NX,NCHO)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
@@ -589,7 +592,8 @@ C Put W on disk:
       real(kind=wp), intent(out):: AJVX(NV,NX,*)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp) Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NX,NCHO)
+      real(kind=wp), intent(in):: Cho_Bra(NA*NJ,NCHO),
+     &                            Cho_Ket(NV,NX,NCHO)
 *      Logical Incore
       integer(kind=iwp) IOFFD(8,8)
 #ifdef _MOLCAS_MPP_
@@ -770,7 +774,8 @@ C Put W on disk:
       real(kind=wp), intent(out):: AUVL(NA,NU,NV,NL)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
+      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),
+     &                            Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
       integer(kind=iwp) IOFFD(8,8)
 #ifdef _MOLCAS_MPP_
@@ -915,7 +920,8 @@ C Put W on disk:
       real(kind=wp), intent(out):: AJVL(NV,NL,*)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp) Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NL,NCHO)
+      real(kind=wp), intent(in):: Cho_Bra(NA*NJ,NCHO),
+     &                            Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
       integer(kind=iwp) IOFF1(8),IOFF2(8)
 #ifdef _MOLCAS_MPP_
@@ -1232,7 +1238,8 @@ C Read WM:
       real(kind=wp), intent(out):: AUCX(NA,NU,NC,NX)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
+      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),
+     &                            Cho_Ket(NC,NX,NCHO)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
@@ -1521,7 +1528,8 @@ C Put WFM on disk:
       real(kind=wp), intent(out):: AUCL(NA,NU,*)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
+      real(kind=wp), intent(in):: Cho_Bra(NA,NU,NCHO),
+     &                            Cho_Ket(NC*NL,NCHO)
 *      Logical Incore
       integer(kind=iwp) IOFF1(8),IOFF2(8)
 #ifdef _MOLCAS_MPP_
@@ -1878,7 +1886,8 @@ C      NBXSZJ=NINABX
       real(kind=wp), intent(out):: AJCL(NC*NL,*)
       real(kind=wp), intent(out):: Buff(nBuff)
       integer(kind=iwp), intent(out):: idxBuf(nBuff)
-      real(kind=wp) Cho_Bra(NA*NJ,NCHO), Cho_Ket(NC*NL,NCHO)
+      real(kind=wp), intent(in):: Cho_Bra(NA*NJ,NCHO),
+     &                            Cho_Ket(NC*NL,NCHO)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV,ITMP1,ITMP2
 #endif
