@@ -464,7 +464,8 @@ C
 C
       implicit none
 C
-      real(kind=wp), intent(in) :: BDER(NAS,NAS), SDER(NAS,NAS)
+      real(kind=wp), intent(in) :: BDER(NAS,NAS)
+      real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
       integer*1, allocatable :: idxG3(:,:)
 C
@@ -1872,7 +1873,7 @@ C     MODE=1: XMS-specific term, always state-averaged DM
 C
       !! RDMEIG
       call mma_allocate(CI1,nConf,Label='LCI')
-      call mma_allocate(WRK,nAshT**2,Label='WRK')
+      call mma_allocate(WRK,MAX(NLEV,NASHT)**2,Label='WRK')
 
       Do iState = 1, nState
         If (.not.if_SSDMloc) Then
@@ -1894,13 +1895,13 @@ C
         Else
           Wgt = DWgt(iState,jState)
           If (abs(wgt) > 1.0e-09_wp) Then
-            If (ISCF.EQ.0) Then
+            If (ISCF == 0) Then
               Call LoadCI(CI1,iState)
             Else
               CI1(1) = One
             End If
             WRK(1:NLEV**2) = RDMEIG(1:NLEV**2)*WGT
-            Call Poly1_CLag(CI1,CLag(1,iState),RDMEIG,nLev)
+            Call Poly1_CLag(CI1,CLag(1,iState),WRK,nLev)
           End If
 
           !! Derivative of omega for dynamically weighted density
@@ -2934,12 +2935,12 @@ C
 C
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
      &                                 LDA, lg_S
-      real(kind=wp), intent(inout) :: BDER(*), SDER(*),
+      real(kind=wp), intent(in) :: BDER(*), SA(*), SA2(*)
+      real(kind=wp), intent(inout) :: SDER(*),
      &  DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT),
      &  DF1(nAshT,nAshT), DF2(nAshT,nAshT,nAshT,nAshT),
      &  DEPSA(nAshT,nAshT), DEASUM, G1(nAshT,nAshT),
      &  G2(nAshT,nAshT,nAshT,nAshT)
-      real(kind=wp), intent(in) :: SA(*), SA2(*)
 
       integer(kind=iwp) :: ISADR, NROW, iLoS, jLoS, IXYZ, IXYZABS,
      &  IXABS, IYABS, IZABS, ITUV, ITUVABS, ITABS, IUABS, IVABS,
@@ -3741,12 +3742,12 @@ C
 C
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
      &                                 LDC, lg_S
-      real(kind=wp), intent(inout) :: BDER(*), SDER(*),
+      real(kind=wp), intent(in) :: BDER(*), SC(*), SC2(*)
+      real(kind=wp), intent(inout) :: SDER(*),
      &  DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT),
      &  DF1(nAshT,nAshT), DF2(nAshT,nAshT,nAshT,nAshT),
      &  DEPSA(nAshT,nAshT), DEASUM, G1(nAshT,nAshT),
      &  G2(nAshT,nAshT,nAshT,nAshT)
-      real(kind=wp), intent(in) :: SC(*), SC2(*)
 
       integer(kind=iwp) :: ISADR, NROW, iLoS, jLoS, IXYZ, IXYZABS,
      &  IXABS, IYABS, IZABS, ITUV, ITUVABS, ITABS, IUABS, IVABS,
