@@ -160,7 +160,7 @@ C
       use definitions, only: wp, iwp
       use fake_GA, only: GA_Arrays
       use caspt2_module, only: IFMSCOUP, NSYM, NASH, NAES, NASHT,
-     &                         NASUP, NISUP, NINDEP, EPSA, NTUES,
+     &                         NASUP, NISUP, NINDEP, EPSA, EASUM, NTUES,
      &                         NTGEUES, NTGTUES
       use pt2_guga, only: NG3
 #ifdef _MOLCAS_MPP_
@@ -201,7 +201,7 @@ C
       integer(kind=iwp) :: lg_V1, lg_V2, lg_V3, lg_V4, lg_V5
 
       real(kind=wp) :: ScalB1, ScalB2, ScalS1, ScalS2, ET, EU, EX, EY,
-     & ATUXY, BDERval, bsBDER, SDERval, EASUM, ATYU, ATYX, ATUX, ATUY
+     & ATUXY, BDERval, bsBDER, SDERval, ATYU, ATYX, ATUX, ATUY
 
       Do iCase = 1, 11
 C       cycle
@@ -2491,7 +2491,7 @@ C  - G(utxvzy) -> SA(vtu,xzy)
             G3VAL = G3VAL + SDER(iSup,jSup)
           ENDIF
           if (iTU /= iVX .or. iVX /= iYZ) then
-            if (iTU /= iVX .or. iTU /= iYZ .or. iVX /= iYZ) then
+            if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 C  - G(xvutzy) -> SA(tvx,uzy)
               jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
               IF (jSYM == iSYM) THEN
@@ -2772,7 +2772,7 @@ C  - G(utxvzy) -> SA(vtu,xzy)
                 INDJ(NtotELB) = ICOL
               ENDIF
               if (iTU /= iVX .or. iVX /= iYZ) then
-                if (iTU /= iVX .or. iTU /= iYZ .or. iVX /= iYZ) then
+                if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 C  - G(xvutzy) -> SA(tvx,uzy)
                   jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
                   IF (jSYM == iSYM) THEN
