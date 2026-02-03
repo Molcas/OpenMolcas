@@ -34,14 +34,14 @@
       integer(kind=iwp), intent(in) :: IFF
       real(kind=wp), intent(inout) :: CLag(nConf,nState),
      &                                DEPSA(nAshT,nAshT)
-      real(kind=wp), intent(in) :: VECROT(*)
+      real(kind=wp), intent(in) :: VECROT(:)
 
       real(kind=wp), allocatable :: G1(:), G2(:), G3(:)
       real(kind=wp), allocatable :: DG1(:), DG2(:), DG3(:), DF1(:),
      &                              DF2(:), DF3(:)
 
-      Integer(kind=iwp) :: nLev
-      real(kind=wp) :: DEASUM, iT, iU
+      integer(kind=iwp) :: nLev, iT, iU
+      real(kind=wp) :: DEASUM
       real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0,
      &                 TIOTF10
 
@@ -177,10 +177,10 @@ C
 #endif
 
       real(kind=wp), intent(inout) :: G1(NASHT,NASHT),
-     & G2(NASHT,NASHT,NASHT,NASHT),G3(*),DG1(NASHT,NASHT),
-     & DG2(NASHT,NASHT,NASHT,NASHT),DG3(*),DF1(NASHT,NASHT),
-     & DF2(NASHT,NASHT,NASHT,NASHT),DF3(*),DEASUM,DEPSA(NASHT,NASHT)
-      real(kind=wp), intent(in) :: VECROT(*)
+     & G2(NASHT,NASHT,NASHT,NASHT),G3(:),DG1(NASHT,NASHT),
+     & DG2(NASHT,NASHT,NASHT,NASHT),DG3(:),DF1(NASHT,NASHT),
+     & DF2(NASHT,NASHT,NASHT,NASHT),DF3(:),DEASUM,DEPSA(NASHT,NASHT)
+      real(kind=wp), intent(in) :: VECROT(:)
 
       real(kind=wp), allocatable :: LBD(:),LID(:) !!,VEC1(:),VEC2(:)
       real(kind=wp), allocatable :: SMat(:),BDER(:),SDER(:)
@@ -465,6 +465,8 @@ C
       implicit none
 C
       real(kind=wp), intent(in) :: BDER(NAS,NAS), SDER(NAS,NAS)
+
+      integer*1, allocatable :: idxG3(:,:)
 C
       NS = NAS*(NAS+1)/2
       call mma_allocate(SMat,NS,Label='SMat')
@@ -737,6 +739,8 @@ C
 
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
+
+      integer*1, allocatable :: idxG3(:,:)
 C
       NS = NAS*(NAS+1)/2
       call mma_allocate(SMat,NS,Label='SMat')
