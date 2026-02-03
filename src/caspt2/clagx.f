@@ -34,7 +34,7 @@
       integer(kind=iwp), intent(in) :: IFF
       real(kind=wp), intent(inout) :: CLag(nConf,nState),
      &                                DEPSA(nAshT,nAshT)
-      real(kind=wp), intent(in) :: VECROT(:)
+      real(kind=wp), intent(in) :: VECROT(*)
 
       real(kind=wp), allocatable :: G1(:), G2(:), G3(:)
       real(kind=wp), allocatable :: DG1(:), DG2(:), DG3(:), DF1(:),
@@ -177,10 +177,10 @@ C
 #endif
 
       real(kind=wp), intent(inout) :: G1(NASHT,NASHT),
-     & G2(NASHT,NASHT,NASHT,NASHT),G3(:),DG1(NASHT,NASHT),
-     & DG2(NASHT,NASHT,NASHT,NASHT),DG3(:),DF1(NASHT,NASHT),
-     & DF2(NASHT,NASHT,NASHT,NASHT),DF3(:),DEASUM,DEPSA(NASHT,NASHT)
-      real(kind=wp), intent(in) :: VECROT(:)
+     & G2(NASHT,NASHT,NASHT,NASHT),G3(*),DG1(NASHT,NASHT),
+     & DG2(NASHT,NASHT,NASHT,NASHT),DG3(*),DF1(NASHT,NASHT),
+     & DF2(NASHT,NASHT,NASHT,NASHT),DF3(*),DEASUM,DEPSA(NASHT,NASHT)
+      real(kind=wp), intent(in) :: VECROT(*)
 
       real(kind=wp), allocatable :: LBD(:),LID(:) !!,VEC1(:),VEC2(:)
       real(kind=wp), allocatable :: SMat(:),BDER(:),SDER(:)
@@ -1550,9 +1550,9 @@ C
 C
       integer(kind=iwp), intent(in) :: mode, iSym, iCase, nIN, nIS, nAS,
      &                                 lg_V2
-      real(kind=wp), intent(in) :: VEC1(:), VEC3(:), VEC4(:), VEC5(:),
-     &                             VECROT(:)
-      real(kind=wp), intent(inout) :: VEC2(:), BDERmat(:), SDERmat(:)
+      real(kind=wp), intent(in) :: VEC1(*), VEC3(*), VEC4(*), VEC5(*),
+     &                             VECROT(*)
+      real(kind=wp), intent(inout) :: VEC2(*), BDERmat(*), SDERmat(*)
 C
       real(kind=wp),allocatable :: WRK1(:),WRK2(:),WRK3(:),TRANS(:),
      *                             EIG(:)
