@@ -18,14 +18,24 @@
       use caspt2_global, only: FIFA, DREF
       use caspt2_global, only: LUONEM
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NBTRI, EASUM, IEOF1M, notri, NSYM, NBAS,
+     &                         NORB, NFRO, IAD1M, NISH, NASH, EPS, EPSI,
+     &                         EPSA, EPSE, NAES
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: NASHT, NISHT, NORBT, NSSHT
+#endif
+      IMPLICIT None
       integer(kind=iwp), intent(in):: NCMO, NHONE, NFIMO, NFAMO
       real(kind=wp), intent(in):: CMO(NCMO)
       real(kind=wp), intent(in):: FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
       real(kind=wp), intent(out):: HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
 
       real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:)
+      real(kind=wp) E
+      integer(kind=iwp) I, ID, IDISK, IEPS, IEPSA, IEPSE, IEPSI, IFAO,
+     &                  IJ, IOFMO, ISTLT, ISYM, ITOT, J, LSC, LSCI,
+     &                  NA, NB, NBBMX, NBBT, NBOMX, NF, NI, NO, NO_X,
+     &                  NOOMX
 
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
