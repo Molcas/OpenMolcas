@@ -15,7 +15,7 @@
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTUV
-      use caspt2_module
+      use caspt2_module, only: MUL, NINDEP, NTUV, NISH, NAES, NTUVES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -152,7 +152,9 @@ C Put W on disk:
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTGEU, KIGEJ, KTGTU, KIGTJ
-      use caspt2_module
+      use caspt2_module, only: MUL, NINDEP, NAES, NTGEU, NIGEJ, NTGTU,
+     &                         NIGTJ, NTGEUES, NIES, NIGEJES, NTGTUES,
+     &                         NIGTJES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -451,7 +453,7 @@ C Put WBM on disk:
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTUV
-      use caspt2_module
+      use caspt2_module, only: MUL, NINDEP, NTUV, NSSH, NAES, NTUVES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -587,7 +589,8 @@ C Put W on disk:
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTU
-      use caspt2_module
+      use caspt2_module, only: MUL, NINDEP, NTU, NSSH, NISUP, NINABX,
+     &                         NSECBX, NSYM, NISH, NAES, NTUES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -774,7 +777,8 @@ C Put W on disk:
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTU
-      use caspt2_module
+      use caspt2_module, only: MUL, NINDEP, NTU, NSSH, NISUP,
+     &                         NSYM, NISH, NAES, NTUES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -923,7 +927,9 @@ C Put W on disk:
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KIGEJ, KIGTJ
-      use caspt2_module
+      use caspt2_module, only: MUL, NIGEJ, NIGTJ, NSSH, NASH,
+     &                         NISUP, NINABX, NSECBX, NSYM, NIES,
+     &                         NIGEJES, NIGTJES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -1247,7 +1253,9 @@ C Read WM:
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTGEU, KAGEB, KTGTU, KAGTB
-      use caspt2_module
+      use caspt2_module, only: MUL, NTGEU, NAGEB, NTGTU, NAGTB, NINDEP,
+     &                         NAES, NTGEUES, NSES, NAGEBES, NTGTUES,
+     &                         NAGTBES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -1541,7 +1549,8 @@ C Put WFM on disk:
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KAGEB, KAGTB
-      use caspt2_module
+      use caspt2_module, only: MUL, NAGEB, NAGTB, NSYM, NISH, NASH,
+     &                         NISUP, NSECBX, NSES, NAGEBES, NAGTBES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -1904,7 +1913,9 @@ C      NBXSZJ=NINABX
       use constants, only: Zero, One, Half, Two, Three
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KIGEJ, KAGEB, KIGTJ, KAGTB
-      use caspt2_module
+      use caspt2_module, only: MUL, NIGEJ, NAGEB, NIGTJ, NAGTB, NINABX,
+     &                         NSECBX, NIES, NSES, NIGEJES, NAGEBES,
+     &                         NIGTJES, NAGTBES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
