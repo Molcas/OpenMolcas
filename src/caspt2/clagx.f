@@ -4028,39 +4028,52 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
-C
+
       use caspt2_global, only:IPrGlb
       use PrintLevel, only: verbose
       use caspt2_global, only: ConvInvar,SLag
       use gugx, only: SGS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: iwp,wp
-      use caspt2_module
+      use definitions, only: iwp, wp, u6
+      use Constants, only: Zero, One, Half
+      use caspt2_module, only: IFXMS, IFRMS, NSYM, STSYM, NCONF, NFRO,
+     &                         NISH, NASH, NASHT, NSSH, NORB, NBAS,
+     &                         NBAST, MUL, ISCF, NSTATE, NBTCH, NBTCHES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      Implicit Real*8 (A-H,O-Z)
-C
-C
-      Dimension CLag(nConf,nState),DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),
-     *          WRK1(nBasT,nBasT),WRK2(*),U0(nState,nState)
-      Dimension Eact(nState)
-      Integer :: nLev, nMidV
+
+      implicit none
+
+      real(kind=wp), intent(inout) :: CLag(nConf,nState),
+     &  DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),WRK1(nBasT,nBasT),WRK2(*),
+     &  U0(nState,nState)
       real(kind=wp),allocatable :: VecST(:,:),VecS1(:,:),VecS2(:,:),
      *                             VecCID(:,:),VecPre(:),VecFancy(:),
      *                             VecCIT(:,:),INT1(:),INT2(:),G2(:)
+      real(kind=wp), allocatable ::  Eact(:)
+
+      real(kind=wp) :: Thres, DeltaC, Delta, Delta0, AlphaC, Alpha,
+     &                 ResCI, Beta, Res
+      real(kind=wp), external :: DDot_
+      integer(kind=iwp) :: nLev, nMidV, iSym, ID, iState, isyci,
+     &                     MaxIter, Iter
+
+      real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0,
+     &                 TIOTF10
+      real(kind=wp) :: CPTF1, CPTF2, TIOTF1, TIOTF2
 
       nLev = SGS%nLev
       nMidV= CIS%nMidV
 C
       Thres = ConvInvar !! 1.0d-07
 C
-      If (IPRGLB.GE.verbose) Then
-        Write (6,*)
-        Write (6,'(3X,"Linear Equation for Non-Invariant CASPT2",
-     *                " (threshold =",ES9.2,")")') Thres
-        Write (6,*)
+      If (IPRGLB >= verbose) Then
+        Write (u6,*)
+        Write (u6,'(3X,"Linear Equation for Non-Invariant CASPT2",
+     *                 " (threshold =",ES9.2,")")') Thres
+        Write (u6,*)
         CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       End If
 C
@@ -4097,6 +4110,8 @@ C
       call mma_allocate(VecCIT,nConf,nState,Label='VecCIT')
       call mma_allocate(INT1,nAshT**2,Label='INT1')
       call mma_allocate(INT2,nAshT**4,Label='INT2')
+
+      call mma_allocate(Eact,nState,Label='Eact')
 C
       !! We do not have Cholesky vectors for frozen orbitals,
       !! so may be it is not possible to get inactive energies?
@@ -4105,51 +4120,50 @@ C
       Call CnstInt(0,INT1,INT2)
       ID = IDTCEX !! IDCIEX !! this parameter is hacked
       Do iState = 1, nState
-        If (ISCF.EQ.0) Then
+        If (ISCF == 0) Then
           !! quasi-canonical, XMS
           Call DDaFile(LUCIEX,2,VecCIT(1,iState),nConf,ID)
         Else
-          VecCIT(1,iState) = 1.0d+00
+          VecCIT(1,iState) = One
         End If
         !! The second term should be removed
-        Eact(iState)=0.0d+00
+        Eact(iState) = Zero
       End Do
-      if (ifxms.or.ifrms) then
+      if (ifxms .or. ifrms) then
         !! Transform the CLag and CI vector from XMS to SCF basis
         !! Maybe, in order to define Eact
         Call DGEMM_('N','T',nConf,nState,nState,
-     &              1.0D+00,CLag,nConf,U0,nState,
-     &              0.0D+00,VecST,nConf)
-        Call DCopy_(nConf*nState,VecST,1,CLag,1)
+     &              One,CLag,nConf,U0,nState,
+     &              Zero,VecST,nConf)
+        CLag(1:nConf,1:nState) = VecST(1:nConf,1:nState)
         Call DGEMM_('N','T',nConf,nState,nState,
-     &              1.0D+00,VecCIT,nConf,U0,nState,
-     &              0.0D+00,VecST,nConf)
-        Call DCopy_(nConf*nState,VecST,1,VecCIT,1)
+     &              One,VecCIT,nConf,U0,nState,
+     &              Zero,VecST,nConf)
+        VecCIT(1:nConf,1:nState) = VecST(1:nConf,1:nState)
       end if
       Call TimesE2(0,VecCIT,VecS1,INT1,INT2)
       Do iState = 1, nState
         !! scaling with nState is due to the division in TimesE2
-        Eact(iState) = -0.5D+00*nState*
+        Eact(iState) = -Half*nState*
      *    DDot_(nConf,VecS1(1,iState),1,VecCIT(1,iState),1)
       End Do
       isyci = 1
 C
       !! Precondition
       Call CnstInt(2,INT1,INT2)
-      Call CnstPrec(CIS%NOCSF,CIS%IOCSF,CIS%NOW,
-     *              CIS%IOW,ISYCI,VecPre,VecCIT,
+      Call CnstPrec(ISYCI,VecPre,VecCIT,
      *              INT1,INT2,VecFancy,nLev,
      *              nMidV)
       Call CnstInt(0,INT1,INT2)
 C
       !! Begin!
-      Call DCopy_(nConf*nState,CLag,1,VecST,1)
+      VecST(1:nConf,1:nState) = CLag(1:nConf,1:nState)
 C
       !! z0 = M^{-1}*r0
-      Call DCopy_(nConf*nState,VecST,1,VecS2,1)
+      VecS2(1:nConf,1:nState) = VecST(1:nConf,1:nState)
       Call DoPrec(VecST,VecS2,VecS1,VecPre,VecFancy)
       !! p0 = z0
-      Call DCopy_(nConf*nState,VecS2,1,VecCId,1)
+      VecCId(1:nConf,1:nState) = VecS2(1:nConf,1:nState)
       MaxIter = 100
       Iter    = 1
       iSym    = 1
@@ -4165,75 +4179,76 @@ C
       Delta  = DeltaC
       Delta0 = Delta
 C
-      If (IPRGLB.GE.verbose) Write(6,*)
+      If (IPRGLB >= verbose) Write(u6,*)
      &      ' Iteration       Delta           Res(CI)        '//
      &      '  DeltaC'
-      Call DCopy_(nConf*nState,[0.0D+00],0,VecCIT,1)
-      If (Delta0.le.Abs(Thres)) Go To 100
-      Do Iter = 1, MaxIter
-        If (nConf.EQ.1) Then
-          Do iState = 1, nState
-            VecCIT(1,iState) = 1.0d+00
-          End Do
-          Exit
+      VecCIT(1:nConf,1:nState) = Zero
+      If (Delta0 > Abs(Thres)) then
+        Do Iter = 1, MaxIter
+          If (nConf == 1) Then
+            Do iState = 1, nState
+              VecCIT(1,iState) = One
+            End Do
+            Exit
+          End If
+          !! Compute Ap
+          !! ipS2 is used as a workind array
+          Call TimesE2(1,VecCId,VecS1,INT1,INT2)
+C
+          !! AlphaC = p^T*A*p
+          AlphaC= DDot_(nConf*nState,VecS1,1,VecCId,1)
+          !! Alpha = r^T*z / AlphaC
+          Alpha = Delta/(AlphaC)
+          ! new x of CI
+          VecCIT(1:nConf,1:nState) = VecCIT(1:nConf,1:nState)
+     &      + Alpha*VecCId(1:nConf,1:nState)
+          ! new r of CI
+          VecST(1:nConf,1:nState) = VecST(1:nConf,1:nState)
+     &      - Alpha*VecS1(1:nConf,1:nState)
+          ResCI = sqrt(DDot_(nConf*nState,VecST,1,VecST,1))
+          !! z = M^{-1}*r
+          VecS2(1:nConf,1:nState) = VecST(1:nConf,1:nState)
+          Call DoPrec(VecST,VecS2,VecS1,VecPre,VecFancy)
+C
+          !! Append new vectors
+          DeltaC= Ddot_(nConf*nState,VecST,1,VecS2,1)
+          Beta  = DeltaC/Delta
+          Delta = DeltaC
+          VecCId(1:nConf,1:nState)
+     &      = Beta*VecCId(1:nConf,1:nState) + VecS2(1:nConf,1:nState)
+
+          If (IPRGLB >= verbose)
+     *    Write(u6,'(I7,4X,ES17.9,ES17.9,ES17.9)')
+     &           iter,delta/delta0,resci,deltac
+
+          Res = ResCI
+          If (Res <= Abs(Thres)) Exit
+        End Do
+C
+        If (Iter == MaxIter+1) Then
+          write(u6,*)
+     *    "CI iteration for non-invariant CASPT2 did not converge..."
+          call abend
         End If
-        !! Compute Ap
-        !! ipS2 is used as a workind array
-        Call TimesE2(1,VecCId,VecS1,INT1,INT2)
+      end if
 C
-        !! AlphaC = p^T*A*p
-        AlphaC= DDot_(nConf*nState,VecS1,1,VecCId,1)
-        !! Alpha = r^T*z / AlphaC
-        Alpha = Delta/(AlphaC)
-        ! new x of CI
-        Call DaXpY_(nConf*nState,Alpha,VecCId,1,VecCIT,1)
-        ! new r of CI
-        Call DaXpY_(nConf*nState,-Alpha,VecS1,1,VecST,1)
-        ResCI=sqrt(DDot_(nConf*nState,VecST,1,VecST,1))
-        !! z = M^{-1}*r
-        Call DCopy_(nConf*nState,VecST,1,VecS2,1)
-        Call DoPrec(VecST,VecS2,VecS1,VecPre,VecFancy)
-C
-        !! Append new vectors
-        DeltaC= Ddot_(nConf*nState,VecST,1,VecS2,1)
-        Beta  = DeltaC/Delta
-        Delta = DeltaC
-        Call DScal_(nConf*nState,   Beta,VecCId,1)
-        Call DaXpY_(nConf*nState,1.0D+00,VecS2,1,VecCId,1)
-C
-        If (IPRGLB.GE.verbose)
-     *  Write(6,'(I7,4X,ES17.9,ES17.9,ES17.9)')
-     &         iter,delta/delta0,resci,deltac
-C
-        Res = ResCI
-        If (Res.le.Abs(Thres)) Exit
-      End Do
-C
-      If (Iter.eq.MaxIter+1) Then
-        write(6,*)
-     *  "CI iteration for non-invariant CASPT2 did not converge..."
-        call abend
-      End If
-C
-  100 CONTINUE
-C
-      If (IPRGLB.GE.verbose) Then
+      If (IPRGLB >= verbose) Then
         CALL TIMING(CPTF1,CPE,TIOTF1,TIOE)
         CPUT =CPTF1-CPTF0
         WALLT=TIOTF1-TIOTF0
-        Write (6,*)
-        Write (6,'(3X,"Linear equation converged in ",I3," steps")')
+        Write (u6,*)
+        Write (u6,'(3X,"Linear equation converged in ",I3," steps")')
      *         iter-1
-        Write (6,'(3X,"CPU and wall time (in s) = ",2F8.2)') CPUT,WALLT
-        Write (6,*)
+        Write (u6,'(3X,"CPU and wall time (in s) = ",2F8.2)') CPUT,WALLT
+        Write (u6,*)
       End If
 C
-      If (IFXMS.OR.IFRMS) Then
+      If (IFXMS .OR. IFRMS) Then
         !! Transform back the CLag from CAS to XMS
         Call DGEMM_('N','N',NConf,nState,nState,
-     &              1.0D+00,CLag,nConf,U0,nState,
-     &              0.0D+00,VecST,nConf)
-        Call DCopy_(nConf*nState,VecST,1,CLag,1)
+     &              One,CLag,nConf,U0,nState,
+     &              Zero,VecST,nConf)
+        CLag(1:nConf,1:nState) = VecST(1:nConf,1:nState)
       End If
 C
       call mma_deallocate(VecS1)
@@ -4249,15 +4264,15 @@ C     The SCF, not XMS, basis is used
 C
       ID = IDCIEX !! idtcex?
       Do iState = 1, nState
-        If (ISCF.EQ.0) Then
-          If (IFXMS.OR.IFRMS) THen
+        If (ISCF == 0) Then
+          If (IFXMS .OR. IFRMS) THen
             !! Use unrotated (SCF) CI vector
             Call LoadCI_XMS('C',1,VecST(1,iState),iState,U0)
           Else
             Call DDaFile(LUCIEX,2,VecST(1,iState),nConf,ID)
           End If
         Else
-          VecST(1,iState) = 1.0d+00
+          VecST(1,iState) = One
         End If
       End Do
       call mma_allocate(G2,nAshT**4,Label='G2')
@@ -4265,38 +4280,45 @@ C
       Call CnstDEPSA(VecST,VecCIT,INT1,G2,INT2)
       call mma_deallocate(G2)
 C
-      If (IPRGLB.GE.verbose) Then
+      If (IPRGLB >= verbose) Then
         CALL TIMING(CPTF2,CPE,TIOTF2,TIOE)
         CPUT =CPTF2-CPTF1
         WALLT=TIOTF2-TIOTF1
-        Write (6,'(3X,"Off-diagonal density is constructed")')
-        Write (6,'(3X,"CPU and wall time (in s) = ",2F8.2)') CPUT,WALLT
-        Write (6,*)
+        Write (u6,'(3X,"Off-diagonal density is constructed")')
+        Write (u6,'(3X,"CPU and wall time (in s) = ",2F8.2)') CPUT,WALLT
+        Write (u6,*)
       End If
 C
       call mma_deallocate(VecST)
       call mma_deallocate(VecCIT)
       call mma_deallocate(INT1)
       call mma_deallocate(INT2)
+      call mma_deallocate(Eact)
 C
       Contains
 C
 C-----------------------------------------------------------------------
 C
       Subroutine CLagFinalOffC(SLag)
+
+      use caspt2_module, only: REFENE
+
+      implicit none
+
+      real(kind=wp), intent(inout) :: SLag(*)
+      real(kind=wp), allocatable :: CI1(:), CI2(:)
+
+      integer(kind=iwp) :: ijst, ilStat, jlStat
+      real(kind=wp) :: Scal, Ovl
+      real(kind=wp), external :: DDot_
 C
 C     Orthogonalize the partial derivative with respect to CI coeff
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-C
-      Dimension SLag(*)
-      real(kind=wp),allocatable :: CI1(:),CI2(:)
-C
       call mma_allocate(VecST,nConf,nState,Label='VecST')
       Call DGEMM_('N','T',nConf,nState,nState,
-     &            1.0D+00,CLag,nConf,U0,nState,
-     &            0.0D+00,VecST,nConf)
-      Call DCopy_(nConf*nState,VecST,1,CLag,1)
+     &            One,CLag,nConf,U0,nState,
+     &            Zero,VecST,nConf)
+      CLag(1:nConf,1:nState) = VecST(1:nConf,1:nState)
 
       call mma_allocate(CI1,nConf,Label='CI1')
       call mma_allocate(CI2,nConf,Label='CI2')
@@ -4304,25 +4326,25 @@ C
       !! Construct SLag
       ijst = 0
       do ilStat = 1, nState
-        If (ISCF.EQ.0) Then
+        If (ISCF == 0) Then
           Call LoadCI_XMS('C',1,CI1,ilStat,U0)
         Else
-          CI1(1) = 1.0D+00
+          CI1(1) = One
         End If
         Do jlStat = 1, ilStat !! -1
           ijst = ilStat + nState*(jlStat-1)
-          If (ilStat.eq.jlStat) Cycle
-          If (ISCF.EQ.0) Then
+          If (ilStat == jlStat) Cycle
+          If (ISCF == 0) Then
             Call LoadCI_XMS('C',1,CI2,jlStat,U0)
           Else
-            CI2(1) = 1.0D+00
+            CI2(1) = One
           End If
           Scal = DDOT_(nConf,CI1,1,CLag(1,jlStat),1)
      *         - DDOT_(nConf,CI2,1,CLag(1,ilStat),1)
           Scal = Scal/(REFENE(jlStat)-REFENE(ilStat))
           SLag(ijst) = SLag(ijst) + Scal
-          IF (IPRGLB.GE.verbose) THEN
-            write(6,'(1x,"SLag for State ",i1,"-",i1," = ",f20.10)')
+          IF (IPRGLB >= verbose) THEN
+            write(u6,'(1x,"SLag for State ",i1,"-",i1," = ",f20.10)')
      *         ilstat,jlstat,slag(ijst)
           END IF
         end do
@@ -4330,22 +4352,22 @@ C
 C
       !! Projection
       Do ilStat = 1, nState
-        Call DCopy_(nConf,CLag(1,ilStat),1,CI1,1)
+        CI1(1:nConf) = CLag(1:nConf,ilStat)
         Do jlStat = 1, nState
-          If (ISCF.EQ.0) Then
+          If (ISCF == 0) Then
             Call LoadCI_XMS('C',1,CI2,jlStat,U0)
           Else
-            CI2(1) = 1.0D+00
+            CI2(1) = One
           End If
           Ovl = DDot_(nConf,CI1,1,CI2,1)
-          Call DaXpY_(nConf,-Ovl,CI2,1,CLag(1,ilStat),1)
+          CLag(1:nConf,ilStat) = CLag(1:nConf,ilStat) - Ovl*CI2(1:nConf)
         End Do
       End Do
 C
       Call DGEMM_('N','N',nConf,nState,nState,
-     &            1.0D+00,CLag,nConf,U0,nState,
-     &            0.0D+00,VecST,nConf)
-      Call DCopy_(nConf*nState,VecST,1,CLag,1)
+     &            One,CLag,nConf,U0,nState,
+     &            Zero,VecST,nConf)
+      CLag(1:nConf,1:nState) = VecST(1:nConf,1:nState)
 C
       call mma_deallocate(CI1)
       call mma_deallocate(CI2)
@@ -4359,21 +4381,27 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstInt(Mode,INT1,INT2)
 C
-      Use CHOVEC_IO
-      use ChoCASPT2
+      Use CHOVEC_IO, only: NVLOC_CHOBATCH
+      use caspt2_module, only: IfChol, NFRO, NBAS
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      Real*8 INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
+      integer(kind=iwp), intent(in) :: Mode
+      real(kind=wp), intent(inout) :: INT1(nAshT,nAshT),
+     &                                INT2(nAshT,nAshT,nAshT,nAshT)
+
       integer(kind=iwp),allocatable :: BGRP(:,:)
       real(kind=wp),allocatable :: KET(:)
 C
-      Integer Active, Inactive, Virtual
-      Parameter (Inactive=1, Active=2, Virtual=3)
-      Integer nSh(8,3)
+      integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
+      integer(kind=iwp) :: nSh(8,3), nFroI, nIshI, nCorI, nBasI, iAshI,
+     &  jAshI, iSymA, iSymI, iSymB, iSymJ, JSYM, IB, IB1, IB2, MXBGRP,
+     &  IBGRP, NBGRP, NCHOBUF, MXPIQK, NADDBUF, IBSTA, IBEND, NV, nKET,
+     &  kAshI, lAshI, iT, iU, iTU, iV, iX, iVX, iOrb, jOrb
+      real(kind=wp) :: Val
 C
-      Call DCopy_(nAshT**2,[0.0D+00],0,INT1,1)
-      Call DCopy_(nAshT**4,[0.0D+00],0,INT2,1)
+      INT1(:,:) = Zero
+      Int2(:,:,:,:) = Zero
 C
       nFroI = nFro(iSym)
       nIshI = nIsh(iSym)
@@ -4437,15 +4465,15 @@ C       End Do
 C     End If
 C
       If (IfChol) Then
-        Call ICopy(NSYM,NISH,1,nSh(1,Inactive),1)
-        Call ICopy(NSYM,NASH,1,nSh(1,Active  ),1)
-        Call ICopy(NSYM,NSSH,1,nSh(1,Virtual ),1)
+        nSh(1:nSym,Inactive) = NISH(1:nSym)
+        nSh(1:nSym,Active  ) = NASH(1:nSym)
+        nSh(1:nSym,Virtual ) = NSSH(1:nSym)
         DO JSYM=1,NSYM
           IB1=NBTCHES(JSYM)+1
           IB2=NBTCHES(JSYM)+NBTCH(JSYM)
 C
           MXBGRP=IB2-IB1+1
-          IF (MXBGRP.LE.0) CYCLE
+          IF (MXBGRP <= 0) CYCLE
           call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
           IBGRP=1
           DO IB=IB1,IB2
@@ -4479,9 +4507,9 @@ C
      &                                IBSTA,IBEND)
 C
             Call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,
-     *                  0.5D+00,KET,NASH(JSYM)**2,
-     *                          KET,NASH(JSYM)**2,
-     *                  0.0D+00,INT2,NASH(JSYM)**2)
+     *                  Half,KET,NASH(JSYM)**2,
+     *                       KET,NASH(JSYM)**2,
+     *                  Zero,INT2,NASH(JSYM)**2)
           End Do
           call mma_deallocate(KET)
           call mma_deallocate(BGRP)
@@ -4503,7 +4531,7 @@ C           End Do
               Do lAshI = 1, nAsh(iSym)
                 INT2(iAshI,jAshI,kAshI,lAshI)
      *        = INT2(iAshI,jAshI,kAshI,lAshI)
-     *        + WRK1(nCorI+kAshI,nCorI+lAshI)*0.5d+00
+     *        + WRK1(nCorI+kAshI,nCorI+lAshI)*Half
               End Do
             End Do
 C
@@ -4522,16 +4550,16 @@ C     write(6,*) "int2"
 C     call sqprt(int2,25)
 C     call sqprt(int1,5)
 C     call sqprt(fimo,12)
-      If (Mode.eq.0) Then
+      If (Mode == 0) Then
       Do IT = 1, nAshT
         Do iU = 1, nAshT
           iTU = iT + nAshT*(iU-1)
           Do iV = 1, nAshT
             Do iX = 1, nAshT
               iVX = iV + nAshT*(iX-1)
-              If (iVX.gt.iTU) Then
+              If (iVX > iTU) Then
                INT2(iT,iU,iV,IX) = INT2(iT,iU,iV,iX) + INT2(iV,iX,iT,iU)
-               INT2(iV,iX,iT,iU) = 0.0D+00
+               INT2(iV,iX,iT,iU) = Zero
               End If
             End Do
           End Do
@@ -4539,7 +4567,7 @@ C     call sqprt(fimo,12)
       End Do
       End If
 C
-      if (mode.eq.0.or.mode.eq.1) then
+      if (mode == 0 .or. mode == 1) then
       Do IT = 1, nAshT
         Do iU = 1, nAshT
           Do iX = 1, nAshT
@@ -4557,22 +4585,33 @@ C-----------------------------------------------------------------------
 C
       !! dens2_rpt2.f
       Subroutine TimesE2(Mode,CIin,CIout,INT1,INT2)
-      use gugx, only: SGS, L2ACT, CIS
-      Implicit Real*8 (A-H,O-Z)
 
-      Dimension CIin(nConf,nState),CIout(nConf,nState)
-      Real*8    INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
-      LOGICAL   RSV_TSK
-      real(kind=wp),allocatable :: SGM1(:),SGM2(:)
-      integer(kind=iwp),allocatable :: TASK(:,:)
-      Integer :: nLev
+      use gugx, only: SGS, L2ACT, CIS
+      use Constants, only: Two
+
+      implicit none
+
+      integer(kind=iwp), intent(in) :: Mode
+      real(kind=wp), intent(in) :: CIin(nConf,nState),
+     &  INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT)
+      real(kind=wp), intent(out) :: CIout(nConf,nState)
+
+      logical(kind=iwp), external :: RSV_TSK
+      real(kind=wp), allocatable :: SGM1(:), SGM2(:)
+      integer(kind=iwp), allocatable :: TASK(:,:)
+
+      integer(kind=iwp) :: nLev, nTasks, iTask, LT, LU, kState, IST,
+     &  IT, ISU, IU, ISTU, ISSG, NSGM, LVX, LV, ISV, IV, LX, ISX, ISVX,
+     &  IX, ilStat, jlStat
+      real(kind=wp) :: Ovl
+
       nLev=SGS%nLev
       ! logical tras,uras,vras,xras
 C
 C     --- H_{IJ}*P_J
 C    <CI1|EtuEvx|CI2>=<CI1|Evx
 C
-      nTasks= nLev**2
+      nTasks = nLev**2
       CALL mma_allocate (Task,nTasks,2,Label='TASK')
 C
       iTask=0
@@ -4583,65 +4622,61 @@ C
           TASK(iTask,2)=LU
         ENDDO
       ENDDO
-      IF (iTask.NE.nTasks) WRITE(6,*) "ERROR nTasks"
+      IF (iTask /= nTasks) WRITE(u6,*) "ERROR nTasks"
 C
       call mma_allocate(SGM1,nConf,Label='SGM1')
       call mma_allocate(SGM2,nConf,Label='SGM2')
 C
-      Call DCopy_(nConf*nState,[0.0D+00],0,CIout,1)
+      CIout(1:nConf,1:nState) = Zero
       Do kState = 1, nState
         !! Start the actual part of dens2_rpt2
         Call Init_Tsk(ID, nTasks)
-C
- 500    If (.NOT.Rsv_Tsk (ID,iTask)) GOTO 501
-C
-        LT=TASK(iTask,1)
-        ! tras=.false.
-        ! if (lt.le.nras1(1)) tras=.true.
+
+        do while (Rsv_Tsk(ID,iTask))
+          LT=TASK(iTask,1)
+          ! tras=.false.
+          ! if (lt.le.nras1(1)) tras=.true.
           IST=SGS%ISM(LT)
           IT=L2ACT(LT)
           LU=Task(iTask,2)
           ! uras=.false.
           ! if (lu.gt.nras1(1)+nras2(1)) uras=.true.
 C         if (tras.and.uras) go to 500
-            ! LTU=iTask
-            ISU=SGS%ISM(LU)
-            IU=L2ACT(LU)
-            ISTU=MUL(IST,ISU)
-            ISSG=MUL(ISTU,STSYM)
-            NSGM=CIS%NCSF(ISSG)
-            IF(NSGM.EQ.0) GOTO 500
-            !! <CIin|Etu
-            CALL GETSGM2(LU,LT,STSYM,CIin(1,kState),SGM1)
-            IF(ISTU.EQ.1) THEN
-              !! <CIin|Etu|CIout>*I1tu
-              Call DaXpY_(NSGM,INT1(IT,IU),SGM1,1,CIout(1,kState),1)
-            END IF
-            LVX=0
-            DO LV=1,NLEV
-              ISV=SGS%ISM(LV)
-              IV=L2ACT(LV)
-              ! vras=.false.
-              ! if (lv.le.nras1(1)) vras=.true.
-              DO LX=1,NLEV
-                LVX=LVX+1
-                ISX=SGS%ISM(LX)
-                ISVX=MUL(ISV,ISX)
-                ! xras=.false.
-                ! if (lx.gt.nras1(1)+nras2(1)) xras=.true.
-C               if (vras.and.xras) go to 110
-                IF(ISVX.NE.ISTU) GOTO 110
-                IX=L2ACT(LX)
-                CALL GETSGM2(LX,LV,ISSG,SGM1,SGM2)
-                Call DaXpY_(NSGM,INT2(IT,IU,IV,IX),SGM2,1,
-     *                      CIout(1,kState),1)
- 110          CONTINUE
-              END DO
+          ! LTU=iTask
+          ISU=SGS%ISM(LU)
+          IU=L2ACT(LU)
+          ISTU=MUL(IST,ISU)
+          ISSG=MUL(ISTU,STSYM)
+          NSGM=CIS%NCSF(ISSG)
+          IF(NSGM == 0) cycle
+          !! <CIin|Etu
+          CALL GETSGM2(LU,LT,STSYM,CIin(1,kState),SGM1)
+          IF(ISTU == 1) THEN
+            !! <CIin|Etu|CIout>*I1tu
+            CIout(1:NSGM,kState) = CIout(1:NSGM,kState)
+     &        + INT1(IT,IU)*SGM1(1:NSGM)
+          END IF
+          LVX=0
+          DO LV=1,NLEV
+            ISV=SGS%ISM(LV)
+            IV=L2ACT(LV)
+            ! vras=.false.
+            ! if (lv.le.nras1(1)) vras=.true.
+            DO LX=1,NLEV
+              LVX=LVX+1
+              ISX=SGS%ISM(LX)
+              ISVX=MUL(ISV,ISX)
+              ! xras=.false.
+              ! if (lx.gt.nras1(1)+nras2(1)) xras=.true.
+C             if (vras.and.xras) go to 110
+              IF (ISVX /= ISTU) cycle
+              IX=L2ACT(LX)
+              CALL GETSGM2(LX,LV,ISSG,SGM1,SGM2)
+              CIout(1:NSGM,kState) = CIout(1:NSGM,kState)
+     &          + INT2(IT,IU,IV,IX)*SGM2(1:NSGM)
             END DO
-
-C
-        GOTO 500
- 501    CONTINUE
+          END DO
+        end do
         CALL Free_Tsk(ID)
         !! End the actual part of dens2_rpt2
       End Do
@@ -4655,18 +4690,19 @@ C
 C     --- -E_{S}*CJ + zL_{KL}
 C
       Do kState = 1, nState
-        EC=Eact(kState)
-        Call Daxpy_(nConf,EC,CIin(1,kState),1,CIout(1,kState),1)
+        CIout(1:nConf,kState)
+     &    = CIout(1:nConf,kState) + Eact(kState)*CIin(1:nConf,kState)
       End Do
 C
       !! Project out the reference vector, just in case
-      If (Mode.eq.1) Then
+      If (Mode == 1) Then
         Do ilStat = 1, nState
-          Call DCopy_(nConf,CIout(1,ilStat),1,SGM1,1)
+          SGM1(1:nConf) = CIout(1:nConf,ilStat)
           Do jlStat = 1, nState
             Call LoadCI_XMS('C',1,SGM2,jlStat,U0)
             Ovl = DDot_(nConf,SGM1,1,SGM2,1)
-            Call DaXpY_(nConf,-Ovl,SGM2,1,CIout(1,ilStat),1)
+            CIout(1:nConf,ilStat)
+     &        = CIout(1:nConf,ilStat) - Ovl*SGM2(1:nConf)
           End Do
         End Do
       End If
@@ -4674,7 +4710,7 @@ C
       call mma_deallocate(SGM1)
       call mma_deallocate(SGM2)
 C
-      Call DScal_(nConf*nState,2.0D+00/nState,CIout,1)
+      CIout(1:nConf,1:nState) = Two/nState*CIout(1:nConf,1:nState)
 C
       Return
 C
@@ -4685,16 +4721,22 @@ C
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 C
       use gugx, only: SGS
-      use pt2_guga
-      Implicit Real*8 (A-H,O-Z)
-C
-C
-      Dimension CI(nConf,nState),CIT(nConf,nState),G1(nAshT,nAshT),
-     *          G2(nAshT,nAshT,nAshT,nAshT)
-      Real*8    INT2(nAshT,nAshT,nAshT,nAshT)
+      use pt2_guga, only: NG1, NG2
+
+      implicit none
+
+      real(kind=wp), intent(in) :: CI(nConf,nState), CIT(nConf,nState),
+     &  INT2(nAshT,nAshT,nAshT,nAshT)
+      real(kind=wp), intent(out) :: G1(nAshT,nAshT),
+     &  G2(nAshT,nAshT,nAshT,nAshT)
+
       real(kind=wp),allocatable :: SGM1(:),SGM2(:),G1T(:),G2T(:),
      *                             Fock(:),FockOut(:)
-      Integer :: nLev
+      integer(kind=iwp) :: nLev, kState, ilState, jlState, iS, jS, iA,
+     &  jA, ip1, ip2, ipS, ijS, kS, lS, kAsh, kAA, lAsh, lAA, iAsh, ipQ,
+     &  jAsh, ipM, imo, iOrb, jOrb
+      real(kind=wp) :: Wgt, vSLag, rd, EigI, EigJ, OLagIJ, Tmp
+
       nLev=SGS%nLev
 C
 C     LOGICAL   RSV_TSK
@@ -4703,8 +4745,8 @@ C     This subroutine computes the second term in Eq. (70) or the RHS of
 C     Eq. (72) in the CASPT2-IPEA gradient paper
 C     CIT corresponds to \overline{Q}, if I remember correctly
 C
-      Call DCopy_(nAshT**2,[0.0D+00],0,G1,1)
-      Call DCopy_(nAshT**4,[0.0D+00],0,G2,1)
+      G1(:,:) = Zero
+      G2(:,:,:,:) = Zero
 C
       !! Construct transition(?) density matrix
       !! (<CI|Etu|CIT>+<CIT|Etu|CI>)/2, where CIT is the solution
@@ -4721,7 +4763,7 @@ C     Call DaXpY_(NG2,-0.5D+00,G2T,1,G2,1)
 C
       Do kState = 1, nState
 C       Wgt = DWgt(iState,iState)
-        Wgt = 1.0D+00/nState
+        Wgt = One/nState
 C
         !! <CI|Etu|CIT>+<CIT|Etu|CI> and the t+ u+ x v variant
         Call Dens2T_RPT2(CI(1,kState),CIT(1,kState),
@@ -4733,9 +4775,8 @@ C
         !! Just add the SLag rotation contributions
         ilState = kState
         Do jlState = 1, ilState-1
-C         If (ilState.eq.jlState) Cycle
-          vSLag = -0.5D+00*SLag(ilState,jlState)
-          If (abs(vSLag).le.1.0D-08) Cycle
+          vSLag = -Half*SLag(ilState,jlState)
+          If (abs(vSLag) <= 1.0e-08_wp) Cycle
           Call Dens2T_RPT2(CI(1,ilState),CI(1,jlState),
      *                     SGM1,SGM2,G1T,G2T,nLev)
           Call DaXpY_(NG1,vSLag,G1T,1,G1,1)
@@ -4751,11 +4792,11 @@ C
       !! Finally, construct the Fock matrix only for active-active
       !! Should be equivalent to FockGen in MCLR
       call mma_allocate(Fock,nAshT**2,Label='Fock')
-      Fock(:) = 0.0d+00
+      Fock(:) = Zero
 C
       !! 1) FIMO term
       Do iS=1,nSym
-        If (nBas(iS).gt.0) Then
+        If (nBas(iS) > 0) Then
           jS=iEOr(is-1,iSym-1)+1
           Do iA=1,nAsh(is)
             Do jA=1,nAsh(js)
@@ -4777,7 +4818,7 @@ C
       !! 2) two-electron term (only CreQADD part)
       Do iS=1,nSym
         ipS=iEOr(is-1,isym-1)+1
-        if (norb(ips).ne.0) Then
+        if (norb(ips) /= 0) Then
           Do jS=1,nsym
             ijS=iEOR(is-1,js-1)+1
             Do kS=1,nSym
@@ -4822,7 +4863,7 @@ C
       call mma_allocate(FockOut,nAshT**2,Label='FockOut')
       Do iS=1,nSym
         jS=iEOR(iS-1,iSym-1)+1
-        If (nAsh(is)*nAsh(jS).ne.0) Then
+        If (nAsh(is)*nAsh(jS) /= 0) Then
           !! Anti-symmetrize
           Call DGeSub(Fock,nAsh(iS),'N',
      &                Fock,nAsh(jS),'T',
@@ -4857,22 +4898,26 @@ C
 C-----------------------------------------------------------------------
 C
       !! PRWF1_CP2
-      SUBROUTINE CnstPrec(NOCSF,IOCSF,NOW,IOW,ISYCI,PRE,ci,
-     *                    INT1,INT2,Fancy,nLev,nMidV)
+      SUBROUTINE CnstPrec(ISYCI,PRE,CI,INT1,INT2,Fancy,nLev,nMidV)
       use gugx, only: SGS, CIS
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER, INTENT(IN) :: nLev
-      DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
-      DIMENSION NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      DIMENSION PRE(*)
-      dimension ci(*)
-      REAL*8 INT1(NLEV,NLEV),INT2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8 Fancy(nRoots,nRoots,nRoots)
+      use caspt2_module, only: PRSD
+      use pt2_guga, only: MXLEV
+      use Constants, only: Two, Four
+      use caspt2_module, only: NROOTS
 
-      DIMENSION ICS(MXLEV)
-      Integer :: nIpWlk
+      implicit none
+
+      integer(kind=iwp), INTENT(IN) :: nLev, nMidV
+      real(kind=wp), intent(in) ::  CI(*), INT1(NLEV,NLEV),
+     &  INT2(NLEV,NLEV,NLEV,NLEV)
+      integer(kind=iwp), intent(in) :: ISYCI
+      real(kind=wp), intent(out) :: PRE(*), Fancy(nRoots,nRoots,nRoots)
+
+      real(kind=wp) ::  ICS(MXLEV), val, val2, Ene, dnum
+      integer(kind=iwp) :: nIpWlk, LENCSF, ISY, LEV, MV, ISYUP, NCI,
+     &  NUP, ISYDWN, NDWN, ICONF, IUW0, IDW0, IDWN, IUP, ICDPOS, ICDWN,
+     &  NNN, IC1, ICUP, K, IDWNSV, ICUPOS, LEV2, iSt, jSt, kSt
+
       nIpWlk = CIS%nIpWlk
 C
 C     Construct (approximate?) preconditioner for the active linear
@@ -4888,7 +4933,7 @@ C     LINE=' '
       LENCSF=0
       ISY=0
       DO LEV=1,NLEV
-        IF(ISY.NE.SGS%ISM(LEV)) THEN
+        IF(ISY /= SGS%ISM(LEV)) THEN
           ISY=SGS%ISM(LEV)
           LENCSF=LENCSF+1
         END IF
@@ -4897,42 +4942,35 @@ C     LINE=' '
       LENCSF=MIN(LENCSF,256)
       LENCSF=MAX(LENCSF,10)
 
-
-C     SVC2010:
-C     allocate scratch memory for determinant expansion
-      IF (PRSD) THEN
-C       CALL MMA_ALLOCATE(LEX,NLEV,LABEL='LEX')
-      END IF
-
 C     LINE=' '
 
 C -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
 C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
-      DO 40 MV=1,NMIDV
-        DO 41 ISYUP=1,NSYM
-          NCI=NOCSF(ISYUP,MV,ISYCI)
-          IF(NCI.EQ.0) GOTO 41
-          NUP=NOW(1,ISYUP,MV)
+      DO MV=1,NMIDV
+        DO ISYUP=1,NSYM
+          NCI=CIS%NOCSF(ISYUP,MV,ISYCI)
+          IF(NCI == 0) cycle
+          NUP=CIS%NOW(1,ISYUP,MV)
           ISYDWN=MUL(ISYUP,ISYCI)
-          NDWN=NOW(2,ISYDWN,MV)
-          ICONF=IOCSF(ISYUP,MV,ISYCI)
-          IUW0=1-NIPWLK+IOW(1,ISYUP,MV)
-          IDW0=1-NIPWLK+IOW(2,ISYDWN,MV)
+          NDWN=CIS%NOW(2,ISYDWN,MV)
+          ICONF=CIS%IOCSF(ISYUP,MV,ISYCI)
+          IUW0=1-NIPWLK+CIS%IOW(1,ISYUP,MV)
+          IDW0=1-NIPWLK+CIS%IOW(2,ISYDWN,MV)
           IDWNSV=0
-          DO 30 IDWN=1,NDWN
-            DO 31 IUP=1,NUP
+          DO IDWN=1,NDWN
+            DO IUP=1,NUP
               ICONF=ICONF+1
 C             COEF=CI(ICONF)
 C -- SKIP OR PRINT IT OUT?
 C             IF(ABS(COEF).LT.THR) GOTO  31
-              IF(IDWNSV.NE.IDWN) THEN
+              IF(IDWNSV /= IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=CIS%ICASE(ICDPOS)
 C -- UNPACK LOWER WALK.
                 NNN=0
-                DO 10 LEV=1,SGS%MIDLEV
+                DO LEV=1,SGS%MIDLEV
                   NNN=NNN+1
-                  IF(NNN.EQ.16) THEN
+                  IF(NNN == 16) THEN
                     NNN=1
                     ICDPOS=ICDPOS+1
                     ICDWN=CIS%ICASE(ICDPOS)
@@ -4940,7 +4978,7 @@ C -- UNPACK LOWER WALK.
                   IC1=ICDWN/4
                   ICS(LEV)=ICDWN-4*IC1
                   ICDWN=IC1
-  10            CONTINUE
+                END DO
                 IDWNSV=IDWN
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
@@ -4949,7 +4987,7 @@ C -- UNPACK UPPER WALK:
               NNN=0
               DO LEV=SGS%MIDLEV+1,NLEV
                 NNN=NNN+1
-                IF(NNN.EQ.16) THEN
+                IF(NNN == 16) THEN
                   NNN=1
                   ICUPOS=ICUPOS+1
                   ICUP=CIS%ICASE(ICUPOS)
@@ -4961,33 +4999,32 @@ C -- UNPACK UPPER WALK:
 C -- PRINT IT!
               K=0
               ISY=0
-              PRE(ICONF) = 0.0D+00
+              PRE(ICONF) = Zero
               DO LEV=1,NLEV
-                IF(ISY.NE.SGS%ISM(LEV)) THEN
+                IF(ISY /= SGS%ISM(LEV)) THEN
                   ISY=SGS%ISM(LEV)
                   K=K+1
 C                 LINE(K:K)=' '
                 END IF
                 K=K+1
 C               LINE(K:K)=CODE(ICS(LEV))
-                IF (ICS(LEV).EQ.0) THEN
-                  VAL = 0.0D+00
-                ELSE IF (ICS(LEV).EQ.3) THEN
-                  VAL = 2.0D+00*INT1(LEV,LEV)
+                IF (ICS(LEV) == 0) THEN
+                  VAL = Zero
+                ELSE IF (ICS(LEV) == 3) THEN
+                  VAL = Two*INT1(LEV,LEV)
 C                 L=0
 C                 JSY=0
                   DO LEV2=1,NLEV
-                    IF (ICS(LEV2).EQ.0) THEN
-                    val = val + 0.0d+00
-                    ELSE IF ((LEV.EQ.LEV2.AND.ICS(LEV2).EQ.3).OR.
-     *                       (LEV.NE.LEV2.AND.ICS(LEV2).EQ.1).OR.
-     *                       (LEV.NE.LEV2.AND.ICS(LEV2).EQ.2)) THEN
-                      val2 =  4.0d+00*int2(lev,lev ,lev2,lev2)
-     *                      - 2.0d+00*int2(lev,lev2,lev ,lev2)
+                    IF (ICS(LEV2) == 0) THEN
+                    ELSE IF ((LEV == LEV2 .AND. ICS(LEV2) == 3).OR.
+     *                       (LEV /= LEV2 .AND. ICS(LEV2) == 1).OR.
+     *                       (LEV /= LEV2 .AND. ICS(LEV2) == 2)) THEN
+                      val2 =  Four*int2(lev,lev ,lev2,lev2)
+     *                      - Two*int2(lev,lev2,lev ,lev2)
                       val = val + val2
-                    ELSE IF (LEV.NE.LEV2.AND.ICS(LEV2).EQ.3) THEN
-                      val2 =  4.0d+00*int2(lev,lev ,lev2,lev2)
-     *                      - 2.0d+00*int2(lev,lev2,lev ,lev2)
+                    ELSE IF (LEV /= LEV2 .AND. ICS(LEV2) == 3) THEN
+                      val2 =  Four*int2(lev,lev ,lev2,lev2)
+     *                      - Two*int2(lev,lev2,lev ,lev2)
                       val = val + val2
                     END IF
                   END DO
@@ -4996,8 +5033,8 @@ C                 JSY=0
 C                 L=0
 C                 JSY=0
                   DO LEV2=1,NLEV
-                    IF (ICS(LEV2).EQ.0.OR.LEV.EQ.LEV2) THEN
-                    ELSE IF (ICS(LEV2).EQ.3) THEN
+                    IF (ICS(LEV2) == 0 .OR. LEV == LEV2) THEN
+                    ELSE IF (ICS(LEV2) == 3) THEN
 C      val2 =  2.0d+00*int2(lev,lev ,lev2,lev2)
 C    *       - 1.0d+00*int2(lev,lev2,lev ,lev2)
 C      val2 = 0.0d+00
@@ -5005,7 +5042,7 @@ C      val = val + val2*0.5d+00
                     ELSE
                       val2 = int2(lev,lev ,lev2,lev2)
      *                     + int2(lev,lev2,lev ,lev2)
-                      if (ics(lev).eq.ics(lev2)) then
+                      if (ics(lev) == ics(lev2)) then
                       val2 = int2(lev,lev ,lev2,lev2)
      *                     - int2(lev,lev2,lev ,lev2)
                       end if
@@ -5015,19 +5052,10 @@ C      val = val + val2*0.5d+00
                 END IF
                 PRE(ICONF) = PRE(ICONF) + VAL
               END DO
-C     SVC2010 experimental: add determinant expansion
-C             IF (PRSD) THEN
-c     Specify projected spin in half integer units
-C     Default: use maximum spin projection
-C              IMS = ISPIN-1
-C              WRITE(6,*)
-C              CALL EXPCSF (ICS, NLEV, IMS, LEX)
-C              WRITE(6,*)
-C             ENDIF
-  31        CONTINUE
-  30      CONTINUE
-  41    CONTINUE
-  40  CONTINUE
+            end do
+          end do
+        end do
+      end do
 C
       !! mclr/sa_prec.f
       !! Prepare so-called fancy preconditioner
@@ -5035,10 +5063,10 @@ C
         Ene = Eact(iSt)
         Do jSt = 1, nRoots
           Do kSt = 1, nRoots
-            Fancy(jSt,kSt,iSt) = 0.0D+00
+            Fancy(jSt,kSt,iSt) = Zero
             Do iConf = 1, nConf
               dnum=PRE(iConf)+Ene
-              dnum=Sign(Max(Abs(dnum),1.0d-16),dnum)
+              dnum=Sign(Max(Abs(dnum),1.0e-16_wp),dnum)
               Fancy(jSt,kSt,iSt) = Fancy(jSt,kSt,iSt)
      *          + CI(iConf+nConf*(jSt-1))*CI(iConf+nConf*(kSt-1))/dnum
             End Do
@@ -5047,49 +5075,49 @@ C
         Call MatInvert(Fancy(1,1,iSt),nRoots)
       End Do
 C
-C     SVC2010: free scratch for determinant expansion
-      IF (PRSD) THEN
-C       CALL MMA_DEALLOCATE(LEX)
-      END IF
-C     WRITE(6,*)
       RETURN
+
       END SUBROUTINE CnstPrec
 C
 C-----------------------------------------------------------------------
 C
       !! mclr/dminvci_sa.f
       Subroutine DoPrec(VecIN,VecOUT,CI,Pre,Fancy)
+
+      use caspt2_module, only: NROOTS
 C
 C     Apply precondition to CI vectors, taken from the MCLR module
 C
-      Implicit Real*8 (A-H,O-Z)
-C
-      Dimension VecIN(*),VecOUT(*),CI(*),Pre(*),
-     *          Fancy(nRoots,nRoots,nRoots)
-      Dimension rcoeff(nRoots),alpha(nRoots)
+      implicit none
+
+      real(kind=wp), intent(in) :: VecIN(1:nConf,1:nRoots),
+     *  CI(1:nConf,1:nRoots), Pre(1:nConf), Fancy(nRoots,nRoots,nRoots)
+      real(kind=wp), intent(out) :: VecOUT(1:nConf,1:nRoots)
+
+      integer(kind=iwp) :: iRoots, iConf, jRoots, kRoots
+      real(kind=wp) :: rcoeff(nRoots), alpha(nRoots)
 C
       !! Standard inverse of the diagonal elements
       Do iRoots = 1, nRoots
         Do iConf = 1, nConf
-          VecOUT(iConf+nConf*(iRoots-1))
-     *      = VecIN(iConf+nConf*(iRoots-1))/(Pre(iConf)+Eact(iRoots))
+          VecOUT(iConf,iRoots)
+     *      = VecIN(iConf,iRoots)/(Pre(iConf)+Eact(iRoots))
         End Do
       End Do
 C
       !! Construct reference CI vectors
       Do iRoots = 1, nRoots
-        Call LoadCI_XMS('C',1,CI(1+nConf*(iRoots-1)),iRoots,U0)
+        Call LoadCI_XMS('C',1,CI(1,iRoots),iRoots,U0)
       End Do
 C
       !! The so-called fancy precondioner
       Do iRoots = 1, nRoots
         Do jRoots = 1, nRoots
-          rcoeff(jRoots) = DDot_(nconf,VecOUT(1+nConf*(iRoots-1)),1,
-     *                                 CI(1+nConf*(jRoots-1)),1)
+         rcoeff(jRoots) = DDot_(nconf,VecOUT(1,iRoots),1,CI(1,jRoots),1)
         End Do
 C
         Do jRoots = 1, nRoots
-          alpha(jRoots) = 0.0D+00
+          alpha(jRoots) = Zero
           Do kRoots = 1, nRoots
             alpha(jRoots) = alpha(jRoots)
      *        + Fancy(jRoots,kRoots,iRoots)*rcoeff(kRoots)
@@ -5098,10 +5126,8 @@ C
 C
         Do jRoots = 1, nRoots
           Do iConf = 1, nConf
-            VecOUT(iConf+nConf*(iRoots-1))
-     *        = VecOUT(iConf+nConf*(iRoots-1))
-     *        - CI(iConf+nConf*(jRoots-1))*alpha(jRoots)
-     *          /(Pre(iConf)+Eact(iRoots))
+            VecOUT(iConf,iRoots) = VecOUT(iConf,iRoots)
+     *        - CI(iConf,jRoots)*alpha(jRoots)/(Pre(iConf)+Eact(iRoots))
           End Do
         End Do
       End Do
@@ -5113,12 +5139,19 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine DEPSAOffO(OLag,DEPSA,FIFA)
-      use caspt2_module
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-C
-      Dimension OLag(*),DEPSA(nAshT,nAshT),FIFA(*)
+
+      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NASHT, NDEL, NBAS
+      use Constants, only: Half
+      use definitions, only: wp, iwp
+
+      implicit none
+
+      real(kind=wp), intent(in) :: OLag(*), FIFA(*)
+      real(kind=wp), intent(inout) :: DEPSA(nAshT,nAshT)
+
+      integer(kind=iwp) :: iMO, iSym, nAshI, nOrbI, nFroI, nIshI, nBasI,
+     &  iAsh, iOrb, jAsh, jOrb
+      real(kind=wp) :: EigI, EigJ, OLagIJ, OLagJI, Tmp
 C
 C     This is much easier; similar to the frozen core approximation.
 C     Corresponds to the first term in Eq. (70)
@@ -5141,7 +5174,7 @@ C
               EigJ = FIFA(iMO+jOrb-1+nBasI*(jOrb-1))
               OLagIJ = OLag(iMO+iOrb-1+nOrbI*(jOrb-1))
               OLagJI = OLag(iMO+jOrb-1+nOrbI*(iOrb-1))
-              Tmp = -(OLagIJ-OLagJI)/(EigI-EigJ)*0.5D+00
+              Tmp = -(OLagIJ-OLagJI)/(EigI-EigJ)*Half
 C
               DEPSA(iAsh,jAsh) = DEPSA(iAsh,jAsh) + Tmp
               DEPSA(jAsh,iAsh) = DEPSA(jAsh,iAsh) + Tmp
@@ -5159,18 +5192,24 @@ C
 C
       use caspt2_global, only: LUSTD, idBoriMat
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: idSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp
-      use caspt2_module
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-C
-      DIMENSION WGRONK(2)
-      Dimension BDer(*),SDer(*)
+      use definitions, only: wp, iwp
+      use caspt2_module, only: THRSHN, THRSHS, IFDORTHO
+      use Constants, only: Zero, One, Two
+
+      implicit none
+
+      real(kind=wp), intent(inout) :: BDer(*), SDer(*)
+      integer(kind=iwp), intent(in) :: nAS, nIN, iSym, iCase
+
+      real(kind=wp) :: WGRONK(2)
       real(kind=wp),allocatable :: S(:),SS(:,:),VEC(:,:),EIG(:),SCA(:),
      *                             SCRATCH(:),LAG(:,:),B(:),F(:,:)
+
+      integer(kind=iwp) :: NS, idS, IJ, I, J, IDIAG, INFO, NSCRATCH,
+     &  IDB, NB
+      real(kind=wp) :: SD, SCAL, EVAL, FACT
 C
 C     Compute contributions that arise from the non-invariance effect
 C     in non-orthogonal -> orthogonal ICB rotations
@@ -5201,13 +5240,13 @@ C
         IDIAG=IDIAG+I
         SD=S(IDIAG)
         If (IFDORTHO) then
-          SCA(I)=1.0D+00
+          SCA(I)=One
         Else
-          IF(SD.GT.THRSHN) THEN
+          IF(SD > THRSHN) THEN
 * Small variations of the scale factor were beneficial
-              SCA(I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
+              SCA(I)=(One+DBLE(I)*3.0e-6_wp)/SQRT(SD)
           ELSE
-            SCA(I)=0.0D0
+            SCA(I)=Zero
           END IF
         End If
       END DO
@@ -5235,7 +5274,6 @@ C
 C
       DO I=1,NAS
         SCAL=SCA(I)
-C       CALL DSCAL_(NIN,SCA,VEC(1,I),NAS)
         CALL DSCAL_(NAS,SCAL,VEC(I,1),NAS)
       END DO
       call mma_deallocate(SCA)
@@ -5245,8 +5283,8 @@ C
       !! any numerically unstable computation
       DO I=1,NAS
         EVAL=EIG(I)
-        IF(EVAL.LT.THRSHS) CYCLE
-        FACT=1.0D00/SQRT(EVAL)
+        IF(EVAL < THRSHS) CYCLE
+        FACT=One/SQRT(EVAL)
         Call DScal_(nAS,FACT,VEC(1,I),1)
       END DO
 C
@@ -5270,42 +5308,34 @@ C
       !! BDER: D
       !! VEC : X^0 and X
       Call DGEMM_('N','T',NAS,NAS,NAS,
-     *            2.0D+00,F,NAS,BDER,NAS,
-     *            0.0D+00,LAG,NAS)
+     *            Two,F,NAS,BDER,NAS,
+     *            Zero,LAG,NAS)
       Call DGEMM_('N','N',NAS,NAS,NAS,
-     *            1.0D+00,LAG,NAS,VEC,NAS,
-     *            0.0D+00,F,NAS)
-      Call DCopy_(NAS*NAS,F,1,LAG,1)
+     *            One,LAG,NAS,VEC,NAS,
+     *            Zero,F,NAS)
+      LAG(1:NAS,1:NAS) = F(1:NAS,1:NAS)
 C
       CALL DGEMM_('T','N',NAS,NAS,NAS,
-     *            1.0D+00,VEC,NAS,LAG,NAS,
-     *            0.0D+00,F,NAS)
+     *            One,VEC,NAS,LAG,NAS,
+     *            Zero,F,NAS)
       !! At this point,
       !! F = 2 \mathcal{X}^0 * B * D * \mathcal{X}
 C
       !! remove dependent part
       !! (linearly indep-indep and dep-dep)
-      Do I = 1, nAS-nIN
-        Do J = 1, nAS-nIN
-          F(I,J) = 0.0D+00
-        End Do
-      End Do
-      Do I = nAS-nIN+1, nAS
-        Do J = nAS-nIN+1, nAS
-          F(I,J) = 0.0D+00
-        End Do
-      End Do
+      F(1:nAS-nIN,1:nAS-nIN) = Zero
+      F(nAS-nIN+1:nAS,nAS-nIN+1:nAS) = Zero
 C
       !! orthogonal -> non-orthogonal
       !! Finalize Eq. (62)
       CALL DGEMM_('N','N',NAS,NAS,NAS,
-     *            1.0D+00,VEC,NAS,F,NAS,
-     *            0.0D+00,LAG,NAS)
+     *            One,VEC,NAS,F,NAS,
+     *            Zero,LAG,NAS)
       CALL DGEMM_('N','T',NAS,NAS,NAS,
-     *            1.0D+00,LAG,NAS,VEC,NAS,
-     *            0.0D+00,F,NAS)
+     *            One,LAG,NAS,VEC,NAS,
+     *            Zero,F,NAS)
 C
-      Call DaXpY_(nAS*nAS,1.0D+00,F,1,SDER,1)
+      Call DaXpY_(nAS*nAS,One,F,1,SDER,1)
 C
       call mma_deallocate(LAG)
       call mma_deallocate(B)
@@ -5325,25 +5355,30 @@ C
       Subroutine LinDepLag_MPP(lg_BDER,lg_SDER,nAS,nIN,iSym,iCase)
 C
       use caspt2_global, only: LUSTD, idBoriMat
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp
-      use caspt2_module
+      use definitions, only: wp, iwp, u6
+      use caspt2_module, only: THRSHS
+      use Constants, only: Zero, One, Two
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-C
-      Implicit Real*8 (A-H,O-Z)
-C
+
+      implicit none
 
 #include "global.fh"
 #include "mafdecls.fh"
-C
+
+      integer(kind=iwp), intent(in) :: lg_BDER, lg_SDER, nAS, nIN, iSym,
+     &  iCase
+
 #if ! defined (_SCALAPACK_)
-      DIMENSION WGRONK(2)
+      real(kind=wp) :: WGRONK(2)
 #endif
-      logical :: bStat
-      real(kind=wp),allocatable :: EIG(:),VEC(:),SCRATCH(:)
+      logical(kind=iwp) :: bStat
+      integer(kind=iwp) :: lg_S, myRank, lg_Vec, NSCRATCH, iLo, iHi,
+     &  jLo, jHi, mV, LDV, I, lg_Lag, lg_B, IDB, mB, LDB, J
+      real(kind=wp) :: EVAL, FACT
+      real(kind=wp), allocatable :: EIG(:),VEC(:),SCRATCH(:)
 C
 C     Parallel LinDepLag
 C     We always use the canonical orthonormalization.
@@ -5354,7 +5389,7 @@ C
       CALL PSBMAT_READ ('S',iCase,iSym,lg_S,NAS)
 
       call mma_allocate(EIG,NAS,Label='EIG')
-      EIG(:) = 0.0d+00
+      EIG(:) = Zero
 
       myRank = GA_NodeID()
 #ifdef _SCALAPACK_
@@ -5365,12 +5400,12 @@ C
 C here for the non-ScaLAPACK version: copy matrix to master process,
 C diagonalize using the serial DSYEV routine, and copy the resulting
 C eigenvectors back to a global array.  Then distribute the eigenvalues.
-      IF (myRank.EQ.0) THEN
+      IF (myRank == 0) THEN
         call mma_allocate(VEC,NAS*NAS,Label='VEC')
         CALL GA_Get (lg_S, 1, NAS, 1, NAS, VEC, NAS)
       END IF
       bSTAT = GA_Destroy (lg_S)
-      IF (myRank.EQ.0) THEN
+      IF (myRank == 0) THEN
         CALL DSYEV_('V','L',NAS,VEC,NAS,EIG,WGRONK,-1,INFO)
         NSCRATCH=INT(WGRONK(1))
         call mma_allocate(SCRATCH,NSCRATCH,Label='SCRATCH')
@@ -5378,7 +5413,7 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
         call mma_deallocate(SCRATCH)
       END IF
       CALL PSBMAT_GETMEM('VMAT',lg_Vec,NAS)
-      IF (myRank.EQ.0) THEN
+      IF (myRank == 0) THEN
         CALL GA_Put (lg_Vec, 1, NAS, 1, NAS, VEC, NAS)
         call mma_deallocate(VEC)
       END IF
@@ -5390,16 +5425,16 @@ C
 C Form orthonormal transformation vectors by scaling the eigenvectors.
       call GA_Sync()
       call GA_Distribution (lg_Vec, myRank, iLo, iHi, jLo, jHi)
-      IF (iLo.NE.0) THEN
+      IF (iLo /= 0) THEN
         call GA_Access (lg_Vec, iLo, iHi, jLo, jHi, mV, LDV)
-        IF ((jHi-jLo+1).NE.NAS) THEN
-          WRITE(6,*) 'SBDIAG_MPP: error in striping of lg_Vec, ABORT'
+        IF ((jHi-jLo+1) /= NAS) THEN
+          WRITE(u6,*) 'SBDIAG_MPP: error in striping of lg_Vec, ABORT'
           CALL ABEND()
         END IF
         DO I=1,jHi-jLo+1 ! NAS
           EVAL=EIG(I)
-          IF(EVAL.LT.THRSHS) CYCLE
-          FACT=1.0D00/SQRT(EVAL)
+          IF(EVAL < THRSHS) CYCLE
+          FACT=One/SQRT(EVAL)
           Call DScal_(iHi-iLo+1,FACT,DBL_MB(mV+LDV*(I-1)),1)
         END DO
         call GA_Release_Update (lg_Vec, iLo, iHi, jLo, jHi)
@@ -5424,35 +5459,35 @@ C
       !! BDER      : D --> lg_BDER
       !! Work(LVEC): X^0 and X --> lg_Vec
       Call GA_DGEMM ('N','T',NAS,NAS,NAS,
-     *               2.0d+00,lg_B,lg_BDER,
-     *               0.0D+00,lg_Lag)
+     *               Two,lg_B,lg_BDER,
+     *               Zero,lg_Lag)
       Call GA_DGEMM ('N','N',NAS,NAS,NAS,
-     *               1.0d+00,lg_Lag,lg_VEC,
-     *               0.0D+00,lg_B)
+     *               One,lg_Lag,lg_VEC,
+     *               Zero,lg_B)
       Call GADupl(lg_B,lg_Lag)
 C
       Call GA_DGEMM ('T','N',NAS,NAS,NAS,
-     *               1.0d+00,lg_Vec,lg_Lag,
-     *               0.0D+00,lg_B)
+     *               One,lg_Vec,lg_Lag,
+     *               Zero,lg_B)
       !! At this point,
       !! Work(LF) = 2 \mathcal{X}^0 * B * D * \mathcal{X}
 C
       !! remove dependent part
       !! (linearly indep-indep and dep-dep)
       call GA_Distribution (lg_B, myRank, iLo, iHi, jLo, jHi)
-      if (iLo.ne.0) then
+      if (iLo /= 0) then
         call GA_Access (lg_B, iLo, iHi, jLo, jHi, mV, LDV)
-C       if (ilo.le.nas-nin) then
+C       if (ilo <= nas-nin) then
           Do J = 1, nAS-nIN
             Do I = 1, min(iHi-iLo+1,nAS-nIN-iLo+1)
-              DBL_MB(mV+i-1+LDV*(j-1)) = 0.0d+00
+              DBL_MB(mV+i-1+LDV*(j-1)) = Zero
             End Do
           End Do
 C       end if
-C       if (ilo.ge.nas-nin+1) then
+C       if (ilo >= nas-nin+1) then
           Do J = nAS-nIN+1, nAS
             Do I = max(1,nAS-nIN+1-iLo+1), LDV
-              DBL_MB(mV+i-1+LDV*(j-1)) = 0.0d+00
+              DBL_MB(mV+i-1+LDV*(j-1)) = Zero
             End Do
           End Do
 C       end if
@@ -5462,11 +5497,11 @@ C
       !! orthogonal -> non-orthogonal
       !! Finalize Eq. (62)
       Call GA_DGEMM ('N','N',NAS,NAS,NAS,
-     *               1.0d+00,lg_Vec,lg_B,
-     *               0.0D+00,lg_Lag)
+     *               One,lg_Vec,lg_B,
+     *               Zero,lg_Lag)
       Call GA_DGEMM ('N','T',NAS,NAS,NAS,
-     *               1.0d+00,lg_Lag,lg_Vec,
-     *               1.0D+00,lg_SDER)
+     *               One,lg_Lag,lg_Vec,
+     *               One,lg_SDER)
 
       CALL PSBMAT_FREEMEM(lg_Vec)
       bSTAT = GA_Destroy (lg_Lag)
