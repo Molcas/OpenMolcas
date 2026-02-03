@@ -10,17 +10,22 @@
 ************************************************************************
       SUBROUTINE FMAT_CHO(CMO,NCMO,FFAO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
      &                                                       FAMO,NFAMO)
+      use definitions, only: iwp, wp
+#ifdef _DEBUGPRINT_
+      use definitions, only: u6
+#endif
+      use constants, only: Zero, One
       use caspt2_global, only: FIFA, DREF
       use caspt2_global, only: LUONEM
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer NCMO, NHONE, NFIMO, NFAMO
-      Real*8  CMO(NCMO)
-      Real*8 FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
-      Real*8 HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
+      integer(kind=iwp) NCMO, NHONE, NFIMO, NFAMO
+      real(kind=wp) CMO(NCMO)
+      real(kind=wp) FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
+      real(kind=wp) HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
 
-      Real*8, allocatable:: SCR1(:), SCR2(:), SCR3(:)
+      real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:)
 
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
@@ -28,11 +33,6 @@ C TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
 C TO MO BASIS FOR USE IN CASPT2.
 
 
-#ifdef _DEBUGPRINT_
-      IFTEST=1
-#else
-      IFTEST=0
-#endif
 
       NBBT=0
       NBBMX=0
@@ -63,10 +63,10 @@ C TO MO BASIS FOR USE IN CASPT2.
        LSCI=LSC+NF*NB
 * The frozen Fock matrix:
        CALL SQUARE(FFAO(IFAO),SCR1,NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, 1.0D0,SCR1,NB,
-     &            CMO(LSCI),NB,0.0D0,SCR2,NB)
-       CALL DGEMM_('T','N',NO,NO,NB, 1.0D0,CMO(LSCI),NB,
-     &            SCR2,NB,0.0D0,SCR3,NO_X)
+       CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,
+     &            CMO(LSCI),NB,Zero,SCR2,NB)
+       CALL DGEMM_('T','N',NO,NO,NB, One,CMO(LSCI),NB,
+     &            SCR2,NB,Zero,SCR3,NO_X)
        IJ=0
        DO I=1,NO
         DO J=1,I
@@ -76,10 +76,10 @@ C TO MO BASIS FOR USE IN CASPT2.
        END DO
 * The inactive Fock matrix:
        CALL SQUARE(FIAO(IFAO),SCR1,NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, 1.0D0,SCR1,NB,
-     &            CMO(LSCI),NB,0.0D0,SCR2,NB)
-       CALL DGEMM_('T','N',NO,NO,NB, 1.0D0,CMO(LSCI),NB,
-     &            SCR2,NB,0.0D0,SCR3,NO_X)
+       CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,
+     &            CMO(LSCI),NB,Zero,SCR2,NB)
+       CALL DGEMM_('T','N',NO,NO,NB, One,CMO(LSCI),NB,
+     &            SCR2,NB,Zero,SCR3,NO_X)
        IJ=0
        DO I=1,NO
         DO J=1,I
@@ -89,10 +89,10 @@ C TO MO BASIS FOR USE IN CASPT2.
        END DO
 * The active Fock matrix:
        CALL SQUARE(FAAO(IFAO),SCR1,NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, 1.0D0,SCR1,NB,
-     &            CMO(LSCI),NB,0.0D0,SCR2,NB)
-       CALL DGEMM_('T','N',NO,NO,NB, 1.0D0,CMO(LSCI),NB,
-     &            SCR2,NB,0.0D0,SCR3,NO_X)
+       CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,
+     &            CMO(LSCI),NB,Zero,SCR2,NB)
+       CALL DGEMM_('T','N',NO,NO,NB, One,CMO(LSCI),NB,
+     &            SCR2,NB,Zero,SCR3,NO_X)
        IJ=0
        DO I=1,NO
         DO J=1,I
@@ -117,9 +117,9 @@ c Transformed frozen Fock matrix = Effective one-electron
       CALL DDAFILE(LUONEM,1,HONE,notri,IDISK)
       IEOF1M=IDISK
 
-      CALL DAXPY_(notri,1.0D00,HONE,1,FIMO,1)
+      CALL DAXPY_(notri,One,HONE,1,FIMO,1)
       CALL DCOPY_(NOTRI,FIMO,1,FIFA,1)
-      CALL DAXPY_(notri,1.0D00,FAMO,1,FIFA,1)
+      CALL DAXPY_(notri,One,FAMO,1,FIFA,1)
 
 c   Orbital energies, EPS, EPSI,EPSA,EPSE:
       IEPS=0
@@ -159,7 +159,7 @@ C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
 C This is never used anywhere, and it is actually
 C wrong in XMS, since the DREF used is not the average
 C density.
-      EASUM=0.0D0
+      EASUM=Zero
       DO ISYM=1,NSYM
         NA=NASH(ISYM)
         DO I=1,NA
@@ -169,7 +169,7 @@ C density.
         END DO
       END DO
 
-      IF ( IFTEST.NE.0 ) THEN
+#ifdef _DEBUGPRINT_
         WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
         ISTLT=1
         DO ISYM=1,NSYM
@@ -202,15 +202,15 @@ C density.
           END IF
         END DO
 
-        WRITE(6,*)
-        WRITE(6,*)'      ORBITAL ENERGIES, EPS:'
-        WRITE(6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
-        WRITE(6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
-        WRITE(6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
-        WRITE(6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
-        WRITE(6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
-        WRITE(6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'
-        WRITE(6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
-      END IF
+        WRITE(u6,*)
+        WRITE(u6,*)'      ORBITAL ENERGIES, EPS:'
+        WRITE(u6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
+        WRITE(u6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
+        WRITE(u6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
+        WRITE(u6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
+        WRITE(u6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
+        WRITE(u6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'
+        WRITE(u6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
+#endif
 
       END SUBROUTINE FMAT_CHO
