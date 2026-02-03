@@ -46,17 +46,17 @@
       ISYT=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYX)
       ISYM=ISYJ
-      IF(NINDEP(ISYM,1).EQ.0) RETURN
+      IF(NINDEP(ISYM,1)==0) RETURN
       NAS=NTUV(ISYM)
       NIS=NISH(ISYM)
       NWA=NAS*NIS
-      IF(NWA.EQ.0) RETURN
+      IF(NWA==0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Incore or partitioned option.
 *
-*     Incore=nBuff.ge.NWA+NT*NJ*NV*NX
+*     Incore=nBuff>=NWA+NT*NJ*NV*NX
 *     If (.NOT.Incore) Then
 *        Write (6,*) 'Sort out of memory in ADDRHSA'
 *        Call Abend()
@@ -93,7 +93,7 @@ C Read W:
            IBUF=IBUF+1
            idxBuf(IBUF)=IW
            Buff(IBUF)=TJVX(IT,IJ,IV,IX)
-           IF (IBUF.EQ.NBUFF) THEN
+           IF (IBUF==NBUFF) THEN
              CALL RHS_SCATTER(LDA,lg_A,Buff,idxBuf,IBUF)
              IBUF=0
            END IF
@@ -194,11 +194,11 @@ Case B:
 *
       ISYT=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYL)
-      IF(ISYT.LT.ISYV) RETURN
+      IF(ISYT<ISYV) RETURN
       SQ2=SQRT(Two)
       ISYM=MUL(ISYJ,ISYL)
 *
-      IF(NINDEP(ISYM,2).GT.0) THEN
+      IF(NINDEP(ISYM,2)>0) THEN
 * The plus combination:
        ICASE=2
        NASP=NTGEU(ISYM)
@@ -207,7 +207,7 @@ Case B:
       ELSE
        NWBP=0
       ENDIF
-      IF(NINDEP(ISYM,3).GT.0) THEN
+      IF(NINDEP(ISYM,3)>0) THEN
 * The minus combination:
        ICASE=3
        NASM=NTGTU(ISYM)
@@ -216,13 +216,13 @@ Case B:
       ELSE
        NWBM=0
       ENDIF
-      If (Max(NWBP,NWBM).le.0) RETURN
+      If (Max(NWBP,NWBM)<=0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Incore or partitioned option.
 *
-*     Incore=nBuff.ge.Max(NWBP,NWBM)+NT*NJ*NV*NL
+*     Incore=nBuff>=Max(NWBP,NWBM)+NT*NJ*NV*NL
 *     If (.NOT.Incore) Then
 *        Write (6,*) 'Sort out of memory in ADDRHSB'
 *        Call Abend()
@@ -239,7 +239,7 @@ Case B:
 #endif
       If (NWBP>0) THEN
 *
-      IF(NINDEP(ISYM,2).GT.0) THEN
+      IF(NINDEP(ISYM,2)>0) THEN
 * The plus combination:
        ICASE=2
        NASP=NTGEU(ISYM)
@@ -256,20 +256,20 @@ C Read WP:
          DO IT=1,NT
          ITABS=IT+NAES(ISYT)
          IVMAX=NV
-         IF(ISYV.EQ.ISYT) IVMAX=IT
+         IF(ISYV==ISYT) IVMAX=IT
          DO IV=1,IVMAX
           IVABS=IV+NAES(ISYV)
           SCL1=Half
           IW1=KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
-          IF(ITABS.EQ.IVABS) SCL1=Quart
+          IF(ITABS==IVABS) SCL1=Quart
           DO IJ=1,NJ
            IJABS=IJ+NIES(ISYJ)
            DO IL=1,NL
             ILABS=IL+NIES(ISYL)
             SCL=SCL1
-            IF(IJABS.GE.ILABS) THEN
+            IF(IJABS>=ILABS) THEN
              IW2=KIGEJ(IJABS,ILABS)-NIGEJES(ISYM)
-             IF(IJABS.EQ.ILABS) SCL=SQ2*SCL1
+             IF(IJABS==ILABS) SCL=SQ2*SCL1
             ELSE
              IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
             END IF
@@ -278,7 +278,7 @@ C Read WP:
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*TJVL(IT,IJ,IV,IL)
-            IF (IBUF.EQ.NBUFF) THEN
+            IF (IBUF==NBUFF) THEN
               CALL RHS_SCATTER(LDBP,lg_BP,Buff,idxBuf,IBUF)
               IBUF=0
             END IF
@@ -298,21 +298,21 @@ C Read WP:
          DO IT=1,NT
           ITABS=IT+NAES(ISYT)
           IVMAX=NV
-          IF(ISYV.EQ.ISYT) IVMAX=IT
+          IF(ISYV==ISYT) IVMAX=IT
           DO IV=1,IVMAX
            IVABS=IV+NAES(ISYV)
            SCL1=Half
            IW1=KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
            if (IW1 < ILOV .or. IW1 > IHIV) cycle
-           IF(ITABS.EQ.IVABS) SCL1=Quart
+           IF(ITABS==IVABS) SCL1=Quart
            DO IJ=1,NJ
             IJABS=IJ+NIES(ISYJ)
             DO IL=1,NL
              ILABS=IL+NIES(ISYL)
              SCL=SCL1
-             IF(IJABS.GE.ILABS) THEN
+             IF(IJABS>=ILABS) THEN
               IW2=KIGEJ(IJABS,ILABS)-NIGEJES(ISYM)
-              IF(IJABS.EQ.ILABS) SCL=SQ2*SCL1
+              IF(IJABS==ILABS) SCL=SQ2*SCL1
              ELSE
               IW2=KIGEJ(ILABS,IJABS)-NIGEJES(ISYM)
              END IF
@@ -338,7 +338,7 @@ C Put WBP on disk:
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      IF(NINDEP(ISYM,3).GT.0) THEN
+      IF(NINDEP(ISYM,3)>0) THEN
 * The minus combination:
        ICASE=3
        NASM=NTGTU(ISYM)
@@ -355,7 +355,7 @@ C Read WM:
        DO IT=1,NT
         ITABS=IT+NAES(ISYT)
         IVMAX=NV
-        IF(ISYV.EQ.ISYT) IVMAX=IT-1
+        IF(ISYV==ISYT) IVMAX=IT-1
         DO IV=1,IVMAX
          IVABS=IV+NAES(ISYV)
          IW1=KTGTU(ITABS,IVABS)-NTGTUES(ISYM)
@@ -363,14 +363,14 @@ C Read WM:
           IJABS=IJ+NIES(ISYJ)
           DO IL=1,NL
            ILABS=IL+NIES(ISYL)
-           IF(IJABS.GT.ILABS) THEN
+           IF(IJABS>ILABS) THEN
             IW2=KIGTJ(IJABS,ILABS)-NIGTJES(ISYM)
             IW=IW1+NASM*(IW2-1)
 *           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)+Half*TJVL(IT,IJ,IV,IL)
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=Half*TJVL(IT,IJ,IV,IL)
-           ELSE IF (IJABS.LT.ILABS) THEN
+           ELSE IF (IJABS<ILABS) THEN
             IW2=KIGTJ(ILABS,IJABS)-NIGTJES(ISYM)
             IW=IW1+NASM*(IW2-1)
 *           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)-Half*TJVL(IT,IJ,IV,IL)
@@ -378,7 +378,7 @@ C Read WM:
             idxBuf(IBUF)=IW
             Buff(IBUF)=-Half*TJVL(IT,IJ,IV,IL)
            END IF
-           IF (IBUF.EQ.NBUFF) THEN
+           IF (IBUF==NBUFF) THEN
              CALL RHS_SCATTER(LDBM,lg_BM,Buff,idxBuf,IBUF)
              IBUF=0
            END IF
@@ -399,7 +399,7 @@ C Read WM:
         DO IT=1,NT
          ITABS=IT+NAES(ISYT)
          IVMAX=NV
-         IF(ISYV.EQ.ISYT) IVMAX=IT-1
+         IF(ISYV==ISYT) IVMAX=IT-1
          DO IV=1,IVMAX
           IVABS=IV+NAES(ISYV)
           IW1=KTGTU(ITABS,IVABS)-NTGTUES(ISYM)
@@ -408,14 +408,14 @@ C Read WM:
            IJABS=IJ+NIES(ISYJ)
            DO IL=1,NL
             ILABS=IL+NIES(ISYL)
-            IF(IJABS.GT.ILABS) THEN
+            IF(IJABS>ILABS) THEN
              IW2=KIGTJ(IJABS,ILABS)-NIGTJES(ISYM)
              if (IW2 >= JLOV .and. IW2 <= JHIV) then
                DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
      *           = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
      *           + Half*TJVL(IT,IJ,IV,IL)
              end if
-            ELSE IF (IJABS.LT.ILABS) THEN
+            ELSE IF (IJABS<ILABS) THEN
              IW2=KIGTJ(ILABS,IJABS)-NIGTJES(ISYM)
              if (IW2 >= JLOV .and. IW2 <= JHIV) then
                DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
@@ -423,7 +423,7 @@ C Read WM:
      *           - Half*TJVL(IT,IJ,IV,IL)
              end if
             END IF
-            IF (IBUF.EQ.NBUFF) THEN
+            IF (IBUF==NBUFF) THEN
               CALL RHS_SCATTER(LDBM,lg_BM,Buff,idxBuf,IBUF)
               IBUF=0
             END IF
@@ -487,17 +487,17 @@ C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
       ISYA=MUL(JSYM,ISYU)
       ISYV=MUL(JSYM,ISYX)
       ISYM=ISYA
-      IF(NINDEP(ISYM,4).EQ.0) RETURN
+      IF(NINDEP(ISYM,4)==0) RETURN
       NAS=NTUV(ISYM)
       NIS=NSSH(ISYM)
       NWC=NAS*NIS
-      IF(NWC.EQ.0) RETURN
+      IF(NWC==0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Incore or partitioned option.
 *
-*     Incore=nBuff.ge.NWC+NA*NU*NV*NX
+*     Incore=nBuff>=NWC+NA*NU*NV*NX
 *     If (.NOT.Incore) Then
 *        Write (6,*) 'Sort out of memory in ADDRHSC'
 *        Call Abend()
@@ -532,7 +532,7 @@ C Read W:
            IBUF=IBUF+1
            idxBuf(IBUF)=IW
            Buff(IBUF)=AUVX(IA,IU,IV,IX)
-           IF (IBUF.EQ.NBUFF) THEN
+           IF (IBUF==NBUFF) THEN
              CALL RHS_SCATTER(LDC,lg_C,Buff,idxBuf,IBUF)
              IBUF=0
            END IF
@@ -636,18 +636,18 @@ C Compute W2(vu,al)=(au,vl)
       ISYA=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYX)
       ISYM=JSYM
-      IF(NINDEP(ISYM,5).EQ.0) RETURN
+      IF(NINDEP(ISYM,5)==0) RETURN
       NAS1=NTU(ISYM)
       NAS=2*NAS1
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
-      IF(NWD.EQ.0) RETURN
+      IF(NWD==0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Incore or partitioned option?
 *
-*     Incore=nBuff.ge.NWD+NA*NJ*NV*NX
+*     Incore=nBuff>=NWD+NA*NJ*NV*NX
 *     If (.NOT.Incore) Then
 *        Write (6,*) 'Sort out of memory in ADDRHSD1'
 *        Call Abend()
@@ -712,7 +712,7 @@ C Read W:
 *          Buff(LWD-1+IW)=WD
            idxBuf(IBUF)=IW
            Buff(IBUF)=AJVX(IV,IX,IAJ)
-           IF (IBUF.EQ.NBUFF) THEN
+           IF (IBUF==NBUFF) THEN
              CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
              IBUF=0
            END IF
@@ -822,18 +822,18 @@ C Compute W2(vu,al)=(au,vl)
       ISYA=MUL(JSYM,ISYU)
       ISYV=MUL(JSYM,ISYL)
       ISYM=MUL(ISYU,ISYV)
-      IF(NINDEP(ISYM,5).EQ.0) RETURN
+      IF(NINDEP(ISYM,5)==0) RETURN
       NAS1=NTU(ISYM)
       NAS=2*NAS1
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
-      IF(NWD.EQ.0) RETURN
+      IF(NWD==0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Incore or partitioned option?
 *
-*     Incore=nBuff.ge.NWD+NA*NU*NV*NL
+*     Incore=nBuff>=NWD+NA*NU*NV*NL
 *     If (.NOT.Incore) Then
 *        Write (6,*) 'Sort out of memory in ADDRHSD2'
 *        Call Abend()
@@ -870,7 +870,7 @@ C Read W:
            IBUF=IBUF+1
            idxBuf(IBUF)=IW
            Buff(IBUF)=AUVL(IA,IU,IV,IL)
-           IF (IBUF.EQ.NBUFF) THEN
+           IF (IBUF==NBUFF) THEN
              CALL RHS_SCATTER(LDD,lg_D,Buff,idxBuf,IBUF)
              IBUF=0
            END IF
@@ -985,13 +985,13 @@ C Set up offset table:
       NWP=NAS*NISP
       NWM=NAS*NISM
       NW=NWP+NWM
-      If (NW.eq.0) RETURN
+      If (NW==0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Incore or partitioned option?
 *
-*     Incore=nBuff.ge.Max(NWP,NWM)+NA*NJ*NV*NL
+*     Incore=nBuff>=Max(NWP,NWM)+NA*NJ*NV*NL
 *     If (.NOT.Incore) Then
 *        Write (6,*) 'Sort out of memory in ADDRHSE'
 *        Call Abend()
@@ -1010,7 +1010,7 @@ C    &            Zero,AJVL,NA*NJ)
       LDEP=NAS
       LDEM=NAS
 * The plus combination:
-      IF (NWP.GT.0) THEN
+      IF (NWP>0) THEN
        ICASE=6
 C Read WP:
       CALL RHS_ALLO (NAS,NISP,lg_EP)
@@ -1050,9 +1050,9 @@ C Read WP:
           DO IL=1,NL
            ILABS=IL+NIES(ISYL)
            SCL=SQRT(Half)
-           IF(IJABS.GE.ILABS) THEN
+           IF(IJABS>=ILABS) THEN
             JGEL=KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
-            IF(IJABS.EQ.ILABS) SCL=One
+            IF(IJABS==ILABS) SCL=One
            ELSE
             JGEL=KIGEJ(ILABS,IJABS)-NIGEJES(ISYJL)
            END IF
@@ -1064,7 +1064,7 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
            IBUF=IBUF+1
            idxBuf(IBUF)=IW
            Buff(IBUF)=SCL*AJVL(IV,IL,IAJ)
-           IF (IBUF.EQ.NBUFF) THEN
+           IF (IBUF==NBUFF) THEN
             CALL RHS_SCATTER(LDEP,lg_EP,Buff,idxBuf,IBUF)
             IBUF=0
            END IF
@@ -1090,9 +1090,9 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
            DO IL=1,NL
             ILABS=IL+NIES(ISYL)
             SCL=SQRT(Half)
-            IF(IJABS.GE.ILABS) THEN
+            IF(IJABS>=ILABS) THEN
              JGEL=KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
-             IF(IJABS.EQ.ILABS) SCL=One
+             IF(IJABS==ILABS) SCL=One
             ELSE
              JGEL=KIGEJ(ILABS,IJABS)-NIGEJES(ISYJL)
             END IF
@@ -1125,7 +1125,7 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
 ************************************************************************
 *                                                                      *
 * The minus combination:
-      IF (NWM.GT.0) THEN
+      IF (NWM>0) THEN
        ICASE=7
 C Read WM:
       CALL RHS_ALLO (NAS,NISM,lg_EM)
@@ -1166,7 +1166,7 @@ C Read WM:
           DO IL=1,NL
            ILABS=IL+NIES(ISYL)
            IF(IJABS.NE.ILABS) THEN
-            IF(IJABS.GT.ILABS) THEN
+            IF(IJABS>ILABS) THEN
              SCL=SQ32
              JGTL=KIGTJ(IJABS,ILABS)-NIGTJES(ISYJL)
             ELSE
@@ -1180,7 +1180,7 @@ C Read WM:
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*AJVL(IV,IL,IAJ)
-            IF (IBUF.EQ.NBUFF) THEN
+            IF (IBUF==NBUFF) THEN
              CALL RHS_SCATTER(LDEM,lg_EM,Buff,idxBuf,IBUF)
              IBUF=0
             END IF
@@ -1207,7 +1207,7 @@ C Read WM:
            DO IL=1,NL
             ILABS=IL+NIES(ISYL)
             IF(IJABS.NE.ILABS) THEN
-             IF(IJABS.GT.ILABS) THEN
+             IF(IJABS>ILABS) THEN
               SCL=SQ32
               JGTL=KIGTJ(IJABS,ILABS)-NIGTJES(ISYJL)
              ELSE
@@ -1288,13 +1288,13 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
 ************************************************************************
 *                                                                      *
 *
-      IF(ISYU.LT.ISYX) RETURN
+      IF(ISYU<ISYX) RETURN
 
       ISYA=MUL(JSYM,ISYU)
       ISYC=MUL(JSYM,ISYX)
       ISYM=MUL(ISYU,ISYX)
 *
-      IF(NINDEP(ISYM,8).GT.0) THEN
+      IF(NINDEP(ISYM,8)>0) THEN
 * The plus combination:
        NASP=NTGEU(ISYM)
        NISP=NAGEB(ISYM)
@@ -1302,7 +1302,7 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
       ELSE
        NWFP=0
       ENDIF
-      IF(NINDEP(ISYM,9).GT.0) THEN
+      IF(NINDEP(ISYM,9)>0) THEN
        ICASE=9
 * The minus combination:
        NASM=NTGTU(ISYM)
@@ -1311,13 +1311,13 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
       ELSE
        NWFM=0
       ENDIF
-      If (NWFP+NWFM.le.0) RETURN
+      If (NWFP+NWFM<=0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Incore or partitioned option?
 *
-*     Incore=nBuff.ge.Max(NWFP,NWFM)+NA*NU*NC*NX
+*     Incore=nBuff>=Max(NWFP,NWFM)+NA*NU*NC*NX
 *     If (.NOT.Incore) Then
 *        Write (6,*) 'Sort out of memory in ADDRHSF'
 *        Call Abend()
@@ -1334,7 +1334,7 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
 #endif
 *
       IF (NWFP>0) THEN
-      IF(NINDEP(ISYM,8).GT.0) THEN
+      IF(NINDEP(ISYM,8)>0) THEN
 * The plus combination:
        ICASE=8
        NASP=NTGEU(ISYM)
@@ -1351,20 +1351,20 @@ C Read WP:
         DO IU=1,NU
          IUABS=IU+NAES(ISYU)
          IXMAX=NX
-         IF(ISYU.EQ.ISYX) IXMAX=IU
+         IF(ISYU==ISYX) IXMAX=IU
          DO IX=1,IXMAX
           IXABS=IX+NAES(ISYX)
           SCL1=Half
-          IF(IUABS.EQ.IXABS) SCL1=Quart
+          IF(IUABS==IXABS) SCL1=Quart
           IW1=KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
           DO IA=1,NA
            IAABS=IA+NSES(ISYA)
            DO IC=1,NC
             ICABS=IC+NSES(ISYC)
             SCL=SCL1
-            IF(IAABS.GE.ICABS) THEN
+            IF(IAABS>=ICABS) THEN
              IW2=KAGEB(IAABS,ICABS)-NAGEBES(ISYM)
-             IF(IAABS.EQ.ICABS) SCL=SQRT(Two)*SCL1
+             IF(IAABS==ICABS) SCL=SQRT(Two)*SCL1
             ELSE
              IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
             END IF
@@ -1374,7 +1374,7 @@ C Read WP:
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*AUCX(IA,IU,IC,IX)
-            IF (IBUF.EQ.NBUFF) THEN
+            IF (IBUF==NBUFF) THEN
               CALL RHS_SCATTER(LDFP,lg_FP,Buff,idxBuf,IBUF)
               IBUF=0
             END IF
@@ -1395,11 +1395,11 @@ C Read WP:
          DO IU=1,NU
           IUABS=IU+NAES(ISYU)
           IXMAX=NX
-          IF(ISYU.EQ.ISYX) IXMAX=IU
+          IF(ISYU==ISYX) IXMAX=IU
           DO IX=1,IXMAX
            IXABS=IX+NAES(ISYX)
            SCL1=Half
-           IF(IUABS.EQ.IXABS) SCL1=Quart
+           IF(IUABS==IXABS) SCL1=Quart
            IW1=KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
            if (IW1 < ILOV .or. IW1 > IHIV) cycle
            DO IA=1,NA
@@ -1407,9 +1407,9 @@ C Read WP:
             DO IC=1,NC
              ICABS=IC+NSES(ISYC)
              SCL=SCL1
-             IF(IAABS.GE.ICABS) THEN
+             IF(IAABS>=ICABS) THEN
               IW2=KAGEB(IAABS,ICABS)-NAGEBES(ISYM)
-              IF(IAABS.EQ.ICABS) SCL=SQRT(Two)*SCL1
+              IF(IAABS==ICABS) SCL=SQRT(Two)*SCL1
              ELSE
               IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
              END IF
@@ -1434,8 +1434,8 @@ C Read WP:
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      IF (NWFM.le.0) RETURN
-      IF(NINDEP(ISYM,9).GT.0) THEN
+      IF (NWFM<=0) RETURN
+      IF(NINDEP(ISYM,9)>0) THEN
        ICASE=9
 * The minus combination:
        NASM=NTGTU(ISYM)
@@ -1459,7 +1459,7 @@ C Read WM:
         DO IU=1,NU
          IUABS=IU+NAES(ISYU)
          IXMAX=NX
-         IF(ISYU.EQ.ISYX) IXMAX=IU-1
+         IF(ISYU==ISYX) IXMAX=IU-1
          DO IX=1,IXMAX
           IXABS=IX+NAES(ISYX)
           IW1=KTGTU(IUABS,IXABS)-NTGTUES(ISYM)
@@ -1467,14 +1467,14 @@ C Read WM:
            IAABS=IA+NSES(ISYA)
            DO IC=1,NC
             ICABS=IC+NSES(ISYC)
-            IF(IAABS.GT.ICABS) THEN
+            IF(IAABS>ICABS) THEN
              IW2=KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
              IW=IW1+NASM*(IW2-1)
 *            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)-Half*AUCX(IA,IU,IC,IX)
              IBUF=IBUF+1
              idxBuf(IBUF)=IW
              Buff(IBUF)=-Half*AUCX(IA,IU,IC,IX)
-            ELSE IF(IAABS.LT.ICABS) THEN
+            ELSE IF(IAABS<ICABS) THEN
              IW2=KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
              IW=IW1+NASM*(IW2-1)
 *            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)+Half*AUCX(IA,IU,IC,IX)
@@ -1482,7 +1482,7 @@ C Read WM:
              idxBuf(IBUF)=IW
              Buff(IBUF)=Half*AUCX(IA,IU,IC,IX)
             END IF
-            IF (IBUF.EQ.NBUFF) THEN
+            IF (IBUF==NBUFF) THEN
               CALL RHS_SCATTER(LDFM,lg_FM,Buff,idxBuf,IBUF)
               IBUF=0
             END IF
@@ -1499,7 +1499,7 @@ C Read WM:
          DO IU=1,NU
           IUABS=IU+NAES(ISYU)
           IXMAX=NX
-          IF(ISYU.EQ.ISYX) IXMAX=IU-1
+          IF(ISYU==ISYX) IXMAX=IU-1
           DO IX=1,IXMAX
            IXABS=IX+NAES(ISYX)
            IW1=KTGTU(IUABS,IXABS)-NTGTUES(ISYM)
@@ -1508,14 +1508,14 @@ C Read WM:
             IAABS=IA+NSES(ISYA)
             DO IC=1,NC
              ICABS=IC+NSES(ISYC)
-             IF(IAABS.GT.ICABS) THEN
+             IF(IAABS>ICABS) THEN
               IW2=KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
               if (IW2 >= JLOV .and. IW2 <= JHIV) then
                DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
      *           = DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
      *           - Half*AUCX(IA,IU,IC,IX)
               end if
-             ELSE IF(IAABS.LT.ICABS) THEN
+             ELSE IF(IAABS<ICABS) THEN
               IW2=KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
               if (IW2 >= JLOV .and. IW2 <= JHIV) then
                DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
@@ -1611,7 +1611,7 @@ C   Allocate W with parts WP,WM
 *                                                                      *
 *     Incore or partitioned option?
 *
-*     Incore=nBuff.ge.Max(NWGP,NWGM)+NA*NU*NC*NL
+*     Incore=nBuff>=Max(NWGP,NWGM)+NA*NU*NC*NL
 *     If (.NOT.Incore) Then
 *        Write (6,*) 'Sort out of memory in ADDRHSG'
 *        Call Abend()
@@ -1631,7 +1631,7 @@ C    &            Zero,AUCL,NA*NU)
       LDGM=NAS
 *
 * The plus combination:
-      IF (NWGP.GT.0) THEN
+      IF (NWGP>0) THEN
        ICASE=10
 C Read WP:
        CALL RHS_ALLO (NAS,NISP,lg_GP)
@@ -1650,7 +1650,7 @@ C (scaling NL does not affect ordering of integrals = safe)
 C      NBXSZJ=NINABX
        KCL=NAUCL/(NA*NU)
        NBXSZL=KCL/NC
-       IF (NBXSZL.LE.0) THEN
+       IF (NBXSZL<=0) THEN
          Write (6,*) 'Not enough memory in ADDRHSG, I give up'
          CALL Abend()
        ENDIF
@@ -1680,9 +1680,9 @@ C      NBXSZJ=NINABX
          DO IA=1,NA
           IAABS=IA+NSES(ISYA)
           SCL=SQRT(Half)
-          IF(IAABS.GE.ICABS) THEN
+          IF(IAABS>=ICABS) THEN
            IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-           IF(IAABS.EQ.ICABS) SCL=One
+           IF(IAABS==ICABS) SCL=One
           ELSE
            IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
           END IF
@@ -1694,7 +1694,7 @@ C      NBXSZJ=NINABX
 *          Buff(LWGP-1+IW)=Buff(LWGP-1+IW)+SCL*AUCL(IA,IU,ICL)
            idxBuf(IBUF)=IW
            Buff(IBUF)=SCL*AUCL(IA,IU,ICL)
-           IF (IBUF.EQ.NBUFF) THEN
+           IF (IBUF==NBUFF) THEN
              CALL RHS_SCATTER(LDGP,lg_GP,Buff,idxBuf,IBUF)
              IBUF=0
            END IF
@@ -1718,9 +1718,9 @@ C      NBXSZJ=NINABX
           DO IA=1,NA
            IAABS=IA+NSES(ISYA)
            SCL=SQRT(Half)
-           IF(IAABS.GE.ICABS) THEN
+           IF(IAABS>=ICABS) THEN
             IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-            IF(IAABS.EQ.ICABS) SCL=One
+            IF(IAABS==ICABS) SCL=One
            ELSE
             IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
            END IF
@@ -1756,7 +1756,7 @@ C      NBXSZJ=NINABX
 ************************************************************************
 *                                                                      *
 * The minus combination:
-      IF (NWGM.GT.0) THEN
+      IF (NWGM>0) THEN
        ICASE=11
 C Read WGM:
        CALL RHS_ALLO (NAS,NISM,lg_GM)
@@ -1775,7 +1775,7 @@ C (scaling NL does not affect ordering of integrals = safe)
 C      NBXSZJ=NINABX
        KCL=NAUCL/(NA*NU)
        NBXSZL=KCL/NC
-       IF (NBXSZL.LE.0) THEN
+       IF (NBXSZL<=0) THEN
          Write (6,*) 'Not enough memory in ADDRHSG, I give up'
          CALL Abend()
        ENDIF
@@ -1804,7 +1804,7 @@ C      NBXSZJ=NINABX
 
          DO IA=1,NA
           IAABS=IA+NSES(ISYA)
-          IF(IAABS.GT.ICABS) THEN
+          IF(IAABS>ICABS) THEN
            IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
            SCL=SQRT(OneHalf)
            DO IU=1,NU
@@ -1815,12 +1815,12 @@ C      NBXSZJ=NINABX
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*AUCL(IA,IU,ICL)
-            IF (IBUF.EQ.NBUFF) THEN
+            IF (IBUF==NBUFF) THEN
               CALL RHS_SCATTER(LDGM,lg_GM,Buff,idxBuf,IBUF)
               IBUF=0
             END IF
            END DO
-          ELSE IF(IAABS.LT.ICABS) THEN
+          ELSE IF(IAABS<ICABS) THEN
            IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
            SCL=-SQRT(OneHalf)
            DO IU=1,NU
@@ -1831,7 +1831,7 @@ C      NBXSZJ=NINABX
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
             Buff(IBUF)=SCL*AUCL(IA,IU,ICL)
-            IF (IBUF.EQ.NBUFF) THEN
+            IF (IBUF==NBUFF) THEN
               CALL RHS_SCATTER(LDGM,lg_GM,Buff,idxBuf,IBUF)
               IBUF=0
             END IF
@@ -1855,7 +1855,7 @@ C      NBXSZJ=NINABX
 
           DO IA=1,NA
            IAABS=IA+NSES(ISYA)
-           IF(IAABS.GT.ICABS) THEN
+           IF(IAABS>ICABS) THEN
             IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
             ITMP2 = IL+NL*(IAGTC-1)+IOFF2(ISYL)
             if (ITMP2 < JLOV .or. ITMP2 > JHIV) cycle
@@ -1868,7 +1868,7 @@ C      NBXSZJ=NINABX
      *            + SCL*AUCL(IA,IU,ICL)
               end if
             END DO
-           ELSE IF(IAABS.LT.ICABS) THEN
+           ELSE IF(IAABS<ICABS) THEN
             IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
             ITMP2 = IL+NL*(IAGTC-1)+IOFF2(ISYL)
             if (ITMP2 < JLOV .or. ITMP2 > JHIV) cycle
@@ -1949,7 +1949,7 @@ C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      IF(ISYJ.LT.ISYL) RETURN
+      IF(ISYJ<ISYL) RETURN
       ISYA=MUL(JSYM,ISYJ)
       ISYC=MUL(JSYM,ISYL)
       ISYM=MUL(ISYA,ISYC)
@@ -1960,7 +1960,7 @@ C   Allocate WHP,WHM
       NASP=NAGEB(ISYM)
       NISP=NIGEJ(ISYM)
       NWHP=NASP*NISP
-      IF(NWHP.EQ.0) RETURN
+      IF(NWHP==0) RETURN
       NASM=NAGTB(ISYM)
       NISM=NIGTJ(ISYM)
       NWHM=NASM*NISM
@@ -1969,14 +1969,14 @@ C   Allocate WHP,WHM
 *                                                                      *
 *     Incore or partitioned option?
 *
-*     Incore=nBuff.ge.Max(NWHP,NWHM)+NC*NL
+*     Incore=nBuff>=Max(NWHP,NWHM)+NC*NL
 *     If (.NOT.Incore) Then
 *        Write (6,*) 'Sort out of memory in ADDRHSH'
 *        Call Abend()
 *     End If
 
 *     nBatch=MIN((nBuff-MAX(NWHP,NWHM))/(NC*NL),NA*NJ)
-*     IF((iPrGlb.GE.DEBUG).AND.(nBatch.lt.NA*NJ)) THEN
+*     IF((iPrGlb>=DEBUG).AND.(nBatch<NA*NJ)) THEN
 *       WRITE(6,'(1X,A)') 'less memory than ideal for ADDRHSH:'
 *       WRITE(6,'(1X,A12,I12)') 'needed    = ', NA*NJ*NC*NL
 *       WRITE(6,'(1X,A12,I12)') 'available = ', nBatch*NC*NL
@@ -1996,7 +1996,7 @@ C   Allocate WHP,WHM
       LDHM=NASM
 *
 * The plus combination:
-      IF (NWHP.GT.0) THEN
+      IF (NWHP>0) THEN
        ICASE=12
 C Read WP:
        CALL RHS_ALLO (NASP,NISP,lg_HP)
@@ -2020,7 +2020,7 @@ C (scaling NJ or NL does not affect ordering of integrals = safe)
 C      NBXSZJ=NINABX
        KAJ=NAJCL/(NC*NL)
        NBXSZJ=KAJ/NA
-       IF (NBXSZJ.LE.0) THEN
+       IF (NBXSZJ<=0) THEN
          Write (6,*) 'Not enough memory in ADDRHSH, I give up'
          CALL Abend()
        ENDIF
@@ -2055,7 +2055,7 @@ C      NBXSZJ=NINABX
        DO IJ=IJSTA,IJEND
          IJABS=IJ+NIES(ISYJ)
          ILMAX=NL
-         IF(ISYJ.EQ.ISYL) ILMAX=IJ
+         IF(ISYJ==ISYL) ILMAX=IJ
          DO IA=IASTA,IAEND
            IAABS=IA+NSES(ISYA)
            IAJ=IAJ+1
@@ -2065,15 +2065,15 @@ C      NBXSZJ=NINABX
              ILABS=IL+NIES(ISYL)
              SCL1=One
              IJGEL=KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
-             IF(IJABS.EQ.ILABS) SCL1=SQRT(Half)
+             IF(IJABS==ILABS) SCL1=SQRT(Half)
              DO IC=ICSTA,ICEND
                ICABS=IC+NSES(ISYC)
                ICL=ICL+1
 
                SCL=SCL1
-               IF(IAABS.GE.ICABS) THEN
+               IF(IAABS>=ICABS) THEN
                  IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-                 IF(IAABS.EQ.ICABS) SCL=SQRT(Two)*SCL1
+                 IF(IAABS==ICABS) SCL=SQRT(Two)*SCL1
                ELSE
                  IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
                END IF
@@ -2083,7 +2083,7 @@ C      NBXSZJ=NINABX
                IBUF=IBUF+1
                idxBuf(IBUF)=IW
                Buff(IBUF)=SCL*AJCL(ICLSTA+ICL-1,IAJ)
-               IF (IBUF.EQ.NBUFF) THEN
+               IF (IBUF==NBUFF) THEN
                  CALL RHS_SCATTER (LDHP,lg_HP,Buff,idxBuf,IBUF)
                  IBUF=0
                END IF
@@ -2114,7 +2114,7 @@ C      NBXSZJ=NINABX
        DO IJ=IJSTA,IJEND
          IJABS=IJ+NIES(ISYJ)
          ILMAX=NL
-         IF(ISYJ.EQ.ISYL) ILMAX=IJ
+         IF(ISYJ==ISYL) ILMAX=IJ
          DO IA=IASTA,IAEND
            IAABS=IA+NSES(ISYA)
            IAJ=IAJ+1
@@ -2128,15 +2128,15 @@ C      NBXSZJ=NINABX
                ICL = ICL + ICEND-ICSTA+1
                cycle
              end if
-             IF(IJABS.EQ.ILABS) SCL1=SQRT(Half)
+             IF(IJABS==ILABS) SCL1=SQRT(Half)
              DO IC=ICSTA,ICEND
                ICABS=IC+NSES(ISYC)
                ICL=ICL+1
 
                SCL=SCL1
-               IF(IAABS.GE.ICABS) THEN
+               IF(IAABS>=ICABS) THEN
                  IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-                 IF(IAABS.EQ.ICABS) SCL=SQRT(Two)*SCL1
+                 IF(IAABS==ICABS) SCL=SQRT(Two)*SCL1
                ELSE
                  IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
                END IF
@@ -2171,7 +2171,7 @@ C      NBXSZJ=NINABX
 ************************************************************************
 *                                                                      *
 * The minus combination:
-      IF (NWHM.EQ.0) RETURN
+      IF (NWHM==0) RETURN
       ICASE=13
 C Read WM:
       CALL RHS_ALLO (NASM,NISM,lg_HM)
@@ -2190,7 +2190,7 @@ C VM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
 C      NBXSZJ=NINABX
        KAJ=NAJCL/(NC*NL)
        NBXSZJ=KAJ/NA
-       IF (NBXSZJ.LE.0) THEN
+       IF (NBXSZJ<=0) THEN
          Write (6,*) 'Not enough memory in ADDRHSH, I give up'
          CALL Abend()
        ENDIF
@@ -2224,7 +2224,7 @@ C      NBXSZJ=NINABX
       DO IJ=IJSTA,IJEND
         IJABS=IJ+NIES(ISYJ)
         ILMAX=NL
-        IF(ISYJ.EQ.ISYL) ILMAX=IJ-1
+        IF(ISYJ==ISYL) ILMAX=IJ-1
         DO IA=IASTA,IAEND
           IAABS=IA+NSES(ISYA)
           IAJ=IAJ+1
@@ -2237,10 +2237,10 @@ C      NBXSZJ=NINABX
               ICABS=IC+NSES(ISYC)
               ICL=ICL+1
 
-              IF (IAABS.GT.ICABS) THEN
+              IF (IAABS>ICABS) THEN
                 IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
                 SCL= SQRT(Three)
-              ELSE IF(IAABS.LT.ICABS) THEN
+              ELSE IF(IAABS<ICABS) THEN
                 IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
                 SCL=-SQRT(Three)
               ELSE
@@ -2252,7 +2252,7 @@ C      NBXSZJ=NINABX
               IBUF=IBUF+1
               idxBuf(IBUF)=IW
               Buff(IBUF)=SCL*AJCL(ICLSTA+ICL-1,IAJ)
-              IF (IBUF.EQ.NBUFF) THEN
+              IF (IBUF==NBUFF) THEN
                 CALL RHS_SCATTER (LDHM,lg_HM,Buff,idxBuf,IBUF)
                 IBUF=0
               END IF
@@ -2283,7 +2283,7 @@ C      NBXSZJ=NINABX
       DO IJ=IJSTA,IJEND
         IJABS=IJ+NIES(ISYJ)
         ILMAX=NL
-        IF(ISYJ.EQ.ISYL) ILMAX=IJ-1
+        IF(ISYJ==ISYL) ILMAX=IJ-1
         DO IA=IASTA,IAEND
           IAABS=IA+NSES(ISYA)
           IAJ=IAJ+1
@@ -2300,10 +2300,10 @@ C      NBXSZJ=NINABX
               ICABS=IC+NSES(ISYC)
               ICL=ICL+1
 
-              IF (IAABS.GT.ICABS) THEN
+              IF (IAABS>ICABS) THEN
                 IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
                 SCL= SQRT(Three)
-              ELSE IF(IAABS.LT.ICABS) THEN
+              ELSE IF(IAABS<ICABS) THEN
                 IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
                 SCL=-SQRT(Three)
               ELSE
