@@ -14,7 +14,7 @@
 C
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_global, only: jStLag,iVecL,iVecG
-      use EQSOLV
+      use EQSOLV, only: IRHS, IVECX, IVECR, IVECC, IVECC2, IVECW
       use caspt2_module, only: IFMSCOUP, NSTATE
       use Constants, only: Zero, One, Half, Two
       use definitions, only: wp, iwp, u6
@@ -127,9 +127,7 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
       use fake_GA, only: GA_Arrays
-      use caspt2_module
       use definitions, only: wp, iwp
 
       implicit none
