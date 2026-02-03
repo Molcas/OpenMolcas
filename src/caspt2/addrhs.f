@@ -226,7 +226,7 @@ Case B:
 #ifdef _MOLCAS_MPP_
       if (iParRHS == 2) call GADSUM_ADDRHS(TJVL,NT*NJ*NV*NL)
 #endif
-      If (NWBP.le.0) GO TO 800
+      If (NWBP>0) THEN
 *
       IF(NINDEP(ISYM,2).GT.0) THEN
 * The plus combination:
@@ -323,10 +323,10 @@ C Put WBP on disk:
        CALL RHS_SAVE (NASP,NISP,lg_BP,iCASE,iSYM,iVEC)
        CALL RHS_FREE(lg_BP)
       END IF
+      END IF
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 800  CONTINUE
       IF(NINDEP(ISYM,3).GT.0) THEN
 * The minus combination:
        ICASE=3
@@ -1290,7 +1290,7 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
       IF (iParRHS == 2) call GADSUM_ADDRHS(AUCX,NA*NU*NC*NX)
 #endif
 *
-      IF (NWFP.le.0) GO TO 800
+      IF (NWFP>0) THEN
       IF(NINDEP(ISYM,8).GT.0) THEN
 * The plus combination:
        ICASE=8
@@ -1387,10 +1387,10 @@ C Read WP:
        CALL RHS_SAVE (NASP,NISP,lg_FP,iCASE,iSYM,iVEC)
        CALL RHS_FREE (lg_FP)
       END IF
+      END IF
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 800  CONTINUE
       IF (NWFM.le.0) RETURN
       IF(NINDEP(ISYM,9).GT.0) THEN
        ICASE=9
@@ -2184,7 +2184,7 @@ C      NBXSZJ=NINABX
                 IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
                 SCL=-SQRT(Three)
               ELSE
-                GO TO 700
+                CYCLE
               ENDIF
               IW=IAGTC+NAGTB(ISYM)*(IJGTL-1)
 *             Buff(LWHM-1+IW)=Buff(LWHM-1+IW)+
@@ -2196,7 +2196,6 @@ C      NBXSZJ=NINABX
                 CALL RHS_SCATTER (LDHM,lg_HM,Buff,idxBuf,IBUF)
                 IBUF=0
               END IF
- 700        CONTINUE
             END DO
           END DO
         END DO
