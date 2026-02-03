@@ -11,6 +11,7 @@
       SUBROUTINE ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -23,13 +24,13 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION TJVX(NT,NJ,NV,NX)
-      DIMENSION Buff(nBuff)
-      DIMENSION idxBuf(nBuff)
-      DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
+      real(kind=wp) TJVX(NT,NJ,NV,NX)
+      real(kind=wp) Buff(nBuff)
+      integer(kind=iwp) idxBuf(nBuff)
+      real(kind=wp) Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+      integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 *                                                                      *
 ************************************************************************
@@ -38,11 +39,11 @@
       ISYT=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYX)
       ISYM=ISYJ
-      IF(NINDEP(ISYM,1).EQ.0) GOTO 900
+      IF(NINDEP(ISYM,1).EQ.0) RETURN
       NAS=NTUV(ISYM)
       NIS=NISH(ISYM)
       NWA=NAS*NIS
-      IF(NWA.EQ.0) GOTO 900
+      IF(NWA.EQ.0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -134,14 +135,13 @@ C Put W on disk:
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 900  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE ADDRHSA
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -163,13 +163,13 @@ Case B:
 * t=v j=l WP(tv,jl)=add ((tj,vl))*(1/4)*(SQRT(2))
 * t=v j<l WP(tv,lj)=add ((tj,vl))*(1/4)
 
-      DIMENSION TJVL(NT,NJ,NV,NL)
-      DIMENSION Buff(nBuff)
-      DIMENSION idxBuf(nBuff)
-      DIMENSION Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
+      real(kind=wp) TJVL(NT,NJ,NV,NL)
+      real(kind=wp) Buff(nBuff)
+      integer(kind=iwp) idxBuf(nBuff)
+      real(kind=wp) Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+      integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 *                                                                      *
 ************************************************************************
@@ -177,7 +177,7 @@ Case B:
 *
       ISYT=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYL)
-      IF(ISYT.LT.ISYV) GOTO 900
+      IF(ISYT.LT.ISYV) RETURN
       SQ2=SQRT(2.0D0)
       ISYM=MUL(ISYJ,ISYL)
 *
@@ -199,7 +199,7 @@ Case B:
       ELSE
        NWBM=0
       ENDIF
-      If (Max(NWBP,NWBM).le.0) GO TO 900
+      If (Max(NWBP,NWBM).le.0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -426,14 +426,13 @@ C Put WBM on disk:
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 900  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE ADDRHSB
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE ADDRHSC(IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,AUVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -446,12 +445,12 @@ C Put WBM on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION AUVX(NA,NU,NV,NX)
-      DIMENSION Buff(nBuff)
-      DIMENSION idxBuf(nBuff)
-      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
+      real(kind=wp) AUVX(NA,NU,NV,NX)
+      real(kind=wp) Buff(nBuff)
+      integer(kind=iwp) idxBuf(nBuff)
+      real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+      integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 *      Logical Incore
 Case C:
@@ -464,11 +463,11 @@ C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
       ISYA=MUL(JSYM,ISYU)
       ISYV=MUL(JSYM,ISYX)
       ISYM=ISYA
-      IF(NINDEP(ISYM,4).EQ.0) GOTO 900
+      IF(NINDEP(ISYM,4).EQ.0) RETURN
       NAS=NTUV(ISYM)
       NIS=NSSH(ISYM)
       NWC=NAS*NIS
-      IF(NWC.EQ.0) GOTO 900
+      IF(NWC.EQ.0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -556,14 +555,13 @@ C Put W on disk:
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 900  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE ADDRHSC
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE ADDRHSD1(IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,AJVX,
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -576,14 +574,14 @@ C Put W on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION AJVX(NV,NX,*)
-      DIMENSION Buff(nBuff)
-      DIMENSION idxBuf(nBuff)
-      DIMENSION Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NX,NCHO)
+      real(kind=wp) AJVX(NV,NX,*)
+      real(kind=wp) Buff(nBuff)
+      integer(kind=iwp) idxBuf(nBuff)
+      real(kind=wp) Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NX,NCHO)
 *      Logical Incore
-      DIMENSION IOFFD(8,8)
+      integer(kind=iwp) IOFFD(8,8)
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+      integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 Case D:
 C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
@@ -604,12 +602,12 @@ C Compute W2(vu,al)=(au,vl)
       ISYA=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYX)
       ISYM=JSYM
-      IF(NINDEP(ISYM,5).EQ.0) GOTO 900
+      IF(NINDEP(ISYM,5).EQ.0) RETURN
       NAS1=NTU(ISYM)
       NAS=2*NAS1
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
-      IF(NWD.EQ.0) GOTO 900
+      IF(NWD.EQ.0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -735,14 +733,13 @@ C Put W on disk:
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 900  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE ADDRHSD1
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE ADDRHSD2(IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,AUVL,
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -755,14 +752,14 @@ C Put W on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION AUVL(NA,NU,NV,NL)
-      DIMENSION Buff(nBuff)
-      DIMENSION idxBuf(nBuff)
-      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
+      real(kind=wp) AUVL(NA,NU,NV,NL)
+      real(kind=wp) Buff(nBuff)
+      integer(kind=iwp) idxBuf(nBuff)
+      real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
-      DIMENSION IOFFD(8,8)
+      integer(kind=iwp) IOFFD(8,8)
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+      integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 Case D:
 C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
@@ -783,12 +780,12 @@ C Compute W2(vu,al)=(au,vl)
       ISYA=MUL(JSYM,ISYU)
       ISYV=MUL(JSYM,ISYL)
       ISYM=MUL(ISYU,ISYV)
-      IF(NINDEP(ISYM,5).EQ.0) GOTO 900
+      IF(NINDEP(ISYM,5).EQ.0) RETURN
       NAS1=NTU(ISYM)
       NAS=2*NAS1
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
-      IF(NWD.EQ.0) GOTO 900
+      IF(NWD.EQ.0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -878,14 +875,13 @@ C Put W on disk:
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 900  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE ADDRHSD2
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -898,14 +894,14 @@ C Put W on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION AJVL(NV,NL,*)
-      DIMENSION Buff(nBuff)
-      DIMENSION idxBuf(nBuff)
-      DIMENSION Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NL,NCHO)
+      real(kind=wp) AJVL(NV,NL,*)
+      real(kind=wp) Buff(nBuff)
+      integer(kind=iwp) idxBuf(nBuff)
+      real(kind=wp) Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NL,NCHO)
 *      Logical Incore
-      DIMENSION IOFF1(8),IOFF2(8)
+      integer(kind=iwp) IOFF1(8),IOFF2(8)
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+      integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 Case E:
 *                                                                      *
@@ -935,7 +931,7 @@ C Set up offset table:
       NWP=NAS*NISP
       NWM=NAS*NISM
       NW=NWP+NWM
-      If (NW.eq.0) GO TO 900
+      If (NW.eq.0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1193,14 +1189,13 @@ C Read WM:
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 900  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE ADDRHSE
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -1213,12 +1208,12 @@ C Read WM:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION AUCX(NA,NU,NC,NX)
-      DIMENSION Buff(nBuff)
-      DIMENSION idxBuf(nBuff)
-      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
+      real(kind=wp) AUCX(NA,NU,NC,NX)
+      real(kind=wp) Buff(nBuff)
+      integer(kind=iwp) idxBuf(nBuff)
+      real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+      integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 *      Logical Incore
 Case F:
@@ -1229,7 +1224,7 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
 ************************************************************************
 *                                                                      *
 *
-      IF(ISYU.LT.ISYX) GOTO 900
+      IF(ISYU.LT.ISYX) RETURN
 
       ISYA=MUL(JSYM,ISYU)
       ISYC=MUL(JSYM,ISYX)
@@ -1252,7 +1247,7 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
       ELSE
        NWFM=0
       ENDIF
-      If (NWFP+NWFM.le.0) GO TO 900
+      If (NWFP+NWFM.le.0) RETURN
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1375,7 +1370,7 @@ C Read WP:
 ************************************************************************
 *                                                                      *
  800  CONTINUE
-      IF (NWFM.le.0) GO TO 900
+      IF (NWFM.le.0) RETURN
       IF(NINDEP(ISYM,9).GT.0) THEN
        ICASE=9
 * The minus combination:
@@ -1480,14 +1475,13 @@ C Put WFM on disk:
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 900  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE ADDRHSF
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -1500,14 +1494,14 @@ C Put WFM on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION AUCL(NA,NU,*)
-      DIMENSION Buff(nBuff)
-      DIMENSION idxBuf(nBuff)
-      DIMENSION Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
+      real(kind=wp) AUCL(NA,NU,*)
+      real(kind=wp) Buff(nBuff)
+      integer(kind=iwp) idxBuf(nBuff)
+      real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
 *      Logical Incore
-      DIMENSION IOFF1(8),IOFF2(8)
+      integer(kind=iwp) IOFF1(8),IOFF2(8)
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
+      integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 Case G:
 C   WP(u,l,ac)=  ((aucl)+cual))/SQRT(2+2*Kron(ab))
@@ -1835,13 +1829,13 @@ C      NBXSZJ=NINABX
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      RETURN
-      END
+      END SUBROUTINE ADDRHSG
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -1854,12 +1848,12 @@ C      NBXSZJ=NINABX
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION AJCL(NC*NL,*)
-      DIMENSION Buff(nBuff)
-      DIMENSION idxBuf(nBuff)
-      DIMENSION Cho_Bra(NA*NJ,NCHO), Cho_Ket(NC*NL,NCHO)
+      real(kind=wp) AJCL(NC*NL,*)
+      real(kind=wp) Buff(nBuff)
+      integer(kind=iwp) idxBuf(nBuff)
+      real(kind=wp) Cho_Bra(NA*NJ,NCHO), Cho_Ket(NC*NL,NCHO)
 #ifdef _MOLCAS_MPP_
-      INTEGER :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV,ITMP1,ITMP2
+      integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV,ITMP1,ITMP2
 #endif
 *      Logical Incore
 * Case H:
@@ -1868,7 +1862,7 @@ C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(3.0D0)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      IF(ISYJ.LT.ISYL) GOTO 900
+      IF(ISYJ.LT.ISYL) RETURN
       ISYA=MUL(JSYM,ISYJ)
       ISYC=MUL(JSYM,ISYL)
       ISYM=MUL(ISYA,ISYC)
@@ -1879,7 +1873,7 @@ C   Allocate WHP,WHM
       NASP=NAGEB(ISYM)
       NISP=NIGEJ(ISYM)
       NWHP=NASP*NISP
-      IF(NWHP.EQ.0) GOTO 900
+      IF(NWHP.EQ.0) RETURN
       NASM=NAGTB(ISYM)
       NISM=NIGTJ(ISYM)
       NWHM=NASM*NISM
@@ -2090,7 +2084,7 @@ C      NBXSZJ=NINABX
 ************************************************************************
 *                                                                      *
 * The minus combination:
-      IF (NWHM.EQ.0) GO TO 900
+      IF (NWHM.EQ.0) RETURN
       ICASE=13
 C Read WM:
       CALL RHS_ALLO (NASM,NISM,lg_HM)
@@ -2258,11 +2252,10 @@ C      NBXSZJ=NINABX
 *                                                                      *
 ************************************************************************
 *                                                                      *
- 900  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE ADDRHSH
 
       subroutine GADSUM_ADDRHS(buff,nbuff)
+      use definitions, only: iwp, wp
       use caspt2_global, only: MAXBUF
       use definitions, only: iwp,wp
       implicit none
