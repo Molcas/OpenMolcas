@@ -160,8 +160,8 @@ C
       use definitions, only: wp, iwp
       use fake_GA, only: GA_Arrays
       use caspt2_module, only: IFMSCOUP, NSYM, NASH, NAES, NASHT,
-     &                         JSTATE, NASUP, NISUP, NINDEP, EPSA,
-     &                         NTUES, NTGEUES, NTGTUES
+     &                         NASUP, NISUP, NINDEP, EPSA, NTUES,
+     &                         NTGEUES, NTGTUES
       use pt2_guga, only: NG3
 #ifdef _MOLCAS_MPP_
       use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
@@ -192,13 +192,13 @@ C
       integer(kind=iwp) :: iCase, iSym, NIN, NIS, NVEC, NAS, ID,
      &                     iLUID
 #ifdef _MOLCAS_MPP_
-      integer(kind=iwp) :: MYRANK, mS, LDV
+      integer(kind=iwp) :: MYRANK, lg_S, mS, LDV
+      integer(kind=iwp) :: ILO, IHI, JLO, JHI
 #endif
       integer(kind=iwp) :: NS, idS, idum, iTabs, iUabs, iVabs, iXabs,
-     &  iYabs, iZabs, iTU, iTU2, iTUabs, iTgeUabs, iTgtUabs, iXY, iXY2,
+     &  iYabs, iTU, iTU2, iTUabs, iTgeUabs, iTgtUabs, iXY, iXY2,
      &  iXYabs, iXgeYabs, iXgtYabs, iT, iU, iV, iX, iY, NSEQ
-      integer(kind=iwp) :: lg_V1, lg_V2, lg_V3, lg_V4, lg_V5, lg_S
-      integer(kind=iwp) :: ILO, IHI, JLO, JHI
+      integer(kind=iwp) :: lg_V1, lg_V2, lg_V3, lg_V4, lg_V5
 
       real(kind=wp) :: ScalB1, ScalB2, ScalS1, ScalS2, ET, EU, EX, EY,
      & ATUXY, BDERval, bsBDER, SDERval, EASUM, ATYU, ATYX, ATUX, ATUY
@@ -2083,7 +2083,7 @@ C
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: nConf, nState, STSym, Mul
+      use caspt2_module, only: nConf, STSym, Mul
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King, nProcs
 #endif
