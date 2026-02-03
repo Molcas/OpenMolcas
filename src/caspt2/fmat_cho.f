@@ -56,7 +56,7 @@ C TO MO BASIS FOR USE IN CASPT2.
       LSC=1
       DO ISYM=1,NSYM
        NB=NBAS(ISYM)
-       If (NB.eq.0) Go To 99
+       If (NB.eq.0) CYCLE
        NO=NORB(ISYM)
        NO_X = Max(1,NO)
        NF=NFRO(ISYM)
@@ -103,7 +103,6 @@ C TO MO BASIS FOR USE IN CASPT2.
        IFAO=IFAO+(NB*(NB+1))/2
        IOFMO=IOFMO+(NO*(NO+1))/2
        LSC=LSC+NB**2
- 99    CONTINUE
       END DO
 
       CALL mma_deallocate(SCR1)
