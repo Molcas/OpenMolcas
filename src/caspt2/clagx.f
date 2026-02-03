@@ -155,8 +155,7 @@ C
      *                         sigma_p_epsilon, LUSBT,
      *                         LUSOLV, ipea_shift
       use Constants, only: Zero, One, Half, Two, Four
-      use EQSOLV
-      use Sigma_data
+      use EQSOLV, only: IDSMAT, IDBMAT, IRHS, IVECX, IVECR, IVECW
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use fake_GA, only: GA_Arrays
@@ -499,7 +498,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagDXB(BDER,SDER)
 C
-      USE SUPERINDEX
+      USE SUPERINDEX, only: MTGEU, MTGTU
 C
       implicit none
 C
@@ -771,7 +770,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagDXD(BDER,SDER)
 
-      USE SUPERINDEX
+      USE SUPERINDEX, only: MTU
 
       implicit none
 
@@ -949,7 +948,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagDXF(BDER,SDER)
 C
-      USE SUPERINDEX
+      USE SUPERINDEX, only: MTGTU, MTGEU
 
       implicit none
 
@@ -1530,29 +1529,33 @@ C
       Subroutine CLagDX(Mode,iSym,iCase,VEC1,VEC2,VEC3,VEC4,nIN,nIS,nAS,
      *                  VECROT,VEC5,lg_V2,BDERmat,SDERmat)
 C
-      USE SUPERINDEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only:real_shift, imag_shift,
      *                        sigma_p_epsilon
       use caspt2_global, only:do_lindep,LUSTD,idSDMat
       use caspt2_global, only: LUSBT
-      use EQSOLV
-      use Sigma_data
-      use definitions, only: wp
-      use caspt2_module
-      use pt2_guga
+      use EQSOLV, only: IVECR, IDBMAT, IDTMAT
+      use definitions, only: wp, iwp
+      use caspt2_module, only: IFMSCOUP, MAXIT, JSTATE
+      use Constants, only: Zero, One, Half, Two
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      DIMENSION VEC1(*),VEC2(*),VEC3(*),VEC4(*),VEC5(*)
-      DIMENSION VECROT(*),BDERmat(*),SDERmat(*)
+      integer(kind=iwp), intent(in) :: mode, iSym, iCase, nIN, nIS, nAS,
+     &                                 lg_V2
+      real(kind=wp), intent(in) :: VEC1(:), VEC3(:), VEC4(:), VEC5(:),
+     &                             VECROT(:)
+      real(kind=wp), intent(inout) :: VEC2(:), BDERmat(:), SDERmat(:)
 C
       real(kind=wp),allocatable :: WRK1(:),WRK2(:),WRK3(:),TRANS(:),
      *                             EIG(:)
-C     nAshI = nAsh(iSym)
+
+      integer(kind=iwp) :: idT, idB, iICB, jICB, idSD
+      real(kind=wp) :: SCAL, EigI, EigJ
+
       call mma_allocate(WRK1,nAS**2,Label='WRK1')
       call mma_allocate(WRK2,MAX(nAS**2,nAS*nIS),Label='WRK2')
       call mma_allocate(WRK3,nAS**2,Label='WRK3')
@@ -1564,7 +1567,7 @@ C
       idB  = idBMAT(iSym,iCase)
       Call DDAFILE(LUSBT,2,EIG,nIN,idB)
 C
-      SCAL = 1.0D+00
+      SCAL = One
       IF (IFMSCOUP) SCAL = VECROT(jState)
 C
       !! VEC1: solution in IC basis
@@ -1583,28 +1586,28 @@ C
       !! WRK1 is the effective density in the IC basis,
       !! and will be the B derivative contribution.
 C
-      If (Mode.eq.0) Then
+      If (Mode == 0) Then
         !! WRK1 = T*T
         Call DGEMM_('N','T',nIN,nIN,nIS,
      *              SCAL,VEC1,nIN,VEC1,nIN,
-     *              0.0D+00,WRK1,nIN)
+     *              Zero,WRK1,nIN)
       Else
-        Call DCopy_(nIN*nIN,[0.0D+0],0,WRK1,1)
+        WRK1(1:nIN*nIN) = Zero
       End If
 C
-      If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
-     &    .OR. sigma_p_epsilon .ne. 0.0D+00 .OR. IFMSCOUP) Then
+      If (real_shift /= Zero .OR. imag_shift /= Zero
+     &    .OR. sigma_p_epsilon /= Zero .OR. IFMSCOUP) Then
         !! WRK1 = T*T + (T*lambda+lambda*T)/2
         !! For sigma-p CASPT2, this if branch computes the pseudo-
         !! density that comes from the numerator of the shift.
         Call DGEMM_('N','T',nIN,nIN,nIS,
-     *              0.5D+00,VEC2,nIN,VEC1,nIN,
-     *              1.0D+00,WRK1,nIN)
+     *              Half,VEC2,nIN,VEC1,nIN,
+     *              One,WRK1,nIN)
         Call DGEMM_('N','T',nIN,nIN,nIS,
-     *              0.5D+00,VEC1,nIN,VEC2,nIN,
-     *              1.0D+00,WRK1,nIN)
+     *              Half,VEC1,nIN,VEC2,nIN,
+     *              One,WRK1,nIN)
       End If
-      if (sigma_p_epsilon.ne.0.0d+00 .and. mode.eq.0) then
+      if (sigma_p_epsilon /= Zero .and. mode == 0) then
         !! the remaining is the derivative of 2<1|H|0>, so the unscaled
         !! lambda is loaded
 #ifdef _MOLCAS_MPP_
@@ -1626,11 +1629,11 @@ C
       !! WRK3 is the derivative contribution of the B matrix
       !! in the MO basis
       Call DGEMM_('N','N',nAS,nIN,nIN,
-     *            1.0D+00,TRANS,nAS,WRK1,nIN,
-     *            0.0D+00,WRK2,nAS)
+     *            One,TRANS,nAS,WRK1,nIN,
+     *            Zero,WRK2,nAS)
       Call DGEMM_('N','T',nAS,nAS,nIN,
-     *            1.0D+00,WRK2,nAS,TRANS,nAS,
-     *            0.0D+00,WRK3,nAS)
+     *            One,WRK2,nAS,TRANS,nAS,
+     *            Zero,WRK3,nAS)
 C     write(6,*) "B derivative in MO"
 C     call sqprt(WRK3,nas)
 C
@@ -1644,7 +1647,7 @@ C
         Do jICB = 1, nIN
           EigJ = EIG(jICB)
           WRK1(iICB+nIN*(jICB-1))
-     *      = -WRK1(iICB+nIN*(jICB-1))*(EigI+EigJ)*0.5D+00
+     *      = -WRK1(iICB+nIN*(jICB-1))*(EigI+EigJ)*Half
         End Do
       End Do
 C
@@ -1656,65 +1659,65 @@ C
       If (Mode.eq.0) Then
         !! WRK1 = -RHS*T
         Call DGEMM_('N','T',nIN,nIN,nIS,
-     *             -1.0D+00,VEC5,nIN,VEC1,nIN,
-     *              1.0D+00,WRK1,nIN)
-        If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
-     &      .OR. sigma_p_epsilon .NE. 0.0D+00 .OR. IFMSCOUP) Then
+     *             -One,VEC5,nIN,VEC1,nIN,
+     *              One,WRK1,nIN)
+        If (real_shift /= Zero .OR. imag_shift /= Zero
+     &      .OR. sigma_p_epsilon /= Zero .OR. IFMSCOUP) Then
           !! WRK1 = -RHS*(T+lambda/2)
           Call DGEMM_('N','T',nIN,nIN,nIS,
-     *               -0.5D+00,VEC3,nIN,VEC2,nIN,
-     *                1.0D+00,WRK1,nIN)
+     *               -Half,VEC3,nIN,VEC2,nIN,
+     *                One,WRK1,nIN)
         End If
       End If
 C
       !! Convert the IC basis to the MO basis
       Call DGEMM_('N','N',nAS,nIN,nIN,
-     *            1.0D+00,TRANS,nAS,WRK1,nIN,
-     *            0.0D+00,WRK2,nAS)
+     *            One,TRANS,nAS,WRK1,nIN,
+     *            Zero,WRK2,nAS)
       Call DGEMM_('N','T',nAS,nAS,nIN,
-     *            1.0D+00,WRK2,nAS,TRANS,nAS,
-     *            0.0D+00,WRK1,nAS)
+     *            One,WRK2,nAS,TRANS,nAS,
+     *            Zero,WRK1,nAS)
 !
       !! Add some trivial contributions due to the dependence
       !! on the linearly independent space
-      If (do_lindep.AND.nAS.NE.nIN) Then
+      If (do_lindep .AND. nAS /= nIN) Then
         Call LinDepLag(WRK3,WRK1,nAS,nIN,iSym,iCase)
       End If
 !
       !  2) Explicit overlap derivative of the 2<1|H|0> part
       !     Again, not for imaginary shift-specific terms
-      If (Mode.eq.0) Then
+      If (Mode == 0) Then
         !! E = 2<1|H|0> + <1|H0-E0|1>
         Call DGEMM_('N','N',nAS,nIS,nIN,
      *              SCAL,TRANS,nAS,VEC1,nIN,
-     *              0.0D+00,WRK2,nAS)
-        If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
-     &      .OR. sigma_p_epsilon .NE. 0.0D+00 .OR. IFMSCOUP) Then
+     *              Zero,WRK2,nAS)
+        If (real_shift /= Zero .OR. imag_shift /= Zero
+     &      .OR. sigma_p_epsilon /= Zero .OR. IFMSCOUP) Then
           Call DGEMM_('N','N',nAS,nIS,nIN,
-     *                0.5D+00,TRANS,nAS,VEC2,nIN,
-     *                1.0D+00,WRK2,nAS)
+     *                Half,TRANS,nAS,VEC2,nIN,
+     *                One,WRK2,nAS)
         END IF
         Call DGEMM_('N','T',nAS,nAS,nIS,
-     *              2.0D+00,WRK2,nAS,VEC4,nAS,
-     *              1.0D+00,WRK1,nAS)
+     *              Two,WRK2,nAS,VEC4,nAS,
+     *              One,WRK1,nAS)
       End If
 C
       !! Add the contributions from the off-diagonal coupling
       !! (i.e., CASPT2-N). Of course, this is not for imaginary shift-
       !! specific terms.
-      If (MAXIT.NE.0.and.Mode.eq.0) Then
+      If (MAXIT /= 0 .and. Mode == 0) Then
         idSD = idSDMat(iSym,iCase)
         CALL DDAFILE(LuSTD,2,WRK2,nAS*nAS,idSD)
         !! T*(T+lambda) + (T+lambda)*T is saved, so 1/2
-        Call DaXpY_(nAS*nAS,0.5D+00,WRK2,1,WRK1,1)
+        WRK1(1:NAS**2) = WRK1(1:NAS**2) + Half*WRK2(1:NAS**2)
       End If
 C
-      if (mode.eq.0) then
-        call daxpy_(NAS**2,1.0d+00,WRK3,1,BDERmat,1)
-        call daxpy_(NAS**2,1.0d+00,WRK1,1,SDERmat,1)
+      if (mode == 0) then
+        BDERmat(1:NAS**2) = BDERmat(1:NAS**2) + WRK3(1:NAS**2)
+        SDERmat(1:NAS**2) = SDERmat(1:NAS**2) + WRK1(1:NAS**2)
       else
-        call daxpy_(NAS**2,-1.0d+00,WRK3,1,BDERmat,1)
-        call daxpy_(NAS**2,-1.0d+00,WRK1,1,SDERmat,1)
+        BDERmat(1:NAS**2) = BDERmat(1:NAS**2) - WRK3(1:NAS**2)
+        SDERmat(1:NAS**2) = SDERmat(1:NAS**2) - WRK1(1:NAS**2)
       end if
       !! Now, convert the above contributions to derivatives of RDM,
       !! weighted Fock, etc.
@@ -1724,14 +1727,6 @@ C
       !! Notice that F2 and G2 in mkbmat.f and mksmat.f are halved
       !! (see getdpref.f).
       !! they are moved to CLagDXA, ... CLagDXG
-      IF (iCase.eq.1) Then
-      Else If (iCase.eq. 2.or.iCase.eq. 3) Then !! B
-      Else If (iCase.eq. 4) Then !! C
-      Else If (iCase.eq. 5) Then !! D
-      Else If (iCase.eq. 6.or.iCase.eq. 7) Then !! E
-      Else If (iCase.eq. 8.or.iCase.eq. 9) Then !! F
-      Else If (iCase.eq.10.or.iCase.eq.11) Then !! G
-      End If
 C
       call mma_deallocate(WRK1)
       call mma_deallocate(WRK2)
@@ -1754,30 +1749,28 @@ C
       use PrintLevel, only: verbose
       use gugx, only: L2ACT
       use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
-      use definitions, only: wp
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: wp, iwp, u6
+      use caspt2_module, only: STSYM, NCONF, NSTATE, MSTATE, JSTATE,
+     &                         ISCF, EPSA
+      use Constants, only: One
+      use pt2_guga, only: ETA, CITHR, NG2, NG3, NG3TOT
 
+      implicit none
+
+      integer(kind=iwp), intent(in) :: IFF, nLev
+      real(kind=wp), intent(in) :: CLag(nConf), G1(*), G2(*), G3(*)
+      real(kind=wp), intent(inout) :: DG1(*), DG2(*), DG3(*), DF1(*),
+     &                                DF2(*), DF3(*), DEPSA(*)
 C
-      Integer, Intent(In):: nLev
-      DIMENSION CLag(nConf)
-      DIMENSION DG1(*),DG2(*),DG3(*),DF1(*),DF2(*),DF3(*)
-      DIMENSION G1(*),G2(*),G3(*)
-      DIMENSION DEPSA(*)
-C
-      INTEGER ILEV
-      INTEGER NG3MAX
-      INTEGER ILUID
+      integer(kind=iwp) :: ILEV, NG3MAX, ILUID, IDCI, J
+      integer(kind=iwp), external :: iPARDIV
       integer*1, allocatable :: idxG3(:,:)
-      real(kind=wp),allocatable :: CI1(:)
+      real(kind=wp), allocatable :: CI1(:)
+
+      real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0,
+     &                 TIOTF10
 C
-      INTEGER IDCI
-      INTEGER J
-C
-      INTEGER IPARDIV
-C
-      IF (IFF.EQ.1) THEN
+      IF (IFF == 1) THEN
 C ORBITAL ENERGIES IN CI-COUPLING ORDER:
         DO ILEV=1,NLEV
           ETA(ILEV)=EPSA(L2ACT(ILEV))
@@ -1795,11 +1788,11 @@ C-SVC20100831: allocate local G3 matrices
 * number of nonzero elements, that is why here we allocate
 * with NG3MAX, but we only store (PT2_PUT) the first NG3
 * elements of the G3 and F3
-      IF (ISCF.EQ.0) NG3=NG3MAX
+      IF (ISCF == 0) NG3=NG3MAX
 
       call mma_allocate(CI1,NCONF,LABEL='CI')
-      If (ISCF.EQ.0) Then
-        if (iff.eq.1) then
+      If (ISCF == 0) Then
+        if (iff == 1) then
           IDCI=IDTCEX
           DO J=1,JSTATE-1
             CALL DDAFILE(LUCIEX,0,CI1,NCONF,IDCI)
@@ -1808,33 +1801,33 @@ C-SVC20100831: allocate local G3 matrices
         else
 C         Call LoadCI_XMS('C',1,CI1,JSTATE,U0)
         end if
-        IF (IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)
-          IF (NSTATE.GT.1) THEN
-            WRITE(6,'(A,I4)')
+        IF (IPRGLB >= VERBOSE) THEN
+          WRITE(u6,*)
+          IF (NSTATE > 1) THEN
+            WRITE(u6,'(A,I4)')
      &      ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
           ELSE
-            WRITE(6,*)' With new orbitals, the CI array is:'
+            WRITE(u6,*)' With new orbitals, the CI array is:'
           END IF
           CALL PRWF_CP2(STSYM,NCONF,CI1,CITHR)
         END IF
       Else
-        CI1(1) = 1.0D+00
+        CI1(1) = One
       End If
 C
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-      If (ISCF.EQ.0) Then
+      If (ISCF == 0) Then
         CALL DERFG3(CI1,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
      &              idxG3,DEPSA,G1,G2,nLev)
       Else
         CALL DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       End If
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-      IF (IPRGLB.GE.verbose) THEN
+      IF (IPRGLB >= verbose) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
-        write(6,*)
-        write(6,'(a,2f10.2)')" DERFG3  : CPU/WALL TIME=", cput,wallt
+        write(u6,*)
+        write(u6,'(a,2f10.2)')" DERFG3  : CPU/WALL TIME=", cput,wallt
       END IF
 C
       call mma_deallocate(CI1)
@@ -1848,78 +1841,84 @@ C-----------------------------------------------------------------------
 C
       !! From poly3
       SUBROUTINE CLagEig(if_SSDMloc,force_equal,CLag,RDMEIG,nLev)
-C
+
       use caspt2_global, only: DREF, DWGT
       use caspt2_global, only: OMGDER, Weight
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
-C
-      Integer, Intent(In)::nLev
-      DIMENSION CLag(nConf,nState),RDMEIG(*)
-      Logical   if_SSDMloc, force_equal
+      use definitions, only: wp, iwp
+      use caspt2_module, only: IFSADREF, IFDW, NCONF, NASHT, ISCF,
+     &                         NSTATE, JSTATE, ZETA
+      use Constants, only: Zero, One, Half
+
+      implicit none
+
+      logical(kind=iwp), intent(in) :: if_SSDMloc, force_equal
+      real(kind=wp), intent(inout) :: CLag(nConf,nState)
+      real(kind=wp), intent(in) :: RDMEIG(*)
+      integer(kind=iwp), intent(in) :: nLev
+
       real(kind=wp),allocatable :: CI1(:),WRK(:)
+
+      integer(kind=iwp) :: iState
+      real(kind=wp) :: WGT, Scal
+      real(kind=wp), external :: DDOT_
 C
 C     MODE=0: Either state-averaged or DWGT matrix
 C     MODE=1: XMS-specific term, always state-averaged DM
 C
       !! RDMEIG
       call mma_allocate(CI1,nConf,Label='LCI')
+      call mma_allocate(WRK,nAshT**2,Label='WRK')
 
       Do iState = 1, nState
         If (.not.if_SSDMloc) Then
           if (force_equal .or. .not.IFSADREF) then
-            WGT = 1.0D+00/nState ! force equal-weight for XMS
+            WGT = One/nState ! force equal-weight for XMS
           else if (IFSADREF) then
             WGT = Weight(iState) ! can be unequal weight
           else
-            WGT = 1.0D+00/nState ! this should not happen...
+            WGT = One/nState ! this should not happen...
           end if
-          if (abs(wgt).le.1.0d-09) cycle
-          If (ISCF.EQ.0) Then
+          if (abs(wgt) <= 1.0e-09_wp) cycle
+          If (ISCF == 0) Then
             Call LoadCI(CI1,iState)
           Else
-            CI1(1) = 1.0D+00
+            CI1(1) = One
           End If
-          Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
-          Call Poly1_CLag(CI1,CLag(1,iState),RDMEIG,nLev)
-          Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
+          WRK(1:NLEV**2) = RDMEIG(1:NLEV**2)*WGT
+          Call Poly1_CLag(CI1,CLag(1,iState),WRK,nLev)
         Else
           Wgt = DWgt(iState,jState)
-          If (abs(wgt).gt.1.0d-09) Then
+          If (abs(wgt) > 1.0e-09_wp) Then
             If (ISCF.EQ.0) Then
               Call LoadCI(CI1,iState)
             Else
-              CI1(1) = 1.0D+00
+              CI1(1) = One
             End If
-            !! how is the numerical precision?
-            Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
+            WRK(1:NLEV**2) = RDMEIG(1:NLEV**2)*WGT
             Call Poly1_CLag(CI1,CLag(1,iState),RDMEIG,nLev)
-            Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
           End If
 
           !! Derivative of omega for dynamically weighted density
-          If (IFDW .and. zeta >= 0.0d0) Then
-            If (ISCF.EQ.0) Then
+          If (IFDW .and. zeta >= Zero) Then
+            If (ISCF == 0) Then
               Call LoadCI(CI1,iState)
             Else
-              CI1(1) = 1.0D+00
+              CI1(1) = One
             End If
-            call mma_allocate(WRK,nAshT**2,Label='WRK')
             call POLY1(CI1,nConf)
             call GETDREF(DREF,SIZE(DREF))
             Call SQUARE(DREF,WRK,1,nAshT,nAshT)
             !! probably it is doubled somewhere, so should half
-            Scal = DDOT_(nAshT**2,RDMEIG,1,WRK,1)*0.5d+00
+            Scal = DDOT_(nAshT**2,RDMEIG,1,WRK,1)*Half
 C           write (*,*) "scal = ", scal
-            call mma_deallocate(WRK)
             OMGDER(iState,jState) = OMGDER(iState,jState) + Scal
           End If
 
         End If
       End Do
+
+      call mma_deallocate(WRK)
 C     write(6,*) "clag before projection"
 C     do istate = 1, nstate
 C       write(6,*) "state = ", istate
@@ -1951,17 +1950,22 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine CLagFinal(CLag,SLag)
-C
+
       use caspt2_global, only: iPrGlb
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-C
-      Dimension CLag(nConf,nState),SLag(*)
-      real(kind=wp),allocatable :: CI1(:),CI2(:)
-C
+      use definitions, only: wp, iwp, u6
+      use caspt2_module, only: REFENE, NCONF, ISCF, NSTATE
+      use Constants, only: One
+
+      implicit none
+
+      real(kind=wp), intent(inout) :: CLag(nConf,nState), SLag(*)
+      real(kind=wp),allocatable :: CI1(:), CI2(:)
+
+      integer(kind=iwp) :: ijst, ilStat, jlStat
+      real(kind=wp) :: Scal, Ovl
+      real(kind=wp), external :: DDOT_
 
       call mma_allocate(CI1,nConf,Label='CI1')
       call mma_allocate(CI2,nConf,Label='CI2')
@@ -1969,28 +1973,28 @@ C
       !! Construct SLag
       ijst = 0
       do ilStat = 1, nState
-        If (ISCF.EQ.0) Then
+        If (ISCF == 0) Then
           Call LoadCI(CI1,ilStat)
         Else
-          CI1(1) = 1.0D+00
+          CI1(1) = One
         End If
         Do jlStat = 1, ilStat !! -1
           ijst = ilStat + nState*(jlStat-1)
-          If (ilStat.eq.jlStat) Cycle
-          If (ISCF.EQ.0) Then
+          If (ilStat == jlStat) Cycle
+          If (ISCF == 0) Then
             Call LoadCI(CI2,jlStat)
           Else
-            CI2(1) = 1.0D+00
+            CI2(1) = One
           End If
           Scal = DDOT_(nConf,CI1,1,CLag(1,jlStat),1)
      *         - DDOT_(nConf,CI2,1,CLag(1,ilStat),1)
           Scal = Scal/(REFENE(jlStat)-REFENE(ilStat))
           SLag(ijst) = SLag(ijst) + Scal
-          IF (IPRGLB.GE.VERBOSE) THEN
-            write(6,*)
-            write(6,'(1x,"SLag for State ",i1,"-",i1," = ",f20.10)')
+          IF (IPRGLB >= VERBOSE) THEN
+            write(u6,*)
+            write(u6,'(1x,"SLag for State ",i1,"-",i1," = ",f20.10)')
      *         ilstat,jlstat,slag(ijst)
-            write(6,*)
+            write(u6,*)
           END IF
         end do
       end do
@@ -1998,24 +2002,24 @@ C
       !! This projection is required to get convergence in MCLR.
       !! also the linear equation for non-invariant CASPT2
       Do ilStat = 1, nState
-        Call DCopy_(nConf,CLag(1,ilStat),1,CI1,1)
+        CI1(1:nConf) = CLag(1:nConf,ilStat)
 C       do i = 1, nconf
-C         write(6,'(i3,f20.10)') i,clag(i,ilstat)
+C         write(u6,'(i3,f20.10)') i,clag(i,ilstat)
 C       end do
         Do jlStat = 1, nState
-          If (ISCF.EQ.0) Then
+          If (ISCF == 0) Then
             Call LoadCI(CI2,jlStat)
           Else
-            CI2(1) = 1.0D+00
+            CI2(1) = One
           End If
           Ovl = DDot_(nConf,CI1,1,CI2,1)
-C         write(6,*) "projection coeff = ",ovl
-          Call DaXpY_(nConf,-Ovl,CI2,1,CLag(1,ilStat),1)
+C         write(u6,*) "projection coeff = ",ovl
+          CLag(1:nConf,ilStat) = CLag(1:nConf,ilStat) - Ovl*CI2(1:nConf)
         End Do
-C       write(6,*) "clag after projection"
-C       write(6,*) "state = ", ilstat
+C       write(u6,*) "clag after projection"
+C       write(u6,*) "state = ", ilstat
 C       do i = 1, nconf
-C         write(6,'(i3,f20.10)') i,clag(i,ilstat)
+C         write(u6,'(i3,f20.10)') i,clag(i,ilstat)
 C       end do
       End Do
 C
@@ -2030,22 +2034,21 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG,nLev)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp
+      use definitions, only: wp, iwp
       use caspt2_module, only: nConf
       use pt2_guga, only: MxCI, iAdr10, cLab10
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-      INTEGER, INTENT(IN) :: nLev
-      REAL*8, INTENT(IN) :: CI(NCONF)
+      real(kind=wp), intent(in) :: CI(NCONF), RDMEIG(*)
+      real(kind=wp), intent(inout) :: CLag(NCONF)
+      integer(kind=iwp), intent(in) :: nLev
 
-      INTEGER I
-      REAL*8 :: CLag(*), RDMEIG(*)
-      real(kind=wp),allocatable :: SGM1(:)
+      real(kind=wp), allocatable :: SGM1(:)
+      integer(kind=iwp) :: I
 
-
-      IF(NLEV.GT.0) THEN
+      IF(NLEV > 0) THEN
         CALL MMA_ALLOCATE(SGM1,MXCI,LABEL='SGM1')
         CALL DENS1_RPT2_CLag(CI,SGM1,CLag,RDMEIG,nLev)
       END IF
@@ -2062,42 +2065,37 @@ C     return !! for test purpose
       IADR10(1,1)=0
 * HENCEFORTH, THE CALL PUT(NSIZE,LABEL,ARRAY) WILL ENTER AN
 * ARRAY ON LUDMAT AND UPDATE THE TOC.
-      IF(NLEV.GT.0) THEN
+      IF(NLEV > 0) THEN
         CALL MMA_DEALLOCATE(SGM1)
       END IF
 
+      return
 
-      RETURN
-      END
+      end subroutine POLY1_CLag
 C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG,nLev)
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: iwp
+      use definitions, only: wp, iwp, u6
       use caspt2_module, only: nConf, nState, STSym, Mul
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King, nProcs
 #endif
       use pt2_guga, only: MxCI
+
       IMPLICIT NONE
 
-      LOGICAL RSV_TSK
-      INTEGER, INTENT(IN):: nLev
-      REAL*8 CI(MXCI),SGM1(MXCI)
-      REAL*8 CLag(nConf,nState),RDMEIG(NLEV,NLEV) !! Symmetry?
-      integer(kind=iwp),allocatable :: TASK(:,:)
+      real(kind=wp), intent(in) :: CI(MXCI), RDMEIG(NLEV,NLEV)
+      real(kind=wp), intent(inout) :: SGM1(MXCI), CLag(nConf)
+      integer(kind=iwp), intent(in) :: nLev
 
-C     REAL*8 GTU
+      logical(kind=iwp), external :: RSV_TSK
+      integer(kind=iwp), allocatable :: TASK(:,:)
 
-      INTEGER ID
-      INTEGER IST,ISU,ISTU
-      INTEGER IT,IU,LT,LU
-
-      INTEGER ITASK,NTASKS
-
-      INTEGER ISSG,NSGM
+      integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK,
+     &                     NTASKS, ISSG, NSGM
 
 * Purpose: Compute the 1-electron density matrix array G1.
 
@@ -2110,7 +2108,6 @@ C     REAL*8 GTU
 
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
-      nTasks=(nLev**2+nLev)/2
       nTasks = nLev**2
       CALL mma_allocate (Task,nTasks,2,Label='TASK')
 
@@ -2137,76 +2134,47 @@ C     REAL*8 GTU
           TASK(iTask,2)=LU
         End Do
       End Do
-      IF (iTask.NE.nTasks) WRITE(6,*) "ERROR nTasks"
+      IF (iTask /= nTasks) WRITE(u6,*) "ERROR nTasks"
 
       Call Init_Tsk(ID, nTasks)
 
 * SVC20100311: BEGIN SEPARATE TASK EXECUTION
- 500  If (.NOT.Rsv_Tsk (ID,iTask)) GOTO 501
+      do while (Rsv_Tsk(ID,iTask))
 
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
-      LT=TASK(iTask,1)
+        LT=TASK(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
         LU=Task(iTask,2)
-          ISU=SGS%ISM(LU)
-          IU=L2ACT(LU)
-          ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,STSYM)
-          NSGM=CIS%NCSF(ISSG)
-          IF(NSGM.EQ.0) GOTO 500
+        ISU=SGS%ISM(LU)
+        IU=L2ACT(LU)
+        ISTU=MUL(IST,ISU)
+        ISSG=MUL(ISTU,STSYM)
+        NSGM=CIS%NCSF(ISSG)
+        IF(NSGM == 0) cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
-          CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
-          IF(ISTU.EQ.1) THEN
-            ! Symmetry not yet
-C            write(6,*) "it,iu = ", it,iu
-            Call DaXpY_(NSGM,RDMEIG(IT,IU),SGM1,1,CLag,1)
-C           if (IT.ne.IU)
-C    *        Call DaXpY_(NSGM,2.0d+00*RDMEIG(IT,IU),SGM1,1,CLag,1)
-
-C           GTU=DDOT_(NSGM,CI,1,SGM1,1)
-C           G1(IT,IU)=GTU
-C           G1(IU,IT)=GTU
-          END IF
+        CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
+        IF(ISTU == 1) THEN
+          ! Symmetry not yet
+C          write(6,*) "it,iu = ", it,iu
+           CLag(1:NSGM) = CLag(1:NSGM) + RDMEIG(IT,IU)*SGM1(1:NSGM)
+        END IF
 
 * SVC: The master node now continues to only handle task scheduling,
 *     needed to achieve better load balancing. So it exits from the task
 *      list. It has to do it here since each process gets at least one
 *      task.
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
-      IF (IS_REAL_PAR().AND.KING().AND.(NPROCS.GT.1)) GOTO 501
+        IF (IS_REAL_PAR() .AND. KING() .AND. NPROCS > 1) exit
 #endif
-
-      GOTO 500
- 501  CONTINUE
+      end do
 
       CALL Free_Tsk(ID)
-
       CALL mma_deallocate(Task)
 
-      RETURN
-      END
-C
-C-----------------------------------------------------------------------
-C
-      SUBROUTINE MLTUNF2(LST,X)
-      use Sigma_data
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(*)
-      DIMENSION LST(4,NLST1)
-      DO ILST=1,NLST1
-        L1=LST(1,ILST)
-        L2=LST(2,ILST)
-        L3=LST(3,ILST)
-        L4=LST(4,ILST)
-        V=VAL1(L4)
-        IY=1+INCY2*(L3-1)
-        CALL DScal_(LEN1,V,X(IY),INCY1)
-        write(6,'(5i4,f20.10,2i4)') ilst,l1,l2,l3,l4,v,iy,incy1
-      END DO
-      RETURN
-      END
+      return
+      end subroutine DENS1_RPT2_CLag
 C
 C-----------------------------------------------------------------------
 C
@@ -2214,15 +2182,23 @@ C
       SUBROUTINE CLagX_TrfCI(CI)
 C
       use caspt2_global, only: TAT, TORB
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM, STSYM, NCONF, NISH, NAES, NRAS1,
+     &                         NRAS2, NRAS3, NSSH
+      use Constants, only: Zero
+      use definitions, only: wp, iwp
+
+      implicit none
+
+      real(kind=wp), intent(inout) :: CI(*)
+
+      integer(kind=iwp) :: IOFF1, IOFF2, ISYM, NI, NR1, NR2, NR3, NS,
+     &                     I, J, IJ, JI, ITOEND, NSG, ITOSTA, ITO,
+     &                     ISTART
+
+      TAT(:) = Zero
 C
-      REAL*8 CI(*)
-C
-      TAT(:)=0.0D0
-C
-      IOFF1=0
-      IOFF2=0
+      IOFF1 = 0
+      IOFF2 = 0
       DO ISYM=1,NSYM
         NI=NISH(ISYM)
         NR1=NRAS1(ISYM)
@@ -2277,19 +2253,19 @@ C Transform SGM to use original MO:
         ITOEND=ITOEND+NR1**2+NR2**2+NR3**2
 *        ITO=ITOSTA+NI**2
         ITO=ITOSTA
-        IF(NR1.GT.0) THEN
+        IF(NR1 > 0) THEN
           ISTART=NAES(ISYM)+1
           CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
      &                                         NSG,CI)
         END IF
         ITO=ITO+NR1**2
-        IF(NR2.GT.0) THEN
+        IF(NR2 > 0) THEN
           ISTART=NAES(ISYM)+NR1+1
           CALL TRACI_RPT2(ISTART,NR2,TAT(ITO),STSYM,
      &                                         NSG,CI)
         END IF
         ITO=ITO+NR2**2
-        IF(NR3.GT.0) THEN
+        IF(NR3 > 0) THEN
           ISTART=NAES(ISYM)+NR1+NR2+1
          !! NR1 should be NR3?
           CALL TRACI_RPT2(ISTART,NR3,TAT(ITO),STSYM,
@@ -2304,11 +2280,19 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine CLagSym(nAshT,DG1,DG2,DF1,DF2,mode)
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-      Dimension DG1(nAshT,nAshT),DG2(nAshT,nAshT,nAshT,nAshT),
-     *          DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT)
+
+      use Constants, only: Half, Quart
+      use definitions, only: wp, iwp
+
+      implicit none
+
+      integer(kind=iwp), intent(in) :: nAshT, mode
+      real(kind=wp), intent(inout) :: DG1(nAshT,nAshT),
+     &  DG2(nAshT,nAshT,nAshT,nAshT), DF1(nAshT,nAshT),
+     &  DF2(nAshT,nAshT,nAshT,nAshT)
+
+      integer(kind=iwp) :: iI, iJ, iK, iL
+      real(kind=wp) :: Val1, Val2, Val3, Val4, Val
 C
 C     return
 C     if (mode.eq.0) then
@@ -2316,120 +2300,73 @@ C     if (mode.eq.0) then
         Do iJ = 1, iI-1
           Val1 = DG1(iI,iJ)
           Val2 = DG1(iJ,iI)
-          DG1(iI,iJ) = (Val1+Val2)*0.5D+00
-          DG1(iJ,iI) = (Val1+Val2)*0.5D+00
+          DG1(iI,iJ) = (Val1+Val2)*Half
+          DG1(iJ,iI) = (Val1+Val2)*Half
           Val1 = DF1(iI,iJ)
           Val2 = DF1(iJ,iI)
-          DF1(iI,iJ) = (Val1+Val2)*0.5D+00
-          DF1(iJ,iI) = (Val1+Val2)*0.5D+00
+          DF1(iI,iJ) = (Val1+Val2)*Half
+          DF1(iJ,iI) = (Val1+Val2)*Half
         End Do
       End Do
 C     end if
 C
-      If (mode.eq.0) Then
+      If (mode == 0) Then
         !! Follow G2 symmetry
         Do iI = 1, nAshT
         Do iJ = 1, nAshT
         Do iK = 1, nAshT
         Do iL = 1, nAshT
-            Val1 = DG2(iI,iJ,iK,iL)
-            Val2 = DG2(iJ,iI,iL,iK)
-            Val3 = DG2(iK,iL,iI,iJ)
-            Val4 = DG2(iL,iK,iJ,iI)
-            Val  = (Val1+Val2+Val3+Val4)*0.25D+00
-            DG2(iI,iJ,iK,iL) = Val
-            DG2(iJ,iI,iL,iK) = Val
-            DG2(iK,iL,iI,iJ) = Val
-            DG2(iL,iK,iJ,iI) = Val
-            Val1 = DF2(iI,iJ,iK,iL)
-            Val2 = DF2(iJ,iI,iL,iK)
-            Val3 = DF2(iK,iL,iI,iJ)
-            Val4 = DF2(iL,iK,iJ,iI)
-            Val  = (Val1+Val2+Val3+Val4)*0.25D+00
-            DF2(iI,iJ,iK,iL) = Val
-            DF2(iJ,iI,iL,iK) = Val
-            DF2(iK,iL,iI,iJ) = Val
-            DF2(iL,iK,iJ,iI) = Val
+          Val1 = DG2(iI,iJ,iK,iL)
+          Val2 = DG2(iJ,iI,iL,iK)
+          Val3 = DG2(iK,iL,iI,iJ)
+          Val4 = DG2(iL,iK,iJ,iI)
+          Val  = (Val1+Val2+Val3+Val4)*Quart
+          DG2(iI,iJ,iK,iL) = Val
+          DG2(iJ,iI,iL,iK) = Val
+          DG2(iK,iL,iI,iJ) = Val
+          DG2(iL,iK,iJ,iI) = Val
+          Val1 = DF2(iI,iJ,iK,iL)
+          Val2 = DF2(iJ,iI,iL,iK)
+          Val3 = DF2(iK,iL,iI,iJ)
+          Val4 = DF2(iL,iK,iJ,iI)
+          Val  = (Val1+Val2+Val3+Val4)*Quart
+          DF2(iI,iJ,iK,iL) = Val
+          DF2(iJ,iI,iL,iK) = Val
+          DF2(iK,iL,iI,iJ) = Val
+          DF2(iL,iK,iJ,iI) = Val
         End Do
         End Do
         End Do
         End Do
-      Else If (mode.eq.1) Then
+      Else If (mode == 1) Then
         !! Follow EtuEyz symmetry
         Do iI = 1, nAshT
         Do iJ = 1, nAshT
         Do iK = 1, nAshT
         Do iL = 1, nAshT
-            Val1 = DG2(iI,iJ,iK,iL)
-            Val2 = DG2(iL,iK,iJ,iI)
-            Val  = (Val1+Val2)*0.5D+00
-          ! DG2(iI,iJ,iK,iL) = Val
-          ! DG2(iL,iK,iJ,iI) = Val
-C           if (ii.ne.il.and.ij.ne.ik) then
-C           DG2(iI,iJ,iK,iL) = 2.0d+00*val
-C           DG2(iL,iK,iJ,iI) = 0.0d+00
-C           end if
-            Val1 = DF2(iI,iJ,iK,iL)
-            Val2 = DF2(iL,iK,iJ,iI)
-            Val  = (Val1+Val2)*0.5D+00
-          ! DF2(iI,iJ,iK,iL) = Val
-          ! DF2(iL,iK,iJ,iI) = Val
-C           if (ii.ne.il.and.ij.ne.ik) then
-C           DF2(iI,iJ,iK,iL) = 2.0d+00*val
-C           DF2(iL,iK,iJ,iI) = 0.0d+00
-C           end if
+          Val1 = DG2(iI,iJ,iK,iL)
+          Val2 = DG2(iL,iK,iJ,iI)
+          Val  = (Val1+Val2)*Quart
+        ! DG2(iI,iJ,iK,iL) = Val
+        ! DG2(iL,iK,iJ,iI) = Val
+C         if (ii.ne.il.and.ij.ne.ik) then
+C         DG2(iI,iJ,iK,iL) = 2.0d+00*val
+C         DG2(iL,iK,iJ,iI) = 0.0d+00
+C         end if
+          Val1 = DF2(iI,iJ,iK,iL)
+          Val2 = DF2(iL,iK,iJ,iI)
+          Val  = (Val1+Val2)*Quart
+        ! DF2(iI,iJ,iK,iL) = Val
+        ! DF2(iL,iK,iJ,iI) = Val
+C         if (ii.ne.il.and.ij.ne.ik) then
+C         DF2(iI,iJ,iK,iL) = 2.0d+00*val
+C         DF2(iL,iK,iJ,iI) = 0.0d+00
+C         end if
         End Do
         End Do
         End Do
         End Do
-C       write(6,*) "asdf"
-C       Do iI = 1, nAshT
-C       Do iJ = 1, iI
-C       Do iK = 1, iJ
-C       Do iL = 1, iK
-C       write(6,'(4i3,f20.10)') ii,ij,ik,il,dg2(ii,ij,ik,il)
-C       DG2(iI,iJ,iK,iL) = DG2(iI,iJ,iK,iL) + DG2(iL,iK,iJ,iI)
-C       if (ii.ne.il.and.ij.ne.ik) DG2(iL,iK,iJ,iI) = 0.0D+00
-C       DF2(iI,iJ,iK,iL) = DF2(iI,iJ,iK,iL) + DF2(iL,iK,iJ,iI)
-C       if (ii.ne.il.and.ij.ne.ik) DF2(iL,iK,iJ,iI) = 0.0D+00
-C       End Do
-C       End Do
-C       End Do
-C       End Do
-C       write(6,*) "asdf end"
       end if
-C
-      Do iI = 1, nAshT
-        Do iJ = 1, nAshT ! iI
-          Do iK = 1, nAshT ! iJ
-            Do iL = 1, nAshT ! iK
-C             Val1 = DG2(iI,iJ,iK,iL)
-C             Val2 = DG2(iJ,iI,iL,iK)
-C             Val3 = DG2(iK,iL,iI,iJ)
-C             Val4 = DG2(iL,iK,iJ,iI)
-C             Val  = (Val1+Val2+Val3+Val4)*0.25D+00
-C             DG2(iI,iJ,iK,iL) = Val
-C             DG2(iJ,iI,iL,iK) = Val
-C             DG2(iK,iL,iI,iJ) = Val
-C             DG2(iL,iK,iJ,iI) = Val
-C             Val1 = DF2(iI,iJ,iK,iL)
-C             Val2 = DF2(iJ,iI,iL,iK)
-C             Val3 = DF2(iK,iL,iI,iJ)
-C             Val4 = DF2(iL,iK,iJ,iI)
-C             Val  = (Val1+Val2+Val3+Val4)*0.25D+00
-C             DF2(iI,iJ,iK,iL) = Val
-C             DF2(iJ,iI,iL,iK) = Val
-C             DF2(iK,iL,iI,iJ) = Val
-C             DF2(iL,iK,iJ,iI) = Val
-C             Val1 = DF2(iI,iJ,iK,iL)
-C             Val2 = DF2(iL,iK,iJ,iI)
-C             Val  = (Val1+Val2)*0.5D+00
-C             DF2(iI,iJ,iK,iL) = Val
-C             DF2(iL,iK,iJ,iI) = Val
-            End DO
-          End Do
-        End Do
-      End Do
 C
       Return
 C
@@ -2441,21 +2378,26 @@ C
      *                       DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,
      *                       G2,SC,idxG3)
 C
-      USE SUPERINDEX
-      use EQSOLV
-      use caspt2_module
+      USE SUPERINDEX, only: KTUV
+      use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
+      use Constants, only: Zero
+      use definitions, only: wp, iwp
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-C
-      Dimension BDER(nAS,nAS),SDER(nAS,nAS),DF3(*),DG3(*)
-      Dimension DF1(nAshT,nAshT),DF2(nAshT,nAshT,nAshT,nAshT),
-     *          DG1(nAshT,nAshT),DG2(nAshT,nAshT,nAshT,nAshT),
-     *          DEPSA(nAshT,nAshT)
-      Dimension G2(nAshT,nAshT,nAshT,nAshT)
-      DIMENSION SC(*)
-      INTEGER*1 idxG3(6,NG3)
-C
+      integer(kind=iwp), intent(in) :: iSym, nAS, NG3
+      real(kind=wp), intent(in) :: BDER(nAS,nAS), SDER(nAS,nAS),
+     &  G2(nAshT,nAshT,nAshT,nAshT), SC(*)
+      real(kind=wp), intent(inout) :: DF1(nAshT,nAshT),
+     &  DF2(nAshT,nAshT,nAshT,nAshT), DF3(*), DG1(nAshT,nAshT),
+     &  DG2(nAshT,nAshT,nAshT,nAshT), DG3(*), DEPSA(nAshT,nAshT)
+      integer*1, intent(in) :: idxG3(6,NG3)
+
+      integer(kind=iwp) :: iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV,
+     &                     iSX, iSY, iSZ, ituvs, ixyzs, iTU, iVX, iYZ,
+     &                     jSYM, ISUP, JSUP, iW, NSEQ
+      real(kind=wp) :: F3VAL, G3VAL
+
       DO iG3=1,NG3
         iT=idxG3(1,iG3)
         iU=idxG3(2,iG3)
@@ -2471,9 +2413,9 @@ C
         iSZ=IASYM(iZ)
         ituvs=MUL(IST,MUL(ISU,ISV))
         ixyzs=MUL(ISX,MUL(ISY,ISZ))
-        F3VAL=0.0D+00
-        G3VAL=0.0D+00
-        if(ituvs.ne.ixyzs) goto 500
+        F3VAL=Zero
+        G3VAL=Zero
+        if(ituvs /= ixyzs) cycle ! goto 500
         iTU=iT+NASHT*(iU-1)
         iVX=iV+NASHT*(iX-1)
         iYZ=iY+NASHT*(iZ-1)
@@ -2481,112 +2423,114 @@ C-SVC20100829: 12 equivalent cases, of which the second
 C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
 C  - G(tuvxyz) -> SA(xut,vyz)
         jSYM=MUL(IASYM(iX),MUL(IASYM(iU),IASYM(iT)))
-        IF (jSYM.EQ.iSYM) THEN
+        IF (jSYM == iSYM) THEN
           ISUP=KTUV(iX,iU,iT)-nTUVES(jSYM)
           JSUP=KTUV(iV,iY,iZ)-nTUVES(jSYM)
           F3VAL = F3VAL + BDER(iSup,jSup)
           G3VAL = G3VAL + SDER(iSup,jSup)
         ENDIF
-        if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 300
-        if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 200
+        if (iTU /= iVX .or. iVX /= iYZ) then
+          if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 C  - G(vxtuyz) -> SA(uxv,tyz)
-        jSYM=MUL(IASYM(iU),MUL(IASYM(iX),IASYM(iV)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iU,iX,iV)-nTUVES(jSYM)
-          JSUP=KTUV(iT,iY,iZ)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
+            jSYM=MUL(IASYM(iU),MUL(IASYM(iX),IASYM(iV)))
+            IF (jSYM == iSYM) THEN
+              ISUP=KTUV(iU,iX,iV)-nTUVES(jSYM)
+              JSUP=KTUV(iT,iY,iZ)-nTUVES(jSYM)
+              F3VAL = F3VAL + BDER(iSup,jSup)
+              G3VAL = G3VAL + SDER(iSup,jSup)
+            ENDIF
 C  - G(yzvxtu) -> SA(xzy,vtu)
-        jSYM=MUL(IASYM(iX),MUL(IASYM(iZ),IASYM(iY)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iX,iZ,iY)-nTUVES(jSYM)
-          JSUP=KTUV(iV,iT,iU)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
+            jSYM=MUL(IASYM(iX),MUL(IASYM(iZ),IASYM(iY)))
+            IF (jSYM == iSYM) THEN
+              ISUP=KTUV(iX,iZ,iY)-nTUVES(jSYM)
+              JSUP=KTUV(iV,iT,iU)-nTUVES(jSYM)
+              F3VAL = F3VAL + BDER(iSup,jSup)
+              G3VAL = G3VAL + SDER(iSup,jSup)
+            ENDIF
 C  - G(tuyzvx) -> SA(zut,yvx)
-        jSYM=MUL(IASYM(iZ),MUL(IASYM(iU),IASYM(iT)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iZ,iU,iT)-nTUVES(jSYM)
-          JSUP=KTUV(iY,iV,iX)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
- 200   CONTINUE
+            jSYM=MUL(IASYM(iZ),MUL(IASYM(iU),IASYM(iT)))
+            IF (jSYM == iSYM) THEN
+              ISUP=KTUV(iZ,iU,iT)-nTUVES(jSYM)
+              JSUP=KTUV(iY,iV,iX)-nTUVES(jSYM)
+              F3VAL = F3VAL + BDER(iSup,jSup)
+              G3VAL = G3VAL + SDER(iSup,jSup)
+            ENDIF
+          end if
 C  - G(yztuvx) -> SA(uzy,tvx)
-        jSYM=MUL(IASYM(iU),MUL(IASYM(iZ),IASYM(iY)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iU,iZ,iY)-nTUVES(jSYM)
-          JSUP=KTUV(iT,iV,iX)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
+          jSYM=MUL(IASYM(iU),MUL(IASYM(iZ),IASYM(iY)))
+          IF (jSYM == iSYM) THEN
+            ISUP=KTUV(iU,iZ,iY)-nTUVES(jSYM)
+            JSUP=KTUV(iT,iV,iX)-nTUVES(jSYM)
+            F3VAL = F3VAL + BDER(iSup,jSup)
+            G3VAL = G3VAL + SDER(iSup,jSup)
+          ENDIF
 C  - G(vxyztu) -> SA(zxv,ytu)
-        jSYM=MUL(IASYM(iZ),MUL(IASYM(iX),IASYM(iV)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iZ,iX,iV)-nTUVES(jSYM)
-          JSUP=KTUV(iY,iT,iU)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
- 300   CONTINUE
-        if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 500
-        if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) go to 500
-        if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) go to 500
-        if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) go to 500
+          jSYM=MUL(IASYM(iZ),MUL(IASYM(iX),IASYM(iV)))
+          IF (jSYM == iSYM) THEN
+            ISUP=KTUV(iZ,iX,iV)-nTUVES(jSYM)
+            JSUP=KTUV(iY,iT,iU)-nTUVES(jSYM)
+            F3VAL = F3VAL + BDER(iSup,jSup)
+            G3VAL = G3VAL + SDER(iSup,jSup)
+          ENDIF
+        end if
+
+        if ((iT /= iU .or. iV /= iX .or. iY /= iZ) .and.
+     &      (iT /= iU .or. iV /= iZ .or. iX /= iY) .and.
+     &      (iX /= iV .or. iT /= iZ .or. iU /= iY) .and.
+     &      (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
 C  - G(utxvzy) -> SA(vtu,xzy)
-        jSYM=MUL(IASYM(iV),MUL(IASYM(iT),IASYM(iU)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iV,iT,iU)-nTUVES(jSYM)
-          JSUP=KTUV(iX,iZ,iY)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
-        if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 500
-        if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 400
+          jSYM=MUL(IASYM(iV),MUL(IASYM(iT),IASYM(iU)))
+          IF (jSYM == iSYM) THEN
+            ISUP=KTUV(iV,iT,iU)-nTUVES(jSYM)
+            JSUP=KTUV(iX,iZ,iY)-nTUVES(jSYM)
+            F3VAL = F3VAL + BDER(iSup,jSup)
+            G3VAL = G3VAL + SDER(iSup,jSup)
+          ENDIF
+          if (iTU /= iVX .or. iVX /= iYZ) then
+            if (iTU /= iVX .or. iTU /= iYZ .or. iVX /= iYZ) then
 C  - G(xvutzy) -> SA(tvx,uzy)
-        jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iT,iV,iX)-nTUVES(jSYM)
-          JSUP=KTUV(iU,iZ,iY)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
+              jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
+              IF (jSYM == iSYM) THEN
+                ISUP=KTUV(iT,iV,iX)-nTUVES(jSYM)
+                JSUP=KTUV(iU,iZ,iY)-nTUVES(jSYM)
+                F3VAL = F3VAL + BDER(iSup,jSup)
+                G3VAL = G3VAL + SDER(iSup,jSup)
+              ENDIF
 C  - G(zyxvut) -> SA(vyz,xut)
-        jSYM=MUL(IASYM(iV),MUL(IASYM(iY),IASYM(iZ)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iV,iY,iZ)-nTUVES(jSYM)
-          JSUP=KTUV(iX,iU,iT)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
+              jSYM=MUL(IASYM(iV),MUL(IASYM(iY),IASYM(iZ)))
+              IF (jSYM == iSYM) THEN
+                ISUP=KTUV(iV,iY,iZ)-nTUVES(jSYM)
+                JSUP=KTUV(iX,iU,iT)-nTUVES(jSYM)
+                F3VAL = F3VAL + BDER(iSup,jSup)
+                G3VAL = G3VAL + SDER(iSup,jSup)
+              ENDIF
 C  - G(utzyxv) -> SA(ytu,zxv)
-        jSYM=MUL(IASYM(iY),MUL(IASYM(iT),IASYM(iU)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iY,iT,iU)-nTUVES(jSYM)
-          JSUP=KTUV(iZ,iX,iV)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
- 400   CONTINUE
+              jSYM=MUL(IASYM(iY),MUL(IASYM(iT),IASYM(iU)))
+              IF (jSYM == iSYM) THEN
+                ISUP=KTUV(iY,iT,iU)-nTUVES(jSYM)
+                JSUP=KTUV(iZ,iX,iV)-nTUVES(jSYM)
+                F3VAL = F3VAL + BDER(iSup,jSup)
+                G3VAL = G3VAL + SDER(iSup,jSup)
+              ENDIF
+            end if
 C  - G(zyutxv) -> SA(tyz,uxv)
-        jSYM=MUL(IASYM(iT),MUL(IASYM(iY),IASYM(iZ)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iT,iY,iZ)-nTUVES(jSYM)
-          JSUP=KTUV(iU,iX,iV)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
+            jSYM=MUL(IASYM(iT),MUL(IASYM(iY),IASYM(iZ)))
+            IF (jSYM == iSYM) THEN
+              ISUP=KTUV(iT,iY,iZ)-nTUVES(jSYM)
+              JSUP=KTUV(iU,iX,iV)-nTUVES(jSYM)
+              F3VAL = F3VAL + BDER(iSup,jSup)
+              G3VAL = G3VAL + SDER(iSup,jSup)
+            ENDIF
 C  - G(xvzyut) -> SA(yvx,zut)
-        jSYM=MUL(IASYM(iY),MUL(IASYM(iV),IASYM(iX)))
-        IF (jSYM.EQ.iSYM) THEN
-          ISUP=KTUV(iY,iV,iX)-nTUVES(jSYM)
-          JSUP=KTUV(iZ,iU,iT)-nTUVES(jSYM)
-          F3VAL = F3VAL + BDER(iSup,jSup)
-          G3VAL = G3VAL + SDER(iSup,jSup)
-        ENDIF
- 500   CONTINUE
+            jSYM=MUL(IASYM(iY),MUL(IASYM(iV),IASYM(iX)))
+            IF (jSYM == iSYM) THEN
+              ISUP=KTUV(iY,iV,iX)-nTUVES(jSYM)
+              JSUP=KTUV(iZ,iU,iT)-nTUVES(jSYM)
+              F3VAL = F3VAL + BDER(iSup,jSup)
+              G3VAL = G3VAL + SDER(iSup,jSup)
+            ENDIF
+          end if
+        end if
 C
         F3VAL = -F3VAL
         G3VAL = -G3VAL
@@ -2611,32 +2555,32 @@ C
         DG3(iG3) = DG3(iG3) + G3VAL
 C
         !! remaining F3 and G3 transformation in mkfg3.f
-        If (iY.eq.iX) Then
+        if (iY == iX) then
           DF2(iT,iU,iV,iZ) = DF2(iT,iU,iV,iZ) - F3VAL
           DG2(iT,iU,iV,iZ) = DG2(iT,iU,iV,iZ) - EPSA(iU)*F3VAL
           Do iW = 1, nAshT
             DEPSA(iU,iW) = DEPSA(iU,iW) - F3VAL*G2(iT,iW,iV,iZ)
           End Do
           DG2(iT,iU,iV,iZ) = DG2(iT,iU,iV,iZ) - G3VAL
-        End If
-        If (iV.eq.iU) Then
+        end if
+        if (iV == iU) then
           DF2(iT,iX,iY,iZ) = DF2(iT,iX,iY,iZ) - F3VAL
           DG2(iT,iX,iY,iZ) = DG2(iT,iX,iY,iZ) - EPSA(iY)*F3VAL
           Do iW = 1, nAshT
             DEPSA(iW,iY) = DEPSA(iW,iY) - F3VAL*G2(iT,iX,iW,iZ)
           End Do
           DG2(iT,iX,iY,iZ) = DG2(iT,iX,iY,iZ) - G3VAL
-        End If
-        If (iY.eq.iU) Then
+        end if
+        if (iY == iU) then
           DF2(iV,iX,iT,iZ) = DF2(iV,iX,iT,iZ) - F3VAL
           DG2(iV,iX,iT,iZ) = DG2(iV,iX,iT,iZ) - EPSA(iU)*F3VAL
           DG2(iV,iX,iT,iZ) = DG2(iV,iX,iT,iZ) - G3VAL
-        End If
+        end if
         DEPSA(iY,iU) = DEPSA(iY,iU) - F3VAL*G2(iV,iX,iT,iZ)
-        If (iY.eq.iX.and.iV.eq.iU) Then
+        if (iY == iX .and. iV == iU) then
           DF1(iT,iZ) = DF1(iT,iZ) - F3VAL
           DG1(iT,iZ) = DG1(iT,iZ) - G3VAL
-        End If
+        end if
       END DO
 C
       Return
@@ -2649,35 +2593,43 @@ C
       SUBROUTINE CLagDXA_FG3_MPP(ISYM,lg_BDER,lg_SDER,DG1,DG2,DG3,
      *                           DF1,DF2,DF3,DEPSA,G2,idxG3)
 C
-      USE MPI
-      USE SUPERINDEX
-      USE EQSOLV
+      USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
+      use pt2_guga, only: NG3
+      use Constants, only: Zero
+
+      implicit none
 
 #include "global.fh"
 #include "mafdecls.fh"
 
-      DIMENSION DG1(NASHT,NASHT),DG2(NASHT,NASHT,NASHT,NASHT),DG3(*),
-     *          DF1(NASHT,NASHT),DF2(NASHT,NASHT,NASHT,NASHT),DF3(*),
-     *          DEPSA(NASHT,NASHT)
-      DIMENSION G2(NASHT,NASHT,NASHT,NASHT)
-      INTEGER*1 idxG3(6,NG3)
+      integer(kind=iwp), intent(in) :: ISYM, lg_BDER, lg_SDER
+      real(kind=wp), intent(inout) :: DG1(NASHT,NASHT),
+     &  DG2(NASHT,NASHT,NASHT,NASHT), DG3(*), DF1(NASHT,NASHT),
+     &  DF2(NASHT,NASHT,NASHT,NASHT), DF3(*), DEPSA(NASHT,NASHT)
+      real(kind=wp), intent(in) :: G2(NASHT,NASHT,NASHT,NASHT)
+      INTEGER*1, intent(in) :: idxG3(6,NG3)
 
       integer(kind=iwp), ALLOCATABLE :: INDI(:), INDJ(:), NELBsav(:),
      *                                  NELSsav(:)
       real(kind=wp),  ALLOCATABLE :: BUFFB(:), BUFFS(:)
+
+      integer(kind=iwp) :: NG3MAX, MAXMEM, iscal, MAXBUF, NG3B, NBUF,
+     &                     NBLOCKS, IBLOCK, IG3STA, IG3END, NtotELB,
+     &                     NtotELS, iG3, NELB, NELS, iT, iU, iV, iX,
+     &                     iY, iZ, iST, iSU, iSV, iSX, iSY, iSZ, ituvs,
+     &                     ixyzs, iTU, iVX, iYZ, jSym, IROW, ICOL, i, IW
+      real(kind=wp) :: G3VAL, F3VAL
 
       ! Since we are stuck with collective calls to MPI_Alltoallv in
       ! order to gather the elements, each process needs to loop over
       ! the same number of blocks.
       NG3MAX=NG3
       CALL GAIGOP_SCAL(NG3MAX,'max')
-      IF (NG3MAX.EQ.0) RETURN
+      IF (NG3MAX == 0) RETURN
 
       ! The global SC matrix has already been allocated, so we need to
       ! find out how much memory is left for buffering (4 equally sized
@@ -2686,7 +2638,7 @@ C
       ! we need two real and two integer values per element
       iscal = (iwp*2 + wp*2)/RtoB
       !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
+      MAXBUF=MIN(NINT(0.95_wp*MAXMEM)/iscal,2000000000/8)
       MAXBUF=MAXBUF-2*NG3 !! for NELBsav and NELSsav
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -2730,146 +2682,148 @@ C
           iSZ=IASYM(iZ)
           ituvs=MUL(IST,MUL(ISU,ISV))
           ixyzs=MUL(ISX,MUL(ISY,ISZ))
-          if(ituvs.ne.ixyzs) goto 501
-          iTU=iT+NASHT*(iU-1)
-          iVX=iV+NASHT*(iX-1)
-          iYZ=iY+NASHT*(iZ-1)
-         !F3VAL=F3(iG3)
+          if(ituvs == ixyzs) then
+            iTU=iT+NASHT*(iU-1)
+            iVX=iV+NASHT*(iX-1)
+            iYZ=iY+NASHT*(iZ-1)
+           !F3VAL=F3(iG3)
 C-SVC20100829: 12 equivalent cases, of which the second
 C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
 C  - G(tuvxyz) -> SA(xut,vyz)
-        jSYM=MUL(IASYM(iX),MUL(IASYM(iU),IASYM(iT)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iX,iU,iT)-nTUVES(jSYM)
-            ICOL=KTUV(iV,iY,iZ)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
-          if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 301
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 201
+            jSYM=MUL(IASYM(iX),MUL(IASYM(iU),IASYM(iT)))
+            IF (jSYM.EQ.iSYM) THEN
+              IROW=KTUV(iX,iU,iT)-nTUVES(jSYM)
+              ICOL=KTUV(iV,iY,iZ)-nTUVES(jSYM)
+              NELB = NELB + 1
+              NtotELB = NtotELB + 1
+              INDI(NtotELB) = IROW
+              INDJ(NtotELB) = ICOL
+            ENDIF
+            if (iTU /= iVX .or. iVX /= iYZ) then
+              if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 C  - G(vxtuyz) -> SA(uxv,tyz)
-        jSYM=MUL(IASYM(iU),MUL(IASYM(iX),IASYM(iV)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iU,iX,iV)-nTUVES(jSYM)
-            ICOL=KTUV(iT,iY,iZ)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
+                jSYM=MUL(IASYM(iU),MUL(IASYM(iX),IASYM(iV)))
+                IF (jSYM == iSYM) THEN
+                  IROW=KTUV(iU,iX,iV)-nTUVES(jSYM)
+                  ICOL=KTUV(iT,iY,iZ)-nTUVES(jSYM)
+                  NELB = NELB + 1
+                  NtotELB = NtotELB + 1
+                  INDI(NtotELB) = IROW
+                  INDJ(NtotELB) = ICOL
+                ENDIF
 C  - G(yzvxtu) -> SA(xzy,vtu)
-        jSYM=MUL(IASYM(iX),MUL(IASYM(iZ),IASYM(iY)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iX,iZ,iY)-nTUVES(jSYM)
-            ICOL=KTUV(iV,iT,iU)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
+                jSYM=MUL(IASYM(iX),MUL(IASYM(iZ),IASYM(iY)))
+                IF (jSYM == iSYM) THEN
+                  IROW=KTUV(iX,iZ,iY)-nTUVES(jSYM)
+                  ICOL=KTUV(iV,iT,iU)-nTUVES(jSYM)
+                  NELB = NELB + 1
+                  NtotELB = NtotELB + 1
+                  INDI(NtotELB) = IROW
+                  INDJ(NtotELB) = ICOL
+                ENDIF
 C  - G(tuyzvx) -> SA(zut,yvx)
-        jSYM=MUL(IASYM(iZ),MUL(IASYM(iU),IASYM(iT)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iZ,iU,iT)-nTUVES(jSYM)
-            ICOL=KTUV(iY,iV,iX)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
- 201   CONTINUE
+                jSYM=MUL(IASYM(iZ),MUL(IASYM(iU),IASYM(iT)))
+                IF (jSYM == iSYM) THEN
+                  IROW=KTUV(iZ,iU,iT)-nTUVES(jSYM)
+                  ICOL=KTUV(iY,iV,iX)-nTUVES(jSYM)
+                  NELB = NELB + 1
+                  NtotELB = NtotELB + 1
+                  INDI(NtotELB) = IROW
+                  INDJ(NtotELB) = ICOL
+                ENDIF
+              end if
 C  - G(yztuvx) -> SA(uzy,tvx)
-        jSYM=MUL(IASYM(iU),MUL(IASYM(iZ),IASYM(iY)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iU,iZ,iY)-nTUVES(jSYM)
-            ICOL=KTUV(iT,iV,iX)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
+              jSYM=MUL(IASYM(iU),MUL(IASYM(iZ),IASYM(iY)))
+              IF (jSYM == iSYM) THEN
+                IROW=KTUV(iU,iZ,iY)-nTUVES(jSYM)
+                ICOL=KTUV(iT,iV,iX)-nTUVES(jSYM)
+                NELB = NELB + 1
+                NtotELB = NtotELB + 1
+                INDI(NtotELB) = IROW
+                INDJ(NtotELB) = ICOL
+              ENDIF
 C  - G(vxyztu) -> SA(zxv,ytu)
-        jSYM=MUL(IASYM(iZ),MUL(IASYM(iX),IASYM(iV)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iZ,iX,iV)-nTUVES(jSYM)
-            ICOL=KTUV(iY,iT,iU)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
- 301   CONTINUE
-          if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 501
-          if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) go to 501
-          if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) go to 501
-          if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) go to 501
+              jSYM=MUL(IASYM(iZ),MUL(IASYM(iX),IASYM(iV)))
+              IF (jSYM == iSYM) THEN
+                IROW=KTUV(iZ,iX,iV)-nTUVES(jSYM)
+                ICOL=KTUV(iY,iT,iU)-nTUVES(jSYM)
+                NELB = NELB + 1
+                NtotELB = NtotELB + 1
+                INDI(NtotELB) = IROW
+                INDJ(NtotELB) = ICOL
+              ENDIF
+            end if
+            if ((iT /= iU .or. iV /= iX .or. iY /= iZ) .and.
+     &          (iT /= iU .or. iV /= iZ .or. iX /= iY) .and.
+     &          (iX /= iV .or. iT /= iZ .or. iU /= iY) .and.
+     &          (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
 C  - G(utxvzy) -> SA(vtu,xzy)
-        jSYM=MUL(IASYM(iV),MUL(IASYM(iT),IASYM(iU)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iV,iT,iU)-nTUVES(jSYM)
-            ICOL=KTUV(iX,iZ,iY)-nTUVES(jSYM)
-            NELB  = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
-          if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 501
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 401
+              jSYM=MUL(IASYM(iV),MUL(IASYM(iT),IASYM(iU)))
+              IF (jSYM == iSYM) THEN
+                IROW=KTUV(iV,iT,iU)-nTUVES(jSYM)
+                ICOL=KTUV(iX,iZ,iY)-nTUVES(jSYM)
+                NELB  = NELB + 1
+                NtotELB = NtotELB + 1
+                INDI(NtotELB) = IROW
+                INDJ(NtotELB) = ICOL
+              ENDIF
+              if (iTU /= iVX .or. iVX /= iYZ) then
+                if (iTU /= iVX .or. iTU /= iYZ .or. iVX /= iYZ) then
 C  - G(xvutzy) -> SA(tvx,uzy)
-        jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iT,iV,iX)-nTUVES(jSYM)
-            ICOL=KTUV(iU,iZ,iY)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
+                  jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
+                  IF (jSYM == iSYM) THEN
+                    IROW=KTUV(iT,iV,iX)-nTUVES(jSYM)
+                    ICOL=KTUV(iU,iZ,iY)-nTUVES(jSYM)
+                    NELB = NELB + 1
+                    NtotELB = NtotELB + 1
+                    INDI(NtotELB) = IROW
+                    INDJ(NtotELB) = ICOL
+                  ENDIF
 C  - G(zyxvut) -> SA(vyz,xut)
-        jSYM=MUL(IASYM(iV),MUL(IASYM(iY),IASYM(iZ)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iV,iY,iZ)-nTUVES(jSYM)
-            ICOL=KTUV(iX,iU,iT)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
+                  jSYM=MUL(IASYM(iV),MUL(IASYM(iY),IASYM(iZ)))
+                  IF (jSYM == iSYM) THEN
+                    IROW=KTUV(iV,iY,iZ)-nTUVES(jSYM)
+                    ICOL=KTUV(iX,iU,iT)-nTUVES(jSYM)
+                    NELB = NELB + 1
+                    NtotELB = NtotELB + 1
+                    INDI(NtotELB) = IROW
+                    INDJ(NtotELB) = ICOL
+                  ENDIF
 C  - G(utzyxv) -> SA(ytu,zxv)
-        jSYM=MUL(IASYM(iY),MUL(IASYM(iT),IASYM(iU)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iY,iT,iU)-nTUVES(jSYM)
-            ICOL=KTUV(iZ,iX,iV)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
- 401   CONTINUE
+                  jSYM=MUL(IASYM(iY),MUL(IASYM(iT),IASYM(iU)))
+                  IF (jSYM == iSYM) THEN
+                    IROW=KTUV(iY,iT,iU)-nTUVES(jSYM)
+                    ICOL=KTUV(iZ,iX,iV)-nTUVES(jSYM)
+                    NELB = NELB + 1
+                    NtotELB = NtotELB + 1
+                    INDI(NtotELB) = IROW
+                    INDJ(NtotELB) = ICOL
+                  ENDIF
+                end if
 C  - G(zyutxv) -> SA(tyz,uxv)
-        jSYM=MUL(IASYM(iT),MUL(IASYM(iY),IASYM(iZ)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iT,iY,iZ)-nTUVES(jSYM)
-            ICOL=KTUV(iU,iX,iV)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
+                jSYM=MUL(IASYM(iT),MUL(IASYM(iY),IASYM(iZ)))
+                IF (jSYM == iSYM) THEN
+                  IROW=KTUV(iT,iY,iZ)-nTUVES(jSYM)
+                  ICOL=KTUV(iU,iX,iV)-nTUVES(jSYM)
+                  NELB = NELB + 1
+                  NtotELB = NtotELB + 1
+                  INDI(NtotELB) = IROW
+                  INDJ(NtotELB) = ICOL
+                ENDIF
 C  - G(xvzyut) -> SA(yvx,zut)
-        jSYM=MUL(IASYM(iY),MUL(IASYM(iV),IASYM(iX)))
-          IF (jSYM.EQ.iSYM) THEN
-            IROW=KTUV(iY,iV,iX)-nTUVES(jSYM)
-            ICOL=KTUV(iZ,iU,iT)-nTUVES(jSYM)
-            NELB = NELB + 1
-            NtotELB = NtotELB + 1
-            INDI(NtotELB) = IROW
-            INDJ(NtotELB) = ICOL
-          ENDIF
- 501   CONTINUE
-       nels = nelb
+                jSYM=MUL(IASYM(iY),MUL(IASYM(iV),IASYM(iX)))
+                IF (jSYM == iSYM) THEN
+                  IROW=KTUV(iY,iV,iX)-nTUVES(jSYM)
+                  ICOL=KTUV(iZ,iU,iT)-nTUVES(jSYM)
+                  NELB = NELB + 1
+                  NtotELB = NtotELB + 1
+                  INDI(NtotELB) = IROW
+                  INDJ(NtotELB) = ICOL
+                ENDIF
+              end if
+            end if
+          end if
+          nels = nelb
           NELBsav(iG3-IG3STA+1) = NELB
           NELSsav(iG3-IG3STA+1) = NELS
         END DO
@@ -2892,13 +2846,13 @@ C  - G(xvzyut) -> SA(yvx,zut)
           NELB = NELBsav(iG3-IG3STA+1)
           NELS = NELSsav(iG3-IG3STA+1)
 
-          F3VAL = 0.0d+00
+          F3VAL = Zero
           DO i = 1, NELB
             NtotELB = NtotELB + 1
             F3VAL = F3VAL - BUFFB(NtotELB)
           END DO
 
-          G3VAL = 0.0d+00
+          G3VAL = Zero
           DO i = 1, NELS
             NtotELS = NtotELS + 1
             G3VAL = G3VAL - BUFFS(NtotELS)
@@ -2911,7 +2865,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
           !! DEPSA is done in DF3_DEPSA_MPP
 
           !! remaining F3 and G3 transformation in mkfg3.f
-          If (iY.eq.iX) Then
+          If (iY == iX) Then
             DF2(iT,iU,iV,iZ) = DF2(iT,iU,iV,iZ) - F3VAL
             DG2(iT,iU,iV,iZ) = DG2(iT,iU,iV,iZ) - EPSA(iU)*F3VAL
             Do iW = 1, nAshT
@@ -2919,7 +2873,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
             End Do
             DG2(iT,iU,iV,iZ) = DG2(iT,iU,iV,iZ) - G3VAL
           End If
-          If (iV.eq.iU) Then
+          If (iV == iU) Then
             DF2(iT,iX,iY,iZ) = DF2(iT,iX,iY,iZ) - F3VAL
             DG2(iT,iX,iY,iZ) = DG2(iT,iX,iY,iZ) - EPSA(iY)*F3VAL
             Do iW = 1, nAshT
@@ -2927,13 +2881,13 @@ C  - G(xvzyut) -> SA(yvx,zut)
             End Do
             DG2(iT,iX,iY,iZ) = DG2(iT,iX,iY,iZ) - G3VAL
           End If
-          If (iY.eq.iU) Then
+          If (iY == iU) Then
             DF2(iV,iX,iT,iZ) = DF2(iV,iX,iT,iZ) - F3VAL
             DG2(iV,iX,iT,iZ) = DG2(iV,iX,iT,iZ) - EPSA(iU)*F3VAL
             DG2(iV,iX,iT,iZ) = DG2(iV,iX,iT,iZ) - G3VAL
           End If
           DEPSA(iY,iU) = DEPSA(iY,iU) - F3VAL*G2(iV,iX,iT,iZ)
-          If (iY.eq.iX.and.iV.eq.iU) Then
+          If (iY == iX .and. iV == iU) Then
             DF1(iT,iZ) = DF1(iT,iZ) - F3VAL
             DG1(iT,iZ) = DG1(iT,iZ) - G3VAL
           End If
