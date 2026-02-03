@@ -1119,7 +1119,7 @@ C
       Subroutine CLagDX_MPP
 
       use caspt2_global, only: iVecL
-      use caspt2_module, only: MAXIT
+      use caspt2_module, only: MAXIT, JSTATE
 
       implicit none
 
