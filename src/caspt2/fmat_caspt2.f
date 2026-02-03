@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF,NBUF,BUF)
       use definitions, only: iwp, wp
-      use constants, only: Zero, Half, One, Two
+      use constants, only: Half, One, Two
       use caspt2_global, only: LUINTM
       use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES
       IMPLICIT None
