@@ -20,10 +20,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      integer(kind=iwp) NCMO, NHONE, NFIMO, NFAMO
-      real(kind=wp) CMO(NCMO)
-      real(kind=wp) FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
-      real(kind=wp) HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
+      integer(kind=iwp), intent(in):: NCMO, NHONE, NFIMO, NFAMO
+      real(kind=wp), intent(in):: CMO(NCMO)
+      real(kind=wp), intent(in):: FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
+      real(kind=wp), intent(out):: HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
 
       real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:)
 
