@@ -15,7 +15,6 @@
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTUV
-      use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -153,7 +152,6 @@ C Put W on disk:
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTGEU, KIGEJ, KTGTU, KIGTJ
-      use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -453,7 +451,6 @@ C Put WBM on disk:
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTUV
-      use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -590,7 +587,6 @@ C Put W on disk:
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTU
-      use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -778,7 +774,6 @@ C Put W on disk:
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTU
-      use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -928,7 +923,6 @@ C Put W on disk:
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KIGEJ, KIGTJ
-      use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -1253,7 +1247,6 @@ C Read WM:
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTGEU, KAGEB, KTGTU, KAGTB
-      use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -1548,7 +1541,6 @@ C Put WFM on disk:
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KAGEB, KAGTB
-      use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -1912,7 +1904,6 @@ C      NBXSZJ=NINABX
       use constants, only: Zero, One, Half, Two, Three
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KIGEJ, KAGEB, KIGTJ, KAGTB
-      use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
