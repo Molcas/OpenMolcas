@@ -17,13 +17,22 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF,NBUF,BUF)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, Half, One, Two
       use caspt2_global, only: LUINTM
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NFIMO, NFAMO, NBUF
-      REAL*8 FIMO(NFIMO),FAMO(NFAMO)
-      REAL*8 DREF(NDREF),BUF(NBUF)
-      INTEGER IAD2M(3,36*36)
+      use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NFIMO, NFAMO, NDREF, NBUF
+      real(kind=wp), intent(out):: FIMO(NFIMO),FAMO(NFAMO)
+      real(kind=wp), intent(inout):: BUF(NBUF)
+      real(kind=wp), intent(in)::DREF(NDREF)
+
+      integer(kind=iwp) IAD2M(3,36*36)
+      integer(kind=iwp) NDIM2M, IDISK, IFSTA, ISYR, NBR, NB3, NBNB,
+     &                  ISYS, IS3RS, ISYP, NIP, NOP, NAESP, ISYQ, IS3PQ,
+     &                  ISADDR, IDISK1, IDISK2, IT, ITABS, ITU, IU,
+     &                  IUABS
+      real(kind=wp) DTU
 
 C COMPUTE THE INACTIVE FOCK MATRIX IN MO BASIS.
 C COMPUTE THE ACTIVE FOCK MATRIX IN MO BASIS.
@@ -45,7 +54,7 @@ C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
       IFSTA=1
       DO ISYR=1,NSYM
         NBR=NORB(ISYR)
-        IF(NBR.EQ.0) GOTO 120
+        IF(NBR.EQ.0) CYCLE
         NB3=(NBR**2+NBR)/2
         NBNB=NBR**2
         ISYS=ISYR
@@ -54,7 +63,7 @@ C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
           NIP=NISH(ISYP)
           NOP=NOSH(ISYP)
           NAESP=NAES(ISYP)
-          IF(NOP.EQ.0) GOTO 110
+          IF(NOP.EQ.0) Cycle
           ISYQ=ISYP
           IS3PQ=(ISYP*(ISYP+1))/2
           ISADDR=IS3RS+NDIM2M*(IS3PQ-1)
@@ -69,31 +78,29 @@ C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
               IF(IT.LE.NIP .AND. IT.EQ.IU) THEN
                 CALL DDAFILE(LUINTM,2,BUF,NB3,IDISK1)
 C ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
-                CALL DAXPY_(NB3,2.0D00,BUF,1,FIMO(IFSTA),1)
+                CALL DAXPY_(NB3,Two,BUF,1,FIMO(IFSTA),1)
               ELSE IF(IT.GT.NIP .AND. IT.LE.NOP .AND.
      &                IU.GT.NIP .AND. IU.LE.NOP) THEN
                 ITABS=NAESP+(IT-NIP)
                 IUABS=NAESP+(IU-NIP)
                 ITU=(ITABS*(ITABS-1))/2 + IUABS
                 DTU=DREF(ITU)
-                IF(IT.EQ.IU) DTU=0.5D0*DTU
+                IF(IT.EQ.IU) DTU=half*DTU
                 CALL DDAFILE(LUINTM,2,BUF,NB3,IDISK1)
-                CALL DAXPY_(NB3,2.0D0*DTU,BUF,1,FAMO(IFSTA),1)
+                CALL DAXPY_(NB3,Two*DTU,BUF,1,FAMO(IFSTA),1)
               ELSE
                 CALL DDAFILE(LUINTM,0,BUF,NB3,IDISK1)
               END IF
             END DO
           END DO
- 110      CONTINUE
         END DO
         IFSTA=IFSTA+NB3
- 120    CONTINUE
       END DO
 
       IFSTA=1
       DO ISYR=1,NSYM
         NBR=NORB(ISYR)
-        IF(NBR.EQ.0) GOTO 220
+        IF(NBR.EQ.0) Cycle
         NB3=(NBR**2+NBR)/2
         NBNB=NBR**2
         ISYS=ISYR
@@ -102,7 +109,7 @@ C ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
           NIP=NISH(ISYP)
           NOP=NOSH(ISYP)
           NAESP=NAES(ISYP)
-          IF(NOP.EQ.0) GOTO 210
+          IF(NOP.EQ.0) Cycle
           ISYQ=ISYP
           IS3PQ=(ISYP*(ISYP+1))/2
           ISADDR=IS3RS+NDIM2M*(IS3PQ-1)
@@ -118,7 +125,7 @@ C ADD 2* BUFFER INTO CORRECT POSITION OF  FIMO.
                 CALL DDAFILE(LUINTM,2,BUF,NBNB,IDISK2)
                 CALL TRIANG(NBR,BUF)
 C ADD -1* BUFFER INTO CORRECT POSITION OF  FIMO.
-                CALL DAXPY_(NB3,-1.0D00,BUF,1,FIMO(IFSTA),1)
+                CALL DAXPY_(NB3,-One,BUF,1,FIMO(IFSTA),1)
               ELSE IF(IT.GT.NIP .AND. IT.LE.NOP .AND.
      &                IU.GT.NIP .AND. IU.LE.NOP) THEN
                 ITABS=NAESP+(IT-NIP)
@@ -134,10 +141,8 @@ C ADD -1* BUFFER INTO CORRECT POSITION OF  FIMO.
               END IF
             END DO
           END DO
- 210      CONTINUE
         END DO
         IFSTA=IFSTA+NB3
- 220    CONTINUE
       END DO
 
       END SUBROUTINE FMAT_CASPT2
