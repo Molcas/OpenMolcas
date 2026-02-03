@@ -3751,9 +3751,8 @@ C
 
       integer(kind=iwp) :: ISADR, NROW, iLoS, jLoS, IXYZ, IXYZABS,
      &  IXABS, IYABS, IZABS, ITUV, ITUVABS, ITABS, IUABS, IVABS,
-     &  ISADR2, iWabs, iTWV, iXWZ, iWYZ, iWUV
-      real(kind=wp) :: ET, EU, ETU, EX, EY, EYU, FACT, ValB, bsBDER,
-     &  ValS
+     &  ISADR2, iWabs, iTWV, iXWZ
+      real(kind=wp) :: EU, EY, EYU, FACT, ValB, bsBDER, ValS
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: irank, iHiS, jHiS
 #endif
@@ -4061,8 +4060,7 @@ C
       integer(kind=iwp) :: nLev, nMidV, iSym, ID, iState, isyci,
      &                     MaxIter, Iter
 
-      real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0,
-     &                 TIOTF10
+      real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, TIOE, TIOTF0
       real(kind=wp) :: CPTF1, CPTF2, TIOTF1, TIOTF2
 
       nLev = SGS%nLev
@@ -4901,7 +4899,6 @@ C
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(ISYCI,PRE,CI,INT1,INT2,Fancy,nLev,nMidV)
       use gugx, only: SGS, CIS
-      use caspt2_module, only: PRSD
       use pt2_guga, only: MXLEV
       use Constants, only: Two, Four
       use caspt2_module, only: NROOTS
