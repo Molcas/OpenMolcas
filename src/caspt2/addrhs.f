@@ -14,7 +14,7 @@
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KTUV
       use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
@@ -152,7 +152,7 @@ C Put W on disk:
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KTGEU, KIGEJ, KTGTU, KIGTJ
       use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
@@ -452,7 +452,7 @@ C Put WBM on disk:
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KTUV
       use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
@@ -589,7 +589,7 @@ C Put W on disk:
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KTU
       use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
@@ -777,7 +777,7 @@ C Put W on disk:
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KTU
       use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
@@ -927,7 +927,7 @@ C Put W on disk:
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KIGEJ, KIGTJ
       use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
@@ -1252,7 +1252,7 @@ C Read WM:
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KTGEU, KAGEB, KTGTU, KAGTB
       use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
@@ -1547,7 +1547,7 @@ C Put WFM on disk:
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KAGEB, KAGTB
       use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
@@ -1911,7 +1911,7 @@ C      NBXSZJ=NINABX
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, Two, Three
       use caspt2_global, only: iParRHS
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KIGEJ, KAGEB, KIGTJ, KAGTB
       use EQSOLV
       use caspt2_module
 #ifdef _MOLCAS_MPP_
