@@ -24,6 +24,8 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,
+     &                                nBuff, NCHO
       real(kind=wp) TJVX(NT,NJ,NV,NX)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
@@ -163,6 +165,8 @@ Case B:
 * t=v j=l WP(tv,jl)=add ((tj,vl))*(1/4)*(SQRT(2))
 * t=v j<l WP(tv,lj)=add ((tj,vl))*(1/4)
 
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,
+     &                                nBuff, NCHO
       real(kind=wp) TJVL(NT,NJ,NV,NL)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
@@ -445,6 +449,8 @@ C Put WBM on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,
+     &                                nBuff, NCHO
       real(kind=wp) AUVX(NA,NU,NV,NX)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
@@ -574,6 +580,8 @@ C Put W on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,
+     &                                nBuff, NCHO
       real(kind=wp) AJVX(NV,NX,*)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
@@ -752,6 +760,8 @@ C Put W on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,
+     &                                nBuff, NCHO
       real(kind=wp) AUVL(NA,NU,NV,NL)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
@@ -894,6 +904,8 @@ C Put W on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,
+     &                                nBuff, NCHO
       real(kind=wp) AJVL(NV,NL,*)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
@@ -1208,6 +1220,8 @@ C Read WM:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,
+     &                                nBuff, NCHO
       real(kind=wp) AUCX(NA,NU,NC,NX)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
@@ -1494,6 +1508,8 @@ C Put WFM on disk:
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,
+     &                                NAUCL, nBuff, NCHO
       real(kind=wp) AUCL(NA,NU,*)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
@@ -1848,6 +1864,8 @@ C      NBXSZJ=NINABX
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
+      integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,
+     &                                NAJCL, nBuff, NCHO
       real(kind=wp) AJCL(NC*NL,*)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
