@@ -12,6 +12,7 @@
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -60,9 +61,9 @@
 ************************************************************************
 *                                                                      *
       CALL DGEMM_('N','T',NT*NJ,NV*NX,NCHO,
-     &            1.0D0,Cho_Bra,NT*NJ,
+     &            One,Cho_Bra,NT*NJ,
      &                  Cho_Ket,NV*NX,
-     &            0.0D0,TJVX,NT*NJ)
+     &            Zero,TJVX,NT*NJ)
 *
 C Compute W(tvx,j)=(tj,vx) + FIMO(t,j)*delta(v,x)/NACTEL
       ICASE=1
@@ -144,6 +145,7 @@ C Put W on disk:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -182,7 +184,7 @@ Case B:
       ISYT=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYL)
       IF(ISYT.LT.ISYV) RETURN
-      SQ2=SQRT(2.0D0)
+      SQ2=SQRT(Two)
       ISYM=MUL(ISYJ,ISYL)
 *
       IF(NINDEP(ISYM,2).GT.0) THEN
@@ -218,9 +220,9 @@ Case B:
 ************************************************************************
 *                                                                      *
       CALL DGEMM_('N','T',NT*NJ,NV*NL,NCHO,
-     &            1.0D0,Cho_Bra,NT*NJ,
+     &            One,Cho_Bra,NT*NJ,
      &                  Cho_Ket,NV*NL,
-     &            0.0D0,TJVL,NT*NJ)
+     &            Zero,TJVL,NT*NJ)
 #ifdef _MOLCAS_MPP_
       if (iParRHS == 2) call GADSUM_ADDRHS(TJVL,NT*NJ*NV*NL)
 #endif
@@ -246,9 +248,9 @@ C Read WP:
          IF(ISYV.EQ.ISYT) IVMAX=IT
          DO IV=1,IVMAX
           IVABS=IV+NAES(ISYV)
-          SCL1=0.5D0
+          SCL1=Half
           IW1=KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
-          IF(ITABS.EQ.IVABS) SCL1=0.25D0
+          IF(ITABS.EQ.IVABS) SCL1=Quart
           DO IJ=1,NJ
            IJABS=IJ+NIES(ISYJ)
            DO IL=1,NL
@@ -288,10 +290,10 @@ C Read WP:
           IF(ISYV.EQ.ISYT) IVMAX=IT
           DO IV=1,IVMAX
            IVABS=IV+NAES(ISYV)
-           SCL1=0.5D0
+           SCL1=Half
            IW1=KTGEU(ITABS,IVABS)-NTGEUES(ISYM)
            if (IW1 < ILOV .or. IW1 > IHIV) cycle
-           IF(ITABS.EQ.IVABS) SCL1=0.25D0
+           IF(ITABS.EQ.IVABS) SCL1=Quart
            DO IJ=1,NJ
             IJABS=IJ+NIES(ISYJ)
             DO IL=1,NL
@@ -353,17 +355,17 @@ C Read WM:
            IF(IJABS.GT.ILABS) THEN
             IW2=KIGTJ(IJABS,ILABS)-NIGTJES(ISYM)
             IW=IW1+NASM*(IW2-1)
-*           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)+0.5D0*TJVL(IT,IJ,IV,IL)
+*           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)+Half*TJVL(IT,IJ,IV,IL)
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
-            Buff(IBUF)=0.5D0*TJVL(IT,IJ,IV,IL)
+            Buff(IBUF)=Half*TJVL(IT,IJ,IV,IL)
            ELSE IF (IJABS.LT.ILABS) THEN
             IW2=KIGTJ(ILABS,IJABS)-NIGTJES(ISYM)
             IW=IW1+NASM*(IW2-1)
-*           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)-0.5D0*TJVL(IT,IJ,IV,IL)
+*           Buff(LWBM-1+IW)=Buff(LWBM-1+IW)-Half*TJVL(IT,IJ,IV,IL)
             IBUF=IBUF+1
             idxBuf(IBUF)=IW
-            Buff(IBUF)=-0.5D0*TJVL(IT,IJ,IV,IL)
+            Buff(IBUF)=-Half*TJVL(IT,IJ,IV,IL)
            END IF
            IF (IBUF.EQ.NBUFF) THEN
              CALL RHS_SCATTER(LDBM,lg_BM,Buff,idxBuf,IBUF)
@@ -400,14 +402,14 @@ C Read WM:
              if (IW2 >= JLOV .and. IW2 <= JHIV) then
                DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
      *           = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
-     *           + 0.5D0*TJVL(IT,IJ,IV,IL)
+     *           + Half*TJVL(IT,IJ,IV,IL)
              end if
             ELSE IF (IJABS.LT.ILABS) THEN
              IW2=KIGTJ(ILABS,IJABS)-NIGTJES(ISYM)
              if (IW2 >= JLOV .and. IW2 <= JHIV) then
                DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
      *           = DBL_MB(MV+IW1-ILOV+LDBM*(IW2-JLOV))
-     *           - 0.5D0*TJVL(IT,IJ,IV,IL)
+     *           - Half*TJVL(IT,IJ,IV,IL)
              end if
             END IF
             IF (IBUF.EQ.NBUFF) THEN
@@ -437,6 +439,7 @@ C Put WBM on disk:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -488,9 +491,9 @@ C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
 ************************************************************************
 *                                                                      *
       CALL DGEMM_('N','T',NA*NU,NV*NX,NCHO,
-     &            1.0D0,Cho_Bra,NA*NU,
+     &            One,Cho_Bra,NA*NU,
      &                  Cho_Ket,NV*NX,
-     &            0.0D0,AUVX,NA*NU)
+     &            Zero,AUVX,NA*NU)
 *
       ICASE=4
 *     LWC=1+NA*NU*NV*NX
@@ -568,6 +571,7 @@ C Put W on disk:
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -630,9 +634,9 @@ C Compute W2(vu,al)=(au,vl)
 ************************************************************************
 *                                                                      *
 C     CALL DGEMM_('N','T',NA*NJ,NV*NX,NCHO,
-C    &            1.0D0,Cho_Bra,NA*NJ,
+C    &            One,Cho_Bra,NA*NJ,
 C    &                  Cho_Ket,NV*NX,
-C    &            0.0D0,AJVX,NA*NJ)
+C    &            Zero,AJVX,NA*NJ)
 *
 
 C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
@@ -662,9 +666,9 @@ C Read W:
 
           IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
           CALL DGEMM_('N','T',NV*NX,NASZ*NJSZ,NCHO,
-     &         1.0D0,Cho_Ket,NV*NX,
+     &         One,Cho_Ket,NV*NX,
      &         Cho_Bra(IAJSTA,1),NA*NJ,
-     &         0.0D0,AJVX,NV*NX)
+     &         Zero,AJVX,NV*NX)
 
       if (iParRHS == 1) then
        IAJ=0
@@ -748,6 +752,7 @@ C Put W on disk:
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -811,9 +816,9 @@ C Compute W2(vu,al)=(au,vl)
 *                                                                      *
 *
       CALL DGEMM_('N','T',NA*NU,NV*NL,NCHO,
-     &            1.0D0,Cho_Bra,NA*NU,
+     &            One,Cho_Bra,NA*NU,
      &                  Cho_Ket,NV*NL,
-     &            0.0D0,AUVL,NA*NU)
+     &            Zero,AUVL,NA*NU)
 *
 C Compute W2(vu,al)=(au,vl)
       ICASE=5
@@ -892,6 +897,7 @@ C Put W on disk:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -920,7 +926,7 @@ Case E:
 ************************************************************************
 *                                                                      *
 *
-      SQ32=SQRT(1.5D0)
+      SQ32=SQRT(OneHalf)
       ISYA=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYL)
       ISYM=ISYV
@@ -958,9 +964,9 @@ C Set up offset table:
 ************************************************************************
 *                                                                      *
 C     CALL DGEMM_('N','T',NA*NJ,NV*NL,NCHO,
-C    &            1.0D0,Cho_Bra,NA*NJ,
+C    &            One,Cho_Bra,NA*NJ,
 C    &                  Cho_Ket,NV*NL,
-C    &            0.0D0,AJVL,NA*NJ)
+C    &            Zero,AJVL,NA*NJ)
 *
 *     LWE=1+NA*NJ*NV*NL
 *     LWEP=LWE
@@ -993,9 +999,9 @@ C Read WP:
 
            IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
            CALL DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,
-     &          1.0D0,Cho_Ket,NV*NL,
+     &          One,Cho_Ket,NV*NL,
      &          Cho_Bra(IAJSTA,1),NA*NJ,
-     &          0.0D0,AJVL,NV*NL)
+     &          Zero,AJVL,NV*NL)
       if (iParRHS == 1) then
        IAJ=0
        IBUF=0
@@ -1007,10 +1013,10 @@ C Read WP:
          DO IV=1,NV
           DO IL=1,NL
            ILABS=IL+NIES(ISYL)
-           SCL=SQRT(0.5D0)
+           SCL=SQRT(Half)
            IF(IJABS.GE.ILABS) THEN
             JGEL=KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
-            IF(IJABS.EQ.ILABS) SCL=1.0D0
+            IF(IJABS.EQ.ILABS) SCL=One
            ELSE
             JGEL=KIGEJ(ILABS,IJABS)-NIGEJES(ISYJL)
            END IF
@@ -1047,10 +1053,10 @@ C   WP(v,a,jl)=  ((ajvl)+(alvj))/SQRT(2+2*Kron(jl))
            IW1=IV
            DO IL=1,NL
             ILABS=IL+NIES(ISYL)
-            SCL=SQRT(0.5D0)
+            SCL=SQRT(Half)
             IF(IJABS.GE.ILABS) THEN
              JGEL=KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
-             IF(IJABS.EQ.ILABS) SCL=1.0D0
+             IF(IJABS.EQ.ILABS) SCL=One
             ELSE
              JGEL=KIGEJ(ILABS,IJABS)-NIGEJES(ISYJL)
             END IF
@@ -1108,9 +1114,9 @@ C Read WM:
 
            IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
            CALL DGEMM_('N','T',NV*NL,NASZ*NJSZ,NCHO,
-     &          1.0D0,Cho_Ket,NV*NL,
+     &          One,Cho_Ket,NV*NL,
      &          Cho_Bra(IAJSTA,1),NA*NJ,
-     &          0.0D0,AJVL,NV*NL)
+     &          Zero,AJVL,NV*NL)
 
       if (iParRHS == 1) then
        IAJ=0
@@ -1208,6 +1214,7 @@ C Read WM:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -1276,9 +1283,9 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
 ************************************************************************
 *                                                                      *
       CALL DGEMM_('N','T',NA*NU,NC*NX,NCHO,
-     &            1.0D0,Cho_Bra,NA*NU,
+     &            One,Cho_Bra,NA*NU,
      &                  Cho_Ket,NC*NX,
-     &            0.0D0,AUCX,NA*NU)
+     &            Zero,AUCX,NA*NU)
 #ifdef _MOLCAS_MPP_
       IF (iParRHS == 2) call GADSUM_ADDRHS(AUCX,NA*NU*NC*NX)
 #endif
@@ -1304,8 +1311,8 @@ C Read WP:
          IF(ISYU.EQ.ISYX) IXMAX=IU
          DO IX=1,IXMAX
           IXABS=IX+NAES(ISYX)
-          SCL1=0.5D0
-          IF(IUABS.EQ.IXABS) SCL1=0.25D0
+          SCL1=Half
+          IF(IUABS.EQ.IXABS) SCL1=Quart
           IW1=KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
           DO IA=1,NA
            IAABS=IA+NSES(ISYA)
@@ -1314,7 +1321,7 @@ C Read WP:
             SCL=SCL1
             IF(IAABS.GE.ICABS) THEN
              IW2=KAGEB(IAABS,ICABS)-NAGEBES(ISYM)
-             IF(IAABS.EQ.ICABS) SCL=SQRT(2.0D0)*SCL1
+             IF(IAABS.EQ.ICABS) SCL=SQRT(Two)*SCL1
             ELSE
              IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
             END IF
@@ -1348,8 +1355,8 @@ C Read WP:
           IF(ISYU.EQ.ISYX) IXMAX=IU
           DO IX=1,IXMAX
            IXABS=IX+NAES(ISYX)
-           SCL1=0.5D0
-           IF(IUABS.EQ.IXABS) SCL1=0.25D0
+           SCL1=Half
+           IF(IUABS.EQ.IXABS) SCL1=Quart
            IW1=KTGEU(IUABS,IXABS)-NTGEUES(ISYM)
            if (IW1 < ILOV .or. IW1 > IHIV) cycle
            DO IA=1,NA
@@ -1359,7 +1366,7 @@ C Read WP:
              SCL=SCL1
              IF(IAABS.GE.ICABS) THEN
               IW2=KAGEB(IAABS,ICABS)-NAGEBES(ISYM)
-              IF(IAABS.EQ.ICABS) SCL=SQRT(2.0D0)*SCL1
+              IF(IAABS.EQ.ICABS) SCL=SQRT(Two)*SCL1
              ELSE
               IW2=KAGEB(ICABS,IAABS)-NAGEBES(ISYM)
              END IF
@@ -1420,17 +1427,17 @@ C Read WM:
             IF(IAABS.GT.ICABS) THEN
              IW2=KAGTB(IAABS,ICABS)-NAGTBES(ISYM)
              IW=IW1+NASM*(IW2-1)
-*            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)-0.5D0*AUCX(IA,IU,IC,IX)
+*            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)-Half*AUCX(IA,IU,IC,IX)
              IBUF=IBUF+1
              idxBuf(IBUF)=IW
-             Buff(IBUF)=-0.5D0*AUCX(IA,IU,IC,IX)
+             Buff(IBUF)=-Half*AUCX(IA,IU,IC,IX)
             ELSE IF(IAABS.LT.ICABS) THEN
              IW2=KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
              IW=IW1+NASM*(IW2-1)
-*            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)+0.5D0*AUCX(IA,IU,IC,IX)
+*            Buff(LWFM-1+IW)=Buff(LWFM-1+IW)+Half*AUCX(IA,IU,IC,IX)
              IBUF=IBUF+1
              idxBuf(IBUF)=IW
-             Buff(IBUF)=0.5D0*AUCX(IA,IU,IC,IX)
+             Buff(IBUF)=Half*AUCX(IA,IU,IC,IX)
             END IF
             IF (IBUF.EQ.NBUFF) THEN
               CALL RHS_SCATTER(LDFM,lg_FM,Buff,idxBuf,IBUF)
@@ -1463,14 +1470,14 @@ C Read WM:
               if (IW2 >= JLOV .and. IW2 <= JHIV) then
                DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
      *           = DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
-     *           - 0.5D0*AUCX(IA,IU,IC,IX)
+     *           - Half*AUCX(IA,IU,IC,IX)
               end if
              ELSE IF(IAABS.LT.ICABS) THEN
               IW2=KAGTB(ICABS,IAABS)-NAGTBES(ISYM)
               if (IW2 >= JLOV .and. IW2 <= JHIV) then
                DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
      *           = DBL_MB(MV+IW1-ILOV+LDFM*(IW2-JLOV))
-     *           + 0.5D0*AUCX(IA,IU,IC,IX)
+     *           + Half*AUCX(IA,IU,IC,IX)
               end if
              END IF
             END DO
@@ -1496,6 +1503,7 @@ C Put WFM on disk:
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -1521,7 +1529,7 @@ C Put WFM on disk:
 #endif
 Case G:
 C   WP(u,l,ac)=  ((aucl)+cual))/SQRT(2+2*Kron(ab))
-C   WM(u,l,ac)=  ((aucl)-cual))*SQRT(1.5D0)
+C   WM(u,l,ac)=  ((aucl)-cual))*SQRT(OneHalf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1562,9 +1570,9 @@ C   Allocate W with parts WP,WM
 ************************************************************************
 *                                                                      *
 C     CALL DGEMM_('N','T',NA*NU,NC*NL,NCHO,
-C    &            1.0D0,Cho_Bra,NA*NU,
+C    &            One,Cho_Bra,NA*NU,
 C    &                  Cho_Ket,NC*NL,
-C    &            0.0D0,AUCL,NA*NU)
+C    &            Zero,AUCL,NA*NU)
 *
 *     LWG=1+NA*NU*NC*NL
 *     LWGP=LWG
@@ -1607,9 +1615,9 @@ C      NBXSZJ=NINABX
 
           ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
           CALL DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,
-     &         1.0D0,Cho_Bra,NA*NU,
+     &         One,Cho_Bra,NA*NU,
      &         Cho_Ket(ICLSTA,1),NC*NL,
-     &         0.0D0,AUCL,NA*NU)
+     &         Zero,AUCL,NA*NU)
 
       if (iParRHS == 1) then
        ICL=0
@@ -1621,10 +1629,10 @@ C      NBXSZJ=NINABX
 
          DO IA=1,NA
           IAABS=IA+NSES(ISYA)
-          SCL=SQRT(0.5D0)
+          SCL=SQRT(Half)
           IF(IAABS.GE.ICABS) THEN
            IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-           IF(IAABS.EQ.ICABS) SCL=1.0D0
+           IF(IAABS.EQ.ICABS) SCL=One
           ELSE
            IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
           END IF
@@ -1659,10 +1667,10 @@ C      NBXSZJ=NINABX
 
           DO IA=1,NA
            IAABS=IA+NSES(ISYA)
-           SCL=SQRT(0.5D0)
+           SCL=SQRT(Half)
            IF(IAABS.GE.ICABS) THEN
             IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-            IF(IAABS.EQ.ICABS) SCL=1.0D0
+            IF(IAABS.EQ.ICABS) SCL=One
            ELSE
             IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
            END IF
@@ -1732,9 +1740,9 @@ C      NBXSZJ=NINABX
 
           ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
           CALL DGEMM_('N','T',NA*NU,NCSZ*NLSZ,NCHO,
-     &         1.0D0,Cho_Bra,NA*NU,
+     &         One,Cho_Bra,NA*NU,
      &         Cho_Ket(ICLSTA,1),NC*NL,
-     &         0.0D0,AUCL,NA*NU)
+     &         Zero,AUCL,NA*NU)
 
       if (iParRHS == 1) then
        ICL=0
@@ -1748,7 +1756,7 @@ C      NBXSZJ=NINABX
           IAABS=IA+NSES(ISYA)
           IF(IAABS.GT.ICABS) THEN
            IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
-           SCL=SQRT(1.5D0)
+           SCL=SQRT(OneHalf)
            DO IU=1,NU
             IW1=IU
             IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
@@ -1764,7 +1772,7 @@ C      NBXSZJ=NINABX
            END DO
           ELSE IF(IAABS.LT.ICABS) THEN
            IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
-           SCL=-SQRT(1.5D0)
+           SCL=-SQRT(OneHalf)
            DO IU=1,NU
             IW1=IU
             IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
@@ -1801,7 +1809,7 @@ C      NBXSZJ=NINABX
             IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
             ITMP2 = IL+NL*(IAGTC-1)+IOFF2(ISYL)
             if (ITMP2 < JLOV .or. ITMP2 > JHIV) cycle
-            SCL=SQRT(1.5D0)
+            SCL=SQRT(OneHalf)
             DO IU=1,NU
               ITMP1 = IU
               if (ITMP1 >= ILOV .and. ITMP1 <= IHIV) then
@@ -1814,7 +1822,7 @@ C      NBXSZJ=NINABX
             IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
             ITMP2 = IL+NL*(IAGTC-1)+IOFF2(ISYL)
             if (ITMP2 < JLOV .or. ITMP2 > JHIV) cycle
-            SCL=-SQRT(1.5D0)
+            SCL=-SQRT(OneHalf)
             DO IU=1,NU
               ITMP1 = IU
               if (ITMP1 >= ILOV .and. ITMP1 <= IHIV) then
@@ -1852,6 +1860,7 @@ C      NBXSZJ=NINABX
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One, Half, Two, Three
       use caspt2_global, only: iParRHS
       USE SUPERINDEX
       use EQSOLV
@@ -1876,7 +1885,7 @@ C      NBXSZJ=NINABX
 *      Logical Incore
 * Case H:
 C   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
-C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(3.0D0)
+C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -1917,9 +1926,9 @@ C   Allocate WHP,WHM
 ************************************************************************
 *                                                                      *
 *     CALL DGEMM_('N','T',NA*NJ,NC*NL,NCHO,
-*    &            1.0D0,Cho_Bra,NA*NJ,
+*    &            One,Cho_Bra,NA*NJ,
 *    &                  Cho_Ket,NC*NL,
-*    &            0.0D0,AJCL,NA*NJ)
+*    &            Zero,AJCL,NA*NJ)
 *
 *     LWHP=1+nBatch*NC*NL
 *     LWHM=LWHP
@@ -1968,9 +1977,9 @@ C      NBXSZJ=NINABX
 
            IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
            CALL DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,
-     &          1.0D0,Cho_Ket,NC*NL,
+     &          One,Cho_Ket,NC*NL,
      &          Cho_Bra(IAJSTA,1),NA*NJ,
-     &          0.0D0,AJCL,NC*NL)
+     &          Zero,AJCL,NC*NL)
 
       if (iParRHS == 1) then
            DO ICSTA=1,NC,NBXSZC
@@ -1994,9 +2003,9 @@ C      NBXSZJ=NINABX
            ICL=0
            DO IL=ILSTA,MIN(ILEND,ILMAX)
              ILABS=IL+NIES(ISYL)
-             SCL1=1.0D0
+             SCL1=One
              IJGEL=KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
-             IF(IJABS.EQ.ILABS) SCL1=SQRT(0.5D0)
+             IF(IJABS.EQ.ILABS) SCL1=SQRT(Half)
              DO IC=ICSTA,ICEND
                ICABS=IC+NSES(ISYC)
                ICL=ICL+1
@@ -2004,7 +2013,7 @@ C      NBXSZJ=NINABX
                SCL=SCL1
                IF(IAABS.GE.ICABS) THEN
                  IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-                 IF(IAABS.EQ.ICABS) SCL=SQRT(2.0D0)*SCL1
+                 IF(IAABS.EQ.ICABS) SCL=SQRT(Two)*SCL1
                ELSE
                  IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
                END IF
@@ -2053,13 +2062,13 @@ C      NBXSZJ=NINABX
            ICL=0
            DO IL=ILSTA,MIN(ILEND,ILMAX)
              ILABS=IL+NIES(ISYL)
-             SCL1=1.0D0
+             SCL1=One
              IJGEL=KIGEJ(IJABS,ILABS)-NIGEJES(ISYJL)
              if (IJGEL < JLOV .or. IJGEL > JHIV) then
                ICL = ICL + ICEND-ICSTA+1
                cycle
              end if
-             IF(IJABS.EQ.ILABS) SCL1=SQRT(0.5D0)
+             IF(IJABS.EQ.ILABS) SCL1=SQRT(Half)
              DO IC=ICSTA,ICEND
                ICABS=IC+NSES(ISYC)
                ICL=ICL+1
@@ -2067,7 +2076,7 @@ C      NBXSZJ=NINABX
                SCL=SCL1
                IF(IAABS.GE.ICABS) THEN
                  IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
-                 IF(IAABS.EQ.ICABS) SCL=SQRT(2.0D0)*SCL1
+                 IF(IAABS.EQ.ICABS) SCL=SQRT(Two)*SCL1
                ELSE
                  IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
                END IF
@@ -2116,7 +2125,7 @@ C Read WM:
       end if
 #endif
 *
-C VM(jl,ac)=((ajcl)-(alcj))*SQRT(3.0D0)
+C VM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
        NBXSZA=NSECBX
 C      NBXSZJ=NINABX
        KAJ=NAJCL/(NC*NL)
@@ -2137,9 +2146,9 @@ C      NBXSZJ=NINABX
 
            IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
            CALL DGEMM_('N','T',NC*NL,NASZ*NJSZ,NCHO,
-     &          1.0D0,Cho_Ket,NC*NL,
+     &          One,Cho_Ket,NC*NL,
      &          Cho_Bra(IAJSTA,1),NA*NJ,
-     &          0.0D0,AJCL,NC*NL)
+     &          Zero,AJCL,NC*NL)
 
       if (iParRHS == 1) then
            DO ICSTA=1,NC,NBXSZC
@@ -2170,10 +2179,10 @@ C      NBXSZJ=NINABX
 
               IF (IAABS.GT.ICABS) THEN
                 IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
-                SCL= SQRT(3.0D0)
+                SCL= SQRT(Three)
               ELSE IF(IAABS.LT.ICABS) THEN
                 IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
-                SCL=-SQRT(3.0D0)
+                SCL=-SQRT(Three)
               ELSE
                 GO TO 700
               ENDIF
@@ -2234,10 +2243,10 @@ C      NBXSZJ=NINABX
 
               IF (IAABS.GT.ICABS) THEN
                 IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
-                SCL= SQRT(3.0D0)
+                SCL= SQRT(Three)
               ELSE IF(IAABS.LT.ICABS) THEN
                 IAGTC=KAGTB(ICABS,IAABS)-NAGTBES(ISYAC)
-                SCL=-SQRT(3.0D0)
+                SCL=-SQRT(Three)
               ELSE
                 cycle
               ENDIF
