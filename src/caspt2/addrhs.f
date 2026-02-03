@@ -20,7 +20,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -36,6 +36,10 @@
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
+      integer(kind=iwp) IBUF,ICASE,IJ,ISYM,ISYT,ISYV,IT,ITABS,IV,IVABS,
+     &                  IW,IW1,IW2
+      integer(kind=iwp) IX,IXABS,LDA,lg_A,NAS,NIS,NWA
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -154,7 +158,7 @@ C Put W on disk:
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -179,6 +183,11 @@ Case B:
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
+      integer(kind=iwp) IBUF,ICASE,IJ,ISYM,ISYT,ISYV,IT,ITABS,IV,IVABS,
+     &                  IW,IW1,IW2
+      integer(kind=iwp) IJABS,IL,ILABS,IVMAX,LDBM,LDBP,lg_BM,lg_BP,NASM,
+     &                  NASP,NISM,NISP,NWBM,NWBP
+      real(kind=wp) SCL, SCL1, SQ2
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -449,7 +458,7 @@ C Put WBM on disk:
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -465,6 +474,10 @@ C Put WBM on disk:
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 *      Logical Incore
+      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IVABS,
+     &                  IW,IW1,IW2
+      integer(kind=iwp) IX,IXABS,NAS,NIS
+      integer(kind=iwp) IA,ISYA,IU,IUABS,LDC,lg_C,NWC
 Case C:
 C   Allocate W. Put in W(uvx,a)=(au,vx) +
 C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
@@ -582,7 +595,7 @@ C Put W on disk:
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -599,6 +612,12 @@ C Put W on disk:
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
+      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IVABS,
+     &                  IW,IW1,IW2
+      integer(kind=iwp) IA,ISYA
+      integer(kind=iwp) IAEND,IAJ,IAJSTA,IASTA,IJ,IJEND,IJSTA,IO,ISA,
+     &                  ISI,ISW,IX,IXABS,LDD,lg_D,NAS,NAS1,NASZ,NBXSZA,
+     &                  NBXSZJ,NIS,NJSZ,NWD
 Case D:
 C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
 C Compute W2(vu,al)=(au,vl)
@@ -764,7 +783,7 @@ C Put W on disk:
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -781,6 +800,10 @@ C Put W on disk:
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
+      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IVABS,
+     &                  IW,IW1,IW2
+      integer(kind=iwp) IA,IL,IO,ISYA,ISYI,ISYW,IU,IUABS,LDD,lg_D,NAS,
+     &                  NAS1,NIS,NWD
 Case D:
 C Compute W1(vx,aj)=(aj,vx) + FIMO(a,j)*delta(v,x)/NACTEL
 C Compute W2(vu,al)=(au,vl)
@@ -910,7 +933,7 @@ C Put W on disk:
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -927,6 +950,13 @@ C Put W on disk:
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
+      integer(kind=iwp) IBUF,ICASE,ISYM,ISYV,IV,IW,IW1,IW2
+      integer(kind=iwp) IA,ISYA
+      integer(kind=iwp) IAEND,IAJ,IAJSTA,IASTA,IJ,IJEND,IJSTA,ISA,
+     &                  NAS,NASZ,NBXSZA,NBXSZJ,NJSZ
+      integer(kind=iwp) IJABS,IL,ILABS,IO1,IO2,ISIJ,ISYJL,JGEL,JGTL,
+     &                  LDEM,LDEP,lg_EM,lg_EP,NISM,NISP,NW,NWM,NWP
+      real(kind=wp) SCL,SQ32
 Case E:
 *                                                                      *
 ************************************************************************
@@ -1228,7 +1258,7 @@ C Read WM:
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1244,6 +1274,11 @@ C Read WM:
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
 *      Logical Incore
+      integer(kind=iwp) IBUF,ICASE,ISYM,IW,IW1,IW2
+      integer(kind=iwp) IA,IAABS,IC,ICABS,ISYA,ISYC,IU,IUABS,IX,IXABS,
+     &                  IXMAX,LDFM,LDFP,lg_FM,lg_FP,NASM,NASP,NISM,NISP,
+     &                  NWFM,NWFP
+      real(kind=wp)     SCL,SCL1
 Case F:
 C   WP(ux,ac)=((aucx)+(axcu))*(1-Kron(x,u)/2) /2
 C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ac))
@@ -1518,7 +1553,7 @@ C Put WFM on disk:
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1535,6 +1570,12 @@ C Put WFM on disk:
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV
 #endif
+      integer(kind=iwp) IBUF,ICASE,ISYM,IW,IW1,IW2
+      integer(kind=iwp) IA,IAABS,IAGEC,IAGTC,IC,ICABS,ICEND,ICL,ICLSTA,
+     &                  ICSTA,IL,ILEND,ILSTA,IO1,IO2,ISAB,ISI,ISYA,
+     &                  ISYAC,ISYC,IU,KCL,LDGM,LDGP,lg_GM,lg_GP,NAS,
+     &                  NBXSZC,NBXSZL,NCSZ,NISM,NISP,NLSZ,NWGM,NWGP
+      real(kind=wp) SCL
 Case G:
 C   WP(u,l,ac)=  ((aucl)+cual))/SQRT(2+2*Kron(ab))
 C   WM(u,l,ac)=  ((aucl)-cual))*SQRT(OneHalf)
@@ -1876,7 +1917,7 @@ C      NBXSZJ=NINABX
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1892,6 +1933,14 @@ C      NBXSZJ=NINABX
       integer(kind=iwp) :: myRank,ILOV,IHIV,JLOV,JHIV,MV,LDV,ITMP1,ITMP2
 #endif
 *      Logical Incore
+      integer(kind=iwp) IBUF,ICASE,ISYM,IW
+      integer(kind=iwp) IA,IAABS,IAEND,IAGEC,IAGTC,IAJ,IAJSTA,IASTA,IC,
+     &                  ICABS,ICEND,ICL,ICLSTA,ICSTA,IJ,IJABS,IJEND,
+     &                  IJGEL,IJGTL,IJSTA,IL,ILABS,ILEND,ILMAX,ILSTA,
+     &                  ISYA,ISYAC,ISYC,ISYJL,KAJ,LDHM,LDHP,lg_HM,lg_HP,
+     &                  NASM,NASP,NASZ,NBXSZA,NBXSZC,NBXSZJ,NBXSZL,NCSZ,
+     &                  NISM,NISP,NJSZ,NWHM,NWHP
+      real(kind=wp)     SCL,SCL1
 * Case H:
 C   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
 C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
