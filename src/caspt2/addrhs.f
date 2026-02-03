@@ -27,7 +27,7 @@
 #endif
       integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,
      &                                nBuff, NCHO
-      real(kind=wp) TJVX(NT,NJ,NV,NX)
+      real(kind=wp), Intent(out):: TJVX(NT,NJ,NV,NX)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
       real(kind=wp) Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NX,NCHO)
@@ -169,7 +169,7 @@ Case B:
 
       integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,
      &                                nBuff, NCHO
-      real(kind=wp) TJVL(NT,NJ,NV,NL)
+      real(kind=wp), intent(out):: TJVL(NT,NJ,NV,NL)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
       real(kind=wp) Cho_Bra(NT,NJ,NCHO), Cho_Ket(NV,NL,NCHO)
@@ -454,7 +454,7 @@ C Put WBM on disk:
 #endif
       integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,
      &                                nBuff, NCHO
-      real(kind=wp) AUVX(NA,NU,NV,NX)
+      real(kind=wp), intent(out):: AUVX(NA,NU,NV,NX)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
       real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NX,NCHO)
@@ -586,7 +586,7 @@ C Put W on disk:
 #endif
       integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,
      &                                nBuff, NCHO
-      real(kind=wp) AJVX(NV,NX,*)
+      real(kind=wp), intent(out):: AJVX(NV,NX,*)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
       real(kind=wp) Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NX,NCHO)
@@ -767,7 +767,7 @@ C Put W on disk:
 #endif
       integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,
      &                                nBuff, NCHO
-      real(kind=wp) AUVL(NA,NU,NV,NL)
+      real(kind=wp), intent(out):: AUVL(NA,NU,NV,NL)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
       real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NV,NL,NCHO)
@@ -912,7 +912,7 @@ C Put W on disk:
 #endif
       integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,
      &                                nBuff, NCHO
-      real(kind=wp) AJVL(NV,NL,*)
+      real(kind=wp), intent(out):: AJVL(NV,NL,*)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
       real(kind=wp) Cho_Bra(NA*NJ,NCHO), Cho_Ket(NV,NL,NCHO)
@@ -1229,7 +1229,7 @@ C Read WM:
 #endif
       integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,
      &                                nBuff, NCHO
-      real(kind=wp) AUCX(NA,NU,NC,NX)
+      real(kind=wp), intent(out):: AUCX(NA,NU,NC,NX)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
       real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NC,NX,NCHO)
@@ -1518,7 +1518,7 @@ C Put WFM on disk:
 #endif
       integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,
      &                                NAUCL, nBuff, NCHO
-      real(kind=wp) AUCL(NA,NU,*)
+      real(kind=wp), intent(out):: AUCL(NA,NU,*)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
       real(kind=wp) Cho_Bra(NA,NU,NCHO), Cho_Ket(NC*NL,NCHO)
@@ -1875,7 +1875,7 @@ C      NBXSZJ=NINABX
 #endif
       integer(kind=iwp), Intent(in):: IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,
      &                                NAJCL, nBuff, NCHO
-      real(kind=wp) AJCL(NC*NL,*)
+      real(kind=wp), intent(out):: AJCL(NC*NL,*)
       real(kind=wp) Buff(nBuff)
       integer(kind=iwp) idxBuf(nBuff)
       real(kind=wp) Cho_Bra(NA*NJ,NCHO), Cho_Ket(NC*NL,NCHO)
