@@ -18,20 +18,22 @@
 *--------------------------------------------*
       SUBROUTINE MKSMAT()
       use definitions, only: iwp, wp, u6, byte
+      use constants, only: One
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_global, only: DREF, PREF
-      use caspt2_global, only: LUSOLV, LUSBT
-      use EQSOLV
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_global, only: DREF, PREF, LUSOLV, LUSBT
+      use EQSOLV, only: IDSMAT
+      use caspt2_module, only: NASHT, NSYM, NINDEP
+      use pt2_guga, only: NG3
+      IMPLICIT None
 C     Set up S matrices for cases 1..13.
       real(kind=wp) DUM(1)
       INTEGER(kind=byte), ALLOCATABLE :: idxG3(:,:)
 
       real(kind=wp), ALLOCATABLE:: G3(:)
+      integer(kind=iwp) nDREF, nPREF, ICASE, IDISK, iLUID, ISYM, NIN
+
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(u6,*)
@@ -52,24 +54,26 @@ C  part of the three-electron density matrix G3:
         iLUID=0
         CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-        CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
-        CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
+        nDREF=SIZE(DREF)
+        nPREF=SIZE(PREF)
+        CALL MKSA(DREF,nDREF,PREF,nPREF,NG3,G3,idxG3)
+        CALL MKSC(DREF,nDREF,PREF,nPREF,NG3,G3,idxG3)
 
         CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
-        CALL MKSB(DREF,SIZE(DREF),PREF,SIZE(PREF))
-        CALL MKSD(DREF,SIZE(DREF),PREF,SIZE(PREF))
-        CALL MKSE(DREF,SIZE(DREF))
-        CALL MKSF(PREF,SIZE(PREF))
-        CALL MKSG(DREF,SIZE(DREF))
+        CALL MKSB(DREF,nDREF,PREF,nPREF)
+        CALL MKSD(DREF,nDREF,PREF,nPREF)
+        CALL MKSE(DREF,nDREF)
+        CALL MKSF(PREF,nPREF)
+        CALL MKSG(DREF,nDREF)
       END IF
 
 C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest  of the routines.
-      DUM(1)=1.0D00
+      DUM(1)=One
       DO ISYM=1,NSYM
         DO ICASE=12,13
           NIN=NINDEP(ISYM,ICASE)
@@ -80,8 +84,6 @@ C looping, etc in the rest  of the routines.
         END DO
       END DO
 
-
-      RETURN
       END SUBROUTINE MKSMAT
 
 ********************************************************************************
