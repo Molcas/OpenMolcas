@@ -1899,6 +1899,7 @@ C Write to disk, and save size and address.
 
       SUBROUTINE MKSD(DREF,NDREF,PREF,NPREF)
       use definitions, only: iwp, wp
+      use constants, only: Half, Two
       USE SUPERINDEX
       use caspt2_global, only: LUSBT
       use EQSOLV
@@ -1923,18 +1924,18 @@ C    SD(tu2,xy2)= -Gxtuy +2*dxt Duy
 
 
 C Loop over superindex symmetry.
-      DO 1000 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NIN=NINDEP(ISYM,5)
-        IF(NIN.EQ.0) GOTO 1000
+        IF(NIN.EQ.0) CYCLE
         NAS=NTU(ISYM)
         NSD=(2*NAS*(2*NAS+1))/2
         IF(NSD.GT.0) Call mma_allocate(SD,NSD,LABEL='SD')
-        DO 100 ITU=1,NAS
+        DO ITU=1,NAS
         ITU2=ITU+NAS
           ITUABS=ITU+NTUES(ISYM)
           ITABS=MTU(1,ITUABS)
           IUABS=MTU(2,ITUABS)
-          DO 101 IXY=1,ITU
+          DO IXY=1,ITU
             IXY2=IXY+NAS
             IXYABS=IXY+NTUES(ISYM)
             IXABS=MTU(1,IXYABS)
@@ -1948,32 +1949,32 @@ C Loop over superindex symmetry.
             IP1=MAX(IUTP,IXYP)
             IP2=MIN(IUTP,IXYP)
             IP=(IP1*(IP1-1))/2+IP2
-            GUTXY=2.0D0*PREF(IP)
+            GUTXY=Two*PREF(IP)
             IXTP=IXABS+NASHT*(ITABS-1)
             IUYP=IUABS+NASHT*(IYABS-1)
             IP1=MAX(IXTP,IUYP)
             IP2=MIN(IXTP,IUYP)
             IP=(IP1*(IP1-1))/2+IP2
-            GXTUY=2.0D0*PREF(IP)
-            S11=2.0D0*GUTXY
+            GXTUY=Two*PREF(IP)
+            S11=Two*GUTXY
             S22=-GXTUY
             IF(IXABS.EQ.ITABS) THEN
               ID1=MAX(IUABS,IYABS)
               ID2=MIN(IUABS,IYABS)
               ID=(ID1*(ID1-1))/2+ID2
               DUY=DREF(ID)
-              S11=S11+2.0D0*DUY
-              S22=S22+2.0D0*DUY
+              S11=S11+Two*DUY
+              S22=S22+Two*DUY
             END IF
 C    SD(tu1,xy1)=2*(Gutxy + dtx Duy)
             SD(IS11)= S11
 C    SD(tu2,xy1)= -(Gutxy + dtx Duy)
-            SD(IS21)=-0.5D0*S11
-            SD(IS12)=-0.5D0*S11
+            SD(IS21)=-Half*S11
+            SD(IS12)=-Half*S11
 C    SD(tu2,xy2)= -Gxtuy +2*dtx Duy
             SD(IS22)= S22
- 101      CONTINUE
- 100    CONTINUE
+          END DO
+        END DO
 
 C Write to disk
         IF(NSD.GT.0) THEN
@@ -1983,10 +1984,8 @@ C Write to disk
          END IF
          CALL mma_deallocate(SD)
         END IF
- 1000 CONTINUE
+      END DO
 
-
-      RETURN
       END SUBROUTINE MKSD
 
       SUBROUTINE MKSE(DREF,NDREF)
