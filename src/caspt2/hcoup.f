@@ -162,9 +162,9 @@ C Sum-reduce the per-process contributions
      &                     TG1,TG2,TG3)
       use definitions, only: iwp, wp
       use constants, only: Zero, Two, Four, Eight
-      USE SUPERINDEX
-      use EQSOLV
-      use caspt2_module
+      USE SUPERINDEX, only: MTUV, MTGEU, MTGTU, MTU
+      use caspt2_module, only: NASHT, NTUVES, NTGEUES, NTUES, NAES,
+     &                         NTGTUES
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -172,7 +172,7 @@ C with A the active superindex and I the inactive superindex. Since
 C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 
       integer(kind=iwp), intent(in):: ICASE,ISYM,NAS,IISTA,IIEND
       real(kind=wp), intent(in):: V1(*), V2(*)
@@ -184,7 +184,15 @@ C calling subroutine.
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       real(kind=wp), intent(in):: TG3(*)
 
-      integer(kind=iwp) NISBLK
+      integer(kind=iwp) NISBLK,
+     &                  IAS, IASABS, ITABS, IUABS, IVABS,
+     &                  JAS, JASABS, IXABS, IYABS, IZABS,
+     &                  IND1, IND2, IND3, JND1, JND2, JND3,
+     &                  IAS1, IAS2, JAS1, JAS2, ITG3, NAS1
+      real(kind=wp) GUTXY, GUY, SA, SBM, SBP, SBtuxy, SBtuyx, SC,
+     &              SD11, SD12, SD21, SD22, SE, SFM, SFP, SFtuxy,
+     &              SFtuyx, SG, TMP
+      real(kind=wp), external:: DDot_
 
       HEBLK=Zero
 
