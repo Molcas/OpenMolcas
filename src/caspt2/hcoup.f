@@ -160,6 +160,7 @@ C Sum-reduce the per-process contributions
 
       SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,HEBLK,
      &                     TG1,TG2,TG3)
+      use definitions, only: iwp, wp
       use constants, only: Zero, Two, Four, Eight
       USE SUPERINDEX
       use EQSOLV
@@ -173,13 +174,17 @@ C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      DIMENSION V1(*), V2(*)
+      integer(kind=iwp), intent(in):: ICASE,ISYM,NAS,IISTA,IIEND
+      real(kind=wp), intent(in):: V1(*), V2(*)
+      real(kind=wp), intent(in):: OVL
+      real(kind=wp), intent(out):: HEBLK
 
-      Dimension TG1(NASHT,NASHT)
-      Dimension TG2(NASHT,NASHT,NASHT,NASHT)
+      real(kind=wp), intent(in):: TG1(NASHT,NASHT)
+      real(kind=wp), intent(in):: TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      Dimension TG3(*)
+      real(kind=wp), intent(in):: TG3(*)
 
+      integer(kind=iwp) NISBLK
 
       HEBLK=Zero
 
