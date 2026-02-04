@@ -202,7 +202,7 @@ C-SVC20100831: determine indices in SA where a certain G3 value will end up
         iSZ=IASYM(iZ)
         ituvs=MUL(IST,MUL(ISU,ISV))
         ixyzs=MUL(ISX,MUL(ISY,ISZ))
-        if(ituvs.ne.ixyzs) goto 500
+        if(ituvs.ne.ixyzs) CYCLE
         iTU=iT+NASHT*(iU-1)
         iVX=iV+NASHT*(iX-1)
         iYZ=iY+NASHT*(iZ-1)
@@ -252,6 +252,7 @@ C  - G(tuyzvx) -> SA(zut,yvx)
           END IF
         ENDIF
  200   CONTINUE
+
 C  - G(yztuvx) -> SA(uzy,tvx)
         jSYM=MUL(IASYM(iU),MUL(IASYM(iZ),IASYM(iY)))
         IF (jSYM.EQ.iSYM) THEN
@@ -273,10 +274,11 @@ C  - G(vxyztu) -> SA(zxv,ytu)
           END IF
         ENDIF
  300   CONTINUE
-        if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 500
-        if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) go to 500
-        if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) go to 500
-        if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) go to 500
+
+        if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
+        if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
+        if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
+        if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
 C  - G(utxvzy) -> SA(vtu,xzy)
         jSYM=MUL(IASYM(iV),MUL(IASYM(iT),IASYM(iU)))
         IF (jSYM.EQ.iSYM) THEN
@@ -287,7 +289,8 @@ C  - G(utxvzy) -> SA(vtu,xzy)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
-        if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 500
+        if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
+
         if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 400
 C  - G(xvutzy) -> SA(tvx,uzy)
         jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
@@ -320,6 +323,7 @@ C  - G(utzyxv) -> SA(ytu,zxv)
           END IF
         ENDIF
  400   CONTINUE
+
 C  - G(zyutxv) -> SA(tyz,uxv)
         jSYM=MUL(IASYM(iT),MUL(IASYM(iY),IASYM(iZ)))
         IF (jSYM.EQ.iSYM) THEN
@@ -340,7 +344,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
- 500   CONTINUE
+
       END DO
 
       END SUBROUTINE MKSA_G3
