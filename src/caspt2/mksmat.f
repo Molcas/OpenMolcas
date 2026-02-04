@@ -1199,21 +1199,20 @@ C  - G(xvzyut) -> SC(zvx,yut)
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKSC_G3_MPP(ISYM,SC,iLo,iHi,jLo,jHi,LDC,
      &                       NG3,G3,idxG3)
-      use definitions, only: iwp, wp, Byte
-      USE MPI
-      USE SUPERINDEX
+      use definitions, only: iwp, wp, Byte, MPIInt, RtoB
+      USE MPI, only: MPI_INTEGER, MPI_COMM_WORLD, MPI_REAL8
+      USE SUPERINDEX, only: KTUV
       use stdalloc, only: mma_MaxDBLE
-      use EQSOLV
-      use definitions, only: MPIInt,RtoB,wp
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: IASYM, MUL, NASHT, nTUVES
+      IMPLICIT NONE
 
 #include "global.fh"
 #include "mafdecls.fh"
 
-      real(kind=wp) SC(LDC,*)
-      real(kind=wp) G3(NG3)
-      INTEGER(kind=Byte) idxG3(6,NG3)
+      integer(kind=iwp) ISYM,iLo,iHi,jLo,jHi,LDC,NG3
+      real(kind=wp), intent(out):: SC(LDC,*)
+      real(kind=wp), intent(in):: G3(NG3)
+      INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
@@ -1228,6 +1227,12 @@ C  - G(xvzyut) -> SC(zvx,yut)
       INTEGER, PARAMETER :: I4=KIND(ONE4)
 
       INTEGER(kind=iwp), ALLOCATABLE :: IBUF(:)
+      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
+     &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP,ISADR
+      integer(kind=iwp) NG3MAX,NPROCS,MYRANK,MAXMEM,ISCAL,MAXBUF,NG3B,
+     &                  NBUF,NAS,NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,
+     &                  IROW,IP,IOFFSET,I,ICOL,NRECV
+      real(kind=wp) G3VAL
 
 #include "mpi_interfaces.fh"
 
@@ -1303,7 +1308,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
           iSZ=IASYM(iZ)
           ituvs=MUL(IST,MUL(ISU,ISV))
           ixyzs=MUL(ISX,MUL(ISY,ISZ))
-          if(ituvs.ne.ixyzs) goto 500
+          if(ituvs.ne.ixyzs) CYCLE
           iTU=iT+NASHT*(iU-1)
           iVX=iV+NASHT*(iX-1)
           iYZ=iY+NASHT*(iZ-1)
@@ -1316,8 +1321,8 @@ C  - G(tuvxyz) -> SC(vut,xyz)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-          if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 300
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 200
+          if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
+          if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(vxtuyz) -> SC(txv,uyz)
           jSYM=MUL(IASYM(iT),MUL(IASYM(iX),IASYM(iV)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1339,7 +1344,7 @@ C  - G(tuyzvx) -> SC(yut,zvx)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
- 200   CONTINUE
+       ENDIF
 C  - G(yztuvx) -> SC(tzy,uvx)
           jSYM=MUL(IASYM(iT),MUL(IASYM(iZ),IASYM(iY)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1354,11 +1359,11 @@ C  - G(vxyztu) -> SC(yxv,ztu)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
- 300   CONTINUE
-          if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 500
-          if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) go to 500
-          if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) go to 500
-          if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) go to 500
+       ENDIF
+          if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
+          if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
+          if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
+          if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
 C  - G(utxvzy) -> SC(xtu,vzy)
           jSYM=MUL(IASYM(iX),MUL(IASYM(iT),IASYM(iU)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1366,8 +1371,8 @@ C  - G(utxvzy) -> SC(xtu,vzy)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-          if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 500
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 400
+          if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
+          if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(xvutzy) -> SC(uvx,tzy)
           jSYM=MUL(IASYM(iU),MUL(IASYM(iV),IASYM(iX)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1389,7 +1394,7 @@ C  - G(utzyxv) -> SC(ztu,yxv)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
- 400   CONTINUE
+       ENDIF
 C  - G(zyutxv) -> SC(uyz,txv)
           jSYM=MUL(IASYM(iU),MUL(IASYM(iY),IASYM(iZ)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1404,7 +1409,6 @@ C  - G(xvzyut) -> SC(zvx,yut)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
- 500   CONTINUE
         END DO
 
         ! At this point, SCOUNTS contains the number of values generated
@@ -1432,7 +1436,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
           iSZ=IASYM(iZ)
           ituvs=MUL(IST,MUL(ISU,ISV))
           ixyzs=MUL(ISX,MUL(ISY,ISZ))
-          if(ituvs.ne.ixyzs) goto 501
+          if(ituvs.ne.ixyzs) CYCLE
           iTU=iT+NASHT*(iU-1)
           iVX=iV+NASHT*(iX-1)
           iYZ=iY+NASHT*(iZ-1)
@@ -1450,8 +1454,8 @@ C  - G(tuvxyz) -> SC(vut,xyz)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
             SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
-          if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 301
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 201
+          if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
+          if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(vxtuyz) -> SC(txv,uyz)
           jSYM=MUL(IASYM(iT),MUL(IASYM(iX),IASYM(iV)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1485,7 +1489,7 @@ C  - G(tuyzvx) -> SC(yut,zvx)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
             SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
- 201   CONTINUE
+       ENDIF
 C  - G(yztuvx) -> SC(tzy,uvx)
           jSYM=MUL(IASYM(iT),MUL(IASYM(iZ),IASYM(iY)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1508,11 +1512,11 @@ C  - G(vxyztu) -> SC(yxv,ztu)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
             SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
- 301   CONTINUE
-          if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 501
-          if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) go to 501
-          if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) go to 501
-          if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) go to 501
+       ENDIF
+          if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
+          if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
+          if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
+          if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
 C  - G(utxvzy) -> SC(xtu,vzy)
           jSYM=MUL(IASYM(iX),MUL(IASYM(iT),IASYM(iU)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1524,8 +1528,8 @@ C  - G(utxvzy) -> SC(xtu,vzy)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
             SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
-          if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 501
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 401
+          if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
+          if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(xvutzy) -> SC(uvx,tzy)
           jSYM=MUL(IASYM(iU),MUL(IASYM(iV),IASYM(iX)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1559,7 +1563,7 @@ C  - G(utzyxv) -> SC(ztu,yxv)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
             SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
- 401   CONTINUE
+       ENDIF
 C  - G(zyutxv) -> SC(uyz,txv)
           jSYM=MUL(IASYM(iU),MUL(IASYM(iY),IASYM(iZ)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1582,7 +1586,6 @@ C  - G(xvzyut) -> SC(zvx,yut)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
             SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
           ENDIF
- 501   CONTINUE
         END DO
 
         ! Now we need to determine the receive counts.
