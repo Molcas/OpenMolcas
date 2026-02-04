@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
+      use definitions, only: iwp, wp
       use gugx, only: EXS, SGS,L2ACT, CIS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use caspt2_module
@@ -18,19 +19,20 @@
       use pt2_guga
       IMPLICIT REAL*8 (a-h,o-z)
 
-      INTEGER LSYM1, LSYM2
-      REAL*8  CI1(MXCI),CI2(MXCI)
-      REAL*8  OVL
-      REAL*8  TG1(NASHT,NASHT),TG2(NASHT,NASHT,NASHT,NASHT)
-      INTEGER NTG3
-      REAL*8  TG3(NTG3)
-      Integer :: nLev
+      integer(kind=iwp), intent(in):: LSYM1, LSYM2
+      real(kind=wp), intent(in)::  CI1(MXCI),CI2(MXCI)
+      real(kind=wp), intent(out)::  OVL
+      real(kind=wp), intent(out)::  TG1(NASHT,NASHT),
+     &                              TG2(NASHT,NASHT,NASHT,NASHT)
+      integer(kind=iwp), intent(in):: NTG3
+      real(kind=wp), intent(out)::  TG3(NTG3)
+      integer(kind=iwp) :: nLev
 #ifdef _MOLCAS_MPP_
-      Logical :: Poor_Par
+      Logical(kind=iwp) :: Poor_Par
 #endif
 
-      INTEGER, allocatable:: P2LEV(:)
-      REAL*8, allocatable:: TG3WRK(:)
+      integer(kind=iwp), allocatable:: P2LEV(:)
+      real(kind=wp), allocatable:: TG3WRK(:)
 
       nLev = SGS%nLev
 
