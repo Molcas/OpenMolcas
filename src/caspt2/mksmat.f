@@ -34,8 +34,8 @@ C     Set up S matrices for cases 1..13.
       real(kind=wp), ALLOCATABLE:: G3(:)
 
       IF(IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,*)
-        WRITE(6,*)' Construct S matrices'
+        WRITE(u6,*)
+        WRITE(u6,*)' Construct S matrices'
       END IF
 
       IF(NASHT.GT.0) THEN
@@ -88,7 +88,7 @@ C looping, etc in the rest  of the routines.
 * Case A (ICASE=1)
 ********************************************************************************
       SUBROUTINE MKSA(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
-      use definitions, only: iwp, wp, u6
+      use definitions, only: iwp, wp, u6, Byte
       USE SUPERINDEX
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
@@ -105,7 +105,7 @@ C looping, etc in the rest  of the routines.
 #endif
       integer(kind=iwp) NDREF,NPREF, NG3
       real(kind=wp) DREF(NDREF),PREF(NPREF),G3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      INTEGER(kind=Byte) idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
 #endif
@@ -168,15 +168,17 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
       END SUBROUTINE MKSA
 
       SUBROUTINE MKSA_G3(ISYM,SA,NG3,G3,idxG3)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, Byte
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      DIMENSION SA(*)
-      DIMENSION G3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      real(kind=wp) SA(*)
+      real(kind=wp) G3(NG3)
+      INTEGER(kind=Byte) idxG3(6,NG3)
+
+      integer(kind=iwp) iG3
 
 C-SVC20100831: determine indices in SA where a certain G3 value will end up
       DO iG3=1,NG3
@@ -340,21 +342,20 @@ C  - G(xvzyut) -> SA(yvx,zut)
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,G3,idxG3)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, MPIInt, RtoB, Byte
       USE MPI
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
-      use definitions, only: MPIInt,RtoB,wp
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "global.fh"
 #include "mafdecls.fh"
 
-      DIMENSION SA(LDA,*)
-      DIMENSION G3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      real(kind=wp) SA(LDA,*)
+      real(kind=wp) G3(NG3)
+      INTEGER(kind=Byte) idxG3(6,NG3)
 
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
@@ -366,7 +367,6 @@ C  - G(xvzyut) -> SA(yvx,zut)
 
       integer(kind=MPIInt), PARAMETER :: ONE4=1, TWO4=2
       integer(kind=MPIInt) :: IERROR4
-      INTEGER, PARAMETER :: I4=KIND(ONE4)
 
       integer(kind=iwp), ALLOCATABLE :: IBUF(:)
 
@@ -553,7 +553,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
         ! for each process. Use them to determine the send offsets.
         IOFFSET=0
         DO I=1,NPROCS
-          SDISPLS(I)=INT(IOFFSET,I4)
+          SDISPLS(I)=INT(IOFFSET,kind=MPIInt)
           IBUF(I)=IOFFSET
           IOFFSET=IOFFSET+SCOUNTS(I)
         END DO
@@ -589,8 +589,8 @@ C  - G(tuvxyz) -> SA(xut,vyz)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 301
           if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 201
@@ -602,8 +602,8 @@ C  - G(vxtuyz) -> SA(uxv,tyz)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(yzvxtu) -> SA(xzy,vtu)
           jSYM=MUL(IASYM(iX),MUL(IASYM(iZ),IASYM(iY)))
@@ -613,8 +613,8 @@ C  - G(yzvxtu) -> SA(xzy,vtu)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(tuyzvx) -> SA(zut,yvx)
           jSYM=MUL(IASYM(iZ),MUL(IASYM(iU),IASYM(iT)))
@@ -624,8 +624,8 @@ C  - G(tuyzvx) -> SA(zut,yvx)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
  201      CONTINUE
 C  - G(yztuvx) -> SA(uzy,tvx)
@@ -636,8 +636,8 @@ C  - G(yztuvx) -> SA(uzy,tvx)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(vxyztu) -> SA(zxv,ytu)
           jSYM=MUL(IASYM(iZ),MUL(IASYM(iX),IASYM(iV)))
@@ -647,8 +647,8 @@ C  - G(vxyztu) -> SA(zxv,ytu)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
  301      CONTINUE
           if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
@@ -663,8 +663,8 @@ C  - G(utxvzy) -> SA(vtu,xzy)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
           if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 401
@@ -676,8 +676,8 @@ C  - G(xvutzy) -> SA(tvx,uzy)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(zyxvut) -> SA(vyz,xut)
           jSYM=MUL(IASYM(iV),MUL(IASYM(iY),IASYM(iZ)))
@@ -687,8 +687,8 @@ C  - G(zyxvut) -> SA(vyz,xut)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(utzyxv) -> SA(ytu,zxv)
           jSYM=MUL(IASYM(iY),MUL(IASYM(iT),IASYM(iU)))
@@ -698,8 +698,8 @@ C  - G(utzyxv) -> SA(ytu,zxv)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
  401      CONTINUE
 C  - G(zyutxv) -> SA(tyz,uxv)
@@ -710,8 +710,8 @@ C  - G(zyutxv) -> SA(tyz,uxv)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
 C  - G(xvzyut) -> SA(yvx,zut)
           jSYM=MUL(IASYM(iY),MUL(IASYM(iV),IASYM(iX)))
@@ -721,8 +721,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
             IP=IPROW(IROW,NQOT,NREM)
             IBUF(IP)=IBUF(IP)+1
             SENDVAL(IBUF(IP))=G3VAL
-            SENDIDX(2*IBUF(IP)-1)=INT(IROW,I4)
-            SENDIDX(2*IBUF(IP))=INT(ICOL,I4)
+            SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
+            SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
         END DO
 
@@ -733,7 +733,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
 
         IOFFSET=0
         DO I=1,NPROCS
-          RDISPLS(I)=INT(IOFFSET,I4)
+          RDISPLS(I)=INT(IOFFSET,kind=MPIInt)
           IOFFSET=IOFFSET+RCOUNTS(I)
           SCOUNTS2(I)=TWO4*SCOUNTS(I)
           RCOUNTS2(I)=TWO4*RCOUNTS(I)
@@ -788,7 +788,8 @@ c Avoid unused argument warnings
       CONTAINS
 
       PURE FUNCTION IPROW(IROW,NQOT,NREM)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp
+      implicit None
       integer(kind=iwp) IPROW
       integer(kind=iwp), INTENT(IN) :: IROW, NQOT, NREM
       integer(kind=iwp) :: TMP
@@ -798,7 +799,7 @@ c Avoid unused argument warnings
       ELSE
         IPROW=(IROW-1)/(NQOT+1)+1
       END IF
-      END FUNCTION
+      END FUNCTION IPROW
 
       END SUBROUTINE MKSA_G3_MPP
 #endif
