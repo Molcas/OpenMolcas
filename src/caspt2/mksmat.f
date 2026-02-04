@@ -1783,17 +1783,17 @@ C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
 
 
 C Loop over superindex symmetry.
-      DO 1000 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,2)
-        IF(NINP.EQ.0) GOTO 1000
+        IF(NINP.EQ.0) CYCLE
         NAS=NTU(ISYM)
         NSB=(NAS*(NAS+1))/2
         IF(NSB.GT.0) CALL mma_allocate(SB,NSB,Label='SB')
-        DO 100 ITU=1,NAS
+        DO ITU=1,NAS
           ITUABS=ITU+NTUES(ISYM)
           ITABS=MTU(1,ITUABS)
           IUABS=MTU(2,ITUABS)
-          DO 101 IXY=1,ITU
+          DO IXY=1,ITU
             IXYABS=IXY+NTUES(ISYM)
             IXABS=MTU(1,IXYABS)
             IYABS=MTU(2,IXYABS)
@@ -1836,20 +1836,20 @@ C Add  -4dxu dyt + 2dxu Dyt
             END IF
             ISADR=(ITU*(ITU-1))/2+IXY
             SB(ISADR)=VALUE
- 101      CONTINUE
- 100    CONTINUE
+          END DO
+        END DO
         NASP=NTGEU(ISYM)
         NSBP=(NASP*(NASP+1))/2
         IF(NSBP.GT.0) CALL mma_allocate(SBP,NSBP,Label='SBP')
         NASM=NTGTU(ISYM)
         NSBM=(NASM*(NASM+1))/2
         IF(NSBM.GT.0) CALL mma_allocate(SBM,NSBM,Label='SBM')
-        DO 200 ITGEU=1,NASP
+        DO ITGEU=1,NASP
           ITGEUABS=ITGEU+NTGEUES(ISYM)
           ITABS=MTGEU(1,ITGEUABS)
           IUABS=MTGEU(2,ITGEUABS)
           ITU=KTU(ITABS,IUABS)-NTUES(ISYM)
-          DO 201 IXGEY=1,ITGEU
+          DO IXGEY=1,ITGEU
             IXGEYABS=IXGEY+NTGEUES(ISYM)
             IXABS=MTGEU(1,IXGEYABS)
             IYABS=MTGEU(2,IXGEYABS)
@@ -1869,14 +1869,14 @@ C Add  -4dxu dyt + 2dxu Dyt
             STUYX=SB(ISADR)
             ISPADR=(ITGEU*(ITGEU-1))/2+IXGEY
             SBP(ISPADR)=STUXY+STUYX
-            IF(ITABS.EQ.IUABS) GOTO 201
-            IF(IXABS.EQ.IYABS) GOTO 201
+            IF(ITABS.EQ.IUABS) CYCLE
+            IF(IXABS.EQ.IYABS) CYCLE
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
             IXGTY=KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
             ISMADR=(ITGTU*(ITGTU-1))/2+IXGTY
             SBM(ISMADR)=STUXY-STUYX
- 201      CONTINUE
- 200    CONTINUE
+          END DO
+        END DO
         IF(NSB.GT.0) CALL mma_deallocate(SB)
 
 C Write to disk, and save size and address.
@@ -1892,7 +1892,7 @@ C Write to disk, and save size and address.
           END IF
           CALL mma_deallocate(SBM)
         END IF
- 1000 CONTINUE
+      END DO
 
       END SUBROUTINE MKSB
 
