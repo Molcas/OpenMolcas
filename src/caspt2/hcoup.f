@@ -18,9 +18,8 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
       use fake_GA, only: GA_Arrays
-      use caspt2_module
+      use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP, CASES
       IMPLICIT NONE
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
