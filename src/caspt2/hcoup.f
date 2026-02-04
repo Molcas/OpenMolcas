@@ -79,8 +79,7 @@ C  End of loop.
           NIS=NISUP(ISYM,ICASE)
           HEBLK=Zero
 
-          IF(NAS*NIS.EQ.0) GOTO 1
-          IF(NIN.EQ.0) GOTO 1
+          IF(NAS*NIS*NIN/=0) THEN
 
           CALL RHS_ALLO (NAS,NIS,lg_V1)
           CALL RHS_ALLO (NAS,NIS,lg_V2)
@@ -116,7 +115,8 @@ C  End of loop.
           CALL RHS_FREE (lg_V1)
           CALL RHS_FREE (lg_V2)
 
- 1        CONTINUE
+          END IF
+
           HECOMP(ICASE,ISYM)=HEBLK
           HEL=HEL+HEBLK
         END DO
