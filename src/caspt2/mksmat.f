@@ -109,6 +109,7 @@ C looping, etc in the rest  of the routines.
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
+      integer(kind=iwp) MYRANK,ILO,IHI,JLO,JHI,MA,LDA
 #endif
       integer(kind=iwp) ICASE, ISYM, lg_SA, NAS, NIN, NSA
       real(kind=wp), external:: PSBMAT_FPRINT
@@ -294,7 +295,7 @@ C  - G(utxvzy) -> SA(vtu,xzy)
         ENDIF
         if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
 
-        if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 400
+        if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(xvutzy) -> SA(tvx,uzy)
         jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
         IF (jSYM.EQ.iSYM) THEN
@@ -325,7 +326,7 @@ C  - G(utzyxv) -> SA(ytu,zxv)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
- 400   CONTINUE
+       ENDIF
 
 C  - G(zyutxv) -> SA(tyz,uxv)
         jSYM=MUL(IASYM(iT),MUL(IASYM(iY),IASYM(iZ)))
@@ -361,14 +362,15 @@ C  - G(xvzyut) -> SA(yvx,zut)
       use stdalloc, only: mma_MaxDBLE
       use EQSOLV
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
 #include "global.fh"
 #include "mafdecls.fh"
 
-      real(kind=wp) SA(LDA,*)
-      real(kind=wp) G3(NG3)
-      INTEGER(kind=Byte) idxG3(6,NG3)
+      integer(kind=iwp), intent(in):: ISYM,iLo,iHi,jLo,jHi,LDA,NG3
+      real(kind=wp), intent(out):: SA(LDA,*)
+      real(kind=wp), intent(in):: G3(NG3)
+      INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
@@ -382,6 +384,13 @@ C  - G(xvzyut) -> SA(yvx,zut)
       integer(kind=MPIInt) :: IERROR4
 
       integer(kind=iwp), ALLOCATABLE :: IBUF(:)
+      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
+     &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP,ISADR
+      integer(kind=iwp) MYRANK,LG_SA,NG3MAX,NPROCS,
+     &                  MAXMEM,iscal,MAXBUF,NG3B,NBUF,NAS,NQOT,NREM,
+     &                  NBLOCKS,IBLOCK,IG3STA,IG3END,IROW,IP,
+     &                  IOFFSET,I,ICOL,NRECV
+      real(kind=wp)     G3VAL
 
 #include "mpi_interfaces.fh"
 
@@ -794,7 +803,6 @@ C  - G(xvzyut) -> SA(yvx,zut)
 
       DEALLOCATE(IBUF)
 
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL UNUSED_INTEGER(iHi)
 
