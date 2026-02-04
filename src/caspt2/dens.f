@@ -1330,7 +1330,7 @@ C
 
       integer(kind=iwp), intent(in) :: MODE
 
-      real(kind=wp) :: nFroTmp(8), nOshTmp(8), nOrbTmp(8)
+      integer(kind=iwp) :: nFroTmp(8), nOshTmp(8), nOrbTmp(8)
       integer(kind=iwp) :: jSym
 
       If (Mode == 1) Then
@@ -1377,8 +1377,9 @@ C
 
       implicit none
 
-      real(kind=wp), intent(in) :: Scal, DPT2q(*), Trf(*), WRK(*)
+      real(kind=wp), intent(in) :: Scal, DPT2q(*), Trf(*)
       real(kind=wp), intent(inout) :: DPT2n(*)
+      real(kind=wp), intent(out) :: WRK(*)
 
       integer(kind=iwp) :: iMO, iSym, nOrbI
 
