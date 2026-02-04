@@ -942,13 +942,11 @@ C Add -dyu Gvzxt
       use definitions, only: iwp, wp, u6, Byte
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      USE SUPERINDEX
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
       use fake_GA, only: GA_Arrays
-      use caspt2_module
+      use caspt2_module, only: NSYM,NINDEP,NTUV
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -961,6 +959,7 @@ C Add -dyu Gvzxt
 
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
+      INTEGER(kind=iwp) MYRANK,ILO,IHI,JLO,JHI,MC,LDC
 #endif
       INTEGER(kind=iwp) ICASE,ISYM,lg_SC,NAS,NIN,NSC
       real(kind=wp) DSC
