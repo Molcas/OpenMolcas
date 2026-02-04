@@ -13,7 +13,7 @@
       use constants, only: Zero, One, Two
       use gugx, only: EXS, SGS,L2ACT, CIS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: NASHT, ISCF, NACTEL, IASYM, MUL
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs, MyRank
 #endif
@@ -30,6 +30,7 @@
       integer(kind=iwp) :: nLev
 #ifdef _MOLCAS_MPP_
       Logical(kind=iwp) :: Poor_Par
+      integer(kind=iwp) iTask
 #endif
 
       integer(kind=iwp), allocatable:: P2LEV(:)
