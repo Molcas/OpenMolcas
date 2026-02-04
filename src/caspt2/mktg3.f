@@ -69,7 +69,9 @@ C Put in zeroes. Recognize special cases:
 
       IF(NACTEL.EQ.0) Return
 
-      IF(ISCF/=0) THEN
+      SELECT CASE (ISCF)
+
+      CASE DEFAULT
 
 C -Special code for the closed-shell or hi-spin cases:
 C ISCF=1 for closed-shell, =2 for hispin
@@ -138,9 +140,8 @@ C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
         END DO
        END DO
       END DO
-      Return
 
-      END IF
+      CASE (1)
 C Here, for regular CAS or RAS cases.
 
 C Special pair index allows true RAS cases to be handled:
@@ -391,6 +392,8 @@ C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
        END DO
       END DO
       CALL mma_deallocate(P2LEV)
+
+      END SELECT
 
       END SUBROUTINE MKTG3
 
