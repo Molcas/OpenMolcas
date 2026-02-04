@@ -5089,8 +5089,9 @@ C
       implicit none
 
       real(kind=wp), intent(in) :: VecIN(1:nConf,1:nRoots),
-     *  CI(1:nConf,1:nRoots), Pre(1:nConf), Fancy(nRoots,nRoots,nRoots)
-      real(kind=wp), intent(out) :: VecOUT(1:nConf,1:nRoots)
+     *  Pre(1:nConf), Fancy(nRoots,nRoots,nRoots)
+      real(kind=wp), intent(out) :: VecOUT(1:nConf,1:nRoots),
+     &  CI(1:nConf,1:nRoots)
 
       integer(kind=iwp) :: iRoots, iConf, jRoots, kRoots
       real(kind=wp) :: rcoeff(nRoots), alpha(nRoots)
