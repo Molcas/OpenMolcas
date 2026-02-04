@@ -91,15 +91,13 @@ C looping, etc in the rest  of the routines.
 ********************************************************************************
       SUBROUTINE MKSA(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
       use definitions, only: iwp, wp, u6, Byte
-      USE SUPERINDEX
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
       use fake_GA, only: GA_Arrays
-      use caspt2_module
+      use caspt2_module, only: NSYM, NINDEP, NTUV
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
