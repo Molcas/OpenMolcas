@@ -1755,11 +1755,12 @@ C Add  dtu Gvxyz + dtu dyx Gvz
       SUBROUTINE MKSB(DREF,NDREF,PREF,NPREF)
       use definitions, only: iwp, wp
       use constants, only: Two, Four, Eight
-      USE SUPERINDEX
+      USE SUPERINDEX, only: MTU,MTGEU,KTU,KTGTU
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: NASHT,NSYM,NINDEP,NTU,NTUES,NTGEU,NTGTU,
+     &                         NTGEUES,NTGTUES
       IMPLICIT None
 
       INTEGER(kind=iwp), intent(in):: NDREF,NPREF
