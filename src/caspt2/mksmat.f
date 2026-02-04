@@ -1671,9 +1671,9 @@ C In parallel, this subroutine is called on a local chunk of memory
 C and LDC is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDC passed is zero.
       use definitions, only: iwp, wp
-      USE SUPERINDEX
-      use EQSOLV
-      use caspt2_module
+      use constants, only: Two
+      USE SUPERINDEX, only: MTUV
+      use caspt2_module, only: NASHT, nTUVES
       IMPLICIT None
       integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,
      &                                 iLo,iHi,jLo,jHi,LDC
@@ -1687,12 +1687,12 @@ C storage uses a triangular scheme, and the LDC passed is zero.
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for this SC block
-      DO 100 IXYZ=jLo,jHi
+      DO IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
         IXABS=MTUV(1,IXYZABS)
         IYABS=MTUV(2,IXYZABS)
         IZABS=MTUV(3,IXYZABS)
-        DO 101 ITUV=iLo,iHi
+        DO ITUV=iLo,iHi
           ITUVABS=ITUV+NTUVES(ISYM)
           ITABS=MTUV(1,ITUVABS)
           IUABS=MTUV(2,ITUVABS)
@@ -1704,7 +1704,7 @@ C-SVC20100831: fill in the G2 and G1 corrections for this SC block
               ISADR=(ITUV*(ITUV-1))/2+IXYZ
               VALUE=SC(ISADR)
             ELSE
-              GOTO 101
+              CYCLE
             ENDIF
           END IF
 C Add  dyu Gvztx
@@ -1714,7 +1714,7 @@ C Add  dyu Gvztx
             IP1=MAX(IVZ,ITX)
             IP2=MIN(IVZ,ITX)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+2.0D0*PREF(IP)
+            VALUE=VALUE+Two*PREF(IP)
           END IF
 C Add  dyx Gvutz
           IF(IYABS.EQ.IXABS) THEN
@@ -1723,7 +1723,7 @@ C Add  dyx Gvutz
             IP1=MAX(IVU,ITZ)
             IP2=MIN(IVU,ITZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+2.0D0*PREF(IP)
+            VALUE=VALUE+Two*PREF(IP)
           END IF
 C Add  dtu Gvxyz + dtu dyx Gvz
           IF(ITABS.EQ.IUABS) THEN
@@ -1732,7 +1732,7 @@ C Add  dtu Gvxyz + dtu dyx Gvz
             IP1=MAX(IVX,IYZ)
             IP2=MIN(IVX,IYZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+2.0D0*PREF(IP)
+            VALUE=VALUE+Two*PREF(IP)
             IF(IYABS.EQ.IXABS) THEN
               ID1=MAX(IVABS,IZABS)
               ID2=MIN(IVABS,IZABS)
@@ -1744,8 +1744,9 @@ C Add  dtu Gvxyz + dtu dyx Gvz
           ELSE
             SC(ISADR)=VALUE
           END IF
- 101    CONTINUE
- 100  CONTINUE
+        END DO
+      END DO
+
       END SUBROUTINE MKSC_DP
 
 ********************************************************************************
