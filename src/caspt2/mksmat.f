@@ -842,9 +842,8 @@ C and LDA is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDA passed is zero.
       use definitions, only: iwp, wp
       use constants, only: Two, Four
-      USE SUPERINDEX
-      use EQSOLV
-      use caspt2_module
+      USE SUPERINDEX, only: MTUV
+      use caspt2_module, only: NASHT, nTUVES
       IMPLICIT None
       integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,
      &                                iLo,iHi,jLo,jHi,LDA
