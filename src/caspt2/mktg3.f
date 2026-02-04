@@ -79,9 +79,9 @@ C Put in zeroes. Recognize special cases:
       IF(NACTEL==0) Return
 
 
-      SELECT CASE (ISCF)
+      SELECT CASE (ISCF/=0)
 
-      CASE (1)
+      CASE (.FALSE.)
 C Here, for regular CAS or RAS cases.
 
 C Special pair index allows true RAS cases to be handled:
