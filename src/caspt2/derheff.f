@@ -11,23 +11,23 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine DerHEff(CLag,VECROT)
-      use caspt2_global, only: LUCIEX, IDTCEX
-      use EQSOLV
-      use stdalloc, only: mma_allocate,mma_deallocate
-      use definitions, only: wp
-      use caspt2_module
-      use pt2_guga
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-      INTEGER IST,JST
 
-      INTEGER I
-      INTEGER NTG1,NTG2,NTG3
-      INTEGER IDCI
-      REAL*8 OVL,DUMMY(1)
-C
-      Dimension CLag(nConf,nState),VECROT(*)
+      use caspt2_global, only: LUCIEX, IDTCEX
+      use EQSOLV, only: IVECW, IVECC
+      use stdalloc, only: mma_allocate,mma_deallocate
+      use definitions, only: wp, iwp
+      use caspt2_module, only: STSYM, NCONF, NASHT, ISCF, NSTATE, JSTATE
+      use pt2_guga, only: MXCI
+      use Constants, only: Zero
+
+      implicit none
+
+      integer(kind=iwp) ::  IST, JST, I, NTG1, NTG2, NTG3, IDCI
+      real(kind=wp) :: OVL, DUMMY(1)
+
+      real(kind=wp), intent(inout) :: CLag(nConf,nState)
+      real(kind=wp), intent(in) :: VECROT(*)
+
       real(kind=wp),allocatable :: DTG1(:),DTG2(:),DTG3(:),CI1(:),
      *  CI2(:),CI3(:)
 C     return
@@ -45,47 +45,48 @@ C arrays are in subroutine parameter lists of MKTG3, HCOUP.
       call mma_allocate(DTG1,NTG1,Label='DTG1')
       call mma_allocate(DTG2,NTG2,Label='DTG2')
       call mma_allocate(DTG3,NTG3,Label='DTG3')
-      DTG1(:) = 0.0d+00
-      DTG2(:) = 0.0d+00
-      DTG3(:) = 0.0d+00
+      DTG1(:) = Zero
+      DTG2(:) = Zero
+      DTG3(:) = Zero
 C
       !! OVL will contain the derivative contribution?
       !! It should be ignored
-      OVL = 0.0D+00
+      OVL = Zero
       CALL DerHeffX(IVECW,IVECC,OVL,DTG1,DTG2,DTG3)
 C
       call mma_allocate(CI1,MXCI,Label='MCCI1')
       call mma_allocate(CI2,MXCI,Label='MCCI2')
       call mma_allocate(CI3,MXCI,Label='MCCI3')
 C
-      IF(ISCF.EQ.0) THEN
+      IF(ISCF == 0) THEN
         IDCI=IDTCEX
         JST = jState
-        CALL DCOPY_(NCONF,[0.0D+00],0,CI1,1)
+        CI1(1:NCONF) = Zero
         DO I=1,NSTATE
           IST = I
-          IF (IST.EQ.JST) THEN
+          IF (IST == JST) THEN
             CALL DDAFILE(LUCIEX,2,CI2,NCONF,IDCI)
-          Else If (ABS(VECROT(IST)).le.1.0d-12) Then
+          Else If (ABS(VECROT(IST)) <= 1.0e-12_wp) Then
             CALL DDAFILE(LUCIEX,0,DUMMY,NCONF,IDCI)
           ELSE
             CALL DDAFILE(LUCIEX,2,CI3,NCONF,IDCI)
-            CALL DAXPY_(NCONF,VECROT(IST),CI3,1,CI1,1)
+            CI1(1:NCONF) = CI1(1:NCONF) + VECROT(IST)*CI3(1:NCONF)
           END IF
         END DO
 C
-        CALL DCOPY_(NCONF,[0.0D+00],0,CI3,1)
+        CI3(1:NCONF) = Zero
         CALL DERTG3(.TRUE.,STSYM,STSYM,CI1,CI2,OVL,
      &              DTG1,DTG2,NTG3,DTG3,CI3,CLag(1,JST))
 C
         DO I=1,NSTATE
           IST = I
-          IF (IST.EQ.JST) THEN
+          IF (IST == JST) THEN
             CYCLE
-          Else If (ABS(VECROT(IST)).le.1.0d-12) Then
+          Else If (ABS(VECROT(IST)) <= 1.0e-12_wp) Then
             CYCLE
           ELSE
-            CALL DAXPY_(NCONF,VECROT(IST),CI3,1,CLag(1,IST),1)
+            CLag(1:NCONF,IST) = CLag(1:NCONF,IST)
+     &        + VECROT(IST)*CI3(1:NCONF)
           END IF
         END DO
       END IF
@@ -107,10 +108,11 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM, NASHT, NASUP, NISUP, NINDEP
+      use definitions, only: wp, iwp, u6
+
+      implicit none
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
 C assuming that IVEC contains a contravariant representation of
@@ -124,10 +126,14 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-      Dimension DTG1(NASHT,NASHT)
-      Dimension DTG2(NASHT,NASHT,NASHT,NASHT)
+      integer(kind=iwp), intent(in) :: IVEC, JVEC
+      real(kind=wp), intent(out) :: OVL
+      real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT),
+     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(*)
+
+      integer(kind=iwp) :: ICASE, ISYM, NAS, NIN, NIS, lg_V1, lg_V2,
+     &  iLo1, iHi1, jLo1, jHi1, MV1, iLo2, iHi2, jLo2, jHi2, MV2
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      Dimension DTG3(*)
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -148,17 +154,14 @@ C           End of loop nest
 C           Deallocate VEC1 and VEC2
 C  End of loop.
 
-      ! HEL=0.0D0
-C     HECOMP=0.0D0
       DO ICASE=1,13
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
           NIN=NINDEP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-          ! HEBLK=0.0D0
 
-          IF(NAS*NIS.EQ.0) GOTO 1
-          IF(NIN.EQ.0) GOTO 1
+          IF(NAS*NIS == 0) cycle
+          IF(NIN == 0) cycle
 
           CALL RHS_ALLO (NAS,NIS,lg_V1)
           CALL RHS_ALLO (NAS,NIS,lg_V2)
@@ -167,11 +170,9 @@ C     HECOMP=0.0D0
           CALL RHS_ACCESS(NAS,NIS,lg_V1,iLo1,iHi1,jLo1,jHi1,MV1)
           CALL RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
 
-          IF ((iLo1.NE.iLo2) .OR.
-     &        (iHi1.NE.iHi2) .OR.
-     &        (jLo1.NE.jLo2) .OR.
-     &        (jHi1.NE.jHi2)) THEN
-            WRITE(6,'(1X,A)') 'HCOUP: Error: block mismatch, abort...'
+          IF ((iLo1 /= iLo2) .OR. (iHi1 /= iHi2) .OR.
+     &        (jLo1 /= jLo2) .OR. (jHi1 /= jHi2)) THEN
+            WRITE(u6,'(1X,A)') 'HCOUP: Error: block mismatch, abort...'
             CALL ABEND()
           END IF
 
@@ -190,62 +191,25 @@ C     HECOMP=0.0D0
           END IF
 #endif
 C
-          CALL RHS_RELEASE (lg_V1,IASTA1,IAEND1,IISTA1,IIEND1)
-          CALL RHS_RELEASE (lg_V2,IASTA2,IAEND2,IISTA2,IIEND2)
+          CALL RHS_RELEASE (lg_V1,iLo1,iHi1,jLo1,jHi1)
+          CALL RHS_RELEASE (lg_V2,iLo2,iHi2,jLo2,jHi2)
           CALL RHS_FREE (lg_V1)
           CALL RHS_FREE (lg_V2)
-
- 1        CONTINUE
-C         HECOMP(ICASE,ISYM)=HEBLK
-C         HEL=HEL+HEBLK
         END DO
       END DO
 
-C Sum-reduce the per-process contributions
-C     CALL GADGOP_SCAL(HEL,'+')
-C     NHECOMP=14*9
-C     CALL GADGOP(HECOMP,NHECOMP,'+')
-
-C     IF(IPRGLB.GE.DEBUG) THEN
-C       DO ICASE=1,13
-C         SUMSYM=0.0D0
-C         DO ISYM=1,NSYM
-C           SUMSYM=SUMSYM+HECOMP(ICASE,ISYM)
-C         END DO
-C         HECOMP(ICASE,NSYM+1)=SUMSYM
-C       END DO
-
-C       DO ISYM=1,NSYM+1
-C         SUMCASE=0.0D0
-C         DO ICASE=1,13
-C           SUMCASE=SUMCASE+HECOMP(ICASE,ISYM)
-C         END DO
-C         HECOMP(14,ISYM)=SUMCASE
-C       END DO
-
-C       WRITE(6,'(20a4)')('----',i=1,20)
-C       WRITE(6,*)'HCOUP: The contributions to the Hamiltonian coupling'
-C       WRITE(6,*)' elements, by case and by symmetry label.'
-C       DO IC=1,13
-C         WRITE(6,'(1X,A8,9F12.8)')
-C    &      CASES(IC),(HECOMP(IC,IS),IS=1,NSYM+1)
-C       END DO
-C       CALL XFLUSH(6)
-C       WRITE(6,'(1X,A8,9F12.8)')
-C    &    'Summed: ', (HECOMP(14,IS),IS=1,NSYM+1)
-C       WRITE(6,*)
-C     END IF
-
-
-      END
+      end subroutine DerHeffX
 C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE DerHEffX_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,
      &                        DTG1,DTG2,DTG3)
-      USE SUPERINDEX
-      use EQSOLV
-      use caspt2_module
+
+      USE SUPERINDEX, only: MTU, MTUV, MTGEU, MTGTU
+      use caspt2_module, only: NAES, NASHT, NTUVES, NTUES, NTGEUES,
+     &                         NTGTUES
+      use definitions, only: wp, iwp
+      use Constants, only: Zero, Two, Four, Eight
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -253,19 +217,22 @@ C with A the active superindex and I the inactive superindex. Since
 C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
-      IMPLICIT REAL*8 (A-H,O-Z)
+      implicit none
 
-      REAL*8 V1(*), V2(*)
-
-      REAL*8 DTG1(NASHT,NASHT)
-      REAL*8 DTG2(NASHT,NASHT,NASHT,NASHT)
+      integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, IISTA, IIEND
+      real(kind=wp), intent(in) :: V1(*), V2(*)
+      real(kind=wp), intent(out) :: OVL
+      real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT),
+     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(*)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      REAL*8 DTG3(*)
 
+      integer(kind=iwp) :: NISBLK, IAS, IASABS, ITABS, IUABS, IVABS,
+     &  JAS, JASABS, IXABS, IYABS, IZABS, IND1, IND2, IND3, JND1,
+     &  JND2, JND3, ITG3, NAS1, IAS1, IAS2, JAS1, JAS2
+      real(kind=wp) :: VAL, VAL11, VAL12, VAL21, VAL22
+      real(kind=wp), external :: ddot_
 
-      ! HEBLK=0.0D0
-
-      IF (IISTA.LE.0) RETURN
+      IF (IISTA <= 0) RETURN
 
       NISBLK=IIEND-IISTA+1
       SELECT CASE (ICASE)
@@ -290,12 +257,12 @@ C (vu),(xt), and (yz):
             IND1=IVABS+NASHT*(IUABS-1)
             IND2=IXABS+NASHT*(ITABS-1)
             IND3=IYABS+NASHT*(IZABS-1)
-            IF(IND2.GT.IND3) THEN
-              IF(IND1.GT.IND2) THEN
+            IF(IND2 > IND3) THEN
+              IF(IND1 > IND2) THEN
                 JND1=IND1
                 JND2=IND2
                 JND3=IND3
-              ELSE IF(IND1.GT.IND3) THEN
+              ELSE IF(IND1 > IND3) THEN
                 JND1=IND2
                 JND2=IND1
                 JND3=IND3
@@ -305,11 +272,11 @@ C (vu),(xt), and (yz):
                 JND3=IND1
               END IF
             ELSE
-              IF(IND1.GT.IND3) THEN
+              IF(IND1 > IND3) THEN
                 JND1=IND1
                 JND2=IND3
                 JND3=IND2
-              ELSE IF(IND1.GT.IND2) THEN
+              ELSE IF(IND1 > IND2) THEN
                 JND1=IND3
                 JND2=IND1
                 JND3=IND2
@@ -323,52 +290,28 @@ C (vu),(xt), and (yz):
 C  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
 C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
 C Compute TMP=Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
-C           TMP=TG3(ITG3)
-C           IF(IYABS.EQ.IUABS) THEN
-C             TMP=TMP+TG2(IVABS,IZABS,IXABS,ITABS)
-C           END IF
-C           IF(IYABS.EQ.ITABS) THEN
-C             TMP=TMP+TG2(IVABS,IUABS,IXABS,IZABS)
-C             IF(IXABS.EQ.IUABS) THEN
-C               TMP=TMP+TG1(IVABS,IZABS)
-C             END IF
-C           END IF
-C           IF(IXABS.EQ.IUABS) THEN
-C             TMP=TMP+TG2(IVABS,ITABS,IYABS,IZABS)
-C           END IF
-C SA is the negative of this, and then some correction:
-C           SA=-TMP
-C           IF(IXABS.EQ.ITABS) THEN
-C             SA=SA+2.0D0*TG2(IVABS,IUABS,IYABS,IZABS)
-C             IF(IYABS.EQ.IUABS) THEN
-C               SA=SA+2.0D0*TG1(IVABS,IZABS)
-C             END IF
-C           END IF
-C SA has been computed.
-
-C           HEBLK=HEBLK+SA*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
-            IF(IXABS.EQ.ITABS) THEN
+            IF(IXABS == ITABS) THEN
               DTG2(IVABS,IUABS,IYABS,IZABS)
-     *          = DTG2(IVABS,IUABS,IYABS,IZABS) + 2.0D+00*VAL
-              IF(IYABS.EQ.IUABS) THEN
-                DTG1(IVABS,IZABS) = DTG1(IVABS,IZABS) + 2.0D+00*VAL
+     *          = DTG2(IVABS,IUABS,IYABS,IZABS) + Two*VAL
+              IF(IYABS == IUABS) THEN
+                DTG1(IVABS,IZABS) = DTG1(IVABS,IZABS) + Two*VAL
               END IF
             END IF
             VAL = -VAL
             DTG3(ITG3) = DTG3(ITG3) + VAL
-            IF(IYABS.EQ.IUABS) THEN
+            IF(IYABS == IUABS) THEN
               DTG2(IVABS,IZABS,IXABS,ITABS)
      *          = DTG2(IVABS,IZABS,IXABS,ITABS) + VAL
             END IF
-            IF(IYABS.EQ.ITABS) THEN
+            IF(IYABS == ITABS) THEN
               DTG2(IVABS,IUABS,IXABS,IZABS)
      *          = DTG2(IVABS,IUABS,IXABS,IZABS) + VAL
-              IF(IXABS.EQ.IUABS) THEN
+              IF(IXABS == IUABS) THEN
                 DTG1(IVABS,IZABS) = DTG1(IVABS,IZABS) + VAL
               END IF
             END IF
-            IF(IXABS.EQ.IUABS) THEN
+            IF(IXABS == IUABS) THEN
               DTG2(IVABS,ITABS,IYABS,IZABS)
      *          = DTG2(IVABS,ITABS,IYABS,IZABS) + VAL
             END IF
@@ -397,12 +340,12 @@ C (vu),(xt), and (yz):
             IND1=IVABS+NASHT*(IUABS-1)
             IND2=IXABS+NASHT*(ITABS-1)
             IND3=IYABS+NASHT*(IZABS-1)
-            IF(IND2.GT.IND3) THEN
-              IF(IND1.GT.IND2) THEN
+            IF(IND2 > IND3) THEN
+              IF(IND1 > IND2) THEN
                 JND1=IND1
                 JND2=IND2
                 JND3=IND3
-              ELSE IF(IND1.GT.IND3) THEN
+              ELSE IF(IND1 > IND3) THEN
                 JND1=IND2
                 JND2=IND1
                 JND3=IND3
@@ -412,11 +355,11 @@ C (vu),(xt), and (yz):
                 JND3=IND1
               END IF
             ELSE
-              IF(IND1.GT.IND3) THEN
+              IF(IND1 > IND3) THEN
                 JND1=IND1
                 JND2=IND3
                 JND3=IND2
-              ELSE IF(IND1.GT.IND2) THEN
+              ELSE IF(IND1 > IND2) THEN
                 JND1=IND3
                 JND2=IND1
                 JND3=IND2
@@ -429,36 +372,20 @@ C (vu),(xt), and (yz):
             ITG3=((JND1+1)*JND1*(JND1-1))/6+(JND2*(JND2-1))/2+JND3
 C  SC(xuv,tyz) (rewritten, swapping x and t)
 C    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
-C           TMP=TG3(ITG3)
-C           IF(IYABS.EQ.IUABS) THEN
-C             TMP=TMP+TG2(IVABS,IZABS,IXABS,ITABS)
-C           END IF
-C           IF(IYABS.EQ.ITABS) THEN
-C             TMP=TMP+TG2(IVABS,IUABS,IXABS,IZABS)
-C             IF(IXABS.EQ.IUABS) THEN
-C               TMP=TMP+TG1(IVABS,IZABS)
-C             END IF
-C           END IF
-C           IF(IXABS.EQ.IUABS) THEN
-C             TMP=TMP+TG2(IVABS,ITABS,IYABS,IZABS)
-C           END IF
-C           SC= TMP
-
-C           HEBLK=HEBLK+SC*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
             DTG3(ITG3) = DTG3(ITG3) + VAL
-            IF(IYABS.EQ.IUABS) THEN
+            IF(IYABS == IUABS) THEN
               DTG2(IVABS,IZABS,IXABS,ITABS)
      *          = DTG2(IVABS,IZABS,IXABS,ITABS) + VAL
             END IF
-            IF(IYABS.EQ.ITABS) THEN
+            IF(IYABS == ITABS) THEN
               DTG2(IVABS,IUABS,IXABS,IZABS)
      *          = DTG2(IVABS,IUABS,IXABS,IZABS) + VAL
-              IF(IXABS.EQ.IUABS) THEN
+              IF(IXABS == IUABS) THEN
                 DTG1(IVABS,IZABS) = DTG1(IVABS,IZABS) + VAL
               END IF
             END IF
-            IF(IXABS.EQ.IUABS) THEN
+            IF(IXABS == IUABS) THEN
               DTG2(IVABS,ITABS,IYABS,IZABS)
      *          = DTG2(IVABS,ITABS,IYABS,IZABS) + VAL
             END IF
@@ -481,64 +408,28 @@ C      -4dxu dyt + 2dxu Gyt
 C    SB(tu,yx)=
 C    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
 C      -4dyu dxt + 2dyu Gxt
-C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
-C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
-C           SBtuxy=2.0d0*TG2(IXABS,ITABS,IYABS,IUABS)
-C           SBtuyx=2.0d0*TG2(IYABS,ITABS,IXABS,IUABS)
-C           IF(IXABS.EQ.ITABS) THEN
-C             SBtuxy=SBtuxy-4.0d0*TG1(IYABS,IUABS)
-C             SBtuyx=SBtuyx+2.0d0*TG1(IYABS,IUABS)
-C             IF(IYABS.EQ.IUABS) THEN
-C               SBtuxy=SBtuxy+8.0d0*OVL
-C               SBtuyx=SBtuyx-4.0d0*OVL
-C             END IF
-C           END IF
-C           IF(IYABS.EQ.IUABS) THEN
-C             SBtuxy=SBtuxy-4.0d0*TG1(IXABS,ITABS)
-C             SBtuyx=SBtuyx+2.0d0*TG1(IXABS,ITABS)
-C           END IF
-C           IF(IYABS.EQ.ITABS) THEN
-C             SBtuxy=SBtuxy+2.0d0*TG1(IXABS,IUABS)
-C             SBtuyx=SBtuyx-4.0d0*TG1(IXABS,IUABS)
-C             IF(IXABS.EQ.IUABS) THEN
-C               SBtuxy=SBtuxy-4.0d0*OVL
-C               SBtuyx=SBtuyx+8.0d0*OVL
-C             END IF
-C           END IF
-C           IF(IXABS.EQ.IUABS) THEN
-C             SBtuxy=SBtuxy+2.0d0*TG1(IYABS,ITABS)
-C             SBtuyx=SBtuyx-4.0d0*TG1(IYABS,ITABS)
-C           END IF
-
-C           SBP=SBtuxy + SBtuyx
-
-C           HEBLK=HEBLK+SBP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
             DTG2(IXABS,ITABS,IYABS,IUABS)
-     *        = DTG2(IXABS,ITABS,IYABS,IUABS) + 2.0D+00*VAL
+     *        = DTG2(IXABS,ITABS,IYABS,IUABS) + Two*VAL
             DTG2(IYABS,ITABS,IXABS,IUABS)
-     *        = DTG2(IYABS,ITABS,IXABS,IUABS) + 2.0D+00*VAL
-            IF(IXABS.EQ.ITABS) THEN
-              DTG1(IYABS,IUABS) = DTG1(IYABS,IUABS)
-     *          - 4.0D+00*VAL + 2.0D+00*VAL
-              IF(IYABS.EQ.IUABS) THEN
-                OVL = OVL + 8.0D+00*VAL - 4.0D+00*VAL
+     *        = DTG2(IYABS,ITABS,IXABS,IUABS) + Two*VAL
+            IF(IXABS == ITABS) THEN
+              DTG1(IYABS,IUABS) = DTG1(IYABS,IUABS) - Four*VAL + Two*VAL
+              IF(IYABS == IUABS) THEN
+                OVL = OVL + Eight*VAL - Four*VAL
               END IF
             END IF
-            IF(IYABS.EQ.IUABS) THEN
-              DTG1(IXABS,ITABS) = DTG1(IXABS,ITABS)
-     *          - 4.0D+00*VAL + 2.0D+00*VAL
+            IF(IYABS == IUABS) THEN
+              DTG1(IXABS,ITABS) = DTG1(IXABS,ITABS) - Four*VAL + Two*VAL
             END IF
-            IF(IYABS.EQ.ITABS) THEN
-              DTG1(IXABS,IUABS) = DTG1(IXABS,IUABS)
-     *          + 2.0D+00*VAL - 4.0D+00*VAL
-              IF(IXABS.EQ.IUABS) THEN
-                OVL = OVL - 4.0D+00*VAL + 8.0D+00*VAL
+            IF(IYABS == ITABS) THEN
+              DTG1(IXABS,IUABS) = DTG1(IXABS,IUABS) + Two*VAL - Four*VAL
+              IF(IXABS == IUABS) THEN
+                OVL = OVL - Four*VAL + Eight*VAL
               END IF
             END IF
-            IF(IXABS.EQ.IUABS) THEN
-              DTG1(IYABS,ITABS) = DTG1(IYABS,ITABS)
-     *          + 2.0D+00*VAL - 4.0D+00*VAL
+            IF(IXABS == IUABS) THEN
+              DTG1(IYABS,ITABS) = DTG1(IYABS,ITABS) + Two*VAL - Four*VAL
             END IF
           END DO
         END DO
@@ -559,64 +450,28 @@ C      -4dxu dyt + 2dxu Gyt
 C    SB(tu,yx)=
 C    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
 C      -4dyu dxt + 2dyu Gxt
-C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
-C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
-C           SBtuxy=2.0d0*TG2(IXABS,ITABS,IYABS,IUABS)
-C           SBtuyx=2.0d0*TG2(IYABS,ITABS,IXABS,IUABS)
-C           IF(IXABS.EQ.ITABS) THEN
-C             SBtuxy=SBtuxy-4.0d0*TG1(IYABS,IUABS)
-C             SBtuyx=SBtuyx+2.0d0*TG1(IYABS,IUABS)
-C             IF(IYABS.EQ.IUABS) THEN
-C               SBtuxy=SBtuxy+8.0d0*OVL
-C               SBtuyx=SBtuyx-4.0d0*OVL
-C             END IF
-C           END IF
-C           IF(IYABS.EQ.IUABS) THEN
-C             SBtuxy=SBtuxy-4.0d0*TG1(IXABS,ITABS)
-C             SBtuyx=SBtuyx+2.0d0*TG1(IXABS,ITABS)
-C           END IF
-C           IF(IYABS.EQ.ITABS) THEN
-C             SBtuxy=SBtuxy+2.0d0*TG1(IXABS,IUABS)
-C             SBtuyx=SBtuyx-4.0d0*TG1(IXABS,IUABS)
-C             IF(IXABS.EQ.IUABS) THEN
-C               SBtuxy=SBtuxy-4.0d0*OVL
-C               SBtuyx=SBtuyx+8.0d0*OVL
-C             END IF
-C           END IF
-C           IF(IXABS.EQ.IUABS) THEN
-C             SBtuxy=SBtuxy+2.0d0*TG1(IYABS,ITABS)
-C             SBtuyx=SBtuyx-4.0d0*TG1(IYABS,ITABS)
-C           END IF
-
-C           SBM=SBtuxy - SBtuyx
-
-C           HEBLK=HEBLK+SBM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
             DTG2(IXABS,ITABS,IYABS,IUABS)
-     *        = DTG2(IXABS,ITABS,IYABS,IUABS) + 2.0D+00*VAL
+     *        = DTG2(IXABS,ITABS,IYABS,IUABS) + Two*VAL
             DTG2(IYABS,ITABS,IXABS,IUABS)
-     *        = DTG2(IYABS,ITABS,IXABS,IUABS) - 2.0D+00*VAL
-            IF(IXABS.EQ.ITABS) THEN
-              DTG1(IYABS,IUABS) = DTG1(IYABS,IUABS)
-     *          - 4.0D+00*VAL - 2.0D+00*VAL
-              IF(IYABS.EQ.IUABS) THEN
-                OVL = OVL + 8.0D+00*VAL + 4.0D+00*VAL
+     *        = DTG2(IYABS,ITABS,IXABS,IUABS) - Two*VAL
+            IF(IXABS == ITABS) THEN
+              DTG1(IYABS,IUABS) = DTG1(IYABS,IUABS) - Four*VAL - Two*VAL
+              IF(IYABS == IUABS) THEN
+                OVL = OVL + Eight*VAL + Four*VAL
               END IF
             END IF
-            IF(IYABS.EQ.IUABS) THEN
-              DTG1(IXABS,ITABS) = DTG1(IXABS,ITABS)
-     *          - 4.0D+00*VAL - 2.0D+00*VAL
+            IF(IYABS == IUABS) THEN
+              DTG1(IXABS,ITABS) = DTG1(IXABS,ITABS) - Four*VAL - Two*VAL
             END IF
-            IF(IYABS.EQ.ITABS) THEN
-              DTG1(IXABS,IUABS) = DTG1(IXABS,IUABS)
-     *          + 2.0D+00*VAL + 4.0D+00*VAL
-              IF(IXABS.EQ.IUABS) THEN
-                OVL = OVL - 4.0D+00*VAL - 8.0D+00*VAL
+            IF(IYABS == ITABS) THEN
+              DTG1(IXABS,IUABS) = DTG1(IXABS,IUABS) + Two*VAL + Four*VAL
+              IF(IXABS == IUABS) THEN
+                OVL = OVL - Four*VAL - Eight*VAL
               END IF
             END IF
-            IF(IXABS.EQ.IUABS) THEN
-              DTG1(IYABS,ITABS) = DTG1(IYABS,ITABS)
-     *          + 2.0D+00*VAL + 4.0D+00*VAL
+            IF(IXABS == IUABS) THEN
+              DTG1(IYABS,ITABS) = DTG1(IYABS,ITABS) + Two*VAL + Four*VAL
             END IF
           END DO
         END DO
@@ -638,35 +493,18 @@ C    SD11(tu1,xy1)=2*(Gutxy + dtx Guy)
 C    SD12(tu2,xy1)= -(Gutxy + dtx Guy)
 C    SD21(tu2,xy1)= -(Gutxy + dtx Guy)
 C    SD22(tu2,xy2)= -Gxtuy +2*dtx Guy
-C           GUTXY= TG2(IUABS,ITABS,IXABS,IYABS)
-C           SD11=2.0D0*GUTXY
-C           SD12= -GUTXY
-C           SD21= -GUTXY
-C           SD22= -TG2(IXABS,ITABS,IUABS,IYABS)
-C           IF(ITABS.EQ.IXABS) THEN
-C             GUY=TG1(IUABS,IYABS)
-C             SD11=SD11+2.0D0*GUY
-C             SD12=SD12 -GUY
-C             SD21=SD21 -GUY
-C             SD22=SD22+2.0D0*GUY
-C           END IF
-
-C           HEBLK=HEBLK+SD11*DDOT_(NISBLK,V2(JAS1),NAS,V1(IAS1),NAS)
-C           HEBLK=HEBLK+SD12*DDOT_(NISBLK,V2(JAS2),NAS,V1(IAS1),NAS)
-C           HEBLK=HEBLK+SD21*DDOT_(NISBLK,V2(JAS1),NAS,V1(IAS2),NAS)
-C           HEBLK=HEBLK+SD22*DDOT_(NISBLK,V2(JAS2),NAS,V1(IAS2),NAS)
             VAL11 = DDOT_(NISBLK,V1(IAS1),NAS,V2(JAS1),NAS)
             VAL12 = DDOT_(NISBLK,V1(IAS1),NAS,V2(JAS2),NAS)
             VAL21 = DDOT_(NISBLK,V1(IAS2),NAS,V2(JAS1),NAS)
             VAL22 = DDOT_(NISBLK,V1(IAS2),NAS,V2(JAS2),NAS)
             DTG2(IUABS,ITABS,IXABS,IYABS)
      *        = DTG2(IUABS,ITABS,IXABS,IYABS)
-     *        + 2.0D+00*VAL11 - VAL12 - VAL21
+     *        + Two*VAL11 - VAL12 - VAL21
             DTG2(IXABS,ITABS,IUABS,IYABS)
      *        = DTG2(IXABS,ITABS,IUABS,IYABS) - VAL22
-            IF(ITABS.EQ.IXABS) THEN
+            IF(ITABS == IXABS) THEN
               DTG1(IUABS,IYABS) = DTG1(IUABS,IYABS)
-     *          + 2.0D+00*VAL11 - VAL12 - VAL21 + 2.0D+00*VAL22
+     *          + Two*VAL11 - VAL12 - VAL21 + Two*VAL22
             END IF
           END DO
         END DO
@@ -677,12 +515,9 @@ C           HEBLK=HEBLK+SD22*DDOT_(NISBLK,V2(JAS2),NAS,V1(IAS2),NAS)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
 C Formula used: SE(t,x)=2*dxt - Dxt
-C           SE=-TG1(IXABS,ITABS)
-C           IF(IXABS.EQ.ITABS) SE=SE+2.0d0*OVL
-C           HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
             DTG1(IXABS,ITABS) = DTG1(IXABS,ITABS) - VAL
-            IF(IXABS.EQ.ITABS) OVL=OVL+2.0D+00*VAL
+            IF(IXABS == ITABS) OVL=OVL+Two*VAL
           END DO
         END DO
 ************************************************************************
@@ -692,12 +527,9 @@ C           HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
 C Formula used: SE(t,x)=2*dxt - Dxt
-C           SE=-TG1(IXABS,ITABS)
-C           IF(IXABS.EQ.ITABS) SE=SE+2.0d0*OVL
-C           HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
             DTG1(IXABS,ITABS) = DTG1(IXABS,ITABS) - VAL
-            IF(IXABS.EQ.ITABS) OVL=OVL+2.0D+00*VAL
+            IF(IXABS == ITABS) OVL=OVL+Two*VAL
           END DO
         END DO
 ************************************************************************
@@ -717,16 +549,11 @@ C Formulae used:
 C    SF(tu,xy)= 2 Gtxuy
 C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
 C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
-C           SFtuxy=2.0d0*TG2(ITABS,IXABS,IUABS,IYABS)
-C           SFtuyx=2.0d0*TG2(ITABS,IYABS,IUABS,IXABS)
-
-C           SFP=SFtuxy + SFtuyx
-C           HEBLK=HEBLK+SFP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
             DTG2(ITABS,IXABS,IUABS,IYABS)
-     *        = DTG2(ITABS,IXABS,IUABS,IYABS) + 2.0D+00*VAL
+     *        = DTG2(ITABS,IXABS,IUABS,IYABS) + Two*VAL
             DTG2(ITABS,IYABS,IUABS,IXABS)
-     *        = DTG2(ITABS,IYABS,IUABS,IXABS) + 2.0D+00*VAL
+     *        = DTG2(ITABS,IYABS,IUABS,IXABS) + Two*VAL
           END DO
         END DO
 ************************************************************************
@@ -745,16 +572,11 @@ C Formulae used:
 C    SF(tu,xy)= 4 Ptxuy
 C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
 C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
-C           SFtuxy=2.0d0*TG2(ITABS,IXABS,IUABS,IYABS)
-C           SFtuyx=2.0d0*TG2(ITABS,IYABS,IUABS,IXABS)
-
-C           SFM=SFtuxy - SFtuyx
-C           HEBLK=HEBLK+SFM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             VAL = DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
             DTG2(ITABS,IXABS,IUABS,IYABS)
-     *        = DTG2(ITABS,IXABS,IUABS,IYABS) + 2.0D+00*VAL
+     *        = DTG2(ITABS,IXABS,IUABS,IYABS) + Two*VAL
             DTG2(ITABS,IYABS,IUABS,IXABS)
-     *        = DTG2(ITABS,IYABS,IUABS,IXABS) - 2.0D+00*VAL
+     *        = DTG2(ITABS,IYABS,IUABS,IXABS) - Two*VAL
           END DO
         END DO
 ************************************************************************
@@ -768,8 +590,6 @@ C Compute and use SG(ITABS , IXABS) (Same for cases GP and GM)
             IXABS=JAS+NAES(ISYM)
 C Formula used: SG(t,x)= Gtx
 C           SG= TG1(ITABS,IXABS)
-
-C           HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             DTG1(ITABS,IXABS) = DTG1(ITABS,IXABS)
      *        + DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
           END DO
@@ -782,8 +602,6 @@ C           HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             IXABS=JAS+NAES(ISYM)
 C Formula used: SG(t,x)= Gtx
 C           SG= TG1(ITABS,IXABS)
-
-C           HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             DTG1(ITABS,IXABS) = DTG1(ITABS,IXABS)
      *        + DDOT_(NISBLK,V1(IAS),NAS,V2(JAS),NAS)
           END DO
@@ -791,19 +609,19 @@ C           HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
 ************************************************************************
       CASE(12)
         OVL = OVL + DDOT_(NAS*NISBLK,V2,1,V1,1)
-        IF(ABS(OVL).GE.1.0D-12) THEN
+C       IF(ABS(OVL) >= 1.0e-12_wp) THEN
 C         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
-        END IF
+C       END IF
 ************************************************************************
       CASE(13)
         OVL = OVL + DDOT_(NAS*NISBLK,V2,1,V1,1)
-        IF(ABS(OVL).GE.1.0D-12) THEN
+C       IF(ABS(OVL) >= 1.0e-12_wp) THEN
 C         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
-        END IF
+C       END IF
 ************************************************************************
       END SELECT
       Return
-      END
+      end subroutine DerHEffX_BLK
 C
 C-----------------------------------------------------------------------
 C
@@ -811,19 +629,30 @@ C
      *                  DTG3,CLAG1,CLAG2)
       use gugx, only: SGS, L2ACT, CIS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-      use definitions, only: iwp,wp
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (a-h,o-z)
+      use definitions, only: iwp,wp,u6
+      use caspt2_module, only: NACTEL, NASHT, MUL, ISCF, IASYM
+      use pt2_guga, only: MXCI
+      use Constants, only: Zero, One
 
-      Real*8 DTG1(NASHT,NASHT),DTG2(NASHT,NASHT,NASHT,NASHT)
-      Real*8 DTG3(NTG3)
-      Real*8 CI1(MXCI),CI2(MXCI)
-      Real*8 CLAG1(MXCI),CLAG2(MXCI)
-      REAL(KIND=WP),ALLOCATABLE :: TG3WRK(:),BUF1(:),DTU(:,:),DYZ(:,:)
-      INTEGER(KIND=IWP),ALLOCATABLE:: P2LEV(:)
-      LOGICAL   DOG3
-      Integer :: nLev
+      implicit none
+
+      logical(kind=iwp), intent(in) :: DOG3
+      integer(kind=iwp), intent(in) :: LSYM1, LSYM2, NTG3
+      real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI), OVL
+      real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT),
+     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3), CLAG1(MXCI),
+     &  CLAG2(MXCI)
+
+      real(kind=wp), allocatable :: TG3WRK(:),BUF1(:),DTU(:,:),DYZ(:,:)
+      integer(kind=iwp), allocatable :: P2LEV(:)
+      integer(kind=iwp) :: nLev, LP2LEV1, LP2LEV2, IP, IL, JL, IP1,
+     &  IT, IU, ITU, ITS, IUS, IS1, IP2, IV, IX, IVX, IVS, IXS, IS2,
+     &  IP3, IY, IZ, IYS, IZS, IS3, IYZ, JTU, JVX, JYZ, JTUVXYZ, NCI1,
+     &  NVECS, NTG3WRK, NYZBUF, NTUBUF, LSGM1, LTAU, LSGM2, IP3STA,
+     &  IP3END, LTO, ISSG2, IP1STA, IP1END, ISSG1, LFROM, LFROMD, IM,
+     &  JM, ISTAU, NTAU, ibuf
+      real(kind=wp) :: VAL
+
       nLev = SGS%nLev
 C Procedure for computing 1-body, 2-body, and 3-body transition
 C density elements with active indices only.
@@ -849,90 +678,20 @@ C all the symmetries (The ''absolute'' active index).
 
 C Put in zeroes. Recognize special cases:
 C     OVL=1.0D0
-      IF(NASHT.EQ.0) GOTO 999
-C     IF(LSYM1.NE.LSYM2) OVL=0.0D0
-C     CALL DCOPY_(NASHT**2,[0.0D0],0,TG1,1)
-C     CALL DCOPY_(NASHT**4,[0.0D0],0,TG2,1)
-C     CALL DCOPY_(NTG3,[0.0D0],0,TG3,1)
-      IF(NACTEL.EQ.0) GOTO 999
+      IF(NASHT == 0) return
+      IF(NACTEL == 0) return
+C     IF(LSYM1 /= LSYM2) OVL=Zero
+C     TG1(:,:) = Zero
+C     TG2(:,:,:,:) = Zero
+C     TG3(1:NTG3) = Zero
 
-      IF(ISCF.EQ.0) GOTO 100
-      write (6,*) "Here is the special case"
-      write (6,*) "not yet"
-      call abend
-
+      IF(ISCF /= 0) then
 C -Special code for the closed-shell or hi-spin cases:
 C ISCF=1 for closed-shell, =2 for hispin
-      ! OCC=2.0D0
-      ! IF(ISCF.EQ.2) OCC=1.0D0
-      DO IT=1,NASHT
-      ! TG1(IT,IT)=OCC
-      END DO
-      IF(NACTEL.EQ.1) GOTO 999
-      DO IT=1,NASHT
-       DO IU=1,NASHT
-      ! TG2(IT,IT,IU,IU)=TG1(IT,IT)*TG1(IU,IU)
-      ! IF(IU.EQ.IT) THEN
-      !  TG2(IT,IT,IU,IU)=TG2(IT,IT,IU,IU)-TG1(IT,IU)
-      !  ELSE
-      !   TG2(IT,IU,IU,IT)=-TG1(IT,IT)
-      !  END IF
-        END DO
-       END DO
-      IF(NACTEL.EQ.2) GOTO 999
-       DO IT1=1,NLEV
-        DO IU1=1,NLEV
-         IND1=IT1+NASHT*(IU1-1)
-         DO IT2=1,NLEV
-          DO IU2=1,IU1
-           IND2=IT2+NASHT*(IU2-1)
-           IF(IND2.GT.IND1) GOTO 199
-           DO IT3=1,NLEV
-            DO IU3=1,IU2
-             IND3=IT3+NASHT*(IU3-1)
-             IF(IND3.GT.IND2) GOTO 198
-C            VAL=TG1(IT1,IU1)*TG1(IT2,IU2)*TG1(IT3,IU3)
-
-C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
-C Add here the necessary Kronecker deltas times 2-body matrix
-C elements and lower, so we get a true normal-ordered density matrix
-C element.
-
-C <PSI1|E(T1,U1,T2,U2,T3,U3)|PSI2>
-C = <PSI1|E(T1,U1)E(T2,U2)E(T3,U3)|PSI2>
-C -D(T3,U2)*(TG2(T1,U1,T2,U3)+D(T2,U1)*TG1(T1,U3))
-C -D(T2,U1)*TG2(T1,U2,T3,U3)
-C -D(T3,U1)*TG2(T2,U2,T1,U3)
-
-      IF(IT3.EQ.IU2) THEN
-C       VAL=VAL-TG2(IT1,IU1,IT2,IU3)
-        IF(IT2.EQ.IU1) THEN
-C         VAL=VAL-TG1(IT1,IU3)
-        END IF
-      END IF
-      IF(IT2.EQ.IU1) THEN
-C       VAL=VAL-TG2(IT1,IU2,IT3,IU3)
-      END IF
-      IF(IT3.EQ.IU1) THEN
-C       VAL=VAL-TG2(IT2,IU2,IT1,IU3)
-      END IF
-
-C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
-      ! ITG3=((IND1+1)*IND1*(IND1-1))/6+(IND2*(IND2-1))/2+IND3
-C     TG3(ITG3)=VAL
-
-
- 198        CONTINUE
-           END DO
-          END DO
- 199      CONTINUE
-         END DO
-        END DO
-       END DO
-      END DO
-      GOTO 999
-
- 100  CONTINUE
+        write (u6,*) "Here is the special case"
+        write (u6,*) "not yet"
+        call abend
+      end if
 C Here, for regular CAS or RAS cases.
 
 C Special pair index allows true RAS cases to be handled:
@@ -968,75 +727,75 @@ C <PSI1|E(T,U,V,X,Y,Z)|PSI2>  = <PSI1|E(TU)E(VX)E(YZ)|PSI2>
 C -D(Y,X)*(TG2(T,U,V,Z)+D(V,U)*TG1(T,Z))
 C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
       IF (DOG3) THEN
-      DO IP1=1,NASHT**2
-       IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
-       IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
-       ITU=IT+NASHT*(IU-1)
-       ITS=IASYM(IT)
-       IUS=IASYM(IU)
-       IS1=MUL(MUL(ITS,IUS),LSYM1)
-       DO IP2=1,IP1
-        IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
-        IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
-        IVX=IV+NASHT*(IX-1)
-        IVS=IASYM(IV)
-        IXS=IASYM(IX)
-        IS2=MUL(MUL(IVS,IXS),IS1)
-        DO IP3=1,IP2
-         IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
-         IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
-         IYS=IASYM(IY)
-         IZS=IASYM(IZ)
-         IS3=MUL(MUL(IYS,IZS),IS2)
-         IF(IS3.EQ.LSYM2) THEN
-          IYZ=IY+NASHT*(IZ-1)
-          IF(ITU.LT.IVX) THEN
-            IF(ITU.GE.IYZ) THEN
-              JTU=IVX
-              JVX=ITU
-              JYZ=IYZ
-            ELSE IF(IVX.LT.IYZ) THEN
-                JTU=IYZ
-                JVX=IVX
-                JYZ=ITU
-            ELSE
-                JTU=IVX
-                JVX=IYZ
-                JYZ=ITU
+       DO IP1=1,NASHT**2
+        IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
+        IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
+        ITU=IT+NASHT*(IU-1)
+        ITS=IASYM(IT)
+        IUS=IASYM(IU)
+        IS1=MUL(MUL(ITS,IUS),LSYM1)
+        DO IP2=1,IP1
+         IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
+         IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
+         IVX=IV+NASHT*(IX-1)
+         IVS=IASYM(IV)
+         IXS=IASYM(IX)
+         IS2=MUL(MUL(IVS,IXS),IS1)
+         DO IP3=1,IP2
+          IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
+          IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
+          IYS=IASYM(IY)
+          IZS=IASYM(IZ)
+          IS3=MUL(MUL(IYS,IZS),IS2)
+          IF(IS3 == LSYM2) THEN
+           IYZ=IY+NASHT*(IZ-1)
+           IF(ITU < IVX) THEN
+             IF(ITU >= IYZ) THEN
+               JTU=IVX
+               JVX=ITU
+               JYZ=IYZ
+             ELSE IF(IVX < IYZ) THEN
+                 JTU=IYZ
+                 JVX=IVX
+                 JYZ=ITU
+             ELSE
+                 JTU=IVX
+                 JVX=IYZ
+                 JYZ=ITU
+             END IF
+           ELSE
+             IF(ITU < IYZ) THEN
+               JTU=IYZ
+               JVX=ITU
+               JYZ=IVX
+             ELSE IF (IVX >= IYZ) THEN
+               JTU=ITU
+               JVX=IVX
+               JYZ=IYZ
+             ELSE
+               JTU=ITU
+               JVX=IYZ
+               JYZ=IVX
+             END IF
+           END IF
+           JTUVXYZ=((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
+           VAL=DTG3(JTUVXYZ)
+           IF(IY == IX) THEN
+            DTG2(IT,IU,IV,IZ)=DTG2(IT,IU,IV,IZ)-VAL
+            IF(IV == IU) THEN
+             DTG1(IT,IZ)=DTG1(IT,IZ)-VAL
             END IF
-          ELSE
-            IF(ITU.LT.IYZ) THEN
-              JTU=IYZ
-              JVX=ITU
-              JYZ=IVX
-            ELSE IF (IVX.GE.IYZ) THEN
-              JTU=ITU
-              JVX=IVX
-              JYZ=IYZ
-            ELSE
-              JTU=ITU
-              JVX=IYZ
-              JYZ=IVX
-            END IF
-          END IF
-          JTUVXYZ=((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
-          VAL=DTG3(JTUVXYZ)
-          IF(IY.EQ.IX) THEN
-           DTG2(IT,IU,IV,IZ)=DTG2(IT,IU,IV,IZ)-VAL
-           IF(IV.EQ.IU) THEN
-            DTG1(IT,IZ)=DTG1(IT,IZ)-VAL
+           END IF
+           IF(IV == IU) THEN
+            DTG2(IT,IX,IY,IZ)=DTG2(IT,IX,IY,IZ)-VAL
+           END IF
+           IF(IY == IU) THEN
+            DTG2(IV,IX,IT,IZ)=DTG2(IV,IX,IT,IZ)-VAL
            END IF
           END IF
-          IF(IV.EQ.IU) THEN
-           DTG2(IT,IX,IY,IZ)=DTG2(IT,IX,IY,IZ)-VAL
-          END IF
-          IF(IY.EQ.IU) THEN
-           DTG2(IV,IX,IT,IZ)=DTG2(IV,IX,IT,IZ)-VAL
-          END IF
-         END IF
+         END DO
         END DO
        END DO
-      END DO
       END IF
 C
 C Then, the 2-particle density matrix:
@@ -1047,11 +806,11 @@ C <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)
        DO IP2=1,IP1
         IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
         IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
-        IF (IP1.ne.IP2) Then
+        IF (IP1 /= IP2) Then
           DTG2(IT,IU,IV,IX)=DTG2(IT,IU,IV,IX)+DTG2(IV,IX,IT,IU)
-          DTG2(IV,IX,IT,IU) = 0.0D+00
+          DTG2(IV,IX,IT,IU) = Zero
         End If
-        IF(IV.EQ.IU) DTG1(IT,IX)=DTG1(IT,IX)-DTG2(IT,IU,IV,IX)
+        IF(IV == IU) DTG1(IT,IX)=DTG1(IT,IX)-DTG2(IT,IU,IV,IX)
        END DO
       END DO
 C
@@ -1064,10 +823,10 @@ C packed addressing.
 
       NCI1=CIS%NCSF(LSYM1)
 C Overlap:
-C     IF(LSYM1.EQ.LSYM2) OVL=DDOT_(NCI1,CI1,1,CI2,1)
-      IF(LSYM1.EQ.LSYM2) THEN
-        Call DaXpY_(NCI1,OVL,CI1,1,CLAG2,1)
-        Call DaXpY_(NCI1,OVL,CI2,1,CLAG1,1)
+C     IF(LSYM1 == LSYM2) OVL=DDOT_(NCI1,CI1,1,CI2,1)
+      IF(LSYM1 == LSYM2) THEN
+        CLAG2(1:NCI1) = CLAG2(1:NCI1) + OVL*CI1(1:NCI1)
+        CLAG1(1:NCI1) = CLAG1(1:NCI1) + OVL*CI2(1:NCI1)
       END IF
 C     write (*,*) "overlap = ",DDOT_(NCI1,CI1,1,CI2,1)
 C Allocate as many vectors as possible:
@@ -1086,14 +845,14 @@ C Find optimal subdivision of available vectors:
       NTUBUF=MIN(NASHT**2,NVECS-1-NYZBUF)
       NYZBUF=NVECS-1-NTUBUF
 C Insufficient memory?
-      IF(NTUBUF.LE.0) THEN
-        WRITE(6,*)' Too little memory left for MKTG3.'
-        WRITE(6,*)' Need at least 6 vectors of length MXCI=',MXCI
+      IF(NTUBUF <= 0) THEN
+        WRITE(u6,*)' Too little memory left for MKTG3.'
+        WRITE(u6,*)' Need at least 6 vectors of length MXCI=',MXCI
         CALL ABEND()
       END IF
-      IF(NTUBUF.LE.(NASHT**2)/5) THEN
-        WRITE(6,*)' WARNING: MKTG3 will be inefficient owing to'
-        WRITE(6,*)' small memory.'
+      IF(NTUBUF <= (NASHT**2)/5) THEN
+        WRITE(u6,*)' WARNING: MKTG3 will be inefficient owing to'
+        WRITE(u6,*)' small memory.'
       END IF
       CALL mma_allocate(TG3WRK,NTG3WRK,Label='TG3WRK')
       CALL mma_allocate(BUF1,MXCI,Label='BUF1')
@@ -1123,19 +882,20 @@ C Translate to levels in the SGUGA coupling order:
         IYS=IASYM(IY)
         IZS=IASYM(IZ)
         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
-        CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTO),1)
+        TG3WRK(LTO:LTO+MXCI-1) = Zero
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
-     &              IL,JL,1.0D00,LSYM2,CI2,TG3WRK(LTO))
-        IF(ISSG2.EQ.LSYM1.AND.DTG1(IY,IZ).NE.0.0D+00) THEN
+     &              IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
+        IF(ISSG2 == LSYM1 .AND. DTG1(IY,IZ) /= Zero) THEN
           !! It is possible to calculate the contribution using
           !! DGEMV, but DAXPY seems to be faster than DGEMV
-          Call DaXpY_(NCI1,DTG1(IY,IZ),TG3WRK(LTO),1,CLAG1,1)
+          CLAG1(1:NCI1) = CLAG1(1:NCI1)
+     &      + DTG1(IY,IZ)*TG3WRK(LTO:LTO+NCI1-1)
         END IF
         LTO=LTO+MXCI
        END DO
 C
-       CALL DCopy_(MXCI*NYZBUF,[0.0D+00],0,DYZ,1)
+       DYZ(1:MXCI,1:NYZBUF) = Zero
 C Sectioning loops over pair indices IP1 (bra side):
        DO IP1STA=IP3STA,NASHT**2,NTUBUF
         IP1END=MIN(NASHT**2,IP1STA-1+NTUBUF)
@@ -1151,17 +911,18 @@ C Translate to levels:
          ITS=IASYM(IT)
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-         CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTO),1)
+         TG3WRK(LTO:LTO+MXCI-1) = Zero
          CALL SIGMA1(SGS,CIS,EXS,
-     &               IL,JL,1.0D00,LSYM1,CI1,TG3WRK(LTO))
-         IF (ISSG1.EQ.LSYM1.AND.DTG1(IU,IT).NE.0.0D+00
-     &       .AND.IP3STA.EQ.1) THEN
-          Call DaXpY_(NCI1,DTG1(IU,IT),TG3WRK(LTO),1,CLAG2,1)
+     &               IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
+         IF (ISSG1 == LSYM1 .AND. DTG1(IU,IT) /= Zero
+     &       .AND. IP3STA == 1) THEN
+          CLAG2(1:NCI1) = CLAG2(1:NCI1)
+     &      + DTG1(IU,IT)*TG3WRK(LTO:LTO+NCI1-1)
          END IF
          LTO=LTO+MXCI
         END DO
 C
-        CALL DCopy_(MXCI*NTUBUF,[0.0D+00],0,DTU,1)
+        DTU(1:MXCI,1:NTUBUF) = Zero
 C Now compute as many elements as possible:
         LFROM=LSGM2
         LFROMD=1
@@ -1185,90 +946,91 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           IXS=IASYM(IX)
           ISTAU=MUL(MUL(IVS,IXS),ISSG2)
           NTAU=CIS%NCSF(ISTAU)
-          CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTAU),1)
+          TG3WRK(LTAU:LTAU+MXCI-1) = Zero
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           !! LTAU = EvxEyz|Psi2>
           CALL SIGMA1(SGS,CIS,EXS,
-     &                IL,JL,1.0D00,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
-          IF(ISTAU.EQ.LSYM1.AND.DTG2(IV,IX,IY,IZ).NE.0.0D+00) THEN
+     &                IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
+          IF(ISTAU == LSYM1 .AND. DTG2(IV,IX,IY,IZ) /= Zero) THEN
 C          DTG2(IV,IX,IY,IZ)=DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
            !! For left derivative: <I|Evx Eyz|Psi2>
-           Call DaXpY_(NTAU,DTG2(IV,IX,IY,IZ),TG3WRK(LTAU),1,CLAG1,1)
+           CLAG1(1:NTAU) = CLAG1(1:NTAU)
+     &       + DTG2(IV,IX,IY,IZ)*TG3WRK(LTAU:LTAU+NTAU-1)
            !! For right derivative: <Psi1|Evx Eyz|I>
-           IF (IP2.GE.IP1STA.AND.IP2.LE.IP1END) THEN
+           IF (IP2 >= IP1STA.AND.IP2 <= IP1END) THEN
               ibuf = lsgm1+mxci*(ip2-ip1sta)
-              Call DaXpY_(MXCI,DTG2(IV,IX,IY,IZ),TG3WRK(IBUF),1,
-     *                    DYZ(1,LFROMD),1)
+              DYZ(1:MXCI,LFROMD) = DYZ(1:MXCI,LFROMD)
+     &          + DTG2(IV,IX,IY,IZ)*TG3WRK(IBUF:IBUF+MXCI-1)
            ELSE
          CALL SIGMA1(SGS,CIS,EXS,
      &               JL,IL,DTG2(IV,IX,IY,IZ),ISSG2,CI1,DYZ(1,LFROMD))
            END IF
-           DTG2(IV,IX,IY,IZ) = 0.0D+00
+           DTG2(IV,IX,IY,IZ) = Zero
           END IF
           IF (DOG3) THEN
-          CALL DCopy_(MXCI,[0.0D+00],0,BUF1,1)
-          DO IP1=MAX(IP2,IP1STA),IP1END
-           IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
-           IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
-           ITS=IASYM(IT)
-           IUS=IASYM(IU)
-           ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-           IF(ISSG1.EQ.ISTAU) THEN
-C           L=LSGM1+MXCI*(IP1-IP1STA)
-C           VAL=DDOT_(NTAU,TG3WRK(LTAU),1,TG3WRK(L),1)
-            ITU=IT+NASHT*(IU-1)
+            BUF1(1:MXCI) = Zero
+            DO IP1=MAX(IP2,IP1STA),IP1END
+             IT=L2ACT(P2LEV(LP2LEV1-1+IP1))
+             IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
+             ITS=IASYM(IT)
+             IUS=IASYM(IU)
+             ISSG1=MUL(MUL(ITS,IUS),LSYM1)
+             IF(ISSG1 == ISTAU) THEN
+C             L=LSGM1+MXCI*(IP1-IP1STA)
+C             VAL=DDOT_(NTAU,TG3WRK(LTAU),1,TG3WRK(L),1)
+              ITU=IT+NASHT*(IU-1)
 C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
 C Code to put it in correct place:
-            IF(ITU.LT.IVX) THEN
-              IF(ITU.GE.IYZ) THEN
-                JTU=IVX
-                JVX=ITU
-                JYZ=IYZ
-              ELSE IF(IVX.LT.IYZ) THEN
+              IF(ITU < IVX) THEN
+                IF(ITU >= IYZ) THEN
+                  JTU=IVX
+                  JVX=ITU
+                  JYZ=IYZ
+                ELSE IF(IVX < IYZ) THEN
                   JTU=IYZ
                   JVX=IVX
                   JYZ=ITU
-              ELSE
+                ELSE
                   JTU=IVX
                   JVX=IYZ
                   JYZ=ITU
-              END IF
-            ELSE
-              IF(ITU.LT.IYZ) THEN
-                JTU=IYZ
-                JVX=ITU
-                JYZ=IVX
-              ELSE IF (IVX.GE.IYZ) THEN
-                JTU=ITU
-                JVX=IVX
-                JYZ=IYZ
+                END IF
               ELSE
-                JTU=ITU
-                JVX=IYZ
-                JYZ=IVX
+                IF(ITU < IYZ) THEN
+                  JTU=IYZ
+                  JVX=ITU
+                  JYZ=IVX
+                ELSE IF (IVX >= IYZ) THEN
+                  JTU=ITU
+                  JVX=IVX
+                  JYZ=IYZ
+                ELSE
+                  JTU=ITU
+                  JVX=IYZ
+                  JYZ=IVX
+                END IF
               END IF
-            END IF
-            JTUVXYZ=((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
-            IF (DTG3(JTUVXYZ).NE.0.0D+00) THEN
-              !! For left derivative: <I|Evx Eyz|Psi2> * Dtuvxyz
-              !! I don't understand, but this is much faster than
-              !! processing all possible vectors at once with DGEMM
-              !! (and DGER) after finishing the IP1 loop below
-              Call DaXpY_(MXCI,DTG3(JTUVXYZ),
-     *                    TG3WRK(LTAU),1,DTU(1,1+IP1-IP1STA),1)
-              !! For right derivative: <Psi1|Etu|I> * Dtuvxyz
-              !! This is also (slightly) faster than DGEMV, apparently
-              Call DaXpY_(MXCI,DTG3(JTUVXYZ),
-     *                    TG3WRK(LSGM1+MXCI*(IP1-IP1STA)),1,BUF1,1)
-             END IF
+              JTUVXYZ=((JTU+1)*JTU*(JTU-1))/6+(JVX*(JVX-1))/2+JYZ
+              IF (DTG3(JTUVXYZ) /= Zero) then
+                !! For left derivative: <I|Evx Eyz|Psi2> * Dtuvxyz
+                !! I don't understand, but this is much faster than
+                !! processing all possible vectors at once with DGEMM
+                !! (and DGER) after finishing the IP1 loop below
+                DTU(1:MXCI,1+IP1-IP1STA) = DTU(1:MXCI,1+IP1-IP1STA)
+     &            + DTG3(JTUVXYZ)*TG3WRK(LTAU:LTAU+MXCI-1)
+                !! For right derivative: <Psi1|Etu|I> * Dtuvxyz
+                !! This is also (slightly) faster than DGEMV, apparently
+                Call DaXpY_(MXCI,DTG3(JTUVXYZ),
+     *                      TG3WRK(LSGM1+MXCI*(IP1-IP1STA)),1,BUF1,1)
+               END IF
 C End of symmetry requirement IF-clause:
-           END IF
+             END IF
 C End of IP1 loop.
-          END DO
-          !! Second operator for the right derivative:
-          !! <Psi1|Etu Evx|I> * Dtuvxyz
-          CALL SIGMA1(SGS,CIS,EXS,
-     &                JL,IL,1.0D+00,ISTAU,BUF1,DYZ(1,LFROMD))
+            END DO
+            !! Second operator for the right derivative:
+            !! <Psi1|Etu Evx|I> * Dtuvxyz
+            CALL SIGMA1(SGS,CIS,EXS,
+     &                  JL,IL,One,ISTAU,BUF1,DYZ(1,LFROMD))
           END IF !! End of DOG3 clause
 C End of IP2 loop.
          END DO
@@ -1288,7 +1050,7 @@ C Translate to levels:
          ITS=IASYM(IT)
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-         CALL SIGMA1(SGS,CIS,EXS,IL,JL,1.0D00,LSYM1,DTU(1,LTO),CLAG1)
+         CALL SIGMA1(SGS,CIS,EXS,IL,JL,One,LSYM1,DTU(1,LTO),CLAG1)
          LTO=LTO+1
         END DO
 C End of IP1STA sectioning loop
@@ -1306,7 +1068,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
         IM=P2LEV(LP2LEV1-1+IP3)
         JM=P2LEV(LP2LEV2-1+IP3)
 C LTO is first element of Sigma2 = E(YZ) Psi2
-        CALL SIGMA1(SGS,CIS,EXS,JM,IM,1.0D00,LSYM2,DYZ(1,LTO),CLAG2)
+        CALL SIGMA1(SGS,CIS,EXS,JM,IM,One,LSYM2,DYZ(1,LTO),CLAG2)
         LTO=LTO+1
        END DO
 C End of IP3STA sectioning loop
@@ -1318,6 +1080,4 @@ C
       call mma_deallocate(DYZ)
       call mma_deallocate(P2LEV)
 
- 999  CONTINUE
-      RETURN
-      END
+      end subroutine DERTG3
