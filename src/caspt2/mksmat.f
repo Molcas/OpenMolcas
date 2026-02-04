@@ -2159,36 +2159,38 @@ C Write to disk
       SUBROUTINE MKSG(DREF,NDREF)
       use definitions, only: iwp, wp
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NINDEP,NASH,NAES
+      IMPLICIT None
 
       INTEGER(kind=iwp), intent(in)::  NDREF
       REAL(kind=wp), intent(in)::  DREF(NDREF)
 
       REAL(kind=wp), ALLOCATABLE:: SG(:)
+      INTEGER(kind=iwp) ISYM,NINP,NINM,NAS,NSG,IT,ITABS,IX,IXABS,ISG,
+     &                  ID,IDISK
 C Set up the matrix SG(t,x)
 C Formula used:
 C    SG(t,x)= Dtx
 
 
-      DO 1000 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,10)
-        IF(NINP.EQ.0) GOTO 1000
+        IF(NINP.EQ.0) CYCLE
         NINM=NINDEP(ISYM,11)
         NAS=NASH(ISYM)
         NSG=(NAS*(NAS+1))/2
         IF(NSG.GT.0) CALL mma_allocate(SG,NSG,Label='SG')
-        DO 100 IT=1,NAS
+        DO IT=1,NAS
           ITABS=IT+NAES(ISYM)
-          DO 101 IX=1,IT
+          DO IX=1,IT
             IXABS=IX+NAES(ISYM)
             ISG=(IT*(IT-1))/2+IX
             ID=(ITABS*(ITABS-1))/2+IXABS
             SG(ISG)= DREF(ID)
- 101      CONTINUE
- 100    CONTINUE
+          END DO
+        END DO
 
 C Write to disk
         IF(NSG.GT.0.and.NINDEP(ISYM,10).GT.0) THEN
@@ -2200,6 +2202,6 @@ C Write to disk
           END IF
           CALL mma_deallocate(SG)
         END IF
- 1000 CONTINUE
+      END DO
 
       END SUBROUTINE MKSG
