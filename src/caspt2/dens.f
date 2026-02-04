@@ -2074,7 +2074,7 @@ C
      &        + V1(ipV1+iVec-1)*SSDM(1:nBasT**2)
             !! Exchange
             WRK(1:nBasT**2) = WRK(1:nBasT**2)
-     &        - B_SSDM(1+nBasT**2*(iVec-1):1+nBasT**2*iVec)
+     &        - B_SSDM(1+nBasT**2*(iVec-1):nBasT**2*iVec)
             Write (Unit=LuGAMMA,Rec=JV1+iVec-1) WRK(1:nBasT**2)
           End Do
           JV1=JV1+JNUM
