@@ -1674,10 +1674,16 @@ C storage uses a triangular scheme, and the LDC passed is zero.
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      integer(kind=iwp) :: NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
-      real(kind=wp) DREF(NDREF),PREF(NPREF)
-      real(kind=wp) SC(*)
+      IMPLICIT None
+      integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,
+     &                                 iLo,iHi,jLo,jHi,LDC
+      real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
+      real(kind=wp), intent(out):: SC(*)
+
+      integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
+     &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,
+     &                  IP2,IP,ID1,ID2,IVZ,ITX,ITZ,IVX
+      real(kind=wp) VALUE
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for this SC block
