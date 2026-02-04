@@ -18,7 +18,7 @@
       USE Para_Info, ONLY: Is_Real_Par, nProcs, MyRank
 #endif
       use pt2_guga
-      IMPLICIT REAL*8 (a-h,o-z)
+      IMPLICIT None
 
       integer(kind=iwp), intent(in):: LSYM1, LSYM2
       real(kind=wp), intent(in)::  CI1(MXCI),CI2(MXCI)
@@ -34,6 +34,14 @@
 
       integer(kind=iwp), allocatable:: P2LEV(:)
       real(kind=wp), allocatable:: TG3WRK(:)
+      integer(kind=iwp) IL,IND1,IND2,IND3,IP,IP1,IP1END,IP1STA,IP2,IP3,
+     &                  IP3END,IP3STA,IS1,IS2,IS3,ISSG1,ISSG2,ISTAU,IT,
+     &                  IT1,IT2,IT3,ITG3,ITS,IU,IU1,IU2,IU3,IUS,IV,IVS,
+     &                  IX,IXS,IY,IYS,IZ,IZS,JL,jtuvxyz,L,LFROM,LP2LEV1,
+     &                  LP2LEV2,LSGM1,LSGM2,LTAU,LTO,NCI1,NTAU,NTG3WRK,
+     &                  NTUBUF,NVECS,NYZBUF
+      real(kind=wp) OCC,VAL
+      real(kind=wp), external:: DDot_
 
       nLev = SGS%nLev
 
@@ -61,85 +69,16 @@ C all the symmetries (The ''absolute'' active index).
 
 C Put in zeroes. Recognize special cases:
       OVL=One
-      IF(NASHT.EQ.0) Return
-      IF(LSYM1.NE.LSYM2) OVL=Zero
-      CALL DCOPY_(NASHT**2,[Zero],0,TG1,1)
-      CALL DCOPY_(NASHT**4,[Zero],0,TG2,1)
-      CALL DCOPY_(NTG3,[Zero],0,TG3,1)
+      IF(NASHT==0) Return
+      IF(LSYM1/=LSYM2) OVL=Zero
+      TG1(:,:)=Zero
+      TG2(:,:,:,:)=Zero
+      TG3(:)=Zero
 
-      IF(NACTEL.EQ.0) Return
+      IF(NACTEL==0) Return
+
 
       SELECT CASE (ISCF)
-
-      CASE DEFAULT
-
-C -Special code for the closed-shell or hi-spin cases:
-C ISCF=1 for closed-shell, =2 for hispin
-      OCC=Two
-      IF(ISCF.EQ.2) OCC=One
-      DO IT=1,NASHT
-        TG1(IT,IT)=OCC
-      END DO
-      IF(NACTEL.EQ.1) Return
-      DO IT=1,NASHT
-       DO IU=1,NASHT
-        TG2(IT,IT,IU,IU)=TG1(IT,IT)*TG1(IU,IU)
-        IF(IU.EQ.IT) THEN
-         TG2(IT,IT,IU,IU)=TG2(IT,IT,IU,IU)-TG1(IT,IU)
-         ELSE
-          TG2(IT,IU,IU,IT)=-TG1(IT,IT)
-         END IF
-        END DO
-       END DO
-      IF(NACTEL.EQ.2) Return
-       DO IT1=1,NLEV
-        DO IU1=1,NLEV
-         IND1=IT1+NASHT*(IU1-1)
-         DO IT2=1,NLEV
-          DO IU2=1,IU1
-           IND2=IT2+NASHT*(IU2-1)
-           IF(IND2.GT.IND1) CYCLE
-           DO IT3=1,NLEV
-            DO IU3=1,IU2
-             IND3=IT3+NASHT*(IU3-1)
-             IF(IND3.GT.IND2) CYCLE
-             VAL=TG1(IT1,IU1)*TG1(IT2,IU2)*TG1(IT3,IU3)
-
-C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
-C Add here the necessary Kronecker deltas times 2-body matrix
-C elements and lower, so we get a true normal-ordered density matrix
-C element.
-
-C <PSI1|E(T1,U1,T2,U2,T3,U3)|PSI2>
-C = <PSI1|E(T1,U1)E(T2,U2)E(T3,U3)|PSI2>
-C -D(T3,U2)*(TG2(T1,U1,T2,U3)+D(T2,U1)*TG1(T1,U3))
-C -D(T2,U1)*TG2(T1,U2,T3,U3)
-C -D(T3,U1)*TG2(T2,U2,T1,U3)
-
-      IF(IT3.EQ.IU2) THEN
-        VAL=VAL-TG2(IT1,IU1,IT2,IU3)
-        IF(IT2.EQ.IU1) THEN
-          VAL=VAL-TG1(IT1,IU3)
-        END IF
-      END IF
-      IF(IT2.EQ.IU1) THEN
-        VAL=VAL-TG2(IT1,IU2,IT3,IU3)
-      END IF
-      IF(IT3.EQ.IU1) THEN
-        VAL=VAL-TG2(IT2,IU2,IT1,IU3)
-      END IF
-
-C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
-      ITG3=((IND1+1)*IND1*(IND1-1))/6+(IND2*(IND2-1))/2+IND3
-      TG3(ITG3)=VAL
-
-
-           END DO
-          END DO
-         END DO
-        END DO
-       END DO
-      END DO
 
       CASE (1)
 C Here, for regular CAS or RAS cases.
@@ -237,7 +176,7 @@ C Translate to levels in the SGUGA coupling order:
         CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
-     &              IL,JL,One0,LSYM2,CI2,TG3WRK(LTO))
+     &              IL,JL,One,LSYM2,CI2,TG3WRK(LTO))
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,TG3WRK(LTO),1)
         END IF
@@ -259,7 +198,7 @@ C Translate to levels:
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
          CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
          CALL SIGMA1(SGS,CIS,EXS,
-     &               IL,JL,One0,LSYM1,CI1,TG3WRK(LTO))
+     &               IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
          LTO=LTO+MXCI
         END DO
 C Now compute as many elements as possible:
@@ -292,7 +231,7 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1(SGS,CIS,EXS,
-     &                IL,JL,One0,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
+     &                IL,JL,One,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
           END IF
@@ -392,6 +331,76 @@ C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
        END DO
       END DO
       CALL mma_deallocate(P2LEV)
+
+      CASE DEFAULT
+
+C -Special code for the closed-shell or hi-spin cases:
+C ISCF=1 for closed-shell, =2 for hispin
+      OCC=Two
+      IF(ISCF.EQ.2) OCC=One
+      DO IT=1,NASHT
+        TG1(IT,IT)=OCC
+      END DO
+      IF(NACTEL.EQ.1) Return
+      DO IT=1,NASHT
+       DO IU=1,NASHT
+        TG2(IT,IT,IU,IU)=TG1(IT,IT)*TG1(IU,IU)
+        IF(IU.EQ.IT) THEN
+         TG2(IT,IT,IU,IU)=TG2(IT,IT,IU,IU)-TG1(IT,IU)
+         ELSE
+          TG2(IT,IU,IU,IT)=-TG1(IT,IT)
+         END IF
+        END DO
+       END DO
+      IF(NACTEL.EQ.2) Return
+       DO IT1=1,NLEV
+        DO IU1=1,NLEV
+         IND1=IT1+NASHT*(IU1-1)
+         DO IT2=1,NLEV
+          DO IU2=1,IU1
+           IND2=IT2+NASHT*(IU2-1)
+           IF(IND2.GT.IND1) CYCLE
+           DO IT3=1,NLEV
+            DO IU3=1,IU2
+             IND3=IT3+NASHT*(IU3-1)
+             IF(IND3.GT.IND2) CYCLE
+             VAL=TG1(IT1,IU1)*TG1(IT2,IU2)*TG1(IT3,IU3)
+
+C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
+C Add here the necessary Kronecker deltas times 2-body matrix
+C elements and lower, so we get a true normal-ordered density matrix
+C element.
+
+C <PSI1|E(T1,U1,T2,U2,T3,U3)|PSI2>
+C = <PSI1|E(T1,U1)E(T2,U2)E(T3,U3)|PSI2>
+C -D(T3,U2)*(TG2(T1,U1,T2,U3)+D(T2,U1)*TG1(T1,U3))
+C -D(T2,U1)*TG2(T1,U2,T3,U3)
+C -D(T3,U1)*TG2(T2,U2,T1,U3)
+
+      IF(IT3.EQ.IU2) THEN
+        VAL=VAL-TG2(IT1,IU1,IT2,IU3)
+        IF(IT2.EQ.IU1) THEN
+          VAL=VAL-TG1(IT1,IU3)
+        END IF
+      END IF
+      IF(IT2.EQ.IU1) THEN
+        VAL=VAL-TG2(IT1,IU2,IT3,IU3)
+      END IF
+      IF(IT3.EQ.IU1) THEN
+        VAL=VAL-TG2(IT2,IU2,IT1,IU3)
+      END IF
+
+C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
+      ITG3=((IND1+1)*IND1*(IND1-1))/6+(IND2*(IND2-1))/2+IND3
+      TG3(ITG3)=VAL
+
+
+           END DO
+          END DO
+         END DO
+        END DO
+       END DO
+      END DO
 
       END SELECT
 
