@@ -949,7 +949,7 @@ C Add -dyu Gvzxt
       use EQSOLV
       use fake_GA, only: GA_Arrays
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -958,9 +958,13 @@ C Add -dyu Gvzxt
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
       real(kind=wp), intent(inout):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
+
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
 #endif
+      INTEGER(kind=iwp) ICASE,ISYM,lg_SC,NAS,NIN,NSC
+      real(kind=wp) DSC
+      real(kind=wp), EXTERNAL:: PSBMAT_FPRINT
 
       ICASE=4
 C LONG loop over superindex symmetry.
