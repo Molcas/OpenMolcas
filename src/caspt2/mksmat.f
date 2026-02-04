@@ -2045,17 +2045,24 @@ C Write to disk
 
       SUBROUTINE MKSF(PREF,NPREF)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
+      use constants, only: Four
+      USE SUPERINDEX, only: MTU,MTGEU,KTU,MTGEU,KTGTU
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NINDEP,NTU,NTUES,NASHT,NTGEU,
+     &                         NTGEUES,NTGTU,NTGTUES
+      IMPLICIT NONE
 
       INTEGER(kind=iwp), intent(in)::  NPREF
       REAL(kind=wp), intent(in)::  PREF(NPREF)
 
       REAL(kind=wp), ALLOCATABLE:: SF(:), SFP(:), SFM(:)
+      INTEGER(kind=iwp) ISYM,NINP,NAS,NSF,ITU,ITUABS,ITABS,IUABS,IXY,
+     &                  IXYABS,IXABS,IYABS,ISADR,ITX,IUY,IP1,IP2,IP,
+     &                  IDISK,ISMADR,ISPADR,ITGEU,ITGEUABS,ITGTU,IXGEY,
+     &                  IXGEYABS,IXGTY,IYX,NASM,NASP,NSFM,NSFP
+      REAL(kind=wp) VALUE,STUXY,STUYX
 C Set up the matrices SFP(tu,xy) and SFM(tu,xy)
 C Formulae used:
 C    SF(tu,xy)= 4 Ptxuy
@@ -2085,7 +2092,7 @@ C Loop over superindex symmetry.
             IP1=MAX(ITX,IUY)
             IP2=MIN(ITX,IUY)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=4.0D0*PREF(IP)
+            VALUE=Four*PREF(IP)
             SF(ISADR)=VALUE
           END DO
         END DO
