@@ -480,8 +480,9 @@ C  - G(xvzyut) -> SA(yvx,zut)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-          if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 300
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 200
+          if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
+
+          if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
           ! - G(vxtuyz) -> SA(uxv,tyz)
           jSYM=MUL(iSU,MUL(iSX,iSV))
           IF (jSYM.EQ.iSYM) THEN
@@ -503,7 +504,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
- 200      CONTINUE
+          ENDIF
+
           ! - G(yztuvx) -> SA(uzy,tvx)
           jSYM=MUL(iSU,MUL(iSZ,iSY))
           IF (jSYM.EQ.iSYM) THEN
@@ -518,7 +520,9 @@ C  - G(xvzyut) -> SA(yvx,zut)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
- 300      CONTINUE
+
+          ENDIF
+
           if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
           if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
           if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
@@ -531,7 +535,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 400
+          if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
           ! - G(xvutzy) -> SA(tvx,uzy)
           jSYM=MUL(iST,MUL(iSV,iSX))
           IF (jSYM.EQ.iSYM) THEN
@@ -553,7 +557,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
- 400      CONTINUE
+          ENDIF
           ! - G(zyutxv) -> SA(tyz,uxv)
           jSYM=MUL(iST,MUL(iSY,iSZ))
           IF (jSYM.EQ.iSYM) THEN
@@ -613,8 +617,9 @@ C  - G(tuvxyz) -> SA(xut,vyz)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
-          if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 301
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 201
+          if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
+
+          if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(vxtuyz) -> SA(uxv,tyz)
           jSYM=MUL(IASYM(iU),MUL(IASYM(iX),IASYM(iV)))
           IF (jSYM.EQ.iSYM) THEN
@@ -648,7 +653,8 @@ C  - G(tuyzvx) -> SA(zut,yvx)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
- 201      CONTINUE
+          ENDIF
+
 C  - G(yztuvx) -> SA(uzy,tvx)
           jSYM=MUL(IASYM(iU),MUL(IASYM(iZ),IASYM(iY)))
           IF (jSYM.EQ.iSYM) THEN
@@ -671,7 +677,9 @@ C  - G(vxyztu) -> SA(zxv,ytu)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
- 301      CONTINUE
+
+          ENDIF
+
           if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
           if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
           if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
@@ -688,7 +696,8 @@ C  - G(utxvzy) -> SA(vtu,xzy)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
           if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
-          if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 401
+
+          if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(xvutzy) -> SA(tvx,uzy)
           jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
           IF (jSYM.EQ.iSYM) THEN
@@ -722,7 +731,9 @@ C  - G(utzyxv) -> SA(ytu,zxv)
             SENDIDX(2*IBUF(IP)-1)=INT(IROW,kind=MPIInt)
             SENDIDX(2*IBUF(IP))=INT(ICOL,kind=MPIInt)
           ENDIF
- 401      CONTINUE
+
+          ENDIF
+
 C  - G(zyutxv) -> SA(tyz,uxv)
           jSYM=MUL(IASYM(iT),MUL(IASYM(iY),IASYM(iZ)))
           IF (jSYM.EQ.iSYM) THEN
