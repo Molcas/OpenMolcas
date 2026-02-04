@@ -66,9 +66,10 @@ C Put in zeroes. Recognize special cases:
       CALL DCOPY_(NASHT**2,[Zero],0,TG1,1)
       CALL DCOPY_(NASHT**4,[Zero],0,TG2,1)
       CALL DCOPY_(NTG3,[Zero],0,TG3,1)
+
       IF(NACTEL.EQ.0) Return
 
-      IF(ISCF.EQ.0) GOTO 100
+      IF(ISCF/=0) THEN
 
 C -Special code for the closed-shell or hi-spin cases:
 C ISCF=1 for closed-shell, =2 for hispin
@@ -95,11 +96,11 @@ C ISCF=1 for closed-shell, =2 for hispin
          DO IT2=1,NLEV
           DO IU2=1,IU1
            IND2=IT2+NASHT*(IU2-1)
-           IF(IND2.GT.IND1) GOTO 199
+           IF(IND2.GT.IND1) CYCLE
            DO IT3=1,NLEV
             DO IU3=1,IU2
              IND3=IT3+NASHT*(IU3-1)
-             IF(IND3.GT.IND2) GOTO 198
+             IF(IND3.GT.IND2) CYCLE
              VAL=TG1(IT1,IU1)*TG1(IT2,IU2)*TG1(IT3,IU3)
 
 C Here VAL is the value <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
@@ -131,17 +132,15 @@ C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
       TG3(ITG3)=VAL
 
 
- 198        CONTINUE
            END DO
           END DO
- 199      CONTINUE
          END DO
         END DO
        END DO
       END DO
       Return
 
- 100  CONTINUE
+      END IF
 C Here, for regular CAS or RAS cases.
 
 C Special pair index allows true RAS cases to be handled:
