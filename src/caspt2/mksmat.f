@@ -384,8 +384,8 @@ C  - G(xvzyut) -> SA(yvx,zut)
 
       integer(kind=iwp), ALLOCATABLE :: IBUF(:)
       integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
-     &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP,ISADR
-      integer(kind=iwp) MYRANK,LG_SA,NG3MAX,NPROCS,
+     &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP
+      integer(kind=iwp) MYRANK,NG3MAX,NPROCS,
      &                  MAXMEM,iscal,MAXBUF,NG3B,NBUF,NAS,NQOT,NREM,
      &                  NBLOCKS,IBLOCK,IG3STA,IG3END,IROW,IP,
      &                  IOFFSET,I,ICOL,NRECV
@@ -1228,7 +1228,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
 
       INTEGER(kind=iwp), ALLOCATABLE :: IBUF(:)
       integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
-     &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP,ISADR
+     &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP
       integer(kind=iwp) NG3MAX,NPROCS,MYRANK,MAXMEM,ISCAL,MAXBUF,NG3B,
      &                  NBUF,NAS,NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,
      &                  IROW,IP,IOFFSET,I,ICOL,NRECV
