@@ -1025,15 +1025,18 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
 
       SUBROUTINE MKSC_G3(ISYM,SC,NG3,G3,idxG3)
       use definitions, only: iwp, wp, Byte
-      USE SUPERINDEX
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      USE SUPERINDEX, only: KTUV
+      use caspt2_module, only: NASHT, IASYM, MUL, NTUVES
+      IMPLICIT None
 
-      integer(kind=iwp) ISYM,NG3
-      real(kind=wp) SC(*)
-      real(kind=wp) G3(NG3)
-      INTEGER(kind=Byte) idxG3(6,NG3)
+      integer(kind=iwp), intent(in):: ISYM,NG3
+      real(kind=wp), intent(out):: SC(*)
+      real(kind=wp), intent(in):: G3(NG3)
+      INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
+
+      integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
+     &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP,ISADR
+      real(kind=wp) G3VAL
 
 C-SVC20100831: determine indices in SC where a certain G3 value will end up
       DO iG3=1,NG3
