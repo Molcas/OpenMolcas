@@ -157,7 +157,7 @@ C
       use Constants, only: Zero, One, Half, Two, Four
       use EQSOLV, only: IDSMAT, IDBMAT, IRHS, IVECX, IVECR, IVECW
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp, iwp
+      use definitions, only: wp, iwp, byte
       use fake_GA, only: GA_Arrays
       use caspt2_module, only: IFMSCOUP, NSYM, NASH, NAES, NASHT,
      &                         NASUP, NISUP, NINDEP, EPSA, EASUM, NTUES,
@@ -185,7 +185,7 @@ C
       real(kind=wp), allocatable :: LBD(:),LID(:) !!,VEC1(:),VEC2(:)
       real(kind=wp), allocatable :: SMat(:),BDER(:),SDER(:)
 #ifdef _MOLCAS_MPP_
-      INTEGER*1, ALLOCATABLE :: idxG3(:,:)
+      integer(kind=byte), ALLOCATABLE :: idxG3(:,:)
       real(kind=wp), allocatable :: VEC1(:),VEC2(:),VEC3(:),VEC4(:),
      *                              VEC5(:)
 #endif
@@ -467,7 +467,7 @@ C
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
-      integer*1, allocatable :: idxG3(:,:)
+      integer(kind=byte), allocatable :: idxG3(:,:)
 C
       NS = NAS*(NAS+1)/2
       call mma_allocate(SMat,NS,Label='SMat')
@@ -741,7 +741,7 @@ C
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
-      integer*1, allocatable :: idxG3(:,:)
+      integer(kind=byte), allocatable :: idxG3(:,:)
 C
       NS = NAS*(NAS+1)/2
       call mma_allocate(SMat,NS,Label='SMat')
@@ -1127,7 +1127,7 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
 C
-      INTEGER*1, ALLOCATABLE :: idxG3(:,:)
+      integer(kind=byte), ALLOCATABLE :: idxG3(:,:)
       real(kind=wp),allocatable :: EIG(:),WRK(:,:)
 
       logical(kind=iwp) :: bStat
@@ -1754,7 +1754,7 @@ C
       use PrintLevel, only: verbose
       use gugx, only: L2ACT
       use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
-      use definitions, only: wp, iwp, u6
+      use definitions, only: wp, iwp, byte, u6
       use caspt2_module, only: STSYM, NCONF, NSTATE, MSTATE, JSTATE,
      &                         ISCF, EPSA
       use Constants, only: One
@@ -1769,7 +1769,7 @@ C
 C
       integer(kind=iwp) :: ILEV, NG3MAX, ILUID, IDCI, J
       integer(kind=iwp), external :: iPARDIV
-      integer*1, allocatable :: idxG3(:,:)
+      integer(kind=byte), allocatable :: idxG3(:,:)
       real(kind=wp), allocatable :: CI1(:)
 
       real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0,
@@ -2386,7 +2386,7 @@ C
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
       use Constants, only: Zero
-      use definitions, only: wp, iwp
+      use definitions, only: wp, iwp, byte
 C
       implicit none
 C
@@ -2396,7 +2396,7 @@ C
       real(kind=wp), intent(inout) :: DF1(nAshT,nAshT),
      &  DF2(nAshT,nAshT,nAshT,nAshT), DF3(*), DG1(nAshT,nAshT),
      &  DG2(nAshT,nAshT,nAshT,nAshT), DG3(*), DEPSA(nAshT,nAshT)
-      integer*1, intent(in) :: idxG3(6,NG3)
+      integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
       integer(kind=iwp) :: iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV,
      &                     iSX, iSY, iSZ, ituvs, ixyzs, iTU, iVX, iYZ,
@@ -2599,7 +2599,7 @@ C
      *                           DF1,DF2,DF3,DEPSA,G2,idxG3)
 
       USE SUPERINDEX, only: KTUV
-      use definitions, only: iwp,RtoB,wp
+      use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
       use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
@@ -2616,7 +2616,7 @@ C
      &  DG2(NASHT,NASHT,NASHT,NASHT), DG3(*), DF1(NASHT,NASHT),
      &  DF2(NASHT,NASHT,NASHT,NASHT), DF3(*), DEPSA(NASHT,NASHT)
       real(kind=wp), intent(in) :: G2(NASHT,NASHT,NASHT,NASHT)
-      INTEGER*1, intent(in) :: idxG3(6,NG3)
+      integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
       integer(kind=iwp), ALLOCATABLE :: INDI(:), INDJ(:), NELBsav(:),
      *                                  NELSsav(:)
@@ -3187,7 +3187,7 @@ C
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
       use Constants, only: Zero
-      use definitions, only: wp, iwp
+      use definitions, only: wp, iwp, byte
 
       implicit none
 
@@ -3197,7 +3197,7 @@ C
       real(kind=wp), intent(inout) :: DF1(nAshT,nAshT),
      &  DF2(nAshT,nAshT,nAshT,nAshT), DF3(*), DG1(nAshT,nAshT),
      &  DG2(nAshT,nAshT,nAshT,nAshT), DG3(*), DEPSA(nAshT,nAshT)
-      integer*1, intent(in) :: idxG3(6,NG3)
+      integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
       integer(kind=iwp) :: iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV,
      &                     iSX, iSY, iSZ, ituvs, ixyzs, iTU, iVX, iYZ,
@@ -3397,7 +3397,7 @@ C
      *                           DF1,DF2,DF3,DEPSA,G2,idxG3)
 
       USE SUPERINDEX, only: KTUV
-      use definitions, only: iwp,RtoB,wp
+      use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
       use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
@@ -3414,7 +3414,7 @@ C
      &  DG2(NASHT,NASHT,NASHT,NASHT), DG3(*), DF1(NASHT,NASHT),
      &  DF2(NASHT,NASHT,NASHT,NASHT), DF3(*), DEPSA(NASHT,NASHT)
       real(kind=wp), intent(in) :: G2(NASHT,NASHT,NASHT,NASHT)
-      INTEGER*1, intent(in) :: idxG3(6,NG3)
+      integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
       integer(kind=iwp), ALLOCATABLE :: INDI(:), INDJ(:), NELBsav(:),
      *                                  NELSsav(:)
@@ -3947,7 +3947,7 @@ C
 
       USE SUPERINDEX, only: KTUV
       USE Para_Info, only: nProcs
-      use definitions, only: wp, iwp
+      use definitions, only: wp, iwp, byte
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NASHT, MUL, IASYM, NTUVES
       use pt2_guga, only: NG3
@@ -3960,7 +3960,7 @@ C
       real(kind=wp), intent(in) :: DF3(*)
       real(kind=wp), intent(inout) :: DEPSA(NASHT,NASHT)
       integer(kind=iwp), intent(in) :: lg_S
-      integer*1, intent(in) :: idxG3(6,NG3)
+      integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
       real(kind=wp), allocatable :: WRK(:)
       integer(kind=iwp) :: isym, iRank, ILO, IHI, JLO, JHI, NROW, NCOL,
