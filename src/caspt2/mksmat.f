@@ -841,14 +841,20 @@ C In parallel, this subroutine is called on a local chunk of memory
 C and LDA is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDA passed is zero.
       use definitions, only: iwp, wp
+      use constants, only: Two, Four
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,
      &                                iLo,iHi,jLo,jHi,LDA
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
       real(kind=wp), intent(out):: SA(*)
+
+      integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
+     &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,
+     &                  IP2,IP,ID1,ID2,ID,IVT,IVZ,IXT,IXZ
+      real(kind=wp) VALUE
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for SA
@@ -879,12 +885,12 @@ C Add  2 dtx Gvuyz + 2 dtx dyu Gvz
             IP1=MAX(IVU,IYZ)
             IP2=MIN(IVU,IYZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+4.0D0*PREF(IP)
+            VALUE=VALUE+Four*PREF(IP)
             IF(IYABS.EQ.IUABS)THEN
               ID1=MAX(IVABS,IZABS)
               ID2=MIN(IVABS,IZABS)
               ID=(ID1*(ID1-1))/2+ID2
-              VALUE=VALUE+2.0D0*DREF(ID)
+              VALUE=VALUE+Two*DREF(ID)
             END IF
           END IF
 C Add  -dxu Gvtyz -dxu dyt Gvz
@@ -894,7 +900,7 @@ C Add  -dxu Gvtyz -dxu dyt Gvz
             IP1=MAX(IVT,IYZ)
             IP2=MIN(IVT,IYZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE - 2.0D0*PREF(IP)
+            VALUE=VALUE - Two*PREF(IP)
             IF(IYABS.EQ.ITABS)THEN
               ID1=MAX(IVABS,IZABS)
               ID2=MIN(IVABS,IZABS)
@@ -909,7 +915,7 @@ C Add  -dyt Gvuxz
             IP1=MAX(IVU,IXZ)
             IP2=MIN(IVU,IXZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE - 2.0D0*PREF(IP)
+            VALUE=VALUE - Two*PREF(IP)
           END IF
 C Add -dyu Gvzxt
           IF(IYABS.EQ.IUABS) THEN
@@ -918,7 +924,7 @@ C Add -dyu Gvzxt
             IP1=MAX(IVZ,IXT)
             IP2=MIN(IVZ,IXT)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE - 2.0D0*PREF(IP)
+            VALUE=VALUE - Two*PREF(IP)
           END IF
           IF (LDA.NE.0) THEN
             SA(1+(iTUV-iLo)+LDA*(iXYZ-jLo))=VALUE
