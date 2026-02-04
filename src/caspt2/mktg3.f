@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One, Two
       use gugx, only: EXS, SGS,L2ACT, CIS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use caspt2_module
@@ -59,20 +60,20 @@ C all the symmetries (The ''absolute'' active index).
 
 
 C Put in zeroes. Recognize special cases:
-      OVL=1.0D0
+      OVL=One
       IF(NASHT.EQ.0) Return
-      IF(LSYM1.NE.LSYM2) OVL=0.0D0
-      CALL DCOPY_(NASHT**2,[0.0D0],0,TG1,1)
-      CALL DCOPY_(NASHT**4,[0.0D0],0,TG2,1)
-      CALL DCOPY_(NTG3,[0.0D0],0,TG3,1)
+      IF(LSYM1.NE.LSYM2) OVL=Zero
+      CALL DCOPY_(NASHT**2,[Zero],0,TG1,1)
+      CALL DCOPY_(NASHT**4,[Zero],0,TG2,1)
+      CALL DCOPY_(NTG3,[Zero],0,TG3,1)
       IF(NACTEL.EQ.0) Return
 
       IF(ISCF.EQ.0) GOTO 100
 
 C -Special code for the closed-shell or hi-spin cases:
 C ISCF=1 for closed-shell, =2 for hispin
-      OCC=2.0D0
-      IF(ISCF.EQ.2) OCC=1.0D0
+      OCC=Two
+      IF(ISCF.EQ.2) OCC=One
       DO IT=1,NASHT
         TG1(IT,IT)=OCC
       END DO
@@ -233,10 +234,10 @@ C Translate to levels in the SGUGA coupling order:
         IYS=IASYM(IY)
         IZS=IASYM(IZ)
         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
-        CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTO),1)
+        CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
 C LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
-     &              IL,JL,1.0D00,LSYM2,CI2,TG3WRK(LTO))
+     &              IL,JL,One0,LSYM2,CI2,TG3WRK(LTO))
         IF(ISSG2.EQ.LSYM1) THEN
           TG1(IY,IZ)=DDOT_(NCI1,CI1,1,TG3WRK(LTO),1)
         END IF
@@ -256,9 +257,9 @@ C Translate to levels:
          ITS=IASYM(IT)
          IUS=IASYM(IU)
          ISSG1=MUL(MUL(ITS,IUS),LSYM1)
-         CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTO),1)
+         CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTO),1)
          CALL SIGMA1(SGS,CIS,EXS,
-     &               IL,JL,1.0D00,LSYM1,CI1,TG3WRK(LTO))
+     &               IL,JL,One0,LSYM1,CI1,TG3WRK(LTO))
          LTO=LTO+MXCI
         END DO
 C Now compute as many elements as possible:
@@ -288,10 +289,10 @@ C LFROM will be start element of Sigma2=E(YZ) Psi2
           IXS=IASYM(IX)
           ISTAU=MUL(MUL(IVS,IXS),ISSG2)
           NTAU=CIS%NCSF(ISTAU)
-          CALL DCOPY_(MXCI,[0.0D0],0,TG3WRK(LTAU),1)
+          CALL DCOPY_(MXCI,[Zero],0,TG3WRK(LTAU),1)
 C LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
           CALL SIGMA1(SGS,CIS,EXS,
-     &                IL,JL,1.0D00,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
+     &                IL,JL,One0,ISSG2,TG3WRK(LFROM),TG3WRK(LTAU))
           IF(ISTAU.EQ.LSYM1) THEN
            TG2(IV,IX,IY,IZ)=DDOT_(NTAU,TG3WRK(LTAU),1,CI1,1)
           END IF
