@@ -357,11 +357,10 @@ C  - G(xvzyut) -> SA(yvx,zut)
       SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,G3,idxG3)
       use definitions, only: iwp, wp, MPIInt, RtoB, Byte
-      USE MPI
-      USE SUPERINDEX
+      USE MPI, only: MPI_INTEGER,MPI_COMM_WORLD,MPI_REAL8
+      USE SUPERINDEX, only: KTUV
       use stdalloc, only: mma_MaxDBLE
-      use EQSOLV
-      use caspt2_module
+      use caspt2_module, only: IASYM,MUL,NASHT,nTUVES
       IMPLICIT None
 
 #include "global.fh"
