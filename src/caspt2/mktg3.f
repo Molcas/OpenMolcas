@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKTG3(LSYM1,LSYM2,CI1,CI2,OVL,TG1,TG2,NTG3,TG3)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       use constants, only: Zero, One, Two
       use gugx, only: EXS, SGS,L2ACT, CIS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
@@ -136,13 +136,13 @@ C Find optimal subdivision of available vectors:
       NYZBUF=NVECS-1-NTUBUF
 C Insufficient memory?
       IF(NTUBUF.LE.0) THEN
-        WRITE(6,*)' Too little memory left for MKTG3.'
-        WRITE(6,*)' Need at least 3 vectors of length MXCI=',MXCI
+        WRITE(u6,*)' Too little memory left for MKTG3.'
+        WRITE(u6,*)' Need at least 3 vectors of length MXCI=',MXCI
         CALL ABEND()
       END IF
       IF(NTUBUF.LE.(NASHT**2)/5) THEN
-        WRITE(6,*)' WARNING: MKTG3 will be inefficient owing to'
-        WRITE(6,*)' small memory.'
+        WRITE(u6,*)' WARNING: MKTG3 will be inefficient owing to'
+        WRITE(u6,*)' small memory.'
       END IF
       CALL mma_allocate(TG3WRK,NTG3WRK,Label='TG#WRK')
 C And divide it up:
