@@ -4047,8 +4047,8 @@ C
       implicit none
 
       real(kind=wp), intent(inout) :: CLag(nConf,nState),
-     &  DEPSA(nAshT,nAshT),FIFA(*),FIMO(*),WRK1(nBasT,nBasT),WRK2(*),
-     &  U0(nState,nState)
+     &  DEPSA(nAshT,nAshT),WRK1(nBasT,nBasT),WRK2(*)
+      real(kind=wp), intent(in) :: FIFA(*), FIMO(*), U0(nState,nState)
       real(kind=wp),allocatable :: VecST(:,:),VecS1(:,:),VecS2(:,:),
      *                             VecCID(:,:),VecPre(:),VecFancy(:),
      *                             VecCIT(:,:),INT1(:),INT2(:),G2(:)

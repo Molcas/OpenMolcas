@@ -23,7 +23,6 @@
       use caspt2_global, only: do_grad, do_csf, if_invar, iRoot1,
      *                           iRoot2, if_invaria, if_SSDM,
      *                           CLag,CLagFull,OLag,SLag,
-     *                           nCLag,
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
      *                           DPT2C_AO_tot,DPT2Canti_tot,FIMO_all,
      *                           FIFA_all,OMGDER,jStLag,Weight
@@ -33,6 +32,7 @@
       use PrintLevel, only: debug, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
+      use caspt2_global, only: nCLag
 #endif
       use EQSOLV, only: IVECX, IVECR, IVECC2
       use ChoCASPT2, only: NumCho_PT2, iALGO, MaxVec_PT2
