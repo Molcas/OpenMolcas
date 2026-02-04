@@ -845,9 +845,10 @@ C storage uses a triangular scheme, and the LDA passed is zero.
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      integer(kind=iwp) NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
-      real(kind=wp) DREF(NDREF),PREF(NPREF)
-      real(kind=wp) SA(*)
+      integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,
+     &                                iLo,iHi,jLo,jHi,LDA
+      real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
+      real(kind=wp), intent(out):: SA(*)
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for SA
