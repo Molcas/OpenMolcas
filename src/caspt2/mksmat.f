@@ -852,12 +852,12 @@ C storage uses a triangular scheme, and the LDA passed is zero.
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for SA
-      DO 100 IXYZ=jLo,jHi
+      DO IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
         IXABS=MTUV(1,IXYZABS)
         IYABS=MTUV(2,IXYZABS)
         IZABS=MTUV(3,IXYZABS)
-        DO 101 ITUV=iLo,iHi
+        DO ITUV=iLo,iHi
           ITUVABS=ITUV+NTUVES(ISYM)
           ITABS=MTUV(1,ITUVABS)
           IUABS=MTUV(2,ITUVABS)
@@ -870,7 +870,7 @@ C Add  2 dtx Gvuyz + 2 dtx dyu Gvz
               ISADR=(ITUV*(ITUV-1))/2+IXYZ
               VALUE=SA(ISADR)
             ELSE
-              GOTO 101
+              CYCLE
             ENDIF
           END IF
           IF(ITABS.EQ.IXABS) THEN
@@ -925,8 +925,8 @@ C Add -dyu Gvzxt
           ELSE
             SA(ISADR)=VALUE
           END IF
- 101    CONTINUE
- 100  CONTINUE
+        END DO
+      END DO
 
       END SUBROUTINE MKSA_DP
 
