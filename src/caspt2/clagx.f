@@ -1763,9 +1763,9 @@ C
       implicit none
 
       integer(kind=iwp), intent(in) :: IFF, nLev
-      real(kind=wp), intent(in) :: CLag(nConf), G1(*), G2(*), G3(*)
-      real(kind=wp), intent(inout) :: DG1(*), DG2(*), DG3(*), DF1(*),
-     &                                DF2(*), DF3(*), DEPSA(*)
+      real(kind=wp), intent(in) :: G1(*), G2(*), G3(*)
+      real(kind=wp), intent(inout) :: CLag(nConf), DG1(*), DG2(*),
+     &  DG3(*), DF1(*), DF2(*), DF3(*), DEPSA(*)
 C
       integer(kind=iwp) :: ILEV, NG3MAX, ILUID, IDCI, J
       integer(kind=iwp), external :: iPARDIV
