@@ -100,17 +100,21 @@ C looping, etc in the rest  of the routines.
       use EQSOLV
       use fake_GA, only: GA_Arrays
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp) NDREF,NPREF, NG3
-      real(kind=wp) DREF(NDREF),PREF(NPREF),G3(NG3)
-      INTEGER(kind=Byte) idxG3(6,NG3)
+      integer(kind=iwp), intent(in):: NDREF,NPREF, NG3
+      real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
+      real(kind=wp), intent(in):: G3(NG3)
+      INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
 #endif
+      integer(kind=iwp) ICASE, ISYM, lg_SA, NAS, NIN, NSA
+      real(kind=wp), external:: PSBMAT_FPRINT
+      real(kind=wp) DSA
 
       ICASE=1
 C LONG loop over superindex symmetry.
@@ -176,9 +180,9 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      real(kind=wp) SA(*)
-      real(kind=wp) G3(NG3)
-      INTEGER(kind=Byte) idxG3(6,NG3)
+      real(kind=wp), intent(out):: SA(*)
+      real(kind=wp), intent(in):: G3(NG3)
+      INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
       integer(kind=iwp) iG3
 
