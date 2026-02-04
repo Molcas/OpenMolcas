@@ -457,8 +457,8 @@ C-sigma vectors in the buffer.
 C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
         IF (myBuffer /= iTask) THEN
           if (.not.first) then
-            !! Compute left derivative and DEPSA contributions before the
-            !! TASK is completely switched
+            !! Compute left derivative and DEPSA contributions before
+            !! the TASK is completely switched
             CALL LEFT_DEPSA()
           end if
           ibuf1=0
@@ -655,7 +655,8 @@ C         ----- right derivative
 C
             BUF3(1:nsgm1) = Zero
             BUF4(1:nsgm1) = Zero
-            !! right derivative (1): <0|Etu|I>*Dtuvxyz and <0|Etu|I>*Ftuvxyz
+            !! right derivative (1):
+            !! <0|Etu|I>*Dtuvxyz and <0|Etu|I>*Ftuvxyz
             !! <0|EtuEvxEyz|I> -> <I|EzyExvEut|0>
             do ib=1,nb
               iG3=iG3OFF+ib
