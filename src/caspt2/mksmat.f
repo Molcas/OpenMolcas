@@ -1054,7 +1054,7 @@ C-SVC20100831: determine indices in SC where a certain G3 value will end up
         iSZ=IASYM(iZ)
         ituvs=MUL(IST,MUL(ISU,ISV))
         ixyzs=MUL(ISX,MUL(ISY,ISZ))
-        if(ituvs.ne.ixyzs) goto 500
+        if(ituvs.ne.ixyzs) CYCLE
         iTU=iT+NASHT*(iU-1)
         iVX=iV+NASHT*(iX-1)
         iYZ=iY+NASHT*(iZ-1)
@@ -1071,8 +1071,8 @@ C  - G(tuvxyz) -> SC(vut,xyz)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
-        if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 300
-        if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 200
+        if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
+        if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(vxtuyz) -> SC(txv,uyz)
         jSYM=MUL(IASYM(iT),MUL(IASYM(iX),IASYM(iV)))
         IF (jSYM.EQ.iSYM) THEN
@@ -1103,7 +1103,7 @@ C  - G(tuyzvx) -> SC(yut,zvx)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
- 200   CONTINUE
+       ENDIF
 C  - G(yztuvx) -> SC(tzy,uvx)
         jSYM=MUL(IASYM(iT),MUL(IASYM(iZ),IASYM(iY)))
         IF (jSYM.EQ.iSYM) THEN
@@ -1124,11 +1124,11 @@ C  - G(vxyztu) -> SC(yxv,ztu)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
- 300   CONTINUE
-        if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 500
-        if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) go to 500
-        if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) go to 500
-        if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) go to 500
+       ENDIF
+        if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
+        if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
+        if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
+        if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
 C  - G(utxvzy) -> SC(xtu,vzy)
         jSYM=MUL(IASYM(iX),MUL(IASYM(iT),IASYM(iU)))
         IF (jSYM.EQ.iSYM) THEN
@@ -1139,8 +1139,8 @@ C  - G(utxvzy) -> SC(xtu,vzy)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
-        if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 500
-        if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 400
+        if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
+        if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(xvutzy) -> SC(uvx,tzy)
         jSYM=MUL(IASYM(iU),MUL(IASYM(iV),IASYM(iX)))
         IF (jSYM.EQ.iSYM) THEN
@@ -1171,7 +1171,7 @@ C  - G(utzyxv) -> SC(ztu,yxv)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
- 400   CONTINUE
+       ENDIF
 C  - G(zyutxv) -> SC(uyz,txv)
         jSYM=MUL(IASYM(iU),MUL(IASYM(iY),IASYM(iZ)))
         IF (jSYM.EQ.iSYM) THEN
@@ -1192,7 +1192,6 @@ C  - G(xvzyut) -> SC(zvx,yut)
             SC(ISADR)=G3VAL
           END IF
         ENDIF
- 500   CONTINUE
       END DO
 
       END SUBROUTINE MKSC_G3
