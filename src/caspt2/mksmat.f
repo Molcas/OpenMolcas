@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKSMAT()
+      use definitions, only: iwp, wp, u6, byte
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -27,10 +28,10 @@
       use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
 C     Set up S matrices for cases 1..13.
-      REAL*8 DUM(1)
-      INTEGER*1, ALLOCATABLE :: idxG3(:,:)
+      real(kind=wp) DUM(1)
+      INTEGER(kind=byte), ALLOCATABLE :: idxG3(:,:)
 
-      REAL*8, ALLOCATABLE:: G3(:)
+      real(kind=wp), ALLOCATABLE:: G3(:)
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -40,8 +41,8 @@ C     Set up S matrices for cases 1..13.
       IF(NASHT.GT.0) THEN
 CSVC: print header for debug info
         IF(IPRGLB.GE.DEBUG) THEN
-          WRITE(6,'("DEBUG> ",A)') 'CASE SYM S-MATRIX NORM'
-          WRITE(6,'("DEBUG> ",A)') '==== === ============='
+          WRITE(u6,'("DEBUG> ",A)') 'CASE SYM S-MATRIX NORM'
+          WRITE(u6,'("DEBUG> ",A)') '==== === ============='
         END IF
 C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
@@ -87,6 +88,7 @@ C looping, etc in the rest  of the routines.
 * Case A (ICASE=1)
 ********************************************************************************
       SUBROUTINE MKSA(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
+      use definitions, only: iwp, wp, u6
       USE SUPERINDEX
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
@@ -101,11 +103,11 @@ C looping, etc in the rest  of the routines.
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER NDREF,NPREF, NG3
-      Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
+      integer(kind=iwp) NDREF,NPREF, NG3
+      real(kind=wp) DREF(NDREF),PREF(NPREF),G3(NG3)
       INTEGER*1 idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
-      Real*8 Dummy(1)
+      real(kind=wp) Dummy(1)
 #endif
 
       ICASE=1
@@ -130,7 +132,7 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           MYRANK = GA_NODEID()
           CALL GA_DISTRIBUTION (LG_SA,MYRANK,ILO,IHI,JLO,JHI)
           IF (JLO.NE.0 .AND. (JHI-JLO+1).NE.NAS) THEN
-            WRITE(6,*) 'MKSA: MISMATCH IN RANGE OF THE SUPERINDICES'
+            WRITE(u6,*) 'MKSA: MISMATCH IN RANGE OF THE SUPERINDICES'
             CALL ABEND()
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
@@ -157,7 +159,7 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
 
         IF(IPRGLB.GE.DEBUG) THEN
           DSA=PSBMAT_FPRINT(lg_SA,NAS)
-          WRITE(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'A', ISYM, DSA
+          WRITE(u6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'A', ISYM, DSA
         END IF
 
         CALL PSBMAT_FREEMEM(lg_SA)
@@ -166,6 +168,7 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
       END SUBROUTINE MKSA
 
       SUBROUTINE MKSA_G3(ISYM,SA,NG3,G3,idxG3)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
@@ -337,6 +340,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKSA_G3_MPP(ISYM,SA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,G3,idxG3)
+      use definitions, only: iwp, wp
       USE MPI
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
@@ -358,13 +362,13 @@ C  - G(xvzyut) -> SA(yvx,zut)
       integer(kind=MPIInt), ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
 
       integer(kind=MPIInt), ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
-      REAL*8,    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
+      real(kind=wp),    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
 
       integer(kind=MPIInt), PARAMETER :: ONE4=1, TWO4=2
       integer(kind=MPIInt) :: IERROR4
       INTEGER, PARAMETER :: I4=KIND(ONE4)
 
-      INTEGER, ALLOCATABLE :: IBUF(:)
+      integer(kind=iwp), ALLOCATABLE :: IBUF(:)
 
 #include "mpi_interfaces.fh"
 
@@ -783,9 +787,11 @@ c Avoid unused argument warnings
 
       CONTAINS
 
-      PURE INTEGER FUNCTION IPROW(IROW,NQOT,NREM)
-      INTEGER, INTENT(IN) :: IROW, NQOT, NREM
-      INTEGER :: TMP
+      PURE FUNCTION IPROW(IROW,NQOT,NREM)
+      use definitions, only: iwp, wp
+      integer(kind=iwp) IPROW
+      integer(kind=iwp), INTENT(IN) :: IROW, NQOT, NREM
+      integer(kind=iwp) :: TMP
       TMP=IROW-NREM*(NQOT+1)
       IF (TMP.GT.0) THEN
         IPROW=(TMP-1)/NQOT+NREM+1
@@ -802,13 +808,14 @@ c Avoid unused argument warnings
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDA is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDA passed is zero.
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
-      REAL*8 DREF(NDREF),PREF(NPREF)
-      REAL*8 SA(*)
+      integer(kind=iwp) NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDA
+      real(kind=wp) DREF(NDREF),PREF(NPREF)
+      real(kind=wp) SA(*)
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for SA
@@ -894,6 +901,7 @@ C Add -dyu Gvzxt
 * Case C (ICASE=4)
 ********************************************************************************
       SUBROUTINE MKSC(DREF,NDREF,PREF,NPREF,NG3,G3,idxG3)
+      use definitions, only: iwp, wp, u6, Byte
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       USE SUPERINDEX
@@ -908,11 +916,11 @@ C Add -dyu Gvzxt
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER NDREF,NPREF, NG3
-      Real*8 DREF(NDREF),PREF(NPREF),G3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      integer(kind=iwp) NDREF,NPREF, NG3
+      real(kind=wp) DREF(NDREF),PREF(NPREF),G3(NG3)
+      INTEGER(kind=Byte) idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
-      Real*8 Dummy(1)
+      real(kind=wp) Dummy(1)
 #endif
 
       ICASE=4
@@ -938,7 +946,7 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           MYRANK = GA_NODEID()
           CALL GA_DISTRIBUTION (LG_SC,MYRANK,ILO,IHI,JLO,JHI)
           IF (JLO.NE.0 .AND. (JHI-JLO+1).NE.NAS) THEN
-            WRITE(6,*) 'MKSC: MISMATCH IN RANGE OF THE SUPERINDICES'
+            WRITE(u6,*) 'MKSC: MISMATCH IN RANGE OF THE SUPERINDICES'
             CALL ABEND()
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
@@ -965,7 +973,7 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
 
         IF(IPRGLB.GE.DEBUG) THEN
           DSC=PSBMAT_FPRINT(lg_SC,NAS)
-          WRITE(6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'C', ISYM, DSC
+          WRITE(u6,'("DEBUG> ",A4,1X,I3,1X,ES21.14)') 'C', ISYM, DSC
         END IF
 
         CALL PSBMAT_FREEMEM(lg_SC)
@@ -974,14 +982,16 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
       END SUBROUTINE MKSC
 
       SUBROUTINE MKSC_G3(ISYM,SC,NG3,G3,idxG3)
+      use definitions, only: iwp, wp, Byte
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      DIMENSION SC(*)
-      DIMENSION G3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      integer(kind=iwp) ISYM,NG3
+      real(kind=wp) SC(*)
+      real(kind=wp) G3(NG3)
+      INTEGER(kind=Byte) idxG3(6,NG3)
 
 C-SVC20100831: determine indices in SC where a certain G3 value will end up
       DO iG3=1,NG3
@@ -1145,6 +1155,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKSC_G3_MPP(ISYM,SC,iLo,iHi,jLo,jHi,LDC,
      &                       NG3,G3,idxG3)
+      use definitions, only: iwp, wp, Byte
       USE MPI
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
@@ -1156,9 +1167,9 @@ C  - G(xvzyut) -> SC(zvx,yut)
 #include "global.fh"
 #include "mafdecls.fh"
 
-      DIMENSION SC(LDC,*)
-      DIMENSION G3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      real(kind=wp) SC(LDC,*)
+      real(kind=wp) G3(NG3)
+      INTEGER(kind=Byte) idxG3(6,NG3)
 
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
@@ -1166,13 +1177,13 @@ C  - G(xvzyut) -> SC(zvx,yut)
       integer(kind=MPIInt), ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
 
       integer(kind=MPIInt), ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
-      REAL*8,    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
+      real(kind=wp),    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
 
       integer(kind=MPIInt), PARAMETER :: ONE4=1, TWO4=2
       integer(kind=MPIInt) :: IERROR4
       INTEGER, PARAMETER :: I4=KIND(ONE4)
 
-      INTEGER, ALLOCATABLE :: IBUF(:)
+      INTEGER(kind=iwp), ALLOCATABLE :: IBUF(:)
 
 #include "mpi_interfaces.fh"
 
@@ -1590,16 +1601,18 @@ c Avoid unused argument warnings
 
       CONTAINS
 
-      PURE INTEGER FUNCTION IPROW(IROW,NQOT,NREM)
-      INTEGER, INTENT(IN) :: IROW, NQOT, NREM
-      INTEGER :: TMP
+      PURE FUNCTION IPROW(IROW,NQOT,NREM)
+      use definitions, only: iwp
+      INTEGER(kind=iwp) :: IPROW
+      INTEGER(kind=iwp), INTENT(IN) :: IROW, NQOT, NREM
+      INTEGER(kind=iwp) :: TMP
       TMP=IROW-NREM*(NQOT+1)
       IF (TMP.GT.0) THEN
         IPROW=(TMP-1)/NQOT+NREM+1
       ELSE
         IPROW=(IROW-1)/(NQOT+1)+1
       END IF
-      END FUNCTION
+      END FUNCTION IPROW
 
       END SUBROUTINE MKSC_G3_MPP
 #endif
@@ -1609,13 +1622,14 @@ c Avoid unused argument warnings
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDC is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDC passed is zero.
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
-      REAL*8 DREF(NDREF),PREF(NPREF)
-      REAL*8 SC(*)
+      integer(kind=iwp) :: NDREF,NPREF,iSYM,iLo,iHi,jLo,jHi,LDC
+      real(kind=wp) DREF(NDREF),PREF(NPREF)
+      real(kind=wp) SC(*)
 
       ISADR=0
 C-SVC20100831: fill in the G2 and G1 corrections for this SC block
@@ -1684,6 +1698,7 @@ C Add  dtu Gvxyz + dtu dyx Gvz
 * Case B (ICASE=2,3)
 ********************************************************************************
       SUBROUTINE MKSB(DREF,NDREF,PREF,NPREF)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use caspt2_global, only: LUSBT
       use EQSOLV
@@ -1691,10 +1706,10 @@ C Add  dtu Gvxyz + dtu dyx Gvz
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NDREF,NPREF
-      REAL*8 DREF(NDREF),PREF(NPREF)
+      INTEGER(kind=iwp) NDREF,NPREF
+      REAL(kind=wp) DREF(NDREF),PREF(NPREF)
 
-      REAL*8, ALLOCATABLE:: SB(:), SBP(:), SBM(:)
+      REAL(kind=wp), ALLOCATABLE:: SB(:), SBP(:), SBM(:)
 C Set up the matrices SBP(tu,xy) and SBM(tu,xy)
 C Formulae used:
 C    SB(tu,xy)=
@@ -1821,6 +1836,7 @@ C Write to disk, and save size and address.
       END SUBROUTINE MKSB
 
       SUBROUTINE MKSD(DREF,NDREF,PREF,NPREF)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use caspt2_global, only: LUSBT
       use EQSOLV
@@ -1828,10 +1844,10 @@ C Write to disk, and save size and address.
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NDREF,NPREF
-      REAL*8 DREF(NDREF),PREF(NPREF)
+      INTEGER(kind=iwp) NDREF,NPREF
+      REAL(kind=wp) DREF(NDREF),PREF(NPREF)
 
-      REAL*8, ALLOCATABLE:: SD(:)
+      REAL(kind=wp), ALLOCATABLE:: SD(:)
 C Set up the matrix SD(tuP,xyQ),P and Q are 1 or 2,
 C Formulae used:
 C    SD(tu1,xy1)=2*(Gutxy + dxt Duy)
@@ -1907,16 +1923,17 @@ C Write to disk
       END SUBROUTINE MKSD
 
       SUBROUTINE MKSE(DREF,NDREF)
+      use definitions, only: iwp, wp
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NDREF
-      REAL*8 DREF(NDREF)
+      INTEGER(kind=iwp) NDREF
+      REAL(kind=wp) DREF(NDREF)
 
-      REAL*8, ALLOCATABLE:: SE(:)
+      REAL(kind=wp), ALLOCATABLE:: SE(:)
 C Set up the matrix SE(t,x)
 C Formula used:
 C    SE(t,x)=2*dtx - Dtx
@@ -1959,6 +1976,7 @@ C Write to disk
       END SUBROUTINE MKSE
 
       SUBROUTINE MKSF(PREF,NPREF)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use caspt2_global, only: LUSBT
       use EQSOLV
@@ -1966,10 +1984,10 @@ C Write to disk
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NPREF
-      REAL*8 PREF(NPREF)
+      INTEGER(kind=iwp) NPREF
+      REAL(kind=wp) PREF(NPREF)
 
-      REAL*8, ALLOCATABLE:: SF(:), SFP(:), SFM(:)
+      REAL(kind=wp), ALLOCATABLE:: SF(:), SFP(:), SFM(:)
 C Set up the matrices SFP(tu,xy) and SFM(tu,xy)
 C Formulae used:
 C    SF(tu,xy)= 4 Ptxuy
@@ -2064,16 +2082,17 @@ C Write to disk
       END SUBROUTINE MKSF
 
       SUBROUTINE MKSG(DREF,NDREF)
+      use definitions, only: iwp, wp
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NDREF
-      REAL*8 DREF(NDREF)
+      INTEGER(kind=iwp) NDREF
+      REAL(kind=wp) DREF(NDREF)
 
-      REAL*8, ALLOCATABLE:: SG(:)
+      REAL(kind=wp), ALLOCATABLE:: SG(:)
 C Set up the matrix SG(t,x)
 C Formula used:
 C    SG(t,x)= Dtx
