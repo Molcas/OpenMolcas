@@ -1754,17 +1754,25 @@ C Add  dtu Gvxyz + dtu dyx Gvz
 ********************************************************************************
       SUBROUTINE MKSB(DREF,NDREF,PREF,NPREF)
       use definitions, only: iwp, wp
+      use constants, only: Two, Four, Eight
       USE SUPERINDEX
       use caspt2_global, only: LUSBT
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
-      INTEGER(kind=iwp) NDREF,NPREF
-      REAL(kind=wp) DREF(NDREF),PREF(NPREF)
+      INTEGER(kind=iwp), intent(in):: NDREF,NPREF
+      REAL(kind=wp), intent(in)::  DREF(NDREF),PREF(NPREF)
 
       REAL(kind=wp), ALLOCATABLE:: SB(:), SBP(:), SBM(:)
+
+      integer(kind=iwp) ISYM,NINP,NAS,NSB,ITUABS,ITABS,IUABS,IXY,IXYABS,
+     &                  IXABS,IYABS,ISADR,IXT,IYU,IP1,IP2,IP,ID1,ID2,ID,
+     &                  IDISK,ISMADR,ISPADR,ITGEU,ITGEUABS,ITGTU,ITU,
+     &                  IXGEY,IXGEYABS,IXGTY,IYX,NASM,NASP,NSBM,NSBP
+      REAL(kind=wp) VALUE,STUXY,STUYX
+
 C Set up the matrices SBP(tu,xy) and SBM(tu,xy)
 C Formulae used:
 C    SB(tu,xy)=
@@ -1795,36 +1803,36 @@ C Loop over superindex symmetry.
             IP1=MAX(IXT,IYU)
             IP2=MIN(IXT,IYU)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=4.0D0*PREF(IP)
+            VALUE=Four*PREF(IP)
 C Add  -4 dxt Dyu + 8dxt dyu
             IF(IXABS.EQ.ITABS) THEN
               ID1=MAX(IYABS,IUABS)
               ID2=MIN(IYABS,IUABS)
               ID=(ID1*(ID1-1))/2+ID2
-              VALUE=VALUE-4.0D0*DREF(ID)
-              IF(IYABS.EQ.IUABS) VALUE=VALUE+8.0D00
+              VALUE=VALUE-Four*DREF(ID)
+              IF(IYABS.EQ.IUABS) VALUE=VALUE+Eight
             END IF
 C Add  -4 dyu Dxt
             IF(IYABS.EQ.IUABS) THEN
               ID1=MAX(IXABS,ITABS)
               ID2=MIN(IXABS,ITABS)
               ID=(ID1*(ID1-1))/2+ID2
-              VALUE=VALUE-4.0D0*DREF(ID)
+              VALUE=VALUE-Four*DREF(ID)
             END IF
 C Add  +2 dyt Dxu
             IF(IYABS.EQ.ITABS) THEN
               ID1=MAX(IXABS,IUABS)
               ID2=MIN(IXABS,IUABS)
               ID=(ID1*(ID1-1))/2+ID2
-              VALUE=VALUE+2.0D0*DREF(ID)
+              VALUE=VALUE+Two*DREF(ID)
             END IF
 C Add  -4dxu dyt + 2dxu Dyt
             IF(IXABS.EQ.IUABS) THEN
               ID1=MAX(IYABS,ITABS)
               ID2=MIN(IYABS,ITABS)
               ID=(ID1*(ID1-1))/2+ID2
-              VALUE=VALUE+2.0D0*DREF(ID)
-              IF(IYABS.EQ.ITABS) VALUE=VALUE-4.0D00
+              VALUE=VALUE+Two*DREF(ID)
+              IF(IYABS.EQ.ITABS) VALUE=VALUE-Four
             END IF
             ISADR=(ITU*(ITU-1))/2+IXY
             SB(ISADR)=VALUE
@@ -1886,8 +1894,6 @@ C Write to disk, and save size and address.
         END IF
  1000 CONTINUE
 
-
-      RETURN
       END SUBROUTINE MKSB
 
       SUBROUTINE MKSD(DREF,NDREF,PREF,NPREF)
@@ -1899,8 +1905,8 @@ C Write to disk, and save size and address.
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER(kind=iwp) NDREF,NPREF
-      REAL(kind=wp) DREF(NDREF),PREF(NPREF)
+      INTEGER(kind=iwp), intent(in)::  NDREF,NPREF
+      REAL(kind=wp), intent(in)::  DREF(NDREF),PREF(NPREF)
 
       REAL(kind=wp), ALLOCATABLE:: SD(:)
 C Set up the matrix SD(tuP,xyQ),P and Q are 1 or 2,
@@ -1985,8 +1991,8 @@ C Write to disk
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER(kind=iwp) NDREF
-      REAL(kind=wp) DREF(NDREF)
+      INTEGER(kind=iwp), intent(in)::  NDREF
+      REAL(kind=wp), intent(in)::  DREF(NDREF)
 
       REAL(kind=wp), ALLOCATABLE:: SE(:)
 C Set up the matrix SE(t,x)
@@ -2039,8 +2045,8 @@ C Write to disk
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER(kind=iwp) NPREF
-      REAL(kind=wp) PREF(NPREF)
+      INTEGER(kind=iwp), intent(in)::  NPREF
+      REAL(kind=wp), intent(in)::  PREF(NPREF)
 
       REAL(kind=wp), ALLOCATABLE:: SF(:), SFP(:), SFM(:)
 C Set up the matrices SFP(tu,xy) and SFM(tu,xy)
@@ -2144,8 +2150,8 @@ C Write to disk
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER(kind=iwp) NDREF
-      REAL(kind=wp) DREF(NDREF)
+      INTEGER(kind=iwp), intent(in)::  NDREF
+      REAL(kind=wp), intent(in)::  DREF(NDREF)
 
       REAL(kind=wp), ALLOCATABLE:: SG(:)
 C Set up the matrix SG(t,x)
