@@ -954,9 +954,10 @@ C Add -dyu Gvzxt
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      integer(kind=iwp) NDREF,NPREF, NG3
-      real(kind=wp) DREF(NDREF),PREF(NPREF),G3(NG3)
-      INTEGER(kind=Byte) idxG3(6,NG3)
+      integer(kind=iwp), intent(in):: NDREF,NPREF, NG3
+      real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
+      real(kind=wp), intent(inout):: G3(NG3)
+      INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
 #endif
@@ -1641,6 +1642,7 @@ c Avoid unused argument warnings
 
       PURE FUNCTION IPROW(IROW,NQOT,NREM)
       use definitions, only: iwp
+      implicit none
       INTEGER(kind=iwp) :: IPROW
       INTEGER(kind=iwp), INTENT(IN) :: IROW, NQOT, NREM
       INTEGER(kind=iwp) :: TMP
