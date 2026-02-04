@@ -1904,12 +1904,17 @@ C Write to disk, and save size and address.
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
       INTEGER(kind=iwp), intent(in)::  NDREF,NPREF
       REAL(kind=wp), intent(in)::  DREF(NDREF),PREF(NPREF)
 
       REAL(kind=wp), ALLOCATABLE:: SD(:)
+      INTEGER(kind=iwp) ISYM,NIN,NAS,NSD,ITU,ITU2,ITUABS,ITABS,IUABS,
+     &                  IXY,IXY2,IXYABS,IXABS,IYABS,IS11,IS21,IS12,
+     &                  IS22,IUTP,IXYP,IP1,IP2,IP,IXTP,IUYP,ID,ID1,ID2,
+     &                  IDISK
+      REAL(kind=wp) GUTXY,GXTUY,S11,S22,DUY
 C Set up the matrix SD(tuP,xyQ),P and Q are 1 or 2,
 C Formulae used:
 C    SD(tu1,xy1)=2*(Gutxy + dxt Duy)
