@@ -225,8 +225,9 @@ C
       implicit none
 C
       integer(kind=iwp), intent(in) :: IRETURN
-      real(kind=wp), intent(in) :: UEFF(nState,nState),H0(nState,nState)
-      real(kind=wp), intent(inout) :: U0(nState,nState)
+      real(kind=wp), intent(in) :: H0(nState,nState)
+      real(kind=wp), intent(inout) :: UEFF(nState,nState),
+     &                                U0(nState,nState)
 
       Character(Len=16) :: mstate1
       logical(kind=iwp) :: DEB,Found
