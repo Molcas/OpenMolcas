@@ -13,7 +13,6 @@
       use PT2WFN, ONLY: PT2WFN_INIT,PT2WFN_DATA
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
-      USE PT2WFN
 #ifdef _DMRG_
       use qcmaquis_interface_cfg, only: qcmaquis_param
       use caspt2_global, only: iPrGlb
