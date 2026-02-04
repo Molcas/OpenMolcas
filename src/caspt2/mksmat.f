@@ -219,8 +219,10 @@ C  - G(tuvxyz) -> SA(xut,vyz)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
-        if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 300
-        if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 200
+
+        if (.NOT.(iTU.eq.iVX.and.iVX.eq.iYZ)) THEN
+
+        if (.NOT.(iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ)) THEN
 C  - G(vxtuyz) -> SA(uxv,tyz)
         jSYM=MUL(IASYM(iU),MUL(IASYM(iX),IASYM(iV)))
         IF (jSYM.EQ.iSYM) THEN
@@ -251,7 +253,7 @@ C  - G(tuyzvx) -> SA(zut,yvx)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
- 200   CONTINUE
+       ENDIF
 
 C  - G(yztuvx) -> SA(uzy,tvx)
         jSYM=MUL(IASYM(iU),MUL(IASYM(iZ),IASYM(iY)))
@@ -273,7 +275,8 @@ C  - G(vxyztu) -> SA(zxv,ytu)
             SA(ISADR)=G3VAL
           END IF
         ENDIF
- 300   CONTINUE
+
+       ENDIF
 
         if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
         if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
