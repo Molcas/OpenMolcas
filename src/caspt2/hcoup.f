@@ -21,7 +21,7 @@
       use EQSOLV
       use fake_GA, only: GA_Arrays
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
 C assuming that IVEC contains a contravariant representation of
@@ -44,8 +44,12 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
       real(kind=wp), intent(in)::  TG3(*)
 
       real(kind=wp) HECOMP(14,9)
-      integer(kind=iwp) ICASE,ISYM,NAS,NIN,NIS
-      real(kind=wp) HEBLK
+      integer(kind=iwp) ICASE,ISYM,NAS,NIN,NIS,i,IC,IS,NHECOMP,
+     &                  lg_V1,IASTA1,IAEND1,IISTA1,IIEND1,
+     &                  iLo1,iHi1,jLo1,jHi1,MV1,
+     &                  lg_V2,IASTA2,IAEND2,IISTA2,IIEND2,
+     &                  iLo2,iHi2,jLo2,jHi2,MV2
+      real(kind=wp) HEBLK, SUMCASE, SUMSYM
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
