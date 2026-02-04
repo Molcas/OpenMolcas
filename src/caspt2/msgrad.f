@@ -254,8 +254,8 @@ C calling subroutine.
       implicit none
 
       integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, IISTA, IIEND
-      real(kind=wp), intent(in) :: V1(*), V2(*), OVL, SCAL
-      real(kind=wp), intent(inout) :: TG1(NASHT,NASHT),
+      real(kind=wp), intent(in) :: V1(*), OVL, SCAL
+      real(kind=wp), intent(inout) :: V2(*), TG1(NASHT,NASHT),
      &  TG2(NASHT,NASHT,NASHT,NASHT), TG3(*)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
