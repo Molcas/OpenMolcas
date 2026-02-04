@@ -85,7 +85,7 @@ C
      *           DF1,DF2,DF3,DEASUM,
      *           DEPSA,VECROT)
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-      IF (IPRGLB.GE.verbose) THEN
+      IF (IPRGLB >= verbose) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(u6,'(a,2f10.2)')" CLagD   : CPU/WALL TIME=", cput,wallt
@@ -106,7 +106,7 @@ C
       Do iT = 1, nAsh(1)
          DG1(iT+nAsh(1)*(iT-1)) = DG1(iT+nAsh(1)*(iT-1))
      &                          + DEASUM*EPSA(iT)
-        If (ISCF.EQ.0) Then
+        If (ISCF == 0) Then
           Do iU = 1, nAsh(1)
             DEPSA(iT,iU) = DEPSA(iT,iU)
      *        + DEASUM*G1(iT+nAsh(1)*(iU-1))
@@ -1661,7 +1661,7 @@ C
       !! This contribution should not be done for the imaginary
       !! shift-specific term
       !  1) Implicit overlap derivative of the 2<1|H|0> part
-      If (Mode.eq.0) Then
+      If (Mode == 0) Then
         !! WRK1 = -RHS*T
         Call DGEMM_('N','T',nIN,nIN,nIS,
      *             -One,VEC5,nIN,VEC1,nIN,
@@ -1932,7 +1932,7 @@ C         write(6,'(i3,f20.10)') i,clag(i,istate)
 C       end do
 C     end do
 C     write(6,*) "debug"
-C     IF(ORBIN.EQ.'TRANSFOR') Call CLagX_TrfCI(CLAG)
+C     IF(ORBIN == 'TRANSFOR') Call CLagX_TrfCI(CLAG)
 C     if (proj) then
 C     ovl = ddot_(nconf*nstate,ci1,1,clag,1)
 C     write(6,*) "projection coeff = ",ovl
@@ -2300,7 +2300,7 @@ C
       real(kind=wp) :: Val1, Val2, Val3, Val4, Val
 C
 C     return
-C     if (mode.eq.0) then
+C     if (mode == 0) then
       Do iI = 1, nAshT
         Do iJ = 1, iI-1
           Val1 = DG1(iI,iJ)
@@ -2696,7 +2696,7 @@ C-SVC20100829: 12 equivalent cases, of which the second
 C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
 C  - G(tuvxyz) -> SA(xut,vyz)
             jSYM=MUL(IASYM(iX),MUL(IASYM(iU),IASYM(iT)))
-            IF (jSYM.EQ.iSYM) THEN
+            IF (jSYM == iSYM) THEN
               IROW=KTUV(iX,iU,iT)-nTUVES(jSYM)
               ICOL=KTUV(iV,iY,iZ)-nTUVES(jSYM)
               NELB = NELB + 1
@@ -3229,7 +3229,7 @@ C-SVC20100829: 12 equivalent cases, of which the second
 C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
 C  - G(tuvxyz) -> SC(vut,xyz)
         jSYM=MUL(IASYM(iV),MUL(IASYM(iU),IASYM(iT)))
-        IF (jSYM.EQ.iSYM) THEN
+        IF (jSYM == iSYM) THEN
           ISUP=KTUV(iV,iU,iT)-nTUVES(jSYM)
           JSUP=KTUV(iX,iY,iZ)-nTUVES(jSYM)
           F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3239,7 +3239,7 @@ C  - G(tuvxyz) -> SC(vut,xyz)
           if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 C  - G(vxtuyz) -> SC(txv,uyz)
             jSYM=MUL(IASYM(iT),MUL(IASYM(iX),IASYM(iV)))
-            IF (jSYM.EQ.iSYM) THEN
+            IF (jSYM == iSYM) THEN
               ISUP=KTUV(iT,iX,iV)-nTUVES(jSYM)
               JSUP=KTUV(iU,iY,iZ)-nTUVES(jSYM)
               F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3247,7 +3247,7 @@ C  - G(vxtuyz) -> SC(txv,uyz)
             ENDIF
 C  - G(yzvxtu) -> SC(vzy,xtu)
             jSYM=MUL(IASYM(iV),MUL(IASYM(iZ),IASYM(iY)))
-            IF (jSYM.EQ.iSYM) THEN
+            IF (jSYM == iSYM) THEN
               ISUP=KTUV(iV,iZ,iY)-nTUVES(jSYM)
               JSUP=KTUV(iX,iT,iU)-nTUVES(jSYM)
               F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3255,7 +3255,7 @@ C  - G(yzvxtu) -> SC(vzy,xtu)
             ENDIF
 C  - G(tuyzvx) -> SC(yut,zvx)
             jSYM=MUL(IASYM(iY),MUL(IASYM(iU),IASYM(iT)))
-            IF (jSYM.EQ.iSYM) THEN
+            IF (jSYM == iSYM) THEN
               ISUP=KTUV(iY,iU,iT)-nTUVES(jSYM)
               JSUP=KTUV(iZ,iV,iX)-nTUVES(jSYM)
               F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3264,7 +3264,7 @@ C  - G(tuyzvx) -> SC(yut,zvx)
           end if
 C  - G(yztuvx) -> SC(tzy,uvx)
           jSYM=MUL(IASYM(iT),MUL(IASYM(iZ),IASYM(iY)))
-          IF (jSYM.EQ.iSYM) THEN
+          IF (jSYM == iSYM) THEN
             ISUP=KTUV(iT,iZ,iY)-nTUVES(jSYM)
             JSUP=KTUV(iU,iV,iX)-nTUVES(jSYM)
             F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3272,7 +3272,7 @@ C  - G(yztuvx) -> SC(tzy,uvx)
           ENDIF
 C  - G(vxyztu) -> SC(yxv,ztu)
           jSYM=MUL(IASYM(iY),MUL(IASYM(iX),IASYM(iV)))
-          IF (jSYM.EQ.iSYM) THEN
+          IF (jSYM == iSYM) THEN
             ISUP=KTUV(iY,iX,iV)-nTUVES(jSYM)
             JSUP=KTUV(iZ,iT,iU)-nTUVES(jSYM)
             F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3286,7 +3286,7 @@ C  - G(vxyztu) -> SC(yxv,ztu)
      &      (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
 C  - G(utxvzy) -> SC(xtu,vzy)
           jSYM=MUL(IASYM(iX),MUL(IASYM(iT),IASYM(iU)))
-          IF (jSYM.EQ.iSYM) THEN
+          IF (jSYM == iSYM) THEN
             ISUP=KTUV(iX,iT,iU)-nTUVES(jSYM)
             JSUP=KTUV(iV,iZ,iY)-nTUVES(jSYM)
             F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3296,7 +3296,7 @@ C  - G(utxvzy) -> SC(xtu,vzy)
             if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 C  - G(xvutzy) -> SC(uvx,tzy)
               jSYM=MUL(IASYM(iU),MUL(IASYM(iV),IASYM(iX)))
-              IF (jSYM.EQ.iSYM) THEN
+              IF (jSYM == iSYM) THEN
                 ISUP=KTUV(iU,iV,iX)-nTUVES(jSYM)
                 JSUP=KTUV(iT,iZ,iY)-nTUVES(jSYM)
                 F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3304,7 +3304,7 @@ C  - G(xvutzy) -> SC(uvx,tzy)
               ENDIF
 C  - G(zyxvut) -> SC(xyz,vut)
               jSYM=MUL(IASYM(iX),MUL(IASYM(iY),IASYM(iZ)))
-              IF (jSYM.EQ.iSYM) THEN
+              IF (jSYM == iSYM) THEN
                 ISUP=KTUV(iX,iY,iZ)-nTUVES(jSYM)
                 JSUP=KTUV(iV,iU,iT)-nTUVES(jSYM)
                 F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3312,7 +3312,7 @@ C  - G(zyxvut) -> SC(xyz,vut)
               ENDIF
 C  - G(utzyxv) -> SC(ztu,yxv)
               jSYM=MUL(IASYM(iZ),MUL(IASYM(iT),IASYM(iU)))
-              IF (jSYM.EQ.iSYM) THEN
+              IF (jSYM == iSYM) THEN
                 ISUP=KTUV(iZ,iT,iU)-nTUVES(jSYM)
                 JSUP=KTUV(iY,iX,iV)-nTUVES(jSYM)
                 F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3321,7 +3321,7 @@ C  - G(utzyxv) -> SC(ztu,yxv)
             end if
 C  - G(zyutxv) -> SC(uyz,txv)
             jSYM=MUL(IASYM(iU),MUL(IASYM(iY),IASYM(iZ)))
-            IF (jSYM.EQ.iSYM) THEN
+            IF (jSYM == iSYM) THEN
               ISUP=KTUV(iU,iY,iZ)-nTUVES(jSYM)
               JSUP=KTUV(iT,iX,iV)-nTUVES(jSYM)
               F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3329,7 +3329,7 @@ C  - G(zyutxv) -> SC(uyz,txv)
             ENDIF
 C  - G(xvzyut) -> SC(zvx,yut)
             jSYM=MUL(IASYM(iZ),MUL(IASYM(iV),IASYM(iX)))
-            IF (jSYM.EQ.iSYM) THEN
+            IF (jSYM == iSYM) THEN
               ISUP=KTUV(iZ,iV,iX)-nTUVES(jSYM)
               JSUP=KTUV(iY,iU,iT)-nTUVES(jSYM)
               F3VAL = F3VAL + BDER(iSup,jSup)
@@ -3494,7 +3494,7 @@ C-SVC20100829: 12 equivalent cases, of which the second
 C  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
 C  - F(tuvxyz) -> BC(vut,xyz)
             jSYM=MUL(IASYM(iV),MUL(IASYM(iU),IASYM(iT)))
-            IF (jSYM.EQ.iSYM) THEN
+            IF (jSYM == iSYM) THEN
               IROW=KTUV(iV,iU,iT)-nTUVES(jSYM)
               ICOL=KTUV(iX,iY,iZ)-nTUVES(jSYM)
               NELB = NELB + 1
@@ -3506,7 +3506,7 @@ C  - F(tuvxyz) -> BC(vut,xyz)
               if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 C  - F(vxtuyz) -> BC(txv,uyz)
                 jSYM=MUL(IASYM(iT),MUL(IASYM(iX),IASYM(iV)))
-                IF (jSYM.EQ.iSYM) THEN
+                IF (jSYM == iSYM) THEN
                   IROW=KTUV(iT,iX,iV)-nTUVES(jSYM)
                   ICOL=KTUV(iU,iY,iZ)-nTUVES(jSYM)
                   NELB = NELB + 1
@@ -3516,7 +3516,7 @@ C  - F(vxtuyz) -> BC(txv,uyz)
                 ENDIF
 C  - F(yzvxtu) -> BC(vzy,xtu)
                 jSYM=MUL(IASYM(iV),MUL(IASYM(iZ),IASYM(iY)))
-                IF (jSYM.EQ.iSYM) THEN
+                IF (jSYM == iSYM) THEN
                   IROW=KTUV(iV,iZ,iY)-nTUVES(jSYM)
                   ICOL=KTUV(iX,iT,iU)-nTUVES(jSYM)
                   NELB = NELB + 1
@@ -3526,7 +3526,7 @@ C  - F(yzvxtu) -> BC(vzy,xtu)
                 ENDIF
 C  - F(tuyzvx) -> BC(yut,zvx)
                 jSYM=MUL(IASYM(iY),MUL(IASYM(iU),IASYM(iT)))
-                IF (jSYM.EQ.iSYM) THEN
+                IF (jSYM == iSYM) THEN
                   IROW=KTUV(iY,iU,iT)-nTUVES(jSYM)
                   ICOL=KTUV(iZ,iV,iX)-nTUVES(jSYM)
                   NELB = NELB + 1
@@ -3537,7 +3537,7 @@ C  - F(tuyzvx) -> BC(yut,zvx)
               end if
 C  - F(yztuvx) -> BC(tzy,uvx)
               jSYM=MUL(IASYM(iT),MUL(IASYM(iZ),IASYM(iY)))
-              IF (jSYM.EQ.iSYM) THEN
+              IF (jSYM == iSYM) THEN
                 IROW=KTUV(iT,iZ,iY)-nTUVES(jSYM)
                 ICOL=KTUV(iU,iV,iX)-nTUVES(jSYM)
                 NELB = NELB + 1
@@ -3547,7 +3547,7 @@ C  - F(yztuvx) -> BC(tzy,uvx)
               ENDIF
 C  - F(vxyztu) -> BC(yxv,ztu)
               jSYM=MUL(IASYM(iY),MUL(IASYM(iX),IASYM(iV)))
-              IF (jSYM.EQ.iSYM) THEN
+              IF (jSYM == iSYM) THEN
                 IROW=KTUV(iY,iX,iV)-nTUVES(jSYM)
                 ICOL=KTUV(iZ,iT,iU)-nTUVES(jSYM)
                 NELB = NELB + 1
@@ -3562,7 +3562,7 @@ C  - F(vxyztu) -> BC(yxv,ztu)
      &          (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
 C  - F(utxvzy) -> BC(xtu,vzy)
               jSYM=MUL(IASYM(iX),MUL(IASYM(iT),IASYM(iU)))
-              IF (jSYM.EQ.iSYM) THEN
+              IF (jSYM == iSYM) THEN
                 IROW=KTUV(iX,iT,iU)-nTUVES(jSYM)
                 ICOL=KTUV(iV,iZ,iY)-nTUVES(jSYM)
                 NELB  = NELB + 1
@@ -3574,7 +3574,7 @@ C  - F(utxvzy) -> BC(xtu,vzy)
                 if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 C  - F(xvutzy) -> BC(uvx,tzy)
                   jSYM=MUL(IASYM(iU),MUL(IASYM(iV),IASYM(iX)))
-                  IF (jSYM.EQ.iSYM) THEN
+                  IF (jSYM == iSYM) THEN
                     IROW=KTUV(iU,iV,iX)-nTUVES(jSYM)
                     ICOL=KTUV(iT,iZ,iY)-nTUVES(jSYM)
                     NELB = NELB + 1
@@ -3584,7 +3584,7 @@ C  - F(xvutzy) -> BC(uvx,tzy)
                   ENDIF
 C  - F(zyxvut) -> BC(xyz,vut)
                   jSYM=MUL(IASYM(iX),MUL(IASYM(iY),IASYM(iZ)))
-                  IF (jSYM.EQ.iSYM) THEN
+                  IF (jSYM == iSYM) THEN
                     IROW=KTUV(iX,iY,iZ)-nTUVES(jSYM)
                     ICOL=KTUV(iV,iU,iT)-nTUVES(jSYM)
                     NELB = NELB + 1
@@ -3594,7 +3594,7 @@ C  - F(zyxvut) -> BC(xyz,vut)
                   ENDIF
 C  - F(utzyxv) -> BC(ztu,yxv)
                   jSYM=MUL(IASYM(iZ),MUL(IASYM(iT),IASYM(iU)))
-                  IF (jSYM.EQ.iSYM) THEN
+                  IF (jSYM == iSYM) THEN
                     IROW=KTUV(iZ,iT,iU)-nTUVES(jSYM)
                     ICOL=KTUV(iY,iX,iV)-nTUVES(jSYM)
                     NELB = NELB + 1
@@ -3605,7 +3605,7 @@ C  - F(utzyxv) -> BC(ztu,yxv)
                 end if
 C  - F(zyutxv) -> BC(uyz,txv)
                 jSYM=MUL(IASYM(iU),MUL(IASYM(iY),IASYM(iZ)))
-                IF (jSYM.EQ.iSYM) THEN
+                IF (jSYM == iSYM) THEN
                   IROW=KTUV(iU,iY,iZ)-nTUVES(jSYM)
                   ICOL=KTUV(iT,iX,iV)-nTUVES(jSYM)
                   NELB = NELB + 1
@@ -3615,7 +3615,7 @@ C  - F(zyutxv) -> BC(uyz,txv)
                 ENDIF
 C  - F(xvzyut) -> BC(zvx,yut)
                 jSYM=MUL(IASYM(iZ),MUL(IASYM(iV),IASYM(iX)))
-                IF (jSYM.EQ.iSYM) THEN
+                IF (jSYM == iSYM) THEN
                   IROW=KTUV(iZ,iV,iX)-nTUVES(jSYM)
                   ICOL=KTUV(iY,iU,iT)-nTUVES(jSYM)
                   NELB = NELB + 1
@@ -3668,7 +3668,7 @@ C         BUFFB(iG3-IG3STA+1) = F3VAL
 
           !! do depsa
 C         ISUP=KTUV(iV,iU,iT)-nTUVES(iSYM)
-C         If (ISUP.GE.iLo .and. ISUP.LE.iHi) THen
+C         If (ISUP >= iLo .and. ISUP <= iHi) THen
 C           Do iW = 1, nAshT
 C             JSUP=KTUV(iX,iW,iZ)-nTUVES(iSYM)
 C             NSEQ=1+ISUP-iLo+LDA*(JSUP-jLo)
@@ -3789,7 +3789,7 @@ C
           EU=EPSA(IUABS)
           EYU=EY + EU
           FACT=EYU-EASUM
-          IF (LDC.EQ.0) THEN
+          IF (LDC == 0) THEN
             ISADR=1+iTUV-iLo+NAS*(iXYZ-jLo)
           ELSE
             ISADR=1+iTUV-iLo+LDC*(iXYZ-jLo)
@@ -3813,7 +3813,7 @@ C    !! ipea_shift*0.5d0*BC(ISADR)*(4.0d0-DREF(IDT)-DREF(IDV)+DREF(IDU))
           End If
 C
           !! First VALUE contribution in MKBC_DP (FACT)
-C         IF (LDC.EQ.0) ISADR=ITUV*(ITUV-1)/2+IXYZ
+C         IF (LDC == 0) ISADR=ITUV*(ITUV-1)/2+IXYZ
           SDER(ISADR) = SDER(ISADR) + FACT*ValB
           ValS=SDER(ISADR)
 C
@@ -4634,12 +4634,12 @@ C
         do while (Rsv_Tsk(ID,iTask))
           LT=TASK(iTask,1)
           ! tras=.false.
-          ! if (lt.le.nras1(1)) tras=.true.
+          ! if (lt <= nras1(1)) tras=.true.
           IST=SGS%ISM(LT)
           IT=L2ACT(LT)
           LU=Task(iTask,2)
           ! uras=.false.
-          ! if (lu.gt.nras1(1)+nras2(1)) uras=.true.
+          ! if (lu > nras1(1)+nras2(1)) uras=.true.
 C         if (tras.and.uras) go to 500
           ! LTU=iTask
           ISU=SGS%ISM(LU)
@@ -4660,13 +4660,13 @@ C         if (tras.and.uras) go to 500
             ISV=SGS%ISM(LV)
             IV=L2ACT(LV)
             ! vras=.false.
-            ! if (lv.le.nras1(1)) vras=.true.
+            ! if (lv <= nras1(1)) vras=.true.
             DO LX=1,NLEV
               LVX=LVX+1
               ISX=SGS%ISM(LX)
               ISVX=MUL(ISV,ISX)
               ! xras=.false.
-              ! if (lx.gt.nras1(1)+nras2(1)) xras=.true.
+              ! if (lx > nras1(1)+nras2(1)) xras=.true.
 C             if (vras.and.xras) go to 110
               IF (ISVX /= ISTU) cycle
               IX=L2ACT(LX)
@@ -4960,7 +4960,7 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
               ICONF=ICONF+1
 C             COEF=CI(ICONF)
 C -- SKIP OR PRINT IT OUT?
-C             IF(ABS(COEF).LT.THR) GOTO  31
+C             IF(ABS(COEF) < THR) GOTO  31
               IF(IDWNSV /= IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=CIS%ICASE(ICDPOS)

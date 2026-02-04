@@ -343,7 +343,7 @@ C
                   If (ilStat /= jlStat) Scal = Scal*Two
                   SLag(ilStat,jlStat) = SLag(ilStat,jlStat) + Scal
                 Else
-                  If (ilStat.eq.jlStat) Then
+                  If (ilStat == jlStat) Then
                     Scal = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)
                     SLag(ilStat,jlStat) = SLag(ilStat,jlStat) + Scal
                   End If
@@ -860,15 +860,15 @@ C
         End If
 C
       !! XDW or RMS case: call after XDWINI
-      ! If (MODE.eq.0) Then
+      ! If (MODE == 0) Then
       ! End If
 C
       !! XMS case: call after GRPINI
-      ! If (MODE.eq.1) Then
+      ! If (MODE == 1) Then
       ! End If
 C
 C     !! SS or MS case: call in dens.f
-C     If (MODE.eq.2) Then
+C     If (MODE == 2) Then
 C       If (IFSADREF) Then
 C       Else
 C       End If
