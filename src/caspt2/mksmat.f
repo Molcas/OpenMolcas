@@ -2065,17 +2065,17 @@ C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
 
 
 C Loop over superindex symmetry.
-      DO 1000 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,8)
-        IF(NINP.EQ.0) GOTO 1000
+        IF(NINP.EQ.0) CYCLE
         NAS=NTU(ISYM)
         NSF=(NAS*(NAS+1))/2
         IF(NSF.GT.0) CALL mma_allocate(SF,NSF,Label='SF')
-        DO 100 ITU=1,NAS
+        DO ITU=1,NAS
           ITUABS=ITU+NTUES(ISYM)
           ITABS=MTU(1,ITUABS)
           IUABS=MTU(2,ITUABS)
-          DO 101 IXY=1,ITU
+          DO IXY=1,ITU
             IXYABS=IXY+NTUES(ISYM)
             IXABS=MTU(1,IXYABS)
             IYABS=MTU(2,IXYABS)
@@ -2087,8 +2087,8 @@ C Loop over superindex symmetry.
             IP=(IP1*(IP1-1))/2+IP2
             VALUE=4.0D0*PREF(IP)
             SF(ISADR)=VALUE
- 101      CONTINUE
- 100    CONTINUE
+          END DO
+        END DO
         NASP=NTGEU(ISYM)
         NSFP=(NASP*(NASP+1))/2
         IF(NSFP.GT.0) CALL mma_allocate(SFP,NSFP,Label='SFP')
@@ -2097,12 +2097,12 @@ C Loop over superindex symmetry.
         IF(NSFM.GT.0) THEN
           CALL mma_allocate(SFM,NSFM,Label='SFM')
         END IF
-        DO 200 ITGEU=1,NASP
+        DO ITGEU=1,NASP
           ITGEUABS=ITGEU+NTGEUES(ISYM)
           ITABS=MTGEU(1,ITGEUABS)
           IUABS=MTGEU(2,ITGEUABS)
           ITU=KTU(ITABS,IUABS)-NTUES(ISYM)
-          DO 201 IXGEY=1,ITGEU
+          DO IXGEY=1,ITGEU
             IXGEYABS=IXGEY+NTGEUES(ISYM)
             IXABS=MTGEU(1,IXGEYABS)
             IYABS=MTGEU(2,IXGEYABS)
@@ -2122,14 +2122,14 @@ C Loop over superindex symmetry.
             STUYX=SF(ISADR)
             ISPADR=(ITGEU*(ITGEU-1))/2+IXGEY
             SFP(ISPADR)=STUXY+STUYX
-            IF(ITABS.EQ.IUABS) GOTO 201
-            IF(IXABS.EQ.IYABS) GOTO 201
+            IF(ITABS.EQ.IUABS) CYCLE
+            IF(IXABS.EQ.IYABS) CYCLE
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
             IXGTY=KTGTU(IXABS,IYABS)-NTGTUES(ISYM)
             ISMADR=(ITGTU*(ITGTU-1))/2+IXGTY
             SFM(ISMADR)=STUXY-STUYX
- 201      CONTINUE
- 200    CONTINUE
+          END DO
+        END DO
         IF(NSF.GT.0) CALL mma_deallocate(SF)
 
 C Write to disk
@@ -2145,7 +2145,7 @@ C Write to disk
           END IF
           CALL mma_deallocate(SFM)
         END IF
- 1000 CONTINUE
+      END DO
 
       END SUBROUTINE MKSF
 
