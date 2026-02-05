@@ -19,6 +19,8 @@
 
       SUBROUTINE DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LIST)
 
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One, Two
       use caspt2_global, only: do_grad
       use EQSOLV
       use Sigma_data
@@ -26,14 +28,14 @@
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER ISYM, ICASE
-      REAL*8 VEC1(*),VEC2(*)
-      REAL*8 DPT2(*)
-      INTEGER LIST(*)
+      integer(kind=iwp), intent(in):: ISYM, ICASE
+      real(kind=wp), Intent(in):: VEC1(*),VEC2(*)
+      real(kind=wp), Intent(inout):: DPT2(*)
+      integer(kind=iwp), intent(in):: LIST(*)
 
-      INTEGER IOFDIJ(8),IOFDAB(8)
-      INTEGER IOFCD(8,8)
-      REAL*8, ALLOCATABLE:: X1(:), X2(:)
+      integer(kind=iwp) IOFDIJ(8),IOFDAB(8)
+      integer(kind=iwp) IOFCD(8,8)
+      real(kind=wp), ALLOCATABLE:: X1(:), X2(:)
 
 C Compute diagonal-block contribs to a trans density matrix.
 C Vector blocks are in spectral resolution basis (ON).
@@ -49,7 +51,7 @@ C since it requires transformation to standard (Non-ON) basis.
       IF(NIS.EQ.0) RETURN
       NAS=NASUP(ISYM,ICASE)
       NVEC=NIN*NIS
-      SQR2=SQRT(2.0D00)
+      SQR2=SQRT(Two)
 
       IFTEST=0
 C Set up various offset arrays:
@@ -89,7 +91,7 @@ C Core contribution:
           NO=NORB(IS)
           IDII=IOFDIJ(IS)+1
           DO III=1,NI
-            DPT2(IDII)=DPT2(IDII)+2.0D0*OVL
+            DPT2(IDII)=DPT2(IDII)+Two*OVL
             IDII=IDII+NO+1
           END DO
         END DO
@@ -127,18 +129,18 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        NI=NISH(ISYMI)
        NKI=NK*NI
        IF(NKI.EQ.0) GOTO 903
-       CALL DCOPY_(NIN*NKI,[0.0D0],0,X1,1)
-       CALL DCOPY_(NIN*NKI,[0.0D0],0,X2,1)
+       CALL DCOPY_(NIN*NKI,[Zero],0,X1,1)
+       CALL DCOPY_(NIN*NKI,[Zero],0,X2,1)
        IF(ICASE.EQ.2) THEN
          LLST1=LLIST(ISYMK,ISYM,14)
          NLST1=NLIST(ISYMK,ISYM,14)
-         VAL1(1)= 1.0D00
+         VAL1(1)= One
          VAL1(2)= SQR2
        ELSE IF(ICASE.EQ.3) THEN
          LLST1=LLIST(ISYMK,ISYM,15)
          NLST1=NLIST(ISYMK,ISYM,15)
-         VAL1(1)= 1.0D00
-         VAL1(2)=-1.0D00
+         VAL1(1)= One
+         VAL1(2)=-One
        END IF
        IF(NLST1.EQ.0) GOTO 903
        INCX1=1
@@ -152,9 +154,9 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
 C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        IDIJ=1+IOFDIJ(ISYMI)
        NO=NORB(ISYMI)
-       CALL DGEMM_('T','N',NI,NI,NIN*NK,-1.0D00,
+       CALL DGEMM_('T','N',NI,NI,NIN*NK,-One,
      &            X2,NIN*NK,X1,NIN*NK,
-     &            1.0D00,DPT2(IDIJ),NO)
+     &            One,DPT2(IDIJ),NO)
  903   CONTINUE
       END DO
       Call mma_deallocate(X1)
@@ -232,18 +234,18 @@ C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
         NI=NISH(ISYMI)
         NAKI=NA*NK*NI
         IF(NAKI.EQ.0) GOTO 907
-        CALL DCOPY_(NIN*NAKI,[0.0D0],0,X1,1)
-        CALL DCOPY_(NIN*NAKI,[0.0D0],0,X2,1)
+        CALL DCOPY_(NIN*NAKI,[Zero],0,X1,1)
+        CALL DCOPY_(NIN*NAKI,[Zero],0,X2,1)
         IF(ICASE.EQ.6) THEN
           LLST1=LLIST(ISYMK,ISYMKI,14)
           NLST1=NLIST(ISYMK,ISYMKI,14)
-          VAL1(1)= 1.0D00
+          VAL1(1)= One
           VAL1(2)= SQR2
         ELSE IF(ICASE.EQ.7) THEN
           LLST1=LLIST(ISYMK,ISYMKI,15)
           NLST1=NLIST(ISYMK,ISYMKI,15)
-          VAL1(1)= 1.0D00
-          VAL1(2)=-1.0D00
+          VAL1(1)= One
+          VAL1(2)=-One
         END IF
         IF(NLST1.EQ.0) GOTO 907
         INCX1=1
@@ -257,9 +259,9 @@ C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
 C  D(I,J) := Add contraction -X2(MU,A,K,I)*X1(MU,A,K,J):
         IDIJ=1+IOFDIJ(ISYMI)
         NOI=NORB(ISYMI)
-        CALL DGEMM_('T','N',NI,NI,NIN*NA*NK,-1.0D00,
+        CALL DGEMM_('T','N',NI,NI,NIN*NA*NK,-One,
      &             X2,NIN*NA*NK,X1,NIN*NA*NK,
-     &             1.0D00,DPT2(IDIJ),NOI)
+     &             One,DPT2(IDIJ),NOI)
  907    CONTINUE
        END DO
 C Second, contributions to DAB.
@@ -295,18 +297,18 @@ C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
        NA=NSSH(ISYMA)
        NCA=NC*NA
        IF(NCA.EQ.0) GOTO 909
-       CALL DCOPY_(NIN*NCA,[0.0D0],0,X1,1)
-       CALL DCOPY_(NIN*NCA,[0.0D0],0,X2,1)
+       CALL DCOPY_(NIN*NCA,[Zero],0,X1,1)
+       CALL DCOPY_(NIN*NCA,[Zero],0,X2,1)
        IF(ICASE.EQ.8) THEN
          LLST1=LLIST(ISYMC,ISYM,16)
          NLST1=NLIST(ISYMC,ISYM,16)
-         VAL1(1)= 1.0D00
+         VAL1(1)= One
          VAL1(2)= SQR2
        ELSE IF(ICASE.EQ.9) THEN
          LLST1=LLIST(ISYMC,ISYM,17)
          NLST1=NLIST(ISYMC,ISYM,17)
-         VAL1(1)= 1.0D00
-         VAL1(2)=-1.0D00
+         VAL1(1)= One
+         VAL1(2)=-One
        END IF
        IF(NLST1.EQ.0) GOTO 909
        INCX1=1
@@ -320,9 +322,9 @@ C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
 C D(A,B) := Add contraction  X1(MU,C,A)*X2(MU,C,B):
        IDAB=1+IOFDAB(ISYMA)
        NOA=NORB(ISYMA)
-       CALL DGEMM_('T','N',NA,NA,NIN*NC,+1.0D00,
+       CALL DGEMM_('T','N',NA,NA,NIN*NC,+One,
      &            X1,NIN*NC,X2,NIN*NC,
-     &            1.0D00,DPT2(IDAB),NOA)
+     &            One,DPT2(IDAB),NOA)
  909   CONTINUE
       END DO
       Call mma_deallocate(X1)
@@ -350,18 +352,18 @@ C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
         NA=NSSH(ISYMA)
         NICA=NI*NC*NA
         IF(NICA.EQ.0) GOTO 911
-        CALL DCOPY_(NIN*NICA,[0.0D0],0,X1,1)
-        CALL DCOPY_(NIN*NICA,[0.0D0],0,X2,1)
+        CALL DCOPY_(NIN*NICA,[Zero],0,X1,1)
+        CALL DCOPY_(NIN*NICA,[Zero],0,X2,1)
         IF(ICASE.EQ.10) THEN
           LLST1=LLIST(ISYMC,ISYMCA,16)
           NLST1=NLIST(ISYMC,ISYMCA,16)
-          VAL1(1)= 1.0D00
+          VAL1(1)= One
           VAL1(2)= SQR2
         ELSE IF(ICASE.EQ.11) THEN
           LLST1=LLIST(ISYMC,ISYMCA,17)
           NLST1=NLIST(ISYMC,ISYMCA,17)
-          VAL1(1)= 1.0D00
-          VAL1(2)=-1.0D00
+          VAL1(1)= One
+          VAL1(2)=-One
         END IF
         IF(NLST1.EQ.0) GOTO 911
         INCX1=1
@@ -375,9 +377,9 @@ C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
 C  D(A,B) := Add contraction +X1(MU,I,C,A)*X2(MU,I,C,B):
         IDAB=1+IOFDAB(ISYMA)
         NOA=NORB(ISYMA)
-        CALL DGEMM_('T','N',NA,NA,NIN*NI*NC,+1.0D00,
+        CALL DGEMM_('T','N',NA,NA,NIN*NI*NC,+One,
      &             X1,NIN*NI*NC,X2,NIN*NI*NC,
-     &             1.0D00,DPT2(IDAB),NOA)
+     &             One,DPT2(IDAB),NOA)
  911    CONTINUE
        END DO
 C Second, contributions to DIJ.
@@ -413,18 +415,18 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        NI=NISH(ISYMI)
        NKI=NK*NI
        IF(NKI.EQ.0) GOTO 813
-       CALL DCOPY_(NAS*NKI,[0.0D0],0,X1,1)
-       CALL DCOPY_(NAS*NKI,[0.0D0],0,X2,1)
+       CALL DCOPY_(NAS*NKI,[Zero],0,X1,1)
+       CALL DCOPY_(NAS*NKI,[Zero],0,X2,1)
        IF(ICASE.EQ.12) THEN
          LLST1=LLIST(ISYMK,ISYM,14)
          NLST1=NLIST(ISYMK,ISYM,14)
-         VAL1(1)= 1.0D00
+         VAL1(1)= One
          VAL1(2)= SQR2
        ELSE IF(ICASE.EQ.13) THEN
          LLST1=LLIST(ISYMK,ISYM,15)
          NLST1=NLIST(ISYMK,ISYM,15)
-         VAL1(1)= 1.0D00
-         VAL1(2)=-1.0D00
+         VAL1(1)= One
+         VAL1(2)=-One
        END IF
        IF(NLST1.EQ.0) GOTO 813
        INCX1=1
@@ -438,9 +440,9 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
 C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        IDIJ=1+IOFDIJ(ISYMI)
        NOI=NORB(ISYMI)
-       CALL DGEMM_('T','N',NI,NI,NAS*NK,-1.0D00,
+       CALL DGEMM_('T','N',NI,NI,NAS*NK,-One,
      &            X2,NAS*NK,X1,NAS*NK,
-     &            1.0D00,DPT2(IDIJ),NOI)
+     &            One,DPT2(IDIJ),NOI)
  813   CONTINUE
       END DO
       Call mma_deallocate(X1)
@@ -455,18 +457,18 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
        NA=NSSH(ISYMA)
        NCA=NC*NA
        IF(NCA.EQ.0) GOTO 913
-       CALL DCOPY_(NIS*NCA,[0.0D0],0,X1,1)
-       CALL DCOPY_(NIS*NCA,[0.0D0],0,X2,1)
+       CALL DCOPY_(NIS*NCA,[Zero],0,X1,1)
+       CALL DCOPY_(NIS*NCA,[Zero],0,X2,1)
        IF(ICASE.EQ.12) THEN
          LLST1=LLIST(ISYMA,ISYM,16)
          NLST1=NLIST(ISYMA,ISYM,16)
-         VAL1(1)= 1.0D00
+         VAL1(1)= One
          VAL1(2)= SQR2
        ELSE IF(ICASE.EQ.13) THEN
          LLST1=LLIST(ISYMA,ISYM,17)
          NLST1=NLIST(ISYMA,ISYM,17)
-         VAL1(1)= 1.0D00
-         VAL1(2)=-1.0D00
+         VAL1(1)= One
+         VAL1(2)=-One
        END IF
        IF(NLST1.EQ.0) GOTO 913
        INCX1=NCA
@@ -480,9 +482,9 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
 C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
        IDAB=1+IOFDAB(ISYMA)
        NOA=NORB(ISYMA)
-       CALL DGEMM_('N','T',NA,NA,NIS*NC,+1.0D00,
+       CALL DGEMM_('N','T',NA,NA,NIS*NC,+One,
      &            X1,NA,X2,NA,
-     &            1.0D00,DPT2(IDAB),NOA)
+     &            One,DPT2(IDAB),NOA)
  913   CONTINUE
       END DO
       Call mma_deallocate(X1)
