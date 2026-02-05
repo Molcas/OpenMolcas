@@ -20,7 +20,13 @@
       use gugx, only: L2ACT, LEVEL
       use caspt2_global, only: CMO, CMO_Internal, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: Nstate,DOCUMULANT,HEADER,IFMIX,IFMSCOUP,
+     &                         IFQCAN,IFRMS,IFXMS,IROOT,ISCF,ISPIN,
+     &                         LENIN8,LROOTS,mxAct,MXITER,MXORB,MxRoot,
+     &                         MXTIT,NACTEL,NAME,NASH,NBAS,NBSQT,NCONF,
+     &                         NDEL,NELE3,NFRO,NHOLE1,NISH,NRAS1,NRAS2,
+     &                         NRAS3,NROOTS,NSYM,POTNUC,STSYM,TITLE,
+     &                         MSTATE,ENERGY,MSTATE
       use pt2_guga
       IMPLICIT None
 C Normal operation: A new file, 'JOBMIX', will be created, with the
