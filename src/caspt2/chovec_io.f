@@ -406,14 +406,16 @@ C Avoid unused argument warnings
 ************************************************************************
 * Wrapper to MPI_Allgatherv dealing with ILP64 incompatibility.
 ************************************************************************
-      USE MPI
+      USE MPI, only: MPI_COMM_WORLD
       use definitions, only: MPIInt
       IMPLICIT NONE
-      REAL(KIND=WP) SENDBUF(*), RCVBUF(*)
-      INTEGER(KIND=IWP) NSEND
-
-      integer(kind=MPIInt) :: MPITYPES, MPITYPER, MPICOMM
-      integer(kind=MPIInt) :: NRCV(*), NOFF(*)
+      REAL(KIND=WP), INTENT(INOUT):: SENDBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NSEND
+      integer(kind=MPIInt), INTENT(IN) :: MPITYPES
+      REAL(KIND=WP), INTENT(INOUT):: RCVBUF(*)
+      integer(kind=MPIInt), INTENT(IN) :: NRCV(*), NOFF(*)
+      integer(kind=MPIInt), INTENT(IN) :: MPITYPER, MPICOMM
+      INTEGER(KIND=IWP), INTENT(OUT) :: IERROR
 
       integer(kind=MPIInt) :: NPROCS
       integer(kind=MPIInt) :: NSEND4
@@ -421,7 +423,7 @@ C Avoid unused argument warnings
       integer(kind=MPIInt) :: IERROR4
       INTEGER(KIND=IWP), PARAMETER :: I4=KIND(NSEND4)
 
-      INTEGER(KIND=IWP) :: I, IERROR
+      INTEGER(KIND=IWP) :: I
 #ifdef _I8_
       INTEGER(KIND=IWP) :: NRCVTOT
 #endif
