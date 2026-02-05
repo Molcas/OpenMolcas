@@ -24,14 +24,21 @@
       use caspt2_global, only: LUSBT
       use EQSOLV
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 
       INTEGER(KIND=IWP), INTENT(IN):: IVEC, JVEC
       REAL(KIND=WP), INTENT(INOUT):: DCOM(NASHT,NASHT)
 
       REAL(KIND=WP), ALLOCATABLE :: CBLK(:), TBLK(:), SMAT(:)
       INTEGER(KIND=IWP) ICASE,ISYM,NAS,NIS,NCBLK,NS,IDS
-      INTEGER(KIND=IWP) K000
+      INTEGER(KIND=IWP) K000,IIS,ISYMT,ISYMTU,ISYMU,ISYMX,ITABS,ITUX,
+     &                  ITUY,ITXU,ITYU,IU,IUABS,IX,IXABS,IXTU,IY,IYABS,
+     &                  IYTU,NAX
+      REAL(KIND=WP) SUM
+      INTEGER(KIND=IWP) IT,IXT,IYT
+      REAL(KIND=WP) PARTSUM
+      REAL(KIND=WP) SGN
+      INTEGER(KIND=IWP) ITX1,ITX2,ITY1,ITY2,IXT1,IXT2,IYT1,IYT2,NAS1
 
 C This subroutine is one of the components needed to compute the active/active
 C transition density matrix elements for the two first-order vectors IVEC and
