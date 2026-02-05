@@ -255,10 +255,20 @@ C always write the chunks to LUDRA, both for serial and parallel
       use caspt2_global, only: LUDRA
       use ChoCASPT2
       use caspt2_module
-      Implicit real*8 (a-h,o-z)
+#ifdef _DEBUGPRINT_
+      use definitions, only: u6
+#endif
+      IMPLICIT NONE
 #include "warnings.h"
-      REAL(KIND=WP) CHOBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(OUT):: CHOBUF(*)
 
+      INTEGER(KIND=IWP) NPQ, JNUM, IDISK
+#ifdef _DEBUGPRINT_
+      INTEGER(KIND=IWP) NBUF
+      REAL(KIND=WP) SQFP
+      REAL(KIND=WP), EXTERNAL:: DNRM2_
+#endif
 C always write the chunks to LUDRA, both for serial and parallel
       NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
       JNUM=NVLOC_CHOBATCH(IB)
@@ -268,14 +278,14 @@ C always write the chunks to LUDRA, both for serial and parallel
 #ifdef _DEBUGPRINT_
       NBUF=NPQ*JNUM
       SQFP = DNRM2_(NBUF,CHOBUF,1)
-      WRITE(6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
+      WRITE(u6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
      &  'BATCH ',IB,   ', ',
      &  'CASE ' ,ICASE,', ',
      &  'ISYQ ' ,ISYQ, ', ',
      &  'JSYM ' ,JSYM, ', ',
      &  'DNRM2 ',SQFP
 #endif
-      END SUBROUTINE
+      END SUBROUTINE CHOVEC_LOAD
 
 ************************************************************************
       SUBROUTINE CHOVEC_COLL(CHOBUF,ICASE,ISYQ,JSYM,IB)
