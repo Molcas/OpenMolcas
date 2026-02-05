@@ -98,11 +98,9 @@ C Core contribution:
       LLST1 = 0 ! dummy initialize
       NLST1 = 0 ! dummy initialize
 *
-      GOTO (1,2,3,4,5,6,7,8,9,10,11,12,13) ICASE
-      RETURN
-
+      SELECT CASE (ICASE)
 C -----------------------------------------------
-   1  CONTINUE
+      CASE(1)
 C Case A
       NI=NISH(ISYM)
       NO=NORB(ISYM)
@@ -115,11 +113,9 @@ C Case A
      &           DDOT_(NIN,VEC1(IV1),1,VEC2(IV2),1)
         END DO
       END DO
-      GOTO 100
 C -----------------------------------------------
-   2  CONTINUE
+      CASE(2,3)
 C Case BP
-   3  CONTINUE
 C Case BM
 C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
       NX=NIN*NIMX**2
@@ -163,9 +159,8 @@ C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-      GOTO 100
 C -----------------------------------------------
-   4  CONTINUE
+      CASE(4)
 C Case C
       NS=NSSH(ISYM)
       NO=NORB(ISYM)
@@ -178,9 +173,8 @@ C Case C
      &          DDOT_(NIN,VEC1(IV1),1,VEC2(IV2),1)
         END DO
       END DO
-      GOTO 100
 C -----------------------------------------------
-   5  CONTINUE
+      CASE(5)
 C Case D
       DO ISYMA=1,NSYM
        NS=NSSH(ISYMA)
@@ -215,11 +209,9 @@ C Case D
        END DO
       END DO
 
-      GOTO 100
 C -----------------------------------------------
-   6  CONTINUE
+      CASE(6,7)
 C Case EP
-   7  CONTINUE
 C Case EM
       NX=NIN*NSMX*NIMX**2
       Call mma_allocate(X1,NX,LABEL='X1')
@@ -289,11 +281,9 @@ C Second, contributions to DAB.
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-      GOTO 100
 C -----------------------------------------------
-   8  CONTINUE
+      CASE(8,9)
 C Case FP
-   9  CONTINUE
 C Case FM
 C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
       NX=NIN*NSMX**2
@@ -337,11 +327,9 @@ C D(A,B) := Add contraction  X1(MU,C,A)*X2(MU,C,B):
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-      GOTO 100
 C -----------------------------------------------
-  10  CONTINUE
+      CASE(10,11)
 C Case GP
-  11  CONTINUE
 C Case GM
       NX=NIN*NIMX*NSMX**2
       Call mma_allocate(X1,NX,LABEL='X1')
@@ -411,11 +399,9 @@ C Second, contributions to DIJ.
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-      GOTO 100
 C -----------------------------------------------
-  12  CONTINUE
+      CASE(12,13)
 C Case HP
-  13  CONTINUE
 C Case HM
 C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
       NX=NAS*NIMX**2
@@ -501,9 +487,9 @@ C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
-      GOTO 100
+      CASE DEFAULT
+        CALL ABEND()
+      END SELECT
 C -----------------------------------------------
- 100  CONTINUE
 
-      RETURN
-      END
+      END SUBROUTINE DIADNS
