@@ -892,8 +892,8 @@ C
 
       implicit none
 
-      real(kind=wp), intent(in) :: DPT2(NBSQT), DPT2C(NBSQT)
-      real(kind=wp), intent(inout) :: DPT2AO(NBSQT), DPT2CAO(NBSQT)
+      real(kind=wp), intent(inout) :: DPT2(NBSQT), DPT2C(NBSQT),
+     &  DPT2AO(NBSQT), DPT2CAO(NBSQT)
 
       real(kind=wp), allocatable :: WRK1(:), WRK2(:), WRK3(:), WRK4(:)
 
