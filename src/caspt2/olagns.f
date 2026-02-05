@@ -86,9 +86,9 @@ C
       use fake_GA, only: GA_Arrays
       use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH,
      &                         NAES, NSSH, NSES, NBAS, NBAST, MUL, NTU,
-     &                         NIGEJ, NIGTJ, NAGEB, NAGTB, NTUVES,
-     &                         NTUES, NTGEUES, NTGTUES, NIGEJES,
-     &                         NIGTJES, NAGEBES, NAGTBES, NASUP, NISUP
+     &                         NAGEB, NAGTB, NTUVES, NTUES, NTGEUES,
+     &                         NTGTUES, NIGEJES, NIGTJES, NAGEBES,
+     &                         NAGTBES, NASUP, NISUP
       use Constants, only: Zero, One, Half, Two, Three
 
       implicit none
@@ -109,9 +109,9 @@ C
      &  nCorI, nCorJ, nCorA, nCorB, nOccA, nOccB, nOccA2, nOccB2,
      &  nOrbA
       integer(kind=iwp) :: iI, iIabs, iJ, iJabs, iJtot, iA, iAabs,
-     &  iB, iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ, iLeft,
+     &  iB, iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ,
      &  iViP, iVaP, iViM, iVaM, iAtot, iXabs, iItot, IgeJ, IgtJ, iASP,
-     &  iISP, iASM, iISM, iAgeB, iVjP, iAgtB iVjM, iViHP0, iViHP,
+     &  iISP, iASM, iISM, iAgeB, iVjP, iAgtB, iVjM, iViHP0, iViHP,
      &  iViHM0, iViHM, iVaHP, iAgtB, iVjM, iVHP, iVaHM, iVHM
       real(kind=wp) :: SQ2, SQI2, SQ3, Fac
       real(kind=wp) :: ValA, ValBP, ValBM, ValC1, ValC2, ONEADD, ValD1,
