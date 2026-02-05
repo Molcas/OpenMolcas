@@ -20,14 +20,15 @@
       use definitions, only: iwp, wp
       use constants, only: Zero
       use gugx, only: SGS, CIS
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use pt2_guga, only: ETA
+      IMPLICIT NONE
       integer(kind=iwp), intent(in):: ICASE(*),JCASE(*)
       integer(kind=iwp), intent(in):: NUP,NDWN
       real(kind=wp), intent(out):: EMU(NUP,NDWN)
 
       Integer(kind=iwp) nLev, nIpWlk
       Integer(kind=iwp) I,II,LV1,IC,LEV,IC1,ISTEP,IOC,J
+      real(kind=wp) SUM
 
       nLev  = SGS%nLev
       nIpWlk= CIS%nIpWlk
