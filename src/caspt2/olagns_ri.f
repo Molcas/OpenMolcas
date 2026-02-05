@@ -83,7 +83,7 @@ C
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH,
-     &                         NAES, NSSH, NSES, NORBT, NBAS, NINABX,
+     &                         NAES, NSSH, NSES, NORBT, NINABX,
      &                         NSECBX, NBSQT, MUL
       use caspt2_module, only: NTUV, NTU, NTGEU, NTGTU, NIGEJ, NIGTJ,
      &                         NAGEB, NAGTB, NTUVES, NTUES, NTGEUES,
@@ -111,14 +111,13 @@ C
      *                             PIQK(:)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp), allocatable :: map2(:)
-      integer(kind=iwp) :: myRank, NPROCS, i
+      integer(kind=iwp) :: myRank, NPROCS, i, lg_V, lg_V1, ndim2
 #endif
 
       integer(kind=iwp) :: nSh(8,3), iSym, JSYM, IB1, IB2, MXBGRP,
      &  IBGRP, IB, NBGRP, iStpGrd_sav, NCHOBUF, MXPIQK, NADDBUF, IOFFCV,
      &  IBSTA, IBEND, NV, nBra, nKet, NVI, JOFFCV, JBGRP, JBSTA, JBEND,
      &  NVJ, JB
-      integer(kind=iwp) :: ndim2
       real(kind=wp) :: SCLNEL
 
       integer(kind=iwp) :: ICASE, ISYT, ISYU, ISYV, ISYW, ISYX, ISYJ,
@@ -126,8 +125,8 @@ C
      &  ISW,
      &  NAS, NIS, NIN, NAS1, NASP, NISP, NINP, NASM, NISM, NINM, NWA,
      &  NWBP, NWBM, NWC, NWD,
-     &  NWEP, NWEM, NWFP, NWFM, NWGP, NWGM, NWHP, NWHM, NW, NVEC, lg_V,
-     &  lg_V1, ipT, ipTP, ipTM, ipTanti,
+     &  NWEP, NWEM, NWFP, NWFM, NWGP, NWGM, NWHP, NWHM, NW, NVEC,
+     &  ipT, ipTP, ipTM, ipTanti,
      &  IT, ITABS, iTtot, IU, IUABS, iUtot, IV, IVABS, iVtot, IVMAX,
      &  IX, IXABS, iXtot, IXMAX, IJ, IJABS, iJtot, IL, ILABS,
      &  IA, IAABS, iAtot, IC, ICABS,
