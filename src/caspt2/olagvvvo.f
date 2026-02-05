@@ -19,10 +19,11 @@
       use definitions, only: wp, iwp, u6
       use Constants, only: Zero, One
       use caspt2_module, only: IFMSCOUP, IFXMS, IFRMS, IFDW, IFSADREF,
-     &                         NSYM, NFRO, NFROT, NISH, NASH, NSSH,
+     &                         NSYM, NFRO, NISH, NASH, NSSH,
      &                         NBAS, NBAST, NBMX, NSTATE, JSTATE,
      &                         iRlxRoot
 #ifdef _MOLCAS_MPP_
+      use caspt2_module, only: NFROT
       use caspt2_global, only: nOLag
       USE Para_Info, ONLY: Is_Real_Par
 #endif
