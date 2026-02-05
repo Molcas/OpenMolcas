@@ -973,4 +973,4 @@ C       F1(IT,IT)=(ESUM*OCC-ETA(LT))*G1(IT,IT)
       END DO
 
       RETURN
-      END
+      END subroutine DERSPE

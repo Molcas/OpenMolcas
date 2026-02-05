@@ -598,31 +598,6 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine GradStart()
-C
-      use caspt2_global, only:iPrGlb
-      use caspt2_global, only:ipea_shift
-      use caspt2_global, only: if_invar
-      use Constants, only: Zero
-      use definitions, only: u6
-      use PrintLevel, only: usual
-
-      implicit none
-C
-      If ((.not.if_invar) .and. (IPRGLB >= USUAL)) Then
-        Write (u6,*)
-        Write (u6,'(3X,"This is a non-invariant CASPT2 calculation")')
-        If (ipea_shift /= Zero)
-     *    Write (u6,'(3X,"- IPEA shift is employed")')
-        Write (u6,'(3X,"A linear equation will be solved to obtain ",
-     *                "the off-diagonal active density")')
-        Write (u6,*)
-      End If
-C
-      End Subroutine GradStart
-C
-C-----------------------------------------------------------------------
-C
       Subroutine GradPrep(UEFF,VECROT)
 
       use caspt2_global, only: iRoot1, iRoot2, jStLag
