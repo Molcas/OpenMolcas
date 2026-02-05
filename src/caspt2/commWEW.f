@@ -17,14 +17,20 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE COMMWEW(IVEC,JVEC,DCOM)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: LUSBT
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION DCOM(NASHT,NASHT)
-      REAL*8, ALLOCATABLE :: CBLK(:), TBLK(:), SMAT(:)
+
+      INTEGER(KIND=IWP), INTENT(IN):: IVEC, JVEC
+      REAL(KIND=WP), INTENT(INOUT):: DCOM(NASHT,NASHT)
+
+      REAL(KIND=WP), ALLOCATABLE :: CBLK(:), TBLK(:), SMAT(:)
+      INTEGER(KIND=IWP) ICASE,ISYM,NAS,NIS,NCBLK,NS,IDS
+      INTEGER(KIND=IWP) K000
 
 C This subroutine is one of the components needed to compute the active/active
 C transition density matrix elements for the two first-order vectors IVEC and
