@@ -11,6 +11,7 @@
 * Copyright (C) 1997, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
+      use definitions, only: iwp, wp
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb, Weight_ => Weight
       use PrintLevel, only: usual
@@ -28,12 +29,14 @@ C using coefficients taken from the eigenvectors of the effective
 C Hamiltonian.
 C Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 C energies.
-      real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
+      real(kind=wp), intent(in):: Heff(Nstate,Nstate),
+     &                            Ueff(Nstate,Nstate),
+     &                            U0(Nstate,Nstate)
 
-      integer JOBIPH, JOBMIX
-      real(8) Weight(MxRoot)
-      real(8), allocatable:: CI1(:), CI2(:), OLDE(:), EFFCP(:)
-      integer, allocatable:: JROOT(:), IDIST(:)
+      integer(kind=iwp) JOBIPH, JOBMIX
+      real(kind=wp) Weight(MxRoot)
+      real(kind=wp), allocatable:: CI1(:), CI2(:), OLDE(:), EFFCP(:)
+      integer(kind=iwp), allocatable:: JROOT(:), IDIST(:)
 
 
 C Not called, if .NOT.IFMIX, then only the new CI coefficients are
@@ -252,6 +255,4 @@ C in grpini)
       CALL DACLOS(JOBIPH)
       CALL DACLOS(JOBMIX)
 
-
-      RETURN
-      END
+      END SUBROUTINE CREIPH_CASPT2
