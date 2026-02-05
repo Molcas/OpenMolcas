@@ -93,9 +93,12 @@ C
 
       implicit none
 
+#include "intent.fh"
+
       integer(kind=iwp), intent(in) :: iCase, iSym, iSymA, iSymB, iSymI,
      &  iSymJ, nMaxOrb
-      real(kind=wp), intent(out) :: ERI1(*), Amp1(nMaxOrb,nMaxOrb),
+      real(kind=wp), intent(_OUT_) :: ERI1(*)
+      real(kind=wp), intent(out) :: Amp1(nMaxOrb,nMaxOrb),
      &  Scr(nMaxOrb,nMaxOrb)
       real(kind=wp), intent(inout) :: DPT2C(*), T2AO(*)
 
@@ -1118,10 +1121,12 @@ C
 
       implicit none
 
+#include "intent.fh"
+
       integer(kind=iwp), intent(in) :: mode, iSym
       real(kind=wp), intent(in) :: CMO(*)
       real(kind=wp), intent(inout) :: DPT2(*), DPT2AO(*)
-      real(kind=wp), intent(out) :: WRK(*)
+      real(kind=wp), intent(_OUT_) :: WRK(*)
 
       real(kind=wp) :: Val
       integer(kind=iwp) :: iCMO, iAO, iMO, jSym, nBasI, nOrbI, iBas,

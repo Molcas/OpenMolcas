@@ -62,7 +62,9 @@ C
 
       implicit none
 
-      real(kind=wp), intent(out) :: DIA(*), DI(*)
+#include "intent.fh"
+
+      real(kind=wp), intent(_OUT_) :: DIA(*), DI(*)
       real(kind=wp), intent(in) :: RDMSA(*), Trf(*)
 
       real(kind=wp),allocatable :: WRK1(:),WRK2(:)
@@ -190,9 +192,11 @@ C
 
       implicit none
 
+#include "intent.fh"
+
       real(kind=wp), intent(in) :: DPT2(*)
       real(kind=wp), intent(inout) :: FPT2(*)
-      real(kind=wp), intent(out) :: ERI(*), Scr(*)
+      real(kind=wp), intent(_OUT_) :: ERI(*), Scr(*)
 
       integer(kind=iwp) :: iMO, iSymI, iSymJ, iSymA, iSymB, iSym, nOrbI,
      &  nFroI, nIshI, iOrb, jOrb
@@ -250,8 +254,10 @@ C
 
       implicit none
 
+#include "intent.fh"
+
       real(kind=wp), intent(inout) :: FIFA(*), FIMO(*)
-      real(kind=wp), intent(out) :: WRK1(*), WRK2(*)
+      real(kind=wp), intent(_OUT_) :: WRK1(*), WRK2(*)
 
       Character(Len=8) :: Label
       real(kind=wp), allocatable :: WFLT(:)
@@ -319,9 +325,11 @@ C
 
       implicit none
 
+#include "intent.fh"
+
       integer(kind=iwp), intent(in) :: iSym
       real(kind=wp), intent(in) :: Ftr(*)
-      real(kind=wp), intent(out) :: Fsq(*)
+      real(kind=wp), intent(_OUT_) :: Fsq(*)
 
       real(kind=wp),allocatable :: EPS_loc(:)
       integer(kind=iwp) :: nOrbI, nFroI, iOrb, NSEQ, jOrb
@@ -372,6 +380,7 @@ C
       implicit none
 
 #include "warnings.h"
+#include "intent.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #endif
@@ -379,7 +388,7 @@ C
       integer(kind=iwp), intent(in) :: iSym0, iSymI, iSymJ, iSymK,
      &  iSymL0
       real(kind=wp), intent(inout) :: DPT2AO(*), DPT2CAO(*)
-      real(kind=wp), intent(out) :: FPT2AO(*), FPT2CAO(*), WRK1(*)
+      real(kind=wp), intent(_OUT_) :: FPT2AO(*), FPT2CAO(*), WRK1(*)
 
       real(kind=wp), allocatable :: CHSPC(:), WRK2(:)
       integer(kind=iwp) :: ISTLT(8), ISTSQ(8), iSkip(8), ipWRK(8),

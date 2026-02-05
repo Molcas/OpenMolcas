@@ -1086,11 +1086,13 @@ C
      &                         NRAS3, NASH, NSSH, NDEL, NBAS
       use definitions, only: wp, iwp
       use Constants, only: One
-C
+
       implicit none
-C
+
+#include "intent.fh"
+
       real(kind=wp), intent(in) :: Trf0(*)
-      real(kind=wp), intent(out) :: Trf(*)
+      real(kind=wp), intent(_OUT_) :: Trf(*)
 
       integer(kind=iwp) :: iSQ, iTOrb, ipTrfL, iSym, nBasI, nFroI,
      &  nIshI, nAshI, nSshI, nDelI, NR1, NR2, NR3, nCor, nVir, I, J,
@@ -1377,9 +1379,11 @@ C
 
       implicit none
 
+#include "intent.fh"
+
       real(kind=wp), intent(in) :: Scal, DPT2q(*), Trf(*)
       real(kind=wp), intent(inout) :: DPT2n(*)
-      real(kind=wp), intent(out) :: WRK(*)
+      real(kind=wp), intent(_OUT_) :: WRK(*)
 
       integer(kind=iwp) :: iMO, iSym, nOrbI
 
@@ -1658,10 +1662,12 @@ C
       use caspt2_module, only: NSYM, NFRO, NISH, NASH, NASHT,
      &                         NDEL, NBAS, NBAST, NBSQT
       use Constants, only: Zero, One, Two
-C
+
       implicit none
-C
-      real(kind=wp), intent(out) :: RDMEIG(*), WRK1(*), WRK2(*)
+
+#include "intent.fh"
+
+      real(kind=wp), intent(_OUT_) :: RDMEIG(*), WRK1(*), WRK2(*)
       real(kind=wp), intent(in) :: Trf(*), FIFA(*), RDMSA(*), DEPSA(*)
 
       real(kind=wp),allocatable :: FPT2_loc(:),RDMqc(:)
@@ -1745,11 +1751,13 @@ C
       use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NASHT,
      &                         NBAS, NBAST, NBSQT
       use Constants, only: Zero, One, Half
-C
+
       implicit none
-C
+
+#include "intent.fh"
+
       real(kind=wp), intent(in) :: DEPSA(nAshT,nAshT)
-      real(kind=wp), intent(out) :: FPT2(*), WRK1(*), WRK2(*)
+      real(kind=wp), intent(_OUT_) :: FPT2(*), WRK1(*), WRK2(*)
 
       real(kind=wp),allocatable :: DAO(:),DMO(:)
       integer(kind=iwp) :: iSym, iSymA, iSymI, iSymB, iSymJ,

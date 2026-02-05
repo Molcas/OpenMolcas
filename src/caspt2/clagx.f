@@ -4905,11 +4905,14 @@ C
 
       implicit none
 
+#include "intent.fh"
+
       integer(kind=iwp), INTENT(IN) :: nLev, nMidV
       real(kind=wp), intent(in) ::  CI(*), INT1(NLEV,NLEV),
      &  INT2(NLEV,NLEV,NLEV,NLEV)
       integer(kind=iwp), intent(in) :: ISYCI
-      real(kind=wp), intent(out) :: PRE(*), Fancy(nRoots,nRoots,nRoots)
+      real(kind=wp), intent(_OUT_) :: PRE(*)
+      real(kind=wp), intent(out) :: Fancy(nRoots,nRoots,nRoots)
 
       real(kind=wp) ::  ICS(MXLEV), val, val2, Ene, dnum
       integer(kind=iwp) :: nIpWlk, LENCSF, ISY, LEV, MV, ISYUP, NCI,

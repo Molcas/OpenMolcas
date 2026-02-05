@@ -1051,12 +1051,14 @@ C
 C
       USE SUPERINDEX, only: KTU
       use caspt2_global, only: do_csf
-C
+
       implicit none
-C
+
+#include "intent.fh"
+
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NX,
      &  NAJVX, NCHO
-      real(kind=wp), intent(out) :: AJVX(NV,NX,*)
+      real(kind=wp), intent(_OUT_) :: AJVX(NV,NX,*)
       real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO),
      &  Cho_Ket(NV,NX,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO),
@@ -1319,14 +1321,16 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
-C
+
       USE SUPERINDEX, only: KIGTJ, KIGEJ
-C
+
       implicit none
-C
+
+#include "intent.fh"
+
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NL,
      &  NAJVL, NCHO
-      real(kind=wp), intent(out) :: AJVL(NV,NL,*)
+      real(kind=wp), intent(_OUT_) :: AJVL(NV,NL,*)
       real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO),
      &  Cho_Ket(NV,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO),
@@ -1751,14 +1755,16 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
-C
+
       USE SUPERINDEX, only: KAGEB, KAGTB
-C
+
       implicit none
-C
+
+#include "intent.fh"
+
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NC, NL,
      &  NAUCL, NCHO
-      real(kind=wp), intent(out) :: AUCL(NA,NU,*)
+      real(kind=wp), intent(_OUT_) :: AUCL(NA,NU,*)
       real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO),
      &  Cho_Ket(NC,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO),
@@ -2008,14 +2014,16 @@ C
       !! ADDRHSH
       Subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
-C
+
       USE SUPERINDEX, only: KAGEB, KAGTB, KIGEJ, KIGTJ
-C
+
       implicit none
-C
+
+#include "intent.fh"
+
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NC, NL,
      &  NAJCL, NCHO
-      real(kind=wp), intent(out) :: AJCL(NC*NL,*)
+      real(kind=wp), intent(_OUT_) :: AJCL(NC*NL,*)
       real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO),
      &  Cho_Ket(NC,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO),
@@ -2368,10 +2376,12 @@ C
 
       implicit none
 
+#include "intent.fh"
+
       integer(kind=iwp), intent(in) :: MODE, ITK, ITQ, JSYM, IBSTA,
      &  IBEND
       integer(kind=iwp), intent(out) :: nArray
-      real(kind=wp), intent(out) :: Array(*)
+      real(kind=wp), intent(_OUT_) :: Array(*)
 
       integer(kind=iwp) :: ICASE, LKETSM, LUCDER, ISYK, NQK, IB, NV,
      &  NKETSM, IDISK
