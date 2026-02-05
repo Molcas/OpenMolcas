@@ -149,8 +149,8 @@ C  End of loop.
       HEL=Zero
       HECOMP=Zero
       DO ICASE=1,13
-C     if (icase.ne.12.and.icase.ne.13) cycle ! H
-C     if (icase.ne.10.and.icase.ne.11) cycle ! G
+C     if (icase /= 12.and.icase /= 13) cycle ! H
+C     if (icase /= 10.and.icase /= 11) cycle ! G
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
           NIN=NINDEP(ISYM,ICASE)

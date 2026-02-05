@@ -514,7 +514,7 @@ C
      *          + DF1(it,iu)*BUF1(icsf,ib)*BUFD(icsf)
             End Do
 C           G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
-C           IF(IFF.ne.0) then
+C           IF(IFF /= 0) then
 C             F1sum=0.0D0
 C             do i=1,nsgm1
 C               F1sum=F1sum+CI(i)*work(lto-1+i)*bufd(i)

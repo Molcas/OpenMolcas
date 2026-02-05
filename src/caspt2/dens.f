@@ -1763,7 +1763,7 @@ C
       iSymB= 1
       iSymJ= 1
 C
-C     If (nFroT.ne.0.and.IfChol) Then
+C     If (nFroT /= 0.and.IfChol) Then
       If (IfChol) Then
         !! DEPSA(MO) -> DEPSA(AO) -> G(D) in AO -> G(D) in MO
         !! The Cholesky vectors do not contain frozen orbitals...

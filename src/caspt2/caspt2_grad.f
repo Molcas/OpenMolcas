@@ -327,7 +327,7 @@ C
           Do ilStat = 1, nState
             Do jlStat = 1, ilStat
               If (do_nac) Then
-                If (.not.IFXMS .and. .not.IFRMS .and. ilstat.ne.jlstat)
+                If (.not.IFXMS .and. .not.IFRMS .and. ilstat /= jlstat)
      &            Cycle
 
                 Scal = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)
