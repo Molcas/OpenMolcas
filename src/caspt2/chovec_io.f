@@ -294,7 +294,12 @@ C always write the chunks to LUDRA, both for serial and parallel
 * all of them on each process in case of parallel run.
 ************************************************************************
 #ifdef _MOLCAS_MPP_
-      USE MPI
+      USE MPI, only: MPI_REAL8, MPI_COMM_WORLD
+#  ifdef _I8_
+      USE MPI, only: MPI_INTEGER8, MPI_INTEGER
+#  else
+      USE MPI, only: MPI_INTEGER4, MPI_INTEGER
+#endif
       USE Para_Info, ONLY: nProcs, Is_Real_Par
       use caspt2_global, only: LUDRATOT
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -304,8 +309,8 @@ C always write the chunks to LUDRA, both for serial and parallel
 #endif
       IMPLICIT NONE
 #include "warnings.h"
-      REAL(KIND=WP) :: CHOBUF(*)
-      INTEGER(KIND=IWP) :: ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(INOUT) :: CHOBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN) :: ICASE,ISYQ,JSYM,IB
 
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
@@ -370,12 +375,12 @@ CSVC: for RHS on demand, write transposed chovecs, else just write
         END IF
 
 #  ifdef _DEBUGPRINT_
-        WRITE(6,*) ' process block, size, offset, fingerprint'
+        WRITE(u6,*) ' process block, size, offset, fingerprint'
         DO I=1,NPROCS
           MY_N = SIZE(I)
           NOFF = 1+DISP(I)
           SQFP =DDOT_(MY_N,RECVBUF(NOFF:),1,RECVBUF(NOFF:),1)
-          WRITE(6,'(A,I6,A,2I12,ES20.12)') ' [',I,'] ',MY_N,NOFF,SQFP
+          WRITE(u6,'(A,I6,A,2I12,ES20.12)') ' [',I,'] ',MY_N,NOFF,SQFP
         END DO
 #  endif
         CALL mma_deallocate(RECVBUF)
