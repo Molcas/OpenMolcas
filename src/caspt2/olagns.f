@@ -13,89 +13,109 @@
       SUBROUTINE OLagNS2(iSym,DPT2C,T2AO)
 C
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp
-      use caspt2_module
-C
-      IMPLICIT REAL*8 (A-H,O-Z)
-C
-      DIMENSION DPT2C(*),T2AO(*)
-      real(kind=wp),allocatable :: Int1(:),Int2(:),Scr1(:),Amp1(:)
-C
+      use definitions, only: wp, iwp
+      use caspt2_module, only: NSYM, NACTEL, NFRO, NISH, NASH, NSSH,
+     &                         NDEL, NBAS, NBSQT
+      use Constants, only: One
+
+      implicit none
+
+      integer(kind=iwp), intent(in) :: iSym
+      real(kind=wp), intent(inout) :: DPT2C(*), T2AO(*)
+
+      real(kind=wp), allocatable :: Int1(:), Scr1(:), Amp1(:)
+      integer(kind=iwp) :: nMaxOrb, jSym, lInt, iSymI, iSymJ, iSymIJ,
+     &  iSymA, iSymB, iSymAB, iSymIJAB, iCase
+
       !! orbital Lagrangian from the T-amplitude
       !! See the loop structure in rhs_mp2.f
       !! and the helper subroutine in rhs_mp2_help1/2
-C
+
       nMaxOrb=0
       Do jSym = 1, nSym
         nMaxOrb = Max(nMaxOrb,nBas(jSym))
       End Do
-C     write(6,*) "nmaxorb = ", nmaxorb
-C
       lInt = nMaxOrb*nMaxOrb
-C
+
       call mma_allocate(Int1,lInt,Label='Int1') !! for (ia|jb)
-      call mma_allocate(Int2,lInt,Label='Int2') !! for (ib|ja)
       call mma_allocate(Scr1,lInt,Label='Scr1') !! work space
       call mma_allocate(Amp1,lInt,Label='Amp1') !! for amplitude
-C
 
       !! (ia|jb)
       Do iSymI = 1, nSym !! Symmetry of occupied (docc+act) orbitals
         !! Check, in particular nFro
-        If (nFro(iSymI)+nIsh(iSymI)+nAsh(iSymI).eq.0) Cycle
+        If (nFro(iSymI)+nIsh(iSymI)+nAsh(iSymI) == 0) Cycle
         Do iSymJ = 1, iSymI
-          If (nFro(iSymJ)+nIsh(iSymJ)+nAsh(iSymJ).eq.0) Cycle
+          If (nFro(iSymJ)+nIsh(iSymJ)+nAsh(iSymJ) == 0) Cycle
           iSymIJ = 1 + iEor(iSymI-1,iSymJ-1)
           Do iSymA = 1, nSym !! Symmetry of non-filled (act+virt) orbs
-            If (nAsh(iSymA)+nSsh(iSymA)+nDel(iSymA).eq.0) Cycle
+            If (nAsh(iSymA)+nSsh(iSymA)+nDel(iSymA) == 0) Cycle
             Do iSymB = 1, iSymA
-              If (nAsh(iSymB)+nSsh(iSymB)+nDel(iSymB).eq.0) Cycle
+              If (nAsh(iSymB)+nSsh(iSymB)+nDel(iSymB) == 0) Cycle
               iSymAB = 1 + iEor(iSymA-1,iSymB-1)
               iSymIJAB = 1 + iEor(iSymIJ-1,iSymAB-1)
-              If (iSym.ne.iSymIJAB) Cycle
+              If (iSym /= iSymIJAB) Cycle
               Do iCase = 1, 13
-C               if (icase.ne.12.and.icase.ne.13) cycle
                 Call OLagNs_Hel2(iCase,iSym,iSymA,iSymB,iSymI,iSymJ,
-     *                           nMaxOrb,Int1,Int2,Amp1,Scr1,DPT2C,T2AO)
+     *                           nMaxOrb,Int1,Amp1,Scr1,DPT2C,T2AO)
               End Do
             End Do
           End Do
         End Do
       End Do
-C
-      Call DScal_(NBSQT,1.0D+00/DBLE(MAX(1,NACTEL)),DPT2C,1)
-C
+
+      DPT2C(1:NBSQT) = DPT2C(1:NBSQT)/real(max(1,NACTEL),kind=wp)
+
       call mma_deallocate(Int1)
-      call mma_deallocate(Int2)
       call mma_deallocate(Scr1)
       call mma_deallocate(Amp1)
-C
+
       END SUBROUTINE OLagNS2
 C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE OLagNS_Hel2(iCase,iSym,iSymA,iSymB,iSymI,iSymJ,nMaxOrb,
-     *                       ERI1,ERI2,Amp1,Scr,DPT2C,T2AO)
-      USE SUPERINDEX
-      USE iSD_data
+     *                       ERI1,Amp1,Scr,DPT2C,T2AO)
+
+      USE SUPERINDEX, only: KTU, KTUV, KTGEU, KTGTU, KAGEB, KAGTB,
+     &                      KIGEJ, KIGTJ
       use caspt2_global, only: OLag
-      use EQSOLV
+      use EQSOLV, only: IVECC2
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp
+      use definitions, only: wp, iwp
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-C
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ERI1(*),ERI2(*),Amp1(nMaxOrb,nMaxOrb),
-     *          Scr(nMaxOrb,nMaxOrb)
-      DIMENSION DPT2C(*),T2AO(*)
-      real(kind=wp),allocatable :: WRK1(:),WRK2(:)
-C
-      INTEGER   nAshA,nAshB,nSshA,nSshB
-      LOGICAL   PM
-      DIMENSION IOFF1(8),IOFF2(8)
-      !! just to avoid the unused ... of ERI2
-      if (.false.) write (6,*) eri2(1)
+      use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH,
+     &                         NAES, NSSH, NSES, NBAS, NBAST, MUL, NTU,
+     &                         NIGEJ, NIGTJ, NAGEB, NAGTB, NTUVES,
+     &                         NTUES, NTGEUES, NTGTUES, NIGEJES,
+     &                         NIGTJES, NAGEBES, NAGTBES, NASUP, NISUP
+      use Constants, only: Zero, One, Half, Two, Three
+
+      implicit none
+
+      integer(kind=iwp), intent(in) :: iCase, iSym, iSymA, iSymB, iSymI,
+     &  iSymJ, nMaxOrb
+      real(kind=wp), intent(out) :: ERI1(*), Amp1(nMaxOrb,nMaxOrb),
+     &  Scr(nMaxOrb,nMaxOrb)
+      real(kind=wp), intent(inout) :: DPT2C(*), T2AO(*)
+
+      real(kind=wp), allocatable :: WRK1(:), WRK2(:)
+
+      logical(kind=iwp) :: PM
+      integer(kind=iwp) :: IOFF1(8), IOFF2(8), IO1, IO2, iSymK, iSymAB,
+     &  nASP, nISP, nASM, nISM, ipTCP, ipTCM, nAS, nIS, ipTC, nFroI,
+     &  nFroJ, nFroA, nFroB, nIshI, nIshJ, nIshA, nIshB, nAshI, nAshJ,
+     &  nAshA, nAshB, nSshA, nSshB, nBasI, nBasJ, nBasA, nBasB,
+     &  nCorI, nCorJ, nCorA, nCorB, nOccA, nOccB, nOccA2, nOccB2,
+     &  nOrbA
+      integer(kind=iwp) :: iI, iIabs, iJ, iJabs, iJtot, iA, iAabs,
+     &  iB, iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ, iLeft,
+     &  iViP, iVaP, iViM, iVaM, iAtot, iXabs, iItot, IgeJ, IgtJ, iASP,
+     &  iISP, iASM, iISM, iAgeB, iVjP, iAgtB iVjM, iViHP0, iViHP,
+     &  iViHM0, iViHM, iVaHP, iAgtB, iVjM, iVHP, iVaHM, iVHM
+      real(kind=wp) :: SQ2, SQI2, SQ3, Fac
+      real(kind=wp) :: ValA, ValBP, ValBM, ValC1, ValC2, ONEADD, ValD1,
+     &  ValD2, ValEP, ValEM, ValFP, ValFM, ValGP, ValGM, ValHP, ValHM
 C
 C     DMNS_{ijkl}*d(ij|kl)/dx -> (pj|kl)*D_{qjkl} + (ip|kl)*D_{iqkl}
 C                              + (ij|pl)*D_{ijql} + (ij|kp)*D_{ijkq}
@@ -124,14 +144,14 @@ C
 C     write(6,*) "icase = ", icase
 C
       PM = .false.
-      If (iCase.eq.2.or.iCase.eq.6.or.iCase.eq.8.or.
-     *    iCase.eq.10.or.iCase.eq.12) PM = .true.
-      If (iCase.eq.3.or.iCase.eq.7.or.iCase.eq.9.or.
-     *    iCase.eq.11.or.iCase.eq.13) Return
+      If (iCase == 2 .or. iCase == 6 .or .iCase == 8 .or.
+     *    iCase == 10 .or. iCase == 12) PM = .true.
+      If (iCase == 3 .or. iCase == 7 .or .iCase == 9 .or.
+     *    iCase == 11 .or. iCase == 13) Return
 C
-      SQ2    = SQRT(2.0D+00)
-      SQI2   = 1.0D+00/SQ2
-      SQ3    = SQRT(3.0D+00)
+      SQ2    = SQRT(Two)
+      SQI2   = One/SQ2
+      SQ3    = SQRT(Three)
       ! iVec   = iVecX
       IO1=0
       IO2=0
@@ -152,20 +172,20 @@ C     nIN  = 0
 C       nINP = nINDEP(iSym,iCase)
         nASP = nASup(iSym,iCase)
         nISP = nISup(iSym,iCase)
-        ! If (nINP.ne.0) Then
+        ! If (nINP /= 0) Then
         !   nVec = nINP*nISP
         ! End If
 C       nINM = nINDEP(iSym,iCase+1)
         nASM = nASup(iSym,iCase+1)
         nISM = nISup(iSym,iCase+1)
-        ! If (nINM.ne.0) Then
+        ! If (nINM /= 0) Then
         !   nVec = nINM*nISM
         ! End If
-        If (nASP*nISP.ne.0) Then
+        If (nASP*nISP /= 0) Then
           Call RHS_ALLO(nASP,nISP,ipTCP)
           CALL RHS_READ_C(ipTCP,iCase,iSym,iVecC2)
         End If
-        If (nASM*nISM.ne.0) Then
+        If (nASM*nISM /= 0) Then
           Call RHS_ALLO(nASM,nISM,ipTCM)
           CALL RHS_READ_C(ipTCM,iCase+1,iSym,iVecC2)
         End If
@@ -173,17 +193,17 @@ C       nINM = nINDEP(iSym,iCase+1)
 C       nIN = nINDEP(iSym,iCase)
         nAS = nASup(iSym,iCase)
         nIS = nISup(iSym,iCase)
-        ! If (nIN.ne.0) Then
+        ! If (nIN /= 0) Then
         !   nVec = nIN*nIS
         ! End If
-        If (nAS*nIS.ne.0) Then
+        If (nAS*nIS /= 0) Then
           Call RHS_ALLO(nAS,nIS,ipTC)
           CALL RHS_READ_C(ipTC,iCase,iSym,iVecC2)
         End If
       End If
 C
 C     If (PM) Then
-C       If (nINP*nISP.eq.0.and.nINM*nISM.eq.0) GO TO 1
+C       If (nINP*nISP == 0.and.nINM*nISM == 0) GO TO 1
 C     Else
 C       If (nIN*nIS) GO TO 1
 C     End If
@@ -225,21 +245,21 @@ C
       !! active+virtual part for the right index
 C     nJ = nFro(iSymJ)+nIsh(iSymJ)+nAsh(iSymJ)
 C
-      If (iCase.eq.1) Then
+      If (iCase == 1) Then
         Call OLagNS_A(Amp1)
-      Else If (iCase.eq.2.or.iCase.eq.3) Then
+      Else If (iCase == 2.or.iCase == 3) Then
         Call OLagNS_B(Amp1)
-      Else If (iCase.eq.4) Then
+      Else If (iCase == 4) Then
         Call OLagNS_C(Amp1)
-      Else If (iCase.eq.5) Then
+      Else If (iCase == 5) Then
         Call OLagNS_D(Amp1)
-      Else If (iCase.eq.6.or.iCase.eq.7) Then
+      Else If (iCase == 6.or.iCase == 7) Then
         Call OLagNS_E(Amp1)
-      Else If (iCase.eq.8.or.iCase.eq.9) Then
+      Else If (iCase == 8.or.iCase == 9) Then
         Call OLagNS_F(Amp1)
-      Else If (iCase.eq.10.or.iCase.eq.11) Then
+      Else If (iCase == 10.or.iCase == 11) Then
         Call OLagNS_G(Amp1)
-      Else If (iCase.eq.12.or.iCase.eq.13) Then
+      Else If (iCase == 12.or.iCase == 13) Then
         Call OLagNS_H(Amp1)
       End If
 C
@@ -248,10 +268,10 @@ C
 C
 C   1 CONTINUE
       If (PM) Then
-        If (nASP*nISP.ne.0) Call RHS_FREE(ipTCP)
-        If (nASM*nISM.ne.0) Call RHS_FREE(ipTCM)
+        If (nASP*nISP /= 0) Call RHS_FREE(ipTCP)
+        If (nASM*nISM /= 0) Call RHS_FREE(ipTCM)
       Else
-        If (nAS*nIS.ne.0) Call RHS_FREE(ipTC)
+        If (nAS*nIS /= 0) Call RHS_FREE(ipTC)
       End If
 C
       Return
@@ -262,35 +282,30 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_A(AmpL1)
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      Dimension AmpL1(nAshA,nAshB)
+      real(kind=wp), intent(out) :: AmpL1(nAshA,nAshB)
 C
-      If (nAshI.eq.0.or.nIshJ.eq.0.or.nAshA.eq.0.or.nAshB.eq.0) Return
+      if (nAshI*nIshJ*nAshA*nAshB == 0) return
 C
       ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
         ! iItot = iI + nCorI
-C       If (iSymI.eq.iSymJ) nJ = iI
+C       If (iSymI == iSymJ) nJ = iI
         Do iJ = 1, nIshJ
           iJabs = iJ + nIes(iSymJ)
           iJtot = iJ + nFroJ
-C         If (iIabs.lt.iJabs) Cycle
-          Fac = 1.0D+00
-C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
-          If (iSymI.ne.iSymJ) Fac = 2.0d+00
+C         If (iIabs < iJabs) Cycle
+          Fac = One
+C         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
+          If (iSymI /= iSymJ) Fac = Two
 C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nCorI,iJ+nFroJ,
      *              ERI1,Scr)
-C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
-C    *                iJ+nFroJ,iI+nFroI,
-C    *                ERI2,Scr)
-C         End If
 C
-          Call DCopy_(nAshA*nAshB,[0.0D+00],0,AmpL1,1)
+          AmpL1(:,:) = Zero
 C
           Do iA = 1, nAshA
             iAabs = iA + nAes(iSymA)
@@ -303,18 +318,18 @@ C
               iUabs = iI + nAes(iSymI)
               iVabs = iAabs
               IW1 = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
-C             ValA = 0.0D+00
+C             ValA = Zero
 C             Do iICB = 1, nIN
 C               iVA  = iICB + nIN*(iJabs-1)
 C               ValA  = ValA
 C    *        + Work(ipT+iVA-1)*Work(LST+IW1-1+nAS*(iICB-1))
 C             End Do
-C             ValA = ValA*2.0D+00
+C             ValA = ValA*Two
               iIS = iJabs
               iAS = IW1
-              ValA = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*2.0D+00
+              ValA = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*Two
 C
-              If (iUabs.eq.iVabs) Then
+              If (iUabs == iVabs) Then
                 !! For FIMO derivative
                 DPT2C(iBtot+nOrbA*(iJtot-1))
      *            = DPT2C(iBtot+nOrbA*(iJtot-1)) + ValA
@@ -324,7 +339,7 @@ C
             End Do
           End Do
 C
-          Call DScal_(nAshA*nAshB,Fac,AmpL1,1)
+          AmpL1(:,:) = AmpL1(:,:)*Fac
 C
           !! Calculate the actual contributions
           !! L_{pq} = sum_{j,ab} (pa|jb) * T_{qj}^{ab}
@@ -345,35 +360,30 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_B(AmpL1)
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      Dimension AmpL1(nAshA,nAshB)
+      real(kind=wp), intent(out) :: AmpL1(nAshA,nAshB)
 C
-      If (nIshI.eq.0.or.nIshJ.eq.0.or.nAshA.eq.0.or.nAshB.eq.0) Return
+      if (nIshI*nIshJ*nAshA*nAshB == 0) return
 C
       nJ = nIshJ
       Do iI = 1, nIshI
         iIabs = iI + nIes(iSymI)
         ! iItot = iI + nFroI
-        If (iSymI.eq.iSymJ) nJ = iI
+        If (iSymI == iSymJ) nJ = iI
         Do iJ = 1, nJ
           iJabs = iJ + nIes(iSymJ)
           ! iJtot = iJ + nFroJ
-          If (iIabs.lt.iJabs) Cycle
-          Fac = 1.0D+00
-C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
-          If (iSymI.ne.iSymJ) Fac = 2.0d+00
+          If (iIabs < iJabs) Cycle
+          Fac = One
+C         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
+          If (iSymI /= iSymJ) Fac = Two
 C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nFroI,iJ+nFroJ,
      *              ERI1,Scr)
-C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
-C    *                iJ+nFroJ,iI+nFroI,
-C    *                ERI2,Scr)
-C         End If
 C
-          Call DCopy_(nAshA*nAshB,[0.0D+00],0,AmpL1,1)
+          AmpL1(:,:) = Zero
 C
           Do iA = 1, nAshA
             iAabs = iA + nAes(iSymA)
@@ -382,7 +392,7 @@ C
               iBabs = iB + nAes(iSymB)
               ! iBtot = iB + nCorB
 C
-              if (iaabs.gt.ibabs) then
+              if (iaabs > ibabs) then
                 iTabs = iAabs
                 iUabs = iBabs
               else
@@ -395,8 +405,8 @@ C
               iVaM  = kTgtU(iTabs,iUabs)-nTgtUes(iSym)
               !! transform internally contracted (SR)
               !!        to contravariant (C)
-              ValBP = 0.0D+00
-              ValBM = 0.0D+00
+              ValBP = Zero
+              ValBM = Zero
 C             Do iICB = 1, nINP
 C               iVP  = iICB + nINP*(iViP-1)
 C               ValBP = ValBP
@@ -405,8 +415,8 @@ C             End Do
               iIS = iViP
               iAS = iVaP
               ValBP = GA_Arrays(ipTCP)%A(iAS+nASP*(iIS-1))
-              If (iAabs.ne.iBabs.and.iIabs.ne.iJabs) Then
-                If (iIabs.ne.iJabs) Then
+              If (iAabs /= iBabs .and. iIabs /= iJabs) Then
+                If (iIabs /= iJabs) Then
 C                 Do iICB = 1, nINM
 C                   iVM  = iICB + nINM*(iViM-1)
 C                   ValBM = ValBM
@@ -417,15 +427,15 @@ C                 End Do
                   ValBM = GA_Arrays(ipTCM)%A(iAS+nASM*(iIS-1))
                 End If
                 !! permutated
-                If (iAabs.lt.iBabs) ValBM = -ValBM
+                If (iAabs < iBabs) ValBM = -ValBM
               End If
-              If (iIabs.eq.iJabs) ValBP = ValBP*SQI2
+              If (iIabs == iJabs) ValBP = ValBP*SQI2
 C
               AmpL1(iA,iB) = AmpL1(iA,iB) + ValBP + ValBM
             End Do
           End Do
 C
-          Call DScal_(nAshA*nAshB,Fac,AmpL1,1)
+          AmpL1(:,:) = AmpL1(:,:)*Fac
 C
           !! Calculate the actual contributions
           !! L_{pq} = sum_{j,ab} (pa|jb) * T_{qj}^{ab}
@@ -446,35 +456,30 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_C(AmpL1)
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      Dimension AmpL1(nAshA+nSshA,nAshB+nSshB)
+      real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
 C
-      If (nAshI.eq.0.or.nAshJ.eq.0.or.nSshA.eq.0.or.nAshB.eq.0) Return
+      if (nAshI*nAshJ*nSshA*nAshB == 0) return
 C
       ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
         ! iItot = iI + nCorI
-C       If (iSymI.eq.iSymJ) nJ = iI
+C       If (iSymI == iSymJ) nJ = iI
         Do iJ = 1, nAshJ
           iJabs = iJ + nIshJ + nAes(iSymJ)
           ! iJtot = iJ + nCorJ
-          If (iIabs.lt.iJabs) Cycle
-          Fac = 1.0D+00
-C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
-          If (iSymI.ne.iSymJ) Fac = 2.0d+00
+          If (iIabs < iJabs) Cycle
+          Fac = One
+C         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
+          If (iSymI /= iSymJ) Fac = Two
 C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nCorI,iJ+nCorJ,
      *              ERI1,Scr)
-C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
-C    *                iJ+nFroJ,iI+nFroI,
-C    *                ERI2,Scr)
-C         End If
 C
-          Call DCopy_((nAshA+nSshA)*(nAshB+nSshB),[0.0D+00],0,AmpL1,1)
+          AmpL1(:,:) = Zero
 C
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
@@ -489,14 +494,14 @@ C
 C             write(6,*) itabs,iuabs,ivabs
               !! (at|uv) -> (ai|bj) -> (at|uv)
               ! IW1 = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
-              ValC1 = 0.0D+00
-              ValC2 = 0.0D+00
+              ValC1 = Zero
+              ValC2 = Zero
 C             Do iICB = 1, nIN
 C               iV  = iICB + nIN*(iAabs-1)
 C               ValC1 = ValC1
 C    *        + Work(ipT+iV-1)*Work(LST+IW1-1+nAS*(iICB-1))
 C             End Do
-C             If (iIabs.ne.iJabs) Then
+C             If (iIabs /= iJabs) Then
 C               IW1 = kTUV(iVabs,iUabs,iTabs) - nTUVes(iSym)
 C               Do iICB = 1, nIN
 C                 iV  = iICB + nIN*(iAabs-1)
@@ -505,38 +510,38 @@ C    *          + Work(ipT+iV-1)*Work(LST+IW1-1+nAS*(iICB-1))
 C               End Do
 C             End If
 C
-C             ValC1 = ValC1*2.0D+00
-C             ValC2 = ValC2*2.0D+00
+C             ValC1 = ValC1*Two
+C             ValC2 = ValC2*Two
 C
               iIS = iAabs
               iAS = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
-              ValC1 = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*2.0D+00
-              If (iIabs.ne.iJabs) Then
+              ValC1 = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*Two
+              If (iIabs /= iJabs) Then
                 iAS = kTUV(iVabs,iUabs,iTabs) - nTUVes(iSym)
-                ValC2 = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*2.0D+00
+                ValC2 = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*Two
               End If
 C
               iTabs = iBabs
               iUabs = iI + nAes(iSymI)
               iVabs = iJ + nAes(iSymJ)
-              If (iUabs.eq.iVabs) Then
+              If (iUabs == iVabs) Then
                 !! For FIMO derivative
-                ONEADD = 0.0D+00
+                ONEADD = Zero
 C               IW1 = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
 C               Do iICB = 1, nIN
 C                 iV  = iICB + nIN*(iAabs-1)
 C                 ONEADD = ONEADD
 C    *          + Work(ipT+iV-1)*Work(LST+IW1-1+nAS*(iICB-1))
 C               End Do
-C               ONEADD = ONEADD*2.0D+00
+C               ONEADD = ONEADD*Two
                 iAS = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
-                ONEADD = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*2.0D+00
+                ONEADD = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*Two
                 DPT2C(iAtot+nOrbA*(iBtot-1))
      *            = DPT2C(iAtot+nOrbA*(iBtot-1)) + ONEADD
 C
                 !! For -sum(y)(ay,yt) -> (ay,ty) derivative
                 !! It is correct, but should be rewritten
-C               ONEADD = 0.0D+00
+C               ONEADD = Zero
 C               Do iXabs = 1, nAshI !?
 C                 IW1 = kTUV(iTabs,iXabs,iXabs) - nTUVes(iSym)
 C                 Do iICB = 1, nIN
@@ -545,14 +550,14 @@ C                   ONEADD = ONEADD
 C    *            + Work(ipT+iV-1)*Work(LST+IW1-1+nAS*(iICB-1))
 C                 End Do
 C               End Do
-C               ONEADD = 2.0D+00*ONEADD/DBLE(MAX(1,NACTEL))
-                ONEADD = 0.0D+00
+C               ONEADD = Two*ONEADD/DBLE(MAX(1,NACTEL))
+                ONEADD = Zero
                 Do iXabs = 1, nAshI !?
                   iAS = kTUV(iTabs,iXabs,iXabs) - nTUVes(iSym)
                   ONEADD = ONEADD
      &                   + GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))
                 End Do
-                ONEADD = 2.0D+00*ONEADD/DBLE(MAX(1,NACTEL))
+                ONEADD = Two*ONEADD/real(MAX(1,NACTEL),kind=wp)
                 AmpL1(iAtot-nCorA,iBtot-nCorA)
      *            = AmpL1(iAtot-nCorA,iBtot-nCorA) - ONEADD
               End If
@@ -563,7 +568,7 @@ C               ONEADD = 2.0D+00*ONEADD/DBLE(MAX(1,NACTEL))
             End Do
           End Do
 C
-          Call DScal_((nAshA+nSshA)*(nAshB+nSshB),Fac,AmpL1,1)
+          AmpL1(:,:) = AmpL1(:,:)*Fac
 C
           !! Calculate the actual contributions
           !! L_{pq} = sum_{j,ab} (pa|jb) * T_{qj}^{ab}
@@ -585,35 +590,30 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_D(AmpL1)
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      Dimension AmpL1(nAshA+nSshA,nAshB+nSshB)
+      real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
 C
-      If (nAshI.eq.0.or.nIshJ.eq.0.or.nSshA.eq.0.or.nAshB.eq.0) Return
+      if (nAshI*nIshJ*nSshA*nAshB == 0) return
 C
       ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
         iItot = iI + nCorI
-C       If (iSymI.eq.iSymJ) nJ = iI
+C       If (iSymI == iSymJ) nJ = iI
         Do iJ = 1, nIshJ
           iJabs = iJ + nIes(iSymJ)
           iJtot = iJ + nFroJ
-C         If (iIabs.lt.iJabs) Cycle
-          Fac = 1.0D+00
-C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
-          If (iSymI.ne.iSymJ) Fac = 2.0d+00
+C         If (iIabs < iJabs) Cycle
+          Fac = One
+C         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
+          If (iSymI /= iSymJ) Fac = Two
 C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nCorI,iJ+nFroJ,
      *              ERI1,Scr)
-C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
-C    *                iJ+nFroJ,iI+nFroI,
-C    *                ERI2,Scr)
-C         End If
 C
-          Call DCopy_((nAshA+nSshA)*(nAshB+nSshB),[0.0D+00],0,AmpL1,1)
+          AmpL1(:,:) = Zero
 C
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
@@ -628,8 +628,8 @@ C             iVa2  = iB + nAshB*(iI+nAes(iSymI)-1)+IOFF1(iSymB)
 C    *                   + nAshT*nAshT
 C             !! transform internally contracted (SR)
 C             !!        to contravariant (C)
-C             ValD1 = 0.0D+00
-C             ValD2 = 0.0D+00
+C             ValD1 = Zero
+C             ValD2 = Zero
 C             Do iICB = 1, nIN
 C               iVD   = iICB + nIN*(iVi-1)
 C               ValD1 = ValD1
@@ -637,16 +637,16 @@ C    *        + Work(ipT+iVD-1)*Work(LST+iVa1-1+nAS*(iICB-1))
 C               ValD2 = ValD2
 C    *        + Work(ipT+iVD-1)*Work(LST+iVa2-1+nAS*(iICB-1))
 C             End Do
-C             ValD1 = ValD1*2.0D+00
-C             ValD2 = ValD2*2.0D+00
+C             ValD1 = ValD1*Two
+C             ValD2 = ValD2*Two
               iIS = iJabs + nIshA*(iAabs-1)+iOFF1(iSymA)
               iAS = kTU(iB,iI)-nTUes(iSymA)
-              ValD1 = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*2.0D+00
+              ValD1 = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*Two
               iAS = iAS + nTU(iSymA)
-              ValD2 = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*2.0D+00
+              ValD2 = GA_Arrays(ipTC)%A(iAS+nAS*(iIS-1))*Two
 C
               !! Fock contributions from the inactive density
-              If (iItot.eq.iBtot) Then
+              If (iItot == iBtot) Then
                 DPT2C(iAtot+nOrbA*(iJtot-1))
      *            = DPT2C(iAtot+nOrbA*(iJtot-1)) + ValD1
               End If
@@ -656,7 +656,7 @@ C
             End Do
           End Do
 C
-          Call DScal_((nAshA+nSshA)*(nAshB+nSshB),Fac,AmpL1,1)
+          AmpL1(:,:) = AmpL1(:,:)*Fac
 C
           !! Calculate the actual contributions
           !! L_{pq} = sum_{j,ab} (pa|jb) * T_{qj}^{ab}
@@ -678,35 +678,30 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_E(AmpL1)
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      Dimension AmpL1(nAshA+nSshA,nAshB+nSshB)
+      real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
 C
-      If (nIshI.eq.0.or.nIshJ.eq.0.or.nSshA.eq.0.or.nAshB.eq.0) Return
+      if (nIshI*nIshJ*nSshA*nAshB == 0) return
 C
       nJ = nIshJ
       Do iI = 1, nIshI
         iIabs = iI + nIes(iSymI)
         ! iItot = iI
-        If (iSymI.eq.iSymJ) nJ = iI
+        If (iSymI == iSymJ) nJ = iI
         Do iJ = 1, nJ
           iJabs = iJ + nIes(iSymJ)
           ! iJtot = iJ
-          If (iIabs.lt.iJabs) Cycle
-          Fac = 1.0D+00
-C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
-          If (iSymI.ne.iSymJ) Fac = 2.0d+00
+          If (iIabs < iJabs) Cycle
+          Fac = One
+C         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
+          If (iSymI /= iSymJ) Fac = Two
 C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nFroI,iJ+nFroJ,
      *              ERI1,Scr)
-C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
-C    *                iJ+nFroJ,iI+nFroI,
-C    *                ERI2,Scr)
-C         End If
 C
-          Call DCopy_((nAshA+nSshA)*(nAshB+nSshB),[0.0D+00],0,AmpL1,1)
+          AmpL1(:,:) = Zero
 C
           IgeJ  = kIgeJ(iIabs,iJabs) - nIgeJes(iSym) ! iSymIJ
           IgtJ  = kIgtJ(iIabs,iJabs) - nIgtJes(iSym) ! iSymIJ
@@ -720,8 +715,8 @@ C
               iASP  = iBabs
               iISP  = iAabs + nSshA*(IgeJ-1)+iOFF1(iSymA)
               ValEP = GA_Arrays(ipTCP)%A(iASP+nASP*(iISP-1))
-              ValEM = 0.0D+00
-              If (iIabs.gt.iJabs) Then
+              ValEM = Zero
+              If (iIabs > iJabs) Then
                 ValEP = ValEP * SQ2
                 iASM  = iBabs
                 iISM  = iAabs + nSshA*(IgtJ-1)+iOFF1(iSymA)
@@ -735,7 +730,7 @@ C
             End Do
           End Do
 C
-          Call DScal_((nAshA+nSshA)*(nAshB+nSshB),Fac,AmpL1,1)
+          AmpL1(:,:) = AmpL1(:,:)*Fac
 C
           !! Calculate the actual contributions
           !! L_{pq} = sum_{j,ab} (pa|jb) * T_{qj}^{ab}
@@ -757,35 +752,30 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_F(AmpL1)
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      Dimension AmpL1(nSshA,nSshB)
+      real(kind=wp), intent(out) :: AmpL1(nSshA,nSshB)
 C
-      If (nAshI.eq.0.or.nAshJ.eq.0.or.nSshA.eq.0.or.nSshB.eq.0) Return
+      if (nAshI*nAshJ*nSshA*nSshB == 0) return
 C
       ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
         ! iItot = iI + nCorI
-C       If (iSymI.eq.iSymJ) nJ = iI
+C       If (iSymI == iSymJ) nJ = iI
         Do iJ = 1, nAshI
           iJabs = iJ + nIshJ + nIes(iSymJ)
           ! iJtot = iJ + nCorJ
-          If (iIabs.lt.iJabs) Cycle
-          Fac = 1.0D+00
-C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
-          If (iSymI.ne.iSymJ) Fac = 2.0d+00
+          If (iIabs < iJabs) Cycle
+          Fac = One
+C         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
+          If (iSymI /= iSymJ) Fac = Two
 C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nCorI,iJ+nCorJ,
      *              ERI1,Scr)
-C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
-C    *                iJ+nFroJ,iI+nFroI,
-C    *                ERI2,Scr)
-C         End If
 C
-          Call DCopy_(nSshA*nSshB,[0.0D+00],0,AmpL1,1)
+          AmpL1(:,:) = Zero
 C
           iTabs = iI + nAes(iSymI)
           iUabs = iJ + nAes(iSymJ)
@@ -794,16 +784,16 @@ C
             ! iAtot = iA + nIsh(iSymA) + nAsh(iSymA)
             Do iB = 1, nSshB
               iBabs = iB + nSes(iSymB)
-              If (iAabs.lt.iBabs) Cycle
+              If (iAabs < iBabs) Cycle
               ! iBtot = iB + nIsh(iSymB) + nAsh(iSymB)
 C
               iASP  = kTgeU(iTabs,iUabs)-nTgeUes(iSym)
               iISP  = kAgeB(iAabs,iBabs)-nAgeBes(iSym)
               ValFP = GA_Arrays(ipTCP)%A(iASP+nASP*(iISP-1))
-              If (iIabs.eq.iJabs) ValFP = ValFP*0.5D+00
-              ValFM = 0.0D+00
-              If (iAabs.ne.iBabs) Then
-                If (iTabs.ne.iUabs) Then
+              If (iIabs == iJabs) ValFP = ValFP*Half
+              ValFM = Zero
+              If (iAabs /= iBabs) Then
+                If (iTabs /= iUabs) Then
                   iASM  = kTgtU(iTabs,iUabs)-nTgtUes(iSym)
                   iISM  = kAgtB(iAabs,iBabs)-nAgtBes(iSym)
                   ValFM = GA_Arrays(ipTCM)%A(iASM+nASM*(iISM-1))
@@ -818,7 +808,7 @@ C
             End Do
           End Do
 C
-          Call DScal_(nSshA*nSshB,Fac,AmpL1,1)
+          AmpL1(:,:) = AmpL1(:,:)*Fac
 C
           !! Calculate the actual contributions
           !! L_{pq} = sum_{j,ab} (pa|jb) * T_{qj}^{ab}
@@ -839,51 +829,44 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_G(AmpL1)
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      Dimension AmpL1(nSshA,nSshB)
+      real(kind=wp), intent(out) :: AmpL1(nSshA,nSshB)
 C
-      If (nAshI.eq.0.or.nIshJ.eq.0.or.nSshA.eq.0.or.nSshB.eq.0) Return
+      if (nAshI*nIshJ*nSshA*nSshB == 0) return
 C
       ! nJ = nIshJ
       Do iI = 1, nAshI
         iIabs = iI + nIshI + nAes(iSymI)
         ! iItot = iI + nCorI
-C       If (iSymI.eq.iSymJ) nJ = iI
+C       If (iSymI == iSymJ) nJ = iI
         Do iJ = 1, nIshI
           iJabs = iJ + nIes(iSymJ)
           ! iJtot = iJ
-C         If (iIabs.lt.iJabs) Cycle
-          Fac = 1.0D+00
-C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
-          If (iSymI.ne.iSymJ) Fac = 2.0d+00
+C         If (iIabs < iJabs) Cycle
+          Fac = One
+C         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
+          If (iSymI /= iSymJ) Fac = Two
 C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nCorI,iJ+nFroJ,
      *              ERI1,Scr)
-C      write(6,*) "integral",ii+nfroi,ij+nfroj
-C      call sqprt(eri1,12)
-C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
-C    *                iJ+nFroJ,iI+nFroI,
-C    *                ERI2,Scr)
-C         End If
 C
-          Call DCopy_(nSshA*nSshB,[0.0D+00],0,AmpL1,1)
+          AmpL1(:,:) = Zero
 C
           Do iA = 1, nSshA
             iAabs = iA + nSes(iSymA)
             ! iAtot = iA + nIsh(iSymA) + nAsh(iSymA)
             Do iB = 1, nSshB
               iBabs = iB + nSes(iSymB)
-              If (iAabs.lt.iBabs) Cycle
+              If (iAabs < iBabs) Cycle
               ! iBtot = iB + nIsh(iSymB) + nAsh(iSymB)
 C
               iAgeB = kAgeB(iAabs,iBabs)-nAgeBes(iSym) !! iSymAB
               iVjP  = iJ + nIsh(iSymJ)*(iAgeB-1)+IOFF1(iSymJ)
               ValGP = GA_Arrays(ipTCP)%A(iI+nASP*(iVjP-1))
-              ValGM = 0.0D+00
-              If (iAabs.ne.iBabs) Then
+              ValGM = Zero
+              If (iAabs /= iBabs) Then
                 ValGP = ValGP * SQ2
                 iAgtB = kAgtB(iAabs,iBabs) - nAgtBes(iSym) !! iSymAB
                 iVjM  = iJ + nIsh(iSymJ)*(iAgtB-1)+IOFF2(iSymJ)
@@ -895,19 +878,19 @@ C
             End Do
           End Do
 C
-          Call DScal_(nSshA*nSshB,Fac,AmpL1,1)
+          AmpL1(:,:) = AmpL1(:,:)*Fac
 C
           !! Calculate the actual contributions
           !! L_{pq} = sum_{j,ab} (pa|jb) * T_{qj}^{ab}
           Call OLagNS_post1(2,2,ERI1,AmpL1)
 C         Call DGEMM_('N','T',nOrbA,nSshA,nSshB,
-C    *                1.0D+00,ERI1(1+nOrbA*nOccB),nOrbA,
+C    *                One,ERI1(1+nOrbA*nOccB),nOrbA,
 C    *                        AmpL1,nSshA,
-C    *                1.0D+00,OLAG(nOrbA*nOccB+1),nOrbA)
+C    *                One,OLAG(nOrbA*nOccB+1),nOrbA)
 C         Call DGEMM_('T','N',nOrbA,nSshA,nSshB,
-C    *                1.0D+00,ERI1(nOccA+1),nOrbA,
+C    *                One,ERI1(nOccA+1),nOrbA,
 C    *                        AmpL1,nSshA,
-C    *                1.0D+00,OLAG(nOrbA*nOccB+1),nOrbA)
+C    *                One,OLAG(nOrbA*nOccB+1),nOrbA)
 C
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
@@ -924,35 +907,30 @@ C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_H(AmpL1)
 C
-      Implicit Real*8 (A-H,O-Z)
+      implicit none
 C
-      Dimension AmpL1(nSshA,nSshB)
+      real(kind=wp), intent(out) :: AmpL1(nSshA,nSshB)
 C
-      If (nIshI.eq.0.or.nIshJ.eq.0.or.nSshA.eq.0.or.nSshB.eq.0) Return
+      if (nIshI*nIshJ*nSshA*nSshB == 0) return
 C
       nJ = nIshJ
       Do iI = 1, nIshI
         iIabs = iI + nIes(iSymI)
         ! iItot = iI
-        If (iSymI.eq.iSymJ) nJ = iI
+        If (iSymI == iSymJ) nJ = iI
         Do iJ = 1, nJ
           iJabs = iJ + nIes(iSymJ)
           ! iJtot = iJ
-          If (iIabs.lt.iJabs) Cycle
-          Fac = 1.0D+00
-C         If ((iI.ne.iJ).and.(iSymI.eq.iSymJ)) Fac = 2.0d+00
-          If (iSymI.ne.iSymJ) Fac = 2.0d+00
+          If (iIabs < iJabs) Cycle
+          Fac = One
+C         If ((iI /= iJ).and.(iSymI == iSymJ)) Fac = Two
+          If (iSymI /= iSymJ) Fac = Two
 C
           Call Exch(iSymA,iSymI,iSymB,iSymJ,
      *              iI+nFroI,iJ+nFroJ,
      *              ERI1,Scr)
-C         If ((iI.ne.iJ).or.(iSymI.ne.iSymJ)) then
-C           Call Exch(iSymA,iSymJ,iSymB,iSymI,
-C    *                iJ+nFroJ,iI+nFroI,
-C    *                ERI2,Scr)
-C         End If
 C
-          Call DCopy_(nSshA*nSshB,[0.0D+00],0,AmpL1,1)
+          AmpL1(:,:) = Zero
 C
           iViHP0= kIgeJ(iIabs,iJabs) - nIgeJes(iSym)
           iViHP = nAgeB(iSym)*(iViHP0-1)
@@ -963,24 +941,24 @@ C
             ! iAtot = iA + nIsh(iSymA) + nAsh(iSymA)
             Do iB = 1, nSshB
               iBabs = iB + nSes(iSymB)
-              If (iAabs.lt.iBabs) Cycle
+              If (iAabs < iBabs) Cycle
               ! iBtot = iB + nIsh(iSymB) + nAsh(iSymB)
               iVaHP = kAgeB(iAabs,iBabs) - nAgeBes(iSym)
               iVHP  = iVaHP + iViHP !! nAgeB(iSym)*(iViP-1)
 C
               ValHP = GA_Arrays(ipTCP)%A(iVHP)
-              ValHM = 0.0D+00
-              If (iIabs.ne.iJabs) Then
-                If (iAabs.ne.iBabs) Then
-                  ValHP = ValHP * 2.0D+00
+              ValHM = Zero
+              If (iIabs /= iJabs) Then
+                If (iAabs /= iBabs) Then
+                  ValHP = ValHP * Two
                   iVaHM = kAgtB(iAabs,iBabs) - nAgtBes(iSym)
                   iVHM  = iVaHM + iViHM !! nAgtB(iSym)*(iViM-1)
-                  ValHM = GA_Arrays(ipTCM)%A(iVHM) * 2.0D+00*SQ3
+                  ValHM = GA_Arrays(ipTCM)%A(iVHM) * Two*SQ3
                 Else
                   ValHP = ValHP * SQ2
                 End If
               Else
-                If (iAabs.ne.iBabs) ValHP = ValHP * SQ2
+                If (iAabs /= iBabs) ValHP = ValHP * SQ2
               End If
 C
 C     write(6,'(2i3,2f20.10)')ia,ib,valhp,valhm
@@ -989,32 +967,32 @@ C     write(6,'(2i3,2f20.10)')ia,ib,valhp,valhm
             End Do
           End Do
 C
-          Call DScal_(nSshA*nSshB,Fac,AmpL1,1)
+          AmpL1(:,:) = AmpL1(:,:)*Fac
 C
           !! Calculate the actual contributions
           !! L_{pq} = sum_{j,ab} (pa|jb) * T_{qj}^{ab}
           Call OLagNS_post1(2,2,ERI1,AmpL1)
 C         Call DGEMM_('N','T',nOrbA,nSshA,nSshB,
-C    *                1.0D+00,ERI1(1+nOrbA*nOccB),nOrbA,
+C    *                One,ERI1(1+nOrbA*nOccB),nOrbA,
 C    *                        AmpL1,nSshA,
-C    *                1.0D+00,OLAG(nOrbA*nOccB+1),nOrbA)
+C    *                One,OLAG(nOrbA*nOccB+1),nOrbA)
 C         Call DGEMM_('T','N',nOrbA,nSshA,nSshB,
-C    *                1.0D+00,ERI1(nOccA+1),nOrbA,
+C    *                One,ERI1(nOccA+1),nOrbA,
 C    *                        AmpL1,nSshA,
-C    *                1.0D+00,OLAG(nOrbA*nOccB+1),nOrbA)
+C    *                One,OLAG(nOrbA*nOccB+1),nOrbA)
 C
           !! Prepare for implicit (VV|VO) integrals
           !! T_{ij}^{ab} -> T_{ij}^{mu nu} back-transformation
           !! 1) T_{ij}^{ab} -> T_{ij}^{mu nu} for all ij
           Call OLagNS_post2(nSshA,nSshB,nOccA,nOccB,AmpL1,WRK2)
 C         Call DGEMM_('N','N',nBasT,nSshA,nSshB,
-C    *                1.0D+00,CMOPT2(1+nBasT*nOccB),nBasT,
+C    *                One,CMOPT2(1+nBasT*nOccB),nBasT,
 C    *                        AmpL1,nSshA,
-C    *                0.0D+00,WRK1,nBasT)
+C    *                Zero,WRK1,nBasT)
 C         Call DGEMM_('N','T',nBasT,nBasT,nSshB,
-C    *                1.0D+00,WRK1,nBasT,
+C    *                One,WRK1,nBasT,
 C    *                        CMOPT2(1+nBasT*nOccA),nBasT,
-C    *                0.0D+00,WRK2,nBasT)
+C    *                Zero,WRK2,nBasT)
           !! Reorder T_{ij}^{rho sigma} to T2AO(j,sigma,i,rho)
           Call OLagNS_post3(iIabs,iJabs,T2AO,WRK2)
 C         Do iBas = 1, nBasT
@@ -1037,75 +1015,85 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_post1(iLeft,iRight,ERI,AmpMO)
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-      Dimension ERI(*),AmpMO(*)
+
+      implicit none
+
+      integer(kind=iwp), intent(in) :: iLeft, iRight
+      real(kind=wp), intent(in) :: ERI(*), AmpMO(*)
+
+      integer(kind=iwp) :: nSkpA, nSkpB, nDimA, nDimB
 C
       nSkpA = 0
       nSkpB = 0
       nDimA = 0
       nDimB = 0
-      If (iLeft .eq.1) Then
+      If (iLeft == 1) Then
         nDimA = nAshA
         nSkpA = nCorA
-      Else If (iLeft.eq.2) Then
+      Else If (iLeft == 2) Then
         nDimA = nSshA
         nSkpA = nOccA
-      Else If (iLeft.eq.3) Then
+      Else If (iLeft == 3) Then
         nDimA = nAshA+nSshA
         nSkpA = nCorA
       End If
-      If (iRight.eq.1) Then
+      If (iRight == 1) Then
         nDimB = nAshB
         nSkpB = nCorB
-      Else If (iRight.eq.2) Then
+      Else If (iRight == 2) Then
         nDimB = nSshB
         nSkpB = nOccB
-      Else If (iRight.eq.3) Then
+      Else If (iRight == 3) Then
         nDimB = nAshB+nSshB
         nSkpB = nCorB
       End If
 C
       Call DGEMM_('N','T',nOrbA,nDimA,nDimB,
-     *            1.0D+00,ERI(1+nOrbA*nSkpB),nOrbA,
-     *                    AmpMO,nDimA,
-     *            1.0D+00,OLAG(nOrbA*nSkpB+1),nOrbA)
+     *            One,ERI(1+nOrbA*nSkpB),nOrbA,
+     *                AmpMO,nDimA,
+     *            One,OLAG(nOrbA*nSkpB+1),nOrbA)
       Call DGEMM_('T','N',nOrbA,nDimA,nDimB,
-     *            1.0D+00,ERI(nSkpA+1),nOrbA,
-     *                    AmpMO,nDimA,
-     *            1.0D+00,OLAG(nOrbA*nSkpB+1),nOrbA)
+     *            One,ERI(nSkpA+1),nOrbA,
+     *                AmpMO,nDimA,
+     *            One,OLAG(nOrbA*nSkpB+1),nOrbA)
 C
       End Subroutine OLagNS_post1
 C
 C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_post2(nDimA,nDimB,nSkpA,nSkpB,AmpMO,AmpAO)
-C
+
       use caspt2_global, only: CMOPT2
-      Implicit Real*8 (A-H,O-Z)
-C
-      Dimension AmpMO(nDimA,nDimB),AmpAO(nBasA,nBasB)
-C
+
+      implicit none
+
+      integer(kind=iwp), intent(in) :: nDimA, nDimB, nSkpA, nSkpB
+      real(kind=wp), intent(in) :: AmpMO(nDimA,nDimB)
+      real(kind=wp), intent(out) :: AmpAO(nBasA,nBasB)
+
        Call DGEMM_('N','N',nBasA,nDimB,nDimA,
-     *             1.0D+00,CMOPT2(1+nBasA*nSkpA),nBasA,
-     *                     AmpMO,nDimA,
-     *             0.0D+00,WRK1,nBasA)
+     *             One,CMOPT2(1+nBasA*nSkpA),nBasA,
+     *                 AmpMO,nDimA,
+     *             Zero,WRK1,nBasA)
        Call DGEMM_('N','T',nBasA,nBasB,nDimB,
-     *             1.0D+00,WRK1,nBasA,
-     *                     CMOPT2(1+nBasB*nSkpB),nBasA,
-     *             0.0D+00,AmpAO,nBasA)
-C
+     *             One,WRK1,nBasA,
+     *                 CMOPT2(1+nBasB*nSkpB),nBasA,
+     *             Zero,AmpAO,nBasA)
+
       End Subroutine OLagNS_post2
 C
 C-----------------------------------------------------------------------
 C
       Subroutine OLagNS_post3(iIabs,iJabs,TampAO,TampIJ)
-C
-      Implicit Real*8 (A-H,O-Z)
-C
-      Dimension TampAO(nOccA2,nBasI,nOccB2,nBasJ),TampIJ(nBasI,nBasJ)
-C
+
+      implicit none
+
+      integer(kind=iwp), intent(in) :: iIabs, iJabs
+      real(kind=wp), intent(inout) :: TampAO(nOccA2,nBasI,nOccB2,nBasJ)
+      real(kind=wp), intent(in) :: TampIJ(nBasI,nBasJ)
+
+      integer(kind=iwp) :: iBas, jBas
+
       Do iBas = 1, nBasI
         Do jBas = 1, nBasJ
           TampAO(iJabs,jBas,iIabs,iBas)
@@ -1114,19 +1102,7 @@ C
      *      = TampAO(iIabs,jBas,iJabs,iBas) + TampIJ(jBas,iBas)
         End Do
       End Do
-C     Do iBas = 1, nBasT
-C       Do jBas = 1, nBasT
-C         loc1 = iJ-1 + (jBas-1)*nOccA2
-C    *         + (iI-1)*nOccA2*nBasT + (iBas-1)*nOccA2*nBasT*nOccA2
-C         loc2 = iI-1 + (jBas-1)*nOccA2
-C    *         + (iJ-1)*nOccA2*nBasT + (iBas-1)*nOccA2*nBasT*nOccA2
-C         loc3 = iBas-1 + (jBas-1)*nBasT
-C         loc4 = jBas-1 + (iBas-1)*nBasT
-C         T2AO(1+loc1) = T2AO(1+loc1) + WRK2(1+loc3)
-C         T2AO(1+loc2) = T2AO(1+loc2) + WRK2(1+loc4)
-C       End Do
-C     End Do
-C
+
       End Subroutine OLagNS_post3
 C
       END SUBROUTINE OLagNS_Hel2
@@ -1135,12 +1111,22 @@ C-----------------------------------------------------------------------
 C
 ! MO->AO or AO->MO transformation of 1-RDM
       Subroutine OLagTrf(mode,iSym,CMO,DPT2,DPT2AO,WRK)
-C
-      use caspt2_module
-      Implicit Real*8 (A-H,O-Z)
-C
-      Dimension CMO(*),DPT2(*),DPT2AO(*),WRK(*)
-C
+
+      use caspt2_module, only: NFRO, NORB, NDEL, NBAS
+      use Constants, only: Zero, One, Half
+      use definitions, only: wp, iwp
+
+      implicit none
+
+      integer(kind=iwp), intent(in) :: mode, iSym
+      real(kind=wp), intent(in) :: CMO(*)
+      real(kind=wp), intent(inout) :: DPT2(*), DPT2AO(*)
+      real(kind=wp), intent(out) :: WRK(*)
+
+      real(kind=wp) :: Val
+      integer(kind=iwp) :: iCMO, iAO, iMO, jSym, nBasI, nOrbI, iBas,
+     &  jBas
+
       !! Mode = 1: MO -> AO transformation
       !! Mode = 2: AO -> MO transformation
       iCMO =1
@@ -1152,34 +1138,34 @@ C
         iMO  = iMO  + (nOrb(jSym)+nFro(jSym))**2
       End Do
 C
-      If (nOrb(iSym)+nFro(iSym).GT.0) Then
+      If (nOrb(iSym)+nFro(iSym) > 0) Then
         nBasI = nBas(iSym)
         nOrbI = nBas(iSym)-nDel(iSym)
-        If (Mode.eq.1) Then
+        If (Mode == 1) Then
           !! MO -> AO
           CALL DGEMM_('N','N',nBasI,nOrbI,nOrbI,
-     *                1.0D+00,CMO(iCMO),nBasI,DPT2(iMO),nOrbI,
-     *                0.0D+00,WRK,nBasI)
+     *                One,CMO(iCMO),nBasI,DPT2(iMO),nOrbI,
+     *                Zero,WRK,nBasI)
           CALL DGEMM_('N','T',nBasI,nBasI,nOrbI,
-     *                1.0D+00,WRK,nBasI,CMO(iCMO),nBasI,
-     *                0.0D+00,DPT2AO(iAO),nBasI)
+     *                One,WRK,nBasI,CMO(iCMO),nBasI,
+     *                Zero,DPT2AO(iAO),nBasI)
           !! Symmetrize, just in case
           Do iBas = 1, nBasI
             Do jBas = 1, iBas-1
               Val =(DPT2AO(iAO+iBas-1+nBasI*(jBas-1))
-     *            + DPT2AO(iAO+jBas-1+nBasI*(iBas-1)))*0.5D+00
+     *            + DPT2AO(iAO+jBas-1+nBasI*(iBas-1)))*Half
               DPT2AO(iAO+iBas-1+nBasI*(jBas-1)) = Val
               DPT2AO(iAO+jBas-1+nBasI*(iBas-1)) = Val
             End Do
           End Do
-        Else If (Mode.eq.2) Then
+        Else If (Mode == 2) Then
           !! AO -> MO
           CALL DGEMM_('T','N',nOrbI,nBasI,nBasI,
-     *                1.0D+00,CMO(iCMO),nBasI,DPT2AO(iAO),nBasI,
-     *                0.0D+00,WRK,nOrbI)
+     *                One,CMO(iCMO),nBasI,DPT2AO(iAO),nBasI,
+     *                Zero,WRK,nOrbI)
           CALL DGEMM_('N','N',nOrbI,nOrbI,nBasI,
-     *                1.0D+00,WRK,nOrbI,CMO(iCMO),nBasI,
-     *                0.0D+00,DPT2(iMO),nOrbI)
+     *                One,WRK,nOrbI,CMO(iCMO),nBasI,
+     *                Zero,DPT2(iMO),nOrbI)
         End If
       END IF
 C
