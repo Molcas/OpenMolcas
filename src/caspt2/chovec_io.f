@@ -214,8 +214,6 @@ C as this is how they are used to compute the integrals for RHS.
 * Write Cholesky vectors to disk.
 ************************************************************************
       use caspt2_global, only: LUDRA
-      use ChoCASPT2
-      use caspt2_module
 #ifdef _DEBUGPRINT_
       use definitions, only: u6
 #endif
