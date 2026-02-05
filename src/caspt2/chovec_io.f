@@ -11,6 +11,7 @@
 * Copyright (C) Steven Vancoillie                                      *
 ************************************************************************
       MODULE CHOVEC_IO
+      use definitions, only: iwp, wp
 C SVC: subroutines to read/write transformed cholesky vectors from/to
 C disk. These are used in tracho (where they are written) and in rhsod
 C (where they are read into a global array).
@@ -59,16 +60,16 @@ C as this is how they are used to compute the integrals for RHS.
       ! The cholesky vectors can be collected together on disk from
       ! different processes. The combined sizes are stored in separate
       ! arrays.
-      INTEGER, ALLOCATABLE, SAVE :: NVGLB_CHOBATCH(:)
-      INTEGER, ALLOCATABLE, SAVE :: IDGLB_CHOGROUP(:,:,:,:)
+      INTEGER(KIND=IWP), ALLOCATABLE, SAVE :: NVGLB_CHOBATCH(:)
+      INTEGER(KIND=IWP), ALLOCATABLE, SAVE :: IDGLB_CHOGROUP(:,:,:,:)
 
       ! total amount of cholesky vectors in a certain symmetry
-      INTEGER, SAVE :: NVTOT_CHOSYM(8)
+      INTEGER(KIND=IWP), SAVE :: NVTOT_CHOSYM(8)
 
       CONTAINS
 
 ************************************************************************
-      INTEGER FUNCTION NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
+      INTEGER(KIND=IWP) FUNCTION NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
 ************************************************************************
 * Compute the number of orbital pairs for a given case (valid pair of
 * inactive,active,secondary), total symmetry JSYM and component symmetry
@@ -79,8 +80,8 @@ C as this is how they are used to compute the integrals for RHS.
       use caspt2_module, only: Mul, nAsh, nIsh, nSSh
       IMPLICIT NONE
 
-      INTEGER :: ICASE,ISYQ,JSYM
-      INTEGER :: ISYP,NP,NQ
+      INTEGER(KIND=IWP) :: ICASE,ISYQ,JSYM
+      INTEGER(KIND=IWP) :: ISYP,NP,NQ
 
       ISYP=MUL(ISYQ,JSYM)
       SELECT CASE(ICASE)
@@ -113,9 +114,9 @@ C as this is how they are used to compute the integrals for RHS.
       use caspt2_module, only: nSym, Mul
       IMPLICIT NONE
 
-      INTEGER :: ICASE,NCHOBUF,IOFF(8,8)
-      INTEGER :: ISYK,ISYQ,JSYM
-      INTEGER :: NPQ,NVTOT
+      INTEGER(KIND=IWP) :: ICASE,NCHOBUF,IOFF(8,8)
+      INTEGER(KIND=IWP) :: ISYK,ISYQ,JSYM
+      INTEGER(KIND=IWP) :: NPQ,NVTOT
 
       NCHOBUF=0
       DO JSYM=1,NSYM
@@ -148,13 +149,13 @@ C as this is how they are used to compute the integrals for RHS.
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER, INTENT(IN):: ICASE, nCHOBUF
+      INTEGER(KIND=IWP), INTENT(IN):: ICASE, nCHOBUF
       REAL*8, INTENT(OUT):: CHOBUF(nCHOBUF)
 
-      INTEGER :: I,J,IOFF,IDISK
-      INTEGER :: IB,IBSTA,IBEND,IBOFF
-      INTEGER :: JSYM,ISYQ
-      INTEGER :: NBUF,NPQ,NV,NVTOT
+      INTEGER(KIND=IWP) :: I,J,IOFF,IDISK
+      INTEGER(KIND=IWP) :: IB,IBSTA,IBEND,IBOFF
+      INTEGER(KIND=IWP) :: JSYM,ISYQ
+      INTEGER(KIND=IWP) :: NBUF,NPQ,NV,NVTOT
       REAL*8, ALLOCATABLE:: BUF(:)
 
       IOFF=0
@@ -212,7 +213,7 @@ C as this is how they are used to compute the integrals for RHS.
       use caspt2_module
       Implicit real*8 (a-h,o-z)
 #include "warnings.h"
-      DIMENSION CHOBUF(*)
+      REAL(KIND=WP) CHOBUF(*)
 
 C always write the chunks to LUDRA, both for serial and parallel
       NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
@@ -242,7 +243,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       use caspt2_module
       Implicit real*8 (a-h,o-z)
 #include "warnings.h"
-      DIMENSION CHOBUF(*)
+      REAL(KIND=WP) CHOBUF(*)
 
 C always write the chunks to LUDRA, both for serial and parallel
       NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
@@ -279,8 +280,8 @@ C always write the chunks to LUDRA, both for serial and parallel
 #endif
       IMPLICIT NONE
 #include "warnings.h"
-      REAL*8 :: CHOBUF(*)
-      INTEGER :: ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP) :: CHOBUF(*)
+      INTEGER(KIND=IWP) :: ICASE,ISYQ,JSYM,IB
 
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
@@ -289,11 +290,11 @@ C always write the chunks to LUDRA, both for serial and parallel
       integer(kind=MPIInt), PARAMETER :: ONE4 = 1
       INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
       INTEGER(kind=MPIInt), ALLOCATABLE:: DISP(:), SIZE(:)
-      REAL*8, ALLOCATABLE:: TRANSP(:), RECVBUF(:)
+      REAL(KIND=WP), ALLOCATABLE:: TRANSP(:), RECVBUF(:)
 #ifdef _DEBUGPRINT_
-      INTEGER :: MY_N,NOFF
-      REAL*8 :: SQFP
-      REAL*8, EXTERNAL :: DDOT_
+      INTEGER(KIND=IWP) :: MY_N,NOFF
+      REAL(KIND=WP) :: SQFP
+      REAL(KIND=WP), EXTERNAL :: DDOT_
 #endif
 #endif
 
@@ -379,8 +380,8 @@ C Avoid unused argument warnings
       USE MPI
       use definitions, only: MPIInt
       IMPLICIT NONE
-      REAL*8 SENDBUF(*), RCVBUF(*)
-      INTEGER NSEND
+      REAL(KIND=WP) SENDBUF(*), RCVBUF(*)
+      INTEGER(KIND=IWP) NSEND
 
       integer(kind=MPIInt) :: MPITYPES, MPITYPER, MPICOMM
       integer(kind=MPIInt) :: NRCV(*), NOFF(*)
@@ -389,11 +390,11 @@ C Avoid unused argument warnings
       integer(kind=MPIInt) :: NSEND4
       integer(kind=MPIInt),ALLOCATABLE :: NRCV4(:),NOFF4(:)
       integer(kind=MPIInt) :: IERROR4
-      INTEGER, PARAMETER :: I4=KIND(NSEND4)
+      INTEGER(KIND=IWP), PARAMETER :: I4=KIND(NSEND4)
 
-      INTEGER :: I, IERROR
+      INTEGER(KIND=IWP) :: I, IERROR
 #ifdef _I8_
-      INTEGER :: NRCVTOT
+      INTEGER(KIND=IWP) :: NRCVTOT
 #endif
 
       CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NPROCS,IERROR4)
