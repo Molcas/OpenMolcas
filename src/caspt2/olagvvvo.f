@@ -31,13 +31,15 @@ C
 C
       integer(kind=iwp), intent(in) :: iSym, MaxVec_PT2
       real(kind=wp), intent(in) :: DPT2AO(*), DPT2CAO(*), T2AO(*),
-     &  DIA(*), DI(*), FIFA(*), FIMO(*)
-      real(kind=wp), intent(inout) :: FPT2AO(*), FPT2CAO(*), A_PT2(*)
+     &  DIA(*), DI(*)
+      real(kind=wp), intent(inout) :: FPT2AO(*), FPT2CAO(*), A_PT2(*),
+     &  FIFA(*), FIMO(*)
 C
       character(len=4096) :: RealName
       logical(kind=iwp) :: DoRys, DoCholesky, is_error, Square
-      real(kind=wp), allocatable :: T_hbf(:,:,:,:), iOffAO(:), vLag(:),
-     &                              WRK1(:), WRK2(:)
+      real(kind=wp), allocatable :: T_hbf(:,:,:,:), vLag(:), WRK1(:),
+     &                              WRK2(:)
+      integer(kind=iwp), allocatable :: iOffAO(:)
       integer(kind=iwp) :: nBasX(8), KEEP(8), IRC, nSymX, id, lRealName,
      &  iost, iSymI, iSymJ, iSymA, iSymB, nocc, i, nSSDM, nDiff, nSkal,
      &  MaxShlAO, iSh, nBasI, jSh, nBasJ, iBas0, iBas, jBas0, jBas,
@@ -378,9 +380,9 @@ C
       integer(kind=iwp), intent(in) :: NSYM, NBAS(8), NFRO(8), KEEP(8),
      &  iSymI, iSymJ, iSymK, iSymL, nOcc, nBasT, LBUF
       real(kind=wp), intent(in) :: T2AO(nOcc,nBasT,nOcc,nBasT),
-     &  CMO(nBasT,*), DPT2AO(*), DPT2CAO(*)
+     &  CMO(nBasT,*), DPT2AO(*), DPT2CAO(*), DIA(*), DI(*)
       real(kind=wp), intent(inout) :: vLag(nBasT,*), X1(*), X2(*),
-     &  WRK(*), FPT2AO(*), FPT2CAO(*), DIA(*), DI(*), FIFA(*), FIMO(*)
+     &  WRK(*), FPT2AO(*), FPT2CAO(*), FIFA(*), FIMO(*)
 
       integer(kind=iwp) ::ISTLT(8), ISTSQ(8), iSym, nB, nB2, nB3, nFroT,
      &  nBasI, KEEPI, nBasJ, KEEPJ, iSymIJ, nBasIJ, nBasK, KEEPK, iSMax,
