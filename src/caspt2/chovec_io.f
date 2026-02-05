@@ -69,7 +69,7 @@ C as this is how they are used to compute the integrals for RHS.
       CONTAINS
 
 ************************************************************************
-      INTEGER(KIND=IWP) FUNCTION NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
+      FUNCTION NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
 ************************************************************************
 * Compute the number of orbital pairs for a given case (valid pair of
 * inactive,active,secondary), total symmetry JSYM and component symmetry
@@ -80,7 +80,10 @@ C as this is how they are used to compute the integrals for RHS.
       use caspt2_module, only: Mul, nAsh, nIsh, nSSh
       IMPLICIT NONE
 
-      INTEGER(KIND=IWP) :: ICASE,ISYQ,JSYM
+      INTEGER(KIND=IWP) NPQ_CHOTYPE
+
+      INTEGER(KIND=IWP), INTENT(IN) :: ICASE,ISYQ,JSYM
+
       INTEGER(KIND=IWP) :: ISYP,NP,NQ
 
       ISYP=MUL(ISYQ,JSYM)
@@ -114,7 +117,9 @@ C as this is how they are used to compute the integrals for RHS.
       use caspt2_module, only: nSym, Mul
       IMPLICIT NONE
 
-      INTEGER(KIND=IWP) :: ICASE,NCHOBUF,IOFF(8,8)
+      INTEGER(KIND=IWP), INTENT(IN) :: ICASE
+      INTEGER(KIND=IWP), INTENT(OUT) :: NCHOBUF,IOFF(8,8)
+
       INTEGER(KIND=IWP) :: ISYK,ISYQ,JSYM
       INTEGER(KIND=IWP) :: NPQ,NVTOT
 
@@ -211,9 +216,20 @@ C as this is how they are used to compute the integrals for RHS.
       use caspt2_global, only: LUDRA
       use ChoCASPT2
       use caspt2_module
-      Implicit real*8 (a-h,o-z)
+#ifdef _DEBUGPRINT_
+      use definitions, only: u6
+#endif
+      IMPLICIT NONE
 #include "warnings.h"
-      REAL(KIND=WP) CHOBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(IN):: CHOBUF(*)
+
+      INTEGER(KIND=IWP) NPQ, JNUM, IDISK
+#ifdef _DEBUGPRINT_
+      INTEGER(KIND=IWP) NBUF
+      REAL(KIND=WP) SQFP
+      REAL(KIND=WP), EXTERNAL:: DNRM2_
+#endif
 
 C always write the chunks to LUDRA, both for serial and parallel
       NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
@@ -224,7 +240,7 @@ C always write the chunks to LUDRA, both for serial and parallel
 #ifdef _DEBUGPRINT_
       NBUF=NPQ*JNUM
       SQFP = DNRM2_(NBUF,CHOBUF,1)
-      WRITE(6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
+      WRITE(u6,'(1X,A,I9,A,A,I2,A,A,I2,A,A,I2,A,A,F21.14)')
      &  'BATCH ',IB,   ', ',
      &  'CASE ' ,ICASE,', ',
      &  'ISYQ ' ,ISYQ, ', ',
