@@ -18,6 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE COMMWEW(IVEC,JVEC,DCOM)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One, Two
       USE SUPERINDEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: LUSBT
@@ -62,8 +63,8 @@ C Allocate overlap matrix:
           CALL DDAFILE(LUSBT,2,SMAT,NS,IDS)
 C Compute TBLK as the covariant representation of vector JVEC, by multiplying
 C with the overlap matrix. Then get rid of the overlap matrix.
-          CALL DCOPY_(NCBLK,[0.0D0],0,TBLK,1)
-          CALL TRIMUL(NAS,NIS,1.0D00,SMAT,CBLK,NAS,TBLK,NAS)
+          CALL DCOPY_(NCBLK,[Zero],0,TBLK,1)
+          CALL TRIMUL(NAS,NIS,One,SMAT,CBLK,NAS,TBLK,NAS)
           CALL MMA_DEALLOCATE(SMAT)
 C Finally, if IVEC not equals JVEC, read in the contravariant block of vector
 C IVEC into CBLK:
@@ -84,7 +85,7 @@ C Case 1 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
+            SUM=Zero
             ISYMTU=MUL(ISYMX,ISYM)
             DO ITABS=1,NASHT
               ISYMT=IASYM(ITABS)
@@ -125,7 +126,7 @@ C Case 2 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
+            SUM=Zero
             ISYMT=MUL(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
@@ -139,12 +140,12 @@ C Case 2 code section:
               ELSE
                 IYT=KTGEU(IYABS,ITABS)-NTGEUES(ISYM)
               END IF
-              PARTSUM=0.0d0
+              PARTSUM=Zero
               DO IIS=1,NIS
                 PARTSUM=PARTSUM+CBLK(IXT+NAS*(IIS-1))
      &                               *TBLK(IYT+NAS*(IIS-1))
               END DO
-              IF(ITABS.EQ.IXABS) PARTSUM=2.0D0*PARTSUM
+              IF(ITABS.EQ.IXABS) PARTSUM=Two*PARTSUM
               SUM=SUM+PARTSUM
             END DO
             DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
@@ -162,7 +163,7 @@ C Case 3 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
+            SUM=Zero
             ISYMT=MUL(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
@@ -170,10 +171,10 @@ C Case 3 code section:
               IF(ITABS.EQ.IYABS) CYCLE
               IF(ITABS.GT.IXABS) THEN
                 IXT=KTGTU(ITABS,IXABS)-NTGTUES(ISYM)
-                SGN=1.0d0
+                SGN=One
               ELSE
                 IXT=KTGTU(IXABS,ITABS)-NTGTUES(ISYM)
-                SGN=-1.0d0
+                SGN=-One
               END IF
               IF(ITABS.GT.IYABS) THEN
                 IYT=KTGTU(ITABS,IYABS)-NTGTUES(ISYM)
@@ -181,7 +182,7 @@ C Case 3 code section:
                 IYT=KTGTU(IYABS,ITABS)-NTGTUES(ISYM)
                 SGN=-SGN
               END IF
-              PARTSUM=0.0d0
+              PARTSUM=Zero
               DO IIS=1,NIS
                 PARTSUM=PARTSUM+CBLK(IXT+NAS*(IIS-1))
      &                                *TBLK(IYT+NAS*(IIS-1))
@@ -206,7 +207,7 @@ C Case 4 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
+            SUM=Zero
             ISYMTU=MUL(ISYMX,ISYM)
             DO ITABS=1,NASHT
               ISYMT=IASYM(ITABS)
@@ -249,7 +250,7 @@ C Case 5 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
+            SUM=Zero
             ISYMT=MUL(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
@@ -286,7 +287,7 @@ C Case 6 code section:
         DO IY=1,NAX
           IYABS=NAES(ISYM)+IY
 
-          SUM=0.0D0
+          SUM=Zero
           DO IIS=1,NIS
             SUM=SUM+CBLK(IX+NAS*(IIS-1))
      &                      *TBLK(IY+NAS*(IIS-1))
@@ -304,7 +305,7 @@ C Case 7 code section:
         DO IY=1,NAX
           IYABS=NAES(ISYM)+IY
 
-          SUM=0.0D0
+          SUM=Zero
           DO IIS=1,NIS
             SUM=SUM+CBLK(IX+NAS*(IIS-1))
      &                   *TBLK(IY+NAS*(IIS-1))
@@ -323,7 +324,7 @@ C Case 8 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
+            SUM=Zero
             ISYMT=MUL(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
@@ -337,12 +338,12 @@ C Case 8 code section:
               ELSE
                 IYT=KTGEU(IYABS,ITABS)-NTGEUES(ISYM)
               END IF
-              PARTSUM=0.0d0
+              PARTSUM=Zero
               DO IIS=1,NIS
                 PARTSUM=PARTSUM-CBLK(IYT+NAS*(IIS-1))
      &                       *TBLK(IXT+NAS*(IIS-1))
               END DO
-              IF(ITABS.EQ.IYABS) PARTSUM=2.0D0*PARTSUM
+              IF(ITABS.EQ.IYABS) PARTSUM=Two*PARTSUM
               SUM=SUM+PARTSUM
 
             END DO
@@ -361,7 +362,7 @@ C Case 9 code section:
           DO IY=1,NAX
             IYABS=NAES(ISYMX)+IY
 
-            SUM=0.0D0
+            SUM=Zero
             ISYMT=MUL(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
@@ -369,10 +370,10 @@ C Case 9 code section:
               IF(ITABS.EQ.IYABS) CYCLE
               IF(ITABS.GT.IXABS) THEN
                 IXT=KTGTU(ITABS,IXABS)-NTGTUES(ISYM)
-                SGN=1.0d0
+                SGN=One
               ELSE
                 IXT=KTGTU(IXABS,ITABS)-NTGTUES(ISYM)
-                SGN=-1.0d0
+                SGN=-One
               END IF
               IF(ITABS.GT.IYABS) THEN
                 IYT=KTGTU(ITABS,IYABS)-NTGTUES(ISYM)
@@ -380,7 +381,7 @@ C Case 9 code section:
                 IYT=KTGTU(IYABS,ITABS)-NTGTUES(ISYM)
                 SGN=-SGN
               END IF
-              PARTSUM=0.0d0
+              PARTSUM=Zero
               DO IIS=1,NIS
                 PARTSUM=PARTSUM-CBLK(IYT+NAS*(IIS-1))
      &                               *TBLK(IXT+NAS*(IIS-1))
@@ -402,7 +403,7 @@ C Case 10 code section:
         DO IY=1,NAX
           IYABS=NAES(ISYM)+IY
 
-          SUM=0.0D0
+          SUM=Zero
           DO IIS=1,NIS
             SUM=SUM-CBLK(IY+NAS*(IIS-1))
      &                   *TBLK(IX+NAS*(IIS-1))
@@ -420,7 +421,7 @@ C Case 11 code section:
         DO IY=1,NAX
           IYABS=NAES(ISYM)+IY
 
-          SUM=0.0D0
+          SUM=Zero
           DO IIS=1,NIS
             SUM=SUM-CBLK(IY+NAS*(IIS-1))
      &                   *TBLK(IX+NAS*(IIS-1))
