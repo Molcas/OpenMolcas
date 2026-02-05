@@ -142,7 +142,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
 
 C Sketch of procedure:
-C  HEL=0.0D0
 C  Loop over every (case/symmetry)-block.
 C           If (No such vector block) Skip to end of loop
 C           Allocate two places for this block, VEC1 and VEC2
@@ -840,7 +839,7 @@ C But what is really available?
       NVECS=NTG3WRK/MXCI
       NTG3WRK=NVECS*MXCI
 C Find optimal subdivision of available vectors:
-      NYZBUF=NINT(DBLE(NVECS-1)/DBLE(NASHT))
+      NYZBUF=NINT(real(NVECS-1,kind=wp)/real(NASHT,kind=wp),kind=iwp)
       NYZBUF=MAX(1,NYZBUF)
       NTUBUF=MIN(NASHT**2,NVECS-1-NYZBUF)
       NYZBUF=NVECS-1-NTUBUF

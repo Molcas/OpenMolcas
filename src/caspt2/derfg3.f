@@ -356,7 +356,7 @@ C-is basically the number of buffers we fill with sigma1 vectors.
         ENDIF
       ENDDO
       nTasks=iTask
-C     write(6,*) "nTasks = ", nTasks
+C     write(u6,*) "nTasks = ", nTasks
       IF (ibuf1 == 0) nTasks=nTasks-1
 C-SVC20100309: calculate number of inner loop iteration tasks.
       iOffSet=0
@@ -367,9 +367,9 @@ C-SVC20100309: calculate number of inner loop iteration tasks.
         ip3mx=ntri2
         if(ip1end <= ntri2) ip3mx=ip1end
         if(ip1sta > ntri2) ip3mx=ntri1
-C       write(6,*) "iTask = ", iTask
-C       write(6,*) "start,end=",ip1sta,ip1end
-C       write(6,*) "ip3mx = ", ip3mx
+C       write(u6,*) "iTask = ", iTask
+C       write(u6,*) "start,end=",ip1sta,ip1end
+C       write(u6,*) "ip3mx = ", ip3mx
 C-SVC20100309: Currently -we are going to limit this to the ip3-loop and
 C-leave the ip2-loop intact.  This was based on the large overhead which
 C-was observed for a very large number of small tasks.
@@ -377,7 +377,7 @@ C       iOffSet=iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
         iOffSet=iOffSet+ip3mx
       ENDDO
       nSubTasks=iOffSet
-C     write(6,*) "nSubTasks = ", nSubTasks
+C     write(u6,*) "nSubTasks = ", nSubTasks
 
       IF(iPrGlb >= VERBOSE) THEN
         WRITE(u6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
@@ -419,7 +419,7 @@ C-SVC20100908: first check: can I actually do any task?
 C     IF ((NG3-iG3OFF) < nbuf1*ntri2) GOTO 501
 C-SVC20100831: initialize counter for offset into G3
 C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
-C     write(6,*) rsv_tsk(id,isubtask)
+C     write(u6,*) rsv_tsk(id,isubtask)
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
           !! do the same tasks here and in mkfg3.f
@@ -454,7 +454,7 @@ C-a loop over ip2 values is then executed.
 C-SVC20100301: fill the buffer with sigma vectors if they
 C-have not been computed yet, else just get the number of
 C-sigma vectors in the buffer.
-C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
+C     write(u6,*) "myBuffer,iTask = ", myBuffer,iTask
         IF (myBuffer /= iTask) THEN
           if (.not.first) then
             !! Compute left derivative and DEPSA contributions before
@@ -491,14 +491,14 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
         if (issg1 == STSYM .AND. ip3 == 1) then
           !! buf1 = <Psi0|E_ip1|I>
           !! <0|E_{tu}I> = <I|E_{ut}|0>
-C         write(6,*) "ib loop"
+C         write(u6,*) "ib loop"
           do ib=1,ibuf1
             idx=ip1_buf(ib)
             itlev=idx2ij(1,idx)
             iulev=idx2ij(2,idx)
             it=L2ACT(itlev)
             iu=L2ACT(iulev)
-C           write(6,'("itlev,iulev,it,iu = ",4i3)') itlev,iulev,it,iu
+C           write(u6,'("itlev,iulev,it,iu = ",4i3)') itlev,iulev,it,iu
             !! DG1 contribution
             SCAL = DG1(iT,iU) + DG1(iT,iU)
             CLag(1:nsgm1) = CLag(1:nsgm1) + SCAL*BUF1(1:nsgm1,ib)
@@ -538,7 +538,7 @@ C-SVC20100309: PAM's magic formula
 
 C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 
-C       write(6,*) "ip3 = ", ip3
+C       write(u6,*) "ip3 = ", ip3
 C       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         iq1=icnj(ip3)
 * The indices corresponding to pair index p3:

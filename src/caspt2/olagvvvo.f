@@ -178,7 +178,7 @@ C
 
         Close (LuCMOPT2)
 
-C       write(6,*) "mo saved"
+C       write(u6,*) "mo saved"
 C       call sqprt(CMOPT2,nbast)
 C
         Call PrgmTranslate('GAMMA',RealName,lRealName)
@@ -256,16 +256,16 @@ C     CALL DGEMM_('T','N',nSsh(iSym),nOcc,nBasT,
 C    *            One,CMOPT2(1+nBasT*nOcc),nBasT,
 C    *                vLag,nBasT,
 C    *            One,OLAG(nOCC+1),nOrb(iSymA))
-C     write(6,*) "olag before vvvo"
+C     write(u6,*) "olag before vvvo"
 C     call sqprt(olag,nbast)
       nOrbA = nFro(iSymA)+nIsh(iSymA)+nAsh(iSymA)+nSsh(iSymA)
       If (DoCholesky) nOcc = nOrbA-nFro(iSymA)
-C     write(6,*) "vLag"
+C     write(u6,*) "vLag"
 C     call sqprt(vLag,nbast)
       CALL DGEMM_('T','N',nOrbA,nOcc,nBasT,
      *            One,CMOPT2,nBasT,vLag,nBasT,
      *            One,OLAG(nOrbA*nFro(iSymA)+1),nOrbA)
-C     write(6,*) "olag after vvvo"
+C     write(u6,*) "olag after vvvo"
 C     call sqprt(olag,nbast)
 C
 #ifdef _MOLCAS_MPP_
@@ -390,7 +390,7 @@ C
      &  iSymL_, nBasL, KEEPL, nBasKL, IOPT, LPQ, IPQ, NPQ, IP, JQ, IRC,
      &  ISX, ISF, ISD
 C
-C     write(6,*) "start vvvox"
+C     write(u6,*) "start vvvox"
 C     MUL(I,J)=IEOR(I-1,J-1)+1
       ISTSQ(1)=0
       ISTLT(1)=0
@@ -401,7 +401,7 @@ C     MUL(I,J)=IEOR(I-1,J-1)+1
         ISTSQ(iSym) = ISTSQ(iSym-1) + nB2
         ISTLT(iSym) = ISTLT(iSym-1) + nB3
       End Do
-C     write(6,*) "a"
+C     write(u6,*) "a"
       nFroT = 0
       Do iSym = 1, nSym
         nFroT = nFroT + nFro(iSym)
@@ -417,7 +417,7 @@ C
       nBasIJ = nBasI*nBasJ
       If (iSymI == iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
       If (nBasIJ == 0) Return
-C     write(6,*) "b"
+C     write(u6,*) "b"
 
       nBasK  = nBas(iSymK)
       KEEPK  = KEEP(iSymK)
@@ -432,32 +432,32 @@ C     write(6,*) "b"
       nBasKL = nBasK*nBasL
       IF (iSymK == iSymL_) nBasKL = (nBasK*(nBasK+1))/2
       If (nBasKL == 0) Return
-C     write(6,*) "c"
+C     write(u6,*) "c"
 C
       ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
       IF (KEEPI+KEEPJ+KEEPK+KEEPL /= 0) Return
-C     write(6,*) "d"
+C     write(u6,*) "d"
       !! This will not work when the number of the inactive orbital is 0
 C     IF (nAuxI+nAuxJ+nAuxK+nAuxL == 0) Return ! frozen orbitals
-C     write(6,*) "e"
-C     write(6,*) "nbasij = ", nbasij, 6*13
-C     write(6,*) "keep=",keepi,keepj,keepk,keepl
-C     write(6,*) "CMO"
+C     write(u6,*) "e"
+C     write(u6,*) "nbasij = ", nbasij, 6*13
+C     write(u6,*) "keep=",keepi,keepj,keepk,keepl
+C     write(u6,*) "CMO"
 C     call sqprt(cmo,nbast)
 C
       !! (ij|kl)
-C     write(6,*) "doing actual calculation"
+C     write(u6,*) "doing actual calculation"
       If (iSymI == iSymJ .AND. iSymI == iSymK) Then
-C       write(6,*) "aa"
-C       write(6,*) "nocc,nbast = ", nocc,nbast
+C       write(u6,*) "aa"
+C       write(u6,*) "nocc,nbast = ", nocc,nbast
         IOPT=1
         LPQ=0
         IPQ=0
         NPQ=0
-C       write(6,*) "nbasi = ", nbasi
+C       write(u6,*) "nbasi = ", nbasi
         DO IP = 1, nBasI
           DO JQ = 1, IP
-C           write(6,*) "ip,jq = ", ip,jq
+C           write(u6,*) "ip,jq = ", ip,jq
             IPQ=IPQ+1
             LPQ=LPQ+1
             IF (IPQ > NPQ) THEN
@@ -470,7 +470,7 @@ C           write(6,*) "ip,jq = ", ip,jq
               IOPT=2
               IPQ=1
             ENDIF
-C           write(6,*) "do"
+C           write(u6,*) "do"
             ISX=(IPQ-1)*nBasKL+1
             ISF=ISTLT(iSymI)+LPQ
             ISD=ISTLT(iSymI)+1
@@ -496,8 +496,8 @@ C           FLT(ISF)=FLT(ISF)+TEMP
             !!   -> U_{i rho} for (mu, rho) pairs
 
             CALL SQUARE (X1(ISX),X2(1),1,nBasK,nBasL)
-C     write(6,*) "ip,jq= ",ip,jq
-C     write(6,*) "integral"
+C     write(u6,*) "ip,jq= ",ip,jq
+C     write(u6,*) "integral"
 C     call sqprt(x2,nbask)
 C           If (DoCholesky) Then
 C           Else
@@ -508,7 +508,7 @@ C           Else
 C           call dgemm_('T','T',nOcc,nBasT,nBasT,
 C    *                  One,CMO,nBasT,X2,nBasT,
 C    *                  One,WRK,nOcc)
-C           write(6,*) "dgemm finished"
+C           write(u6,*) "dgemm finished"
             !! wrk(j,sigma) for the given mu(ip), mu(jq)
             !! T2AO(j,sigma,i,rho) = T_{ij}^{rho sigma}
             !! rather than L_{mu i}, L_{i mu} is computed

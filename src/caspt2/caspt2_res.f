@@ -35,7 +35,7 @@ C
       !!     + U_{SS}*(H_{SS} + <\Psi_S|H0-E0|\Psi_S>)*U_{SS}
       !!     + <lambda|H|\Psi0> + <lambda|H0-E0+Eshift|\Psi_S>
 C
-C     write(6,*) "in CASPT2_res"
+C     write(u6,*) "in CASPT2_res"
       CALL PSCAVEC(One,IRHS,iVecL)
 C
       !! Construct the partial derivative of the target state
@@ -370,7 +370,7 @@ C---------------------
             IF(IPRGLB >= USUAL) THEN
             WRITE(u6,'(1X,I3,1X,10F12.6)') ITER,EVJTU,EVJTI,EATVX,EAIVX,
      &                            EVJAI,EBVAT,EBJAT,EBJAI,E2NONV,RNORM
-              CALL XFLUSH(6)
+              CALL XFLUSH(u6)
             END IF
             IF(ITER >= MAXIT) exit
             CALL PRESDIA(IVECR,IVECU,OVLAPS)

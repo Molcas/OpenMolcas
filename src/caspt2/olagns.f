@@ -144,7 +144,7 @@ C
       !! the active orbital index (indices) must be transformed to the
       !! (quasi-)canonical MO (or contravatiant) basis.
       !! IC = SR (why?), contravariant = C
-C     write(6,*) "icase = ", icase
+C     write(u6,*) "icase = ", icase
 C
       PM = .false.
       If (iCase == 2 .or. iCase == 6 .or .iCase == 8 .or.
@@ -494,7 +494,7 @@ C
               iTabs = iI + nAes(iSymI)
               iUabs = iBabs
               iVabs = iJ + nAes(iSymJ)
-C             write(6,*) itabs,iuabs,ivabs
+C             write(u6,*) itabs,iuabs,ivabs
               !! (at|uv) -> (ai|bj) -> (at|uv)
               ! IW1 = kTUV(iTabs,iUabs,iVabs) - nTUVes(iSym)
               ValC1 = Zero
@@ -964,7 +964,7 @@ C
                 If (iAabs /= iBabs) ValHP = ValHP * SQ2
               End If
 C
-C     write(6,'(2i3,2f20.10)')ia,ib,valhp,valhm
+C     write(u6,'(2i3,2f20.10)')ia,ib,valhp,valhm
               AmpL1(iA,iB) = AmpL1(iA,iB) + ValHP + ValHM
               AmpL1(iB,iA) = AmpL1(iB,iA) + ValHP - ValHM
             End Do

@@ -112,8 +112,8 @@ C First, put in the reference density matrix.
           END DO
            IDMOFF=IDMOFF+(NO*(NO+1))/2
         END DO
-*       write(6,*)' DENS. Initial DMAT:'
-*       WRITE(*,'(1x,8f16.8)')(dmat(i),i=1,ndmat)
+*       write(u6,*)' DENS. Initial DMAT:'
+*       WRITE(u6,'(1x,8f16.8)')(dmat(i),i=1,ndmat)
 C Add the 1st and 2nd order density matrices:
         call mma_allocate(DPT,NDPT,Label='DPT')
         call mma_allocate(DSUM,NDPT,Label='DSUM')
@@ -158,8 +158,8 @@ C
           end do
         end if
         DSUM(:) = DSUM(:) + DPT(:)
-*       write(6,*)' DPT after TRDNS2D.'
-*       WRITE(*,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
+*       write(u6,*)' DPT after TRDNS2D.'
+*       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
         !! Off-diagonal part, if full-CASPT2
         IF (MAXIT /= 0) THEN
           !! off-diagonal are ignored for CASPT2-D
@@ -167,8 +167,8 @@ C
           CALL TRDNS2O(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
           DSUM(:) = DSUM(:) + DPT(:)
         END IF
-*       write(6,*)' DPT after TRDNS2O.'
-*       WRITE(*,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
+*       write(u6,*)' DPT after TRDNS2O.'
+*       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
         CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
         IF (IPRGLB >= verbose) THEN
           CPUT =CPTF10-CPTF0
@@ -205,7 +205,7 @@ C
         call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
         !! Derivative of state-averaged density
         call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
-C       write(6,*) "olag before"
+C       write(u6,*) "olag before"
 C       call sqprt(olag,nbast)
 C
         DPT2(:) = Zero
@@ -246,7 +246,7 @@ C
         !! Note that DPT2 has the index of frozen orbitals.
         !! Note also that unrelaxed (w/o Z-vector) dipole moments with
         !! frozen orbitals must be wrong.
-C       call dcopy_(ndpt,[0.0d+00],0,dpt,1)
+C       call dcopy_(ndpt,[Zero],0,dpt,1)
         If (nFroT == 0 .and. if_invaria) Then
           DPT2(1:nOsqT) = DSUM(1:nOsqT)
         Else
@@ -275,7 +275,7 @@ C
           WRK1(1:nDRef) = DMix(1:nDRef,jState)
         End If
         Call SQUARE(WRK1,RDMSA,1,nAshT,nAshT)
-C       write(6,*) "state-averaged density matrix"
+C       write(u6,*) "state-averaged density matrix"
 C       call sqprt(rdmsa,nasht)
 C
 C       ----- Construct configuration Lagrangian -----
@@ -302,9 +302,9 @@ C       call test3_dens(clag)
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADSUM (DEPSA,nAshT**2)
 #endif
-C       write(6,*) "original depsa"
+C       write(u6,*) "original depsa"
 C       call sqprt(depsa,nasht)
-C       write(6,*) "original depsa (sym)"
+C       write(u6,*) "original depsa (sym)"
         do i = 1, nasht
           do j = 1, i-1
             val = (DEPSA(i,j)+DEPSA(j,i))*Half
@@ -318,8 +318,8 @@ C
           !! The density of the independent pairs (off-diagonal blocks)
           !! should be determined by solving Z-vector, so these blocks
           !! should be removed...?
-C         write(6,*) "removing DEPSA of off-diagonal blocks"
-C         write(6,*) "before"
+C         write(u6,*) "removing DEPSA of off-diagonal blocks"
+C         write(u6,*) "before"
 C         call sqprt(depsa,nasht)
             Do II = 1, nRAS1T
               Do JJ = nRAS1T+1, nAshT
@@ -333,7 +333,7 @@ C         call sqprt(depsa,nasht)
                 DEPSA(JJ,II) = Zero
               End Do
             End Do
-C         write(6,*) "after"
+C         write(u6,*) "after"
 C         call sqprt(depsa,nasht)
           IF (IPRGLB >= debug)
      *      write(u6,*) "depsa (sym) after removing off-diagonal blocks"
@@ -374,7 +374,7 @@ C
           !! Clear
           DEPSA(:,:) = Zero
         End If
-C       write(6,*) "depsad"
+C       write(u6,*) "depsad"
 C       call sqprt(depsa,nasht)
 C
         !! Transform the quasi-variational amplitude (T+\lambda/2?)
@@ -471,7 +471,7 @@ C
 C
           !! Orbital Lagrangian that comes from the derivative of ERIs.
           !! OLagNS computes only the particle orbitals.
-C         write(6,*) "ialgo = ", ialgo
+C         write(u6,*) "ialgo = ", ialgo
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           If (IfChol .and. iALGO == 1) Then
             CALL OLagNS_RI(iSym,DPT2C,DPT2Canti,A_PT2)
@@ -485,7 +485,7 @@ C         write(6,*) "ialgo = ", ialgo
             write(u6,'(a,2f10.2)')
      &        " OLagNS  : CPU/WALL TIME=", cput,wallt
           END IF
-C         write(6,*) "DPT2C"
+C         write(u6,*) "DPT2C"
 C         call sqprt(dpt2c,nbast)
 C
           !! MO -> AO transformations for DPT2 and DPT2C
@@ -493,9 +493,9 @@ C
      *       .or.(nFroT == 0 .and. if_invaria)) Then
             Call OLagTrf(1,iSym,CMOPT2,DPT2,DPT2_AO,WRK1)
             Call OLagTrf(1,iSym,CMOPT2,DPT2C,DPT2C_AO,WRK1)
-C           write(6,*) "dpt2"
+C           write(u6,*) "dpt2"
 C           call sqprt(dpt2,nbast)
-C           write(6,*) "dpt2ao"
+C           write(u6,*) "dpt2ao"
 C           call sqprt(dpt2_ao,nbast)
           End If
 C
@@ -514,7 +514,7 @@ C
      *                  FPT2_AO,FPT2C_AO,T2AO,
      *                  DIA,DI,FIFA_all,FIMO_all,
      *                  A_PT2,MaxVec_PT2)
-        !   write(6,*) "olag after vvvo"
+        !   write(u6,*) "olag after vvvo"
         !   call sqprt(olag,nbast)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
           IF (IPRGLB >= verbose) THEN
@@ -523,11 +523,11 @@ C
             write(u6,'(a,2f10.2)')
      &        " OLagVVVO: CPU/WALL TIME=", cput,wallt
           END IF
-C     write(6,*) "OLag"
+C     write(u6,*) "OLag"
 C     do i = 1, 144
-C       write(6,'(i3,f20.10)') i,olag(i)
+C       write(u6,'(i3,f20.10)') i,olag(i)
 C     end do
-C      write(6,*) "fpt2ao"
+C      write(u6,*) "fpt2ao"
 C     call sqprt(fpt2_ao,12)
 C     call abend
 C
@@ -546,11 +546,11 @@ C
         Call AddDPTC(DPT2C,DSUM)
 C
 c
-C       write(6,*) "fptao after olagns"
+C       write(u6,*) "fptao after olagns"
 C       call sqprt(fpt2_ao,nbast)
-C       write(6,*) "fptcao after olagns"
+C       write(u6,*) "fptcao after olagns"
 C       call sqprt(fpt2c_ao,nbast)
-C       write(6,*) "olag after olagns"
+C       write(u6,*) "olag after olagns"
 C       call sqprt(olag,nbast)
 C
         !! If frozen orbitals exist, frozen-inactive part of the
@@ -559,7 +559,7 @@ C
         !! required.
         If (nFroT /= 0 .or. .not.if_invaria) Then
           !! Compute DPT2 density for frozen-inactive
-C         write(6,*) "dpt2 before frozen"
+C         write(u6,*) "dpt2 before frozen"
 C         call sqprt(dpt2,nbast)
           if (.not.ifchol) then
             !! Construct FIFA and FIMO
@@ -622,7 +622,7 @@ C
           CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
      *               -One,FIFA_all,nBasT,WRK1,nBasT,
      *                One,OLAG,nBasT)
-C         write(6,*) "dpt after frozen"
+C         write(u6,*) "dpt after frozen"
 C         call sqprt(dpt2,nbast)
 C
           !! Fock transformation for frozen-inactive density
@@ -644,15 +644,15 @@ C
             Call OLagTrf(2,iSym,CMOPT2,FPT2,FPT2_AO,WRK1)
             Call OLagTrf(2,iSym,CMOPT2,FPT2C,FPT2C_AO,WRK1)
           Else
-C           write(6,*) "dpt"
+C           write(u6,*) "dpt"
 C           call sqprt(dpt2,nbast)
             Call OLagFro2(DPT2,FPT2,WRK1,WRK2)
-C         write(6,*) "fpt"
+C         write(u6,*) "fpt"
 C           call sqprt(dpt2,nbast)
           End If
-C         write(6,*) "fifa_all"
+C         write(u6,*) "fifa_all"
 C         call sqprt(fifa_all,12)
-C         write(6,*) "fimo_all"
+C         write(u6,*) "fimo_all"
 C         call sqprt(fimo_all,12)
       !   !! Construct FIFA and FIMO
       !   Call OLagFro3(FIFA_all,FIMO_all,WRK1,WRK2)
@@ -670,33 +670,33 @@ C
         End If
         call mma_deallocate(DIA)
         call mma_deallocate(DI)
-C         write(6,*) "fifa_all in dens"
+C         write(u6,*) "fifa_all in dens"
 C         call sqprt(fifa_all,nbast)
-C         write(6,*) "fimo_all in dens"
+C         write(u6,*) "fimo_all in dens"
 C         call sqprt(fimo_all,nbast)
-C        write(6,*) "FIFA in natural"
+C        write(u6,*) "FIFA in natural"
 C         Call DGemm_('N','N',nBasT,nBasT,nBasT,
-C    *                1.0D+00,Trf,nBasT,fifa_all,nBasT,
-C    *                0.0D+00,WRK1,nBasT)
+C    *                One,Trf,nBasT,fifa_all,nBasT,
+C    *                Zero,WRK1,nBasT)
 C         Call DGemm_('N','T',nBasT,nBasT,nBasT,
-C    *                1.0D+00,WRK1,nBasT,Trf,nBasT,
-C    *                0.0D+00,WRK2,nBasT)
+C    *                One,WRK1,nBasT,Trf,nBasT,
+C    *                Zero,WRK2,nBasT)
 C         call sqprt(wrk2,12)
 C
         !! Do some post-process for the contributions that comes from
         !! the above two densities.
-C       write(6,*) "olag before eigder"
+C       write(u6,*) "olag before eigder"
 C       call sqprt(olag,nbast)
-C       write(6,*) "fpt2"
+C       write(u6,*) "fpt2"
 C       call sqprt(fpt2,nbast)
         CALL EigDer(DPT2,DPT2C,FPT2_AO,FPT2C_AO,RDMEIG,CMOPT2,
      *              Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMSA)
 C          call test2_dens(olag,depsa)
-C       write(6,*) "olag after eigder"
+C       write(u6,*) "olag after eigder"
 C       call sqprt(olag,nbast)
-C       write(6,*) "Wlag after eigder"
+C       write(u6,*) "Wlag after eigder"
 C       call sqprt(wlag,nbast)
-C       write(6,*) "rdmeig"
+C       write(u6,*) "rdmeig"
 C       call sqprt(rdmeig,nasht)
 C       call abend
 C
@@ -706,11 +706,11 @@ C
         !! so canonical -> natural transformation is required.
 C       ipTrfL = 1+nAshT*nBasT+nAshT
 C       Call DGemm_('N','N',nAshT,nAshT,nAshT,
-C    *              1.0D+00,Trf(ipTrfL),nBasT,RDMEIG,nAshT,
-C    *              0.0D+00,WRK1,nAshT)
+C    *              One,Trf(ipTrfL),nBasT,RDMEIG,nAshT,
+C    *              Zero,WRK1,nAshT)
 C       Call DGemm_('N','T',nAshT,nAshT,nAshT,
-C    *              1.0D+00,WRK1,nAshT,Trf(ipTrfL),nBasT,
-C    *              0.0D+00,RDMEIG,nAshT)
+C    *              One,WRK1,nAshT,Trf(ipTrfL),nBasT,
+C    *              Zero,RDMEIG,nAshT)
         If (.not.if_invar) Then !test
           call mma_allocate(CLagT,nConf,nState,Label='CLagT')
           call mma_allocate(EigT,nAshT,nAshT,Label='EigT')
@@ -761,7 +761,7 @@ C
               End Do
             End Do
           End If
-C         call dcopy_(nasht**2,[0.0d+00],0,depsa,1)
+C         call dcopy_(nasht**2,[Zero],0,depsa,1)
 C
           !! We have to do many things again...
           !! Just add DEPSA to DPT2
@@ -904,7 +904,7 @@ C
         If (if_SSDM .and. (jState == iRlxRoot .or. IFMSCOUP)) Then
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 !         If (.not.if_invar) Then
-!           write(6,*) "SS density matrix with IPEA not implemented"
+!           write(u6,*) "SS density matrix with IPEA not implemented"
 !           Call abend()
 !         End If
 C
@@ -923,7 +923,7 @@ C
           call mma_deallocate(CI1)
           !! WRK2 is the SCF density (for nstate=nroots)
           Call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
-          Call DaXpY_(nAshT**2,-1.0D+00,WRK2,1,RDMSA,1)
+          Call DaXpY_(nAshT**2,-One,WRK2,1,RDMSA,1)
           !! Construct the SS minus SA density matrix in WRK1
           Call OLagFroD(WRK1,WRK2,RDMSA,Trf)
           !! Subtract the inactive part
@@ -950,7 +950,7 @@ C
      &        " SSDM    : CPU/WALL TIME=", cput,wallt
           END IF
         End If
-C       write(6,*) "pt2ao"
+C       write(u6,*) "pt2ao"
 C       call sqprt(DPT2_AO,12)
         call mma_deallocate(DEPSA)
 C
@@ -1011,8 +1011,8 @@ C First, put in the reference density matrix.
           END DO
            IDMOFF=IDMOFF+(NO*(NO+1))/2
         END DO
-*       WRITE(6,*)' DENS. Initial DMAT:'
-*       WRITE(6,'(1x,8f16.8)')(dmat(i),i=1,ndmat)
+*       WRITE(u6,*)' DENS. Initial DMAT:'
+*       WRITE(u6,'(1x,8f16.8)')(dmat(i),i=1,ndmat)
 C Add the 1st and 2nd order density matrices:
         call mma_allocate(DPT,NDPT,Label='DPT')
         call mma_allocate(DSUM,NDPT,Label='DSUM')
@@ -1022,10 +1022,10 @@ C The 1st order contribution to the density matrix
         DPT(1:NDPT) = Zero
         CALL TRDNS1(IVEC,DPT,NDPT)
         DSUM(1:NDPT) = DSUM(1:NDPT) + DPT(1:NDPT)
-*       WRITE(6,*)' DPT after TRDNS1.'
-*       WRITE(6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
+*       WRITE(u6,*)' DPT after TRDNS1.'
+*       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
         DPT(1:NDPT) = Zero
-        CALL TRDNS2D(IVEC,IVEC,DPT,NDPT,1.0D+00)
+        CALL TRDNS2D(IVEC,IVEC,DPT,NDPT,One)
         IF(IFDENS) THEN
 C The exact density matrix evaluation:
           CALL TRDTMP(DPT,NDPT)
@@ -1034,13 +1034,13 @@ C The approximate density matrix evaluation:
           CALL TRDNS2A(IVEC,IVEC,DPT,NDPT)
         END IF
         DSUM(1:NDPT) = DSUM(1:NDPT) + DPT(1:NDPT)
-*       WRITE(6,*)' DPT after TRDNS2D.'
-*       WRITE(6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
+*       WRITE(u6,*)' DPT after TRDNS2D.'
+*       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
         DPT(1:NDPT) = Zero
-        CALL TRDNS2O(IVEC,IVEC,DPT,NDPT,1.0D+00)
+        CALL TRDNS2O(IVEC,IVEC,DPT,NDPT,One)
         DSUM(1:NDPT) = DSUM(1:NDPT) + DPT(1:NDPT)
-        ! WRITE(6,*)' DPT after TRDNS2O.'
-        ! WRITE(6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
+        ! WRITE(u6,*)' DPT after TRDNS2O.'
+        ! WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
       END IF
 C
       call mma_deallocate(DPT)
@@ -1116,7 +1116,7 @@ C
         ipTrfL = ipTrfL + iSQ
         !! frozen + inactive
 C       Do iIsh = 1, nFroI + nIshI
-C         Trf(ipTrfL+iIsh+nBasI*(iIsh-1)) = 1.0D+00
+C         Trf(ipTrfL+iIsh+nBasI*(iIsh-1)) = One
 C       End Do
         !! frozen
         If (IfChol) Then
@@ -1190,7 +1190,7 @@ C    *!       = Work(iTOrb+nIshI*nIshI+iAsh0-1+nAshI*(jAsh0-1))
 C       call sqprt(trf,12)
         !! virtual + deleted (deleted is not needed, though)
 C       Do iSsh = nOcc+1, nOcc+nVir
-C         Trf(ipTrfL+iSsh+nBasI*(iSsh-1)) = 1.0D+00
+C         Trf(ipTrfL+iSsh+nBasI*(iSsh-1)) = One
 C       End Do
         Do I = 1, nVir
           iSsh = nCor + nAshI + I
@@ -1207,7 +1207,7 @@ C       call sqprt(trf,12)
 
 C       n123 = nAshI*nAshI !! just for CAS at present
 C       iTOrb = iTOrb + n123 + nSshI*nSshI
-C     write(6,*) "transformation matrix"
+C     write(u6,*) "transformation matrix"
 C     call sqprt(trf,nbasi)
       End Do
 C
@@ -1564,10 +1564,10 @@ C
         !  Construct the active density of the orbital energy
         !  Assume the state-averaged density (SS- and XMS-CASPT2)
 C       nSeq = 0
-C       Call DCopy_(nAshI*nAshI,[0.0D+00],0,WRK1,1)
+C       Call DCopy_(nAshI*nAshI,[Zero],0,WRK1,1)
 C       Do iState = 1, nState
 C         Wgt  = DWgt(iState,iState)
-C         Wgt  = 1.0D+00/nState
+C         Wgt  = One/nState
 C         Call DaXpY_(nDRef,Wgt,DMIX(:,iState),1,WRK1,1)
 C       End Do
         !  RDM of CASSCF
@@ -1639,7 +1639,7 @@ C
             iTUA= iT   -1 + nAshI*(iU   -1)
             RDMEIG(iSQA+iTUA)
      *        = RDMEIG(iSQA+iTUA) + FPT2_loc(iSq+iTU)
-C           write(6,'(2i3,f20.10)') it,iu,FPT2(iSq+iTU)
+C           write(u6,'(2i3,f20.10)') it,iu,FPT2(iSq+iTU)
           End Do
         End Do
         iSQ = iSQ + nOrbI*nOrbI
@@ -1982,7 +1982,7 @@ C
 * Loop over IBATCH
         JV1=JSTART
         DO IBATCH=1,NBATCH
-C         write(6,*) "ibatch,nbatch = ", ibatch,nbatch
+C         write(u6,*) "ibatch,nbatch = ", ibatch,nbatch
           IBATCH_TOT=IBATCH_TOT+1
 
           JNUM=NVLOC_CHOBATCH(IBATCH_TOT)
@@ -2103,7 +2103,7 @@ C
 * Loop over IBATCH
           JV1=JSTART
           DO IBATCH=1,NBATCH
-C           write(6,*) "ibatch,nbatch = ", ibatch,nbatch
+C           write(u6,*) "ibatch,nbatch = ", ibatch,nbatch
             IBATCH_TOT=IBATCH_TOT+1
 
             JNUM=NVLOC_CHOBATCH(IBATCH_TOT)

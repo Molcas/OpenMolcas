@@ -177,7 +177,7 @@ C
         End If
         iMO  = iMO  + nOrbI*nOrbI
       End Do
-C     write(6,*) "DPT2 after frozen orbital"
+C     write(u6,*) "DPT2 after frozen orbital"
 C     call sqprt(dpt2,nbast)
 C
       End Subroutine OLagFro1
@@ -202,7 +202,7 @@ C
      &  nFroI, nIshI, iOrb, jOrb
       real(kind=wp) :: Scal, Val
 
-C     write(6,*) "FPT2 before frozen orbital"
+C     write(u6,*) "FPT2 before frozen orbital"
 C     call sqprt(fpt2,nbast)
       iMO = 1
       isymi = 1
@@ -216,7 +216,7 @@ C     call sqprt(fpt2,nbast)
         !! Fpq = ((pq|rs)-1/2(pr|qs))*Drs
         Do iOrb = 1, nFroI
           Do jOrb = nFroI+1, nFroI+nIshI
-            Scal = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))!*2.0D+00
+            Scal = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
             Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,ERI,Scr)
             FPT2(iMO:iMO+nOrbI*nOrbI-1) = FPT2(iMO:iMO+nOrbI*nOrbI-1)
      &        + Scal*ERI(1:nOrbI*nOrbI)
@@ -237,7 +237,7 @@ C
         End Do
         iMO = iMO + nOrbI*nOrbI
       End Do
-C     write(6,*) "FPT2 after frozen orbital"
+C     write(u6,*) "FPT2 after frozen orbital"
 C     call sqprt(fpt2,nbast)
 C
       End Subroutine OLagFro2
@@ -305,9 +305,9 @@ C
         iCMO  = iCMO  + nBasI*nOrbI !?
         iMO   = iMO   + nOrbI*nOrbI
       End Do
-C     write(6,*) "FIFA"
+C     write(u6,*) "FIFA"
 C     call sqprt(fifa,nbast)
-C     write(6,*) "FIMO"
+C     write(u6,*) "FIMO"
 C     call sqprt(fimo,nbast)
 C
       call mma_deallocate(WFLT)
@@ -463,7 +463,7 @@ C
       ! JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
       JRED1=InfVec(1,2,iSym)
       JRED2=InfVec(NumCho_PT2(iSym),2,iSym)
-!     write(6,*) "jred1,jred2 = ", jred1,jred2
+!     write(u6,*) "jred1,jred2 = ", jred1,jred2
 
 * Loop over JRED
       DO JRED=JRED1,JRED2

@@ -92,7 +92,7 @@ C
 #ifdef _MOLCAS_MPP_
 !       if (is_real_par()) CALL GADSUM ([deasum],1)
 #endif
-!       write(6,*) "Deasum = ", deasum
+!       write(u6,*) "Deasum = ", deasum
 #ifdef _MOLCAS_MPP_
 !       if (is_real_par()) DEASUM = DEASUM/GA_NNODES()
 #endif
@@ -567,7 +567,7 @@ C           idT=(iTabs*(iTabs+1))/2
             ! idU=(iUabs*(iUabs+1))/2
             NSEQ = iTU*(iTU+1)/2
             bsBDER = ipea_shift*Half*BDERval
-!         !! ipea_shift*0.5d0*(DREF(IDT)+DREF(IDU))*SDP(ITGEU)
+!         !! ipea_shift*Half*(DREF(IDT)+DREF(IDU))*SDP(ITGEU)
             DG1(iTabs,iTabs) = DG1(iTabs,iTabs) + bsBDER*SMat(NSEQ)
             DG1(iUabs,iUabs) = DG1(iUabs,iUabs) + bsBDER*SMat(NSEQ)
             SDER(iTU,iXY) = SDER(iTU,iXY)
@@ -853,14 +853,14 @@ C
      *      + Two*G1(iUabs,iYabs)*BDER2
 C
           If (iTU == iXY .and. ipea_shift /= Zero) Then
-C      !! ipea_shift*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*SD(ITU)
+C      !! ipea_shift*Half*(Two-DREF(IDU)+DREF(IDT))*SD(ITU)
             bsBDER = ipea_shift*Half*BDER(iTU,iXY)
             NSEQ = iTU*(iTU+1)/2
             DG1(iTabs,iTabs) = DG1(iTabs,iTabs) + bsBDER*SMat(NSEQ)
             DG1(iUabs,iUabs) = DG1(iUabs,iUabs) - bsBDER*SMat(NSEQ)
             SDER(iTU,iXY) = SDER(iTU,iXY)
      *        + bsBDER*(Two+G1(iTabs,iTabs)-G1(iUabs,iUabs))
-C    !! ipea_shift*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*SD(ITU+NAS)
+C    !! ipea_shift*Half*(Two-DREF(IDU)+DREF(IDT))*SD(ITU+NAS)
             bsBDER = ipea_shift*Half*BDER(iTU2,iXY2)
             NSEQ = iTU2*(iTU2+1)/2
             DG1(iTabs,iTabs) = DG1(iTabs,iTabs) + bsBDER*SMat(NSEQ)
@@ -910,7 +910,7 @@ C
         call mma_allocate(SMat,NS,Label='SMat')
         idS = idSMAT(iSym,6)
         CALL DDAFILE(LUSBT,2,SMat,NS,idS)
-        !! ipea_shift*0.5d0*DREF(IDT)*SD(IT)
+        !! ipea_shift*Half*DREF(IDT)*SD(IT)
         DO IT = 1, NAS
           ITABS=IT+NAES(ISYM)
           VAL = ipea_shift*Half*BDER(IT,IT)
@@ -1005,7 +1005,7 @@ C           idT=(iTabs*(iTabs+1))/2
             ! idU=(iUabs*(iUabs+1))/2
             NSEQ = iTU*(iTU+1)/2
             bsBDER = ipea_shift*Half*BDERval
-C     !! ipea_shift*0.5d0*(4.0d0-DREF(IDT)-DREF(IDU))*SDP(ITGEU)
+C     !! ipea_shift*Half*(Four-DREF(IDT)-DREF(IDU))*SDP(ITGEU)
             DG1(iTabs,iTabs) = DG1(iTabs,iTabs) - SMat(NSEQ)*bsBDER
             DG1(iUabs,iUabs) = DG1(iUabs,iUabs) - SMat(NSEQ)*bsBDER
             SDER(ITU,IXY) = SDER(ITU,IXY)
@@ -1086,7 +1086,7 @@ C
         call mma_allocate(SMat,NS,Label='SMat')
         idS = idSMAT(iSym,10)
         CALL DDAFILE(LUSBT,2,SMat,NS,idS)
-        !! ipea_shift*0.5d0*(2.0d0-DREF(IDT))*SD(IT)
+        !! ipea_shift*Half*(Two-DREF(IDT))*SD(IT)
         DO IT = 1, NAS
           ITABS=IT+NAES(ISYM)
           VAL = ipea_shift*Half*BDER(IT,IT)
@@ -1239,9 +1239,9 @@ C       if (nrow1*ncol1*nrow2*ncol2 > 0) then
           call mma_deallocate(LID)
 C         Call GA_Access(lg_V1,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
 C         Call GA_Access(lg_V2,iLoV2,iHiV2,jLoV2,jHiV2,mV2,LDV2)
-C         Call CLag_MPP_NT(0.5D+00,DBL_MB(mV1),NROW1,DBL_MB(mV2),NROW2,
+C         Call CLag_MPP_NT(Half,DBL_MB(mV1),NROW1,DBL_MB(mV2),NROW2,
 C    *                     lg_WRK,NIN,NCOL1)
-C         Call CLag_MPP_NT(0.5D+00,DBL_MB(mV2),NROW2,DBL_MB(mV1),NROW1,
+C         Call CLag_MPP_NT(Half,DBL_MB(mV2),NROW2,DBL_MB(mV1),NROW1,
 C    *                     lg_WRK,NIN,NCOL2)
 C         Call GA_Release(lg_V1,iLoV1,iHiV1,jLoV1,jHiV1)
 C         Call GA_Release(lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
@@ -1449,7 +1449,7 @@ C
             DBL_MB(mSDER+I-1+NROW*(J-1))
      *        = DBL_MB(mSDER+I-1+NROW*(J-1))
      *        + WRK(I+ILO-1,J+JLO-1)*Half
-!    *        + WORK(LWRK+I+ILO-2+NAS*(J+JLO-2))*0.5D+00
+!    *        + WORK(LWRK+I+ILO-2+NAS*(J+JLO-2))*Half
           END DO
         END DO
         Call GA_Release_Update(lg_SDER,ILO,IHI,JLO,JHI)
@@ -1639,7 +1639,7 @@ C
       Call DGEMM_('N','T',nAS,nAS,nIN,
      *            One,WRK2,nAS,TRANS,nAS,
      *            Zero,WRK3,nAS)
-C     write(6,*) "B derivative in MO"
+C     write(u6,*) "B derivative in MO"
 C     call sqprt(WRK3,nas)
 C
       !! Implicit derivative of the IC vector. This derivative
@@ -1924,24 +1924,24 @@ C           write (*,*) "scal = ", scal
       End Do
 
       call mma_deallocate(WRK)
-C     write(6,*) "clag before projection"
+C     write(u6,*) "clag before projection"
 C     do istate = 1, nstate
-C       write(6,*) "state = ", istate
+C       write(u6,*) "state = ", istate
 C       do i = 1, nconf
-C         write(6,'(i3,f20.10)') i,clag(i,istate)
+C         write(u6,'(i3,f20.10)') i,clag(i,istate)
 C       end do
 C     end do
-C     write(6,*) "debug"
+C     write(u6,*) "debug"
 C     IF(ORBIN == 'TRANSFOR') Call CLagX_TrfCI(CLAG)
 C     if (proj) then
 C     ovl = ddot_(nconf*nstate,ci1,1,clag,1)
-C     write(6,*) "projection coeff = ",ovl
+C     write(u6,*) "projection coeff = ",ovl
 C     call daxpy_(nconf*nstate,-ovl,ci1,1,clag,1)
-C     write(6,*) "clag after projection"
+C     write(u6,*) "clag after projection"
 C     do istate = 1, nstate
-C       write(6,*) "state = ", istate
+C       write(u6,*) "state = ", istate
 C       do i = 1, nconf
-C         write(6,'(i3,f20.10)') i,clag(i,istate)
+C         write(u6,'(i3,f20.10)') i,clag(i,istate)
 C       end do
 C     end do
 C     end if
@@ -2162,7 +2162,7 @@ C
         CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
         IF(ISTU == 1) THEN
           ! Symmetry not yet
-C          write(6,*) "it,iu = ", it,iu
+C          write(u6,*) "it,iu = ", it,iu
            CLag(1:NSGM) = CLag(1:NSGM) + RDMEIG(IT,IU)*SGM1(1:NSGM)
         END IF
 
@@ -2355,8 +2355,8 @@ C
         ! DG2(iI,iJ,iK,iL) = Val
         ! DG2(iL,iK,iJ,iI) = Val
 C         if (ii /= il.and.ij /= ik) then
-C         DG2(iI,iJ,iK,iL) = 2.0d+00*val
-C         DG2(iL,iK,iJ,iI) = 0.0d+00
+C         DG2(iI,iJ,iK,iL) = Two*val
+C         DG2(iL,iK,iJ,iI) = Zero
 C         end if
           Val1 = DF2(iI,iJ,iK,iL)
           Val2 = DF2(iL,iK,iJ,iI)
@@ -2364,8 +2364,8 @@ C         end if
         ! DF2(iI,iJ,iK,iL) = Val
         ! DF2(iL,iK,iJ,iI) = Val
 C         if (ii /= il.and.ij /= ik) then
-C         DF2(iI,iJ,iK,iL) = 2.0d+00*val
-C         DF2(iL,iK,iJ,iI) = 0.0d+00
+C         DF2(iI,iJ,iK,iL) = Two*val
+C         DF2(iL,iK,iJ,iI) = Zero
 C         end if
         End Do
         End Do
@@ -2643,7 +2643,7 @@ C
       ! we need two real and two integer values per element
       iscal = (iwp*2 + wp*2)/RtoB
       !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
-      MAXBUF=MIN(NINT(0.95_wp*MAXMEM)/iscal,2000000000/8)
+      MAXBUF=MIN(NINT(0.95_wp*MAXMEM,kind=iwp)/iscal,2000000000/8)
       MAXBUF=MAXBUF-2*NG3 !! for NELBsav and NELSsav
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -2994,7 +2994,7 @@ C
 C
           If (iTUV == iXYZ .and. ipea_shift /= Zero) Then
 C           !! BA in the next equation refers to the active overlap
-C       ipea_shift*0.5d0*BA(ISADR)*(2.0d0-DREF(IDV)+DREF(IDT)+DREF(IDU))
+C       ipea_shift*Half*BA(ISADR)*(Two-DREF(IDV)+DREF(IDT)+DREF(IDU))
             bsBDER = ipea_shift*Half*ValB
             SDER(iSAdr) = SDER(iSAdr) + bsBDER*(Two
      *        +G1(iTabs,iTabs)+G1(iUabs,iUabs)-G1(iVabs,iVabs))
@@ -3079,17 +3079,17 @@ C
 C         2dtx ( Fvuyz-Et*Gvuyz )
 C         2 dtx Gvuyz + 2 dtx dyu Gvz
           If (iTabs == iXabs) Then
-            !! VALUE=VALUE+4.0D0*(FP(IP)-ET*PREF(IP))
+            !! VALUE=VALUE+Four*(FP(IP)-ET*PREF(IP))
             DF2(iVabs,iUabs,iYabs,iZabs)
      *        = DF2(iVabs,iUabs,iYabs,iZabs) + Two*ValB
             DG2(iVabs,iUabs,iYabs,iZabs)
      *        = DG2(iVabs,iUabs,iYabs,iZabs) - Two*ET*ValB
 C
-            !! VALUE=VALUE+4.0D0*PREF(IP)
+            !! VALUE=VALUE+Four*PREF(IP)
             DG2(iVabs,iUabs,iYabs,iZabs)
      *        = DG2(iVabs,iUabs,iYabs,iZabs) + Two*ValS
             If (iYabs == iUabs) Then
-              !! VALUE=VALUE+2.0D0*DREF(ID)
+              !! VALUE=VALUE+Two*DREF(ID)
               DG1(iVabs,iZabs) = DG1(iVabs,iZabs) + Two*ValS
             End If
           End If
@@ -3099,12 +3099,12 @@ C
 C         dxu ( -Fvtyz + Eu*Gvtyz )
 C         -dxu Gvtyz -dxu dyt Gvz
           If (iXabs == iUabs) Then
-            !! VALUE=VALUE-2.0D0*(FP(IP)-EU*PREF(IP))
+            !! VALUE=VALUE-Two*(FP(IP)-EU*PREF(IP))
             DF2(iVabs,iTabs,iYabs,iZabs)
      *        = DF2(iVabs,iTabs,iYabs,iZabs) - ValB
             DG2(iVabs,iTabs,iYabs,iZabs)
      *        = DG2(iVabs,iTabs,iYabs,iZabs) + EU*ValB
-            !! VALUE=VALUE - 2.0D0*PREF(IP)
+            !! VALUE=VALUE - Two*PREF(IP)
             DG2(iVabs,iTabs,iYabs,iZabs)
      *        = DG2(iVabs,iTabs,iYabs,iZabs) - ValS
             If (iYabs == iTabs) Then
@@ -3118,7 +3118,7 @@ C
 C         dyt ( -Fvuxz + Et*Gvuxz +dxu (-Fvz+(Et+Eu)*Gvz))
 C         -dyt Gvuxz
           If (iYabs == iTabs) Then
-            !! VALUE=VALUE-2.0D0*(FP(IP)-ET*PREF(IP))
+            !! VALUE=VALUE-Two*(FP(IP)-ET*PREF(IP))
             DF2(iVabs,iUabs,iXabs,iZabs)
      *        = DF2(iVabs,iUabs,iXabs,iZabs) - ValB
             DG2(iVabs,iUabs,iXabs,iZabs)
@@ -3129,7 +3129,7 @@ C         -dyt Gvuxz
               DG1(iVabs,iZabs) = DG1(iVabs,iZabs) + ETU*ValB
             End If
 C
-            !! VALUE=VALUE - 2.0D0*PREF(IP)
+            !! VALUE=VALUE - Two*PREF(IP)
             DG2(iVabs,iUabs,iXabs,iZabs)
      *        = DG2(iVabs,iUabs,iXabs,iZabs) - ValS
           End If
@@ -3142,18 +3142,18 @@ C
 C
 C         -dyu Gvzxt
           If (iYabs == iUabs) Then
-            !! VALUE=VALUE-2.0D0*(FP(IP)-EU*PREF(IP))
+            !! VALUE=VALUE-Two*(FP(IP)-EU*PREF(IP))
             DF2(iVabs,iZabs,iXabs,iTabs)
      *        = DF2(iVabs,iZabs,iXabs,iTabs) - ValB
             DG2(iVabs,iZabs,iXabs,iTabs)
      *        = DG2(iVabs,iZabs,iXabs,iTabs) + EU*ValB
             If (iXabs == iTabs) Then
-              !! VALUE=VALUE+2.0D0*(FD(ID)-ETU*DREF(ID))
+              !! VALUE=VALUE+Two*(FD(ID)-ETU*DREF(ID))
               DF1(iVabs,iZabs) = DF1(iVabs,iZabs) + Two*ValB
               DG1(iVabs,iZabs) = DG1(iVabs,iZabs) - Two*ETU*ValB
             End If
 C
-            !! VALUE=VALUE - 2.0D0*PREF(IP)
+            !! VALUE=VALUE - Two*PREF(IP)
             DG2(iVabs,iZabs,iXabs,iTabs)
      *        = DG2(iVabs,iZabs,iXabs,iTabs) - ValS
           End If
@@ -3441,7 +3441,7 @@ C
       ! we need two real and two integer values per element
       iscal = (iwp*2 + wp*2)/RtoB
       !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
-      MAXBUF=MIN(NINT(0.95_wp*MAXMEM)/iscal,2000000000/8)
+      MAXBUF=MIN(NINT(0.95_wp*MAXMEM,kind=iwp)/iscal,2000000000/8)
       MAXBUF=MAXBUF-2*NG3 !! for NELBsav and NELSsav
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -3798,7 +3798,7 @@ C
 C
           If (iTUV == iXYZ .and. ipea_shift /= Zero) Then
 C           !! BC in the next equation refers to the active overlap
-C    !! ipea_shift*0.5d0*BC(ISADR)*(4.0d0-DREF(IDT)-DREF(IDV)+DREF(IDU))
+C    !! ipea_shift*Half*BC(ISADR)*(Four-DREF(IDT)-DREF(IDV)+DREF(IDU))
             bsBDER = ipea_shift*Half*ValB
             SDER(iSAdr) = SDER(iSAdr) + bsBDER*(Four
      *       -G1(iTabs,iTabs)+G1(iUabs,iUabs)-G1(iVabs,iVabs))
@@ -3869,13 +3869,13 @@ C
 C         dyu ( Fvztx - EPSA(u)*Gvztx )
 C         dyu Gvztx
           IF(IYABS == IUABS) THEN
-            !! VALUE=VALUE+2.0D0*(FP(IP)-EU*PREF(IP))
+            !! VALUE=VALUE+Two*(FP(IP)-EU*PREF(IP))
             DF2(iVabs,iZabs,iTabs,iXabs)
      *        = DF2(iVabs,iZabs,iTabs,iXabs) + ValB
             DG2(iVabs,iZabs,iTabs,iXabs)
      *        = DG2(iVabs,iZabs,iTabs,iXabs) - EU*ValB
 C
-            !! VALUE=VALUE+2.0D0*PREF(IP)
+            !! VALUE=VALUE+Two*PREF(IP)
             DG2(iVabs,iZabs,iTabs,iXabs)
      *        = DG2(iVabs,iZabs,iTabs,iXabs) + ValS
           END IF
@@ -3885,13 +3885,13 @@ C
 C         dyx ( Fvutz - EPSA(y)*Gvutz )
 C         dyx Gvutz -> dut Gzyxv
           IF(IYABS == IXABS) THEN
-            !! VALUE=VALUE+2.0D0*(FP(IP)-EY*PREF(IP))
+            !! VALUE=VALUE+Two*(FP(IP)-EY*PREF(IP))
             DF2(iVabs,iUabs,iTabs,iZabs)
      *        = DF2(iVabs,iUabs,iTabs,iZabs) + ValB
             DG2(iVabs,iUabs,iTabs,iZabs)
      *        = DG2(iVabs,iUabs,iTabs,iZabs) - EY*ValB
 C
-            !! VALUE=VALUE+2.0D0*PREF(IP)
+            !! VALUE=VALUE+Two*PREF(IP)
             DG2(iVabs,iUabs,iTabs,iZabs)
      *        = DG2(iVabs,iUabs,iTabs,iZabs) + ValS
           END IF
@@ -3902,13 +3902,13 @@ C         dtu ( Fvxyz - EPSA(u)*Gvxyz + dyx Fvz -
 C                (EPSA(u)+EPSA(y)*dyz Gvz)
 C         dtu Gvxyz + dtu dyx Gvz
           IF(ITABS == IUABS) THEN
-            !! VALUE=VALUE+2.0D0*(FP(IP)-EU*PREF(IP))
+            !! VALUE=VALUE+Two*(FP(IP)-EU*PREF(IP))
             DF2(iVabs,iXabs,iYabs,iZabs)
      *        = DF2(iVabs,iXabs,iYabs,iZabs) + ValB
             DG2(iVabs,iXabs,iYabs,iZabs)
      *        = DG2(iVabs,iXabs,iYabs,iZabs) - EU*ValB
 C
-            !! VALUE=VALUE+2.0D0*PREF(IP)
+            !! VALUE=VALUE+Two*PREF(IP)
             DG2(iVabs,iXabs,iYabs,iZabs)
      *        = DG2(iVabs,iXabs,iYabs,iZabs) + ValS
             IF(IYABS == IXABS) THEN
@@ -3996,14 +3996,11 @@ C
           F3VAL = DF3(iG3)
 
           ISUP1=KTUV(iV,iU,iT)-nTUVES(iSYM)
-C         write (*,'("fval=",6i3,f20.10)') it,iu,iv,ix,iy,iz,f3val
           If (ISUP1 >= iLo .and. ISUP1 <= iHi) Then
             Do iW = 1, nAshT
               JSUP1=KTUV(iX,iW,iZ)-nTUVES(iSYM)
               NSEQ=1+ISUP1-iLo+NROW*(JSUP1-jLo)
               DEPSA(iW,iY) = DEPSA(iW,iY) - F3VAL*WRK(NSEQ)
-C       write (*,'(8i3,1f20.10)')
-C    *   iv,iu,it,ix,iw,iz,isup1,jsup1,wrk(nseq)
             End Do
           End If
           JSUP2=KTUV(iX,iY,iZ)-nTUVES(iSYM)
@@ -4012,8 +4009,6 @@ C    *   iv,iu,it,ix,iw,iz,isup1,jsup1,wrk(nseq)
               ISUP2=KTUV(iV,iW,iT)-nTUVES(iSYM)
               NSEQ=1+JSUP2-iLo+NROW*(ISUP2-jLo)
               DEPSA(iW,iU) = DEPSA(iW,iU) - F3VAL*WRK(NSEQ)
-C       write (*,'(8i3,1f20.10)')
-C    *   iv,iu,it,ix,iw,iz,isup1,jsup1,wrk(nseq)
             End Do
           End If
         END DO
@@ -4419,14 +4414,14 @@ C     !! triangular -> square transformation
 C     Call Square(WRK2,WRK1,1,nBasT,nBasT)
 C     !! AO -> MO transformation
 C     Call DGemm_('T','N',nBasT,nBasT,nBasT,
-C    *            1.0D+00,CMOPT2,nBasT,WRK1,nBasT,
-C    *            0.0D+00,WRK2,nBasT)
+C    *            One,CMOPT2,nBasT,WRK1,nBasT,
+C    *            Zero,WRK2,nBasT)
 C     Call DGemm_('N','N',nBasT,nBasT,nBasT,
-C    *            1.0D+00,WRK2,nBasT,CMOPT2,nBasT,
-C    *            0.0D+00,WRK1,nBasT)
+C    *            One,WRK2,nBasT,CMOPT2,nBasT,
+C    *            Zero,WRK1,nBasT)
       !! Inactive energy
 C     Do iCorI = 1, nFro(iSym)+nIsh(iSym)
-C       RIn_Ene = RIn_Ene + 2.0d+00*WRK1(iCorI,iCorI)
+C       RIn_Ene = RIn_Ene + Two*WRK1(iCorI,iCorI)
 C     End Do
       !! Put in INT1
 C     Do iAshI = 1, nAsh(iSym)
@@ -4454,7 +4449,7 @@ C         iOrb = iCorI
 C         jOrb = iCorI
 C         Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
 C         Do jCorI = 1, nFro(iSym)+nIsh(iSym)
-C           RIn_Ene = RIn_Ene + 2.0d+00*WRK1(jCorI,jCorI)
+C           RIn_Ene = RIn_Ene + Two*WRK1(jCorI,jCorI)
 C         End Do
 C         Call Exch(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
 C         Do jCorI = 1, nFro(iSym)+nIsh(iSym)
@@ -4485,14 +4480,14 @@ C
           CALL MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,
      &                         NCHOBUF,MXPIQK,NADDBUF)
           call mma_allocate(KET,NCHOBUF,Label='KETBUF')
-C         write(6,*) "nchobuf= ", nchobuf
-C         write(6,*) "nbgrp= ", nbgrp
-C         write(6,*) "nbtch= ", nbtch(jsym)
+C         write(u6,*) "nchobuf= ", nchobuf
+C         write(u6,*) "nbgrp= ", nbgrp
+C         write(u6,*) "nbtch= ", nbtch(jsym)
           Do IBGRP=1,NBGRP
 C
             IBSTA=BGRP(1,IBGRP)
             IBEND=BGRP(2,IBGRP)
-C           write(6,*) ibsta,ibend
+C           write(u6,*) ibsta,ibend
 C
             NV=0
             DO IB=IBSTA,IBEND
@@ -4523,7 +4518,7 @@ C
             !! Put in INT1
 C           Do iCorI = 1, nFro(iSym)+nIsh(iSym)
 C             INT1(iAshI,jAshI) = INT1(iAshI,jAshI)
-C    *          + 2.0d+00*WRK1(iCorI,iCorI)
+C    *          + Two*WRK1(iCorI,iCorI)
 C           End Do
             !! Put in INT2
             Do kAshI = 1, nAsh(iSym)
@@ -4545,7 +4540,7 @@ C           End Do
 #ifdef _MOLCAS_MPP_
       call GADSUM(INT2,nAshT**4)
 #endif
-C     write(6,*) "int2"
+C     write(u6,*) "int2"
 C     call sqprt(int2,25)
 C     call sqprt(int1,5)
 C     call sqprt(fimo,12)
@@ -4757,8 +4752,8 @@ C
 C  !! This is for CASSCF orbital Lagrangian, but this may not contribute
 C     Call Dens2T_RPT2(CI(1,jState),CI(1,jState),
 C    *                 SGM1,SGM2,G1T,G2T,nLev)
-C     Call DaXpY_(NG1,-0.5D+00,G1T,1,G1,1)
-C     Call DaXpY_(NG2,-0.5D+00,G2T,1,G2,1)
+C     Call DaXpY_(NG1,-Half,G1T,1,G1,1)
+C     Call DaXpY_(NG2,-Half,G2T,1,G2,1)
 C
       Do kState = 1, nState
 C       Wgt = DWgt(iState,iState)
@@ -5036,10 +5031,10 @@ C                 JSY=0
                   DO LEV2=1,NLEV
                     IF (ICS(LEV2) == 0 .OR. LEV == LEV2) THEN
                     ELSE IF (ICS(LEV2) == 3) THEN
-C      val2 =  2.0d+00*int2(lev,lev ,lev2,lev2)
-C    *       - 1.0d+00*int2(lev,lev2,lev ,lev2)
-C      val2 = 0.0d+00
-C      val = val + val2*0.5d+00
+C      val2 =  Two*int2(lev,lev ,lev2,lev2)
+C    *       - One*int2(lev,lev2,lev ,lev2)
+C      val2 = Zero
+C      val = val + val2*Half
                     ELSE
                       val2 = int2(lev,lev ,lev2,lev2)
      *                     + int2(lev,lev2,lev ,lev2)
@@ -5246,7 +5241,7 @@ C
         Else
           IF(SD > THRSHN) THEN
 * Small variations of the scale factor were beneficial
-              SCA(I)=(One+DBLE(I)*3.0e-6_wp)/SQRT(SD)
+              SCA(I)=(One+real(I,kind=wp)*3.0e-6_wp)/SQRT(SD)
           ELSE
             SCA(I)=Zero
           END IF

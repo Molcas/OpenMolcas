@@ -134,7 +134,6 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 #endif
 
 C Sketch of procedure:
-C  HEL=0.0D0
 C  Loop over every (case/symmetry)-block.
 C           If (No such vector block) Skip to end of loop
 C           Allocate two places for this block, VEC1 and VEC2
@@ -230,7 +229,7 @@ C Sum-reduce the per-process contributions
         CALL XFLUSH(u6)
         WRITE(u6,'(1X,A8,9F12.8)')
      &    'Summed: ', (HECOMP(14,IS),IS=1,NSYM+1)
-        WRITE(6,*)
+        WRITE(u6,*)
       END IF
 
       end subroutine MS_STRANS
@@ -862,7 +861,7 @@ C
      &              One,U0,nState,UEFF,nState,
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
-C     write (6,*) "ueff in casscf basis"
+C     write (u6,*) "ueff in casscf basis"
 C     call sqprt(ueff,nstate)
 C
         call mma_deallocate(DG1)
@@ -1006,7 +1005,7 @@ C
         !! No inactive contributions. Correct as long as CASSCF CI
         !! vector are orthogonal.
         Call AddDEPSA(DPT2,G1)
-        Call DPT2_TrfStore(1.0D+00,DPT2,DPT2_tot,Trf,WRK1)
+        Call DPT2_TrfStore(One,DPT2,DPT2_tot,Trf,WRK1)
 C
         !! Finalize OLag (anti-symetrize) and construct WLag
         Call OLagFinal(OLag,Trf)
