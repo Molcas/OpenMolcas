@@ -112,7 +112,7 @@ C
      &  iB, iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ,
      &  iViP, iVaP, iViM, iVaM, iAtot, iXabs, iItot, IgeJ, IgtJ, iASP,
      &  iISP, iASM, iISM, iAgeB, iVjP, iAgtB, iVjM, iViHP0, iViHP,
-     &  iViHM0, iViHM, iVaHP, iAgtB, iVjM, iVHP, iVaHM, iVHM
+     &  iViHM0, iViHM, iVaHP, iVHP, iVaHM, iVHM
       real(kind=wp) :: SQ2, SQI2, SQ3, Fac
       real(kind=wp) :: ValA, ValBP, ValBM, ValC1, ValC2, ONEADD, ValD1,
      &  ValD2, ValEP, ValEM, ValFP, ValFM, ValGP, ValGM, ValHP, ValHM
