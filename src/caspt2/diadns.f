@@ -128,7 +128,7 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        NK=NISH(ISYMK)
        NI=NISH(ISYMI)
        NKI=NK*NI
-       IF(NKI.EQ.0) GOTO 903
+       IF(NKI.EQ.0) CYCLE
        CALL DCOPY_(NIN*NKI,[Zero],0,X1,1)
        CALL DCOPY_(NIN*NKI,[Zero],0,X2,1)
        IF(ICASE.EQ.2) THEN
@@ -142,7 +142,7 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
          VAL1(1)= One
          VAL1(2)=-One
        END IF
-       IF(NLST1.EQ.0) GOTO 903
+       IF(NLST1.EQ.0) CYCLE
        INCX1=1
        INCX2=NIN
        INCX3=NIN*NK
@@ -157,7 +157,6 @@ C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        CALL DGEMM_('T','N',NI,NI,NIN*NK,-One,
      &            X2,NIN*NK,X1,NIN*NK,
      &            One,DPT2(IDIJ),NO)
- 903   CONTINUE
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
@@ -233,7 +232,7 @@ C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
         NK=NISH(ISYMK)
         NI=NISH(ISYMI)
         NAKI=NA*NK*NI
-        IF(NAKI.EQ.0) GOTO 907
+        IF(NAKI.EQ.0) CYCLE
         CALL DCOPY_(NIN*NAKI,[Zero],0,X1,1)
         CALL DCOPY_(NIN*NAKI,[Zero],0,X2,1)
         IF(ICASE.EQ.6) THEN
@@ -247,7 +246,7 @@ C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
           VAL1(1)= One
           VAL1(2)=-One
         END IF
-        IF(NLST1.EQ.0) GOTO 907
+        IF(NLST1.EQ.0) CYCLE
         INCX1=1
         INCX2=NIN*NA
         INCX3=NIN*NA*NK
@@ -262,7 +261,6 @@ C  D(I,J) := Add contraction -X2(MU,A,K,I)*X1(MU,A,K,J):
         CALL DGEMM_('T','N',NI,NI,NIN*NA*NK,-One,
      &             X2,NIN*NA*NK,X1,NIN*NA*NK,
      &             One,DPT2(IDIJ),NOI)
- 907    CONTINUE
        END DO
 C Second, contributions to DAB.
        IF(NKIY.GT.0) THEN
@@ -296,7 +294,7 @@ C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
        NC=NSSH(ISYMC)
        NA=NSSH(ISYMA)
        NCA=NC*NA
-       IF(NCA.EQ.0) GOTO 909
+       IF(NCA.EQ.0) CYCLE
        CALL DCOPY_(NIN*NCA,[Zero],0,X1,1)
        CALL DCOPY_(NIN*NCA,[Zero],0,X2,1)
        IF(ICASE.EQ.8) THEN
@@ -310,7 +308,7 @@ C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
          VAL1(1)= One
          VAL1(2)=-One
        END IF
-       IF(NLST1.EQ.0) GOTO 909
+       IF(NLST1.EQ.0) CYCLE
        INCX1=1
        INCX2=NIN
        INCX3=NIN*NC
@@ -325,7 +323,6 @@ C D(A,B) := Add contraction  X1(MU,C,A)*X2(MU,C,B):
        CALL DGEMM_('T','N',NA,NA,NIN*NC,+One,
      &            X1,NIN*NC,X2,NIN*NC,
      &            One,DPT2(IDAB),NOA)
- 909   CONTINUE
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
@@ -351,7 +348,7 @@ C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
         NC=NSSH(ISYMC)
         NA=NSSH(ISYMA)
         NICA=NI*NC*NA
-        IF(NICA.EQ.0) GOTO 911
+        IF(NICA.EQ.0) CYCLE
         CALL DCOPY_(NIN*NICA,[Zero],0,X1,1)
         CALL DCOPY_(NIN*NICA,[Zero],0,X2,1)
         IF(ICASE.EQ.10) THEN
@@ -365,7 +362,7 @@ C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
           VAL1(1)= One
           VAL1(2)=-One
         END IF
-        IF(NLST1.EQ.0) GOTO 911
+        IF(NLST1.EQ.0) CYCLE
         INCX1=1
         INCX2=NIN*NI
         INCX3=NIN*NI*NC
@@ -380,7 +377,6 @@ C  D(A,B) := Add contraction +X1(MU,I,C,A)*X2(MU,I,C,B):
         CALL DGEMM_('T','N',NA,NA,NIN*NI*NC,+One,
      &             X1,NIN*NI*NC,X2,NIN*NI*NC,
      &             One,DPT2(IDAB),NOA)
- 911    CONTINUE
        END DO
 C Second, contributions to DIJ.
        IF(NCAY.GT.0) THEN
@@ -414,7 +410,7 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        NK=NISH(ISYMK)
        NI=NISH(ISYMI)
        NKI=NK*NI
-       IF(NKI.EQ.0) GOTO 813
+       IF(NKI.EQ.0) CYCLE
        CALL DCOPY_(NAS*NKI,[Zero],0,X1,1)
        CALL DCOPY_(NAS*NKI,[Zero],0,X2,1)
        IF(ICASE.EQ.12) THEN
@@ -428,7 +424,7 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
          VAL1(1)= One
          VAL1(2)=-One
        END IF
-       IF(NLST1.EQ.0) GOTO 813
+       IF(NLST1.EQ.0) CYCLE
        INCX1=1
        INCX2=NAS
        INCX3=NAS*NK
@@ -443,7 +439,6 @@ C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        CALL DGEMM_('T','N',NI,NI,NAS*NK,-One,
      &            X2,NAS*NK,X1,NAS*NK,
      &            One,DPT2(IDIJ),NOI)
- 813   CONTINUE
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
@@ -456,7 +451,7 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
        NC=NSSH(ISYMC)
        NA=NSSH(ISYMA)
        NCA=NC*NA
-       IF(NCA.EQ.0) GOTO 913
+       IF(NCA.EQ.0) CYCLE
        CALL DCOPY_(NIS*NCA,[Zero],0,X1,1)
        CALL DCOPY_(NIS*NCA,[Zero],0,X2,1)
        IF(ICASE.EQ.12) THEN
@@ -470,7 +465,7 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
          VAL1(1)= One
          VAL1(2)=-One
        END IF
-       IF(NLST1.EQ.0) GOTO 913
+       IF(NLST1.EQ.0) CYCLE
        INCX1=NCA
        INCX2=1
        INCX3=NA
@@ -485,7 +480,6 @@ C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
        CALL DGEMM_('N','T',NA,NA,NIS*NC,+One,
      &            X1,NA,X2,NA,
      &            One,DPT2(IDAB),NOA)
- 913   CONTINUE
       END DO
       Call mma_deallocate(X1)
       Call mma_deallocate(X2)
