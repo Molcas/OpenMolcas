@@ -258,6 +258,7 @@ C in grpini)
           CALL DDAFILE(JOBMIX,1,CI2,NCONF,IDISK)
         END DO
       END IF
+
       CALL mma_deallocate(IDIST)
       CALL mma_deallocate(CI1)
       CALL mma_deallocate(CI2)
