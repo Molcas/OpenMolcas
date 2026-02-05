@@ -22,10 +22,13 @@
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
       use caspt2_global, only: do_grad
-      use EQSOLV
-      use Sigma_data
+      use EQSOLV, only: LLIST,NLIST
+      use Sigma_data, only: IFTEST,INCX1,INCX2,INCX3,INCY1,INCY2,LEN1,
+     &                      NLST1,VAL1
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: NIMX,NSMX,NSYM,NINDEP,NISUP,NASUP,NISH,
+     &                         NORB,MUL,NIGEJ,NIGTJ,NAGEB,NAGTB,NORB,
+     &                         NASH,NSSH
       IMPLICIT NONE
 
       integer(kind=iwp), intent(in):: ISYM, ICASE
