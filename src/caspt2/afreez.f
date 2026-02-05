@@ -37,10 +37,11 @@
 *****************************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use definitions, only: iwp, wp, u6
+      use constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
       use Molcas, only: MxBas, LenIn8
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 *
       integer(kind=iwp), intent(in):: NSYM
       integer(kind=iwp), intent(in):: NBAS(NSYM),NASH(NSYM)
@@ -58,6 +59,11 @@
       integer(kind=iwp):: LABFRO(mxbas)
       real(kind=wp), ALLOCATABLE :: SMAT(:)
       character(len=8) :: Label
+      real(kind=wp), parameter:: Thrs=1.d-06
+      real(kind=wp) chksum,selch,Swap
+      integer(kind=iwp):: I,ib,iComp,imo,imo0,iname,iopt,ipp,ipq,ipq0,
+     &                    iqq,irc,ist1,ist2,isym,isymlbl,nb2,NBAST,nbi,
+     &                    ndi,nfi,nfro1,ni,np,nq,nsi,NSMAT,ntri,ipq1,nin
 *
 *
 *----------------------------------------------------------------------*
@@ -72,9 +78,9 @@
         ntri=(nbas(i)+nbas(i)**2)/2+ntri
       End Do
       IF(NBAST.GT.MXBAS) then
-       Write(6,'(/6X,A)')
+       Write(u6,'(/6X,A)')
      & 'The number of basis functions exceeds the present limit'
-       Call Abend
+       Call Abend()
       Endif
 *
 *----------------------------------------------------------------------*
@@ -102,7 +108,6 @@
 *----------------------------------------------------------------------*
 *     Localize the inactive and virtual orbitals                       *
 *----------------------------------------------------------------------*
-      Thrs=1.d-06
       Call Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO)
       If(irc.ne.0) then
        write(u6,*) 'Localization failed. The AFRE option cannot be used'
@@ -129,7 +134,7 @@
       Enddo
 *      write(u6,*) 'Starting the calculation',nb2
       Do i=1,nb2
-       DPQ(i)=0.0d0
+       DPQ(i)=Zero
       Enddo
       ib=0
       imo0=0
@@ -180,7 +185,7 @@
 *         The diagonal now contains the charges for each basis function
 *         Add charges for basis functions centered on the selected atoms
 *         First check that the sum is equal to one
-          chksum=0.0d0
+          chksum=Zero
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
@@ -283,7 +288,7 @@
 *         The diagonal now contains the charges for each basis function
 *         Add charges for basis functions centered on the selected atoms
 *         First check that the sum is equal to one
-          chksum=0.0d0
+          chksum=Zero
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
