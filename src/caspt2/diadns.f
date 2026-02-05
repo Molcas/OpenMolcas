@@ -26,7 +26,7 @@
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 
       integer(kind=iwp), intent(in):: ISYM, ICASE
       real(kind=wp), Intent(in):: VEC1(*),VEC2(*)
@@ -36,6 +36,18 @@
       integer(kind=iwp) IOFDIJ(8),IOFDAB(8)
       integer(kind=iwp) IOFCD(8,8)
       real(kind=wp), ALLOCATABLE:: X1(:), X2(:)
+      real(kind=wp), Parameter:: SQR2=SQRT(Two)
+      integer(kind=iwp) NIN,NIS,NAS,NVEC,IDIJ,IS,NI,NA,NO,IDTU,
+     &                  IDAB,JS,ICD,ICEP,ICEM,ICGP,ICGM,IJS
+      integer(kind=iwp) IDII,II,III,IJ,IV1,IV2,LLST1
+      integer(kind=iwp) ISYMI,ISYMK,NK,NKI,NX
+      integer(kind=iwp) IA,IB,NS
+      integer(kind=iwp) INCA,ISYMA,IV,IV11,IV22,NOA,NOI
+      integer(kind=iwp) ISYMKI,IY,IY1,IY2,IYOFF,MU,NAKI,NKIY
+      integer(kind=iwp) ISYMC,NC,NCA
+      integer(kind=iwp) ISYMCA,NCAY,NICA
+      real(kind=wp) OVL,SUM
+      real(kind=wp), EXTERNAL:: DDOT_
 
 C Compute diagonal-block contribs to a trans density matrix.
 C Vector blocks are in spectral resolution basis (ON).
@@ -51,7 +63,6 @@ C since it requires transformation to standard (Non-ON) basis.
       IF(NIS.EQ.0) RETURN
       NAS=NASUP(ISYM,ICASE)
       NVEC=NIN*NIS
-      SQR2=SQRT(Two)
 
       IFTEST=0
 C Set up various offset arrays:
