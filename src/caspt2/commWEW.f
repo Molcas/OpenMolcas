@@ -42,7 +42,7 @@ CTEST       WRITE(*,*)' COMMWEW ISYM,ICASE:',ISYM,ICASE
 CTEST       WRITE(*,*)'                NAS:',NAS
 CTEST       WRITE(*,*)'                NIS:',NIS
 CTEST       WRITE(*,*)'              NCBLK:',NCBLK
-          IF(NCBLK.EQ.0) GOTO 200
+          IF(NCBLK.EQ.0) CYCLE
 C Allocate CBLK, TBLK
           CALL MMA_ALLOCATE(CBLK,NCBLK)
           CALL MMA_ALLOCATE(TBLK,NCBLK)
@@ -65,10 +65,10 @@ C IVEC into CBLK:
             CALL RDBLKC(ISYM,ICASE,IVEC,CBLK)
           END IF
 C Finally, branch to the appropriate code section:
-          GOTO(1,2,3,4,5,6,7,8,9,10,11) ICASE
 
+      SELECT CASE (ICASE)
 C Case 1 code section:
-   1  CONTINUE
+      CASE (1)
       K000=NTUVES(ISYM)
 
       DO ISYMX=1,NSYM
@@ -109,10 +109,9 @@ C Case 1 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 2 code section:
-   2  CONTINUE
+      CASE (2)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
         DO IX=1,NAX
@@ -147,10 +146,9 @@ C Case 2 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 3 code section:
-   3  CONTINUE
+      CASE (3)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
         DO IX=1,NAX
@@ -162,8 +160,8 @@ C Case 3 code section:
             ISYMT=MUL(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
-              IF(ITABS.EQ.IXABS) GOTO 390
-              IF(ITABS.EQ.IYABS) GOTO 390
+              IF(ITABS.EQ.IXABS) CYCLE
+              IF(ITABS.EQ.IYABS) CYCLE
               IF(ITABS.GT.IXABS) THEN
                 IXT=KTGTU(ITABS,IXABS)-NTGTUES(ISYM)
                 SGN=1.0d0
@@ -184,17 +182,15 @@ C Case 3 code section:
               END DO
               SUM=SUM+SGN*PARTSUM
 
- 390          CONTINUE
             END DO
             DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
 
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 4 code section:
-   4  CONTINUE
+      CASE (4)
       K000=NTUVES(ISYM)
 
       DO ISYMX=1,NSYM
@@ -235,10 +231,9 @@ C Case 4 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 5 code section:
-   5  CONTINUE
+      CASE (5)
       NAS1=NAS/2
 
       DO ISYMX=1,NSYM
@@ -276,10 +271,9 @@ C Case 5 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 6 code section:
-   6  CONTINUE
+      CASE (6)
       NAX=NASH(ISYM)
       DO IX=1,NAX
         IXABS=NAES(ISYM)+IX
@@ -295,10 +289,9 @@ C Case 6 code section:
 
         END DO
       END DO
-      GOTO 100
 
 C Case 7 code section:
-   7  CONTINUE
+      CASE (7)
       NAX=NASH(ISYM)
       DO IX=1,NAX
         IXABS=NAES(ISYM)+IX
@@ -314,10 +307,9 @@ C Case 7 code section:
 
         END DO
       END DO
-      GOTO 100
 
 C Case 8 code section:
-   8  CONTINUE
+      CASE (8)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
         DO IX=1,NAX
@@ -353,10 +345,9 @@ C Case 8 code section:
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 9 code section:
-   9  CONTINUE
+      CASE (9)
       DO ISYMX=1,NSYM
         NAX=NASH(ISYMX)
         DO IX=1,NAX
@@ -368,8 +359,8 @@ C Case 9 code section:
             ISYMT=MUL(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
-              IF(ITABS.EQ.IXABS) GOTO 990
-              IF(ITABS.EQ.IYABS) GOTO 990
+              IF(ITABS.EQ.IXABS) CYCLE
+              IF(ITABS.EQ.IYABS) CYCLE
               IF(ITABS.GT.IXABS) THEN
                 IXT=KTGTU(ITABS,IXABS)-NTGTUES(ISYM)
                 SGN=1.0d0
@@ -390,17 +381,15 @@ C Case 9 code section:
               END DO
               SUM=SUM+SGN*PARTSUM
 
- 990          CONTINUE
             END DO
             DCOM(IXABS,IYABS)=DCOM(IXABS,IYABS)+SUM
 
           END DO
         END DO
       END DO
-      GOTO 100
 
 C Case 10 code section:
-  10  CONTINUE
+      CASE (10)
       NAX=NASH(ISYM)
       DO IX=1,NAX
         IXABS=NAES(ISYM)+IX
@@ -416,10 +405,9 @@ C Case 10 code section:
 
         END DO
       END DO
-      GOTO 100
 
 C Case 11 code section:
-  11  CONTINUE
+      CASE (11)
       NAX=NASH(ISYM)
       DO IX=1,NAX
         IXABS=NAES(ISYM)+IX
@@ -435,18 +423,17 @@ C Case 11 code section:
 
         END DO
       END DO
-      GOTO 100
+
+      CASE DEFAULT
+       CALL ABEND()
+      END SELECT
 
 
- 100  CONTINUE
       CALL MMA_DEALLOCATE(CBLK)
       CALL MMA_DEALLOCATE(TBLK)
-
- 200  CONTINUE
 
 C Here ends the loops over ISYM and ICASE.
         END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE COMMWEW
