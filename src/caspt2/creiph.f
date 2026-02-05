@@ -27,7 +27,7 @@
      &                         NDEL,NELE3,NFRO,NHOLE1,NISH,NRAS1,NRAS2,
      &                         NRAS3,NROOTS,NSYM,POTNUC,STSYM,TITLE,
      &                         MSTATE,ENERGY,MSTATE
-      use pt2_guga
+      use pt2_guga, only: CITHR,MXCI
       IMPLICIT None
 C Normal operation: A new file, 'JOBMIX', will be created, with the
 C CMO's and CI arrays of the JOBIPH, except that the CI arrays have
