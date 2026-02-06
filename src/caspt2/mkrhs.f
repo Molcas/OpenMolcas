@@ -75,17 +75,22 @@ C INTEGRAL BUFFERS:
 
       SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,SCR)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
-      use EQSOLV
+      use constants, only: Zero
+      USE SUPERINDEX, only: KTUV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
+      use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NISH,MUL,NASH,NISH,
+     &                         NAES,NTUVES,NACTEL
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
       integer(kind=iwp), intent(in)::IVEC, NFIMO
       real(kind=wp), intent(inout):: FIMO(NFIMO), ERI(*), SCR(*)
 
+      integer(kind=iwp) NFNXT,ISYM,NFIMOES,NAS,NIS,NV,NI,LW,ISYMT,
+     &                  ISYMUV,ISYMU,ISYMV,IT,ITTOT,ITABS,II,IU,IUTOT,
+     &                  IUABS,IV,IVTOT,IVABS,IW1,IW2,IW,IBUF,ICASE
+      real(kind=wp) FTI,ONEADD,WTUVI
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 1 (VJTU).
 
@@ -112,7 +117,7 @@ C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
                 ITABS=IT+NAES(ISYMT)
                 DO II=1,NI
                   CALL COUL(ISYMU,ISYMV,ISYMT,ISYM,ITTOT,II,ERI,SCR)
-                  ONEADD=0.0D0
+                  ONEADD=Zero
                   IF(ISYMT.EQ.ISYM) THEN
                     FTI=FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+II)
                     ONEADD=FTI/DBLE(MAX(1,NACTEL))
