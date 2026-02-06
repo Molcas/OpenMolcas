@@ -371,18 +371,23 @@ C   Put W on disk
 
       SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
-      use EQSOLV
+      use constants, only: Zero
+      USE SUPERINDEX, only: KTU
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NINDEP,MUL,NSSH,NISH,NTU,NISUP,
+     &                         NACTEL,NORB,NAES,NASH,NTUES
+      IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC, NFIMO
       real(kind=wp), intent(inout):: FIMO(NFIMO)
       real(kind=wp), intent(inout):: ERI1(*),ERI2(*), SCR(*)
 
       integer(kind=iwp) IOFF(8)
-
+      integer(kind=iwp) ISYM,IO,ISYMI,NAS1,NAS,NIS,NV,LW,NFSUM,
+     &                  NFIMOES,ISYMA,ISYMU,ISYMT,II,IU,IUABS,
+     &                  IUTOT,IA,IATOT,IT,ITABS,ITTOT,IWA,IWI,IW1,IW2,
+     &                  IBUF1,IBUF2,ICASE
+      real(kind=wp) ONEADD,FAI,WAITU
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 5, AIVX.
 
@@ -421,7 +426,7 @@ C Compute W2(tu,ai)=(ti,au)
      &                      II,IUTOT,ERI2,SCR)
                   DO IA=1,NSSH(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    ONEADD=0.0D0
+                    ONEADD=Zero
                     IF(ISYM.EQ.1) THEN
                       FAI=FIMO(NFIMOES+(IATOT*(IATOT-1))/2+II)
                       ONEADD=FAI/DBLE(MAX(1,NACTEL))
