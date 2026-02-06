@@ -780,25 +780,25 @@ C   VP(ij,ab)=2*((aibj)+(ajbi))
 C With new norm., divide by /SQRT(4*(1+Kron(ij))*(1+Kron(ab))
 C   VM(ij,ab)=6*((aibj)-(ajbi))
 C With new norm., divide by /SQRT(12)
-          DO 840 ISYMA=1,NSYM
+          DO ISYMA=1,NSYM
             ISYMB=MUL(ISYMA,ISYM)
-            IF(ISYMA.LT.ISYMB) GOTO 840
-            DO 830 ISYMI=1,NSYM
+            IF(ISYMA.LT.ISYMB) CYCLE
+            DO ISYMI=1,NSYM
               ISYMJ=MUL(ISYMI,ISYM)
-              IF(ISYMI.LT.ISYMJ) GOTO 830
-              DO 820 II=1,NISH(ISYMI)
+              IF(ISYMI.LT.ISYMJ) CYCLE
+              DO II=1,NISH(ISYMI)
                 IIABS=II+NIES(ISYMI)
-                DO 810 IJ=1,NISH(ISYMJ)
+                DO IJ=1,NISH(ISYMJ)
                   IJABS=IJ+NIES(ISYMJ)
-                  IF(IIABS.LT.IJABS) GOTO 820
+                  IF(IIABS.LT.IJABS) EXIT
                   CALL EXCH(ISYMA,ISYMI,ISYMB,ISYMJ,II,IJ,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMJ,ISYMB,ISYMI,IJ,II,ERI2,SCR)
-                  DO 811 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IAABS=IA+NSES(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    DO 800 IB=1,NSSH(ISYMB)
+                    DO IB=1,NSSH(ISYMB)
                       IBABS=IB+NSES(ISYMB)
-                      IF(IAABS.LT.IBABS) GOTO 811
+                      IF(IAABS.LT.IBABS) EXIT
                       IBTOT=IB+NISH(ISYMB)+NASH(ISYMB)
                       IBUF=IATOT+NORB(ISYMA)*(IBTOT-1)
                       IVAP=KAGEB(IAABS,IBABS)-NAGEBES(ISYM)
@@ -823,12 +823,12 @@ C With new norm., divide by /SQRT(12)
                           GA_Arrays(LVP)%A(IVP)=0.5D0*A
                         END IF
                       END IF
- 800                CONTINUE
- 811              CONTINUE
- 810            CONTINUE
- 820          CONTINUE
- 830        CONTINUE
- 840      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 
           ICASE=12
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LVP)
