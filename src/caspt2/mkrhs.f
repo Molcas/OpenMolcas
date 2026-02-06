@@ -152,11 +152,12 @@ C Put W on disk:
       SUBROUTINE MKRHSB(IVEC,ERI,SCR)
       use definitions, only: iwp, wp
       use constants, only: Quart, Half, Two
-      USE SUPERINDEX
-      use EQSOLV
+      USE SUPERINDEX, only: KTGEU,KTGTU,KIGEJ,KIGTJ
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
+      use caspt2_module, only: NSYM,NINDEP,NTGEU,NIGEJ,NTGTU,NIGTJ,MUL,
+     &                         NASH,NISH,NAES,NTGEUES,NTGTUES,NIGEJES,
+     &                         NIES,NORB,NIGTJES
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
       real(kind=wp), Intent(inout):: ERI(*), SCR(*)
