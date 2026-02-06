@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE H0SPCT()
+      use definitions, only: iwp, wp, u6
       use caspt2_global, only:iPrGlb
       use caspt2_global, only:dnmThr,cntThr,cmpThr
       use caspt2_global, only:LUSBT
@@ -43,32 +44,32 @@ C Write pertinent warnings and statistics for the energy
 C denominators, i.e. the spectrum of (H0(diag)-E0).
 
 
-      WRITE(6,*)
+      WRITE(u6,*)
       Call CollapseOutput(1,'Denominators, etc.')
-      WRITE(6,'(10A11)')('-----------',i=1,10)
-      WRITE(6,'(A)')' Report on small energy denominators, large'//
+      WRITE(u6,'(10A11)')('-----------',i=1,10)
+      WRITE(u6,'(A)')' Report on small energy denominators, large'//
      &   ' coefficients, and large energy contributions.'
 
       IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,'(A)')
+        WRITE(u6,'(A)')
      &   '  The ACTIVE-MIX index denotes linear combinations'//
      &   ' which gives ON expansion functions'
-        WRITE(6,'(A)')'  and makes H0 diagonal within type.'
-        WRITE(6,'(A)')
+        WRITE(u6,'(A)')'  and makes H0 diagonal within type.'
+        WRITE(u6,'(A)')
      &   '  DENOMINATOR: The (H0_ii - E0) value from the above-'//
      &   'mentioned diagonal approximation.'
-        WRITE(6,'(A)')'  RHS VALUE  : Right-Hand Side of CASPT2 Eqs.'
-        WRITE(6,'(A)')
+        WRITE(u6,'(A)')'  RHS VALUE  : Right-Hand Side of CASPT2 Eqs.'
+        WRITE(u6,'(A)')
      &   '  COEFFICIENT: Multiplies each of the above ON terms'//
      &   ' in the first-order wave function.'
-        WRITE(6,'(A)')' Thresholds used:'
-        WRITE(6,'(a,f7.4)')'         Denominators:',DNMTHR
-        WRITE(6,'(a,f7.4)')'         Coefficients:',CMPTHR
-        WRITE(6,'(a,f7.4)')' Energy contributions:',CNTTHR
-        WRITE(6,*)
+        WRITE(u6,'(A)')' Thresholds used:'
+        WRITE(u6,'(a,f7.4)')'         Denominators:',DNMTHR
+        WRITE(u6,'(a,f7.4)')'         Coefficients:',CMPTHR
+        WRITE(u6,'(a,f7.4)')' Energy contributions:',CNTTHR
+        WRITE(u6,*)
       END IF
 
-      WRITE(6,'(A)')'CASE  SYMM ACTIVE-MIX  NON-ACTIVE'
+      WRITE(u6,'(A)')'CASE  SYMM ACTIVE-MIX  NON-ACTIVE'
      &            //' INDICES          DENOMINATOR'
      &            //'     RHS VALUE       COEFFICIENT'
      &            //'     CONTRIBUTION'
@@ -111,7 +112,7 @@ C positioning.
             myRank = GA_NodeID()
             CALL GA_Distribution (lg_RHS,myRank,IASTA,IAEND,IISTA,IIEND)
             IF (IASTA.NE.0 .AND. IAEND-IASTA+1.NE.NIN) THEN
-              WRITE(6,*) 'RHSOD: mismatch in range of the superindices'
+              WRITE(u6,*) 'RHSOD: mismatch in range of the superindices'
               CALL AbEnd()
             END IF
 * if the block is non-empty, loop over its elements
@@ -119,7 +120,7 @@ C positioning.
               CALL GA_Access (lg_RHS,IASTA,IAEND,IISTA,IIEND,mRHS,LD)
               CALL GA_Access (lg_VEC,IASTA,IAEND,IISTA,IIEND,mVEC,LD)
               IF (LD.NE.NIN) THEN
-                WRITE(6,*) 'RHSOD: assumption NAS=LDW wrong, abort'
+                WRITE(u6,*) 'RHSOD: assumption NAS=LDW wrong, abort'
                 CALL AbEnd()
               END IF
               NA=NAS*(IIEND-IISTA+1)
@@ -218,7 +219,7 @@ C positioning.
               IF(IQ.GT.0) LINE(31:38)=ORBNAM(IQ)
               IF(IR.GT.0) LINE(39:46)=ORBNAM(IR)
             END IF
-            WRITE(6,'(A,4F16.8)') LINE(1:46),DNOM,RHS,COEF,ECNT
+            WRITE(u6,'(A,4F16.8)') LINE(1:46),DNOM,RHS,COEF,ECNT
           END DO
 
 #ifdef _MOLCAS_MPP_
