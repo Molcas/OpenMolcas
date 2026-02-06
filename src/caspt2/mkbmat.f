@@ -119,6 +119,7 @@ C looping, etc in the rest of the routines.
 * Case A (ICASE=1)
 ********************************************************************************
       SUBROUTINE MKBA(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
+      use definitions, only: iwp, wp, Byte
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       USE SUPERINDEX
@@ -133,12 +134,12 @@ C looping, etc in the rest of the routines.
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER NDREF,NPREF, NG3
-      Real*8 DREF(NDREF),PREF(NPREF),F3(NG3)
-      Real*8 FD(NDREF),FP(NPREF)
-      INTEGER*1 idxG3(6,NG3)
+      INTEGER(KIND=IWP) NDREF,NPREF, NG3
+      Real(KIND=WP) DREF(NDREF),PREF(NPREF),F3(NG3)
+      Real(KIND=WP) FD(NDREF),FP(NPREF)
+      INTEGER(KIND=Byte) idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
-      Real*8 Dummy(1)
+      Real(KIND=WP) Dummy(1)
 #endif
 
       ICASE=1
@@ -207,15 +208,16 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 
       SUBROUTINE MKBA_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
      &                    BA,iLo,iHi,jLo,jHi,LDA)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NDREF, NPREF, iSYM, iLo, iHi, jLo, jHi, LDA
-      DIMENSION DREF(NDREF),PREF(NPREF)
-      DIMENSION FD(NDREF),FP(NPREF)
-      DIMENSION BA(*)
+      INTEGER(KIND=IWP) NDREF, NPREF, iSYM, iLo, iHi, jLo, jHi, LDA
+      REAL(KIND=WP) DREF(NDREF),PREF(NPREF)
+      REAL(KIND=WP) FD(NDREF),FP(NPREF)
+      REAL(KIND=WP) BA(*)
 
 CSV.20100831: fill in the F2 and F1 corrections for this BA block
 C on entry, BA should contain SA!!
@@ -306,14 +308,17 @@ CGG End
       END SUBROUTINE MKBA_DP
 
       SUBROUTINE MKBA_F3(ISYM,BA,NG3,F3,idxG3)
+      use definitions, only: iwp, wp, Byte
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      REAL*8 BA(*)
-      REAL*8 F3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      REAL(KIND=WP) BA(*)
+      REAL(KIND=WP) F3(NG3)
+      INTEGER(KIND=Byte) idxG3(6,NG3)
+
+      INTEGER(KIND=IWP) iG3
 
 C-SVC20100831: determine indices in SA where a certain F3 value will end up
       DO iG3=1,NG3
@@ -476,6 +481,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKBA_F3_MPP(ISYM,BA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,F3,idxG3)
+      use definitions, only: iwp, wp, Byte
       USE MPI
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
@@ -487,9 +493,9 @@ C  - F(xvzyut) -> BA(yvx,zut)
 #include "global.fh"
 #include "mafdecls.fh"
 
-      DIMENSION BA(LDA,*)
-      DIMENSION F3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      REAL(KIND=WP) BA(LDA,*)
+      REAL(KIND=WP) F3(NG3)
+      INTEGER(KIND=Byte) idxG3(6,NG3)
 
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
@@ -497,13 +503,13 @@ C  - F(xvzyut) -> BA(yvx,zut)
       integer(kind=MPIInt), ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
 
       integer(kind=MPIInt), ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
-      REAL*8,    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
+      REAL(KIND=WP),    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
 
       integer(kind=MPIInt), PARAMETER :: ONE4=1, TWO4=2
       integer(kind=MPIInt) :: IERROR4
-      INTEGER, PARAMETER :: I4=KIND(ONE4)
+      INTEGER(KIND=IWP), PARAMETER :: I4=KIND(ONE4)
 
-      INTEGER, ALLOCATABLE :: IBUF(:)
+      INTEGER(KIND=IWP), ALLOCATABLE :: IBUF(:)
 
 #include "mpi_interfaces.fh"
 
@@ -939,6 +945,7 @@ c Avoid unused argument warnings
 * Case C (ICASE=4)
 ********************************************************************************
       SUBROUTINE MKBC(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
+      use definitions, only: iwp, wp, Byte
       USE SUPERINDEX
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
@@ -953,12 +960,12 @@ c Avoid unused argument warnings
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER NDREF, NPREF, NG3
-      Real*8 DREF(NDREF),PREF(NPREF),F3(NG3)
-      Real*8 FD(NDREF),FP(NPREF)
-      INTEGER*1 idxG3(6,NG3)
+      INTEGER(KIND=IWP) NDREF, NPREF, NG3
+      Real(KIND=WP) DREF(NDREF),PREF(NPREF),F3(NG3)
+      Real(KIND=WP) FD(NDREF),FP(NPREF)
+      INTEGER(KIND=Byte) idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
-      Real*8 Dummy(1)
+      Real(KIND=WP) Dummy(1)
 #endif
 
       ICASE=4
@@ -1030,15 +1037,16 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
 
       SUBROUTINE MKBC_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
      &                    BC,iLo,iHi,jLo,jHi,LDC)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NDREF,NPREF, iSYM,iLo,iHi,jLo,jHi,LDC
-      REAL*8 DREF(NDREF),PREF(NPREF)
-      REAL*8 FD(NDREF),FP(NPREF)
-      REAL*8 BC(*)
+      INTEGER(KIND=IWP) NDREF,NPREF, iSYM,iLo,iHi,jLo,jHi,LDC
+      REAL(KIND=WP) DREF(NDREF),PREF(NPREF)
+      REAL(KIND=WP) FD(NDREF),FP(NPREF)
+      REAL(KIND=WP) BC(*)
 
       DO IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
@@ -1113,14 +1121,17 @@ CGG End
       END SUBROUTINE MKBC_DP
 
       SUBROUTINE MKBC_F3(ISYM,BC,NG3,F3,idxG3)
+      use definitions, only: iwp, wp, Byte
       USE SUPERINDEX
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      DIMENSION BC(*)
-      DIMENSION F3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      REAL(KIND=WP) BC(*)
+      REAL(KIND=WP) F3(NG3)
+      INTEGER(KIND=BYTE) idxG3(6,NG3)
+
+      INTEGER(KIND=IWP) iG3
 
 C-SVC20100831: determine indices in BC where a certain G3 value will end up
       DO iG3=1,NG3
@@ -1283,6 +1294,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
 #ifdef _MOLCAS_MPP_
       SUBROUTINE MKBC_F3_MPP(ISYM,BC,iLo,iHi,jLo,jHi,LDC,
      &                       NG3,F3,idxG3)
+      use definitions, only: iwp, wp, Byte
       USE MPI
       USE SUPERINDEX
       use stdalloc, only: mma_MaxDBLE
@@ -1294,9 +1306,9 @@ C  - F(xvzyut) -> BC(zvx,yut)
 #include "global.fh"
 #include "mafdecls.fh"
 
-      DIMENSION BC(LDC,*)
-      DIMENSION F3(NG3)
-      INTEGER*1 idxG3(6,NG3)
+      REAL(KIND=WP) BC(LDC,*)
+      REAL(KIND=WP) F3(NG3)
+      INTEGER(kind=Byte) idxG3(6,NG3)
 
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
@@ -1308,9 +1320,9 @@ C  - F(xvzyut) -> BC(zvx,yut)
 
       integer(kind=MPIInt), PARAMETER :: ONE4=1, TWO4=2
       integer(kind=MPIInt) :: IERROR4
-      INTEGER, PARAMETER :: I4=KIND(ONE4)
+      INTEGER(KIND=IWP), PARAMETER :: I4=KIND(ONE4)
 
-      INTEGER, ALLOCATABLE :: IBUF(:)
+      INTEGER(KIND=IWP), ALLOCATABLE :: IBUF(:)
 
 #include "mpi_interfaces.fh"
 
@@ -1726,9 +1738,11 @@ c Avoid unused argument warnings
 
       CONTAINS
 
-      PURE INTEGER FUNCTION IPROW(IROW,NQOT,NREM)
-      INTEGER, INTENT(IN) :: IROW, NQOT, NREM
-      INTEGER :: TMP
+      PURE FUNCTION IPROW(IROW,NQOT,NREM)
+      use definitions, only: iwp
+      INTEGER(KIND=IWP) IPROW
+      INTEGER(KIND=IWP), INTENT(IN) :: IROW, NQOT, NREM
+      INTEGER(KIND=IWP) :: TMP
       TMP=IROW-NREM*(NQOT+1)
       IF (TMP.GT.0) THEN
         IPROW=(TMP-1)/NQOT+NREM+1
@@ -1741,6 +1755,7 @@ c Avoid unused argument warnings
 #endif
 
       SUBROUTINE MKBB(DREF,NDREF,PREF,NPREF,FD,FP)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use caspt2_global, only: LUSBT
@@ -1749,11 +1764,11 @@ c Avoid unused argument warnings
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NDREF,NPREF
-      REAL*8 DREF(NDREF),PREF(NPREF)
-      REAL*8 FD(NDREF),FP(NPREF)
+      INTEGER(KIND=IWP) NDREF,NPREF
+      REAL(KIND=WP) DREF(NDREF),PREF(NPREF)
+      REAL(KIND=WP) FD(NDREF),FP(NPREF)
 
-      REAL*8, ALLOCATABLE:: BB(:), BBP(:), SP(:), SDP(:),
+      REAL(KIND=WP), ALLOCATABLE:: BB(:), BBP(:), SP(:), SDP(:),
      &                             BBM(:), SM(:), SDM(:)
 
 C Set up the matrices BBP(tu,xy) and BBM(tu,xy)
@@ -1955,6 +1970,7 @@ CGG End
       END SUBROUTINE MKBB
 
       SUBROUTINE MKBD(DREF,NDREF,PREF,NPREF,FD,FP)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use caspt2_global, only:LUSBT
@@ -1963,11 +1979,11 @@ CGG End
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NDREF,NPREF
-      REAL*8 DREF(NDREF),PREF(NPREF)
-      REAL*8 FD(NDREF),FP(NPREF)
+      INTEGER(KIND=IWP) NDREF,NPREF
+      REAL(KIND=WP) DREF(NDREF),PREF(NPREF)
+      REAL(KIND=WP) FD(NDREF),FP(NPREF)
 
-      REAL*8, ALLOCATABLE:: BD(:), S(:), SD(:)
+      REAL(KIND=WP), ALLOCATABLE:: BD(:), S(:), SD(:)
 
 C Set up the matrix BD(tuP,xyQ),P and Q are 1 or 2,
 C Formulae used:
@@ -2072,6 +2088,7 @@ CGG End
       END SUBROUTINE MKBD
 
       SUBROUTINE MKBE(DREF,NDREF,FD)
+      use definitions, only: iwp, wp
       use caspt2_global, only:ipea_shift
       use caspt2_global, only:LUSBT
       use EQSOLV
@@ -2079,10 +2096,10 @@ CGG End
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NDREF
-      REAL*8 DREF(NDREF),FD(NDREF)
+      INTEGER(KIND=IWP) NDREF
+      REAL(KIND=WP) DREF(NDREF),FD(NDREF)
 
-      Real*8, ALLOCATABLE:: BE(:), S(:), SD(:)
+      Real(KIND=WP), ALLOCATABLE:: BE(:), S(:), SD(:)
 
 C Set up the matrix BE(t,x)
 C Formula used:
