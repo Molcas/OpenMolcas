@@ -16,11 +16,14 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
       use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       integer(kind=iwp), intent(in):: NDREF, NPREF
       real(kind=wp), intent(out):: DREF(NDREF), PREF(NPREF)
 
       real(kind=wp), ALLOCATABLE:: G1(:), G2(:)
+      integer(kind=iwp) I,J,IJ,IJT,IJKLT,N2,JI,KLT,K,L,KL,LK,IJKL,IJLK,
+     &                  JILK,JIKL
+      real(kind=wp) P1, P2
 
 * Get active 1-density and 2-density matrices GAMMA1 and
 * GAMMA2, and construct DREF and PREF which are in a tringular
