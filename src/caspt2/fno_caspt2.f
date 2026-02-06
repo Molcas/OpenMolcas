@@ -19,25 +19,30 @@
 *     Author:   F. Aquilante  (Geneva, May  2008)                           *
 *                                                                           *
 *****************************************************************************
+      use definitions, only: iwp, wp
       use InputData, only: Input
       use ChoMP2, only: DeMP2, MP2_small, shf
       use stdalloc, only: mma_allocate, mma_deallocate
       use Molcas, only: MxBas
       Implicit Real*8 (A-H,O-Z)
 *
-      Integer irc,nSym,IFQCAN
-      Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
-     &        nDel(nSym)
-      Real*8  EMP2, vfrac
-      Logical DoMP2
-      Integer NCMO
-      Real*8 CMO(NCMO)
+      Integer(kind=iwp), intent(out):: irc
+      Integer(kind=iwp), intent(in):: nSym
+      Integer(kind=iwp), intent(in):: nBas(nSym),nFro(nSym),nIsh(nSym),
+     &                                nAsh(nSym)
+      Integer(kind=iwp), intent(inout):: nSsh(nSym),nDel(nSym)
+      real(kind=wp), intent(in)::  vfrac
+      Integer(kind=iwp), intent(inout):: IFQCAN
+      real(kind=wp), intent(out)::  EMP2
+      Logical(kind=iwp), intent(in):: DoMP2
+      Integer(kind=iwp), intent(in):: NCMO
+      real(kind=wp), intent(inout):: CMO(NCMO)
 *
-      Integer ns_V(8), nAct(8)
-      Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Real*8  TrDP(8), TrDF(8)
-      REAL*8, allocatable:: CMOX(:), DMAT(:), OrbE(:)
-      Integer, allocatable:: ID(:)
+      Integer(kind=iwp) ns_V(8), nAct(8)
+      Integer(kind=iwp) lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+      real(kind=wp)  TrDP(8), TrDF(8)
+      real(kind=wp), allocatable:: CMOX(:), DMAT(:), OrbE(:)
+      Integer(kind=iwp), allocatable:: ID(:)
 *
 *
       irc=0
