@@ -13,14 +13,14 @@
       Subroutine GrdIni()
 
       use caspt2_global, only: LuPT2,LuGAMMA,LuCMOPT2,LuAPT2,
-     *                         do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
-     *                         idBoriMat,TraFro,
-     *                         CLag,CLagFull,OLag,OLagFull,SLag,WLag,
-     *                         nCLag,nOLag,nSLag,nWLag,
-     *                         DPT2_tot,DPT2C_tot,DPT2_AO_tot,
-     *                         DPT2C_AO_tot,DPT2Canti_tot,
-     *                         FIMO_all,FIFA_all,FIFASA_all,idSDMat,
-     *                         OMGDER,iTasks_grad
+     &                         do_nac,do_lindep,LUGRAD,LUSTD,iStpGrd,
+     &                         idBoriMat,TraFro,
+     &                         CLag,CLagFull,OLag,OLagFull,SLag,WLag,
+     &                         nCLag,nOLag,nSLag,nWLag,
+     &                         DPT2_tot,DPT2C_tot,DPT2_AO_tot,
+     &                         DPT2C_AO_tot,DPT2Canti_tot,
+     &                         FIMO_all,FIFA_all,FIFASA_all,idSDMat,
+     &                         OMGDER,iTasks_grad
       use stdalloc, only: mma_allocate,mma_deallocate
       use Constants, only: Zero
       use definitions, only: wp, iwp
@@ -86,7 +86,7 @@
       If (Exists) iStpGrd = 0
       ! Not sure none/mf/mf_wa
       CALL DANAME_MF_wa(LUGRAD,'LUPT2GRD')
-C
+
       !! Allocate lagrangian terms
       ! CLag and SLag should allocate for nRoots and not nState,
       ! but for the time being we only support the case nState=nRoots
@@ -94,7 +94,7 @@ C
       nOLag = NBSQT
       nSLag = nState*nState
       nWLag = NBTRI
-C
+
       call mma_allocate(DPT2_tot    ,NBSQT,Label='DPT2_tot')
       call mma_allocate(DPT2C_tot   ,NBSQT,Label='DPT2C_tot')
       call mma_allocate(DPT2_AO_tot ,NBSQT,Label='DPT2_AO_tot')
@@ -103,7 +103,7 @@ C
       DPT2C_tot(:)    = Zero
       DPT2_AO_tot(:)  = Zero
       DPT2C_AO_tot(:) = Zero
-C
+
       !! Some Lagrangians for each state are constructed in CLag or
       !! OLag. The full (sum over all states, in particular for
       !! MS-CASPT2) configuration and orbital Lagrangians are then
@@ -121,14 +121,14 @@ C
       OLagFull(:)   = Zero
       SLag(:,:)     = Zero
       WLag(:)       = Zero
-C     write(6,*) "nclag,nolag,nslag"
-C     write(6,*)  nclag, nolag, nslag
-C
+!     write(6,*) "nclag,nolag,nslag"
+!     write(6,*)  nclag, nolag, nslag
+
       call mma_allocate(FIMO_all,NBSQT,Label='FIMO_all')
       call mma_allocate(FIFA_all,NBSQT,Label='FIFA_all')
       FIMO_all(:) = Zero
       FIFA_all(:) = Zero
-C
+
       !! FIFASA is constructed with state-averaged density always
       !! FIFA   can be state-specific or dynamically weighted
       !! FIMO   is uniquely determined, but the basis can be
@@ -138,17 +138,17 @@ C
         FIFASA_all(:) = Zero
         ! norbi=norb(1)
       End If
-C
+
       If (IFDW .and. zeta >= Zero) Then
         call mma_allocate(OMGDER,nState,nState,Label='OMGDER')
         OMGDER(:,:) = Zero
       End If
-C
+
       If (do_nac) Then
         call mma_allocate(DPT2Canti_tot,NBSQT,Label='DPT2Canti_tot')
         DPT2Canti_tot(:) = Zero
       End If
-C
+
       MaxLen = 0
       Do iCase = 1, 11
         Do iSym = 1, nSym
@@ -156,12 +156,12 @@ C
           MaxLen = Max(MaxLen,nAS*nAS)
         End Do
       End Do
-C
+
       call mma_allocate(WRK,MaxLen,Label='WRK')
       WRK(:) = Zero
-C
+
       idSD = 1
-C     write (*,*) "iflindep = ", iflindeplag
+!     write (*,*) "iflindep = ", iflindeplag
       If (do_lindep) Then
         Do iCase = 1, 11
           DO iSym = 1, nSym
@@ -174,7 +174,7 @@ C     write (*,*) "iflindep = ", iflindeplag
           End Do
         End Do
       End If
-C
+
       If (MAXIT /= 0) Then
         Do iCase = 1, 11
           Do iSym = 1, nSym
@@ -188,29 +188,29 @@ C
         End Do
       End If
       call mma_deallocate(WRK)
-C
+
       if (nFroT /= 0) call mma_allocate(TraFro,nFroT**2,Label='TraFro')
       call mma_allocate(iTasks_grad,nAshT**2,Label='Tasks_grad')
       iTasks_grad(:) = 0
-C
+
       Return
 
       End Subroutine GrdIni
-
-C-----------------------------------------------------------------------
-
+!
+!-----------------------------------------------------------------------
+!
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
-C
+
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: LuPT2,LuAPT2,
-     *                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
-     *                           LUSTD,TraFro,
-     *                           CLag,CLagFull,OLag,OLagFull,SLag,WLag,
-     *                           nOLag,nWLag,
-     *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
-     *                           DPT2C_AO_tot,DPT2Canti_tot,
-     *                           FIMO_all,FIFA_all,FIFASA_all,OMGDER,
-     *                           iTasks_grad
+     &                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
+     &                           LUSTD,TraFro,
+     &                           CLag,CLagFull,OLag,OLagFull,SLag,WLag,
+     &                           nOLag,nWLag,
+     &                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
+     &                           DPT2C_AO_tot,DPT2Canti_tot,
+     &                           FIMO_all,FIFA_all,FIFASA_all,OMGDER,
+     &                           iTasks_grad
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate,mma_deallocate
       use Constants, only: Zero, One, Half, Two
@@ -221,9 +221,9 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-C
+
       implicit none
-C
+
       integer(kind=iwp), intent(in) :: IRETURN
       real(kind=wp), intent(in) :: H0(nState,nState)
       real(kind=wp), intent(inout) :: UEFF(nState,nState),
@@ -232,23 +232,23 @@ C
       Character(Len=16) :: mstate1
       logical(kind=iwp) :: DEB,Found
       logical(kind=iwp), external :: RF_On
-C
+
       real(kind=wp), allocatable :: HEFF1(:,:),WRK1(:,:),WRK2(:,:),
-     *                             CI1(:,:)
+     &                             CI1(:,:)
       integer(kind=iwp) :: i, iGo, ilStat, j, jlStat
       integer(kind=iwp), external :: isFreeUnit
       real(kind=wp) :: Scal
       real(kind=wp) :: CPUT, WALLT, CPE, CPTF0, CPTF10, TIOE, TIOTF0,
      &                 TIOTF10
-C
+
       !! In case convergence of CASPT2 equation failed
       !! Call this subroutine just deallocate memory
       If (IRETURN == 0) then
-C
+
         call mma_allocate(HEFF1,nState,nState,Label='HEFF1')
         call mma_allocate(WRK1,nState,nState,Label='WRK1')
         call mma_allocate(WRK2,nState,nState,Label='WRK2')
-C
+
         !! Add XMS specific terms
         !! Note that CLagFull is in natural CSF basis,
         !! so everything in this subroutine has to be done in natural
@@ -261,23 +261,23 @@ C
            HEFF1(ilStat,ilStat) = REFENE(ilStat)
           End Do
           Call DGEMM_('T','N',nState,nState,nState,
-     *                One,U0,nState,HEFF1,nState,
-     *                Zero,WRK1,nState)
+     &                One,U0,nState,HEFF1,nState,
+     &                Zero,WRK1,nState)
           Call DGEMM_('N','N',nState,nState,nState,
-     *                One,WRK1,nState,U0,nState,
-     *                Zero,HEFF1,nState)
-C
+     &                One,WRK1,nState,U0,nState,
+     &                Zero,HEFF1,nState)
+
           !! Derivative of Heff[1] in XMS basis
           !! It is transformed with U0, so the contribution has to be
           !! considered when we construct the auxiliary density in the
           !! XMS-specific term
           call DWDER(OMGDER,HEFF1,SLag)
           Call DGEMM_('N','N',nState,nState,nState,
-     *                One,U0,nState,SLag,nState,
-     *                Zero,WRK2,nState)
+     &                One,U0,nState,SLag,nState,
+     &                Zero,WRK2,nState)
           Call DGEMM_('N','T',nState,nState,nState,
-     *                One,WRK2,nState,U0,nState,
-     *                Zero,WRK1,nState)
+     &                One,WRK2,nState,U0,nState,
+     &                Zero,WRK1,nState)
 
           WRK2(:,:) = Zero
           Do ilStat = 1, nState
@@ -331,10 +331,10 @@ C
      &            Cycle
 
                 Scal = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)
-     *               + UEFF(jlStat,iRoot1)*UEFF(ilStat,iRoot2)
+     &               + UEFF(jlStat,iRoot1)*UEFF(ilStat,iRoot2)
                 Scal = Scal*Half
                 SLag(ilStat,jlStat) = SLag(ilStat,jlStat) + Scal
-C
+
                 If (ilStat /= jlStat) Then
                   SLag(jlStat,ilStat) = SLag(jlStat,ilStat) + Scal
                 End If
@@ -353,7 +353,7 @@ C
             End Do
           End Do
         End If
-C
+
         !! Subtract the original rhs_sa.f or rhs_nac.f contribution
         !! For MS-type CASPT2, CASSCF part has to be determined by UEFF
         If (IFMSCOUP .and. iRoot1 == iRoot2) Then
@@ -361,7 +361,7 @@ C
           jlStat = MIN(iRoot1,iRoot2)
           SLag(ilStat,jlStat) = SLag(ilStat,jlStat) - One
         End If
-C
+
         !! Finalize the first-order transition(-like) density matrix
         !! for the CSF derivative term
         If (do_nac) Then
@@ -372,7 +372,7 @@ C
             DPT2Canti_tot(:) = Zero
           End If
         End If
-C
+
         !! Back-transform the CI Lagrangian
         !! It is in the XMS basis, so it has to be transformed to
         !! CASSCF basis to be used in Z-vector
@@ -385,10 +385,10 @@ C
           CLagFull(:,:) = CI1(:,:)
           call mma_deallocate(CI1)
         End If
-C
+
         !! Compute true unrelaxed properties for MS-CASPT2
         if (.not.do_nac .and. ifmscoup) CALL PRPCTL(1,UEFF,U0)
-C
+
         LuPT2 = isFreeUnit(LuPT2)
         Call Molcas_Open(LuPT2,'PT2_Lag')
 
@@ -468,7 +468,7 @@ C
         if (RFpert .and. IFMSCOUP) then
           !! Recompute DPT2AO and DPT2AO for PCM
           Call Recompute_DPT2AO(DPT2_tot,DPT2C_tot,
-     *                          DPT2_AO_tot,DPT2C_AO_tot)
+     &                          DPT2_AO_tot,DPT2C_AO_tot)
         end if
         If (DEB) call TriPrt('DPT2_AO_tot', '', DPT2_AO_tot, nBast)
         Do i = 1, NBSQT
@@ -499,39 +499,39 @@ C
 
         ! close gradient files
         Close (LuPT2)
-C
+
         call mma_deallocate(HEFF1)
         call mma_deallocate(WRK1)
         call mma_deallocate(WRK2)
       end if
-C
+
       call mma_deallocate(DPT2_tot)
       call mma_deallocate(DPT2C_tot)
       call mma_deallocate(DPT2_AO_tot)
       call mma_deallocate(DPT2C_AO_tot)
-C
+
       call mma_deallocate(CLag)
       call mma_deallocate(CLagFull)
       call mma_deallocate(OLag)
       call mma_deallocate(OLagFull)
       call mma_deallocate(SLag)
       call mma_deallocate(WLag)
-C
+
       call mma_deallocate(FIMO_all)
       call mma_deallocate(FIFA_all)
-C
+
       If (IFXMS .or. IFRMS)        call mma_deallocate(FIFASA_all)
       If (IFDW .and. zeta >= Zero) call mma_deallocate(OMGDER)
       If (do_nac)                  call mma_deallocate(DPT2Canti_tot)
-C
+
       !! Prepare for MCLR
       iGo = 3
       Call Put_iScalar('SA ready',iGo)
       ! overwrites whatever was set in CASSCF with the relax
       ! root that was chosen in CASPT2
       if (do_nac) then
-C       write (*,*) "NAC"
-C       write (*,*) "CASSCF/Original = ", iRoot1,iRoot2
+!       write (*,*) "NAC"
+!       write (*,*) "CASSCF/Original = ", iRoot1,iRoot2
         Call Put_iScalar('Relax CASSCF root',iRoot1)
         Call Put_iScalar('Relax Original root',iRoot2)
         call Qpg_cArray('MCLR Root',Found,I)
@@ -547,39 +547,39 @@ C       write (*,*) "CASSCF/Original = ", iRoot1,iRoot2
           Call Put_cArray('MCLR Root',mstate1,16)
         end if
       else
-C       write (*,*) "GRD"
-C       write (*,*) "CASSCF/Original = ", irlxroot,irlxroot
+!       write (*,*) "GRD"
+!       write (*,*) "CASSCF/Original = ", irlxroot,irlxroot
         Call Put_iScalar('Relax CASSCF root',irlxroot)
         Call Put_iScalar('Relax Original root',irlxroot)
         mstate1 = '****************'
         Call Put_cArray('MCLR Root',mstate1,16)
       end if
-C
+
       !! Close files
       Call DaClos(LUSTD)
       If (IfChol) Call DaClos(LUAPT2)
       Call DaClos(LUGRAD)
-C
+
       if (nFroT /= 0) call mma_deallocate(TraFro)
       call mma_deallocate(iTasks_grad)
-C
+
       Return
-C
+
       End Subroutine GrdCls
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine ModDip()
-C
+
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: LROOTS, NROOTS, ROOT2STATE
-C
+
       implicit none
-C
+
       real(kind=wp), allocatable :: DMs1(:,:), DMs2(:,:)
       integer(kind=iwp) :: i, j
-C
+
       call mma_allocate(DMs1,3,nRoots,Label='DMs1')
       call mma_allocate(DMs2,3,lRoots,Label='DMs2')
       Call Get_dArray('Last Dipole Moments',DMs2,3*LROOTS)
@@ -591,13 +591,13 @@ C
       Call Put_dArray('Last Dipole Moments',DMs1,3*nROOTS)
       call mma_deallocate(DMs1)
       call mma_deallocate(DMs2)
-C
+
       Return
-C
+
       End Subroutine ModDip
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine GradPrep(UEFF,VECROT)
 
       use caspt2_global, only: iRoot1, iRoot2, jStLag
@@ -620,21 +620,21 @@ C
       If (IFMSCOUP) Then
         Do iState = 1, nState
           TMP = UEFF(iState,iRoot1)*UEFF(jState,iRoot2)
-     *        + UEFF(iState,iRoot2)*UEFF(jState,iRoot1)
+     &        + UEFF(iState,iRoot2)*UEFF(jState,iRoot1)
           VECROT(iState) = TMP*Half
         End Do
       Else
-C       write(6,*) 'jState in gradprep: ',jstate
+!       write(6,*) 'jState in gradprep: ',jstate
         VECROT(jState) = One
       End If
       jStLag = jState
 
       End Subroutine GradPrep
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine OLagFinal(OLagLoc,Trf)
-C
+
       use caspt2_global, only: CMOPT2
       use caspt2_global, only: OLagFull,WLag,nOLag
       use stdalloc, only: mma_allocate,mma_deallocate
@@ -651,23 +651,23 @@ C
       real(kind=wp), allocatable :: WRK(:), WLagLoc(:)
       integer(kind=iwp) :: iBasTr, iBasSq, iSym, nBasI, liBasTr,
      &                     liBasSq, iBasI, jBasI, liBasSq2
-C
+
       call mma_allocate(WRK,NBSQT,Label='WRK')
       call mma_allocate(WLagLoc,NBSQT,Label='WLagLoc')
-C
+
       WLagLoc(1:NBSQT) = Half*OLagLoc(1:NBSQT)
-C     write(6,*) "Wlag square"
-C     call sqprt(wlag,nbast)
-C
+!     write(6,*) "Wlag square"
+!     call sqprt(wlag,nbast)
+
       !! W(MO) -> W(AO) using the quasi-canonical orbitals
       !! No need to back transform to natural orbital basis
       Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *            One,CMOPT2,nBasT,WLagLoc,nBasT,
-     *            Zero,WRK,nBasT)
+     &            One,CMOPT2,nBasT,WLagLoc,nBasT,
+     &            Zero,WRK,nBasT)
       Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *            One,WRK,nBasT,CMOPT2,nBasT,
-     *            Zero,WLagLoc,nBasT)
-C
+     &            One,WRK,nBasT,CMOPT2,nBasT,
+     &            Zero,WLagLoc,nBasT)
+
       !! square -> triangle for WLag(AO)
       WRK(:) = WLagLoc(:)
       iBasTr = 1
@@ -697,17 +697,17 @@ C
         WLag(1:NBTRI) = WLag(1:NBTRI) + WLagLoc(1:NBTRI)
       end if
       call mma_deallocate(WLagLoc)
-C
-C
-C
+
+
+
       !! Transform quasi-canonical -> natural MO basis
       !! orbital Lagrangian
       Call DGemm_('N','N',nBasT,nBasT,nBasT,
-     *            One,Trf,nBasT,OLagLoc,nBasT,
-     *            Zero,WRK,nBasT)
+     &            One,Trf,nBasT,OLagLoc,nBasT,
+     &            Zero,WRK,nBasT)
       Call DGemm_('N','T',nBasT,nBasT,nBasT,
-     *            One,WRK,nBasT,Trf,nBasT,
-     *            Zero,OLagLoc,nBasT)
+     &            One,WRK,nBasT,Trf,nBasT,
+     &            Zero,OLagLoc,nBasT)
       !! sufficient only for active
       nBasI = nBas(1)
       WRK(1:nBasI**2) = OLagLoc(1:nBasI**2)
@@ -719,17 +719,17 @@ C
       ! but not for SS-CASPT2
       if (jState == iRlxRoot .or. IFMSCOUP)
      &  OLagFull(1:nOLag) = OLagFull(1:nOLag) + OLagLoc(1:nOLag)
-C
-      call mma_deallocate(WRK)
-C
-      End Subroutine OLagFinal
-C
-C-----------------------------------------------------------------------
 
+      call mma_deallocate(WRK)
+
+      End Subroutine OLagFinal
+!
+!-----------------------------------------------------------------------
+!
       Subroutine CnstFIFAFIMO(MODE)
 
       use caspt2_global, only: TraFro, OLag,
-     *                           FIMO_all, FIFA_all, FIFASA_all
+     &                           FIMO_all, FIFA_all, FIFASA_all
       use caspt2_global, only: FIMO, FIFA, CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
@@ -763,25 +763,25 @@ C-----------------------------------------------------------------------
               Call SQUARE(FIFA(1+iTr),FIFASA_all(1+iSQ),1,nBasI,nBasI)
             Else If (MODE == 1) Then
               Call SQUARE(FIFA(1+iTr),FIFA_all(1+iSQ),1,nBasI,nBasI)
-C             write (*,*) "fifa in MO"
-C             call sqprt(fifa_all(1+isq),nbasi)
+!             write (*,*) "fifa in MO"
+!             call sqprt(fifa_all(1+isq),nbasi)
             End If
           Else
             Call SQUARE(FIFA_all(1+iTr),WRK1,1,nBasI,nBasI)
-C             write (*,*) "fifasa in AO"
-C             call sqprt(wrk1,nbasi)
+!             write (*,*) "fifasa in AO"
+!             call sqprt(wrk1,nbasi)
             If (MODE == 0 .and. (IFDW .or. IFRMS)) Then
               !! with the state-average
               !! FIFASA_all will be natural basis
               Call OLagTrf(2,iSym,CMOPT2,FIFASA_all(1+iSQ),WRK1,WRK2)
-C             write (*,*) "fifasa in MO"
-C             call sqprt(fifasa_all(1+isq),nbasi)
+!             write (*,*) "fifasa in MO"
+!             call sqprt(fifasa_all(1+isq),nbasi)
             Else If (MODE == 1) Then
               !! with the state-specific or dynamically weighted
               !! FIFA will be quasi-canonical basis
               Call OLagTrf(2,iSym,CMOPT2,FIFA_all(1+iSQ),WRK1,WRK2)
-C             write (*,*) "fifa in MO"
-C             call sqprt(fifa_all(1+isq),nbasi)
+!             write (*,*) "fifa in MO"
+!             call sqprt(fifa_all(1+isq),nbasi)
               !! canonicalize frozen orbitals
               !! still under investigation, but this is something we
               !! should do to obtain "better" orbital enegies for
@@ -798,24 +798,24 @@ C             call sqprt(fifa_all(1+isq),nbasi)
               End If
             End If
           End If
-C
+
           !! FIMO
-C         If (MODE == 0) Then
+!         If (MODE == 0) Then
             If (nFroT == 0) Then
               Call SQUARE(FIMO(1+iTr),FIMO_all(1+iSQ),1,nBasI,nBasI)
             Else
               Call SQUARE(FIMO_all(1+iTr),WRK1,1,nBasI,nBasI)
               Call OLagTrf(2,iSym,CMOPT2,FIMO_all(1+iSQ),WRK1,OLag)
-C             write (*,*) "fimo in MO"
-C             call sqprt(fimo_all(1+isq),nbasi)
+!             write (*,*) "fimo in MO"
+!             call sqprt(fimo_all(1+isq),nbasi)
             End If
-C         End If
+!         End If
           iSQ = iSQ + nBasI*nBasI
           iTR = iTR + nBasI*(nBasI+1)/2
         End Do
         call mma_deallocate(WRK1)
         call mma_deallocate(WRK2)
-C
+
         If (IFXMS .and. .not.IFDW)
      &    FIFASA_all(1:NBSQT) = FIFA_all(1:NBSQT)
       Else
@@ -834,29 +834,29 @@ C
           If (IFXMS .and. .not.IFDW)
      &      FIFASA_all(1:NBSQT) = FIFA_all(1:NBSQT)
         End If
-C
+
       !! XDW or RMS case: call after XDWINI
       ! If (MODE == 0) Then
       ! End If
-C
+
       !! XMS case: call after GRPINI
       ! If (MODE == 1) Then
       ! End If
-C
-C     !! SS or MS case: call in dens.f
-C     If (MODE == 2) Then
-C       If (IFSADREF) Then
-C       Else
-C       End If
-C     End If
+
+!     !! SS or MS case: call in dens.f
+!     If (MODE == 2) Then
+!       If (IFSADREF) Then
+!       Else
+!       End If
+!     End If
       End If
-C
+
       Return
-C
+
       End Subroutine CnstFIFAFIMO
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine Recompute_DPT2AO(DPT2,DPT2C,DPT2AO,DPT2CAO)
 
       use definitions, only: wp, iwp

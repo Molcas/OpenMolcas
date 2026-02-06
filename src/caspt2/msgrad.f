@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-C
+
       Subroutine MS_Res(MODE,IST,JST,Scal)
       use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV, only: IVECC, IVECC2, IVECW
@@ -19,9 +19,9 @@ C
       use caspt2_module, only: STSYM, NCONF, NASHT, ISCF, NSTATE
       use pt2_guga, only: MXCI
       use Constants, only: Zero
-C
-C     Compute the derivative of E^PT2 with respct to the T amplitude
-C
+!
+!     Compute the derivative of E^PT2 with respct to the T amplitude
+!
       implicit none
 
       integer(kind=iwp), intent(in) :: MODE, IST, JST
@@ -32,13 +32,13 @@ C
 
       real(kind=wp),allocatable :: TG1(:),TG2(:),TG3(:),CI1(:),CI2(:)
 
-C We evaluate the effective Hamiltonian matrix element in two steps.
+! We evaluate the effective Hamiltonian matrix element in two steps.
 
       NTG1=NASHT**2
       NTG2=NASHT**4
       NTG3=(NTG1*(NTG1+1)*(NTG1+2))/6
-C Note: Need proper allocation even if unused, sinced allocated
-C arrays are in subroutine parameter lists of MKTG3, HCOUP.
+! Note: Need proper allocation even if unused, sinced allocated
+! arrays are in subroutine parameter lists of MKTG3, HCOUP.
       NTG1=MAX(1,NTG1)
       NTG2=MAX(1,NTG2)
       NTG3=MAX(1,NTG3)
@@ -52,7 +52,7 @@ C arrays are in subroutine parameter lists of MKTG3, HCOUP.
       call mma_allocate(CI1,MXCI,Label='MCCI1')
       call mma_allocate(CI2,MXCI,Label='MCCI2')
       IF(ISCF == 0) THEN
-C Read root vectors nr. IST and JST from LUCI.
+! Read root vectors nr. IST and JST from LUCI.
         IDCI=IDTCEX
         DO I=1,NSTATE
           IF(I == IST) THEN
@@ -88,9 +88,9 @@ C Read root vectors nr. IST and JST from LUCI.
       call mma_deallocate(TG3)
 
       End Subroutine MS_Res
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE MS_STRANS(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL,SCAL)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -103,25 +103,25 @@ C
       use definitions, only: wp, iwp, u6
 
       implicit none
-C Compute the coupling Hamiltonian element defined as
-C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
-C assuming that IVEC contains a contravariant representation of
-C H|ROOT1>, JVEC contains a contravariant representation of
-C OMEGA|ROOT2>, and OVL, TG1, TG2, TG3 contain the overlap (normally
-C expected to be 0 or 1) and active transition density matrices of ROOT1
-C and ROOT2. See also subroutine TSVEC for explanations.
+! Compute the coupling Hamiltonian element defined as
+!     HEL = < ROOT1 | H * OMEGA | ROOT2 >
+! assuming that IVEC contains a contravariant representation of
+! H|ROOT1>, JVEC contains a contravariant representation of
+! OMEGA|ROOT2>, and OVL, TG1, TG2, TG3 contain the overlap (normally
+! expected to be 0 or 1) and active transition density matrices of ROOT1
+! and ROOT2. See also subroutine TSVEC for explanations.
 
-C SVC (March 2014): modification of original code to handle distributed
-C RHS arrays. There is now a main HCOUP subroutine that loops over cases
-C and irreps and gets access to the process-specific block of the RHS.
-C The coupling for that block is computed by the subroutine HCOUP_BLK.
+! SVC (March 2014): modification of original code to handle distributed
+! RHS arrays. There is now a main HCOUP subroutine that loops over cases
+! and irreps and gets access to the process-specific block of the RHS.
+! The coupling for that block is computed by the subroutine HCOUP_BLK.
 
       integer(kind=iwp), intent(in) :: IVEC, JVEC
       real(kind=wp), intent(inout) :: OVL, TG1(NASHT,NASHT),
      &  TG2(NASHT,NASHT,NASHT,NASHT), TG3(*)
       real(kind=wp), intent(out) :: HEL
       real(kind=wp), intent(in) :: SCAL
-C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
+! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
       real(kind=wp) :: HECOMP(14,9), HEBLK, SUMSYM, SUMCASE
       integer(kind=iwp) :: ICASE, ISYM, NAS, NIN, NIS, lg_V1, iLo1,
@@ -133,23 +133,23 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 #include "mafdecls.fh"
 #endif
 
-C Sketch of procedure:
-C  Loop over every (case/symmetry)-block.
-C           If (No such vector block) Skip to end of loop
-C           Allocate two places for this block, VEC1 and VEC2
-C           Read VEC1 as IVEC component from file.
-C           Read VEC2 as JVEC component from file.
-C           Loop nest, computing
-C              HEL := HEL + VEC1*GOM*VEC2
-C           End of loop nest
-C           Deallocate VEC1 and VEC2
-C  End of loop.
+! Sketch of procedure:
+!  Loop over every (case/symmetry)-block.
+!           If (No such vector block) Skip to end of loop
+!           Allocate two places for this block, VEC1 and VEC2
+!           Read VEC1 as IVEC component from file.
+!           Read VEC2 as JVEC component from file.
+!           Loop nest, computing
+!              HEL := HEL + VEC1*GOM*VEC2
+!           End of loop nest
+!           Deallocate VEC1 and VEC2
+!  End of loop.
 
       HEL=Zero
       HECOMP=Zero
       DO ICASE=1,13
-C     if (icase /= 12.and.icase /= 13) cycle ! H
-C     if (icase /= 10.and.icase /= 11) cycle ! G
+!     if (icase /= 12.and.icase /= 13) cycle ! H
+!     if (icase /= 10.and.icase /= 11) cycle ! G
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
           NIN=NINDEP(ISYM,ICASE)
@@ -186,7 +186,7 @@ C     if (icase /= 10.and.icase /= 11) cycle ! G
 #endif
             !! Save T*S
             CALL RHS_SAVE (NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
-C
+
             CALL RHS_RELEASE (lg_V1,iLo1,iHi1,jLo1,jHi1)
             CALL RHS_RELEASE (lg_V2,iLo2,iHi2,jLo2,jHi2)
             CALL RHS_FREE (lg_V1)
@@ -197,7 +197,7 @@ C
         END DO
       END DO
 
-C Sum-reduce the per-process contributions
+! Sum-reduce the per-process contributions
       CALL GADGOP_SCAL(HEL,'+')
       NHECOMP=14*9
       CALL GADGOP(HECOMP,NHECOMP,'+')
@@ -233,9 +233,9 @@ C Sum-reduce the per-process contributions
       END IF
 
       end subroutine MS_STRANS
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE MS_STRANS_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,
      &                         TG1,TG2,TG3,SCAL)
       USE SUPERINDEX, only: MTU, MTUV, MTGEU, MTGTU
@@ -243,20 +243,20 @@ C
      &                         NTGTUES
       use definitions, only: wp, iwp
       use Constants, only: Zero, Two, Four, Eight
-C Compute a contribution to the coupling Hamiltonian element (HEL)
-C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
-C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
-C with A the active superindex and I the inactive superindex. Since
-C the inactive superindex is partitioned over processes, each process
-C only computes part of the HEL value, which is then sum reduced in the
-C calling subroutine.
+! Compute a contribution to the coupling Hamiltonian element (HEL)
+! defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
+! arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
+! with A the active superindex and I the inactive superindex. Since
+! the inactive superindex is partitioned over processes, each process
+! only computes part of the HEL value, which is then sum reduced in the
+! calling subroutine.
       implicit none
 
       integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, IISTA, IIEND
       real(kind=wp), intent(in) :: V1(*), OVL, SCAL
       real(kind=wp), intent(inout) :: V2(*), TG1(NASHT,NASHT),
      &  TG2(NASHT,NASHT,NASHT,NASHT), TG3(*)
-C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
+! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
       integer(kind=iwp) :: NISBLK, IAS, IASABS, ITABS, IUABS, IVABS,
      &  JAS, JASABS, IXABS, IYABS, IZABS, IND1, IND2, IND3, JND1,
@@ -280,12 +280,12 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
             IXABS=MTUV(1,JASABS)
             IYABS=MTUV(2,JASABS)
             IZABS=MTUV(3,JASABS)
-C Compute and use SA(ITABS IUABS IVABS, IXABS IYABS IZABS)
-C Formulae used:
-C  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
-C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
-C Gvuxtyz is stored using full permutation symmetry of three pairs
-C (vu),(xt), and (yz):
+! Compute and use SA(ITABS IUABS IVABS, IXABS IYABS IZABS)
+! Formulae used:
+!  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
+!         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
+! Gvuxtyz is stored using full permutation symmetry of three pairs
+! (vu),(xt), and (yz):
             IND1=IVABS+NASHT*(IUABS-1)
             IND2=IXABS+NASHT*(ITABS-1)
             IND3=IYABS+NASHT*(IZABS-1)
@@ -319,9 +319,9 @@ C (vu),(xt), and (yz):
               END IF
             END IF
             ITG3=((JND1+1)*JND1*(JND1-1))/6+(JND2*(JND2-1))/2+JND3
-C  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
-C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
-C Compute TMP=Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
+!  SA(tuv,xyz) =  -Gvuxtyz -dyu Gvzxt - dyt Gvuxz -
+!         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
+! Compute TMP=Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
             TMP=TG3(ITG3)
             IF(IYABS == IUABS) THEN
               TMP=TMP+TG2(IVABS,IZABS,IXABS,ITABS)
@@ -335,7 +335,7 @@ C Compute TMP=Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
             IF(IXABS == IUABS) THEN
               TMP=TMP+TG2(IVABS,ITABS,IYABS,IZABS)
             END IF
-C SA is the negative of this, and then some correction:
+! SA is the negative of this, and then some correction:
             SA=-TMP
             IF(IXABS == ITABS) THEN
               SA=SA+Two*TG2(IVABS,IUABS,IYABS,IZABS)
@@ -343,13 +343,13 @@ C SA is the negative of this, and then some correction:
                 SA=SA+Two*TG1(IVABS,IZABS)
               END IF
             END IF
-C SA has been computed.
+! SA has been computed.
 
-C           HEBLK=HEBLK+SA*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SA*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SA*SCAL,V1(IAS),NAS,V2(JAS),NAS)
-C           Do i = 1, NAS
-C             V2(JAS+i-1) = SA*V1(iAS-1)
-C           End Do
+!           Do i = 1, NAS
+!             V2(JAS+i-1) = SA*V1(iAS-1)
+!           End Do
           END DO
         END DO
 ************************************************************************
@@ -364,14 +364,14 @@ C           End Do
             ITABS=MTUV(1,JASABS)
             IYABS=MTUV(2,JASABS)
             IZABS=MTUV(3,JASABS)
-C Compute and use SC(IXABS IUABS IVABS, ITABS IYABS IZABS)
-C In SBMAT, the formula is written as SC(tuv,xyz)
-C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
-C Rewritten, in order to reuse same quantities as in SA:
-C  SC(xuv,tyz)
-C    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
-C Gvuxtyz is stored using full permutation symmetry of three pairs
-C (vu),(xt), and (yz):
+! Compute and use SC(IXABS IUABS IVABS, ITABS IYABS IZABS)
+! In SBMAT, the formula is written as SC(tuv,xyz)
+!    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
+! Rewritten, in order to reuse same quantities as in SA:
+!  SC(xuv,tyz)
+!    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
+! Gvuxtyz is stored using full permutation symmetry of three pairs
+! (vu),(xt), and (yz):
             IND1=IVABS+NASHT*(IUABS-1)
             IND2=IXABS+NASHT*(ITABS-1)
             IND3=IYABS+NASHT*(IZABS-1)
@@ -405,8 +405,8 @@ C (vu),(xt), and (yz):
               END IF
             END IF
             ITG3=((JND1+1)*JND1*(JND1-1))/6+(JND2*(JND2-1))/2+JND3
-C  SC(xuv,tyz) (rewritten, swapping x and t)
-C    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
+!  SC(xuv,tyz) (rewritten, swapping x and t)
+!    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
             TMP=TG3(ITG3)
             IF(IYABS == IUABS) THEN
               TMP=TMP+TG2(IVABS,IZABS,IXABS,ITABS)
@@ -422,7 +422,7 @@ C    = Gvuxtyz +dyu Gvzxt + dyt Gvuxz + dxu Gvtyz + dxu dyt Gvz
             END IF
             SC= TMP
 
-C           HEBLK=HEBLK+SC*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SC*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SC*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
@@ -436,15 +436,15 @@ C           HEBLK=HEBLK+SC*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             JASABS=NTGEUES(ISYM)+JAS
             IXABS=MTGEU(1,JASABS)
             IYABS=MTGEU(2,JASABS)
-C Formulae used:
-C    SB(tu,xy)=
-C    = 2 Gxtyu -4dxt Gyu -4dyu Gxt +2dyt Gxu + 8 dxt dyu
-C      -4dxu dyt + 2dxu Gyt
-C    SB(tu,yx)=
-C    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
-C      -4dyu dxt + 2dyu Gxt
-C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
-C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
+! Formulae used:
+!    SB(tu,xy)=
+!    = 2 Gxtyu -4dxt Gyu -4dyu Gxt +2dyt Gxu + 8 dxt dyu
+!      -4dxu dyt + 2dxu Gyt
+!    SB(tu,yx)=
+!    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
+!      -4dyu dxt + 2dyu Gxt
+!    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
+!    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
             SBtuxy=Two*TG2(IXABS,ITABS,IYABS,IUABS)
             SBtuyx=Two*TG2(IYABS,ITABS,IXABS,IUABS)
             IF(IXABS == ITABS) THEN
@@ -474,7 +474,7 @@ C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
 
             SBP=SBtuxy + SBtuyx
 
-C           HEBLK=HEBLK+SBP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SBP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SBP*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
@@ -488,15 +488,15 @@ C           HEBLK=HEBLK+SBP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             JASABS=NTGTUES(ISYM)+JAS
             IXABS=MTGTU(1,JASABS)
             IYABS=MTGTU(2,JASABS)
-C Formulae used:
-C    SB(tu,xy)=
-C    = 2 Gxtyu -4dxt Gyu -4dyu Gxt +2dyt Gxu + 8 dxt dyu
-C      -4dxu dyt + 2dxu Gyt
-C    SB(tu,yx)=
-C    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
-C      -4dyu dxt + 2dyu Gxt
-C    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
-C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
+! Formulae used:
+!    SB(tu,xy)=
+!    = 2 Gxtyu -4dxt Gyu -4dyu Gxt +2dyt Gxu + 8 dxt dyu
+!      -4dxu dyt + 2dxu Gyt
+!    SB(tu,yx)=
+!    = 2 Gytxu -4dyt Gxu -4dxu Gyt +2dxt Gyu + 8 dyt dxu
+!      -4dyu dxt + 2dyu Gxt
+!    SBP(tu,xy)=SB(tu,xy)+SB(tu,yx)
+!    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
             SBtuxy=Two*TG2(IXABS,ITABS,IYABS,IUABS)
             SBtuyx=Two*TG2(IYABS,ITABS,IXABS,IUABS)
             IF(IXABS == ITABS) THEN
@@ -526,7 +526,7 @@ C    SBM(tu,xy)=SB(tu,xy)-SB(tu,yx)
 
             SBM=SBtuxy - SBtuyx
 
-C           HEBLK=HEBLK+SBM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SBM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SBM*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
@@ -543,11 +543,11 @@ C           HEBLK=HEBLK+SBM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             JASABS=NTUES(ISYM)+JAS1
             IXABS=MTU(1,JASABS)
             IYABS=MTU(2,JASABS)
-C Formulae used:
-C    SD11(tu1,xy1)=2*(Gutxy + dtx Guy)
-C    SD12(tu2,xy1)= -(Gutxy + dtx Guy)
-C    SD21(tu2,xy1)= -(Gutxy + dtx Guy)
-C    SD22(tu2,xy2)= -Gxtuy +2*dtx Guy
+! Formulae used:
+!    SD11(tu1,xy1)=2*(Gutxy + dtx Guy)
+!    SD12(tu2,xy1)= -(Gutxy + dtx Guy)
+!    SD21(tu2,xy1)= -(Gutxy + dtx Guy)
+!    SD22(tu2,xy2)= -Gxtuy +2*dtx Guy
             GUTXY= TG2(IUABS,ITABS,IXABS,IYABS)
             SD11=Two*GUTXY
             SD12= -GUTXY
@@ -561,10 +561,10 @@ C    SD22(tu2,xy2)= -Gxtuy +2*dtx Guy
               SD22=SD22+Two*GUY
             END IF
 
-C           HEBLK=HEBLK+SD11*DDOT_(NISBLK,V2(JAS1),NAS,V1(IAS1),NAS)
-C           HEBLK=HEBLK+SD12*DDOT_(NISBLK,V2(JAS2),NAS,V1(IAS1),NAS)
-C           HEBLK=HEBLK+SD21*DDOT_(NISBLK,V2(JAS1),NAS,V1(IAS2),NAS)
-C           HEBLK=HEBLK+SD22*DDOT_(NISBLK,V2(JAS2),NAS,V1(IAS2),NAS)
+!           HEBLK=HEBLK+SD11*DDOT_(NISBLK,V2(JAS1),NAS,V1(IAS1),NAS)
+!           HEBLK=HEBLK+SD12*DDOT_(NISBLK,V2(JAS2),NAS,V1(IAS1),NAS)
+!           HEBLK=HEBLK+SD21*DDOT_(NISBLK,V2(JAS1),NAS,V1(IAS2),NAS)
+!           HEBLK=HEBLK+SD22*DDOT_(NISBLK,V2(JAS2),NAS,V1(IAS2),NAS)
             Call DaXpY_(NISBLK,SD11*SCAL,V1(IAS1),NAS,V2(JAS1),NAS)
             Call DaXpY_(NISBLK,SD12*SCAL,V1(IAS1),NAS,V2(JAS2),NAS)
             Call DaXpY_(NISBLK,SD21*SCAL,V1(IAS2),NAS,V2(JAS1),NAS)
@@ -577,10 +577,10 @@ C           HEBLK=HEBLK+SD22*DDOT_(NISBLK,V2(JAS2),NAS,V1(IAS2),NAS)
           ITABS=IAS+NAES(ISYM)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
-C Formula used: SE(t,x)=2*dxt - Dxt
+! Formula used: SE(t,x)=2*dxt - Dxt
             SE=-TG1(IXABS,ITABS)
             IF(IXABS == ITABS) SE=SE+Two*OVL
-C           HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SE*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
@@ -590,18 +590,18 @@ C           HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
           ITABS=IAS+NAES(ISYM)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
-C Formula used: SE(t,x)=2*dxt - Dxt
+! Formula used: SE(t,x)=2*dxt - Dxt
             SE=-TG1(IXABS,ITABS)
             IF(IXABS == ITABS) SE=SE+Two*OVL
-C           HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SE*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SE*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
 ************************************************************************
       CASE(8)
-C ========================================================
-C Compute and use SFP(ITABS IUABS , IXABS IYABS)
-C and (later, similar) SFM(ITABS IUABS , IXABS IYABS)
+! ========================================================
+! Compute and use SFP(ITABS IUABS , IXABS IYABS)
+! and (later, similar) SFM(ITABS IUABS , IXABS IYABS)
         DO IAS=1,NAS
           IASABS=NTGEUES(ISYM)+IAS
           ITABS=MTGEU(1,IASABS)
@@ -610,22 +610,22 @@ C and (later, similar) SFM(ITABS IUABS , IXABS IYABS)
             JASABS=NTGEUES(ISYM)+JAS
             IXABS=MTGEU(1,JASABS)
             IYABS=MTGEU(2,JASABS)
-C Formulae used:
-C    SF(tu,xy)= 2 Gtxuy
-C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
-C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
+! Formulae used:
+!    SF(tu,xy)= 2 Gtxuy
+!    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
+!    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
             SFtuxy=Two*TG2(ITABS,IXABS,IUABS,IYABS)
             SFtuyx=Two*TG2(ITABS,IYABS,IUABS,IXABS)
 
             SFP=SFtuxy + SFtuyx
-C           HEBLK=HEBLK+SFP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SFP*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SFP*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
 ************************************************************************
       CASE(9)
-C ========================================================
-C Compute and use SFM(ITABS IUABS, IXABS ,IYABS)
+! ========================================================
+! Compute and use SFM(ITABS IUABS, IXABS ,IYABS)
         DO IAS=1,NAS
           IASABS=NTGTUES(ISYM)+IAS
           ITABS=MTGTU(1,IASABS)
@@ -634,35 +634,35 @@ C Compute and use SFM(ITABS IUABS, IXABS ,IYABS)
             JASABS=NTGTUES(ISYM)+JAS
             IXABS=MTGTU(1,JASABS)
             IYABS=MTGTU(2,JASABS)
-C Formulae used:
-C    SF(tu,xy)= 4 Ptxuy
-C    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
-C    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
+! Formulae used:
+!    SF(tu,xy)= 4 Ptxuy
+!    SFP(tu,xy)=SF(tu,xy)+SF(tu,yx)
+!    SFM(tu,xy)=SF(tu,xy)-SF(tu,yx)
             SFtuxy=Two*TG2(ITABS,IXABS,IUABS,IYABS)
             SFtuyx=Two*TG2(ITABS,IYABS,IUABS,IXABS)
 
             SFM=SFtuxy - SFtuyx
-C           HEBLK=HEBLK+SFM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SFM*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SFM*SCAL,V1(IAS),NAS,V2(JAS),NAS)
           END DO
         END DO
 ************************************************************************
-C CASES GP, GM
-C Compute and use SG(ITABS , IXABS) (Same for cases GP and GM)
+! CASES GP, GM
+! Compute and use SG(ITABS , IXABS) (Same for cases GP and GM)
 ************************************************************************
       CASE(10)
         DO IAS=1,NAS
           ITABS=IAS+NAES(ISYM)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
-C Formula used: SG(t,x)= Gtx
+! Formula used: SG(t,x)= Gtx
             SG= TG1(ITABS,IXABS)
 
-C           HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SG*SCAL,V1(IAS),NAS,V2(JAS),NAS)
-C           Do i = 1, NISBLK
-C             V2(JAS+NAS*(i-1)) = SG*V1(IAS+NAS*(i-1))
-C           End Do
+!           Do i = 1, NISBLK
+!             V2(JAS+NAS*(i-1)) = SG*V1(IAS+NAS*(i-1))
+!           End Do
           END DO
         END DO
 ************************************************************************
@@ -671,33 +671,33 @@ C           End Do
           ITABS=IAS+NAES(ISYM)
           DO JAS=1,NAS
             IXABS=JAS+NAES(ISYM)
-C Formula used: SG(t,x)= Gtx
+! Formula used: SG(t,x)= Gtx
             SG= TG1(ITABS,IXABS)
 
-C           HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
+!           HEBLK=HEBLK+SG*DDOT_(NISBLK,V2(JAS),NAS,V1(IAS),NAS)
             Call DaXpY_(NISBLK,SG*SCAL,V1(IAS),NAS,V2(JAS),NAS)
-C           Do i = 1, NISBLK
-C             V2(JAS+NAS*(i-1)) = SG*V1(IAS+NAS*(i-1))
-C           End Do
+!           Do i = 1, NISBLK
+!             V2(JAS+NAS*(i-1)) = SG*V1(IAS+NAS*(i-1))
+!           End Do
           END DO
         END DO
 ************************************************************************
       CASE(12)
         IF(ABS(OVL) >= 1.0e-12_wp) THEN
-C         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
+!         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
         END IF
 ************************************************************************
       CASE(13)
         IF(ABS(OVL) >= 1.0e-12_wp) THEN
-C         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
+!         HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
         END IF
 ************************************************************************
       END SELECT
       Return
       end subroutine MS_STRANS_BLK
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine LoadCI_XMS(Bas,Mode,CI,iState,U0)
 
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
@@ -715,21 +715,21 @@ C
 
       integer(kind=iwp) :: ID, I
       real(kind=wp),allocatable :: WRK(:)
-C
-C     MODE=0 is equivalent to LoadCI (XMS basis)
-C     MODE=1 constructs the CI vector in CASSCF basis (back-transformed)
-C     CSF in natural (Bas=N) or quasi-canonical (Bas=C) orbital basis
-C
+!
+!     MODE=0 is equivalent to LoadCI (XMS basis)
+!     MODE=1 constructs the CI vector in CASSCF basis (back-transformed)
+!     CSF in natural (Bas=N) or quasi-canonical (Bas=C) orbital basis
+!
       If (Bas == 'N' .or. Bas == 'n') Then
         ID = IDCIEX !! natural
       Else If (Bas == 'C' .or. Bas == 'c') Then
         ID = IDTCEX !! quasi-canonical
       ELse
         write (u6,*)"the first argument in LoadCI_XMS should be either",
-     *              "N (natural) or C (quasi-canonical)"
+     &              "N (natural) or C (quasi-canonical)"
         call abend
       End If
-C
+
       If (Mode == 0 .or. (.not.IFXMS .and. .not.IFRMS)) Then
         do I = 1, iState-1
           call ddafile(LUCIEX,0,CI,Nconf,ID)
@@ -746,14 +746,14 @@ C
       End If
 
       End Subroutine LoadCI_XMS
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
       use caspt2_global, only: do_nac, do_csf, iRoot1, iRoot2,
-     *                           CLag,CLagFull,OLag,DPT2_tot,
-     *                           FIFA_all,FIFASA_all
+     &                           CLag,CLagFull,OLag,DPT2_tot,
+     &                           FIFA_all,FIFASA_all
       use caspt2_global, only: FIFA, TORB, NDREF
       use caspt2_global, only: CMOPT2, if_equalW, weight
       use gugx, only: SGS
@@ -774,9 +774,9 @@ C
       real(kind=wp), intent(inout) :: UEFF(nState,nState)
 
       real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),
-     *                             TG2(:),DG1(:),DG2(:),DG3(:),G1(:,:),
-     *                             RDMEIG(:,:),DPT2(:),Trf(:),
-     *                             RDMSA(:,:),WRK1(:),WRK2(:),DPT2_AO(:)
+     &                             TG2(:),DG1(:),DG2(:),DG3(:),G1(:,:),
+     &                             RDMEIG(:,:),DPT2(:),Trf(:),
+     &                             RDMSA(:,:),WRK1(:),WRK2(:),DPT2_AO(:)
 
       real(kind=wp) :: SLag(nState*nState), Scal, OVL, EEI, EEJ, fact,
      &  Wgt, TRC, EINACT, EDIFF
@@ -785,10 +785,10 @@ C
       real(kind=wp), external :: ddot_
 
       nLev = SGS%nLev
-C
-C     The XMS rotation applies to any variants: XMS-CASPT2, XDW-CASPT2,
-C     and RMS-CASPT2.
-C
+!
+!     The XMS rotation applies to any variants: XMS-CASPT2, XDW-CASPT2,
+!     and RMS-CASPT2.
+!
       If (IFXMS .or. IFRMS) Then
         call mma_allocate(CI1,nConf,Label='CI1')
         call mma_allocate(CI2,nConf,Label='CI2')
@@ -796,10 +796,10 @@ C
         call mma_allocate(SGM2,nConf,Label='SGM2')
         call mma_allocate(TG1,nAshT**2,Label='TG1')
         call mma_allocate(TG2,nAshT**4,Label='TG2')
-C
+
         call mma_allocate(DG1,nAshT**2,Label='DG1')
         call mma_allocate(DG2,nAshT**4,Label='DG2')
-C
+
 !       ----- Construct pseudo-density matrix -----
 
         !! First, we need to consider the derivative of the rotation
@@ -811,39 +811,39 @@ C
      &              One,U0,nState,UEFF,nState,
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
-C
+
         !! Then actual calculation
         CLag(1:nconf,1:nstate) = Zero
         Do iStat = 1, nState
           Call LoadCI_XMS('C',0,CI1,iStat,U0)
           Do jStat = 1, nState
             Call LoadCI_XMS('C',0,CI2,jStat,U0)
-C
+
             Call Dens2T_RPT2(CI1,CI2,SGM1,SGM2,
-     *                       TG1,TG2,nAshT)
+     &                       TG1,TG2,nAshT)
             TG1(:) = TG1(:)*Half
             TG2(:) = TG2(:)*Half
             DG1(:) = Zero
             DG2(:) = Zero
             Call CnstInt(1,DG1,DG2)
-C
+
             If (do_nac) Then
               Scal =(UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
-     *             + UEFF(jStat,iRoot1)*UEFF(iStat,iRoot2))*Half
+     &             + UEFF(jStat,iRoot1)*UEFF(iStat,iRoot2))*Half
             Else
               Scal = UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
             End If
-C       write (*,*) " scal in xms"
-C       write (*,*) istat,jstat,scal
+!       write (*,*) " scal in xms"
+!       write (*,*) istat,jstat,scal
             if (IFDW .and. zeta >= Zero) then
               scal = scal + OMGDER(iStat,jStat)
             end if
             DG1(:) = DG1(:)*Scal
             DG2(:) = DG2(:)*Scal
-C
+
             call mma_allocate(DG3,nAshT**6,Label='DG3')
             DG3(:) = Zero
-C
+
             NTG1 = NASHT**2
             NTG3 = (NTG1*(NTG1+1)*(NTG1+2))/6
             OVL = Zero
@@ -854,19 +854,19 @@ C
         End Do
         call mma_deallocate(SGM2)
         call mma_deallocate(TG2)
-C
+
         !! Back transformation of UEFF (XMS basis to CASSCF basis)
         !! SLag is used as a working array
         Call DGEMM_('N','N',nState,nState,nState,
      &              One,U0,nState,UEFF,nState,
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
-C     write (u6,*) "ueff in casscf basis"
-C     call sqprt(ueff,nstate)
-C
+!     write (u6,*) "ueff in casscf basis"
+!     call sqprt(ueff,nstate)
+
         call mma_deallocate(DG1)
         call mma_deallocate(DG2)
-C
+
       !! Add to the full CI Lagrangian
       !! CLag is in quasi-canonical basis, so transformation
       !! to natural basis is required.
@@ -876,12 +876,12 @@ C
           End Do
         End If
         CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
-C
+
         !! Compute the Lagrange multiplier for XMS
         !! The diagonal element is always zero.
         !! The code has an additional scaling with 0.5,
         !! because some contributions are doubled.
-C     write (*,*) "istat,jstat,scal"
+!     write (*,*) "istat,jstat,scal"
         SLag(:) = Zero
         Do iStat = 1, nState
           Call LoadCI_XMS('N',0,CI1,iStat,U0)
@@ -892,10 +892,10 @@ C     write (*,*) "istat,jstat,scal"
             Else
               Call LoadCI_XMS('N',0,CI2,jStat,U0)
               EEJ = H0(jStat,jStat)
-C
+
               Scal = DDOT_(nConf,CI1,1,CLagFull(1,jStat),1)
-     *             - DDOT_(nConf,CI2,1,CLagFull(1,iStat),1)
-C      write (*,*) "original scal = ", scal
+     &             - DDOT_(nConf,CI2,1,CLagFull(1,iStat),1)
+!      write (*,*) "original scal = ", scal
               If (do_csf) Then
                 !! JCTC 2017, 13, 2561: eq.(66)
                 !! iStat and jStat: XMS
@@ -904,27 +904,27 @@ C      write (*,*) "original scal = ", scal
                 Do kStat = 1, nState
                   Do lStat = 1, nState
                     fact = fact
-     *                   + (UEFF(kStat,iRoot1)*UEFF(lStat,iRoot2)
-     *                   -  UEFF(kStat,iRoot2)*UEFF(lStat,iRoot1))*Half
-     *                   * U0(kStat,iStat)*U0(lStat,jStat)
+     &                   + (UEFF(kStat,iRoot1)*UEFF(lStat,iRoot2)
+     &                   -  UEFF(kStat,iRoot2)*UEFF(lStat,iRoot1))*Half
+     &                   * U0(kStat,iStat)*U0(lStat,jStat)
                   End Do
                 End Do
                 Scal = Scal+fact*(ENERGY(iRoot2)-ENERGY(iRoot1))*Two
-C      write (*,*) "scal after= ", scal
-C      write (*,*) fact,energy(iroot2)-energy(iroot1)
+!      write (*,*) "scal after= ", scal
+!      write (*,*) fact,energy(iroot2)-energy(iroot1)
               End If
               Scal = Quart*Scal/(EEJ-EEI)
-C           write (*,*) istat,jstat,scal
+!           write (*,*) istat,jstat,scal
               SLag(iStat+nState*(jStat-1)) = Scal
               SLag(jStat+nState*(iStat-1)) = Scal
             End If
           End Do
         End Do
-C
+
       !! Either subtract the CI derivative of Heff(1)
       !! or add off-diagonal couplings in rhs_sa (Z-vector)
       !CLagFull = CLagFull - CLag
-C
+
         !! Finally, construct the pseudo-density matrix
         !! d = \sum_{ST} w_{ST} * d_{ST}
         call mma_allocate(G1,nAshT,nAshT,Label='G1')
@@ -934,34 +934,34 @@ C
           Do jStat = 1, nState
             If (ABS(SLag(iStat+nState*(jStat-1))) <= 1.0e-10_wp) Cycle
             Call LoadCI_XMS('C',0,CI2,jStat,U0)
-C
+
             Call Dens1T_RPT2(CI1,CI2,
-     *                       SGM1,TG1,nLev)
+     &                       SGM1,TG1,nLev)
             Scal = SLag(iStat+nState*(jStat-1))*Two
-C         write (*,*) "istat,jstat=",istat,jstat
-C         write (*,*) "scal = ", scal
+!         write (*,*) "istat,jstat=",istat,jstat
+!         write (*,*) "scal = ", scal
             Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
           End Do
         End Do
-C     write (*,*) "G1"
-C     call sqprt(G1,nasht)
-C
+!     write (*,*) "G1"
+!     call sqprt(G1,nasht)
+
         call mma_deallocate(CI1)
         call mma_deallocate(CI2)
         call mma_deallocate(SGM1)
         call mma_deallocate(TG1)
-C
-C       ----- Calculate orbital derivatives -----
-C
+!
+!       ----- Calculate orbital derivatives -----
+!
         call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
         call mma_allocate(DPT2,NBSQT,Label='DPT2')
         DPT2(:) = Zero
-C
+
         call mma_allocate(Trf,NBSQT,Label='TRFMAT')
         call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
         call mma_allocate(WRK1,NBSQT,Label='WRK1')
         call mma_allocate(WRK2,NBSQT,Label='WRK2')
-C
+
         !! Construct always state-averaged density; XMS basis is always
         !! generated with the equally-averaged density.
         WRK1(1:nDRef) = Zero
@@ -975,44 +975,44 @@ C
         End Do
         call mma_deallocate(CI1)
         Call SQUARE(WRK1,RDMSA,1,nAshT,nAshT)
-C
+
         nOrbI = nBas(1) - nDel(1) !! nOrb(1)
         nBasI = nBas(1)
-C       Call SQUARE(FIFA,FIFA_all,1,nOrbI,nOrbI)
+!       Call SQUARE(FIFA,FIFA_all,1,nOrbI,nOrbI)
         !! FIFASA_all is in natural orbital basis
         Trf(1:NBSQT) = Zero
         Call CnstTrf(TOrb,Trf)
-C
+
         !! FIFA: natural -> quasi-canonical
         If (IFDW .or. IFRMS) Then
           Call DGemm_('T','N',nOrbI,nOrbI,nOrbI,
-     *                One,Trf,nBasI,FIFASA_all,nOrbI,
-     *                Zero,WRK1,nOrbI)
+     &                One,Trf,nBasI,FIFASA_all,nOrbI,
+     &                Zero,WRK1,nOrbI)
           Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,
-     *                One,WRK1,nOrbI,Trf,nBasI,
-     *                Zero,FIFASA_all,nOrbI)
+     &                One,WRK1,nOrbI,Trf,nBasI,
+     &                Zero,FIFASA_all,nOrbI)
         End If
 !       Call DCopy_(NBSQT,FIFASA_all,1,FIFA_all,1)
         FIFA_all(1:NBSQT) = FIFASA_all(1:NBSQT)
-C
+
         !! Orbital derivatives of FIFA
         !! Both explicit and implicit orbital derivatives are computed
         !! Also, compute G(D) and put the active contribution to RDMEIG
         OLag(:) = Zero
         Call EigDer2(RDMEIG,Trf,FIFA_all,RDMSA,G1,WRK1,WRK2)
-C
+
         !! Add to PT2 density
         !! No inactive contributions. Correct as long as CASSCF CI
         !! vector are orthogonal.
         Call AddDEPSA(DPT2,G1)
         Call DPT2_TrfStore(One,DPT2,DPT2_tot,Trf,WRK1)
-C
+
         !! Finalize OLag (anti-symetrize) and construct WLag
         Call OLagFinal(OLag,Trf)
-C
+
         If (.not.if_equalW) then
           call mma_allocate(DPT2_AO,NBSQT,Label='DPT2_AO')
-C
+
           !! AddDEPSA considers the frozen orbital, whereas DPT2_Trf
           !! does not. In any case, construct DPT2 again.
           DPT2(:) = Zero
@@ -1039,86 +1039,86 @@ C
           Call CnstAB_SSDM(DPT2_AO,WRK1)
           call mma_deallocate(DPT2_AO)
         End If
-C
+
         call mma_deallocate(RDMSA)
         call mma_deallocate(WRK1)
         call mma_deallocate(WRK2)
-C
+
         call mma_deallocate(DPT2)
-C
-C       ----- Calculate CI derivatives -----
-C
+!
+!       ----- Calculate CI derivatives -----
+!
         !! use quasi-canonical CSF rather than natural CSF
-C     ISAV = IDCIEX
-C     IDCIEX = IDTCEX
+!     ISAV = IDCIEX
+!     IDCIEX = IDTCEX
         CLag(:,:) = Zero
-C
+
         !! 1) Explicit CI derivative
         !! a: Extract FIFA in the AS for explicit CI derivative
         !!    Note that this FIFA uses state-averaged density matrix
-C       call sqprt(fifa_all,nbast)
+!       call sqprt(fifa_all,nbast)
         Do iAsh = 1, nAshT
           Do jAsh = 1, nAshT
             G1(iAsh,jAsh) = FIFA_all( nFro(1)
      &          + nIsh(1) + iAsh + nBas(1)*(nFro(1)+nIsh(1)+jAsh-1))
           End Do
         End Do
-C       call sqprt(g1),nasht)
+!       call sqprt(g1),nasht)
         !! Transform quasi-canonical to natural
         nCor = nFro(1)+nIsh(1)
-C     write (*,*) nfro(1),nish(1)
-C     call sqprt(trf,nbast)
+!     write (*,*) nfro(1),nish(1)
+!     call sqprt(trf,nbast)
         Call DGemm_('N','N',nAshT,nAshT,nAshT,
-     *              One,Trf(1+nBasT*nCor+nCor),nBasT,G1,nAshT,
-     *              Zero,FIFA_all,nAshT)
-C     call sqprt(FIFA_all,nasht)
+     &              One,Trf(1+nBasT*nCor+nCor),nBasT,G1,nAshT,
+     &              Zero,FIFA_all,nAshT)
+!     call sqprt(FIFA_all,nasht)
         Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     *              One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,
-     *              Zero,G1,nAshT)
-C     call sqprt(g1,nasht)
+     &              One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,
+     &              Zero,G1,nAshT)
+!     call sqprt(g1,nasht)
         Call DGemm_('N','N',nAshT,nAshT,nAshT,
-     *              One,Trf(1+nBasT*nCor+nCor),nBasT,RDMEIG,nAshT,
-     *              Zero,FIFA_all,nAshT)
+     &              One,Trf(1+nBasT*nCor+nCor),nBasT,RDMEIG,nAshT,
+     &              Zero,FIFA_all,nAshT)
         Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     *              One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,
-     *              Zero,RDMEIG,nAshT)
+     &              One,FIFA_all,nAshT,Trf(1+nBasT*nCor+nCor),nBasT,
+     &              Zero,RDMEIG,nAshT)
         call mma_deallocate(Trf)
-C
+
         !! b: FIFA in the inactive space
         TRC=Zero
-C     DO ISYM=1,NSYM
+!     DO ISYM=1,NSYM
         DO I=1,NISH(1) ! ISYM)
-C         II=IOFF(ISYM)+(I*(I+1))/2
+!         II=IOFF(ISYM)+(I*(I+1))/2
           II=(I*(I+1))/2
           TRC=TRC+FIFA(II)
         END DO
-C     END DO
+!     END DO
 * Contribution from inactive orbitals:
         EINACT=Two*TRC
         !! This EINACT may be wrong. Perhaps, FIFA has to be
         !! back-transformed to natural orbital basis. However, this does
         !! not contribute to the final gradient as long as all the
         !! (internal) CI vectors are orthogonal.
-C
+
         !! c: Finally, compute explicit CI derivative
         !! y_{I,T} = w_{ST} <I|f|S>
         !! Here, G1 is FIFA = ftu
         Call CLagEigT(CLag,G1,SLag,EINACT)
-C
+
         !! 2) Implicit CI derivative
         Call CLagEig(.False.,.True.,CLag,RDMEIG,nLev)
-C
+
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
           call GADSUM(CLag,nConf*nState)
         end if
 #endif
-C
+
         call mma_deallocate(RDMEIG)
         call mma_deallocate(G1)
-C
+
       End If
-C
+
       If (do_csf) Then
         !! Eq (68)
         !! I think this contributes even in XMS-CASPT2.
@@ -1129,38 +1129,38 @@ C
         !! because CLag is like that
         !! CASSCF -> XMS
         Call DGEMM_('T','N',nState,nState,nState,
-     *              One,U0,nState,UEFF,nState,
-     *              Zero,SLag,nState)
+     &              One,U0,nState,UEFF,nState,
+     &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
-C
+
         EDIFF = ENERGY(iRoot2)-ENERGY(iRoot1)
         Do iStat = 1, nState
           Call LoadCI_XMS('N',0,CI1,iStat,U0)
           Do jStat = 1, nState
             Scal = (UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
-     *           -  UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*Half
+     &           -  UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1))*Half
             Scal = Scal * EDIFF
             Call DaXpY_(nConf,Scal,CI1,1,CLag(1,jStat),1)
           End Do
         End Do
-C
+
         !! XMS -> CASSCF
         Call DGEMM_('N','N',nState,nState,nState,
-     *              One,U0,nState,UEFF,nState,
-     *              Zero,SLag,nState)
+     &              One,U0,nState,UEFF,nState,
+     &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
-C
+
         call mma_deallocate(CI1)
       End If
-C
+
       !! Finally, add to the total CI derivative array
       CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
-C     IDCIEX = ISAV
-C
+!     IDCIEX = ISAV
+
       End Subroutine XMS_Grad
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       !! From poly3
       SUBROUTINE CLagEigT(CLag,RDMEIG,SLag,EINACT)
 
@@ -1199,12 +1199,12 @@ C
           End If
           !! One of doubling is due to the scaling factor
           !! One of doubling is due to the symmetry of iStat and jStat
-C         Scal = SLag(iStat+nState*(jStat-1))*4.0d+00
+!         Scal = SLag(iStat+nState*(jStat-1))*4.0d+00
           Scal = SLag(iStat+nState*(jStat-1))*Two
           If (ABS(Scal) <= 1.0e-09_wp) Cycle
-C
+
           Call Poly1_CLagT(CI1,CI2,
-     *                     CLag(1,iStat),CLag(1,jStat),RDMEIG,Scal)
+     &                     CLag(1,iStat),CLag(1,jStat),RDMEIG,Scal)
           !! Inactive terms
 #ifdef _MOLCAS_MPP_
           !! The inactive contributions are computed in all processes,
@@ -1217,16 +1217,16 @@ C
      &      + Scal*EINACT*CI2(1:nconf)
         End Do
       End Do
-C
+
       call mma_deallocate(CI1)
       call mma_deallocate(CI2)
-C
+
       Return
-C
+
       End Subroutine CLagEigT
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE POLY1_CLagT(CI1,CI2,CLag1,CLag2,RDMEIG,Scal)
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -1251,7 +1251,7 @@ C
       IF(NLEV > 0) THEN
         call mma_allocate(SGM1,MXCI,Label='SGM1')
         CALL DENS1T_RPT2_CLag(CI1,CI2,SGM1,
-     *                        CLag1,CLag2,RDMEIG,Scal,nLev)
+     &                        CLag1,CLag2,RDMEIG,Scal,nLev)
       END IF
 
 * REINITIALIZE USE OF DMAT.
@@ -1271,9 +1271,9 @@ C
 
       RETURN
       end subroutine POLY1_CLagT
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,SCAL,
      &                            nLev)
 #ifdef _MOLCAS_MPP_
@@ -1373,11 +1373,11 @@ C
       CALL mma_deallocate(Task)
 
       end subroutine DENS1T_RPT2_CLag
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine CnstInt(Mode,INT1,INT2)
-C
+
       Use CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only: FIMO_all
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -1397,17 +1397,17 @@ C
 
       integer(kind=iwp),allocatable :: BGRP(:,:)
       real(kind=wp),allocatable :: WRK1(:),WRK2(:),KET(:)
-C
+
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
       integer(kind=iwp) ::  nSh(8,3), iSym, nFroI, nIshI, nCorI, nBasI,
      &  iAshI, jAshI, iSymA, iSymI, iSymB, iSymJ, JSYM, IB, IB1, IB2,
      &  MXBGRP, IBGRP, NBGRP, NCHOBUF, MXPIQK, NADDBUF, IBSTA, IBEND,
      &  NV, nKET, kAshI, lAshI, iT, iU, iTU, iV, iX, iVX, iOrb, jOrb
       real(kind=wp) :: Val, SCAL
-C
+
       INT1(:,:) = Zero
       Int2(:,:,:,:) = Zero
-C
+
       iSym=1
       nFroI = nFro(iSym)
       nIshI = nIsh(iSym)
@@ -1417,9 +1417,9 @@ C
 
       call mma_allocate(WRK1,NBSQT,Label='WRK1')
       call mma_allocate(WRK2,NBSQT,Label='WRK2')
-C
-C     --- One-Electron Integral
-C
+!
+!     --- One-Electron Integral
+!
       !! Read H_{\mu \nu}
       Do iAshI = 1, nAsh(iSym)
         Do jAshI = 1, nAsh(iSym)
@@ -1427,14 +1427,14 @@ C
           INT1(iAshI,jAshI) = INT1(iAshI,jAshI) + Val
         End Do
       End Do
-C
-C     --- Two-Electron Integral
-C
+!
+!     --- Two-Electron Integral
+!
       iSymA = 1
       iSymI = 1
       iSymB = 1
       iSymJ = 1
-C
+
       If (IfChol) Then
         nSh(1:nSym,Inactive) = NISH(1:nSym)
         nSh(1:nSym,Active  ) = NASH(1:nSym)
@@ -1442,7 +1442,7 @@ C
         DO JSYM=1,NSYM
           IB1=NBTCHES(JSYM)+1
           IB2=NBTCHES(JSYM)+NBTCH(JSYM)
-C
+
           MXBGRP=IB2-IB1+1
           IF (MXBGRP <= 0) CYCLE
           call mma_allocate(BGRP,2,MXBGRP,Label='BGRP')
@@ -1453,31 +1453,31 @@ C
            IBGRP=IBGRP+1
           END DO
           NBGRP=MXBGRP
-C
+
           CALL MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,
      &                         NCHOBUF,MXPIQK,NADDBUF)
           call mma_allocate(KET,NCHOBUF,Label='KETBUF')
           Do IBGRP=1,NBGRP
-C
+
             IBSTA=BGRP(1,IBGRP)
             IBEND=BGRP(2,IBGRP)
-C
+
             NV=0
             DO IB=IBSTA,IBEND
               NV=NV+NVLOC_CHOBATCH(IB)
             END DO
-C
+
             !! int2(tuvx) = (tu|vx)/2
             !! This can be computed without frozen orbitals
             Call Get_Cholesky_Vectors(Active,Active,JSYM,
      &                                KET,nKet,
      &                                IBSTA,IBEND)
-C
+
             If (IBGRP == 1) SCAL = Zero
             If (IBGRP /= 1) SCAL = One
             Call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,
-     *                  Half,KET,NASH(JSYM)**2,KET,NASH(JSYM)**2,
-     *                  SCAL   ,INT2,NASH(JSYM)**2)
+     &                  Half,KET,NASH(JSYM)**2,KET,NASH(JSYM)**2,
+     &                  SCAL   ,INT2,NASH(JSYM)**2)
           End Do
           call mma_deallocate(KET)
           call mma_deallocate(BGRP)
@@ -1487,14 +1487,14 @@ C
           iOrb = nCorI+iAshI
           Do jAshI = 1, nAsh(iSym)
             jOrb = nCorI+jAshI
-C
+
             Call Coul(iSymA,iSymI,iSymB,iSymJ,iOrb,jOrb,WRK1,WRK2)
             !! Put in INT2
             Do kAshI = 1, nAsh(iSym)
               Do lAshI = 1, nAsh(iSym)
                 INT2(iAshI,jAshI,kAshI,lAshI)
-     *        = INT2(iAshI,jAshI,kAshI,lAshI)
-     *        + WRK1(nCorI+kAshI+nBasT*(nCorI+lAshI-1))*Half
+     &        = INT2(iAshI,jAshI,kAshI,lAshI)
+     &        + WRK1(nCorI+kAshI+nBasT*(nCorI+lAshI-1))*Half
               End Do
             End Do
           End Do
@@ -1518,17 +1518,17 @@ C
         End Do
       End Do
       End If
-C
+
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) CALL GADSUM (INT2,nAshT**4)
 #endif
-C
+
       Return
-C
+
       End Subroutine CnstInt
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 
       use caspt2_global, only: iRoot1, iRoot2, OLagFull
@@ -1546,20 +1546,20 @@ C
       real(kind=wp), intent(in) :: UEFF(nState,nState), U0(*)
 
       real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),
-     *                             G1(:,:),WRK1(:),WRK2(:)
+     &                             G1(:,:),WRK1(:),WRK2(:)
       integer(kind=iwp) :: nLev, iStat, jStat, iMO1, iMO2, iSym, nOrbI1,
      &  nOrbI2, iOrb0, iOrb2, jOrb0, jOrb2, i, j
       real(kind=wp) :: Scal
 
       nLev = SGS%nLev
-C
+
       call mma_allocate(CI1,nConf,Label='CI1')
       call mma_allocate(CI2,nConf,Label='CI2')
       call mma_allocate(SGM1,nConf,Label='SGM1')
       call mma_allocate(SGM2,nConf,Label='SGM2')
       call mma_allocate(TG1,nAshT**2,Label='TG1')
       call mma_allocate(G1,nAshT,nAshT,Label='G1')
-C
+
       G1(:,:) = Zero
       Do iStat = 1, nState
         !! UEFF is in the CASSCF basis, so the CI coefficient
@@ -1568,27 +1568,27 @@ C
         Do jStat = 1, nState
           If (iStat == jStat) Cycle
           Call LoadCI_XMS('N',1,CI2,jStat,U0)
-C
+
           Call Dens1T_RPT2(CI1,CI2,SGM1,TG1,nLev)
           Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)
-     *         - UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1)
+     &         - UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1)
           Scal = Scal*Half
-C         write (*,*) istat,jstat,scal
-C         call sqprt(tg1,5)
+!         write (*,*) istat,jstat,scal
+!         call sqprt(tg1,5)
           Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
         End Do
       End Do
-C     call sqprt(g1,5)
-C
+!     call sqprt(g1,5)
+
       call mma_deallocate(CI1)
       call mma_deallocate(CI2)
       call mma_deallocate(SGM1)
       call mma_deallocate(SGM2)
       call mma_deallocate(TG1)
-C
+
       !! The DPT2Canti computed so far has been doubled
       DPT2Canti(1:nBasT**2) = DPT2Canti(1:nBasT**2)*Half
-C
+
       iMO1 = 1
       iMO2 = 1
       DO iSym = 1, nSym
@@ -1604,23 +1604,23 @@ C
               ! jOrb1 = nIsh(iSym)+jOrb0
               jOrb2 = nFro(iSym)+nIsh(iSym)+jOrb0
               DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
-     *          = DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
-     *          + G1(iOrb0,jOrb0)
+     &          = DPT2Canti(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
+     &          + G1(iOrb0,jOrb0)
             End Do
           End Do
         END IF
         iMO1 = iMO1 + nOrbI1*nOrbI1
         iMO2 = iMO2 + nOrbI2*nOrbI2
       End Do
-C     write (*,*) "dpt2anti after"
-C     call sqprt(dpt2canti,nbast)
-C
+!     write (*,*) "dpt2anti after"
+!     call sqprt(dpt2canti,nbast)
+
       call mma_deallocate(G1)
-C
+
       !! Add orbital response
       call mma_allocate(WRK1,NBSQT,Label='WRK1')
       call mma_allocate(WRK2,NBSQT,Label='WRK2')
-C
+
       !! Scale with the CASPT2 energy difference
       Scal = ENERGY(iRoot2)-ENERGY(iRoot1)
       WRK1(1:nBasT**2) = Scal*DPT2Canti(1:nBasT**2)
@@ -1629,9 +1629,9 @@ C
      &            WRK1,nBas(1),'T',
      &            WRK2,nBas(1),
      &            nBas(1),nBas(1))
-C      write (*,*) "wrk1"
-C      call sqprt(wrk),nbast)
-C
+!      write (*,*) "wrk1"
+!      call sqprt(wrk),nbast)
+
       !! Probably, the way CSF term is computed in MOLCAS is different
       !! from in BAGEL; see Eqs.(51)--(53). In the active space, i.e.
       !! for SA-CASSCF, the orbital response in the active space cancel
@@ -1639,31 +1639,31 @@ C
       !! The way MOLCAS computes adds more than the one BAGEL does, so
       !! the orbital response has to be subtracted?
       OLagFull(1:nBasT**2) = OLagFull(1:nBasT**2) - WRK1(1:nBasT**2)
-C
+
       call mma_deallocate(WRK1)
       call mma_deallocate(WRK2)
-C
+
       !! S[x]^A:D = S[x]:D^A, according to alaska_util/csfgrad.f
       !! so antisymmetrize D
       Do i = 1, nBasT
         Do j = 1, i-1
           Scal = DPT2Canti(i+nBasT*(j-1))
-     *         - DPT2Canti(j+nBasT*(i-1))
+     &         - DPT2Canti(j+nBasT*(i-1))
           DPT2Canti(i+nBasT*(j-1)) =  Scal*Half
           DPT2Canti(j+nBasT*(i-1)) = -Scal*Half
         End Do
       End Do
-C     write (*,*) "dpt2anti sym"
-C     call sqprt(dpt2canti,nbast)
-C     write (*,*) "dpt2c"
-C     call sqprt(dpt2c_tot,nbast)
-C
+!     write (*,*) "dpt2anti sym"
+!     call sqprt(dpt2canti,nbast)
+!     write (*,*) "dpt2c"
+!     call sqprt(dpt2c_tot,nbast)
+
       Return
-C
+
       End Subroutine CnstAntiC
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE DENS1T_RPT2 (CI1,CI2,SGM1,G1,NLEV)
 
       use caspt2_global, only:iPrGlb
@@ -1690,18 +1690,18 @@ C
       logical(kind=iwp), external :: RSV_TSK
       real(kind=wp), external :: ddot_, dnrm2_
 
-c Purpose: Compute the 1- and 2-electron density matrix
-c arrays G1 and G2.
+! Purpose: Compute the 1- and 2-electron density matrix
+! arrays G1 and G2.
       G1(:,:) = Zero
 
-C For the special cases, there is no actual CI-routines involved:
-c Special code for hi-spin case:
+! For the special cases, there is no actual CI-routines involved:
+! Special code for hi-spin case:
       IF(ISCF == 2) THEN
         DO IT = 1, NASHT
           G1(IT,IT) = One
         END DO
       else if (ISCF == 1 .and. NACTEL > 0) then
-c Special code for closed-shell:
+! Special code for closed-shell:
         DO IT = 1, NASHT
           G1(IT,IT) = Two
         END DO
@@ -1713,7 +1713,7 @@ c Special code for closed-shell:
 * the density matrices with usual active orbital indices.
 * Translation tables L2ACT and LEVEL, in pt2_guga.F90
 
-C-SVC20100311: set up a task table with LT,LU
+!-SVC20100311: set up a task table with LT,LU
         nTasks=(nLev**2+nLev)/2
         nTasks= nLev**2
         CALL mma_allocate (Task,nTasks,2,Label='TASK')
@@ -1730,18 +1730,18 @@ C-SVC20100311: set up a task table with LT,LU
 
         Call Init_Tsk(ID, nTasks)
 
-C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
+!-SVC20100311: BEGIN SEPARATE TASK EXECUTION
         do while (Rsv_Tsk(ID,iTask))
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
-C         LTU=0
-C         DO 140 LT=1,NLEV
+!         LTU=0
+!         DO 140 LT=1,NLEV
           LT=TASK(iTask,1)
           IST=SGS%ISM(LT)
           IT=L2ACT(LT)
-C         DO 130 LU=1,LT
+!         DO 130 LU=1,LT
           LU=Task(iTask,2)
-C         LTU=LTU+1
+!         LTU=LTU+1
           ! LTU=iTask
           ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
@@ -1755,10 +1755,10 @@ C         LTU=LTU+1
             G1(IT,IU)=G1(IT,IU)+GTU
           END IF
 
-CSVC: The master node now continues to only handle task scheduling,
-C     needed to achieve better load balancing. So it exits from the task
-C     list.  It has to do it here since each process gets at least one
-C     task.
+!SVC: The master node now continues to only handle task scheduling,
+!     needed to achieve better load balancing. So it exits from the task
+!     list.  It has to do it here since each process gets at least one
+!     task.
         end do
         CALL Free_Tsk(ID)
         CALL mma_deallocate(Task)
@@ -1772,17 +1772,17 @@ C     task.
       ENDIF
 
       end subroutine DENS1T_RPT2
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine DWDER(OMGDER,HEFF,SLag)
-C
+
       use definitions, only: wp, iwp
       use caspt2_module, only: NSTATE, DWTYPE, ZETA
       use Constants, only: Zero, Two, Half
-C
+
       implicit none
-C
+
       real(kind=wp), intent(in) :: OMGDER(nState,nState),
      &  HEFF(nState,nState)
       real(kind=wp), intent(inout) :: SLag(nState,nState)
@@ -1790,14 +1790,14 @@ C
       integer(kind=iwp) :: ilStat, jlStat, klStat
       real(kind=wp) :: Ebeta, Ealpha, Factor, Egamma, Dag, Hag, DEROMG,
      &  Scal, DERAB, DERAC, Dbg, Hbg
-C
-C     Computes the derivative of weight factor in XDW-CASPT2
-C
+!
+!     Computes the derivative of weight factor in XDW-CASPT2
+!
       Do ilStat = 1, nState
         Ebeta = HEFF(ilStat,ilStat)
         Do jlStat = 1, nState
           Ealpha = HEFF(jlStat,jlStat)
-C
+
           Factor = Zero
           Do klStat = 1, nState
             Egamma = HEFF(klStat,klStat)
@@ -1805,17 +1805,17 @@ C
               Factor = Factor + exp(-zeta*(Ealpha - Egamma)**2)
             Else If (DWType == 2) Then
               Factor = Factor
-     *          + exp(-zeta*(Ealpha/HEFF(jlStat,klStat))**2)
+     &          + exp(-zeta*(Ealpha/HEFF(jlStat,klStat))**2)
             Else If (DWType == 3) Then
               Dag = abs(Ealpha - Egamma) + 1.0e-9_wp
               Hag = abs(HEFF(jlStat,klStat))
               Factor = Factor
-     *          + exp(-zeta*Dag/(sqrt(Hag)+tiny(Hag)))
+     &          + exp(-zeta*Dag/(sqrt(Hag)+tiny(Hag)))
             End If
           End Do
-C
+
           DEROMG = OMGDER(ilStat,jlStat)
-C
+
           !! derivative of alpha-beta
           If (DWType == 1) Then
             DERAB = EXP(-ZETA*(Ealpha-Ebeta)**2)/Factor
@@ -1825,7 +1825,7 @@ C
           Else If (DWType == 2) Then
             DERAB = EXP(-ZETA*(Ealpha/HEFF(jlStat,ilStat))**2)/Factor
             DERAB = DERAB*Two*DEROMG*ZETA
-     *            *(Ealpha/HEFF(jlStat,ilStat))**2
+     &            *(Ealpha/HEFF(jlStat,ilStat))**2
             Scal  = -DERAB/Ealpha
             SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
             Scal  = +DERAB/HEFF(jlStat,ilStat)
@@ -1835,7 +1835,7 @@ C
             Hag = abs(HEFF(jlStat,ilStat))
             DERAB = EXP(-ZETA*Dag/(sqrt(Hag)+Tiny(Hag)))/Factor
             DERAB = -ZETA*DERAB*Dag/(sqrt(Hag)+tiny(Hag))
-     *              *DEROMG
+     &              *DEROMG
             Scal = DERAB/Dag
             If (Ealpha-Ebeta <= Zero) Scal = -Scal
             SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
@@ -1844,21 +1844,21 @@ C
             If (HEFF(jlStat,ilStat) <= Zero) Scal = -Scal
             SLag(jlStat,ilStat) = SLag(jlStat,ilStat) + Scal
           End If
-C
+
           !! derivative of alpha-gamma
           Do klStat = 1, nState
             Egamma = HEFF(klStat,klStat)
             If (DWtype == 1) Then
               DERAC = EXP(-ZETA*(Ealpha-Ebeta)**2)/(Factor*Factor)
-     *               *EXP(-ZETA*(Ealpha-Egamma)**2)
+     &               *EXP(-ZETA*(Ealpha-Egamma)**2)
               Scal = Two*ZETA*DERAC*(Ealpha-Egamma)*DEROMG
               SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
               SLag(klStat,klStat) = SLag(klStat,klStat) - Scal
             Else If (DWType == 2) Then
               DERAC = EXP(-ZETA*(Ealpha/HEFF(jlStat,klStat))**2)/Factor
-     *              * EXP(-ZETA*(Ealpha/HEFF(jlStat,ilStat))**2)/Factor
+     &              * EXP(-ZETA*(Ealpha/HEFF(jlStat,ilStat))**2)/Factor
               DERAC =-DERAC*Two*DEROMG*ZETA
-     *              *(Ealpha/HEFF(jlStat,klStat))**2
+     &              *(Ealpha/HEFF(jlStat,klStat))**2
               Scal  = -DERAC/Ealpha
               SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
               Scal  = +DERAC/HEFF(jlStat,klStat)
@@ -1867,9 +1867,9 @@ C
               Dbg = abs(Ealpha - Egamma) + 1.0e-9_wp
               Hbg = abs(HEFF(jlStat,klStat))
               DERAC =EXP(-ZETA*Dag/(sqrt(Hag)+tiny(Hag)))/Factor
-     *              *EXP(-ZETA*Dbg/(sqrt(Hbg)+tiny(Hbg)))/Factor
+     &              *EXP(-ZETA*Dbg/(sqrt(Hbg)+tiny(Hbg)))/Factor
               DERAC = ZETA*DERAC*Dbg/(sqrt(Hbg)+tiny(Hbg))
-     *                *DEROMG
+     &                *DEROMG
               Scal = DERAC/Dbg
               If (Ealpha-Egamma <= Zero) Scal = -Scal
               SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
@@ -1881,7 +1881,7 @@ C
           End Do
         End Do
       End Do
-C
+
       Return
-C
+
       End Subroutine DWDER

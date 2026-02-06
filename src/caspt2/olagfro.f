@@ -38,9 +38,9 @@
               jOrb1 = jOrb
               jOrb2 = jOrb+nFroI
               DPT2(iMO2+iOrb2-1+nOrbI2*(jOrb2-1))
-     *          = DPT2_ori(iMO1+iOrb1-1+nOrbI1*(jOrb1-1))
+     &          = DPT2_ori(iMO1+iOrb1-1+nOrbI1*(jOrb1-1))
               DPT2(iMO2+jOrb2-1+nOrbI2*(iOrb2-1))
-     *          = DPT2_ori(iMO1+jOrb1-1+nOrbI1*(iOrb1-1))
+     &          = DPT2_ori(iMO1+jOrb1-1+nOrbI1*(iOrb1-1))
             End Do
           End Do
         End If
@@ -49,9 +49,9 @@
       End Do
 
       End Subroutine OLagFro0
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine OLagFroD(DIA,DI,RDMSA,Trf)
 
       use caspt2_global, only: CMOPT2
@@ -83,7 +83,7 @@ C
         nAshI = nAsh(iSym)
         nBasI = nBas(iSym)
         nCorI = nFroI + nIshI
-C
+
         !! full density matrix
       ! Call SQUARE(WRK1(1+iAOtr),DIA(iAOsq),1,nBasI,nBasI)
       ! !! off-diagonal elements have to be halved
@@ -91,15 +91,15 @@ C
       !   Do Nu = 1, nBasI
       !     If (Mu == Nu) Cycle
       !     DIA(iAOsq+Mu-1+nBasI*(Nu-1))
-     *!       = Half*DIA(iAOsq+Mu-1+nBasI*(Nu-1))
+     &!       = Half*DIA(iAOsq+Mu-1+nBasI*(Nu-1))
       !   End Do
       ! End Do
-C
+
         !! inactive density matrix
         Call DGEMM_('N','T',nBasI,nBasI,nCorI,
-     *              Two,CMOPT2,nBasI,CMOPT2,nBasI,
-     *              Zero,DI(iAOsq),nBasI)
-C
+     &              Two,CMOPT2,nBasI,CMOPT2,nBasI,
+     &              Zero,DI(iAOsq),nBasI)
+
         !! inactive+active density matrix
         !! Somehow, the above density matrix obtained by calling
         !! Get_D1AO is incorrect... at least, cannot be used.
@@ -108,37 +108,34 @@ C
         ! 2)  RDMSA is defined in CASSCF orbitals, so transform RDMSA to
         !     CASPT2 orbital basis
         Call DGemm_('T','N',nAshI,nAshI,nAshI,
-     *              One,Trf(1+nCorI+nBasI*nCorI),nBasI,RDMSA,nAshI,
-     *              Zero,WRK2,nAshI)
+     &              One,Trf(1+nCorI+nBasI*nCorI),nBasI,RDMSA,nAshI,
+     &              Zero,WRK2,nAshI)
         Call DGemm_('N','N',nAshI,nAshI,nAshI,
-     *              One,WRK2,nAshI,
-     *                  Trf(1+nCorI+nBasI*nCorI),nBasI,
-     *              Zero,WRK1,nAshI)
+     &              One,WRK2,nAshI,Trf(1+nCorI+nBasI*nCorI),nBasI,
+     &              Zero,WRK1,nAshI)
         ! 3) Finally, add the active part
         Call DGemm_('N','N',nBasI,nAshI,nAshI,
-     *              One,CMOPT2(1+nBasI*nCorI),nBasI,
-     *                  WRK1,nAshI,
-     *              Zero,WRK2,nBasI)
+     &              One,CMOPT2(1+nBasI*nCorI),nBasI,WRK1,nAshI,
+     &              Zero,WRK2,nBasI)
         Call DGemm_('N','T',nBasI,nBasI,nAshI,
-     *              One,WRK2,nBasI,
-     *                  CMOPT2(1+nBasI*nCorI),nBasI,
-     *              One,DIA,nBasI)
-C
+     &              One,WRK2,nBasI,CMOPT2(1+nBasI*nCorI),nBasI,
+     &              One,DIA,nBasI)
+
         iAOtr = iAOtr + nBasI*(nBasI+1)/2
         iAOsq = iAOsq + nBasI*nBasI
       End Do
-C
+
       call mma_deallocate(WRK1)
       call mma_deallocate(WRK2)
-C
+
       Return
-C
+
       End Subroutine OLagFroD
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine OLagFro1(DPT2,OLag)
-C
+
       use caspt2_global, only: FIFA_all
       use caspt2_module, only: NSYM, NFRO, NISH, NBAS, NDEL
       use Constants, only: Zero, Half
@@ -165,25 +162,25 @@ C
           Do iOrb = 1, nFroI
             Do jOrb = nFroI+1, nFroI+nIshI
               Tmp = -Half*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))
-     *                    -OLag(iMO+jOrb-1+nOrbI*(iOrb-1)))
-     *            /(FIFA_all(iOrb+nBasI*(iOrb-1))
-     *             -FIFA_all(jOrb+nBasI*(jOrb-1)))
+     &                    -OLag(iMO+jOrb-1+nOrbI*(iOrb-1)))
+     &            /(FIFA_all(iOrb+nBasI*(iOrb-1))
+     &             -FIFA_all(jOrb+nBasI*(jOrb-1)))
               DPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
-     *          = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) + Tmp
+     &          = DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) + Tmp
               DPT2(iMO+jOrb-1+nOrbI*(iOrb-1))
-     *          = DPT2(iMO+jOrb-1+nOrbI*(iOrb-1)) + Tmp
+     &          = DPT2(iMO+jOrb-1+nOrbI*(iOrb-1)) + Tmp
             End Do
           End Do
         End If
         iMO  = iMO  + nOrbI*nOrbI
       End Do
-C     write(u6,*) "DPT2 after frozen orbital"
-C     call sqprt(dpt2,nbast)
-C
+!     write(u6,*) "DPT2 after frozen orbital"
+!     call sqprt(dpt2,nbast)
+
       End Subroutine OLagFro1
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine OLagFro2(DPT2,FPT2,ERI,Scr)
 
       use caspt2_module, only: NSYM, NFRO, NISH, NDEL, NBAS
@@ -202,8 +199,8 @@ C
      &  nFroI, nIshI, iOrb, jOrb
       real(kind=wp) :: Scal, Val
 
-C     write(u6,*) "FPT2 before frozen orbital"
-C     call sqprt(fpt2,nbast)
+!     write(u6,*) "FPT2 before frozen orbital"
+!     call sqprt(fpt2,nbast)
       iMO = 1
       isymi = 1
       isymj = 1
@@ -225,25 +222,25 @@ C     call sqprt(fpt2,nbast)
      &        - Half*Scal*ERI(1:nOrbI*nOrbI)
           End Do
         End Do
-C
+
         !! Symmetrize FPT2
         Do iOrb = 1, nOrbI
           Do jOrb = 1, iOrb-1
             Val = (FPT2(iMO+iOrb-1+nOrbI*(jOrb-1))
-     *            +FPT2(iMO+jOrb-1+nOrbI*(iOrb-1)))*Half
+     &            +FPT2(iMO+jOrb-1+nOrbI*(iOrb-1)))*Half
             FPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) = Val
             FPT2(iMO+jOrb-1+nOrbI*(iOrb-1)) = Val
           End Do
         End Do
         iMO = iMO + nOrbI*nOrbI
       End Do
-C     write(u6,*) "FPT2 after frozen orbital"
-C     call sqprt(fpt2,nbast)
-C
+!     write(u6,*) "FPT2 after frozen orbital"
+!     call sqprt(fpt2,nbast)
+
       End Subroutine OLagFro2
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine OLagFro3(FIFA,FIMO,WRK1,WRK2)
 
       use caspt2_global, only: CMOPT2
@@ -263,7 +260,7 @@ C
       real(kind=wp), allocatable :: WFLT(:)
       integer(kind=iwp) :: IRC, IOPT, ICOMP, ISYLBL, iAO, iAOtr, iCMO,
      &  iMO, iSym, nBasI, nOrbI
-C
+
       !! Read H_{\mu \nu}
       call mma_allocate(WFLT,NBTRI,Label='WFLT')
       IRC=-1
@@ -272,7 +269,7 @@ C
       ISYLBL=1
       Label='OneHam  '
       CALL RDONE(IRC,IOPT,Label,ICOMP,WFLT,ISYLBL)
-C
+
       !! AO -> MO transformation
       iAO   = 1
       iAOtr = 1
@@ -281,7 +278,7 @@ C
       DO iSym = 1, nSym
         nBasI = nBas(iSym)
         nOrbI = nBas(iSym)-nDel(iSym)
-C
+
         !! FIFA
         !! WRK1 = G(D)
         WRK1(1:nBasI*nBasI) = FIFA(iAO:iAO+nBasI*nBasI-1)
@@ -290,7 +287,7 @@ C
         WRK1(1:nBasI*nBasI) = WRK1(1:nBasI*nBasI) + WRK2(1:nBasI*nBasI)
         !! AO -> MO transformation of H+G(D)
         Call OLagTrf(2,iSym,CMOPT2(iCMO),FIFA(iMO),WRK1,WRK2)
-C
+
         !! FIMO
         !! WRK1 = G(D)
         WRK1(1:nBasI*nBasI) = FIMO(iAO:iAO+nBasI*nBasI-1)
@@ -299,23 +296,23 @@ C
         WRK1(1:nBasI*nBasI) = WRK1(1:nBasI*nBasI) + WRK2(1:nBasI*nBasI)
         !! AO -> MO transformation of H+G(D)
         Call OLagTrf(2,iSym,CMOPT2(iCMO),FIMO(iMO),WRK1,WRK2)
-C
+
         iAO   = iAO   + nBasI*nBasI
         iAOtr = iAOtr + nBasI*(nBasI+1)/2
         iCMO  = iCMO  + nBasI*nOrbI !?
         iMO   = iMO   + nOrbI*nOrbI
       End Do
-C     write(u6,*) "FIFA"
-C     call sqprt(fifa,nbast)
-C     write(u6,*) "FIMO"
-C     call sqprt(fimo,nbast)
-C
+!     write(u6,*) "FIFA"
+!     call sqprt(fifa,nbast)
+!     write(u6,*) "FIMO"
+!     call sqprt(fimo,nbast)
+
       call mma_deallocate(WFLT)
-C
+
       End Subroutine OLagFro3
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine OLagFroSq(iSym,Ftr,Fsq)
 
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -359,12 +356,12 @@ C
       call mma_deallocate(EPS_loc)
 
       End Subroutine OLagFroSq
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       !! focktwo.f
       SUBROUTINE OLagFro4(iSym0,iSymI,iSymJ,iSymK,iSymL0,
-     *                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK1)
+     &                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK1)
 
       USE CHOVEC_IO, only: NVLOC_CHOBATCH
       use Cholesky, only: InfVec, nDimRS
@@ -496,7 +493,7 @@ C
 * Read a batch of reduced vectors
           CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,iSym,
      &                            NUMV,JREDC,MUSED)
-C
+
           IF(NUMV /= JNUM) THEN
             write(u6,*)' Rats! CHO_VECRD was called, assuming it to'
             write(u6,*)' read JNUM vectors. Instead it returned NUMV'
@@ -512,12 +509,12 @@ C
             write(u6,*)' Back to the drawing board?'
             write(u6,*)' Let the program continue and see what happens.'
           END IF
-C
+
           ipVecL = 1
           Do iVec = 1, NUMV
             !! (strange) reduced form -> squared AO vector (mu nu|iVec)
             jVref = 1 !! only for iSwap=1
-C           lscr  = nBasI*(nBasI+1)/2
+!           lscr  = nBasI*(nBasI+1)/2
             ! If (l_NDIMRS < 1) Then
             If (size(nDimRS) < 1) Then
               lscr  = NNBSTR(iSym,3)
@@ -530,22 +527,22 @@ C           lscr  = nBasI*(nBasI+1)/2
             iSwap = 2
             WRK2(:) = Zero
             Call Cho_ReOrdr(irc,CHSPC(ipVecL),lscr,jVref,
-     *                      JVEC1,1,1,iSym,JREDC,iSwap,ipWRK,WRK2,
-     *                      iSkip)
+     &                      JVEC1,1,1,iSym,JREDC,iSwap,ipWRK,WRK2,
+     &                      iSkip)
             ipVecL = ipVecL + lscr
-C
-C           ----- Fock-like transformations -----
-C
+!
+!           ----- Fock-like transformations -----
+!
             Call FDGTRF_RI(WRK2,DPT2AO ,FPT2AO )
             Call FDGTRF_RI(WRK2,DPT2CAO,FPT2CAO)
           End Do
           JV1=JV1+JNUM
         End Do
       End Do
-C
+
       call mma_deallocate(CHSPC)
       call mma_deallocate(WRK2)
-C
+
       !! Have to symmetrize Fock-transformed matrices
       Do i = 1, nBasI
         Do j = 1, i-1
@@ -557,18 +554,18 @@ C
           FPT2CAO(j+nBasI*(i-1)) = Tmp
         End Do
       End Do
-C
+
 #ifdef _MOLCAS_MPP_
       If (Is_Real_Par()) Then
         CALL GADSUM (FPT2AO,NBSQT)
         CALL GADSUM (FPT2CAO,NBSQT)
       End If
 #endif
-C
+
       Return
-C
+
       Contains
-C
+
       Subroutine FDGTRF_RI(ChoVec,DD,FF)
 
       implicit none
@@ -585,11 +582,11 @@ C
 
       !! Exchange
       Call DGEMM_('T','N',nBasI,nBasI,nBasI,
-     *            One,ChoVec,nBasI,DD,nBasI,
-     *            Zero,WRK1,nBasI)
+     &            One,ChoVec,nBasI,DD,nBasI,
+     &            Zero,WRK1,nBasI)
       Call DGEMM_('T','T',nBasI,nBasI,nBasI,
-     *           -Half,ChoVec,nBasI,WRK1,nBasI,
-     *            One,FF,nBasI)
+     &           -Half,ChoVec,nBasI,WRK1,nBasI,
+     &            One,FF,nBasI)
 
       End Subroutine FDGTRF_RI
 

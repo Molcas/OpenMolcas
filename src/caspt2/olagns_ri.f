@@ -10,65 +10,65 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-C     based on rhsall2.f
-C
-C     In principle, For E = T_{ij}^{ab}*(ia|jb).
-C     With p and q for general orbitals,
-C     L_{pq} = (pa|jb)*T_{qj}^{ab} + (ip|jb)*T_{ij}^{qb}
-C            + (ia|pb)*T_{iq}^{ab} + (ia|jp)*T_{ij}^{aq}
-C     For the first term, with P and Q for auxiliary orbitals
-C     L_{pq}(1) = (pa|jb)*T_{qj}^{ab}
-C               = (pa|P)*(P|jb) * T_{qj}^{ab} (2c-2e is omitted?)
-C               = (pa|P) * tilde{T}_{qa}^P
-C               = C_{mu p}*C_{nu a}*(mu nu|P) * tilde{T}_{qa}^P
-C               = C_{mu p} * (mu nu|P) * V_{nu q}^P
-C     where
-C     tilde{T}_{ia}^P = T_{ij}^{ab} * (P|jb)
-C     V_{mu p}^P      = tilde{T}_{pa}^P * C_{mu a}
-C
-C     Dimension of tilde{T} will be the same as that of (ia|P) in MO,
-C     where (i,a) = (inact,active), (inact,virtual), (active,virtual)
-C
-C     tilde{T} is constructed in this file.
-C     tilde{T} -> V_{mu p}^P transformations, contraction with 3c-2e,
-C     and construction of the orbital Lagrangian (L_{pq}) is elsewhere
-C     ... maybe in OLagVVVO
-C
-C-----------------------------------------------------------------------
-C
-C     For the ERI derivative calculation,
-C     d(mu nu|rho sigma)/da
-C     = d/da (mu nu|P) (P|Q)^-1 (Q|rho sigma)
-C     = d(mu nu|P)/da (P|Q)^-1 (Q|rho sigma)
-C       + (mu nu|P) d(P|Q)^-1/da (Q|rho sigma)
-C       + (mu nu|P) (P|Q)^-1 d(Q|rho sigma)/da
-C     = d(mu nu|P)/da (P|Q)^-1 (Q|rho sigma)
-C       - (mu nu|P) (P|R)^-1 d(R|S)/da (S|Q)^-1 (Q|rho sigma)
-C       + (mu nu|P) (P|Q)^-1 d(Q|rho sigma)/da
-C     = d(mu nu|P)/da (tP|rho sigma)
-C       - (mu nu|tP) d(P|Q)/da (tQ|rho sigma)
-C       + (mu nu|tP) d(P|rho sigma)/da
-C     where (mu nu|tP) = (mu nu|Q)*(Q|P)^-1
-C
-C     D_{mu nu rho sigma}*d(mu nu|rho sigma)/da
-C     = d(mu nu|P)/da (tP|rho sigma) * D_{mu nu rho sigma}
-C       - (mu nu|tP) d(P|Q)/da (tQ|rho sigma) * D_{mu nu rho sigma}
-C       + (mu nu|tP) d(P|rho sigma)/da * D_{mu nu rho sigma}
-C     = d(mu nu|P)/da tD_{mu nu}^tP
-C       - (mu nu|tP) d(P|Q)/da tD_{mu nu}^tQ
-C       + tD_{rho sigma}^tP d(P|rho sigma)/da
-C     where tD_{mu nu}^tP = D_{mu nu rho sigma} * (rho sigma|tP)
-C     In practice, tD_{pq}^tP is constructed and saved in disk.
-C     This will be read when 3c-2e ERI derivatives are concerned,
-C     and MO->AO transformations will be done on-the-fly.
-C     Note that MO coefficients of CASPT2 have to be used.
-C
-C     For 2c-2e ERI derivatives,
-C     D(tP,tQ) = tD_{pq} * C_{mu p} C_{nu q} * (mu nu|tP)
-C     then saved.
-C
+!     based on rhsall2.f
+!
+!     In principle, For E = T_{ij}^{ab}*(ia|jb).
+!     With p and q for general orbitals,
+!     L_{pq} = (pa|jb)*T_{qj}^{ab} + (ip|jb)*T_{ij}^{qb}
+!            + (ia|pb)*T_{iq}^{ab} + (ia|jp)*T_{ij}^{aq}
+!     For the first term, with P and Q for auxiliary orbitals
+!     L_{pq}(1) = (pa|jb)*T_{qj}^{ab}
+!               = (pa|P)*(P|jb) * T_{qj}^{ab} (2c-2e is omitted?)
+!               = (pa|P) * tilde{T}_{qa}^P
+!               = C_{mu p}*C_{nu a}*(mu nu|P) * tilde{T}_{qa}^P
+!               = C_{mu p} * (mu nu|P) * V_{nu q}^P
+!     where
+!     tilde{T}_{ia}^P = T_{ij}^{ab} * (P|jb)
+!     V_{mu p}^P      = tilde{T}_{pa}^P * C_{mu a}
+!
+!     Dimension of tilde{T} will be the same as that of (ia|P) in MO,
+!     where (i,a) = (inact,active), (inact,virtual), (active,virtual)
+!
+!     tilde{T} is constructed in this file.
+!     tilde{T} -> V_{mu p}^P transformations, contraction with 3c-2e,
+!     and construction of the orbital Lagrangian (L_{pq}) is elsewhere
+!     ... maybe in OLagVVVO
+!
+!-----------------------------------------------------------------------
+!
+!     For the ERI derivative calculation,
+!     d(mu nu|rho sigma)/da
+!     = d/da (mu nu|P) (P|Q)^-1 (Q|rho sigma)
+!     = d(mu nu|P)/da (P|Q)^-1 (Q|rho sigma)
+!       + (mu nu|P) d(P|Q)^-1/da (Q|rho sigma)
+!       + (mu nu|P) (P|Q)^-1 d(Q|rho sigma)/da
+!     = d(mu nu|P)/da (P|Q)^-1 (Q|rho sigma)
+!       - (mu nu|P) (P|R)^-1 d(R|S)/da (S|Q)^-1 (Q|rho sigma)
+!       + (mu nu|P) (P|Q)^-1 d(Q|rho sigma)/da
+!     = d(mu nu|P)/da (tP|rho sigma)
+!       - (mu nu|tP) d(P|Q)/da (tQ|rho sigma)
+!       + (mu nu|tP) d(P|rho sigma)/da
+!     where (mu nu|tP) = (mu nu|Q)*(Q|P)^-1
+!
+!     D_{mu nu rho sigma}*d(mu nu|rho sigma)/da
+!     = d(mu nu|P)/da (tP|rho sigma) * D_{mu nu rho sigma}
+!       - (mu nu|tP) d(P|Q)/da (tQ|rho sigma) * D_{mu nu rho sigma}
+!       + (mu nu|tP) d(P|rho sigma)/da * D_{mu nu rho sigma}
+!     = d(mu nu|P)/da tD_{mu nu}^tP
+!       - (mu nu|tP) d(P|Q)/da tD_{mu nu}^tQ
+!       + tD_{rho sigma}^tP d(P|rho sigma)/da
+!     where tD_{mu nu}^tP = D_{mu nu rho sigma} * (rho sigma|tP)
+!     In practice, tD_{pq}^tP is constructed and saved in disk.
+!     This will be read when 3c-2e ERI derivatives are concerned,
+!     and MO->AO transformations will be done on-the-fly.
+!     Note that MO coefficients of CASPT2 have to be used.
+!
+!     For 2c-2e ERI derivatives,
+!     D(tP,tQ) = tD_{pq} * C_{mu p} C_{nu q} * (mu nu|tP)
+!     then saved.
+!
       Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2)
-C
+
       Use CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_csf, iStpGrd
@@ -91,24 +91,24 @@ C
      &                         NAGTBES, NASUP, NISUP, NINDEP, NBTCH,
      &                         NBTCHES
       use Constants, only: Zero, One, Quart, Half, Two, Three, OneHalf
-C
+
       implicit none
-C
+
 #include "warnings.h"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-C
+
       integer(kind=iwp), intent(in) :: iSym0
       real(kind=wp), intent(inout) :: DPT2C(*), DPT2Canti(*),
      &  A_PT2(MaxVec_PT2,MaxVec_PT2)
 
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
-C
+
       integer(kind=iwp),allocatable :: BGRP(:,:)
       real(kind=wp),allocatable :: BRA(:),KET(:),BRAD(:),KETD(:),
-     *                             PIQK(:)
+     &                             PIQK(:)
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp), allocatable :: map2(:)
       integer(kind=iwp) :: myRank, NPROCS, i, lg_V, lg_V1, ndim2
@@ -138,15 +138,15 @@ C
       real(kind=wp) :: SCL, SCL1
       real(kind=wp), parameter :: SQ2 = SQRT(Two), SQ3 = SQRT(Three),
      &  SQ05 = SQRT(Half), SQ32 = SQRT(OneHalf)
-C
+
       nSh(1:nSym,Inactive) = NISH(1:nSym)
       nSh(1:nSym,Active  ) = NASH(1:nSym)
       nSh(1:nSym,Virtual ) = NSSH(1:nSym)
-C
+
       IF (IPRGLB >= VERBOSE) THEN
         WRITE(u6,'(1X,A)') ' Using RHSALL2+ADDRHS algorithm'
       END IF
-C
+
       ! iVec = iVecX
       iSym = iSym0
       SCLNEL = One/real(MAX(1,NACTEL),kind=wp)
@@ -187,12 +187,12 @@ C
       call mma_allocate(KET,NCHOBUF,Label='KETBUF')
       call mma_allocate(BRAD,NCHOBUF,Label='BRAD')
       call mma_allocate(KETD,NCHOBUF,Label='KETD')
-C
-C     Loop over groups of batches of Cholesky vectors
-C
+!
+!     Loop over groups of batches of Cholesky vectors
+!
       IOFFCV = 1
       DO IBGRP=1,NBGRP
-C
+
       IBSTA=BGRP(1,IBGRP)
       IBEND=BGRP(2,IBGRP)
 
@@ -294,7 +294,7 @@ C
       Call Get_Cholesky_Vectors(Active,Virtual,JSYM,BRA,nBra,
      &                          IBSTA,IBEND)
       BRAD(1:nBra) = Zero
-C                                                                      *
+!                                                                      *
 ************************************************************************
 *                                                                      *
 * AUVX RHSC
@@ -389,24 +389,24 @@ C                                                                      *
       NVI = NV
       JOFFCV = 1
       DO JBGRP=1,NBGRP
-C
+
         JBSTA=BGRP(1,JBGRP)
         JBEND=BGRP(2,JBGRP)
-C
+
         NVJ=0
         DO JB=JBSTA,JBEND
           NVJ=NVJ+NVLOC_CHOBATCH(JB)
         END DO
-C
+
         !! BraAI
         Call Cnst_A_PT2(Inactive,Active)
-C
+
         !! BraSI
         Call Cnst_A_PT2(Inactive,Virtual)
-C
+
         !! BraSA
         Call Cnst_A_PT2(Active,Virtual)
-C
+
         !! BraAA
         Call Cnst_A_PT2(Active,Active)
         JOFFCV = JOFFCV + NVJ
@@ -435,36 +435,36 @@ C
 *                                                                      *
 * Synchronized add RHS partial arrays from all nodes into each node.
 
-C-SVC: read the DRA's from disk and copy them all to LUSOLV to continue
-C      in serial mode.  FIXME: this call has to be removed when we reach
-C      full parallel capabilities
+!-SVC: read the DRA's from disk and copy them all to LUSOLV to continue
+!      in serial mode.  FIXME: this call has to be removed when we reach
+!      full parallel capabilities
 *     CALL SYNRHS(IVEC)
-C-SVC: at this point, the RHS elements are on disk, both in LUSOLV and
-C      as DRAs with the name RHS_XX_XX_XX with XX a number representing
-C      the case, symmetry, and rhs vector respectively.
-C
-C
+!-SVC: at this point, the RHS elements are on disk, both in LUSOLV and
+!      as DRAs with the name RHS_XX_XX_XX with XX a number representing
+!      the case, symmetry, and rhs vector respectively.
+!
+
       A_PT2(:,:) = Two*A_PT2(:,:)
-C
+
       If (NBGRP /= 0) SCLNEL = SCLNEL/real(NBGRP,kind=wp)
       DPT2C(1:NBSQT) = DPT2C(1:NBSQT)*SCLNEL
       If (do_csf) DPT2Canti(1:NBSQT) = DPT2Canti(1:NBSQT)*SCLNEL
-C
+
 #ifdef _MOLCAS_MPP_
       If (is_real_par()) then
         CALL GADSUM (A_PT2,MaxVec_PT2**2)
       end if
 #endif
-C
+
       Return
-C
+
       Contains
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,Cho_Bra,Cho_Ket,
      &                      Cho_BraD,Cho_KetD)
-C
+
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
 
@@ -479,11 +479,11 @@ C
      &  LKETSM, ISYK, NK, ISYQ, NQ, NQK, NKETSM, NPIQK, KPI, KQK
 
       real(kind=wp) :: TotCPU0, TotWall0, TotCPU1, TotWall1
-C
+
       IF (iPrGlb >= DEBUG) THEN
         WRITE(u6,*) 'Processing RHS block '//Case
       END IF
-C
+
       LBRASM=1
       CALL CWTime(TotCPU0,TotWall0)
       DO ISYI=1,NSYM
@@ -494,7 +494,7 @@ C
         IF(NP == 0) CYCLE
         NPI=NP*NI
         NBRASM=NPI*NV
-C
+
         LKETSM=1
         DO ISYK=1,NSYM
           NK=NSH(ISYK,ITK)
@@ -505,13 +505,13 @@ C
           NQK=NQ*NK
           NKETSM=NQK*NV
 *
-C SVC: we need an NPI*NQK to store the 2-electron integrals, and 2
-C buffers (values+indices) for sorting them.  Later, we can try to get
-C rid of the buffer that stores the values and only use an index buffer
-C and the two-electron integrals for the scatter operation.  For the
-C buffer, any size can be taken, but assuming there is enough memory
-C available, it's set to the size of the two-electron integrals unless
-C larger than some predefined maximum buffer size.
+! SVC: we need an NPI*NQK to store the 2-electron integrals, and 2
+! buffers (values+indices) for sorting them.  Later, we can try to get
+! rid of the buffer that stores the values and only use an index buffer
+! and the two-electron integrals for the scatter operation.  For the
+! buffer, any size can be taken, but assuming there is enough memory
+! available, it's set to the size of the two-electron integrals unless
+! larger than some predefined maximum buffer size.
           NPIQK=NPI*NQK
           IF (NPIQK > MXPIQK) THEN
             IF (Case == 'H') THEN
@@ -529,7 +529,7 @@ C larger than some predefined maximum buffer size.
               CALL AbEnd()
             END IF
           END IF
-C
+
           IF (NPIQK <= 0) THEN
             WRITE(u6,'(1X,A)') ' ADDRHS: zero-sized NPIQK'
             CALL AbEnd()
@@ -575,7 +575,7 @@ C
           Else
              Call Abend()
           End If
-C
+
           LKETSM=LKETSM+NKETSM
         END DO
         LBRASM=LBRASM+NBRASM
@@ -583,23 +583,23 @@ C
       CALL CWTime(TotCPU1,TotWall1)
       IF (IPRGLB >= VERBOSE) THEN
         write(u6,'(" CPU/Wall Time (Case ",A2,"):",2f10.2)')
-     *    Case,totcpu1-totcpu0,totwall1-totwall0
+     &    Case,totcpu1-totcpu0,totwall1-totwall0
       END IF
-C
+
       Return
-C
+
       End Subroutine OLagNS_RI2
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE OLagNS_RI_A(ISYI,ISYK,NT,NJ,NV,NX,TJVX,NTJVX,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
-C
+
       USE SUPERINDEX, only: KTUV
       use caspt2_global, only: do_csf
-C
+
       implicit none
-C
+
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NJ, NV, NX,
      &  NTJVX, NCHO
       real(kind=wp), intent(out) :: TJVX(NT,NJ,NV,NX)
@@ -610,7 +610,7 @@ C
 
       ISYJ = ISYI
       ISYX = ISYK
-C
+
       ISYT=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYX)
       ISYM=ISYJ
@@ -619,9 +619,9 @@ C
       NIS=NISH(ISYM)
       NWA=NAS*NIS
       IF(NWA == 0) RETURN
-C
-C     ---- A
-C
+!
+!     ---- A
+!
       !! Read the T-amplitude
       ICASE=1
       nIN = nINDEP(iSym,iCase)
@@ -657,9 +657,9 @@ C
 #endif
         End If
       End If
-C
+
       Call DCopy_(NTJVX,[Zero],0,TJVX,1)
-C
+
       nOrbT = nFro(iSyT)+nIsh(iSyT)+nAsh(iSyT)+nSsh(iSyT)
       DO IT=1,NT
         ITABS=IT+NAES(ISYT)
@@ -667,7 +667,7 @@ C
         DO IJ=1,NJ
           ! IJABS=IJ+NIES(ISYJ)
           iJtot = iJ + nFro(iSyJ)
-C
+
           DO IV=1,NV
             IVABS=IV+NAES(ISYV)
             IF (ISYV == ISYX) THEN !! not sure
@@ -675,13 +675,13 @@ C
               IW1=KTUV(ITABS,IVABS,IVABS)-NTUVES(ISYM)
               IW2=IJ
               IW=IW1+NAS*(IW2-1)
-C
+
               DPT2C(iTtot+nOrbT*(iJtot-1))
-     *          = DPT2C(iTtot+nOrbT*(iJtot-1))
+     &          = DPT2C(iTtot+nOrbT*(iJtot-1))
      &          + Two*GA_Arrays(ipT)%A(IW)
               If (do_csf) Then
                 DPT2Canti(iTtot+nOrbT*(iJtot-1))
-     *            = DPT2Canti(iTtot+nOrbT*(iJtot-1))
+     &            = DPT2Canti(iTtot+nOrbT*(iJtot-1))
      &            + Two*GA_Arrays(ipTanti)%A(IW)
               End If
             END IF
@@ -695,14 +695,14 @@ C
           END DO
         END DO
       END DO
-C
+
       Call DGEMM_('T','N',NV*NX,NCHO,NT*NJ,
-     *            One,TJVX(1,1,1,1),NT*NJ,Cho_Bra(1,1,1),NT*NJ,
-     *            One,Cho_KetD(1,1,1),NV*NX)
+     &            One,TJVX(1,1,1,1),NT*NJ,Cho_Bra(1,1,1),NT*NJ,
+     &            One,Cho_KetD(1,1,1),NV*NX)
       Call DGEMM_('N','N',NT*NJ,NCHO,NV*NX,
-     *            One,TJVX(1,1,1,1),NT*NJ,Cho_Ket(1,1,1),NV*NX,
-     *            One,Cho_BraD(1,1,1),NT*NJ)
-C
+     &            One,TJVX(1,1,1,1),NT*NJ,Cho_Ket(1,1,1),NV*NX,
+     &            One,Cho_BraD(1,1,1),NT*NJ)
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipT)
@@ -715,20 +715,20 @@ C
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
-C
+
       RETURN
-C
+
       End Subroutine OLagNS_RI_A
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE OLagNS_RI_B(ISYI,ISYK,NT,NJ,NV,NL,TJVL,NTJVL,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
-C
+
       USE SUPERINDEX, only: KIGTJ, KIGEJ, KTGTU, KTGEU
-C
+
       implicit none
-C
+
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NT, NJ, NV, NL,
      &  NTJVL, NCHO
       real(kind=wp), intent(out) :: TJVL(NT,NJ,NV,NL)
@@ -736,15 +736,15 @@ C
      &  Cho_Ket(NV,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NT,NJ,NCHO),
      &  Cho_KetD(NV,NL,NCHO)
-C
+
       ISYJ = ISYI
       ISYL = ISYK
-C
+
       ISYT=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYL)
       IF(ISYT < ISYV) RETURN
       ISYM=MUL(ISYJ,ISYL) !!
-C
+
       IF(NINDEP(ISYM,2) > 0) THEN
 * The plus combination:
        ICASE=2
@@ -764,9 +764,9 @@ C
        NWBM=0
       ENDIF
       If (Max(NWBP,NWBM) <= 0) RETURN
-C
+
       Call DCopy_(NTJVL,[Zero],0,TJVL,1)
-C
+
       IF(NWBP > 0.AND.NINDEP(ISYM,2) > 0) THEN
         !! Read the T-amplitude
         ICASE=2
@@ -794,7 +794,7 @@ C
 #endif
           End If
         End If
-C
+
         DO IT=1,NT
           ITABS=IT+NAES(ISYT)
           IVMAX=NV
@@ -821,7 +821,7 @@ C
             END DO
           END DO
         END DO
-C
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipTP)
@@ -832,7 +832,7 @@ C
         end if
 #endif
       END IF
-C
+
       IF(NINDEP(ISYM,3) > 0) THEN
         !! Read the T-amplitude
         ICASE=3
@@ -860,7 +860,7 @@ C
 #endif
           End If
         End If
-C
+
         DO IT=1,NT
           ITABS=IT+NAES(ISYT)
           IVMAX=NV
@@ -883,12 +883,12 @@ C
                 END IF
                 IW=IW1+NASM*(IW2-1)
                 TJVL(IT,IJ,IV,IL) = TJVL(IT,IJ,IV,IL)
-     *            + SCL*GA_Arrays(ipTM)%A(IW)
+     &            + SCL*GA_Arrays(ipTM)%A(IW)
               END DO
             END DO
           END DO
         END DO
-C
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipTM)
@@ -899,28 +899,28 @@ C
         end if
 #endif
       END IF
-C
+
       Call DGEMM_('T','N',NV*NL,NCHO,NT*NJ,
-     *            One,TJVL(1,1,1,1),NT*NJ,Cho_Bra(1,1,1),NT*NJ,
-     *            One,Cho_KetD(1,1,1),NV*NL)
+     &            One,TJVL(1,1,1,1),NT*NJ,Cho_Bra(1,1,1),NT*NJ,
+     &            One,Cho_KetD(1,1,1),NV*NL)
       Call DGEMM_('N','N',NT*NJ,NCHO,NV*NL,
-     *            One,TJVL(1,1,1,1),NT*NJ,Cho_Ket(1,1,1),NV*NL,
-     *            One,Cho_BraD(1,1,1),NT*NJ)
-C
+     &            One,TJVL(1,1,1,1),NT*NJ,Cho_Ket(1,1,1),NV*NL,
+     &            One,Cho_BraD(1,1,1),NT*NJ)
+
       RETURN
-C
+
       End Subroutine OLagNS_RI_B
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE OLagNS_RI_C(ISYI,ISYK,NA,NU,NV,NX,AUVX,NAUVX,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
-C
+
       USE SUPERINDEX
       use caspt2_global, only: do_csf
-C
+
       implicit none
-C
+
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NV, NX,
      &  NAUVX, NCHO
       real(kind=wp), intent(out) :: AUVX(NA,NU,NV,NX)
@@ -930,10 +930,10 @@ C
      &  Cho_KetD(NV,NX,NCHO)
 
       real(kind=wp) :: ValCF
-C
+
       ISYU = ISYI
       ISYX = ISYK
-C
+
       ISYA=MUL(JSYM,ISYU)
       ISYV=MUL(JSYM,ISYX)
       ISYM=ISYA !!
@@ -942,9 +942,9 @@ C
       NIS=NSSH(ISYM)
       NWC=NAS*NIS
       IF(NWC == 0) RETURN
-C
-C     ---- C
-C
+!
+!     ---- C
+!
       !! Read the T-amplitude
       ICASE=4
       nIN = nINDEP(iSym,iCase)
@@ -979,9 +979,9 @@ C
 #endif
         End If
       End If
-C
+
       Call DCopy_(NAUVX,[Zero],0,AUVX,1)
-C
+
       nOrbA = nFro(iSyA)+nIsh(iSyA)+nAsh(iSyA)+nSsh(iSyA)
       DO IA=1,NA
         iAtot = iA + nFro(iSyA) + nIsh(iSyA) + nAsh(iSyA)
@@ -996,13 +996,13 @@ C
               IW1=KTUV(IUABS,IVABS,IVABS)-NTUVES(ISYM)
               IW2=IA
               IW=IW1+NAS*(IW2-1)
-C
+
               ValCF = GA_Arrays(ipT)%A(IW)*Two
               DPT2C(iAtot+nOrbA*(iUtot-1))
-     *          = DPT2C(iAtot+nOrbA*(iUtot-1)) + ValCF
+     &          = DPT2C(iAtot+nOrbA*(iUtot-1)) + ValCF
               If (do_csf) Then
                 DPT2Canti(iAtot+nOrbA*(iUtot-1))
-     *            = DPT2Canti(iAtot+nOrbA*(iUtot-1))
+     &            = DPT2Canti(iAtot+nOrbA*(iUtot-1))
      &            + Two*GA_Arrays(ipTanti)%A(IW)
               End If
               ValCF = ValCF*SCLNEL
@@ -1012,7 +1012,7 @@ C
               IW1=KTUV(IUABS,IVABS,IXABS)-NTUVES(ISYM)
               IW2=IA
               IW=IW1+NAS*(IW2-1)
-C
+
               AUVX(IA,IU,IV,IX) = AUVX(IA,IU,IV,IX)
      &          + GA_Arrays(ipT)%A(IW)
               AUVX(IA,IX,IU,IX) = AUVX(IA,IX,IU,IX) - ValCF*Half
@@ -1020,14 +1020,14 @@ C
           END DO
         END DO
       END DO
-C
+
       Call DGEMM_('T','N',NV*NX,NCHO,NA*NU,
-     *            One,AUVX(1,1,1,1),NA*NU,Cho_Bra(1,1,1),NA*NU,
-     *            One,Cho_KetD(1,1,1),NV*NX)
+     &            One,AUVX(1,1,1,1),NA*NU,Cho_Bra(1,1,1),NA*NU,
+     &            One,Cho_KetD(1,1,1),NV*NX)
       Call DGEMM_('N','N',NA*NU,NCHO,NV*NX,
-     *            One,AUVX(1,1,1,1),NA*NU,Cho_Ket(1,1,1),NV*NX,
-     *            One,Cho_BraD(1,1,1),NA*NU)
-C
+     &            One,AUVX(1,1,1,1),NA*NU,Cho_Ket(1,1,1),NV*NX,
+     &            One,Cho_BraD(1,1,1),NA*NU)
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipT)
@@ -1039,16 +1039,16 @@ C
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
-C
+
       RETURN
-C
+
       End Subroutine OLagNS_RI_C
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE OLagNS_RI_D1(ISYI,ISYK,NA,NJ,NV,NX,AJVX,NAJVX,
      &                        Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
-C
+
       USE SUPERINDEX, only: KTU
       use caspt2_global, only: do_csf
 
@@ -1065,10 +1065,10 @@ C
      &  Cho_KetD(NV,NX,NCHO)
 *      Logical Incore
       integer(kind=iwp) :: IOFFD(8,8)
-C
+
       ISYJ = ISYI
       ISYX = ISYK
-C
+
       DO ISW=1,NSYM
        IO=0
        DO ISA=1,NSYM
@@ -1087,9 +1087,9 @@ C
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
       IF(NWD == 0) RETURN
-C
-C     ---- D1
-C
+!
+!     ---- D1
+!
       !! Read the T-amplitude
       ICASE=5
       nIN = nINDEP(iSym,iCase)
@@ -1124,20 +1124,20 @@ C
 #endif
         End If
       End If
-C
+
       NBXSZA=NSECBX
       NBXSZJ=NINABX
-C
+
       DO IASTA=1,NA,NBXSZA
         IAEND=MIN(IASTA-1+NBXSZA,NA)
         NASZ=IAEND-IASTA+1
         DO IJSTA=1,NJ,NBXSZJ
           IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
           NJSZ=IJEND-IJSTA+1
-C
+
       IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
       Call DCopy_(NAJVX,[Zero],0,AJVX,1)
-C
+
       nOrbA = nFro(iSyA)+nIsh(iSyA)+nAsh(iSyA)+nSsh(iSyA)
       IAJ=0
       DO IJ=IJSTA,IJEND
@@ -1154,14 +1154,14 @@ C
               IW1=KTU(IVABS,IXABS)-NTUES(ISYM)
               IW2=IOFFD(ISYA,ISYM)+IJ+NJ*(IA-1)
               IW=IW1+NAS*(IW2-1)
-C
+
               If (iVtot == iXtot) Then
                 DPT2C(iAtot+nOrbA*(iJtot-1))
-     *            = DPT2C(iAtot+nOrbA*(iJtot-1))
+     &            = DPT2C(iAtot+nOrbA*(iJtot-1))
      &            + Two*GA_Arrays(ipT)%A(IW)
                 If (do_csf) Then
                   DPT2Canti(iAtot+nOrbA*(iJtot-1))
-     *              = DPT2Canti(iAtot+nOrbA*(iJtot-1))
+     &              = DPT2Canti(iAtot+nOrbA*(iJtot-1))
      &              + Two*GA_Arrays(ipTanti)%A(IW)
                 End If
               End If
@@ -1170,17 +1170,17 @@ C
           END DO
         END DO
       END DO
-C
+
       Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NX,
-     *            One,AJVX(1,1,1),NV*NX,Cho_Ket(1,1,1),NV*NX,
-     *            One,Cho_BraD(IAJSTA,1,1),NA*NJ)
+     &            One,AJVX(1,1,1),NV*NX,Cho_Ket(1,1,1),NV*NX,
+     &            One,Cho_BraD(IAJSTA,1,1),NA*NJ)
       Call DGEMM_('N','N',NV*NX,NCHO,NASZ*NJSZ,
-     *            One,AJVX(1,1,1),NV*NX,Cho_Bra(IAJSTA,1,1),NA*NJ,
-     *            One,Cho_KetD(1,1,1),NV*NX)
-C
+     &            One,AJVX(1,1,1),NV*NX,Cho_Bra(IAJSTA,1,1),NA*NJ,
+     &            One,Cho_KetD(1,1,1),NV*NX)
+
         ENDDO
       ENDDO
-C
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipT)
@@ -1192,20 +1192,20 @@ C
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
-C
+
       RETURN
-C
+
       End Subroutine OLagNS_RI_D1
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE OLagNS_RI_D2(ISYI,ISYK,NA,NU,NV,NL,AUVL,NAUVL,
      &                        Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
-C
+
       USE SUPERINDEX, only: KTU
-C
+
       implicit none
-C
+
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NV, NL,
      &  NAUVL, NCHO
       real(kind=wp), intent(out) :: AUVL(NA,NU,NV,NL)
@@ -1215,10 +1215,10 @@ C
      &  Cho_KetD(NV,NL,NCHO)
 *      Logical Incore
       integer(kind=iwp) :: IOFFD(8,8)
-C
+
       ISYU = ISYI
       ISYL = ISYK
-C
+
       DO ISYW=1,NSYM
        IO=0
        DO ISYA=1,NSYM
@@ -1237,9 +1237,9 @@ C
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
       IF(NWD == 0) RETURN
-C
-C     ---- D2
-C
+!
+!     ---- D2
+!
       !! Read the T-amplitude
       ICASE=5
       nIN = nINDEP(iSym,iCase)
@@ -1274,9 +1274,9 @@ C
 #endif
         End If
       End If
-C
+
       Call DCopy_(NAUVL,[Zero],0,AUVL,1)
-C
+
       DO IA=1,NA
         DO IU=1,NU
           IUABS=IU+NAES(ISYU)
@@ -1291,14 +1291,14 @@ C
           END DO
         END DO
       END DO
-C
+
       Call DGEMM_('T','N',NV*NL,NCHO,NA*NU,
-     *            One,AUVL,NA*NU,Cho_Bra,NA*NU,
-     *            One,Cho_KetD,NV*NL)
+     &            One,AUVL,NA*NU,Cho_Bra,NA*NU,
+     &            One,Cho_KetD,NV*NL)
       Call DGEMM_('N','N',NA*NU,NCHO,NV*NL,
-     *            One,AUVL,NA*NU,Cho_Ket,NV*NL,
-     *            One,Cho_BraD,NA*NU)
-C
+     &            One,AUVL,NA*NU,Cho_Ket,NV*NL,
+     &            One,Cho_BraD,NA*NU)
+
       if (nIN /= 0 .and. nVec /= 0) then
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
@@ -1312,13 +1312,13 @@ C
         end if
 #endif
       END IF
-C
+
       RETURN
-C
+
       End Subroutine OLagNS_RI_D2
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE OLagNS_RI_E(ISYI,ISYK,NA,NJ,NV,NL,AJVL,NAJVL,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
@@ -1337,16 +1337,16 @@ C
      &  Cho_KetD(NV,NL,NCHO)
 *      Logical Incore
       integer(kind=iwp) :: IOFF1(8), IOFF2(8)
-C
+
       ISYJ = ISYI
       ISYL = ISYK
-C
+
       ISYA=MUL(JSYM,ISYJ)
       ISYV=MUL(JSYM,ISYL)
       ISYM=ISYV
       ISYJL=MUL(ISYJ,ISYL)
 
-C Set up offset table:
+! Set up offset table:
       IO1=0
       IO2=0
       DO ISA=1,NSYM
@@ -1365,9 +1365,9 @@ C Set up offset table:
       NWEM=NAS*NISM
       NW=NWEP+NWEM
       If (NW == 0) RETURN
-C
-C     ---- EP
-C
+!
+!     ---- EP
+!
       IF (NWEP > 0) THEN
         !! Read the T-amplitude
         ICASE=6
@@ -1405,17 +1405,17 @@ C
           DO IJSTA=1,NJ,NBXSZJ
             IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
             NJSZ=IJEND-IJSTA+1
-C
+
         IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
         Call DCopy_(NAJVL,[Zero],0,AJVL,1)
-C
+
         IAJ=0
         DO IJ=IJSTA,IJEND
           IJABS=IJ+NIES(ISYJ)
           DO IA=IASTA,IAEND
             ! IAABS=IA+NSES(ISYA)
             IAJ=IAJ+1
-C
+
             DO IV=1,NV
               ! IVABS=IV+NAES(ISYV)
               DO IL=1,NL
@@ -1430,23 +1430,23 @@ C
                 IW1=IV
                 IW2=IA+NA*(JGEL-1)+IOFF1(ISYA)
                 IW=IW1+NAS*(IW2-1)
-C
+
                 AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTP)%A(IW)
               END DO
             END DO
           END DO
         END DO
-C
+
         Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NL,
-     *              One,AJVL(1,1,1),NV*NL,Cho_Ket(1,1,1),NV*NL,
-     *              One,Cho_BraD(IAJSTA,1,1),NA*NJ)
+     &              One,AJVL(1,1,1),NV*NL,Cho_Ket(1,1,1),NV*NL,
+     &              One,Cho_BraD(IAJSTA,1,1),NA*NJ)
         Call DGEMM_('N','N',NV*NL,NCHO,NASZ*NJSZ,
-     *              One,AJVL(1,1,1),NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,
-     *              One,Cho_KetD(1,1,1),NV*NL)
-C
+     &              One,AJVL(1,1,1),NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,
+     &              One,Cho_KetD(1,1,1),NV*NL)
+
           ENDDO
         ENDDO
-C
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipTP)
@@ -1457,9 +1457,9 @@ C
         end if
 #endif
       END IF
-C
-C     ---- EM
-C
+!
+!     ---- EM
+!
       IF (NWEM > 0) THEN
         !! Read the T-amplitude
         ICASE=7
@@ -1487,27 +1487,27 @@ C
 #endif
           End If
         End If
-C
+
         NBXSZA=NSECBX
         NBXSZJ=NINABX
-C
+
         DO IASTA=1,NA,NBXSZA
           IAEND=MIN(IASTA-1+NBXSZA,NA)
           NASZ=IAEND-IASTA+1
           DO IJSTA=1,NJ,NBXSZJ
             IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
             NJSZ=IJEND-IJSTA+1
-C
+
         IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
         Call DCopy_(NAJVL,[Zero],0,AJVL,1)
-C
+
         IAJ=0
         DO IJ=IJSTA,IJEND
           IJABS=IJ+NIES(ISYJ)
           DO IA=IASTA,IAEND
             ! IAABS=IA+NSES(ISYA)
             IAJ=IAJ+1
-C
+
             DO IV=1,NV
               ! IVABS=IV+NAES(ISYV)
               DO IL=1,NL
@@ -1523,24 +1523,24 @@ C
                   IW1=IV
                   IW2=IA+NA*(JGTL-1)+IOFF2(ISYA)
                   IW=IW1+NAS*(IW2-1)
-C
+
                   AJVL(IV,IL,IAJ) = SCL*GA_Arrays(ipTM)%A(IW)
                 END IF
               END DO
             END DO
           END DO
         END DO
-C
+
         Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NV*NL,
-     *              One,AJVL(1,1,1),NV*NL,Cho_Ket(1,1,1),NV*NL,
-     *              One,Cho_BraD(IAJSTA,1,1),NA*NJ)
+     &              One,AJVL(1,1,1),NV*NL,Cho_Ket(1,1,1),NV*NL,
+     &              One,Cho_BraD(IAJSTA,1,1),NA*NJ)
         Call DGEMM_('N','N',NV*NL,NCHO,NASZ*NJSZ,
-     *              One,AJVL(1,1,1),NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,
-     *              One,Cho_KetD(1,1,1),NV*NL)
-C
+     &              One,AJVL(1,1,1),NV*NL,Cho_Bra(IAJSTA,1,1),NA*NJ,
+     &              One,Cho_KetD(1,1,1),NV*NL)
+
           ENDDO
         ENDDO
-C
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipTM)
@@ -1551,20 +1551,20 @@ C
         end if
 #endif
       END IF
-C
+
       RETURN
-C
+
       End Subroutine OLagNS_RI_E
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE OLagNS_RI_F(ISYI,ISYK,NA,NU,NC,NX,AUCX,NAUCX,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
-C
+
       USE SUPERINDEX, only: KTGTU, KTGEU, KAGTB, KAGEB
-C
+
       implicit none
-C
+
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NC, NX,
      &  NAUCX, NCHO
       real(kind=wp), intent(out) :: AUCX(NA,NU,NC,NX)
@@ -1572,16 +1572,16 @@ C
      &  Cho_Ket(NC,NX,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO),
      &  Cho_KetD(NC,NX,NCHO)
-C
+
       ISYU = ISYI
       ISYX = ISYK
-C
+
       IF(ISYU < ISYX) RETURN
-C
+
       ISYA=MUL(JSYM,ISYU)
       ISYC=MUL(JSYM,ISYX)
       ISYM=MUL(ISYU,ISYX) !!
-C
+
       IF(NINDEP(ISYM,8) > 0) THEN
 * The plus combination:
        NASP=NTGEU(ISYM)
@@ -1600,11 +1600,11 @@ C
        NWFM=0
       ENDIF
       If (NWFP+NWFM <= 0) RETURN
-C
+
       Call DCopy_(NAUCX,[Zero],0,AUCX,1)
-C
-C     ---- FP
-C
+!
+!     ---- FP
+!
       IF (NWFP > 0.AND.NINDEP(ISYM,8) > 0) THEN
         !! Read the T-amplitude
         ICASE=8
@@ -1632,7 +1632,7 @@ C
 #endif
           End If
         End If
-C
+
         DO IU=1,NU
           IUABS=IU+NAES(ISYU)
           IXMAX=NX
@@ -1659,7 +1659,7 @@ C
             END DO
           END DO
         END DO
-C
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipTP)
@@ -1670,9 +1670,9 @@ C
         end if
 #endif
       END IF
-C
-C     ---- FM
-C
+!
+!     ---- FM
+!
       IF (NWFM > 0.AND.NINDEP(ISYM,9) > 0) THEN
         !! Read the T-amplitude
         ICASE=9
@@ -1700,7 +1700,7 @@ C
 #endif
           End If
         End If
-C
+
         DO IU=1,NU
           IUABS=IU+NAES(ISYU)
           IXMAX=NX
@@ -1723,12 +1723,12 @@ C
                 END IF
                 IW=IW1+NASM*(IW2-1)
                 AUCX(IA,IU,IC,IX) = AUCX(IA,IU,IC,IX)
-     *            + SCL*GA_Arrays(ipTM)%A(IW)
+     &            + SCL*GA_Arrays(ipTM)%A(IW)
               END DO
             END DO
           END DO
         END DO
-C
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipTM)
@@ -1739,20 +1739,20 @@ C
         end if
 #endif
       END IF
-C
+
       Call DGEMM_('T','N',NC*NX,NCHO,NA*NU,
-     *            One,AUCX,NA*NU,Cho_Bra,NA*NU,
-     *            One,Cho_KetD,NC*NX)
+     &            One,AUCX,NA*NU,Cho_Bra,NA*NU,
+     &            One,Cho_KetD,NC*NX)
       Call DGEMM_('N','N',NA*NU,NCHO,NC*NX,
-     *            One,AUCX,NA*NU,Cho_Ket,NC*NX,
-     *            One,Cho_BraD,NA*NU)
-C
+     &            One,AUCX,NA*NU,Cho_Ket,NC*NX,
+     &            One,Cho_BraD,NA*NU)
+
       RETURN
-C
+
       End Subroutine OLagNS_RI_F
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       SUBROUTINE OLagNS_RI_G(ISYI,ISYK,NA,NU,NC,NL,AUCL,NAUCL,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 
@@ -1771,15 +1771,15 @@ C
      &  Cho_KetD(NC,NL,NCHO)
 *      Logical Incore
       integer(kind=iwp) :: IOFF1(8), IOFF2(8)
-C
+
       ISYU = ISYI
       ISYL = ISYK
-C
+
       ISYA=MUL(JSYM,ISYU)
       ISYC=MUL(JSYM,ISYL)
       ISYM=ISYU
       ISYAC=MUL(ISYA,ISYC)
-C Set up offset table:
+! Set up offset table:
       IO1=0
       IO2=0
       DO ISI=1,NSYM
@@ -1790,7 +1790,7 @@ C Set up offset table:
         IO2=IO2+NISH(ISI)*NAGTB(ISAB)
       END DO
 
-C   Allocate W with parts WP,WM
+!   Allocate W with parts WP,WM
       NAS=NASH(ISYM)
       NISP=NISUP(ISYM,10)
       NISM=NISUP(ISYM,11)
@@ -1798,12 +1798,12 @@ C   Allocate W with parts WP,WM
       NWGP=NAS*NISP
       NWGM=NAS*NISM
       ! NWG=NWGP+NWGM
-C
-C     LDGP=NAS
-C     LDGM=NAS
-C
-C     ---- GP
-C
+!
+!     LDGP=NAS
+!     LDGM=NAS
+!
+!     ---- GP
+!
       IF (NWGP > 0) THEN
         !! Read the T-amplitude
         ICASE=10
@@ -1831,7 +1831,7 @@ C
 #endif
           End If
         End If
-C
+
         NBXSZC=NSECBX
         KCL=NAUCL/(NA*NU)
         NBXSZL=KCL/NC
@@ -1839,17 +1839,17 @@ C
           Write (u6,*) 'Not enough memory in ADDRHSG, I give up'
           CALL Abend()
         ENDIF
-C
+
         DO ICSTA=1,NC,NBXSZC
           ICEND=MIN(ICSTA-1+NBXSZC,NC)
           NCSZ=ICEND-ICSTA+1
           DO ILSTA=1,NL,NBXSZL
             ILEND=MIN(ILSTA-1+NBXSZL,NL)
             ! NLSZ=ILEND-ILSTA+1
-C
+
             ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
             Call DCopy_(NAUCL,[Zero],0,AUCL,1)
-C
+
         ICL=0
         ! IBUF=0
         DO IL=ILSTA,ILEND
@@ -1857,7 +1857,7 @@ C
           DO IC=ICSTA,ICEND
             ICABS=IC+NSES(ISYC)
             ICL=ICL+1
-C
+
             DO IA=1,NA
               IAABS=IA+NSES(ISYA)
               SCL=SQ05
@@ -1872,25 +1872,23 @@ C
                 IW1=IU
                 IW2=IL+NL*(IAGEC-1)+IOFF1(ISYL)
                 IW=IW1+NAS*(IW2-1)
-C
+
                 AUCL(IA,IU,ICL) = SCL*GA_Arrays(ipTP)%A(IW)
               END DO
             END DO
           END DO
         END DO
-C
+
         Call DGEMM_('N','N',NA*NU,NCHO,ICL,
-     *              One,AUCL,NA*NU,
-     *                      Cho_Ket(ICLSTA,1,1),NC*NL,
-     *              One,Cho_BraD(1,1,1),NA*NU)
+     &              One,AUCL,NA*NU,Cho_Ket(ICLSTA,1,1),NC*NL,
+     &              One,Cho_BraD(1,1,1),NA*NU)
         Call DGEMM_('T','N',ICL,NCHO,NA*NU,
-     *              One,AUCL,NA*NU,
-     *                      Cho_Bra(1,1,1),NA*NU,
-     *              One,Cho_KetD(ICLSTA,1,1),NC*NL)
-C
+     &              One,AUCL,NA*NU,Cho_Bra(1,1,1),NA*NU,
+     &              One,Cho_KetD(ICLSTA,1,1),NC*NL)
+
           ENDDO
         ENDDO
-C
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipTP)
@@ -1901,9 +1899,9 @@ C
         end if
 #endif
       END IF
-C
-C     ---- GM
-C
+!
+!     ---- GM
+!
       IF (NWGM > 0) THEN
         !! Read the T-amplitude
         ICASE=11
@@ -1931,7 +1929,7 @@ C
 #endif
           End If
         End If
-C
+
         NBXSZC=NSECBX
         KCL=NAUCL/(NA*NU)
         NBXSZL=KCL/NC
@@ -1947,10 +1945,10 @@ C
           DO ILSTA=1,NL,NBXSZL
             ILEND=MIN(ILSTA-1+NBXSZL,NL)
             ! NLSZ=ILEND-ILSTA+1
-C
+
             ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
             Call DCopy_(NAUCL,[Zero],0,AUCL,1)
-C
+
         ICL=0
         ! IBUF=0
         DO IL=ILSTA,ILEND
@@ -1958,7 +1956,7 @@ C
           DO IC=ICSTA,ICEND
             ICABS=IC+NSES(ISYC)
             ICL=ICL+1
-C
+
             DO IA=1,NA
               IAABS=IA+NSES(ISYA)
               IF(IAABS > ICABS) THEN
@@ -1975,25 +1973,23 @@ C
                 IW1=IU
                 IW2=IL+NL*(IAGTC-1)+IOFF2(ISYL)
                 IW=IW1+NAS*(IW2-1)
-C
+
                 AUCL(IA,IU,ICL) = SCL*GA_Arrays(ipTM)%A(IW)
               END DO
             END DO
           END DO
         END DO
-C
+
         Call DGEMM_('N','N',NA*NU,NCHO,ICL,
-     *              One,AUCL,NA*NU,
-     *                      Cho_Ket(ICLSTA,1,1),NC*NL,
-     *              One,Cho_BraD(1,1,1),NA*NU)
+     &              One,AUCL,NA*NU,Cho_Ket(ICLSTA,1,1),NC*NL,
+     &              One,Cho_BraD(1,1,1),NA*NU)
         Call DGEMM_('T','N',ICL,NCHO,NA*NU,
-     *              One,AUCL,NA*NU,
-     *                      Cho_Bra(1,1,1),NA*NU,
-     *              One,Cho_KetD(ICLSTA,1,1),NC*NL)
-C
+     &              One,AUCL,NA*NU,Cho_Bra(1,1,1),NA*NU,
+     &              One,Cho_KetD(ICLSTA,1,1),NC*NL)
+
           ENDDO
         ENDDO
-C
+
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipTM)
@@ -2004,13 +2000,13 @@ C
         end if
 #endif
       END IF
-C
+
       RETURN
-C
+
       End Subroutine OLagNS_RI_G
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       !! ADDRHSH
       Subroutine OLagNS_RI_H(ISYI,ISYK,NA,NJ,NC,NL,AJCL,NAJCL,
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
@@ -2032,14 +2028,14 @@ C
 
       ISYJ = ISYI
       ISYL = ISYK
-C
+
       IF(ISYJ < ISYL) Return
       ISYA=MUL(JSYM,ISYJ)
       ISYC=MUL(JSYM,ISYL)
       ISYM=MUL(ISYA,ISYC)
       ISYAC=ISYM
       ISYJL=ISYM
-C
+
       NASP=NAGEB(ISYM)
       NISP=NIGEJ(ISYM)
       NWHP=NASP*NISP
@@ -2049,12 +2045,12 @@ C
       NASM=NAGTB(ISYM)
       NISM=NIGTJ(ISYM)
       NWHM=NASM*NISM
-C
-C     LDHP=NASP
-C     LDHM=NASM
-C
-C     ---- HP
-C
+!
+!     LDHP=NASP
+!     LDHM=NASM
+!
+!     ---- HP
+!
       !! Read the T-amplitude
       ICASE=12
       nINP = nINDEP(iSym,iCase)
@@ -2082,7 +2078,7 @@ C
 #endif
         End If
       End If
-C
+
       NBXSZA=NSECBX
       KAJ=NAJCL/(NC*NL)
       NBXSZJ=KAJ/NA
@@ -2090,29 +2086,29 @@ C
         Write (u6,*) 'Not enough memory in ADDRHSH, I give up'
         CALL Abend()
       ENDIF
-C
+
       NBXSZC=NSECBX
       NBXSZL=NINABX
-C
+
       DO IASTA=1,NA,NBXSZA
         IAEND=MIN(IASTA-1+NBXSZA,NA)
         NASZ=IAEND-IASTA+1
         DO IJSTA=1,NJ,NBXSZJ
           IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
           NJSZ=IJEND-IJSTA+1
-C
+
            IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
            Call DCopy_(NAJCL,[Zero],0,AJCL,1)
-C
+
           DO ICSTA=1,NC,NBXSZC
             ICEND=MIN(ICSTA-1+NBXSZC,NC)
             NCSZ=ICEND-ICSTA+1
             DO ILSTA=1,NL,NBXSZL
               ILEND=MIN(ILSTA-1+NBXSZL,NL)
               ! NLSZ=ILEND-ILSTA+1
-C
+
               ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-C
+
       IAJ=0
       ! IBUF=0
       DO IJ=IJSTA,IJEND
@@ -2122,7 +2118,7 @@ C
         DO IA=IASTA,IAEND
           IAABS=IA+NSES(ISYA)
           IAJ=IAJ+1
-C
+
           ICL=0
           DO IL=ILSTA,MIN(ILEND,ILMAX)
             ILABS=IL+NIES(ISYL)
@@ -2132,7 +2128,7 @@ C
             DO IC=ICSTA,ICEND
               ICABS=IC+NSES(ISYC)
               ICL=ICL+1
-C
+
               SCL=SCL1
               IF(IAABS >= ICABS) THEN
                 IAGEC=KAGEB(IAABS,ICABS)-NAGEBES(ISYAC)
@@ -2141,25 +2137,25 @@ C
                 IAGEC=KAGEB(ICABS,IAABS)-NAGEBES(ISYAC)
               END IF
               IW=IAGEC+NAGEB(ISYM)*(IJGEL-1)
-C
+
               AJCL(ICLSTA+ICL-1,IAJ) = SCL*GA_Arrays(ipTP)%A(IW)
             END DO
           END DO
         END DO
       END DO
-C
+
             ENDDO
           ENDDO
           Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NC*NL,
-     *                One,AJCL(1,1),NC*NL,Cho_Ket(1,1,1),NC*NL,
-     *                One,Cho_BraD(IAJSTA,1,1),NA*NJ)
+     &                One,AJCL(1,1),NC*NL,Cho_Ket(1,1,1),NC*NL,
+     &                One,Cho_BraD(IAJSTA,1,1),NA*NJ)
           Call DGEMM_('N','N',NC*NL,NCHO,NASZ*NJSZ,
-     *                One,AJCL(1,1),NC*NL,Cho_Ket(IAJSTA,1,1),NC*NL,
-     *                One,Cho_BraD(1,1,1),NA*NJ)
-C
+     &                One,AJCL(1,1),NC*NL,Cho_Ket(IAJSTA,1,1),NC*NL,
+     &                One,Cho_BraD(1,1,1),NA*NJ)
+
         ENDDO
       ENDDO
-C
+
       if (nVec /= 0) then
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
@@ -2171,9 +2167,9 @@ C
         end if
 #endif
       end if
-C
-C     ---- HM
-C
+!
+!     ---- HM
+!
       !! Read the T-amplitude
       ICASE=13
       nINM = nINDEP(iSym,iCase)
@@ -2201,7 +2197,7 @@ C
 #endif
         End If
       End If
-C
+
       NBXSZA=NSECBX
       KAJ=NAJCL/(NC*NL)
       NBXSZJ=KAJ/NA
@@ -2211,26 +2207,26 @@ C
       ENDIF
       NBXSZC=NSECBX
       NBXSZL=NINABX
-C
+
       DO IASTA=1,NA,NBXSZA
         IAEND=MIN(IASTA-1+NBXSZA,NA)
         NASZ=IAEND-IASTA+1
         DO IJSTA=1,NJ,NBXSZJ
           IJEND=MIN(IJSTA-1+NBXSZJ,NJ)
           NJSZ=IJEND-IJSTA+1
-C
+
           IAJSTA=1+NJ*(IASTA-1)+NASZ*(IJSTA-1)
           Call DCopy_(NAJCL,[Zero],0,AJCL,1)
-C
+
           DO ICSTA=1,NC,NBXSZC
             ICEND=MIN(ICSTA-1+NBXSZC,NC)
             NCSZ=ICEND-ICSTA+1
             DO ILSTA=1,NL,NBXSZL
               ILEND=MIN(ILSTA-1+NBXSZL,NL)
               ! NLSZ=ILEND-ILSTA+1
-C
+
               ICLSTA=1+NL*(ICSTA-1)+NCSZ*(ILSTA-1)
-C
+
       IAJ=0
       ! IBUF=0
       DO IJ=IJSTA,IJEND
@@ -2240,7 +2236,7 @@ C
         DO IA=IASTA,IAEND
           IAABS=IA+NSES(ISYA)
           IAJ=IAJ+1
-C
+
           ICL=0
           DO IL=ILSTA,MIN(ILMAX,ILEND)
             ILABS=IL+NIES(ISYL)
@@ -2248,7 +2244,7 @@ C
             DO IC=ICSTA,ICEND
               ICABS=IC+NSES(ISYC)
               ICL=ICL+1
-C
+
               IF (IAABS > ICABS) THEN
                 IAGTC=KAGTB(IAABS,ICABS)-NAGTBES(ISYAC)
                 SCL= SQ3
@@ -2259,24 +2255,24 @@ C
                 Cycle
               ENDIF
               IW=IAGTC+NAGTB(ISYM)*(IJGTL-1)
-C
+
               AJCL(ICLSTA+ICL-1,IAJ) = SCL*GA_Arrays(ipTM)%A(IW)
             END DO
           END DO
         END DO
       END DO
-C
+
             ENDDO
           ENDDO
           Call DGEMM_('T','N',NASZ*NJSZ,NCHO,NC*NL,
-     *                One,AJCL(1,1),NC*NL,Cho_Ket(1,1,1),NC*NL,
-     *                One,Cho_BraD(IAJSTA,1,1),NA*NJ)
+     &                One,AJCL(1,1),NC*NL,Cho_Ket(1,1,1),NC*NL,
+     &                One,Cho_BraD(IAJSTA,1,1),NA*NJ)
           Call DGEMM_('N','N',NC*NL,NCHO,NASZ*NJSZ,
-     *                One,AJCL(1,1),NC*NL,Cho_Ket(IAJSTA,1,1),NC*NL,
-     *                One,Cho_BraD(1,1,1),NA*NJ)
+     &                One,AJCL(1,1),NC*NL,Cho_Ket(IAJSTA,1,1),NC*NL,
+     &                One,Cho_BraD(1,1,1),NA*NJ)
         ENDDO
       ENDDO
-C
+
       if (nVec /= 0) then
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
@@ -2288,13 +2284,13 @@ C
         end if
 #endif
       end if
-C
+
       Return
-C
+
       End Subroutine OLagNS_RI_H
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine Cnst_A_PT2(block1,block2)
 
       implicit none
@@ -2321,7 +2317,7 @@ C
         !!        (usually NV*NPROCS)
         !! NVJ: number of local Cholesky vectors for KET(:)
         bStat = GA_CREATE_IRREG(MT_DBL,NDIM1,NDIM2,'BRAD',
-     *                          1,1,MAP2,NPROCS,LG_V1)
+     &                          1,1,MAP2,NPROCS,LG_V1)
         Call Cholesky_Vectors(2,block1,block2,JSYM,BRA,
      &                        nBra,IBSTA,IBEND)
         !! finds out the range of the global array g_a that process
@@ -2344,8 +2340,8 @@ C
           CALL GA_DISTRIBUTION(LG_V1,iRank,ILOV1,IHIV1,JLOV1,JHIV1)
           CALL GA_GET(LG_V1,ILOV1,IHIV1,JLOV1,JHIV1,BRA,NDIM1)
           Call DGEMM_('T','N',JHIV1-JLOV1+1,NVJ,ndim1,
-     *                One,BRA,ndim1,KET,ndim1,
-     *    One,A_PT2(IOFFCV+JLOV1-1,JOFFCV+MAP2(myRank+1)-1),MaxVec_PT2)
+     &                One,BRA,ndim1,KET,ndim1,
+     &    One,A_PT2(IOFFCV+JLOV1-1,JOFFCV+MAP2(myRank+1)-1),MaxVec_PT2)
         end do
         bStat =  GA_DESTROY(LG_V1)
       else
@@ -2360,15 +2356,15 @@ C
 #ifdef _MOLCAS_MPP_
       end if
 #endif
-C
+
       End Subroutine Cnst_A_PT2
-C
+
       End Subroutine OLagNS_RI
-C
-C-----------------------------------------------------------------------
-C
+!
+!-----------------------------------------------------------------------
+!
       Subroutine Cholesky_Vectors(MODE,ITK,ITQ,JSYM,Array,nArray,
-     *                            IBSTA,IBEND)
+     &                            IBSTA,IBEND)
 
       USE CHOVEC_IO, only: NVLOC_CHOBATCH, IDLOC_CHOGROUP, NPQ_CHOTYPE
       use caspt2_module, only: NSYM
