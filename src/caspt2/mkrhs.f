@@ -25,9 +25,10 @@
       use caspt2_global, only: FIMO
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NASHT,NOMX
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
 
       integer(kind=iwp) NERI, NFIMO
       real(kind=wp), ALLOCATABLE, TARGET:: ERI(:)
