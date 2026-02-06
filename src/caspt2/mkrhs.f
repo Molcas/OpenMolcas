@@ -279,15 +279,20 @@ C  Put WM on disk
 
       SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,SCR)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
-      use EQSOLV
+      USE SUPERINDEX, only: KTUV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
+      use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NSSH,MUL,NASH,NISH,
+     &                         NAES,NSSH,NTUVES,NASHT,NACTEL
       IMPLICIT REAL*8 (A-H,O-Z)
       integer(kind=iwp), intent(in):: IVEC, NFIMO
       real(kind=wp), intent(inout):: FIMO(NFIMO),ERI(*), SCR(*)
 
+      integer(kind=iwp) NFNXT,ISYM,NFIMOES,NAS,NIS,NV,LW,ISYMT,
+     &                  ISYMUV,ISYMU,ISYMV,IU,IUTOT,IUABS,IV,IVTOT,
+     &                  IVABS,IA,IATOT,IT,ITTOT,ITABS,IW1,IW2,IW,IBUF,
+     &                  IFIMO,IYABS,IYYW,IYYW
+      real(kind=wp) SUM,ONEADD
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for case 4 (ATVX).
 
