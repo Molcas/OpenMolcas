@@ -500,23 +500,23 @@ C   WP(t,ij,a)=  (W(t,i,j,a)+W(t,j,i,a))
 C With new normalisation, divide by /SQRT(2+2*Kron(ij))
 C   WM(t,ij,a)=3*(W(t,i,j,a)-W(t,j,i,a))
 C With new normalisation, divide by /SQRT(6)
-          DO 540 ISYMA=1,NSYM
+          DO ISYMA=1,NSYM
             ISYMIJ=MUL(ISYMA,ISYM)
-            DO 530 ISYMI=1,NSYM
+            DO ISYMI=1,NSYM
               ISYMJ=MUL(ISYMI,ISYMIJ)
-              IF(ISYMI.LT.ISYMJ) GOTO 530
-              DO 520 II=1,NISH(ISYMI)
+              IF(ISYMI.LT.ISYMJ) CYCLE
+              DO II=1,NISH(ISYMI)
                 IIABS=II+NIES(ISYMI)
-                DO 510 IJ=1,NISH(ISYMJ)
+                DO IJ=1,NISH(ISYMJ)
                   IJABS=IJ+NIES(ISYMJ)
-                  IF(IIABS.LT.IJABS) GOTO 520
+                  IF(IIABS.LT.IJABS) EXIT
                   CALL EXCH(ISYMA,ISYMI,ISYM,ISYMJ,II,IJ,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMJ,ISYM,ISYMI,IJ,II,ERI2,SCR)
                   IGEJ=KIGEJ(IIABS,IJABS)-NIGEJES(ISYMIJ)
                   IGTJ=KIGTJ(IIABS,IJABS)-NIGTJES(ISYMIJ)
-                  DO 511 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    DO 512 IT=1,NASH(ISYM)
+                    DO IT=1,NASH(ISYM)
                       ITTOT=IT+NISH(ISYM)
                       IBUF=IATOT+NORB(ISYMA)*(ITTOT-1)
                       A=ERI1(IBUF)+ERI2(IBUF)
@@ -532,12 +532,12 @@ C With new normalisation, divide by /SQRT(6)
                       ELSE
                         GA_Arrays(LWP)%A(JWP)=0.5D0*A
                       END IF
- 512                CONTINUE
- 511              CONTINUE
- 510            CONTINUE
- 520          CONTINUE
- 530        CONTINUE
- 540      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put WP and WM on disk.
           ICASE=6
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
