@@ -38,7 +38,7 @@ C Set up B matrices for cases 1..13.
         WRITE(6,*)' Construct B matrices'
       END IF
 
-      IF(NASHT.EQ.0) GOTO 100
+      IF(NASHT/=0) THEN
 
       CALL mma_allocate(F1,NG1,Label='F1')
       NFD=SIZE(PREF)
@@ -78,11 +78,16 @@ C Set up B matrices for cases 1..13.
       CALL mma_deallocate(FP)
       CALL mma_deallocate(FD)
 
- 100  CONTINUE
+      END IF
 
+      CALL MKBH()
+
+      CONTAINS
+
+      SUBROUTINE MKBH()
 C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
-C looping, etc in the rest  of the routines.
+C looping, etc in the rest of the routines.
       DUM(1)=0.0D0
       DO ISYM=1,NSYM
         DO ICASE=12,13
@@ -93,6 +98,7 @@ C looping, etc in the rest  of the routines.
           END IF
         END DO
       END DO
+      END SUBROUTINE MKBH
 
       END SUBROUTINE MKBMAT
 
