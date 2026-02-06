@@ -21,10 +21,11 @@
 *****************************************************************************
       use definitions, only: iwp, wp
       use InputData, only: Input
+      use constants, only: Zero, One
       use ChoMP2, only: DeMP2, MP2_small, shf
       use stdalloc, only: mma_allocate, mma_deallocate
       use Molcas, only: MxBas
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 *
       Integer(kind=iwp), intent(out):: irc
       Integer(kind=iwp), intent(in):: nSym
@@ -43,6 +44,12 @@
       real(kind=wp)  TrDP(8), TrDF(8)
       real(kind=wp), allocatable:: CMOX(:), DMAT(:), OrbE(:)
       Integer(kind=iwp), allocatable:: ID(:)
+      real(kind=wp) Delta_TrD,Dummy,STrDF,STrDP,tmp
+      real(kind=wp), external:: DDot_
+      Integer(kind=iwp) i,iAoff,iCMO,ifr,ioff,ip_X,ip_Y,ip_Z,ip_ZZ,
+     &                  ipEorb,ipOrbE_,iSkip,iSym,ito,j,jD,joff,k,
+     &                  kEOcc,kEVir,kfr,kij,koff,kto,lij,lOff,mAsh,
+     &                  nBasT,nBmx,nBx,nOA,nOrb,nSQ,nSx,ntri,nVV,ipOrbE
 *
 *
       irc=0
@@ -133,7 +140,7 @@
          koff=koff+nSsh(iSym)
       End Do
       Call mma_allocate(Dmat,nVV+nOA,LABEL='DMAT')
-      DMAT(:)=0.0D0
+      DMAT(:)=Zero
       ip_X = 1
       ip_Y = ip_X + nVV
 *
@@ -192,22 +199,22 @@
            kfr=iCMO+jOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
            kto=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
-     &                        1.0d0,CMOX(kfr),nBas(iSym),
+     &                        One,CMOX(kfr),nBas(iSym),
      &                              DMAT(jD),nSsh(iSym),
-     &                        0.0d0,CMOX(kto),nBas(iSym))
+     &                        Zero,CMOX(kto),nBas(iSym))
            iOff=iOff+nSsh(iSym)**2
-           TrDF(iSym)=ddot_(nSsh(iSym),OrbE(ip_Z),1,[1.0d0],0)
-           If (vfrac.ge.0.0d0) Then
+           TrDF(iSym)=ddot_(nSsh(iSym),OrbE(ip_Z),1,[One],0)
+           If (vfrac.ge.Zero) Then
               ns_V(iSym)=int(vfrac*dble(nSsh(iSym)))
-              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[1.0d0],0)
+              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
            Else
               ns_V(iSym)=nSsh(iSym)-1
-              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[1.0d0],0)
+              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
               Delta_TrD=TrDP(iSym)-TrDF(iSym) ! this is negative
               Delta_TrD=Delta_TrD/TrDF(iSym)
               Do While (Delta_TrD.gt.vfrac)
                  ns_V(iSym)=ns_V(iSym)-1
-                 TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[1.0d0],0)
+                 TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
                  Delta_TrD=(TrDP(iSym)-TrDF(iSym))/TrDF(iSym)
               End Do
            End If
@@ -217,8 +224,8 @@
       write(6,*)'------------------------------------------------------'
       write(6,*)'   Symm.     Trace     (Full Dmat)     (Partial Dmat) '
       write(6,*)'------------------------------------------------------'
-      STrDF=0.0d0
-      STrDP=0.0d0
+      STrDF=Zero
+      STrDP=Zero
       Do iSym=1,nSym
         write(6,'(4X,I4,15X,G13.6,4X,G13.6)') iSym,TrDF(iSym),TrDP(iSym)
         STrDF=STrDF+TrDF(iSym)
@@ -265,9 +272,9 @@
             nBx=Max(1,nBas(iSym))
             nSx=Max(1,nSsh(iSym))
             Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
-     &                         1.0d0,CMOX(kfr),nBx,
+     &                         One,CMOX(kfr),nBx,
      &                               DMAT(jD),nSx,
-     &                         0.0d0,CMOX(kto),nBx)
+     &                         Zero,CMOX(kto),nBx)
 
             lOff=lOff+lnVir(iSym)
             kOff=kOff+nBas(iSym)**2
@@ -278,14 +285,14 @@
          kEVir=ipOrbE
 *
          EMP2=DeMP2
-         DeMP2=0.0d0
+         DeMP2=Zero
          Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),OrbE(kEOcc),OrbE(kEVir),
      &                   DMAT(ip_X),DMAT(ip_Y))
          If(irc.ne.0) then
            write(6,*) 'MP2 in truncated virtual space failed !'
            Call Abend
          Endif
-         EMP2 = -1.0d0*(EMP2-DeMP2)
+         EMP2 = -One*(EMP2-DeMP2)
       EndIf
       Call mma_deallocate(Dmat)
       Call mma_deallocate(OrbE)
