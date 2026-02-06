@@ -49,23 +49,21 @@
 *                Can be set to -1 by the calling routine
 *
 *********************************************************
+      use definitions, only: iwp, wp, u6
+      use symmetry_info, only: MulD2h=>Mul
       use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas,
      &                    nDimRS, nnBstR, nSym
       Implicit Real*8 (a-h,o-z)
-      Integer irc, lscr
-      Real*8  Scr(lscr)
-      Integer jVref,JVEC1,JNUM,NUMV,JSYM,JREDC,NCMO
-      Real*8 CMO(NCMO)
-      Integer ISTART(8),NUSE(8),ipChoT(8),nWork
-      REAL*8 Work(nWork)
+      Integer(kind=iwp) irc, lscr
+      Real(kind=wp)  Scr(lscr)
+      Integer(kind=iwp) jVref,JVEC1,JNUM,NUMV,JSYM,JREDC,NCMO
+      Real(kind=wp) CMO(NCMO)
+      Integer(kind=iwp) ISTART(8),NUSE(8),ipChoT(8),nWork
+      REAL(kind=wp) Work(nWork)
 
-      Integer IOFFC(8)
+      Integer(kind=iwp) IOFFC(8)
 * Integer function cho_isao
-      Integer, External :: cho_isao
-
-************************************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-************************************************************************
+      Integer(kind=iwp), External :: cho_isao
 
 * iLoc = 3 means 'use scratch location in reduced index arrays'
       iLoc = 3
@@ -96,12 +94,12 @@
          IF (JRED .NE. JREDC) THEN
 * It is not. Tables must be regenerated with information that is
 * common to this reduced set.
-        write(6,*)' Rats! It was assumed that the Cholesky vectors'
-        write(6,*)' in HALFTRNSF all belonged to a given reduced'
-        write(6,*)' set, but they don''t!'
-        write(6,*)' JRED, JREDC:',JRED,JREDC
-        write(6,*)' Back to the drawing board?'
-        write(6,*)' Let the program continue and see what happens.'
+        write(u6,*)' Rats! It was assumed that the Cholesky vectors'
+        write(u6,*)' in HALFTRNSF all belonged to a given reduced'
+        write(u6,*)' set, but they don''t!'
+        write(u6,*)' JRED, JREDC:',JRED,JREDC
+        write(u6,*)' Back to the drawing board?'
+        write(u6,*)' Let the program continue and see what happens.'
             Call Cho_X_SetRed(irc,iLoc,JRED)
             JREDC = JRED
          END IF
@@ -233,6 +231,4 @@
 
       irc=0
 
-
-      Return
-      END
+      END SUBROUTINE HALFTRNSF
