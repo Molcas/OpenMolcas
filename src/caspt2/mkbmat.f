@@ -1756,6 +1756,7 @@ c Avoid unused argument warnings
 
       SUBROUTINE MKBB(DREF,NDREF,PREF,NPREF,FD,FP)
       use definitions, only: iwp, wp
+      use constants, only: Half, Two, Four, Eight
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use caspt2_global, only: LUSBT
@@ -1813,17 +1814,17 @@ C Loop over superindex symmetry.
             IP2=MIN(IXT,IYU)
             IP=(IP1*(IP1-1))/2+IP2
             ATUXY=EASUM-ET-EU-EX-EY
-            VALUE=4.0D0*(FP(IP)-ATUXY*PREF(IP))
+            VALUE=Four*(FP(IP)-ATUXY*PREF(IP))
 C Add  + 4*dxt ( (A-Et-Ey-Eu)*Dyu - Fyu)
             IF(IXABS.EQ.ITABS) THEN
               ID1=MAX(IYABS,IUABS)
               ID2=MIN(IYABS,IUABS)
               ID=(ID1*(ID1-1))/2+ID2
               ATYU=EASUM-ET-EY-EU
-              VALUE=VALUE+4.0D0*(ATYU*DREF(ID)-FD(ID))
+              VALUE=VALUE+Four*(ATYU*DREF(ID)-FD(ID))
 C Add  + 8*dxt*dyu (Et+Ey)
               IF(IYABS.EQ.IUABS) THEN
-                VALUE=VALUE+8.0D0*(ET+EY)
+                VALUE=VALUE+Eight*(ET+EY)
               END IF
             END IF
 C Add  + 4*dyu ( (A-Et-Ey-Ex)*Dxt - Fxt)
@@ -1832,7 +1833,7 @@ C Add  + 4*dyu ( (A-Et-Ey-Ex)*Dxt - Fxt)
               ID2=MIN(IXABS,ITABS)
               ID=(ID1*(ID1-1))/2+ID2
               ATYX=EASUM-ET-EY-EX
-              VALUE=VALUE+4.0D0*(ATYX*DREF(ID)-FD(ID))
+              VALUE=VALUE+Four*(ATYX*DREF(ID)-FD(ID))
             END IF
 C Add  - 2*dyt ( (A-Et-Eu-Ex)*Dxu - Fxu)
             IF(IYABS.EQ.ITABS) THEN
@@ -1840,10 +1841,10 @@ C Add  - 2*dyt ( (A-Et-Eu-Ex)*Dxu - Fxu)
               ID2=MIN(IXABS,IUABS)
               ID=(ID1*(ID1-1))/2+ID2
               ATUX=EASUM-ET-EU-EX
-              VALUE=VALUE-2.0D0*(ATUX*DREF(ID)-FD(ID))
+              VALUE=VALUE-Two*(ATUX*DREF(ID)-FD(ID))
 C Add  - 4*dxu*dyt (Et+Ex)
               IF(IXABS.EQ.IUABS) THEN
-                VALUE=VALUE-4.0D0*(ET+EX)
+                VALUE=VALUE-Four*(ET+EX)
               END IF
             END IF
 C Add  - 2*dxu ( (A-Et-Eu-Ey)*Dyt - Fyt)
@@ -1852,7 +1853,7 @@ C Add  - 2*dxu ( (A-Et-Eu-Ey)*Dyt - Fyt)
               ID2=MIN(IYABS,ITABS)
               ID=(ID1*(ID1-1))/2+ID2
               ATUY=EASUM-ET-EU-EY
-              VALUE=VALUE-2.0D0*(ATUY*DREF(ID)-FD(ID))
+              VALUE=VALUE-Two*(ATUY*DREF(ID)-FD(ID))
             END IF
             BB(IBADR)=VALUE
           END DO
@@ -1923,7 +1924,7 @@ CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              BBP(IBPADR)=BBP(IBPADR)+ipea_shift*0.5d0*
+              BBP(IBPADR)=BBP(IBPADR)+ipea_shift*half*
      &                          (DREF(IDT)+DREF(IDU))*SDP(ITGEU)
             ENDIF
 CGG End
@@ -1937,7 +1938,7 @@ CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              BBM(IBMADR)=BBM(IBMADR)+ipea_shift*0.5d0*
+              BBM(IBMADR)=BBM(IBMADR)+ipea_shift*half*
      &                           (DREF(IDT)+DREF(IDU))*SDM(INSM)
               INSM=INSM+1
             ENDIF
@@ -1971,6 +1972,7 @@ CGG End
 
       SUBROUTINE MKBD(DREF,NDREF,PREF,NPREF,FD,FP)
       use definitions, only: iwp, wp
+      use constants, only: Half, Two, Four
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use caspt2_global, only:LUSBT
@@ -2040,34 +2042,34 @@ CGG End
             IP2=MIN(IUTP,IXYP)
             IP=(IP1*(IP1-1))/2+IP2
             ETX=ET+EX
-            B11=4.0D0*(FP(IP)+(ETX-EASUM)*PREF(IP))
+            B11=Four*(FP(IP)+(ETX-EASUM)*PREF(IP))
             IXTP=IXABS+NASHT*(ITABS-1)
             IUYP=IUABS+NASHT*(IYABS-1)
             IP1=MAX(IXTP,IUYP)
             IP2=MIN(IXTP,IUYP)
             IP=(IP1*(IP1-1))/2+IP2
-            B22=-2.0D0*(FP(IP)+(ETX-EASUM)*PREF(IP))
+            B22=-Two*(FP(IP)+(ETX-EASUM)*PREF(IP))
             IF(IXABS.EQ.ITABS) THEN
               ID1=MAX(IUABS,IYABS)
               ID2=MIN(IUABS,IYABS)
               ID=(ID1*(ID1-1))/2+ID2
               FUY=FD(ID)
               DUY=DREF(ID)
-              B11=B11+2.0D0*(FUY+(ET-EASUM)*DUY)
-              B22=B22+2.0D0*(FUY+(EX-EASUM)*DUY)
+              B11=B11+Two*(FUY+(ET-EASUM)*DUY)
+              B22=B22+Two*(FUY+(EX-EASUM)*DUY)
             END IF
             BD(IB11)= B11
-            BD(IB21)=-0.5D0*B11
-            BD(IB12)=-0.5D0*B11
+            BD(IB21)=-Half*B11
+            BD(IB12)=-Half*B11
             BD(IB22)= B22
 CGG.Nov03
             IF (ITU.eq.IXY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              BD(IB11)=BD(IB11)+ipea_shift*0.5d0*
-     &                       (2.0d0-DREF(IDU)+DREF(IDT))*SD(ITU)
-              BD(IB22)=BD(IB22)+ipea_shift*0.5d0*
-     &                   (2.0d0-DREF(IDU)+DREF(IDT))*SD(ITU+NAS)
+              BD(IB11)=BD(IB11)+ipea_shift*Half*
+     &                       (Two-DREF(IDU)+DREF(IDT))*SD(ITU)
+              BD(IB22)=BD(IB22)+ipea_shift*Half*
+     &                   (Two-DREF(IDU)+DREF(IDT))*SD(ITU+NAS)
             ENDIF
 CGG End
           END DO
