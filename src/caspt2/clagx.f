@@ -242,7 +242,7 @@
 
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
           if (is_real_par() .and. (icase == 1 .or. icase == 4)) then
-            call CLagDX_MPP
+            call CLagDX_MPP()
             cycle
           else
 #endif
@@ -1117,7 +1117,7 @@
 !-----------------------------------------------------------------------
 !
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
-      Subroutine CLagDX_MPP
+      Subroutine CLagDX_MPP()
 
       use caspt2_global, only: iVecL
       use caspt2_module, only: MAXIT, JSTATE
@@ -2420,7 +2420,7 @@
         ixyzs=MUL(ISX,MUL(ISY,ISZ))
         F3VAL=Zero
         G3VAL=Zero
-        if(ituvs /= ixyzs) cycle ! goto 500
+        if(ituvs /= ixyzs) cycle
         iTU=iT+NASHT*(iU-1)
         iVX=iV+NASHT*(iX-1)
         iYZ=iY+NASHT*(iZ-1)
@@ -3224,7 +3224,7 @@
         ixyzs=MUL(ISX,MUL(ISY,ISZ))
         F3VAL=Zero
         G3VAL=Zero
-        if(ituvs /= ixyzs) cycle ! goto 500
+        if(ituvs /= ixyzs) cycle
         iTU=iT+NASHT*(iU-1)
         iVX=iV+NASHT*(iX-1)
         iYZ=iY+NASHT*(iZ-1)
@@ -4228,7 +4228,7 @@
         If (Iter == MaxIter+1) Then
           write(u6,*)
      &    "CI iteration for non-invariant CASPT2 did not converge..."
-          call abend
+          call abend()
         End If
       end if
 
@@ -4641,7 +4641,7 @@
           LU=Task(iTask,2)
           ! uras=.false.
           ! if (lu > nras1(1)+nras2(1)) uras=.true.
-!         if (tras.and.uras) go to 500
+!         if (tras.and.uras) cycle
           ! LTU=iTask
           ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
@@ -4668,7 +4668,7 @@
               ISVX=MUL(ISV,ISX)
               ! xras=.false.
               ! if (lx > nras1(1)+nras2(1)) xras=.true.
-!             if (vras.and.xras) go to 110
+!             if (vras.and.xras) cycle
               IF (ISVX /= ISTU) cycle
               IX=L2ACT(LX)
               CALL GETSGM2(LX,LV,ISSG,SGM1,SGM2)
@@ -4964,7 +4964,7 @@
               ICONF=ICONF+1
 !             COEF=CI(ICONF)
 ! -- SKIP OR PRINT IT OUT?
-!             IF(ABS(COEF) < THR) GOTO  31
+!             IF(ABS(COEF) < THR) cycle
               IF(IDWNSV /= IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=CIS%ICASE(ICDPOS)

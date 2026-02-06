@@ -688,7 +688,7 @@
 ! ISCF=1 for closed-shell, =2 for hispin
         write (u6,*) "Here is the special case"
         write (u6,*) "not yet"
-        call abend
+        call abend()
       end if
 ! Here, for regular CAS or RAS cases.
 

@@ -205,11 +205,10 @@
         End If
       End If
 
-!     If (PM) Then
-!       If (nINP*nISP == 0.and.nINM*nISM == 0) GO TO 1
-!     Else
-!       If (nIN*nIS) GO TO 1
-!     End If
+      ! finish if no contributions
+      ! should we use the number of independent vectors?
+      if ((PM .and. nASP*nISP == 0 .and. nASM*nISM == 0)
+     &  .or. (.not.PM .and. nAS*nIS == 0)) return
 
       call mma_allocate(WRK1,nBasT*nBasT,Label='WRK1')
       call mma_allocate(WRK2,nBasT*nBasT,Label='WRK2')
@@ -269,7 +268,6 @@
       call mma_deallocate(WRK1)
       call mma_deallocate(WRK2)
 
-!   1 CONTINUE
       If (PM) Then
         If (nASP*nISP /= 0) Call RHS_FREE(ipTCP)
         If (nASM*nISM /= 0) Call RHS_FREE(ipTCM)

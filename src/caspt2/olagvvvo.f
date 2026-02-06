@@ -189,7 +189,7 @@
      &                        nOcc*nOcc*8,'OLD',is_error)
         if (is_error) then
         write (u6,*) "Something is wrong in opening LuGamma in olagvvvo"
-          call abend
+          call abend()
         end if
         !  Setup for shell. Why do I have to call IniSew damn here?
         !  The number of shells should be able to be referred globally.
@@ -248,7 +248,7 @@
         Deallocate (T_hbf)
         Close (LuGAMMA)
         Call Free_iSD()
-        call clssew
+        call clssew()
       End If
 
       !! 5) L_{ai} = sum_{mu} C_{mu a} L_{mu i}

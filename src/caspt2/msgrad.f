@@ -727,7 +727,7 @@
       ELse
         write (u6,*)"the first argument in LoadCI_XMS should be either",
      &              "N (natural) or C (quasi-canonical)"
-        call abend
+        call abend()
       End If
 
       If (Mode == 0 .or. (.not.IFXMS .and. .not.IFRMS)) Then
@@ -1735,11 +1735,11 @@
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
 !         LTU=0
-!         DO 140 LT=1,NLEV
+!         DO LT=1,NLEV
           LT=TASK(iTask,1)
           IST=SGS%ISM(LT)
           IT=L2ACT(LT)
-!         DO 130 LU=1,LT
+!         DO LU=1,LT
           LU=Task(iTask,2)
 !         LTU=LTU+1
           ! LTU=iTask

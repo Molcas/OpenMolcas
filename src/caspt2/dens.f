@@ -529,7 +529,7 @@
 !     end do
 !      write(u6,*) "fpt2ao"
 !     call sqprt(fpt2_ao,12)
-!     call abend
+!     call abend()
 
           !! AO -> MO transformations for FPT2AO and FPT2CAO
           If ((.not.IfChol .or. iALGO /= 1)
@@ -696,7 +696,7 @@
 !       call sqprt(wlag,nbast)
 !       write(u6,*) "rdmeig"
 !       call sqprt(rdmeig,nasht)
-!       call abend
+!       call abend()
 
         !! Calculate the configuration Lagrangian again.
         !! The contribution comes from the derivative of eigenvalues.
