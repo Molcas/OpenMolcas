@@ -74,7 +74,7 @@ C INTEGRAL BUFFERS:
       END SUBROUTINE MKRHS
 
       SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,SCR)
-      use definitions, only: iwp, wp, u6
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
