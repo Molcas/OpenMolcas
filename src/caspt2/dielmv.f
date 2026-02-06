@@ -24,7 +24,7 @@
       IMPLICIT NONE
       integer(kind=iwp), intent(in):: ICASE(*),JCASE(*)
       integer(kind=iwp), intent(in):: NUP,NDWN
-      real(kind=wp), intent(out):: EMU(NUP,NDWN)
+      real(kind=wp), intent(inout):: EMU(NUP,NDWN)
 
       Integer(kind=iwp) nLev, nIpWlk
       Integer(kind=iwp) I,II,LV1,IC,LEV,IC1,ISTEP,IOC,J
