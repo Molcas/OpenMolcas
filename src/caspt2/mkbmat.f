@@ -331,7 +331,7 @@ C-SVC20100831: determine indices in SA where a certain F3 value will end up
         iSZ=IASYM(iZ)
         ituvs=MUL(IST,MUL(ISU,ISV))
         ixyzs=MUL(ISX,MUL(ISY,ISZ))
-        if(ituvs.ne.ixyzs) goto 500
+        if(ituvs.ne.ixyzs) CYCLE
         iTU=iT+NASHT*(iU-1)
         iVX=iV+NASHT*(iX-1)
         iYZ=iY+NASHT*(iZ-1)
@@ -402,10 +402,10 @@ C  - F(vxyztu) -> BA(zxv,ytu)
           END IF
         ENDIF
  300   CONTINUE
-        if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 500
-        if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) go to 500
-        if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) go to 500
-        if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) go to 500
+        if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
+        if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
+        if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
+        if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
 C  - F(utxvzy) -> BA(vtu,xzy)
         jSYM=MUL(IASYM(iV),MUL(IASYM(iT),IASYM(iU)))
         IF (jSYM.EQ.iSYM) THEN
@@ -416,7 +416,7 @@ C  - F(utxvzy) -> BA(vtu,xzy)
             BA(ISADR)=BA(ISADR)+F3VAL
           END IF
         ENDIF
-        if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 500
+        if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
         if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 400
 C  - F(xvutzy) -> BA(tvx,uzy)
         jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
@@ -469,7 +469,6 @@ C  - F(xvzyut) -> BA(yvx,zut)
             BA(ISADR)=BA(ISADR)+F3VAL
           END IF
         ENDIF
- 500   CONTINUE
       END DO
 
       END SUBROUTINE MKBA_F3
@@ -1139,7 +1138,7 @@ C-SVC20100831: determine indices in BC where a certain G3 value will end up
         iSZ=IASYM(iZ)
         ituvs=MUL(IST,MUL(ISU,ISV))
         ixyzs=MUL(ISX,MUL(ISY,ISZ))
-        if(ituvs.ne.ixyzs) goto 500
+        if(ituvs.ne.ixyzs) CYCLE
         iTU=iT+NASHT*(iU-1)
         iVX=iV+NASHT*(iX-1)
         iYZ=iY+NASHT*(iZ-1)
@@ -1210,10 +1209,10 @@ C  - F(vxyztu) -> BC(yxv,ztu)
           END IF
         ENDIF
  300   CONTINUE
-        if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 500
-        if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) go to 500
-        if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) go to 500
-        if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) go to 500
+        if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
+        if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
+        if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
+        if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
 C  - F(utxvzy) -> BC(xtu,vzy)
         jSYM=MUL(IASYM(iX),MUL(IASYM(iT),IASYM(iU)))
         IF (jSYM.EQ.iSYM) THEN
@@ -1224,7 +1223,7 @@ C  - F(utxvzy) -> BC(xtu,vzy)
             BC(ISADR)=BC(ISADR)+F3VAL
           END IF
         ENDIF
-        if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 500
+        if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
         if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 400
 C  - F(xvutzy) -> BC(uvx,tzy)
         jSYM=MUL(IASYM(iU),MUL(IASYM(iV),IASYM(iX)))
@@ -1277,7 +1276,6 @@ C  - F(xvzyut) -> BC(zvx,yut)
             BC(ISADR)=BC(ISADR)+F3VAL
           END IF
         ENDIF
- 500   CONTINUE
       END DO
 
       END SUBROUTINE MKBC_F3
@@ -1387,7 +1385,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
           iSZ=IASYM(iZ)
           ituvs=MUL(IST,MUL(ISU,ISV))
           ixyzs=MUL(ISX,MUL(ISY,ISZ))
-          if(ituvs.ne.ixyzs) goto 500
+          if(ituvs.ne.ixyzs) CYCLE
           iTU=iT+NASHT*(iU-1)
           iVX=iV+NASHT*(iX-1)
           iYZ=iY+NASHT*(iZ-1)
@@ -1439,10 +1437,10 @@ C  - F(vxyztu) -> BC(yxv,ztu)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
  300   CONTINUE
-          if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) go to 500
-          if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) go to 500
-          if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) go to 500
-          if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) go to 500
+          if (iT.eq.iU.and.iV.eq.iX.and.iY.eq.iZ) CYCLE
+          if (iT.eq.iU.and.iV.eq.iZ.and.iX.eq.iY) CYCLE
+          if (iX.eq.iV.and.iT.eq.iZ.and.iU.eq.iY) CYCLE
+          if (iZ.eq.iY.and.iV.eq.iU.and.iX.eq.iT) CYCLE
 C  - F(utxvzy) -> BC(xtu,vzy)
           jSYM=MUL(IASYM(iX),MUL(IASYM(iT),IASYM(iU)))
           IF (jSYM.EQ.iSYM) THEN
@@ -1450,7 +1448,7 @@ C  - F(utxvzy) -> BC(xtu,vzy)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
-          if (iTU.eq.iVX.and.iVX.eq.iYZ) go to 500
+          if (iTU.eq.iVX.and.iVX.eq.iYZ) CYCLE
           if (iTU.eq.iVX.or.iTU.eq.iYZ.or.iVX.eq.iYZ) go to 400
 C  - F(xvutzy) -> BC(uvx,tzy)
           jSYM=MUL(IASYM(iU),MUL(IASYM(iV),IASYM(iX)))
@@ -1488,7 +1486,6 @@ C  - F(xvzyut) -> BC(zvx,yut)
             IP=IPROW(IROW,NQOT,NREM)
             SCOUNTS(IP)=SCOUNTS(IP)+ONE4
           ENDIF
- 500   CONTINUE
         END DO
 
         ! At this point, SCOUNTS contains the number of values generated
@@ -1777,7 +1774,7 @@ C    BBM(tu,xy)=BB(tu,xy)-BB(tu,yx)
 C Loop over superindex symmetry.
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,2)
-        IF(NINP.EQ.0) GOTO 1000
+        IF(NINP.EQ.0) CYCLE
         NAS=NTU(ISYM)
         NBB=(NAS*(NAS+1))/2
         IF(NBB.GT.0) THEN
@@ -1955,7 +1952,6 @@ CGG.Nov03 DisAlloc SDM
           CALL mma_deallocate(SDM)
 CGG End
         END IF
- 1000 CONTINUE
       END DO
 
       END SUBROUTINE MKBB
@@ -1988,7 +1984,7 @@ C where A=EASUM=Sum(w) of (Ew*Dww)
 C Loop over superindex symmetry.
       DO ISYM=1,NSYM
         NIN=NINDEP(ISYM,5)
-        IF(NIN.EQ.0) GOTO 1000
+        IF(NIN.EQ.0) CYCLE
         NAS=NTU(ISYM)
         NBD=(2*NAS*(2*NAS+1))/2
         IF(NBD.GT.0) THEN
@@ -2072,7 +2068,6 @@ CGG.Nov03 DisAlloc SD
           CALL mma_deallocate(SD)
 CGG End
         END IF
- 1000 CONTINUE
       END DO
 
 
@@ -2099,7 +2094,7 @@ C            + 2dtx Ex
 
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,6)
-        IF(NINP.EQ.0) GOTO 1000
+        IF(NINP.EQ.0) CYCLE
         NINM=NINDEP(ISYM,7)
         NAS=NASH(ISYM)
         NBE=(NAS*(NAS+1))/2
@@ -2154,7 +2149,6 @@ CGG.Nov03 DisAlloc SD
           CALL mma_deallocate(SD)
 CGG End
         END IF
- 1000 CONTINUE
       END DO
 
       END SUBROUTINE MKBE
@@ -2185,7 +2179,7 @@ C    BFM(tu,xy)=BF(tu,xy)-BF(tu,yx)
 C Loop over superindex symmetry.
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,8)
-        IF(NINP.EQ.0) GOTO 1000
+        IF(NINP.EQ.0) CYCLE
         NAS=NTU(ISYM)
         NBF=(NAS*(NAS+1))/2
         IF(NBF.GT.0) THEN
@@ -2317,7 +2311,6 @@ CGG.Nov03 DisAlloc SDM
          CALL mma_deallocate(SDM)
 CGG End
         END IF
- 1000 CONTINUE
       END DO
 
       END SUBROUTINE MKBF
@@ -2342,7 +2335,7 @@ C     BG(t,x)= Ftx -EASUM*Dtx
 
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,10)
-        IF(NINP.EQ.0) GOTO 1000
+        IF(NINP.EQ.0) CYCLE
         NINM=NINDEP(ISYM,11)
         NAS=NASH(ISYM)
         NBG=(NAS*(NAS+1))/2
@@ -2396,7 +2389,6 @@ CGG.Nov03 DisAlloc SD
 CGG End
          CALL mma_deallocate(BG)
         END IF
- 1000 CONTINUE
       END DO
 
       END SUBROUTINE MKBG
