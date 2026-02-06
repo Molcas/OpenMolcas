@@ -157,14 +157,16 @@ C Put W on disk:
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
       real(kind=wp), Intent(inout):: ERI(*), SCR(*)
 
       real(kind=wp), parameter:: SQ2=SQRT(Two)
-*#define _KIGEJ_
-*#define _KIGTJ_
-*#include "mig_kig.fh"
+      integer(kind=iwp) ISYM,NINP,NINM,NASP,NISP,NVP,NASM,NISM,NVM,LWP,
+     &                  LWM,ISYMT,ISYMU,ISYMI,ISYMJ,IT,ITABS,ITTOT,IU,
+     &                  IUABS,IUTOT,ITUP,ITUM,II,IIABS,IJ,IJABS,IBUF,
+     &                  IIJP,JWP,IIJM,IWM,ICASE
+      real(kind=wp) VALUE
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for cases 2 and 3 (VJTI).
