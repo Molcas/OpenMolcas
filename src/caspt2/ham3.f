@@ -15,9 +15,9 @@
       use gugx, only: SGS, CIS, EXS
       use caspt2_module
       use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 
-      integer(kind=iwp), intent(in):: NOP2,NOP3
+      integer(kind=iwp), intent(in):: NOP2,NOP3,ISYCI
       real(kind=wp) , intent(in)::OP0
       real(kind=wp), intent(in):: OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
       real(kind=wp), intent(in):: CI(*)
@@ -25,7 +25,11 @@
 C Local arrays:
       integer(kind=iwp) IATOG(MXLEV)
       real(kind=wp), Allocatable:: SGM1(:), SGM2(:)
-      Integer(kind=iwp) nLev
+      Integer(kind=iwp) nLev,ITABS,ISYM,I,IZ,IY,IYZ,ISYZ,ISYM1,NSGM1,
+     &                  LEVY,LEVZ,ISTU,ISVX,ISVXYZ,ISYM2,IT,ITMIN,ITU,
+     &                  ITUVXYZ,IU,IV,IVMIN,IVX,IVXYZ,IX,LEVT,LEVU,LEVV,
+     &                  LEVX,NSGM2
+      real(kind=wp) OCCNO,X
 
       nLev = SGS%nLev
 
