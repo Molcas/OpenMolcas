@@ -344,19 +344,22 @@ C
 *                                                                      *
 ************************************************************************
       Subroutine Check_Amp(nSym,nOcc,nVir,iSkip)
+      use definitions, only: iwp
+      use SYmmetry_Info, only: Mul
 
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym, nOcc(nSym), nVir(nSym), iSkip
-      Integer nT1amTot, nT1am(8)
+      Implicit None
+      integer(kind=iwp), intent(in)::  nSym, nOcc(nSym), nVir(nSym)
+      Integer(kind=iwp), intent(out):: iSkip
 
-      MulD2h(i,j)=iEor(i-1,j-1) + 1
+      integer(kind=iwp) iSym, iSymi, iSyma
+      Integer(kind=iwp) nT1amTot, nT1am(8)
 
       iSkip=0
       nT1amTot=0
       Do iSym = 1,nSym
          nT1am(iSym) = 0
          Do iSymi = 1,nSym
-            iSyma = MulD2h(iSymi,iSym)
+            iSyma = Mul(iSymi,iSym)
             nT1am(iSym) = nT1am(iSym)
      &                  + nVir(iSyma)*nOcc(iSymi)
          End Do
