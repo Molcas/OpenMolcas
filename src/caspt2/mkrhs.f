@@ -692,24 +692,24 @@ C   WP(t,i,ab)=  (W(t,i,a,b)+W(t,i,b,a))
 C With new normalisation, divide by /SQRT(2+2*Kron(ab))
 C   WM(t,i,ab)=3*(W(t,i,a,b)-W(t,i,b,a))
 C With new normalisation, divide by /SQRT(6)
-          DO 730 ISYMA=1,NSYM
-            DO 731 ISYMB=1,ISYMA
+          DO ISYMA=1,NSYM
+            DO ISYMB=1,ISYMA
               ISYMAB=MUL(ISYMA,ISYMB)
               ISYMI=MUL(ISYMAB,ISYM)
-              DO 732 IT=1,NASH(ISYM)
+              DO IT=1,NASH(ISYM)
                 ITTOT=IT+NISH(ISYM)
-                DO 733 II=1,NISH(ISYMI)
+                DO II=1,NISH(ISYMI)
                   CALL EXCH(ISYMA,ISYM ,ISYMB,ISYMI,
      &                      ITTOT,II,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMI,ISYMB,ISYM ,
      &                      II,ITTOT,ERI2,SCR)
-                  DO 720 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IAABS=IA+NSES(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    DO 710 IB=1,NSSH(ISYMB)
+                    DO IB=1,NSSH(ISYMB)
                       IBABS=IB+NSES(ISYMB)
                       IBTOT=IB+NISH(ISYMB)+NASH(ISYMB)
-                      IF(IAABS.LT.IBABS) GOTO 720
+                      IF(IAABS.LT.IBABS) EXIT
                       IBUF=IATOT+NORB(ISYMA)*(IBTOT-1)
                       IWA=IT
                       IAGEB=KAGEB(IAABS,IBABS)-NAGEBES(ISYMAB)
@@ -726,12 +726,12 @@ C With new normalisation, divide by /SQRT(6)
                       ELSE
                         GA_Arrays(LWP)%A(JWP)=0.5D0*A
                       END IF
- 710                CONTINUE
- 720              CONTINUE
- 733            CONTINUE
- 732          CONTINUE
- 731        CONTINUE
- 730      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put WP and WM on disk.
           ICASE=10
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
