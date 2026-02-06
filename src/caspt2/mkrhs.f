@@ -305,21 +305,21 @@ C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
 C First, just the two-electron integrals. Later, add correction.
 
           LW=Allocate_GA_Array(NV,'WC')
-          DO 310 ISYMT=1,NSYM
+          DO ISYMT=1,NSYM
             ISYMUV=MUL(ISYMT,ISYM)
-            DO 311 ISYMU=1,NSYM
+            DO ISYMU=1,NSYM
               ISYMV=MUL(ISYMU,ISYMUV)
-              DO 312 IU=1,NASH(ISYMU)
+              DO IU=1,NASH(ISYMU)
                 IUTOT=IU+NISH(ISYMU)
                 IUABS=IU+NAES(ISYMU)
-                DO 313 IV=1,NASH(ISYMV)
+                DO IV=1,NASH(ISYMV)
                   IVTOT=IV+NISH(ISYMV)
                   IVABS=IV+NAES(ISYMV)
                   CALL COUL(ISYM,ISYMT,ISYMU,ISYMV,
      &                      IUTOT,IVTOT,ERI,SCR)
-                  DO 314 IA=1,NSSH(ISYM)
+                  DO IA=1,NSSH(ISYM)
                     IATOT=IA+NISH(ISYM)+NASH(ISYM)
-                    DO 315 IT=1,NASH(ISYMT)
+                    DO IT=1,NASH(ISYMT)
                       ITTOT=IT+NISH(ISYMT)
                       ITABS=IT+NAES(ISYMT)
                       IW1=KTUV(ITABS,IUABS,IVABS)-NTUVES(ISYM)
@@ -327,12 +327,12 @@ C First, just the two-electron integrals. Later, add correction.
                       IW=IW1+NAS*(IW2-1)
                       IBUF=IATOT+NORB(ISYM)*(ITTOT-1)
                       GA_Arrays(LW)%A(IW)=ERI(IBUF)
- 315                CONTINUE
- 314              CONTINUE
- 313            CONTINUE
- 312          CONTINUE
- 311        CONTINUE
- 310      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 
           DO IT=1,NASH(ISYM)
             ITTOT=IT+NISH(ISYM)
