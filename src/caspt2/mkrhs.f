@@ -181,28 +181,28 @@ C   Let  W(tu,i,j)=(it,ju):
 C   WP(tu,ij)=(W(tu,i,j)+W(tu,j,i))*(1-Kron(t,u)/2) /2
 C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ij))
 C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
-          DO 240 ISYMT=1,NSYM
+          DO ISYMT=1,NSYM
             ISYMU=MUL(ISYMT,ISYM)
-            IF(ISYMT.LT.ISYMU) GOTO 240
-            IF(NASH(ISYMT)*NASH(ISYMU).EQ.0) GOTO 240
-            DO 230 ISYMI=1,NSYM
+            IF(ISYMT.LT.ISYMU) CYCLE
+            IF(NASH(ISYMT)*NASH(ISYMU).EQ.0) CYCLE
+            DO ISYMI=1,NSYM
               ISYMJ=MUL(ISYMI,ISYM)
-              IF(NISH(ISYMI)*NISH(ISYMJ).EQ.0) GOTO 230
-              DO 220 IT=1,NASH(ISYMT)
+              IF(NISH(ISYMI)*NISH(ISYMJ).EQ.0) CYCLE
+              DO IT=1,NASH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
                 ITTOT=IT+NISH(ISYMT)
-                DO 210 IU=1,NASH(ISYMU)
+                DO IU=1,NASH(ISYMU)
                   IUABS=IU+NAES(ISYMU)
                   IUTOT=IU+NISH(ISYMU)
-                  IF(ITABS.LT.IUABS) GOTO 220
+                  IF(ITABS.LT.IUABS) EXIT
                   ITUP=KTGEU(ITABS,IUABS)-NTGEUES(ISYM)
                   ITUM=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
                   CALL EXCH(ISYMI,ISYMT,ISYMJ,ISYMU,
      &                      ITTOT,IUTOT,ERI,SCR)
                   IF(ITABS.NE.IUABS) THEN
-                   DO 205 II=1,NISH(ISYMI)
+                   DO II=1,NISH(ISYMI)
                     IIABS=II+NIES(ISYMI)
-                    DO 206 IJ=1,NISH(ISYMJ)
+                    DO IJ=1,NISH(ISYMJ)
                       IJABS=IJ+NIES(ISYMJ)
                       IBUF=II+NORB(ISYMI)*(IJ-1)
                       VALUE=0.5D0*ERI(IBUF)
@@ -230,12 +230,12 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         GA_Arrays(LWM)%A(IWM)=
      &                     GA_Arrays(LWM)%A(IWM)-VALUE
                       END IF
- 206                CONTINUE
- 205               CONTINUE
+                    END DO
+                   END DO
                   ELSE
-                   DO 215 II=1,NISH(ISYMI)
+                   DO II=1,NISH(ISYMI)
                     IIABS=II+NIES(ISYMI)
-                    DO 216 IJ=1,NISH(ISYMJ)
+                    DO IJ=1,NISH(ISYMJ)
                       IJABS=IJ+NIES(ISYMJ)
                       IBUF=II+NORB(ISYMI)*(IJ-1)
                       VALUE=0.25D0*ERI(IBUF)
@@ -255,13 +255,13 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         GA_Arrays(LWP)%A(JWP)=
      &                     GA_Arrays(LWP)%A(JWP)+VALUE
                       END IF
- 216                CONTINUE
- 215               CONTINUE
+                    END DO
+                   END DO
                   END IF
- 210            CONTINUE
- 220          CONTINUE
- 230        CONTINUE
- 240      CONTINUE
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put WP on disk
           ICASE=2
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
