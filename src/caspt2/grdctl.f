@@ -21,16 +21,19 @@
 *--------------------------------------------*
       SUBROUTINE GRDCTL(HEFF)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use caspt2_global, only: TAT, TORB
       use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV
       use stdalloc, only: mma_allocate,mma_deallocate
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       real(kind=wp), intent(inout):: HEFF(NSTATE,NSTATE)
 
       real(kind=wp), Allocatable :: CI(:),SGM(:),BRACI(:)
-      integer(kind=iwp) ID,I,IOFF1,IOFF2,ISYM,NI,NR1,NR2,NR3,NS,J,IJ,JI
+      integer(kind=iwp) ID,I,IOFF1,IOFF2,ISYM,NI,NR1,NR2,NR3,NS,J,IJ,JI,
+     &                  ISTART,ISTATE,ITO,ITOEND,ITOSTA,NSG
+      real(kind=wp), external:: DDot_
 
 C Purpose: Compute three sets of quantities, needed by MCLR, used to
 C compute forces and derivatives.
@@ -55,12 +58,12 @@ C This is an ordinary CASSCF or RASSCF calculation.
        END DO
        CALL DDAFILE(LUCIEX,2,CI,NCONF,ID)
       ELSE
-       CI(1)=1.0D0
+       CI(1)=One
       END IF
 
       IF(ORBIN.EQ.'TRANSFOR') THEN
 C Read, and transpose, the active orbital transformation matrices
-        TAT(:)=0.0D0
+        TAT(:)=Zero
         IOFF1=0
         IOFF2=0
         DO ISYM=1,NSYM
@@ -109,7 +112,7 @@ C Read, and transpose, the active orbital transformation matrices
       NSG=NCONF
       call mma_allocate(SGM,NSG,Label='GRDSGM')
 C Compute (Proj_CAS)*(Ham)*(Wave op) acting on Psi_0:
-      CALL DCOPY_(NCONF,[0.0D0],0,SGM,1)
+      CALL DCOPY_(NCONF,[Zero],0,SGM,1)
       IF(ISCF.EQ.0) THEN
        CALL W1TW2(IVECW,IVECC,CI,SGM)
       ELSE
@@ -192,7 +195,7 @@ C computing the multi-state coupling elements.
 C-End of Multi-State insert -----------------------------------------
 
 C Similar, but (Proj_CAS)*((Wave op)**(dagger))*(Ham) | Psi_0 >.
-      CALL DCOPY_(NCONF,[0.0D0],0,SGM,1)
+      CALL DCOPY_(NCONF,[Zero],0,SGM,1)
       IF(ISCF.EQ.0) THEN
        CALL W1TW2(IVECC,IVECW,CI,SGM)
       ELSE
