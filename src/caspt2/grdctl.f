@@ -20,14 +20,17 @@
 * 2006 update: Use RAS1..RAS3
 *--------------------------------------------*
       SUBROUTINE GRDCTL(HEFF)
+      use definitions, only: iwp, wp
       use caspt2_global, only: TAT, TORB
       use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV
       use stdalloc, only: mma_allocate,mma_deallocate
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8 HEFF(NSTATE,NSTATE)
-      Real*8, Allocatable :: CI(:),SGM(:),BRACI(:)
+      real(kind=wp), intent(inout):: HEFF(NSTATE,NSTATE)
+
+      real(kind=wp), Allocatable :: CI(:),SGM(:),BRACI(:)
+      integer(kind=iwp) ID,I,IOFF1,IOFF2,ISYM,NI,NR1,NR2,NR3,NS,J,IJ,JI
 
 C Purpose: Compute three sets of quantities, needed by MCLR, used to
 C compute forces and derivatives.
