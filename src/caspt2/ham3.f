@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS, CIS, EXS
       use caspt2_module
@@ -52,9 +53,9 @@ C for intermediate results of elementary excitations.
         IF(NACTEL.GE.2) CALL mma_allocate(SGM2,MXCI,Label='SGM2')
       END IF
 C Special cases:
-      OCCNO=0.0d0
-      IF(ISCF.EQ.1) OCCNO=2.0D0
-      IF(ISCF.EQ.2) OCCNO=1.0D0
+      OCCNO=Zero
+      IF(ISCF.EQ.1) OCCNO=Two
+      IF(ISCF.EQ.2) OCCNO=One
 
 C Create reorder table giving the GUGA level, i.e. CI-coupling
 C ordinal number of each active orbital.
@@ -78,11 +79,11 @@ C ordinal number of each active orbital.
         IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM1:=E(IY,IZ) PSI
-          CALL DCOPY_(NSGM1,[0.0D0],0,SGM1,1)
+          CALL DCOPY_(NSGM1,[Zero],0,SGM1,1)
           LEVY=IATOG(IY)
           LEVZ=IATOG(IZ)
           CALL SIGMA1(SGS,CIS,EXS,
-     &                LEVY,LEVZ,1.0D00,ISYCI,CI,SGM1)
+     &                LEVY,LEVZ,One,ISYCI,CI,SGM1)
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
             X=OP1(IY,IZ)
@@ -111,11 +112,11 @@ C Closed-shell or hi-spin case:
           IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM2:=E(IV,IX) SGM1
-            CALL DCOPY_(NSGM2,[0.0D0],0,SGM2,1)
+            CALL DCOPY_(NSGM2,[Zero],0,SGM2,1)
             LEVV=IATOG(IV)
             LEVX=IATOG(IX)
             CALL SIGMA1(SGS,CIS,EXS,
-     &                  LEVV,LEVX,1.0D00,ISYM1,SGM1,SGM2)
+     &                  LEVV,LEVX,One,ISYM1,SGM1,SGM2)
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
               X=OP2(IVXYZ)
