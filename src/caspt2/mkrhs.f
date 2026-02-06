@@ -753,25 +753,26 @@ C   Put WP and WM on disk.
 
       SUBROUTINE MKRHSH(IVEC,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
+      use constants, only: half, One, two, three
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
       real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
-*#define _KIGEJ_
-*#define _KIGTJ_
-*#include "mig_kig.fh"
+
+      real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2,
+     &                           SQ3=SQRT(Three)
+      integer(kind=iwp) ISYM,NASP,NISP,NVP,NASM,NISM,NVM,LVP,ISYMA,
+     &                  ISYMB,ISYMI,ISYMJ,II,IIABS,IJ,IJABS,
+     &                  IA,IAABS,IATOT,IB,IBABS,IBTOT,IBUF,IVAP,IVIP,
+     &                  IVP,IVAM,IVIM,IVM,LVM,ICASE
+      real(kind=wp) A,B
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 12 and 13 (BJAI).
-
-
-      SQ2=SQRT(2.0D00)
-      SQI2=1.0D0/SQ2
-      SQ3=SQRT(3.0D00)
 
       DO ISYM=1,NSYM
           NASP=NAGEB(ISYM)
@@ -827,7 +828,7 @@ C With new norm., divide by /SQRT(12)
                         IF(IAABS.NE.IBABS) THEN
                           GA_Arrays(LVP)%A(IVP)=SQI2*A
                         ELSE
-                          GA_Arrays(LVP)%A(IVP)=0.5D0*A
+                          GA_Arrays(LVP)%A(IVP)=Half*A
                         END IF
                       END IF
                     END DO
