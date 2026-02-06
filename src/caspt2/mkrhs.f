@@ -754,11 +754,12 @@ C   Put WP and WM on disk.
       SUBROUTINE MKRHSH(IVEC,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
       use constants, only: half, One, two, three
-      USE SUPERINDEX
-      use EQSOLV
+      USE SUPERINDEX, only: KAGEB,KIGEJ,KAGTB,KIGTJ
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
+      use caspt2_module, only: NSYM,NAGEB,NIGEJ,NAGTB,NIGTJ,MUL,NISH,
+     &                         NIES,NSES,NSSH,NORB,NASH,NAGEBES,NIGEJES,
+     &                         NAGTBES,NIGTJES
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
       real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
