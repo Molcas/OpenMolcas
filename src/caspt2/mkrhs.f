@@ -103,21 +103,21 @@ C Set up a matrix FWI(w,i)=FIMO(wi)
 
 C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
           LW=Allocate_GA_Array(NV,'WA')
-          DO 130 ISYMT=1,NSYM
+          DO ISYMT=1,NSYM
             ISYMUV=MUL(ISYMT,ISYM)
-            DO 131 ISYMU=1,NSYM
+            DO ISYMU=1,NSYM
               ISYMV=MUL(ISYMU,ISYMUV)
-              DO 132 IT=1,NASH(ISYMT)
+              DO IT=1,NASH(ISYMT)
                 ITTOT=IT+NISH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
-                DO 133 II=1,NI
+                DO II=1,NI
                   CALL COUL(ISYMU,ISYMV,ISYMT,ISYM,ITTOT,II,ERI,SCR)
                   ONEADD=0.0D0
                   IF(ISYMT.EQ.ISYM) THEN
                     FTI=FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+II)
                     ONEADD=FTI/DBLE(MAX(1,NACTEL))
                   END IF
-                  DO 134 IU=1,NASH(ISYMU)
+                  DO IU=1,NASH(ISYMU)
                     IUTOT=IU+NISH(ISYMU)
                     IUABS=IU+NAES(ISYMU)
                     DO IV=1,NASH(ISYMV)
@@ -131,11 +131,11 @@ C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
                       IF(IVABS.EQ.IUABS) WTUVI=WTUVI+ONEADD
                       GA_Arrays(LW)%A(IW)=WTUVI
                     END DO
- 134              CONTINUE
- 133            CONTINUE
- 132          CONTINUE
- 131        CONTINUE
- 130      CONTINUE
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C Put W on disk:
           ICASE=1
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
