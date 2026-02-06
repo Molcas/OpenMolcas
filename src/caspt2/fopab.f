@@ -15,7 +15,7 @@
       use caspt2_global, only: LUCIEX, IDCIEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
       integer(kind=iwp), intent(in):: NFIFA, IBRA, IKET
       real(kind=wp), intent(in):: FIFA(NFIFA)
@@ -25,6 +25,11 @@
       integer(kind=iwp) IOFF(8)
       integer(kind=iwp) :: nLev
       real(kind=wp), allocatable:: BRA(:), KET(:), SGM(:)
+      integer(kind=iwp) IOF,ISYM,IFTEST,IJ,I,ID,II,ISCR,IST,ISU,IT,
+     &                  ITABS,ITTOT,ITUTOT,IU,IUABS,IUTOT,J,LEVT,LEVU,
+     &                  NI
+      real(kind=wp) ESUM,OCC,EINACT,FTU,TRC
+      real(kind=wp), external:: DDot_
 
       nLev = SGS%nLev
 
