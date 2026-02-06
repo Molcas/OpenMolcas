@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKBMAT()
+      use definitions, only: iwp, wp, Byte, u6
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -25,13 +26,12 @@
       use EQSOLV
       use caspt2_module
       use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 C Set up B matrices for cases 1..13.
 
-      REAL*8 DUM(1)
-      INTEGER*1, ALLOCATABLE :: idxG3(:,:)
-      REAL*8, ALLOCATABLE:: F1(:), F2(:), F3(:), FD(:), FP(:)
-
+      INTEGER(kind=Byte), ALLOCATABLE :: idxG3(:,:)
+      real(kind=wp), ALLOCATABLE:: F1(:), F2(:), F3(:), FD(:), FP(:)
+      INTEGER(kind=iwp) NFD, NFP, iLUID
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -43,21 +43,28 @@ C Set up B matrices for cases 1..13.
       CALL mma_allocate(F1,NG1,Label='F1')
       NFD=SIZE(PREF)
       CALL mma_allocate(FD,NFD,Label='FD')
+
       CALL PT2_GET(NG1,'DELTA1',F1)
       CALL MKDREF_RPT2(NASHT,F1,FD)
+
       CALL mma_deallocate(F1)
       CALL mma_allocate(F2,NG2,Label='F2')
+
       CALL PT2_GET(NG2,'DELTA2',F2)
+
       NFP=SIZE(PREF)
       CALL mma_allocate(FP,NFP,Label='FP')
+
       CALL MKPREF_RPT2(NASHT,F2,FP)
+
       CALL mma_deallocate(F2)
       CALL mma_allocate(F3,NG3,Label='F3')
+
       CALL PT2_GET(NG3,'DELTA3',F3)
 
       IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,'("DEBUG> ",A)') 'CASE SYM B-MATRIX NORM'
-        WRITE(6,'("DEBUG> ",A)') '==== === ============='
+        WRITE(u6,'("DEBUG> ",A)') 'CASE SYM B-MATRIX NORM'
+        WRITE(u6,'("DEBUG> ",A)') '==== === ============='
       END IF
 
       CALL mma_allocate(idxG3,6,NG3,label='idxG3')
@@ -88,7 +95,12 @@ C Set up B matrices for cases 1..13.
 C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest of the routines.
-      DUM(1)=0.0D0
+      use constants, only: Zero
+      implicit None
+      real(kind=wp) DUM(1)
+      integer(kind=iwp) ISYM, ICASE, NIN, IDISK
+
+      DUM(1)=Zero
       DO ISYM=1,NSYM
         DO ICASE=12,13
           NIN=NINDEP(ISYM,ICASE)
@@ -97,6 +109,7 @@ C looping, etc in the rest of the routines.
             CALL DDAFILE(LUSBT,1,DUM,1,IDISK)
           END IF
         END DO
+
       END DO
       END SUBROUTINE MKBH
 
