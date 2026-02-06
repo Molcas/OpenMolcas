@@ -71,7 +71,7 @@ C ordinal number of each active orbital.
         ISYZ=MUL(IASYM(IY),IASYM(IZ))
         ISYM1=MUL(ISYZ,ISYCI)
         NSGM1=CIS%NCSF(ISYM1)
-        IF(NSGM1.EQ.0) GOTO 30
+        IF(NSGM1.EQ.0) CYCLE
         IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM1:=E(IY,IZ) PSI
@@ -91,11 +91,11 @@ CTEST      WRITE(*,*)' iyz, sgm(1):',iyz,sgm(1)
           END IF
         ELSE
 C Closed-shell or hi-spin case:
-          IF(IY.NE.IZ) GOTO 30
+          IF(IY.NE.IZ) CYCLE
           X=OCCNO*OP1(IY,IZ)
           SGM(1)=SGM(1)+X*CI(1)
         END IF
-        IF(NACTEL.EQ.1) GOTO 30
+        IF(NACTEL.EQ.1) CYCLE
         DO IX=IZ,NASHT
          IVMIN=1
          IF(IX.EQ.IZ) IVMIN=IY
@@ -106,7 +106,7 @@ C Closed-shell or hi-spin case:
           IVXYZ=(IVX*(IVX-1))/2+IYZ
           ISYM2=MUL(ISVX,ISYM1)
           NSGM2=CIS%NCSF(ISYM2)
-          IF(NSGM2.EQ.0) GOTO 20
+          IF(NSGM2.EQ.0) CYCLE
           IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM2:=E(IV,IX) SGM1
@@ -126,22 +126,22 @@ CTEST      WRITE(*,*)' ivxyz, sgm(1):',ivxyz,sgm(1)
             END IF
           ELSE
 C Closed-shell or hi-spin case:
-            IF(IY.NE.IZ) GOTO 20
-            IF(IV.NE.IX) GOTO 20
+            IF(IY.NE.IZ) CYCLE
+            IF(IV.NE.IX) CYCLE
             X=(OCCNO**2)*OP2(IVXYZ)
             SGM(1)=SGM(1)+X*CI(1)
           END IF
-          IF(NACTEL.EQ.2) GOTO 20
+          IF(NACTEL.EQ.2) CYCLE
           DO IU=IX,NASHT
            ITMIN=1
            IF(IU.EQ.IX) ITMIN=IV
            DO IT=ITMIN,NASHT
             ITU=IT+(IU-1)*NASHT
             ISTU=MUL(IASYM(IT),IASYM(IU))
-            IF(ISTU.NE.ISVXYZ) GOTO 10
+            IF(ISTU.NE.ISVXYZ) CYCLE
             ITUVXYZ=((ITU+1)*ITU*(ITU-1))/6+IVXYZ
             X=OP3(ITUVXYZ)
-            IF(ABS(X).LT.1.0D-15) GOTO 10
+            IF(ABS(X).LT.1.0D-15) CYCLE
 C Add non-zero 3-el contribution to SGM:
             IF(ISCF.EQ.0) THEN
               LEVT=IATOG(IT)
@@ -152,19 +152,16 @@ CTEST      WRITE(*,*)' op3:',X
 CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)
             ELSE
 C Closed-shell or hi-spin case:
-              IF(IT.NE.IU) GOTO 10
-              IF(IV.NE.IX) GOTO 10
-              IF(IY.NE.IZ) GOTO 10
+              IF(IT.NE.IU) CYCLE
+              IF(IV.NE.IX) CYCLE
+              IF(IY.NE.IZ) CYCLE
               X=(OCCNO**3)*OP3(ITUVXYZ)
               SGM(1)=SGM(1)+X*CI(1)
             END IF
-  10        CONTINUE
            END DO
           END DO
-  20      CONTINUE
          END DO
         END DO
-  30    CONTINUE
        END DO
       END DO
 
@@ -174,4 +171,4 @@ C Deallocate temporary arrays, if any:
         IF(NACTEL.GE.2) CALL mma_deallocate(SGM2)
       END IF
 
-      END
+      END SUBROUTINE HAM3
