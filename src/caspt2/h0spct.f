@@ -18,11 +18,11 @@
       use allgather_wrapper, only : allgather_R, allgather_I
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
+      use EQSOLV, only: IRHS,IVECX,IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NASUP,NISUP,NINDEP,CASES,ORBNAM
+      IMPLICIT NONE
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -30,15 +30,20 @@
 #endif
 
       CHARACTER(LEN=80) LINE
-      INTEGER, ALLOCATABLE, TARGET:: IDXBUF(:,:)
-      REAL*8, ALLOCATABLE, TARGET:: VALBUF(:,:)
+      INTEGER(KIND=IWP), ALLOCATABLE, TARGET:: IDXBUF(:,:)
+      REAL(KIND=WP), ALLOCATABLE, TARGET:: VALBUF(:,:)
 #ifdef _MOLCAS_MPP_
-      INTEGER, ALLOCATABLE, TARGET:: IDX_H(:,:)
-      REAL*8, ALLOCATABLE, TARGET:: VAL_H(:,:)
+      INTEGER(KIND=IWP), ALLOCATABLE, TARGET:: IDX_H(:,:)
+      REAL(KIND=WP), ALLOCATABLE, TARGET:: VAL_H(:,:)
+      INTEGER(KIND=IWP) myRank,mRHS,LD,mVEC,NA
 #endif
-      INTEGER, POINTER:: IDX(:,:)=>Null()
-      REAL*8, POINTER:: VAL(:,:)=>Null()
-      REAL*8, ALLOCATABLE:: BD(:), ID(:)
+      INTEGER(KIND=IWP), POINTER:: IDX(:,:)=>Null()
+      REAL(KIND=WP), POINTER:: VAL(:,:)=>Null()
+      REAL(KIND=WP), ALLOCATABLE:: BD(:), ID(:)
+      REAL(KIND=WP) COEF,DNOM,ECNT,RHS
+      INTEGER(KIND=IWP) I,IAEND,IAS,IASTA,IBUF,ICASE,IIEND,IIS,IISTA,
+     &                  IP,IQ,IR,IS,ISYM,JD,lg_RHS,lg_VEC,MAXBUF,NAS,
+     &                  NBUF,NIN,NIS
 
 C Write pertinent warnings and statistics for the energy
 C denominators, i.e. the spectrum of (H0(diag)-E0).
@@ -84,9 +89,9 @@ C Very long loop over symmetry and case:
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-          IF(NIS.EQ.0) GOTO 100
+          IF(NIS.EQ.0) CYCLE
           NIN=NINDEP(ISYM,ICASE)
-          IF(NIN.EQ.0) GOTO 100
+          IF(NIN.EQ.0) CYCLE
           LINE(1:12)=CASES(ICASE)//'    '
           WRITE(LINE(10:10),'(i1)') ISYM
 
@@ -234,8 +239,6 @@ C positioning.
 
           CALL mma_deallocate(BD)
           CALL mma_deallocate(ID)
-
- 100      CONTINUE
 
 C End of very long loop over symmetry and case:
         END DO
