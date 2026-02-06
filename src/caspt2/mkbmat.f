@@ -209,6 +209,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       SUBROUTINE MKBA_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
      &                    BA,iLo,iHi,jLo,jHi,LDA)
       use definitions, only: iwp, wp
+      use constants, only: Half, Two, Four
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use EQSOLV
@@ -252,12 +253,12 @@ C on entry, BA should contain SA!!
             IP1=MAX(IVZ,IXT)
             IP2=MIN(IVZ,IXT)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE-2.0D0*(FP(IP)-EU*PREF(IP))
+            VALUE=VALUE-Two*(FP(IP)-EU*PREF(IP))
             IF(IXABS.EQ.ITABS) THEN
               ID1=MAX(IVABS,IZABS)
               ID2=MIN(IVABS,IZABS)
               ID=(ID1*(ID1-1))/2+ID2
-              VALUE=VALUE+2.0D0*(FD(ID)-ETU*DREF(ID))
+              VALUE=VALUE+Two*(FD(ID)-ETU*DREF(ID))
             END IF
           END IF
 C Add  dyt ( -Fvuxz + Et*Gvuxz +dxu (-Fvz+(Et+Eu)*Gvz))
@@ -267,7 +268,7 @@ C Add  dyt ( -Fvuxz + Et*Gvuxz +dxu (-Fvz+(Et+Eu)*Gvz))
             IP1=MAX(IVU,IXZ)
             IP2=MIN(IVU,IXZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE-2.0D0*(FP(IP)-ET*PREF(IP))
+            VALUE=VALUE-Two*(FP(IP)-ET*PREF(IP))
             IF(IXABS.EQ.IUABS) THEN
               ID1=MAX(IVABS,IZABS)
               ID2=MIN(IVABS,IZABS)
@@ -282,7 +283,7 @@ C Add  dxu ( -Fvtyz + Eu*Gvtyz )
             IP1=MAX(IVT,IYZ)
             IP2=MIN(IVT,IYZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE-2.0D0*(FP(IP)-EU*PREF(IP))
+            VALUE=VALUE-Two*(FP(IP)-EU*PREF(IP))
           END IF
 C Add  2dtx ( Fvuyz-Et*Gvuyz )
           IF(ITABS.EQ.IXABS) THEN
@@ -291,15 +292,15 @@ C Add  2dtx ( Fvuyz-Et*Gvuyz )
             IP1=MAX(IVU,IYZ)
             IP2=MIN(IVU,IYZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+4.0D0*(FP(IP)-ET*PREF(IP))
+            VALUE=VALUE+Four*(FP(IP)-ET*PREF(IP))
           END IF
 CGG.Nov03
           IF (ITUV.eq.IXYZ) THEN
             IDT=(ITABS*(ITABS+1))/2
             IDU=(IUABS*(IUABS+1))/2
             IDV=(IVABS*(IVABS+1))/2
-            VALUE=VALUE+ipea_shift*0.5d0*BA(ISADR)*
-     &                  (2.0d0-DREF(IDV)+DREF(IDT)+DREF(IDU))
+            VALUE=VALUE+ipea_shift*Half*BA(ISADR)*
+     &                  (Two-DREF(IDV)+DREF(IDT)+DREF(IDU))
           ENDIF
 CGG End
           BA(ISADR)=VALUE
