@@ -83,8 +83,8 @@ C INTEGRAL BUFFERS:
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      integer(kind=iwp) NFIMO
-      real(kind=wp) FIMO(NFIMO), ERI(*), SCR(*)
+      integer(kind=iwp), intent(in)::IVEC, NFIMO
+      real(kind=wp), intent(inout):: FIMO(NFIMO), ERI(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 1 (VJTU).
@@ -152,7 +152,8 @@ C Put W on disk:
      &                            Deallocate_GA_Array
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ERI(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI(*), SCR(*)
 *#define _KIGEJ_
 *#define _KIGTJ_
 *#include "mig_kig.fh"
@@ -284,8 +285,8 @@ C  Put WM on disk
      &                            Deallocate_GA_Array
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      integer(kind=iwp) NFIMO
-      real(kind=wp) FIMO(NFIMO),ERI(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC, NFIMO
+      real(kind=wp), intent(inout):: FIMO(NFIMO),ERI(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for case 4 (ATVX).
@@ -376,9 +377,9 @@ C   Put W on disk
      &                            Deallocate_GA_Array
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      integer(kind=iwp) NFIMO
-      real(kind=wp) FIMO(NFIMO)
-      real(kind=wp) ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC, NFIMO
+      real(kind=wp), intent(inout):: FIMO(NFIMO)
+      real(kind=wp), intent(inout):: ERI1(*),ERI2(*), SCR(*)
 
       integer(kind=iwp) IOFF(8)
 
@@ -460,8 +461,10 @@ C   Put W on disk.
      &                            Deallocate_GA_Array
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IOFF1(8),IOFF2(8)
-      DIMENSION ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
+
+      integer(kind=iwp) IOFF1(8),IOFF2(8)
 *#define _KIGEJ_
 *#define _KIGTJ_
 *#include "mig_kig.fh"
@@ -559,7 +562,8 @@ C   Put WP and WM on disk.
      &                            Deallocate_GA_Array
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 8 and 9 (BVAT).
@@ -655,8 +659,10 @@ C   Put WM on disk
      &                            Deallocate_GA_Array
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IOFF1(8),IOFF2(8)
-      DIMENSION ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
+
+      integer(kind=iwp) IOFF1(8),IOFF2(8)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 10 and 11 (BJAT).
@@ -753,7 +759,8 @@ C   Put WP and WM on disk.
      &                            Deallocate_GA_Array
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
 *#define _KIGEJ_
 *#define _KIGTJ_
 *#include "mig_kig.fh"
