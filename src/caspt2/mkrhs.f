@@ -90,14 +90,14 @@ C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 1 (VJTU).
 
       NFNXT=0
-      DO 190 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NFIMOES=NFNXT
         NFNXT=NFNXT+(NORB(ISYM)*(NORB(ISYM)+1))/2
-        IF(NINDEP(ISYM,1).EQ.0) GOTO 190
+        IF(NINDEP(ISYM,1).EQ.0) CYCLE
           NAS=NTUV(ISYM)
           NIS=NISH(ISYM)
           NV=NAS*NIS
-          IF(NV.EQ.0) GOTO 190
+          IF(NV.EQ.0) CYCLE
 C Set up a matrix FWI(w,i)=FIMO(wi)
           NI=NISH(ISYM)
 
@@ -140,8 +140,7 @@ C Put W on disk:
           ICASE=1
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
           Call Deallocate_GA_Array(LW)
- 190    CONTINUE
-
+      END DO
 
       END SUBROUTINE MKRHSA
 
@@ -164,14 +163,14 @@ C number IVEC of LUSOLV for cases 2 and 3 (VJTI).
 
       SQ2=SQRT(2.0D00)
 C VJTI CASE:
-      DO 290 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,2)
         NINM=NINDEP(ISYM,3)
-        IF(NINP+NINM.EQ.0) GOTO 290
+        IF(NINP+NINM.EQ.0) CYCLE
           NASP=NTGEU(ISYM)
           NISP=NIGEJ(ISYM)
           NVP=NASP*NISP
-          IF(NVP.EQ.0) GOTO 290
+          IF(NVP.EQ.0) CYCLE
           NASM=NTGTU(ISYM)
           NISM=NIGTJ(ISYM)
           NVM=NASM*NISM
@@ -273,7 +272,7 @@ C  Put WM on disk
           END IF
           Call Deallocate_GA_Array(LWM)
           Call Deallocate_GA_Array(LWP)
- 290    CONTINUE
+      END DO
 
       END SUBROUTINE MKRHSB
 
@@ -292,14 +291,14 @@ C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for case 4 (ATVX).
 
       NFNXT=0
-      DO 390 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NFIMOES=NFNXT
         NFNXT=NFNXT+(NORB(ISYM)*(NORB(ISYM)+1))/2
-        IF(NINDEP(ISYM,4).EQ.0) GOTO 390
+        IF(NINDEP(ISYM,4).EQ.0) CYCLE
           NAS=NTUV(ISYM)
           NIS=NSSH(ISYM)
           NV=NAS*NIS
-          IF(NV.EQ.0) GOTO 390
+          IF(NV.EQ.0) CYCLE
 
 C   Allocate W. Put in W(tuv,a)=(at,uv) +
 C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
@@ -365,7 +364,7 @@ C   Put W on disk
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 
           Call Deallocate_GA_Array(LW)
- 390    CONTINUE
+      END DO
 
       END SUBROUTINE MKRHSC
 
@@ -386,8 +385,8 @@ C   Put W on disk
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 5, AIVX.
 
-      DO 490 ISYM=1,NSYM
-        IF(NINDEP(ISYM,5).EQ.0) GOTO 490
+      DO ISYM=1,NSYM
+        IF(NINDEP(ISYM,5).EQ.0) CYCLE
 C Set up offset table:
           IO=0
           DO ISYMA=1,NSYM
@@ -400,7 +399,7 @@ C   Allocate W; W subdivided into W1,W2.
           NAS=2*NAS1
           NIS=NISUP(ISYM,5)
           NV=NAS*NIS
-          IF(NV.EQ.0) GOTO 490
+          IF(NV.EQ.0) CYCLE
 C Compute W1(tu,ai)=(ai,tu) + FIMO(a,i)*delta(t,u)/NACTEL
 C Compute W2(tu,ai)=(ti,au)
           LW=Allocate_GA_Array(NV,'WD')
@@ -449,7 +448,7 @@ C   Put W on disk.
           ICASE=5
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
           Call Deallocate_GA_Array(LW)
- 490    CONTINUE
+      END DO
 
       END SUBROUTINE MKRHSD
 
@@ -475,8 +474,8 @@ C number IVEC of LUSOLV, for cases 6 and 7 (VJAI).
       SQI2=1.0D0/SQ2
       SQ3=SQRT(3.0D00)
       SQ32=SQ3*SQI2
-      DO 590 ISYM=1,NSYM
-        IF(NINDEP(ISYM,6)+NINDEP(ISYM,7).EQ.0) GOTO 590
+      DO ISYM=1,NSYM
+        IF(NINDEP(ISYM,6)+NINDEP(ISYM,7).EQ.0) CYCLE
 C Set up offset table:
           IO1=0
           IO2=0
@@ -492,7 +491,7 @@ C   Allocate W with parts WP,WM
           NISP=NISUP(ISYM,6)
           NISM=NISUP(ISYM,7)
           NVP=NAS*NISP
-          IF(NVP.EQ.0) GOTO 590
+          IF(NVP.EQ.0) CYCLE
           NVM=NAS*NISM
           LWP=Allocate_GA_Array(NVP,'WEP')
           LWM=Allocate_GA_Array(NVM,'WEM')
@@ -548,7 +547,7 @@ C   Put WP and WM on disk.
           END IF
           Call Deallocate_GA_Array(LWP)
           Call Deallocate_GA_Array(LWM)
- 590    CONTINUE
+      END DO
 
       END SUBROUTINE MKRHSE
 
@@ -569,16 +568,16 @@ C number IVEC of LUSOLV, for cases 8 and 9 (BVAT).
       SQ2=SQRT(2.0D00)
       SQI2=1.0D0/SQ2
 
-      DO 690 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,8)
         NINM=NINDEP(ISYM,9)
-        IF(NINP+NINM.EQ.0) GOTO 690
+        IF(NINP+NINM.EQ.0) CYCLE
           NASP=NASUP(ISYM,8)
           NISP=NISUP(ISYM,8)
           NASM=NASUP(ISYM,9)
           NISM=NISUP(ISYM,9)
           NVP=NASP*NISP
-          IF(NVP.EQ.0)GOTO 690
+          IF(NVP.EQ.0) CYCLE
           NVM=NASM*NISM
           LWP=Allocate_GA_Array(NVP,'WFP')
           IF(NVM.GT.0) LWM=Allocate_GA_Array(NVM,'WFM')
@@ -644,7 +643,7 @@ C   Put WM on disk
             CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
           IF(NVM.GT.0) Call Deallocate_GA_Array(LWM)
- 690    CONTINUE
+      END DO
 
       END SUBROUTINE MKRHSF
 
@@ -667,8 +666,8 @@ C number IVEC of LUSOLV, for cases 10 and 11 (BJAT).
       SQI2=1.0D0/SQ2
       SQ3=SQRT(3.0D00)
       SQ32=SQ3*SQI2
-      DO 790 ISYM=1,NSYM
-        IF(NINDEP(ISYM,10)+NINDEP(ISYM,11).EQ.0) GOTO 790
+      DO ISYM=1,NSYM
+        IF(NINDEP(ISYM,10)+NINDEP(ISYM,11).EQ.0) CYCLE
 C Set up offset table:
           IO1=0
           IO2=0
@@ -684,7 +683,7 @@ C   Allocate W with parts WP,WM
           NISP=NISUP(ISYM,10)
           NISM=NISUP(ISYM,11)
           NVP=NAS*NISP
-          IF(NVP.EQ.0) GOTO 790
+          IF(NVP.EQ.0) CYCLE
           NVM=NAS*NISM
           LWP=Allocate_GA_Array(NVP,'WGP')
           LWM=Allocate_GA_Array(NVM,'WGM')
@@ -742,7 +741,7 @@ C   Put WP and WM on disk.
           END IF
           Call Deallocate_GA_Array(LWP)
           Call Deallocate_GA_Array(LWM)
- 790    CONTINUE
+      END DO
 
       END SUBROUTINE MKRHSG
 
@@ -767,11 +766,11 @@ C number IVEC of LUSOLV, for cases 12 and 13 (BJAI).
       SQI2=1.0D0/SQ2
       SQ3=SQRT(3.0D00)
 
-      DO 890 ISYM=1,NSYM
+      DO ISYM=1,NSYM
           NASP=NAGEB(ISYM)
           NISP=NIGEJ(ISYM)
           NVP=NASP*NISP
-          IF(NVP.EQ.0) GOTO 890
+          IF(NVP.EQ.0) CYCLE
           NASM=NAGTB(ISYM)
           NISM=NIGTJ(ISYM)
           NVM=NASM*NISM
@@ -839,7 +838,7 @@ C With new norm., divide by /SQRT(12)
            CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LVM)
            Call Deallocate_GA_Array(LVM)
           END IF
- 890    CONTINUE
+      END DO
 
       END SUBROUTINE MKRHSH
 
