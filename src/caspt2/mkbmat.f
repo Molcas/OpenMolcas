@@ -2152,20 +2152,29 @@ CGG End
       END SUBROUTINE MKBE
 
       SUBROUTINE MKBF(DREF,NDREF,PREF,NPREF,FP)
-      USE SUPERINDEX
+      use definitions, only: iwp, wp
+      use constants, only: Half, Four
+      USE SUPERINDEX, only: MTU, MTGEU,KTU,KTGTU
       use caspt2_global, only:ipea_shift
       use caspt2_global, only:LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT,IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NINDEP,NTU,NTUES,NASHT,NTGEU,EASUM,
+     &                         NTGTU,NTGEUES,NTGTUES
+      IMPLICIT NONE
 
-      INTEGER NDREF,NPREF
-      REAL*8 PREF(NPREF),FP(NPREF),DREF(NDREF)
+      integer(kind=iwp), intent(in):: NDREF,NPREF
+      REAL(KIND=WP) PREF(NPREF),FP(NPREF),DREF(NDREF)
 
-      REAL*8, ALLOCATABLE:: BF(:), BFP(:), SDP(:),
-     &                      SP(:), BFM(:), SDM(:),
-     &                      SM(:)
+      REAL(KIND=WP), ALLOCATABLE:: BF(:), BFP(:), SDP(:),
+     &                             SP(:), BFM(:), SDM(:),
+     &                             SM(:)
+      INTEGER(KIND=IWP) ISYM,NINP,NAS,NBF,ITU,ITUABS,ITABS,IUABS,IXY,
+     &                  IXYABS,IXABS,IYABS,IBADR,ITX,IUY,IP1,IP2,IP,
+     &                  NASP,NBFP,NSP,IDSP,IDIAG,I,NASM,NBFM,NSM,IDSM,
+     &                  IBMADR,IBPADR,IDISK,IDT,IDU,INSM,ITGEU,ITGEUABS,
+     &                  ITGTU,IXGEY,IXGEYABS,IXGTY,IYX
+      REAL(KIND=WP) BTUXY,BTUYX
 
 C Set up the matrices BFP(tu,xy) and BFM(tu,xy)
 C Formulae used:
@@ -2197,7 +2206,7 @@ C Loop over superindex symmetry.
             IP1=MAX(ITX,IUY)
             IP2=MIN(ITX,IUY)
             IP=(IP1*(IP1-1))/2+IP2
-            BF(IBADR)=4.0D0*(FP(IP)-EASUM*PREF(IP))
+            BF(IBADR)=Four*(FP(IP)-EASUM*PREF(IP))
           END DO
         END DO
         NASP=NTGEU(ISYM)
@@ -2266,8 +2275,8 @@ CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              BFP(IBPADR)=BFP(IBPADR)+ipea_shift*0.5d0*
-     &                    (4.0d0-DREF(IDT)-DREF(IDU))*SDP(ITGEU)
+              BFP(IBPADR)=BFP(IBPADR)+ipea_shift*Half*
+     &                    (Four-DREF(IDT)-DREF(IDU))*SDP(ITGEU)
             ENDIF
 CGG End
             IF(ITABS.EQ.IUABS) CYCLE
@@ -2280,8 +2289,8 @@ CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              BFM(IBMADR)=BFM(IBMADR)+ipea_shift*0.5d0*
-     &                    (4.0d0-DREF(IDT)-DREF(IDU))*SDM(INSM)
+              BFM(IBMADR)=BFM(IBMADR)+ipea_shift*Half*
+     &                    (Four-DREF(IDT)-DREF(IDU))*SDM(INSM)
               INSM=INSM+1
             ENDIF
 
