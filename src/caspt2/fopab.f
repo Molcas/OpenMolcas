@@ -14,7 +14,8 @@
       use gugx, only: SGS, L2ACT, EXS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: NSYM,NORB,NISH,ISCF,NCONF,STSYM,NASH,
+     &                         NAES
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: NFIFA, IBRA, IKET
