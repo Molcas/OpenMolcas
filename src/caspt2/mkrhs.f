@@ -465,6 +465,7 @@ C   Put W on disk.
       real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
 
       integer(kind=iwp) IOFF1(8),IOFF2(8)
+      real(kind=wp) A, B
 *#define _KIGEJ_
 *#define _KIGTJ_
 *#include "mig_kig.fh"
@@ -556,21 +557,26 @@ C   Put WP and WM on disk.
 
       SUBROUTINE MKRHSF(IVEC,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
-      use EQSOLV
+      use constants, only:  half, One, two
+      USE SUPERINDEX, only: KTGEU,KAGEB,KTGTU,KAGTB
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NINDEP,NASUP,NISUP,MUL,NASH,NAES,
+     &                         NISH,NSSH,NSES,NORB,NTGEUES,NAGEBES,
+     &                         NTGTUES,NAGTBES
+      IMPLICIT NONE
       integer(kind=iwp), intent(in):: IVEC
       real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
 
+      real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2
+      integer(kind=iwp) ISYM,NINP,NINM,NASP,NISP,NASM,NISM,NVP,NVM,LWP,
+     &                  ISYMA,ISYMB,ISYMT,ISYMU,IT,ITABS,ITTOT,IU,IUABS,
+     &                  IUTOT,IA,IAABS,IATOT,IB,IBABS,IBTOT,IBUF,IWAP,
+     &                  IWIP,JWP,IWAM,IWIM,IWM,LWM,ICASE
+      real(kind=wp) A, B
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 8 and 9 (BVAT).
 
-
-      SQ2=SQRT(2.0D00)
-      SQI2=1.0D0/SQ2
 
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,8)
@@ -614,15 +620,15 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
                       IBTOT=IB+NISH(ISYMB)+NASH(ISYMB)
                       IF(IAABS.LT.IBABS) EXIT
                       IBUF=IATOT+NORB(ISYMA)*(IBTOT-1)
-                      A=0.5D0*(ERI1(IBUF)+ERI2(IBUF))
-                      IF(ITABS.EQ.IUABS) A=0.5D0*A
+                      A=Half*(ERI1(IBUF)+ERI2(IBUF))
+                      IF(ITABS.EQ.IUABS) A=Half*A
                       IWAP=KTGEU(ITABS,IUABS)-NTGEUES(ISYM)
                       IWIP=KAGEB(IAABS,IBABS)-NAGEBES(ISYM)
                       JWP=IWAP+NASP*(IWIP-1)
                       IF(IAABS.NE.IBABS) THEN
                         GA_Arrays(LWP)%A(JWP)=A
                         IF(ITABS.NE.IUABS) THEN
-                          B=0.5D0*(ERI1(IBUF)-ERI2(IBUF))
+                          B=Half*(ERI1(IBUF)-ERI2(IBUF))
                           IWAM=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
                           IWIM=KAGTB(IAABS,IBABS)-NAGTBES(ISYM)
                           IWM=IWAM+NASM*(IWIM-1)
