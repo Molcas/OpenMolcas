@@ -151,6 +151,7 @@ C Put W on disk:
 
       SUBROUTINE MKRHSB(IVEC,ERI,SCR)
       use definitions, only: iwp, wp
+      use constants, only: Quart, Half, Two
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
@@ -159,6 +160,8 @@ C Put W on disk:
       IMPLICIT REAL*8 (A-H,O-Z)
       integer(kind=iwp), intent(in):: IVEC
       real(kind=wp), Intent(inout):: ERI(*), SCR(*)
+
+      real(kind=wp), parameter:: SQ2=SQRT(Two)
 *#define _KIGEJ_
 *#define _KIGTJ_
 *#include "mig_kig.fh"
@@ -166,8 +169,6 @@ C Put W on disk:
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for cases 2 and 3 (VJTI).
 
-
-      SQ2=SQRT(2.0D00)
 C VJTI CASE:
       DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,2)
@@ -211,7 +212,7 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                     DO IJ=1,NISH(ISYMJ)
                       IJABS=IJ+NIES(ISYMJ)
                       IBUF=II+NORB(ISYMI)*(IJ-1)
-                      VALUE=0.5D0*ERI(IBUF)
+                      VALUE=Half*ERI(IBUF)
                       IF(IIABS.GE.IJABS) THEN
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
@@ -244,7 +245,7 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                     DO IJ=1,NISH(ISYMJ)
                       IJABS=IJ+NIES(ISYMJ)
                       IBUF=II+NORB(ISYMI)*(IJ-1)
-                      VALUE=0.25D0*ERI(IBUF)
+                      VALUE=Quart*ERI(IBUF)
                       IF(IIABS.GE.IJABS) THEN
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
