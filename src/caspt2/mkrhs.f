@@ -284,14 +284,14 @@ C  Put WM on disk
      &                            Deallocate_GA_Array
       use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NSSH,MUL,NASH,NISH,
      &                         NAES,NSSH,NTUVES,NASHT,NACTEL
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC, NFIMO
       real(kind=wp), intent(inout):: FIMO(NFIMO),ERI(*), SCR(*)
 
       integer(kind=iwp) NFNXT,ISYM,NFIMOES,NAS,NIS,NV,LW,ISYMT,
      &                  ISYMUV,ISYMU,ISYMV,IU,IUTOT,IUABS,IV,IVTOT,
      &                  IVABS,IA,IATOT,IT,ITTOT,ITABS,IW1,IW2,IW,IBUF,
-     &                  IFIMO,IYABS,IYYW,IYYW
+     &                  IFIMO,IYABS,IYYW,IYYWA,ICASE
       real(kind=wp) SUM,ONEADD
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for case 4 (ATVX).
