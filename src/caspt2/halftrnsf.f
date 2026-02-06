@@ -54,21 +54,23 @@
       use symmetry_info, only: MulD2h=>Mul
       use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas,
      &                    nDimRS, nnBstR, nSym
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
       Integer(kind=iwp), intent(inout):: irc
       Integer(kind=iwp), intent(in):: lscr
       Real(kind=wp), intent(inout)::  Scr(lscr)
-      Integer(kind=iwp) jVref,JVEC1,JNUM,NUMV,JSYM,JREDC,NCMO
-      Real(kind=wp) CMO(NCMO)
+      Integer(kind=iwp), intent(in):: jVref,JVEC1,JNUM,NUMV,JSYM,NCMO
+      Integer(kind=iwp), intent(inout):: JREDC
+      Real(kind=wp), intent(in):: CMO(NCMO)
       Integer(kind=iwp), intent(in):: ISTART(8),NUSE(8),ipChoT(8),nWork
       REAL(kind=wp), intent(out):: Work(nWork)
 
       Integer(kind=iwp) IOFFC(8)
-* Integer function cho_isao
       Integer(kind=iwp), External :: cho_isao
-
 * iLoc = 3 means 'use scratch location in reduced index arrays'
-      iLoc = 3
+      Integer(kind=iwp), parameter:: iLoc = 3
+      Integer(kind=iwp) IOC,ISYM,iSymp,nElem,NREAD,JVEC,JVTRNS,JRED,
+     &                  iag,ias,ibg,ibs,iRab,ISCA,ISCB,iSyma,iSymb,
+     &                  jRab, kchot,kRab,kscr,NBA,NBB,NUSEA,NUSEB
 
 * Offset counter into CMO array:
       IOC=0
