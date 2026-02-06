@@ -143,8 +143,7 @@ C Put W on disk:
  190    CONTINUE
 
 
-      RETURN
-      END
+      END SUBROUTINE MKRHSA
 
       SUBROUTINE MKRHSB(IVEC,ERI,SCR)
       use definitions, only: iwp, wp
@@ -276,9 +275,7 @@ C  Put WM on disk
           Call Deallocate_GA_Array(LWP)
  290    CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSB
 
       SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,SCR)
       use definitions, only: iwp, wp
@@ -370,9 +367,7 @@ C   Put W on disk
           Call Deallocate_GA_Array(LW)
  390    CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSC
 
       SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
@@ -456,9 +451,7 @@ C   Put W on disk.
           Call Deallocate_GA_Array(LW)
  490    CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSD
 
       SUBROUTINE MKRHSE(IVEC,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
@@ -557,9 +550,7 @@ C   Put WP and WM on disk.
           Call Deallocate_GA_Array(LWM)
  590    CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSE
 
       SUBROUTINE MKRHSF(IVEC,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
@@ -655,9 +646,7 @@ C   Put WM on disk
           IF(NVM.GT.0) Call Deallocate_GA_Array(LWM)
  690    CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSF
 
       SUBROUTINE MKRHSG(IVEC,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
@@ -755,9 +744,7 @@ C   Put WP and WM on disk.
           Call Deallocate_GA_Array(LWM)
  790    CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSG
 
       SUBROUTINE MKRHSH(IVEC,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
@@ -854,9 +841,7 @@ C With new norm., divide by /SQRT(12)
           END IF
  890    CONTINUE
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSH
 
       SUBROUTINE MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 CSVC: special routine to save the RHS array. MKRHS works in serial, so
