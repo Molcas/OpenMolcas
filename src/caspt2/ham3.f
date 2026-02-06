@@ -9,18 +9,23 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
+      use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS, CIS, EXS
       use caspt2_module
       use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
-      DIMENSION CI(*),SGM(*)
+      integer(kind=iwp), intent(in):: NOP2,NOP3
+      real(kind=wp) , intent(in)::OP0
+      real(kind=wp), intent(in):: OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+      real(kind=wp), intent(in):: CI(*)
+      real(kind=wp), intent(inout):: SGM(*)
 C Local arrays:
-      DIMENSION IATOG(MXLEV)
-      Real*8, Allocatable:: SGM1(:), SGM2(:)
-      Integer nLev
+      integer(kind=iwp) IATOG(MXLEV)
+      real(kind=wp), Allocatable:: SGM1(:), SGM2(:)
+      Integer(kind=iwp) nLev
+
       nLev = SGS%nLev
 
 C Purpose: Compute and add a contribution to SGM which is
@@ -37,9 +42,7 @@ C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 C NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
 
       IF(NCONF.EQ.0) RETURN
-      IF(ABS(OP0).GT.1.0D-15) THEN
-        CALL DAXPY_(NCONF,OP0,CI,1,SGM,1)
-      END IF
+      IF(ABS(OP0).GT.1.0D-15) CALL DAXPY_(NCONF,OP0,CI,1,SGM,1)
       IF(NACTEL.EQ.0) RETURN
 
 C Unless this is a special-case wave function, reserve space
@@ -85,8 +88,6 @@ C Add non-zero 1-el contribution to SGM:
             X=OP1(IY,IZ)
             IF(ABS(X).GT.1.0D-15) THEN
               CALL DAXPY_(NCONF,X,SGM1,1,SGM,1)
-CTEST      WRITE(*,*)' op1:',X
-CTEST      WRITE(*,*)' iyz, sgm(1):',iyz,sgm(1)
             END IF
           END IF
         ELSE
@@ -120,8 +121,6 @@ C Add non-zero 2-el contribution to SGM:
               X=OP2(IVXYZ)
               IF(ABS(X).GT.1.0D-15) THEN
                 CALL DAXPY_(NCONF,X,SGM2,1,SGM,1)
-CTEST      WRITE(*,*)' op2:',X
-CTEST      WRITE(*,*)' ivxyz, sgm(1):',ivxyz,sgm(1)
               END IF
             END IF
           ELSE
@@ -148,8 +147,6 @@ C Add non-zero 3-el contribution to SGM:
               LEVU=IATOG(IU)
               CALL SIGMA1(SGS,CIS,EXS,
      &                    LEVT,LEVU,X,ISYM2,SGM2,SGM)
-CTEST      WRITE(*,*)' op3:',X
-CTEST      WRITE(*,*)' ituvxyz, sgm(1):',ituvxyz,sgm(1)
             ELSE
 C Closed-shell or hi-spin case:
               IF(IT.NE.IU) CYCLE
