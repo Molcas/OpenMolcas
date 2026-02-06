@@ -455,16 +455,23 @@ C   Put W on disk.
 
       SUBROUTINE MKRHSE(IVEC,ERI1,ERI2,SCR)
       use definitions, only: iwp, wp
-      USE SUPERINDEX
-      use EQSOLV
+      use constants, only: half, One, two, three
+      USE SUPERINDEX, only: KIGEJ, KIGTJ
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NINDEP,NISUP,MUL,NASH,NISH,NSSH,
+     &                         NORB,NIGEJ,NIES,NIGEJES,NIGTJES,NIGTJ
+      IMPLICIT NONE
       integer(kind=iwp), intent(in):: IVEC
       real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
 
       integer(kind=iwp) IOFF1(8),IOFF2(8)
+      real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2,
+     &                           SQ3=SQRT(Three), SQ32=SQ3*SQI2
+      integer(kind=iwp) ISYM,IO1,IO2,NAS,NISP,NISM,NVP,NVM,LWP,LWM,
+     &                  ISYMA,ISYMI,IT,ITTOT,II,IA,IGEJ,IGTJ,IIABS,
+     &                  IATOT,IBUF,IWA,IWIP,JWP,IJ,IJABS,ISYMIJ,ISYMJ,
+     &                  IWIM,IWM,ICASE
       real(kind=wp) A, B
 *#define _KIGEJ_
 *#define _KIGTJ_
@@ -474,10 +481,6 @@ C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 6 and 7 (VJAI).
 
 
-      SQ2=SQRT(2.0D00)
-      SQI2=1.0D0/SQ2
-      SQ3=SQRT(3.0D00)
-      SQ32=SQ3*SQI2
       DO ISYM=1,NSYM
         IF(NINDEP(ISYM,6)+NINDEP(ISYM,7).EQ.0) CYCLE
 C Set up offset table:
@@ -534,7 +537,7 @@ C With new normalisation, divide by /SQRT(6)
                         IWM=IWA+NAS*(IWIM-1)
                         GA_Arrays(LWM)%A(IWM)=SQ32*B
                       ELSE
-                        GA_Arrays(LWP)%A(JWP)=0.5D0*A
+                        GA_Arrays(LWP)%A(JWP)=half*A
                       END IF
                     END DO
                   END DO
