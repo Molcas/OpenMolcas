@@ -50,16 +50,18 @@
 *
 *********************************************************
       use definitions, only: iwp, wp, u6
+      use constants, only: Zero
       use symmetry_info, only: MulD2h=>Mul
       use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas,
      &                    nDimRS, nnBstR, nSym
       Implicit Real*8 (a-h,o-z)
-      Integer(kind=iwp) irc, lscr
-      Real(kind=wp)  Scr(lscr)
+      Integer(kind=iwp), intent(inout):: irc
+      Integer(kind=iwp), intent(in):: lscr
+      Real(kind=wp), intent(inout)::  Scr(lscr)
       Integer(kind=iwp) jVref,JVEC1,JNUM,NUMV,JSYM,JREDC,NCMO
       Real(kind=wp) CMO(NCMO)
-      Integer(kind=iwp) ISTART(8),NUSE(8),ipChoT(8),nWork
-      REAL(kind=wp) Work(nWork)
+      Integer(kind=iwp), intent(in):: ISTART(8),NUSE(8),ipChoT(8),nWork
+      REAL(kind=wp), intent(out):: Work(nWork)
 
       Integer(kind=iwp) IOFFC(8)
 * Integer function cho_isao
@@ -79,7 +81,7 @@
          IF (nUse(iSymp).ne.0) THEN
             iSymb = muld2h(JSYM,iSymp)
             nElem=nUse(iSymp)*nBas(iSymb)*NUMV
-            Call dCopy_(nElem,[0.0D0],0,Work(ipChoT(iSymp)),1)
+            Call dCopy_(nElem,[Zero],0,Work(ipChoT(iSymp)),1)
          ENDIF
       End Do
 
