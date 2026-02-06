@@ -20,6 +20,7 @@
 * contravariant components. 980928, P-A Malmqvist
 *--------------------------------------------
       SUBROUTINE MKRHS(IVEC)
+      use definitions, only: iwp, wp, u6
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
       use PrintLevel, only: verbose
@@ -28,9 +29,9 @@
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NERI, NFIMO
-      REAL*8, ALLOCATABLE, TARGET:: ERI(:)
-      REAL*8, POINTER:: ERI0(:), ERI1(:), ERI2(:), SCR(:)
+      integer(kind=iwp) NERI, NFIMO
+      real(kind=wp), ALLOCATABLE, TARGET:: ERI(:)
+      real(kind=wp), POINTER:: ERI0(:), ERI1(:), ERI2(:), SCR(:)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV. The coupling matrix elements from the
@@ -40,7 +41,7 @@ C This is the RHS vector in contravariant representation.
 
 
       IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,'(1X,A)') ' Using conventional MKRHS algorithm'
+        WRITE(u6,'(1X,A)') ' Using conventional MKRHS algorithm'
       END IF
 
 C INTEGRAL BUFFERS:
@@ -72,6 +73,7 @@ C INTEGRAL BUFFERS:
       END SUBROUTINE MKRHS
 
       SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,SCR)
+      use definitions, only: iwp, wp, u6
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
@@ -80,8 +82,8 @@ C INTEGRAL BUFFERS:
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER NFIMO
-      REAL*8 FIMO(NFIMO), ERI(*), SCR(*)
+      integer(kind=iwp) NFIMO
+      real(kind=wp) FIMO(NFIMO), ERI(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 1 (VJTU).
@@ -144,6 +146,7 @@ C Put W on disk:
       END
 
       SUBROUTINE MKRHSB(IVEC,ERI,SCR)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
@@ -277,14 +280,15 @@ C  Put WM on disk
       END
 
       SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,SCR)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NFIMO
-      REAL*8 FIMO(NFIMO),ERI(*), SCR(*)
+      integer(kind=iwp) NFIMO
+      real(kind=wp) FIMO(NFIMO),ERI(*), SCR(*)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for case 4 (ATVX).
@@ -370,17 +374,18 @@ C   Put W on disk
       END
 
       SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NFIMO
-      REAL*8 FIMO(NFIMO)
-      REAL*8 ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp) NFIMO
+      real(kind=wp) FIMO(NFIMO)
+      real(kind=wp) ERI1(*),ERI2(*), SCR(*)
 
-      INTEGER IOFF(8)
+      integer(kind=iwp) IOFF(8)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 5, AIVX.
@@ -455,6 +460,7 @@ C   Put W on disk.
       END
 
       SUBROUTINE MKRHSE(IVEC,ERI1,ERI2,SCR)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
@@ -555,6 +561,7 @@ C   Put WP and WM on disk.
       END
 
       SUBROUTINE MKRHSF(IVEC,ERI1,ERI2,SCR)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
@@ -652,6 +659,7 @@ C   Put WM on disk
       END
 
       SUBROUTINE MKRHSG(IVEC,ERI1,ERI2,SCR)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
@@ -751,6 +759,7 @@ C   Put WP and WM on disk.
       END
 
       SUBROUTINE MKRHSH(IVEC,ERI1,ERI2,SCR)
+      use definitions, only: iwp, wp
       USE SUPERINDEX
       use EQSOLV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
