@@ -2313,17 +2313,22 @@ CGG End
       END SUBROUTINE MKBF
 
       SUBROUTINE MKBG(DREF,NDREF,FD)
+      use definitions, only: iwp, wp
+      use constants, only: half, two
       use caspt2_global, only:ipea_shift
       use caspt2_global, only:LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT,IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NINDEP,NASH,NAES,EASUM
+      IMPLICIT NONE
 
-      INTEGER NDREF
-      REAL*8 DREF(NDREF),FD(NDREF)
+      INTEGER(KIND=IWP), INTENT(IN):: NDREF
+      REAL(KIND=WP), INTENT(IN):: DREF(NDREF),FD(NDREF)
 
-      REAL*8, ALLOCATABLE:: BG(:), S(:), SD(:)
+      REAL(KIND=WP), ALLOCATABLE:: BG(:), S(:), SD(:)
+      INTEGER(KIND=IWP) ISYM,NINP,NINM,NAS,NBG,NS,IDS,IDIAG,I,IT,ITABS,
+     &                  IX,IXABS,IBG,ID,IDISK,IDT
+      REAL(KIND=WP) VALUE
 
 C     Set up the matrix BG(t,x)
 C     Formula used:
@@ -2363,7 +2368,7 @@ CGG.Nov03
             IF (IT.eq.IX) THEN
               IDT=(ITABS*(ITABS+1))/2
               VALUE = VALUE +
-     &                ipea_shift*0.5d0*(2.0d0-DREF(IDT))*SD(IT)
+     &                ipea_shift*half*(two-DREF(IDT))*SD(IT)
             ENDIF
             BG(IBG)=VALUE
 C           BG(BG)=FD(ID)-EASUM*DREF(ID)
