@@ -2089,17 +2089,21 @@ CGG End
 
       SUBROUTINE MKBE(DREF,NDREF,FD)
       use definitions, only: iwp, wp
+      use constants, only: Half, Two
       use caspt2_global, only:ipea_shift
       use caspt2_global, only:LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDBMAT, IDSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NINDEP,NASH,NAES,EPSA,EASUM
+      IMPLICIT NONE
 
-      INTEGER(KIND=IWP) NDREF
-      REAL(KIND=WP) DREF(NDREF),FD(NDREF)
+      INTEGER(KIND=IWP), INTENT(IN):: NDREF
+      REAL(KIND=WP), INTENT(IN):: DREF(NDREF),FD(NDREF)
 
       Real(KIND=WP), ALLOCATABLE:: BE(:), S(:), SD(:)
+      INTEGER(KIND=IWP) ISYM,NINP,NINM,NAS,NBE,NS,IDS,IDIAG,I,IT,ITABS,
+     &                  IX,IXABS,IBE,ID,IDISK,IDT
+      Real(KIND=WP) VALUE,ET,EX
 
 C Set up the matrix BE(t,x)
 C Formula used:
@@ -2139,12 +2143,12 @@ CGG End
             ID=(ITABS*(ITABS-1))/2+IXABS
             VALUE=-FD(ID)+(EASUM-EX-ET)*DREF(ID)
             IF(ITABS.EQ.IXABS) THEN
-              VALUE=VALUE+2.0D0*EX
+              VALUE=VALUE+Two*EX
             END IF
 CGG.Nov03
             IF (IT.eq.IX) THEN
               IDT=(ITABS*(ITABS+1))/2
-              VALUE=VALUE+ipea_shift*0.5d0*DREF(IDT)*SD(IT)
+              VALUE=VALUE+ipea_shift*Half*DREF(IDT)*SD(IT)
             ENDIF
 CGG End
             BE(IBE)=VALUE
