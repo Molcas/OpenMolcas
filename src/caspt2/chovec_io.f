@@ -155,7 +155,7 @@ C as this is how they are used to compute the integrals for RHS.
 #include "mafdecls.fh"
 #endif
       INTEGER(KIND=IWP), INTENT(IN):: ICASE, nCHOBUF
-      REAL*8, INTENT(OUT):: CHOBUF(nCHOBUF)
+      REAL*8, INTENT(INOUT):: CHOBUF(nCHOBUF)
 
       INTEGER(KIND=IWP) :: I,J,IOFF,IDISK
       INTEGER(KIND=IWP) :: IB,IBSTA,IBEND,IBOFF
@@ -220,7 +220,7 @@ C as this is how they are used to compute the integrals for RHS.
       IMPLICIT NONE
 #include "warnings.h"
       INTEGER(KIND=IWP), INTENT(IN):: ICASE,ISYQ,JSYM,IB
-      REAL(KIND=WP), INTENT(IN):: CHOBUF(*)
+      REAL(KIND=WP), INTENT(INOUT):: CHOBUF(*)
 
       INTEGER(KIND=IWP) NPQ, JNUM, IDISK
 #ifdef _DEBUGPRINT_
