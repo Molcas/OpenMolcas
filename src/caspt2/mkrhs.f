@@ -404,28 +404,28 @@ C Compute W1(tu,ai)=(ai,tu) + FIMO(a,i)*delta(t,u)/NACTEL
 C Compute W2(tu,ai)=(ti,au)
           LW=Allocate_GA_Array(NV,'WD')
           NFSUM=0
-          DO 410 ISYMI=1,NSYM
+          DO ISYMI=1,NSYM
             NFIMOES=NFSUM
             NFSUM=NFSUM+(NORB(ISYMI)*(NORB(ISYMI)+1))/2
             ISYMA=MUL(ISYMI,ISYM)
-            DO 411 ISYMU=1,NSYM
+            DO ISYMU=1,NSYM
               ISYMT=MUL(ISYMU,ISYM)
-              DO 412 II=1,NISH(ISYMI)
-                DO 413 IU=1,NASH(ISYMU)
+              DO II=1,NISH(ISYMI)
+                DO IU=1,NASH(ISYMU)
                   IUABS=IU+NAES(ISYMU)
                   IUTOT=IU+NISH(ISYMU)
                   CALL EXCH(ISYMA,ISYMI,ISYMT,ISYMU,
      &                      II,IUTOT,ERI1,SCR)
                   CALL EXCH(ISYMT,ISYMI,ISYMA,ISYMU,
      &                      II,IUTOT,ERI2,SCR)
-                  DO 414 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
                     ONEADD=0.0D0
                     IF(ISYM.EQ.1) THEN
                       FAI=FIMO(NFIMOES+(IATOT*(IATOT-1))/2+II)
                       ONEADD=FAI/DBLE(MAX(1,NACTEL))
                     END IF
-                    DO 415 IT=1,NASH(ISYMT)
+                    DO IT=1,NASH(ISYMT)
                       ITABS=IT+NAES(ISYMT)
                       ITTOT=IT+NISH(ISYMT)
                       IWA=KTU(ITABS,IUABS)-NTUES(ISYM)
@@ -438,12 +438,12 @@ C Compute W2(tu,ai)=(ti,au)
                       IF(ITABS.EQ.IUABS) WAITU=WAITU+ONEADD
                       GA_Arrays(LW)%A(IW1)=WAITU
                       GA_Arrays(LW)%A(IW2)=ERI2(IBUF2)
- 415                CONTINUE
- 414              CONTINUE
- 413            CONTINUE
- 412          CONTINUE
- 411        CONTINUE
- 410      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put W on disk.
           ICASE=5
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
