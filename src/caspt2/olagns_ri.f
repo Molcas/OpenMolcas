@@ -2016,6 +2016,7 @@
       implicit none
 
 #include "intent.fh"
+#include "macros.fh"
 
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NC, NL,
      &  NAJCL, NCHO
@@ -2024,7 +2025,6 @@
      &  Cho_Ket(NC,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO),
      &  Cho_KetD(NC,NL,NCHO)
-
 
       ISYJ = ISYI
       ISYL = ISYK
@@ -2040,8 +2040,8 @@
       NISP=NIGEJ(ISYM)
       NWHP=NASP*NISP
       IF(NWHP == 0) Return
-      if (nwhp == 0) write (u6,*) cho_bra(1,1,1) !! avoid unused tenta
-      if (nwhp == 0) write (u6,*) cho_ketd(1,1,1) !! avoid unused tenta
+!     if (nwhp == 0) write (u6,*) cho_bra(1,1,1) !! avoid unused tenta
+!     if (nwhp == 0) write (u6,*) cho_ketd(1,1,1) !! avoid unused tenta
       NASM=NAGTB(ISYM)
       NISM=NIGTJ(ISYM)
       NWHM=NASM*NISM
@@ -2284,6 +2284,9 @@
         end if
 #endif
       end if
+
+      unused_var(cho_bra)
+      unused_var(cho_ketd)
 
       Return
 

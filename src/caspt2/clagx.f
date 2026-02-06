@@ -2931,6 +2931,8 @@
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
+#else
+#include "macros.fh"
 #endif
 
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
@@ -2956,8 +2958,7 @@
 !     In both cases, BDER and SDER are square
 !
       ISADR=0
-      if (isadr /= 0) write (u6,*) lda
-      if (isadr /= 0) write (u6,*) lg_S
+!     if (isadr /= 0) write (u6,*) lg_S
       NROW = 0
       iLoS = 0
       jLoS = 0
@@ -2968,6 +2969,8 @@
         NROW = jHiS-jLoS+1 !! = NAS
         CALL GA_GET(lg_S,jLoS,jHiS,iLoS,iHiS,SA2,NROW)
       end if
+#else
+      unused_var(lg_S)
 #endif
       DO IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
@@ -3738,6 +3741,8 @@
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
+#else
+#include "macros.fh"
 #endif
 
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
@@ -3762,8 +3767,7 @@
 !     In both cases, BDER and SDER are square
 !
       ISADR=0
-      if (isadr /= 0) write (u6,*) ldc
-      if (isadr /= 0) write (u6,*) lg_S
+!     if (isadr /= 0) write (u6,*) lg_S
       NROW = 0
       iLoS = 0
       jLoS = 0
@@ -3774,6 +3778,8 @@
         NROW = jHiS-jLoS+1 !! = NAS
         CALL GA_GET(lg_S,jLoS,jHiS,iLoS,iHiS,SC2,NROW)
       end if
+#else
+      unused_var(lg_S)
 #endif
       DO IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
