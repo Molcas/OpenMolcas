@@ -13,8 +13,8 @@
       use constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS, CIS, EXS
-      use caspt2_module
-      use pt2_guga
+      use caspt2_module, only: NSYM,NASHT,ISCF,NACTEL,NCONF,IASYM,MUL
+      use pt2_guga, only: MxLev, MxCI
       IMPLICIT NONE
 
       integer(kind=iwp), intent(in):: NOP2,NOP3,ISYCI
