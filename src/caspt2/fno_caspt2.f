@@ -33,7 +33,7 @@
       Integer(kind=iwp), intent(inout):: nSsh(nSym),nDel(nSym)
       real(kind=wp), intent(in)::  vfrac
       Integer(kind=iwp), intent(inout):: IFQCAN
-      real(kind=wp), intent(out)::  EMP2
+      real(kind=wp), intent(inout)::  EMP2
       Logical(kind=iwp), intent(in):: DoMP2
       Integer(kind=iwp), intent(in):: NCMO
       real(kind=wp), intent(inout):: CMO(NCMO)
