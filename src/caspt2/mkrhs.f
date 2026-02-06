@@ -585,30 +585,30 @@ C   Let W(t,u,ab)=(aubt)
 C   WP(tu,ab)=(W(t,u,ab)+W(u,t,ab))*(1-Kron(t,u)/2) /2
 C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ab))
 C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
-          DO 640 ISYMA=1,NSYM
+          DO ISYMA=1,NSYM
             ISYMB=MUL(ISYMA,ISYM)
-            IF(ISYMA.LT.ISYMB) GOTO 640
-            DO 630 ISYMT=1,NSYM
+            IF(ISYMA.LT.ISYMB) CYCLE
+            DO ISYMT=1,NSYM
               ISYMU=MUL(ISYMT,ISYM)
-              IF(ISYMT.LT.ISYMU) GOTO 630
-              DO 620 IT=1,NASH(ISYMT)
+              IF(ISYMT.LT.ISYMU) CYCLE
+              DO IT=1,NASH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
                 ITTOT=IT+NISH(ISYMT)
-                DO 610 IU=1,NASH(ISYMU)
+                DO IU=1,NASH(ISYMU)
                   IUABS=IU+NAES(ISYMU)
                   IUTOT=IU+NISH(ISYMU)
-                  IF(ITABS.LT.IUABS) GOTO 620
+                  IF(ITABS.LT.IUABS) EXIT
                   CALL EXCH(ISYMA,ISYMU,ISYMB,ISYMT,
      &                      IUTOT,ITTOT,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMT,ISYMB,ISYMU,
      &                      ITTOT,IUTOT,ERI2,SCR)
-                  DO 611 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IAABS=IA+NSES(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    DO 600 IB=1,NSSH(ISYMB)
+                    DO IB=1,NSSH(ISYMB)
                       IBABS=IB+NSES(ISYMB)
                       IBTOT=IB+NISH(ISYMB)+NASH(ISYMB)
-                      IF(IAABS.LT.IBABS) GOTO 611
+                      IF(IAABS.LT.IBABS) EXIT
                       IBUF=IATOT+NORB(ISYMA)*(IBTOT-1)
                       A=0.5D0*(ERI1(IBUF)+ERI2(IBUF))
                       IF(ITABS.EQ.IUABS) A=0.5D0*A
@@ -627,12 +627,12 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
                       ELSE
                         GA_Arrays(LWP)%A(JWP)=SQI2*A
                       END IF
- 600                CONTINUE
- 611              CONTINUE
- 610            CONTINUE
- 620          CONTINUE
- 630        CONTINUE
- 640      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put WP on disk
           ICASE=8
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
