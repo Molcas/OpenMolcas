@@ -154,7 +154,7 @@
       use caspt2_global, only: imag_shift, iVecL,
      &                         sigma_p_epsilon, LUSBT,
      &                         LUSOLV, ipea_shift
-      use Constants, only: Zero, One, Half, Two, Four
+      use Constants, only: Zero, Half, Two, Four
       use EQSOLV, only: IDSMAT, IDBMAT, IRHS, IVECX, IVECR, IVECW
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, byte
@@ -1121,6 +1121,7 @@
 
       use caspt2_global, only: iVecL
       use caspt2_module, only: MAXIT, JSTATE
+      use Constants, only: One
 
       implicit none
 
@@ -2092,9 +2093,9 @@
 
       IMPLICIT NONE
 
+      integer(kind=iwp), intent(in) :: nLev
       real(kind=wp), intent(in) :: CI(MXCI), RDMEIG(NLEV,NLEV)
       real(kind=wp), intent(inout) :: SGM1(MXCI), CLag(nConf)
-      integer(kind=iwp), intent(in) :: nLev
 
       logical(kind=iwp), external :: RSV_TSK
       integer(kind=iwp), allocatable :: TASK(:,:)
@@ -2922,7 +2923,7 @@
       use caspt2_global, only:ipea_shift
       use caspt2_module, only: NASHT, EASUM, EPSA, NTUVES
       use Constants, only: Zero, Half, Two
-      use definitions, only: wp, iwp, u6
+      use definitions, only: wp, iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs
 #endif
@@ -2958,7 +2959,6 @@
 !     In both cases, BDER and SDER are square
 !
       ISADR=0
-!     if (isadr /= 0) write (u6,*) lg_S
       NROW = 0
       iLoS = 0
       jLoS = 0
@@ -3731,8 +3731,8 @@
       USE SUPERINDEX, only: MTUV
       use caspt2_global, only:ipea_shift
       use caspt2_module, only: NASHT, EASUM, EPSA, NTUVES
-      use Constants, only: Zero, Half, Two, Four
-      use definitions, only: wp, iwp, u6
+      use Constants, only: Zero, Half, Four
+      use definitions, only: wp, iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs
 #endif
@@ -3767,7 +3767,6 @@
 !     In both cases, BDER and SDER are square
 !
       ISADR=0
-!     if (isadr /= 0) write (u6,*) lg_S
       NROW = 0
       iLoS = 0
       jLoS = 0
@@ -4394,10 +4393,11 @@
       real(kind=wp),allocatable :: KET(:)
 
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
-      integer(kind=iwp) :: nSh(8,3), nFroI, nIshI, nCorI, nBasI, iAshI,
+      integer(kind=iwp) :: nFroI, nIshI, nCorI, nBasI, iAshI,
      &  jAshI, iSymA, iSymI, iSymB, iSymJ, JSYM, IB, IB1, IB2, MXBGRP,
      &  IBGRP, NBGRP, NCHOBUF, MXPIQK, NADDBUF, IBSTA, IBEND, NV, nKET,
      &  kAshI, lAshI, iT, iU, iTU, iV, iX, iVX, iOrb, jOrb
+      integer(kind=iwp) :: nSh(8,3)
       real(kind=wp) :: Val
 
       INT1(:,:) = Zero
@@ -4465,9 +4465,9 @@
 !     End If
 !
       If (IfChol) Then
-        nSh(1:nSym,Inactive) = NISH(1:nSym)
-        nSh(1:nSym,Active  ) = NASH(1:nSym)
-        nSh(1:nSym,Virtual ) = NSSH(1:nSym)
+!       nSh(1:nSym,Inactive) = NISH(1:nSym)
+!       nSh(1:nSym,Active  ) = NASH(1:nSym)
+!       nSh(1:nSym,Virtual ) = NSSH(1:nSym)
         DO JSYM=1,NSYM
           IB1=NBTCHES(JSYM)+1
           IB2=NBTCHES(JSYM)+NBTCH(JSYM)
