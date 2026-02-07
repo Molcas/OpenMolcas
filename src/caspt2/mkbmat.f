@@ -212,17 +212,20 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                    BA,iLo,iHi,jLo,jHi,LDA)
       use definitions, only: iwp, wp
       use constants, only: Half, Two, Four
-      USE SUPERINDEX
+      USE SUPERINDEX, only: MTUV
       use caspt2_global, only:ipea_shift
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: EASUM,NASHT,NTUVES,EPSA,NTUVES
+      IMPLICIT None
       INTEGER(KIND=IWP), INTENT(IN):: NDREF, NPREF, iSYM,
      &                                iLo, iHi, jLo, jHi, LDA
       REAL(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF)
       REAL(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
       REAL(KIND=WP), INTENT(OUT):: BA(*)
 
+      INTEGER(KIND=IWP) IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUVABS,ITABS,
+     &                  IUABS,IVABS,ISADR,IVZ,IXT,IP1,IP2,IP,ID,ID1,
+     &                  ID2,IDT,IDU,IDV,ITUV,IVT,IVU,IXZ,IYZ
+      REAL(KIND=WP)EX,EY,ET,EU,ETU,FACT,VALUE
 CSV.20100831: fill in the F2 and F1 corrections for this BA block
 C on entry, BA should contain SA!!
       DO IXYZ=jLo,jHi
