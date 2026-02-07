@@ -110,8 +110,8 @@
      &  nAshA, nAshB, nSshA, nSshB, nBasI, nBasJ, nBasA, nBasB,
      &  nCorI, nCorJ, nCorA, nCorB, nOccA, nOccB, nOccA2, nOccB2,
      &  nOrbA
-      integer(kind=iwp) :: iI, iIabs, iJ, iJabs, iJtot, iA, iAabs,
-     &  iB, iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ,
+      integer(kind=iwp) :: iIabs, iJabs, iJtot, iAabs,
+     &  iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ,
      &  iViP, iVaP, iViM, iVaM, iAtot, iItot, IgeJ, IgtJ, iASP,
      &  iISP, iASM, iISM, iAgeB, iVjP, iAgtB, iVjM, iViHP0, iViHP,
      &  iViHM0, iViHM, iVaHP, iVHP, iVaHM, iVHM

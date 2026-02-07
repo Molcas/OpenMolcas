@@ -120,20 +120,19 @@
      &  NVJ, JB
       real(kind=wp) :: SCLNEL
 
-      integer(kind=iwp) :: ICASE, ISYT, ISYU, ISYV, ISYW, ISYX, ISYJ,
-     &  ISYL, ISYA, ISYC, ISYJL, ISYAC, ISYII, ISIJ, ISAB, ISI, ISA,
-     &  ISW,
+      integer(kind=iwp) :: ICASE, ISYT, ISYU, ISYV, ISYX, ISYJ,
+     &  ISYL, ISYA, ISYC, ISYJL, ISYAC, ISYII, ISIJ, ISAB, ISI,
      &  NAS, NIS, NIN, NAS1, NASP, NISP, NINP, NASM, NISM, NINM, NWA,
      &  NWBP, NWBM, NWC, NWD,
      &  NWEP, NWEM, NWFP, NWFM, NWGP, NWGM, NWHP, NWHM, NW, NVEC,
      &  ipT, ipTP, ipTM, ipTanti,
-     &  IT, ITABS, iTtot, IU, IUABS, iUtot, IV, IVABS, iVtot, IVMAX,
-     &  IX, IXABS, iXtot, IXMAX, IJ, IJABS, iJtot, IL, ILABS,
-     &  IA, IAABS, iAtot, IC, ICABS,
+     &  ITABS, iTtot, IUABS, iUtot, IVABS, iVtot, IVMAX,
+     &  IXABS, iXtot, IXMAX, IJABS, iJtot, ILABS,
+     &  IAABS, iAtot, ICABS,
      &  IW1, IW2, IW, nOrbA, IO, IO1, IO2,
      &  NBXSZA, NBXSZC, NBXSZJ, NBXSZL,
-     &  IASTA, IAEND, NASZ, ICSTA, ICEND, NCSZ, IJSTA, IJEND, NJSZ,
-     &  ILSTA, ILEND, ILMAX, IAJSTA, IAJ, KAJ, ICLSTA, ICL, KCL,
+     &  IAEND, NASZ, ICEND, NCSZ, IJEND, NJSZ,
+     &  ILEND, ILMAX, IAJSTA, IAJ, KAJ, ICLSTA, ICL, KCL,
      &  IAGEC, IAGTC, IJGEL, IJGTL, JGEL, JGTL
       real(kind=wp) :: SCL, SCL1
       real(kind=wp), parameter :: SQ2 = SQRT(Two), SQ3 = SQRT(Three),

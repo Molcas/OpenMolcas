@@ -1871,7 +1871,6 @@
       ! INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       call getritrfinfo(nnbstr,maxvec,n2)
       iSym = 1 !! iSym0
-      i = 0
 
       NumChoTot = 0
       Do jSym = 1, nSym

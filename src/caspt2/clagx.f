@@ -196,8 +196,8 @@
       integer(kind=iwp) :: ILO, IHI, JLO, JHI
 #endif
       integer(kind=iwp) :: NS, idS, idum, iTabs, iUabs, iVabs, iXabs,
-     &  iYabs, iTU, iTU2, iTUabs, iTgeUabs, iTgtUabs, iXY, iXY2,
-     &  iXYabs, iXgeYabs, iXgtYabs, iT, iU, iV, iX, iY, NSEQ
+     &  iYabs, iTU2, iTUabs, iTgeUabs, iTgtUabs, iXY2,
+     &  iXYabs, iXgeYabs, iXgtYabs, NSEQ
       integer(kind=iwp) :: lg_V1, lg_V2, lg_V3, lg_V4, lg_V5
 
       real(kind=wp) :: ScalB1, ScalB2, ScalS1, ScalS2, ET, EU, EX, EY,
