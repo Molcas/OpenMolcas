@@ -247,7 +247,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: NSYM, NDEL, NBAS, NBTRI
-      use Constants, only: One
 
       implicit none
 

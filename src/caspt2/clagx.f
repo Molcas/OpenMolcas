@@ -509,6 +509,7 @@
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
       real(kind=wp), allocatable :: WrkBbf(:,:,:,:),WrkSbf(:,:,:,:)
+      integer(kind=iwp) :: iTU, iXY, iT, iU, iX, iY, iV
 
       call mma_allocate(WrkBbf,nAshT,nAshT,nAshT,nAshT,Label='WrkBbf')
       call mma_allocate(WrkSbf,nAshT,nAshT,nAshT,nAshT,Label='WrkSbf')
@@ -783,6 +784,7 @@
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
       real(kind=wp) :: BDER1, BDER2, SDER1, SDER2, ETX
+      integer(kind=iwp) :: iTU, iXY, iV
 
       If (ipea_shift /= Zero) Then
         NS = NAS*(NAS+1)/2
@@ -904,6 +906,7 @@
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
       real(kind=wp) :: VAL
+      integer(kind=iwp) :: IT, IU, iV
 
       If (ipea_shift /= Zero) Then
         NS = NAS*(NAS+1)/2
@@ -959,6 +962,8 @@
 
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
+
+      integer(kind=iwp) :: iTU, iXY
 
       If (ipea_shift /= Zero) Then
         NS = NAS*(NAS+1)/2
@@ -1080,6 +1085,7 @@
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
       real(kind=wp) :: VAL
+      integer(kind=iwp) :: IT, IU
 
       If (ipea_shift /= Zero) Then
         NS = NAS*(NAS+1)/2

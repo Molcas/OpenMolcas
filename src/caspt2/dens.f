@@ -1324,7 +1324,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NOSH,
      &                         NSSH, NORB
-      use definitions, only: wp, iwp
+      use definitions, only: iwp
 
       implicit none
 
@@ -1748,7 +1748,7 @@
       use definitions, only: wp, iwp
       use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NASHT,
      &                         NBAS, NBAST, NBSQT
-      use Constants, only: Zero, One, Half
+      use Constants, only: Zero, Half
 
       implicit none
 
@@ -1854,7 +1854,7 @@
      &  V1(:),V2(:),B_SSDM(:)
 
       integer(kind=iwp) :: maxvec, n2, iSym, NumChoTot, jSym, nBasI, id,
-     &  lRealName, iost, JRED1, JRED2, i, ipV1, ipV2, IBATCH_TOT, JRED,
+     &  lRealName, iost, JRED1, JRED2, ipV1, ipV2, IBATCH_TOT, JRED,
      &  JSTART, NVECS_RED, ILOC, IRC, NBATCH, JV1, IBATCH, JNUM,
      &  JV2, JREDC, NUMV, ipVecL, iVec, lscr, JREDL, MUSED, NUMVI, KV1,
      &  JBATCH_TOT, JBATCH, KNUM, KV2, NUMVJ
@@ -1864,7 +1864,7 @@
 #ifdef _MOLCAS_MPP_
       logical(kind=iwp) :: bStat
       integer(kind=iwp), allocatable :: map2(:)
-      integer(kind=iwp) :: lg_V1, ILOV1, IHIV1, JLOV1, JHIV1, MV1,
+      integer(kind=iwp) :: i, lg_V1, ILOV1, IHIV1, JLOV1, JHIV1, MV1,
      &  NDIM1, JVG, iRank
 #endif
 

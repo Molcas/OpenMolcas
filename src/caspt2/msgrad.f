@@ -242,7 +242,7 @@
       use caspt2_module, only: NAES, NASHT, NTUVES, NTUES, NTGEUES,
      &                         NTGTUES
       use definitions, only: wp, iwp
-      use Constants, only: Zero, Two, Four, Eight
+      use Constants, only: Two, Four, Eight
 ! Compute a contribution to the coupling Hamiltonian element (HEL)
 ! defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 ! arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -1383,7 +1383,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
       use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NASHT,
-     &                         NSSH, NBAS, NBAST, NBSQT, NBTCH, NBTCHES
+     &                         NBAS, NBAST, NBSQT, NBTCH, NBTCHES
+!     use caspt2_module, only: NSSH
       use Constants, only: Zero, One, Half
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -1399,10 +1400,11 @@
       real(kind=wp),allocatable :: WRK1(:),WRK2(:),KET(:)
 
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
-      integer(kind=iwp) ::  nSh(8,3), iSym, nFroI, nIshI, nCorI, nBasI,
+      integer(kind=iwp) ::  iSym, nFroI, nIshI, nCorI, nBasI,
      &  iAshI, jAshI, iSymA, iSymI, iSymB, iSymJ, JSYM, IB, IB1, IB2,
      &  MXBGRP, IBGRP, NBGRP, NCHOBUF, MXPIQK, NADDBUF, IBSTA, IBEND,
      &  NV, nKET, kAshI, lAshI, iT, iU, iTU, iV, iX, iVX, iOrb, jOrb
+!     integer(kind=iwp) :: nSh(8,3)
       real(kind=wp) :: Val, SCAL
 
       INT1(:,:) = Zero
@@ -1436,9 +1438,9 @@
       iSymJ = 1
 
       If (IfChol) Then
-        nSh(1:nSym,Inactive) = NISH(1:nSym)
-        nSh(1:nSym,Active  ) = NASH(1:nSym)
-        nSh(1:nSym,Virtual ) = NSSH(1:nSym)
+!       nSh(1:nSym,Inactive) = NISH(1:nSym)
+!       nSh(1:nSym,Active  ) = NASH(1:nSym)
+!       nSh(1:nSym,Virtual ) = NSSH(1:nSym)
         DO JSYM=1,NSYM
           IB1=NBTCHES(JSYM)+1
           IB2=NBTCHES(JSYM)+NBTCH(JSYM)
@@ -1538,7 +1540,7 @@
       use caspt2_module, only: ENERGY, NSYM, NCONF, NFRO, NISH, NASH,
      &                         NASHT, NDEL, NORB, NBAS, NBAST, NBSQT,
      &                         NSTATE
-      use Constants, only: Zero, One, Half
+      use Constants, only: Zero, Half
 
       implicit none
 

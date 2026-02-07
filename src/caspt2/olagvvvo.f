@@ -388,7 +388,7 @@
       integer(kind=iwp) ::ISTLT(8), ISTSQ(8), iSym, nB, nB2, nB3, nFroT,
      &  nBasI, KEEPI, nBasJ, KEEPJ, iSymIJ, nBasIJ, nBasK, KEEPK, iSMax,
      &  iSymL_, nBasL, KEEPL, nBasKL, IOPT, LPQ, IPQ, NPQ, IP, JQ, IRC,
-     &  ISX, ISF, ISD
+     &  ISX
 !
       ISTSQ(1)=0
       ISTLT(1)=0
@@ -455,8 +455,8 @@
               IPQ=1
             ENDIF
             ISX=(IPQ-1)*nBasKL+1
-            ISF=ISTLT(iSymI)+LPQ
-            ISD=ISTLT(iSymI)+1
+!           ISF=ISTLT(iSymI)+LPQ
+!           ISD=ISTLT(iSymI)+1
             !! coulomb
 !           TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD),1)
 !           FLT(ISF)=FLT(ISF)+TEMP

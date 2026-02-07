@@ -16,7 +16,6 @@
       use definitions, only: wp, iwp
       use caspt2_module, only: NSYM, NACTEL, NFRO, NISH, NASH, NSSH,
      &                         NDEL, NBAS, NBSQT
-      use Constants, only: One
 
       implicit none
 
@@ -113,7 +112,7 @@
      &  nOrbA
       integer(kind=iwp) :: iI, iIabs, iJ, iJabs, iJtot, iA, iAabs,
      &  iB, iBabs, iBtot, iTabs, iUabs, iVabs, IW1, iIS, iAS, nJ,
-     &  iViP, iVaP, iViM, iVaM, iAtot, iXabs, iItot, IgeJ, IgtJ, iASP,
+     &  iViP, iVaP, iViM, iVaM, iAtot, iItot, IgeJ, IgtJ, iASP,
      &  iISP, iASM, iISM, iAgeB, iVjP, iAgtB, iVjM, iViHP0, iViHP,
      &  iViHM0, iViHM, iVaHP, iVHP, iVaHM, iVHM
       real(kind=wp) :: SQ2, SQI2, SQ3, Fac
@@ -286,6 +285,7 @@
       implicit none
 
       real(kind=wp), intent(out) :: AmpL1(nAshA,nAshB)
+      integer(kind=iwp) :: iI, iJ, iA, iB
 
       if (nAshI*nIshJ*nAshA*nAshB == 0) return
 
@@ -364,6 +364,7 @@
       implicit none
 
       real(kind=wp), intent(out) :: AmpL1(nAshA,nAshB)
+      integer(kind=iwp) :: iI, iJ, iA, iB
 
       if (nIshI*nIshJ*nAshA*nAshB == 0) return
 
@@ -460,6 +461,7 @@
       implicit none
 
       real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
+      integer(kind=iwp) :: iI, iJ, iA, iB, iXabs
 
       if (nAshI*nAshJ*nSshA*nAshB == 0) return
 
@@ -594,6 +596,7 @@
       implicit none
 
       real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
+      integer(kind=iwp) :: iI, iJ, iA, iB
 
       if (nAshI*nIshJ*nSshA*nAshB == 0) return
 
@@ -682,6 +685,7 @@
       implicit none
 
       real(kind=wp), intent(out) :: AmpL1(nAshA+nSshA,nAshB+nSshB)
+      integer(kind=iwp) :: iI, iJ, iA, iB
 
       if (nIshI*nIshJ*nSshA*nAshB == 0) return
 
@@ -756,6 +760,7 @@
       implicit none
 
       real(kind=wp), intent(out) :: AmpL1(nSshA,nSshB)
+      integer(kind=iwp) :: iI, iJ, iA, iB
 
       if (nAshI*nAshJ*nSshA*nSshB == 0) return
 
@@ -833,6 +838,7 @@
       implicit none
 
       real(kind=wp), intent(out) :: AmpL1(nSshA,nSshB)
+      integer(kind=iwp) :: iI, iJ, iA, iB
 
       if (nAshI*nIshJ*nSshA*nSshB == 0) return
 
@@ -911,6 +917,7 @@
       implicit none
 
       real(kind=wp), intent(out) :: AmpL1(nSshA,nSshB)
+      integer(kind=iwp) :: iI, iJ, iA, iB
 
       if (nIshI*nIshJ*nSshA*nSshB == 0) return
 

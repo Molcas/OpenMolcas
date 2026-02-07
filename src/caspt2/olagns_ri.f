@@ -608,6 +608,8 @@
       real(kind=wp), intent(inout) :: Cho_BraD(NT,NJ,NCHO),
      &  Cho_KetD(NV,NX,NCHO)
 
+      integer(kind=iwp) :: IT, IJ, IV, IX
+
       ISYJ = ISYI
       ISYX = ISYK
 
@@ -736,6 +738,8 @@
      &  Cho_Ket(NV,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NT,NJ,NCHO),
      &  Cho_KetD(NV,NL,NCHO)
+
+      integer(kind=iwp) :: IT, IV, IJ, IL
 
       ISYJ = ISYI
       ISYL = ISYK
@@ -930,6 +934,7 @@
      &  Cho_KetD(NV,NX,NCHO)
 
       real(kind=wp) :: ValCF
+      integer(kind=iwp) :: IA, IU, IV, IX
 
       ISYU = ISYI
       ISYX = ISYK
@@ -1065,6 +1070,7 @@
      &  Cho_KetD(NV,NX,NCHO)
 *      Logical Incore
       integer(kind=iwp) :: IOFFD(8,8)
+      integer(kind=iwp) :: ISW, ISA, IASTA, IJSTA, IJ, IA, IX, IV
 
       ISYJ = ISYI
       ISYX = ISYK
@@ -1215,6 +1221,7 @@
      &  Cho_KetD(NV,NL,NCHO)
 *      Logical Incore
       integer(kind=iwp) :: IOFFD(8,8)
+      integer(kind=iwp) :: ISYW, ISYA, IA, IU, IV, IL
 
       ISYU = ISYI
       ISYL = ISYK
@@ -1337,6 +1344,7 @@
      &  Cho_KetD(NV,NL,NCHO)
 *      Logical Incore
       integer(kind=iwp) :: IOFF1(8), IOFF2(8)
+      integer(kind=iwp) :: ISA, IASTA, IJSTA, IJ, IA, IV, IL
 
       ISYJ = ISYI
       ISYL = ISYK
@@ -1573,6 +1581,8 @@
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO),
      &  Cho_KetD(NC,NX,NCHO)
 
+      integer(kind=iwp) :: IU, IX, IA, IC
+
       ISYU = ISYI
       ISYX = ISYK
 
@@ -1771,6 +1781,7 @@
      &  Cho_KetD(NC,NL,NCHO)
 *      Logical Incore
       integer(kind=iwp) :: IOFF1(8), IOFF2(8)
+      integer(kind=iwp) :: ISI, ICSTA, ILSTA, IL, IC, IA, IU
 
       ISYU = ISYI
       ISYL = ISYK
@@ -2025,6 +2036,8 @@
      &  Cho_Ket(NC,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO),
      &  Cho_KetD(NC,NL,NCHO)
+
+      integer(kind=iwp) :: IASTA, IJSTA, ICSTA, ILSTA, IJ, IA, IL, IC
 
       ISYJ = ISYI
       ISYL = ISYK
