@@ -207,7 +207,7 @@
       use caspt2_module, only: NAES, NASHT, NTUVES, NTUES, NTGEUES,
      &                         NTGTUES
       use definitions, only: wp, iwp
-      use Constants, only: Two, Four, Eight
+      use Constants, only: Zero, Two, Four, Eight
 ! Compute a contribution to the coupling Hamiltonian element (HEL)
 ! defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 ! arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -232,6 +232,7 @@
 
       IF (IISTA <= 0) RETURN
 
+      OVL = Zero
       NISBLK=IIEND-IISTA+1
       SELECT CASE (ICASE)
 ************************************************************************
