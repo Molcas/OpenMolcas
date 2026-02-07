@@ -206,8 +206,11 @@
 
       ! finish if no contributions
       ! should we use the number of independent vectors?
-      if ((PM .and. nASP*nISP == 0 .and. nASM*nISM == 0)
-     &  .or. (.not.PM .and. nAS*nIS == 0)) return
+      if (PM) then
+        if (nASP*nISP == 0 .and. nASM*nISM == 0) return
+      else
+        if (nAS*nIS == 0) return
+      end if
 
       call mma_allocate(WRK1,nBasT*nBasT,Label='WRK1')
       call mma_allocate(WRK2,nBasT*nBasT,Label='WRK2')
