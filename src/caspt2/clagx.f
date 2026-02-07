@@ -4038,8 +4038,9 @@
       use definitions, only: iwp, wp, u6
       use Constants, only: Zero, One, Half
       use caspt2_module, only: IFXMS, IFRMS, NSYM, STSYM, NCONF, NFRO,
-     &                         NISH, NASH, NASHT, NSSH, NORB, NBAS,
+     &                         NISH, NASH, NASHT, NORB, NBAS,
      &                         NBAST, MUL, ISCF, NSTATE, NBTCH, NBTCHES
+!     use caspt2_module, only: NSSH
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -4397,7 +4398,7 @@
      &  jAshI, iSymA, iSymI, iSymB, iSymJ, JSYM, IB, IB1, IB2, MXBGRP,
      &  IBGRP, NBGRP, NCHOBUF, MXPIQK, NADDBUF, IBSTA, IBEND, NV, nKET,
      &  kAshI, lAshI, iT, iU, iTU, iV, iX, iVX, iOrb, jOrb
-      integer(kind=iwp) :: nSh(8,3)
+!     integer(kind=iwp) :: nSh(8,3)
       real(kind=wp) :: Val
 
       INT1(:,:) = Zero
