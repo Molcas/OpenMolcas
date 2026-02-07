@@ -926,10 +926,10 @@
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: NVEC, IBSTA, IBEND, nOrbI
       real(kind=wp), intent(in) :: CMO(nBasI,nOrbI)
       !! CHSPC is used as a temporary array
       real(kind=wp), intent(inout) :: CHSPC_(*), HTSPC_(nOrbI,nBasT,*)
-      integer(kind=iwp), intent(in) :: NVEC, IBSTA, IBEND, nOrbI
 
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
       integer(kind=iwp) :: IPQ, jVec, nBra
@@ -1010,7 +1010,7 @@
 !
       subroutine getritrfinfo(nnbstr_,maxvec_,n2_)
       use Cholesky, only: infvec_N2, MaxVec, nnBstR
-      use definitions, only: wp, iwp
+      use definitions, only: iwp
       implicit none
       integer(kind=iwp), intent(out) :: nnbstr_(8,3), maxvec_, n2_
       maxvec_ = maxvec
@@ -1031,7 +1031,7 @@
 
       real(kind=wp), intent(inout) :: CHSPC(*), WRK(*)
       integer(kind=iwp), intent(in) :: ipWRK(*), NUMV, l_NDIMRS,
-     &  INFVEC(MAXVEC,INFVEC_N2,*), nDimRS(nSym0,*), nBasT, nSym0, iSym,
+     &  INFVEC(MAXVEC,INFVEC_N2,*), nSym0, nDimRS(nSym0,*), nBasT, iSym,
      &  iSkip(8)
       integer(kind=iwp), intent(inout) :: irc, JREDC
 
