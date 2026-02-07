@@ -34,12 +34,12 @@
 
       logical(kind=iwp), external :: RSV_TSK
 
+      integer(kind=iwp), intent(in) :: nLev
       real(kind=wp), intent(in) :: CI(MXCI), DG3(*), DF3(*),
      &  G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
       real(kind=wp), intent(inout) :: CLAG(NCONF), DG1(NLEV,NLEV),
      &  DG2(NLEV,NLEV,NLEV,NLEV), DF1(NLEV,NLEV),
      &  DF2(NLEV,NLEV,NLEV,NLEV), DEPSA(NLEV,NLEV)
-      integer(kind=iwp), intent(in) :: nLev
 
       integer(kind=iwp) :: I,J,IDX,JDX
       integer(kind=iwp) :: IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1

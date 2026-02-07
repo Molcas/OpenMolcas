@@ -1287,11 +1287,11 @@
 
       IMPLICIT NONE
 
+      integer(kind=iwp), intent(in) :: nLev
       real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI),
      &                             RDMEIG(NLEV,NLEV), SCAL
       real(kind=wp), intent(inout) :: SGM1(MXCI), CLag1(nConf),
      &                                CLag2(nConf)
-      integer(kind=iwp), intent(in) :: nLev
 
       integer(kind=iwp),allocatable :: TASK(:,:)
 
@@ -1677,9 +1677,9 @@
 
       IMPLICIT NONE
 
+      integer(kind=iwp), intent(in):: nLev
       real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI)
       real(kind=wp), intent(out) :: SGM1(MXCI), G1(NLEV,NLEV)
-      integer(kind=iwp), intent(in):: nLev
 
       integer(kind=iwp), allocatable :: TASK(:,:)
 
