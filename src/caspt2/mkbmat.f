@@ -122,14 +122,12 @@ C looping, etc in the rest of the routines.
       use definitions, only: iwp, wp, Byte
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      USE SUPERINDEX
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: GA_Arrays
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM, NINDEP, NTUV
+      IMPLICIT NONE
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -140,7 +138,11 @@ C looping, etc in the rest of the routines.
       INTEGER(KIND=Byte), INTENT(IN):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       Real(KIND=WP) Dummy(1)
+      INTEGER(KIND=IWP) MYRANK,ILO,IHI,JLO,JHI,MA,LDA
 #endif
+      INTEGER(KIND=IWP) ICASE,ISYM,NIN,NAS,NBA,lg_BA
+      Real(KIND=WP) DBA
+      Real(KIND=WP), EXTERNAL:: PSBMAT_FPRINT
 
       ICASE=1
 C LONG loop over superindex symmetry.
