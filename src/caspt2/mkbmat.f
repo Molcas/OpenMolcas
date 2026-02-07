@@ -134,10 +134,10 @@ C looping, etc in the rest of the routines.
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER(KIND=IWP) NDREF,NPREF, NG3
-      Real(KIND=WP) DREF(NDREF),PREF(NPREF),F3(NG3)
-      Real(KIND=WP) FD(NDREF),FP(NPREF)
-      INTEGER(KIND=Byte) idxG3(6,NG3)
+      INTEGER(KIND=IWP), INTENT(IN):: NDREF,NPREF, NG3
+      Real(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF),F3(NG3)
+      Real(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
+      INTEGER(KIND=Byte), INTENT(IN):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       Real(KIND=WP) Dummy(1)
 #endif
@@ -215,10 +215,11 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       use EQSOLV
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER(KIND=IWP) NDREF, NPREF, iSYM, iLo, iHi, jLo, jHi, LDA
-      REAL(KIND=WP) DREF(NDREF),PREF(NPREF)
-      REAL(KIND=WP) FD(NDREF),FP(NPREF)
-      REAL(KIND=WP) BA(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NDREF, NPREF, iSYM,
+     &                                iLo, iHi, jLo, jHi, LDA
+      REAL(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF)
+      REAL(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
+      REAL(KIND=WP), INTENT(OUT):: BA(*)
 
 CSV.20100831: fill in the F2 and F1 corrections for this BA block
 C on entry, BA should contain SA!!
@@ -1039,6 +1040,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       SUBROUTINE MKBC_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
      &                    BC,iLo,iHi,jLo,jHi,LDC)
       use definitions, only: iwp, wp
+      use constants, only: Half, Two, Four
       USE SUPERINDEX
       use caspt2_global, only:ipea_shift
       use EQSOLV
@@ -1080,7 +1082,7 @@ C Add  dyu ( Fvztx - EPSA(u)*Gvztx )
             IP1=MAX(IVZ,ITX)
             IP2=MIN(IVZ,ITX)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+2.0D0*(FP(IP)-EU*PREF(IP))
+            VALUE=VALUE+Two*(FP(IP)-EU*PREF(IP))
           END IF
 C Add  dyx ( Fvutz - EPSA(y)*Gvutz )
           IF(IYABS.EQ.IXABS) THEN
@@ -1089,7 +1091,7 @@ C Add  dyx ( Fvutz - EPSA(y)*Gvutz )
             IP1=MAX(IVU,ITZ)
             IP2=MIN(IVU,ITZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+2.0D0*(FP(IP)-EY*PREF(IP))
+            VALUE=VALUE+Two*(FP(IP)-EY*PREF(IP))
           END IF
 C Add  dtu ( Fvxyz - EPSA(u)*Gvxyz + dyx Fvz -
 C             (EPSA(u)+EPSA(y)*dyz Gvz)
@@ -1099,7 +1101,7 @@ C             (EPSA(u)+EPSA(y)*dyz Gvz)
             IP1=MAX(IVX,IYZ)
             IP2=MIN(IVX,IYZ)
             IP=(IP1*(IP1-1))/2+IP2
-            VALUE=VALUE+2.0D0*(FP(IP)-EU*PREF(IP))
+            VALUE=VALUE+Two*(FP(IP)-EU*PREF(IP))
             IF(IYABS.EQ.IXABS) THEN
               ID1=MAX(IVABS,IZABS)
               ID2=MIN(IVABS,IZABS)
@@ -1112,8 +1114,8 @@ CGG.Nov03
             IDT=(ITABS*(ITABS+1))/2
             IDU=(IUABS*(IUABS+1))/2
             IDV=(IVABS*(IVABS+1))/2
-            VALUE=VALUE+ipea_shift*0.5d0*BC(ISADR)*
-     &                    (4.0d0-DREF(IDT)-DREF(IDV)+DREF(IDU))
+            VALUE=VALUE+ipea_shift*Half*BC(ISADR)*
+     &                    (Four-DREF(IDT)-DREF(IDV)+DREF(IDU))
           ENDIF
 CGG End
           BC(ISADR)=VALUE
