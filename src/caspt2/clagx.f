@@ -88,11 +88,11 @@
       IF (IPRGLB >= verbose) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
-        write(u6,'(a,2f10.2)')" CLagD   : CPU/WALL TIME=", cput,wallt
+        write(u6,'(a,2f10.2)')' CLagD   : CPU/WALL TIME=', cput,wallt
 #ifdef _MOLCAS_MPP_
 !       if (is_real_par()) CALL GADSUM ([deasum],1)
 #endif
-!       write(u6,*) "Deasum = ", deasum
+!       write(u6,*) 'Deasum = ', deasum
 #ifdef _MOLCAS_MPP_
 !       if (is_real_par()) DEASUM = DEASUM/GA_NNODES()
 #endif
@@ -247,11 +247,11 @@
           else
 #endif
 
-!         write(u6,*) "for icase = ", icase
-!         write(u6,*) "# of independent vecs:", nin
-!         write(u6,*) "# of non-active pairs:", nis
-!         write(u6,*) "# of     active pairs:", nas
-!         write(u6,*) "dimension for Vec = ", nin*nis
+!         write(u6,*) 'for icase = ', icase
+!         write(u6,*) '# of independent vecs:', nin
+!         write(u6,*) '# of non-active pairs:', nis
+!         write(u6,*) '# of     active pairs:', nas
+!         write(u6,*) 'dimension for Vec = ', nin*nis
           !! lg_V1 = T (solution; not quasi-variational)
           Call RHS_ALLO(nIN,nIS,lg_V1)
           Call RHS_READ_SR(lg_V1,iCase,iSym,iVecX)
@@ -1276,7 +1276,7 @@
 !     if (king()) then
 !       call mma_allocate(VEC1,NAS*NAS,Label='WRK1')
 !       CALL GA_GET(lg_bder,1,NAS,1,NAS,VEC1,NAS)
-!       WRITE (*,*) "B DERIVATIVE IN NAS"
+!       WRITE (*,*) 'B DERIVATIVE IN NAS'
 !       CALL SQPRT(VEC1,NAS)
 !       call mma_deallocate(VEC1)
 !     end if
@@ -1301,7 +1301,7 @@
 !     if (king()) then
 !       call mma_allocate(VEC1,NAS*NAS,Label='WRK1')
 !       CALL GA_GET(lg_wrk,1,NIN,1,NIN,VEC1,NIN)
-!       WRITE (*,*) "B DERIVATIVE IN NIN"
+!       WRITE (*,*) 'B DERIVATIVE IN NIN'
 !       CALL SQPRT(VEC1,NIN)
 !       call mma_deallocate(VEC1)
 !     end if
@@ -1335,7 +1335,7 @@
 !     if (king()) then
 !       call mma_allocate(VEC1,NIN*NIN,Label='VEC1'))
 !       CALL GA_GET(lg_wrk,1,NIN,1,NIN,VEC1,NIN)
-!       WRITE (*,*) "SCALED B DERIVATIVE IN NIN"
+!       WRITE (*,*) 'SCALED B DERIVATIVE IN NIN'
 !       CALL SQPRT(VEC1,NIN)
 !       call mma_deallocate(VEC1)
 !     end if
@@ -1386,7 +1386,7 @@
 !     if (king()) then
 !       call mma_allocate(VEC1,NAS*NAS,Label='VEC1')
 !       CALL GA_GET(lg_sder,1,NAS,1,NAS,VEC1,NAS)
-!       WRITE (*,*) "S DERIVATIVE IN NAS (1)"
+!       WRITE (*,*) 'S DERIVATIVE IN NAS (1)'
 !       CALL SQPRT(VEC1,NAS)
 !       call mma_deallocate(VEC1)
 !     end if
@@ -1459,7 +1459,7 @@
 !     if (king()) then
 !       call mma_allocate(VEC1,NAS*NAS,Label='VEC1')
 !       CALL GA_GET(lg_sder,1,NAS,1,NAS,VEC1,NAS)
-!       WRITE (*,*) "S DERIVATIVE IN NAS"
+!       WRITE (*,*) 'S DERIVATIVE IN NAS'
 !       CALL SQPRT(VEC1,NAS)
 !       call mma_deallocate(VEC1)
 !     end if
@@ -1487,7 +1487,7 @@
      &                  ILO,IHI,JLO,JHI,LDV,G1,G2,DBL_MB(mS),WRK,
      &                  lg_S)
       else
-        write (u6,*) "Invalid iCase in ..."
+        write (u6,*) 'Invalid iCase in ...'
         call abend()
       end if
       call mma_deallocate(WRK)
@@ -1514,7 +1514,7 @@
 !       Call GA_Release_Update(lg_S,ILO,IHI,JLO,JHI)
 !       call DF3_DEPSA_MPP(DF3,DEPSA,lg_S,idxG3)
       else
-        write (u6,*) "Invalid iCase in ..."
+        write (u6,*) 'Invalid iCase in ...'
         call abend()
       end if
       Call GA_Release(lg_S   ,ILO,IHI,JLO,JHI)
@@ -1639,7 +1639,7 @@
       Call DGEMM_('N','T',nAS,nAS,nIN,
      &            One,WRK2,nAS,TRANS,nAS,
      &            Zero,WRK3,nAS)
-!     write(u6,*) "B derivative in MO"
+!     write(u6,*) 'B derivative in MO'
 !     call sqprt(WRK3,nas)
 
       !! Implicit derivative of the IC vector. This derivative
@@ -1832,7 +1832,7 @@
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(u6,*)
-        write(u6,'(a,2f10.2)')" DERFG3  : CPU/WALL TIME=", cput,wallt
+        write(u6,'(a,2f10.2)')' DERFG3  : CPU/WALL TIME=', cput,wallt
       END IF
 
       call mma_deallocate(CI1)
@@ -1916,7 +1916,7 @@
             Call SQUARE(DREF,WRK,1,nAshT,nAshT)
             !! probably it is doubled somewhere, so should half
             Scal = DDOT_(nAshT**2,RDMEIG,1,WRK,1)*Half
-!           write (*,*) "scal = ", scal
+!           write (*,*) 'scal = ', scal
             OMGDER(iState,jState) = OMGDER(iState,jState) + Scal
           End If
 
@@ -1924,22 +1924,22 @@
       End Do
 
       call mma_deallocate(WRK)
-!     write(u6,*) "clag before projection"
+!     write(u6,*) 'clag before projection'
 !     do istate = 1, nstate
-!       write(u6,*) "state = ", istate
+!       write(u6,*) 'state = ', istate
 !       do i = 1, nconf
 !         write(u6,'(i3,f20.10)') i,clag(i,istate)
 !       end do
 !     end do
-!     write(u6,*) "debug"
+!     write(u6,*) 'debug'
 !     IF(ORBIN == 'TRANSFOR') Call CLagX_TrfCI(CLAG)
 !     if (proj) then
 !     ovl = ddot_(nconf*nstate,ci1,1,clag,1)
-!     write(u6,*) "projection coeff = ",ovl
+!     write(u6,*) 'projection coeff = ',ovl
 !     call daxpy_(nconf*nstate,-ovl,ci1,1,clag,1)
-!     write(u6,*) "clag after projection"
+!     write(u6,*) 'clag after projection'
 !     do istate = 1, nstate
-!       write(u6,*) "state = ", istate
+!       write(u6,*) 'state = ', istate
 !       do i = 1, nconf
 !         write(u6,'(i3,f20.10)') i,clag(i,istate)
 !       end do
@@ -2018,11 +2018,11 @@
             CI2(1) = One
           End If
           Ovl = DDot_(nConf,CI1,1,CI2,1)
-!         write(u6,*) "projection coeff = ",ovl
+!         write(u6,*) 'projection coeff = ',ovl
           CLag(1:nConf,ilStat) = CLag(1:nConf,ilStat) - Ovl*CI2(1:nConf)
         End Do
-!       write(u6,*) "clag after projection"
-!       write(u6,*) "state = ", ilstat
+!       write(u6,*) 'clag after projection'
+!       write(u6,*) 'state = ', ilstat
 !       do i = 1, nconf
 !         write(u6,'(i3,f20.10)') i,clag(i,ilstat)
 !       end do
@@ -2139,7 +2139,7 @@
           TASK(iTask,2)=LU
         End Do
       End Do
-      IF (iTask /= nTasks) WRITE(u6,*) "ERROR nTasks"
+      IF (iTask /= nTasks) WRITE(u6,*) 'ERROR nTasks'
 
       Call Init_Tsk(ID, nTasks)
 
@@ -2162,7 +2162,7 @@
         CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
         IF(ISTU == 1) THEN
           ! Symmetry not yet
-!          write(u6,*) "it,iu = ", it,iu
+!          write(u6,*) 'it,iu = ', it,iu
            CLag(1:NSGM) = CLag(1:NSGM) + RDMEIG(IT,IU)*SGM1(1:NSGM)
         END IF
 
@@ -4227,7 +4227,7 @@
 
         If (Iter == MaxIter+1) Then
           write(u6,*)
-     &    "CI iteration for non-invariant CASPT2 did not converge..."
+     &    'CI iteration for non-invariant CASPT2 did not converge...'
           call abend()
         End If
       end if
@@ -4486,9 +4486,9 @@
           CALL MEMORY_ESTIMATE(JSYM,BGRP,NBGRP,
      &                         NCHOBUF,MXPIQK,NADDBUF)
           call mma_allocate(KET,NCHOBUF,Label='KETBUF')
-!         write(u6,*) "nchobuf= ", nchobuf
-!         write(u6,*) "nbgrp= ", nbgrp
-!         write(u6,*) "nbtch= ", nbtch(jsym)
+!         write(u6,*) 'nchobuf= ', nchobuf
+!         write(u6,*) 'nbgrp= ', nbgrp
+!         write(u6,*) 'nbtch= ', nbtch(jsym)
           Do IBGRP=1,NBGRP
 
             IBSTA=BGRP(1,IBGRP)
@@ -4546,7 +4546,7 @@
 #ifdef _MOLCAS_MPP_
       call GADSUM(INT2,nAshT**4)
 #endif
-!     write(u6,*) "int2"
+!     write(u6,*) 'int2'
 !     call sqprt(int2,25)
 !     call sqprt(int1,5)
 !     call sqprt(fimo,12)
@@ -4622,7 +4622,7 @@
           TASK(iTask,2)=LU
         ENDDO
       ENDDO
-      IF (iTask /= nTasks) WRITE(u6,*) "ERROR nTasks"
+      IF (iTask /= nTasks) WRITE(u6,*) 'ERROR nTasks'
 
       call mma_allocate(SGM1,nConf,Label='SGM1')
       call mma_allocate(SGM2,nConf,Label='SGM2')
@@ -4812,7 +4812,7 @@
           End Do
         End If
       End Do
-!     write(6,*) "after 1"
+!     write(6,*) 'after 1'
 !     call sqprt(fock,nasht)
 
       !! 2) two-electron term (only CreQADD part)

@@ -725,8 +725,8 @@
       Else If (Bas == 'C' .or. Bas == 'c') Then
         ID = IDTCEX !! quasi-canonical
       ELse
-        write (u6,*)"the first argument in LoadCI_XMS should be either",
-     &              "N (natural) or C (quasi-canonical)"
+        write (u6,*)'the first argument in LoadCI_XMS should be either',
+     &              'N (natural) or C (quasi-canonical)'
         call abend()
       End If
 
@@ -833,7 +833,7 @@
             Else
               Scal = UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
             End If
-!       write (*,*) " scal in xms"
+!       write (*,*) ' scal in xms'
 !       write (*,*) istat,jstat,scal
             if (IFDW .and. zeta >= Zero) then
               scal = scal + OMGDER(iStat,jStat)
@@ -861,7 +861,7 @@
      &              One,U0,nState,UEFF,nState,
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
-!     write (u6,*) "ueff in casscf basis"
+!     write (u6,*) 'ueff in casscf basis'
 !     call sqprt(ueff,nstate)
 
         call mma_deallocate(DG1)
@@ -881,7 +881,7 @@
         !! The diagonal element is always zero.
         !! The code has an additional scaling with 0.5,
         !! because some contributions are doubled.
-!     write (*,*) "istat,jstat,scal"
+!     write (*,*) 'istat,jstat,scal'
         SLag(:) = Zero
         Do iStat = 1, nState
           Call LoadCI_XMS('N',0,CI1,iStat,U0)
@@ -895,7 +895,7 @@
 
               Scal = DDOT_(nConf,CI1,1,CLagFull(1,jStat),1)
      &             - DDOT_(nConf,CI2,1,CLagFull(1,iStat),1)
-!      write (*,*) "original scal = ", scal
+!      write (*,*) 'original scal = ', scal
               If (do_csf) Then
                 !! JCTC 2017, 13, 2561: eq.(66)
                 !! iStat and jStat: XMS
@@ -910,7 +910,7 @@
                   End Do
                 End Do
                 Scal = Scal+fact*(ENERGY(iRoot2)-ENERGY(iRoot1))*Two
-!      write (*,*) "scal after= ", scal
+!      write (*,*) 'scal after= ', scal
 !      write (*,*) fact,energy(iroot2)-energy(iroot1)
               End If
               Scal = Quart*Scal/(EEJ-EEI)
@@ -938,12 +938,12 @@
             Call Dens1T_RPT2(CI1,CI2,
      &                       SGM1,TG1,nLev)
             Scal = SLag(iStat+nState*(jStat-1))*Two
-!         write (*,*) "istat,jstat=",istat,jstat
-!         write (*,*) "scal = ", scal
+!         write (*,*) 'istat,jstat=',istat,jstat
+!         write (*,*) 'scal = ', scal
             Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
           End Do
         End Do
-!     write (*,*) "G1"
+!     write (*,*) 'G1'
 !     call sqprt(G1,nasht)
 
         call mma_deallocate(CI1)
@@ -1336,7 +1336,7 @@
           TASK(iTask,2)=LU
         End Do
       End Do
-      IF (iTask /= nTasks) WRITE(u6,*) "ERROR nTasks"
+      IF (iTask /= nTasks) WRITE(u6,*) 'ERROR nTasks'
 
       Call Init_Tsk(ID, nTasks)
 
@@ -1612,7 +1612,7 @@
         iMO1 = iMO1 + nOrbI1*nOrbI1
         iMO2 = iMO2 + nOrbI2*nOrbI2
       End Do
-!     write (*,*) "dpt2anti after"
+!     write (*,*) 'dpt2anti after'
 !     call sqprt(dpt2canti,nbast)
 
       call mma_deallocate(G1)
@@ -1629,7 +1629,7 @@
      &            WRK1,nBas(1),'T',
      &            WRK2,nBas(1),
      &            nBas(1),nBas(1))
-!      write (*,*) "wrk1"
+!      write (*,*) 'wrk1'
 !      call sqprt(wrk),nbast)
 
       !! Probably, the way CSF term is computed in MOLCAS is different
@@ -1653,9 +1653,9 @@
           DPT2Canti(j+nBasT*(i-1)) = -Scal*Half
         End Do
       End Do
-!     write (*,*) "dpt2anti sym"
+!     write (*,*) 'dpt2anti sym'
 !     call sqprt(dpt2canti,nbast)
-!     write (*,*) "dpt2c"
+!     write (*,*) 'dpt2c'
 !     call sqprt(dpt2c_tot,nbast)
 
       Return
@@ -1726,7 +1726,7 @@
             TASK(iTask,2)=LU
           ENDDO
         ENDDO
-        IF (iTask /= nTasks) WRITE(u6,*) "ERROR nTasks"
+        IF (iTask /= nTasks) WRITE(u6,*) 'ERROR nTasks'
 
         Call Init_Tsk(ID, nTasks)
 
@@ -1767,8 +1767,8 @@
 
       IF(iPrGlb >= DEBUG) THEN
         WRITE(u6,'("DEBUG> ",A)')
-     &   "DENS1_RPT2: norms of the density matrices:"
-        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
+     &   'DENS1_RPT2: norms of the density matrices:'
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') 'G1:', DNRM2_(NG1,G1,1)
       ENDIF
 
       end subroutine DENS1T_RPT2

@@ -178,7 +178,7 @@
 
         Close (LuCMOPT2)
 
-!       write(u6,*) "mo saved"
+!       write(u6,*) 'mo saved'
 !       call sqprt(CMOPT2,nbast)
 !
         Call PrgmTranslate('GAMMA',RealName,lRealName)
@@ -188,7 +188,7 @@
      &                        iost,.TRUE.,
      &                        nOcc*nOcc*8,'OLD',is_error)
         if (is_error) then
-        write (u6,*) "Something is wrong in opening LuGamma in olagvvvo"
+        write (u6,*) 'Something is wrong in opening LuGamma in olagvvvo'
           call abend()
         end if
         !  Setup for shell. Why do I have to call IniSew damn here?
@@ -256,16 +256,16 @@
 !    *            One,CMOPT2(1+nBasT*nOcc),nBasT,
 !    *                vLag,nBasT,
 !    *            One,OLAG(nOCC+1),nOrb(iSymA))
-!     write(u6,*) "olag before vvvo"
+!     write(u6,*) 'olag before vvvo'
 !     call sqprt(olag,nbast)
       nOrbA = nFro(iSymA)+nIsh(iSymA)+nAsh(iSymA)+nSsh(iSymA)
       If (DoCholesky) nOcc = nOrbA-nFro(iSymA)
-!     write(u6,*) "vLag"
+!     write(u6,*) 'vLag'
 !     call sqprt(vLag,nbast)
       CALL DGEMM_('T','N',nOrbA,nOcc,nBasT,
      &            One,CMOPT2,nBasT,vLag,nBasT,
      &            One,OLAG(nOrbA*nFro(iSymA)+1),nOrbA)
-!     write(u6,*) "olag after vvvo"
+!     write(u6,*) 'olag after vvvo'
 !     call sqprt(olag,nbast)
 !
 #ifdef _MOLCAS_MPP_
@@ -390,8 +390,6 @@
      &  iSymL_, nBasL, KEEPL, nBasKL, IOPT, LPQ, IPQ, NPQ, IP, JQ, IRC,
      &  ISX, ISF, ISD
 !
-!     write(u6,*) "start vvvox"
-!     MUL(I,J)=IEOR(I-1,J-1)+1
       ISTSQ(1)=0
       ISTLT(1)=0
       Do iSym = 2, nSym
@@ -401,7 +399,6 @@
         ISTSQ(iSym) = ISTSQ(iSym-1) + nB2
         ISTLT(iSym) = ISTLT(iSym-1) + nB3
       End Do
-!     write(u6,*) "a"
       nFroT = 0
       Do iSym = 1, nSym
         nFroT = nFroT + nFro(iSym)
@@ -417,7 +414,6 @@
       nBasIJ = nBasI*nBasJ
       If (iSymI == iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
       If (nBasIJ == 0) Return
-!     write(u6,*) "b"
 
       nBasK  = nBas(iSymK)
       KEEPK  = KEEP(iSymK)
@@ -432,32 +428,20 @@
       nBasKL = nBasK*nBasL
       IF (iSymK == iSymL_) nBasKL = (nBasK*(nBasK+1))/2
       If (nBasKL == 0) Return
-!     write(u6,*) "c"
 
       ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
       IF (KEEPI+KEEPJ+KEEPK+KEEPL /= 0) Return
-!     write(u6,*) "d"
       !! This will not work when the number of the inactive orbital is 0
 !     IF (nAuxI+nAuxJ+nAuxK+nAuxL == 0) Return ! frozen orbitals
-!     write(u6,*) "e"
-!     write(u6,*) "nbasij = ", nbasij, 6*13
-!     write(u6,*) "keep=",keepi,keepj,keepk,keepl
-!     write(u6,*) "CMO"
-!     call sqprt(cmo,nbast)
 
       !! (ij|kl)
-!     write(u6,*) "doing actual calculation"
       If (iSymI == iSymJ .AND. iSymI == iSymK) Then
-!       write(u6,*) "aa"
-!       write(u6,*) "nocc,nbast = ", nocc,nbast
         IOPT=1
         LPQ=0
         IPQ=0
         NPQ=0
-!       write(u6,*) "nbasi = ", nbasi
         DO IP = 1, nBasI
           DO JQ = 1, IP
-!           write(u6,*) "ip,jq = ", ip,jq
             IPQ=IPQ+1
             LPQ=LPQ+1
             IF (IPQ > NPQ) THEN
@@ -470,7 +454,6 @@
               IOPT=2
               IPQ=1
             ENDIF
-!           write(u6,*) "do"
             ISX=(IPQ-1)*nBasKL+1
             ISF=ISTLT(iSymI)+LPQ
             ISD=ISTLT(iSymI)+1
@@ -496,19 +479,12 @@
             !!   -> U_{i rho} for (mu, rho) pairs
 
             CALL SQUARE (X1(ISX),X2(1),1,nBasK,nBasL)
-!     write(u6,*) "ip,jq= ",ip,jq
-!     write(u6,*) "integral"
-!     call sqprt(x2,nbask)
 !           If (DoCholesky) Then
 !           Else
             !! (mu(ip) rho(jq) | nu sigma) -> (mu(ip) rho(jq) | j sigma)
             call dgemm_('T','N',nOcc,nBasT,nBasT,
      &                  One,CMO,nBasT,X2,nBasT,
      &                  Zero,WRK,nOcc)
-!           call dgemm_('T','T',nOcc,nBasT,nBasT,
-!    *                  One,CMO,nBasT,X2,nBasT,
-!    *                  One,WRK,nOcc)
-!           write(u6,*) "dgemm finished"
             !! wrk(j,sigma) for the given mu(ip), mu(jq)
             !! T2AO(j,sigma,i,rho) = T_{ij}^{rho sigma}
             !! rather than L_{mu i}, L_{i mu} is computed
@@ -716,7 +692,6 @@
         nAuxT = nAuxT + nAux(jSym)
       End Do
 
-!     write(6,*) "sym=",isymi,isymj,isymk,isyml
       nBasI  = nBas(iSymI)
       KEEPI  = KEEP(iSymI)
       ! nAuxI  = nAux(iSymI)
@@ -726,7 +701,6 @@
       iSymIJ = 1+iEor(iSymI-1,iSymJ-1)
       nBasIJ = nBasI*nBasJ
       If (iSymI == iSymJ) nBasIJ = (nBasI*(nBasI+1))/2
-!     write(6,*) "nbasij = ", nbasij
       If (nBasIJ == 0) Return
 
       nBasK  = nBas(iSymK)
@@ -735,20 +709,16 @@
       iSMax  = iSymK
       If (iSymK == iSymI) iSMax = iSymJ
       iSymL_ = 1+iEor(iSymIJ-1,iSymK-1)
-!     write(6,*) "isyml,ismax = ", isyml,ismax
       IF (iSymL_ > iSMax) Return !! should not
       nBasL  = nBas(iSymL_)
       KEEPL  = KEEP(iSymL_)
       ! nAuxL  = nAux(iSymL_)
       nBasKL = nBasK*nBasL
       IF (iSymK == iSymL) nBasKL = (nBasK*(nBasK+1))/2
-!     write(6,*) "nbaskl = ", nbaskl
       If (nBasKL == 0) Return
 
-!     write(6,*) "keep=",keepi,keepj,keepk,keepl
       ! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
       IF (KEEPI+KEEPJ+KEEPK+KEEPL /= 0) Return
-!     write(6,*) "nAux=",nAuxi,nAuxj,nAuxk,nAuxl
       !! This will not work when the number of the inactive orbital is 0
 !     IF (nAuxI+nAuxJ+nAuxK+nAuxL == 0) Return ! frozen orbitals
 
@@ -769,7 +739,6 @@
       ! nSshL = nSsh(lSym)
       nOrbI = nIshI+nAshI+nSshI
 
-!     write(6,*) "nchspc = ", nchspc
       call mma_allocate(CHSPC,NCHSPC,Label='CHSPC')
       call mma_allocate(HTSPC,NCHSPC,Label='HISPC')
       call mma_allocate(HTVec,nBasT*nBasT,Label='HTVEC')
@@ -778,12 +747,8 @@
 
       IF(NUMCHO_PT2(iSym) == 0) Return
 
-      ! ipnt=ip_InfVec+MaxVec_PT2*(1+InfVec_N2_PT2*(iSym-1))
-      ! JRED1=iWork(ipnt)
-      ! JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
       JRED1=InfVec(1,2,jSym)
       JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
-!     write(6,*) "jred1,jred2 = ", jred1,jred2
 
 * Loop over JRED
       DO JRED=JRED1,JRED2
@@ -807,7 +772,7 @@
 * Loop over IBATCH
         JV1=JSTART
         DO IBATCH=1,NBATCH
-!         write(6,*) "ibatch,nbatch = ", ibatch,nbatch
+!         write(6,*) 'ibatch,nbatch = ', ibatch,nbatch
           IBATCH_TOT=IBATCH_TOT+1
 
           JNUM=NVLOC_CHOBATCH(IBATCH_TOT)

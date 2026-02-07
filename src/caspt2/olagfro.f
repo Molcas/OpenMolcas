@@ -174,7 +174,7 @@
         End If
         iMO  = iMO  + nOrbI*nOrbI
       End Do
-!     write(u6,*) "DPT2 after frozen orbital"
+!     write(u6,*) 'DPT2 after frozen orbital'
 !     call sqprt(dpt2,nbast)
 
       End Subroutine OLagFro1
@@ -199,7 +199,7 @@
      &  nFroI, nIshI, iOrb, jOrb
       real(kind=wp) :: Scal, Val
 
-!     write(u6,*) "FPT2 before frozen orbital"
+!     write(u6,*) 'FPT2 before frozen orbital'
 !     call sqprt(fpt2,nbast)
       iMO = 1
       isymi = 1
@@ -234,7 +234,7 @@
         End Do
         iMO = iMO + nOrbI*nOrbI
       End Do
-!     write(u6,*) "FPT2 after frozen orbital"
+!     write(u6,*) 'FPT2 after frozen orbital'
 !     call sqprt(fpt2,nbast)
 
       End Subroutine OLagFro2
@@ -302,9 +302,9 @@
         iCMO  = iCMO  + nBasI*nOrbI !?
         iMO   = iMO   + nOrbI*nOrbI
       End Do
-!     write(u6,*) "FIFA"
+!     write(u6,*) 'FIFA'
 !     call sqprt(fifa,nbast)
-!     write(u6,*) "FIMO"
+!     write(u6,*) 'FIMO'
 !     call sqprt(fimo,nbast)
 
       call mma_deallocate(WFLT)
@@ -460,7 +460,7 @@
       ! JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
       JRED1=InfVec(1,2,iSym)
       JRED2=InfVec(NumCho_PT2(iSym),2,iSym)
-!     write(u6,*) "jred1,jred2 = ", jred1,jred2
+!     write(u6,*) 'jred1,jred2 = ', jred1,jred2
 
 * Loop over JRED
       DO JRED=JRED1,JRED2

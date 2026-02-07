@@ -686,8 +686,8 @@
       IF(ISCF /= 0) then
 ! -Special code for the closed-shell or hi-spin cases:
 ! ISCF=1 for closed-shell, =2 for hispin
-        write (u6,*) "Here is the special case"
-        write (u6,*) "not yet"
+        write (u6,*) 'Here is the special case'
+        write (u6,*) 'not yet'
         call abend()
       end if
 ! Here, for regular CAS or RAS cases.
@@ -826,7 +826,7 @@
         CLAG2(1:NCI1) = CLAG2(1:NCI1) + OVL*CI1(1:NCI1)
         CLAG1(1:NCI1) = CLAG1(1:NCI1) + OVL*CI2(1:NCI1)
       END IF
-!     write (*,*) "overlap = ",DDOT_(NCI1,CI1,1,CI2,1)
+!     write (*,*) 'overlap = ',DDOT_(NCI1,CI1,1,CI2,1)
 ! Allocate as many vectors as possible:
 ! Wishful thinking:
       NVECS=2*NASHT**2+1

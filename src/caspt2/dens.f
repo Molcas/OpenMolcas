@@ -141,7 +141,7 @@
         IF (IPRGLB >= verbose) THEN
           CPUT =CPTF10-CPTF0
           WALLT=TIOTF10-TIOTF0
-          write(u6,'(a,2f10.2)')" Lambda  : CPU/WALL TIME=", cput,wallt
+          write(u6,'(a,2f10.2)')' Lambda  : CPU/WALL TIME=', cput,wallt
         END IF
 
 
@@ -173,7 +173,7 @@
         IF (IPRGLB >= verbose) THEN
           CPUT =CPTF10-CPTF0
           WALLT=TIOTF10-TIOTF0
-          write(u6,'(a,2f10.2)')" TRDNS2DO: CPU/WALL TIME=", cput,wallt
+          write(u6,'(a,2f10.2)')' TRDNS2DO: CPU/WALL TIME=', cput,wallt
         END IF
 
         !! D^PT2 in MO
@@ -205,7 +205,7 @@
         call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
         !! Derivative of state-averaged density
         call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
-!       write(u6,*) "olag before"
+!       write(u6,*) 'olag before'
 !       call sqprt(olag,nbast)
 
         DPT2(:) = Zero
@@ -275,7 +275,7 @@
           WRK1(1:nDRef) = DMix(1:nDRef,jState)
         End If
         Call SQUARE(WRK1,RDMSA,1,nAshT,nAshT)
-!       write(u6,*) "state-averaged density matrix"
+!       write(u6,*) 'state-averaged density matrix'
 !       call sqprt(rdmsa,nasht)
 !
 !       ----- Construct configuration Lagrangian -----
@@ -294,7 +294,7 @@
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(u6,'(a,2f10.2)')
-     &        " SIGDER  : CPU/WALL TIME=", cput,wallt
+     &        ' SIGDER  : CPU/WALL TIME=', cput,wallt
           END IF
         end if
         Call CLagX(1,CLag,DEPSA,VECROT)
@@ -302,9 +302,9 @@
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADSUM (DEPSA,nAshT**2)
 #endif
-!       write(u6,*) "original depsa"
+!       write(u6,*) 'original depsa'
 !       call sqprt(depsa,nasht)
-!       write(u6,*) "original depsa (sym)"
+!       write(u6,*) 'original depsa (sym)'
         do i = 1, nasht
           do j = 1, i-1
             val = (DEPSA(i,j)+DEPSA(j,i))*Half
@@ -318,8 +318,8 @@
           !! The density of the independent pairs (off-diagonal blocks)
           !! should be determined by solving Z-vector, so these blocks
           !! should be removed...?
-!         write(u6,*) "removing DEPSA of off-diagonal blocks"
-!         write(u6,*) "before"
+!         write(u6,*) 'removing DEPSA of off-diagonal blocks'
+!         write(u6,*) 'before'
 !         call sqprt(depsa,nasht)
             Do II = 1, nRAS1T
               Do JJ = nRAS1T+1, nAshT
@@ -333,13 +333,13 @@
                 DEPSA(JJ,II) = Zero
               End Do
             End Do
-!         write(u6,*) "after"
+!         write(u6,*) 'after'
 !         call sqprt(depsa,nasht)
           IF (IPRGLB >= debug)
-     &      write(u6,*) "depsa (sym) after removing off-diagonal blocks"
+     &      write(u6,*) 'depsa (sym) after removing off-diagonal blocks'
         Else
           IF (IPRGLB >= debug)
-     &      write(u6,*) "depsa (sym)"
+     &      write(u6,*) 'depsa (sym)'
         End If
         IF (IPRGLB >= verbose) call sqprt(depsa,nasht)
 
@@ -354,7 +354,7 @@
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(u6,'(a,2f10.2)')
-     &        " DerHEff : CPU/WALL TIME=", cput,wallt
+     &        ' DerHEff : CPU/WALL TIME=', cput,wallt
             write(u6,*)
           END IF
         End If
@@ -374,7 +374,7 @@
           !! Clear
           DEPSA(:,:) = Zero
         End If
-!       write(u6,*) "depsad"
+!       write(u6,*) 'depsad'
 !       call sqprt(depsa,nasht)
 
         !! Transform the quasi-variational amplitude (T+\lambda/2?)
@@ -471,7 +471,7 @@
 
           !! Orbital Lagrangian that comes from the derivative of ERIs.
           !! OLagNS computes only the particle orbitals.
-!         write(u6,*) "ialgo = ", ialgo
+!         write(u6,*) 'ialgo = ', ialgo
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           If (IfChol .and. iALGO == 1) Then
             CALL OLagNS_RI(iSym,DPT2C,DPT2Canti,A_PT2)
@@ -483,9 +483,9 @@
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(u6,'(a,2f10.2)')
-     &        " OLagNS  : CPU/WALL TIME=", cput,wallt
+     &        ' OLagNS  : CPU/WALL TIME=', cput,wallt
           END IF
-!         write(u6,*) "DPT2C"
+!         write(u6,*) 'DPT2C'
 !         call sqprt(dpt2c,nbast)
 
           !! MO -> AO transformations for DPT2 and DPT2C
@@ -493,9 +493,9 @@
      &       .or.(nFroT == 0 .and. if_invaria)) Then
             Call OLagTrf(1,iSym,CMOPT2,DPT2,DPT2_AO,WRK1)
             Call OLagTrf(1,iSym,CMOPT2,DPT2C,DPT2C_AO,WRK1)
-!           write(u6,*) "dpt2"
+!           write(u6,*) 'dpt2'
 !           call sqprt(dpt2,nbast)
-!           write(u6,*) "dpt2ao"
+!           write(u6,*) 'dpt2ao'
 !           call sqprt(dpt2_ao,nbast)
           End If
 
@@ -514,20 +514,20 @@
      &                  FPT2_AO,FPT2C_AO,T2AO,
      &                  DIA,DI,FIFA_all,FIMO_all,
      &                  A_PT2,MaxVec_PT2)
-        !   write(u6,*) "olag after vvvo"
+        !   write(u6,*) 'olag after vvvo'
         !   call sqprt(olag,nbast)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
           IF (IPRGLB >= verbose) THEN
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(u6,'(a,2f10.2)')
-     &        " OLagVVVO: CPU/WALL TIME=", cput,wallt
+     &        ' OLagVVVO: CPU/WALL TIME=', cput,wallt
           END IF
-!     write(u6,*) "OLag"
+!     write(u6,*) 'OLag'
 !     do i = 1, 144
 !       write(u6,'(i3,f20.10)') i,olag(i)
 !     end do
-!      write(u6,*) "fpt2ao"
+!      write(u6,*) 'fpt2ao'
 !     call sqprt(fpt2_ao,12)
 !     call abend()
 
@@ -545,11 +545,11 @@
         !! Also, symmetrize DSUM
         Call AddDPTC(DPT2C,DSUM)
 !
-!       write(u6,*) "fptao after olagns"
+!       write(u6,*) 'fptao after olagns'
 !       call sqprt(fpt2_ao,nbast)
-!       write(u6,*) "fptcao after olagns"
+!       write(u6,*) 'fptcao after olagns'
 !       call sqprt(fpt2c_ao,nbast)
-!       write(u6,*) "olag after olagns"
+!       write(u6,*) 'olag after olagns'
 !       call sqprt(olag,nbast)
 !
         !! If frozen orbitals exist, frozen-inactive part of the
@@ -558,7 +558,7 @@
         !! required.
         If (nFroT /= 0 .or. .not.if_invaria) Then
           !! Compute DPT2 density for frozen-inactive
-!         write(u6,*) "dpt2 before frozen"
+!         write(u6,*) 'dpt2 before frozen'
 !         call sqprt(dpt2,nbast)
           if (.not.ifchol) then
             !! Construct FIFA and FIMO
@@ -621,7 +621,7 @@
           CALL DGEMM_('T','N',nBasT,nBasT,nBasT,
      &               -One,FIFA_all,nBasT,WRK1,nBasT,
      &                One,OLAG,nBasT)
-!         write(u6,*) "dpt after frozen"
+!         write(u6,*) 'dpt after frozen'
 !         call sqprt(dpt2,nbast)
 
           !! Fock transformation for frozen-inactive density
@@ -643,15 +643,15 @@
             Call OLagTrf(2,iSym,CMOPT2,FPT2,FPT2_AO,WRK1)
             Call OLagTrf(2,iSym,CMOPT2,FPT2C,FPT2C_AO,WRK1)
           Else
-!           write(u6,*) "dpt"
+!           write(u6,*) 'dpt'
 !           call sqprt(dpt2,nbast)
             Call OLagFro2(DPT2,FPT2,WRK1,WRK2)
-!         write(u6,*) "fpt"
+!         write(u6,*) 'fpt'
 !           call sqprt(dpt2,nbast)
           End If
-!         write(u6,*) "fifa_all"
+!         write(u6,*) 'fifa_all'
 !         call sqprt(fifa_all,12)
-!         write(u6,*) "fimo_all"
+!         write(u6,*) 'fimo_all'
 !         call sqprt(fimo_all,12)
       !   !! Construct FIFA and FIMO
       !   Call OLagFro3(FIFA_all,FIMO_all,WRK1,WRK2)
@@ -668,11 +668,11 @@
         End If
         call mma_deallocate(DIA)
         call mma_deallocate(DI)
-!         write(u6,*) "fifa_all in dens"
+!         write(u6,*) 'fifa_all in dens'
 !         call sqprt(fifa_all,nbast)
-!         write(u6,*) "fimo_all in dens"
+!         write(u6,*) 'fimo_all in dens'
 !         call sqprt(fimo_all,nbast)
-!        write(u6,*) "FIFA in natural"
+!        write(u6,*) 'FIFA in natural'
 !         Call DGemm_('N','N',nBasT,nBasT,nBasT,
 !    *                One,Trf,nBasT,fifa_all,nBasT,
 !    *                Zero,WRK1,nBasT)
@@ -683,18 +683,18 @@
 
         !! Do some post-process for the contributions that comes from
         !! the above two densities.
-!       write(u6,*) "olag before eigder"
+!       write(u6,*) 'olag before eigder'
 !       call sqprt(olag,nbast)
-!       write(u6,*) "fpt2"
+!       write(u6,*) 'fpt2'
 !       call sqprt(fpt2,nbast)
         CALL EigDer(DPT2,DPT2C,FPT2_AO,FPT2C_AO,RDMEIG,CMOPT2,
      &              Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMSA)
 !          call test2_dens(olag,depsa)
-!       write(u6,*) "olag after eigder"
+!       write(u6,*) 'olag after eigder'
 !       call sqprt(olag,nbast)
-!       write(u6,*) "Wlag after eigder"
+!       write(u6,*) 'Wlag after eigder'
 !       call sqprt(wlag,nbast)
-!       write(u6,*) "rdmeig"
+!       write(u6,*) 'rdmeig'
 !       call sqprt(rdmeig,nasht)
 !       call abend()
 
@@ -741,7 +741,7 @@
           Call DCopy_(nAshT,DEPSA_diag,1,DEPSA,nAshT+1)
           call mma_deallocate(DEPSA_diag)
           IF (IPRGLB >= verbose) THEN
-            write(u6,*) "DEPSA computed again"
+            write(u6,*) 'DEPSA computed again'
             call sqprt(depsa,nasht)
           END IF
           If (NRAS1T+NRAS3T /= 0) Then
@@ -902,7 +902,7 @@
         If (if_SSDM .and. (jState == iRlxRoot .or. IFMSCOUP)) Then
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 !         If (.not.if_invar) Then
-!           write(u6,*) "SS density matrix with IPEA not implemented"
+!           write(u6,*) 'SS density matrix with IPEA not implemented'
 !           Call abend()
 !         End If
 
@@ -934,10 +934,10 @@
             !! Well, it is not working any more. I need to use
             !! Position='APPEND', but it is not possible if I need to
             !! use molcas_open or molcas_open_ext2
-            write(u6,*) "It is not possible to perform this calculation"
-            write(u6,*) "(non-state averaged density without"
-            write(u6,*) "density-fitting or Cholesky decomposition)"
-            write(u6,*) "Please use DF or CD"
+            write(u6,*) 'It is not possible to perform this calculation'
+            write(u6,*) '(non-state averaged density without'
+            write(u6,*) 'density-fitting or Cholesky decomposition)'
+            write(u6,*) 'Please use DF or CD'
             call abend()
           End If
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
@@ -945,10 +945,10 @@
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(u6,'(a,2f10.2)')
-     &        " SSDM    : CPU/WALL TIME=", cput,wallt
+     &        ' SSDM    : CPU/WALL TIME=', cput,wallt
           END IF
         End If
-!       write(u6,*) "pt2ao"
+!       write(u6,*) 'pt2ao'
 !       call sqprt(DPT2_AO,12)
         call mma_deallocate(DEPSA)
 
@@ -1205,7 +1205,7 @@
 
 !       n123 = nAshI*nAshI !! just for CAS at present
 !       iTOrb = iTOrb + n123 + nSshI*nSshI
-!     write(u6,*) "transformation matrix"
+!     write(u6,*) 'transformation matrix'
 !     call sqprt(trf,nbasi)
       End Do
 
@@ -1980,7 +1980,7 @@
 * Loop over IBATCH
         JV1=JSTART
         DO IBATCH=1,NBATCH
-!         write(u6,*) "ibatch,nbatch = ", ibatch,nbatch
+!         write(u6,*) 'ibatch,nbatch = ', ibatch,nbatch
           IBATCH_TOT=IBATCH_TOT+1
 
           JNUM=NVLOC_CHOBATCH(IBATCH_TOT)
@@ -2101,7 +2101,7 @@
 * Loop over IBATCH
           JV1=JSTART
           DO IBATCH=1,NBATCH
-!           write(u6,*) "ibatch,nbatch = ", ibatch,nbatch
+!           write(u6,*) 'ibatch,nbatch = ', ibatch,nbatch
             IBATCH_TOT=IBATCH_TOT+1
 
             JNUM=NVLOC_CHOBATCH(IBATCH_TOT)

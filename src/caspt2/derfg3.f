@@ -321,7 +321,7 @@
 !     CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
 !     CPUT =CPTF10-CPTF0
 !     WALLT=TIOTF10-TIOTF0
-!     write(6,*) "PREP    : CPU/WALL TIME=", cput,wallt
+!     write(6,*) 'PREP    : CPU/WALL TIME=', cput,wallt
 
       iG3OFF=0
       iTask_loc = 1
@@ -356,7 +356,7 @@
         ENDIF
       ENDDO
       nTasks=iTask
-!     write(u6,*) "nTasks = ", nTasks
+!     write(u6,*) 'nTasks = ', nTasks
       IF (ibuf1 == 0) nTasks=nTasks-1
 !-SVC20100309: calculate number of inner loop iteration tasks.
       iOffSet=0
@@ -367,9 +367,9 @@
         ip3mx=ntri2
         if(ip1end <= ntri2) ip3mx=ip1end
         if(ip1sta > ntri2) ip3mx=ntri1
-!       write(u6,*) "iTask = ", iTask
-!       write(u6,*) "start,end=",ip1sta,ip1end
-!       write(u6,*) "ip3mx = ", ip3mx
+!       write(u6,*) 'iTask = ', iTask
+!       write(u6,*) 'start,end=',ip1sta,ip1end
+!       write(u6,*) 'ip3mx = ', ip3mx
 !-SVC20100309: Currently -we are going to limit this to the ip3-loop and
 !-leave the ip2-loop intact.  This was based on the large overhead which
 !-was observed for a very large number of small tasks.
@@ -377,7 +377,7 @@
         iOffSet=iOffSet+ip3mx
       ENDDO
       nSubTasks=iOffSet
-!     write(u6,*) "nSubTasks = ", nSubTasks
+!     write(u6,*) 'nSubTasks = ', nSubTasks
 
       IF(iPrGlb >= VERBOSE) THEN
         WRITE(u6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
@@ -388,22 +388,22 @@
         IF (nSubTasks > 0) THEN
           WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 !-position 12345678901234567890
-     &    "--------",
-     &    "------------",
-     &    "----",
-     &    "---------"
+     &    '--------',
+     &    '------------',
+     &    '----',
+     &    '---------'
           WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 !-position 12345678901234567890
-     &    "task ID ",
-     &    " ip1 range  ",
-     &    "ip3 ",
-     &    "#elements"
+     &    'task ID ',
+     &    ' ip1 range  ',
+     &    'ip3 ',
+     &    '#elements'
           WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 !-position 12345678901234567890
-     &    "--------",
-     &    "------------",
-     &    "----",
-     &    "---------"
+     &    '--------',
+     &    '------------',
+     &    '----',
+     &    '---------'
           call xFlush(u6)
         END IF
       END IF
@@ -454,7 +454,7 @@
 !-SVC20100301: fill the buffer with sigma vectors if they
 !-have not been computed yet, else just get the number of
 !-sigma vectors in the buffer.
-!     write(u6,*) "myBuffer,iTask = ", myBuffer,iTask
+!     write(u6,*) 'myBuffer,iTask = ', myBuffer,iTask
         IF (myBuffer /= iTask) THEN
           if (.not.first) then
             !! Compute left derivative and DEPSA contributions before
@@ -491,14 +491,14 @@
         if (issg1 == STSYM .AND. ip3 == 1) then
           !! buf1 = <Psi0|E_ip1|I>
           !! <0|E_{tu}I> = <I|E_{ut}|0>
-!         write(u6,*) "ib loop"
+!         write(u6,*) 'ib loop'
           do ib=1,ibuf1
             idx=ip1_buf(ib)
             itlev=idx2ij(1,idx)
             iulev=idx2ij(2,idx)
             it=L2ACT(itlev)
             iu=L2ACT(iulev)
-!           write(u6,'("itlev,iulev,it,iu = ",4i3)') itlev,iulev,it,iu
+!           write(u6,'('itlev,iulev,it,iu = ',4i3)') itlev,iulev,it,iu
             !! DG1 contribution
             SCAL = DG1(iT,iU) + DG1(iT,iU)
             CLag(1:nsgm1) = CLag(1:nsgm1) + SCAL*BUF1(1:nsgm1,ib)
@@ -538,7 +538,7 @@
 
 !-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 
-!       write(u6,*) "ip3 = ", ip3
+!       write(u6,*) 'ip3 = ', ip3
 !       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         iq1=icnj(ip3)
 * The indices corresponding to pair index p3:
@@ -718,10 +718,10 @@
         IF (nSubTasks > 0) THEN
           WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 !-position 12345678901234567890
-     &    "--------",
-     &    "------------",
-     &    "----",
-     &    "---------"
+     &    '--------',
+     &    '------------',
+     &    '----',
+     &    '---------'
         END IF
       END IF
 
@@ -731,11 +731,11 @@
 #ifdef _MOLCAS_MPP_
       if (is_real_par() .and. (iTask_loc-1 /= nTasks_grad)) then
         write (u6,*)
-        write (u6,*) "Somehow, the number of tasks in mkfg3.f and ",
-     &              "derfg3.f is not consistent..."
-        write (u6,*) "probably, bug"
-        write (u6,*) "# of tasks in  mkfg3.f = ", nTasks_grad
-        write (u6,*) "# of tasks in derfg3.f = ", iTask_loc-1
+        write (u6,*) 'Somehow, the number of tasks in mkfg3.f and ',
+     &              'derfg3.f is not consistent...'
+        write (u6,*) 'probably, bug'
+        write (u6,*) '# of tasks in  mkfg3.f = ', nTasks_grad
+        write (u6,*) '# of tasks in derfg3.f = ', iTask_loc-1
         call abend()
       end if
 #endif
@@ -845,11 +845,11 @@
       if (NACTEL == 1 .or. NACTEL == 2) NG3 = 0
       if (NACTEL /= 1) then
         if (NACTEL /= 2) then
-          write(u6,*) "I have not implemented for non-standard Psi0, ",
-     &      "when A and C subspaces contribute to the energy, ",
-     &      "in particular"
-          write(u6,*) "I cannot debug, ",
-     &      "because I do not know when it happens"
+          write(u6,*) 'I have not implemented for non-standard Psi0, ',
+     &      'when A and C subspaces contribute to the energy, ',
+     &      'in particular'
+          write(u6,*) 'I cannot debug, ',
+     &      'because I do not know when it happens'
 !         call abend()
 
           NLEV2=NLEV**2

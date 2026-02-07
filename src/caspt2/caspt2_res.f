@@ -35,7 +35,7 @@
       !!     + U_{SS}*(H_{SS} + <\Psi_S|H0-E0|\Psi_S>)*U_{SS}
       !!     + <lambda|H|\Psi0> + <lambda|H0-E0+Eshift|\Psi_S>
 
-!     write(u6,*) "in CASPT2_res"
+!     write(u6,*) 'in CASPT2_res'
       CALL PSCAVEC(One,IRHS,iVecL)
 
       !! Construct the partial derivative of the target state
@@ -58,7 +58,7 @@
       !! Add the partial derivative contribution for MS-CASPT2
       !! (off-diagonal elements). The derivative is taken with IVECW
       !! and put in IVECC.
-!     write (*,*) "Ifmscoup = ", ifmscoup, nstate
+!     write (*,*) 'Ifmscoup = ', ifmscoup, nstate
       IF (IFMSCOUP) Then
         Call RHS_ZERO(IVECC)
         Call PSCAVEC(VECROT(jStLag),iVecL,iVecL)
@@ -328,7 +328,7 @@
 
           IF(IPRGLB >= USUAL) THEN
             WRITE(u6,*)
-        WRITE(u6,*) "Solving the Lambda equation for analytic gradients"
+        WRITE(u6,*) 'Solving the Lambda equation for analytic gradients'
             WRITE(u6,'(25A5)')('-----',I=1,25)
             WRITE(u6,'(2X,A,A)')
      & 'IT.      VJTU        VJTI        ATVX        AIVX        VJAI ',

@@ -144,7 +144,7 @@
       !! the active orbital index (indices) must be transformed to the
       !! (quasi-)canonical MO (or contravatiant) basis.
       !! IC = SR (why?), contravariant = C
-!     write(u6,*) "icase = ", icase
+!     write(u6,*) 'icase = ', icase
 
       PM = .false.
       If (iCase == 2 .or. iCase == 6 .or .iCase == 8 .or.
