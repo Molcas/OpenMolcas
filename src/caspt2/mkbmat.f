@@ -2022,13 +2022,18 @@ CGG End
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 
-      INTEGER(KIND=IWP) NDREF,NPREF
-      REAL(KIND=WP) DREF(NDREF),PREF(NPREF)
-      REAL(KIND=WP) FD(NDREF),FP(NPREF)
+      INTEGER(KIND=IWP), INTENT(IN):: NDREF,NPREF
+      REAL(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF)
+      REAL(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
 
       REAL(KIND=WP), ALLOCATABLE:: BD(:), S(:), SD(:)
+      INTEGER(KIND=IWP) ISYM,NIN,NAS,NBD,NS2,NAS2,IDS,IDIAG,I,ITU,ITU2,
+     &                  ITUABS,ITABS,IUABS,IXY,IXY2,IXYABS,IXABS,IYABS,
+     &                  IB11,IB21,IB12,IB22,IUTP,IXYP,IP1,IP2,IP,ID,ID1,
+     &                  ID2,IDISK,IDT,IDU,IUYP,IXTP
+      REAL(KIND=WP) ET,EX,B11,B22,ETX,FUY,DUY
 
 C Set up the matrix BD(tuP,xyQ),P and Q are 1 or 2,
 C Formulae used:
