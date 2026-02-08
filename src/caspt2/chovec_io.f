@@ -253,8 +253,6 @@ C always write the chunks to LUDRA, both for serial and parallel
 * Read Cholesky vectors from disk.
 ************************************************************************
       use caspt2_global, only: LUDRA
-      use ChoCASPT2
-      use caspt2_module
 #ifdef _DEBUGPRINT_
       use definitions, only: u6
 #endif
