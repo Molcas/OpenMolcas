@@ -1148,16 +1148,18 @@ CGG End
 
       SUBROUTINE MKBC_F3(ISYM,BC,NG3,F3,idxG3)
       use definitions, only: iwp, wp, Byte
-      USE SUPERINDEX
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      USE SUPERINDEX, only: KTUV
+      use caspt2_module, only: NASHT,IASYM,MUL,nTUVES
+      IMPLICIT NONE
 
-      REAL(KIND=WP) BC(*)
-      REAL(KIND=WP) F3(NG3)
-      INTEGER(KIND=BYTE) idxG3(6,NG3)
+      INTEGER(KIND=IWP), INTENT(IN):: ISYM, NG3
+      REAL(KIND=WP), INTENT(INOUT):: BC(*)
+      REAL(KIND=WP), INTENT(IN):: F3(NG3)
+      INTEGER(KIND=BYTE), INTENT(IN):: idxG3(6,NG3)
 
-      INTEGER(KIND=IWP) iG3
+      INTEGER(KIND=IWP) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
+     &                  ituvs,ixyzs,iTU,iVX,iYZ,jSYM,ISUP,JSUP,ISADR
+      REAL(KIND=WP) F3VAL
 
 C-SVC20100831: determine indices in BC where a certain G3 value will end up
       DO iG3=1,NG3
