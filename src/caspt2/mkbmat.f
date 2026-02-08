@@ -23,9 +23,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: DREF, PREF
       use caspt2_global, only: LUSOLV, LUSBT
-      use EQSOLV
-      use caspt2_module
-      use pt2_guga
+      use caspt2_module, only: NASHT
+      use pt2_guga, only: NG1, NG2, NG3
       IMPLICIT NONE
 C Set up B matrices for cases 1..13.
 
@@ -96,6 +95,8 @@ C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest of the routines.
       use constants, only: Zero
+      use EQSOLV, only: IDBMAT
+      use caspt2_module, only: NSYM, NINDEP
       implicit None
       real(kind=wp) DUM(1)
       integer(kind=iwp) ISYM, ICASE, NIN, IDISK
