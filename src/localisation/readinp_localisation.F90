@@ -15,7 +15,7 @@
 subroutine Readinp_localisation()
 ! Author: Y. Carissan [heavily modified by T.B. Pedersen].
 
-use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, &
+use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, ChoStart, DoCNOs, DoDomain, EvalER, &
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
                                 Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
