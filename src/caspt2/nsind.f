@@ -10,8 +10,10 @@
 ************************************************************************
       SUBROUTINE NSIND(INS,ISYM,ICASE,IP,IQ,IR)
       use definitions, only: iwp, u6
-      USE SUPERINDEX
-      use caspt2_module
+      USE SUPERINDEX, only: MIGEJ,MIGTJ,MAGTB,MAGEB
+      use caspt2_module, only: NIES,IINAIS,NIGEJES,NSES,NSYM,NIGTJES,
+     &                         IEXTIS,MUL,NISH,NSSH,NIGEJ,NIGTJ,NAGEBES,
+     &                         NAGTBES,NAGEB,NAGTB
       IMPLICIT None
       integer(kind=iwp), intent(in):: INS,ISYM,ICASE
       integer(kind=iwp), intent(out):: IP,IQ,IR
