@@ -24,9 +24,11 @@
       use constants, only: Zero, One
       use caspt2_global, only: TAT, TORB
       use caspt2_global, only: LUCIEX, IDTCEX
-      use EQSOLV
+      use EQSOLV, only: iVecC, iVecW
       use stdalloc, only: mma_allocate,mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: NSTATE,E2CORR,E2TOT,IFMSCOUP,ISCF,JSTATE,
+     &                         NCONF,NSYM,ORBIN,STSYM,NISH,NRAS1,NRAS2,
+     &                         NRAS3,NSSH,NAES
       IMPLICIT None
       real(kind=wp), intent(inout):: HEFF(NSTATE,NSTATE)
 
