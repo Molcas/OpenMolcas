@@ -1329,14 +1329,15 @@ C  - F(xvzyut) -> BC(zvx,yut)
       use EQSOLV
       use definitions, only: MPIInt,RtoB,wp
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 
 #include "global.fh"
 #include "mafdecls.fh"
 
-      REAL(KIND=WP) BC(LDC,*)
-      REAL(KIND=WP) F3(NG3)
-      INTEGER(kind=Byte) idxG3(6,NG3)
+      INTEGER(KIND=IWP), INTENT(IN):: ISYM,iLo,iHi,jLo,jHi,LDC,NG3
+      REAL(KIND=WP), INTENT(INOUT):: BC(LDC,*)
+      REAL(KIND=WP), INTENT(IN):: F3(NG3)
+      INTEGER(kind=Byte),INTENT(IN):: idxG3(6,NG3)
 
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
@@ -1344,13 +1345,19 @@ C  - F(xvzyut) -> BC(zvx,yut)
       integer(kind=MPIInt), ALLOCATABLE :: SDISPLS2(:), RDISPLS2(:)
 
       integer(kind=MPIInt), ALLOCATABLE :: SENDIDX(:), RECVIDX(:)
-      REAL*8,    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
+      real(kind=wp),    ALLOCATABLE :: SENDVAL(:), RECVVAL(:)
 
       integer(kind=MPIInt), PARAMETER :: ONE4=1, TWO4=2
       integer(kind=MPIInt) :: IERROR4
       INTEGER(KIND=IWP), PARAMETER :: I4=KIND(ONE4)
 
       INTEGER(KIND=IWP), ALLOCATABLE :: IBUF(:)
+      INTEGER(KIND=IWP) NG3MAX,NPROCS,MYRANK,iscal,MAXBUF,NG3B,NBUF,NAS,
+     &                  NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,MAXMEM,
+     &                  IT,IG3,IU,IV,IX,IY,IZ,IST,ISU,ISV,ISX,ISY,ISZ,
+     &                  ITUVS,IXYZS,ITU,IVX,IYZ,JSYM,IROW,IP,IOFFSET,I,
+     &                  ICOL,NRECV,ISUP,JSUP
+      real(kind=wp) F3VAL
 
 #include "mpi_interfaces.fh"
 
