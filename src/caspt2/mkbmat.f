@@ -1800,9 +1800,9 @@ c Avoid unused argument warnings
       use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-      INTEGER(KIND=IWP) NDREF,NPREF
-      REAL(KIND=WP) DREF(NDREF),PREF(NPREF)
-      REAL(KIND=WP) FD(NDREF),FP(NPREF)
+      INTEGER(KIND=IWP), INTENT(IN):: NDREF,NPREF
+      REAL(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF)
+      REAL(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
 
       REAL(KIND=WP), ALLOCATABLE:: BB(:), BBP(:), SP(:), SDP(:),
      &                             BBM(:), SM(:), SDM(:)
