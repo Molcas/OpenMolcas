@@ -973,7 +973,7 @@ c Avoid unused argument warnings
       use fake_GA, only: GA_Arrays
       use EQSOLV
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -984,7 +984,11 @@ c Avoid unused argument warnings
       INTEGER(KIND=Byte), INTENT(IN):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       Real(KIND=WP) Dummy(1)
+      INTEGER(KIND=IWP) MYRANK,ILO,IHI,JLO,JHI,MA,LDA
 #endif
+      INTEGER(KIND=IWP) ICASE,ISYM,NIN,NAS,NBC,lg_BC
+      Real(KIND=WP) DBC
+      Real(KIND=WP), EXTERNAL:: PSBMAT_FPRINT
 
       ICASE=4
 C LONG loop over superindex symmetry.
