@@ -1088,9 +1088,9 @@ C Deallocate matrix product:
       SUBROUTINE MKWWOPG(IVEC,JVEC,OP1)
       use definitions, only: iwp, wp
       use constants, only: Zero, One
-      use EQSOLV
+      use EQSOLV, only: MODVEC
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: NSYM,NASUP,NISUP,NINDEP,NASHT,NAES
       IMPLICIT None
 
 C Presently symmetry blocking is disregarded.
