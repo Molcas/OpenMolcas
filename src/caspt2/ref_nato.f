@@ -12,7 +12,7 @@
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: NSYM,NFRO,NISH,NASH,NBAS
 
       IMPLICIT None
 
