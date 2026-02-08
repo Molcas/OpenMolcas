@@ -1059,15 +1059,20 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                    BC,iLo,iHi,jLo,jHi,LDC)
       use definitions, only: iwp, wp
       use constants, only: Half, Two, Four
-      USE SUPERINDEX
+      USE SUPERINDEX, only: MTUV
       use caspt2_global, only:ipea_shift
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER(KIND=IWP) NDREF,NPREF, iSYM,iLo,iHi,jLo,jHi,LDC
-      REAL(KIND=WP) DREF(NDREF),PREF(NPREF)
-      REAL(KIND=WP) FD(NDREF),FP(NPREF)
-      REAL(KIND=WP) BC(*)
+      use caspt2_module, only: EASUM,NASHT,NTUVES,EPSA
+      IMPLICIT NONE
+      INTEGER(KIND=IWP), intent(in):: NDREF,NPREF, iSYM,
+     &                                iLo,iHi,jLo,jHi,LDC
+      REAL(KIND=WP), intent(in):: DREF(NDREF),PREF(NPREF)
+      REAL(KIND=WP), intent(in):: FD(NDREF),FP(NPREF)
+      REAL(KIND=WP), intent(inout):: BC(*)
+
+      INTEGER(KIND=IWP) IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,ITUVABS,
+     &                  ITABS,IUABS,IVABS,ISADR,IVZ,ITX,IVU,ITZ,IP1,
+     &                  IP2,IP,ID1,ID2,ID,IDT,IDU,IDV,IVX,IYZ
+      REAL(KIND=WP) EY,EU, EYU, FACT, VALUE
 
       DO IXYZ=jLo,jHi
         IXYZABS=IXYZ+NTUVES(ISYM)
