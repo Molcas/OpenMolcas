@@ -20,7 +20,8 @@
 * -------------------------
       use definitions, only: iwp, wp
       use stdalloc, only: mma_MaxDBLE
-      use ChoCASPT2
+      use ChoCASPT2, only: Stuff,lsplit,nisplit,nasplit,nksh,nkes,npsh,
+     &                     npes
       use stdalloc, only: mma_allocate, mma_deallocate
 
       Implicit None
