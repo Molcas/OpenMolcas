@@ -497,14 +497,15 @@ C  - F(xvzyut) -> BA(yvx,zut)
       use EQSOLV
       use definitions, only: MPIInt,RtoB,wp
       use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 
 #include "global.fh"
 #include "mafdecls.fh"
 
-      REAL(KIND=WP) BA(LDA,*)
-      REAL(KIND=WP) F3(NG3)
-      INTEGER(KIND=Byte) idxG3(6,NG3)
+      INTEGER(KIND=IWP), INTENT(IN):: ISYM,iLo,iHi,jLo,jHi,LDA,NG3
+      REAL(KIND=WP), INTENT(INOUT):: BA(LDA,*)
+      REAL(KIND=WP),INTENT(IN):: F3(NG3)
+      INTEGER(KIND=Byte),INTENT(IN):: idxG3(6,NG3)
 
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS(:), RCOUNTS(:)
       integer(kind=MPIInt), ALLOCATABLE :: SCOUNTS2(:), RCOUNTS2(:)
@@ -519,6 +520,12 @@ C  - F(xvzyut) -> BA(yvx,zut)
       INTEGER(KIND=IWP), PARAMETER :: I4=KIND(ONE4)
 
       INTEGER(KIND=IWP), ALLOCATABLE :: IBUF(:)
+      INTEGER(KIND=IWP) NG3MAX,NPROCS,MYRANK,iscal,MAXBUF,NG3B,NBUF,NAS,
+     &                  NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,MAXMEM,
+     &                  IG3,IT,IU,IV,IX,IY,IZ,IST,ISU,ISV,ISX,ISY,ISZ,
+     &                  ITUVS,IXYZS,ITU,IVX,IYZ,JSYM,IROW,IP,IOFFSET,I,
+     &                  ICOL,NRECV,ISUP,JSUP
+      REAL(KIND=WP) F3VAL
 
 #include "mpi_interfaces.fh"
 
@@ -930,15 +937,17 @@ C  - F(xvzyut) -> BA(yvx,zut)
 
       DEALLOCATE(IBUF)
 
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL UNUSED_INTEGER(iHi)
 
       CONTAINS
 
-      PURE INTEGER FUNCTION IPROW(IROW,NQOT,NREM)
-      INTEGER, INTENT(IN) :: IROW, NQOT, NREM
-      INTEGER :: TMP
+      PURE FUNCTION IPROW(IROW,NQOT,NREM)
+      use definitions, only: iwp
+      IMPLICIT NONE
+      INTEGER(KIND=IWP) :: IPROW
+      INTEGER(KIND=IWP), INTENT(IN) :: IROW, NQOT, NREM
+      INTEGER(KIND=IWP) :: TMP
       TMP=IROW-NREM*(NQOT+1)
       IF (TMP.GT.0) THEN
         IPROW=(TMP-1)/NQOT+NREM+1
