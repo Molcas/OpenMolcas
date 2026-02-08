@@ -94,7 +94,8 @@
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
+      use caspt2_module, only: NSYM,NTUV,NISH,NACTEL,NORB,NTUVES,MUL,
+     &                         NASH
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC
 
