@@ -14,8 +14,8 @@
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      use pt2_guga
+      use caspt2_module, only: NASHT
+      use pt2_guga, only: NG1
       IMPLICIT NONE
       integer(kind=iwp), intent(in):: NDREF
       real(kind=wp), intent(out):: DREF(NDREF)
