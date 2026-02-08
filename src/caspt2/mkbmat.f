@@ -1792,13 +1792,14 @@ c Avoid unused argument warnings
       SUBROUTINE MKBB(DREF,NDREF,PREF,NPREF,FD,FP)
       use definitions, only: iwp, wp
       use constants, only: Half, Two, Four, Eight
-      USE SUPERINDEX
+      USE SUPERINDEX, only: MTU, MTGEU, KTU, KTGTU
       use caspt2_global, only:ipea_shift
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT,IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NINDEP,NTU,NTUES,NASHT,EASUM,
+     &                         EPSA,NTGEU,NTGEUES,NTGTU,NTGTUES
+      IMPLICIT None
 
       INTEGER(KIND=IWP), INTENT(IN):: NDREF,NPREF
       REAL(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF)
@@ -1807,6 +1808,13 @@ c Avoid unused argument warnings
       REAL(KIND=WP), ALLOCATABLE:: BB(:), BBP(:), SP(:), SDP(:),
      &                             BBM(:), SM(:), SDM(:)
 
+      INTEGER(KIND=IWP) ISYM,NINP,NAS,NBB,ITU,ITUABS,ITABS,IUABS,IXY,
+     &                  IXYABS,IXABS,IYABS,IBADR,IXT,IYU,IP1,IP2,IP,I,
+     &                  IBMADR,IBPADR,ID,ID1,ID2,IDIAG,IDISK,IDSM,IDSP,
+     &                  IDT,IDU,INSM,ITGEU,ITGEUABS,ITGTU,IXGEY,
+     &                  IXGEYABS,IXGTY,IYX,NASM,NASP,NBBM,NBBP,NSM,NSP
+      REAL(KIND=WP) ET,EU,EX,EY,ATUXY,ATUX,ATYU,ATUY,ATYX,BTUYX,
+     &              BTUXY,VALUE
 C Set up the matrices BBP(tu,xy) and BBM(tu,xy)
 C Formulae used:
 C    BB(tu,xy)= 2*( Fyuxt - (A-Et-Eu-Ex-Ey)*Gyuxt )
