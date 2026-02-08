@@ -964,15 +964,13 @@ c Avoid unused argument warnings
 ********************************************************************************
       SUBROUTINE MKBC(DREF,NDREF,PREF,NPREF,FD,FP,NG3,F3,idxG3)
       use definitions, only: iwp, wp, Byte
-      USE SUPERINDEX
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: GA_Arrays
-      use EQSOLV
-      use caspt2_module
+      use caspt2_module, only: NSYM,NINDEP,NTUV
       IMPLICIT NONE
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
