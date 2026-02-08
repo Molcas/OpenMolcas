@@ -503,9 +503,8 @@ CSVC: this routine reads an RHS array in SR format from disk
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_global, only: LURHS
-      use EQSOLV
       use fake_GA, only: GA_Arrays
-      use caspt2_module
+      use caspt2_module, only: IOFFRHS
       IMPLICIT None
       integer(kind=iwp), Intent(In):: NIN,NIS,lg_W,iCASE,iSYM,iVEC
 
