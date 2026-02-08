@@ -12,6 +12,8 @@
 ************************************************************************
       subroutine rdminit()
 
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
       use caspt2_global, only: LUONEM
@@ -20,15 +22,17 @@
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_set_state
       use iso_c_binding, only: c_int
+      use caspt2_module, only: DMRG, mState
 #endif
-      use caspt2_module
-      use pt2_guga
-      implicit real(8) (A-H,O-Z)
+      use caspt2_module, only: ISCF, nConf, nState, iAd1m
+      implicit None
 
 
-      REAL*8, ALLOCATABLE:: CI(:)
+      real(kind=wp), ALLOCATABLE:: CI(:)
+      integer(kind=iwp) iDisk, I, J
+      real(kind=wp) Wij
 
-      if (IPRGLB.GE.DEBUG) then
+      if (IPRGLB>=DEBUG) then
         write(6,*)' Entered rdminit.'
       end if
 
@@ -42,15 +46,15 @@
       call mma_allocate(CI,Nconf,Label='CI')
 
 * Initialize array of 1-RDMs with zeros
-      DMIX(:,:)=0.0D0
+      DMIX(:,:)=Zero
 
 * Start long loop over all states and compute the weighted density
 * of each state using the weights in DWGT
       do I=1,Nstate
 
-        if (ISCF.NE.0) then
+        if (ISCF/=0) then
 * Then we still need the "CI array": It is used in subroutine calls
-          CI(1)=1.0D0
+          CI(1)=One
         else
 * Get the CI array
           call loadCI(CI,I)
@@ -96,5 +100,4 @@
       nullify(CMO)
       call mma_deallocate(CI)
 
-      return
-      end
+      end subroutine rdminit

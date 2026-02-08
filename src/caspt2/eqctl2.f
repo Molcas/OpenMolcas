@@ -17,13 +17,24 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
+      use definitions, only: iwp, wp
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: nStpGrd, do_grad, iStpGrd
       use PrintLevel, only: insane, usual, verbose
-      use EQSOLV
-      use ChoCASPT2
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use EQSOLV, only: IRHS,IVECC,IVECC2,IVECR,IVECW,IVECX
+      use ChoCASPT2, only: iALGO
+      use caspt2_module, only: NINDEP, NISUP, NASUP, CPUEIG,CPULCS,
+     &                         CPUNAD,CPUOVL,CPUPCG,CPURHS,CPUSBM,
+     &                         CPUSCA,CPUSER,CPUSGM,CPUVEC,E2TOT,
+     &                         HZERO,IfChol,NSYM,RHSDIRECT,SDECOM,
+     &                         SMATRIX,TIOEIG,TIOLCS,TIONAD,TIOOVL,
+     &                         TIOPCG,TIORHS,TIOSBM,TIOSCA,TIOSER,
+     &                         TIOSGM,TIOVEC
+      IMPLICIT None
+      integer(kind=iwp), intent(inout):: ICONV
+
+      real(kind=wp) CPU0,CPU,TIO0,TIO,CPU1,TIO1
+      integer(kind=iwp) ICASE, ISYM, LAXITY
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
 C At position IVEC=IRHS, the RHS array, in SR representation.
@@ -33,7 +44,7 @@ C At position IVEC=IVECC, the solution array, in contravariant rep.
 C At position IVEC=IVECC2, the solution array, in covariant repr.
 C At position IVEC=IVECW, the RHS array, in contravariant repr.
 
-      INTEGER, EXTERNAL :: Cho_X_GetTol
+      integer(kind=iwp), EXTERNAL :: Cho_X_GetTol
 
 
       If (iStpGrd.EQ.1) Then
@@ -199,7 +210,6 @@ C Transform RHS of CASPT2 equations to eigenbasis for H0:
         Call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
       End If
 
-      ! IF (ICONV .NE. 0) GOTO 100
       CALL PTRTOC(0,IVECX,IVECC)
       CALL PTRTOC(1,IVECX,IVECC2)
 
@@ -223,6 +233,4 @@ C-SVC: collect and print information on coefficients/denominators
       CPUSER=CPU1-CPU0
       TIOSER=TIO1-TIO0
 
-  ! 100 CONTINUE
-      RETURN
-      END
+      END SUBROUTINE EQCTL2

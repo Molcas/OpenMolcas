@@ -380,9 +380,9 @@ C
             End Do
             If (do_csf) Then
               !! Prepare for something <\Phi_K^{(1)}|Ers|L>
-              Call RHS_ZERO(7)
               ibk = ivecc2
               ivecc2 = 7
+              Call RHS_ZERO(iVecc2)
               Do iStLag = 1, nState
                 If (iStLag.eq.jState) Cycle
                 Scal = UEFF(iStLag,iRoot1)*UEFF(jStLag,iRoot2)

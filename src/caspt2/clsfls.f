@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1993, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine ClsFls_CASPT2
+      Subroutine ClsFls_CASPT2()
 ************************************************************************
 *     Close files.                                                     *
 *----------------------------------------------------------------------*
@@ -20,19 +20,20 @@
 *     University of Lund, Sweden, 1993                                 *
 *                                                                      *
 ************************************************************************
+      use definitions, only: iwp
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: silent
       use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3,
      &                       LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS,
      &                       LUH0T, LUSOLV, LUSBT
-      use caspt2_module
-      Implicit real*8 (a-h,o-z)
+      use caspt2_module, only: IfChol
+      Implicit None
+      integer(kind=iwp) IMAT, iRc, IVEC
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *-------------------------------------- -------------------------------*
 
       Call DaClos(LUCIEX)
-* PAM08
       Call DaClos(LUONEM)
       Call DaClos(LUINTM)
       Call DaClos(LUDRA)
@@ -60,5 +61,4 @@
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine ClsFls_CASPT2

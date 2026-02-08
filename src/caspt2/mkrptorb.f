@@ -21,7 +21,8 @@
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
 #if defined(_DMRG_)
-      use qcmaquis_interface
+      use qcmaquis_interface, only: c_bool, c_int,
+     &                              qcmaquis_interface_rotate_rdms
       use caspt2_module, only: DMRG
 #endif
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_DMRG_)

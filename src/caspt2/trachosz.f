@@ -10,8 +10,10 @@
 *                                                                      *
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
-      SUBROUTINE TRACHOSZ
-      USE CHOVEC_IO
+      SUBROUTINE TRACHOSZ()
+      use definitions, only: iwp, wp
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH,NPQ_CHOTYPE,IDGLB_CHOGROUP,
+     &                     IDLOC_CHOGROUP,NVTOT_CHOSYM,NVGLB_CHOBATCH
       USE Para_Info, ONLY: nProcs
       use Cholesky, only: InfVec
       use caspt2_global, only: do_grad
@@ -32,14 +34,14 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER IB,IBSTA,IBEND,IBATCH_TOT,NBATCH,NV
-      INTEGER ICASE,ISYMA,ISYMB,ISYQ,JSYM,NPB,NPQ
-      INTEGER JRED,JRED1,JRED2,JSTART
-      INTEGER IDISK
-      INTEGER MXFTARR,MXHTARR
-      INTEGER MXSPC
-      INTEGER NVACT,NVACC,NVECS_RED
-      Real*8 Dummy(1)
+      INTEGER(kind=iwp) IB,IBSTA,IBEND,IBATCH_TOT,NBATCH,NV
+      INTEGER(kind=iwp) ICASE,ISYMA,ISYMB,ISYQ,JSYM,NPB,NPQ
+      INTEGER(kind=iwp) JRED,JRED1,JRED2,JSTART
+      INTEGER(kind=iwp) IDISK
+      INTEGER(kind=iwp) MXFTARR,MXHTARR
+      INTEGER(kind=iwp) MXSPC
+      INTEGER(kind=iwp) NVACT,NVACC,NVECS_RED
+      Real(kind=wp) Dummy(1)
 * ======================================================================
 * Determine sectioning size to use for the full-transformed MO vectors
 * using Francesco's method.
@@ -234,13 +236,13 @@ CSVC: take the global sum of the individual maxima
         END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE TRACHOSZ
 
-      SUBROUTINE TRACHOSZ_FREE
-      USE CHOVEC_IO
+      SUBROUTINE TRACHOSZ_FREE()
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH,IDLOC_CHOGROUP,
+     &                     NVGLB_CHOBATCH,IDGLB_CHOGROUP
       DEALLOCATE(NVLOC_CHOBATCH)
       DEALLOCATE(IDLOC_CHOGROUP)
       DEALLOCATE(NVGLB_CHOBATCH)
       DEALLOCATE(IDGLB_CHOGROUP)
-      END
+      END SUBROUTINE TRACHOSZ_FREE

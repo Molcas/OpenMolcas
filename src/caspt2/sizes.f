@@ -17,24 +17,48 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SIZES()
+      use definitions, only: iwp, wp
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: usual
-      USE SUPERINDEX
+      USE SUPERINDEX, only: SUPINI
       use stdalloc, only: mma_MaxDBLE
       use caspt2_global, only: NCMO
       use caspt2_global, only: do_csf, do_grad, do_nac, if_invar,
      &                         if_invaria, if_SSDM, ipea_shift
-      use CHOVEC_IO
-      use ChoCASPT2
       use Cholesky, only: NumCho
-      use EQSOLV
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use EQSOLV, only: NLSTOT, NLIST, IFCOUP
+      use caspt2_module, only: IfChol, IfDW, IfMSCoup, IfProp, IfXMS,
+     &                         IfRMS, nActEl, nAshT, nBasT, nBSqT,
+     &                         nBTri, nCases, nConf, nFroT, nIMx,
+     &                         nIshT, nOSqT, nOTri, nSMx, nState, nSym,
+     &                         Zeta, Mul, nTU, nTGTU, nAsh, nISh, nSsh,
+     &                         nOrb, nInDep, nASup, nISup
+      use pt2_guga, only: MxCI, nG1, nG2, nG3Tot, nPlBuf
+
+      IMPLICIT none
 
 #include "warnings.h"
 
-
+      integer(kind=iwp) I, ICASE, ICASE1, ICASE2, ILIST, ISL1, ISL2,
+     &                  ISL3, ISYM, ISYM1, ISYM2, M, M11, M12, M21, M22,
+     &                  MAXAIS, MC1S1DER, MC2DER, MEMBASE, MINBUF,
+     &                  MMX, MXLeft, MXLFT, N, NA, NAS, NAS1, NAS2,
+     &                  NBOTTOM, NCH, nCLag, NCX, NDD, NEED, NEED0,
+     &                  NFIA, NFIT, NFTA, NG02, NG10, NG12, NG20, NG30,
+     &                  NGARR, ngrad, ngrad1, ngrad10, ngrad11,
+     &                  ngrad11_1, ngrad11_2, ngrad2, ngrad3, ngrad4,
+     &                  ngrad5, ngrad6, ngrad6_1, ngrad6_2, ngrad7,
+     &                  ngrad7_1, ngrad7_2, ngrad8, ngrad9, NI, NIN,
+     &                  NIN1, NIS, NIS1, NLISTS, NMKRHS, NMX, nOLag,
+     &                  nOMax, NPoly, nPrp, nPrp1, nPrp2, nRHSP, NS,
+     &                  nSgm1, nSgm2, nSigma, nSigma_inner,
+     &                  nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT,
+     &                  nV, nVCUtil, nWLag, NX, M31, NIS2
+#ifdef _DEBUGPRINT_
+      integer(kind=iwp) NAMX
+#endif
+      integer(kind=iwp), external :: iParDiv
+      real(kind=wp) XX, YY
 
 C Available workspace right now:
       CALL mma_MaxDBLE(MXLEFT)
@@ -592,4 +616,4 @@ C This is a Cholesky calculation, only give recommended amount
        END IF
       END IF
 
-      END
+      END SUBROUTINE SIZES

@@ -19,25 +19,37 @@
 *     Author:   F. Aquilante  (Geneva, May  2008)                           *
 *                                                                           *
 *****************************************************************************
+      use definitions, only: iwp, wp
       use InputData, only: Input
+      use constants, only: Zero, One
       use ChoMP2, only: DeMP2, MP2_small, shf
       use stdalloc, only: mma_allocate, mma_deallocate
       use Molcas, only: MxBas
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 *
-      Integer irc,nSym,IFQCAN
-      Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
-     &        nDel(nSym)
-      Real*8  EMP2, vfrac
-      Logical DoMP2
-      Integer NCMO
-      Real*8 CMO(NCMO)
+      Integer(kind=iwp), intent(out):: irc
+      Integer(kind=iwp), intent(in):: nSym
+      Integer(kind=iwp), intent(in):: nBas(nSym),nFro(nSym),nIsh(nSym),
+     &                                nAsh(nSym)
+      Integer(kind=iwp), intent(inout):: nSsh(nSym),nDel(nSym)
+      real(kind=wp), intent(in)::  vfrac
+      Integer(kind=iwp), intent(inout):: IFQCAN
+      real(kind=wp), intent(inout)::  EMP2
+      Logical(kind=iwp), intent(in):: DoMP2
+      Integer(kind=iwp), intent(in):: NCMO
+      real(kind=wp), intent(inout):: CMO(NCMO)
 *
-      Integer ns_V(8), nAct(8)
-      Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Real*8  TrDP(8), TrDF(8)
-      REAL*8, allocatable:: CMOX(:), DMAT(:), OrbE(:)
-      Integer, allocatable:: ID(:)
+      Integer(kind=iwp) ns_V(8), nAct(8)
+      Integer(kind=iwp) lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+      real(kind=wp)  TrDP(8), TrDF(8)
+      real(kind=wp), allocatable:: CMOX(:), DMAT(:), OrbE(:)
+      Integer(kind=iwp), allocatable:: ID(:)
+      real(kind=wp) Delta_TrD,Dummy,STrDF,STrDP,tmp
+      real(kind=wp), external:: DDot_
+      Integer(kind=iwp) i,iAoff,iCMO,ifr,ioff,ip_X,ip_Y,ip_Z,ip_ZZ,
+     &                  ipEorb,ipOrbE_,iSkip,iSym,ito,j,jD,joff,k,
+     &                  kEOcc,kEVir,kfr,kij,koff,kto,lij,lOff,mAsh,
+     &                  nBasT,nBmx,nBx,nOA,nOrb,nSQ,nSx,ntri,nVV,ipOrbE
 *
 *
       irc=0
@@ -128,7 +140,7 @@
          koff=koff+nSsh(iSym)
       End Do
       Call mma_allocate(Dmat,nVV+nOA,LABEL='DMAT')
-      DMAT(:)=0.0D0
+      DMAT(:)=Zero
       ip_X = 1
       ip_Y = ip_X + nVV
 *
@@ -187,22 +199,22 @@
            kfr=iCMO+jOff+nBas(iSym)*(nFro(iSym)+lnOcc(iSym))
            kto=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym)+nAsh(iSym))
            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
-     &                        1.0d0,CMOX(kfr),nBas(iSym),
+     &                        One,CMOX(kfr),nBas(iSym),
      &                              DMAT(jD),nSsh(iSym),
-     &                        0.0d0,CMOX(kto),nBas(iSym))
+     &                        Zero,CMOX(kto),nBas(iSym))
            iOff=iOff+nSsh(iSym)**2
-           TrDF(iSym)=ddot_(nSsh(iSym),OrbE(ip_Z),1,[1.0d0],0)
-           If (vfrac.ge.0.0d0) Then
+           TrDF(iSym)=ddot_(nSsh(iSym),OrbE(ip_Z),1,[One],0)
+           If (vfrac.ge.Zero) Then
               ns_V(iSym)=int(vfrac*dble(nSsh(iSym)))
-              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[1.0d0],0)
+              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
            Else
               ns_V(iSym)=nSsh(iSym)-1
-              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[1.0d0],0)
+              TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
               Delta_TrD=TrDP(iSym)-TrDF(iSym) ! this is negative
               Delta_TrD=Delta_TrD/TrDF(iSym)
               Do While (Delta_TrD.gt.vfrac)
                  ns_V(iSym)=ns_V(iSym)-1
-                 TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[1.0d0],0)
+                 TrDP(iSym)=ddot_(ns_V(iSym),OrbE(ip_Z),1,[One],0)
                  Delta_TrD=(TrDP(iSym)-TrDF(iSym))/TrDF(iSym)
               End Do
            End If
@@ -212,8 +224,8 @@
       write(6,*)'------------------------------------------------------'
       write(6,*)'   Symm.     Trace     (Full Dmat)     (Partial Dmat) '
       write(6,*)'------------------------------------------------------'
-      STrDF=0.0d0
-      STrDP=0.0d0
+      STrDF=Zero
+      STrDP=Zero
       Do iSym=1,nSym
         write(6,'(4X,I4,15X,G13.6,4X,G13.6)') iSym,TrDF(iSym),TrDP(iSym)
         STrDF=STrDF+TrDF(iSym)
@@ -260,9 +272,9 @@
             nBx=Max(1,nBas(iSym))
             nSx=Max(1,nSsh(iSym))
             Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
-     &                         1.0d0,CMOX(kfr),nBx,
+     &                         One,CMOX(kfr),nBx,
      &                               DMAT(jD),nSx,
-     &                         0.0d0,CMOX(kto),nBx)
+     &                         Zero,CMOX(kto),nBx)
 
             lOff=lOff+lnVir(iSym)
             kOff=kOff+nBas(iSym)**2
@@ -273,14 +285,14 @@
          kEVir=ipOrbE
 *
          EMP2=DeMP2
-         DeMP2=0.0d0
+         DeMP2=Zero
          Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),OrbE(kEOcc),OrbE(kEVir),
      &                   DMAT(ip_X),DMAT(ip_Y))
          If(irc.ne.0) then
            write(6,*) 'MP2 in truncated virtual space failed !'
            Call Abend
          Endif
-         EMP2 = -1.0d0*(EMP2-DeMP2)
+         EMP2 = -One*(EMP2-DeMP2)
       EndIf
       Call mma_deallocate(Dmat)
       Call mma_deallocate(OrbE)
@@ -295,6 +307,8 @@
 C
 C     Purpose: put info in MP2 common blocks.
 C
+      use definitions, only: iwp
+      use constants, only: Zero
       Use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2,
      &                  DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def,
      &                  MxQualMP2, OED_Thr, set_cd_thr, SOS_mp2,
@@ -302,11 +316,11 @@ C
       use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
 
       Implicit None
-      Integer, intent(in):: mSym
-      Integer, intent(in)::  lnOrb(8), lnOcc(8), lnFro(8), lnDel(8),
-     &                       lnVir(8)
+      Integer(kind=iwp), intent(in):: mSym
+      Integer(kind=iwp), intent(in)::  lnOrb(8), lnOcc(8), lnFro(8),
+     &                                 lnDel(8), lnVir(8)
 
-      Integer :: iSym
+      Integer(kind=iwp) :: iSym
 C
       nSym = mSym
 C
@@ -330,7 +344,7 @@ C
       set_cd_thr=.true.
       OED_Thr=1.0d-8
       C_os=1.3d0
-      EOSMP2=0.0d0
+      EOSMP2=Zero
 C
       DoFNO=.true.
       l_Dii=nOcc(1)
@@ -344,19 +358,22 @@ C
 *                                                                      *
 ************************************************************************
       Subroutine Check_Amp(nSym,nOcc,nVir,iSkip)
+      use definitions, only: iwp
+      use SYmmetry_Info, only: Mul
 
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym, nOcc(nSym), nVir(nSym), iSkip
-      Integer nT1amTot, nT1am(8)
+      Implicit None
+      integer(kind=iwp), intent(in)::  nSym, nOcc(nSym), nVir(nSym)
+      Integer(kind=iwp), intent(out):: iSkip
 
-      MulD2h(i,j)=iEor(i-1,j-1) + 1
+      integer(kind=iwp) iSym, iSymi, iSyma
+      Integer(kind=iwp) nT1amTot, nT1am(8)
 
       iSkip=0
       nT1amTot=0
       Do iSym = 1,nSym
          nT1am(iSym) = 0
          Do iSymi = 1,nSym
-            iSyma = MulD2h(iSymi,iSym)
+            iSyma = Mul(iSymi,iSym)
             nT1am(iSym) = nT1am(iSym)
      &                  + nVir(iSyma)*nOcc(iSymi)
          End Do

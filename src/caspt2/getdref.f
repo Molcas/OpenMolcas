@@ -9,23 +9,26 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GETDREF(DREF,NDREF)
+      use definitions, onlY: iwp, wp, u6
+      use constants, only: Zero
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NDREF
-      REAL*8 DREF(NDREF)
+      use caspt2_module, only: NASHT
+      use pt2_guga, only: NG1
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: NDREF
+      real(kind=wp), intent(out):: DREF(NDREF)
 
-      REAL*8, ALLOCATABLE:: G1(:)
+      real(kind=wp), ALLOCATABLE:: G1(:)
+      integer(kind=iwp) I, J, IJ
 
 * Get active 1-el density matrix GAMMA1 and
 * construct DREF in a tringular storage.
 
 * Remember: NDREF=1 if NASHT=0.
-      DREF(1)=0.0d0
-      IF(NASHT.EQ.0) RETURN
+      DREF(1)=Zero
+      IF(NASHT==0) RETURN
 * Active 1-el density matrix:
       CALL mma_allocate(G1,NG1,Label='G1')
       CALL PT2_GET(NG1,'GAMMA1',G1)
@@ -38,8 +41,7 @@
       CALL mma_deallocate(G1)
 
       IF(IPRGLB.GE.DEBUG) THEN
-        WRITE(6,*)' GETDREF has constructed DREF.'
-        CALL XFLUSH(6)
+        WRITE(u6,*)' GETDREF has constructed DREF.'
       END IF
 
       END SUBROUTINE GETDREF

@@ -17,14 +17,18 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FOCK_RPT2()
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF
       use stdalloc, only: mma_allocate, mma_deallocate
-      use ChoCASPT2
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM, NASHT, NISHT, NOMX, NORBT, notri,
+     &                         NSSHT,NORB,NISH,NASH,EPS,EPSI,EPSA,EPSE
+      IMPLICIT None
 
-      Real*8, Allocatable:: BUF(:)
+      real(kind=wp), Allocatable:: BUF(:)
+      integer(kind=iwp) IFTEST,NBUF,ISTLT,ISYM,NO,I,IEPS,IEPSA,IEPSE,
+     &                  IEPSI,NA,NI
+      real(kind=wp) E
 
 c Purpose: Compute the standard Fock matrix which defines
 c the PT2 orbitals and the standard H0 hamiltonian.
@@ -50,13 +54,13 @@ c NBUF=Max size of a LUINTM buffer.
 c One-electron Hamiltonian is in HONE
 
       IF ( IFTEST.NE.0 ) THEN
-        WRITE(6,*)'      TEST PRINTS FROM FOCK_RPT2.'
-        WRITE(6,*)'      ONE-ELECTRON HAMILTONIAN IN MO BASIS'
+        WRITE(u6,*)'      TEST PRINTS FROM FOCK_RPT2.'
+        WRITE(u6,*)'      ONE-ELECTRON HAMILTONIAN IN MO BASIS'
         ISTLT=1
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
           IF ( NO.GT.0 ) THEN
-            WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
+            WRITE(u6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
             CALL TRIPRT(' ',' ',HONE(ISTLT),NO)
             ISTLT=ISTLT+(NO*(NO+1))/2
           END IF
@@ -65,7 +69,7 @@ c One-electron Hamiltonian is in HONE
 
 c Inactive and active Fock matrices:
       FIMO(:)=HONE(:)
-      FAMO(:)=0.0D0
+      FAMO(:)=Zero
       CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,SIZE(DREF),
      &                 NBUF,BUF)
 
@@ -123,23 +127,23 @@ C density.
       ! END DO
 
       IF ( IFTEST.NE.0 ) THEN
-        WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
+        WRITE(u6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
         ISTLT=1
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
           IF ( NO.GT.0 ) THEN
-            WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
+            WRITE(u6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
             CALL TRIPRT(' ',' ',FIMO(ISTLT),NO)
             ISTLT=ISTLT+(NO*(NO+1))/2
           END IF
         END DO
 
-        WRITE(6,*)'        ACTIVE FOCK MATRIX IN MO BASIS'
+        WRITE(u6,*)'        ACTIVE FOCK MATRIX IN MO BASIS'
         ISTLT=1
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
           IF ( NO.GT.0 ) THEN
-            WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
+            WRITE(u6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
             CALL TRIPRT(' ',' ',FAMO(ISTLT),NO)
             ISTLT=ISTLT+(NO*(NO+1))/2
           END IF
@@ -149,24 +153,24 @@ C density.
         ISTLT=1
         DO ISYM=1,NSYM
           IF ( NORB(ISYM).GT.0 ) THEN
-            WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
+            WRITE(u6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
             CALL TRIPRT(' ',' ',FIFA(ISTLT),NORB(ISYM))
             ISTLT=ISTLT+NORB(ISYM)*(NORB(ISYM)+1)/2
           END IF
         END DO
 
-        WRITE(6,*)
-        WRITE(6,*)' FOCK_RPT2: ORBITAL ENERGIES, EPS:'
-        WRITE(6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
-        WRITE(6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
-        WRITE(6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
+        WRITE(u6,*)
+        WRITE(u6,*)' FOCK_RPT2: ORBITAL ENERGIES, EPS:'
+        WRITE(u6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
+        WRITE(u6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
+        WRITE(u6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
         ! these active orbital energies are not the ones used in
         ! MKFG3. Depending on whether the OUTO=canonical flag was set
         ! in &RASSCF, it will differ from the EPSA array in mkfg3.f
-        WRITE(6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
-        WRITE(6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
-        WRITE(6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'
-        WRITE(6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
+        WRITE(u6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
+        WRITE(u6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
+        WRITE(u6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'
+        WRITE(u6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
       END IF
 
       CALL mma_deallocate(BUF)

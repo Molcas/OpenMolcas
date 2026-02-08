@@ -17,14 +17,18 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SBDIAG()
+      use definitions, only: iwp, wp
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: usual, verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: nSym, ThrShn, ThrShs, Cases, nASup,
+     &  nISup, nInDep
+      IMPLICIT None
+
+      real(kind=wp) CondNr, CPU
+      integer(kind=iwp) iCase, iPar0, iPar1, iSym
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -105,7 +109,7 @@ C usually print info on the total number of parameters
      *                         idBoriMat
       use caspt2_global, only: LUSOLV, LUSBT
       use PrintLevel, only: insane
-      use EQSOLV
+      use EQSOLV, only: IDTMAT, IDBMAT, IDSMAT, IDSTMAT
       use stdalloc, only: mma_allocate, mma_deallocate
       use SysDef, only: ItoB
       use caspt2_module, only: BMatrix, BSpect, BTrans, IfDOrtho,
@@ -534,28 +538,40 @@ C batch mode.  However, unlike in the replicate routine, this amount is
 C divided over processors.
 #ifdef _MOLCAS_MPP_
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
+      use definitions, only: iwp, wp
+      use Constants, only: Zero, One
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: insane
       USE Para_Info, ONLY: King
       use caspt2_global, only: LUSBT
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
-     *                         idBoriMat
-      use EQSOLV
+     &                         idBoriMat
+      use EQSOLV, only: IDSMAT, IDTMAT, IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: nASup, nISup, Cases, IfDOrtho, ThrShn,
+     &                         ThrShs, nInDep, BMATRIX, BTRANS, BSPECT
+      IMPLICIT None
 
+      integer(kind=iwp), intent(in):: iSym, iCase
+      real(kind=wp), intent(out):: CondNr, CPU
 C-SVC20100902: global arrays header files
 #include "global.fh"
 #include "mafdecls.fh"
 #ifndef _SCALAPACK_
-      DIMENSION WGRONK(2)
+      real(kind=wp) WGRONK(2)
 #endif
-      LOGICAL bSTAT
+      LOGICAL(kind=iwp) bSTAT
       CHARACTER(LEN=2) cSYM,cCASE
-      Real*8, allocatable:: COL(:), TMP(:), SD(:), SCA(:), EIG(:),
-     &                      VEC(:), SCRATCH(:), COND(:), TRANS(:),
-     &                       BD(:)
+      real(kind=wp), allocatable:: COL(:), TMP(:), SD(:), SCA(:),
+     &                             EIG(:), VEC(:), SCRATCH(:), COND(:),
+     &                             TRANS(:), BD(:)
+      integer(kind=iwp) NAS, NIS, NCOEF, lg_S, NCOL, NTMP, IOFF, J, IDS,
+     &                  MyRank, iLo, iHi, jLo, jHi, ISTA, IEND, MS, LDS,
+     &                  I, lg_V, NIN, mV, LDV, lg_T, IDT, lg_B, mB, lDB,
+     &                  IDB, IDB2, lg_X, lg_ST, Info, NSCRATCH
+      real(kind=wp) FP, SDiag, SZMIN, SZMAX, SZ, dTrans
+      real(kind=wp) CPU1, CPUE, TIO, TIOE, CPU2
+      real(kind=wp), External:: PSBMAT_FPRINT, DNRM2_
 
 C On entry, the DRA metafiles contain the matrices S and B for cases A
 C (iCASE=1) en C (iCASE=4).  These symmetric matrices are stored on disk
@@ -578,8 +594,8 @@ C Initialize the DRA I/O subsystem with default values.
       write(unit=cSYM, fmt='(I2.2)') iSYM
 C Start a long loop over irreps:
 
-      CPU=0.0D0
-      CONDNR=0.0D0
+      CPU=Zero
+      CONDNR=Zero
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
       NCOEF=NAS*NIS
@@ -621,7 +637,7 @@ C full parallelization of use of S matrices is achieved.
 C Save the diagonal elements from the S matrix for easy access later on.
 C FIXME: nicer way to do this?
       CALL mma_allocate(SD,NAS,Label='SD')
-      SD(:)=0.0D0
+      SD(:)=Zero
       myRank = GA_NodeID()
       call GA_Distribution (lg_S, myRank, iLo, iHi, jLo, jHi)
       ISTA=MAX(ILO,JLO)
@@ -640,12 +656,12 @@ C Calculate the scaling factors and store them in array SCA.
       DO I=1,NAS
         SDiag=SD(I)
         IF (IFDORTHO) THEN
-          SCA(I)=1.0D0
+          SCA(I)=One
         ELSE
           IF(SDiag.GT.THRSHN) THEN
-            SCA(I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
+            SCA(I)=(One+DBLE(I)*3.0D-6)/SQRT(SDiag)
           ELSE
-            SCA(I)=0.0D0
+            SCA(I)=Zero
           END IF
         END IF
       END DO
@@ -667,7 +683,7 @@ C Scale the elements S(I,J) with the factor SCA(I)*SCA(J).
       END IF
 
       CALL mma_allocate(EIG,NAS,Label='EIG')
-      EIG(:)=0.0D0
+      EIG(:)=Zero
 C Diagonalize the global array S.  Some (old) reports about parallel
 C performance recommend PDSYEVX or PDSYEVR as fastest methods if
 C eigenvectors are needed (FIXME: should time this).  For the linear
@@ -724,7 +740,7 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
       CPU=CPU+CPU2-CPU1
 
       CALL mma_allocate(COND,NIN,Label='COND')
-      COND(:)=0.0D0
+      COND(:)=Zero
 C Form orthonormal transformation vectors by scaling the eigenvectors.
       call GA_Sync()
       myRank = GA_NodeID()
@@ -749,7 +765,7 @@ C FIXME: adapt to local subroutine for global array lg_V
       IF(NIN.GE.2) THEN
         CALL GADSUM (COND,NIN)
         SZMIN=1.0D99
-        SZMAX=0.0D0
+        SZMAX=Zero
         DO I=1,NIN
           SZ=COND(I)
           SZMIN=MIN(SZMIN,SZ)
@@ -792,7 +808,7 @@ C eigenvalues would go in ordinary CASPT2.
         CALL PSBMAT_GETMEM ('B',lg_B,NAS)
         CALL PSBMAT_READ ('B',iCase,iSym,lg_B,NAS)
         CALL mma_allocate(BD,NAS,Label='BD')
-        BD(:)=0.0D0
+        BD(:)=Zero
         myRank = GA_NodeID()
         call GA_Distribution (lg_B, myRank, iLo, iHi, jLo, jHi)
         ISTA=MAX(ILO,JLO)
@@ -861,13 +877,13 @@ C FIXME: Perform transformation of B using horizontal stripes of B or
 C vertical stripes of T to reduce memory usage if necessary as indicated
 C by the available memory, which is now scaling as approx. 3*(NAS**2).
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'XMAT',lg_X)
-      call GA_DGEMM ('N', 'N', NAS, NIN, NAS, 1.0D0,
-     &               lg_B, lg_T, 0.0D0, lg_X )
+      call GA_DGEMM ('N', 'N', NAS, NIN, NAS, One,
+     &               lg_B, lg_T, Zero, lg_X )
       bStat = GA_Destroy (lg_B)
 
       CALL GA_CREATE_STRIPED ('H',NIN,NIN,'BMAT',lg_B)
-      call GA_DGEMM ('T', 'N', NIN, NIN, NAS, 1.0D0,
-     &               lg_T, lg_X, 0.0D0, lg_B )
+      call GA_DGEMM ('T', 'N', NIN, NIN, NAS, One,
+     &               lg_T, lg_X, Zero, lg_B )
       bStat = GA_Destroy (lg_X)
       bStat = GA_Destroy (lg_T)
 
@@ -880,7 +896,7 @@ C by the available memory, which is now scaling as approx. 3*(NAS**2).
 
 C Diagonalize the transformed B matrix.
       CALL mma_allocate(EIG,NIN,Label='EIG')
-      EIG(:)=0.0D0
+      EIG(:)=Zero
       IF(BSPECT.NE.'YES')  THEN
 C Use diagonal approxim., if allowed.
 C        call GA_Fill (lg_V, 0.0D0)
@@ -943,8 +959,8 @@ C approx. 3*(NAS**2).  Should be determined by the available memory.
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'XMAT',lg_X)
       CALL PSBMAT_READ ('T',iCase,iSym,lg_X,NAS*NIN)
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TMAT',lg_T)
-      call GA_DGEMM ('N', 'N', NAS, NIN, NIN, 1.0D0,
-     &               lg_X, lg_V, 0.0D0, lg_T )
+      call GA_DGEMM ('N', 'N', NAS, NIN, NIN, One,
+     &               lg_X, lg_V, Zero, lg_T )
       bStat = GA_Destroy (lg_X)
       bStat = GA_Destroy (lg_V)
 
@@ -957,8 +973,8 @@ C vector utitlities
       CALL PSBMAT_READ ('S',iCase,iSym,lg_S,NAS)
 
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'STMAT',lg_ST)
-      call GA_DGEMM ('N', 'N', NAS, NIN, NAS, 1.0D0,
-     &               lg_S, lg_T, 0.0D0, lg_ST )
+      call GA_DGEMM ('N', 'N', NAS, NIN, NAS, One,
+     &               lg_S, lg_T, Zero, lg_ST )
       bStat = GA_Destroy (lg_S)
 
       CALL PSBMAT_WRITE ('M',iCase,iSym,lg_ST,NAS*NIN)
@@ -984,10 +1000,16 @@ C replicate array.  FIXME: Should be removed later.
       END SUBROUTINE SBDIAG_MPP
 
       SUBROUTINE S_SCALE (NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 SCA(NAS),S(LDS,*)
+      use definitions, only: iwp, wp
+
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: NAS, iLo, iHi, jLo, jHi, LDS
+      real(kind=wp), intent(In) :: SCA(NAS)
+      real(kind=wp), intent(InOut)::  S(LDS,*)
+
+      integer(kind=iwp) J, I
+
       DO J=jLo,jHi
         DO I=iLo,iHi
         S(I-iLo+1,J-jLo+1)=SCA(I)*SCA(J)*S(I-iLo+1,J-jLo+1)
@@ -996,16 +1018,26 @@ C replicate array.  FIXME: Should be removed later.
       END SUBROUTINE S_SCALE
 
       SUBROUTINE V_SCALE (EIG,SCA,V,nRows,NAS,LDV,NIN,COND)
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 EIG(NAS),SCA(NAS),V(LDV,*),COND(NIN)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
+      use caspt2_module, only: ThrShS
+
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: nRows, NAS, LDV, NIN
+      real(kind=wp), intent(in):: EIG(NAS),SCA(NAS)
+      real(kind=wp), Intent(inout):: V(LDV,*)
+      real(kind=wp), Intent(out):: COND(NIN)
+
+      integer(kind=iwp) jVEC, J, I, iVec
+      real(kind=wp) EVAL, FACT, SZ
+
       jVEC=0
       DO J=1,NAS
         EVAL=EIG(J)
         IF(EVAL.GE.THRSHS) THEN
           jVEC=jVEC+1
-          FACT=1.0D00/SQRT(EVAL)
+          FACT=One/SQRT(EVAL)
           IF(jVEC.EQ.J) THEN
             CALL DSCAL_(nRows,FACT,V(1,J),1)
           ELSE
@@ -1025,7 +1057,7 @@ C Addition, for the scaled symmetric ON.
 C The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN
         DO jVEC=1,NIN
-          SZ=0.0D0
+          SZ=Zero
           DO iVEC=1,nRows
             SZ=SZ+V(iVEC,jVEC)**2
           END DO
