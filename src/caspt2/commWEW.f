@@ -19,11 +19,12 @@
       SUBROUTINE COMMWEW(IVEC,JVEC,DCOM)
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KTUV,KTGEU,KTGTU,KTU
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: LUSBT
-      use EQSOLV
-      use caspt2_module
+      use EQSOLV, only: IDSMAT
+      use caspt2_module, only: NSYM,NASUP,NISUP,NASHT,NTUVES,NASH,NAES,
+     &                         MUL,IASYM,NTGEUES,NTGTUES,NTUES
       IMPLICIT NONE
 
       INTEGER(KIND=IWP), INTENT(IN):: IVEC, JVEC
