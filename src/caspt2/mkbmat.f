@@ -492,12 +492,11 @@ C  - F(xvzyut) -> BA(yvx,zut)
       SUBROUTINE MKBA_F3_MPP(ISYM,BA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,F3,idxG3)
       use definitions, only: iwp, wp, Byte
-      USE MPI
-      USE SUPERINDEX
+      USE MPI, only: MPI_INTEGER,MPI_COMM_WORLD,MPI_REAL8
+      USE SUPERINDEX, only: KTUV
       use stdalloc, only: mma_MaxDBLE
-      use EQSOLV
       use definitions, only: MPIInt,RtoB,wp
-      use caspt2_module
+      use caspt2_module, only: IASYM,MUL,NASHT,NTUVES
       IMPLICIT NONE
 
 #include "global.fh"
@@ -1324,12 +1323,11 @@ C  - F(xvzyut) -> BC(zvx,yut)
       SUBROUTINE MKBC_F3_MPP(ISYM,BC,iLo,iHi,jLo,jHi,LDC,
      &                       NG3,F3,idxG3)
       use definitions, only: iwp, wp, Byte
-      USE MPI
-      USE SUPERINDEX
+      USE MPI, only: MPI_INTEGER,MPI_COMM_WORLD,MPI_REAL8
+      USE SUPERINDEX, only: KTUV
       use stdalloc, only: mma_MaxDBLE
-      use EQSOLV
       use definitions, only: MPIInt,RtoB,wp
-      use caspt2_module
+      use caspt2_module, only: IASYM,MUL,NASHT,NTUVES
       IMPLICIT NONE
 
 #include "global.fh"
@@ -2017,12 +2015,12 @@ CGG End
       SUBROUTINE MKBD(DREF,NDREF,PREF,NPREF,FD,FP)
       use definitions, only: iwp, wp
       use constants, only: Half, Two, Four
-      USE SUPERINDEX
+      USE SUPERINDEX, only: MTU
       use caspt2_global, only:ipea_shift
       use caspt2_global, only:LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT, IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: NSYM,NINDEP,NTU,EASUM,NASHT,NTUES,EPSA
       IMPLICIT NONE
 
       INTEGER(KIND=IWP), INTENT(IN):: NDREF,NPREF
