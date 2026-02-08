@@ -978,10 +978,10 @@ c Avoid unused argument warnings
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      INTEGER(KIND=IWP) NDREF, NPREF, NG3
-      Real(KIND=WP) DREF(NDREF),PREF(NPREF),F3(NG3)
-      Real(KIND=WP) FD(NDREF),FP(NPREF)
-      INTEGER(KIND=Byte) idxG3(6,NG3)
+      INTEGER(KIND=IWP), INTENT(IN):: NDREF, NPREF, NG3
+      Real(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF),F3(NG3)
+      Real(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
+      INTEGER(KIND=Byte), INTENT(IN):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       Real(KIND=WP) Dummy(1)
 #endif
