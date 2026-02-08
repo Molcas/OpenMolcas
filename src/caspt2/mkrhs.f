@@ -893,7 +893,7 @@ C global array and then save that to disk in a distributed fashion.
       USE Para_Info, ONLY: Is_Real_Par
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
+      use caspt2_module, only: NASUP,NISUP
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: ICASE,ISYM,IVEC,LW

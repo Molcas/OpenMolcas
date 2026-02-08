@@ -1900,11 +1900,11 @@ C Write to disk, and save size and address.
       SUBROUTINE MKSD(DREF,NDREF,PREF,NPREF)
       use definitions, only: iwp, wp
       use constants, only: Half, Two
-      USE SUPERINDEX
+      USE SUPERINDEX, only: MTU
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
+      use caspt2_module, only: NSYM,NINDEP,NTU,NTUES,NASHT
       IMPLICIT None
 
       INTEGER(kind=iwp), intent(in)::  NDREF,NPREF
