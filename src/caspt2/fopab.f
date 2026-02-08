@@ -9,19 +9,28 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One, Two
       use gugx, only: SGS, L2ACT, EXS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM,NORB,NISH,ISCF,NCONF,STSYM,NASH,
+     &                         NAES
+      IMPLICIT None
 
-      Integer NFIFA, IBRA, IKET
-      Real*8 FIFA(NFIFA), FOPEL
+      integer(kind=iwp), intent(in):: NFIFA, IBRA, IKET
+      real(kind=wp), intent(in):: FIFA(NFIFA)
+      real(kind=wp), intent(out):: FOPEL
 
 * Purely local array, offsets:
-      INTEGER IOFF(8)
-      Integer :: nLev
-      REAL*8, allocatable:: BRA(:), KET(:), SGM(:)
+      integer(kind=iwp) IOFF(8)
+      integer(kind=iwp) :: nLev
+      real(kind=wp), allocatable:: BRA(:), KET(:), SGM(:)
+      integer(kind=iwp) IOF,ISYM,IFTEST,IJ,I,ID,II,ISCR,IST,ISU,IT,
+     &                  ITABS,ITTOT,ITUTOT,IU,IUABS,IUTOT,J,LEVT,LEVU,
+     &                  NI
+      real(kind=wp) ESUM,OCC,EINACT,FTU,TRC
+      real(kind=wp), external:: DDot_
 
       nLev = SGS%nLev
 
@@ -48,7 +57,6 @@
             IJ=IJ+I
           END DO
         END DO
-        CALL XFLUSH(6)
       END IF
 
 * Specialized code for Closed-shell or Hi-spin HF:
@@ -56,14 +64,14 @@
 * FIXME: This only works for diagonal elements, thus
 * in the case of XMS this will not work...
       IF (ISCF.EQ.1 .OR. ISCF.EQ.2) THEN
-        ESUM=0.0D0
+        ESUM=Zero
         IF (IBRA.EQ.IKET) THEN
           DO ISYM=1,NSYM
-            OCC=2.0D0
+            OCC=Two
             DO I=1,NISH(ISYM)
               ESUM=ESUM+OCC*FIFA(IOFF(ISYM)+(I*(I+1))/2)
             END DO
-            IF (ISCF.eq.2) OCC=1.0D0
+            IF (ISCF.eq.2) OCC=One
             DO J=1,NASH(ISYM)
               I=NISH(ISYM)+J
               ESUM=ESUM+OCC*FIFA(IOFF(ISYM)+(I*(I+1))/2)
@@ -79,7 +87,7 @@
 
 * General CASSCF or RASSCF case:
 * Sum up trace of FIFA over inactive orbitals only:
-      TRC=0.0D0
+      TRC=Zero
       DO ISYM=1,NSYM
         DO I=1,NISH(ISYM)
           II=IOFF(ISYM)+(I*(I+1))/2
@@ -87,11 +95,10 @@
         END DO
       END DO
 * Contribution from inactive orbitals:
-      EINACT=2.0D0*TRC
+      EINACT=Two*TRC
 
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' Energy contrib from inactive orbitals:',EINACT
-        CALL XFLUSH(6)
       END IF
 
 * Allocate arrays for ket and bra wave functions
@@ -112,12 +119,11 @@
         WRITE(6,*)' Ket CI array:'
         ISCR=MIN(NCONF,20)
         WRITE(6,'(1x,5F16.8)')(KET(I),I=1,ISCR)
-        call XFLUSH(6)
       END IF
 
 * Compute (lowering part of) FIFA operator acting on
 * the ket wave function.
-      CALL DCOPY_(NCONF,[0.0D0],0,SGM,1)
+      CALL DCOPY_(NCONF,[Zero],0,SGM,1)
       DO LEVU=1,NLEV
         IUABS=L2ACT(LEVU)
         ISU=SGS%ISM(LEVU)
@@ -145,7 +151,6 @@
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' SGM array from (lowering F)|KET>:'
         WRITE(6,'(1x,5F16.8)')(SGM(I),I=1,NCONF)
-        call XFLUSH(6)
       END IF
 
 * Load bra wave function
@@ -161,14 +166,13 @@
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' FOPEL is now:'
         WRITE(6,'(1x,5f16.8)')(FOPEL)
-        call XFLUSH(6)
       END IF
 
 * Compute (strictly lowering part of) FIFA operator acting on |BRA>.
 * We are computing contributions <KET|Etu|BRA> with t<u, then
 * using them as <BRA|Eut|KET>
 * Note that I already have BRA in memory
-      CALL DCOPY_(NCONF,[0.0D0],0,SGM,1)
+      CALL DCOPY_(NCONF,[Zero],0,SGM,1)
       DO LEVU=2,NLEV
         IUABS=L2ACT(LEVU)
         ISU=SGS%ISM(LEVU)
@@ -194,7 +198,6 @@
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' SGM array from (strictly lowering F)|BRA>:'
         WRITE(6,'(1x,5F16.8)')(SGM(I),I=1,NCONF)
-        call XFLUSH(6)
       END IF
 
 * Load ket wave function
@@ -210,7 +213,6 @@
       IF (IFTEST.GT.0) THEN
         WRITE(6,*)' FOPEL is now:'
         WRITE(6,'(1x,5f16.8)')(FOPEL)
-        call XFLUSH(6)
       END IF
 
       CALL mma_deallocate(SGM)

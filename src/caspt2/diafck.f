@@ -9,15 +9,19 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE DIAFCK(NO,FOCK,IOSTA,IOEND,TSCT,NB,CMO1SCT,CMO2SCT)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Integer NO,IOSTA,IOEND,NB
-      Real*8 FOCK(NO,NO)
-      Real*8 TSCT(IOSTA:IOEND,IOSTA:IOEND)
-      Real*8 CMO1SCT(NB,*)
-      Real*8 CMO2SCT(NB,*)
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NO,IOSTA,IOEND,NB
+      real(kind=wp), intent(inout):: FOCK(NO,NO)
+      real(kind=wp), intent(out):: TSCT(IOSTA:IOEND,IOSTA:IOEND)
+      real(kind=wp), intent(in):: CMO1SCT(NB,*)
+      real(kind=wp), intent(out):: CMO2SCT(NB,*)
 
-      Real*8, Allocatable:: TMP(:)
+      real(kind=wp), Allocatable:: TMP(:)
+      integer(kind=iwp) I, IJ, J, JMX, K, NSCT
+      real(kind=wp) V, VMX, SWAP
 
 * Use orbital rotations on a subblock of active orbitals
 * in order to diagonalize that block of a Fock matrix, and
@@ -42,8 +46,8 @@
        END DO
       END DO
 * Put unit matrix into TSCT:
-      CALL DCOPY_(NSCT**2,[0.0D0],0,TSCT,1)
-      CALL DCOPY_(NSCT,[1.0D0],0,TSCT,NSCT+1)
+      CALL DCOPY_(NSCT**2,[Zero],0,TSCT,1)
+      CALL DCOPY_(NSCT,[One],0,TSCT,NSCT+1)
 C Diagonalize, and order for best submatrix condition:
       CALL Jacob(TMP,TSCT,NSCT,NSCT)
       DO I=IOSTA,IOEND
@@ -63,28 +67,28 @@ C Diagonalize, and order for best submatrix condition:
          TSCT(K,JMX)=SWAP
         END DO
        END IF
-       IF(TSCT(I,I).LT.0.0D0) THEN
+       IF(TSCT(I,I).LT.Zero) THEN
         DO K=IOSTA,IOEND
          TSCT(K,I)=-TSCT(K,I)
         END DO
        END IF
       END DO
 C Transform the Fock matrix:
-      CALL DGEMM_('N','N',NO,NSCT,NSCT,1.0D0,FOCK(1,IOSTA),NO,TSCT,NSCT,
-     &              0.0D0,TMP,NO)
+      CALL DGEMM_('N','N',NO,NSCT,NSCT,One,FOCK(1,IOSTA),NO,TSCT,NSCT,
+     &              Zero,TMP,NO)
       CALL DCOPY_(NO*NSCT,TMP,1,FOCK(1,IOSTA),1)
       DO I=IOSTA,IOEND
        DO J=1,NO
         FOCK(I,J)=TMP(J+NO*(I-IOSTA))
        END DO
       END DO
-      CALL DGEMM_('T','N',NSCT,NSCT,NSCT,1.0D0,TSCT,NSCT,
-     &         TMP(IOSTA),NO,0.0D0,FOCK(IOSTA,IOSTA),NO)
+      CALL DGEMM_('T','N',NSCT,NSCT,NSCT,One,TSCT,NSCT,
+     &         TMP(IOSTA),NO,Zero,FOCK(IOSTA,IOSTA),NO)
 
 C Then transform the CMO coeffs:
-      CALL DGEMM_('N','N',NB,NSCT,NSCT,1.0D0,CMO1SCT,NB,TSCT,NSCT,
-     &              0.0D0,CMO2SCT,NB)
+      CALL DGEMM_('N','N',NB,NSCT,NSCT,One,CMO1SCT,NB,TSCT,NSCT,
+     &              Zero,CMO2SCT,NB)
 
       CALL mma_deallocate(TMP)
-      RETURN
-      END
+
+      END SUBROUTINE DIAFCK

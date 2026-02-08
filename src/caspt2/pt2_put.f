@@ -17,18 +17,19 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PT2_PUT(NSIZE,LAB,VEC)
+      use definitions, only: iwp, wp, u6
       use caspt2_global, only: LUDMAT
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NSIZE
-      CHARACTER(len=*) LAB
-      REAL*8 VEC(*)
+      use pt2_guga, only: IADR10, cLab10
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NSIZE
+      CHARACTER(len=*), intent(in):: LAB
+      real(kind=wp):: VEC(*)
 
       CHARACTER(len=8) LAB1
+      integer(kind=iwp) I, IAD
 
       I=9-LEN(LAB)
-      IF(I.GE.1) THEN
+      IF(I>=1) THEN
         LAB1='        '
         LAB1(I:8)=LAB
       ELSE
@@ -37,26 +38,29 @@
 
 C FIND DISK ADDRESS:
       DO I=1,64
-        IF(CLAB10(I).EQ.'   EMPTY') THEN
+        IF(CLAB10(I)=='   EMPTY') THEN
           CLAB10(I)=LAB1
           IAD=IADR10(I,1)
           IADR10(I,2)=NSIZE
           CALL DDAFILE(LUDMAT,1,VEC,NSIZE,IAD)
-          IF(I.LT.64) IADR10(I+1,1)=IAD
-          GOTO 20
-        ELSE IF (CLAB10(I).EQ.LAB1) THEN
-          IF(NSIZE.GT.IADR10(I,2)) GOTO 98
+          IF(I<64) IADR10(I+1,1)=IAD
+          RETURN
+        ELSE IF (CLAB10(I)==LAB1) THEN
+          IF(NSIZE.GT.IADR10(I,2)) THEN
+             WRITE(u6,*)' ATTEMPT TO INCREASE SIZE OF A FIELD.'
+             WRITE(u6,*)' SUBROUTINE PUT FAILS.'
+             CALL ABEND()
+          End If
           IAD=IADR10(I,1)
           IADR10(I,2)=NSIZE
           CALL DDAFILE(LUDMAT,1,VEC,NSIZE,IAD)
-          GOTO 20
+          RETURN
         END IF
       END DO
-      WRITE(6,*)' NO MORE AVAILABLE FIELDS ON FILE DENS.'
-      GOTO 99
-  20  CONTINUE
-      RETURN
-  98  WRITE(6,*)' ATTEMPT TO INCREASE SIZE OF A FIELD.'
-  99  WRITE(6,*)' SUBROUTINE PUT FAILS.'
+
+      WRITE(u6,*)' NO MORE AVAILABLE FIELDS ON FILE DENS.'
+      WRITE(u6,*)' SUBROUTINE PUT FAILS.'
       CALL ABEND()
-      END
+
+
+      END SUBROUTINE PT2_PUT

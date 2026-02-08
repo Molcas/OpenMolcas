@@ -11,20 +11,26 @@
 * Copyright (C) 2014, Naoki Nakatani                                   *
 ************************************************************************
       SUBROUTINE TWO2ONERDM(NA,NE,G2,G1)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp, wp
+      use constants, only: Zero
+      IMPLICIT None
 * Compute 1-RDM from 2-RDM
 * Written by N. Nakatani, Oct. 2014
-      DIMENSION G2(NA,NA,NA,NA), G1(NA,NA)
+      integer(kind=iwp), intent(in):: NA, NE
+      real(kind=wp), intent(in):: G2(NA,NA,NA,NA)
+      real(kind=wp), Intent(out):: G1(NA,NA)
+
+      integer(kind=iwp) I, J, K
+      real(kind=wp) G1TMP
 
       Do I=1,NA
         Do J=1,NA
-          G1TMP=0.0D0
+          G1TMP=Zero
           Do K=1,NA
             G1TMP=G1TMP+G2(K,K,J,I)
           End Do
-          G1(J,I)=G1TMP/(NE-1)
+          G1(J,I)=G1TMP/DBLE(NE-1)
         End Do
       End Do
 
-      RETURN
-      END
+      END SUBROUTINE TWO2ONERDM
