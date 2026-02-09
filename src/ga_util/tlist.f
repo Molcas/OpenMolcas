@@ -14,18 +14,21 @@
       use TList_Mod
       use stdalloc, only: mma_allocate
       use Constants, only: Zero, One, Two
-      implicit real*8 (a-h,o-z)
+      implicit none
       Logical(kind=iwp), intent(in):: Triangular
       real(kind=wp), intent(in):: P_Eff
 
       real(kind=wp)  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,
      &               tskmin,tskmax
+
 * parameters concerning task distribution...
       Integer(kind=iwp), Parameter:: iDen_PQ  = 2
       Integer(kind=iwp), Parameter:: iDen_Tsk = 4
       Integer(kind=iwp), Parameter:: MinPQ    = 4
 * max number of tasks in tasklist per node...
       Integer(kind=iwp), Parameter:: MxnTsk = 100
+      Integer(kind=iwp) iDen_PQ1,iDen_Tsk1,iTsk,kTsk,kTskHi,MxnTsk1,
+     &                  nTaskpP,nTaskpP_seg
 
       fint(a)=dble(int(a))
 
