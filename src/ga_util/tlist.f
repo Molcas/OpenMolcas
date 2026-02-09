@@ -57,7 +57,7 @@ c
       iTsk=0
 
 *     REPEAT
-  100 Continue
+      Do
         distrib = fint(PQ/dble(iDen_PQ1))
         nTaskpP=nTasks/nProcs
         nTaskpP_seg=nTaskpP/iDen_Tsk1
@@ -82,6 +82,7 @@ c
           Write (u6,*) 'Init_TList: you should not be here!'
           Call Abend()
         End If
+
         Do kTsk = 1, kTskHi
           TskHi=TskHi+PQpTsk
           iTsk=iTsk+1
@@ -92,8 +93,14 @@ c
           TskLw=TskHi+One
         End Do
         nTasks=nTasks-kTskHi
-      If (abs(PQ).gt.1.d-10) Go To 100
-*     UNTIL (PQ == 0)
+
+*       UNTIL (PQ == 0)
+*       If (abs(PQ).gt.1.d-10) Cycle
+*       Exit
+        If (abs(PQ)<=1.d-10) Exit
+
+      END DO
+
       If (nTasks.lt.0) Then
           Write (u6,*) 'nTasks.lt.0'
           Write (u6,*) 'MyRank=',MyRank
