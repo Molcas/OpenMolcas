@@ -12,8 +12,12 @@
 * Init_GTList
 ************************************************************************
       Subroutine Init_GTList()
-      use TList_Mod
+      use TList_Mod, only: GT_Status,iTCnSt
+#ifdef _MOLCAS_MPP_
+      use TList_Mod, only: nTasks,igaTsk
+#endif
       Use Para_Info, Only: nProcs, Is_Real_Par
+      implicit none
 *
       If (GT_Status) Return
       GT_Status=.True.
@@ -28,8 +32,13 @@
       End Subroutine Init_GTList
 
       Subroutine ReInit_GTList()
-      use TList_Mod
+      use TList_Mod, only: GT_Status,iTCnSt
+#ifdef _MOLCAS_MPP_
+      use TList_Mod, only: iGATsk
+#endif
+
       Use Para_Info, Only: nProcs, Is_Real_Par
+      implicit none
 *
       If (.Not.GT_Status) Then
          Write (6,*) 'ReInit_GTList: List not active!'

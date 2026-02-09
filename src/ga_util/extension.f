@@ -39,15 +39,16 @@ c Avoid unused argument warnings
       End Subroutine Ext_PID
 
       Subroutine Ext_Rank(FileName)
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: MyRank
 #endif
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #ifdef _MOLCAS_MPP_
-      External StrnLn
-      Integer StrnLn
+      Integer(kind=iwp) Length,NameLength
+      Integer(kind=iwp), External ::StrnLn
 #endif
-      Character*(*) FileName
+      Character(LEN=*), intent(inout):: FileName
 
 #ifdef _MOLCAS_MPP_
       Length=Len(FileName)
@@ -58,12 +59,17 @@ c Avoid unused argument warnings
 c Avoid unused argument warnings
       If (.False.) Call Unused_character(FileName)
 #endif
-      Return
-      End
+      End Subroutine Ext_Rank
+
       Subroutine WrNumber(Name,Number)
-      Implicit Real*8 (a-h,o-z)
-      Character*(*) Name
-      Character*10 Format
+      use definitions, only: iwp, wp
+      Implicit None
+      integer(kind=iwp), intent(in):: Number
+      Character(LEN=*), intent(inout):: Name
+
+      Character(LEN=10) Format
+      integer(kind=iwp) Limit,iTens
+      real(kind=wp) ANumber
 
       Format=' '
       If(Number.Ge.0)Then
@@ -89,4 +95,4 @@ c Avoid unused argument warnings
         EndDo
       EndIf
       Call SysAbendMsg('wrnumber', 'Number too large',' ' )
-      End
+      End Subroutine WrNumber
