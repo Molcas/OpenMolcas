@@ -9,13 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Sync_TH(TwoHam,nDens)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
-      Implicit Real*8 (a-h,o-z)
-      Real*8 TwoHam(nDens)
+      Implicit None
+      integer(kind=iwp), intent(in):: nDens
+      Real(kind=wp), intent(inout):: TwoHam(nDens)
 *
 #ifdef _MOLCAS_MPP_
+      Real(kind=wp) TCPU,TWall
+
       If (.Not. Is_Real_Par()) Return
       If (nProcs.eq.1) Return
       Call BCTwoHam(TwoHam,nDens,TCPU,TWall)
@@ -24,5 +28,4 @@ c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(TwoHam)
 #endif
 *
-      Return
-      End
+      End Subroutine Sync_TH
