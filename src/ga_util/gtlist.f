@@ -59,7 +59,10 @@
       Function Rsv_GTList(TskLw,TskHi,iOpt,NewBatch)
       use definitions, only: iwp, wp
       Use Para_Info, Only: nProcs, Is_Real_Par
-      use TList_Mod
+      use TList_Mod, only: iStrt_TList,iTCnSt,iTskCan,PQ
+#ifdef _MOLCAS_MPP_
+      use TList_Mod, only: igaTsk,TskL,nTasks,iEnd_TList,mTasks,TskM
+#endif
       use Constants, only: One
       Implicit None
       Logical(kind=iwp) Rsv_GTList
@@ -132,7 +135,11 @@
 ************************************************************************
       Subroutine Free_GTList()
       Use Para_Info, Only: nProcs, Is_Real_Par
-      use TList_Mod
+      use TList_Mod, only: GT_Status,iTCnSt
+#ifdef _MOLCAS_MPP_
+      use TList_Mod, only: nTasks,igaTsk
+#endif
+      Implicit None
 *
       If (.NOT.GT_Status) Return
       GT_Status=.False.

@@ -9,11 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Pos_QLast(Disc)
+      use definitions, only: iwp, wp, u6
       use TList_Mod
       use SysDef, only: RtoI
-      Implicit Real*8 (a-h,o-z)
-      Integer iWR(2)
-      Real*8 Dummy(1)
+      Implicit None
+      real(kind=wp), intent(inout):: Disc
+
+      Integer(kind=iwp) iWR(2), mInts
+      Real(kind=wp) Dummy(1), Quad_ijkl, RST_triplet
       Logical :: Copy=.True., NoCopy=.False.
 *
       if(.NOT.Allocated(TskQ)) return
@@ -24,35 +27,37 @@
 *
 *---- If already at the right position return
 *
-      If (Quad_ijkl.eq.QLast(1) .and.
-     &    RST_triplet.eq.QLast(2)) Return
+      If (Quad_ijkl==QLast(1) .and.
+     &    RST_triplet==QLast(2)) Return
 *
- 1111 Continue
-c     Call Diskat
-      Call iRBuf(iWR,2,Copy)
-      Call dRBuf(QLast,2,Copy)
-      mInts=iWR(2)
-      If (QLast(1).eq.Quad_ijkl .and.
-     &    QLast(2).eq.RST_triplet) Then
-         If (mInts.gt.0) Call dRBuf(Dummy,mInts,NoCopy)
-         Disc = Disc + DBLE(2/RtoI + 2 + mInts)
-         Return
-      Else If (QLast(1).le.Quad_ijkl ) Then
-         If (mInts.gt.0) Call dRBuf(Dummy,mInts,NoCopy)
-         Disc = Disc + DBLE(2/RtoI + 2 + mInts)
-         Go To 1111
-      Else
-         Write (6,*) 'Pos_QLast: batch is lost!'
-         Write (6,'(A,2F10.1)') 'Index,1.0:  ',QLast(1),QLast(2)
-         Write (6,'(A,2F10.1)') 'Looking for ',Quad_ijkl,RST_triplet
-         Write (6,*) ' iTskCan,=',iTskCan
-         Call RecPrt('TskQ',' ',TskQ,2,iTskCan)
-         Write (6,*)
-         Call XFlush(6)
-         Call Abend()
-      End If
+      Do
+
+         Call iRBuf(iWR,2,Copy)
+         Call dRBuf(QLast,2,Copy)
+         mInts=iWR(2)
+         If (QLast(1)==Quad_ijkl .and.
+     &       QLast(2)==RST_triplet) Then
+            If (mInts.gt.0) Call dRBuf(Dummy,mInts,NoCopy)
+            Disc = Disc + DBLE(2/RtoI + 2 + mInts)
+            Return
+         Else If (QLast(1)<=Quad_ijkl ) Then
+            If (mInts>0) Call dRBuf(Dummy,mInts,NoCopy)
+            Disc = Disc + DBLE(2/RtoI + 2 + mInts)
+            Cycle
+         Else
+            Write (u6,*) 'Pos_QLast: batch is lost!'
+            Write (u6,'(A,2F10.1)') 'Index,1.0:  ',QLast(1),QLast(2)
+            Write (u6,'(A,2F10.1)') 'Looking for ',Quad_ijkl,RST_triplet
+            Write (u6,*) ' iTskCan,=',iTskCan
+            Call RecPrt('TskQ',' ',TskQ,2,iTskCan)
+            Write (u6,*)
+            Call Abend()
+       End If
 *
-      Write (6,*) 'Pos_QLast: Fatal problem!'
+      End Do
+
+      Write (u6,*) 'Pos_QLast: Fatal problem!'
       Call XFlush(6)
-      Call Abend
+      Call Abend()
+
       End Subroutine Pos_QLast
