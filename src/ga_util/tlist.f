@@ -104,7 +104,7 @@ c
       End Subroutine Init_TList
 *
       Subroutine Free_TList()
-      use TList_Mod
+      use TList_Mod, only: TskQ,TskM
       Use Para_Info, Only: nProcs, Is_Real_Par
       use stdalloc, only: mma_deallocate
       implicit None
