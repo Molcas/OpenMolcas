@@ -106,6 +106,7 @@ c     Call RecPrt('TskM',' ',TskM,2,nTasks)
       use TList_Mod
       Use Para_Info, Only: nProcs, Is_Real_Par
       use stdalloc, only: mma_deallocate
+      implicit None
 *
       If (.Not.Allocated(TskQ)) Return
 *
@@ -113,5 +114,4 @@ c     Call RecPrt('TskM',' ',TskM,2,nTasks)
       Call mma_deallocate(TskQ)
       Call mma_deallocate(TskM)
 *
-      Return
-      End
+      End Subroutine Free_TList
