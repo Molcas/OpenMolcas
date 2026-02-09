@@ -9,11 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine cvbinp_rvb(icode,luinp)
-      implicit real*8 (a-h,o-z)
+      use definitions, only: iwp
+      implicit None
+      integer(kind=iwp), intent(in):: icode,luinp
 
       call cvbstart_cvb_ge9(icode+10)
       call hello_cvb()
       call parse_init_cvb(luinp)
       call input_cvb()
-      return
-      end
+
+      end subroutine cvbinp_rvb
