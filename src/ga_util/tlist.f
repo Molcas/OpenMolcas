@@ -11,7 +11,7 @@
       Subroutine Init_TList(Triangular,P_Eff)
       use definitions, only: iwp, wp, u6
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
-      use TList_Mod
+      use TList_Mod, only: nTasks,P,PQ,TskL,TskM,TskQ,Not_Used
       use stdalloc, only: mma_allocate
       use Constants, only: Zero, One, Two
       implicit none
