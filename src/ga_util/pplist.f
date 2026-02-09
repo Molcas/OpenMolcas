@@ -58,22 +58,25 @@
       End Subroutine Init_PPList
 
       Subroutine ReInit_PPList(Semi_Direct)
+      use definitions, only: iwp, u6
       Use Para_Info, only: MyRank, nProcs
-      use TList_Mod
-      Implicit Real*8 (a-h,o-z)
-      Logical Semi_Direct
-      Logical:: Debug=.False.
-      Integer, Pointer:: TskList(:,:)
+      use TList_Mod, only: TskL,iStrt_TList,iEnd_TList,iTskCan,mTasks,
+     &                     Not_Used,nTasks,PP_Status,QLast
+      Implicit None
+      Logical(kind=iwp), intent(in):: Semi_Direct
+      Logical(kind=iwp):: Debug=.False.
+      Integer(kind=iwp), Pointer:: TskList(:,:)
+      Integer(kind=iwp) i, iCount, iE
 *
       If (Debug) Then
          If (PP_Status) Then
-            Write (6,*) 'ReInit_PPList: Active'
+            Write (u6,*) 'ReInit_PPList: Active'
          Else
-            Write (6,*) 'ReInit_PPList: InActive'
+            Write (u6,*) 'ReInit_PPList: InActive'
          End If
       End If
       If (.NOT.PP_Status) Then
-         Write (6,*) 'ReInit_PPList: List is not active!'
+         Write (u6,*) 'ReInit_PPList: List is not active!'
          Call Abend()
       End If
       iTskCan=0
@@ -88,9 +91,7 @@
          TskList(1:nTasks,1:2) => TskL(1:2*nTasks)
 *
 *---- Copy first the task indices of tasks that were exectuted
-*        Call ICopy(mTasks,TskL(1+nTasks:2*nTasks),1,TskL(1:mTasks),1)
          Call ICopy(mTasks,TskList(:,2),1,TskList(:,1),1)
-c     Write (*,*) 'mTasks=',mTasks
 *
 *---- Now copy task indices of tasks which were not executed by this node.
 *     Change the order so that the first task it the largest in the list.
@@ -99,18 +100,13 @@ c     Write (*,*) 'mTasks=',mTasks
          iCount = 1
          Do i = mTasks, nTasks-1
             If (iCount .gt. myRank) Then
-*              TskL(1+i) = TskL(i+1+nTasks)
                TskList(1+i,1) = TskList(i+1,2)
             Else
-*              TskL(1+i) = TskL(iE+1+nTasks)
                TskList(1+i,1) = TskList(iE+1,2)
                iE = iE - 1
                iCount = iCount + 1
             Endif
          Enddo
-
-c        Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
-c        Write (*,*) 'mTasks=',mTasks
 *
          nullify(TskList)
       End If
@@ -121,8 +117,7 @@ c        Write (*,*) 'mTasks=',mTasks
       QLast(1)=Not_Used
       QLast(2)=Not_Used
 *
-      Return
-      End
+      End Subroutine ReInit_PPList
 *
       Subroutine Free_PPList()
       use TList_Mod
