@@ -39,7 +39,7 @@
       Implicit None
       integer(kind=iwp), intent(in):: nDens
       real(kind=wp), intent(inout):: TwoHam(nDens)
-      real(kind=wp), intent(out):: TCPU,TWall
+      real(kind=wp), intent(inout):: TCPU,TWall
 
 #ifdef _MOLCAS_MPP_
       real(kind=wp) TCPU1,TWall1
