@@ -9,17 +9,19 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init_PPList()
+      use definitions, only: iwp, u6
       use TList_Mod
       Use Para_Info, only: MyRank, nProcs, Is_Real_Par
-      Implicit Real*8 (a-h,o-z)
-      Logical:: Debug=.False.
-      Integer, Pointer:: TskList(:,:)
+      Implicit None
+      Logical(kind=iwp):: Debug=.False.
+      Integer(kind=iwp), Pointer:: TskList(:,:)
+      Integer(kind=iwp) i, iE, iTsk
 *
       If (Debug) Then
          If (PP_Status) Then
-            Write (6,*) 'Init_PPList: Active'
+            Write (u6,*) 'Init_PPList: Active'
          Else
-            Write (6,*) 'Init_PPList: InActive'
+            Write (u6,*) 'Init_PPList: InActive'
          End If
       End If
 
@@ -33,22 +35,17 @@
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
 
       TskList(1:nTasks,1:2) => TskL(1:2*nTasks)
-*     call izero(TskL(1:nTasks),nTasks)
       TskList(:,1)=0
       Do iTsk = 0, nTasks-1
-*       TskL(1+iTsk)=MOD(iTsk+MyRank,nTasks)+1
         TskList(1+iTsk,1)=MOD(iTsk+MyRank,nTasks)+1
       End Do
-c     Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
 *
 *---- Copy list in inverse order to ensure the proper order if
 *     reinitiated at once.
 *
       iE = nTasks-1
-*     call izero(TskL(1+nTasks:2*nTasks),nTasks)
       TskList(:,2)=0
       Do i = 0, nTasks-1
-*        TskL(1+nTasks+iE) = TskL(i+1)
          TskList(1+iE,2) = TskList(i+1,1)
          iE = iE - 1
       End Do
@@ -57,8 +54,8 @@ c     Write (*,*) (TskL(iTsk),iTsk = 1, nTasks)
       QLast(1)=Not_Used
       QLast(2)=Not_Used
 *
-      Return
-      End
+      End Subroutine Init_PPList
+
       Subroutine ReInit_PPList(Semi_Direct)
       Use Para_Info, only: MyRank, nProcs
       use TList_Mod
