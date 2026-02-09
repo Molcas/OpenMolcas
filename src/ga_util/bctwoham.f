@@ -32,12 +32,18 @@
 *
 *----------------------------------------------------------------------*
       SubRoutine BCTwoHam(TwoHam,nDens,TCPU,TWall)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
 #endif
-      Implicit Real*8 (a-h,o-z)
-      Real*8 TwoHam(nDens)
+      Implicit None
+      integer(kind=iwp), intent(in):: nDens
+      real(kind=wp), intent(inout):: TwoHam(nDens)
+      real(kind=wp), intent(out):: TCPU,TWall
+
 #ifdef _MOLCAS_MPP_
+      real(kind=wp) TCPU1,TWall1
+      real(kind=wp) TCPU2,TWall2
 *
 #include "global.fh"
 *
@@ -57,5 +63,4 @@ c Avoid unused argument warnings
          Call Unused_real(Twall)
       End If
 #endif
-      Return
-      End
+      End SubRoutine BCTwoHam
