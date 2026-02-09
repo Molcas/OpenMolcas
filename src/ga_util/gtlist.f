@@ -56,16 +56,20 @@
 ************************************************************************
 * Rsv_GTList
 ************************************************************************
-      Logical Function Rsv_GTList(TskLw,TskHi,iOpt,NewBatch)
+      Function Rsv_GTList(TskLw,TskHi,iOpt,NewBatch)
+      use definitions, only: iwp, wp
       Use Para_Info, Only: nProcs, Is_Real_Par
       use TList_Mod
       use Constants, only: One
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Logical(kind=iwp) Rsv_GTList
+      Logical(kind=iwp), intent(out):: NewBatch
+      real(kind=wp), intent(out):: TskLw,TskHi
+      integer(kind=iwp), intent(in):: iOpt
 #ifdef _MOLCAS_MPP_
-      External RsvTsk
-      Integer RsvTsk
+      Integer(kind=iwp), External :: RsvTsk
+      Integer(kind=iwp) MyTask
 #endif
-      Logical NewBatch
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -107,7 +111,7 @@
          Else
             MyTask=0
             Write (6,*) 'Rsv_GTList: Invalid option:',iOpt
-            Call Abend
+            Call Abend()
          End If
          If (MyTask.ge.1) Then
             Rsv_GTList=.True.
