@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Pos_QLast(Disc)
       use definitions, only: iwp, wp, u6
-      use TList_Mod
+      use TList_Mod, only: iTskCan, Not_Used, TskQ, QLast
       use SysDef, only: RtoI
       Implicit None
       real(kind=wp), intent(inout):: Disc
