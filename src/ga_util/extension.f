@@ -9,21 +9,23 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Extension(FileName)
-      Character*(*) FileName
+      implicit none
+      Character(LEN=*), intent(inout):: FileName
 
       Call Ext_PID(FileName)
-      Return
-      End
+      End Subroutine Extension
+
       Subroutine Ext_PID(FileName)
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       use UnixInfo, only: PID
 #endif
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #ifdef _MOLCAS_MPP_
-      External StrnLn
-      Integer StrnLn
+      Integer(kind=iwp) Length,NameLength
+      Integer(kind=iwp), External ::StrnLn
 #endif
-      Character*(*) FileName
+      Character(LEN=*), intent(inout):: FileName
 
 #ifdef _MOLCAS_MPP_
       Length=Len(FileName)
@@ -34,8 +36,8 @@
 c Avoid unused argument warnings
       If (.False.) Call Unused_character(FileName)
 #endif
-      Return
-      End
+      End Subroutine Ext_PID
+
       Subroutine Ext_Rank(FileName)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: MyRank
