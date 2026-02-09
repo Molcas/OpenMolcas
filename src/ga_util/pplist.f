@@ -10,7 +10,8 @@
 ************************************************************************
       Subroutine Init_PPList()
       use definitions, only: iwp, u6
-      use TList_Mod
+      use TList_Mod, only: iStrt_TList,iEnd_TList,iTskCan,mTasks,
+     &                     Not_Used,nTasks,PP_Status,QLast, TskL
       Use Para_Info, only: MyRank, nProcs, Is_Real_Par
       Implicit None
       Logical(kind=iwp):: Debug=.False.
