@@ -836,7 +836,7 @@ c         end if
      &             'energy=',ENER(I,ITER)
               If (KeyPRSD) Then
 !     Define filename to write GronOR vecdet files (tps/cdg 20210430)
-                write(filename,'(a7,i1)') 'VECDET.',i
+                write(filename,'(a7,i0)') 'VECDET.',i
 !     filename = 'VECDET.'//merge(str(i), 'x', i.lt.999)
                 LuVecDet=39
                 LuVecDet=IsFreeUnit(LuVecDet)
@@ -904,7 +904,7 @@ C.. printout of the wave function
             Write(LF,'(6X,A,F15.6)')
      &           'Split-energy=',ENER(lRootSplit,ITER)
 !     Open GronOR vecdet file (tps/cdg 20210430)
-            write(filename,'(a7,i1)') 'VECDET.',i
+            write(filename,'(a7,i0)') 'VECDET.',i
 !     filename = 'VECDET.'//merge(str(i),'x',i.lt.999)
             LuVecDet=39
             LuVecDet=IsFreeUnit(LuVecDet)
