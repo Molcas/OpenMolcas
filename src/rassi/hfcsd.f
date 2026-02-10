@@ -21,13 +21,14 @@
 *                from the magnetic integrals contributions             *
 *     Output: BUFF                                                     *
 ************************************************************************
-      CHARACTER(LEN=8) LABEL
-      INTEGER IC,NBUFF,NSIZ,ISCHK
-      REAL*8 BUFF(NBUFF)
+      CHARACTER(LEN=8), intent(in):: LABEL
+      INTEGER(KIND=IWP), INTENT(IN):: IC,NBUFF,NSIZ
+      INTEGER(KIND=IWP), INTENT(INOUT):: ISCHK
+      REAL(KIND=WP), INTENT(INOUT):: BUFF(NBUFF)
 
-      INTEGER ICM,INBUFF
-      REAL*8 DA
-      Real*8, allocatable:: TA(:)
+      INTEGER(KIND=IWP) ICM,INBUFF
+      real(kind=wp) DA
+      real(kind=wp), allocatable:: TA(:)
 
 c Set MAG_X2C to avoid add_info in hfcts
       MAG_X2C=.True.
