@@ -41,18 +41,27 @@
 *> @param[in,out] CI   CI Array
 ************************************************************************
       SUBROUTINE CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
+      use definitions, only: iwp, wp
+#ifdef DEBUG_MPSSI
+      use definitions, only: u6
+#endif
+      use constants, only: One
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: NTRA,NOSH,NISH,NASH
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8 TRA(NTRA),CI(NCO)
-      CHARACTER(LEN=8) WFTP
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-      Type (EXStruct) EXS
+      IMPLICIT NONE
+      CHARACTER(LEN=8), Intent(in):: WFTP
+      Type (SGStruct), intent(in):: SGS
+      Type (CIStruct), intent(in):: CIS
+      Type (EXStruct), intent(in):: EXS
+      integer(kind=iwp), intent(in):: LSM, NCO
+      Real(kind=wp), intent(in)::TRA(NTRA)
+      Real(kind=wp), intent(inout)::CI(NCO)
 
-      Real*8, Allocatable:: TMP(:)
+      real(kind=wp), Allocatable:: TMP(:)
+      real(kind=wp) FAC,CKK
+      integer(kind=iwp) ISTA,ISYM,NO,I,II,NA,NI
 
 
 #ifdef DEBUG_MPSSI
@@ -64,7 +73,7 @@
 !     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 C TRA contains square matrices, one per symmetry
 C  FIRST TRANSFORM THE INACTIVE ORBITALS:
-      FAC=1.0D00
+      FAC=One
       ISTA=1
       DO ISYM=1,NSYM
         NO=NOSH(ISYM)
@@ -121,4 +130,4 @@ C The general case:
 
       end if
 
-      END
+      END SUBROUTINE CITRA
