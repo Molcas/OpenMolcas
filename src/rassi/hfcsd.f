@@ -15,7 +15,7 @@
       use constants, only: Zero, One, Two, Three, Four
       use stdalloc, only: mma_allocate, mma_deallocate
       use hfc_logical, only: MAG_X2C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 ************************************************************************
 *     Objective: to compute the 'spin-dependent' part of the hyperfine *
 *                from the magnetic integrals contributions             *
@@ -26,7 +26,7 @@
       INTEGER(KIND=IWP), INTENT(INOUT):: ISCHK
       REAL(KIND=WP), INTENT(INOUT):: BUFF(NBUFF)
 
-      INTEGER(KIND=IWP) ICM,INBUFF
+      INTEGER(KIND=IWP) ICM,INBUFF,IOPT,IRC
       real(kind=wp) DA
       real(kind=wp), allocatable:: TA(:)
 
