@@ -86,13 +86,12 @@ C IND is a hashed index in interval 1..NHASH < NSIZE
 C Find the last item with this key:
 
       LOOKAT=IND
-  10  CONTINUE
+      DO
 C Are there already items with that hash signature?
-      IF(ITAB(LOOKAT,1).EQ.NULL) GOTO 30
+      IF(ITAB(LOOKAT,1).EQ.NULL) EXIT
       LOOKAT=ITAB(LOOKAT,1)
-      GOTO 10
+      END DO
 
-  30  CONTINUE
 C No more items with the same signature.
 C Put the new item in the table at a free location.
       ITAB(LOOKAT,1)=IFREE
