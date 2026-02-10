@@ -12,7 +12,7 @@
 ************************************************************************
       FUNCTION NOVERM(N,M)
       use definitions, only: iwp, wp
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       INTEGER(KIND=IWP) NOVERM
       INTEGER(KIND=IWP), INTENT(IN):: N,M
 
