@@ -11,21 +11,26 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GetGradNorm_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat)
+subroutine GetGradNorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
 ! Thomas Bondo Pedersen, December 2005.
 !
 ! Purpose: compute the gradient norm of the Pipek-Mezey functional.
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Four, Eight
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Debug
 
 implicit none
+
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
-real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc)
+real(kind=wp), intent(out) :: GradNorm
+real(kind=wp), allocatable :: Rmat(:,:)
 integer(kind=iwp) :: iAtom, i,j,k,l
 real(kind=wp) :: Fun, Rjj
+
+call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !GradientNorm - needed for all optimization methods
@@ -50,6 +55,7 @@ do i=1,nOrb2Loc-1
 end do
 GradNorm = Four*sqrt(GradNorm) !sqrt to complement previous **2
 
+call mma_Deallocate(RMat)
 
 if (Debug) then
     write(u6,*) ' '

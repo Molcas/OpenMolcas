@@ -11,8 +11,8 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Gradient,H_diag)
-! Thomas Bondo Pedersen, December 2005.
+subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient,H_diag)
+! LilaZapp, December 2025/26.
 !
 ! Purpose: compute the gradient of the Pipek-Mezey functional.
 
@@ -23,10 +23,9 @@ use Localisation_globals, only: Debug
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
-real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc), Gradient(nOrb2Loc, nOrb2Loc), &
-                              H_diag(nOrb2Loc, nOrb2Loc)
+real(kind=wp), intent(out) :: GradNorm,Gradient(nOrb2Loc,nOrb2Loc),H_diag(nOrb2Loc,nOrb2Loc)
 integer(kind=iwp) :: iAtom, i,j,k,l
-real(kind=wp) :: Fun, Rjj, Q_ll, Q_kk, Q_kl
+real(kind=wp) :: Q_ll, Q_kk, Q_kl
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -36,7 +35,7 @@ Q_ll = Zero
 Q_kk = Zero
 Q_kl = Zero
 
-!New gradient calculation according to DOI: 10.1002/jcc.23281 equation (15)
+!gradient calculation according to DOI: 10.1002/jcc.23281 equation (15)
 !the Gradient matrix is antisymmetric
 Gradient(:,:) = Zero
 do iAtom=1,nAtoms
@@ -76,30 +75,15 @@ do k=1,nOrb2Loc
 end do
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!GradientNorm - needed for all optimization schemes
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!Calculate the R matrix used to calculate the gradient norm
-RMat(:,:) = Zero
-do iAtom=1,nAtoms
-  do j=1,nOrb2Loc
-    Rjj = PA(j,j,iAtom)
-    do i=1,nOrb2Loc
-      Rmat(i,j) = Rmat(i,j)+PA(i,j,iAtom)*Rjj
-    end do
-  end do
-end do
-
-!The Gradient Norm (always positive!) is used as threshold criterium
+!GradientNorm - needed for all optimization schemes,
+! here calculated as the vector norm
 GradNorm = Zero
-do i=1,nOrb2Loc-1
-  do j=i+1,nOrb2Loc
-    GradNorm = GradNorm + (Rmat(i,j) - Rmat(j,i))**2 !square to avoid negative norm
-  end do
+do i = 1, nOrb2Loc-1
+    do j = i+1, nOrb2Loc
+        GradNorm = GradNorm + Gradient(i,j)**2
+    end do
 end do
-GradNorm = Four*sqrt(GradNorm) !sqrt to complement previous **2
-
-
+GradNorm = sqrt(GradNorm)
 
 if (Debug) then
     write(u6,*) ' '
@@ -107,15 +91,8 @@ if (Debug) then
     write(u6,*) '-------------'
     call RecPrt('Gradient',' ',Gradient(:,:), nOrb2Loc, nOrb2Loc)  !this is also printed in the Gradientlist
     call RecPrt('H_diag',' ',H_diag(:,:), nOrb2Loc, nOrb2Loc)
+    write(u6,*) "gradnorm =",GradNorm
     write(u6,*) ' '
-    write(u6,*) 'GradNorm = ',gradnorm
-    ! Trace of Rmat is the value of the PM functional
-    Fun=Zero
-    do i=1,nOrb2Loc
-        Fun = Fun+Rmat(i,i)
-    end do
-    !call RecPrt('RMat',' ',RMat(:,:), nOrb2Loc, nOrb2Loc)
-    !write(u6,*) 'PM_functional = Tr(R) = ',Fun
 end if
 
 

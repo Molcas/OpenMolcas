@@ -31,7 +31,7 @@ character(len=LenIn8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i,k, iBas, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
-real(kind=wp), allocatable :: RMat(:,:), PACol(:,:), GradientList(:,:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
+real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:)
 logical(kind=iwp), parameter :: printmore = .false., debug_lowdin = .false.
 
@@ -39,7 +39,6 @@ logical(kind=iwp), parameter :: printmore = .false., debug_lowdin = .false.
 ! -----------------------------
 
 if (.not. Silent) call CWTime(C1,W1)
-call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
 call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
 call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
 call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
@@ -77,7 +76,7 @@ end if
 
 FunctionalList(1)=Functional
 
-call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat, GradientList(:,:,1), Hdiag(:,:))
+call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, GradientList(:,:,1), Hdiag(:,:))
 
 OldFunctional = Functional
 FirstFunctional = Functional
@@ -116,7 +115,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
         ! NXN rotations: Gradient Ascent or Newton Raphson
         call RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt(:,:),GradientList(:,:,nIter+1),Hdiag(:,:),BName,nAtoms,&
                        nBas_per_Atom,nBas_Start,PA(:,:,:))
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,GradientList(:,:,nIter+2), Hdiag(:,:))
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+2), Hdiag(:,:))
    end if
 
     nIter = nIter+1
@@ -129,7 +128,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
     end if
 
     !calculates nxn gradient matrix for the current iteration and adds it to the List
-    call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat)
+    call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !check if converged
@@ -151,7 +150,6 @@ if (.not. Silent) then
 end if
 
 call mma_Deallocate(PACol)
-call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
 call mma_Deallocate(FunctionalList)
 call mma_Deallocate(Hdiag)
