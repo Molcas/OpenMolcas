@@ -10,13 +10,14 @@
 !***********************************************************************
 SUBROUTINE MKCXA(NSYM,NOSH,NCXA,TRA,CXA)
 use definitions, only: iwp, wp
-IMPLICIT REAL*8 (A-H,O-Z)
+IMPLICIT NONE
 INTEGER(kind=iwp), intent(in):: NSYM,NCXA
 REAL(kind=wp), intent(in):: TRA(NCXA)
 REAL(kind=wp), intent(out):: CXA(NCXA)
 INTEGER(kind=iwp), intent(in):: NOSH(NSYM)
 
 INTEGER ISTA,I,NDIMEN
+
 ISTA=1
 DO I=1,NSYM
   NDIMEN=NOSH(I)
