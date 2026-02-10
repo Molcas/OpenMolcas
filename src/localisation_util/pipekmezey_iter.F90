@@ -84,7 +84,6 @@ Delta = Functional
 
 ! Print iteration table header.
 ! -----------------------------
-
 if (.not. Silent) then
   write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
                                'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
@@ -96,7 +95,6 @@ end if
 
 ! Iterations.
 ! -----------
-
 call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 Converged = .false.
 
@@ -107,28 +105,23 @@ end if
 
 do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+1)<10*norb2loc))
     if (.not. Silent) call CWTime(C1,W1)
+
+    nIter = nIter+1
+
     !choose between optimization methods
     if (OptMeth == 1) then
         ! 2x2 rotations: Jacobi Sweeps
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
+        call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
     else if (OptMeth == 2 .or. OptMeth == 3) then
         ! NXN rotations: Gradient Ascent or Newton Raphson
-        call RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt(:,:),GradientList(:,:,nIter+1),Hdiag(:,:),BName,nAtoms,&
-                       nBas_per_Atom,nBas_Start,PA(:,:,:))
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+2), Hdiag(:,:))
-   end if
-
-    nIter = nIter+1
+        call RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt(:,:),GradientList(:,:,nIter),Hdiag(:,:),BName,nAtoms,&
+                       nBas_per_Atom,nBas_Start,PA(:,:,:)) !uses gradient info from previous iteration
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
+    end if
 
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
     FunctionalList(nIter+1)=Functional !first entry is from before first iteration
-    if (printmore) then
-!       write(u6,'(/,A)') '               nIter:  Functional:'
-        write(u6,*) nIter,FunctionalList(nIter+1)
-    end if
-
-    !calculates nxn gradient matrix for the current iteration and adds it to the List
-    call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !check if converged
