@@ -10,13 +10,14 @@
 !***********************************************************************
 SUBROUTINE CNF2TXT(IFORM,NORB,NCLS,NOPN,ICONF,LENGTH,TEXT)
 use definitions, only: iwp
-IMPLICIT REAL*8 (A-H,O-Z)
+IMPLICIT NONE
 integer(kind=iwp), intent(in):: IFORM, NORB, NCLS, NOPN
 integer(kind=iwp), intent(in):: ICONF(*)
 integer(kind=iwp), intent(out):: LENGTH
 CHARACTER(LEN=*), intent(out):: TEXT
 
 CHARACTER(LEN=1) SEP
+integer(kind=iwp) MXWR,NWR,IWORD,NOCC,IORB,IOCC,IREST,IW
 
 MXWR=LEN(TEXT)
 NWR=1
