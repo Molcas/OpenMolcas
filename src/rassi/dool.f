@@ -13,12 +13,15 @@
       SUBROUTINE DOOL(NDIMEN,MDIM,N,M,A,B,DET,IPIV,JPIV,BUF)
       use definitions, only: iwp, wp
       use constants, only: One
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       integer(kind=iwp), intent(in):: NDIMEN,MDIM,N,M
       real(kind=wp), intent(inout):: A(NDIMEN,NDIMEN),B(NDIMEN,MDIM)
       real(kind=wp), intent(out):: DET
       integer(kind=iwp), intent(out):: IPIV(NDIMEN),JPIV(NDIMEN)
       real(kind=wp), intent(out):: BUF(NDIMEN)
+
+      real(kind=wp) AM,AMAX,C,DIAG,SUMMA
+      integer(kind=iwp) I,IDUM,IP,J,JP,K,KP,L,LP
 C
 C     SOLVES THE MATRIX EQUATION AX=B BY DOOLITTLE''S METHOD
 C     ACTUAL DIMENSIONS ARE N*N AND N*M
