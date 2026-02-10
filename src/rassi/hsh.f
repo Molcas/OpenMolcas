@@ -54,11 +54,15 @@ C Here, if we have failed to find such an item.
       END SUBROUTINE HSHGET
 
       SUBROUTINE HSHPUT(KEYDIM,NCOMP,ITEM,NSIZE,ITAB,ITEMID)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ITAB(NSIZE,2)
-      DIMENSION ITEM(NCOMP,*)
+      use definitions, only: iwp
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: KEYDIM,NCOMP,NSIZE,ITEMID
+      integer(kind=iwp), intent(inout):: ITAB(NSIZE,2)
+      integer(kind=iwp), intent(in):: ITEM(NCOMP,*)
+
 C These parameters determine the hash function:
-      PARAMETER (MULT=37,NHASH=997)
+      integer(kind=iwp), parameter:: MULT=37,NHASH=997
+      integer(kind=iwp) IND,I,IFREE,LOOKAT,NULL,NEXT
 
       IF(NSIZE.LT.NHASH) THEN
         WRITE(6,*)' HSHPUT: Table size must be at least as'
@@ -100,14 +104,17 @@ C Put the new item in the table at a free location.
       END SUBROUTINE HSHPUT
 
       SUBROUTINE HSHINI(NSIZE,ITAB,NULL)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ITAB(NSIZE,2)
+      use definitions, only: iwp, u6
+      IMPLICIT NONE
+      integer(kind=iwp), intent(In):: NSIZE, NULL
+      integer(kind=iwp), intent(out):: ITAB(NSIZE,2)
 C These parameters determine the hash function
-      PARAMETER (NHASH=997)
+      integer(kind=iwp), PARAMETER:: NHASH=997
+      integer(kind=iwp) I, IFREE
 
       IF (NSIZE.LT.NHASH) THEN
-         WRITE(6,*)' HSHINI: Table size must be at least as'
-         WRITE(6,*)'         big as NHASH, presently =', NHASH
+         WRITE(u6,*)' HSHINI: Table size must be at least as'
+         WRITE(u6,*)'         big as NHASH, presently =', NHASH
          CALL ABEND()
       END IF
       DO I=1,NHASH
