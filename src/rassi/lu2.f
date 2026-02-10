@@ -14,13 +14,16 @@ C---------------------------------------------------------------
       SUBROUTINE LU2 (NDIMEN,NBLOCK,NSIZE,CXA,CYB,SCR)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, One, Two
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       integer(kind=iwp), intent(in):: NDIMEN,NBLOCK
       integer(kind=iwp), intent(in):: NSIZE(NBLOCK)
       real(kind=wp), intent(inout):: CXA(NDIMEN,NDIMEN),
      &                               CYB(NDIMEN,NDIMEN)
       real(kind=wp), intent(inout):: SCR(NDIMEN)
 
+      integer(kind=iwp) NTOT,IBLOCK,IEND,ISTA,II,J,I
+      real(kind=wp) S1,S2,S3,X1,X2,S,X
+      real(kind=wp), parameter:: THR=1.0D-06
 C  GIVES A SIMULTANEOUS LU-PARTITIONING OF MATRICES CXA,CYB IN THE
 C  SENSE THAT CXA*X = L1*U1 AND CYB*X = L2*U2, WHERE X IS A BLOCK
 C  UNITARY MATRIX. X IS NEVER FORMED, BUT AT EACH STEP SUCH A
@@ -48,7 +51,6 @@ C                                         ( MALMQUIST 84-01-16 )
             S2=S2+CYB(II,J)**2
             S3=S3+CXA(II,J)*CYB(II,J)
           END DO
-          THR=1.0D-06
           IF((S1.LT.THR).OR.(S2.LT.THR)) THEN
             WRITE(u6,*)' RASSI CANNOT CONTINUE. THE PROBLEM AT HAND'
             WRITE(u6,*)' IS PROBABLY NOT SOLUBLE. THE TWO ORBITAL'
