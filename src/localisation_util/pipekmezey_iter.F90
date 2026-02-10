@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
+!               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
@@ -125,7 +126,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         FunctionalList(nIter+1)=Functional !first entry is from before first iteration
     end if
 
-
     !check if converged
     Delta = Functional-OldFunctional
     OldFunctional = Functional
@@ -144,16 +144,6 @@ if (.not. Silent) then
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
 end if
 
-call mma_Deallocate(PACol)
-
-if (OptMeth == 2 .or. OptMeth == 3) then
-    call mma_Deallocate(GradientList)
-    call mma_Deallocate(FunctionalList)
-    call mma_Deallocate(Hdiag)
-end if
-
-call mma_Deallocate(Ovlp_sqrt)
-
 ! Print convergence message.
 ! --------------------------
 
@@ -168,6 +158,16 @@ if (.not. Silent) then
         write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
     end if
 end if
+
+if (OptMeth == 2 .or. OptMeth == 3) then
+    call mma_Deallocate(GradientList)
+    call mma_Deallocate(FunctionalList)
+    call mma_Deallocate(Hdiag)
+end if
+
+call mma_Deallocate(PACol)
+call mma_Deallocate(Ovlp_sqrt)
+
 
 end subroutine PipekMezey_Iter
 
