@@ -11,9 +11,14 @@
 * Copyright (C) 1982,1983, Per Ake Malmqvist                           *
 ************************************************************************
       SUBROUTINE DOOL(NDIMEN,MDIM,N,M,A,B,DET,IPIV,JPIV,BUF)
+      use definitions, only: iwp, wp
+      use constants, only: One
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(NDIMEN,NDIMEN),B(NDIMEN,MDIM)
-      DIMENSION IPIV(NDIMEN),JPIV(NDIMEN),BUF(NDIMEN)
+      integer(kind=iwp), intent(in):: NDIMEN,MDIM,N,M
+      real(kind=wp), intent(inout):: A(NDIMEN,NDIMEN),B(NDIMEN,MDIM)
+      real(kind=wp), intent(out):: DET
+      integer(kind=iwp), intent(out):: IPIV(NDIMEN),JPIV(NDIMEN)
+      real(kind=wp), intent(out):: BUF(NDIMEN)
 C
 C     SOLVES THE MATRIX EQUATION AX=B BY DOOLITTLE''S METHOD
 C     ACTUAL DIMENSIONS ARE N*N AND N*M
@@ -32,10 +37,10 @@ C
        IPIV(I)=I
        JPIV(I)=I
       END DO
-      DET=1.0D00
+      DET=One
       DO I=1,N
 C  NOW FIND BETTER PIVOT ELEMENT:
-       AMAX=-1.0D00
+       AMAX=-One
        DO K=I,N
         DO L=I,N
         AM=ABS(A(IPIV(K),JPIV(L)))
@@ -111,4 +116,4 @@ C
        END DO
       END DO
 
-      END
+      END SUBROUTINE DOOL
