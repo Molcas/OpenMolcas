@@ -21,16 +21,14 @@ use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Debug
 
 implicit none
+
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: GradNorm,Gradient(nOrb2Loc,nOrb2Loc),H_diag(nOrb2Loc,nOrb2Loc)
 integer(kind=iwp) :: iAtom, i,j,k,l
 real(kind=wp) :: Q_ll, Q_kk, Q_kl
 
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !gradient and Hessian - needed only for new optimizer
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Q_ll = Zero
 Q_kk = Zero
 Q_kl = Zero
@@ -74,7 +72,6 @@ do k=1,nOrb2Loc
    end do
 end do
 
-
 !GradientNorm - needed for all optimization schemes,
 ! here calculated as the vector norm
 GradNorm = Zero
@@ -94,7 +91,5 @@ if (Debug) then
     write(u6,*) "gradnorm =",GradNorm
     write(u6,*) ' '
 end if
-
-
 
 end subroutine GetGrad_PM

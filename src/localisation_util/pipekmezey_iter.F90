@@ -33,21 +33,27 @@ integer(kind=iwp) :: nIter, i,k, iBas, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:)
-logical(kind=iwp), parameter :: printmore = .false., debug_lowdin = .false.
+logical(kind=iwp), parameter :: debug_lowdin = .false.
 
 ! Initialization (iteration 0).
 ! -----------------------------
 
 if (.not. Silent) call CWTime(C1,W1)
-call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
-call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
-call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
+
+! for the GEK it is needed to store data from old iterations:
+if (OptMeth == 2 .or. OptMeth == 3) then
+    call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
+    call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
+    FunctionalList(:)=0
+    call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
+end if
+
 nIter = 0
-FunctionalList(:)=0
 
 call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
 
-if (ChargeType ==2) then !Lowdin
+! if the Loewdin charge framework is requested instead of Mulliken
+if (ChargeType ==2) then
     call mma_allocate(Ovlp_aux, nBasis, nBasis,Label = "S^{-1/2}")
     lSCR = 2*nBasis**2+nBasis*(nBasis+1)/2
     if (debug_lowdin) then; call RecPrt("S before taking the sqrt",' ',Ovlp,nBasis,nBasis); end if
@@ -74,9 +80,10 @@ else
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end if
 
-FunctionalList(1)=Functional
-
-call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, GradientList(:,:,1), Hdiag(:,:))
+if (OptMeth == 2 .or. OptMeth == 3) then
+    FunctionalList(1)=Functional
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, GradientList(:,:,1), Hdiag(:,:))
+end if
 
 OldFunctional = Functional
 FirstFunctional = Functional
@@ -98,12 +105,7 @@ end if
 call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 Converged = .false.
 
-if (printmore) then
-    write(u6,'(/,A)') '               nIter:  Functional:'
-    write(u6,*) nIter,FunctionalList(nIter+1)
-end if
-
-do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+1)<10*norb2loc))
+do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
 
     nIter = nIter+1
@@ -113,17 +115,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
         ! 2x2 rotations: Jacobi Sweeps
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
     else if (OptMeth == 2 .or. OptMeth == 3) then
         ! NXN rotations: Gradient Ascent or Newton Raphson
         call RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt(:,:),GradientList(:,:,nIter),Hdiag(:,:),BName,nAtoms,&
                        nBas_per_Atom,nBas_Start,PA(:,:,:)) !uses gradient info from previous iteration
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        FunctionalList(nIter+1)=Functional !first entry is from before first iteration
     end if
 
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-    FunctionalList(nIter+1)=Functional !first entry is from before first iteration
 
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !check if converged
     Delta = Functional-OldFunctional
     OldFunctional = Functional
@@ -143,9 +145,13 @@ if (.not. Silent) then
 end if
 
 call mma_Deallocate(PACol)
-call mma_Deallocate(GradientList)
-call mma_Deallocate(FunctionalList)
-call mma_Deallocate(Hdiag)
+
+if (OptMeth == 2 .or. OptMeth == 3) then
+    call mma_Deallocate(GradientList)
+    call mma_Deallocate(FunctionalList)
+    call mma_Deallocate(Hdiag)
+end if
+
 call mma_Deallocate(Ovlp_sqrt)
 
 ! Print convergence message.
