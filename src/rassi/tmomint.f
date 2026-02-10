@@ -25,8 +25,8 @@
       use Symmetry_Info, only: nIrrep, MulTab=>Mul
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
-      use Constants, only: Zero, One
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One, Two
+      Implicit None
       Procedure(int_kernel) :: EMFInt
       Procedure(int_mem) :: EMFMem
       Real(kind=wp), intent(in):: wavevector(3)
@@ -47,10 +47,14 @@
 #endif
 #include "warnings.h"
       Character(LEN=8) Label
-      real(kind=wp) dum(1)
+      real(kind=wp) dum(1), rHrmt
+      Integer(kind=iwp) nComp,nOrdOp
 *
 #ifdef _DEBUGPRINT_
-      Integer(kind=iwp) idum(1)
+      Integer(kind=iwp) idum(1),i,iCase,ij,ilen,iMltpl,iOpt0,iOpt1,iRc,
+     &                  iSyLbl,ix,iy,iz,j,jOff,Len,Len_,nInts,iComp,
+     &                  iSyLbl_TMOM, nInts_TMOM
+      real(kind=wp) Fact, Phase, Temp, x, xy, xyz
 #endif
 *
       Call Set_Basis_Mode('Valence')
