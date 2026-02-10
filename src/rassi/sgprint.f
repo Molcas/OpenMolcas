@@ -11,7 +11,7 @@
       Subroutine SGPrint(SGS)
       use definitions, only: iwp, u6
       use gugx, only: SGStruct
-      implicit real*8 (a-h,o-z)
+      implicit None
       Type (SGStruct), intent(in):: SGS
 
       integer(kind=iwp) nLev, nVert, MidLev, MVSta, MVEnd, i, iv, ic
@@ -50,4 +50,4 @@ C Unpack structure SGS:
         Write(u6,'(1x,i4,5x,4i5)')
      &             iv,(SGS%MAW(iv,ic),ic=0,3)
       End Do
-      end Subroutine SGPrint
+      End Subroutine SGPrint
