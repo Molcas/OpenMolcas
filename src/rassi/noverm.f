@@ -10,11 +10,17 @@
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
 ************************************************************************
-      INTEGER FUNCTION NOVERM(N,M)
+      FUNCTION NOVERM(N,M)
+      use definitions, only: iwp, wp
       IMPLICIT REAL*8 (A-H,O-Z)
-      SAVE INIT,NOMTAB
-      DIMENSION NOMTAB(225)
-      DATA INIT / 0 /
+      INTEGER(KIND=IWP) NOVERM
+      INTEGER(KIND=IWP), INTENT(IN):: N,M
+
+      INTEGER(KIND=IWP), SAVE:: NOMTAB(225)
+      INTEGER(KIND=IWP), SAVE:: INIT=0
+      REAL(KIND=WP) X
+      INTEGER(KIND=IWP) MM,IPOS,I,J,K
+
       NOVERM=0
       IF(N.LT.0) RETURN
       MM=M
@@ -34,7 +40,6 @@
           NOMTAB(IPOS)=NINT(X)
          END DO
         END DO
-CPAM      write(*,'(1x,5I9)') NOMTAB
         INIT=1
       END IF
       IF(N.LE.32) THEN
@@ -52,5 +57,5 @@ CPAM      write(*,'(1x,5I9)') NOMTAB
           CALL ABEND()
         END IF
       END IF
-      RETURN
-      END
+
+      END FUNCTION NOVERM
