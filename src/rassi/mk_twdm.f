@@ -10,12 +10,14 @@
 ************************************************************************
       SUBROUTINE MK_TWDM(mSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,
      &                   ISY12)
+      use definitions, only: iwp, wp
       use constants, only: Zero
       use Symmetry_Info, only: MUL
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER mSYM, nTDMZZ,ISY12
-      REAL*8 TDMZZ(NTDMZZ),WDMZZ(NTDMZZ),SCR(nSCR,4)
-      INTEGER IOFF(mSYM), NBASF(mSym)
+      INTEGER(KIND=IWP), INTENT(IN):: mSYM, nTDMZZ,ISY12
+      REAL(KIND=WP), INTENT(IN):: TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
+      REAL(KIND=WP), INTENT(OUT):: SCR(nSCR,4)
+      INTEGER(KIND=IWP), INTENT(IN):: IOFF(mSYM), NBASF(mSym)
 
 C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
