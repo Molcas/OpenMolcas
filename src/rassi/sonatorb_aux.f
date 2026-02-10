@@ -812,7 +812,7 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
       SUBROUTINE CPLOT_DIAG(MATR, MATI, DIM, EIGVECR, EIGVECI)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       INTEGER(KIND=IWP), INTENT(IN):: DIM
       REAL(KIND=WP), INTENT(INOUT):: MATR(DIM*(DIM+1)/2),
      &                               MATI(DIM*(DIM+1)/2)
@@ -823,7 +823,7 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
       COMPLEX(KIND=WP) CEIGVEC(DIM,DIM)
       COMPLEX(KIND=WP) ZWORK(2*DIM-1)
       REAL(KIND=WP) RWORK(3*DIM-2)
-      INTEGER(KIND=IWP) INFO
+      INTEGER(KIND=IWP) INFO, I, J
 
       DO J=1,(DIM*(DIM+1)/2)
           MATFULL(J) = CMPLX(MATR(J),MATI(J),kind=WP)
