@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
       use definitions, only: iwp, wp
+      use constants, only: Zero, One, Two
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
@@ -68,16 +69,16 @@ C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(VEC2,NBMX2,Label='VEC2')
       CALL mma_allocate(SCR,NBMX2,Label='SCR')
       CALL mma_allocate(EIG,NBST,Label='EIG')
-      SZZ(:)=0.0D0
-      VEC(:)=0.0D0
-      VEC2(:)=0.0D0
-      SCR(:)=0.0D0
-      EIG(:)=0.0D0
+      SZZ(:)=Zero
+      VEC(:)=Zero
+      VEC2(:)=Zero
+      SCR(:)=Zero
+      EIG(:)=Zero
 
       CALL mma_allocate(VNAT,NBSQ,Label='VNAT')
-      VNAT(:)=0.0D0
+      VNAT(:)=Zero
       CALL mma_allocate(OCC,NBST,Label='OCC')
-      OCC(:)=0.0D0
+      OCC(:)=Zero
 
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
@@ -101,11 +102,11 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
       LV=1
       LE=1
-      VEC(:)=0.0D0
+      VEC(:)=Zero
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
         DO I=1,NB**2,(NB+1)
-          VEC(LV-1+I)=1.0D00
+          VEC(LV-1+I)=One
         END DO
         CALL JACOB(SZZ(LS),VEC,NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
@@ -114,7 +115,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LE1=LE
         DO I=1,NB
           EIG(LE1)=SZZ(LS1)
-          X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
+          X=One/SQRT(MAX(SZZ(LS1),1.0D-14))
           CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
           LV1=LV1+NB
@@ -158,16 +159,16 @@ C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
 C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 
 C expand the triangular matrix for this symmetry to a square matrix
-          DMAT(:)=0.0D0
-          CALL DCOPY_(NBMX2,[0.0D00],0,SCR,1)
+          DMAT(:)=Zero
+          CALL DCOPY_(NBMX2,[Zero],0,SCR,1)
           DO J=1,NB
           DO I=1,J
             II2=II2+1
             IJ=NB*(J-1)+I
             JI=NB*(I-1)+J
             IF(I.NE.J) THEN
-              DMAT(IJ)=DENS(IDIR,II2)/2.0d0
-              DMAT(JI)=DENS(IDIR,II2)/2.0d0
+              DMAT(IJ)=DENS(IDIR,II2)/Two
+              DMAT(JI)=DENS(IDIR,II2)/Two
             ELSE
               DMAT(IJ)=DENS(IDIR,II2)
               DMAT(JI)=DENS(IDIR,II2)
@@ -175,12 +176,12 @@ C expand the triangular matrix for this symmetry to a square matrix
           END DO
           END DO
 
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
+          CALL DGEMM_('N','N',NB,NB,NB,One,
      &                 DMAT,NB,VEC(LV),NB,
-     &                 0.0D0,SCR,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
+     &                 Zero,SCR,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,
      &                 VEC(LV),NB,SCR,NB,
-     &                 0.0D0,DMAT,NB)
+     &                 Zero,DMAT,NB)
 
           ID1=1
           ID2=1
@@ -193,24 +194,24 @@ C expand the triangular matrix for this symmetry to a square matrix
 
 
 C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
-          SCR(:)=0.0D0
+          SCR(:)=Zero
           ISCR=1
           DO I=1,NB
             DO J=1,I
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
 c simple averaging
-              SCR(ISCR)=(DMAT(IJ)+DMAT(JI))/2.0d0
+              SCR(ISCR)=(DMAT(IJ)+DMAT(JI))/Two
 
 c add a factor of two to convert spin -> sigma
-              IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*2.0d0
+              IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*Two
               ISCR=ISCR+1
             END DO
           END DO
 
 C DIAGONALIZE THE DENSITY MATRIX BLOCK:
-          CALL DCOPY_(NBMX2,[0.0D0],0,VEC2,1)
-          CALL DCOPY_(NB,[1.0D0],0,VEC2,NB+1)
+          CALL DCOPY_(NBMX2,[Zero],0,VEC2,1)
+          CALL DCOPY_(NB,[One],0,VEC2,NB+1)
 
           CALL JACOB(SCR,VEC2,NB,NB)
           CALL JACORD(SCR,VEC2,NB,NB)
@@ -224,9 +225,9 @@ C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           IOCC=IOCC+NB
 
 C REEXPRESS THE EIGENVALUES IN AO BASIS FUNCTIONS. REVERSE ORDER.
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
+          CALL DGEMM_('N','N',NB,NB,NB,One,
      &                 VEC(LV),NB,VEC2,NB,
-     &                 0.0D0,SCR,NB)
+     &                 Zero,SCR,NB)
           I1=1
           I2=INV+NB**2
           DO I=1,NB
@@ -293,38 +294,40 @@ c    ONLYFOR NATURAL ORBITALS
       END SUBROUTINE SONATORB_PLOT
 
       SUBROUTINE SONATORB_CPLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
+      use definitions, only: iwp, wp
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: NBTRI,NBMX,NBASF,NBSQ,NBST
       IMPLICIT NONE
-      Real*8 DENS(6,NBTRI)
+      Real(kind=wp) DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE
-      INTEGER ASS,BSS
+      INTEGER(kind=iwp) ASS,BSS
 
       CHARACTER(LEN=25) FNAME
       CHARACTER(LEN=16) KNUM
       CHARACTER(LEN=16) FNUM,XNUM
       CHARACTER(LEN=8) LABEL
       CHARACTER CDIR
-      Real*8 Dummy(1)
-      Integer IDUM(1),iDummy(7,8)
-      Real*8, Allocatable:: SZZ(:), VEC(:), VEC2(:), VEC2I(:), SCR(:)
-      Real*8, Allocatable:: SCRI(:), EIG(:)
-      Real*8, Allocatable:: VNAT(:), VNATI(:), OCC(:)
-      Real*8, Allocatable:: DMAT(:), DMATI(:)
-      Real*8, Allocatable:: SANG(:)
-      Real*8, Allocatable:: SANGF(:), SANGTR(:), SANGTI(:)
-      Real*8, Allocatable:: SANGTR2(:), SANGTI2(:)
+      Real(kind=wp) Dummy(1)
+      Integer(kind=iwp) IDUM(1),iDummy(7,8)
+      Real(kind=wp), Allocatable:: SZZ(:), VEC(:), VEC2(:), VEC2I(:),
+     &                             SCR(:)
+      Real(kind=wp), Allocatable:: SCRI(:), EIG(:)
+      Real(kind=wp), Allocatable:: VNAT(:), VNATI(:), OCC(:)
+      Real(kind=wp), Allocatable:: DMAT(:), DMATI(:)
+      Real(kind=wp), Allocatable:: SANG(:)
+      Real(kind=wp), Allocatable:: SANGF(:), SANGTR(:), SANGTI(:)
+      Real(kind=wp), Allocatable:: SANGTR2(:), SANGTI2(:)
 
-      Integer ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV, LE, ISYM,
-     &        NB, I, LS1, LV1, LE1, ISTART, IEND, IDIR, INV, II2, IOCC,
-     &        J, IJ, JI, ID1, ID2, ISCR, II, I1, I2, LuXXVEC, JOPT,
-     &        I1I, INV2, ISCRI
-      Integer, External:: IsFreeUnit
-      REAL*8 X, SUM, SUMI
+      Integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV,
+     &                  LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND,
+     &                  IDIR, INV, II2, IOCC, J, IJ, JI, ID1, ID2, ISCR,
+     &                  II, I1, I2, LuXXVEC, JOPT, I1I, INV2, ISCRI
+      Integer(kind=iwp), External:: IsFreeUnit
+      REAL(kind=wp) X, SUM, SUMI
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
