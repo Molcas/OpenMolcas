@@ -12,9 +12,15 @@
 ************************************************************************
 C---------------------------------------------------------------
       SUBROUTINE LU2 (NDIMEN,NBLOCK,NSIZE,CXA,CYB,SCR)
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero, One, Two
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CXA(NDIMEN,NDIMEN),CYB(NDIMEN,NDIMEN),SCR(NDIMEN)
-      DIMENSION NSIZE(NBLOCK)
+      integer(kind=iwp), intent(in):: NDIMEN,NBLOCK
+      integer(kind=iwp), intent(in):: NSIZE(NBLOCK)
+      real(kind=wp), intent(inout):: CXA(NDIMEN,NDIMEN),
+     &                               CYB(NDIMEN,NDIMEN)
+      real(kind=wp), intent(inout):: SCR(NDIMEN)
+
 C  GIVES A SIMULTANEOUS LU-PARTITIONING OF MATRICES CXA,CYB IN THE
 C  SENSE THAT CXA*X = L1*U1 AND CYB*X = L2*U2, WHERE X IS A BLOCK
 C  UNITARY MATRIX. X IS NEVER FORMED, BUT AT EACH STEP SUCH A
@@ -34,9 +40,9 @@ C                                         ( MALMQUIST 84-01-16 )
         ISTA=IEND+1
         IEND=IEND+NSIZE(IBLOCK)
         DO II=ISTA,IEND
-          S1=0.0D00
-          S2=0.0D00
-          S3=0.0D00
+          S1=Zero
+          S2=Zero
+          S3=Zero
           DO J=II,IEND
             S1=S1+CXA(II,J)**2
             S2=S2+CYB(II,J)**2
@@ -44,33 +50,33 @@ C                                         ( MALMQUIST 84-01-16 )
           END DO
           THR=1.0D-06
           IF((S1.LT.THR).OR.(S2.LT.THR)) THEN
-            WRITE(6,*)' RASSI CANNOT CONTINUE. THE PROBLEM AT HAND'
-            WRITE(6,*)' IS PROBABLY NOT SOLUBLE. THE TWO ORBITAL'
-            WRITE(6,*)' SPACES ARE TOO DISSIMILAR.'
-            WRITE(6,*)' LU PARTITIONING IS TROUBLESOME. DIAGONAL'
-            WRITE(6,*)' ELEMENT NR.',II,' IS TOO SMALL:'
-            WRITE(6,*)' IN MATRIX CXA IT IS', SQRT(S1)
-            WRITE(6,*)' IN MATRIX CYB IT IS', SQRT(S2)
-            WRITE(6,*)' EVEN AFTER OPTIMAL PIVOT-TRANSFORMATION.'
+            WRITE(u6,*)' RASSI CANNOT CONTINUE. THE PROBLEM AT HAND'
+            WRITE(u6,*)' IS PROBABLY NOT SOLUBLE. THE TWO ORBITAL'
+            WRITE(u6,*)' SPACES ARE TOO DISSIMILAR.'
+            WRITE(u6,*)' LU PARTITIONING IS TROUBLESOME. DIAGONAL'
+            WRITE(u6,*)' ELEMENT NR.',II,' IS TOO SMALL:'
+            WRITE(u6,*)' IN MATRIX CXA IT IS', SQRT(S1)
+            WRITE(u6,*)' IN MATRIX CYB IT IS', SQRT(S2)
+            WRITE(u6,*)' EVEN AFTER OPTIMAL PIVOT-TRANSFORMATION.'
             CALL ABEND()
           END IF
-          X1=1.0D00/SQRT(S1)
-          X2=1.0D00/SIGN(SQRT(S2),S3)
+          X1=One/SQRT(S1)
+          X2=One/SIGN(SQRT(S2),S3)
           DO I=II,IEND
             SCR(I)=X1*CXA(II,I)+X2*CYB(II,I)
           END DO
-          S=2.0D0*(1.0D00+X1*X2*S3)
-          X=1.0D00/SIGN(SQRT(S),SCR(II))
+          S=Two*(One+X1*X2*S3)
+          X=One/SIGN(SQRT(S),SCR(II))
           DO I=II,IEND
             SCR(I)=X*SCR(I)
           END DO
-          X=1.0D00/(1.0D00+SCR(II))
+          X=One/(One+SCR(II))
           DO I=1,IEND
-            S=0.0D00
+            S=Zero
             DO J=II,IEND
               S=S+CXA(I,J)*SCR(J)
             END DO
-            S2=0.0D00
+            S2=Zero
             DO J=II+1,IEND
               S2=S2+CXA(I,J)*SCR(J)
             END DO
@@ -81,11 +87,11 @@ C                                         ( MALMQUIST 84-01-16 )
             END DO
           END DO
           DO I=1,IEND
-            S=0.0D00
+            S=Zero
             DO J=II,IEND
               S=S+CYB(I,J)*SCR(J)
             END DO
-            S2=0.0D00
+            S2=Zero
             DO J=II+1,IEND
               S2=S2+CYB(I,J)*SCR(J)
             END DO
@@ -95,14 +101,14 @@ C                                         ( MALMQUIST 84-01-16 )
             CYB(I,J)=CYB(I,J)-S2*SCR(J)
             END DO
           END DO
-          X=1.0D00/CXA(II,II)
+          X=One/CXA(II,II)
           DO I=II+1,IEND
             CXA(I,II)=X*CXA(I,II)
             DO J=II+1,NTOT
               CXA(I,J)=CXA(I,J)-CXA(I,II)*CXA(II,J)
             END DO
           END DO
-          X=1.0D00/CYB(II,II)
+          X=One/CYB(II,II)
           DO I=II+1,IEND
             CYB(I,II)=X*CYB(I,II)
             DO J=II+1,NTOT
@@ -111,5 +117,5 @@ C                                         ( MALMQUIST 84-01-16 )
           END DO
         END DO
       END DO
-      RETURN
-      END
+
+      END SUBROUTINE LU2
