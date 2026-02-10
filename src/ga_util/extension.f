@@ -16,8 +16,8 @@
       End Subroutine Extension
 
       Subroutine Ext_PID(FileName)
-      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
+      use definitions, only: iwp
       use UnixInfo, only: PID
 #endif
       Implicit None
@@ -39,8 +39,8 @@ c Avoid unused argument warnings
       End Subroutine Ext_PID
 
       Subroutine Ext_Rank(FileName)
-      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
+      use definitions, only: iwp
       Use Para_Info, Only: MyRank
 #endif
       Implicit None
