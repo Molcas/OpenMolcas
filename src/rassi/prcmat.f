@@ -9,12 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PRCMAT(NSS,XMATR,XMATI)
-      use Definitions, only: u6
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NSS
-      REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
+      use Definitions, only: iwp, wp, u6
+      IMPLICIT NONE
+      INTEGER(KIND=iwp), intent(in):: NSS
+      REAL(kind=wp), intent(in):: XMATR(NSS,NSS),XMATI(NSS,NSS)
 
-      INTEGER JSTA, JEND, ISS, JSS
+      INTEGER(kind=iwp) JSTA, JEND, ISS, JSS
 C Write out matrix elements over states as a complex matrix
 C in square format
       DO JSTA=1,NSS,2
@@ -30,16 +30,17 @@ C in square format
       END SUBROUTINE PRCMAT
 
       SUBROUTINE PRCMAT2(INPUT,NSS,XMATR,XMATI)
+      use Definitions, only: iwp, wp
       use Cntrl, only: ISOCMP, SOPRNM
       IMPLICIT NONE
-      INTEGER INPUT, NSS
-      REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
+      INTEGER(kind=iwp), intent(in):: INPUT, NSS
+      REAL(kind=wp), intent(in):: XMATR(NSS,NSS),XMATI(NSS,NSS)
 
       CHARACTER(LEN=8) PROPERTY
       CHARACTER(LEN=1) DIRECTION
       CHARACTER(LEN=200) FILENAME
-      INTEGER LU, JSTA, ISS
-      Integer, External:: IsFreeUnit
+      INTEGER(kind=iwp) LU, JSTA, ISS
+      Integer(kind=iwp), External:: IsFreeUnit
 C Write out matrix elements over states as a complex matrix
 C in parsable format
       if(INPUT.gt.0) THEN
@@ -88,14 +89,16 @@ C in parsable format
       END SUBROUTINE PRCMAT2
 
       SUBROUTINE PRCMAT3(NSS,SMATR,SMATI,DIR)
+      use Definitions, only: iwp, wp
       IMPLICIT None
-      INTEGER NSS
-      REAL*8 SMATR(NSS,NSS), SMATI(NSS,NSS)
-      INTEGER DIR
+      INTEGER(kind=iwp),intent(in):: NSS
+      REAL(kind=wp), intent(in):: SMATR(NSS,NSS), SMATI(NSS,NSS)
+      INTEGER(kind=iwp),intent(in):: DIR
+
       CHARACTER(LEN=1) DIRECTION
       CHARACTER(LEN=200) FILENAME
-      Integer LU, JSTA, ISS
-      Integer, External:: IsFreeUnit
+      Integer(kind=iwp) LU, JSTA, ISS
+      Integer(kind=iwp), External:: IsFreeUnit
 C Write out spin matrix elements in parsable format
       WRITE(DIRECTION,'(I1)') DIR
       FILENAME = 'spin-'//DIRECTION//'.txt'
@@ -113,14 +116,17 @@ C Write out spin matrix elements in parsable format
       END SUBROUTINE PRCMAT3
 
       SUBROUTINE MULMAT(NSS,XMATR,XMATI,ee,Z)
+      use Definitions, only: iwp, wp
+      use constants, only: Zero
       IMPLICIT None
-      INTEGER NSS
-      REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS), ee
-      COMPLEX*16 Z(NSS,NSS)
+      INTEGER(kind=iwp), intent(in):: NSS
+      REAL(kind=wp), intent(in):: XMATR(NSS,NSS),XMATI(NSS,NSS)
+      REAL(kind=wp), intent(out):: ee
+      COMPLEX(kind=wp), intent(out):: Z(NSS,NSS)
 
       Integer ISS,JSS
-      ee=0.d0
-      Z(:,:)=(0.0d0,0.0d0)
+      ee=zero
+      Z(:,:)=(zero,zero)
 
       DO ISS=1,NSS
       DO JSS=1,NSS
