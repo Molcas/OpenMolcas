@@ -40,12 +40,13 @@ c BUFF needs to be initialized
 c end of initialization
       DA = Two
 
-      If (IC.eq.1) then
+      Select Case (IC)
+      Case(1)
 c EF2(1) = (2*MAG(1)-MAG(5)-MAG(9))*(2/3)
          ICM = 1
          DA = Four/Three
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
          do iNBUFF = NSIZ, NBUFF-1
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
@@ -54,44 +55,38 @@ c EF2(1) = (2*MAG(1)-MAG(5)-MAG(9))*(2/3)
          ICM = 5
          DA = -Two/Three
          Call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
 
          ICM = 9
          DA = -Two/Three
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-      endif
-
-      if (IC.eq.2) then
+      Case(2)
 c EF2(2) = MAG(2)*2
          ICM = 2
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
          do iNBUFF = NSIZ, NBUFF-1
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
          enddo
-      endif
-
-      if (IC.eq.3) then
+      Case(3)
 c EF2(3) = MAG(3)*2
          ICM = 3
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
          do iNBUFF = NSIZ, NBUFF-1
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
          enddo
-      endif
-
-      if (IC.eq.4) then
+      Case(4)
 c EF2(4) = (2*MAG(5)-MAG(1)-MAG(9))*(2/3)
          ICM = 5
          DA = Four/Three
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
          do iNBUFF = NSIZ, NBUFF-1
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
@@ -100,32 +95,28 @@ c EF2(4) = (2*MAG(5)-MAG(1)-MAG(9))*(2/3)
          ICM = 1
          DA = -Two/Three
          Call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
 
          ICM = 9
          DA = -Two/Three
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-      endif
-
-      if (IC.eq.5) then
+      Case(5)
 c EF2(5) = MAG(6)*2
          ICM = 6
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
          do iNBUFF = NSIZ, NBUFF-1
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
          enddo
-      endif
-
-      if (IC.eq.6) then
+      Case(6)
 c EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
          ICM = 1
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
          do iNBUFF = NSIZ, NBUFF-1
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
@@ -133,18 +124,21 @@ c EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
 
          ICM = 5
          Call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
 
          ICM = 9
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) GOTO 300
+         IF (IRC.NE.0) CALL ErrStop()
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-      endif
+      Case Default
+         WRITE(u6,'(6X,A)')'*** ERROR IN SUBROUTINE HFCSD ***'
+         Call ABend()
+      End Select
       CALL mma_deallocate(TA)
 
-300   CONTINUE
-      IF (IRC.NE.0) THEN
+      Contains
+      Subroutine ErrStop()
         WRITE(u6,*)
         WRITE(u6,'(6X,A)')'*** ERROR IN SUBROUTINE HFCSD ***'
         WRITE(u6,'(6X,A)')'  FAILED IN READING FROM  ONEINT'
@@ -154,6 +148,6 @@ c EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
         WRITE(u6,'(6X,A,I2)')'  COMPONENT = ',ICM
         WRITE(u6,*)
         CALL ABEND()
-      ENDIF
+      END Subroutine ErrSTop
 
       END SUBROUTINE HFCSD
