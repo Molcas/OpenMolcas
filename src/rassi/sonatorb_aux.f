@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       use constants, only: Zero, One, Two
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -49,8 +49,8 @@ C Get the proper type of the property
       IF(CHARTYPE.EQ.'HERMTRIP') ITYPE=3
       IF(CHARTYPE.EQ.'ANTITRIP') ITYPE=4
       IF(ITYPE.EQ.0) THEN
-        WRITE(6,*)'RASSI/SONATORB internal error.'
-        WRITE(6,*)'Erroneous property type:',CHARTYPE
+        WRITE(u6,*)'RASSI/SONATORB internal error.'
+        WRITE(u6,*)'Erroneous property type:',CHARTYPE
         CALL ABEND()
       END IF
 
@@ -90,10 +90,10 @@ c IOPT=6, origin and nuclear contrib not read
       LABEL='MLTPL  0'
       CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
-        WRITE(6,*)
-        WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
-        WRITE(6,*)'      OVERLAP INTEGRALS ARE NOT AVAILABLE'
-        WRITE(6,*)
+        WRITE(u6,*)
+        WRITE(u6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
+        WRITE(u6,*)'      OVERLAP INTEGRALS ARE NOT AVAILABLE'
+        WRITE(u6,*)
         CALL ABEND()
       ENDIF
 
@@ -257,15 +257,15 @@ C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
 
        FNAME=FILEBASE//'.'//TRIM(FNUM)
        IF(ITYPE.EQ.1)
-     &        WRITE(6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
        IF(ITYPE.EQ.2)
-     &        WRITE(6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.3)
-     &        WRITE(6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.4)
-     &        WRITE(6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
 
-       WRITE(6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
+       WRITE(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
@@ -294,7 +294,7 @@ c    ONLYFOR NATURAL ORBITALS
       END SUBROUTINE SONATORB_PLOT
 
       SUBROUTINE SONATORB_CPLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       use constants, only: Zero, One, Two
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use rassi_aux, only: ipglob
@@ -341,8 +341,8 @@ C Get the proper type of the property
       IF(CHARTYPE.EQ.'HERMTRIP') ITYPE=3
       IF(CHARTYPE.EQ.'ANTITRIP') ITYPE=4
       IF(ITYPE.EQ.0) THEN
-        WRITE(6,*)'RASSI/SONATORB internal error.'
-        WRITE(6,*)'Erroneous property type:',CHARTYPE
+        WRITE(u6,*)'RASSI/SONATORB internal error.'
+        WRITE(u6,*)'Erroneous property type:',CHARTYPE
         CALL ABEND()
       END IF
 
@@ -388,10 +388,10 @@ c IOPT=6, origin and nuclear contrib not read
       LABEL='MLTPL  0'
       CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
-        WRITE(6,*)
-        WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
-        WRITE(6,*)'      OVERLAP INTEGRALS ARE NOT AVAILABLE'
-        WRITE(6,*)
+        WRITE(u6,*)
+        WRITE(u6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
+        WRITE(u6,*)'      OVERLAP INTEGRALS ARE NOT AVAILABLE'
+        WRITE(u6,*)
         CALL ABEND()
       ENDIF
 
@@ -464,11 +464,11 @@ C read in ao matrix for angmom or mltpl
         CALL  RDONE(IRC,IOPT,LABEL,ICMP,SANG,ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
-          WRITE(6,*)
-          WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
-          WRITE(6,*)'      MLTPL0 INTEGRALS ARE NOT AVAILABLE'
-          WRITE(6,*)'      IRC:',IRC
-          WRITE(6,*)
+          WRITE(u6,*)
+          WRITE(u6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
+          WRITE(u6,*)'      MLTPL0 INTEGRALS ARE NOT AVAILABLE'
+          WRITE(u6,*)'      IRC:',IRC
+          WRITE(u6,*)
           CALL ABEND()
         END IF
 
@@ -479,11 +479,11 @@ C read in ao matrix for angmom or mltpl
         CALL  RDONE(IRC,IOPT,LABEL,ICMP,SANG,ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
-          WRITE(6,*)
-          WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
-          WRITE(6,*)'      ANGMOM INTEGRALS ARE NOT AVAILABLE'
-          WRITE(6,*)'      IRC:',IRC
-          WRITE(6,*)
+          WRITE(u6,*)
+          WRITE(u6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
+          WRITE(u6,*)'      ANGMOM INTEGRALS ARE NOT AVAILABLE'
+          WRITE(u6,*)'      IRC:',IRC
+          WRITE(u6,*)
           CALL ABEND()
         END IF
 
@@ -713,9 +713,9 @@ c Sum over the trace
 
       END DO
 
-        WRITE(6,*) "Ben P TEST for JA:"
-        WRITE(6,*) "REAL: ",SUM
-        WRITE(6,*) "IMAG: ",SUMI
+        WRITE(u6,*) "Ben P TEST for JA:"
+        WRITE(u6,*) "REAL: ",SUM
+        WRITE(u6,*) "IMAG: ",SUMI
 
         CALL mma_deallocate(SANGF)
         CALL mma_deallocate(SANGTR)
@@ -743,15 +743,15 @@ C REAL PART
 
        FNAME=FILEBASE//'.'//TRIM(FNUM)//'.R'
        IF(ITYPE.EQ.1)
-     &        WRITE(6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
        IF(ITYPE.EQ.2)
-     &        WRITE(6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.3)
-     &        WRITE(6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.4)
-     &        WRITE(6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
 
-       WRITE(6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
+       WRITE(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
@@ -769,15 +769,15 @@ C IMAGINARY PART
 
        FNAME=FILEBASE//'.'//TRIM(FNUM)//'.I'
        IF(ITYPE.EQ.1)
-     &        WRITE(6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
        IF(ITYPE.EQ.2)
-     &        WRITE(6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.3)
-     &        WRITE(6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.4)
-     &        WRITE(6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
 
-       WRITE(6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
+       WRITE(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
@@ -810,22 +810,23 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
 
 
       SUBROUTINE CPLOT_DIAG(MATR, MATI, DIM, EIGVECR, EIGVECI)
+      use definitions, only: iwp, wp, u6
       use constants, only: Zero
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER DIM
-      REAL*8 MATR(DIM*(DIM+1)/2),MATI(DIM*(DIM+1)/2)
-      REAL*8 EIGVECR(DIM,DIM),EIGVECI(DIM,DIM)
+      INTEGER(KIND=IWP), INTENT(IN):: DIM
+      REAL(KIND=WP), INTENT(INOUT):: MATR(DIM*(DIM+1)/2),
+     &                               MATI(DIM*(DIM+1)/2)
+      REAL(KIND=WP), INTENT(OUT):: EIGVECR(DIM,DIM),EIGVECI(DIM,DIM)
 
-      REAL*8 CEIGVAL(DIM)
-      COMPLEX*16 MATFULL((DIM*(DIM+1)/2))
-      COMPLEX*16 CEIGVEC(DIM,DIM)
-      COMPLEX*16 ZWORK(2*DIM-1)
-      REAL*8 RWORK(3*DIM-2)
-      INTEGER INFO
+      REAL(KIND=WP) CEIGVAL(DIM)
+      COMPLEX(KIND=WP) MATFULL((DIM*(DIM+1)/2))
+      COMPLEX(KIND=WP) CEIGVEC(DIM,DIM)
+      COMPLEX(KIND=WP) ZWORK(2*DIM-1)
+      REAL(KIND=WP) RWORK(3*DIM-2)
+      INTEGER(KIND=IWP) INFO
 
       DO J=1,(DIM*(DIM+1)/2)
-          MATFULL(J) = CMPLX(MATR(J),MATI(J),kind=8)
-c          MATFULL(J) = CMPLX(MATR(J),Zero,kind=8)
+          MATFULL(J) = CMPLX(MATR(J),MATI(J),kind=WP)
       END DO
 
 
@@ -834,8 +835,8 @@ c          MATFULL(J) = CMPLX(MATR(J),Zero,kind=8)
 
 
       IF(INFO.NE.0) THEN
-          WRITE(6,*) "Error in diagonalization"
-          WRITE(6,*) "INFO: ",INFO
+          WRITE(u6,*) "Error in diagonalization"
+          WRITE(u6,*) "INFO: ",INFO
           CALL ABEND()
       END IF
 
