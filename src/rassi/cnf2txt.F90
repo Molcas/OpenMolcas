@@ -9,10 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 SUBROUTINE CNF2TXT(IFORM,NORB,NCLS,NOPN,ICONF,LENGTH,TEXT)
+use definitions, only: iwp
 IMPLICIT REAL*8 (A-H,O-Z)
-DIMENSION ICONF(*)
-CHARACTER*(*) TEXT
-CHARACTER*1 SEP
+integer(kind=iwp), intent(in):: IFORM, NORB, NCLS, NOPN
+integer(kind=iwp), intent(in):: ICONF(*)
+integer(kind=iwp), intent(out):: LENGTH
+CHARACTER(LEN=*), intent(out):: TEXT
+
+CHARACTER(LEN=1) SEP
 
 MXWR=LEN(TEXT)
 NWR=1
