@@ -11,6 +11,8 @@
 * Copyright (C) 2021, Rulin Feng                                       *
 ************************************************************************
       SUBROUTINE HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero, One, Two, Three, Four
       use stdalloc, only: mma_allocate, mma_deallocate
       use hfc_logical, only: MAG_X2C
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -33,31 +35,35 @@ c Set MAG_X2C to avoid add_info in hfcts
       CALL mma_allocate(TA,NBUFF,Label='TA')
 c BUFF needs to be initialized
       do iNBUFF = 1, NBUFF
-         BUFF(iNBUFF) = 0.0
+         BUFF(iNBUFF) = Zero
       enddo
 c end of initialization
-      DA = 2.0D0
+      DA = Two
+
       If (IC.eq.1) then
 c EF2(1) = (2*MAG(1)-MAG(5)-MAG(9))*(2/3)
          ICM = 1
-         DA = 4.0D0/3.0D0
+         DA = Four/Three
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
          IF (IRC.NE.0) GOTO 300
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
          do iNBUFF = NSIZ, NBUFF-1
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
          enddo
+
          ICM = 5
-         DA = -2.0D0/3.0D0
+         DA = -Two/Three
          Call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
          IF (IRC.NE.0) GOTO 300
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+
          ICM = 9
-         DA = -2.0D0/3.0D0
+         DA = -Two/Three
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
          IF (IRC.NE.0) GOTO 300
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
       endif
+
       if (IC.eq.2) then
 c EF2(2) = MAG(2)*2
          ICM = 2
@@ -68,6 +74,7 @@ c EF2(2) = MAG(2)*2
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
          enddo
       endif
+
       if (IC.eq.3) then
 c EF2(3) = MAG(3)*2
          ICM = 3
@@ -78,27 +85,31 @@ c EF2(3) = MAG(3)*2
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
          enddo
       endif
+
       if (IC.eq.4) then
 c EF2(4) = (2*MAG(5)-MAG(1)-MAG(9))*(2/3)
          ICM = 5
-         DA = 4.0D0/3.0D0
+         DA = Four/Three
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
          IF (IRC.NE.0) GOTO 300
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
          do iNBUFF = NSIZ, NBUFF-1
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
          enddo
+
          ICM = 1
-         DA = -2.0D0/3.0D0
+         DA = -Two/Three
          Call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
          IF (IRC.NE.0) GOTO 300
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+
          ICM = 9
-         DA = -2.0D0/3.0D0
+         DA = -Two/Three
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
          IF (IRC.NE.0) GOTO 300
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
       endif
+
       if (IC.eq.5) then
 c EF2(5) = MAG(6)*2
          ICM = 6
@@ -109,6 +120,7 @@ c EF2(5) = MAG(6)*2
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
          enddo
       endif
+
       if (IC.eq.6) then
 c EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
          ICM = 1
@@ -118,10 +130,12 @@ c EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
          do iNBUFF = NSIZ, NBUFF-1
              BUFF(iNBUFF+1) = TA(1+iNBUFF)
          enddo
+
          ICM = 5
          Call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
          IF (IRC.NE.0) GOTO 300
          CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+
          ICM = 9
          CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
          IF (IRC.NE.0) GOTO 300
@@ -131,15 +145,15 @@ c EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
 
 300   CONTINUE
       IF (IRC.NE.0) THEN
-        WRITE(6,*)
-        WRITE(6,'(6X,A)')'*** ERROR IN SUBROUTINE HFCSD ***'
-        WRITE(6,'(6X,A)')'  FAILED IN READING FROM  ONEINT'
-        WRITE(6,'(6X,A)')' PLEASE MAKE SURE THE MAGNETIC'
-        WRITE(6,'(6X,A)')' HYPERFINE INTEGRALS ARE AVAILABLE'
-        WRITE(6,'(6X,A,A)')'  LABEL     = ',LABEL
-        WRITE(6,'(6X,A,I2)')'  COMPONENT = ',ICM
-        WRITE(6,*)
+        WRITE(u6,*)
+        WRITE(u6,'(6X,A)')'*** ERROR IN SUBROUTINE HFCSD ***'
+        WRITE(u6,'(6X,A)')'  FAILED IN READING FROM  ONEINT'
+        WRITE(u6,'(6X,A)')' PLEASE MAKE SURE THE MAGNETIC'
+        WRITE(u6,'(6X,A)')' HYPERFINE INTEGRALS ARE AVAILABLE'
+        WRITE(u6,'(6X,A,A)')'  LABEL     = ',LABEL
+        WRITE(u6,'(6X,A,I2)')'  COMPONENT = ',ICM
+        WRITE(u6,*)
         CALL ABEND()
-       ENDIF
+      ENDIF
 
       END SUBROUTINE HFCSD
