@@ -9,31 +9,34 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
+      use definitions, only: iwp, wp
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: NBTRI,NBMX,NBASF,NBSQ,NBST
 
       IMPLICIT None
-      Real*8 DENS(6,NBTRI)
-      CHARACTER(LEN=*) FILEBASE
-      CHARACTER(LEN=8) CHARTYPE
-      INTEGER ASS,BSS
+      real(kind=wp), intent(in):: DENS(6,NBTRI)
+      CHARACTER(LEN=*), intent(in):: FILEBASE
+      CHARACTER(LEN=8), intent(in):: CHARTYPE
+      INTEGER(KIND=IWP), INTENT(IN):: ASS,BSS
 
       CHARACTER(LEN=25) FNAME
       CHARACTER(LEN=16) KNUM
       CHARACTER(LEN=16) FNUM,XNUM
       CHARACTER(LEN=8) LABEL
       CHARACTER CDIR
-      Real*8 Dummy(1)
-      Integer iDummy(7,8)
-      Real*8, allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:), SCR(:)
-      Real*8, allocatable:: VNAT(:), EIG(:), OCC(:)
-      Integer ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV, LE, ISYM,
-     &        NB, I, LS1, LV1, LE1, ISTART, IEND, IDIR, INV, II2, IOCC,
-     &        J, IJ, JI, ID1, ID2, ISCR, II, I1, I2, LuXXVEC
-      Integer, External:: IsFreeUnit
-      REAL*8 X
+      Real(kind=wp) Dummy(1)
+      Integer(kind=iwp) iDummy(7,8)
+      Real(kind=wp), allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:),
+     &                             SCR(:)
+      Real(kind=wp), allocatable:: VNAT(:), EIG(:), OCC(:)
+      Integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV,
+     &                  LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND,
+     &                  IDIR, INV, II2, IOCC, J, IJ, JI, ID1, ID2, ISCR,
+     &                  II, I1, I2, LuXXVEC
+      Integer(kind=iwp), External:: IsFreeUnit
+      REAL(kind=wp) X
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PLOTTING SECTION
