@@ -31,24 +31,27 @@ C IND is a hashed index in interval 1..NHASH < NSIZE
 C Find the item with this key:
 
       LOOKAT=IND
-  10  CONTINUE
+
+      Outer: DO
+
 C Are there (more) items with that hash signature?
-      IF(ITAB(LOOKAT,1).EQ.NULL) GOTO 30
+      IF(ITAB(LOOKAT,1)==NULL) EXIT
+
 C Try to identify an item which has the given key:
       ITEMID=ITAB(LOOKAT,2)
       DO I=1,KEYDIM
-        IF(ITEM(I,ITEMID).NE.KEY(I)) GOTO 20
+        IF (ITEM(I,ITEMID)/=KEY(I)) THEN
+C Here, if we have not yet identified the item.
+           LOOKAT=ITAB(LOOKAT,1)
+           Cycle Outer
+        END IF
       END DO
 C Here, if we have identified the item.
       RETURN
 
-C Here, if we have not yet identified the item.
-  20  CONTINUE
-      LOOKAT=ITAB(LOOKAT,1)
-      GOTO 10
+      END DO Outer
 
 C Here, if we have failed to find such an item.
-  30  CONTINUE
       ITEMID=0
 
       END SUBROUTINE HSHGET
