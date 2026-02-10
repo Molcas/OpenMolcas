@@ -13,7 +13,7 @@
       use definitions, only: iwp, wp, u6
       use gugx, only: SGStruct, CIStruct
       use Symmetry_Info, only: nSym=>nIrrep, MUL
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       Type (SGStruct), intent(in):: SGS
       Type (CIStruct), intent(in):: CIS
       Integer(kind=iwp), intent(in):: NLEV,NMIDV
@@ -25,9 +25,15 @@
      &                                IOW(2,NSYM,NMIDV)
       Integer(kind=iwp), intent(in):: ISYCI
       REAL(kind=wp), intent(in):: CI(*),CITHR
+
       LOGICAL(kind=iwp), PARAMETER :: SGINFO=.TRUE.
       CHARACTER(LEN=80) LINE
       CHARACTER(LEN=1) :: CODE(0:3)=['0','u','d','2']
+      Integer(kind=iwp) I,IC1,ICDPOS,ICDWN,ICONF,ICUP,ICUPOS,IDW0,IDWN,
+     &                  IDWNSV,ISY,ISYDWN,ISYUP,IUP,IUW0,K,KNXT,KOCLAB,
+     &                  KOCSZ,KPAD1,KPAD2,LEV,MIDLEV,MV,NCI,NDWN,NIPWLK,
+     &                  NNN,NUP
+      REAL(kind=wp) COEF
 
 C -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 C -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
