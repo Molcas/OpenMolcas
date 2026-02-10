@@ -127,8 +127,74 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! NxN rotations
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ! define the transformation matrix
+        call RotateNxN()
+   end if
 
+    nIter = nIter+1
+
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+    FunctionalList(nIter+1)=Functional !first entry is from before first iteration
+    if (printmore) then
+!       write(u6,'(/,A)') '               nIter:  Functional:'
+        write(u6,*) nIter,FunctionalList(nIter+1)
+    end if
+
+    !calculates nxn gradient matrix for the current iteration and adds it to the List
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,GradientList(:,:,nIter+1), Hdiag(:,:))
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    !check if converged
+    Delta = Functional-OldFunctional
+    OldFunctional = Functional
+    if (.not. Silent) then
+        call CWTime(C2,W2)
+        TimC = C2-C1
+        TimW = W2-W1
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
+    end if
+    Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
+end do
+
+! print info about each localized MO
+if (.not. Silent) then
+    write(u6,"(/A)") "MO extension after localisation:"
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
+end if
+
+call mma_Deallocate(kappa)
+call mma_Deallocate(rotated_CMO)
+call mma_Deallocate(kappa_cnt)
+call mma_Deallocate(xkappa_cnt)
+call mma_Deallocate(unitary_mat)
+call mma_Deallocate(PACol)
+call mma_Deallocate(RMat)
+call mma_Deallocate(GradientList)
+call mma_Deallocate(FunctionalList)
+call mma_Deallocate(Hdiag)
+!if (lowdin) then
+    call mma_deallocate(Ovlp_sqrt)
+    call mma_deallocate(SCR)
+!end if
+
+! Print convergence message.
+! --------------------------
+
+if (.not. Silent) then
+    if (.not. Converged) then
+        write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
+    else
+        write(u6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
+        write(u6,*)
+        write(u6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
+        write(u6,'(A,ES20.10)') 'Value of P before localisation: ',FirstFunctional
+        write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
+    end if
+end if
+
+Contains
+
+subroutine RotateNxN()
+        ! define the transformation matrix
         kappa(:,:) = Zero
         kappa_cnt(:,:) = Zero
         xkappa_cnt(:,:) = Zero
@@ -237,66 +303,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
         !reset CMO to be updated
         CMO(:,:) = rotated_CMO(:,:)
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-    end if
 
-    nIter = nIter+1
-
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-    FunctionalList(nIter+1)=Functional !first entry is from before first iteration
-    if (printmore) then
-!       write(u6,'(/,A)') '               nIter:  Functional:'
-        write(u6,*) nIter,FunctionalList(nIter+1)
-    end if
-
-    !calculates nxn gradient matrix for the current iteration and adds it to the List
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,GradientList(:,:,nIter+1), Hdiag(:,:))
-
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    !check if converged
-    Delta = Functional-OldFunctional
-    OldFunctional = Functional
-    if (.not. Silent) then
-        call CWTime(C2,W2)
-        TimC = C2-C1
-        TimW = W2-W1
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
-    end if
-    Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-end do
-
-! print info about each localized MO
-if (.not. Silent) then
-    write(u6,"(/A)") "MO extension after localisation:"
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
-end if
-
-call mma_Deallocate(kappa)
-call mma_Deallocate(rotated_CMO)
-call mma_Deallocate(kappa_cnt)
-call mma_Deallocate(xkappa_cnt)
-call mma_Deallocate(unitary_mat)
-call mma_Deallocate(PACol)
-call mma_Deallocate(RMat)
-call mma_Deallocate(GradientList)
-call mma_Deallocate(FunctionalList)
-call mma_Deallocate(Hdiag)
-!if (lowdin) then
-    call mma_deallocate(Ovlp_sqrt)
-    call mma_deallocate(SCR)
-!end if
-
-! Print convergence message.
-! --------------------------
-
-if (.not. Silent) then
-    if (.not. Converged) then
-        write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
-    else
-        write(u6,'(/,A,I4,A)') 'Convergence after',nIter,' iterations.'
-        write(u6,*)
-        write(u6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
-        write(u6,'(A,ES20.10)') 'Value of P before localisation: ',FirstFunctional
-        write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
-    end if
-end if
+end subroutine RotateNxN
 end subroutine PipekMezey_Iter
