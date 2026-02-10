@@ -490,7 +490,7 @@ CBOR  Check INVEC
             integer, intent(in) :: X(:)
             integer :: res(size(X))
             integer :: i
-            res(1) = X(1)
+            if (size(X) > 0) res(1) = X(1)
             do i = 2, size(res)
                 res(i) = res(i - 1) + X(i)
             end do
