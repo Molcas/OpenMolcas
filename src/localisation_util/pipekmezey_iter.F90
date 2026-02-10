@@ -20,7 +20,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn8
-use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent, nMxIter, OptMeth
+use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
@@ -39,18 +39,17 @@ logical(kind=iwp), parameter :: printmore = .false., debug_lowdin = .false.
 ! -----------------------------
 
 if (.not. Silent) call CWTime(C1,W1)
-
 call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
 call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
 call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
 call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
-
-call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
-call mma_allocate(Ovlp_aux, nBasis, nBasis,Label = "S^{-1/2}")
-
 nIter = 0
 FunctionalList(:)=0
 
+call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
+
+if (ChargeType ==2) then !Lowdin
+    call mma_allocate(Ovlp_aux, nBasis, nBasis,Label = "S^{-1/2}")
     lSCR = 2*nBasis**2+nBasis*(nBasis+1)/2
     if (debug_lowdin) then; call RecPrt("S before taking the sqrt",' ',Ovlp,nBasis,nBasis); end if
     call mma_allocate(SCR,lSCR, Label = "SCR")
@@ -65,6 +64,7 @@ FunctionalList(:)=0
         call RecPrt("S^{1/2}*S^{1/2}",' ',Ovlp_aux,nBasis,nBasis) ! should be same as S
     end if
     call mma_deallocate(Ovlp_aux)
+end if
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 
@@ -116,6 +116,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
         ! NXN rotations: Gradient Ascent or Newton Raphson
         call RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt(:,:),GradientList(:,:,nIter+1),Hdiag(:,:),BName,nAtoms,&
                        nBas_per_Atom,nBas_Start,PA(:,:,:))
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,GradientList(:,:,nIter+2), Hdiag(:,:))
    end if
 
     nIter = nIter+1
@@ -128,7 +129,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged) .and. (Functionallist(niter+
     end if
 
     !calculates nxn gradient matrix for the current iteration and adds it to the List
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,GradientList(:,:,nIter+1), Hdiag(:,:))
+    call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat)
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !check if converged
