@@ -66,6 +66,7 @@ set (sources
      pipekmezey_iter.F90
      pmloc.F90
      rot_st.F90
+     rotatenxn.F90
      rotateorb.F90
      rotateorb_er.F90
      rotateorbb.F90
