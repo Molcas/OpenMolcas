@@ -52,7 +52,7 @@ do iMO_s=1,nOrb2Loc
         if (eval_func) then
             write(u6,*) "WARNING: d_s^{-1} is zero for MO ", iMO_s
         end if
-        d_s = huge(1)
+        d_s = huge(d_s)
     end if
     if (eval_func) then
         write(u6,"(A,I4,A,F8.3,1X,A)") "MO ",iMO_s," extends over ",d_s, " atoms"

@@ -12,8 +12,12 @@
 * Init_GTList
 ************************************************************************
       Subroutine Init_GTList()
-      use TList_Mod
+      use TList_Mod, only: GT_Status,iTCnSt
+#ifdef _MOLCAS_MPP_
+      use TList_Mod, only: nTasks,igaTsk
+#endif
       Use Para_Info, Only: nProcs, Is_Real_Par
+      implicit none
 *
       If (GT_Status) Return
       GT_Status=.True.
@@ -28,8 +32,13 @@
       End Subroutine Init_GTList
 
       Subroutine ReInit_GTList()
-      use TList_Mod
+      use TList_Mod, only: GT_Status,iTCnSt
+#ifdef _MOLCAS_MPP_
+      use TList_Mod, only: iGATsk
+#endif
+
       Use Para_Info, Only: nProcs, Is_Real_Par
+      implicit none
 *
       If (.Not.GT_Status) Then
          Write (6,*) 'ReInit_GTList: List not active!'
@@ -47,16 +56,23 @@
 ************************************************************************
 * Rsv_GTList
 ************************************************************************
-      Logical Function Rsv_GTList(TskLw,TskHi,iOpt,NewBatch)
+      Function Rsv_GTList(TskLw,TskHi,iOpt,NewBatch)
+      use definitions, only: iwp, wp
       Use Para_Info, Only: nProcs, Is_Real_Par
-      use TList_Mod
-      use Constants, only: One
-      Implicit Real*8 (a-h,o-z)
+      use TList_Mod, only: iStrt_TList,iTCnSt,iTskCan,PQ
 #ifdef _MOLCAS_MPP_
-      External RsvTsk
-      Integer RsvTsk
+      use TList_Mod, only: igaTsk,TskL,nTasks,iEnd_TList,mTasks,TskM
 #endif
-      Logical NewBatch
+      use Constants, only: One
+      Implicit None
+      Logical(kind=iwp) Rsv_GTList
+      Logical(kind=iwp), intent(out):: NewBatch
+      real(kind=wp), intent(out):: TskLw,TskHi
+      integer(kind=iwp), intent(in):: iOpt
+#ifdef _MOLCAS_MPP_
+      Integer(kind=iwp), External :: RsvTsk
+      Integer(kind=iwp) MyTask
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -98,7 +114,7 @@
          Else
             MyTask=0
             Write (6,*) 'Rsv_GTList: Invalid option:',iOpt
-            Call Abend
+            Call Abend()
          End If
          If (MyTask.ge.1) Then
             Rsv_GTList=.True.
@@ -119,7 +135,11 @@
 ************************************************************************
       Subroutine Free_GTList()
       Use Para_Info, Only: nProcs, Is_Real_Par
-      use TList_Mod
+      use TList_Mod, only: GT_Status,iTCnSt
+#ifdef _MOLCAS_MPP_
+      use TList_Mod, only: nTasks,igaTsk
+#endif
+      Implicit None
 *
       If (.NOT.GT_Status) Return
       GT_Status=.False.

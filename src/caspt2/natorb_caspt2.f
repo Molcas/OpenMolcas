@@ -17,13 +17,16 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE NATORB_CASPT2(DMAT,CMO,OCC,CNAT)
+      use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM, NFRO, NORB, NDEL, NBAS
+      IMPLICIT None
 
-      REAL*8 DMAT(*),CMO(*),OCC(*),CNAT(*)
+      real(kind=wp), intent(in):: DMAT(*),CMO(*)
+      real(kind=wp), intent(out):: OCC(*),CNAT(*)
 
-      Real*8, allocatable:: TMP(:)
+      real(kind=wp), allocatable:: TMP(:)
+      integer(kind=iwp) IDMAT, IOCC, ICMO, ISYM, NF, NO, ND, NB, NTMP
 C Given DMAT, symmetry-blocked array of triangular
 C density matrices in MO basis, and symmetry-blocked
 C array CMO of MO coefficients, return array of

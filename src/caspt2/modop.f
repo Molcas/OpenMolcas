@@ -9,18 +9,23 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MODOP(OP1,NOP2,OP2,NOP3,OP3)
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp, wp
+      use caspt2_module, only: NASHT, NACTEL
+      IMPLICIT None
 
-      DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
+      integer(kind=iwp), intent(in):: NOP2, NOP3
+      real(kind=wp), intent(inout):: OP1(NASHT,NASHT),OP2(NOP2)
+      real(kind=wp), intent(in):: OP3(NOP3)
 
+      integer(kind=iwp) I,J,K,L,IJ,KL,M,N,MN,IJKLMN,IL,IN,KN,IND,IJKL
+      real(kind=wp) X
 C Purpose: Modify the coefficients in OP1 and OP2, using the
 C input values of OP2 and OP3, so that the operators can be
 C calculated using products of elementary excitation
 C operators rather than normal-ordered products.
 
 
-      IF(NACTEL.LE.2) GOTO 100
+      IF (NACTEL>2) THEN
 
       DO I=1,NASHT
        DO J=1,NASHT
@@ -28,14 +33,15 @@ C operators rather than normal-ordered products.
         DO K=1,NASHT
          DO L=1,NASHT
           KL=K+NASHT*(L-1)
-          IF(KL.GT.IJ) GOTO 120
+          IF(KL.GT.IJ) CYCLE
+
           DO M=1,NASHT
            DO N=1,NASHT
             MN=M+NASHT*(N-1)
-            IF(MN.GT.KL) GOTO 110
+            IF(MN.GT.KL) CYCLE
             IJKLMN=((IJ+1)*IJ*(IJ-1))/6+(KL*(KL-1))/2+MN
             X=OP3(IJKLMN)
-            IF(ABS(X).LT.1.0D-15) GOTO 110
+            IF(ABS(X).LT.1.0D-15) CYCLE
 
             IF(K.EQ.J) THEN
               IL=I+NASHT*(L-1)
@@ -70,17 +76,17 @@ C operators rather than normal-ordered products.
               OP2(IND)=OP2(IND)-X
             END IF
 
- 110        CONTINUE
            END DO
           END DO
- 120      CONTINUE
+
          END DO
         END DO
        END DO
       END DO
 
- 100  CONTINUE
-      IF(NACTEL.LE.1) GOTO 200
+      END IF
+
+      IF(NACTEL>1) THEN
 
       DO I=1,NASHT
        DO J=1,NASHT
@@ -88,19 +94,18 @@ C operators rather than normal-ordered products.
         DO K=1,NASHT
          DO L=1,NASHT
           KL=K+NASHT*(L-1)
-          IF(KL.GT.IJ) GOTO 10
+          IF(KL.GT.IJ) CYCLE
 
-          IJKL=(IJ*(IJ-1))/2+KL
           IF(J.EQ.K) THEN
+            IJKL=(IJ*(IJ-1))/2+KL
             OP1(I,L)=OP1(I,L)-OP2(IJKL)
           END IF
 
-  10      CONTINUE
          END DO
         END DO
        END DO
       END DO
 
- 200  CONTINUE
-      RETURN
-      END
+      END IF
+
+      END SUBROUTINE MODOP

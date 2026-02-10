@@ -17,18 +17,25 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DIELMV(ICASE,JCASE,NUP,NDWN,EMU)
+      use definitions, only: iwp, wp
+      use constants, only: Zero
       use gugx, only: SGS, CIS
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ICASE(*),JCASE(*)
-      DIMENSION EMU(NUP,NDWN)
-      Integer nLev, nIpWlk
+      use pt2_guga, only: ETA
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: ICASE(*),JCASE(*)
+      integer(kind=iwp), intent(in):: NUP,NDWN
+      real(kind=wp), intent(inout):: EMU(NUP,NDWN)
+
+      Integer(kind=iwp) nLev, nIpWlk
+      Integer(kind=iwp) I,II,LV1,IC,LEV,IC1,ISTEP,IOC,J
+      real(kind=wp) SUM
+
       nLev  = SGS%nLev
       nIpWlk= CIS%nIpWlk
 
       DO I=1,NUP
         II=NIPWLK*(I-1)
-        SUM=0.0D0
+        SUM=Zero
         DO LV1=SGS%MIDLEV+1,NLEV,15
           II=II+1
           IC=ICASE(II)
@@ -47,7 +54,7 @@
 C THEN THE LOWER HALF:
       DO I=1,NDWN
         II=NIPWLK*(I-1)
-        SUM=0.0D0
+        SUM=Zero
         DO LV1=1,SGS%MIDLEV,15
         II=II+1
         IC=JCASE(II)
@@ -64,5 +71,4 @@ C THEN THE LOWER HALF:
         END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE DIELMV

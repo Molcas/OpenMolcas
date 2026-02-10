@@ -17,23 +17,35 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2,NDPT2,SCAL)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: LISTS
-      use EQSOLV
-      use Sigma_data
+      use EQSOLV, only: IfCoup
       use fake_GA, only: GA_Arrays
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Integer IVEC, JVEC, NDPT2
-      Real*8 DPT2(*), SCAL
+      use caspt2_module, only: FockType, G1SecIn, nActEl, nSym, nOrb,
+     &                         nInDep, nISup, nASup, nIsh, nSsh, nAsh
 
-      Real*8, Allocatable:: WEC1(:), SCR(:)
+      IMPLICIT None
+
+      Integer(kind=iwp), Intent(out):: NDPT2
+      Integer(kind=iwp), Intent(in):: IVEC, JVEC
+      real(kind=wp), intent(in):: SCAL
+      real(kind=wp), intent(inout):: DPT2(*)
+
+      real(kind=wp), Allocatable:: WEC1(:), SCR(:)
 #ifdef _MOLCAS_MPP_
-      Real*8, Allocatable:: TMP1(:), TMP2(:)
+      real(kind=wp), Allocatable:: TMP1(:), TMP2(:)
 #endif
+      real(kind=wp) Fact
+      Integer(kind=iwp) iCase1, iCase2, idoff, idpq, idqp, iLoop,
+     &                  iMltOp, ip, iq, iSta, iSym, iSym1, iSym2,
+     &                  lScr, lScr2, lVec1, lVec2, na, nas1, nas2,
+     &                  ni, nis1, nis2, nLoop, no, nVec1, nVec2,
+     &                  nWec1
 
 
 C If the G1 correction to the Fock matrix is used, then the
@@ -64,7 +76,7 @@ C Transform to standard representation, contravariant form.
       IF(IVEC.NE.JVEC) CALL PTRTOC(0,JVEC,JVEC)
       NLOOP=2
       IF(IVEC.EQ.JVEC) NLOOP=1
-      DO 1000 ILOOP=1,NLOOP
+      DO ILOOP=1,NLOOP
         ! IF(ILOOP.EQ.1) THEN
         !   IBRA=IVEC
         !   IKET=JVEC
@@ -74,47 +86,47 @@ C Transform to standard representation, contravariant form.
         ! END IF
 
 C Loop over types and symmetry block of VEC1 vector:
-      DO 400 ICASE1=1,13
-        DO 401 ISYM1=1,NSYM
-          IF(NINDEP(ISYM1,ICASE1).EQ.0) GOTO 401
+      DO ICASE1=1,13
+        DO ISYM1=1,NSYM
+          IF(NINDEP(ISYM1,ICASE1).EQ.0) Cycle
           NIS1=NISUP(ISYM1,ICASE1)
           NAS1=NASUP(ISYM1,ICASE1)
           NVEC1=NIS1*NAS1
-          IF(NVEC1.EQ.0) GOTO 401
+          IF(NVEC1.EQ.0) Cycle
 C Form VEC1 from the BRA vector, transformed to covariant form.
           CALL RHS_ALLO(NAS1,NIS1,LVEC1)
-          CALL RHS_SCAL(NAS1,NIS1,LVEC1,0.0D0)
+          CALL RHS_SCAL(NAS1,NIS1,LVEC1,Zero)
           IF(ICASE1.LE.11) THEN
            CALL RHS_ALLO(NAS1,NIS1,LSCR)
            CALL RHS_READ(NAS1,NIS1,LSCR,ICASE1,ISYM1,IVEC) !! IBRA)
            IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
-            IF (SCAL.ne.1.0D+00) CALL RHS_SCAL(NAS1,NIS1,LSCR,SCAL)
+            IF (SCAL.ne.One) CALL RHS_SCAL(NAS1,NIS1,LSCR,SCAL)
             CALL RHS_ALLO(NAS1,NIS1,LSCR2)
             CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
-            CALL RHS_DAXPY(NAS1,NIS1,1.0D+00,LSCR2,LSCR)
+            CALL RHS_DAXPY(NAS1,NIS1,One,LSCR2,LSCR)
             CALL RHS_FREE(LSCR2)
            END IF
-           CALL RHS_STRANS (NAS1,NIS1,1.0D0,LSCR,LVEC1,ICASE1,ISYM1)
+           CALL RHS_STRANS (NAS1,NIS1,One,LSCR,LVEC1,ICASE1,ISYM1)
            CALL RHS_FREE(LSCR)
           ELSE
            CALL RHS_READ(NAS1,NIS1,LVEC1,ICASE1,ISYM1,IVEC) !! IBRA)
            IF (IVEC.NE.JVEC.AND.ILOOP.EQ.1) THEN
-            IF (SCAL.ne.1.0D+00) CALL RHS_SCAL(NAS1,NIS1,LVEC1,SCAL)
+            IF (SCAL.ne.One) CALL RHS_SCAL(NAS1,NIS1,LVEC1,SCAL)
             CALL RHS_ALLO(NAS1,NIS1,LSCR2)
             CALL RHS_READ(NAS1,NIS1,LSCR2,ICASE1,ISYM1,JVEC)
-            CALL RHS_DAXPY(NAS1,NIS1,1.0D+00,LSCR2,LVEC1)
+            CALL RHS_DAXPY(NAS1,NIS1,One,LSCR2,LVEC1)
             CALL RHS_FREE(LSCR2)
            END IF
           END IF
 C Form WEC1 from VEC1, if needed.
           NWEC1=0
-          FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+          FACT=One/(DBLE(MAX(1,NACTEL)))
           IF(ICASE1.EQ.1) NWEC1=NASH(ISYM1)*NISH(ISYM1)
           IF(ICASE1.EQ.4) NWEC1=NASH(ISYM1)*NSSH(ISYM1)
           IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) NWEC1=NIS1
           IF(NWEC1.GT.0) THEN
             CALL mma_allocate(WEC1,NWEC1,Label='WEC1')
-            WEC1(:)=0.0D0
+            WEC1(:)=Zero
             IMLTOP=1
 #ifdef _MOLCAS_MPP_
             IF (IS_REAL_PAR()) THEN
@@ -147,21 +159,21 @@ C Form WEC1 from VEC1, if needed.
           END IF
 C Note: WEC1 is identical to <IBRA| E(p,q) |0> for the cases
 C (p,q)=(t,i), (a,t), and (a,i), resp.
-          DO 300 ICASE2=ICASE1+1,13
-            IF(IFCOUP(ICASE2,ICASE1).EQ.0) GOTO 300
-            DO 200 ISYM2=1,NSYM
-              IF(NINDEP(ISYM2,ICASE2).EQ.0) GOTO 200
+          DO ICASE2=ICASE1+1,13
+            IF(IFCOUP(ICASE2,ICASE1).EQ.0) Cycle
+            DO ISYM2=1,NSYM
+              IF(NINDEP(ISYM2,ICASE2).EQ.0) Cycle
               NIS2=NISUP(ISYM2,ICASE2)
               NAS2=NASUP(ISYM2,ICASE2)
               NVEC2=NIS2*NAS2
-              IF(NVEC2.EQ.0) GOTO 200
+              IF(NVEC2.EQ.0) Cycle
               CALL RHS_ALLO(NAS2,NIS2,LVEC2)
               CALL RHS_READ(NAS2,NIS2,LVEC2,ICASE2,ISYM2,IVEC) !! IKET)
               IF (IVEC.NE.JVEC.AND.ILOOP.EQ.2) THEN
-               IF (SCAL.ne.1.0D+00) CALL RHS_SCAL(NAS2,NIS2,LVEC2,SCAL)
+               IF (SCAL.ne.One) CALL RHS_SCAL(NAS2,NIS2,LVEC2,SCAL)
                CALL RHS_ALLO(NAS2,NIS2,LSCR2)
                CALL RHS_READ(NAS2,NIS2,LSCR2,ICASE2,ISYM2,JVEC)
-               CALL RHS_DAXPY(NAS2,NIS2,1.0D+00,LSCR2,LVEC2)
+               CALL RHS_DAXPY(NAS2,NIS2,One,LSCR2,LVEC2)
                CALL RHS_FREE(LSCR2)
               END IF
 #ifdef _MOLCAS_MPP_
@@ -183,14 +195,14 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
               END IF
 #endif
               CALL RHS_FREE(LVEC2)
- 200        CONTINUE
- 300      CONTINUE
+            End Do
+          End Do
           CALL RHS_FREE(LVEC1)
           Call mma_deallocate(WEC1)
- 401    CONTINUE
- 400  CONTINUE
+        End Do
+      End Do
 
- 1000 CONTINUE
+      End Do
 
       CALL GADSUM(DPT2,NDPT2)
 

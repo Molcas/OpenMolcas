@@ -17,14 +17,23 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTDXP(IMLTOP,LST1,LST2,X,F,Y)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
-      use Sigma_data
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(*),F(*),Y(*)
-      DIMENSION LST1(4,NLST1), LST2(4,NLST2)
+      use Sigma_data, only: NLST1, NLST2, INCF1, INCF2, INCX1, INCX2,
+     &                      INCX3, INCY1, INCY2, INCY3, LEN1, NFDXP,
+     &                      VAL1, VAL2
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IMLTOP
+      real(kind=wp), intent(inout):: X(*),F(*),Y(*)
+      integer(kind=iwp), intent(in):: LST1(4,NLST1), LST2(4,NLST2)
 
+      integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST1, ILST2,
+     &                  L11, L12, L13, L14, L21, L22, L23, L24,
+     &                  IF, IX, IY
+      real(kind=wp) A, V, V1, V2
+      real(kind=wp), external:: DDot_
 C Given two lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L11,L12,L13,L14 for short, for a given
 C item, and with V1=VAL1(L14), and similar for the other list,
@@ -53,7 +62,8 @@ CSVC: determine outer loop properties
       ENDIF
 #endif
 
-      IF(IMLTOP.EQ.0) THEN
+      SELECT CASE (IMLTOP)
+      CASE(0)
         DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
           L11=LST1(1,ILST1)
           L12=LST1(2,ILST1)
@@ -73,7 +83,7 @@ CSVC: determine outer loop properties
             CALL DAXPY_(LEN1,A,Y(IY),INCY3,X(IX),INCX3)
           END DO
         END DO
-      ELSE IF(IMLTOP.EQ.1) THEN
+      CASE(1)
         DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
           L11=LST1(1,ILST1)
           L12=LST1(2,ILST1)
@@ -93,7 +103,7 @@ CSVC: determine outer loop properties
             CALL DAXPY_(LEN1,A,X(IX),INCX3,Y(IY),INCY3)
           END DO
         END DO
-      ELSE
+      CASE DEFAULT
         DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
           L11=LST1(1,ILST1)
           L12=LST1(2,ILST1)
@@ -114,7 +124,6 @@ CSVC: determine outer loop properties
             F(IF)=F(IF)+V*DDOT_(LEN1,X(IX),INCX3,Y(IY),INCY3)
           END DO
         END DO
-      END IF
+      END SELECT
       NFDXP=NFDXP+2*NLST1*NLST2*LEN1
-      RETURN
-      END
+      END SUBROUTINE MLTDXP

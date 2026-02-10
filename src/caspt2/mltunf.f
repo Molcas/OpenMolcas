@@ -17,11 +17,16 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTUNF(LST,X,Y)
-      use Sigma_data
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(*),Y(*)
-      DIMENSION LST(4,NLST1)
+      use definitions, only: iwp, wp
+      use Sigma_data, only: NLST1,INCX1,INCX2,INCX3,INCY1,INCY2,LEN1,
+     &                      VAL1
+      IMPLICIT None
+      real(kind=wp), Intent(inout):: X(*)
+      real(kind=wp), Intent(in):: Y(*)
+      integer(kind=iwp), intent(in):: LST(4,NLST1)
 
+      integer(kind=iwp) ILST,L1,L2,L3,L4,IX,IY
+      real(kind=wp) V
 C Given a list with entries LST(4,ITEM), ITEM=1,NLST1,
 C with entries called L1,L2,L3,L4 for given ITEM, and
 C an array of the form Y(p,q), compute the matrix
@@ -43,5 +48,5 @@ C Note: Arrays are addressed by strides given in common.
         IY=1+INCY2*(L3-1)
         CALL DAXPY_(LEN1,V,Y(IY),INCY1,X(IX),INCX1)
       END DO
-      RETURN
-      END
+
+      END SUBROUTINE MLTUNF

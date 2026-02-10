@@ -20,17 +20,25 @@
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD(IVEC)
+      use definitions, only: iwp
+#ifdef _DEBUGPRINT_
+      use definitions, only: wp
+      use caspt2_module, only: NSYM, NASUP, NISUP
+#endif
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: iVec
+#ifdef _DEBUGPRINT_
+      real(kind=wp) DNRM2
+      real(kind=wp), external:: RHS_DDot
+      integer(kind=iwp) ICASE, ISYM, NAS, NIS, lg_W
+#endif
 
-
-      IF (IPRGLB.GE.VERBOSE) THEN
+      IF (IPRGLB>=VERBOSE) THEN
         WRITE(6,'(1X,A)') ' Using RHS on-demand algorithm'
       END IF
 
@@ -58,7 +66,7 @@
         DO ISYM=1,NSYM
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
-          IF (NAS*NIS.NE.0) THEN
+          IF (NAS*NIS/=0) THEN
             CALL RHS_ALLO (NAS,NIS,lg_W)
             CALL RHS_READ (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
             DNRM2 = RHS_DDOT(NAS,NIS,lg_W,lg_W)
@@ -68,9 +76,7 @@
       END DO
 #endif
 
-
-      END
-
+      END SUBROUTINE RHSOD
 
 ************************************************************************
 * SUBROUTINES FOR THE SEPARATE CASES
@@ -78,28 +84,36 @@
 
 *|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
       SUBROUTINE RHSOD_A(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      USE SUPERINDEX, only: MTUV, MTREL
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_global, only: FIMO
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: NSYM,NTUV,NISH,NACTEL,NORB,NTUVES,MUL,
+     &                         NASH
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IVEC
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRA(:), KET(:)
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
+      real(kind=wp) ATVXJ,  FTJ, TJVX
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  ICASE, IDX, IJ, IOFFTJ, IOFFVX, ISYJ, ISYM,
+     &                  ISYT, ISYV, ISYX, IT, ITABS, ITJ, ITTOT, ITVX,
+     &                  ITVXTOT, IV, IVABS, IVX, IX, IXABS, NBRA,
+     &                  NFIMOES, NKET, NV, NW
+      real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case A'
       END IF
 
@@ -131,7 +145,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISH(ISYM) !NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 1
+        IF(NW==0) THEN
+          NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
+          Cycle
+        END IF
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -160,7 +177,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             IOFFVX=1+IOKET(ISYV,ISYX)+NV*IVX
             TJVX=DDOT_(NV,BRA(IOFFTJ),1,KET(IOFFVX),1)
 ! A(tvx,j) = (tjvx) + FIMO(t,j)*delta(v,x)/NACTEL
-            IF (ISYT.EQ.ISYJ.AND.IVABS.EQ.IXABS) THEN
+            IF (ISYT==ISYJ.AND.IVABS==IXABS) THEN
               ITTOT=IT+NISH(ISYT)
               FTJ=FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+IJ)
               ATVXJ=TJVX+FTJ/DBLE(MAX(1,NACTEL))
@@ -181,7 +198,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 1      CONTINUE
 
         NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
 
@@ -191,33 +207,42 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL mma_deallocate(BRA)
       CALL mma_deallocate(KET)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_A
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_C(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use constants, only: Zero
+      USE SUPERINDEX, only: MTUV, MTREL, KTUV
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
       use caspt2_global, only: FIMO
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: NACTEL, NASHT, NSYM, NASUP, NISUP,
+     &                         NTUVES, MUL, NSSH, NASH, NISH, NAES,
+     &                         NORB
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IVEC
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRA(:), KET(:)
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRA(:), KET(:)
+      real(kind=wp) ADDONE, ATVX, FAT, SUMU
+      integer(kind=iwp) IA, NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND,
+     &                  MW, IAT, IATOT, ICASE, IDX, IOFFAT, IOFFVX,
+     &                  ISYA, ISYM, ISYT, ISYV, ISYX, IT, ITABS, ITTOT,
+     &                  ITVV, ITVX, ITVXTOT, IUABS, IUUT, IV, IVABS,
+     &                  IVX, IX, IXABS, NBRA, NFIMOES, NKET, NV, NW
+      real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case C'
       END IF
 
@@ -249,7 +274,10 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE) !NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 4
+        IF(NW==0) THEN
+          NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
+          Cycle
+        END IF
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -292,7 +320,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
           DO IT=1,NASH(ISYM)
             ITTOT=IT+NISH(ISYM)
             FAT=FIMO(NFIMOES+(IATOT*(IATOT-1))/2+ITTOT)
-            SUMU=0.0D0
+            SUMU=Zero
             ITABS=NAES(ISYM)+IT
             DO IUABS=1,NASHT
               IUUT=KTUV(IUABS,IUABS,ITABS)-NTUVES(ISYM)
@@ -321,7 +349,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 4      CONTINUE
 
         NFIMOES=NFIMOES+(NORB(ISYM)*(NORB(ISYM)+1))/2
 
@@ -331,33 +358,46 @@ CSVC: read in all the cholesky vectors (need all symmetries)
       CALL mma_deallocate(BRA)
       CALL mma_deallocate(KET)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_C
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_B(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use constants, only: Half
+      USE SUPERINDEX, only: MIGEJ, MIREL, MTGEU, MTREL, MIGTJ, MTREL,
+     &                      MTGTU
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: NSYM, NASUP, NISUP, NIGEJES, NTGEUES,
+     &                         MUL, NASH, NASH, NIGTJES, NTGTUES
 
-      INTEGER IOSYM(8,8)
-      REAL*8, ALLOCATABLE:: CHOBUF(:)
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) IOSYM(8,8)
+      real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), parameter :: SQRTH=SQRT(Half)
+      real(kind=wp) BMTVJL, BPTVJL, SCL, TJVL, TLVJ
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  iCASE, IDX, IJ, IJABS, IJGEL, IJGELTOT, IJGTL,
+     &                  IJGTLTOT, IL, ILABS, IOFFTJ, IOFFTL, IOFFVJ,
+     &                  IOFFVL, ISYJ, ISYL, ISYM, ISYT, ISYV, IT, ITABS,
+     &                  ITGEU, ITGEUTOT, ITGTU, ITGTUTOT, ITJ, ITL, IV,
+     &                  IVABS, IVJ, IVL, NCHOBUF, NV, NW
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case B'
       END IF
 
@@ -368,7 +408,6 @@ C   BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
 C   BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
 ************************************************************************
 
-      SQRTH=SQRT(0.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -389,7 +428,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 2
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -430,9 +469,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             TLVJ=DDOT_(NV,CHOBUF(IOFFTL),1,CHOBUF(IOFFVJ),1)
 
 ! BP(tv,jl)=((tj,vl)+(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
-            SCL=0.5D0
-            IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
-            IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
+            SCL=Half
+            IF (ITABS==IVABS) SCL=SCL*Half
+            IF (ILABS==IJABS) SCL=SCL*SQRTH
             BPTVJL=SCL*(TJVL+TLVJ)
 ! write element HP(ac,jl)
             IDX=ITGEU+NAS*(IJGEL-IISTA)
@@ -448,7 +487,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 2      CONTINUE
       END DO
 ************************************************************************
 
@@ -464,7 +502,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 3
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -505,9 +543,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             TLVJ=DDOT_(NV,CHOBUF(IOFFTL),1,CHOBUF(IOFFVJ),1)
 
 ! BM(tv,jl)=((tj,vl)-(tl,vj))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(j,l))
-            SCL=0.5D0
-            !IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
-            !IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
+            SCL=Half
+            !IF (ITABS==IVABS) SCL=SCL*0.5D0
+            !IF (ILABS==IJABS) SCL=SCL*SQRTH
             BMTVJL=SCL*(TJVL-TLVJ)
 ! write element BM(tv,jl)
             IDX=ITGTU+NAS*(IJGTL-IISTA)
@@ -523,39 +561,51 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 3      CONTINUE
       END DO
 ************************************************************************
 
       CALL mma_deallocate(CHOBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_B
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_F(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use constants, only: Half
+      USE SUPERINDEX, only: MAGEB, MAREL, MTGEU, MTREL, MAGTB, MAREL,
+     &                      MTGTU
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: NSYM, NASUP, NISUP, NAGEBES, NTGEUES,
+     &                         MUL, NSSH, NAGTBES, NTGTUES
 
-      INTEGER IOSYM(8,8)
-      REAL*8, ALLOCATABLE:: CHOBUF(:)
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) IOSYM(8,8)
+      real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), parameter :: SQRTH=SQRT(Half)
+      real(kind=wp) ATCV, AVCT, FMTVAC, FPTVAC, SCL
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAABS, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT,
+     &                  IAT, IAV, IC, ICABS, iCASE, ICT, ICV, IDX,
+     &                  IOFFAT, IOFFAV, IOFFCT, IOFFCV, ISYA, ISYC,
+     &                  ISYM, ISYT, ISYV, IT, ITABS, ITGEU, ITGEUTOT,
+     &                  ITGTU, ITGTUTOT, IV, IVABS, NCHOBUF, NV, NW
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case F'
       END IF
 
@@ -565,7 +615,6 @@ C FP(tv,ac)=((at,cv)+(av,ct))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(a,c))
 C FM(tv,ac)= -((at,cv)-(av,ct))/(2*SQRT(1+Kron(a,c))
 ************************************************************************
 
-      SQRTH=SQRT(0.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -586,7 +635,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 8
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -627,9 +676,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             AVCT=DDOT_(NV,CHOBUF(IOFFAV),1,CHOBUF(IOFFCT),1)
 
 ! FP(tv,ac)=((at,cv)+(av,ct))*(1-Kron(t,v)/2)/(2*SQRT(1+Kron(a,c))
-            SCL=0.5D0
-            IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
-            IF (IAABS.EQ.ICABS) SCL=SCL*SQRTH
+            SCL=Half
+            IF (ITABS==IVABS) SCL=SCL*Half
+            IF (IAABS==ICABS) SCL=SCL*SQRTH
             FPTVAC=SCL*(ATCV+AVCT)
 ! write element FP(tv,ac)
             IDX=ITGEU+NAS*(IAGEB-IISTA)
@@ -645,7 +694,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 8      CONTINUE
       END DO
 ************************************************************************
 
@@ -661,7 +709,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 9
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -702,9 +750,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             AVCT=DDOT_(NV,CHOBUF(IOFFAV),1,CHOBUF(IOFFCT),1)
 
 ! FM(tv,ac)= -((at,cv)-(av,ct))/(2*SQRT(1+Kron(a,c))
-            SCL=0.5D0
-            !IF (ITABS.EQ.IVABS) SCL=SCL*0.5D0
-            !IF (IAABS.EQ.ICABS) SCL=SCL*SQRTH
+            SCL=Half
+            !IF (ITABS==IVABS) SCL=SCL*0.5D0
+            !IF (IAABS==ICABS) SCL=SCL*SQRTH
             FMTVAC=SCL*(AVCT-ATCV)
 ! write element FM(tv,ac)
             IDX=ITGTU+NAS*(IAGTB-IISTA)
@@ -720,39 +768,51 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 9      CONTINUE
       END DO
 ************************************************************************
 
       CALL mma_deallocate(CHOBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_F
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_H(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use constants, only: Half, One, Three
+      USE SUPERINDEX, only: MIGEJ, MIREL, MAGEB, MAREL, MIGTJ, MAGTB
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: NSYM, NAGEB, NIGEJ, NIGEJES, NAGEBES,
+     &                         MUL, NSSH, NAGTB, NIGTJ, NIGTJES,
+     &                         NAGTBES
 
-      INTEGER IOSYM(8,8)
-      REAL*8, ALLOCATABLE:: CHOBUF(:)
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) IOSYM(8,8)
+      real(kind=wp), ALLOCATABLE:: CHOBUF(:)
+      real(kind=wp), parameter:: SQRT3=SQRT(Three), SQRTH=SQRT(Half)
+      real(kind=wp) :: AJCL, ALCJ, HMACJL, HPACJL, SCL
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAABS, IAGEB, IAGEBTOT, IAGTB, IAGTBTOT,
+     &                  IAJ, IAL, IC, ICABS, iCASE, ICJ, ICL, IDX, IJ,
+     &                  IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL,
+     &                  ILABS, IOFFAJ, IOFFAL, IOFFCJ, IOFFCL, ISYA,
+     &                  ISYC, ISYJ, ISYL, ISYM, NCHOBUF, NV, NW
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case H'
       END IF
 
@@ -761,9 +821,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 C   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
 C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(3.0D0)
 ************************************************************************
-
-      SQRT3=SQRT(3.0D0)
-      SQRTH=SQRT(0.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -784,7 +841,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NIGEJ(ISYM)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 12
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -825,9 +882,9 @@ CSVC: read in all the cholesky vectors (need all symmetries)
             ALCJ=DDOT_(NV,CHOBUF(IOFFAL),1,CHOBUF(IOFFCJ),1)
 
 ! HP(ac,jl)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
-            SCL=1.0D0
-            IF (IAABS.EQ.ICABS) SCL=SCL*SQRTH
-            IF (ILABS.EQ.IJABS) SCL=SCL*SQRTH
+            SCL=One
+            IF (IAABS==ICABS) SCL=SCL*SQRTH
+            IF (ILABS==IJABS) SCL=SCL*SQRTH
             HPACJL=SCL*(AJCL+ALCJ)
 ! write element HP(ac,jl)
             IDX=IAGEB+NAS*(IJGEL-IISTA)
@@ -843,7 +900,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 12     CONTINUE
       END DO
 ************************************************************************
 
@@ -859,7 +915,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NIGTJ(ISYM)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 13
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -916,42 +972,54 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 13     CONTINUE
       END DO
 ************************************************************************
 
       CALL mma_deallocate(CHOBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_H
 
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_D(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use constants, only: One
+      USE SUPERINDEX, only: MIA, MAREL, MIREL, MTU, MTREL, KTU
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: NACTEL, NASHT, NSYM, NORB, NASUP, NISUP,
+     &                         NIAES, NTUES, MUL, NSSH, NASH, NISH
 
-      INTEGER IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8), IOKET2(8,8)
-      REAL*8, ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) IOBRA1(8,8), IOKET1(8,8), IOBRA2(8,8),
+     &                  IOKET2(8,8)
+      real(kind=wp), ALLOCATABLE:: BRABUF1(:), KETBUF1(:),
      &                      BRABUF2(:), KETBUF2(:)
+      real(kind=wp) ACTINV, AJTV, AVTJ, FAJ, ONEADD
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAABS, IAEND1, IAEND2, IAJ, IAJTOT, IASTA1,
+     &                  IASTA2, IATOT, iCASE, IDX, IFIMOES,  IJ, IJABS,
+     &                  IOAJ, IOAV, IOFFAJ, IOFFAV, IOFFTJ, IOFFTV,
+     &                  IOTJ, IOTV, ISYA, ISYJ, ISYM, ISYT, ISYV, IT,
+     &                  ITABS, ITV, IUABS, IUU, IV, IVABS, NAS1,
+     &                  NBRABUF1, NBRABUF2, NKETBUF1, NKETBUF2, NV, NW
+      real(kind=wp), External :: DDot_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      DIMENSION NFIMOES(8)
+      integer(kind=iwp) NFIMOES(8)
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case D'
       END IF
 
@@ -987,7 +1055,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 * outer loop over symmetry blocks in the RHS
 ************************************************************************
       ! set up FIMO access
-      ACTINV=1.0D0/DBLE(MAX(1,NACTEL))
+      ACTINV=One/DBLE(MAX(1,NACTEL))
       IFIMOES=0
       DO ISYM=1,NSYM
         NFIMOES(ISYM)=IFIMOES
@@ -1000,7 +1068,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 8
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1049,7 +1117,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 #endif
           END DO
 ! now, dress with FIMO(a,j), only if T==V, so ISYT==ISYV, so if ISYM==1
-          IF (ISYM.EQ.1) THEN
+          IF (ISYM==1) THEN
             IATOT=IA+NISH(ISYA)+NASH(ISYA)
             FAJ=FIMO(NFIMOES(ISYA)+(IATOT*(IATOT-1))/2+IJ)
             ONEADD=FAJ*ACTINV
@@ -1093,7 +1161,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 8      CONTINUE
 
       END DO
 ************************************************************************
@@ -1106,33 +1173,46 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 
 ************************************************************************
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_D
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_E(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use constants, only: Half, OneHalf
+      USE SUPERINDEX, only: MIGEJ, MIREL, MIGTJ
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: NSYM, NASUP, NISUP, MUL, NSSH, NIGEJ,
+     &                         NIGEJES, NASH, NIGTJ, NIGTJES
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      real(kind=wp), parameter:: SQRTH=SQRT(Half), SQRTA=SQRT(OneHalf)
+      real(kind=wp) AJVL, ALVJ, EM, EP, SCL
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAJ, IAJGEL, IAJGELEND, IAJGELSTA, IAJGTL,
+     &                  IAJGTLEND, IAJGTLSTA, IAL, iCASE, IDX, IJ,
+     &                  IJABS, IJGEL, IJGELTOT, IJGTL, IJGTLTOT, IL,
+     &                  ILABS, IOFF, IOFFAJ, IOFFAL, IOFFVJ, IOFFVL,
+     &                  ISYA, ISYJ, ISYJL, ISYL, ISYM, ISYV, IV, IVJ,
+     &                  IVL, NA, NBRABUF, NJL, NKETBUF, NV, NW
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case E'
       END IF
 
@@ -1147,11 +1227,8 @@ C EM(v,ajl)=((aj,vl)-(al,vj))*SQRT(3/2)
 * them. Instead, the code loops over symmetry blocks of A-JL and figures
 * out if the indices on the processor fall within a block or not. Within
 * a A-JL symmetry block, NA(ISYA) and NIGEJ(ISYJL) are known, so they can
-* be determined by integer division. This could be optimized by combining
+* be determined by integer(kind=iwp) division. This could be optimized by combining
 * it with loop peeling (on the todo list?).
-
-      SQRTH=SQRT(0.5D0)
-      SQRTA=SQRT(1.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -1175,7 +1252,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 6
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1223,8 +1300,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               ALVJ=DDOT_(NV,BRABUF(IOFFAL),1,KETBUF(IOFFVJ),1)
 
 ! EP(v,ajl)=((aj,vl)+(al,vj))/SQRT(2+2*Kron(j,l))
-              IF (ILABS.EQ.IJABS) THEN
-                SCL=0.5D0
+              IF (ILABS==IJABS) THEN
+                SCL=Half
               ELSE
                 SCL=SQRTH
               END IF
@@ -1246,7 +1323,6 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 6      CONTINUE
       END DO
 ************************************************************************
 
@@ -1262,7 +1338,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 7
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1328,40 +1404,50 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 7      CONTINUE
       END DO
 ************************************************************************
 
       CALL mma_deallocate(BRABUF)
       CALL mma_deallocate(KETBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_E
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE RHSOD_G(IVEC)
-      USE SUPERINDEX
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      use constants, only: Half, OneHalf
+      USE SUPERINDEX, only: MAGEB, MAREL, MAGTB
+      USE CHOVEC_IO, only: NVTOT_CHOSYM, ChoVec_Size, ChoVec_Read
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifndef _MOLCAS_MPP_
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC
+      use caspt2_module, only: NSYM, NASUP, NISUP, MUL, NISH, NAGEB,
+     &                         NAGEBES, NSSH, NAGTB, NAGTBES
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IVEC
 
-      INTEGER IOBRA(8,8), IOKET(8,8)
-      REAL*8, ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      integer(kind=iwp) IOBRA(8,8), IOKET(8,8)
+      real(kind=wp), ALLOCATABLE:: BRABUF(:), KETBUF(:)
+      real(kind=wp), parameter :: SQRTH=SQRT(Half), SQRTA=SQRT(OneHalf)
+      real(kind=wp) AVCJ, CVAJ, GM, GP, SCL
+      integer(kind=iwp) NAS, NIS, lg_W, IASTA, IAEND, IISTA, IIEND, MW,
+     &                  IA, IAABS, IAGEC, IAGECTOT, IAGTC, IAGTCTOT,
+     &                  IAJ, IAV, IC, ICABS, iCASE, ICJ, ICV, IDX, IJ,
+     &                  IJAGEC, IJAGECEND, IJAGECSTA, IJAGTC, IJAGTCEND,
+     &                  IJAGTCSTA, IOFF, IOFFAJ, IOFFAV, IOFFCJ, IOFFCV,
+     &                  ISYA, ISYAC, ISYC, ISYJ, ISYM, ISYV, IV, NAC,
+     &                  NBRABUF, NJ, NKETBUF, NV, NW
+      real(kind=wp), External :: DDot_
 *      Logical Incore
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
 
-      IF (iPrGlb.GE.DEBUG) THEN
+      IF (iPrGlb>=DEBUG) THEN
         WRITE(6,*) 'RHS on demand: case G'
       END IF
 
@@ -1376,11 +1462,9 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
 * them. Instead, the code loops over symmetry blocks of J-AC and figures
 * out if the indices on the processor fall within a block or not. Within
 * a J-AC symmetry block, NJ(ISYJ) and NAGEB(ISYAC) are known, so they can
-* be determined by integer division. This could be optimized by combining
+* be determined by integer(kind=iwp) division. This could be optimized by combining
 * it with loop peeling (on the todo list?).
 
-      SQRTH=SQRT(0.5D0)
-      SQRTA=SQRT(1.5D0)
 
 ************************************************************************
 CSVC: read in all the cholesky vectors (need all symmetries)
@@ -1404,7 +1488,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 10
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1452,8 +1536,8 @@ CSVC: read in all the cholesky vectors (need all symmetries)
               CVAJ=DDOT_(NV,BRABUF(IOFFCV),1,KETBUF(IOFFAJ),1)
 
 C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
-              IF (IAABS.EQ.ICABS) THEN
-                SCL=0.5D0
+              IF (IAABS==ICABS) THEN
+                SCL=Half
               ELSE
                 SCL=SQRTH
               END IF
@@ -1475,7 +1559,6 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
         CALL RHS_RELEASE_UPDATE (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 10     CONTINUE
       END DO
 ************************************************************************
 
@@ -1491,7 +1574,7 @@ C GP(v,jac)=((av,cj)+(cv,aj))/SQRT(2+2*Kron(a,b))
         NIS=NISUP(ISYM,ICASE)
         NW=NAS*NIS
 
-        IF(NW.EQ.0) GOTO 11
+        IF(NW==0) Cycle
 
         CALL RHS_ALLO (NAS,NIS,lg_W)
         CALL RHS_ACCESS (NAS,NIS,lg_W,IASTA,IAEND,IISTA,IIEND,MW)
@@ -1557,12 +1640,10 @@ C GM(v,jac)=((av,cj)-(cv,aj))*SQRT(3/2)
         CALL RHS_Release_Update (lg_W,IASTA,IAEND,IISTA,IIEND)
         CALL RHS_SAVE (NAS,NIS,lg_W,iCASE,iSYM,iVEC)
         CALL RHS_FREE (lg_W)
- 11     CONTINUE
       END DO
 ************************************************************************
 
       CALL mma_deallocate(BRABUF)
       CALL mma_deallocate(KETBUF)
 
-      RETURN
-      END
+      END SUBROUTINE RHSOD_G

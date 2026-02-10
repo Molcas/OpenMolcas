@@ -9,30 +9,42 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RHSALL2(IVEC)
-      USE CHOVEC_IO
-      use caspt2_global, only:iPrGlb
-      use caspt2_global, only: FIMO
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH
+      use caspt2_global, only:iPrGlb, FIMO, PIQK, Buff, idxb
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
-      use ChoCASPT2
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NSYM, NISH, NASH, NSSH, NASHT, NBTCHES,
+     &                         NBTCH, NAES, MUL
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: NASUP, NISUP
+#endif
+      IMPLICIT None
 * ----------------------------------------------------------------
 * Code for processing all the cholesky vectors
 * in construction of caspt2 right-hand-side array
 * Also form the active two-electron integrals 'TUVX'.
 * ================================================================
 #include "warnings.h"
-      Integer IVEC
+      integer(kind=iwp), intent(in):: IVEC
 *
-      Integer, Parameter :: Inactive=1, Active=2, Virtual=3
-      Integer nSh(8,3)
+      integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
+      integer(kind=iwp) nSh(8,3)
+      integer(kind=iwp), SAVE :: NUMERR=0
+      real(kind=wp), allocatable:: TUVX(:), BRA(:), KET(:)
+
+      integer(kind=iwp),allocatable:: BGRP(:,:)
+      integer(kind=iwp) IB, IB1, IB2, IBEND, IBGRP, IBSTA, iOffi, iOffK,
+     &                  iOffp, iOffQ, ISYI, ISYK, ISYP, ISYQ, JSYM,
+     &                  LBRASM, LKETSM, MXBGRP, MXPIQK, NADDBUF, NBGRP,
+     &                  nBra, NBRASM, NCHOBUF, NG1, NG2, NI, NK, nKet,
+     &                  NKETSM, NP, NPI, NQ, NQK, NTUVX, NV
 #ifdef _DEBUGPRINT_
-      INTEGER, SAVE :: NUMERR=0
+      real(kind=wp) DNRM2
+      real(kind=wp), external:: RHS_DDot
+      integer(kind=iwp) ISYM, lg_W, NAS, NIS, ICASE
 #endif
-      Real*8, allocatable:: TUVX(:), PIQK(:), BUFF(:), BRA(:), KET(:)
-      Integer,allocatable:: BGRP(:,:), IDXB(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -73,7 +85,7 @@
       NG2=NG1**2
       NTUVX=NG2
       CALL mma_allocate(TUVX,NTUVX,Label='TUVX')
-      TUVX(:)=0.0D0
+      TUVX(:)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -100,10 +112,12 @@
          WRITE(6,'(A,I12)') '  Number of batch groups:     ',NBGRP
          WRITE(6,*)
        END IF
+
 * buffers are kept allocated until the end of JSYM loop.
        CALL mma_allocate(PIQK,MXPIQK,Label='PIQK')
        CALL mma_allocate(BUFF,NADDBUF,Label='BUFF')
        CALL mma_allocate(IDXB,NADDBUF,Label='IDXB')
+
        CALL mma_allocate(BRA,NCHOBUF,Label='BRA')
        CALL mma_allocate(KET,NCHOBUF,Label='KET')
 *
@@ -143,11 +157,11 @@
        DO ISYI=1,NSYM
         NI=NASH(ISYI)
         iOffi=NAES(iSYI)
-        IF(NI.EQ.0) GOTO 115
+        IF(NI.EQ.0) Cycle
         ISYP=MUL(ISYI,JSYM)
         NP=NASH(ISYP)
         iOffp=NAES(iSYP)
-        IF(NP.EQ.0) GOTO 115
+        IF(NP.EQ.0) Cycle
         NPI=NP*NI
         NBRASM=NPI*NV
         LKETSM=1
@@ -155,11 +169,11 @@
         DO ISYK=1,NSYM
          NK=NASH(ISYK)
          iOffK=NAES(iSYK)
-         IF(NK.EQ.0) GOTO 112
+         IF(NK.EQ.0) Cycle
          ISYQ=MUL(ISYK,JSYM)
          NQ=NASH(ISYQ)
          iOffQ=NAES(iSYQ)
-         IF(NQ.EQ.0) GOTO 112
+         IF(NQ.EQ.0) Cycle
          NQK=NQ*NK
          NKETSM=NQK*NV
 *
@@ -167,17 +181,15 @@
            WRITE(6,*) 'NPIQK larger than mxPIQK in TUVX, bug?'
            Call AbEnd()
          END IF
-         CALL DGEMM_('N','T',NPI,NQK,NV,1.0D0,KET(LBRASM),NPI,
-     &        KET(LKETSM),NQK,0.0D0,PIQK,NPI)
+         CALL DGEMM_('N','T',NPI,NQK,NV,One,KET(LBRASM),NPI,
+     &        KET(LKETSM),NQK,Zero,PIQK,NPI)
 *
          Call ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,
      &                TUVX,nTUVX,PIQK,NPI*NQK,NUMERR)
 *
          LKETSM=LKETSM+NKETSM
- 112     CONTINUE
         END DO
         LBRASM=LBRASM+NBRASM
- 115    CONTINUE
        END DO
 *                                                                      *
 ************************************************************************
@@ -196,10 +208,7 @@
       Call Process_RHS_Block(Inactive,Active,Active,Active,
      &                       'A ',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
-     &                       BUFF,IDXB,nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -209,10 +218,7 @@
       Call Process_RHS_Block(Inactive,Active,Inactive,Active,
      &                       'B ',
      &                       BRA,nBra,BRA,nBra,
-     &                       PIQK,mxPIQK,
-     &                       BUFF,IDXB,nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -231,10 +237,7 @@
       Call Process_RHS_Block(Inactive,Virtual,Active,Active,
      &                       'D1',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
-     &                       BUFF,IDXB,nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -244,10 +247,7 @@
       Call Process_RHS_Block(Inactive,Virtual,Inactive,Virtual,
      &                       'H ',
      &                       BRA,nBra,BRA,nBra,
-     &                       PIQK,mxPIQK,
-     &                       BUFF,IDXB,nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -265,10 +265,7 @@
       Call Process_RHS_Block(Active,Virtual,Active,Active,
      &                       'C ',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
-     &                       BUFF,IDXB,nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -278,10 +275,7 @@
       Call Process_RHS_Block(Active,Virtual,Active,Virtual,
      &                       'F ',
      &                       BRA,nBra,BRA,nBra,
-     &                       PIQK,mxPIQK,
-     &                       BUFF,IDXB,nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -299,10 +293,7 @@
       Call Process_RHS_Block(Active,Virtual,Inactive,Active,
      &                       'D2',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
-     &                       BUFF,IDXB,nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -320,10 +311,7 @@
       Call Process_RHS_Block(Active,Virtual,Inactive,Virtual,
      &                       'G ',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
-     &                       BUFF,IDXB,nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -349,10 +337,7 @@
       Call Process_RHS_Block(Inactive,Virtual,Inactive,Active,
      &                       'E ',
      &                       BRA,nBra,KET,nKet,
-     &                       PIQK,mxPIQK,
-     &                       BUFF,IDXB,nAddBuf,
-     &                       nSh,JSYM,
-     &                       IVEC,NV)
+     &                       nSh,JSYM,IVEC,NV)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -419,11 +404,16 @@ C      the case, symmetry, and rhs vector respectively.
       Subroutine Get_Cholesky_Vectors(ITK,ITQ,JSYM,
      &                                Array,nArray,
      &                                IBSTA,IBEND)
-      USE CHOVEC_IO
+      use definitions, only: iwp, wp
+      USE CHOVEC_IO, only: NPQ_CHOTYPE, NVLOC_CHOBATCH, IDLOC_CHOGROUP
       use caspt2_global, only: LUDRA
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8  Array(*)
+      use caspt2_module, only: NSYM
+      IMPLICIT None
+      integer(kind=iwp), Intent(in):: ITK,ITQ,JSYM,IBSTA,IBEND
+      integer(kind=iwp), Intent(Out):: nArray
+      real(kind=wp), intent(Out):: Array(*)
+
+      integer(kind=iwp) ICASE, LKETSM, ISYK, NQK, IB, NV, NKETSM, IDISK
 
       ! ugly hack to convert separate k/q orbital types into a specific
       ! case
@@ -448,45 +438,52 @@ C      the case, symmetry, and rhs vector respectively.
       END DO
       nArray=LKETSM-1
 *
-      Return
-      End
+      End Subroutine Get_Cholesky_Vectors
+
       Subroutine Process_RHS_Block(ITI,ITP,ITK,ITQ,
      &                             Case,
      &                             Cho_Bra,nBra,Cho_Ket,nKet,
-     &                             PIQK,mxPIQK,
-     &                             BUFF,idxBuff,nBUFF,
-     &                             nSh,JSYM,
-     &                             IVEC,NV)
-      use caspt2_global, only:iPrGlb
+     &                             nSh,JSYM,IVEC,NV)
+      use definitions, only: iwp, wp
+      use caspt2_global, only: iPrGlb, PIQK, BUFF, idxBuff=>idxb
       use PrintLevel, only: debug
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION Cho_Bra(nBra), Cho_Ket(nKet)
-      DIMENSION BUFF(nBuff),idxBuff(nBuff),PIQK(mxPIQK)
-      Integer nSh(8,3)
-      Character Case*2
+      use caspt2_module, only: NSYM, MUL
+      IMPLICIT None
+      integer(kind=iwp), Intent(in):: ITI,ITP,ITK,ITQ
+      Character(LEN=2), intent(in)::  Case
+      integer(kind=iwp), intent(in):: nBra, nKet
+      real(kind=wp), intent(in):: Cho_Bra(nBra), Cho_Ket(nKet)
+      integer(kind=iwp), intent(in):: nSh(8,3), JSYM, iVec, nV
+
+      integer(kind=iwp) ISYI, ISYK, ISYP, ISYQ, KPI, KQK, LBRASM,
+     &                  LKETSM, NBRASM, NI, NK, NKETSM, NP, NPI, NPIQK,
+     &                  NQ, NQK
+      integer(kind=iwp) mxPIQK, nBuff
+      mxPIQK=Size(PIQK)
+      nBuff=Size(BUFF)
 *
 *
       IF (iPrGlb.GE.DEBUG) THEN
         WRITE(6,*) 'Processing RHS block '//Case
       END IF
+
       LBRASM=1
       DO ISYI=1,NSYM
          NI=NSH(ISYI,ITI)
-         IF(NI.EQ.0) GOTO 125
+         IF(NI.EQ.0) Cycle
          ISYP=MUL(ISYI,JSYM)
          NP=NSH(ISYP,ITP)
-         IF(NP.EQ.0) GOTO 125
+         IF(NP.EQ.0) Cycle
          NPI=NP*NI
          NBRASM=NPI*NV
 *
          LKETSM=1
          DO ISYK=1,NSYM
             NK=NSH(ISYK,ITK)
-            IF(NK.EQ.0) GOTO 122
+            IF(NK.EQ.0) Cycle
             ISYQ=MUL(ISYK,JSYM)
             NQ=NSH(ISYQ,ITQ)
-            IF(NQ.EQ.0) GOTO 122
+            IF(NQ.EQ.0) Cycle
             NQK=NQ*NK
             NKETSM=NQK*NV
 *
@@ -580,19 +577,34 @@ C-SVC: sanity check
             End If
 *
          LKETSM=LKETSM+NKETSM
- 122     CONTINUE
         END DO
         LBRASM=LBRASM+NBRASM
- 125    CONTINUE
       END DO
 *
-      Return
-      End
+      End Subroutine Process_RHS_Block
+
       Subroutine ADDTUVX(NP,NI,NQ,NK,NASHT,iOffP,iOffI,iOffQ,iOffK,
      &                   TUVX,nTUVX,PIQK,nPIQK,
      &                   NUMERR)
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 TUVX(nTUVX), PIQK(nPIQK)
+      use definitions, only: iwp, wp
+#ifndef _DEBUGPRINT_
+      use Constants, only: One
+#endif
+      Implicit None
+      integer(kind=iwp), intent(in):: NP,NI,NQ,NK,NASHT,iOffP,iOffI,
+     &                                iOffQ,iOffK
+      integer(kind=iwp), intent(in):: nTUVX, nPIQK
+      real(kind=wp), intent(in)::  PIQK(nPIQK)
+      real(kind=wp), intent(inout):: TUVX(nTUVX)
+      integer(kind=iwp), intent(inout):: NUMERR
+
+      integer(kind=iwp) iU, iUVX1, iUVX2, iV, iVX1, iVX2, iX, iX1, iX2
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+      unused_var(NUMERR)
+#else
+      integer(kind=iwp) iPIQK, iT, iTUVX
+#endif
 *
 * Add into correct positions in TUVX:
 *
@@ -622,44 +634,57 @@ C-SVC: sanity check
                   TUVX(iTUVX)=TUVX(iTUVX)+PIQK(iPIQK)
                END DO
 #else
-               Call DaXpY_(nP,1.0D0,PIQK(1+      iUVX2),1,
+               Call DaXpY_(nP,One,PIQK(1+      iUVX2),1,
      &                             TUVX(1+iOffP+iUVX1),1)
-* Avoid unused argument warnings
-               IF (.FALSE.) Call Unused_integer(NUMERR)
 #endif
             END DO
          END DO
       END DO
 *
-      Return
-      End
-      SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,
-     &                           NCHOBUF,NPIQK,NADDBUF)
-      USE CHOVEC_IO
+      End Subroutine ADDTUVX
+
+      SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,NCHOBUF,NPIQK,NADDBUF)
+      use definitions, only: iwp
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only: iParRHS,iPrGlb,iStpGrd
       use PrintLevel, only: verbose
       use stdalloc, only: mma_MaxDBLE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION LBGRP(2,NBGRP)
-      Integer Active, Inactive, Virtual
-      Parameter (Inactive=1, Active=2, Virtual=3)
-      Integer nSh(8,3)
-      DIMENSION ITYPE(4,9)
-      Logical :: call_from_grad
-      DATA ITYPE /
-     &  Inactive,Active,Active,Active,
-     &  Inactive,Active,Inactive,Active,
-     &  Inactive,Virtual,Active,Active,
-     &  Inactive,Virtual,Inactive,Virtual,
-     &  Active,Virtual,Active,Active,
-     &  Active,Virtual,Active,Virtual,
-     &  Active,Virtual,Inactive,Active,
-     &  Active,Virtual,Inactive,Virtual,
-     &  Inactive,Virtual,Inactive,Active /
+      use caspt2_module, only: NSYM, NASHT, NISUP, NISH, MUL, NASH,
+     &                         NSSH, NTU, NTUV, NASH, NIGEJ, NIGTJ,
+     &                         NAGEB, NAGTB, NTGEU, NTGTU, NBTCHES,
+     &                         NBTCH
+
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: JSYM
+      integer(kind=iwp), intent(out):: NBGRP
+      integer(kind=iwp), intent(out):: LBGRP(2,*)
+      integer(kind=iwp), intent(out) :: NCHOBUF,NPIQK,NADDBUF
+
+      integer(kind=iwp) IB, IB1, IB2, IBGRP, ICASE, ISYI, ISYK, ISYP,
+     &                  ISYQ, MAXBUFF, MAXCHOL, MAXPIQK, MINBUFF,
+     &                  MINCHOL, MINGOOD, MINNICE, MINPIQK, MINSLOW,
+     &                  MXAVAIL, MXBATCH, MXCHOVEC, MXNPITOT, MXRHS,
+     &                  NCHOVEC, NCHUNK, NI, NK, NP, NPI, NQ, NQK, NV,
+     &                  NVECTOT
+      integer(kind=iwp), external:: iPARDIV
+      integer(kind=iwp), Parameter :: Inactive=1, Active=2, Virtual=3
+      integer(kind=iwp) nSh(8,3)
+      Logical(kind=iwp) :: call_from_grad
+      integer(kind=iwp) :: ITYPE(4,9)=reshape([
+     &                                Inactive,Active,Active,Active,
+     &                                Inactive,Active,Inactive,Active,
+     &                                Inactive,Virtual,Active,Active,
+     &                                Inactive,Virtual,Inactive,Virtual,
+     &                                Active,Virtual,Active,Active,
+     &                                Active,Virtual,Active,Virtual,
+     &                                Active,Virtual,Inactive,Active,
+     &                                Active,Virtual,Inactive,Virtual,
+     &                                Inactive,Virtual,Inactive,Active]
+     &                               ,[4,9])
+      integer(kind=iwp) ISYM
 
       call_from_grad = .false.
       if (iStpGrd == -1) call_from_grad = .true.

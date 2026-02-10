@@ -12,7 +12,8 @@
 ! Global variables of the CASPT2 module
 ! TODO: move here all variables from CASPT2 common blocks defined in caspt2_module.F90
 module caspt2_global
-use caspt2_module, only: jState, mState, nActel
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 ! UNIT numbers:
 ! IDCIEX, IDTCEX, LUCIEX, LUDMAT, LUDRA, LUDRATOT, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LURHS, LUSBT, LUSOLV
@@ -62,8 +63,7 @@ use caspt2_module, only: jState, mState, nActel
 ! number of CI vectors per batch in mkfg3.f and derfg3.f
 ! nbuf1_grad
 
-use Constants, only: Zero
-use Definitions, only: wp, iwp
+use caspt2_module, only: jState, mState, nActel
 use pt2_guga, only: nG3
 
 implicit none
@@ -89,6 +89,8 @@ real(kind=wp), allocatable :: CLag(:,:), CLagFull(:,:), CMOPT2(:), DMIX(:,:), DP
                               TORB(:), TraFro(:), Weight(:), WLag(:)
 real(kind=wp), allocatable, target :: CMO_Internal(:)
 real(kind=wp), pointer :: CMO(:)
+real(kind=wp), allocatable:: PIQK(:), Buff(:)
+integer(kind=iwp), allocatable :: IDXB(:)
 
 public :: CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, ConvInvar, DMIX, dnmThr, do_csf, do_grad, do_lindep, do_nac, &
           DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, DREF, DWGT, EMP2, FAMO, FIFA, FIFA_all, FIFASA_all, FIMO, &
@@ -97,6 +99,6 @@ public :: CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, ConvInvar, 
           LUCIEX, LuCMOPT2, LUDMAT, LUDRA, LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, &
           LURHS, LUSBT, LUSOLV, LUSTD, MAXBUF, nbuf1_grad, nCLag, NCMO, NDREF, nOLag, NPREF, nSLag, nStpGrd, NTAT, nTasks_grad, &
           NTORB, nWLag, OLag, OLagFull, OMGDER, PREF, real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, &
-          Weight, WLag, CompressMPS
+          Weight, WLag, CompressMPS, PIQK, Buff, IDXB
 
 end module caspt2_global

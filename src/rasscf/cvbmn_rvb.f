@@ -9,8 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine cvbmn_rvb(icode)
+      use definitions, only: iwp
       use casvb_global, only: esym, n_iter
-      implicit real*8 (a-h,o-z)
+      implicit none
+      integer(kind=iwp), intent(in):: icode
 
 c  ICODE=0 standard casvb calculation
 c  ICODE=1 variational calculation
@@ -19,5 +21,5 @@ c  ICODE=2 end of variational calculation (print summary)
       call cvbstart_rvb_lt9(icode)
       call main_cvb()
       call setretvals_cvb(esym,n_iter)
-      return
-      end
+
+      end subroutine cvbmn_rvb

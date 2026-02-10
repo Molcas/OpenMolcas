@@ -15,6 +15,7 @@
 *
 ************************************************************************
       use InputData, only: Input
+      use constants, only: Zero
       use caspt2_global, only: EMP2
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: NCMO
@@ -107,7 +108,7 @@
         Write(6,'(A,8I4)')
      &  ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
-        EMP2=0.0d0
+        EMP2=Zero
         Call Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
      &    NAME,nUniqAt,Input%thr_atm,IFQCAN,
      &    Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO_X,NCMO)

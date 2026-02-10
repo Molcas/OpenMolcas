@@ -10,23 +10,32 @@
 ************************************************************************
       Subroutine Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
      &                          CMO,OrbE,TrD)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym, nBas(nSym), nFro(nSym), nIsh(nSym)
-      Integer nAsh(nSym), nSsh(nSym), nDel(nSym)
-      Real*8  CMO(*), OrbE(*), TrD(nSym)
+      Implicit None
+      integer(kind=iwp), intent(in):: nSym, nBas(nSym), nFro(nSym),
+     &                                nIsh(nSym), nAsh(nSym),
+     &                                nSsh(nSym), nDel(nSym)
+      real(kind=wp), intent(in)::  CMO(*), OrbE(*)
+      real(kind=wp), intent(out):: TrD(nSym)
 
-      Integer nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Real*8, Allocatable:: EOrb(:), DMat(:), CMON(:)
+      integer(kind=iwp) nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8),
+     &                           lnVir(8)
+      real(kind=wp), Allocatable:: EOrb(:), DMat(:), CMON(:)
+      real(kind=wp) Dummy
+      integer(kind=iwp) iE, ifr, ioff, ip_Y, irc, iSkip, iSym, ito, iV,
+     &                  joff, k, kEOcc, kEVir, kfr, koff, kto, nBB, nOA,
+     &                  nOrb, nVV
+      real(kind=wp), external:: DDot_
 *
-*
-      Call Izero(nAct,nSym)
+      nAct(:)=0
       nVV=0
       nOrb=0
       Do iSym=1,nSym
          iE=1+nOrb+nFro(iSym)+nIsh(iSym)
          Do k=0,nAsh(iSym)-1
-            If (OrbE(iE+k).lt.0.0d0) nAct(iSym)=nAct(iSym)+1
+            If (OrbE(iE+k).lt.Zero) nAct(iSym)=nAct(iSym)+1
          End Do
          nVV=nVV+nSsh(iSym)**2
          nOrb=nOrb+nBas(iSym)
@@ -64,11 +73,11 @@
 
       Call mma_allocate(Dmat,nVV+nOA,Label='DMat')
       ip_Y=1+nVV
-      DMAT(:)=0.0D0
+      DMAT(:)=Zero
 *
       Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.true.)
       Call mma_allocate(CMON,nBB,Label='CMON')
-      CMON(:)=0.0D0
+      CMON(:)=Zero
       iOff=0
       Do iSym=1,nSym
          kfr=1+iOff+nBas(iSym)*nFro(iSym)
@@ -99,7 +108,7 @@
 *
       iV=1
       Do iSym=1,nSym
-        TrD(iSym)=ddot_(lnVir(iSym),DMat(iV:),1+lnVir(iSym),[1.0d0],0)
+        TrD(iSym)=ddot_(lnVir(iSym),DMat(iV:),1+lnVir(iSym),[One],0)
         iV=iV+lnVir(iSym)**2
       End Do
       Call mma_deallocate(Dmat)

@@ -9,12 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       program main
+      use definitions, only: iwp
 #ifdef _FPE_TRAP_
       Use, Intrinsic :: IEEE_Exceptions
 #endif
-      implicit real*8 (a-h,o-z)
-      Character*20 Module_Name
-      Parameter (Module_Name = 'rasscf')
+      implicit None
+      Character(len=20), parameter:: Module_Name = 'rasscf'
+      integer(kind=iwp) ireturn
 #ifdef _FPE_TRAP_
       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
 #endif
@@ -22,4 +23,5 @@
       Call Start(Module_Name)
       Call rasscf(ireturn)
       Call Finish(ireturn)
-      end
+
+      end program main

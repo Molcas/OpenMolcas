@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ORTHO1(S,U,V,N,M)
+      use definitions, only: iwp, wp
+      use constants, only: One
 C
 C     Purpose: Orthonormalize N times N vector set U.
 C
@@ -18,30 +20,37 @@ C     Subroutine calls: ORTHO2.
 C
 C     ********** IBM-3090 Release 88 10 10 **********
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION S(*),U(*),V(*)
-      THR=0.2D0
+      IMPLICIT None
+      real(kind=wp), intent(in):: S(*)
+      real(kind=wp), intent(inout):: U(*),V(*)
+      integer(kind=iwp), intent(in):: N,M
+
+      real(kind=wp) XNORM,OVL,OVL1
+      real(kind=wp), parameter :: THR=0.2D0
+      real(kind=wp), external :: DDot_
+      integer(kind=iwp) :: IBASE,I,JBASE,J
+
       IBASE=1
 C
       DO I=1,M
 
-10     CONTINUE
+       DO
        CALL ORTHO2(S,U(IBASE),V(IBASE),N)
 C     Normalize U and calculate V=S*U.
-       XNORM=1.0D0
+       XNORM=ONE
        JBASE=1
        DO J=1,I-1
         OVL=DDOT_(N,U(IBASE),1,V(JBASE),1)
         OVL1=-OVL
         CALL DAXPY_(N,OVL1,U(JBASE),1,U(IBASE),1)
         XNORM=XNORM-OVL**2
-        IF (XNORM.LT.THR) GOTO 10
+        IF (XNORM>=THR) EXIT
         JBASE=JBASE+N
        END DO
        CALL ORTHO2(S,U(IBASE),V(IBASE),N)
        IBASE=IBASE+N
+       END DO
 
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE ORTHO1

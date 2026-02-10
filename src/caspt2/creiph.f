@@ -11,6 +11,8 @@
 * Copyright (C) 1997, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb, Weight_ => Weight
       use PrintLevel, only: usual
@@ -18,9 +20,15 @@
       use gugx, only: L2ACT, LEVEL
       use caspt2_global, only: CMO, CMO_Internal, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: Nstate,DOCUMULANT,HEADER,IFMIX,IFMSCOUP,
+     &                         IFQCAN,IFRMS,IFXMS,IROOT,ISCF,ISPIN,
+     &                         LENIN8,LROOTS,mxAct,MXITER,MXORB,MxRoot,
+     &                         MXTIT,NACTEL,NAME,NASH,NBAS,NBSQT,NCONF,
+     &                         NDEL,NELE3,NFRO,NHOLE1,NISH,NRAS1,NRAS2,
+     &                         NRAS3,NROOTS,NSYM,POTNUC,STSYM,TITLE,
+     &                         MSTATE,ENERGY,MSTATE
+      use pt2_guga, only: CITHR,MXCI
+      IMPLICIT None
 C Normal operation: A new file, 'JOBMIX', will be created, with the
 C CMO's and CI arrays of the JOBIPH, except that the CI arrays have
 C been modified. They are now linear combinations of the original ones,
@@ -28,12 +36,17 @@ C using coefficients taken from the eigenvectors of the effective
 C Hamiltonian.
 C Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 C energies.
-      real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
+      real(kind=wp), intent(in):: Heff(Nstate,Nstate),
+     &                            Ueff(Nstate,Nstate),
+     &                            U0(Nstate,Nstate)
 
-      integer JOBIPH, JOBMIX
-      real(8) Weight(MxRoot)
-      real(8), allocatable:: CI1(:), CI2(:), OLDE(:), EFFCP(:)
-      integer, allocatable:: JROOT(:), IDIST(:)
+      integer(kind=iwp) JOBIPH, JOBMIX
+      real(kind=wp) Weight(MxRoot)
+      real(kind=wp), allocatable:: CI1(:), CI2(:), OLDE(:), EFFCP(:)
+      integer(kind=iwp), allocatable:: JROOT(:), IDIST(:)
+      integer(kind=iwp) I,IAD15,IDISK,IDR,IDW,IISTATE,ISNUM,ISTATE,J,
+     &                  JSNUM,MROOTS,NIDIST,NOLDE,ID
+      real(kind=wp) X
 
 
 C Not called, if .NOT.IFMIX, then only the new CI coefficients are
@@ -50,14 +63,14 @@ C printed, no JOBMIX file is created.
 
       IF(IFMSCOUP) THEN
         IF(IPRGLB.GE.USUAL) THEN
-          WRITE(6,*)' THE ORIGINAL CI ARRAYS ARE NOW MIXED AS LINEAR'
-          WRITE(6,*)' COMBINATIONS, GIVEN BY THE EIGENVECTORS.'
+          WRITE(u6,*)' THE ORIGINAL CI ARRAYS ARE NOW MIXED AS LINEAR'
+          WRITE(u6,*)' COMBINATIONS, GIVEN BY THE EIGENVECTORS.'
         END IF
       END IF
 
       IF(IPRGLB.GE.USUAL) THEN
-        WRITE(6,*)' A NEW JOBIPH FILE NAMED ''JOBMIX'' IS PREPARED.'
-        WRITE(6,'(20A4)')('****',I=1,20)
+        WRITE(u6,*)' A NEW JOBIPH FILE NAMED ''JOBMIX'' IS PREPARED.'
+        WRITE(u6,'(20A4)')('****',I=1,20)
       END IF
 
 * Note that JOBIPH file will contain all the RASSCF CI vectors
@@ -99,7 +112,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
       END IF
 * Initialize WEIGHT() (which is unused) just so detection
 * of uninitialized memory does not get its knickers twisted
-      CALL DCOPY_(MXROOT,[0.0D0],0,WEIGHT,1)
+      CALL DCOPY_(MXROOT,[Zero],0,WEIGHT,1)
       WEIGHT(1:NROOTS) = WEIGHT_(1:NROOTS)
       CALL WR_RASSCF_INFO(JOBMIX,1,iAd15,
      &                    NACTEL,ISPIN,NSYM,STSYM,
@@ -137,7 +150,7 @@ C to JOBMIX, we use the same TOC array, IADR15.
 * Replace old energy array with (MS-)CASPT2 energy values:
       NOLDE=MXROOT*MXITER
       CALL mma_allocate(OLDE,NOLDE,LABEL='OLDE')
-      OLDE(:)=0.0D0
+      OLDE(:)=Zero
       IF (IFMSCOUP) THEN
         CALL DCOPY_(NSTATE,ENERGY,1,OLDE,1)
       ELSE
@@ -193,7 +206,7 @@ C Write the present effective Hamiltonian:
         CALL DDAFILE(JOBIPH,1,EFFCP,LROOTS**2,IAD15)
 C Write a diagonal Hamiltonian in the JOBMIX:
         IAD15=IADR15(17)
-        CALL DCOPY_(LROOTS**2,[0.0D0],0,EFFCP,1)
+        CALL DCOPY_(LROOTS**2,[Zero],0,EFFCP,1)
         DO ISTATE=1,NSTATE
           EFFCP((ISTATE-1)*LROOTS+ISTATE)=ENERGY(ISTATE)
         END DO
@@ -201,11 +214,11 @@ C Write a diagonal Hamiltonian in the JOBMIX:
         CALL mma_deallocate(EFFCP)
 * Now 'mix' those states that were treated in the multi-state CASPT2
         IF (IPRGLB.GE.USUAL) THEN
-          WRITE(6,*)
+          WRITE(u6,*)
           CALL CollapseOutput(1,'Mixed CI coefficients:')
         END IF
         DO ISTATE=1,NSTATE
-          CALL DCOPY_(MXCI,[0.0D0],0,CI2,1)
+          CALL DCOPY_(MXCI,[Zero],0,CI2,1)
           DO IISTATE=1,NSTATE
             JSNUM=MSTATE(IISTATE)
             IDISK=IDIST(JSNUM)
@@ -215,7 +228,7 @@ C Write a diagonal Hamiltonian in the JOBMIX:
           END DO
           IF(ISCF.EQ.0) THEN
             IF(IPRGLB.GE.USUAL) THEN
-              WRITE(6,'(1x,a,i3)')
+              WRITE(u6,'(1x,a,i3)')
      &        ' The CI coefficients for the MIXED state nr. ',ISTATE
               CALL PRWF_CP2(STSYM,NCONF,CI2,CITHR)
             END IF
@@ -225,7 +238,7 @@ C Write a diagonal Hamiltonian in the JOBMIX:
         END DO
         IF(IPRGLB.GE.USUAL) THEN
           CALL CollapseOutput(0,'Mixed CI coefficients:')
-          WRITE(6,*)
+          WRITE(u6,*)
         END IF
 C In case of XMS/XDW/RMS and NOMUL, the CI vectors are replaced by the
 C rotated zeroth-order states (they should have been printed earlier,
@@ -233,7 +246,7 @@ C in grpini)
       ELSE IF (IFXMS.or.IFRMS) THEN
         DO ISTATE=1,NSTATE
           ISNUM=MSTATE(ISTATE)
-          CALL DCOPY_(MXCI,[0.0D0],0,CI2,1)
+          CALL DCOPY_(MXCI,[Zero],0,CI2,1)
           DO IISTATE=1,NSTATE
             JSNUM=MSTATE(IISTATE)
             IDISK=IDIST(JSNUM)
@@ -245,6 +258,7 @@ C in grpini)
           CALL DDAFILE(JOBMIX,1,CI2,NCONF,IDISK)
         END DO
       END IF
+
       CALL mma_deallocate(IDIST)
       CALL mma_deallocate(CI1)
       CALL mma_deallocate(CI2)
@@ -252,6 +266,4 @@ C in grpini)
       CALL DACLOS(JOBIPH)
       CALL DACLOS(JOBMIX)
 
-
-      RETURN
-      END
+      END SUBROUTINE CREIPH_CASPT2

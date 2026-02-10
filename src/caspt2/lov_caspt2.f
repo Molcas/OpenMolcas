@@ -26,34 +26,47 @@
 * Author:   F. Aquilante  (Geneva, Feb. 2008)                          *
 *                                                                      *
 ************************************************************************
+      use definitions, only: iwp, wp, u6
       use OneDat, only: sNoNuc, sNoOri
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
       use Molcas, only: MxAtom, LenIn, LenIn8, MxBas
-      Implicit Real*8 (A-H,O-Z)
-      Integer irc, nSym
-      Integer nBas(nSym),nFro(nSym),nIsh(nSym),nAsh(nSym),nSsh(nSym),
-     &        nDel(nSym)
-      Character(Len=LENIN8) NAME(*)
-      Integer nUniqAt
-      Real*8  Thrs
-      Integer IFQCAN
-      Logical DoMP2, DoEnv, all_Vir
-      Real*8  EMP2
-      Integer NCMO
-      Real*8 CMO(nCMO)
+      Implicit None
+      integer(kind=iwp), intent(out):: irc
+      integer(kind=iwp), intent(in)::  nSym
+      integer(kind=iwp), intent(inout):: nFro(nSym),nIsh(nSym),
+     &                                   nSsh(nSym),nDel(nSym)
+      integer(kind=iwp), intent(in):: nBas(nSym), nAsh(nSym)
+      Character(Len=LENIN8), intent(in):: NAME(*)
+      integer(kind=iwp), intent(in):: nUniqAt
+      real(kind=wp), intent(in)::  Thrs
+      integer(kind=iwp), intent(inout):: IFQCAN
+      Logical(kind=iwp), intent(inout):: DoMP2
+      Logical(kind=iwp), intent(in):: DoEnv, all_Vir
+      real(kind=wp), intent(out)::  EMP2
+      integer(kind=iwp), intent(in):: NCMO
+      real(kind=wp), intent(inout):: CMO(nCMO)
 
       Character(Len=LENIN) blank, NamAct(mxAtom)
       character(len=8) :: Label
-      Logical ortho
-      Real*8  TrA(8), TrF(8), TrX(8)
-      Integer ns_O(8), ns_V(8)
-      Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Integer, allocatable:: nBas_per_Atom(:), nBas_Start(:), D_A(:),
-     &                       D_Vir(:)
-      Real*8, allocatable:: SQ(:), SLT(:), CMOX(:), Q(:), Z(:)
-      Real*8, allocatable:: Saa(:), XMO(:), DMat(:), OrbE(:)
-*
+      Logical(kind=iwp) ortho
+      real(kind=wp)  TrA(8), TrF(8), TrX(8)
+      integer(kind=iwp) ns_O(8), ns_V(8)
+      integer(kind=iwp) lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
+      integer(kind=iwp), allocatable:: nBas_per_Atom(:), nBas_Start(:),
+     &                                 D_A(:), D_Vir(:)
+      real(kind=wp), allocatable:: SQ(:), SLT(:), CMOX(:), Q(:), Z(:)
+      real(kind=wp), allocatable:: Saa(:), XMO(:), DMat(:), OrbE(:)
+      real(kind=wp) Dumm, E2_ab, E2_Aonly, STrA, STrF, STrX, Thrd
+      real(kind=wp), external:: DDot_
+      integer(kind=iwp) i, iAt, iBat, iCMO, iComp, iDo, ie, ik, iloc,
+     &                  iOff, iopt, ip_X, ip_Y, ipAsh, ipCMO, ipEorb,
+     &                  ipQa, iQ, iQa, iSkip, iSQ, iSym, iSymLbl, iV,
+     &                  jAt, jBas, jBat, jCMO, jDo, jjCMO, jjZ, jOff,
+     &                  jQ, jZ, kBas, kEOcc, kEVir, kfr, kOff, kto,
+     &                  l_nBas_per_Atom, l_nBas_Start, lBas, lOff, lsq,
+     &                  ltri, mAsh, mOff, nActa, nAk, nBasT, nBat, nBk,
+     &                  nBmx, nOA, nOrb, nSQ, nTri, nVV, ipOrbE, nBx
 *
       irc=0
       EMP2=Zero
@@ -62,12 +75,12 @@
       jDo=0
       If (DoEnv .and. DoMP2) Then
          Call WarningMessage(1,'Both DoEnv and DoMP2 selected.')
-         Write (6,'(/,A)') ' DoMP2 will be ignored.'
+         Write (u6,'(/,A)') ' DoMP2 will be ignored.'
          DoMP2=.false.
       EndIf
       If (all_Vir .and. DoMP2) Then
          Call WarningMessage(1,'Both VirAll and DoMP2 selected.')
-         Write (6,'(/,A)') ' DoMP2 will be ignored.'
+         Write (u6,'(/,A)') ' DoMP2 will be ignored.'
          DoMP2=.false.
       EndIf
       Do iSym=1,nSym
@@ -95,7 +108,7 @@
         mAsh=Max(mAsh,nAsh(i))
       End Do
       IF(nBasT.GT.mxBas) then
-       Write(6,'(/6X,A)')
+       Write(u6,'(/6X,A)')
      & 'The number of basis functions exceeds the present limit'
        Call Abend
       Endif
@@ -104,7 +117,7 @@
 *     ---------------------------------------------------------------
 
       If (nUniqAt.lt.1 .or. nUniqAt.gt.MxAtom) Then
-         Write(6,'(A,I9)') 'nUniqAt =',nUniqAt
+         Write(u6,'(A,I9)') 'nUniqAt =',nUniqAt
          Call Abend()
       End If
       Do iAt=1,nUniqAt
@@ -216,19 +229,19 @@ C     -----------------------------------------------------------
       Do iAt=nActa+1,nUniqAt
          NamAct(iAt)=blank
       End Do
-      Write(6,*)
-      Write(6,'(A,F15.6)') ' Threshold for atom selection: ',Thrs
-      Write(6,*)
+      Write(u6,*)
+      Write(u6,'(A,F15.6)') ' Threshold for atom selection: ',Thrs
+      Write(u6,*)
       If (nActa.ne.0) Then
-         Write(6,'(A,I3,A)') ' Selected ',nActa,' atoms: '
-         Write(6,*)
-         Write(6,*) (NamAct(i),i=1,nActa)
-         Write(6,*)
+         Write(u6,'(A,I3,A)') ' Selected ',nActa,' atoms: '
+         Write(u6,*)
+         Write(u6,*) (NamAct(i),i=1,nActa)
+         Write(u6,*)
       ElseIf (.not.DoMP2 .and. .not.DoEnv) Then
-         Write(6,'(A,18A4)') ' Selected atoms: *** None *** '
+         Write(u6,'(A,18A4)') ' Selected atoms: *** None *** '
          Go To 2000
       Else
-         Write(6,'(A,18A4)') ' Selected atoms: *** None *** '
+         Write(u6,'(A,18A4)') ' Selected atoms: *** None *** '
       EndIf
 
       Call mma_deallocate(D_A)
@@ -243,7 +256,7 @@ C     -----------------------------------------------------------
 *---  MP2 calculation on the whole system (incompatible with DoMP2)
       If (DoEnv) Then
          Call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                           CMOX(ipCMO),OrbE(ipOrbE),E2_ab)
+     &                           CMOX(ipCMO:),OrbE(ipOrbE:),E2_ab)
       EndIf
 *----------------------------------------------------------------------*
 *     Localize the inactive and virtual orbitals                       *
@@ -259,7 +272,7 @@ C     -----------------------------------------------------------
      &                    D_vir)
 
       If(irc.ne.0) then
-       write(6,*) 'Localization failed in LovCASPT2'
+       write(u6,*) 'Localization failed in LovCASPT2'
        Call Abend()
       Endif
 
@@ -334,11 +347,12 @@ C     -----------------------------------------------------------
       End Do
 
       If (all_Vir) Then
+
         Do iSym=1,nSym
          ns_V(iSym)=nSsh(iSym)
         End Do
-        goto 999
-      EndIf
+
+      Else
 
 *     Virtual orbital selection                                        *
 *----------------------------------------------------------------------*
@@ -399,7 +413,8 @@ C     -----------------------------------------------------------
          loff=loff+nSsh(iSym)
       End Do
 
-999   Continue
+      EndIf
+
 
 *     MP2 calculation on the Frozen region                             *
 *----------------------------------------------------------------------*
@@ -449,7 +464,7 @@ C     -----------------------------------------------------------
             Call ChoMP2_Drv(irc,EMP2,XMO(iCMO),OrbE(kEOcc),OrbE(kEVir),
      &                      DMAT(ip_X),DMAT(ip_Y))
             If(irc.ne.0) then
-              write(6,*) 'Frozen region MP2 failed'
+              write(u6,*) 'Frozen region MP2 failed'
               Call Abend
             Endif
             iV=ip_X
@@ -459,11 +474,11 @@ C     -----------------------------------------------------------
             End Do
          EndIf
          Call mma_deallocate(Dmat)
-1000     Write(6,*)
+1000     Write(u6,*)
 
          If (nActa.eq.0) Then
-            Write(6,'(A,F18.10)')' Frozen region MP2 correction: ',EMP2
-            Write(6,*)
+            Write(u6,'(A,F18.10)')' Frozen region MP2 correction: ',EMP2
+            Write(u6,*)
          EndIf
       EndIf
 *                                                                      *
@@ -485,25 +500,30 @@ C     -----------------------------------------------------------
       Call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
      &                    CMOX,OrbE(ipOrbE),TrA)
 
-      write(6,*)'------------------------------------------------------'
-      write(6,*)' Symm.  Tr(D):  Active        Frozen        Full      '
-      write(6,*)'------------------------------------------------------'
+      write(u6,*)
+     &    '------------------------------------------------------'
+      write(u6,*)
+     &    ' Symm.  Tr(D):  Active        Frozen        Full      '
+      write(u6,*)
+     &    '------------------------------------------------------'
       STrA=Zero
       STrF=Zero
       STrX=Zero
       Do iSym=1,nSym
         If (DoEnv) TrF(iSym)=TrX(iSym) ! just a convention
-        write(6,'(2X,I4,10X,G11.4,3X,G11.4,3X,G11.4)') iSym,TrA(iSym),
+        write(u6,'(2X,I4,10X,G11.4,3X,G11.4,3X,G11.4)') iSym,TrA(iSym),
      &       TrF(iSym),TrX(iSym)
         STrA=STrA+TrA(iSym)
         STrF=STrF+TrF(iSym)
         STrX=STrX+TrX(iSym)
       End Do
-      write(6,*)'------------------------------------------------------'
-      write(6,'(A,G11.4,3X,G11.4,3X,G11.4)')'          Sum:  ',
+      write(u6,*)
+     &    '------------------------------------------------------'
+      write(u6,'(A,G11.4,3X,G11.4,3X,G11.4)')'          Sum:  ',
      & STrA,STrF,STrX
-      write(6,*)'------------------------------------------------------'
-      write(6,*)
+      write(u6,*)
+     &    '------------------------------------------------------'
+      write(u6,*)
 *
       If (DoEnv) Then
          Call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
@@ -517,12 +537,15 @@ c         Write(6,*)
 
 2000  Continue
       If (Min(iDo,jDo).eq.0) Then
-         Write(6,*)
-         Write(6,*)' None of the inactive or virtual orbitals has been '
-         Write(6,*)' assigned to the Active region of the molecule.    '
-         Write(6,*)' This is presumably NOT what you want !!!          '
-         Write(6,*)' CASPT2 will Stop here. Bye Bye !! '
-         Write(6,*)
+         Write(u6,*)
+         Write(u6,*)
+     &       ' None of the inactive or virtual orbitals has been '
+         Write(u6,*)
+     &       ' assigned to the Active region of the molecule.    '
+         Write(u6,*)
+     &       ' This is presumably NOT what you want !!!          '
+         Write(u6,*)' CASPT2 will Stop here. Bye Bye !! '
+         Write(u6,*)
          Call Abend
       EndIf
 *
@@ -533,18 +556,22 @@ c         Write(6,*)
       Call mma_deallocate(SQ)
       Call mma_deallocate(nBas_per_Atom)
       Call mma_deallocate(nBas_Start)
-      Return
-      End
+
+      End SUBROUTINE Lov_CASPT2
 ************************************************************************
 *                                                                      *
 ************************************************************************
       Subroutine get_Saa(nSym,nBas,nOrb,Smn,Xmo,Saa)
+      use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym, nBas(nSym), nOrb(nSym)
-      Real*8  Smn(*), Xmo(*), Saa(*)
+      Implicit None
+      integer(kind=iwp), intent(in)::  nSym, nBas(nSym), nOrb(nSym)
+      real(kind=wp), intent(in)::  Smn(*), Xmo(*)
+      real(kind=wp), intent(out)::  Saa(*)
 
-      Real*8, Allocatable:: Z(:)
+      real(kind=wp), Allocatable:: Z(:)
+      integer(kind=iwp) mOb, iSym, iX, kX, lX, nBX, j, jK, jX, jZ, lk
+      real(kind=wp), external:: DDot_
 *
 *
       mOb=nBas(1)*nOrb(1)
@@ -575,8 +602,7 @@ c         Write(6,*)
       End Do
       Call mma_deallocate(Z)
 *
-      Return
-      End
+      End Subroutine get_Saa
 ************************************************************************
 *                                                                      *
 ************************************************************************
@@ -585,18 +611,20 @@ c         Write(6,*)
 C
 C     Purpose: put info in MP2 common blocks.
 C
+      use definitions, only: iwp
+      use constants, only: Zero
       Use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2,
      &                  DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def,
      &                  MxQualMP2, OED_Thr, set_cd_thr, shf, SOS_mp2,
      &                  Span_Def, SpanMP2, ThrMP2, Verbose
       use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
       Implicit none
-      Integer, intent(in) :: mSym
-      Integer, intent(in) :: lnOrb(8), lnOcc(8), lnFro(8), lnDel(8),
-     &                    lnVir(8)
-      Logical, intent(in) ::  isFNO
+      Integer(kind=iwp), intent(in) :: mSym
+      Integer(kind=iwp), intent(in) :: lnOrb(8), lnOcc(8), lnFro(8),
+     &                                 lnDel(8), lnVir(8)
+      Logical(kind=iwp), intent(in) ::  isFNO
 
-      Integer iSym
+      Integer(kind=iwp) iSym
 C
       nSym = mSym
 C
@@ -620,8 +648,8 @@ C
       set_cd_thr=.true.
       OED_Thr=1.0d-8
       C_os=1.3d0
-      EOSMP2=0.0d0
-      shf=0.0d0
+      EOSMP2=Zero
+      shf=Zero
 C
       DoFNO=isFNO
       l_Dii=nOcc(1)
@@ -632,17 +660,25 @@ C
       End SubRoutine LovCASPT2_putInf
 
       Subroutine Energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                              CMO,OrbE,E2_ab)
+     &                         CMO,OrbE,E2_ab)
 
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym, nBas(nSym), nFro(nSym), nIsh(nSym)
-      Integer nAsh(nSym), nSsh(nSym), nDel(nSym)
-      Real*8  CMO(*), OrbE(*), E2_ab
+      Implicit None
+      integer(kind=iwp), intent(in):: nSym
+      integer(kind=iwp), intent(in):: nBas(nSym), nFro(nSym), nIsh(nSym)
+      integer(kind=iwp), intent(in):: nAsh(nSym), nSsh(nSym), nDel(nSym)
+      real(kind=wp), intent(in)::  CMO(*), OrbE(*)
+      real(kind=wp), intent(out)::  E2_ab
 
-      Integer nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Real*8 Dummy(1)
-      Real*8, Allocatable:: Eorb(:), CMOX(:)
+      integer(kind=iwp) nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8),
+     &                  lnVir(8)
+      real(kind=wp) Dummy(1)
+      real(kind=wp), Allocatable:: Eorb(:), CMOX(:)
+      integer(kind=iwp) iE, ifr, ioff, irc, iSkip, iSym, ito, joff, k,
+     &                  kEOcc, kEVir, kfr, koff, kto, nBB, nOA, nOrb,
+     &                  nVV
 *
 *
       Call Izero(nAct,nSym)
@@ -651,7 +687,7 @@ C
       Do iSym=1,nSym
          iE=1+nOrb+nFro(iSym)+nIsh(iSym)
          Do k=0,nAsh(iSym)-1
-            If (OrbE(iE+k).lt.0.0d0) nAct(iSym)=nAct(iSym)+1
+            If (OrbE(iE+k).lt.Zero) nAct(iSym)=nAct(iSym)+1
          End Do
          nVV=nVV+nSsh(iSym)**2
          nOrb=nOrb+nBas(iSym)
@@ -689,7 +725,7 @@ C
 *
       Call LovCASPT2_putInf(nSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,.false.)
       Call mma_allocate(CMOX,nBB,Label='CMOX')
-      CMOX(:)=0.0D0
+      CMOX(:)=Zero
       iOff=0
       Do iSym=1,nSym
          kfr=1+iOff+nBas(iSym)*nFro(iSym)
@@ -706,19 +742,18 @@ C
          Call ChoMP2_Drv(irc,E2_ab,CMOX,Eorb(kEOcc),Eorb(kEVir),
      &                   Dummy,Dummy)
          If(irc.ne.0) then
-           write(6,*) 'MP2 calculation failed in energy_AplusB !'
+           write(u6,*) 'MP2 calculation failed in energy_AplusB !'
            Call Abend
          Endif
       Else
-         write(6,*)
-         write(6,*)'There are ZERO amplitudes T(ai,bj) with the given '
-         write(6,*)'combinations of inactive and virtual orbitals !! '
-         write(6,*)'Check your input and rerun the calculation! Bye!!'
-         Call Abend
+         write(u6,*)
+         write(u6,*)'There are ZERO amplitudes T(ai,bj) with the given '
+         write(u6,*)'combinations of inactive and virtual orbitals !! '
+         write(u6,*)'Check your input and rerun the calculation! Bye!!'
+         Call Abend()
       Endif
       Call mma_deallocate(CMOX)
 *
       Call mma_deallocate(Eorb)
 *
-      Return
-      End
+      End Subroutine Energy_AplusB

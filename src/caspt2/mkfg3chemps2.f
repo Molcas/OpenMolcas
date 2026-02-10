@@ -18,7 +18,7 @@
       Subroutine mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
       use gugx, only: SGS
       use caspt2_module, only: jState, nActel, Mul, EPSA, mState
-      use pt2_guga
+      use pt2_guga, only: NG3
       IMPLICIT NONE
 
       INTEGER, INTENT(IN) :: IFF, NLEV
@@ -63,8 +63,7 @@
 
       End If
 
-      Return
-      End
+      End Subroutine mkfg3chemps2
 
 #elif ! defined (EMPTY_FILES)
 

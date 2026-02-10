@@ -9,13 +9,19 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRANSFOCK(TORB,NTORB,F,NF,IDIR)
+      use definitions, only: iwp, wp
+      use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NTORB, NF, IDIR
-      REAL*8 TORB(NTORB),F(NF)
+      use caspt2_module, only: nOMx, nIsh, nRas1, nRas2, nRas3, nSsh,
+     &                         nSym
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NTORB, NF, IDIR
+      real(kind=wp), intent(in)::  TORB(NTORB)
+      real(kind=wp), intent(inout):: F(NF)
 
-      REAL*8, ALLOCATABLE:: FSQ(:), TSQ(:), TMP(:)
+      real(kind=wp), ALLOCATABLE:: FSQ(:), TSQ(:), TMP(:)
+      integer(kind=iwp) NT, NI, NR1, NR2, NR3, NS, NO, IJOFF,
+     &                  ITOFF, I, J, II, JJ, IJ, ISYM, IOFF
 * Purpose: given an orbital transformation array and some
 * one-electron matrix in storage format as e.g. HONE, FIFA,
 * transform the matrix to use the new orbital basis.
@@ -44,9 +50,9 @@
         NR3=NRAS3(ISYM)
         NS=NSSH(ISYM)
         NO=NI+NR1+NR2+NR3+NS
-        IF (NO.eq.0) GOTO 99
+        IF (NO.eq.0) Cycle
 * Copy the matrices to square storage: first fill with zeroes.
-        TSQ(1:NO**2)=0.0D0
+        TSQ(1:NO**2)=Zero
 * Copy inactive TORB block to TSQ
         IOFF=0
         DO I=1,NI
@@ -106,17 +112,17 @@
         END DO
        IF (IDIR.GE.0) THEN
 * Transform, first do FSQ*TSQ -> TMP...
-        CALL DGEMM_('N','N',NO,NO,NO,1.0D0,FSQ,NO,TSQ,NO,
-     &              0.0D0,TMP,NO)
+        CALL DGEMM_('N','N',NO,NO,NO,One,FSQ,NO,TSQ,NO,
+     &              Zero,TMP,NO)
 * ... and then do TSQ(transpose)*TMP -> FSQ.
-        CALL DGEMM_('T','N',NO,NO,NO,1.0D0,TSQ,NO,TMP,NO,
-     &              0.0D0,FSQ,NO)
+        CALL DGEMM_('T','N',NO,NO,NO,One,TSQ,NO,TMP,NO,
+     &              Zero,FSQ,NO)
        ELSE
 * Or inverse transformation
-        CALL DGEMM_('N','T',NO,NO,NO,1.0D0,FSQ,NO,TSQ,NO,
-     &              0.0D0,TMP,NO)
-        CALL DGEMM_('N','N',NO,NO,NO,1.0D0,TSQ,NO,TMP,NO,
-     &              0.0D0,FSQ,NO)
+        CALL DGEMM_('N','T',NO,NO,NO,One,FSQ,NO,TSQ,NO,
+     &              Zero,TMP,NO)
+        CALL DGEMM_('N','N',NO,NO,NO,One,TSQ,NO,TMP,NO,
+     &              Zero,FSQ,NO)
        END IF
 * Transfer FSQ values back to F, in triangular storage.
        IJ=0
@@ -128,12 +134,9 @@
        END DO
        IJOFF=IJOFF+(NO*(NO+1))/2
 * and repeat, using next symmetry block.
-  99   CONTINUE
       END DO
       CALL mma_deallocate(FSQ)
       CALL mma_deallocate(TSQ)
       CALL mma_deallocate(TMP)
 
-
-      RETURN
-      END
+      END SUBROUTINE TRANSFOCK

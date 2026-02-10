@@ -9,14 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Sync_Data(Pren,Prem,nBtch,mBtch,kBtch)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: nProcs, Is_Real_Par
 #endif
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      real(kind=wp), Intent(inout):: Pren,Prem
+      integer(kind=iwp), intent(in):: nBtch,mBtch,kBtch
 *
 #ifdef _MOLCAS_MPP_
-      Real*8 PrenV(2)
-      Integer nBtchV(3)
+
+      Real(kind=wp) PrenV(2)
+      Integer(kind=iwp) nBtchV(3)
 *
       If (.Not. Is_Real_Par()) Return
       If (nProcs.eq.1) Return
@@ -44,5 +48,4 @@ c Avoid unused argument warnings
       End If
 #endif
 *
-      Return
-      End
+      End Subroutine Sync_Data

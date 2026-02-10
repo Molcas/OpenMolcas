@@ -9,8 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine casinfo1_rvb()
-      implicit real*8 (a-h,o-z)
-      logical iphex,oldex
+      use definitions, only: iwp
+      implicit None
+      logical(kind=iwp) iphex,oldex
+      integer(kind=iwp) :: nel_c, norb_c, i2s_c, isym_c, neltot_c
+      integer(kind=iwp) :: ireturn_rasscf
 
 c  Information from molcas interface file 'JOBIPH' :
       write(6,'(2a)')' ------- Recover RASSCF-related information',
@@ -39,5 +42,4 @@ c      call systemf("cp -p JOBOLD JOBIPH")
        Call Copy_JobIph("JOBOLD","JOBIPH")
       write(6,'(2a)')' ------- RASSCF-related information recovered',
      >              ' ------------------------------------'
-      return
-      end
+      end subroutine casinfo1_rvb

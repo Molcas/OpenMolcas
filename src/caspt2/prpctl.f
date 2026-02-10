@@ -17,11 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRPCTL(MODE,UEFF,U0)
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero, Half, One, Five
       USE PT2WFN, only: PT2WFN_DENSSTORE
       use caspt2_global, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_global, only: do_grad,do_nac,iRoot1,iRoot2,SLag,
-     *                         DPT2_tot,DPT2C_tot
+     &                         DPT2_tot,DPT2C_tot
       use caspt2_global, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,
      &                       LISTS
       use caspt2_global, only: LUONEM
@@ -30,37 +32,49 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Logical FullMlk,lSave,Do_ESPF
+      use EQSOLV, only: IVECX, NLSTOT
+      use caspt2_module, only: NSTATE, IFMSCOUP, IFPROP, irlxroot,
+     &                         ISCF, JSTATE, NAME, NASHT, NBAST, NCONF,
+     &                         NSYM, OUTFMT, PRORB, THRENE, THROCC,
+     &                         NORB, NBAS, NISH, NASH, IAD1M, NFRO,
+     &                         NRAS1, NRAS2, NRAS3, MSTATE, NDEL,
+     &                         Energy, MSTATE
 
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: Mode
+      real(kind=wp), intent(in):: UEFF(NSTATE,NSTATE),U0(*)
+
+      Logical(kind=iwp) FullMlk,lSave,Do_ESPF
       Character(Len=8) Label
       Character(Len=128) FILENAME,MDNAME
       Character(Len=80) Note
-      Integer IndType(56)
-      Real*8 Dummy(2),DUM(1)
-      Dimension UEFF(NSTATE,NSTATE),U0(*)
-      Integer NFROSAV(NSYM),NORBSAV(NSYM)
-      Real*8,allocatable :: DMAT(:),CI1(:),CI2(:),SGM(:),TG1(:,:),
-     *                      CNAT(:),OCC(:),Scr(:)
-
+      integer(kind=iwp) IndType(56)
+      real(kind=wp) Dummy(2), DUM(1), SCAL
+      integer(kind=iwp) NFROSAV(NSYM),NORBSAV(NSYM)
+      real(kind=wp), allocatable :: DMAT(:),CI1(:),CI2(:),SGM(:),
+     &                              TG1(:,:),CNAT(:),OCC(:),Scr(:)
+      integer(kind=iwp) I, iComp, IDISK, IDMAT, IDMOFF, IERR, II, II2,
+     &                  IJ, IJ2, IndT, iOpt, iRc, iShift, ISTATE,
+     &                  iSyLbl, ISYM, iUHF, KSTATE, LUTMP, N, nDens,
+     &                  NDMAT, NO, NOCC
+      integer(kind=iwp), external:: IsFreeUnit
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par() .AND. IPRGLB.GE.USUAL .AND. .not.do_grad) THEN
-        WRITE(6,'(1X,A)') ' ====================================='
-        WRITE(6,'(1X,A)') ' CASPT2 properties were requested, but'
-        WRITE(6,'(1X,A)') ' these are not efficiently implemented'
-        WRITE(6,'(1X,A)') ' in parallel. If you do not need them,'
-        WRITE(6,'(1X,A)') ' not using the PROP keyword could lead'
-        WRITE(6,'(1X,A)') ' to a significant speed up.'
-        WRITE(6,'(1X,A)') ' ====================================='
+        WRITE(u6,'(1X,A)') ' ====================================='
+        WRITE(u6,'(1X,A)') ' CASPT2 properties were requested, but'
+        WRITE(u6,'(1X,A)') ' these are not efficiently implemented'
+        WRITE(u6,'(1X,A)') ' in parallel. If you do not need them,'
+        WRITE(u6,'(1X,A)') ' not using the PROP keyword could lead'
+        WRITE(u6,'(1X,A)') ' to a significant speed up.'
+        WRITE(u6,'(1X,A)') ' ====================================='
       END IF
 #else
       call unused_logical(do_grad)
 #endif
 
-* PAM2008 When this subroutine is called, the calculation has been done
+* PAM2008 When this subroutine is called, theMSTATE calculation has been done
 * for the (individual) state nr JSTATE in 1,2,..,NSTATE.
 * The corresponding CI-root from rasscf, the root state for this PT2,
 * is number MSTATE(JSTATE) on the input JOBIPH file.
@@ -69,13 +83,13 @@
       IF(NSTATE.GT.1) THEN
        N=MSTATE(JSTATE)
        IF(N.LE.0 .or. N.GT.999) THEN
-        WRITE(6,*)' Subroutine PRPCTL fails -- It seems to get data'
-        WRITE(6,*)' computed for a root nr ',N
-        WRITE(6,*)' which is surely wrong.'
-        WRITE(6,*)' PRPCTL gives up, there will be no calculations'
-        WRITE(6,*)' done of orbitals, properties, etc for this state.'
-        WRITE(6,*)' This was state nr JSTATE=',JSTATE
-        WRITE(6,*)' in the MS-CASPT2 calculation.'
+        WRITE(u6,*)' Subroutine PRPCTL fails -- It seems to get data'
+        WRITE(u6,*)' computed for a root nr ',N
+        WRITE(u6,*)' which is surely wrong.'
+        WRITE(u6,*)' PRPCTL gives up, there will be no calculations'
+        WRITE(u6,*)' done of orbitals, properties, etc for this state.'
+        WRITE(u6,*)' This was state nr JSTATE=',JSTATE
+        WRITE(u6,*)' in the MS-CASPT2 calculation.'
         IERR=1
        END IF
       END IF
@@ -85,7 +99,7 @@
       IF (.NOT.PRORB ) FullMlk=.False.
 
       IF ( IPRGLB.GE.USUAL ) THEN
-       WRITE(6,'(20A4)')('----',I=1,20)
+       WRITE(u6,'(20A4)')('----',I=1,20)
       END IF
 
 C Compute density matrix, output orbitals, and properties.
@@ -103,7 +117,7 @@ C This density matrix may be approximated in several ways, see DENS.
           NOCC=NOCC+NBAS(ISYM)
         END DO
         call mma_allocate(DMAT,NDMAT,Label='DMAT')
-        CALL DCOPY_(NDMAT,[0.0D0],0,DMAT,1)
+        CALL DCOPY_(NDMAT,[Zero],0,DMAT,1)
         CALL mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
         CALL MKLIST(LISTS)
         CALL DENS(IVECX,DMAT,UEFF,U0)
@@ -120,7 +134,7 @@ C This density matrix may be approximated in several ways, see DENS.
           NOCC=NOCC+NBAS(ISYM)
         END DO
         call mma_allocate(DMAT,NDMAT,Label='DMAT')
-        CALL DCOPY_(NDMAT,[0.0D0],0,DMAT,1)
+        CALL DCOPY_(NDMAT,[Zero],0,DMAT,1)
         !! Copy the unrelaxed density matrix to triangular
         !! The basis of DPT2_tot is natural (CASSCF)
         IDMAT = 0
@@ -149,7 +163,7 @@ C This density matrix may be approximated in several ways, see DENS.
         call mma_allocate(TG1,NASHT,NASHT,Label='TG1')
         DO ISTATE = 1, NSTATE
           IF (ISCF.NE.0) THEN
-            CI1(1)=1.0D+00
+            CI1(1)=One
           ELSE
             CALL LOADCI_XMS('N',1,CI1,ISTATE,U0)
           END IF
@@ -157,11 +171,11 @@ C This density matrix may be approximated in several ways, see DENS.
             SCAL = SLag(ISTATE,KSTATE)
             IF (.NOT.DO_NAC) THEN
               IF (ISTATE.EQ.IROOT1.AND.KSTATE.EQ.IROOT2)
-     *          SCAL = SCAL + 1.0D+00
+     *          SCAL = SCAL + One
             END IF
             IF (ABS(SCAL).LE.1.0D-09) CYCLE
             IF (ISCF.NE.0) THEN
-              CI2(1)=1.0D+00
+              CI2(1)=One
             ELSE
               CALL LOADCI_XMS('N',1,CI2,KSTATE,U0)
             END IF
@@ -174,7 +188,7 @@ C This density matrix may be approximated in several ways, see DENS.
                 IJ2 = IJ+NFRO(1)+NISH(1)
                 DMAT(II2*(II2-1)/2+IJ2)
      *            = DMAT(II2*(II2-1)/2+IJ2)
-     *            + TG1(II,IJ)*0.5D+00 + TG1(IJ,II)*0.5D+00
+     *            + TG1(II,IJ)*Half + TG1(IJ,II)*Half
               END DO
             END DO
           END DO
@@ -287,20 +301,21 @@ C Write natural orbitals as standard orbital file on PT2ORB
 
 C Write natural orbitals to standard output.
       IF ( IPRGLB.GE.VERBOSE) THEN
-       WRITE(6,*)
-       WRITE(6,'(A)')'  The CASPT2 orbitals are computed as natural '//
+       WRITE(u6,*)
+       WRITE(u6,'(A)')'  The CASPT2 orbitals are computed as natural '//
      &          'orbitals of a density matrix'
-       WRITE(6,'(A)')'  defined as:'
-       WRITE(6,'(A)')'   D = (D0 + D1 + D2)/<PSI|PSI>'
-       WRITE(6,'(A)')' where D0..D2 are zeroth..2nd order contributions'
-       WRITE(6,'(A)')' and |PSI> is the total wave function.'
-       WRITE(6,'(A)')' A new RasOrb file named PT2ORB is prepared.'
+       WRITE(u6,'(A)')'  defined as:'
+       WRITE(u6,'(A)')'   D = (D0 + D1 + D2)/<PSI|PSI>'
+       WRITE(u6,'(A)')' where D0..D2 are zeroth..2nd order'//
+     &                ' contributions'
+       WRITE(u6,'(A)')' and |PSI> is the total wave function.'
+       WRITE(u6,'(A)')' A new RasOrb file named PT2ORB is prepared.'
        IF (PRORB) THEN
          IF ( OUTFMT.EQ.'LONG    ' ) THEN
            THRENE=2.0d0**31
            THROCC=-2.0d0**31
          ELSE IF ( OUTFMT.EQ.'DEFAULT ' ) THEN
-           THRENE=5.0d+00
+           THRENE=Five
            THROCC=5.0d-04
          END IF
          CALL PRIMO('Output orbitals from CASPT2',
@@ -312,10 +327,10 @@ C Write natural orbitals to standard output.
 * compute Mulliken's orbital populations
 
       IF ( IPRGLB.GE.USUAL ) THEN
-        WRITE(6,*)
-        WRITE(6,*)
-        WRITE(6,'(6X,A)') 'Mulliken population Analysis:'
-        WRITE(6,'(6X,A)') '-----------------------------'
+        WRITE(u6,*)
+        WRITE(u6,*)
+        WRITE(u6,'(6X,A)') 'Mulliken population Analysis:'
+        WRITE(u6,'(6X,A)') '-----------------------------'
 
         call mma_allocate(Scr,NBAST**2,Label='Scr')
         iRc=-1
@@ -335,9 +350,9 @@ C Write natural orbitals to standard output.
 * compute one-electron properties
 
       IF ( IPRGLB.GE.USUAL ) THEN
-        WRITE(6,*)
-        WRITE(6,'(6X,A)') 'Expectation values of various properties:'
-        WRITE(6,'(6X,A)') '-----------------------------------------'
+        WRITE(u6,*)
+        WRITE(u6,'(6X,A)') 'Expectation values of various properties:'
+        WRITE(u6,'(6X,A)') '-----------------------------------------'
       END IF
 
       nDens=0
@@ -368,7 +383,6 @@ cnf
 *     in the beginning of the scratch array.
 *
       call mma_deallocate(Scr)
-*
       call mma_deallocate(CNAT)
       call mma_deallocate(OCC)
 

@@ -20,17 +20,19 @@
 * contravariant components. 980928, P-A Malmqvist
 *--------------------------------------------
       SUBROUTINE MKRHS(IVEC)
+      use definitions, only: iwp, wp, u6
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NASHT,NOMX
+      IMPLICIT None
 
-      INTEGER NERI, NFIMO
-      REAL*8, ALLOCATABLE, TARGET:: ERI(:)
-      REAL*8, POINTER:: ERI0(:), ERI1(:), ERI2(:), SCR(:)
+      integer(kind=iwp), intent(in):: IVEC
+
+      integer(kind=iwp) NERI, NFIMO
+      real(kind=wp), ALLOCATABLE, TARGET:: ERI(:)
+      real(kind=wp), POINTER:: ERI0(:), ERI1(:), ERI2(:), SCR(:)
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV. The coupling matrix elements from the
@@ -40,7 +42,7 @@ C This is the RHS vector in contravariant representation.
 
 
       IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,'(1X,A)') ' Using conventional MKRHS algorithm'
+        WRITE(u6,'(1X,A)') ' Using conventional MKRHS algorithm'
       END IF
 
 C INTEGRAL BUFFERS:
@@ -72,49 +74,55 @@ C INTEGRAL BUFFERS:
       END SUBROUTINE MKRHS
 
       SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,SCR)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      use constants, only: Zero
+      USE SUPERINDEX, only: KTUV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
+      use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NISH,MUL,NASH,NISH,
+     &                         NAES,NTUVES,NACTEL
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 
-      INTEGER NFIMO
-      REAL*8 FIMO(NFIMO), ERI(*), SCR(*)
+      integer(kind=iwp), intent(in)::IVEC, NFIMO
+      real(kind=wp), intent(inout):: FIMO(NFIMO), ERI(*), SCR(*)
 
+      integer(kind=iwp) NFNXT,ISYM,NFIMOES,NAS,NIS,NV,NI,LW,ISYMT,
+     &                  ISYMUV,ISYMU,ISYMV,IT,ITTOT,ITABS,II,IU,IUTOT,
+     &                  IUABS,IV,IVTOT,IVABS,IW1,IW2,IW,IBUF,ICASE
+      real(kind=wp) FTI,ONEADD,WTUVI
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 1 (VJTU).
 
       NFNXT=0
-      DO 190 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NFIMOES=NFNXT
         NFNXT=NFNXT+(NORB(ISYM)*(NORB(ISYM)+1))/2
-        IF(NINDEP(ISYM,1).EQ.0) GOTO 190
+        IF(NINDEP(ISYM,1).EQ.0) CYCLE
           NAS=NTUV(ISYM)
           NIS=NISH(ISYM)
           NV=NAS*NIS
-          IF(NV.EQ.0) GOTO 190
+          IF(NV.EQ.0) CYCLE
 C Set up a matrix FWI(w,i)=FIMO(wi)
           NI=NISH(ISYM)
 
 C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
           LW=Allocate_GA_Array(NV,'WA')
-          DO 130 ISYMT=1,NSYM
+          DO ISYMT=1,NSYM
             ISYMUV=MUL(ISYMT,ISYM)
-            DO 131 ISYMU=1,NSYM
+            DO ISYMU=1,NSYM
               ISYMV=MUL(ISYMU,ISYMUV)
-              DO 132 IT=1,NASH(ISYMT)
+              DO IT=1,NASH(ISYMT)
                 ITTOT=IT+NISH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
-                DO 133 II=1,NI
+                DO II=1,NI
                   CALL COUL(ISYMU,ISYMV,ISYMT,ISYM,ITTOT,II,ERI,SCR)
-                  ONEADD=0.0D0
+                  ONEADD=Zero
                   IF(ISYMT.EQ.ISYM) THEN
                     FTI=FIMO(NFIMOES+(ITTOT*(ITTOT-1))/2+II)
                     ONEADD=FTI/DBLE(MAX(1,NACTEL))
                   END IF
-                  DO 134 IU=1,NASH(ISYMU)
+                  DO IU=1,NASH(ISYMU)
                     IUTOT=IU+NISH(ISYMU)
                     IUABS=IU+NAES(ISYMU)
                     DO IV=1,NASH(ISYMV)
@@ -128,47 +136,51 @@ C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
                       IF(IVABS.EQ.IUABS) WTUVI=WTUVI+ONEADD
                       GA_Arrays(LW)%A(IW)=WTUVI
                     END DO
- 134              CONTINUE
- 133            CONTINUE
- 132          CONTINUE
- 131        CONTINUE
- 130      CONTINUE
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C Put W on disk:
           ICASE=1
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
           Call Deallocate_GA_Array(LW)
- 190    CONTINUE
+      END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSA
 
       SUBROUTINE MKRHSB(IVEC,ERI,SCR)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      use constants, only: Quart, Half, Two
+      USE SUPERINDEX, only: KTGEU,KTGTU,KIGEJ,KIGTJ
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ERI(*), SCR(*)
-*#define _KIGEJ_
-*#define _KIGTJ_
-*#include "mig_kig.fh"
+      use caspt2_module, only: NSYM,NINDEP,NTGEU,NIGEJ,NTGTU,NIGTJ,MUL,
+     &                         NASH,NISH,NAES,NTGEUES,NTGTUES,NIGEJES,
+     &                         NIES,NORB,NIGTJES
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI(*), SCR(*)
+
+      real(kind=wp), parameter:: SQ2=SQRT(Two)
+      integer(kind=iwp) ISYM,NINP,NINM,NASP,NISP,NVP,NASM,NISM,NVM,LWP,
+     &                  LWM,ISYMT,ISYMU,ISYMI,ISYMJ,IT,ITABS,ITTOT,IU,
+     &                  IUABS,IUTOT,ITUP,ITUM,II,IIABS,IJ,IJABS,IBUF,
+     &                  IIJP,JWP,IIJM,IWM,ICASE
+      real(kind=wp) VALUE
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for cases 2 and 3 (VJTI).
 
-
-      SQ2=SQRT(2.0D00)
 C VJTI CASE:
-      DO 290 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,2)
         NINM=NINDEP(ISYM,3)
-        IF(NINP+NINM.EQ.0) GOTO 290
+        IF(NINP+NINM.EQ.0) CYCLE
           NASP=NTGEU(ISYM)
           NISP=NIGEJ(ISYM)
           NVP=NASP*NISP
-          IF(NVP.EQ.0) GOTO 290
+          IF(NVP.EQ.0) CYCLE
           NASM=NTGTU(ISYM)
           NISM=NIGTJ(ISYM)
           NVM=NASM*NISM
@@ -179,31 +191,31 @@ C   Let  W(tu,i,j)=(it,ju):
 C   WP(tu,ij)=(W(tu,i,j)+W(tu,j,i))*(1-Kron(t,u)/2) /2
 C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ij))
 C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
-          DO 240 ISYMT=1,NSYM
+          DO ISYMT=1,NSYM
             ISYMU=MUL(ISYMT,ISYM)
-            IF(ISYMT.LT.ISYMU) GOTO 240
-            IF(NASH(ISYMT)*NASH(ISYMU).EQ.0) GOTO 240
-            DO 230 ISYMI=1,NSYM
+            IF(ISYMT.LT.ISYMU) CYCLE
+            IF(NASH(ISYMT)*NASH(ISYMU).EQ.0) CYCLE
+            DO ISYMI=1,NSYM
               ISYMJ=MUL(ISYMI,ISYM)
-              IF(NISH(ISYMI)*NISH(ISYMJ).EQ.0) GOTO 230
-              DO 220 IT=1,NASH(ISYMT)
+              IF(NISH(ISYMI)*NISH(ISYMJ).EQ.0) CYCLE
+              DO IT=1,NASH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
                 ITTOT=IT+NISH(ISYMT)
-                DO 210 IU=1,NASH(ISYMU)
+                DO IU=1,NASH(ISYMU)
                   IUABS=IU+NAES(ISYMU)
                   IUTOT=IU+NISH(ISYMU)
-                  IF(ITABS.LT.IUABS) GOTO 220
+                  IF(ITABS.LT.IUABS) EXIT
                   ITUP=KTGEU(ITABS,IUABS)-NTGEUES(ISYM)
                   ITUM=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
                   CALL EXCH(ISYMI,ISYMT,ISYMJ,ISYMU,
      &                      ITTOT,IUTOT,ERI,SCR)
                   IF(ITABS.NE.IUABS) THEN
-                   DO 205 II=1,NISH(ISYMI)
+                   DO II=1,NISH(ISYMI)
                     IIABS=II+NIES(ISYMI)
-                    DO 206 IJ=1,NISH(ISYMJ)
+                    DO IJ=1,NISH(ISYMJ)
                       IJABS=IJ+NIES(ISYMJ)
                       IBUF=II+NORB(ISYMI)*(IJ-1)
-                      VALUE=0.5D0*ERI(IBUF)
+                      VALUE=Half*ERI(IBUF)
                       IF(IIABS.GE.IJABS) THEN
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
@@ -228,15 +240,15 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         GA_Arrays(LWM)%A(IWM)=
      &                     GA_Arrays(LWM)%A(IWM)-VALUE
                       END IF
- 206                CONTINUE
- 205               CONTINUE
+                    END DO
+                   END DO
                   ELSE
-                   DO 215 II=1,NISH(ISYMI)
+                   DO II=1,NISH(ISYMI)
                     IIABS=II+NIES(ISYMI)
-                    DO 216 IJ=1,NISH(ISYMJ)
+                    DO IJ=1,NISH(ISYMJ)
                       IJABS=IJ+NIES(ISYMJ)
                       IBUF=II+NORB(ISYMI)*(IJ-1)
-                      VALUE=0.25D0*ERI(IBUF)
+                      VALUE=Quart*ERI(IBUF)
                       IF(IIABS.GE.IJABS) THEN
                         IIJP=KIGEJ(IIABS,IJABS)-NIGEJES(ISYM)
                         JWP=ITUP+NASP*(IIJP-1)
@@ -253,13 +265,13 @@ C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
                         GA_Arrays(LWP)%A(JWP)=
      &                     GA_Arrays(LWP)%A(JWP)+VALUE
                       END IF
- 216                CONTINUE
- 215               CONTINUE
+                    END DO
+                   END DO
                   END IF
- 210            CONTINUE
- 220          CONTINUE
- 230        CONTINUE
- 240      CONTINUE
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put WP on disk
           ICASE=2
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
@@ -270,55 +282,59 @@ C  Put WM on disk
           END IF
           Call Deallocate_GA_Array(LWM)
           Call Deallocate_GA_Array(LWP)
- 290    CONTINUE
+      END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSB
 
       SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,SCR)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      USE SUPERINDEX, only: KTUV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NFIMO
-      REAL*8 FIMO(NFIMO),ERI(*), SCR(*)
+      use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NSSH,MUL,NASH,NISH,
+     &                         NAES,NSSH,NTUVES,NASHT,NACTEL
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IVEC, NFIMO
+      real(kind=wp), intent(inout):: FIMO(NFIMO),ERI(*), SCR(*)
 
+      integer(kind=iwp) NFNXT,ISYM,NFIMOES,NAS,NIS,NV,LW,ISYMT,
+     &                  ISYMUV,ISYMU,ISYMV,IU,IUTOT,IUABS,IV,IVTOT,
+     &                  IVABS,IA,IATOT,IT,ITTOT,ITABS,IW1,IW2,IW,IBUF,
+     &                  IFIMO,IYABS,IYYW,IYYWA,ICASE
+      real(kind=wp) SUM,ONEADD
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV for case 4 (ATVX).
 
       NFNXT=0
-      DO 390 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NFIMOES=NFNXT
         NFNXT=NFNXT+(NORB(ISYM)*(NORB(ISYM)+1))/2
-        IF(NINDEP(ISYM,4).EQ.0) GOTO 390
+        IF(NINDEP(ISYM,4).EQ.0) CYCLE
           NAS=NTUV(ISYM)
           NIS=NSSH(ISYM)
           NV=NAS*NIS
-          IF(NV.EQ.0) GOTO 390
+          IF(NV.EQ.0) CYCLE
 
 C   Allocate W. Put in W(tuv,a)=(at,uv) +
 C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
 C First, just the two-electron integrals. Later, add correction.
 
           LW=Allocate_GA_Array(NV,'WC')
-          DO 310 ISYMT=1,NSYM
+          DO ISYMT=1,NSYM
             ISYMUV=MUL(ISYMT,ISYM)
-            DO 311 ISYMU=1,NSYM
+            DO ISYMU=1,NSYM
               ISYMV=MUL(ISYMU,ISYMUV)
-              DO 312 IU=1,NASH(ISYMU)
+              DO IU=1,NASH(ISYMU)
                 IUTOT=IU+NISH(ISYMU)
                 IUABS=IU+NAES(ISYMU)
-                DO 313 IV=1,NASH(ISYMV)
+                DO IV=1,NASH(ISYMV)
                   IVTOT=IV+NISH(ISYMV)
                   IVABS=IV+NAES(ISYMV)
                   CALL COUL(ISYM,ISYMT,ISYMU,ISYMV,
      &                      IUTOT,IVTOT,ERI,SCR)
-                  DO 314 IA=1,NSSH(ISYM)
+                  DO IA=1,NSSH(ISYM)
                     IATOT=IA+NISH(ISYM)+NASH(ISYM)
-                    DO 315 IT=1,NASH(ISYMT)
+                    DO IT=1,NASH(ISYMT)
                       ITTOT=IT+NISH(ISYMT)
                       ITABS=IT+NAES(ISYMT)
                       IW1=KTUV(ITABS,IUABS,IVABS)-NTUVES(ISYM)
@@ -326,12 +342,12 @@ C First, just the two-electron integrals. Later, add correction.
                       IW=IW1+NAS*(IW2-1)
                       IBUF=IATOT+NORB(ISYM)*(ITTOT-1)
                       GA_Arrays(LW)%A(IW)=ERI(IBUF)
- 315                CONTINUE
- 314              CONTINUE
- 313            CONTINUE
- 312          CONTINUE
- 311        CONTINUE
- 310      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 
           DO IT=1,NASH(ISYM)
             ITTOT=IT+NISH(ISYM)
@@ -363,30 +379,34 @@ C   Put W on disk
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 
           Call Deallocate_GA_Array(LW)
- 390    CONTINUE
+      END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSC
 
       SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      use constants, only: Zero
+      USE SUPERINDEX, only: KTU
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NFIMO
-      REAL*8 FIMO(NFIMO)
-      REAL*8 ERI1(*),ERI2(*), SCR(*)
+      use caspt2_module, only: NSYM,NINDEP,MUL,NSSH,NISH,NTU,NISUP,
+     &                         NACTEL,NORB,NAES,NASH,NTUES
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IVEC, NFIMO
+      real(kind=wp), intent(inout):: FIMO(NFIMO)
+      real(kind=wp), intent(inout):: ERI1(*),ERI2(*), SCR(*)
 
-      INTEGER IOFF(8)
-
+      integer(kind=iwp) IOFF(8)
+      integer(kind=iwp) ISYM,IO,ISYMI,NAS1,NAS,NIS,NV,LW,NFSUM,
+     &                  NFIMOES,ISYMA,ISYMU,ISYMT,II,IU,IUABS,
+     &                  IUTOT,IA,IATOT,IT,ITABS,ITTOT,IWA,IWI,IW1,IW2,
+     &                  IBUF1,IBUF2,ICASE
+      real(kind=wp) ONEADD,FAI,WAITU
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for case 5, AIVX.
 
-      DO 490 ISYM=1,NSYM
-        IF(NINDEP(ISYM,5).EQ.0) GOTO 490
+      DO ISYM=1,NSYM
+        IF(NINDEP(ISYM,5).EQ.0) CYCLE
 C Set up offset table:
           IO=0
           DO ISYMA=1,NSYM
@@ -399,33 +419,33 @@ C   Allocate W; W subdivided into W1,W2.
           NAS=2*NAS1
           NIS=NISUP(ISYM,5)
           NV=NAS*NIS
-          IF(NV.EQ.0) GOTO 490
+          IF(NV.EQ.0) CYCLE
 C Compute W1(tu,ai)=(ai,tu) + FIMO(a,i)*delta(t,u)/NACTEL
 C Compute W2(tu,ai)=(ti,au)
           LW=Allocate_GA_Array(NV,'WD')
           NFSUM=0
-          DO 410 ISYMI=1,NSYM
+          DO ISYMI=1,NSYM
             NFIMOES=NFSUM
             NFSUM=NFSUM+(NORB(ISYMI)*(NORB(ISYMI)+1))/2
             ISYMA=MUL(ISYMI,ISYM)
-            DO 411 ISYMU=1,NSYM
+            DO ISYMU=1,NSYM
               ISYMT=MUL(ISYMU,ISYM)
-              DO 412 II=1,NISH(ISYMI)
-                DO 413 IU=1,NASH(ISYMU)
+              DO II=1,NISH(ISYMI)
+                DO IU=1,NASH(ISYMU)
                   IUABS=IU+NAES(ISYMU)
                   IUTOT=IU+NISH(ISYMU)
                   CALL EXCH(ISYMA,ISYMI,ISYMT,ISYMU,
      &                      II,IUTOT,ERI1,SCR)
                   CALL EXCH(ISYMT,ISYMI,ISYMA,ISYMU,
      &                      II,IUTOT,ERI2,SCR)
-                  DO 414 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    ONEADD=0.0D0
+                    ONEADD=Zero
                     IF(ISYM.EQ.1) THEN
                       FAI=FIMO(NFIMOES+(IATOT*(IATOT-1))/2+II)
                       ONEADD=FAI/DBLE(MAX(1,NACTEL))
                     END IF
-                    DO 415 IT=1,NASH(ISYMT)
+                    DO IT=1,NASH(ISYMT)
                       ITABS=IT+NAES(ISYMT)
                       ITTOT=IT+NISH(ISYMT)
                       IWA=KTU(ITABS,IUABS)-NTUES(ISYM)
@@ -438,31 +458,40 @@ C Compute W2(tu,ai)=(ti,au)
                       IF(ITABS.EQ.IUABS) WAITU=WAITU+ONEADD
                       GA_Arrays(LW)%A(IW1)=WAITU
                       GA_Arrays(LW)%A(IW2)=ERI2(IBUF2)
- 415                CONTINUE
- 414              CONTINUE
- 413            CONTINUE
- 412          CONTINUE
- 411        CONTINUE
- 410      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put W on disk.
           ICASE=5
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
           Call Deallocate_GA_Array(LW)
- 490    CONTINUE
+      END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSD
 
       SUBROUTINE MKRHSE(IVEC,ERI1,ERI2,SCR)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      use constants, only: half, One, two, three
+      USE SUPERINDEX, only: KIGEJ, KIGTJ
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IOFF1(8),IOFF2(8)
-      DIMENSION ERI1(*),ERI2(*), SCR(*)
+      use caspt2_module, only: NSYM,NINDEP,NISUP,MUL,NASH,NISH,NSSH,
+     &                         NORB,NIGEJ,NIES,NIGEJES,NIGTJES,NIGTJ
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
+
+      integer(kind=iwp) IOFF1(8),IOFF2(8)
+      real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2,
+     &                           SQ3=SQRT(Three), SQ32=SQ3*SQI2
+      integer(kind=iwp) ISYM,IO1,IO2,NAS,NISP,NISM,NVP,NVM,LWP,LWM,
+     &                  ISYMA,ISYMI,IT,ITTOT,II,IA,IGEJ,IGTJ,IIABS,
+     &                  IATOT,IBUF,IWA,IWIP,JWP,IJ,IJABS,ISYMIJ,ISYMJ,
+     &                  IWIM,IWM,ICASE
+      real(kind=wp) A, B
 *#define _KIGEJ_
 *#define _KIGTJ_
 *#include "mig_kig.fh"
@@ -471,12 +500,8 @@ C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 6 and 7 (VJAI).
 
 
-      SQ2=SQRT(2.0D00)
-      SQI2=1.0D0/SQ2
-      SQ3=SQRT(3.0D00)
-      SQ32=SQ3*SQI2
-      DO 590 ISYM=1,NSYM
-        IF(NINDEP(ISYM,6)+NINDEP(ISYM,7).EQ.0) GOTO 590
+      DO ISYM=1,NSYM
+        IF(NINDEP(ISYM,6)+NINDEP(ISYM,7).EQ.0) CYCLE
 C Set up offset table:
           IO1=0
           IO2=0
@@ -492,7 +517,7 @@ C   Allocate W with parts WP,WM
           NISP=NISUP(ISYM,6)
           NISM=NISUP(ISYM,7)
           NVP=NAS*NISP
-          IF(NVP.EQ.0) GOTO 590
+          IF(NVP.EQ.0) CYCLE
           NVM=NAS*NISM
           LWP=Allocate_GA_Array(NVP,'WEP')
           LWM=Allocate_GA_Array(NVM,'WEM')
@@ -501,23 +526,23 @@ C   WP(t,ij,a)=  (W(t,i,j,a)+W(t,j,i,a))
 C With new normalisation, divide by /SQRT(2+2*Kron(ij))
 C   WM(t,ij,a)=3*(W(t,i,j,a)-W(t,j,i,a))
 C With new normalisation, divide by /SQRT(6)
-          DO 540 ISYMA=1,NSYM
+          DO ISYMA=1,NSYM
             ISYMIJ=MUL(ISYMA,ISYM)
-            DO 530 ISYMI=1,NSYM
+            DO ISYMI=1,NSYM
               ISYMJ=MUL(ISYMI,ISYMIJ)
-              IF(ISYMI.LT.ISYMJ) GOTO 530
-              DO 520 II=1,NISH(ISYMI)
+              IF(ISYMI.LT.ISYMJ) CYCLE
+              DO II=1,NISH(ISYMI)
                 IIABS=II+NIES(ISYMI)
-                DO 510 IJ=1,NISH(ISYMJ)
+                DO IJ=1,NISH(ISYMJ)
                   IJABS=IJ+NIES(ISYMJ)
-                  IF(IIABS.LT.IJABS) GOTO 520
+                  IF(IIABS.LT.IJABS) EXIT
                   CALL EXCH(ISYMA,ISYMI,ISYM,ISYMJ,II,IJ,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMJ,ISYM,ISYMI,IJ,II,ERI2,SCR)
                   IGEJ=KIGEJ(IIABS,IJABS)-NIGEJES(ISYMIJ)
                   IGTJ=KIGTJ(IIABS,IJABS)-NIGTJES(ISYMIJ)
-                  DO 511 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    DO 512 IT=1,NASH(ISYM)
+                    DO IT=1,NASH(ISYM)
                       ITTOT=IT+NISH(ISYM)
                       IBUF=IATOT+NORB(ISYMA)*(ITTOT-1)
                       A=ERI1(IBUF)+ERI2(IBUF)
@@ -531,14 +556,14 @@ C With new normalisation, divide by /SQRT(6)
                         IWM=IWA+NAS*(IWIM-1)
                         GA_Arrays(LWM)%A(IWM)=SQ32*B
                       ELSE
-                        GA_Arrays(LWP)%A(JWP)=0.5D0*A
+                        GA_Arrays(LWP)%A(JWP)=half*A
                       END IF
- 512                CONTINUE
- 511              CONTINUE
- 510            CONTINUE
- 520          CONTINUE
- 530        CONTINUE
- 540      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put WP and WM on disk.
           ICASE=6
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
@@ -548,38 +573,43 @@ C   Put WP and WM on disk.
           END IF
           Call Deallocate_GA_Array(LWP)
           Call Deallocate_GA_Array(LWM)
- 590    CONTINUE
+      END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSE
 
       SUBROUTINE MKRHSF(IVEC,ERI1,ERI2,SCR)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      use constants, only:  half, One, two
+      USE SUPERINDEX, only: KTGEU,KAGEB,KTGTU,KAGTB
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ERI1(*),ERI2(*), SCR(*)
+      use caspt2_module, only: NSYM,NINDEP,NASUP,NISUP,MUL,NASH,NAES,
+     &                         NISH,NSSH,NSES,NORB,NTGEUES,NAGEBES,
+     &                         NTGTUES,NAGTBES
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
 
+      real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2
+      integer(kind=iwp) ISYM,NINP,NINM,NASP,NISP,NASM,NISM,NVP,NVM,LWP,
+     &                  ISYMA,ISYMB,ISYMT,ISYMU,IT,ITABS,ITTOT,IU,IUABS,
+     &                  IUTOT,IA,IAABS,IATOT,IB,IBABS,IBTOT,IBUF,IWAP,
+     &                  IWIP,JWP,IWAM,IWIM,IWM,LWM,ICASE
+      real(kind=wp) A, B
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 8 and 9 (BVAT).
 
 
-      SQ2=SQRT(2.0D00)
-      SQI2=1.0D0/SQ2
-
-      DO 690 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NINP=NINDEP(ISYM,8)
         NINM=NINDEP(ISYM,9)
-        IF(NINP+NINM.EQ.0) GOTO 690
+        IF(NINP+NINM.EQ.0) CYCLE
           NASP=NASUP(ISYM,8)
           NISP=NISUP(ISYM,8)
           NASM=NASUP(ISYM,9)
           NISM=NISUP(ISYM,9)
           NVP=NASP*NISP
-          IF(NVP.EQ.0)GOTO 690
+          IF(NVP.EQ.0) CYCLE
           NVM=NASM*NISM
           LWP=Allocate_GA_Array(NVP,'WFP')
           IF(NVM.GT.0) LWM=Allocate_GA_Array(NVM,'WFM')
@@ -587,40 +617,40 @@ C   Let W(t,u,ab)=(aubt)
 C   WP(tu,ab)=(W(t,u,ab)+W(u,t,ab))*(1-Kron(t,u)/2) /2
 C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ab))
 C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
-          DO 640 ISYMA=1,NSYM
+          DO ISYMA=1,NSYM
             ISYMB=MUL(ISYMA,ISYM)
-            IF(ISYMA.LT.ISYMB) GOTO 640
-            DO 630 ISYMT=1,NSYM
+            IF(ISYMA.LT.ISYMB) CYCLE
+            DO ISYMT=1,NSYM
               ISYMU=MUL(ISYMT,ISYM)
-              IF(ISYMT.LT.ISYMU) GOTO 630
-              DO 620 IT=1,NASH(ISYMT)
+              IF(ISYMT.LT.ISYMU) CYCLE
+              DO IT=1,NASH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
                 ITTOT=IT+NISH(ISYMT)
-                DO 610 IU=1,NASH(ISYMU)
+                DO IU=1,NASH(ISYMU)
                   IUABS=IU+NAES(ISYMU)
                   IUTOT=IU+NISH(ISYMU)
-                  IF(ITABS.LT.IUABS) GOTO 620
+                  IF(ITABS.LT.IUABS) EXIT
                   CALL EXCH(ISYMA,ISYMU,ISYMB,ISYMT,
      &                      IUTOT,ITTOT,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMT,ISYMB,ISYMU,
      &                      ITTOT,IUTOT,ERI2,SCR)
-                  DO 611 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IAABS=IA+NSES(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    DO 600 IB=1,NSSH(ISYMB)
+                    DO IB=1,NSSH(ISYMB)
                       IBABS=IB+NSES(ISYMB)
                       IBTOT=IB+NISH(ISYMB)+NASH(ISYMB)
-                      IF(IAABS.LT.IBABS) GOTO 611
+                      IF(IAABS.LT.IBABS) EXIT
                       IBUF=IATOT+NORB(ISYMA)*(IBTOT-1)
-                      A=0.5D0*(ERI1(IBUF)+ERI2(IBUF))
-                      IF(ITABS.EQ.IUABS) A=0.5D0*A
+                      A=Half*(ERI1(IBUF)+ERI2(IBUF))
+                      IF(ITABS.EQ.IUABS) A=Half*A
                       IWAP=KTGEU(ITABS,IUABS)-NTGEUES(ISYM)
                       IWIP=KAGEB(IAABS,IBABS)-NAGEBES(ISYM)
                       JWP=IWAP+NASP*(IWIP-1)
                       IF(IAABS.NE.IBABS) THEN
                         GA_Arrays(LWP)%A(JWP)=A
                         IF(ITABS.NE.IUABS) THEN
-                          B=0.5D0*(ERI1(IBUF)-ERI2(IBUF))
+                          B=Half*(ERI1(IBUF)-ERI2(IBUF))
                           IWAM=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)
                           IWIM=KAGTB(IAABS,IBABS)-NAGTBES(ISYM)
                           IWM=IWAM+NASM*(IWIM-1)
@@ -629,12 +659,12 @@ C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
                       ELSE
                         GA_Arrays(LWP)%A(JWP)=SQI2*A
                       END IF
- 600                CONTINUE
- 611              CONTINUE
- 610            CONTINUE
- 620          CONTINUE
- 630        CONTINUE
- 640      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put WP on disk
           ICASE=8
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
@@ -645,32 +675,38 @@ C   Put WM on disk
             CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWM)
           END IF
           IF(NVM.GT.0) Call Deallocate_GA_Array(LWM)
- 690    CONTINUE
+      END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSF
 
       SUBROUTINE MKRHSG(IVEC,ERI1,ERI2,SCR)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      use constants, only: half, One, two, three
+      USE SUPERINDEX, only: KAGEB,KAGTB
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IOFF1(8),IOFF2(8)
-      DIMENSION ERI1(*),ERI2(*), SCR(*)
+      use caspt2_module, only: NSYM,NINDEP,MUL,NISH,NAGEB,NAGTB,NASH,
+     &                         NISUP,NISUP,NSSH,NSES,NORB,NAGEBES,
+     &                         NAGTBES
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
+
+      integer(kind=iwp) IOFF1(8),IOFF2(8)
+      real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2,
+     &                           SQ3=SQRT(Three), SQ32=SQ3*SQI2
+      integer(kind=iwp) ISYM,IO1,IO2,NAS,NISP,NISM,NVP,NVM,LWP,LWM,
+     &                  ISYMA,ISYMB,ISYMAB,ISYMI,IT,ITTOT,II,IA,IAABS,
+     &                  IATOT,IB,IBABS,IBTOT,IBUF,IWA,IAGEB,IWIP,JWP,
+     &                  IAGTB,IWIM,IWM,ICASE
+      real(kind=wp) A,B
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 10 and 11 (BJAT).
 
 
-      SQ2=SQRT(2.0D00)
-      SQI2=1.0D0/SQ2
-      SQ3=SQRT(3.0D00)
-      SQ32=SQ3*SQI2
-      DO 790 ISYM=1,NSYM
-        IF(NINDEP(ISYM,10)+NINDEP(ISYM,11).EQ.0) GOTO 790
+      DO ISYM=1,NSYM
+        IF(NINDEP(ISYM,10)+NINDEP(ISYM,11).EQ.0) CYCLE
 C Set up offset table:
           IO1=0
           IO2=0
@@ -686,7 +722,7 @@ C   Allocate W with parts WP,WM
           NISP=NISUP(ISYM,10)
           NISM=NISUP(ISYM,11)
           NVP=NAS*NISP
-          IF(NVP.EQ.0) GOTO 790
+          IF(NVP.EQ.0) CYCLE
           NVM=NAS*NISM
           LWP=Allocate_GA_Array(NVP,'WGP')
           LWM=Allocate_GA_Array(NVM,'WGM')
@@ -695,24 +731,24 @@ C   WP(t,i,ab)=  (W(t,i,a,b)+W(t,i,b,a))
 C With new normalisation, divide by /SQRT(2+2*Kron(ab))
 C   WM(t,i,ab)=3*(W(t,i,a,b)-W(t,i,b,a))
 C With new normalisation, divide by /SQRT(6)
-          DO 730 ISYMA=1,NSYM
-            DO 731 ISYMB=1,ISYMA
+          DO ISYMA=1,NSYM
+            DO ISYMB=1,ISYMA
               ISYMAB=MUL(ISYMA,ISYMB)
               ISYMI=MUL(ISYMAB,ISYM)
-              DO 732 IT=1,NASH(ISYM)
+              DO IT=1,NASH(ISYM)
                 ITTOT=IT+NISH(ISYM)
-                DO 733 II=1,NISH(ISYMI)
+                DO II=1,NISH(ISYMI)
                   CALL EXCH(ISYMA,ISYM ,ISYMB,ISYMI,
      &                      ITTOT,II,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMI,ISYMB,ISYM ,
      &                      II,ITTOT,ERI2,SCR)
-                  DO 720 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IAABS=IA+NSES(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    DO 710 IB=1,NSSH(ISYMB)
+                    DO IB=1,NSSH(ISYMB)
                       IBABS=IB+NSES(ISYMB)
                       IBTOT=IB+NISH(ISYMB)+NASH(ISYMB)
-                      IF(IAABS.LT.IBABS) GOTO 720
+                      IF(IAABS.LT.IBABS) EXIT
                       IBUF=IATOT+NORB(ISYMA)*(IBTOT-1)
                       IWA=IT
                       IAGEB=KAGEB(IAABS,IBABS)-NAGEBES(ISYMAB)
@@ -727,14 +763,14 @@ C With new normalisation, divide by /SQRT(6)
                         B=ERI1(IBUF)-ERI2(IBUF)
                         GA_Arrays(LWM)%A(IWM)=SQ32*B
                       ELSE
-                        GA_Arrays(LWP)%A(JWP)=0.5D0*A
+                        GA_Arrays(LWP)%A(JWP)=half*A
                       END IF
- 710                CONTINUE
- 720              CONTINUE
- 733            CONTINUE
- 732          CONTINUE
- 731        CONTINUE
- 730      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 C   Put WP and WM on disk.
           ICASE=10
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LWP)
@@ -744,37 +780,39 @@ C   Put WP and WM on disk.
           END IF
           Call Deallocate_GA_Array(LWP)
           Call Deallocate_GA_Array(LWM)
- 790    CONTINUE
+      END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSG
 
       SUBROUTINE MKRHSH(IVEC,ERI1,ERI2,SCR)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      use constants, only: half, One, two, three
+      USE SUPERINDEX, only: KAGEB,KIGEJ,KAGTB,KIGTJ
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ERI1(*),ERI2(*), SCR(*)
-*#define _KIGEJ_
-*#define _KIGTJ_
-*#include "mig_kig.fh"
+      use caspt2_module, only: NSYM,NAGEB,NIGEJ,NAGTB,NIGTJ,MUL,NISH,
+     &                         NIES,NSES,NSSH,NORB,NASH,NAGEBES,NIGEJES,
+     &                         NAGTBES,NIGTJES
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IVEC
+      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
+
+      real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2,
+     &                           SQ3=SQRT(Three)
+      integer(kind=iwp) ISYM,NASP,NISP,NVP,NASM,NISM,NVM,LVP,ISYMA,
+     &                  ISYMB,ISYMI,ISYMJ,II,IIABS,IJ,IJABS,
+     &                  IA,IAABS,IATOT,IB,IBABS,IBTOT,IBUF,IVAP,IVIP,
+     &                  IVP,IVAM,IVIM,IVM,LVM,ICASE
+      real(kind=wp) A,B
 
 C Set up RHS vector of PT2 Linear Equation System, in vector
 C number IVEC of LUSOLV, for cases 12 and 13 (BJAI).
 
-
-      SQ2=SQRT(2.0D00)
-      SQI2=1.0D0/SQ2
-      SQ3=SQRT(3.0D00)
-
-      DO 890 ISYM=1,NSYM
+      DO ISYM=1,NSYM
           NASP=NAGEB(ISYM)
           NISP=NIGEJ(ISYM)
           NVP=NASP*NISP
-          IF(NVP.EQ.0) GOTO 890
+          IF(NVP.EQ.0) CYCLE
           NASM=NAGTB(ISYM)
           NISM=NIGTJ(ISYM)
           NVM=NASM*NISM
@@ -784,25 +822,25 @@ C   VP(ij,ab)=2*((aibj)+(ajbi))
 C With new norm., divide by /SQRT(4*(1+Kron(ij))*(1+Kron(ab))
 C   VM(ij,ab)=6*((aibj)-(ajbi))
 C With new norm., divide by /SQRT(12)
-          DO 840 ISYMA=1,NSYM
+          DO ISYMA=1,NSYM
             ISYMB=MUL(ISYMA,ISYM)
-            IF(ISYMA.LT.ISYMB) GOTO 840
-            DO 830 ISYMI=1,NSYM
+            IF(ISYMA.LT.ISYMB) CYCLE
+            DO ISYMI=1,NSYM
               ISYMJ=MUL(ISYMI,ISYM)
-              IF(ISYMI.LT.ISYMJ) GOTO 830
-              DO 820 II=1,NISH(ISYMI)
+              IF(ISYMI.LT.ISYMJ) CYCLE
+              DO II=1,NISH(ISYMI)
                 IIABS=II+NIES(ISYMI)
-                DO 810 IJ=1,NISH(ISYMJ)
+                DO IJ=1,NISH(ISYMJ)
                   IJABS=IJ+NIES(ISYMJ)
-                  IF(IIABS.LT.IJABS) GOTO 820
+                  IF(IIABS.LT.IJABS) EXIT
                   CALL EXCH(ISYMA,ISYMI,ISYMB,ISYMJ,II,IJ,ERI1,SCR)
                   CALL EXCH(ISYMA,ISYMJ,ISYMB,ISYMI,IJ,II,ERI2,SCR)
-                  DO 811 IA=1,NSSH(ISYMA)
+                  DO IA=1,NSSH(ISYMA)
                     IAABS=IA+NSES(ISYMA)
                     IATOT=IA+NISH(ISYMA)+NASH(ISYMA)
-                    DO 800 IB=1,NSSH(ISYMB)
+                    DO IB=1,NSSH(ISYMB)
                       IBABS=IB+NSES(ISYMB)
-                      IF(IAABS.LT.IBABS) GOTO 811
+                      IF(IAABS.LT.IBABS) EXIT
                       IBTOT=IB+NISH(ISYMB)+NASH(ISYMB)
                       IBUF=IATOT+NORB(ISYMA)*(IBTOT-1)
                       IVAP=KAGEB(IAABS,IBABS)-NAGEBES(ISYM)
@@ -824,15 +862,15 @@ C With new norm., divide by /SQRT(12)
                         IF(IAABS.NE.IBABS) THEN
                           GA_Arrays(LVP)%A(IVP)=SQI2*A
                         ELSE
-                          GA_Arrays(LVP)%A(IVP)=0.5D0*A
+                          GA_Arrays(LVP)%A(IVP)=Half*A
                         END IF
                       END IF
- 800                CONTINUE
- 811              CONTINUE
- 810            CONTINUE
- 820          CONTINUE
- 830        CONTINUE
- 840      CONTINUE
+                    END DO
+                  END DO
+                END DO
+              END DO
+            END DO
+          END DO
 
           ICASE=12
           CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LVP)
@@ -842,22 +880,25 @@ C With new norm., divide by /SQRT(12)
            CALL MKRHS_SAVE(ICASE,ISYM,IVEC,LVM)
            Call Deallocate_GA_Array(LVM)
           END IF
- 890    CONTINUE
+      END DO
 
-
-      RETURN
-      END
+      END SUBROUTINE MKRHSH
 
       SUBROUTINE MKRHS_SAVE(ICASE,ISYM,IVEC,LW)
 CSVC: special routine to save the RHS array. MKRHS works in serial, so
 C in case of a true parallel run we need to put the local array in a
 C global array and then save that to disk in a distributed fashion.
+      use definitions, only: iwp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
       use fake_GA, only: GA_Arrays
 #endif
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: NASUP,NISUP
+      IMPLICIT None
+
+      integer(kind=iwp), intent(in):: ICASE,ISYM,IVEC,LW
+
+      integer(kind=iwp) NAS, NIS, lg_w
 
       NAS=NASUP(ISYM,ICASE)
       NIS=NISUP(ISYM,ICASE)
@@ -881,3 +922,4 @@ C global array and then save that to disk in a distributed fashion.
       END IF
 #endif
       END SUBROUTINE MKRHS_SAVE
+
