@@ -9,10 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PRCNFTAB(CnfTab,MXPRT)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Integer CnfTab(*), MxPrt
+      use definitions, only: iwp, u6
+      IMPLICIT none
+      Integer(kind=iwp), intent(in):: CnfTab(*), MxPrt
       CHARACTER(LEN=144) TEXT
 
+      Integer(kind=iwp) NPRT, NTAB, ITYPE, NEL, NORB, MINOP, MAXOP,
+     &                  NSYM, LSYM, NGAS, IFORM, ICNF, IERR, IGAS,
+     &                  ISUM, ISYM, KCNFSTA, KSTA, LENCNF, LENGTH,
+     &                  LGASLIM, LGASORB, LIM1, LIM2, LINFO, NCLS,
+     &                  NCNF, NOPN
 C Sanity test:
       NPRT=MIN(MXPRT,10000)
 C header:
@@ -26,20 +32,20 @@ C header:
       LSYM =CnfTab( 8)
       NGAS =CnfTab( 9)
       IFORM=CnfTab(10)
-      WRITE(6,*)'---------------------------------------------------'
-      WRITE(6,*)'       Configuration Table Printout'
-      WRITE(6,*)' Table header:'
-      WRITE(6,'(1x,a,i16)')' Table size             NTAB=',NTAB
-      WRITE(6,'(1x,a,i16)')' Nr of electrons         NEL=',NEL
-      WRITE(6,'(1x,a,i16)')' Nr of orbitals         NORB=',NORB
-      WRITE(6,'(1x,a,i16)')' Min nr of open shells MINOP=',MINOP
-      WRITE(6,'(1x,a,i16)')' Max nr of open shells MAXOP=',MAXOP
-      WRITE(6,'(1x,a,i16)')' Point group order      NSYM=',NSYM
-      WRITE(6,'(1x,a,i16)')' Selected symmetry      LSYM=',LSYM
-      WRITE(6,'(1x,a,i16)')' Nr of GAS restrictions NGAS=',NGAS
-      WRITE(6,'(1x,a,i16)')' Configuration format  IFORM=',IFORM
+      WRITE(u6,*)'---------------------------------------------------'
+      WRITE(u6,*)'       Configuration Table Printout'
+      WRITE(u6,*)' Table header:'
+      WRITE(u6,'(1x,a,i16)')' Table size             NTAB=',NTAB
+      WRITE(u6,'(1x,a,i16)')' Nr of electrons         NEL=',NEL
+      WRITE(u6,'(1x,a,i16)')' Nr of orbitals         NORB=',NORB
+      WRITE(u6,'(1x,a,i16)')' Min nr of open shells MINOP=',MINOP
+      WRITE(u6,'(1x,a,i16)')' Max nr of open shells MAXOP=',MAXOP
+      WRITE(u6,'(1x,a,i16)')' Point group order      NSYM=',NSYM
+      WRITE(u6,'(1x,a,i16)')' Selected symmetry      LSYM=',LSYM
+      WRITE(u6,'(1x,a,i16)')' Nr of GAS restrictions NGAS=',NGAS
+      WRITE(u6,'(1x,a,i16)')' Configuration format  IFORM=',IFORM
       IF(ITYPE.NE.37) THEN
-        WRITE(6,*)' PRCNFTAB error: This is not a configuration table!'
+        WRITE(u6,*)' PRCNFTAB error: This is not a configuration table!'
         CALL ABEND()
       END IF
       IERR=0
@@ -64,27 +70,27 @@ C header:
       LGASORB=11
       LGASLIM=LGASORB+(NSYM+1)*(NGAS+1)
       IF(NGAS.GT.0) THEN
-        WRITE(6,*)
-        WRITE(6,*)' Orbitals by symmetry in GAS partitions:'
-        WRITE(6,'(A,8I5)')' Space       Tot     ',(ISYM,ISYM=1,NSYM)
-        WRITE(6,'(1X,A,5X,I5,5X,8I5)')'Active',
+        WRITE(u6,*)
+        WRITE(u6,*)' Orbitals by symmetry in GAS partitions:'
+        WRITE(u6,'(A,8I5)')' Space       Tot     ',(ISYM,ISYM=1,NSYM)
+        WRITE(u6,'(1X,A,5X,I5,5X,8I5)')'Active',
      &          CnfTab(LGASORB),(CnfTab(LGASORB+ISYM),ISYM=1,NSYM)
         DO IGAS=1,NGAS
-         WRITE(6,'(1X,A,I2,5X,I5,5X,8I5)')'GAS',IGAS,
+         WRITE(u6,'(1X,A,I2,5X,I5,5X,8I5)')'GAS',IGAS,
      &          CnfTab(LGASORB+(NSYM+1)*IGAS),
      &         (CnfTab(LGASORB+ISYM+(NSYM+1)*IGAS),ISYM=1,NSYM)
         END DO
-        WRITE(6,*)' GAS orbital partitions, min and max population:'
+        WRITE(u6,*)' GAS orbital partitions, min and max population:'
         DO IGAS=1,NGAS
          ISUM=CnfTab(LGASORB+(NSYM+1)*IGAS)
          LIM1=CnfTab(LGASLIM  +2*(IGAS-1))
          LIM2=CnfTab(LGASLIM+1+2*(IGAS-1))
-         WRITE(6,'(1X,A,I2,5X,3I5)')'GAS',IGAS,ISUM,LIM1,LIM2
+         WRITE(u6,'(1X,A,I2,5X,3I5)')'GAS',IGAS,ISUM,LIM1,LIM2
         END DO
       END IF
       LINFO=LGASLIM+2*NGAS
-      WRITE(6,*)
-      WRITE(6,*)' INFO table starts at LINFO=',LINFO
+      WRITE(u6,*)
+      WRITE(u6,*)' INFO table starts at LINFO=',LINFO
       DO NOPN=MINOP,MAXOP
        NCLS=(NEL-NOPN)/2
        DO ISYM=1,NSYM
@@ -92,29 +98,29 @@ C header:
         KCNFSTA=CnfTab(LINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
         LENCNF =CnfTab(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))
         IF(NCNF.NE.0) THEN
-         WRITE(6,*)
-         WRITE(6,*)'  NOPN ISYM       Nr of conf Start point'//
+         WRITE(u6,*)
+         WRITE(u6,*)'  NOPN ISYM       Nr of conf Start point'//
      &             '  Words/config'
-         WRITE(6,'(1X,2I4,5X,3I12)') NOPN,ISYM,NCNF,KCNFSTA,LENCNF
+         WRITE(u6,'(1X,2I4,5X,3I12)') NOPN,ISYM,NCNF,KCNFSTA,LENCNF
          IF(NCNF.GT.NPRT) THEN
-           WRITE(6,'(1X,A,I5)')
+           WRITE(u6,'(1X,A,I5)')
      &             ' The first NPRT configurations. NPRT=',NPRT
          ELSE
-           WRITE(6,*)' Configurations:'
+           WRITE(u6,*)' Configurations:'
          END IF
          KSTA=KCNFSTA
          DO ICNF=1,MIN(NCNF,NPRT)
            CALL CNF2TXT(IFORM,NORB,NCLS,NOPN,CnfTab(KSTA),LENGTH,TEXT)
            KSTA=KSTA+LENCNF
            IF(LENGTH.LE.72) THEN
-            WRITE(6,'(8X,A)')TEXT(1:LENGTH)
+            WRITE(u6,'(8X,A)')TEXT(1:LENGTH)
            ELSE
-            WRITE(6,'(8X,A)')TEXT(1:72)
-            WRITE(6,'(8X,A)')TEXT(73:LENGTH)
+            WRITE(u6,'(8X,A)')TEXT(1:72)
+            WRITE(u6,'(8X,A)')TEXT(73:LENGTH)
            END IF
          END DO
          IF(NCNF.GT.NPRT) THEN
-           WRITE(6,*)' ( ...and more. This list was truncated.)'
+           WRITE(u6,*)' ( ...and more. This list was truncated.)'
          END IF
         END IF
        END DO
