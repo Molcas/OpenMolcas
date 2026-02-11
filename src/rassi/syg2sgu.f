@@ -581,35 +581,30 @@ C Allocate scratch space for case numbers:
       SUBROUTINE W2SGORD1(NLEV,NVERT,NMIDV,NIPWLK,ISM,MIDLEV,
      &                  MVSTA,IOCSF,NOW,IOW,IDOWN,MAW,ICS,
      &                  MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
+      use definitions, only: iwp
       use Symmetry_Info, only: nSym=>nIrrep, MUL
-      Integer IOCSF(NSYM,NMIDV,NSYM)
-      Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      Integer ISM(NLEV),IDOWN(NVERT,0:3),MAW(NVERT,0:3)
-      Integer KWALK(MIPWLK,NLIST),ICNUM(NLIST)
-      Integer MWS2W(*)
-      Integer ICS(NLEV)
+      Integer(kind=iwp), intent(in):: NLEV,NVERT,NMIDV,NIPWLK
+      Integer(kind=iwp), intent(in):: ISM(NLEV)
+      Integer(kind=iwp), intent(in):: MIDLEV,MVSTA
+      Integer(kind=iwp), intent(in):: IOCSF(NSYM,NMIDV,NSYM)
+      Integer(kind=iwp), intent(in):: NOW(2,NSYM,NMIDV),
+     &                                IOW(2,NSYM,NMIDV)
+      Integer(kind=iwp), intent(in):: IDOWN(NVERT,0:3),MAW(NVERT,0:3)
+      Integer(kind=iwp), intent(out):: ICS(NLEV)
+      Integer(kind=iwp), intent(in):: MWS2W(*)
+      Integer(kind=iwp), intent(in):: KWALK(MIPWLK,NLIST)
+      Integer(kind=iwp), intent(out):: ICNUM(NLIST)
 C Purpose: For a wave function in Split GUGA storage structure,
 C given KWALK(J,I) with J=1..MIPWLK that contains the
 C complete Guga walk, as a packed array of case numbers, construct
 C ICNUM(I), which is the index of this configuration in the
 C Split-Guga scheme.
 C Use MAWS to WLK table, MWS2W
-CTEST      write(*,*)' In W2SGORD1. NLIST=',NLIST
-CTEST      write(*,*)'    NIPWLK:',NIPWLK
-CTEST      write(*,*)'    MIPWLK:',MIPWLK
-CTEST      write(*,*)' MAW table:'
-CTEST      do I=1,NVERT
-CTEST       write(*,'(1x,I4,5x,4i4)')I,(MAW(I,J),J=0,3)
-CTEST      end do
 
       DO ICONF=1,NLIST
 C Unpack total walk to ICS()
-CTEST        write(*,*)' ICONF=',ICONF
-CTEST        write(*,*)' KWALK()=',(KWALK(I,ICONF),I=1,MIPWLK)
         CALL UPKWLK(NLEV,MIPWLK,1,KWALK(1,ICONF),ICS)
 
-CTEST        write(*,*)' ICS:'
-CTEST        write(*,'(1x,30I3)')(ICS(I),I=1,NLEV)
 C Follow upper walk down to MIDLEV:
         MAWSU=0
         IUV=1
@@ -620,7 +615,6 @@ C Follow upper walk down to MIDLEV:
           IF(((IC+1)/2).EQ.1)ISYUP=MUL(ISM(LEV),ISYUP)
           IDV=IDOWN(IUV,IC)
           MAWSU=MAWSU+MAW(IUV,IC)
-CTEST          write(*,'(1x,4i6)')iuv,ic,idv,maw(iuv,ic)
           IUV=IDV
         END DO
 C We have found the midvertex number:
@@ -633,24 +627,13 @@ C Follow lower walk down to MIDLEV:
           IF(((IC+1)/2).EQ.1)ISYDWN=MUL(ISM(LEV),ISYDWN)
           IDV=IDOWN(IUV,IC)
           MAWSD=MAWSD+MAW(IUV,IC)
-CTEST          write(*,'(1x,4i6)')iuv,ic,idv,maw(iuv,ic)
           IUV=IDV
         END DO
-CTEST        write(*,*)' MAWSU:',MAWSU
-CTEST        write(*,*)' MAWSD:',MAWSD
         IUW=MWS2W(MAWSU)
         IDW=MWS2W(MAWSD)
-CTEST        write(*,*)' IUW:',IUW
-CTEST        write(*,*)' IDW:',IDW
 C Subtract the offsets:
-CTEST      write(6,*)' Offset, IOW(1,ISYUP,MV):',IOW(1,ISYUP,MV)
-CTEST      write(6,*)' Offset, IOW(2,ISYDWN,MV):',IOW(2,ISYDWN,MV)
-CTEST      write(6,*)' NIPWLK:',NIPWLK
-CTEST      write(6,*)' MIPWLK:',MIPWLK
         IUW=IUW-IOW(1,ISYUP,MV)/NIPWLK
         IDW=IDW-IOW(2,ISYDWN,MV)/NIPWLK
-CTEST      write(6,*)' With offsets subtracted:'
-CTEST      write(6,*)' IUW, IDW:',IUW,IDW
 C Split-Guga storage scheme: an element in a set of matrices.
 C Offset to the matrix we want is IOCSF(ISYUP,MV,ISYCI).
 C Leading dimension=nr of upwalks in this block.
