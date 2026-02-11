@@ -199,16 +199,19 @@ C configurations, can we compute the actual configuration arrays:
 
       SUBROUTINE NRCNF1(MAXEL,NORB,NGAS,NGASLIM,
      &                  NGASORB,NCNF1,MXTMP,NCNF2)
+      use definitions, only: iwp
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer MaxEl, NORB, NGAS
-      Integer NGASLIM(2,NGAS),NGASORB(NSYM,NGAS)
-      Integer NCNF1( NSYM, ((MAXEL+1)*(MAXEL+2))/2 )
-      Integer MXTMP
-      Integer NCNF2(NSYM, ((MXTMP+1)*(MXTMP+2))/2 )
+      Integer(kind=iwp), intent(in):: MXTMP
+      Integer(kind=iwp), intent(in):: MaxEl, NORB, NGAS
+      Integer(kind=iwp), intent(in):: NGASLIM(2,NGAS),NGASORB(NSYM,NGAS)
+      Integer(kind=iwp), intent(out)::
+     &                    NCNF1(NSYM, ((MAXEL+1)*(MAXEL+2))/2)
+      Integer(kind=iwp), intent(out)::
+     &                    NCNF2(NSYM, ((MXTMP+1)*(MXTMP+2))/2)
 
-      Integer, allocatable:: ISM(:)
+      Integer(kind=iwp), allocatable:: ISM(:)
 C Returns the array NCNF1, which contains the number of
 C configurations with the following criteria:
 C    Orbital indices range from 1..NORB
@@ -227,11 +230,7 @@ C Method: Induction over GAS partitions.
 
       MAXOCC=MIN(MAXEL,NORB)
 C Initialize:
-      DO IPOS=1,((MAXOCC+1)*(MAXOCC+2))/2
-       DO ISYM=1,NSYM
-        NCNF1(ISYM,IPOS)=0
-       END DO
-      END DO
+      NCNF1(:,:)=0
       NCNF1(1,1)=1
       CALL mma_allocate(ISM,NORB,Label='ISM')
 C Max nr of occupied orbitals so far:
