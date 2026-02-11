@@ -14,7 +14,7 @@
 subroutine ComputeFunc(nAtoms,nOrb2Loc,PA,Functional, eval_func)
 ! Author: Y. Carissan
 
-use Constants, only: Zero,One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Debug
 
@@ -24,9 +24,7 @@ real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: Functional
 logical(kind=iwp), intent(in) :: eval_func
 integer(kind=iwp) :: iAt, iMO_s
-real(kind=wp) :: thr, d_s
-
-thr = 0.01
+real(kind=wp) :: d_s
 
 if (Debug) then
     write(u6,*) "In ComputeFunc: "

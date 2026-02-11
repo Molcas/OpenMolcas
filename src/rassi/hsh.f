@@ -18,6 +18,7 @@
 C These parameters determine the hash function:
       INTEGER(kind=iwp), PARAMETER :: MULT=37, NHASH=997
       INTEGER(kind=iwp) NULL, IND, I, LOOKAT
+      LOGICAL(kind=iwp) FAILED_ID
 
       IF(NSIZE.LT.NHASH) THEN
         WRITE(u6,*)' HSHGET: Table size must be at least as'
@@ -39,24 +40,32 @@ C Find the item with this key:
       Outer: DO
 
 C Are there (more) items with that hash signature?
-      IF(ITAB(LOOKAT,1)==NULL) EXIT
+      IF(ITAB(LOOKAT,1)==NULL) THEN
+C Here, if we have failed to find such an item.
+         ITEMID=0
+         RETURN
+       END IF
 
 C Try to identify an item which has the given key:
       ITEMID=ITAB(LOOKAT,2)
+      FAILED_ID=.FALSE.
       DO I=1,KEYDIM
         IF (ITEM(I,ITEMID)/=KEY(I)) THEN
-C Here, if we have not yet identified the item.
-           LOOKAT=ITAB(LOOKAT,1)
-           Cycle Outer
+           FAILED_ID=.TRUE.
+           EXIT
         END IF
       END DO
+
+      IF (FAILED_ID) THEN
+C Here, if we have not yet identified the item.
+         LOOKAT=ITAB(LOOKAT,1)
+      ELSE
 C Here, if we have identified the item.
-      RETURN
+         RETURN
+      END IF
 
       END DO Outer
 
-C Here, if we have failed to find such an item.
-      ITEMID=0
 
       END SUBROUTINE HSHGET
 

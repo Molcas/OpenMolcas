@@ -18,7 +18,6 @@ subroutine PipekMezey(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
 
 use OneDat, only: sNoOri
-use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
