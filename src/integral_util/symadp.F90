@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine SymAdp(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,iAO,kOp,ijkl,Aux,nAux,AOInt,SOInt,nSOInt,Done)
+subroutine SymAdp(iAng,iCmp,jCmp,kCmp,lCmp,Shijij,iShll,iShell,iAO,kOp,ijkl,Aux,nAux,AOInt,SOInt,nSOInt)
 !***********************************************************************
 !                                                                      *
 !  Object: to transform the integrals in AO basis to symmetry adapted  *
@@ -48,13 +48,11 @@ integer(kind=iwp), intent(in) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShe
 logical(kind=iwp), intent(in) :: Shijij
 real(kind=wp), intent(in) :: AOInt(ijkl,iCmp,jCmp,kCmp,lCmp)
 real(kind=wp), intent(inout) :: SOInt(ijkl,nSOInt), Aux(nAux)
-logical(kind=iwp), intent(out) :: Done
 integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iAux, iChBs, ii, iSym(0:7), ix, j, j1, j12, j2, j2Max, j3, j4, jChBs, jCmpMx, jj, &
                      jSym(0:7), k12, k34, kChBs, kk, kSym(0:7), lChBs, lCmpMx, ll, lSym(0:7), MemSO2
 real(kind=wp) :: pEa, pRb, pTc, pTSd, Xa, Xb, Xg
 logical(kind=iwp) :: Qij, Qijij, Qkl, Shij, Shkl
 
-Done = .false.
 k12 = 0
 k34 = 0
 ii = nTri3_Elem(iAng(1))

@@ -294,7 +294,6 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
 
   kabcd = 0
   Do_TnsCtl = .false.
-  NoInts = .true.
   NoPInts = .true.
   ipAOInt_ = ipAOInt
   iW4_ = iW4
