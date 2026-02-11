@@ -60,18 +60,19 @@ unused_var(PtChrg)
 unused_var(iAddPot)
 
 ! Observe that this code does not make any sense in case of symmetry!
+! (does it make any sense in any other case?)
 rFinal(:,:,:,:) = Zero
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' Result in P_Int'
-  do ia=1,nTri_Elem1(la)
-    do ib=1,nTri_Elem1(lb)
-      do iIC=1,nIC
-        write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(a=',ia,',b=',ib,',iIC=',iIC,')'
-        call RecPrt(Label,' ',rFinal(:,ia,ib,iIC),nAlpha,nBeta)
-      end do
+write(u6,*) ' Result in P_Int'
+do ia=1,nTri_Elem1(la)
+  do ib=1,nTri_Elem1(lb)
+    do iIC=1,nIC
+      write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(a=',ia,',b=',ib,',iIC=',iIC,')'
+      call RecPrt(Label,' ',rFinal(:,ia,ib,iIC),nAlpha,nBeta)
     end do
   end do
+end do
 #endif
 
 end subroutine P_Int

@@ -19,7 +19,7 @@
 #endif
       use Cntrl, only: NSTATE, PRCI, CITHR, IRREP, JBNAME, MLTPLT
       use cntrl, only: iTOC15, LuIph
-      use rasdim, only: MxRoot
+      use Molcas, only: MxRoot
 
       IMPLICIT NONE
 #ifdef _HDF5_

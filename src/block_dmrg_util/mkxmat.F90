@@ -16,8 +16,8 @@ subroutine MKXMAT(TORB,XMAT)
 ! from that stored for each symmetry in IAD1M(4)
 ! Written by N. Nakatani, Oct. 2014
 
+use caspt2_module, only: nAsh, nIsh, nRas1, nRas2, nRas3, nSsh, nSym
 use Definitions, only: wp, iwp
-use caspt2_module, only: nSym, nIsh, nAsh, nRas1, nRas2, nRas3, nSsh
 
 implicit none
 real(kind=wp), intent(in) :: TORB(NTORB)

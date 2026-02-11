@@ -9,9 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Pos_QLast(Disc)
-      use definitions, only: iwp, wp, u6
+      use definitions, only: iwp, wp, u6, RtoI
       use TList_Mod, only: iTskCan, Not_Used, TskQ, QLast
-      use SysDef, only: RtoI
       Implicit None
       real(kind=wp), intent(inout):: Disc
 

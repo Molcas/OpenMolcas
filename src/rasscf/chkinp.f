@@ -40,8 +40,8 @@
      &                        NRS2T,NSYM,ISPIN,STSYM,NSEL,NALTER,INVEC,
      &                        NASH,NBAS,NDEL,NFRO,NISH,NORB,NRS1,NRS2,
      &                        NRS3,NSSH,MALTER
-      use rasdim, only: MxOrb, MxAct, MxBas, MxCIIt, MxIna, MxIter,
-     &                  MxRoot, MxSXIt, MxGAS
+      use Molcas, only: MxAct, MxBas, MxGAS, MxIna, MxOrb, MxRoot
+      use RASDim, only: MxCIIt, MxIter, MxSXIt
 
       implicit none
 #include "warnings.h"
@@ -166,7 +166,7 @@ C Local print level (if any)
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' GASSCF: Too many GAS spaces. '
         Write(LF,*) ' Can be increased up to 16 by changing'
-        Write(LF,*) ' mxGAS in module Molcas.F90'
+        Write(LF,*) ' mxGAS in the Molcas module'
         Write(LF,*) ' **********************************'
         Call Quit(_RC_INPUT_ERROR_)
        End If
@@ -490,7 +490,7 @@ CBOR  Check INVEC
             integer, intent(in) :: X(:)
             integer :: res(size(X))
             integer :: i
-            res(1) = X(1)
+            if (size(X) > 0) res(1) = X(1)
             do i = 2, size(res)
                 res(i) = res(i - 1) + X(i)
             end do

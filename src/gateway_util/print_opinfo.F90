@@ -18,9 +18,9 @@ use EFP, only: EFP_PRINT_BANNER
 use External_Centers, only: DMS_Centers, Dxyz, EF_Centers, iXPolType, nData_XF, nDMS, nEF, nOrd_XF, nOrdEF, nWel, nXF, Wel_Info, XF
 use Symmetry_Info, only: nIrrep
 use rmat, only: bParm, Dipol, EPSABS, EPSQ, EPSREL, QCoul, RMat_On, RMatR
+use PrintLevel, only: nPrint
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp) :: i, iChxyz, iDum, iPrint, iRout, iStb(0:7), iWel, iXF, j, jCoSet(8,8), nSTab_iXF

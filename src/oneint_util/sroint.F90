@@ -37,8 +37,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "int_interface.fh"
 integer(kind=iwp) :: ia, iaC, iAng, ib, iC, iCb, iCnt, iCnttp, iComp, iDCRT(0:7), iIC, iIrrep, ip, ipaC, ipC, ipCb, ipF1, ipF2, &
-                     ipK1, ipK2, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iShll, l, lDCRT, llOper, LmbdT, mArr, &
-                     mdc, nac, ncb, nDCRT, nExpi, nOp
+                     ipK1, ipK2, ipP1, ipP2, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iShll, l, lDCRT, llOper, LmbdT, mArr, mdc, nac, ncb, &
+                     nDCRT, nExpi, nOp
 real(kind=wp) :: C(3), Fact, Factor, TC(3), Xg
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
@@ -54,13 +54,12 @@ unused_var(iChO)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In SROInt: A',' ',A,1,3)
-  call RecPrt(' In SROInt: RB',' ',RB,1,3)
-  call RecPrt(' In SROInt: CoorO',' ',CoorO,1,3)
-  call RecPrt(' In SROInt: P',' ',P,nZeta,3)
-  write(u6,*) ' In SROInt: la,lb=',' ',la,lb
+call RecPrt(' In SROInt: A',' ',A,1,3)
+call RecPrt(' In SROInt: RB',' ',RB,1,3)
+call RecPrt(' In SROInt: CoorO',' ',CoorO,1,3)
+call RecPrt(' In SROInt: P',' ',P,nZeta,3)
+write(u6,*) ' In SROInt: la,lb=',' ',la,lb
 #else
 unused_var(P)
 #endif
@@ -244,8 +243,8 @@ do iCnttp=1,nCnttp
 
                 iIC = 0
 #               ifdef _DEBUGPRINT_
-                  call RecPrt('<ia|iC>',' ',Array(ipaC),nAlpha,nExpi)
-                  call RecPrt('<iC|ib>',' ',Array(ipCb),nExpi,nBeta)
+                call RecPrt('<ia|iC>',' ',Array(ipaC),nAlpha,nExpi)
+                call RecPrt('<iC|ib>',' ',Array(ipCb),nExpi,nBeta)
 #               endif
                 do iIrrep=0,nIrrep-1
                   if (.not. btest(llOper,iIrrep)) cycle
@@ -273,13 +272,13 @@ do iCnttp=1,nCnttp
 end do
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' Result in SROInt'
-  do ia=1,(la+1)*(la+2)/2
-    do ib=1,(lb+1)*(lb+2)/2
-      write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
-      call RecPrt(Label,' ',rFinal(:,ia,ib,1),nAlpha,nBeta)
-    end do
+write(u6,*) ' Result in SROInt'
+do ia=1,(la+1)*(la+2)/2
+  do ib=1,(lb+1)*(lb+2)/2
+    write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+    call RecPrt(Label,' ',rFinal(:,ia,ib,1),nAlpha,nBeta)
   end do
+end do
 #endif
 
 end subroutine SROInt

@@ -49,11 +49,11 @@ if (na < 0) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In CCrtCmp: HerR',' ',HerR,1,nHer)
-  call RecPrt(' In CCrtCmp: Zeta',' ',Zeta,nZeta,1)
-  call RecPrt(' In CCrtCmp: A   ',' ',A,1,3)
-  call RecPrt(' In CCrtCmp: P   ',' ',P,nZeta,3)
-  call RecPrt(' In CCrtCmp: KVec',' ',kVector,1,3)
+call RecPrt(' In CCrtCmp: HerR',' ',HerR,1,nHer)
+call RecPrt(' In CCrtCmp: Zeta',' ',Zeta,nZeta,1)
+call RecPrt(' In CCrtCmp: A   ',' ',A,1,3)
+call RecPrt(' In CCrtCmp: P   ',' ',P,nZeta,3)
+call RecPrt(' In CCrtCmp: KVec',' ',kVector,1,3)
 #endif
 
 Axyz(:,:,:,0) = cOne
@@ -73,9 +73,9 @@ if (na /= 0) then
 end if
 
 #ifdef _DEBUGPRINT_
-  write(Label,'(A)') ' In CCrtCmp: Axyz '
-  call CRecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1),'R')
-  call CRecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1),'I')
+write(Label,'(A)') ' In CCrtCmp: Axyz '
+call CRecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1),'R')
+call CRecPrt(Label,' ',Axyz,nZeta*3,nHer*(na+1),'I')
 #endif
 
 end subroutine CCrtCmp

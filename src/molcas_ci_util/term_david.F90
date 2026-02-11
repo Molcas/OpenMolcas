@@ -44,10 +44,10 @@ subroutine Term_David(ICICH,iter,lRoots,nConf,Vector,JOBIPH,LuDavid,iDisk)
 !***********************************************************************
 
 use davctl_mod, only: disk_address, LblStk, memory_vectors
+use RASDim, only: MxCIIt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use rasdim, only: MxCIIt
 
 implicit none
 integer(kind=iwp), intent(in) :: ICICH, iter, lRoots, nConf, JOBIPH, LuDavid

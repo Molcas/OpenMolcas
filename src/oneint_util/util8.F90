@@ -38,18 +38,18 @@ integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb
 integer(kind=iwp) :: ia, ib, iElem, iiComp, iiZeta, jElem
 character(len=80) :: Label
 
-  write(u6,*) ' In util8 la,lb=',la,lb
-  call RecPrt('Beta','(5f15.8)',Beta,nZeta,1)
-  do ib=1,nTri_Elem1(lb)
-    write(Label,'(A,I2,A)') ' Slalbp(',la,ib,')'
-    call RecPrt(Label,'(5f15.8)',Slalbp(:,:,ib),nZeta,nTri_Elem1(la+1))
+write(u6,*) ' In util8 la,lb=',la,lb
+call RecPrt('Beta','(5f15.8)',Beta,nZeta,1)
+do ib=1,nTri_Elem1(lb)
+  write(Label,'(A,I2,A)') ' Slalbp(',la,ib,')'
+  call RecPrt(Label,'(5f15.8)',Slalbp(:,:,ib),nZeta,nTri_Elem1(la+1))
+end do
+if (lb > 0) then
+  do ia=1,nTri_Elem1(la)
+    write(Label,'(A,I2,A)') ' Slalbm(',la,ib,')'
+    call RecPrt(Label,'(5f15.8)',Slalbm(:,:,ib),nZeta,nTri_Elem1(lb-1))
   end do
-  if (lb > 0) then
-    do ia=1,nTri_Elem1(la)
-      write(Label,'(A,I2,A)') ' Slalbm(',la,ib,')'
-      call RecPrt(Label,'(5f15.8)',Slalbm(:,:,ib),nZeta,nTri_Elem1(lb-1))
-    end do
-  end if
+end if
 #endif
 
 do ixa=la,0,-1
@@ -87,18 +87,18 @@ do ixa=la,0,-1
 end do
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' In UTIL8 la,lb=',la,lb
-  do iiComp=1,3
-    do jElem=1,nTri_Elem1(lb)
-      do iElem=1,nTri_Elem1(la)
-        do iiZeta=1,nZeta
-          write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,') '
-          !call RecPrt(Label,'(5f15.8)',
-          write(u6,*) iiZeta,iElem,jElem,iiComp,rFinal(iiZeta,iElem,jElem,iiComp)
-        end do
+write(u6,*) ' In UTIL8 la,lb=',la,lb
+do iiComp=1,3
+  do jElem=1,nTri_Elem1(lb)
+    do iElem=1,nTri_Elem1(la)
+      do iiZeta=1,nZeta
+        write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,') '
+        !call RecPrt(Label,'(5f15.8)',
+        write(u6,*) iiZeta,iElem,jElem,iiComp,rFinal(iiZeta,iElem,jElem,iiComp)
       end do
     end do
   end do
+end do
 #endif
 
 end subroutine Util8

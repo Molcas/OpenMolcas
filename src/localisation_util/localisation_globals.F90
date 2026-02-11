@@ -11,9 +11,9 @@
 
 module Localisation_globals
 
+use Molcas, only: LenIn, MxSym
 use Definitions, only: wp, iwp
 use Constants, only: Zero
-use Molcas, only: MxSym, LenIn, LenIn8
 
 implicit none
 private
@@ -33,7 +33,6 @@ private
 !
 ! LC_FileOrb: orbital file for Seward to read
 
-
 integer(kind=iwp) :: fileorb_id, iWave, LocModel, LuSpool, MxConstr, nActa, nAtoms, nBas(MxSym), nCMO, nConstr(MxSym), &
                      nFro(MxSym), nMxIter, nOccInp(MxSym), nOrb(MxSym), nOrb2Loc(MxSym), nSym, nVirInp(MxSym), OptMeth, &
                      ChargeType, LocOrb
@@ -47,7 +46,7 @@ logical(kind=iwp) :: AnaAtom, AnaDomain, Analysis, AnaPAO, AnaPAO_Save, ChoStart
 character(len=512) :: LC_FileOrb
 character(len=3) :: AnaNrm
 integer(kind=iwp), allocatable :: Ind(:)
-character(len=LenIn8), allocatable :: BName(:)
+character(len=LenIn+8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: NamAct(:)
 real(kind=wp), allocatable :: CMO(:), EOrb(:), MOrig(:), Occ(:)
 real(kind=wp) :: ScrFac=Zero

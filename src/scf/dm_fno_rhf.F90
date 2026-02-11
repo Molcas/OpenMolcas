@@ -22,10 +22,10 @@ subroutine DM_FNO_RHF(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,CMOI,EOcc,EVir,DM0,DM)
 
 use Index_Functions, only: nTri_Elem
 use ChoMP2, only: MP2_small
+use Molcas, only: MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxBas
 
 #include "intent.fh"
 

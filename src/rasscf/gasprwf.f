@@ -44,7 +44,7 @@
       use rasscf_global, only: PrwThr, nSm
       use output_ras, only: LF
       use spinfo, only: NTYP,MINOP,NCNFTP,NCSFTP
-      use rasdim, only: MxAct
+      use Molcas, only: MxAct
 
       Implicit None
 

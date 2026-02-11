@@ -8,20 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module SysDef
 !----------------------------------------------------------------------*
-! Define data type conversion constants                                *
-! ItoB : integer --> byte                                              *
-! RtoB : real*8  --> byte                                              *
-! RtoI : real*8  --> integer                                           *
-! (units=Bytes)                                                        *
+! Global Variables describing chemical system                          *
 !----------------------------------------------------------------------*
-!     Character Arch_Type*13
-Private
-#ifdef _I8_
-      Integer, Parameter:: ItoB = 8 , RtoB = 8 , RtoI = 1
-#else
-      Integer, Parameter:: ItoB = 4 , RtoB = 8 , RtoI = 2
-#endif
-Public  ItoB, RtoB, RtoI
-End Module SysDef
+! nSym    - number of symmetries                                       *
+! nOrb(i) - (i = 1, nSym), number of orbitals                          *
+! nOcc(i) - (i = 1, nSym), number of occupied orbitals                 *
+! nFro(i) - (i = 1, nSym), number of frozen orbitals                   *
+! nDel(i) - (i = 1, nSym), number of orbitals deleted by linear deps.  *
+! nExt(i) - (i = 1, nSym), number of virtual (external) orbitals       *
+!----------------------------------------------------------------------*
+
+module COrbInf
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: nDel(8), nExt(8), nFro(8), nOcc(8), nOrb(8), nSym
+
+public :: nDel, nExt, nFro, nOcc, nOrb, nSym
+
+end module COrbInf

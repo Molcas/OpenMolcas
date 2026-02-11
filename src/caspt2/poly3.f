@@ -20,7 +20,7 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use caspt2_global, only:LUCIEX, IDTCEX, LUSOLV
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use gugx, only: SGS, L2ACT
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: DoCumulant, iSCF, jState, nActel,

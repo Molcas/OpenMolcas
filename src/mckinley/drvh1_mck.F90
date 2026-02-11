@@ -28,10 +28,10 @@ use mck_interface, only: grd_mck_kernel, mck_mem
 use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
+use PrintLevel, only: Show
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Print, only: Show
 
 implicit none
 logical(kind=iwp), intent(in) :: Nona

@@ -12,9 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Tcrtnc_h(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4, &
-                    ACInt,mabcd,Scrtch,nScr,ACOut, &
-                    IndZet,lZeta,IndEta,lEta)
+subroutine Tcrtnc_h(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,Scrtch,nScr,ACOut,IndZet,lZeta,IndEta,lEta)
 !***********************************************************************
 !                                                                      *
 ! Object: to transform the integrals from primitives to contracted     *
@@ -30,8 +28,8 @@ subroutine Tcrtnc_h(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4, &
 !             Modified to back transformation, January '92.            *
 !***********************************************************************
 
-use Definitions, only: wp, iwp
 use Molcas, only: lCache
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -47,13 +45,13 @@ real(kind=wp), intent(_OUT_) :: ACOut(n1*n2*n3*n4,mabcd)
 integer(kind=iwp) :: IncVec, ipA2, ipA3, lsize, lZE, nA3, nCache, nVec
 
 #ifdef _DEBUGPRINT_
-  call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
-  call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,m1*m2,m3*m4*mabcd)
-  call RecPrt(' Coef1',' ',Coef1,n1,m1)
-  call RecPrt(' Coef2',' ',Coef2,n2,m2)
-  call RecPrt(' Coef3',' ',Coef3,n3,m3)
-  call RecPrt(' Coef4',' ',Coef4,n4,m4)
-  write(u6,*) n1,n2,n3,n4
+call WrCheck('Tcrtnc:P(AB|CD)',ACInt,m1*m2*m3*m4*mabcd)
+call RecPrt(' In Tcrtnc: P(ab|cd)',' ',ACInt,m1*m2,m3*m4*mabcd)
+call RecPrt(' Coef1',' ',Coef1,n1,m1)
+call RecPrt(' Coef2',' ',Coef2,n2,m2)
+call RecPrt(' Coef3',' ',Coef3,n3,m3)
+call RecPrt(' Coef4',' ',Coef4,n4,m4)
+write(u6,*) n1,n2,n3,n4
 #endif
 
 ! Reduce for contraction matrix

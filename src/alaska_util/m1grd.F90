@@ -40,8 +40,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, ianga(4), iBeta, iCar, iCmp, iDAO, iDCRT(0:7), iIrrep, iM1xp, ip, ipA, ipAOff, ipB, ipBOff, ipDAO, &
-                     ipDAOt, ipK, ipPx, ipPy, ipPz, ipZ, ipZI, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, &
-                     lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, nRys
+                     ipDAOt, ipK, ipPx, ipPy, ipPz, ipZ, ipZI, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, lDCRT, LmbdT, &
+                     lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, nRys
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fac, Fact, Gmma, PTC2, TC(3), Tmp0, Tmp1
 logical(kind=iwp) :: JfGrad(3,4)
 procedure(cff2d_kernel) :: Cff2D
@@ -57,14 +57,13 @@ unused_var(Ccoor(1))
 unused_var(nOrdOp)
 unused_var(nComp)
 
-
 nRys = nHer
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In M1Grd: A',' ',A,1,3)
-  call RecPrt(' In M1Grd: RB',' ',RB,1,3)
-  call RecPrt(' In M1Grd: P',' ',P,nZeta,3)
-  write(u6,*) ' In M1Grd: la,lb=',' ',la,lb
+call RecPrt(' In M1Grd: A',' ',A,1,3)
+call RecPrt(' In M1Grd: RB',' ',RB,1,3)
+call RecPrt(' In M1Grd: P',' ',P,nZeta,3)
+write(u6,*) ' In M1Grd: la,lb=',' ',la,lb
 #endif
 
 ! Allocate Scratch for primitives and work area for HRR
@@ -265,11 +264,11 @@ do kCnttp=1,nCnttp
           end do
         end do
 #       ifdef _DEBUGPRINT_
-          write(u6,*) ' Charge=',dbsc(kCnttp)%Charge
-          write(u6,*) ' Fact=',Fact
-          write(u6,*) ' IndGrd=',IndGrd
-          write(u6,*) ' JndGrd=',JndGrd
-          call RecPrt('DAO*Fact',' ',Array(ipDAO),nZeta,nDAO)
+        write(u6,*) ' Charge=',dbsc(kCnttp)%Charge
+        write(u6,*) ' Fact=',Fact
+        write(u6,*) ' IndGrd=',IndGrd
+        write(u6,*) ' JndGrd=',JndGrd
+        call RecPrt('DAO*Fact',' ',Array(ipDAO),nZeta,nDAO)
 #       endif
 
         ! Compute integrals with the Rys quadrature.

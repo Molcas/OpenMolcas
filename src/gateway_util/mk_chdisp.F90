@@ -28,15 +28,15 @@ subroutine Mk_ChDisp()
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
-use Molcas, only: LenIn6, LenIn4
 
 implicit none
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iDisp, iIrrep, mc, mdc, mDisp, nCnttp_Valence, nDisp(0:7)
 logical(kind=iwp) :: TstFnc
 integer(kind=iwp), allocatable :: DegDisp(:)
-character(len=LenIn6), allocatable :: ChDisp(:)
+character(len=LenIn+6), allocatable :: ChDisp(:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 
 !                                                                      *
@@ -81,7 +81,7 @@ do iIrrep=0,nIrrep-1
         if (TstFnc(dc(mdc)%iCoSet,iIrrep,iComp,dc(mdc)%nStab) .and. (.not. dbsc(iCnttp)%pChrg)) then
           iDisp = iDisp+1
           ChDisp(iDisp) = ' '
-          write(ChDisp(iDisp)(1:(LenIn6)),'(A,1X,A1)') dc(mdc)%LblCnt(1:LenIn4),xyz(iCar)
+          write(ChDisp(iDisp)(1:LenIn+6),'(A,1X,A1)') dc(mdc)%LblCnt(1:LenIn+4),xyz(iCar)
           DegDisp(iDisp) = nIrrep/dc(mdc)%nStab
           nDisp(iIrrep) = nDisp(iIrrep)+1
         end if
@@ -100,7 +100,7 @@ if (iDisp /= mDisp) then
 end if
 
 call Put_iScalar('nChDisp',iDisp)
-call Put_cArray('ChDisp',ChDisp(1),LenIn6*iDisp)
+call Put_cArray('ChDisp',ChDisp(1),(LenIn+6)*iDisp)
 call Put_iArray('nDisp',nDisp,nIrrep)
 call Put_iArray('DegDisp',DegDisp,iDisp)
 call mma_deallocate(ChDisp)

@@ -73,8 +73,9 @@ module Input_MCLR
 ! Bit 4 Connection contribution to perturbation (1=true)
 ! Bit 5 McKinley(1) Seward(0)
 
+use Molcas, only: LenIn, MxAtom, MxRoot, MxSym
+use RASDim, only: MxTit
 use Definitions, only: wp, iwp
-use rasdim, only: MxSym, MxAtom, MxRoot, MxTit, LenIn
 
 implicit none
 private

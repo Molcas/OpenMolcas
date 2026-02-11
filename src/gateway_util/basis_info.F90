@@ -16,9 +16,9 @@
 module Basis_Info
 
 use define_af, only: iTabMx
+use Molcas, only: MxAO, Mxdbsc
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Molcas, only: MxAO, Mxdbsc
 
 implicit none
 private
@@ -191,8 +191,8 @@ contains
 !***********************************************************************
 !
 ! This to make either the initial allocation of dbsc and Shells according to the default sizes
-! as defined by the parameters in Molcas.F90 or according to the actual sizes as recorded on the
-! run file.
+! as defined by the parameters in the Molcas module or according to the actual sizes as recorded
+! on the run file.
 
 subroutine Basis_Info_Init()
 

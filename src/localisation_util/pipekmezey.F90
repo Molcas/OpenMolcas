@@ -18,17 +18,18 @@ subroutine PipekMezey(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
 
 use OneDat, only: sNoOri
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: BName, nAtoms, ScrFac, Debug
-use Molcas, only: LenIn8
 
 implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
 logical(kind=iwp), intent(out) :: Converged
+
 integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, kOffC, lOaux, nBasT, nFroT, nOrb2LocT
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Oaux(:), Ovlp(:,:), PA(:,:,:)

@@ -40,7 +40,7 @@ use rasscf_global, only: EMY, ENER, ExFac, IADR15, ICICH, iCIOnly, ICIRST, ITER,
 use general_data, only: JOBIPH, JOBOLD, LUDAVID, NACTEL, NCONF, STSYM
 use spinfo, only: NCNASM, NDET
 use output_ras, only: IPRLOC
-use printlevel, only: DEBUG
+use PrintLevel, only: DEBUG
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6

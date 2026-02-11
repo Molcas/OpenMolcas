@@ -21,8 +21,9 @@
 
 subroutine RdCmo()
 
-use Genano_globals, only: kSet, nSym, nBas, kRfSet, isUHF, wSet, Ssym, Cmo, Occ, Cmo2, Occ2, Eps, lftdeg, rydgen, LenIn, BasName
+use Genano_globals, only: kSet, nSym, nBas, kRfSet, isUHF, wSet, Ssym, Cmo, Occ, Cmo2, Occ2, Eps, lftdeg, rydgen, BasName
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

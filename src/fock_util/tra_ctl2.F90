@@ -32,9 +32,9 @@ subroutine Tra_Ctl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 
 use Symmetry_Info, only: Mul
 use general_data, only: LUINTM, NASH, NBAS, NFRO, NISH, NORB, NSYM, NTOT1
+use Molcas, only: MxSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxSym
 
 #include "intent.fh"
 

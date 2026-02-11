@@ -14,16 +14,19 @@
       use definitions, only: iwp, wp, u6
       use constants, only: Zero
       use fciqmc_interface, only: DoFCIQMC
-      use caspt2_global, only:iPrGlb, Weight_ => Weight
-      use PrintLevel, only: usual
+      use caspt2_global, only:iPrGlb, Weight
+      use PrintLevel, only: USUAL
+      use Molcas, only: LenIn
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       use gugx, only: L2ACT, LEVEL
       use caspt2_global, only: CMO, CMO_Internal, NCMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Molcas, only: LenIn, MxAct, MxOrb, MxRoot
+      use RASDim, only: MxIter, MxTit
       use caspt2_module, only: Nstate,DOCUMULANT,HEADER,IFMIX,IFMSCOUP,
      &                         IFQCAN,IFRMS,IFXMS,IROOT,ISCF,ISPIN,
-     &                         LENIN8,LROOTS,mxAct,MXITER,MXORB,MxRoot,
-     &                         MXTIT,NACTEL,NAME,NASH,NBAS,NBSQT,NCONF,
+     &                         LROOTS,
+     &                         NACTEL,BNAME,NASH,NBAS,NBSQT,NCONF,
      &                         NDEL,NELE3,NFRO,NHOLE1,NISH,NRAS1,NRAS2,
      &                         NRAS3,NROOTS,NSYM,POTNUC,STSYM,TITLE,
      &                         MSTATE,ENERGY,MSTATE
@@ -41,7 +44,7 @@ C energies.
      &                            U0(Nstate,Nstate)
 
       integer(kind=iwp) JOBIPH, JOBMIX
-      real(kind=wp) Weight(MxRoot)
+      real(kind=wp) Weight_(MxRoot)
       real(kind=wp), allocatable:: CI1(:), CI2(:), OLDE(:), EFFCP(:)
       integer(kind=iwp), allocatable:: JROOT(:), IDIST(:)
       integer(kind=iwp) I,IAD15,IDISK,IDR,IDW,IISTATE,ISNUM,ISTATE,J,
@@ -110,18 +113,18 @@ C to JOBMIX, we use the same TOC array, IADR15.
         CALL ICOPY(MXROOT,IROOT,1,JROOT,1)
         MROOTS=NROOTS
       END IF
-* Initialize WEIGHT() (which is unused) just so detection
+* Initialize WEIGHT_() (which is unused) just so detection
 * of uninitialized memory does not get its knickers twisted
-      CALL DCOPY_(MXROOT,[Zero],0,WEIGHT,1)
-      WEIGHT(1:NROOTS) = WEIGHT_(1:NROOTS)
+      CALL DCOPY_(MXROOT,[Zero],0,WEIGHT_,1)
+      WEIGHT_(1:NROOTS) = WEIGHT(1:NROOTS)
       CALL WR_RASSCF_INFO(JOBMIX,1,iAd15,
      &                    NACTEL,ISPIN,NSYM,STSYM,
      &                    NFRO,NISH,NASH,NDEL,NBAS,8,
-     &                    NAME,LENIN8*MXORB,NCONF,HEADER,144,
+     &                    BNAME,(LenIn+8)*MXORB,NCONF,HEADER,144,
      &                    TITLE,4*18*MXTIT,POTNUC,
      &                    LROOTS,MROOTS,JROOT,MXROOT,NRAS1,
      &                    NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,
-     &                    Weight)
+     &                    Weight_)
       CALL mma_deallocate(JROOT)
 * Copy MO coefficients from JOBIPH to JOBMIX
       NCMO=NBSQT

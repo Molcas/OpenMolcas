@@ -11,14 +11,13 @@
 
 module mrci_global
 
+use TraToc, only: nTraBuf
+use Molcas, only: LenIn, MxBas, MxOrb, MxRoot
 use Constants, only: Two, Half
 use Definitions, only: wp, iwp
-use TraToc, only: nTraBuf
-use Molcas, only: MxOrb, MxRoot, MxBas, LenIn8
 
 implicit none
 private
-
 
 integer(kind=iwp), parameter :: IDVER = 1, IVVER = 0, MCHAIN = 40000, MXPROP = 30, MXREF = 1000, MXVEC = 50, MXZ = 4*MXROOT, &
                                 NSECT = 256, NSRTMX = nTraBuf
@@ -34,7 +33,7 @@ integer(kind=iwp) :: IAD25S, IADABCI, ICH(MXORB), ICPF, IDFREE, IDISKC(MXVEC), I
                      NVMAX, NVPAIR(8), NVSQ, NVTOT
 real(kind=wp) :: CSEL(50), CTRSH, ENGY(MXROOT,3), ENP, ESHIFT, ESMALL(MXVEC), ETHRE, ETRSH, GFAC, PNUC(MXPROP), PORIG(3,MXPROP), &
                  POTNUC, SQNLIM, THRORB, TIBUF(nTraBuf), VALSRT(NSRTMX), VSMALL(MXVEC,MXVEC)
-character(len=LenIn8) :: BNAME(MXBAS)
+character(len=LenIn+8) :: BNAME(MXBAS)
 character(len=20) :: SSEL(50)
 character(len=8) :: PNAME(MXPROP)
 character(len=4) :: PTYPE(MXPROP)

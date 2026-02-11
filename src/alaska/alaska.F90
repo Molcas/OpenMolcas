@@ -40,12 +40,12 @@ use pso_stuff, only: No_Nuc
 use Disp, only: HF_Force, IndxEq, InxDsp, lDisp, lEQ, TRSymm
 use NAC, only: DoCSF, EDiff, isNAC
 use spool, only: Close_LuSpool
+use PCM_alaska, only: lSA, PCM_alaska_lSA, PCM_alaska_final, PCM_alaska_prep
+use PrintLevel, only: nPrint
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use PCM_alaska, only: lSA, PCM_alaska_lSA, PCM_alaska_final, PCM_alaska_prep
-use Print, only: nPrint
-use Molcas, only: LenIn5, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -61,7 +61,7 @@ logical(kind=iwp), external :: RF_On
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j
 real(kind=wp), allocatable :: Cgrad(:,:)
-character(len=LenIn5), allocatable :: CNames(:)
+character(len=LenIn+5), allocatable :: CNames(:)
 character(len=80) :: Lab
 
 !                                                                      *
@@ -115,8 +115,8 @@ if (RF_On()) then
     nCav = (lMax+1)*(lMax+2)*(lMax+3)/6
     call Get_dArray('RCTFLD',MM,nCav*2)
 #   ifdef _DEBUGPRINT_
-      call RecPrt('Total Multipole Moments',' ',MM(:,1),1,nCav)
-      call RecPrt('Total Electric Field',' ',MM(:,2),1,nCav)
+    call RecPrt('Total Multipole Moments',' ',MM(:,1),1,nCav)
+    call RecPrt('Total Electric Field',' ',MM(:,2),1,nCav)
 #   endif
   end if
 end if
@@ -258,8 +258,8 @@ if (.not. Test) then
 
   if (TRSymm) then
 #   ifdef _DEBUGPRINT_
-      call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0))
-      call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
+    call PrGrad(' Molecular gradients (no TR) ',Grad,lDisp(0))
+    call RecPrt(' The A matrix',' ',Am,lDisp(0),lDisp(0))
 #   endif
     Temp(1:lDisp(0)) = Grad(1:lDisp(0))
 

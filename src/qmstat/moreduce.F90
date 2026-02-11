@@ -14,10 +14,10 @@ subroutine MoReduce(nBas,MOsToKeep)
 use qmstat_global, only: AvRed, BigT, iPrint, MxSymQ, nState, ThrsRedOcc
 use Index_Functions, only: iTri, nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)
@@ -34,7 +34,7 @@ real(kind=wp), allocatable :: AUX(:,:), Dav(:), DavS(:,:), Din(:), DsqM(:,:), In
                               S(:), Ss(:,:), Ssq(:), Sst(:,:), St(:), Strans(:,:), Stri(:), Sx(:), TEMP(:,:), TmoD(:,:), &
                               Trans(:,:), TransB(:,:), TreD(:,:), TreT(:), Vecs(:,:)
 logical(kind=iwp), allocatable :: LindMOs(:)
-character(len=LenIn8), allocatable :: BsLbl(:)
+character(len=LenIn+8), allocatable :: BsLbl(:)
 real(kind=wp), parameter :: ReduceWarning = Half
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Ddot_
@@ -133,7 +133,7 @@ do i=1,nBas(1)
 end do
 if (iPrint >= 5) then
   call mma_allocate(BsLbl,nBas(1),label='BsLbl')
-  call Get_cArray('Unique Basis Names',BsLbl,LenIn8*nBas(1))
+  call Get_cArray('Unique Basis Names',BsLbl,(LenIn+8)*nBas(1))
 end if
 if (iPrint >= 10) then
   write(Header,'(A)') 'All average transition density orbitals'

@@ -42,9 +42,9 @@ subroutine CiOvlp(jRoot,S1,S2,CI_vec)
 
 use rasscf_global, only: cCI, ITER, jCj, lRoots, nRoots
 use general_data, only: NCONF
+use RASDim, only: MxRef
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use rasdim, only: MxRef
 
 implicit none
 integer(kind=iwp), intent(in) :: jRoot

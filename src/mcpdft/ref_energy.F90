@@ -11,7 +11,7 @@
 
 subroutine ref_energy(mcscf_energy,nstates)
 
-use printlevel, only: usual
+use PrintLevel, only: USUAL
 use mcpdft_output, only: iprglb
 use mcpdft_input, only: mcpdft_options
 use mspdft, only: heff
@@ -19,10 +19,11 @@ use general_data, only: jobiph
 #ifdef _HDF5_
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 #endif
+use Molcas, only: MxRoot
+use RASDim, only: MxIter
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use rasdim, only: MxRoot, MxIter
 
 implicit none
 integer(kind=iwp), intent(in) :: nstates
@@ -35,7 +36,7 @@ real(kind=wp) :: aemax, e
 real(kind=wp), allocatable :: elist(:,:)
 
 if (mcpdft_options%mspdft) then
-  if (iprglb >= usual) then
+  if (iprglb >= USUAL) then
     write(u6,*) 'Reference MC-SCF energies taken from diagonal elements of'
     write(u6,*) 'effective Hamiltonian'
   end if
@@ -43,7 +44,7 @@ if (mcpdft_options%mspdft) then
     mcscf_energy(state) = heff(state,state)
   end do
 else
-  if (iprglb >= usual) write(u6,*) 'Reference MC-SCF energies taken from ',trim(mcpdft_options%wfn_file)
+  if (iprglb >= USUAL) write(u6,*) 'Reference MC-SCF energies taken from ',trim(mcpdft_options%wfn_file)
   if (.not. mcpdft_options%is_hdf5_wfn) then
     iadr19(:) = 0
     iad19 = 0

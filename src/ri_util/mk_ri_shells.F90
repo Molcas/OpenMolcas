@@ -30,11 +30,11 @@ use RICD_Info, only: iRI_Type
 use Gateway_Info, only: UnNorm
 use Gateway_global, only: ExtBasDir
 use getline_mod, only: Quit_On_Error
+use PrintLevel, only: nPrint, Show
+use Molcas, only: MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: iwp, u6
-use Print, only: nPrint, Show
-use Molcas, only: MxAtom, Mxdbsc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd

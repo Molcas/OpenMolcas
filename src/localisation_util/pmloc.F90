@@ -48,10 +48,11 @@
 
 subroutine PMLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,nFro,nSym,Silent)
 
-use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn8, MxAtom
-use Localisation_globals, only: Debug
+use Molcas, only: LenIn, MxAtom
+use Constants, only: Zero
+use Localisation_globals, only: Debug, nAtoms
+use stdalloc, only: mma_allocate
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -59,9 +60,13 @@ real(kind=wp), intent(inout) :: CMO(*)
 real(kind=wp), intent(in) :: Thr, ThrGrad, ThrRot
 integer(kind=iwp), intent(in) :: MxIter, nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
 logical(kind=iwp), intent(in) :: Silent
+
 integer(kind=iwp) :: iSym, nBasT, nOccT
 real(kind=wp) :: Functional, ThrGLoc, ThrLoc, ThrRotLoc
 logical(kind=iwp) :: Converged, Maximization
+
+character(len=80) :: Txt
+character(len=LenIn+8), allocatable :: myName(:)
 character(len=*), parameter :: SecNam = 'PMLoc'
 
 ! Initialization.
@@ -90,6 +95,18 @@ if (nSym /= 1) then
   irc = -1
   return
 end if
+
+! Read number of atoms, atomic labels, and basis functions labels
+! from runfile.
+! ---------------------------------------------------------------
+
+call Get_nAtoms_All(nAtoms)
+if ((nAtoms < 1) .or. (nAtoms > MxAtom)) then
+  write(Txt,'(A,I9)') 'nAtoms =',nAtoms
+  call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
+end if
+call mma_allocate(myName,nBasT,label='myName')
+call Get_cArray('Unique Basis Names',myName,(LenIn+8)*nBasT)
 
 ! Localize.
 ! ---------

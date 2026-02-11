@@ -9,14 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE RHSALL2(IVEC)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       USE CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only:iPrGlb, FIMO, PIQK, Buff, idxb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM, NISH, NASH, NSSH, NASHT, NBTCHES,
-     &                         NBTCH, NAES, MUL
+     &                         NBTCH, NAES
 #ifdef _DEBUGPRINT_
       use caspt2_module, only: NASUP, NISUP
 #endif
@@ -158,7 +159,7 @@
         NI=NASH(ISYI)
         iOffi=NAES(iSYI)
         IF(NI.EQ.0) Cycle
-        ISYP=MUL(ISYI,JSYM)
+        ISYP=Mul(ISYI,JSYM)
         NP=NASH(ISYP)
         iOffp=NAES(iSYP)
         IF(NP.EQ.0) Cycle
@@ -170,7 +171,7 @@
          NK=NASH(ISYK)
          iOffK=NAES(iSYK)
          IF(NK.EQ.0) Cycle
-         ISYQ=MUL(ISYK,JSYM)
+         ISYQ=Mul(ISYK,JSYM)
          NQ=NASH(ISYQ)
          iOffQ=NAES(iSYQ)
          IF(NQ.EQ.0) Cycle
@@ -444,10 +445,11 @@ C      the case, symmetry, and rhs vector respectively.
      &                             Case,
      &                             Cho_Bra,nBra,Cho_Ket,nKet,
      &                             nSh,JSYM,IVEC,NV)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
-      use caspt2_global, only: iPrGlb, PIQK, BUFF, idxBuff=>idxb
-      use PrintLevel, only: debug
-      use caspt2_module, only: NSYM, MUL
+      use caspt2_global, only: iPrGlb, PIQK, BUFF, idxb
+      use PrintLevel, only: DEBUG
+      use caspt2_module, only: NSYM
       IMPLICIT None
       integer(kind=iwp), Intent(in):: ITI,ITP,ITK,ITQ
       Character(LEN=2), intent(in)::  Case
@@ -471,7 +473,7 @@ C      the case, symmetry, and rhs vector respectively.
       DO ISYI=1,NSYM
          NI=NSH(ISYI,ITI)
          IF(NI.EQ.0) Cycle
-         ISYP=MUL(ISYI,JSYM)
+         ISYP=Mul(ISYI,JSYM)
          NP=NSH(ISYP,ITP)
          IF(NP.EQ.0) Cycle
          NPI=NP*NI
@@ -481,7 +483,7 @@ C      the case, symmetry, and rhs vector respectively.
          DO ISYK=1,NSYM
             NK=NSH(ISYK,ITK)
             IF(NK.EQ.0) Cycle
-            ISYQ=MUL(ISYK,JSYM)
+            ISYQ=Mul(ISYK,JSYM)
             NQ=NSH(ISYQ,ITQ)
             IF(NQ.EQ.0) Cycle
             NQK=NQ*NK
@@ -521,55 +523,55 @@ C-SVC: sanity check
             If (Case.eq.'A ') Then
                CALL ADDRHSA(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'B ') Then
                CALL ADDRHSB(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'D1') Then
                CALL ADDRHSD1(IVEC,JSYM,ISYI,ISYK,
      &                       NP,NI,NQ,NK,PIQK,
-     &                       nBuff,Buff,idxBuff,
+     &                       nBuff,Buff,idxb,
      &                       Cho_Bra(LBRASM),
      &                       Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'H ') Then
                CALL ADDRHSH(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,NPIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'C ') Then
                CALL ADDRHSC(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'F ') Then
                CALL ADDRHSF(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'D2') Then
                CALL ADDRHSD2(IVEC,JSYM,ISYI,ISYK,
      &                       NP,NI,NQ,NK,PIQK,
-     &                       nBuff,Buff,idxBuff,
+     &                       nBuff,Buff,idxb,
      &                       Cho_Bra(LBRASM),
      &                       Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'G ') Then
                CALL ADDRHSG(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,NPIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else If (Case.eq.'E ') Then
                CALL ADDRHSE(IVEC,JSYM,ISYI,ISYK,
      &                      NP,NI,NQ,NK,PIQK,
-     &                      nBuff,Buff,idxBuff,
+     &                      nBuff,Buff,idxb,
      &                      Cho_Bra(LBRASM),
      &                      Cho_Ket(LKETSM),NV)
             Else
@@ -644,15 +646,16 @@ C-SVC: sanity check
       End Subroutine ADDTUVX
 
       SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,NCHOBUF,NPIQK,NADDBUF)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp
       USE CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only: iParRHS,iPrGlb,iStpGrd
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_MaxDBLE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use caspt2_module, only: NSYM, NASHT, NISUP, NISH, MUL, NASH,
+      use caspt2_module, only: NSYM, NASHT, NISUP, NISH, NASH,
      &                         NSSH, NTU, NTUV, NASH, NIGEJ, NIGTJ,
      &                         NAGEB, NAGTB, NTGEU, NTGTU, NBTCHES,
      &                         NBTCH
@@ -707,14 +710,14 @@ C case GP,GM
         MXRHS=Max(MXRHS,NASH(ISYM)*NISUP(ISYM,10)
      &                 +NASH(ISYM)*NISUP(ISYM,11))
 
-        ISYM=MUL(JSYM,ISYI)
+        ISYM=Mul(JSYM,ISYI)
 C case C
         MXRHS=Max(MXRHS,NTUV(ISYM)*NSSH(ISYM))
 C case EP,EM
         MXRHS=Max(MXRHS,NASH(ISYM)*NISUP(ISYM,6)
      &                 +NASH(ISYM)*NISUP(ISYM,7))
         DO ISYK=1,NSYM
-          ISYM=MUL(ISYI,ISYK)
+          ISYM=Mul(ISYI,ISYK)
 C case BP,BM
           MXRHS=Max(MXRHS,NTGEU(ISYM)*NIGEJ(ISYM))
           MXRHS=Max(MXRHS,NTGTU(ISYM)*NIGTJ(ISYM))
@@ -725,7 +728,7 @@ C case F
           MXRHS=Max(MXRHS,NTGEU(ISYM)*NAGEB(ISYM))
           MXRHS=Max(MXRHS,NTGTU(ISYM)*NAGTB(ISYM))
 
-          ISYM=MUL(ISYI,MUL(JSYM,ISYK))
+          ISYM=Mul(ISYI,Mul(JSYM,ISYK))
 C case D1,D2
           MXRHS=Max(MXRHS,2*NTU(ISYM)*NISUP(ISYM,5))
         End Do
@@ -736,7 +739,7 @@ CSVC: determine maximum pair index size per symmetry and in total.
 *     MXBFSZ=0
       MXNPITOT=0
       DO ISYI=1,NSYM
-        ISYP=MUL(ISYI,JSYM)
+        ISYP=Mul(ISYI,JSYM)
         NI=MAX(NISH(ISYI),NASH(ISYI))
         NP=MAX(NASH(ISYP),NSSH(ISYP))
         MXNPITOT=MXNPITOT+NP*NI
@@ -756,12 +759,12 @@ C     to start, reserve space for TUVX integrals (NASHT**4)
       DO ICASE=1,9
         DO ISYI=1,NSYM
           NI=NSH(ISYI,ITYPE(1,ICASE))
-          ISYP=MUL(ISYI,JSYM)
+          ISYP=Mul(ISYI,JSYM)
           NP=NSH(ISYP,ITYPE(2,ICASE))
           NPI=NP*NI
           DO ISYK=1,NSYM
             NK=NSH(ISYK,ITYPE(3,ICASE))
-            ISYQ=MUL(ISYK,JSYM)
+            ISYQ=Mul(ISYK,JSYM)
             NQ=NSH(ISYQ,ITYPE(4,ICASE))
             NQK=NQ*NK
             MAXPIQK=MAX(MAXPIQK,NPI*NQK)

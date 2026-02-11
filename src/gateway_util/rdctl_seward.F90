@@ -47,11 +47,11 @@ use Para_Info, only: MyRank
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use PrintLevel, only: nPrint, Show
+use Molcas, only: LenIn, MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, UtoAU
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint, Show
-use Molcas, only: MxAtom, LenIn, Mxdbsc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd_
@@ -3472,7 +3472,7 @@ do iCnttp=1,nCnttp
     S%Mx_mdc = max(S%Mx_mdc,mdc)
     n_dc = max(mdc,n_dc)
     if (mdc > MxAtom) then
-      call WarningMessage(2,' mdc > MxAtom!; Increase MxAtom in Molcas.F90.')
+      call WarningMessage(2,' mdc > MxAtom!; Increase MxAtom in the Molcas module.')
       write(u6,*) ' MxAtom=',MxAtom
       call Abend()
     end if
@@ -3537,9 +3537,9 @@ end do
 if (S%mCentr > MxAtom) then
   call WarningMessage(2,'RdCtl: S%mCentr > MxAtom')
   write(u6,*) 'S%mCentr=',S%mCentr
-  write(u6,*) 'Edit Molcas.F90'
+  write(u6,*) 'Edit the Molcas module source'
   write(u6,*) 'Set MxAtom to the value of S%mCentr.'
-  write(u6,*) 'Recompile MOLCAS and try again!'
+  write(u6,*) 'Recompile and try again!'
   call Abend()
 end if
 !                                                                      *

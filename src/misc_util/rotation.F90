@@ -12,10 +12,10 @@
 subroutine Rotation(TotalM,TRotA,TRotB,TRotC,nsRot,nFAtoms,lSlapaf)
 
 use Index_Functions, only: iTri, nTri_Elem
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, Angstrom, auTocm, auTokJ, auToHz, kBoltzmann, uToau
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn
 
 implicit none
 real(kind=wp), intent(out) :: TotalM, TRotA, TRotB, TRotC

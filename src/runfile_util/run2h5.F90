@@ -27,9 +27,9 @@ subroutine run2h5_molinfo(fileid)
 !   DESYM_MATRIX, PRIMITIVE_IDS, PRIMITIVES
 
 use mh5, only: mh5_close_dset, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, mh5_init_attr, mh5_put_dset
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn, LenIn4
 
 implicit none
 integer(kind=iwp), intent(in) :: fileid
@@ -38,7 +38,7 @@ real(kind=wp) :: potnuc
 character :: lIrrep(24)
 integer(kind=iwp), allocatable :: atnums(:), basis_ids(:,:), desym_basis_ids(:,:), PrimIDs(:,:), QMMap(:)
 real(kind=wp), allocatable :: charges(:), coord(:,:), desym_matrix(:), Primitives(:,:)
-character(len=LenIn4), allocatable :: desym_atomlbl(:)
+character(len=LenIn+4), allocatable :: desym_atomlbl(:)
 character(len=LenIn), allocatable :: atomlbl(:)
 
 ! symmetry information
@@ -121,10 +121,10 @@ if (NSYM > 1) then
   call mh5_init_attr(fileid,'NATOMS_ALL',mCentr)
 
   ! desymmetrized atom labels
-  dsetid = mh5_create_dset_str(fileid,'DESYM_CENTER_LABELS',1,[mcentr],LenIn4)
+  dsetid = mh5_create_dset_str(fileid,'DESYM_CENTER_LABELS',1,[mcentr],LenIn+4)
   call mh5_init_attr(dsetid,'DESCRIPTION','Desymmetrized center labels arranged as one [NATOMS_ALL] block')
   call mma_allocate(desym_atomlbl,mcentr)
-  call get_cArray('LP_L',desym_atomlbl,(LenIn4)*mCentr)
+  call get_cArray('LP_L',desym_atomlbl,(LenIn+4)*mCentr)
   call mh5_put_dset(dsetid,desym_atomlbl)
   call mma_deallocate(desym_atomlbl)
   call mh5_close_dset(dsetid)

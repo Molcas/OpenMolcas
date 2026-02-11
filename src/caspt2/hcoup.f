@@ -14,7 +14,7 @@
       use definitions, only: iwp, wp, u6
       use constants, only: Zero
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif

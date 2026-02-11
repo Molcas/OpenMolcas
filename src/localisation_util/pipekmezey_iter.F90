@@ -16,18 +16,20 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName
 !
 ! Based on the original routines by Y. Carissan.
 
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 use Localisation_globals, only: Debug, Thrs,ThrGrad, Silent, nMxIter, OptMeth
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
 real(kind=wp), intent(out) :: Functional, PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
+character(len=LenIn+8), intent(in) :: BName(nBasis)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*)
-character(len=LenIn8), intent(in) :: BName(nBasis)
+
+
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i,k, iBas, cnt, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, factor, ithrsh, DD, Thr

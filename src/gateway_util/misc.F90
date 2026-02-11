@@ -16,8 +16,8 @@ use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: RadMax, cdMax, EtMax
 use Symmetry_Info, only: nIrrep
-use Definitions, only: iwp, u6
 use Molcas, only: MaxBfn, MxAtom
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iBas, iBas_Aux, iBas_Frag
@@ -57,7 +57,7 @@ do jCnttp=1,nCnttp
     if (max(mdc,kdc) > MxAtom) then
       call WarningMessage(2,'MxAtom too small:')
       write(u6,*) 'MxAtom=',MxAtom
-      write(u6,*) 'Increase mxAtom in Molcas.F90 and recompile the code!'
+      write(u6,*) 'Increase mxAtom in the Molcas module and recompile the code!'
       call Abend()
     end if
     ! Loop over shells associated with this center

@@ -47,17 +47,17 @@ unused_var(iAddPot)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' In OneEl: Label',Label
-  write(u6,*) ' In OneEl: nComp'
-  write(u6,'(1X,8I5)') nComp
-  write(u6,*) ' In OneEl: lOper'
-  write(u6,'(1X,8I5)') lOper
-  write(u6,*) ' In OneEl: n2Tri'
-  do iComp=1,nComp
-    ip(iComp) = n2Tri(lOper(iComp))
-  end do
-  write(u6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
-  call RecPrt(' CCoor',' ',CCoor,3,nComp)
+write(u6,*) ' In OneEl: Label',Label
+write(u6,*) ' In OneEl: nComp'
+write(u6,'(1X,8I5)') nComp
+write(u6,*) ' In OneEl: lOper'
+write(u6,'(1X,8I5)') lOper
+write(u6,*) ' In OneEl: n2Tri'
+do iComp=1,nComp
+  ip(iComp) = n2Tri(lOper(iComp))
+end do
+write(u6,'(1X,8I5)') (ip(iComp),iComp=1,nComp)
+call RecPrt(' CCoor',' ',CCoor,3,nComp)
 #endif
 !                                                                      *
 !***********************************************************************

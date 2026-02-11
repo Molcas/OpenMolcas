@@ -18,7 +18,7 @@
       use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
       use output_ras, only: LF
       use general_data, only: NSYM,NASH,NBAS,NDEL,NFRO,NISH
-      use rasdim, only: LenIn8, LenIn
+      use Molcas, only: LenIn
       Implicit None
 
       Character(LEN=*) VecTit
@@ -30,7 +30,7 @@
 
       Character(LEN=8) Fmt1,Fmt2
       Character(LEN=132) Line,Blank
-      Character(LEN=LENIN8), External:: Clean_BName
+      Character(LEN=LenIn+8), External:: Clean_BName
 * PAM Nov 05: Non-valence orbitals
       Integer NVSH(8)
       Integer, Allocatable:: MrkIt(:), Slct(:)

@@ -18,7 +18,7 @@
 #endif
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF, PREF
-      use PrintLevel, only: debug, usual
+      use PrintLevel, only: DEBUG, USUAL
       use caspt2_module, only: CPUFG3, ERef, jState, nAshT, EASUM,
      &                         TIOFG3, EPSA, mState, RefEne
       use pt2_guga, only: iAdr10, CLab10
@@ -55,7 +55,7 @@ C     indices
       if (DMRG) then
         ! set state number here because in poly1 we have no reference
         ! to which state we are computing
-        if (iPrGlb >= debug) then
+        if (iPrGlb >= DEBUG) then
           write (6,*) 'STINI setting DMRG state number to ',
      &                mstate(jstate)-1
         endif

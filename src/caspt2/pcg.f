@@ -24,11 +24,11 @@
       use caspt2_global, only: sigma_p_epsilon,imag_shift,real_shift
       use caspt2_global, only: do_grad, nStpGrd
       use caspt2_global, only: LISTS
-      use PrintLevel, only: terse, usual
+      use PrintLevel, only: TERSE, USUAL
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV, only: iRHS, iVecc, iVecc2, iVecR, iVecX, NLSTOT
       use caspt2_module, only: DeNorm, E2Corr, E2Tot, MxCase, ERef,
-     &                         IfChol, MaxIt, nSym, RefWgt, rNorm,
+     &                         IfChol, MaxIt, nSym, rNorm,
      &                         ThrConv, Cases
       IMPLICIT NONE
 
@@ -44,7 +44,7 @@
       REAL*8 EAIVX,EATVX,EBJAI,EBJAT,EBVAT,EVJAI,EVJTI,EVJTU
       REAL*8 E2NONV,ESHIFT
       REAL*8 OVLAPS(0:8,0:MXCASE)
-      REAL*8 SAV,SAVI,savreg,DSCALE
+      REAL*8 SAV,SAVI,savreg,DSCALE,REFWGT
 
 C Flag to tell whether convergence was obtained
       ICONV = 0

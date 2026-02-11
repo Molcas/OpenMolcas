@@ -16,13 +16,14 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipCM, ipMat, ipMatBA, ipMatLT, ipMO, n1Dens, n2Dens, nA, nB, nCMO, nDens, nDensC, nMBA, nNA, pInt1, pInt2
 use input_mclr, only: iMethod, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, nRs3, nSym, PT2, TimeDep
+use caspt2_module, only: nBMx
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: dsym
 integer(kind=iwp) :: i, i1, iExt0, iExt1, iExt2, iExt3, iExt4, iInt0, iInt1, iInt2, iInt3, iInt4, iiSym, ijNum, ijOrb, ijS, ijSym, &
                      iOff, iOrb, ip, iPlus, ipP, iS, jjSym, jOrb, jS, kkSym, klNum, klOrb, klS, klSym, kOrb, kS, llSym, lOrb, lS, &
-                     mATAB, nBmx, nDensLT
+                     mATAB, nDensLT
 integer(kind=iwp), external :: iPntSO
 
 !                                                                      *
@@ -31,14 +32,12 @@ integer(kind=iwp), external :: iPntSO
 ip = 1
 ipMO(:,:,:) = 0
 
-nbmx = max(0,maxval(nBas(1:nsym)))
+nBMx = max(0,maxval(nBas(1:nsym)))
 nB(1:nsym) = nAsh(1:nsym)+nIsh(1:nsym)
 nA(1) = 0
 do iS=2,nsym
   nA(iS) = nA(iS-1)+nAsh(iS-1)
 end do
-
-call Set_nbmx(nbmx)
 
 nna = sum(nAsh(1:nsym))
 n2Dens = nTri_Elem(nnA**2)

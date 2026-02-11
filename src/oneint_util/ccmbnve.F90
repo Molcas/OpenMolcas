@@ -82,22 +82,22 @@ do ixa=0,la
           rFinal(iZeta,ipa,ipb,12) = aimag(Tempm)
         end do
 #       ifdef _DEBUGPRINT_
-          write(u6,*) '(',ixa,iya,iza,ixb,iyb,izb,')'
-          write(u6,*) 'x-component'
-          write(u6,*) rFinal(1,ipa,ipb,1)
-          write(u6,*) rFinal(1,ipa,ipb,4)
-          write(u6,*) rFinal(1,ipa,ipb,7)
-          write(u6,*) rFinal(1,ipa,ipb,10)
-          write(u6,*) 'y-component'
-          write(u6,*) rFinal(1,ipa,ipb,2)
-          write(u6,*) rFinal(1,ipa,ipb,5)
-          write(u6,*) rFinal(1,ipa,ipb,8)
-          write(u6,*) rFinal(1,ipa,ipb,11)
-          write(u6,*) 'z-component'
-          write(u6,*) rFinal(1,ipa,ipb,3)
-          write(u6,*) rFinal(1,ipa,ipb,6)
-          write(u6,*) rFinal(1,ipa,ipb,9)
-          write(u6,*) rFinal(1,ipa,ipb,12)
+        write(u6,*) '(',ixa,iya,iza,ixb,iyb,izb,')'
+        write(u6,*) 'x-component'
+        write(u6,*) rFinal(1,ipa,ipb,1)
+        write(u6,*) rFinal(1,ipa,ipb,4)
+        write(u6,*) rFinal(1,ipa,ipb,7)
+        write(u6,*) rFinal(1,ipa,ipb,10)
+        write(u6,*) 'y-component'
+        write(u6,*) rFinal(1,ipa,ipb,2)
+        write(u6,*) rFinal(1,ipa,ipb,5)
+        write(u6,*) rFinal(1,ipa,ipb,8)
+        write(u6,*) rFinal(1,ipa,ipb,11)
+        write(u6,*) 'z-component'
+        write(u6,*) rFinal(1,ipa,ipb,3)
+        write(u6,*) rFinal(1,ipa,ipb,6)
+        write(u6,*) rFinal(1,ipa,ipb,9)
+        write(u6,*) rFinal(1,ipa,ipb,12)
 #       endif
 
       end do

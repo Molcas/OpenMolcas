@@ -54,7 +54,7 @@ use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 use general_data, only: STARTORBFILE
 #endif
 use output_ras, only: IPRLOC
-use printlevel, only: DEBUG, INSANE, TERSE
+use PrintLevel, only: DEBUG, INSANE, TERSE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6

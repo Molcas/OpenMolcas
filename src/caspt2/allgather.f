@@ -26,7 +26,7 @@
 
       contains
       SUBROUTINE ALLGATHER_R(SEND,NSEND,RECV,NRECV)
-      use mpi, only: MPI_REAL8,MPI_INTEGER,MPI_COMM_WORLD
+      use mpi
       use definitions, only: MPIInt
       implicit none
 ************************************************************************
@@ -102,7 +102,7 @@
       end subroutine  allgather_R
 
       SUBROUTINE ALLGATHER_I(SEND,NSEND,RECV,NRECV)
-      use mpi, only: MPI_INTEGER8,MPI_INTEGER,MPI_COMM_WORLD
+      use mpi
       use definitions, only: MPIInt
       implicit none
 ************************************************************************

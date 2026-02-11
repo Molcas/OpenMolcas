@@ -17,10 +17,11 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKLIST(LIST)
+      use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: MTU, KTUV, MTGEU, MTGTU, KTU, KTGEU, KTGTU,
      &                      KIGEJ, KIGTJ, KAGEB, KAGTB
       use EQSOLV, only: llist, nlist
-      use caspt2_module, only: nAshT, nSym, Mul, nAES, NTUES, NTUVES,
+      use caspt2_module, only: nAshT, nSym, nAES, NTUES, NTUVES,
      &                         NTU, nAsh, NTGEUES, NTGEU, NTGTUES,
      &                         NTGTU, NTGEUES, NTGTUES, NIES, NIGEJES,
      &                         NIGTJES, NIGEJES, NIGTJES, nIsh, NSES,
@@ -57,7 +58,7 @@ C Lists 1 and 2. TUV/TU*
        DO ISL3=1,NSYM
         LADR1 =LLIST(ISL1,ISL3,1)
         LADR2 =LLIST(ISL1,ISL3,2)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
           DO IUV=1,NTU(ISL3)
@@ -101,7 +102,7 @@ C Lists 3 and 5. TUV/TU+
        DO ISL3=1,NSYM
         LADR3 =LLIST(ISL1,ISL3,3)
         LADR5 =LLIST(ISL1,ISL3,5)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
           DO IUV=1,NTGEU(ISL3)
@@ -161,7 +162,7 @@ C Lists 4 and 6. TUV/TU-
        DO ISL3=1,NSYM
         LADR4 =LLIST(ISL1,ISL3,4)
         LADR6 =LLIST(ISL1,ISL3,6)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
           DO IUV=1,NTGTU(ISL3)
@@ -206,7 +207,7 @@ C Lists 7 and 8. TU*/T
        DO ISL3=1,NSYM
         LADR7 =LLIST(ISL1,ISL3,7)
         LADR8 =LLIST(ISL1,ISL3,8)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         NOFF=NTU(ISL1)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
@@ -250,7 +251,7 @@ C Lists  9 and 10. TU+-/T
        DO ISL3=1,NSYM
         LADR9 =LLIST(ISL1,ISL3,9)
         LADR10=LLIST(ISL1,ISL3,10)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL2)
           ITQ=IT+NAES(ISL2)
           DO IU=1,NASH(ISL3)
@@ -304,7 +305,7 @@ C Lists 12 and 13. T/TU+-
        DO ISL3=1,NSYM
         LADR12=LLIST(ISL1,ISL3,12)
         LADR13=LLIST(ISL1,ISL3,13)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IT=1,NASH(ISL1)
           ITQ=IT+NAES(ISL1)
           DO IU=1,NASH(ISL2)
@@ -357,7 +358,7 @@ C List 11. T/TU*
       DO ISL1=1,NSYM
        DO ISL3=1,NSYM
         LADR11=LLIST(ISL1,ISL3,11)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         NOFF=NTU(ISL3)
         DO IT=1,NASH(ISL1)
           ITQ=IT+NAES(ISL1)
@@ -391,7 +392,7 @@ C Lists 14 and 15. I/IJ+-
        DO ISL3=1,NSYM
         LADR14=LLIST(ISL1,ISL3,14)
         LADR15=LLIST(ISL1,ISL3,15)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO II=1,NISH(ISL1)
           IIQ=II+NIES(ISL1)
           DO IJ=1,NISH(ISL2)
@@ -445,7 +446,7 @@ C Lists 16 and 17. A/AB+-
        DO ISL3=1,NSYM
         LADR16=LLIST(ISL1,ISL3,16)
         LADR17=LLIST(ISL1,ISL3,17)
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         DO IA=1,NSSH(ISL1)
           IAQ=IA+NSES(ISL1)
           DO IB=1,NSSH(ISL2)

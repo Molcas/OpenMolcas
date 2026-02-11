@@ -74,7 +74,7 @@
      &                         nQune, NROOT, NSXS, NTOT4, QNSTEP,
      &                         QNUPDT, SXSEL, TMIN, VIA, ISTORP,
      &                         IADR15, EMY
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NACTEL,JOBIPH,LUINTM,LUQUNE,NASH,
      &                        NBAS,NDEL,NFRO,NISH,NORB,NRS1,NRS2,NRS3,

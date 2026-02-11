@@ -30,9 +30,9 @@ use rmat, only: bParm, dipol, Dipol1, Epsabs, Epsq, Epsrel, keyr, lgamma, nagint
 use DCR_mod, only: DCR_Init
 use NAC, only: isCSF, isNAC
 use NDDO, only: twoel_NDDO
+use PrintLevel, only: nPrint, Show
 use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp
-use Print, only: nPrint, Show
 
 implicit none
 integer(kind=iwp) :: iPL

@@ -14,13 +14,14 @@
 
 subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
 
+  use Symmetry_Info, only: Mul
   use stdalloc, only: mma_allocate, mma_deallocate
   use qcmaquis_interface
   use definitions, only: wp, iwp, u6
   use caspt2_global, only: iPrGlb
   use printLevel, only: debug
   use gugx, only: SGS
-  use caspt2_module, only: nAshT, Mul
+  use caspt2_module, only: nAshT
 
   implicit none
 
@@ -98,21 +99,21 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
   do z = 1, nasht
     do y = 1, nasht
       ! symmetry of sigma2 = E_yz|Psi2>
-      sym_sig2 = mul(mul(SGS%ism(y), SGS%ism(z)), lsym2)
+      sym_sig2 = Mul(Mul(SGS%ism(y), SGS%ism(z)), lsym2)
       do x = 1, nasht
         do v = 1, nasht
           ! if (y + (z - 1) * nasht  < v + (x - 1) * nasht) then
           !   cycle
           ! end if
           ! symmetry of tau = E_vx|sigma2>
-          sym_tau = mul(mul(SGS%ism(x), SGS%ism(v)), sym_sig2)
+          sym_tau = Mul(Mul(SGS%ism(x), SGS%ism(v)), sym_sig2)
           do u = 1, nasht
             do t = 1, nasht
             ! if (v + (x - 1) * nasht  < t + (u - 1) * nasht) then
             !   cycle
             ! end if
               ! symmetry of sigma1 = <Psi1|E_tu
-              sym_sig1 = mul(mul(SGS%ism(t), SGS%ism(u)), lsym1)
+              sym_sig1 = Mul(Mul(SGS%ism(t), SGS%ism(u)), lsym1)
               ! only for for matching symmetries we have an element different from 0
               if (sym_sig1 == sym_tau) then
                 ! generate the flat index

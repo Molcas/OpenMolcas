@@ -45,11 +45,9 @@ use rasscf_global, only: DoDMRG
 use general_data, only: NRS1,NRS2,NRS3,NTOT,NTOT2,NCONF,ISPIN,NACTEL,NBAS,NDEL,NELEC3,NFRO, &
                         NHOLE1,NISH,NSSH,NSYM,NSYM,STSYM
 use spinfo, only: NDET
-use rasdim, only: MxSym, MxAct
-
+use Molcas, only: MxAct, MxSym
 
 implicit none
-
 
 integer :: dsetid
 integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3

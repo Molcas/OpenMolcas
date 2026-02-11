@@ -11,10 +11,10 @@
 
 subroutine Print_T_Values(T_Values,iT_Sets,iANr,EC,Bond_Threshold,nAtoms,nij,Standard,iWarnings,Num_Warnings,iPrint)
 
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, Lenin4
 
 implicit none
 integer(kind=iwp), intent(in) :: nij, iT_Sets(nij), nAtoms, iANr(nAtoms), iWarnings(nij), Num_Warnings, iPrint
@@ -26,7 +26,7 @@ integer(kind=iwp), parameter :: iLength = 25
 character(len=iLength) :: Warning
 character(len=17) :: BondLbl
 character(len=LenIn), allocatable :: AtomLbl(:)
-character(len=LenIn4), allocatable :: AtomLbl4(:)
+character(len=LenIn+4), allocatable :: AtomLbl4(:)
 real(kind=wp), external :: Bragg_Slater
 
 ! Print header
@@ -34,7 +34,7 @@ real(kind=wp), external :: Bragg_Slater
 call mma_allocate(AtomLbl,nAtoms,label='AtomLbl')
 call mma_allocate(AtomLbl4,nAtoms,label='AtomLbl4')
 
-call Get_cArray('LP_L',AtomLbl4,LenIn4*nAtoms)
+call Get_cArray('LP_L',AtomLbl4,(LenIn+4)*nAtoms)
 do i=1,nAtoms
   AtomLbl(i) = AtomLbl4(i)(1:LenIn)
 end do

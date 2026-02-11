@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE SPINORB(D,CMO,OCC,kroot)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NASH,NBAS,NFRO,NISH
 

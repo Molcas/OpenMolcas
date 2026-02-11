@@ -102,6 +102,7 @@ if (NKSTR /= 0) then
 
   ! structure of group of strings defining I strings
   NGASL = 1
+  ITPFGS(:) = 0
   do IGAS=1,NGAS
     ITPFGS(IGAS) = ISPGPFTP(IGAS,ISPGRPABS)
     NELFGS(IGAS) = NELFGP(ITPFGS(IGAS))

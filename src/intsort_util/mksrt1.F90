@@ -32,9 +32,9 @@ subroutine MkSrt1()
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
 use sort_data, only: iDIBin, iDVBin, iStBin, lBin, lSll, mInt, mSyBlk, mxSyP, n_Int, nBin, nBs, nSkip, nSln, nSyOp, nRec, Square
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: iwp, u6, RtoI
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp) :: ib, ibj, ij, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, &
@@ -44,7 +44,7 @@ integer(kind=iwp) :: ib, ibj, ij, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iS
 integer(kind=iwp) :: ix
 integer(kind=iwp), parameter :: lim_32 = 2**30
 #endif
-logical(kind=iwp), external:: Reduce_Prt
+logical(kind=iwp), external :: Reduce_Prt
 
 #include "warnings.h"
 

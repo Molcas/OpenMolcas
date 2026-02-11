@@ -39,8 +39,7 @@ integer(kind=iwp) :: ia, ib, iCar
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-
-  call RecPrt(' In CVelInt: Beta ',' ',Beta,nZeta,1)
+call RecPrt(' In CVelInt: Beta ',' ',Beta,nZeta,1)
 #endif
 
 do ia=0,na
@@ -68,12 +67,12 @@ do ia=0,na
     end if
 
 #   ifdef _DEBUGPRINT_
-      write(Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',ia,',',ib,',1)'
-      call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,1),nZeta,3,'R')
-      call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,1),nZeta,3,'I')
-      write(Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',ia,',',ib,',2)'
-      call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,2),nZeta,3,'R')
-      call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,2),nZeta,3,'I')
+    write(Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',ia,',',ib,',1)'
+    call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,1),nZeta,3,'R')
+    call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,1),nZeta,3,'I')
+    write(Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',ia,',',ib,',2)'
+    call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,2),nZeta,3,'R')
+    call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,2),nZeta,3,'I')
 #   endif
   end do
 end do

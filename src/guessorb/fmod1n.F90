@@ -31,8 +31,9 @@
 subroutine Fmod1n()
 
 use Index_Functions, only: nTri_Elem
-use GuessOrb_Global, only: Label, MxBasis, MxSym, nBas, nSym, PrintMOs
+use GuessOrb_Global, only: Label, MxBasis, nBas, nSym, PrintMOs
 use OneDat, only: sNoOri
+use Molcas, only: MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

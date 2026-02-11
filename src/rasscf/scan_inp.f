@@ -13,7 +13,7 @@
       use UnixInfo, only: ProgName
 #endif
       use input_ras, only: nKeys, CMD, KeyFlags, KeyEND, LuInput
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: IPRLOC
 
       Implicit None

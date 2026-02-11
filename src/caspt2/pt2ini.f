@@ -16,7 +16,7 @@
 #ifdef _DMRG_
       use qcmaquis_interface_cfg, only: qcmaquis_param
       use caspt2_global, only: iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use caspt2_module, only: DMRG, nAshT
 #endif
       use caspt2_global, only: do_grad, iStpGrd
@@ -27,10 +27,10 @@
       use ChoCASPT2, only: InfVec_N2_PT2, MaxVec_PT2, NASPlit,NISplit,
      &                     NumCho_PT2
       use spool, only: SpoolInp, Close_LuSpool
+      use Molcas, only: LenIn
       use caspt2_module, only: nSym, Header, ifChol, jState,
-     &                         LenIn8, Name, nAsh, nBas, nIsh,
-     &                         nOTri, nBasT, nBSqT, nSsh, nState,
-     &                         nUniqAT
+     &                         bName, nAsh, nBas, nIsh,
+     &                         nOTri, nBasT, nBSqT, nSsh, nState
       IMPLICIT NONE
 #include "compiler_features.h"
 
@@ -44,10 +44,9 @@ C     Cholesky
       Call Get_cArray('Seward Title',Header,144)
       Call Get_iScalar('nSym',nSym)
       Call Get_iArray('nBas',nBas,nSym)
-      Call Get_iScalar('Unique atoms',nUniqAt)
       nbast=sum(nbas(1:nsym))
       nbsqt=sum(nbas(1:nsym)**2)
-      Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nbast)
+      Call Get_cArray('Unique Basis Names',bName,(LenIn+8)*nbast)
       jstate = 1
       Call DecideOnCholesky(IfChol)
 * PAM Feb 2008: The following statement was moved here from
@@ -96,7 +95,7 @@ C     Cholesky
       if (DMRG) then
         ! set the lattice length (i.e. the active space size)
         qcmaquis_param%L = nasht
-        if (iPrGlb >= debug) then
+        if (iPrGlb >= DEBUG) then
           write(6,*) 'PT2INI> qcmaquis_param%L = ', qcmaquis_param%L
         end if
       end if

@@ -33,8 +33,8 @@ real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1,0:nOrdOp), Zeta(nZeta),
 real(kind=wp), intent(inout) :: rKappa(nZeta), Grad(nGrad)
 real(kind=wp), intent(inout) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
 logical(kind=iwp), intent(in) :: IfGrad(3,2)
-integer(kind=iwp) :: i1, i2, iCar, iCn, icomp, iGrad, ipa, ipb, ixa, ixb, ixop, iya, iyaMax, iyb, iybMax, iyop, &
-                     iza, izb, iZeta, izop, nDAO
+integer(kind=iwp) :: i1, i2, iCar, iCn, icomp, iGrad, ipa, ipb, ixa, ixb, ixop, iya, iyaMax, iyb, iybMax, iyop, iza, izb, iZeta, &
+                     izop, nDAO
 real(kind=wp) :: Fact, ff, ps, xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
 integer(kind=iwp), external :: iPrmt
@@ -44,11 +44,11 @@ do iZeta=1,nZeta
   rKappa(iZeta) = rKappa(iZeta)*Zeta(iZeta)**exp32
 end do
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In CmbnMlt1: Zeta  ',' ',Zeta,1,nZeta)
-  call RecPrt(' In CmbnMlt1: rKappa',' ',rKappa,1,nZeta)
-  call RecPrt(' In CmbnMlt1: Alpha ',' ',Alpha,1,nZeta)
-  call RecPrt(' In CmbnMlt1: Beta  ',' ',Beta,1,nZeta)
-  call RecPrt(' In CmbnMlt1: DAO  ',' ',Dao,nZeta,(la+1)*(la+2)*(lb+1)*(lb+2)/4)
+call RecPrt(' In CmbnMlt1: Zeta  ',' ',Zeta,1,nZeta)
+call RecPrt(' In CmbnMlt1: rKappa',' ',rKappa,1,nZeta)
+call RecPrt(' In CmbnMlt1: Alpha ',' ',Alpha,1,nZeta)
+call RecPrt(' In CmbnMlt1: Beta  ',' ',Beta,1,nZeta)
+call RecPrt(' In CmbnMlt1: DAO  ',' ',Dao,nZeta,(la+1)*(la+2)*(lb+1)*(lb+2)/4)
 #endif
 !.... Loop over cartesian components of operator.......
 do ixop=0,nOrdOp
@@ -194,8 +194,8 @@ do ixop=0,nOrdOp
 
     nDAO = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
 #   ifdef _DEBUGPRINT_
-      call RecPrt(' S(1)',' ',rFinal,nDAO,6)
-      call RecPrt('   D ',' ',DAO,nDAO,1)
+    call RecPrt(' S(1)',' ',rFinal,nDAO,6)
+    call RecPrt('   D ',' ',DAO,nDAO,1)
 #   endif
     do iCn=1,2
       do iCar=1,3

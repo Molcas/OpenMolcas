@@ -30,12 +30,11 @@ real(kind=wp), intent(in) :: dq(nInter,nIter), g(nInter,nIter), Delta, q(nInter,
 logical(kind=iwp), intent(in) :: Cubic
 real(kind=wp), intent(out) :: Hess(nInter,nInter), FEq(merge(nInter,0,Cubic),nInter,nInter), dDipM(3,nInter)
 integer(kind=iwp) :: iCount, iInter, jInter, kInter, kIter, kIter1, kIter2, kIter3, kIter4
+
 #ifdef _DEBUGPRINT_
-
-
-  call RecPrt('NmHess:  g',' ',g,nInter,nIter)
-  call RecPrt('NmHess:  q',' ',q,nInter,nIter)
-  call RecPrt('NmHess: dq',' ',dq,nInter,nIter)
+call RecPrt('NmHess:  g',' ',g,nInter,nIter)
+call RecPrt('NmHess:  q',' ',q,nInter,nIter)
+call RecPrt('NmHess: dq',' ',dq,nInter,nIter)
 #else
 #include "macros.fh"
 unused_var(q)

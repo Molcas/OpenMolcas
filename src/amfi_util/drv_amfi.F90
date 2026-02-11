@@ -17,10 +17,10 @@ use Basis_Info, only: dbsc, Gaussian_Type, MolWgh, nBas, nCnttp, Nuclear_Model, 
 use DKH_Info, only: DKroll
 use Symmetry_Info, only: nIrrep
 use define_af, only: Angtp
+use Molcas, only: Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Molcas, only: Mxdbsc
 
 implicit none
 character(len=8), intent(in) :: Label

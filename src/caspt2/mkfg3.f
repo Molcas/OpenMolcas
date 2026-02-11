@@ -56,17 +56,18 @@ C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
       SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
+      use Symmetry_Info, only: Mul
       use caspt2_global, only: iPrGlb
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
       use caspt2_global, only: do_grad, nbuf1_grad, nStpGrd,
      *                         iTasks_grad,nTasks_grad
-      use PrintLevel, only: debug, verbose
+      use PrintLevel, only: DEBUG, VERBOSE
       use gugx, only: CIS, SGS, L2ACT, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
-      use SysDef, only: RtoB
-      use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, Mul,
-     &                         EPSA
-      use pt2_guga, only: MxCI, MxLev, nG1, nG2, nG3
+      use Definitions, only: RtoB
+      use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, EPSA
+      use gugx, only: MxLev
+      use pt2_guga, only: MxCI, nG1, nG2, nG3
       IMPLICIT NONE
 
 
@@ -214,7 +215,7 @@ C-SVC20100301: calculate maximum number of tasks possible
 * A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
       DO issg1=1,nsym
-        isp1=mul(issg1,stsym)
+        isp1=Mul(issg1,stsym)
         if (.not. DoFCIQMC) then
           nsgm1=CIS%ncsf(issg1)
           CALL H0DIAG_CASPT2(ISSG1,BUFD,CIS%NOW,CIS%IOW,NMIDV)
@@ -227,7 +228,7 @@ C-is basically the number of buffers we fill with sigma1 vectors.
       DO ip1=1,nlev2
         itlev=idx2ij(1,ip1)
         iulev=idx2ij(2,ip1)
-        istu=mul(SGS%ism(itlev),SGS%ism(iulev))
+        istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
         IF (istu.EQ.isp1) THEN
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
@@ -330,7 +331,7 @@ C-sigma vectors in the buffer.
         do ip1i=ip1sta,ip1end
          itlev=idx2ij(1,ip1i)
          iulev=idx2ij(2,ip1i)
-         istu=mul(SGS%ism(itlev),SGS%ism(iulev))
+         istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
          it=L2ACT(itlev)
          iu=L2ACT(iulev)
          if(istu.eq.isp1) then
@@ -389,8 +390,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 * The indices corresponding to pair index p3:
       iylev=idx2ij(1,ip3)
       izlev=idx2ij(2,ip3)
-      isyz=mul(SGS%ism(iylev),SGS%ism(izlev))
-      issg2=mul(isyz,stsym)
+      isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
+      issg2=Mul(isyz,stsym)
       if (.not. DoFCIQMC) then
          nsgm2=CIS%ncsf(issg2)
       end if
@@ -422,10 +423,10 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       do ip2=ip3,ntri2
         ivlev=idx2ij(1,ip2)
         ixlev=idx2ij(2,ip2)
-        isvx=mul(SGS%ism(ivlev),SGS%ism(ixlev))
+        isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
-        if(isvx.ne.mul(issg1,issg2)) goto 99
+        if(isvx.ne.Mul(issg1,issg2)) goto 99
         if (.not. DoFCIQMC) then
             call dcopy_(nsgm1,[0.0D0],0,BUFT,1)
             CALL SIGMA1(SGS,CIS,EXS,

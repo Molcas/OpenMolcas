@@ -30,8 +30,8 @@ real(kind=wp) :: CM(3), rii, rNorm
 logical(kind=iwp) :: SymDsp
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In TRMake: Coor',' ',Coor,3,nAtoms)
-  write(u6,*) ' nDim=',nDim
+call RecPrt(' In TRMake: Coor',' ',Coor,3,nAtoms)
+write(u6,*) ' nDim=',nDim
 #else
 #include "macros.fh"
 unused_var(nDim)

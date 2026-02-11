@@ -20,10 +20,10 @@ subroutine Hidden(Coor,AN,nHidden)
 
 use Slapaf_Info, only: rHidden
 use Isotopes, only: MaxAtomNum, PTab
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Angstrom
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn
 
 implicit none
 real(kind=wp), allocatable, intent(inout) :: Coor(:,:)

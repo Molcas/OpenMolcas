@@ -65,15 +65,15 @@
      &                         Davidson_Tol, Do3RDM, HFOcc,
      &                         Max_canonical, Max_Sweep
 #endif
-      use printlevel, only: DEBUG,USUAL,TERSE,VERBOSE
+      use PrintLevel, only: DEBUG,USUAL,TERSE,VERBOSE
       use output_ras, only: LF,IPRLOC
       use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
      &                        NTOT1,NCONF,NTOT,JOBIPH,NASH,NBAS,NDEL,
      &                        NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NSSH,NTOT2
       use spinfo, only: NCSASM,NDTASM
       use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
-      use rasdim, only: MxRoot, MxRef
-
+      use Molcas, only: MxRoot
+      use RASDim, only: MxRef
 
       Implicit None
 

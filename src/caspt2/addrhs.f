@@ -11,11 +11,12 @@
       SUBROUTINE ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTUV
-      use caspt2_module, only: MUL, NINDEP, NTUV, NISH, NAES, NTUVES
+      use caspt2_module, only: NINDEP, NTUV, NISH, NAES, NTUVES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -43,8 +44,8 @@
 ************************************************************************
 *                                                                      *
 *
-      ISYT=MUL(JSYM,ISYJ)
-      ISYV=MUL(JSYM,ISYX)
+      ISYT=Mul(JSYM,ISYJ)
+      ISYV=Mul(JSYM,ISYX)
       ISYM=ISYJ
       IF(NINDEP(ISYM,1)==0) RETURN
       NAS=NTUV(ISYM)
@@ -148,11 +149,12 @@ C Put W on disk:
       SUBROUTINE ADDRHSB(IVEC,JSYM,ISYJ,ISYL,NT,NJ,NV,NL,TJVL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTGEU, KIGEJ, KTGTU, KIGTJ
-      use caspt2_module, only: MUL, NINDEP, NAES, NTGEU, NIGEJ, NTGTU,
+      use caspt2_module, only: NINDEP, NAES, NTGEU, NIGEJ, NTGTU,
      &                         NIGTJ, NTGEUES, NIES, NIGEJES, NTGTUES,
      &                         NIGTJES
 #ifdef _MOLCAS_MPP_
@@ -192,11 +194,11 @@ Case B:
 ************************************************************************
 *                                                                      *
 *
-      ISYT=MUL(JSYM,ISYJ)
-      ISYV=MUL(JSYM,ISYL)
+      ISYT=Mul(JSYM,ISYJ)
+      ISYV=Mul(JSYM,ISYL)
       IF(ISYT<ISYV) RETURN
       SQ2=SQRT(Two)
-      ISYM=MUL(ISYJ,ISYL)
+      ISYM=Mul(ISYJ,ISYL)
 *
       IF(NINDEP(ISYM,2)>0) THEN
 * The plus combination:
@@ -449,11 +451,12 @@ C Put WBM on disk:
       SUBROUTINE ADDRHSC(IVEC,JSYM,ISYU,ISYX,NA,NU,NV,NX,AUVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTUV
-      use caspt2_module, only: MUL, NINDEP, NTUV, NSSH, NAES, NTUVES
+      use caspt2_module, only: NINDEP, NTUV, NSSH, NAES, NTUVES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -484,8 +487,8 @@ C             (FIMO(a,t)-sum(y)(ay,yt))*delta(u,v)/NACTEL.
 ************************************************************************
 *                                                                      *
 *
-      ISYA=MUL(JSYM,ISYU)
-      ISYV=MUL(JSYM,ISYX)
+      ISYA=Mul(JSYM,ISYU)
+      ISYV=Mul(JSYM,ISYX)
       ISYM=ISYA
       IF(NINDEP(ISYM,4)==0) RETURN
       NAS=NTUV(ISYM)
@@ -585,11 +588,12 @@ C Put W on disk:
       SUBROUTINE ADDRHSD1(IVEC,JSYM,ISYJ,ISYX,NA,NJ,NV,NX,AJVX,
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTU
-      use caspt2_module, only: MUL, NINDEP, NTU, NSSH, NISUP, NINABX,
+      use caspt2_module, only: NINDEP, NTU, NSSH, NISUP, NINABX,
      &                         NSECBX, NSYM, NISH, NAES, NTUES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -628,13 +632,13 @@ C Compute W2(vu,al)=(au,vl)
        IO=0
        DO ISA=1,NSYM
         IOFFD(ISA,ISW)=IO
-        ISI=MUL(ISA,ISW)
+        ISI=Mul(ISA,ISW)
         IO=IO+NSSH(ISA)*NISH(ISI)
        END DO
       END DO
 
-      ISYA=MUL(JSYM,ISYJ)
-      ISYV=MUL(JSYM,ISYX)
+      ISYA=Mul(JSYM,ISYJ)
+      ISYV=Mul(JSYM,ISYX)
       ISYM=JSYM
       IF(NINDEP(ISYM,5)==0) RETURN
       NAS1=NTU(ISYM)
@@ -773,11 +777,12 @@ C Put W on disk:
       SUBROUTINE ADDRHSD2(IVEC,JSYM,ISYU,ISYL,NA,NU,NV,NL,AUVL,
      &                    nBuff,Buff,idxBuf,
      &                    Cho_Bra,Cho_Ket,NCHO)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTU
-      use caspt2_module, only: MUL, NINDEP, NTU, NSSH, NISUP,
+      use caspt2_module, only: NINDEP, NTU, NSSH, NISUP,
      &                         NSYM, NISH, NAES, NTUES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -814,14 +819,14 @@ C Compute W2(vu,al)=(au,vl)
        IO=0
        DO ISYA=1,NSYM
         IOFFD(ISYA,ISYW)=IO
-        ISYI=MUL(ISYA,ISYW)
+        ISYI=Mul(ISYA,ISYW)
         IO=IO+NSSH(ISYA)*NISH(ISYI)
        END DO
       END DO
 
-      ISYA=MUL(JSYM,ISYU)
-      ISYV=MUL(JSYM,ISYL)
-      ISYM=MUL(ISYU,ISYV)
+      ISYA=Mul(JSYM,ISYU)
+      ISYV=Mul(JSYM,ISYL)
+      ISYM=Mul(ISYU,ISYV)
       IF(NINDEP(ISYM,5)==0) RETURN
       NAS1=NTU(ISYM)
       NAS=2*NAS1
@@ -923,11 +928,12 @@ C Put W on disk:
       SUBROUTINE ADDRHSE(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NV,NL,AJVL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KIGEJ, KIGTJ
-      use caspt2_module, only: MUL, NIGEJ, NIGTJ, NSSH, NASH,
+      use caspt2_module, only: NIGEJ, NIGTJ, NSSH, NASH,
      &                         NISUP, NINABX, NSECBX, NSYM, NIES,
      &                         NIGEJES, NIGTJES
 #ifdef _MOLCAS_MPP_
@@ -963,10 +969,10 @@ Case E:
 *                                                                      *
 *
       SQ32=SQRT(OneHalf)
-      ISYA=MUL(JSYM,ISYJ)
-      ISYV=MUL(JSYM,ISYL)
+      ISYA=Mul(JSYM,ISYJ)
+      ISYV=Mul(JSYM,ISYL)
       ISYM=ISYV
-      ISYJL=MUL(ISYJ,ISYL)
+      ISYJL=Mul(ISYJ,ISYL)
 
 C Set up offset table:
       IO1=0
@@ -974,7 +980,7 @@ C Set up offset table:
       DO ISA=1,NSYM
         IOFF1(ISA)=IO1
         IOFF2(ISA)=IO2
-        ISIJ=MUL(ISA,ISYM)
+        ISIJ=Mul(ISA,ISYM)
         IO1=IO1+NSSH(ISA)*NIGEJ(ISIJ)
         IO2=IO2+NSSH(ISA)*NIGTJ(ISIJ)
       END DO
@@ -1249,11 +1255,12 @@ C Read WM:
       SUBROUTINE ADDRHSF(IVEC,JSYM,ISYU,ISYX,NA,NU,NC,NX,AUCX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, Two, Quart
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTGEU, KAGEB, KTGTU, KAGTB
-      use caspt2_module, only: MUL, NTGEU, NAGEB, NTGTU, NAGTB, NINDEP,
+      use caspt2_module, only: NTGEU, NAGEB, NTGTU, NAGTB, NINDEP,
      &                         NAES, NTGEUES, NSES, NAGEBES, NTGTUES,
      &                         NAGTBES
 #ifdef _MOLCAS_MPP_
@@ -1290,9 +1297,9 @@ C   WM(ux,ac)= -((aucx)-(axcu))/2
 *
       IF(ISYU<ISYX) RETURN
 
-      ISYA=MUL(JSYM,ISYU)
-      ISYC=MUL(JSYM,ISYX)
-      ISYM=MUL(ISYU,ISYX)
+      ISYA=Mul(JSYM,ISYU)
+      ISYC=Mul(JSYM,ISYX)
+      ISYM=Mul(ISYU,ISYX)
 *
       IF(NINDEP(ISYM,8)>0) THEN
 * The plus combination:
@@ -1545,11 +1552,12 @@ C Put WFM on disk:
       SUBROUTINE ADDRHSG(IVEC,JSYM,ISYU,ISYL,NA,NU,NC,NL,AUCL,NAUCL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, OneHalf
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KAGEB, KAGTB
-      use caspt2_module, only: MUL, NAGEB, NAGTB, NSYM, NISH, NASH,
+      use caspt2_module, only: NAGEB, NAGTB, NSYM, NISH, NASH,
      &                         NISUP, NSECBX, NSES, NAGEBES, NAGTBES
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -1586,17 +1594,17 @@ C   WM(u,l,ac)=  ((aucl)-cual))*SQRT(OneHalf)
 *                                                                      *
 *
 
-      ISYA=MUL(JSYM,ISYU)
-      ISYC=MUL(JSYM,ISYL)
+      ISYA=Mul(JSYM,ISYU)
+      ISYC=Mul(JSYM,ISYL)
       ISYM=ISYU
-      ISYAC=MUL(ISYA,ISYC)
+      ISYAC=Mul(ISYA,ISYC)
 C Set up offset table:
       IO1=0
       IO2=0
       DO ISI=1,NSYM
         IOFF1(ISI)=IO1
         IOFF2(ISI)=IO2
-        ISAB=MUL(ISI,ISYM)
+        ISAB=Mul(ISI,ISYM)
         IO1=IO1+NISH(ISI)*NAGEB(ISAB)
         IO2=IO2+NISH(ISI)*NAGTB(ISAB)
       END DO
@@ -1910,11 +1918,12 @@ C      NBXSZJ=NINABX
       SUBROUTINE ADDRHSH(IVEC,JSYM,ISYJ,ISYL,NA,NJ,NC,NL,AJCL,NAJCL,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Half, Two, Three
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KIGEJ, KAGEB, KIGTJ, KAGTB
-      use caspt2_module, only: MUL, NIGEJ, NAGEB, NIGTJ, NAGTB, NINABX,
+      use caspt2_module, only: NIGEJ, NAGEB, NIGTJ, NAGTB, NINABX,
      &                         NSECBX, NIES, NSES, NIGEJES, NAGEBES,
      &                         NIGTJES, NAGTBES
 #ifdef _MOLCAS_MPP_
@@ -1951,9 +1960,9 @@ C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
 ************************************************************************
 *                                                                      *
       IF(ISYJ<ISYL) RETURN
-      ISYA=MUL(JSYM,ISYJ)
-      ISYC=MUL(JSYM,ISYL)
-      ISYM=MUL(ISYA,ISYC)
+      ISYA=Mul(JSYM,ISYJ)
+      ISYC=Mul(JSYM,ISYL)
+      ISYM=Mul(ISYA,ISYC)
       ISYAC=ISYM
       ISYJL=ISYM
 

@@ -35,18 +35,15 @@ real(kind=wp), intent(in) :: Sxyz(nZeta,3,0:na+2,0:nb+2), Alpha(nZeta), Beta(nZe
 integer(kind=iwp) :: ia, ib, iCar
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
-#endif
 
-
-#ifdef _DEBUGPRINT_
-  call RecPrt(' In MVe: Alpha',' ',Alpha,nZeta,1)
-  call RecPrt(' In MVe: Beta ',' ',Beta,nZeta,1)
-  do ib=0,nb+2
-    do ia=0,na+2
-      write(Label,'(A,I2,A,I2,A)') ' In MVe: Sxyz(',ia,',',ib,')'
-      call RecPrt(Label,' ',Sxyz(:,:,ia,ib),nZeta,3)
-    end do
+call RecPrt(' In MVe: Alpha',' ',Alpha,nZeta,1)
+call RecPrt(' In MVe: Beta ',' ',Beta,nZeta,1)
+do ib=0,nb+2
+  do ia=0,na+2
+    write(Label,'(A,I2,A,I2,A)') ' In MVe: Sxyz(',ia,',',ib,')'
+    call RecPrt(Label,' ',Sxyz(:,:,ia,ib),nZeta,3)
   end do
+end do
 #endif
 
 do ib=0,nb
@@ -73,16 +70,16 @@ do ib=0,nb
 end do
 
 #ifdef _DEBUGPRINT_
-  do ib=0,nb
-    do ia=0,na
-      write(Label,'(A,I2,A,I2,A)') 'In MVe: rV2Int(',ia,',',ib,',1)'
-      call RecPrt(Label,' ',rV2Int(:,:,ia,ib,1),nZeta,3)
-      write(Label,'(A,I2,A,I2,A)') 'In MVe: rV2Int(',ia,',',ib,',2)'
-      call RecPrt(Label,' ',rV2Int(:,:,ia,ib,2),nZeta,3)
-      write(Label,'(A,I2,A,I2,A)') 'In MVe: rV4Int(',ia,',',ib,')'
-      call RecPrt(Label,' ',rV4Int(:,:,ia,ib),nZeta,3)
-    end do
+do ib=0,nb
+  do ia=0,na
+    write(Label,'(A,I2,A,I2,A)') 'In MVe: rV2Int(',ia,',',ib,',1)'
+    call RecPrt(Label,' ',rV2Int(:,:,ia,ib,1),nZeta,3)
+    write(Label,'(A,I2,A,I2,A)') 'In MVe: rV2Int(',ia,',',ib,',2)'
+    call RecPrt(Label,' ',rV2Int(:,:,ia,ib,2),nZeta,3)
+    write(Label,'(A,I2,A,I2,A)') 'In MVe: rV4Int(',ia,',',ib,')'
+    call RecPrt(Label,' ',rV4Int(:,:,ia,ib),nZeta,3)
   end do
+end do
 #endif
 
 end subroutine MVe

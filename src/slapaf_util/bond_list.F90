@@ -15,9 +15,9 @@ subroutine Bond_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,fconst,rMult,
 use Symmetry_Info, only: nIrrep, iOper
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, iOptC, jStab, Magic_Bond, nStab, vdW_Bond
 use ddvdt, only: A_StrH, aAV, alpha_vdW, f_Const_Min, r_ref_vdW, rAV, rkr, rkr_vdW
+use Molcas, only: LenIn
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn4
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -39,7 +39,7 @@ integer(kind=iwp) :: i
 real(kind=wp) :: A(3,2), Alpha, Deg, f_Const, Grad(mB), Hess(mB**2), r0, Rab, RabCov, Rij2, Val
 logical(kind=iwp) :: Help
 character(len=14) :: Label
-character(len=LenIn4) :: Lbls(2)
+character(len=LenIn+4) :: Lbls(2)
 integer(kind=iwp), parameter :: iChOp(0:7) = [1,1,1,2,1,2,2,3]
 character(len=*), parameter :: ChOp(0:7) = ['E  ','X  ','Y  ','XY ','Z  ','XZ ','YZ ','XYZ']
 real(kind=wp), external :: CovRad

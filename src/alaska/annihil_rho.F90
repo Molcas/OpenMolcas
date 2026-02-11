@@ -13,10 +13,10 @@ subroutine Annihil_rho(Dmat,nBas)
 
 #include "intent.fh"
 
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 real(kind=wp), intent(_OUT_) :: Dmat(*)
@@ -25,7 +25,7 @@ integer(kind=iwp) :: i, iAt, iAt_B, ijj, j, jj, Length, nAA, nAt_B, nAtoms, nBas
 real(kind=wp) :: ZA, ZB
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Charge_B(:)
-character(len=LenIn8), allocatable :: UBName(:)
+character(len=LenIn+8), allocatable :: UBName(:)
 
 !                                                                      *
 !***********************************************************************
@@ -41,7 +41,7 @@ call mma_allocate(nBas_per_Atom,nAtoms,Label='nBpA')
 call mma_allocate(nBas_Start,nAtoms,Label='nB_Start')
 
 call mma_allocate(UBName,nBas,Label='UBName')
-call Get_cArray('Unique Basis Names',UBName,(LENIN8)*nBas)
+call Get_cArray('Unique Basis Names',UBName,(LenIn+8)*nBas)
 
 call BasFun_Atom(nBas_per_Atom,nBas_Start,UBName,nBas,nAtoms,.false.)
 call mma_deallocate(UBName)

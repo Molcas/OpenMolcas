@@ -26,9 +26,9 @@ subroutine CllCtoF(Strng,nCntr,mCntr,xyz,Temp,Ind,Typ,qMss,Lbl)
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Coor, dMass
+use Molcas, only: LenIn
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn1
 
 implicit none
 character(len=*), intent(in) :: Strng
@@ -40,7 +40,7 @@ character(len=8), intent(in) :: Lbl
 integer(kind=iwp) :: i, iEnd, iFrst, iPhase, isAtom, ixyz, j, jsAtom, nAtom, nCent, nPar1, nPar2
 real(kind=wp) :: Axis(3), Dummy(1), Perp_Axis(3,2), Val
 logical(kind=iwp) :: ldB, lWarn, lWrite
-character(len=LenIn1) :: Label
+character(len=LenIn+1) :: Label
 character(len=LenIn) :: AtName
 character(len=3) :: Oper
 

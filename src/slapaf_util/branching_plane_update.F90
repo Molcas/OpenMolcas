@@ -43,9 +43,9 @@
 
 subroutine Branching_Plane_Update(AGV,DGV,CDV,n,nIter)
 
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: n, nIter

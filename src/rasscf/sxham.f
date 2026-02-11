@@ -43,7 +43,7 @@ C
       use rasscf_global, only: ExFac, ICICP, ISCF, ITER, LVSHFT, NROOT,
      &                         NSXS, SXSHFT, ITRI, IZROT, IXSYM, IROOT,
      &                         Ener
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NASH,NBAS,NFRO,NISH,NORB,NSSH
 

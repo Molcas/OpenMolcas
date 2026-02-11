@@ -22,7 +22,7 @@
 
 subroutine ReadVC_m(CMO)
 
-use printlevel, only: debug, terse, verbose
+use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use mcpdft_output, only: iPrGlb, iPrLoc
 use mcpdft_input, only: mcpdft_options
 use general_data, only: invec, jobiph, jobold, ntot2
