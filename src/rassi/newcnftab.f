@@ -10,16 +10,18 @@
 ************************************************************************
       SUBROUTINE NEWCNFTAB(NEL,NORB,MINOP,MAXOP,LSYM,NGAS,
      &                     NGASORB,NGASLIM,IFORM,ICASE)
+      use definitions, only: iwp
       use stdalloc, only: mma_allocate, mma_deallocate
       use rassi_global_arrays, only: CnfTab1, CnfTab2, CnfTab
       use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer NEL, NORB, MINOP, MAXOP, LSYM, NGAS
-      Integer NGASORB(NSYM,NGAS)
-      Integer NGASLIM(2,NGAS)
-      Integer IFORM, ICASE
+      Integer(kind=iwp), intent(in):: NEL, NORB, MINOP, MAXOP, LSYM,
+     &                                NGAS
+      Integer(kind=iwp) NGASORB(NSYM,NGAS)
+      Integer(kind=iwp) NGASLIM(2,NGAS)
+      Integer(kind=iwp) IFORM, ICASE
 
-      Integer, allocatable:: NCNF1(:), NCNF2(:)
+      Integer(kind=iwp), allocatable:: NCNF1(:), NCNF2(:)
 
 C Note how input parameter LSYM is used: If non-zero, only those configurations
 C with symmetry label LSYM are selected. But if LSYM=0, they are all selected.
@@ -61,10 +63,10 @@ C Save offset to configuration arrays for later use:
 C Configuration arrays:
       DO NOPN=MINOP,MIN(2*NORB-NEL,NEL,MAXOP)
        NCLS=(NEL-NOPN)/2
-       IF(NCLS.LT.0) GOTO 19
-       IF(2*NCLS+NOPN.NE.NEL) GOTO 19
+       IF(NCLS.LT.0) CYCLE
+       IF(2*NCLS+NOPN.NE.NEL) CYCLE
        NOCC=NCLS+NOPN
-       IF(NOCC.GT.NORB) GOTO 19
+       IF(NOCC.GT.NORB) CYCLE
        DO ISYM=1,NSYM
         NCNF=0
         IF(LSYM.GE.1 .AND. LSYM.LE.NSYM) THEN
@@ -77,8 +79,8 @@ C Configuration arrays:
         IF(IFORM.EQ.4) LENCNF=(NORB+14)/15
         NTAB=NTAB+NCNF*LENCNF
        END DO
-  19   CONTINUE
       END DO
+
 C Sizes and offsets are known. Now, we can allocate the table:
       Select CASE (ICASE)
       CASE(1)
@@ -88,7 +90,9 @@ C Sizes and offsets are known. Now, we can allocate the table:
          CALL mma_allocate(CnfTab2,NTAB,Label='CnfTab2')
          CnfTab=>CnfTab2(:)
       CASE DEFAULT
+         Call ABEND()
       END SELECT
+
 C Enter header:
       CnfTab( 1)=NTAB
       CnfTab( 2)=37
@@ -261,20 +265,19 @@ C Nr of orbitals in this partition
            IPOS=(NOCC*(NOCC+1))/2+NOPN+1
            DO ISYM=1,NSYM
             NY=NCNF2(ISYM,IPOS)
-            IF(NY.EQ.0) GOTO 19
+            IF(NY.EQ.0) CYCLE
             NCLSOLD=NCLSNW-NCLS
-            IF(NCLSOLD.LT.0) GOTO 19
+            IF(NCLSOLD.LT.0) CYCLE
             NOPNOLD=NOPNNW-NOPN
-            IF(NOPNOLD.LT.0) GOTO 19
+            IF(NOPNOLD.LT.0) CYCLE
             NOCCOLD=NCLSOLD+NOPNOLD
-            IF(NOCCOLD.GT.MXOCCOLD) GOTO 19
+            IF(NOCCOLD.GT.MXOCCOLD) CYCLE
             ISYMOLD=MUL(ISYM,ISYMNW)
             IPOSOLD=(NOCCOLD*(NOCCOLD+1))/2+NOPNOLD+1
             NX=NCNF1(ISYMOLD,IPOSOLD)
-            IF(NX.EQ.0) GOTO 19
+            IF(NX.EQ.0) CYCLE
             NEW=NEW+NCNF1(ISYMOLD,IPOSOLD)*NCNF2(ISYM,IPOS)
             NOCCMX=MAX(NOCCNW,NOCCMX)
-  19        CONTINUE
            END DO
           END DO
           END DO
@@ -310,28 +313,12 @@ C Method: Induction
       END DO
       NCNF2(1,1)=1
       DO L=1,NORB
-CTEST      write(*,*)' NRCNF2 level L=',L
-CTEST      write(*,*)'  ISM(L)=',ISM(L)
         DO NOCC=L,1,-1
           DO NOPN=0,NOCC
             NCLS=NOCC-NOPN
-CTEST      write(*,'(1x,a,8i5)')' NCLS,NOPN=',NCLS,NOPN
             IPOS1=(NOCC*(NOCC+1))/2+NOPN+1
             IPOS2=IPOS1-NOCC
             IPOS3=IPOS2-1
-CTEST      write(*,'(1x,a,8i5)')' IPOS1,IPOS2,IPOS3:',IPOS1,IPOS2,IPOS3
-CTEST      write(*,'(1x,a,8i5)')
-CTEST     &         ' From last level:',(NCNF2(I,IPOS1),I=1,NSYM)
-CTEST      if(ncls.gt.0) then
-CTEST      write(*,'(1x,a,8i5)')
-CTEST     &         ' Adding closed  :',(NCNF2(I,IPOS2),I=1,NSYM)
-CTEST      end if
-CTEST      if(nopn.gt.0) then
-CTEST      write(*,'(1x,a,8i5)')
-CTEST     &   ' Adding open    :',(NCNF2(MUL(ISM(L),I),IPOS3),I=1,NSYM)
-CTEST      write(*,'(1x,a,8i5)')
-CTEST     &   ' (Descrambled)  :',(NCNF2(I,IPOS3),I=1,NSYM)
-CTEST      end if
             DO ISYM=1,NSYM
               NEW=NCNF2(ISYM,IPOS1)
               IF(NCLS.GT.0) NEW=NEW+NCNF2(ISYM,IPOS2)
@@ -339,43 +326,44 @@ CTEST      end if
               IF(NOPN.GT.0) NEW=NEW+NCNF2(JSYM,IPOS3)
               NCNF2(ISYM,IPOS1)=NEW
             END DO
-CTEST      write(*,'(1x,a,8i5)')
-CTEST     &         ' New result     :',(NCNF2(I,IPOS1),I=1,NSYM)
           END DO
         END DO
       END DO
       END SUBROUTINE NRCNF2
 
       SUBROUTINE MKCONF(ICNFTAB)
+      use definitions, only: iwp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT NONE
 
-      INTEGER ICNFTAB(*)
+      INTEGER(kind=iwp), intent(inout):: ICNFTAB(*)
 
-      INTEGER NEL,MINOP,MAXOP,LSYM
-      INTEGER MXPRT
+      INTEGER(kind=iwp) NEL,MINOP,MAXOP,LSYM
+      INTEGER(kind=iwp) MXPRT
       PARAMETER (MXPRT=150)
-      INTEGER LIMPOP(2,MXPRT),LIMOP(2,MXPRT),LIMCL(2,MXPRT)
-      INTEGER IOPDST(MXPRT),ICLDST(MXPRT),IOC(MXPRT),ICNF(MXPRT)
-      INTEGER LIM1,LIM2,LIM1SUM,LIM2SUM,IGAS,NOR,IERR
-      INTEGER MNOP,MXOP,MNCL,MXCL,NOPN,NCLS
-      INTEGER INIT1,INIT2,M,MORE,NOP1,NCL2
-      INTEGER ISYM,NORB,ICONF
-      INTEGER IFORM,IR,ITYPE,IW,KCNFSTA,KGASLIM
-      INTEGER KGASORB,KINFO,KPOS,LCLS,LENCNF,LOPN,NCNF
-      INTEGER NCNFSYM(8),NGAS,NOCC,NTAB
-      INTEGER I,J,K,IOFF,IO,IORB,N,NCL,NOP
-      INTEGER, ALLOCATABLE:: ISM(:)
+      INTEGER(kind=iwp) LIMPOP(2,MXPRT),LIMOP(2,MXPRT),LIMCL(2,MXPRT)
+      INTEGER(kind=iwp) IOPDST(MXPRT),ICLDST(MXPRT),IOC(MXPRT),
+     &                  ICNF(MXPRT)
+      INTEGER(kind=iwp) LIM1,LIM2,LIM1SUM,LIM2SUM,IGAS,NOR,IERR
+      INTEGER(kind=iwp) MNOP,MXOP,MNCL,MXCL,NOPN,NCLS
+      INTEGER(kind=iwp) INIT1,INIT2,M,MORE,NOP1,NCL2
+      INTEGER(kind=iwp) ISYM,NORB,ICONF
+      INTEGER(kind=iwp) IFORM,IR,ITYPE,IW,KCNFSTA,KGASLIM
+      INTEGER(kind=iwp) KGASORB,KINFO,KPOS,LCLS,LENCNF,LOPN,NCNF
+      INTEGER(kind=iwp) NCNFSYM(8),NGAS,NOCC,NTAB
+      INTEGER(kind=iwp) I,J,K,IOFF,IO,IORB,N,NCL,NOP
+      INTEGER(kind=iwp), ALLOCATABLE:: ISM(:)
       INTRINSIC MIN,MAX
-      INTEGER :: IPOW4(0:15)=[1,4,16,64,256,1024,4096,16384,65536,
-     &                        262144,1048576,4194304,16777216,
-     &                        67108864,268435456,1073741824]
-      INTEGER :: IPOW256(0:3)=[1,256,65536,16777216]
+      INTEGER(kind=iwp) :: IPOW4(0:15)=[1,4,16,64,256,1024,4096,16384,
+     &                                  65536,262144,1048576,4194304,
+     &                                  16777216,67108864,268435456,
+     &                                  1073741824]
+      INTEGER(kind=iwp) :: IPOW256(0:3)=[1,256,65536,16777216]
 
       ITYPE=ICNFTAB(2)
       IF(ITYPE.NE.37) THEN
-        WRITE(6,*)'MKCONF error: This is not a configuration table!'
+        WRITE(u6,*)'MKCONF error: This is not a configuration table!'
         CALL ABEND()
       END IF
 C Unbutton the CNF table.
@@ -392,11 +380,12 @@ C Unbutton the CNF table.
       KGASLIM=KGASORB+(NSYM+1)*(NGAS+1)
 C Check and refine the GAS limits:
       IF(NGAS.LE.0 .OR. NGAS.GT.MXPRT) THEN
-         WRITE(6,*)' MKCONF ERROR: Nr of GAS partitions is out of'
-         WRITE(6,*)' bounds. NGAS must be .GT.0 and .LT. MXPRT=',MXPRT
-         WRITE(6,*)' Input argument NGAS is ',NGAS
+         WRITE(u6,*)' MKCONF ERROR: Nr of GAS partitions is out of'
+         WRITE(u6,*)' bounds. NGAS must be .GT.0 and .LT. MXPRT=',MXPRT
+         WRITE(u6,*)' Input argument NGAS is ',NGAS
          CALL ABEND()
       END IF
+
       LIM1SUM=0
       LIM2SUM=0
       NORB=0
@@ -411,6 +400,7 @@ C Check and refine the GAS limits:
        LIMPOP(2,IGAS)=LIM2
        NORB=NORB+NOR
       END DO
+
       IERR=0
       DO IGAS=1,NGAS
        LIM1=MAX(LIMPOP(1,IGAS),NEL-(LIM2SUM-LIMPOP(2,IGAS)))
@@ -419,27 +409,30 @@ C Check and refine the GAS limits:
        LIMPOP(2,IGAS)=LIM2
        IF(LIM1.GT.LIM2) IERR=1
       END DO
+
       IF(IERR.GT.0) THEN
-         WRITE(6,*)' MKCONF ERROR: The input GAS restrictions are'
-         WRITE(6,*)' impossible to meet. No configurations are'
-         WRITE(6,*)' generated. The program stops here.'
-         WRITE(6,'(1X,A,I2)')' Number of GAS partitions:',NGAS
-         WRITE(6,'(1X,A,50I3)')' Partition:',(IGAS,IGAS=1,NGAS)
-         WRITE(6,'(1X,A,50I3)')' NGASORB:  ',
+         WRITE(u6,*)' MKCONF ERROR: The input GAS restrictions are'
+         WRITE(u6,*)' impossible to meet. No configurations are'
+         WRITE(u6,*)' generated. The program stops here.'
+         WRITE(u6,'(1X,A,I2)')' Number of GAS partitions:',NGAS
+         WRITE(u6,'(1X,A,50I3)')' Partition:',(IGAS,IGAS=1,NGAS)
+         WRITE(u6,'(1X,A,50I3)')' NGASORB:  ',
      &             (ICNFTAB(KGASORB+(NSYM+1)*IGAS),IGAS=1,NGAS)
-         WRITE(6,'(1X,A,50I3)')'NGASLIM(1):',
+         WRITE(u6,'(1X,A,50I3)')'NGASLIM(1):',
      &              (ICNFTAB(KGASLIM  +2*(IGAS-1)),IGAS=1,NGAS)
-         WRITE(6,'(1X,A,50I3)')'NGASLIM(2):',
+         WRITE(u6,'(1X,A,50I3)')'NGASLIM(2):',
      &              (ICNFTAB(KGASLIM+1+2*(IGAS-1)),IGAS=1,NGAS)
-         WRITE(6,'(1X,A,I2)')' Number of electrons:',NEL
+         WRITE(u6,'(1X,A,I2)')' Number of electrons:',NEL
          CALL ABEND()
       END IF
+
       IF(NEL.LT.0 .OR. NEL.GT.2*NORB) THEN
-         WRITE(6,*)' MKCONF ERROR: Nr of electrons is out of bounds.'
-         WRITE(6,*)' NEL must be .GT.0 and .LT. 2*NORB=',2*NORB
-         WRITE(6,*)' Input argument NEL is ',NEL
+         WRITE(u6,*)' MKCONF ERROR: Nr of electrons is out of bounds.'
+         WRITE(u6,*)' NEL must be .GT.0 and .LT. 2*NORB=',2*NORB
+         WRITE(u6,*)' Input argument NEL is ',NEL
          CALL ABEND()
       END IF
+
 C Array for orbital symmetry:
       CALL mma_allocate(ISM,NORB,Label='ISM')
 C Initialize table with orbital symmetry.
@@ -453,6 +446,7 @@ C Initialize table with orbital symmetry.
         END DO
        END DO
       END DO
+
 C INFO table inside ICNFTAB:
       KINFO=KGASLIM+2*NGAS
 C Note: Nr of conf, their position and length can now be accessed as:
@@ -471,13 +465,14 @@ C Make a list of possible number of open shells in each partition:
        LIMOP(1,IGAS)=MNOP
        LIMOP(2,IGAS)=MXOP
       END DO
+
 C Counter of configurations:
       ICONF=0
 C Loop over the requested range of open shells:
-      DO NOPN=MINOP,MAXOP
+      OUTER: DO NOPN=MINOP,MAXOP
        NCLS=(NEL-NOPN)/2
-       IF(NCLS.LT.0) GOTO 120
-       IF(2*NCLS+NOPN.NE.NEL) GOTO 120
+       IF(NCLS.LT.0) CYCLE OUTER
+       IF(2*NCLS+NOPN.NE.NEL) CYCLE OUTER
 C Size of each entry in the configuration table:
        NOCC=NCLS+NOPN
        LENCNF=NOCC
@@ -492,6 +487,7 @@ C Loop over all ways of distributing NOPN open shells among
 C the partitions. First make a start distribution:
        INIT1=NGAS
        NOP1=NOPN
+
   10   CONTINUE
 C Create the lexically lowest distribution with NOP1 open
 C shells among the INIT1 lowest partitions, and
@@ -502,7 +498,8 @@ C Let M=Max tot nr of open shells in lower partitions.
        DO IGAS=INIT1,1,-1
         M=M-LIMOP(1,IGAS)
        END DO
-       IF(M.LT.0) GOTO 120
+       IF(M.LT.0) CYCLE OUTER
+
 C But actually, we start with zero. So M open shells must be
 C distributed in excess of the allowed minimum, among the INIT1
 C partitions.
@@ -511,12 +508,9 @@ C partitions.
         IOPDST(IGAS)=LIMOP(1,IGAS)+MORE
         M=M-MORE
        END DO
-       IF(M.GT.0) GOTO 120
+       IF(M.GT.0) CYCLE OUTER
 C At this point of the code, all possible distributions of
 C open shells will be generated. Use them.
-CTEST      write(*,*)' Try this IOPDST distribution:'
-CTEST      write(*,'(1x,a,50i3)')
-CTEST     &          ' IOPDST(IGAS):',(IOPDST(IGAS),IGAS=1,NGAS)
 C First, use it to generate a table of limits for the distribution
 C of closed shells:
       DO IGAS=1,NGAS
@@ -538,16 +532,13 @@ C of closed shells:
        LIMCL(1,IGAS)=MNCL
        LIMCL(2,IGAS)=MXCL
       END DO
-CTEST      write(*,'(1x,a,20i3)')
-CTEST     &          'LIMCL(1,IGAS):',(LIMCL(1,IGAS),IGAS=1,NGAS)
-CTEST      write(*,'(1x,a,50i3)')
-CTEST     &          'LIMCL(2,IGAS):',(LIMCL(2,IGAS),IGAS=1,NGAS)
 
 C Loop over all possible ways of distributing NCLS closed shells
 C among  the partitions, subject to restrictions.
 C In order to create the start distribution:
       INIT2=NGAS
       NCL2=(NEL-NOPN)/2
+
   20  CONTINUE
 C Create the lexically lowest distribution with NCL2 closed shells
 C among the INIT2 lowest partitions, and increment the next higher
@@ -567,12 +558,6 @@ C partition (if any).
 C Here follows code to use this population distribution.
 C Initialize the configuration subarrays of partitions nr
 C 1..NGAS, within this population distribution:
-CTEST      write(*,*)' New distribution of open/closed shells among'
-CTEST      write(*,*)' the GAS spaces is:'
-CTEST      write(*,'(1x,a,50i3)')
-CTEST     &          ' IOPDST(IGAS):',(IOPDST(IGAS),IGAS=1,NGAS)
-CTEST      write(*,'(1x,a,50i3)')
-CTEST     &          ' ICLDST(IGAS):',(ICLDST(IGAS),IGAS=1,NGAS)
       IORB=0
       DO IGAS=1,NGAS
        NCL=ICLDST(IGAS)
@@ -594,32 +579,25 @@ CTEST     &          ' ICLDST(IGAS):',(ICLDST(IGAS),IGAS=1,NGAS)
   30  CONTINUE
 C Here finally we will get all possible configurations, restricted
 C by the population arrays. Screening by combined symmetry:
-CTEST      write(*,'(1x,a,50I3)')' New config:',(ioc(io),io=1,norb)
-CTEST      write(*,*)' Where should it go??'
       ISYM=1
       DO IO=1,NORB
        IF(IOC(IO).EQ.1) ISYM=MUL(ISM(IO),ISYM)
       END DO
-CTEST      write(*,*)' Symmetry ISYM=',ISYM
 C Skip if wrong symmetry:
-      IF (LSYM.GT.0 .AND. ISYM.NE.LSYM) GOTO 99
-CTEST      write(*,*)' Keep it!'
+      IF (.NOT.(LSYM.GT.0 .AND. ISYM.NE.LSYM)) THEN
       ICONF=ICONF+1
-CTEST      write(*,*)' This is configuration nr ICONF=',ICONF
 C Put this configuration into the ICNFTAB table.
 C First, determine where it should go:
       N=NCNFSYM(ISYM)
-CTEST      write(*,*)' Earlier nr of conf in this symm & nopn:',N
       NCNFSYM(ISYM)=N+1
-CTEST      write(*,*)' New value NCNFSYM(ISYM)=',NCNFSYM(ISYM)
       KCNFSTA=ICNFTAB(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
       KPOS=KCNFSTA+N*LENCNF
       IF(KPOS+LENCNF-1.GT.NTAB) THEN
-        WRITE(6,*)' MKCONF error: Table overflow.'
-        WRITE(6,*)'KCNFSTA:',KCNFSTA
-        WRITE(6,*)' LENCNF:',LENCNF
-        WRITE(6,*)'   KPOS:',KPOS
-        WRITE(6,*)'   NTAB:',NTAB
+        WRITE(u6,*)' MKCONF error: Table overflow.'
+        WRITE(u6,*)'KCNFSTA:',KCNFSTA
+        WRITE(u6,*)' LENCNF:',LENCNF
+        WRITE(u6,*)'   KPOS:',KPOS
+        WRITE(u6,*)'   NTAB:',NTAB
         CALL ABEND()
       END IF
 C Put together configuration array in standard format:
@@ -636,7 +614,6 @@ C Put together configuration array in standard format:
          END IF
         END DO
 C Add this configuration to the configuration table:
-CTEST      write(*,*)' Add configuration to conf table.'
         IF(IFORM.EQ.1) THEN
           DO I=1,NOCC
             ICNFTAB(KPOS-1+I)=ICNF(I)
@@ -672,13 +649,11 @@ CTEST      write(*,*)' Add configuration to conf table.'
           END IF
         END IF
 
-  99  CONTINUE
+      END IF
 C Get next configuration.
-CTEST      write(*,*)' 99 CONTINUE: Get next conf (if any).'
       IOFF=0
       DO IGAS=1,NGAS
        NOR=ICNFTAB(KGASORB+(NSYM+1)*IGAS)
-CTEST      write(*,*)'   Is there a new permut in IGAS',IGAS
 C Try to find next permutation within this partition:
        DO K=2,NOR
         IF(IOC(IOFF+K-1).GT.IOC(IOFF+K)) THEN
@@ -692,14 +667,12 @@ C Try to find next permutation within this partition:
            J=IOC(IOFF+I)
            IOC(IOFF+I)=IOC(IOFF+K)
            IOC(IOFF+K)=J
-CTEST      write(*,*)'   Yes there is! GOTO 30.'
 C OK, the next permutation has been obtained.
            GOTO 30
           END IF
          END DO
         END IF
        END DO
-CTEST      write(*,*)'   No, there is not. Reset IGAS',IGAS
 C Not possible. Reset permutation in this partition, and
 C then try the next one:
        N=ICLDST(IGAS)
@@ -715,7 +688,6 @@ C then try the next one:
        END DO
        IOFF=IOFF+NOR
       END DO
-CTEST      write(*,*)' There is no more, with this distrib.'
 C All failed. No more configurations with this distribution of
 C closed and open shells.
 C Next ICLDST distribution. First find the first increasable index:
@@ -727,9 +699,10 @@ C Next ICLDST distribution. First find the first increasable index:
        M=M+ICLDST(IGAS)-LIMCL(1,IGAS)
        NCL2=NCL2+ICLDST(IGAS)
       END DO
-CTEST      write(*,*)' No more ICLDST distribution.'
+
 C No more ICLDST distribution is possible.
  110  CONTINUE
+
 C Next IOPDST distribution. First find the first increasable index:
 C That is the first partition with less than LIMOP(2,IGAS) open
 C shells, above partitions with nonzero excess number M.
@@ -741,34 +714,31 @@ C shells, above partitions with nonzero excess number M.
        M=M+IOPDST(IGAS)-LIMOP(1,IGAS)
        NOP1=NOP1+IOPDST(IGAS)
       END DO
-CTEST      write(*,*)' No more IOPDST distribution.'
-CTEST      write(*,*)' There is no more distribution possible.'
-CTEST      write(*,*)' Test NCNFSYM(ISYM) vs. INFO:'
-CTEST      write(*,'(1x,a,8I5)')'ICNFTAB(KINFO+...):',
-CTEST     &  (ICNFTAB(KINFO+3*(ISYM-1+NSYM*(NOPN-MINOP))),ISYM=1,NSYM)
-CTEST      write(*,'(1x,a,8I5)')'     NCNFSYM(ISYM):',
-CTEST     &                                (NCNFSYM(ISYM),ISYM=1,NSYM)
 C Temporary check: Has everything worked perfectly??
       IERR=0
       DO ISYM=1,NSYM
         N=ICNFTAB(KINFO  +3*(ISYM-1+NSYM*(NOPN-MINOP)))
         IF(NCNFSYM(ISYM).NE.N) IERR=1
       END DO
-      IF(IERR.NE.0) GOTO 900
+      IF(IERR.NE.0) Call ErrorTrap()
 C No more IOPDST distribution is possible. Next NOPN value:
- 120  CONTINUE
-      END DO
+
+      END DO OUTER
 
       CALL mma_deallocate(ISM)
-      RETURN
- 900  CONTINUE
-      WRITE(6,*)' MKCNF ERROR: Unforeseen calamity.'
-      WRITE(6,*)' At end of loop over NOPN, the number of'
-      WRITE(6,*)' configurations generated does not match'
-      WRITE(6,*)' that which was allocated.'
-      WRITE(6,*)' INFO table in ICNFTAB says:'
-      WRITE(6,*)
-      WRITE(6,*)'  NOPN ISYM       Nr of conf Start point'//
+
+      Contains
+
+      Subroutine ErrorTrap()
+      use definitions, only: iwp
+      integer(kind=iwp) NOPN,ISYM
+      WRITE(u6,*)' MKCNF ERROR: Unforeseen calamity.'
+      WRITE(u6,*)' At end of loop over NOPN, the number of'
+      WRITE(u6,*)' configurations generated does not match'
+      WRITE(u6,*)' that which was allocated.'
+      WRITE(u6,*)' INFO table in ICNFTAB says:'
+      WRITE(u6,*)
+      WRITE(u6,*)'  NOPN ISYM       Nr of conf Start point'//
      &             '  Words/config'
       DO NOPN=MINOP,MAXOP
        NCLS=(NEL-NOPN)/2
@@ -777,8 +747,10 @@ C No more IOPDST distribution is possible. Next NOPN value:
         NCNF=ICNFTAB(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))
         KCNFSTA=ICNFTAB(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
         LENCNF=ICNFTAB(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-        WRITE(6,'(1X,2I4,5X,3I12)') NOPN,ISYM,NCNF,KCNFSTA,LENCNF
+        WRITE(u6,'(1X,2I4,5X,3I12)') NOPN,ISYM,NCNF,KCNFSTA,LENCNF
        END DO
       END DO
       CALL ABEND()
+      End Subroutine ErrorTrap
+
       END SUBROUTINE MKCONF

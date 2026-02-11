@@ -9,15 +9,19 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HSHGET(KEY,KEYDIM,NCOMP,ITEM,NSIZE,ITAB,ITEMID)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER ITAB(NSIZE,2)
-      INTEGER KEY(KEYDIM),ITEM(NCOMP,*)
+      use definitions, only: iwp, u6
+      IMPLICIT NONE
+      INTEGER(kind=iwp), intent(in):: KEYDIM,NCOMP,NSIZE
+      INTEGER(kind=iwp), intent(in):: KEY(KEYDIM),ITEM(NCOMP,*)
+      INTEGER(kind=iwp), intent(in):: ITAB(NSIZE,2)
+      INTEGER(kind=iwp), intent(out):: ITEMID
 C These parameters determine the hash function:
-      INTEGER, PARAMETER :: MULT=37, NHASH=997
+      INTEGER(kind=iwp), PARAMETER :: MULT=37, NHASH=997
+      INTEGER(kind=iwp) NULL, IND, I, LOOKAT
 
       IF(NSIZE.LT.NHASH) THEN
-        WRITE(6,*)' HSHGET: Table size must be at least as'
-        WRITE(6,*)'         big as NHASH, presently =', NHASH
+        WRITE(u6,*)' HSHGET: Table size must be at least as'
+        WRITE(u6,*)'         big as NHASH, presently =', NHASH
         CALL ABEND()
       END IF
       NULL=ITAB(NSIZE,1)
