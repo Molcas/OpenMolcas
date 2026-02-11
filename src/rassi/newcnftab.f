@@ -17,9 +17,9 @@
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer(kind=iwp), intent(in):: NEL, NORB, MINOP, MAXOP, LSYM,
      &                                NGAS
-      Integer(kind=iwp) NGASORB(NSYM,NGAS)
-      Integer(kind=iwp) NGASLIM(2,NGAS)
-      Integer(kind=iwp) IFORM, ICASE
+      Integer(kind=iwp), intent(in):: NGASORB(NSYM,NGAS)
+      Integer(kind=iwp), intent(in):: NGASLIM(2,NGAS)
+      Integer(kind=iwp), intent(in):: IFORM, ICASE
 
       Integer(kind=iwp), allocatable:: NCNF1(:), NCNF2(:)
 
