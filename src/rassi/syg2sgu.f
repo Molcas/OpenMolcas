@@ -719,15 +719,17 @@ C Leading dimension=nr of upwalks in this block.
       END SUBROUTINE W2SGORD1
 
       SUBROUTINE MSTOW(SGS,CIS,MWS2W,nSym)
+      use definitions, only:iwp
       use gugx, only: SGStruct, CIStruct
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-      Integer MWS2W(*)
-      Integer nSym
+      IMPLICIT NONE
+      Type (SGStruct), intent(in):: SGS
+      Type (CIStruct), intent(in):: CIS
+      Integer(kind=iwp), intent(out):: MWS2W(*)
+      Integer(kind=iwp), intent(in):: nSym
 
-      Integer, allocatable:: ICS(:)
+      Integer(kind=iwp), allocatable:: ICS(:)
+      Integer(kind=iwp) NLEV,NVERT,MIDLEV,NMIDV,NIPWLK,NWALK
 
       NLEV  =SGS%nLev
       NVERT =SGS%nVert
@@ -747,14 +749,20 @@ C Leading dimension=nr of upwalks in this block.
       SUBROUTINE MSTOW1(NSYM,NLEV,NVERT,NMIDV,NIPWLK,NWALK,
      &                  MIDLEV,ICS,NOW,IOW,IWALK,
      &                  IUP,IDOWN,MAW,MWS2W)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Integer ICS(NLEV)
-      Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      Integer IDOWN(NVERT,0:3),IUP(NVERT,0:3)
-      Integer MAW(NVERT,0:3)
-      Integer IWALK(NIPWLK*NWALK)
-      Integer MWS2W(NWALK)
+      use definitions, only: iwp
+      IMPLICIT  NONE
+      Integer(kind=iwp), intent(in):: NSYM,NLEV,NVERT,NMIDV,NIPWLK,
+     &                                NWALK,MIDLEV
+      Integer(kind=iwp), intent(in):: ICS(NLEV)
+      Integer(kind=iwp), intent(in):: NOW(2,NSYM,NMIDV),
+     &                                IOW(2,NSYM,NMIDV)
+      Integer(kind=iwp), intent(in):: IWALK(NIPWLK*NWALK)
+      Integer(kind=iwp), intent(in):: IDOWN(NVERT,0:3),IUP(NVERT,0:3)
+      Integer(kind=iwp), intent(in):: MAW(NVERT,0:3)
+      Integer(kind=iwp), intent(out):: MWS2W(NWALK)
 
+      Integer(kind=iwp) MV,ISYUP,NUP,IUOFF,IUW,IUWTOT,MS,IUV,LEV,IC,
+     &                     ISYDWN,NDWN,IDOFF,IDW,IDWTOT,IDV
 C Purpose: From the list of packed up- and downwalks, construct
 C the table MWS2W, such that MAW sums can be translated to the
 C corresponding walks of the Split-GUGA.
