@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE SPHPUR(CMO)
       use define_af, only: iTabMx, AngTp
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,17 +22,17 @@
       Real*8 WGTLQN(0:9)
       LOGICAL IFTEST
       Integer, Allocatable:: LQN(:)
-      Integer I, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB,
-     &        ISYM, ITP, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT,
+      Integer I, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB,    &
+     &        ISYM, ITP, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT,   &
      &        NO, NONZ
       REAL*8 WGT, WMX
 
-* Set IFTEST=.true. to get supsym input generated in the output
-* for further use, or for testing.
+! Set IFTEST=.true. to get supsym input generated in the output
+! for further use, or for testing.
       IFTEST=.false.
       IF(IFTEST) WRITE(6,*)'SUPSYM'
 
-* Set up array with angular quant num for each basis function:
+! Set up array with angular quant num for each basis function:
       NBTOT=0
       DO ISYM=1,NSYM
        NBTOT=NBTOT+NBAS(ISYM)
@@ -74,8 +74,8 @@
         END DO
         IXSYM(IORB)=LMX
        END DO
-* We have now a provisional IXSYM array. How many different
-* L values appear in it?
+! We have now a provisional IXSYM array. How many different
+! L values appear in it?
        MNL=9
        MXL=0
        NONZ=0
@@ -93,9 +93,9 @@
   19    CONTINUE
         NONZ=NONZ+LEXIST
        END DO
-* There are NONZ different values, so we want NONZ-1 special supsym
-* labels for this symmetry. Reuse IWORK(LLQN) for orbital numbers:
-* This will be the supsym label:
+! There are NONZ different values, so we want NONZ-1 special supsym
+! labels for this symmetry. Reuse IWORK(LLQN) for orbital numbers:
+! This will be the supsym label:
        IF (IFTEST) WRITE(6,*) NONZ-1
        ISSLAB=0
        DO L=MNL,MXL
@@ -108,14 +108,14 @@
          END IF
         END DO
         IF(LCOUNT.GT.0) THEN
-* Replace provisional IXSYM value with correct label:
+! Replace provisional IXSYM value with correct label:
           DO IO=1,NO
            IORB=IORBES+IO
            IF(IXSYM(IORB).eq.L) IXSYM(IORB)=ISSLAB
           END DO
-* Lowest L = label zero = do not specify in input:
+! Lowest L = label zero = do not specify in input:
           IF (IFTEST.and.(ISSLAB.GT.0)) THEN
-           WRITE(6,'(1x,I3,16I5,(/,5X,16I5))') LCOUNT,
+           WRITE(6,'(1x,I3,16I5,(/,5X,16I5))') LCOUNT,                  &
      &         (LQN(i),i=1,LCOUNT)
           END IF
           ISSLAB=ISSLAB+1

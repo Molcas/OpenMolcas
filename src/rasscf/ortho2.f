@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE ORTHO2(S,U,V,N)
-C
-C     Purpose: normalize vector U and calculate V=S*U.
-C
-C     Called from: ORTHO1.
-C
-C          ****** IBM 3090 MOLCAS Release: 90 02 22 ******
-C
+!
+!     Purpose: normalize vector U and calculate V=S*U.
+!
+!     Called from: ORTHO1.
+!
+!          ****** IBM 3090 MOLCAS Release: 90 02 22 ******
+!
       use output_ras, only: LF
       IMPLICIT None
       Integer N
@@ -28,10 +28,10 @@ C
 
       THR=1.D-10
       IF ( N.EQ.0 ) Return
-      CALL DGEMM_('N','N',
-     &             N,1,N,
-     &             1.0d0,S,N,
-     &             U,N,
+      CALL DGEMM_('N','N',                                              &
+     &             N,1,N,                                               &
+     &             1.0d0,S,N,                                           &
+     &             U,N,                                                 &
      &             0.0d0,V,N)
       SUM=DDOT_(N,U,1,V,1)
       IF (SUM.LT.THR) THEN

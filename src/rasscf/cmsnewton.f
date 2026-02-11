@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2022, Jie J. Bao                                       *
-************************************************************************
-******************************************************************
-* history:                                                       *
-* Jie J. Bao, on Apr. 11, 2022, created this file.               *
-******************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2022, Jie J. Bao                                       *
+!***********************************************************************
+!*****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Apr. 11, 2022, created this file.               *
+!*****************************************************************
 
 
       Subroutine CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
-      use CMS, only:CMSNotConverged,CMSThres,NeedMoreStep,
+      use CMS, only:CMSNotConverged,CMSThres,NeedMoreStep,              &
      &              nPosHess,LargestQaaGrad,NCMSScale
       use stdalloc, only : mma_allocate, mma_deallocate
-      use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,
+      use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,       &
      &                         iCMSIterMin, NAC
       use PrintLevel, only: USUAL
       use output_ras, only: IPRLOC
@@ -29,15 +29,15 @@
 
 #include "warnings.h"
       INTEGER nGD
-      Real*8 R(lRoots**2),
-     &       GDorbit(nGD),GDstate(nGD),
+      Real*8 R(lRoots**2),                                              &
+     &       GDorbit(nGD),GDstate(nGD),                                 &
      &       Dgorbit(nGD),Dgstate(nGD)
-      Real*8,DIMENSION(:),Allocatable::X,Hess,Grad,EigVal,deltaR,DDg,
-     &                                 XScr,GScr,ScrDiag,
+      Real*8,DIMENSION(:),Allocatable::X,Hess,Grad,EigVal,deltaR,DDg,   &
+     &                                 XScr,GScr,ScrDiag,               &
      &                                 RCopy,GDCopy,DgCopy
 
       Real*8,DIMENSION(:,:),Allocatable::RotMat
-      INTEGER iStep,nDDg,lRoots2,NAC2,
+      INTEGER iStep,nDDg,lRoots2,NAC2,                                  &
      &        nSPair,nSPair2,nScr
       Real*8 Qnew,Qold
       Logical Saved
@@ -45,7 +45,7 @@
 
       IPRLEV=IPRLOC(6)
 
-*     preparation
+!     preparation
       lRoots2=lRoots**2
       NAC2=NAC**2
       nDDg=lRoots2**2
@@ -64,10 +64,10 @@
       CALL mma_allocate(DgCopy ,nGD      )
       CALL mma_allocate(RCopy  ,lRoots2  )
       CALL mma_allocate(RotMat ,lRoots,lRoots)
-*     Step 0
+!     Step 0
       iStep=0
       Qold=0.0d0
-*     Note that the following six lines appear as a group
+!     Note that the following six lines appear as a group
       CALL RotGD(GDstate,R,nGD,lRoots,NAC2)
       CALL RotGD(Dgstate,R,nGD,lRoots,NAC2)
       CALL TransposeMat(Dgorbit,Dgstate,nGD,lRoots2,NAC2)
@@ -83,7 +83,7 @@
       CALL GetDiagScr(nScr,Hess,EigVal,nSPair)
       CALL mma_allocate(ScrDiag,nScr)
 
-*     Starting iteration
+!     Starting iteration
       DO WHILE(CMSNotConverged)
        iStep=iStep+1
        Qold=Qnew
@@ -96,7 +96,7 @@
        CALL DCopy_(nGD,GDState,1,GDCopy,1)
        CALL DCopy_(nGD,DgState,1,DgCopy,1)
 
-       CALL CalcNewX(X,Hess,Grad,nSPair,
+       CALL CalcNewX(X,Hess,Grad,nSPair,                                &
      &               XScr,GScr,EigVal,ScrDiag,nScr)
        CALL UpDateRotMat(R,DeltaR,X,lRoots,nSPair)
 
@@ -111,23 +111,23 @@
        Saved=.true.
        IF((Qold-Qnew).gt.CMSThreshold) THEN
         If(iStep.gt.ICMSIterMin) Then
-*        When Onew is less than Qold, scale the rotation matrix
-         CALL CMSScaleX(X,R,DeltaR,Qnew,Qold,
-     &                  RCopy,GDCopy,DgCopy,
-     &                  GDstate,GDOrbit,Dgstate,DgOrbit,DDg,
+!        When Onew is less than Qold, scale the rotation matrix
+         CALL CMSScaleX(X,R,DeltaR,Qnew,Qold,                           &
+     &                  RCopy,GDCopy,DgCopy,                            &
+     &                  GDstate,GDOrbit,Dgstate,DgOrbit,DDg,            &
      &                  nSPair,lRoots2,nGD,NAC2,nDDg,Saved)
         End If
        END IF
        IF(IPRLEV.ge.USUAL) CALL PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
        CALL AntiOneDFoil(RotMat,R,lRoots,lRoots)
-       CALL PrintMat('ROT_VEC','CMS-PDFT temp',
+       CALL PrintMat('ROT_VEC','CMS-PDFT temp',                         &
      &                RotMat,lroots,lroots,7,13,'T')
 
        IF(.not. Saved) THEN
         CMSNotConverged=.true.
-*        Exit
+!        Exit
        END IF
-*      sanity check
+!      sanity check
        IF(abs(Qnew-Qold).lt.CMSThreshold) THEN
         CMSNotConverged=.false.
         If(NeedMoreStep)         CMSNotConverged=.true.

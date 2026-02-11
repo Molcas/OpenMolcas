@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICEnSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Oskar Weser                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICEnSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Oskar Weser                                      *
+!***********************************************************************
 #include "intent.fh"
       module orthonormalization
         use definitions, only: wp
         use stdalloc, only: mma_allocate, mma_deallocate
-        use blockdiagonal_matrices, only: t_blockdiagonal, new, delete,
+        use blockdiagonal_matrices, only: t_blockdiagonal, new, delete, &
      &    from_raw, to_raw, from_symm_raw, blocksizes
         use linalg_mod, only: Gram_Schmidt, Lowdin, Canonical
 
         implicit none
         save
         private
-        public ::
+        public ::                                                       &
      &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize
 
 ! TODO: Should be changed to default construction in the future.
@@ -29,7 +29,7 @@
         type :: t_ON_scheme_values
           integer :: no_ON, Gram_Schmidt, Lowdin, Canonical
         end type
-        type(t_ON_scheme_values), parameter ::
+        type(t_ON_scheme_values), parameter ::                          &
 ! TODO: Dear fellow MOLCAS developer of the future:
 ! Please replace the following explicit constructur
 ! with the default constructor
@@ -37,8 +37,8 @@
 ! as soon as possible.
 ! As of July 2019 the Sun compiler requires explicit construction
 ! for parameter variables. (Which is wrong IMHO.)
-     &    ON_scheme_values =
-     &    t_ON_scheme_values(no_ON = 1, Gram_Schmidt = 2,
+     &    ON_scheme_values =                                            &
+     &    t_ON_scheme_values(no_ON = 1, Gram_Schmidt = 2,               &
      &                       Lowdin = 3, Canonical = 4)
 
         type :: t_ON_scheme
@@ -94,12 +94,12 @@
           case(ON_scheme_values%Canonical)
             n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
             call Canonical_Blocks(basis, S, n_to_ON, ONB, n_new)
-            call update_orb_numbers(n_to_ON, n_new,
+            call update_orb_numbers(n_to_ON, n_new,                     &
      &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
           case(ON_scheme_values%Gram_Schmidt)
             n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
             call Gram_Schmidt_Blocks(basis, S, n_to_ON, ONB, n_new)
-            call update_orb_numbers(n_to_ON, n_new,
+            call update_orb_numbers(n_to_ON, n_new,                     &
      &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
         end select
 
@@ -156,7 +156,7 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Canonical(basis(i)%blck, n_to_ON(i),
+          call Canonical(basis(i)%blck, n_to_ON(i),                     &
      &                   ONB(i)%blck, n_new(i), S(i)%blck)
         end do
       end subroutine Canonical_Blocks
@@ -175,22 +175,22 @@
         integer :: i
 
         do i = 1, size(basis)
-          call Gram_Schmidt(basis(i)%blck, n_to_ON(i), ONB(i)%blck,
+          call Gram_Schmidt(basis(i)%blck, n_to_ON(i), ONB(i)%blck,     &
      &                      n_new(i), S(i)%blck)
         end do
       end subroutine Gram_Schmidt_Blocks
 
 
 
-      subroutine update_orb_numbers(
-     &    n_to_ON, nNew,
+      subroutine update_orb_numbers(                                    &
+     &    n_to_ON, nNew,                                                &
      &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
       use general_data, only : nSym
       use PrintLevel, only: USUAL
       use output_ras, only: LF,IPRLOC
 #include "warnings.h"
       integer, intent(in) :: n_to_ON(:), nNew(:)
-      integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
+      integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),              &
      &  nDelt, nSec, nOrbt, nTot3, nTot4
 
       integer :: iSym, remove(nSym), total_remove
@@ -208,9 +208,9 @@
             Write(LF,*) 'Effective NR of orthonormal orbs:', nNew(iSym)
             Write(LF,*) 'Earlier number of deleted orbs:', nDel(iSym)
             Write(LF,*) 'Earlier number of secondary orbs:', nSSH(iSym)
-            Write(LF,*) 'New number of deleted orbs:',
+            Write(LF,*) 'New number of deleted orbs:',                  &
      &                  nDel(iSym) + remove(iSym)
-            Write(LF,*) 'New number of secondary orbs:',
+            Write(LF,*) 'New number of secondary orbs:',                &
      &                  nSSH(iSym) - remove(iSym)
             call quit(_RC_GENERAL_ERROR_)
           else if (iPRLoc(1) >= USUAL) then
@@ -219,7 +219,7 @@
             Write(LF,*) 'forces RASSCF to delete additional orbitals.'
             Write(LF,*) 'Symmetry block:', iSym
             Write(LF,*) 'Earlier number of deleted orbs =', nDel(iSym)
-            Write(LF,*) 'New number of deleted orbs =',
+            Write(LF,*) 'New number of deleted orbs =',                 &
      &                  nDel(iSym) + remove(iSym)
           end if
         end do

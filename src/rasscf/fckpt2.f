@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Bjorn O. Roos                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Bjorn O. Roos                                    *
+!***********************************************************************
       SUBROUTINE FCKPT2(CMOO,CMON,FI,FP,FTR,VEC,WO,SQ,CMOX)
-*
-* Purpose: To diagonalize the inactive, active,
-* and external parts of the Fock matrix (FI+FA) for CASPT2
-* and order the eigenvalues and eigenvectors after energy.
-* This ordering is of value in subsequent CI and CASPT2
-* calculations. All diagonal elements of
-* the transformed Fock matrix are collected in FDIAG for
-* later printing. The new MO's are written onto JOBIPH
-* in address IADR15(9). Also the inactive Fock matrix FI
-* is saved on Jobiph for use in CASPT2.
-* Note:these orbitals leave the CI expansion
-* invariant only for CAS wave functions.
-* Called from SXCTL if IFINAL=1 (after last MC iteration)
-*
-* Modifications: - Produce full matrix FP and write it to JOBIPH.
-* B. Roos, Lund, June 1990
-*
-* ********** IBM-3090 Release 88 09 07 **********
-*
+!
+! Purpose: To diagonalize the inactive, active,
+! and external parts of the Fock matrix (FI+FA) for CASPT2
+! and order the eigenvalues and eigenvectors after energy.
+! This ordering is of value in subsequent CI and CASPT2
+! calculations. All diagonal elements of
+! the transformed Fock matrix are collected in FDIAG for
+! later printing. The new MO's are written onto JOBIPH
+! in address IADR15(9). Also the inactive Fock matrix FI
+! is saved on Jobiph for use in CASPT2.
+! Note:these orbitals leave the CI expansion
+! invariant only for CAS wave functions.
+! Called from SXCTL if IFINAL=1 (after last MC iteration)
+!
+! Modifications: - Produce full matrix FP and write it to JOBIPH.
+! B. Roos, Lund, June 1990
+!
+! ********** IBM-3090 Release 88 09 07 **********
+!
 
 #ifdef _HDF5_
-      use mh5, only: mh5_put_dset, mh5_close_dset,
-     &               mh5_create_dset_real, mh5_create_dset_int,
+      use mh5, only: mh5_put_dset, mh5_close_dset,                      &
+     &               mh5_create_dset_real, mh5_create_dset_int,         &
      &               mh5_create_file
       use fciqmc, only: tPrepStochCASPT2, tNonDiagStochPT2
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -46,12 +46,12 @@
 #endif
       use PrintLevel, only: DEBUG,VERBOSE
       use output_ras, only: LF,IPRLOC
-      use general_data, only: NSYM,NTOT,JOBIPH,NASH,NBAS,NDEL,NFRO,NISH,
+      use general_data, only: NSYM,NTOT,JOBIPH,NASH,NBAS,NDEL,NFRO,NISH,&
      &                        NRS1,NRS2,NRS3,NSSH,NTOT2
 
       IMPLICIT None
 
-      Real*8 CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),
+      Real*8 CMOO(*),CMON(*),FI(*),FP(*),FTR(*),VEC(*),                 &
      &          WO(*),SQ(*),CMOX(*)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
@@ -68,11 +68,11 @@
 
       Character(LEN=16), Parameter :: ROUTINE='FCKPT2  '
       REAL*8 FMIN
-      Integer iPrLev, IB, ISTMO1, ISTFCK, ID, i, iAd15, iBas, IF, IFD,
-     &        II, ioff, IST, ISTMO, iSym, j, MIN, NA, NA1, NABT, NAO,
-     &        NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NF, NFNB,
-     &        NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1, NOC, NOO,
-     &        NOT, NP, NPQ, NR1, NR11, NR12, NR2, NR21, NR22, NR3, NR31,
+      Integer iPrLev, IB, ISTMO1, ISTFCK, ID, i, iAd15, iBas, IF, IFD,  &
+     &        II, ioff, IST, ISTMO, iSym, j, MIN, NA, NA1, NABT, NAO,   &
+     &        NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NF, NFNB,    &
+     &        NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1, NOC, NOO,    &
+     &        NOT, NP, NPQ, NR1, NR11, NR12, NR2, NR21, NR22, NR3, NR31,&
      &        NR32, NT, NT1, NTT, NTU, NTUT, NU, NUT, NAB, NEO2, NQ
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Integer ifock, iiash, iOrb, jOrb, LuFck, nOrbTot
@@ -80,12 +80,12 @@
 #endif
 
 
-* Local print level (if any)
+! Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
-*
+!
       IB=0
       ISTMO1=1
       ISTFCK=0
@@ -121,10 +121,10 @@
         norbtot = norbtot + nAsh(iiash)
       enddo
 
-* Get character table to convert MOLPRO symmetry format
+! Get character table to convert MOLPRO symmetry format
       Call MOLPRO_ChTab(nSym,Label,iChMolpro)
 
-* Convert orbital symmetry into MOLPRO format
+! Convert orbital symmetry into MOLPRO format
       Call mma_allocate(OrbSym,NAC,Label='OrbSym')
       iOrb=1
       Do iSym=1,nSym
@@ -135,8 +135,8 @@
       End Do
 
       LuFCK=isFreeUnit(27)
-*      open ( unit = LuFCK, file = "FOCK_CHEMPS2",
-*     &        action="write", status="replace" )
+!      open ( unit = LuFCK, file = "FOCK_CHEMPS2",
+!     &        action="write", status="replace" )
       call molcas_open(LuFCK,'FOCK_CHEMPS2')
       write(LuFCK,'(1X,A12,I2,A1)') '&FOCK NACT= ', norbtot,','
       write(LuFCK,'(2X,A7)',ADVANCE = "NO") 'ORBSYM='
@@ -161,9 +161,9 @@
        NOT=NIO+NAO+NEO
        NOC=NIO+NAO
        ISTMO=ISTMO1+NFO*NBF
-************************************************************************
-* Frozen orbitals (move MO's to CMON and set FDIAG to zero)
-************************************************************************
+!***********************************************************************
+! Frozen orbitals (move MO's to CMON and set FDIAG to zero)
+!***********************************************************************
        IF(NFO.NE.0) THEN
         NFNB=NBF*NFO
         CALL DCOPY_(NFNB,CMOO(ISTMO1),1,CMON(ISTMO1),1)
@@ -171,17 +171,17 @@
          FDIAG(IB+NF)=0.0D0
         END DO
        ENDIF
-*
-* Clear the MO transformation matrix CMOX
-*
+!
+! Clear the MO transformation matrix CMOX
+!
        CALL FZERO(CMOX,NOT*NOT)
-*
-************************************************************************
-* Inactive part of the Fock matrix
-************************************************************************
-*
+!
+!***********************************************************************
+! Inactive part of the Fock matrix
+!***********************************************************************
+!
        IF(NIO.NE.0) THEN
-* MOVE FP TO TRIANGULAR FORM
+! MOVE FP TO TRIANGULAR FORM
         NIJ=0
         DO NI=1,NIO
          DO NJ=1,NI
@@ -190,7 +190,7 @@
           IF(IXSYM(IB+NFO+NI).NE.IXSYM(IB+NFO+NJ)) FTR(NIJ)=0.0D0
          END DO
         END DO
-* DIAGONALIZE
+! DIAGONALIZE
         NIO2=NIO**2
         CALL FZERO(VEC,NIO2)
         II=1
@@ -199,17 +199,17 @@
          II=II+NIO+1
         END DO
         CALL Jacob(FTR,VEC,NIO,NIO)
-* MOVE EIGENVALUES TO FDIAG.
-*
+! MOVE EIGENVALUES TO FDIAG.
+!
         II=0
         NO1=IB+NFO
         DO NI=1,NIO
          II=II+NI
          FDIAG(NO1+NI)=FTR(II)
         END DO
-*
-* Sort eigenvalues and orbitals after energy
-*
+!
+! Sort eigenvalues and orbitals after energy
+!
         IF(NIO.GT.1) THEN
          NIO1=NIO-1
          DO NI=1,NIO1
@@ -228,17 +228,17 @@
         ENDIF
         CALL DGEACC(1.0D0,VEC,NIO,'N',CMOX,NOT,NIO,NIO)
        ENDIF
-*
-************************************************************************
-* Active part of the Fock matrix
-************************************************************************
-*
+!
+!***********************************************************************
+! Active part of the Fock matrix
+!***********************************************************************
+!
        IF(NAO.NE.0) THEN
-************************************************************************
-* RAS1 part of the Fock matrix
-************************************************************************
+!***********************************************************************
+! RAS1 part of the Fock matrix
+!***********************************************************************
         IF(NR1.NE.0) THEN
-* MOVE FP TO TRIANGULAR FORM
+! MOVE FP TO TRIANGULAR FORM
          NTU=0
          DO NT=1,NR1
           DO NU=1,NT
@@ -250,7 +250,7 @@
            IF(IXSYM(IB+NFO+NTT).NE.IXSYM(IB+NFO+NUT)) FTR(NTU)=0.0D0
           END DO
          END DO
-* DIAGONALIZE
+! DIAGONALIZE
          NR12=NR1**2
          CALL FZERO(VEC,NR12)
          II=1
@@ -259,18 +259,18 @@
           II=II+NR1+1
          END DO
          CALL Jacob(FTR,VEC,NR1,NR1)
-*
-* Move eigenvalues to FDIAG.
-*
+!
+! Move eigenvalues to FDIAG.
+!
          II=0
          NO1=IB+NFO+NIO
          DO NT=1,NR1
           II=II+NT
           FDIAG(NO1+NT)=FTR(II)
          END DO
-*
-* Sort eigenvalues and orbitals after energy
-*
+!
+! Sort eigenvalues and orbitals after energy
+!
          IF(NR1.GT.1) THEN
           NR11=NR1-1
           DO NT=1,NR11
@@ -302,11 +302,11 @@
 
 
 
-************************************************************************
-* RAS2 part of the Fock matrix
-************************************************************************
+!***********************************************************************
+! RAS2 part of the Fock matrix
+!***********************************************************************
         IF(NR2.NE.0) THEN
-* MOVE FP TO TRIANGULAR FORM
+! MOVE FP TO TRIANGULAR FORM
          NTU=0
          DO NT=1,NR2
           DO NU=1,NT
@@ -330,7 +330,7 @@
           END DO
          END DO
 
-* DIAGONALIZE
+! DIAGONALIZE
          NR22=NR2**2
          CALL FZERO(VEC,NR22)
          II=1
@@ -340,18 +340,18 @@
          END DO
          CALL Jacob(FTR,VEC,NR2,NR2)
 
-*
-* Move eigenvalues to FDIAG.
-*
+!
+! Move eigenvalues to FDIAG.
+!
          II=0
          NO1=IB+NFO+NIO+NR1
          DO NT=1,NR2
           II=II+NT
           FDIAG(NO1+NT)=FTR(II)
          END DO
-*
-* Sort eigenvalues and orbitals after energy
-*
+!
+! Sort eigenvalues and orbitals after energy
+!
          IF(NR2.GT.1) THEN
           NR21=NR2-1
           DO NT=1,NR21
@@ -368,7 +368,7 @@
 42         CONTINUE
           END DO
          ENDIF
-         CALL DGEACC(1.0D0,VEC,NR2,'N',
+         CALL DGEACC(1.0D0,VEC,NR2,'N',                                 &
      &                     CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
 
 
@@ -404,11 +404,11 @@
 #endif
         ENDIF ! NR2
 
-************************************************************************
-* RAS3 part of the Fock matrix
-************************************************************************
+!***********************************************************************
+! RAS3 part of the Fock matrix
+!***********************************************************************
         IF(NR3.NE.0) THEN
-* MOVE FP TO TRIANGULAR FORM
+! MOVE FP TO TRIANGULAR FORM
          NTU=0
          DO NT=1,NR3
           DO NU=1,NT
@@ -420,7 +420,7 @@
            IF(IXSYM(IB+NFO+NTT).NE.IXSYM(IB+NFO+NUT)) FTR(NTU)=0.0D0
           END DO
          END DO
-* DIAGONALIZE
+! DIAGONALIZE
          NR32=NR3**2
          CALL FZERO(VEC,NR32)
          II=1
@@ -429,18 +429,18 @@
           II=II+NR3+1
          END DO
          CALL Jacob(FTR,VEC,NR3,NR3)
-*
-* Move eigenvalues to FDIAG.
-*
+!
+! Move eigenvalues to FDIAG.
+!
          II=0
          NO1=IB+NFO+NIO+NR1+NR2
          DO NT=1,NR3
           II=II+NT
           FDIAG(NO1+NT)=FTR(II)
          END DO
-*
-* Sort eigenvalues and orbitals after energy
-*
+!
+! Sort eigenvalues and orbitals after energy
+!
          IF(NR3.GT.1) THEN
           NR31=NR3-1
           DO NT=1,NR31
@@ -457,8 +457,8 @@
 43         CONTINUE
           END DO
          ENDIF
-         CALL DGEACC(1.0D0,VEC,NR3,'N',
-     &                     CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,
+         CALL DGEACC(1.0D0,VEC,NR3,'N',                                 &
+     &                     CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,   &
      &               NR3,NR3)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
@@ -472,12 +472,12 @@
         ENDIF ! NR3
 
        ENDIF ! NAO
-*
-************************************************************************
-* external part of the Fock matrix
-************************************************************************
+!
+!***********************************************************************
+! external part of the Fock matrix
+!***********************************************************************
        IF(NEO.NE.0) THEN
-* MOVE FP TO TRIANGULAR FORM
+! MOVE FP TO TRIANGULAR FORM
         NAB=0
         DO NA=1,NEO
          DO NB=1,NA
@@ -489,7 +489,7 @@
           IF(IXSYM(IB+NFO+NAT).NE.IXSYM(IB+NFO+NBT)) FTR(NAB)=0.0D0
          END DO
         END DO
-* DIAGONALIZE
+! DIAGONALIZE
         NEO2=NEO**2
         CALL FZERO(VEC,NEO2)
         II=1
@@ -498,18 +498,18 @@
          II=II+NEO+1
         END DO
         CALL Jacob(FTR,VEC,NEO,NEO)
-*
-* Move eigenvalues to FDIAG.
-*
+!
+! Move eigenvalues to FDIAG.
+!
         II=0
         NO1=IB+NFO+NIO+NAO
         DO NA=1,NEO
          II=II+NA
          FDIAG(NO1+NA)=FTR(II)
         END DO
-*
-* Sort eigenvalues and orbitals after energy
-*
+!
+! Sort eigenvalues and orbitals after energy
+!
         IF(NEO.GT.1) THEN
          NEO1=NEO-1
          DO NA=1,NEO1
@@ -528,19 +528,19 @@
         ENDIF
         CALL DGEACC(1.0D0,VEC,NEO,'N',CMOX(1+NOT*NOC+NOC),NOT,NEO,NEO)
        ENDIF
-*
-* Transform molecular orbitals
-*
-        IF ( NBF*NTOT.GT.0 )
-     &  CALL DGEMM_('N','N',
-     &              NBF,NOT,NOT,
-     &              1.0d0,CMOO(ISTMO),NBF,
-     &              CMOX,NOT,
+!
+! Transform molecular orbitals
+!
+        IF ( NBF*NTOT.GT.0 )                                            &
+     &  CALL DGEMM_('N','N',                                            &
+     &              NBF,NOT,NOT,                                        &
+     &              1.0d0,CMOO(ISTMO),NBF,                              &
+     &              CMOX,NOT,                                           &
      &              0.0d0,CMON(ISTMO),NBF)
-*
-************************************************************************
-* Deleted orbitals (move MO's and set zero to FDIAG)
-************************************************************************
+!
+!***********************************************************************
+! Deleted orbitals (move MO's and set zero to FDIAG)
+!***********************************************************************
        NDO=NDEL(ISYM)
        IF(NDO.NE.0) THEN
         NDNB=NDO*NBF
@@ -550,24 +550,24 @@
          FDIAG(IB+NBF-NDO+ND)=0.0D0
         END DO
        ENDIF
-*
-* Transform inactive Fock matrix FI and the CASPT2 matrix FP
-*
+!
+! Transform inactive Fock matrix FI and the CASPT2 matrix FP
+!
        IF(NOT.GT.0) THEN
         CALL SQUARE(FI(ISTFCK+1),SQ,1,NOT,NOT)
-        CALL DGEMM_('N','N',
-     &              NOT,NOT,NOT,
-     &              1.0d0,SQ,NOT,
-     &              CMOX,NOT,
+        CALL DGEMM_('N','N',                                            &
+     &              NOT,NOT,NOT,                                        &
+     &              1.0d0,SQ,NOT,                                       &
+     &              CMOX,NOT,                                           &
      &              0.0d0,VEC,NOT)
-        CALL DGEMM_('T','N',
-     &              NOT,NOT,NOT,
-     &              1.0d0,CMOX,NOT,
-     &              VEC,NOT,
+        CALL DGEMM_('T','N',                                            &
+     &              NOT,NOT,NOT,                                        &
+     &              1.0d0,CMOX,NOT,                                     &
+     &              VEC,NOT,                                            &
      &              0.0d0,SQ,NOT)
-*
-* Move transformed Fock matrix back to FI
-*
+!
+! Move transformed Fock matrix back to FI
+!
         NPQ=ISTFCK
         DO NP=1,NOT
          DO NQ=1,NP
@@ -575,23 +575,23 @@
           FI(NPQ)=SQ(NOT*(NP-1)+NQ)
          END DO
         END DO
-*
-* The FP matrix
-*
+!
+! The FP matrix
+!
         CALL SQUARE(FP(ISTFCK+1),SQ,1,NOT,NOT)
-        CALL DGEMM_('N','N',
-     &              NOT,NOT,NOT,
-     &              1.0d0,SQ,NOT,
-     &              CMOX,NOT,
+        CALL DGEMM_('N','N',                                            &
+     &              NOT,NOT,NOT,                                        &
+     &              1.0d0,SQ,NOT,                                       &
+     &              CMOX,NOT,                                           &
      &              0.0d0,VEC,NOT)
-        CALL DGEMM_('T','N',
-     &              NOT,NOT,NOT,
-     &              1.0d0,CMOX,NOT,
-     &              VEC,NOT,
+        CALL DGEMM_('T','N',                                            &
+     &              NOT,NOT,NOT,                                        &
+     &              1.0d0,CMOX,NOT,                                     &
+     &              VEC,NOT,                                            &
      &              0.0d0,SQ,NOT)
-*
-* Move transformed Fock matrix back to FP
-*
+!
+! Move transformed Fock matrix back to FP
+!
         NPQ=ISTFCK
         DO NP=1,NOT
          DO NQ=1,NP
@@ -600,7 +600,7 @@
          END DO
         END DO
        ENDIF
-*
+!
        IB=IB+NBF
        ISTFCK=ISTFCK+(NOT**2+NOT)/2
        ISTMO1=ISTMO1+NBF**2
@@ -620,51 +620,51 @@
             end do
           end do
           call mma_deallocate(fockmat)
-          dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_EIGVECS',
+          dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_EIGVECS',   &
      &      2, [nActOrb, nActOrb])
           call mh5_put_dset(dset_id, vecs)
           call mh5_close_dset(dset_id)
           call mma_deallocate(vecs)
         end if
-        dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',
+        dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',        &
      &    2, [2, size(vals)])
         call mh5_put_dset(dset_id, indices)
         call mh5_close_dset(dset_id)
-        dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_VALUES',
+        dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_VALUES',      &
      &    1, [size(vals)])
         call mh5_put_dset(dset_id, vals)
         call mh5_close_dset(dset_id)
         call mma_deallocate(indices)
         call mma_deallocate(vals)
-        if (tPrepStochCASPT2)
+        if (tPrepStochCASPT2)                                           &
      &    write(6,*)'Diagonal active Fock matrix dumped.'
-        if (tNonDiagStochPT2)
+        if (tNonDiagStochPT2)                                           &
      &    write(6,*)'Non-diagonal active Fock matrix dumped.'
       end if
 #endif
 
 
-*
+!
 #ifdef _ENABLE_CHEMPS2_DMRG_
-*      close(27)
+!      close(27)
       close(LuFCK)
 #endif
       IF(IPRLEV.GE.VERBOSE) THEN
        Write(LF,*)' Diagonal elements of the Fock matrix in FCKPT2:'
        Write(LF,'(1X,10F11.6)') (FDIAG(I),I=1,NTOT)
       END IF
-*
-************************************************************************
-* Orthogonalise new orbitals
-************************************************************************
-*
+!
+!***********************************************************************
+! Orthogonalise new orbitals
+!***********************************************************************
+!
       CALL SUPSCH(WO,CMOO,CMON)
       CALL ORTHO_RASSCF(WO,CMOX,CMON,SQ)
-*
-************************************************************************
-* Write new orbitals to JOBIPH/rasscf.h5
-************************************************************************
-*
+!
+!***********************************************************************
+! Write new orbitals to JOBIPH/rasscf.h5
+!***********************************************************************
+!
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
          Write(LF,*) ' CMO in FCKPT2 after diag and orthog'
@@ -688,10 +688,10 @@
 #ifdef _HDF5_
         call mh5_put_dset(wfn_mocoef,CMON)
 #endif
-*
-* Write FI, FP and FDIAG to JOBIPH
-* First remove frozen and deleted part of FDIAG
-*
+!
+! Write FI, FP and FDIAG to JOBIPH
+! First remove frozen and deleted part of FDIAG
+!
       IF=0
       IFD=0
       DO ISYM=1,NSYM
@@ -704,10 +704,10 @@
         ENDIF
        END DO
       END DO
-*
+!
       IAD15=IADR15(10)
       CALL DDAFILE(JOBIPH,1,FI,NTOT3,IAD15)
       CALL DDAFILE(JOBIPH,1,FP,NTOT3,IAD15)
       CALL DDAFILE(JOBIPH,1,SQ,NORBT,IAD15)
-*
+!
       END SUBROUTINE FCKPT2

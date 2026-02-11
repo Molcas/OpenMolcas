@@ -1,32 +1,32 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE rotorb (cmoo, cmon, c, x, x2, y, thmax,FA)
-c
-c     RASSCF program: version IBM-3090: SX section
-c
-c     PURPOSE: Calculation of the rotation matrix X from the super-CI
-c              coefficient matrix C, formation of exp(x), and rotation
-c              of the orbitals with this matrix.
-c              These orbitals are used in the next
-c              RASSCF iteration as starting orbitals.
-c              Called from SXCTL
-c
-c          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
-c
+!
+!     RASSCF program: version IBM-3090: SX section
+!
+!     PURPOSE: Calculation of the rotation matrix X from the super-CI
+!              coefficient matrix C, formation of exp(x), and rotation
+!              of the orbitals with this matrix.
+!              These orbitals are used in the next
+!              RASSCF iteration as starting orbitals.
+!              Called from SXCTL
+!
+!          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
+!
       use stdalloc, only: mma_allocate, mma_deallocate
       use gas_data, only: iDoGAS, NGAS, NGSSH
       use rasscf_global, only: PURIFY, CMAX, ROTMAX, iXSym
       use PrintLevel, only: DEBUG,VERBOSE,TERSE
       use output_ras, only: LF,IPRLOC
-      use general_data, only: NSYM,NASH,NBAS,NDEL,NFRO,NISH,NORB,NRS1,
+      use general_data, only: NSYM,NASH,NBAS,NDEL,NFRO,NISH,NORB,NRS1,  &
      &                        NRS2,NSSH,NTOT2
 
 
@@ -42,14 +42,14 @@ c
       LOGICAL iFrzAct
       REAL*8, PARAMETER  :: Thrs=1.0D-14
       Real*8, Allocatable:: Unit(:), SqFA(:)
-      INTEGER I, IB, ICORE, IDAMP, IGAS, II, IJ, IO, iOff, iOrb,
-     &        iPrLev, iSpace, IST, ISTBM, ISTMO, ISTMO1, ISUM, ISYM,
-     &        jPr, jSPace, MOType, NACI, NACJ, NAE, NAO, NB, NBO, ND,
-     &        NDB, NEO, NF, NFB, NI, NII, NIO, NIO1, NJ, NO, NOC, NOC1,
+      INTEGER I, IB, ICORE, IDAMP, IGAS, II, IJ, IO, iOff, iOrb,        &
+     &        iPrLev, iSpace, IST, ISTBM, ISTMO, ISTMO1, ISUM, ISYM,    &
+     &        jPr, jSPace, MOType, NACI, NACJ, NAE, NAO, NB, NBO, ND,   &
+     &        NDB, NEO, NF, NFB, NI, NII, NIO, NIO1, NJ, NO, NOC, NOC1, &
      &        NP, NR
       REAL*8 TERM, THM, Xn, XX
       REAL*8, Parameter :: ACC=1.0D-13
-c
+!
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
          WRITE(LF,*)' Entering ',ROUTINE
@@ -75,7 +75,7 @@ c
       cmax=0.0D0
       thmax=0.0d0
       iOff = 1
-* A long loop over symmetry
+! A long loop over symmetry
       DO isym=1,nsym
         no=norb(isym)
         nb=nbas(isym)
@@ -87,39 +87,39 @@ c
         neo=nssh(isym)
         nae=nao+neo
         IF (noc.eq.0.or.nae.eq.0 .or. nio+neo.eq.0) THEN
-c
-        IF(IPRLEV.ge.VERBOSE)
+!
+        IF(IPRLEV.ge.VERBOSE)                                           &
      & write(6,*) 'No rotations active for symmetry=',isym
-c      No rotations active in this symmetry
-c      Move orbitals from old to new set
-c
+!      No rotations active in this symmetry
+!      Move orbitals from old to new set
+!
           call dcopy_(nb*nb, cmoo(istmo1+1), 1, cmon(istmo1+1), 1)
           GO TO 100
         END IF
         istmo=istmo1+nf*nb
-c
-c      Form the quadratic matrix X from the coefficients C
-c
+!
+!      Form the quadratic matrix X from the coefficients C
+!
         call dcopy_(no*no,[0.0D0],0,x,1)
         DO nr=1,noc
          DO np=max(nr+1,nio+1),no
           jpr=no*(nr-1)+np
           !jrp=no*(np-1)+nr
           xx=c(istbm+nr+noc*(np-nio-1))
-*
-*         Any numerical information smaller than Acc is considered
-*         numerical noise and is ignored.
-*
+!
+!         Any numerical information smaller than Acc is considered
+!         numerical noise and is ignored.
+!
           If (Abs(xx).lt.Acc) Cycle
-*
+!
           x(jpr)=xx
           !x(jrp)=-xx
          END DO
         END DO
-c
-c      Set zero to matrix elements corresponding to orbitals
-c      not allowed to rotate into each other.
-c
+!
+!      Set zero to matrix elements corresponding to orbitals
+!      not allowed to rotate into each other.
+!
         ij=0
         DO ni=1,no
          DO nj=1,no
@@ -127,53 +127,53 @@ c
           IF (ixsym(ni+io).ne.ixsym(nj+io)) x(ij)=0.0D0
          END DO
         END DO
-c
-c  Freeze Active orbitals for difficult orbital optimization
-c  This is activated by FRAC keyword in RASSCF module
-c
+!
+!  Freeze Active orbitals for difficult orbital optimization
+!  This is activated by FRAC keyword in RASSCF module
+!
         iFrzAct = .false.
         if(iFrzAct)then
           ij=0
           DO ni=1,no
            DO nj=1,no
             ij=ij+1
-c io=ib+nf ! offset counting all nbas of previous sym and nfro of current sym.
-            IF( (ni.gt.nio) .and. (ni.lt.nio+nao) .or.
+! io=ib+nf ! offset counting all nbas of previous sym and nfro of current sym.
+            IF( (ni.gt.nio) .and. (ni.lt.nio+nao) .or.                  &
      &          (nj.gt.nio) .and. (nj.lt.nio+nao) ) x(ij)=0.0D0
            END DO
           END DO
         end if
-c
-c      For optimization of the core-hole we want to damp/eliminate
-c      certain rotations to find the local minimum.
-c
-c      Damp/eliminate certain rotations inside RAS/GAS.
-c
-c      Only loop over the active spaces
-c
-c     DIMENSION DAMPGAS(10),COREGAS(10)
-c     INTEGER IDAMPGAS(0:4,0:4),ICOREGAS(0:4,0:4)
+!
+!      For optimization of the core-hole we want to damp/eliminate
+!      certain rotations to find the local minimum.
+!
+!      Damp/eliminate certain rotations inside RAS/GAS.
+!
+!      Only loop over the active spaces
+!
+!     DIMENSION DAMPGAS(10),COREGAS(10)
+!     INTEGER IDAMPGAS(0:4,0:4),ICOREGAS(0:4,0:4)
       IDAMP = 0
       IDAMPGAS = 0
       DAMPGAS = 0.0D0
       ICORE = 0
       ICOREGAS = 0
       COREGAS = 0.1D0
-C     COREGAS(1) = 0.0D0
-C     COREGAS(2) = 0.0D0
+!     COREGAS(1) = 0.0D0
+!     COREGAS(2) = 0.0D0
       ICOREGAS(0,1) = 1
       ICOREGAS(1,0) = 2
-C     ICOREGAS(0,2) = 1
-C     ICOREGAS(2,0) = 2
+!     ICOREGAS(0,2) = 1
+!     ICOREGAS(2,0) = 2
       ICOREGAS(2,1) = 3
       ICOREGAS(1,2) = 4
       ICOREGAS(3,1) = 5
       ICOREGAS(1,3) = 6
       ICOREGAS(1,4) = 1
       ICOREGAS(4,1) = 2
-C      write(6,*) 'NOC,NO',NOC,NO
+!      write(6,*) 'NOC,NO',NOC,NO
        IF(ICORE.EQ.1.OR.IDAMP.EQ.1) THEN ! New keywords
-c
+!
          IJ = 0
          DO NACI = 1, NO ! Notice only loop over inactive and active
            IF(IDOGAS) THEN ! Find which GAS this index belong to
@@ -206,17 +206,17 @@ c
                ISPACE = 3
              END IF
            END IF
-c
+!
            DO NACJ = 1, NO ! Over all orbitals due to counting
-C            write(6,*) 'NACI,NACJ',NACI,NACJ
+!            write(6,*) 'NACI,NACJ',NACI,NACJ
              IF(IDOGAS) THEN ! Find which GAS this index belong to
                JSPACE = 0
                IF(NACJ.LE.NIO) THEN
                  JSPACE = 0
                ELSE IF(NACJ.GT.NOC) THEN
                  JSPACE = NGAS + 1
-C                IJ = IJ + 1
-C                CYCLE
+!                IJ = IJ + 1
+!                CYCLE
                ELSE
                  ISUM = 0
                  DO IGAS = 1, NGAS
@@ -234,9 +234,9 @@ C                CYCLE
                  JSPACE = 0
                ELSE IF(NACJ.GT.NOC) THEN
                  JSPACE = 4
-C                IJ = IJ + 1
-C                write(6,*) 'IJ',IJ
-C                CYCLE
+!                IJ = IJ + 1
+!                write(6,*) 'IJ',IJ
+!                CYCLE
                ELSE IF((NRS1(ISYM)+NIO).GE.NACJ) THEN
                  JSPACE = 1
                ELSE IF((NRS1(ISYM)+NRS2(ISYM)+NIO).GE.NACJ) THEN
@@ -262,9 +262,9 @@ C                CYCLE
                END IF
              END IF
            END DO
-c
+!
          END DO
-c temp print
+! temp print
         ij=0
         DO ni=1,no
          DO nj=1,no
@@ -272,16 +272,16 @@ c temp print
           write(6,*) 'ij,x(ij)',ij,x(ij)
          END DO
         END DO
-c
+!
        END IF
-c
-c      Now form the unitary matrix exp(X)
-c
+!
+!      Now form the unitary matrix exp(X)
+!
         CALL exp_eig(no,x,thm)
         thmax=max(thmax,thm)
-c
-c      Check for largest non diagonal element
-c
+!
+!      Check for largest non diagonal element
+!
         ij=0
         DO ni=1,no
           DO nj=1,no
@@ -295,10 +295,10 @@ c
   40        CONTINUE
           END DO
         END DO
-c
-c      Check for large rotations and phase of new orbital
-c
- 1010   FORMAT (6x,'Molecular orbital',i4,
+!
+!      Check for large rotations and phase of new orbital
+!
+ 1010   FORMAT (6x,'Molecular orbital',i4,                              &
      &             ' of symmetry',i2,' MO space',i2,'  weight is',f12.6)
         ii=1
         ist=0
@@ -347,10 +347,10 @@ c
           ii=ii+no+1
           ist=ist+no
         END DO
-c
-C Transformation of the Fock matrix according to the orbital rotation matrix.
-C This step is not required other than for FCIQMC as orbital energies could be
-c used for choosing the reference determinant.
+!
+! Transformation of the Fock matrix according to the orbital rotation matrix.
+! This step is not required other than for FCIQMC as orbital energies could be
+! used for choosing the reference determinant.
 
         IF (iprlev.ge.debug) THEN
           CALL recprt ('X in RotOrb', ' ', x, no, no)
@@ -368,16 +368,16 @@ c used for choosing the reference determinant.
         IF (iprlev.ge.debug) THEN
           CALL recprt ('Square FA in RotOrb', ' ', SqFA, no, no)
         END IF
-        CALL DGEMM_('N','N',
-     &              no,no,no,
-     &              1.0d0,x,no,
-     &                    SqFA,no,
+        CALL DGEMM_('N','N',                                            &
+     &              no,no,no,                                           &
+     &              1.0d0,x,no,                                         &
+     &                    SqFA,no,                                      &
      &              0.0d0,UNIT,no)
 
-        CALL DGEMM_('N','T',
-     &              no,no,no,
-     &              1.0d0,UNIT,no,
-     &                    x,no,
+        CALL DGEMM_('N','T',                                            &
+     &              no,no,no,                                           &
+     &              1.0d0,UNIT,no,                                      &
+     &                    x,no,                                         &
      &              0.0d0,SqFA,no)
 
         call Fold_Mat(1,[no],SqFA,FA(iOff))
@@ -386,63 +386,63 @@ c used for choosing the reference determinant.
 
         Call mma_deallocate(Unit)
         Call mma_deallocate(SqFA)
-c
-c     Print output in MO-basis
-c
-c      Transform new orbitals to AO-basis
-c
-        CALL DGEMM_('N','N',
-     &              nb,no,no,
-     &              1.0d0,cmoo(istmo+1),nb,
-     &              x,no,
+!
+!     Print output in MO-basis
+!
+!      Transform new orbitals to AO-basis
+!
+        CALL DGEMM_('N','N',                                            &
+     &              nb,no,no,                                           &
+     &              1.0d0,cmoo(istmo+1),nb,                             &
+     &              x,no,                                               &
      &              0.0d0,cmon(istmo+1),nb)
-c
-c      Calculate max change in occupied molecular orbital coefficient
-c
+!
+!      Calculate max change in occupied molecular orbital coefficient
+!
         nbo=noc*nb
         DO i=1,nbo
           term=cmon(istmo+i)-cmoo(istmo+i)
           IF (abs(term).gt.abs(cmax)) cmax=term
         END DO
-c
+!
  100    CONTINUE
-c
-c      Move frozen orbitals from old to new set of orbitals
-c
+!
+!      Move frozen orbitals from old to new set of orbitals
+!
         IF (nf.ne.0) THEN
           nfb=nf*nb
           call dcopy_(nfb, cmoo(istmo1+1), 1, cmon(istmo1+1), 1)
         END IF
-c
-c      MOVE DELETED ORBITALS.
-c
+!
+!      MOVE DELETED ORBITALS.
+!
         nd=ndel(isym)
         IF (nd.ne.0) THEN
           ist=istmo1+nb*(nf+no)+1
           ndb=nd*nb
           call dcopy_(ndb, cmoo(ist), 1, cmon(ist), 1)
         END IF
-c
+!
         istbm=istbm+noc*nae
         istmo1=istmo1+nb*nb
         ib=ib+nb
       END DO
-*     ^ End of the long loop over symmetry
+!     ^ End of the long loop over symmetry
 
       IF(PURIFY(1:4).eq.'ATOM') CALL SPHPUR(CMON)
       IF(PURIFY(1:6).eq.'LINEAR') CALL LINPUR(CMON)
-c
-c     Orthogonalize new MO's and move them back to CMOO
-c
+!
+!     Orthogonalize new MO's and move them back to CMOO
+!
       CALL supsch (x2, cmoo, cmon)
-* PAM07: In ortho, cmoo is scratch and will be destroyed.
+! PAM07: In ortho, cmoo is scratch and will be destroyed.
       CALL ortho_rasscf (x2, cmoo, cmon, y)
       call dcopy_(ntot2, cmon, 1, cmoo, 1)
-c
+!
       IF (iprlev.ge.debug) THEN
         Write(LF,*)
         Write(LF,*) ' >>> Exit RotOrb <<< '
         Write(LF,*)
       END IF
-c
+!
       END SUBROUTINE rotorb

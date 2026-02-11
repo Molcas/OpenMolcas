@@ -1,61 +1,61 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Bjorn O. Roos                                          *
-*               Per Ake Malmqvist                                      *
-*               1991, Jeppe Olsen                                      *
-*               1991,1996, Markus P. Fuelscher                         *
-************************************************************************
-*  CICtl
-*
-*> @brief
-*>   CI Control
-*> @author B. O. Roos
-*> @author P. &Aring;. Malmqvist
-*> @modified_by P. &Aring;. Malmqvist
-*>
-*> @details
-*> Depends on \p IFINAL, which is set in ::RASSCF. If \p IFINAL = ``0``, repeated
-*> calculations with orbital optimization before each call. If \p IFINAL = ``1``,
-*> there has been no orbital optimization, or the calculation is
-*> converged. \p IFINAL = ``2`` means this is a final CI calculation, using the
-*> final orbitals.
-*>
-*> @param[in]     CMO    MO coefficients
-*> @param[out]    D      Average 1-dens matrix
-*> @param[out]    DS     Average spin 1-dens matrix
-*> @param[out]    P      Average symm. 2-dens matrix
-*> @param[out]    PA     Average antisymm. 2-dens matrix
-*> @param[out]    FI     Fock matrix from inactive density
-*> @param         FA
-*> @param[in,out] D1I    Inactive 1-dens matrix
-*> @param[in,out] D1A    Active 1-dens matrix
-*> @param[in]     TUVX   Active 2-el integrals
-*> @param[in]     IFINAL Calculation status switch
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Bjorn O. Roos                                          *
+!               Per Ake Malmqvist                                      *
+!               1991, Jeppe Olsen                                      *
+!               1991,1996, Markus P. Fuelscher                         *
+!***********************************************************************
+!  CICtl
+!
+!> @brief
+!>   CI Control
+!> @author B. O. Roos
+!> @author P. &Aring;. Malmqvist
+!> @modified_by P. &Aring;. Malmqvist
+!>
+!> @details
+!> Depends on \p IFINAL, which is set in ::RASSCF. If \p IFINAL = ``0``, repeated
+!> calculations with orbital optimization before each call. If \p IFINAL = ``1``,
+!> there has been no orbital optimization, or the calculation is
+!> converged. \p IFINAL = ``2`` means this is a final CI calculation, using the
+!> final orbitals.
+!>
+!> @param[in]     CMO    MO coefficients
+!> @param[out]    D      Average 1-dens matrix
+!> @param[out]    DS     Average spin 1-dens matrix
+!> @param[out]    P      Average symm. 2-dens matrix
+!> @param[out]    PA     Average antisymm. 2-dens matrix
+!> @param[out]    FI     Fock matrix from inactive density
+!> @param         FA
+!> @param[in,out] D1I    Inactive 1-dens matrix
+!> @param[in,out] D1A    Active 1-dens matrix
+!> @param[in]     TUVX   Active 2-el integrals
+!> @param[in]     IFINAL Calculation status switch
+!***********************************************************************
       Subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
-* ****************************************************************
-* history:                                                       *
-* updated to use determinant based CI-procedures                 *
-* J. Olsen and M.P. Fuelscher, University of Lund, Sweden, 1991  *
-* updated for MOLCAS version 3                                   *
-* J. Olsen and M.P. Fuelscher, University of Lund, Sweden, 1991  *
-* updated for integral direct and reaction field calculations    *
-* M.P. Fuelscher, University of Lund, Sweden, 1996               *
-* ****************************************************************
+! ****************************************************************
+! history:                                                       *
+! updated to use determinant based CI-procedures                 *
+! J. Olsen and M.P. Fuelscher, University of Lund, Sweden, 1991  *
+! updated for MOLCAS version 3                                   *
+! J. Olsen and M.P. Fuelscher, University of Lund, Sweden, 1991  *
+! updated for integral direct and reaction field calculations    *
+! M.P. Fuelscher, University of Lund, Sweden, 1996               *
+! ****************************************************************
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_utility_routines,
-     &     only: fiedlerorder_length, file_name_generator,
+      use qcmaquis_interface_utility_routines,                          &
+     &     only: fiedlerorder_length, file_name_generator,              &
      &           qcmaquis_interface_fcidump
 #endif
 #ifdef _HDF5_
@@ -81,20 +81,20 @@
       use gas_data, only: iDoGAS
       use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
       use timers, only: TimeDens
-      use rasscf_global, only: CMSStartMat, DoDMRG,
-     &                         ExFac, iCIRFRoot, ICMSP, IFCRPR,
-     &                         iPCMRoot, iRotPsi, ITER, IXMSP, KSDFT,
-     &                         l_casdft, lroots, n_Det, NAC, NACPAR,
-     &                         NACPR2, nRoots, PrwThr, RotMax, S,
+      use rasscf_global, only: CMSStartMat, DoDMRG,                     &
+     &                         ExFac, iCIRFRoot, ICMSP, IFCRPR,         &
+     &                         iPCMRoot, iRotPsi, ITER, IXMSP, KSDFT,   &
+     &                         l_casdft, lroots, n_Det, NAC, NACPAR,    &
+     &                         NACPR2, nRoots, PrwThr, RotMax, S,       &
      &                         IADR15, iRoot, Weight, Ener
 #ifdef _DMRG_
       use rasscf_global, only: TwoRDM_qcm, DOFCIDump, Emy
 #endif
-      use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
+      use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,         &
      &                         lRootSplit
       use PrintLevel, only: DEBUG,INSANE,USUAL
       use output_ras, only: LF,IPRLOC
-      use general_data, only: ISPIN,NACTEL,NCONF,NISH,JOBIPH,NASH,NTOT2,
+      use general_data, only: ISPIN,NACTEL,NCONF,NISH,JOBIPH,NASH,NTOT2,&
      &                        STSYM
       use DWSol, only: DWSolv!, DWSol_wgt
 
@@ -102,10 +102,10 @@
       Implicit None
 
       Integer iFinal
-      Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
+      Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),    &
      &          TUVX(*)
       Logical Exist,Do_ESPF
-*JB   variables for state rotation on final states
+!JB   variables for state rotation on final states
       Logical do_rotate
 #ifdef _DMRG_
       ! function defined in misc_util/pcm_on.f
@@ -134,39 +134,39 @@
       integer ilen, iErr
 #endif
       real*8 rdum(1)
-      Real*8, Allocatable:: CIV(:), RCT_F(:), RCT_FS(:), RCT(:),
-     &                      RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:),
+      Real*8, Allocatable:: CIV(:), RCT_F(:), RCT_FS(:), RCT(:),        &
+     &                      RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:),     &
      &                      RF(:), Temp(:), CIVec(:)
       Integer, Allocatable:: kCnf(:)
       Integer LuVecDet
       Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal, Time(2)
       Real*8, External:: DDot_
-      Integer i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot,
+      Integer i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot,       &
      &        jRoot, kRoot, mconf
 
-*PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
-C Local print level (if any)
+!PAM05      SymProd(i,j)=1+iEor(i-1,j-1)
+! Local print level (if any)
       IPRLEV=IPRLOC(3)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
 
-* PAM 2017-05-23 Modify TUVX by adding a shift vector to TUVX, which has
-* the effect of adding a scalar times a projector for doubly-occupied
-* core states.
+! PAM 2017-05-23 Modify TUVX by adding a shift vector to TUVX, which has
+! the effect of adding a scalar times a projector for doubly-occupied
+! core states.
           IF(IfCRPR) Then
-*      write(6,*)' CICTL calling MKPROJ.'
-*      call xflush(6)
+!      write(6,*)' CICTL calling MKPROJ.'
+!      call xflush(6)
             CALL MKPROJ(CRVEC,CMO,TUVX)
-*      write(6,*)' CICTL back from MKPROJ.'
-*      call xflush(6)
+!      write(6,*)' CICTL back from MKPROJ.'
+!      call xflush(6)
           END IF
 
 
-* set up flag 'IFRAS' for GAS option, which is set up in gugatcl originally.
-* IFRAS = 0: This is a CAS calculation
-* IFRAS = 1: This is a RAS calculation
-*
+! set up flag 'IFRAS' for GAS option, which is set up in gugatcl originally.
+! IFRAS = 0: This is a CAS calculation
+! IFRAS = 1: This is a RAS calculation
+!
       if(iDoGas.or.SGS%IFRAS.gt.2) call setsxci()
       If ( IPRLEV.gt.DEBUG ) then
         Write(LF,*)
@@ -180,17 +180,17 @@ C Local print level (if any)
 !        write(*,*)"ifinal CMO",ifinal,i,CMO(i)
 !      end do
 
-*
-* SOME DIRTY SETUPS
-*
+!
+! SOME DIRTY SETUPS
+!
       S=0.5D0*DBLE(ISPIN-1)
-*
-* COMPUTE ONE ELECTRON INTEGRALS IN MO BASIS
-* AND ADD CORE INTERACTION
-*
-* FMO: FOCK MATRIX IN MO-BASIS
-* LW2: 1-PARTICLE DENSITY MATRIX ALSO USED IN MO/AO TRANSFORMATION
-*
+!
+! COMPUTE ONE ELECTRON INTEGRALS IN MO BASIS
+! AND ADD CORE INTERACTION
+!
+! FMO: FOCK MATRIX IN MO-BASIS
+! LW2: 1-PARTICLE DENSITY MATRIX ALSO USED IN MO/AO TRANSFORMATION
+!
       CALL mma_allocate(FMO,NACPAR,Label='FMO')
       Call DecideOnESPF(Do_ESPF)
 
@@ -218,10 +218,10 @@ C Local print level (if any)
 #endif
 
       If ((lRf .or. KSDFT.ne.'SCF' .or. Do_ESPF) .and. IPCMROOT>0) THEN
-*
-* In case of a reaction field in combination with an average CAS
-* select the potential of the appropriate state.
-*
+!
+! In case of a reaction field in combination with an average CAS
+! select the potential of the appropriate state.
+!
         jDisk = IADR15(3)
         Do i=1,IPCMROOT-1
           Call DDafile(JOBIPH,0,rdum,NACPAR,jDisk)
@@ -229,59 +229,59 @@ C Local print level (if any)
           Call DDafile(JOBIPH,0,rdum,NACPR2,jDisk)
           Call DDafile(JOBIPH,0,rdum,NACPR2,jDisk)
         End Do
-*
+!
         CALL mma_allocate(RCT_F,NTOT2,Label='RCT_F')
         CALL mma_allocate(RCT_FS,NTOT2,Label='RCT_FS')
-*
+!
         if (IPCMROOT > 0 .and. DWSolv%DWZeta /= 0.0d+00) then
           call DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
           CALL SGFCIN(CMO,FMO,FI,D1I,D1A,RCT_FS)
         Else If (IFinal.eq.0) Then
-*
-* Use normal MOs
-*
+!
+! Use normal MOs
+!
            CALL mma_allocate(RCT,NACPAR,Label='RCT')
            CALL mma_allocate(P2MO,NACPR2,Label='P2MO')
-*
-* Get the total density in MOs
-*
+!
+! Get the total density in MOs
+!
            Call DDafile(JOBIPH,2,RCT,NACPAR,jDisk)
            Call Put_dArray('D1mo',RCT,NACPAR)  ! Put on RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(RCT)
-* Transform to AOs
+! Transform to AOs
            Call Get_D1A_RASSCF(CMO,RCT,RCT_F)
-*
-* Get the spin density in MOs
-*
+!
+! Get the spin density in MOs
+!
            IF (NACTEL.EQ.0) THEN
              CALL DCOPY_(NTOT2,[0.0D0],0,RCT_FS,1)
            ELSE
              CALL mma_allocate(RCT_S,NACPAR,Label='RCT_S')
              Call DDafile(JOBIPH,2,RCT_S,NACPAR,jDisk)
              IF ( NASH(1).NE.NAC ) CALL DBLOCK(RCT_S)
-* Transform to AOs
+! Transform to AOs
              Call Get_D1A_RASSCF(CMO,RCT_S,RCT_FS)
              CALL mma_deallocate(RCT_S)
            END IF
-*
-* Get the 2-particle density in MO
-*
+!
+! Get the 2-particle density in MO
+!
            Call DDafile(JOBIPH,2,P2MO,NACPR2,jDisk)
            Call Put_dArray('P2mo',P2MO,NACPR2) ! Put on RUNFILE
-*
+!
            CALL SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
-*
+!
            CALL mma_deallocate(P2MO)
            CALL mma_deallocate(RCT)
-*
+!
         Else
-*
-* Here the pseudo-natural orbitals are in CMO and we need to
-* get the D1A of the selected state in this basis.
-*
-*
-* Compute the density of the particular state
-*
+!
+! Here the pseudo-natural orbitals are in CMO and we need to
+! get the D1A of the selected state in this basis.
+!
+!
+! Compute the density of the particular state
+!
            Call mma_allocate(CIVEC,NCONF,Label='CIVEC')
            If (NACTEL.EQ.0) THEN
              CIVEC(1)=1.0D0
@@ -292,14 +292,14 @@ C Local print level (if any)
                Do jRoot = 1,IPCMROOT
                    iOpt=0
                    If (jRoot.eq.IPCMROOT) iOpt=2
-* load back one CI vector at the time
+! load back one CI vector at the time
                    Call DDafile(JOBIPH,iOpt,CIVEC,nConf,iDisk)
                   !call DVcPrt('BLUBB-start CI PCM',' ',CIVEC,nConf)
                End Do
              end if
            End If
 
-* compute density matrices
+! compute density matrices
 
            Call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
            Call mma_allocate(DStmp,NAC**2,Label='DStmp')
@@ -332,7 +332,7 @@ C Local print level (if any)
                else
                  Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
                  Call mma_allocate(Pscr,NACPR2,Label='Pscr')
-                 CALL Lucia_Util('Densi',
+                 CALL Lucia_Util('Densi',                               &
      &                           CI_Vector=CIVEC)
                  If (SGS%IFRAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
@@ -347,29 +347,29 @@ C Local print level (if any)
               DStmp(:)=0.0D0
               Ptmp(:)=0.0D0
            End If
-* Modify the symmetric 2-particle density if only partial
-* "exact exchange" is included.
-c          n_Det=2
-c          n_unpaired_elec=(iSpin-1)
-c          n_paired_elec=nActEl-n_unpaired_elec
-c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
-*                  write(6,*) 'n_Det =', n_Det
-           If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
-     &    Call Mod_P2(Ptmp,NACPR2,
-     &                                   Dtmp,NACPAR,
+! Modify the symmetric 2-particle density if only partial
+! "exact exchange" is included.
+!          n_Det=2
+!          n_unpaired_elec=(iSpin-1)
+!          n_paired_elec=nActEl-n_unpaired_elec
+!          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
+!                  write(6,*) 'n_Det =', n_Det
+           If (ExFac.ne.1.0D0.AND.(.not.l_casdft))                      &
+     &    Call Mod_P2(Ptmp,NACPR2,                                      &
+     &                                   Dtmp,NACPAR,                   &
      &                                   DStmp,ExFac,n_Det)
-*
+!
            Call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
-*
+!
            Call mma_deallocate(Ptmp)
-*
+!
            Call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Dtmp)
            Call Get_D1A_RASSCF(CMO,Dtmp,RCT_F)
-*
+!
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(DStmp)
            Call Get_D1A_RASSCF(CMO,DStmp,RCT_FS)
-*
+!
 !           do i=1,NACPAR  !yma
 !              write(*,*)"i-rdms1 1",i,Dtmp(i)
 !           end do
@@ -377,17 +377,17 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
            Call mma_deallocate(DStmp)
            Call mma_deallocate(Dtmp)
            Call mma_deallocate(CIVEC)
-*
+!
            Call SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
-*
+!
         End If
         CALL mma_deallocate(RCT_FS)
         CALL mma_deallocate(RCT_F)
-*
+!
       ELSE
-*********************************************************************************************
-* Normal case: no reaction field, no ESP to be added to the Fock matrix or ksdft /= SCF
-*********************************************************************************************
+!********************************************************************************************
+! Normal case: no reaction field, no ESP to be added to the Fock matrix or ksdft /= SCF
+!********************************************************************************************
          IF (IPRLEV.GE.DEBUG) THEN
            CALL TRIPRT('DS input  ',' ',DS,NAC)
            CALL TRIPRT('D input  ',' ',D,NAC)
@@ -399,10 +399,10 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
         Call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
 
         CALL mma_deallocate(TmpDS)
-*
+!
         CALL SGFCIN(CMO,FMO,FI,D1I,D1A,TmpD1S)
         CALL mma_deallocate(TmpD1S)
-*
+!
       END IF
 
       if(doDMRG)then
@@ -422,22 +422,22 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
         ! if HF guess is present, use it (required for CI-DEAS)
         ! If not, error handling should be done in QCMaquis
           if(sum(dmrg_orbital_space%initial_occ) > 0)then
-              call qcmaquis_interface_run_starting_guess(nRoots,
-     &     dmrg_warmup%dofiedler,
-     &     dmrg_warmup%docideas,
-     &     fiedler_order_str,
+              call qcmaquis_interface_run_starting_guess(nRoots,        &
+     &     dmrg_warmup%dofiedler,                                       &
+     &     dmrg_warmup%docideas,                                        &
+     &     fiedler_order_str,                                           &
            ! pass the HF occupation as 1D array to QCMaquis
-     &     reshape(dmrg_orbital_space%initial_occ,
+     &     reshape(dmrg_orbital_space%initial_occ,                      &
      &          (/1, sum(nash)*nroots/)))
           else
-            call qcmaquis_interface_run_starting_guess(nRoots,
-     &       dmrg_warmup%dofiedler,
-     &       dmrg_warmup%docideas,
+            call qcmaquis_interface_run_starting_guess(nRoots,          &
+     &       dmrg_warmup%dofiedler,                                     &
+     &       dmrg_warmup%docideas,                                      &
      &       fiedler_order_str)
           endif
 
-          if (dmrg_warmup%dofiedler)
-     &      call qcmaquis_interface_set_param("orbital_order",
+          if (dmrg_warmup%dofiedler)                                    &
+     &      call qcmaquis_interface_set_param("orbital_order",          &
      &      fiedler_order_str)
             write (6,*) "Fiedler orbital ordering: "//fiedler_order_str
 
@@ -457,14 +457,14 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
         end if
 #endif
       end if
-*
+!
       If (IfVB.eq.2) GoTo 9000
 
-*
-* C
-* DAVIDSON DIAGONALIZATION
-* C
-*
+!
+! C
+! DAVIDSON DIAGONALIZATION
+! C
+!
       if(IfVB.eq.1)then
         call cvbmn_rvb(max(ifinal,1))
       else
@@ -475,7 +475,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
             write(LF,*)'WARNING!!!'
             write(LF,*) 'SplitCAS iterations don''t converge.'
             write(LF,*) 'The program will continue'
-            write(LF,*) 'Hopefully your calculation will converge',
+            write(LF,*) 'Hopefully your calculation will converge',     &
      &                 'next iteration!'
             write(LF,*) repeat('*',120)
            end if
@@ -499,19 +499,19 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
              ! and different optional arguments
              if (doEntanglement) then
                if (twordm_qcm) then
-                 call qcmaquis_interface_run_dmrg(nstates=lroots,
-     &             d1=d1all, d2=d2all, spd=spd1all,
+                 call qcmaquis_interface_run_dmrg(nstates=lroots,       &
+     &             d1=d1all, d2=d2all, spd=spd1all,                     &
      &             entanglement=doEntanglement)
                else
-                 call qcmaquis_interface_run_dmrg(nstates=lroots,
+                 call qcmaquis_interface_run_dmrg(nstates=lroots,       &
      &             d1=d1all, spd=spd1all, entanglement=doEntanglement)
                end if
              else
                if (twordm_qcm) then
-                 call qcmaquis_interface_run_dmrg(nstates=lroots,
+                 call qcmaquis_interface_run_dmrg(nstates=lroots,       &
      &             d1=d1all, d2=d2all, entanglement=doEntanglement)
                else
-                 call qcmaquis_interface_run_dmrg(nstates=lroots,
+                 call qcmaquis_interface_run_dmrg(nstates=lroots,       &
      &               d1=d1all, entanglement=doEntanglement)
                end if
              end if
@@ -538,18 +538,18 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
          end if
       endif
 
-*
-* C
-* CALCULATE DENSITY MATRICES
-* SAVE DENSITY MATRICES ON FILE
-* COMPUTE AVERAGE DENSITY MATRICES
-* C
-*
-* Dtmp: ONE-BODY DENSITY
-* DStmp: ONE-BODY SPIN DENSITY
-* Ptmp: SYMMETRIC TWO-BODY DENSITY
-* PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
-*
+!
+! C
+! CALCULATE DENSITY MATRICES
+! SAVE DENSITY MATRICES ON FILE
+! COMPUTE AVERAGE DENSITY MATRICES
+! C
+!
+! Dtmp: ONE-BODY DENSITY
+! DStmp: ONE-BODY SPIN DENSITY
+! Ptmp: SYMMETRIC TWO-BODY DENSITY
+! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
+!
       Call Timing(Time(1),dum1,dum2,dum3)
       Call dCopy_(NACPAR,[0.0D0],0,D,1)
       Call dCopy_(NACPAR,[0.0D0],0,DS,1)
@@ -569,8 +569,8 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
       iDisk = IADR15(4)
       jDisk = IADR15(3)
       IF (.not.DoSplitCAS) THEN
-*JB   Instead of RASSCF/RASCI energy, print out energy for rotated
-*JB   states
+!JB   Instead of RASSCF/RASCI energy, print out energy for rotated
+!JB   states
        do_rotate=.False.
        If (ifinal.eq.2) Then
         IF(IXMSP.eq.1) THEN
@@ -597,25 +597,25 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
          CALL RotState()
         Else
          If(IRotPsi==1) Then
-          write(LF,'(6X,A,A)')'Do_Rotate.txt is not found. ',
+          write(LF,'(6X,A,A)')'Do_Rotate.txt is not found. ',           &
      &   'MCSCF states will not be rotated'
          End If
         End If
-*JB    End of condition 'Do_Rotate' to initialize rotated states
+!JB    End of condition 'Do_Rotate' to initialize rotated states
        End If
-*JB    End If for ifinal=2
+!JB    End If for ifinal=2
        Do jRoot = 1,lRoots
-* load back one CI vector at the time
-*JB      If do_rotate=.true., then we read CI vectors from CIVec
-*JB      Otherwise we read if from JOBIPH
+! load back one CI vector at the time
+!JB      If do_rotate=.true., then we read CI vectors from CIVec
+!JB      Otherwise we read if from JOBIPH
          Call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
          IF (IPRLEV.GE.DEBUG) THEN
           call DVcPrt('CI-Vec in CICTL',' ',CIVEC,nConf )
          END IF
-* compute density matrices
+! compute density matrices
 
          If ( NAC.ge.1 ) Then
-           if(.not.(doDMRG)) CALL Lucia_Util('Densi',
+           if(.not.(doDMRG)) CALL Lucia_Util('Densi',                   &
      &                                       CI_Vector=CIVEC)
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
@@ -625,7 +625,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
          EndIf
-         IF (.not.doDMRG .and. (SGS%IFRAS.GT.2 .OR. iDoGAS))
+         IF (.not.doDMRG .and. (SGS%IFRAS.GT.2 .OR. iDoGAS))            &
      &   CALL CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
 ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
          if(doDMRG)then
@@ -656,30 +656,30 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
            END IF
 #endif
          end if
-* Modify the symmetric 2-particle density if only partial
-* "exact exchange" is included.
-c        n_Det=2
-c        n_unpaired_elec=(iSpin-1)
-c        n_paired_elec=nActEl-n_unpaired_elec
-c        If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
-c
-c           Write(LF,*) ' iSpin=',iSpin
-c           Write(LF,*) ' n_unpaired_elec',n_unpaired_elec
-c           Write(LF,*) ' n_paired_elec',  n_paired_elec
-c           Write(LF,*) ' n_unpaired_elec+n_paired_elec/2',
-c     &                  n_unpaired_elec+n_paired_elec/2
-c           Write(LF,*) ' n_Det=',n_Det
-c
-c
+! Modify the symmetric 2-particle density if only partial
+! "exact exchange" is included.
+!        n_Det=2
+!        n_unpaired_elec=(iSpin-1)
+!        n_paired_elec=nActEl-n_unpaired_elec
+!        If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
+!
+!           Write(LF,*) ' iSpin=',iSpin
+!           Write(LF,*) ' n_unpaired_elec',n_unpaired_elec
+!           Write(LF,*) ' n_paired_elec',  n_paired_elec
+!           Write(LF,*) ' n_unpaired_elec+n_paired_elec/2',
+!     &                  n_unpaired_elec+n_paired_elec/2
+!           Write(LF,*) ' n_Det=',n_Det
+!
+!
 
-*          write(6,*) 'second call to Mod_P2'
+!          write(6,*) 'second call to Mod_P2'
 
-           If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
-     &                     Call Mod_P2(Ptmp,NACPR2,
-     &                                 Dtmp,NACPAR,
+           If (ExFac.ne.1.0D0.AND.(.not.l_casdft))                      &
+     &                     Call Mod_P2(Ptmp,NACPR2,                     &
+     &                                 Dtmp,NACPAR,                     &
      &                                 DStmp,ExFac,n_Det)
 
-* update average density matrices
+! update average density matrices
          Scal = 0.0d0
          Do kRoot = 1,nRoots
            If ( iRoot(kRoot).eq.jRoot ) then
@@ -689,37 +689,37 @@ c
          Call daXpY_(NACPAR,Scal,Dtmp,1,D,1)
          Call daXpY_(NACPAR,Scal,DStmp,1,DS,1)
          Call daXpY_(NACPR2,Scal,Ptmp,1,P,1)
-cGLM Put the D1MO and the P2MO values in RUNFILE
-*
+!GLM Put the D1MO and the P2MO values in RUNFILE
+!
          Call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
          Call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
          Call daXpY_(NACPR2,Scal,PAtmp,1,PA,1)
-* save density matrices on disk
+! save density matrices on disk
          Call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
          Call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
          Call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
          Call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
-CSVC: store a single column instead of the whole array (which is for each root!)
-C and for now don't bother with 2-electron active density matrices
+!SVC: store a single column instead of the whole array (which is for each root!)
+! and for now don't bother with 2-electron active density matrices
 #ifdef _HDF5_
          call square(Dtmp,density_square,1,nac,nac)
-         call mh5_put_dset(wfn_dens, density_square,
-     $           [nac,nac,1], [0,0,jRoot-1])
+         call mh5_put_dset(wfn_dens, density_square,                    &
+     &           [nac,nac,1], [0,0,jRoot-1])
          call square(DStmp,density_square,1,nac,nac)
-         call mh5_put_dset(wfn_spindens, density_square,
-     $           [nac,nac,1], [0,0,jRoot-1])
+         call mh5_put_dset(wfn_spindens, density_square,                &
+     &           [nac,nac,1], [0,0,jRoot-1])
 #endif
        End Do
 
       ELSE  ! SplitCAS run
         Call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
         IF (IPRLEV.GE.DEBUG) then
-          call DVcPrt('CI-Vec in CICTL SplitCAS sect',' ',
+          call DVcPrt('CI-Vec in CICTL SplitCAS sect',' ',              &
      &              CIVEC,nConf)
         end if
-* compute density matrices
+! compute density matrices
         If ( NAC.ge.1 ) Then
-           CALL Lucia_Util('Densi',
+           CALL Lucia_Util('Densi',                                     &
      &                     CI_Vector=CIVEC)
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Dtmp,NAC)
@@ -728,18 +728,18 @@ C and for now don't bother with 2-electron active density matrices
              CALL TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
            END IF
         EndIf
-        IF (IDoGAS.or.SGS%IFRAS.gt.2) CALL CISX(IDXSX,Dtmp,DStmp,
+        IF (IDoGAS.or.SGS%IFRAS.gt.2) CALL CISX(IDXSX,Dtmp,DStmp,       &
      &              Ptmp,PAtmp,Pscr)
-           If (ExFac.ne.1.0D0.AND.(.not.l_casdft))
-     &                      Call Mod_P2(Ptmp,NACPR2,
-     &                                Dtmp,NACPAR,
+           If (ExFac.ne.1.0D0.AND.(.not.l_casdft))                      &
+     &                      Call Mod_P2(Ptmp,NACPR2,                    &
+     &                                Dtmp,NACPAR,                      &
      &                                DStmp,ExFac,n_Det)
         Scal = 1.0d0
         call daxpy_(NACPAR,Scal,Dtmp,1,D,1)
         call daxpy_(NACPAR,Scal,DStmp,1,DS,1)
         call daxpy_(NACPR2,Scal,Ptmp,1,P,1)
         call daxpy_(NACPR2,Scal,PAtmp,1,PA,1)
-* save density matrices on disk
+! save density matrices on disk
         Call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
         Call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
         Call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
@@ -754,45 +754,45 @@ C and for now don't bother with 2-electron active density matrices
       Call mma_deallocate(Ptmp)
       Call mma_deallocate(DStmp)
       Call mma_deallocate(Dtmp)
-*
-* print matrices
+!
+! print matrices
       IF ( IPRLEV.GE.INSANE  ) THEN
-        CALL TRIPRT('Averaged one-body density matrix, D',
+        CALL TRIPRT('Averaged one-body density matrix, D',              &
      &              ' ',D,NAC)
-        CALL TRIPRT('Averaged one-body spin density matrix, DS',
+        CALL TRIPRT('Averaged one-body spin density matrix, DS',        &
      &              ' ',DS,NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
+        CALL TRIPRT('Averaged two-body density matrix, P',              &
      &              ' ',P,NACPAR)
-        CALL TRIPRT('Averaged antisymmetric two-body density matrix,PA',
+        CALL TRIPRT('Averaged antisymmetric two-body density matrix,PA',&
      &              ' ',PA,NACPAR)
       END IF
       Call Put_dArray('D1mo',D,NACPAR) ! Put on RUNFILE
-      if (lRf.and.IPCMROOT<=0)
+      if (lRf.and.IPCMROOT<=0)                                          &
      &  Call Put_dArray('P2mo',P,NACPR2) ! Put on RUNFILE
-c
+!
       IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
       Call Timing(Time(2),dum1,dum2,dum3)
       TimeDens = TimeDens + Time(2) - Time(1)
-*
-* C
-* IF FINAL ITERATION REORDER THE WAVEFUNCTION ACCORDING TO
-* THE SPLIT GRAPH GUGA CONVENTIONS AND PRINT IT.
-* C
-*
-* CIV: Temporary copy of a CI vector
-*
+!
+! C
+! IF FINAL ITERATION REORDER THE WAVEFUNCTION ACCORDING TO
+! THE SPLIT GRAPH GUGA CONVENTIONS AND PRINT IT.
+! C
+!
+! CIV: Temporary copy of a CI vector
+!
       IF (IFINAL.EQ.2 .AND. NAC.GT.0 ) THEN
        IF (IPRLEV.ge.USUAL) THEN
         Write(LF,*)
         Write(LF,'(6X,120("*"))')
         Write(LF,'(54X,A)') 'Wave function printout:'
-        Write(LF,'(23X,A)') 'occupation of active orbitals, and '//
-     &                      'spin coupling of open shells '//
+        Write(LF,'(23X,A)') 'occupation of active orbitals, and '//     &
+     &                      'spin coupling of open shells '//           &
      &                      '(u,d: Spin up or down)'
         Write(LF,'(6X,120("*"))')
         Write(LF,*)
         Write(6,'(6x,A)') 'Note: transformation to natural orbitals'
-        Write(6,'(6x,A)')
+        Write(6,'(6x,A)')                                               &
      &     'has been made, which may change the order of the CSFs.'
        END IF
        Call mma_allocate(CIV,nConf,Label='CIV')
@@ -802,37 +802,37 @@ c
        IF (.Not.DoSplitCAS) THEN
         Do i = 1,lRoots
           jDisk=iDisk
-* load back one CI vector at the time
+! load back one CI vector at the time
            Call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
           IF (IPRLEV.GE.DEBUG) THEN
-           call DVcPrt('CI-Vec in CICTL last cycle',' ',
+           call DVcPrt('CI-Vec in CICTL last cycle',' ',                &
      &        CIVEC,nConf)
           END IF
           call mma_allocate(kcnf,nactel,Label='kCnf')
          if(.not.iDoGas)then
-          Call Reord2(NAC,NACTEL,STSYM,0,
-     &                CONF,CFTP,
+          Call Reord2(NAC,NACTEL,STSYM,0,                               &
+     &                CONF,CFTP,                                        &
      &                CIVEC,CIV,kcnf)
-c        end if
-c         call mma_deallocate(kcnf)
+!        end if
+!         call mma_deallocate(kcnf)
 
-* save reorder CI vector on disk
-c         if(.not.iDoGas)then
+! save reorder CI vector on disk
+!         if(.not.iDoGas)then
           Call DDafile(JOBIPH,1,CIV,nConf,jDisk)
 #ifdef _HDF5_
           call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
 
 #endif
-c         else
-c         call DDafile(JOBIPH,1,CIVEC,nConf,jDisk)
-c         end if
-* printout of the wave function
+!         else
+!         call DDafile(JOBIPH,1,CIVEC,nConf,jDisk)
+!         end if
+! printout of the wave function
             IF (IPRLEV.GE.USUAL) THEN
               Write(LF,*)
-              Write(LF,'(6X,A,F6.2,A,I3)')
-     &                  'printout of CI-coefficients larger than',
+              Write(LF,'(6X,A,F6.2,A,I3)')                              &
+     &                  'printout of CI-coefficients larger than',      &
      &                   PRWTHR,' for root',i
-              Write(LF,'(6X,A,F15.6)')
+              Write(LF,'(6X,A,F15.6)')                                  &
      &             'energy=',ENER(I,ITER)
               If (KeyPRSD) Then
 !     Define filename to write GronOR vecdet files (tps/cdg 20210430)
@@ -843,51 +843,51 @@ c         end if
                 call Molcas_open(LuVecDet,filename)
                 write(LuVecDet,'(8i4)') nish
               End If
-              CALL SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,
+              CALL SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,         &
      &                    KeyPRSD,LUVECDET)
 !     Close GronOR vecdet file (tps/cdg 20210430)
               If (KeyPRSD) close(LuVecDet)
             End If
          else ! for iDoGas
           Write(LF,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'
-c.. save CI vector on disk
+!.. save CI vector on disk
           Call DDafile(JOBIPH,1,CIVEC,nconf,jDisk)
-CSVC: store CI as a column array of the on-disk CI (which is for all roots!)
+!SVC: store CI as a column array of the on-disk CI (which is for all roots!)
 #ifdef _HDF5_
-          call mh5_put_dset(wfn_cicoef,CIVEC(1:nconf),
+          call mh5_put_dset(wfn_cicoef,CIVEC(1:nconf),                  &
      &                      [nconf,1],[0,i-1])
 #endif
-C.. printout of the wave function
+!.. printout of the wave function
           IF (IPRLEV.GE.USUAL) THEN
             Write(LF,*)
-            Write(LF,'(6X,A,F6.2,A,I3)')
-     c                'printout of CI-coefficients larger than',
-     c                 prwthr,' for root', i
-            Write(LF,'(6X,A,F15.6)')
-     c                'energy=',ener(i,iter)
+            Write(LF,'(6X,A,F6.2,A,I3)')                                &
+     &                'printout of CI-coefficients larger than',        &
+     &                 prwthr,' for root', i
+            Write(LF,'(6X,A,F15.6)')                                    &
+     &                'energy=',ener(i,iter)
 
             call gasprwf(nac,nactel,stsym,conf,cftp,CIVEC,kcnf)
           End If
          end if
           call mma_deallocate(kcnf)
-*          END IF
+!          END IF
         End Do
 
         ELSE !RUN SPLITCAS
 
           jDisk=iDisk
-* load back one CI vector at the time
+! load back one CI vector at the time
           Call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
           IF (IPRLEV.GE.DEBUG) THEN
-           call DVcPrt('CI-Vec in CICTL SplitCAS last cycle',' ',
+           call DVcPrt('CI-Vec in CICTL SplitCAS last cycle',' ',       &
      &        CIVEC,nConf)
           END IF
-* reorder it according to the split graph GUGA conventions
+! reorder it according to the split graph GUGA conventions
           call mma_allocate(kcnf,nactel,Label='kcnf')
-          Call Reord2(NAC,NACTEL,STSYM,0,
+          Call Reord2(NAC,NACTEL,STSYM,0,                               &
      &                CONF,CFTP,CIVEC,CIV,kcnf)
           call mma_deallocate(kcnf)
-* save reorder CI vector on disk
+! save reorder CI vector on disk
           Call DDafile(JOBIPH,1,CIV,nConf,jDisk)
 #ifdef _HDF5_
           call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
@@ -895,13 +895,13 @@ C.. printout of the wave function
           IF (IPRLEV.GE.DEBUG) THEN
            call DVcPrt('CI-Vec in CICTL after Reord',' ',CIV,nConf)
           END IF
-* printout of the wave function
+! printout of the wave function
           IF (IPRLEV.GE.USUAL) THEN
             Write(LF,*)
-            Write(LF,'(6X,A,F6.2,A,I3)')
-     &                'printout of CI-coefficients larger than',
+            Write(LF,'(6X,A,F6.2,A,I3)')                                &
+     &                'printout of CI-coefficients larger than',        &
      &                 PRWTHR,' for root',lRootSplit
-            Write(LF,'(6X,A,F15.6)')
+            Write(LF,'(6X,A,F15.6)')                                    &
      &           'Split-energy=',ENER(lRootSplit,ITER)
 !     Open GronOR vecdet file (tps/cdg 20210430)
             write(filename,'(a7,i0)') 'VECDET.',i
@@ -910,7 +910,7 @@ C.. printout of the wave function
             LuVecDet=IsFreeUnit(LuVecDet)
             call Molcas_open(LuVecDet,filename)
             write(LuVecDet,'(8i4)') nish
-            CALL SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,
+            CALL SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,           &
      &                  KeyPRSD,LUVECDET)
 !     Close GronOR vecdet file (tps/cdg 20210430)
             close(LuVecDet)
@@ -923,7 +923,7 @@ C.. printout of the wave function
 
 #ifdef _DMRG_
       if(doDMRG)then
-        call mh5_put_dset
+        call mh5_put_dset                                               &
      &         (wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
         call mma_deallocate(d1all)
         if(twordm_qcm) call mma_deallocate(d2all)
@@ -935,41 +935,41 @@ C.. printout of the wave function
       Call mma_deallocate(FMO)
 
  9000 Continue
-*
-*     For RF calculations make sure that the we are following the
-*     correct root.
-*
-*     In the current implementation the overlap between the CI vectors
-*     of different macro iterations is used. This criterion stricktly
-*     only hold if the orbitals are not changed in between the
-*     interations, to make sure that this approximately holds the
-*     comparision is only to be considered to be valid if the rotmax
-*     parameter is below an empirical threshold. In the future the
-*     procedure for indentifying root flipping has to be made more
-*     robust.
-*
-CSVC: if CISElect is used, roots should be traced regardless of orbital
-C     rotation, so in that case ignore the automatic tracing and follow
-C     the relative CISE root given in the input by the 'CIRF' keyword.
-*
+!
+!     For RF calculations make sure that the we are following the
+!     correct root.
+!
+!     In the current implementation the overlap between the CI vectors
+!     of different macro iterations is used. This criterion stricktly
+!     only hold if the orbitals are not changed in between the
+!     interations, to make sure that this approximately holds the
+!     comparision is only to be considered to be valid if the rotmax
+!     parameter is below an empirical threshold. In the future the
+!     procedure for indentifying root flipping has to be made more
+!     robust.
+!
+!SVC: if CISElect is used, roots should be traced regardless of orbital
+!     rotation, so in that case ignore the automatic tracing and follow
+!     the relative CISE root given in the input by the 'CIRF' keyword.
+!
       If (lRF.and.KeyCISE.and.KeyCIRF.and.IPCMROOT>0) Then
         JPCMROOT=IPCMROOT
         IPCMROOT=IROOT(ICIRFROOT)
         Call Put_iScalar("RF CASSCF root",IPCMROOT)
         If (JPCMROOT.ne.IPCMROOT) Then
-          Write (6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',
+          Write (6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',       &
      &                 JPCMROOT, ' to ',IPCMROOT
         End If
       Else If (lRF.and.IPCMROOT>0) Then
         Call Qpg_iScalar('RF CASSCF root',Exist)
         If (.NOT.Exist) Then
-*
-*          We are here since we are using the default values.
-*
+!
+!          We are here since we are using the default values.
+!
            Call Put_iScalar("RF CASSCF root",IPCMROOT)
            Call Put_iScalar("RF0CASSCF root",IPCMROOT)
         End If
-*
+!
         mconf = 0
         Call mma_allocate(RF,nConf,Label='RF')
         Call Qpg_dArray("RF CASSCF Vector",Exist,mConf)
@@ -982,25 +982,25 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
           if(.not.rfh5DMRG)then
             maquis_name_states  = ""
             maquis_name_results = ""
-            call file_name_generator(IPCMROOT-1,"checkpoint_state.",
+            call file_name_generator(IPCMROOT-1,"checkpoint_state.",    &
      &                               ".h5",maquis_name_states)
-            call file_name_generator(IPCMROOT-1,"results_state.",
+            call file_name_generator(IPCMROOT-1,"results_state.",       &
      &                               ".h5",maquis_name_results)
 
           !> copy current target wave function to local wave function
-            call systemf(
-     & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//
-     & "rm -rf rf.checkpoint_state.h5 && "//
-     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5",
+            call systemf(                                               &
+     & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//&
+     & "rm -rf rf.checkpoint_state.h5 && "//                            &
+     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5",   &
      &                 iErr)
           end if
         end if
 #endif
 
-        If (Exist
-     &      .and. mConf .eq. nConf
-     &      .and. iFinal.ne.2
-     &      .and. (ABS(RotMax).lt.1.0D-3 .or. KeyCISE)
+        If (Exist                                                       &
+     &      .and. mConf .eq. nConf                                      &
+     &      .and. iFinal.ne.2                                           &
+     &      .and. (ABS(RotMax).lt.1.0D-3 .or. KeyCISE)                  &
      &     ) Then
 
            rNorm = 1.0d0
@@ -1012,7 +1012,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
              Call Get_dArray("RF CASSCF Vector",RF,nConf)
              rNorm=Sqrt(DDot_(nConf,RF,1,RF,1))
            end if
-*          Write (6,*) 'rNorm=',rNorm
+!          Write (6,*) 'rNorm=',rNorm
            JPCMROOT=IPCMROOT
            If (rNorm.gt.1.0D-10) Then
               Call mma_allocate(Temp,nConf,Label='Temp')
@@ -1028,8 +1028,8 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
                    Call DDafile(JOBIPH,2,Temp,nConf,jDisk)
                    qMax=Abs(DDot_(nConf,Temp,1,RF,1))
                  end if
-*                Write (6,*) 'qMax=',qMax
-                 If (qMax.gt.rMax .and.
+!                Write (6,*) 'qMax=',qMax
+                 If (qMax.gt.rMax .and.                                 &
      &               qMax.gt.0.5D0) Then
                     rMax = qMax
                     JPCMROOT=i
@@ -1040,28 +1040,28 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         Else
            JPCMROOT=IPCMROOT
         End If
-*
+!
         If (JPCMROOT.ne.IPCMROOT) Then
-           Write (6,*) ' RF Root has flipped from ',IPCMROOT, ' to ',
+           Write (6,*) ' RF Root has flipped from ',IPCMROOT, ' to ',   &
      &                                              JPCMROOT
            IPCMROOT=JPCMROOT
            Call Put_iScalar("RF CASSCF root",IPCMROOT)
         End If
-*
+!
         if(doDMRG)then
 #ifdef _DMRG_
           maquis_name_states  = ""
           maquis_name_results = ""
-          call file_name_generator(IPCMROOT-1,"checkpoint_state.",
+          call file_name_generator(IPCMROOT-1,"checkpoint_state.",      &
      &                             ".h5",maquis_name_states)
-          call file_name_generator(IPCMROOT-1,"results_state.",
+          call file_name_generator(IPCMROOT-1,"results_state.",         &
      &                             ".h5",maquis_name_results)
 
           !> copy current target wave function to local wave function
-          call systemf(
-     & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//
-     & "rm -rf rf.checkpoint_state.h5 && "//
-     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5",
+          call systemf(                                                 &
+     & "cp -f "//trim(maquis_name_results)//" rf.results_state.h5 && "//&
+     & "rm -rf rf.checkpoint_state.h5 && "//                            &
+     & "cp -r "//trim(maquis_name_states)//" rf.checkpoint_state.h5",   &
      &               iErr)
 #endif
         else

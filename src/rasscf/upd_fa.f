@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine Upd_FA(PUVX,F,D,ExFac)
-************************************************************************
-*                                                                      *
-*     compute FIA, FAA, and FAS from the integral set (pu!vx)          *
-*                                                                      *
-*     calling arguments:                                               *
-*     PUVX    : input, array of real                                   *
-*               ERIs with indices (pu!vx)                              *
-*               (three active, one general)                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     compute FIA, FAA, and FAS from the integral set (pu!vx)          *
+!                                                                      *
+!     calling arguments:                                               *
+!     PUVX    : input, array of real                                   *
+!               ERIs with indices (pu!vx)                              *
+!               (three active, one general)                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       use general_data, only: NSYM,NASH,NISH,NORB
       use Molcas, only: MxSym
@@ -40,15 +40,15 @@
 
       Integer case
       Integer off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)
-      Integer ISTACK,ISYM,IASH,IORB,JSYM,JASH,IJSYM,KSYM,KASH,LSYM,
-     &        LASH,KLSYM,KL_ORB_PAIRS,IISH,IFOFF,IU,IP,IPU,IPUVX,JORB,
+      Integer ISTACK,ISYM,IASH,IORB,JSYM,JASH,IJSYM,KSYM,KASH,LSYM,     &
+     &        LASH,KLSYM,KL_ORB_PAIRS,IISH,IFOFF,IU,IP,IPU,IPUVX,JORB,  &
      &        JISH,IDOFF,IV,IX,IVX,IUV,IUX,IPV,IPX,KDOFF,JFOFF,JDOFF
       REAL*8 DVX,DUV,EXFAC,DUX,TEMP
 
       Integer i, iTri
       iTri(i)=(i*i-i)/2
 
-*     generate offsets
+!     generate offsets
 
       iStack = 0
       Do iSym = 1,nSym
@@ -86,7 +86,7 @@
         End Do
       End Do
 
-*     clear the subbocks FIA, FAA and FSA
+!     clear the subbocks FIA, FAA and FSA
 
       Do iSym = 1,nSym
         iOrb  = nOrb(iSym)
@@ -107,7 +107,7 @@
         End Do
       End Do
 
-*     generate the subblocks FIA, FAA and FSA
+!     generate the subblocks FIA, FAA and FSA
 
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
@@ -125,17 +125,17 @@
               lAsh = nAsh(lSym)
               klSym = 1 + ieor(kSym-1,lSym-1)
 
-*             find cases
+!             find cases
               case = 4
               If ( iSym.eq.jSym ) case = case-2
               If ( iSym.eq.kSym ) case = case-1
 
-              If ( ijSym.eq.klSym .and.
+              If ( ijSym.eq.klSym .and.                                 &
      &             iAsh*jAsh*kAsh*lAsh.ne.0 ) then
 
                 Goto (100,200,300,400) case
 
-*               symmetry case (II!II)
+!               symmetry case (II!II)
 100             Continue
                 iFoff = off_Fmat(iSym)
                 iDoff = off_Dmat(iSym)
@@ -156,7 +156,7 @@
                         DUX = ExFac*0.5D0*DUX
                       End If
                       iPUVX = off_PUVX(iSym)
-*                     inactive/active block
+!                     inactive/active block
                       Do iP = 1,iIsh
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
@@ -167,43 +167,43 @@
                         iPX  = iTri(iIsh+iX) + iP
                         F(iFoff+iPX) = F(iFoff+iPX) - DUV*Temp
                       End Do
-*                     active/active block and iP<=(iIsh+iU)
+!                     active/active block and iP<=(iIsh+iU)
                       Do iP = iIsh+1,iIsh+iU
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
                         iPU  = iTri(iIsh+iU) + iP
                         F(iFoff+iPU) = F(iFoff+iPU) + DVX*Temp
                         iPV  = iTri(iIsh+iV) + iP
-                        If ( iP.gt.(iIsh+iV) )
+                        If ( iP.gt.(iIsh+iV) )                          &
      &                  iPV  = iTri(iP) + iIsh + iV
                         F(iFoff+iPV) = F(iFoff+iPV)-ExFac*0.5D0*DUX*Temp
-                        If ( iP.eq.(iIsh+iV) )
+                        If ( iP.eq.(iIsh+iV) )                          &
      &                  F(iFoff+iPV) = F(iFoff+iPV)-ExFac*0.5D0*DUX*Temp
                         iPX  = iTri(iIsh+iX) + iP
-                        If ( iP.gt.(iIsh+iX) )
+                        If ( iP.gt.(iIsh+iX) )                          &
      &                  iPX  = iTri(iP) + iIsh + iX
                         F(iFoff+iPX) = F(iFoff+iPX)-ExFac*0.5D0*DUV*Temp
-                        If ( iP.eq.(iIsh+iX) )
+                        If ( iP.eq.(iIsh+iX) )                          &
      &                  F(iFoff+iPX) = F(iFoff+iPX)-ExFac*0.5D0*DUV*Temp
                       End Do
-*                     active/active block and iP>(iIsh+iU)
+!                     active/active block and iP>(iIsh+iU)
                       Do iP = iIsh+iU+1,iIsh+iAsh
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
                         iPV  = iTri(iIsh+iV) + iP
-                        If ( iP.gt.(iIsh+iV) )
+                        If ( iP.gt.(iIsh+iV) )                          &
      &                  iPV  = iTri(iP) + iIsh + iV
                         F(iFoff+iPV) = F(iFoff+iPV)-ExFac*0.5D0*DUX*Temp
-                        If ( iP.eq.(iIsh+iV) )
+                        If ( iP.eq.(iIsh+iV) )                          &
      &                  F(iFoff+iPV) = F(iFoff+iPV)-ExFac*0.5D0*DUX*Temp
                         iPX  = iTri(iIsh+iX) + iP
-                        If ( iP.gt.(iIsh+iX) )
+                        If ( iP.gt.(iIsh+iX) )                          &
      &                  iPX  = iTri(iP) + iIsh + iX
                         F(iFoff+iPX) = F(iFoff+iPX)-ExFac*0.5D0*DUV*Temp
-                        If ( iP.eq.(iIsh+iX) )
+                        If ( iP.eq.(iIsh+iX) )                          &
      &                  F(iFoff+iPX) = F(iFoff+iPX)-ExFac*0.5D0*DUV*Temp
                       end Do
-*                     active/secondary block
+!                     active/secondary block
                       Do iP = iIsh+iAsh+1,iOrb
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
@@ -220,7 +220,7 @@
                 End Do
                 Goto 500
 
-*               symmetry case (II!KK)
+!               symmetry case (II!KK)
 200             Continue
                 iFoff = off_Fmat(iSym)
                 kDoff = off_Dmat(kSym)
@@ -231,14 +231,14 @@
                     If ( iX.eq.iV ) DVX = D(kDoff+iVX)
                     Do iU = 1,jAsh
                       iPUVX = off_PUVX(iSym)
-*                     inactive/active block
+!                     inactive/active block
                       Do iP = 1,iIsh
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
                         iPU  = iTri(iIsh+iU) + iP
                         F(iFoff+iPU) = F(iFoff+iPU) + DVX*Temp
                       End Do
-*                     active/active block and iP<=(iIsh+iU)
+!                     active/active block and iP<=(iIsh+iU)
                       Do iP = iIsh+1,iIsh+iU
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
@@ -246,7 +246,7 @@
                         F(iFoff+iPU) = F(iFoff+iPU) + DVX*Temp
                       End Do
                       iPUVX = iPUVX + iAsh - iU
-*                     active/secondary block
+!                     active/secondary block
                       Do iP = iIsh+iAsh+1,iOrb
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
@@ -259,7 +259,7 @@
                 End Do
                 Goto 500
 
-*               symmetry case (IJ!IJ)
+!               symmetry case (IJ!IJ)
 300             Continue
                 iFoff = off_Fmat(iSym)
                 jFoff = off_Fmat(jSym)
@@ -272,14 +272,14 @@
                       If ( iX.gt.iU ) iUX  = iTri(iX) + iU
                       DUX = ExFac*0.5D0*D(jDoff+iUX)
                       iPUVX = off_PUVX(iSym)
-*                     inactive/active block
+!                     inactive/active block
                       Do iP = 1,iIsh
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
                         iPV  = iTri(iIsh+iV) + iP
                         F(iFoff+iPV) = F(iFoff+iPV) - DUX*Temp
                       End Do
-*                     active/active block and iP<=(iIsh+iV)
+!                     active/active block and iP<=(iIsh+iV)
                       Do iP = iIsh+1,iIsh+iV
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
@@ -287,7 +287,7 @@
                         F(iFoff+iPV) = F(iFoff+iPV) - DUX*Temp
                       End Do
                       iPUVX = iPUVX + iAsh - iV
-*                     active/secondary block
+!                     active/secondary block
                       Do iP = iIsh+iAsh+1,iOrb
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
@@ -301,14 +301,14 @@
                       If ( iV.gt.iU ) iUV  = iTri(iV) + iU
                       DUV = ExFac*0.5D0*D(iDoff+iUV)
                       iPUVX = off_PUVX(jSym)
-*                     inactive/active block
+!                     inactive/active block
                       Do iP = 1,jIsh
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
                         iPX  = iTri(jIsh+iX) + iP
                         F(jFoff+iPX) = F(jFoff+iPX) - DUV*Temp
                       End Do
-*                     active/active block and iP<=(jIsh+iX)
+!                     active/active block and iP<=(jIsh+iX)
                       Do iP = jIsh+1,jIsh+iX
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
@@ -316,7 +316,7 @@
                         F(jFoff+iPX) = F(jFoff+iPX) - DUV*Temp
                       End Do
                       iPUVX = iPUVX + jAsh - iX
-*                     active/secondary block
+!                     active/secondary block
                       Do iP = jIsh+jAsh+1,jOrb
                         iPUVX = iPUVX + 1
                         Temp = PUVX(iPUVX)
@@ -329,7 +329,7 @@
                 End Do
                 Goto 500
 
-*               symmetry case (IJ!KL)
+!               symmetry case (IJ!KL)
 400             Continue
                 Do iV = 1,kAsh
                   Do iX = 1,lAsh

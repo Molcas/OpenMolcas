@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2020, Jie J. Bao                                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Jie J. Bao                                       *
+!***********************************************************************
       Subroutine RotState()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15,
+      use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15,      &
      &                         Ener
       use PrintLevel, only: DEBUG,USUAL
       use output_ras, only: LF,IPRLOC
@@ -22,10 +22,10 @@
       Implicit None
 
 
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Mar. 13, 2020, created this file.               *
-* ****************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Mar. 13, 2020, created this file.               *
+! ****************************************************************
 
 
       Integer NHrot                ! storing info in H0_Rotate.txt
@@ -33,7 +33,7 @@
       Integer rcidisk
       INTEGER JRoot,IPRLEV
       CHARACTER(Len=18)::MatInfo
-      Real*8, Allocatable:: CIVEC(:,:), CIScr(:,:), HScr(:), State(:),
+      Real*8, Allocatable:: CIVEC(:,:), CIScr(:,:), HScr(:), State(:),  &
      &                      HRot(:,:)
       Integer i, iad15
 
@@ -45,15 +45,15 @@
       write(LF,*)
       write(LF,'(11X,A)')'Do_Rotate.txt is found in scratch directory.'
       IF(IXMSP.eq.1) THEN
-       write(LF,'(11X,A)')
+       write(LF,'(11X,A)')                                              &
      & 'Following properties are for XMS intermediate states.'
       ELSE IF(ICMSP.eq.1) THEN
-       write(LF,'(11X,A)')
+       write(LF,'(11X,A)')                                              &
      & 'Following properties are for CMS intermediate states.'
       ELSE
-       write(LF,'(11X,A)')
+       write(LF,'(11X,A)')                                              &
      & 'Following properties are for intermediate states'
-       write(LF,'(11X,A)')
+       write(LF,'(11X,A)')                                              &
      & ' obtained from the user-supplied rotation matrix'
       ENDIF
       ENDIF
@@ -68,8 +68,8 @@
       CALL mma_allocate(HRot,lRoots,lRoots,Label='HRot')
 
 
-*JB   read rotation matrix in Do_Rotate.txt
-      CALL ReadMat2('ROT_VEC',MatInfo,State,lRoots,lRoots,
+!JB   read rotation matrix in Do_Rotate.txt
+      CALL ReadMat2('ROT_VEC',MatInfo,State,lRoots,lRoots,              &
      &              7,18,'T')
       iF(IPRLEV.GE.DEBUG) Then
         write(LF,*)'rotation matrix'
@@ -80,26 +80,26 @@
       Do I=1,lRoots
         HRot(I,I)=ENER(I,ITER)
       End Do
-      Call DGEMM_('t','n',lRoots,lRoots,lRoots,1.0D0,State,
+      Call DGEMM_('t','n',lRoots,lRoots,lRoots,1.0D0,State,             &
      &     lRoots,HRot,lRoots,0.0D0,HScr,lRoots)
-      Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,HScr,
+      Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,HScr,              &
      &     lRoots,State,lRoots,0.0D0,HRot,lRoots)
-      CALL PrintMat2('ROT_HAM',MatInfo,HRot,lRoots,lRoots,
+      CALL PrintMat2('ROT_HAM',MatInfo,HRot,lRoots,lRoots,              &
      &              7,18,'T')
       if(IPRLEV.GE.DEBUG) Then
        write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
        Call RecPrt('HRot',' ',hRot,lRoots,lRoots)
       End if
 
-*JB   read CI vector from jobiph
+!JB   read CI vector from jobiph
       rcidisk=IADR15(4)
       Do jRoot = 1,lRoots
         Call DDafile(JOBIPH,2,CIScr(:,jRoot),nConf,rcidisk)
       End Do
-      Call DGEMM_('n','n',NConf,lRoots,lRoots,1.0D0,CIScr,
+      Call DGEMM_('n','n',NConf,lRoots,lRoots,1.0D0,CIScr,              &
      &     nConf,State,lRoots,0.0D0,CIVec,nConf)
 
-C     updating final energies as those for rotated states
+!     updating final energies as those for rotated states
       rcidisk=IADR15(4)
       Do I=1,lRoots
         Call DDafile(JOBIPH,1,CIVec(:,I),nConf,rcidisk)
@@ -110,7 +110,7 @@ C     updating final energies as those for rotated states
 
 
       IF(IPRLEV.GE.DEBUG) Then
-      write(LF,'(2A)')'Printing the coeff of the first CSF',
+      write(LF,'(2A)')'Printing the coeff of the first CSF',            &
      &' for each state'
       Do I=1,lRoots
         write(LF,*) CIVec(1,I)

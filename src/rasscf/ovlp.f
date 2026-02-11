@@ -1,46 +1,46 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1999, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1999, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine Ovlp(iWay,C1,C2,Smat)
 
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Compute the orbital overlap matrix between the MO sets C1 and C2 *
-*                                                                      *
-*     calling arguments:                                               *
-*     iWay    : integer                                                *
-*               =0 : S-matrix for all orbitals                         *
-*                    symmetry blocked, triangular                      *
-*               =1 : S-matrix for active orbitals only                 *
-*                    no symmetry, triangular                           *
-*     C1      : real*8                                                 *
-*               MO-basis                                               *
-*     C2      : real*8                                                 *
-*               MO-basis                                               *
-*     S       : real*8                                                 *
-*               orbital overlap matrix                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1999                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Compute the orbital overlap matrix between the MO sets C1 and C2 *
+!                                                                      *
+!     calling arguments:                                               *
+!     iWay    : integer                                                *
+!               =0 : S-matrix for all orbitals                         *
+!                    symmetry blocked, triangular                      *
+!               =1 : S-matrix for active orbitals only                 *
+!                    no symmetry, triangular                           *
+!     C1      : real*8                                                 *
+!               MO-basis                                               *
+!     C2      : real*8                                                 *
+!               MO-basis                                               *
+!     S       : real*8                                                 *
+!               orbital overlap matrix                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1999                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -58,16 +58,16 @@
 
       Character(LEN=8) Label
       Real*8, Allocatable:: OAO(:), Scr1(:), Scr2(:)
-      Integer iRC, iOpt, iComp, iSyLbl, ipC, ipO, ipSMat, nAcO, iSym,
+      Integer iRC, iOpt, iComp, iSyLbl, ipC, ipO, ipSMat, nAcO, iSym,   &
      &        nBs, nIs, nAs, iiOrb, ij, iOrb, jjOrb, jOrb
 
-* prologue
+! prologue
 
 
       Call dCopy_(nAc*nAc,[zero],0,Smat,1)
       Call mma_allocate(OAO,nTot1,Label='OAO')
 
-* read the overlap integrals
+! read the overlap integrals
 
       iRc=-1
       iOpt=ibset(ibset(0,sNoOri),sNoNuc)
@@ -88,7 +88,7 @@
          Call Quit(_RC_IO_ERROR_READ_)
       End If
 
-* compute the S-matrix for all orbitals and select elements
+! compute the S-matrix for all orbitals and select elements
 
       ipC=1
       ipO=1
@@ -102,15 +102,15 @@
           Call mma_allocate(Scr1,nBs*nBs,Label='Scr1')
           Call mma_allocate(Scr2,nBs*nBs,Label='Scr2')
           Call Square(OAO(ipO),Scr1,1,nBs,nBs)
-          Call DGEMM_('N','N',
-     &                nBs,nBs,nBs,
-     &                1.0d0,Scr1,nBs,
-     &                C1(ipC),nBs,
+          Call DGEMM_('N','N',                                          &
+     &                nBs,nBs,nBs,                                      &
+     &                1.0d0,Scr1,nBs,                                   &
+     &                C1(ipC),nBs,                                      &
      &                0.0d0,Scr2,nBs)
-          Call DGEMM_('T','N',
-     &                nBs,nBs,nBs,
-     &                1.0d0,C2(ipC),nBs,
-     &                Scr2,nBs,
+          Call DGEMM_('T','N',                                          &
+     &                nBs,nBs,nBs,                                      &
+     &                1.0d0,C2(ipC),nBs,                                &
+     &                Scr2,nBs,                                         &
      &                0.0d0,Scr1,nBs)
           If ( iWay.eq.0 ) then
             ij = 1
@@ -127,7 +127,7 @@
             ij = 1
             Do iOrb = 1,nBs
               Do jOrb = 1,nBs
-*               If ( jOrb.le.iOrb ) then
+!               If ( jOrb.le.iOrb ) then
                   If ( (iOrb.gt.nIs) .and. (iOrb.le.(nIs+nAs)) ) then
                     If ( (jOrb.gt.nIs) .and. (jOrb.le.(nIs+nAs)) ) then
                       iiOrb = iOrb-nIs+nAcO
@@ -137,7 +137,7 @@
                       Smat(ipSmat) = Scr1(ij)
                     End If
                   End If
-*               End If
+!               End If
                 ij = ij+1
               End Do
             End Do
@@ -150,7 +150,7 @@
         nAcO = nAcO+nAs
       End Do
 
-* epilogue
+! epilogue
 
       Call mma_deallocate(OAO)
 

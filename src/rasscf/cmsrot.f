@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2020, Jie J. Bao                                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Jie J. Bao                                       *
+!***********************************************************************
       Subroutine CMSRot(TUVX)
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Aug. 06, 2020, created this file.               *
-* ****************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Aug. 06, 2020, created this file.               *
+! ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
       use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
@@ -32,7 +32,7 @@
       Real*8,DIMENSION(:,:),Allocatable::RotMat
       Integer iPrLev
 
-C     Allocating Memory
+!     Allocating Memory
       CALL mma_allocate(GDMat,LRoots*(LRoots+1)/2,NAC,NAC)
       CALL mma_allocate(RotMat,lRoots,lRoots)
       CALL mma_allocate(Gtuvx,NAC,NAC,NAC,NAC)
@@ -40,7 +40,7 @@ C     Allocating Memory
 
       IPRLEV=IPRLOC(6)
 
-*     printing header
+!     printing header
       IF(IPRLEV.ge.USUAL) THEN
       write(LF,*)
       write(LF,*)
@@ -49,10 +49,10 @@ C     Allocating Memory
       IF(trim(CMSStartMat).eq.'XMS') THEN
        CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
       ELSE
-       CALL ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,
+       CALL ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,     &
      &              len_trim(CMSStartMat),16,'N')
       END IF
-      IF(IPRLEV.ge.USUAL)
+      IF(IPRLEV.ge.USUAL)                                               &
      &  CALL CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
 
 
@@ -61,17 +61,17 @@ C     Allocating Memory
       CMSNotConverged=.false.
       CALL GetGDMat(GDMat)
       IF(lRoots.lt.NAC) THEN
-*       write(6,*)"Optimization Approach 1"
+!       write(6,*)"Optimization Approach 1"
        CALL GetDDgMat(DDg,GDMat,Gtuvx)
        CALL NStateOpt(RotMat,DDg)
       ELSE
-*       write(6,*)"Optimization Approach 2"
+!       write(6,*)"Optimization Approach 2"
        CALL NStateOpt2(RotMat,GDMat,Gtuvx)
       END IF
       VecName='CMS-PDFT'
       CALL PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
 
-C     Deallocating Memory
+!     Deallocating Memory
       CALL mma_deallocate(GDMat)
       CALL mma_deallocate(RotMat)
       CALL mma_deallocate(Gtuvx)
@@ -82,13 +82,13 @@ C     Deallocating Memory
       END IF
       End Subroutine CMSRot
 
-************************************************************************
+!***********************************************************************
 
-************************************************************************
+!***********************************************************************
       Subroutine NStateOpt(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
-      use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,
+      use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,       &
      &                         iCMSIterMin
       use PrintLevel, only: USUAL
       use output_ras, only: LF,IPRLOC
@@ -136,11 +136,11 @@ C     Deallocating Memory
        CALL ThetaOpt(FRot,theta,VeeSumNew,StatePair,NPairs,DDg)
        IF(IPRLEV.ge.USUAL) THEN
        IF(lRoots.gt.2) THEN
-       write(LF,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
+       write(LF,'(6X,I4,8X,F16.8,8X,ES16.4E3)')                         &
      & ICMSIter,VeeSumNew,VeeSumNew-VeeSumOld
        ELSE
-       write(LF,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
-     & ICMSIter,asin(FRot(2,1))/atan(1.0d0)*45.0d0,VeeSumNew
+       write(LF,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')                 &
+     & ICMSIter,asin(FRot(2,1))/atan(1.0d0)*45.0d0,VeeSumNew            &
      & ,VeeSumNew-VeeSumOld
        END IF
        END IF
@@ -165,9 +165,9 @@ C     Deallocating Memory
       CALL mma_deallocate(theta)
       CALL mma_deallocate(FRot)
       END SUBROUTINE NStateOpt
-************************************************************************
+!***********************************************************************
 
-************************************************************************
+!***********************************************************************
       Subroutine ThetaOpt(FRot,theta,SumVee,StatePair,NPairs,DDg)
       use rasscf_global, only: lRoots
       Implicit None
@@ -181,23 +181,23 @@ C     Deallocating Memory
       Real*8,DIMENSION(NPairs)::theta
 
       INTEGER IPair,IState,JState
-C      Real*8,DIMENSION(NPairs)::thetanew
+!      Real*8,DIMENSION(NPairs)::thetanew
 
       DO IPair=1,NPairs
        IState=StatePair(IPair,1)
        JState=StatePair(IPair,2)
-       CALL
+       CALL                                                             &
      & OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
       END DO
       DO IPair=NPairs-1,1,-1
        IState=StatePair(IPair,1)
        JState=StatePair(IPair,2)
-       CALL
+       CALL                                                             &
      & OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
       END DO
       END SUBROUTINE ThetaOpt
-************************************************************************
-************************************************************************
+!***********************************************************************
+!***********************************************************************
       SUBROUTINE OptOneAngle(Angle,SumVee,RotMat,DDg,I1,I2,lRoots)
       use stdalloc, only : mma_allocate, mma_deallocate
       Implicit None
@@ -226,15 +226,15 @@ C      Real*8,DIMENSION(NPairs)::thetanew
       stepsize=dble(atan(1.0d0))/15
       Threshold=1.0d-8
 
-C       write(6,'(A,2(I2,2X))')
-C     &'scanning rotation angles for ',I1,I2
+!       write(6,'(A,2(I2,2X))')
+!     &'scanning rotation angles for ',I1,I2
       Angles(2)=0.0d0
       DO Iter=1,31
        ScanA(Iter)=(Iter-16)*stepsize*2
        CALL Copy2DMat(RTmp,RotMat,lRoots,lRoots)
        CALL CMSMatRot(RTmp,ScanA(Iter),I1,I2,lRoots)
        ScanS(Iter)=CalcNSumVee(RTmp,DDg)
-C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
+!       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       END DO
 
       IMax=RMax(ScanS,31)
@@ -261,12 +261,12 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
         Angle=Angles(4)
         CALL CMSMatRot(RotMat,Angle,I1,I2,lRoots)
         SumVee=CalcNSumVee(RotMat,DDg)
-C        write(6,'(A,I3,A)')
-C     &'Convergence reached after ',Iter,' micro cycles'
+!        write(6,'(A,I3,A)')
+!     &'Convergence reached after ',Iter,' micro cycles'
        ELSE
         If(Iter.eq.IterMax) Then
          Converged=.true.
-        write(6,'(A,I3,A)')
+        write(6,'(A,I3,A)')                                             &
      &'No convergence reached after ',Iter,' micro cycles'
         Else
          Angles(2)=Angles(4)
@@ -281,8 +281,8 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       CALL mma_deallocate(RTmp)
 
       END SUBROUTINE OptOneAngle
-************************************************************************
-************************************************************************
+!***********************************************************************
+!***********************************************************************
       Function RMax(A,N)
       Implicit None
        INTEGER N,RMax
@@ -294,7 +294,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
        END DO
       End Function RMax
 
-************************************************************************
+!***********************************************************************
       Function CalcNSumVee(RotMat,DDg)
       use stdalloc, only : mma_allocate, mma_deallocate
       use rasscf_global, only: lRoots
@@ -315,8 +315,8 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       END DO
       CALL mma_deallocate(Vee)
       END Function CalcNSumVee
-************************************************************************
-************************************************************************
+!***********************************************************************
+!***********************************************************************
       Subroutine Copy2DMat(A,B,NRow,NCol)
       Implicit None
       INTEGER NRow,NCol,IRow,ICol
@@ -327,8 +327,8 @@ C     &'Convergence reached after ',Iter,' micro cycles'
        End Do
       END DO
       END SUBROUTINE Copy2DMat
-************************************************************************
-************************************************************************
+!***********************************************************************
+!***********************************************************************
       Subroutine CMSMatRot(Mat,A,I,J,N)
       Implicit None
       INTEGER I,J,N
@@ -344,8 +344,8 @@ C     &'Convergence reached after ',Iter,' micro cycles'
        Mat(I,K)=-sin(A)*TM(J,K)+cos(A)*TM(I,K)
       END DO
       END SUBROUTINE CMSMatRot
-************************************************************************
-************************************************************************
+!***********************************************************************
+!***********************************************************************
       Subroutine CMSFitTrigonometric(x,y)
       Implicit None
       real*8,DIMENSION(4)::x,y
@@ -373,17 +373,17 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       val2=b*sin(4.0d0*psi2)+c*cos(4.0d0*psi2)
       if (val1.gt.val2) then
        x(4)=psi1
-C       y(4)=val1
+!       y(4)=val1
       else
        x(4)=psi2
-C       y(4)=val2
+!       y(4)=val2
       end if
       y(4)=a+sqrt(b**2+c**2)
-C      write(6,*)a,b,c,x(4),y(4)
+!      write(6,*)a,b,c,x(4),y(4)
       END Subroutine CMSFitTrigonometric
-************************************************************************
+!***********************************************************************
 
-************************************************************************
+!***********************************************************************
       Subroutine CalcVee(Vee,RMat,DDg)
       use rasscf_global, only: lRoots
       Implicit None
@@ -400,19 +400,19 @@ C      write(6,*)a,b,c,x(4),y(4)
         Do iK=1,lRoots
          Do iL=1,lRoots
           Do iM=1,lRoots
-          Vee(Istate)=Vee(IState)+RMat(IState,iJ)*RMat(IState,iK)*
+          Vee(Istate)=Vee(IState)+RMat(IState,iJ)*RMat(IState,iK)*      &
      &RMat(IState,iL)*RMat(IState,iM)*DDG(iJ,iK,iL,iM)
           End Do
          End Do
         End Do
        End Do
        Vee(IState)=Vee(IState)/2
-C       write(6,'(A,I2,A,F10.6)')'The classic coulomb energy for state ',
-C     & IState,' is ',Vee(IState)
+!       write(6,'(A,I2,A,F10.6)')'The classic coulomb energy for state ',
+!     & IState,' is ',Vee(IState)
       END DO
       END SUBROUTINE CalcVee
-************************************************************************
-************************************************************************
+!***********************************************************************
+!***********************************************************************
       Subroutine GetDDgMat(DDg,GDMat,Gtuvx)
       use rasscf_global, only: lRoots, NAC
       Implicit None
@@ -447,8 +447,8 @@ C     & IState,' is ',Vee(IState)
            do iu=1,NAC
             do iv=1,NAC
              do ix=1,NAC
-              DDG(iI,iJ,iK,iL)=DDG(iI,iJ,iK,iL)
-     & +GDMat(iII*(iII-1)/2+iJJ,it,iu)*GDMat(iKK*(iKK-1)/2+iLL,iv,ix)
+              DDG(iI,iJ,iK,iL)=DDG(iI,iJ,iK,iL)                         &
+     & +GDMat(iII*(iII-1)/2+iJJ,it,iu)*GDMat(iKK*(iKK-1)/2+iLL,iv,ix)   &
      & *Gtuvx(it,iu,iv,ix)
              end do
             end do
@@ -460,14 +460,14 @@ C     & IState,' is ',Vee(IState)
       END DO
       RETURN
       End Subroutine GetDDgMat
-************************************************************************
+!***********************************************************************
 
       Subroutine LoadGtuvx(TUVX,Gtuvx)
-* ****************************************************************
-* Purpose:                                                       *
-* Loading TUVX array to a 4-D tensor.                            *
-* Copyied from src/molcas_ci_util/david5.f                       *
-* ****************************************************************
+! ****************************************************************
+! Purpose:                                                       *
+! Loading TUVX array to a 4-D tensor.                            *
+! Copyied from src/molcas_ci_util/david5.f                       *
+! ****************************************************************
       use rasscf_global, only: NACPR2, NAC
       Implicit None
 
@@ -499,11 +499,11 @@ C     & IState,' is ',Vee(IState)
       END DO
       RETURN
       End Subroutine LoadGtuvx
-************************************************************************
+!***********************************************************************
       Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
-      use rasscf_global, only: lRoots, NAC, CMSThreshold, iCMSIterMax,
+      use rasscf_global, only: lRoots, NAC, CMSThreshold, iCMSIterMax,  &
      &                         iCMSIterMin
       use PrintLevel, only: USUAL
       use output_ras, only: IPRLOC
@@ -548,28 +548,28 @@ C     & IState,' is ',Vee(IState)
       CALL CalcVee2(Vee,GDMat,Gtuvx)
       VeeSumOld=SumArray(Vee,lRoots)
       ICMSIter=0
-*        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
-*     &  ICMSIter,VeeSumOld,0.0d0
+!        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
+!     &  ICMSIter,VeeSumOld,0.0d0
       DO WHILE(.not.Converged)
        Do IPair=1,NPairs
         theta(IPair)=0.0d0
        End Do
        ICMSIter=ICMSIter+1
-       CALL ThetaOpt2
+       CALL ThetaOpt2                                                   &
      & (FRot,theta,VeeSumChange,StatePair,NPairs,GDMat,Vee,Gtuvx)
        VeeSumNew=VeeSumOld+VeeSumChange
        IF(IPRLEV.ge.USUAL) THEN
        IF(lRoots.gt.2) THEN
-        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
+        write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')                         &
      &  ICMSIter,VeeSumNew,VeeSumChange
-*        CALL RecPrt(' ',' ',Vee,lRoots,1)
-*        write(6,*) SumArray(Vee,lRoots)
+!        CALL RecPrt(' ',' ',Vee,lRoots,1)
+!        write(6,*) SumArray(Vee,lRoots)
        ELSE
-       write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
-     & ICMSIter,asin(FRot(2,1))/atan(1.0d0)*45.0d0,VeeSumNew
+       write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')                  &
+     & ICMSIter,asin(FRot(2,1))/atan(1.0d0)*45.0d0,VeeSumNew            &
      & ,VeeSumChange
-*       CALL RecPrt(' ',' ',Vee,lRoots,1)
-*       write(6,*) SumArray(Vee,lRoots)
+!       CALL RecPrt(' ',' ',Vee,lRoots,1)
+!       write(6,*) SumArray(Vee,lRoots)
        END IF
        END IF
        IF(ABS(VeeSumChange).lt.Threshold) THEN
@@ -585,7 +585,7 @@ C     & IState,' is ',Vee(IState)
          write(6,'(4X,A)')'TEMPORARY ROTATION MATRIX SAVED'
         end if
        END IF
-*         Converged=.true.
+!         Converged=.true.
        VeeSumOld=VeeSumNew
       END DO
       IF(IPRLEV.ge.USUAL) write(6,*) repeat('=',71)
@@ -597,7 +597,7 @@ C     & IState,' is ',Vee(IState)
       CALL mma_deallocate(FRot)
       END SUBROUTINE NStateOpt2
 
-************************************************************************
+!***********************************************************************
 
       SubRoutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
       use stdalloc, only : mma_allocate, mma_deallocate
@@ -633,9 +633,9 @@ C     & IState,' is ',Vee(IState)
       Angles(2)=0.0d0
       DO Itera=1,31
        ScanA(Itera)=(Itera-16)*stepsize*2
-       CALL
+       CALL                                                             &
      &SumVeeNew(ScanS(Itera),ScanA(Itera),GD,I1,I2,G,Vee1,Vee2,.false.)
-C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
+!       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       END DO
 
       IMax=RMax(ScanS,21)
@@ -665,7 +665,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
        ELSE
         If(Itera.eq.IterMax) Then
          Converged=.true.
-        write(6,'(A,I3,A)')
+        write(6,'(A,I3,A)')                                             &
      &'No convergence reached after ',Itera,' micro cycles'
         Else
          Angles(2)=Angles(4)
@@ -680,7 +680,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       CALL mma_deallocate(ScanS)
       End Subroutine OptOneAngle2
 
-************************************************************************
+!***********************************************************************
       Subroutine SumVeeNew(SV,A,GD,I1,I2,G,V1,V2,Update)
       use stdalloc, only : mma_allocate, mma_deallocate
       use rasscf_global, only: lRoots, NAC
@@ -701,7 +701,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       IF(Update) THEN
        CALL mma_allocate(D1J,lRoots,NAC,NAC)
        CALL mma_allocate(D2J,lRoots,NAC,NAC)
-*      calculating
+!      calculating
        DO J=1,I2-1                           !(J<I2<I1)
         I1J=(I1-1)*I1/2+J
         I2J=(I2-1)*I2/2+J
@@ -718,9 +718,9 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       i12=(I1-1)*I1/2+I2
         Do t=1,NAC
         Do u=1,NAC
-         D2J(i2,t,u)=GD(i11,t,u)*sin(A)**2+GD(i22,t,u)*cos(A)**2
+         D2J(i2,t,u)=GD(i11,t,u)*sin(A)**2+GD(i22,t,u)*cos(A)**2        &
      &+cos(A)*sin(A)*(GD(i12,u,t)+GD(i12,t,u))
-         D1J(i2,t,u)=cos(A)*sin(A)*(GD(i11,t,u)-GD(i22,t,u))
+         D1J(i2,t,u)=cos(A)*sin(A)*(GD(i11,t,u)-GD(i22,t,u))            &
      &+GD(i12,t,u)*cos(A)**2-GD(i12,u,t)*sin(A)**2
         End Do
         End Do
@@ -740,7 +740,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       i12=(I1-1)*I1/2+I2
         Do t=1,NAC
         Do u=1,NAC
-         D1J(i1,t,u)=GD(i11,t,u)*cos(A)**2+GD(i22,t,u)*sin(A)**2
+         D1J(i1,t,u)=GD(i11,t,u)*cos(A)**2+GD(i22,t,u)*sin(A)**2        &
      &   -cos(A)*sin(A)*(GD(i12,t,u)+GD(i12,u,t))
         End Do
         End Do
@@ -755,7 +755,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
         End Do
         End Do
        END DO
-*      updating
+!      updating
        DO J=1,I2-1                           !(J<I2<I1)
         I1J=(I1-1)*I1/2+J
         I2J=(I2-1)*I2/2+J
@@ -767,7 +767,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
         End Do
        END DO
        J=I2                                  !(J=I2<I1)
-*      i11=(I1+1)*I1/2
+!      i11=(I1+1)*I1/2
       i22=(I2+1)*I2/2
       i12=(I1-1)*I1/2+I2
         Do t=1,NAC
@@ -816,9 +816,9 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
        V2=V1
        DO t=1,NAC
         Do u=1,NAC
-         D11(t,u)=GD(i11,t,u)*cos(A)**2+GD(i22,t,u)*sin(A)**2
+         D11(t,u)=GD(i11,t,u)*cos(A)**2+GD(i22,t,u)*sin(A)**2           &
      &   -cos(A)*sin(A)*(GD(i12,t,u)+GD(i12,u,t))
-         D22(t,u)=GD(i11,t,u)*sin(A)**2+GD(i22,t,u)*cos(A)**2
+         D22(t,u)=GD(i11,t,u)*sin(A)**2+GD(i22,t,u)*cos(A)**2           &
      &   +cos(A)*sin(A)*(GD(i12,u,t)+GD(i12,t,u))
         End Do
        END DO
@@ -839,9 +839,9 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
        Call mma_deallocate(D22)
       END IF
       End Subroutine SumVeeNew
-************************************************************************
+!***********************************************************************
 
-************************************************************************
+!***********************************************************************
 
 
       Subroutine ThetaOpt2(R,theta,deltaQ,SPair,NP,GD,Vee,G)
@@ -877,7 +877,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
 
       END SUBROUTINE ThetaOpt2
 
-************************************************************************
+!***********************************************************************
       Function SumArray(A,N)
       Implicit None
       INTEGER N,I
@@ -890,7 +890,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       End Function SumArray
 
 
-************************************************************************
+!***********************************************************************
       Subroutine CalcVee2(Vee,GD,Gtuvx)
       use rasscf_global, only: lRoots, NAC
       Implicit None
@@ -918,7 +918,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       END DO
       END SUBROUTINE CalcVee2
 
-************************************************************************
+!***********************************************************************
       Subroutine RotGDMat(R,GD)
       use rasscf_global, only: lRoots, NAC
       Implicit None

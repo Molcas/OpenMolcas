@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2020, Giovanni Li Manni                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Giovanni Li Manni                                *
+!***********************************************************************
       module print_RDMs_NECI_format
       use index_symmetry, only : two_el_idx, one_el_idx
       implicit none
@@ -29,16 +29,16 @@
           call two_el_idx(i, t_idx, u_idx, v_idx, x_idx)
           if(v_idx /= x_idx) then
              if(abs(PMAT(i)+PA(i)) > thrsh) then
-                 write(6,'(1X,4I5,F20.12)')
+                 write(6,'(1X,4I5,F20.12)')                             &
      &           t_idx, u_idx, v_idx, x_idx, (PMAT(i)+PA(i))
              end if
              if (abs(PMAT(i)-PA(i)) > thrsh) then
-                 write(6,'(1X,4I5,F20.12)')
+                 write(6,'(1X,4I5,F20.12)')                             &
      &           t_idx, u_idx, x_idx, v_idx, (PMAT(i)-PA(i))
              end if
           else
              if (abs(PMAT(i)*2.0d0) > thrsh) then
-                write(6,'(1X,4I5,F20.12)')
+                write(6,'(1X,4I5,F20.12)')                              &
      &          t_idx, u_idx, v_idx, x_idx, PMAT(i)*2.0d0
              end if
           end if
@@ -47,7 +47,7 @@
         do i = 1, (NAC*(NAC+1)/2)
           call one_el_idx(i, t_idx, u_idx)
           if(abs(DMAT(i)) > thrsh) then
-             write(6,'(1X,4I5,F20.12)')
+             write(6,'(1X,4I5,F20.12)')                                 &
      &          t_idx, u_idx, 0, 0, DMAT(i)
           end if
         end do

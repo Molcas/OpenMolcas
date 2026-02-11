@@ -1,44 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine ChkInp()
-************************************************************************
-*                                                                      *
-*     Check the input for obvious errors or violation of limits        *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1993                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Check the input for obvious errors or violation of limits        *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1993                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
       use linalg_mod, only: abort_
       use gas_data, only: iDoGAS, nGAS, iGSOCCX, nGSSH
-      use rasscf_global, only: ITMAX, lRoots, MAXIT, MAXJT, NAC, NIN,
-     &                         nRoots, OutFmt1, OutFmt2, PreThr, ProThr,
-     &                         ThFact, ThrE, ThrEn, ThrSX, ThrTE,
+      use rasscf_global, only: ITMAX, lRoots, MAXIT, MAXJT, NAC, NIN,   &
+     &                         nRoots, OutFmt1, OutFmt2, PreThr, ProThr,&
+     &                         ThFact, ThrE, ThrEn, ThrSX, ThrTE,       &
      &                         iRoot
       use output_ras, only: LF
-      use general_data, only: NTOT,NACTEL,NHOLE1,NRS1T,NELEC3,NRS3T,
-     &                        NRS2T,NSYM,ISPIN,STSYM,NSEL,NALTER,INVEC,
-     &                        NASH,NBAS,NDEL,NFRO,NISH,NORB,NRS1,NRS2,
+      use general_data, only: NTOT,NACTEL,NHOLE1,NRS1T,NELEC3,NRS3T,    &
+     &                        NRS2T,NSYM,ISPIN,STSYM,NSEL,NALTER,INVEC, &
+     &                        NASH,NBAS,NDEL,NFRO,NISH,NORB,NRS1,NRS2,  &
      &                        NRS3,NSSH,MALTER
       use Molcas, only: MxAct, MxBas, MxGAS, MxIna, MxOrb, MxRoot
       use RASDim, only: MxCIIt, MxIter, MxSXIt
@@ -51,8 +51,8 @@
 
 !     These are the cumulated number of spin orbitals per GAS space.
       integer :: c_orbs_per_GAS(nGAS)
-*----------------------------------------------------------------------*
-C Local print level (if any)
+!----------------------------------------------------------------------*
+! Local print level (if any)
       IERR=0
       If ( NTOT.gt.mxOrb ) Then
         Write(LF,*)
@@ -86,7 +86,7 @@ C Local print level (if any)
         Write(LF,*)'********************* ERROR **********************'
         Call WarningMessage(2,'Too many active electrons.')
         Write(LF,'(1X,A,I6)')'Too many active electrons NACTEL=',NACTEL
-        Write(LF,'(1X,A,I6)')
+        Write(LF,'(1X,A,I6)')                                           &
      &             'Cannot be more than 2*Nr of active orbitals=',2*NAC
         Write(LF,*)'**************************************************'
         IERR=1
@@ -95,12 +95,12 @@ C Local print level (if any)
         Write(LF,*)
         Write(LF,*)'******************** WARNING *********************'
         Call WarningMessage(1,'Too many holes in Ras1.')
-        Write(LF,'(1X,A,I6)')
+        Write(LF,'(1X,A,I6)')                                           &
      &             'You allow too many holes in Ras1 NHOLE1=',NHOLE1
-        Write(LF,'(1X,A,I6)')
+        Write(LF,'(1X,A,I6)')                                           &
      &             'Cannot be more than 2*Nr of Ras1 orbitals=',2*NRS1T
         NHOLE1=2*NRS1T
-        Write(LF,'(1X,A,I6)')
+        Write(LF,'(1X,A,I6)')                                           &
      &             'NHOLE1 has been reset to ',NHOLE1
         Write(LF,*)'**************************************************'
       Endif
@@ -108,12 +108,12 @@ C Local print level (if any)
         Write(LF,*)
         Write(LF,*)'******************** WARNING *********************'
         Call WarningMessage(1,'Too many electrons in Ras3.')
-        Write(LF,'(1X,A,I6)')
+        Write(LF,'(1X,A,I6)')                                           &
      &             'You allow too many electrons in Ras3 NELEC3=',NELEC3
-        Write(LF,'(1X,A,I6)')
+        Write(LF,'(1X,A,I6)')                                           &
      &             'Cannot be more than 2*Nr of Ras3 orbitals=',2*NRS3T
         NELEC3=2*NRS3T
-        Write(LF,'(1X,A,I6)')
+        Write(LF,'(1X,A,I6)')                                           &
      &             'NELEC3 has been reset to ',NELEC3
         Write(LF,*)'**************************************************'
       Endif
@@ -122,9 +122,9 @@ C Local print level (if any)
          Write(LF,*)
          Write(LF,*)'********************* ERROR **********************'
          Call WarningMessage(2,'Too many active electrons.')
-         Write(LF,'(1X,A,I8)')
+         Write(LF,'(1X,A,I8)')                                          &
      &              'Too many active electrons NACTEL=',NACTEL
-         Write(LF,'(1X,A,I8)')
+         Write(LF,'(1X,A,I8)')                                          &
      &              '(Incompatible with RAS restrictions).'
          Write(LF,*)'**************************************************'
          IERR=1
@@ -133,9 +133,9 @@ C Local print level (if any)
          Write(LF,*)
          Write(LF,*)'********************* ERROR **********************'
          Call WarningMessage(2,'Too few active electrons.')
-         Write(LF,'(1X,A,I8)')
+         Write(LF,'(1X,A,I8)')                                          &
      &              'Too few active electrons NACTEL=',NACTEL
-         Write(LF,'(1X,A,I8)')
+         Write(LF,'(1X,A,I8)')                                          &
      &              '(Incompatible with RAS restrictions).'
          Write(LF,*)'**************************************************'
          IERR=1
@@ -158,7 +158,7 @@ C Local print level (if any)
          Write(LF,*) 'problems in SXCTL section.'
          Write(LF,*) '***********************************************'
         Endif
-* for GAS
+! for GAS
       else
        If ( NGAS.gt.mxGAS ) Then !(SJS)
         Write(LF,*)
@@ -200,7 +200,7 @@ C Local print level (if any)
            Call abort_('GASSCF: Pauli forbidden.')
        end if
       end if
-      If (NSYM.ne.1 .and. NSYM.ne.2 .and.
+      If (NSYM.ne.1 .and. NSYM.ne.2 .and.                               &
      &    NSYM.ne.4 .and. NSYM.ne.8) Then
         Write(LF,*)
         Call WarningMessage(2,'Wrong nr of symmetries.')
@@ -246,25 +246,25 @@ C Local print level (if any)
         Write(LF,*)'these orbital counts is wrong or too large.'
         If (IERR1.gt.0) Write(LF,*)' Negative values.'
         If (IERR2.gt.0) Write(LF,*)' Extremely large values.'
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   '   All orbitals:',(NBAS(ISYM),ISYM=1,NSYM)
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   '         Frozen:',(NFRO(ISYM),ISYM=1,NSYM)
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   '       Inactive:',(NISH(ISYM),ISYM=1,NSYM)
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   '         Active:',(NASH(ISYM),ISYM=1,NSYM)
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   '          RAS-1:',(NRS1(ISYM),ISYM=1,NSYM)
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   '          RAS-2:',(NRS2(ISYM),ISYM=1,NSYM)
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   '          RAS-3:',(NRS3(ISYM),ISYM=1,NSYM)
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   '      Secondary:',(NSSH(ISYM),ISYM=1,NSYM)
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   '        Deleted:',(NDEL(ISYM),ISYM=1,NSYM)
-        Write(LF,'(1X,A,8I4)')
+        Write(LF,'(1X,A,8I4)')                                          &
      &   'Basis functions:',(NBAS(ISYM),ISYM=1,NSYM)
         If (IERR1.gt.0) Then
          Write(LF,*)' Have you used a too small basis set?'
@@ -335,7 +335,7 @@ C Local print level (if any)
         Write(LF,*)
         Write(LF,*) '***************** ERROR *****************'
         Call WarningMessage(2,'Max roots exceeded.')
-        Write(LF,'(1X,A,I6)')'Input Error: Max roots exceeded.',
+        Write(LF,'(1X,A,I6)')'Input Error: Max roots exceeded.',        &
      &                        mxRoot
         Write(LF,'(1X,A,I4)')'Nr of CI roots        LROOTS=',LROOTS
         Write(LF,'(1X,A,I4)')'Nr of optimized roots NROOTS=',NROOTS
@@ -357,7 +357,7 @@ C Local print level (if any)
       End If
 
       IERR=0
-      If (NSYM.ne.1 .and. NSYM.ne.2 .and. NSYM.ne.4
+      If (NSYM.ne.1 .and. NSYM.ne.2 .and. NSYM.ne.4                     &
      &                              .and. NSYM.ne.8) IERR=1
       If (STSYM.GT.NSYM) IERR=1
       If (IERR.eq.1) Then
@@ -412,7 +412,7 @@ C Local print level (if any)
 !        End If
 !      End If
 
-CGG Sep 03 Check ALTEr
+!GG Sep 03 Check ALTEr
       If ( NAlter.gt.0 ) Then
         Do iAlter=1,NAlter
           If ( MAlter(iAlter,1).lt.1.or.MAlter(iAlter,1).gt.NSym ) Then
@@ -431,7 +431,7 @@ CGG Sep 03 Check ALTEr
             Write(LF,*)'*****************************************'
             Call Quit(_RC_INPUT_ERROR_)
           EndIf
-          If ( MAlter(iAlter,2).gt.nBas(MAlter(iAlter,1)) .or.
+          If ( MAlter(iAlter,2).gt.nBas(MAlter(iAlter,1)) .or.          &
      &    MAlter(iAlter,3).gt.nBas(MAlter(iAlter,1)) ) Then
             Write(LF,*)
             Write(LF,*)'***************** ERROR *****************'
@@ -443,11 +443,11 @@ CGG Sep 03 Check ALTEr
         EndDo
       EndIf
 
-CBOR  Check INVEC
+!BOR  Check INVEC
       If (INVEC.lt.0.or.INVEC.gt.6) then
         Write(LF,*)
         Write(LF,*)'************* ERROR ***************'
-* This should be impossible:...
+! This should be impossible:...
         Call WarningMessage(2,'Keyword for start orbitals is missing.')
         Write(LF,*)'Keyword for start orbitals missing.'
         Write(LF,*)'Use either CORE, LUMORB, or JOBIPH.'
@@ -455,34 +455,34 @@ CBOR  Check INVEC
         Call Quit(_RC_INPUT_ERROR_)
       Endif
 
-* PAM Krapperup Nov 05: Orbital print format.
-* First question: Which orbital spaces are eligible for printing?
+! PAM Krapperup Nov 05: Orbital print format.
+! First question: Which orbital spaces are eligible for printing?
       IF (OutFmt1.eq.'DEFAULT ') then
-* No user selection, so fall back on default choice.
+! No user selection, so fall back on default choice.
         OutFmt1='FEW     '
       END IF
-* Second question: How should they be printed?
+! Second question: How should they be printed?
       IF (OutFmt2.eq.'DEFAULT ') then
-* No user selection, so fall back on default choice.
+! No user selection, so fall back on default choice.
        IF(NTOT.LT.256) THEN
          OutFmt2='FULL    '
        ELSE
          OutFmt2='COMPACT '
        END IF
       END IF
-* Third: has the user provided input for energy/occupation thresholds?
-* A negative PROTHR shows no user value was given in input.
+! Third: has the user provided input for energy/occupation thresholds?
+! A negative PROTHR shows no user value was given in input.
       IF (PROTHR.LT.0.0D0) THEN
         IF (OutFmt1.eq.'ALL     ') Then
           PROTHR=0.0D0
           PRETHR=1.0D100
         ELSE
-* Else, format is FEW or NOCORE (or NOTHING, but then nothing is printed)
+! Else, format is FEW or NOCORE (or NOTHING, but then nothing is printed)
           PROTHR=0.0D0
           PRETHR=0.15D0
         END IF
       END IF
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 
       contains
 

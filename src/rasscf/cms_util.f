@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2022, Jie J. Bao                                       *
-************************************************************************
-******************************************************************
-* history:                                                       *
-* Jie J. Bao, on Apr. 07, 2022, created this file.               *
-******************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2022, Jie J. Bao                                       *
+!***********************************************************************
+!*****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Apr. 07, 2022, created this file.               *
+!*****************************************************************
 
-* This file contains simple codes called in CMSNewton. Complicated ones
-* are written in files with the name as the subroutine name.
+! This file contains simple codes called in CMSNewton. Complicated ones
+! are written in files with the name as the subroutine name.
 
       Subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
       use CMS, only: iCMSOpt,NPosHess,LargestQaaGrad,NCMSScale
@@ -25,16 +25,16 @@
       Real*8 Qnew,Qold,Diff
       Real*8 RMat(lRoots**2)
 
-*      write(6,*) 'iteration information'
+!      write(6,*) 'iteration information'
       Diff=Qnew-Qold
       IF(iCMSOpt.eq.2) THEN
 
 
        If(lRoots.eq.2) Then
-        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
+        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')                 &
      &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
        Else
-         write(6,'(6X,I4,2X,F14.8,2X,ES14.4E3)')
+         write(6,'(6X,I4,2X,F14.8,2X,ES14.4E3)')                        &
      &   iStep, Qnew,Diff
        End If
 
@@ -42,25 +42,25 @@
       ELSE
 
 
-C       If(lRoots.eq.2) Then
-C        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
-C     &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
-C       Else
+!       If(lRoots.eq.2) Then
+!        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
+!     &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
+!       Else
         if (NCMSScale.gt.0) then
-      write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,'//
-     &        'I1)')
+      write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,'//  &
+     &        'I1)')                                                    &
      &   iStep, Qnew,Diff,nPosHess,LargestQaaGrad,'1E-',NCMSScale
         else
-       write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3)')
+       write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3)')  &
      &   iStep, Qnew,Diff,nPosHess,LargestQaaGrad,'1.0'
         end if
-C       End If
+!       End If
 
 
       END IF
       RETURN
       End Subroutine
-************************************************************************
+!***********************************************************************
 
       Subroutine UnzipTUVX(TUVX,gtuvx,nTUVX)
       use rasscf_global, only: NACPR2, NAC
@@ -70,12 +70,12 @@ C       End If
 #include "warnings.h"
       INTEGER nTUVX
       Real*8 gtuvx(nTUVX),TUVX(NACPR2)
-      INTEGER it,iu,iv,ix,ituvx,ixmax,
-     &        jtuvx,jtuxv,jutvx,jutxv,
-     &        jvxtu,jvxut,jxvtu,jxvut,
+      INTEGER it,iu,iv,ix,ituvx,ixmax,                                  &
+     &        jtuvx,jtuxv,jutvx,jutxv,                                  &
+     &        jvxtu,jvxut,jxvtu,jxvut,                                  &
      &        NAC3,NAC2
 
-*      CALL FZero(gtuvx,nTUVX)
+!      CALL FZero(gtuvx,nTUVX)
 
       NAC2=NAC**2
       NAC3=NAC2*NAC
@@ -109,20 +109,20 @@ C       End If
       END DO
       RETURN
       End Subroutine
-************************************************************************
+!***********************************************************************
 
 
       Subroutine CMSTail()
       Implicit None
       write(6,*) repeat('=',71)
       End Subroutine
-************************************************************************
+!***********************************************************************
 
 
 
       Subroutine CMSHeader(CMSSFile,LenCMSS)
       use CMS, only: iCMSOpt, CMSGuessFile
-      use rasscf_global, only: CMSThreshold, iCMSIterMin, iCMSIterMax,
+      use rasscf_global, only: CMSThreshold, iCMSIterMin, iCMSIterMax,  &
      &                         lRoots
       Implicit None
 
@@ -132,52 +132,52 @@ C       End If
       CHARACTER(len=LenCMSS)::CMSSFile
       write(6,*)
       write(6,*)
-      write(6,'(4X,A35)')
+      write(6,'(4X,A35)')                                               &
      & 'CMS INTERMEDIATE-STATE OPTIMIZATION'
       IF(CMSSFile.eq.'XMS') THEN
-       write(6,'(5X,A12,8X,A25)')
+       write(6,'(5X,A12,8X,A25)')                                       &
      &'START MATRIX','XMS INTERMEDIATE STATES'
       ELSE
-       write(6,'(5X,A12,8X,A25)')
+       write(6,'(5X,A12,8X,A25)')                                       &
      &'START MATRIX',CMSGuessFile
       END IF
       IF(iCMSOpt.eq.1) THEN
-       write(6,'(5X,A8,12X,A25)')
+       write(6,'(5X,A8,12X,A25)')                                       &
      & 'OPT ALGO','NEWTON'
       ELSE IF(iCMSOpt.eq.2) THEN
-       write(6,'(5X,A8,12X,A25)')
+       write(6,'(5X,A8,12X,A25)')                                       &
      & 'OPT ALGO','JACOBI'
       END IF
-      write(6,'(5X,A15,5X,16X,ES9.2E2)')
+      write(6,'(5X,A15,5X,16X,ES9.2E2)')                                &
      &'Q_a-a THRESHOLD',CMSThreshold
       IF(iCMSOpt.eq.1) THEN
-        write(6,'(5X,A15,5X,16X,ES9.2E2)')
+        write(6,'(5X,A15,5X,16X,ES9.2E2)')                              &
      &  'GRAD  THRESHOLD',CMSThreshold*1.0d-2
       END IF
-      write(6,'(5X,A10,10X,I25)')
+      write(6,'(5X,A10,10X,I25)')                                       &
      &'MAX CYCLES',ICMSIterMax
-      write(6,'(5X,A10,10X,I25)')
+      write(6,'(5X,A10,10X,I25)')                                       &
      &'MIN CYCLES',ICMSIterMin
       write(6,*) repeat('=',71)
       IF(iCMSOpt.eq.2) THEN
        If(lRoots.gt.2) Then
-       write(6,'(4X,A8,2X,2(A16,11X))')
+       write(6,'(4X,A8,2X,2(A16,11X))')                                 &
      & 'Cycle','Q_a-a','Difference'
        Else
-       write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')
+       write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)')                          &
      & 'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
        End If
       ELSE
-       write(6,'(6X,A5,7X,A5,8X,A10,2X,A6,5X,A7,4X,A4)')
+       write(6,'(6X,A5,7X,A5,8X,A10,2X,A6,5X,A7,4X,A4)')                &
      & 'Cycle','Q_a-a','Difference','# Pos.','Largest','Step'
-       write(6,'(43X,A7,4X,A8,3X,A6)')
+       write(6,'(43X,A7,4X,A8,3X,A6)')                                  &
      & 'Hessian','Gradient','Scaled'
       END IF
       write(6,*) repeat('-',71)
 
       RETURN
       End Subroutine
-************************************************************************
+!***********************************************************************
 
 
 
@@ -208,7 +208,7 @@ C       End If
       END DO
       RETURN
       End Subroutine
-************************************************************************
+!***********************************************************************
 
 
 
@@ -221,12 +221,12 @@ C       End If
       IF(CMSSFile.eq.'XMS') THEN
         CALL ReadMat('ROT_VEC',ScrChar,RotMat,lroots,lroots,7,16,'T')
       ELSE
-        CALL ReadMat(CMSSFile ,ScrChar,RotMat,lroots,lroots,LenCMSS,16,
+        CALL ReadMat(CMSSFile ,ScrChar,RotMat,lroots,lroots,LenCMSS,16, &
      &               'T')
       END IF
       RETURN
       End Subroutine
-************************************************************************
+!***********************************************************************
 
       Subroutine UpdateRotMat(RMat,ExpX,X,lRoots,nSPair)
       INTEGER lRoots,nSPair
@@ -236,8 +236,8 @@ C       End If
 
 
       CALL ExpMat(ExpX,X,lRoots,nSPair)
-      CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,RMat,lRoots,
-     &                                               ExpX,lRoots,
+      CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,RMat,lRoots,       &
+     &                                               ExpX,lRoots,       &
      &                                         0.0d0,RScr,lRoots)
       CALL DCopy_(lRoots**2,RScr,1,RMat,1)
       RETURN

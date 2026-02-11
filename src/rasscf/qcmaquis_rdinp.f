@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
 #include "compiler_features.h"
 
@@ -20,7 +20,7 @@
       subroutine qcmaquis_rdinp(luinput,switch,nr_lines)
 
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_utility_routines, only:
+      use qcmaquis_interface_utility_routines, only:                    &
      &    lower_to_upper, find_qcmaquis_keyword
       use rasscf_global, only: MPSCompressM, DoDelChk
 
@@ -130,10 +130,10 @@
                 line = 'CONV_THRESH'
             end select
             i = 0
-            call find_qcmaquis_keyword(dmrg_input%qcmaquis_input,
-     &                                 nr_lines,
-     &                                 line,
-     &                                 i
+            call find_qcmaquis_keyword(dmrg_input%qcmaquis_input,       &
+     &                                 nr_lines,                        &
+     &                                 line,                            &
+     &                                 i                                &
      &                                )
             if(i <= 0)then
               !> check for keyword sweep_bond_dimension which is an alternative
@@ -143,15 +143,15 @@
                 line2(1:500) = ' '
                 line2        = 'SWEEP_BOND_DIMENSIONS'
                 i = 0
-                call find_qcmaquis_keyword(dmrg_input%qcmaquis_input,
-     &                                     nr_lines,
-     &                                     line2,
-     &                                     i
+                call find_qcmaquis_keyword(dmrg_input%qcmaquis_input,   &
+     &                                     nr_lines,                    &
+     &                                     line2,                       &
+     &                                     i                            &
      &                                    )
                 if(i > 0) cycle
               end if
               Call WarningMessage(2,'Error in input preprocessing.')
-              write(6,*)' qcmaquis_rdinp: mandatory keyword ',
+              write(6,*)' qcmaquis_rdinp: mandatory keyword ',          &
      &        trim(line),' missing in QCMaquis DMRG input section'
               nr_lines = -1; return
 
@@ -159,22 +159,22 @@
               select case(j)
                 case(1)
                 ! read in nsweeps
-                  read(dmrg_input%qcmaquis_input(i+1),*)
+                  read(dmrg_input%qcmaquis_input(i+1),*)                &
      &                                     qcmaquis_param%num_sweeps
                 case(2)
                   ! read in max_bond_dimension
-                  read(dmrg_input%qcmaquis_input(i+1),*)
+                  read(dmrg_input%qcmaquis_input(i+1),*)                &
      &                                     qcmaquis_param%M
                 case(3)
                   ! read in conv_thresh
-                  read(dmrg_input%qcmaquis_input(i+1),*)
+                  read(dmrg_input%qcmaquis_input(i+1),*)                &
      &                                     qcmaquis_param%conv_thresh
               end select
             end if
 
           end do
         case default
-          write(6,*) ' QCMaquis input reader - you should have never'//
+          write(6,*) ' QCMaquis input reader - you should have never'// &
      &             ' reached this spot...'
           call Quit_OnUserError()
       end select

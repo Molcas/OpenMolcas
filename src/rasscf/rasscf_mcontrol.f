@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
       SUBROUTINE RasScf_Mcontrol(id_call)
 
@@ -17,25 +17,25 @@
       use rasscf_global, only: MaxIt, Thre, ThrSX, ThrTE
 
       Implicit None
-*
+!
       Integer id_call
-*
+!
       Integer iCount, iCOunt0
       Character(LEN=512) List
       Character(LEN=32) Value
-*******************************************************
+!******************************************************
 
       icount=0
 
       If (id_call .eq. 1) Then
 
-* --- Label definitions
+! --- Label definitions
 
-         write(List,100) 'RASSCF_started_OK:(-:-):',ALGO,timings,dmpK,
+         write(List,100) 'RASSCF_started_OK:(-:-):',ALGO,timings,dmpK,  &
      &                        nScreen,MaxIt,ThrE,ThrSX,ThrTE
 
 
-* --- Initialize the control system
+! --- Initialize the control system
 
          Call MolcasControlInit(List)
          Return
@@ -43,68 +43,68 @@
 
       Else
 
-* --- Read the molcas control file
-*1
+! --- Read the molcas control file
+!1
          Call MolcasControl('Cho_ALGO',Value)
          If (Value(1:4).ne.'    ') Then
             read(Value,*,err=101,end=102) ALGO
-            write(6,*)'--- Warning: Cho_ALGO changed by user to the ',
+            write(6,*)'--- Warning: Cho_ALGO changed by user to the ',  &
      &'value ',ALGO
             icount = icount + 1
          EndIf
-*2
+!2
          Call MolcasControl('Chotime',Value)
          If (Value(1:4).ne.'    ') Then
             read(Value,*,err=101,end=102) timings
-            write(6,*)'--- Warning: Cholesky timings visualization ',
+            write(6,*)'--- Warning: Cholesky timings visualization ',   &
      &'changed by user to the value ',timings
             icount = icount + 1
          EndIf
-*3
+!3
          Call MolcasControl('nScreen',Value)
          If (Value(1:4).ne.'    ') Then
             read(Value,*,err=101,end=102) nScreen
-            write(6,*)'--- Warning: Cholesky LK option nSCREEN changed',
+            write(6,*)'--- Warning: Cholesky LK option nSCREEN changed',&
      &' by user to the value ',nScreen
             icount = icount + 1
          EndIf
-*4
+!4
          Call MolcasControl('dmpK',Value)
          If (Value(1:4).ne.'    ') Then
             read(Value,*,err=101,end=102) dmpK
-            write(6,*)'--- Warning: Cholesky LK option DMPK changed by',
+            write(6,*)'--- Warning: Cholesky LK option DMPK changed by',&
      &' user to the value ',dmpK
             icount = icount + 1
          EndIf
-*5
+!5
          Call MolcasControl('MaxIter',Value)
          If (Value(1:4).ne.'    ') Then
             read(Value,*,err=101,end=102) MaxIt
-            write(6,*)'--- Warning: MaxIt changed by user to the value '
+            write(6,*)'--- Warning: MaxIt changed by user to the value '&
      &,MaxIt
             icount = icount + 1
          EndIf
-*6
+!6
          Call MolcasControl('ThrE',Value)
          If (Value(1:4).ne.'    ') Then
             read(Value,*,err=101,end=102) ThrE
-            write(6,*)'--- Warning: ThrE changed by user to the value '
+            write(6,*)'--- Warning: ThrE changed by user to the value ' &
      &,ThrE
             icount = icount + 1
          EndIf
-*7
+!7
          Call MolcasControl('ThrSX',Value)
          If (Value(1:4).ne.'    ') Then
             read(Value,*,err=101,end=102) ThrSX
-            write(6,*)'--- Warning: ThrSX changed by user to the value '
+            write(6,*)'--- Warning: ThrSX changed by user to the value '&
      &,ThrSX
             icount = icount + 1
          EndIf
-*8
+!8
          Call MolcasControl('ThrTE',Value)
          If (Value(1:4).ne.'    ') Then
             read(Value,*,err=101,end=102) ThrTE
-            write(6,*)'--- Warning: ThrTE changed by user to the value '
+            write(6,*)'--- Warning: ThrTE changed by user to the value '&
      &,ThrTE
             icount = icount + 1
          EndIf
@@ -113,8 +113,8 @@
 
       icount0=icount
 
-* --- Get the true updated counter in parallel runs
-*
+! --- Get the true updated counter in parallel runs
+!
       Call gaIgOP_SCAL(icount,'max')
 
       If (MyRank.eq.0) Then
@@ -127,8 +127,8 @@
 
       If (icount.gt.0) Then
 
-* --- Trick to broadcast the values across nodes
-*
+! --- Trick to broadcast the values across nodes
+!
          If (MyRank.ne.0) Then
             ALGO=0
             MaxIt=0
@@ -146,13 +146,13 @@
          Call gadgOP_SCAL(ThrSX,'+')
          Call gadgOP_SCAL(ThrTE,'+')
 
-* --- Update label values (note that "timings" is updated locally)
-*
-         write(List,100) 'RASSCF_modified_by_user:',ALGO,timings,dmpK,
+! --- Update label values (note that "timings" is updated locally)
+!
+         write(List,100) 'RASSCF_modified_by_user:',ALGO,timings,dmpK,  &
      &                       nScreen,MaxIt,ThrE,ThrSX,ThrTE
 
-* --- Initialize the control system with the new values
-*
+! --- Initialize the control system with the new values
+!
          Call MolcasControlInit(List)
          Return
 
@@ -160,19 +160,19 @@
 
       Return
 
-100   FORMAT(A24,
-     &',Cho_ALGO=',I2,
-     &',Chotime=',L2,
-     &',dmpK=',ES11.4,
-     &',nScreen=',I4,
-     &',MaxIter=',I4,
-     &',ThrE=',ES11.4,
-     &',ThrSX=',ES11.4,
+100   FORMAT(A24,                                                       &
+     &',Cho_ALGO=',I2,                                                  &
+     &',Chotime=',L2,                                                   &
+     &',dmpK=',ES11.4,                                                  &
+     &',nScreen=',I4,                                                   &
+     &',MaxIter=',I4,                                                   &
+     &',ThrE=',ES11.4,                                                  &
+     &',ThrSX=',ES11.4,                                                 &
      &',ThrTE=',ES11.4)
 
-101   write(6,*) 'RasScf_Mcontrol: error in data Input. ( icount= ',
+101   write(6,*) 'RasScf_Mcontrol: error in data Input. ( icount= ',    &
      &           icount,' )'
-102   write(6,*) 'RasScf_Mcontrol: reached end of file. ( icount= ',
+102   write(6,*) 'RasScf_Mcontrol: reached end of file. ( icount= ',    &
      &           icount,' )'
 
 

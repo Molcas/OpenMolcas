@@ -1,53 +1,53 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2020, Jie J. Bao                                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Jie J. Bao                                       *
+!***********************************************************************
       Subroutine XMSRot(CMO,FI,FA)
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on May. 21, 2020, created this file.               *
-* ****************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on May. 21, 2020, created this file.               *
+! ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use rasscf_global, only: LROOTS, NAC
       use general_data, only: NTOT1,NTOT2
 
       Implicit None
 
-******Input
+!*****Input
       Real*8,DIMENSION(NTOT1):: FI,FA
       Real*8,Dimension(NTOT2)::CMO
-******Auxiliary quantities
+!*****Auxiliary quantities
       Real*8,DIMENSION(:,:),Allocatable::FckO
-******FckO:  Fock matrix for MO
+!*****FckO:  Fock matrix for MO
       Real*8,DIMENSION(:,:),Allocatable::FckS,EigVec
-******FckS:  Fock matrix for states
+!*****FckS:  Fock matrix for states
       Real*8,DIMENSION(:,:,:),Allocatable::GDMat
-******GDMat: density matrix or transition density matrix
+!*****GDMat: density matrix or transition density matrix
 
-C     Allocating Memory
+!     Allocating Memory
       CALL mma_allocate(GDMat,lRoots*(lRoots+1)/2,NAC,NAC)
       CALL mma_allocate(FckO,NAC,NAC)
       CALL mma_allocate(FckS,lRoots,lRoots)
       CALL mma_allocate(EigVec,lRoots,lRoots)
-C
+!
       CALL CalcFckO(CMO,FI,FA,FckO)
 
       CALL GetGDMat(GDMAt)
-C
+!
       CALL CalcFckS(FckO,GDMat,FckS)
-C
+!
       CALL CalcEigVec(FckS,lRoots,EigVec)
-C
+!
       call printmat('ROT_VEC','XMS-PDFT',eigvec,lroots,lroots,7,8,'N')
-C     Deallocating Memory
+!     Deallocating Memory
       CALL mma_deallocate(GDMat)
       CALL mma_deallocate(FckO)
       CALL mma_deallocate(FckS)
@@ -55,7 +55,7 @@ C     Deallocating Memory
 
       End Subroutine XMSRot
 
-******************************************************
+!*****************************************************
 
       Subroutine CalcFckO(CMO,FI,FA,FckO)
       use stdalloc, only : mma_allocate, mma_deallocate
@@ -63,12 +63,12 @@ C     Deallocating Memory
       use general_data, only: NTOT1,NTOT2,NSYM,NASH,NBAS,NFRO,NISH
       Implicit None
 
-******Input
+!*****Input
       Real*8,DIMENSION(NTOT1)::FI,FA
       Real*8,Dimension(NTOT2)::CMO
-******Output
+!*****Output
       Real*8 ::FckO(NAC,NAC)
-******Auxiliary quantities
+!*****Auxiliary quantities
       INTEGER NB,NA,NI,IOff1,IOff2,IOff3
       INTEGER IBas,JBas,ISym,IOrb,JOrb
       Real*8, Allocatable:: FIAAO(:,:), Scr(:,:), FckOt(:,:)
@@ -87,31 +87,31 @@ C     Deallocating Memory
         Call mma_allocate(Scr,nB,nA,Label='Scr')
         Call mma_allocate(FckOt,NA,NA,Label='FckOt')
         FckOt(:,:)=0.0D0
-C        write(6,*)'Print FI Matrix'
-C        Do IBas=1,NB
-C         write(6,*)(FI(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
-C        End Do
-C        write(6,*)'Print FA Matrix'
-C        Do IBas=1,NB
-C         write(6,*)(FA(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
-C        End Do
-C        write(6,*)'Active CMO mat for sym',ISym
-C        CALL RecPrt(' ',' ',CMO(IOff2+NI*NB),NB,NA)
+!        write(6,*)'Print FI Matrix'
+!        Do IBas=1,NB
+!         write(6,*)(FI(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
+!        End Do
+!        write(6,*)'Print FA Matrix'
+!        Do IBas=1,NB
+!         write(6,*)(FA(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
+!        End Do
+!        write(6,*)'Active CMO mat for sym',ISym
+!        CALL RecPrt(' ',' ',CMO(IOff2+NI*NB),NB,NA)
         Do IBas=1,NB
          do JBas=1,IBas
-          FIAAO(jBas,iBas)= FI(IOff1+(IBas-1)*IBas/2+JBas)+
+          FIAAO(jBas,iBas)= FI(IOff1+(IBas-1)*IBas/2+JBas)+             &
      &                      FA(IOff1+(IBas-1)*IBas/2+JBas)
           FIAAO(iBas,jBas)=FIAAO(jBas,iBas)
          end do
         End Do
-C        write(6,*)'FIA mat for sym',ISym
-C        CALL RecPrt(' ',' ',FIAAO,NB,NB)
-        CALL DGEMM_('n','n',NB,NA,NB,1.0D0,FIAAO,
+!        write(6,*)'FIA mat for sym',ISym
+!        CALL RecPrt(' ',' ',FIAAO,NB,NB)
+        CALL DGEMM_('n','n',NB,NA,NB,1.0D0,FIAAO,                       &
      &       NB,CMO(IOff2+NI*NB),NB,0.0D0,Scr,NB)
-        CALL DGEMM_('t','n',NA,NA,NB,1.0D0,CMO(IOff2+NI*NB),
+        CALL DGEMM_('t','n',NA,NA,NB,1.0D0,CMO(IOff2+NI*NB),            &
      &       NB,Scr,NB,0.0D0,FckOt,NA)
-C        write(6,*)'FckO mat for sym',ISym
-C        CALL RecPrt(' ',' ',FckOt,NA,NA)
+!        write(6,*)'FckO mat for sym',ISym
+!        CALL RecPrt(' ',' ',FckOt,NA,NA)
         Do IOrb=1,NA
          do JOrb=1,NA
           FckO(IOrb+IOff3,JOrb+IOff3)= FckOt(jOrb,iOrb)
@@ -128,7 +128,7 @@ C        CALL RecPrt(' ',' ',FckOt,NA,NA)
 
       END Subroutine CalcFckO
 
-******************************************************
+!*****************************************************
 
       Subroutine GetGDMat(GDMat)
       use lucia_data, only: DStmp, Dtmp
@@ -138,10 +138,10 @@ C        CALL RecPrt(' ',' ',FckOt,NA,NA)
       use general_data, only: JOBIPH,NCONF
       Implicit None
 
-*     Output
+!     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 
-*     Auxiliary qunatities
+!     Auxiliary qunatities
       INTEGER CIDisk1,CIDisk2
       INTEGER NIJ2, jRoot, kRoot, iOrb, jOrb
       Real*8, Allocatable:: SDtmp(:), TmpD(:)
@@ -162,19 +162,19 @@ C        CALL RecPrt(' ',' ',FckOt,NA,NA)
        CIDisk2=IADR15(4)
        Do kRoot=1,jRoot
         Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-C        write(6,*) 'VecL and VecR for states',jRoot,kRoot
-C        write(6,*)(VecL(I),I=0,NConf-1)
-C        write(6,*)(VecR(I),I=0,NConf-1)
-        Call Lucia_Util('Densi',
-     &                  CI_Vector=VecL(:),
+!        write(6,*) 'VecL and VecR for states',jRoot,kRoot
+!        write(6,*)(VecL(I),I=0,NConf-1)
+!        write(6,*)(VecR(I),I=0,NConf-1)
+        Call Lucia_Util('Densi',                                        &
+     &                  CI_Vector=VecL(:),                              &
      &                  RVEC=VECR(:))
-C        write(6,*)'GDMat for states',jRoot,kRoot
+!        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
           do JOrb=1,NAC
           NIJ2=jRoot*(jRoot-1)/2+kRoot
           GDMat(NIJ2,JOrb,IOrb)=Dtmp(JOrb+(IOrb-1)*NAC)
           end do
-C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
+!          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
          eND dO
        End Do
       End DO
@@ -187,19 +187,19 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
 
       END Subroutine GetGDMat
 
-******************************************************
+!*****************************************************
 
       Subroutine CalcFckS(FckO,GDMat,FckS)
       use rasscf_global, only: lRoots, nAc
       Implicit None
 
 
-******Input
+!*****Input
       Real*8,DIMENSION(NAC,NAC)::FckO
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
-******Output
+!*****Output
       Real*8,DIMENSION(lRoots,lRoots)::FckS
-******Auxiliary variables
+!*****Auxiliary variables
       INTEGER IState,JState, iOrb, jOrb
 
       FckS(:,:)=0.0d0
@@ -208,7 +208,7 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
        Do JState=1,IState
         dO IOrb=1,NAC
          do JOrb=1,NAC
-          FckS(IState,JState)=FckS(IState,JState)+FckO(IOrb,JOrb)*
+          FckS(IState,JState)=FckS(IState,JState)+FckO(IOrb,JOrb)*      &
      &GDMat(IState*(IState-1)/2+JState,IOrb,JOrb)
          end do
         eND DO
@@ -216,25 +216,25 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
         End Do
       END DO
 
-C      CALL PrintMat('XMS_Mat','test',FckS,LRoots,LRoots,0,4,'N')
+!      CALL PrintMat('XMS_Mat','test',FckS,LRoots,LRoots,0,4,'N')
 
       END Subroutine CalcFckS
 
-******************************************************
+!*****************************************************
 
       Subroutine CalcEigVec(Matrix,NDIM,EigVec)
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 
-******Input
+!*****Input
       INTEGER NDim
-******Input & Output
+!*****Input & Output
       Real*8,DIMENSION(NDIM,NDIM)::Matrix,EigVec
-******Calculating rotation matrix
+!*****Calculating rotation matrix
       Real*8, Allocatable:: Mat(:),Val(:,:), Scr(:)
       INTEGER NScr,INFO
       Real*8,DIMENSION(2)::WGRONK
-******Auxiliary quantities
+!*****Auxiliary quantities
       INTEGER NElem ! NElem=NDim**2
       INTEGER IRow,ICol,IRIC,NI
       LOGICAL UseJacob
@@ -257,16 +257,16 @@ C      CALL PrintMat('XMS_Mat','test',FckS,LRoots,LRoots,0,4,'N')
        DO NI=1,NDim
         Val(NI,NI)=1.0D0
        END DO
-C       write(6,*)'eigenvector matrix before diag'
-C       CALL RECPRT(' ',' ',Val,NDIM,NDIM)
-C       write(6,*)'matrix to be diagonalized'
-C       CALL TriPrt(' ',' ',Mat,NDIM)
+!       write(6,*)'eigenvector matrix before diag'
+!       CALL RECPRT(' ',' ',Val,NDIM,NDIM)
+!       write(6,*)'matrix to be diagonalized'
+!       CALL TriPrt(' ',' ',Mat,NDIM)
        CALL JACOB(Mat,Val,NDim,NDim)
-C       write(6,*)'eigenvector matrix'
-C       CALL RECPRT(' ',' ',Val,NDIM,NDIM)
-C       DO IRow=1,NDIM
-C         write(6,*) (EigVec(IRow,ICol), ICol=1,NDim)
-C       END DO
+!       write(6,*)'eigenvector matrix'
+!       CALL RECPRT(' ',' ',Val,NDIM,NDIM)
+!       DO IRow=1,NDIM
+!         write(6,*) (EigVec(IRow,ICol), ICol=1,NDim)
+!       END DO
        DO ICol=1,NDIM
         Do IRow=1,NDIM
          EigVec(IRow,ICol)=Val(iCol,iRow)
@@ -301,9 +301,9 @@ C       END DO
 
       End Subroutine CalcEigVec
 
-******************************************************
+!*****************************************************
 
-      Subroutine PrintMat(FileName,MatInfo,Matrix,NRow,NCol,
+      Subroutine PrintMat(FileName,MatInfo,Matrix,NRow,NCol,            &
      &                    LenName,LenInfo,Trans)
       Implicit None
 
@@ -327,17 +327,17 @@ C       END DO
       END IF
 
       IF(Trans.eq.'N') THEN
-       WRITE(PrtFmt,'(A,I5,A)')
+       WRITE(PrtFmt,'(A,I5,A)')                                         &
      & '(',NCol,'(ES24.14E4,1X))'
        DO IRow=1,NRow
-        write(LU,PrtFmt)
+        write(LU,PrtFmt)                                                &
      &  (Matrix(IRow,ICol),ICol=1,NCol)
        END DO
       ELSE
-       WRITE(PrtFmt,'(A,I5,A)')
+       WRITE(PrtFmt,'(A,I5,A)')                                         &
      & '(',NRow,'(ES24.14E4,1X))'
        DO ICol=1,NCol
-        write(LU,PrtFmt)
+        write(LU,PrtFmt)                                                &
      &  (Matrix(IRow,ICol),IRow=1,NRow)
        END DO
       END IF
@@ -347,9 +347,9 @@ C       END DO
       END IF
       End Subroutine PrintMat
 
-******************************************************
+!*****************************************************
 
-      Subroutine ReadMat(FileName,MatInfo,Matrix,NRow,NCol,
+      Subroutine ReadMat(FileName,MatInfo,Matrix,NRow,NCol,             &
      &                   LenName,LenInfo,Trans)
       Implicit None
 

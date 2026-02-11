@@ -1,47 +1,47 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,DF,DDIAG)
-C
-C RASSCF VERSION IBM-3090: SX-SECTION
-C
-C Objective: Compute the auxiliary matrices G,H,F1,F2,and SXN
-C defined as:
-C
-C G(pq)=sum(r,s)(2*P(pqrs)-D(pq)*D(rs))*FP(rs)
-C H(pq)=G(pq)+DF(pq)+DF(qp)  where
-C DF(pq)=sum(r)D(pr)*FP(rq)
-C F1 is the occupied part of the SX Fock matrix FP
-C F2 is the active-external part of the same matrix
-C DIA is the occupied part of the density matrix(squared)
-C SXN contains normalization factors for the SX states
-C HDIAG is the diagonal of the SX Hamiltonian
-C All matrices are blocked according to symmetry
-C Each block having the dimension
-C G, DIA, AND F1:     (NIO+NAO)**2
-C F2:                 (NAO+NEO)**2
-C H:                  NAO*NAE
-C SXN:                (NIO+NAO)*(NAO+NEO)
-C HDIAG:              NROOT+(NIO+NAO)*(NAO+NEO)
-C
-C These matrices are used to simplify the calculation
-C of the sigma vector (see SIGVEC for further details).
-C
-C Called from SXCTL
-C
-C Subroutine calls: none
-C
-C ********** IBM-3090 RELEASE 89 01 23 **********
-C
-      use rasscf_global, only: ExFac, ICICP, ISCF, ITER, LVSHFT, NROOT,
-     &                         NSXS, SXSHFT, ITRI, IZROT, IXSYM, IROOT,
+!
+! RASSCF VERSION IBM-3090: SX-SECTION
+!
+! Objective: Compute the auxiliary matrices G,H,F1,F2,and SXN
+! defined as:
+!
+! G(pq)=sum(r,s)(2*P(pqrs)-D(pq)*D(rs))*FP(rs)
+! H(pq)=G(pq)+DF(pq)+DF(qp)  where
+! DF(pq)=sum(r)D(pr)*FP(rq)
+! F1 is the occupied part of the SX Fock matrix FP
+! F2 is the active-external part of the same matrix
+! DIA is the occupied part of the density matrix(squared)
+! SXN contains normalization factors for the SX states
+! HDIAG is the diagonal of the SX Hamiltonian
+! All matrices are blocked according to symmetry
+! Each block having the dimension
+! G, DIA, AND F1:     (NIO+NAO)**2
+! F2:                 (NAO+NEO)**2
+! H:                  NAO*NAE
+! SXN:                (NIO+NAO)*(NAO+NEO)
+! HDIAG:              NROOT+(NIO+NAO)*(NAO+NEO)
+!
+! These matrices are used to simplify the calculation
+! of the sigma vector (see SIGVEC for further details).
+!
+! Called from SXCTL
+!
+! Subroutine calls: none
+!
+! ********** IBM-3090 RELEASE 89 01 23 **********
+!
+      use rasscf_global, only: ExFac, ICICP, ISCF, ITER, LVSHFT, NROOT, &
+     &                         NSXS, SXSHFT, ITRI, IZROT, IXSYM, IROOT, &
      &                         Ener
       use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
@@ -50,28 +50,28 @@ C
       IMPLICIT None
 #include "warnings.h"
       Character(LEN=16), Parameter :: ROUTINE='SXHAM   '
-      REAL*8 D(*),P(*),PA(*),FP(*),SXN(*),F1(*),F2(*),DIA(*),
-     *          G(*),H(*),HDIAG(*),DF(*),DDIAG(*)
-C -- THRA: THRESHOLD FOR WARNING, ACTIVE OCC NO CLOSE TO 0 OR 2.
+      REAL*8 D(*),P(*),PA(*),FP(*),SXN(*),F1(*),F2(*),DIA(*),           &
+     &          G(*),H(*),HDIAG(*),DF(*),DDIAG(*)
+! -- THRA: THRESHOLD FOR WARNING, ACTIVE OCC NO CLOSE TO 0 OR 2.
       REAL*8, Parameter :: THRA=1.D-06
       REAL*8 P2Act(1)
 
-      REAL*8 :: DPP, DRR, DTU, FAC, FACD, FPP, GTU, HDMIN, HPP, PRPR,
+      REAL*8 :: DPP, DRR, DTU, FAC, FACD, FPP, GTU, HDMIN, HPP, PRPR,   &
      &          SXNRM2, XLEV
-      Integer :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE,
-     &           ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ,
-     &           ISYM, IX, IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO,
-     &           NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR,
-     &           NT, NTT, NTU, NTUT, NTUTU, NTUVX, NU, NUT, NV, NVT,
+      Integer :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE,      &
+     &           ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ,         &
+     &           ISYM, IX, IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO,     &
+     &           NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR,      &
+     &           NT, NTT, NTU, NTUT, NTUTU, NTUVX, NU, NUT, NV, NVT,    &
      &           NVX, NVXF, NVXT, NX, NXT
-C Local print level (if any)
+! Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
-C
-C Loop over all symmetry blocks
-C
+!
+! Loop over all symmetry blocks
+!
       ISTBM=0
       ISTD=0
       ISTFP=0
@@ -85,18 +85,18 @@ C
        IX=IX1+NFRO(ISYM)
        NIO=NISH(ISYM)
        NAO=NASH(ISYM)
-c      NR1O=NRS1(ISYM)
-c      NR2O=NRS2(ISYM)
-c      NR3O=NRS3(ISYM)
-c      NAO=NR1O+NR2O+NR3O
+!      NR1O=NRS1(ISYM)
+!      NR2O=NRS2(ISYM)
+!      NR3O=NRS3(ISYM)
+!      NAO=NR1O+NR2O+NR3O
        NIA=NIO+NAO
        NEO=NSSH(ISYM)
        NAE=NAO+NEO
        NO=NORB(ISYM)
        IF(NIA.EQ.0.OR.NAE.EQ.0) GO TO 98
-C
-C Form the diagonal of the density matrix for all orbitals
-C
+!
+! Form the diagonal of the density matrix for all orbitals
+!
        justone=0
        DO 10 NP=1,NO
         IF(NP.LE.NIO) DDIAG(NP)=2.0D0
@@ -108,8 +108,8 @@ C
            Call WarningMessage(1,'Problems in orbital optimization.')
            JustOne=JustOne+1
           End If
-          Write(LF,'(1x,a,i2,a,i4,a,es14.6)')' Warning: In symmetry ',
-     &     ISYM,', orbital p=',NP,' has diagonal density matrix ' //
+          Write(LF,'(1x,a,i2,a,i4,a,es14.6)')' Warning: In symmetry ',  &
+     &     ISYM,', orbital p=',NP,' has diagonal density matrix ' //    &
      &     'element D(p,p) close to zero. D(p,p)=',DDIAG(NP)
           End If
          If ( 2.0D0-DDIAG(NP).LT.THRA .AND. ISCF.EQ.0 ) Then
@@ -117,20 +117,20 @@ C
            Call WarningMessage(1,'Problems in orbital optimization.')
            JustOne=JustOne+1
           End If
-          Write(LF,'(1x,a,i2,a,i4,a,es14.6)')' Warning: In symmetry ',
-     &     ISYM,', orbital p=',NP,' has diagonal density matrix ' //
+          Write(LF,'(1x,a,i2,a,i4,a,es14.6)')' Warning: In symmetry ',  &
+     &     ISYM,', orbital p=',NP,' has diagonal density matrix ' //    &
      &     'element D(p,p) close to two. (2 - D(p,p))=',2.0D0-DDIAG(NP)
          End If
         ENDIF
 10     CONTINUE
-C
-C Compute the normalization constants:
-C SXN(pq)=4*(P(prrp)-P(prpr))+D(rr)+D(pp)
-C
+!
+! Compute the normalization constants:
+! SXN(pq)=4*(P(prrp)-P(prpr))+D(rr)+D(pp)
+!
        NPR=ISTBM
-C NP loops over active and secondary indices.
+! NP loops over active and secondary indices.
        DO 15 NP=NIO+1,NO
-C NR loops over inactive and active indices.
+! NR loops over inactive and active indices.
        DO 16 NR=1,NIA
         NPR=NPR+1
         SXN(NPR)=1.0D0
@@ -164,7 +164,7 @@ C NR loops over inactive and active indices.
          Write(LF,*)
           Call Quit(_RC_GENERAL_ERROR_)
         ENDIF
-C
+!
         IF(SXNRM2.LT.1.0D-12) THEN
           SXN(NPR)=0.0D0
         ELSE
@@ -173,10 +173,10 @@ C
 95      CONTINUE
 16     CONTINUE
 15     CONTINUE
-C
-C Form the occupied (F1) and active-external (F2) part of FP
-C and the occupied part DIA of the density matrix D
-C
+!
+! Form the occupied (F1) and active-external (F2) part of FP
+! and the occupied part DIA of the density matrix D
+!
        IPQ=ISTFP
        CALL FZERO(DIA(ISTIA+1),NIA**2)
        DO 20 NP=1,NO
@@ -204,29 +204,29 @@ C
          write(6,*) 'DIA in SXHAM:'
          write(6,*) (DIA(ISTIA+i),i=1,NIA**2)
        END IF
-C
-C Form the matrix DF (row index active, column index all orbitals)
-C
+!
+! Form the matrix DF (row index active, column index all orbitals)
+!
        IF(NAO.NE.0) THEN
-        CALL DGEMM_('N','N',
-     &              NAO,NAE,NAO,
-     &              1.0d0,DIA(ISTIA+NIO*NIA+NIO+1),NIA,
-     &              F2(ISTAE+1),NAE,
+        CALL DGEMM_('N','N',                                            &
+     &              NAO,NAE,NAO,                                        &
+     &              1.0d0,DIA(ISTIA+NIO*NIA+NIO+1),NIA,                 &
+     &              F2(ISTAE+1),NAE,                                    &
      &              0.0d0,DF(NAO*NIO+1),NAO)
         IF(NIO.NE.0) THEN
-         CALL DGEMM_('N','N',
-     &               NAO,NIO,NAO,
-     &               1.0d0,DIA(ISTIA+NIO*NIA+NIO+1),NIA,
-     &               F1(ISTIA+NIO+1),NIA,
+         CALL DGEMM_('N','N',                                           &
+     &               NAO,NIO,NAO,                                       &
+     &               1.0d0,DIA(ISTIA+NIO*NIA+NIO+1),NIA,                &
+     &               F1(ISTIA+NIO+1),NIA,                               &
      &               0.0d0,DF,NAO)
         ENDIF
        ENDIF
-C
-C compute the G matrix:
-C G(ij)=-2*FP(ij)
-C G(ti)=G(it)=-DF(ti)
-C G(tu)=sum(vx)(2P(tuvx)-D(tu)D(vx))F(vx)
-C
+!
+! compute the G matrix:
+! G(ij)=-2*FP(ij)
+! G(ti)=G(it)=-DF(ti)
+! G(tu)=sum(vx)(2P(tuvx)-D(tu)D(vx))F(vx)
+!
        If (ExFac.ne.1.0D0) Then
           Call Get_Temp('nP2Act  ',P2Act,1)
           nP2Act=Int(P2Act(1))
@@ -248,7 +248,7 @@ C
          NTT=NP-NIO+IASHI
          NUT=NQ-NIO+IASHI
          NTUT=ITRI(NTT)+NUT
-C
+!
          IASHJ=0
          ISTFPJ=0
          NVX=0
@@ -283,29 +283,29 @@ C
 31     CONTINUE
 30     CONTINUE
        If (ExFac.ne.1.0D0) Call Get_Temp('P2_KS   ',P,nP2Act)
-C
-C FORM THE H MATRIX (only the nae*nao block is needed)
-C H(tu)=G(tu)+DF(tu)+DF(ut)
-C H(at)=DF(ta)
-C H(ab) and H(ta) are not included.
-C
+!
+! FORM THE H MATRIX (only the nae*nao block is needed)
+! H(tu)=G(tu)+DF(tu)+DF(ut)
+! H(at)=DF(ta)
+! H(ab) and H(ta) are not included.
+!
        IF(NAO.NE.0) THEN
         IPQ=ISTH
         DO 40 NP=1,NAO
         DO 41 NQ=1,NAE
          IPQ=IPQ+1
          IF(NQ.LE.NAO) THEN
-          H(IPQ)=G(ISTIA+NIA*(NP+NIO-1)+NQ+NIO)
-     *          +DF(NAO*(NP+NIO-1)+NQ)+DF(NAO*(NQ+NIO-1)+NP)
+          H(IPQ)=G(ISTIA+NIA*(NP+NIO-1)+NQ+NIO)                         &
+     &          +DF(NAO*(NP+NIO-1)+NQ)+DF(NAO*(NQ+NIO-1)+NP)
          ELSE
           H(IPQ)=DF(NAO*(NQ+NIO-1)+NP)
          ENDIF
 41      CONTINUE
 40      CONTINUE
        ENDIF
-C
-C Diagonal elements of the SX Hamiltonian
-C
+!
+! Diagonal elements of the SX Hamiltonian
+!
        NPR=ISTBM
        DO 50 NP=1,NAE
         FPP=F2(ISTAE+NAE*(NP-1)+NP)
@@ -318,12 +318,12 @@ C
         NRR=ISTIA+1
         DO 48 NR=1,NIA
          NPR=NPR+1
-         HDIAG(NPR+NROOT)=
-     *   (G(NRR)-HPP+DIA(NRR)*FPP+DPP*F1(NRR))*SXN(NPR)**2
+         HDIAG(NPR+NROOT)=                                              &
+     &   (G(NRR)-HPP+DIA(NRR)*FPP+DPP*F1(NRR))*SXN(NPR)**2
          NRR=NRR+NIA+1
-C
-C Make this matrix element large for forbidden rotations
-C
+!
+! Make this matrix element large for forbidden rotations
+!
          IF(NP.LE.NAO.AND.NR.GT.NIO) THEN
           NT=NP
           NU=NR-NIO
@@ -335,27 +335,27 @@ C
            IF(IZROT(NTU).NE.0) THEN
              HDIAG(NPR+NROOT)=1.D32
              SXN(NPR)=0.0D0
-C             Write(LF,*)'SXHAM. IZROT.eq.1 for NP,NR=',NP,NR
+!             Write(LF,*)'SXHAM. IZROT.eq.1 for NP,NR=',NP,NR
            END IF
           ENDIF
          ENDIF
 
-C
-C Make HDIAG large for rotations forbidden by IXSYM input
-C
+!
+! Make HDIAG large for rotations forbidden by IXSYM input
+!
          IF(IXSYM(NR+IX).NE.IXSYM(NP+NIO+IX)) THEN
-C           Write(LF,*)'SXHAM. IXSYM forbids NP,NR=',NP,NR
+!           Write(LF,*)'SXHAM. IXSYM forbids NP,NR=',NP,NR
            HDIAG(NPR+NROOT)=1.D32
            SXN(NPR)=0.0D0
          END IF
-C
+!
 48      CONTINUE
 50     CONTINUE
-C       Write(LF,*)'SXHAM: The IXSYM array='
-C       Write(LF,'(1x,40i2)')(ixsym(i),i=1,ntot)
-C
-C Test print of all matrices
-C
+!       Write(LF,*)'SXHAM: The IXSYM array='
+!       Write(LF,'(1x,40i2)')(ixsym(i),i=1,ntot)
+!
+! Test print of all matrices
+!
        IF(IPRLEV.GE.DEBUG) THEN
         Write(LF,1000) ISYM
 1000    FORMAT(/1X,'Matrices in SXHAM for symmetry block',I2)
@@ -376,7 +376,7 @@ C
         Write(LF,1800) (HDIAG(I),I=ISTBM+1+NROOT,ISTBM+NAE*NIA+NROOT)
 1800    FORMAT(/1X,'Diagonal of the SX Hamiltonian'/(1X,5G18.6))
        ENDIF
-C
+!
        IASHI=IASHI+NAO
        ISTD=ISTD+ITRI(NAO+1)
 98     ISTIA=ISTIA+NIA**2
@@ -386,11 +386,11 @@ C
        ISTH=ISTH+NAO*NAE
        ISTZ=ISTZ+(NAO**2-NAO)/2
        IX1=IX1+NBAS(ISYM)
-C
+!
 100   CONTINUE
-C
-C Level shift section
-C
+!
+! Level shift section
+!
        XLEV=LVSHFT
        SXSHFT=0.0D0
        HDMIN=1.D32
@@ -398,21 +398,21 @@ C
         IF(HDIAG(I).LT.HDMIN)  HDMIN=HDIAG(I)
 152    CONTINUE
        SXSHFT=MAX(XLEV-HDMIN,0.0D0)
-C
-C no level shift if input (alpha) is zero
-C
+!
+! no level shift if input (alpha) is zero
+!
        IF(LVSHFT.EQ.0.0D0) SXSHFT=0.0D0
        DO 154 I=NROOT+1,NROOT+NSXS
         HDIAG(I)=HDIAG(I)+SXSHFT
 154    CONTINUE
        IF(IPRLEV.GE.DEBUG) THEN
          Write(LF,1101) HDMIN,SXSHFT
-1101   FORMAT(1X,'Lowest diagonal element has the value',F12.6,
-     *        ' A level shift of',F12.6,' has been used')
+1101   FORMAT(1X,'Lowest diagonal element has the value',F12.6,         &
+     &        ' A level shift of',F12.6,' has been used')
        END IF
-C
-C Add diagonal elements for the reference space (CI-states)
-C
+!
+! Add diagonal elements for the reference space (CI-states)
+!
       HDIAG(1)=0.0D0
       IF(ICICP.NE.0) THEN
        IROOT1=IROOT(1)

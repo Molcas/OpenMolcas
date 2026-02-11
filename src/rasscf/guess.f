@@ -1,37 +1,37 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Markus P. Fuelscher                              *
+!***********************************************************************
       SubRoutine Guess(CMO)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Diagonalize core Hamiltonian to get starting orbitals.           *
-*                                                                      *
-*     calling arguments:                                               *
-*     CMO     : real*8, output                                         *
-*               starting vectors                                       *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1998                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
-*
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Diagonalize core Hamiltonian to get starting orbitals.           *
+!                                                                      *
+!     calling arguments:                                               *
+!     CMO     : real*8, output                                         *
+!               starting vectors                                       *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1998                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
+!
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
@@ -41,28 +41,28 @@
 
       Implicit None
 
-*     global definitions
+!     global definitions
 
 #include "warnings.h"
 
-*     calling arguments
+!     calling arguments
 
       Real*8 CMO(*)
 
-*     local definitions
+!     local definitions
 
       Character(LEN=8) Label
       Real*8, Allocatable:: Tmp1(:)
       Integer iRC, i1, i2, iBas, iComp, iOpt, iSyLbl, iSym
 
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Start                                                            *
+!----------------------------------------------------------------------*
 
-*     allocate work space
+!     allocate work space
       Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
 
-*     load bare nuclei Hamiltonian
+!     load bare nuclei Hamiltonian
 
       iRc    = -1
       iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
@@ -79,7 +79,7 @@
         Call Quit(_RC_IO_ERROR_READ_)
       End If
 
-*     diagonalize bare nuclei Hamiltonian
+!     diagonalize bare nuclei Hamiltonian
 
       i1 = 1
       i2 = 1
@@ -93,7 +93,7 @@
         i2 = i2+iBas*iBas
       End Do
 
-*     deallocate work space
+!     deallocate work space
       Call mma_deallocate(Tmp1)
 
       End SubRoutine Guess

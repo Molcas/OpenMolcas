@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine cpinp(LUnit,iRc)
       use definitions, only: iwp
       use UnixInfo, only: ProgName
@@ -27,31 +27,31 @@
 
 #include "warnings.h"
       iRc=_RC_ALL_IS_WELL_
-* The following code will open, and return the unit number LUSpool,
-* of an ASCII file with a copy of the presently used input.
-* The records are strings of 180 characters, conforming to the
-* standards set e.g. in src/util/inputil.f. This may change in the
-* future, so look out!
+! The following code will open, and return the unit number LUSpool,
+! of an ASCII file with a copy of the presently used input.
+! The records are strings of 180 characters, conforming to the
+! standards set e.g. in src/util/inputil.f. This may change in the
+! future, so look out!
 
       Call SpoolInp(LUSpool)
       Call Disable_Spool()
       Rewind(LUSpool)
-* Now open a new file, and copy only the input between the '&RASSCF'
-* and the 'End of Input' markers, inclusive, and skipping any commented
-* lines. (The latter is put there by sbin/auto.plx, so it is safe to
-* assume it is not abbreviated). The copied lines are left adjusted.
-* Positioning LUSpool after the '&RASSCF' marker.
+! Now open a new file, and copy only the input between the '&RASSCF'
+! and the 'End of Input' markers, inclusive, and skipping any commented
+! lines. (The latter is put there by sbin/auto.plx, so it is safe to
+! assume it is not abbreviated). The copied lines are left adjusted.
+! Positioning LUSpool after the '&RASSCF' marker.
       if(ProgName(1:5) .eq.'dmrgs')then
         Call RdNLst(LuSpool,'DMRGSCF')
         call setpos(luspool,'OOPT',line,irc)
       else
         Call RdNLst(LuSpool,'RASSCF')
       end if
-* Opening a new file:
+! Opening a new file:
       LUnit=99
       LUnit=IsFreeUnit(LUnit)
       Call Molcas_Open (LUnit,'CleanInput')
-* Copy only the relevant lines of input:
+! Copy only the relevant lines of input:
       line=' '
       line(1:7)='&RASSCF'
       write(LUnit,'(A180)') line
@@ -82,6 +82,6 @@
       call close_luspool(LUSpool)
       return
  9910 continue
-* Something went wrong...Let the caller handle it:
+! Something went wrong...Let the caller handle it:
       iRc=_RC_INPUT_ERROR_
       end subroutine cpinp

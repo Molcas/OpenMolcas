@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2016,2017, Giovanni Li Manni                           *
-*               2019-2021, Oskar Weser                                 *
-*               2021, Werner Dobrautz                                  *
-*               2021-2023, Arta Safari                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2016,2017, Giovanni Li Manni                           *
+!               2019-2021, Oskar Weser                                 *
+!               2021, Werner Dobrautz                                  *
+!               2021-2023, Arta Safari                                 *
+!***********************************************************************
 
       module fciqmc_read_RDM
 #ifdef _HDF5_
-      use mh5, only: mh5_open_file_r, mh5_close_file, mh5_put_dset,
-     &               mh5_open_group, mh5_close_group,
-     &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,
+      use mh5, only: mh5_open_file_r, mh5_close_file, mh5_put_dset,     &
+     &               mh5_open_group, mh5_close_group,                   &
+     &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,     &
      &               mh5_get_dset_dims
       use index_symmetry, only : one_el_idx
       use RASWFn, only: wfn_dens, wfn_spindens
@@ -29,7 +29,7 @@
       use para_info, only: myRank
       use rasscf_global, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
-      use index_symmetry, only : two_el_idx_flatten,
+      use index_symmetry, only : two_el_idx_flatten,                    &
      &                           one_el_idx_flatten
       use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_
@@ -39,7 +39,7 @@
 #include "intent.fh"
 
       private
-      public :: read_neci_RDM, cleanup, dump_fciqmc_mats,
+      public :: read_neci_RDM, cleanup, dump_fciqmc_mats,               &
      &          MCM7, WRMA
       logical, save :: MCM7 = .false., WRMA = .false.
 
@@ -66,7 +66,7 @@
 !>  @param[out] PAMAT 'fake' Average antisymm. 2-dens matrix
 
 
-      subroutine read_neci_RDM(
+      subroutine read_neci_RDM(                                         &
      &    iroot, weight, tGUGA, ifinal, DMAT, DSPN, PSMAT, PAMAT)
 
           ! wrapper around `read_single_neci_(GUGA)_RDM` to average
@@ -77,7 +77,7 @@
           logical, intent(in) :: tGUGA
           real(wp), intent(out) :: dmat(:), dspn(:), psmat(:), pamat(:)
           integer :: i, j, jDisk
-          real(wp), allocatable :: temp_dmat(:), temp_dspn(:),
+          real(wp), allocatable :: temp_dmat(:), temp_dspn(:),          &
      &                             temp_psmat(:), temp_pamat(:)
 #ifdef _HDF5_
           real(wp) :: decompr_dmat(nac,nac), decompr_dspn(nac,nac)
@@ -99,19 +99,19 @@
               do j = 1, size(iroot)
                   if (iroot(j) == i) then
                       if (tGUGA) then
-                          call read_single_neci_GUGA_RDM(
-     &                        iroot(j), temp_DMAT, temp_DSPN,
-     &                        temp_PSMAT, temp_PAMAT
+                          call read_single_neci_GUGA_RDM(               &
+     &                        iroot(j), temp_DMAT, temp_DSPN,           &
+     &                        temp_PSMAT, temp_PAMAT                    &
      &                    )
 #ifdef _HDF5_
                       else if (MCM7) then
-                          call read_hdf5_denmats(iroot(j), temp_DMAT,
+                          call read_hdf5_denmats(iroot(j), temp_DMAT,   &
      &                        temp_DSPN, temp_PSMAT, temp_PAMAT)
 #endif
                       else
-                          call read_single_neci_RDM(
-     &                        iroot(j), temp_DMAT, temp_DSPN,
-     &                        temp_PSMAT, temp_PAMAT
+                          call read_single_neci_RDM(                    &
+     &                        iroot(j), temp_DMAT, temp_DSPN,           &
+     &                        temp_PSMAT, temp_PAMAT                    &
      &                    )
                       end if
 
@@ -122,9 +122,9 @@
 
                       ! state-specific Natural Occupation numbers
                       if (ifinal > 1) then
-                          call RDM_to_runfile(
-     &                       temp_DMAT, temp_DSPN, temp_PSMAT,
-     &                       temp_PAMAT, jDisk
+                          call RDM_to_runfile(                          &
+     &                       temp_DMAT, temp_DSPN, temp_PSMAT,          &
+     &                       temp_PAMAT, jDisk                          &
      &                    )
 #ifdef _HDF5_
                           ! final iteration load decompressed 1PDMs in
@@ -133,13 +133,13 @@
                           decompr_dspn(:,:) = 0.0_wp
                           decompr_dmat = expand_1rdm(temp_dmat)
                           decompr_dspn = expand_1rdm(temp_dspn)
-                          call mh5_put_dset(wfn_dens,
-     &                                      decompr_dmat,
-     &                                      [nac, nac, 1],
+                          call mh5_put_dset(wfn_dens,                   &
+     &                                      decompr_dmat,               &
+     &                                      [nac, nac, 1],              &
      &                                      [0, 0, iroot(j) - 1])
-                          call mh5_put_dset(wfn_spindens,
-     &                                      decompr_dspn,
-     &                                      [nac, nac, 1],
+                          call mh5_put_dset(wfn_spindens,               &
+     &                                      decompr_dspn,               &
+     &                                      [nac, nac, 1],              &
      &                                      [0, 0, iroot(j) - 1])
 #endif
 
@@ -155,16 +155,16 @@
 
           ! Averaged RDM during orb rotation iterations
           if (ifinal == 0) then
-              call RDM_to_runfile(
-     &            DMAT, DSPN, PSMAT, PAMAT, jDisk
+              call RDM_to_runfile(                                      &
+     &            DMAT, DSPN, PSMAT, PAMAT, jDisk                       &
      &        )
           end if
 
       end subroutine read_neci_RDM
 
 
-      subroutine read_single_neci_GUGA_RDM(
-     &  iroot, DMAT, DSPN, PSMAT, PAMAT
+      subroutine read_single_neci_GUGA_RDM(                             &
+     &  iroot, DMAT, DSPN, PSMAT, PAMAT                                 &
      & )
           use PrintLevel, only: DEBUG
           use output_ras, only: IPRLOC
@@ -181,13 +181,13 @@
           end if
 
           call f_Inquire('PSMAT.' // str(iroot), tExist)
-          call verify_(tExist, 'PSMAT.' // str(iroot) //
+          call verify_(tExist, 'PSMAT.' // str(iroot) //                &
      &                 ' does not exist')
           call f_Inquire('PAMAT.' // str(iroot), tExist)
-          call verify_(tExist, 'PAMAT.' // str(iroot) //
+          call verify_(tExist, 'PAMAT.' // str(iroot) //                &
      &                 ' does not exist')
           call f_Inquire('DMAT.'  // str(iroot), tExist)
-          call verify_(tExist, 'DMAT.'  // str(iroot) //
+          call verify_(tExist, 'DMAT.'  // str(iroot) //                &
      &                 ' does not exist')
 
           PSMAT(:) = 0.0_wp; PAMAT(:) = 0.0_wp
@@ -289,7 +289,7 @@
           use output_ras, only: IPRLOC
           integer, intent(in) :: iroot
           real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
-          integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq,
+          integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq,     &
      &               psrq, pqrs, iread, norb, iprlev
           logical :: tExist, switch
           real*8 :: fac, RDMval, fcnacte
@@ -310,23 +310,23 @@
             call bcast_2RDM("TwoRDM_baab." // str(iroot))
           end if
           call f_Inquire('TwoRDM_aaaa.' // str(iroot),tExist)
-          call verify_(tExist, 'TwoRDM_aaaa.' // str(iroot) //
+          call verify_(tExist, 'TwoRDM_aaaa.' // str(iroot) //          &
      &                 ' does not exist')
           call f_Inquire('TwoRDM_abab.'// str(iroot),tExist)
-          call verify_(tExist, 'TwoRDM_abab.' // str(iroot) //
+          call verify_(tExist, 'TwoRDM_abab.' // str(iroot) //          &
      &                 ' does not exist')
           call f_Inquire('TwoRDM_abba.'// str(iroot),tExist)
-          call verify_(tExist, 'TwoRDM_abba.' // str(iroot) //
+          call verify_(tExist, 'TwoRDM_abba.' // str(iroot) //          &
      &                 ' does not exist')
           if(switch) then
             call f_Inquire('TwoRDM_bbbb.' // str(iroot),tExist)
-            call verify_(tExist, 'TwoRDM_bbbb.' // str(iroot) //
+            call verify_(tExist, 'TwoRDM_bbbb.' // str(iroot) //        &
      &                   ' does not exist')
             call f_Inquire('TwoRDM_baba.' // str(iroot),tExist)
-            call verify_(tExist, 'TwoRDM_baba.' // str(iroot) //
+            call verify_(tExist, 'TwoRDM_baba.' // str(iroot) //        &
      &                   ' does not exist')
             call f_Inquire('TwoRDM_baab.' // str(iroot),tExist)
-            call verify_(tExist, 'TwoRDM_baab.' // str(iroot) //
+            call verify_(tExist, 'TwoRDM_baab.' // str(iroot) //        &
      &                   ' does not exist')
           end if
 
@@ -342,26 +342,26 @@
         call Molcas_Open(iUnit, 'TwoRDM_aaaa.' // str(iroot))
         Rewind(iUnit)
         IF(IPRLEV >= DEBUG) THEN
-          write(u6,*) 'p   q   r   s  pq  rs  pqrs',
+          write(u6,*) 'p   q   r   s  pq  rs  pqrs',                    &
      &    'RDMval                PSMAT                   PAMAT'
           write(u6,*) '******* AAAA *******'
         end if
         do
 
-            read(iUnit, "(4I6,G25.17)", iostat=iread)
+            read(iUnit, "(4I6,G25.17)", iostat=iread)                   &
      &          s, q, r, p, RDMval
             if(iread /= 0) exit
             pqrs = two_el_idx_flatten(p, q, r, s, pq, rs)
             ! Contribution to PSMAT and PAMAT:
             PSMAT(pqrs) = PSMAT(pqrs) + fac * RDMval
-            if (r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs)
+            if (r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs)            &
      &          + fac * RDMval
-            if (p > q.and.r > s) PAMAT(pqrs) = PAMAT(pqrs)
+            if (p > q.and.r > s) PAMAT(pqrs) = PAMAT(pqrs)              &
      &          + fac * RDMval
-            if (p > q.and.r < s) PAMAT(pqrs) = PAMAT(pqrs)
+            if (p > q.and.r < s) PAMAT(pqrs) = PAMAT(pqrs)              &
      &          - fac * RDMval
             IF(IPRLEV >= DEBUG) THEN
-               write(u6,'(7I6,3G25.17)')
+               write(u6,'(7I6,3G25.17)')                                &
      &         p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
             END IF
             ! Contribution to D_alpha (not final):
@@ -378,7 +378,7 @@
               PAMAT(psrq) = PAMAT(psrq) - fac * RDMval
             end if
             IF(IPRLEV >= DEBUG) THEN
-              write(u6,'(7I6,3G25.17)')
+              write(u6,'(7I6,3G25.17)')                                 &
      &          p,s,r,q,ps,rq,psrq, RDMval,PSMAT(psrq),PAMAT(psrq)
             END IF
             ! Contribution to D_alpha (not final): The minus sign comes
@@ -396,7 +396,7 @@
           Call Molcas_Open(iUnit,'TwoRDM_bbbb.' // str(iroot))
           Rewind(iUnit)
           if (IPRLEV >= DEBUG) then
-           write(u6,*) '  p   q   r   s  pq  rs  pqrs',
+           write(u6,*) '  p   q   r   s  pq  rs  pqrs',                 &
      &     'RDMval                PSMAT                   PAMAT'
            write(u6,*) '******* BBBB *******'
           end if
@@ -411,7 +411,7 @@
             if(p > q.and.r > s) PAMAT(pqrs) = PAMAT(pqrs) + fac * RDMval
             if(p > q.and.r < s) PAMAT(pqrs) = PAMAT(pqrs) - fac * RDMval
             IF(IPRLEV >= DEBUG) THEN
-              write(u6,'(7I6,3G25.17)')
+              write(u6,'(7I6,3G25.17)')                                 &
      &           p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
             END IF
             ! Contribution to D_beta (not final):
@@ -429,7 +429,7 @@
               PAMAT(psrq) = PAMAT(psrq) - fac*RDMval
             end if
             IF(IPRLEV >= DEBUG) THEN
-              write(u6,'(7I6,3G25.17)')
+              write(u6,'(7I6,3G25.17)')                                 &
      &          p,s,r,q,ps,rq,psrq, RDMval,PSMAT(psrq),PAMAT(psrq)
             END IF
             ! Contribution to D_beta (not final): The minus sign comes
@@ -458,7 +458,7 @@
         if(r < s.and.p /= q) PAMAT(pqrs) = PAMAT(pqrs) - fac*RDMval
         if(r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs) + fac*RDMval
         if (IPRLEV >= DEBUG) then
-          write(u6,'(7I6,3G25.17)')
+          write(u6,'(7I6,3G25.17)')                                     &
      &        p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
         end if
         ! Contribution to D_alpha and D_beta (not final):
@@ -490,7 +490,7 @@
           if(r < s.and.p /= q) PAMAT(pqrs) = PAMAT(pqrs) - fac*RDMval
           if(r /= s.and.p == q) PSMAT(pqrs) = PSMAT(pqrs) + fac*RDMval
           IF(IPRLEV >= DEBUG) THEN
-            write(u6,'(7I6,3G25.17)')
+            write(u6,'(7I6,3G25.17)')                                   &
      &          p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
           END IF
           ! Contribution to D_alpha (not final):
@@ -519,7 +519,7 @@
           PAMAT(pqrs) = PAMAT(pqrs) - fac*RDMval
         end if
         IF(IPRLEV >= DEBUG) THEN
-          write(u6,'(7I6,3G25.17)')
+          write(u6,'(7I6,3G25.17)')                                     &
      &        p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
         END IF
           ! Contribution to D_alpha (not final):
@@ -552,7 +552,7 @@
             PAMAT(pqrs) = PAMAT(pqrs) - fac*RDMval
           end if
           IF(IPRLEV >= DEBUG) THEN
-            write(u6,'(7I6,3G25.17)')
+            write(u6,'(7I6,3G25.17)')                                   &
      &          p,q,r,s,pq,rs,pqrs, RDMval,PSMAT(pqrs),PAMAT(pqrs)
           END IF
           ! Contribution to D_alpha (not final):
@@ -603,7 +603,7 @@
           funit = IsFreeUnit(11)
           call molcas_open(funit, 'DMAT.1')
           do i = 1, size(dmat)
-              if (abs(dmat(i)) > 1e-10) write(funit,'(i6,g25.17)')
+              if (abs(dmat(i)) > 1e-10) write(funit,'(i6,g25.17)')      &
      &        i, dmat(i)
           end do
           close(funit)
@@ -611,7 +611,7 @@
           funit = IsFreeUnit(11)
           call molcas_open(funit, 'DSPN.1')
           do i = 1, size(dspn)
-              if (abs(dspn(i)) > 1e-10) write(funit,'(i6,g25.17)')
+              if (abs(dspn(i)) > 1e-10) write(funit,'(i6,g25.17)')      &
      &        i, dspn(i)
           end do
           close(funit)
@@ -619,7 +619,7 @@
           funit = IsFreeUnit(11)
           call molcas_open(funit, 'PSMAT.1')
           do i = 1, size(psmat)
-              if (abs(psmat(i)) > 1e-10) write(funit,'(i6,g25.17)')
+              if (abs(psmat(i)) > 1e-10) write(funit,'(i6,g25.17)')     &
      &        i,psmat(i)
           end do
           close(funit)
@@ -627,7 +627,7 @@
           funit = IsFreeUnit(11)
           call molcas_open(funit, 'PAMAT.1')
           do i = 1, size(pamat)
-              if (abs(pamat(i)) > 1e-10)write(funit,'(i6,g25.17)')
+              if (abs(pamat(i)) > 1e-10)write(funit,'(i6,g25.17)')      &
      &        i,pamat(i)
           end do
           close(funit)
@@ -662,7 +662,7 @@
                       else
                           ! off-diagonal counts twice
                           n = merge(1, 2, (k == s))
-                          intermed = intermed
+                          intermed = intermed                           &
      &                  + (2/n * psmat(pkks) + fac*pamat(pkks))
                       end if
                   end do
@@ -698,7 +698,7 @@
           real(wp), intent(_OUT_) :: dmat(:), dspn(:),psmat(:),pamat(:)
           integer, allocatable :: indices(:,:)
           real(wp), allocatable :: values(:)
-          integer :: len4index(2), pqrs, pq, rs,  p, q, r, s, i,
+          integer :: len4index(2), pqrs, pq, rs,  p, q, r, s, i,        &
      &               fac, n_rs, hdf5_file, hdf5_group, hdf5_dset
           real(wp) :: rdm2_temp(nAc, nAc, nAc, nAc), rdm1_temp(nAc, nAc)
           logical :: tExist
@@ -752,9 +752,9 @@
                     pqrs = one_el_idx_flatten(pq, rs)
                     fac = merge(-1, 1, p < q .neqv. r < s)
                     n_rs = merge(2, 1, r /= s)
-                    psmat(pqrs) = 0.5_wp * n_rs
+                    psmat(pqrs) = 0.5_wp * n_rs                         &
      &                * (rdm2_temp(p,q,r,s) + rdm2_temp(q,p,r,s))/2
-                    pamat(pqrs) = 0.5_wp * n_rs * fac
+                    pamat(pqrs) = 0.5_wp * n_rs * fac                   &
      &                * (rdm2_temp(p,q,r,s) - rdm2_temp(q,p,r,s))/2
                   end if
                 end do
@@ -785,12 +785,12 @@
           if (iprlev >= debug) then
               write(u6,'(a)') 'PSMAT:'
               do p = 1, size(psmat)
-                if (abs(psmat(p)) > 1e-7) write(u6,'(i6,g25.17)')
+                if (abs(psmat(p)) > 1e-7) write(u6,'(i6,g25.17)')       &
      &              p,psmat(p)
               end do
               write(u6,'(a)') 'PAMAT:'
               do p = 1, size(pamat)
-                if (abs(pamat(p)) > 1e-7) write(u6,'(i6,g25.17)')
+                if (abs(pamat(p)) > 1e-7) write(u6,'(i6,g25.17)')       &
      &              p,pamat(p)
               end do
               call triprt('DMAT ',' ', dmat, nAc)

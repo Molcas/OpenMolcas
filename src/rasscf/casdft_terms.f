@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Markus P. Fuelscher                              *
-*               2013, Giovanni Li Manni                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Markus P. Fuelscher                              *
+!               2013, Giovanni Li Manni                                *
+!***********************************************************************
       Subroutine CASDFT_terms(CMO,F,FI,D1I,D1A,D1S)
-*
-*     This routine is a modification of SGFCIN, adapted to a CASDFT
-*     implementation in which the CI step of a CASDFT calculation is
-*         not corrected by DFT. DFT will play a role only in the Orbital
-*         optimization step.
-*     Purpose:
-*     Generate the Fock-matrix for the frozen and inactive orbitals.
-*     Compute also the core energy. Finally, transform the Fock-matrix
-*     into the basis of the active orbitals.
-*
-*     M.P. Fuelscher, Lund, July 1990
-*     GLM, Minneapolis,   May 2013
-*
+!
+!     This routine is a modification of SGFCIN, adapted to a CASDFT
+!     implementation in which the CI step of a CASDFT calculation is
+!         not corrected by DFT. DFT will play a role only in the Orbital
+!         optimization step.
+!     Purpose:
+!     Generate the Fock-matrix for the frozen and inactive orbitals.
+!     Compute also the core energy. Finally, transform the Fock-matrix
+!     into the basis of the active orbitals.
+!
+!     M.P. Fuelscher, Lund, July 1990
+!     GLM, Minneapolis,   May 2013
+!
       use stdalloc, only: mma_allocate, mma_deallocate
       use OneDat, only: sNoNuc, sNoOri
       use rctfld_module, only: lRF
@@ -33,8 +33,8 @@
       use qcmaquis_interface_cfg
 #endif
       use Constants, only: Zero, One
-      use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp,
-     &                         NAC, NACPAR, NONEQ, PotNuc, Tot_Charge,
+      use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp,         &
+     &                         NAC, NACPAR, NONEQ, PotNuc, Tot_Charge,  &
      &                         Tot_El_Charge, Tot_Nuc_Charge
 #ifdef _DMRG_
       use lucia_data, only: INT1, INT1O
@@ -42,28 +42,28 @@
 #endif
       use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
-      use general_data, only: NSYM,NTOT1,NACTEL,ISPIN,NASH,NBAS,NFRO,
+      use general_data, only: NSYM,NTOT1,NACTEL,ISPIN,NASH,NBAS,NFRO,   &
      &                        NISH
 
       Implicit None
-*
+!
       Real*8 CMO(*) ,F(*) , FI(*) , D1I(*) , D1A(*), D1S(*)
       Character(LEN=8) Label
       Logical First, Dff, Do_DFT
       Real*8, Allocatable:: X0(:), X1(:), X2(:), X3(:)
-      Real*8, Allocatable:: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:),
+      Real*8, Allocatable:: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:),         &
      &                      Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:)
       Real*8 CASDFT_Funct, Emyn, Eone, ETwo, PotNuc_Ref
       Real*8, External:: DDot_
-      Integer i, IADD, iBas, iCharge, iCOmp, iOff, iOpt, iPrLev, iRC,
+      Integer i, IADD, iBas, iCharge, iCOmp, iOff, iOpt, iPrLev, iRC,   &
      &        iSyLbl, iSym, ITU, j, MXNA, MXNB, NAT, NST, NT, NTU, NU
 
 
-***********************************************************
-C Local print level (if any)
-***********************************************************
+!**********************************************************
+! Local print level (if any)
+!**********************************************************
       IPRLEV=IPRLOC(3)
-c      IPRLEV=100
+!      IPRLEV=100
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,*) 'Printing matrices in CASDFT_Terms'
        Write(LF,*)
@@ -119,10 +119,10 @@ c      IPRLEV=100
       End If
 
 
-*
-***********************************************************
-* Generate molecular charges
-***********************************************************
+!
+!**********************************************************
+! Generate molecular charges
+!**********************************************************
       Call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
       iRc=-1
       iOpt=ibset(0,sNoOri)
@@ -141,19 +141,19 @@ c      IPRLEV=100
 
       Tot_El_Charge=Zero
       Do iSym=1,nSym
-         Tot_El_Charge=Tot_El_Charge
+         Tot_El_Charge=Tot_El_Charge                                    &
      &                -2.0D0*DBLE(nFro(iSym)+nIsh(iSym))
       End Do
       Tot_El_Charge=Tot_El_Charge-DBLE(nActEl)
       Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
-*      If ( IPRLEV.ge.DEBUG ) then
-*          write(6,*)
-*       write(6,*) 'Total Charge :', Tot_Charge
-*      end if
-*
-***********************************************************
-* Load bare nuclei Hamiltonian
-***********************************************************
+!      If ( IPRLEV.ge.DEBUG ) then
+!          write(6,*)
+!       write(6,*) 'Total Charge :', Tot_Charge
+!      end if
+!
+!**********************************************************
+! Load bare nuclei Hamiltonian
+!**********************************************************
       Call mma_Allocate(Tmp1,nTot1,Label='Tmp1')
       iComp  =  1
       iSyLbl =  1
@@ -179,31 +179,31 @@ c      IPRLEV=100
           iOff = iOff + (iBas*iBas+iBas)/2
         End Do
       End IF
-*
-***********************************************************
-* Load the nuclear repulsion energy
-***********************************************************
+!
+!**********************************************************
+! Load the nuclear repulsion energy
+!**********************************************************
       Call Get_dScalar('PotNuc',potNuc)
-c      write(6,*)
-c      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
+!      write(6,*)
+!      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
 
-*
-***********************************************************
-* Generate total density
-***********************************************************
-*
-*      If ( IPRLEV.ge.DEBUG ) then
-*       Call mma_allocate(Tmp31,nBas*nBas,Label='Tmp31')
-*          Tmp31(:)=0.0D0
-*          Call Daxpy_(nBas*nBas,1.0D0,D1I,1,Tmp31,1)
-*          Call Daxpy_(nBas*nBas,1.0D0,D1A,1,Tmp31,1)
-*      Write(LF,*)
-*       Write(LF,*) ' DMAT not folded in AO basis in CASDFT_Terms'
-*       Write(LF,*) ' ---------------------'
-*       Write(LF,*)
-*          call wrtmat(Tmp31,nBas,nBas, nBas, nBas)
-*       Call mma_deallocate(Tmp3)
-*      End IF
+!
+!**********************************************************
+! Generate total density
+!**********************************************************
+!
+!      If ( IPRLEV.ge.DEBUG ) then
+!       Call mma_allocate(Tmp31,nBas*nBas,Label='Tmp31')
+!          Tmp31(:)=0.0D0
+!          Call Daxpy_(nBas*nBas,1.0D0,D1I,1,Tmp31,1)
+!          Call Daxpy_(nBas*nBas,1.0D0,D1A,1,Tmp31,1)
+!      Write(LF,*)
+!       Write(LF,*) ' DMAT not folded in AO basis in CASDFT_Terms'
+!       Write(LF,*) ' ---------------------'
+!       Write(LF,*)
+!          call wrtmat(Tmp31,nBas,nBas, nBas, nBas)
+!       Call mma_deallocate(Tmp3)
+!      End IF
 
       Call mma_allocate(Tmp3,nTot1,Label='Tmp3')
       Call mma_allocate(Tmp4,nTot1,Label='Tmp4')
@@ -212,23 +212,23 @@ c      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
       Call Daxpy_(nTot1,1.0D0,Tmp4,1,Tmp3,1)
       Call Put_dArray('D1ao',Tmp3,nTot1)
       call xflush(6)
-***********************************************************
-* Generate spin-density
-***********************************************************
+!**********************************************************
+! Generate spin-density
+!**********************************************************
         Call mma_allocate(Tmp7,nTot1,Label='Tmp7')
         Call Fold(nSym,nBas,D1S,Tmp7)
         Call Put_dArray('D1sao',Tmp7,nTot1)
         Call mma_deallocate(Tmp7)
-*
-***********************************************************
-* One- and two-electron type contributions
-***********************************************************
-*
+!
+!**********************************************************
+! One- and two-electron type contributions
+!**********************************************************
+!
       Call mma_allocate(Tmp5,nTot1,Label='Tmp5')
       Tmp5(:)=0.0D0
       Call mma_allocate(Tmp6,nTot1,Label='Tmp6')
       Tmp6(:)=0.0D0
-*
+!
       First=.True.
       Dff=.False.
       Do_DFT=.True.
@@ -238,10 +238,10 @@ c      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
       Call Put_iArray('nIsh',nIsh,nSym)
 
       iCharge=Int(Tot_Charge)
-c Tmp5 and Tmp6 are not updated in DrvXV...
-      Call DrvXV(Tmp5,Tmp6,Tmp3,
-     &             PotNuc,nTot1,First,Dff,NonEq,lRF,
-     &             KSDFT_TEMP,ExFac,iCharge,iSpin,
+! Tmp5 and Tmp6 are not updated in DrvXV...
+      Call DrvXV(Tmp5,Tmp6,Tmp3,                                        &
+     &             PotNuc,nTot1,First,Dff,NonEq,lRF,                    &
+     &             KSDFT_TEMP,ExFac,iCharge,iSpin,                      &
      &             DFTFOCK,Do_DFT)
 
       Call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
@@ -252,13 +252,13 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
       Call mma_deallocate(Tmp4)
       Call mma_deallocate(Tmp3)
 
-***********************************************************
-*     Compute energy contributions
-***********************************************************
+!**********************************************************
+!     Compute energy contributions
+!**********************************************************
       Call mma_allocate(Tmp2,nTot1,Label='Tmp2')
 
       Call Fold(nSym,nBas,D1I,Tmp2)
-*
+!
       Eone = dDot_(nTot1,Tmp2,1,Tmp1,1)
       Call Get_dScalar('PotNuc',PotNuc_Ref)
       Eone = Eone + (PotNuc-PotNuc_Ref)
@@ -270,16 +270,16 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
       Call Get_dScalar('CASDFT energy',CASDFT_Funct)
       If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*) ' Nuclear repulsion energy :',PotNuc
-*         Write(LF,*) ' Nuclear repulsion energy Ref :',PotNuc_Ref
+!         Write(LF,*) ' Nuclear repulsion energy Ref :',PotNuc_Ref
          Write(LF,*) ' One-electron core energy :',Eone
          Write(LF,*) ' Two-electron core energy :',Etwo
          Write(LF,*) ' Total core energy        :',EMY
          Write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
       End If
 
-***********************************************************
-* Printing matrices
-***********************************************************
+!**********************************************************
+! Printing matrices
+!**********************************************************
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
         Write(LF,*) ' FI matrix in CASDFT_Terms only 2-electron terms'
@@ -311,14 +311,14 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
 
       Call mma_deallocate(Tmp1)
 
-***********************************************************
-*     Transform FI to active orbital basis and move it over to F.
-*     Remove also the symmetry blocking.
-***********************************************************
-***********************************************************
-* Shall I add here the DFT contribution? Maybe not yet!
-* I am commenting off... if needed we can always re-activate.
-***********************************************************
+!**********************************************************
+!     Transform FI to active orbital basis and move it over to F.
+!     Remove also the symmetry blocking.
+!**********************************************************
+!**********************************************************
+! Shall I add here the DFT contribution? Maybe not yet!
+! I am commenting off... if needed we can always re-activate.
+!**********************************************************
       MXNB=0
       MXNA=0
       DO ISYM=1,NSYM
@@ -330,34 +330,34 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
       CALL mma_allocate(X2,MXNB*MXNB,Label='X2')
       CALL mma_allocate(X3,MXNB*MXNA,Label='X3')
       CALL dcopy_(NTOT1,FI,1,X1,1)
-*      Call Get_dExcdRa(TmpFckI,nTmpFck)
-*      CALL DaXpY_(NTOT1,1.0D0,TmpFckI,1,X1,1)
-*     If ( IPRLEV.ge.DEBUG ) then
-*         Write(LF,*)
-*         Write(LF,*) ' Exchange Corr. in AO basis in CASDFT_Terms'
-*         Write(LF,*) ' ---------------------'
-*         Write(LF,*)
-*         iOff=1
-*         Do iSym = 1,nSym
-*           iBas = nBas(iSym)
-*           Call TriPrt(' ','(5G17.11)',TmpFckI(ioff),iBas)
-*           iOff = iOff + (iBas*iBas+iBas)/2
-*         End Do
-*     End If
-*      Call mma_deallocate(TmpFckI)
-*      If ( IPRLEV.ge.DEBUG ) then
-*        Write(LF,*)
-*        Write(LF,*) ' Modified FI in AO basis in CASDFT_Terms'
-*        Write(LF,*) ' ---------------------'
-*        Write(LF,*)
-*        iOff=1
-*        Do iSym = 1,nSym
-*          iBas = nBas(iSym)
-*          Call TriPrt(' ','(5G17.11)',X1(ioff),iBas)
-*          iOff = iOff + (iBas*iBas+iBas)/2
-*        End Do
-*      End If
-*
+!      Call Get_dExcdRa(TmpFckI,nTmpFck)
+!      CALL DaXpY_(NTOT1,1.0D0,TmpFckI,1,X1,1)
+!     If ( IPRLEV.ge.DEBUG ) then
+!         Write(LF,*)
+!         Write(LF,*) ' Exchange Corr. in AO basis in CASDFT_Terms'
+!         Write(LF,*) ' ---------------------'
+!         Write(LF,*)
+!         iOff=1
+!         Do iSym = 1,nSym
+!           iBas = nBas(iSym)
+!           Call TriPrt(' ','(5G17.11)',TmpFckI(ioff),iBas)
+!           iOff = iOff + (iBas*iBas+iBas)/2
+!         End Do
+!     End If
+!      Call mma_deallocate(TmpFckI)
+!      If ( IPRLEV.ge.DEBUG ) then
+!        Write(LF,*)
+!        Write(LF,*) ' Modified FI in AO basis in CASDFT_Terms'
+!        Write(LF,*) ' ---------------------'
+!        Write(LF,*)
+!        iOff=1
+!        Do iSym = 1,nSym
+!          iBas = nBas(iSym)
+!          Call TriPrt(' ','(5G17.11)',X1(ioff),iBas)
+!          iOff = iOff + (iBas*iBas+iBas)/2
+!        End Do
+!      End If
+!
       CALL MOTRAC(CMO,X1,X2,X3)
       CALL mma_deallocate(X3)
       CALL mma_deallocate(X2)
@@ -398,7 +398,7 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
       CALL mma_deallocate(X1)
       CALL mma_deallocate(X0)
 
-*     print h0
+!     print h0
       If ( IPRLEV.ge.DEBUG ) then
         Write(LF,*)
         Write(LF,*)

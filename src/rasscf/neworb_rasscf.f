@@ -55,7 +55,7 @@
       use RASWfn, only: wfn_mocoef, wfn_occnum, wfn_orbene
 #endif
       use gas_data, only: NGAS,NGSSH
-      use rasscf_global, only: iFORDE, iOrbTyp, iOrdEM, iSupSM,
+      use rasscf_global, only: iFORDE, iOrbTyp, iOrdEM, iSupSM,         &
      &                         FDIAG, ixSym, iTRI, iADR15
 #ifdef _DMRG_
       use rasscf_global, only: DoDMRG
@@ -64,31 +64,31 @@
 #endif
       use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
-      use general_data, only: NSYM,NTOT,JOBIPH,NASH,NBAS,NDEL,NFRO,NISH,
+      use general_data, only: NSYM,NTOT,JOBIPH,NASH,NBAS,NDEL,NFRO,NISH,&
      &                        NSSH,NTOT2
 
       IMPLICIT None
 
       Character(LEN=16), Parameter :: ROUTINE='NEWORB  '
 
-      Real*8 CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
+      Real*8 CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),                       &
      &          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)
 
       Real*8 AVij, AVMx, Fact, FMin, Swap, VIJ
-      Integer iPrLev, i, iAd15, iB, iBas, iGas, ii, iOff, iOrd, iST,
-     &        iSTD, iSTFCK, iSTI, iSTM, iSTMO, iSTMO1, iSTMOA, iSYM,
-     &        ixSymT, j, jSel, k, Min, NA, NA1, NAB, NABT, NAO, NAO2,
-     &        NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NEO2, NF,
-     &        NFI_, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1,
+      Integer iPrLev, i, iAd15, iB, iBas, iGas, ii, iOff, iOrd, iST,    &
+     &        iSTD, iSTFCK, iSTI, iSTM, iSTMO, iSTMO1, iSTMOA, iSYM,    &
+     &        ixSymT, j, jSel, k, Min, NA, NA1, NAB, NABT, NAO, NAO2,   &
+     &        NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NEO2, NF,    &
+     &        NFI_, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1,  &
      &        NOO, NOT, NT, NTTR, NTU, NTUD, NU, NUT
-C Local print level (if any)
+! Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
-C
-C     IORD = 1 Ordering of inactive and secondary orbitals
-C
+!
+!     IORD = 1 Ordering of inactive and secondary orbitals
+!
       IF(ISUPSM.eq.1.AND.IORDEM.eq.0) IFORDE=0
       IORD=IFORDE
 
@@ -97,7 +97,7 @@ C
       ISTFCK=0
       ISTD=0
 
-* A long loop over symmetry:
+! A long loop over symmetry:
       DO ISYM=1,NSYM
        NBF=NBAS(ISYM)
        NFO=NFRO(ISYM)
@@ -107,9 +107,9 @@ C
        NOO=NFO+NIO+NAO
        NOT=NIO+NAO+NEO
        ISTMO=ISTMO1+NFO*NBF
-C*********************************************************************
-C      Frozen orbitals (move MO's to CMON, and set zero to FDIAG)
-C*********************************************************************
+!*********************************************************************
+!      Frozen orbitals (move MO's to CMON, and set zero to FDIAG)
+!*********************************************************************
        IF(NFO.NE.0) THEN
         NFNB=NBF*NFO
         CALL DCOPY_(NFNB,CMOO(ISTMO1),1,CMON(ISTMO1),1)
@@ -118,11 +118,11 @@ C*********************************************************************
          OCCN(IB+NF)=2.0D0
         END DO
        ENDIF
-C*********************************************************************
-C      Inactive part of the Fock matrix
-C*********************************************************************
+!*********************************************************************
+!      Inactive part of the Fock matrix
+!*********************************************************************
        IF(NIO.NE.0) THEN
-C       MOVE FP TO TRIANGULAR FORM
+!       MOVE FP TO TRIANGULAR FORM
         NIJ=0
         DO NI=1,NIO
          DO NJ=1,NI
@@ -131,7 +131,7 @@ C       MOVE FP TO TRIANGULAR FORM
           IF(IXSYM(IB+NFO+NI).NE.IXSYM(IB+NFO+NJ)) FTR(NIJ)=0.0D0
          END DO
         END DO
-C       DIAGONALIZE
+!       DIAGONALIZE
         NIO2=NIO**2
         CALL FZERO(VEC,NIO2)
         II=1
@@ -140,19 +140,19 @@ C       DIAGONALIZE
          II=II+NIO+1
         END DO
         CALL JACOB(FTR,VEC,NIO,NIO)
-C
-C       Transform molecular orbitals
-C
-        CALL DGEMM_('N','N',
-     &              NBF,NIO,NIO,
-     &              1.0d0,CMOO(ISTMO),NBF,
-     &              VEC,NIO,
+!
+!       Transform molecular orbitals
+!
+        CALL DGEMM_('N','N',                                            &
+     &              NBF,NIO,NIO,                                        &
+     &              1.0d0,CMOO(ISTMO),NBF,                              &
+     &              VEC,NIO,                                            &
      &              0.0d0,CMON(ISTMO),NBF)
-C
-C       Sort eigenvalues and orbitals after energy
-C
-C       Move eigenvalues to FDIAG and set occupation numbers to 2.
-C
+!
+!       Sort eigenvalues and orbitals after energy
+!
+!       Move eigenvalues to FDIAG and set occupation numbers to 2.
+!
         II=0
         NO1=IB+NFO
         DO NI=1,NIO
@@ -172,7 +172,7 @@ C
           FMIN=FDIAG(NO1+MIN)
           FDIAG(NO1+MIN)=FDIAG(NO1+NI)
           FDIAG(NO1+NI)=FMIN
-* (SVC) added: extra nodig voor verandering ordening met supsym
+! (SVC) added: extra nodig voor verandering ordening met supsym
           IXSYMT=IXSYM(NO1+MIN)
           IXSYM(NO1+MIN)=IXSYM(NO1+NI)
           IXSYM(NO1+NI)=IXSYMT
@@ -184,21 +184,21 @@ C
          END DO
         ENDIF
        ENDIF
-C*********************************************************************
-C      Active orbitals. Diagonalize corresponding diagonal block of D
-C*********************************************************************
-C.. dongxia make a loop for all active spaces
-C
+!*********************************************************************
+!      Active orbitals. Diagonalize corresponding diagonal block of D
+!*********************************************************************
+!.. dongxia make a loop for all active spaces
+!
       ioff=0
       Do igas=1,ngas
        if(igas.gt.1)ioff=ioff+ngssh(igas-1,isym)
        IF(ngssh(igas,isym).NE.0) THEN
-C       MOVE D TO TRIANGULAR FORM
+!       MOVE D TO TRIANGULAR FORM
         NTU=0
         ntud=istd+itri(ioff+1)
         DO NT=1,ngssh(igas,isym)
          ntud=ntud+ioff
-C YM: change ntt --> nttr for the conflict if include rctfld.fh
+! YM: change ntt --> nttr for the conflict if include rctfld.fh
          nttr=nt+nio+ioff
          DO NU=1,NT
           nut=nu+nio+ioff
@@ -210,20 +210,20 @@ C YM: change ntt --> nttr for the conflict if include rctfld.fh
         END DO
 
 #ifdef _DMRG_
-C YM:   If lRF, use Canonical instead of Natural, otherwise the energy expression will be
-c       mismatch due to the FI matrix still in Canonical form.
-cc YM:   The lRF flag can be removed if "TRACI" utility has MPS version
-cc        If(.not.lRF.OR.iOrbTyp.EQ.2) Then
-c YM:   Just use the same way as Block did, the NOs will be added later
+! YM:   If lRF, use Canonical instead of Natural, otherwise the energy expression will be
+!       mismatch due to the FI matrix still in Canonical form.
+!c YM:   The lRF flag can be removed if "TRACI" utility has MPS version
+!c        If(.not.lRF.OR.iOrbTyp.EQ.2) Then
+! YM:   Just use the same way as Block did, the NOs will be added later
         If(.not.doDMRG.OR.iOrbTyp.EQ.2) Then
 #else
-C NN.14 Skip making new orbitals for DMRG-CASSCF except for the case OutOrb = Canonical
-C       because the DMRG is orbital variant.
+! NN.14 Skip making new orbitals for DMRG-CASSCF except for the case OutOrb = Canonical
+!       because the DMRG is orbital variant.
         If(.NOT.DoBlockDMRG.OR.iOrbTyp.EQ.2) Then
 #endif
 
-C
-C       DIAGONALIZE
+!
+!       DIAGONALIZE
         NAO2=ngssh(igas,isym)**2
         CALL FZERO(VEC,NAO2)
         II=1
@@ -232,10 +232,10 @@ C       DIAGONALIZE
          II=II+ngssh(igas,isym)+1
         END DO
         CALL JACOB(FTR,VEC,ngssh(igas,isym),ngssh(igas,isym))
-CPAM01 Reorder to max-overlap agreement with input orbitals.
-CPAM01 This prevents numerical difficulty with the subsequent transformation
-CPAM01 of the CI vector, see TRAMAT routine.
-CPAM01 Similar later, with RAS2, RAS3.
+!PAM01 Reorder to max-overlap agreement with input orbitals.
+!PAM01 This prevents numerical difficulty with the subsequent transformation
+!PAM01 of the CI vector, see TRAMAT routine.
+!PAM01 Similar later, with RAS2, RAS3.
         DO I=1,ngssh(igas,isym)-1
          JSEL=I
          AVMX=ABS(VEC(I+ngssh(igas,isym)*(I-1)))
@@ -246,61 +246,61 @@ CPAM01 Similar later, with RAS2, RAS3.
             AVMX=AVIJ
           END IF
          END DO
-CPAM01 Swap if necessary. Note phase control!!
+!PAM01 Swap if necessary. Note phase control!!
          IF(JSEL.GT.I) THEN
            VIJ=VEC(I+ngssh(igas,isym)*(JSEL-1))
            IF(VIJ.GT.0.0D0) THEN
              DO K=1,ngssh(igas,isym)
                SWAP=VEC(K+ngssh(igas,isym)*(JSEL-1))
-               VEC(K+ngssh(igas,isym)*(JSEL-1))=
+               VEC(K+ngssh(igas,isym)*(JSEL-1))=                        &
      &          -VEC(K+ngssh(igas,isym)*(I-1))
                VEC(K+ngssh(igas,isym)*(I-1))=SWAP
              END DO
            ELSE
              DO K=1,ngssh(igas,isym)
                SWAP=VEC(K+ngssh(igas,isym)*(JSEL-1))
-               VEC(K+ngssh(igas,isym)*(JSEL-1))=
+               VEC(K+ngssh(igas,isym)*(JSEL-1))=                        &
      &          +VEC(K+ngssh(igas,isym)*(I-1))
                VEC(K+ngssh(igas,isym)*(I-1))=-SWAP
              END DO
            END IF
-C Also swap eigenvalues:
+! Also swap eigenvalues:
            SWAP=FTR((JSEL*(JSEL+1))/2)
            FTR((JSEL*(JSEL+1))/2)=FTR((I*(I+1))/2)
            FTR((I*(I+1))/2)=SWAP
          ELSE
-CPAM01 If swap is not needed, still apply phase control!!
+!PAM01 If swap is not needed, still apply phase control!!
            IF(VEC(I+ngssh(igas,isym)*(I-1)).LT.0.0D0) THEN
              DO K=1,ngssh(igas,isym)
-              VEC(K+ngssh(igas,isym)*(I-1))=
+              VEC(K+ngssh(igas,isym)*(I-1))=                            &
      &         -VEC(K+ngssh(igas,isym)*(I-1))
-              VEC(K+ngssh(igas,isym)*I  )=
+              VEC(K+ngssh(igas,isym)*I  )=                              &
      &         -VEC(K+ngssh(igas,isym)*I  )
              END DO
            END IF
          END IF
         END DO
-CPAM01 We now have a MINIMAL pure rotation. This means that all
-CPAM01 upper-left subdeterminants are >0 and as big as possible.
-CPAM01 This eliminates numerical trouble in TRAMAT.
+!PAM01 We now have a MINIMAL pure rotation. This means that all
+!PAM01 upper-left subdeterminants are >0 and as big as possible.
+!PAM01 This eliminates numerical trouble in TRAMAT.
 
-C
-C       Transform molecular orbitals
-C
+!
+!       Transform molecular orbitals
+!
         ISTMOA=ISTMO+NBF*(NIO+ioff)
-        CALL DGEMM_('N','N',
-     &              NBF,ngssh(igas,isym),ngssh(igas,isym),
-     &              1.0d0,CMOO(ISTMOA),NBF,
-     &              VEC,ngssh(igas,isym),
+        CALL DGEMM_('N','N',                                            &
+     &              NBF,ngssh(igas,isym),ngssh(igas,isym),              &
+     &              1.0d0,CMOO(ISTMOA),NBF,                             &
+     &              VEC,ngssh(igas,isym),                               &
      &              0.0d0,CMON(ISTMOA),NBF)
-C NN.14 Just copy CMO(Old) to CMO(new)
+! NN.14 Just copy CMO(Old) to CMO(new)
         Else ! If(.NOT.DoDMRG.OR.iOrbTyp.EQ.2)
           ISTMOA=ISTMO+NBF*(NIO+ioff)
          CALL DCOPY_(NBF*ngssh(igas,isym),CMOO(ISTMOA),1,CMON(ISTMOA),1)
         End If
-C
-C       Move eigenvalues to OCCN
-C
+!
+!       Move eigenvalues to OCCN
+!
         II=0
         NO1=IB+NFO+NIO+ioff
         DO NT=1,ngssh(igas,isym)
@@ -308,10 +308,10 @@ C
          OCCN(NO1+NT)=FTR(II)
          FDIAG(NO1+NT)=0.0D0
         END DO
-C
-C  FA:  no longer setting energies to 0 (though in principle ill-def).
-C
-C  IFG: Pick the diagonal elements of the transformed Fock matrix
+!
+!  FA:  no longer setting energies to 0 (though in principle ill-def).
+!
+!  IFG: Pick the diagonal elements of the transformed Fock matrix
         NFI_=(NFO+NIO+ioff)*(NFO+NIO+ioff+1)/2
         NO1=IB+NFO+NIO+ioff
         DO NT=1,ngssh(igas,isym)
@@ -323,8 +323,8 @@ C  IFG: Pick the diagonal elements of the transformed Fock matrix
            FACT=2.0d0*FP(NU+NFI_+ISTFCK)
           END IF
           DO II=1,ngssh(igas,isym)
-           FDIAG(NO1+II)=FDIAG(NO1+II)+FACT
-     &                                *VEC(NT+(II-1)*ngssh(igas,isym))
+           FDIAG(NO1+II)=FDIAG(NO1+II)+FACT                             &
+     &                                *VEC(NT+(II-1)*ngssh(igas,isym))  &
      &                                *VEC(NU+(II-1)*ngssh(igas,isym))
           END DO
          END DO
@@ -333,13 +333,13 @@ C  IFG: Pick the diagonal elements of the transformed Fock matrix
 
        ENDIF  ! end of if(NGAS(1).ne.0)
       END DO ! end loop over GAS spaces
-C
-C*********************************************************************
-C      external part of the Fock matrix
-C*********************************************************************
-C
+!
+!*********************************************************************
+!      external part of the Fock matrix
+!*********************************************************************
+!
        IF(NEO.NE.0) THEN
-C       Move fp to triangular form
+!       Move fp to triangular form
         NAB=0
         DO NA=1,NEO
          DO NB=1,NA
@@ -351,7 +351,7 @@ C       Move fp to triangular form
           IF(IXSYM(IB+NFO+NAT).NE.IXSYM(IB+NFO+NBT)) FTR(NAB)=0.0D0
          END DO
         END DO
-C       DIAGONALIZE
+!       DIAGONALIZE
         NEO2=NEO**2
         CALL FZERO(VEC,NEO2)
         II=1
@@ -360,9 +360,9 @@ C       DIAGONALIZE
          II=II+NEO+1
         END DO
         CALL JACOB(FTR,VEC,NEO,NEO)
-C
-C       Move eigenvalues to FDIAG and set occupation numbers to zero.
-C
+!
+!       Move eigenvalues to FDIAG and set occupation numbers to zero.
+!
         II=0
         NO1=IB+NFO+NIO+NAO
         DO NA=1,NEO
@@ -370,18 +370,18 @@ C
          FDIAG(NO1+NA)=FTR(II)
          OCCN(NO1+NA)=0.0D0
         END DO
-C
-C       Transform molecular orbitals
-C
+!
+!       Transform molecular orbitals
+!
         ISTMOA=ISTMO+NBF*(NIO+NAO)
-        CALL DGEMM_('N','N',
-     &              NBF,NEO,NEO,
-     &              1.0d0,CMOO(ISTMOA),NBF,
-     &              VEC,NEO,
+        CALL DGEMM_('N','N',                                            &
+     &              NBF,NEO,NEO,                                        &
+     &              1.0d0,CMOO(ISTMOA),NBF,                             &
+     &              VEC,NEO,                                            &
      &              0.0d0,CMON(ISTMOA),NBF)
-C
-C       Sort eigenvalues and orbitals after energy
-C
+!
+!       Sort eigenvalues and orbitals after energy
+!
         IF(NEO.GT.1.AND.IORD.NE.0) THEN
          NEO1=NEO-1
          DO NA=1,NEO1
@@ -394,7 +394,7 @@ C
           FMIN=FDIAG(NO1+MIN)
           FDIAG(NO1+MIN)=FDIAG(NO1+NA)
           FDIAG(NO1+NA)=FMIN
-* (SVC) added: extra nodig voor verandering ordening met supsym
+! (SVC) added: extra nodig voor verandering ordening met supsym
           IXSYMT=IXSYM(NO1+MIN)
           IXSYM(NO1+MIN)=IXSYM(NO1+NA)
           IXSYM(NO1+NA)=IXSYMT
@@ -406,10 +406,10 @@ C
          END DO
         ENDIF
        ENDIF
-C
-C*********************************************************************
-C      Deleted orbitals (move MO's and set zero to FDIAG and OCCN)
-C*********************************************************************
+!
+!*********************************************************************
+!      Deleted orbitals (move MO's and set zero to FDIAG and OCCN)
+!*********************************************************************
        NDO=NDEL(ISYM)
        IF(NDO.NE.0) THEN
         NDNB=NDO*NBF
@@ -420,22 +420,22 @@ C*********************************************************************
          OCCN(IB+NBF-NDO+ND)=0.0D0
         END DO
        ENDIF
-C
+!
        IB=IB+NBF
        ISTFCK=ISTFCK+(NOT**2+NOT)/2
        ISTMO1=ISTMO1+NBF**2
        ISTD=ISTD+(NAO**2+NAO)/2
-* End of a long loop over symmetry.
+! End of a long loop over symmetry.
       END DO
-C
+!
       IF(IPRLEV.GE.DEBUG) THEN
         Write(LF,*)' Diagonal elements of the FOCK matrix in NEWORB:'
         Write(LF,'(1X,10F11.6)') (FDIAG(I),I=1,NTOT)
       END IF
-C
-C*********************************************************************
-C     Orthogonalise new orbitals
-C*********************************************************************
+!
+!*********************************************************************
+!     Orthogonalise new orbitals
+!*********************************************************************
       CALL ORTHO_rASSCF(WO,CMOX,CMON,SQ)
         If ( IPRLEV.ge.DEBUG ) then
          Write(LF,*)
@@ -454,9 +454,9 @@ C*********************************************************************
           end if
          End Do
         End If
-C
-C     Save new CMOs on the JOBIPH
-C
+!
+!     Save new CMOs on the JOBIPH
+!
       IAD15=IADR15(2)
       CALL dDAFILE(JOBIPH,1,CMON,NTOT2,IAD15)
       CALL dDAFILE(JOBIPH,1,OCCN,NTOT,IAD15)

@@ -13,7 +13,7 @@
       module index_symmetry
         implicit none
         private
-        public :: one_el_idx, one_el_idx_flatten, two_el_idx,
+        public :: one_el_idx, one_el_idx_flatten, two_el_idx,           &
      &      two_el_idx_flatten
         save
 
@@ -26,12 +26,12 @@
         end interface
 
         interface one_el_idx_flatten
-          module procedure :: array_1el_idx_flatten,
+          module procedure :: array_1el_idx_flatten,                    &
      &                        tuple_1el_idx_flatten
         end interface
 
         interface two_el_idx_flatten
-          module procedure :: array_2el_idx_flatten,
+          module procedure :: array_2el_idx_flatten,                    &
      &        tuple_2el_idx_flatten, tuple_2el_idx_flatten_2
         end interface
 

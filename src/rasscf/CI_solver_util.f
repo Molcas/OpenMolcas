@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Giovanni Li Manni                                *
-*               2020, Oskar Weser                                      *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Giovanni Li Manni                                *
+!               2020, Oskar Weser                                      *
+!***********************************************************************
 
 #include "macros.fh"
       module CI_solver_util
@@ -27,7 +27,7 @@
       use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, RDM_to_runfile, rdm_from_runfile,
+      public :: wait_and_read, RDM_to_runfile, rdm_from_runfile,        &
      &      cleanMat, triangular_number, inv_triang_number, write_RDM
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -56,7 +56,7 @@
           if (myrank == 0) call f_Inquire(trim(filename),newcycle_found)
 #ifdef _MOLCAS_MPP_
           if (is_real_par()) then
-            call MPI_Bcast(newcycle_found, 1_MPIInt, MPI_LOGICAL,
+            call MPI_Bcast(newcycle_found, 1_MPIInt, MPI_LOGICAL,       &
      &                     ROOT, MPI_COMM_WORLD, error)
           end if
 #endif
@@ -71,7 +71,7 @@
         end if
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
-          call MPI_Bcast(energy, 1_MPIInt, MPI_REAL8,
+          call MPI_Bcast(energy, 1_MPIInt, MPI_REAL8,                   &
      &                   ROOT, MPI_COMM_WORLD, error)
         end if
 #endif
@@ -91,7 +91,7 @@
 #include "intent.fh"
 !       _IN_ is not a semantic IN, since DDAFILE is both a read and
 !       write routine. Redefinition to suppress compiler warning.
-        real(wp), intent(_IN_) :: DMAT(nAcpar), D1S_MO(nAcPar),
+        real(wp), intent(_IN_) :: DMAT(nAcpar), D1S_MO(nAcPar),         &
      &                            PSMAT(nAcpr2), PAMAT(nAcpr2)
         integer, intent(inout), optional :: jDisk
 
@@ -117,7 +117,7 @@
 #include "intent.fh"
         ! _OUT_ is not a semantic OUT, since DDAFILE is both a read and
         ! write routine. Redefinition to suppress compiler warning.
-        real(wp), intent(_OUT_) :: dmat(nacpar), d1s_mo(nacpar),
+        real(wp), intent(_OUT_) :: dmat(nacpar), d1s_mo(nacpar),        &
      &                             psmat(nacpr2), pamat(nacpr2)
         integer, intent(inout), optional :: jdisk
 
@@ -129,28 +129,28 @@
 
 
       Subroutine CleanMat(MAT)
-************* by G. Li Manni Stuttgart April 2016 *************
-*
-* MAT: One-body density matrix in MO basis as passed by QMC calculation.
+!************ by G. Li Manni Stuttgart April 2016 *************
+!
+! MAT: One-body density matrix in MO basis as passed by QMC calculation.
 
-* It could well be an average matrix in SA calculation.
-*
-* It has following shape:
-*        11
-*        12 22
-*        ** ** 33
-*        ** ** ** 44
-*        ** ** ** 45 55
-*        ** ** ** 46 56 66
-*        ** ** ** 47 57 67 77
-*        ** ** ** ** ** ** ** 88
-*        ** ** ** ** ** ** ** 89  99
-*        ** ** ** ** ** ** ** 810 910 1010
-*        """""""""""""""""""""""""""""""""""
-* mimicking a system with (2 0 0 1 4 3 0 0)  active orbitals (blocked by Irreps)
+! It could well be an average matrix in SA calculation.
+!
+! It has following shape:
+!        11
+!        12 22
+!        ** ** 33
+!        ** ** ** 44
+!        ** ** ** 45 55
+!        ** ** ** 46 56 66
+!        ** ** ** 47 57 67 77
+!        ** ** ** ** ** ** ** 88
+!        ** ** ** ** ** ** ** 89  99
+!        ** ** ** ** ** ** ** 810 910 1010
+!        """""""""""""""""""""""""""""""""""
+! mimicking a system with (2 0 0 1 4 3 0 0)  active orbitals (blocked by Irreps)
 
-*           DMAT will be destroyed and replaced with a positive semi-definite one.
-*           N-representability will be preserved.
+!           DMAT will be destroyed and replaced with a positive semi-definite one.
+!           N-representability will be preserved.
 
       real(wp), intent(inout) :: MAT(NacPar)
       real(wp), allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
@@ -168,14 +168,14 @@
       call mma_allocate(MAT_copy, NacPar)
       MAT_copy(:) = MAT(:)
 
-* Allocate memory for eigenvectors and new DMAT
+! Allocate memory for eigenvectors and new DMAT
       call mma_allocate(EVC, NAC**2)
-* Initialize eigenvectors
+! Initialize eigenvectors
       Call dCopy_(NAC**2, [0.0d0], 0, EVC, 1)
-* set eigenvector array to identity for this version of JACOB
+! set eigenvector array to identity for this version of JACOB
       Call dCopy_(NAC, [1.0d0], 0, EVC, NAC + 1)
 
-* Step 1: Diagonalize MAT. Eigenvalues are stored in diagonal of MAT
+! Step 1: Diagonalize MAT. Eigenvalues are stored in diagonal of MAT
       trace = 0.0d0
       do i = 1, nac
          trace = trace + mat(i * (i + 1) / 2)
@@ -193,7 +193,7 @@
         write(6,*) (EVC(i * NAC + j), j = 0, NAC)
       end do
 #endif
-* Set to zero negative eigenvalue and to TWO values larger than 2.0d0.
+! Set to zero negative eigenvalue and to TWO values larger than 2.0d0.
       cleanup_required = .false.
       do j = 1, nac
         if (MAT_copy(j * (j + 1) / 2) > 2.0d0) then
@@ -212,22 +212,22 @@
           trace = trace + MAT_copy(I * (I + 1) / 2)
         end do
         write(6,*) 'trace after removing negative eigenvalues =', trace
-* Combine pieced to form the output MAT
-* blas routine for square*triangular operation
+! Combine pieced to form the output MAT
+! blas routine for square*triangular operation
         call mma_allocate(Tmp, nac**2)
         call mma_allocate(Tmp2, nac**2)
         Call dCopy_(nac**2, [0.0d0], 0, Tmp, 1)
         Call dCopy_(nac**2, [0.0d0], 0, Tmp2, 1)
         do i = 1, nac
           do j = 1, nac
-            Tmp(j + (i - 1) * nac) =
+            Tmp(j + (i - 1) * nac) =                                    &
      &          EVC(j + (i - 1) * NAC) * MAT_copy(I * (I + 1) / 2)
           end do
         end do
-        Call DGEMM_('N','T',nac,nac,nac,
-     &              1.0d0, Tmp, nac, EVC, nac,
+        Call DGEMM_('N','T',nac,nac,nac,                                &
+     &              1.0d0, Tmp, nac, EVC, nac,                          &
      &              0.0d0, Tmp2, nac)
-* Copy back to MAT
+! Copy back to MAT
         do i = 1, nac
           do j = 1, i
             MAT(j + (i - 1) * i / 2) = Tmp2(j + (i - 1) * nac)
@@ -245,7 +245,7 @@
       end if
       call mma_deallocate(MAT_copy)
       call mma_deallocate(EVC)
-****************** Exit ****************
+!***************** Exit ****************
 10    Continue
       return
       end subroutine cleanMat
@@ -276,7 +276,7 @@
         i = 1
         do curr_line = 1, n_lines
           do j = i, i + curr_line - 1
-            write(i_unit, '(ES25.15)', advance='no', iostat=io_err)
+            write(i_unit, '(ES25.15)', advance='no', iostat=io_err)     &
      &                  RDM(j)
             call verify_(io_err == 0, 'Error on writing RDM.')
           end do
