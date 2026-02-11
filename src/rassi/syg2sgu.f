@@ -541,15 +541,18 @@ C call parameter.
 
       SUBROUTINE W2SGORD(SGS,CIS,MWS2W,
      &                 NLIST,KWALK,ICNUM)
+      use definitions, only: iwp
       use gugx, only: SGStruct, CIStruct
       use stdalloc, only: mma_allocate, mma_deallocate
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-      Integer MWS2W(*), NLIST
-      Integer KWALK(*),ICNUM(NLIST)
+      implicit none
+      Type (SGStruct), intent(in):: SGS
+      Type (CIStruct), intent(in):: CIS
+      Integer(kind=iwp) MWS2W(*), NLIST
+      Integer(kind=iwp) KWALK(*),ICNUM(NLIST)
 
-      Integer, PARAMETER :: MXCPI=15
-      Integer, Allocatable:: ICS(:)
+      Integer(kind=iwp), PARAMETER :: MXCPI=15
+      Integer(kind=iwp), Allocatable:: ICS(:)
+      Integer(kind=iwp) nLev,nVert,MidLev,MVSta,nMidV,NIPWLK,MIPWLK
 
 C Purpose: Given a list of bit-packed total walks,
 C translate this into a list of elements of a CI array.
