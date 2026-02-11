@@ -3826,32 +3826,38 @@ C backtransformation in two steps, -phi and -theta
       END SUBROUTINE PRPROP
 
       SUBROUTINE SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS,DIPSOm_SA)
+      use definitions, only: iwp, wp, u6
 !      IMPLICIT NONE
       IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER KDGN,IFUNCT,NSS,l,Iso1,Jso2,Ico1,i,j
-      COMPLEX*16 DIPSOm(3,NSS,NSS),DIPSOmSA(3,KDGN,KDGN)
-      COMPLEX*16 SPNSOSA(3,KDGN,KDGN)
-      COMPLEX*16 Z(NSS,NSS),MATL(NSS,NSS),FINL(NSS,NSS)
-      COMPLEX*16 SPNSO(3,NSS,NSS),SPNSFS(3,NSS,NSS)
-      real*8 UMATR(NSS,NSS),UMATI(NSS,NSS),gtens(3),maxes(3,3)
+      INTEGER(kind=iwp), intent(in):: KDGN,IFUNCT,NSS
+      COMPLEX(kind=wp), intent(in):: DIPSOm(3,NSS,NSS)
+      COMPLEX(kind=wp), intent(in):: SPNSFS(3,NSS,NSS)
+      real(kind=wp), intent(in):: DIPSOm_SA
+
+      COMPLEX(kind=wp) DIPSOmSA(3,KDGN,KDGN)
+      INTEGER(kind=iwp) l,Iso1,Jso2,Ico1,i,j
+      COMPLEX(kind=wp) SPNSOSA(3,KDGN,KDGN)
+      COMPLEX(kind=wp) Z(NSS,NSS),MATL(NSS,NSS),FINL(NSS,NSS)
+      COMPLEX(kind=wp) SPNSO(3,NSS,NSS)
+      real(kind=wp) UMATR(NSS,NSS),UMATI(NSS,NSS),gtens(3),maxes(3,3)
       CHARACTER(LEN=1) angm
 
       if(.FALSE.) then
-      write(6,'(/)')
-      write(6,'(10A)') (('############'),J=1,10)
-      write(6,'(25X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT IN '//
+      write(u6,'(/)')
+      write(u6,'(10A)') (('############'),J=1,10)
+      write(u6,'(25X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT IN '//
      &'THE BASIS OF SPIN ORBIT STATES'
-      write(6,'(10A)') (('############'),J=1,10)
+      write(u6,'(10A)') (('############'),J=1,10)
 
       do l=1,3
       if(l.eq.1)  angm='X'
       if(l.eq.2)  angm='Y'
       if(l.eq.3)  angm='Z'
-      write(6,'(/)')
-      write(6,'(4X,A12,A2)') 'PROJECTION: ', angm
-      write(6,'(/)')
+      write(u6,'(/)')
+      write(u6,'(4X,A12,A2)') 'PROJECTION: ', angm
+      write(u6,'(/)')
        do Iso1=1,NSS
-      write(6,'(20(2X,2F10.6))') (DIPSOm(l,Iso1,Jso2), Jso2=1,NSS)
+      write(u6,'(20(2X,2F10.6))') (DIPSOm(l,Iso1,Jso2), Jso2=1,NSS)
        enddo
       enddo
       write(6,'(/)')
@@ -3881,15 +3887,15 @@ C backtransformation in two steps, -phi and -theta
         enddo
 
          if(.False.) then
-      write(6,*)
-      write(6,'(10X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT '//
+      write(u6,*)
+      write(u6,'(10X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT '//
      & 'IN THE BASIS OF SPIN-ORBIT FUNCTIONS'
       do l=1,3
-      write(6,'(/)')
-      write(6,'(5X,A6,I3)') 'AXIS= ',l
-      write(6,*)
+      write(u6,'(/)')
+      write(u6,'(5X,A6,I3)') 'AXIS= ',l
+      write(u6,*)
        do Ico1=1,KDGN
-      write(6,'(16(2F12.8,2x))') (DIPSOmSA(l,Ico1,Jco1), Jco1=1,KDGN)
+      write(u6,'(16(2F12.8,2x))') (DIPSOmSA(l,Ico1,Jco1), Jco1=1,KDGN)
        enddo
       enddo
 
@@ -3901,11 +3907,11 @@ C backtransformation in two steps, -phi and -theta
 
           call get_dArray('UMATR_SINGLE',UMATR,NSS**2)
           call get_dArray('UMATI_SINGLE',UMATI,NSS**2)
-       write(6,'(/)')
-       write(6,'(5x,a)') 'umatr and umati'
-       write(6,'(/)')
+       write(u6,'(/)')
+       write(u6,'(5x,a)') 'umatr and umati'
+       write(u6,'(/)')
        do i=1,NSS
-       write(6,'(5x,10(2f14.10,2x))') (UMATR(i,j),UMATI(i,j),j=1,NSS)
+       write(u6,'(5x,10(2f14.10,2x))') (UMATR(i,j),UMATI(i,j),j=1,NSS)
        enddo
 
         do I=1,NSS
@@ -3948,21 +3954,21 @@ C backtransformation in two steps, -phi and -theta
          enddo
       enddo !l
 
-      write(6,'(/)')
-      write(6,'(10A)') (('############'),J=1,10)
-      write(6,'(30X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT IN '//
+      write(u6,'(/)')
+      write(u6,'(10A)') (('############'),J=1,10)
+      write(u6,'(30X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT IN '//
      & 'THE BASIS OF SPIN ORBIT STATES'
-      write(6,'(10A)') (('############'),J=1,10)
-      write(6,'(/)')
+      write(u6,'(10A)') (('############'),J=1,10)
+      write(u6,'(/)')
       do l=1,3
       if(l.eq.1)  angm='X'
       if(l.eq.2)  angm='Y'
       if(l.eq.3)  angm='Z'
-      write(6,'(/)')
-      write(6,'(4X,A,A)') 'PROJECTION: ', angm
-      write(6,'(/)')
+      write(u6,'(/)')
+      write(u6,'(4X,A,A)') 'PROJECTION: ', angm
+      write(u6,'(/)')
        do Iso1=1,NSS
-      write(6,'(20(2F10.6,2X))') (SPNSO(l,Iso1,Jso2), Jso2=1,NSS)
+      write(u6,'(20(2F10.6,2X))') (SPNSO(l,Iso1,Jso2), Jso2=1,NSS)
        enddo
       enddo
 
@@ -3984,15 +3990,15 @@ C backtransformation in two steps, -phi and -theta
         enddo
         enddo
 
-      write(6,*)
-      write(6,'(10X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT '//
+      write(u6,*)
+      write(u6,'(10X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT '//
      & 'IN THE BASIS OF SPIN-ORBIT FUNCTIONS'
       do l=1,3
-      write(6,'(/)')
-      write(6,'(5X,A6,I3)') 'AXIS= ',l
-      write(6,*)
+      write(u6,'(/)')
+      write(u6,'(5X,A6,I3)') 'AXIS= ',l
+      write(u6,*)
        do Ico1=1,KDGN
-      write(6,'(16(2F12.8,2x))') (SPNSOSA(l,Ico1,Jco1), Jco1=1,KDGN)
+      write(u6,'(16(2F12.8,2x))') (SPNSOSA(l,Ico1,Jco1), Jco1=1,KDGN)
        enddo
       enddo
 
