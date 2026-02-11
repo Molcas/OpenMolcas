@@ -19,6 +19,7 @@
       Use Integral_interfaces, only: int_kernel, int_mem
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+      use definitions, only: u6
       use OneDat, only: sOpSiz
       use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas

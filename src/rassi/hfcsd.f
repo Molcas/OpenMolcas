@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
       use definitions, only: iwp, wp, u6
-      use constants, only: Zero, One, Two, Three, Four
+      use constants, only: Zero, Two, Three, Four
       use stdalloc, only: mma_allocate, mma_deallocate
       use hfc_logical, only: MAG_X2C
       IMPLICIT NONE
