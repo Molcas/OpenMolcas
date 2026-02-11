@@ -13,7 +13,7 @@
       use rassi_aux, only: ipglob
       use gugx, only: SGStruct, CIStruct, mxlev
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       Integer(kind=iwp), intent(in):: IMODE
       Type (SGStruct), intent(in):: SGS
       Type (CIStruct) , intent(in)::CIS
@@ -30,7 +30,13 @@
       Integer(kind=iwp) :: IFUP2CS(0:1)=[2,1]
       Integer(kind=iwp), Allocatable:: MWS2W(:), OrbArr(:)
 
-      Integer(kind=iwp) NCONF,NWALK,NSYM,NLEV,NACTEL
+      Integer(kind=iwp) NCONF,NWALK,NSYM,NLEV,NACTEL,NWRD,NWLKLST,NOPEN,
+     &                  NODD,NOCC,NHEAD,NCSYMG,NCPL,NCNF,NCLSD,NAPART,
+     &                  MXWLK,MIPWLK,MINOP,MAXOP,LEV,KSPNINF,KGSORB,
+     &                  KGSLIM,KCPL,KCNFINF,KCNF,IWRD,IWORD,IWLKPOS,
+     &                  IREST,IORB,IOCC,IFUP,IFORM,IEL2,IEL1,IEL,
+     &                  ICSYMG,ICSPLT,ICPL,ICNF,I
+      Real(kind=wp) PHS
 
 C SGS       : Data that define a Split Graph
 C qCIS : Data that define a CI array structure
