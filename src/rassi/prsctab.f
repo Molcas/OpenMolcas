@@ -10,9 +10,14 @@
 ************************************************************************
       SUBROUTINE PRSCTAB(SCTAB,TRANS)
       use definitions, only: iwp, wp, u6
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER(kind=iwp) SCTAB(*)
-      REAL(kind=wp) TRANS(*)
+      IMPLICIT NONE
+      INTEGER(kind=iwp), intent(in):: SCTAB(*)
+      REAL(kind=wp), intent(in):: TRANS(*)
+
+      INTEGER(kind=iwp) NSIZE,ITYPE,MLTPL,MS2,MINOP,MAXOP,LTRANS,NTRANS,
+     &                  N,IOPEN,NCP,NBLK,IBLK,NCPL,ND,KSPCPL,KSPDET
+      INTEGER(kind=iwp), External:: ngene
+
       WRITE(u6,*)
       WRITE(u6,*)'------------------------------------------'
       WRITE(u6,*)' Spin Coupling Table printout'
@@ -75,11 +80,13 @@ C Number of (non-trivial) values of IOPEN:
 
       SUBROUTINE PRPCSF(IOPEN,NCPL,ICOUP)
       use definitions, only: iwp, u6
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Integer(kind=iwp) IOPEN, NCPL
-      Integer(kind=iwp) ICOUP(IOPEN,NCPL)
+      IMPLICIT NONE
+      Integer(kind=iwp), intent(in):: IOPEN, NCPL
+      Integer(kind=iwp), intent(in):: ICOUP(IOPEN,NCPL)
+
       CHARACTER(LEN=1) :: CPLSMB(0:1)=['d','u']
       CHARACTER(LEN=24) FORM
+      Integer(kind=iwp) N,I,J
       IF(IOPEN.LT.0 .OR.NCPL.LT.0) THEN
         Call WarningMessage(2,'Program bug: Erroneous call to PRPCSF.')
         WRITE(u6,*)'PRPCSF error: Wrong arguments.'
@@ -101,9 +108,11 @@ C Number of (non-trivial) values of IOPEN:
 
       SUBROUTINE PRPTRA(ND,NCPL,TRA)
       use definitions, only: iwp, wp, u6
-      IMPLICIT REAL*8 (A-H,O-Z)
-      integer(kind=iwp) ND, NCPL
-      Real(kind=wp) TRA(ND,NCPL)
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: ND, NCPL
+      Real(kind=wp), intent(in):: TRA(ND,NCPL)
+
+      integer(kind=iwp) ISTA,IEND,ID,ICPL
       IF(ND.LT.0 .OR.NCPL.LT.0) THEN
         Call WarningMessage(2,'Program bug: Erroneous call to PRPTRA.')
         WRITE(u6,*)'PRPTRA error: Wrong arguments.'
@@ -128,11 +137,13 @@ C Number of (non-trivial) values of IOPEN:
 
       SUBROUTINE PRPDET(IOPEN,ND,IDET)
       use definitions, only: iwp, u6
-      IMPLICIT REAL*8 (A-H,O-Z)
-      integer(kind=iwp) IOPEN,ND
-      Integer(kind=iwp) IDET(IOPEN,ND)
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: IOPEN,ND
+      Integer(kind=iwp), intent(in):: IDET(IOPEN,ND)
+
       CHARACTER(LEN=1) :: SPNSMB(0:1)=['b','a']
       CHARACTER(LEN=24) FORM
+      Integer(kind=iwp) N,I,J
       IF(IOPEN.LT.0 .OR.ND.LT.0) THEN
         Call WarningMessage(2,'Program bug: Erroneous call to PRPDET.')
         WRITE(u6,*)'PRPDET error: Wrong arguments.'
