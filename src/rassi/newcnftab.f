@@ -14,7 +14,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rassi_global_arrays, only: CnfTab1, CnfTab2, CnfTab
       use Symmetry_Info, only: nSym=>nIrrep
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       Integer(kind=iwp), intent(in):: NEL, NORB, MINOP, MAXOP, LSYM,
      &                                NGAS
       Integer(kind=iwp), intent(in):: NGASORB(NSYM,NGAS)
@@ -22,6 +22,9 @@
       Integer(kind=iwp), intent(in):: IFORM, ICASE
 
       Integer(kind=iwp), allocatable:: NCNF1(:), NCNF2(:)
+      Integer(kind=iwp) NNCNF1,MXO,IGAS,ISUM,ISYM,NNCNF2,NTAB,KINFO,
+     &                  KCNFSTA,NOPN,NOCC,NCNF,NCLS,LENCNF,L,KCNFEND,
+     &                  IPOS,IFPOSS,I
 
 C Note how input parameter LSYM is used: If non-zero, only those configurations
 C with symmetry label LSYM are selected. But if LSYM=0, they are all selected.
