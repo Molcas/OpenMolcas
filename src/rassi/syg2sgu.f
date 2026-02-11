@@ -583,6 +583,7 @@ C Allocate scratch space for case numbers:
      &                  MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
       use definitions, only: iwp
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      implicit none
       Integer(kind=iwp), intent(in):: NLEV,NVERT,NMIDV,NIPWLK
       Integer(kind=iwp), intent(in):: ISM(NLEV)
       Integer(kind=iwp), intent(in):: MIDLEV,MVSTA
@@ -592,8 +593,12 @@ C Allocate scratch space for case numbers:
       Integer(kind=iwp), intent(in):: IDOWN(NVERT,0:3),MAW(NVERT,0:3)
       Integer(kind=iwp), intent(out):: ICS(NLEV)
       Integer(kind=iwp), intent(in):: MWS2W(*)
+      Integer(kind=iwp), intent(in):: MIPWLK,NLIST
       Integer(kind=iwp), intent(in):: KWALK(MIPWLK,NLIST)
       Integer(kind=iwp), intent(out):: ICNUM(NLIST)
+
+      Integer(kind=iwp) IC,ICONF,IDV,IDW,IOFF,ISYCI,ISYDWN,ISYUP,IUV,
+     &                  IUW,LDIM,LEV,MAWSD,MAWSU,MV
 C Purpose: For a wave function in Split GUGA storage structure,
 C given KWALK(J,I) with J=1..MIPWLK that contains the
 C complete Guga walk, as a packed array of case numbers, construct
