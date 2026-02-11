@@ -14,12 +14,13 @@
       use gugx, only: SGStruct, CIStruct, mxlev
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer(kind=iwp) IMODE
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-      Integer(kind=iwp) LSYM
-      INTEGER(kind=iwp) ICNFTAB(*),ISPNTAB(*)
-      Real(kind=wp) CIOLD(*),CINEW(*)
+      Integer(kind=iwp), intent(in):: IMODE
+      Type (SGStruct), intent(in):: SGS
+      Type (CIStruct) , intent(in)::CIS
+      Integer(kind=iwp), intent(inout):: LSYM
+      INTEGER(kind=iwp), intent(in):: ICNFTAB(*),ISPNTAB(*)
+      Real(kind=wp), intent(in):: CIOLD(*)
+      Real(kind=wp), intent(out):: CINEW(*)
 
       Integer(kind=iwp), PARAMETER:: NBUFFER=600,MXCPI=15
       Integer(kind=iwp) KWALK(NBUFFER)
@@ -29,6 +30,8 @@
       Integer(kind=iwp) :: IFUP2CS(0:1)=[2,1]
       Integer(kind=iwp), Allocatable:: MWS2W(:), OrbArr(:)
 
+      Integer(kind=iwp) NCONF,NWALK,NSYM,NLEV,NACTEL
+
 C SGS       : Data that define a Split Graph
 C qCIS : Data that define a CI array structure
 C IMODE=0 transforms a Symmetric Group CI array to SGUGA
@@ -36,14 +39,12 @@ C IMODE=1 transforms a Split GUGA CI array to Symm Group
 C ...Configuration and Spin Coupling tables, fill this in later.
 C CIOLD and CINEW are obvious.
 
-CTEST      write(*,*)' SYG2SGU, LSYM=',LSYM
 C Dereference CIS and SGS       for some data:
       NCONF =CIS%NCSF(LSYM)
       NWALK =CIS%nWalk
       CALL mma_allocate(MWS2W,NWALK,Label='MWS2W')
       NSYM  =ICNFTAB(7)
       CALL MSTOW(SGS,CIS,MWS2W,NSYM)
-CTEST      write(*,*)' NCONF=',NCONF
 C MWS2W is a table which gives the upper or lower walk
 C index as function of the MAW sum.
 
@@ -60,7 +61,6 @@ C Now a good bound on MINOP, the minimum number of open
 C shells, would be MLTPLC-1. This is the best bound, and it
 C does not depend on any assumed Ms.
 
-CTEST      write(*,*)' Test prints in SYG2SGU.'
 C A buffer of packed walks is used:
       NWLKLST=0
       IWLKPOS=1
@@ -75,6 +75,7 @@ C Unbutton Configuration table:
       MINOP =ICNFTAB(5)
       MAXOP =ICNFTAB(6)
       NSYM  =ICNFTAB(7)
+      If (LSYM/=ICNFTAB(8))Stop 6776
       LSYM  =ICNFTAB(8)
       NAPART=ICNFTAB(9)
       IFORM =ICNFTAB(10)
