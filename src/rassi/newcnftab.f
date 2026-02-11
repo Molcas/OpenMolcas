@@ -293,10 +293,15 @@ C Nr of orbitals in this partition
       END SUBROUTINE NRCNF1
 
       SUBROUTINE NRCNF2(NORB,ISM,NCNF2)
+      use definitions, only: iwp
       use Symmetry_Info, only: nSym=>nIrrep, MUL
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER NCNF2(NSYM, ((NORB+1)*(NORB+2))/2 )
-      INTEGER ISM(NORB)
+      IMPLICIT NONE
+      INTEGER(kind=iwp), intent(in)::  NORB
+      INTEGER(kind=iwp), intent(out):: NCNF2(NSYM,((NORB+1)*(NORB+2))/2)
+      INTEGER(kind=iwp), intent(in):: ISM(NORB)
+
+
+      INTEGER(kind=iwp) L,NOCC,NOPN,NCLS,IPOS1,IPOS2,IPOS3,ISYM,NEW,JSYM
 C Returns the array NCNF2, which contains the number of
 C (sub-)configurations with NCLS closed-shell and NOPN open-shell
 C orbitals and having symmetry label LSYM, stored as
@@ -306,11 +311,7 @@ C provided that 0<=NCLS, 0<=NOPN, and NOCC<=NORB.
 C Prerequisite: The orbital symmetry labels stored in ISM.
 C Method: Induction
 
-      DO IPOS=1,((NORB+1)*(NORB+2))/2
-       DO ISYM=1,NSYM
-        NCNF2(ISYM,IPOS)=0
-       END DO
-      END DO
+      NCNF2(:,:)=0
       NCNF2(1,1)=1
       DO L=1,NORB
         DO NOCC=L,1,-1
