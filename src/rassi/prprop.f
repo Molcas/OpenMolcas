@@ -3827,15 +3827,14 @@ C backtransformation in two steps, -phi and -theta
 
       SUBROUTINE SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS,DIPSOm_SA)
       use definitions, only: iwp, wp, u6
-!      IMPLICIT NONE
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       INTEGER(kind=iwp), intent(in):: KDGN,IFUNCT,NSS
       COMPLEX(kind=wp), intent(in):: DIPSOm(3,NSS,NSS)
       COMPLEX(kind=wp), intent(in):: SPNSFS(3,NSS,NSS)
       real(kind=wp), intent(in):: DIPSOm_SA
 
       COMPLEX(kind=wp) DIPSOmSA(3,KDGN,KDGN)
-      INTEGER(kind=iwp) l,Iso1,Jso2,Ico1,i,j
+      INTEGER(kind=iwp) l,Iso1,Jso2,Ico1,i,j,jCo1
       COMPLEX(kind=wp) SPNSOSA(3,KDGN,KDGN)
       COMPLEX(kind=wp) Z(NSS,NSS),MATL(NSS,NSS),FINL(NSS,NSS)
       COMPLEX(kind=wp) SPNSO(3,NSS,NSS)
