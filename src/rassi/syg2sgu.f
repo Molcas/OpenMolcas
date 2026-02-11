@@ -482,7 +482,13 @@ C
       END SUBROUTINE SYG2SGU
 
       SUBROUTINE PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
-      Integer IWALK(*),ICASE(N,NWALK)
+      use definitions, only: iwp
+      Implicit none
+      Integer(kind=iwp), intent(in):: N,IPWLK,NWALK
+      Integer(kind=iwp), intent(out):: IWALK(*)
+      Integer(kind=iwp), intent(in):: ICASE(N,NWALK)
+
+      Integer(kind=iwp) IPOS,I,LEND,J,LSTA,IWORD,L
 C PURPOSE: PACK THE GUGA STEP NUMBERS INTO THE ARRAY IWALK.
 C EACH OF THE NWALK WALKS HAS N STEP NUMBERS, 2 BITS EACH,
 C AT MOST 15 TO AN INTEGER ELEMENT OF IWALK, EACH NEW WALK
