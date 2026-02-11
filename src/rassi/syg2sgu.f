@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW)
       use definitions, only: iwp, wp, u6
+      use constants, only: One
       use rassi_aux, only: ipglob
       use gugx, only: SGStruct, CIStruct, mxlev
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -146,7 +147,7 @@ C Loop over spin couplings
 
             END DO
 C A phase factor will be induced by the reordering.
-            PHS=1.0D0
+            PHS=One
             NODD=0
             DO LEV=1,NLEV
               I=ICASE(LEV)
@@ -227,7 +228,7 @@ C Loop over spin couplings
               ICASE(IORB)=IFUP2CS(IFUP)
             END DO
 C A phase factor will be induced by the reordering.
-            PHS=1.0D0
+            PHS=One
             NODD=0
             DO LEV=1,NLEV
               I=ICASE(LEV)
@@ -306,7 +307,7 @@ C Loop over spin couplings
               ICASE(IORB)=IFUP2CS(IFUP)
             END DO
 C A phase factor will be induced by the reordering.
-            PHS=1.0D0
+            PHS=One
             NODD=0
             DO LEV=1,NLEV
               I=ICASE(LEV)
@@ -393,7 +394,7 @@ C Loop over spin couplings
               ICASE(IORB)=IFUP2CS(IFUP)
             END DO
 C A phase factor will be induced by the reordering.
-            PHS=1.0D0
+            PHS=One
             NODD=0
             DO LEV=1,NLEV
               I=ICASE(LEV)
