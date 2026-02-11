@@ -15,37 +15,6 @@
 ! Jie J. Bao, on Apr. 12, 2022, created this file.               *
 !*****************************************************************
 
-!This file contains subroutines that calculates the DDg matrix, Q_aa,
-! the Gradient and Hessian of Q_aa wrt intermediate-state rotations.
-
-!***********************************************************************
-      Subroutine CalcDDg(DDg,GD,Dg,nDDg,nGD,lRoots2,NAC2)
-!*****************************************************************
-!     Gtuvx : two-electron integral, g_tuvx                      *
-!     GD    : "generalized 1-e density matrix"                   *
-!              GD^KL: transition density matrix from L to K      *
-!              GD^KK: density matrix for state K                 *
-!     Dg    :  sum_{vx}{GD^KL_vx * g_tuvx}                       *
-!     In GDorbit and Dgorbit, the leading index is orbital index;*
-!     In GDstate and Dgstate, the leading index is state index.  *
-!                                                                *
-!     DDg   :  sum_{tuvx}{GD^KL_tu * GD^MN_vx * g_tuvx}          *
-!      namely, sum_{tu}{GD^KL_tu * Dg^MN_tu}                     *
-!*****************************************************************
-      INTEGER nDDg, nGD, lRoots2, NAC2
-      Real*8 DDg(nDDg),GD(nGD),Dg(nGD)
-
-
-      CALL DGEMM_('T','N',lRoots2,lRoots2,NAC2,                         &
-     &               1.0d0, Dg, NAC2, GD, NAC2,                         &
-     &               0.0d0, DDg, lRoots2)
-
-      RETURN
-      End Subroutine
-
-!***********************************************************************
-
-
       Subroutine CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
       INTEGER nDDg,lRoots,nSPair
       Real*8 DDg(nDDg),Hess(nSPair**2)
@@ -110,51 +79,6 @@
       END DO
       END DO
 
-
-      RETURN
-      End Subroutine
-
-!***********************************************************************
-
-      Subroutine CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
-      INTEGER nDDg,lRoots,nSPair
-      Real*8 Grad(nSPair),DDg(nDDg)
-
-      INTEGER K,L,iKL,lRoots2,lRoots3,iLoc1,iLoc2
-
-      lRoots2=lRoots**2
-      lRoots3=lRoots*lRoots2
-
-      DO K=2,lRoots
-       Do L=1,K-1
-        iLoc1=K+(K-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
-        iLoc2=L+(L-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
-        iKL=(K-1)*(K-2)/2+L
-        Grad(iKL)=DDg(iLoc1)-DDg(iLoc2)
-       End Do
-      END DO
-      CALL DSCal_(nSPair,2.0d0,Grad,1)
-      RETURN
-      End Subroutine
-!***********************************************************************
-
-
-!***********************************************************************
-      Subroutine CalcQaa(Qaa,DDg,lRoots,nDDg)
-      INTEGER lRoots,nDDg
-      Real*8 DDg(nDDg)
-      Real*8 Qaa
-
-      INTEGER iState,iLoc,Int1,lRoots2
-
-      lRoots2=lRoots**2
-      Int1=(lRoots2+1)*(lRoots+1)
-      Qaa=0.0d0
-      DO iState=1,lRoots
-       iLoc=(iState-1)*Int1+1
-       Qaa=Qaa+DDg(iLoc)
-      END DO
-      Qaa=Qaa/2.0d0
 
       RETURN
       End Subroutine
