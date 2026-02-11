@@ -202,7 +202,7 @@ C configurations, can we compute the actual configuration arrays:
       use definitions, only: iwp
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep, MUL
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       Integer(kind=iwp), intent(in):: MXTMP
       Integer(kind=iwp), intent(in):: MaxEl, NORB, NGAS
       Integer(kind=iwp), intent(in):: NGASLIM(2,NGAS),NGASORB(NSYM,NGAS)
@@ -212,6 +212,10 @@ C configurations, can we compute the actual configuration arrays:
      &                    NCNF2(NSYM, ((MXTMP+1)*(MXTMP+2))/2)
 
       Integer(kind=iwp), allocatable:: ISM(:)
+      Integer(kind=iwp) MAXOCC,NOCCMX,IGAS,MXOCCOLD,NO,II,ISYM,NG,I,
+     &                  NELMN,NELMX,NOCCNW,NOPNNW,IPOSNW,ISYMNW,NEW,
+     &                  NOCC,NOPN,IPOS,IPOSOLD,ISYMOLD,NCLS,NCLSNW,
+     &                  NCLSOLD,NOCCOLD,NOPNOLD,NX,NY
 C Returns the array NCNF1, which contains the number of
 C configurations with the following criteria:
 C    Orbital indices range from 1..NORB
