@@ -513,7 +513,13 @@ C call parameter.
       END SUBROUTINE PKWLK
 
       SUBROUTINE UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
-      Integer IWALK(*),ICASE(N,NWALK)
+      use definitions, only: iwp
+      Implicit none
+      Integer(kind=iwp), intent(in):: N,IPWLK,NWALK
+      Integer(kind=iwp), intent(in):: IWALK(*)
+      Integer(kind=iwp), intent(out):: ICASE(N,NWALK)
+
+      Integer(kind=iwp) IPOS,I,LEND,J,LSTA,IWORD,L,NEXT
 * See companion subroutine PKWLK.
       IPOS=0
       DO I=1,NWALK
@@ -687,7 +693,7 @@ C Leading dimension=nr of upwalks in this block.
       IMPLICIT  NONE
       Integer(kind=iwp), intent(in):: NSYM,NLEV,NVERT,NMIDV,NIPWLK,
      &                                NWALK,MIDLEV
-      Integer(kind=iwp), intent(in):: ICS(NLEV)
+      Integer(kind=iwp), intent(out):: ICS(NLEV)
       Integer(kind=iwp), intent(in):: NOW(2,NSYM,NMIDV),
      &                                IOW(2,NSYM,NMIDV)
       Integer(kind=iwp), intent(in):: IWALK(NIPWLK*NWALK)
