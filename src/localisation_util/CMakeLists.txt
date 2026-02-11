@@ -34,7 +34,6 @@ set (sources
      edmistonruedenberg.F90
      edmistonruedenberg_iter.F90
      erchk_localisation.F90
-     erloc.F90
      evalerfun.F90
      fwt_haar.F90
      genbmp.F90
@@ -61,10 +60,8 @@ set (sources
      makedomaincomplete.F90
      ortho_orb.F90
      orthopao_localisation.F90
-     paoloc.F90
      pipekmezey.F90
      pipekmezey_iter.F90
-     pmloc.F90
      rot_st.F90
      rotateorb.F90
      rotateorb_er.F90
