@@ -9,24 +9,25 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW)
+      use definitions, only: iwp, wp, u6
       use rassi_aux, only: ipglob
       use gugx, only: SGStruct, CIStruct, mxlev
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-      Integer IMODE
+      Integer(kind=iwp) IMODE
       Type (SGStruct) SGS
       Type (CIStruct) CIS
-      Integer LSYM
-      INTEGER ICNFTAB(*),ISPNTAB(*)
-      Real*8 CIOLD(*),CINEW(*)
+      Integer(kind=iwp) LSYM
+      INTEGER(kind=iwp) ICNFTAB(*),ISPNTAB(*)
+      Real(kind=wp) CIOLD(*),CINEW(*)
 
-      Integer, PARAMETER:: NBUFFER=600,MXCPI=15
-      Integer KWALK(NBUFFER)
-      Real*8 PHASE(NBUFFER)
-      Integer ICNUM(NBUFFER)
-      Integer ICASE(400)
-      Integer :: IFUP2CS(0:1)=[2,1]
-      Integer, Allocatable:: MWS2W(:), OrbArr(:)
+      Integer(kind=iwp), PARAMETER:: NBUFFER=600,MXCPI=15
+      Integer(kind=iwp) KWALK(NBUFFER)
+      Real(kind=wp) PHASE(NBUFFER)
+      Integer(kind=iwp) ICNUM(NBUFFER)
+      Integer(kind=iwp) ICASE(400)
+      Integer(kind=iwp) :: IFUP2CS(0:1)=[2,1]
+      Integer(kind=iwp), Allocatable:: MWS2W(:), OrbArr(:)
 
 C SGS       : Data that define a Split Graph
 C qCIS : Data that define a CI array structure
@@ -49,8 +50,8 @@ C index as function of the MAW sum.
 C Inspect the top row of the DRT to find NACTEL and spin:
       NLEV  =SGS%DRT(1,1)
       IF (NLEV.GT.MXLEV) THEN
-        WRITE(6,*) ' SYG2SGU: error: number of levels exceeds MXLEV'
-        WRITE(6,'(1X,2(A,I4))') ' NLEV = ',NLEV,' MXLEV = ',MXLEV
+        WRITE(u6,*) ' SYG2SGU: error: number of levels exceeds MXLEV'
+        WRITE(u6,'(1X,2(A,I4))') ' NLEV = ',NLEV,' MXLEV = ',MXLEV
         CALL AbEnd()
       END IF
       NACTEL=SGS%DRT(1,2)
@@ -80,53 +81,16 @@ C Unbutton Configuration table:
 *PAM07 Statement to fool intel 10.1 compiler do do the right thing:
       IF(MINOP.GT.MAXOP) WRITE(6,*) MINOP,MAXOP
 
-CTEST      write(*,*)' SYG2SGU Test print, Config table:'
-CTEST      write(*,'(1x,a,8I8)')'MINOP,MAXOP:',MINOP,MAXOP
-CTEST      write(*,'(1x,a,8I8)')'  NSYM:',NSYM
-CTEST      write(*,'(1x,a,8I8)')'  LSYM:',LSYM
-CTEST      write(*,'(1x,a,8I8)')'NAPART:',NAPART
-CTEST      write(*,'(1x,a,8I8)')' IFORM:',IFORM
       NHEAD=10
       KGSORB=NHEAD+1
       KGSLIM =KGSORB+(NSYM+1)*(NAPART+1)
       KCNFINF=KGSLIM+2*NAPART
-CTEST      write(*,'(1x,a,8I8)')'KCNFINF:',KCNFINF
-CTEST      write(*,*)'   NOPEN    ISYM    NCNF    KCNF    IWRD'
-CTEST      do nopen=minop,maxop
-CTEST       do isym=1,nsym
-CTEST        NCNF=ICNFTAB(KCNFINF+3*(ISYM-1+NSYM*(NOPEN-MINOP)))
-CTEST        KCNF=ICNFTAB(KCNFINF+3*(ISYM-1+NSYM*(NOPEN-MINOP))+1)
-CTEST        IWRD=ICNFTAB(KCNFINF+3*(ISYM-1+NSYM*(NOPEN-MINOP))+2)
-CTEST      write(*,'(1x,8I8)') NOPEN,ISYM,NCNF,KCNF,IWRD
-CTEST       end do
-CTEST      end do
 C Unbutton Spin table:
       KSPNINF=9
-C Test prints:
-CTEST      write(*,*)' SYG2SGU Test print, spin table:'
-CTEST      write(*,'(1x,a,8I8)')' MLTPL:',ISPNTAB(3)
-CTEST      write(*,'(1x,a,8I8)')' MS2  :',ISPNTAB(4)
-CTEST      write(*,'(1x,a,8I8)')' MINOP:',ISPNTAB(5)
-CTEST      write(*,'(1x,a,8I8)')' MAXOP:',ISPNTAB(6)
-CTEST      write(*,'(1x,a,8I8)')' IOPEN:',
-CTEST     &     (ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+0),NOPEN=MINOP,MAXOP)
-CTEST      write(*,'(1x,a,8I8)')' NCL  :',
-CTEST     &     (ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+1),NOPEN=MINOP,MAXOP)
-CTEST      write(*,'(1x,a,8I8)')' NSPD :',
-CTEST     &     (ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+2),NOPEN=MINOP,MAXOP)
-CTEST      write(*,'(1x,a,8I8)')'KSPCPL:',
-CTEST     &     (ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+3),NOPEN=MINOP,MAXOP)
-CTEST      write(*,'(1x,a,8I8)')'KSPDET:',
-CTEST     &     (ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+4),NOPEN=MINOP,MAXOP)
-CTEST      write(*,'(1x,a,8I8)')'LSPTRA:',
-CTEST     &     (ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+5),NOPEN=MINOP,MAXOP)
-C End of test prints:
-C
       CALL mma_allocate(ORBARR,NACTEL,Label='OrbArr')
 
 C Loop over nr of open shells
 C NCSYMG=Nr of Symmetric-Group CSF''s treated so far.
-CTEST      write(*,*)' SYG2SGU Loop over NOPEN.'
       NCSYMG=0
       DO NOPEN=MINOP,MAXOP
         NCLSD=(NACTEL-NOPEN)/2
@@ -134,16 +98,11 @@ CTEST      write(*,*)' SYG2SGU Loop over NOPEN.'
         IF(2*NCLSD+NOPEN.NE.NACTEL) cycle
         NOCC=NCLSD+NOPEN
         IF(NOCC.GT.NLEV) cycle
-CTEST      write(*,'(1x,a,8I8)')'NOPEN,NCLSD,NOCC:',NOPEN,NCLSD,NOCC
         NCNF=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP)))
         KCNF=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+1)
         NWRD=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+2)
         NCPL=ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+1)
         KCPL=ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+3)
-CTEST      write(*,'(1x,a,8I8)')'NCNF,KCNF:',NCNF,KCNF
-CTEST      write(*,'(1x,a,8I8)')'NCPL,KCPL:',NCPL,KCPL
-CTEST      if(NCNF.EQ.0) write(*,*)'    (Skip)'
-CTEST      if(NCNF.GT.0) write(*,*)'         Loop over ICNF.'
 
 
 * Here follows four if-clauses on the cases of IFORM=1..4.
@@ -162,9 +121,6 @@ C Long loop over configurations
           DO IEL=1,NOCC
             ORBARR(IEL)=ICNFTAB(KCNF-1+IEL+NWRD*(ICNF-1))
           END DO
-CTEST          write(*,'(1x,a,8I8)')'Configuration:',
-CTEST     &       (ORBARR(IEL),IEL=1,NOCC)
-CTEST          write(*,'(1x,a,8I8)')'Nr of spin coupl NCPL:',NCPL
 C Loop over spin couplings
           DO ICPL=1,NCPL
             DO I=1,NLEV
@@ -196,8 +152,6 @@ C A phase factor will be induced by the reordering.
 *              END IF
               PHS=DBLE((3+NODD*I*(I-1)*(2*I-7))/3)*PHS
             END DO
-CTEST          write(*,'(1x,a,8I8)')
-CTEST     &            '      Walk:',(ICASE(IORB),IORB=1,NLEV)
 C Pack the walk and add it to the list.
             CALL PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
             IWLKPOS=IWLKPOS+MIPWLK
@@ -215,7 +169,6 @@ C Loop over this list.
                   ICSPLT=ICNUM(I)
                   ICSYMG=NCSYMG+I
                   CINEW(ICSPLT)=CIOLD(ICSYMG)*PHS
-CTEST      write(*,'(1x,a,8I8)')'ICSPLT<-ICSYMG:',ICSPLT,ICSYMG
                 END DO
               ELSE
                 DO I=1,NWLKLST
@@ -223,7 +176,6 @@ CTEST      write(*,'(1x,a,8I8)')'ICSPLT<-ICSYMG:',ICSPLT,ICSYMG
                   ICSPLT=ICNUM(I)
                   ICSYMG=NCSYMG+I
                   CINEW(ICSYMG)=CIOLD(ICSPLT)*PHS
-CTEST      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
                 END DO
               END IF
               NCSYMG=ICSYMG
@@ -251,9 +203,6 @@ C Long loop over configurations
               ORBARR(IEL2)=IORB
             END IF
           END DO
-CTEST          write(*,'(1x,a,8I8)')'Configuration:',
-CTEST     &       (ORBARR(IEL),IEL=1,NOCC)
-CTEST          write(*,'(1x,a,8I8)')'Nr of spin coupl NCPL:',NCPL
 C Loop over spin couplings
           DO ICPL=1,NCPL
             DO I=1,NLEV
@@ -284,8 +233,6 @@ C A phase factor will be induced by the reordering.
 *              END IF
               PHS=DBLE((3+NODD*I*(I-1)*(2*I-7))/3)*PHS
             END DO
-CTEST          write(*,'(1x,a,8I8)')
-CTEST     &            '      Walk:',(ICASE(IORB),IORB=1,NLEV)
 C Pack the walk and add it to the list.
             CALL PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
             IWLKPOS=IWLKPOS+MIPWLK
@@ -303,7 +250,6 @@ C Loop over this list.
                   ICSPLT=ICNUM(I)
                   ICSYMG=NCSYMG+I
                   CINEW(ICSPLT)=CIOLD(ICSYMG)*PHS
-CTEST      write(*,'(1x,a,8I8)')'ICSPLT<-ICSYMG:',ICSPLT,ICSYMG
                 END DO
               ELSE
                 DO I=1,NWLKLST
@@ -311,7 +257,6 @@ CTEST      write(*,'(1x,a,8I8)')'ICSPLT<-ICSYMG:',ICSPLT,ICSYMG
                   ICSPLT=ICNUM(I)
                   ICSYMG=NCSYMG+I
                   CINEW(ICSYMG)=CIOLD(ICSPLT)*PHS
-CTEST      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
                 END DO
               END IF
               NCSYMG=ICSYMG
@@ -337,9 +282,6 @@ C Long loop over configurations
             IWORD=IWORD/256
             ORBARR(IEL)=IORB
           END DO
-CTEST          write(*,'(1x,a,8I8)')'Configuration:',
-CTEST     &       (ORBARR(IEL),IEL=1,NOCC)
-CTEST          write(*,'(1x,a,8I8)')'Nr of spin coupl NCPL:',NCPL
 C Loop over spin couplings
           DO ICPL=1,NCPL
             DO I=1,NLEV
@@ -370,8 +312,6 @@ C A phase factor will be induced by the reordering.
 *              END IF
               PHS=DBLE((3+NODD*I*(I-1)*(2*I-7))/3)*PHS
             END DO
-CTEST          write(*,'(1x,a,8I8)')
-CTEST     &            '      Walk:',(ICASE(IORB),IORB=1,NLEV)
 C Pack the walk and add it to the list.
             CALL PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
             IWLKPOS=IWLKPOS+MIPWLK
@@ -389,7 +329,6 @@ C Loop over this list.
                   ICSPLT=ICNUM(I)
                   ICSYMG=NCSYMG+I
                   CINEW(ICSPLT)=CIOLD(ICSYMG)*PHS
-CTEST      write(*,'(1x,a,8I8)')'ICSPLT<-ICSYMG:',ICSPLT,ICSYMG
                 END DO
               ELSE
                 DO I=1,NWLKLST
@@ -397,7 +336,6 @@ CTEST      write(*,'(1x,a,8I8)')'ICSPLT<-ICSYMG:',ICSPLT,ICSYMG
                   ICSPLT=ICNUM(I)
                   ICSYMG=NCSYMG+I
                   CINEW(ICSYMG)=CIOLD(ICSPLT)*PHS
-CTEST      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
                 END DO
               END IF
               NCSYMG=ICSYMG
@@ -431,9 +369,6 @@ C Long loop over configurations
               ORBARR(IEL2)=IORB
             END IF
           END DO
-CTEST          write(*,'(1x,a,8I8)')'Configuration:',
-CTEST     &       (ORBARR(IEL),IEL=1,NOCC)
-CTEST          write(*,'(1x,a,8I8)')'Nr of spin coupl NCPL:',NCPL
 C Loop over spin couplings
           DO ICPL=1,NCPL
             DO I=1,NLEV
@@ -464,8 +399,6 @@ C A phase factor will be induced by the reordering.
 *              END IF
               PHS=DBLE((3+NODD*I*(I-1)*(2*I-7))/3)*PHS
             END DO
-CTEST          write(*,'(1x,a,8I8)')
-CTEST     &            '      Walk:',(ICASE(IORB),IORB=1,NLEV)
 C Pack the walk and add it to the list.
             CALL PKWLK(NLEV,MIPWLK,1,KWALK(IWLKPOS),ICASE)
             IWLKPOS=IWLKPOS+MIPWLK
@@ -483,7 +416,6 @@ C Loop over this list.
                   ICSPLT=ICNUM(I)
                   ICSYMG=NCSYMG+I
                   CINEW(ICSPLT)=CIOLD(ICSYMG)*PHS
-CTEST      write(*,'(1x,a,8I8)')'ICSPLT<-ICSYMG:',ICSPLT,ICSYMG
                 END DO
               ELSE
                 DO I=1,NWLKLST
@@ -491,7 +423,6 @@ CTEST      write(*,'(1x,a,8I8)')'ICSPLT<-ICSYMG:',ICSPLT,ICSYMG
                   ICSPLT=ICNUM(I)
                   ICSYMG=NCSYMG+I
                   CINEW(ICSYMG)=CIOLD(ICSPLT)*PHS
-CTEST      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
                 END DO
               END IF
               NCSYMG=ICSYMG
@@ -517,16 +448,13 @@ C As above, processing what remains in the KWALK buffer.
           ICSPLT=ICNUM(I)
           ICSYMG=NCSYMG+I
           CINEW(ICSPLT)=CIOLD(ICSYMG)*PHS
-C      write(*,'(1x,a,8I8)')'ICSPLT<-ICSYMG:',ICSPLT,ICSYMG
         END DO
       ELSE
         DO I=1,NWLKLST
           PHS=PHASE(I)
           ICSPLT=ICNUM(I)
-CTEST      IF(ICSPLT.LT.0 .or. ICSPLT.GT.NCONF) STOP 'Ohh'
           ICSYMG=NCSYMG+I
           CINEW(ICSYMG)=CIOLD(ICSPLT)*PHS
-C      write(*,'(1x,a,8I8)')'ICSYMG<-ICSPLT:',ICSYMG,ICSPLT
         END DO
       END IF
       NCSYMG=NCSYMG+NWLKLST
