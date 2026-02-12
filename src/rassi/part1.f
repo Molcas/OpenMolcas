@@ -20,7 +20,8 @@ C---------------------------------------------------------------
       real(kind=wp), intent(out):: A(NDIMEN,NDIMEN),B(NDIMEN,NDIMEN)
       real(kind=wp), intent(inout):: SCR(NDIMEN,NDIMEN)
       real(kind=wp), intent(out):: BUF(NDIMEN)
-      integer(kind=iwp), intent(out):: IPIV(NDIMEN,2), NSIZE(NBLOCK)
+      integer(kind=iwp), intent(out):: IPIV(NDIMEN,2)
+      integer(kind=iwp), intent(in):: NSIZE(NBLOCK)
 
       integer(kind=iwp) I,J,LIM1,K,NSZ,LIM3,LIM2,KK,L,M
       real(kind=wp) DET,T
