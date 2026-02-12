@@ -39,7 +39,6 @@ character(len=80) :: Txt
 character(len=8) :: Label
 real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:), Umat(:)
 character(len=*), parameter :: SecNam = 'TestLoc'
-integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: ddot_
 logical(kind=iwp), parameter :: debug = .false.
 
