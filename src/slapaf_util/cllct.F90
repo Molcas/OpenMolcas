@@ -20,10 +20,10 @@ subroutine Cllct(Strng,Vector,Val,nAtom,Coor,nCntr,mCntr,xyz,Temp,Ind,Typ,qMss,T
 
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, dMass
+use PrintLevel, only: nPrint
+use Molcas, only: LenIn
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
-use Molcas, only: LenIn, LenIn5
 
 implicit none
 character(len=*), intent(in) :: Strng
@@ -39,7 +39,7 @@ logical(kind=iwp), intent(out) :: lAtom(nAtom)
 integer(kind=iwp) :: i, iEnd, iFrst, iIrrep, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, nCent, nPar1, nPar2
 real(kind=wp) :: Axis(3), Dummy(1), Perp_Axis(3,2), tx, ty, tz
 logical(kind=iwp) :: ldB, lWarn
-character(len=LenIn5) :: Label
+character(len=LenIn+5) :: Label
 character(len=LenIn) :: AtName
 character(len=3) :: Oper
 real(kind=wp), external :: D_Bend, D_Bond, D_Cart, D_Trsn
@@ -243,8 +243,8 @@ do ixyz=1,nCent
 end do
 call dGeMV_('N',3*nAtom,3*nCent,One,TMtrx,3*nAtom,Temp,1,Zero,Vector,1)
 #ifdef _DEBUGPRINT_
-  call RecPrt('TMtrx',' ',TMtrx,3*nAtom,3*nCent)
-  call RecPrt(' symmetry adapted vector',' ',Vector,3,nAtom)
+call RecPrt('TMtrx',' ',TMtrx,3*nAtom,3*nCent)
+call RecPrt(' symmetry adapted vector',' ',Vector,3,nAtom)
 #endif
 
 return

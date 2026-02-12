@@ -31,8 +31,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, ipRxyz, ipVxyz, &
-                     iStabO(0:7), lDCRT, llOper, LmbdT, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, ipRxyz, ipVxyz, iStabO(0:7), lDCRT, &
+                     llOper, LmbdT, nDCRT, nip, nOp, nStabO
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
 
@@ -68,11 +68,11 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In VeInt: A',' ',A,1,3)
-  call RecPrt(' In VeInt: RB',' ',RB,1,3)
-  call RecPrt(' In VeInt: CoorO',' ',CoorO,1,3)
-  call RecPrt(' In VeInt: P',' ',P,nZeta,3)
-  write(u6,*) ' In VeInt: la,lb=',la,lb
+call RecPrt(' In VeInt: A',' ',A,1,3)
+call RecPrt(' In VeInt: RB',' ',RB,1,3)
+call RecPrt(' In VeInt: CoorO',' ',CoorO,1,3)
+call RecPrt(' In VeInt: P',' ',P,nZeta,3)
+write(u6,*) ' In VeInt: la,lb=',la,lb
 #endif
 
 rFinal(:,:,:,:) = Zero

@@ -13,10 +13,10 @@ subroutine Get_Molecule()
 
 use Slapaf_Info, only: AtomLbl, Coor, Grd, Q_nuclear, Weights
 use Symmetry_Info, only: VarR, VarT
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp, u6
-use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp) :: Columbus, iGO, iMode, iPL, Length, nData, nsAtom

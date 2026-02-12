@@ -12,18 +12,18 @@
 subroutine Init_SlapAf()
 
 use Symmetry_Info, only: iOper, nIrrep
-use Slapaf_Info, only: Analytic_Hessian, ANr, ApproxNADC, Coor, Degen, dMass, Force_dB, Header, iCoSet, jStab, &
-                       Line_Search, MaxItr, mB_Tot, mdB_Tot, mq, mTtAtm, MxItr, NADC, nDimBC, nStab, q_nuclear, RootMap, Smmtrc, &
-                       ThrCons, ThrEne, ThrGrd, ThrMEP !, lRP, R12
+use Slapaf_Info, only: Analytic_Hessian, ANr, ApproxNADC, Coor, Degen, dMass, Force_dB, Header, iCoSet, jStab, Line_Search, &
+                       MaxItr, mB_Tot, mdB_Tot, mq, mTtAtm, MxItr, NADC, nDimBC, nStab, q_nuclear, RootMap, Smmtrc, ThrCons, &
+                       ThrEne, ThrGrd, ThrMEP !, lRP, R12
 #ifdef _DEBUGPRINT_
 use Slapaf_Info, only: AtomLbl, Grd
 #endif
 use UnixInfo, only: SuperName
 use dcr_mod, only: DCR_Init
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp) :: Columbus, i, iAdd(0:7), iChxyz, iComp, iIrrep, iMAX, iMode, ind, iPL, isAtom, ISPIN1, ISPIN2, itest, jCoSet, &
@@ -40,7 +40,7 @@ logical(kind=iwp), external :: Reduce_Prt
 !************************* StartUp section   ***************************
 !***********************************************************************
 !                                                                      *
-Call DCR_Init()
+call DCR_Init()
 
 ! Set the default value of iterations from MOLCAS_MAXITER if it
 ! has been defined.
@@ -319,7 +319,7 @@ call RecPrt('Degen',' ',Degen,3,size(Coor,2))
 ! translated so origin and center of mass is identical.
 
 #ifdef _DEBUGPRINT_
-Call Prlist('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,size(Coor,2),Coor,3,size(Coor,2))
+call Prlist('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,size(Coor,2),Coor,3,size(Coor,2))
 call PrList('Symmetry Distinct Nuclear Forces / au',AtomLbl,size(Coor,2),Grd,3,size(Coor,2))
 #endif
 !                                                                      *

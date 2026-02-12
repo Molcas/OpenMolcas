@@ -41,7 +41,7 @@ C
      &                         iSymBB, JBLBM, NTOT3, via_DFT, ISTORD,
      &                         ISTORP, iTri, iZROT, ixSym, CBLB, IBLB,
      &                         JBLB
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NASH,NBAS,NFRO,NISH,NORB,NSSH
 

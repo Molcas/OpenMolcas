@@ -17,8 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,NOW,IOW,nMidV)
+      use Symmetry_Info, only: Mul
       use gugx, only: CIS
-      use caspt2_module, only: nSym, Mul
+      use caspt2_module, only: nSym
       use pt2_guga, only: MxCI
       IMPLICIT None
 C INPUT ARRAYS:
@@ -38,7 +39,7 @@ C FOR THE SPECIFIED TOTAL SYMMETRY ISYCI
         DO ISYUP=1,NSYM
           NUP=NOW(1,ISYUP,MV)
           IF(NUP.EQ.0) Cycle
-          ISYDWN=MUL(ISYUP,ISYCI)
+          ISYDWN=Mul(ISYUP,ISYCI)
           NDWN=NOW(2,ISYDWN,MV)
           IF(NDWN.EQ.0) Cycle
           ICS=1+IOW(1,ISYUP,MV)

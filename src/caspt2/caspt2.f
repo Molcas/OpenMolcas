@@ -17,7 +17,7 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, iStpGrd, IDSAVGRD
-      use PrintLevel, only: terse, usual, verbose
+      use PrintLevel, only: TERSE, USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif

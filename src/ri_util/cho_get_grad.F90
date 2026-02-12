@@ -111,10 +111,10 @@ use temptime, only: CHOGET_CPU, CHOGET_WALL
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 #include "intent.fh"
 

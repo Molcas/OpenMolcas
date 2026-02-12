@@ -25,9 +25,9 @@ use PCM_arrays, only: Centr, DCntr, dPnt, dRad, dTes, IntSph, MxVert, NewSph, nV
 use Isotopes, only: MaxAtomNum, PTab
 use UnixInfo, only: ProgName
 use rctfld_module, only: DoDeriv, iCharge_Ref, iSlPar, NoNEQ_Ref, nPCM_Info, nS, nTs, PCM, PCM_Info_Dmp
+use Molcas, only: MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use Molcas, only: MxAtom
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

@@ -48,11 +48,11 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
                      iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCmp, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, &
-                     iLow, iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iRC, iSym, iSymBx, iSymBy, iSymBz, iSymC, &
-                     iSymCX, iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, &
-                     iSymxLx, iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, &
-                     iSymzLz, iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, &
-                     mComp, mDMS, mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
+                     iLow, iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iRC, iSym, iSymBx, iSymBy, iSymBz, iSymC, iSymCX, iSymCXY, &
+                     iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, iSymxLx, iSymxLy, &
+                     iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, iSymzLz, iSyXYZ, &
+                     iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, mComp, mDMS, mMltpl, &
+                     mOrdOp, nB, nComp, nOrdOp, nPAMltpl
 real(kind=wp) :: Ccoor(3), dum(1), Fact, rHrmt
 logical(kind=iwp) :: lECPnp, lECP, lPAM2np, lPAM2, lPP, lFAIEMP
 character(len=8) :: Label
@@ -1198,9 +1198,9 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
   end if  ! nWel /= 0
 
   Label = 'OneHam  '
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call PrMtrx(Label,[lOper],1,[1],NA_Int)
-#endif
+# endif
   iRC = -1
   call WrOne(iRC,iOpt,Label,1,NA_Int,lOper)
   if (iRC /= 0) then

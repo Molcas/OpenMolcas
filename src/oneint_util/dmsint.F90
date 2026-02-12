@@ -30,8 +30,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iComp, iDCRT(0:7), ipArr, ipRes, ipS1, ipS2, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nComp_, &
-                     nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iComp, iDCRT(0:7), ipArr, ipRes, ipS1, ipS2, iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nComp_, nDCRT, nip, &
+                     nOp, nStabO
 real(kind=wp) :: TC(3,2)
 integer(kind=iwp), external :: NrOpr
 
@@ -41,8 +41,8 @@ unused_var(PtChrg)
 unused_var(iAddPot)
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In DMSInt: Alpha',' ',Alpha,nAlpha,1)
-  call RecPrt(' In DMSInt: Beta',' ',Beta,nBeta,1)
+call RecPrt(' In DMSInt: Alpha',' ',Alpha,nAlpha,1)
+call RecPrt(' In DMSInt: Beta',' ',Beta,nBeta,1)
 #else
 unused_var(Alpha)
 unused_var(Beta)

@@ -99,7 +99,7 @@
      &                         lRootSplit,NumSplit,EnerSplit,
      &                         PerSplit,PerCSpli,fOrdSplit,
      &                         iDimBlockA,GapSpli
-      use printlevel, only: DEBUG,VERBOSE,TERSE
+      use PrintLevel, only: DEBUG,VERBOSE,TERSE
       use output_ras, only: LF,IPRGLB,IPRLOC
       use general_data, only: MAXALTER,NALTER,JOBIPH,NSYM,INVEC,
      &                        STARTORBFILE,NBAS,LUSTARTORB,JOBOLD,NTOT,
@@ -123,9 +123,8 @@
      &                  ISPEED,NGSSH_MOLCAS
       use spinfo, only: DOBKAP,NGASBK,IOCCPSPC
       use DWSol, only: DWSol_DWRO
-      use rasdim, only: MxTit, LenIn8, MxAct, MxGas, MxRef, MxRoot,
-     &                  MxSym, MxOrb
-
+      use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
+      use RASDim, only: MxRef, MxTit
 
       Implicit None
 #include "warnings.h"
@@ -172,7 +171,7 @@
       Character(LEN=8) MaxLab
       Logical, External :: Is_First_Iter
       Real*8 Dummy(1)
-      Character(LEN=LENIN8*mxOrb) lJobH1
+      Character(LEN=(LenIn+8)*mxOrb) lJobH1
       Character(LEN=2*72) lJobH2
 
       integer :: start, step, length
@@ -1937,7 +1936,7 @@ CIgorS End
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,
      &                      NFRO,NISH,NASH,NDEL,NBAS,
-     &                      mxSym,lJobH1,LENIN8*mxOrb,NCONF,
+     &                      mxSym,lJobH1,(LenIn+8)*mxOrb,NCONF,
      &                      lJobH2,2*72,JobTit,4*18*mxTit,
      &                      POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,
      &                      NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)

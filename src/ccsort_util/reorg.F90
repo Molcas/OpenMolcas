@@ -37,10 +37,11 @@ subroutine REORG(run_triples,IRETURN)
 
 use ccsort_global, only: clopkey, Escf, fullprint, IADR15, JOBIPH, LROOT, LUINTM, mbas, NASH, NDEL, ndelr, NFRO, nfror, NISH, noa, &
                          nob, NORB, NSSH, NSYM, nva, nvb
+use Molcas, only: MxRoot
+use RASDim, only: MxIter
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use rasdim, only: MxIter, MxRoot
 
 implicit none
 logical(kind=iwp), intent(out) :: run_triples

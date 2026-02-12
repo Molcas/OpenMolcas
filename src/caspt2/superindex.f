@@ -32,15 +32,15 @@
 *--------------------------------------------*
       SUBROUTINE SUPINI
       use stdalloc, only: mma_allocate
+      use Symmetry_Info, only: Mul
       use caspt2_module, only: nInDep, MxCase, nAshT, nCases, nIshT,
      &                         nAshT, nSym, nTUVEs, nAsh, nSshT,
-     &                         Mul, nAes, nSTUV, nTUV, nTUES,
-     &                         nTGEUES, nTGTUES, nSTGTU, nTU, nTGEU,
-     &                         nTGTU, nIGEJES, nIGTJES, nIsh, nSTU,
-     &                         nSTGEU, nIES, nIGEJ, nIGTJ, nAGEBES,
+     &                         nAes, nTUV, nTUES,
+     &                         nTGEUES, nTGTUES, nTU, nTGEU,
+     &                         nTGTU, nIGEJES, nIGTJES, nIsh,
+     &                         nIES, nIGEJ, nIGTJ, nAGEBES,
      &                         nAGTBES, nSsh, nSES, nAGEB, nIAES,
-     &                         nSES, nSsh, nAGTB, Cases, nASUP, nISUP,
-     &                         nEXCES, nEXC
+     &                         nSES, nSsh, nAGTB, Cases, nASUP, nISUP
       IMPLICIT NONE
       CHARACTER(LEN=8) CSNAME(MXCASE)
       DATA CSNAME / 'VJTU    ','VJTIP   ','VJTIM   ',
@@ -56,10 +56,9 @@
       INTEGER ITGEU,ITGTU,NMTGEU,NMTGTU,ITUV
       INTEGER IIA,ITU,NMIA
       INTEGER IS1,IS2,ISYA,ISYI,ISUV
-      INTEGER IC0,ICM,ICP
       INTEGER JC0,JCM,JCP
       INTEGER NC0,NCM,NCP
-      INTEGER ICOUNT,JCOUNT
+      INTEGER JCOUNT
       INTEGER N,N5,N6,N7,N10,N11
       INTEGER NAT,NAU,NAV,NII,NIJ,NSA,NSB
 
@@ -68,19 +67,17 @@
       CALL MMA_ALLOCATE(MTUV,3,NASHT**3,Label='MTUV')
       ITUV=0
       DO 20 ISYM=1,NSYM
-        ICOUNT=0
         NCOUNT=0
         NTUVES(ISYM)=ITUV
         DO 10 ISV=1,NSYM
           NAV=NASH(ISV)
           DO 11 ISU=1,NSYM
             NAU=NASH(ISU)
-            ISUV=MUL(ISU,ISV)
-            IST=MUL(ISUV,ISYM)
+            ISUV=Mul(ISU,ISV)
+            IST=Mul(ISUV,ISYM)
             NAT=NASH(IST)
             JCOUNT=NAV*NAU*NAT
             IF (JCOUNT.EQ.0) GOTO 11
-            ICOUNT=ICOUNT+1
             NCOUNT=NCOUNT+JCOUNT
             DO 5 IV=1,NAV
               IVQ=NAES(ISV)+IV
@@ -98,7 +95,6 @@
    5        CONTINUE
   11      CONTINUE
   10    CONTINUE
-        NSTUV(ISYM)=ICOUNT
         NTUV(ISYM)=NCOUNT
   20  CONTINUE
 
@@ -116,9 +112,6 @@
       ITGEU=0
       ITGTU=0
       DO 40 ISYM=1,NSYM
-        IC0=0
-        ICP=0
-        ICM=0
         NC0=0
         NCP=0
         NCM=0
@@ -127,7 +120,7 @@
         NTGTUES(ISYM)=ITGTU
         DO 30 ISU=1,NSYM
           NAU=NASH(ISU)
-          IST=MUL(ISU,ISYM)
+          IST=Mul(ISU,ISYM)
           NAT=NASH(IST)
           JC0=0
           JCP=0
@@ -155,16 +148,10 @@
               MTGTU(2,ITGTU)=IUQ
   24        CONTINUE
   25      CONTINUE
-          IF (JC0.NE.0) IC0=IC0+1
-          IF (JCP.NE.0) ICP=ICP+1
-          IF (JCM.NE.0) ICM=ICM+1
           NC0=NC0+JC0
           NCP=NCP+JCP
           NCM=NCM+JCM
   30    CONTINUE
-        NSTU(ISYM)=IC0
-        NSTGEU(ISYM)=ICP
-        NSTGTU(ISYM)=ICM
         NTU(ISYM)=NC0
         NTGEU(ISYM)=NCP
         NTGTU(ISYM)=NCM
@@ -204,7 +191,7 @@ C Inactive pair indices:
         NCM=0
         NCP=0
         DO 70 ISI=1,NSYM
-          ISJ=MUL(ISI,ISYM)
+          ISJ=Mul(ISI,ISYM)
           IF(ISI.LT.ISJ) GOTO 70
           NII=NISH(ISI)
           NIJ=NISH(ISJ)
@@ -236,7 +223,7 @@ C Secondary pair indices:
         NCM=0
         NCP=0
         DO 100 ISA=1,NSYM
-          ISB=MUL(ISA,ISYM)
+          ISB=Mul(ISA,ISYM)
           IF(ISA.LT.ISB) GOTO 100
           NSA=NSSH(ISA)
           NSB=NSSH(ISB)
@@ -264,7 +251,7 @@ C Secondary pair indices:
 C Inactive-Secondary pair indices:
         NIAES(ISYM)=IIA
         DO ISYA=1,NSYM
-          ISYI=MUL(ISYA,ISYM)
+          ISYI=Mul(ISYA,ISYM)
           DO IA=1,NSSH(ISYA)
             IAQ=IA+NSES(ISYA)
             DO II=1,NISH(ISYI)
@@ -305,7 +292,7 @@ C Inactive-Secondary pair indices:
         N10=0
         N11=0
         DO 130 IS1=1,NSYM
-          IS2=MUL(IS1,ISYM)
+          IS2=Mul(IS1,ISYM)
           N5 =N5 +NSSH(IS1)*NISH(IS2)
           N6 =N6 +NSSH(IS1)*NIGEJ(IS2)
           N7 =N7 +NSSH(IS1)*NIGTJ(IS2)
@@ -329,9 +316,7 @@ C Inactive-Secondary pair indices:
       DO 150 ICASE=1,NCASES
         NSUM=0
         DO 151 ISYM=1,NSYM
-          NEXCES(ISYM,ICASE)=NSUM
           N=NASUP(ISYM,ICASE)*NISUP(ISYM,ICASE)
-          NEXC(ISYM,ICASE)=N
 C Preliminary value for NINDEP: Nr of independent active params:
           NINDEP(ISYM,ICASE)=NASUP(ISYM,ICASE)
           IF(N.EQ.0) NINDEP(ISYM,ICASE)=0

@@ -77,7 +77,7 @@ do MIDV=1,CIS%nMidV
       do LEV=SGS%nLev,SGS%MidLev+1,-1
         IC = ISTEPVEC(LEV)
         LV = SGS%Down(LV,IC)
-        IRAWSUM = IRAWSUM+SGS%Raw(LV,IC)
+        IRAWSUM = IRAWSUM+SGS%RAW(LV,IC)
       end do
       EXS%USGN(IRAWSUM,MIDV) = IUW
     end do
@@ -106,7 +106,7 @@ do MIDV=1,CIS%nMidV
       do LEV=1,SGS%MidLev
         IC = ISTEPVEC(LEV)
         LV = SGS%Up(LV,IC)
-        IDAWSUM = IDAWSUM+SGS%Daw(LV,IC)
+        IDAWSUM = IDAWSUM+SGS%DAW(LV,IC)
       end do
       EXS%LSGN(IDAWSUM,MIDV) = ICONF
       ICONF = ICONF+NUW

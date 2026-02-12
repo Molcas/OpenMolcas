@@ -32,8 +32,8 @@ subroutine Tcrtnc(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,Sc
 !             Modified to back transformation, January '92.            *
 !***********************************************************************
 
-use Definitions, only: wp, iwp
 use Molcas, only: lCache
+use Definitions, only: wp, iwp
 #if defined (_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif

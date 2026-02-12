@@ -41,8 +41,8 @@
 
 module FFPT_global
 
-use Definitions, only: wp, iwp
 use Molcas, only: MxSym
+use Definitions, only: wp, iwp
 
 implicit none
 private

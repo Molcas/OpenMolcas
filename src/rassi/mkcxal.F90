@@ -12,9 +12,16 @@
 ! THERE IS A COMPILER BUG ON FORTRAN VERSION 2.2.0 (JUNE 1987).
 ! WRONG RESULTS PRODUCED EVEN ON VECTORIZED LEVEL 1.
 SUBROUTINE MKCXAL(NDIMEN,TRAL,CXAL)
+use definitions, only: iwp, wp
 use Constants, only: Zero, One
-IMPLICIT REAL*8 (A-H,O-Z)
-DIMENSION TRAL(NDIMEN,NDIMEN),CXAL(NDIMEN,NDIMEN)
+IMPLICIT NONE
+integer(kind=iwp), intent(in):: NDIMEN
+real(kind=wp), Intent(in):: TRAL(NDIMEN,NDIMEN)
+real(kind=wp), Intent(out):: CXAL(NDIMEN,NDIMEN)
+
+real(kind=wp) SUMMA
+integer(kind=iwp) I,J,K
+
 DO I=1,NDIMEN
   DO J=I,NDIMEN
     CXAL(I,J)=Zero

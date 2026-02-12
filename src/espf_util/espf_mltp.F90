@@ -14,10 +14,10 @@ subroutine espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp,Grid,IsMM,Ext,iPL,Cord)
 ! i.e. charges or charges+dipoles
 
 use espf_global, only: MxExtPotComp
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Debye
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: natom, MltOrd, nMult, nGrdPt, IsMM(natom), iPL

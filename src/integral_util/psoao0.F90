@@ -45,8 +45,8 @@ use RICD_Info, only: Cholesky, Do_RI
 use k2_arrays, only: DoGrad_
 use Symmetry_Info, only: nIrrep
 use Breit, only: nComp
-use Definitions, only: iwp, u6
 use Molcas, only: lCache
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1, nSD

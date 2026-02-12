@@ -43,7 +43,6 @@ real(kind=wp), allocatable :: D1AV(:), Tmp(:)
 real(kind=wp), external :: Get_ExFac
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: ipTmp1
-integer(kind=iwp) :: iComp=1
 character(len=8) :: RlxLbl
 #endif
 
@@ -200,14 +199,14 @@ do iIrrep=0,nIrrep-1
   end do
 end do
 #ifdef _DEBUGPRINT_
-  RlxLbl = 'D1AO    '
-  call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],D0)
-  RlxLbl = 'D1AO-Var'
-  call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DVar)
-  RlxLbl = 'DSAO    '
-  call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DS)
-  RlxLbl = 'DSAO-Var'
-  call PrMtrx(RlxLbl,[iD0Lbl],iComp,[1],DSVar)
+RlxLbl = 'D1AO    '
+call PrMtrx(RlxLbl,[iD0Lbl],1,[1],D0)
+RlxLbl = 'D1AO-Var'
+call PrMtrx(RlxLbl,[iD0Lbl],1,[1],DVar)
+RlxLbl = 'DSAO    '
+call PrMtrx(RlxLbl,[iD0Lbl],1,[1],DS)
+RlxLbl = 'DSAO-Var'
+call PrMtrx(RlxLbl,[iD0Lbl],1,[1],DSVar)
 #endif
 
 !...  Get the MO-coefficients
@@ -221,11 +220,11 @@ kCMO = nsa
 call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
 call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
 #ifdef _DEBUGPRINT_
-  ipTmp1 = 1
-  do iIrrep=0,nIrrep-1
-    call RecPrt(' CMO''s',' ',CMO(ipTmp1,1),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
-    ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
-  enddo
+ipTmp1 = 1
+do iIrrep=0,nIrrep-1
+  call RecPrt(' CMO''s',' ',CMO(ipTmp1,1),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
+  ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
+end do
 #endif
 
 !...  Get additional information in the case of a RASSCF wave function
@@ -236,9 +235,9 @@ if (lpso) then
   call Get_iArray('nAsh',nAsh,i)
   call Get_iArray('nFro',nFro,i)
 # ifdef _DEBUGPRINT_
-    write(u6,*) ' nISh=',nISh
-    write(u6,*) ' nASh=',nASh
-    write(u6,*) ' nFro=',nFro
+  write(u6,*) ' nISh=',nISh
+  write(u6,*) ' nASh=',nASh
+  write(u6,*) ' nFro=',nFro
 # endif
   nAct = 0
   nTst = 0
@@ -286,11 +285,11 @@ if (lpso) then
 
     call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
 #   ifdef _DEBUGPRINT_
-      ipTmp1 = 1
-      do iIrrep=0,nIrrep-1
-        call RecPrt('LCMO''s',' ',CMO(ipTmp1,2),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
-        ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
-      end do
+    ipTmp1 = 1
+    do iIrrep=0,nIrrep-1
+      call RecPrt('LCMO''s',' ',CMO(ipTmp1,2),nBas_Valence(iIrrep),nBas_Valence(iIrrep))
+      ipTmp1 = ipTmp1+nBas_Valence(iIrrep)**2
+    end do
 #   endif
 
     ! P are stored as
@@ -331,7 +330,7 @@ if (lpso) then
     call dcopy_(nDens_Valence,DVar,1,D0(1,2),1)
     if (.not. isNAC) call daxpy_(ndens,-Half,D0(1,1),1,D0(1,2),1)
 #   ifdef _DEBUGPRINT_
-    call PrMtrx('D0',[iD0Lbl],iComp,[1],D0)
+    call PrMtrx('D0',[iD0Lbl],1,[1],D0)
 #   endif
 
     ! This is necessary for the kap-lag

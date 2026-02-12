@@ -28,26 +28,26 @@ use external_centers, only: iXPolType, nOrd_XF, nXF, XF
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
-use Constants, only: Zero, One, Two, Pi
-use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
 #endif
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7), iDum, iFd, iOrdOp, ipA, ipAOff, ipB, ipBOff, &
-                     ipDAO, iStb(0:7), iuvwx(4), iZeta, j, jCoSet(8,8), JndGrd(3,4), jpDAO, lDCRT, LmbdT, lOp(4), &
-                     mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nip, nStb, nT
+                     ipDAO, iStb(0:7), iuvwx(4), iZeta, j, jCoSet(8,8), JndGrd(3,4), jpDAO, lDCRT, LmbdT, lOp(4), mGrad, mRys, &
+                     nArray, nDAO, nDCRT, nDiff, nip, nStb, nT
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3)
 logical(kind=iwp) :: JfGrad(3,4), NoLoop
 procedure(cff2d_kernel) :: XCff2D
 procedure(modu2_kernel) :: Fake
 procedure(tval1_kernel) :: TNAI1
 integer(kind=iwp), external :: iChAtm, NrOpr
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ii
-#endif
 
 #include "macros.fh"
 unused_var(rFinal)
@@ -55,7 +55,6 @@ unused_var(nHer)
 unused_var(Ccoor(1))
 unused_var(nOrdOp)
 unused_var(nComp)
-
 
 ! Modify the density matrix with the prefactor
 
@@ -156,16 +155,16 @@ do iOrdOp=0,nOrd_XF
     Fact = -real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
 #   ifdef _DEBUGPRINT_
-      write(u6,*) ' ZFd=',(ZFd(i),i=1,nTri_Elem1(iOrdOp))
-      write(u6,*) ' Fact=',Fact
-      call RecPrt('DAO*Fact*ZFd()',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(iOrdOp))
-      write(u6,*) ' m      =',nStabM
-      write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-      write(u6,*) ' s      =',nStb
-      write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
-      write(u6,*) ' LambdaT=',LmbdT
-      write(u6,*) ' t      =',nDCRT
-      write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' ZFd=',(ZFd(i),i=1,nTri_Elem1(iOrdOp))
+    write(u6,*) ' Fact=',Fact
+    call RecPrt('DAO*Fact*ZFd()',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(iOrdOp))
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStb
+    write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
 #   endif
     iuvwx(3) = nStb
     iuvwx(4) = nStb

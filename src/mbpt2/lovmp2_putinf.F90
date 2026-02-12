@@ -16,9 +16,9 @@ subroutine LovMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,isFNO)
 
 use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def, MxQualMP2, OED_Thr, &
                   set_cd_thr, SOS_mp2, Span_Def, SpanMP2, ThrMP2, Verbose
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 integer(kind=iwp), intent(in) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)

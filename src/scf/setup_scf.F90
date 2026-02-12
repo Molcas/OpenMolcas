@@ -23,8 +23,8 @@ subroutine SetUp_SCF()
 use Index_Functions, only: nTri_Elem
 use InfSCF, only: DSCF, kOV, MaxBas, MaxBOF, MaxBOO, MaxBXO, MaxOrb, MaxORF, MaxORO, mOV, nBas, nBB, nBO, nBT, nD, nFro, nnB, &
                   nnFr, nnO, nnOc, nOCC, nOFS, nOO, nOrb, nOV, nSym
+use Molcas, only: MxBas, MxSym
 use Definitions, only: iwp, u6
-use Molcas, only: MxSym, MxBas
 
 implicit none
 integer(kind=iwp) :: iSym, maxnOcc(MxSym), minnOcc(MxSym)

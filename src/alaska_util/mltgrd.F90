@@ -71,12 +71,12 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In MltGrd: RKappa',' ',rKappa,1,nZeta)
-  call RecPrt(' In MltGrd: A',' ',A,1,3)
-  call RecPrt(' In MltGrd: RB',' ',RB,1,3)
-  call RecPrt(' In MltGrd: Ccoor',' ',Ccoor,1,3)
-  call RecPrt(' In MltGrd: P',' ',P,nZeta,3)
-  write(u6,*) ' In MltGrd: la,lb=',la,lb
+call RecPrt(' In MltGrd: RKappa',' ',rKappa,1,nZeta)
+call RecPrt(' In MltGrd: A',' ',A,1,3)
+call RecPrt(' In MltGrd: RB',' ',RB,1,3)
+call RecPrt(' In MltGrd: Ccoor',' ',Ccoor,1,3)
+call RecPrt(' In MltGrd: P',' ',P,nZeta,3)
+write(u6,*) ' In MltGrd: la,lb=',la,lb
 #endif
 
 ! Compute the cartesian values of the basis functions angular part

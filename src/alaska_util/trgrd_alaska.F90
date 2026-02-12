@@ -26,14 +26,14 @@ use Basis_Info, only: DBSC, nCnttp
 use Center_Info, only: DC
 use Symmetry_Info, only: nIrrep
 use Disp, only: IndDsp
+use Molcas, only: LenIn, MxAtom
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn5, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(out) :: CGrad(3,MxAtom)
-character(len=LenIn5), intent(out) :: CNames(MxAtom)
+character(len=LenIn+5), intent(out) :: CNames(MxAtom)
 real(kind=wp), intent(in) :: GradIn(nGrad)
 integer(kind=iwp), intent(out) :: iCen
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iCo, iComp, kOp, mdc, nDisps

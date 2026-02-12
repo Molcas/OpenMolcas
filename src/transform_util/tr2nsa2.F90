@@ -36,12 +36,12 @@ subroutine tr2NsA2(CMO,NCMO,X1,nX1,X2,nX2,pqrU,npqrU,pqTU,npqTU)
 ! subroutine does.
 
 use caspt2_global, only: LUHLF2, LUHLF3, LUINTM
+use caspt2_module, only: nSym
 use Intgrl, only: IAD2M
 use trafo, only: IAD13, ISP, ISQ, ISR, ISS, LMOP, LMOP2, LMOQ, LMOQ2, LMOR, LMOR2, LRUPQ, LTUPQ, NBP, NBPQ, NBQ, NBR, NOCP, NOCQ, &
                  NOCR, NOCS, NOP, NOQ, NOR
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use caspt2_module, only: nSym
 
 implicit none
 integer(kind=iwp), intent(in) :: NCMO, nX1, nX2, npqrU, npqTU

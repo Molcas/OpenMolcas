@@ -138,13 +138,13 @@ do iOrdOp=0,nOrdOp
     Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
 #   ifdef _DEBUGPRINT_
-      write(u6,*) ' m      =',nStabM
-      write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-      write(u6,*) ' s      =',nStb
-      write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
-      write(u6,*) ' LambdaT=',LmbdT
-      write(u6,*) ' t      =',nDCRT
-      write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStb
+    write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
 #   endif
 
     do lDCRT=0,nDCRT-1

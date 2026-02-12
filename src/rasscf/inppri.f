@@ -65,7 +65,7 @@
      &                         lRootSplit,NumSplit,iDimBlockA,
      &                         EnerSplit,GapSpli,PerSplit,PerCSpli,
      &                         fOrdSplit
-      use printlevel, only: USUAL,SILENT
+      use PrintLevel, only: USUAL,SILENT
       use output_ras, only: LF,IPRLOC
       use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
      &                        NSEL,NTOT1,NASH,NBAS,NDEL,NFRO,NISH,
@@ -73,7 +73,7 @@
       use spinfo, only: DoComb,NCNFTP,NCSASM,NDTASM,NDTFTP
       use spinfo, only: I_ELIMINATE_GAS_MOLCAS,NCSF_HEXS
       use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
-      use rasdim, only: MxRef
+      use RASDim, only: MxRef
 
       Implicit None
       Logical lOPTO
@@ -81,6 +81,7 @@
       Character(LEN=8)   Fmt1,Fmt2,Label
       Character(LEN=120)  Line,BlLine,StLine
       Character(LEN=3) lIrrep(8)
+      Character(LEN=2) GASidx
       Character(LEN=80) KSDFT2
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       Character(LEN=3) SNAC
@@ -192,8 +193,9 @@ C.. for RAS
 C.. for GAS
       else
         DO IGAS=1,NGAS
-          Write(LF,Fmt2//'A,I1,A,T45,2I6)')
-     &      'Min/Max nr of electrons up to GAS',IGAS,' sp.',
+          write(GASidx,'(i0)') IGAS
+          Write(LF,Fmt2//'A,A,A,T45,2I6)')
+     &      'Min/Max nr of electrons up to GAS',GASidx,' sp.',
      &                           igsoccx(igas,1),igsoccx(igas,2)
         END DO
       end if

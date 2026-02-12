@@ -15,9 +15,9 @@
 subroutine cvbfinit_cvb()
 
 use casvb_global, only: corenrg, iprec, is_set, iwidth, mxaobf
+use Molcas, only: MaxBfn
 use Constants, only: Zero
 use Definitions, only: iwp
-use Molcas, only: MaxBfn
 
 implicit none
 integer(kind=iwp), parameter :: iset = 1

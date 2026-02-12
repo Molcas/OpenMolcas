@@ -16,9 +16,9 @@ use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use define_af, only: AngTp
-use Definitions, only: wp, iwp, u6
-use print, only: nPrint
+use PrintLevel, only: nPrint
 use Molcas, only: MaxBfn, MxAtom
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, iAddr, iAng, iAngl, ib, iBas, iBas_Aux, iBas_Frag, iBass, ic, icnt, iCnttp, iExp, iPrim, iPrim_Aux, &
@@ -90,7 +90,7 @@ do iCnttp=1,nCnttp
     if (mdc > MxAtom) then
       call WarningMessage(2,'MxAtom too small')
       write(u6,*) 'MxAtom=',MxAtom
-      write(u6,*) 'Increase MxAtom in Molcas.F90 and recompile the code!'
+      write(u6,*) 'Increase MxAtom in the Molcas module and recompile the code!'
       call Abend()
     end if
     ! Loop over shells associated with this center

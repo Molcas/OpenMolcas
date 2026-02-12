@@ -40,7 +40,7 @@ SGS%MAW(1:SGS%MVSta-1,0:3) = 0
 do IU=1,SGS%MVSta-1
   do IC=0,3
     ID = SGS%Down(IU,IC)
-    if (ID /= 0) SGS%MAW(IU,IC) = SGS%Raw(ID,IC)
+    if (ID /= 0) SGS%MAW(IU,IC) = SGS%RAW(ID,IC)
   end do
 end do
 ! FINALLY, ADD AN OFFSET TO ARCS LEADING TO MIDLEVELS:
@@ -51,7 +51,7 @@ do IV=SGS%MVSta,SGS%MVEnd
     if (IU == 0) cycle
     SGS%MAW(IU,IC) = ISUM+SGS%MAW(IU,IC)
   end do
-  ISUM = ISUM+SGS%Raw(IV,4)
+  ISUM = ISUM+SGS%RAW(IV,4)
 end do
 do IV=SGS%MVSta,SGS%MVEnd
   do IC=0,3

@@ -12,8 +12,8 @@
 module MBPT2_Global
 
 use Data_Structures, only: DSBA_Type
-use Definitions, only: wp, iwp
 use Molcas, only: LenIn
+use Definitions, only: wp, iwp
 
 implicit none
 private

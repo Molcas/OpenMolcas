@@ -18,10 +18,10 @@ subroutine MP2Dens_drv(E2BJAI,REFC)
 
 use MBPT2_Global, only: CMO, Density, DiaA, EMP2, iPoVec, MP2Lagr, VECL2, WDensity
 use Data_Structures, only: Deallocate_DT
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
-use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 real(kind=wp), intent(out) :: E2BJAI, REFC

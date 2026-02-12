@@ -10,25 +10,30 @@
 ************************************************************************
       SUBROUTINE MK_TWDM(mSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,
      &                   ISY12)
+      use definitions, only: iwp, wp
+      use constants, only: Zero
       use Symmetry_Info, only: MUL
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER mSYM, nTDMZZ,ISY12
-      REAL*8 TDMZZ(NTDMZZ),WDMZZ(NTDMZZ),SCR(nSCR,4)
-      INTEGER IOFF(mSYM), NBASF(mSym)
+      IMPLICIT NONE
+      INTEGER(KIND=IWP), INTENT(IN):: mSYM, nTDMZZ,nSCR,ISY12
+      REAL(KIND=WP), INTENT(IN):: TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
+      REAL(KIND=WP), INTENT(OUT):: SCR(nSCR,4)
+      INTEGER(KIND=IWP), INTENT(IN):: IOFF(mSYM), NBASF(mSym)
 
+      INTEGER(KIND=IWP) IOF,ITD,ISY,NB,J,I,IJ,ISY1,NB1,ISY2,NB2
+      REAL(KIND=WP) TDM,WDM
 C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 
 C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
-      SCR(:,:)=0.0D0
+      SCR(:,:)=Zero
       IF(ISY12.EQ.1) THEN
         IOF=0
         ITD=0
-        DO 100 ISY=1,mSym
+        DO ISY=1,mSym
           NB=NBASF(ISY)
-          IF(NB.EQ.0) GOTO 100
-          DO 90 J=1,NB
-            DO 91 I=1,NB
+          IF(NB.EQ.0) CYCLE
+          DO J=1,NB
+            DO I=1,NB
               ITD=ITD+1
               TDM=TDMZZ(ITD)
               WDM=WDMZZ(ITD)
@@ -45,23 +50,23 @@ C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
               END IF
               SCR(IJ,1)=SCR(IJ,1)+TDM
               SCR(IJ,3)=SCR(IJ,3)+WDM
-91          CONTINUE
-90        CONTINUE
+            END DO
+          END DO
           IOF=IOF+(NB*(NB+1))/2
-100     CONTINUE
+        END DO
       ELSE
 C GENERAL CASE, NON-DIAGONAL SYMMETRY BLOCKS
 C THEN LOOP OVER ELEMENTS OF TDMZZ
         ITD=0
-        DO 200 ISY1=1,mSym
+        DO ISY1=1,mSym
           NB1=NBASF(ISY1)
-          IF(NB1.EQ.0) GOTO 200
+          IF(NB1.EQ.0) CYCLE
           ISY2=MUL(ISY1,ISY12)
           NB2=NBASF(ISY2)
-          IF(NB2.EQ.0) GOTO 200
+          IF(NB2.EQ.0) CYCLE
           IF(ISY1.GT.ISY2) THEN
-            DO 180 J=1,NB2
-              DO 181 I=1,NB1
+            DO J=1,NB2
+              DO I=1,NB1
                 ITD=ITD+1
                 TDM=TDMZZ(ITD)
                 WDM=WDMZZ(ITD)
@@ -70,11 +75,11 @@ C THEN LOOP OVER ELEMENTS OF TDMZZ
                 SCR(IJ,2)=SCR(IJ,2)+TDM
                 SCR(IJ,3)=SCR(IJ,3)+WDM
                 SCR(IJ,4)=SCR(IJ,4)+WDM
-181           CONTINUE
-180         CONTINUE
+              END DO
+            END DO
           ELSE
-            DO 190 J=1,NB2
-              DO 191 I=1,NB1
+            DO J=1,NB2
+              DO I=1,NB1
                 ITD=ITD+1
                 TDM=TDMZZ(ITD)
                 WDM=WDMZZ(ITD)
@@ -83,11 +88,10 @@ C THEN LOOP OVER ELEMENTS OF TDMZZ
                 SCR(IJ,2)=SCR(IJ,2)-TDM
                 SCR(IJ,3)=SCR(IJ,3)+WDM
                 SCR(IJ,4)=SCR(IJ,4)-WDM
-191           CONTINUE
-190         CONTINUE
+              END DO
+            END DO
           END IF
-200     CONTINUE
+        END DO
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE MK_TWDM

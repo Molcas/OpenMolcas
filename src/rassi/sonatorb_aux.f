@@ -9,31 +9,35 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero, One, Two
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: NBTRI,NBMX,NBASF,NBSQ,NBST
 
       IMPLICIT None
-      Real*8 DENS(6,NBTRI)
-      CHARACTER(LEN=*) FILEBASE
-      CHARACTER(LEN=8) CHARTYPE
-      INTEGER ASS,BSS
+      real(kind=wp), intent(in):: DENS(6,NBTRI)
+      CHARACTER(LEN=*), intent(in):: FILEBASE
+      CHARACTER(LEN=8), intent(in):: CHARTYPE
+      INTEGER(KIND=IWP), INTENT(IN):: ASS,BSS
 
       CHARACTER(LEN=25) FNAME
       CHARACTER(LEN=16) KNUM
       CHARACTER(LEN=16) FNUM,XNUM
       CHARACTER(LEN=8) LABEL
       CHARACTER CDIR
-      Real*8 Dummy(1)
-      Integer iDummy(7,8)
-      Real*8, allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:), SCR(:)
-      Real*8, allocatable:: VNAT(:), EIG(:), OCC(:)
-      Integer ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV, LE, ISYM,
-     &        NB, I, LS1, LV1, LE1, ISTART, IEND, IDIR, INV, II2, IOCC,
-     &        J, IJ, JI, ID1, ID2, ISCR, II, I1, I2, LuXXVEC
-      Integer, External:: IsFreeUnit
-      REAL*8 X
+      Real(kind=wp) Dummy(1)
+      Integer(kind=iwp) iDummy(7,8)
+      Real(kind=wp), allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:),
+     &                             SCR(:)
+      Real(kind=wp), allocatable:: VNAT(:), EIG(:), OCC(:)
+      Integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV,
+     &                  LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND,
+     &                  IDIR, INV, II2, IOCC, J, IJ, JI, ID1, ID2, ISCR,
+     &                  II, I1, I2, LuXXVEC
+      Integer(kind=iwp), External:: IsFreeUnit
+      REAL(kind=wp) X
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C PLOTTING SECTION
@@ -45,8 +49,8 @@ C Get the proper type of the property
       IF(CHARTYPE.EQ.'HERMTRIP') ITYPE=3
       IF(CHARTYPE.EQ.'ANTITRIP') ITYPE=4
       IF(ITYPE.EQ.0) THEN
-        WRITE(6,*)'RASSI/SONATORB internal error.'
-        WRITE(6,*)'Erroneous property type:',CHARTYPE
+        WRITE(u6,*)'RASSI/SONATORB internal error.'
+        WRITE(u6,*)'Erroneous property type:',CHARTYPE
         CALL ABEND()
       END IF
 
@@ -65,16 +69,16 @@ C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(VEC2,NBMX2,Label='VEC2')
       CALL mma_allocate(SCR,NBMX2,Label='SCR')
       CALL mma_allocate(EIG,NBST,Label='EIG')
-      SZZ(:)=0.0D0
-      VEC(:)=0.0D0
-      VEC2(:)=0.0D0
-      SCR(:)=0.0D0
-      EIG(:)=0.0D0
+      SZZ(:)=Zero
+      VEC(:)=Zero
+      VEC2(:)=Zero
+      SCR(:)=Zero
+      EIG(:)=Zero
 
       CALL mma_allocate(VNAT,NBSQ,Label='VNAT')
-      VNAT(:)=0.0D0
+      VNAT(:)=Zero
       CALL mma_allocate(OCC,NBST,Label='OCC')
-      OCC(:)=0.0D0
+      OCC(:)=Zero
 
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
@@ -86,10 +90,10 @@ c IOPT=6, origin and nuclear contrib not read
       LABEL='MLTPL  0'
       CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
-        WRITE(6,*)
-        WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
-        WRITE(6,*)'      OVERLAP INTEGRALS ARE NOT AVAILABLE'
-        WRITE(6,*)
+        WRITE(u6,*)
+        WRITE(u6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
+        WRITE(u6,*)'      OVERLAP INTEGRALS ARE NOT AVAILABLE'
+        WRITE(u6,*)
         CALL ABEND()
       ENDIF
 
@@ -98,11 +102,11 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
       LV=1
       LE=1
-      VEC(:)=0.0D0
+      VEC(:)=Zero
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
         DO I=1,NB**2,(NB+1)
-          VEC(LV-1+I)=1.0D00
+          VEC(LV-1+I)=One
         END DO
         CALL JACOB(SZZ(LS),VEC,NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
@@ -111,7 +115,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LE1=LE
         DO I=1,NB
           EIG(LE1)=SZZ(LS1)
-          X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
+          X=One/SQRT(MAX(SZZ(LS1),1.0D-14))
           CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
           LV1=LV1+NB
@@ -148,23 +152,23 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LE=1
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
-          IF(NB.EQ.0) GOTO 1750
+          IF(NB.EQ.0) CYCLE
 
 C TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
 C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
 C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 
 C expand the triangular matrix for this symmetry to a square matrix
-          DMAT(:)=0.0D0
-          CALL DCOPY_(NBMX2,[0.0D00],0,SCR,1)
+          DMAT(:)=Zero
+          CALL DCOPY_(NBMX2,[Zero],0,SCR,1)
           DO J=1,NB
           DO I=1,J
             II2=II2+1
             IJ=NB*(J-1)+I
             JI=NB*(I-1)+J
             IF(I.NE.J) THEN
-              DMAT(IJ)=DENS(IDIR,II2)/2.0d0
-              DMAT(JI)=DENS(IDIR,II2)/2.0d0
+              DMAT(IJ)=DENS(IDIR,II2)/Two
+              DMAT(JI)=DENS(IDIR,II2)/Two
             ELSE
               DMAT(IJ)=DENS(IDIR,II2)
               DMAT(JI)=DENS(IDIR,II2)
@@ -172,12 +176,12 @@ C expand the triangular matrix for this symmetry to a square matrix
           END DO
           END DO
 
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
+          CALL DGEMM_('N','N',NB,NB,NB,One,
      &                 DMAT,NB,VEC(LV),NB,
-     &                 0.0D0,SCR,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
+     &                 Zero,SCR,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,
      &                 VEC(LV),NB,SCR,NB,
-     &                 0.0D0,DMAT,NB)
+     &                 Zero,DMAT,NB)
 
           ID1=1
           ID2=1
@@ -190,24 +194,24 @@ C expand the triangular matrix for this symmetry to a square matrix
 
 
 C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
-          SCR(:)=0.0D0
+          SCR(:)=Zero
           ISCR=1
           DO I=1,NB
             DO J=1,I
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
 c simple averaging
-              SCR(ISCR)=(DMAT(IJ)+DMAT(JI))/2.0d0
+              SCR(ISCR)=(DMAT(IJ)+DMAT(JI))/Two
 
 c add a factor of two to convert spin -> sigma
-              IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*2.0d0
+              IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*Two
               ISCR=ISCR+1
             END DO
           END DO
 
 C DIAGONALIZE THE DENSITY MATRIX BLOCK:
-          CALL DCOPY_(NBMX2,[0.0D0],0,VEC2,1)
-          CALL DCOPY_(NB,[1.0D0],0,VEC2,NB+1)
+          CALL DCOPY_(NBMX2,[Zero],0,VEC2,1)
+          CALL DCOPY_(NB,[One],0,VEC2,NB+1)
 
           CALL JACOB(SCR,VEC2,NB,NB)
           CALL JACORD(SCR,VEC2,NB,NB)
@@ -221,9 +225,9 @@ C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           IOCC=IOCC+NB
 
 C REEXPRESS THE EIGENVALUES IN AO BASIS FUNCTIONS. REVERSE ORDER.
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
+          CALL DGEMM_('N','N',NB,NB,NB,One,
      &                 VEC(LV),NB,VEC2,NB,
-     &                 0.0D0,SCR,NB)
+     &                 Zero,SCR,NB)
           I1=1
           I2=INV+NB**2
           DO I=1,NB
@@ -234,7 +238,7 @@ C REEXPRESS THE EIGENVALUES IN AO BASIS FUNCTIONS. REVERSE ORDER.
           INV=INV+NB**2
           LV=LV+NB**2
           LE=LE+NB
-1750      CONTINUE
+
         END DO
 
 C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
@@ -253,15 +257,15 @@ C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
 
        FNAME=FILEBASE//'.'//TRIM(FNUM)
        IF(ITYPE.EQ.1)
-     &        WRITE(6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
        IF(ITYPE.EQ.2)
-     &        WRITE(6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.3)
-     &        WRITE(6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.4)
-     &        WRITE(6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
 
-       WRITE(6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
+       WRITE(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
@@ -290,38 +294,41 @@ c    ONLYFOR NATURAL ORBITALS
       END SUBROUTINE SONATORB_PLOT
 
       SUBROUTINE SONATORB_CPLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero, One, Two
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: NBTRI,NBMX,NBASF,NBSQ,NBST
       IMPLICIT NONE
-      Real*8 DENS(6,NBTRI)
+      Real(kind=wp) DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE
-      INTEGER ASS,BSS
+      INTEGER(kind=iwp) ASS,BSS
 
       CHARACTER(LEN=25) FNAME
       CHARACTER(LEN=16) KNUM
       CHARACTER(LEN=16) FNUM,XNUM
       CHARACTER(LEN=8) LABEL
       CHARACTER CDIR
-      Real*8 Dummy(1)
-      Integer IDUM(1),iDummy(7,8)
-      Real*8, Allocatable:: SZZ(:), VEC(:), VEC2(:), VEC2I(:), SCR(:)
-      Real*8, Allocatable:: SCRI(:), EIG(:)
-      Real*8, Allocatable:: VNAT(:), VNATI(:), OCC(:)
-      Real*8, Allocatable:: DMAT(:), DMATI(:)
-      Real*8, Allocatable:: SANG(:)
-      Real*8, Allocatable:: SANGF(:), SANGTR(:), SANGTI(:)
-      Real*8, Allocatable:: SANGTR2(:), SANGTI2(:)
+      Real(kind=wp) Dummy(1)
+      Integer(kind=iwp) IDUM(1),iDummy(7,8)
+      Real(kind=wp), Allocatable:: SZZ(:), VEC(:), VEC2(:), VEC2I(:),
+     &                             SCR(:)
+      Real(kind=wp), Allocatable:: SCRI(:), EIG(:)
+      Real(kind=wp), Allocatable:: VNAT(:), VNATI(:), OCC(:)
+      Real(kind=wp), Allocatable:: DMAT(:), DMATI(:)
+      Real(kind=wp), Allocatable:: SANG(:)
+      Real(kind=wp), Allocatable:: SANGF(:), SANGTR(:), SANGTI(:)
+      Real(kind=wp), Allocatable:: SANGTR2(:), SANGTI2(:)
 
-      Integer ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV, LE, ISYM,
-     &        NB, I, LS1, LV1, LE1, ISTART, IEND, IDIR, INV, II2, IOCC,
-     &        J, IJ, JI, ID1, ID2, ISCR, II, I1, I2, LuXXVEC, JOPT,
-     &        I1I, INV2, ISCRI
-      Integer, External:: IsFreeUnit
-      REAL*8 X, SUM, SUMI
+      Integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV,
+     &                  LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND,
+     &                  IDIR, INV, II2, IOCC, J, IJ, JI, ID1, ID2, ISCR,
+     &                  II, I1, I2, LuXXVEC, JOPT, I1I, INV2, ISCRI
+      Integer(kind=iwp), External:: IsFreeUnit
+      REAL(kind=wp) X, SUM, SUMI
 
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -334,8 +341,8 @@ C Get the proper type of the property
       IF(CHARTYPE.EQ.'HERMTRIP') ITYPE=3
       IF(CHARTYPE.EQ.'ANTITRIP') ITYPE=4
       IF(ITYPE.EQ.0) THEN
-        WRITE(6,*)'RASSI/SONATORB internal error.'
-        WRITE(6,*)'Erroneous property type:',CHARTYPE
+        WRITE(u6,*)'RASSI/SONATORB internal error.'
+        WRITE(u6,*)'Erroneous property type:',CHARTYPE
         CALL ABEND()
       END IF
 
@@ -350,26 +357,26 @@ C NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
 C       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
 C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(SZZ,NBTRI,Label='SZZ')
-      SZZ(:)=0.0D0
+      SZZ(:)=Zero
       CALL mma_allocate(VEC,NBSQ,Label='VEC')
-      VEC(:)=0.0D0
+      VEC(:)=Zero
       CALL mma_allocate(VEC2,NBMX2,Label='VEC2')
-      VEC2(:)=0.0D0
+      VEC2(:)=Zero
       CALL mma_allocate(VEC2I,NBMX2,Label='VEC2I')
-      VEC2I(:)=0.0D0
+      VEC2I(:)=Zero
       CALL mma_allocate(SCR,NBMX2,Label='SCR')
-      SCR(:)=0.0D0
+      SCR(:)=Zero
       CALL mma_allocate(SCRI,NBMX2,Label='SCRI')
-      SCRI(:)=0.0D0
+      SCRI(:)=Zero
       CALL mma_allocate(EIG,NBST,Label='EIG')
-      EIG(:)=0.0D0
+      EIG(:)=Zero
 
       CALL mma_allocate(VNAT,NBSQ,Label='VNAT')
-      VNAT(:)=0.0D0
+      VNAT(:)=Zero
       CALL mma_allocate(VNATI,NBSQ,Label='VNATI')
-      VNATI(:)=0.0D0
+      VNATI(:)=Zero
       CALL mma_allocate(OCC,NBST,Label='OCC')
-      OCC(:)=0.0D0
+      OCC(:)=Zero
 
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
@@ -381,10 +388,10 @@ c IOPT=6, origin and nuclear contrib not read
       LABEL='MLTPL  0'
       CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
       IF ( IRC.NE.0 ) THEN
-        WRITE(6,*)
-        WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
-        WRITE(6,*)'      OVERLAP INTEGRALS ARE NOT AVAILABLE'
-        WRITE(6,*)
+        WRITE(u6,*)
+        WRITE(u6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
+        WRITE(u6,*)'      OVERLAP INTEGRALS ARE NOT AVAILABLE'
+        WRITE(u6,*)
         CALL ABEND()
       ENDIF
 
@@ -393,11 +400,11 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
       LV=1
       LE=1
-      VEC(:)=0.0D0
+      VEC(:)=Zero
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
         DO I=1,NB**2,(NB+1)
-          VEC(LV-1+I)=1.0D00
+          VEC(LV-1+I)=One
         END DO
         CALL JACOB(SZZ(LS),VEC(LV),NB,NB)
 C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
@@ -406,7 +413,7 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LE1=LE
         DO I=1,NB
           EIG(LE1)=SZZ(LS1)
-          X=1.0D00/SQRT(MAX(SZZ(LS1),1.0D-14))
+          X=One/SQRT(MAX(SZZ(LS1),1.0D-14))
           CALL DSCAL_(NB,X,VEC(LV1),1)
           LS1=LS1+I+1
           LV1=LV1+NB
@@ -444,7 +451,7 @@ cccccccccccccccccccccccc
 cccccccccccccccccccccccc
 C read in ao matrix for angmom or mltpl
       CALL mma_allocate(SANG,NBTRI,Label='SANG')
-      SANG(:)=0.0D0
+      SANG(:)=Zero
 
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
@@ -457,11 +464,11 @@ C read in ao matrix for angmom or mltpl
         CALL  RDONE(IRC,IOPT,LABEL,ICMP,SANG,ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
-          WRITE(6,*)
-          WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
-          WRITE(6,*)'      MLTPL0 INTEGRALS ARE NOT AVAILABLE'
-          WRITE(6,*)'      IRC:',IRC
-          WRITE(6,*)
+          WRITE(u6,*)
+          WRITE(u6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
+          WRITE(u6,*)'      MLTPL0 INTEGRALS ARE NOT AVAILABLE'
+          WRITE(u6,*)'      IRC:',IRC
+          WRITE(u6,*)
           CALL ABEND()
         END IF
 
@@ -472,11 +479,11 @@ C read in ao matrix for angmom or mltpl
         CALL  RDONE(IRC,IOPT,LABEL,ICMP,SANG,ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
-          WRITE(6,*)
-          WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
-          WRITE(6,*)'      ANGMOM INTEGRALS ARE NOT AVAILABLE'
-          WRITE(6,*)'      IRC:',IRC
-          WRITE(6,*)
+          WRITE(u6,*)
+          WRITE(u6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
+          WRITE(u6,*)'      ANGMOM INTEGRALS ARE NOT AVAILABLE'
+          WRITE(u6,*)'      IRC:',IRC
+          WRITE(u6,*)
           CALL ABEND()
         END IF
 
@@ -500,10 +507,10 @@ C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
 C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 
 C expand the triangular matrix for this symmetry to a square matrix
-          DMAT(:)=0.0D0
-          DMATI(:)=0.0D0
-          SCR(:)=0.0D0
-          SCRI(:)=0.0D0
+          DMAT(:)=Zero
+          DMATI(:)=Zero
+          SCR(:)=Zero
+          SCRI(:)=Zero
 
           DO J=1,NB
           DO I=1,J
@@ -511,10 +518,10 @@ C expand the triangular matrix for this symmetry to a square matrix
             IJ=NB*(J-1)+I
             JI=NB*(I-1)+J
             IF(I.NE.J) THEN
-              DMAT(IJ)=DENS(IDIR,II2)/2.0d0
-              DMAT(JI)=DENS(IDIR,II2)/2.0d0
-              DMATI(IJ)=-DENS(IDIR+3,II2)/2.0d0
-              DMATI(JI)= DENS(IDIR+3,II2)/2.0d0
+              DMAT(IJ)=DENS(IDIR,II2)/Two
+              DMAT(JI)=DENS(IDIR,II2)/Two
+              DMATI(IJ)=-DENS(IDIR+3,II2)/Two
+              DMATI(JI)= DENS(IDIR+3,II2)/Two
             ELSE
               DMAT(IJ)=DENS(IDIR,II2)
               DMATI(JI)=DENS(IDIR+3,II2)
@@ -522,21 +529,21 @@ C expand the triangular matrix for this symmetry to a square matrix
           END DO
           END DO
 
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
+          CALL DGEMM_('N','N',NB,NB,NB,One,
      &                 DMAT,NB,VEC(LV),NB,
-     &                 0.0D0,SCR,NB)
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
+     &                 Zero,SCR,NB)
+          CALL DGEMM_('N','N',NB,NB,NB,One,
      &                 DMATI,NB,VEC(LV),NB,
-     &                 0.0D0,SCRI,NB)
+     &                 Zero,SCRI,NB)
 
 
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
+          CALL DGEMM_('T','N',NB,NB,NB,One,
      &                 VEC(LV),NB,SCR,NB,
-     &                 0.0D0,DMAT,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
+     &                 Zero,DMAT,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,
      &                 VEC(LV),NB,SCRI,NB,
-     &                 0.0D0,DMATI,NB)
+     &                 Zero,DMATI,NB)
 
           ID1=1
           ID2=1
@@ -551,8 +558,8 @@ C expand the triangular matrix for this symmetry to a square matrix
 
 
 C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
-          SCR(:)=0.0D0
-          SCRI(:)=0.0D0
+          SCR(:)=Zero
+          SCRI(:)=Zero
 
           ISCR=1
           ISCRI=1
@@ -561,19 +568,19 @@ C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
 c simple averaging
-              SCR(ISCR)=(DMAT(JI)+DMAT(IJ))/2.0d0
-              SCRI(ISCRI)=(DMATI(JI)-DMATI(IJ))/2.0d0
+              SCR(ISCR)=(DMAT(JI)+DMAT(IJ))/Two
+              SCRI(ISCRI)=(DMATI(JI)-DMATI(IJ))/Two
 c add a factor of two to convert spin -> sigma
-              IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*2.0d0
-              IF(ITYPE.GE.3) SCRI(ISCRI)=SCRI(ISCRI)*2.0d0
+              IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*Two
+              IF(ITYPE.GE.3) SCRI(ISCRI)=SCRI(ISCRI)*Two
               ISCR=ISCR+1
               ISCRI=ISCRI+1
             END DO
           END DO
 
 C DIAGONALIZE THE DENSITY MATRIX BLOCK:
-          VEC2(:)=0.0D0
-          VEC2I(:)=0.0D0
+          VEC2(:)=Zero
+          VEC2I(:)=Zero
 
           CALL CPLOT_DIAG(SCR,SCRI, NB,VEC2,VEC2I)
 
@@ -586,12 +593,12 @@ C LAPACK ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           IOCC=IOCC+NB
 
 C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
+          CALL DGEMM_('N','N',NB,NB,NB,One,
      &                 VEC(LV),NB,VEC2,NB,
-     &                 0.0D0,SCR,NB)
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
+     &                 Zero,SCR,NB)
+          CALL DGEMM_('N','N',NB,NB,NB,One,
      &                 VEC(LV),NB,VEC2I,NB,
-     &                 0.0D0,SCRI,NB)
+     &                 Zero,SCRI,NB)
 
           I1=1
           I1I=1
@@ -614,28 +621,28 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IF(IPGLOB.GE.4) THEN
 
       CALL mma_allocate(SANGF,NBMX**2,Label='SANGF')
-      SANGF(:)=0.0D0
+      SANGF(:)=Zero
       CALL mma_allocate(SANGTR,NBMX**2,Label='SANGTR')
       CALL mma_allocate(SANGTI,NBMX**2,Label='SANGTI')
-      SANGTR(:)=0.0D0
-      SANGTI(:)=0.0D0
+      SANGTR(:)=Zero
+      SANGTI(:)=Zero
       CALL mma_allocate(SANGTR2,NBMX**2,Label='SANGTR2')
       CALL mma_allocate(SANGTI2,NBMX**2,Label='SANGTI2')
-      SANGTR2(:)=0.0D0
-      SANGTI2(:)=0.0D0
+      SANGTR2(:)=Zero
+      SANGTI2(:)=Zero
 
       INV=0
       INV2=0
       II=0
-      SUM = 0.0d0
-      SUMI = 0.0d0
+      SUM = Zero
+      SUMI = Zero
 
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
-        IF(NB.EQ.0) GOTO 1860
+        IF (NB/=0) THEN
 
 c       Expand integrals for this symmetry to full storage
-        SANGF(:)=0.0D0
+        SANGF(:)=Zero
 
         DO J=1,NB
         DO I=1,J
@@ -658,37 +665,37 @@ c       Expand integrals for this symmetry to full storage
         END DO
 
         IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,SANGF,NB,
-     &             VNAT(1+INV),NB,0.0d0,SANGTR,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,SANGF,NB,
-     &              VNATI(1+INV),NB,0.0d0,SANGTI,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,SANGF,NB,
+     &             VNAT(1+INV),NB,Zero,SANGTR,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,SANGF,NB,
+     &              VNATI(1+INV),NB,Zero,SANGTI,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
-     &             SANGTR,NB,0.0d0,SANGTR2,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNATI(1+INV),NB,
-     &             SANGTI,NB,1.0d0,SANGTR2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,
+     &             SANGTR,NB,Zero,SANGTR2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNATI(1+INV),NB,
+     &             SANGTI,NB,One,SANGTR2,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,VNATI(1+INV),NB,
-     &             SANGTR,NB,0.0d0,SANGTI2,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
-     &             SANGTI,NB,1.0d0,SANGTI,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,-One,VNATI(1+INV),NB,
+     &             SANGTR,NB,Zero,SANGTI2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,
+     &             SANGTI,NB,One,SANGTI,NB)
 
         ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,SANGF,NB,
-     &             VNAT(1+INV),NB,0.0d0,SANGTI,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,SANGF,NB,
-     &             VNATI(1+INV),NB,0.0d0,SANGTR,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,SANGF,NB,
+     &             VNAT(1+INV),NB,Zero,SANGTI,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,-One,SANGF,NB,
+     &             VNATI(1+INV),NB,Zero,SANGTR,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
-     &             SANGTR,NB,0.0d0,SANGTR2,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNATI(1+INV),NB,
-     &             SANGTI,NB,1.0d0,SANGTR2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,
+     &             SANGTR,NB,Zero,SANGTR2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNATI(1+INV),NB,
+     &             SANGTI,NB,One,SANGTR2,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,-1.0d0,VNATI(1+INV),NB,
-     &             SANGTR,NB,0.0d0,SANGTI2,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0d0,VNAT(1+INV),NB,
-     &             SANGTI,NB,1.0d0,SANGTI2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,-One,VNATI(1+INV),NB,
+     &             SANGTR,NB,Zero,SANGTI2,NB)
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,
+     &             SANGTI,NB,One,SANGTI2,NB)
 
         END IF
 
@@ -699,16 +706,16 @@ c Sum over the trace
           SUMI = SUMI + OCC(I+INV2) * SANGTI2(1+IJ)
         END DO
 
-1860    CONTINUE
+        END IF
 
         INV=INV+NB**2
         INV2=INV2+NB
 
       END DO
 
-        WRITE(6,*) "Ben P TEST for JA:"
-        WRITE(6,*) "REAL: ",SUM
-        WRITE(6,*) "IMAG: ",SUMI
+        WRITE(u6,*) "Ben P TEST for JA:"
+        WRITE(u6,*) "REAL: ",SUM
+        WRITE(u6,*) "IMAG: ",SUMI
 
         CALL mma_deallocate(SANGF)
         CALL mma_deallocate(SANGTR)
@@ -736,15 +743,15 @@ C REAL PART
 
        FNAME=FILEBASE//'.'//TRIM(FNUM)//'.R'
        IF(ITYPE.EQ.1)
-     &        WRITE(6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
        IF(ITYPE.EQ.2)
-     &        WRITE(6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.3)
-     &        WRITE(6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.4)
-     &        WRITE(6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
 
-       WRITE(6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
+       WRITE(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
@@ -762,15 +769,15 @@ C IMAGINARY PART
 
        FNAME=FILEBASE//'.'//TRIM(FNUM)//'.I'
        IF(ITYPE.EQ.1)
-     &        WRITE(6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
        IF(ITYPE.EQ.2)
-     &        WRITE(6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.3)
-     &        WRITE(6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
        IF(ITYPE.EQ.4)
-     &        WRITE(6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
+     &        WRITE(u6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
 
-       WRITE(6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
+       WRITE(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
 
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
@@ -803,21 +810,23 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
 
 
       SUBROUTINE CPLOT_DIAG(MATR, MATI, DIM, EIGVECR, EIGVECI)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER DIM
-      REAL*8 MATR(DIM*(DIM+1)/2),MATI(DIM*(DIM+1)/2)
-      REAL*8 EIGVECR(DIM,DIM),EIGVECI(DIM,DIM)
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero
+      IMPLICIT NONE
+      INTEGER(KIND=IWP), INTENT(IN):: DIM
+      REAL(KIND=WP), INTENT(INOUT):: MATR(DIM*(DIM+1)/2),
+     &                               MATI(DIM*(DIM+1)/2)
+      REAL(KIND=WP), INTENT(OUT):: EIGVECR(DIM,DIM),EIGVECI(DIM,DIM)
 
-      REAL*8 CEIGVAL(DIM)
-      COMPLEX*16 MATFULL((DIM*(DIM+1)/2))
-      COMPLEX*16 CEIGVEC(DIM,DIM)
-      COMPLEX*16 ZWORK(2*DIM-1)
-      REAL*8 RWORK(3*DIM-2)
-      INTEGER INFO
+      REAL(KIND=WP) CEIGVAL(DIM)
+      COMPLEX(KIND=WP) MATFULL((DIM*(DIM+1)/2))
+      COMPLEX(KIND=WP) CEIGVEC(DIM,DIM)
+      COMPLEX(KIND=WP) ZWORK(2*DIM-1)
+      REAL(KIND=WP) RWORK(3*DIM-2)
+      INTEGER(KIND=IWP) INFO, I, J
 
       DO J=1,(DIM*(DIM+1)/2)
-          MATFULL(J) = CMPLX(MATR(J),MATI(J),kind=8)
-c          MATFULL(J) = CMPLX(MATR(J),0.0d0,kind=8)
+          MATFULL(J) = CMPLX(MATR(J),MATI(J),kind=WP)
       END DO
 
 
@@ -826,8 +835,8 @@ c          MATFULL(J) = CMPLX(MATR(J),0.0d0,kind=8)
 
 
       IF(INFO.NE.0) THEN
-          WRITE(6,*) "Error in diagonalization"
-          WRITE(6,*) "INFO: ",INFO
+          WRITE(u6,*) "Error in diagonalization"
+          WRITE(u6,*) "INFO: ",INFO
           CALL ABEND()
       END IF
 
@@ -838,8 +847,8 @@ c          MATFULL(J) = CMPLX(MATR(J),0.0d0,kind=8)
       END DO
       END DO
 
-      CALL DCOPY_(DIM*(DIM+1)/2,[0.0D00],0,MATR,1)
-      CALL DCOPY_(DIM*(DIM+1)/2,[0.0D00],0,MATI,1)
+      CALL DCOPY_(DIM*(DIM+1)/2,[Zero],0,MATR,1)
+      CALL DCOPY_(DIM*(DIM+1)/2,[Zero],0,MATI,1)
 
       DO J=1,DIM
          MATR((J*(J-1)/2)+J) = CEIGVAL(J)

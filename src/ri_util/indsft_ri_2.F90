@@ -48,22 +48,18 @@ logical(kind=iwp) :: qijij
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: r1, r2, tr1 = Zero, tr2 = Zero
 real(kind=wp), external :: ddot_
+
+r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
+r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
+tr1 = tr1+r1
+tr2 = tr2+r2
+write(u6,*) ' Sum=',r1,tr1
+write(u6,*) ' Dot=',r2,tr2
+call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
 #endif
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 k12 = 0
 k34 = 0
-#ifdef _DEBUGPRINT_
-  r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
-  r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
-  tr1 = tr1+r1
-  tr2 = tr2+r2
-  write(u6,*) ' Sum=',r1,tr1
-  write(u6,*) ' Dot=',r2,tr2
-  call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
-#endif
 memSO2 = 0
 
 ! quadruple loop over elements of the basis functions angular

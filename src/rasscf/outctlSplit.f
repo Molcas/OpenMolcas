@@ -42,14 +42,14 @@
       use SplitCas_Data, only: MxIterSplit,ThrSplit,
      &                         lRootSplit,EnerSplit,GapSpli,PerSplit,
      &                         PerCSpli,iDimBlockA
-      use printlevel, only: DEBUG,USUAL,TERSE,VERBOSE
+      use PrintLevel, only: DEBUG,USUAL,TERSE,VERBOSE
       use output_ras, only: LF,IPRLOC
       use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
      &                        NTOT1,NCONF,JOBIPH,NASH,NBAS,NDEL,NFRO,
      &                        NISH,NRS1,NRS2,NRS3,NSSH,NTOT,NTOT2
       use spinfo, only: NCSASM,NDTASM
       use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
-      use rasdim, only: MxRoot
+      use Molcas, only: MxRoot
 
       Implicit None
 

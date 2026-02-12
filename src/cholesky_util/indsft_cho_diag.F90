@@ -41,26 +41,25 @@ integer(kind=iwp), intent(in) :: lInt, iCmp(4), iShell(4), iBas, jBas, kBas, lBa
 real(kind=wp), intent(inout) :: TInt(lInt)
 logical(kind=iwp), intent(in) :: Shijij
 real(kind=wp), intent(in) :: SOint(ijkl,nSOint)
-integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, ISHLI, ISHLJ, iSO, iSOi, iSOij, iSOkl, iSym(0:7), ix, j, j1, j12, j2, j2max, &
-                     j3, j4, jCmpMx, jSO, jSOj, jSym(0:7), k12, k34, KIJ, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, &
-                     lSym(0:7), memSO2, nijkl, NUMI, NUMJ
+integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, ISHLI, ISHLJ, iSO, iSOi, iSOij, iSOkl, iSym(0:7), ix, j, j1, j12, j2, j2max, j3, &
+                     j4, jCmpMx, jSO, jSOj, jSym(0:7), k12, k34, KIJ, kSO, kSOk, kSym(0:7), lCmpMx, lSO, lSOl, lSym(0:7), memSO2, &
+                     nijkl, NUMI, NUMJ
 logical(kind=iwp) :: qij, qijij, qkl, Shij, Shkl
 #ifdef _DEBUGPRINT_
-real(kind=wp), external :: ddot_
 real(kind=wp) :: r1, r2, tr1 = Zero, tr2 = Zero
+real(kind=wp), external :: ddot_
+
+r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
+r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
+tr1 = tr1+r1
+tr2 = tr2+r2
+write(u6,*) ' Sum=',r1,tr1
+write(u6,*) ' Dot=',r2,tr2
+call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
 #endif
 
 k12 = 0
 k34 = 0
-#ifdef _DEBUGPRINT_
-  r1 = DDot_(ijkl*nSOInt,SOInt,1,[One],0)
-  r2 = DDot_(ijkl*nSOInt,SOInt,1,SOInt,1)
-  tr1 = tr1+r1
-  tr2 = tr2+r2
-  write(u6,*) ' Sum=',r1,tr1
-  write(u6,*) ' Dot=',r2,tr2
-  call RecPrt(' in indsft:SOint ',' ',SOint,ijkl,nSOint)
-#endif
 memSO2 = 0
 
 ! allocate space to store integrals to gether with their

@@ -29,7 +29,7 @@ contains
 ! this module all together
 subroutine set_print_level()
 
-  use printlevel, only: debug, silent, usual
+  use PrintLevel, only: DEBUG, SILENT, USUAL
 
   integer(kind=iwp) :: i
   integer(kind=iwp), external :: iPrintLevel
@@ -38,11 +38,11 @@ subroutine set_print_level()
   iPrGlb = iPrintLevel(-1)
   ! If inside an optimization loop, set down the print level
   ! unless we *really* want a lot of output
-  if (reduce_prt()) iPrGlb = max(iPrGlb-usual,silent)
+  if (reduce_prt()) iPrGlb = max(iPrGlb-USUAL,SILENT)
 
   iPrLoc(:) = iPrGlb
 
-  if (iPrGlb >= debug) then
+  if (iPrGlb >= DEBUG) then
     write(u6,*) ' set_print_level: Print levels have been set to'
     write(u6,*) '  Global print level iPrGlb=',iPrGlb
     write(u6,*) '  Individual sections print levels, iPrLoc:'

@@ -54,9 +54,9 @@ unused_var(nOrdOp)
 unused_var(nComp)
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' In NAGrd: nArr=',nArr
-  nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
-  call RecPrt('DAO',' ',DAO,nZeta,nDAO)
+write(u6,*) ' In NAGrd: nArr=',nArr
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
+call RecPrt('DAO',' ',DAO,nZeta,nDAO)
 #endif
 
 nRys = nHer

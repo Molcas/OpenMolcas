@@ -18,7 +18,7 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
       use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
-      use printlevel, only: USUAL
+      use PrintLevel, only: USUAL
       use output_ras, only: LF,IPRLOC
       Implicit None
 
@@ -90,7 +90,7 @@ C     Deallocating Memory
       use CMS, only: CMSNotConverged
       use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,
      &                         iCMSIterMin
-      use printlevel, only: USUAL
+      use PrintLevel, only: USUAL
       use output_ras, only: LF,IPRLOC
       Implicit None
 
@@ -505,7 +505,7 @@ C     & IState,' is ',Vee(IState)
       use CMS, only: CMSNotConverged
       use rasscf_global, only: lRoots, NAC, CMSThreshold, iCMSIterMax,
      &                         iCMSIterMin
-      use printlevel, only: USUAL
+      use PrintLevel, only: USUAL
       use output_ras, only: IPRLOC
       Implicit None
 

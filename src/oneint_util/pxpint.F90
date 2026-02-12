@@ -34,8 +34,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iBeta, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr, ipB, ipOff, ipS1, ipS2, iSym_p1, &
-                     iSym_p2, iSym_p3, iSym_pX, iSym_pXp, iTemp, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, mArr, nip
+integer(kind=iwp) :: iBeta, iComp, iDum, ipar, ipar_p1, ipar_p2, ipar_p3, ipArr, ipB, ipOff, ipS1, ipS2, iSym_p1, iSym_p2, &
+                     iSym_p3, iSym_pX, iSym_pXp, iTemp, jTemp1, jTemp2, jTemp3, kComp, kIC, kOrdOp, mArr, nip
 integer(kind=iwp), allocatable :: kChO(:,:), kOper(:,:)
 integer(kind=iwp), external :: IrrFnc
 procedure(int_kernel) :: pXint
@@ -139,7 +139,7 @@ do iBeta=1,nBeta
 end do
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In pXpint: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
+call RecPrt(' In pXpint: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
 #endif
 !                                                                      *
 !***********************************************************************

@@ -21,9 +21,9 @@ subroutine R1IBas()
 !***********************************************************************
 
 use InfSCF, only: Atom, BName, BType, Header, nAtoms, nBas, nSym, PotNuc
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
-use Molcas, only: LenIn8, LenIn, LenIn1
 
 implicit none
 integer(kind=iwp) :: lthBas, nBas_Tot
@@ -41,7 +41,7 @@ call Get_iArray('nBas',nBas,nSym)
 ! read basis function labels
 nBas_tot = sum(nBas(1:nSym))
 call mma_allocate(BName,nBas_tot,Label='BName')
-call Get_cArray('Unique Basis Names',BName,(LenIn8)*nBas_tot)
+call Get_cArray('Unique Basis Names',BName,(LenIn+8)*nBas_tot)
 ! read number of atoms
 call Get_iScalar('Unique atoms',nAtoms)
 ! read nuclear potential
@@ -55,7 +55,7 @@ call mma_allocate(BType,lthBas,Label='BType')
 
 ! Define atom and type
 Atom(:) = BName(1:lthBas)(1:LenIn)
-BType(:) = BName(1:lthBas)(LenIn1:LenIn8)
+BType(:) = BName(1:lthBas)(LenIn+1:LenIn+8)
 
 return
 

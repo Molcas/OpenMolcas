@@ -11,8 +11,8 @@
 
 module OneDat
 
+use Molcas, only: MxAtom, MxBas, MxSym
 use Definitions, only: iwp, ItoB
-use Molcas, only: MxSym, MxAtom, MxBas
 
 implicit none
 private
@@ -75,7 +75,6 @@ private
 !   oAddr  - Disk address                                              *
 !                                                                      *
 !----------------------------------------------------------------------*
-
 
 type FInfo_type
   integer(kind=iwp) :: ID = 4101, VN = 1024

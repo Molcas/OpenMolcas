@@ -46,9 +46,7 @@ integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: ia, ib, iElem, jElem
 character(len=80) :: Label
-#endif
 
-#ifdef _DEBUGPRINT_
 write(u6,*) ' In Util3 la,lb=',la,lb
 call RecPrt('Beta',' ',Beta,nZeta,1)
 do ia=1,nTri_Elem1(la)

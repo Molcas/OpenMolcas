@@ -30,14 +30,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nStabM, iStabM(0:nStabM-1), nComp
 real(kind=wp), intent(in) :: Zeta(nZeta), P(nZeta,3), A(3), RB(3), rKappa(nZeta)
 real(kind=wp), intent(out) :: Axyz(nZeta,3,0:la), Bxyz(nZeta,3,0:lb), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp)
-integer(kind=iwp) :: ia, ib, iCar, iDCRT(0:7), ipa, ipb, ixa, ixb, iya, iyb, iza, izb, kCnt, kCnttp, kdc, lDCRT, &
-                     LmbdT, nDCRT
+integer(kind=iwp) :: ia, ib, iCar, iDCRT(0:7), ipa, ipb, ixa, ixb, iya, iyb, iza, izb, kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT
 real(kind=wp) :: C(3), Fact, Factor, TC(3)
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In Darwin: rKappa',' ',rKappa,nZeta,1)
-  call RecPrt(' In Darwin: Zeta',' ',Zeta,nZeta,1)
-  call RecPrt(' In Darwin: P',' ',P,nZeta,3)
+call RecPrt(' In Darwin: rKappa',' ',rKappa,nZeta,1)
+call RecPrt(' In Darwin: Zeta',' ',Zeta,nZeta,1)
+call RecPrt(' In Darwin: P',' ',P,nZeta,3)
 #endif
 
 rFinal(:,:,:,:) = Zero

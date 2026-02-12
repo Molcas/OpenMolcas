@@ -15,8 +15,8 @@ subroutine FnoMP2_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
 ! Purpose: put info in MP2 common blocks.
 
 use ChoMP2, only: DoFNO, l_Dii
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use Definitions, only: iwp
-use cOrbInf, only: nSym, nOrb, nFro, nOcc, nExt, nDel
 
 implicit none
 integer(kind=iwp), intent(in) :: mSym, lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)

@@ -19,7 +19,7 @@
 *--------------------------------------------*
       SUBROUTINE MCCTL(HEFF)
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nState, E2Corr, jState, NLYRoot, mState
       IMPLICIT NONE

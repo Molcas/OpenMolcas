@@ -14,10 +14,10 @@ subroutine Build_Mp2Dens_Old(TriDens,Density,CMO,mSym,nOrbAll,Diagonalize)
 #include "intent.fh"
 
 use Data_Structures, only: DSBA_Type
+use cOrbInf, only: nDel, nFro, nOcc, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use cOrbInf, only: nFro, nOcc, nDel, nOrb
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

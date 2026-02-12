@@ -67,8 +67,8 @@
 
 module Genano_globals
 
+use Molcas, only: LenIn, MxSym
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym, LenIn
 
 implicit none
 private
@@ -96,6 +96,6 @@ character(len=80) :: Title
 character(len=8) :: symlab((MxLqn+1)**2)
 
 public :: MxLqn, nPrim, nCore, nSets, kSet, nSym, nBas, nDsym, iProj, iSymBk, kRfSet, isUHF, wSet, pDsym, tDsym, thr, Ssym, Cmo, &
-          Occ, Cmo2, Occ2, Eps, wc0, wc1, rowise, lftdeg, rydgen, LenIn, Center, BasName, Title, symlab
+          Occ, Cmo2, Occ2, Eps, wc0, wc1, rowise, lftdeg, rydgen, Center, BasName, Title, symlab
 
 end module Genano_globals

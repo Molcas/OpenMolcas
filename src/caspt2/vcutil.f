@@ -114,7 +114,7 @@ C Read coefficient vector from LUSOLV (C repres).
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, ONLY: iPrGlb
-      USE PrintLevel, ONLY: usual
+      USE PrintLevel, ONLY: USUAL
       use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep,
      &                         niSup
 

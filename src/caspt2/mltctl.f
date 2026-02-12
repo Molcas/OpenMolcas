@@ -20,7 +20,7 @@
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, Half, One
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: terse, usual, verbose
+      use PrintLevel, only: TERSE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSTATE, IfChol, IFDW, IFRMS, IFXMS, JMS,
      &                         MSTATE,  ENERGY

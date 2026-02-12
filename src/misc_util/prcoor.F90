@@ -17,10 +17,10 @@ subroutine PrCoor()
 !***********************************************************************
 
 use Symmetry_Info, only: Symmetry_Info_Get
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, MxAtom
 
 implicit none
 integer(kind=iwp) :: iAll_atom, iAt, iAtom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iOper(0:7), iStab(0:7), MaxDCR, nAtoms, &

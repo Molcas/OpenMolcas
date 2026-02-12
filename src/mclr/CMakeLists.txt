@@ -281,7 +281,6 @@ set (sources
      sdcmrf_mclr_2.F90
      sdcmrf_pre.F90
      setlab.F90
-     set_nbmx.F90
      setup_mclr.F90
      sigmavec.F90
      skickj_mclr.F90

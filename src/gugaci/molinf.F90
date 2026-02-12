@@ -204,13 +204,13 @@ use gugaci_global, only: ibsm_ext, iesm_ext, int_dd_offset, iref_occ, logic_assi
                          n_ref, nabc, ng_sm, ngw2, ngw3, ngw4, nlsm_all, nlsm_bas, nlsm_dbl, nlsm_ext, nlsm_frz, noidx, norb_act, &
                          norb_all, norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, ns_sm, nstart_act, spin !, logic_mrelcas
 use Symmetry_Info, only: Mul
+use Molcas, only: MxSym
 use Constants, only: Half
 use Definitions, only: iwp, u6
-use Molcas, only: MxSym
 
 implicit none
 integer(kind=iwp) :: i, idisk, idum(1), idx, im, im_lr_sta, iml, imr, imrcas_case, iorb, ispin, itmp, j, l, lr, nact_sm, &
-                     nlsm_act(mxSym), nlsm_inn(mxSym), lsmtmp(mxSym), ngsm, ni, norb_all_tmp
+                     nlsm_act(MxSym), nlsm_inn(MxSym), lsmtmp(MxSym), ngsm, ni, norb_all_tmp
 
 !open(nf1,file='drt.inp')
 !read(nf1,*)

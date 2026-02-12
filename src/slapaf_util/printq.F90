@@ -12,8 +12,8 @@
 
 subroutine PrintQ(rK,qLbl,nq,nQQ,LuIC,rMult)
 
+use PrintLevel, only: nPrint
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nq, nQQ, LuIC

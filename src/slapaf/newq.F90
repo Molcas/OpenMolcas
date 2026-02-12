@@ -11,6 +11,7 @@
 ! Copyright (C) 1994, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,Beta,nFix,iP,Energy,Step_Trunc,Thr_RS)
 !***********************************************************************
 !                                                                      *
@@ -22,10 +23,10 @@ subroutine Newq(q,nInter,nIter,dq,H,g,error,B,RHS,Scrt1,nScrt1,Beta,nFix,iP,Ener
 !***********************************************************************
 
 use Slapaf_Info, only: E_Delta, iOptC, Line_Search, UpMeth
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter, nIter, nScrt1, nFix
@@ -35,7 +36,6 @@ real(kind=wp), intent(in) :: Beta, Energy(nIter), Thr_RS
 integer(kind=iwp), intent(out) :: iP(nIter)
 character, intent(inout) :: Step_Trunc
 integer(kind=iwp) :: iPrint, iRout, MinWdw
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: ix
 #endif
@@ -187,9 +187,9 @@ end if
 
 if (Line_Search .and. (nIter >= 2)) then
 # ifdef _DEBUGPRINT_
-    call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
-    call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
-    call RecPrt(' Newq: g ',' ',g,nInter,nIter)
+  call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
+  call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
+  call RecPrt(' Newq: g ',' ',g,nInter,nIter)
 # endif
   q(:,nIter+1) = q(:,nIter)+dq(:,nIter)
   q(:,nIter) = t_q(:)
@@ -198,9 +198,9 @@ if (Line_Search .and. (nIter >= 2)) then
   dq(:,nIter-1) = t_dq(:)
   g(:,nIter) = t_g(:)
 # ifdef _DEBUGPRINT_
-    call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
-    call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
-    call RecPrt(' Newq: g ',' ',g,nInter,nIter)
+  call RecPrt(' Newq: q ',' ',q,nInter,nIter+1)
+  call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
+  call RecPrt(' Newq: g ',' ',g,nInter,nIter)
 # endif
 
   call mma_deallocate(t_q)

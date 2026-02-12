@@ -53,7 +53,7 @@
      &                         n_Det, NAC, NACPAR, NACPR2, nFint,
      &                         nRoots, S, iAdr15, iRoot, Weight,
      &                         DFTFOCK
-      use printlevel, only: DEBUG,INSANE
+      use PrintLevel, only: DEBUG,INSANE
       use output_ras, only: LF,IPRLOC
       use general_data, only: ISPIN,jobiph,nactel,ntot2,nash
 

@@ -354,9 +354,9 @@ do while (.not. Last)
 #   endif
   end if
 # ifdef _DEBUGPRINT_
-    !call RecPrt('Eigenvalues',' ',EVal,1,mk)
-    !call SubRecPrt('Subspace Eigenvectors',' ',EVec,maxk,mk,mk)
-    write(u6,*)
+  !call RecPrt('Eigenvalues',' ',EVal,1,mk)
+  !call SubRecPrt('Subspace Eigenvectors',' ',EVec,maxk,mk,mk)
+  write(u6,*)
 # endif
   !                                                                    *
   !*********************************************************************

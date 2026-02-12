@@ -9,21 +9,27 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE NEWSCTAB(MINOP,MAXOP,MLTPL,MS2,ICASE)
+      use definitions, only: iwp, u6
       use stdalloc, only: mma_allocate
       use rassi_global_arrays, only: TRANS1, TRANS2, TRANS
       use rassi_global_arrays, only: SPNTAB1, SPNTAB2, SPNTAB
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER MINOP,MAXOP,MLTPL,MS2, ICASE
-      INTEGER, PARAMETER :: ASPIN=1, BSPIN=0
-      INTEGER, PARAMETER :: UPCPL=1,DWNCPL=0, NULLPTR=-1
+      IMPLICIT NONE
+      INTEGER(KIND=IWP), INTENT(IN):: MINOP,MAXOP,MLTPL,MS2, ICASE
+
+      INTEGER(KIND=IWP), PARAMETER :: ASPIN=1, BSPIN=0
+      INTEGER(KIND=IWP), PARAMETER :: UPCPL=1,DWNCPL=0, NULLPTR=-1
+      INTEGER(KIND=IWP) IBLK,IOPEN,KSPCPL,KSPDET,LTRANS,LTRANS0,NA,NBLK,
+     &                  NCP,ND,NSPCPL,NSPDET,NTAB,NTRANS,NB
+      INTEGER(KIND=IWP), EXTERNAL:: NGENE,NOVERM
 
       IF(MLTPL-MS2.LT.1 .OR. MLTPL+MS2.LT.1) THEN
-      WRITE(6,*)'NewSCTab: Contradictory values of MLTPL vs. MS2.'
-      WRITE(6,*)'The function was invoked with the following arguments:'
-      WRITE(6,'(1X,A,I9)')' MINOP:',MINOP
-      WRITE(6,'(1X,A,I9)')' MAXOP:',MAXOP
-      WRITE(6,'(1X,A,I9)')' MLTPL:',MLTPL
-      WRITE(6,'(1X,A,I9)')' MS2  :',MS2
+      WRITE(u6,*)'NewSCTab: Contradictory values of MLTPL vs. MS2.'
+      WRITE(u6,*)
+     &        'The function was invoked with the following arguments:'
+      WRITE(u6,'(1X,A,I9)')' MINOP:',MINOP
+      WRITE(u6,'(1X,A,I9)')' MAXOP:',MAXOP
+      WRITE(u6,'(1X,A,I9)')' MLTPL:',MLTPL
+      WRITE(u6,'(1X,A,I9)')' MS2  :',MS2
       CALL ABEND()
       END IF
 
@@ -36,13 +42,12 @@ C and total nr of transformation coefficients:
       DO IOPEN=MINOP,MAXOP
         IBLK=IBLK+1
         NCP=NGENE(IOPEN,MLTPL)
-        IF(NCP.EQ.0) GOTO 100
-         NA=(IOPEN+MS2)/2
-         ND=NOVERM(IOPEN,NA)
-         NSPCPL=NSPCPL+IOPEN*NCP
-         NSPDET=NSPDET+IOPEN*ND
-         NTRANS=NTRANS+ND*NCP
- 100    CONTINUE
+        IF(NCP.EQ.0) CYCLE
+        NA=(IOPEN+MS2)/2
+        ND=NOVERM(IOPEN,NA)
+        NSPCPL=NSPCPL+IOPEN*NCP
+        NSPDET=NSPDET+IOPEN*ND
+        NTRANS=NTRANS+ND*NCP
       END DO
       NBLK=IBLK
       NTAB=8+6*NBLK+NSPCPL+NSPDET
@@ -121,6 +126,7 @@ C Compute spin coupling coefficients:
           SPNTAB(14+(IBLK-1)*6)=NULLPTR
         END IF
       END DO
+
       nullify(TRANS,SPNTAB)
 
       END SUBROUTINE NEWSCTAB

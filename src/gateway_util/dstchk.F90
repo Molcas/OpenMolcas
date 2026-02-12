@@ -20,9 +20,9 @@ subroutine DstChk(xyz,Lbls,mCentr)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Molcas, only: LenIn
 use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: mCentr

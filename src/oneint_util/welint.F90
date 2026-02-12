@@ -46,9 +46,9 @@ unused_var(PtChrg)
 unused_var(iAddPot)
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' In WelInt'
-  write(u6,*) ' r0, ExpB=',r0,ExpB
-  write(u6,*) ' la,lb=',la,lb
+write(u6,*) ' In WelInt'
+write(u6,*) ' r0, ExpB=',r0,ExpB
+write(u6,*) ' la,lb=',la,lb
 #endif
 
 k = la+lb

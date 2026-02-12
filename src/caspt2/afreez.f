@@ -37,17 +37,16 @@
 *****************************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use definitions, only: iwp, wp, u6
-      use constants, only: Zero
+      use Molcas, only: LenIn, MxBas
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
-      use Molcas, only: MxBas, LenIn8
       IMPLICIT None
 *
       integer(kind=iwp), intent(in):: NSYM
       integer(kind=iwp), intent(in):: NBAS(NSYM),NASH(NSYM)
       integer(kind=iwp), intent(inout):: NFRO(NSYM),NISH(NSYM),
      &                                   NSSH(NSYM),NDEL(NSYM)
-      CHARACTER(LEN=LENIN8), intent(in):: NAME(*)
+      CHARACTER(LEN=LenIn+8), intent(in):: NAME(*)
       integer(kind=iwp), intent(in):: LnFro
       CHARACTER(LEN=4), intent(in):: NAMFRO(LnFro)
       real(kind=wp), intent(out):: DPQ(*)

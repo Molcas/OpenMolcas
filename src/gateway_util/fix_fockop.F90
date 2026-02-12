@@ -38,13 +38,10 @@ use Isotopes, only: PTab
 use Index_Functions, only: nTri_Elem1
 use define_af, only: iTabMx
 use Integral_interfaces, only: prm_kernel
+use Molcas, only: MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Six, Eight, Ten, Twelve
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxAtom, Mxdbsc
-#ifdef _DEBUGPRINT_
-use Print, only: nPrint
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd
@@ -66,13 +63,6 @@ character(len=*), parameter :: DefNm = 'basis_library'
 procedure(prm_kernel) :: KnEPrm, MltPrm, NAPrm
 real(kind=wp), external :: DDot_
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-#ifdef _DEBUGPRINT_
-nPrint(114) = 99
-nPrint(116) = 99
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -822,12 +812,6 @@ end do ! iCnttp
 
 nCnttp = mCnttp
 
-#ifdef _INSANE_DEBUGPRINT_
-nPrint(113) = 5
-nPrint(114) = 5
-nPrint(116) = 5
-nPrint(122) = 5
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -8,16 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module pt2_guga
-use definitions, only: iwp, wp
-! MXLEV should be taken from the gugx module
-integer(kind=iwp), PARAMETER :: MXLEV=100 ,MXL3=(MXLEV*(MXLEV+1))/2
 
-real(kind=wp) ETA(MXLEV),CITHR,PKPREC
+module pt2_guga
 
-CHARACTER(Len=8)CLAB10(64)
+use gugx, only: MXLEV
+use Definitions, only: wp, iwp
 
-integer(kind=iwp)LCI,MXCI,NG1,NG2,NG3,NG3TOT,LG1,LG2,LG3,LF1,LF2,LF3,IADR10(64,2),IDTAB(MXL3)
+implicit none
+private
 
-integer(kind=iwp) NPLBUF,IPLBUF,JPLBUF,ISYMA,NSGMA,ISYMB,NSGMB
-End Module pt2_guga
+integer(kind=iwp) :: IADR10(64,2), MXCI, NG1, NG2, NG3, NG3TOT
+real(kind=wp) :: CITHR, ETA(MXLEV)
+character(len=8) :: CLAB10(64)
+
+public :: CITHR, CLAB10, ETA, IADR10, MXCI, NG1, NG2, NG3, NG3TOT
+
+end module pt2_guga

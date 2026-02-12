@@ -13,10 +13,10 @@ subroutine BJAI(IAD,EPSI,EPSE,E2BJAI,VECL2)
 
 use MBPT2_Global, only: LuIntM
 use Symmetry_Info, only: Mul
+use cOrbInf, only: nExt, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
-use corbinf, only: nSym, nOcc, nExt, nOrb
 
 implicit none
 integer(kind=iwp), intent(out) :: IAD(3*36*36)

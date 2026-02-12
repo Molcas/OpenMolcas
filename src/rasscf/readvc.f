@@ -80,10 +80,11 @@
 !     See comment below why this is commented out.
 !     use sxci, only: IDXCI, IDXSX
       use general_data, only: CleanMask
-      use printlevel, only: DEBUG,TERSE,VERBOSE
+      use PrintLevel, only: DEBUG,TERSE,VERBOSE
       use output_ras, only: LF,IPRGLB,IPRLOC
-      use SysDef, only: RtoI
-      use rasdim, only: MxOrb, LenIn8, MxTit, MaxBfn, MxRoot, MxSym
+      use Molcas, only: LenIn, MaxBfn, MxOrb, MxRoot, MxSym
+      use RASDim, only: MxTit
+      use Definitions, only: RtoI
 
       implicit none
 
@@ -104,7 +105,7 @@
       integer mh5id
       character(Len=maxbfn) typestring
 #endif
-      character(len=LENIN8*mxOrb) :: lJobH1
+      character(len=(LenIn+8)*mxOrb) :: lJobH1
       character(len=2*72) :: lJobH2
       character(len=72) :: JobTit(mxTit)
       character(len=80) :: VecTit
@@ -276,7 +277,7 @@ C Local print level (if any)
      &                      JobH(4),JobH,JobH,
      &                      JobH,JobH,JobH,
      &                      mxSym,
-     &                      lJobH1,LENIN8*mxOrb,JobH(5),
+     &                      lJobH1,(LenIn+8)*mxOrb,JobH(5),
      &                      lJobH2,2*72,JobTit,72*mxTit,
      &                      JobR(1),JobH(6),
      &                      JobH(7),JobH,mxRoot,

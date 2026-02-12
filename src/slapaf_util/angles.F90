@@ -20,9 +20,9 @@ subroutine Angles(Lbls,xyz,mCentr,rtrnc,Max_Center)
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
+use Molcas, only: LenIn
 use Constants, only: Zero, One, deg2rad
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp) :: mCentr, Max_Center

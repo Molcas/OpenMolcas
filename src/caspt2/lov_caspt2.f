@@ -28,16 +28,16 @@
 ************************************************************************
       use definitions, only: iwp, wp, u6
       use OneDat, only: sNoNuc, sNoOri
+      use Molcas, only: LenIn, MxAtom, MxBas
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Molcas, only: MxAtom, LenIn, LenIn8, MxBas
       Implicit None
       integer(kind=iwp), intent(out):: irc
       integer(kind=iwp), intent(in)::  nSym
       integer(kind=iwp), intent(inout):: nFro(nSym),nIsh(nSym),
      &                                   nSsh(nSym),nDel(nSym)
       integer(kind=iwp), intent(in):: nBas(nSym), nAsh(nSym)
-      Character(Len=LENIN8), intent(in):: NAME(*)
+      Character(Len=LenIn+8), intent(in):: NAME(*)
       integer(kind=iwp), intent(in):: nUniqAt
       real(kind=wp), intent(in)::  Thrs
       integer(kind=iwp), intent(inout):: IFQCAN

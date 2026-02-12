@@ -43,8 +43,8 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       IS=SGS%ISM(ILEV)
       JS=SGS%ISM(JLEV)
-      IJS=MUL(IS,JS)
-      ISSG=MUL(IJS,ISYCI)
+      IJS=Mul(IS,JS)
+      ISSG=Mul(IJS,ISYCI)
       NSGM=CIS%NCSF(ISSG)
       IF(NSGM.EQ.0) RETURN
 

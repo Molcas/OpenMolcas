@@ -14,10 +14,10 @@ subroutine CSTART_MRCI(AREF,EREF,CI,ICI)
 use mrci_global, only: ESHIFT, GFAC, IAD25S, ICPF, IDFREE, IDISKC, IDISKD, IDISKS, IREFX, IREST, IROOT, Lu_25, LUEIG, LUREST, &
                        MBUF, MXVEC, NCONF, NNEW, NREF, NRROOT, NSTOT, NVTOT, POTNUC
 use guga_util_global, only: nCOP
+use Molcas, only: MxRoot
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxRoot
 
 implicit none
 real(kind=wp), intent(in) :: AREF(NREF,NREF), EREF(NREF)

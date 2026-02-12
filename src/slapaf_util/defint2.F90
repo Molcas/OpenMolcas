@@ -588,10 +588,10 @@ do
 end do
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' The B-matrix',' ',BMtrx,3*nAtom,mInt)
-  do iInt=1,mInt
-    call RecPrt(' The dB-matrix',' ',dBMtrx(:,:,iInt),3*nAtom,3*nAtom)
-  end do
+call RecPrt(' The B-matrix',' ',BMtrx,3*nAtom,mInt)
+do iInt=1,mInt
+  call RecPrt(' The dB-matrix',' ',dBMtrx(:,:,iInt),3*nAtom,3*nAtom)
+end do
 #endif
 close(Lu_UDC)
 call mma_deallocate(tpc)
@@ -609,16 +609,16 @@ end do
 call Put_dScalar('Max error',MaxErr)
 
 #ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,*)
-  write(u6,*) '*******************************************'
-  write(u6,*) '* Values of the constraints   / au or rad *'
-  write(u6,*) '*******************************************'
-  write(u6,*) '  Label        C         C0'
-  write(u6,'(1X,A,2X,F10.6,F10.6)') (Lbl(iInt),rInt(iInt),rInt0(iInt),iInt=1,mInt)
-  write(u6,*)
-  call CollapseOutput(0,'Constraints section')
-  write(u6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*) '*******************************************'
+write(u6,*) '* Values of the constraints   / au or rad *'
+write(u6,*) '*******************************************'
+write(u6,*) '  Label        C         C0'
+write(u6,'(1X,A,2X,F10.6,F10.6)') (Lbl(iInt),rInt(iInt),rInt0(iInt),iInt=1,mInt)
+write(u6,*)
+call CollapseOutput(0,'Constraints section')
+write(u6,*)
 #endif
 !                                                                      *
 !***********************************************************************

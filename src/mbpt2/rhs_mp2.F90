@@ -16,10 +16,10 @@ use MBPT2_Global, only: Density, EMP2, LuIntM, mAdOcc, mAdVir, VECL2
 use ChoMP2, only: NoGamma
 use Symmetry_Info, only: Mul
 use trafo, only: IAD13, IADOUT
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 #ifdef _DEBUGPRINT_
 use MBPT2_Global, only: EOcc, EVir, mAdDel, mAdFro, Mp2Lagr, WDensity
 use Definitions, only: u6

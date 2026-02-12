@@ -11,10 +11,9 @@
 
 subroutine NEMO_Opt1()
 
-#ifdef _DEBUGPRINT_
-use Basis_Info, only: dbsc, icent, lmag, lnang, nAngr, nBas, nBasisr, nCnttp, nPrimr, nrBas, nrSym, rCof, rExp, Shells
-#else
 use Basis_Info, only: dbsc, nAngr, nBas, nBasisr, nCnttp, nPrimr, rCof, rExp, Shells
+#ifdef _DEBUGPRINT_
+use Basis_Info, only: icent, lmag, lnang, nrBas, nrSym
 #endif
 use Symmetry_Info, only: nIrrep
 use OneDat, only: sOpSiz
@@ -32,7 +31,7 @@ integer(kind=iwp), allocatable :: ipMP(:), iSm(:)
 real(kind=wp), allocatable :: P_Matrix(:), MP_Matrix(:)
 integer(kind=iwp), parameter :: MxMltPl = 10
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i, L, lOper(3), nSym
+integer(kind=iwp) :: i, L, lOper(3)
 #endif
 
 #include "warnings.h"
@@ -108,14 +107,14 @@ do iCnttp=1,nCnttp
           end do
         end do
         rNorm = One/sqrt(rSum)
-#ifdef _DEBUGPRINT_
+#       ifdef _DEBUGPRINT_
         write(u6,*) ' rNorm',kAng,rNorm
-#endif
+#       endif
         do iExp=1,nPrimr(kAng)
           rCof(kCof+iExp) = rCof(kCof+iExp)*rNorm
-#ifdef _DEBUGPRINT_
-            write(u6,'(a24,f20.6)') ' normalized coefficients',rCof(kCof+iExp)
-#endif
+#         ifdef _DEBUGPRINT_
+          write(u6,'(a24,f20.6)') ' normalized coefficients',rCof(kCof+iExp)
+#         endif
         end do
         kCof = kCof+nPrimr(kAng)
       end do
@@ -124,16 +123,16 @@ do iCnttp=1,nCnttp
   end do
 end do
 
-#ifdef _DEBUGPRINT_
-  i = 0
-  do L=1,nrSym
-    write(u6,*) ' Irreducible representation',L
-    do ibas=1,nrBas(L)
-      i = i+1
-      write(u6,'(20i4)') i,icent(i),lnang(i),lmag(i)
-    end do
+# ifdef _DEBUGPRINT_
+i = 0
+do L=1,nrSym
+  write(u6,*) ' Irreducible representation',L
+  do ibas=1,nrBas(L)
+    i = i+1
+    write(u6,'(20i4)') i,icent(i),lnang(i),lmag(i)
   end do
-#endif
+end do
+# endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -141,9 +140,6 @@ end do
 
 nBas_Cont(:) = nBas
 
-#ifdef _DEBUGPRINT_
-nSym = nIrrep
-#endif
 iOpt = 0
 call ClsOne(iRC,iOpt)
 iOpt = 0
@@ -156,8 +152,8 @@ call OneBas('PRIM')
 call Get_iArray('nBas_Prim',nBas_Prim,nIrrep)
 
 #ifdef _DEBUGPRINT_
-  write(u6,'(a,8i5)') ' Symmetries          ',nSym
-  write(u6,'(a,8i5)') ' Primitive basis fcns',(nBas_Prim(i),i=0,nSym-1)
+write(u6,'(a,8i5)') ' Symmetries          ',nIrrep
+write(u6,'(a,8i5)') ' Primitive basis fcns',(nBas_Prim(i),i=0,nIrrep-1)
 #endif
 !                                                                      *
 !***********************************************************************
@@ -178,9 +174,9 @@ do iComp=1,nComp
     call Abend()
   end if
   iSml(iComp) = iSmLbl
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   lOper(iComp) = 1
-#endif
+# endif
   ip(iComp) = 1+nLength_Tot
   nLength_Tot = nLength_Tot+Length(1)+4
 end do

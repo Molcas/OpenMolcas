@@ -36,14 +36,13 @@ write(u6,*)
 !call IWRTMA(NORBFTP,1,NORBTP,1,NORBTP)
 #endif
 
+IORB_START = 1
+IORB_END = NORBFTP(1)
+NEL_START = 0
+NEL_END = NELFTP(1)
 do IORBTP=1,NORBTP
   ! Max and min at start of this type and at end of this type
-  if (IORBTP == 1) then
-    IORB_START = 1
-    IORB_END = NORBFTP(1)
-    NEL_START = 0
-    NEL_END = NELFTP(1)
-  else
+  if (IORBTP > 1) then
     IORB_START = IORB_START+NORBFTP(IORBTP-1)
     IORB_END = IORB_START+NORBFTP(IORBTP)-1
     NEL_START = NEL_END

@@ -10,10 +10,8 @@
 !***********************************************************************
 
 ! Global variables of the CASPT2 module
-! TODO: move here all variables from CASPT2 common blocks defined in caspt2_module.F90
+! TODO: move here all variables from CASPT2 common blocks defined in caspt2_module
 module caspt2_global
-use Constants, only: Zero
-use Definitions, only: wp, iwp
 
 ! UNIT numbers:
 ! IDCIEX, IDTCEX, LUCIEX, LUDMAT, LUDRA, LUDRATOT, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LURHS, LUSBT, LUSOLV
@@ -24,8 +22,6 @@ use Definitions, only: wp, iwp
 
 ! Some gradient stuff
 ! iVecL: Solution of the Lambda equation
-! iVecG (G is probably gradient stuff) is used in caspt2_res.f to temporarily store residual vectors in solving the lambda equation
-!        sigder.f and clagx.f to temporarily store derivatives of overlap
 ! idSDMat: offset of overlap derivative; can be defined with 11
 ! if_SSDM: State-dependent DM is used in Fock or not
 ! jStLag: The state for which derivatives of the Lagrangian is computed. This is equivalent to jState
@@ -46,7 +42,7 @@ use Definitions, only: wp, iwp
 ! if_invaria
 !
 ! some derivatives of Lagrangian etc.
-! CLag, CLagFull, OLag, OLagFull, SLag, WLag, nCLag, nOLag, nSLag, nWLag
+! CLag, CLagFull, OLag, OLagFull, SLag, WLag, nCLag, nOLag, nWLag
 !
 ! some correlated density matrices
 ! DPT2_tot, DPT2C_tot, DPT2_AO_tot, DPT2C_AO_tot, DPT2Canti_tot
@@ -63,20 +59,18 @@ use Definitions, only: wp, iwp
 ! number of CI vectors per batch in mkfg3.f and derfg3.f
 ! nbuf1_grad
 
-use caspt2_module, only: jState, mState, nActel
-use pt2_guga, only: nG3
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
-public :: jState, mState, nActEl, nG3
-
-integer(kind=iwp), parameter :: iVecG = 8, iVecL = 7
+integer(kind=iwp), parameter :: iVecL = 7
 
 integer(kind=iwp) :: idBoriMat(8,13) = 0, IDCIEX, IDSAVGRD = 0, idSDMat(8,13) = 0, IDTCEX, iParRHS, iPrGlb, iRoot1 = 0, &
                      iRoot2 = 0, iStpGrd = 1, jStLag = 0, LuAPT2 = 0, LUCIEX, LuCMOPT2 = 0, LUDMAT, LUDRA, LUDRATOT, LuGAMMA = 0, &
                      LUGRAD = 0, LUH0T(4), LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2 = 0, LURHS(8), LUSBT, LUSOLV, LuSTD = 0, &
-                     MAXBUF = 1, nbuf1_grad = 0, nCLag = 0, NCMO = 0, NDREF = 0, nOLag = 0, NPREF = 0, nSLag = 0, nStpGrd = 1, &
+                     MAXBUF = 1, nbuf1_grad = 0, nCLag = 0, NCMO = 0, NDREF = 0, nOLag = 0, NPREF = 0, nStpGrd = 1, &
                      nTasks_grad = 0, NTAT = 0, NTORB = 0, nWLag = 0, sigma_p_exponent = 2, CompressMPS = 0
 real(kind=wp) :: cmpThr, cntThr, ConvInvar = Zero, dnmThr, EMP2, imag_shift = Zero, ipea_shift = Zero, real_shift = Zero, &
                  sigma_p_epsilon = Zero
@@ -95,10 +89,10 @@ integer(kind=iwp), allocatable :: IDXB(:)
 public :: CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, ConvInvar, DMIX, dnmThr, do_csf, do_grad, do_lindep, do_nac, &
           DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, DREF, DWGT, EMP2, FAMO, FIFA, FIFA_all, FIFASA_all, FIMO, &
           FIMO_all, HONE, idBoriMat, IDCIEX, IDSAVGRD, IDSCT, idSDMat, IDTCEX, if_invar, if_invaria, if_equalW, if_SSDM, &
-          imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, iStpGrd, iTasks_grad, iVecG, iVecL, jStLag, LISTS, LuAPT2, &
-          LUCIEX, LuCMOPT2, LUDMAT, LUDRA, LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, &
-          LURHS, LUSBT, LUSOLV, LUSTD, MAXBUF, nbuf1_grad, nCLag, NCMO, NDREF, nOLag, NPREF, nSLag, nStpGrd, NTAT, nTasks_grad, &
-          NTORB, nWLag, OLag, OLagFull, OMGDER, PREF, real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, &
-          Weight, WLag, CompressMPS, PIQK, Buff, IDXB
+          imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, iStpGrd, iTasks_grad, iVecL, jStLag, LISTS, LuAPT2, LUCIEX, &
+          LuCMOPT2, LUDMAT, LUDRA, LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, LURHS, LUSBT, &
+          LUSOLV, LUSTD, MAXBUF, nbuf1_grad, nCLag, NCMO, NDREF, nOLag, NPREF, nStpGrd, NTAT, nTasks_grad, NTORB, nWLag, OLag, &
+          OLagFull, OMGDER, PREF, real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, Weight, WLag, &
+          CompressMPS, PIQK, Buff, IDXB
 
 end module caspt2_global

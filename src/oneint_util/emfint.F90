@@ -40,15 +40,14 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, ipVxyz, &
-                     iStabO(0:7), lDCRT, llOper, LmbdT, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, ipRes, ipVxyz, iStabO(0:7), lDCRT, &
+                     llOper, LmbdT, nDCRT, nip, nOp, nStabO
 integer(kind=iwp), external :: NrOpr
 
 #include "macros.fh"
 unused_var(ZInv)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
 
 nip = 1
 ipAxyz = nip
@@ -80,11 +79,11 @@ if (nip-1 > nArr*nZeta) then
   call Abend()
 end if
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In EMFInt: A',' ',A,1,3)
-  call RecPrt(' In EMFInt: RB',' ',RB,1,3)
-  call RecPrt(' In EMFInt: KVector',' ',CoorO,1,3)
-  call RecPrt(' In EMFInt: P',' ',P,nZeta,3)
-  write(u6,*) ' In EMFInt: la,lb=',la,lb
+call RecPrt(' In EMFInt: A',' ',A,1,3)
+call RecPrt(' In EMFInt: RB',' ',RB,1,3)
+call RecPrt(' In EMFInt: KVector',' ',CoorO,1,3)
+call RecPrt(' In EMFInt: P',' ',P,nZeta,3)
+write(u6,*) ' In EMFInt: la,lb=',la,lb
 #endif
 
 rFinal(:,:,:,:) = Zero

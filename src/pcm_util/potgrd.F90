@@ -58,13 +58,13 @@ call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_var,nDens)
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) 'variational 1st order density matrix'
-  ii = 1
-  do iIrrep=0,nIrrep-1
-    write(u6,*) 'symmetry block',iIrrep
-    call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
-    ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
-  end do
+write(u6,*) 'variational 1st order density matrix'
+ii = 1
+do iIrrep=0,nIrrep-1
+  write(u6,*) 'symmetry block',iIrrep
+  call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
+  ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+end do
 #endif
 !                                                                      *
 !***********************************************************************

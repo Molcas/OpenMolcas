@@ -31,9 +31,6 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-#ifdef _DEBUGPRINT_
-use Definitions, only: u6
-#endif
 
 implicit none
 ! nDrv: Between 0 and 2. The highest derivative to be calc.
@@ -48,9 +45,6 @@ integer(kind=iwp), allocatable :: Ang(:)
 real(kind=wp), allocatable :: AOs(:), Radial(:), SOs(:), xyz(:)
 integer(kind=iwp), external :: NrOpr
 
-#ifdef _DEBUGPRINT_
-write(u6,*) ' In MOEval'
-#endif
 MOValue(:,:,:) = Zero
 
 ! Loop over shells.

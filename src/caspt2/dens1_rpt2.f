@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS1_RPT2 (CI,SGM1,G1,nLev)
+      use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
 #ifdef _DMRG_
@@ -26,11 +27,11 @@
 #ifdef _ENABLE_CHEMPS2_DMRG_
       use caspt2_module, only: DoCumulant
 #endif
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,
-     &                         Mul, mState
+     &                         mState
       use pt2_guga, only: MxCI, nG1
       IMPLICIT NONE
 
@@ -68,7 +69,7 @@
 
 #ifdef _DMRG_
       if (DMRG) then
-        if (iPrGlb >= debug) then
+        if (iPrGlb >= DEBUG) then
             write (6,*) 'DENS1_RPT2> Calculating 1RDM...'
         end if
         call qcmaquis_interface_get_1rdm_full(G1)
@@ -129,8 +130,8 @@
         LU=Task(iTask,2)
           ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
-          ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,STSYM)
+          ISTU=Mul(IST,ISU)
+          ISSG=Mul(ISTU,STSYM)
           NSGM=CIS%NCSF(ISSG)
           IF(NSGM.EQ.0) GOTO 500
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1

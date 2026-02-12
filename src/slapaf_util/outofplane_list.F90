@@ -11,6 +11,7 @@
 ! Copyright (C) 2004, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine OutOfPlane_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,rMult,LuIC,Indq,iPrv,Proc_dB,iTabBonds, &
                            nBonds,iTabAI,mAtoms,iTabAtoms,nMax,mB_Tot,mdB_Tot,BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,nqB)
 !***********************************************************************
@@ -21,10 +22,9 @@ subroutine OutOfPlane_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fc
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, vdW_Bond
 use ddvdt, only: aAV, f_Const_Min, rAV, rko
+use Molcas, only: LenIn
 use Constants, only: Zero, Pi, deg2rad
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn4
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -50,7 +50,7 @@ real(kind=wp) :: A(3,4), Alpha, Deg, delta, delta0, f_Const, f_Const_ij, f_Const
                  f_Const_Ref, Fi2, Fi3, Fi4, Grad(mB), Grad_ref(9), Hess(mB**2), Prv(3,4), r0, Ref(3,4), rij2, rij2_Ref, rik2, &
                  rik2_Ref, ril2, ril2_Ref, RX4Y(3,3), Val
 logical(kind=iwp) :: Help
-character(len=LenIn4) :: Lbls(4)
+character(len=LenIn+4) :: Lbls(4)
 character(len=14) :: Label
 integer(kind=iwp), parameter :: iChOp(0:7) = [1,1,1,2,1,2,2,3]
 character(len=*), parameter :: ChOp(0:7) = ['E  ','X  ','Y  ','XY ','Z  ','XZ ','YZ ','XYZ']

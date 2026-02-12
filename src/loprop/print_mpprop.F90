@@ -15,10 +15,10 @@ subroutine Print_MPPROP(rMP,xrMP,xnrMP,nij,nElem,lMax,EC,Polar,Lbl,nAtoms,iANr,N
 !  rMP : Multipole moments moved to center of charge
 ! xrMP : Multipole moments kept on the expansion center
 
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: nij, nElem, lMax, nAtoms, iANr(nAtoms), nOcOb, MpProp_Level, nReal_Centers

@@ -11,9 +11,9 @@
 
 subroutine GetFullCoord(Coor,FMass,FAtLbl,nFAtoms,lSlapaf)
 
+use Molcas, only: LenIn
 use Constants, only: One, uToau
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: nFAtoms

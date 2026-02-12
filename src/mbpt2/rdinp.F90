@@ -42,10 +42,10 @@ use ChoMP2, only: all_vir, C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2, DoDens,
                   Verbose
 use UnixInfo, only: SuperName
 use spool, only: Close_LuSpool, Spoolinp
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 real(kind=wp), intent(_OUT_) :: CMO(*), Eall(*), Eocc(*), Eext(*)

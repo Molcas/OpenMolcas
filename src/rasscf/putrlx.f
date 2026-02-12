@@ -18,7 +18,7 @@
      &                         NACPAR, NACPR2, NewFock, nFint, nRoots,
      &                         NSXS, NTOT4, RlxGrd, iAdr15, ISTORP,
      &                         JBLBM
-      use printlevel, only: DEBUG,USUAL
+      use PrintLevel, only: DEBUG,USUAL
       use output_ras, only: LF,IPRLOC
       use general_data, only: NTOT1,NTOT2,NSYM,JOBIPH,NBAS
       use DWSol, only: DWSolv, DWSol_wgt, W_SOLV

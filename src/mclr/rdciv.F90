@@ -23,10 +23,11 @@ subroutine RdCIV()
 use gugx, only: CIS, EXS, SGS
 use MCLR_Data, only: ERAS, LuCIV, LuJob
 use input_mclr, only: iSpin, iTOC, lRoots, nActEl, nConf, nCSF, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym
+use Molcas, only: MxRoot
+use RASDim, only: MxIter
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use rasdim, only: MxIter, MxRoot
 
 implicit none
 integer(kind=iwp) :: i, iDisk, iDisk1, Iter

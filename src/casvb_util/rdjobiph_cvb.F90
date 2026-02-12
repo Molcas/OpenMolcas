@@ -16,14 +16,15 @@ subroutine rdjobiph_cvb(fnjob)
 
 use jobiph_j, only: iadr15_j, iroot_j, ispin_j, lroots_j, lsym_j, nactel_j, nash_j, nbas_j, nconf_j, ndel_j, nelec3_j, nfro_j, &
                     nhole1_j, nish_j, nroots_j, nrs1_j, nrs2_j, nrs3_j, nsym_j, title_j, weight_j
+use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
+use RASDim, only: MxTit
 use Definitions, only: wp, iwp, u6
-use rasdim, only: LenIn8, MxOrb, MxRoot, MxSym, MxTit
 
 implicit none
 character(len=*), intent(in) :: fnjob
 integer(kind=iwp) :: idisk, ii, ipt2_j, lujob
 real(kind=wp) :: potnuc_j
-character(len=LenIn8) :: name_j(mxorb)
+character(len=LenIn+8) :: name_j(mxorb)
 character :: header_j(144)
 logical(kind=iwp), parameter :: debug = .false.
 
@@ -47,7 +48,7 @@ idisk = 0
 call idafile(lujob,2,iadr15_j,15,idisk)
 ! Read the the system description:
 idisk = iadr15_j(1)
-call WR_RASSCF_Info(lujob,2,idisk,nactel_j,ispin_j,nsym_j,lsym_j,nfro_j,nish_j,nash_j,ndel_j,nbas_j,mxsym,name_j,lenin8*mxorb, &
+call WR_RASSCF_Info(lujob,2,idisk,nactel_j,ispin_j,nsym_j,lsym_j,nfro_j,nish_j,nash_j,ndel_j,nbas_j,mxsym,name_j,(LenIn+8)*mxorb, &
                     nconf_j,header_j,144,title_j,4*18*mxtit,potnuc_j,lroots_j,nroots_j,iroot_j,mxroot,nrs1_j,nrs2_j,nrs3_j, &
                     nhole1_j,nelec3_j,ipt2_j,weight_j)
 

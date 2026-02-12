@@ -36,8 +36,8 @@ use Definitions, only: u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), iDum, iOrdOp, ipArr, ipB, ipOff, ipRes, ipT, ipTm, ipTmm, ipTp, ipTpp, &
-                     iStabO(0:7), lDCRT, llOper, LmbdT, mArr, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), iDum, iOrdOp, ipArr, ipB, ipOff, ipRes, ipT, ipTm, ipTmm, ipTp, ipTpp, iStabO(0:7), &
+                     lDCRT, llOper, LmbdT, mArr, nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 integer(kind=iwp), external :: NrOpr
 

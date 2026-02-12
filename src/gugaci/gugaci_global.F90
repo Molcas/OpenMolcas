@@ -11,13 +11,12 @@
 
 module gugaci_global
 
+use Molcas, only: MxSym
 use Constants, only: Two, Three, Half, OneHalf
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym
 
 implicit none
 private
-
 
 integer(kind=iwp), parameter :: lenintegral = 4, loputmp = 10000, max_atom = 200, max_extorb = 300, max_h0 = 13000, &
                                 max_innorb = 100, max_iter = 100, max_kspace = 40, max_lpext_mode = 60000, max_node = 36000, &
@@ -34,8 +33,8 @@ integer(kind=iwp), parameter :: istep_occ(4) = [0,1,1,2], &
                                                         shape(map_jplr))
 real(kind=wp), parameter :: v_onevsqtwo = sqrt(Half), v_sqthree = sqrt(Three), v_sqthreevsqtwo = sqrt(OneHalf), v_sqtwo = sqrt(Two)
 
-integer(kind=iwp) :: ibsm_ext(mxSym), ican_a(max_orb), ican_b(mtmp+max_orb), icano_nnend, icano_nnsta, icnt_base, idisk_array(13), &
-                     idisk_lp, idownwei_g131415, iesm_ext(mxSym), ifrno(max_h0), ildownwei_segdd, ilsegdownwei, iml, imr, &
+integer(kind=iwp) :: ibsm_ext(MxSym), ican_a(max_orb), ican_b(mtmp+max_orb), icano_nnend, icano_nnsta, icnt_base, idisk_array(13), &
+                     idisk_lp, idownwei_g131415, iesm_ext(MxSym), ifrno(max_h0), ildownwei_segdd, ilsegdownwei, iml, imr, &
                      index_lpext3(max_extorb,max_innorb), index_lpext4(max_extorb,max_innorb), index_lpext5(max_extorb), &
                      indx(max_kspace), int_dd_drl, int_dd_offset(8,8), ip2_aa_ext_base, ip2_dd_ext_base, ip3_abd_ext_base, &
                      ip4_abcd_ext_base(180), ipae, ipael, ipaety, irdownwei_segdd, iref_occ(max_innorb,max_ref), irf, &
@@ -51,8 +50,8 @@ integer(kind=iwp) :: ibsm_ext(mxSym), ican_a(max_orb), ican_b(mtmp+max_orb), ica
                      LuCiMO, LuCiTv1, LuCiTv2, LuCiVec, LuDrt, LuLoop, LuOneMO, LuTwoMO, m_jc, m_jd, map_orb_order(max_orb), &
                      maxciiter, maxintseg, mcroot, mhlp, mhlpmax, mhsum, mjn(2*max_root), mroot, mth_eigen, mtype, mxnode, n_ref, &
                      nabc, nci_dim, nci_h0, ncibl(max_orb), ncibl_all(max_orb), ndim, ndim_h0, ndr, ng_sm, ngw2(max_orb), &
-                     ngw3(max_orb), ngw4(max_orb), nint_g25, nint_g28, nlg1, nlg2, nlsm_all(mxSym), nlsm_bas(mxSym), &
-                     nlsm_dbl(mxSym), nlsm_ext(mxSym), nlsm_frz(mxSym), no(0:max_innorb), nohy, noidx(8), norb_act, norb_all, &
+                     ngw3(max_orb), ngw4(max_orb), nint_g25, nint_g28, nlg1, nlg2, nlsm_all(MxSym), nlsm_bas(MxSym), &
+                     nlsm_dbl(MxSym), nlsm_ext(MxSym), nlsm_frz(MxSym), no(0:max_innorb), nohy, noidx(8), norb_act, norb_all, &
                      norb_dbl, norb_dz, norb_ext, norb_frz, norb_inn, norb_number(max_orb), np3_abd_ext, ns_sm, nstart_act, &
                      nstaval(nvaltype), nu_ad(41), nu_ae(25), nvalue(nvaltype), nvalue_space_ss, nwalk(0:max_orb), nwei_g25, &
                      nwei_g26, nwei_g28 !, jpadlrel(26), len_str, naorbs, ndjgrop, ndjmod, numat

@@ -11,6 +11,7 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
       SUBROUTINE TRACHOSZ()
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       USE CHOVEC_IO, only: NVLOC_CHOBATCH,NPQ_CHOTYPE,IDGLB_CHOGROUP,
      &                     IDLOC_CHOGROUP,NVTOT_CHOSYM,NVGLB_CHOBATCH
@@ -21,11 +22,10 @@
       use caspt2_global, only: LUDRA, LUDRATOT
       use ChoCASPT2, only: MxCharR, MxNVC, nChSpc, nFtSpc, nHtSpc,
      &                     nKsh, NumCho_pt2, nPsh
-      use caspt2_module, only: nBasT, nBatch_tot, nJSct, nSym, mul,
+      use caspt2_module, only: nBasT, nSym,
      &                         nBas, nFro, nBtches, nBtch, nIsh, nAsh
 #ifdef _MOLCAS_MPP_
       use ChoCASPT2, only: NFTSPC_TOT
-      use caspt2_module, only: NJSCT_TOT
 #endif
       IMPLICIT NONE
 * ----------------------------------------------------------------
@@ -33,6 +33,7 @@
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
+      INTEGER(kind=iwp) NJSCT_TOT
 #endif
       INTEGER(kind=iwp) IB,IBSTA,IBEND,IBATCH_TOT,NBATCH,NV
       INTEGER(kind=iwp) ICASE,ISYMA,ISYMB,ISYQ,JSYM,NPB,NPQ
@@ -41,6 +42,7 @@
       INTEGER(kind=iwp) MXFTARR,MXHTARR
       INTEGER(kind=iwp) MXSPC
       INTEGER(kind=iwp) NVACT,NVACC,NVECS_RED
+      INTEGER(kind=iwp) NBATCH_TOT,NJSCT
       Real(kind=wp) Dummy(1)
 * ======================================================================
 * Determine sectioning size to use for the full-transformed MO vectors
@@ -53,7 +55,7 @@
       DO JSYM=1,NSYM
        NPB=0
        DO ISYMA=1,NSYM
-        ISYMB=MUL(ISYMA,JSYM)
+        ISYMB=Mul(ISYMA,JSYM)
         NPB=NPB+MAX(NFRO(iSymA),NISH(iSymA),NASH(iSymA))*NBAS(ISYMB)
         MXFTARR=MAX(MXFTARR,NPSH(ISYMA)*NKSH(ISYMB))
        END DO

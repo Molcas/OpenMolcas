@@ -23,9 +23,8 @@
       use InputData, only: Input
       use constants, only: Zero, One
       use ChoMP2, only: DeMP2, MP2_small, shf
-      use stdalloc, only: mma_allocate, mma_deallocate
       use Molcas, only: MxBas
-      Implicit None
+      use stdalloc, only: mma_allocate, mma_deallocate
 *
       Integer(kind=iwp), intent(out):: irc
       Integer(kind=iwp), intent(in):: nSym
@@ -359,7 +358,7 @@ C
 ************************************************************************
       Subroutine Check_Amp(nSym,nOcc,nVir,iSkip)
       use definitions, only: iwp
-      use SYmmetry_Info, only: Mul
+      use Symmetry_Info, only: Mul
 
       Implicit None
       integer(kind=iwp), intent(in)::  nSym, nOcc(nSym), nVir(nSym)

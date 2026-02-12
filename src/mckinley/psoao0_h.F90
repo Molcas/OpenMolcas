@@ -36,8 +36,8 @@ subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iPrInc,jPrInc,kPrInc,lPrInc,
 
 use Index_Functions, only: nTri3_Elem1, nTri_Elem1
 use Symmetry_Info, only: nIrrep
-use Definitions, only: iwp, u6, RtoI
 use Molcas, only: lCache
+use Definitions, only: iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, ipMem1, nSD

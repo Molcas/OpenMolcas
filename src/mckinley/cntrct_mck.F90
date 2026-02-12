@@ -28,8 +28,8 @@ subroutine Cntrct_mck(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,g1In
 !              response calculation.                                   *
 !***********************************************************************
 
-use Definitions, only: wp, iwp
 use Molcas, only: lCache
+use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp), intent(inout) :: First

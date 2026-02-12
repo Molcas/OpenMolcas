@@ -59,7 +59,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: KSDFT, DFTFOCK, ECAS, EMY, ExFac, NAC,
      &                         NewFock, nFint, VIA, VIA_DFT, l_casdft
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NTOT1,NASH,NBAS,NFRO,NISH,NORB
 

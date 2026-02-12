@@ -40,30 +40,29 @@ integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyb, iza, izb
 integer(kind=iwp) :: ib, iElem, jElem
 character(len=80) :: Label
 
-
-  write(u6,*) ' In Util1 la,lb=',la,lb
-  call RecPrt('Alpha',' ',Alpha,nZeta,1)
-  call RecPrt('Beta',' ',Beta,nZeta,1)
+write(u6,*) ' In Util1 la,lb=',la,lb
+call RecPrt('Alpha',' ',Alpha,nZeta,1)
+call RecPrt('Beta',' ',Beta,nZeta,1)
+do ib=1,nTri_Elem1(lb)
+  write(Label,'(A,I2,A)') ' Slaplb(la,',ib,')'
+  call RecPrt(Label,' ',Slaplb(:,:,ib),nZeta,nTri_Elem1(la+1))
+end do
+if (la > 0) then
   do ib=1,nTri_Elem1(lb)
-    write(Label,'(A,I2,A)') ' Slaplb(la,',ib,')'
-    call RecPrt(Label,' ',Slaplb(:,:,ib),nZeta,nTri_Elem1(la+1))
+    write(Label,'(A,I2,A)') ' Slamlb(la,',ib,')'
+    call RecPrt(Label,' ',Slamlb(:,:,ib),nZeta,nTri_Elem1(la-1))
   end do
-  if (la > 0) then
-    do ib=1,nTri_Elem1(lb)
-      write(Label,'(A,I2,A)') ' Slamlb(la,',ib,')'
-      call RecPrt(Label,' ',Slamlb(:,:,ib),nZeta,nTri_Elem1(la-1))
-    end do
-  end if
-  do ib=1,nTri_Elem1(lb+1)
-    write(Label,'(A,I2,A)') ' Slalbp(la,',ib,')'
-    call RecPrt(Label,' ',Slalbp(:,:,ib),nZeta,nTri_Elem1(la))
+end if
+do ib=1,nTri_Elem1(lb+1)
+  write(Label,'(A,I2,A)') ' Slalbp(la,',ib,')'
+  call RecPrt(Label,' ',Slalbp(:,:,ib),nZeta,nTri_Elem1(la))
+end do
+if (lb > 0) then
+  do ib=1,nTri_Elem1(lb-1)
+    write(Label,'(A,I2,A)') ' Slalbm(la,',ib,')'
+    call RecPrt(Label,' ',Slalbm(:,:,ib),nZeta,nTri_Elem1(la))
   end do
-  if (lb > 0) then
-    do ib=1,nTri_Elem1(lb-1)
-      write(Label,'(A,I2,A)') ' Slalbm(la,',ib,')'
-      call RecPrt(Label,' ',Slalbm(:,:,ib),nZeta,nTri_Elem1(la))
-    end do
-  end if
+end if
 #endif
 
 do ixa=la,0,-1
@@ -125,13 +124,13 @@ do ixa=la,0,-1
 end do
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' In Util1 la,lb=',la,lb
-  do iElem=1,nTri_Elem1(la)
-    do jElem=1,nTri_Elem1(lb)
-      write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,') '
-      call RecPrt(Label,' ',rFinal(:,:,iElem,jElem),nZeta,3)
-    end do
+write(u6,*) ' In Util1 la,lb=',la,lb
+do iElem=1,nTri_Elem1(la)
+  do jElem=1,nTri_Elem1(lb)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal (',iElem,',',jElem,') '
+    call RecPrt(Label,' ',rFinal(:,:,iElem,jElem),nZeta,3)
   end do
+end do
 #endif
 
 end subroutine Util1

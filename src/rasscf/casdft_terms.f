@@ -40,7 +40,7 @@
       use lucia_data, only: INT1, INT1O
       use rasscf_global, only: DoDMRG
 #endif
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NTOT1,NACTEL,ISPIN,NASH,NBAS,NFRO,
      &                        NISH

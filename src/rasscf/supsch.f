@@ -69,7 +69,7 @@ C     **** Molcas-4 *** Release 97 04 01 **********
 C
       use OneDat, only: sNoNuc, sNoOri
       use rasscf_global, only: FDIAG, iSupSM, Iter, ixsym
-      use printlevel, only: DEBUG
+      use PrintLevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NBAS
 

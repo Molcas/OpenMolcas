@@ -13,7 +13,7 @@
 
 function energy_mcwfn(dm1,h1e,vj,energy_nuc,n)
 
-use printlevel, only: debug
+use PrintLevel, only: DEBUG
 use mcpdft_output, only: iPrGlb
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
@@ -28,7 +28,7 @@ real(kind=wp), external :: ddot_
 te_vne = dDot_(n,h1e,1,dm1,1)
 e_j = Half*dDot_(n,vj,1,dm1,1)
 
-if (iPrGlb >= debug) then
+if (iPrGlb >= DEBUG) then
   write(u6,*) 'Nuclear Repulsion energy',energy_nuc
   write(u6,*) 'Te_Vne',te_vne
   write(u6,*) 'E_j',e_j

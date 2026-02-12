@@ -35,13 +35,12 @@ use Her_RW, only: HerR, HerW, iHerR, iHerW
 use rctfld_module, only: MM
 use Center_Info, only: dc
 use Index_Functions, only: nTri_Elem1
-use Constants, only: Half
+use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, &
-                     iZeta, nip
+integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, ipTemp1, ipTemp2, ipTemp3, nip
 logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
@@ -77,19 +76,17 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In RFGrd: A',' ',A,1,3)
-  call RecPrt(' In RFGrd: RB',' ',RB,1,3)
-  call RecPrt(' In RFGrd: CCoor',' ',CCoor,1,3)
-  call RecPrt(' In RFGrd: P',' ',P,nZeta,3)
-  write(u6,*) ' In RFGrd: la,lb=',la,lb
-  write(u6,*) ' In RFGrd: nHer=',nHer
+call RecPrt(' In RFGrd: A',' ',A,1,3)
+call RecPrt(' In RFGrd: RB',' ',RB,1,3)
+call RecPrt(' In RFGrd: CCoor',' ',CCoor,1,3)
+call RecPrt(' In RFGrd: P',' ',P,nZeta,3)
+write(u6,*) ' In RFGrd: la,lb=',la,lb
+write(u6,*) ' In RFGrd: nHer=',nHer
 #endif
 
 ! Compute the cartesian values of the basis functions angular part
 
-do iZeta=1,nZeta
-  Array(ipTemp1-1+iZeta) = Zeta(iZeta)**(-Half)
-end do
+Array(ipTemp1:ipTemp1+nZeta-1) = One/sqrt(Zeta(:))
 
 call vCrtCmp(Array(ipTemp1),P,nZeta,A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),nHer,ABeq)
 call vCrtCmp(Array(ipTemp1),P,nZeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)

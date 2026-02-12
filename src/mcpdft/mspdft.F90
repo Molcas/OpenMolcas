@@ -57,7 +57,7 @@ end subroutine
 !> @param[in] matrix_info string
 subroutine determine_method(matrix_info)
 
-  use PrintLevel, only: verbose
+  use PrintLevel, only: VERBOSE
   use mcpdft_output, only: iprloc
 
   character(len=*), intent(in) :: matrix_info
@@ -70,9 +70,9 @@ subroutine determine_method(matrix_info)
   select case (buffer)
     case ('XMS-PDFT','CMS-PDFT','FMS-PDFT','VMS-PDFT')
       mspdftmethod = buffer
-      if (print_level > verbose) write(u6,'(6X,A,A)') 'The MS-PDFT method is ',mspdftmethod
+      if (print_level > VERBOSE) write(u6,'(6X,A,A)') 'The MS-PDFT method is ',mspdftmethod
     case default
-      if (print_level > verbose) write(u6,'(6X,A)') 'The MS-PDFT calculation is based on a user-supplied rotation matrix'
+      if (print_level > VERBOSE) write(u6,'(6X,A)') 'The MS-PDFT calculation is based on a user-supplied rotation matrix'
   end select
 
 end subroutine determine_method
@@ -92,7 +92,7 @@ subroutine mspdft_finalize(nroots)
   use mspdft_util, only: print_effective_ham, print_final_energies, print_mspdft_vectors
   use mcpdft_input, only: mcpdft_options
   use write_pdft_job, only: writejob
-  use printlevel, only: terse, usual
+  use PrintLevel, only: TERSE, USUAL
   use mspdftgrad, only: mspdftgrad_free
 
   integer(kind=iwp), intent(in) :: nroots
@@ -103,7 +103,7 @@ subroutine mspdft_finalize(nroots)
 
   iprlev = iprloc(1)
 
-  if (iprlev >= usual) then
+  if (iprlev >= USUAL) then
     write(u6,*)
     write(Line,'(6X,2A)') MSPDFTMethod,' FINAL RESULTS'
     call CollapseOutput(1,Line)
@@ -135,7 +135,7 @@ subroutine mspdft_finalize(nroots)
   call dsyev_('V','U',nroots,si_pdft,nroots,e_mspdft,scratch,dim_scratch,info)
   call mma_deallocate(scratch)
 
-  if (iprlev >= terse) call print_final_energies(e_mspdft,nroots)
+  if (iprlev >= TERSE) call print_final_energies(e_mspdft,nroots)
 
   ! Update information on the runfile for possible gradient calculations.
   call put_dArray('Last energies',e_mspdft,nroots)
@@ -144,7 +144,7 @@ subroutine mspdft_finalize(nroots)
   ! Add info the checkfile for testing!
   call Add_Info('MSPDFTE',e_mspdft,nroots,8)
 
-  if (iprlev >= usual) then
+  if (iprlev >= USUAL) then
     if (mcpdft_options%otfnal%is_hybrid()) then
       write(u6,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
     else
@@ -156,7 +156,7 @@ subroutine mspdft_finalize(nroots)
   ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
   if (mcpdft_options%wjob) call writejob(e_mspdft,nroots,si_pdft=si_pdft)
 
-  if (iprlev >= usual) then
+  if (iprlev >= USUAL) then
     call CollapseOutput(0,Line)
     write(u6,*)
   end if

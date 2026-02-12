@@ -51,9 +51,9 @@ subroutine SORT2()
 use TwoDat, only: lStRec, nBatch, RAMD
 use sort_data, only: IndBin, lSll, LuTwo, MxOrd, mxSyP, nBs, nSkip, nSln, nSyOp, Square, ValBin
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
+use PrintLevel, only: nPrint
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp) :: ib, iBatch, iBin, ibj, iDisk, iErr, iOff, iOpt, iOrd, iPrint, iRout, iSkip, iSlice, iStk, iSyblj, iSyBlk, &

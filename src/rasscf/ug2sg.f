@@ -29,7 +29,8 @@ C
       use gugx, only: SGS,CIS, EXS
       use output_ras, only: LF
       use spinfo, only: NTYP,MINOP,NCNFTP,NCSFTP
-      use rasdim, only: MxAct, MxRef
+      use Molcas, only: MxAct
+      use RASDim, only: MxRef
       IMPLICIT None
       INTEGER NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,MXROOTS
       INTEGER ICONF(*),ISPIN(*)

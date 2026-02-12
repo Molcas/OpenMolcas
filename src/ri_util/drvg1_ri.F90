@@ -38,10 +38,10 @@ use RI_glob, only: DoCholExch, iMP2prpt, iUHF, LuAVector, LuBVector, LuCVector, 
 use temptime, only: CHOGET_CPU, CHOGET_WALL, DRVG1_CPU, DRVG1_WALL, PGET2_CPU, PGET2_WALL, PGET3_CPU, PGET3_WALL, PREPP_CPU, &
                     PREPP_WALL, RMULT_CPU, RMULT_WALL, TWOEL2_CPU, TWOEL2_WALL, TWOEL3_CPU, TWOEL3_WALL
 #endif
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -160,7 +160,7 @@ nKvec = nKdens
 
 if (lPSO .and. lSA) then
   nJdens = 4
-  if ((Method == 'MCPDFT') .or.(Method == 'MSPDFT')) nJdens = 5
+  if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) nJdens = 5
   nKdens = 4
   nKVec = 2
   nAdens = 2

@@ -18,8 +18,8 @@ C              OF THE ROTATION MATRIX X, OR A LINE SEARCH.
 C
 C
 
+      use RASDim, only: MxIter
       use Constants, only: Zero, One, Two
-      use rasdim, only: MxIter
       IMPLICIT None
       INTEGER NCALLS,NDIM
       REAL*8 ENOW,BK(NDIM),XSX(NDIM),VL(NDIM),VM(NDIM)

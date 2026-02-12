@@ -50,8 +50,8 @@ use Symmetry_Info, only: Mul
 use MckDat, only: AuxMck, LenOp, lTocMck, MxOp, NaN, NotNaN, nTitle, oAddr, oComp, oLabel, oSymLb, pASh, pBas, pchdisp, pdegdisp, &
                   pEnd, pFID, pish, pldisp, pndisp, pNext, pnrdisp, pOp, pPert, pSym, pSymOp, ptdisp, pTitle, pVersN, rcMck, sDbg, &
                   sLength, TocMck
-use Definitions, only: iwp, u6, RtoI, ItoB
 use Molcas, only: MxSym
+use Definitions, only: iwp, u6, RtoI, ItoB
 
 #include "intent.fh"
 

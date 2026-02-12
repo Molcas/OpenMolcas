@@ -21,8 +21,8 @@ subroutine Print_Symmetry()
 !***********************************************************************
 
 use Symmetry_Info, only: iChTbl, iOper, lBsFnc, lIrrep, nIrrep, SymLab
+use PrintLevel, only: nPrint
 use Definitions, only: iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp) :: i, iIrrep, iPrint, iRout, j, jIrrep, nOper

@@ -12,7 +12,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: BName, IXSYM
       use general_data, only: NSYM,NBAS,NORB
-      use rasdim, only: LenIn4, LenIn5
+      use Molcas, only: LenIn
 
       IMPLICIT None
       Real*8 CMO(*)
@@ -40,7 +40,7 @@
       END DO
       CALL mma_allocate(LMB,NBTOT,Label='LMB')
       DO IBAS=1,NBTOT
-       LCHAR=BName(IBAS)(LENIN4:LENIN5)
+       LCHAR=BName(IBAS)(LenIn+4:LenIn+5)
        IF(LCHAR.EQ.'  ') THEN
          L=0
        ELSE IF(LCHAR.EQ.'x ') THEN
@@ -51,7 +51,7 @@
          L=0
        ELSE
          READ(LCHAR,'(I2)') L
-         IF (BName(IBAS)(LENIN5:LENIN5).EQ.'-') THEN
+         IF (BName(IBAS)(LenIn+5:LenIn+5).EQ.'-') THEN
            L=-L
          END IF
        END IF

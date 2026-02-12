@@ -10,7 +10,14 @@
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
 ************************************************************************
-      INTEGER FUNCTION NGENE(NEL,MLTPL)
+      FUNCTION NGENE(NEL,MLTPL)
+      use definitions, only: iwp
+      implicit none
+      integer(kind=iwp) NGENE
+      integer(kind=iwp), intent(in):: NEL,MLTPL
+
+      integer(kind=iwp) IS2,NU,ND
+      integer(kind=iwp), external:: NOVERM
 C Nr of genealogical spin couplings
       NGENE=0
       IF(MLTPL.LE.0) RETURN
@@ -20,5 +27,4 @@ C Nr of genealogical spin couplings
       ND=(NEL-IS2)/2
       IF(NU+ND.NE.NEL) RETURN
       NGENE=NOVERM(NEL,NU)-NOVERM(NEL,NU+1)
-      RETURN
-      END
+      END FUNCTION NGENE

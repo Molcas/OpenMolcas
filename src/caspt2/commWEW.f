@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE COMMWEW(IVEC,JVEC,DCOM)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
       USE SUPERINDEX, only: KTUV,KTGEU,KTGTU,KTU
@@ -24,7 +25,7 @@
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDSMAT
       use caspt2_module, only: NSYM,NASUP,NISUP,NASHT,NTUVES,NASH,NAES,
-     &                         MUL,IASYM,NTGEUES,NTGTUES,NTUES
+     &                         IASYM,NTGEUES,NTGTUES,NTUES
       IMPLICIT NONE
 
       INTEGER(KIND=IWP), INTENT(IN):: IVEC, JVEC
@@ -94,10 +95,10 @@ C Case 1 code section:
             IYABS=NAES(ISYMX)+IY
 
             SUM=Zero
-            ISYMTU=MUL(ISYMX,ISYM)
+            ISYMTU=Mul(ISYMX,ISYM)
             DO ITABS=1,NASHT
               ISYMT=IASYM(ITABS)
-              ISYMU=MUL(ISYMT,ISYMTU)
+              ISYMU=Mul(ISYMT,ISYMTU)
               DO IU=1,NASH(ISYMU)
                 IUABS=NAES(ISYMU)+IU
 
@@ -135,7 +136,7 @@ C Case 2 code section:
             IYABS=NAES(ISYMX)+IY
 
             SUM=Zero
-            ISYMT=MUL(ISYMX,ISYM)
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
               IF(ITABS.GE.IXABS) THEN
@@ -172,7 +173,7 @@ C Case 3 code section:
             IYABS=NAES(ISYMX)+IY
 
             SUM=Zero
-            ISYMT=MUL(ISYMX,ISYM)
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
               IF(ITABS.EQ.IXABS) CYCLE
@@ -216,10 +217,10 @@ C Case 4 code section:
             IYABS=NAES(ISYMX)+IY
 
             SUM=Zero
-            ISYMTU=MUL(ISYMX,ISYM)
+            ISYMTU=Mul(ISYMX,ISYM)
             DO ITABS=1,NASHT
               ISYMT=IASYM(ITABS)
-              ISYMU=MUL(ISYMT,ISYMTU)
+              ISYMU=Mul(ISYMT,ISYMTU)
               DO IU=1,NASH(ISYMU)
                 IUABS=NAES(ISYMU)+IU
 
@@ -259,7 +260,7 @@ C Case 5 code section:
             IYABS=NAES(ISYMX)+IY
 
             SUM=Zero
-            ISYMT=MUL(ISYMX,ISYM)
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
               IXT1=KTU(IXABS,ITABS)-NTUES(ISYM)
@@ -333,7 +334,7 @@ C Case 8 code section:
             IYABS=NAES(ISYMX)+IY
 
             SUM=Zero
-            ISYMT=MUL(ISYMX,ISYM)
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
               IF(ITABS.GE.IXABS) THEN
@@ -371,7 +372,7 @@ C Case 9 code section:
             IYABS=NAES(ISYMX)+IY
 
             SUM=Zero
-            ISYMT=MUL(ISYMX,ISYM)
+            ISYMT=Mul(ISYMX,ISYM)
             DO IT=1,NASH(ISYMT)
               ITABS=NAES(ISYMT)+IT
               IF(ITABS.EQ.IXABS) CYCLE

@@ -137,8 +137,8 @@ do i=1,mIter
   RHS(i) = Zero
 end do
 #ifdef _DEBUGPRINT_
-  call RecPrt(' The B Matrix',' ',B,mIter+1,mIter+1)
-  call RecPrt(' The RHS',' ',RHS,1,mIter+1)
+call RecPrt(' The B Matrix',' ',B,mIter+1,mIter+1)
+call RecPrt(' The RHS',' ',RHS,1,mIter+1)
 #endif
 
 ! Solve linear equation system
@@ -161,8 +161,8 @@ do jIter=1,mIter
   g(:,nIter+1) = g(:,nIter+1)+RHS(jIter)*g(:,iP(jIter+iOff))
 end do
 #ifdef _DEBUGPRINT_
-  call RecPrt(' The ipv',' ',q(:,nIter+1),1,nInter)
-  call RecPrt(' The igv',' ',g(:,nIter+1),1,nInter)
+call RecPrt(' The ipv',' ',q(:,nIter+1),1,nInter)
+call RecPrt(' The igv',' ',g(:,nIter+1),1,nInter)
 #endif
 
 ! Compute a new independent geometry by relaxation of

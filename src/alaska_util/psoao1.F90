@@ -43,8 +43,8 @@ use Gateway_global, only: force_part_c, force_part_p
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
-use Definitions, only: iwp, u6
 use Molcas, only: lCache
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1, nSD

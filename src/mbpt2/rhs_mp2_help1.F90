@@ -14,9 +14,9 @@ subroutine rhs_mp2_help1(iSymA,iSymB,iSymI,iSymJ,Int1,Int2,Scr1)
 #include "intent.fh"
 
 use MBPT2_Global, only: Density, EMP2, EOcc, EVir, mAdDel, mAdFro, mAdOcc, mAdVir, Mp2Lagr, VECL2, WDensity
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb
 use Constants, only: One, Two
 use Definitions, only: wp, iwp
-use cOrbInf, only: nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymA, iSymB, iSymI, iSymJ

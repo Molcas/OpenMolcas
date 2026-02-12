@@ -15,9 +15,9 @@
 subroutine OneCenter_ChkDiag(Diag,l_D,Stat,DoPrint)
 
 use Cholesky, only: iRS2F, nBasT, nnBstRT
+use Molcas, only: LenIn, MaxBfn
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn8, MaxBfn
 
 implicit none
 integer(kind=iwp), intent(in) :: l_D
@@ -26,11 +26,11 @@ real(kind=wp), intent(out) :: Stat(7)
 logical(kind=iwp), intent(in) :: DoPrint
 integer(kind=iwp) :: ia, ib, krs
 real(kind=wp) :: Err(4)
-character(len=LenIn8) :: BName(maxbfn)
+character(len=LenIn+8) :: BName(maxbfn)
 character(len=LenIn) :: ctmp1, ctmp2
 real(kind=wp), external :: dDot_
 
-call Get_cArray('Unique Basis Names',BName,LENIN8*nBasT)
+call Get_cArray('Unique Basis Names',BName,(LenIn+8)*nBasT)
 
 do krs=1,nnBstRT(1)
   ia = iRS2F(1,krs)

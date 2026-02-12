@@ -27,7 +27,7 @@ subroutine FOCK_update(F,FI,FP,D,P,Q,NQ,FINT,CMO)
 ! FockOcc is further constructed as well
 
 use Index_Functions, only: iTri, nTri_Elem
-use printlevel, only: debug
+use PrintLevel, only: DEBUG
 use mcpdft_output, only: iPrLoc
 use rasscf_global, only: ISTORD, ISTORP, nacpar, nFint, nTot3, nTot4
 use general_data, only: nash, nbas, nish, norb, nsym, nTot1, nTot2

@@ -20,10 +20,10 @@ subroutine Averd(ireturn)
 
 use Averd_global, only: Wset
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
@@ -65,7 +65,7 @@ itBas = 0
 do iSym=1,nSym
   itBas = itBas+nBas(isym)
 end do
-call Get_cArray('Unique Basis Names',BsLbl,LenIn8*itBas)
+call Get_cArray('Unique Basis Names',BsLbl,(LenIn+8)*itBas)
 
 !-- Some dimensions.
 

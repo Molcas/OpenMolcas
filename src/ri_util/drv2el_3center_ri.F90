@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Drv2El_3Center_RI(ThrAO)
 !***********************************************************************
 !                                                                      *
@@ -52,10 +53,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,0:7), IncVec, iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, &
-                     iPass, iPL, iPrint, irc, iRed, iS, iS_, iSeed, iSym, iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, &
-                     kCnttp, klS_, kQv, kS, lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, &
-                     mMuNu, mQv, MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
-                     nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
+                     iPass, iPL, iPrint, irc, iRed, iS, iS_, iSeed, iSym, iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, kCnttp, &
+                     klS_, kQv, kS, lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, mMuNu, &
+                     mQv, MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, nSkal2, &
+                     nSkal_Auxiliary, nTask, NumVec, NumVec_
 real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all_a, TMax_all_v, TW0, TW1, TWall1, Twall2
 character(len=6) :: Name_R
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, Out_of_Core, Skip
@@ -65,10 +66,6 @@ procedure(int_wrout) :: Integral_RI_3
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
 logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!#define _DEBUGPRINT_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -89,9 +86,7 @@ iPrint = iPL
 
 ! Reduce print level if iterating
 
-if (Reduce_Prt() .and. (iPL <= 5)) then
-  iPrint = iPL
-end if
+if (Reduce_Prt() .and. (iPL <= 5)) iPrint = iPL
 
 if (iPrint >= 6) call CWTime(TC0,TW0)
 !                                                                      *

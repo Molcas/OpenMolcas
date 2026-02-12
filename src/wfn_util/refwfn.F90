@@ -108,6 +108,11 @@ subroutine refwfn_info()
 !***********************************************************************
 !SVC: initialize the reference wavefunction info
 
+  use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
+  use RASDim, only: MxTit
+  use caspt2_global, only: Weight
+  use caspt2_module, only: bName, header, IFQCAN, iRoot, iSpin, lRoots, nActel, nAsh, nBas, nConf, nDel, nEle3, nFro, nHole1, &
+                           nIsh, nRas1, nRas2, nRas3, nRoots, nSsh, nSym, PotNuc, STSym, Title
 # ifdef _DMRG_
   use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names
 # endif
@@ -115,18 +120,13 @@ subroutine refwfn_info()
   use mh5, only: mh5_fetch_attr, mh5_exists_attr, mh5_exists_dset, mh5_fetch_dset
   use caspt2_module, only: nDet
 # endif
-  use caspt2_global, only: Weight_ => Weight
   use stdalloc, only: mma_allocate, mma_deallocate
-  use caspt2_module, only: header, IFQCAN, iRoot, iSpin, LenIn8, lRoots, MxOrb, MxSym, MxTit, nActel, &
-                           name, nAsh, nConf, nDel, nEle3, nFro, nHole1, nIsh, nRas1, nRas2, nRas3, &
-                           nRoots, nSsh, nSym, PotNuc, STSym, Title, nBas, MxRoot
-
 
 # ifdef _HDF5_
   character(len=1), allocatable :: typestring(:)
 # endif
   integer(kind=iwp) :: iSym, ref_nSym, ref_nBas(mxSym), IAD15
-  real(kind=wp) :: Weight(mxRoot)
+  real(kind=wp) :: lWeight(mxRoot)
 
   if (.not. refwfn_active) then
     write(u6,*) ' refwfn not yet activated, aborting!'
@@ -149,7 +149,7 @@ subroutine refwfn_info()
     call mh5_fetch_attr(refwfn_id,'NSTATES',nRoots)
     call mh5_fetch_attr(refwfn_id,'NROOTS',lRoots)
     call mh5_fetch_attr(refwfn_id,'STATE_ROOTID',iRoot)
-    call mh5_fetch_attr(refwfn_id,'STATE_WEIGHT',Weight)
+    call mh5_fetch_attr(refwfn_id,'STATE_WEIGHT',lWeight)
     if (mh5_exists_attr(refwfn_id,'NDET')) then
       call mh5_fetch_attr(refwfn_id,'NDET',nDet)
     else
@@ -191,8 +191,8 @@ subroutine refwfn_info()
     ! Another title field is read from input a little later, it is called
     ! TITLE2. That one is printed out in PRINP_CASPT2.
     IAD15 = IADR15(1)
-    call WR_RASSCF_Info(refwfn_id,2,iAd15,NACTEL,ISPIN,REF_NSYM,STSYM,NFRO,NISH,NASH,NDEL,REF_NBAS,8,NAME,LENIN8*MXORB,NCONF, &
-                        HEADER,144,TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,Weight)
+    call WR_RASSCF_Info(refwfn_id,2,iAd15,NACTEL,ISPIN,REF_NSYM,STSYM,NFRO,NISH,NASH,NDEL,REF_NBAS,8,BNAME,(LenIn+8)*MXORB,NCONF, &
+                        HEADER,144,TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,IROOT,MXROOT,NRAS1,NRAS2,NRAS3,NHOLE1,NELE3,IFQCAN,lWeight)
     nssh = ref_nbas-nfro-nish-nash-ndel
 # ifdef _HDF5_
   end if
@@ -213,9 +213,9 @@ subroutine refwfn_info()
   end if
 
   if (ProgName(1:6) == 'caspt2') then
-    ! Weight_ is deallocated in PT2CLS()
-    call mma_allocate(Weight_,nRoots,Label='Weight')
-    Weight_(1:nRoots) = Weight(1:nRoots)
+    ! Weight is deallocated in PT2CLS()
+    call mma_allocate(Weight,nRoots,Label='Weight')
+    Weight(1:nRoots) = lWeight(1:nRoots)
   end if
 
 end subroutine refwfn_info
@@ -226,15 +226,15 @@ subroutine refwfn_data()
 !SVC: initialize the reference wavefunction data
 
   use gugx, only: L2ACT, LEVEL
+  use Molcas, only: MxAct, MxRoot
+  use RASDim, only: MxIter
   use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO
+  use caspt2_module, only: DMRG, DoCumulant, iAd1m, IEOF1M, IFQCAN, ISCF, mState, nBSqt, nConf, nRoots, nState, OrbIn, RefEne
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
-  use caspt2_module, only: RefEne, DMRG, DoCumulant, IEOF1M, IFQCAN, ISCF, MxAct, MxIter, &
-                           MXRoot, nBSqt, nConf, nRoots, nState, OrbIn, iAd1m, mState
 
-  implicit none
   integer(kind=iwp) :: I, IAD15, II, IDISK, ID, IAD, NEJOB, IT, NMAYBE, ISNUM
   real(kind=wp) :: Root_Energies(mxRoot), AEMAX, E
   real(kind=wp), allocatable :: tmp(:), ejob(:,:)

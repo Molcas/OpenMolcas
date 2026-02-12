@@ -15,10 +15,10 @@ subroutine SymTrafo(LUPROP,lOper,nComp,nBas,nIrrep,Label,MolWgh)
 
 use AMFI_global, only: Lmax, MxCart
 use index_functions, only: iTri, nTri_Elem
+use Molcas, only: MxAtom, MxOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxOrb, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: LUPROP, nComp, lOper(nComp), nIrrep, nBas(0:nIrrep-1), MolWgh
@@ -68,7 +68,7 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*) 'there are totally ',numboffunct,' functions'
 #endif
-if (numboffunct > MxOrb) call SysAbendMsg('symtrafo','increase MxOrb in Molcas.F90',' ')
+if (numboffunct > MxOrb) call SysAbendMsg('symtrafo','increase MxOrb in the Molcas module',' ')
 rewind(isymunit)
 read(isymunit,*)
 read(isymunit,*)

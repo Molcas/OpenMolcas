@@ -11,9 +11,9 @@
 
 subroutine Get_Name_Full(Element)
 
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
-use Molcas, only: LenIn
 
 #include "intent.fh"
 

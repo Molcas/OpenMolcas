@@ -12,7 +12,7 @@
       use definitions, onlY: iwp, wp, u6
       use constants, only: Zero
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NASHT
       use pt2_guga, only: NG1

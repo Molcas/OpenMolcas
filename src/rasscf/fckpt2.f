@@ -44,7 +44,7 @@
 #ifdef _ENABLE_CHEMPS2_DMRG_
       use rasscf_global, only: NAC
 #endif
-      use printlevel, only: DEBUG,VERBOSE
+      use PrintLevel, only: DEBUG,VERBOSE
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NTOT,JOBIPH,NASH,NBAS,NDEL,NFRO,NISH,
      &                        NRS1,NRS2,NRS3,NSSH,NTOT2

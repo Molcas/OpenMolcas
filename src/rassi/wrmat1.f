@@ -9,17 +9,22 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE WRMAT1(ND1,ND2,XMAT)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION XMAT(ND1,ND2)
-      NCOL=5
+      use definitions, only: iwp, wp, u6
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: ND1,ND2
+      real(kind=wp), intent(in):: XMAT(ND1,ND2)
+
 C     NCOL=NR OF PRINTING COLUMNS.
+      integer(kind=iwp), parameter:: NCOL=5
+      integer(kind=iwp) NBL,IBL,JSTA,JEND,I,J
+
       NBL=(ND2+NCOL-1)/NCOL
       DO IBL=1,NBL
         JSTA=1+NCOL*(IBL-1)
         JEND=MIN(NCOL*IBL,ND2)
-        WRITE(6,'(//,5(8X,I8),/)')(J,J=JSTA,JEND)
+        WRITE(u6,'(//,5(8X,I8),/)')(J,J=JSTA,JEND)
         DO I=1,ND1
-          WRITE(6,'(1X,I3,5(1X,G16.9))')I,(XMAT(I,J),J=JSTA,JEND)
+          WRITE(u6,'(1X,I3,5(1X,G16.9))')I,(XMAT(I,J),J=JSTA,JEND)
         END DO
       END DO
       END SUBROUTINE WRMAT1

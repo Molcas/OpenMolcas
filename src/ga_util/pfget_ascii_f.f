@@ -20,7 +20,7 @@
       Subroutine PFGet_ASCII(FName)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: mpp_rootid, King
-      use SysDef, only: ItoB
+      use Definitions, only: ItoB
 #endif
       Implicit None
       Character (Len=*), Intent(In) :: FName

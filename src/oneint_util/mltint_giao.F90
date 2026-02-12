@@ -37,8 +37,8 @@ use Symmetry_Info, only: ChOper
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iComp, iDCRT(0:7), ipAxyz, ipBxyz, ipFnl, ipQxyz, ipRxyz, iStabO(0:7), lDCRT, &
-                     llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iComp, iDCRT(0:7), ipAxyz, ipBxyz, ipFnl, ipQxyz, ipRxyz, iStabO(0:7), lDCRT, llOper, LmbdT, nB, nDCRT, nip, &
+                     nOp, nStabO
 real(kind=wp) :: RAB(3), TC(3)
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
@@ -83,13 +83,13 @@ if (.not. EQ(A,RB)) then
   end if
 
 # ifdef _DEBUGPRINT_
-    call RecPrt(' In MltInt_GIAO: A',' ',A,1,3)
-    call RecPrt(' In MltInt_GIAO: RB',' ',RB,1,3)
-    call RecPrt(' In MltInt_GIAO: CoorO',' ',CoorO,1,3)
-    call RecPrt(' In MltInt_GIAO: Kappa',' ',rKappa,nAlpha,nBeta)
-    call RecPrt(' In MltInt_GIAO: Zeta',' ',Zeta,nAlpha,nBeta)
-    call RecPrt(' In MltInt_GIAO: P',' ',P,nZeta,3)
-    write(u6,*) ' In MltInt_GIAO: la,lb=',la,lb
+  call RecPrt(' In MltInt_GIAO: A',' ',A,1,3)
+  call RecPrt(' In MltInt_GIAO: RB',' ',RB,1,3)
+  call RecPrt(' In MltInt_GIAO: CoorO',' ',CoorO,1,3)
+  call RecPrt(' In MltInt_GIAO: Kappa',' ',rKappa,nAlpha,nBeta)
+  call RecPrt(' In MltInt_GIAO: Zeta',' ',Zeta,nAlpha,nBeta)
+  call RecPrt(' In MltInt_GIAO: P',' ',P,nZeta,3)
+  write(u6,*) ' In MltInt_GIAO: la,lb=',la,lb
 # endif
 
   llOper = lOper(1)
@@ -105,13 +105,13 @@ if (.not. EQ(A,RB)) then
   call SOS(iStabO,nStabO,llOper)
   call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
 # ifdef _DEBUGPRINT_
-    write(u6,*) ' m      =',nStabM
-    write(u6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(u6,*) ' s      =',nStabO
-    write(u6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
-    write(u6,*) ' LambdaT=',LmbdT
-    write(u6,*) ' t      =',nDCRT
-    write(u6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+  write(u6,*) ' m      =',nStabM
+  write(u6,'(9A)') '{M}=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+  write(u6,*) ' s      =',nStabO
+  write(u6,'(9A)') '{S}=',(ChOper(iStabO(ii)),ii=0,nStabO-1)
+  write(u6,*) ' LambdaT=',LmbdT
+  write(u6,*) ' t      =',nDCRT
+  write(u6,'(9A)') '{T}=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
 # endif
 
   do lDCRT=0,nDCRT-1
@@ -144,15 +144,15 @@ if (.not. EQ(A,RB)) then
 end if
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' Result in MltInt_GIAO'
-  do ia=1,(la+1)*(la+2)/2
-    do ib=1,(lb+1)*(lb+2)/2
-      do iIC=1,nIC
-        write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(a=',ia,',b=',ib,',iIC=',iIC,')'
-        call RecPrt(Label,' ',rFinal(:,ia,ib,iIC),nAlpha,nBeta)
-      end do
+write(u6,*) ' Result in MltInt_GIAO'
+do ia=1,(la+1)*(la+2)/2
+  do ib=1,(lb+1)*(lb+2)/2
+    do iIC=1,nIC
+      write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(a=',ia,',b=',ib,',iIC=',iIC,')'
+      call RecPrt(Label,' ',rFinal(:,ia,ib,iIC),nAlpha,nBeta)
     end do
   end do
+end do
 #endif
 
 end subroutine MltInt_GIAO

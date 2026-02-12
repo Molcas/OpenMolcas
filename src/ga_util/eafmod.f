@@ -115,7 +115,7 @@
       Subroutine EAFAWrite(Lu,Buf,nBuf,Disk,id)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
-      use SysDef, only: ItoB
+      use Definitions, only: ItoB
 #endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf), id
@@ -151,7 +151,7 @@
       Subroutine EAFARead(Lu,Buf,nBuf,Disk,id)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
-      use SysDef, only: ItoB
+      use Definitions, only: ItoB
 #endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf), id
@@ -187,7 +187,7 @@
       Subroutine EAFWrite(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
-      use SysDef, only: ItoB
+      use Definitions, only: ItoB
 #endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf)
@@ -225,7 +225,7 @@
       Subroutine EAFRead(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
-      use SysDef, only: ItoB
+      use Definitions, only: ItoB
 #endif
       Implicit None
       Integer Lu, nBuf, Buf(nBuf)

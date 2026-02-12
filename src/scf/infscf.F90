@@ -11,9 +11,9 @@
 
 module InfSCF
 
+use Molcas, only: LenIn, MxSym
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym, LenIn8, LenIn
 
 implicit none
 private
@@ -237,7 +237,7 @@ real(kind=wp), allocatable :: CMO(:,:), CMO_ref(:,:), Darwin(:), EDFT(:), EOrb(:
                               OccNo(:,:), OneHam(:), Ovrlp(:), TrDD(:,:,:), TrDh(:,:,:), TrDP(:,:,:), TrM(:,:)
 real(kind=wp), allocatable :: OccSet_e(:,:), OccSet_m(:,:)
 real(kind=wp), allocatable, target :: Dens(:,:,:), FockMO(:,:), TwoHam(:,:,:), Vxc(:,:,:)
-character(len=LenIn8), allocatable :: BName(:)
+character(len=LenIn+8), allocatable :: BName(:)
 character(len=LenIn), allocatable :: Atom(:)
 character(len=8), allocatable :: BType(:)
 

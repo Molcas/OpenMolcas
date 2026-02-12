@@ -54,7 +54,7 @@ use rasscf_global, only: ExFac, NAC
 use general_data, only: LUDAVID, NCONF, NSEL, STSYM
 use spinfo, only: NCNASM
 use output_ras, only: IPRLOC
-use printlevel, only: INSANE
+use PrintLevel, only: INSANE
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp

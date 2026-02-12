@@ -89,7 +89,6 @@ set (sources
      mkseg.F90
      mksgnum.F90
      motrac.F90
-     Molcas.F90
      newgs.F90
      nrcoup.F90
      ordstr.F90
@@ -148,8 +147,6 @@ set (modfile_list
      general_data.F90
      gugx.F90
      input_mclr.F90
-     Molcas.F90
-     pt2_guga.F90
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90

@@ -146,8 +146,9 @@ else  ! Cho-Fock
 
   ! Form active density and MO coefficients
 
+  nAct = sum(nAsh(1:nSym))
+  nAtri = nTri_Elem(nTri_Elem(nAct))
   if (iMethod == 2) then
-    nAct = sum(nAsh(1:nSym))
     nG2 = 0
     do iSym=1,nSym
       nAG2 = 0
@@ -156,7 +157,6 @@ else  ! Cho-Fock
       end do
       nG2 = nG2+nAG2**2
     end do
-    nAtri = nTri_Elem(nTri_Elem(nAct))
 
     call Allocate_DT(CVa(1),nAsh,nOrb,nSym)
     call Allocate_DT(CVa(2),nAsh,nOrb,nSym)
@@ -254,7 +254,6 @@ else  ! Cho-Fock
   call GADSum(FockI,nDens)
   call GADSum(FockA,nDens)
 # ifdef _DEBUGPRINT_
-  nAct = sum(nAsh(1:nSym))
   do iSym=1,nSym
     write(u6,*) 'iSym=',iSym
     !call RecPrt('FIMO ',' ',FIMO(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
@@ -263,7 +262,6 @@ else  ! Cho-Fock
     call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     !call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
   end do
-  nAtri = nTri_Elem(nTri_Elem(nAct))
   !call RecPrt('MO1',' ',rMOs,1,nAtri)
 # endif
 

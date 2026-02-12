@@ -10,18 +10,30 @@
 ************************************************************************
       SUBROUTINE PRWF1(SGS,CIS,NLEV,NMIDV,ISM,ICS,
      &                 NOCSF,IOCSF,NOW,IOW,ISYCI,CI,CITHR)
+      use definitions, only: iwp, wp, u6
       use gugx, only: SGStruct, CIStruct
       use Symmetry_Info, only: nSym=>nIrrep, MUL
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-      Integer NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
-      Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      REAL*8 CI(*)
-      Integer ISM(NLEV), ICS(NLEV)
-      LOGICAL, PARAMETER :: SGINFO=.TRUE.
+      IMPLICIT None
+      Type (SGStruct), intent(in):: SGS
+      Type (CIStruct), intent(in):: CIS
+      Integer(kind=iwp), intent(in):: NLEV,NMIDV
+      Integer(kind=iwp), intent(in):: ISM(NLEV)
+      Integer(kind=iwp), intent(out):: ICS(NLEV)
+      Integer(kind=iwp), intent(in)::NOCSF(NSYM,NMIDV,NSYM),
+     &                               IOCSF(NSYM,NMIDV,NSYM)
+      Integer(kind=iwp), intent(in):: NOW(2,NSYM,NMIDV),
+     &                                IOW(2,NSYM,NMIDV)
+      Integer(kind=iwp), intent(in):: ISYCI
+      REAL(kind=wp), intent(in):: CI(*),CITHR
+
+      LOGICAL(kind=iwp), PARAMETER :: SGINFO=.TRUE.
       CHARACTER(LEN=80) LINE
       CHARACTER(LEN=1) :: CODE(0:3)=['0','u','d','2']
+      Integer(kind=iwp) I,IC1,ICDPOS,ICDWN,ICONF,ICUP,ICUPOS,IDW0,IDWN,
+     &                  IDWNSV,ISY,ISYDWN,ISYUP,IUP,IUW0,K,KNXT,KOCLAB,
+     &                  KOCSZ,KPAD1,KPAD2,LEV,MIDLEV,MV,NCI,NDWN,NIPWLK,
+     &                  NNN,NUP
+      REAL(kind=wp) COEF
 
 C -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
 C -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
@@ -33,8 +45,8 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
       NIPWLK=CIS%nIpWlk
 
 C Size of occup/spin coupling part of line:
-      WRITE(6,*)' Occupation of active orbitals, and spin coupling'
-      WRITE(6,*)' of open shells. (u,d: Spin up or down).'
+      WRITE(u6,*)' Occupation of active orbitals, and spin coupling'
+      WRITE(u6,*)' of open shells. (u,d: Spin up or down).'
       WRITE(LINE,'(20A4)')('    ',I=1,20)
       K=0
       ISY=0
@@ -50,7 +62,7 @@ C Size of occup/spin coupling part of line:
       KPAD1=(KOCSZ-KOCLAB)/2
       KPAD2=(KOCSZ-K)/2
       IF(SGINFO) THEN
-      WRITE(6,*)' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
+      WRITE(u6,*)' SGUGA info is (Midvert:IsyUp:UpperWalk/LowerWalk)'
       END IF
       LINE(1:7)='  Conf '
       K=7
@@ -61,7 +73,7 @@ C Size of occup/spin coupling part of line:
       LINE(K+KPAD1:K+KPAD1+9)='Occupation'
       K=K+KOCSZ
       LINE(K:K+23)='       Coef       Weight'
-      WRITE(6,*) LINE
+      WRITE(u6,*) LINE
       WRITE(LINE,'(20A4)')('    ',I=1,20)
 
 C -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
@@ -152,12 +164,12 @@ C -- PRINT IT!
               LINE(K:K+4)='     '
               K=K+5
               WRITE(LINE(K:K+7),'(F8.5)') COEF**2
-              WRITE(6,*)LINE(1:K+7)
+              WRITE(u6,*)LINE(1:K+7)
             END DO
           END DO
         END DO
       END DO
-      WRITE(6,*)
-      WRITE(6,*) repeat('*',80)
+      WRITE(u6,*)
+      WRITE(u6,*) repeat('*',80)
 
       END SUBROUTINE PRWF1

@@ -37,8 +37,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iDCRT(0:7), ikdc, iM2xp, ipAxyz, ipBxyz, ipK, ipPx, ipPy, ipPz, ipQxyz, ipRes, &
-                     ipRxyz, ipZ, iZeta, kCnt, kCnttp, kdc, lDCRT, LmbdT, nDCRT, nip, nOp
+integer(kind=iwp) :: iDCRT(0:7), ikdc, iM2xp, ipAxyz, ipBxyz, ipK, ipPx, ipPy, ipPz, ipQxyz, ipRes, ipRxyz, ipZ, iZeta, kCnt, &
+                     kCnttp, kdc, lDCRT, LmbdT, nDCRT, nip, nOp
 real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
 logical(kind=iwp) :: ABeq(3)
 real(kind=wp), allocatable :: Scr(:)
@@ -85,12 +85,12 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In PAM2Int: A',' ',A,1,3)
-  call RecPrt(' In PAM2Int: RB',' ',RB,1,3)
-  call RecPrt(' In PAM2Int: Kappa',' ',rKappa,nAlpha,nBeta)
-  call RecPrt(' In PAM2Int: Zeta',' ',Zeta,nAlpha,nBeta)
-  call RecPrt(' In PAM2Int: P',' ',P,nZeta,3)
-  write(u6,*) ' In PAM2Int: la,lb,nHer=',la,lb,nHer
+call RecPrt(' In PAM2Int: A',' ',A,1,3)
+call RecPrt(' In PAM2Int: RB',' ',RB,1,3)
+call RecPrt(' In PAM2Int: Kappa',' ',rKappa,nAlpha,nBeta)
+call RecPrt(' In PAM2Int: Zeta',' ',Zeta,nAlpha,nBeta)
+call RecPrt(' In PAM2Int: P',' ',P,nZeta,3)
+write(u6,*) ' In PAM2Int: la,lb,nHer=',la,lb,nHer
 #endif
 
 rFinal(:,:,:,:) = Zero
@@ -137,10 +137,10 @@ do kCnt=1,dbsc(kCnttp)%nCntr
         Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
       end do
 #     ifdef _DEBUGPRINT_
-        write(u6,*) ' The modified basis set'
-        call RecPrt(' In PAM2Int: Kappa',' ',Array(ipK),nAlpha,nBeta)
-        call RecPrt(' In PAM2Int: Zeta',' ',Array(ipZ),nAlpha,nBeta)
-        call RecPrt(' In PAM2Int: P',' ',Array(ipPx),nZeta,3)
+      write(u6,*) ' The modified basis set'
+      call RecPrt(' In PAM2Int: Kappa',' ',Array(ipK),nAlpha,nBeta)
+      call RecPrt(' In PAM2Int: Zeta',' ',Array(ipZ),nAlpha,nBeta)
+      call RecPrt(' In PAM2Int: P',' ',Array(ipPx),nZeta,3)
 #     endif
 
       ! Compute the cartesian values of the basis functions angular part
@@ -163,19 +163,19 @@ do kCnt=1,dbsc(kCnttp)%nCntr
 
       call CmbnMP(Array(ipQxyz),nZeta,la,lb,nOrdOp,Array(ipZ),Array(ipK),Array(ipRes),nComp)
 #     ifdef _DEBUGPRINT_
-        write(u6,*) ' Intermediate result in PAM2Int'
-        do ia=1,nTri_Elem1(la)
-          do ib=1,nTri_Elem1(lb)
-            iab = (ib-1)*nTri_Elem1(la)+ia
-            ipab = (iab-1)*nZeta+ipRes
-            write(Label,'(A,I2,A,I2,A)') ' Array(',ia,',',ib,')'
-            if (nComp /= 1) then
-              call RecPrt(Label,' ',Array(ipab),nZeta,nComp)
-            else
-              call RecPrt(Label,' ',Array(ipab),nAlpha,nBeta)
-            end if
-          end do
+      write(u6,*) ' Intermediate result in PAM2Int'
+      do ia=1,nTri_Elem1(la)
+        do ib=1,nTri_Elem1(lb)
+          iab = (ib-1)*nTri_Elem1(la)+ia
+          ipab = (iab-1)*nZeta+ipRes
+          write(Label,'(A,I2,A,I2,A)') ' Array(',ia,',',ib,')'
+          if (nComp /= 1) then
+            call RecPrt(Label,' ',Array(ipab),nZeta,nComp)
+          else
+            call RecPrt(Label,' ',Array(ipab),nAlpha,nBeta)
+          end if
         end do
+      end do
 #     endif
 
       ! Multiply result by Zeff*Const
@@ -202,15 +202,15 @@ do kCnt=1,dbsc(kCnttp)%nCntr
 end do
 call mma_deallocate(Scr)
 
-!if (nOrdOp == 1) then
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' Result in PAM2Int'
-  do ia=1,nTri_Elem1(la)
-    do ib=1,nTri_Elem1(lb)
-      write(Label,'(A,I2,A,I2,A)') ' rFinal(ia=',ia,',ib=',ib,')'
-      call RecPrt(Label,' ',rFinal(:,ia,ib,1),nAlpha,nBeta)
-    end do
+!if (nOrdOp == 1) then
+write(u6,*) ' Result in PAM2Int'
+do ia=1,nTri_Elem1(la)
+  do ib=1,nTri_Elem1(lb)
+    write(Label,'(A,I2,A,I2,A)') ' rFinal(ia=',ia,',ib=',ib,')'
+    call RecPrt(Label,' ',rFinal(:,ia,ib,1),nAlpha,nBeta)
   end do
+end do
 #endif
 
 end subroutine PAM2Int

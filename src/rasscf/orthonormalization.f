@@ -186,7 +186,7 @@
      &    n_to_ON, nNew,
      &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
       use general_data, only : nSym
-      use printlevel, only: USUAL
+      use PrintLevel, only: USUAL
       use output_ras, only: LF,IPRLOC
 #include "warnings.h"
       integer, intent(in) :: n_to_ON(:), nNew(:)
@@ -213,7 +213,7 @@
             Write(LF,*) 'New number of secondary orbs:',
      &                  nSSH(iSym) - remove(iSym)
             call quit(_RC_GENERAL_ERROR_)
-          else if (iPRLoc(1) >= usual) then
+          else if (iPRLoc(1) >= USUAL) then
             call WarningMessage(1,'Orthonormalization Warning')
             Write(LF,*) 'Exact or very near linear dependence'
             Write(LF,*) 'forces RASSCF to delete additional orbitals.'
@@ -262,7 +262,7 @@
       subroutine read_S(S)
         use general_data, only : nBas, nSym, nActEl
         use rasscf_global, only : nFr, nIn, Tot_Nuc_Charge
-      use printlevel, only: USUAL
+      use PrintLevel, only: USUAL
       use output_ras, only: LF,IPRLOC
 #include "warnings.h"
         type(t_blockdiagonal) :: S(nSym)
@@ -281,7 +281,7 @@
 
         Mol_Charge = Tot_Nuc_Charge - dble(2 * (nFr + nIn) + nActEl)
         call put_dscalar('Total Charge    ', Mol_Charge)
-        if (IPRLOC(1) >= usual) then
+        if (IPRLOC(1) >= USUAL) then
           write(LF,*)
           write(LF,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
         end if

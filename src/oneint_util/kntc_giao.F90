@@ -34,16 +34,16 @@ integer(kind=iwp) :: ia, ib, iCar
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-  call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
-  call RecPrt(' In Kntc: Beta ',' ',Beta,nZeta,1)
-  do ia=0,na+1
-    do ib=0,nb+1
-      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Rxyz(',ia,',',ib,',0)'
-      call RecPrt(Label,' ',Rxyz(:,:,ia,ib,0),nZeta,3)
-      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Rxyz(',ia,',',ib,',1)'
-      call RecPrt(Label,' ',Rxyz(:,:,ia,ib,1),nZeta,3)
-    end do
+call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
+call RecPrt(' In Kntc: Beta ',' ',Beta,nZeta,1)
+do ia=0,na+1
+  do ib=0,nb+1
+    write(Label,'(A,I2,A,I2,A)') ' In Kntc: Rxyz(',ia,',',ib,',0)'
+    call RecPrt(Label,' ',Rxyz(:,:,ia,ib,0),nZeta,3)
+    write(Label,'(A,I2,A,I2,A)') ' In Kntc: Rxyz(',ia,',',ib,',1)'
+    call RecPrt(Label,' ',Rxyz(:,:,ia,ib,1),nZeta,3)
   end do
+end do
 #endif
 !                                                                      *
 !***********************************************************************
@@ -85,15 +85,15 @@ do ia=0,na
     !*******************************************************************
     !                                                                  *
 #   ifdef _DEBUGPRINT_
-      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,',0)'
-      call RecPrt(Label,' ',Txyz(:,:,ia,ib,0),nZeta,3)
-      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,',1)'
-      call RecPrt(Label,' ',Txyz(:,:,ia,ib,1),nZeta,3)
-      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Wxyz(',ia,',',ib,',1)'
-      call RecPrt(Label,' ',Wxyz(:,:,ia,ib,1),nZeta,3)
-      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Wxyz(',ia,',',ib,',2)'
-      call RecPrt(Label,' ',Wxyz(:,:,ia,ib,2),nZeta,3)
-#endif
+    write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,',0)'
+    call RecPrt(Label,' ',Txyz(:,:,ia,ib,0),nZeta,3)
+    write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,',1)'
+    call RecPrt(Label,' ',Txyz(:,:,ia,ib,1),nZeta,3)
+    write(Label,'(A,I2,A,I2,A)') ' In Kntc: Wxyz(',ia,',',ib,',1)'
+    call RecPrt(Label,' ',Wxyz(:,:,ia,ib,1),nZeta,3)
+    write(Label,'(A,I2,A,I2,A)') ' In Kntc: Wxyz(',ia,',',ib,',2)'
+    call RecPrt(Label,' ',Wxyz(:,:,ia,ib,2),nZeta,3)
+#   endif
     !                                                                  *
     !*******************************************************************
     !                                                                  *

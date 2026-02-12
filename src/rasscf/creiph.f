@@ -80,8 +80,8 @@ C
       use general_data, only: NSYM,ISPIN,JOBIPH,NACTEL,NASH,NBAS,NCONF,
      &                        NDEL,NELEC3,NFRO,NHOLE1,NISH,NRS1,NRS2,
      &                        NRS3,NTOT,NTOT2,STSYM
-      use rasdim, only: LenIn8, MxOrb, MxSym, MxRoot, MxAct, MxIter,
-     &                  MxTit
+      use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym, MxRoot
+      use RASDim, only: MxIter, MxTit
 
       IMPLICIT None
       Real*8 Dum(1)
@@ -101,7 +101,7 @@ C     DUMMY WRITE THE REMAINING RECORDS TO OBTAIN ADDRESSES
 C
       CALL WR_RASSCF_Info(JOBIPH,1,iAD15,NACTEL,ISPIN,NSYM,STSYM,
      &            NFRO,NISH,NASH,NDEL,NBAS,MxSym,
-     &            BName,LENIN8*mxOrb,NCONF,HEADER,144,
+     &            BName,(LenIn+8)*mxOrb,NCONF,HEADER,144,
      &            TITLE,4*18*mxTit,POTNUC,LROOTS,NROOTS,
      &            IROOT,MxRoot,NRS1,NRS2,NRS3,
      &            NHOLE1,NELEC3,IPT2,WEIGHT)

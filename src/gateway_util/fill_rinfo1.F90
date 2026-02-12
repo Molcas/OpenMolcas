@@ -12,8 +12,8 @@
 subroutine Fill_rInfo1()
 
 use Basis_Info, only: dbsc, MxPrim, MxrCof, nAngr, nBasisr, nCnttp, nPrimr, rCof, rExp, Shells
-use Definitions, only: iwp, u6
 use Molcas, only: MxAO
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: iAng, icnt, iCnttp, jSh, kCof, kExp, krBas, krCnt, krCof, krExp, nExpj
@@ -43,7 +43,7 @@ do iCnttp=1,nCnttp
       if (krBas > MxAO) then
         call WarningMessage(2,'Too many shells')
         write(u6,*) 'MORE THAN ',MxAO,' SHELLS'
-        write(u6,*) 'Increase MxAO in Molcas.F90 and recompile the code!'
+        write(u6,*) 'Increase MxAO in the Molcas module and recompile the code!'
         call Abend()
       end if
       nExpj = Shells(jSh)%nExp

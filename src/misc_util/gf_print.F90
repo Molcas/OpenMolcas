@@ -11,10 +11,10 @@
 
 subroutine GF_Print(EVal,EVec,dDipM,iel,nDoF,nDim,ictl,IRInt,RedM,Lu_10,iOff)
 
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, Four, aTokg, cLight, diel, elcharge, rNAVO
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn6
 
 implicit none
 integer(kind=iwp), intent(in) :: iel, nDoF, nDim, ictl, Lu_10, iOff
@@ -23,15 +23,15 @@ real(kind=wp), intent(out) :: IRInt(nDim)
 integer(kind=iwp), parameter :: Inc = 6
 integer(kind=iwp) :: i, iHarm, iInt, iIRInt, j, Jnc, l, nChDisp
 real(kind=wp) :: Tmp(Inc)
-character(len=LenIn6) :: Label
+character(len=LenIn+6) :: Label
 character(len=120) :: Line
 character(len=80) :: frmt
-character(len=LenIn6), allocatable :: ChDisp(:)
+character(len=LenIn+6), allocatable :: ChDisp(:)
 real(kind=wp), parameter :: RF = rNAVO/(Three*cLight**2)/(Four*diel)*elcharge**2/aTokg/1.0e3_wp
 
 call Get_iScalar('nChDisp',nChDisp)
 call mma_allocate(ChDisp,nChDisp,label='ChDisp')
-call Get_cArray('ChDisp',ChDisp,LenIn6*nChDisp)
+call Get_cArray('ChDisp',ChDisp,(LenIn+6)*nChDisp)
 
 iIRInt = 0
 do iHarm=1,nDim,Inc

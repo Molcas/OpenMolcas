@@ -28,7 +28,7 @@
 
 subroutine get_coulomb(cmo,dm1_core,dm1_cas,coul)
 
-use printlevel, only: debug, insane
+use PrintLevel, only: DEBUG, INSANE
 use rasscf_global, only: lsquare, NACPR2, nfint
 use general_data, only: ntot1, ntot2
 use mcpdft_output, only: iprglb
@@ -44,9 +44,9 @@ real(kind=wp), allocatable :: focka(:), focki(:), puvx(:), tuvx(:)
 real(kind=wp), parameter :: exfac = Zero
 
 select case (iPrGlb)
-  case (debug)
+  case (DEBUG)
     print_level = 5
-  case (insane)
+  case (INSANE)
     print_level = 10
   case default
     print_level = 0

@@ -33,7 +33,6 @@ integer(kind=iwp) :: ia, ib, iCar
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-
 call RecPrt(' In VelInt: Beta ',' ',Beta,nZeta,1)
 #endif
 
@@ -50,8 +49,8 @@ do ia=0,na
     end if
 
 #   ifdef _DEBUGPRINT_
-      write(Label,'(A,I2,A,I2,A)') ' In VelInt: Vxyz(',ia,',',ib,')'
-      call RecPrt(Label,' ',Vxyz(:,:,ia,ib),nZeta,3)
+    write(Label,'(A,I2,A,I2,A)') ' In VelInt: Vxyz(',ia,',',ib,')'
+    call RecPrt(Label,' ',Vxyz(:,:,ia,ib),nZeta,3)
 #   endif
   end do
 end do
