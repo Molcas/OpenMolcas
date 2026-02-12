@@ -25,13 +25,13 @@ use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, LenIn8, MxAtom, MxBas
+use Molcas, only: LenIn, MxAtom, MxBas
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym), nUniqAt
 integer(kind=iwp), intent(inout) :: nSsh(nSym), nDel(nSym)
-character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn+8), intent(in) :: BName(*)
 real(kind=wp), intent(in) :: ThrS
 logical(kind=iwp), intent(in) :: isCASPT2
 real(kind=wp), intent(inout) :: CMO(*), EOrb(*)

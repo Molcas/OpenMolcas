@@ -22,7 +22,6 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: BName, nAtoms, ScrFac, Debug
-use Molcas, only: LenIn8
 
 implicit none
 real(kind=wp), intent(out) :: Functional

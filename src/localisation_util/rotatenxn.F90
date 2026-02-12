@@ -16,7 +16,7 @@ subroutine RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt, Gradient, Hdiag, BName,
 use definitions, only: wp,iwp,u6
 use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero,One, Pi
-use Molcas, only: LenIn8
+use Molcas, only: LenIn
 use Localisation_globals, only: Debug, OptMeth
 
 implicit none
@@ -25,7 +25,7 @@ integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtom
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Ovlp_sqrt(nBasis,nBasis),Gradient(nOrb2Loc,nOrb2Loc), Hdiag(nOrb2Loc,nOrb2Loc),Ovlp(nBasis,nBasis)
 real(kind=wp), intent(out) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
-character(len=LenIn8), intent(in) :: BName(nBasis)
+character(len=LenIn+8), intent(in) :: BName(nBasis)
 
 real(kind=wp), allocatable :: kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:)
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
