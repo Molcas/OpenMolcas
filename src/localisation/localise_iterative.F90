@@ -20,9 +20,9 @@ subroutine Localise_Iterative(irc,Model,Functional)
 !            Boys                [MODEL='BOYS']
 !            Edmiston-Ruedenberg [MODEL='EDMI']
 
-use Localisation_globals, only: ChoStart, CMO, nBas, nFro, nOrb2Loc, nSym, ThrGrad, ThrRot, Thrs, ScrFac,OptMeth, ChargeType
+use Localisation_globals, only: ChoStart, CMO, Maximisation, BName, nAtoms, nMxIter, nBas, nFro, nOrb2Loc, nSym, Silent, ThrGrad, &
+                                ThrRot, Thrs
 use Definitions, only: wp, iwp, u6
-use Constants, only: Zero
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -33,6 +33,7 @@ real(kind=wp) :: Thrs_Save, xNrm
 character(len=80) :: Txt
 character(len=4) :: myModel
 logical(kind=iwp) :: Converged
+logical(kind=iwp), parameter :: debug = .false.
 character(len=*), parameter :: SecNam = 'Localise_Iterative'
 
 irc = 0
@@ -63,44 +64,32 @@ if (myModel == 'PIPE') then
   write(u6,'(//,1X,A)') 'Pipek-Mezey localisation'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  If (ScrFac/=Zero) write(u6,'(1X,A,1X,ES12.4)') 'Scrambling factor     ',ScrFac
   write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
-  If (OptMeth == 1) then
-    write(u6,'(1X,A)') 'Optimization Method  : Jacobi Sweeps'
-  else if (OptMeth == 2) then
-    write(u6,'(1X,A)') 'Optimization Method  : Newton Raphson'
-  end if
-  If (ChargeType == 1) then
-    write(u6,'(1X,A)') 'Framework for PMLoc  : Mulliken charges'
-  else if (OptMeth == 2) then
-    write(u6,'(1X,A)') 'Framework for PMLoc  : Loewdin charges'
-  end if
   !end if
-  call PipekMezey        (Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
+  call PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,BName,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
+                  Debug,Silent)
 else if (myModel == 'BOYS') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'Boys localisation'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  If (ScrFac/=Zero) write(u6,'(1X,A,1X,ES12.4)') 'Scrambling factor     ',ScrFac
   write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
-  call Boys              (Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
+  call Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug,Silent)
 else if (myModel == 'EDMI') then
   !if (.not. Silent) then
   write(u6,'(/,1X,A)') 'Edmiston-Ruedenberg localisation'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  If (ScrFac/=Zero) write(u6,'(1X,A,1X,ES12.4)') 'Scrambling factor     ',ScrFac
   !write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
   !end if
-  call EdmistonRuedenberg(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
+  call EdmistonRuedenberg(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug,Silent)
 else
   write(Txt,'(A,A4)') 'Model = ',Model
   call SysAbendMsg(SecNam,'Unknown model',Txt)

@@ -37,8 +37,10 @@ integer(kind=iwp) :: i, iComp, iOpt, ip0, iSyLbl, iSym, j, jrc, kC, kC1, kD, kOf
 real(kind=wp) :: Tol, Tst, xErr, xNrm
 character(len=80) :: Txt
 character(len=8) :: Label
+logical(kind=iwp) :: Prnt
 real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:), Umat(:)
 character(len=*), parameter :: SecNam = 'TestLoc'
+integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: ddot_
 logical(kind=iwp), parameter :: debug = .false.
 
@@ -79,10 +81,11 @@ if (jrc /= 0) then
   write(Txt,'(A,I4)') 'RdOne returned',jrc
   call SysAbendMsg(SecNam,'I/O error!',Txt)
 end if
+Prnt = Debug .and. (iPrintLevel(-1) >= 5)
 kTri = 1
 kSqr = 1
 do iSym=1,nSym
-  call Tri2Rec(Oaux(kTri),Ovlp(kSqr),nBas(iSym))
+  call Tri2Rec(Oaux(kTri),Ovlp(kSqr),nBas(iSym),Prnt)
   kTri = kTri+nBas(iSym)*(nBas(iSym)+1)/2
   kSqr = kSqr+nBas(iSym)**2
 end do

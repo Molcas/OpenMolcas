@@ -15,23 +15,24 @@
 subroutine Readinp_localisation()
 ! Author: Y. Carissan [heavily modified by T.B. Pedersen].
 
-use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, ChoStart, DoCNOs, DoDomain, EvalER, &
+use Localisation_globals, only: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, &
                                 iWave, LocCanOrb, LocModel, LocNatOrb, LocPAO, LuSpool, Maximisation, MxConstr, nActa, NamAct, &
                                 nConstr, nFro, NMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Order, PrintMOs, Silent, Skip, &
-                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave, &
-                                ScrFac, OptMeth, ChargeType, LocOrb,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
-                                Freeze
+                                Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave
 #ifdef _DEBUGPRINT
 use Localisation_globals, only: nBas
 #endif
 use spool, only: Spoolinp
 use stdalloc, only: mma_allocate
+use Constants, only: Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iPL, istatus, iSym, j
+integer(kind=iwp) :: i, iPL, istatus, iSym, j, LocOrb
 character(len=180) :: Key, Line
+logical(kind=iwp) :: Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef, Freeze
 integer(kind=iwp), parameter :: Occupied = 0, Virtual = 1, AllOrb = 2
+real(kind=wp), parameter :: ThrsDef = 1.0e-6_wp, ThrRotDef = 1.0e-10_wp, ThrGradDef = 1.0e-2_wp
 character(len=*), parameter :: SecNam = 'Readinp_localisation'
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 character(len=180), external :: Get_Ln
@@ -47,14 +48,60 @@ call RdNLst(LuSpool,'LOCALISATION')
 ! Get print level
 
 iPL = iPrintLevel(-1)
+
+! Default Parameters
+
+do iSym=1,nSym
+  nOrb2Loc(iSym) = 0
+  nFro(iSym) = 0
+  nConstr(iSym) = 0
+end do
+Skip = .false.
+LocOrb = Occupied
+!LocVir = .false.
+Thrs_UsrDef = .false.
+nOrb2Loc_UsrDef = .false.
+nFro_UsrDef = .false.
+Freeze = .false.
+Maximisation = .true.
+ChoStart = .false.
 if (iPL < 3) then
   Silent = .true.
 else
   Silent = .false.
 end if
+LocModel = 1  ! Pipek-Mezey localisation
+if (nSym > 1) LocModel = 3  ! Cholesky localisation
+LocModel_UsrDef = .false.
+Test_Localisation = .false.
+NMxIter = 300
+Thrs = ThrsDef
+ThrRot = ThrRotDef
+ThrGrad = ThrGradDef
+Analysis = .false.
+AnaAtom = nSym == 1
+AnaNrm = 'Fro'
+PrintMOs = .true.
+Timing = .true.
+EvalER = .false.
+Order = .false.
+LocPAO = .false.
+AnaPAO = .false.
+AnaPAO_Save = AnaPAO
+DoDomain = .false.
+AnaDomain = .false.
+ThrDomain(1) = 0.9_wp
+ThrDomain(2) = 2.0e-2_wp
+ThrPairDomain(1) = 1.0e-10_wp
+ThrPairDomain(2) = Ten
+ThrPairDomain(3) = 15.0_wp
+LocNatOrb = .false.
+LocCanOrb = .false.
+Wave = .false.
+iWave = 0
+DoCNOs = .false.
 
-! set default parameters
-call localisation_init()
+! End Default Parameters
 
 do
   Key = Get_Ln(LuSpool)
@@ -140,63 +187,13 @@ do
       Line = Get_Ln(LuSpool)
       call Get_F1(1,ThrRot)
 
-    case ('SCRA')
-      ! SCRAmble
-
-      Line = Get_Ln(LuSpool)
-      call Get_F1(1,ScrFac)
-
     case ('PIPE','PM  ')
       ! PIPEk-Mezey or PM
 
       LocModel = 1
       LocModel_UsrDef = .true.
 
-    case ('OPTM')
-        Line = Get_Ln(LuSpool)
-        Key(:) = ""
-        call Get_s(1,Key(1:4),1)
-
-        select case (Key(1:4))
-            ! Jacobi Sweeps for PM localisation
-            case('JACO')
-            OptMeth = 1
-
-            case ('NEWT')
-            ! Newton Raphson for PM localisation
-            OptMeth = 2
-
-            case default
-                write(u6,*) 'WARNING!!!'
-                write(u6,*) 'The specified optimization method for PM localisation does not exist'
-                write(u6,*) 'using the default instead'
-                call FindErrorLine()
-        end select
-
-
-    case ('CHAR')
-        ! choosing between Mulliken and Loewdin charge framework for PM localisation
-        Line = Get_Ln(LuSpool)
-        Key(:) = ""
-        call Get_s(1,Key(1:4),1)
-
-        select case (Key(1:4))
-            ! Mulliken
-            case('MULL')
-            ChargeType = 1
-
-            case ('LOWD','LOEW')
-            ! Loewdin
-            ChargeType = 2
-
-            case default
-                write(u6,*) 'WARNING!!!'
-                write(u6,*) 'The specified framework for PM localisation does not exist'
-                write(u6,*) 'using the default instead'
-                call FindErrorLine()
-        end select
-
-      case ('BOYS')
+    case ('BOYS')
       ! BOYS
 
       LocModel = 2
@@ -574,5 +571,5 @@ subroutine Error()
   write(u6,*) ' atoms in keyword LOCN'
   call Abend()
 end subroutine Error
-end subroutine Readinp_localisation
 
+end subroutine Readinp_localisation

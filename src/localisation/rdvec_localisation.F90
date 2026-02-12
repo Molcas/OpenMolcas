@@ -92,7 +92,6 @@ else
   write(u6,*)
   write(u6,'(A)') trim(VTitle)
 end if
-
 write(u6,*)
 
 k1 = 0

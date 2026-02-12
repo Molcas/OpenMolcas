@@ -25,7 +25,7 @@ set (sources
      getinfo_localisation_0.F90
      loc_nat_orb.F90
      localisation.F90
-     localisation_init.F90
+     localisation_globals.F90
      localise_iterative.F90
      localise_noniterative.F90
      pao_analysis.F90
@@ -35,10 +35,5 @@ set (sources
      testloc.F90
      wrvec_localisation.F90
 )
-
-# Source files defining modules that should be available to other *_util directories
-set (modfile_list
-)
-
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)
