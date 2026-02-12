@@ -17,7 +17,7 @@ subroutine GetGradNorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
 ! Purpose: compute the gradient norm of the Pipek-Mezey functional.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Four, Eight
+use Constants, only: Zero, Four
 use Definitions, only: wp, iwp, u6
 use Localisation_globals, only: Debug
 

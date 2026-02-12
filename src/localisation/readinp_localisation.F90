@@ -26,7 +26,6 @@ use Localisation_globals, only: nBas
 #endif
 use spool, only: Spoolinp
 use stdalloc, only: mma_allocate
-use Constants, only: Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none

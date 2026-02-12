@@ -18,7 +18,7 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName
 ! Based on the original routines by Y. Carissan.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Pi
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType
