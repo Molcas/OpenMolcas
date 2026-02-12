@@ -12,23 +12,26 @@
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine PipekMezey(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
+subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,BName,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
+                      Debug,Silent)
 ! Author: Y. Carissan [modified by T.B. Pedersen].
 !
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
 
 use OneDat, only: sNoOri
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms, ScrFac, Debug
 
 implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
+real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
+character(len=LenIn+8), intent(in) :: BName(*) ! dimension should be tot. #bf
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nAtoms, nMxIter
+logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
-
 integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, kOffC, lOaux, nBasT, nFroT, nOrb2LocT
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Oaux(:), Ovlp(:,:), PA(:,:,:)
@@ -50,10 +53,6 @@ Functional = -huge(Functional)
 nBasT = nBas(1)
 nOrb2LocT = nOrb2Loc(1)
 nFroT = nFro(1)
-kOffC = nBasT*nFroT+1
-
-
-if (ScrFac/=Zero) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],ScrFac)
 
 Converged = .false.
 
@@ -83,7 +82,7 @@ if (Debug) then
   call TriPrt('Overlap',' ',Oaux,nBasT)
 end if
 
-call Tri2Rec(Oaux,Ovlp,nBasT)
+call Tri2Rec(Oaux,Ovlp,nBasT,Debug)
 call mma_deallocate(Oaux)
 
 ! Allocate and get index arrays for basis functions per atom.
@@ -91,7 +90,7 @@ call mma_deallocate(Oaux)
 
 call mma_allocate(nBas_per_Atom,nAtoms,label='nB_per_Atom')
 call mma_allocate(nBas_Start,nAtoms,label='nB_Start')
-call BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBasT,nAtoms, Debug)
+call BasFun_Atom(nBas_per_Atom,nBas_Start,BName,nBasT,nAtoms,Debug)
 
 ! Allocate PA array.
 ! ------------------
@@ -101,10 +100,10 @@ PA(:,:,:) = Zero
 ! Localise orbitals.
 ! ------------------
 
-! this offset to get to the part of CMO which should be localized.
-if (debug) then; call RecPrt('cMO before localization',' ',cMO,nBasT,norb2locT); end if
-call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasT,nOrb2LocT,nAtoms,Converged)
-if (debug) then; call RecPrt('cMO after localization',' ',cMO,nBasT,norb2locT); end if
+kOffC = nBasT*nFroT+1
+call PipekMezey_Iter(Functional,CMO(kOffC),Ovlp,Thrs,ThrRot,ThrGrad,PA,nBas_per_Atom,nBas_Start,BName,nBasT,nOrb2LocT,nAtoms, &
+                     nMxIter,Maximisation,Converged,Debug,Silent)
+
 ! De-allocations.
 ! ---------------
 

@@ -11,17 +11,17 @@
 ! Copyright (C) Yannick Carissan                                       *
 !***********************************************************************
 
-subroutine Rot_st(cMO_s,cMO_t,nBasis,Gamma_rot)
+subroutine Rot_st(cMO_s,cMO_t,nBasis,Gamma_rot,Debug)
 ! Author: Y. Carissan.
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nBasis
 real(kind=wp), intent(inout) :: cMO_s(nBasis), cMO_t(nBasis)
 real(kind=wp), intent(in) :: Gamma_rot
+logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iBas
 real(kind=wp) :: cosGamma_rot, cs, ct, sinGamma_rot
 

@@ -11,7 +11,8 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine EdmistonRuedenberg(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
+subroutine EdmistonRuedenberg(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug, &
+                              Silent)
 ! Author: T.B. Pedersen
 !
 ! Purpose: Edmiston-Ruedenberg localisation of occupied orbitals.
@@ -21,7 +22,9 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
+real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
+logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: irc, kOffC, nBasT, nFroT, nOrb2LocT
 real(kind=wp) :: FracMem
@@ -58,7 +61,7 @@ end if
 ! ------------------
 
 kOffC = nBasT*nFroT+1
-call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),nBasT,nOrb2LocT,Converged)
+call EdmistonRuedenberg_Iter(Functional,CMO(kOffC),Thrs,ThrRot,ThrGrad,nBasT,nOrb2LocT,nMxIter,Maximisation,Converged,Debug,Silent)
 
 ! Finalizations.
 ! --------------

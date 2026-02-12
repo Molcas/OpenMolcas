@@ -11,19 +11,19 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GetGrad_Boys(nOrb2Loc,Lbl,nComp,Rmat,GradNorm)
+subroutine GetGrad_Boys(nOrb2Loc,Lbl,nComp,Rmat,GradNorm,Debug)
 ! Thomas Bondo Pedersen, December 2005.
 !
 ! Purpose: compute R-matrix and gradient norm for Boys functional.
 
 use Constants, only: Zero, Four
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nOrb2Loc, nComp
 real(kind=wp), intent(in) :: Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(out) :: Rmat(nOrb2Loc,nOrb2Loc), GradNorm
+logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: i, iComp, j
 real(kind=wp) :: Fun, Rjj
 

@@ -11,7 +11,7 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc)
+subroutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc,Debug)
 ! Thomas Bondo Pedersen, November 2005.
 !
 ! Purpose: rotate ER orbitals,
@@ -21,12 +21,12 @@ subroutine RotateOrb_ER(R,CMO,nBasis,nOrb2Loc)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(in) :: R(nOrb2Loc,nOrb2Loc)
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
+logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: irc
 real(kind=wp) :: ThrU
 real(kind=wp), allocatable :: CMOscr(:,:), U(:,:)

@@ -11,19 +11,19 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine ComputeFuncB2(nOrb2Loc,Lbl,nComp,Functional)
+subroutine ComputeFuncB2(nOrb2Loc,Lbl,nComp,Functional,Debug)
 ! Author: T.B. Pedersen
 !
 ! Purpose: compute Boys localisation functional B2.
 
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nOrb2Loc, nComp
 real(kind=wp), intent(in) :: Lbl(nOrb2Loc,nOrb2Loc,nComp)
 real(kind=wp), intent(out) :: Functional
+logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: i, iComp, iMO, j
 real(kind=wp) :: Cmp, Tst
 

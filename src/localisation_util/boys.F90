@@ -11,19 +11,20 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine Boys(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
+subroutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug,Silent)
 ! Author: T.B. Pedersen
 !
 ! Purpose: Boys localisation of occupied orbitals.
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug
 
 implicit none
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym)
+real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
+logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: iCmp, iComp, iOpt, irc, iSym, kOffC, lAux, nBasT, nFroT, nOrb2LocT
 character(len=8) :: Label
@@ -87,7 +88,7 @@ do iComp=1,nComp
     call TriPrt(' ',' ',Aux,nBasT)
   end if
   Aux(:)=Aux(:) + CoM(iComp)*SMat(:)
-  call Tri2Rec(Aux,Lbl_AO(:,:,iComp),nBasT)
+  call Tri2Rec(Aux,Lbl_AO(:,:,iComp),nBasT,Debug)
 end do
 call mma_deallocate(SMat)
 call mma_deallocate(Aux)
@@ -101,7 +102,8 @@ call mma_allocate(Lbl,nOrb2LocT,nOrb2LocT,nComp,label='MO_dip')
 ! ------------------
 
 kOffC = 1+nBasT*nFroT
-call Boys_Iter(Functional,CMO(kOffC),Lbl_AO,Lbl,nBasT,nOrb2LocT,nComp,Converged)
+call Boys_Iter(Functional,CMO(kOffC),Thrs,ThrRot,ThrGrad,Lbl_AO,Lbl,nBasT,nOrb2LocT,nComp,nMxIter,Maximisation,Converged,Debug, &
+               Silent)
 
 ! De-allocations.
 ! ---------------

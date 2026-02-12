@@ -31,6 +31,7 @@ integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, iSym, kSq, kTri, l_Tri
 character(len=8) :: Label
 character(len=3) :: myStorage
 real(kind=wp), allocatable :: Scr(:)
+logical(kind=iwp), parameter :: Debug = .false.
 character(len=*), parameter :: SecNam = 'GetOvlp_Localisation'
 
 l_Tri = nBas(1)*(nBas(1)+1)/2
@@ -59,7 +60,7 @@ else
   kTri = 1
   kSq = 1
   do iSym=1,nSym
-    call Tri2Rec(Scr(kTri),S(kSq),nBas(iSym))
+    call Tri2Rec(Scr(kTri),S(kSq),nBas(iSym),Debug)
     kTri = kTri+nBas(iSym)*(nBas(iSym)+1)/2
     kSq = kSq+nBas(iSym)**2
   end do

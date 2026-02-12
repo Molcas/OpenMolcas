@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Tri2Rec(OvlTri,OvlRec,nBas)
+subroutine Tri2Rec(OvlTri,OvlRec,nBas,Debug)
 
 use Definitions, only: wp, iwp
-use Localisation_globals, only: Debug
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas
 real(kind=wp), intent(in) :: OvlTri(*)
 real(kind=wp), intent(out) :: OvlRec(nBas,nBas)
+logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: iBas, ifr, ito, jBas, nlig
 
 ifr = 1

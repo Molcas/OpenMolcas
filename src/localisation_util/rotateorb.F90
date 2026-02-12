@@ -12,7 +12,7 @@
 !               2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,nOrb2loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
+subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2loc,BName,nBas_per_Atom,nBas_Start,ThrRot,PctSkp,Debug)
 ! Author: Yannick Carissan.
 !
 ! Modifications:
@@ -22,20 +22,19 @@ subroutine RotateOrb(cMO,PACol,nBasis,nAtoms,PA,nOrb2loc,BName,nBas_per_Atom,nBa
 use Molcas, only: LenIn
 use Constants, only: Zero, One, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: Debug, ThrRot, Maximisation
 
 implicit none
 integer(kind=iwp), intent(in) :: nBasis, nAtoms, nOrb2Loc, nBas_per_Atom(nAtoms), nBas_Start(nAtoms)
 real(kind=wp), intent(inout) :: cMO(nBasis,*), PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: PACol(nOrb2Loc,2), PctSkp
+logical(kind=iwp), intent(in) :: Maximisation, Debug
 character(len=LenIn+8), intent(in) :: BName(*)
-
+real(kind=wp), intent(in) :: ThrRot
 integer(kind=iwp) :: iAt, iCouple, iMO1, iMO2, iMO_s, iMO_t
 real(kind=wp) :: Alpha, Alpha1, Alpha2, Ast, Bst, cos4alpha, Gamma_rot, PA_ss, PA_st, PA_tt, sin4alpha, SumA, SumB, Tst, Tstc, &
                  Tsts, xDone, xOrb2Loc, xTotal
 character(len=LenIn+8) :: PALbl
 character(len=80) :: Txt
-
 
 xDone = Zero
 if (Debug) then
@@ -113,8 +112,6 @@ do iMO1=1,nOrb2Loc-1
     if (Debug) then
       write(u6,'(a9,f10.5)') '   Ast :',Ast
       write(u6,'(a9,f10.5)') '   Bst :',Bst
-      write(u6,'(a9,f10.5)') 'cos4Alpha1 :',cos4alpha
-      write(u6,'(a9,f10.5)') 'sin4Alpha2 :',sin4alpha
       write(u6,'(a9,f10.5)') 'Alpha1 :',Alpha1
       write(u6,'(a9,f10.5)') 'Alpha2 :',Alpha2
       write(u6,'(a9,f10.5)') ' Gamma :',Gamma_rot
@@ -123,13 +120,13 @@ do iMO1=1,nOrb2Loc-1
     Tsts = abs(sin(Gamma_rot))
     Tstc = One-abs(cos(Gamma_rot))
     if ((Tsts > ThrRot) .or. (Tstc > ThrRot)) then
-      call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot)
-      call UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,Gamma_rot,iMO_s,iMO_t)
+      call Rot_st(cMO(1,iMO_s),cMO(1,iMO_t),nBasis,Gamma_rot,Debug)
+      call UpdateP(PACol,BName,nBas_Start,nOrb2Loc,nAtoms,PA,Gamma_rot,iMO_s,iMO_t,Debug)
       xDone = xDone+One
     end if
 
     if (Debug) then
-      call RecPrt('MO after rotation',' ',cMO,nBasis,nOrb2Loc)
+      call RecPrt('MO after rotation',' ',cMO,nBasis,nBasis)
     end if
 
   end do !iMO2
