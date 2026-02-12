@@ -27,7 +27,7 @@ integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: GradNorm
 real(kind=wp), allocatable :: Rmat(:,:)
-integer(kind=iwp) :: iAtom, i,j,k,l
+integer(kind=iwp) :: iAtom, i,j
 real(kind=wp) :: Fun, Rjj
 
 call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
