@@ -21,7 +21,7 @@
 *                from the magnetic integrals contributions             *
 *     Output: BUFF                                                     *
 ************************************************************************
-      CHARACTER(LEN=8), intent(in):: LABEL
+      CHARACTER(LEN=8), intent(inout):: LABEL
       INTEGER(KIND=IWP), INTENT(IN):: IC,NBUFF,NSIZ
       INTEGER(KIND=IWP), INTENT(INOUT):: ISCHK
       REAL(KIND=WP), INTENT(INOUT):: BUFF(NBUFF)
