@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine OpnFls_RASSCF(DSCF,DoCholesky)
+
+subroutine OpnFls_RASSCF(DSCF,DoCholesky)
 !***********************************************************************
 !                                                                      *
 !     Open files.                                                      *
@@ -26,79 +27,81 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      use output_ras, only: LF
-      use general_data, only: JOBIPH,JOBOLD,LUONEL,LUINTA,LUINTM,LUQUNE,&
-     &                        LUDAVID,ITERFILE
-      Implicit None
-      Logical DSCF,DoCholesky
 
-      Logical test
-      Integer iOpt, iRC
-      Integer, External:: IsFreeUnit
+use output_ras, only: LF
+use general_data, only: JOBIPH, JOBOLD, LUONEL, LUINTA, LUINTM, LUQUNE, LUDAVID, ITERFILE
+
+implicit none
+logical DSCF, DoCholesky
+logical test
+integer iOpt, iRC
+integer, external :: IsFreeUnit
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !---  define logical unit numbers -------------------------------------*
-!...  Molecular orbital input file  this variable is not used
-!...  File is opened and closed i.e. around calls to rdvec.
-!      LUStartOrb=19
-!...  Job interface unit (-1 shows it has not been opened!)
-      JOBIPH=-1
-!...  Old RASSCF job interface for input MO's and CI vector
-      JOBOLD=-1
-!...  AO one-electron integrals
-      LUONEL=16
-!...  AO two-electron integrals
-      LUINTA=40
-!...  MO two-electron integrals
-      LUINTM=13
-!...  Temporary unit used for QUNE update
-      LUQUNE=27
-!...  Temporary unit for diagonalization
-      LUDAVID=37
+! Molecular orbital input file  this variable is not used
+! File is opened and closed i.e. around calls to rdvec.
+!LUStartOrb = 19
+! Job interface unit (-1 shows it has not been opened!)
+JOBIPH = -1
+! Old RASSCF job interface for input MO's and CI vector
+JOBOLD = -1
+! AO one-electron integrals
+LUONEL = 16
+! AO two-electron integrals
+LUINTA = 40
+! MO two-electron integrals
+LUINTM = 13
+! Temporary unit used for QUNE update
+LUQUNE = 27
+! Temporary unit for diagonalization
+LUDAVID = 37
 ! Opening the JOBIPH file is delayed till after input processing at end
 ! of READIN_RASSCF. Only then is file name known.
 
 !---  open the ORDINT file --------------------------------------------*
-      call f_Inquire('ORDINT',test)
-      Call DecideOnDirect(.True.,test,DSCF,DoCholesky)
-      If ( .not. DSCF .And. .Not.DoCholesky) then
-        iRc=-1
-        iOpt=0
-        Call OpnOrd(iRc,iOpt,'ORDINT',LUINTA)
-        If ( iRc.ne.0 ) Then
-          Write(LF,*)'RASSCF tried to open a file (ORDINT) containing'
-          Write(LF,*)'two-electron integrals, but failed. Something'
-          Write(LF,*)'is wrong with the file. Most probably it is'
-          Write(LF,*)'simply missing: Please check. It should have'
-          Write(LF,*)'been created by SEWARD. Perhaps it is in the'
-          Write(LF,*)'wrong directory?'
-          Call Abend()
-        End If
-      Else
-        call f_Inquire('RUNFILE',test)
-        If ( .not.test ) Then
-          Write(LF,*)'RASSCF tried to open a file (RUNFILE) containing'
-          Write(LF,*)'data from previous program steps. Something'
-          Write(LF,*)'is wrong with the file. Most probably it is'
-          Write(LF,*)'simply missing: Please check. It should have'
-          Write(LF,*)'been created by SEWARD.'
-          Call Abend()
-        End If
-      End If
+call f_Inquire('ORDINT',test)
+call DecideOnDirect(.true.,test,DSCF,DoCholesky)
+if ((.not. DSCF) .and. (.not. DoCholesky)) then
+  iRc = -1
+  iOpt = 0
+  call OpnOrd(iRc,iOpt,'ORDINT',LUINTA)
+  if (iRc /= 0) then
+    write(LF,*) 'RASSCF tried to open a file (ORDINT) containing'
+    write(LF,*) 'two-electron integrals, but failed. Something'
+    write(LF,*) 'is wrong with the file. Most probably it is'
+    write(LF,*) 'simply missing: Please check. It should have'
+    write(LF,*) 'been created by SEWARD. Perhaps it is in the'
+    write(LF,*) 'wrong directory?'
+    call Abend()
+  end if
+else
+  call f_Inquire('RUNFILE',test)
+  if (.not. test) then
+    write(LF,*) 'RASSCF tried to open a file (RUNFILE) containing'
+    write(LF,*) 'data from previous program steps. Something'
+    write(LF,*) 'is wrong with the file. Most probably it is'
+    write(LF,*) 'simply missing: Please check. It should have'
+    write(LF,*) 'been created by SEWARD.'
+    call Abend()
+  end if
+end if
 !---  open the file carrying the transfromed two-electron integrals ---*
-      Call DaName(LUINTM,'TRAINT')
+call DaName(LUINTM,'TRAINT')
 !---  open the DAVID file carrying temporary CI and sigma vectors -----*
-!     Note the unit number is defined in the module general_data.F90
-      Call DaName(LuDavid,'TEMP01')
+!     Note the unit number is defined in the module general_data
+call DaName(LuDavid,'TEMP01')
 !---  open the file carrying the hessian update vectors ---------------*
-      Call DaName(LuQune,'TEMP02')
+call DaName(LuQune,'TEMP02')
 !
 ! Open file for storage of information on CI-iterations
 !
-      IterFile = IsFreeUnit(10)
-      call molcas_open(IterFile,'CIITER')
+IterFile = IsFreeUnit(10)
+call molcas_open(IterFile,'CIITER')
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-      End Subroutine OpnFls_RASSCF
+
+end subroutine OpnFls_RASSCF

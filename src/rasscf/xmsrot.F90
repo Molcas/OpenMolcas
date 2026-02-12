@@ -10,47 +10,47 @@
 !                                                                      *
 ! Copyright (C) 2020, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine XMSRot(CMO,FI,FA)
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on May. 21, 2020, created this file.               *
 ! ****************************************************************
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use rasscf_global, only: LROOTS, NAC
-      use general_data, only: NTOT1,NTOT2
 
-      Implicit None
+subroutine XMSRot(CMO,FI,FA)
 
-!*****Input
-      Real*8,DIMENSION(NTOT1):: FI,FA
-      Real*8,Dimension(NTOT2)::CMO
-!*****Auxiliary quantities
-      Real*8,DIMENSION(:,:),Allocatable::FckO
-!*****FckO:  Fock matrix for MO
-      Real*8,DIMENSION(:,:),Allocatable::FckS,EigVec
-!*****FckS:  Fock matrix for states
-      Real*8,DIMENSION(:,:,:),Allocatable::GDMat
-!*****GDMat: density matrix or transition density matrix
+use rasscf_global, only: LROOTS, NAC
+use general_data, only: NTOT1, NTOT2
+use stdalloc, only: mma_allocate, mma_deallocate
 
-!     Allocating Memory
-      CALL mma_allocate(GDMat,lRoots*(lRoots+1)/2,NAC,NAC)
-      CALL mma_allocate(FckO,NAC,NAC)
-      CALL mma_allocate(FckS,lRoots,lRoots)
-      CALL mma_allocate(EigVec,lRoots,lRoots)
-!
-      CALL CalcFckO(CMO,FI,FA,FckO)
+!FckO:  Fock matrix for MO
+!FckS:  Fock matrix for states
+!GDMat: density matrix or transition density matrix
 
-      CALL GetGDMat(GDMAt)
-!
-      CALL CalcFckS(FckO,GDMat,FckS)
-!
-      CALL CalcEigVec(FckS,lRoots,EigVec)
-!
-      call printmat('ROT_VEC','XMS-PDFT',eigvec,lroots,lroots,7,8,'N')
-!     Deallocating Memory
-      CALL mma_deallocate(GDMat)
-      CALL mma_deallocate(FckO)
-      CALL mma_deallocate(FckS)
-      CALL mma_deallocate(EigVec)
+implicit none
+real*8, dimension(NTOT1) :: FI, FA
+real*8, dimension(NTOT2) :: CMO
+real*8, dimension(:,:), allocatable :: FckO
+real*8, dimension(:,:), allocatable :: FckS, EigVec
+real*8, dimension(:,:,:), allocatable :: GDMat
 
-      End Subroutine XMSRot
+! Allocating Memory
+call mma_allocate(GDMat,lRoots*(lRoots+1)/2,NAC,NAC)
+call mma_allocate(FckO,NAC,NAC)
+call mma_allocate(FckS,lRoots,lRoots)
+call mma_allocate(EigVec,lRoots,lRoots)
+
+call CalcFckO(CMO,FI,FA,FckO)
+
+call GetGDMat(GDMAt)
+
+call CalcFckS(FckO,GDMat,FckS)
+
+call CalcEigVec(FckS,lRoots,EigVec)
+
+call printmat('ROT_VEC','XMS-PDFT',eigvec,lroots,lroots,7,8,'N')
+! Deallocating Memory
+call mma_deallocate(GDMat)
+call mma_deallocate(FckO)
+call mma_deallocate(FckS)
+call mma_deallocate(EigVec)
+
+end subroutine XMSRot

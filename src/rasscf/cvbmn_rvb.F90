@@ -8,18 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine cvbmn_rvb(icode)
-      use definitions, only: iwp
-      use casvb_global, only: esym, n_iter
-      implicit none
-      integer(kind=iwp), intent(in):: icode
 
-!  ICODE=0 standard casvb calculation
-!  ICODE=1 variational calculation
-!  ICODE=2 end of variational calculation (print summary)
+subroutine cvbmn_rvb(icode)
 
-      call cvbstart_rvb_lt9(icode)
-      call main_cvb()
-      call setretvals_cvb(esym,n_iter)
+use casvb_global, only: esym, n_iter
+use Definitions, only: iwp
 
-      end subroutine cvbmn_rvb
+implicit none
+integer(kind=iwp), intent(in) :: icode
+
+! ICODE=0 standard casvb calculation
+! ICODE=1 variational calculation
+! ICODE=2 end of variational calculation (print summary)
+
+call cvbstart_rvb_lt9(icode)
+call main_cvb()
+call setretvals_cvb(esym,n_iter)
+
+end subroutine cvbmn_rvb

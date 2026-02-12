@@ -10,28 +10,25 @@
 !                                                                      *
 ! Copyright (C) 2022, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine CMSOpt(TUVX)
+
+subroutine CMSOpt(TUVX)
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Apr. 07, 2022, created this file.               *
 ! ****************************************************************
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use CMS, only: CMSNotConverged,RGD
-      use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
-      Implicit None
 
+use CMS, only: CMSNotConverged, RGD
+use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
+use stdalloc, only: mma_allocate, mma_deallocate
 
+implicit none
+real*8, dimension(NACPR2) :: TUVX
+real*8, dimension(:), allocatable :: Gtuvx, R, GDstate, GDorbit, Dgstate, Dgorbit
+real*8, dimension(:,:), allocatable :: RotMat
+integer nTUVX, nGD, lRoots2, NAC2
+character(len=16) :: VecName
 #include "warnings.h"
 
-      Real*8,DIMENSION(NACPR2)::TUVX
-      Real*8,DIMENSION(:),Allocatable::Gtuvx,R,                         &
-     &                                 GDstate,GDorbit,                 &
-     &                                 Dgstate,Dgorbit
-      Real*8,DIMENSION(:,:),Allocatable::RotMat
-
-      INTEGER nTUVX,nGD,lRoots2,NAC2
-
-      CHARACTER(len=16)::VecName
 !*****************************************************************
 !     some notes on the arrays:                                  *
 !     Gtuvx : two-electron integral, g_tuvx                      *
@@ -46,76 +43,74 @@
 !      namely, sum_{tu}{GD^KL_tu * Dg^MN_tu}                     *
 !*****************************************************************
 
-      NAC2=NAC**2
-      nTUVX=NAC2**2
-      lRoots2=lRoots**2
-      nGD=lRoots2*NAC2
+NAC2 = NAC**2
+nTUVX = NAC2**2
+lRoots2 = lRoots**2
+nGD = lRoots2*NAC2
 
-      CMSNotConverged=.true.
+CMSNotConverged = .true.
 
-!*****Memory Allocation
-      CALL mma_allocate(R      ,lRoots2)
-      CALL mma_allocate(GDstate,nGD    )
-      CALL mma_allocate(Dgstate,nGD    )
-      CALL mma_allocate(GDorbit,nGD    )
-      CALL mma_allocate(Dgorbit,nGD    )
-      CALL mma_allocate(Gtuvx  ,nTUVX  )
-      CALL mma_allocate(RGD    ,lRoots2)
-      CALL mma_allocate(RotMat ,lRoots,lRoots)
+! Memory Allocation
+call mma_allocate(R,lRoots2)
+call mma_allocate(GDstate,nGD)
+call mma_allocate(Dgstate,nGD)
+call mma_allocate(GDorbit,nGD)
+call mma_allocate(Dgorbit,nGD)
+call mma_allocate(Gtuvx,nTUVX)
+call mma_allocate(RGD,lRoots2)
+call mma_allocate(RotMat,lRoots,lRoots)
 
-!*****Calculate generalized density mtrix
-      CALL UnzipTUVX(TUVX,Gtuvx,nTUVX)
+! Calculate generalized density mtrix
+call UnzipTUVX(TUVX,Gtuvx,nTUVX)
 
-!      write(6,*) 'Gtuvx matrix'
-!      CALL RecPrt(' ',' ',Gtuvx,NAC2,NAC2)
+!write(6,*) 'Gtuvx matrix'
+!call RecPrt(' ',' ',Gtuvx,NAC2,NAC2)
 
-      CALL CalcGD(GDorbit,nGD)
-!      write(6,*) 'GD matrix orbital-leading'
-!      CALL RecPrt(' ',' ',GDorbit,NAC2,lRoots2)
-      CALL CalcDg(Dgorbit,GDorbit,Gtuvx,nGD,nTUVX,NAC,lRoots)
-!      write(6,*) 'Dg matrix orbital-leading'
-!      CALL RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)
+call CalcGD(GDorbit,nGD)
+!write(6,*) 'GD matrix orbital-leading'
+!call RecPrt(' ',' ',GDorbit,NAC2,lRoots2)
+call CalcDg(Dgorbit,GDorbit,Gtuvx,nGD,nTUVX,NAC,lRoots)
+!write(6,*) 'Dg matrix orbital-leading'
+!call RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)
 
-      CALL mma_deallocate(Gtuvx  )
+call mma_deallocate(Gtuvx)
 
-      CALL TransposeMat(Dgstate,Dgorbit,nGD,NAC2,lRoots2)
-      CALL TransposeMat(GDstate,GDorbit,nGD,NAC2,lRoots2)
+call TransposeMat(Dgstate,Dgorbit,nGD,NAC2,lRoots2)
+call TransposeMat(GDstate,GDorbit,nGD,NAC2,lRoots2)
 
-!*****Load initial rotation matrix
-      CALL InitRotMat(RotMat,lRoots,                                    &
-     &                trim(CMSStartMat),len_trim(CMSStartMat))
+! Load initial rotation matrix
+call InitRotMat(RotMat,lRoots,trim(CMSStartMat),len_trim(CMSStartMat))
 
-      CALL OneDFoil(R,RotMat,lRoots,lRoots)
+call OneDFoil(R,RotMat,lRoots,lRoots)
 
-!*****Print header of CMS iterations
-      CALL CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
+! Print header of CMS iterations
+call CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
 
-!*****Start CMS Optimization
-      CMSNotConverged=.true.
-      CALL CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
+! Start CMS Optimization
+CMSNotConverged = .true.
+call CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
 
-!*****Print end of CMS intermediate-state optimization
-      CALL CMSTail()
+! Print end of CMS intermediate-state optimization
+call CMSTail()
 
-!*****Save rotation matrix
-      CALL AntiOneDFoil(RotMat,R,lRoots,lRoots)
-      VecName='CMS-PDFT'
-      CALL PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'T')
+! Save rotation matrix
+call AntiOneDFoil(RotMat,R,lRoots,lRoots)
+VecName = 'CMS-PDFT'
+call PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'T')
 
-!*****releasing memory
-      CALL mma_deallocate(R      )
-      CALL mma_deallocate(GDstate)
-      CALL mma_deallocate(Dgstate)
-      CALL mma_deallocate(GDorbit)
-      CALL mma_deallocate(Dgorbit)
-      CALL mma_deallocate(RGD    )
-      CALL mma_deallocate(RotMat )
+! releasing memory
+call mma_deallocate(R)
+call mma_deallocate(GDstate)
+call mma_deallocate(Dgstate)
+call mma_deallocate(GDorbit)
+call mma_deallocate(Dgorbit)
+call mma_deallocate(RGD)
+call mma_deallocate(RotMat)
 
-!*****check convergence
-      IF(CMSNotConverged) THEN
-       Call WarningMessage(2,'CMS Intermediate States Not Converged')
-       Call Quit(_RC_NOT_CONVERGED_)
-      END IF
+! check convergence
+if (CMSNotConverged) then
+  call WarningMessage(2,'CMS Intermediate States Not Converged')
+  call Quit(_RC_NOT_CONVERGED_)
+end if
 
-      End Subroutine
-
+end subroutine CMSOpt

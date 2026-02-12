@@ -14,23 +14,26 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Function CalcNSumVee(RotMat,DDg)
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use rasscf_global, only: lRoots
-      Implicit None
 
+function CalcNSumVee(RotMat,DDg)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use rasscf_global, only: lRoots
+
+implicit none
+real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
+real*8, dimension(lroots,lroots) :: RotMat
+real*8, dimension(:), allocatable :: Vee
+real*8 CalcNSumVee
+integer IState
 #include "warnings.h"
-      Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
-      Real*8,DIMENSION(lroots,lroots)::RotMat
-      Real*8,DIMENSION(:),Allocatable::Vee
-      Real*8 CalcNSumVee
-      INTEGER IState
 
-      CALL mma_allocate(Vee,lRoots)
-      CalcNSumVee=0.0d0
-      CALL CalcVee(Vee,RotMat,DDg)
-      DO IState=1,lRoots
-       CalcNSumVee=CalcNSumVee+Vee(IState)
-      END DO
-      CALL mma_deallocate(Vee)
-      END Function CalcNSumVee
+call mma_allocate(Vee,lRoots)
+CalcNSumVee = 0.0d0
+call CalcVee(Vee,RotMat,DDg)
+do IState=1,lRoots
+  CalcNSumVee = CalcNSumVee+Vee(IState)
+end do
+call mma_deallocate(Vee)
+
+end function CalcNSumVee

@@ -11,75 +11,78 @@
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
 !***********************************************************************
+
 module fcidump_tables
-  use stdalloc, only : mma_allocate, mma_deallocate
-  use index_symmetry, only : one_el_idx, two_el_idx
-  implicit none
-  private
-  public :: FockTable, TwoElIntTable, OrbitalTable, mma_allocate, &
-    mma_deallocate, length, print, fill_orbitals, fill_fock, fill_2ElInt, &
-    cutoff_default
-  save
 
-  type :: FockTable
-    sequence
-    real*8, allocatable, dimension(:) :: values ! <i | F | j >
-    integer, allocatable, dimension(:, :) :: index ! i, j
-    real*8 :: cutoff
-    integer :: length
-  end type FockTable
+use index_symmetry, only: one_el_idx, two_el_idx
+use stdalloc, only: mma_allocate, mma_deallocate
 
-  type :: TwoElIntTable
-    sequence
-    real*8, allocatable, dimension(:) :: values ! <ij| 1/r_{12} |kl>
-    integer, allocatable, dimension(:, :) :: index ! i, j, k, l
-    real*8 :: cutoff
-    integer :: length
-  end type TwoElIntTable
+implicit none
+private
 
-  type :: OrbitalTable
-    sequence
-    real*8, allocatable, dimension(:) :: values ! <i| F |i>
-    integer, allocatable, dimension(:) :: index ! i
-  end type OrbitalTable
+type :: FockTable
+  sequence
+  real*8, allocatable, dimension(:) :: values ! <i | F | j >
+  integer, allocatable, dimension(:,:) :: index ! i, j
+  real*8 :: cutoff
+  integer :: length
+end type FockTable
 
-  real*8, parameter :: cutoff_default = 1.0d-11
+type :: TwoElIntTable
+  sequence
+  real*8, allocatable, dimension(:) :: values ! <ij| 1/r_{12} |kl>
+  integer, allocatable, dimension(:,:) :: index ! i, j, k, l
+  real*8 :: cutoff
+  integer :: length
+end type TwoElIntTable
 
-  interface mma_allocate
-    module procedure :: FockTable_allocate, TwoElIntTable_allocate, &
-      OrbitalTable_allocate
-  end interface
+type :: OrbitalTable
+  sequence
+  real*8, allocatable, dimension(:) :: values ! <i| F |i>
+  integer, allocatable, dimension(:) :: index ! i
+end type OrbitalTable
 
-  interface mma_deallocate
-    module procedure :: FockTable_deallocate, TwoElIntTable_deallocate, &
-      OrbitalTable_deallocate
-  end interface
+real*8, parameter :: cutoff_default = 1.0d-11
 
-  interface length
-    module procedure :: FockTable_length, TwoElIntTable_length, &
-      OrbitalTable_length
-  end interface
+interface mma_allocate
+  module procedure :: FockTable_allocate, TwoElIntTable_allocate, OrbitalTable_allocate
+end interface mma_allocate
 
-  interface print
-    module procedure :: FockTable_print, TwoElIntTable_print, OrbitalTable_print
-  end interface
+interface mma_deallocate
+  module procedure :: FockTable_deallocate, TwoElIntTable_deallocate, OrbitalTable_deallocate
+end interface mma_deallocate
+
+interface length
+  module procedure :: FockTable_length, TwoElIntTable_length, OrbitalTable_length
+end interface length
+
+interface print
+  module procedure :: FockTable_print, TwoElIntTable_print, OrbitalTable_print
+end interface print
+
+public :: FockTable, TwoElIntTable, OrbitalTable, mma_allocate, mma_deallocate, length, print, fill_orbitals, fill_fock, &
+          fill_2ElInt, cutoff_default
 
 contains
 
-  subroutine OrbitalTable_allocate(orbital_table, n)
-    implicit none
-    integer, intent(in) :: n
-    type(OrbitalTable), intent(inout) :: orbital_table
-    call mma_allocate(orbital_table%values, n)
-    call mma_allocate(orbital_table%index, n)
-  end subroutine OrbitalTable_allocate
+subroutine OrbitalTable_allocate(orbital_table,n)
 
-  subroutine OrbitalTable_deallocate(orbital_table)
-    implicit none
-    type(OrbitalTable), intent(inout) :: orbital_table
-    call mma_deallocate(orbital_table%values)
-    call mma_deallocate(orbital_table%index)
-  end subroutine OrbitalTable_deallocate
+  integer, intent(in) :: n
+  type(OrbitalTable), intent(inout) :: orbital_table
+
+  call mma_allocate(orbital_table%values,n)
+  call mma_allocate(orbital_table%index,n)
+
+end subroutine OrbitalTable_allocate
+
+subroutine OrbitalTable_deallocate(orbital_table)
+
+  type(OrbitalTable), intent(inout) :: orbital_table
+
+  call mma_deallocate(orbital_table%values)
+  call mma_deallocate(orbital_table%index)
+
+end subroutine OrbitalTable_deallocate
 
 !>  @brief
 !>    Fill in orbital energies
@@ -91,54 +94,67 @@ contains
 !>
 !>  @param[in,out] table
 !>  @param[in] orbital_energies
-  subroutine fill_orbitals(table, orbital_energies)
-    use general_data, only : nBas, nSym, nAsh, nFro, nIsh
-    implicit none
-    type(OrbitalTable), intent(inout) :: table
-    real*8, intent(in) :: orbital_energies(:)
-    integer :: i, n, iSym, iOff
+subroutine fill_orbitals(table,orbital_energies)
 
-    iOff = 0
-    n = 1
-    do iSym = 1, nSym
-      if (nAsh(iSym) > 0) then
-        do i = 1, nAsh(isym)
-          table%index(n) = n
-          table%values(n) = orbital_energies(ioff + nFro(iSym) + nIsh(iSym) + i)
-          n = n + 1
-        enddo
-      end if
-      iOff   = iOff + nBas(iSym)
-    end do
-  end subroutine fill_orbitals
+  use general_data, only: nBas, nSym, nAsh, nFro, nIsh
 
-  pure integer function OrbitalTable_length(table)
-    type(OrbitalTable), intent(in) :: table
-    OrbitalTable_length = size(table%values)
-  end function OrbitalTable_length
+  type(OrbitalTable), intent(inout) :: table
+  real*8, intent(in) :: orbital_energies(:)
+  integer :: i, n, iSym, iOff
 
-  subroutine OrbitalTable_print(table)
-    type(OrbitalTable), intent(in) :: table
-    integer :: i
-    do i = 1, length(table)
-      write(6, '(ES15.7, I7)') table%values(i), table%index(i)
-    end do
-  end subroutine OrbitalTable_print
+  iOff = 0
+  n = 1
+  do iSym=1,nSym
+    if (nAsh(iSym) > 0) then
+      do i=1,nAsh(isym)
+        table%index(n) = n
+        table%values(n) = orbital_energies(ioff+nFro(iSym)+nIsh(iSym)+i)
+        n = n+1
+      end do
+    end if
+    iOff = iOff+nBas(iSym)
+  end do
 
-  subroutine FockTable_allocate(fock_table, n)
-    implicit none
-    integer, intent(in) :: n
-    type(FockTable), intent(inout) :: fock_table
-    call mma_allocate(fock_table%values, n)
-    call mma_allocate(fock_table%index, 2, n)
-  end subroutine FockTable_allocate
+end subroutine fill_orbitals
 
-  subroutine FockTable_deallocate(fock_table)
-    implicit none
-    type(FockTable), intent(inout) :: fock_table
-    call mma_deallocate(fock_table%values)
-    call mma_deallocate(fock_table%index)
-  end subroutine FockTable_deallocate
+pure function OrbitalTable_length(table)
+
+  integer OrbitalTable_length
+  type(OrbitalTable), intent(in) :: table
+
+  OrbitalTable_length = size(table%values)
+
+end function OrbitalTable_length
+
+subroutine OrbitalTable_print(table)
+
+  type(OrbitalTable), intent(in) :: table
+  integer :: i
+
+  do i=1,length(table)
+    write(6,'(ES15.7, I7)') table%values(i),table%index(i)
+  end do
+
+end subroutine OrbitalTable_print
+
+subroutine FockTable_allocate(fock_table,n)
+
+  integer, intent(in) :: n
+  type(FockTable), intent(inout) :: fock_table
+
+  call mma_allocate(fock_table%values,n)
+  call mma_allocate(fock_table%index,2,n)
+
+end subroutine FockTable_allocate
+
+subroutine FockTable_deallocate(fock_table)
+
+  type(FockTable), intent(inout) :: fock_table
+
+  call mma_deallocate(fock_table%values)
+  call mma_deallocate(fock_table%index)
+
+end subroutine FockTable_deallocate
 
 !>  @brief
 !>    Fill in fock matrix elements.
@@ -157,58 +173,68 @@ contains
 !>    \f[\sum_{\sigma\rho} {In}^D_{\sigma\rho} (g_{\mu\nu\sigma\rho})  \f]
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
-  subroutine fill_fock(fock_table, Fock, cutoff)
-    implicit none
-    real*8, intent(in) :: Fock(:)
-    type(FockTable), intent(inout) :: fock_table
-    real*8, optional, intent(in) :: cutoff
+subroutine fill_fock(fock_table,Fock,cutoff)
 
-    integer :: i, n
-    real*8 :: cutoff_
+  real*8, intent(in) :: Fock(:)
+  type(FockTable), intent(inout) :: fock_table
+  real*8, optional, intent(in) :: cutoff
+  integer :: i, n
+  real*8 :: cutoff_
 
-    cutoff_ = cutoff_default
-    if (present(cutoff)) cutoff_ = cutoff
+  cutoff_ = cutoff_default
+  if (present(cutoff)) cutoff_ = cutoff
 
-    n = 0
-    do i = 1, size(Fock)
-      if (abs(Fock(i)) >= cutoff_) then
-        n = n + 1
-        call one_el_idx(i, fock_table%index(:, n))
-        fock_table%values(n) = Fock(i)
-      end if
-    end do
-    fock_table%length = n
-    fock_table%cutoff = cutoff_
-  end subroutine fill_fock
+  n = 0
+  do i=1,size(Fock)
+    if (abs(Fock(i)) >= cutoff_) then
+      n = n+1
+      call one_el_idx(i,fock_table%index(:,n))
+      fock_table%values(n) = Fock(i)
+    end if
+  end do
+  fock_table%length = n
+  fock_table%cutoff = cutoff_
 
-  pure integer function FockTable_length(table)
-    implicit none
-    type(FockTable), intent(in) :: table
-    FockTable_length = table%length
-  end function FockTable_length
+end subroutine fill_fock
 
-  subroutine FockTable_print(table)
-    type(FockTable), intent(in) :: table
-    integer :: i, j
-    do j = 1, length(table)
-      write(6, '(ES15.7, I7, I7)') table%values(j), (table%index(i, j), i=1, 2)
-    end do
-  end subroutine FockTable_print
+pure function FockTable_length(table)
 
-  subroutine TwoElIntTable_allocate(table, n)
-    implicit none
-    integer, intent(in) :: n
-    type(TwoElIntTable), intent(inout) :: table
-    call mma_allocate(table%values, n)
-    call mma_allocate(table%index, 4, n)
-  end subroutine TwoElIntTable_allocate
+  integer FockTable_length
+  type(FockTable), intent(in) :: table
 
-  subroutine TwoElIntTable_deallocate(table)
-    implicit none
-    type(TwoElIntTable), intent(inout) :: table
-    call mma_deallocate(table%values)
-    call mma_deallocate(table%index)
-  end subroutine TwoElIntTable_deallocate
+  FockTable_length = table%length
+
+end function FockTable_length
+
+subroutine FockTable_print(table)
+
+  type(FockTable), intent(in) :: table
+  integer :: i, j
+
+  do j=1,length(table)
+    write(6,'(ES15.7, I7, I7)') table%values(j),(table%index(i,j),i=1,2)
+  end do
+
+end subroutine FockTable_print
+
+subroutine TwoElIntTable_allocate(table,n)
+
+  integer, intent(in) :: n
+  type(TwoElIntTable), intent(inout) :: table
+
+  call mma_allocate(table%values,n)
+  call mma_allocate(table%index,4,n)
+
+end subroutine TwoElIntTable_allocate
+
+subroutine TwoElIntTable_deallocate(table)
+
+  type(TwoElIntTable), intent(inout) :: table
+
+  call mma_deallocate(table%values)
+  call mma_deallocate(table%index)
+
+end subroutine TwoElIntTable_deallocate
 
 !>  @brief
 !>    Fill in two electron integrals
@@ -226,49 +252,55 @@ contains
 !>  @param[in] TUVX
 !>  @param[in] cutoff Optional parameter that is set by default to
 !>    fciqmc_tables::cutoff_default.
-  subroutine fill_2ElInt(two_el_table, TUVX, cutoff)
-    implicit none
-    real*8, intent(in) :: TUVX(:)
-    type(TwoElIntTable), intent(inout) :: two_el_table
-    integer :: i, n
-    real*8, optional :: cutoff
-    real*8 :: cutoff_
+subroutine fill_2ElInt(two_el_table,TUVX,cutoff)
 
-    integer, parameter :: max_test = 20
-    integer :: l_twoel_test
+  real*8, intent(in) :: TUVX(:)
+  type(TwoElIntTable), intent(inout) :: two_el_table
+  integer :: i, n
+  real*8, optional :: cutoff
+  real*8 :: cutoff_
+  integer, parameter :: max_test = 20
+  integer :: l_twoel_test
 
-    cutoff_ = cutoff_default
-    if (present(cutoff)) cutoff_ = cutoff
+  cutoff_ = cutoff_default
+  if (present(cutoff)) cutoff_ = cutoff
 
-    n = 0
-    do i = 1, size(TUVX)
-      if (abs(TUVX(i)) >= cutoff_) then
-        n = n + 1
-        call two_el_idx(i, two_el_table%index(:, n))
-        two_el_table%values(n) = TUVX(i)
-      end if
-    end do
-    two_el_table%length = n
-    two_el_table%cutoff = cutoff_
+  n = 0
+  do i=1,size(TUVX)
+    if (abs(TUVX(i)) >= cutoff_) then
+      n = n+1
+      call two_el_idx(i,two_el_table%index(:,n))
+      two_el_table%values(n) = TUVX(i)
+    end if
+  end do
+  two_el_table%length = n
+  two_el_table%cutoff = cutoff_
 
-! ========== For testing purposes FROM HERE =============
-    l_twoel_test = min(max_test, length(two_el_table))
-    call Add_Info('TwoEl Integral element Input', &
-      TUVX(:l_twoel_test), l_twoel_test, 8)
-! ========== For testing purposes TO HERE ===============
-  end subroutine fill_2ElInt
+  ! ========== For testing purposes FROM HERE =============
+  l_twoel_test = min(max_test,length(two_el_table))
+  call Add_Info('TwoEl Integral element Input',TUVX(:l_twoel_test),l_twoel_test,8)
+  ! ========== For testing purposes TO HERE ===============
 
-  pure integer function TwoElIntTable_length(table)
-    type(TwoElIntTable), intent(in) :: table
-    TwoElIntTable_length = table%length
-  end function TwoElIntTable_length
+end subroutine fill_2ElInt
 
-  subroutine TwoElIntTable_print(table)
-    type(TwoElIntTable), intent(in) :: table
-    integer :: i, j
-    do j = 1, length(table)
-      write(6, '(ES15.7, I7, I7, I7, I7)') &
-        table%values(j), (table%index(i, j), i=1, 4)
-    end do
-  end subroutine TwoElIntTable_print
+pure function TwoElIntTable_length(table)
+
+  integer TwoElIntTable_length
+  type(TwoElIntTable), intent(in) :: table
+
+  TwoElIntTable_length = table%length
+
+end function TwoElIntTable_length
+
+subroutine TwoElIntTable_print(table)
+
+  type(TwoElIntTable), intent(in) :: table
+  integer :: i, j
+
+  do j=1,length(table)
+    write(6,'(ES15.7, I7, I7, I7, I7)') table%values(j),(table%index(i,j),i=1,4)
+  end do
+
+end subroutine TwoElIntTable_print
+
 end module fcidump_tables

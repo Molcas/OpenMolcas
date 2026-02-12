@@ -8,9 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DAVCRE(C,HC,HH,CC,E,HD,SC,Q,QQ,S,                      &
-     &                  SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
-!
+
+subroutine DAVCRE(C,HC,HH,CC,E,HD,SC,Q,QQ,S,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
 ! RASSCF program: version IBM-3090: SX section
 !
 ! Using the Davidson method, in the multiple root version suggested
@@ -38,148 +37,144 @@
 !             SC scratch area
 !
 ! ********** IBM-3090 Release 88 09 08 *****
-!
-      use fciqmc, only : DoNECI
-      use wadr, only: PA, DIA, SXN
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use PrintLevel, only: DEBUG,INSANE
-      use output_ras, only: LF,IPRLOC,RC_SX
-      use RASDim, only: MxSXIt
-      IMPLICIT None
-      INTEGER NROOT,ITMAX,NDIM,ITERSX,NSXS
-      Real*8 C((NROOT+NSXS)*NROOT*(ITMAX+1))
-      Real*8 HC((NROOT+NSXS)*NROOT*ITMAX)
-      Real*8 HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
-      Real*8 CC((ITMAX*NROOT)**2)
-      Real*8 E((ITMAX*NROOT))
-      Real*8 HD(NROOT+NSXS)
-      Real*8 SC((NROOT+NSXS))
-      Real*8 Q((NROOT+NSXS)*(NROOT+1))
-      Real*8 QQ(NROOT)
-      Real*8 S(ITMAX*NROOT**2)
-      CHARACTER(LEN=*) SXSEL
+
+use fciqmc, only: DoNECI
+use wadr, only: PA, DIA, SXN
+use PrintLevel, only: DEBUG, INSANE
+use output_ras, only: LF, IPRLOC, RC_SX
+use RASDim, only: MxSXIt
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer NROOT, ITMAX, NDIM, ITERSX, NSXS
+real*8 C((NROOT+NSXS)*NROOT*(ITMAX+1))
+real*8 HC((NROOT+NSXS)*NROOT*ITMAX)
+real*8 HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
+real*8 CC((ITMAX*NROOT)**2)
+real*8 E((ITMAX*NROOT))
+real*8 HD(NROOT+NSXS)
+real*8 SC((NROOT+NSXS))
+real*8 Q((NROOT+NSXS)*(NROOT+1))
+real*8 QQ(NROOT)
+real*8 S(ITMAX*NROOT**2)
+character(len=*) SXSEL
+character(len=16) :: ROUTINE = 'DAVCRE  '
+character(len=4) IOUTW, IOUTX
+real*8 :: THRA = 1.D-13, THRLD2 = 5.D-14, THRQ = 1.D-07, THRZ = 1.D-06, THRLD1 = 1.D-08
+real*8, allocatable :: C1(:), C2(:), X(:)
+integer iPrLev, nTrial, nCR, ii, i, nDimH, kDimH, nDimH2, iSel, nST, j, ji, iConvQ, iST, iConvA, k, iPass, iConvL, nTotDC, ij, &
+        iSTQ, iSTC, jST, Length
+real*8 XMX, XX, SWAP, Ei, QNorm, ENO, ASQ, Ovl, XNorm
+real*8, external :: DDot_
 #include "warnings.h"
-      Character(LEN=16):: ROUTINE='DAVCRE  '
-      CHARACTER(LEN=4) IOUTW,IOUTX
-      Real*8 :: THRA=1.D-13,THRLD2=5.D-14,THRQ=1.D-07,THRZ=1.D-06,      &
-     &          THRLD1=1.D-08
-      Real*8, Allocatable:: C1(:), C2(:), X(:)
-      Integer iPrLev,nTrial,nCR,ii,i,nDimH,kDimH,nDimH2,iSel,nST,j,ji,  &
-     &        iConvQ,iST,iConvA,k,iPass,iConvL,nTotDC,ij,iSTQ,iSTC,jST, &
-     &        Length
-      Real*8  XMX,XX,SWAP,Ei,QNorm,ENO,ASQ,Ovl,XNorm
-      Real*8, External:: DDot_
-!
+
 ! Local print level (if any)
-      IPRLEV=IPRLOC(1)
-      IF(IPRLEV.ge.DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
-      END IF
-!
-      IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,*) 'Super-CI diagonalization. Max iterations: ',ITMAX
-      END IF
-!
+IPRLEV = IPRLOC(1)
+if (IPRLEV >= DEBUG) then
+  write(LF,*) ' Entering ',ROUTINE
+  write(LF,*) 'Super-CI diagonalization. Max iterations: ',ITMAX
+end if
+
 ! Set values at loop head and starting guess of the vectors C
-!
-      Rc_SX = 0
-      NTRIAL=NROOT
-      NCR=NROOT*NDIM
-      CALL FZERO(C,NCR)
-      II=0
-      DO I=1,NROOT
-        C(II+I)=1.0D0
-        II=II+NDIM
-      END DO
-!
-!  memory allocation for COVLP
-!
-       CALL mma_allocate(C1,NSXS,Label='C1')
-       CALL mma_allocate(C2,NSXS,Label='C2')
-       CALL mma_allocate(X,NSXS,Label='X')
-!
+
+Rc_SX = 0
+NTRIAL = NROOT
+NCR = NROOT*NDIM
+call FZERO(C,NCR)
+II = 0
+do I=1,NROOT
+  C(II+I) = 1.0d0
+  II = II+NDIM
+end do
+
+! memory allocation for COVLP
+
+call mma_allocate(C1,NSXS,Label='C1')
+call mma_allocate(C2,NSXS,Label='C2')
+call mma_allocate(X,NSXS,Label='X')
+
 ! Begin Davidson iterations
 ! Start by setting up the Davidson HH-matrix
 ! The dimension of this matrix, NDIMH, is updated in HMAT
-!
-      NDIMH=0
-      ITERSX=0
+
+NDIMH = 0
+ITERSX = 0
 
 !*************************************************************
 !               Head of Super-CI iteration loop:
 !*************************************************************
-100   CONTINUE
-      ITERSX=ITERSX+1
-      CALL HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL)
-      KDIMH=(NDIMH+NDIMH**2)/2
-!
+100 continue
+ITERSX = ITERSX+1
+call HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL)
+KDIMH = (NDIMH+NDIMH**2)/2
+
 ! Echo the HH-matrix before diagonalizing it.
-!
-      CALL DCOPY_(KDIMH,HH,1,HH(KDIMH+1),1)
-!
-      IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,*)' Davidson H-matrix in iteration ',ITERSX
-        Write(LF,*)' Davidson H-matrix triangular of size =  ', NDIMH
-        Write(LF,'(1x,8F14.6)') (HH(I),I=1,KDIMH)
-      END IF
-      E(1)=HH(1)
-      CC(1)=1.d0
-      IF(NDIMH.GT.1) THEN
-!
-! set eigenvector array to identity before JACO call
-!
-       NDIMH2=NDIMH**2
-       CALL FZERO(CC,NDIMH2)
-       II=-NDIMH
-       DO I=1,NDIMH
-        II=II+NDIMH+1
-        CC(II)=1.0d0
-       END DO
-!
-       CALL Jacob(HH(KDIMH+1),CC,NDIMH,NDIMH)
-       IF(SXSEL.eq.'LOWEST  ') THEN
-! Root selection here assumes picking the lowest root(s).
-         CALL JACORD(HH(KDIMH+1),CC,NDIMH,NDIMH)
-         II=0
-         DO I=1,NROOT
-          II=II+I
-          E(I)=HH(II+KDIMH)
-         END DO
-       ELSE
-! Root selection by maximum overlap.
-         ISEL=1
-         XMX=ABS(CC(1))
-         DO I=2,NDIMH
-          XX=ABS(CC(1+NDIMH*(I-1)))
-          IF(XX.GT.XMX) THEN
-            ISEL=I
-            XMX=XX
-          END IF
-         END DO
-         IF(ISEL.NE.I) THEN
-           DO I=1,NDIMH
-             SWAP=CC(I+NDIMH*(ISEL-1))
-             CC(I+NDIMH*(ISEL-1))=CC(I)
-             CC(I)=-SWAP
-           END DO
-           SWAP=HH(KDIMH+(ISEL*(ISEL+1))/2)
-           HH(KDIMH+(ISEL*(ISEL+1))/2)=HH(KDIMH+1)
-           HH(KDIMH+1)=SWAP
-         END IF
-       END IF
-!
-       IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,*)' Eigenvalues:'
-        Write(LF,'(1X,8F14.6)') (E(I),I=1,NROOT)
-        Write(LF,*)' Eigenvectors:'
-        NST=0
-        DO I=1,NROOT
-         Write(LF,'(1X,10F11.6)') (CC(J+NST),J=1,NDIMH)
-         NST=NST+NDIMH
-        END DO
-       ENDIF
-      ENDIF
-!
+
+call DCOPY_(KDIMH,HH,1,HH(KDIMH+1),1)
+
+if (IPRLEV >= DEBUG) then
+  write(LF,*) ' Davidson H-matrix in iteration ',ITERSX
+  write(LF,*) ' Davidson H-matrix triangular of size =  ',NDIMH
+  write(LF,'(1x,8F14.6)') (HH(I),I=1,KDIMH)
+end if
+E(1) = HH(1)
+CC(1) = 1.d0
+if (NDIMH > 1) then
+
+  ! set eigenvector array to identity before JACO call
+
+  NDIMH2 = NDIMH**2
+  call FZERO(CC,NDIMH2)
+  II = -NDIMH
+  do I=1,NDIMH
+    II = II+NDIMH+1
+    CC(II) = 1.0d0
+  end do
+
+  call Jacob(HH(KDIMH+1),CC,NDIMH,NDIMH)
+  if (SXSEL == 'LOWEST') then
+    ! Root selection here assumes picking the lowest root(s).
+    call JACORD(HH(KDIMH+1),CC,NDIMH,NDIMH)
+    II = 0
+    do I=1,NROOT
+      II = II+I
+      E(I) = HH(II+KDIMH)
+    end do
+  else
+    ! Root selection by maximum overlap.
+    ISEL = 1
+    XMX = abs(CC(1))
+    do I=2,NDIMH
+      XX = abs(CC(1+NDIMH*(I-1)))
+      if (XX > XMX) then
+        ISEL = I
+        XMX = XX
+      end if
+    end do
+    if (ISEL /= I) then
+      do I=1,NDIMH
+        SWAP = CC(I+NDIMH*(ISEL-1))
+        CC(I+NDIMH*(ISEL-1)) = CC(I)
+        CC(I) = -SWAP
+      end do
+      SWAP = HH(KDIMH+(ISEL*(ISEL+1))/2)
+      HH(KDIMH+(ISEL*(ISEL+1))/2) = HH(KDIMH+1)
+      HH(KDIMH+1) = SWAP
+    end if
+  end if
+
+  if (IPRLEV >= DEBUG) then
+    write(LF,*) ' Eigenvalues:'
+    write(LF,'(1X,8F14.6)') (E(I),I=1,NROOT)
+    write(LF,*) ' Eigenvectors:'
+    NST = 0
+    do I=1,NROOT
+      write(LF,'(1X,10F11.6)') (CC(J+NST),J=1,NDIMH)
+      NST = NST+NDIMH
+    end do
+  end if
+end if
+
 ! Now perform the Davidson update
 ! First form for each root I, a vector Q(I), where
 ! Q(I,K)=sum(J,M) CC(I,J,M)*(HC(M,J,K)-E(I)*C(M,J,K))
@@ -188,130 +183,114 @@
 ! energy of the I:th root, C(M,J) is the M:th trial vector used in
 ! the J:th iteration, HC being the corresponding sigma vector. CC
 ! is the matrix of eigenvectors of the Davidson Hamiltonian.
-!
+
 ! STEP 1: form the matrix CCE=-CC*E (CCE in array SC)
-      JI=0
-      DO I=1,NROOT
-       EI=E(I)
-       DO J=1,NDIMH
-        JI=JI+1
-        S(JI)=-CC(JI)*EI
-       END DO
-      END DO
-!
+JI = 0
+do I=1,NROOT
+  EI = E(I)
+  do J=1,NDIMH
+    JI = JI+1
+    S(JI) = -CC(JI)*EI
+  end do
+end do
+
 ! Step 2: form the matrix Q=HC*CC
-      CALL DGEMM_('N','N',                                              &
-     &            NDIM,NROOT,NDIMH,                                     &
-     &            1.0d0,HC,NDIM,                                        &
-     &            CC,NDIMH,                                             &
-     &            0.0d0,Q(NDIM+1),NDIM)
+call DGEMM_('N','N',NDIM,NROOT,NDIMH,1.0d0,HC,NDIM,CC,NDIMH,0.0d0,Q(NDIM+1),NDIM)
 ! Step 3: add the contribution C*CCE
-      CALL DGEMM_('N','N',NDIM,NROOT,NDIMH,                             &
-     & 1.D0,C,NDIM,S,NDIMH,1.D0,Q(NDIM+1),NDIM)
-!
+call DGEMM_('N','N',NDIM,NROOT,NDIMH,1.d0,C,NDIM,S,NDIMH,1.d0,Q(NDIM+1),NDIM)
+
 ! Note that the NDIM first positions in Q are untouched so far
 ! the vector will be moved later
-      IF(IPRLEV.GE.INSANE) THEN
-        Write(LF,*)' The residual vectors Q of size:', NDIM
-        Write(LF,'(1x,8F14.10)')(Q(NDIM+I),I=1,NDIM)
-      END IF
-!
+if (IPRLEV >= INSANE) then
+  write(LF,*) ' The residual vectors Q of size:',NDIM
+  write(LF,'(1x,8F14.10)') (Q(NDIM+I),I=1,NDIM)
+end if
+
 ! Check the norms of the Q-vectors for convergence, and obtain
 ! bounds to the eigenvalues. E(I) is an upper bound to the I:th
 ! eigenvalue, from McDonald's theorem, while E(I)-NORM(Q(I))
 ! is a lower bound to the eigenvalue. This is the Weinstein lower
 ! bound formula in a multiple root form.
-!
-      ICONVQ=0
-      IST=1+NDIM
-      DO I=1,NROOT
-       CALL COVLP(Q(IST),Q(IST),DIA,PA,SXN,                             &
-     &            C1,C2,X,QQ(I))
-       IST=IST+NDIM
-      END DO
-!
-      DO I=1,NROOT
-          QNORM=SQRT(QQ(I))
-          IF(QNORM.LT.THRQ)ICONVQ = ICONVQ + 1
-          EI = E(I)
-          ENO = EI - QNORM
-          IF(NROOT.GT.1) THEN
-            IF(I.GT.1) THEN
-              IF(IPRLEV.GE.DEBUG) THEN
-                Write(LF,'(20X,F16.8,A,I2,A,F16.8)') ENO,               &
-     &                   ' <  SX energy ',I,'  < ',EI
-              END IF
-            ELSE
-              IF(IPRLEV.GE.DEBUG) THEN
-                Write(LF,'(1X,I2,A,4X,F16.8,A,I2,A,F16.8)')ITERSX,      &
-     &               ' SX iteration ',ENO,' <  SX energy ',I,'  < ',EI
-              END IF
-            END IF
-          ELSE
-            IF(IPRLEV.GE.DEBUG) THEN
-                Write(LF,'(1X,I2,A,4X,F16.8,A,I2,A,F16.8)')ITERSX,      &
-     &               ' SX iteration ',ENO,' <  SX energy ',I,'  < ',EI
-            END IF
-          END IF
-          IF(IPRLEV.GE.DEBUG) THEN
-            Write(LF,*)'  Norm of Q:',QNORM
-          END IF
-          IST = IST + NDIM
-      END DO
+
+ICONVQ = 0
+IST = 1+NDIM
+do I=1,NROOT
+  call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,QQ(I))
+  IST = IST+NDIM
+end do
+
+do I=1,NROOT
+  QNORM = sqrt(QQ(I))
+  if (QNORM < THRQ) ICONVQ = ICONVQ+1
+  EI = E(I)
+  ENO = EI-QNORM
+  if (IPRLEV >= DEBUG) then
+    if (NROOT > 1) then
+      if (I > 1) then
+        write(LF,'(20X,F16.8,A,I2,A,F16.8)') ENO,' <  SX energy ',I,'  < ',EI
+      else
+        write(LF,'(1X,I2,A,4X,F16.8,A,I2,A,F16.8)') ITERSX,' SX iteration ',ENO,' <  SX energy ',I,'  < ',EI
+      end if
+    else
+      write(LF,'(1X,I2,A,4X,F16.8,A,I2,A,F16.8)') ITERSX,' SX iteration ',ENO,' <  SX energy ',I,'  < ',EI
+    end if
+    write(LF,*) '  Norm of Q:',QNORM
+  end if
+  IST = IST+NDIM
+end do
 !PAM00 End of replacement.
-!
-!    Reset ICONVQ unless all roots are converged
-!
-      IF(ICONVQ.LT.NROOT) ICONVQ = 0
-!
-!    Check the expansion vectors for convergence. This is done
-!    by computing the sum of the squares of CC(I,J), for each
-!    root I, and for the J trial vectors of the current iteration
-!
-      NST = NDIMH - NTRIAL + 1
-      ICONVA = 0
-      DO I = 1,NROOT
-          ASQ=DDOT_(NTRIAL,CC(NST),1,CC(NST),1)
-          IF(ASQ.LT.THRA) ICONVA = ICONVA + 1
-          NST = NST + NDIMH
-      END DO
-!
-!    Reset ICONVA unless all roots are converged.
-!
-      IF(ICONVA.LT.NROOT) ICONVA = 0
-!
-!    Branch out of iteration loop if convergence has been
-!....    achieved on either the energy or the Davidson expansion
-!....    vectors.
-!
-      IF(ICONVQ.NE.0.OR.ICONVA.NE.0) GO TO 35
-!
+
+! Reset ICONVQ unless all roots are converged
+
+if (ICONVQ < NROOT) ICONVQ = 0
+
+! Check the expansion vectors for convergence. This is done
+! by computing the sum of the squares of CC(I,J), for each
+! root I, and for the J trial vectors of the current iteration
+
+NST = NDIMH-NTRIAL+1
+ICONVA = 0
+do I=1,NROOT
+  ASQ = DDOT_(NTRIAL,CC(NST),1,CC(NST),1)
+  if (ASQ < THRA) ICONVA = ICONVA+1
+  NST = NST+NDIMH
+end do
+
+! Reset ICONVA unless all roots are converged.
+
+if (ICONVA < NROOT) ICONVA = 0
+
+! Branch out of iteration loop if convergence has been
+! achieved on either the energy or the Davidson expansion vectors.
+
+if ((ICONVQ /= 0) .or. (ICONVA /= 0)) GO TO 35
+
 ! Calculate the D-vectors as D(I,K)=Q(I,K)/(E(I)-HD(K,K))
-!
-      IST=1
-      DO I=1,NROOT
-       EI=E(I)
-       DO K=1,NDIM
-        SC(K)=EI-HD(K)
-        IF(ABS(SC(K)).LT.THRZ) SC(K)=1.0d0
-       END DO
-       Q(IST:IST+NDIM-1) = Q(IST+NDIM:IST+2*NDIM-1)/SC(1:NDIM)
-       IST=IST+NDIM
-      END DO
+
+IST = 1
+do I=1,NROOT
+  EI = E(I)
+  do K=1,NDIM
+    SC(K) = EI-HD(K)
+    if (abs(SC(K)) < THRZ) SC(K) = 1.0d0
+  end do
+  Q(IST:IST+NDIM-1) = Q(IST+NDIM:IST+2*NDIM-1)/SC(1:NDIM)
+  IST = IST+NDIM
+end do
 ! Remove any unwanted components. These are signalled by
 ! huge elements of SX hamiltonian diagonal (set in SXHAM).
-      DO I=1,NDIM
-       IF(HD(I).GT.1.0D20) THEN
-         DO J=1,NROOT
-           Q(I+NDIM*(J-1))=0.0D0
-         END DO
-       END IF
-      END DO
-      IF(IPRLEV.GE.INSANE) THEN
-        Write(LF,*)' The correction vectors D(stored in Q):'
-        Write(LF,'(1x,8F14.10)')(Q(I),I=1,NDIM)
-      END IF
-!
+do I=1,NDIM
+  if (HD(I) > 1.0d20) then
+    do J=1,NROOT
+      Q(I+NDIM*(J-1)) = 0.0d0
+    end do
+  end if
+end do
+if (IPRLEV >= INSANE) then
+  write(LF,*) ' The correction vectors D(stored in Q):'
+  write(LF,'(1x,8F14.10)') (Q(I),I=1,NDIM)
+end if
+
 ! Q now contains the Davidson correction vectors. These will now
 ! be orthogonalized to all old vectors and then to each other.
 !PAM01 The ON is done in two passes. A vector smaller than THRLD
@@ -322,254 +301,235 @@
 ! after pass 1, together with numerical noise amplification in
 ! COVLP, is beginning to be noticable. The latter will of course happen
 ! when some orbital rotation(s) are almost redundant.
-!
-      IPASS=0
-      ICONVL=0
-      NTOTDC=NROOT
 
- 23   CONTINUE
+IPASS = 0
+ICONVL = 0
+NTOTDC = NROOT
+
+23 continue
 
 ! First form the overlap matrix
-      IJ=0
-      ISTQ=1
-      DO I=1,NTOTDC
-       ISTC=1
-       DO J=1,NDIMH
-        IJ=IJ+1
-        CALL COVLP(Q(ISTQ),C(ISTC),DIA,PA,SXN,                          &
-     &             C1,C2,X,OVL)
-        S(IJ)=-OVL
-        ISTC=ISTC+NDIM
-       END DO
-       ISTQ=ISTQ+NDIM
-      END DO
-      CALL DGEMM_('N','N',NDIM,NTOTDC,NDIMH,                            &
-     &           1.D0,C,NDIM,S,NDIMH,                                   &
-     &           1.D0,Q,NDIM)
-!
+IJ = 0
+ISTQ = 1
+do I=1,NTOTDC
+  ISTC = 1
+  do J=1,NDIMH
+    IJ = IJ+1
+    call COVLP(Q(ISTQ),C(ISTC),DIA,PA,SXN,C1,C2,X,OVL)
+    S(IJ) = -OVL
+    ISTC = ISTC+NDIM
+  end do
+  ISTQ = ISTQ+NDIM
+end do
+call DGEMM_('N','N',NDIM,NTOTDC,NDIMH,1.d0,C,NDIM,S,NDIMH,1.d0,Q,NDIM)
+
 ! The Q-vectors are now orthogonal to all C-vectors.
-      IF(IPRLEV.GE.INSANE) THEN
-        Write(LF,*)'  D vector orthogonal to all C vectors:'
-        Write(LF,'(1x,8F14.10)')(Q(I),I=1,NDIM)
-      END IF
+if (IPRLEV >= INSANE) then
+  write(LF,*) '  D vector orthogonal to all C vectors:'
+  write(LF,'(1x,8F14.10)') (Q(I),I=1,NDIM)
+end if
 ! Now orthogonalize them to one another, rejecting those which
 ! appear with too small a norm
-!
-      IST=1
-      NTRIAL=0
+
+IST = 1
+NTRIAL = 0
 
 ! Long loop over NTOTDC vectors:
-      DO I=1,NTOTDC
-       IF(I.NE.1.AND.NTRIAL.NE.0) THEN
-!
-!  Orthogonalize this vector to the preceding Q's of this iteration
-!
-        JST=1
-        DO J=1,NTRIAL
-         CALL COVLP(Q(IST),Q(JST),DIA,PA,SXN,                           &
-     &              C1,C2,X,OVL)
-         S(J)=-OVL
-         JST=JST+NDIM
-        END DO
-!        CALL DGEMX(NDIM,NTRIAL,1.D0,Q,NDIM,S,1,Q(IST),1)
-        CALL DGEMV_('N',NDIM,NTRIAL,1.D0,Q,NDIM,S,1,1.0D0,Q(IST),1)
-       IF(IPRLEV.GE.INSANE) THEN
-          Write(LF,*)'  Q vector orthogonal to preceding Q vectors:'
-          Write(LF,'(1x,8F14.10)')(Q(k),k=1,NDIM)
-       END IF
-       ENDIF
-!
-!  Normalize this vector and move to trial set if norm large enough
-!
-       CALL COVLP(Q(IST),Q(IST),DIA,PA,SXN,                             &
-     &            C1,C2,X,XNORM)
-! Due to large noise amplification in COVLP, the squared-norm
-! can actually come out as a negative number.
-! Acceptable, only if it is very close to zero. Else, quit.
-       IF(XNORM.LT.-1.0D-09)  then
-         Write(LF,*)
-         Write(LF,*)'      *** Error in subroutine DAVCRE ***'
-         Write(LF,*)' The squared norm of a trial vector has been'
-         Write(LF,*)' computed to be negative:'
-         Write(LF,*)'      XNORM=',XNORM
-         Write(LF,*)' This is possible only for some severe malfunction'
-         Write(LF,*)' of the rasscf program. Please issue a bug report.'
-         Write(LF,*)
-         if (.not. DoNECI) then
-           Call Quit(_RC_GENERAL_ERROR_)
-         else
-           Write(LF,*)' non positive-semi definite matrix occurred.'
-           Write(LF,*)' Calculation will continue. '
-           Write(LF,*)' Divergent results might occur'
-           Write(LF,*)' Tests for possible solution on the way...'
-         end if
-       End iF
-       XNORM=sqrt(MAX(0.0D0,XNORM))
-       IF(IPRLEV.GE.INSANE) THEN
-         Write(LF,'(1X,A,I3,A,I3,A,ES16.8)') 'Pass ',IPASS,             &
-     &                 ' New orthogonal vector ',I,' has norm ',XNORM
-       END IF
+do I=1,NTOTDC
+  if ((I /= 1) .and. (NTRIAL /= 0)) then
 
-!PAM01 Two different treatments, depending on if this is first or
-! second orthonormalization pass:
-       IF(IPASS.EQ.0) THEN
-! First pass:
-         IF(ITERSX.EQ.1 .or. XNORM.GT.THRLD1) THEN
-          ISTQ=NTRIAL*NDIM+1
-          NTRIAL=NTRIAL+1
-          XNORM=1.0D00/(XNORM+1.0D-24)
-!PAM01 Note that ISTQ can be (and is!) the same as IST:
-          IF(ISTQ.EQ.IST) THEN
-           CALL DSCAL_(NDIM,XNORM,Q(IST),1)
-          ELSE
-           CALL DYAX(NDIM,XNORM,Q(IST),1,Q(ISTQ),1)
-          ENDIF
-         ENDIF
-       ELSE
-! Second pass: Demand accurate normalization, else we know that
-! poor independence, maybe with strong rounding-error amplification
-! in COVLP, has began to erode the orthonormalization of the
-! basis vectors, hence the integrity of the Davidson procedure.
-         IF(ITERSX.EQ.1 .or. ABS(XNORM-1.0D0).LT.THRLD2) THEN
-          ISTQ=NTRIAL*NDIM+1
-          NTRIAL=NTRIAL+1
-          XNORM=1.0D00/(XNORM+1.0D-24)
-!PAM01 Note that ISTQ can be (and is!) the same as IST:
-          IF(ISTQ.EQ.IST) THEN
-           CALL DSCAL_(NDIM,XNORM,Q(IST),1)
-          ELSE
-           CALL DYAX(NDIM,XNORM,Q(IST),1,Q(ISTQ),1)
-          ENDIF
-         ENDIF
-       END IF
-       IST=IST+NDIM
+    ! Orthogonalize this vector to the preceding Q's of this iteration
+
+    JST = 1
+    do J=1,NTRIAL
+      call COVLP(Q(IST),Q(JST),DIA,PA,SXN,C1,C2,X,OVL)
+      S(J) = -OVL
+      JST = JST+NDIM
+    end do
+    !call DGEMX(NDIM,NTRIAL,1.D0,Q,NDIM,S,1,Q(IST),1)
+    call DGEMV_('N',NDIM,NTRIAL,1.d0,Q,NDIM,S,1,1.0d0,Q(IST),1)
+    if (IPRLEV >= INSANE) then
+      write(LF,*) '  Q vector orthogonal to preceding Q vectors:'
+      write(LF,'(1x,8F14.10)') (Q(k),k=1,NDIM)
+    end if
+  end if
+
+  ! Normalize this vector and move to trial set if norm large enough
+
+  call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,XNORM)
+  ! Due to large noise amplification in COVLP, the squared-norm
+  ! can actually come out as a negative number.
+  ! Acceptable, only if it is very close to zero. Else, quit.
+  if (XNORM < -1.0D-09) then
+    write(LF,*)
+    write(LF,*) '      *** Error in subroutine DAVCRE ***'
+    write(LF,*) ' The squared norm of a trial vector has been'
+    write(LF,*) ' computed to be negative:'
+    write(LF,*) '      XNORM=',XNORM
+    write(LF,*) ' This is possible only for some severe malfunction'
+    write(LF,*) ' of the rasscf program. Please issue a bug report.'
+    write(LF,*)
+    if (.not. DoNECI) then
+      call Quit(_RC_GENERAL_ERROR_)
+    else
+      write(LF,*) ' non positive-semi definite matrix occurred.'
+      write(LF,*) ' Calculation will continue. '
+      write(LF,*) ' Divergent results might occur'
+      write(LF,*) ' Tests for possible solution on the way...'
+    end if
+  end if
+  XNORM = sqrt(max(0.0d0,XNORM))
+  if (IPRLEV >= INSANE) write(LF,'(1X,A,I3,A,I3,A,ES16.8)') 'Pass ',IPASS,' New orthogonal vector ',I,' has norm ',XNORM
+
+  !PAM01 Two different treatments, depending on if this is first or
+  ! second orthonormalization pass:
+  if (IPASS == 0) then
+    ! First pass:
+    if ((ITERSX == 1) .or. (XNORM > THRLD1)) then
+      ISTQ = NTRIAL*NDIM+1
+      NTRIAL = NTRIAL+1
+      XNORM = 1.0d00/(XNORM+1.0D-24)
+      !PAM01 Note that ISTQ can be (and is!) the same as IST:
+      if (ISTQ == IST) then
+        call DSCAL_(NDIM,XNORM,Q(IST),1)
+      else
+        call DYAX(NDIM,XNORM,Q(IST),1,Q(ISTQ),1)
+      end if
+    end if
+  else
+    ! Second pass: Demand accurate normalization, else we know that
+    ! poor independence, maybe with strong rounding-error amplification
+    ! in COVLP, has began to erode the orthonormalization of the
+    ! basis vectors, hence the integrity of the Davidson procedure.
+    if ((ITERSX == 1) .or. (abs(XNORM-1.0d0) < THRLD2)) then
+      ISTQ = NTRIAL*NDIM+1
+      NTRIAL = NTRIAL+1
+      XNORM = 1.0d00/(XNORM+1.0D-24)
+      !PAM01 Note that ISTQ can be (and is!) the same as IST:
+      if (ISTQ == IST) then
+        call DSCAL_(NDIM,XNORM,Q(IST),1)
+      else
+        call DYAX(NDIM,XNORM,Q(IST),1,Q(ISTQ),1)
+      end if
+    end if
+  end if
+  IST = IST+NDIM
 
 ! End over long loop over NTOTDC vectors I=1..NTOTDC
-      END DO
-!
+end do
+
 ! NTRIAL new orthogonal vectors have now been formed. if NTRIAL
 ! equals zero there are no new linearly independent trial vectors
 ! and we branch out. If NTRIAL does not equal zero make a second
 ! orthonormalization pass
-!
-      IF(NTRIAL.EQ.0) ICONVL=1
-      NTOTDC=NTRIAL
-      IPASS=IPASS+1
-      IF(IPASS.NE.2.AND.NTOTDC.NE.0) GO TO 23
-      IF(IPRLEV.GE.INSANE) THEN
-        Write(LF,*)' The correction vectors, after ON:'
-        Write(LF,'(1x,8F14.10)')(Q(I),I=1,NDIM*NTRIAL)
-      END IF
-!
+
+if (NTRIAL == 0) ICONVL = 1
+NTOTDC = NTRIAL
+IPASS = IPASS+1
+if ((IPASS /= 2) .and. (NTOTDC /= 0)) GO TO 23
+if (IPRLEV >= INSANE) then
+  write(LF,*) ' The correction vectors, after ON:'
+  write(LF,'(1x,8F14.10)') (Q(I),I=1,NDIM*NTRIAL)
+end if
+
 ! Check if the set of vectors has become linearly dependent
-!
-      IF(ICONVL.EQ.1) GO TO 36
-!
+
+if (ICONVL == 1) GO TO 36
+
 ! Move the new orthogonal vectors to C
-!
-      NST=1+NDIMH*NDIM
-      LENGTH=NTRIAL*NDIM
-      CALL DCOPY_(LENGTH,Q,1,C(NST),1)
-!
-      IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,'(1X,A,I2,A)') ' Adding ',NTRIAL,' new vectors.'
-      END IF
-      IF(IPRLEV.GE.INSANE) THEN
-       IST = NDIMH*NDIM
-       DO I = 1,NTRIAL
-          Write(LF,'(1X,A,I2,A)') ' New vector ',I,' is:'
-          Write(LF,'(1X,10F11.6)') (C(IST+K),K = 1,NDIM)
-          IST = IST + NDIM
-       END DO
-      ENDIF
-!
-!    At this point, the calculation has neither converged, nor
-!    produced linearly dependent trial vectors. Branch back to
-!    the head of the iteration loop unless more than ITMAX
-!    iterations have been performed.
-!
-      IF(ITERSX.LT.ITMAX) GO TO 100
-!
+
+NST = 1+NDIMH*NDIM
+LENGTH = NTRIAL*NDIM
+call DCOPY_(LENGTH,Q,1,C(NST),1)
+
+if (IPRLEV >= DEBUG) write(LF,'(1X,A,I2,A)') ' Adding ',NTRIAL,' new vectors.'
+if (IPRLEV >= INSANE) then
+  IST = NDIMH*NDIM
+  do I=1,NTRIAL
+    write(LF,'(1X,A,I2,A)') ' New vector ',I,' is:'
+    write(LF,'(1X,10F11.6)') (C(IST+K),K=1,NDIM)
+    IST = IST+NDIM
+  end do
+end if
+
+! At this point, the calculation has neither converged, nor
+! produced linearly dependent trial vectors. Branch back to
+! the head of the iteration loop unless more than ITMAX
+! iterations have been performed.
+
+if (ITERSX < ITMAX) GO TO 100
+
 ! Here after ITMAX iterations, and no convergence
-!
-      IF(IPRLEV.GE.DEBUG) THEN
-       IF(ITMAX.LT.MXSXIT) THEN
-        Write(LF,*)' Super-CI not converged. Max SX iter increased.'
-       ELSE
-        Write(LF,*)' Super-CI not converged.'
-       END IF
-      END IF
-      ITMAX=min(ITMAX+2,MXSXIT)
-      Rc_SX = 16
-      GO TO 34
-!
+
+if (IPRLEV >= DEBUG) then
+  if (ITMAX < MXSXIT) then
+    write(LF,*) ' Super-CI not converged. Max SX iter increased.'
+  else
+    write(LF,*) ' Super-CI not converged.'
+  end if
+end if
+ITMAX = min(ITMAX+2,MXSXIT)
+Rc_SX = 16
+GO TO 34
+
 ! Here as calculation has converged.
-!
-35    CONTINUE
-      IOUTW = 'y   '
-      IF(NROOT.GT.1) IOUTW = 'ies '
-      IOUTX = '    '
-      IF(NROOT.GT.1) IOUTX = 's   '
-      IF(ICONVQ.NE.0.AND.IPRLEV.GE.DEBUG) THEN
-         Write(LF,*) ' Convergence on CI energ'//IOUTW
-      END IF
-      IF(ICONVA.NE.0.AND.IPRLEV.GE.DEBUG) THEN
-         Write(LF,*) ' Convergence on Davidson expansion vector'//IOUTX
-        Write(LF,*) IOUTX
-      END IF
-      GO TO 34
-!
+
+35 continue
+IOUTW = 'y   '
+if (NROOT > 1) IOUTW = 'ies '
+IOUTX = '    '
+if (NROOT > 1) IOUTX = 's   '
+if (IPRLEV >= DEBUG) then
+  if (ICONVQ /= 0) write(LF,*) ' Convergence on CI energ'//IOUTW
+  if (ICONVA /= 0) write(LF,*) ' Convergence on Davidson expansion vector'//IOUTX
+end if
+GO TO 34
+
 ! Here as trial vectors have become linearly dependent
-!
-36    CONTINUE
-      IF(IPRLEV.GE.DEBUG) THEN
-        Write(LF,*)' Trial vector set has become linearly dependent'
-      END IF
-34    CONTINUE
-!
+
+36 continue
+if (IPRLEV >= DEBUG) write(LF,*) ' Trial vector set has become linearly dependent'
+34 continue
+
 ! Compute CI vectors for all roots
 !
-! CI NEW (K) =  sum(J,M)CC(I,J M)*C M J (K)
+! CI NEW (K) = sum(J,M)CC(I,J M)*C M J (K)
 !
 ! Here J runs over the iterations, and M over the
 ! number of trial vectors used in each iteration J
-!
-      CALL DGEMM_('N','N',                                              &
-     &            NDIM,NROOT,NDIMH,                                     &
-     &            1.0d0,C,NDIM,                                         &
-     &            CC,NDIMH,                                             &
-     &            0.0d0,Q,NDIM)
-      IF(IPRLEV.GE.INSANE) THEN
-        Write(LF,*)' Unnormalized final CI vectors (in Q):'
-        Write(LF,'(1x,8F14.10)')(Q(I),I=1,NDIM)
-      END IF
-!
+
+call DGEMM_('N','N',NDIM,NROOT,NDIMH,1.0d0,C,NDIM,CC,NDIMH,0.0d0,Q,NDIM)
+if (IPRLEV >= INSANE) then
+  write(LF,*) ' Unnormalized final CI vectors (in Q):'
+  write(LF,'(1x,8F14.10)') (Q(I),I=1,NDIM)
+end if
+
 ! Normalize the final CI vectors
-!
-      IST=1
-      DO I=1,NROOT
-       CALL COVLP(Q(IST),Q(IST),DIA,PA,SXN,                             &
-     &            C1,C2,X,XNORM)
-       XNORM=1.0D00/XNORM
-       CALL DYAX(NDIM,XNORM,Q(IST),1,C(IST),1)
-       IST=IST+NDIM
-      END DO
-!
+
+IST = 1
+do I=1,NROOT
+  call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,XNORM)
+  XNORM = 1.0d00/XNORM
+  call DYAX(NDIM,XNORM,Q(IST),1,C(IST),1)
+  IST = IST+NDIM
+end do
+
 ! Print vector if desired
-!
-      IF(IPRLEV.GE.INSANE) THEN
-       IST = 0
-       DO I = 1,NROOT
-          Write(LF,*) ' SX-CI vector for root ',I
-          Write(LF,'(1X,8F8.4)') (C(IST+K),K = 1,NDIM)
-          IST = IST + NDIM
-       END DO
-      ENDIF
-!
+
+if (IPRLEV >= INSANE) then
+  IST = 0
+  do I=1,NROOT
+    write(LF,*) ' SX-CI vector for root ',I
+    write(LF,'(1X,8F8.4)') (C(IST+K),K=1,NDIM)
+    IST = IST+NDIM
+  end do
+end if
+
 ! End of diagonalization
 ! Free memory for COVLP
-!
-      CALL mma_deallocate(C1)
-      CALL mma_deallocate(C2)
-      CALL mma_deallocate(X)
-      END SUBROUTINE DAVCRE
+
+call mma_deallocate(C1)
+call mma_deallocate(C2)
+call mma_deallocate(X)
+
+end subroutine DAVCRE

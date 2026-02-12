@@ -10,122 +10,107 @@
 !                                                                      *
 ! Copyright (C) 2020, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine RotState()
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15,      &
-     &                         Ener
-      use PrintLevel, only: DEBUG,USUAL
-      use output_ras, only: LF,IPRLOC
-      use general_data, only: JOBIPH,NCONF
-      use Molcas, only: MxRoot
-      use RASDim, only: MxIter
-      Implicit None
-
-
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Mar. 13, 2020, created this file.               *
 ! ****************************************************************
 
+subroutine RotState()
 
-      Integer NHrot                ! storing info in H0_Rotate.txt
-      Integer NRState            ! storing info in Do_Rotate.txt
-      Integer rcidisk
-      INTEGER JRoot,IPRLEV
-      CHARACTER(Len=18)::MatInfo
-      Real*8, Allocatable:: CIVEC(:,:), CIScr(:,:), HScr(:), State(:),  &
-     &                      HRot(:,:)
-      Integer i, iad15
+use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15, Ener
+use PrintLevel, only: DEBUG, USUAL
+use output_ras, only: LF, IPRLOC
+use general_data, only: JOBIPH, NCONF
+use Molcas, only: MxRoot
+use RASDim, only: MxIter
+use stdalloc, only: mma_allocate, mma_deallocate
 
-      IPRLEV=IPRLOC(3)
+implicit none
+integer NHrot     ! storing info in H0_Rotate.txt
+integer NRState   ! storing info in Do_Rotate.txt
+integer rcidisk
+integer JRoot, IPRLEV
+character(len=18) :: MatInfo
+real*8, allocatable :: CIVEC(:,:), CIScr(:,:), HScr(:), State(:), HRot(:,:)
+integer i, iad15
 
-      IF(IPRLEV.ge.USUAL) THEN
-      write(LF,*)
-      write(LF,*) repeat('=',71)
-      write(LF,*)
-      write(LF,'(11X,A)')'Do_Rotate.txt is found in scratch directory.'
-      IF(IXMSP.eq.1) THEN
-       write(LF,'(11X,A)')                                              &
-     & 'Following properties are for XMS intermediate states.'
-      ELSE IF(ICMSP.eq.1) THEN
-       write(LF,'(11X,A)')                                              &
-     & 'Following properties are for CMS intermediate states.'
-      ELSE
-       write(LF,'(11X,A)')                                              &
-     & 'Following properties are for intermediate states'
-       write(LF,'(11X,A)')                                              &
-     & ' obtained from the user-supplied rotation matrix'
-      ENDIF
-      ENDIF
+IPRLEV = IPRLOC(3)
 
-      NRState=lRoots**2
-      NHRot=NRState
+if (IPRLEV >= USUAL) then
+  write(LF,*)
+  write(LF,*) repeat('=',71)
+  write(LF,*)
+  write(LF,'(11X,A)') 'Do_Rotate.txt is found in scratch directory.'
+  if (IXMSP == 1) then
+    write(LF,'(11X,A)') 'Following properties are for XMS intermediate states.'
+  else if (ICMSP == 1) then
+    write(LF,'(11X,A)') 'Following properties are for CMS intermediate states.'
+  else
+    write(LF,'(11X,A)') 'Following properties are for intermediate states'
+    write(LF,'(11X,A)') ' obtained from the user-supplied rotation matrix'
+  end if
+end if
 
-      CALL mma_allocate(CIVec,nConf,lRoots,Label='CIVec')
-      CALL mma_allocate(CIScr,nConf,lRoots,Label='CIScr')
-      CALL mma_allocate(HScr,NHRot,Label='HScr')
-      CALL mma_allocate(State,NRState,Label='State')
-      CALL mma_allocate(HRot,lRoots,lRoots,Label='HRot')
+NRState = lRoots**2
+NHRot = NRState
 
+call mma_allocate(CIVec,nConf,lRoots,Label='CIVec')
+call mma_allocate(CIScr,nConf,lRoots,Label='CIScr')
+call mma_allocate(HScr,NHRot,Label='HScr')
+call mma_allocate(State,NRState,Label='State')
+call mma_allocate(HRot,lRoots,lRoots,Label='HRot')
 
-!JB   read rotation matrix in Do_Rotate.txt
-      CALL ReadMat2('ROT_VEC',MatInfo,State,lRoots,lRoots,              &
-     &              7,18,'T')
-      iF(IPRLEV.GE.DEBUG) Then
-        write(LF,*)'rotation matrix'
-        CALL RecPrt(' ',' ',State,lRoots,lRoots)
-      eND iF
-      HRot(:,:)=0.0D0
-      NHRot=lRoots**2
-      Do I=1,lRoots
-        HRot(I,I)=ENER(I,ITER)
-      End Do
-      Call DGEMM_('t','n',lRoots,lRoots,lRoots,1.0D0,State,             &
-     &     lRoots,HRot,lRoots,0.0D0,HScr,lRoots)
-      Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,HScr,              &
-     &     lRoots,State,lRoots,0.0D0,HRot,lRoots)
-      CALL PrintMat2('ROT_HAM',MatInfo,HRot,lRoots,lRoots,              &
-     &              7,18,'T')
-      if(IPRLEV.GE.DEBUG) Then
-       write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
-       Call RecPrt('HRot',' ',hRot,lRoots,lRoots)
-      End if
+!JB read rotation matrix in Do_Rotate.txt
+call ReadMat2('ROT_VEC',MatInfo,State,lRoots,lRoots,7,18,'T')
+if (IPRLEV >= DEBUG) then
+  write(LF,*) 'rotation matrix'
+  call RecPrt(' ',' ',State,lRoots,lRoots)
+end if
+HRot(:,:) = 0.0d0
+NHRot = lRoots**2
+do I=1,lRoots
+  HRot(I,I) = ENER(I,ITER)
+end do
+call DGEMM_('t','n',lRoots,lRoots,lRoots,1.0d0,State,lRoots,HRot,lRoots,0.0d0,HScr,lRoots)
+call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,HScr,lRoots,State,lRoots,0.0d0,HRot,lRoots)
+call PrintMat2('ROT_HAM',MatInfo,HRot,lRoots,lRoots,7,18,'T')
+if (IPRLEV >= DEBUG) then
+  write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
+  call RecPrt('HRot',' ',hRot,lRoots,lRoots)
+end if
 
-!JB   read CI vector from jobiph
-      rcidisk=IADR15(4)
-      Do jRoot = 1,lRoots
-        Call DDafile(JOBIPH,2,CIScr(:,jRoot),nConf,rcidisk)
-      End Do
-      Call DGEMM_('n','n',NConf,lRoots,lRoots,1.0D0,CIScr,              &
-     &     nConf,State,lRoots,0.0D0,CIVec,nConf)
+!JB read CI vector from jobiph
+rcidisk = IADR15(4)
+do jRoot=1,lRoots
+  call DDafile(JOBIPH,2,CIScr(:,jRoot),nConf,rcidisk)
+end do
+call DGEMM_('n','n',NConf,lRoots,lRoots,1.0d0,CIScr,nConf,State,lRoots,0.0d0,CIVec,nConf)
 
-!     updating final energies as those for rotated states
-      rcidisk=IADR15(4)
-      Do I=1,lRoots
-        Call DDafile(JOBIPH,1,CIVec(:,I),nConf,rcidisk)
-        ENER(I,ITER)=HRot(I,I)
-      End Do
-      IAD15 = IADR15(6)
-      CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
+! updating final energies as those for rotated states
+rcidisk = IADR15(4)
+do I=1,lRoots
+  call DDafile(JOBIPH,1,CIVec(:,I),nConf,rcidisk)
+  ENER(I,ITER) = HRot(I,I)
+end do
+IAD15 = IADR15(6)
+call DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
 
+if (IPRLEV >= DEBUG) then
+  write(LF,'(A)') 'Printing the coeff of the first CSF for each state'
+  do I=1,lRoots
+    write(LF,*) CIVec(1,I)
+  end do
+end if
 
-      IF(IPRLEV.GE.DEBUG) Then
-      write(LF,'(2A)')'Printing the coeff of the first CSF',            &
-     &' for each state'
-      Do I=1,lRoots
-        write(LF,*) CIVec(1,I)
-      End Do
-      End If
+call mma_deallocate(HScr)
+call mma_deallocate(CIScr)
+call mma_deallocate(State)
+call mma_deallocate(CIVec)
+call mma_deallocate(HRot)
 
-      Call mma_deallocate(HScr)
-      Call mma_deallocate(CIScr)
-      Call mma_deallocate(State)
-      Call mma_deallocate(CIVec)
-      Call mma_deallocate(HRot)
+if (IPRLEV >= USUAL) then
+  write(LF,*)
+  write(LF,*) repeat('=',71)
+end if
 
-      IF(IPRLEV.ge.USUAL) THEN
-      write(LF,*)
-      write(LF,*) repeat('=',71)
-      END IF
-
-      End Subroutine RotState
+end subroutine RotState

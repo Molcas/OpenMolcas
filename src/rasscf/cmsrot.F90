@@ -10,74 +10,73 @@
 !                                                                      *
 ! Copyright (C) 2020, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine CMSRot(TUVX)
+
+subroutine CMSRot(TUVX)
 ! ****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use CMS, only: CMSNotConverged
-      use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
-      use PrintLevel, only: USUAL
-      use output_ras, only: LF,IPRLOC
-      Implicit None
 
+use CMS, only: CMSNotConverged
+use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
+use PrintLevel, only: USUAL
+use output_ras, only: LF, IPRLOC
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+real*8, dimension(NACPR2) :: TUVX
+character(len=16) :: VecName
+real*8, dimension(:,:,:,:), allocatable :: Gtuvx
+real*8, dimension(:,:,:,:), allocatable :: DDG
+real*8, dimension(:,:,:), allocatable :: GDMat
+real*8, dimension(:,:), allocatable :: RotMat
+integer iPrLev
 #include "warnings.h"
 
-      Real*8,DIMENSION(NACPR2)::TUVX
-      CHARACTER(len=16)::VecName
-      Real*8,DIMENSION(:,:,:,:),Allocatable::Gtuvx
-      Real*8,DIMENSION(:,:,:,:),Allocatable::DDG
-      Real*8,DIMENSION(:,:,:),Allocatable::GDMat
-      Real*8,DIMENSION(:,:),Allocatable::RotMat
-      Integer iPrLev
+! Allocating Memory
+call mma_allocate(GDMat,LRoots*(LRoots+1)/2,NAC,NAC)
+call mma_allocate(RotMat,lRoots,lRoots)
+call mma_allocate(Gtuvx,NAC,NAC,NAC,NAC)
+call mma_allocate(DDG,lRoots,lRoots,lRoots,lRoots)
 
-!     Allocating Memory
-      CALL mma_allocate(GDMat,LRoots*(LRoots+1)/2,NAC,NAC)
-      CALL mma_allocate(RotMat,lRoots,lRoots)
-      CALL mma_allocate(Gtuvx,NAC,NAC,NAC,NAC)
-      CALL mma_allocate(DDG,lRoots,lRoots,lRoots,lRoots)
+IPRLEV = IPRLOC(6)
 
-      IPRLEV=IPRLOC(6)
+! printing header
+if (IPRLEV >= USUAL) then
+  write(LF,*)
+  write(LF,*)
+  write(LF,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
+end if
+if (trim(CMSStartMat) == 'XMS') then
+  call ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
+else
+  call ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,len_trim(CMSStartMat),16,'N')
+end if
+if (IPRLEV >= USUAL) call CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
 
-!     printing header
-      IF(IPRLEV.ge.USUAL) THEN
-      write(LF,*)
-      write(LF,*)
-      write(LF,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
-      END IF
-      IF(trim(CMSStartMat).eq.'XMS') THEN
-       CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
-      ELSE
-       CALL ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,     &
-     &              len_trim(CMSStartMat),16,'N')
-      END IF
-      IF(IPRLEV.ge.USUAL)                                               &
-     &  CALL CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
+call LoadGtuvx(TUVX,Gtuvx)
 
+CMSNotConverged = .false.
+call GetGDMat(GDMat)
+if (lRoots < NAC) then
+  !write(6,*) 'Optimization Approach 1'
+  call GetDDgMat(DDg,GDMat,Gtuvx)
+  call NStateOpt(RotMat,DDg)
+else
+  !write(6,*) 'Optimization Approach 2'
+  call NStateOpt2(RotMat,GDMat,Gtuvx)
+end if
+VecName = 'CMS-PDFT'
+call PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
 
-      CALL LoadGtuvx(TUVX,Gtuvx)
+! Deallocating Memory
+call mma_deallocate(GDMat)
+call mma_deallocate(RotMat)
+call mma_deallocate(Gtuvx)
+call mma_deallocate(DDg)
+if (CMSNotConverged) then
+  call WarningMessage(2,'CMS Intermediate States Not Converged')
+  call Quit(_RC_NOT_CONVERGED_)
+end if
 
-      CMSNotConverged=.false.
-      CALL GetGDMat(GDMat)
-      IF(lRoots.lt.NAC) THEN
-!       write(6,*)"Optimization Approach 1"
-       CALL GetDDgMat(DDg,GDMat,Gtuvx)
-       CALL NStateOpt(RotMat,DDg)
-      ELSE
-!       write(6,*)"Optimization Approach 2"
-       CALL NStateOpt2(RotMat,GDMat,Gtuvx)
-      END IF
-      VecName='CMS-PDFT'
-      CALL PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
-
-!     Deallocating Memory
-      CALL mma_deallocate(GDMat)
-      CALL mma_deallocate(RotMat)
-      CALL mma_deallocate(Gtuvx)
-      CALL mma_deallocate(DDg)
-      IF(CMSNotConverged) THEN
-       Call WarningMessage(2,'CMS Intermediate States Not Converged')
-       Call Quit(_RC_NOT_CONVERGED_)
-      END IF
-      End Subroutine CMSRot
+end subroutine CMSRot

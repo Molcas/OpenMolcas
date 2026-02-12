@@ -39,373 +39,337 @@
 #include "compiler_features.h"
 
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
-      Subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
+subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
 
-      use wadr, only: FMO
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use rctfld_module, only: lRF
-      Use casvb_global, Only: ifvb
-      use timers, only: TimeDens
-      use lucia_data, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
-      use gas_data, only: iDoGAS
-      use Constants, only: Zero
-      use rasscf_global, only: KSDFT, ExFac, iPCMRoot, ITER, lRoots,    &
-     &                         n_Det, NAC, NACPAR, NACPR2, nFint,       &
-     &                         nRoots, S, iAdr15, iRoot, Weight,        &
-     &                         DFTFOCK
-      use PrintLevel, only: DEBUG,INSANE
-      use output_ras, only: LF,IPRLOC
-      use general_data, only: ISPIN,jobiph,nactel,ntot2,nash
+use wadr, only: FMO
+use stdalloc, only: mma_allocate, mma_deallocate
+use rctfld_module, only: lRF
+use casvb_global, only: ifvb
+use timers, only: TimeDens
+use lucia_data, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
+use gas_data, only: iDoGAS
+use Constants, only: Zero
+use rasscf_global, only: KSDFT, ExFac, iPCMRoot, ITER, lRoots, n_Det, NAC, NACPAR, NACPR2, nFint, nRoots, S, iAdr15, iRoot, &
+                         Weight, DFTFOCK
+use PrintLevel, only: DEBUG, INSANE
+use output_ras, only: LF, IPRLOC
+use general_data, only: ISPIN, jobiph, nactel, ntot2, nash
 
-      Implicit None
-      Integer iFinal, IRst
-      Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),          &
-     &          TUVX(*)
-!     Logical Exist
-      Logical Do_ESPF
-      Real*8 rdum(1)
-      Real*8, Allocatable:: RCT_F(:), RCT_FS(:), RCT(:), RCT_S(:),      &
-     &                      P2MO(:), TmpDS(:), TmpD1S(:),               &
-     &                      TmpPUVX(:), TmpTUVX(:)
+implicit none
+integer iFinal, IRst
+real*8 CMO(*), D(*), DS(*), P(*), PA(*), FI(*), D1I(*), D1A(*), TUVX(*)
+logical Do_ESPF
+real*8 rdum(1)
+real*8, allocatable :: RCT_F(:), RCT_FS(:), RCT(:), RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:), TmpPUVX(:), TmpTUVX(:)
+character(len=16), parameter :: ROUTINE = 'DMRGCTL '
+integer iPrLev, i, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
+real*8 dum1, dum2, dum3, Scal, Time(2)
 
-      Character(LEN=16), Parameter:: ROUTINE='DMRGCTL '
-! Local print level (if any)
-      Integer iPrLev, i, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
-      Real*8 dum1, dum2, dum3, Scal, Time(2)
-
-      IPRLEV=IPRLOC(3)
-      IF(IPRLEV.ge.DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
-      END IF
+IPRLEV = IPRLOC(3)
+if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
 
 ! set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
 ! IFCAS = 0: This is a CAS calculation
 ! IFCAS = 1: This is a RAS calculation - This might cause an error in DMRG-CASSCF.
-!
-      if(iDoGas) call setsxci()
-      If(IPRLEV.gt.DEBUG ) then
-        Write(LF,*)
-        Write(LF,*) ' Enter DMRG section'
-        Write(LF,*) ' =================='
-        Write(LF,*)
-        Write(LF,*) ' iteration count =',ITER
-      End If
-!
+
+if (iDoGas) call setsxci()
+if (IPRLEV > DEBUG) then
+  write(LF,*)
+  write(LF,*) ' Enter DMRG section'
+  write(LF,*) ' =================='
+  write(LF,*)
+  write(LF,*) ' iteration count =',ITER
+end if
+
 ! SOME DIRTY SETUPS
-!
-      S=0.5D0*DBLE(ISPIN-1)
-!
+
+S = 0.5d0*dble(ISPIN-1)
+
 ! COMPUTE ONE ELECTRON INTEGRALS IN MO BASIS
 ! AND ADD CORE INTERACTION
-!
+
 ! FMO FOCK MATRIX IN MO-BASIS
 ! LW2: 1-PARTICLE DENSITY MATRIX ALSO USED IN MO/AO TRANSFORMATION
-!
-      CALL mma_allocate(FMO,NACPAR,Label='FMO')
-      Call DecideOnESPF(Do_ESPF)
-      If ( lRF .or. KSDFT.ne.'SCF' .or. Do_ESPF) THEN
-!
-! In case of a reaction field in combination with an average CAS
-! select the potential of the appropriate state.
-!
-        jDisk = IADR15(3)
-        Do i=1,IPCMROOT-1
-          Call DDafile(JOBIPH,0,rdum,NACPAR,jDisk)
-          Call DDafile(JOBIPH,0,rdum,NACPAR,jDisk)
-          Call DDafile(JOBIPH,0,rdum,NACPR2,jDisk)
-          Call DDafile(JOBIPH,0,rdum,NACPR2,jDisk)
-        End Do
-!
-        CALL mma_allocate(RCT_F,NTOT2,Label='RCT_F')
-        CALL mma_allocate(RCT_FS,NTOT2,Label='RCT_FS')
-        If (IFINAL.eq.0) Then
-!
-! Use normal MOs
-!
-           CALL mma_allocate(RCT,NACPAR,Label='RCT')
-           CALL mma_allocate(P2MO,NACPR2,Label='P2MO')
-!
-! Get the total density in MOs
-!
-           Call DDafile(JOBIPH,2,RCT,NACPAR,jDisk)
-           Call Put_dArray('D1mo',RCT,NACPAR)  ! Put it on the RUNFILE
-           IF ( NASH(1).NE.NAC ) CALL DBLOCK(RCT)
-! Transform to AOs
-           Call Get_D1A_RASSCF(CMO,RCT,RCT_F)
-!
-! Get the spin density in MOs
-!
-           IF (NACTEL.EQ.0) THEN
-             CALL DCOPY_(NTOT2,[0.0D0],0,RCT_FS,1)
-           ELSE
-             CALL mma_allocate(RCT_S,NACPAR,Label='RCT_S')
-             Call DDafile(JOBIPH,2,RCT_S,NACPAR,jDisk)
-             IF ( NASH(1).NE.NAC ) CALL DBLOCK(RCT_S)
-! Transform to AOs
-             Call Get_D1A_RASSCF(CMO,RCT_S,RCT_FS)
-             CALL mma_deallocate(RCT_S)
-           END IF
-!
-! Get the 2-particle density in MO
-!
-           Call DDafile(JOBIPH,2,P2MO,NACPR2,jDisk)
-           Call Put_dArray('P2mo',P2MO,NACPR2) ! Put it on the RUNFILE
-!
-           CALL SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
-!
-           CALL mma_deallocate(P2MO)
-           CALL mma_deallocate(RCT)
-!
-        Else
-!
-! Here the pseudo-natural orbitals are in CMO and we need to
-! get the D1A of the selected state in this basis.
-!
-!
-! Compute the density of the particular state
-!
 
-           Call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
-           Call mma_allocate(DStmp,NAC**2,Label='DStmp')
-           Call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
-           If ( NAC.ge.1 ) Then
-              If (NACTEL.eq.0) THEN
-                 Dtmp(:)=0.0D0
-                 DStmp(:)=0.0D0
-                 Ptmp(:)=0.0D0
-              Else
-! load back 1- and 2-RDMs from previous DMRG run
-                 NACT4=NAC**4
-                 Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-                 CALL mma_allocate(Pscr,NACT4,Label='Pscr')
-#ifdef _ENABLE_BLOCK_DMRG_
-                 CALL block_densi_rasscf(IPCMRoot,Dtmp,DStmp,           &
-     &                                   Ptmp,PAtmp,Pscr)
-#elif _ENABLE_CHEMPS2_DMRG_
-                 CALL chemps2_densi_rasscf(IPCMRoot,Dtmp,DStmp,         &
-     &                                     Ptmp,PAtmp,Pscr)
-#elif _ENABLE_DICE_SHCI_
-                 CALL dice_densi_rasscf(IPCMRoot,Dtmp,DStmp,            &
-     &                                  Ptmp,PAtmp,Pscr)
-#endif
+call mma_allocate(FMO,NACPAR,Label='FMO')
+call DecideOnESPF(Do_ESPF)
+if (lRF .or. (KSDFT /= 'SCF') .or. Do_ESPF) then
 
-! NN.14 NOTE: IFCAS must be 0 for DMRG-CASSCF
-!                If (IFCAS.GT.2) Call CISX(IDXSX,Dtmp,
-!    &                                     DStmp,Ptmp,PAtmp,Pscr)
-                 Call mma_deallocate(Pscr)
-                 Call mma_deallocate(PAtmp)
-              EndIf
-!
-           Else
-              Dtmp(:)=0.0D0
-              DStmp(:)=0.0D0
-              Ptmp(:)=0.0D0
-           End If
-! Modify the symmetric 2-particle density if only partial
-! "exact exchange" is included.
-!          n_Det=2
-!          n_unpaired_elec=(iSpin-1)
-!          n_paired_elec=nActEl-n_unpaired_elec
-!          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
-           If (ExFac.ne.1.0D0) Call Mod_P2(Ptmp,NACPR2,                 &
-     &                                   Dtmp,NACPAR,                   &
-     &                                   DStmp,ExFac,n_Det)
-!
-           Call Put_dArray('P2mo',Ptmp,NACPR2) ! Put it on the RUNFILE
-!
-           Call mma_deallocate(Ptmp)
-!
-           Call Put_dArray('D1mo',Dtmp,NACPAR) ! Put it on the RUNFILE
-           IF ( NASH(1).NE.NAC ) CALL DBLOCK(Dtmp)
-           Call Get_D1A_RASSCF(CMO,Dtmp,RCT_F)
-!
-           IF ( NASH(1).NE.NAC ) CALL DBLOCK(DStmp)
-           Call Get_D1A_RASSCF(CMO,DStmp,RCT_FS)
-!
-           Call mma_deallocate(Dtmp)
-           Call mma_deallocate(DStmp)
-!
-           Call SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
-!
-        End If
-        CALL mma_deallocate(RCT_FS)
-        CALL mma_deallocate(RCT_F)
-!
-      ELSE
-!
-! Normal case
-!
-!
-!
-!
-        CALL mma_allocate(TmpDS ,NACPAR,Label='TmpDS')
-        CALL mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
-        call dcopy_(NACPAR,DS,1,TmpDS,1)
-        IF ( NASH(1).NE.NAC ) CALL DBLOCK(TmpDS)
-        Call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
-        CALL mma_deallocate(TmpDS)
-!
-        CALL SGFCIN(CMO,FMO,FI,D1I,D1A,TmpD1S)
-        CALL mma_deallocate(TmpD1S)
-!
-      END IF
-!
-      If (IfVB.eq.2) GoTo 9000
-!
-! SOLVE DMRG WAVEFUNCTION
-!
-      if(IfVB.eq.1)then
-! NN.14 FIXME: I'm not sure whether this option should work?
-        call cvbmn_rvb(max(ifinal,1))
+  ! In case of a reaction field in combination with an average CAS
+  ! select the potential of the appropriate state.
+
+  jDisk = IADR15(3)
+  do i=1,IPCMROOT-1
+    call DDafile(JOBIPH,0,rdum,NACPAR,jDisk)
+    call DDafile(JOBIPH,0,rdum,NACPAR,jDisk)
+    call DDafile(JOBIPH,0,rdum,NACPR2,jDisk)
+    call DDafile(JOBIPH,0,rdum,NACPR2,jDisk)
+  end do
+
+  call mma_allocate(RCT_F,NTOT2,Label='RCT_F')
+  call mma_allocate(RCT_FS,NTOT2,Label='RCT_FS')
+  if (IFINAL == 0) then
+
+    ! Use normal MOs
+
+    call mma_allocate(RCT,NACPAR,Label='RCT')
+    call mma_allocate(P2MO,NACPR2,Label='P2MO')
+
+    ! Get the total density in MOs
+
+    call DDafile(JOBIPH,2,RCT,NACPAR,jDisk)
+    call Put_dArray('D1mo',RCT,NACPAR)  ! Put it on the RUNFILE
+    if (NASH(1) /= NAC) call DBLOCK(RCT)
+    ! Transform to AOs
+    call Get_D1A_RASSCF(CMO,RCT,RCT_F)
+
+    ! Get the spin density in MOs
+
+    if (NACTEL == 0) then
+      call DCOPY_(NTOT2,[0.0d0],0,RCT_FS,1)
+    else
+      call mma_allocate(RCT_S,NACPAR,Label='RCT_S')
+      call DDafile(JOBIPH,2,RCT_S,NACPAR,jDisk)
+      if (NASH(1) /= NAC) call DBLOCK(RCT_S)
+      ! Transform to AOs
+      call Get_D1A_RASSCF(CMO,RCT_S,RCT_FS)
+      call mma_deallocate(RCT_S)
+    end if
+
+    ! Get the 2-particle density in MO
+
+    call DDafile(JOBIPH,2,P2MO,NACPR2,jDisk)
+    call Put_dArray('P2mo',P2MO,NACPR2) ! Put it on the RUNFILE
+
+    call SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
+
+    call mma_deallocate(P2MO)
+    call mma_deallocate(RCT)
+
+  else
+
+    ! Here the pseudo-natural orbitals are in CMO and we need to
+    ! get the D1A of the selected state in this basis.
+
+    ! Compute the density of the particular state
+
+    call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+    call mma_allocate(DStmp,NAC**2,Label='DStmp')
+    call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
+    if (NAC >= 1) then
+      if (NACTEL == 0) then
+        Dtmp(:) = 0.0d0
+        DStmp(:) = 0.0d0
+        Ptmp(:) = 0.0d0
       else
-        If (KSDFT(1:3).ne.'SCF'                                         &
-     &      .and.DFTFOCK(1:4).eq.'DIFF'.and.nac.ne.0) Then
-          nTmpPUVX=nFint
-          Call mma_allocate(TmpPUVX,nTmpPUVX,Label='TmpPUVX')
-          Call mma_allocate(TmpTUVX,NACPR2,Label='TmpTUVX')
-          TmpTUVX(:)=0.0D0
-          Call Get_dArray('DFT_TwoEl',TmpPUVX,nTmpPUVX)
-          Call Get_TUVX(TmpPUVX,TmpTUVX)
-          Call DaXpY_(NACPR2,1.0d0,TUVX,1,TmpTUVX,1)
-#ifdef _ENABLE_BLOCK_DMRG_
-          Call BlockCtl(FMO,TmpTUVX,IFINAL,IRst)
-#elif _ENABLE_CHEMPS2_DMRG_
-          Call Chemps2Ctl(FMO,TmpTUVX,IFINAL,IRst)
-#elif _ENABLE_DICE_SHCI_
-          Call DiceCtl(FMO,TmpTUVX,IFINAL,IRst)
-#endif
+        ! load back 1- and 2-RDMs from previous DMRG run
+        NACT4 = NAC**4
+        call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+        call mma_allocate(Pscr,NACT4,Label='Pscr')
+#       ifdef _ENABLE_BLOCK_DMRG_
+        call block_densi_rasscf(IPCMRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+#       elif _ENABLE_CHEMPS2_DMRG_
+        call chemps2_densi_rasscf(IPCMRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+#       elif _ENABLE_DICE_SHCI_
+        call dice_densi_rasscf(IPCMRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+#       endif
 
-          Call mma_deallocate(TmpTUVX)
-          Call mma_deallocate(TmpPUVX)
-        Else
-#ifdef _ENABLE_BLOCK_DMRG_
-          Call BlockCtl(FMO,TUVX,IFINAL,IRst)
-#elif _ENABLE_CHEMPS2_DMRG_
-          Call Chemps2Ctl(FMO,TUVX,IFINAL,IRst)
-#elif _ENABLE_DICE_SHCI_
-          Call DiceCtl(FMO,TUVX,IFINAL,IRst)
-#endif
-        End If
-      endif
+        ! NN.14 NOTE: IFCAS must be 0 for DMRG-CASSCF
+        !if (IFCAS > 2) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+        call mma_deallocate(Pscr)
+        call mma_deallocate(PAtmp)
+      end if
 
-!
-! C
+    else
+      Dtmp(:) = 0.0d0
+      DStmp(:) = 0.0d0
+      Ptmp(:) = 0.0d0
+    end if
+    ! Modify the symmetric 2-particle density if only partial
+    ! "exact exchange" is included.
+    !n_Det = 2
+    !n_unpaired_elec = iSpin-1
+    !n_paired_elec = nActEl-n_unpaired_elec
+    !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
+    if (ExFac /= 1.0d0) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
+
+    call Put_dArray('P2mo',Ptmp,NACPR2) ! Put it on the RUNFILE
+
+    call mma_deallocate(Ptmp)
+
+    call Put_dArray('D1mo',Dtmp,NACPAR) ! Put it on the RUNFILE
+    if (NASH(1) /= NAC) call DBLOCK(Dtmp)
+    call Get_D1A_RASSCF(CMO,Dtmp,RCT_F)
+
+    if (NASH(1) /= NAC) call DBLOCK(DStmp)
+    call Get_D1A_RASSCF(CMO,DStmp,RCT_FS)
+
+    call mma_deallocate(Dtmp)
+    call mma_deallocate(DStmp)
+
+    call SGFCIN(CMO,FMO,FI,D1I,RCT_F,RCT_FS)
+
+  end if
+  call mma_deallocate(RCT_FS)
+  call mma_deallocate(RCT_F)
+
+else
+  ! Normal case
+
+  call mma_allocate(TmpDS,NACPAR,Label='TmpDS')
+  call mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
+  call dcopy_(NACPAR,DS,1,TmpDS,1)
+  if (NASH(1) /= NAC) call DBLOCK(TmpDS)
+  call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
+  call mma_deallocate(TmpDS)
+
+  call SGFCIN(CMO,FMO,FI,D1I,D1A,TmpD1S)
+  call mma_deallocate(TmpD1S)
+
+end if
+
+if (IfVB == 2) goto 9000
+
+! SOLVE DMRG WAVEFUNCTION
+
+if (IfVB == 1) then
+  ! NN.14 FIXME: I'm not sure whether this option should work?
+  call cvbmn_rvb(max(ifinal,1))
+else
+  if ((KSDFT(1:3) /= 'SCF') .and. (DFTFOCK(1:4) == 'DIFF') .and. (nac /= 0)) then
+    nTmpPUVX = nFint
+    call mma_allocate(TmpPUVX,nTmpPUVX,Label='TmpPUVX')
+    call mma_allocate(TmpTUVX,NACPR2,Label='TmpTUVX')
+    TmpTUVX(:) = 0.0d0
+    call Get_dArray('DFT_TwoEl',TmpPUVX,nTmpPUVX)
+    call Get_TUVX(TmpPUVX,TmpTUVX)
+    call DaXpY_(NACPR2,1.0d0,TUVX,1,TmpTUVX,1)
+#   ifdef _ENABLE_BLOCK_DMRG_
+    call BlockCtl(FMO,TmpTUVX,IFINAL,IRst)
+#   elif _ENABLE_CHEMPS2_DMRG_
+    call Chemps2Ctl(FMO,TmpTUVX,IFINAL,IRst)
+#   elif _ENABLE_DICE_SHCI_
+    call DiceCtl(FMO,TmpTUVX,IFINAL,IRst)
+#   endif
+
+    call mma_deallocate(TmpTUVX)
+    call mma_deallocate(TmpPUVX)
+  else
+#   ifdef _ENABLE_BLOCK_DMRG_
+    call BlockCtl(FMO,TUVX,IFINAL,IRst)
+#   elif _ENABLE_CHEMPS2_DMRG_
+    call Chemps2Ctl(FMO,TUVX,IFINAL,IRst)
+#   elif _ENABLE_DICE_SHCI_
+    call DiceCtl(FMO,TUVX,IFINAL,IRst)
+#   endif
+  end if
+end if
+
 ! CALCULATE DENSITY MATRICES
 ! SAVE DENSITY MATRICES ON FILE
 ! COMPUTE AVERAGE DENSITY MATRICES
-! C
-!
+
 ! Dtmp: ONE-BODY DENSITY
 ! DStmp: ONE-BODY SPIN DENSITY
 ! Ptmp: SYMMETRIC TWO-BODY DENSITY
 ! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
-!
-      Call Timing(Time(1),dum1,dum2,dum3)
-      Call dCopy_(NACPAR,[Zero],0,D,1)
-      Call dCopy_(NACPAR,[Zero],0,DS,1)
-      Call dCopy_(NACPR2,[Zero],0,P,1)
-      Call dCopy_(NACPR2,[Zero],0,PA,1)
-      CALL mma_allocate(Dtmp,NAC**2,Label='Dtmp')
-      CALL mma_allocate(DStmp,NAC**2,Label='DStmp')
-      CALL mma_allocate(Ptmp,NACPR2,Label='Ptmp')
-      CALL mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-      jDisk = IADR15(3)
 
-      Do jRoot = 1,lRoots
-! load density matrices from DMRG run
-        If ( NAC.ge.1 ) Then
-          NACT4=NAC**4
-          CALL mma_allocate(Pscr,NACT4,Label='Pscr')
-#ifdef _ENABLE_BLOCK_DMRG_
-          CALL block_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-#elif _ENABLE_CHEMPS2_DMRG_
-          CALL chemps2_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-#elif _ENABLE_DICE_SHCI_
-          CALL dice_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-#endif
-          Call mma_deallocate(Pscr)
-        EndIf
-! Modify the symmetric 2-particle density if only partial
-! "exact exchange" is included.
-!        n_Det=2
-!        n_unpaired_elec=(iSpin-1)
-!        n_paired_elec=nActEl-n_unpaired_elec
-!        If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
-!
-!           Write(LF,*) ' iSpin=',iSpin
-!           Write(LF,*) ' n_unpaired_elec',n_unpaired_elec
-!           Write(LF,*) ' n_paired_elec',  n_paired_elec
-!           Write(LF,*) ' n_unpaired_elec+n_paired_elec/2',
-!     &                  n_unpaired_elec+n_paired_elec/2
-!           Write(LF,*) ' n_Det=',n_Det
-!
-!
-        If (ExFac.ne.1.0D0) Call Mod_P2(Ptmp,NACPR2,                    &
-     &                                Dtmp,NACPAR,                      &
-     &                                DStmp,ExFac,n_Det)
+call Timing(Time(1),dum1,dum2,dum3)
+call dCopy_(NACPAR,[Zero],0,D,1)
+call dCopy_(NACPAR,[Zero],0,DS,1)
+call dCopy_(NACPR2,[Zero],0,P,1)
+call dCopy_(NACPR2,[Zero],0,PA,1)
+call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+call mma_allocate(DStmp,NAC**2,Label='DStmp')
+call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
+call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+jDisk = IADR15(3)
 
-! update average density matrices
-        Scal = 0.0d0
-        Do kRoot = 1,nRoots
-          If ( iRoot(kRoot).eq.jRoot ) then
-            Scal = Weight(kRoot)
-          End If
-        End Do
-        call daxpy_(NACPAR,Scal,Dtmp,1,D,1)
-        call daxpy_(NACPAR,Scal,DStmp,1,DS,1)
-        call daxpy_(NACPR2,Scal,Ptmp,1,P,1)
-        call daxpy_(NACPR2,Scal,PAtmp,1,PA,1)
-! save density matrices on disk
-        Call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
-        Call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
-        Call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
-        Call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
-      End Do
+do jRoot=1,lRoots
+  ! load density matrices from DMRG run
+  if (NAC >= 1) then
+    NACT4 = NAC**4
+    call mma_allocate(Pscr,NACT4,Label='Pscr')
+#   ifdef _ENABLE_BLOCK_DMRG_
+    call block_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+#   elif _ENABLE_CHEMPS2_DMRG_
+    call chemps2_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+#   elif _ENABLE_DICE_SHCI_
+    call dice_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+#   endif
+    call mma_deallocate(Pscr)
+  end if
+  ! Modify the symmetric 2-particle density if only partial
+  ! "exact exchange" is included.
+  !n_Det = 2
+  !n_unpaired_elec = iSpin-1
+  !n_paired_elec = nActEl-n_unpaired_elec
+  !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
+  !  write(LF,*) ' iSpin=',iSpin
+  !  write(LF,*) ' n_unpaired_elec',n_unpaired_elec
+  !  write(LF,*) ' n_paired_elec',n_paired_elec
+  !  write(LF,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
+  !  write(LF,*) ' n_Det=',n_Det
 
-      Call mma_deallocate(PAtmp)
-      Call mma_deallocate(Ptmp)
-      Call mma_deallocate(DStmp)
-      Call mma_deallocate(Dtmp)
-!
-! C
+  if (ExFac /= 1.0d0) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
+
+  ! update average density matrices
+  Scal = 0.0d0
+  do kRoot=1,nRoots
+    if (iRoot(kRoot) == jRoot) then
+      Scal = Weight(kRoot)
+      exit
+    end if
+  end do
+  call daxpy_(NACPAR,Scal,Dtmp,1,D,1)
+  call daxpy_(NACPAR,Scal,DStmp,1,DS,1)
+  call daxpy_(NACPR2,Scal,Ptmp,1,P,1)
+  call daxpy_(NACPR2,Scal,PAtmp,1,PA,1)
+  ! save density matrices on disk
+  call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
+  call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
+  call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
+  call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
+end do
+
+call mma_deallocate(PAtmp)
+call mma_deallocate(Ptmp)
+call mma_deallocate(DStmp)
+call mma_deallocate(Dtmp)
+
 ! PREPARE DENSITY MATRICES AS USED BY THE SUPER CI SECTION
-! C
-!
-! print matrices
-      IF ( IPRLEV.GE.INSANE  ) THEN
-        CALL TRIPRT('Averaged one-body density matrix, D',              &
-     &              ' ',D,NAC)
-        CALL TRIPRT('Averaged one-body spin density matrix, DS',        &
-     &              ' ',DS,NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',              &
-     &              ' ',P,NACPAR)
-        CALL TRIPRT('Averaged antisymmetric two-body density matrix,PA',&
-     &              ' ',PA,NACPAR)
-      END IF
-      IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
-      Call Timing(Time(2),dum1,dum2,dum3)
-      TimeDens = TimeDens + Time(2) - Time(1)
-!
-      Call mma_deallocate(FMO)
 
- 9000 Continue
-!
-!     For RF calculations make sure that the we are following the
-!     correct root.
-!
-!     In the current implementation the overlap between the CI vectors
-!     of different macro iterations is used. This criterion stricktly
-!     only hold if the orbitals are not changed in between the
-!     interations, to make sure that this approximately holds the
-!     comparision is only to be considered to be valid if the rotmax
-!     parameter is below an empirical threshold. In the future the
-!     procedure for indentifying root flipping has to be made more
-!     robust.
+! print matrices
+if (IPRLEV >= INSANE) then
+  call TRIPRT('Averaged one-body density matrix, D',' ',D,NAC)
+  call TRIPRT('Averaged one-body spin density matrix, DS',' ',DS,NAC)
+  call TRIPRT('Averaged two-body density matrix, P',' ',P,NACPAR)
+  call TRIPRT('Averaged antisymmetric two-body density matrix,PA',' ',PA,NACPAR)
+end if
+if (NASH(1) /= NAC) call DBLOCK(D)
+call Timing(Time(2),dum1,dum2,dum3)
+TimeDens = TimeDens+Time(2)-Time(1)
+
+call mma_deallocate(FMO)
+
+9000 continue
+
+! For RF calculations make sure that the we are following the
+! correct root.
+
+! In the current implementation the overlap between the CI vectors
+! of different macro iterations is used. This criterion stricktly
+! only hold if the orbitals are not changed in between the
+! interations, to make sure that this approximately holds the
+! comparision is only to be considered to be valid if the rotmax
+! parameter is below an empirical threshold. In the future the
+! procedure for indentifying root flipping has to be made more
+! robust.
 !
 !SVC: if CISElect is used, roots should be traced regardless of orbital
 !     rotation, so in that case ignore the automatic tracing and follow
 !     the relative CISE root given in the input by the 'CIRF' keyword.
-!
+
 ! ======================================================================
 ! NN.14 FIXME:
 !     The overlap b/w the DMRG wave of different macro iterations
@@ -413,80 +377,70 @@
 !     chose the correct root for RF calculation with DMRG-CASSCF.
 !     For the time, just skip following.
 ! ======================================================================
+
+!if (lRF .and. KeyCISE .and. KeyCIRF) then
+!  JPCMROOT = IPCMROOT
+!  IPCMROOT = IROOT(ICIRFROOT)
+!  call Put_iScalar('RF CASSCF root',IPCMROOT)
+!  if (JPCMROOT /= IPCMROOT) write(6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',JPCMROOT,' to ',IPCMROOT
+!else if (lRF) then
+!  call Qpg_iScalar('RF CASSCF root',Exist)
+!  if (.not. Exist) then
 !
-!     If (lRF.and.KeyCISE.and.KeyCIRF) Then
-!       JPCMROOT=IPCMROOT
-!       IPCMROOT=IROOT(ICIRFROOT)
-!       Call Put_iScalar("RF CASSCF root",IPCMROOT)
-!       If (JPCMROOT.ne.IPCMROOT) Then
-!         Write (6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',
-!    &                 JPCMROOT, ' to ',IPCMROOT
-!       End If
-!     Else If (lRF) Then
-!       Call Qpg_iScalar('RF CASSCF root',Exist)
-!       If (.NOT.Exist) Then
+!    ! We are here since we are using the default values.
 !
-!          We are here since we are using the default values.
+!    call Put_iScalar('RF CASSCF root',IPCMROOT)
+!    call Put_iScalar('RF0CASSCF root',IPCMROOT)
+!  end if
 !
-!          Call Put_iScalar("RF CASSCF root",IPCMROOT)
-!          Call Put_iScalar("RF0CASSCF root",IPCMROOT)
-!       End If
+!  call mma_allocate(RF,nConf)
+!  call Qpg_dArray('RF CASSCF Vector',Exist,mConf)
+!  write(6,*) 'Exist=',Exist
+!  if (Exist .and. (mConf == nConf) .and. (iFinal /= 2) .and. ((abs(RotMax) < 1.0D-3) .or. KeyCISE)) then
+!    call Get_dArray('RF CASSCF Vector',RF,nConf)
+!    rNorm = sqrt(DDot_(nConf,RF,1,RF,1))
+!    write(6,*) 'rNorm=',rNorm
+!    JPCMROOT = IPCMROOT
+!    if (rNorm > 1.0D-10) then
+!      call mma_allocate(Temp,nConf,Label='Temp')
+!      rMax = 0.0D0
+!      jDisk = IADR15(4)
+!      do i=1,lRoots
+!        call DDafile(JOBIPH,2,Temp,nConf,jDisk)
+!        qMax = abs(DDot_(nConf,Temp,1,RF,1))
+!        write(6,*) 'qMax=',qMax
+!        if ((qMax > rMax) .and. (qMax > 0.5D0)) then
+!          rMax = qMax
+!          JPCMROOT = i
+!        end if
+!      end Do
+!      call mma_deallocate(Temp)
+!    end if
+!  else
+!    JPCMROOT = IPCMROOT
+!  end if
 !
-!       Call mma_allocate(RF,nConf)
-!       Call Qpg_dArray("RF CASSCF Vector",Exist,mConf)
-!       Write (6,*) 'Exist=',Exist
-!       If (Exist
-!    &      .and. mConf .eq. nConf
-!    &      .and. iFinal.ne.2
-!    &      .and. (ABS(RotMax).lt.1.0D-3 .or. KeyCISE)
-!    &     ) Then
-!          Call Get_dArray("RF CASSCF Vector",RF,nConf)
-!          rNorm=Sqrt(DDot_(nConf,RF,1,RF,1))
-!          Write (6,*) 'rNorm=',rNorm
-!          JPCMROOT=IPCMROOT
-!          If (rNorm.gt.1.0D-10) Then
-!             Call mma_allocate(Temp,nConf,Label='Temp')
-!             rMax=0.0D0
-!             jDisk = IADR15(4)
-!             Do i = 1, lRoots
-!                Call DDafile(JOBIPH,2,Temp,nConf,jDisk)
-!                qMax=Abs(DDot_(nConf,Temp,1,RF,1))
-!                Write (6,*) 'qMax=',qMax
-!                If (qMax.gt.rMax .and.
-!    &               qMax.gt.0.5D0) Then
-!                   rMax = qMax
-!                   JPCMROOT=i
-!                End If
-!             End Do
-!             Call mma_deallocate(Temp)
-!          End If
-!       Else
-!          JPCMROOT=IPCMROOT
-!       End If
+!  if (JPCMROOT /= IPCMROOT) then
+!    write(6,*) ' RF Root has flipped from ',IPCMROOT,' to ',JPCMROOT
+!    IPCMROOT = JPCMROOT
+!    call Put_iScalar('RF CASSCF root',IPCMROOT)
+!  end if
 !
-!       If (JPCMROOT.ne.IPCMROOT) Then
-!          Write (6,*) ' RF Root has flipped from ',IPCMROOT, ' to ',
-!    &                                              JPCMROOT
-!          IPCMROOT=JPCMROOT
-!          Call Put_iScalar("RF CASSCF root",IPCMROOT)
-!       End If
-!
-!       jDisk = IADR15(4)
-!       Do i=1,IPCMROOT-1
-!         Call DDafile(JOBIPH,0,rdum,nConf,jDisk)
-!       End Do
-!       Call DDafile(JOBIPH,2,RF,nConf,jDisk)
-!       Call Put_dArray("RF CASSCF Vector",RF,nConf)
-!       Call mma_deallocate(RF)
-!     End If
-!
-      End Subroutine DMRGCtl
+!  jDisk = IADR15(4)
+!  do i=1,IPCMROOT-1
+!    call DDafile(JOBIPH,0,rdum,nConf,jDisk)
+!  end do
+!  call DDafile(JOBIPH,2,RF,nConf,jDisk)
+!  call Put_dArray('RF CASSCF Vector',RF,nConf)
+!  call mma_deallocate(RF)
+!end if
+
+end subroutine DMRGCtl
 
 #elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-#     include "macros.fh"
-      subroutine empty_DMRGCtl()
-      end subroutine empty_DMRGCtl
+#include "macros.fh"
+dummy_empty_procedure(DMRGCtl)
 
 #endif

@@ -8,50 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SetPrLev(LF_IN,IPRGLB_IN,IPRLOC_IN)
-      use PrintLevel, only: USUAL,DEBUG,SILENT
-      use output_ras, only: IPRLOC,IPRGLB
-      Implicit None
+
+subroutine SetPrLev(IPRGLB_IN,IPRLOC_IN)
+
+use PrintLevel, only: USUAL, DEBUG, SILENT
+use output_ras, only: IPRLOC, IPRGLB
+
+implicit none
+integer IPRGLB_IN, IPRLOC_IN(7)
+logical, external :: REDUCE_PRT
+intrinsic MAX
+external GETENVF
+integer I
 #include "warnings.h"
-      Integer LF_IN,IPRGLB_IN,IPRLOC_IN(7)
-!
-      Logical, External :: REDUCE_PRT
-      Intrinsic MAX
-      External GETENVF
-      Integer I
 
 ! The local print levels are the maximum of the requested global and
 ! local ones, except that if any of IPRGLB or IPRLOC(I) is zero
-!  (meaning silence), then IPRLOC(I) is set to zero.
-      IPRGLB=IPRGLB_IN
-      IF (IPRGLB_IN.EQ.0) THEN
-       DO I=1,7
-        IPRLOC(I)=0
-       END DO
-      ELSE
-       DO I=1,7
-        IPRLOC(I)=0
-        IF(IPRLOC_IN(I).GT.0) IPRLOC(I)=MAX(IPRGLB_IN,IPRLOC_IN(I))
-       END DO
-      END IF
+! (meaning silence), then IPRLOC(I) is set to zero.
+IPRGLB = IPRGLB_IN
+if (IPRGLB_IN == 0) then
+  do I=1,7
+    IPRLOC(I) = 0
+  end do
+else
+  do I=1,7
+    IPRLOC(I) = 0
+    if (IPRLOC_IN(I) > 0) IPRLOC(I) = max(IPRGLB_IN,IPRLOC_IN(I))
+  end do
+end if
 ! If inside an optimization loop, set down the print
 ! level unless we *really* want a lot of output.
-      IF (REDUCE_PRT()) THEN
-       IPRGLB=MAX(IPRGLB-USUAL,SILENT)
-       DO I=1,7
-        IPRLOC(I)=MAX(IPRLOC(I)-USUAL,SILENT)
-       END DO
-      END IF
+if (REDUCE_PRT()) then
+  IPRGLB = max(IPRGLB-USUAL,SILENT)
+  do I=1,7
+    IPRLOC(I) = max(IPRLOC(I)-USUAL,SILENT)
+  end do
+end if
 
-      IF (IPRLOC(1).GE.DEBUG) THEN
-       WRITE(6,*)' SetPrLev: Print levels have been set to'
-       write(6,*)'  Global print level IPRGLB=',IPRGLB
-       write(6,*)'  Individual sections print levels, IPRLOC:'
-       write(6,'(1x,7I5)')(IPRLOC(I),I=1,7)
-      END IF
+if (IPRLOC(1) >= DEBUG) then
+  write(6,*) ' SetPrLev: Print levels have been set to'
+  write(6,*) '  Global print level IPRGLB=',IPRGLB
+  write(6,*) '  Individual sections print levels, IPRLOC:'
+  write(6,'(1x,7I5)') (IPRLOC(I),I=1,7)
+end if
 
-! Avoid unused argument warnings
-#ifdef _WARNING_WORKAROUND_
-      IF (.FALSE.) CALL Unused_integer(LF_IN)
-#endif
-      END Subroutine SetPrLev
+end subroutine SetPrLev

@@ -14,17 +14,18 @@
 ! history:                                                       *
 ! Jie J. Bao, on Apr. 07, 2022, created this file.               *
 !*****************************************************************
-      Subroutine UpdateRotMat(RMat,ExpX,X,lRoots,nSPair)
-      INTEGER lRoots,nSPair
-      Real*8 X(nSPair)
-      Real*8 RMat(lRoots**2),RScr(lRoots**2)
-      Real*8 ExpX(lRoots**2)
 
+subroutine UpdateRotMat(RMat,ExpX,X,lRoots,nSPair)
 
-      CALL ExpMat(ExpX,X,lRoots,nSPair)
-      CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,RMat,lRoots,       &
-     &                                               ExpX,lRoots,       &
-     &                                         0.0d0,RScr,lRoots)
-      CALL DCopy_(lRoots**2,RScr,1,RMat,1)
-      RETURN
-      End Subroutine
+integer lRoots, nSPair
+real*8 X(nSPair)
+real*8 RMat(lRoots**2), RScr(lRoots**2)
+real*8 ExpX(lRoots**2)
+
+call ExpMat(ExpX,X,lRoots,nSPair)
+call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,RMat,lRoots,ExpX,lRoots,0.0d0,RScr,lRoots)
+call DCopy_(lRoots**2,RScr,1,RMat,1)
+
+return
+
+end subroutine UpdateRotMat

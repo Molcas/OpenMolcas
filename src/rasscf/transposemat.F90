@@ -15,23 +15,31 @@
 ! Jie J. Bao, on Apr. 11, 2022, created this file.               *
 !*****************************************************************
 
-      Subroutine TransposeMat(Matout,Matin,nElem,nRow_in,nCol_in)
-      Implicit None
-      INTEGER nElem,nRow_in,nCol_in,iRow,iCol,iOff1,iOff2
-      Real*8 Matin(nElem),Matout(nElem)
+! Subroutine relating to generalized 1-e density matrix (GD) called
+! in CMSNewton
+!     transform GD^KL_tu from leading with state indices
+!     to leading with orbital indices in mode 1, and vice
+!     versa in mode 2.
+subroutine TransposeMat(Matout,Matin,nElem,nRow_in,nCol_in)
 
-      IF(nRow_in*nCol_in.ne.nElem) THEN
-       write(6,*) 'Error in TransposeMat()'
-       write(6,*) 'nRow_in*nCol_in != nElem'
-      END IF
+implicit none
 
-      DO iCol=1,nCol_in
-       iOff1=(iCol-1)*nRow_in
-       Do iRow=1,nRow_in
-        iOff2=(iRow-1)*nCol_in
-        Matout(iOff2+iCol)=Matin(iOff1+iRow)
-       End Do
-      END DO
+integer nElem, nRow_in, nCol_in, iRow, iCol, iOff1, iOff2
+real*8 Matin(nElem), Matout(nElem)
 
-      RETURN
-      End Subroutine
+if (nRow_in*nCol_in /= nElem) then
+  write(6,*) 'Error in TransposeMat()'
+  write(6,*) 'nRow_in*nCol_in != nElem'
+end if
+
+do iCol=1,nCol_in
+  iOff1 = (iCol-1)*nRow_in
+  do iRow=1,nRow_in
+    iOff2 = (iRow-1)*nCol_in
+    Matout(iOff2+iCol) = Matin(iOff1+iRow)
+  end do
+end do
+
+return
+
+end subroutine TransposeMat

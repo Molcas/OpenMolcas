@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2003, Giovanni Ghigo                                   *
 !***********************************************************************
-      Subroutine Alter_MO(CMO)
+
+subroutine Alter_MO(CMO)
 !***********************************************************************
 !                                                                      *
 !    purpose:                                                          *
@@ -33,37 +34,37 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      use output_ras, only: LF
-      use general_data, only: NALTER,MALTER,NBAS
-      Implicit None
-      REAL*8       CMO(*)
 
-      Real*8 CMOex
-      Integer iAlter, iAlteri, iAlterj, iCMO, iSym
+use output_ras, only: LF
+use general_data, only: NALTER, MALTER, NBAS
+
+implicit none
+real*8 CMO(*)
+real*8 CMOex
+integer iAlter, iAlteri, iAlterj, iCMO, iSym
 
 ! Local print level (if any)
-      Write(LF,*)
-      Write(LF,'(6X,A)') 'Molecular orbitals exchanged:'
+write(LF,*)
+write(LF,'(6X,A)') 'Molecular orbitals exchanged:'
 
-      Do iAlter=1,NAlter
-      Write(LF,'(8X,A,I2,A,2I4)') 'In symmetry ',MAlter(iAlter,1),      &
-     &                            ' :',MAlter(iAlter,2),MAlter(iAlter,3)
-        iAlterI=0
-        iAlterJ=0
-        If(MAlter(iAlter,1).gt.1) then
-          Do iSym=1,MAlter(iAlter,1)-1
-            iAlterI=iAlterI+nBas(iSym)**2
-            iAlterJ=iAlterJ+nBas(iSym)**2
-          EndDo
-        EndIf
-        iAlterI=iAlterI+nBas(MAlter(iAlter,1))*(MAlter(iAlter,2)-1)
-        iAlterJ=iAlterJ+nBas(MAlter(iAlter,1))*(MAlter(iAlter,3)-1)
-        Do iCMO=1,nBas(MAlter(iAlter,1))
-          CMOex=CMO(iAlterI+iCMO)
-          CMO(iAlterI+iCMO)=CMO(iAlterJ+iCMO)
-          CMO(iAlterJ+iCMO)=CMOex
-        EndDo
-      EndDo
-      Write(LF,*)
+do iAlter=1,NAlter
+  write(LF,'(8X,A,I2,A,2I4)') 'In symmetry ',MAlter(iAlter,1),' :',MAlter(iAlter,2),MAlter(iAlter,3)
+  iAlterI = 0
+  iAlterJ = 0
+  if (MAlter(iAlter,1) > 1) then
+    do iSym=1,MAlter(iAlter,1)-1
+      iAlterI = iAlterI+nBas(iSym)**2
+      iAlterJ = iAlterJ+nBas(iSym)**2
+    end do
+  end if
+  iAlterI = iAlterI+nBas(MAlter(iAlter,1))*(MAlter(iAlter,2)-1)
+  iAlterJ = iAlterJ+nBas(MAlter(iAlter,1))*(MAlter(iAlter,3)-1)
+  do iCMO=1,nBas(MAlter(iAlter,1))
+    CMOex = CMO(iAlterI+iCMO)
+    CMO(iAlterI+iCMO) = CMO(iAlterJ+iCMO)
+    CMO(iAlterJ+iCMO) = CMOex
+  end do
+end do
+write(LF,*)
 
-      End Subroutine Alter_MO
+end subroutine Alter_MO

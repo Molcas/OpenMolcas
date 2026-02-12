@@ -14,29 +14,31 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine CalcVee2(Vee,GD,Gtuvx)
-      use rasscf_global, only: lRoots, NAC
-      Implicit None
 
+subroutine CalcVee2(Vee,GD,Gtuvx)
 
+use rasscf_global, only: lRoots, NAC
+
+implicit none
+real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GD
+real*8, dimension(lRoots) :: Vee
+real*8, dimension(NAC,NAC,NAC,NAC) :: Gtuvx
+integer I, t, u, v, x, III
 #include "warnings.h"
-      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD
-      Real*8,DIMENSION(lRoots)::Vee
-      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
 
-      INTEGER I,t,u,v,x,III
-      DO I=1,lRoots
-       Vee(I)=0.0d0
-       III=I*(I+1)/2
-       Do t=1,nac
-       Do u=1,nac
-       Do v=1,nac
-       Do x=1,nac
-        Vee(I)=Vee(I)+GD(III,t,u)*GD(III,v,x)*Gtuvx(t,u,v,x)
-       End Do
-       End Do
-       End Do
-       End Do
-       Vee(I)=Vee(I)/2.0d0
-      END DO
-      END SUBROUTINE CalcVee2
+do I=1,lRoots
+  Vee(I) = 0.0d0
+  III = I*(I+1)/2
+  do t=1,nac
+    do u=1,nac
+      do v=1,nac
+        do x=1,nac
+          Vee(I) = Vee(I)+GD(III,t,u)*GD(III,v,x)*Gtuvx(t,u,v,x)
+        end do
+      end do
+    end do
+  end do
+  Vee(I) = Vee(I)/2.0d0
+end do
+
+end subroutine CalcVee2

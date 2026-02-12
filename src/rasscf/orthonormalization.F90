@@ -10,26 +10,27 @@
 !                                                                      *
 ! Copyright (C) 2019, Oskar Weser                                      *
 !***********************************************************************
-#include "intent.fh"
-      module orthonormalization
-        use definitions, only: wp
-        use stdalloc, only: mma_allocate, mma_deallocate
-        use blockdiagonal_matrices, only: t_blockdiagonal, new, delete, &
-     &    from_raw, to_raw, from_symm_raw, blocksizes
-        use linalg_mod, only: Gram_Schmidt, Lowdin, Canonical
 
-        implicit none
-        save
-        private
-        public ::                                                       &
-     &    t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize
+module orthonormalization
+
+use definitions, only: wp
+use stdalloc, only: mma_allocate, mma_deallocate
+use blockdiagonal_matrices, only: t_blockdiagonal, new, delete, from_raw, to_raw, from_symm_raw, blocksizes
+use linalg_mod, only: Gram_Schmidt, Lowdin, Canonical
+
+implicit none
+private
+
+#include "intent.fh"
+
+public :: t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize
 
 ! TODO: Should be changed to default construction in the future.
 ! As of July 2019 the Sun and PGI compiler have problems.
-        type :: t_ON_scheme_values
-          integer :: no_ON, Gram_Schmidt, Lowdin, Canonical
-        end type
-        type(t_ON_scheme_values), parameter ::                          &
+type :: t_ON_scheme_values
+  integer :: no_ON, Gram_Schmidt, Lowdin, Canonical
+end type t_ON_scheme_values
+
 ! TODO: Dear fellow MOLCAS developer of the future:
 ! Please replace the following explicit constructur
 ! with the default constructor
@@ -37,15 +38,13 @@
 ! as soon as possible.
 ! As of July 2019 the Sun compiler requires explicit construction
 ! for parameter variables. (Which is wrong IMHO.)
-     &    ON_scheme_values =                                            &
-     &    t_ON_scheme_values(no_ON = 1, Gram_Schmidt = 2,               &
-     &                       Lowdin = 3, Canonical = 4)
+type(t_ON_scheme_values), parameter :: ON_scheme_values = t_ON_scheme_values(no_ON=1,Gram_Schmidt=2,Lowdin=3,Canonical=4)
 
-        type :: t_ON_scheme
-          integer :: val = ON_scheme_values%Gram_Schmidt
-        end type
-        type(t_ON_scheme) :: ON_scheme = t_ON_scheme()
+type :: t_ON_scheme
+  integer :: val = ON_scheme_values%Gram_Schmidt
+end type t_ON_scheme
 
+type(t_ON_scheme) :: ON_scheme = t_ON_scheme()
 
 !>  @brief
 !>    Orthonormalize a basis.
@@ -64,228 +63,219 @@
 !>    (no_orthonormalization)
 !>    as given by orthonormalization::ON_scheme_values.
 !>    For a detailed explanation see \cite szabo_ostlund (p. 143).
-        interface orthonormalize
-          module procedure :: orthonormalize_raw, orthonormalize_blocks
-        end interface
+interface orthonormalize
+  module procedure :: orthonormalize_raw, orthonormalize_blocks
+end interface orthonormalize
 
-      contains
+contains
 
-      subroutine orthonormalize_blocks(basis, scheme, ONB)
-        use general_data, only : nSym, nBAs, nDel, nDelt, nSSH, nOrb
-        use rasscf_global, only : nSec, nOrbt, nTot3, nTot4
-        type(t_blockdiagonal), intent(in) :: basis(:)
-        type(t_ON_scheme), intent(in) :: scheme
-        type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+subroutine orthonormalize_blocks(basis,scheme,ONB)
 
-        type(t_blockdiagonal), allocatable :: S(:)
+  use general_data, only: nSym, nBAs, nDel, nDelt, nSSH, nOrb
+  use rasscf_global, only: nSec, nOrbt, nTot3, nTot4
 
-        integer :: n_to_ON(nSym), n_new(nSym)
+  type(t_blockdiagonal), intent(in) :: basis(:)
+  type(t_ON_scheme), intent(in) :: scheme
+  type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+  type(t_blockdiagonal), allocatable :: S(:)
+  integer :: n_to_ON(nSym), n_new(nSym)
 
-! gfortran -O0 warning bug
-        allocate(S(0))
-        call new(S, blocksizes=blocksizes(basis))
-        call read_S(S)
+  ! gfortran -O0 warning bug
+  allocate(S(0))
+  call new(S,blocksizes=blocksizes(basis))
+  call read_S(S)
 
-        select case (scheme%val)
-          case(ON_scheme_values%no_ON)
-            !continue
-          case(ON_scheme_values%Lowdin)
-            call Lowdin_Blocks(basis, S, ONB)
-          case(ON_scheme_values%Canonical)
-            n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
-            call Canonical_Blocks(basis, S, n_to_ON, ONB, n_new)
-            call update_orb_numbers(n_to_ON, n_new,                     &
-     &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
-          case(ON_scheme_values%Gram_Schmidt)
-            n_to_ON(:) = nBas(:nSym) - nDel(:nSym)
-            call Gram_Schmidt_Blocks(basis, S, n_to_ON, ONB, n_new)
-            call update_orb_numbers(n_to_ON, n_new,                     &
-     &          nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
-        end select
+  select case (scheme%val)
+    case (ON_scheme_values%no_ON)
+      !continue
+    case (ON_scheme_values%Lowdin)
+      call Lowdin_Blocks(basis,S,ONB)
+    case (ON_scheme_values%Canonical)
+      n_to_ON(:) = nBas(:nSym)-nDel(:nSym)
+      call Canonical_Blocks(basis,S,n_to_ON,ONB,n_new)
+      call update_orb_numbers(n_to_ON,n_new,nDel,nSSH,nOrb,nDelt,nSec,nOrbt,nTot3,nTot4)
+    case (ON_scheme_values%Gram_Schmidt)
+      n_to_ON(:) = nBas(:nSym)-nDel(:nSym)
+      call Gram_Schmidt_Blocks(basis,S,n_to_ON,ONB,n_new)
+      call update_orb_numbers(n_to_ON,n_new,nDel,nSSH,nOrb,nDelt,nSec,nOrbt,nTot3,nTot4)
+  end select
 
-        call delete(S)
-      end subroutine orthonormalize_blocks
+  call delete(S)
 
-      subroutine orthonormalize_raw(CMO, scheme, ONB_v)
-        use general_data, only : nBas, nSym
-        real(wp), intent(in) :: CMO(:)
-        type(t_ON_scheme), intent(in) :: scheme
-        real(wp), intent(out) :: ONB_v(:)
+end subroutine orthonormalize_blocks
 
-        type(t_blockdiagonal), allocatable :: basis(:), ONB(:)
+subroutine orthonormalize_raw(CMO,scheme,ONB_v)
 
-! gfortran -O0 warning bug
-        allocate(basis(0))
-        call new(basis, blocksizes=nBAS(:nSym))
-        call new(ONB, blocksizes=nBAS(:nSym))
+  use general_data, only: nBas, nSym
 
-        call from_raw(CMO, basis)
-        call orthonormalize(basis, scheme, ONB)
-        call to_raw(ONB, ONB_v)
+  real(wp), intent(in) :: CMO(:)
+  type(t_ON_scheme), intent(in) :: scheme
+  real(wp), intent(out) :: ONB_v(:)
+  type(t_blockdiagonal), allocatable :: basis(:), ONB(:)
 
-        call delete(ONB)
-        call delete(basis)
-      end subroutine
+  ! gfortran -O0 warning bug
+  allocate(basis(0))
+  call new(basis,blocksizes=nBAS(:nSym))
+  call new(ONB,blocksizes=nBAS(:nSym))
 
-! TODO: It would be nice, to use `impure elemental`
-! instead of the manual looping.
-! As of July 2019 some compilers don't support it.
-      subroutine Lowdin_Blocks(basis, S, ONB)
-        type(t_blockdiagonal), intent(in) :: basis(:), S(:)
-        type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+  call from_raw(CMO,basis)
+  call orthonormalize(basis,scheme,ONB)
+  call to_raw(ONB,ONB_v)
 
-        integer :: i
+  call delete(ONB)
+  call delete(basis)
 
-        do i = 1, size(basis)
-          call Lowdin(basis(i)%blck, ONB(i)%blck, S(i)%blck)
-        end do
-      end subroutine Lowdin_Blocks
-
-
-
+end subroutine orthonormalize_raw
 
 ! TODO: It would be nice, to use `impure elemental`
 ! instead of the manual looping.
 ! As of July 2019 some compilers don't support it.
-      subroutine Canonical_Blocks(basis, S, n_to_ON, ONB, n_new)
-        type(t_blockdiagonal), intent(in) :: basis(:), S(:)
-        integer, intent(in) :: n_to_ON(:)
-        type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
-        integer, intent(out) :: n_new(:)
+subroutine Lowdin_Blocks(basis,S,ONB)
 
-        integer :: i
+  type(t_blockdiagonal), intent(in) :: basis(:), S(:)
+  type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+  integer :: i
 
-        do i = 1, size(basis)
-          call Canonical(basis(i)%blck, n_to_ON(i),                     &
-     &                   ONB(i)%blck, n_new(i), S(i)%blck)
-        end do
-      end subroutine Canonical_Blocks
+  do i=1,size(basis)
+    call Lowdin(basis(i)%blck,ONB(i)%blck,S(i)%blck)
+  end do
 
+end subroutine Lowdin_Blocks
 
+! TODO: It would be nice, to use `impure elemental`
+! instead of the manual looping.
+! As of July 2019 some compilers don't support it.
+subroutine Canonical_Blocks(basis,S,n_to_ON,ONB,n_new)
+
+  type(t_blockdiagonal), intent(in) :: basis(:), S(:)
+  integer, intent(in) :: n_to_ON(:)
+  type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+  integer, intent(out) :: n_new(:)
+  integer :: i
+
+  do i=1,size(basis)
+    call Canonical(basis(i)%blck,n_to_ON(i),ONB(i)%blck,n_new(i),S(i)%blck)
+  end do
+
+end subroutine Canonical_Blocks
 
 ! TODO: It would be nice, to use `impure elemental`
 ! instead of the manual overloading.
 ! As of July 2019 some compilers don't support it.
-      subroutine Gram_Schmidt_Blocks(basis, S, n_to_ON, ONB, n_new)
-        type(t_blockdiagonal), intent(in) :: basis(:), S(:)
-        integer, intent(in) :: n_to_ON(:)
-        type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
-        integer, intent(out) :: n_new(:)
+subroutine Gram_Schmidt_Blocks(basis,S,n_to_ON,ONB,n_new)
 
-        integer :: i
+  type(t_blockdiagonal), intent(in) :: basis(:), S(:)
+  integer, intent(in) :: n_to_ON(:)
+  type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
+  integer, intent(out) :: n_new(:)
+  integer :: i
 
-        do i = 1, size(basis)
-          call Gram_Schmidt(basis(i)%blck, n_to_ON(i), ONB(i)%blck,     &
-     &                      n_new(i), S(i)%blck)
-        end do
-      end subroutine Gram_Schmidt_Blocks
+  do i=1,size(basis)
+    call Gram_Schmidt(basis(i)%blck,n_to_ON(i),ONB(i)%blck,n_new(i),S(i)%blck)
+  end do
 
+end subroutine Gram_Schmidt_Blocks
 
+subroutine update_orb_numbers(n_to_ON,nNew,nDel,nSSH,nOrb,nDelt,nSec,nOrbt,nTot3,nTot4)
 
-      subroutine update_orb_numbers(                                    &
-     &    n_to_ON, nNew,                                                &
-     &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
-      use general_data, only : nSym
-      use PrintLevel, only: USUAL
-      use output_ras, only: LF,IPRLOC
-#include "warnings.h"
-      integer, intent(in) :: n_to_ON(:), nNew(:)
-      integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),              &
-     &  nDelt, nSec, nOrbt, nTot3, nTot4
+  use general_data, only: nSym
+  use PrintLevel, only: USUAL
+  use output_ras, only: LF, IPRLOC
+# include "warnings.h"
 
-      integer :: iSym, remove(nSym), total_remove
+  integer, intent(in) :: n_to_ON(:), nNew(:)
+  integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:), nDelt, nSec, nOrbt, nTot3, nTot4
+  integer :: iSym, remove(nSym), total_remove
 
-
-      remove = n_to_ON(:nSym) - nNew(:nSym)
-      total_remove = sum(remove(:nSym))
-      if (total_remove > 0) then
-        do iSym = 1, nSym
-          if (nSSH(iSym) < remove(iSym)) then
-            call WarningMessage(2,'Orthonormalization Error')
-            Write(LF,*) 'Exact or very near linear dependence '
-            Write(LF,*) 'forces RASSCF to stop execution.'
-            Write(LF,*) 'Symmetry block:', iSym
-            Write(LF,*) 'Effective NR of orthonormal orbs:', nNew(iSym)
-            Write(LF,*) 'Earlier number of deleted orbs:', nDel(iSym)
-            Write(LF,*) 'Earlier number of secondary orbs:', nSSH(iSym)
-            Write(LF,*) 'New number of deleted orbs:',                  &
-     &                  nDel(iSym) + remove(iSym)
-            Write(LF,*) 'New number of secondary orbs:',                &
-     &                  nSSH(iSym) - remove(iSym)
-            call quit(_RC_GENERAL_ERROR_)
-          else if (iPRLoc(1) >= USUAL) then
-            call WarningMessage(1,'Orthonormalization Warning')
-            Write(LF,*) 'Exact or very near linear dependence'
-            Write(LF,*) 'forces RASSCF to delete additional orbitals.'
-            Write(LF,*) 'Symmetry block:', iSym
-            Write(LF,*) 'Earlier number of deleted orbs =', nDel(iSym)
-            Write(LF,*) 'New number of deleted orbs =',                 &
-     &                  nDel(iSym) + remove(iSym)
-          end if
-        end do
-        nDel(:nSym) = nDel(:nSym) + remove(:nSym)
-        nSSH(:nSym) = nSSH(:nSym) - remove(:nSym)
-        nOrb(:nSym) = nOrb(:nSym) - remove(:nSym)
-        nDelt = nDelt + total_remove
-        nSec = nSec - total_remove
-        nOrbt = nOrbt - total_remove
-        nTot3 = sum((nOrb(:nSym) + nOrb(:nSym)**2) / 2)
-        nTot4 = sum(nOrb(:nSym)**2)
+  remove = n_to_ON(:nSym)-nNew(:nSym)
+  total_remove = sum(remove(:nSym))
+  if (total_remove > 0) then
+    do iSym=1,nSym
+      if (nSSH(iSym) < remove(iSym)) then
+        call WarningMessage(2,'Orthonormalization Error')
+        write(LF,*) 'Exact or very near linear dependence '
+        write(LF,*) 'forces RASSCF to stop execution.'
+        write(LF,*) 'Symmetry block:',iSym
+        write(LF,*) 'Effective NR of orthonormal orbs:',nNew(iSym)
+        write(LF,*) 'Earlier number of deleted orbs:',nDel(iSym)
+        write(LF,*) 'Earlier number of secondary orbs:',nSSH(iSym)
+        write(LF,*) 'New number of deleted orbs:',nDel(iSym)+remove(iSym)
+        write(LF,*) 'New number of secondary orbs:',nSSH(iSym)-remove(iSym)
+        call quit(_RC_GENERAL_ERROR_)
+      else if (iPRLoc(1) >= USUAL) then
+        call WarningMessage(1,'Orthonormalization Warning')
+        write(LF,*) 'Exact or very near linear dependence'
+        write(LF,*) 'forces RASSCF to delete additional orbitals.'
+        write(LF,*) 'Symmetry block:',iSym
+        write(LF,*) 'Earlier number of deleted orbs =',nDel(iSym)
+        write(LF,*) 'New number of deleted orbs =',nDel(iSym)+remove(iSym)
       end if
-      end subroutine update_orb_numbers
+    end do
+    nDel(:nSym) = nDel(:nSym)+remove(:nSym)
+    nSSH(:nSym) = nSSH(:nSym)-remove(:nSym)
+    nOrb(:nSym) = nOrb(:nSym)-remove(:nSym)
+    nDelt = nDelt+total_remove
+    nSec = nSec-total_remove
+    nOrbt = nOrbt-total_remove
+    nTot3 = sum((nOrb(:nSym)+nOrb(:nSym)**2)/2)
+    nTot4 = sum(nOrb(:nSym)**2)
+  end if
 
+end subroutine update_orb_numbers
 
-      subroutine read_raw_S(S_buffer)
-        use OneDat, only: sNoOri
-        use output_ras, only: LF
-        real(wp), intent(inout) :: S_buffer(:)
-        integer :: i_Rc, i_Opt, i_Component, i_SymLbl
-        character(len=8) :: Label
-#include "warnings.h"
+subroutine read_raw_S(S_buffer)
 
-        i_Rc = 0
-        i_Opt = ibset(0,sNoOri)
-        i_Component = 1
-        i_SymLbl = 1
-        Label = 'Mltpl  0'
-        Call RdOne(i_Rc, i_Opt, Label, i_Component, S_buffer, i_SymLbl)
-        if ( i_rc /= 0 ) then
-          write(LF,*)' RASSCF is trying to orthonormalize orbitals but'
-          write(LF,*)' could not read overlaps from ONEINT. Something'
-          write(LF,*)' is wrong with the file, or possibly with the'
-          write(LF,*)' program. Please check.'
-          call quit(_RC_IO_ERROR_READ_)
-        end if
-      end subroutine
+  use OneDat, only: sNoOri
+  use output_ras, only: LF
 
+  real(wp), intent(inout) :: S_buffer(:)
+  integer :: i_Rc, i_Opt, i_Component, i_SymLbl
+  character(len=8) :: Label
+# include "warnings.h"
 
-      subroutine read_S(S)
-        use general_data, only : nBas, nSym, nActEl
-        use rasscf_global, only : nFr, nIn, Tot_Nuc_Charge
-      use PrintLevel, only: USUAL
-      use output_ras, only: LF,IPRLOC
-#include "warnings.h"
-        type(t_blockdiagonal) :: S(nSym)
+  i_Rc = 0
+  i_Opt = ibset(0,sNoOri)
+  i_Component = 1
+  i_SymLbl = 1
+  Label = 'Mltpl  0'
+  call RdOne(i_Rc,i_Opt,Label,i_Component,S_buffer,i_SymLbl)
+  if (i_rc /= 0) then
+    write(LF,*) ' RASSCF is trying to orthonormalize orbitals but'
+    write(LF,*) ' could not read overlaps from ONEINT. Something'
+    write(LF,*) ' is wrong with the file, or possibly with the'
+    write(LF,*) ' program. Please check.'
+    call quit(_RC_IO_ERROR_READ_)
+  end if
 
-        integer :: size_S_buffer
-        real(wp) :: Mol_Charge
-        real(wp), allocatable :: S_buffer(:)
+end subroutine read_raw_S
 
+subroutine read_S(S)
 
-        size_S_buffer = sum(nBas(:nSym) * (nBas(:nSym) + 1) / 2)
-        call mma_allocate(S_buffer, size_S_buffer + 4)
-        call read_raw_S(S_buffer)
-        Tot_Nuc_Charge = S_buffer(size_S_buffer + 4)
-        call from_symm_raw(S_buffer, S)
-        call mma_deallocate(S_buffer)
+  use general_data, only: nBas, nSym, nActEl
+  use rasscf_global, only: nFr, nIn, Tot_Nuc_Charge
+  use PrintLevel, only: USUAL
+  use output_ras, only: LF, IPRLOC
 
-        Mol_Charge = Tot_Nuc_Charge - dble(2 * (nFr + nIn) + nActEl)
-        call put_dscalar('Total Charge    ', Mol_Charge)
-        if (IPRLOC(1) >= USUAL) then
-          write(LF,*)
-          write(LF,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
-        end if
+  type(t_blockdiagonal) :: S(nSym)
+  integer :: size_S_buffer
+  real(wp) :: Mol_Charge
+  real(wp), allocatable :: S_buffer(:)
+# include "warnings.h"
 
-      end subroutine
+  size_S_buffer = sum(nBas(:nSym)*(nBas(:nSym)+1)/2)
+  call mma_allocate(S_buffer,size_S_buffer+4)
+  call read_raw_S(S_buffer)
+  Tot_Nuc_Charge = S_buffer(size_S_buffer+4)
+  call from_symm_raw(S_buffer,S)
+  call mma_deallocate(S_buffer)
 
-      end module orthonormalization
+  Mol_Charge = Tot_Nuc_Charge-dble(2*(nFr+nIn)+nActEl)
+  call put_dscalar('Total Charge    ',Mol_Charge)
+  if (IPRLOC(1) >= USUAL) then
+    write(LF,*)
+    write(LF,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
+  end if
+
+end subroutine read_S
+
+end module orthonormalization

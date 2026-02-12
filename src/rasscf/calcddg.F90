@@ -15,11 +15,7 @@
 ! Jie J. Bao, on Apr. 12, 2022, created this file.               *
 !*****************************************************************
 
-!This file contains subroutines that calculates the DDg matrix, Q_aa,
-! the Gradient and Hessian of Q_aa wrt intermediate-state rotations.
-
-!***********************************************************************
-      Subroutine CalcDDg(DDg,GD,Dg,nDDg,nGD,lRoots2,NAC2)
+subroutine CalcDDg(DDg,GD,Dg,nDDg,nGD,lRoots2,NAC2)
 !*****************************************************************
 !     Gtuvx : two-electron integral, g_tuvx                      *
 !     GD    : "generalized 1-e density matrix"                   *
@@ -32,13 +28,12 @@
 !     DDg   :  sum_{tuvx}{GD^KL_tu * GD^MN_vx * g_tuvx}          *
 !      namely, sum_{tu}{GD^KL_tu * Dg^MN_tu}                     *
 !*****************************************************************
-      INTEGER nDDg, nGD, lRoots2, NAC2
-      Real*8 DDg(nDDg),GD(nGD),Dg(nGD)
 
+integer nDDg, nGD, lRoots2, NAC2
+real*8 DDg(nDDg), GD(nGD), Dg(nGD)
 
-      CALL DGEMM_('T','N',lRoots2,lRoots2,NAC2,                         &
-     &               1.0d0, Dg, NAC2, GD, NAC2,                         &
-     &               0.0d0, DDg, lRoots2)
+call DGEMM_('T','N',lRoots2,lRoots2,NAC2,1.0d0,Dg,NAC2,GD,NAC2,0.0d0,DDg,lRoots2)
 
-      RETURN
-      End Subroutine
+return
+
+end subroutine CalcDDg

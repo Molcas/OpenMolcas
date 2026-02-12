@@ -14,13 +14,17 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine Copy2DMat(A,B,NRow,NCol)
-      Implicit None
-      INTEGER NRow,NCol,IRow,ICol
-      Real*8,DIMENSION(NRow,NCol)::A,B
-      DO ICol=1,NCol
-       Do IRow=1,NRow
-        A(IRow,ICol)=B(IRow,ICol)
-       End Do
-      END DO
-      END SUBROUTINE Copy2DMat
+
+subroutine Copy2DMat(A,B,NRow,NCol)
+
+implicit none
+integer NRow, NCol, IRow, ICol
+real*8, dimension(NRow,NCol) :: A, B
+
+do ICol=1,NCol
+  do IRow=1,NRow
+    A(IRow,ICol) = B(IRow,ICol)
+  end do
+end do
+
+end subroutine Copy2DMat

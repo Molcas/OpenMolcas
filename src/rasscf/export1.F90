@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1994, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine Export1(iFinal,CMO,DA,PA,DAO,Focc)
+
+subroutine Export1(iFinal,CMO,DA,PA,DAO,Focc)
 !***********************************************************************
 !                                                                      *
 !     purpose: Save all information relevant to geometry               *
@@ -36,145 +37,132 @@
 !***********************************************************************
 !
 #ifdef _DMRG_
-!     module dependencies
-      use qcmaquis_interface_cfg
+use qcmaquis_interface_cfg
 #endif
-!
-      use gas_data, only: iDoGAS
-      use rasscf_global, only: DoDMRG, iRLXRoot, KSDFT, NAC, NACPAR,    &
-     &                         NACPR2, nRoots, ThrTE, ThrSX, Weight
-      use general_data, only: NACTEL,NSYM,NHOLE1,NELEC3,NASH,NDEL,NFRO, &
-     &                        NISH,NTOT1,NTOT2
+use gas_data, only: iDoGAS
+use rasscf_global, only: DoDMRG, iRLXRoot, KSDFT, NAC, NACPAR, NACPR2, nRoots, ThrTE, ThrSX, Weight
+use general_data, only: NACTEL, NSYM, NHOLE1, NELEC3, NASH, NDEL, NFRO, NISH, NTOT1, NTOT2
 
-      Implicit None
-      Integer iFinal
-      Real*8 CMO(*),DA(*),PA(*),DAO(*),Focc(*)
+implicit none
+integer iFinal
+real*8 CMO(*), DA(*), PA(*), DAO(*), Focc(*)
+character(len=8) RlxLbl, Method
+logical SCF, Found
+integer nTemp(8)
+character(len=16) mstate
+real*8 Dum(1), Tmp
+integer i, iR, iRLXRoot1, iRLXRoot2, iS, iSA, nW
 
-!...  Define local variables ..........................................*
-      Character(LEN=8) RlxLbl,Method
-      Logical SCF, Found
-      Integer nTemp(8)
-      Character(Len=16) mstate
-      Real*8 Dum(1), Tmp
-      Integer i, iR, iRLXRoot1, iRLXRoot2, iS, iSA, nW
-!
-!----------------------------------------------------------------------*
-!     Prologue                                                         *
-!----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 !     Save information pertinent to the gradient calculation           *
 !----------------------------------------------------------------------*
 !...  Add elementary information ......................................*
-      SCF=.false.
-      If (nac.eq.0.or.2*nac.eq.nactel) SCF=.true.
-!
-      If (SCF) then
-         Do iS=1,nSym
-            nTemp(is)=nAsh(is)+nIsh(is)
-         End Do
-         Call Put_iArray('nIsh',nTemp,nSym)
-         Do iS=1,nSym
-            nTemp(is)=0
-         End Do
-         Call Put_iArray('nAsh',nTemp,nSym)
-      Else
-         Call Put_iArray('nIsh',nIsh,nSym)
-         Call Put_iArray('nAsh',nAsh,nSym)
-      End If
+SCF = .false.
+if ((nac == 0) .or. (2*nac == nactel)) SCF = .true.
+
+if (SCF) then
+  do iS=1,nSym
+    nTemp(is) = nAsh(is)+nIsh(is)
+  end do
+  call Put_iArray('nIsh',nTemp,nSym)
+  do iS=1,nSym
+    nTemp(is) = 0
+  end do
+  call Put_iArray('nAsh',nTemp,nSym)
+else
+  call Put_iArray('nIsh',nIsh,nSym)
+  call Put_iArray('nAsh',nAsh,nSym)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Find the correct method label
-!
-      Method='CASSCF  '
-      If (KSDFT.ne.'SCF') Method='CASDFT  '
-!
-!     Set flags for State-Average or Single root
-!
-      If (nRoots.ne.1) Then
-!
-!        iSA=-1 non-equivalent multi state SA-CASSCF
-!        iSA=0  equivalent multi state SA-CASSCF
-!        iSA=2  single root SA-CASSCF
-!
-         Method='CASSCFSA'
-!
-!        Check if equal weight SA-CASSCF
-!
-         iSA=0
-         Do iR = 2, nRoots
-            If (Weight(1).ne.Weight(iR)) iSA=-1
-         End Do
-         If (iSA.ne.0) Then
-!
-!           Check if SA-CASSCF is optimized for just one root.
-!
-            nW=0
-            Do iR = 1, nRoots
-               If (Weight(iR).ne.0.0D0) nW = nW + 1
-            End Do
-            If (nW.eq.1) iSA=2
-         End If
-         Call Put_iScalar('SA ready',iSA)
-         If ((iSA.eq.0).or.(iSA.eq.-1)) Then
-            mstate = '****************'
-            Call Put_cArray('MCLR Root',mstate,16)
-         End If
-      End If
-!
-!     Check if it is a RASSCF function and not a CASSCF
-      If (nHole1.ne.0 .or. nElec3.ne.0) Method(1:1)='R'
-!     Check if it is a GASSCF function
-      If (iDoGAS) Method(1:1)='G'
-!     Check if it is a DMRGSCF function
-      if(doDMRG)then
-                        Method='DMRGSCF '
-        if(nroots.ne.1) Method='DMRGSCFS'
-      endif
-!
-      Call Put_cArray('Relax Method',Method,8)
+! Find the correct method label
+
+Method = 'CASSCF  '
+if (KSDFT /= 'SCF') Method = 'CASDFT  '
+
+! Set flags for State-Average or Single root
+
+if (nRoots /= 1) then
+
+  ! iSA=-1 non-equivalent multi state SA-CASSCF
+  ! iSA=0  equivalent multi state SA-CASSCF
+  ! iSA=2  single root SA-CASSCF
+
+  Method = 'CASSCFSA'
+
+  ! Check if equal weight SA-CASSCF
+
+  iSA = 0
+  do iR=2,nRoots
+    if (Weight(1) /= Weight(iR)) iSA = -1
+  end do
+  if (iSA /= 0) then
+
+    ! Check if SA-CASSCF is optimized for just one root.
+
+    nW = 0
+    do iR=1,nRoots
+      if (Weight(iR) /= 0.0d0) nW = nW+1
+    end do
+    if (nW == 1) iSA = 2
+  end if
+  call Put_iScalar('SA ready',iSA)
+  if ((iSA == 0) .or. (iSA == -1)) then
+    mstate = '****************'
+    call Put_cArray('MCLR Root',mstate,16)
+  end if
+end if
+
+! Check if it is a RASSCF function and not a CASSCF
+if ((nHole1 /= 0) .or. (nElec3 /= 0)) Method(1:1) = 'R'
+! Check if it is a GASSCF function
+if (iDoGAS) Method(1:1) = 'G'
+! Check if it is a DMRGSCF function
+if (doDMRG) then
+  Method = 'DMRGSCF '
+  if (nroots /= 1) Method = 'DMRGSCFS'
+end if
+
+call Put_cArray('Relax Method',Method,8)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call Get_iScalar('nSym',i)
-      Call Put_iArray('nFro',nFro,i)
-      Call Put_iArray('nDel',nDel,i)
+call Get_iScalar('nSym',i)
+call Put_iArray('nFro',nFro,i)
+call Put_iArray('nDel',nDel,i)
 !...  Add MO-coefficients .............................................*
-      Call Put_dArray('Last orbitals',CMO,NTOT2)
+call Put_dArray('Last orbitals',CMO,NTOT2)
 !...  Add one body density matrix in AO/SO basis ......................*
-      Call Put_dArray('D1ao',DAO,NTOT1)
+call Put_dArray('D1ao',DAO,NTOT1)
 !...  Remove the variational density if it exists .....................*
-      Call Put_dArray('D1aoVar',DAO,0)
+call Put_dArray('D1aoVar',DAO,0)
 !...  Add one body density matrix in MO, active orbitals only .........*
-      Call Put_dArray('D1mo',DA,NACPAR)
+call Put_dArray('D1mo',DA,NACPAR)
 !...  Add two body density matrix in MO basis, active orbitals only ...*
-      If ( .not.SCF ) Call Put_dArray('P2mo',PA,NACPR2)
+if (.not. SCF) call Put_dArray('P2mo',PA,NACPR2)
 !...  Next version of MOLCAS add the state to relax file ..............*
-      Call Qpg_iScalar('Relax Original root',Found)
-      If (Found) Then
-         Call Get_iScalar('Relax Original root',irlxroot1)
-         Call Get_iScalar('Relax CASSCF root',irlxroot2)
-         If (irlxroot1.eq.irlxroot2) Then
-            Call Put_iScalar('Relax Original root',irlxroot)
-         End If
-      Else
-         Call Put_iScalar('Relax Original root',irlxroot)
-      End If
-      Call Put_iScalar('Relax CASSCF root',irlxroot)
+call Qpg_iScalar('Relax Original root',Found)
+if (Found) then
+  call Get_iScalar('Relax Original root',irlxroot1)
+  call Get_iScalar('Relax CASSCF root',irlxroot2)
+  if (irlxroot1 == irlxroot2) call Put_iScalar('Relax Original root',irlxroot)
+else
+  call Put_iScalar('Relax Original root',irlxroot)
+end if
+call Put_iScalar('Relax CASSCF root',irlxroot)
 !...  Remove overlaps (computed by rassi) .............................*
-      Call Put_darray('State Overlaps',Dum,0)
-      Call Put_lscalar('Track Done',.False.)
+call Put_darray('State Overlaps',Dum,0)
+call Put_lscalar('Track Done',.false.)
 !...  Add generalized Fock matrix .....................................*
-      If ( ifinal.ge.1 ) then
-         Call Put_dArray('FockOcc',Focc,ntot1)
-         RlxLbl='Thrs    '
-         tmp=Max(thrte,thrsx)
-         Call put_dscalar(RlxLbl,tmp)
-      End If
-!----------------------------------------------------------------------*
-!     Epilogue                                                         *
-!----------------------------------------------------------------------*
+if (ifinal >= 1) then
+  call Put_dArray('FockOcc',Focc,ntot1)
+  RlxLbl = 'Thrs    '
+  tmp = max(thrte,thrsx)
+  call put_dscalar(RlxLbl,tmp)
+end if
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-      End Subroutine Export1
+
+end subroutine Export1

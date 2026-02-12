@@ -14,13 +14,17 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Function RMax(A,N)
-      Implicit None
-       INTEGER N,RMax
-       Real*8,DIMENSION(N)::A
-       INTEGER I
-       RMax=1
-       DO I=2,N
-        IF (A(I).gt.A(RMax)) RMax=I
-       END DO
-      End Function RMax
+
+function RMax(A,N)
+
+implicit none
+integer N, RMax
+real*8, dimension(N) :: A
+integer I
+
+RMax = 1
+do I=2,N
+  if (A(I) > A(RMax)) RMax = I
+end do
+
+end function RMax

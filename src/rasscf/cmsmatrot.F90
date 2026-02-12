@@ -14,18 +14,22 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine CMSMatRot(Mat,A,I,J,N)
-      Implicit None
-      INTEGER I,J,N
-      Real*8 A
-      Real*8,DIMENSION(N,N)::Mat,TM
-      INTEGER K
-      DO K=1,N
-       TM(I,K)=Mat(I,K)
-       TM(J,K)=Mat(J,K)
-      END DO
-      DO K=1,N
-       Mat(J,K)= cos(A)*TM(J,K)+sin(A)*TM(I,K)
-       Mat(I,K)=-sin(A)*TM(J,K)+cos(A)*TM(I,K)
-      END DO
-      END SUBROUTINE CMSMatRot
+
+subroutine CMSMatRot(Mat,A,I,J,N)
+
+implicit none
+integer I, J, N
+real*8 A
+real*8, dimension(N,N) :: Mat, TM
+integer K
+
+do K=1,N
+  TM(I,K) = Mat(I,K)
+  TM(J,K) = Mat(J,K)
+end do
+do K=1,N
+  Mat(J,K) = cos(A)*TM(J,K)+sin(A)*TM(I,K)
+  Mat(I,K) = -sin(A)*TM(J,K)+cos(A)*TM(I,K)
+end do
+
+end subroutine CMSMatRot

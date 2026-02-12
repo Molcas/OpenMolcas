@@ -8,57 +8,59 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SetPos(LUnit,KeyIn,Line,iRc)
-      use PrintLevel, only: TERSE
-      use output_ras, only: IPRLOC
-      Implicit None
-      Integer LUNIT,iRC
-      Character(LEN=*) KeyIn
-      Character(LEN=*) Line
 
-      Character(LEN=16) Command
-      Character(LEN=16) Key
+subroutine SetPos(LUnit,KeyIn,Line,iRc)
+
+use PrintLevel, only: TERSE
+use output_ras, only: IPRLOC
+
+implicit none
+integer LUNIT, iRC
+character(len=*) KeyIn
+character(len=*) Line
+character(len=16) Command
+character(len=16) Key
+integer IPRLEV, KLen
+intrinsic len, min
 #include "warnings.h"
-      Integer IPRLEV,KLen
-      Intrinsic len, min
-
 
 ! Read until, and including, a line beginning with a particular
 ! string in an ASCII file, assumed already opened, with unit
 ! number LUnit. That line is returned.
 ! Key lengths up to 16 bytes can be used, it is determined by
 ! the size of the input variable.
-!
-      IPRLEV=IPRLOC(1)
-      iRc=_RC_ALL_IS_WELL_
-      KLen=MIN(16,LEN(KeyIn))
-      Key=' '
-      Command=' '
-      Rewind(LUnit)
 
-      Key(1:KLen)=KeyIn(1:KLen)
-      call upcase(Key)
-10    Continue
-      Read(LUnit,'(A)',End=9910,Err=9920) Line
-      Command(1:KLen)=Line(1:KLen)
-      call upcase(Command)
-      If (Command.ne.Key) GoTo 10
-      Return
+IPRLEV = IPRLOC(1)
+iRc = _RC_ALL_IS_WELL_
+KLen = min(16,len(KeyIn))
+Key = ' '
+Command = ' '
+rewind(LUnit)
+
+Key(1:KLen) = KeyIn(1:KLen)
+call upcase(Key)
+10 continue
+read(LUnit,'(A)',end=9910,err=9920) Line
+Command(1:KLen) = Line(1:KLen)
+call upcase(Command)
+if (Command /= Key) goto 10
+return
 
 !---  Error exits ----------------------
-9910  CONTINUE
-      If(IPRLEV.ge.TERSE) Then
-       write(6,*)' SETPOS: Attempt to find an input line beginning'
-       write(6,*)' with the keyword ''',KeyIn,''' failed.'
-      End If
-!      Call Quit(_RC_INPUT_ERROR_)
-      iRc=_RC_INPUT_ERROR_
-      Return
-9920  CONTINUE
-      If(IPRLEV.ge.TERSE) Then
-       write(6,*)' SETPOS: Attempt to find an input line beginning'
-       write(6,*)' with the keyword ''',KeyIn,''' failed.'
-      End If
-!      Call Quit(_RC_INPUT_ERROR_)
-      iRc=_RC_INPUT_ERROR_
-      End Subroutine SetPos
+9910 continue
+if (IPRLEV >= TERSE) then
+  write(6,*) ' SETPOS: Attempt to find an input line beginning'
+  write(6,*) ' with the keyword "',KeyIn,'" failed.'
+end if
+!call Quit(_RC_INPUT_ERROR_)
+iRc = _RC_INPUT_ERROR_
+return
+9920 continue
+if (IPRLEV >= TERSE) then
+  write(6,*) ' SETPOS: Attempt to find an input line beginning'
+  write(6,*) ' with the keyword "',KeyIn,'" failed.'
+end if
+!call Quit(_RC_INPUT_ERROR_)
+iRc = _RC_INPUT_ERROR_
+
+end subroutine SetPos

@@ -14,7 +14,11 @@
 ! history:                                                       *
 ! Jie J. Bao, on Apr. 07, 2022, created this file.               *
 !*****************************************************************
-      Subroutine CMSTail()
-      Implicit None
-      write(6,*) repeat('=',71)
-      End Subroutine
+
+subroutine CMSTail()
+
+implicit none
+
+write(6,*) repeat('=',71)
+
+end subroutine CMSTail

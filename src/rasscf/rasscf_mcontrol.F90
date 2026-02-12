@@ -9,171 +9,146 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      SUBROUTINE RasScf_Mcontrol(id_call)
+subroutine RasScf_Mcontrol(id_call)
 
-      Use Fock_util_global, only: ALGO, dmpk, Nscreen
-      Use Cholesky, only: timings
-      Use Para_Info, Only: MyRank
-      use rasscf_global, only: MaxIt, Thre, ThrSX, ThrTE
+use Fock_util_global, only: ALGO, dmpk, Nscreen
+use Cholesky, only: timings
+use Para_Info, only: MyRank
+use rasscf_global, only: MaxIt, Thre, ThrSX, ThrTE
 
-      Implicit None
-!
-      Integer id_call
-!
-      Integer iCount, iCOunt0
-      Character(LEN=512) List
-      Character(LEN=32) Value
-!******************************************************
+implicit none
+integer id_call
+integer iCount, iCOunt0
+character(len=512) List
+character(len=32) value
 
-      icount=0
+icount = 0
 
-      If (id_call .eq. 1) Then
+if (id_call == 1) then
 
-! --- Label definitions
+  ! Label definitions
 
-         write(List,100) 'RASSCF_started_OK:(-:-):',ALGO,timings,dmpK,  &
-     &                        nScreen,MaxIt,ThrE,ThrSX,ThrTE
+  write(List,100) 'RASSCF_started_OK:(-:-):',ALGO,timings,dmpK,nScreen,MaxIt,ThrE,ThrSX,ThrTE
 
+  ! Initialize the control system
 
-! --- Initialize the control system
+  call MolcasControlInit(List)
+  return
 
-         Call MolcasControlInit(List)
-         Return
+else
 
+  ! Read the molcas control file
+  !1
+  call MolcasControl('Cho_ALGO',value)
+  if (value(1:4) /= '    ') then
+    read(value,*,err=101,end=102) ALGO
+    write(6,*) '--- Warning: Cho_ALGO changed by user to the value ',ALGO
+    icount = icount+1
+  end if
+  !2
+  call MolcasControl('Chotime',value)
+  if (value(1:4) /= '    ') then
+    read(value,*,err=101,end=102) timings
+    write(6,*) '--- Warning: Cholesky timings visualization changed by user to the value ',timings
+    icount = icount+1
+  end if
+  !3
+  call MolcasControl('nScreen',value)
+  if (value(1:4) /= '    ') then
+    read(value,*,err=101,end=102) nScreen
+    write(6,*) '--- Warning: Cholesky LK option nSCREEN changed by user to the value ',nScreen
+    icount = icount+1
+  end if
+  !4
+  call MolcasControl('dmpK',value)
+  if (value(1:4) /= '    ') then
+    read(value,*,err=101,end=102) dmpK
+    write(6,*) '--- Warning: Cholesky LK option DMPK changed by user to the value ',dmpK
+    icount = icount+1
+  end if
+  !5
+  call MolcasControl('MaxIter',value)
+  if (value(1:4) /= '    ') then
+    read(value,*,err=101,end=102) MaxIt
+    write(6,*) '--- Warning: MaxIt changed by user to the value ',MaxIt
+    icount = icount+1
+  end if
+  !6
+  call MolcasControl('ThrE',value)
+  if (value(1:4) /= '    ') then
+    read(value,*,err=101,end=102) ThrE
+    write(6,*) '--- Warning: ThrE changed by user to the value ',ThrE
+    icount = icount+1
+  end if
+  !7
+  call MolcasControl('ThrSX',value)
+  if (value(1:4) /= '    ') then
+    read(value,*,err=101,end=102) ThrSX
+    write(6,*) '--- Warning: ThrSX changed by user to the value ',ThrSX
+    icount = icount+1
+  end if
+  !8
+  call MolcasControl('ThrTE',value)
+  if (value(1:4) /= '    ') then
+    read(value,*,err=101,end=102) ThrTE
+    write(6,*) '--- Warning: ThrTE changed by user to the value ',ThrTE
+    icount = icount+1
+  end if
 
-      Else
+end if
 
-! --- Read the molcas control file
-!1
-         Call MolcasControl('Cho_ALGO',Value)
-         If (Value(1:4).ne.'    ') Then
-            read(Value,*,err=101,end=102) ALGO
-            write(6,*)'--- Warning: Cho_ALGO changed by user to the ',  &
-     &'value ',ALGO
-            icount = icount + 1
-         EndIf
-!2
-         Call MolcasControl('Chotime',Value)
-         If (Value(1:4).ne.'    ') Then
-            read(Value,*,err=101,end=102) timings
-            write(6,*)'--- Warning: Cholesky timings visualization ',   &
-     &'changed by user to the value ',timings
-            icount = icount + 1
-         EndIf
-!3
-         Call MolcasControl('nScreen',Value)
-         If (Value(1:4).ne.'    ') Then
-            read(Value,*,err=101,end=102) nScreen
-            write(6,*)'--- Warning: Cholesky LK option nSCREEN changed',&
-     &' by user to the value ',nScreen
-            icount = icount + 1
-         EndIf
-!4
-         Call MolcasControl('dmpK',Value)
-         If (Value(1:4).ne.'    ') Then
-            read(Value,*,err=101,end=102) dmpK
-            write(6,*)'--- Warning: Cholesky LK option DMPK changed by',&
-     &' user to the value ',dmpK
-            icount = icount + 1
-         EndIf
-!5
-         Call MolcasControl('MaxIter',Value)
-         If (Value(1:4).ne.'    ') Then
-            read(Value,*,err=101,end=102) MaxIt
-            write(6,*)'--- Warning: MaxIt changed by user to the value '&
-     &,MaxIt
-            icount = icount + 1
-         EndIf
-!6
-         Call MolcasControl('ThrE',Value)
-         If (Value(1:4).ne.'    ') Then
-            read(Value,*,err=101,end=102) ThrE
-            write(6,*)'--- Warning: ThrE changed by user to the value ' &
-     &,ThrE
-            icount = icount + 1
-         EndIf
-!7
-         Call MolcasControl('ThrSX',Value)
-         If (Value(1:4).ne.'    ') Then
-            read(Value,*,err=101,end=102) ThrSX
-            write(6,*)'--- Warning: ThrSX changed by user to the value '&
-     &,ThrSX
-            icount = icount + 1
-         EndIf
-!8
-         Call MolcasControl('ThrTE',Value)
-         If (Value(1:4).ne.'    ') Then
-            read(Value,*,err=101,end=102) ThrTE
-            write(6,*)'--- Warning: ThrTE changed by user to the value '&
-     &,ThrTE
-            icount = icount + 1
-         EndIf
+icount0 = icount
 
-      EndIf
+! Get the true updated counter in parallel runs
 
-      icount0=icount
+call gaIgOP_SCAL(icount,'max')
 
-! --- Get the true updated counter in parallel runs
-!
-      Call gaIgOP_SCAL(icount,'max')
+if (MyRank == 0) then
+  if (icount > icount0) then
+    write(6,*) ' Steering will NOT be activated this time because'
+    write(6,*) ' molcas.control file must be changed on node_0 !!'
+    call gaIgOP_SCAL(icount,'min')
+  end if
+end if
 
-      If (MyRank.eq.0) Then
-         If (icount.gt.icount0) Then
-           write(6,*)' Steering will NOT be activated this time because'
-           write(6,*)' molcas.control file must be changed on node_0 !!'
-           Call gaIgOP_SCAL(icount,'min')
-         EndIf
-      EndIf
+if (icount > 0) then
 
-      If (icount.gt.0) Then
+  ! Trick to broadcast the values across nodes
 
-! --- Trick to broadcast the values across nodes
-!
-         If (MyRank.ne.0) Then
-            ALGO=0
-            MaxIt=0
-            nScreen=0
-            dmpK=0.0d0
-            ThrE=0.0d0
-            ThrSX=0.0d0
-            ThrTE=0.0d0
-         EndIf
-         Call gaIgOP_SCAL(ALGO,'+')
-         Call gaIgOP_SCAL(nScreen,'+')
-         Call gaIgOP_SCAL(MaxIt,'+')
-         Call gadgOP_SCAL(dmpK,'+')
-         Call gadgOP_SCAL(ThrE,'+')
-         Call gadgOP_SCAL(ThrSX,'+')
-         Call gadgOP_SCAL(ThrTE,'+')
+  if (MyRank /= 0) then
+    ALGO = 0
+    MaxIt = 0
+    nScreen = 0
+    dmpK = 0.0d0
+    ThrE = 0.0d0
+    ThrSX = 0.0d0
+    ThrTE = 0.0d0
+  end if
+  call gaIgOP_SCAL(ALGO,'+')
+  call gaIgOP_SCAL(nScreen,'+')
+  call gaIgOP_SCAL(MaxIt,'+')
+  call gadgOP_SCAL(dmpK,'+')
+  call gadgOP_SCAL(ThrE,'+')
+  call gadgOP_SCAL(ThrSX,'+')
+  call gadgOP_SCAL(ThrTE,'+')
 
-! --- Update label values (note that "timings" is updated locally)
-!
-         write(List,100) 'RASSCF_modified_by_user:',ALGO,timings,dmpK,  &
-     &                       nScreen,MaxIt,ThrE,ThrSX,ThrTE
+  ! Update label values (note that "timings" is updated locally)
 
-! --- Initialize the control system with the new values
-!
-         Call MolcasControlInit(List)
-         Return
+  write(List,100) 'RASSCF_modified_by_user:',ALGO,timings,dmpK,nScreen,MaxIt,ThrE,ThrSX,ThrTE
 
-      EndIf
+  ! Initialize the control system with the new values
 
-      Return
+  call MolcasControlInit(List)
+  return
 
-100   FORMAT(A24,                                                       &
-     &',Cho_ALGO=',I2,                                                  &
-     &',Chotime=',L2,                                                   &
-     &',dmpK=',ES11.4,                                                  &
-     &',nScreen=',I4,                                                   &
-     &',MaxIter=',I4,                                                   &
-     &',ThrE=',ES11.4,                                                  &
-     &',ThrSX=',ES11.4,                                                 &
-     &',ThrTE=',ES11.4)
+end if
 
-101   write(6,*) 'RasScf_Mcontrol: error in data Input. ( icount= ',    &
-     &           icount,' )'
-102   write(6,*) 'RasScf_Mcontrol: reached end of file. ( icount= ',    &
-     &           icount,' )'
+return
 
+100 format(A24,',Cho_ALGO=',I2,',Chotime=',L2,',dmpK=',ES11.4,',nScreen=',I4,',MaxIter=',I4,',ThrE=',ES11.4,',ThrSX=',ES11.4, &
+           ',ThrTE=',ES11.4)
 
-      End
+101 write(6,*) 'RasScf_Mcontrol: error in data Input. ( icount= ',icount,' )'
+102 write(6,*) 'RasScf_Mcontrol: reached end of file. ( icount= ',icount,' )'
+
+end subroutine RasScf_Mcontrol

@@ -14,17 +14,21 @@
 ! history:                                                       *
 ! Jie J. Bao, on Apr. 07, 2022, created this file.               *
 !*****************************************************************
-      Subroutine InitRotMat(RotMat,lRoots,CMSSFile,LenCMSS)
-      INTEGER LenCMSS,lRoots
-      CHARACTER(Len=LenCMSS)::CMSSFile
-      Real*8,DIMENSION(lRoots,lRoots)::RotMat
-      CHARACTER(Len=16)::ScrChar
 
-      IF(CMSSFile.eq.'XMS') THEN
-        CALL ReadMat('ROT_VEC',ScrChar,RotMat,lroots,lroots,7,16,'T')
-      ELSE
-        CALL ReadMat(CMSSFile ,ScrChar,RotMat,lroots,lroots,LenCMSS,16, &
-     &               'T')
-      END IF
-      RETURN
-      End Subroutine
+subroutine InitRotMat(RotMat,lRoots,CMSSFile,LenCMSS)
+
+implicit none
+integer LenCMSS, lRoots
+character(len=LenCMSS) :: CMSSFile
+real*8, dimension(lRoots,lRoots) :: RotMat
+character(len=16) :: ScrChar
+
+if (CMSSFile == 'XMS') then
+  call ReadMat('ROT_VEC',ScrChar,RotMat,lroots,lroots,7,16,'T')
+else
+  call ReadMat(CMSSFile,ScrChar,RotMat,lroots,lroots,LenCMSS,16,'T')
+end if
+
+return
+
+end subroutine InitRotMat

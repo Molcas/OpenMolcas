@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1998, Markus P. Fuelscher                              *
 !***********************************************************************
-      SubRoutine Guess(CMO)
+
+subroutine Guess(CMO)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -31,69 +32,59 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      use OneDat, only: sNoNuc, sNoOri
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One
-      use output_ras, only: LF
-      use general_data, only: NSYM,NBAS,NTOT1
 
+use OneDat, only: sNoNuc, sNoOri
+use output_ras, only: LF
+use general_data, only: NSYM, NBAS, NTOT1
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 
-      Implicit None
-
-!     global definitions
-
+implicit none
+real*8 CMO(*)
+character(len=8) Label
+real*8, allocatable :: Tmp1(:)
+integer iRC, i1, i2, iBas, iComp, iOpt, iSyLbl, iSym
 #include "warnings.h"
-
-!     calling arguments
-
-      Real*8 CMO(*)
-
-!     local definitions
-
-      Character(LEN=8) Label
-      Real*8, Allocatable:: Tmp1(:)
-      Integer iRC, i1, i2, iBas, iComp, iOpt, iSyLbl, iSym
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
 
-!     allocate work space
-      Call mma_allocate(Tmp1,nTot1,Label='Tmp1')
+! allocate work space
+call mma_allocate(Tmp1,nTot1,Label='Tmp1')
 
-!     load bare nuclei Hamiltonian
+! load bare nuclei Hamiltonian
 
-      iRc    = -1
-      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
-      iComp  =  1
-      iSyLbl =  1
-      Label  = 'OneHam  '
-      Call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
-      If ( iRc.ne.0 ) Then
-        Write(LF,*)' RASSCF tried to construct start orbitals from'
-        Write(LF,*)' diagonalization of core Hamiltonian, but ran into'
-        Write(LF,*)' a severe error: Failed to read the Hamiltonian'
-        Write(LF,*)' from the ONEINT file. Something may be wrong with'
-        Write(LF,*)' the file.'
-        Call Quit(_RC_IO_ERROR_READ_)
-      End If
+iRc = -1
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+iComp = 1
+iSyLbl = 1
+Label = 'OneHam  '
+call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
+if (iRc /= 0) then
+  write(LF,*) ' RASSCF tried to construct start orbitals from'
+  write(LF,*) ' diagonalization of core Hamiltonian, but ran into'
+  write(LF,*) ' a severe error: Failed to read the Hamiltonian'
+  write(LF,*) ' from the ONEINT file. Something may be wrong with'
+  write(LF,*) ' the file.'
+  call Quit(_RC_IO_ERROR_READ_)
+end if
 
-!     diagonalize bare nuclei Hamiltonian
+! diagonalize bare nuclei Hamiltonian
 
-      i1 = 1
-      i2 = 1
-      Do iSym = 1,nSym
-        iBas = nBas(iSym)
-        Call dCopy_(iBas*iBas,[zero],0,CMO(i2),1)
-        Call dCopy_(iBas,[one],0,CMO(i2),iBas+1)
-        Call Jacob(Tmp1(i1),CMO(i2),iBas,iBas)
-        Call JacOrd(Tmp1(i1),CMO(i2),iBas,iBas)
-        i1 = i1+(iBas*iBas+iBas)/2
-        i2 = i2+iBas*iBas
-      End Do
+i1 = 1
+i2 = 1
+do iSym=1,nSym
+  iBas = nBas(iSym)
+  call dCopy_(iBas*iBas,[zero],0,CMO(i2),1)
+  call dCopy_(iBas,[one],0,CMO(i2),iBas+1)
+  call Jacob(Tmp1(i1),CMO(i2),iBas,iBas)
+  call JacOrd(Tmp1(i1),CMO(i2),iBas,iBas)
+  i1 = i1+(iBas*iBas+iBas)/2
+  i2 = i2+iBas*iBas
+end do
 
-!     deallocate work space
-      Call mma_deallocate(Tmp1)
+! deallocate work space
+call mma_deallocate(Tmp1)
 
-      End SubRoutine Guess
+end subroutine Guess

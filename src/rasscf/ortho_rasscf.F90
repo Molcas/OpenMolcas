@@ -11,7 +11,8 @@
 ! Copyright (C) 1992, Per Ake Malmqvist                                *
 !               1992, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine Ortho_RASSCF(SMAT,SCRATCH,CMO,TEMP)
+
+subroutine Ortho_RASSCF(SMAT,SCRATCH,CMO,TEMP)
 !***********************************************************************
 !                                                                      *
 !     purpose: Orthogonalize MOs (one symmetry block at a time)        *
@@ -32,99 +33,85 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      use OneDat, only: sNoNuc, sNoOri
-      use output_ras, only: LF
-      use general_data, only: NSYM,LOWDIN_ON,NBAS,NDEL
 
-      Implicit None
-!
+use OneDat, only: sNoNuc, sNoOri
+use output_ras, only: LF
+use general_data, only: NSYM, LOWDIN_ON, NBAS, NDEL
+
+implicit none
+real*8 Smat(*), SCRATCH(*), CMO(*), Temp(*)
+character(len=8) :: Label
+integer i_Component, i_Opt, i_RC, i_SymLbl, iBas, iOcc, ip_CMO, ip_SMat, iSym
 #include "warnings.h"
-!
-      REAL*8 Smat(*),SCRATCH(*),CMO(*),Temp(*)
-      character(len=8) :: Label
-      Integer i_Component, i_Opt, i_RC, i_SymLbl, iBas, iOcc, ip_CMO,   &
-     &        ip_SMat, iSym
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Read overlap matrix SMAT:
-!
-      i_Rc=0
-      i_Opt=ibset(ibset(0,sNoOri),sNoNuc)
-      i_Component=1
-      i_SymLbl=1
-      Label='Mltpl  0'
-      Call RdOne(i_Rc,i_Opt,Label,i_Component,Smat,i_SymLbl)
-      If ( i_Rc.ne.0 ) Then
-        Write(LF,*)' ORTHO could not read overlaps from ONEINT.'
-        Write(LF,*)' RASSCF is trying to orthonormalize orbitals but'
-        Write(LF,*)' could not read overlaps from ONEINT. Something'
-        Write(LF,*)' is wrong with the file, or possibly with the'
-        Write(LF,*)' program. Please check.'
-        Call Quit(_RC_IO_ERROR_READ_)
-      End If
+! Read overlap matrix SMAT:
+
+i_Rc = 0
+i_Opt = ibset(ibset(0,sNoOri),sNoNuc)
+i_Component = 1
+i_SymLbl = 1
+Label = 'Mltpl  0'
+call RdOne(i_Rc,i_Opt,Label,i_Component,Smat,i_SymLbl)
+if (i_Rc /= 0) then
+  write(LF,*) ' ORTHO could not read overlaps from ONEINT.'
+  write(LF,*) ' RASSCF is trying to orthonormalize orbitals but'
+  write(LF,*) ' could not read overlaps from ONEINT. Something'
+  write(LF,*) ' is wrong with the file, or possibly with the'
+  write(LF,*) ' program. Please check.'
+  call Quit(_RC_IO_ERROR_READ_)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Orthonormalize symmetry blocks:
-!
-      ip_Smat=1
-      ip_CMO=1
-      Do  iSym=1,nSym
-         iBas=nBas(iSym)
-         iOcc=iBas-nDel(iSym)
-         If ( iBas.gt.0 ) then
-!
-            Call SQUARE(SMAT(ip_Smat),Temp,1,iBas,iBas)
-!
-!           Call RecPrt('S',' ',Temp,iBas,iBas)
-!           Call RecPrt('CMO',' ',CMO(ip_CMO),iBas,iBas)
+! Orthonormalize symmetry blocks:
 
-            If (Lowdin_ON) Then
-!
-! --- compute C^T*S*C = W  (overlap in MO basis)
-!
-               Call DGEMM_('T','N',                                     &
-     &                     iOcc,iBas,iBas,                              &
-     &                     1.0d0,CMO(ip_CMO),iBas,                      &
-     &                     Temp,iBas,                                   &
-     &                     0.0d0,SCRATCH,iOcc)
-               Call DGEMM_('N','N',                                     &
-     &                     iOcc,iOcc,iBas,                              &
-     &                     1.0d0,SCRATCH,iOcc,                          &
-     &                     CMO(ip_CMO),iBas,                            &
-     &                     0.0d0,Temp,iOcc)
-!
-! --- compute W^-1/2
-!
-               Call Lowdin_LP(Temp,SCRATCH,iOcc)
-!
-! --- compute C' = C*W^-1/2
-!
-               Call DGEMM_('N','N',                                     &
-     &                     iBas,iOcc,iOcc,                              &
-     &                     1.0d0,CMO(ip_CMO),iBas,                      &
-     &                     SCRATCH,iOcc,                                &
-     &                     0.0d0,Temp,iBas)
+ip_Smat = 1
+ip_CMO = 1
+do iSym=1,nSym
+  iBas = nBas(iSym)
+  iOcc = iBas-nDel(iSym)
+  if (iBas > 0) then
 
-! PAM March 2016: Probable bugfix needed (Thanks, Liviu!)
-! not affecting any tests (!)
-! by adding the following line:
-              CALL DCOPY_(iBas*iOcc,Temp,1,CMO(ip_CMO),1)
-            Else
+    call SQUARE(SMAT(ip_Smat),Temp,1,iBas,iBas)
 
-               Call ORTHO1(Temp,CMO(ip_CMO),SCRATCH,iBas,iOcc)
-            End If
-!
-!           Call RecPrt('CMO',' ',CMO(ip_CMO),iBas,iBas)
-!
-            ip_Smat=ip_Smat+(iBas*iBas+iBas)/2
-            ip_CMO=ip_CMO+iBas*iBas
-         End If
-      End Do
+    !call RecPrt('S',' ',Temp,iBas,iBas)
+    !call RecPrt('CMO',' ',CMO(ip_CMO),iBas,iBas)
 
-      End Subroutine Ortho_RASSCF
+    if (Lowdin_ON) then
+
+      ! compute C^T*S*C = W  (overlap in MO basis)
+
+      call DGEMM_('T','N',iOcc,iBas,iBas,1.0d0,CMO(ip_CMO),iBas,Temp,iBas,0.0d0,SCRATCH,iOcc)
+      call DGEMM_('N','N',iOcc,iOcc,iBas,1.0d0,SCRATCH,iOcc,CMO(ip_CMO),iBas,0.0d0,Temp,iOcc)
+
+      ! compute W^-1/2
+
+      call Lowdin_LP(Temp,SCRATCH,iOcc)
+
+      ! compute C' = C*W^-1/2
+
+      call DGEMM_('N','N',iBas,iOcc,iOcc,1.0d0,CMO(ip_CMO),iBas,SCRATCH,iOcc,0.0d0,Temp,iBas)
+
+      ! PAM March 2016: Probable bugfix needed (Thanks, Liviu!)
+      ! not affecting any tests (!)
+      ! by adding the following line:
+      call DCOPY_(iBas*iOcc,Temp,1,CMO(ip_CMO),1)
+    else
+
+      call ORTHO1(Temp,CMO(ip_CMO),SCRATCH,iBas,iOcc)
+    end if
+
+    !call RecPrt('CMO',' ',CMO(ip_CMO),iBas,iBas)
+
+    ip_Smat = ip_Smat+(iBas*iBas+iBas)/2
+    ip_CMO = ip_CMO+iBas*iBas
+  end if
+end do
+
+end subroutine Ortho_RASSCF

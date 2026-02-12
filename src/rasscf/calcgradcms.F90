@@ -15,23 +15,25 @@
 ! Jie J. Bao, on Apr. 12, 2022, created this file.               *
 !*****************************************************************
 
-      Subroutine CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
-      INTEGER nDDg,lRoots,nSPair
-      Real*8 Grad(nSPair),DDg(nDDg)
+subroutine CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
 
-      INTEGER K,L,iKL,lRoots2,lRoots3,iLoc1,iLoc2
+implicit none
+integer nDDg, lRoots, nSPair
+real*8 Grad(nSPair), DDg(nDDg)
+integer K, L, iKL, lRoots2, lRoots3, iLoc1, iLoc2
 
-      lRoots2=lRoots**2
-      lRoots3=lRoots*lRoots2
+lRoots2 = lRoots**2
+lRoots3 = lRoots*lRoots2
 
-      DO K=2,lRoots
-       Do L=1,K-1
-        iLoc1=K+(K-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
-        iLoc2=L+(L-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
-        iKL=(K-1)*(K-2)/2+L
-        Grad(iKL)=DDg(iLoc1)-DDg(iLoc2)
-       End Do
-      END DO
-      CALL DSCal_(nSPair,2.0d0,Grad,1)
-      RETURN
-      End Subroutine
+do K=2,lRoots
+  do L=1,K-1
+    iLoc1 = K+(K-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
+    iLoc2 = L+(L-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
+    iKL = (K-1)*(K-2)/2+L
+    Grad(iKL) = DDg(iLoc1)-DDg(iLoc2)
+  end do
+end do
+call DSCal_(nSPair,2.0d0,Grad,1)
+return
+
+end subroutine CalcGradCMS

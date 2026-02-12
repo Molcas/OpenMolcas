@@ -8,27 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ChkIfKey()
-      use definitions, only: iwp
-      use input_ras, only: LUInput, nKeys, CMD
-      Implicit None
+
+subroutine ChkIfKey()
 ! ------------------------------------------------------------
 ! Check if the next item on luinput is a string that starts with
 ! a keyword. Print warning else.
 ! ------------------------------------------------------------
-      Character(LEN=4) Command
-      Character(LEN=180)  Line
-      Integer(kind=iwp) iCmd
-      Read(LUInput,*) Line
-      Command=Line(1:4)
-      Call UpCase(Command)
-      Do iCmd=1,NKeys
-        If ( Command.eq.Cmd(iCmd) ) Return
-      End Do
-      write(6,*)' ****************************************************'
-      write(6,*)' ChkIfKey Warning: The following line seems intended'
-      write(6,*)' to give some keyword input, but was not recognized:'
-      write(6,*)' '''//line(1:32)//''''
-      write(6,*)' Spelling or syntactic mistake? Ignored!'
-      write(6,*)' ****************************************************'
-      End Subroutine ChkIfKey
+
+use input_ras, only: LUInput, nKeys, CMD
+use Definitions, only: iwp
+
+implicit none
+character(len=4) Command
+character(len=180) Line
+integer(kind=iwp) iCmd
+
+read(LUInput,*) Line
+Command = Line(1:4)
+call UpCase(Command)
+do iCmd=1,NKeys
+  if (Command == Cmd(iCmd)) return
+end do
+write(6,*) ' ****************************************************'
+write(6,*) ' ChkIfKey Warning: The following line seems intended'
+write(6,*) ' to give some keyword input, but was not recognized:'
+write(6,*) ' '''//line(1:32)//''''
+write(6,*) ' Spelling or syntactic mistake? Ignored!'
+write(6,*) ' ****************************************************'
+
+end subroutine ChkIfKey

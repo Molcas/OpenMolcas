@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine ClsFls_RASSCF()
+
+subroutine ClsFls_RASSCF()
 !***********************************************************************
 !                                                                      *
 !     Close files.                                                     *
@@ -26,57 +27,56 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-#ifdef _HDF5_
-      use mh5, only: mh5_close_file
-      use RASWfn, only: wfn_fileid
-#endif
-      use general_data, only: JOBOLD,JOBIPH,ITERFILE,LUDAVID,LUINTM,    &
-     &                        LUQUNE
 
-      Implicit None
-      Logical DoCholesky
-      Integer iRC
+#ifdef _HDF5_
+use mh5, only: mh5_close_file
+use RASWfn, only: wfn_fileid
+#endif
+use general_data, only: JOBOLD, JOBIPH, ITERFILE, LUDAVID, LUINTM, LUQUNE
+
+implicit none
+logical DoCholesky
+integer iRC
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !-------------------------------------- -------------------------------*
 ! Local print level (if any)
 !---  close the JOBOLD file -------------------------------------------*
-      If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
-        Call DaClos(JOBOLD)
-        JOBOLD=-1
-      Else If (JOBOLD.gt.0) Then
-        JOBOLD=-1
-      End If
+if ((JOBOLD > 0) .and. (JOBOLD /= JOBIPH)) then
+  call DaClos(JOBOLD)
+  JOBOLD = -1
+else if (JOBOLD > 0) then
+  JOBOLD = -1
+end if
 !---  close the JOBIPH file -------------------------------------------*
-      If(JOBIPH.gt.0) Then
-        Call DaClos(JOBIPH)
-        JOBIPH=-1
-      End If
+if (JOBIPH > 0) then
+  call DaClos(JOBIPH)
+  JOBIPH = -1
+end if
 #ifdef _HDF5_
-      if (wfn_fileid.ne.0) then
-        call mh5_close_file(wfn_fileid)
-        wfn_fileid=0
-      end if
+if (wfn_fileid /= 0) then
+  call mh5_close_file(wfn_fileid)
+  wfn_fileid = 0
+end if
 #endif
 !---  close the ORDINT file -------------------------------------------*
-      CALL DecideOnCholesky(DoCholesky)
-       If (.not.DoCholesky) then
-         iRc=-1
-         Call ClsOrd(iRc)
-         If ( iRc.ne.0 ) Then
-           Call WarningMessage(1,'Failed to close the ORDINT file.')
-         End If
-       End If
+call DecideOnCholesky(DoCholesky)
+if (.not. DoCholesky) then
+  iRc = -1
+  call ClsOrd(iRc)
+  if (iRc /= 0) call WarningMessage(1,'Failed to close the ORDINT file.')
+end if
 !---  close the file carrying the transformed two-electron integrals --*
-      Call DaClos(LUINTM)
+call DaClos(LUINTM)
 !---  close the DAVID file carrying temporary CI and sigma vectros ----*
-      Call DaClos(LUDAVID)
+call DaClos(LUDAVID)
 !---  open the file carrying the hessian update vectors ---------------*
-      Call DaClos(LuQune)
+call DaClos(LuQune)
 !---  close the file for storage of informations on CI-iterations
-      Close(ITERFILE)
+close(ITERFILE)
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-      End Subroutine ClsFls_RASSCF
+
+end subroutine ClsFls_RASSCF

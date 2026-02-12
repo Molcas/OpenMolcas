@@ -15,69 +15,67 @@
 ! Jie J. Bao, on Apr. 11, 2022, created this file.               *
 !*****************************************************************
 
-      Subroutine CalcGD(GD,nGD)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use lucia_data, only: DStmp, Dtmp
-      use Lucia_Interface, only: Lucia_Util
-      use rasscf_global, only: lRoots, NAC, iADR15
-      use general_data, only: JOBIPH,NCONF
-      Implicit None
+! Subroutine relating to generalized 1-e density matrix (GD) called
+! in CMSNewton
+!     calculating GD with lucia.
+subroutine CalcGD(GD,nGD)
 
+use lucia_data, only: DStmp, Dtmp
+use Lucia_Interface, only: Lucia_Util
+use rasscf_global, only: lRoots, NAC, iADR15
+use general_data, only: JOBIPH, NCONF
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer nGD
+real*8 GD(nGD)
+integer CIDisk1, CIDisk2
+integer p, q, ipq, iqp, NAC2, IOffNIJ1, IOffNIJ2, jRoot, kRoot
+real*8, allocatable :: SDtmp(:), TmpD(:)
+real*8, allocatable, target :: VecL(:), VecR(:)
 #include "warnings.h"
-      INTEGER nGD
-      Real*8 GD(nGD)
 
-      INTEGER CIDisk1,CIDisk2
-      INTEGER p,q,ipq,iqp,NAC2,IOffNIJ1,IOffNIJ2, jRoot, kRoot
-      Real*8, Allocatable:: SDtmp(:), TmpD(:)
-      Real*8, Allocatable, Target:: VecL(:), VecR(:)
+NAC2 = NAC**2
+call mma_allocate(VecL,NConf,Label='VecL')
+call mma_allocate(VecR,NConf,Label='VecR')
+call mma_allocate(TmpD,NAC**2,Label='TmpD')
+call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
+SDtmp(:) = DStmp(:)
+TmpD(:) = DTmp(:)
+CIDisk1 = IADR15(4)
+do jRoot=1,lRoots
+  call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)
+  CIDisk2 = IADR15(4)
+  do kRoot=1,jRoot-1
+    call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
+    call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
+    IOffNIJ1 = (lRoots*(jRoot-1)+kRoot-1)*NAC2
+    IOffNIJ2 = (lRoots*(kRoot-1)+jRoot-1)*NAC2
+    !write(6,*) 'GD matrix',jRoot,kRoot
+    !call RecPrt(' ',' ',Dtmp,NAC,NAC)
+    call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
+    do q=1,NAC
+      do p=1,NAC
+        ipq = (q-1)*NAC+p
+        iqp = (p-1)*NAC+q
+        GD(IOffNIJ2+iqp) = Dtmp(ipq)
+        !GDMat(NIJ2,q,p) = Dtmp(q+(p-1)*NAC)
+      end do
+    end do
+  end do
+  kRoot = jRoot
+  call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
+  call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
+  IOffNIJ1 = (lRoots+1)*(jRoot-1)*NAC2
+  !write(6,*) 'GD matrix',jRoot,kRoot
+  !call RecPrt(' ',' ',Dtmp,NAC,NAC)
+  call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
+end do
+DStmp(:) = SDtmp(:)
+Dtmp(:) = TmpD(:)
+call mma_deallocate(SDtmp)
+call mma_deallocate(TmpD)
+call mma_deallocate(VecL)
+call mma_deallocate(VecR)
 
-      NAC2=NAC**2
-      Call mma_allocate(VecL,NConf,Label='VecL')
-      Call mma_allocate(VecR,NConf,Label='VecR')
-      Call mma_allocate(TmpD,NAC**2,Label='TmpD')
-      Call mma_allocate(SDtmp,NAC**2,Label='SDtmp')
-      SDtmp(:)=DStmp(:)
-      TmpD(:)=DTmp(:)
-      CIDisk1=IADR15(4)
-      Do jRoot=1,lRoots
-       Call DDafile(JOBIPH,2,VecL,nConf,CIDisk1)
-       CIDisk2=IADR15(4)
-       Do kRoot=1,jRoot-1
-        Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-        Call Lucia_Util('Densi',                                        &
-     &                   CI_Vector=VecL(:),                             &
-     &                   RVec=VecR(:))
-        IOffNIJ1=(lRoots*(jRoot-1)+kRoot-1)*NAC2
-        IOffNIJ2=(lRoots*(kRoot-1)+jRoot-1)*NAC2
-!        write(6,*)'GD matrix',jRoot,kRoot
-!        CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
-        Call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
-         dO q=1,NAC
-          do p=1,NAC
-          ipq=(q-1)*NAC+p
-          iqp=(p-1)*NAC+q
-          GD(IOffNIJ2+iqp)=Dtmp(ipq)
-!          GDMat(NIJ2,q,p)=Dtmp(q+(p-1)*NAC)
-          end do
-         eND dO
-       End Do
-       kRoot=jRoot
-       Call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
-       Call Lucia_Util('Densi',                                         &
-     &                 CI_Vector=VecL(:),                               &
-     &                 RVec=VecR(:))
-       IOffNIJ1=(lRoots+1)*(jRoot-1)*NAC2
-!       write(6,*)'GD matrix',jRoot,kRoot
-!       CALL RecPrt(' ',' ',Dtmp,NAC,NAC)
-       Call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
-      End DO
-      DStmp(:)=SDtmp(:)
-      Dtmp(:)=TmpD(:)
-      Call mma_deallocate(SDtmp)
-      Call mma_deallocate(TmpD)
-      Call mma_deallocate(VecL)
-      Call mma_deallocate(VecR)
-      END Subroutine
-
-
+end subroutine CalcGD

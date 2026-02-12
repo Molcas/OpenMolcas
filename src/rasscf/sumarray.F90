@@ -14,13 +14,17 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Function SumArray(A,N)
-      Implicit None
-      INTEGER N,I
-      Real*8,DIMENSION(N)::A
-      Real*8 SumArray
-      SumArray=0.0d0
-      DO I=1, N
-       SumArray=SumArray+A(I)
-      END DO
-      End Function SumArray
+
+function SumArray(A,N)
+
+implicit none
+integer N, I
+real*8, dimension(N) :: A
+real*8 SumArray
+
+SumArray = 0.0d0
+do I=1,N
+  SumArray = SumArray+A(I)
+end do
+
+end function SumArray

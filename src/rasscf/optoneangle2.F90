@@ -14,83 +14,81 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      SubRoutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use rasscf_global, only: lRoots, NAC
-      Implicit None
 
+subroutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
 
+use rasscf_global, only: lRoots, NAC
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+real*8 ang, change
+integer I1, I2
+real*8, dimension(lRoots,lRoots) :: R
+real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GD
+real*8, dimension(lRoots) :: Vee
+real*8, dimension(NAC,NAC,NAC,NAC) :: G
+logical Converged
+integer Itera, Itermax, IA, IMax
+real*8 Threshold, StepSize, SumOld, Vee1, Vee2, SumOld2
+real*8, dimension(:), allocatable :: Angles, Sums
+real*8, dimension(:), allocatable :: ScanA, ScanS
+integer, external :: RMax
 #include "warnings.h"
-      Real*8 ang,change
-      Integer I1,I2
-      Real*8,DIMENSION(lRoots,lRoots)::R
-      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD
-      Real*8,DIMENSION(lRoots)::Vee
-      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::G
 
-      Logical Converged
-      INTEGER Itera,Itermax,IA,IMax
-      Real*8 Threshold,StepSize,SumOld,Vee1,Vee2,SumOld2
-      Real*8,DIMENSION(:),Allocatable::Angles,Sums
-      Real*8,DIMENSION(:),Allocatable::ScanA,ScanS
+call mma_allocate(Angles,4)
+call mma_allocate(Sums,4)
+call mma_allocate(ScanA,31)
+call mma_allocate(ScanS,31)
 
-      INTEGER, External :: RMax
+Converged = .false.
+stepsize = dble(atan(1.0d0))/15
+Threshold = 1.0d-8
 
-      CALL mma_allocate(Angles,4)
-      CALL mma_allocate(Sums,4)
-      CALL mma_allocate(ScanA,31)
-      CALL mma_allocate(ScanS,31)
+Angles(2) = 0.0d0
+do Itera=1,31
+  ScanA(Itera) = (Itera-16)*stepsize*2
+  call SumVeeNew(ScanS(Itera),ScanA(Itera),GD,I1,I2,G,Vee1,Vee2,.false.)
+  !if (I2 == 1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
+end do
 
-      Converged=.false.
-      stepsize=dble(atan(1.0d0))/15
-      Threshold=1.0d-8
+IMax = RMax(ScanS,21)
 
-      Angles(2)=0.0d0
-      DO Itera=1,31
-       ScanA(Itera)=(Itera-16)*stepsize*2
-       CALL                                                             &
-     &SumVeeNew(ScanS(Itera),ScanA(Itera),GD,I1,I2,G,Vee1,Vee2,.false.)
-!       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
-      END DO
+Itera = 0
+IterMax = 100
+SumOld = Vee(I1)+Vee(I2)
+SumOld2 = SumOld
+Angles(2) = ScanA(IMax)
+do while (.not. Converged)
+  Itera = Itera+1
+  Angles(1) = Angles(2)-stepsize
+  Angles(3) = Angles(2)+stepsize
+  do iA=1,3
+    call SumVeeNew(Sums(iA),Angles(iA),GD,I1,I2,G,Vee1,Vee2,.false.)
+  end do
+  call CMSFitTrigonometric(Angles,Sums)
+  call SumVeeNew(Sums(4),Angles(4),GD,I1,I2,G,Vee1,Vee2,.false.)
+  change = Sums(4)-SumOld
+  if (abs(change) < Threshold) then
+    Converged = .true.
+    Ang = Angles(4)
+    Vee(I1) = Vee1
+    Vee(I2) = Vee2
+    call SumVeeNew(Sums(4),Ang,GD,I1,I2,G,Vee1,Vee2,.true.)
+    call CMSMatRot(R,Ang,I1,I2,lRoots)
+  else
+    if (Itera == IterMax) then
+      Converged = .true.
+      write(6,'(A,I3,A)') 'No convergence reached after ',Itera,' micro cycles'
+    else
+      Angles(2) = Angles(4)
+      SumOld = Sums(4)
+    end if
+  end if
+end do
+change = Vee(I1)+Vee(I2)-SumOld2
+call mma_deallocate(Angles)
+call mma_deallocate(Sums)
+call mma_deallocate(ScanA)
+call mma_deallocate(ScanS)
 
-      IMax=RMax(ScanS,21)
-
-      Itera=0
-      IterMax=100
-      SumOld=Vee(I1)+Vee(I2)
-      SumOld2=SumOld
-      Angles(2)=ScanA(IMax)
-      DO WHILE(.not.Converged)
-       Itera=Itera+1
-       Angles(1)=Angles(2)-stepsize
-       Angles(3)=Angles(2)+stepsize
-       Do iA=1,3
-       CALL SumVeeNew(Sums(iA),Angles(iA),GD,I1,I2,G,Vee1,Vee2,.false.)
-       End Do
-       CALL CMSFitTrigonometric(Angles,Sums)
-       CALL SumVeeNew(Sums(4),Angles(4),GD,I1,I2,G,Vee1,Vee2,.false.)
-       change=Sums(4)-SumOld
-       IF(ABS(change).lt.Threshold) THEN
-        Converged=.true.
-        Ang=Angles(4)
-        Vee(I1)=Vee1
-        Vee(I2)=Vee2
-        CALL SumVeeNew(Sums(4),Ang,GD,I1,I2,G,Vee1,Vee2,.true.)
-        CALL CMSMatRot(R,Ang,I1,I2,lRoots)
-       ELSE
-        If(Itera.eq.IterMax) Then
-         Converged=.true.
-        write(6,'(A,I3,A)')                                             &
-     &'No convergence reached after ',Itera,' micro cycles'
-        Else
-         Angles(2)=Angles(4)
-         SumOld=Sums(4)
-        End If
-       END IF
-      END DO
-      change=Vee(I1)+Vee(I2)-SumOld2
-      CALL mma_deallocate(Angles)
-      CALL mma_deallocate(Sums)
-      CALL mma_deallocate(ScanA)
-      CALL mma_deallocate(ScanS)
-      End Subroutine OptOneAngle2
+end subroutine OptOneAngle2

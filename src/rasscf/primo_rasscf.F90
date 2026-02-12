@@ -8,47 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Primo_RasScf(VecTit,Ene,Occ,CMO)
+
+subroutine Primo_RasScf(VecTit,Ene,Occ,CMO)
 !***********************************************************************
 ! purpose:
 ! Print MO-coefficients
 !
 !***********************************************************************
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
-      use output_ras, only: LF
-      use general_data, only: NSYM,NASH,NBAS,NDEL,NFRO,NISH
-      use Molcas, only: LenIn
-      Implicit None
 
-      Character(LEN=*) VecTit
-      Real*8 CMO(*),Occ(*),Ene(*)
+use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
+use output_ras, only: LF
+use general_data, only: NSYM, NASH, NBAS, NDEL, NFRO, NISH
+use Molcas, only: LenIn
+use stdalloc, only: mma_allocate, mma_deallocate
 
-      Integer NSLCT(8)
-      Logical   PrOcc,PrEne
-      Character(LEN=3) lIrrep(8)
+implicit none
+character(len=*) VecTit
+real*8 CMO(*), Occ(*), Ene(*)
+integer NSLCT(8)
+logical PrOcc, PrEne
+character(len=3) lIrrep(8)
+character(len=8) Fmt1, Fmt2
+character(len=132) Line, Blank
+character(len=LenIn+8), external :: Clean_BName
+integer NVSH(8)
+integer, allocatable :: MrkIt(:), Slct(:)
+real*8 CC
+integer I, ib, iBas, iBOff, iCOff, iCol, IO, IORB, IS, ISEND, ISOFF, ISStart, IST, ISYM, left, lPaper, NB, NBTOT, nCols, ND, NFIA, &
+        NO, NS, NSKIP, NSLCTT, lLine
 
-      Character(LEN=8) Fmt1,Fmt2
-      Character(LEN=132) Line,Blank
-      Character(LEN=LenIn+8), External:: Clean_BName
-! PAM Nov 05: Non-valence orbitals
-      Integer NVSH(8)
-      Integer, Allocatable:: MrkIt(:), Slct(:)
-      Real*8 CC
-      Integer I, ib, iBas, iBOff, iCOff, iCol, IO, IORB, IS, ISEND,     &
-     &        ISOFF, ISStart, IST, ISYM, left, lPaper, NB, NBTOT,       &
-     &        nCols, ND, NFIA, NO, NS, NSKIP, NSLCTT, lLine
-
-      Call Get_cArray('Irreps',lIrrep,24)
+call Get_cArray('Irreps',lIrrep,24)
 
 ! set print format
-      nCols=10
-      lLine=120
-      lPaper=132
-      left=(lPaper-lLine)/2
-      Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
-      Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-      Blank = ' '
+nCols = 10
+lLine = 120
+lPaper = 132
+left = (lPaper-lLine)/2
+write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
+write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
+Blank = ' '
 ! PAM Krapperup Nov 05: For the moment, selection of orbitals to be
 ! printed is ultimately determined here on the basis of PRETHR (and
 ! PROTHR) thresholds. These have either been set by the user, or
@@ -56,15 +54,14 @@
 ! user specification of OutFmt1 flags.
 ! Exception: OutFmt2='NOCORE  ' will inhibit printing of non-valece orbs.
 
-
 ! PAM Nov 09: Output marked as collapsible.
 ! print header
-      Write(LF,*)
-      Call CollapseOutput(1,'   Molecular orbitals:')
-      Write(LF,'(6X,A)') '-------------------'
-      Write(LF,*)
-      Write(LF,Fmt2//'A)') trim(VecTit)
-      Write(LF,*)
+write(LF,*)
+call CollapseOutput(1,'   Molecular orbitals:')
+write(LF,'(6X,A)') '-------------------'
+write(LF,*)
+write(LF,Fmt2//'A)') trim(VecTit)
+write(LF,*)
 
 ! Flag ipt2 in common in module rasscf_global.F90.
 !   ipt2=0 means usual MO's, quasicanonical for
@@ -72,13 +69,13 @@
 !   ipt2=1 means quasicanonical for actives also.
 ! PAM Apr 05: The rules for selecting orbitals for print
 ! appear a bit confused. I just follow the rules for now:
-      If ( iPT2.eq.0 ) then
-        PrOcc  = .true.
-        PrEne  = .true.
-      Else
-        PrOcc  = .false.
-        PrEne  = .true.
-      End if
+if (iPT2 == 0) then
+  PrOcc = .true.
+  PrEne = .true.
+else
+  PrOcc = .false.
+  PrEne = .true.
+end if
 
 ! Select orbitals to be printed.
 ! By default at least all occupied are printed.
@@ -88,221 +85,202 @@
 ! PrOThr are also printed.
 
 ! Nr of orbitals=nr of basis functions
-      NBTOT=0
-      DO ISYM=1,NSYM
-       NBTOT=NBTOT+NBAS(ISYM)
-      END DO
-!
+NBTOT = 0
+do ISYM=1,NSYM
+  NBTOT = NBTOT+NBAS(ISYM)
+end do
+
 ! Put rasscf orbital energies on the runfile
-      Call Put_darray('RASSCF OrbE',ENE,NBTOT)
-!
+call Put_darray('RASSCF OrbE',ENE,NBTOT)
+
 ! Initialize MARKIT.
-      CALL mma_allocate(MRKIT,NBTOT,Label='MrkIt')
-      MrkIt(:)=0
-      IF (OutFmt2.ne.'NOCORE  ') THEN
-! Mark MARKIT as selected for occupied orbitals.
-       IORB=0
-       DO ISYM=1,NSYM
-        NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        DO I=1,NFIA
-         IORB=IORB+1
-         MRKIT(IORB)=1
-        END DO
-        IORB=IORB+NBAS(ISYM)-NFIA
-       END DO
-      ELSE
-! Mark MARKIT as selected for valence or active orbitals.
-       IORB=0
-       Call Get_iArray('Non valence orbitals',NVSH,nSym)
-       DO ISYM=1,NSYM
-        NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        NSKIP=MIN(NFRO(ISYM)+NISH(ISYM),NVSH(ISYM))
-        IORB=IORB+NSKIP
-        DO I=NSKIP+1,NFIA
-         IORB=IORB+1
-         MRKIT(IORB)=1
-        END DO
-        IORB=IORB+NBAS(ISYM)-NFIA
-       END DO
-      END IF
+call mma_allocate(MRKIT,NBTOT,Label='MrkIt')
+MrkIt(:) = 0
+if (OutFmt2 /= 'NOCORE  ') then
+  ! Mark MARKIT as selected for occupied orbitals.
+  IORB = 0
+  do ISYM=1,NSYM
+    NFIA = NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+    do I=1,NFIA
+      IORB = IORB+1
+      MRKIT(IORB) = 1
+    end do
+    IORB = IORB+NBAS(ISYM)-NFIA
+  end do
+else
+  ! Mark MARKIT as selected for valence or active orbitals.
+  IORB = 0
+  call Get_iArray('Non valence orbitals',NVSH,nSym)
+  do ISYM=1,NSYM
+    NFIA = NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+    NSKIP = min(NFRO(ISYM)+NISH(ISYM),NVSH(ISYM))
+    IORB = IORB+NSKIP
+    do I=NSKIP+1,NFIA
+      IORB = IORB+1
+      MRKIT(IORB) = 1
+    end do
+    IORB = IORB+NBAS(ISYM)-NFIA
+  end do
+end if
 ! If PROCC, then only those orbitals that have occ no larger
 ! than or equal to PrOThr:
-      IF (PROCC.and. PrOThr.ge.0.0D0) THEN
-       IORB=0
-       DO ISYM=1,NSYM
-        NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        DO I=1,NFIA
-         IORB=IORB+1
-         IF(OCC(IORB).lt.PROTHR) MRKIT(IORB)=0
-        END DO
-        IORB=IORB+NBAS(ISYM)-NFIA
-       END DO
-      END IF
+if (PROCC .and. (PrOThr >= 0.0d0)) then
+  IORB = 0
+  do ISYM=1,NSYM
+    NFIA = NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+    do I=1,NFIA
+      IORB = IORB+1
+      if (OCC(IORB) < PROTHR) MRKIT(IORB) = 0
+    end do
+    IORB = IORB+NBAS(ISYM)-NFIA
+  end do
+end if
 ! But if PRENE, then also those orbitals that have energy less
 ! than or equal to PrEThr, skipping deleted orbitals of course.
-      IF (PRENE) THEN
-       IORB=0
-       DO ISYM=1,NSYM
-        NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        IORB=IORB+NFIA
-        ND=NDEL(ISYM)
-        DO I=NFIA+1,NBAS(ISYM)-ND
-         IORB=IORB+1
-         IF(ENE(IORB).le.PRETHR) MRKIT(IORB)=1
-        END DO
-        IORB=IORB+ND
-       END DO
-      END IF
+if (PRENE) then
+  IORB = 0
+  do ISYM=1,NSYM
+    NFIA = NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+    IORB = IORB+NFIA
+    ND = NDEL(ISYM)
+    do I=NFIA+1,NBAS(ISYM)-ND
+      IORB = IORB+1
+      if (ENE(IORB) <= PRETHR) MRKIT(IORB) = 1
+    end do
+    IORB = IORB+ND
+  end do
+end if
 ! Let ISELECT enumerate the orbitals to be printed, rather than
 ! just marking them:
-      NSLCTT=0
-      NO=0
-      DO ISYM=1,NSYM
-       NS=0
-       NB=NBAS(ISYM)
-       DO IO=NO+1,NO+NB
-         IF(MRKIT(IO).EQ.1) NS=NS+1
-       END DO
-       NO=NO+NB
-       NSLCT(ISYM)=NS
-       NSLCTT=NSLCTT+NS
-      END DO
-      CALL mma_allocate(SLCT,NSLCTT,Label='SLCT')
-      IS=0
-      NO=0
-      DO ISYM=1,NSYM
-       NB=NBAS(ISYM)
-       DO IO=NO+1,NO+NB
-        IF(MRKIT(IO).EQ.1) THEN
-          IS=IS+1
-          SLCT(IS)=IO
-        END IF
-       END DO
-       NO=NO+NB
-      END DO
+NSLCTT = 0
+NO = 0
+do ISYM=1,NSYM
+  NS = 0
+  NB = NBAS(ISYM)
+  do IO=NO+1,NO+NB
+    if (MRKIT(IO) == 1) NS = NS+1
+  end do
+  NO = NO+NB
+  NSLCT(ISYM) = NS
+  NSLCTT = NSLCTT+NS
+end do
+call mma_allocate(SLCT,NSLCTT,Label='SLCT')
+IS = 0
+NO = 0
+do ISYM=1,NSYM
+  NB = NBAS(ISYM)
+  do IO=NO+1,NO+NB
+    if (MRKIT(IO) == 1) then
+      IS = IS+1
+      SLCT(IS) = IO
+    end if
+  end do
+  NO = NO+NB
+end do
 ! Get rid of MARKIT.
-      CALL mma_deallocate(MRKIT)
+call mma_deallocate(MRKIT)
 
 ! finally, print, the MOs
-      If ( OutFmt2.eq.'FULL    ' ) then
+if (OutFmt2 == 'FULL    ') then
 
-! print orbitals, using default format.
-        ISOFF=0
-        IBOFF=0
-        ICOFF=0
-        DO ISYM=1,NSYM
-         NB=NBAS(ISYM)
-         NS=NSLCT(ISYM)
-         IF(NS.GT.0) THEN
-          Write(LF,*)
-          Write(LF,*)
-          Write(LF,*)
-          Write(LF,Fmt2//'A,I2,A,A)')                                   &
-     &           'Molecular orbitals for symmetry species',iSym,        &
-     &           ': ',lIrrep(iSym)
-          DO ISSTART=1,NS,NCOLS
-           ISEND=MIN(ISSTART+NCOLS-1,NS)
-           Write(LF,*)
-           Write(LF,*)
-           Write(LF,Fmt2//'A,7X,10I10)')'Orbital ',                     &
-     &               (SLCT(ISOFF+I)-IBOFF,I=ISSTART,ISEND)
-           IF (PRENE) THEN
-             Write(LF,Fmt2//'A,7X,10F10.4)')'Energy  ',                 &
-     &               (ENE(SLCT(ISOFF+I)),I=ISSTART,ISEND)
-           END IF
-           IF (PROCC) THEN
-             Write(LF,Fmt2//'A,7X,10F10.4)')'Occ. No.',                 &
-     &               (OCC(SLCT(ISOFF+I)),I=ISSTART,ISEND)
-           END IF
-           Write(LF,*)
-           DO IB=1,NB
-            Write(LF,'(2X,I4,1X,A,10F10.4)') IB,                        &
-     &        Clean_BName(BName(IBOFF+IB),LENIN),                       &
-     &        (CMO(ICOFF+(SLCT(ISOFF+I)-1-IBOFF)*NB+IB),                &
-     &        I=ISSTART,ISEND)
-           END DO
-          END DO
-         END IF
-         ISOFF=ISOFF+NS
-         IBOFF=IBOFF+NB
-         ICOFF=ICOFF+NB**2
-        END DO
+  ! print orbitals, using default format.
+  ISOFF = 0
+  IBOFF = 0
+  ICOFF = 0
+  do ISYM=1,NSYM
+    NB = NBAS(ISYM)
+    NS = NSLCT(ISYM)
+    if (NS > 0) then
+      write(LF,*)
+      write(LF,*)
+      write(LF,*)
+      write(LF,Fmt2//'A,I2,A,A)') 'Molecular orbitals for symmetry species',iSym,': ',lIrrep(iSym)
+      do ISSTART=1,NS,NCOLS
+        ISEND = min(ISSTART+NCOLS-1,NS)
+        write(LF,*)
+        write(LF,*)
+        write(LF,Fmt2//'A,7X,10I10)') 'Orbital ',(SLCT(ISOFF+I)-IBOFF,I=ISSTART,ISEND)
+        if (PRENE) write(LF,Fmt2//'A,7X,10F10.4)') 'Energy  ',(ENE(SLCT(ISOFF+I)),I=ISSTART,ISEND)
+        if (PROCC) write(LF,Fmt2//'A,7X,10F10.4)') 'Occ. No.',(OCC(SLCT(ISOFF+I)),I=ISSTART,ISEND)
+        write(LF,*)
+        do IB=1,NB
+          write(LF,'(2X,I4,1X,A,10F10.4)') IB,Clean_BName(BName(IBOFF+IB),LENIN), &
+                                           (CMO(ICOFF+(SLCT(ISOFF+I)-1-IBOFF)*NB+IB),I=ISSTART,ISEND)
+        end do
+      end do
+    end if
+    ISOFF = ISOFF+NS
+    IBOFF = IBOFF+NB
+    ICOFF = ICOFF+NB**2
+  end do
 
-      Else If ( OutFmt2.eq.'COMPACT ' ) then
+else if (OutFmt2 == 'COMPACT ') then
 
-! print orbitals, using compact format.
+  ! print orbitals, using compact format.
 
-        ISOFF=0
-        IBOFF=0
-        ICOFF=0
-        DO ISYM=1,NSYM
-          NB=NBAS(ISYM)
-          IF ( NSLCT(ISYM).NE.0 ) THEN
-            Write(LF,*)
-            Write(LF,FMT2//'A,I2,A,A)')                                 &
-     &           'MOLECULAR ORBITALS FOR SYMMETRY SPECIES',ISYM,        &
-     &           ': ',LIRREP(ISYM)
-            Write(LF,*)
-            IF ( PROCC.AND.PRENE ) THEN
-              Write(LF,FMT2//'A)')                                      &
-     &          'INDEX  ENERGY  OCCUPATION COEFFICIENTS ...'
-            ELSE IF ( PROCC ) THEN
-              Write(LF,FMT2//'A)')                                      &
-     &          'INDEX  ENERGY  COEFFICIENTS ...'
-            ELSE IF ( PRENE ) THEN
-              Write(LF,FMT2//'A)')                                      &
-     &          'INDEX  OCCUPATION  COEFFICIENTS ...'
-            ELSE
-              Write(LF,FMT2//'A)')                                      &
-     &          'INDEX  COEFFICIENTS ...'
-            END IF
-            DO IS = 1,NSLCT(ISYM)
-              IORB=SLCT(ISOFF+IS)
-              ICOL=IORB-IBOFF
-              LINE = BLANK
-              IST = 1
-              Write(LINE(IST:132),'(I5)') ICOL
-              IST = IST+5
-              IF ( PRENE ) THEN
-                Write(LINE(IST:132),'(F10.4)') ENE(IORB)
-                 IST = IST+10
-              END IF
-              IF ( PROCC ) THEN
-                Write(LINE(IST:132),'(F10.4)') OCC(IORB)
-                IST = IST+10
-              END IF
-              Write(LF,FMT2//'A)') LINE
+  ISOFF = 0
+  IBOFF = 0
+  ICOFF = 0
+  do ISYM=1,NSYM
+    NB = NBAS(ISYM)
+    if (NSLCT(ISYM) /= 0) then
+      write(LF,*)
+      write(LF,FMT2//'A,I2,A,A)') 'MOLECULAR ORBITALS FOR SYMMETRY SPECIES',ISYM,': ',LIRREP(ISYM)
+      write(LF,*)
+      if (PROCC .and. PRENE) then
+        write(LF,FMT2//'A)') 'INDEX  ENERGY  OCCUPATION COEFFICIENTS ...'
+      else if (PROCC) then
+        write(LF,FMT2//'A)') 'INDEX  ENERGY  COEFFICIENTS ...'
+      else if (PRENE) then
+        write(LF,FMT2//'A)') 'INDEX  OCCUPATION  COEFFICIENTS ...'
+      else
+        write(LF,FMT2//'A)') 'INDEX  COEFFICIENTS ...'
+      end if
+      do IS=1,NSLCT(ISYM)
+        IORB = SLCT(ISOFF+IS)
+        ICOL = IORB-IBOFF
+        LINE = BLANK
+        IST = 1
+        write(LINE(IST:132),'(I5)') ICOL
+        IST = IST+5
+        if (PRENE) then
+          write(LINE(IST:132),'(F10.4)') ENE(IORB)
+          IST = IST+10
+        end if
+        if (PROCC) then
+          write(LINE(IST:132),'(F10.4)') OCC(IORB)
+          IST = IST+10
+        end if
+        write(LF,FMT2//'A)') LINE
+        LINE = BLANK
+        IST = 9
+        do IBAS=1,NB
+          CC = CMO(ICOFF+(ICOL-1)*NB+IBAS)
+          if (abs(CC) >= 0.1d0) then
+            write(LINE(IST:132),'(I4,1X,A,A,F7.4,A)') IBAS,Clean_BName(BName(IBOFF+IBAS),LENIN),'(',CC,')'
+            IST = IST+28
+            if (IST > (132-LEFT-28)) then
+              write(LF,FMT2//'A)') trim(LINE)
               LINE = BLANK
               IST = 9
-              DO IBAS = 1,NB
-                CC = CMO(ICOFF+(ICOL-1)*NB+IBAS)
-                IF ( ABS(CC).GE.0.1D0 ) THEN
-                  Write(LINE(IST:132),'(I4,1X,A,A,F7.4,A)')             &
-     &              IBAS,Clean_BName(BName(IBOFF+IBAS),LENIN),          &
-     &              '(',CC,')'
-                  IST = IST+28
-                  IF ( IST.GT.(132-LEFT-28) ) THEN
-                    Write(LF,FMT2//'A)') TRIM(LINE)
-                    LINE = BLANK
-                    IST = 9
-                  END IF
-                END IF
-              END DO
-              Write(LF,FMT2//'A)') TRIM(LINE)
-              LINE = BLANK
-              IST = 9
-            END DO
-          END IF
-          ISOFF=ISOFF+NSLCT(ISYM)
-          IBOFF=IBOFF+NB
-          ICOFF=ICOFF+NB**2
-        END DO
+            end if
+          end if
+        end do
+        write(LF,FMT2//'A)') trim(LINE)
+        LINE = BLANK
+        IST = 9
+      end do
+    end if
+    ISOFF = ISOFF+NSLCT(ISYM)
+    IBOFF = IBOFF+NB
+    ICOFF = ICOFF+NB**2
+  end do
 
-      End If
+end if
 
-      CALL mma_deallocate(SLCT)
+call mma_deallocate(SLCT)
 ! PAM 09: Reset to non-collapsible output before return.
-      Call CollapseOutput(0,'   Molecular orbitals:')
-      Write(6,*)
-!
-      End Subroutine Primo_RasScf
+call CollapseOutput(0,'   Molecular orbitals:')
+write(6,*)
+
+end subroutine Primo_RasScf

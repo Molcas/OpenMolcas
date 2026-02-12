@@ -15,15 +15,18 @@
 ! Jie J. Bao, on Apr. 01, 2022, created this file.               *
 ! ****************************************************************
 
-Module CMS
-logical CMSNotConverged
-Logical CMSGiveOpt
-Real*8  CMSThres
-Real*8,DIMENSION(:),Allocatable:: RGD
-INTEGER iCMSOpt
-Logical PosHess,BigQaaGrad,NeedMoreStep
-INTEGER nPosHess,nCMSScale
-Real*8  LargestQaaGrad
-CHARACTER*128 cmsguessfile
-End Module CMS
+module CMS
 
+implicit none
+
+logical CMSNotConverged
+logical CMSGiveOpt
+real*8 CMSThres
+real*8, dimension(:), allocatable :: RGD
+integer iCMSOpt
+logical PosHess, BigQaaGrad, NeedMoreStep
+integer nPosHess, nCMSScale
+real*8 LargestQaaGrad
+character*128 cmsguessfile
+
+end module CMS

@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine ClnMO(CMO)
 
+subroutine ClnMO(CMO)
 !***********************************************************************
 !                                                                      *
 !     In order to preserve symmetry of orbitals which belong           *
@@ -34,29 +34,25 @@
 !     University of Lund, Sweden, 2000                                 *
 !                                                                      *
 !***********************************************************************
-      use Constants, only: Zero
-      use general_data, only: CleanMask, NSYM, NBAS
 
-      Implicit None
-      Real*8 CMO(*)
-      Integer ij, iSym, mBas, i, j
+use general_data, only: CleanMask, NSYM, NBAS
+use Constants, only: Zero
 
-! Prelude
-
+implicit none
+real*8 CMO(*)
+integer ij, iSym, mBas, i, j
 
 ! Body
 
-      ij = 0
-      Do iSym = 1,nSym
-        mBas = nBas(iSym)
-        Do i = 1,mBas
-          Do j = 1,mBas
-            ij = ij+1
-            If ( CleanMask(ij).eq.1 ) CMO(ij) = Zero
-          End Do
-        End Do
-      End Do
+ij = 0
+do iSym=1,nSym
+  mBas = nBas(iSym)
+  do i=1,mBas
+    do j=1,mBas
+      ij = ij+1
+      if (CleanMask(ij) == 1) CMO(ij) = Zero
+    end do
+  end do
+end do
 
-! Epilogue
-
-      End Subroutine ClnMO
+end subroutine ClnMO

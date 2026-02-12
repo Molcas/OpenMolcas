@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) Giovanni Li Manni                                      *
 !***********************************************************************
-      SUBROUTINE print_MCPDFT(CASDFT_E)
+
+subroutine print_MCPDFT(CASDFT_E)
 !*****************************************************************
 ! Purpose:
 ! This routine is called from RASSCF when performing MC-PDFT jobs,
@@ -20,62 +21,55 @@
 ! Author:
 ! G. Li Manni (GLM)
 !*****************************************************************
-      use KSDFT_Info, only: Funcaa, Funcbb, Funccc
-      use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
-      use PrintLevel, only: USUAL
-      use output_ras, only: IPRLOC
-      Implicit None
-      REAL*8 CASDFT_E
 
-      integer left
-      character(LEN=6) Fmt2
-      character(LEN=120) Line
-      integer IPRLEV
+use KSDFT_Info, only: Funcaa, Funcbb, Funccc
+use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
+use PrintLevel, only: USUAL
+use output_ras, only: IPRLOC
 
-      IPRLEV=IPRLOC(6)
-      IF(IPRLEV.ge.USUAL) THEN
+implicit none
+real*8 CASDFT_E
+integer left
+character(len=6) Fmt2
+character(len=120) Line
+integer IPRLEV
 
-      left=6
-      Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-      Line=''
-      Write(Line(left-2:),'(A)') 'MC-PDFT run print out'
-      write(6,'(6X,80A)')
-      Call CollapseOutput(1,Line)
-      Write(6,Fmt2//'A)') repeat('-',len_trim(Line)-3)
-      write(6,'(6X,80A)')
+IPRLEV = IPRLOC(6)
+if (IPRLEV >= USUAL) then
 
-      write(6,'(6X,A25,45X,F10.3)') 'Integrated total density:',Dens_I
-      write(6,'(6X,A58,12X,F10.3)') 'Integrated alpha density '//       &
-     &           'before functional transformation:', Dens_a1
-      write(6,'(6X,A58,12X,F10.3)') 'Integrated  beta density '//       &
-     &           'before functional transformation:', Dens_b1
-      write(6,'(6X,A58,12X,F10.3)') 'Integrated alpha density '//       &
-     &           ' after functional transformation:', Dens_a2
-      write(6,'(6X,A58,12X,F10.3)') 'Integrated  beta density '//       &
-     &           ' after functional transformation:', Dens_b2
-      write(6,'(6X,80A)')
-      write(6,'(6X,A32,30X,F18.6)') 'Integrated alpha exchange energy', &
-     &          Funcaa
-      write(6,'(6X,A32,30X,F18.6)') 'Integrated beta  exchange energy', &
-     &          Funcbb
-      write(6,'(6X,A32,30X,F18.6)') 'Integrated  correlation   energy', &
-     &          Funccc
-      write(6,'(6X,80A)')
-      write(6,'(6X,A20,42X,F18.8)') 'Total CAS-DFT energy',             &
-     &         CASDFT_E
+  left = 6
+  write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
+  Line = ''
+  write(Line(left-2:),'(A)') 'MC-PDFT run print out'
+  write(6,'(6X,80A)')
+  call CollapseOutput(1,Line)
+  write(6,Fmt2//'A)') repeat('-',len_trim(Line)-3)
+  write(6,'(6X,80A)')
 
-      Call CollapseOutput(0,Line)
-      write(6,'(6X,80A)')
-      END IF
+  write(6,'(6X,A25,45X,F10.3)') 'Integrated total density:',Dens_I
+  write(6,'(6X,A58,12X,F10.3)') 'Integrated alpha density before functional transformation:',Dens_a1
+  write(6,'(6X,A58,12X,F10.3)') 'Integrated  beta density before functional transformation:',Dens_b1
+  write(6,'(6X,A58,12X,F10.3)') 'Integrated alpha density  after functional transformation:',Dens_a2
+  write(6,'(6X,A58,12X,F10.3)') 'Integrated  beta density  after functional transformation:',Dens_b2
+  write(6,'(6X,80A)')
+  write(6,'(6X,A32,30X,F18.6)') 'Integrated alpha exchange energy',Funcaa
+  write(6,'(6X,A32,30X,F18.6)') 'Integrated beta  exchange energy',Funcbb
+  write(6,'(6X,A32,30X,F18.6)') 'Integrated  correlation   energy',Funccc
+  write(6,'(6X,80A)')
+  write(6,'(6X,A20,42X,F18.8)') 'Total CAS-DFT energy',CASDFT_E
 
-      Call Add_Info('dens_tt',[Dens_I],1,6)
-      Call Add_Info('dens_a1',[Dens_a1],1,6)
-      Call Add_Info('dens_b1',[Dens_b1],1,6)
-      Call Add_Info('dens_a2',[Dens_a2],1,6)
-      Call Add_Info('dens_b2',[Dens_b2],1,6)
-      Call Add_Info('excha_a',[Funcaa],1,6)
-      Call Add_Info('excha_b',[Funcbb],1,6)
-      Call Add_Info('corr_e', [Funccc],1,6)
-      Call Add_Info('CASDFTE',[CASDFT_E],1,8)
+  call CollapseOutput(0,Line)
+  write(6,'(6X,80A)')
+end if
 
-      END SUBROUTINE print_MCPDFT
+call Add_Info('dens_tt',[Dens_I],1,6)
+call Add_Info('dens_a1',[Dens_a1],1,6)
+call Add_Info('dens_b1',[Dens_b1],1,6)
+call Add_Info('dens_a2',[Dens_a2],1,6)
+call Add_Info('dens_b2',[Dens_b2],1,6)
+call Add_Info('excha_a',[Funcaa],1,6)
+call Add_Info('excha_b',[Funcbb],1,6)
+call Add_Info('corr_e',[Funccc],1,6)
+call Add_Info('CASDFTE',[CASDFT_E],1,8)
+
+end subroutine print_MCPDFT

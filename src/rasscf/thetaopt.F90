@@ -14,31 +14,31 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine ThetaOpt(FRot,theta,SumVee,StatePair,NPairs,DDg)
-      use rasscf_global, only: lRoots
-      Implicit None
 
+subroutine ThetaOpt(FRot,theta,SumVee,StatePair,NPairs,DDg)
+
+use rasscf_global, only: lRoots
+
+implicit none
+integer NPairs
+real*8 SumVee
+real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
+real*8, dimension(lroots,lroots) :: FRot
+integer, dimension(NPairs,2) :: StatePair
+real*8, dimension(NPairs) :: theta
+integer IPair, IState, JState
+!real*8, dimension(NPairs) :: thetanew
 #include "warnings.h"
-      INTEGER NPairs
-      Real*8 SumVee
-      Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
-      Real*8,DIMENSION(lroots,lroots)::FRot
-      INTEGER,DIMENSION(NPairs,2)::StatePair
-      Real*8,DIMENSION(NPairs)::theta
 
-      INTEGER IPair,IState,JState
-!      Real*8,DIMENSION(NPairs)::thetanew
+do IPair=1,NPairs
+  IState = StatePair(IPair,1)
+  JState = StatePair(IPair,2)
+  call OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
+end do
+do IPair=NPairs-1,1,-1
+  IState = StatePair(IPair,1)
+  JState = StatePair(IPair,2)
+  call OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
+end do
 
-      DO IPair=1,NPairs
-       IState=StatePair(IPair,1)
-       JState=StatePair(IPair,2)
-       CALL                                                             &
-     & OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
-      END DO
-      DO IPair=NPairs-1,1,-1
-       IState=StatePair(IPair,1)
-       JState=StatePair(IPair,2)
-       CALL                                                             &
-     & OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
-      END DO
-      END SUBROUTINE ThetaOpt
+end subroutine ThetaOpt

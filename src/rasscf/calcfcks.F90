@@ -10,33 +10,33 @@
 !                                                                      *
 ! Copyright (C) 2020, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine CalcFckS(FckO,GDMat,FckS)
-      use rasscf_global, only: lRoots, nAc
-      Implicit None
 
+subroutine CalcFckS(FckO,GDMat,FckS)
 
+use rasscf_global, only: lRoots, nAc
+
+implicit none
 !*****Input
-      Real*8,DIMENSION(NAC,NAC)::FckO
-      Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
+real*8, dimension(NAC,NAC) :: FckO
+real*8, dimension(lRoots*(lRoots+1)/2,NAC,NAC) :: GDMat
 !*****Output
-      Real*8,DIMENSION(lRoots,lRoots)::FckS
+real*8, dimension(lRoots,lRoots) :: FckS
 !*****Auxiliary variables
-      INTEGER IState,JState, iOrb, jOrb
+integer IState, JState, iOrb, jOrb
 
-      FckS(:,:)=0.0d0
+FckS(:,:) = 0.0d0
 
-      DO IState=1,lRoots
-       Do JState=1,IState
-        dO IOrb=1,NAC
-         do JOrb=1,NAC
-          FckS(IState,JState)=FckS(IState,JState)+FckO(IOrb,JOrb)*      &
-     &GDMat(IState*(IState-1)/2+JState,IOrb,JOrb)
-         end do
-        eND DO
-        FckS(JState,IState)=FckS(IState,JState)
-        End Do
-      END DO
+do IState=1,lRoots
+  do JState=1,IState
+    do IOrb=1,NAC
+      do JOrb=1,NAC
+        FckS(IState,JState) = FckS(IState,JState)+FckO(IOrb,JOrb)*GDMat(IState*(IState-1)/2+JState,IOrb,JOrb)
+      end do
+    end do
+    FckS(JState,IState) = FckS(IState,JState)
+  end do
+end do
 
-!      CALL PrintMat('XMS_Mat','test',FckS,LRoots,LRoots,0,4,'N')
+!call PrintMat('XMS_Mat','test',FckS,LRoots,LRoots,0,4,'N')
 
-      END Subroutine CalcFckS
+end subroutine CalcFckS

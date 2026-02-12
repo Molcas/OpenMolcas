@@ -15,48 +15,39 @@
 ! Jie J. Bao, on Apr. 07, 2022, created this file.               *
 !*****************************************************************
 
-! This file contains simple codes called in CMSNewton. Complicated ones
-! are written in files with the name as the subroutine name.
+subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
 
-      Subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
-      use CMS, only: iCMSOpt,NPosHess,LargestQaaGrad,NCMSScale
-      Implicit None
-      INTEGER iStep,lRoots
-      Real*8 Qnew,Qold,Diff
-      Real*8 RMat(lRoots**2)
+use CMS, only: iCMSOpt, NPosHess, LargestQaaGrad, NCMSScale
 
-!      write(6,*) 'iteration information'
-      Diff=Qnew-Qold
-      IF(iCMSOpt.eq.2) THEN
+implicit none
+integer iStep, lRoots
+real*8 Qnew, Qold, Diff
+real*8 RMat(lRoots**2)
 
+!write(6,*) 'iteration information'
+Diff = Qnew-Qold
+if (iCMSOpt == 2) then
 
-       If(lRoots.eq.2) Then
-        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')                 &
-     &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
-       Else
-         write(6,'(6X,I4,2X,F14.8,2X,ES14.4E3)')                        &
-     &   iStep, Qnew,Diff
-       End If
+  if (lRoots == 2) then
+    write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
+  else
+    write(6,'(6X,I4,2X,F14.8,2X,ES14.4E3)') iStep,Qnew,Diff
+  end if
 
+else
 
-      ELSE
+  !if (lRoots == 2) then
+  !  write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
+  !else
+  if (NCMSScale > 0) then
+    write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,I1)') iStep,Qnew,Diff,nPosHess,LargestQaaGrad,'1E-',NCMSScale
+  else
+    write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3)') iStep,Qnew,Diff,nPosHess,LargestQaaGrad,'1.0'
+  end if
+  !end if
 
+end if
 
-!       If(lRoots.eq.2) Then
-!        write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
-!     &  iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
-!       Else
-        if (NCMSScale.gt.0) then
-      write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,'//  &
-     &        'I1)')                                                    &
-     &   iStep, Qnew,Diff,nPosHess,LargestQaaGrad,'1E-',NCMSScale
-        else
-       write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3)')  &
-     &   iStep, Qnew,Diff,nPosHess,LargestQaaGrad,'1.0'
-        end if
-!       End If
+return
 
-
-      END IF
-      RETURN
-      End Subroutine
+end subroutine PrintCMSIter

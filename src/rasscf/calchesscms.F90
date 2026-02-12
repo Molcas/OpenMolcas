@@ -15,70 +15,66 @@
 ! Jie J. Bao, on Apr. 12, 2022, created this file.               *
 !*****************************************************************
 
-      Subroutine CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
-      INTEGER nDDg,lRoots,nSPair
-      Real*8 DDg(nDDg),Hess(nSPair**2)
-      Real*8 Vklmn,Vlknm,Vklnm,Vlkmn
-      INTEGER K,L,M,N,iKL,iMN,iLoc1,iLoc2,iLoc3,iLoc4,iLoc5,            &
-     &        lRoots2,lRoots3,lRoots23
+subroutine CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
 
-      lRoots2=lRoots**2
-      lRoots3=lRoots2*lRoots
-      lRoots23=lRoots2+lRoots3
+integer nDDg, lRoots, nSPair
+real*8 DDg(nDDg), Hess(nSPair**2)
+real*8 Vklmn, Vlknm, Vklnm, Vlkmn
+integer K, L, M, N, iKL, iMN, iLoc1, iLoc2, iLoc3, iLoc4, iLoc5, lRoots2, lRoots3, lRoots23
 
-      DO K=2,lRoots
-      DO L=1,K-1
-       iKL=(K-2)*(K-1)/2+L
-       Do M=2,lRoots
-       Do N=1,M-1
-        iMN=(M-2)*(M-1)/2+N
-        Vklmn=0.0d0
-        Vlknm=0.0d0
-        Vlkmn=0.0d0
-        Vklnm=0.0d0
-        iLoc5=K+(L-1)*lRoots+(M-1)*lRoots2+(N-1)*lRoots3
-        IF(L.eq.M) THEN
-         iLoc4=K+(N-1)*lRoots
-         iLoc1=iLoc4+(K-1)*lRoots23
-         iLoc2=iLoc4+(N-1)*lRoots23
-         iLoc3=iLoc4+(L-1)*lRoots23
-         Vklmn=DDg(iLoc1)+DDg(iLoc2)-2.0d0*DDg(iLoc3)-4.0d0*DDg(iLoc5)
-!         Vklmn=DDg(K,N,K,K)+DDg(K,N,N,N)-2.0d0*DDg(K,N,L,L)
-!     &         -4.0d0*DDg(K,L,M,N)
-        END IF
-        IF(K.eq.N) THEN
-         iLoc4=L+(M-1)*lRoots
-         iLoc1=iLoc4+(L-1)*lRoots23
-         iLoc2=iLoc4+(M-1)*lRoots23
-         iLoc3=iLoc4+(K-1)*lRoots23
-         Vlknm=DDg(iLoc1)+DDg(iLoc2)-2.0d0*DDg(iLoc3)-4.0d0*DDg(iLoc5)
-!         Vlknm=DDg(L,M,L,L)+DDg(L,M,M,M)-2.0d0*DDg(L,M,K,K)
-!     &         -4.0d0*DDg(K,L,M,N)
-        END IF
-        IF(K.eq.M) THEN
-         iLoc4=L+(N-1)*lRoots
-         iLoc1=iLoc4+(L-1)*lRoots23
-         iLoc2=iLoc4+(N-1)*lRoots23
-         iLoc3=iLoc4+(K-1)*lRoots23
-         Vlkmn=DDg(iLoc1)+DDg(iLoc2)-2.0d0*DDg(iLoc3)-4.0d0*DDg(iLoc5)
-!         Vlkmn=DDg(L,N,L,L)+DDg(L,N,N,N)-2.0d0*DDg(L,N,K,K)
-!     &         -4.0d0*DDg(K,L,M,N)
-        END IF
-        IF(L.eq.N) THEN
-         iLoc4=K+(M-1)*lRoots
-         iLoc1=iLoc4+(K-1)*lRoots23
-         iLoc2=iLoc4+(M-1)*lRoots23
-         iLoc3=iLoc4+(L-1)*lRoots23
-         Vklnm=DDg(iLoc1)+DDg(iLoc2)-2.0d0*DDg(iLoc3)-4.0d0*DDg(iLoc5)
-!         Vklnm=DDg(K,M,K,K)+DDg(K,M,M,M)-2.0d0*DDg(K,M,L,L)
-!     &         -4.0d0*DDg(K,L,M,N)
-        END IF
-        Hess((iKL-1)*nSPair+iMN)=Vklmn+Vlknm-Vklnm-Vlkmn
-       End Do
-       End Do
-      END DO
-      END DO
+lRoots2 = lRoots**2
+lRoots3 = lRoots2*lRoots
+lRoots23 = lRoots2+lRoots3
 
+do K=2,lRoots
+  do L=1,K-1
+    iKL = (K-2)*(K-1)/2+L
+    do M=2,lRoots
+      do N=1,M-1
+        iMN = (M-2)*(M-1)/2+N
+        Vklmn = 0.0d0
+        Vlknm = 0.0d0
+        Vlkmn = 0.0d0
+        Vklnm = 0.0d0
+        iLoc5 = K+(L-1)*lRoots+(M-1)*lRoots2+(N-1)*lRoots3
+        if (L == M) then
+          iLoc4 = K+(N-1)*lRoots
+          iLoc1 = iLoc4+(K-1)*lRoots23
+          iLoc2 = iLoc4+(N-1)*lRoots23
+          iLoc3 = iLoc4+(L-1)*lRoots23
+          Vklmn = DDg(iLoc1)+DDg(iLoc2)-2.0d0*DDg(iLoc3)-4.0d0*DDg(iLoc5)
+          !Vklmn = DDg(K,N,K,K)+DDg(K,N,N,N)-2.0d0*DDg(K,N,L,L)-4.0d0*DDg(K,L,M,N)
+        end if
+        if (K == N) then
+          iLoc4 = L+(M-1)*lRoots
+          iLoc1 = iLoc4+(L-1)*lRoots23
+          iLoc2 = iLoc4+(M-1)*lRoots23
+          iLoc3 = iLoc4+(K-1)*lRoots23
+          Vlknm = DDg(iLoc1)+DDg(iLoc2)-2.0d0*DDg(iLoc3)-4.0d0*DDg(iLoc5)
+          !Vlknm = DDg(L,M,L,L)+DDg(L,M,M,M)-2.0d0*DDg(L,M,K,K)-4.0d0*DDg(K,L,M,N)
+        end if
+        if (K == M) then
+          iLoc4 = L+(N-1)*lRoots
+          iLoc1 = iLoc4+(L-1)*lRoots23
+          iLoc2 = iLoc4+(N-1)*lRoots23
+          iLoc3 = iLoc4+(K-1)*lRoots23
+          Vlkmn = DDg(iLoc1)+DDg(iLoc2)-2.0d0*DDg(iLoc3)-4.0d0*DDg(iLoc5)
+          !Vlkmn = DDg(L,N,L,L)+DDg(L,N,N,N)-2.0d0*DDg(L,N,K,K)-4.0d0*DDg(K,L,M,N)
+        end if
+        if (L == N) then
+          iLoc4 = K+(M-1)*lRoots
+          iLoc1 = iLoc4+(K-1)*lRoots23
+          iLoc2 = iLoc4+(M-1)*lRoots23
+          iLoc3 = iLoc4+(L-1)*lRoots23
+          Vklnm = DDg(iLoc1)+DDg(iLoc2)-2.0d0*DDg(iLoc3)-4.0d0*DDg(iLoc5)
+          !Vklnm = DDg(K,M,K,K)+DDg(K,M,M,M)-2.0d0*DDg(K,M,L,L)-4.0d0*DDg(K,L,M,N)
+        end if
+        Hess((iKL-1)*nSPair+iMN) = Vklmn+Vlknm-Vklnm-Vlkmn
+      end do
+    end do
+  end do
+end do
 
-      RETURN
-      End Subroutine
+return
+
+end subroutine CalcHessCMS

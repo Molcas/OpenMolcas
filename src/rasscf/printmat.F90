@@ -10,46 +10,39 @@
 !                                                                      *
 ! Copyright (C) 2020, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine PrintMat(FileName,MatInfo,Matrix,NRow,NCol,            &
-     &                    LenName,LenInfo,Trans)
-      Implicit None
 
-      INTEGER NRow,NCol,LenName,LenInfo
-      CHARACTER(Len=LenName)::FileName
-      CHARACTER(Len=LenInfo)::MatInfo
-      CHARACTER(Len=1)::Trans
-      CHARACTER(Len=80)::PrtFmt
-      Real*8,DIMENSION(NRow,NCol)::Matrix
+subroutine PrintMat(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
 
-      INTEGER LU,IsFreeUnit,IRow,ICol
-      External IsFreeUnit
+implicit none
+integer NRow, NCol, LenName, LenInfo
+character(len=LenName) :: FileName
+character(len=LenInfo) :: MatInfo
+character(len=1) :: Trans
+character(len=80) :: PrtFmt
+real*8, dimension(NRow,NCol) :: Matrix
+integer LU, IsFreeUnit, IRow, ICol
+external IsFreeUnit
 
+if (LenName > 0) then
+  LU = 100
+  LU = IsFreeUnit(LU)
+  call Molcas_Open(LU,FileName)
+else
+  LU = 6
+end if
 
-      IF(LenName.gt.0) THEN
-      LU=100
-      LU=IsFreeUnit(LU)
-      CALL Molcas_Open(LU,FileName)
-      ELSE
-      LU=6
-      END IF
+if (Trans == 'N') then
+  write(PrtFmt,'(A,I5,A)') '(',NCol,'(ES24.14E4,1X))'
+  do IRow=1,NRow
+    write(LU,PrtFmt) (Matrix(IRow,ICol),ICol=1,NCol)
+  end do
+else
+  write(PrtFmt,'(A,I5,A)') '(',NRow,'(ES24.14E4,1X))'
+  do ICol=1,NCol
+    write(LU,PrtFmt) (Matrix(IRow,ICol),IRow=1,NRow)
+  end do
+end if
+write(LU,*) MatInfo
+if (LenName > 0) close(LU)
 
-      IF(Trans.eq.'N') THEN
-       WRITE(PrtFmt,'(A,I5,A)')                                         &
-     & '(',NCol,'(ES24.14E4,1X))'
-       DO IRow=1,NRow
-        write(LU,PrtFmt)                                                &
-     &  (Matrix(IRow,ICol),ICol=1,NCol)
-       END DO
-      ELSE
-       WRITE(PrtFmt,'(A,I5,A)')                                         &
-     & '(',NRow,'(ES24.14E4,1X))'
-       DO ICol=1,NCol
-        write(LU,PrtFmt)                                                &
-     &  (Matrix(IRow,ICol),IRow=1,NRow)
-       END DO
-      END IF
-      WRITE(LU,*)MatInfo
-      IF(LenName.gt.0) THEN
-       Close(LU)
-      END IF
-      End Subroutine PrintMat
+end subroutine PrintMat

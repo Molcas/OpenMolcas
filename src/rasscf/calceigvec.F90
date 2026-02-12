@@ -10,81 +10,82 @@
 !                                                                      *
 ! Copyright (C) 2020, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine CalcEigVec(Matrix,NDIM,EigVec)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit None
+
+subroutine CalcEigVec(Matrix,NDIM,EigVec)
+
+use stdalloc, only: mma_allocate, mma_deallocate
 
 !*****Input
-      INTEGER NDim
+integer NDim
 !*****Input & Output
-      Real*8,DIMENSION(NDIM,NDIM)::Matrix,EigVec
+real*8, dimension(NDIM,NDIM) :: Matrix, EigVec
 !*****Calculating rotation matrix
-      Real*8, Allocatable:: Mat(:),Val(:,:), Scr(:)
-      INTEGER NScr,INFO
-      Real*8,DIMENSION(2)::WGRONK
+real*8, allocatable :: Mat(:), Val(:,:), Scr(:)
+integer NScr, INFO
+real*8, dimension(2) :: WGRONK
 !*****Auxiliary quantities
-      INTEGER NElem ! NElem=NDim**2
-      INTEGER IRow,ICol,IRIC,NI
-      LOGICAL UseJacob
+integer NElem ! NElem=NDim**2
+integer IRow, ICol, IRIC, NI
+logical UseJacob
 
-      UseJacob=.true.
-      EigVec(:,:)=0.0d0
+UseJacob = .true.
+EigVec(:,:) = 0.0d0
 
-      IF(UseJacob) THEN
-       NElem=NDim*(NDim+1)/2
-       Call mma_allocate(Mat,nElem,Label='Mat')
-       Call mma_allocate(Val,nDim,nDim,Label='Val')
-       IRIC=0
-       DO IRow=1,NDIM
-        Do ICol=1,IRow
-         IRIC=IRIC+1
-         Mat(IRIC)=Matrix(IRow,ICol)
-        End Do
-       END DO
-       Val(:,:)=0.0D0
-       DO NI=1,NDim
-        Val(NI,NI)=1.0D0
-       END DO
-!       write(6,*)'eigenvector matrix before diag'
-!       CALL RECPRT(' ',' ',Val,NDIM,NDIM)
-!       write(6,*)'matrix to be diagonalized'
-!       CALL TriPrt(' ',' ',Mat,NDIM)
-       CALL JACOB(Mat,Val,NDim,NDim)
-!       write(6,*)'eigenvector matrix'
-!       CALL RECPRT(' ',' ',Val,NDIM,NDIM)
-!       DO IRow=1,NDIM
-!         write(6,*) (EigVec(IRow,ICol), ICol=1,NDim)
-!       END DO
-       DO ICol=1,NDIM
-        Do IRow=1,NDIM
-         EigVec(IRow,ICol)=Val(iCol,iRow)
-        End Do
-       END DO
-       Call mma_deallocate(Val)
-       Call mma_deallocate(Mat)
+if (UseJacob) then
+  NElem = NDim*(NDim+1)/2
+  call mma_allocate(Mat,nElem,Label='Mat')
+  call mma_allocate(Val,nDim,nDim,Label='Val')
+  IRIC = 0
+  do IRow=1,NDIM
+    do ICol=1,IRow
+      IRIC = IRIC+1
+      Mat(IRIC) = Matrix(IRow,ICol)
+    end do
+  end do
+  Val(:,:) = 0.0d0
+  do NI=1,NDim
+    Val(NI,NI) = 1.0d0
+  end do
+  !write(6,*) 'eigenvector matrix before diag'
+  !call RECPRT(' ',' ',Val,NDIM,NDIM)
+  !write(6,*) 'matrix to be diagonalized'
+  !call TriPrt(' ',' ',Mat,NDIM)
+  call JACOB(Mat,Val,NDim,NDim)
+  !write(6,*)'eigenvector matrix'
+  !call RECPRT(' ',' ',Val,NDIM,NDIM)
+  !do IRow=1,NDIM
+  !  write(6,*) (EigVec(IRow,ICol),ICol=1,NDim)
+  !end do
+  do ICol=1,NDIM
+    do IRow=1,NDIM
+      EigVec(IRow,ICol) = Val(iCol,iRow)
+    end do
+  end do
+  call mma_deallocate(Val)
+  call mma_deallocate(Mat)
 
-      ELSE
-       NElem=NDim**2
-       Call mma_allocate(Mat,nElem,Label='Mat')
-       Call mma_allocate(Val,nDim,nDim,Label='Val')
-       DO ICol=1,NDIM
-        Do IRow=1,NDIM
-         Mat((ICol-1)*NDIM+IRow)=Matrix(IRow,ICol)
-        End Do
-       END DO
-       Val(:,:)=0.0D0
-       Call Dsyev_('V','U',NDIM,Mat,NDIM,Val,WGRONK,-1,INFO)
-       NScr=Int(WGRONK(1))
-       Call mma_allocate(Scr,nScr,Label='Scr')
-       Call Dsyev_('V','U',NDIM,Mat,NDIM,Val,Scr,NScr,INFO)
-       DO ICol=1,NDIM
-        Do IRow=1,NDIM
-         EigVec(IRow,ICol)=Mat((IRow-1)*NDIM+ICol)
-        End Do
-       END DO
-       Call mma_deallocate(Scr)
-       Call mma_deallocate(Val)
-       Call mma_deallocate(Mat)
-       END IF
+else
+  NElem = NDim**2
+  call mma_allocate(Mat,nElem,Label='Mat')
+  call mma_allocate(Val,nDim,nDim,Label='Val')
+  do ICol=1,NDIM
+    do IRow=1,NDIM
+      Mat((ICol-1)*NDIM+IRow) = Matrix(IRow,ICol)
+    end do
+  end do
+  Val(:,:) = 0.0d0
+  call Dsyev_('V','U',NDIM,Mat,NDIM,Val,WGRONK,-1,INFO)
+  NScr = int(WGRONK(1))
+  call mma_allocate(Scr,nScr,Label='Scr')
+  call Dsyev_('V','U',NDIM,Mat,NDIM,Val,Scr,NScr,INFO)
+  do ICol=1,NDIM
+    do IRow=1,NDIM
+      EigVec(IRow,ICol) = Mat((IRow-1)*NDIM+ICol)
+    end do
+  end do
+  call mma_deallocate(Scr)
+  call mma_deallocate(Val)
+  call mma_deallocate(Mat)
+end if
 
-      End Subroutine CalcEigVec
+end subroutine CalcEigVec

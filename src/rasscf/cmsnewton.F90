@@ -15,147 +15,130 @@
 ! Jie J. Bao, on Apr. 11, 2022, created this file.               *
 !*****************************************************************
 
+subroutine CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
 
-      Subroutine CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
-      use CMS, only:CMSNotConverged,CMSThres,NeedMoreStep,              &
-     &              nPosHess,LargestQaaGrad,NCMSScale
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,       &
-     &                         iCMSIterMin, NAC
-      use PrintLevel, only: USUAL
-      use output_ras, only: IPRLOC
-      Implicit None
+use CMS, only: CMSNotConverged, CMSThres, NeedMoreStep, nPosHess, LargestQaaGrad, NCMSScale
+use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax, iCMSIterMin, NAC
+use PrintLevel, only: USUAL
+use output_ras, only: IPRLOC
+use stdalloc, only: mma_allocate, mma_deallocate
 
-
+implicit none
+integer nGD
+real*8 R(lRoots**2), GDorbit(nGD), GDstate(nGD), Dgorbit(nGD), Dgstate(nGD)
+real*8, dimension(:), allocatable :: X, Hess, Grad, EigVal, deltaR, DDg, XScr, GScr, ScrDiag, RCopy, GDCopy, DgCopy
+real*8, dimension(:,:), allocatable :: RotMat
+integer iStep, nDDg, lRoots2, NAC2, nSPair, nSPair2, nScr
+real*8 Qnew, Qold
+logical Saved
+integer iPrLev
 #include "warnings.h"
-      INTEGER nGD
-      Real*8 R(lRoots**2),                                              &
-     &       GDorbit(nGD),GDstate(nGD),                                 &
-     &       Dgorbit(nGD),Dgstate(nGD)
-      Real*8,DIMENSION(:),Allocatable::X,Hess,Grad,EigVal,deltaR,DDg,   &
-     &                                 XScr,GScr,ScrDiag,               &
-     &                                 RCopy,GDCopy,DgCopy
 
-      Real*8,DIMENSION(:,:),Allocatable::RotMat
-      INTEGER iStep,nDDg,lRoots2,NAC2,                                  &
-     &        nSPair,nSPair2,nScr
-      Real*8 Qnew,Qold
-      Logical Saved
-      Integer iPrLev
+IPRLEV = IPRLOC(6)
 
-      IPRLEV=IPRLOC(6)
+! preparation
+lRoots2 = lRoots**2
+NAC2 = NAC**2
+nDDg = lRoots2**2
+nSPair = (lRoots-1)*lRoots/2
+nSPair2 = nSPair**2
+CMSThres = CMSThreshold
+call mma_allocate(DDg,nDDg)
+call mma_allocate(X,nSPair)
+call mma_allocate(XScr,nSPair)
+call mma_allocate(GScr,nSPair)
+call mma_allocate(Grad,nSPair)
+call mma_allocate(Hess,nSPair2)
+call mma_allocate(EigVal,nSPair)
+call mma_allocate(DeltaR,lRoots2)
+call mma_allocate(GDCopy,nGD)
+call mma_allocate(DgCopy,nGD)
+call mma_allocate(RCopy,lRoots2)
+call mma_allocate(RotMat,lRoots,lRoots)
+! Step 0
+iStep = 0
+Qold = 0.0d0
+! Note that the following six lines appear as a group
+call RotGD(GDstate,R,nGD,lRoots,NAC2)
+call RotGD(Dgstate,R,nGD,lRoots,NAC2)
+call TransposeMat(Dgorbit,Dgstate,nGD,lRoots2,NAC2)
+call TransposeMat(GDorbit,GDstate,nGD,lRoots2,NAC2)
+call CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
+call CalcQaa(Qnew,DDg,lRoots,nDDg)
+nPosHess = 0
+LargestQaaGrad = 0.0d0
+Qold = Qnew
+call PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
+call CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
+call CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
+call GetDiagScr(nScr,Hess,EigVal,nSPair)
+call mma_allocate(ScrDiag,nScr)
 
-!     preparation
-      lRoots2=lRoots**2
-      NAC2=NAC**2
-      nDDg=lRoots2**2
-      nSPair=(lRoots-1)*lRoots/2
-      nSPair2=nSPair**2
-      CMSThres=CMSThreshold
-      CALL mma_allocate(DDg    ,nDDg     )
-      Call mma_allocate(X      ,nSPair   )
-      Call mma_allocate(XScr   ,nSPair   )
-      Call mma_allocate(GScr   ,nSPair   )
-      Call mma_allocate(Grad   ,nSPair   )
-      Call mma_allocate(Hess   ,nSPair2  )
-      Call mma_allocate(EigVal ,nSPair   )
-      CALL mma_allocate(DeltaR ,lRoots2  )
-      CALL mma_allocate(GDCopy ,nGD      )
-      CALL mma_allocate(DgCopy ,nGD      )
-      CALL mma_allocate(RCopy  ,lRoots2  )
-      CALL mma_allocate(RotMat ,lRoots,lRoots)
-!     Step 0
-      iStep=0
-      Qold=0.0d0
-!     Note that the following six lines appear as a group
-      CALL RotGD(GDstate,R,nGD,lRoots,NAC2)
-      CALL RotGD(Dgstate,R,nGD,lRoots,NAC2)
-      CALL TransposeMat(Dgorbit,Dgstate,nGD,lRoots2,NAC2)
-      CALL TransposeMat(GDorbit,GDstate,nGD,lRoots2,NAC2)
-      CALL CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
-      CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
-      nPosHess=0
-      LargestQaaGrad=0.0d0
-      Qold=Qnew
-      CALL PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
-      CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
-      CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
-      CALL GetDiagScr(nScr,Hess,EigVal,nSPair)
-      CALL mma_allocate(ScrDiag,nScr)
+! Starting iteration
+do while (CMSNotConverged)
+  iStep = iStep+1
+  Qold = Qnew
+  if (iStep > iCMSIterMax) then
+    write(6,'(4X,A)') 'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+    exit
+  end if
 
-!     Starting iteration
-      DO WHILE(CMSNotConverged)
-       iStep=iStep+1
-       Qold=Qnew
-       IF(iStep.gt.iCMSIterMax) THEN
-         write(6,'(4X,A)')'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
-         Exit
-       END IF
+  call DCopy_(lRoots2,R,1,RCopy,1)
+  call DCopy_(nGD,GDState,1,GDCopy,1)
+  call DCopy_(nGD,DgState,1,DgCopy,1)
 
-       CALL DCopy_(lRoots2,R,1,RCopy,1)
-       CALL DCopy_(nGD,GDState,1,GDCopy,1)
-       CALL DCopy_(nGD,DgState,1,DgCopy,1)
+  call CalcNewX(X,Hess,Grad,nSPair,XScr,GScr,EigVal,ScrDiag,nScr)
+  call UpDateRotMat(R,DeltaR,X,lRoots,nSPair)
 
-       CALL CalcNewX(X,Hess,Grad,nSPair,                                &
-     &               XScr,GScr,EigVal,ScrDiag,nScr)
-       CALL UpDateRotMat(R,DeltaR,X,lRoots,nSPair)
+  call RotGD(GDstate,DeltaR,nGD,lRoots,NAC2)
+  call RotGD(Dgstate,DeltaR,nGD,lRoots,NAC2)
+  call TransposeMat(Dgorbit,Dgstate,nGD,lRoots2,NAC2)
+  call TransposeMat(GDorbit,GDstate,nGD,lRoots2,NAC2)
+  call CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
+  call CalcQaa(Qnew,DDg,lRoots,nDDg)
 
-       CALL RotGD(GDstate,DeltaR,nGD,lRoots,NAC2)
-       CALL RotGD(Dgstate,DeltaR,nGD,lRoots,NAC2)
-       CALL TransposeMat(Dgorbit,Dgstate,nGD,lRoots2,NAC2)
-       CALL TransposeMat(GDorbit,GDstate,nGD,lRoots2,NAC2)
-       CALL CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
-       CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
+  NCMSScale = 0
+  Saved = .true.
+  if ((Qold-Qnew) > CMSThreshold) then
+    ! When Onew is less than Qold, scale the rotation matrix
+    if (iStep > ICMSIterMin) call CMSScaleX(X,R,DeltaR,Qnew,Qold,RCopy,GDCopy,DgCopy,GDstate,GDOrbit,Dgstate,DgOrbit,DDg,nSPair, &
+                                            lRoots2,nGD,NAC2,nDDg,Saved)
+  end if
+  if (IPRLEV >= USUAL) call PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
+  call AntiOneDFoil(RotMat,R,lRoots,lRoots)
+  call PrintMat('ROT_VEC','CMS-PDFT temp',RotMat,lroots,lroots,7,13,'T')
 
-       NCMSScale=0
-       Saved=.true.
-       IF((Qold-Qnew).gt.CMSThreshold) THEN
-        If(iStep.gt.ICMSIterMin) Then
-!        When Onew is less than Qold, scale the rotation matrix
-         CALL CMSScaleX(X,R,DeltaR,Qnew,Qold,                           &
-     &                  RCopy,GDCopy,DgCopy,                            &
-     &                  GDstate,GDOrbit,Dgstate,DgOrbit,DDg,            &
-     &                  nSPair,lRoots2,nGD,NAC2,nDDg,Saved)
-        End If
-       END IF
-       IF(IPRLEV.ge.USUAL) CALL PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
-       CALL AntiOneDFoil(RotMat,R,lRoots,lRoots)
-       CALL PrintMat('ROT_VEC','CMS-PDFT temp',                         &
-     &                RotMat,lroots,lroots,7,13,'T')
+  if (.not. Saved) then
+    CMSNotConverged = .true.
+    !exit
+  end if
+  ! sanity check
+  if (abs(Qnew-Qold) < CMSThreshold) then
+    CMSNotConverged = .false.
+    if (NeedMoreStep) CMSNotConverged = .true.
+    if (iStep < iCMSIterMin) CMSNotConverged = .true.
+    if (NCMSScale > 0) CMSNotConverged = .true.
+  end if
+  if (CMSNotConverged) then
+    call CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
+    call CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
+  else
+    if (IPRLEV >= USUAL) write(6,'(4X,A)') 'CONVERGENCE REACHED'
+  end if
+end do
 
-       IF(.not. Saved) THEN
-        CMSNotConverged=.true.
-!        Exit
-       END IF
-!      sanity check
-       IF(abs(Qnew-Qold).lt.CMSThreshold) THEN
-        CMSNotConverged=.false.
-        If(NeedMoreStep)         CMSNotConverged=.true.
-        If(iStep.lt.iCMSIterMin) CMSNotConverged=.true.
-        If(NCMSScale.gt.0)       CMSNotConverged=.true.
-       END IF
-       IF(CMSNotConverged) THEN
-        CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
-        CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
-       ELSE
-        IF(IPRLEV.ge.USUAL) write(6,'(4X,A)')'CONVERGENCE REACHED'
-       END IF
-      END DO
+call mma_deallocate(DDg)
+call mma_deallocate(X)
+call mma_deallocate(XScr)
+call mma_deallocate(GScr)
+call mma_deallocate(Grad)
+call mma_deallocate(Hess)
+call mma_deallocate(EigVal)
+call mma_deallocate(DeltaR)
+call mma_deallocate(ScrDiag)
+call mma_deallocate(GDCopy)
+call mma_deallocate(DgCopy)
+call mma_deallocate(RCopy)
+call mma_deallocate(RotMat)
 
-      CALL mma_deallocate(DDg    )
-      Call mma_deallocate(X      )
-      Call mma_deallocate(XScr   )
-      Call mma_deallocate(GScr   )
-      Call mma_deallocate(Grad   )
-      Call mma_deallocate(Hess   )
-      Call mma_deallocate(EigVal )
-      CALL mma_deallocate(DeltaR )
-      CALL mma_deallocate(ScrDiag)
-      CALL mma_deallocate(GDCopy )
-      CALL mma_deallocate(DgCopy )
-      CALL mma_deallocate(RCopy  )
-      CALL mma_deallocate(RotMat )
-      End Subroutine CMSNewton
-
-
-
+end subroutine CMSNewton

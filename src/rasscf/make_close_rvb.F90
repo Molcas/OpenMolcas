@@ -8,26 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine make_close_rvb()
-      use definitions, only: iwp
-      implicit None
-      integer(kind=iwp), external ::find_lu
-      integer(kind=iwp) il,i,n
-      character(LEN=8) vec(11)
-      vec(1)='TMP01'
-      vec(2)='TMP02'
-      vec(3)='TMP03'
-      vec(4)='TMP04'
-      vec(5)='TMP05'
-      vec(6)='TMP06'
-      vec(7)='TMP07'
-      vec(8)='TMP08'
-      vec(9)='TMP09'
-      vec(10)='VBWFN'
-      il=10
-!  Preassign some file names to identifiers :
-      do i=1,il
-        n=find_lu(vec(i))
-        if(n.gt.0)call daclos(n)
-      enddo
-      end subroutine make_close_rvb
+
+subroutine make_close_rvb()
+
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), external :: find_lu
+integer(kind=iwp) il, i, n
+character(len=8) vec(11)
+
+vec(1) = 'TMP01'
+vec(2) = 'TMP02'
+vec(3) = 'TMP03'
+vec(4) = 'TMP04'
+vec(5) = 'TMP05'
+vec(6) = 'TMP06'
+vec(7) = 'TMP07'
+vec(8) = 'TMP08'
+vec(9) = 'TMP09'
+vec(10) = 'VBWFN'
+il = 10
+! Preassign some file names to identifiers :
+do i=1,il
+  n = find_lu(vec(i))
+  if (n > 0) call daclos(n)
+end do
+
+end subroutine make_close_rvb

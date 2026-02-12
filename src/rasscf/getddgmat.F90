@@ -14,50 +14,51 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine GetDDgMat(DDg,GDMat,Gtuvx)
-      use rasscf_global, only: lRoots, NAC
-      Implicit None
 
+subroutine GetDDgMat(DDg,GDMat,Gtuvx)
 
+use rasscf_global, only: lRoots, NAC
+
+implicit none
+real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
+real*8, dimension(NAC,NAC,NAC,NAC) :: Gtuvx
+real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GDMat
+integer iI, iJ, iK, iL, it, iu, iv, ix, iII, iJJ, iKK, iLL
 #include "warnings.h"
-      Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
-      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
-      Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GDMat
 
-      INTEGER iI,iJ,iK,iL,it,iu,iv,ix,iII,iJJ,iKK,iLL
-      DO iI=1,lRoots
-       DO iJ=1,lRoots
-        IF(iJ.gt.iI) THEN
-         iJJ=iI
-         iII=iJ
-        ELSE
-         iII=iI
-         iJJ=iJ
-        END IF
-        DO iK=1,lRoots
-         DO iL=1,lRoots
-          IF(iL.gt.iK) THEN
-           iLL=iK
-           iKK=iL
-          ELSE
-           iLL=iL
-           iKK=iK
-          END IF
-          DDG(iI,iJ,iK,iL)=0.0d0
-          do it=1,NAC
-           do iu=1,NAC
+do iI=1,lRoots
+  do iJ=1,lRoots
+    if (iJ > iI) then
+      iJJ = iI
+      iII = iJ
+    else
+      iII = iI
+      iJJ = iJ
+    end if
+    do iK=1,lRoots
+      do iL=1,lRoots
+        if (iL > iK) then
+          iLL = iK
+          iKK = iL
+        else
+          iLL = iL
+          iKK = iK
+        end if
+        DDG(iI,iJ,iK,iL) = 0.0d0
+        do it=1,NAC
+          do iu=1,NAC
             do iv=1,NAC
-             do ix=1,NAC
-              DDG(iI,iJ,iK,iL)=DDG(iI,iJ,iK,iL)                         &
-     & +GDMat(iII*(iII-1)/2+iJJ,it,iu)*GDMat(iKK*(iKK-1)/2+iLL,iv,ix)   &
-     & *Gtuvx(it,iu,iv,ix)
-             end do
+              do ix=1,NAC
+                DDG(iI,iJ,iK,iL) = DDG(iI,iJ,iK,iL)+GDMat(iII*(iII-1)/2+iJJ,it,iu)*GDMat(iKK*(iKK-1)/2+iLL,iv,ix)*Gtuvx(it,iu,iv,ix)
+              end do
             end do
-           end do
           end do
-         END DO
-        END DO
-       END DO
-      END DO
-      RETURN
-      End Subroutine GetDDgMat
+        end do
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine GetDDgMat

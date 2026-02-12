@@ -14,40 +14,43 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine LoadGtuvx(TUVX,Gtuvx)
+
+subroutine LoadGtuvx(TUVX,Gtuvx)
 ! ****************************************************************
 ! Purpose:                                                       *
 ! Loading TUVX array to a 4-D tensor.                            *
 ! Copyied from src/molcas_ci_util/david5.f                       *
 ! ****************************************************************
-      use rasscf_global, only: NACPR2, NAC
-      Implicit None
 
+use rasscf_global, only: NACPR2, NAC
 
+implicit none
+real*8, dimension(NACPR2) :: TUVX
+real*8, dimension(NAC,NAC,NAC,NAC) :: Gtuvx
+integer it, iu, iv, ix, ituvx, ixmax
 #include "warnings.h"
 
-      Real*8,DIMENSION(NACPR2)::TUVX
-      Real*8,DIMENSION(NAC,NAC,NAC,NAC)::Gtuvx
-      INTEGER it,iu,iv,ix,ituvx,ixmax
-      ituvx=0
-      DO it=1,NAC
-       Do iu=1,it
-        dO iv=1,it
-         ixmax=iv
-         if (it==iv) ixmax=iu
-         do ix=1,ixmax
-          ituvx=ituvx+1
-          Gtuvx(it,iu,iv,ix)=TUVX(ituvx)
-          Gtuvx(iu,it,iv,ix)=TUVX(ituvx)
-          Gtuvx(it,iu,ix,iv)=TUVX(ituvx)
-          Gtuvx(iu,it,ix,iv)=TUVX(ituvx)
-          Gtuvx(iv,ix,it,iu)=TUVX(ituvx)
-          Gtuvx(ix,iv,it,iu)=TUVX(ituvx)
-          Gtuvx(iv,ix,iu,it)=TUVX(ituvx)
-          Gtuvx(ix,iv,iu,it)=TUVX(ituvx)
-         end do
-        eND dO
-       End Do
-      END DO
-      RETURN
-      End Subroutine LoadGtuvx
+ituvx = 0
+do it=1,NAC
+  do iu=1,it
+    do iv=1,it
+      ixmax = iv
+      if (it == iv) ixmax = iu
+      do ix=1,ixmax
+        ituvx = ituvx+1
+        Gtuvx(it,iu,iv,ix) = TUVX(ituvx)
+        Gtuvx(iu,it,iv,ix) = TUVX(ituvx)
+        Gtuvx(it,iu,ix,iv) = TUVX(ituvx)
+        Gtuvx(iu,it,ix,iv) = TUVX(ituvx)
+        Gtuvx(iv,ix,it,iu) = TUVX(ituvx)
+        Gtuvx(ix,iv,it,iu) = TUVX(ituvx)
+        Gtuvx(iv,ix,iu,it) = TUVX(ituvx)
+        Gtuvx(ix,iv,iu,it) = TUVX(ituvx)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine LoadGtuvx

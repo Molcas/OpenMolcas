@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine gasprwf(NORB,NEL,IREFSM,ICONF,ISPIN,CICOEF,kcnf)
+
+subroutine gasprwf(NORB,NEL,IREFSM,ICONF,ISPIN,CICOEF,kcnf)
 !***********************************************************************
 !                                                                      *
 !     PURPOSE: PRINT THE WAVEFUNCTION FOR GAS                          *
@@ -41,116 +42,111 @@
 !                                                                      *
 !***********************************************************************
 
-      use rasscf_global, only: PrwThr, nSm
-      use output_ras, only: LF
-      use spinfo, only: NTYP,MINOP,NCNFTP,NCSFTP
-      use Molcas, only: MxAct
+use rasscf_global, only: PrwThr, nSm
+use output_ras, only: LF
+use spinfo, only: NTYP, MINOP, NCNFTP, NCSFTP
+use Molcas, only: MxAct
 
-      Implicit None
+implicit none
+integer nOrb, nEl
+integer ICONF(*), ISPIN(*)
+real*8 CICOEF(*)
+integer KCNF(NEL)
+integer IWALK(mxAct)
+character(len=120) Line
+integer iRefSM, IC, ICL, ICNBS, ICNBS0, iCSBAS, ICSFJP, IIBCL, IIBOP, IICSF, iOff, iOpen, iOrb, ipBas, iSym, iTyp, jOCC, kOCC, kOrb
+real*8 COEF
 
-      Integer nOrb, nEl
-      Integer ICONF(*),ISPIN(*)
-      Real*8 CICOEF(*)
-      Integer KCNF(NEL)
-!
-      Integer IWALK(mxAct)
-      character(LEN=120) Line
-      Integer iRefSM, IC, ICL, ICNBS, ICNBS0, iCSBAS, ICSFJP, IIBCL,    &
-     &        IIBOP, IICSF, iOff, iOpen, iOrb, ipBas, iSym, iTyp,       &
-     &        jOCC, kOCC, kOrb
-      REAL*8 COEF
-!
-!     print headline
-!
-      Line(1:16)='      Conf/sym  '
-      iOff=16
-      iSym=nSm(1)
-      Do iorb=1,norb
-         if ( nsm(iorb).ne.isym) ioff=ioff+1
-         write(line(ioff+iorb:),'(I1)') nsm(iorb)
-         if (nsm(iorb).ne.isym) isym=nsm(iorb)
-      End do
-      iOff=iOff+norb+3
-      Line(iOff:iOff+15)='   Coeff Weight'
-      Write(LF,'(A)') Line(1:iOff+15)
-      Line=' '
-!
-!     Loop over configuration types
-!
-      ICSFJP = 0
-      ICNBS0 = 0
-      IPBAS = 0
-      DO 1000 ITYP = 1, NTYP
-        IOPEN = ITYP + MINOP - 1
-        ICL = (NEL - IOPEN) / 2
-!      BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
-        IF( ITYP .EQ. 1 ) THEN
-          ICNBS0 = 1
-        ELSE
-          ICNBS0 = ICNBS0 + NCNFTP(ITYP-1,IREFSM)*(NEL+IOPEN-1)/2
-        END IF
-!      BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
-        IF( ITYP .EQ. 1 ) THEN
-          IPBAS = 1
-        ELSE
-          IPBAS = IPBAS + NCSFTP(ITYP-1)*(IOPEN-1)
-        END IF
-!
-!     LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
-!     SPIN COUPLINGS
-!
-        DO 900  IC = 1, NCNFTP(ITYP,IREFSM)
-          ICNBS = ICNBS0 + (IC-1)*(IOPEN+ICL)
-          DO 800 IICSF = 1,NCSFTP(ITYP)
-            ICSFJP = ICSFJP + 1
-            ICSBAS = IPBAS + (IICSF-1)*IOPEN
-!. Obtain configuration in standard RASSCF form
-            IIBOP = 1
-            IIBCL = 1
-            JOCC  = ICL + IOPEN
-            DO KOCC = 0, JOCC-1
-              KORB = ICONF(ICNBS+KOCC)
-              IF(KORB.LT.0) THEN
-!. Doubly occupied orbitals
-                KCNF(IIBCL) = ABS(KORB)
-                IIBCL = IIBCL + 1
-              ELSE
-!. Singly occupied orbital
-                KCNF(ICL+IIBOP) = KORB
-                IIBOP = IIBOP + 1
-              END IF
-            END DO
-!
-!     COMPUTE STEP VECTOR
-            CALL STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,                 &
-     &                   ISPIN(ICSBAS),NORB,IWALK)
-!     SKIP IT OR PRINT IT?
-            COEF=CICOEF(ICSFJP)
-            IF(ABS(COEF).LT.PRWTHR) GOTO 800
-!     PRINT IT
-              Write(Line(1:),'(I8)') icsfjp
-              iOff=10
-              iSym=nSm(1)
-              Do iorb=1,norb
-                 If ( nSm(iorb).ne.iSym ) iOff=iOff+1
-                 If ( iwalk(iorb).eq.3 ) then
-                    Write(Line(iOff+iorb:),'(A1)') '2'
-                 Else If (iwalk(iorb).eq.2) then
-                    Write(Line(iOff+iorb:),'(A1)') 'd'
-                 Else If (iwalk(iorb).eq.1) then
-                    Write(Line(iOff+iorb:),'(A1)') 'u'
-                 Else If (iwalk(iorb).eq.0) then
-                    Write(Line(iOff+iorb:),'(A1)') '0'
-                 End If
-                 If ( nSm(iorb).ne.iSym ) iSym=nSm(iorb)
-              End Do
-              iOff=iOff+norb+3
-              Write(Line(iOff:),'(2F8.5)') COEF,COEF**2
-              Write(LF,'(6X,A)') Line(1:iOff+15)
-              Line=' '
+! print headline
 
-800       CONTINUE
-900     CONTINUE
-1000  CONTINUE
+Line(1:16) = '      Conf/sym  '
+iOff = 16
+iSym = nSm(1)
+do iorb=1,norb
+  if (nsm(iorb) /= isym) ioff = ioff+1
+  write(line(ioff+iorb:),'(I1)') nsm(iorb)
+  if (nsm(iorb) /= isym) isym = nsm(iorb)
+end do
+iOff = iOff+norb+3
+Line(iOff:iOff+15) = '   Coeff Weight'
+write(LF,'(A)') Line(1:iOff+15)
+Line = ' '
 
-      END Subroutine gasprwf
+! Loop over configuration types
+
+ICSFJP = 0
+ICNBS0 = 0
+IPBAS = 0
+do ITYP=1,NTYP
+  IOPEN = ITYP+MINOP-1
+  ICL = (NEL-IOPEN)/2
+  ! BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
+  if (ITYP == 1) then
+    ICNBS0 = 1
+  else
+    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,IREFSM)*(NEL+IOPEN-1)/2
+  end if
+  ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
+  if (ITYP == 1) then
+    IPBAS = 1
+  else
+    IPBAS = IPBAS+NCSFTP(ITYP-1)*(IOPEN-1)
+  end if
+
+  ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
+  ! SPIN COUPLINGS
+
+  do IC=1,NCNFTP(ITYP,IREFSM)
+    ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
+    do IICSF=1,NCSFTP(ITYP)
+      ICSFJP = ICSFJP+1
+      ICSBAS = IPBAS+(IICSF-1)*IOPEN
+      ! Obtain configuration in standard RASSCF form
+      IIBOP = 1
+      IIBCL = 1
+      JOCC = ICL+IOPEN
+      do KOCC=0,JOCC-1
+        KORB = ICONF(ICNBS+KOCC)
+        if (KORB < 0) then
+          ! Doubly occupied orbitals
+          KCNF(IIBCL) = abs(KORB)
+          IIBCL = IIBCL+1
+        else
+          ! Singly occupied orbital
+          KCNF(ICL+IIBOP) = KORB
+          IIBOP = IIBOP+1
+        end if
+      end do
+
+      ! COMPUTE STEP VECTOR
+      call STEPVEC(KCNF(1),KCNF(ICL+1),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
+      ! SKIP IT OR PRINT IT?
+      COEF = CICOEF(ICSFJP)
+      if (abs(COEF) < PRWTHR) cycle
+      ! PRINT IT
+      write(Line(1:),'(I8)') icsfjp
+      iOff = 10
+      iSym = nSm(1)
+      do iorb=1,norb
+        if (nSm(iorb) /= iSym) iOff = iOff+1
+        if (iwalk(iorb) == 3) then
+          write(Line(iOff+iorb:),'(A1)') '2'
+        else if (iwalk(iorb) == 2) then
+          write(Line(iOff+iorb:),'(A1)') 'd'
+        else if (iwalk(iorb) == 1) then
+          write(Line(iOff+iorb:),'(A1)') 'u'
+        else if (iwalk(iorb) == 0) then
+          write(Line(iOff+iorb:),'(A1)') '0'
+        end if
+        if (nSm(iorb) /= iSym) iSym = nSm(iorb)
+      end do
+      iOff = iOff+norb+3
+      write(Line(iOff:),'(2F8.5)') COEF,COEF**2
+      write(LF,'(6X,A)') Line(1:iOff+15)
+      Line = ' '
+
+    end do
+  end do
+end do
+
+end subroutine gasprwf

@@ -11,99 +11,125 @@
 ! Copyright (C) 2014, Giovanni Li Manni                                *
 !               2019, Oskar Weser                                      *
 !***********************************************************************
-module fcidump_reorder
-  use fcidump_tables, only :  FockTable, TwoElIntTable, OrbitalTable,&
-    mma_deallocate, length
-  use sorting_funcs, only : leq_i
 
-  implicit none
-  private
-  public :: reorder, get_P_GAS, get_P_inp, ReOrFlag, ReOrInp, cleanup
-  save
+module fcidump_reorder
+
+use fcidump_tables, only: FockTable, TwoElIntTable, OrbitalTable, length
+use sorting_funcs, only: leq_i
+
+implicit none
+private
+
 ! n==0: Don't reorder.
 ! n>=2: User defined permutation with n non-fixed point elements.
 ! n==-1: Use GAS sorting scheme.
-  integer :: ReOrFlag = 0
-  integer, allocatable :: ReOrInp(:)
+integer :: ReOrFlag = 0
+integer, allocatable :: ReOrInp(:)
 
-  interface reorder
-    module procedure :: FockTable_reorder, TwoElIntTable_reorder, &
-      OrbitalTable_reorder, ALL_reorder
-  end interface
+public :: reorder, get_P_GAS, get_P_inp, ReOrFlag, ReOrInp, cleanup
+
+interface reorder
+  module procedure :: FockTable_reorder, TwoElIntTable_reorder, OrbitalTable_reorder, ALL_reorder
+end interface reorder
 
 contains
 
-  subroutine OrbitalTable_reorder(orbitals, P)
-    type(OrbitalTable), intent(inout) :: orbitals
-    integer, intent(in) :: P(:)
-    integer :: i
-    do i = 1, length(orbitals)
-      orbitals%index(i) = P(orbitals%index(i))
+subroutine OrbitalTable_reorder(orbitals,P)
+
+  type(OrbitalTable), intent(inout) :: orbitals
+  integer, intent(in) :: P(:)
+  integer :: i
+
+  do i=1,length(orbitals)
+    orbitals%index(i) = P(orbitals%index(i))
+  end do
+
+end subroutine OrbitalTable_reorder
+
+subroutine FockTable_reorder(fock,P)
+
+  type(FockTable), intent(inout) :: fock
+  integer, intent(in) :: P(:)
+  integer :: i, j
+
+  do j=1,length(fock)
+    do i=1,2
+      fock%index(i,j) = P(fock%index(i,j))
     end do
-  end subroutine
+  end do
 
-  subroutine FockTable_reorder(fock, P)
-    type(FockTable), intent(inout) :: fock
-    integer, intent(in) :: P(:)
-    integer :: i, j
-    do j = 1, length(fock)
-      do i = 1, 2
-        fock%index(i, j) = P(fock%index(i, j))
-      end do
+end subroutine FockTable_reorder
+
+subroutine TwoElIntTable_reorder(two_el_table,P)
+
+  type(TwoElIntTable), intent(inout) :: two_el_table
+  integer, intent(in) :: P(:)
+  integer :: i, j
+
+  do j=1,length(two_el_table)
+    do i=1,4
+      two_el_table%index(i,j) = P(two_el_table%index(i,j))
     end do
-  end subroutine
-
-  subroutine TwoElIntTable_reorder(two_el_table, P)
-    type(TwoElIntTable), intent(inout) :: two_el_table
-    integer, intent(in) :: P(:)
-    integer :: i, j
-    do j = 1, length(two_el_table)
-      do i = 1, 4
-        two_el_table%index(i, j) = P(two_el_table%index(i, j))
-      end do
+  end do
+  do j=1,length(two_el_table)
+    do i=1,4
+      two_el_table%index(i,j) = P(two_el_table%index(i,j))
     end do
-    do j = 1, length(two_el_table)
-      do i = 1, 4
-        two_el_table%index(i, j) = P(two_el_table%index(i, j))
-      end do
-    end do
-  end subroutine
+  end do
 
-  function get_P_GAS(ngssh) result(P)
-    use sorting, only : argsort
-    use general_data, only : nSym
-    use gas_data, only : nGAS
-    integer, intent(in) :: ngssh(:, :)
-    integer :: P(sum(ngssh)), X(sum(ngssh))
-    integer :: iGAS, iSym, i
-    X(:) = [(((iGAS, i = 1, ngssh(iGAS, iSym)), iGAS = 1, nGAS), iSym = 1, nSym)]
-    P(:) = argsort(X, leq_i)
-  end function
+end subroutine TwoElIntTable_reorder
 
-  function get_P_inp(ReOrInp) result(P)
-    use sorting, only : sort
-    use general_data, only : nAsh
-    integer, intent(in) :: ReOrInp(:)
-    integer :: P(sum(nAsh)), change_idx(size(ReOrInp)), i
-    P(:) = [(i, i = 1, size(P))]
-    change_idx(:) = ReOrInp
-    call sort(change_idx, leq_i)
-    P(change_idx) = ReOrInp
-  end function
+function get_P_GAS(ngssh) result(P)
 
-  subroutine ALL_reorder(orbitals, fock, two_el_table, orbsym, P)
-    type(OrbitalTable), intent(inout) :: orbitals
-    type(FockTable), intent(inout) :: fock
-    type(TwoElIntTable), intent(inout) :: two_el_table
-    integer, intent(inout) :: orbsym(:)
-    integer, intent(in) :: P(:)
-    call reorder(orbitals, P)
-    call reorder(fock, P)
-    call reorder(two_el_table, P)
-    orbsym(:) = orbsym(P)
-  end subroutine
+  use sorting, only: argsort
+  use general_data, only: nSym
+  use gas_data, only: nGAS
 
-  subroutine cleanup()
-    call mma_deallocate(ReOrInp,safe='*')
-  end subroutine
+  integer, intent(in) :: ngssh(:,:)
+  integer :: P(sum(ngssh)), X(sum(ngssh))
+  integer :: iGAS, iSym, i
+
+  X(:) = [(((iGAS,i=1,ngssh(iGAS,iSym)),iGAS=1,nGAS),iSym=1,nSym)]
+  P(:) = argsort(X,leq_i)
+
+end function get_P_GAS
+
+function get_P_inp(ReOrInp) result(P)
+
+  use sorting, only: sort
+  use general_data, only: nAsh
+
+  integer, intent(in) :: ReOrInp(:)
+  integer :: P(sum(nAsh)), change_idx(size(ReOrInp)), i
+
+  P(:) = [(i,i=1,size(P))]
+  change_idx(:) = ReOrInp
+  call sort(change_idx,leq_i)
+  P(change_idx) = ReOrInp
+
+end function get_P_inp
+
+subroutine ALL_reorder(orbitals,fock,two_el_table,orbsym,P)
+
+  type(OrbitalTable), intent(inout) :: orbitals
+  type(FockTable), intent(inout) :: fock
+  type(TwoElIntTable), intent(inout) :: two_el_table
+  integer, intent(inout) :: orbsym(:)
+  integer, intent(in) :: P(:)
+
+  call reorder(orbitals,P)
+  call reorder(fock,P)
+  call reorder(two_el_table,P)
+  orbsym(:) = orbsym(P)
+
+end subroutine ALL_reorder
+
+subroutine cleanup()
+
+  use fcidump_tables, only: mma_deallocate
+
+  call mma_deallocate(ReOrInp,safe='*')
+
+end subroutine cleanup
+
 end module fcidump_reorder

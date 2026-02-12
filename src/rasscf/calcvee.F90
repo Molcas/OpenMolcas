@@ -14,30 +14,31 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine CalcVee(Vee,RMat,DDg)
-      use rasscf_global, only: lRoots
-      Implicit None
 
+subroutine CalcVee(Vee,RMat,DDg)
 
+use rasscf_global, only: lRoots
+
+implicit none
+real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
+real*8, dimension(lroots,lroots) :: RMat
+real*8, dimension(lroots) :: Vee
+integer IState, iJ, iK, iL, iM
 #include "warnings.h"
-      Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
-      Real*8,DIMENSION(lroots,lroots)::RMat
-      Real*8,DIMENSION(lroots)::Vee
-      INTEGER IState,iJ,iK,iL,iM
-      DO IState=1,lRoots
-       Vee(IState)=0.0d0
-       Do iJ=1,lRoots
-        Do iK=1,lRoots
-         Do iL=1,lRoots
-          Do iM=1,lRoots
-          Vee(Istate)=Vee(IState)+RMat(IState,iJ)*RMat(IState,iK)*      &
-     &RMat(IState,iL)*RMat(IState,iM)*DDG(iJ,iK,iL,iM)
-          End Do
-         End Do
-        End Do
-       End Do
-       Vee(IState)=Vee(IState)/2
-!       write(6,'(A,I2,A,F10.6)')'The classic coulomb energy for state ',
-!     & IState,' is ',Vee(IState)
-      END DO
-      END SUBROUTINE CalcVee
+
+do IState=1,lRoots
+  Vee(IState) = 0.0d0
+  do iJ=1,lRoots
+    do iK=1,lRoots
+      do iL=1,lRoots
+        do iM=1,lRoots
+          Vee(Istate) = Vee(IState)+RMat(IState,iJ)*RMat(IState,iK)*RMat(IState,iL)*RMat(IState,iM)*DDG(iJ,iK,iL,iM)
+        end do
+      end do
+    end do
+  end do
+  Vee(IState) = Vee(IState)/2
+  !write(6,'(A,I2,A,F10.6)') 'The classic coulomb energy for state ',IState,' is ',Vee(IState)
+end do
+
+end subroutine CalcVee

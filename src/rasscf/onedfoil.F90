@@ -14,16 +14,22 @@
 ! history:                                                       *
 ! Jie J. Bao, on Apr. 07, 2022, created this file.               *
 !*****************************************************************
-      Subroutine OneDFoil(OneD,TwoD,m,n)
-      INTEGER M,N,I,J,iLoc
-      Real*8,DIMENSION(m,n)::TwoD
-      Real*8,DIMENSION(m*n)::OneD
-      iLoc=1
-      DO J=1,N
-       Do I=1,M
-        OneD(iLoc)=TwoD(I,J)
-        iLoc=iLoc+1
-       End Do
-      END DO
-      RETURN
-      End Subroutine
+
+subroutine OneDFoil(OneD,TwoD,m,n)
+
+implicit none
+integer M, N, I, J, iLoc
+real*8, dimension(m,n) :: TwoD
+real*8, dimension(m*n) :: OneD
+
+iLoc = 1
+do J=1,N
+  do I=1,M
+    OneD(iLoc) = TwoD(I,J)
+    iLoc = iLoc+1
+  end do
+end do
+
+return
+
+end subroutine OneDFoil
