@@ -37,7 +37,6 @@ integer(kind=iwp) :: i, iComp, iOpt, ip0, iSyLbl, iSym, j, jrc, kC, kC1, kD, kOf
 real(kind=wp) :: Tol, Tst, xErr, xNrm
 character(len=80) :: Txt
 character(len=8) :: Label
-logical(kind=iwp) :: Prnt
 real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:), Umat(:)
 character(len=*), parameter :: SecNam = 'TestLoc'
 real(kind=wp), external :: ddot_
