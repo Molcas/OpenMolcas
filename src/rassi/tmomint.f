@@ -14,7 +14,7 @@
 * Object: driver for computation of TMOM integrals                     *
 *                                                                      *
 ************************************************************************
-      use definitions, only: iwp, wp, u6
+      use definitions, only: iwp, wp
       Use MpmC
       Use Integral_interfaces, only: int_kernel, int_mem
 !#define _DEBUGPRINT_
