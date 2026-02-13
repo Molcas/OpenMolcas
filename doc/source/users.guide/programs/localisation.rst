@@ -277,6 +277,38 @@ Optional general keywords
               This is the default.
               </KEYWORD>
 
+:kword:`OPTMethod`
+  The next line specifies the optimization method used to maximize the Pipek--Mezey functional.
+  Options: 
+    - Jacobi Sweeps (Default) = 'JACO'
+    - Newton Raphson method = 'NEWT'
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="OPTM" APPEAR="Method used to do PM localisation" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: OPTM <basic>
+              <HELP>
+              The next line specifies the optimization method used to maximize the Pipek-Mezey functional.
+              Options: 
+                - Jacobi Sweeps (Default) = 'JACO'
+                - Newton Raphson method = 'NEWT'
+              </HELP>
+              </KEYWORD>
+
+:kword:`CHARgeType`
+  The next line specifies the type of partial charges used within the Pipek--Mezey localisation.
+  Options: 
+    - Mulliken charges (Default) = 'MULL'
+    - Loewdin charges = 'LOWD' or 'LOEW'
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="CHAR" APPEAR="Type of partial charges used for PM localisation" KIND="STRING" LEVEL="BASIC">
+              %%Keyword: CHAR <basic>
+              <HELP>
+              The next line specifies the type of partial charges used within the Pipek-Mezey localisation.
+              Options: 
+                - Mulliken charges (Default) = 'MULL'
+                - Loewdin charges = 'LOWD' or 'LOEW'
+              </HELP>
+              </KEYWORD>
+
 :kword:`BOYS`
   Requests Boys localisation. The default is Pipek--Mezey.
 
@@ -404,6 +436,20 @@ Optional general keywords
               %%Keyword: THRR <advanced>
               The following line specifies the screening threshold used in
               the Jacobi sweep optimisation algorithm. The default is 1.0d-10.
+              </KEYWORD>
+
+:kword:`SCRAmble`
+  The following line specifies a factor used in the scrambling of the start orbitals to break 
+  any symmetry if present. The default is 0.0d0.
+
+  .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="SCRA" APPEAR="Scrambling factor" LEVEL="ADVANCED" KIND="REAL">
+              <HELP>
+              The following line specifies a factor used in the scrambling of the start orbitals to break 
+              any symmetry if present. The default is 0.0d0.
+              </HELP>
+              %%Keyword: THRR <advanced>
+              The following line specifies a factor used in the scrambling of the start orbitals to break 
+              any symmetry if present. The default is 0.0d0.
               </KEYWORD>
 
 :kword:`CHOStart`
