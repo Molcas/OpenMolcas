@@ -34,10 +34,10 @@ subroutine Guess(CMO)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use output_ras, only: LF
 use general_data, only: NSYM, NBAS, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 real*8 CMO(*)
@@ -62,11 +62,11 @@ iSyLbl = 1
 Label = 'OneHam  '
 call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
 if (iRc /= 0) then
-  write(LF,*) ' RASSCF tried to construct start orbitals from'
-  write(LF,*) ' diagonalization of core Hamiltonian, but ran into'
-  write(LF,*) ' a severe error: Failed to read the Hamiltonian'
-  write(LF,*) ' from the ONEINT file. Something may be wrong with'
-  write(LF,*) ' the file.'
+  write(u6,*) ' RASSCF tried to construct start orbitals from'
+  write(u6,*) ' diagonalization of core Hamiltonian, but ran into'
+  write(u6,*) ' a severe error: Failed to read the Hamiltonian'
+  write(u6,*) ' from the ONEINT file. Something may be wrong with'
+  write(u6,*) ' the file.'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 

@@ -10,7 +10,10 @@
 !                                                                      *
 ! Copyright (C) 2019, Oskar Weser                                      *
 !***********************************************************************
+
 module index_symmetry
+
+use Constants, only: Two, Half
 
 implicit none
 private
@@ -40,7 +43,7 @@ pure subroutine tuple_one_el_idx(n,i,j)
   integer, intent(in) :: n
   integer, intent(out) :: i, j
 
-  i = ceiling(-0.5d0+sqrt(2.0d0*n))
+  i = ceiling(-Half+sqrt(Two*n))
   j = n-(i-1)*i/2
 
 end subroutine tuple_one_el_idx
@@ -50,7 +53,7 @@ pure subroutine array_one_el_idx(n,idx)
   integer, intent(in) :: n
   integer, intent(out) :: idx(2)
 
-  idx(1) = ceiling(-0.5d0+sqrt(2.0d0*n))
+  idx(1) = ceiling(-Half+sqrt(Two*n))
   idx(2) = n-(idx(1)-1)*idx(1)/2
 
 end subroutine array_one_el_idx
@@ -82,12 +85,12 @@ pure subroutine tuple_two_el_idx(n,iorb,jorb,korb,lorb)
   integer, intent(out) :: iorb, jorb, korb, lorb
   integer :: ijidx, klidx
 
-  ijidx = ceiling(-0.5d0+sqrt(2.0d0*n))
+  ijidx = ceiling(-Half+sqrt(Two*n))
   klidx = n-(ijidx-1)*ijidx/2
 
-  iorb = ceiling(-0.5d0+sqrt(2.0d0*ijidx))
+  iorb = ceiling(-Half+sqrt(Two*ijidx))
   jorb = ijidx-(iorb-1)*iorb/2
-  korb = ceiling(-0.5d0+sqrt(2.0d0*klidx))
+  korb = ceiling(-Half+sqrt(Two*klidx))
   lorb = klidx-(korb-1)*korb/2
 
 end subroutine tuple_two_el_idx
@@ -98,12 +101,12 @@ pure subroutine array_two_el_idx(n,idx)
   integer, intent(out) :: idx(4)
   integer :: ijidx, klidx
 
-  ijidx = ceiling(-0.5d0+sqrt(2.0d0*n))
+  ijidx = ceiling(-Half+sqrt(Two*n))
   klidx = n-(ijidx-1)*ijidx/2
 
-  idx(1) = ceiling(-0.5d0+sqrt(2.0d0*ijidx))
+  idx(1) = ceiling(-Half+sqrt(Two*ijidx))
   idx(2) = ijidx-(idx(1)-1)*idx(1)/2
-  idx(3) = ceiling(-0.5d0+sqrt(2.0d0*klidx))
+  idx(3) = ceiling(-Half+sqrt(Two*klidx))
   idx(4) = klidx-(idx(3)-1)*idx(3)/2
 
 end subroutine array_two_el_idx

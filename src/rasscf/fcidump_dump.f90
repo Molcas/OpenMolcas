@@ -57,7 +57,7 @@ subroutine dump_ascii(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   LuFCI = isFreeUnit(38)
   call molcas_open(LuFCI,path)
 
-  write(LuFCI,'(1X,A11,I3,A7,I3,A5,I3,A)') ' &FCI NORB=',sum(nAsh),',NELEC=',nActEl,',MS2=',int((ISPIN-1.0d0)),','
+  write(LuFCI,'(1X,A11,I3,A7,I3,A5,I3,A)') ' &FCI NORB=',sum(nAsh),',NELEC=',nActEl,',MS2=',ISPIN-1,','
   write(LuFCI,'(A,500(I2,","))') '  ORBSYM=',(orbsym(i),i=1,size(orbsym))
   write(LuFCI,'(2X,A5,I1)') 'ISYM=',STSYM-1
   write(LuFCI,'(A)') ' &END'

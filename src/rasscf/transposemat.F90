@@ -22,14 +22,15 @@
 !     versa in mode 2.
 subroutine TransposeMat(Matout,Matin,nElem,nRow_in,nCol_in)
 
-implicit none
+use Definitions, only: u6
 
+implicit none
 integer nElem, nRow_in, nCol_in, iRow, iCol, iOff1, iOff2
 real*8 Matin(nElem), Matout(nElem)
 
 if (nRow_in*nCol_in /= nElem) then
-  write(6,*) 'Error in TransposeMat()'
-  write(6,*) 'nRow_in*nCol_in != nElem'
+  write(u6,*) 'Error in TransposeMat()'
+  write(u6,*) 'nRow_in*nCol_in != nElem'
 end if
 
 do iCol=1,nCol_in

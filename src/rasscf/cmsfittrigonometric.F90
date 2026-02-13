@@ -10,38 +10,39 @@
 !                                                                      *
 ! Copyright (C) 2020, Jie J. Bao                                       *
 !***********************************************************************
-! ****************************************************************
+!*****************************************************************
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
-! ****************************************************************
+!*****************************************************************
 
 subroutine CMSFitTrigonometric(x,y)
+
+use Constants, only: Four, Quart, Pi
 
 implicit none
 real*8, dimension(4) :: x, y
 real*8 s12, s23, c12, c23, d12, d23, k, a, b, c, phi, psi1, psi2, val1, val2
-real*8 atan1
+real*8, parameter :: atan1 = Quart*Pi
 
-s12 = sin(4.0d0*x(1))-sin(4.0d0*x(2))
-s23 = sin(4.0d0*x(2))-sin(4.0d0*x(3))
-c12 = cos(4.0d0*x(1))-cos(4.0d0*x(2))
-c23 = cos(4.0d0*x(2))-cos(4.0d0*x(3))
+s12 = sin(Four*x(1))-sin(Four*x(2))
+s23 = sin(Four*x(2))-sin(Four*x(3))
+c12 = cos(Four*x(1))-cos(Four*x(2))
+c23 = cos(Four*x(2))-cos(Four*x(3))
 d12 = y(1)-y(2)
 d23 = y(2)-y(3)
 k = s12/s23
 c = (d12-k*d23)/(c12-k*c23)
 b = (d12-c*c12)/s12
-a = y(1)-b*sin(4.0d0*x(1))-c*cos(4.0d0*x(1))
+a = y(1)-b*sin(Four*x(1))-c*cos(Four*x(1))
 phi = atan(b/c)
-atan1 = atan(1.0d0)
-psi1 = phi/4.0d0
+psi1 = phi*Quart
 if (psi1 > atan1) then
   psi2 = psi1-atan1
 else
   psi2 = psi1+atan1
 end if
-val1 = b*sin(4.0d0*psi1)+c*cos(4.0d0*psi1)
-val2 = b*sin(4.0d0*psi2)+c*cos(4.0d0*psi2)
+val1 = b*sin(Four*psi1)+c*cos(Four*psi1)
+val2 = b*sin(Four*psi2)+c*cos(Four*psi2)
 if (val1 > val2) then
   x(4) = psi1
   !y(4) = val1
@@ -50,6 +51,6 @@ else
   !y(4) = val2
 end if
 y(4) = a+sqrt(b**2+c**2)
-!write(6,*) a,b,c,x(4),y(4)
+!write(u6,*) a,b,c,x(4),y(4)
 
 end subroutine CMSFitTrigonometric

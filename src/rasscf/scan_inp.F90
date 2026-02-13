@@ -24,6 +24,7 @@ use UnixInfo, only: ProgName
 use input_ras, only: nKeys, CMD, KeyFlags, KeyEND, LuInput
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
+use Definitions, only: u6
 
 implicit none
 integer iRC
@@ -94,14 +95,14 @@ Go To 9990
 do I=0,NKeys
   KeyFlags(I) = .false.
 end do
-write(6,*) ' Scanning the input for keywords:'
-write(6,*) ' Rewinding LUInput=',LUInput
+write(u6,*) ' Scanning the input for keywords:'
+write(u6,*) ' Rewinding LUInput=',LUInput
 rewind(LuInput)
-write(6,*) ' OK after rewind.'
+write(u6,*) ' OK after rewind.'
 210 continue
-write(6,*) ' Reading a line...'
+write(u6,*) ' Reading a line...'
 read(LuInput,'(A)',end=9910,err=9920) Line
-write(6,*) ' '''//line(1:64)//' ...'''
+write(u6,*) ' '''//line(1:64)//' ...'''
 Command = Line(1:4)
 call UpCase(Command)
 do iCmd=1,NKeys
@@ -125,11 +126,11 @@ do iCmd=1,NKeys
     if (qcmaquis_input) goto 220
 #   endif
 
-    write(6,*) ' Understood keyword '''//Cmd(iCmd)//''''
+    write(u6,*) ' Understood keyword '''//Cmd(iCmd)//''''
     KeyFlags(iCmd) = .true.
     ! Special case: Skip title line.
     if (Command == 'TITL') then
-      write(6,*) ' Dummy read title line.'
+      write(u6,*) ' Dummy read title line.'
       read(LuInput,'(A)',end=9910,err=9920) Line
     end if
     goto 220
@@ -142,14 +143,14 @@ Go To 9990
 
 ! Error exits ---------------------------------------
 9910 continue
-write(6,*) ' Tried to read a new line. Hit End of record.'
-write(6,*) ' Last word was ',Command
+write(u6,*) ' Tried to read a new line. Hit End of record.'
+write(u6,*) ' Last word was ',Command
 irc = _RC_INPUT_ERROR_
 goto 9990
 !----------------------------------------------------
 9920 continue
-write(6,*) ' Tried, and failed, to read a new line.'
-write(6,*) ' Last word was ',Command
+write(u6,*) ' Tried, and failed, to read a new line.'
+write(u6,*) ' Last word was ',Command
 irc = _RC_INPUT_ERROR_
 goto 9990
 !----------------------------------------------------

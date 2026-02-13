@@ -17,6 +17,8 @@ module fcidump_transformations
 use general_data, only: nActEl, nAsh, ntot1, ntot2, nBas, nSym
 use rasscf_global, only: nAcPar, Emy, nAc
 use index_symmetry, only: one_el_idx_flatten
+use Constants, only: Zero
+use Definitions, only: wp
 
 implicit none
 private
@@ -39,18 +41,24 @@ contains
 !>  @param[in] DIAF
 !>  @param[out] orbital_energies
 subroutine get_orbital_E(actual_iter,DIAF,orbital_energies)
+
   integer, intent(in) :: actual_iter
   real*8, intent(in) :: DIAF(:)
   real*8, intent(out) :: orbital_energies(:)
 
-  orbital_energies = 0.d0
+  orbital_energies = Zero
   if ((0 <= actual_iter) .or. (actual_iter <= 1)) then
     call read_orbital_energies(nSym,nBas,orbital_energies)
   else
     orbital_energies(:) = DIAF(:)
   end if
-contains
+
+  contains
+
   subroutine read_orbital_energies(nSym,nBas,orbital_energies)
+
+    use Definitions, only: u6
+
     integer, intent(in) :: nSym, nBas(:)
     real*8, intent(inout) :: orbital_energies(:)
     real*8 :: Dummy(1)
@@ -58,14 +66,17 @@ contains
     character(len=*), parameter :: FnInpOrb = 'INPORB'
     character(len=80) :: VecTit
     logical :: okay
+
     call f_Inquire(FnInpOrb,okay)
     if (okay) then
       call RdVec(FnInpOrb,LuInpOrb,'E',nSym,nBas,nBas,Dummy,Dummy,orbital_energies,iDummy,VecTit,0,err)
     else
-      write(6,*) 'RdCMO: Error finding MO file'
+      write(u6,*) 'RdCMO: Error finding MO file'
       call Abend()
     end if
+
   end subroutine read_orbital_energies
+
 end subroutine get_orbital_E
 
 !>  @brief
@@ -114,9 +125,9 @@ subroutine fold_Fock(CMO,D1I_AO,D1A_AO,D1S_MO,F_In,folded_Fock)
 
   ! Remove the core energy in the diagonal elements.
   if (nActEl /= 0) then
-    core_E_per_act_el = Emy/dble(nActEl)
+    core_E_per_act_el = Emy/real(nActEl,kind=wp)
   else
-    core_E_per_act_el = 0.0d0
+    core_E_per_act_el = Zero
   end if
 
   do i=1,sum(nAsh)

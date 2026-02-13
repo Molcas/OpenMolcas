@@ -21,6 +21,7 @@
 subroutine RotGD(GD,R,nGD,lRoots,NAC2)
 
 use CMS, only: RGD
+use Constants, only: Zero, One
 
 implicit none
 integer nGD, lRoots, NAC2
@@ -30,19 +31,19 @@ integer iNAC2, iLoc, lRoots2
 
 lRoots2 = lRoots**2
 
-!write(6,*) 'rotation matrix in RotGD'
+!write(u6,*) 'rotation matrix in RotGD'
 !call RecPrt(' ',' ',R,lRoots,lRoots)
 
-!write(6,*) 'GD matrix after rotation'
+!write(u6,*) 'GD matrix after rotation'
 !call RecPrt(' ',' ',GD,lRoots2,NAC2)
 
 do iNAC2=1,NAC2
   iLoc = (iNAC2-1)*lRoots2+1
-  call DGEMM_('T','N',lRoots,lRoots,lRoots,1.0d0,R,lRoots,GD(iLoc),lRoots,0.0d0,RGD,lRoots)
-  call DGEMM_('N','N',lRoots,lRoots,lRoots,1.0d0,RGD,lRoots,R,lRoots,0.0d0,GD(iLoc),lRoots)
+  call DGEMM_('T','N',lRoots,lRoots,lRoots,One,R,lRoots,GD(iLoc),lRoots,Zero,RGD,lRoots)
+  call DGEMM_('N','N',lRoots,lRoots,lRoots,One,RGD,lRoots,R,lRoots,Zero,GD(iLoc),lRoots)
 end do
 
-!write(6,*) 'GD matrix after rotation'
+!write(u6,*) 'GD matrix after rotation'
 !call RecPrt(' ',' ',GD,lRoots2,NAC2)
 
 return

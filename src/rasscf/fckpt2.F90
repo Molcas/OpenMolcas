@@ -42,8 +42,10 @@ use rasscf_global, only: NORBT, NTOT3, FDIAG, ixSym, IADR15
 use rasscf_global, only: NAC
 #endif
 use PrintLevel, only: DEBUG, VERBOSE
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NTOT, JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, NSSH, NTOT2
+use Constants, only: Zero, One
+use Definitions, only: u6, u6
 
 implicit none
 real*8 CMOO(*), CMON(*), FI(*), FP(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*)
@@ -67,7 +69,7 @@ integer iPrLev, IB, ISTMO1, ISTFCK, ID, i, iAd15, iBas, IF, IFD, II, ioff, IST, 
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 IB = 0
 ISTMO1 = 1
@@ -88,11 +90,11 @@ if (tPrepStochCASPT2 .or. tNonDiagStochPT2) then
     call mma_allocate(vals,nActOrb*(nActOrb+1)/2)
     call mma_allocate(fockmat,nActOrb,nActOrb)
     call mma_allocate(vecs,nActOrb,nActOrb)
-    fockmat(:,:) = 0.0d0
-    vecs(:,:) = 0.0d0
+    fockmat(:,:) = Zero
+    vecs(:,:) = Zero
   end if
   indices(:,:) = 0
-  vals(:) = 0.0d0
+  vals(:) = Zero
   nOrbCount = 0  ! keeps track of indices over different irreps
 end if
 #endif
@@ -150,7 +152,7 @@ do ISYM=1,NSYM
     NFNB = NBF*NFO
     call DCOPY_(NFNB,CMOO(ISTMO1),1,CMON(ISTMO1),1)
     do NF=1,NFO
-      FDIAG(IB+NF) = 0.0d0
+      FDIAG(IB+NF) = Zero
     end do
   end if
 
@@ -169,7 +171,7 @@ do ISYM=1,NSYM
       do NJ=1,NI
         NIJ = NIJ+1
         FTR(NIJ) = FP(NIJ+ISTFCK)
-        if (IXSYM(IB+NFO+NI) /= IXSYM(IB+NFO+NJ)) FTR(NIJ) = 0.0d0
+        if (IXSYM(IB+NFO+NI) /= IXSYM(IB+NFO+NJ)) FTR(NIJ) = Zero
       end do
     end do
     ! DIAGONALIZE
@@ -177,7 +179,7 @@ do ISYM=1,NSYM
     call FZERO(VEC,NIO2)
     II = 1
     do NI=1,NIO
-      VEC(II) = 1.0d0
+      VEC(II) = One
       II = II+NIO+1
     end do
     call Jacob(FTR,VEC,NIO,NIO)
@@ -208,7 +210,7 @@ do ISYM=1,NSYM
 20      continue
       end do
     end if
-    call DGEACC(1.0d0,VEC,NIO,'N',CMOX,NOT,NIO,NIO)
+    call DGEACC(One,VEC,NIO,'N',CMOX,NOT,NIO,NIO)
   end if
 
   !*********************************************************************
@@ -229,7 +231,7 @@ do ISYM=1,NSYM
           NUT = NU+NIO
           NTUT = ISTFCK+(NTT**2-NTT)/2+NUT
           FTR(NTU) = FP(NTUT)
-          if (IXSYM(IB+NFO+NTT) /= IXSYM(IB+NFO+NUT)) FTR(NTU) = 0.0d0
+          if (IXSYM(IB+NFO+NTT) /= IXSYM(IB+NFO+NUT)) FTR(NTU) = Zero
         end do
       end do
       ! DIAGONALIZE
@@ -237,7 +239,7 @@ do ISYM=1,NSYM
       call FZERO(VEC,NR12)
       II = 1
       do NT=1,NR1
-        VEC(II) = 1.0d0
+        VEC(II) = One
         II = II+NR1+1
       end do
       call Jacob(FTR,VEC,NR1,NR1)
@@ -269,7 +271,7 @@ do ISYM=1,NSYM
 41        continue
         end do
       end if
-      call DGEACC(1.0d0,VEC,NR1,'N',CMOX(1+NOT*NIO+NIO),NOT,NR1,NR1)
+      call DGEACC(One,VEC,NR1,'N',CMOX(1+NOT*NIO+NIO),NOT,NR1,NR1)
 
 #     ifdef _ENABLE_CHEMPS2_DMRG_
       II = 0
@@ -294,16 +296,16 @@ do ISYM=1,NSYM
           NUT = NU+NIO+NR1
           NTUT = ISTFCK+(NTT**2-NTT)/2+NUT
           ! decoupling test of virtual orbitals
-          ! if ((NT > 12) .and. (NU < 13)) FP(NTUT) = 0.0D0
-          ! write(6,*) "t, u, F(t,u)", NT, NU, FP(NTUT)
+          ! if ((NT > 12) .and. (NU < 13)) FP(NTUT) = Zero
+          ! write(u6,*) "t, u, F(t,u)", NT, NU, FP(NTUT)
 #         ifdef _HDF5_
           if (tNonDiagStochPT2) then
-            if (iprlev >= debug) write(LF,*) 'fock(t,u)',NT+nOrbCount,NU+nOrbCount,FP(NTUT)
+            if (iprlev >= debug) write(u6,*) 'fock(t,u)',NT+nOrbCount,NU+nOrbCount,FP(NTUT)
             fockmat(NT+nOrbCount,NU+nOrbCount) = FP(NTUT)
           end if
 #         endif
           FTR(NTU) = FP(NTUT)
-          if (IXSYM(IB+NFO+NTT) /= IXSYM(IB+NFO+NUT)) FTR(NTU) = 0.0d0
+          if (IXSYM(IB+NFO+NTT) /= IXSYM(IB+NFO+NUT)) FTR(NTU) = Zero
         end do
       end do
 
@@ -312,7 +314,7 @@ do ISYM=1,NSYM
       call FZERO(VEC,NR22)
       II = 1
       do NT=1,NR2
-        VEC(II) = 1.0d0
+        VEC(II) = One
         II = II+NR2+1
       end do
       call Jacob(FTR,VEC,NR2,NR2)
@@ -344,7 +346,7 @@ do ISYM=1,NSYM
 42        continue
         end do
       end if
-      call DGEACC(1.0d0,VEC,NR2,'N',CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
+      call DGEACC(One,VEC,NR2,'N',CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
 
 #     ifdef _HDF5_
       if (tNonDiagStochPT2) then
@@ -390,7 +392,7 @@ do ISYM=1,NSYM
           NUT = NU+NIO+NR1+NR2
           NTUT = ISTFCK+(NTT**2-NTT)/2+NUT
           FTR(NTU) = FP(NTUT)
-          if (IXSYM(IB+NFO+NTT) /= IXSYM(IB+NFO+NUT)) FTR(NTU) = 0.0d0
+          if (IXSYM(IB+NFO+NTT) /= IXSYM(IB+NFO+NUT)) FTR(NTU) = Zero
         end do
       end do
       ! DIAGONALIZE
@@ -398,7 +400,7 @@ do ISYM=1,NSYM
       call FZERO(VEC,NR32)
       II = 1
       do NT=1,NR3
-        VEC(II) = 1.0d0
+        VEC(II) = One
         II = II+NR3+1
       end do
       call Jacob(FTR,VEC,NR3,NR3)
@@ -430,7 +432,7 @@ do ISYM=1,NSYM
 43        continue
         end do
       end if
-      call DGEACC(1.0d0,VEC,NR3,'N',CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,NR3,NR3)
+      call DGEACC(One,VEC,NR3,'N',CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,NR3,NR3)
 
 #     ifdef _ENABLE_CHEMPS2_DMRG_
       II = 0
@@ -457,7 +459,7 @@ do ISYM=1,NSYM
         NBT = NB+NIO+NAO
         NABT = ISTFCK+(NAT**2-NAT)/2+NBT
         FTR(NAB) = FP(NABT)
-        if (IXSYM(IB+NFO+NAT) /= IXSYM(IB+NFO+NBT)) FTR(NAB) = 0.0d0
+        if (IXSYM(IB+NFO+NAT) /= IXSYM(IB+NFO+NBT)) FTR(NAB) = Zero
       end do
     end do
     ! DIAGONALIZE
@@ -465,7 +467,7 @@ do ISYM=1,NSYM
     call FZERO(VEC,NEO2)
     II = 1
     do NA=1,NEO
-      VEC(II) = 1.0d0
+      VEC(II) = One
       II = II+NEO+1
     end do
     call Jacob(FTR,VEC,NEO,NEO)
@@ -497,12 +499,12 @@ do ISYM=1,NSYM
 60      continue
       end do
     end if
-    call DGEACC(1.0d0,VEC,NEO,'N',CMOX(1+NOT*NOC+NOC),NOT,NEO,NEO)
+    call DGEACC(One,VEC,NEO,'N',CMOX(1+NOT*NOC+NOC),NOT,NEO,NEO)
   end if
 
   ! Transform molecular orbitals
 
-  if (NBF*NTOT > 0) call DGEMM_('N','N',NBF,NOT,NOT,1.0d0,CMOO(ISTMO),NBF,CMOX,NOT,0.0d0,CMON(ISTMO),NBF)
+  if (NBF*NTOT > 0) call DGEMM_('N','N',NBF,NOT,NOT,One,CMOO(ISTMO),NBF,CMOX,NOT,Zero,CMON(ISTMO),NBF)
 
   !*********************************************************************
   ! Deleted orbitals (move MO's and set zero to FDIAG)
@@ -513,7 +515,7 @@ do ISYM=1,NSYM
     IST = ISTMO1+NBF*(NOO+NEO)
     call DCOPY_(NDNB,CMOO(IST),1,CMON(IST),1)
     do ND=1,NDO
-      FDIAG(IB+NBF-NDO+ND) = 0.0d0
+      FDIAG(IB+NBF-NDO+ND) = Zero
     end do
   end if
 
@@ -521,8 +523,8 @@ do ISYM=1,NSYM
 
   if (NOT > 0) then
     call SQUARE(FI(ISTFCK+1),SQ,1,NOT,NOT)
-    call DGEMM_('N','N',NOT,NOT,NOT,1.0d0,SQ,NOT,CMOX,NOT,0.0d0,VEC,NOT)
-    call DGEMM_('T','N',NOT,NOT,NOT,1.0d0,CMOX,NOT,VEC,NOT,0.0d0,SQ,NOT)
+    call DGEMM_('N','N',NOT,NOT,NOT,One,SQ,NOT,CMOX,NOT,Zero,VEC,NOT)
+    call DGEMM_('T','N',NOT,NOT,NOT,One,CMOX,NOT,VEC,NOT,Zero,SQ,NOT)
 
     ! Move transformed Fock matrix back to FI
 
@@ -537,8 +539,8 @@ do ISYM=1,NSYM
     ! The FP matrix
 
     call SQUARE(FP(ISTFCK+1),SQ,1,NOT,NOT)
-    call DGEMM_('N','N',NOT,NOT,NOT,1.0d0,SQ,NOT,CMOX,NOT,0.0d0,VEC,NOT)
-    call DGEMM_('T','N',NOT,NOT,NOT,1.0d0,CMOX,NOT,VEC,NOT,0.0d0,SQ,NOT)
+    call DGEMM_('N','N',NOT,NOT,NOT,One,SQ,NOT,CMOX,NOT,Zero,VEC,NOT)
+    call DGEMM_('T','N',NOT,NOT,NOT,One,CMOX,NOT,VEC,NOT,Zero,SQ,NOT)
 
     ! Move transformed Fock matrix back to FP
 
@@ -583,8 +585,8 @@ if (tPrepStochCASPT2 .or. tNonDiagStochPT2) then
   call mh5_close_dset(dset_id)
   call mma_deallocate(indices)
   call mma_deallocate(vals)
-  if (tPrepStochCASPT2) write(6,*) 'Diagonal active Fock matrix dumped.'
-  if (tNonDiagStochPT2) write(6,*) 'Non-diagonal active Fock matrix dumped.'
+  if (tPrepStochCASPT2) write(u6,*) 'Diagonal active Fock matrix dumped.'
+  if (tNonDiagStochPT2) write(u6,*) 'Non-diagonal active Fock matrix dumped.'
 end if
 #endif
 
@@ -592,8 +594,8 @@ end if
 close(LuFCK)
 #endif
 if (IPRLEV >= VERBOSE) then
-  write(LF,*) ' Diagonal elements of the Fock matrix in FCKPT2:'
-  write(LF,'(1X,10F11.6)') (FDIAG(I),I=1,NTOT)
+  write(u6,*) ' Diagonal elements of the Fock matrix in FCKPT2:'
+  write(u6,'(1X,10F11.6)') (FDIAG(I),I=1,NTOT)
 end if
 
 !***********************************************************************
@@ -608,17 +610,17 @@ call ORTHO_RASSCF(WO,CMOX,CMON,SQ)
 !***********************************************************************
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' CMO in FCKPT2 after diag and orthog'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' CMO in FCKPT2 after diag and orthog'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   ioff = 0
   do iSym=1,nSym
     iBas = nBas(iSym)
     if (iBas /= 0) then
-      write(6,*) 'Sym =',iSym
+      write(u6,*) 'Sym =',iSym
       do i=1,iBas
-        write(6,*) (CMON(ioff+iBas*(i-1)+j),j=1,iBas)
+        write(u6,*) (CMON(ioff+iBas*(i-1)+j),j=1,iBas)
       end do
       iOff = iOff+(iBas*iBas)
     end if

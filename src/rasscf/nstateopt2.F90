@@ -22,6 +22,8 @@ use rasscf_global, only: lRoots, NAC, CMSThreshold, iCMSIterMax, iCMSIterMin
 use PrintLevel, only: USUAL
 use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, deg2rad
+use Definitions, only: u6
 
 implicit none
 real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GDMat
@@ -60,42 +62,42 @@ call RotGDMat(FRot,GDMat)
 call CalcVee2(Vee,GDMat,Gtuvx)
 VeeSumOld = SumArray(Vee,lRoots)
 ICMSIter = 0
-!write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)') ICMSIter,VeeSumOld,0.0d0
+!write(u6,'(6X,I4,8X,F16.8,8X,ES16.4E3)') ICMSIter,VeeSumOld,0.0d0
 do while (.not. Converged)
   do IPair=1,NPairs
-    theta(IPair) = 0.0d0
+    theta(IPair) = Zero
   end do
   ICMSIter = ICMSIter+1
   call ThetaOpt2(FRot,theta,VeeSumChange,StatePair,NPairs,GDMat,Vee,Gtuvx)
   VeeSumNew = VeeSumOld+VeeSumChange
   if (IPRLEV >= USUAL) then
     if (lRoots > 2) then
-      write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)') ICMSIter,VeeSumNew,VeeSumChange
+      write(u6,'(6X,I4,8X,F16.8,8X,ES16.4E3)') ICMSIter,VeeSumNew,VeeSumChange
       !call RecPrt(' ',' ',Vee,lRoots,1)
-      !write(6,*) SumArray(Vee,lRoots)
+      !write(u6,*) SumArray(Vee,lRoots)
     else
-      write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') ICMSIter,asin(FRot(2,1))/atan(1.0d0)*45.0d0,VeeSumNew,VeeSumChange
+      write(u6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') ICMSIter,asin(FRot(2,1))/deg2rad,VeeSumNew,VeeSumChange
       !call RecPrt(' ',' ',Vee,lRoots,1)
-      !write(6,*) SumArray(Vee,lRoots)
+      !write(u6,*) SumArray(Vee,lRoots)
     end if
   end if
   if (abs(VeeSumChange) < Threshold) then
     if (ICMSIter >= ICMSIterMin) then
       Converged = .true.
-      if (IPRLEV >= USUAL) write(6,'(4X,A)') 'CONVERGENCE REACHED'
+      if (IPRLEV >= USUAL) write(u6,'(4X,A)') 'CONVERGENCE REACHED'
     end if
   else
     if (ICMSIter >= ICMSIterMax) then
       Converged = .true.
       CMSNotConverged = .true.
-      write(6,'(4X,A)') 'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
-      write(6,'(4X,A)') 'TEMPORARY ROTATION MATRIX SAVED'
+      write(u6,'(4X,A)') 'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+      write(u6,'(4X,A)') 'TEMPORARY ROTATION MATRIX SAVED'
     end if
   end if
   !Converged = .true.
   VeeSumOld = VeeSumNew
 end do
-if (IPRLEV >= USUAL) write(6,*) repeat('=',71)
+if (IPRLEV >= USUAL) write(u6,*) repeat('=',71)
 
 call Copy2DMat(RotMat,FRot,lRoots,lRoots)
 call mma_deallocate(StatePair)

@@ -26,7 +26,7 @@ use Para_Info, only: Is_Real_Par
 use Definitions, only: MPIInt
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Definitions, only: wp, u6
 
 implicit none
 private
@@ -65,12 +65,12 @@ subroutine wait_and_read(filename,energy)
 #   endif
   end do
   if (myrank == 0) then
-    write(6,*) 'NEWCYCLE file found. Proceeding with SuperCI'
+    write(u6,*) 'NEWCYCLE file found. Proceeding with SuperCI'
     LuNewC = isFreeUnit(12)
     call molcas_open(LuNewC,'NEWCYCLE')
     read(LuNewC,*) (energy(i),i=1,nroots)
     close(LuNewC,status='delete')
-    write(6,*) 'I read the following energies:',energy
+    write(u6,*) 'I read the following energies:',energy
   end if
 # ifdef _MOLCAS_MPP_
   if (is_real_par()) call MPI_Bcast(energy,1_MPIInt,MPI_REAL8,ROOT,MPI_COMM_WORLD,error)
@@ -153,6 +153,8 @@ subroutine CleanMat(MAT)
   ! DMAT will be destroyed and replaced with a positive semi-definite one.
   ! N-representability will be preserved.
 
+  use Constants, only: Zero, One, Two
+
   real(wp), intent(inout) :: MAT(NacPar)
   real(wp), allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
   integer :: i, j
@@ -161,7 +163,7 @@ subroutine CleanMat(MAT)
   logical :: cleanup_required
 
   if (nacpar < 1) then
-    write(6,*) 'matrix size < 1.'
+    write(u6,*) 'matrix size < 1.'
     Go To 10
   end if
 
@@ -171,58 +173,57 @@ subroutine CleanMat(MAT)
   ! Allocate memory for eigenvectors and new DMAT
   call mma_allocate(EVC,NAC**2)
   ! Initialize eigenvectors
-  call dCopy_(NAC**2,[0.0d0],0,EVC,1)
   ! set eigenvector array to identity for this version of JACOB
-  call dCopy_(NAC,[1.0d0],0,EVC,NAC+1)
+  call unitmat(EVC,NAC)
 
   ! Step 1: Diagonalize MAT. Eigenvalues are stored in diagonal of MAT
-  trace = 0.0d0
+  trace = Zero
   do i=1,nac
     trace = trace+mat(i*(i+1)/2)
   end do
   call JACOB(MAT_copy,EVC,NAC,NAC)
 
 # ifdef _DEBUGPRINT_
-  write(6,*) 'eigenvalues: '
+  write(u6,*) 'eigenvalues: '
   do i=1,nac
-    write(6,*) MAT_copy(I*(I+1)/2)
+    write(u6,*) MAT_copy(I*(I+1)/2)
   end do
-  write(6,*) 'eigenvectors: '
+  write(u6,*) 'eigenvectors: '
   do i=1,nac
-    write(6,*) (EVC(i*NAC+j),j=0,NAC)
+    write(u6,*) (EVC(i*NAC+j),j=0,NAC)
   end do
 # endif
-  ! Set to zero negative eigenvalue and to TWO values larger than 2.0d0.
+  ! Set to zero negative eigenvalue and to TWO values larger than 2.0.
   cleanup_required = .false.
   do j=1,nac
-    if (MAT_copy(j*(j+1)/2) > 2.0d0) then
-      MAT_copy(j*(j+1)/2) = 2.0d0
+    if (MAT_copy(j*(j+1)/2) > Two) then
+      MAT_copy(j*(j+1)/2) = Two
       cleanup_required = .true.
     end if
-    if (MAT_copy(j*(j+1)/2) < 1.0d-12) then
-      MAT_copy(j*(j+1)/2) = 0.0d0
+    if (MAT_copy(j*(j+1)/2) < 1.0e-12_wp) then
+      MAT_copy(j*(j+1)/2) = Zero
       cleanup_required = .true.
     end if
   end do
 
   if (cleanup_required) then
-    trace = 0.0d0
+    trace = Zero
     do i=1,nac
       trace = trace+MAT_copy(I*(I+1)/2)
     end do
-    write(6,*) 'trace after removing negative eigenvalues =',trace
+    write(u6,*) 'trace after removing negative eigenvalues =',trace
     ! Combine pieced to form the output MAT
     ! blas routine for square*triangular operation
     call mma_allocate(Tmp,nac**2)
     call mma_allocate(Tmp2,nac**2)
-    call dCopy_(nac**2,[0.0d0],0,Tmp,1)
-    call dCopy_(nac**2,[0.0d0],0,Tmp2,1)
+    call dCopy_(nac**2,[Zero],0,Tmp,1)
+    call dCopy_(nac**2,[Zero],0,Tmp2,1)
     do i=1,nac
       do j=1,nac
         Tmp(j+(i-1)*nac) = EVC(j+(i-1)*NAC)*MAT_copy(I*(I+1)/2)
       end do
     end do
-    call DGEMM_('N','T',nac,nac,nac,1.0d0,Tmp,nac,EVC,nac,0.0d0,Tmp2,nac)
+    call DGEMM_('N','T',nac,nac,nac,One,Tmp,nac,EVC,nac,Zero,Tmp2,nac)
     ! Copy back to MAT
     do i=1,nac
       do j=1,i
@@ -230,8 +231,8 @@ subroutine CleanMat(MAT)
       end do
     end do
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'trace after recombination:'
-    trace = 0.0d0
+    write(u6,*) 'trace after recombination:'
+    trace = Zero
     do i=1,nac
       trace = trace+MAT(i*(i+1)/2)
     end do
@@ -260,10 +261,12 @@ end function
 !> This is the inverse function of triangular_number
 elemental function inv_triang_number(n) result(res)
 
+  use Constants, only: Half, Quart
+
   integer, intent(in) :: n
   integer :: res
 
-  res = nint(-0.5_wp+sqrt(0.25_wp+real(2*n,kind=wp)))
+  res = nint(-Half+sqrt(Quart+real(2*n,kind=wp)))
 
 end function
 

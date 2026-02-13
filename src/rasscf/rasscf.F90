@@ -82,7 +82,7 @@ use rasscf_global, only: KSDFT, CBLBM, CMAX, DE, DOBLOCKDMRG, DoFaro, DoFCIDump,
                          iAdr15, Ener, Conv, DoDMRG, iCIRST, KSDFT_Temp
 use SplitCas_Data, only: DoSPlitCas, IterSplit, lRootSplit
 use PrintLevel, only: DEBUG, USUAL, TERSE
-use output_ras, only: LF, IPRLOC, RC_CI, RC_SX
+use output_ras, only: IPRLOC, RC_CI, RC_SX
 use general_data, only: NALTER, ITERFILE, NSYM, INVEC, ISPIN, NCONF, NCRVEC, JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, &
                         NRS3, NTOT, NTOT1, NTOT2
 use spinfo, only: DOBKAP
@@ -109,6 +109,8 @@ use rasscf_global, only: lRoots
 use general_data, only: NACTEL, STSYM
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
 
 implicit none
 integer IReturn, RC_RAS
@@ -176,7 +178,7 @@ DoDMRG = .false.
 IfVB = 0
 if (ProgName(1:5) == 'casvb') IfVB = 2
 ! Default option switches and values, and initial data.
-THMAX = 0.0d0
+THMAX = Zero
 call RasScf_Init()
 call Seward_Init()
 ! Open the one-olectron integral file:
@@ -186,8 +188,8 @@ iRC = -1
 iOpt = 0
 call OpnOne(iRC,iOpt,'ONEINT',LuOne)
 if (iRC /= 0) then
-  write(6,*) 'Error when trying to open the one-electron'
-  write(6,*) 'integral file.'
+  write(u6,*) 'Error when trying to open the one-electron'
+  write(u6,*) 'integral file.'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
 call StatusLine('RASSCF: ','Read-in ONEINT')
@@ -203,8 +205,8 @@ call cpinp(LUInput,iRc)
 ! If something wrong with input file:
 if (iRc /= _RC_ALL_IS_WELL_) then
   call WarningMessage(2,'Input file is unusable.')
-  write(6,*) ' RASSCF Error: Could not make a clean copy of'
-  write(6,*) ' the input file. This is an unexpected bug.'
+  write(u6,*) ' RASSCF Error: Could not make a clean copy of'
+  write(u6,*) ' the input file. This is an unexpected bug.'
   IRETURN = _RC_INTERNAL_ERROR_
   goto 9990
 end if
@@ -242,15 +244,15 @@ call Proc_Inp(DSCF,lOPTO,iRc)
 if (iRc /= _RC_ALL_IS_WELL_) then
   if (IPRLEV >= TERSE) then
     call WarningMessage(2,'Input processing failed.')
-    write(6,*) ' RASSCF Error: Proc_Inp failed unexpectedly.'
-    write(6,*) ' Check the output file for any previous messages'
-    write(6,*) ' that can help explain the failure.'
-    write(6,*) ' Here is a printing of the input file that'
-    write(6,*) ' was processed:'
+    write(u6,*) ' RASSCF Error: Proc_Inp failed unexpectedly.'
+    write(u6,*) ' Check the output file for any previous messages'
+    write(u6,*) ' that can help explain the failure.'
+    write(u6,*) ' Here is a printing of the input file that'
+    write(u6,*) ' was processed:'
     rewind(LUInput)
 15  continue
     read(LuInput,'(A80)',end=16,err=16) Line
-    write(6,*) Line
+    write(u6,*) Line
     Go To 15
 16  continue
   end if
@@ -311,33 +313,33 @@ if (doDMRG .and. PCM_On()) then
   if (twordm_qcm) call mma_allocate(RF2,NACPR2,Label='RF2')
 end if
 #endif
-FI(:) = 0.0d0
-FA(:) = 0.0d0
-DIAF(:) = 0.0d0
-ECAS1 = 0.0d0
-EVAC = 0.0d0
+FI(:) = Zero
+FA(:) = Zero
+DIAF(:) = Zero
+ECAS1 = Zero
+EVAC = Zero
 
 if ((iCIRST == 1) .and. DumpOnly) then
-  write(6,*) 'ICIRST and DumpOnly flags are not compatible!'
-  write(6,*) 'Choose only one.'
+  write(u6,*) 'ICIRST and DumpOnly flags are not compatible!'
+  write(u6,*) 'Choose only one.'
   call Abend()
 end if
 
 if (DumpOnly) then
-  write(6,*) 'Dumping integrals.'
-  write(6,*) 'Nothing else will be done.'
+  write(u6,*) 'Dumping integrals.'
+  write(u6,*) 'Nothing else will be done.'
 end if
 
 call mma_allocate(TUVX,NACPR2,Label='TUVX')
-TUVX(:) = 0.0d0
+TUVX(:) = Zero
 call mma_allocate(DSPN,NACPAR,Label='DSPN')
-DSPN(:) = 0.0d0
+DSPN(:) = Zero
 call mma_allocate(DMAT,NACPAR,Label='DMat')
-DMAT(:) = 0.0d0
+DMAT(:) = Zero
 call mma_allocate(PMAT,NACPR2,Label='PMat')
-PMAT(:) = 0.0d0
+PMAT(:) = Zero
 call mma_allocate(PA,NACPR2,Label='PA')
-PA(:) = 0.0d0
+PA(:) = Zero
 #ifdef _FDE_
 ! Embedding
 iDummyEmb = 0
@@ -376,7 +378,7 @@ end if
 
 ! Initialize OCCN array, to prevent false alarms later from
 ! automated detection of using uninitialized variables:
-OccN(:) = 0.0d0
+OccN(:) = Zero
 
 ! PAM03: Note that removal of linear dependence may change the nr
 ! of secondary/deleted orbitals, affecting some of the global
@@ -410,8 +412,8 @@ if (DumpOnly) goto 20
 if (ifvb == 2) goto 20
 
 if (dofcidump) then
-  write(LF,*)
-  write(LF,'(26X,A)') 'Dumping integrals on file FCIDUMP - nothing else to be done'
+  write(u6,*)
+  write(u6,'(26X,A)') 'Dumping integrals on file FCIDUMP - nothing else to be done'
   goto 20
 end if
 
@@ -423,40 +425,40 @@ end if
 
 call StatusLine('RASSCF: ','Compute wave function.')
 if ((IPRLEV >= 2) .and. (.not. lOPTO)) then
-  write(LF,*)
-  write(LF,'(6X,A)') repeat('*',120)
-  write(LF,'(6X,A,118X,A)') '*','*'
-  write(LF,'(6X,A,44X,A,45X,A)') '*','Wave function control section','*'
-  write(LF,'(6X,A,118X,A)') '*','*'
-  write(LF,'(6X,A)') repeat('*',120)
-  write(LF,*)
+  write(u6,*)
+  write(u6,'(6X,A)') repeat('*',120)
+  write(u6,'(6X,A,118X,A)') '*','*'
+  write(u6,'(6X,A,44X,A,45X,A)') '*','Wave function control section','*'
+  write(u6,'(6X,A,118X,A)') '*','*'
+  write(u6,'(6X,A)') repeat('*',120)
+  write(u6,*)
 end if
 
 if ((IPRLEV >= 2) .and. (.not. lOPTO)) then
   if (ICIONLY == 0) then
-    write(LF,*)
+    write(u6,*)
     if (doDMRG) then
-      write(LF,'(41X,A)') 'DMRGSCF iterations: Energy and convergence statistics'
-      write(LF,'(41X,A)') '-----------------------------------------------------'
+      write(u6,'(41X,A)') 'DMRGSCF iterations: Energy and convergence statistics'
+      write(u6,'(41X,A)') '-----------------------------------------------------'
     else
-      write(LF,'(41X,A)') 'RASSCF iterations: Energy and convergence statistics'
-      write(LF,'(41X,A)') '----------------------------------------------------'
+      write(u6,'(41X,A)') 'RASSCF iterations: Energy and convergence statistics'
+      write(u6,'(41X,A)') '----------------------------------------------------'
     end if
-    write(LF,*)
+    write(u6,*)
   else
-    write(LF,*)
+    write(u6,*)
     if (doDMRG) then
-      write(LF,'(41X,A)') 'DMRGCI only, no orbital optimization will be done.'
-      write(LF,'(41X,A)') '--------------------------------------------------'
+      write(u6,'(41X,A)') 'DMRGCI only, no orbital optimization will be done.'
+      write(u6,'(41X,A)') '--------------------------------------------------'
     else
-      write(LF,'(41X,A)') 'CASCI only, no orbital optimization will be done.'
-      write(LF,'(41X,A)') '-------------------------------------------------'
+      write(u6,'(41X,A)') 'CASCI only, no orbital optimization will be done.'
+      write(u6,'(41X,A)') '-------------------------------------------------'
     end if
-    write(LF,*)
+    write(u6,*)
   end if
 # ifdef _DMRG_
   if (doDMRG) then
-    write(LF,'(45x,a//,36x,a/,36x,a/,36x,a//,45x,a//,36x,a/,36x,a/,36x,a//,36x,a/,36x,a,a/,36x,a//)')
+    write(u6,'(45x,a//,36x,a/,36x,a/,36x,a//,45x,a//,36x,a/,36x,a/,36x,a//,36x,a/,36x,a,a/,36x,a//)')
       'Please cite for the QCMaquis-Molcas driver:',
       'Freitag L.; Keller S.; Knecht S.; Lindh R.; Ma Y.; ',
       'Stein C. J. and Reiher M., in preparation. (2018).',
@@ -468,41 +470,41 @@ if ((IPRLEV >= 2) .and. (.not. lOPTO)) then
   end if
 # endif
   if (INOCALC == 1) then
-    write(LF,*)
-    write(LF,'(26X,A)') ' No calculation will be performed. Stopping in LUCIA'
+    write(u6,*)
+    write(u6,'(26X,A)') ' No calculation will be performed. Stopping in LUCIA'
   end if
   if (ISAVE_EXP == 1) then
-    write(LF,*)
-    write(LF,'(26X,A)') ' Information on the CI-vector will be written to ???.'
+    write(u6,*)
+    write(u6,'(26X,A)') ' Information on the CI-vector will be written to ???.'
   end if
   if (IEXPAND == 1) then
-    write(LF,*)
-    write(LF,'(26X,A)') ' A shorter vector will be expanded in a longer'
+    write(u6,*)
+    write(u6,'(26X,A)') ' A shorter vector will be expanded in a longer'
   end if
   if (IPRLEV <= 3) then
     if (DoSplitCAS) then
-      write(LF,'(6X,A)') 'Iter CI   SX   CI       SplitCAS       Energy    max ROT     max BLB   max BLB  Level Ln srch  '// &
+      write(u6,'(6X,A)') 'Iter CI   SX   CI       SplitCAS       Energy    max ROT     max BLB   max BLB  Level Ln srch  '// &
                          'Step   QN   Walltime'
-      write(LF,'(6X,A)') '    iter iter root      energy       change     param      element    value   shift minimum  '// &
+      write(u6,'(6X,A)') '    iter iter root      energy       change     param      element    value   shift minimum  '// &
                          'type update hh:mm:ss'
     else if (DoBKAP) then
-      write(LF,'(6X,A)') 'Iter CI   SX   CI   RASSCF      CI    Energy    max ROT     max BLB   max BLB  Level Ln srch  '// &
+      write(u6,'(6X,A)') 'Iter CI   SX   CI   RASSCF      CI    Energy    max ROT     max BLB   max BLB  Level Ln srch  '// &
                          'Step   QN   Walltime'
-      write(LF,'(6X,A)') '    iter iter root  energy    energy  change     param      element    value   shift minimum  '// &
+      write(u6,'(6X,A)') '    iter iter root  energy    energy  change     param      element    value   shift minimum  '// &
                          'type update hh:mm:ss'
     else if (DoDMRG .and. (ICIONLY == 0)) then
-      write(LF,'(6X,A)') 'Iter num   Bond  DMRG max tr DMRG  SX      DMRGSCF       Energy    max ROT   max BLB     max BLB  '// &
+      write(u6,'(6X,A)') 'Iter num   Bond  DMRG max tr DMRG  SX      DMRGSCF       Energy    max ROT   max BLB     max BLB  '// &
                          'Level Ln srch  Step   QN     CPU Time'
-      write(LF,'(6X,A)') '   sweeps/ dim  /root weight/root iter     energy        change     param    element      value   '// &
+      write(u6,'(6X,A)') '   sweeps/ dim  /root weight/root iter     energy        change     param    element      value   '// &
                          'shift minimum  type update   hh:mm:ss'
     else if (DoDMRG .and. (ICIONLY /= 0)) then
 
     else if (l_casdft) then
 
     else
-      write(LF,'(6X,A)') 'Iter CI   SX   CI       RASSCF       Energy    max ROT     max BLB   max BLB  Level Ln srch  '// &
+      write(u6,'(6X,A)') 'Iter CI   SX   CI       RASSCF       Energy    max ROT     max BLB   max BLB  Level Ln srch  '// &
                          'Step   QN   Walltime'
-      write(LF,'(6X,A)') '    iter iter root      energy       change     param      element    value   shift minimum  '// &
+      write(u6,'(6X,A)') '    iter iter root      energy       change     param      element    value   shift minimum  '// &
                          'type update hh:mm:ss'
     end if
   end if
@@ -517,12 +519,12 @@ end if
 !                                                                      *
 Rc_CI = 0
 Rc_SX = 0
-ECAS = 0.0d0
-ROTMAX = 0.0d0
+ECAS = Zero
+ROTMAX = Zero
 ITER = 0
 actual_iter = 0
 IFINAL = 0
-TMXTOT = 0.0d0
+TMXTOT = Zero
 call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 !                                                                      *
 !***********************************************************************
@@ -536,7 +538,7 @@ call mma_allocate(FockOcc,nTot1,Label='FockOcc')
 if (l_casdft) then
   KSDFT_TEMP = KSDFT
   KSDFT = 'SCF'
-  ExFac = 1.0d0
+  ExFac = One
 else
   KSDFT_TEMP = KSDFT
   ExFac = Get_ExFac(KSDFT)
@@ -552,7 +554,7 @@ call Timing(dum1,dum2,time0(1),dum3)
 ! now, (to exclude potential side effects)
 ! but consider extending it to other cases!
 call DecideOnESPF(Do_ESPF)
-!write(LF,*) ' |rasscf> DecideOnESPF == ',Do_ESPF
+!write(u6,*) ' |rasscf> DecideOnESPF == ',Do_ESPF
 if ((ITER == 1) .and. ((.not. (DoDMRG .and. (ICIONLY /= 0))) .or. lRf .or. domcpdftDMRG .or. Do_ESPF)) then
 # else
 if (ITER == 1) then
@@ -576,15 +578,15 @@ if (ITER == 1) then
 
   if ((.not. DoCholesky) .or. (ALGO == 1)) then
     call mma_allocate(PUVX,NFINT,Label='PUVX')
-    PUVX(:) = 0.0d0
+    PUVX(:) = Zero
   end if
 
   call Get_D1I_RASSCF(CMO,D1I)
   if (IPRLEV >= DEBUG) then
-    write(LF,*)
-    write(LF,*) ' D1I in AO basis in RASSCF'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' D1I in AO basis in RASSCF'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     iOff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
@@ -609,9 +611,9 @@ if (ITER == 1) then
     lRf = .false.
     if (.not. l_casdft) then
       KSDFT = 'SCF'
-      ExFac = 1.0d0
+      ExFac = One
     end if
-    D1A(:) = 0.0d0
+    D1A(:) = Zero
 
     DoActive = .false.
 
@@ -622,18 +624,18 @@ if (ITER == 1) then
   if (IPRLOC(2) == 5) IPR = 10
 
   if (IPRLEV >= DEBUG) then
-    write(LF,*)
-    write(LF,*) ' PUVX in rasscf bf first TRACTL2'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' PUVX in rasscf bf first TRACTL2'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     call wrtmat(PUVX,1,nFint,1,nFint)
 
-    write(LF,*)
-    write(LF,*) ' ---------------------'
-    write(LF,*)
-    write(LF,*) ' D1A in AO basis in RASSCF bf TRACTL2 1'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' ---------------------'
+    write(u6,*)
+    write(u6,*) ' D1A in AO basis in RASSCF bf TRACTL2 1'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     iOff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
@@ -646,16 +648,16 @@ if (ITER == 1) then
   ! FI and FA are output from TRACTL2...
   call TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 
-  !write(6,*) ' TUVX after TRACTL2'
-  !write(6,*) (UVX(ind),ind=1,NACPR2)
+  !write(u6,*) ' TUVX after TRACTL2'
+  !write(u6,*) (UVX(ind),ind=1,NACPR2)
   ! Core shift applied to projection of WF with doubly occupied core
   if ((ITER == 1) .and. IfCRPR) call MkCRVEC(CMO,CRVEC)
 
   if (IPRLEV >= DEBUG) then
-    write(LF,*)
-    write(LF,*) ' D1A in AO basis in RASSCF af TRACTL2 1'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' D1A in AO basis in RASSCF af TRACTL2 1'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     iOff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
@@ -663,21 +665,21 @@ if (ITER == 1) then
       iOff = iOff+iBas*iBas
     end do
 
-    write(LF,*)
-    write(LF,*) ' ---------------------'
-    write(LF,*)
-    write(LF,*) ' PUVX in rasscf af first TRACTL2'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' ---------------------'
+    write(u6,*)
+    write(u6,*) ' PUVX in rasscf af first TRACTL2'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     call wrtmat(PUVX,1,nFint,1,nFint)
 
-    write(LF,*)
-    write(LF,*) ' ---------------------'
+    write(u6,*)
+    write(u6,*) ' ---------------------'
 
-    write(6,*) ' TUVX after TRACTL2'
-    write(6,*) (TUVX(ind),ind=1,NACPR2)
-    write(LF,*)
-    write(LF,*) ' ---------------------'
+    write(u6,*) ' TUVX after TRACTL2'
+    write(u6,*) (TUVX(ind),ind=1,NACPR2)
+    write(u6,*)
+    write(u6,*) ' ---------------------'
   end if
 
   if ((.not. DoCholesky) .or. (ALGO == 1)) call mma_deallocate(PUVX)
@@ -686,17 +688,17 @@ if (ITER == 1) then
   TimeTrans = TimeTrans+time2(2)-time2(1)
 
   if (IPRLEV >= DEBUG) then
-    write(LF,*)
-    write(LF,*) ' CMO in RASSCF bf first call to CICTL'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' CMO in RASSCF bf first call to CICTL'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     ioff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
       if (iBas /= 0) then
-        write(6,*) 'Sym =',iSym
+        write(u6,*) 'Sym =',iSym
         do i=1,iBas
-          write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+          write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
         end do
         iOff = iOff+(iBas*iBas)
       end if
@@ -722,7 +724,7 @@ if (ITER == 1) then
     call make_fcidumps('FCIDUMP','H5FCIDUMP',orbital_E,folded_Fock,TUVX=tuvx(:),core_energy=EMY)
     call mma_deallocate(orbital_E)
     call mma_deallocate(folded_Fock)
-    write(6,*) 'FCIDMP file generated. Here for serving you!'
+    write(u6,*) 'FCIDMP file generated. Here for serving you!'
     goto 2010
   end if
 
@@ -750,7 +752,7 @@ if (ITER == 1) then
     call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
 
     if (dofcidump) then
-      write(LF,*) ' FCIDUMP file generated. This is the end...'
+      write(u6,*) ' FCIDUMP file generated. This is the end...'
       goto 9990
     end if
 #   ifdef _FDE_
@@ -759,13 +761,13 @@ if (ITER == 1) then
       !Eemb = DDot_(NACPAR,embInt,1,DMAT,1)
       !Eemb = embPotEne(D1I,D1A,embInt,CMO,nBasFunc,nFrozenOrbs,.true.)
       Eemb = embPotEneMODensities(D1I,D1A,embInt,nBas,nTot2,nSym)
-      write(LF,*) 'Energy from embedding potential with the'
-      write(LF,*) 'initial CI vectors: ',Eemb
+      write(u6,*) 'Energy from embedding potential with the'
+      write(u6,*) 'initial CI vectors: ',Eemb
     end if
     !!!!!!!!!!!!!!!!!!!
 #   endif
     ! PAM 2015: Additional output line.
-    if ((IPRLEV >= USUAL) .and. (.not. doDMRG)) write(6,'(a,i4)') ' Nr of preliminary CI iterations:',ITERCI
+    if ((IPRLEV >= USUAL) .and. (.not. doDMRG)) write(u6,'(a,i4)') ' Nr of preliminary CI iterations:',ITERCI
   end if
 
   !.. dongxia testing jobiph
@@ -775,7 +777,7 @@ if (ITER == 1) then
   if (DSCF) NewFock = 1
   if (IfVB == 2) goto 9990
 
-  EAV = 0.0d0
+  EAV = Zero
   if (DoSplitCAS) then
     EAV = ENER(lRootSplit,ITER)
   else
@@ -787,10 +789,10 @@ if (ITER == 1) then
   call Get_D1A_RASSCF(CMO,DMAT,D1A)
 
   if (IPRLEV >= DEBUG) then
-    write(LF,*)
-    write(LF,*) ' D1A in AO basis in RASSCF af Get_D1A_RASSCF'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' D1A in AO basis in RASSCF af Get_D1A_RASSCF'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     iOff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
@@ -811,17 +813,17 @@ if (ITER == 1) then
   ! v GLM for MC-PDFT
   if ((KSDFT /= 'SCF') .and. (KSDFT /= 'PAM') .or. l_casdft) then
     if (IPRLEV >= DEBUG) then
-      write(LF,*)
-      write(LF,*) ' CMO in RASSCF bf call NATORB_RASSCF'
-      write(LF,*) ' ---------------------'
-      write(LF,*)
+      write(u6,*)
+      write(u6,*) ' CMO in RASSCF bf call NATORB_RASSCF'
+      write(u6,*) ' ---------------------'
+      write(u6,*)
       ioff = 1
       do iSym=1,nSym
         iBas = nBas(iSym)
         if (iBas /= 0) then
-          write(6,*) 'Sym =',iSym
+          write(u6,*) 'Sym =',iSym
           do i=1,iBas
-            write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+            write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
           end do
           iOff = iOff+(iBas*iBas)
         end if
@@ -843,17 +845,17 @@ if (ITER == 1) then
     call mma_deallocate(OCCX)
     call mma_deallocate(CMON)
     if (IPRLEV >= DEBUG) then
-      write(LF,*)
-      write(LF,*) ' CMO in RASSCF af call NATORB_RASSCF & bf 2 CICTL'
-      write(LF,*) ' ---------------------'
-      write(LF,*)
+      write(u6,*)
+      write(u6,*) ' CMO in RASSCF af call NATORB_RASSCF & bf 2 CICTL'
+      write(u6,*) ' ---------------------'
+      write(u6,*)
       ioff = 1
       do iSym=1,nSym
         iBas = nBas(iSym)
         if (iBas /= 0) then
-          write(6,*) 'Sym =',iSym
+          write(u6,*) 'Sym =',iSym
           do i=1,iBas
-            write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+            write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
           end do
           iOff = iOff+(iBas*iBas)
         end if
@@ -862,14 +864,14 @@ if (ITER == 1) then
   end if
   !^ GLM End If for MC-PDFT
 
-  EAV = 0.0d0
+  EAV = Zero
   do KROOT=1,NROOTS
     EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
   end do
   if (IPRLEV >= DEBUG) then
     if (l_casdft) then
-      write(6,*) 'EAV value in RASSCF after first call to CICTL:'
-      write(6,*) EAV
+      write(u6,*) 'EAV value in RASSCF after first call to CICTL:'
+      write(u6,*) EAV
     end if
   end if
 end if
@@ -889,20 +891,20 @@ else
 end if
 
 if ((IPRLEV >= DEBUG) .and. l_casdft) then
-  write(6,*) repeat('*',70)
-  write(6,*) 'we are done withe first standard CAS-CI iteration  '
-  write(6,*) 'CI coeffs are known and mantained fix in next stage'
-  write(6,*) 'We are now going to remove exchange from FI and FA '
-  write(6,*) 'in TRACTL2 --> TRA_CTL2 --> TRADRV --> FTWO        '
-  write(6,*) 'the ExFac is going to be set to 0.0d0 as DT asked! '
-  write(6,*) 'FI and FA are going to change... '
-  write(6,*) 'Check with previous printout to see differences.\  '
-  write(6,*) repeat('*',70)
+  write(u6,*) repeat('*',70)
+  write(u6,*) 'we are done withe first standard CAS-CI iteration  '
+  write(u6,*) 'CI coeffs are known and mantained fix in next stage'
+  write(u6,*) 'We are now going to remove exchange from FI and FA '
+  write(u6,*) 'in TRACTL2 --> TRA_CTL2 --> TRADRV --> FTWO        '
+  write(u6,*) 'the ExFac is going to be set to 0.0 as DT asked! '
+  write(u6,*) 'FI and FA are going to change... '
+  write(u6,*) 'Check with previous printout to see differences.\  '
+  write(u6,*) repeat('*',70)
 end if
 
 if (l_casdft) then
   KSDFT = KSDFT_TEMP
-  ExFac = 0.0d0
+  ExFac = Zero
 end if
 
 if (ICIONLY /= 0) IFINAL = 1
@@ -913,7 +915,7 @@ if (ICIONLY /= 0) IFINAL = 1
 call Timing(dum1,dum2,time2(1),dum3)
 if (.not. DoCholesky .or. (ALGO == 1)) then
   call mma_allocate(PUVX,NFINT,Label='PUVX')
-  PUVX(:) = 0.0d0
+  PUVX(:) = Zero
 end if
 call Get_D1I_RASSCF(CMO,D1I)
 
@@ -925,17 +927,17 @@ if (DoCholesky .and. (ALGO == 2)) then
     NTav = NTav+nBas(iSym)*nAsh(iSym)
   end do
   call mma_allocate(Qmat,NTav,Label='QMat')
-  QMat(:) = 0.0d0
+  QMat(:) = Zero
 end if
 
 IPR = 0
 if (IPRLOC(2) == 4) IPR = 5
 if (IPRLOC(2) == 5) IPR = 10
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' D1A in AO basis in RASSCF bf TRACTL2 2'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1A in AO basis in RASSCF bf TRACTL2 2'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -946,10 +948,10 @@ end if
 call TRACTL2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' D1A in AO basis in RASSCF af TRACTL2 2'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1A in AO basis in RASSCF af TRACTL2 2'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -994,7 +996,7 @@ if (.not. l_casdft) then !the following is skipped in CASDFT-GLM
       iShift = iShift+7
     end do
     call mma_allocate(EDUM,NTOT,Label='EDum')
-    EDum(:) = 0.0d0
+    EDum(:) = Zero
     write(VecTyp,'(A)')
     VecTyp = '* RASSCF average (pseudo-natural) orbitals (Not final)'
     LuvvVec = 50
@@ -1002,7 +1004,7 @@ if (.not. l_casdft) then !the following is skipped in CASDFT-GLM
     call WrVec('IterOrb',LuvvVec,'COE',NSYM,NBAS,NBAS,CMO(:),OCCN,EDUM,INDTYPE,VECTYP)
     call WrVec('IterOrb',LuvvVec,'AI',NSYM,NBAS,NBAS,CMO(:),OCCN,EDUM,INDTYPE,VECTYP)
     call mma_deallocate(EDUM)
-    write(6,*) 'MO coeffs for next iteration written to IterOrb.'
+    write(u6,*) 'MO coeffs for next iteration written to IterOrb.'
 
     call CI_solver%run(actual_iter=actual_iter, &
                        ifinal=ifinal, &
@@ -1029,7 +1031,7 @@ if (.not. l_casdft) then !the following is skipped in CASDFT-GLM
   ! call triprt('twxy',' ',TUVX,nAc*(nAc+1)/2)
   ! call triprt('P-mat 2',' ',PMAT,nAc*(nAc+1)/2)
 
-  EAV = 0.0d0
+  EAV = Zero
   if (DoSplitCAS) then
     EAV = ENER(lRootSplit,ITER)
   else
@@ -1039,38 +1041,38 @@ if (.not. l_casdft) then !the following is skipped in CASDFT-GLM
   end if
 
   if (IPRLEV >= DEBUG) then
-    write(6,*) 'EAV value in RASSCF after second call to CICTL:'
-    write(6,*) EAV
+    write(u6,*) 'EAV value in RASSCF after second call to CICTL:'
+    write(u6,*) EAV
 
-    write(6,*) 'Printing matrices in RASSCF'
-    write(LF,*)
-    write(LF,*) ' CMO in RASSCF'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*) 'Printing matrices in RASSCF'
+    write(u6,*)
+    write(u6,*) ' CMO in RASSCF'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     ioff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
       if (iBas /= 0) then
-        write(6,*) 'Sym =',iSym
+        write(u6,*) 'Sym =',iSym
         do i=1,iBas
-          write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+          write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
         end do
         iOff = iOff+(iBas*iBas)
       end if
     end do
 
-    write(LF,*)
-    write(LF,*) ' D1I in AO basis in RASSCF'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' D1I in AO basis in RASSCF'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     iOff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
       call wrtmat(D1I(ioff),iBas,iBas,iBas,iBas)
       iOff = iOff+iBas*iBas
     end do
-    write(6,*)
-    write(6,*) 'Total Charge :',Tot_Charge
+    write(u6,*)
+    write(u6,*) 'Total Charge :',Tot_Charge
 
     call mma_allocate(Tmp1,nTot1,Label='Tmp1')
     iComp = 1
@@ -1080,18 +1082,18 @@ if (.not. l_casdft) then !the following is skipped in CASDFT-GLM
     Label = 'OneHam'
     call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
     if (iRc /= 0) then
-      write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
+      write(u6,*) 'SGFCIN: iRc from Call RdOne not 0'
 #     ifdef _FDE_
-      write(LF,*) 'Label = ',Label
+      write(u6,*) 'Label = ',Label
 #     endif
-      write(LF,*) 'iRc = ',iRc
+      write(u6,*) 'iRc = ',iRc
       call Abend()
     end if
 
-    write(LF,*)
-    write(LF,*) ' OneHam in AO basis in RASSCF'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' OneHam in AO basis in RASSCF'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     iOff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
@@ -1102,13 +1104,13 @@ if (.not. l_casdft) then !the following is skipped in CASDFT-GLM
     call mma_deallocate(Tmp1)
     call Get_dScalar('PotNuc',potNuc)
 
-    write(6,*)
-    write(6,*) 'PotNuc :',PotNuc
+    write(u6,*)
+    write(u6,*) 'PotNuc :',PotNuc
 
-    write(LF,*)
-    write(LF,*) ' D1A in AO basis in RASSCF'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' D1A in AO basis in RASSCF'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     iOff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
@@ -1120,8 +1122,8 @@ else
   call mma_allocate(FOCK,NACPAR,Label='Fock')
   ! To fix the DS bug... I forgot to transform it to the AO basis... Agrrrrhhh!
   if (iSpin == 1) then
-    if (IPRLEV >= DEBUG) write(6,*) 'running a singlet. DSPN set to zero!'
-    DSPN(:) = 0.0d0
+    if (IPRLEV >= DEBUG) write(u6,*) 'running a singlet. DSPN set to zero!'
+    DSPN(:) = Zero
   end if
   call mma_allocate(TmpDS,NACPAR,Label='TmpDS')
   call mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
@@ -1141,10 +1143,10 @@ end if
 
 call Get_D1A_RASSCF(CMO,DMAT,D1A)
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' D1A in AO basis in RASSCF bf SXCTL'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1A in AO basis in RASSCF bf SXCTL'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -1163,7 +1165,7 @@ call rasscf_mcontrol(Iter)
 call Timing(dum1,dum2,time2(1),dum3)
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*) ' In RASSCF bf SXCTL'
+  write(u6,*) ' In RASSCF bf SXCTL'
   call TRIPRT('Averaged one-body density matrix, D, in RASSCF',' ',DMAT,NAC)
   call TRIPRT('Averaged two-body density matrix, P',' ',PMAT,NACPAR)
   call TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',' ',PA,NACPAR)
@@ -1171,10 +1173,10 @@ end if
 call SXCTL(CMO,OCCN,DMAT,PMAT,PA,FI,FA,D1A,THMAX,IFINAL)
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' FI+FA in RASSCF after SXCTL'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FI+FA in RASSCF after SXCTL'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -1183,12 +1185,12 @@ if (IPRLEV >= DEBUG) then
   end do
 end if
 
-!GLM write(6,*) 'ECAS in RASSCF after call to SXCTL',ECAS
+!GLM write(u6,*) 'ECAS in RASSCF after call to SXCTL',ECAS
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' D1A in AO basis in RASSCF af SXCTL'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1A in AO basis in RASSCF af SXCTL'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -1197,7 +1199,7 @@ if (IPRLEV >= DEBUG) then
   end do
 end if
 call Get_D1A_RASSCF(CMO,DMAT,D1A)
-CASDFT_Funct = 0.0d0
+CASDFT_Funct = Zero
 if ((KSDFT /= 'SCF') .and. (KSDFT /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_Funct)
 
 DE = (ECAS+CASDFT_Funct)-ECAS1
@@ -1213,7 +1215,7 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) then
   end if
 end if
 
-if (ITER == 1) DE = 0.0d0
+if (ITER == 1) DE = Zero
 call Timing(dum1,dum2,time2(2),dum3)
 TimeOrb = TimeOrb+time2(2)-time2(1)
 TMXTOT = max(TMXTOT,THMAX)
@@ -1251,10 +1253,10 @@ if ((IPRLEV >= 2) .and. (IPRLEV <= 3) .and. (.not. lOPTO)) then
   !----------------------------------
   ! Shift total energies (BOR 070411)
   if ((iter == 1) .and. (ICIONLY == 0)) then
-    kau = int(ECAS/1000.d0)
-    EVAC = 1000.d0*dble(kau)
+    kau = int(ECAS*1.0e-3_wp)
+    EVAC = 1.0e3_wp*real(kau,kind=wp)
     if (kau /= 0) then
-      write(6,'(6x,A,f23.2,A)') 'Total energies have been shifted. Add ',EVAC,' au'
+      write(u6,'(6x,A,f23.2,A)') 'Total energies have been shifted. Add ',EVAC,' au'
     end if
   end if
   !----------------------------------
@@ -1262,19 +1264,19 @@ if ((IPRLEV >= 2) .and. (IPRLEV <= 3) .and. (.not. lOPTO)) then
   imm = int(time0(2)-ihh*3600)/60
   iss = int(time0(2)-ihh*3600-imm*60)
   if (DoSplitCAS) then
-    write(LF,101) ITER,iterSplit,ITERSX,IROT,EAV,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,SXSHFT,TMIN,QNSTEP,QNUPDT, &
+    write(u6,101) ITER,iterSplit,ITERSX,IROT,EAV,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX,SXSHFT,TMIN,QNSTEP,QNUPDT, &
                   ihh,':',imm,':',iss
   else if (DoBKAP) then
-    write(LF,102) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,EAV,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
+    write(u6,102) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,EAV,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
                   SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
   else
     if (doDMRG .and. KeyCION) then ! If DMRG only -- yma
-      write(LF,'(/6X,a,F19.10)') 'DMRGCI energy              :',EAV+CASDFT_Funct
-      write(LF,'(6X,a,I5,A1,I2.2,A1,I2.2/)') 'Total time spent (hh:mm:ss):        ',ihh,':',imm,':',iss
+      write(u6,'(/6X,a,F19.10)') 'DMRGCI energy              :',EAV+CASDFT_Funct
+      write(u6,'(6X,a,I5,A1,I2.2,A1,I2.2/)') 'Total time spent (hh:mm:ss):        ',ihh,':',imm,':',iss
     else
       if (doDMRG) then
 #       ifdef _DMRG_
-        maxtrW = 0.0d0
+        maxtrW = Zero
         maxtrR = -1
         maxBD = -1
         ! These dmrg variables are arrays of rank 1
@@ -1283,34 +1285,33 @@ if ((IPRLEV >= 2) .and. (IPRLEV <= 3) .and. (.not. lOPTO)) then
         maxtrW = maxval(dmrg_energy%max_truncW)
         maxtrR = maxloc(dmrg_energy%max_truncW,1)
         maxBD = maxval(dmrg_energy%bond_dim)
-        write(LF,103) ITER,ITERCI,IROT,maxBD,maxtrW,maxtrR,ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM, &
+        write(u6,103) ITER,ITERCI,IROT,maxBD,maxtrW,maxtrR,ITERSX,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM, &
                       ISYMBB,CBLBM,CTHRSX,SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
 #       endif
       else
-        write(LF,104) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
+        write(u6,104) ITER,ITERCI,ITERSX,IROT,ECAS-EVAC+CASDFT_Funct,DE,CTHRE,ROTMAX,CTHRTE,IBLBM,JBLBM,ISYMBB,CBLBM,CTHRSX, &
                       SXSHFT,TMIN,QNSTEP,QNUPDT,ihh,':',imm,':',iss
       end if
     end if
   end if
 else if (IPRLEV >= 4) then
-  write(LF,'(6X,A,I4)') 'Energy statistics and convergence in iteration',ITER
-  write(LF,'(6X,A,10X,F26.6)') 'Average of CI energies',EAV-EVAC
-  write(LF,'(6X,A,F26.6)') 'Complete active space SCF energy',ECAS-EVAC
-  write(LF,'(6X,A,17X,F26.6)') 'Super-CI energy',ESX
-  write(LF,'(6X,A,12X,F26.6,3X,A1)') 'RASSCF energy change',DE,CTHRE
-  write(LF,'(6X,A,I1,A1,2I3,F19.6)') 'Maximum BLB matrix element(sym=',ISYMBB,')',IBLBM,JBLBM,CBLBM
-  write(LF,'(6X,A,10X,F26.6,3X,A1)') 'Max rotation parameter',ROTMAX,CTHRSX
-  write(LF,'(6X,A,14X,F26.6,3X,A1)') 'Max rotation angle',THMAX,CTHRTE
-  write(LF,'(6X,A,3X,F26.6)') 'Max change in MO coefficients',CMAX
+  write(u6,'(6X,A,I4)') 'Energy statistics and convergence in iteration',ITER
+  write(u6,'(6X,A,10X,F26.6)') 'Average of CI energies',EAV-EVAC
+  write(u6,'(6X,A,F26.6)') 'Complete active space SCF energy',ECAS-EVAC
+  write(u6,'(6X,A,17X,F26.6)') 'Super-CI energy',ESX
+  write(u6,'(6X,A,12X,F26.6,3X,A1)') 'RASSCF energy change',DE,CTHRE
+  write(u6,'(6X,A,I1,A1,2I3,F19.6)') 'Maximum BLB matrix element(sym=',ISYMBB,')',IBLBM,JBLBM,CBLBM
+  write(u6,'(6X,A,10X,F26.6,3X,A1)') 'Max rotation parameter',ROTMAX,CTHRSX
+  write(u6,'(6X,A,14X,F26.6,3X,A1)') 'Max rotation angle',THMAX,CTHRTE
+  write(u6,'(6X,A,3X,F26.6)') 'Max change in MO coefficients',CMAX
 end if
 #ifdef _FDE_
 ! Embedding
 if (embpot) then
   Eemb = embPotEneMODensities(D1I,D1A,embInt,nBas,nTot2,nSym)
-  write(LF,*) 'E from embedding potential (<Psi|v_emb|Psi>): ',Eemb
+  write(u6,*) 'E from embedding potential (<Psi|v_emb|Psi>): ',Eemb
 end if
 #endif
-call XFlush(6)
 !GLM some additional printout for MC-PDFT
 
 if (l_casdft) then
@@ -1324,71 +1325,71 @@ DIFFE = abs((ECAS-EAV)/ECAS)
 if (.not. DoSplitCAS) then
   if (DoBKAP) then
     if (iter == 1) then
-      if ((DIFFE > 1.D-10) .and. (NROOTS == 1)) then
-        write(LF,'(6X,A)') repeat('=',120)
+      if ((DIFFE > 1.0e-10_wp) .and. (NROOTS == 1)) then
+        write(u6,'(6X,A)') repeat('=',120)
         call WarningMessage(2,'Rasscf and CI energies will differ.')
-        write(LF,*) 'This is the price you pay by the diagonal approximation over the BB block in the SplitCAS method.'
-        write(LF,*) 'The RASSCF energy might also diverge!'
-        write(LF,'(A)') repeat('#',80)
+        write(u6,*) 'This is the price you pay by the diagonal approximation over the BB block in the SplitCAS method.'
+        write(u6,*) 'The RASSCF energy might also diverge!'
+        write(u6,'(A)') repeat('#',80)
       end if
     end if
   else if (l_casdft) then
-    write(LF,'(6X,A)') repeat('=',80)
-    write(LF,'(10X,A)') 'This is a POST-SCF correction using a modified  Hamiltonian.'
-    write(LF,'(10X,A)') 'The RASSCF energy has been corrected and it will differ from'
-    write(LF,'(10X,A)') 'the preceding CI energy.'
-    write(LF,'(6X,A)') repeat('=',80)
+    write(u6,'(6X,A)') repeat('=',80)
+    write(u6,'(10X,A)') 'This is a POST-SCF correction using a modified  Hamiltonian.'
+    write(u6,'(10X,A)') 'The RASSCF energy has been corrected and it will differ from'
+    write(u6,'(10X,A)') 'the preceding CI energy.'
+    write(u6,'(6X,A)') repeat('=',80)
   else
     if (doDMRG) then
 
 #     ifdef _DMRG_DEBUGPRINT_
-      write(lf,*) 'DMRG-SCF energy    ',ECAS
-      write(lf,*) 'DMRG sweeped energy',EAV
+      write(u6,*) 'DMRG-SCF energy    ',ECAS
+      write(u6,*) 'DMRG sweeped energy',EAV
 #     endif
 
       if (.not. KeyCION) then
-        if ((DIFFE > 1.0D-6) .and. (NROOTS == 1)) then
-          write(LF,'(6X,A)') repeat('=',120)
+        if ((DIFFE > 1.0e-6_wp) .and. (NROOTS == 1)) then
+          write(u6,'(6X,A)') repeat('=',120)
           call WarningMessage(2,'DMRGSCF and DMRG energies differ.')
-          write(LF,'(6X,A,I11)') 'iteration           ',ITER
-          write(LF,'(6X,A,F22.10)') 'DMRGSCF energy      ',ECAS
-          write(LF,'(6X,A,F22.10)') 'DMRG energy         ',EAV
-          write(LF,'(6X,A,F22.10)') 'relative difference ',DIFFE
-          write(LF,*) 'About this difference:'
-          write(LF,*) '1) If possible, consider a larger M value'
-          write(LF,*) '2) Severe convergence problems. Maybe active'
-          write(LF,*) '   space is unsuitable for this system?'
-          write(LF,'(6X,A)') repeat('=',120)
-          if ((DIFFE > 5.0D-04) .and. (NROOTS == 1)) then
-            write(LF,*)
-            write(LF,*) 'Warning : '
-            write(LF,*) ' Relative difference is near unacceptable'
-            write(LF,*) ' If possible, consider a larger M value'
-            write(LF,*)
+          write(u6,'(6X,A,I11)') 'iteration           ',ITER
+          write(u6,'(6X,A,F22.10)') 'DMRGSCF energy      ',ECAS
+          write(u6,'(6X,A,F22.10)') 'DMRG energy         ',EAV
+          write(u6,'(6X,A,F22.10)') 'relative difference ',DIFFE
+          write(u6,*) 'About this difference:'
+          write(u6,*) '1) If possible, consider a larger M value'
+          write(u6,*) '2) Severe convergence problems. Maybe active'
+          write(u6,*) '   space is unsuitable for this system?'
+          write(u6,'(6X,A)') repeat('=',120)
+          if ((DIFFE > 5.0e-4_wp) .and. (NROOTS == 1)) then
+            write(u6,*)
+            write(u6,*) 'Warning : '
+            write(u6,*) ' Relative difference is near unacceptable'
+            write(u6,*) ' If possible, consider a larger M value'
+            write(u6,*)
           end if
         end if
       end if
     else
-      DIFFETol = 1.D-10
+      DIFFETol = 1.0e-10_wp
 #     ifdef _ENABLE_DICE_SHCI_
-      if (DoBlockDMRG) DIFFETol = 1.D-8
+      if (DoBlockDMRG) DIFFETol = 1.0e-8_wp
 #     endif
       if ((DIFFE > DIFFETol) .and. (NROOTS == 1)) then
-        write(LF,'(6X,A)') repeat('=',120)
+        write(u6,'(6X,A)') repeat('=',120)
         call WarningMessage(2,'Rasscf and CI energies differ.')
-        write(LF,'(6X,A,I11)') 'iteration           ',ITER
-        write(LF,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
-        write(LF,'(6X,A,F22.10)') 'CI energy           ',EAV
-        write(LF,'(6X,A,F22.10)') 'relative difference ',DIFFE
-        write(LF,*) 'Severe convergence problems. Maybe the active'
-        write(LF,*) '   space is unsuitable for this system?'
-        write(LF,'(6X,A)') repeat('=',120)
-        if ((DIFFE > 1.0D-04) .and. (NROOTS == 1) .and. (.not. l_casdft)) then
-          write(LF,*)
-          write(LF,'(6X,A)') 'The program has to stop !!!'
-          write(LF,*)
-          write(LF,'(6X,A)') repeat('=',120)
-          write(LF,*)
+        write(u6,'(6X,A,I11)') 'iteration           ',ITER
+        write(u6,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
+        write(u6,'(6X,A,F22.10)') 'CI energy           ',EAV
+        write(u6,'(6X,A,F22.10)') 'relative difference ',DIFFE
+        write(u6,*) 'Severe convergence problems. Maybe the active'
+        write(u6,*) '   space is unsuitable for this system?'
+        write(u6,'(6X,A)') repeat('=',120)
+        if ((DIFFE > 1.0e-4_wp) .and. (NROOTS == 1) .and. (.not. l_casdft)) then
+          write(u6,*)
+          write(u6,'(6X,A)') 'The program has to stop !!!'
+          write(u6,*)
+          write(u6,'(6X,A)') repeat('=',120)
+          write(u6,*)
           ITERM = 99
           goto 2000
         end if
@@ -1396,17 +1397,17 @@ if (.not. DoSplitCAS) then
     end if
   end if
 else
-  !write(LF,'(6X,A,F22.10)') 'Split-RASSCF energy    ',ECAS
-  if (DIFFE > 5.0D-03) then
-    write(LF,'(6X,A)') repeat('*',120)
-    write(LF,'(6X,A)') 'The Split-RASSCF and Split-CI energies differ !!!'
-    !write(LF,'(6X,A,I11)') 'iteration           ',ITER
-    write(LF,'(6X,A,F22.10)') 'Split-RASSCF energy    ',ECAS
-    write(LF,'(6X,A,F22.10)') 'Split-CI energy        ',EAV
-    write(LF,'(6X,A,F22.10)') 'Relative difference    ',DIFFE
-    write(LF,*) '     Smaller is the difference more realiable is the result.'
-    write(LF,*) '     To make the difference smaller try to select a bigger AA block or use firstOrder keyword.'
-    write(LF,'(6X,A)') repeat('*',120)
+  !write(u6,'(6X,A,F22.10)') 'Split-RASSCF energy    ',ECAS
+  if (DIFFE > 5.0e-3_wp) then
+    write(u6,'(6X,A)') repeat('*',120)
+    write(u6,'(6X,A)') 'The Split-RASSCF and Split-CI energies differ !!!'
+    !write(u6,'(6X,A,I11)') 'iteration           ',ITER
+    write(u6,'(6X,A,F22.10)') 'Split-RASSCF energy    ',ECAS
+    write(u6,'(6X,A,F22.10)') 'Split-CI energy        ',EAV
+    write(u6,'(6X,A,F22.10)') 'Relative difference    ',DIFFE
+    write(u6,*) '     Smaller is the difference more realiable is the result.'
+    write(u6,*) '     To make the difference smaller try to select a bigger AA block or use firstOrder keyword.'
+    write(u6,'(6X,A)') repeat('*',120)
   end if
 end if
 
@@ -1430,20 +1431,20 @@ end if
 !***********************************************************************
 
 if (IFINAL == 1) goto 2000
-if (DE > 1.0d0) then
+if (DE > One) then
   call StatusLine('RASSCF: ','No convergence.')
-  write(LF,*)
-  write(LF,'(6X,A)') repeat('=',120)
+  write(u6,*)
+  write(u6,'(6X,A)') repeat('=',120)
   call WarningMessage(2,'Rasscf energy diverges.')
-  write(LF,'(6X,A,I11)') 'iteration           ',ITER
-  write(LF,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
-  write(LF,'(6X,A,F22.10)') 'energy difference   ',DE
-  write(LF,'(6X,A)') repeat('=',120)
-  write(LF,*)
-  write(LF,'(6X,A)') '!!! The program was forced to stop !!!'
-  write(LF,*)
-  write(LF,'(6X,A)') repeat('=',120)
-  write(LF,*)
+  write(u6,'(6X,A,I11)') 'iteration           ',ITER
+  write(u6,'(6X,A,F22.10)') 'RASSCF energy       ',ECAS
+  write(u6,'(6X,A,F22.10)') 'energy difference   ',DE
+  write(u6,'(6X,A)') repeat('=',120)
+  write(u6,*)
+  write(u6,'(6X,A)') '!!! The program was forced to stop !!!'
+  write(u6,*)
+  write(u6,'(6X,A)') repeat('=',120)
+  write(u6,*)
   ITERM = 99
   goto 2000
 end if
@@ -1454,30 +1455,30 @@ if (ITER < MAXIT) then
   if (abs(CBLBM) > THRSX) GO TO 1000
   if (abs(ROTMAX) > THRTE) GO TO 1000
   if ((ITER <= 3) .and. (ICIONLY == 0)) GO TO 1000   ! 3->0 checking
-  if (IPRLEV >= TERSE) write(LF,'(6X,A,I3,A)') 'Convergence after',ITER,' iterations'
+  if (IPRLEV >= TERSE) write(u6,'(6X,A,I3,A)') 'Convergence after',ITER,' iterations'
   if (IPRLEV >= DEBUG) then
-    write(LF,*)
-    write(LF,*) ' CMO in RASSCF after convergence printout'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' CMO in RASSCF after convergence printout'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     ioff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
       if (iBas /= 0) then
-        write(6,*) 'Sym =',iSym
+        write(u6,*) 'Sym =',iSym
         do i=1,iBas
-          write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+          write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
         end do
         iOff = iOff+(iBas*iBas)
       end if
     end do
   end if
   IFINAL = 1
-  call Add_Info('RASSCF_ITER',[dble(ITER)],1,8)
+  call Add_Info('RASSCF_ITER',[real(ITER,kind=wp)],1,8)
   !call Add_Info('RASSCF_THMX',TMXTOT,1,5)
   goto 1000
 else
-  if (IPRLEV >= TERSE) write(LF,'(6X,A,I3,A)') 'No convergence after',ITER,' iterations'
+  if (IPRLEV >= TERSE) write(u6,'(6X,A,I3,A)') 'No convergence after',ITER,' iterations'
   write(STLNE2,'(A12,I3)') 'Iteration ',ITER
   call StatusLine('RASSCF max iter: ',STLNE2)
   IFINAL = 1
@@ -1514,17 +1515,17 @@ else
   call DDAFILE(JOBIPH,2,CMO,NTOT2,IAD)
 end if
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' CMO in RASSCF after DDAFILE'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' CMO in RASSCF after DDAFILE'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   ioff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
     if (iBas /= 0) then
-      write(6,*) 'Sym =',iSym
+      write(u6,*) 'Sym =',iSym
       do i=1,iBas
-        write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+        write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
       end do
       iOff = iOff+(iBas*iBas)
     end if
@@ -1541,7 +1542,7 @@ end if
 call Timing(dum1,dum2,time2(1),dum3)
 if ((.not. DoCholesky) .or. (ALGO == 1)) then
   call mma_allocate(PUVX,NFINT,Label='PUVX')
-  PUVX(:) = 0.0d0
+  PUVX(:) = Zero
 end if
 
 call Get_D1I_RASSCF(CMO,D1I)
@@ -1599,12 +1600,12 @@ else if (doDMRG .and. (ICIONLY /= 0)) then
 else
   call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
 end if
-if (lRF .and. ((iPCMRoot <= 0) .or. (DWSolv%DWZeta /= 0.0d+00))) then
+if (lRF .and. ((iPCMRoot <= 0) .or. (DWSolv%DWZeta /= Zero))) then
   IAD15 = IADR15(6)
   call DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
 end if
 
-EAV = 0.0d0
+EAV = Zero
 if (DoSplitCAS) then
   EAV = ENER(lRootSplit,ITER)
 else
@@ -1705,7 +1706,7 @@ if (iRlxRoot == 0) iRlxRoot = iRoot(1)
 
 ! Replace average occ Fock with occ Fock for state iRlxRoot
 ! and densities with the densities for state iRLXRoot
-!write(6,*) 'I am in RASSCF before call to PutRlx!'
+!write(u6,*) 'I am in RASSCF before call to PutRlx!'
 if (ITERM /= 99) then
   call mma_allocate(Dens,nTot1,Label='Dens')
   call PutRlx(DMAT,DSPN,PMAT,Dens,CMO)
@@ -1727,19 +1728,19 @@ EMY = EMY+CASDFT_Funct
 
 call StatusLine('RASSCF: ','Printing results')
 if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
-  write(LF,*)
-  write(LF,'(6X,A)') repeat('*',120)
-  write(LF,'(6X,A,118X,A)') '*','*'
-  write(LF,'(6X,A,52X,A,53X,A)') '*','Final results','*'
-  write(LF,'(6X,A,118X,A)') '*','*'
-  write(LF,'(6X,A)') repeat('*',120)
-  write(LF,*)
+  write(u6,*)
+  write(u6,'(6X,A)') repeat('*',120)
+  write(u6,'(6X,A,118X,A)') '*','*'
+  write(u6,'(6X,A,52X,A,53X,A)') '*','Final results','*'
+  write(u6,'(6X,A,118X,A)') '*','*'
+  write(u6,'(6X,A)') repeat('*',120)
+  write(u6,*)
 end if
 #ifdef _FDE_
 ! Embedding
 if (embpot) then
   Eemb = embPotEneMODensities(D1I,D1A,embInt,nBas,nTot2,nSym)
-  write(LF,*) 'Final energy from embedding potential: ',Eemb
+  write(u6,*) 'Final energy from embedding potential: ',Eemb
   ! Write out ESP on grid if requested
   if (embWriteEsp) then
     call Get_iScalar('Unique atoms',nNuc)
@@ -1815,8 +1816,8 @@ call ClsSew()
 if (DoCholesky) then
   call Cho_X_Final(irc)
   if (irc /= 0) then
-    write(LF,*) 'RASSCF: Cho_X_Final fails with return code ',irc
-    write(LF,*) ' Try to recover. Calculation continues.'
+    write(u6,*) 'RASSCF: Cho_X_Final fails with return code ',irc
+    write(u6,*) ' Try to recover. Calculation continues.'
   end if
   if (Do_OFemb) then
     call mma_deallocate(FMaux)
@@ -1825,7 +1826,7 @@ if (DoCholesky) then
 end if
 
 !do i=1,NTOT2
-!  write(6,*) 'A,I',D1A(i),D1I(i)
+!  write(u6,*) 'A,I',D1A(i),D1I(i)
 !end do
 call mma_deallocate(CleanMask,safe='*')
 
@@ -1833,7 +1834,7 @@ call mma_deallocate(CleanMask,safe='*')
 if (.not. any([allocated(CI_solver),DumpOnly,doDMRG,doBlockDMRG])) call Lucia_Util('CLOSE')
 
 call StatusLine('RASSCF: ','Finished.')
-if (IPRLEV >= 2) write(LF,*)
+if (IPRLEV >= 2) write(u6,*)
 if (ifvb == 1) call make_close_rvb()
 !vv call to grid is moved up, in order to call clssew safely..
 !if (iCIonly == 0) call Grid_driver(-1,'RASSCF','RASORB',iR)
@@ -1896,21 +1897,21 @@ if (doDMRG) then
   ! with the new interface or read from QCMaquis HDF5 result
   ! file.
   if (DoNEVPT2Prep) then
-    if (MAXIT == 0) write(6,*) ' --- DMRG-SCF iterations are skipped, only QCMaquis input for higher-order RDMs will be generated.'
+    if (MAXIT == 0) write(u6,*) ' --- DMRG-SCF iterations are skipped, only QCMaquis input for higher-order RDMs will be generated.'
     if (NACTEL > 3) then ! Ignore 4-RDM if we have <4 electrons
       do i=1,NROOTS
-        write(6,'(a)') 'Writing 4-RDM QCMaquis template for state '//str(i)
+        write(u6,'(a)') 'Writing 4-RDM QCMaquis template for state '//str(i)
         call qcmaquis_interface_prepare_hirdm_template(filename='meas-4rdm.'//str(i-1)//'.in',state=i-1,tpl=TEMPLATE_4RDM)
         call qcmaquis_mpssi_transform(trim(qcmaquis_param%workdir)//'/'//trim(qcmaquis_param%project_name),i)
       end do
     else
-      write(6,*) 'Skipping 4-RDM QCMaquis template generation since we have less than 4 electrons.'
+      write(u6,*) 'Skipping 4-RDM QCMaquis template generation since we have less than 4 electrons.'
     end if
     ! Generate 3-TDM templates
     if (NACTEL > 2) then ! but only if we have more than 3 el.
       do i=1,NROOTS
         do j=i+1,NROOTS
-          write(6,'(a)') 'Writing 3-TDM QCMaquis template for states '//str(i)//' and '//str(j)
+          write(u6,'(a)') 'Writing 3-TDM QCMaquis template for states '//str(i)//' and '//str(j)
           call qcmaquis_interface_prepare_hirdm_template(filename='meas-3tdm.'//str(i-1)//'.'//str(j-1)//'.in', &
                                                          state=i-1, &
                                                          state_j=j-1, &
@@ -1918,7 +1919,7 @@ if (doDMRG) then
         end do
       end do
     else
-      write(6,*) 'Skipping 3-RDM QCMaquis template generation since we have less than 3 electrons.'
+      write(u6,*) 'Skipping 3-RDM QCMaquis template generation since we have less than 3 electrons.'
     end if
   end if
   ! is it really needed in the times of Fortran 2008?
@@ -1934,8 +1935,8 @@ iRC = -1
 iOpt = 0
 call ClsOne(iRC,iOpt)
 if (iRC /= 0) then
-  write(6,*) 'Error when trying to close the one-electron'
-  write(6,*) 'integral file.'
+  write(u6,*) 'Error when trying to close the one-electron'
+  write(u6,*) 'integral file.'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
 

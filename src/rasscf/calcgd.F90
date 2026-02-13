@@ -51,7 +51,7 @@ do jRoot=1,lRoots
     call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
     IOffNIJ1 = (lRoots*(jRoot-1)+kRoot-1)*NAC2
     IOffNIJ2 = (lRoots*(kRoot-1)+jRoot-1)*NAC2
-    !write(6,*) 'GD matrix',jRoot,kRoot
+    !write(u6,*) 'GD matrix',jRoot,kRoot
     !call RecPrt(' ',' ',Dtmp,NAC,NAC)
     call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
     do q=1,NAC
@@ -67,7 +67,7 @@ do jRoot=1,lRoots
   call DDafile(JOBIPH,2,VecR,nConf,CIDisk2)
   call Lucia_Util('Densi',CI_Vector=VecL(:),RVec=VecR(:))
   IOffNIJ1 = (lRoots+1)*(jRoot-1)*NAC2
-  !write(6,*) 'GD matrix',jRoot,kRoot
+  !write(u6,*) 'GD matrix',jRoot,kRoot
   !call RecPrt(' ',' ',Dtmp,NAC,NAC)
   call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
 end do

@@ -13,6 +13,7 @@ subroutine SetPos(LUnit,KeyIn,Line,iRc)
 
 use PrintLevel, only: TERSE
 use output_ras, only: IPRLOC
+use Definitions, only: u6
 
 implicit none
 integer LUNIT, iRC
@@ -49,16 +50,16 @@ return
 !---  Error exits ----------------------
 9910 continue
 if (IPRLEV >= TERSE) then
-  write(6,*) ' SETPOS: Attempt to find an input line beginning'
-  write(6,*) ' with the keyword "',KeyIn,'" failed.'
+  write(u6,*) ' SETPOS: Attempt to find an input line beginning'
+  write(u6,*) ' with the keyword "',KeyIn,'" failed.'
 end if
 !call Quit(_RC_INPUT_ERROR_)
 iRc = _RC_INPUT_ERROR_
 return
 9920 continue
 if (IPRLEV >= TERSE) then
-  write(6,*) ' SETPOS: Attempt to find an input line beginning'
-  write(6,*) ' with the keyword "',KeyIn,'" failed.'
+  write(u6,*) ' SETPOS: Attempt to find an input line beginning'
+  write(u6,*) ' with the keyword "',KeyIn,'" failed.'
 end if
 !call Quit(_RC_INPUT_ERROR_)
 iRc = _RC_INPUT_ERROR_

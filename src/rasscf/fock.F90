@@ -40,8 +40,10 @@ use Fock_util_global, only: ALGO, DoCholesky
 use rasscf_global, only: KSDFT, CBLBM, E2act, ECAS, HalfQ1, IBLBM, iSymBB, JBLBM, NTOT3, via_DFT, ISTORD, ISTORP, iTri, iZROT, &
                          ixSym, CBLB, IBLB, JBLB
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NASH, NBAS, NFRO, NISH, NORB, NSSH
+use Constants, only: Zero, One, Half
+use Definitions, only: u6
 
 implicit none
 integer iFinal
@@ -53,7 +55,7 @@ integer iPrLev, ipBM, ipFMCSCF, ipMOs, ipQs, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, I
 character(len=16), parameter :: ROUTINE = 'FOCK    '
 
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ISTSQ(1) = 0
 ISTAV(1) = 0
@@ -65,7 +67,7 @@ end do
 !***********************************************************************
 ! add FI to FA to obtain FP
 !***********************************************************************
-call DAXPY_(NTOT3,1.0d0,FI,1,FP,1)
+call DAXPY_(NTOT3,One,FI,1,FP,1)
 
 !***********************************************************************
 ! Loop over symmetry blocks
@@ -76,8 +78,8 @@ ISTD = 0
 ISTBM = 0
 IX1 = 0
 ISTZ = 0
-E2act = 0.0d0
-HalfQ1 = 0.0d0
+E2act = Zero
+HalfQ1 = Zero
 
 do ISYM=1,NSYM
   IX = IX1+NFRO(ISYM)
@@ -87,7 +89,7 @@ do ISYM=1,NSYM
   NIA = NIO+NAO
   NO = NORB(ISYM)
   NO2 = (NO**2+NO)/2
-  CSX = 0.0d0
+  CSX = Zero
   N1 = 0
   N2 = 0
 
@@ -127,13 +129,13 @@ do ISYM=1,NSYM
       ! P is packed in xy and pre-multiplied by 2 and reordered
       !*****************************************************************
       if (IPRLEV >= DEBUG) then
-        write(6,*) 'PUVX integrals in FOCK'
+        write(u6,*) 'PUVX integrals in FOCK'
         call wrtmat(FINT(JSTF),NO,NUVX,NO,NUVX)
-        write(6,*) 'two-elec density mat OR DMAT*DMAT in FOCK'
+        write(u6,*) 'two-elec density mat OR DMAT*DMAT in FOCK'
         call wrtmat(P(ISTP),NAO,NUVX,NAO,NUVX)
       end if
 
-      call DGEMM_('N','N',NO,NAO,NUVX,1.0d0,FINT(JSTF),NO,P(ISTP),NUVX,0.0d0,Q,NO)
+      call DGEMM_('N','N',NO,NAO,NUVX,One,FINT(JSTF),NO,P(ISTP),NUVX,Zero,Q,NO)
 
     else if (ALGO == 2) then
       !*****************************************************************
@@ -145,9 +147,9 @@ do ISYM=1,NSYM
       ipQS = 1+ISTAV(iSym)
       ipMOs = 1+ISTSQ(iSym)+nBas(iSym)*nFro(iSym)
 
-      call DGEMM_('T','N',nOrb(iSym),nAsh(iSym),nBas(iSym),1.0d0,CMO(ipMOs),nBas(iSym),Q(ipQS),nBas(iSym),0.0d0,Q(1),nOrb(iSym))
+      call DGEMM_('T','N',nOrb(iSym),nAsh(iSym),nBas(iSym),One,CMO(ipMOs),nBas(iSym),Q(ipQS),nBas(iSym),Zero,Q(1),nOrb(iSym))
     else
-      write(LF,*) 'FOCK: illegal Cholesky parameter ALGO= ',ALGO
+      write(u6,*) 'FOCK: illegal Cholesky parameter ALGO= ',ALGO
       call abend()
     end if
 
@@ -159,13 +161,13 @@ do ISYM=1,NSYM
     ECAS0 = ECAS
     do NT=1,NAO
       NTT = (NT-1)*NO+NIO+NT
-      ECAS = ECAS+0.5d0*Q(NTT)
-      HALFQ1 = HALFQ1+0.5d0*Q(NTT)
-      E2act = E2act+0.5d0*Q(NTT)
+      ECAS = ECAS+Half*Q(NTT)
+      HALFQ1 = HALFQ1+Half*Q(NTT)
+      E2act = E2act+Half*Q(NTT)
     end do
     if (IPRLEV >= DEBUG) then
-      write(6,*) 'Two-electron contribution (Q term):',ECAS-ECAS0
-      write(6,*) 'ECAS aft adding Q in fock.f :',ECAS
+      write(u6,*) 'Two-electron contribution (Q term):',ECAS-ECAS0
+      write(u6,*) 'ECAS aft adding Q in fock.f :',ECAS
     end if
 
     !*******************************************************************
@@ -207,11 +209,11 @@ do ISYM=1,NSYM
         NT = NP-NIO
         NU = NQ-NIO
         if (NT <= NU) then
-          BM(NPQ) = 0.0d0
+          BM(NPQ) = Zero
         else
           NTU = ISTZ+ITRI(NT-1)+NU
-          if (IZROT(NTU) /= 0) BM(NPQ) = 0.0d0
-          if (IXSYM(IX+NP) /= IXSYM(IX+NQ)) BM(NPQ) = 0.0d0
+          if (IZROT(NTU) /= 0) BM(NPQ) = Zero
+          if (IXSYM(IX+NP) /= IXSYM(IX+NQ)) BM(NPQ) = Zero
         end if
       end if
 
@@ -242,12 +244,12 @@ end do
 !***********************************************************************
 
 if (iPrLev >= DEBUG) then
-  CASDFT_En = 0.0d0
+  CASDFT_En = Zero
   if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_En)
-  write(LF,'(A,2F22.16)') ' RASSCF energy: ',ECAS+CASDFT_En,VIA_DFT
+  write(u6,'(A,2F22.16)') ' RASSCF energy: ',ECAS+CASDFT_En,VIA_DFT
 end if
 if (iPrLev >= DEBUG) then
-  write(LF,'(A)') ' MCSCF Fock-matrix in MO-basis'
+  write(u6,'(A)') ' MCSCF Fock-matrix in MO-basis'
   ipFMCSCF = 1
   do iSym=1,nSym
     nOr = nOrb(iSym)
@@ -256,7 +258,7 @@ if (iPrLev >= DEBUG) then
   end do
 end if
 if (iPrLev >= DEBUG) then
-  write(LF,'(A)') ' Brillouin matrix'
+  write(u6,'(A)') ' Brillouin matrix'
   ipBM = 1
   do iSym=1,nSym
     nIs = nIsh(iSym)
@@ -269,7 +271,7 @@ end if
 
 ! Maximum BLB matrix element all symmetries
 
-CBLBM = 0.0d0
+CBLBM = Zero
 ISYMBB = 0
 do ISYM=1,NSYM
   if (abs(CBLB(ISYM)) < abs(CBLBM)) GO TO 150
@@ -286,9 +288,9 @@ end do
 if (iFinal == 1) call FOCKOC(Q,F,CMO)
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' >>> Exit Fock <<< '
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' >>> Exit Fock <<< '
+  write(u6,*)
 end if
 
 end subroutine FOCK

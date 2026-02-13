@@ -42,18 +42,19 @@
 subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
 
 use wadr, only: FMO
-use stdalloc, only: mma_allocate, mma_deallocate
 use rctfld_module, only: lRF
 use casvb_global, only: ifvb
 use timers, only: TimeDens
 use lucia_data, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
 use gas_data, only: iDoGAS
-use Constants, only: Zero
 use rasscf_global, only: KSDFT, ExFac, iPCMRoot, ITER, lRoots, n_Det, NAC, NACPAR, NACPR2, nFint, nRoots, S, iAdr15, iRoot, &
                          Weight, DFTFOCK
 use PrintLevel, only: DEBUG, INSANE
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: ISPIN, jobiph, nactel, ntot2, nash
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u6
 
 implicit none
 integer iFinal, IRst
@@ -66,7 +67,7 @@ integer iPrLev, i, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
 real*8 dum1, dum2, dum3, Scal, Time(2)
 
 IPRLEV = IPRLOC(3)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ! set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
 ! IFCAS = 0: This is a CAS calculation
@@ -74,16 +75,16 @@ if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
 
 if (iDoGas) call setsxci()
 if (IPRLEV > DEBUG) then
-  write(LF,*)
-  write(LF,*) ' Enter DMRG section'
-  write(LF,*) ' =================='
-  write(LF,*)
-  write(LF,*) ' iteration count =',ITER
+  write(u6,*)
+  write(u6,*) ' Enter DMRG section'
+  write(u6,*) ' =================='
+  write(u6,*)
+  write(u6,*) ' iteration count =',ITER
 end if
 
 ! SOME DIRTY SETUPS
 
-S = 0.5d0*dble(ISPIN-1)
+S = Half*real(ISPIN-1,kind=wp)
 
 ! COMPUTE ONE ELECTRON INTEGRALS IN MO BASIS
 ! AND ADD CORE INTERACTION
@@ -126,7 +127,7 @@ if (lRF .or. (KSDFT /= 'SCF') .or. Do_ESPF) then
     ! Get the spin density in MOs
 
     if (NACTEL == 0) then
-      call DCOPY_(NTOT2,[0.0d0],0,RCT_FS,1)
+      call DCOPY_(NTOT2,[Zero],0,RCT_FS,1)
     else
       call mma_allocate(RCT_S,NACPAR,Label='RCT_S')
       call DDafile(JOBIPH,2,RCT_S,NACPAR,jDisk)
@@ -158,9 +159,9 @@ if (lRF .or. (KSDFT /= 'SCF') .or. Do_ESPF) then
     call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
     if (NAC >= 1) then
       if (NACTEL == 0) then
-        Dtmp(:) = 0.0d0
-        DStmp(:) = 0.0d0
-        Ptmp(:) = 0.0d0
+        Dtmp(:) = Zero
+        DStmp(:) = Zero
+        Ptmp(:) = Zero
       else
         ! load back 1- and 2-RDMs from previous DMRG run
         NACT4 = NAC**4
@@ -181,9 +182,9 @@ if (lRF .or. (KSDFT /= 'SCF') .or. Do_ESPF) then
       end if
 
     else
-      Dtmp(:) = 0.0d0
-      DStmp(:) = 0.0d0
-      Ptmp(:) = 0.0d0
+      Dtmp(:) = Zero
+      DStmp(:) = Zero
+      Ptmp(:) = Zero
     end if
     ! Modify the symmetric 2-particle density if only partial
     ! "exact exchange" is included.
@@ -191,7 +192,7 @@ if (lRF .or. (KSDFT /= 'SCF') .or. Do_ESPF) then
     !n_unpaired_elec = iSpin-1
     !n_paired_elec = nActEl-n_unpaired_elec
     !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
-    if (ExFac /= 1.0d0) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
+    if (ExFac /= One) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put it on the RUNFILE
 
@@ -240,10 +241,10 @@ else
     nTmpPUVX = nFint
     call mma_allocate(TmpPUVX,nTmpPUVX,Label='TmpPUVX')
     call mma_allocate(TmpTUVX,NACPR2,Label='TmpTUVX')
-    TmpTUVX(:) = 0.0d0
+    TmpTUVX(:) = Zero
     call Get_dArray('DFT_TwoEl',TmpPUVX,nTmpPUVX)
     call Get_TUVX(TmpPUVX,TmpTUVX)
-    call DaXpY_(NACPR2,1.0d0,TUVX,1,TmpTUVX,1)
+    call DaXpY_(NACPR2,One,TUVX,1,TmpTUVX,1)
 #   ifdef _ENABLE_BLOCK_DMRG_
     call BlockCtl(FMO,TmpTUVX,IFINAL,IRst)
 #   elif _ENABLE_CHEMPS2_DMRG_
@@ -305,16 +306,17 @@ do jRoot=1,lRoots
   !n_unpaired_elec = iSpin-1
   !n_paired_elec = nActEl-n_unpaired_elec
   !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
-  !  write(LF,*) ' iSpin=',iSpin
-  !  write(LF,*) ' n_unpaired_elec',n_unpaired_elec
-  !  write(LF,*) ' n_paired_elec',n_paired_elec
-  !  write(LF,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
-  !  write(LF,*) ' n_Det=',n_Det
+  !  write(u6,*) ' iSpin=',iSpin
+  !  write(u6,*) ' n_unpaired_elec',n_unpaired_elec
+  !  write(u6,*) ' n_paired_elec',n_paired_elec
+  !  write(u6,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
+  !  write(u6,*) ' n_Det=',n_Det
+  !end if
 
-  if (ExFac /= 1.0d0) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
+  if (ExFac /= One) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
   ! update average density matrices
-  Scal = 0.0d0
+  Scal = Zero
   do kRoot=1,nRoots
     if (iRoot(kRoot) == jRoot) then
       Scal = Weight(kRoot)
@@ -382,7 +384,7 @@ call mma_deallocate(FMO)
 !  JPCMROOT = IPCMROOT
 !  IPCMROOT = IROOT(ICIRFROOT)
 !  call Put_iScalar('RF CASSCF root',IPCMROOT)
-!  if (JPCMROOT /= IPCMROOT) write(6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',JPCMROOT,' to ',IPCMROOT
+!  if (JPCMROOT /= IPCMROOT) write(u6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',JPCMROOT,' to ',IPCMROOT
 !else if (lRF) then
 !  call Qpg_iScalar('RF CASSCF root',Exist)
 !  if (.not. Exist) then
@@ -395,21 +397,21 @@ call mma_deallocate(FMO)
 !
 !  call mma_allocate(RF,nConf)
 !  call Qpg_dArray('RF CASSCF Vector',Exist,mConf)
-!  write(6,*) 'Exist=',Exist
-!  if (Exist .and. (mConf == nConf) .and. (iFinal /= 2) .and. ((abs(RotMax) < 1.0D-3) .or. KeyCISE)) then
+!  write(u6,*) 'Exist=',Exist
+!  if (Exist .and. (mConf == nConf) .and. (iFinal /= 2) .and. ((abs(RotMax) < 1.0e-3_wp) .or. KeyCISE)) then
 !    call Get_dArray('RF CASSCF Vector',RF,nConf)
 !    rNorm = sqrt(DDot_(nConf,RF,1,RF,1))
-!    write(6,*) 'rNorm=',rNorm
+!    write(u6,*) 'rNorm=',rNorm
 !    JPCMROOT = IPCMROOT
-!    if (rNorm > 1.0D-10) then
+!    if (rNorm > 1.0e-10_wp) then
 !      call mma_allocate(Temp,nConf,Label='Temp')
-!      rMax = 0.0D0
+!      rMax = Zero
 !      jDisk = IADR15(4)
 !      do i=1,lRoots
 !        call DDafile(JOBIPH,2,Temp,nConf,jDisk)
 !        qMax = abs(DDot_(nConf,Temp,1,RF,1))
-!        write(6,*) 'qMax=',qMax
-!        if ((qMax > rMax) .and. (qMax > 0.5D0)) then
+!        write(u6,*) 'qMax=',qMax
+!        if ((qMax > rMax) .and. (qMax > Half)) then
 !          rMax = qMax
 !          JPCMROOT = i
 !        end if
@@ -421,7 +423,7 @@ call mma_deallocate(FMO)
 !  end if
 !
 !  if (JPCMROOT /= IPCMROOT) then
-!    write(6,*) ' RF Root has flipped from ',IPCMROOT,' to ',JPCMROOT
+!    write(u6,*) ' RF Root has flipped from ',IPCMROOT,' to ',JPCMROOT
 !    IPCMROOT = JPCMROOT
 !    call Put_iScalar('RF CASSCF root',IPCMROOT)
 !  end if

@@ -19,11 +19,13 @@ subroutine RotState()
 
 use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15, Ener
 use PrintLevel, only: DEBUG, USUAL
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: JOBIPH, NCONF
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer NHrot     ! storing info in H0_Rotate.txt
@@ -37,17 +39,17 @@ integer i, iad15
 IPRLEV = IPRLOC(3)
 
 if (IPRLEV >= USUAL) then
-  write(LF,*)
-  write(LF,*) repeat('=',71)
-  write(LF,*)
-  write(LF,'(11X,A)') 'Do_Rotate.txt is found in scratch directory.'
+  write(u6,*)
+  write(u6,*) repeat('=',71)
+  write(u6,*)
+  write(u6,'(11X,A)') 'Do_Rotate.txt is found in scratch directory.'
   if (IXMSP == 1) then
-    write(LF,'(11X,A)') 'Following properties are for XMS intermediate states.'
+    write(u6,'(11X,A)') 'Following properties are for XMS intermediate states.'
   else if (ICMSP == 1) then
-    write(LF,'(11X,A)') 'Following properties are for CMS intermediate states.'
+    write(u6,'(11X,A)') 'Following properties are for CMS intermediate states.'
   else
-    write(LF,'(11X,A)') 'Following properties are for intermediate states'
-    write(LF,'(11X,A)') ' obtained from the user-supplied rotation matrix'
+    write(u6,'(11X,A)') 'Following properties are for intermediate states'
+    write(u6,'(11X,A)') ' obtained from the user-supplied rotation matrix'
   end if
 end if
 
@@ -63,19 +65,19 @@ call mma_allocate(HRot,lRoots,lRoots,Label='HRot')
 !JB read rotation matrix in Do_Rotate.txt
 call ReadMat2('ROT_VEC',MatInfo,State,lRoots,lRoots,7,18,'T')
 if (IPRLEV >= DEBUG) then
-  write(LF,*) 'rotation matrix'
+  write(u6,*) 'rotation matrix'
   call RecPrt(' ',' ',State,lRoots,lRoots)
 end if
-HRot(:,:) = 0.0d0
+HRot(:,:) = Zero
 NHRot = lRoots**2
 do I=1,lRoots
   HRot(I,I) = ENER(I,ITER)
 end do
-call DGEMM_('t','n',lRoots,lRoots,lRoots,1.0d0,State,lRoots,HRot,lRoots,0.0d0,HScr,lRoots)
-call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,HScr,lRoots,State,lRoots,0.0d0,HRot,lRoots)
+call DGEMM_('t','n',lRoots,lRoots,lRoots,One,State,lRoots,HRot,lRoots,Zero,HScr,lRoots)
+call DGEMM_('n','n',lRoots,lRoots,lRoots,One,HScr,lRoots,State,lRoots,Zero,HRot,lRoots)
 call PrintMat2('ROT_HAM',MatInfo,HRot,lRoots,lRoots,7,18,'T')
 if (IPRLEV >= DEBUG) then
-  write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
+  write(u6,'(6X,A)') 'Rotated Hamiltonian matrix '
   call RecPrt('HRot',' ',hRot,lRoots,lRoots)
 end if
 
@@ -84,7 +86,7 @@ rcidisk = IADR15(4)
 do jRoot=1,lRoots
   call DDafile(JOBIPH,2,CIScr(:,jRoot),nConf,rcidisk)
 end do
-call DGEMM_('n','n',NConf,lRoots,lRoots,1.0d0,CIScr,nConf,State,lRoots,0.0d0,CIVec,nConf)
+call DGEMM_('n','n',NConf,lRoots,lRoots,One,CIScr,nConf,State,lRoots,Zero,CIVec,nConf)
 
 ! updating final energies as those for rotated states
 rcidisk = IADR15(4)
@@ -96,9 +98,9 @@ IAD15 = IADR15(6)
 call DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
 
 if (IPRLEV >= DEBUG) then
-  write(LF,'(A)') 'Printing the coeff of the first CSF for each state'
+  write(u6,'(A)') 'Printing the coeff of the first CSF for each state'
   do I=1,lRoots
-    write(LF,*) CIVec(1,I)
+    write(u6,*) CIVec(1,I)
   end do
 end if
 
@@ -109,8 +111,8 @@ call mma_deallocate(CIVec)
 call mma_deallocate(HRot)
 
 if (IPRLEV >= USUAL) then
-  write(LF,*)
-  write(LF,*) repeat('=',71)
+  write(u6,*)
+  write(u6,*) repeat('=',71)
 end if
 
 end subroutine RotState

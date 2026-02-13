@@ -22,6 +22,7 @@ subroutine qcmaquis_rdinp(luinput,switch,nr_lines)
 use qcmaquis_interface_cfg
 use qcmaquis_interface_utility_routines, only: lower_to_upper, find_qcmaquis_keyword
 use rasscf_global, only: MPSCompressM, DoDelChk
+use Definitions, only: u6
 
 implicit none
 integer, intent(in) :: luinput
@@ -64,7 +65,7 @@ select case (switch)
       read(luinput,*,iostat=io) line
       if (is_iostat_end(io)) exit
       if (io > 0) then
-        write(6,*) 'Problem reading QCMaquis input'
+        write(u6,*) 'Problem reading QCMaquis input'
         call Quit_OnUserError()
       end if
       ! Leon: handle a special case where we input the MPS compression
@@ -81,7 +82,7 @@ select case (switch)
       else
         read(line,*,iostat=io) MPSCompressM
         if (io /= 0) then
-          write(6,*) 'Problem reading QCMaquis input'
+          write(u6,*) 'Problem reading QCMaquis input'
           call Quit_OnUserError()
         end if
         compr_flag = .false.
@@ -100,7 +101,7 @@ select case (switch)
         call lower_to_upper(line2(1:4))
         if ((line2(1:1) == '1') .or. (line2(1:4) == 'TRUE')) DoDelChk = .true.
         if (io /= 0) then
-          write(6,*) 'Problem reading QCMaquis input'
+          write(u6,*) 'Problem reading QCMaquis input'
           call Quit_OnUserError()
         end if
         donotdelete_flag = .false.
@@ -134,7 +135,7 @@ select case (switch)
           if (i > 0) cycle
         end if
         call WarningMessage(2,'Error in input preprocessing.')
-        write(6,*) ' qcmaquis_rdinp: mandatory keyword ',trim(line),' missing in QCMaquis DMRG input section'
+        write(u6,*) ' qcmaquis_rdinp: mandatory keyword ',trim(line),' missing in QCMaquis DMRG input section'
         nr_lines = -1; return
 
       else
@@ -153,7 +154,7 @@ select case (switch)
 
     end do
   case default
-    write(6,*) ' QCMaquis input reader - you should have never reached this spot...'
+    write(u6,*) ' QCMaquis input reader - you should have never reached this spot...'
     call Quit_OnUserError()
 end select
 

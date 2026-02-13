@@ -82,10 +82,12 @@ use rasscf_global, only: CMSStartMat, DoDMRG, ExFac, iCIRFRoot, ICMSP, IFCRPR, i
                          lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, IADR15, iRoot, Weight, Ener
 use SplitCas_Data, only: DoSPlitCas, MxIterSplit, ThrSplit, lRootSplit
 use PrintLevel, only: DEBUG, INSANE, USUAL
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: ISPIN, NACTEL, NCONF, NISH, JOBIPH, NASH, NTOT2, STSYM
 use DWSol, only: DWSolv!, DWSol_wgt
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u6
 
 implicit none
 integer iFinal
@@ -115,11 +117,12 @@ integer LuVecDet
 real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal, Time(2)
 real*8, external :: DDot_
 integer i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, mconf
+#include "warnings.h"
 
 !PAM05 SymProd(i,j) = 1+ieor(i-1,j-1)
 ! Local print level (if any)
 IPRLEV = IPRLOC(3)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ! PAM 2017-05-23 Modify TUVX by adding a shift vector to TUVX, which has
 ! the effect of adding a scalar times a projector for doubly-occupied
@@ -132,20 +135,20 @@ if (IfCRPR) call MKPROJ(CRVEC,CMO,TUVX)
 
 if (iDoGas .or. (SGS%IFRAS > 2)) call setsxci()
 if (IPRLEV > DEBUG) then
-  write(LF,*)
-  write(LF,*) ' Enter CI section, CICTL routine'
-  write(LF,*) ' ================'
-  write(LF,*)
-  write(LF,*) ' iteration count =',ITER
+  write(u6,*)
+  write(u6,*) ' Enter CI section, CICTL routine'
+  write(u6,*) ' ================'
+  write(u6,*)
+  write(u6,*) ' iteration count =',ITER
 end if
 
 !do i=1,NTOT2 ! yma
-!  write(6,*) 'ifinal CMO',ifinal,i,CMO(i)
+!  write(u6,*) 'ifinal CMO',ifinal,i,CMO(i)
 !end do
 
 ! SOME DIRTY SETUPS
 
-S = 0.5d0*dble(ISPIN-1)
+S = Half*real(ISPIN-1,kind=wp)
 
 ! COMPUTE ONE ELECTRON INTEGRALS IN MO BASIS AND ADD CORE INTERACTION
 
@@ -165,15 +168,15 @@ if (doDMRG) then
   doEntanglement = merge(.true.,IFINAL == 2,KeyCION)
 
   call mma_allocate(d1all,NACPAR,lRoots)
-  d1all = 0.0d0
+  d1all = Zero
   if (twordm_qcm) then
     call mma_allocate(d2all,NACPR2,lRoots)
-    d2all = 0.0d0
+    d2all = Zero
   end if
   ! Allocate spin density only for the last iteration
   if (doEntanglement) then
     call mma_allocate(spd1all,NACPAR,lRoots)
-    spd1all = 0.0d0
+    spd1all = Zero
   end if
 end if
 #endif
@@ -194,7 +197,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
   call mma_allocate(RCT_F,NTOT2,Label='RCT_F')
   call mma_allocate(RCT_FS,NTOT2,Label='RCT_FS')
 
-  if ((IPCMROOT > 0) .and. (DWSolv%DWZeta /= 0.0d+00)) then
+  if ((IPCMROOT > 0) .and. (DWSolv%DWZeta /= Zero)) then
     call DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
     call SGFCIN(CMO,FMO,FI,D1I,D1A,RCT_FS)
   else if (IFinal == 0) then
@@ -215,7 +218,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     ! Get the spin density in MOs
 
     if (NACTEL == 0) then
-      call DCOPY_(NTOT2,[0.0d0],0,RCT_FS,1)
+      call DCOPY_(NTOT2,[Zero],0,RCT_FS,1)
     else
       call mma_allocate(RCT_S,NACPAR,Label='RCT_S')
       call DDafile(JOBIPH,2,RCT_S,NACPAR,jDisk)
@@ -244,10 +247,10 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 
     call mma_allocate(CIVEC,NCONF,Label='CIVEC')
     if (NACTEL == 0) then
-      CIVEC(1) = 1.0d0
+      CIVEC(1) = One
     else
       if (.not. doDMRG) then
-        !write(6,*) 'run the load back CI vector part' ! yma
+        !write(u6,*) 'run the load back CI vector part' ! yma
         iDisk = IADR15(4)
         do jRoot=1,IPCMROOT
           iOpt = 0
@@ -267,9 +270,9 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     if (NAC >= 1) then
 
       if (NACTEL == 0) then
-        Dtmp(:) = 0.0d0
-        DStmp(:) = 0.0d0
-        Ptmp(:) = 0.0d0
+        Dtmp(:) = Zero
+        DStmp(:) = Zero
+        Ptmp(:) = Zero
       else
 
         if (doDMRG) then
@@ -285,7 +288,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
           ! only once in the last iteration of DMRG-SCF optimisation.
           ! If you need it at every iteration for some reason
           ! please change this code accordingly
-          DStmp(:) = 0.0d0
+          DStmp(:) = Zero
 #         endif
         else
           call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
@@ -298,9 +301,9 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
 
       end if
     else
-      Dtmp(:) = 0.0d0
-      DStmp(:) = 0.0d0
-      Ptmp(:) = 0.0d0
+      Dtmp(:) = Zero
+      DStmp(:) = Zero
+      Ptmp(:) = Zero
     end if
     ! Modify the symmetric 2-particle density if only partial
     ! "exact exchange" is included.
@@ -308,8 +311,8 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     !n_unpaired_elec = iSpin-1
     !n_paired_elec = nActEl-n_unpaired_elec
     !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
-    !write(6,*) 'n_Det =',n_Det
-    if ((ExFac /= 1.0d0) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
+    !write(u6,*) 'n_Det =',n_Det
+    if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
 
@@ -323,7 +326,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     call Get_D1A_RASSCF(CMO,DStmp,RCT_FS)
 
     !do i=1,NACPAR ! yma
-    !  write(6,*) 'i-rdms1 1',i,Dtmp(i)
+    !  write(u6,*) 'i-rdms1 1',i,Dtmp(i)
     !end do
 
     call mma_deallocate(DStmp)
@@ -381,7 +384,7 @@ if (doDMRG) then
     end if
 
     if (dmrg_warmup%dofiedler) call qcmaquis_interface_set_param('orbital_order',fiedler_order_str)
-    write(6,*) 'Fiedler orbital ordering: '//fiedler_order_str
+    write(u6,*) 'Fiedler orbital ordering: '//fiedler_order_str
 
     dmrg_warmup%dofiedler = .false.
     dmrg_warmup%docideas = .false.
@@ -410,23 +413,23 @@ else
   if (DoSplitCAS) then !(GLMJ)
     call SplitCtl(FMO,TUVX,IFINAL,iErrSplit)
     if (iErrSplit == 1) then
-      write(LF,*) repeat('*',120)
-      write(LF,*) 'WARNING!!!'
-      write(LF,*) 'SplitCAS iterations don''t converge.'
-      write(LF,*) 'The program will continue'
-      write(LF,*) 'Hopefully your calculation will converge next iteration!'
-      write(LF,*) repeat('*',120)
+      write(u6,*) repeat('*',120)
+      write(u6,*) 'WARNING!!!'
+      write(u6,*) 'SplitCAS iterations don''t converge.'
+      write(u6,*) 'The program will continue'
+      write(u6,*) 'Hopefully your calculation will converge next iteration!'
+      write(u6,*) repeat('*',120)
     end if
     if (iErrSplit == 2) then
-      write(LF,*) repeat('*',120)
-      write(LF,*) 'WARNING!!!'
-      write(LF,*) 'SplitCAS iterations don''t converge.'
-      write(LF,*) 'MxIterSplit',MxIterSplit
-      write(LF,*) 'SplitCAS ThreShold',ThrSplit
-      write(LF,*) 'Try to increase MxIterSplit or SplitCAS threshold'
-      write(LF,*) 'The program will STOP'
-      write(LF,*) repeat('*',120)
-      call xQuit(96)
+      write(u6,*) repeat('*',120)
+      write(u6,*) 'WARNING!!!'
+      write(u6,*) 'SplitCAS iterations don''t converge.'
+      write(u6,*) 'MxIterSplit',MxIterSplit
+      write(u6,*) 'SplitCAS ThreShold',ThrSplit
+      write(u6,*) 'Try to increase MxIterSplit or SplitCAS threshold'
+      write(u6,*) 'The program will STOP'
+      write(u6,*) repeat('*',120)
+      call xQuit(_RC_NOT_CONVERGED_)
     end if
   end if
   if (.not. DoSplitCAS) then
@@ -479,10 +482,10 @@ end if
 ! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 
 call Timing(Time(1),dum1,dum2,dum3)
-call dCopy_(NACPAR,[0.0d0],0,D,1)
-call dCopy_(NACPAR,[0.0d0],0,DS,1)
-call dCopy_(NACPR2,[0.0d0],0,P,1)
-call dCopy_(NACPR2,[0.0d0],0,PA,1)
+call dCopy_(NACPAR,[Zero],0,D,1)
+call dCopy_(NACPAR,[Zero],0,DS,1)
+call dCopy_(NACPR2,[Zero],0,P,1)
+call dCopy_(NACPR2,[Zero],0,PA,1)
 call mma_allocate(CIVEC,NCONF,Label='CIVEC')
 call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
 call mma_allocate(DStmp,NAC**2,Label='DStmp')
@@ -517,7 +520,7 @@ if (.not. DoSplitCAS) then
     if (Do_Rotate) then
       call RotState()
     else
-      if (IRotPsi == 1) write(LF,'(6X,A)') 'Do_Rotate.txt is not found. MCSCF states will not be rotated'
+      if (IRotPsi == 1) write(u6,'(6X,A)') 'Do_Rotate.txt is not found. MCSCF states will not be rotated'
     end if
     !JB End of condition 'Do_Rotate' to initialize rotated states
   end if
@@ -533,7 +536,7 @@ if (.not. DoSplitCAS) then
     if (NAC >= 1) then
       if (.not. doDMRG) call Lucia_Util('Densi',CI_Vector=CIVEC)
       if (IPRLEV >= INSANE) then
-        write(6,*) 'At root number =',jroot
+        write(u6,*) 'At root number =',jroot
         call TRIPRT('D after lucia  ',' ',Dtmp,NAC)
         call TRIPRT('DS after lucia  ',' ',DStmp,NAC)
         call TRIPRT('P after lucia',' ',Ptmp,NACPAR)
@@ -554,11 +557,11 @@ if (.not. DoSplitCAS) then
       if (doEntanglement) then
         call dcopy_(NACPAR,spd1all(:,jroot),1,DStmp,1)
       else
-        DStmp(:) = 0.0d0
+        DStmp(:) = Zero
       end if
 
       ! disable antisymmetric 2-RDM
-      PAtmp(:) = 0.0d0
+      PAtmp(:) = Zero
 
       if (IPRLEV >= INSANE) then
         call TRIPRT('D after  DMRG',' ',Dtmp,NAC)
@@ -573,19 +576,19 @@ if (.not. DoSplitCAS) then
     !n_unpaired_elec = iSpin-1
     !n_paired_elec = nActEl-n_unpaired_elec
     !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
-    !  write(LF,*) ' iSpin=',iSpin
-    !  write(LF,*) ' n_unpaired_elec',n_unpaired_elec
-    !  write(LF,*) ' n_paired_elec', n_paired_elec
-    !  write(LF,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
-    !  write(LF,*) ' n_Det=',n_Det
+    !  write(u6,*) ' iSpin=',iSpin
+    !  write(u6,*) ' n_unpaired_elec',n_unpaired_elec
+    !  write(u6,*) ' n_paired_elec', n_paired_elec
+    !  write(u6,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
+    !  write(u6,*) ' n_Det=',n_Det
     !end if
 
-    !write(6,*) 'second call to Mod_P2'
+    !write(u6,*) 'second call to Mod_P2'
 
-    if ((ExFac /= 1.0d0) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
+    if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
 
     ! update average density matrices
-    Scal = 0.0d0
+    Scal = Zero
     do kRoot=1,nRoots
       if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
     end do
@@ -626,8 +629,8 @@ else  ! SplitCAS run
     end if
   end if
   if (IDoGAS .or. (SGS%IFRAS > 2)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-  if ((ExFac /= 1.0d0) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
-  Scal = 1.0d0
+  if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
+  Scal = One
   call daxpy_(NACPAR,Scal,Dtmp,1,D,1)
   call daxpy_(NACPAR,Scal,DStmp,1,DS,1)
   call daxpy_(NACPR2,Scal,Ptmp,1,P,1)
@@ -669,14 +672,14 @@ TimeDens = TimeDens+Time(2)-Time(1)
 
 if ((IFINAL == 2) .and. (NAC > 0)) then
   if (IPRLEV >= USUAL) then
-    write(LF,*)
-    write(LF,'(6X,A)') repeat('*',120)
-    write(LF,'(54X,A)') 'Wave function printout:'
-    write(LF,'(23X,A)') 'occupation of active orbitals, and spin coupling of open shells (u,d: Spin up or down)'
-    write(LF,'(6X,A)') repeat('*',120)
-    write(LF,*)
-    write(6,'(6x,A)') 'Note: transformation to natural orbitals'
-    write(6,'(6x,A)') 'has been made, which may change the order of the CSFs.'
+    write(u6,*)
+    write(u6,'(6X,A)') repeat('*',120)
+    write(u6,'(54X,A)') 'Wave function printout:'
+    write(u6,'(23X,A)') 'occupation of active orbitals, and spin coupling of open shells (u,d: Spin up or down)'
+    write(u6,'(6X,A)') repeat('*',120)
+    write(u6,*)
+    write(u6,'(6x,A)') 'Note: transformation to natural orbitals'
+    write(u6,'(6x,A)') 'has been made, which may change the order of the CSFs.'
   end if
   call mma_allocate(CIV,nConf,Label='CIV')
   iDisk = IADR15(4)
@@ -705,9 +708,9 @@ if ((IFINAL == 2) .and. (NAC > 0)) then
           !end if
           ! printout of the wave function
           if (IPRLEV >= USUAL) then
-            write(LF,*)
-            write(LF,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',i
-            write(LF,'(6X,A,F15.6)') 'energy=',ENER(I,ITER)
+            write(u6,*)
+            write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',i
+            write(u6,'(6X,A,F15.6)') 'energy=',ENER(I,ITER)
             if (KeyPRSD) then
               ! Define filename to write GronOR vecdet files (tps/cdg 20210430)
               write(filename,'(a7,i0)') 'VECDET.',i
@@ -722,7 +725,7 @@ if ((IFINAL == 2) .and. (NAC > 0)) then
             if (KeyPRSD) close(LuVecDet)
           end if
         else ! for iDoGas
-          write(LF,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'
+          write(u6,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'
           !.. save CI vector on disk
           call DDafile(JOBIPH,1,CIVEC,nconf,jDisk)
 #         ifdef _HDF5_
@@ -731,9 +734,9 @@ if ((IFINAL == 2) .and. (NAC > 0)) then
 #         endif
           !.. printout of the wave function
           if (IPRLEV >= USUAL) then
-            write(LF,*)
-            write(LF,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',prwthr,' for root',i
-            write(LF,'(6X,A,F15.6)') 'energy=',ener(i,iter)
+            write(u6,*)
+            write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',prwthr,' for root',i
+            write(u6,'(6X,A,F15.6)') 'energy=',ener(i,iter)
 
             call gasprwf(nac,nactel,stsym,conf,cftp,CIVEC,kcnf)
           end if
@@ -760,9 +763,9 @@ if ((IFINAL == 2) .and. (NAC > 0)) then
       if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL after Reord',' ',CIV,nConf)
       ! printout of the wave function
       if (IPRLEV >= USUAL) then
-        write(LF,*)
-        write(LF,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',lRootSplit
-        write(LF,'(6X,A,F15.6)') 'Split-energy=',ENER(lRootSplit,ITER)
+        write(u6,*)
+        write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',lRootSplit
+        write(u6,'(6X,A,F15.6)') 'Split-energy=',ENER(lRootSplit,ITER)
         ! Open GronOR vecdet file (tps/cdg 20210430)
         write(filename,'(a7,i0)') 'VECDET.',i
         !filename = 'VECDET.'//merge(str(i),'x',i <= 999)
@@ -814,7 +817,7 @@ if (lRF .and. KeyCISE .and. KeyCIRF .and. (IPCMROOT > 0)) then
   JPCMROOT = IPCMROOT
   IPCMROOT = IROOT(ICIRFROOT)
   call Put_iScalar('RF CASSCF root',IPCMROOT)
-  if (JPCMROOT /= IPCMROOT) write(6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',JPCMROOT,' to ',IPCMROOT
+  if (JPCMROOT /= IPCMROOT) write(u6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',JPCMROOT,' to ',IPCMROOT
 else if (lRF .and. (IPCMROOT > 0)) then
   call Qpg_iScalar('RF CASSCF root',Exist)
   if (.not. Exist) then
@@ -847,9 +850,9 @@ else if (lRF .and. (IPCMROOT > 0)) then
   end if
 # endif
 
-  if (Exist .and. (mConf == nConf) .and. (iFinal /= 2) .and. ((abs(RotMax) < 1.0D-3) .or. KeyCISE)) then
+  if (Exist .and. (mConf == nConf) .and. (iFinal /= 2) .and. ((abs(RotMax) < 1.0e-3_wp) .or. KeyCISE)) then
 
-    rNorm = 1.0d0
+    rNorm = One
     ! Shouldn't the overlap in this case be always 1?
     ! For DMRG it seems it is...
     ! But just to make sure we calculate it anyway
@@ -858,12 +861,12 @@ else if (lRF .and. (IPCMROOT > 0)) then
       call Get_dArray('RF CASSCF Vector',RF,nConf)
       rNorm = sqrt(DDot_(nConf,RF,1,RF,1))
     end if
-    !write(6,*) 'rNorm=',rNorm
+    !write(u6,*) 'rNorm=',rNorm
     JPCMROOT = IPCMROOT
-    if (rNorm > 1.0D-10) then
+    if (rNorm > 1.0e-10_wp) then
       call mma_allocate(Temp,nConf,Label='Temp')
-      rMax = 0.0d0
-      qMax = 0.0d0
+      rMax = Zero
+      qMax = Zero
       jDisk = IADR15(4)
       do i=1,lRoots
         if (doDMRG) then
@@ -874,8 +877,8 @@ else if (lRF .and. (IPCMROOT > 0)) then
           call DDafile(JOBIPH,2,Temp,nConf,jDisk)
           qMax = abs(DDot_(nConf,Temp,1,RF,1))
         end if
-        !write(6,*) 'qMax=',qMax
-        if ((qMax > rMax) .and. (qMax > 0.5d0)) then
+        !write(u6,*) 'qMax=',qMax
+        if ((qMax > rMax) .and. (qMax > Half)) then
           rMax = qMax
           JPCMROOT = i
         end if
@@ -887,7 +890,7 @@ else if (lRF .and. (IPCMROOT > 0)) then
   end if
 
   if (JPCMROOT /= IPCMROOT) then
-    write(6,*) ' RF Root has flipped from ',IPCMROOT,' to ',JPCMROOT
+    write(u6,*) ' RF Root has flipped from ',IPCMROOT,' to ',JPCMROOT
     IPCMROOT = JPCMROOT
     call Put_iScalar('RF CASSCF root',IPCMROOT)
   end if

@@ -16,7 +16,7 @@ subroutine ChkIfKey()
 ! ------------------------------------------------------------
 
 use input_ras, only: LUInput, nKeys, CMD
-use Definitions, only: iwp
+use Definitions, only: iwp, u6
 
 implicit none
 character(len=4) Command
@@ -29,11 +29,11 @@ call UpCase(Command)
 do iCmd=1,NKeys
   if (Command == Cmd(iCmd)) return
 end do
-write(6,*) ' ****************************************************'
-write(6,*) ' ChkIfKey Warning: The following line seems intended'
-write(6,*) ' to give some keyword input, but was not recognized:'
-write(6,*) ' '''//line(1:32)//''''
-write(6,*) ' Spelling or syntactic mistake? Ignored!'
-write(6,*) ' ****************************************************'
+write(u6,*) ' ****************************************************'
+write(u6,*) ' ChkIfKey Warning: The following line seems intended'
+write(u6,*) ' to give some keyword input, but was not recognized:'
+write(u6,*) ' '''//line(1:32)//''''
+write(u6,*) ' Spelling or syntactic mistake? Ignored!'
+write(u6,*) ' ****************************************************'
 
 end subroutine ChkIfKey

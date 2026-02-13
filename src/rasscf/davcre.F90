@@ -41,9 +41,11 @@ subroutine DAVCRE(C,HC,HH,CC,E,HD,SC,Q,QQ,S,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
 use fciqmc, only: DoNECI
 use wadr, only: PA, DIA, SXN
 use PrintLevel, only: DEBUG, INSANE
-use output_ras, only: LF, IPRLOC, RC_SX
+use output_ras, only: IPRLOC, RC_SX
 use RASDim, only: MxSXIt
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
 
 implicit none
 integer NROOT, ITMAX, NDIM, ITERSX, NSXS
@@ -60,7 +62,7 @@ real*8 S(ITMAX*NROOT**2)
 character(len=*) SXSEL
 character(len=16) :: ROUTINE = 'DAVCRE  '
 character(len=4) IOUTW, IOUTX
-real*8 :: THRA = 1.D-13, THRLD2 = 5.D-14, THRQ = 1.D-07, THRZ = 1.D-06, THRLD1 = 1.D-08
+real*8 :: THRA = 1.0e-13_wp, THRLD2 = 5.0e-14_wp, THRQ = 1.0e-7_wp, THRZ = 1.0e-6_wp, THRLD1 = 1.0e-8_wp
 real*8, allocatable :: C1(:), C2(:), X(:)
 integer iPrLev, nTrial, nCR, ii, i, nDimH, kDimH, nDimH2, iSel, nST, j, ji, iConvQ, iST, iConvA, k, iPass, iConvL, nTotDC, ij, &
         iSTQ, iSTC, jST, Length
@@ -71,8 +73,8 @@ real*8, external :: DDot_
 ! Local print level (if any)
 IPRLEV = IPRLOC(1)
 if (IPRLEV >= DEBUG) then
-  write(LF,*) ' Entering ',ROUTINE
-  write(LF,*) 'Super-CI diagonalization. Max iterations: ',ITMAX
+  write(u6,*) ' Entering ',ROUTINE
+  write(u6,*) 'Super-CI diagonalization. Max iterations: ',ITMAX
 end if
 
 ! Set values at loop head and starting guess of the vectors C
@@ -83,7 +85,7 @@ NCR = NROOT*NDIM
 call FZERO(C,NCR)
 II = 0
 do I=1,NROOT
-  C(II+I) = 1.0d0
+  C(II+I) = One
   II = II+NDIM
 end do
 
@@ -113,12 +115,12 @@ KDIMH = (NDIMH+NDIMH**2)/2
 call DCOPY_(KDIMH,HH,1,HH(KDIMH+1),1)
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*) ' Davidson H-matrix in iteration ',ITERSX
-  write(LF,*) ' Davidson H-matrix triangular of size =  ',NDIMH
-  write(LF,'(1x,8F14.6)') (HH(I),I=1,KDIMH)
+  write(u6,*) ' Davidson H-matrix in iteration ',ITERSX
+  write(u6,*) ' Davidson H-matrix triangular of size =  ',NDIMH
+  write(u6,'(1x,8F14.6)') (HH(I),I=1,KDIMH)
 end if
 E(1) = HH(1)
-CC(1) = 1.d0
+CC(1) = One
 if (NDIMH > 1) then
 
   ! set eigenvector array to identity before JACO call
@@ -128,7 +130,7 @@ if (NDIMH > 1) then
   II = -NDIMH
   do I=1,NDIMH
     II = II+NDIMH+1
-    CC(II) = 1.0d0
+    CC(II) = One
   end do
 
   call Jacob(HH(KDIMH+1),CC,NDIMH,NDIMH)
@@ -164,12 +166,12 @@ if (NDIMH > 1) then
   end if
 
   if (IPRLEV >= DEBUG) then
-    write(LF,*) ' Eigenvalues:'
-    write(LF,'(1X,8F14.6)') (E(I),I=1,NROOT)
-    write(LF,*) ' Eigenvectors:'
+    write(u6,*) ' Eigenvalues:'
+    write(u6,'(1X,8F14.6)') (E(I),I=1,NROOT)
+    write(u6,*) ' Eigenvectors:'
     NST = 0
     do I=1,NROOT
-      write(LF,'(1X,10F11.6)') (CC(J+NST),J=1,NDIMH)
+      write(u6,'(1X,10F11.6)') (CC(J+NST),J=1,NDIMH)
       NST = NST+NDIMH
     end do
   end if
@@ -195,15 +197,15 @@ do I=1,NROOT
 end do
 
 ! Step 2: form the matrix Q=HC*CC
-call DGEMM_('N','N',NDIM,NROOT,NDIMH,1.0d0,HC,NDIM,CC,NDIMH,0.0d0,Q(NDIM+1),NDIM)
+call DGEMM_('N','N',NDIM,NROOT,NDIMH,One,HC,NDIM,CC,NDIMH,Zero,Q(NDIM+1),NDIM)
 ! Step 3: add the contribution C*CCE
-call DGEMM_('N','N',NDIM,NROOT,NDIMH,1.d0,C,NDIM,S,NDIMH,1.d0,Q(NDIM+1),NDIM)
+call DGEMM_('N','N',NDIM,NROOT,NDIMH,One,C,NDIM,S,NDIMH,One,Q(NDIM+1),NDIM)
 
 ! Note that the NDIM first positions in Q are untouched so far
 ! the vector will be moved later
 if (IPRLEV >= INSANE) then
-  write(LF,*) ' The residual vectors Q of size:',NDIM
-  write(LF,'(1x,8F14.10)') (Q(NDIM+I),I=1,NDIM)
+  write(u6,*) ' The residual vectors Q of size:',NDIM
+  write(u6,'(1x,8F14.10)') (Q(NDIM+I),I=1,NDIM)
 end if
 
 ! Check the norms of the Q-vectors for convergence, and obtain
@@ -227,14 +229,14 @@ do I=1,NROOT
   if (IPRLEV >= DEBUG) then
     if (NROOT > 1) then
       if (I > 1) then
-        write(LF,'(20X,F16.8,A,I2,A,F16.8)') ENO,' <  SX energy ',I,'  < ',EI
+        write(u6,'(20X,F16.8,A,I2,A,F16.8)') ENO,' <  SX energy ',I,'  < ',EI
       else
-        write(LF,'(1X,I2,A,4X,F16.8,A,I2,A,F16.8)') ITERSX,' SX iteration ',ENO,' <  SX energy ',I,'  < ',EI
+        write(u6,'(1X,I2,A,4X,F16.8,A,I2,A,F16.8)') ITERSX,' SX iteration ',ENO,' <  SX energy ',I,'  < ',EI
       end if
     else
-      write(LF,'(1X,I2,A,4X,F16.8,A,I2,A,F16.8)') ITERSX,' SX iteration ',ENO,' <  SX energy ',I,'  < ',EI
+      write(u6,'(1X,I2,A,4X,F16.8,A,I2,A,F16.8)') ITERSX,' SX iteration ',ENO,' <  SX energy ',I,'  < ',EI
     end if
-    write(LF,*) '  Norm of Q:',QNORM
+    write(u6,*) '  Norm of Q:',QNORM
   end if
   IST = IST+NDIM
 end do
@@ -272,7 +274,7 @@ do I=1,NROOT
   EI = E(I)
   do K=1,NDIM
     SC(K) = EI-HD(K)
-    if (abs(SC(K)) < THRZ) SC(K) = 1.0d0
+    if (abs(SC(K)) < THRZ) SC(K) = One
   end do
   Q(IST:IST+NDIM-1) = Q(IST+NDIM:IST+2*NDIM-1)/SC(1:NDIM)
   IST = IST+NDIM
@@ -280,15 +282,15 @@ end do
 ! Remove any unwanted components. These are signalled by
 ! huge elements of SX hamiltonian diagonal (set in SXHAM).
 do I=1,NDIM
-  if (HD(I) > 1.0d20) then
+  if (HD(I) > 1.0e20_wp) then
     do J=1,NROOT
-      Q(I+NDIM*(J-1)) = 0.0d0
+      Q(I+NDIM*(J-1)) = Zero
     end do
   end if
 end do
 if (IPRLEV >= INSANE) then
-  write(LF,*) ' The correction vectors D(stored in Q):'
-  write(LF,'(1x,8F14.10)') (Q(I),I=1,NDIM)
+  write(u6,*) ' The correction vectors D(stored in Q):'
+  write(u6,'(1x,8F14.10)') (Q(I),I=1,NDIM)
 end if
 
 ! Q now contains the Davidson correction vectors. These will now
@@ -321,12 +323,12 @@ do I=1,NTOTDC
   end do
   ISTQ = ISTQ+NDIM
 end do
-call DGEMM_('N','N',NDIM,NTOTDC,NDIMH,1.d0,C,NDIM,S,NDIMH,1.d0,Q,NDIM)
+call DGEMM_('N','N',NDIM,NTOTDC,NDIMH,One,C,NDIM,S,NDIMH,One,Q,NDIM)
 
 ! The Q-vectors are now orthogonal to all C-vectors.
 if (IPRLEV >= INSANE) then
-  write(LF,*) '  D vector orthogonal to all C vectors:'
-  write(LF,'(1x,8F14.10)') (Q(I),I=1,NDIM)
+  write(u6,*) '  D vector orthogonal to all C vectors:'
+  write(u6,'(1x,8F14.10)') (Q(I),I=1,NDIM)
 end if
 ! Now orthogonalize them to one another, rejecting those which
 ! appear with too small a norm
@@ -346,11 +348,11 @@ do I=1,NTOTDC
       S(J) = -OVL
       JST = JST+NDIM
     end do
-    !call DGEMX(NDIM,NTRIAL,1.D0,Q,NDIM,S,1,Q(IST),1)
-    call DGEMV_('N',NDIM,NTRIAL,1.d0,Q,NDIM,S,1,1.0d0,Q(IST),1)
+    !call DGEMX(NDIM,NTRIAL,One,Q,NDIM,S,1,Q(IST),1)
+    call DGEMV_('N',NDIM,NTRIAL,One,Q,NDIM,S,1,One,Q(IST),1)
     if (IPRLEV >= INSANE) then
-      write(LF,*) '  Q vector orthogonal to preceding Q vectors:'
-      write(LF,'(1x,8F14.10)') (Q(k),k=1,NDIM)
+      write(u6,*) '  Q vector orthogonal to preceding Q vectors:'
+      write(u6,'(1x,8F14.10)') (Q(k),k=1,NDIM)
     end if
   end if
 
@@ -360,26 +362,26 @@ do I=1,NTOTDC
   ! Due to large noise amplification in COVLP, the squared-norm
   ! can actually come out as a negative number.
   ! Acceptable, only if it is very close to zero. Else, quit.
-  if (XNORM < -1.0D-09) then
-    write(LF,*)
-    write(LF,*) '      *** Error in subroutine DAVCRE ***'
-    write(LF,*) ' The squared norm of a trial vector has been'
-    write(LF,*) ' computed to be negative:'
-    write(LF,*) '      XNORM=',XNORM
-    write(LF,*) ' This is possible only for some severe malfunction'
-    write(LF,*) ' of the rasscf program. Please issue a bug report.'
-    write(LF,*)
+  if (XNORM < -1.0e-9_wp) then
+    write(u6,*)
+    write(u6,*) '      *** Error in subroutine DAVCRE ***'
+    write(u6,*) ' The squared norm of a trial vector has been'
+    write(u6,*) ' computed to be negative:'
+    write(u6,*) '      XNORM=',XNORM
+    write(u6,*) ' This is possible only for some severe malfunction'
+    write(u6,*) ' of the rasscf program. Please issue a bug report.'
+    write(u6,*)
     if (.not. DoNECI) then
       call Quit(_RC_GENERAL_ERROR_)
     else
-      write(LF,*) ' non positive-semi definite matrix occurred.'
-      write(LF,*) ' Calculation will continue. '
-      write(LF,*) ' Divergent results might occur'
-      write(LF,*) ' Tests for possible solution on the way...'
+      write(u6,*) ' non positive-semi definite matrix occurred.'
+      write(u6,*) ' Calculation will continue. '
+      write(u6,*) ' Divergent results might occur'
+      write(u6,*) ' Tests for possible solution on the way...'
     end if
   end if
-  XNORM = sqrt(max(0.0d0,XNORM))
-  if (IPRLEV >= INSANE) write(LF,'(1X,A,I3,A,I3,A,ES16.8)') 'Pass ',IPASS,' New orthogonal vector ',I,' has norm ',XNORM
+  XNORM = sqrt(max(Zero,XNORM))
+  if (IPRLEV >= INSANE) write(u6,'(1X,A,I3,A,I3,A,ES16.8)') 'Pass ',IPASS,' New orthogonal vector ',I,' has norm ',XNORM
 
   !PAM01 Two different treatments, depending on if this is first or
   ! second orthonormalization pass:
@@ -388,7 +390,7 @@ do I=1,NTOTDC
     if ((ITERSX == 1) .or. (XNORM > THRLD1)) then
       ISTQ = NTRIAL*NDIM+1
       NTRIAL = NTRIAL+1
-      XNORM = 1.0d00/(XNORM+1.0D-24)
+      XNORM = One/(XNORM+1.0e-24_wp)
       !PAM01 Note that ISTQ can be (and is!) the same as IST:
       if (ISTQ == IST) then
         call DSCAL_(NDIM,XNORM,Q(IST),1)
@@ -401,10 +403,10 @@ do I=1,NTOTDC
     ! poor independence, maybe with strong rounding-error amplification
     ! in COVLP, has began to erode the orthonormalization of the
     ! basis vectors, hence the integrity of the Davidson procedure.
-    if ((ITERSX == 1) .or. (abs(XNORM-1.0d0) < THRLD2)) then
+    if ((ITERSX == 1) .or. (abs(XNORM-One) < THRLD2)) then
       ISTQ = NTRIAL*NDIM+1
       NTRIAL = NTRIAL+1
-      XNORM = 1.0d00/(XNORM+1.0D-24)
+      XNORM = One/(XNORM+1.0e-24_wp)
       !PAM01 Note that ISTQ can be (and is!) the same as IST:
       if (ISTQ == IST) then
         call DSCAL_(NDIM,XNORM,Q(IST),1)
@@ -428,8 +430,8 @@ NTOTDC = NTRIAL
 IPASS = IPASS+1
 if ((IPASS /= 2) .and. (NTOTDC /= 0)) GO TO 23
 if (IPRLEV >= INSANE) then
-  write(LF,*) ' The correction vectors, after ON:'
-  write(LF,'(1x,8F14.10)') (Q(I),I=1,NDIM*NTRIAL)
+  write(u6,*) ' The correction vectors, after ON:'
+  write(u6,'(1x,8F14.10)') (Q(I),I=1,NDIM*NTRIAL)
 end if
 
 ! Check if the set of vectors has become linearly dependent
@@ -442,12 +444,12 @@ NST = 1+NDIMH*NDIM
 LENGTH = NTRIAL*NDIM
 call DCOPY_(LENGTH,Q,1,C(NST),1)
 
-if (IPRLEV >= DEBUG) write(LF,'(1X,A,I2,A)') ' Adding ',NTRIAL,' new vectors.'
+if (IPRLEV >= DEBUG) write(u6,'(1X,A,I2,A)') ' Adding ',NTRIAL,' new vectors.'
 if (IPRLEV >= INSANE) then
   IST = NDIMH*NDIM
   do I=1,NTRIAL
-    write(LF,'(1X,A,I2,A)') ' New vector ',I,' is:'
-    write(LF,'(1X,10F11.6)') (C(IST+K),K=1,NDIM)
+    write(u6,'(1X,A,I2,A)') ' New vector ',I,' is:'
+    write(u6,'(1X,10F11.6)') (C(IST+K),K=1,NDIM)
     IST = IST+NDIM
   end do
 end if
@@ -463,9 +465,9 @@ if (ITERSX < ITMAX) GO TO 100
 
 if (IPRLEV >= DEBUG) then
   if (ITMAX < MXSXIT) then
-    write(LF,*) ' Super-CI not converged. Max SX iter increased.'
+    write(u6,*) ' Super-CI not converged. Max SX iter increased.'
   else
-    write(LF,*) ' Super-CI not converged.'
+    write(u6,*) ' Super-CI not converged.'
   end if
 end if
 ITMAX = min(ITMAX+2,MXSXIT)
@@ -480,15 +482,15 @@ if (NROOT > 1) IOUTW = 'ies '
 IOUTX = '    '
 if (NROOT > 1) IOUTX = 's   '
 if (IPRLEV >= DEBUG) then
-  if (ICONVQ /= 0) write(LF,*) ' Convergence on CI energ'//IOUTW
-  if (ICONVA /= 0) write(LF,*) ' Convergence on Davidson expansion vector'//IOUTX
+  if (ICONVQ /= 0) write(u6,*) ' Convergence on CI energ'//IOUTW
+  if (ICONVA /= 0) write(u6,*) ' Convergence on Davidson expansion vector'//IOUTX
 end if
 GO TO 34
 
 ! Here as trial vectors have become linearly dependent
 
 36 continue
-if (IPRLEV >= DEBUG) write(LF,*) ' Trial vector set has become linearly dependent'
+if (IPRLEV >= DEBUG) write(u6,*) ' Trial vector set has become linearly dependent'
 34 continue
 
 ! Compute CI vectors for all roots
@@ -498,10 +500,10 @@ if (IPRLEV >= DEBUG) write(LF,*) ' Trial vector set has become linearly dependen
 ! Here J runs over the iterations, and M over the
 ! number of trial vectors used in each iteration J
 
-call DGEMM_('N','N',NDIM,NROOT,NDIMH,1.0d0,C,NDIM,CC,NDIMH,0.0d0,Q,NDIM)
+call DGEMM_('N','N',NDIM,NROOT,NDIMH,One,C,NDIM,CC,NDIMH,Zero,Q,NDIM)
 if (IPRLEV >= INSANE) then
-  write(LF,*) ' Unnormalized final CI vectors (in Q):'
-  write(LF,'(1x,8F14.10)') (Q(I),I=1,NDIM)
+  write(u6,*) ' Unnormalized final CI vectors (in Q):'
+  write(u6,'(1x,8F14.10)') (Q(I),I=1,NDIM)
 end if
 
 ! Normalize the final CI vectors
@@ -509,7 +511,7 @@ end if
 IST = 1
 do I=1,NROOT
   call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,XNORM)
-  XNORM = 1.0d00/XNORM
+  XNORM = One/XNORM
   call DYAX(NDIM,XNORM,Q(IST),1,C(IST),1)
   IST = IST+NDIM
 end do
@@ -519,8 +521,8 @@ end do
 if (IPRLEV >= INSANE) then
   IST = 0
   do I=1,NROOT
-    write(LF,*) ' SX-CI vector for root ',I
-    write(LF,'(1X,8F8.4)') (C(IST+K),K=1,NDIM)
+    write(u6,*) ' SX-CI vector for root ',I
+    write(u6,'(1X,8F8.4)') (C(IST+K),K=1,NDIM)
     IST = IST+NDIM
   end do
 end if

@@ -18,6 +18,7 @@
 subroutine GetDDgMat(DDg,GDMat,Gtuvx)
 
 use rasscf_global, only: lRoots, NAC
+use Constants, only: Zero
 
 implicit none
 real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
@@ -44,7 +45,7 @@ do iI=1,lRoots
           iLL = iL
           iKK = iK
         end if
-        DDG(iI,iJ,iK,iL) = 0.0d0
+        DDG(iI,iJ,iK,iL) = Zero
         do it=1,NAC
           do iu=1,NAC
             do iv=1,NAC

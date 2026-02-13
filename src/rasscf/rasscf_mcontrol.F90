@@ -15,6 +15,8 @@ use Fock_util_global, only: ALGO, dmpk, Nscreen
 use Cholesky, only: timings
 use Para_Info, only: MyRank
 use rasscf_global, only: MaxIt, Thre, ThrSX, ThrTE
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer id_call
@@ -42,56 +44,56 @@ else
   call MolcasControl('Cho_ALGO',value)
   if (value(1:4) /= '    ') then
     read(value,*,err=101,end=102) ALGO
-    write(6,*) '--- Warning: Cho_ALGO changed by user to the value ',ALGO
+    write(u6,*) '--- Warning: Cho_ALGO changed by user to the value ',ALGO
     icount = icount+1
   end if
   !2
   call MolcasControl('Chotime',value)
   if (value(1:4) /= '    ') then
     read(value,*,err=101,end=102) timings
-    write(6,*) '--- Warning: Cholesky timings visualization changed by user to the value ',timings
+    write(u6,*) '--- Warning: Cholesky timings visualization changed by user to the value ',timings
     icount = icount+1
   end if
   !3
   call MolcasControl('nScreen',value)
   if (value(1:4) /= '    ') then
     read(value,*,err=101,end=102) nScreen
-    write(6,*) '--- Warning: Cholesky LK option nSCREEN changed by user to the value ',nScreen
+    write(u6,*) '--- Warning: Cholesky LK option nSCREEN changed by user to the value ',nScreen
     icount = icount+1
   end if
   !4
   call MolcasControl('dmpK',value)
   if (value(1:4) /= '    ') then
     read(value,*,err=101,end=102) dmpK
-    write(6,*) '--- Warning: Cholesky LK option DMPK changed by user to the value ',dmpK
+    write(u6,*) '--- Warning: Cholesky LK option DMPK changed by user to the value ',dmpK
     icount = icount+1
   end if
   !5
   call MolcasControl('MaxIter',value)
   if (value(1:4) /= '    ') then
     read(value,*,err=101,end=102) MaxIt
-    write(6,*) '--- Warning: MaxIt changed by user to the value ',MaxIt
+    write(u6,*) '--- Warning: MaxIt changed by user to the value ',MaxIt
     icount = icount+1
   end if
   !6
   call MolcasControl('ThrE',value)
   if (value(1:4) /= '    ') then
     read(value,*,err=101,end=102) ThrE
-    write(6,*) '--- Warning: ThrE changed by user to the value ',ThrE
+    write(u6,*) '--- Warning: ThrE changed by user to the value ',ThrE
     icount = icount+1
   end if
   !7
   call MolcasControl('ThrSX',value)
   if (value(1:4) /= '    ') then
     read(value,*,err=101,end=102) ThrSX
-    write(6,*) '--- Warning: ThrSX changed by user to the value ',ThrSX
+    write(u6,*) '--- Warning: ThrSX changed by user to the value ',ThrSX
     icount = icount+1
   end if
   !8
   call MolcasControl('ThrTE',value)
   if (value(1:4) /= '    ') then
     read(value,*,err=101,end=102) ThrTE
-    write(6,*) '--- Warning: ThrTE changed by user to the value ',ThrTE
+    write(u6,*) '--- Warning: ThrTE changed by user to the value ',ThrTE
     icount = icount+1
   end if
 
@@ -105,8 +107,8 @@ call gaIgOP_SCAL(icount,'max')
 
 if (MyRank == 0) then
   if (icount > icount0) then
-    write(6,*) ' Steering will NOT be activated this time because'
-    write(6,*) ' molcas.control file must be changed on node_0 !!'
+    write(u6,*) ' Steering will NOT be activated this time because'
+    write(u6,*) ' molcas.control file must be changed on node_0 !!'
     call gaIgOP_SCAL(icount,'min')
   end if
 end if
@@ -119,10 +121,10 @@ if (icount > 0) then
     ALGO = 0
     MaxIt = 0
     nScreen = 0
-    dmpK = 0.0d0
-    ThrE = 0.0d0
-    ThrSX = 0.0d0
-    ThrTE = 0.0d0
+    dmpK = Zero
+    ThrE = Zero
+    ThrSX = Zero
+    ThrTE = Zero
   end if
   call gaIgOP_SCAL(ALGO,'+')
   call gaIgOP_SCAL(nScreen,'+')
@@ -148,7 +150,7 @@ return
 100 format(A24,',Cho_ALGO=',I2,',Chotime=',L2,',dmpK=',ES11.4,',nScreen=',I4,',MaxIter=',I4,',ThrE=',ES11.4,',ThrSX=',ES11.4, &
            ',ThrTE=',ES11.4)
 
-101 write(6,*) 'RasScf_Mcontrol: error in data Input. ( icount= ',icount,' )'
-102 write(6,*) 'RasScf_Mcontrol: reached end of file. ( icount= ',icount,' )'
+101 write(u6,*) 'RasScf_Mcontrol: error in data Input. ( icount= ',icount,' )'
+102 write(u6,*) 'RasScf_Mcontrol: reached end of file. ( icount= ',icount,' )'
 
 end subroutine RasScf_Mcontrol

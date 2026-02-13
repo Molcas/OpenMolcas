@@ -19,41 +19,42 @@ subroutine CMSHeader(CMSSFile,LenCMSS)
 
 use CMS, only: iCMSOpt, CMSGuessFile
 use rasscf_global, only: CMSThreshold, iCMSIterMin, iCMSIterMax, lRoots
+use Definitions, only: wp, u6
 
 implicit none
 integer LenCMSS
 character(len=LenCMSS) :: CMSSFile
 #include "warnings.h"
 
-write(6,*)
-write(6,*)
-write(6,'(4X,A35)') 'CMS INTERMEDIATE-STATE OPTIMIZATION'
+write(u6,*)
+write(u6,*)
+write(u6,'(4X,A35)') 'CMS INTERMEDIATE-STATE OPTIMIZATION'
 if (CMSSFile == 'XMS') then
-  write(6,'(5X,A12,8X,A25)') 'START MATRIX','XMS INTERMEDIATE STATES'
+  write(u6,'(5X,A12,8X,A25)') 'START MATRIX','XMS INTERMEDIATE STATES'
 else
-  write(6,'(5X,A12,8X,A25)') 'START MATRIX',CMSGuessFile
+  write(u6,'(5X,A12,8X,A25)') 'START MATRIX',CMSGuessFile
 end if
 if (iCMSOpt == 1) then
-  write(6,'(5X,A8,12X,A25)') 'OPT ALGO','NEWTON'
+  write(u6,'(5X,A8,12X,A25)') 'OPT ALGO','NEWTON'
 else if (iCMSOpt == 2) then
-  write(6,'(5X,A8,12X,A25)') 'OPT ALGO','JACOBI'
+  write(u6,'(5X,A8,12X,A25)') 'OPT ALGO','JACOBI'
 end if
-write(6,'(5X,A15,5X,16X,ES9.2E2)') 'Q_a-a THRESHOLD',CMSThreshold
-if (iCMSOpt == 1) write(6,'(5X,A15,5X,16X,ES9.2E2)') 'GRAD  THRESHOLD',CMSThreshold*1.0d-2
-write(6,'(5X,A10,10X,I25)') 'MAX CYCLES',ICMSIterMax
-write(6,'(5X,A10,10X,I25)') 'MIN CYCLES',ICMSIterMin
-write(6,*) repeat('=',71)
+write(u6,'(5X,A15,5X,16X,ES9.2E2)') 'Q_a-a THRESHOLD',CMSThreshold
+if (iCMSOpt == 1) write(u6,'(5X,A15,5X,16X,ES9.2E2)') 'GRAD  THRESHOLD',CMSThreshold*1.0e-2_wp
+write(u6,'(5X,A10,10X,I25)') 'MAX CYCLES',ICMSIterMax
+write(u6,'(5X,A10,10X,I25)') 'MIN CYCLES',ICMSIterMin
+write(u6,*) repeat('=',71)
 if (iCMSOpt == 2) then
   if (lRoots > 2) then
-    write(6,'(4X,A8,2X,2(A16,11X))') 'Cycle','Q_a-a','Difference'
+    write(u6,'(4X,A8,2X,2(A16,11X))') 'Cycle','Q_a-a','Difference'
   else
-    write(6,'(4X,A8,2X,A18,6X,A8,12X,A12)') 'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
+    write(u6,'(4X,A8,2X,A18,6X,A8,12X,A12)') 'Cycle','Rot. Angle (deg.)','Q_a-a','Q_a-a Diff.'
   end if
 else
-  write(6,'(6X,A5,7X,A5,8X,A10,2X,A6,5X,A7,4X,A4)') 'Cycle','Q_a-a','Difference','# Pos.','Largest','Step'
-  write(6,'(43X,A7,4X,A8,3X,A6)') 'Hessian','Gradient','Scaled'
+  write(u6,'(6X,A5,7X,A5,8X,A10,2X,A6,5X,A7,4X,A4)') 'Cycle','Q_a-a','Difference','# Pos.','Largest','Step'
+  write(u6,'(43X,A7,4X,A8,3X,A6)') 'Hessian','Gradient','Scaled'
 end if
-write(6,*) repeat('-',71)
+write(u6,*) repeat('-',71)
 
 return
 

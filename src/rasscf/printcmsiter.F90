@@ -18,31 +18,33 @@
 subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
 
 use CMS, only: iCMSOpt, NPosHess, LargestQaaGrad, NCMSScale
+use Constants, only: deg2rad
+use Definitions, only: u6
 
 implicit none
 integer iStep, lRoots
 real*8 Qnew, Qold, Diff
 real*8 RMat(lRoots**2)
 
-!write(6,*) 'iteration information'
+!write(u6,*) 'iteration information'
 Diff = Qnew-Qold
 if (iCMSOpt == 2) then
 
   if (lRoots == 2) then
-    write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
+    write(u6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') iStep,asin(RMat(3))/deg2rad,Qnew,Diff
   else
-    write(6,'(6X,I4,2X,F14.8,2X,ES14.4E3)') iStep,Qnew,Diff
+    write(u6,'(6X,I4,2X,F14.8,2X,ES14.4E3)') iStep,Qnew,Diff
   end if
 
 else
 
   !if (lRoots == 2) then
-  !  write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') iStep,asin(RMat(3))/atan(1.0d0)*45.0d0,Qnew,Diff
+  !  write(u6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') iStep,asin(RMat(3))/deg2rad,Qnew,Diff
   !else
   if (NCMSScale > 0) then
-    write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,I1)') iStep,Qnew,Diff,nPosHess,LargestQaaGrad,'1E-',NCMSScale
+    write(u6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3,I1)') iStep,Qnew,Diff,nPosHess,LargestQaaGrad,'1E-',NCMSScale
   else
-    write(6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3)') iStep,Qnew,Diff,nPosHess,LargestQaaGrad,'1.0'
+    write(u6,'(6X,I4,2X,F14.8,2X,ES12.2E3,2X,I5,2X,ES14.4E3,3X,A3)') iStep,Qnew,Diff,nPosHess,LargestQaaGrad,'1.0'
   end if
   !end if
 

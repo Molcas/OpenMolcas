@@ -66,14 +66,15 @@ use casvb_global, only: ifvb
 use orthonormalization, only: t_ON_scheme, ON_scheme_values, orthonormalize
 use general_data, only: CleanMask
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
-use output_ras, only: LF, IPRGLB, IPRLOC
+use output_ras, only: IPRGLB, IPRLOC
 use Molcas, only: LenIn, MaxBfn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
 #ifdef _HDF5_
 use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset, mh5_close_file
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: RtoI
+use Constants, only: Zero
+use Definitions, only: u6, RtoI
 
 implicit none
 character(len=16), parameter :: ROUTINE = 'READVC  '
@@ -106,7 +107,7 @@ end interface
 !----------------------------------------------------------------------*
 ! Local print level (if any)
 IPRLEV = IPRLOC(1)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 !----------------------------------------------------------------------*
 ! Do we use default orbitals?                                          *
 !----------------------------------------------------------------------*
@@ -114,7 +115,7 @@ if (InVec == 0) then
   call qpg_darray('RASSCF orbitals',Found,nData)
   if (Found) then
     InVec = 6
-    if (IPRLEV >= TERSE) write(6,'(6x,a)') 'Orbitals from runfile: rasscf orbitals'
+    if (IPRLEV >= TERSE) write(u6,'(6x,a)') 'Orbitals from runfile: rasscf orbitals'
   end if
 end if
 call Check_InVec(InVec)
@@ -122,7 +123,7 @@ if (InVec == 0) then
   call qpg_darray('SCF orbitals',Found,nData)
   if (Found) then
     InVec = 7
-    if (IPRLEV >= TERSE) write(6,'(6x,a)') 'Orbitals from runfile: scf orbitals'
+    if (IPRLEV >= TERSE) write(u6,'(6x,a)') 'Orbitals from runfile: scf orbitals'
   end if
 end if
 call Check_InVec(InVec)
@@ -130,7 +131,7 @@ if (InVec == 0) then
   call qpg_darray('Guessorb',Found,nData)
   if (Found) then
     InVec = 5
-    if (IPRLEV >= TERSE) write(6,'(6x,a)') 'Orbitals from runfile: guessorb orbitals'
+    if (IPRLEV >= TERSE) write(u6,'(6x,a)') 'Orbitals from runfile: guessorb orbitals'
   end if
 end if
 call Check_InVec(InVec)
@@ -189,17 +190,17 @@ if (InVec == 2) then
   end if
   close(LUStartOrb)
   if (iErr == 1) then
-    write(LF,*) 'RASSCF tried to read input orbitals from a'
-    write(LF,*) 'file, but encountered an error in the'
-    write(LF,*) 'TypeIndex data.'
+    write(u6,*) 'RASSCF tried to read input orbitals from a'
+    write(u6,*) 'file, but encountered an error in the'
+    write(u6,*) 'TypeIndex data.'
     call Abend()
     return
   end if
 
   if (IPRLEV >= TERSE) then
-    write(LF,'(6X,A)') 'The MO-coefficients are taken from the file:'
-    write(LF,'(6X,A)') trim(StartOrbFile)
-    write(LF,'(6X,A,A)') 'Title:',VecTit(2:80)
+    write(u6,'(6X,A)') 'The MO-coefficients are taken from the file:'
+    write(u6,'(6X,A)') trim(StartOrbFile)
+    write(u6,'(6X,A,A)') 'Title:',VecTit(2:80)
   end if
 
 else if (InVec == 3) then
@@ -214,7 +215,7 @@ else if (InVec == 3) then
       call DaName(JOBOLD,'JOBOLD')
     end if
   else
-    if (IPRLEV >= TERSE) write(LF,'(6X,A)') 'File JOBOLD not found -- use JOBIPH.'
+    if (IPRLEV >= TERSE) write(u6,'(6X,A)') 'File JOBOLD not found -- use JOBIPH.'
     if (JOBIPH > 0) then
       JOBOLD = JOBIPH
     else
@@ -243,14 +244,14 @@ else if (InVec == 3) then
                       JobH(10),JobR(:))
   if (IPRLEV >= TERSE) then
     if (iJOB == 1) then
-      write(LF,'(6X,A)') 'The MO-coefficients are taken from the file:'
-      write(LF,'(6X,A)') 'JOBOLD'
+      write(u6,'(6X,A)') 'The MO-coefficients are taken from the file:'
+      write(u6,'(6X,A)') 'JOBOLD'
     else
-      write(LF,'(6X,A)') 'The MO-coefficients are taken from the file:'
-      write(LF,'(6X,A)') trim(iPhName)
+      write(u6,'(6X,A)') 'The MO-coefficients are taken from the file:'
+      write(u6,'(6X,A)') trim(iPhName)
     end if
     write(VecTit(1:72),'(A72)') JobTit(1)
-    write(LF,'(6X,2A)') 'Title:',VecTit(1:72)
+    write(u6,'(6X,2A)') 'Title:',VecTit(1:72)
   end if
   call mma_deallocate(JobH)
   call mma_deallocate(JobR)
@@ -260,15 +261,15 @@ else if (InVec == 3) then
   if (ICIRST == 1) then
     if (IPRLEV >= VERBOSE) then
       if (iJOB == 1) then
-        write(LF,'(6X,A)') 'The active density matrices (D,DS,P,PA) are read from file JOBOLD and weighted together.'
+        write(u6,'(6X,A)') 'The active density matrices (D,DS,P,PA) are read from file JOBOLD and weighted together.'
       else
-        write(LF,'(6X,A)') 'The active density matrices (D,DS,P,PA) are read from file '//trim(iPhName)//' and weighted together.'
+        write(u6,'(6X,A)') 'The active density matrices (D,DS,P,PA) are read from file '//trim(iPhName)//' and weighted together.'
       end if
     end if
     call mma_allocate(Scr,NACPR2,Label='Scr')
     iDisk = IADR19(3)
     do jRoot=1,lRoots
-      Scal = 0.0d0
+      Scal = Zero
       do kRoot=1,nRoots
         if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
       end do
@@ -301,8 +302,8 @@ else if (InVec == 4) then
   ! read from a HDF5 wavefunction file
 # ifdef _HDF5_
   if (IPRLEV >= TERSE) then
-    write(LF,'(6X,A)') 'The MO-coefficients are taken from the file:'
-    write(LF,'(6X,A)') trim(StartOrbFile)
+    write(u6,'(6X,A)') 'The MO-coefficients are taken from the file:'
+    write(u6,'(6X,A)') trim(StartOrbFile)
   end if
 
   mh5id = mh5_open_file_r(StartOrbFile)
@@ -345,15 +346,15 @@ else if (InVec == 4) then
     call mma_deallocate(TInd)
   end if
 # else
-  write(6,*) 'Orbitals requested from HDF5, but this'
-  write(6,*) 'installation does not support that, abort!'
+  write(u6,*) 'Orbitals requested from HDF5, but this'
+  write(u6,*) 'installation does not support that, abort!'
   call abend()
 # endif
 
   ! guess MO-coefficients
 
 else if (InVec == 5) then
-  if (IPRLEV >= VERBOSE) write(LF,'(6x,a)') 'Detected guessorb orbitals'
+  if (IPRLEV >= VERBOSE) write(u6,'(6x,a)') 'Detected guessorb orbitals'
   call Qpg_dArray('Guessorb',Found,nData)
   call Get_dArray('Guessorb',CMO,nData)
   call Qpg_iArray('nDel_go',Found,nData)
@@ -364,8 +365,8 @@ else if (InVec == 5) then
       if (nTmp(iSym) > nDel(iSym)) Changed = .true.
     end do
     if (Changed) then
-      write(6,'(5x,a,8i5)') 'Number of deleted orbitals changed from',(nDel(i),i=1,nSym)
-      write(6,'(5x,a,8i5)') '                           changed to  ',(nTmp(i),i=1,nSym)
+      write(u6,'(5x,a,8i5)') 'Number of deleted orbitals changed from',(nDel(i),i=1,nSym)
+      write(u6,'(5x,a,8i5)') '                           changed to  ',(nTmp(i),i=1,nSym)
     end if
     do iSym=1,nSym
       if (nTmp(iSym) > nDel(iSym)) then
@@ -375,10 +376,10 @@ else if (InVec == 5) then
         nDel(iSym) = nTmp(iSym)
       end if
     end do
-    if (IPRLEV >= TERSE) write(LF,'(6X,A)') 'The MO-coefficients are taken from guessorb on runfile'
+    if (IPRLEV >= TERSE) write(u6,'(6X,A)') 'The MO-coefficients are taken from guessorb on runfile'
   end if
 else if (InVec == 6) then
-  if (IPRLEV >= VERBOSE) write(LF,'(6x,a)') 'Detected old RASSCF orbitals'
+  if (IPRLEV >= VERBOSE) write(u6,'(6x,a)') 'Detected old RASSCF orbitals'
   call qpg_darray('RASSCF orbitals',Found,nData)
   call get_darray('RASSCF orbitals',CMO,nData)
   call Qpg_iArray('nDel',Found,nData)
@@ -389,8 +390,8 @@ else if (InVec == 6) then
       if (nTmp(iSym) > nDel(iSym)) Changed = .true.
     end do
     if (Changed) then
-      write(6,'(5x,a,8i5)') 'Number of deleted orbitals changed from',(nDel(i),i=1,nSym)
-      write(6,'(5x,a,8i5)') '                           changed to  ',(nTmp(i),i=1,nSym)
+      write(u6,'(5x,a,8i5)') 'Number of deleted orbitals changed from',(nDel(i),i=1,nSym)
+      write(u6,'(5x,a,8i5)') '                           changed to  ',(nTmp(i),i=1,nSym)
     end if
     do iSym=1,nSym
       if (nTmp(iSym) > nDel(iSym)) then
@@ -400,10 +401,10 @@ else if (InVec == 6) then
         nDel(iSym) = nTmp(iSym)
       end if
     end do
-    if (IPRLEV >= TERSE) write(LF,'(6X,A)') 'The MO-coefficients are taken from rasscf orbitals on runfile'
+    if (IPRLEV >= TERSE) write(u6,'(6X,A)') 'The MO-coefficients are taken from rasscf orbitals on runfile'
   end if
 else if (InVec == 7) then
-  if (IPRLEV >= VERBOSE) write(LF,'(6x,a)') 'Detected SCF orbitals'
+  if (IPRLEV >= VERBOSE) write(u6,'(6x,a)') 'Detected SCF orbitals'
   call qpg_darray('SCF orbitals',Found,nData)
   call get_darray('SCF orbitals',CMO,nData)
   call Qpg_iArray('nDel',Found,nData)
@@ -414,8 +415,8 @@ else if (InVec == 7) then
       if (nTmp(iSym) > nDel(iSym)) Changed = .true.
     end do
     if (Changed) then
-      write(6,'(5x,a,8i5)') 'Number of deleted orbitals changed from',(nDel(i),i=1,nSym)
-      write(6,'(5x,a,8i5)') '                           changed to  ',(nTmp(i),i=1,nSym)
+      write(u6,'(5x,a,8i5)') 'Number of deleted orbitals changed from',(nDel(i),i=1,nSym)
+      write(u6,'(5x,a,8i5)') '                           changed to  ',(nTmp(i),i=1,nSym)
     end if
     do iSym=1,nSym
       if (nTmp(iSym) > nDel(iSym)) then
@@ -426,20 +427,20 @@ else if (InVec == 7) then
       end if
     end do
   end if
-  if (IPRLEV >= TERSE) write(LF,'(6X,A)') 'The MO-coefficients are taken from scf orbitals on runfile'
+  if (IPRLEV >= TERSE) write(u6,'(6X,A)') 'The MO-coefficients are taken from scf orbitals on runfile'
 else if (InVec == 1) then
-  if (IPRLEV >= VERBOSE) write(LF,'(6X,A)') 'The MO-coefficients are obtained by diagonalizing the core Hamiltonian'
+  if (IPRLEV >= VERBOSE) write(u6,'(6X,A)') 'The MO-coefficients are obtained by diagonalizing the core Hamiltonian'
   call Guess(CMO)
 else
-  write(LF,*) 'Severe internal bug prevents further calculation.'
-  write(LF,*) 'Invalid value for INVEC in READVC. Program stops.'
-  write(LF,*) 'Please issue bug report. INVEC=',INVEC
+  write(u6,*) 'Severe internal bug prevents further calculation.'
+  write(u6,*) 'Invalid value for INVEC in READVC. Program stops.'
+  write(u6,*) 'Please issue bug report. INVEC=',INVEC
   call QUIT(_RC_GENERAL_ERROR_)
 end if
 ! print start orbitals
 if (IPRLEV >= DEBUG) then
   call mma_allocate(ENE,nTot,Label='ENE')
-  call DCOPY_(nTot,[0.0d0],0,ENE,1)
+  call DCOPY_(nTot,[Zero],0,ENE,1)
   call PRIMO_RASSCF('Input orbitals',ENE,OCC,CMO)
   call mma_deallocate(ENE)
 end if

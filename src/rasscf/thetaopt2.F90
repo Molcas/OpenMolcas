@@ -18,6 +18,7 @@
 subroutine ThetaOpt2(R,theta,deltaQ,SPair,NP,GD,Vee,G)
 
 use rasscf_global, only: lRoots, NAC
+use Constants, only: Zero
 
 implicit none
 integer NP
@@ -31,7 +32,7 @@ real*8, dimension(NAC,NAC,NAC,NAC) :: G
 integer IP, I, J
 #include "warnings.h"
 
-deltaQ = 0.0d0
+deltaQ = Zero
 do IP=1,NP
   I = SPair(IP,1)
   J = SPair(IP,2)

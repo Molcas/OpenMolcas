@@ -18,6 +18,8 @@
 subroutine OptOneAngle(Angle,SumVee,RotMat,DDg,I1,I2,lRoots)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Three, deg2rad
+use Definitions, only: wp, u6
 
 implicit none
 real*8 Angle, SumVee
@@ -40,17 +42,17 @@ call mma_allocate(ScanS,31)
 call mma_allocate(RTmp,lRoots,lRoots)
 
 Converged = .false.
-stepsize = dble(atan(1.0d0))/15
-Threshold = 1.0d-8
+stepsize = Three*deg2rad
+Threshold = 1.0e-8_wp
 
-!write(6,'(A,2(I2,2X))') 'scanning rotation angles for ',I1,I2
-Angles(2) = 0.0d0
+!write(u6,'(A,2(I2,2X))') 'scanning rotation angles for ',I1,I2
+Angles(2) = Zero
 do Iter=1,31
   ScanA(Iter) = (Iter-16)*stepsize*2
   call Copy2DMat(RTmp,RotMat,lRoots,lRoots)
   call CMSMatRot(RTmp,ScanA(Iter),I1,I2,lRoots)
   ScanS(Iter) = CalcNSumVee(RTmp,DDg)
-  !if (I2 == 1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
+  !if (I2 == 1) write(u6,*) Iter,ScanA(Iter),ScanS(Iter)
 end do
 
 IMax = RMax(ScanS,31)
@@ -77,11 +79,11 @@ do while (.not. Converged)
     Angle = Angles(4)
     call CMSMatRot(RotMat,Angle,I1,I2,lRoots)
     SumVee = CalcNSumVee(RotMat,DDg)
-    !write(6,'(A,I3,A)') 'Convergence reached after ',Iter,' micro cycles'
+    !write(u6,'(A,I3,A)') 'Convergence reached after ',Iter,' micro cycles'
   else
     if (Iter == IterMax) then
       Converged = .true.
-      write(6,'(A,I3,A)') 'No convergence reached after ',Iter,' micro cycles'
+      write(u6,'(A,I3,A)') 'No convergence reached after ',Iter,' micro cycles'
     else
       Angles(2) = Angles(4)
       SumOld = Sums(4)

@@ -73,17 +73,18 @@ subroutine CREIPH()
 ! ********** IBM 3090 MOLCAS Release 90 02 22 **********
 
 use sxci, only: IDXCI, IDXSX
-use stdalloc, only: mma_allocate, mma_deallocate
 use rasscf_global, only: header, IPT2, iRoot, lRoots, NACPAR, NACPR2, BName, nOrbT, nRoots, NTOT3, POTNUC, Title, Weight, IADR15
 use general_data, only: NSYM, ISPIN, JOBIPH, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NTOT, &
                         NTOT2, STSYM
 use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym, MxRoot
 use RASDim, only: MxIter, MxTit
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
 implicit none
 real*8 Dum(1)
 real*8, allocatable :: HEFF(:,:)
-integer I, IAD15, ISYM, J, NFOCK, NOO
+integer I, IAD15, ISYM, NFOCK, NOO
 
 do I=1,15
   IADR15(I) = 0
@@ -146,10 +147,8 @@ end do
 ! New layout scheme:
 IADR15(15) = -1
 call mma_allocate(HEFF,LROOTS,LROOTS,Label='HEFF')
-HEFF(:,:) = 0.0d0
-do J=1,LROOTS
-  HEFF(J,J) = 1.0d12
-end do
+call unitmat(HEFF,LROOTS)
+HEFF(:,:) = 1.0e12_wp*HEFF(:,:)
 IADR15(17) = IAD15
 call DDAFILE(JOBIPH,1,HEFF,LROOTS**2,IAD15)
 call mma_deallocate(HEFF)

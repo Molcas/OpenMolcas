@@ -14,6 +14,7 @@ module write_orbital_files
 use general_data, only: nSym
 use gas_data, only: iDoGas, nGAS
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 
 implicit none
 private
@@ -42,12 +43,13 @@ subroutine OrbFiles(JOBIPH,IPRLEV)
   use general_data, only: nActel, iSpin, stSym, nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3, nTot, nTot2, nConf
   use gas_data, only: nGssh
   use PrintLevel, only: USUAL
-  use output_ras, only: LF
   use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
   use RASDim, only: MxIter, MxTit
 # ifdef _DMRG_
   use qcmaquis_interface_cfg
 # endif
+  use Constants, only: Zero
+  use Definitions, only: u6
 
   implicit none
   integer, intent(in) :: JobIph, iPrlev
@@ -115,15 +117,15 @@ subroutine OrbFiles(JOBIPH,IPRLEV)
   if (iOrbTyp /= 2) then
     iDisk = iToc(2)
     call dDaFile(JobIph,2,CMO,ntot2,iDisk)
-    if (IPRLEV >= USUAL) write(LF,'(6X,3A)') 'Average orbitals are written to the ',trim(filename),' file'
+    if (IPRLEV >= USUAL) write(u6,'(6X,3A)') 'Average orbitals are written to the ',trim(filename),' file'
     VecTyp = '* RASSCF average (pseudo-natural) orbitals'
     call dDaFile(JobIph,2,Occ,ntot,iDisk)
   else
     iDisk = iToc(9)
     call dDaFile(JobIph,2,CMO,ntot2,iDisk)
-    if (IPRLEV >= USUAL) write(LF,'(6X,3A)') 'Canonical orbitals are written to the ',trim(filename),' file'
+    if (IPRLEV >= USUAL) write(u6,'(6X,3A)') 'Canonical orbitals are written to the ',trim(filename),' file'
     VecTyp = '* RASSCF canonical orbitals for CASPT2'
-    call dcopy_(ntot,[1.0d0],0,Occ,1)
+    call dcopy_(ntot,[One],0,Occ,1)
   end if
   !--------------------------------------------------------------------*
   !     Write  orbitals                                                *
@@ -150,7 +152,7 @@ subroutine OrbFiles(JOBIPH,IPRLEV)
     end if
     call dDaFile(JobIph,2,CMO,ntot2,iDisk)
     call dDaFile(JobIph,2,Occ,ntot,iDisk)
-    if (IPRLEV >= USUAL) write(LF,'(6X,A,I3,3A)') 'Natural orbitals for root ',IRT,' are written to the ',trim(filename),' file'
+    if (IPRLEV >= USUAL) write(u6,'(6X,A,I3,3A)') 'Natural orbitals for root ',IRT,' are written to the ',trim(filename),' file'
     write(VecTyp,'(A41,I3,A3,f22.12)') '* RASSCF natural orbitals for root number',IRT,' E=',Energy
     !------------------------------------------------------------------*
     !     Write  orbitals                                              *
@@ -166,7 +168,7 @@ subroutine OrbFiles(JOBIPH,IPRLEV)
   !--------------------------------------------------------------------*
   iDisk = iToc(14)
   call mma_allocate(EDum,NTot,Label='EDum')
-  EDum(:) = 0.0d0
+  EDum(:) = Zero
   do IRT=1,min(MAXORBOUT,LROOTS,999)
     if (irt < 999) then
       filename = 'SPDORB.'//str(IRT)
@@ -175,7 +177,7 @@ subroutine OrbFiles(JOBIPH,IPRLEV)
     end if
     call dDaFile(JobIph,2,CMO,ntot2,iDisk)
     call dDaFile(JobIph,2,Occ,ntot,iDisk)
-    if (IPRLEV >= USUAL) write(LF,'(6X,A,I3,3A)') 'Spin density orbitals for root ',irt,' are written to the ',trim(filename), &
+    if (IPRLEV >= USUAL) write(u6,'(6X,A,I3,3A)') 'Spin density orbitals for root ',irt,' are written to the ',trim(filename), &
                                                   ' file'
     write(VecTyp,'(A,I3)') '* RASSCF spin density orbitals for root number',IRT
     !------------------------------------------------------------------*
@@ -255,7 +257,7 @@ subroutine putOrbFile(CMO,orbital_E,iDoGAS)
 
   ! TODO(Oskar): Implement proper occupation number reading.
   call mma_allocate(occ_number,nTot)
-  occ_number(:) = 1.d0
+  occ_number(:) = One
   call WrVec(filename,file_id,'COIE',nSym,nBas,nBas,CMO,occ_number,orbital_E,typeidx,orbfile_title)
   call mma_deallocate(occ_number)
 

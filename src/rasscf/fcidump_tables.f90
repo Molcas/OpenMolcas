@@ -16,6 +16,7 @@ module fcidump_tables
 
 use index_symmetry, only: one_el_idx, two_el_idx
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, u6
 
 implicit none
 private
@@ -42,7 +43,7 @@ type :: OrbitalTable
   integer, allocatable, dimension(:) :: index ! i
 end type OrbitalTable
 
-real*8, parameter :: cutoff_default = 1.0d-11
+real*8, parameter :: cutoff_default = 1.0e-11_wp
 
 interface mma_allocate
   module procedure :: FockTable_allocate, TwoElIntTable_allocate, OrbitalTable_allocate
@@ -132,7 +133,7 @@ subroutine OrbitalTable_print(table)
   integer :: i
 
   do i=1,length(table)
-    write(6,'(ES15.7, I7)') table%values(i),table%index(i)
+    write(u6,'(ES15.7, I7)') table%values(i),table%index(i)
   end do
 
 end subroutine OrbitalTable_print
@@ -212,7 +213,7 @@ subroutine FockTable_print(table)
   integer :: i, j
 
   do j=1,length(table)
-    write(6,'(ES15.7, I7, I7)') table%values(j),(table%index(i,j),i=1,2)
+    write(u6,'(ES15.7, I7, I7)') table%values(j),(table%index(i,j),i=1,2)
   end do
 
 end subroutine FockTable_print
@@ -298,7 +299,7 @@ subroutine TwoElIntTable_print(table)
   integer :: i, j
 
   do j=1,length(table)
-    write(6,'(ES15.7, I7, I7, I7, I7)') table%values(j),(table%index(i,j),i=1,4)
+    write(u6,'(ES15.7, I7, I7, I7, I7)') table%values(j),(table%index(i,j),i=1,4)
   end do
 
 end subroutine TwoElIntTable_print

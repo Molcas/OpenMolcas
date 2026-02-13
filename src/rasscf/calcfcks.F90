@@ -14,6 +14,7 @@
 subroutine CalcFckS(FckO,GDMat,FckS)
 
 use rasscf_global, only: lRoots, nAc
+use Constants, only: Zero
 
 implicit none
 !*****Input
@@ -24,7 +25,7 @@ real*8, dimension(lRoots,lRoots) :: FckS
 !*****Auxiliary variables
 integer IState, JState, iOrb, jOrb
 
-FckS(:,:) = 0.0d0
+FckS(:,:) = Zero
 
 do IState=1,lRoots
   do JState=1,IState

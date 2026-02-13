@@ -13,6 +13,8 @@
 
 subroutine ReadMat(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
 
+use Definitions, only: u6
+
 implicit none
 integer NRow, NCol, LenName, LenInfo
 character(len=LenName) :: FileName
@@ -27,7 +29,7 @@ if (LenName > 0) then
   LU = IsFreeUnit(LU)
   call Molcas_Open(LU,FileName)
 else
-  LU = 6
+  LU = u6
 end if
 if (Trans == 'N') then
   do IRow=1,NRow

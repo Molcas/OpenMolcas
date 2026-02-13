@@ -49,7 +49,7 @@ subroutine NEWORB_RASSCF(CMOO,CMON,FP,FTR,VEC,WO,SQ,CMOX,D,OCCN)
 
 use gas_data, only: NGAS, NGSSH
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NTOT, JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NSSH, NTOT2
 use rasscf_global, only: iFORDE, iOrbTyp, iOrdEM, iSupSM, FDIAG, ixSym, iTRI, iADR15
 #ifdef _DMRG_
@@ -62,6 +62,8 @@ use rasscf_global, only: DoBLOCKDMRG
 use mh5, only: mh5_put_dset
 use RASWfn, only: wfn_mocoef, wfn_occnum, wfn_orbene
 #endif
+use Constants, only: Zero, One, Two
+use Definitions, only: u6
 
 implicit none
 character(len=16), parameter :: ROUTINE = 'NEWORB  '
@@ -73,7 +75,7 @@ integer iPrLev, i, iAd15, iB, iBas, iGas, ii, iOff, iOrd, iST, iSTD, iSTFCK, iST
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ! IORD = 1 Ordering of inactive and secondary orbitals
 
@@ -102,8 +104,8 @@ do ISYM=1,NSYM
     NFNB = NBF*NFO
     call DCOPY_(NFNB,CMOO(ISTMO1),1,CMON(ISTMO1),1)
     do NF=1,NFO
-      FDIAG(IB+NF) = 0.0d0
-      OCCN(IB+NF) = 2.0d0
+      FDIAG(IB+NF) = Zero
+      OCCN(IB+NF) = Two
     end do
   end if
   !*********************************************************************
@@ -116,7 +118,7 @@ do ISYM=1,NSYM
       do NJ=1,NI
         NIJ = NIJ+1
         FTR(NIJ) = FP(NIJ+ISTFCK)
-        if (IXSYM(IB+NFO+NI) /= IXSYM(IB+NFO+NJ)) FTR(NIJ) = 0.0d0
+        if (IXSYM(IB+NFO+NI) /= IXSYM(IB+NFO+NJ)) FTR(NIJ) = Zero
       end do
     end do
     ! DIAGONALIZE
@@ -124,14 +126,14 @@ do ISYM=1,NSYM
     call FZERO(VEC,NIO2)
     II = 1
     do NI=1,NIO
-      VEC(II) = 1.0d0
+      VEC(II) = One
       II = II+NIO+1
     end do
     call JACOB(FTR,VEC,NIO,NIO)
 
     ! Transform molecular orbitals
 
-    call DGEMM_('N','N',NBF,NIO,NIO,1.0d0,CMOO(ISTMO),NBF,VEC,NIO,0.0d0,CMON(ISTMO),NBF)
+    call DGEMM_('N','N',NBF,NIO,NIO,One,CMOO(ISTMO),NBF,VEC,NIO,Zero,CMON(ISTMO),NBF)
 
     ! Sort eigenvalues and orbitals after energy
 
@@ -142,7 +144,7 @@ do ISYM=1,NSYM
     do NI=1,NIO
       II = II+NI
       FDIAG(NO1+NI) = FTR(II)
-      OCCN(NO1+NI) = 2.0d0
+      OCCN(NO1+NI) = Two
     end do
     if ((NIO > 1) .and. (IORD /= 0)) then
       NIO1 = NIO-1
@@ -188,7 +190,7 @@ do ISYM=1,NSYM
           NTU = NTU+1
           ntud = ntud+1
           FTR(NTU) = D(ntud)
-          if (IXSYM(IB+NFO+nttr) /= IXSYM(IB+NFO+nut)) ftr(ntu) = 0.0d0
+          if (IXSYM(IB+NFO+nttr) /= IXSYM(IB+NFO+nut)) ftr(ntu) = Zero
         end do
       end do
 
@@ -210,7 +212,7 @@ do ISYM=1,NSYM
         call FZERO(VEC,NAO2)
         II = 1
         do NT=1,ngssh(igas,isym)
-          VEC(II) = 1.0d0
+          VEC(II) = One
           II = II+ngssh(igas,isym)+1
         end do
         call JACOB(FTR,VEC,ngssh(igas,isym),ngssh(igas,isym))
@@ -231,7 +233,7 @@ do ISYM=1,NSYM
           !PAM01 Swap if necessary. Note phase control!!
           if (JSEL > I) then
             VIJ = VEC(I+ngssh(igas,isym)*(JSEL-1))
-            if (VIJ > 0.0d0) then
+            if (VIJ > Zero) then
               do K=1,ngssh(igas,isym)
                 SWAP = VEC(K+ngssh(igas,isym)*(JSEL-1))
                 VEC(K+ngssh(igas,isym)*(JSEL-1)) = -VEC(K+ngssh(igas,isym)*(I-1))
@@ -250,7 +252,7 @@ do ISYM=1,NSYM
             FTR((I*(I+1))/2) = SWAP
           else
             !PAM01 If swap is not needed, still apply phase control!!
-            if (VEC(I+ngssh(igas,isym)*(I-1)) < 0.0d0) then
+            if (VEC(I+ngssh(igas,isym)*(I-1)) < Zero) then
               do K=1,ngssh(igas,isym)
                 VEC(K+ngssh(igas,isym)*(I-1)) = -VEC(K+ngssh(igas,isym)*(I-1))
                 VEC(K+ngssh(igas,isym)*I) = -VEC(K+ngssh(igas,isym)*I)
@@ -264,8 +266,7 @@ do ISYM=1,NSYM
 
         ! Transform molecular orbitals
         ISTMOA = ISTMO+NBF*(NIO+ioff)
-        call DGEMM_('N','N',NBF,ngssh(igas,isym),ngssh(igas,isym),1.0d0,CMOO(ISTMOA),NBF,VEC,ngssh(igas,isym),0.0d0,CMON(ISTMOA), &
-                    NBF)
+        call DGEMM_('N','N',NBF,ngssh(igas,isym),ngssh(igas,isym),One,CMOO(ISTMOA),NBF,VEC,ngssh(igas,isym),Zero,CMON(ISTMOA),NBF)
       else ! if ((.not. DoDMRG) .or. (iOrbTyp == 2))
         ! NN.14 Just copy CMO(Old) to CMO(new)
         ISTMOA = ISTMO+NBF*(NIO+ioff)
@@ -279,7 +280,7 @@ do ISYM=1,NSYM
       do NT=1,ngssh(igas,isym)
         II = II+NT
         OCCN(NO1+NT) = FTR(II)
-        FDIAG(NO1+NT) = 0.0d0
+        FDIAG(NO1+NT) = Zero
       end do
 
       ! FA:  no longer setting energies to 0 (though in principle ill-def).
@@ -293,7 +294,7 @@ do ISYM=1,NSYM
           if (NU == NT) then
             FACT = FP(NU+NFI_+ISTFCK)
           else
-            FACT = 2.0d0*FP(NU+NFI_+ISTFCK)
+            FACT = Two*FP(NU+NFI_+ISTFCK)
           end if
           do II=1,ngssh(igas,isym)
             FDIAG(NO1+II) = FDIAG(NO1+II)+FACT*VEC(NT+(II-1)*ngssh(igas,isym))*VEC(NU+(II-1)*ngssh(igas,isym))
@@ -319,7 +320,7 @@ do ISYM=1,NSYM
         NBT = NB+NIO+NAO
         NABT = ISTFCK+(NAT**2-NAT)/2+NBT
         FTR(NAB) = FP(NABT)
-        if (IXSYM(IB+NFO+NAT) /= IXSYM(IB+NFO+NBT)) FTR(NAB) = 0.0d0
+        if (IXSYM(IB+NFO+NAT) /= IXSYM(IB+NFO+NBT)) FTR(NAB) = Zero
       end do
     end do
     ! DIAGONALIZE
@@ -327,7 +328,7 @@ do ISYM=1,NSYM
     call FZERO(VEC,NEO2)
     II = 1
     do NA=1,NEO
-      VEC(II) = 1.0d0
+      VEC(II) = One
       II = II+NEO+1
     end do
     call JACOB(FTR,VEC,NEO,NEO)
@@ -339,13 +340,13 @@ do ISYM=1,NSYM
     do NA=1,NEO
       II = II+NA
       FDIAG(NO1+NA) = FTR(II)
-      OCCN(NO1+NA) = 0.0d0
+      OCCN(NO1+NA) = Zero
     end do
 
     ! Transform molecular orbitals
 
     ISTMOA = ISTMO+NBF*(NIO+NAO)
-    call DGEMM_('N','N',NBF,NEO,NEO,1.0d0,CMOO(ISTMOA),NBF,VEC,NEO,0.0d0,CMON(ISTMOA),NBF)
+    call DGEMM_('N','N',NBF,NEO,NEO,One,CMOO(ISTMOA),NBF,VEC,NEO,Zero,CMON(ISTMOA),NBF)
 
     ! Sort eigenvalues and orbitals after energy
 
@@ -383,8 +384,8 @@ do ISYM=1,NSYM
     IST = ISTMO1+NBF*(NOO+NEO)
     call DCOPY_(NDNB,CMOO(IST),1,CMON(IST),1)
     do ND=1,NDO
-      FDIAG(IB+NBF-NDO+ND) = 0.0d0
-      OCCN(IB+NBF-NDO+ND) = 0.0d0
+      FDIAG(IB+NBF-NDO+ND) = Zero
+      OCCN(IB+NBF-NDO+ND) = Zero
     end do
   end if
 
@@ -396,8 +397,8 @@ do ISYM=1,NSYM
 end do
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*) ' Diagonal elements of the FOCK matrix in NEWORB:'
-  write(LF,'(1X,10F11.6)') (FDIAG(I),I=1,NTOT)
+  write(u6,*) ' Diagonal elements of the FOCK matrix in NEWORB:'
+  write(u6,'(1X,10F11.6)') (FDIAG(I),I=1,NTOT)
 end if
 
 !***********************************************************************
@@ -405,17 +406,17 @@ end if
 !***********************************************************************
 call ORTHO_rASSCF(WO,CMOX,CMON,SQ)
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' CMO in NEWORB_RASSCF after diag and orthog'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' CMO in NEWORB_RASSCF after diag and orthog'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   ioff = 0
   do iSym=1,nSym
     iBas = nBas(iSym)
     if (iBas /= 0) then
-      write(6,*) 'Sym =',iSym
+      write(u6,*) 'Sym =',iSym
       do i=1,iBas
-        write(6,*) (CMON(ioff+iBas*(i-1)+j),j=1,iBas)
+        write(u6,*) (CMON(ioff+iBas*(i-1)+j),j=1,iBas)
       end do
       iOff = iOff+(iBas*iBas)
     end if

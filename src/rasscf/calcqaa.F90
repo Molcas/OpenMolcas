@@ -17,6 +17,8 @@
 
 subroutine CalcQaa(Qaa,DDg,lRoots,nDDg)
 
+use Constants, only: Zero, Half
+
 implicit none
 integer lRoots, nDDg
 real*8 DDg(nDDg)
@@ -25,12 +27,12 @@ integer iState, iLoc, Int1, lRoots2
 
 lRoots2 = lRoots**2
 Int1 = (lRoots2+1)*(lRoots+1)
-Qaa = 0.0d0
+Qaa = Zero
 do iState=1,lRoots
   iLoc = (iState-1)*Int1+1
   Qaa = Qaa+DDg(iLoc)
 end do
-Qaa = Qaa/2.0d0
+Qaa = Qaa*Half
 
 return
 

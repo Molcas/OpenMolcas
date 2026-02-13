@@ -20,7 +20,8 @@ subroutine CHO_RASSCF_RDINP(DFonly,LuInput)
 
 use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpK, DoLocK, Estimate, Nscreen, Update
 use Cholesky, only: ChFracMem, timings
-use output_ras, only: LF
+use Constants, only: Zero
+use Definitions, only: wp, u6
 
 implicit none
 logical DFonly
@@ -54,9 +55,9 @@ real*8 DMPK_DFL
 !                                                                      *
 ! Default  parameters
 #ifdef _MOLCAS_MPP_
-ChFracMem = 0.3d0
+ChFracMem = 0.3_wp
 #else
-ChFracMem = 0.0d0
+ChFracMem = Zero
 #endif
 
 ! set some parameters if not specified in ChoInput section
@@ -66,12 +67,12 @@ Deco = .true.
 timings = .false.
 DoLock = .true.
 Nscreen = 10
-dmpk = 1.0d-1
+dmpk = 1.0e-1_wp
 Update = .true.
 Estimate = .false.
 if (DFonly) goto 999  !return flag
 
-dmpk_dfl = 1.0d-1
+dmpk_dfl = 1.0e-1_wp
 !***********************************************************************
 !                                                                      *
 !-----Process the input
@@ -113,8 +114,8 @@ if (KWord(1:4) == 'ENDO') Go To 998
 !----------------------------------------------------------------------*
 iChrct = len(KWord)
 Last = iCLast(KWord,iChrct)
-write(LF,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-write(LF,*) SECNAM,' Error in keyword.'
+write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+write(u6,*) SECNAM,' Error in keyword.'
 call Quit_OnUserError()
 !                                                                      *
 !***** ALGO ************************************************************
@@ -130,15 +131,15 @@ call Quit_OnUserError()
 read(LuInput,*) ALGO
 
 if (ALGO == 1) then
-  write(LF,*) 'Default RASSCF algorithm reset to  ',ALGO
-  write(LF,*)
+  write(u6,*) 'Default RASSCF algorithm reset to  ',ALGO
+  write(u6,*)
 else if (ALGO == 2) then
-  write(LF,*) 'Default RASSCF algorithm reset to  ',ALGO
-  write(LF,*)
-  write(LF,*) ' !!! STILL UNDER DEBUGGING !!! '
+  write(u6,*) 'Default RASSCF algorithm reset to  ',ALGO
+  write(u6,*)
+  write(u6,*) ' !!! STILL UNDER DEBUGGING !!! '
 else
-  write(LF,*) 'The specified algorithm is not implemented. Option Ignored '
-  write(LF,*)
+  write(u6,*) 'The specified algorithm is not implemented. Option Ignored '
+  write(u6,*)
 end if
 
 Go To 1000
@@ -147,7 +148,7 @@ Go To 1000
 !                                                                      *
 910 continue
 DoLocK = .true.
-!write(LF,*) 'Using Local K scheme for Exchange matrices'
+!write(u6,*) 'Using Local K scheme for Exchange matrices'
 
 Go To 1000
 !                                                                      *
@@ -155,7 +156,7 @@ Go To 1000
 !                                                                      *
 915 continue
 DoLocK = .false.
-!write(LF,*) 'LK screening for Exchange matrices turned off!'
+!write(u6,*) 'LK screening for Exchange matrices turned off!'
 !
 Go To 1000
 !                                                                      *
@@ -163,8 +164,8 @@ Go To 1000
 !                                                                      *
 920 continue
 read(LuInput,*) dmpk
-if (dmpk < 0.0d0) then
-  write(6,*) 'OBS! Specified Negative DMPK value. Restore Defaults'
+if (dmpk < Zero) then
+  write(u6,*) 'OBS! Specified Negative DMPK value. Restore Defaults'
   dmpk = dmpk_dfl
 end if
 
@@ -174,7 +175,7 @@ Go To 1000
 !                                                                      *
 930 continue
 Deco = .false.
-write(LF,*) 'Not-Using Cholesky decomposed Inactive density'
+write(u6,*) 'Not-Using Cholesky decomposed Inactive density'
 
 Go To 1000
 !                                                                      *
@@ -196,7 +197,7 @@ Go To 1000
 !                                                                      *
 820 continue
 DensityCheck = .true.
-write(LF,*) 'Non-valid option. IGNORED !! '
+write(u6,*) 'Non-valid option. IGNORED !! '
 
 Go To 1000
 !                                                                      *
@@ -204,7 +205,7 @@ Go To 1000
 !                                                                      *
 840 continue
 Estimate = .true.
-write(LF,*) 'Diagonal integrals estimated from the current Cholesky vectors'
+write(u6,*) 'Diagonal integrals estimated from the current Cholesky vectors'
 
 Go To 1000
 !                                                                      *
@@ -212,7 +213,7 @@ Go To 1000
 !                                                                      *
 850 continue
 Update = .true.
-write(LF,*) 'Updating of the true diagonal integrals'
+write(u6,*) 'Updating of the true diagonal integrals'
 
 Go To 1000
 !                                                                      *
@@ -232,10 +233,10 @@ Go To 1000
 !***********************************************************************
 !                                                                      *
 999 continue
-!write(LF,'(1X,A,I4)') 'Default Cholesky algorithm in RASSCF = ',ALGO
-write(LF,*)
+!write(u6,'(1X,A,I4)') 'Default Cholesky algorithm in RASSCF = ',ALGO
+write(u6,*)
 if (ALGO == 2) then
-  write(LF,*) 'Local K scheme not implemented for the chosen algorithm. LocK keyword ignored !'
+  write(u6,*) 'Local K scheme not implemented for the chosen algorithm. LocK keyword ignored !'
   DoLocK = .false.
 end if
 

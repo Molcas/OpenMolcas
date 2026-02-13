@@ -51,7 +51,7 @@ use qcmaquis_interface_cfg
 use qcmaquis_interface_utility_routines, only: print_dmrg_info
 #endif
 use PrintLevel, only: DEBUG, USUAL, TERSE, VERBOSE
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NACTEL, NHOLE1, NELEC3, ISPIN, STSYM, NSYM, NTOT1, NCONF, NTOT, JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, &
                         NRS1, NRS2, NRS3, NSSH, NSSH, NTOT2, CleanMask
 use spinfo, only: NCSASM, NDTASM
@@ -59,6 +59,8 @@ use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
 use Molcas, only: MxRoot
 use RASDim, only: MxRef
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, u6
 
 implicit none
 real*8 CMO(*), OCCN(*), SMAT(*)
@@ -93,10 +95,10 @@ integer, external :: IsFreeUnit
 !----------------------------------------------------------------------*
 ! Local print level (if any)
 IPRLEV = IPRLOC(6)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ! Additional DFT correlation energy, if any
-CASDFT_Funct = 0.0d0
+CASDFT_Funct = Zero
 if ((KSDFT /= 'SCF') .and. (KSDFT /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_Funct)
 !----------------------------------------------------------------------*
 !     Initialize blank and header lines                                *
@@ -109,23 +111,23 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
   !--------------------------------------------------------------------*
   !     Print orbital and wavefunction specifications                  *
   !--------------------------------------------------------------------*
-  write(LF,*)
+  write(u6,*)
   Line = ''
   write(Line(left-2:),'(A)') 'Wave function specifications:'
   call CollapseOutput(1,Line)
-  write(LF,Fmt2//'A)') '-----------------------------'
-  write(LF,*)
-  write(LF,Fmt2//'A,T45,I6)') 'Number of closed shell electrons',2*NIN
-  write(LF,Fmt2//'A,T45,I6)') 'Number of electrons in active shells',NACTEL
+  write(u6,Fmt2//'A)') '-----------------------------'
+  write(u6,*)
+  write(u6,Fmt2//'A,T45,I6)') 'Number of closed shell electrons',2*NIN
+  write(u6,Fmt2//'A,T45,I6)') 'Number of electrons in active shells',NACTEL
   if (.not. iDoGas) then
-    write(LF,Fmt2//'A,T45,I6)') 'Max number of holes in RAS1 space',NHOLE1
-    write(LF,Fmt2//'A,T45,I6)') 'Max nr of electrons in RAS3 space',NELEC3
+    write(u6,Fmt2//'A,T45,I6)') 'Max number of holes in RAS1 space',NHOLE1
+    write(u6,Fmt2//'A,T45,I6)') 'Max nr of electrons in RAS3 space',NELEC3
   end if
-  write(LF,Fmt2//'A,T45,I6)') 'Number of inactive orbitals',NIN
-  write(LF,Fmt2//'A,T45,I6)') 'Number of active orbitals',NAC
-  write(LF,Fmt2//'A,T45,I6)') 'Number of secondary orbitals',NSEC
-  write(LF,Fmt2//'A,T45,F6.1)') 'Spin quantum number',(dble(ISPIN-1))/2.0d0
-  write(LF,Fmt2//'A,T45,I6)') 'State symmetry',STSYM
+  write(u6,Fmt2//'A,T45,I6)') 'Number of inactive orbitals',NIN
+  write(u6,Fmt2//'A,T45,I6)') 'Number of active orbitals',NAC
+  write(u6,Fmt2//'A,T45,I6)') 'Number of secondary orbitals',NSEC
+  write(u6,Fmt2//'A,T45,F6.1)') 'Spin quantum number',Half*real(ISPIN-1,kind=wp)
+  write(u6,Fmt2//'A,T45,I6)') 'State symmetry',STSYM
   call CollapseOutput(0,'Wave function specifications:')
 
   call Get_cArray('Irreps',lIrrep,24)
@@ -133,36 +135,36 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
     lIrrep(iSym) = adjustr(lIrrep(iSym))
   end do
 
-  write(LF,*)
+  write(u6,*)
   Line = ''
   write(Line(left-2:),'(A)') 'Orbital specifications:'
   call CollapseOutput(1,Line)
-  write(LF,Fmt2//'A)') '-----------------------'
-  write(LF,*)
-  write(LF,Fmt2//'A,T47,8I4)') 'Symmetry species',(iSym,iSym=1,nSym)
-  write(LF,Fmt2//'A,T47,8(1X,A))') '                ',(lIrrep(iSym),iSym=1,nSym)
-  write(LF,Fmt2//'A,T47,8I4)') 'Frozen orbitals',(nFro(iSym),iSym=1,nSym)
-  write(LF,Fmt2//'A,T47,8I4)') 'Inactive orbitals',(nIsh(iSym),iSym=1,nSym)
-  write(LF,Fmt2//'A,T47,8I4)') 'Active orbitals',(nAsh(iSym),iSym=1,nSym)
+  write(u6,Fmt2//'A)') '-----------------------'
+  write(u6,*)
+  write(u6,Fmt2//'A,T47,8I4)') 'Symmetry species',(iSym,iSym=1,nSym)
+  write(u6,Fmt2//'A,T47,8(1X,A))') '                ',(lIrrep(iSym),iSym=1,nSym)
+  write(u6,Fmt2//'A,T47,8I4)') 'Frozen orbitals',(nFro(iSym),iSym=1,nSym)
+  write(u6,Fmt2//'A,T47,8I4)') 'Inactive orbitals',(nIsh(iSym),iSym=1,nSym)
+  write(u6,Fmt2//'A,T47,8I4)') 'Active orbitals',(nAsh(iSym),iSym=1,nSym)
   if (.not. iDoGas) then
-    write(LF,Fmt2//'A,T47,8I4)') 'RAS1 orbitals',(nRs1(iSym),iSym=1,nSym)
-    write(LF,Fmt2//'A,T47,8I4)') 'RAS2 orbitals',(nRs2(iSym),iSym=1,nSym)
-    write(LF,Fmt2//'A,T47,8I4)') 'RAS3 orbitals',(nRs3(iSym),iSym=1,nSym)
+    write(u6,Fmt2//'A,T47,8I4)') 'RAS1 orbitals',(nRs1(iSym),iSym=1,nSym)
+    write(u6,Fmt2//'A,T47,8I4)') 'RAS2 orbitals',(nRs2(iSym),iSym=1,nSym)
+    write(u6,Fmt2//'A,T47,8I4)') 'RAS3 orbitals',(nRs3(iSym),iSym=1,nSym)
   else
     do IGAS=1,NGAS
-      write(LF,Fmt2//'A,I1,A,T47,8I4)') 'GAS',IGAS,' orbitals',(ngssh(igas,iSym),iSym=1,nSym)
+      write(u6,Fmt2//'A,I1,A,T47,8I4)') 'GAS',IGAS,' orbitals',(ngssh(igas,iSym),iSym=1,nSym)
     end do
   end if
 
-  write(LF,Fmt2//'A,T47,8I4)') 'Secondary orbitals',(nSsh(iSym),iSym=1,nSym)
-  write(LF,Fmt2//'A,T47,8I4)') 'Deleted orbitals',(nDel(iSym),iSym=1,nSym)
-  write(LF,Fmt2//'A,T47,8I4)') 'Number of basis functions',(nBas(iSym),iSym=1,nSym)
+  write(u6,Fmt2//'A,T47,8I4)') 'Secondary orbitals',(nSsh(iSym),iSym=1,nSym)
+  write(u6,Fmt2//'A,T47,8I4)') 'Deleted orbitals',(nDel(iSym),iSym=1,nSym)
+  write(u6,Fmt2//'A,T47,8I4)') 'Number of basis functions',(nBas(iSym),iSym=1,nSym)
   if (kIVO) then
-    write(LF,Fmt2//'A,T47)') 'Improved Virtual Orbitals option is used'
-    write(LF,Fmt2//'A,T47)') 'Molecular Orbitals are NOT suitable for CASPT2 & MRCI!'
+    write(u6,Fmt2//'A,T47)') 'Improved Virtual Orbitals option is used'
+    write(u6,Fmt2//'A,T47)') 'Molecular Orbitals are NOT suitable for CASPT2 & MRCI!'
   end if
   call CollapseOutput(0,'Orbital specifications:')
-  write(LF,*)
+  write(u6,*)
 
 # if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
   if (.not. DoBlockDMRG) goto 113
@@ -171,18 +173,18 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
   Line = ' '
   write(Line(left-2:),'(A)') 'DICE specifications:'
   call CollapseOutput(1,Line)
-  write(LF,Fmt2//'A)') '--------------------------'
-  write(LF,*)
-  write(LF,Fmt2//'A,T70,L6)') 'Heat-bath configuration interaction (JCTC, 2017, 13, 1595)',DoBlockDMRG
-  write(LF,Fmt2//'A,T45,L6)') 'Semistochastic algorithm',Dice_stoc
-  write(LF,Fmt2//'A,T45,L6)') 'Full restart',dice_restart
-  write(LF,Fmt2//'A,T45,I6)') 'Max iterations',dice_iter
-  write(LF,Fmt2//'A,T45,ES10.3)') 'Epsilon1',dice_eps1
-  write(LF,Fmt2//'A,T45,ES10.3)') 'Epsilon2',dice_eps2
-  write(LF,Fmt2//'A,T45,I6)') 'SampleN',dice_sampleN
-  write(LF,Fmt2//'A,T45)') 'Occupation guess'
+  write(u6,Fmt2//'A)') '--------------------------'
+  write(u6,*)
+  write(u6,Fmt2//'A,T70,L6)') 'Heat-bath configuration interaction (JCTC, 2017, 13, 1595)',DoBlockDMRG
+  write(u6,Fmt2//'A,T45,L6)') 'Semistochastic algorithm',Dice_stoc
+  write(u6,Fmt2//'A,T45,L6)') 'Full restart',dice_restart
+  write(u6,Fmt2//'A,T45,I6)') 'Max iterations',dice_iter
+  write(u6,Fmt2//'A,T45,ES10.3)') 'Epsilon1',dice_eps1
+  write(u6,Fmt2//'A,T45,ES10.3)') 'Epsilon2',dice_eps2
+  write(u6,Fmt2//'A,T45,I6)') 'SampleN',dice_sampleN
+  write(u6,Fmt2//'A,T45)') 'Occupation guess'
   do iref_dice=1,nref_dice
-    write(LF,Fmt2//'A)') trim(diceocc(iref_dice))
+    write(u6,Fmt2//'A)') trim(diceocc(iref_dice))
   end do
   call CollapseOutput(0,'DICE specifications:')
 
@@ -193,26 +195,26 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
   Line = ''
   write(Line(left-2:),'(A)') 'DMRG sweep specifications:'
   call CollapseOutput(1,Line)
-  write(LF,Fmt2//'A)') '--------------------------'
-  write(LF,*)
-  write(LF,Fmt2//'A,T45,I6)') 'Number of renormalized basis',MxDMRG
-  write(LF,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
+  write(u6,Fmt2//'A)') '--------------------------'
+  write(u6,*)
+  write(u6,Fmt2//'A,T45,I6)') 'Number of renormalized basis',MxDMRG
+  write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
 # ifdef _ENABLE_CHEMPS2_DMRG_
-  write(LF,Fmt2//'A,T45,I6)') 'Maximum number of sweeps',max_sweep
-  write(LF,Fmt2//'A,T45,I6)') 'Maximum number of sweeps in RDM',max_canonical
-  write(LF,Fmt2//'A,T45,ES10.3)') 'Threshold for restarting',chemps2_blb
-  write(LF,Fmt2//'A,T45,ES10.3)') 'Minimum Davidson tolerance',davidson_tol
-  write(LF,Fmt2//'A,T45,ES10.3)') 'DMRG convergence threshold',THRE/2.0
-  write(LF,Fmt2//'A,T45,ES10.3)') 'Noise prefactor',chemps2_noise
-  write(LF,Fmt2//'A,T45,L6)') 'Restart from previous calculation',chemps2_restart
-  write(LF,Fmt2//'A,T45,L6)') 'Calculate 3-RDM and F.4-RDM',Do3RDM
-  write(LF,Fmt2//'A,T45,I6)') 'Restart scheme in 3-RDM and F.4-RDM',chemps2_lrestart
+  write(u6,Fmt2//'A,T45,I6)') 'Maximum number of sweeps',max_sweep
+  write(u6,Fmt2//'A,T45,I6)') 'Maximum number of sweeps in RDM',max_canonical
+  write(u6,Fmt2//'A,T45,ES10.3)') 'Threshold for restarting',chemps2_blb
+  write(u6,Fmt2//'A,T45,ES10.3)') 'Minimum Davidson tolerance',davidson_tol
+  write(u6,Fmt2//'A,T45,ES10.3)') 'DMRG convergence threshold',Half*THRE
+  write(u6,Fmt2//'A,T45,ES10.3)') 'Noise prefactor',chemps2_noise
+  write(u6,Fmt2//'A,T45,L6)') 'Restart from previous calculation',chemps2_restart
+  write(u6,Fmt2//'A,T45,L6)') 'Calculate 3-RDM and F.4-RDM',Do3RDM
+  write(u6,Fmt2//'A,T45,I6)') 'Restart scheme in 3-RDM and F.4-RDM',chemps2_lrestart
   write(SNAC,'(I3)') NAC
-  write(LF,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)') 'Occupation guess',(HFOCC(ihfocc),ihfocc=1,NAC)
+  write(u6,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)') 'Occupation guess',(HFOCC(ihfocc),ihfocc=1,NAC)
 # endif
 
   ! NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
-  write(LF,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
+  write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
   call CollapseOutput(0,'DMRG sweep specifications:')
 
   ! Skip printing CI specifications in DMRG-CASSCF
@@ -225,40 +227,40 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
     Line = ''
     write(Line(left-2:),'(A)') 'CI expansion specifications:'
     call CollapseOutput(1,Line)
-    write(LF,Fmt2//'A)') '----------------------------'
-    write(LF,*)
-    write(LF,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
-    write(LF,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
+    write(u6,Fmt2//'A)') '----------------------------'
+    write(u6,*)
+    write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
+    write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
   end if
-  write(LF,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
+  write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
   if (ICICH == 0) then
     if (nRoots == 1) then
       if (doDMRG) then
-        write(LF,Fmt2//'A,(T45,10I6))') 'DMRG root used',IROOT(1)
+        write(u6,Fmt2//'A,(T45,10I6))') 'DMRG root used',IROOT(1)
       else
-        write(LF,Fmt2//'A,(T45,10I6))') 'CI root used',IROOT(1)
+        write(u6,Fmt2//'A,(T45,10I6))') 'CI root used',IROOT(1)
       end if
     else
       if (doDMRG) then
-        write(LF,Fmt2//'A,(T45,10I6))') 'DMRG roots used',(IROOT(i),i=1,nRoots)
+        write(u6,Fmt2//'A,(T45,10I6))') 'DMRG roots used',(IROOT(i),i=1,nRoots)
       else
-        write(LF,Fmt2//'A,(T45,10I6))') 'CI roots used',(IROOT(i),i=1,nRoots)
+        write(u6,Fmt2//'A,(T45,10I6))') 'CI roots used',(IROOT(i),i=1,nRoots)
       end if
-      write(LF,Fmt2//'A,(T45,10F6.3))') 'weights',(Weight(i),i=1,nRoots)
+      write(u6,Fmt2//'A,(T45,10F6.3))') 'weights',(Weight(i),i=1,nRoots)
     end if
   else
     do i=1,nRoots
-      write(LF,Fmt2//'A,T45,I6)') 'root',i
-      write(LF,Fmt2//'A,T45,10I6)') 'Reference configuartions',(iCI(iRef,i),iRef=1,mxRef)
-      write(LF,Fmt2//'A,T45,10F6.3)') 'CI-coeff',(cCI(iRef,i),iRef=1,mxRef)
+      write(u6,Fmt2//'A,T45,I6)') 'root',i
+      write(u6,Fmt2//'A,T45,10I6)') 'Reference configuartions',(iCI(iRef,i),iRef=1,mxRef)
+      write(u6,Fmt2//'A,T45,10F6.3)') 'CI-coeff',(cCI(iRef,i),iRef=1,mxRef)
     end do
   end if
   if (doDMRG) then
-    write(LF,Fmt2//'A,T45,I6)') 'highest root included in the DMRG',LROOTS
+    write(u6,Fmt2//'A,T45,I6)') 'highest root included in the DMRG',LROOTS
   else
-    write(LF,Fmt2//'A,T45,I6)') 'highest root included in the CI',LROOTS
+    write(u6,Fmt2//'A,T45,I6)') 'highest root included in the CI',LROOTS
   end if
-  if (irlxroot /= 0) write(LF,Fmt2//'A,T45,I6)') 'Root passed to geometry opt.',iRlxRoot
+  if (irlxroot /= 0) write(u6,Fmt2//'A,T45,I6)') 'Root passed to geometry opt.',iRlxRoot
   if (lRF) then
     call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
     iRc = -1
@@ -269,58 +271,58 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
     call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
     Tot_Nuc_Charge = Tmp0(nTot1+4)
     if (iRc /= 0) then
-      write(LF,*) 'OutCtl: iRc from Call RdOne not 0'
-      write(LF,*) 'Label = ',Label
-      write(LF,*) 'iRc = ',iRc
+      write(u6,*) 'OutCtl: iRc from Call RdOne not 0'
+      write(u6,*) 'Label = ',Label
+      write(u6,*) 'iRc = ',iRc
       call Abend()
     end if
     call mma_deallocate(Tmp0)
-    Tot_El_Charge = 0.0d0
+    Tot_El_Charge = Zero
     do iSym=1,nSym
-      Tot_El_Charge = Tot_El_Charge-2.0d0*dble(nFro(iSym)+nIsh(iSym))
+      Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
     end do
-    Tot_El_Charge = Tot_El_Charge-dble(nActEl)
+    Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
     Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
     iCharge = int(Tot_Charge)
     call PrRF(.false.,NonEq,iCharge,2)
-    if (DWSolv%DWZeta == -12345d+00) then
-      write(LF,Fmt2//'A)') 'Weights of the reaction field are specified by RFROOT'
-      write(LF,Fmt2//'(T45,10F6.3))') (W_SOLV(i),i=1,nRoots)
-    else if (DWSolv%DWZeta < 0.0d+00) then
+    if (DWSolv%DWZeta == -12345.0_wp) then
+      write(u6,Fmt2//'A)') 'Weights of the reaction field are specified by RFROOT'
+      write(u6,Fmt2//'(T45,10F6.3))') (W_SOLV(i),i=1,nRoots)
+    else if (DWSolv%DWZeta < Zero) then
       call DWSol_fixed(i,j)
       if ((i == 0) .and. (j == 0)) then
-        write(LF,Fmt2//'A)') 'Unrecognized negative DWZeta (DWSOl)'
-        write(LF,Fmt2//'A,T51,A)') 'Dynamically weighted solvation is ','automatically turned off!'
+        write(u6,Fmt2//'A)') 'Unrecognized negative DWZeta (DWSOl)'
+        write(u6,Fmt2//'A,T51,A)') 'Dynamically weighted solvation is ','automatically turned off!'
       else
-        write(LF,Fmt2//'A,T45,I2,X,I2)') 'Reaction field from states:',i,j
+        write(u6,Fmt2//'A,T45,I2,X,I2)') 'Reaction field from states:',i,j
         if (max(i,j) > nRoots) then
-          write(LF,Fmt2//'A)') 'The specified state is too high! Cannot proceed...'
+          write(u6,Fmt2//'A)') 'The specified state is too high! Cannot proceed...'
           call Quit_OnUserError()
         end if
       end if
     else if (IPCMROOT <= 0) then
-      write(LF,Fmt2//'A,T45,T15)') ' Reaction field from state:',' State-Averaged'
-      if (DWSolv%DWZeta /= 0.0d+00) then
-        write(LF,Fmt2//'A,T51,A)') 'Dynamically weighted solvation is ','automatically turned off!'
-        DWSolv%DWZeta = 0.0d+00
+      write(u6,Fmt2//'A,T45,T15)') ' Reaction field from state:',' State-Averaged'
+      if (DWSolv%DWZeta /= Zero) then
+        write(u6,Fmt2//'A,T51,A)') 'Dynamically weighted solvation is ','automatically turned off!'
+        DWSolv%DWZeta = Zero
       end if
     else
-      write(LF,Fmt2//'A,T45,I2)') ' Reaction field from state:',IPCMROOT
-      if (DWSolv%DWZeta > 0.0d+00) then
-        write(LF,Fmt2//'A,ES10.3,A,I1,A)') 'Dynamically weighted solvation is used with DWSOlv = ',DWSolv%DWZeta,' (DWTYpe = ', &
+      write(u6,Fmt2//'A,T45,I2)') ' Reaction field from state:',IPCMROOT
+      if (DWSolv%DWZeta > Zero) then
+        write(u6,Fmt2//'A,ES10.3,A,I1,A)') 'Dynamically weighted solvation is used with DWSOlv = ',DWSolv%DWZeta,' (DWTYpe = ', &
                                            DWSolv%DWType,')'
-        write(LF,Fmt2//'A,(T45,10F6.3))') 'Final weights for the reaction field',(W_SOLV(i),i=1,nRoots)
+        write(u6,Fmt2//'A,(T45,10F6.3))') 'Final weights for the reaction field',(W_SOLV(i),i=1,nRoots)
       end if
     end if
   end if
   if (RFpert) then
-    write(LF,*)
-    write(LF,*)
-    write(LF,Fmt2//'A)') 'Reaction field specifications:'
-    write(LF,Fmt2//'A)') '------------------------------'
-    write(LF,*)
-    write(LF,'(6X,A)') 'The Reaction field has been added as a perturbation and has been determined in a previous calculation'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*)
+    write(u6,Fmt2//'A)') 'Reaction field specifications:'
+    write(u6,Fmt2//'A)') '------------------------------'
+    write(u6,*)
+    write(u6,'(6X,A)') 'The Reaction field has been added as a perturbation and has been determined in a previous calculation'
+    write(u6,*)
   end if
   if ((KSDFT /= 'SCF') .and. (KSDFT /= 'PAM')) call Print_NQ_Info()
   call CollapseOutput(0,'CI expansion specifications:')
@@ -332,12 +334,12 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
 ! End of long if-block A over IPRLEV
 end if
 
-EAV = 0.0d0
+EAV = Zero
 
 do kRoot=1,nRoots
   EAV = EAV+ENER(IROOT(KROOT),ITER)*WEIGHT(KROOT)
 end do
-CASDFT_Funct = 0.0d0
+CASDFT_Funct = Zero
 if ((KSDFT /= 'SCF') .and. (KSDFT /= 'PAM')) then
   if ((nConf == 1) .and. (nActEl == nac)) then
     call Get_dScalar('CASDFT energy',CASDFT_Funct)
@@ -357,36 +359,36 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
   !     Print final optimization conditions                            *
   !--------------------------------------------------------------------*
 
-  write(LF,*)
+  write(u6,*)
   Line = ''
   write(Line(left-2:),'(A)') 'Final optimization conditions:'
   call CollapseOutput(1,Line)
-  write(LF,Fmt2//'A)') '------------------------------'
-  write(LF,*)
-  write(LF,Fmt2//'A,T45,F20.8)') 'Average CI energy',EAV
+  write(u6,Fmt2//'A)') '------------------------------'
+  write(u6,*)
+  write(u6,Fmt2//'A,T45,F20.8)') 'Average CI energy',EAV
 
   if (KeyCION .and. doDMRG) then
-    !write(6,*) 'KeyCION.and.doDMRG',KeyCION,doDMRG -- yma
+    !write(u6,*) 'KeyCION.and.doDMRG',KeyCION,doDMRG -- yma
     ! If DMRG, no 2'-DMs thus omit ECAS and other properties
   else
     if (irlxroot == 0) then
-      write(LF,Fmt2//'A,T45,F20.8)') 'RASSCF energy',ECAS
+      write(u6,Fmt2//'A,T45,F20.8)') 'RASSCF energy',ECAS
     else
-      write(LF,Fmt2//'A,I2,T45,F20.8)') 'RASSCF energy for state ',irlxroot,ECAS
+      write(u6,Fmt2//'A,I2,T45,F20.8)') 'RASSCF energy for state ',irlxroot,ECAS
     end if
 
-    write(LF,Fmt2//'A,T45,F20.8)') 'Super-CI energy',ESX
-    write(LF,Fmt2//'A,T45,F20.8)') 'RASSCF energy change',DE
-    write(LF,Fmt2//'A,T50,ES10.3)') 'Max change in MO coefficients',CMAX
-    write(LF,Fmt2//'A,T50,ES10.3)') 'Max non-diagonal density matrix element',ROTMAX
-    write(LF,Fmt2//'A,T50,ES10.3)') 'Maximum BLB matrix element',CBLBM
-    write(LF,Fmt2//'A,I4,A,I4,A,I4,A)') '(orbital pair',IBLBM,',',JBLBM,' in symmetry',ISYMBB,')'
-    if (irlxRoot /= 0) write(LF,Fmt2//'A,T45,ES10.3)') 'Norm of electronic gradient',RLXGRD
+    write(u6,Fmt2//'A,T45,F20.8)') 'Super-CI energy',ESX
+    write(u6,Fmt2//'A,T45,F20.8)') 'RASSCF energy change',DE
+    write(u6,Fmt2//'A,T50,ES10.3)') 'Max change in MO coefficients',CMAX
+    write(u6,Fmt2//'A,T50,ES10.3)') 'Max non-diagonal density matrix element',ROTMAX
+    write(u6,Fmt2//'A,T50,ES10.3)') 'Maximum BLB matrix element',CBLBM
+    write(u6,Fmt2//'A,I4,A,I4,A,I4,A)') '(orbital pair',IBLBM,',',JBLBM,' in symmetry',ISYMBB,')'
+    if (irlxRoot /= 0) write(u6,Fmt2//'A,T45,ES10.3)') 'Norm of electronic gradient',RLXGRD
 
   end if
 
   if (ISUPSM /= 0) then
-    write(LF,Fmt2//'A)') 'Supersymmetry has been used to disable selected orbital rotations'
+    write(u6,Fmt2//'A)') 'Supersymmetry has been used to disable selected orbital rotations'
     iEnd = 0
     do iSym=1,nSym
       iStart = iEnd+1
@@ -396,20 +398,20 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
         iTemp = iTemp+IXSYM(i)
       end do
       if (iTemp > 0) then
-        write(LF,Fmt2//'A,I3)') 'Supersymmetry vector for symmetry species',iSym
-        write(LF,Fmt2//'30I3)') (IXSYM(i),i=iStart,iEnd)
+        write(u6,Fmt2//'A,I3)') 'Supersymmetry vector for symmetry species',iSym
+        write(u6,Fmt2//'30I3)') (IXSYM(i),i=iStart,iEnd)
       end if
     end do
 
   end if
 
-  if (allocated(CleanMask)) write(LF,Fmt2//'A)') 'The cleanup option has been used to set MO-coefficients explicitly to zero'
+  if (allocated(CleanMask)) write(u6,Fmt2//'A)') 'The cleanup option has been used to set MO-coefficients explicitly to zero'
   call CollapseOutput(0,'Final optimization conditions:')
 
   ! End of long if-block B over IPRLEV
 end if
 
-call dcopy_(2*mxRoot,[0.0d0],0,Temp,1)
+call dcopy_(2*mxRoot,[Zero],0,Temp,1)
 iRc1 = 0
 iRc2 = 0
 iOpt = ibset(0,sOpSiz)
@@ -459,28 +461,28 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
   !--------------------------------------------------------------------*
   !     Print final state energies (including relativistic correction) *
   !--------------------------------------------------------------------*
-  write(LF,*)
-  write(LF,*)
-  write(LF,Fmt2//'A)') 'Final state energy(ies):'
-  write(LF,Fmt2//'A)') '------------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,Fmt2//'A)') 'Final state energy(ies):'
+  write(u6,Fmt2//'A)') '------------------------'
+  write(u6,*)
   if ((nMVInt+nDCInt) /= 0) then
-    write(LF,Fmt2//'A)') 'root     nonrelativistic        mass-velocity       Darwin-contact         relativistic'
-    write(LF,Fmt2//'A)') '             energy                term                  term                 energy'
+    write(u6,Fmt2//'A)') 'root     nonrelativistic        mass-velocity       Darwin-contact         relativistic'
+    write(u6,Fmt2//'A)') '             energy                term                  term                 energy'
     do i=1,lRoots
       Emv = Temp(1,i)
       Edc = Temp(2,i)
       Erel = ENER(I,ITER)+Emv+Edc
-      write(LF,Fmt2//'I3,4(1X,F20.8))') I,ENER(I,ITER),Emv,Edc,Erel
+      write(u6,Fmt2//'I3,4(1X,F20.8))') I,ENER(I,ITER),Emv,Edc,Erel
     end do
   else
     do i=1,lRoots
-      call PrintResult(LF,Fmt2//'A,I3,A,F16.8)','RASSCF root number',I,' Total energy:',EneTmp(i),1)
+      call PrintResult(u6,Fmt2//'A,I3,A,F16.8)','RASSCF root number',I,' Total energy:',EneTmp(i),1)
     end do
   end if
 else if ((IPRLEV >= TERSE) .and. (.not. lOPTO)) then
   do i=1,lRoots
-    call PrintResult(LF,Fmt2//'A,I3,A,F16.8)','RASSCF root number',I,' Total energy:',EneTmp(i),1)
+    call PrintResult(u6,Fmt2//'A,I3,A,F16.8)','RASSCF root number',I,' Total energy:',EneTmp(i),1)
   end do
   ! End of long if-block C over IPRLEV
 end if
@@ -519,7 +521,7 @@ end do
 ! New JOBIPH layout: Also write hamiltonian matrix at IADR15(17):
 !----------------------------------------------------------------
 call mma_allocate(HEFF,LROOTS,LROOTS,Label='HEFF')
-HEFF(:,:) = 0.0d0
+HEFF(:,:) = Zero
 do J=1,LROOTS
   HEFF(J,J) = ENER(J,ITER)
 end do
@@ -584,7 +586,7 @@ call Get_dArray_chk('D1AO',DSave,NTOT1)
 
 call mma_allocate(DM,3,Label='DM')
 call mma_allocate(DMs,3,LROOTS,Label='DMs')
-DMs(:,:) = 0.0d0
+DMs(:,:) = Zero
 Do_DM = .false.
 
 do KROOT=1,LROOTS
@@ -598,7 +600,7 @@ do KROOT=1,LROOTS
   ! Put the density matrix of this state on the runfile for
   !  LoProp utility
   call mma_allocate(DState,nTot1,Label='DState')
-  DState(:) = 0.0d0
+  DState(:) = Zero
   call DONE_RASSCF(CMO,OCCN,DState)
   call Put_dArray('D1ao',DState,NTOT1)
   call mma_deallocate(DState)
@@ -607,30 +609,30 @@ do KROOT=1,LROOTS
 
     ! Start of if-block E over IPRLEV
 
-    vNentropy = 0.0d0
+    vNentropy = Zero
     do i=1,NTOT ! very "inefficient" but the simplest
-      xnu = OCCN(i)/2.0d0
-      if (xnu > 0.0d0) vNentropy = vNentropy+xnu*log(xnu)
+      xnu = Half*OCCN(i)
+      if (xnu > Zero) vNentropy = vNentropy+xnu*log(xnu)
     end do
-    vNentropy = -vNentropy/log(2.0d0)
+    vNentropy = -vNentropy/log(Two)
 
-    write(LF,'(6X,A,I3,A,F8.5)') 'Von Neumann Entropy (Root ',KROOT,') = ',vNentropy
-    write(LF,*)
+    write(u6,'(6X,A,I3,A,F8.5)') 'Von Neumann Entropy (Root ',KROOT,') = ',vNentropy
+    write(u6,*)
 
     ! Compute Mulliken's population analysis
 
-    write(LF,'(/6X,A,I3)') 'Mulliken population analysis for root number:',KROOT
-    write(LF,'(6X,A)') '-----------------------------------------------'
-    write(LF,*)
+    write(u6,'(/6X,A,I3)') 'Mulliken population analysis for root number:',KROOT
+    write(u6,'(6X,A)') '-----------------------------------------------'
+    write(u6,*)
     lSave = KRoot == iRlxRoot
     call CHARGE(nsym,nbas,BName,CMO,OCCN,SMAT,2,FullMlk,lSave)
-    write(LF,*)
+    write(u6,*)
 
     ! Compute properties
 
-    write(LF,'(/6X,A,I3)') 'Expectation values of various properties for root number:',KROOT
-    write(LF,'(6X,A)') '-----------------------------------------------------------'
-    write(LF,*)
+    write(u6,'(/6X,A,I3)') 'Expectation values of various properties for root number:',KROOT
+    write(u6,'(6X,A)') '-----------------------------------------------------------'
+    write(u6,*)
   end if
   ! End of if-block E over IPRLEV
 
@@ -647,7 +649,7 @@ do KROOT=1,LROOTS
 
   call Qpg_dArray('Dipole Moment',Do_DM,iDum(1))
   if (Do_DM) then
-    !write(6,*) 'iRoot=',kRoot
+    !write(u6,*) 'iRoot=',kRoot
     call Get_dArray('Dipole Moment',DM,3)
     !call RecPrt('Dipole Moment',' ',DM,1,3)
     call DCopy_(3,DM,1,DMs(:,KROOT),1)
@@ -674,9 +676,9 @@ do KROOT=1,LROOTS
       ! Start of long if-block F over IPRLEV
       if (ISPDEN == 1) then
         ! Print spin density matrix
-        write(LF,'(/6X,A,I3)') 'Spin density matrix for root number:',KROOT
-        write(LF,'(6X,A)') '--------------------------------------'
-        write(LF,*)
+        write(u6,'(/6X,A,I3)') 'Spin density matrix for root number:',KROOT
+        write(u6,'(6X,A)') '--------------------------------------'
+        write(u6,*)
         IND = 1
         IDIMV = 0
         IDIMO = 0
@@ -688,8 +690,8 @@ do KROOT=1,LROOTS
           IDIMV = IDIMV+NAO*NAO
           IDIMO = IDIMO+NAO
           IDIMN = IDIMN+NO*NAO
-          write(LF,'(/6X,A,I2)') 'symmetry species',ISYM
-          write(LF,*)
+          write(u6,'(/6X,A,I2)') 'symmetry species',ISYM
+          write(u6,*)
           call TRIPRT(' ',' ',X6(IND),NASH(ISYM))
           IND = IND+NASH(ISYM)*(NASH(ISYM)+1)/2
 50        continue
@@ -699,7 +701,7 @@ do KROOT=1,LROOTS
     end if
 
     ! Compute spin orbitals and spin population
-    call DCOPY_(NTOT,[0.0d0],0,OCCN,1)
+    call DCOPY_(NTOT,[Zero],0,OCCN,1)
     !SVC-11-01-2007 store original cmon in cmoso, which gets changed
     call mma_allocate(CMOSO,NTOT2,Label='CMOSO')
     call DCOPY_(NTOT2,CMON,1,CMOSO,1)
@@ -712,11 +714,11 @@ do KROOT=1,LROOTS
     if (IPRLEV >= USUAL) then
       ! Start of long if-block G over IPRLEV
       if (ISPDEN == 1) then
-        write(LF,'(/6X,A,I3)') 'Mulliken spin population analysis for root number:',KROOT
-        write(LF,'(6X,A)') '---------------------------------------------------'
-        write(LF,*)
+        write(u6,'(/6X,A,I3)') 'Mulliken spin population analysis for root number:',KROOT
+        write(u6,'(6X,A)') '---------------------------------------------------'
+        write(u6,*)
         call CHARGE(nsym,nbas,BName,cmoso,OCCN,SMAT,3,FullMlk,.false.)
-        write(LF,*)
+        write(u6,*)
       end if
 
       !BOR0511
@@ -724,26 +726,26 @@ do KROOT=1,LROOTS
       ! Do LoProp Charge analysis
 
       if (get_BasisType('ANO')) then
-        write(LF,'(/6X,A,I3)') 'LoProp population analysis for root number:',KROOT
-        write(LF,'(6X,A)') '-----------------------------------------------'
-        write(LF,*)
-        write(LF,*)
+        write(u6,'(/6X,A,I3)') 'LoProp population analysis for root number:',KROOT
+        write(u6,'(6X,A)') '-----------------------------------------------'
+        write(u6,*)
+        write(u6,*)
         Line = ''
         write(Line(left-2:),'(A)') 'LoProp analysis:'
         call CollapseOutput(1,Line)
-        write(LF,Fmt2//'A)') '----------------'
-        write(LF,*)
-        write(LF,*)
+        write(u6,Fmt2//'A)') '----------------'
+        write(u6,*)
+        write(u6,*)
 
         ! Ugly trick: use IRC to pass some info to LoProp ...
 
         iRC = min((abs(KRoot-iRlxRoot)),1)
         call LoProp(iRC)
-        write(LF,*)
-        write(LF,'(6X,A,I3)') 'Natural Bond Order analysis for root number:',KROOT
+        write(u6,*)
+        write(u6,'(6X,A,I3)') 'Natural Bond Order analysis for root number:',KROOT
         call Nat_Bond_Order(nSym,nBas,BName,2)
         call CollapseOutput(0,'LoProp analysis:')
-        write(6,*)
+        write(u6,*)
       end if
       ! End of long if-block G over IPRLEV
     end if

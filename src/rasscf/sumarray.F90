@@ -17,12 +17,14 @@
 
 function SumArray(A,N)
 
+use Constants, only: Zero
+
 implicit none
 integer N, I
 real*8, dimension(N) :: A
 real*8 SumArray
 
-SumArray = 0.0d0
+SumArray = Zero
 do I=1,N
   SumArray = SumArray+A(I)
 end do

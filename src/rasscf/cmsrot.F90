@@ -20,8 +20,9 @@ subroutine CMSRot(TUVX)
 use CMS, only: CMSNotConverged
 use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
 use PrintLevel, only: USUAL
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: u6
 
 implicit none
 real*8, dimension(NACPR2) :: TUVX
@@ -43,9 +44,9 @@ IPRLEV = IPRLOC(6)
 
 ! printing header
 if (IPRLEV >= USUAL) then
-  write(LF,*)
-  write(LF,*)
-  write(LF,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
 end if
 if (trim(CMSStartMat) == 'XMS') then
   call ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
@@ -59,11 +60,11 @@ call LoadGtuvx(TUVX,Gtuvx)
 CMSNotConverged = .false.
 call GetGDMat(GDMat)
 if (lRoots < NAC) then
-  !write(6,*) 'Optimization Approach 1'
+  !write(u6,*) 'Optimization Approach 1'
   call GetDDgMat(DDg,GDMat,Gtuvx)
   call NStateOpt(RotMat,DDg)
 else
-  !write(6,*) 'Optimization Approach 2'
+  !write(u6,*) 'Optimization Approach 2'
   call NStateOpt2(RotMat,GDMat,Gtuvx)
 end if
 VecName = 'CMS-PDFT'

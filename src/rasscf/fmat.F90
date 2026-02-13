@@ -36,7 +36,7 @@ subroutine Fmat(CMO,PUVX,D,D1A,FI,FA)
 !     FA      : array of real*8                                        *
 !               active Fock matrix. In input in AO Basis.              *
 !               In output in MO basis. It is also modified by scaling  *
-!               exchange part in ExFac /= 1.0d0                        *
+!               exchange part in ExFac /= 1.0                          *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -59,9 +59,11 @@ subroutine Fmat(CMO,PUVX,D,D1A,FI,FA)
 use RunFile_procedures, only: Get_dExcdRa
 use rasscf_global, only: KSDFT, DFTFOCK, ECAS, EMY, ExFac, NAC, NewFock, nFint, VIA, VIA_DFT, l_casdft
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NTOT1, NASH, NBAS, NFRO, NISH, NORB
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: u6
 
 implicit none
 real*8 CMO(*), PUVX(*), D(*), D1A(*), FI(*), FA(*)
@@ -73,43 +75,43 @@ real*8, external :: DDot_
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
 if (IPRLEV >= DEBUG) then
-  write(LF,*) ' Entering ',ROUTINE
+  write(u6,*) ' Entering ',ROUTINE
 
-  write(6,*) repeat('*',65)
-  write(6,*) 'Entering FMAT routine called by SXCTL!'
-  write(6,*) repeat('*',65)
-  write(6,*) 'printing input matrices :'
-  write(6,*) repeat('*',65)
-  write(LF,*)
-  write(LF,*) ' CMOs in FMAT'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*) repeat('*',65)
+  write(u6,*) 'Entering FMAT routine called by SXCTL!'
+  write(u6,*) repeat('*',65)
+  write(u6,*) 'printing input matrices :'
+  write(u6,*) repeat('*',65)
+  write(u6,*)
+  write(u6,*) ' CMOs in FMAT'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
     if (iBas /= 0) then
-      write(6,*) 'Sym =',iSym
+      write(u6,*) 'Sym =',iSym
       do i=1,iBas
-        write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+        write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
       end do
       iOff = iOff+(iBas*iBas)
     end if
   end do
 
-  write(LF,*)
-  write(LF,*) ' PUVX in FMAT'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' PUVX in FMAT'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   call wrtmat(PUVX,1,nFint,1,nFint)
 
-  write(LF,*)
-  write(LF,*) ' ---------------------'
+  write(u6,*)
+  write(u6,*) ' ---------------------'
   call TRIPRT('Averaged one-body density matrix D, in MO in FMAT',' ',D,NAC)
 
-  write(LF,*)
-  write(LF,*) ' D1A in AO basis in FMAT'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1A in AO basis in FMAT'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -117,10 +119,10 @@ if (IPRLEV >= DEBUG) then
     iOff = iOff+iBas*iBas
   end do
 
-  write(LF,*)
-  write(LF,*) ' FI in AO-basis in FMAT'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FI in AO-basis in FMAT'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)
@@ -128,10 +130,10 @@ if (IPRLEV >= DEBUG) then
     iOff = iOff+(iOrb*iOrb+iOrb)/2
   end do
 
-  write(LF,*)
-  write(LF,*) ' FA in AO-basis in FMAT'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FA in AO-basis in FMAT'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)
@@ -157,28 +159,28 @@ if (KSDFT /= 'SCF') NewFock = 0
 VIA = dDot_(nTot1,FI,1,Tmp1,1)
 ECAS = EMY+VIA
 if (iPrLev >= DEBUG) then
-  write(LF,*) ' Total core energy fmat:       ',EMY
-  write(LF,*) ' inactive-active interaction:  ',VIA
-  write(LF,*) ' CAS energy (core+interaction):',ECAS
+  write(u6,*) ' Total core energy fmat:       ',EMY
+  write(u6,*) ' inactive-active interaction:  ',VIA
+  write(u6,*) ' CAS energy (core+interaction):',ECAS
 end if
 call mma_deallocate(Tmp1)
 
 ! print FI and FA
 if (iPrLev >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' FI in AO-basis in fmat'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FI in AO-basis in fmat'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FI(iOff),iOrb)
     iOff = iOff+(iOrb*iOrb+iOrb)/2
   end do
-  write(LF,*)
-  write(LF,*) ' FA in AO-basis in fmat'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FA in AO-basis in fmat'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)
@@ -200,8 +202,8 @@ do iSym=1,nSym
   call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
   call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
   call Square(FI(iOff1),Tmp1,1,iBas,iBas)
-  call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,iBas,CMO(iOff2+(iFro*iBas)),iBas,0.0d0,Tmp2,iBas)
-  call DGEMM_Tri('T','N',iOrb,iOrb,iBas,1.0d0,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,0.0d0,FI(iOff3),iOrb)
+  call DGEMM_('N','N',iBas,iOrb,iBas,One,Tmp1,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,Tmp2,iBas)
+  call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,FI(iOff3),iOrb)
   call mma_deallocate(Tmp2)
   call mma_deallocate(Tmp1)
   iOff1 = iOff1+(iBas*iBas+iBas)/2
@@ -222,8 +224,8 @@ do iSym=1,nSym
   call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
   call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
   call Square(FA(iOff1),Tmp1,1,iBas,iBas)
-  call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,iBas,CMO(iOff2+(iFro*iBas)),iBas,0.0d0,Tmp2,iBas)
-  call DGEMM_Tri('T','N',iOrb,iOrb,iBas,1.0d0,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,0.0d0,FA(iOff3),iOrb)
+  call DGEMM_('N','N',iBas,iOrb,iBas,One,Tmp1,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,Tmp2,iBas)
+  call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,FA(iOff3),iOrb)
   call mma_deallocate(Tmp2)
   call mma_deallocate(Tmp1)
   iOff1 = iOff1+(iBas*iBas+iBas)/2
@@ -245,7 +247,7 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
     ipTmpFckI = ipTmpFck
     ipTmpFckA = ipTmpFck+nTot1
   else
-    write(LF,*) ' Somethings wrong in dim. DFT',nTmpFck
+    write(u6,*) ' Somethings wrong in dim. DFT',nTmpFck
     call Abend()
   end if
   call mma_allocate(TmpD1A,nTot1,Label='TmpD1A')
@@ -267,8 +269,8 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
     call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
     call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
     call Square(TmpFck(ipTmpFckI+iOff1-1),Tmp1,1,iBas,iBas)
-    call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,iBas,CMO(iOff2+(iFro*iBas)),iBas,0.0d0,Tmp2,iBas)
-    call DGEMM_Tri('T','N',iOrb,iOrb,iBas,1.0d0,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,0.0d0,TmpFck(ipTmpFckI+iOff3-1),iOrb)
+    call DGEMM_('N','N',iBas,iOrb,iBas,One,Tmp1,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,Tmp2,iBas)
+    call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,TmpFck(ipTmpFckI+iOff3-1),iOrb)
     call mma_deallocate(Tmp2)
     call mma_deallocate(Tmp1)
     iOff1 = iOff1+(iBas*iBas+iBas)/2
@@ -291,8 +293,8 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
       call mma_allocate(Tmp1,iBas*iBas,Label='Tmp1')
       call mma_allocate(Tmp2,iOrb*iBas,Label='Tmp2')
       call Square(TmpFck(ipTmpFckA+iOff1-1),Tmp1,1,iBas,iBas)
-      call DGEMM_('N','N',iBas,iOrb,iBas,1.0d0,Tmp1,iBas,CMO(iOff2+(iFro*iBas)),iBas,0.0d0,Tmp2,iBas)
-      call DGEMM_Tri('T','N',iOrb,iOrb,iBas,1.0d0,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,0.0d0,TmpFck(ipTmpFckA+iOff3-1),iOrb)
+      call DGEMM_('N','N',iBas,iOrb,iBas,One,Tmp1,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,Tmp2,iBas)
+      call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,TmpFck(ipTmpFckA+iOff3-1),iOrb)
       call mma_deallocate(Tmp2)
       call mma_deallocate(Tmp1)
       iOff1 = iOff1+(iBas*iBas+iBas)/2
@@ -302,33 +304,33 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
   end if
 
   !if (DFTFOCK(1:4) /= 'ROKS') then
-  !  write(LF,*) ' Just add a,b to FA,FI',DFTFOCK(1:4)
+  !  write(u6,*) ' Just add a,b to FA,FI',DFTFOCK(1:4)
   !else
-  !  write(LF,*) ' ROKS formula',DFTFOCK(1:4)
+  !  write(u6,*) ' ROKS formula',DFTFOCK(1:4)
   !end if
 
   if (DFTFOCK(1:4) /= 'ROKS') then
-    call daxpy_(NTOT1,1.0d0,TmpFck(ipTmpFckI),1,FI,1)
-    if (ipTmpFckA /= -99999) call daxpy_(NTOT1,1.0d0,TmpFck(ipTmpFckA),1,FA,1)
+    call daxpy_(NTOT1,One,TmpFck(ipTmpFckI),1,FI,1)
+    if (ipTmpFckA /= -99999) call daxpy_(NTOT1,One,TmpFck(ipTmpFckA),1,FA,1)
   else if (DFTFOCK(1:4) == 'ROKS') then
     iOff1 = 0
     do iSym=1,nSym
       do iOrb=1,nOrb(iSym)
         do jOrb=1,iOrb
           ij = iOff1+iOrb*(iOrb-1)/2+jOrb
-          if (iOrb <= nIsh(iSym)) FI(ij) = FI(ij)+0.5d0*(TmpFck(ipTmpFckI+ij-1)+TmpFck(ipTmpFckA+ij-1))
+          if (iOrb <= nIsh(iSym)) FI(ij) = FI(ij)+Half*(TmpFck(ipTmpFckI+ij-1)+TmpFck(ipTmpFckA+ij-1))
           if ((iOrb > nIsh(iSym)) .and. (iOrb <= nIsh(iSym)+nAsh(iSym))) then
             if (jOrb <= nIsh(iSym)) then
               FI(ij) = FI(ij)+TmpFck(ipTmpFckA+ij-1)
             else
-              FI(ij) = FI(ij)+0.5d0*(TmpFck(ipTmpFckI+ij-1)+TmpFck(ipTmpFckA+ij-1))
+              FI(ij) = FI(ij)+Half*(TmpFck(ipTmpFckI+ij-1)+TmpFck(ipTmpFckA+ij-1))
             end if
           end if
           if (iOrb > nIsh(iSym)+nAsh(iSym)) then
             if ((jOrb > nIsh(iSym)) .and. (jOrb <= nIsh(iSym)+nAsh(iSym))) then
               FI(ij) = FI(ij)+TmpFck(ipTmpFckI+ij-1)
             else
-              FI(ij) = FI(ij)+0.5d0*(TmpFck(ipTmpFckI+ij-1)+TmpFck(ipTmpFckA+ij-1))
+              FI(ij) = FI(ij)+Half*(TmpFck(ipTmpFckI+ij-1)+TmpFck(ipTmpFckA+ij-1))
             end if
 
           end if
@@ -337,16 +339,16 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
       iOff1 = iOff1+(nOrb(iSym)*nOrb(iSym)+nOrb(iSym))/2
     end do
   else
-    write(LF,*) ' Not implemented yet'
+    write(u6,*) ' Not implemented yet'
   end if
   call mma_deallocate(TmpFck)
 end if
 !***********************************************************************
 if (iPrLev >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' FA in MO-basis in fmat'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FA in MO-basis in fmat'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)
@@ -359,10 +361,10 @@ if (NewFock == 1) call Upd_FA(PUVX,FA,D,ExFac)
 
 ! print FI and FA
 if (iPrLev >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' FI in MO-basis in fmat'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FI in MO-basis in fmat'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)
@@ -371,10 +373,10 @@ if (iPrLev >= DEBUG) then
   end do
 end if
 if (iPrLev >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' FA in MO-basis in fmat after upd_FA'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FA in MO-basis in fmat after upd_FA'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)

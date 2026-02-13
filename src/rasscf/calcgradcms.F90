@@ -17,6 +17,8 @@
 
 subroutine CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
 
+use Constants, only: Two
+
 implicit none
 integer nDDg, lRoots, nSPair
 real*8 Grad(nSPair), DDg(nDDg)
@@ -33,7 +35,8 @@ do K=2,lRoots
     Grad(iKL) = DDg(iLoc1)-DDg(iLoc2)
   end do
 end do
-call DSCal_(nSPair,2.0d0,Grad,1)
+call DSCal_(nSPair,Two,Grad,1)
+
 return
 
 end subroutine CalcGradCMS

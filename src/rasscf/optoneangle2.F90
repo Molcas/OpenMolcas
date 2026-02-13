@@ -19,6 +19,8 @@ subroutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
 
 use rasscf_global, only: lRoots, NAC
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Three, deg2rad
+use Definitions, only: wp, u6
 
 implicit none
 real*8 ang, change
@@ -41,14 +43,14 @@ call mma_allocate(ScanA,31)
 call mma_allocate(ScanS,31)
 
 Converged = .false.
-stepsize = dble(atan(1.0d0))/15
-Threshold = 1.0d-8
+stepsize = Three*deg2rad
+Threshold = 1.0e-8_wp
 
-Angles(2) = 0.0d0
+Angles(2) = Zero
 do Itera=1,31
   ScanA(Itera) = (Itera-16)*stepsize*2
   call SumVeeNew(ScanS(Itera),ScanA(Itera),GD,I1,I2,G,Vee1,Vee2,.false.)
-  !if (I2 == 1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
+  !if (I2 == 1) write(u6,*) Iter,ScanA(Iter),ScanS(Iter)
 end do
 
 IMax = RMax(ScanS,21)
@@ -78,7 +80,7 @@ do while (.not. Converged)
   else
     if (Itera == IterMax) then
       Converged = .true.
-      write(6,'(A,I3,A)') 'No convergence reached after ',Itera,' micro cycles'
+      write(u6,'(A,I3,A)') 'No convergence reached after ',Itera,' micro cycles'
     else
       Angles(2) = Angles(4)
       SumOld = Sums(4)

@@ -64,7 +64,7 @@ use input_ras, only: KeyHEUR
 use rasscf_global, only: ExFac, KSDFT, DoBlockDMRG, DoDMRG, ECAS, ESX, iCIOnly, iPT2, ITER, ITERSX, ITMAX, l_casdft, NAC, nDimSX, &
                          nFint, NO2M, nQune, NROOT, NSXS, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA, ISTORP, IADR15, EMY
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NACTEL, JOBIPH, LUINTM, LUQUNE, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NRS3, NSSH, NTOT, &
                         NTOT1, NTOT2
 #ifdef _DMRG_
@@ -75,6 +75,8 @@ use mh5, only: mh5_put_dset
 use raswfn, only: wfn_mocoef, wfn_occnum
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u6
 
 implicit none
 real*8 CMO(*), OCC(*), D(*), P(*), PA(*), FI(*), FA(*), D1A(*)
@@ -114,15 +116,15 @@ integer, external :: IsFreeUnit
 ! proportionality factor in SIGVEC should be small, but larger than the
 ! one used in the COVLP routine.
 ! Presently I try the following values:
-! Huge elements in diagonal values: 1.0D32
-! (Tested against 1.0D20 in IF-statements)
-! Extra term in overlaps (COVLP, SXHAM): 1.0D-14
-! Extra term in SIGVEC:                  1.0D-12
+! Huge elements in diagonal values: 1.0e32
+! (Tested against 1.0e20 in IF-statements)
+! Extra term in overlaps (COVLP, SXHAM): 1.0e-14
+! Extra term in SIGVEC:                  1.0e-12
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-!write(6,*) 'Entering SXCTL!'
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+!write(u6,*) 'Entering SXCTL!'
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ! --- Check for Cholesky ---------------
 
@@ -175,7 +177,7 @@ if ((.not. DoCholesky) .or. (ALGO == 1)) then
   end if
 end if
 if (IPRLEV >= DEBUG) then
-  write(6,*) 'PUVX integrals in SXCTL'
+  write(u6,*) 'PUVX integrals in SXCTL'
   call wrtmat(PUVX,1,nFInt,1,nFInt)
 end if
 !********************************************************************************
@@ -192,9 +194,9 @@ else if (ALGO == 2) then
   VIA = dDot_(nTot1,FI,1,DA,1)
   ECAS = EMY+VIA
   if (IPRLEV >= DEBUG) then
-    write(LF,'(A,ES20.10)') ' Total core energy:            ',EMY
-    write(LF,'(A,ES20.10)') ' inactive-active interaction:  ',VIA
-    write(LF,'(A,ES20.10)') ' CAS energy (core+interaction):',ECAS
+    write(u6,'(A,ES20.10)') ' Total core energy:            ',EMY
+    write(u6,'(A,ES20.10)') ' inactive-active interaction:  ',VIA
+    write(u6,'(A,ES20.10)') ' CAS energy (core+interaction):',ECAS
   end if
   call mma_deallocate(DA)
 
@@ -202,13 +204,13 @@ else if (ALGO == 2) then
   call CHO_CAS_DRV(irc,CMO,D,FI,D1A,FA,Dummy,TraOnly)
 
   if (irc /= 0) then
-    write(LF,*) 'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc
+    write(u6,*) 'SXCTL: Cho_cas_drv non-zero return code! rc= ',irc
     call abend()
   end if
 
 else
 
-  write(LF,*) 'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
+  write(u6,*) 'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
   call abend()
 
 end if
@@ -224,7 +226,7 @@ if (.not. l_casdft) then
 
     call PMAT_RASSCF(P,STRP)
 
-    if ((ExFac /= 1.0d0) .and. (KSDFT(1:3) /= 'SCF')) then
+    if ((ExFac /= One) .and. (KSDFT(1:3) /= 'SCF')) then
       call mma_allocate(P2reo,ISTORP(NSYM+1),Label='P2reo')
       call Get_Temp('nP2Act  ',P2Act,1)
       nP2Act = int(P2Act(1))
@@ -232,7 +234,7 @@ if (.not. l_casdft) then
       call Get_Temp('P2_RAW  ',P2RAW,nP2Act)
       call PMAT_RASSCF(P2RAW,P2reo)
       call mma_deallocate(P2Raw)
-      P2reo_size = dble(ISTORP(NSYM+1))
+      P2reo_size = real(ISTORP(NSYM+1),kind=wp)
       call Put_Temp('nP2reo  ',[P2reo_size],1)
       call Put_Temp('P2_reo  ',P2reo,ISTORP(NSYM+1))
       call mma_deallocate(P2reo)
@@ -246,8 +248,8 @@ else ! GLM-CASDFT
   ! (sum over all symmetries). If Sym_R = Sym_S then triangular form over NRS...
   ! with R >= S, rectanguar otherwise. Basically we will use same simmetry as for dvwxy.
   if (ISTORP(NSYM+1) > 0) then
-    !write(LF,*)
-    !write(LF,*) ' ---------------------'
+    !write(u6,*)
+    !write(u6,*) ' ---------------------'
     call mma_allocate(STRP,ISTORP(NSYM+1),Label='STRP')
     call DmatDmat(D,STRP)
   else
@@ -263,10 +265,10 @@ call mma_allocate(QMat,NQ,Label='QMat') ! q-matrix(1symmblock)
 call FOCK(FCK,BM,FI,FA,D,STRP,QMat,PUVX,IFINAL,CMO)
 ! Now FA = FI + FA. Original FA has been overwritten in FOCK routine.
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) 'FI+FA in MO-basis in sxctl (overwritten on FA)'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) 'FI+FA in MO-basis in sxctl (overwritten on FA)'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)
@@ -305,7 +307,7 @@ if (IFINAL /= 1) then
   ! There is an array with occupation numbers, so use it, even if
   ! possibly irrelevant. But put zeroes as orbital energies:
   call mma_allocate(EDUM,NTOT,Label='EDUM')
-  EDUM(:) = 0.0d0
+  EDUM(:) = Zero
 
   write(VecTyp,'(A)')
   VecTyp = '* RASSCF average (pseudo-natural) orbitals (Not final)'
@@ -344,17 +346,17 @@ if (IFINAL == 1) then
   call mma_allocate(SQ,NTOT2,Label='SQ')
   call mma_allocate(CMOX,NTOT2,Label='CMOX')
   if (IPRLEV >= DEBUG) then
-    write(LF,*)
-    write(LF,*) ' CMO in SXCTL for IFINAL=1'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' CMO in SXCTL for IFINAL=1'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     ioff = 0
     do iSym=1,nSym
       iBas = nBas(iSym)
       if (iBas /= 0) then
-        write(6,*) 'Sym =',iSym
+        write(u6,*) 'Sym =',iSym
         do i=1,iBas
-          write(6,*) (CMO(ioff+iBas*(i-1)+j),j=1,iBas)
+          write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=1,iBas)
         end do
         iOff = iOff+(iBas*iBas)
       end if
@@ -394,7 +396,7 @@ if (IFINAL == 1) then
       end if
       call mma_deallocate(SMAT)
     else
-      CIDUMMY = 1.0d0
+      CIDUMMY = One
       IDISK = IADR15(4)
       call DDAFILE(JOBIPH,1,CIDUMMY,1,IDISK)
     end if
@@ -451,7 +453,7 @@ call mma_deallocate(SXDF)
 ! diagonal elements have been set to a huge number in SXHAM.
 ! Use this criterion to set some BLB elements exactly =0:
 do I=1,NSXS
-  if (SXHD(NROOT+I) > 1.0d20) BM(I) = 0.0d0
+  if (SXHD(NROOT+I) > 1.0e20_wp) BM(I) = Zero
 end do
 
 ! MEMORY ALLOCATION AND CALLING SEQUENCE FOR SX DIAGONALIZATION
@@ -505,21 +507,21 @@ call mma_deallocate(SXHD)
 IREF = 1
 LCSXI = 1+NDIMSX*(IREF-1)
 IC = NROOT+LCSXI-1
-XSXMAX = 0.0d0
+XSXMAX = Zero
 do I=1,NSXS
   CSX(IC+I) = SXN(I)*CSX(IC+I)/CSX(LCSXI)
   XSXMAX = max(XSXMAX,abs(CSX(IC+I)))
 end do
 if (IPRLEV >= DEBUG) then
-  write(LF,*) 'SXCTL after DAVCRE, Renormalized SX coeffs:'
-  write(LF,'(1X,8F14.6)') (CSX(IC+I),I=1,NSXS)
+  write(u6,*) 'SXCTL after DAVCRE, Renormalized SX coeffs:'
+  write(u6,'(1X,8F14.6)') (CSX(IC+I),I=1,NSXS)
 end if
 
 ! Step size control has been built into qune now.
 !C Step length control, just for safety.
 !do I=1,NSXS
 !  VAL = CSX(IC+I)
-!  CSX(IC+I) = VAL/(1.0D0+1.7D0*ABS(VAL))
+!  CSX(IC+I) = VAL/(One+1.7_wp*abs(VAL))
 !end do
 
 ! Intercept XSX and BM, to use (perhaps) Quasi-Newton or Line Search
@@ -528,15 +530,15 @@ end if
 if (ITER <= 4) NCALL = 0
 if (KeyHEUR .and. (ITER > 10) .and. (mod(ITER,10) < 4)) NCALL = 0
 if (doDMRG .and. (ITER <= 2)) NCALL = 0  ! YM: change 4 -> 2, for saving time
-if (XSXMAX > 0.5d0) NCALL = 0
-if ((NQUNE /= 0) .and. (XSXMAX < 0.5d0)) then
+if (XSXMAX > Half) NCALL = 0
+if ((NQUNE /= 0) .and. (XSXMAX < Half)) then
   call mma_allocate(VT,NSXS,Label='VT')
   call mma_allocate(VL,NSXS,Label='VL')
   call mma_allocate(XQN,NSXS,Label='XQN')
   call mma_allocate(SCR,NSXS,Label='SCR')
   call mma_allocate(V1,NSXS,Label='V1')
   call mma_allocate(V2,NSXS,Label='V2')
-  CASDFT_En = 0.0d0
+  CASDFT_En = Zero
   if ((KSDFT /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_En)
   CASDFT_En = ECAS+CASDFT_En
   call QUNE(NCALL,CASDFT_En,BM,CSX(NROOT+LCSXI),VL,VT,XQN,SCR,V1,V2,NSXS,LUQUNE,TMIN,QNSTEP,QNUPDT,KSDFT)
@@ -565,10 +567,10 @@ call mma_allocate(Scr,NO2M,Label='SCR')
 call ROTORB(CMO,CMON,CSX(LCSXI),XMAT,X2,SCR,THMAX,FA)
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) 'FI+FA in SXCTL after Unitary transform in ROTORB'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) 'FI+FA in SXCTL after Unitary transform in ROTORB'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)

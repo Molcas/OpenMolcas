@@ -35,8 +35,8 @@ subroutine Alter_MO(CMO)
 !                                                                      *
 !***********************************************************************
 
-use output_ras, only: LF
 use general_data, only: NALTER, MALTER, NBAS
+use Definitions, only: u6
 
 implicit none
 real*8 CMO(*)
@@ -44,11 +44,11 @@ real*8 CMOex
 integer iAlter, iAlteri, iAlterj, iCMO, iSym
 
 ! Local print level (if any)
-write(LF,*)
-write(LF,'(6X,A)') 'Molecular orbitals exchanged:'
+write(u6,*)
+write(u6,'(6X,A)') 'Molecular orbitals exchanged:'
 
 do iAlter=1,NAlter
-  write(LF,'(8X,A,I2,A,2I4)') 'In symmetry ',MAlter(iAlter,1),' :',MAlter(iAlter,2),MAlter(iAlter,3)
+  write(u6,'(8X,A,I2,A,2I4)') 'In symmetry ',MAlter(iAlter,1),' :',MAlter(iAlter,2),MAlter(iAlter,3)
   iAlterI = 0
   iAlterJ = 0
   if (MAlter(iAlter,1) > 1) then
@@ -65,6 +65,6 @@ do iAlter=1,NAlter
     CMO(iAlterJ+iCMO) = CMOex
   end do
 end do
-write(LF,*)
+write(u6,*)
 
 end subroutine Alter_MO

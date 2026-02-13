@@ -63,14 +63,14 @@ call mma_allocate(RotMat,lRoots,lRoots)
 ! Calculate generalized density mtrix
 call UnzipTUVX(TUVX,Gtuvx,nTUVX)
 
-!write(6,*) 'Gtuvx matrix'
+!write(u6,*) 'Gtuvx matrix'
 !call RecPrt(' ',' ',Gtuvx,NAC2,NAC2)
 
 call CalcGD(GDorbit,nGD)
-!write(6,*) 'GD matrix orbital-leading'
+!write(u6,*) 'GD matrix orbital-leading'
 !call RecPrt(' ',' ',GDorbit,NAC2,lRoots2)
 call CalcDg(Dgorbit,GDorbit,Gtuvx,nGD,nTUVX,NAC,lRoots)
-!write(6,*) 'Dg matrix orbital-leading'
+!write(u6,*) 'Dg matrix orbital-leading'
 !call RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)
 
 call mma_deallocate(Gtuvx)

@@ -16,9 +16,11 @@ subroutine SPINORB(D,CMO,OCC)
 ! (only active).
 
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NASH, NBAS, NFRO, NISH
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 real*8 D(*), CMO(*), OCC(*)
@@ -29,7 +31,7 @@ integer :: IDIAG
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(6)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 IPDEN = 1
 IPCMO = 1
@@ -43,15 +45,14 @@ do ISYM=1,NSYM
     if (NA /= 0) then
       call mma_allocate(W1,NA,NA,Label='W1')
       call mma_allocate(W2,NB,NA,Label='W2')
-      W1(:,:) = 0.0d0
-      call DCOPY_(NA,[1.0d0],0,W1,NA+1)
+      call unitmat(W1,NA)
       call Jacob(D(IPDEN),W1,NA,NA)
       IDIAG = 0
       do I=1,NA
         IDIAG = IDIAG+I
         OCC(IPOCC+NF+NI+I-1) = D(IPDEN+IDIAG-1)
       end do
-      call DGEMM_('N','N',NB,NA,NA,1.0d0,CMO(IPCMO+(NF+NI)*NB),NB,W1,NA,0.0d0,W2,NB)
+      call DGEMM_('N','N',NB,NA,NA,One,CMO(IPCMO+(NF+NI)*NB),NB,W1,NA,Zero,W2,NB)
       call DCOPY_(NA*NB,W2,1,CMO(IPCMO+(NF+NI)*NB),1)
       call mma_deallocate(W2)
       call mma_deallocate(W1)

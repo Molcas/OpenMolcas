@@ -35,6 +35,7 @@ subroutine Upd_FA(PUVX,F,D,ExFac)
 
 use general_data, only: NSYM, NASH, NISH, NORB
 use Molcas, only: MxSym
+use Constants, only: Zero, Two, Half
 
 implicit none
 real*8 PUVX(*), F(*), D(*)
@@ -95,13 +96,13 @@ do iSym=1,nSym
   do iU=iIsh+1,iIsh+iAsh
     do iP=1,iU
       iPU = iP+iTri(iU)
-      F(iFoff+iPU) = 0.0d0
+      F(iFoff+iPU) = Zero
     end do
   end do
   do iU=iIsh+iAsh+1,iOrb
     do iP=iIsh+1,iIsh+iAsh
       iPU = iP+iTri(iU)
-      F(iFoff+iPU) = 0.0d0
+      F(iFoff+iPU) = Zero
     end do
   end do
 end do
@@ -140,18 +141,18 @@ do iSym=1,nSym
           do iV=1,kAsh
             do iX=1,iV
               iVX = iTri(iV)+iX
-              DVX = 2.0d0*D(iDoff+iVX)
+              DVX = Two*D(iDoff+iVX)
               if (iX == iV) DVX = D(iDoff+iVX)
               do iU=1,jAsh
                 iUV = iTri(iU)+iV
                 if (iV > iU) iUV = iTri(iV)+iU
-                DUV = ExFac*0.5d0*D(iDoff+iUV)
+                DUV = ExFac*Half*D(iDoff+iUV)
                 iUX = iTri(iU)+iX
                 if (iX > iU) iUX = iTri(iX)+iU
-                DUX = ExFac*0.5d0*D(iDoff+iUX)
+                DUX = ExFac*Half*D(iDoff+iUX)
                 if (iX == iV) then
-                  DUV = ExFac*0.5d0*DUV
-                  DUX = ExFac*0.5d0*DUX
+                  DUV = ExFac*Half*DUV
+                  DUX = ExFac*Half*DUX
                 end if
                 iPUVX = off_PUVX(iSym)
                 ! inactive/active block
@@ -173,12 +174,12 @@ do iSym=1,nSym
                   F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
                   iPV = iTri(iIsh+iV)+iP
                   if (iP > (iIsh+iV)) iPV = iTri(iP)+iIsh+iV
-                  F(iFoff+iPV) = F(iFoff+iPV)-ExFac*0.5d0*DUX*Temp
-                  if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*0.5d0*DUX*Temp
+                  F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
+                  if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
                   iPX = iTri(iIsh+iX)+iP
                   if (iP > (iIsh+iX)) iPX = iTri(iP)+iIsh+iX
-                  F(iFoff+iPX) = F(iFoff+iPX)-ExFac*0.5d0*DUV*Temp
-                  if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*0.5d0*DUV*Temp
+                  F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
+                  if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
                 end do
                 ! active/active block and iP>(iIsh+iU)
                 do iP=iIsh+iU+1,iIsh+iAsh
@@ -186,12 +187,12 @@ do iSym=1,nSym
                   Temp = PUVX(iPUVX)
                   iPV = iTri(iIsh+iV)+iP
                   if (iP > (iIsh+iV)) iPV = iTri(iP)+iIsh+iV
-                  F(iFoff+iPV) = F(iFoff+iPV)-ExFac*0.5d0*DUX*Temp
-                  if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*0.5d0*DUX*Temp
+                  F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
+                  if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
                   iPX = iTri(iIsh+iX)+iP
                   if (iP > (iIsh+iX)) iPX = iTri(iP)+iIsh+iX
-                  F(iFoff+iPX) = F(iFoff+iPX)-ExFac*0.5d0*DUV*Temp
-                  if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*0.5d0*DUV*Temp
+                  F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
+                  if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
                 end do
                 ! active/secondary block
                 do iP=iIsh+iAsh+1,iOrb
@@ -217,7 +218,7 @@ do iSym=1,nSym
           do iV=1,kAsh
             do iX=1,iV
               iVX = iTri(iV)+iX
-              DVX = 2.0d0*D(kDoff+iVX)
+              DVX = Two*D(kDoff+iVX)
               if (iX == iV) DVX = D(kDoff+iVX)
               do iU=1,jAsh
                 iPUVX = off_PUVX(iSym)
@@ -260,7 +261,7 @@ do iSym=1,nSym
               do iU=1,jAsh
                 iUX = iTri(iU)+iX
                 if (iX > iU) iUX = iTri(iX)+iU
-                DUX = ExFac*0.5d0*D(jDoff+iUX)
+                DUX = ExFac*Half*D(jDoff+iUX)
                 iPUVX = off_PUVX(iSym)
                 ! inactive/active block
                 do iP=1,iIsh
@@ -289,7 +290,7 @@ do iSym=1,nSym
               do iU=1,iAsh
                 iUV = iTri(iU)+iV
                 if (iV > iU) iUV = iTri(iV)+iU
-                DUV = ExFac*0.5d0*D(iDoff+iUV)
+                DUV = ExFac*Half*D(iDoff+iUV)
                 iPUVX = off_PUVX(jSym)
                 ! inactive/active block
                 do iP=1,jIsh

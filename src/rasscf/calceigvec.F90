@@ -14,7 +14,9 @@
 subroutine CalcEigVec(Matrix,NDIM,EigVec)
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
+implicit none
 !*****Input
 integer NDim
 !*****Input & Output
@@ -25,11 +27,11 @@ integer NScr, INFO
 real*8, dimension(2) :: WGRONK
 !*****Auxiliary quantities
 integer NElem ! NElem=NDim**2
-integer IRow, ICol, IRIC, NI
+integer IRow, ICol, IRIC
 logical UseJacob
 
 UseJacob = .true.
-EigVec(:,:) = 0.0d0
+EigVec(:,:) = Zero
 
 if (UseJacob) then
   NElem = NDim*(NDim+1)/2
@@ -42,19 +44,16 @@ if (UseJacob) then
       Mat(IRIC) = Matrix(IRow,ICol)
     end do
   end do
-  Val(:,:) = 0.0d0
-  do NI=1,NDim
-    Val(NI,NI) = 1.0d0
-  end do
-  !write(6,*) 'eigenvector matrix before diag'
+  call unitmat(Val,NDim)
+  !write(u6,*) 'eigenvector matrix before diag'
   !call RECPRT(' ',' ',Val,NDIM,NDIM)
-  !write(6,*) 'matrix to be diagonalized'
+  !write(u6,*) 'matrix to be diagonalized'
   !call TriPrt(' ',' ',Mat,NDIM)
   call JACOB(Mat,Val,NDim,NDim)
-  !write(6,*)'eigenvector matrix'
+  !write(u6,*)'eigenvector matrix'
   !call RECPRT(' ',' ',Val,NDIM,NDIM)
   !do IRow=1,NDIM
-  !  write(6,*) (EigVec(IRow,ICol),ICol=1,NDim)
+  !  write(u6,*) (EigVec(IRow,ICol),ICol=1,NDim)
   !end do
   do ICol=1,NDIM
     do IRow=1,NDIM
@@ -73,7 +72,7 @@ else
       Mat((ICol-1)*NDIM+IRow) = Matrix(IRow,ICol)
     end do
   end do
-  Val(:,:) = 0.0d0
+  Val(:,:) = Zero
   call Dsyev_('V','U',NDIM,Mat,NDIM,Val,WGRONK,-1,INFO)
   NScr = int(WGRONK(1))
   call mma_allocate(Scr,nScr,Label='Scr')

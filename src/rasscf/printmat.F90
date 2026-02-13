@@ -13,6 +13,8 @@
 
 subroutine PrintMat(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
 
+use Definitions, only: u6
+
 implicit none
 integer NRow, NCol, LenName, LenInfo
 character(len=LenName) :: FileName
@@ -24,11 +26,10 @@ integer LU, IsFreeUnit, IRow, ICol
 external IsFreeUnit
 
 if (LenName > 0) then
-  LU = 100
-  LU = IsFreeUnit(LU)
+  LU = IsFreeUnit(100)
   call Molcas_Open(LU,FileName)
 else
-  LU = 6
+  LU = u6
 end if
 
 if (Trans == 'N') then

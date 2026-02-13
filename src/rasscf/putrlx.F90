@@ -17,11 +17,13 @@ use spin_correlation, only: tRootGrad
 use rasscf_global, only: CBLBM, ENER, ExFac, iBLBM, IPCMROOT, iPr, iRLXRoot, iSymBB, ITER, lRoots, lSquare, NACPAR, NACPR2, &
                          NewFock, nFint, nRoots, NSXS, NTOT4, RlxGrd, iAdr15, ISTORP, JBLBM
 use PrintLevel, only: DEBUG, USUAL
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NTOT1, NTOT2, NSYM, JOBIPH, NBAS
 use DWSol, only: DWSolv, DWSol_wgt, W_SOLV
 use rctfld_module, only: lRF
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
 
 implicit none
 real*8 D(*), DS(*), P(*), DAO(*), C(*)
@@ -36,7 +38,7 @@ real*8, allocatable :: DA(:), DA_ave(:), DI(:), DSX(:), DS_ave(:), DX(:), F(:), 
 logical, external :: PCM_On
 
 IPRLEV = IPRLOC(3)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ! Read in corresponding density matrixes
 
@@ -48,7 +50,7 @@ call mma_allocate(DA,NZ,Label='DA')
 call mma_allocate(DI,NZ,Label='DI')
 call mma_allocate(DSX,NZ,Label='DSX')
 if (tRootGrad) then
-  write(lf,*)
+  write(u6,*)
   do i=1,LRoots
     call ddafile(JOBIPH,2,D,NACPAR,jDisk)
     call ddafile(JOBIPH,2,DS,NACPAR,jDisk)
@@ -83,11 +85,11 @@ if (tRootGrad) then
     if (IPRLEV == 3) IPR = 1
     if (IPRLEV == 4) IPR = 5
     if (IPRLEV == 5) IPR = 10
-    PUVX(:) = 0.0d0
+    PUVX(:) = Zero
     call TraCtl2(C,PUVX,TUVX,DI,FI,DA,FA,ipr,lsquare,ExFac)
     call SGFCIN(C,F,FI,DI,DA,DSX)
-    call dcopy_(ntot4,[0.0d0],0,F,1)
-    call dcopy_(ntot4,[0.0d0],0,B,1)
+    call dcopy_(ntot4,[Zero],0,F,1)
+    call dcopy_(ntot4,[Zero],0,B,1)
 
     ! Prevent FMAT from changing Active fock matrix
 
@@ -116,7 +118,7 @@ if (tRootGrad) then
     ISYMBB = istmp
     call mma_deallocate(PX)
 
-    write(6,'(6x,a,i3,5x,f12.10)') 'Norm of electronic gradient for root ',i,DNRM2_(NSXS,B,1)
+    write(u6,'(6x,a,i3,5x,f12.10)') 'Norm of electronic gradient for root ',i,DNRM2_(NSXS,B,1)
 
     call mma_deallocate(DX)
     call mma_deallocate(tuvx)
@@ -168,22 +170,22 @@ IPR = 0
 if (IPRLEV == 3) IPR = 1
 if (IPRLEV == 4) IPR = 5
 if (IPRLEV == 5) IPR = 10
-PUVX(:) = 0.0d0
+PUVX(:) = Zero
 call TraCtl2(C,PUVX,TUVX,DI,FI,DA,FA,ipr,lsquare,ExFac)
 
 ! DA constructed above is the density for the RLXROOT state.
 ! We should reconstruct the AO density matrix to prevent the
 ! mismatch of states for reaction field and geometry optimization
 ! It seems that IPCMROOT may not be defined sometimes
-if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (DWSolv%DWZeta /= 0.0d+00))) then
+if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (DWSolv%DWZeta /= Zero))) then
   !! Polarize PCM etc with weighted density
   call mma_allocate(DA_ave,max(NACPAR,NZ),Label='DA_ave')
   call mma_allocate(DS_ave,max(NACPAR,NZ),Label='DS_ave')
   call mma_allocate(WRK1,max(NACPAR,NZ),Label='WRK1')
   call mma_allocate(WRK2,max(NACPAR,NZ),Label='WRK2')
 
-  DA_ave(:) = 0.0d+00
-  DS_ave(:) = 0.0d+00
+  DA_ave(:) = Zero
+  DS_ave(:) = Zero
 
   call DWSol_wgt(2,ENER(:,ITER))
   kDisk = IADR15(3)
@@ -193,7 +195,7 @@ if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (
     call DDaFile(JOBIPH,2,WRK2,NACPAR,kDisk)
     call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
     call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
-    if (wgt < 1.0d-09) cycle
+    if (wgt < 1.0e-09_wp) cycle
     call daxpy_(NACPAR,wgt,WRK1,1,DA_ave,1)
     call daxpy_(NACPAR,wgt,WRK2,1,DS_ave,1)
   end do
@@ -212,25 +214,25 @@ if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (
 
   call mma_deallocate(WRK1)
   call mma_deallocate(WRK2)
-  if ((IPRLEV >= USUAL) .and. (DWSolv%DWZeta > 0.0d+00)) then
+  if ((IPRLEV >= USUAL) .and. (DWSolv%DWZeta > Zero)) then
     left = 6
-    write(LF,*)
+    write(u6,*)
     write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-    write(LF,Fmt2//'A)') 'Dynamically weighted solvation has been employed'
-    write(LF,Fmt2//'A,(T45,10F6.3))') 'Final weights for the reaction field:',(W_SOLV(i),i=1,nRoots)
+    write(u6,Fmt2//'A)') 'Dynamically weighted solvation has been employed'
+    write(u6,Fmt2//'A,(T45,10F6.3))') 'Final weights for the reaction field:',(W_SOLV(i),i=1,nRoots)
   end if
 end if
 
 call SGFCIN(C,F,FI,DI,DA,DSX)
-call dcopy_(ntot4,[0.0d0],0,F,1)
-call dcopy_(ntot4,[0.0d0],0,B,1)
+call dcopy_(ntot4,[Zero],0,F,1)
+call dcopy_(ntot4,[Zero],0,B,1)
 
 ! Prevent FMAT from changing Active fock matrix
 
 iTmp = newfock
 newFock = -99999
 
-if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (DWSolv%DWZeta /= 0.0d+00))) then
+if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (DWSolv%DWZeta /= Zero))) then
   ! The rest of the RASSCF program uses state-specific density
   ! (note that, it is iRlxRoot!), so restore the one constructed
   ! above, before TraCtl2
@@ -243,7 +245,7 @@ if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (
   call mma_allocate(WRK2,nTot1,Label='WRK2')
   call Fold(nSym,nBas,DI,WRK1)
   call Fold(nSym,nBas,DA,WRK2)
-  call Daxpy_(nTot1,1.0d+00,WRK1,1,WRK2,1)
+  call Daxpy_(nTot1,One,WRK1,1,WRK2,1)
   call Put_dArray('D1ao',WRK2,nTot1)
   call Fold(nSym,nBas,DSX,WRK1)
   call Put_dArray('D1sao',WRK1,nTot1)
@@ -286,7 +288,7 @@ call mma_deallocate(F)
 
 ! Add up one electron densities
 
-call daxpy_(nZ,1.0d0,DA,1,DI,1)
+call daxpy_(nZ,One,DA,1,DI,1)
 call Fold(nSym,nBas,DI,DAO)
 
 call mma_deallocate(DSX)

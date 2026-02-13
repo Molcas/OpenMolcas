@@ -12,8 +12,8 @@
 subroutine Mod_P2(P2mo,nP2Act,D1mo,nD1mo,DS1mo,ExFac,nDet)
 
 use nq_Info, only: iOff_Ash, mIrrep, nAsh
-use output_ras, only: LF
-use Constants, only: One, Two
+use Constants, only: One, Two, Quart
+use Definitions, only: wp, u6
 
 implicit none
 integer nP2Act, nD1mo, nDet
@@ -39,7 +39,7 @@ end do
 
 if (nDet == 1) then
 
-  P2Act = dble(nP2Act)
+  P2Act = real(nP2Act,kind=wp)
   call Put_Temp('nP2Act  ',[P2Act],1)
   call Put_Temp('P2_RAW  ',P2mo,nP2Act)
 
@@ -72,9 +72,9 @@ if (nDet == 1) then
                 if ((iIrrep == jIrrep) .and. (k == l)) Fact = Two
                 P2mo(ijkl) = Fact*P2mo(ijkl)
 
-                if (iIrrep == ijkIrrep) P2mo(ijkl) = P2mo(ijkl)+(1.0d0-ExFac)*(0.25d0*D1mo(jk)*D1mo(il)+0.25d0*DS1mo(jk)*DS1mo(il))
+                if (iIrrep == ijkIrrep) P2mo(ijkl) = P2mo(ijkl)+(One-ExFac)*Quart*(D1mo(jk)*D1mo(il)+DS1mo(jk)*DS1mo(il))
 
-                if (iIrrep == kIrrep) P2mo(ijkl) = P2mo(ijkl)+(1.0d0-ExFac)*(0.25d0*D1mo(jl)*D1mo(ik)+0.25d0*DS1mo(jl)*DS1mo(ik))
+                if (iIrrep == kIrrep) P2mo(ijkl) = P2mo(ijkl)+(One-ExFac)*Quart*(D1mo(jl)*D1mo(ik)+DS1mo(jl)*DS1mo(ik))
 
                 P2mo(ijkl) = P2mo(ijkl)/Fact
 
@@ -90,7 +90,7 @@ if (nDet == 1) then
   end do
   call Put_Temp('P2_KS   ',P2mo,nP2Act)
 else
-  write(LF,*) ' Not implemented yet!!! nDet=',nDet
+  write(u6,*) ' Not implemented yet!!! nDet=',nDet
   call Abend()
 end if
 

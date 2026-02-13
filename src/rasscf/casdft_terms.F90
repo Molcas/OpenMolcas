@@ -28,7 +28,7 @@ subroutine CASDFT_terms(CMO,F,FI,D1I,D1A,D1S)
 use OneDat, only: sNoNuc, sNoOri
 use rctfld_module, only: lRF
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NTOT1, NACTEL, ISPIN, NASH, NBAS, NFRO, NISH
 use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp, NAC, NACPAR, NONEQ, PotNuc, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
 #ifdef _DMRG_
@@ -37,7 +37,8 @@ use lucia_data, only: INT1, INT1O
 use rasscf_global, only: DoDMRG
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, u6
 
 implicit none
 real*8 CMO(*), F(*), FI(*), D1I(*), D1A(*), D1S(*)
@@ -55,27 +56,27 @@ integer i, IADD, iBas, iCharge, iCOmp, iOff, iOpt, iPrLev, iRC, iSyLbl, iSym, IT
 IPRLEV = IPRLOC(3)
 !IPRLEV = 100
 if (IPRLEV >= DEBUG) then
-  write(LF,*) 'Printing matrices in CASDFT_Terms'
-  write(LF,*)
-  write(LF,*) ' CMO in CASDFT_terms'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*) 'Printing matrices in CASDFT_Terms'
+  write(u6,*)
+  write(u6,*) ' CMO in CASDFT_terms'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   ioff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
     if (iBas /= 0) then
-      write(6,*) 'Sym =',iSym
+      write(u6,*) 'Sym =',iSym
       do i=1,iBas
-        write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+        write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
       end do
       iOff = iOff+(iBas*iBas)
     end if
   end do
 
-  write(LF,*)
-  write(LF,*) ' D1I in AO basis in CASDFT_Terms'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1I in AO basis in CASDFT_Terms'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -83,10 +84,10 @@ if (IPRLEV >= DEBUG) then
     iOff = iOff+iBas*iBas
   end do
 
-  write(LF,*)
-  write(LF,*) ' D1S in AO basis in CASDFT_Terms'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1S in AO basis in CASDFT_Terms'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -94,10 +95,10 @@ if (IPRLEV >= DEBUG) then
     iOff = iOff+iBas*iBas
   end do
 
-  write(LF,*)
-  write(LF,*) ' D1A in AO basis in CASDFT_Terms'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1A in AO basis in CASDFT_Terms'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -119,22 +120,22 @@ Label = 'Mltpl  0'
 call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
 Tot_Nuc_Charge = Tmp0(nTot1+4)
 if (iRc /= 0) then
-  write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
-  write(LF,*) 'Label = ',Label
-  write(LF,*) 'iRc = ',iRc
+  write(u6,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
+  write(u6,*) 'Label = ',Label
+  write(u6,*) 'iRc = ',iRc
   call Abend()
 end if
 call mma_deallocate(Tmp0)
 
 Tot_El_Charge = Zero
 do iSym=1,nSym
-  Tot_El_Charge = Tot_El_Charge-2.0d0*dble(nFro(iSym)+nIsh(iSym))
+  Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
 end do
-Tot_El_Charge = Tot_El_Charge-dble(nActEl)
+Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
 Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
 !if (IPRLEV >= DEBUG) then
-!  write(6,*)
-!  write(6,*) 'Total Charge :',Tot_Charge
+!  write(u6,*)
+!  write(u6,*) 'Total Charge :',Tot_Charge
 !end if
 
 !**********************************************************
@@ -148,16 +149,16 @@ iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 Label = 'OneHam  '
 call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
 if (iRc /= 0) then
-  write(LF,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
-  write(LF,*) 'Label = ',Label
-  write(LF,*) 'iRc = ',iRc
+  write(u6,*) 'CASDFT_Terms: iRc from Call RdOne not 0'
+  write(u6,*) 'Label = ',Label
+  write(u6,*) 'iRc = ',iRc
   call Abend()
 end if
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' OneHam in AO basis in CASDFT_Terms'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' OneHam in AO basis in CASDFT_Terms'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -170,8 +171,8 @@ end if
 ! Load the nuclear repulsion energy
 !**********************************************************
 call Get_dScalar('PotNuc',potNuc)
-!write(6,*)
-!write(6,*) 'PotNuc in casdft_terms.f:',PotNuc
+!write(u6,*)
+!write(u6,*) 'PotNuc in casdft_terms.f:',PotNuc
 
 !**********************************************************
 ! Generate total density
@@ -179,13 +180,13 @@ call Get_dScalar('PotNuc',potNuc)
 
 !if (IPRLEV >= DEBUG) then
 !  call mma_allocate(Tmp31,nBas*nBas,Label='Tmp31')
-!  Tmp31(:) = 0.0D0
-!  call Daxpy_(nBas*nBas,1.0D0,D1I,1,Tmp31,1)
-!  call Daxpy_(nBas*nBas,1.0D0,D1A,1,Tmp31,1)
-!  write(LF,*)
-!  write(LF,*) ' DMAT not folded in AO basis in CASDFT_Terms'
-!  write(LF,*) ' ---------------------'
-!  write(LF,*)
+!  Tmp31(:) = Zero
+!  call Daxpy_(nBas*nBas,One,D1I,1,Tmp31,1)
+!  call Daxpy_(nBas*nBas,One,D1A,1,Tmp31,1)
+!  write(u6,*)
+!  write(u6,*) ' DMAT not folded in AO basis in CASDFT_Terms'
+!  write(u6,*) ' ---------------------'
+!  write(u6,*)
 !  call wrtmat(Tmp31,nBas,nBas,nBas,nBas)
 !  call mma_deallocate(Tmp3)
 !end if
@@ -194,9 +195,8 @@ call mma_allocate(Tmp3,nTot1,Label='Tmp3')
 call mma_allocate(Tmp4,nTot1,Label='Tmp4')
 call Fold(nSym,nBas,D1I,Tmp3)
 call Fold(nSym,nBas,D1A,Tmp4)
-call Daxpy_(nTot1,1.0d0,Tmp4,1,Tmp3,1)
+call Daxpy_(nTot1,One,Tmp4,1,Tmp3,1)
 call Put_dArray('D1ao',Tmp3,nTot1)
-call xflush(6)
 !**********************************************************
 ! Generate spin-density
 !**********************************************************
@@ -210,9 +210,9 @@ call mma_deallocate(Tmp7)
 !**********************************************************
 
 call mma_allocate(Tmp5,nTot1,Label='Tmp5')
-Tmp5(:) = 0.0d0
+Tmp5(:) = Zero
 call mma_allocate(Tmp6,nTot1,Label='Tmp6')
-Tmp6(:) = 0.0d0
+Tmp6(:) = Zero
 
 First = .true.
 Dff = .false.
@@ -226,8 +226,8 @@ iCharge = int(Tot_Charge)
 ! Tmp5 and Tmp6 are not updated in DrvXV...
 call DrvXV(Tmp5,Tmp6,Tmp3,PotNuc,nTot1,First,Dff,NonEq,lRF,KSDFT_TEMP,ExFac,iCharge,iSpin,DFTFOCK,Do_DFT)
 
-call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
-call Daxpy_(nTot1,1.0d0,Tmp6,1,FI,1)
+call Daxpy_(nTot1,One,Tmp5,1,Tmp1,1)
+call Daxpy_(nTot1,One,Tmp6,1,FI,1)
 
 call mma_deallocate(Tmp6)
 call mma_deallocate(Tmp5)
@@ -246,27 +246,27 @@ call Get_dScalar('PotNuc',PotNuc_Ref)
 Eone = Eone+(PotNuc-PotNuc_Ref)
 Etwo = dDot_(nTot1,Tmp2,1,FI,1)
 call mma_deallocate(Tmp2)
-EMY = PotNuc_Ref+Eone+0.5d0*Etwo
+EMY = PotNuc_Ref+Eone+Half*Etwo
 
-CASDFT_Funct = 0.0d0
+CASDFT_Funct = Zero
 call Get_dScalar('CASDFT energy',CASDFT_Funct)
 if (IPRLEV >= DEBUG) then
-  write(LF,*) ' Nuclear repulsion energy :',PotNuc
-  !write(LF,*) ' Nuclear repulsion energy Ref :',PotNuc_Ref
-  write(LF,*) ' One-electron core energy :',Eone
-  write(LF,*) ' Two-electron core energy :',Etwo
-  write(LF,*) ' Total core energy        :',EMY
-  write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
+  write(u6,*) ' Nuclear repulsion energy :',PotNuc
+  !write(u6,*) ' Nuclear repulsion energy Ref :',PotNuc_Ref
+  write(u6,*) ' One-electron core energy :',Eone
+  write(u6,*) ' Two-electron core energy :',Etwo
+  write(u6,*) ' Total core energy        :',EMY
+  write(u6,*) ' CASDFT Energy            :',CASDFT_Funct
 end if
 
 !**********************************************************
 ! Printing matrices
 !**********************************************************
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' FI matrix in CASDFT_Terms only 2-electron terms'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FI matrix in CASDFT_Terms only 2-electron terms'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -278,11 +278,11 @@ end if
 call DaXpY_(nTot1,One,Tmp1,1,FI,1)
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' Inactive Fock matrix in AO basis in CASDFT_terms'
-  write(LF,*) '(it already contains OneHam and TwoEl contrib.)'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' Inactive Fock matrix in AO basis in CASDFT_terms'
+  write(u6,*) '(it already contains OneHam and TwoEl contrib.)'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -313,12 +313,12 @@ call mma_allocate(X2,MXNB*MXNB,Label='X2')
 call mma_allocate(X3,MXNB*MXNA,Label='X3')
 call dcopy_(NTOT1,FI,1,X1,1)
 !call Get_dExcdRa(TmpFckI,nTmpFck)
-!call DaXpY_(NTOT1,1.0D0,TmpFckI,1,X1,1)
+!call DaXpY_(NTOT1,One,TmpFckI,1,X1,1)
 !if (IPRLEV >= DEBUG) then
-!  write(LF,*)
-!  write(LF,*) ' Exchange Corr. in AO basis in CASDFT_Terms'
-!  write(LF,*) ' ---------------------'
-!  write(LF,*)
+!  write(u6,*)
+!  write(u6,*) ' Exchange Corr. in AO basis in CASDFT_Terms'
+!  write(u6,*) ' ---------------------'
+!  write(u6,*)
 !  iOff = 1
 !  do iSym=1,nSym
 !    iBas = nBas(iSym)
@@ -328,10 +328,10 @@ call dcopy_(NTOT1,FI,1,X1,1)
 !end if
 !Call mma_deallocate(TmpFckI)
 !if (IPRLEV >= DEBUG) then
-!  write(LF,*)
-!  write(LF,*) ' Modified FI in AO basis in CASDFT_Terms'
-!  write(LF,*) ' ---------------------'
-!  write(LF,*)
+!  write(u6,*)
+!  write(u6,*) ' Modified FI in AO basis in CASDFT_Terms'
+!  write(u6,*) ' ---------------------'
+!  write(u6,*)
 !  iOff = 1
 !  do iSym=1,nSym
 !    iBas = nBas(iSym)
@@ -349,9 +349,9 @@ ITU = 0
 IADD = 0
 
 if (NACTEL /= 0) then
-  EMYN = EMY/dble(NACTEL)
+  EMYN = EMY/real(NACTEL,kind=wp)
 else
-  EMYN = 0.0d0
+  EMYN = Zero
 end if
 do NST=1,NSYM
   NAT = NASH(NST)
@@ -382,12 +382,12 @@ call mma_deallocate(X0)
 
 ! print h0
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*)
-  write(LF,*)
-  write(LF,*)
-  write(LF,*) ' Fock matrix in MO basis, h0, in CASDFT_TERMS'
-  write(LF,*) ' ------------'
+  write(u6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' Fock matrix in MO basis, h0, in CASDFT_TERMS'
+  write(u6,*) ' ------------'
   call TriPrt(' ',' ',F,NAC)
 end if
 

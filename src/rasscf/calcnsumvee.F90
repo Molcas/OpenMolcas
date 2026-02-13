@@ -17,8 +17,9 @@
 
 function CalcNSumVee(RotMat,DDg)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use rasscf_global, only: lRoots
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
@@ -29,7 +30,7 @@ integer IState
 #include "warnings.h"
 
 call mma_allocate(Vee,lRoots)
-CalcNSumVee = 0.0d0
+CalcNSumVee = Zero
 call CalcVee(Vee,RotMat,DDg)
 do IState=1,lRoots
   CalcNSumVee = CalcNSumVee+Vee(IState)

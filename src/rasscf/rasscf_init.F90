@@ -38,12 +38,13 @@ use rasscf_global, only: IROOT, CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFa
                          iXMSP, KSDFT, kTight, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NewFock, NonEq, NQUNE, &
                          NROOTS, OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXSel, ThFact, Thre, &
                          ThrEn, ThrSX, TMin, Weight, Title, ixSym, iTri, ThrTE
-use output_ras, only: LF
 use general_data, only: SXDAMP, NSEL, LOWDIN_ON, ISPIN, STSYM, NACTEL, NHOLE1, NELEC3, NALTER, STARTORBFILE, NASH, NBAS, NDEL, &
                         NFRO, NISH, NRS1, NRS2, NRS3, NRS3, NSSH
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, ISPEED
 use Molcas, only: MxOrb, MxRoot, MxSym
 use RASDim, only: MxCIIt, MxIter, MxSXIt
+use Constants, only: Zero, One, Half
+use Definitions, only: wp
 
 implicit none
 integer IPRGLB_IN, IPRLOC_IN(7)
@@ -74,8 +75,6 @@ else
 end if
 
 ! Initialize print levels: Module output_ras
-! Global logical unit numbers for standard output
-LF = 6
 ! Externally set default print level control. Should the program be silent?
 IPRGLB_IN = iPrintLevel(-1)
 do I=1,7
@@ -92,14 +91,14 @@ Deco = .true.
 timings = .false.
 DoLock = .true.
 Nscreen = 10
-dmpk = 1.0d-1
+dmpk = 1.0e-1_wp
 Update = .true.
 Estimate = .false.
 !
 #ifdef _MOLCAS_MPP_
-ChFracMem = 0.3d0
+ChFracMem = 0.3_wp
 #else
-ChFracMem = 0.0d0
+ChFracMem = Zero
 #endif
 
 OutFmt1 = 'DEFAULT '
@@ -119,38 +118,38 @@ ITMAX = mxSxIt
 ! max number of iterations in Davidson diagonalization
 MAXJT = MXCIIT-2
 ! threshold for change in RASSCF energy
-THRE = 1.D-08
+THRE = 1.0e-8_wp
 !tbp, may 2013: no thre modification with Cholesky
 !tbp if (DoCholesky) then
 !tbp   call Get_dScalar('Cholesky Threshold',ThrCom)
 !tbp   THRE = max(THRE,ThrCom)
 !tbp end if
 ! threshold for max orbital rotation
-!PAM2010       THRTE=1.D-04
+!PAM2010 THRTE = 1.0e-4_wp
 ! PAM2010: Note: This is *not* a threshold that keeps rotation down
 ! between iterations in order to ensure proper function of the
 ! optimization -- it was intended as one of the thresholds that
 ! determine when the calculation has converged! As such, it is
 ! irrelevant! The relevant threshold is the max BLB.
-THRTE = 1.D-01
+THRTE = 1.0e-1_wp
 ! threshold for max BLB matrix element
 ! Note: If one changes the following value, please change it in
 ! fock_util/cho_LK_rassi.f and fock_util/cho_LK_rassi_x.f for consistency.
-THRSX = 1.D-04
+THRSX = 1.0e-4_wp
 ! Default damping in the SXCI orbital optimization
-SXDAMP = 0.0002d0
+SXDAMP = 0.0002_wp
 ! Default thresholds used to determine convergence in CI
-THREN = 1.0D-04
-THFACT = 1.0D-03
+THREN = 1.0e-4_wp
+THFACT = 1.0e-3_wp
 ! PAM 2017, Additional shift for douby occupied core states
 ! in order to compute core hole states. The core orbital is
 ! specified as one particular orbital in the input orbital set.
-CORESHIFT = 0.0d0
+CORESHIFT = Zero
 ITCORE = 0
 IFCRPR = .false.
 ! PAM 2009, new default value for LVSHFT
 ! level shift parameter
-LVSHFT = 0.5d00
+LVSHFT = Half
 ! Quasi Newton update of the rotation matrix
 NQUNE = 2
 ! only the CI calculation will be performed if iCIonly=1
@@ -186,10 +185,10 @@ LROOTS = 1
 call iCopy(mxRoot,[0],0,iRoot,1)
 IROOT(1) = 1
 ! weights used for average energy calculations
-call dCopy_(mxRoot,[0.0d0],0,WEIGHT,1)
-WEIGHT(1) = 1.0d0
+call dCopy_(mxRoot,[Zero],0,WEIGHT,1)
+WEIGHT(1) = One
 ! iteration energies
-call dCopy_(mxRoot*(mxIter+2),[0.0d0],0,ENER,1)
+call dCopy_(mxRoot*(mxIter+2),[Zero],0,ENER,1)
 
 ICICH = 0
 ! if flag is active (ICICH=1) CI roots will be selected
@@ -212,13 +211,13 @@ IFORDE = 1
 ! (SVC) use ordering of orbitals
 ! start CI Davidson with unit guess for CI vector
 ! use restart option if numerical gradients are computed.
-PRWTHR = 0.05d0
+PRWTHR = 0.05_wp
 ! threshold for printout of CI wave function
 
-PROTHR = -1.0d0
+PROTHR = -One
 ! occupation threshold for printout of orbitals
 ! (The negative value serves to show if no user selection was made)
-PRETHR = 999999.0d0
+PRETHR = 999999.0_wp
 ! energy threshold for printout of orbitals
 
 ICICP = 0
@@ -226,7 +225,7 @@ ICICP = 0
 NSEL = 200
 ! Default value for explicit Hamiltonian
 
-TMIN = 0.0d0
+TMIN = Zero
 QNSTEP = 'SX'
 QNUPDT = ' NO'
 ! Default value for tight parameter
@@ -235,7 +234,7 @@ KTIGHT = 0
 ! Default value for type of CASSCF (used for DFT)
 
 KSDFT = 'SCF'
-ExFac = 1.0d0
+ExFac = One
 !* Default orthonormalization of CMOs to be with
 !* Gram-Schmidt
 !Lowdin_ON = .false.
@@ -317,26 +316,26 @@ do i=1,size(iSpeed)
   end if
 end do
 
-TimeTotal = 0.0d0
-TimeInput = 0.0d0
-TimeWfn = 0.0d0
-TimeDens = 0.0d0
-TimeSigma = 0.0d0
-TimeHSel = 0.0d0
-TimeHDiag = 0.0d0
-TimeFock = 0.0d0
-TimeAoMo = 0.0d0
-TimeTrans = 0.0d0
-TimeCIOpt = 0.0d0
-TimeOrb = 0.0d0
-TimeDavid = 0.0d0
-TimePage = 0.0d0
-TimeHCSCE = 0.0d0
-TimeRelax = 0.0d0
+TimeTotal = Zero
+TimeInput = Zero
+TimeWfn = Zero
+TimeDens = Zero
+TimeSigma = Zero
+TimeHSel = Zero
+TimeHDiag = Zero
+TimeFock = Zero
+TimeAoMo = Zero
+TimeTrans = Zero
+TimeCIOpt = Zero
+TimeOrb = Zero
+TimeDavid = Zero
+TimePage = Zero
+TimeHCSCE = Zero
+TimeRelax = Zero
 
 !SVC: lucia timers
-tsigma(:) = 0.0d0
-tdensi(:) = 0.0d0
+tsigma(:) = Zero
+tdensi(:) = Zero
 
 ! state rotation
 iRotPsi = 0
@@ -344,7 +343,7 @@ iXMSP = 0
 iCMSP = 0
 ICMSIterMax = 100
 ICMSIterMin = 5
-CMSThreshold = 1.0d-8
+CMSThreshold = 1.0e-8_wp
 CMSStartMat = 'XMS'
 iCMSOpt = 1
 CMSGiveOpt = .false.

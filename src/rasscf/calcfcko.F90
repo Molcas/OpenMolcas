@@ -16,6 +16,7 @@ subroutine CalcFckO(CMO,FI,FA,FckO)
 use rasscf_global, only: NAC
 use general_data, only: NTOT1, NTOT2, NSYM, NASH, NBAS, NFRO, NISH
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 
 implicit none
 !*****Input
@@ -28,7 +29,7 @@ integer NB, NA, NI, IOff1, IOff2, IOff3
 integer IBas, JBas, ISym, IOrb, JOrb
 real*8, allocatable :: FIAAO(:,:), Scr(:,:), FckOt(:,:)
 
-FckO(:,:) = 0.0d0
+FckO(:,:) = Zero
 
 IOff1 = 0
 IOff2 = 1
@@ -41,16 +42,16 @@ do ISym=1,NSym
     call mma_allocate(FIAAO,nB,nB,Label='FIAAO')
     call mma_allocate(Scr,nB,nA,Label='Scr')
     call mma_allocate(FckOt,NA,NA,Label='FckOt')
-    FckOt(:,:) = 0.0d0
-    !write(6,*)'Print FI Matrix'
+    FckOt(:,:) = Zero
+    !write(u6,*)'Print FI Matrix'
     !do IBas=1,NB
-    !  write(6,*) (FI(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
+    !  write(u6,*) (FI(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
     !end do
-    !write(6,*)'Print FA Matrix'
+    !write(u6,*)'Print FA Matrix'
     !do IBas=1,NB
-    ! write(6,*) ( FA(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
+    ! write(u6,*) ( FA(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
     !end do
-    !write(6,*) 'Active CMO mat for sym',ISym
+    !write(u6,*) 'Active CMO mat for sym',ISym
     !call RecPrt(' ',' ',CMO(IOff2+NI*NB),NB,NA)
     do IBas=1,NB
       do JBas=1,IBas
@@ -58,11 +59,11 @@ do ISym=1,NSym
         FIAAO(iBas,jBas) = FIAAO(jBas,iBas)
       end do
     end do
-    !write(6,*) 'FIA mat for sym',ISym
+    !write(u6,*) 'FIA mat for sym',ISym
     !call RecPrt(' ',' ',FIAAO,NB,NB)
-    call DGEMM_('n','n',NB,NA,NB,1.0d0,FIAAO,NB,CMO(IOff2+NI*NB),NB,0.0d0,Scr,NB)
-    call DGEMM_('t','n',NA,NA,NB,1.0d0,CMO(IOff2+NI*NB),NB,Scr,NB,0.0d0,FckOt,NA)
-    !write(6,*) 'FckO mat for sym',ISym
+    call DGEMM_('n','n',NB,NA,NB,One,FIAAO,NB,CMO(IOff2+NI*NB),NB,Zero,Scr,NB)
+    call DGEMM_('t','n',NA,NA,NB,One,CMO(IOff2+NI*NB),NB,Scr,NB,Zero,FckOt,NA)
+    !write(u6,*) 'FckO mat for sym',ISym
     !call RecPrt(' ',' ',FckOt,NA,NA)
     do IOrb=1,NA
       do JOrb=1,NA

@@ -26,7 +26,7 @@ real(kind=wp), intent(in) :: S(*)
 real(kind=wp), intent(inout) :: U(*), V(*)
 integer(kind=iwp), intent(in) :: N, M
 real(kind=wp) XNORM, OVL, OVL1
-real(kind=wp), parameter :: THR = 0.2d0
+real(kind=wp), parameter :: THR = 0.2_wp
 real(kind=wp), external :: DDot_
 integer(kind=iwp) :: IBASE, I, JBASE, J
 

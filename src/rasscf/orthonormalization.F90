@@ -13,10 +13,10 @@
 
 module orthonormalization
 
-use definitions, only: wp
-use stdalloc, only: mma_allocate, mma_deallocate
 use blockdiagonal_matrices, only: t_blockdiagonal, new, delete, from_raw, to_raw, from_symm_raw, blocksizes
 use linalg_mod, only: Gram_Schmidt, Lowdin, Canonical
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, u6
 
 implicit none
 private
@@ -180,7 +180,7 @@ subroutine update_orb_numbers(n_to_ON,nNew,nDel,nSSH,nOrb,nDelt,nSec,nOrbt,nTot3
 
   use general_data, only: nSym
   use PrintLevel, only: USUAL
-  use output_ras, only: LF, IPRLOC
+  use output_ras, only: IPRLOC
 # include "warnings.h"
 
   integer, intent(in) :: n_to_ON(:), nNew(:)
@@ -193,22 +193,22 @@ subroutine update_orb_numbers(n_to_ON,nNew,nDel,nSSH,nOrb,nDelt,nSec,nOrbt,nTot3
     do iSym=1,nSym
       if (nSSH(iSym) < remove(iSym)) then
         call WarningMessage(2,'Orthonormalization Error')
-        write(LF,*) 'Exact or very near linear dependence '
-        write(LF,*) 'forces RASSCF to stop execution.'
-        write(LF,*) 'Symmetry block:',iSym
-        write(LF,*) 'Effective NR of orthonormal orbs:',nNew(iSym)
-        write(LF,*) 'Earlier number of deleted orbs:',nDel(iSym)
-        write(LF,*) 'Earlier number of secondary orbs:',nSSH(iSym)
-        write(LF,*) 'New number of deleted orbs:',nDel(iSym)+remove(iSym)
-        write(LF,*) 'New number of secondary orbs:',nSSH(iSym)-remove(iSym)
+        write(u6,*) 'Exact or very near linear dependence '
+        write(u6,*) 'forces RASSCF to stop execution.'
+        write(u6,*) 'Symmetry block:',iSym
+        write(u6,*) 'Effective NR of orthonormal orbs:',nNew(iSym)
+        write(u6,*) 'Earlier number of deleted orbs:',nDel(iSym)
+        write(u6,*) 'Earlier number of secondary orbs:',nSSH(iSym)
+        write(u6,*) 'New number of deleted orbs:',nDel(iSym)+remove(iSym)
+        write(u6,*) 'New number of secondary orbs:',nSSH(iSym)-remove(iSym)
         call quit(_RC_GENERAL_ERROR_)
       else if (iPRLoc(1) >= USUAL) then
         call WarningMessage(1,'Orthonormalization Warning')
-        write(LF,*) 'Exact or very near linear dependence'
-        write(LF,*) 'forces RASSCF to delete additional orbitals.'
-        write(LF,*) 'Symmetry block:',iSym
-        write(LF,*) 'Earlier number of deleted orbs =',nDel(iSym)
-        write(LF,*) 'New number of deleted orbs =',nDel(iSym)+remove(iSym)
+        write(u6,*) 'Exact or very near linear dependence'
+        write(u6,*) 'forces RASSCF to delete additional orbitals.'
+        write(u6,*) 'Symmetry block:',iSym
+        write(u6,*) 'Earlier number of deleted orbs =',nDel(iSym)
+        write(u6,*) 'New number of deleted orbs =',nDel(iSym)+remove(iSym)
       end if
     end do
     nDel(:nSym) = nDel(:nSym)+remove(:nSym)
@@ -226,7 +226,6 @@ end subroutine update_orb_numbers
 subroutine read_raw_S(S_buffer)
 
   use OneDat, only: sNoOri
-  use output_ras, only: LF
 
   real(wp), intent(inout) :: S_buffer(:)
   integer :: i_Rc, i_Opt, i_Component, i_SymLbl
@@ -240,10 +239,10 @@ subroutine read_raw_S(S_buffer)
   Label = 'Mltpl  0'
   call RdOne(i_Rc,i_Opt,Label,i_Component,S_buffer,i_SymLbl)
   if (i_rc /= 0) then
-    write(LF,*) ' RASSCF is trying to orthonormalize orbitals but'
-    write(LF,*) ' could not read overlaps from ONEINT. Something'
-    write(LF,*) ' is wrong with the file, or possibly with the'
-    write(LF,*) ' program. Please check.'
+    write(u6,*) ' RASSCF is trying to orthonormalize orbitals but'
+    write(u6,*) ' could not read overlaps from ONEINT. Something'
+    write(u6,*) ' is wrong with the file, or possibly with the'
+    write(u6,*) ' program. Please check.'
     call quit(_RC_IO_ERROR_READ_)
   end if
 
@@ -254,7 +253,7 @@ subroutine read_S(S)
   use general_data, only: nBas, nSym, nActEl
   use rasscf_global, only: nFr, nIn, Tot_Nuc_Charge
   use PrintLevel, only: USUAL
-  use output_ras, only: LF, IPRLOC
+  use output_ras, only: IPRLOC
 
   type(t_blockdiagonal) :: S(nSym)
   integer :: size_S_buffer
@@ -269,11 +268,11 @@ subroutine read_S(S)
   call from_symm_raw(S_buffer,S)
   call mma_deallocate(S_buffer)
 
-  Mol_Charge = Tot_Nuc_Charge-dble(2*(nFr+nIn)+nActEl)
+  Mol_Charge = Tot_Nuc_Charge-real(2*(nFr+nIn)+nActEl,kind=wp)
   call put_dscalar('Total Charge    ',Mol_Charge)
   if (IPRLOC(1) >= USUAL) then
-    write(LF,*)
-    write(LF,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
+    write(u6,*)
+    write(u6,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
   end if
 
 end subroutine read_S

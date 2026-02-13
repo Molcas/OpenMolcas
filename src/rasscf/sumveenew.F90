@@ -19,6 +19,7 @@ subroutine SumVeeNew(SV,A,GD,I1,I2,G,V1,V2,Update)
 
 use rasscf_global, only: lRoots, NAC
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half
 
 implicit none
 real*8 SV, A, V1, V2
@@ -86,7 +87,7 @@ if (Update) then
       end do
     end do
   end do
-!      updating
+  ! updating
   do J=1,I2-1      !(J<I2<I1)
     I1J = (I1-1)*I1/2+J
     I2J = (I2-1)*I2/2+J
@@ -98,7 +99,7 @@ if (Update) then
     end do
   end do
   J = I2           !(J=I2<I1)
-!      i11=(I1+1)*I1/2
+  !i11 = (I1+1)*I1/2
   i22 = (I2+1)*I2/2
   i12 = (I1-1)*I1/2+I2
   do t=1,NAC
@@ -143,7 +144,7 @@ else
   i11 = (I1+1)*I1/2
   i22 = (I2+1)*I2/2
   i12 = (I1-1)*I1/2+I2
-  V1 = 0.0d0
+  V1 = Zero
   V2 = V1
   do t=1,NAC
     do u=1,NAC
@@ -161,8 +162,8 @@ else
       end do
     end do
   end do
-  V1 = V1/2.0d0
-  V2 = V2/2.0d0
+  V1 = Half*V1
+  V2 = Half*V2
   SV = V1+V2
   call mma_deallocate(D11)
   call mma_deallocate(D22)

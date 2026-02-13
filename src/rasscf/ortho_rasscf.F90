@@ -35,8 +35,9 @@ subroutine Ortho_RASSCF(SMAT,SCRATCH,CMO,TEMP)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use output_ras, only: LF
 use general_data, only: NSYM, LOWDIN_ON, NBAS, NDEL
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 real*8 Smat(*), SCRATCH(*), CMO(*), Temp(*)
@@ -59,11 +60,11 @@ i_SymLbl = 1
 Label = 'Mltpl  0'
 call RdOne(i_Rc,i_Opt,Label,i_Component,Smat,i_SymLbl)
 if (i_Rc /= 0) then
-  write(LF,*) ' ORTHO could not read overlaps from ONEINT.'
-  write(LF,*) ' RASSCF is trying to orthonormalize orbitals but'
-  write(LF,*) ' could not read overlaps from ONEINT. Something'
-  write(LF,*) ' is wrong with the file, or possibly with the'
-  write(LF,*) ' program. Please check.'
+  write(u6,*) ' ORTHO could not read overlaps from ONEINT.'
+  write(u6,*) ' RASSCF is trying to orthonormalize orbitals but'
+  write(u6,*) ' could not read overlaps from ONEINT. Something'
+  write(u6,*) ' is wrong with the file, or possibly with the'
+  write(u6,*) ' program. Please check.'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 !                                                                      *
@@ -87,8 +88,8 @@ do iSym=1,nSym
 
       ! compute C^T*S*C = W  (overlap in MO basis)
 
-      call DGEMM_('T','N',iOcc,iBas,iBas,1.0d0,CMO(ip_CMO),iBas,Temp,iBas,0.0d0,SCRATCH,iOcc)
-      call DGEMM_('N','N',iOcc,iOcc,iBas,1.0d0,SCRATCH,iOcc,CMO(ip_CMO),iBas,0.0d0,Temp,iOcc)
+      call DGEMM_('T','N',iOcc,iBas,iBas,One,CMO(ip_CMO),iBas,Temp,iBas,Zero,SCRATCH,iOcc)
+      call DGEMM_('N','N',iOcc,iOcc,iBas,One,SCRATCH,iOcc,CMO(ip_CMO),iBas,Zero,Temp,iOcc)
 
       ! compute W^-1/2
 
@@ -96,7 +97,7 @@ do iSym=1,nSym
 
       ! compute C' = C*W^-1/2
 
-      call DGEMM_('N','N',iBas,iOcc,iOcc,1.0d0,CMO(ip_CMO),iBas,SCRATCH,iOcc,0.0d0,Temp,iBas)
+      call DGEMM_('N','N',iBas,iOcc,iOcc,One,CMO(ip_CMO),iBas,SCRATCH,iOcc,Zero,Temp,iBas)
 
       ! PAM March 2016: Probable bugfix needed (Thanks, Liviu!)
       ! not affecting any tests (!)

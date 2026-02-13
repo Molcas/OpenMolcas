@@ -18,6 +18,7 @@
 subroutine RotGDMat(R,GD)
 
 use rasscf_global, only: lRoots, NAC
+use Constants, only: Zero
 
 implicit none
 real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GD, GD2
@@ -30,7 +31,7 @@ do p=1,nac
     do I=1,lRoots
       do J=1,I
         iIJ = (I-1)*I/2+J
-        GD2(iIJ,p,q) = 0.0d0
+        GD2(iIJ,p,q) = Zero
         do K=1,lRoots
           do L=1,lRoots
             if (K > L) then

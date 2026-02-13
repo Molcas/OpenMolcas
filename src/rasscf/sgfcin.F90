@@ -58,12 +58,13 @@ use general_data, only: iSpin, nActEl, nSym, nTot1, nBas, nIsh, nAsh, nFro
 use OFEmbed, only: Do_OFemb, OFE_first, FMaux, Rep_EN
 use rctfld_module, only: lRF
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 #ifdef _DMRG_
 use qcmaquis_interface_cfg
 #endif
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, u6
 
 implicit none
 character(len=16), parameter :: ROUTINE = 'SGFCIN  '
@@ -82,7 +83,7 @@ real*8, external :: dDot_
 ! Local print level (if any)
 IPRLEV = IPRLOC(3)
 IPRLEV = 0000
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ! Generate molecular charges
 call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
@@ -94,17 +95,17 @@ Label = 'Mltpl  0'
 call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
 Tot_Nuc_Charge = Tmp0(nTot1+4)
 if (iRc /= 0) then
-  write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
-  write(LF,*) 'Label = ',Label
-  write(LF,*) 'iRc = ',iRc
+  write(u6,*) 'SGFCIN: iRc from Call RdOne not 0'
+  write(u6,*) 'Label = ',Label
+  write(u6,*) 'iRc = ',iRc
   call Abend()
 end if
 call mma_deallocate(Tmp0)
 Tot_El_Charge = Zero
 do iSym=1,nSym
-  Tot_El_Charge = Tot_El_Charge-2.0d0*dble(nFro(iSym)+nIsh(iSym))
+  Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
 end do
-Tot_El_Charge = Tot_El_Charge-dble(nActEl)
+Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
 Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
 
 ! Load bare nuclei Hamiltonian
@@ -116,32 +117,32 @@ iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 Label = 'OneHam  '
 call RdOne(iRc,iOpt,Label,iComp,Tmp1,iSyLbl)
 if (iRc /= 0) then
-  write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
-  write(LF,*) 'Label = ',Label
-  write(LF,*) 'iRc = ',iRc
+  write(u6,*) 'SGFCIN: iRc from Call RdOne not 0'
+  write(u6,*) 'Label = ',Label
+  write(u6,*) 'iRc = ',iRc
   call Abend()
 end if
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' CMO in SGFCIN'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' CMO in SGFCIN'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   ioff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
     if (iBas /= 0) then
-      write(6,*) 'Sym =',iSym
+      write(u6,*) 'Sym =',iSym
       do i=1,iBas
-        write(6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
+        write(u6,*) (CMO(ioff+iBas*(i-1)+j),j=0,iBas-1)
       end do
       iOff = iOff+(iBas*iBas)
     end if
   end do
 
-  write(LF,*)
-  write(LF,*) ' D1I in AO basis in SGFCIN'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1I in AO basis in SGFCIN'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -149,10 +150,10 @@ if (IPRLEV >= DEBUG) then
     iOff = iOff+iBas*iBas
   end do
 
-  write(LF,*)
-  write(LF,*) ' D1A in AO basis in SGFCIN'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1A in AO basis in SGFCIN'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -161,10 +162,10 @@ if (IPRLEV >= DEBUG) then
   end do
 end if
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' OneHam in AO basis in SGFCIN'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' OneHam in AO basis in SGFCIN'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -192,12 +193,12 @@ call DecideOnESPF(Do_ESPF)
 
 call Fold(nSym,nBas,D1I,Tmp3)
 call Fold(nSym,nBas,D1A,Tmp4)
-call Daxpy_(nTot1,1.0d0,Tmp4,1,Tmp3,1)
+call Daxpy_(nTot1,One,Tmp4,1,Tmp3,1)
 call Put_dArray('D1ao',Tmp3,nTot1)
-!write(LF,*)
-!write(LF,*) ' D1ao in AO basis in SGFCIN'
-!write(LF,*) ' ---------------------'
-!write(LF,*)
+!write(u6,*)
+!write(u6,*) ' D1ao in AO basis in SGFCIN'
+!write(u6,*) ' ---------------------'
+!write(u6,*)
 !iOff = 1
 !do iSym=1,nSym
 !  iBas = nBas(iSym)
@@ -221,9 +222,9 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb) then
   ! Scratch for one- and two-electron type contributions
 
   call mma_allocate(Tmp5,nTot1,Label='Tmp5')
-  Tmp5(:) = 0.0d0
+  Tmp5(:) = Zero
   call mma_allocate(Tmp6,nTot1,Label='Tmp6')
-  Tmp6(:) = 0.0d0
+  Tmp6(:) = Zero
 
   First = .true.
   Dff = .false.
@@ -233,10 +234,10 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb) then
 
   call DrvXV(Tmp5,Tmp6,Tmp3,PotNuc,nTot1,First,Dff,NonEq,lRF,KSDFT,ExFac,iCharge,iSpin,DFTFOCK,Do_DFT)
   if (IPRLEV >= DEBUG) then
-    write(LF,*)
-    write(LF,*) ' Tmp5, h1 (DFT), in AO basis in SGFCIN'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' Tmp5, h1 (DFT), in AO basis in SGFCIN'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     iOff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
@@ -249,10 +250,10 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb) then
 
   ERF1 = Zero
   ERF2 = dDot_(nTot1,Tmp6,1,Tmp4,1)
-  ERFX = ERF1-0.5d0*ERF2
-  call Daxpy_(nTot1,1.0d0,Tmp5,1,Tmp1,1)
+  ERFX = ERF1-Half*ERF2
+  call Daxpy_(nTot1,One,Tmp5,1,Tmp1,1)
 
-  call Daxpy_(nTot1,1.0d0,Tmp6,1,FI,1)
+  call Daxpy_(nTot1,One,Tmp6,1,FI,1)
 
   call mma_deallocate(Tmp6)
   call mma_deallocate(Tmp5)
@@ -271,16 +272,16 @@ if (RFpert) then
   call mma_allocate(TmpZ,nTot1,Label='TmpZ')
   call Get_dScalar('RF Self Energy',ERFX)
   call Get_dArray('Reaction field',TmpZ,nTot1)
-  call Daxpy_(nTot1,1.0d0,TmpZ,1,Tmp1,1)
+  call Daxpy_(nTot1,One,TmpZ,1,Tmp1,1)
   call mma_deallocate(TmpZ)
   if (Found) call NameRun('#Pop')
 end if
 call mma_allocate(Tmp2,nTot1,Label='Tmp2')
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' D1I in AO basis in SGFCIN'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' D1I in AO basis in SGFCIN'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -320,23 +321,23 @@ call Get_dScalar('PotNuc',PotNuc_Ref)
 Eone = Eone+(PotNuc-PotNuc_Ref)
 Etwo = dDot_(nTot1,Tmp2,1,FI,1)
 call mma_deallocate(Tmp2)
-EMY = PotNuc_Ref+Eone+0.5d0*Etwo+ERFX
+EMY = PotNuc_Ref+Eone+Half*Etwo+ERFX
 CASDFT_Funct = Zero
 if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) call Get_dScalar('CASDFT energy',CASDFT_Funct)
 if (IPRLEV >= DEBUG) then
-  write(LF,*) ' Nuclear repulsion 1      :',PotNuc
-  write(LF,*) ' Nuclear repulsion 2 Ref  :',PotNuc_Ref
-  write(LF,*) ' One-electron core energy :',Eone
-  write(LF,*) ' Two-electron core energy :',Etwo
-  write(LF,*) ' Total core energy        :',EMY
-  if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT /= 'PAM')) write(LF,*) ' CASDFT Energy            :',CASDFT_Funct
+  write(u6,*) ' Nuclear repulsion 1      :',PotNuc
+  write(u6,*) ' Nuclear repulsion 2 Ref  :',PotNuc_Ref
+  write(u6,*) ' One-electron core energy :',Eone
+  write(u6,*) ' Two-electron core energy :',Etwo
+  write(u6,*) ' Total core energy        :',EMY
+  if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT /= 'PAM')) write(u6,*) ' CASDFT Energy            :',CASDFT_Funct
 end if
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' FI matrix in AO in SGFCIN only 2-electron terms'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' FI matrix in AO in SGFCIN only 2-electron terms'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -345,10 +346,10 @@ if (IPRLEV >= DEBUG) then
   end do
 end if
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' Tmp1 matrix in SGFCIN, one-electron term'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' Tmp1 matrix in SGFCIN, one-electron term'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -362,11 +363,11 @@ call DaXpY_(nTot1,One,Tmp1,1,FI,1)
 call mma_deallocate(Tmp1)
 
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' Inactive Fock matrix in AO basis in SGFCIN'
-  write(LF,*) '(it already contains OneHam and TwoEl contrib.)'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' Inactive Fock matrix in AO basis in SGFCIN'
+  write(u6,*) '(it already contains OneHam and TwoEl contrib.)'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -390,12 +391,12 @@ call mma_allocate(X3,MXNB*MXNA,Label='X3')
 call DCOPY_(NTOT1,FI,1,X1,1)
 if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) then
   call Get_dExcdRa(TmpFckI,nTmpFck)
-  call DaXpY_(NTOT1,1.0d0,TmpFckI,1,X1,1)
+  call DaXpY_(NTOT1,One,TmpFckI,1,X1,1)
   if (IPRLEV >= DEBUG) then
-    write(LF,*)
-    write(LF,*) ' Exchange correlation in AO basis in SGFCIN'
-    write(LF,*) ' ---------------------'
-    write(LF,*)
+    write(u6,*)
+    write(u6,*) ' Exchange correlation in AO basis in SGFCIN'
+    write(u6,*) ' ---------------------'
+    write(u6,*)
     iOff = 1
     do iSym=1,nSym
       iBas = nBas(iSym)
@@ -406,10 +407,10 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) then
   call mma_deallocate(TmpFckI)
 end if
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' Modified FI in AO basis in SGFCIN'
-  write(LF,*) ' ---------------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' Modified FI in AO basis in SGFCIN'
+  write(u6,*) ' ---------------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iBas = nBas(iSym)
@@ -426,7 +427,7 @@ ITU = 0
 IADD = 0
 !bjp
 if (NACTEL /= 0) then
-  EMYN = EMY/dble(NACTEL)
+  EMYN = EMY/real(NACTEL,kind=wp)
 else
   EMYN = Zero
 end if
@@ -461,10 +462,10 @@ call mma_deallocate(X0)
 
 ! print h0
 if (IPRLEV >= DEBUG) then
-  write(LF,*)
-  write(LF,*) ' Inactive Fock mat in act MO basis, h0, in SGFCIN'
-  write(LF,*) ' ------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' Inactive Fock mat in act MO basis, h0, in SGFCIN'
+  write(u6,*) ' ------------'
+  write(u6,*)
   call TriPrt(' ',' ',F,NAC)
 end if
 

@@ -42,6 +42,7 @@ use qcmaquis_interface_cfg
 use gas_data, only: iDoGAS
 use rasscf_global, only: DoDMRG, iRLXRoot, KSDFT, NAC, NACPAR, NACPR2, nRoots, ThrTE, ThrSX, Weight
 use general_data, only: NACTEL, NSYM, NHOLE1, NELEC3, NASH, NDEL, NFRO, NISH, NTOT1, NTOT2
+use Constants, only: Zero
 
 implicit none
 integer iFinal
@@ -103,7 +104,7 @@ if (nRoots /= 1) then
 
     nW = 0
     do iR=1,nRoots
-      if (Weight(iR) /= 0.0d0) nW = nW+1
+      if (Weight(iR) /= Zero) nW = nW+1
     end do
     if (nW == 1) iSA = 2
   end if

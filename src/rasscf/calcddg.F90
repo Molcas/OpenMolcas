@@ -29,10 +29,13 @@ subroutine CalcDDg(DDg,GD,Dg,nDDg,nGD,lRoots2,NAC2)
 !      namely, sum_{tu}{GD^KL_tu * Dg^MN_tu}                     *
 !*****************************************************************
 
+use Constants, only: Zero, One
+
+implicit none
 integer nDDg, nGD, lRoots2, NAC2
 real*8 DDg(nDDg), GD(nGD), Dg(nGD)
 
-call DGEMM_('T','N',lRoots2,lRoots2,NAC2,1.0d0,Dg,NAC2,GD,NAC2,0.0d0,DDg,lRoots2)
+call DGEMM_('T','N',lRoots2,lRoots2,NAC2,One,Dg,NAC2,GD,NAC2,Zero,DDg,lRoots2)
 
 return
 

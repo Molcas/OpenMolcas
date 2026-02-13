@@ -22,8 +22,10 @@ subroutine COVLP(C1IN,C2IN,DIA,PA,SXN,C1,C2,X,OVL)
 
 use rasscf_global, only: NROOT, NSXS, ITRI
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NASH, NISH, NSSH
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, u6
 
 implicit none
 real*8 C1IN(*), C2IN(*), DIA(*), SXN(*), X(*), C1(*), C2(*), PA(*)
@@ -36,18 +38,18 @@ integer I, iAshI, iAshJ, iC1, iC2, ISTBM, ISTC2, iSTIA, ISYM, JSYM, NAE, NAEJ, N
         NT, NTT, NTUT, NTUVX, NU, NUT, NV, NVT, NVXT, NX, NXT
 
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 !PAM02 Note structure of SX-vectors: First NROOT elements are special.
 !PAM02 Elements NROOT+1,..,NROOT+NSXS contain the usual SX elements.
 !PAM02 NROOT=1 always right now. Part of the code is prepared for using
 !PAM02 several roots, so most of the code must use the general case.
-OVL = 0.0d0
+OVL = Zero
 do I=1,NROOT
   OVL = OVL+C1IN(I)*C2IN(I)
 end do
 
 !PAM01 Adding overlap from small shift of SX overlaps:
-OVL = OVL+(1.0D-6)*DDOT_(NSXS,C1IN(NROOT+1),1,C2IN(NROOT+1),1)
+OVL = OVL+1.0e-6_wp*DDOT_(NSXS,C1IN(NROOT+1),1,C2IN(NROOT+1),1)
 
 ! renormalize the C vector (simple element-by-element scaling).
 
@@ -70,7 +72,7 @@ do ISYM=1,NSYM
   ! p is secondary (p = q = a)
 
   if (NEO /= 0) then
-    call DGEMM_('N','N',NIA,NEO,NIA,1.0d0,DIA(ISTIA+1),NIA,C1(ISTBM+1+NIA*NAO),NIA,0.0d0,X,NIA)
+    call DGEMM_('N','N',NIA,NEO,NIA,One,DIA(ISTIA+1),NIA,C1(ISTBM+1+NIA*NAO),NIA,Zero,X,NIA)
     OVLADD = DDOT_(NIA*NEO,X,1,C2(ISTBM+1+NIA*NAO),1)
     OVL = OVL+OVLADD
   end if
@@ -98,12 +100,12 @@ do ISYM=1,NSYM
     do NP=NIO+1,NIA
       IC2 = ISTBM
       do NQ=NIO+1,NIA
-        C1C2 = 0.0d0
+        C1C2 = Zero
         do NI=1,NIO
           C1C2 = C1C2+C1(IC1+NI)*C2(IC2+NI)
         end do
         FAC = -DIA(ISTIA+NIA*(NP-1)+NQ)
-        if (NP == NQ) FAC = FAC+2.0d0
+        if (NP == NQ) FAC = FAC+Two
         OVLADD = C1C2*FAC
         OVL = OVL+OVLADD
         IC2 = IC2+NIA
@@ -121,7 +123,7 @@ do ISYM=1,NSYM
       NTUT = ITRI(NTT)+NUT
 
       IASHJ = 0
-      TERM = 0.0d0
+      TERM = Zero
       ISTC2 = 0
       do JSYM=1,NSYM
         NAOJ = NASH(JSYM)
@@ -137,7 +139,7 @@ do ISYM=1,NSYM
                 NXT = NX+IASHJ
                 NVXT = ITRI(NVT)+NXT
                 NTUVX = ITRI(max(NTUT,NVXT))+min(NTUT,NVXT)
-                PRQS = -4.0d0*PA(NTUVX)
+                PRQS = -Four*PA(NTUVX)
                 if (NU == NX) PRQS = PRQS+DIA(ISTIA+NIA*(NT+NIO-1)+NV+NIO)
                 if (NT == NV) PRQS = PRQS+DIA(ISTIA+NIA*(NU+NIO-1)+NX+NIO)
                 if (NT == NX) PRQS = PRQS-DIA(ISTIA+NIA*(NU+NIO-1)+NV+NIO)
@@ -153,7 +155,7 @@ do ISYM=1,NSYM
                 NXT = NX+IASHJ
                 NVXT = ITRI(NVT)+NXT
                 NTUVX = ITRI(max(NTUT,NVXT))+min(NTUT,NVXT)
-                PRQS = -4.0d0*PA(NTUVX)
+                PRQS = -Four*PA(NTUVX)
                 TERM = TERM+PRQS*C2(ISTC2+NIAJ*(NV-1)+NIOJ+NX)
               end do
             end do
@@ -175,6 +177,6 @@ do ISYM=1,NSYM
   ! End of very long loop over  symmetry
 end do
 
-if (IPRLEV >= DEBUG) write(LF,'(1X,A,F15.9)') ' OVERLAP IN COVLP:',OVL
+if (IPRLEV >= DEBUG) write(u6,'(1X,A,F15.9)') ' OVERLAP IN COVLP:',OVL
 
 end subroutine COVLP

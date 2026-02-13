@@ -26,8 +26,10 @@ subroutine SUPSCH_INNER(SMAT,CMOO,CMON,Temp1,Temp2,nOrbMX,IxSym2,nOrb_tot)
 use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: FDIAG, iSupSM, Iter, ixsym
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NBAS
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer nOrbMX, nOrb_Tot
@@ -45,7 +47,7 @@ real*8 :: OldOvlp, Ovlp1, Ovlp2, xOvlp
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ! Read overlap matrix SMAT:
 
@@ -56,14 +58,14 @@ i_SymLbl = 1
 Label = 'Mltpl  0'
 call RdOne(i_Rc,i_Opt,Label,i_Component,Smat,i_SymLbl)
 if (i_Rc /= 0) then
-  write(LF,*)
-  write(LF,*) ' ********************* ERROR **********************'
-  write(LF,*) ' SUPSCH: Failed to read overlap from ONEINT.       '
-  write(LF,*) ' RASSCF is using overlaps to compare old and new   '
-  write(LF,*) ' orbitals, but could not read overlaps from ONEINT.'
-  write(LF,*) ' Something is wrong with the file, or possibly with'
-  write(LF,*) ' the program. Please check.                        '
-  write(LF,*) ' **************************************************'
+  write(u6,*)
+  write(u6,*) ' ********************* ERROR **********************'
+  write(u6,*) ' SUPSCH: Failed to read overlap from ONEINT.       '
+  write(u6,*) ' RASSCF is using overlaps to compare old and new   '
+  write(u6,*) ' orbitals, but could not read overlaps from ONEINT.'
+  write(u6,*) ' Something is wrong with the file, or possibly with'
+  write(u6,*) ' the program. Please check.                        '
+  write(u6,*) ' **************************************************'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 
@@ -90,8 +92,8 @@ if ((ISupsm == 1) .and. (Iter >= 1)) then
     ! Computing orbital overlaping Sum(p,q) C1kp* C2lq Spq
 
     call Square(SMat(pSij+1),Temp1,1,nBs,nBs)
-    call DGEMM_('N','N',nBs,nBs,nBs,1.0d0,Temp1,nBs,CMON(kCof+1),nBs,0.0d0,Temp2,nBs)
-    call DGEMM_('T','N',nBs,nBs,nBs,1.0d0,CMOO(kCof+1),nBs,Temp2,nBs,0.0d0,Temp1,nBs)
+    call DGEMM_('N','N',nBs,nBs,nBs,One,Temp1,nBs,CMON(kCof+1),nBs,Zero,Temp2,nBs)
+    call DGEMM_('T','N',nBs,nBs,nBs,One,CMOO(kCof+1),nBs,Temp2,nBs,Zero,Temp1,nBs)
 
     ! Checking the maximum overlap between the orbitals
     ! and building the new supersymmetry matrix
@@ -100,7 +102,7 @@ if ((ISupsm == 1) .and. (Iter >= 1)) then
     do iOrb=1,nBs
       iLabel = IxSym(kOrb+iOrb)
       iOrder = 1
-      xOvlp = 0.0d0
+      xOvlp = Zero
       do jOrb=0,nBs-2
         Ovlp1 = abs(Temp1(nnOrb+(jOrb*nBs)))
         Ovlp2 = abs(Temp1(nnOrb+((jOrb+1)*nBs)))
@@ -135,7 +137,7 @@ if ((ISupsm == 1) .and. (Iter >= 1)) then
       if ((nOGr2 /= nOGr1) .and. (iGroup /= 0)) then
         iSafe = 1
         call WarningMessage(1,'Supersymmetry may have failed.')
-        write(LF,*) ' Check orbital order or try cleaning orbitals.'
+        write(u6,*) ' Check orbital order or try cleaning orbitals.'
       end if
     end do
 

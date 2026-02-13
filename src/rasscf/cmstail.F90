@@ -17,8 +17,10 @@
 
 subroutine CMSTail()
 
+use Definitions, only: u6
+
 implicit none
 
-write(6,*) repeat('=',71)
+write(u6,*) repeat('=',71)
 
 end subroutine CMSTail

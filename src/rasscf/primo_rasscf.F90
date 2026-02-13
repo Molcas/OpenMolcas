@@ -17,10 +17,11 @@ subroutine Primo_RasScf(VecTit,Ene,Occ,CMO)
 !***********************************************************************
 
 use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
-use output_ras, only: LF
 use general_data, only: NSYM, NASH, NBAS, NDEL, NFRO, NISH
 use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, u6
 
 implicit none
 character(len=*) VecTit
@@ -56,12 +57,12 @@ Blank = ' '
 
 ! PAM Nov 09: Output marked as collapsible.
 ! print header
-write(LF,*)
+write(u6,*)
 call CollapseOutput(1,'   Molecular orbitals:')
-write(LF,'(6X,A)') '-------------------'
-write(LF,*)
-write(LF,Fmt2//'A)') trim(VecTit)
-write(LF,*)
+write(u6,'(6X,A)') '-------------------'
+write(u6,*)
+write(u6,Fmt2//'A)') trim(VecTit)
+write(u6,*)
 
 ! Flag ipt2 in common in module rasscf_global.F90.
 !   ipt2=0 means usual MO's, quasicanonical for
@@ -124,7 +125,7 @@ else
 end if
 ! If PROCC, then only those orbitals that have occ no larger
 ! than or equal to PrOThr:
-if (PROCC .and. (PrOThr >= 0.0d0)) then
+if (PROCC .and. (PrOThr >= Zero)) then
   IORB = 0
   do ISYM=1,NSYM
     NFIA = NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
@@ -191,20 +192,20 @@ if (OutFmt2 == 'FULL    ') then
     NB = NBAS(ISYM)
     NS = NSLCT(ISYM)
     if (NS > 0) then
-      write(LF,*)
-      write(LF,*)
-      write(LF,*)
-      write(LF,Fmt2//'A,I2,A,A)') 'Molecular orbitals for symmetry species',iSym,': ',lIrrep(iSym)
+      write(u6,*)
+      write(u6,*)
+      write(u6,*)
+      write(u6,Fmt2//'A,I2,A,A)') 'Molecular orbitals for symmetry species',iSym,': ',lIrrep(iSym)
       do ISSTART=1,NS,NCOLS
         ISEND = min(ISSTART+NCOLS-1,NS)
-        write(LF,*)
-        write(LF,*)
-        write(LF,Fmt2//'A,7X,10I10)') 'Orbital ',(SLCT(ISOFF+I)-IBOFF,I=ISSTART,ISEND)
-        if (PRENE) write(LF,Fmt2//'A,7X,10F10.4)') 'Energy  ',(ENE(SLCT(ISOFF+I)),I=ISSTART,ISEND)
-        if (PROCC) write(LF,Fmt2//'A,7X,10F10.4)') 'Occ. No.',(OCC(SLCT(ISOFF+I)),I=ISSTART,ISEND)
-        write(LF,*)
+        write(u6,*)
+        write(u6,*)
+        write(u6,Fmt2//'A,7X,10I10)') 'Orbital ',(SLCT(ISOFF+I)-IBOFF,I=ISSTART,ISEND)
+        if (PRENE) write(u6,Fmt2//'A,7X,10F10.4)') 'Energy  ',(ENE(SLCT(ISOFF+I)),I=ISSTART,ISEND)
+        if (PROCC) write(u6,Fmt2//'A,7X,10F10.4)') 'Occ. No.',(OCC(SLCT(ISOFF+I)),I=ISSTART,ISEND)
+        write(u6,*)
         do IB=1,NB
-          write(LF,'(2X,I4,1X,A,10F10.4)') IB,Clean_BName(BName(IBOFF+IB),LENIN), &
+          write(u6,'(2X,I4,1X,A,10F10.4)') IB,Clean_BName(BName(IBOFF+IB),LENIN), &
                                            (CMO(ICOFF+(SLCT(ISOFF+I)-1-IBOFF)*NB+IB),I=ISSTART,ISEND)
         end do
       end do
@@ -224,17 +225,17 @@ else if (OutFmt2 == 'COMPACT ') then
   do ISYM=1,NSYM
     NB = NBAS(ISYM)
     if (NSLCT(ISYM) /= 0) then
-      write(LF,*)
-      write(LF,FMT2//'A,I2,A,A)') 'MOLECULAR ORBITALS FOR SYMMETRY SPECIES',ISYM,': ',LIRREP(ISYM)
-      write(LF,*)
+      write(u6,*)
+      write(u6,FMT2//'A,I2,A,A)') 'MOLECULAR ORBITALS FOR SYMMETRY SPECIES',ISYM,': ',LIRREP(ISYM)
+      write(u6,*)
       if (PROCC .and. PRENE) then
-        write(LF,FMT2//'A)') 'INDEX  ENERGY  OCCUPATION COEFFICIENTS ...'
+        write(u6,FMT2//'A)') 'INDEX  ENERGY  OCCUPATION COEFFICIENTS ...'
       else if (PROCC) then
-        write(LF,FMT2//'A)') 'INDEX  ENERGY  COEFFICIENTS ...'
+        write(u6,FMT2//'A)') 'INDEX  ENERGY  COEFFICIENTS ...'
       else if (PRENE) then
-        write(LF,FMT2//'A)') 'INDEX  OCCUPATION  COEFFICIENTS ...'
+        write(u6,FMT2//'A)') 'INDEX  OCCUPATION  COEFFICIENTS ...'
       else
-        write(LF,FMT2//'A)') 'INDEX  COEFFICIENTS ...'
+        write(u6,FMT2//'A)') 'INDEX  COEFFICIENTS ...'
       end if
       do IS=1,NSLCT(ISYM)
         IORB = SLCT(ISOFF+IS)
@@ -251,22 +252,22 @@ else if (OutFmt2 == 'COMPACT ') then
           write(LINE(IST:132),'(F10.4)') OCC(IORB)
           IST = IST+10
         end if
-        write(LF,FMT2//'A)') LINE
+        write(u6,FMT2//'A)') LINE
         LINE = BLANK
         IST = 9
         do IBAS=1,NB
           CC = CMO(ICOFF+(ICOL-1)*NB+IBAS)
-          if (abs(CC) >= 0.1d0) then
+          if (abs(CC) >= 0.1_wp) then
             write(LINE(IST:132),'(I4,1X,A,A,F7.4,A)') IBAS,Clean_BName(BName(IBOFF+IBAS),LENIN),'(',CC,')'
             IST = IST+28
             if (IST > (132-LEFT-28)) then
-              write(LF,FMT2//'A)') trim(LINE)
+              write(u6,FMT2//'A)') trim(LINE)
               LINE = BLANK
               IST = 9
             end if
           end if
         end do
-        write(LF,FMT2//'A)') trim(LINE)
+        write(u6,FMT2//'A)') trim(LINE)
         LINE = BLANK
         IST = 9
       end do
@@ -281,6 +282,6 @@ end if
 call mma_deallocate(SLCT)
 ! PAM 09: Reset to non-collapsible output before return.
 call CollapseOutput(0,'   Molecular orbitals:')
-write(6,*)
+write(u6,*)
 
 end subroutine Primo_RasScf

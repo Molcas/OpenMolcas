@@ -52,9 +52,9 @@ subroutine IvoGen_rasscf(nSym,nBas,nFro,nIsh,nAsh,nCMO,nEOrb,CMO,EOrb)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use output_ras, only: LF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer nCMO, nEOrb, nSym
@@ -106,18 +106,18 @@ iSyLbl = 1
 Label = 'OneHam'
 call RdOne(iRc,iOpt,Label,iComp,OneHam,iSyLbl)
 if (iRc /= 0) then
-  write(LF,*) ' RASSCF tried to construct compact virtual orbitals'
-  write(LF,*) ' by diagonalization of core Hamiltonian, but ran   '
-  write(LF,*) ' into a severe error: Failed to read the           '
-  write(LF,*) ' Hamiltonian from the ONEINT file. Something may be'
-  write(LF,*) ' wrong with the file.'
+  write(u6,*) ' RASSCF tried to construct compact virtual orbitals'
+  write(u6,*) ' by diagonalization of core Hamiltonian, but ran   '
+  write(u6,*) ' into a severe error: Failed to read the           '
+  write(u6,*) ' Hamiltonian from the ONEINT file. Something may be'
+  write(u6,*) ' wrong with the file.'
   call Quit(_RC_IO_ERROR_READ_)
 end if
 #ifdef _DEBUGPRINT_
-write(LF,*)
-write(LF,*) ' OneHam in AO basis in RASSCF'
-write(LF,*) ' ---------------------'
-write(LF,*)
+write(u6,*)
+write(u6,*) ' OneHam in AO basis in RASSCF'
+write(u6,*) ' ---------------------'
+write(u6,*)
 iOff = 0
 do iSym=1,nSym
   iBas = nBas(iSym)
@@ -151,13 +151,13 @@ do iSym=1,nSym
     ! Transform OneHam to space spanned by virtual orbitals
     call Square(OneHam(ij),FckS,1,nBas(iSym),nBas(iSym))
     ! multiply FckH = OneHam x CMO
-    call DGEMM_('N','N',nBas(iSym),nOrbi,nBas(iSym),1.0d0,FckS,nBas(iSym),CMO(iCMO),nBas(iSym),0.0d0,FckH,nBas(iSym))
+    call DGEMM_('N','N',nBas(iSym),nOrbi,nBas(iSym),One,FckS,nBas(iSym),CMO(iCMO),nBas(iSym),Zero,FckH,nBas(iSym))
     ! multiply FckT =  CMO x FckH
     call DGEMM_Tri('T','N',nOrbi,nOrbi,nBas(iSym),One,CMO(iCMO),nBas(iSym),FckH,nBas(iSym),Zero,FckT,nOrbi)
 
     ! Diagonalize OneHam within virtual space and form orbital energies
     call mma_allocate(Scratch,nOrbi**2,Label='Scratch')
-    Dummy = 0.0d0
+    Dummy = Zero
     iDum = 0
     call Diag_Driver('V','A','L',nOrbi,FckT,Scratch,nOrbi,Dummy,Dummy,iDum,iDum,EOrb(iEOr),CMO(iCMO),nBas(iSym),0,-1,'J',nFound, &
                      iErr)

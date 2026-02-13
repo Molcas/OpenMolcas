@@ -28,8 +28,8 @@ subroutine OpnFls_RASSCF(DSCF,DoCholesky)
 !                                                                      *
 !***********************************************************************
 
-use output_ras, only: LF
 use general_data, only: JOBIPH, JOBOLD, LUONEL, LUINTA, LUINTM, LUQUNE, LUDAVID, ITERFILE
+use Definitions, only: u6
 
 implicit none
 logical DSCF, DoCholesky
@@ -69,22 +69,22 @@ if ((.not. DSCF) .and. (.not. DoCholesky)) then
   iOpt = 0
   call OpnOrd(iRc,iOpt,'ORDINT',LUINTA)
   if (iRc /= 0) then
-    write(LF,*) 'RASSCF tried to open a file (ORDINT) containing'
-    write(LF,*) 'two-electron integrals, but failed. Something'
-    write(LF,*) 'is wrong with the file. Most probably it is'
-    write(LF,*) 'simply missing: Please check. It should have'
-    write(LF,*) 'been created by SEWARD. Perhaps it is in the'
-    write(LF,*) 'wrong directory?'
+    write(u6,*) 'RASSCF tried to open a file (ORDINT) containing'
+    write(u6,*) 'two-electron integrals, but failed. Something'
+    write(u6,*) 'is wrong with the file. Most probably it is'
+    write(u6,*) 'simply missing: Please check. It should have'
+    write(u6,*) 'been created by SEWARD. Perhaps it is in the'
+    write(u6,*) 'wrong directory?'
     call Abend()
   end if
 else
   call f_Inquire('RUNFILE',test)
   if (.not. test) then
-    write(LF,*) 'RASSCF tried to open a file (RUNFILE) containing'
-    write(LF,*) 'data from previous program steps. Something'
-    write(LF,*) 'is wrong with the file. Most probably it is'
-    write(LF,*) 'simply missing: Please check. It should have'
-    write(LF,*) 'been created by SEWARD.'
+    write(u6,*) 'RASSCF tried to open a file (RUNFILE) containing'
+    write(u6,*) 'data from previous program steps. Something'
+    write(u6,*) 'is wrong with the file. Most probably it is'
+    write(u6,*) 'simply missing: Please check. It should have'
+    write(u6,*) 'been created by SEWARD.'
     call Abend()
   end if
 end if

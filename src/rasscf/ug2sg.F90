@@ -26,10 +26,11 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ICONF,ISPIN,IORD,ICI,JCJ,CC
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
 use gugx, only: SGS, CIS, EXS
-use output_ras, only: LF
 use spinfo, only: NTYP, MINOP, NCNFTP, NCSFTP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
+use Constants, only: One
+use Definitions, only: u6
 
 implicit none
 integer NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, MXROOTS
@@ -55,10 +56,10 @@ MxDwn = SGS%MxDwn
 ! NUMBERS IN THE SYMMETRIC GROUP NUMBERING
 
 if (IPRINT >= 5) then
-  write(LF,*)
-  write(LF,*) ' SPLIT GRAPH GUGA CONFIGURATION NUMBERS:'
+  write(u6,*)
+  write(u6,*) ' SPLIT GRAPH GUGA CONFIGURATION NUMBERS:'
   do K=1,NROOTS
-    write(LF,'(A,I2,A,5I8)') ' ROOT',K,' CSFs:',(ICI(K,L),L=1,5)
+    write(u6,'(A,I2,A,5I8)') ' ROOT',K,' CSFs:',(ICI(K,L),L=1,5)
   end do
 end if
 
@@ -134,18 +135,18 @@ end do
 
 if (IPRINT >= 5) then
   LPRINT = min(200,NCONF)
-  write(LF,*)
-  write(LF,*) ' INDEX TABLE IN SUBROUTINE REORD'
-  write(LF,'(10I8)') (IORD(I),I=1,LPRINT)
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' INDEX TABLE IN SUBROUTINE REORD'
+  write(u6,'(10I8)') (IORD(I),I=1,LPRINT)
+  write(u6,*)
 end if
 
 ! REPLACE CONFIGURATION NUMBERS
 
 do IC=1,NCONF
   ISG = IORD(IC)
-  PHASE = 1.0d0
-  if (ISG < 0) PHASE = -1.0d0
+  PHASE = One
+  if (ISG < 0) PHASE = -One
   ISG = abs(ISG)
   do K=1,NROOTS
     do L=1,MXREF
@@ -158,11 +159,11 @@ do IC=1,NCONF
 end do
 
 if (IPRINT >= 5) then
-  write(LF,*) ' SYMMETRIC GROUP CONFIGURATION NUMBERS:'
+  write(u6,*) ' SYMMETRIC GROUP CONFIGURATION NUMBERS:'
   do K=1,NROOTS
-    write(LF,'(A,I2,A,5I6)') ' ROOT',K,' CSFs:',(JCJ(K,L),L=1,5)
+    write(u6,'(A,I2,A,5I6)') ' ROOT',K,' CSFs:',(JCJ(K,L),L=1,5)
   end do
-  write(LF,*)
+  write(u6,*)
 end if
 
 return

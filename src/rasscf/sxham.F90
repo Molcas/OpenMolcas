@@ -42,13 +42,15 @@ subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,DF,DDIAG)
 
 use rasscf_global, only: ExFac, ICICP, ISCF, ITER, LVSHFT, NROOT, NSXS, SXSHFT, ITRI, IZROT, IXSYM, IROOT, Ener
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NASH, NBAS, NFRO, NISH, NORB, NSSH
+use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, u6
 
 implicit none
 character(len=16), parameter :: ROUTINE = 'SXHAM   '
 real*8 D(*), P(*), PA(*), FP(*), SXN(*), F1(*), F2(*), DIA(*), G(*), H(*), HDIAG(*), DF(*), DDIAG(*)
-real*8, parameter :: THRA = 1.D-06
+real*8, parameter :: THRA = 1.0e-6_wp
 real*8 P2Act(1)
 real*8 :: DPP, DRR, DTU, FAC, FACD, FPP, GTU, HDMIN, HPP, PRPR, SXNRM2, XLEV
 integer :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, IX1, JSYM, &
@@ -60,7 +62,7 @@ integer :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP,
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 
 ! Loop over all symmetry blocks
 
@@ -91,8 +93,8 @@ do ISYM=1,NSYM
 
   justone = 0
   do NP=1,NO
-    if (NP <= NIO) DDIAG(NP) = 2.0d0
-    if (NP > NIA) DDIAG(NP) = 0.0d0
+    if (NP <= NIO) DDIAG(NP) = Two
+    if (NP > NIA) DDIAG(NP) = Zero
     if ((NP > NIO) .and. (NP <= NIA)) then
       DDIAG(NP) = D(ISTD+ITRI(NP-NIO+1))
       if ((DDIAG(NP) < THRA) .and. (ISCF == 0)) then
@@ -100,17 +102,16 @@ do ISYM=1,NSYM
           call WarningMessage(1,'Problems in orbital optimization.')
           JustOne = JustOne+1
         end if
-        write(LF,'(1x,a,i2,a,i4,a,es14.6)') ' Warning: In symmetry ',ISYM,', orbital p=',NP, &
+        write(u6,'(1x,a,i2,a,i4,a,es14.6)') ' Warning: In symmetry ',ISYM,', orbital p=',NP, &
                                             ' has diagonal density matrix element D(p,p) close to zero. D(p,p)=',DDIAG(NP)
       end if
-      if ((2.0d0-DDIAG(NP) < THRA) .and. (ISCF == 0)) then
+      if ((Two-DDIAG(NP) < THRA) .and. (ISCF == 0)) then
         if (JustOne == 0) then
           call WarningMessage(1,'Problems in orbital optimization.')
           JustOne = JustOne+1
         end if
-        write(LF,'(1x,a,i2,a,i4,a,es14.6)') ' Warning: In symmetry ',ISYM,', orbital p=',NP, &
-                                            ' has diagonal density matrix element D(p,p) close to two. (2 - D(p,p))=', &
-                                            2.0d0-DDIAG(NP)
+        write(u6,'(1x,a,i2,a,i4,a,es14.6)') ' Warning: In symmetry ',ISYM,', orbital p=',NP, &
+                                            ' has diagonal density matrix element D(p,p) close to two. (2 - D(p,p))=',Two-DDIAG(NP)
       end if
     end if
   end do
@@ -124,42 +125,42 @@ do ISYM=1,NSYM
     ! NR loops over inactive and active indices.
     do NR=1,NIA
       NPR = NPR+1
-      SXN(NPR) = 1.0d0
+      SXN(NPR) = One
       if (NR >= NP) GO TO 95
       DRR = DDIAG(NR)
       DPP = DDIAG(NP)
-      PRPR = -2.0d0*DPP
-      if (NP > NIA) PRPR = 0.0d0
+      PRPR = -Two*DPP
+      if (NP > NIA) PRPR = Zero
       if ((NR > NIO) .and. (NP <= NIA)) then
         NT = NP-NIO+IASHI
         NU = NR-NIO+IASHI
         NTU = ITRI(NT)+NU
         NTUTU = ITRI(NTU+1)
-        PRPR = -4.0d0*PA(NTUTU)
+        PRPR = -Four*PA(NTUTU)
       end if
       SXNRM2 = PRPR+DRR+DPP
-      if (SXNRM2 < -1.0D-12) then
+      if (SXNRM2 < -1.0e-12_wp) then
         call WarningMessage(1,'Negative norm occured in SXHAM.')
-        write(LF,*) 'SXHAM Error: Negative SXNRM2.'
-        write(LF,*) ' Symmetry block ISYM:',ISYM
-        write(LF,*) '      Orbitals NP,NR:',NP,NR
-        write(LF,*) '                PRPR:',PRPR
-        write(LF,*) '                 DRR:',DRR
-        write(LF,*) '                 DPP:',DPP
-        write(LF,*) '      Norm**2 SXNRM2:',SXNRM2
-        write(LF,*)
-        write(LF,*) ' The squared norm of a trial vector has been'
-        write(LF,*) ' computed to be negative.'
-        write(LF,*) ' This is possible only for some severe malfunction'
-        write(LF,*) ' of the rasscf program. Please issue a bug report.'
-        write(LF,*)
+        write(u6,*) 'SXHAM Error: Negative SXNRM2.'
+        write(u6,*) ' Symmetry block ISYM:',ISYM
+        write(u6,*) '      Orbitals NP,NR:',NP,NR
+        write(u6,*) '                PRPR:',PRPR
+        write(u6,*) '                 DRR:',DRR
+        write(u6,*) '                 DPP:',DPP
+        write(u6,*) '      Norm**2 SXNRM2:',SXNRM2
+        write(u6,*)
+        write(u6,*) ' The squared norm of a trial vector has been'
+        write(u6,*) ' computed to be negative.'
+        write(u6,*) ' This is possible only for some severe malfunction'
+        write(u6,*) ' of the rasscf program. Please issue a bug report.'
+        write(u6,*)
         call Quit(_RC_GENERAL_ERROR_)
       end if
 
-      if (SXNRM2 < 1.0D-12) then
-        SXN(NPR) = 0.0d0
+      if (SXNRM2 < 1.0e-12_wp) then
+        SXN(NPR) = Zero
       else
-        SXN(NPR) = 1.0d0/sqrt(SXNRM2)
+        SXN(NPR) = One/sqrt(SXNRM2)
       end if
 95    continue
     end do
@@ -181,7 +182,7 @@ do ISYM=1,NSYM
         F2(NAE*(NP-NIO-1)+NQ-NIO+ISTAE) = FP(IPQ)
         F2(NAE*(NQ-NIO-1)+NP-NIO+ISTAE) = FP(IPQ)
       end if
-      if ((NP <= NIO) .and. (NP == NQ)) DIA(ISTIA+NIA*(NP-1)+NP) = 2.0d0
+      if ((NP <= NIO) .and. (NP == NQ)) DIA(ISTIA+NIA*(NP-1)+NP) = Two
       if (((NP > NIO) .and. (NP <= NIA)) .and. NQ > NIO) then
         NT = NP-NIO
         NU = NQ-NIO
@@ -192,15 +193,15 @@ do ISYM=1,NSYM
     end do
   end do
   if (IPRLEV >= DEBUG) then
-    write(6,*) 'DIA in SXHAM:'
-    write(6,*) (DIA(ISTIA+i),i=1,NIA**2)
+    write(u6,*) 'DIA in SXHAM:'
+    write(u6,*) (DIA(ISTIA+i),i=1,NIA**2)
   end if
 
   ! Form the matrix DF (row index active, column index all orbitals)
 
   if (NAO /= 0) then
-    call DGEMM_('N','N',NAO,NAE,NAO,1.0d0,DIA(ISTIA+NIO*NIA+NIO+1),NIA,F2(ISTAE+1),NAE,0.0d0,DF(NAO*NIO+1),NAO)
-    if (NIO /= 0) call DGEMM_('N','N',NAO,NIO,NAO,1.0d0,DIA(ISTIA+NIO*NIA+NIO+1),NIA,F1(ISTIA+NIO+1),NIA,0.0d0,DF,NAO)
+    call DGEMM_('N','N',NAO,NAE,NAO,One,DIA(ISTIA+NIO*NIA+NIO+1),NIA,F2(ISTAE+1),NAE,Zero,DF(NAO*NIO+1),NAO)
+    if (NIO /= 0) call DGEMM_('N','N',NAO,NIO,NAO,One,DIA(ISTIA+NIO*NIA+NIO+1),NIA,F1(ISTIA+NIO+1),NIA,Zero,DF,NAO)
   end if
 
   ! compute the G matrix:
@@ -208,7 +209,7 @@ do ISYM=1,NSYM
   ! G(ti)=G(it)=-DF(ti)
   ! G(tu)=sum(vx)(2P(tuvx)-D(tu)D(vx))F(vx)
 
-  if (ExFac /= 1.0d0) then
+  if (ExFac /= One) then
     call Get_Temp('nP2Act  ',P2Act,1)
     nP2Act = int(P2Act(1))
     call Get_Temp('P2_RAW  ',P,nP2Act)
@@ -218,14 +219,14 @@ do ISYM=1,NSYM
       IPQ = ISTIA+NIA*(NP-1)+NQ
       IQP = ISTIA+NIA*(NQ-1)+NP
       if (NP <= NIO) then
-        G(IPQ) = -2.0d0*F1(IPQ)
+        G(IPQ) = -Two*F1(IPQ)
         G(IQP) = G(IPQ)
       else if ((NP > NIO) .and. (NQ <= NIO)) then
         G(IPQ) = -DF(NAO*(NQ-1)+NP-NIO)
         G(IQP) = G(IPQ)
       else if (NQ > NIO) then
         DTU = DIA(ISTIA+NIA*(NP-1)+NQ)
-        GTU = 0.0d0
+        GTU = Zero
         NTT = NP-NIO+IASHI
         NUT = NQ-NIO+IASHI
         NTUT = ITRI(NTT)+NUT
@@ -244,12 +245,12 @@ do ISYM=1,NSYM
               NVX = NVX+1
               NVXT = ITRI(NVT)+NXT
               NTUVX = ITRI(max(NTUT,NVXT))+min(NTUT,NVXT)
-              FAC = 2.0d0
-              FACD = 2.0d0
-              if (NV == NX) FACD = 1.0d0
+              FAC = Two
+              FACD = Two
+              if (NV == NX) FACD = One
               if (NTUT < NVXT) then
-                if ((NVT /= NXT) .and. (NTT == NUT)) FAC = 4.0d0
-                if ((NVT == NXT) .and. (NTT /= NUT)) FAC = 1.0d0
+                if ((NVT /= NXT) .and. (NTT == NUT)) FAC = Four
+                if ((NVT == NXT) .and. (NTT /= NUT)) FAC = One
               end if
               NVXF = ISTFPJ+ITRI(NV+NIOJ)+NX+NIOJ
               GTU = GTU+FP(NVXF)*(FAC*P(NTUVX)-FACD*DTU*D(NVX))
@@ -263,7 +264,7 @@ do ISYM=1,NSYM
       end if
     end do
   end do
-  if (ExFac /= 1.0d0) call Get_Temp('P2_KS   ',P,nP2Act)
+  if (ExFac /= One) call Get_Temp('P2_KS   ',P,nP2Act)
 
   ! FORM THE H MATRIX (only the nae*nao block is needed)
   ! H(tu)=G(tu)+DF(tu)+DF(ut)
@@ -289,8 +290,8 @@ do ISYM=1,NSYM
   NPR = ISTBM
   do NP=1,NAE
     FPP = F2(ISTAE+NAE*(NP-1)+NP)
-    HPP = 0.0d0
-    DPP = 0.0d0
+    HPP = Zero
+    DPP = Zero
     if (NP <= NAO) then
       HPP = H(ISTH+NAE*(NP-1)+NP)
       DPP = DIA(ISTIA+NIA*(NP+NIO-1)+NP+NIO)
@@ -307,14 +308,14 @@ do ISYM=1,NSYM
         NT = NP
         NU = NR-NIO
         if (NT <= NU) then
-          HDIAG(NPR+NROOT) = 1.d32
-          SXN(NPR) = 0.0d0
+          HDIAG(NPR+NROOT) = 1.0e32_wp
+          SXN(NPR) = Zero
         else
           NTU = ISTZ+ITRI(NT-1)+NU
           if (IZROT(NTU) /= 0) then
-            HDIAG(NPR+NROOT) = 1.d32
-            SXN(NPR) = 0.0d0
-            !write(LF,*) 'SXHAM. IZROT == 1 for NP,NR=',NP,NR
+            HDIAG(NPR+NROOT) = 1.0e32_wp
+            SXN(NPR) = Zero
+            !write(u6,*) 'SXHAM. IZROT == 1 for NP,NR=',NP,NR
           end if
         end if
       end if
@@ -322,28 +323,28 @@ do ISYM=1,NSYM
       ! Make HDIAG large for rotations forbidden by IXSYM input
 
       if (IXSYM(NR+IX) /= IXSYM(NP+NIO+IX)) then
-        !write(LF,*) 'SXHAM. IXSYM forbids NP,NR=',NP,NR
-        HDIAG(NPR+NROOT) = 1.d32
-        SXN(NPR) = 0.0d0
+        !write(u6,*) 'SXHAM. IXSYM forbids NP,NR=',NP,NR
+        HDIAG(NPR+NROOT) = 1.0e32_wp
+        SXN(NPR) = Zero
       end if
 
     end do
   end do
-  !write(LF,*) 'SXHAM: The IXSYM array='
-  !write(LF,'(1x,40i2)') (ixsym(i),i=1,ntot)
+  !write(u6,*) 'SXHAM: The IXSYM array='
+  !write(u6,'(1x,40i2)') (ixsym(i),i=1,ntot)
 
   ! Test print of all matrices
 
   if (IPRLEV >= DEBUG) then
-    write(LF,1000) ISYM
-    write(LF,1100) (DDIAG(I),I=1,NO)
-    write(LF,1200) (SXN(I),I=ISTBM+1,ISTBM+NIA*NAE)
-    write(LF,1300) (DF(I),I=1,NAO*NO)
-    write(LF,1400) (F1(I),I=ISTIA+1,ISTIA+NIA**2)
-    write(LF,1500) (F2(I),I=ISTAE+1,ISTAE+NAE**2)
-    write(LF,1600) (G(I),I=ISTIA+1,ISTIA+NIA**2)
-    write(LF,1700) (H(I),I=ISTH+1,ISTH+NAO*NAE)
-    write(LF,1800) (HDIAG(I),I=ISTBM+1+NROOT,ISTBM+NAE*NIA+NROOT)
+    write(u6,1000) ISYM
+    write(u6,1100) (DDIAG(I),I=1,NO)
+    write(u6,1200) (SXN(I),I=ISTBM+1,ISTBM+NIA*NAE)
+    write(u6,1300) (DF(I),I=1,NAO*NO)
+    write(u6,1400) (F1(I),I=ISTIA+1,ISTIA+NIA**2)
+    write(u6,1500) (F2(I),I=ISTAE+1,ISTAE+NAE**2)
+    write(u6,1600) (G(I),I=ISTIA+1,ISTIA+NIA**2)
+    write(u6,1700) (H(I),I=ISTH+1,ISTH+NAO*NAE)
+    write(u6,1800) (HDIAG(I),I=ISTBM+1+NROOT,ISTBM+NAE*NIA+NROOT)
   end if
 
   IASHI = IASHI+NAO
@@ -361,24 +362,24 @@ end do
 ! Level shift section
 
 XLEV = LVSHFT
-SXSHFT = 0.0d0
-HDMIN = 1.d32
+SXSHFT = Zero
+HDMIN = 1.0e32_wp
 do I=NROOT+1,NROOT+NSXS
   if (HDIAG(I) < HDMIN) HDMIN = HDIAG(I)
 end do
-SXSHFT = max(XLEV-HDMIN,0.0d0)
+SXSHFT = max(XLEV-HDMIN,Zero)
 
 ! no level shift if input (alpha) is zero
 
-if (LVSHFT == 0.0d0) SXSHFT = 0.0d0
+if (LVSHFT == Zero) SXSHFT = Zero
 do I=NROOT+1,NROOT+NSXS
   HDIAG(I) = HDIAG(I)+SXSHFT
 end do
-if (IPRLEV >= DEBUG) write(LF,1900) HDMIN,SXSHFT
+if (IPRLEV >= DEBUG) write(u6,1900) HDMIN,SXSHFT
 
 ! Add diagonal elements for the reference space (CI-states)
 
-HDIAG(1) = 0.0d0
+HDIAG(1) = Zero
 if (ICICP /= 0) then
   IROOT1 = IROOT(1)
   do I=1,NROOT

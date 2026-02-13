@@ -20,6 +20,7 @@ subroutine CMSScaleX(X,R,DeltaR,Qnew,Qold,RCopy,GDCopy,DgCopy,GDstate,GDOrbit,Dg
 
 use CMS, only: NCMSScale
 use rasscf_global, only: CMSThreshold, lRoots
+use Definitions, only: wp, u6
 
 implicit none
 integer nSPair, lRoots2, nGD, NAC2, nDDg
@@ -36,15 +37,15 @@ NScaleMax = 5
 do while ((Qold-Qnew) > CMSThreshold)
   NCMSScale = NCMSScale+1
   if (NCMSScale == nScaleMax) then
-    write(6,'(6X,A)') 'Scaling does not save Qaa from decreasing.'
-    write(6,'(6X,A)') 'Q_a-a decreases for this step.'
+    write(u6,'(6X,A)') 'Scaling does not save Qaa from decreasing.'
+    write(u6,'(6X,A)') 'Q_a-a decreases for this step.'
     Saved = .false.
     exit
   end if
   call DCopy_(lRoots2,RCopy,1,R,1)
   call DCopy_(nGD,GDCopy,1,GDState,1)
   call DCopy_(nGD,DgCopy,1,DgState,1)
-  call DScal_(nSPair,0.1d0,X,1)
+  call DScal_(nSPair,0.1_wp,X,1)
 
   call UpDateRotMat(R,DeltaR,X,lRoots,nSPair)
   call RotGD(GDstate,DeltaR,nGD,lRoots,NAC2)

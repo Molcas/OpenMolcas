@@ -25,6 +25,8 @@ subroutine ExpMat_Inner(R,X,nLen)
 ! showing the resource of this algorithm and his code for reference.
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp
 
 implicit none
 integer nLen, nLen2
@@ -38,7 +40,7 @@ real*8 Coeff
 nLen2 = nLen**2
 
 !Step 1 calculate X2
-call DGEMM_('n','n',nLen,nLen,nLen,1.0d0,X,nLen,X,nLen,0.0d0,X2,nLen)
+call DGEMM_('n','n',nLen,nLen,nLen,One,X,nLen,X,nLen,Zero,X2,nLen)
 
 !Step 2 diagonalize X2
 call GetDiagScr(nScrDiag,X2,Scr,nLen)
@@ -47,7 +49,7 @@ call DSYEV_('V','U',nLen,X2,nLen,tau2,ScrDiag,nScrDiag,INFO)
 call mma_deallocate(ScrDiag)
 
 do I=1,nLen
-  tau(I) = dsqrt(dabs(tau2(I)))
+  tau(I) = sqrt(abs(tau2(I)))
 end do
 
 !Step 3 build cos part of R matrix
@@ -56,23 +58,23 @@ do I=1,nLen
   call DScal_(nLen,cos(tau(I)),CosPart((I-1)*nLen+1),1)
 end do
 
-call DGEMM_('n','t',nLen,nLen,nLen,1.0d0,CosPart,nLen,X2,nLen,0.0d0,Scr,nLen)
+call DGEMM_('n','t',nLen,nLen,nLen,One,CosPart,nLen,X2,nLen,Zero,Scr,nLen)
 ! R = W * cos(tau) * W^T
 call DCopy_(nLen2,Scr,1,R,1)
 !Step 4 build sin part of R matrix
 call DCopy_(nLen2,X2,1,SinPart,1)
 do I=1,nLen
-  if (tau(I) < 1.0d-8) then
-    Coeff = 1.0d0
+  if (tau(I) < 1.0e-8_wp) then
+    Coeff = One
   else
     Coeff = sin(tau(I))/tau(I)
   end if
   call DScal_(nLen,Coeff,SinPart((I-1)*nLen+1),1)
 end do
 
-call DGEMM_('n','t',nLen,nLen,nLen,1.0d0,SinPart,nLen,X2,nLen,0.0d0,Scr,nLen)
+call DGEMM_('n','t',nLen,nLen,nLen,One,SinPart,nLen,X2,nLen,Zero,Scr,nLen)
 ! R  = R + W * tau^(-1) * sin(tau) * W^T * X
-call DGEMM_('n','n',nLen,nLen,nLen,1.0d0,Scr,nLen,X,nLen,1.0d0,R,nLen)
+call DGEMM_('n','n',nLen,nLen,nLen,One,Scr,nLen,X,nLen,One,R,nLen)
 
 return
 

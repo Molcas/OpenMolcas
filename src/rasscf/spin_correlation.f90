@@ -18,6 +18,7 @@ use rasscf_global, only: LRoots, iAdr15, nacpar, nacpr2
 use index_symmetry, only: one_el_idx_flatten, two_el_idx_flatten
 use general_data, only: JobIPH
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, u6
 
 implicit none
@@ -43,7 +44,7 @@ subroutine spin_correlation_driver(orb_range_p,orb_range_q,iroot)
 
   jDisk = iAdr15(3)
   call mma_allocate(spin_correlations,size(iroot))
-  spin_correlations(:) = 0.0_wp
+  spin_correlations(:) = Zero
 
   ! the following disk pointer logic is necessary, because a user may
   ! optimise less roots than included in the Davidson matrix, e.g.
@@ -81,13 +82,15 @@ end subroutine spin_correlation_driver
 function correlation_func(orb_range_p,orb_range_q,dmat,psmat,pamat) result(corr)
 !! extract spin-spin-correlation function from orbital resolved RDMs.
 
+  use Constants, only: Half
+
   real(wp) corr
   integer, intent(in) :: orb_range_p(:), orb_range_q(:)
   real(wp), intent(in) :: dmat(nacpar), psmat(nacpr2), pamat(nacpr2)
   integer :: rp, rq, p, q, pp, pppp, pqqp, ppqq
   real(wp) :: twordm_pqqp, twordm_ppqq, twordm_pppp, onerdm_pp
 
-  corr = 0.0_wp
+  corr = Zero
 
   do p=1,size(orb_range_p)
     do q=1,size(orb_range_q)
@@ -99,7 +102,7 @@ function correlation_func(orb_range_p,orb_range_q,dmat,psmat,pamat) result(corr)
         twordm_pqqp = psmat(pqqp)-pamat(pqqp)
         twordm_ppqq = 2*(psmat(ppqq)+pamat(ppqq))
 
-        corr = corr-0.5_wp*(twordm_pqqp+0.5_wp*twordm_ppqq)
+        corr = corr-Half*(twordm_pqqp+Half*twordm_ppqq)
       else
         pppp = two_el_idx_flatten(rp,rp,rp,rp)
         pp = one_el_idx_flatten(rp,rp)

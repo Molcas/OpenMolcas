@@ -20,8 +20,10 @@ subroutine NStateOpt(RotMat,DDg)
 use CMS, only: CMSNotConverged
 use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax, iCMSIterMin
 use PrintLevel, only: USUAL
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, deg2rad
+use Definitions, only: u6
 
 implicit none
 real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
@@ -58,33 +60,33 @@ VeeSumOld = CalcNSumVee(RotMat,DDg)
 ICMSIter = 0
 do while (.not. Converged)
   do IPair=1,NPairs
-    theta(IPair) = 0.0d0
+    theta(IPair) = Zero
   end do
   ICMSIter = ICMSIter+1
   call ThetaOpt(FRot,theta,VeeSumNew,StatePair,NPairs,DDg)
   if (IPRLEV >= USUAL) then
     if (lRoots > 2) then
-      write(LF,'(6X,I4,8X,F16.8,8X,ES16.4E3)') ICMSIter,VeeSumNew,VeeSumNew-VeeSumOld
+      write(u6,'(6X,I4,8X,F16.8,8X,ES16.4E3)') ICMSIter,VeeSumNew,VeeSumNew-VeeSumOld
     else
-      write(LF,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') ICMSIter,asin(FRot(2,1))/atan(1.0d0)*45.0d0,VeeSumNew,VeeSumNew-VeeSumOld
+      write(u6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') ICMSIter,asin(FRot(2,1))/deg2rad,VeeSumNew,VeeSumNew-VeeSumOld
     end if
   end if
   if (abs(VeeSumNew-VeeSumOld) < Threshold) then
     if (ICMSIter >= ICMSIterMin) then
       Converged = .true.
-      if (IPRLEV >= USUAL) write(6,'(4X,A)') 'CONVERGENCE REACHED'
+      if (IPRLEV >= USUAL) write(u6,'(4X,A)') 'CONVERGENCE REACHED'
     end if
   else
     if (ICMSIter >= ICMSIterMax) then
       Converged = .true.
       CMSNotConverged = .true.
-      write(LF,'(4X,A)') 'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
-      write(LF,'(4X,A)') 'TEMPORARY ROTATION MATRIX SAVED'
+      write(u6,'(4X,A)') 'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+      write(u6,'(4X,A)') 'TEMPORARY ROTATION MATRIX SAVED'
     end if
   end if
   VeeSumOld = VeeSumNew
 end do
-if (IPRLEV >= USUAL) write(6,*) repeat('=',71)
+if (IPRLEV >= USUAL) write(u6,*) repeat('=',71)
 call Copy2DMat(RotMat,FRot,lRoots,lRoots)
 call mma_deallocate(StatePair)
 call mma_deallocate(theta)

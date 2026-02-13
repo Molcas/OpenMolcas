@@ -19,6 +19,7 @@ use linalg_mod, only: verify_
 use general_data, only: nActEl, iSpin
 use fortran_strings, only: str
 use stdalloc, only: mma_deallocate
+use Constants, only: Zero, Five, Ten
 use Definitions, only: wp
 
 implicit none
@@ -40,10 +41,10 @@ character(len=:), allocatable :: definedet
 real(wp) :: proje_changeref = 1.2_wp, &
             max_tau = 0.02_wp, &
             maxwalkerbloom = 2._wp, &
-            memoryfacpart = 5.0_wp, &
-            memoryfacspawn = 10.0_wp, & ! Default value for NECI RealSpawnCutOff
+            memoryfacpart = Five, &
+            memoryfacspawn = Ten, &     ! Default value for NECI RealSpawnCutOff
             realspawncutoff = 0.3_wp, & ! Default value for NECI diagonal shift value
-            diagshift = 0.00_wp, &
+            diagshift = Zero, &
             shiftdamp = 0.02_wp
 
 type :: t_RDMsampling

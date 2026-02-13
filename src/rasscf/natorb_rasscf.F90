@@ -25,8 +25,10 @@ subroutine NatOrb_RASSCF(CMOO,SCR1,SCR2,SMAT,CMON,OCCN)
 use rasscf_global, only: KSDFT, lRoots, NACPAR, NACPR2, iADR15, iTri
 use SplitCas_Data, only: DoSPlitCas, lRootSplit
 use PrintLevel, only: DEBUG, USUAL
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, JOBIPH, NASH, NBAS, NFRO, NISH, NTOT, NTOT2
+use Constants, only: Zero, One, Two
+use Definitions, only: u6
 
 implicit none
 real*8 CMOO(*), SCR1(*), SCR2(*), SMAT(*), CMON(*), OCCN(*)
@@ -40,8 +42,8 @@ jDisk = IADR15(3)
 if (.not. DoSplitCAS) then
   do kRoot=1,lRoots
     if ((KSDFT == 'SCF') .and. (IPRLEV >= USUAL)) then
-      write(LF,*)
-      write(LF,'(6X,A,I3)') 'Natural orbitals and occupation numbers for root',kRoot
+      write(u6,*)
+      write(u6,'(6X,A,I3)') 'Natural orbitals and occupation numbers for root',kRoot
     end if
     call DDaFile(JOBIPH,2,SCR1,NACPAR,jDisk)
     call DDaFile(JOBIPH,0,SCR1,NACPAR,jDisk)
@@ -49,7 +51,7 @@ if (.not. DoSplitCAS) then
     call DDaFile(JOBIPH,0,SCR1,NACPR2,jDisk)
     call DBLOCK(SCR1)
 
-    call dCopy_(NTOT,[0.0d0],0,OCCN,1)
+    call dCopy_(NTOT,[Zero],0,OCCN,1)
     call dCopy_(NTOT2,CMOO,1,CMON,1)
 
     ID = 0
@@ -66,13 +68,12 @@ if (.not. DoSplitCAS) then
 
       ! set occupation number of frozen and inactive orbitals
 
-      call dCopy_(NFI,[2.0d0],0,OCCN(IB+1),1)
+      call dCopy_(NFI,[Two],0,OCCN(IB+1),1)
 
       ! Diagonalize the density matrix and transform orbitals
 
       if (NAO > 0) then
-        call dCopy_(NAO*NAO,[0.0d0],0,SCR2,1)
-        call dCopy_(NAO,[1.0d0],0,SCR2,NAO+1)
+        call unitmat(SCR2,NAO)
         call JACOB(SCR1(ID+1),SCR2,NAO,NAO)
         II = 0
         do I=1,NAO
@@ -81,9 +82,9 @@ if (.not. DoSplitCAS) then
         end do
         IST = IO+1
         IEND = IO+NAO
-        if ((KSDFT == 'SCF') .and. (IPRLEV >= USUAL)) write(LF,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))') 'sym',iSym,':', &
+        if ((KSDFT == 'SCF') .and. (IPRLEV >= USUAL)) write(u6,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))') 'sym',iSym,':', &
                                                                                                         (OCCN(I),I=IST,IEND)
-        call DGEMM_('N','N',NB,NAO,NAO,1.0d0,CMOO(ISTMO+1),NB,SCR2,NAO,0.0d0,CMON(ISTMO+1),NB)
+        call DGEMM_('N','N',NB,NAO,NAO,One,CMOO(ISTMO+1),NB,SCR2,NAO,Zero,CMON(ISTMO+1),NB)
       end if
 
       ID = ID+NA1
@@ -113,17 +114,17 @@ if (.not. DoSplitCAS) then
     !end do
 
     if (IPRLEV >= DEBUG) then
-      write(LF,*)
-      write(LF,*) ' CMON in NATORB_RASSCF after ORDER_ARRAYS'
-      write(LF,*) ' ---------------------'
-      write(LF,*)
+      write(u6,*)
+      write(u6,*) ' CMON in NATORB_RASSCF after ORDER_ARRAYS'
+      write(u6,*) ' ---------------------'
+      write(u6,*)
       ioff = 0
       do iSym=1,nSym
         iBas = nBas(iSym)
         if (iBas /= 0) then
-          write(6,*) 'Sym =',iSym
+          write(u6,*) 'Sym =',iSym
           do i=1,iBas
-            write(6,*) (CMON(ioff+iBas*(i-1)+j),j=1,iBas)
+            write(u6,*) (CMON(ioff+iBas*(i-1)+j),j=1,iBas)
           end do
           iOff = iOff+(iBas*iBas)
         end if
@@ -138,8 +139,8 @@ if (.not. DoSplitCAS) then
 
 else ! if DoSplitCAS (GLMJ)...
   if ((KSDFT == 'SCF') .and. (IPRLEV >= USUAL)) then
-    write(LF,*)
-    write(LF,'(6X,A,I3)') 'Natural orbitals and occupation numbers for root',lRootSplit
+    write(u6,*)
+    write(u6,'(6X,A,I3)') 'Natural orbitals and occupation numbers for root',lRootSplit
   end if
   call DDaFile(JOBIPH,2,SCR1,NACPAR,jDisk)
   call DDaFile(JOBIPH,0,SCR1,NACPAR,jDisk)
@@ -147,7 +148,7 @@ else ! if DoSplitCAS (GLMJ)...
   call DDaFile(JOBIPH,0,SCR1,NACPR2,jDisk)
   call DBLOCK(SCR1)
 
-  call dCopy_(NTOT,[0.0d0],0,OCCN,1)
+  call dCopy_(NTOT,[Zero],0,OCCN,1)
   call dCopy_(NTOT2,CMOO,1,CMON,1)
 
   ID = 0
@@ -164,13 +165,12 @@ else ! if DoSplitCAS (GLMJ)...
 
     ! set occupation number of frozen and inactive orbitals
 
-    call dCopy_(NFI,[2.0d0],0,OCCN(IB+1),1)
+    call dCopy_(NFI,[Two],0,OCCN(IB+1),1)
 
     ! Diagonalize the density matrix and transform orbitals
 
     if (NAO > 0) then
-      call dCopy_(NAO*NAO,[0.0d0],0,SCR2,1)
-      call dCopy_(NAO,[1.0d0],0,SCR2,NAO+1)
+      call unitmat(SCR2,NAO)
       call JACOB(SCR1(ID+1),SCR2,NAO,NAO)
       II = 0
       do I=1,NAO
@@ -179,9 +179,9 @@ else ! if DoSplitCAS (GLMJ)...
       end do
       IST = IO+1
       IEND = IO+NAO
-      if ((KSDFT == 'SCF') .and. (IPRLEV >= USUAL)) write(LF,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))') 'sym',iSym,':', &
+      if ((KSDFT == 'SCF') .and. (IPRLEV >= USUAL)) write(u6,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))') 'sym',iSym,':', &
                                                                                                       (OCCN(I),I=IST,IEND)
-      call DGEMM_('N','N',NB,NAO,NAO,1.0d0,CMOO(ISTMO+1),NB,SCR2,NAO,0.0d0,CMON(ISTMO+1),NB)
+      call DGEMM_('N','N',NB,NAO,NAO,One,CMOO(ISTMO+1),NB,SCR2,NAO,Zero,CMON(ISTMO+1),NB)
     end if
 
     ID = ID+NA1

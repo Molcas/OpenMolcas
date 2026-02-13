@@ -44,10 +44,10 @@ subroutine Ovlp(iWay,C1,C2,Smat)
 
 use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: NAC
-use output_ras, only: LF
 use general_data, only: NSYM, NASH, NBAS, NFRO, NISH, NTOT1
-use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer iWay
@@ -71,15 +71,15 @@ iSyLbl = 1
 Label = 'Mltpl  0'
 call RdOne(iRc,iOpt,Label,iComp,OAO,iSyLbl)
 if (iRc /= 0) then
-  write(LF,*)
-  write(LF,*) ' *** Error in subroutine Ovlp ***'
-  write(LF,*) ' premature abort in subroutine RdOne'
-  write(LF,*) ' reading label: ',Label
-  write(LF,*) ' RASSCF is trying to orthonormalize orbitals but'
-  write(LF,*) ' could not read overlaps from ONEINT. Something'
-  write(LF,*) ' is wrong with the file, or possibly with the'
-  write(LF,*) ' program. Please check.'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' *** Error in subroutine Ovlp ***'
+  write(u6,*) ' premature abort in subroutine RdOne'
+  write(u6,*) ' reading label: ',Label
+  write(u6,*) ' RASSCF is trying to orthonormalize orbitals but'
+  write(u6,*) ' could not read overlaps from ONEINT. Something'
+  write(u6,*) ' is wrong with the file, or possibly with the'
+  write(u6,*) ' program. Please check.'
+  write(u6,*)
   call Quit(_RC_IO_ERROR_READ_)
 end if
 
@@ -97,8 +97,8 @@ do iSym=1,nSym
     call mma_allocate(Scr1,nBs*nBs,Label='Scr1')
     call mma_allocate(Scr2,nBs*nBs,Label='Scr2')
     call Square(OAO(ipO),Scr1,1,nBs,nBs)
-    call DGEMM_('N','N',nBs,nBs,nBs,1.0d0,Scr1,nBs,C1(ipC),nBs,0.0d0,Scr2,nBs)
-    call DGEMM_('T','N',nBs,nBs,nBs,1.0d0,C2(ipC),nBs,Scr2,nBs,0.0d0,Scr1,nBs)
+    call DGEMM_('N','N',nBs,nBs,nBs,One,Scr1,nBs,C1(ipC),nBs,Zero,Scr2,nBs)
+    call DGEMM_('T','N',nBs,nBs,nBs,One,C2(ipC),nBs,Scr2,nBs,Zero,Scr1,nBs)
     if (iWay == 0) then
       ij = 1
       do iOrb=1,nBs

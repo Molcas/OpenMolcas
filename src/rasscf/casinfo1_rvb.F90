@@ -11,7 +11,7 @@
 
 subroutine casinfo1_rvb()
 
-use Definitions, only: iwp
+use Definitions, only: iwp, u6
 
 implicit none
 logical(kind=iwp) iphex, oldex
@@ -19,19 +19,19 @@ integer(kind=iwp) :: nel_c, norb_c, i2s_c, isym_c, neltot_c
 integer(kind=iwp) :: ireturn_rasscf
 
 ! Information from molcas interface file 'JOBIPH' :
-write(6,'(a)') ' ------- Recover RASSCF-related information --------------------------------------'
+write(u6,'(a)') ' ------- Recover RASSCF-related information --------------------------------------'
 call f_inquire('JOBIPH',iphex)
 call f_inquire('JOBOLD',oldex)
 if (iphex) then
-  write(6,'(/,a)') ' Using JOBIPH interface file.'
+  write(u6,'(/,a)') ' Using JOBIPH interface file.'
   !call systemf('cp -p JOBIPH JOBOLD')
   call Copy_JobIph('JOBIPH','JOBOLD')
 else if (oldex) then
-  write(6,'(/,a)') ' Using JOBOLD interface file.'
+  write(u6,'(/,a)') ' Using JOBOLD interface file.'
   !call systemf('cp -p JOBOLD JOBIPH')
   call Copy_JobIph('JOBOLD','JOBIPH')
 else
-  write(6,'(/,a)') ' Error: need either JOBOLD or JOBIPH file!'
+  write(u6,'(/,a)') ' Error: need either JOBOLD or JOBIPH file!'
   call abend_cvb()
 end if
 
@@ -42,6 +42,6 @@ call clsfls_rasscf()
 ! rasscf will have overwritten jobiph ...
 !call systemf('cp -p JOBOLD JOBIPH')
 call Copy_JobIph('JOBOLD','JOBIPH')
-write(6,'(a)') ' ------- RASSCF-related information recovered ------------------------------------'
+write(u6,'(a)') ' ------- RASSCF-related information recovered ------------------------------------'
 
 end subroutine casinfo1_rvb

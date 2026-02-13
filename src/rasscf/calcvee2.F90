@@ -18,6 +18,7 @@
 subroutine CalcVee2(Vee,GD,Gtuvx)
 
 use rasscf_global, only: lRoots, NAC
+use Constants, only: Zero, Half
 
 implicit none
 real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GD
@@ -27,7 +28,7 @@ integer I, t, u, v, x, III
 #include "warnings.h"
 
 do I=1,lRoots
-  Vee(I) = 0.0d0
+  Vee(I) = Zero
   III = I*(I+1)/2
   do t=1,nac
     do u=1,nac
@@ -38,7 +39,7 @@ do I=1,lRoots
       end do
     end do
   end do
-  Vee(I) = Vee(I)/2.0d0
+  Vee(I) = Vee(I)*Half
 end do
 
 end subroutine CalcVee2

@@ -24,9 +24,11 @@ subroutine rotorb(cmoo,cmon,c,x,x2,y,thmax,FA)
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: PURIFY, CMAX, ROTMAX, iXSym
 use PrintLevel, only: DEBUG, VERBOSE, TERSE
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NSSH, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u6
 
 implicit none
 character(len=16), parameter :: ROUTINE = 'ROTORB  '
@@ -35,21 +37,21 @@ real*8 y(*), FA(*), THMAX
 real*8 DAMPGAS(10), COREGAS(10)
 integer IDAMPGAS(0:4,0:4), ICOREGAS(0:4,0:4)
 logical iFrzAct
-real*8, parameter :: Thrs = 1.0D-14
+real*8, parameter :: Thrs = 1.0e-14_wp
 real*8, allocatable :: Unit(:), SqFA(:)
 integer I, IB, ICORE, IDAMP, IGAS, II, IJ, IO, iOff, iOrb, iPrLev, iSpace, IST, ISTBM, ISTMO, ISTMO1, ISUM, ISYM, jPr, jSPace, &
         MOType, NACI, NACJ, NAE, NAO, NB, NBO, ND, NDB, NEO, NF, NFB, NI, NII, NIO, NIO1, NJ, NO, NOC, NOC1, NP, NR
 real*8 TERM, THM, Xn, XX
-real*8, parameter :: ACC = 1.0D-13
+real*8, parameter :: ACC = 1.0e-13_wp
 
 IPRLEV = IPRLOC(4)
 if (IPRLEV >= DEBUG) then
-  write(LF,*) ' Entering ',ROUTINE
+  write(u6,*) ' Entering ',ROUTINE
 
-  write(LF,*)
-  write(LF,*) 'FI+FA in RotOrb by Unitary transform'
-  write(LF,*) ' --------------'
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) 'FI+FA in RotOrb by Unitary transform'
+  write(u6,*) ' --------------'
+  write(u6,*)
   iOff = 1
   do iSym=1,nSym
     iOrb = nOrb(iSym)
@@ -62,9 +64,9 @@ end if
 istbm = 1
 istmo1 = 0
 ib = 0
-rotmax = 0.0d0
-cmax = 0.0d0
-thmax = 0.0d0
+rotmax = Zero
+cmax = Zero
+thmax = Zero
 iOff = 1
 ! A long loop over symmetry
 do isym=1,nsym
@@ -79,7 +81,7 @@ do isym=1,nsym
   nae = nao+neo
   if ((noc == 0) .or. (nae == 0) .or. (nio+neo == 0)) then
 
-    if (IPRLEV >= VERBOSE) write(6,*) 'No rotations active for symmetry=',isym
+    if (IPRLEV >= VERBOSE) write(u6,*) 'No rotations active for symmetry=',isym
     !No rotations active in this symmetry
     !Move orbitals from old to new set
 
@@ -90,7 +92,7 @@ do isym=1,nsym
 
   ! Form the quadratic matrix X from the coefficients C
 
-  call dcopy_(no*no,[0.0d0],0,x,1)
+  call dcopy_(no*no,[Zero],0,x,1)
   do nr=1,noc
     do np=max(nr+1,nio+1),no
       jpr = no*(nr-1)+np
@@ -114,7 +116,7 @@ do isym=1,nsym
   do ni=1,no
     do nj=1,no
       ij = ij+1
-      if (ixsym(ni+io) /= ixsym(nj+io)) x(ij) = 0.0d0
+      if (ixsym(ni+io) /= ixsym(nj+io)) x(ij) = Zero
     end do
   end do
 
@@ -128,7 +130,7 @@ do isym=1,nsym
       do nj=1,no
         ij = ij+1
         !io = ib+nf ! offset counting all nbas of previous sym and nfro of current sym.
-        if ((ni > nio) .and. (ni < nio+nao) .or. (nj > nio) .and. (nj < nio+nao)) x(ij) = 0.0d0
+        if ((ni > nio) .and. (ni < nio+nao) .or. (nj > nio) .and. (nj < nio+nao)) x(ij) = Zero
       end do
     end do
   end if
@@ -142,12 +144,12 @@ do isym=1,nsym
 
   IDAMP = 0
   IDAMPGAS = 0
-  DAMPGAS = 0.0d0
+  DAMPGAS = Zero
   ICORE = 0
   ICOREGAS = 0
-  COREGAS = 0.1d0
-  !COREGAS(1) = 0.0D0
-  !COREGAS(2) = 0.0D0
+  COREGAS = 0.1_wp
+  !COREGAS(1) = Zero
+  !COREGAS(2) = Zero
   ICOREGAS(0,1) = 1
   ICOREGAS(1,0) = 2
   !ICOREGAS(0,2) = 1
@@ -158,7 +160,7 @@ do isym=1,nsym
   ICOREGAS(1,3) = 6
   ICOREGAS(1,4) = 1
   ICOREGAS(4,1) = 2
-  !write(6,*) 'NOC,NO',NOC,NO
+  !write(u6,*) 'NOC,NO',NOC,NO
   if ((ICORE == 1) .or. (IDAMP == 1)) then ! New keywords
 
     IJ = 0
@@ -195,7 +197,7 @@ do isym=1,nsym
       end if
 
       do NACJ=1,NO ! Over all orbitals due to counting
-        !write(6,*) 'NACI,NACJ',NACI,NACJ
+        !write(u6,*) 'NACI,NACJ',NACI,NACJ
         if (IDOGAS) then ! Find which GAS this index belong to
           JSPACE = 0
           if (NACJ <= NIO) then
@@ -222,7 +224,7 @@ do isym=1,nsym
           else if (NACJ > NOC) then
             JSPACE = 4
             !IJ = IJ+1
-            !write(6,*) 'IJ',IJ
+            !write(u6,*) 'IJ',IJ
             !cycle
           else if ((NRS1(ISYM)+NIO) >= NACJ) then
             JSPACE = 1
@@ -233,16 +235,16 @@ do isym=1,nsym
           end if
         end if
         IJ = IJ+1
-        write(6,*) 'NACI,NACJ',NACI,NACJ
-        write(6,*) 'ISPACE,JSPACE',ISPACE,JSPACE
-        write(6,*) 'IJ',IJ
+        write(u6,*) 'NACI,NACJ',NACI,NACJ
+        write(u6,*) 'ISPACE,JSPACE',ISPACE,JSPACE
+        write(u6,*) 'IJ',IJ
         if (IDAMP == 1) then
           if (IDAMPGAS(ISPACE,JSPACE) > 0) X(IJ) = X(IJ)*DAMPGAS(IDAMPGAS(ISPACE,JSPACE))
         else if (ICORE == 1) then
           if (ICOREGAS(ISPACE,JSPACE) > 0) then
-            write(6,*) ' damping'
-            write(6,*) 'ICOREGAS(ISPACE,JSPACE)',ICOREGAS(ISPACE,JSPACE)
-            write(6,*) 'fac',COREGAS(ICOREGAS(ISPACE,JSPACE))
+            write(u6,*) ' damping'
+            write(u6,*) 'ICOREGAS(ISPACE,JSPACE)',ICOREGAS(ISPACE,JSPACE)
+            write(u6,*) 'fac',COREGAS(ICOREGAS(ISPACE,JSPACE))
             X(IJ) = X(IJ)*COREGAS(ICOREGAS(ISPACE,JSPACE))
           end if
         end if
@@ -254,7 +256,7 @@ do isym=1,nsym
     do ni=1,no
       do nj=1,no
         ij = ij+1
-        write(6,*) 'ij,x(ij)',ij,x(ij)
+        write(u6,*) 'ij,x(ij)',ij,x(ij)
       end do
     end do
 
@@ -272,7 +274,7 @@ do isym=1,nsym
     do nj=1,no
       ij = ij+1
       if (abs(x(ij)) < Thrs) then
-        x(ij) = 0.0d0
+        x(ij) = Zero
         GO TO 40
       end if
       if (ni == nj) GO TO 40
@@ -289,42 +291,42 @@ do isym=1,nsym
   do ni=1,no
     if (ni <= nio) then
       motype = 1
-      xn = 0.0d0
+      xn = Zero
       do nii=1,nio
         xn = xn+x(ist+nii)**2
       end do
       if (IPRLEV >= TERSE) then
-        if (xn < 0.5d0) then
+        if (xn < Half) then
           call WarningMessage(1,'Large orbital rotation.')
-          write(LF,1010) ni,isym,motype,xn
+          write(u6,1010) ni,isym,motype,xn
         end if
       end if
     end if
     if ((ni > nio) .and. (ni <= noc)) then
       motype = 2
-      xn = 0.0d0
+      xn = Zero
       nio1 = nio+1
       do nii=nio1,noc
         xn = xn+x(ist+nii)**2
       end do
       if (IPRLEV >= TERSE) then
-        if (xn < 0.5d0) then
+        if (xn < Half) then
           call WarningMessage(1,'Large orbital rotation.')
-          write(LF,1010) ni,isym,motype,xn
+          write(u6,1010) ni,isym,motype,xn
         end if
       end if
     end if
     if (ni > noc) then
       motype = 3
       noc1 = noc+1
-      xn = 0.0d0
+      xn = Zero
       do nii=noc1,no
         xn = xn+x(ist+nii)**2
       end do
       if (IPRLEV >= TERSE) then
-        if (xn < 0.5d0) then
+        if (xn < Half) then
           call WarningMessage(1,'Large orbital rotation.')
-          write(LF,1010) ni,isym,motype,xn
+          write(u6,1010) ni,isym,motype,xn
         end if
       end if
     end if
@@ -338,20 +340,20 @@ do isym=1,nsym
 
   if (iprlev >= debug) then
     call recprt('X in RotOrb',' ',x,no,no)
-    write(6,*) 'FA for sym = ',iSym
-    write(6,*) 'iOff is set to = ',iOff
+    write(u6,*) 'FA for sym = ',iSym
+    write(u6,*) 'iOff is set to = ',iOff
     call TriPrt(' ',' ',FA(iOff),no)
   end if
 
   call mma_allocate(UNIT,no*no,Label='UNIT')
   call mma_allocate(SqFA,no*no,Label='SqFA')
-  Unit(:) = 0.0d0
-  SqFA(:) = 0.0d0
+  Unit(:) = Zero
+  SqFA(:) = Zero
   call Square(FA(iOff),SqFA,1,no,no)
   if (iprlev >= debug) call recprt('Square FA in RotOrb',' ',SqFA,no,no)
-  call DGEMM_('N','N',no,no,no,1.0d0,x,no,SqFA,no,0.0d0,UNIT,no)
+  call DGEMM_('N','N',no,no,no,One,x,no,SqFA,no,Zero,UNIT,no)
 
-  call DGEMM_('N','T',no,no,no,1.0d0,UNIT,no,x,no,0.0d0,SqFA,no)
+  call DGEMM_('N','T',no,no,no,One,UNIT,no,x,no,Zero,SqFA,no)
 
   call Fold_Mat(1,[no],SqFA,FA(iOff))
 
@@ -364,7 +366,7 @@ do isym=1,nsym
 
   ! Transform new orbitals to AO-basis
 
-  call DGEMM_('N','N',nb,no,no,1.0d0,cmoo(istmo+1),nb,x,no,0.0d0,cmon(istmo+1),nb)
+  call DGEMM_('N','N',nb,no,no,One,cmoo(istmo+1),nb,x,no,Zero,cmon(istmo+1),nb)
 
   ! Calculate max change in occupied molecular orbital coefficient
 
@@ -409,9 +411,9 @@ call ortho_rasscf(x2,cmoo,cmon,y)
 call dcopy_(ntot2,cmon,1,cmoo,1)
 
 if (iprlev >= debug) then
-  write(LF,*)
-  write(LF,*) ' >>> Exit RotOrb <<< '
-  write(LF,*)
+  write(u6,*)
+  write(u6,*) ' >>> Exit RotOrb <<< '
+  write(u6,*)
 end if
 
 end subroutine rotorb

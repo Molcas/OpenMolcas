@@ -43,9 +43,9 @@ subroutine gasprwf(NORB,NEL,IREFSM,ICONF,ISPIN,CICOEF,kcnf)
 !***********************************************************************
 
 use rasscf_global, only: PrwThr, nSm
-use output_ras, only: LF
 use spinfo, only: NTYP, MINOP, NCNFTP, NCSFTP
 use Molcas, only: MxAct
+use Definitions, only: u6
 
 implicit none
 integer nOrb, nEl
@@ -69,7 +69,7 @@ do iorb=1,norb
 end do
 iOff = iOff+norb+3
 Line(iOff:iOff+15) = '   Coeff Weight'
-write(LF,'(A)') Line(1:iOff+15)
+write(u6,'(A)') Line(1:iOff+15)
 Line = ' '
 
 ! Loop over configuration types
@@ -142,7 +142,7 @@ do ITYP=1,NTYP
       end do
       iOff = iOff+norb+3
       write(Line(iOff:),'(2F8.5)') COEF,COEF**2
-      write(LF,'(6X,A)') Line(1:iOff+15)
+      write(u6,'(6X,A)') Line(1:iOff+15)
       Line = ' '
 
     end do

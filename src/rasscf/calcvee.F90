@@ -18,6 +18,7 @@
 subroutine CalcVee(Vee,RMat,DDg)
 
 use rasscf_global, only: lRoots
+use Constants, only: Zero
 
 implicit none
 real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
@@ -27,7 +28,7 @@ integer IState, iJ, iK, iL, iM
 #include "warnings.h"
 
 do IState=1,lRoots
-  Vee(IState) = 0.0d0
+  Vee(IState) = Zero
   do iJ=1,lRoots
     do iK=1,lRoots
       do iL=1,lRoots
@@ -38,7 +39,7 @@ do IState=1,lRoots
     end do
   end do
   Vee(IState) = Vee(IState)/2
-  !write(6,'(A,I2,A,F10.6)') 'The classic coulomb energy for state ',IState,' is ',Vee(IState)
+  !write(u6,'(A,I2,A,F10.6)') 'The classic coulomb energy for state ',IState,' is ',Vee(IState)
 end do
 
 end subroutine CalcVee

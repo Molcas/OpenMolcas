@@ -21,8 +21,10 @@ subroutine SIGVEC(CIN,HC,HD,BM,SXN,G,H,DIA,F1,F2,X,C,NTRIAL)
 
 use rasscf_global, only: ICICP, ITER, NDIMSX, NROOT, NSXS, SXSHFT, IROOT, ENER
 use PrintLevel, only: DEBUG
-use output_ras, only: LF, IPRLOC
+use output_ras, only: IPRLOC
 use general_data, only: NSYM, NASH, NISH, NSSH, SXDAMP
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
 
 implicit none
 real*8 CIN(*), HC(*), BM(*), SXN(*), G(*), H(*), DIA(*), F1(*), F2(*), X(*), C(*)
@@ -33,7 +35,7 @@ integer :: I, iPrLev, ISTAE, ISTBM, ISTH, ISTIA, ISTZ, ISYM, ITRIAL, NAE, NAO, N
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(LF,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
 NST = 0
 do ITRIAL=1,NTRIAL
   NNST = NROOT+NST
@@ -46,11 +48,11 @@ do ITRIAL=1,NTRIAL
 
   ! Remove any unwanted rotations from C:
   do I=1,NSXS
-    if (HD(I+NROOT) > 1.0d20) C(I) = 0.0d0
+    if (HD(I+NROOT) > 1.0e20_wp) C(I) = Zero
   end do
 
   ! Initialize sigma vector to zero.
-  call DCOPY_(NROOT+NSXS,[0.0d0],0,HC(NST+1),1)
+  call DCOPY_(NROOT+NSXS,[Zero],0,HC(NST+1),1)
 
   ISTIA = 1
   ISTAE = 1
@@ -67,23 +69,23 @@ do ITRIAL=1,NTRIAL
 
     ! G-matrix contribution to HC (G*C)
 
-    call DGEMM_('N','N',NIA,NAE,NIA,1.0d0,G(ISTIA),NIA,C(ISTBM+NST),NIA,1.0d0,HC(ISTBM+NNST),NIA)
+    call DGEMM_('N','N',NIA,NAE,NIA,One,G(ISTIA),NIA,C(ISTBM+NST),NIA,One,HC(ISTBM+NNST),NIA)
 
     ! H-matrix contribution to HC (-C*H)
 
-    if (NAO /= 0) call DGEMM_('N','N',NIA,NAO,NAE,-1.0d0,C(ISTBM+NST),NIA,H(ISTH),NAE,1.0d0,HC(ISTBM+NNST),NIA)
-    if (NAO*NEO /= 0) call DGEMM_('N','T',NIA,NEO,NAO,-1.0d0,C(ISTBM+NST),NIA,H(ISTH+NAO),NAE,1.0d0,HC(ISTBM+NAO*NIA+NNST),NIA)
+    if (NAO /= 0) call DGEMM_('N','N',NIA,NAO,NAE,-One,C(ISTBM+NST),NIA,H(ISTH),NAE,One,HC(ISTBM+NNST),NIA)
+    if (NAO*NEO /= 0) call DGEMM_('N','T',NIA,NEO,NAO,-One,C(ISTBM+NST),NIA,H(ISTH+NAO),NAE,One,HC(ISTBM+NAO*NIA+NNST),NIA)
 
     ! First Fock matrix contribution D*C*FP
 
-    call DGEMM_('N','N',NIA,NAE,NAE,1.0d0,C(ISTBM+NST),NIA,F2(ISTAE),NAE,0.0d0,X,NIA)
-    call DGEMM_('N','N',NIA,NAE,NIA,1.0d0,DIA(ISTIA),NIA,X,NIA,1.0d0,HC(ISTBM+NNST),NIA)
+    call DGEMM_('N','N',NIA,NAE,NAE,One,C(ISTBM+NST),NIA,F2(ISTAE),NAE,Zero,X,NIA)
+    call DGEMM_('N','N',NIA,NAE,NIA,One,DIA(ISTIA),NIA,X,NIA,One,HC(ISTBM+NNST),NIA)
 
     ! Second Fock matrix contribution FP*C*D
 
     if (NAO /= 0) then
-      call DGEMM_('N','N',NIA,NAO,NIA,1.0d0,F1(ISTIA),NIA,C(ISTBM+NST),NIA,0.0d0,X,NIA)
-      call DGEMM_('N','N',NIA,NAO,NAO,1.0d0,X,NIA,DIA(ISTIA+NIA*NIO+NIO),NIA,1.0d0,HC(ISTBM+NNST),NIA)
+      call DGEMM_('N','N',NIA,NAO,NIA,One,F1(ISTIA),NIA,C(ISTBM+NST),NIA,Zero,X,NIA)
+      call DGEMM_('N','N',NIA,NAO,NAO,One,X,NIA,DIA(ISTIA+NIA*NIO+NIO),NIA,One,HC(ISTBM+NNST),NIA)
     end if
 
 98  ISTIA = ISTIA+NIA**2
@@ -105,8 +107,8 @@ do ITRIAL=1,NTRIAL
 
     ! BM contributions to CI part of sigma
 
-    !call DGEMTX(NSXS,NROOT,1.0D0,BM,NSXS,C,1,HC(NST+1),1)
-    call DGEMV_('T',NSXS,NROOT,1.0d0,BM,NSXS,C,1,1.0d0,HC(NST+1),1)
+    !call DGEMTX(NSXS,NROOT,One,BM,NSXS,C,1,HC(NST+1),1)
+    call DGEMV_('T',NSXS,NROOT,One,BM,NSXS,C,1,One,HC(NST+1),1)
 
     ! BM contributions to SX part of sigma
 
@@ -116,7 +118,7 @@ do ITRIAL=1,NTRIAL
 
   ! Remove any unwanted rotations:
   do I=1,NSXS
-    if (HD(I+NROOT) > 1.0d20) HC(I+NNST) = 0.0d0
+    if (HD(I+NROOT) > 1.0e20_wp) HC(I+NNST) = Zero
   end do
 
   ! Adding a constant times C to the HC vectors at this point
@@ -148,7 +150,7 @@ end do
 
 ! Test print out of the sigma vector
 
-if (IPRLEV >= DEBUG) write(LF,1000) (HC(I),I=1,NDIMSX)
+if (IPRLEV >= DEBUG) write(u6,1000) (HC(I),I=1,NDIMSX)
 1000 format(/1X,'Sigma vector in SIGVEC'/(1X,10F11.6))
 
 return

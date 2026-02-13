@@ -30,6 +30,7 @@ use index_symmetry, only: two_el_idx_flatten, one_el_idx_flatten
 use CI_solver_util, only: CleanMat, RDM_to_runfile
 use linalg_mod, only: abort_, verify_
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half
 use Definitions, only: wp, u6
 
 implicit none
@@ -86,8 +87,10 @@ subroutine read_neci_RDM(iroot,weight,tGUGA,ifinal,DMAT,DSPN,PSMAT,PAMAT)
   call mma_allocate(temp_PSMAT,size(PSMAT))
   call mma_allocate(temp_PAMAT,size(PAMAT))
 
-  DMAT(:) = 0.0_wp; DSPN(:) = 0.0_wp
-  PSMAT(:) = 0.0_wp; PAMAT(:) = 0.0_wp
+  DMAT(:) = Zero
+  DSPN(:) = Zero
+  PSMAT(:) = Zero
+  PAMAT(:) = Zero
 
   do i=1,NRoots
     do j=1,size(iroot)
@@ -113,8 +116,8 @@ subroutine read_neci_RDM(iroot,weight,tGUGA,ifinal,DMAT,DSPN,PSMAT,PAMAT)
 #         ifdef _HDF5_
           ! final iteration load decompressed 1PDMs in
           ! HDF5 file.
-          decompr_dmat(:,:) = 0.0_wp
-          decompr_dspn(:,:) = 0.0_wp
+          decompr_dmat(:,:) = Zero
+          decompr_dspn(:,:) = Zero
           decompr_dmat = expand_1rdm(temp_dmat)
           decompr_dspn = expand_1rdm(temp_dspn)
           call mh5_put_dset(wfn_dens,decompr_dmat,[nac,nac,1],[0,0,iroot(j)-1])
@@ -145,7 +148,7 @@ subroutine read_single_neci_GUGA_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
   real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
   integer :: file_id, isfreeunit, i, norb, iprlev
   logical :: tExist
-  real(wp) :: RDMval
+  real(wp) :: dum, RDMval
 
   if (myRank /= 0) then
     call bcast_2RDM('PSMAT.'//str(iroot))
@@ -160,8 +163,10 @@ subroutine read_single_neci_GUGA_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
   call f_Inquire('DMAT.'//str(iroot),tExist)
   call verify_(tExist,'DMAT.'//str(iroot)//' does not exist')
 
-  PSMAT(:) = 0.0_wp; PAMAT(:) = 0.0_wp
-  DMAT(:) = 0.0_wp; DSPN(:) = 0.0_wp
+  PSMAT(:) = Zero
+  PAMAT(:) = Zero
+  DMAT(:) = Zero
+  DSPN(:) = Zero
 
   file_id = IsFreeUnit(11)
   call Molcas_Open(file_id,'PSMAT.'//str(iroot))
@@ -197,7 +202,8 @@ subroutine read_single_neci_GUGA_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
 
   iprlev = iprloc(1)
   if (iprlev >= debug) then
-    norb = (int(sqrt(dble(1+8*size(DMAT))))-1)/2
+    dum = sqrt(real(1+8*size(DMAT),kind=wp))
+    norb = (int(dum)-1)/2
     call triprt('DMAT in neci2molcas',' ',DMAT,norb)
     call triprt('DSPN in neci2molcas',' ',DSPN,norb)
   end if
@@ -261,13 +267,14 @@ subroutine read_single_neci_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
 
   use PrintLevel, only: DEBUG
   use output_ras, only: IPRLOC
+  use Constants, only: One
 
   integer, intent(in) :: iroot
   real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
   integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq, pqrs, iread, norb, iprlev
   logical :: tExist, switch
   real*8 :: fac, RDMval, fcnacte
-  real*8 :: D_alpha(size(DMAT)), D_beta(size(DMAT))
+  real*8 :: dum, D_alpha(size(DMAT)), D_beta(size(DMAT))
 
   iprlev = iprloc(1)
   if (iprlev == debug) write(u6,*) 'Rank of process: ',MyRank
@@ -296,13 +303,13 @@ subroutine read_single_neci_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
     call verify_(tExist,'TwoRDM_baab.'//str(iroot)//' does not exist')
   end if
 
-  D_alpha(:) = 0.0d0
-  D_beta(:) = 0.0d0
-  PSMAT(:) = 0.0d0
-  PAMAT(:) = 0.0d0
+  D_alpha(:) = Zero
+  D_beta(:) = Zero
+  PSMAT(:) = Zero
+  PAMAT(:) = Zero
 
-  fac = merge(0.5d0,1.0d0,switch)
-  fcnacte = 1.0d0/dble(nactel-1)
+  fac = merge(Half,One,switch)
+  fcnacte = One/real(nactel-1,kind=wp)
 
   iUnit = IsFreeUnit(11)
   call Molcas_Open(iUnit,'TwoRDM_aaaa.'//str(iroot))
@@ -412,7 +419,7 @@ subroutine read_single_neci_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
   ! Copy D_beta to D_alpha and clean D_beta again for further use:
   if (.not. switch) then
     D_alpha(:) = D_beta(:)+D_alpha(:)
-    D_beta(:) = 0.0d0
+    D_beta(:) = Zero
   end if
   close(iunit)
   ! Processing TwoRDM-BABA
@@ -457,7 +464,7 @@ subroutine read_single_neci_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
   end do
   if (.not. switch) then
     D_alpha(:) = D_beta(:)+D_alpha(:)
-    D_beta(:) = 0.0d0
+    D_beta(:) = Zero
   end if
   close(iunit)
   ! Processing TwoRDM-BAAB
@@ -493,7 +500,8 @@ subroutine read_single_neci_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
   call cleanMat(DMAT)
 
   if (iprlev >= debug) then
-    norb = (int(sqrt(dble(1+8*size(DMAT))))-1)/2
+    dum = sqrt(real(1+8*size(DMAT),kind=wp))
+    norb = (int(dum)-1)/2
     call triprt('D_alpha in neci2molcas',' ',D_alpha,norb)
     call triprt('D_beta  in neci2molcas',' ',D_beta,norb)
     call triprt('DMAT in neci2molcas',' ',DMAT,norb)
@@ -527,28 +535,28 @@ subroutine dump_fciqmc_mats(dmat,dspn,psmat,pamat)
   funit = IsFreeUnit(11)
   call molcas_open(funit,'DMAT.1')
   do i=1,size(dmat)
-    if (abs(dmat(i)) > 1e-10) write(funit,'(i6,g25.17)') i,dmat(i)
+    if (abs(dmat(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,dmat(i)
   end do
   close(funit)
 
   funit = IsFreeUnit(11)
   call molcas_open(funit,'DSPN.1')
   do i=1,size(dspn)
-    if (abs(dspn(i)) > 1e-10) write(funit,'(i6,g25.17)') i,dspn(i)
+    if (abs(dspn(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,dspn(i)
   end do
   close(funit)
 
   funit = IsFreeUnit(11)
   call molcas_open(funit,'PSMAT.1')
   do i=1,size(psmat)
-    if (abs(psmat(i)) > 1e-10) write(funit,'(i6,g25.17)') i,psmat(i)
+    if (abs(psmat(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,psmat(i)
   end do
   close(funit)
 
   funit = IsFreeUnit(11)
   call molcas_open(funit,'PAMAT.1')
   do i=1,size(pamat)
-    if (abs(pamat(i)) > 1e-10) write(funit,'(i6,g25.17)') i,pamat(i)
+    if (abs(pamat(i)) > 1.0e-10_wp) write(funit,'(i6,g25.17)') i,pamat(i)
   end do
   close(funit)
 
@@ -572,7 +580,7 @@ function dspn_from_2rdm(psmat,pamat,dmat) result(dspn)
   do s=1,nAc
     do p=1,nAc
       if (p < s) cycle
-      intermed = 0.0_wp
+      intermed = Zero
       do k=1,nAc
         pk = one_el_idx_flatten(p,k)
         ks = one_el_idx_flatten(k,s)
@@ -641,14 +649,14 @@ subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
   call mma_allocate(indices,4,len4index(2))
   call mma_allocate(values,len4index(2))
   indices(:,:) = 0
-  values(:) = 0.0_wp
+  values(:) = Zero
   call mh5_fetch_dset(hdf5_group,'values',values)
   call mh5_fetch_dset(hdf5_group,'indices',indices)
   call mh5_close_group(hdf5_group)
   call mh5_close_file(hdf5_file)
 
-  rdm1_temp(:,:) = 0.0_wp
-  rdm2_temp(:,:,:,:) = 0.0_wp
+  rdm1_temp(:,:) = Zero
+  rdm2_temp(:,:,:,:) = Zero
   do i=1,len4index(2)
     p = indices(1,i)+1; q = indices(2,i)+1
     r = indices(3,i)+1; s = indices(4,i)+1
@@ -657,10 +665,10 @@ subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
   call mma_deallocate(indices)
   call mma_deallocate(values)
 
-  dmat(:) = 0.0_wp
-  dspn(:) = 0.0_wp
-  psmat(:) = 0.0_wp
-  pamat(:) = 0.0_wp
+  dmat(:) = Zero
+  dspn(:) = Zero
+  psmat(:) = Zero
+  pamat(:) = Zero
   do s=1,nAc
     do r=1,nAc
       do q=1,nAc
@@ -673,8 +681,8 @@ subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
             pqrs = one_el_idx_flatten(pq,rs)
             fac = merge(-1,1,p < q .neqv. r < s)
             n_rs = merge(2,1,r /= s)
-            psmat(pqrs) = 0.5_wp*n_rs*(rdm2_temp(p,q,r,s)+rdm2_temp(q,p,r,s))/2
-            pamat(pqrs) = 0.5_wp*n_rs*fac*(rdm2_temp(p,q,r,s)-rdm2_temp(q,p,r,s))/2
+            psmat(pqrs) = Half*n_rs*(rdm2_temp(p,q,r,s)+rdm2_temp(q,p,r,s))/2
+            pamat(pqrs) = Half*n_rs*fac*(rdm2_temp(p,q,r,s)-rdm2_temp(q,p,r,s))/2
           end if
         end do
       end do
@@ -704,11 +712,11 @@ subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
   if (iprlev >= debug) then
     write(u6,'(a)') 'PSMAT:'
     do p=1,size(psmat)
-      if (abs(psmat(p)) > 1e-7) write(u6,'(i6,g25.17)') p,psmat(p)
+      if (abs(psmat(p)) > 1.0e-7_wp) write(u6,'(i6,g25.17)') p,psmat(p)
     end do
     write(u6,'(a)') 'PAMAT:'
     do p=1,size(pamat)
-      if (abs(pamat(p)) > 1e-7) write(u6,'(i6,g25.17)') p,pamat(p)
+      if (abs(pamat(p)) > 1.0e-7_wp) write(u6,'(i6,g25.17)') p,pamat(p)
     end do
     call triprt('DMAT ',' ',dmat,nAc)
     call triprt('DSPN ',' ',dspn,nAc)

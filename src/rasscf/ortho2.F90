@@ -16,7 +16,8 @@ subroutine ORTHO2(S,U,V,N)
 !
 !      ****** IBM 3090 MOLCAS Release: 90 02 22 ******
 
-use output_ras, only: LF
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
 
 implicit none
 integer N
@@ -26,25 +27,25 @@ real*8, external :: DDot_
 integer I
 #include "warnings.h"
 
-THR = 1.D-10
+THR = 1.0e-10_wp
 if (N == 0) return
-call DGEMM_('N','N',N,1,N,1.0d0,S,N,U,N,0.0d0,V,N)
+call DGEMM_('N','N',N,1,N,One,S,N,U,N,Zero,V,N)
 SUM = DDOT_(N,U,1,V,1)
 if (SUM < THR) then
-  write(LF,*) ' TEST IN ORTHO2: N=',N
-  write(LF,'(1X,5G16.8)') (U(I),I=1,N)
-  write(LF,'(1X,5G16.8)') (V(I),I=1,N)
-  write(LF,*) ' Error in ORTHO2. Norm=',SUM
-  write(LF,*) ' RASSCF tried to orthonormalize orbitals, but'
-  write(LF,*) ' failed due to a condition that should not be'
-  write(LF,*) ' possible in a low-level subroutine. Either'
-  write(LF,*) ' some extremely strange orbitals have been'
-  write(LF,*) ' produced, or something is seriously wrong'
-  write(LF,*) ' with the program. Please check, and consider'
-  write(LF,*) ' issuing a bug report.'
+  write(u6,*) ' TEST IN ORTHO2: N=',N
+  write(u6,'(1X,5G16.8)') (U(I),I=1,N)
+  write(u6,'(1X,5G16.8)') (V(I),I=1,N)
+  write(u6,*) ' Error in ORTHO2. Norm=',SUM
+  write(u6,*) ' RASSCF tried to orthonormalize orbitals, but'
+  write(u6,*) ' failed due to a condition that should not be'
+  write(u6,*) ' possible in a low-level subroutine. Either'
+  write(u6,*) ' some extremely strange orbitals have been'
+  write(u6,*) ' produced, or something is seriously wrong'
+  write(u6,*) ' with the program. Please check, and consider'
+  write(u6,*) ' issuing a bug report.'
   call QUIT(_RC_GENERAL_ERROR_)
 end if
-X = 1.0d0/sqrt(SUM)
+X = One/sqrt(SUM)
 do I=1,N
   U(I) = X*U(I)
   V(I) = X*V(I)

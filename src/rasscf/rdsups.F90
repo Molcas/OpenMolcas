@@ -11,7 +11,7 @@
 
 subroutine RdSupS(LuInput,n,iBuff)
 
-use output_ras, only: LF
+use Definitions, only: u6
 
 implicit none
 !***********************************************************************
@@ -109,17 +109,17 @@ return
 !----------------------------------------------------------------------*
 !     Error exit                                                       *
 !----------------------------------------------------------------------*
-900 write(LF,*)
-write(LF,'(6X,A)') ' RASSCF was reading supersymmetry input from'
-write(LF,'(6X,A)') 'the input file, when some error occurred,'
-write(LF,'(6X,A)') 'probably end of file.'
-write(LF,*)
+900 write(u6,*)
+write(u6,'(6X,A)') ' RASSCF was reading supersymmetry input from'
+write(u6,'(6X,A)') 'the input file, when some error occurred,'
+write(u6,'(6X,A)') 'probably end of file.'
+write(u6,*)
 call Quit_OnUserError()
-910 write(LF,*)
-write(LF,'(6X,A)') ' RASSCF was reading supersymmetry input from'
-write(LF,'(6X,A)') 'the input file, when some error occurred.'
-write(LF,'(6X,A)') 'Some of the input data seems to be in error.'
-write(LF,*)
+910 write(u6,*)
+write(u6,'(6X,A)') ' RASSCF was reading supersymmetry input from'
+write(u6,'(6X,A)') 'the input file, when some error occurred.'
+write(u6,'(6X,A)') 'Some of the input data seems to be in error.'
+write(u6,*)
 call Quit_OnUserError()
 
 end subroutine RdSupS

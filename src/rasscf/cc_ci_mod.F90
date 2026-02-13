@@ -34,7 +34,8 @@ use mpi
 use Para_Info, only: Is_Real_Par
 use Definitions, only: MPIInt
 #endif
-use Definitions, only: wp
+use Constants, only: Zero
+use Definitions, only: wp, u6
 
 implicit none
 private
@@ -66,6 +67,7 @@ subroutine CC_CI_ctl(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_AO
 
   use fcidump_reorder, only: get_P_GAS, get_P_inp, ReOrFlag, ReOrInp
   use fcidump, only: make_fcidumps, transform
+  use Constants, only: Half
 
   class(CC_CI_solver_t),intent(in) :: this
   integer, intent(in) :: actual_iter, iroot(nroots), ifinal
@@ -88,7 +90,7 @@ subroutine CC_CI_ctl(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_AO
   if (size(iroot) >= 2) call abort_('SA-CC-CASSCF yet to be implemented.')
 
   ! SOME DIRTY SETUPS
-  S = 0.5_wp*dble(iSpin-1)
+  S = Half*real(iSpin-1,kind=wp)
 
   call check_options(lRoots,lRf,KSDFT,iDoGAS)
 
@@ -126,7 +128,7 @@ subroutine run_CC_CI(ascii_fcidmp,h5_fcidmp,fake_run,energy,D1S_MO,DMAT,PSMAT,PA
   character(len=*), intent(in) :: ascii_fcidmp, h5_fcidmp
   logical, intent(in) :: fake_run
   real(wp), intent(out) :: energy(nroots), D1S_MO(nAcPar), DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
-  !real(wp), save :: previous_energy = 0.0_wp
+  !real(wp), save :: previous_energy = Zero
   real(wp) :: previous_energy(nroots)
   character(len=*), parameter :: input_name = 'CC_CI.inp', energy_file = 'NEWCYCLE'
 
@@ -147,7 +149,7 @@ subroutine make_inp(input_name)
 
   character(len=*), intent(in) :: input_name
 
-  write(6,*) input_name
+  write(u6,*) input_name
   call abort_('make_inp has to be implemented.')
 
 end subroutine
@@ -173,9 +175,9 @@ function construct_CC_CI_solver_t() result(res)
 # endif
   ! Due to possible size of active space, arrays of nConf size
   ! need to be avoided.  For this reason set nConf to zero.
-  write(6,*) ' DCC-CI activated. List of Confs might get lengthy.'
-  write(6,*) ' Number of Configurations computed by GUGA: ',nConf
-  write(6,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
+  write(u6,*) ' DCC-CI activated. List of Confs might get lengthy.'
+  write(u6,*) ' Number of Configurations computed by GUGA: ',nConf
+  write(u6,*) ' nConf variable is set to zero to avoid JOBIPH i/o'
   nConf = 0
 
 end function
@@ -203,21 +205,21 @@ subroutine write_user_message(input_name,ascii_fcidmp,h5_fcidmp)
   integer :: err
 
   call getcwd_(WorkDir,err)
-  if (err /= 0) write(6,*) strerror_(get_errno_())
+  if (err /= 0) write(u6,*) strerror_(get_errno_())
 
-  write(6,'(A)') 'Run coupled cluster CI externally.'
-  write(6,'(A)') 'Get the (example) coupled cluster input:'
-  write(6,'(4x, A, 1x, A, 1x, A)') 'cp',real_path(input_name),'$CC_RUN_DIR'
-  write(6,'(A)') 'Get the ASCII formatted FCIDUMP:'
-  write(6,'(4x, A, 1x, A, 1x, A)') 'cp',real_path(ascii_fcidmp),'$CC_RUN_DIR'
-  write(6,'(A)') 'Or the HDF5 FCIDUMP:'
-  write(6,'(4x, A, 1x, A, 1x, A)') 'cp',real_path(h5_fcidmp),'$CC_RUN_DIR'
-  write(6,*)
-  write(6,'(A)') 'When finished do:'
+  write(u6,'(A)') 'Run coupled cluster CI externally.'
+  write(u6,'(A)') 'Get the (example) coupled cluster input:'
+  write(u6,'(4x, A, 1x, A, 1x, A)') 'cp',real_path(input_name),'$CC_RUN_DIR'
+  write(u6,'(A)') 'Get the ASCII formatted FCIDUMP:'
+  write(u6,'(4x, A, 1x, A, 1x, A)') 'cp',real_path(ascii_fcidmp),'$CC_RUN_DIR'
+  write(u6,'(A)') 'Or the HDF5 FCIDUMP:'
+  write(u6,'(4x, A, 1x, A, 1x, A)') 'cp',real_path(h5_fcidmp),'$CC_RUN_DIR'
+  write(u6,*)
+  write(u6,'(A)') 'When finished do:'
   ! TODO(Oskar, Thomas): Change accordingly
-  write(6,'(4x, A)') 'cp PSMAT.dat PAMAT.dat '//trim(WorkDir)
-  write(6,'(4x, A)') 'echo $your_RDM_Energy > '//real_path('NEWCYCLE')
-  call xflush(6)
+  write(u6,'(4x, A)') 'cp PSMAT.dat PAMAT.dat '//trim(WorkDir)
+  write(u6,'(4x, A)') 'echo $your_RDM_Energy > '//real_path('NEWCYCLE')
+  call xflush(u6)
 
 end subroutine write_user_message
 
@@ -244,7 +246,7 @@ subroutine read_CC_RDM(DMAT,D1S_MO,PSMAT,PAMAT)
     call cleanMat(DMAT)
   end if
   ! No spin resolved RDMs available at the moment.
-  D1S_MO(:) = 0.0
+  D1S_MO(:) = Zero
   ! Could be changed into non blocking BCast
 # ifdef _MOLCAS_MPP_
   if (is_real_par()) then
@@ -258,6 +260,8 @@ end subroutine read_CC_RDM
 
 subroutine calc_1RDM(PSMAT,DMAT)
 
+  use Constants, only: Two
+
   real(wp), intent(in) :: PSMAT(:)
   real(wp), intent(out) :: DMAT(:)
   debug_function_name('calc_1RDM')
@@ -265,14 +269,14 @@ subroutine calc_1RDM(PSMAT,DMAT)
 
   ASSERT(size(PSMAT) == triangular_number(size(DMAT)))
 
-  DMAT(:) = 0.0_wp
+  DMAT(:) = Zero
   do pq=1,size(DMAT)
     call one_el_idx(pq,p,q)
     do r=1,inv_triang_number(size(DMAT))
       DMAT(pq) = DMAT(pq)+PSMAT(two_el_idx_flatten(p,q,r,r))
     end do
   end do
-  DMAT(:) = DMAT(:)*2.0_wp/real(nActEl-1,kind=wp)
+  DMAT(:) = DMAT(:)*Two/real(nActEl-1,kind=wp)
 
 end subroutine calc_1RDM
 

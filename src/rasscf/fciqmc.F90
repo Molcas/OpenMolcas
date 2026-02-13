@@ -123,6 +123,7 @@ subroutine fciqmc_ctl(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_A
   use fcidump_reorder, only: get_P_GAS, get_P_inp, ReOrFlag, ReOrInp
   use fcidump, only: make_fcidumps, transform
   use rctfld_module, only: lRF
+  use Constants, only: Half
 
   class(fciqmc_solver_t),intent(in) :: this
   integer, intent(in) :: actual_iter, iroot(nroots), ifinal
@@ -137,7 +138,7 @@ subroutine fciqmc_ctl(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_A
   character(len=*), parameter :: ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
   ! some dirty setups
-  S = 0.5_wp*dble(iSpin-1)
+  S = Half*real(iSpin-1,kind=wp)
   call check_options(lRf,KSDFT)
   ! Produce a working FCIDUMP file
   if (ReOrFlag /= 0) then
@@ -180,7 +181,7 @@ subroutine fciqmc_ctl(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_A
                 h5_fcidmp=h5_fcidmp, &
                 GAS_spaces=GAS_spaces, &
                 GAS_particles=GAS_particles, &
-                reuse_pops=(actual_iter >= 5) .and. (abs(rotmax) < 1.0d-2), &
+                reuse_pops=(actual_iter >= 5) .and. (abs(rotmax) < 1.0e-2_wp), &
                 NECIen=NECIen, &
                 iroot=iroot, &
                 weight=weight, &
@@ -204,6 +205,7 @@ subroutine run_neci(DoEmbdNECI,fake_run,ascii_fcidmp,h5_fcidmp,reuse_pops,NECIen
                     GAS_particles,tGUGA,ifinal)
 
   use fciqmc_make_inp, only: make_inp
+  use Constants, only: Zero
 
   logical, intent(in) :: DoEmbdNECI, fake_run, reuse_pops
   character(len=*), intent(in) :: ascii_fcidmp, h5_fcidmp
@@ -222,7 +224,7 @@ subroutine run_neci(DoEmbdNECI,fake_run,ascii_fcidmp,h5_fcidmp,reuse_pops,NECIen
 # endif
   if (.not. allocated(previous_NECIen)) then
     allocate(previous_NECIen(nroots))
-    previous_NECIen(:) = 0.0_wp
+    previous_NECIen(:) = Zero
   end if
   if (fake_run) then
     NECIen(:) = previous_NECIen(:)
@@ -300,7 +302,7 @@ subroutine write_ExNECI_message(input_name,ascii_fcidmp,h5_fcidmp,energy_file,tG
     write(u6,'(4x, a)') 'When finished '
     write(u6,'(8x, a)') 'cp $M7_RUN_DIR/M7.rdm.h5 '//trim(WorkDir)//'/M7.rdm.1.h5'
     write(u6,'(8x, A)') 'echo $your_RDM_Energy > '//real_path(energy_file)
-    call xflush(6)
+    call xflush(u6)
     return
   end if
   if (tGUGA) then
@@ -322,7 +324,7 @@ subroutine write_ExNECI_message(input_name,ascii_fcidmp,h5_fcidmp,energy_file,tG
     write(u6,'(4x, A)') 'cp TwoRDM_* '//trim(WorkDir)
   end if
   write(u6,'(4x, A)') 'echo $your_RDM_Energy > '//real_path(energy_file)
-  call xflush(6)
+  call xflush(u6)
 
 end subroutine write_ExNECI_message
 

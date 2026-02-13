@@ -17,13 +17,16 @@
 
 subroutine UpdateRotMat(RMat,ExpX,X,lRoots,nSPair)
 
+use Constants, only: Zero, One
+
+implicit none
 integer lRoots, nSPair
 real*8 X(nSPair)
 real*8 RMat(lRoots**2), RScr(lRoots**2)
 real*8 ExpX(lRoots**2)
 
 call ExpMat(ExpX,X,lRoots,nSPair)
-call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,RMat,lRoots,ExpX,lRoots,0.0d0,RScr,lRoots)
+call DGEMM_('n','n',lRoots,lRoots,lRoots,One,RMat,lRoots,ExpX,lRoots,Zero,RScr,lRoots)
 call DCopy_(lRoots**2,RScr,1,RMat,1)
 
 return

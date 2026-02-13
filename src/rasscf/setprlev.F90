@@ -13,6 +13,7 @@ subroutine SetPrLev(IPRGLB_IN,IPRLOC_IN)
 
 use PrintLevel, only: USUAL, DEBUG, SILENT
 use output_ras, only: IPRLOC, IPRGLB
+use Definitions, only: u6
 
 implicit none
 integer IPRGLB_IN, IPRLOC_IN(7)
@@ -46,10 +47,10 @@ if (REDUCE_PRT()) then
 end if
 
 if (IPRLOC(1) >= DEBUG) then
-  write(6,*) ' SetPrLev: Print levels have been set to'
-  write(6,*) '  Global print level IPRGLB=',IPRGLB
-  write(6,*) '  Individual sections print levels, IPRLOC:'
-  write(6,'(1x,7I5)') (IPRLOC(I),I=1,7)
+  write(u6,*) ' SetPrLev: Print levels have been set to'
+  write(u6,*) '  Global print level IPRGLB=',IPRGLB
+  write(u6,*) '  Individual sections print levels, IPRLOC:'
+  write(u6,'(1x,7I5)') (IPRLOC(I),I=1,7)
 end if
 
 end subroutine SetPrLev

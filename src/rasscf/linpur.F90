@@ -15,6 +15,8 @@ use rasscf_global, only: BName, IXSYM
 use general_data, only: NSYM, NBAS, NORB
 use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 real*8 CMO(*)
@@ -29,7 +31,7 @@ real*8 WGT, WMX
 ! for further use, or for testing.
 IFTEST = .false.
 
-if (IFTEST) write(6,*) 'SUPSYM'
+if (IFTEST) write(u6,*) 'SUPSYM'
 
 ! Set up array with lambda for each basis function:
 NBTOT = 0
@@ -63,7 +65,7 @@ do ISYM=1,NSYM
   do IO=1,NO
     IORB = IORBES+IO
     do L=0,9
-      WGTLMB(L) = 0.0d0
+      WGTLMB(L) = Zero
     end do
     do IB=1,NB
       IBAS = IBASES+IB
@@ -103,7 +105,7 @@ do ISYM=1,NSYM
   ! There are NONZ different values, so we want NONZ-1 special supsym
   ! labels for this symmetry. Reuse LMB for orbital numbers:
   ! This will be the supsym label:
-  if (IFTEST) write(6,*) NONZ-1
+  if (IFTEST) write(u6,*) NONZ-1
   ISSLAB = 0
   do L=MNL,MXL
     LCOUNT = 0
@@ -121,7 +123,7 @@ do ISYM=1,NSYM
         if (IXSYM(IORB) == L) IXSYM(IORB) = ISSLAB
       end do
       ! Lowest L = label zero = do not specify in input:
-      if (IFTEST .and. (ISSLAB > 0)) write(6,'(1x,I3,16I5,(/,5X,16I5))') LCOUNT,(LMB(i),i=1,LCOUNT)
+      if (IFTEST .and. (ISSLAB > 0)) write(u6,'(1x,I3,16I5,(/,5X,16I5))') LCOUNT,(LMB(i),i=1,LCOUNT)
       ISSLAB = ISSLAB+1
     end if
   end do
