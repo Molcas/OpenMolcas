@@ -17,17 +17,22 @@
 
 subroutine UpdateRotMat(RMat,ExpX,X,lRoots,nSPair)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer lRoots, nSPair
-real*8 X(nSPair)
-real*8 RMat(lRoots**2), RScr(lRoots**2)
-real*8 ExpX(lRoots**2)
+integer(kind=iwp) :: lRoots, nSPair
+real(kind=wp) :: RMat(lRoots**2), ExpX(lRoots**2), X(nSPair)
+real(kind=wp), allocatable :: RScr(:)
+
+call mma_allocate(RScr,lRoots**2,Label='RScr')
 
 call ExpMat(ExpX,X,lRoots,nSPair)
 call DGEMM_('n','n',lRoots,lRoots,lRoots,One,RMat,lRoots,ExpX,lRoots,Zero,RScr,lRoots)
 call DCopy_(lRoots**2,RScr,1,RMat,1)
+
+call mma_deallocate(RScr)
 
 return
 

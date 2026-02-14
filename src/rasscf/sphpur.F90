@@ -11,22 +11,22 @@
 
 subroutine SPHPUR(CMO)
 
-use define_af, only: iTabMx, AngTp
+use define_af, only: AngTp, iTabMx
 use rasscf_global, only: BName, IXSYM
-use general_data, only: NSYM, NBAS, NORB
+use general_data, only: NBAS, NORB, NSYM
 use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMO(*)
-character(len=1) LCHAR
-real*8 WGTLQN(0:9)
-logical IFTEST
-integer, allocatable :: LQN(:)
-integer I, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB, ISYM, ITP, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT, NO, NONZ
-real*8 WGT, WMX
+real(kind=wp) :: CMO(*)
+integer(kind=iwp) :: I, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB, ISYM, ITP, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, &
+                     NBTOT, NO, NONZ
+real(kind=wp) :: WGT, WGTLQN(0:9), WMX
+logical(kind=iwp) :: IFTEST
+character :: LCHAR
+integer(kind=iwp), allocatable :: LQN(:)
 
 ! Set IFTEST=.true. to get supsym input generated in the output
 ! for further use, or for testing.

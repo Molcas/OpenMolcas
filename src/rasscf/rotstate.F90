@@ -17,7 +17,7 @@
 
 subroutine RotState()
 
-use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15, Ener
+use rasscf_global, only: Ener, IADR15, ICMSP, ITER, IXMSP, LROOTS
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
 use general_data, only: JOBIPH, NCONF
@@ -25,16 +25,15 @@ use Molcas, only: MxRoot
 use RASDim, only: MxIter
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NHrot     ! storing info in H0_Rotate.txt
-integer NRState   ! storing info in Do_Rotate.txt
-integer rcidisk
-integer JRoot, IPRLEV
+integer(kind=iwp) :: i, iad15, IPRLEV, JRoot, NHrot, NRState, rcidisk
 character(len=18) :: MatInfo
-real*8, allocatable :: CIVEC(:,:), CIScr(:,:), HScr(:), State(:), HRot(:,:)
-integer i, iad15
+real(kind=wp), allocatable :: CIScr(:,:), CIVEC(:,:), HRot(:,:), HScr(:), State(:)
+
+! NHrot   : storing info in H0_Rotate.txt
+! NRState : storing info in Do_Rotate.txt
 
 IPRLEV = IPRLOC(3)
 

@@ -26,7 +26,7 @@ use Para_Info, only: Is_Real_Par
 use Definitions, only: MPIInt
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
@@ -35,26 +35,29 @@ public :: wait_and_read, RDM_to_runfile, rdm_from_runfile, cleanMat, triangular_
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
-integer(MPIInt) :: error
-integer(MPIInt), parameter :: ROOT = 0_MPIInt
+integer(kind=MPIInt) :: error
+integer(kind=MPIInt), parameter :: ROOT = 0_MPIInt
 #include "mpi_interfaces.fh"
 #endif
 
 interface
   function isfreeunit(iseed)
-    integer :: isfreeunit
-    integer, intent(in) :: iseed
+    import :: iwp
+    integer(kind=iwp) :: isfreeunit
+    integer(kind=iwp), intent(in) :: iseed
   end function
 end interface
+
+#include "intent.fh"
 
 contains
 
 subroutine wait_and_read(filename,energy)
 
   character(len=*), intent(in) :: filename
-  real(wp), intent(out) :: energy(nroots)
-  logical :: newcycle_found
-  integer :: LuNewC, i
+  real(kind=wp), intent(out) :: energy(nroots)
+  logical(kind=iwp) :: newcycle_found
+  integer(kind=iwp) :: i, LuNewC
 
   newcycle_found = .false.
   do while (.not. newcycle_found)
@@ -90,11 +93,10 @@ end subroutine wait_and_read
 !>  @param[in,out] jDisk
 subroutine RDM_to_runfile(DMAT,D1S_MO,PSMAT,PAMAT,jDisk)
 
-# include "intent.fh"
   ! _IN_ is not a semantic IN, since DDAFILE is both a read and
   ! write routine. Redefinition to suppress compiler warning.
-  real(wp), intent(_IN_) :: DMAT(nAcpar), D1S_MO(nAcPar), PSMAT(nAcpr2), PAMAT(nAcpr2)
-  integer, intent(inout), optional :: jDisk
+  real(kind=wp), intent(_IN_) :: DMAT(nAcpar), D1S_MO(nAcPar), PSMAT(nAcpr2), PAMAT(nAcpr2)
+  integer(kind=iwp), intent(inout), optional :: jDisk
 
   ! Put it on the RUNFILE
   call Put_dArray('D1mo',DMAT,NACPAR)
@@ -116,11 +118,8 @@ end subroutine RDM_to_runfile
 
 subroutine rdm_from_runfile(dmat,d1s_mo,psmat,pamat,jdisk)
 
-# include "intent.fh"
-  ! _OUT_ is not a semantic OUT, since DDAFILE is both a read and
-  ! write routine. Redefinition to suppress compiler warning.
-  real(wp), intent(_OUT_) :: dmat(nacpar), d1s_mo(nacpar), psmat(nacpr2), pamat(nacpr2)
-  integer, intent(inout), optional :: jdisk
+  real(kind=wp), intent(out) :: dmat(nacpar), d1s_mo(nacpar), psmat(nacpr2), pamat(nacpr2)
+  integer(kind=iwp), intent(inout), optional :: jdisk
 
   call ddafile(jobiph,2,dmat,nacpar,jdisk)
   call ddafile(jobiph,2,d1s_mo,nacpar,jdisk)
@@ -155,12 +154,11 @@ subroutine CleanMat(MAT)
 
   use Constants, only: Zero, One, Two
 
-  real(wp), intent(inout) :: MAT(NacPar)
-  real(wp), allocatable :: EVC(:), Tmp(:), Tmp2(:), MAT_copy(:)
-  integer :: i, j
-  real(wp) :: trace
-  character(len=12), parameter :: routine = 'CleanMat'
-  logical :: cleanup_required
+  real(kind=wp), intent(inout) :: MAT(NacPar)
+  integer(kind=iwp) :: i, j
+  real(kind=wp) :: trace
+  logical(kind=iwp) :: cleanup_required
+  real(kind=wp), allocatable :: EVC(:), MAT_copy(:), Tmp(:), Tmp2(:)
 
   if (nacpar < 1) then
     write(u6,*) 'matrix size < 1.'
@@ -251,8 +249,8 @@ end subroutine cleanMat
 
 elemental function triangular_number(n)
 
-  integer :: triangular_number
-  integer, intent(in) :: n
+  integer(kind=iwp) :: triangular_number
+  integer(kind=iwp), intent(in) :: n
 
   triangular_number = n*(n+1)/2
 
@@ -263,18 +261,18 @@ elemental function inv_triang_number(n) result(res)
 
   use Constants, only: Half, Quart
 
-  integer, intent(in) :: n
-  integer :: res
+  integer(kind=iwp) :: res
+  integer(kind=iwp), intent(in) :: n
 
-  res = nint(-Half+sqrt(Quart+real(2*n,kind=wp)))
+  res = nint(sqrt(Quart+real(2*n,kind=wp))-Half)
 
 end function
 
 subroutine write_RDM(RDM,i_unit)
 
-  real(wp), intent(in) :: RDM(:)
-  integer, intent(in) :: i_unit
-  integer :: io_err, curr_line, i, n_lines, j
+  real(kind=wp), intent(in) :: RDM(:)
+  integer(kind=iwp), intent(in) :: i_unit
+  integer(kind=iwp) :: curr_line, i, io_err, j, n_lines
 
   if (myrank == 0) then
     n_lines = inv_triang_number(size(RDM))

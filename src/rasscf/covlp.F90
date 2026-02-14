@@ -20,25 +20,22 @@ subroutine COVLP(C1IN,C2IN,DIA,PA,SXN,C1,C2,X,OVL)
 !PAM01 Added: replace correct overlap by adding a diagonal
 !PAM01 quantity to the overlap of brillouin states.
 
-use rasscf_global, only: NROOT, NSXS, ITRI
+use rasscf_global, only: ITRI, NROOT, NSXS
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NASH, NISH, NSSH
+use general_data, only: NASH, NISH, NSSH, NSYM
 use Constants, only: Zero, One, Two, Four
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 C1IN(*), C2IN(*), DIA(*), SXN(*), X(*), C1(*), C2(*), PA(*)
-real*8 OVL
-character(len=16), parameter :: ROUTINE = 'COVLP   '
-integer iPrLev
-real*8 C1C2, FAC, OVLADD, PRQS, TERM
-real*8, external :: DDot_
-integer I, iAshI, iAshJ, iC1, iC2, ISTBM, ISTC2, iSTIA, ISYM, JSYM, NAE, NAEJ, NAO, NAOJ, NEO, NI, NIA, NIAJ, NIO, NIOJ, NP, NQ, &
-        NT, NTT, NTUT, NTUVX, NU, NUT, NV, NVT, NVXT, NX, NXT
+real(kind=wp) :: C1IN(*), C2IN(*), DIA(*), PA(*), SXN(*), C1(*), C2(*), X(*), OVL
+integer(kind=iwp) :: I, iAshI, iAshJ, iC1, iC2, iPrLev, ISTBM, ISTC2, iSTIA, ISYM, JSYM, NAE, NAEJ, NAO, NAOJ, NEO, NI, NIA, NIAJ, &
+                     NIO, NIOJ, NP, NQ, NT, NTT, NTUT, NTUVX, NU, NUT, NV, NVT, NVXT, NX, NXT
+real(kind=wp) :: C1C2, FAC, OVLADD, PRQS, TERM
+real(kind=wp), external :: DDot_
 
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering COVLP'
 !PAM02 Note structure of SX-vectors: First NROOT elements are special.
 !PAM02 Elements NROOT+1,..,NROOT+NSXS contain the usual SX elements.
 !PAM02 NROOT=1 always right now. Part of the code is prepared for using

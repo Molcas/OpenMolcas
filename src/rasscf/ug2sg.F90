@@ -25,26 +25,20 @@ subroutine UG2SG(NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,ICONF,ISPIN,IORD,ICI,JCJ,CC
 !          INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 !          UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 
-use gugx, only: SGS, CIS, EXS
-use spinfo, only: NTYP, MINOP, NCNFTP, NCSFTP
+use gugx, only: CIS, EXS, SGS
+use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
 use RASDim, only: MxRef
 use Constants, only: One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, MXROOTS
-integer ICONF(*), ISPIN(*)
-integer IORD(*)
-integer ICI(MXROOTS,*), JCJ(MXROOTS,*)
-real*8 CCI(MXROOTS,*)
-integer IWALK(mxAct)
-integer KCNF(mxAct)
-integer, external :: IPHASE
-integer nVert, nLev, nMidV, MxUp, MxDwn
-integer K, L, KREF, KROOT, ICSFJP, ICNBS0, IPBAS, ITYP, IOPEN, ICL, IC, ICNBS, IICSF, ICSBAS, IIBOP, IIBCL, JOCC, KOCC, ISG, IP, &
-        LPRINT, I, ISGNUM, KORB
-real*8 PHASE
+integer(kind=iwp) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ICONF(*), ISPIN(*), IORD(*), MXROOTS, ICI(MXROOTS,*), JCJ(MXROOTS,*)
+real(kind=wp) :: CCI(MXROOTS,*)
+integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ISGNUM, ITYP, &
+                     IWALK(mxAct), JOCC, K, KCNF(mxAct), KOCC, KORB, KREF, KROOT, L, LPRINT, MxDwn, MxUp, nLev, nMidV, nVert
+real(kind=wp) :: PHASE
+integer(kind=iwp), external :: IPHASE
 
 nLev = SGS%nLev
 nVert = SGS%nVert

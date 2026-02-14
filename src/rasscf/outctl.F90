@@ -32,70 +32,60 @@ use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use input_ras, only: KeyCION
-use rasscf_global, only: CBLBM, CMAX, DE, DoDMRG, ECAS, ESX, FDIAG, HalfQ, IBLBM, ICICH, iPCMRoot, iPT2, iRLXRoot, iSPDen, iSupSM, &
-                         iSymBB, ITER, JBLBM, kIVO, KSDFT, lRoots, MaxOrbOut, NAC, NACPAR, NACPR2, BName, NIN, NONEQ, nRoots, &
-                         NSEC, OutFmt1, RFPert, RLXGrd, RotMax, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, via_DFT, iRoot, Weight, &
-                         iCI, cCI, ixSym, iADR15, Ener
+use rasscf_global, only: BName, CBLBM, cCI, CMAX, DE, DoDMRG, ECAS, Ener, ESX, FDIAG, HalfQ, iADR15, IBLBM, iCI, ICICH, iPCMRoot, &
+                         iPT2, iRLXRoot, iRoot, iSPDen, iSupSM, iSymBB, ITER, ixSym, JBLBM, kIVO, KSDFT, lRoots, MaxOrbOut, NAC, &
+                         NACPAR, NACPR2, NIN, NONEQ, nRoots, NSEC, OutFmt1, RFPert, RLXGrd, RotMax, Tot_Charge, Tot_El_Charge, &
+                         Tot_Nuc_Charge, via_DFT, Weight
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
 use rasscf_global, only: DoBlockDMRG, MxDMRG
 #endif
 #ifdef _ENABLE_DICE_SHCI_
-use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_SampleN, dice_stoc, nRef_dice, diceOcc
+use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_SampleN, dice_stoc, diceOcc, nRef_dice
 #endif
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use rasscf_global, only: ChemPS2_blb, ChemPS2_lrestart, ChemPS2_Noise, ChemPS2_restart, Davidson_Tol, Do3RDM, HFOcc, &
                          Max_canonical, Max_Sweep, ThrE
 #endif
-#ifdef _DMRG_
-use qcmaquis_interface_cfg
-use qcmaquis_interface_utility_routines, only: print_dmrg_info
-#endif
-use PrintLevel, only: DEBUG, USUAL, TERSE, VERBOSE
+use PrintLevel, only: DEBUG, TERSE, USUAL, VERBOSE
 use output_ras, only: IPRLOC
-use general_data, only: NACTEL, NHOLE1, NELEC3, ISPIN, STSYM, NSYM, NTOT1, NCONF, NTOT, JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, &
-                        NRS1, NRS2, NRS3, NSSH, NSSH, NTOT2, CleanMask
+use general_data, only: CleanMask, ISPIN, JOBIPH, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, &
+                        NSSH, NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM
 use spinfo, only: NCSASM, NDTASM
-use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
+use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use Molcas, only: MxRoot
 use RASDim, only: MxRef
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMO(*), OCCN(*), SMAT(*)
-logical lOPTO
-character(len=16), parameter :: ROUTINE = 'OUTCTL  '
-character(len=8) Fmt2, Label
-character(len=3) lIrrep(8)
-character(len=80) Note
-character(len=120) Line
-logical FullMlk, get_BasisType
-logical Do_ESPF, lSave, Do_DM
-real*8 Temp(2,mxRoot)
-real*8, allocatable :: DSave(:), Tmp0(:), X1(:), X2(:), X3(:), X4(:), HEFF(:,:), CMON(:), DM(:), DMs(:,:), DState(:), X6(:), &
-                       CMOSO(:), EneTmp(:)
-integer, external :: Cho_X_GetTol
-real*8 Dum(1)
-integer iDum(56)
-real*8 CASDFT_Funct, EAV, EDC, Emv, Erel, vNentropy, xnu
-integer i, iAd03, iAd12, iAd14, iAd15, iCharge, iComp, iDimN, iDimO, iDimV, iEnd, iGAS, Ind, iOpt, iPrLev, iRC, iRC1, iRC2, iRef, &
-        iStart, iSyLbl, iSym, iTemp, iTol, j, kRoot, left, luTmp, NAO, nDCInt, nMVInt, NO
+real(kind=wp) :: CMO(*), OCCN(*), SMAT(*)
+logical(kind=iwp) :: lOPTO
+integer(kind=iwp) :: i, iAd03, iAd12, iAd14, iAd15, iCharge, iComp, iDimN, iDimO, iDimV, iDum(56), iEnd, iGAS, Ind, iOpt, iPrLev, &
+                     iRC, iRC1, iRC2, iRef, iStart, iSyLbl, iSym, iTemp, iTol, j, kRoot, left, luTmp, NAO, nDCInt, nMVInt, NO
+real(kind=wp) :: CASDFT_Funct, Dum(1), EAV, EDC, Emv, Erel, Temp(2,mxRoot), vNentropy, xnu
+logical(kind=iwp) :: Do_DM, Do_ESPF, FullMlk, get_BasisType, lSave
+character(len=120) :: Line
+character(len=80) :: Note
+character(len=8) :: Fmt2, Label
+character(len=3) :: lIrrep(8)
 #ifdef _ENABLE_CHEMPS2_DMRG_
-character(len=3) SNAC
-integer iHFOcc
+integer(kind=iwp) :: iHFOcc
+character(len=3) :: SNAC
 #endif
 #ifdef _ENABLE_DICE_SHCI_
-integer iref_dice
+integer(kind=iwp) :: iref_dice
 #endif
-integer, external :: IsFreeUnit
+real(kind=wp), allocatable :: CMON(:), CMOSO(:), DM(:), DMs(:,:), DSave(:), DState(:), EneTmp(:), HEFF(:,:), Tmp0(:), X1(:), &
+                              X2(:), X3(:), X4(:), X6(:)
+integer(kind=iwp), external :: Cho_X_GetTol, IsFreeUnit
 
 !----------------------------------------------------------------------*
 !     Start and define the paper width                                 *
 !----------------------------------------------------------------------*
 ! Local print level (if any)
 IPRLEV = IPRLOC(6)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering OUTCTL'
 
 ! Additional DFT correlation energy, if any
 CASDFT_Funct = Zero

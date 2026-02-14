@@ -30,47 +30,41 @@ subroutine OutCtlSplit(CMO,OCCN,SMAT,lOPTO)
 
 use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
-use rasscf_global, only: CBLBM, CMax, DE, ECAS, ESX, FDIAG, HALFQ, IBLBM, iPCMRoot, iSPDen, iSupSM, iSymBB, ITER, jBLBM, KSDFT, &
-                         NAC, NACPAR, NACPR2, BName, NIN, NONEQ, nRoots, NSEC, OutFmt1, RFPert, RlxGrd, RotMax, Tot_Charge, &
-                         Tot_El_Charge, Tot_Nuc_Charge, Via_DFT, ixSym, iADR15, IPT2, iRLXRoot, Ener
-use SplitCas_Data, only: MxIterSplit, ThrSplit, lRootSplit, EnerSplit, GapSpli, PerSplit, PerCSpli, iDimBlockA
-use PrintLevel, only: DEBUG, USUAL, TERSE, VERBOSE
+use rasscf_global, only: BName, CBLBM, CMax, DE, ECAS, Ener, ESX, FDIAG, HALFQ, iADR15, IBLBM, iPCMRoot, IPT2, iRLXRoot, iSPDen, &
+                         iSupSM, iSymBB, ITER, ixSym, jBLBM, KSDFT, NAC, NACPAR, NACPR2, NIN, NONEQ, nRoots, NSEC, OutFmt1, &
+                         RFPert, RlxGrd, RotMax, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, Via_DFT
+use SplitCas_Data, only: EnerSplit, GapSpli, iDimBlockA, lRootSplit, MxIterSplit, PerCSpli, PerSplit, ThrSplit
+use PrintLevel, only: DEBUG, TERSE, USUAL, VERBOSE
 use output_ras, only: IPRLOC
-use general_data, only: NACTEL, NHOLE1, NELEC3, ISPIN, STSYM, NSYM, NTOT1, NCONF, JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NRS1, &
-                        NRS2, NRS3, NSSH, NTOT, NTOT2, CleanMask
+use general_data, only: CleanMask, ISPIN, JOBIPH, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, &
+                        NSSH, NSYM, NTOT, NTOT1, NTOT2, STSYM
 use spinfo, only: NCSASM, NDTASM
-use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
+use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use Molcas, only: MxRoot
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=16), parameter :: ROUTINE = 'OUTCTL  '
-real*8, allocatable :: DSave(:)
+real(kind=wp) :: CMO(*), OCCN(*), SMAT(*)
+logical(kind=iwp) :: lOPTO
+integer(kind=iwp) :: i, IAD03, IAD12, IAD14, IAD15, iCharge, iComp, iDimN, iDimO, iDImV, iDum(56), iEnd, Ind, iOpt, iPrLev, iRC, &
+                     iRC1, iRC2, iStart, iSyLbl, iSym, iTemp, iTol, j, kRoot, left, LuTmp, NAO, nDCInt, nMVInt, NO
+real(kind=wp) :: CASDFT_Funct, Dum(1), EAV, Edc, Emv, EneTmp, Erel, percent, Temp(2,mxRoot)
+logical(kind=iwp) :: Do_ESPF, FullMlk, get_BasisType, lSave
+character(len=120) Line
+character(len=80) Note
 character(len=8) Fmt2, Label
 character(len=3) lIrrep(8)
-character(len=80) Note
-character(len=120) Line
-logical FullMlk, get_BasisType
-logical Do_ESPF, lSave, lOPTO
-real*8 CMO(*), OCCN(*), SMAT(*)
-real*8 Temp(2,mxRoot)
-real*8 Dum(1)
-integer iDum(56)
-integer, external :: Cho_X_GetTol
-real*8, allocatable :: Tmp0(:), X1(:), X2(:), X3(:), X4(:), CMON(:), D(:), X6(:), CMOSO(:)
-real*8 CASDFT_Funct, EAV, Edc, Emv, EneTmp, Erel, percent
-integer i, IAD03, IAD12, IAD14, IAD15, iCharge, iComp, iDimN, iDimO, iDImV, iEnd, Ind, iOpt, iPrLev, iRC, iRC1, iRC2, iStart, &
-        iSyLbl, iSym, iTemp, iTol, j, kRoot, left, LuTmp, NAO, nDCInt, nMVInt, NO
-integer, external :: IsFreeUnit
+real(kind=wp), allocatable :: CMON(:), CMOSO(:), D(:), DSave(:), Tmp0(:), X1(:), X2(:), X3(:), X4(:), X6(:)
+integer, external :: Cho_X_GetTol, IsFreeUnit
 
 !----------------------------------------------------------------------*
 !     Start and define the paper width                                 *
 !----------------------------------------------------------------------*
 ! Local print level (if any)
 IPRLEV = IPRLOC(6)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering OUTCTLSPLIT'
 
 ! Additional DFT correlation energy, if any
 CASDFT_Funct = Zero

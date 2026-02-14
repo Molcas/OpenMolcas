@@ -25,13 +25,16 @@
 
 subroutine ExpMat(M,A,DimM,LenA)
 
-implicit none
-integer DimM, LenA
-real*8 A(LenA)
-real*8 M(DimM**2)
-real*8 MatA(DimM**2)
-integer I, J, N, iIJ1, iIJ2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp) :: DimM, LenA
+real(kind=wp) :: M(DimM**2), A(LenA)
+integer(kind=iwp) :: I, iIJ1, iIJ2, J, N
+real(kind=wp), allocatable :: MatA(:)
+
+call mma_allocate(MatA,DimM**2,Label='MatA')
 N = DimM**2
 call FZero(MatA,N)
 do I=2,DimM
@@ -45,6 +48,7 @@ do I=2,DimM
 end do
 
 call ExpMat_Inner(M,MatA,DimM)
+call mma_deallocate(MatA)
 
 return
 

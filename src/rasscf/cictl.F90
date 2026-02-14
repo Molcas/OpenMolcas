@@ -53,76 +53,70 @@ subroutine CICtl(CMO,D,DS,P,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
 ! ****************************************************************
 
 #ifdef _DMRG_
-use qcmaquis_interface
-use qcmaquis_interface_cfg
+use qcmaquis_interface, only: qcmaquis_interface_get_overlap, qcmaquis_interface_run_dmrg, qcmaquis_interface_run_starting_guess, &
+                              qcmaquis_interface_set_param, qcmaquis_interface_update_integrals
+use qcmaquis_interface_cfg, only: dmrg_energy, dmrg_file, dmrg_orbital_space, dmrg_warmup, qcmaquis_param
 use qcmaquis_interface_utility_routines, only: fiedlerorder_length, file_name_generator, qcmaquis_interface_fcidump
 use lucia_data, only: RF1, RF2
 use RASWfn, only: wfn_dmrg_checkpoint
+use rasscf_global, only: DOFCIDump, Emy, TwoRDM_qcm
 use input_ras, only: KeyCION
-use rasscf_global, only: TwoRDM_qcm, DOFCIDump, Emy
 #endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
-use RASWfn, only: wfn_dens, wfn_spindens, wfn_cicoef
+use RASWfn, only: wfn_cicoef, wfn_dens, wfn_spindens
 #endif
 use csfbas, only: CONF
 use casvb_global, only: ifvb
-use CMS, only: iCMSOpt, CMSGiveOpt
+use CMS, only: CMSGiveOpt, iCMSOpt
 use rctfld_module, only: lRF
-use lucia_data, only: CFTP, PAtmp, Pscr, PTmp, DStmp, Dtmp
+use lucia_data, only: CFTP, DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 use wadr, only: FMO
-use gugx, only: SGS, CIS
+use gugx, only: CIS, SGS
 use sxci, only: IDXSX
-use general_data, only: CRVec
 use gas_data, only: iDoGAS
-use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
+use input_ras, only: KeyCIRF, KeyCISE, KeyPRSD
 use timers, only: TimeDens
-use rasscf_global, only: CMSStartMat, DoDMRG, ExFac, iCIRFRoot, ICMSP, IFCRPR, iPCMRoot, iRotPsi, ITER, IXMSP, KSDFT, l_casdft, &
-                         lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, IADR15, iRoot, Weight, Ener
-use SplitCas_Data, only: DoSPlitCas, MxIterSplit, ThrSplit, lRootSplit
+use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, ICMSP, IFCRPR, iPCMRoot, iRoot, iRotPsi, ITER, &
+                         IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
+use SplitCas_Data, only: DoSPlitCas, lRootSplit, MxIterSplit, ThrSplit
 use PrintLevel, only: DEBUG, INSANE, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: ISPIN, NACTEL, NCONF, NISH, JOBIPH, NASH, NTOT2, STSYM
-use DWSol, only: DWSolv!, DWSol_wgt
+use general_data, only: CRVec, ISPIN, JOBIPH, NACTEL, NASH, NCONF, NISH, NTOT2, STSYM
+use DWSol, only: DWSolv
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iFinal
-real*8 CMO(*), D(*), DS(*), P(*), PA(*), FI(*), FA(*), D1I(*), D1A(*), TUVX(*)
-logical Exist, Do_ESPF
-logical do_rotate
+real(kind=wp) :: CMO(*), D(*), DS(*), P(*), PA(*), FI(*), FA(*), D1I(*), D1A(*), TUVX(*)
+integer(kind=iwp) :: iFinal
+integer(kind=iwp) :: i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVecDet, mconf
+real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
+logical(kind=iwp) :: Do_ESPF, do_rotate, Exists
 character(len=128) :: filename
-integer, external :: IsFreeUnit
-character(len=16), parameter :: ROUTINE = 'CICTL   '
+real(kind=wp), allocatable :: CIV(:), CIVec(:), P2MO(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), RF(:), Temp(:), TmpD1S(:), TmpDS(:)
+integer, allocatable :: kCnf(:)
 #ifdef _HDF5_
-real*8, allocatable :: density_square(:,:)
+real(kind=wp), allocatable :: density_square(:,:)
 #endif
 #ifdef _DMRG_
-logical, external :: PCM_On
-character(len=2300) :: maquis_name_states
-character(len=2300) :: maquis_name_results
-logical :: rfh5DMRG
-logical :: doEntanglement
+integer(kind=iwp) :: iErr, ilen
+logical(kind=iwp) :: doEntanglement, rfh5DMRG
+character(len=2300) :: maquis_name_results, maquis_name_states
 character(len=:), allocatable :: fiedler_order_str
-real*8, allocatable :: d1all(:,:), d2all(:,:), spd1all(:,:)
-integer ilen, iErr
+real(kind=wp), allocatable :: d1all(:,:), d2all(:,:), spd1all(:,:)
+logical(kind=iwp), external :: PCM_On
 #endif
-real*8 rdum(1)
-real*8, allocatable :: CIV(:), RCT_F(:), RCT_FS(:), RCT(:), RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:), RF(:), Temp(:), CIVec(:)
-integer, allocatable :: kCnf(:)
-integer LuVecDet
-real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal, Time(2)
-real*8, external :: DDot_
-integer i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, mconf
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=wp), external :: DDot_
 #include "warnings.h"
 
 !PAM05 SymProd(i,j) = 1+ieor(i-1,j-1)
 ! Local print level (if any)
 IPRLEV = IPRLOC(3)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering CICTL'
 
 ! PAM 2017-05-23 Modify TUVX by adding a shift vector to TUVX, which has
 ! the effect of adding a scalar times a projector for doubly-occupied
@@ -819,8 +813,8 @@ if (lRF .and. KeyCISE .and. KeyCIRF .and. (IPCMROOT > 0)) then
   call Put_iScalar('RF CASSCF root',IPCMROOT)
   if (JPCMROOT /= IPCMROOT) write(u6,'(1X,A,I3,A,I3)') 'RF Root has flipped from ',JPCMROOT,' to ',IPCMROOT
 else if (lRF .and. (IPCMROOT > 0)) then
-  call Qpg_iScalar('RF CASSCF root',Exist)
-  if (.not. Exist) then
+  call Qpg_iScalar('RF CASSCF root',Exists)
+  if (.not. Exists) then
 
     ! We are here since we are using the default values.
 
@@ -830,12 +824,12 @@ else if (lRF .and. (IPCMROOT > 0)) then
 
   mconf = 0
   call mma_allocate(RF,nConf,Label='RF')
-  call Qpg_dArray('RF CASSCF Vector',Exist,mConf)
+  call Qpg_dArray('RF CASSCF Vector',Exists,mConf)
 
   !> check whether the rf target h5 file exists (needed at this
   ! point for numerical gradient calculations)
 # ifdef _DMRG_
-  if (doDMRG .and. exist) then
+  if (doDMRG .and. Exists) then
     call f_inquire('rf.results_state.h5',rfh5DMRG)
     if (.not. rfh5DMRG) then
       maquis_name_states = ''
@@ -850,7 +844,7 @@ else if (lRF .and. (IPCMROOT > 0)) then
   end if
 # endif
 
-  if (Exist .and. (mConf == nConf) .and. (iFinal /= 2) .and. ((abs(RotMax) < 1.0e-3_wp) .or. KeyCISE)) then
+  if (Exists .and. (mConf == nConf) .and. (iFinal /= 2) .and. ((abs(RotMax) < 1.0e-3_wp) .or. KeyCISE)) then
 
     rNorm = One
     ! Shouldn't the overlap in this case be always 1?

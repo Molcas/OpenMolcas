@@ -13,15 +13,15 @@ subroutine Mod_P2(P2mo,nP2Act,D1mo,nD1mo,DS1mo,ExFac,nDet)
 
 use nq_Info, only: iOff_Ash, mIrrep, nAsh
 use Constants, only: One, Two, Quart
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nP2Act, nD1mo, nDet
-real*8 P2mo(nP2Act), D1mo(nD1mo), DS1mo(nD1mo), ExFac
-integer iOff_, iIrrep, jIrrep, kIrrep, ijIrrep, ijkIrrep, k_, k, l_, l, kl, i, i_, j, j_, il, ik, ij, ijkl, jk, jl
-real*8 P2Act, Fact
+integer(kind=iwp) :: nP2Act, nD1mo, nDet
+real(kind=wp) :: P2mo(nP2Act), D1mo(nD1mo), DS1mo(nD1mo), ExFac
+integer(kind=iwp) :: i, i_, iIrrep, ij, ijIrrep, ijkIrrep, ijkl, ik, il, iOff_, j, j_, jIrrep, jk, jl, k, k_, kIrrep, kl, l, l_
+real(kind=wp) :: Fact, P2Act
 ! Statement function
-integer iTri
+integer(kind=iwp) :: iTri
 iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *

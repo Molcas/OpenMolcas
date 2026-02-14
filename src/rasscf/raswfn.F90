@@ -16,14 +16,14 @@ use Definitions, only: iwp
 implicit none
 private
 
-integer(kind=iwp) :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_dens, wfn_spindens, wfn_transdens, wfn_transsdens, wfn_supsym, &
-                     wfn_basfns, wfn_ovlmat, wfn_cicoef, wfn_orbene, wfn_energy, wfn_iter
+integer(kind=iwp) :: wfn_basfns, wfn_cicoef, wfn_dens, wfn_energy, wfn_fileid, wfn_iter, wfn_mocoef, wfn_occnum, wfn_orbene, &
+                     wfn_ovlmat, wfn_spindens, wfn_supsym, wfn_transdens, wfn_transsdens
 #ifdef _DMRG_
 integer(kind=iwp) :: wfn_dmrg_checkpoint
 #endif
 
-public :: cre_raswfn, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_dens, wfn_spindens, wfn_transdens, wfn_transsdens, wfn_supsym, &
-          wfn_basfns, wfn_ovlmat, wfn_cicoef, wfn_orbene, wfn_energy, wfn_iter
+public :: cre_raswfn, wfn_basfns, wfn_cicoef, wfn_dens, wfn_energy, wfn_fileid, wfn_iter, wfn_mocoef, wfn_occnum, wfn_orbene, &
+          wfn_ovlmat, wfn_spindens, wfn_supsym, wfn_transdens, wfn_transsdens
 #ifdef _DMRG_
 public :: wfn_dmrg_checkpoint
 #endif
@@ -35,27 +35,25 @@ subroutine cre_raswfn()
 ! exists, it will be overwritten.
 # ifdef _HDF5_
 
-  use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_attr_int, mh5_create_dset_real, mh5_create_dset_int, &
-                 mh5_create_dset_str, mh5_put_dset, mh5_close_dset
+  use mh5, only: mh5_close_dset, mh5_create_attr_int, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, &
+                 mh5_create_file, mh5_init_attr, mh5_put_dset
   use gugx, only: SGS
   use sxci, only: IDXCI, IDXSX
   use gas_data, only: iDoGAS, NGAS, NGSSH
   use input_ras, only: KeyTDM
-  use general_data, only: NRS1, NRS2, NRS3, NTOT, NTOT2, NCONF, ISPIN, NACTEL, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NSSH, NSYM, &
-                          NSYM, STSYM
+  use general_data, only: ISPIN, NACTEL, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, NTOT, &
+                          NTOT2, STSYM
   use spinfo, only: NDET
   use Molcas, only: MxAct, MxSym
   use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT
 # ifdef _DMRG_
-  use qcmaquis_interface_cfg
   use rasscf_global, only: DoDMRG
 # endif
   use stdalloc, only: mma_allocate, mma_deallocate
 
   implicit none
-  integer :: dsetid
-  integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3
-  character(len=1), allocatable :: typestring(:)
+  integer(kind=iwp) :: dsetid, NTMP1(mxsym), NTMP2(mxsym), NTMP3(mxsym)
+  character, allocatable :: typestring(:)
 
   ! create a new wavefunction file!
   wfn_fileid = mh5_create_file('RASWFN')

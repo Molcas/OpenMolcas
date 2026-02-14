@@ -18,17 +18,13 @@
 subroutine ThetaOpt(FRot,theta,SumVee,StatePair,NPairs,DDg)
 
 use rasscf_global, only: lRoots
+use Definitions, only: wp, iwp
 
 implicit none
-integer NPairs
-real*8 SumVee
-real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
-real*8, dimension(lroots,lroots) :: FRot
-integer, dimension(NPairs,2) :: StatePair
-real*8, dimension(NPairs) :: theta
-integer IPair, IState, JState
-!real*8, dimension(NPairs) :: thetanew
-#include "warnings.h"
+integer(kind=iwp) :: NPairs
+real(kind=wp) :: FRot(lRoots,lRoots), theta(NPairs), SumVee, DDG(lRoots,lRoots,lRoots,lRoots)
+integer(kind=iwp) :: StatePair(NPairs,2)
+integer(kind=iwp) :: IPair, IState, JState
 
 do IPair=1,NPairs
   IState = StatePair(IPair,1)

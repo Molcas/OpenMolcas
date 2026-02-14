@@ -28,17 +28,17 @@ subroutine Readin_vb()
 !                                                                      *
 !***********************************************************************
 
-use gas_data, only: NGAS, NGSSH, IGSOCCX
-use rasscf_global, only: iRlxRoot, NAC, NACPAR, NACPR2, NIN, NO2M, NORBT, NROOTS, NSEC, NTIT, NTOT3, NTOT4, Title, iZROT, iROOT
-use jobiph_j, only: nactel_j, ispin_j, lsym_j, nfro_j, nish_j, ndel_j, title_j, nrs1_j, nrs2_j, nrs3_j, nhole1_j, nelec3_j
-use general_data, only: INVEC, NACTEL, NHOLE1, NELEC3, ISPIN, STSYM, NFRO, NISH, NRS1, NRS2, NRS3, NDEL, NSYM, NTOT, NTOT1, NTOT2, &
-                        NDELT, NFROT, NTOTSP, NRS1T, NRS2T, NRS3T, NASH, NBAS, NORB, NSSH, STSYM
+use gas_data, only: IGSOCCX, NGAS, NGSSH
+use rasscf_global, only: iRlxRoot, iROOT, iZROT, NAC, NACPAR, NACPR2, NIN, NO2M, NORBT, NROOTS, NSEC, NTIT, NTOT3, NTOT4, Title
+use jobiph_j, only: ispin_j, lsym_j, nactel_j, ndel_j, nelec3_j, nfro_j, nhole1_j, nish_j, nrs1_j, nrs2_j, nrs3_j, title_j
+use general_data, only: INVEC, ISPIN, NACTEL, NASH, NBAS, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, NRS2, &
+                        NRS2T, NRS3, NRS3T, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STSYM, STSYM
 use Molcas, only: MxSym
 use RASDim, only: MxTit
+use Definitions, only: iwp
 
 implicit none
-integer IGAS, II, ISYM, ITU, J, NAO, NGSSH_HI, NGSSH_LO, NT, NU
-#include "warnings.h"
+integer(kind=iwp) :: IGAS, II, ISYM, ITU, J, NAO, NGSSH_HI, NGSSH_LO, NT, NU
 
 !---  set INVEC -> get MOs from JOBIPH file ---------------------------*
 INVEC = 3

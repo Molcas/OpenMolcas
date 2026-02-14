@@ -13,17 +13,17 @@
 
 subroutine PrintMat(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NRow, NCol, LenName, LenInfo
+integer(kind=iwp) :: NRow, NCol, LenName, LenInfo
 character(len=LenName) :: FileName
 character(len=LenInfo) :: MatInfo
-character(len=1) :: Trans
+real(kind=wp) :: Matrix(NRow,NCol)
+integer(kind=iwp) :: ICol, IRow, LU
 character(len=80) :: PrtFmt
-real*8, dimension(NRow,NCol) :: Matrix
-integer LU, IsFreeUnit, IRow, ICol
-external IsFreeUnit
+character(len=1) :: Trans
+integer(kind=iwp), external :: IsFreeUnit
 
 if (LenName > 0) then
   LU = IsFreeUnit(100)

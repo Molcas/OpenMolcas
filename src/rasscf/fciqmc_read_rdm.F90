@@ -17,30 +17,32 @@
 module fciqmc_read_RDM
 
 #ifdef _HDF5_
-use mh5, only: mh5_open_file_r, mh5_close_file, mh5_put_dset, mh5_open_group, mh5_close_group, mh5_open_dset, mh5_close_dset, &
-               mh5_fetch_dset, mh5_get_dset_dims
+use mh5, only: mh5_close_dset, mh5_close_file, mh5_close_group, mh5_fetch_dset, mh5_get_dset_dims, mh5_open_dset, mh5_open_file_r, &
+               mh5_open_group, mh5_put_dset
 use index_symmetry, only: one_el_idx
 use RASWFn, only: wfn_dens, wfn_spindens
 #endif
 use fortran_strings, only: str
 use para_info, only: myRank
-use rasscf_global, only: NRoots, iAdr15, NAc
-use general_data, only: nActEl
-use index_symmetry, only: two_el_idx_flatten, one_el_idx_flatten
+use rasscf_global, only: iAdr15, NAc, NRoots
+use general_data, only: ispin, nActEl
+use output_ras, only: IPRLOC
+use PrintLevel, only: DEBUG
+use index_symmetry, only: one_el_idx_flatten, two_el_idx_flatten
 use CI_solver_util, only: CleanMat, RDM_to_runfile
 use linalg_mod, only: abort_, verify_
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half
-use Definitions, only: wp, u6
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
 #include "intent.fh"
 
-logical :: MCM7 = .false., WRMA = .false.
+logical(kind=iwp) :: MCM7 = .false., WRMA = .false.
 
-public :: read_neci_RDM, cleanup, dump_fciqmc_mats, MCM7, WRMA
+public :: cleanup, dump_fciqmc_mats, MCM7, read_neci_RDM, WRMA
 
 contains
 
@@ -68,15 +70,15 @@ subroutine read_neci_RDM(iroot,weight,tGUGA,ifinal,DMAT,DSPN,PSMAT,PAMAT)
   ! wrapper around `read_single_neci_(GUGA)_RDM` to average
   ! normal and GUGA density matrices for stochastic SA-MCSCF.
 
-  integer(wp), intent(in) :: iroot(:), ifinal
-  real(wp), intent(in) :: weight(:)
-  logical, intent(in) :: tGUGA
-  real(wp), intent(out) :: dmat(:), dspn(:), psmat(:), pamat(:)
-  integer :: i, j, jDisk
-  real(wp), allocatable :: temp_dmat(:), temp_dspn(:), temp_psmat(:), temp_pamat(:)
+  integer(kind=iwp), intent(in) :: iroot(:), ifinal
+  real(kind=wp), intent(in) :: weight(:)
+  logical(kind=iwp), intent(in) :: tGUGA
+  real(kind=wp), intent(out) :: dmat(:), dspn(:), psmat(:), pamat(:)
+  integer(kind=iwp) :: i, j, jDisk
 # ifdef _HDF5_
-  real(wp) :: decompr_dmat(nac,nac), decompr_dspn(nac,nac)
+  real(kind=wp) :: decompr_dmat(nac,nac), decompr_dspn(nac,nac)
 # endif
+  real(kind=wp), allocatable :: temp_dmat(:), temp_dspn(:), temp_pamat(:), temp_psmat(:)
 
   ! position in memory to write density matrices to JOBIPH
   jDisk = iAdr15(3)
@@ -141,14 +143,12 @@ end subroutine read_neci_RDM
 
 subroutine read_single_neci_GUGA_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
 
-  use PrintLevel, only: DEBUG
-  use output_ras, only: IPRLOC
-
-  integer, intent(in) :: iroot
-  real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
-  integer :: file_id, isfreeunit, i, norb, iprlev
-  logical :: tExist
-  real(wp) :: dum, RDMval
+  integer(kind=iwp), intent(in) :: iroot
+  real(kind=wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
+  integer(kind=iwp) :: file_id, i, iprlev, norb
+  real(kind=wp) :: dum, RDMval
+  logical(kind=iwp) :: tExist
+  integer(kind=iwp), external :: isfreeunit
 
   if (myRank /= 0) then
     call bcast_2RDM('PSMAT.'//str(iroot))
@@ -219,11 +219,11 @@ subroutine read_single_neci_GUGA_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
     function read_line(file_id,i,RDMval)
 
       ! changed variable names to prevent masking the parent scope
-      logical read_line
-      integer, intent(in) :: file_id
-      integer, intent(out) :: i
-      real(wp), intent(out) :: RDMval
-      integer :: iread
+      logical(kind=iwp) :: read_line
+      integer(kind=iwp), intent(in) :: file_id
+      integer(kind=iwp), intent(out) :: i
+      real(kind=wp), intent(out) :: RDMval
+      integer(kind=iwp) :: iread
 
       read_line = .false.
       read(file_id,'(I6,G25.17)',iostat=iread) i,RDMval
@@ -265,16 +265,13 @@ end subroutine read_single_neci_GUGA_RDM
 !>
 subroutine read_single_neci_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
 
-  use PrintLevel, only: DEBUG
-  use output_ras, only: IPRLOC
-  use Constants, only: One
-
-  integer, intent(in) :: iroot
-  real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
-  integer :: iUnit, isfreeunit, p, q, r, s, pq, rs, ps, rq, psrq, pqrs, iread, norb, iprlev
-  logical :: tExist, switch
-  real*8 :: fac, RDMval, fcnacte
-  real*8 :: dum, D_alpha(size(DMAT)), D_beta(size(DMAT))
+  integer(kind=iwp), intent(in) :: iroot
+  real(kind=wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
+  integer(kind=iwp) :: iprlev, iread, iUnit, norb, p, pq, pqrs, ps, psrq, q, r, rq, rs, s
+  logical(kind=iwp) :: switch, tExist
+  real(kind=wp) :: dum, fac, fcnacte, RDMval
+  real(kind=wp), allocatable :: D_alpha(:), D_beta(:)
+  integer(kind=iwp), external :: isfreeunit
 
   iprlev = iprloc(1)
   if (iprlev == debug) write(u6,*) 'Rank of process: ',MyRank
@@ -303,6 +300,8 @@ subroutine read_single_neci_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
     call verify_(tExist,'TwoRDM_baab.'//str(iroot)//' does not exist')
   end if
 
+  call mma_allocate(D_alpha,size(DMAT),Label='D_alpha')
+  call mma_allocate(D_beta,size(DMAT),Label='D_beta')
   D_alpha(:) = Zero
   D_beta(:) = Zero
   PSMAT(:) = Zero
@@ -507,6 +506,8 @@ subroutine read_single_neci_RDM(iroot,DMAT,DSPN,PSMAT,PAMAT)
     call triprt('DMAT in neci2molcas',' ',DMAT,norb)
     call triprt('DSPN in neci2molcas',' ',DSPN,norb)
   end if
+  call mma_deallocate(D_alpha)
+  call mma_deallocate(D_beta)
 
   return
 
@@ -518,7 +519,7 @@ subroutine bcast_2RDM(InFile)
 
   character(len=*), intent(in) :: InFile
   character(len=1024) :: master
-  integer :: lmaster1, err
+  integer(kind=iwp) :: lmaster1, err
 
   call prgmtranslate_master(InFile,master,lmaster1)
   call symlink_(trim(master),trim(InFile),err)
@@ -529,8 +530,9 @@ end subroutine bcast_2RDM
 subroutine dump_fciqmc_mats(dmat,dspn,psmat,pamat)
 ! Currently only one root per spin is supported.
 
-  real(wp), intent(in) :: dmat(:), dspn(:), psmat(:), pamat(:)
-  integer :: i, funit, isfreeunit
+  real(kind=wp), intent(in) :: dmat(:), dspn(:), psmat(:), pamat(:)
+  integer(kind=iwp) :: i, funit
+  integer(kind=iwp), external :: isfreeunit
 
   funit = IsFreeUnit(11)
   call molcas_open(funit,'DMAT.1')
@@ -566,15 +568,13 @@ function dspn_from_2rdm(psmat,pamat,dmat) result(dspn)
 ! Implementation following the Columbus paper:
 ! 10.1080/00268976.2022.2091049, assuming S = m_s.
 
-  use general_data, only: ispin
+  real(kind=wp), intent(in) :: psmat(:), pamat(:), dmat(:)
+  real(kind=wp) :: dspn(size(dmat))
+  real(kind=wp) :: AcEl, intermed, Spin
+  integer(kind=iwp) :: fac, k, ks, n, p, pk, pkks, ps, s
 
-  real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
-  real(wp) :: dspn(size(dmat))
-  real(wp) :: intermed, Spin, AcEl
-  integer :: p, k, s, pk, ks, ps, pkks, fac, n
-
-  Spin = (real(ispin,wp)-1)/2  ! integer by default
-  AcEl = real(nActEl,wp)
+  Spin = (real(ispin,kind=wp)-1)/2  ! integer by default
+  AcEl = real(nActEl,kind=wp)
   ! the cycle statements ensure proper handling of the logic
   ! for values connected to index pairs "pprs" and "rspp"
   do s=1,nAc
@@ -609,9 +609,9 @@ pure function expand_1rdm(dmat) result(decompr_dmat)
 ! linearised vector with symmetry into the full, redundant, 1RDM
 ! matrix for HDF5 writing.
 
-  real(wp), intent(in) :: dmat(:)
-  real(wp) :: decompr_dmat(nAc,nAc)
-  integer :: pq, p, q
+  real(kind=wp) :: decompr_dmat(nAc,nAc)
+  real(kind=wp), intent(in) :: dmat(:)
+  integer(kind=iwp) :: p, pq, q
 
   do pq=1,size(dmat)
     call one_el_idx(pq,p,q)
@@ -623,17 +623,12 @@ end function expand_1rdm
 
 subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
 
-  use PrintLevel, only: DEBUG
-  use output_ras, only: IPRLOC
-
-  integer, intent(in) :: iroot
-  real(wp), intent(_OUT_) :: dmat(:), dspn(:), psmat(:), pamat(:)
-  integer, allocatable :: indices(:,:)
-  real(wp), allocatable :: values(:)
-  integer :: len4index(2), pqrs, pq, rs, p, q, r, s, i, fac, n_rs, hdf5_file, hdf5_group, hdf5_dset
-  real(wp) :: rdm2_temp(nAc,nAc,nAc,nAc), rdm1_temp(nAc,nAc)
-  logical :: tExist
-  integer :: iprlev
+  integer(kind=iwp), intent(in) :: iroot
+  real(kind=wp), intent(_OUT_) :: dmat(:), dspn(:), psmat(:), pamat(:)
+  integer(kind=iwp) :: fac, hdf5_dset, hdf5_file, hdf5_group, i, iprlev, len4index(2), n_rs, p, pq, pqrs, q, r, rs, s
+  logical(kind=iwp) :: tExist
+  integer(kind=iwp), allocatable :: indices(:,:)
+  real(kind=wp), allocatable :: rdm1_temp(:,:), rdm2_temp(:,:,:,:), values(:)
 
   if (myRank /= 0) call bcast_2RDM('M7.'//str(iroot)//'.h5')
 
@@ -655,6 +650,8 @@ subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
   call mh5_close_group(hdf5_group)
   call mh5_close_file(hdf5_file)
 
+  call mma_allocate(rdm1_temp,nAc,nAc,Label='rdm1_temp')
+  call mma_allocate(rdm2_temp,nAc,nAc,nAc,nAc,Label='rdm2_temp')
   rdm1_temp(:,:) = Zero
   rdm2_temp(:,:,:,:) = Zero
   do i=1,len4index(2)
@@ -704,6 +701,8 @@ subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
       dmat(pq) = rdm1_temp(p,q)
     end do
   end do
+  call mma_deallocate(rdm1_temp)
+  call mma_deallocate(rdm2_temp)
 
   call cleanMat(dmat)  ! cleanse non-PSD elements
   dspn = dspn_from_2rdm(psmat,pamat,dmat)
@@ -727,6 +726,7 @@ end subroutine read_hdf5_denmats
 
 ! Add your deallocations here. Called when exiting rasscf.
 subroutine cleanup()
+
 end subroutine
 
 end module fciqmc_read_RDM

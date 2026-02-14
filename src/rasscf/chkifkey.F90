@@ -19,9 +19,9 @@ use input_ras, only: LUInput, nKeys, CMD
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=4) Command
-character(len=180) Line
-integer(kind=iwp) iCmd
+integer(kind=iwp) :: iCmd
+character(len=180) :: Line
+character(len=4) :: Command
 
 read(LUInput,*) Line
 Command = Line(1:4)

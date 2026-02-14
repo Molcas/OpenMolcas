@@ -37,10 +37,11 @@ subroutine ClnMO(CMO)
 
 use general_data, only: CleanMask, NSYM, NBAS
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CMO(*)
-integer ij, iSym, mBas, i, j
+real(kind=wp) :: CMO(*)
+integer(kind=iwp) :: i, ij, iSym, j, mBas
 
 ! Body
 

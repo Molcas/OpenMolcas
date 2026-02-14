@@ -15,18 +15,16 @@ subroutine GetGDMat(GDMat)
 
 use lucia_data, only: DStmp, Dtmp
 use Lucia_Interface, only: Lucia_Util
-use rasscf_global, only: lRoots, nAc, iAdr15
+use rasscf_global, only: iAdr15, lRoots, nAc
 use general_data, only: JOBIPH, NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-! Output
-real*8, dimension(lRoots*(lRoots+1)/2,NAC,NAC) :: GDMat
-integer CIDisk1, CIDisk2
-integer NIJ2, jRoot, kRoot, iOrb, jOrb
-real*8, allocatable :: SDtmp(:), TmpD(:)
-real*8, allocatable :: VecL(:), VecR(:)
+real(kind=wp) :: GDMat(lRoots*(lRoots+1)/2,NAC,NAC)
+integer(kind=iwp) :: CIDisk1, CIDisk2, iOrb, jOrb, jRoot, kRoot, NIJ2
+real(kind=wp), allocatable :: SDtmp(:), TmpD(:), VecL(:), VecR(:)
 
 call mma_allocate(VecL,NConf,Label='VecL')
 call mma_allocate(VecR,NConf,Label='VecR')

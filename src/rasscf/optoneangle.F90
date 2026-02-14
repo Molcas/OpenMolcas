@@ -19,43 +19,36 @@ subroutine OptOneAngle(Angle,SumVee,RotMat,DDg,I1,I2,lRoots)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, deg2rad
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 Angle, SumVee
-integer I1, I2, lRoots
-real*8, dimension(lRoots,lRoots) :: RotMat
-real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
-logical Converged
-integer Iter, IterMax, IA, IMax
-real*8 Threshold, StepSize, SumOld
-real*8, dimension(:), allocatable :: Angles, Sums
-real*8, dimension(:), allocatable :: ScanA, ScanS
-real*8, dimension(:,:), allocatable :: RTmp
-real*8, external :: CalcNSumVee
-integer, external :: RMax
+integer(kind=iwp) :: I1, I2, lRoots
+real(kind=wp) :: Angle, SumVee, RotMat(lRoots,lRoots), DDg(lRoots,lRoots,lRoots,lRoots)
+integer(kind=iwp) :: IA, IMax, Iter, IterMax
+real(kind=wp) :: StepSize, SumOld
+logical(kind=iwp) :: Converged
+real(kind=wp) :: Angles(4), ScanA(31), ScanS(31), Sums(4)
+real(kind=wp), allocatable :: RTmp(:,:)
+real(kind=wp), parameter :: Threshold = 1.0e-8_wp
+integer(kind=iwp), external :: RMax
+real(kind=wp), external :: CalcNSumVee
 
-call mma_allocate(Angles,4)
-call mma_allocate(Sums,4)
-call mma_allocate(ScanA,31)
-call mma_allocate(ScanS,31)
 call mma_allocate(RTmp,lRoots,lRoots)
 
 Converged = .false.
 stepsize = Three*deg2rad
-Threshold = 1.0e-8_wp
 
 !write(u6,'(A,2(I2,2X))') 'scanning rotation angles for ',I1,I2
 Angles(2) = Zero
 do Iter=1,31
   ScanA(Iter) = (Iter-16)*stepsize*2
-  call Copy2DMat(RTmp,RotMat,lRoots,lRoots)
+  RTmp(:,:) = RotMat(:,:)
   call CMSMatRot(RTmp,ScanA(Iter),I1,I2,lRoots)
   ScanS(Iter) = CalcNSumVee(RTmp,DDg)
   !if (I2 == 1) write(u6,*) Iter,ScanA(Iter),ScanS(Iter)
 end do
 
-IMax = RMax(ScanS,31)
+IMax = sum(maxloc(ScanS(:)))
 
 Iter = 0
 IterMax = 100
@@ -66,12 +59,12 @@ do while (.not. Converged)
   Angles(1) = Angles(2)-stepsize
   Angles(3) = Angles(2)+stepsize
   do iA=1,3
-    call Copy2DMat(RTmp,RotMat,lRoots,lRoots)
+    RTmp(:,:) = RotMat(:,:)
     call CMSMatRot(RTmp,Angles(iA),I1,I2,lRoots)
     Sums(iA) = CalcNSumVee(RTmp,DDg)
   end do
   call CMSFitTrigonometric(Angles,Sums)
-  call Copy2DMat(RTmp,RotMat,lRoots,lRoots)
+  RTmp(:,:) = RotMat(:,:)
   call CMSMatRot(RTmp,Angles(4),I1,I2,lRoots)
   Sums(4) = CalcNSumVee(RTmp,DDg)
   if (abs(Sums(4)-SumOld) < Threshold) then
@@ -90,10 +83,6 @@ do while (.not. Converged)
     end if
   end if
 end do
-call mma_deallocate(Angles)
-call mma_deallocate(Sums)
-call mma_deallocate(ScanA)
-call mma_deallocate(ScanS)
 call mma_deallocate(RTmp)
 
 end subroutine OptOneAngle

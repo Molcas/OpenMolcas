@@ -14,9 +14,9 @@ subroutine make_close_rvb()
 use Definitions, only: iwp
 
 implicit none
+integer(kind=iwp) :: i, il, n
+character(len=8) :: vec(11)
 integer(kind=iwp), external :: find_lu
-integer(kind=iwp) il, i, n
-character(len=8) vec(11)
 
 vec(1) = 'TMP01'
 vec(2) = 'TMP02'

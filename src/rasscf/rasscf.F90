@@ -58,44 +58,41 @@ use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
 use fciqmc_read_RDM, only: dump_fciqmc_mats
 use para_info, only: king
 use fortran_strings, only: str
-use spin_correlation, only: spin_correlation_driver, orb_range_p, orb_range_q
-use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
-use fcidump, only: make_fcidumps, transform, DumpOnly
+use spin_correlation, only: orb_range_p, orb_range_q, spin_correlation_driver
+use CC_CI_mod, only: CC_CI_solver_t, Do_CC_CI
+use fcidump, only: DumpOnly, make_fcidumps, transform
 use orthonormalization, only: ON_scheme
 use casvb_global, only: ifvb, invec_cvb
 use OFembed, only: Do_OFemb, FMaux
 use UnixInfo, only: ProgName
 use rctfld_module, only: lRF
 use Lucia_Interface, only: Lucia_Util
-use wadr, only: DMAT, PMAT, PA, FockOcc, TUVX, FI, FA, DSPN, D1I, D1A, OccN, CMO, DIAF
-use sxci
-use gugx, only: SGS, CIS, EXS
-use general_data, only: CRVec, CleanMask, CRPROJ
+use wadr, only: CMO, D1A, D1I, DIAF, DMAT, DSPN, FA, FI, FockOcc, OccN, PA, PMAT, TUVX
+use gugx, only: CIS, EXS, SGS
 use gas_data, only: iDOGAS
-use input_ras, only: KeyORBO, KeyORTH, KeyCION, KeyWRMA, KeyTDM, KeySSCR, LuInput
+use input_ras, only: KeyCION, KeyORBO, KeyORTH, KeySSCR, KeyTDM, KeyWRMA, LuInput
 use raswfn, only: cre_raswfn, Wfn_FileID
 use timers, only: TimeCIOpt, TimeInput, TimeOrb, TimeOutput, TimeRelax, TimeTotal, TimeTrans, TimeWfn
-use rasscf_global, only: KSDFT, CBLBM, CMAX, DE, DOBLOCKDMRG, DoFaro, DoFCIDump, ECAS, ESX, ExFac, FDIAG, HalfQ, iBLBM, ICICH, &
-                         iCIOnly, iExpand, IfCrPr, InOCalc, iPr, iPT2, iRLXRoot, iSave_Exp, iSymBB, ITER, ITERCI, ITERSX, JBLBM, &
-                         l_casdft, lSquare, MaxIt, NAC, NACPAR, NACPR2, NewFock, nFint, no2m, NonEQ, nROOTS, PotNuc, QNSTEP, &
-                         QNUPDT, ROTMax, Start_Vectors, SXShft, Thre, ThrSX, THRTE, TMin, Tot_Charge, EMY, VIA_DFT, iRoot, Weight, &
-                         iAdr15, Ener, Conv, DoDMRG, iCIRST, KSDFT_Temp
+use rasscf_global, only: CBLBM, CMAX, Conv, DE, DOBLOCKDMRG, DoDMRG, DoFaro, DoFCIDump, ECAS, EMY, Ener, ESX, ExFac, FDIAG, HalfQ, &
+                         iAdr15, iBLBM, ICICH, iCIOnly, iCIRST, iExpand, IfCrPr, InOCalc, IPCMROOT, iPr, iPT2, iRLXRoot, iRoot, &
+                         iSave_Exp, iSymBB, ITER, ITERCI, ITERSX, JBLBM, KSDFT, KSDFT_Temp, l_casdft, lSquare, MaxIt, NAC, NACPAR, &
+                         NACPR2, NewFock, nFint, no2m, NonEQ, nROOTS, PotNuc, QNSTEP, QNUPDT, ROTMax, Start_Vectors, SXShft, Thre, &
+                         ThrSX, THRTE, TMin, Tot_Charge, VIA_DFT, Weight
 use SplitCas_Data, only: DoSPlitCas, IterSplit, lRootSplit
-use PrintLevel, only: DEBUG, USUAL, TERSE
+use PrintLevel, only: DEBUG, TERSE, USUAL
 use output_ras, only: IPRLOC, RC_CI, RC_SX
-use general_data, only: NALTER, ITERFILE, NSYM, INVEC, ISPIN, NCONF, NCRVEC, JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, &
-                        NRS3, NTOT, NTOT1, NTOT2
+use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, ITERFILE, JOBIPH, NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NFRO, &
+                        NISH, NRS1, NRS2, NRS3, NSYM, NTOT, NTOT1, NTOT2
 use spinfo, only: DOBKAP
-use rasscf_global, only: IPCMROOT
-use DWSol, only: DWSolv, DWSol_final, DWSol_init
+use DWSol, only: DWSol_final, DWSol_init, DWSolv
 use Molcas, only: MxRoot
 use RASDim, only: MxIter
 #ifdef _DMRG_
-use qcmaquis_interface, only: qcmaquis_interface_delete_chkp, qcmaquis_interface_prepare_hirdm_template, &
-                              qcmaquis_interface_deinit, qcmaquis_param, TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM, dmrg_energy, &
-                              qcmaquis_mpssi_transform
+use qcmaquis_interface, only: dmrg_energy, qcmaquis_interface_deinit, qcmaquis_interface_delete_chkp, &
+                              qcmaquis_interface_prepare_hirdm_template, qcmaquis_param, TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM
+use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 use lucia_data, only: RF1, RF2
-use rasscf_global, only: DoNEVPT2Prep, DoDelChk, Twordm_qcm, DoMCPDFTDMRG
+use rasscf_global, only: DoDelChk, DoMCPDFTDMRG, DoNEVPT2Prep, Twordm_qcm
 #endif
 #ifdef _FDE_
 use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, embWriteEsp
@@ -104,56 +101,46 @@ use Embedding_global, only: Eemb, embInt, embPot, embPotInBasis, embPotPath, emb
 use mh5, only: mh5_put_attr, mh5_put_dset
 use csfbas, only: CONF
 use lucia_data, only: CFTP, DStmp, Dtmp
-use raswfn, only: wfn_iter, wfn_energy, wfn_transdens, wfn_transsdens
+use raswfn, only: wfn_energy, wfn_iter, wfn_transdens, wfn_transsdens
 use rasscf_global, only: lRoots
 use general_data, only: NACTEL, STSYM
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IReturn, RC_RAS
-logical DSCF
-logical lTemp, lOPTO
-character(len=80) Line
-character(len=8) Label
-character(len=1) CTHRE, CTHRSX, CTHRTE
-logical IfOpened
-real*8 ECAS1, EVAC
-real*8 CASDFT_E, CASDFT_FUNCT, DiffE, DiffETol, dum1, dum2, dum3, EAv, ThMax, TMXTOT, time0(2), time1(2), time2(2), time3(2)
-real*8, external :: Get_ExFac
-integer i, i_ROOT, iAd, iAd15, iBas, iComp, iFinal, ihh, imm, Ind, IndT, iOff, iOpt, iPrLev, iRC, iRot, iShift, iss, iSyLbl, iSym, &
-        iTerm, j, kau, kRoot, LuOne, LuvvVec, mRoots, nTav, iFlags, NoScr1
-integer, external :: IsFreeUnit
-real*8, allocatable :: orbital_E(:), folded_Fock(:)
-class(CI_solver_t),allocatable :: CI_solver
-integer :: actual_iter
-character(len=15) STLNE2
-external RasScf_Init
-external Scan_Inp
-external Proc_Inp
-integer IndType(56)
-character(len=80) :: VecTyp
+integer(kind=iwp) :: IReturn
+integer(kind=iwp) :: actual_iter, i, i_ROOT, iAd, iAd15, iBas, iComp, iFinal, iFlags, ihh, imm, Ind, IndT, IndType(56), iOff, &
+                     iOpt, iPrLev, iRC, iRot, iShift, iss, iSyLbl, iSym, iTerm, j, kau, kRoot, LuOne, LuvvVec, mRoots, NoScr1, &
+                     nTav, RC_RAS
+real(kind=wp) :: CASDFT_E, CASDFT_FUNCT, DiffE, DiffETol, dum1, dum2, dum3, EAv, ECAS1, EVAC, ThMax, time0(2), time1(2), time2(2), &
+                 time3(2), TMXTOT
+logical(kind=iwp) :: DSCF, IfOpened, lOPTO, lTemp
+character(len=80) :: Line, VecTyp
+character(len=15) :: STLNE2
+character(len=8) :: Label
+character :: CTHRE, CTHRSX, CTHRTE
+class(CI_solver_t), allocatable :: CI_solver
+real(kind=wp), allocatable :: CMON(:), Dens(:), EDUM(:), Fock(:), folded_Fock(:), OCCX(:), orbital_E(:), PUVX(:), QMat(:), &
+                              Scr1(:), Scr2(:), SMat(:), Tmp1(:), TmpD1S(:), TmpDMat(:), TmpDS(:)
 #ifdef _HDF5_
-real*8, allocatable :: VecL(:), VecR(:), Tmp(:)
-integer, allocatable :: kcnf(:)
-integer iDX, jDisk, jRoot, kDisk
+integer(kind=iwp) :: iDX, jDisk, jRoot, kDisk
+integer(kind=iwp), allocatable :: kcnf(:)
+real(kind=wp), allocatable :: Tmp(:), VecL(:), VecR(:)
 #endif
 #ifdef _FDE_
-integer iDummyEmb, iEmb, iUnit, nNuc
-real*8, external :: EmbPotEneMODensities
+integer(kind=iwp) :: iDummyEmb, iEmb, iUnit, nNuc
+real(kind=wp), external :: EmbPotEneMODensities
 #endif
 #ifdef _DMRG_
-logical Do_ESPF
-logical, external :: PCM_On
-integer :: maxtrR
-integer :: maxBD
-real*8 :: maxtrW
+integer(kind=iwp) :: maxBD, maxtrR
+real(kind=wp) :: maxtrW
+logical(kind=iwp) :: Do_ESPF
+logical(kind=iwp), external :: PCM_On
 #endif
-real*8, allocatable :: Dens(:), PUVX(:), TmpDMat(:), CMON(:), OCCX(:), Scr1(:), Scr2(:), SMat(:), QMat(:), EDUM(:), Tmp1(:), &
-                       Fock(:), TmpDS(:), TmpD1S(:)
-integer, external :: isStructure
+integer(kind=iwp), external :: IsFreeUnit, isStructure
+real(kind=wp), external :: Get_ExFac
 #include "warnings.h"
 
 ! Set status line for monitor:
@@ -458,14 +445,14 @@ if ((IPRLEV >= 2) .and. (.not. lOPTO)) then
   end if
 # ifdef _DMRG_
   if (doDMRG) then
-    write(u6,'(45x,a//,36x,a/,36x,a/,36x,a//,45x,a//,36x,a/,36x,a/,36x,a//,36x,a/,36x,a,a/,36x,a//)')
-      'Please cite for the QCMaquis-Molcas driver:',
-      'Freitag L.; Keller S.; Knecht S.; Lindh R.; Ma Y.; ',
-      'Stein C. J. and Reiher M., in preparation. (2018).',
-      '---------------------------------------------------------------',
-      'Please cite for the QCMaquis DMRG software:',
-      'S. Keller, M. Dolfi, M. Troyer, M. Reiher,',
-      'J. Chem. Phys. 143, 244118 (2015)',
+    write(u6,'(45x,a//,36x,a/,36x,a/,36x,a//,45x,a//,36x,a/,36x,a/,36x,a//,36x,a/,36x,a,a/,36x,a//)') &
+      'Please cite for the QCMaquis-Molcas driver:', &
+      'Freitag L.; Keller S.; Knecht S.; Lindh R.; Ma Y.; ', &
+      'Stein C. J. and Reiher M., in preparation. (2018).', &
+      '---------------------------------------------------------------', &
+      'Please cite for the QCMaquis DMRG software:', &
+      'S. Keller, M. Dolfi, M. Troyer, M. Reiher,', &
+      'J. Chem. Phys. 143, 244118 (2015)', &
       '---------------------------------------------------------------'
   end if
 # endif

@@ -17,22 +17,21 @@
 
 subroutine CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
 
-use CMS, only: CMSNotConverged, CMSThres, NeedMoreStep, nPosHess, LargestQaaGrad, NCMSScale
-use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax, iCMSIterMin, NAC
+use CMS, only: CMSNotConverged, CMSThres, LargestQaaGrad, NCMSScale, NeedMoreStep, nPosHess
+use rasscf_global, only: CMSThreshold, iCMSIterMax, iCMSIterMin, lRoots, NAC
 use PrintLevel, only: USUAL
 use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer nGD
-real*8 R(lRoots**2), GDorbit(nGD), GDstate(nGD), Dgorbit(nGD), Dgstate(nGD)
-real*8, dimension(:), allocatable :: X, Hess, Grad, EigVal, deltaR, DDg, XScr, GScr, ScrDiag, RCopy, GDCopy, DgCopy
-real*8, dimension(:,:), allocatable :: RotMat
-integer iStep, nDDg, lRoots2, NAC2, nSPair, nSPair2, nScr
-real*8 Qnew, Qold
-logical Saved
-integer iPrLev
-#include "warnings.h"
+integer(kind=iwp) :: nGD
+real(kind=wp) :: R(lRoots**2), GDorbit(nGD), GDstate(nGD), Dgorbit(nGD), Dgstate(nGD)
+integer(kind=iwp) :: iPrLev, iStep, lRoots2, NAC2, nDDg, nScr, nSPair, nSPair2
+real(kind=wp) :: Qnew, Qold
+logical(kind=iwp) :: Saved
+real(kind=wp), allocatable :: DDg(:), deltaR(:), DgCopy(:), EigVal(:), GDCopy(:), Grad(:), GScr(:), Hess(:), RCopy(:), &
+                              RotMat(:,:), ScrDiag(:), X(:), XScr(:)
 
 IPRLEV = IPRLOC(6)
 

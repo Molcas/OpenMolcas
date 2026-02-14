@@ -40,29 +40,27 @@ subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,DF,DDIAG)
 !
 ! ********** IBM-3090 RELEASE 89 01 23 **********
 
-use rasscf_global, only: ExFac, ICICP, ISCF, ITER, LVSHFT, NROOT, NSXS, SXSHFT, ITRI, IZROT, IXSYM, IROOT, Ener
+use rasscf_global, only: Ener, ExFac, ICICP, IROOT, ISCF, ITER, ITRI, IXSYM, IZROT, LVSHFT, NROOT, NSXS, SXSHFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NASH, NBAS, NFRO, NISH, NORB, NSSH
+use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
 use Constants, only: Zero, One, Two, Four
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=16), parameter :: ROUTINE = 'SXHAM   '
-real*8 D(*), P(*), PA(*), FP(*), SXN(*), F1(*), F2(*), DIA(*), G(*), H(*), HDIAG(*), DF(*), DDIAG(*)
-real*8, parameter :: THRA = 1.0e-6_wp
-real*8 P2Act(1)
-real*8 :: DPP, DRR, DTU, FAC, FACD, FPP, GTU, HDMIN, HPP, PRPR, SXNRM2, XLEV
-integer :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, IX1, JSYM, &
-           JUSTONE, NAE, NAO, NAOJ, NEO, NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR, NT, NTT, NTU, NTUT, NTUTU, NTUVX, NU, &
-           NUT, NV, NVT, NVX, NVXF, NVXT, NX, NXT
+real(kind=wp) :: D(*), P(*), PA(*), FP(*), SXN(*), F1(*), F2(*), DIA(*), G(*), H(*), HDIAG(*), DF(*), DDIAG(*)
+integer(kind=iwp) :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, &
+                     IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO, NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR, NT, NTT, NTU, &
+                     NTUT, NTUTU, NTUVX, NU, NUT, NV, NVT, NVX, NVXF, NVXT, NX, NXT
+real(kind=wp) :: DPP, DRR, DTU, FAC, FACD, FPP, GTU, HDMIN, HPP, P2Act(1), PRPR, SXNRM2, XLEV
+real(kind=wp), parameter :: THRA = 1.0e-6_wp
 #include "warnings.h"
 
 ! -- THRA: THRESHOLD FOR WARNING, ACTIVE OCC NO CLOSE TO 0 OR 2.
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering SXHAM'
 
 ! Loop over all symmetry blocks
 

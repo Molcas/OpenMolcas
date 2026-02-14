@@ -22,18 +22,18 @@ subroutine NatOrb_RASSCF(CMOO,SCR1,SCR2,SMAT,CMON,OCCN)
 !
 !      ****** IBM 3090 MOLCAS Release: 90 02 22 ******
 
-use rasscf_global, only: KSDFT, lRoots, NACPAR, NACPR2, iADR15, iTri
+use rasscf_global, only: iADR15, iTri, KSDFT, lRoots, NACPAR, NACPR2
 use SplitCas_Data, only: DoSPlitCas, lRootSplit
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, JOBIPH, NASH, NBAS, NFRO, NISH, NTOT, NTOT2
+use general_data, only: JOBIPH, NASH, NBAS, NFRO, NISH, NSYM, NTOT, NTOT2
 use Constants, only: Zero, One, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMOO(*), SCR1(*), SCR2(*), SMAT(*), CMON(*), OCCN(*)
-integer iPrLev, iDisk, jDisk, kRoot, I, IA, IB, IBAS, ID, IEND, II, IO, iOff, IST, iSTMO, ISYM, J, JA, jOff, NA1, NAO, NB, NB2, &
-        NFI, ISTMO1
+real(kind=wp) :: CMOO(*), SCR1(*), SCR2(*), SMAT(*), CMON(*), OCCN(*)
+integer(kind=iwp) :: I, IA, IB, IBAS, ID, iDisk, IEND, II, IO, iOff, iPrLev, IST, iSTMO, ISTMO1, ISYM, J, JA, jDisk, jOff, kRoot, &
+                     NA1, NAO, NB, NB2, NFI
 
 IPRLEV = IPRLOC(7)
 iDisk = IADR15(12)

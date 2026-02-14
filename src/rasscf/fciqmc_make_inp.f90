@@ -16,46 +16,46 @@
 module fciqmc_make_inp
 
 use linalg_mod, only: verify_
-use general_data, only: nActEl, iSpin
+use general_data, only: iSpin, nActEl
 use fortran_strings, only: str
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero, Five, Ten
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
 ! Sometimes no default value on purpose
-integer :: totalwalkers, &
-           Time = 200, &                      ! Default value for time per NECI run
-           trial_wavefunction = 1000000000, & ! Practically this means no trial_wavefunction by default
-           nmcyc = 50000, &
-           pops_trial = 1000, &
-           stepsshift = 10, &
-           addtoinitiator = 3, &
-           semi_stochastic = 1000, &
-           highlypopwrite = 50, &
-           startsinglepart = 10, &
-           pops_core = 10000
+integer(kind=iwp) :: totalwalkers, &
+                     Time = 200, &                      ! Default value for time per NECI run
+                     trial_wavefunction = 1000000000, & ! Practically this means no trial_wavefunction by default
+                     nmcyc = 50000, &
+                     pops_trial = 1000, &
+                     stepsshift = 10, &
+                     addtoinitiator = 3, &
+                     semi_stochastic = 1000, &
+                     highlypopwrite = 50, &
+                     startsinglepart = 10, &
+                     pops_core = 10000
 character(len=:), allocatable :: definedet
-real(wp) :: proje_changeref = 1.2_wp, &
-            max_tau = 0.02_wp, &
-            maxwalkerbloom = 2._wp, &
-            memoryfacpart = Five, &
-            memoryfacspawn = Ten, &     ! Default value for NECI RealSpawnCutOff
-            realspawncutoff = 0.3_wp, & ! Default value for NECI diagonal shift value
-            diagshift = Zero, &
-            shiftdamp = 0.02_wp
+real(kind=wp) :: proje_changeref = 1.2_wp, &
+                 max_tau = 0.02_wp, &
+                 maxwalkerbloom = 2._wp, &
+                 memoryfacpart = Five, &
+                 memoryfacspawn = Ten, &     ! Default value for NECI RealSpawnCutOff
+                 realspawncutoff = 0.3_wp, & ! Default value for NECI diagonal shift value
+                 diagshift = Zero, &
+                 shiftdamp = 0.02_wp
 
 type :: t_RDMsampling
-  integer :: start, n_samples, step
+  integer(kind=iwp) :: start, n_samples, step
 end type t_RDMsampling
 
 type(t_RDMsampling) :: RDMsampling
 
-public :: make_inp, cleanup, totalwalkers, Time, trial_wavefunction, nmcyc, pops_trial, stepsshift, addtoinitiator, &
-          semi_stochastic, highlypopwrite, startsinglepart, pops_core, definedet, proje_changeref, max_tau, maxwalkerbloom, &
-          memoryfacpart, memoryfacspawn, realspawncutoff, diagshift, shiftdamp, t_RDMsampling, RDMsampling
+public :: addtoinitiator, cleanup, definedet, diagshift, highlypopwrite, make_inp, max_tau, maxwalkerbloom, memoryfacpart, &
+          memoryfacspawn, nmcyc, pops_core, pops_trial, proje_changeref, RDMsampling, realspawncutoff, semi_stochastic, shiftdamp, &
+          startsinglepart, stepsshift, t_RDMsampling, Time, totalwalkers, trial_wavefunction
 
 contains
 
@@ -74,12 +74,12 @@ contains
 subroutine make_inp(path,readpops,tGUGA,FCIDUMP_name,GAS_spaces,GAS_particles)
 
   character(len=*), intent(in) :: path
-  logical, intent(in) :: readpops, tGUGA
+  logical(kind=iwp), intent(in) :: readpops, tGUGA
   character(len=*), intent(in), optional :: FCIDUMP_name
-  integer, intent(in), optional :: GAS_spaces(:,:), GAS_particles(:,:)
-  integer :: i, isFreeUnit, file_id, indentlevel, iGAS, iSym
-  integer :: nGAS, nSym
-  integer, parameter :: indentstep = 4
+  integer(kind=iwp), intent(in), optional :: GAS_spaces(:,:), GAS_particles(:,:)
+  integer(kind=iwp) :: file_id, i, iGAS, indentlevel, iSym, nGAS, nSym
+  integer(kind=iwp), parameter :: indentstep = 4
+  integer(kind=iwp), external :: isFreeUnit
 
   call verify_(present(GAS_spaces) .eqv. present(GAS_particles),'present(GAS_spaces) .eqv. present(GAS_particles)')
 

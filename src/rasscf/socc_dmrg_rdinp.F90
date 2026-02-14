@@ -19,14 +19,14 @@
 subroutine socc_dmrg_rdinp(luinput,initial_occ,nrs2t,nroots)
 
 use qcmaquis_interface_utility_routines, only: lower_to_upper
+use Definitions, only: iwp
 
 implicit none
-integer, intent(in) :: luinput
-integer, intent(in) :: nrs2t, nroots
-integer, intent(inout) :: initial_occ(nrs2t,nroots)
-integer :: i, j, k, io, ls
+integer(kind=iwp), intent(in) :: luinput, nrs2t, nroots
+integer(kind=iwp), intent(inout) :: initial_occ(nrs2t,nroots)
+integer(kind=iwp) :: i, io, j, k, ls
 character(len=800) :: string
-character(len=1) :: tag
+character :: tag
 
 i = 1
 do

@@ -13,16 +13,13 @@ subroutine SetPos(LUnit,KeyIn,Line,iRc)
 
 use PrintLevel, only: TERSE
 use output_ras, only: IPRLOC
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer LUNIT, iRC
-character(len=*) KeyIn
-character(len=*) Line
-character(len=16) Command
-character(len=16) Key
-integer IPRLEV, KLen
-intrinsic len, min
+integer(kind=iwp) :: LUNIT, iRC
+character(len=*) KeyIn, Line
+integer(kind=iwp) :: IPRLEV, KLen
+character(len=16) :: Command, Key
 #include "warnings.h"
 
 ! Read until, and including, a line beginning with a particular

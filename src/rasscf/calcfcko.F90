@@ -14,20 +14,15 @@
 subroutine CalcFckO(CMO,FI,FA,FckO)
 
 use rasscf_global, only: NAC
-use general_data, only: NTOT1, NTOT2, NSYM, NASH, NBAS, NFRO, NISH
+use general_data, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT1, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-!*****Input
-real*8, dimension(NTOT1) :: FI, FA
-real*8, dimension(NTOT2) :: CMO
-!*****Output
-real*8 :: FckO(NAC,NAC)
-!*****Auxiliary quantities
-integer NB, NA, NI, IOff1, IOff2, IOff3
-integer IBas, JBas, ISym, IOrb, JOrb
-real*8, allocatable :: FIAAO(:,:), Scr(:,:), FckOt(:,:)
+real(kind=wp) :: CMO(NTOT2), FI(NTOT1), FA(NTOT1), FckO(NAC,NAC)
+integer(kind=iwp) :: IBas, IOff1, IOff2, IOff3, IOrb, ISym, JBas, JOrb, NA, NB, NI
+real(kind=wp), allocatable :: FIAAO(:,:), FckOt(:,:), Scr(:,:)
 
 FckO(:,:) = Zero
 

@@ -28,25 +28,19 @@ subroutine ChkInp()
 !                                                                      *
 !***********************************************************************
 
-#ifdef _DMRG_
-use qcmaquis_interface_cfg
-#endif
 use linalg_mod, only: abort_
-use gas_data, only: iDoGAS, nGAS, iGSOCCX, nGSSH
-use rasscf_global, only: ITMAX, lRoots, MAXIT, MAXJT, NAC, NIN, nRoots, OutFmt1, OutFmt2, PreThr, ProThr, ThFact, ThrE, ThrEn, &
-                         ThrSX, ThrTE, iRoot
-use general_data, only: NTOT, NACTEL, NHOLE1, NRS1T, NELEC3, NRS3T, NRS2T, NSYM, ISPIN, STSYM, NSEL, NALTER, INVEC, NASH, NBAS, &
-                        NDEL, NFRO, NISH, NORB, NRS1, NRS2, NRS3, NSSH, MALTER
+use gas_data, only: iDoGAS, iGSOCCX, nGAS, nGSSH
+use rasscf_global, only: iRoot, ITMAX, lRoots, MAXIT, MAXJT, NAC, NIN, nRoots, OutFmt1, OutFmt2, PreThr, ProThr, ThFact, ThrE, &
+                         ThrEn, ThrSX, ThrTE
+use general_data, only: INVEC, ISPIN, MALTER, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NORB, NRS1, NRS1T, &
+                        NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, STSYM
 use Molcas, only: MxAct, MxBas, MxGAS, MxIna, MxOrb, MxRoot
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: ierr, ierr1, ierr2
-integer :: i, iSym, iAlter
-integer :: iB0, iA0, iC0
-integer :: c_orbs_per_GAS(nGAS)
+integer(kind=iwp) :: c_orbs_per_GAS(nGAS), i, iA0, iAlter, iB0, iC0, ierr, ierr1, ierr2, iSym
 #include "warnings.h"
 
 !c_orbs_per_GAS: These are the cumulated number of spin orbitals per GAS space.

@@ -33,19 +33,19 @@ subroutine Upd_FA(PUVX,F,D,ExFac)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: NSYM, NASH, NISH, NORB
+use general_data, only: NASH, NISH, NORB, NSYM
 use Molcas, only: MxSym
 use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 PUVX(*), F(*), D(*)
-integer case
-integer off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)
-integer ISTACK, ISYM, IASH, IORB, JSYM, JASH, IJSYM, KSYM, KASH, LSYM, LASH, KLSYM, KL_ORB_PAIRS, IISH, IFOFF, IU, IP, IPU, IPUVX, &
-        JORB, JISH, IDOFF, IV, IX, IVX, IUV, IUX, IPV, IPX, KDOFF, JFOFF, JDOFF
-real*8 DVX, DUV, EXFAC, DUX, TEMP
+real(kind=wp) :: PUVX(*), F(*), D(*), ExFac
+integer(kind=iwp) :: IASH, icase, IDOFF, IFOFF, IISH, IJSYM, IORB, IP, IPU, IPUVX, IPV, IPX, ISTACK, ISYM, IU, IUV, IUX, IV, IVX, &
+                     IX, JASH, JDOFF, JFOFF, JISH, JORB, JSYM, KASH, KDOFF, KL_ORB_PAIRS, KLSYM, KSYM, LASH, LSYM, &
+                     off_Dmat(mxSym), off_Fmat(mxSym), off_PUVX(mxSym)
+real(kind=wp) :: DUV, DUX, DVX, TEMP
 ! Statement function
-integer i, iTri
+integer(kind=iwp) :: i, iTri
 iTri(i) = (i*i-i)/2
 
 ! generate offsets
@@ -126,13 +126,13 @@ do iSym=1,nSym
         klSym = 1+ieor(kSym-1,lSym-1)
 
         ! find cases
-        case = 4
-        if (iSym == jSym) case = case-2
-        if (iSym == kSym) case = case-1
+        icase = 4
+        if (iSym == jSym) icase = icase-2
+        if (iSym == kSym) icase = icase-1
 
         if ((ijSym == klSym) .and. (iAsh*jAsh*kAsh*lAsh /= 0)) then
 
-          goto(100,200,300,400) case
+          goto(100,200,300,400) icase
 
           ! symmetry case (II!II)
 100       continue

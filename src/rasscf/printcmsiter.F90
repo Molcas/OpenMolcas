@@ -17,14 +17,14 @@
 
 subroutine PrintCMSIter(iStep,Qnew,Qold,RMat,lRoots)
 
-use CMS, only: iCMSOpt, NPosHess, LargestQaaGrad, NCMSScale
+use CMS, only: iCMSOpt, LargestQaaGrad, NCMSScale, NPosHess
 use Constants, only: deg2rad
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iStep, lRoots
-real*8 Qnew, Qold, Diff
-real*8 RMat(lRoots**2)
+integer(kind=iwp) :: iStep, lRoots
+real(kind=wp) :: Qnew, Qold, RMat(lRoots**2)
+real(kind=wp) :: Diff
 
 !write(u6,*) 'iteration information'
 Diff = Qnew-Qold

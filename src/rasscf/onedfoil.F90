@@ -17,10 +17,12 @@
 
 subroutine OneDFoil(OneD,TwoD,m,n)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer M, N, I, J, iLoc
-real*8, dimension(m,n) :: TwoD
-real*8, dimension(m*n) :: OneD
+integer(kind=iwp) :: m, n
+real(kind=wp) :: OneD(m*n), TwoD(m,n)
+integer(kind=iwp) :: I, iLoc, J
 
 iLoc = 1
 do J=1,N

@@ -20,16 +20,14 @@ subroutine CMSScaleX(X,R,DeltaR,Qnew,Qold,RCopy,GDCopy,DgCopy,GDstate,GDOrbit,Dg
 
 use CMS, only: NCMSScale
 use rasscf_global, only: CMSThreshold, lRoots
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nSPair, lRoots2, nGD, NAC2, nDDg
-real*8 X(nSPair), R(lRoots2), DeltaR(lRoots2), RCopy(lRoots2), GDCopy(nGD), DgCopy(nGD), GDState(nGD), Dgstate(nGD), GDOrbit(nGD), &
-       DgOrbit(nGD), DDg(nDDg)
-real*8 Qnew, Qold
-logical Saved
-integer nScaleMax
-#include "warnings.h"
+integer(kind=iwp) :: nSPair, lRoots2, nGD, NAC2, nDDg
+real(kind=wp) :: X(nSPair), R(lRoots2), DeltaR(lRoots2), Qnew, QOld, RCopy(lRoots2), GDCopy(nGD), DgCopy(nGD), GDState(nGD), &
+                 GDOrbit(nGD), Dgstate(nGD), DgOrbit(nGD), DDg(nDDg)
+logical(kind=iwp) :: Saved
+integer(kind=iwp) :: nScaleMax
 
 Saved = .true.
 

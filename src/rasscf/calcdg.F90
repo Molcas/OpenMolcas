@@ -21,11 +21,12 @@
 subroutine CalcDg(Dgorbit,GDorbit,Gtuvx,nGD,nTUVX,NAC,lRoots)
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nGD, nTUVX, NAC, lRoots
-real*8 Dgorbit(nGD), GDorbit(nGD), Gtuvx(nTUVX)
-integer NAC2, lRoots2
+integer(kind=iwp) :: nGD, nTUVX, NAC, lRoots
+real(kind=wp) :: Dgorbit(nGD), GDorbit(nGD), Gtuvx(nTUVX)
+integer(kind=iwp) :: NAC2, lRoots2
 
 NAC2 = NAC**2
 lRoots2 = lRoots**2

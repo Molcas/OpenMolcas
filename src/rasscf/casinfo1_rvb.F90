@@ -14,9 +14,8 @@ subroutine casinfo1_rvb()
 use Definitions, only: iwp, u6
 
 implicit none
-logical(kind=iwp) iphex, oldex
-integer(kind=iwp) :: nel_c, norb_c, i2s_c, isym_c, neltot_c
-integer(kind=iwp) :: ireturn_rasscf
+integer(kind=iwp) :: i2s_c, ireturn_rasscf, isym_c, nel_c, neltot_c, norb_c
+logical(kind=iwp) :: iphex, oldex
 
 ! Information from molcas interface file 'JOBIPH' :
 write(u6,'(a)') ' ------- Recover RASSCF-related information --------------------------------------'

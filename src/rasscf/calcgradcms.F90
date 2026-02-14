@@ -18,11 +18,12 @@
 subroutine CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
 
 use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDDg, lRoots, nSPair
-real*8 Grad(nSPair), DDg(nDDg)
-integer K, L, iKL, lRoots2, lRoots3, iLoc1, iLoc2
+integer(kind=iwp) :: nDDg, lRoots, nSPair
+real(kind=wp) :: Grad(nSPair), DDg(nDDg)
+integer(kind=iwp) :: iKL, iLoc1, iLoc2, K, L, lRoots2, lRoots3
 
 lRoots2 = lRoots**2
 lRoots3 = lRoots*lRoots2

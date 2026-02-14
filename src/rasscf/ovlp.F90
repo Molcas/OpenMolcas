@@ -44,17 +44,17 @@ subroutine Ovlp(iWay,C1,C2,Smat)
 
 use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: NAC
-use general_data, only: NSYM, NASH, NBAS, NFRO, NISH, NTOT1
+use general_data, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iWay
-real*8 C1(*), C2(*), Smat(*)
-character(len=8) Label
-real*8, allocatable :: OAO(:), Scr1(:), Scr2(:)
-integer iRC, iOpt, iComp, iSyLbl, ipC, ipO, ipSMat, nAcO, iSym, nBs, nIs, nAs, iiOrb, ij, iOrb, jjOrb, jOrb
+integer(kind=iwp) :: iWay
+real(kind=wp) :: C1(*), C2(*), Smat(*)
+integer(kind=iwp) :: iComp, iiOrb, ij, iOpt, iOrb, ipC, ipO, ipSMat, iRC, iSyLbl, iSym, jjOrb, jOrb, nAcO, nAs, nBs, nIs
+character(len=8) :: Label
+real(kind=wp), allocatable :: OAO(:), Scr1(:), Scr2(:)
 #include "warnings.h"
 
 ! prologue

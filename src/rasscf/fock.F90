@@ -37,25 +37,24 @@ subroutine FOCK(F,BM,FI,FP,D,P,Q,FINT,IFINAL,CMO)
 !      ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 
 use Fock_util_global, only: ALGO, DoCholesky
-use rasscf_global, only: KSDFT, CBLBM, E2act, ECAS, HalfQ1, IBLBM, iSymBB, JBLBM, NTOT3, via_DFT, ISTORD, ISTORP, iTri, iZROT, &
-                         ixSym, CBLB, IBLB, JBLB
+use rasscf_global, only: CBLB, CBLBM, E2act, ECAS, HalfQ1, IBLB, IBLBM, ISTORD, ISTORP, iSymBB, iTri, ixSym, iZROT, JBLB, JBLBM, &
+                         KSDFT, NTOT3, via_DFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NASH, NBAS, NFRO, NISH, NORB, NSSH
+use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
 use Constants, only: Zero, One, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iFinal
-real*8 FI(*), FP(*), D(*), P(*), Q(*), FINT(*), F(*), BM(*), CMO(*)
-integer ISTSQ(8), ISTAV(8)
-real*8 ECAS0, CASDFT_En, CSX, QNTM
-integer iPrLev, ipBM, ipFMCSCF, ipMOs, ipQs, ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTZ, iSym, IX, IX1, JSTF, N1, N2, NAO, NAS, NEO, &
-        NI, NIA, NIO, NIS, NM, NO, NO2, nOr, NP, NPQ, NQ, nSs, NT, NTM, NTT, NTU, NTV, NU, NUVX, NV, NVI, NVM
-character(len=16), parameter :: ROUTINE = 'FOCK    '
+real(kind=wp) :: F(*), BM(*), FI(*), FP(*), D(*), P(*), Q(*), FINT(*), CMO(*)
+integer(kind=iwp) :: iFinal
+integer(kind=iwp) :: ipBM, ipFMCSCF, ipMOs, ipQs, iPrLev, ISTAV(8), ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTSQ(8), ISTZ, iSym, IX, &
+                     IX1, JSTF, N1, N2, NAO, NAS, NEO, NI, NIA, NIO, NIS, NM, NO, NO2, nOr, NP, NPQ, NQ, nSs, NT, NTM, NTT, NTU, &
+                     NTV, NU, NUVX, NV, NVI, NVM
+real(kind=wp) :: CASDFT_En, CSX, ECAS0, QNTM
 
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering FOCK'
 
 ISTSQ(1) = 0
 ISTAV(1) = 0

@@ -29,26 +29,24 @@ use OneDat, only: sNoNuc, sNoOri
 use rctfld_module, only: lRF
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NTOT1, NACTEL, ISPIN, NASH, NBAS, NFRO, NISH
+use general_data, only: ISPIN, NACTEL, NASH, NBAS, NFRO, NISH, NSYM, NTOT1
 use rasscf_global, only: DFTFOCK, Emy, ExFac, KSDFT_temp, NAC, NACPAR, NONEQ, PotNuc, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
 #ifdef _DMRG_
-use qcmaquis_interface_cfg
 use lucia_data, only: INT1, INT1O
 use rasscf_global, only: DoDMRG
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMO(*), F(*), FI(*), D1I(*), D1A(*), D1S(*)
-character(len=8) Label
-logical First, Dff, Do_DFT
-real*8, allocatable :: X0(:), X1(:), X2(:), X3(:)
-real*8, allocatable :: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:), Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:)
-real*8 CASDFT_Funct, Emyn, Eone, ETwo, PotNuc_Ref
-real*8, external :: DDot_
-integer i, IADD, iBas, iCharge, iCOmp, iOff, iOpt, iPrLev, iRC, iSyLbl, iSym, ITU, j, MXNA, MXNB, NAT, NST, NT, NTU, NU
+real(kind=wp) :: CMO(*), F(*), FI(*), D1I(*), D1A(*), D1S(*)
+integer(kind=iwp) :: i, IADD, iBas, iCharge, iCOmp, iOff, iOpt, iPrLev, iRC, iSyLbl, iSym, ITU, j, MXNA, MXNB, NAT, NST, NT, NTU, NU
+real(kind=wp) :: CASDFT_Funct, Emyn, Eone, ETwo, PotNuc_Ref
+logical(kind=iwp) :: Dff, Do_DFT, First
+character(len=8) :: Label
+real(kind=wp), allocatable :: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:), Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:), X0(:), X1(:), X2(:), X3(:)
+real(kind=wp), external :: DDot_
 
 !**********************************************************
 ! Local print level (if any)

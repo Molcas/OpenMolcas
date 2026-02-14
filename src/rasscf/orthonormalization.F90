@@ -13,22 +13,27 @@
 
 module orthonormalization
 
-use blockdiagonal_matrices, only: t_blockdiagonal, new, delete, from_raw, to_raw, from_symm_raw, blocksizes
-use linalg_mod, only: Gram_Schmidt, Lowdin, Canonical
+use general_data, only: nActEl, nBas, nDel, nDelt, nOrb, nSSH, nSym
+use rasscf_global, only: nFr, nIn, nOrbt, nSec, nTot3, nTot4, Tot_Nuc_Charge
+use output_ras, only: IPRLOC
+use PrintLevel, only: USUAL
+use blockdiagonal_matrices, only: blocksizes, delete, from_raw, from_symm_raw, new, t_blockdiagonal, to_raw
+use linalg_mod, only: Canonical, Gram_Schmidt, Lowdin
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
 #include "intent.fh"
+#include "warnings.h"
 
-public :: t_ON_scheme, ON_scheme, ON_scheme_values, orthonormalize
+public :: ON_scheme, ON_scheme_values, orthonormalize, t_ON_scheme
 
 ! TODO: Should be changed to default construction in the future.
 ! As of July 2019 the Sun and PGI compiler have problems.
 type :: t_ON_scheme_values
-  integer :: no_ON, Gram_Schmidt, Lowdin, Canonical
+  integer(kind=iwp) :: no_ON, Gram_Schmidt, Lowdin, Canonical
 end type t_ON_scheme_values
 
 ! TODO: Dear fellow MOLCAS developer of the future:
@@ -41,7 +46,7 @@ end type t_ON_scheme_values
 type(t_ON_scheme_values), parameter :: ON_scheme_values = t_ON_scheme_values(no_ON=1,Gram_Schmidt=2,Lowdin=3,Canonical=4)
 
 type :: t_ON_scheme
-  integer :: val = ON_scheme_values%Gram_Schmidt
+  integer(kind=iwp) :: val = ON_scheme_values%Gram_Schmidt
 end type t_ON_scheme
 
 type(t_ON_scheme) :: ON_scheme = t_ON_scheme()
@@ -71,14 +76,11 @@ contains
 
 subroutine orthonormalize_blocks(basis,scheme,ONB)
 
-  use general_data, only: nSym, nBAs, nDel, nDelt, nSSH, nOrb
-  use rasscf_global, only: nSec, nOrbt, nTot3, nTot4
-
   type(t_blockdiagonal), intent(in) :: basis(:)
   type(t_ON_scheme), intent(in) :: scheme
   type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
   type(t_blockdiagonal), allocatable :: S(:)
-  integer :: n_to_ON(nSym), n_new(nSym)
+  integer(kind=iwp) :: n_new(nSym), n_to_ON(nSym)
 
   ! gfortran -O0 warning bug
   allocate(S(0))
@@ -106,11 +108,9 @@ end subroutine orthonormalize_blocks
 
 subroutine orthonormalize_raw(CMO,scheme,ONB_v)
 
-  use general_data, only: nBas, nSym
-
-  real(wp), intent(in) :: CMO(:)
+  real(kind=wp), intent(in) :: CMO(:)
   type(t_ON_scheme), intent(in) :: scheme
-  real(wp), intent(out) :: ONB_v(:)
+  real(kind=wp), intent(out) :: ONB_v(:)
   type(t_blockdiagonal), allocatable :: basis(:), ONB(:)
 
   ! gfortran -O0 warning bug
@@ -134,7 +134,7 @@ subroutine Lowdin_Blocks(basis,S,ONB)
 
   type(t_blockdiagonal), intent(in) :: basis(:), S(:)
   type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
-  integer :: i
+  integer(kind=iwp) :: i
 
   do i=1,size(basis)
     call Lowdin(basis(i)%blck,ONB(i)%blck,S(i)%blck)
@@ -148,10 +148,10 @@ end subroutine Lowdin_Blocks
 subroutine Canonical_Blocks(basis,S,n_to_ON,ONB,n_new)
 
   type(t_blockdiagonal), intent(in) :: basis(:), S(:)
-  integer, intent(in) :: n_to_ON(:)
+  integer(kind=iwp), intent(in) :: n_to_ON(:)
   type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
-  integer, intent(out) :: n_new(:)
-  integer :: i
+  integer(kind=iwp), intent(out) :: n_new(:)
+  integer(kind=iwp) :: i
 
   do i=1,size(basis)
     call Canonical(basis(i)%blck,n_to_ON(i),ONB(i)%blck,n_new(i),S(i)%blck)
@@ -165,10 +165,10 @@ end subroutine Canonical_Blocks
 subroutine Gram_Schmidt_Blocks(basis,S,n_to_ON,ONB,n_new)
 
   type(t_blockdiagonal), intent(in) :: basis(:), S(:)
-  integer, intent(in) :: n_to_ON(:)
+  integer(kind=iwp), intent(in) :: n_to_ON(:)
   type(t_blockdiagonal), intent(_OUT_) :: ONB(:)
-  integer, intent(out) :: n_new(:)
-  integer :: i
+  integer(kind=iwp), intent(out) :: n_new(:)
+  integer(kind=iwp) :: i
 
   do i=1,size(basis)
     call Gram_Schmidt(basis(i)%blck,n_to_ON(i),ONB(i)%blck,n_new(i),S(i)%blck)
@@ -178,14 +178,9 @@ end subroutine Gram_Schmidt_Blocks
 
 subroutine update_orb_numbers(n_to_ON,nNew,nDel,nSSH,nOrb,nDelt,nSec,nOrbt,nTot3,nTot4)
 
-  use general_data, only: nSym
-  use PrintLevel, only: USUAL
-  use output_ras, only: IPRLOC
-# include "warnings.h"
-
-  integer, intent(in) :: n_to_ON(:), nNew(:)
-  integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:), nDelt, nSec, nOrbt, nTot3, nTot4
-  integer :: iSym, remove(nSym), total_remove
+  integer(kind=iwp), intent(in) :: n_to_ON(:), nNew(:)
+  integer(kind=iwp), intent(inout) :: nDel(:), nSSH(:), nOrb(:), nDelt, nSec, nOrbt, nTot3, nTot4
+  integer(kind=iwp) :: iSym, remove(nSym), total_remove
 
   remove = n_to_ON(:nSym)-nNew(:nSym)
   total_remove = sum(remove(:nSym))
@@ -227,10 +222,9 @@ subroutine read_raw_S(S_buffer)
 
   use OneDat, only: sNoOri
 
-  real(wp), intent(inout) :: S_buffer(:)
-  integer :: i_Rc, i_Opt, i_Component, i_SymLbl
+  real(kind=wp), intent(inout) :: S_buffer(:)
+  integer(kind=iwp) :: i_Component, i_Opt, i_Rc, i_SymLbl
   character(len=8) :: Label
-# include "warnings.h"
 
   i_Rc = 0
   i_Opt = ibset(0,sNoOri)
@@ -250,16 +244,10 @@ end subroutine read_raw_S
 
 subroutine read_S(S)
 
-  use general_data, only: nBas, nSym, nActEl
-  use rasscf_global, only: nFr, nIn, Tot_Nuc_Charge
-  use PrintLevel, only: USUAL
-  use output_ras, only: IPRLOC
-
   type(t_blockdiagonal) :: S(nSym)
-  integer :: size_S_buffer
-  real(wp) :: Mol_Charge
-  real(wp), allocatable :: S_buffer(:)
-# include "warnings.h"
+  integer(kind=iwp) :: size_S_buffer
+  real(kind=wp) :: Mol_Charge
+  real(kind=wp), allocatable :: S_buffer(:)
 
   size_S_buffer = sum(nBas(:nSym)*(nBas(:nSym)+1)/2)
   call mma_allocate(S_buffer,size_S_buffer+4)

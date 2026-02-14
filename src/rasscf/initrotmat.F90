@@ -17,10 +17,12 @@
 
 subroutine InitRotMat(RotMat,lRoots,CMSSFile,LenCMSS)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer LenCMSS, lRoots
+integer(kind=iwp) :: lRoots, LenCMSS
+real(kind=wp) :: RotMat(lRoots,lRoots)
 character(len=LenCMSS) :: CMSSFile
-real*8, dimension(lRoots,lRoots) :: RotMat
 character(len=16) :: ScrChar
 
 if (CMSSFile == 'XMS') then

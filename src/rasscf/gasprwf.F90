@@ -42,20 +42,18 @@ subroutine gasprwf(NORB,NEL,IREFSM,ICONF,ISPIN,CICOEF,kcnf)
 !                                                                      *
 !***********************************************************************
 
-use rasscf_global, only: PrwThr, nSm
-use spinfo, only: NTYP, MINOP, NCNFTP, NCSFTP
+use rasscf_global, only: nSm, PrwThr
+use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use Molcas, only: MxAct
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nOrb, nEl
-integer ICONF(*), ISPIN(*)
-real*8 CICOEF(*)
-integer KCNF(NEL)
-integer IWALK(mxAct)
-character(len=120) Line
-integer iRefSM, IC, ICL, ICNBS, ICNBS0, iCSBAS, ICSFJP, IIBCL, IIBOP, IICSF, iOff, iOpen, iOrb, ipBas, iSym, iTyp, jOCC, kOCC, kOrb
-real*8 COEF
+integer(kind=iwp) :: nOrb, nEl, iRefSM, ICONF(*), ISPIN(*), KCNF(NEL)
+real(kind=wp) :: CICOEF(*)
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, iCSBAS, ICSFJP, IIBCL, IIBOP, IICSF, iOff, iOpen, iOrb, ipBas, iSym, iTyp, &
+                     IWALK(mxAct), jOCC, kOCC, kOrb
+real(kind=wp) :: COEF
+character(len=120) :: Line
 
 ! print headline
 

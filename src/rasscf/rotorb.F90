@@ -22,31 +22,27 @@ subroutine rotorb(cmoo,cmon,c,x,x2,y,thmax,FA)
 !      ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 
 use gas_data, only: iDoGAS, NGAS, NGSSH
-use rasscf_global, only: PURIFY, CMAX, ROTMAX, iXSym
-use PrintLevel, only: DEBUG, VERBOSE, TERSE
+use rasscf_global, only: CMAX, iXSym, PURIFY, ROTMAX
+use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NSSH, NTOT2
+use general_data, only: NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NSSH, NSYM, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=16), parameter :: ROUTINE = 'ROTORB  '
-real*8 cmoo(*), cmon(*), c(*), x(*), x2(*)
-real*8 y(*), FA(*), THMAX
-real*8 DAMPGAS(10), COREGAS(10)
-integer IDAMPGAS(0:4,0:4), ICOREGAS(0:4,0:4)
-logical iFrzAct
-real*8, parameter :: Thrs = 1.0e-14_wp
-real*8, allocatable :: Unit(:), SqFA(:)
-integer I, IB, ICORE, IDAMP, IGAS, II, IJ, IO, iOff, iOrb, iPrLev, iSpace, IST, ISTBM, ISTMO, ISTMO1, ISUM, ISYM, jPr, jSPace, &
-        MOType, NACI, NACJ, NAE, NAO, NB, NBO, ND, NDB, NEO, NF, NFB, NI, NII, NIO, NIO1, NJ, NO, NOC, NOC1, NP, NR
-real*8 TERM, THM, Xn, XX
-real*8, parameter :: ACC = 1.0e-13_wp
+real(kind=wp) :: cmoo(*), cmon(*), c(*), x(*), x2(*), y(*), THMAX, FA(*)
+integer(kind=iwp) :: I, IB, ICORE, ICOREGAS(0:4,0:4), IDAMP, IDAMPGAS(0:4,0:4), IGAS, II, IJ, IO, iOff, iOrb, iPrLev, iSpace, IST, &
+                     ISTBM, ISTMO, ISTMO1, ISUM, ISYM, jPr, jSPace, MOType, NACI, NACJ, NAE, NAO, NB, NBO, ND, NDB, NEO, NF, NFB, &
+                     NI, NII, NIO, NIO1, NJ, NO, NOC, NOC1, NP, NR
+real(kind=wp) :: COREGAS(10), DAMPGAS(10), TERM, THM, Xn, XX
+logical(kind=iwp) :: iFrzAct
+real(kind=wp), allocatable :: SqFA(:), Unt(:)
+real(kind=wp), parameter :: ACC = 1.0e-13_wp, Thrs = 1.0e-14_wp
 
 IPRLEV = IPRLOC(4)
 if (IPRLEV >= DEBUG) then
-  write(u6,*) ' Entering ',ROUTINE
+  write(u6,*) ' Entering ROTORB'
 
   write(u6,*)
   write(u6,*) 'FI+FA in RotOrb by Unitary transform'
@@ -345,21 +341,21 @@ do isym=1,nsym
     call TriPrt(' ',' ',FA(iOff),no)
   end if
 
-  call mma_allocate(UNIT,no*no,Label='UNIT')
+  call mma_allocate(Unt,no*no,Label='Unt')
   call mma_allocate(SqFA,no*no,Label='SqFA')
-  Unit(:) = Zero
+  Unt(:) = Zero
   SqFA(:) = Zero
   call Square(FA(iOff),SqFA,1,no,no)
   if (iprlev >= debug) call recprt('Square FA in RotOrb',' ',SqFA,no,no)
-  call DGEMM_('N','N',no,no,no,One,x,no,SqFA,no,Zero,UNIT,no)
+  call DGEMM_('N','N',no,no,no,One,x,no,SqFA,no,Zero,Unt,no)
 
-  call DGEMM_('N','T',no,no,no,One,UNIT,no,x,no,Zero,SqFA,no)
+  call DGEMM_('N','T',no,no,no,One,Unt,no,x,no,Zero,SqFA,no)
 
   call Fold_Mat(1,[no],SqFA,FA(iOff))
 
   iOff = iOff+(no*no+no)/2
 
-  call mma_deallocate(Unit)
+  call mma_deallocate(Unt)
   call mma_deallocate(SqFA)
 
   ! Print output in MO-basis

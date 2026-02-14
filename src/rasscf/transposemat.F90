@@ -22,11 +22,12 @@
 !     versa in mode 2.
 subroutine TransposeMat(Matout,Matin,nElem,nRow_in,nCol_in)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nElem, nRow_in, nCol_in, iRow, iCol, iOff1, iOff2
-real*8 Matin(nElem), Matout(nElem)
+integer(kind=iwp) :: nElem, nRow_in, nCol_in
+real(kind=wp) :: Matout(nElem), Matin(nElem)
+integer(kind=iwp) :: iCol, iOff1, iOff2, iRow
 
 if (nRow_in*nCol_in /= nElem) then
   write(u6,*) 'Error in TransposeMat()'

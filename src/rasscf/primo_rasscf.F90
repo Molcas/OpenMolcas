@@ -16,27 +16,25 @@ subroutine Primo_RasScf(VecTit,Ene,Occ,CMO)
 !
 !***********************************************************************
 
-use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
-use general_data, only: NSYM, NASH, NBAS, NDEL, NFRO, NISH
+use rasscf_global, only: BName, iPT2, OutFmt2, PreThr, ProThr
+use general_data, only: NASH, NBAS, NDEL, NFRO, NISH, NSYM
 use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) VecTit
-real*8 CMO(*), Occ(*), Ene(*)
-integer NSLCT(8)
-logical PrOcc, PrEne
-character(len=3) lIrrep(8)
-character(len=8) Fmt1, Fmt2
-character(len=132) Line, Blank
+character(len=*) :: VecTit
+real(kind=wp) :: Ene(*), Occ(*), CMO(*)
+integer(kind=iwp) :: I, ib, iBas, iBOff, iCOff, iCol, IO, IORB, IS, ISEND, ISOFF, ISStart, IST, ISYM, left, lLine, lPaper, NB, &
+                     NBTOT, nCols, ND, NFIA, NO, NS, NSKIP, NSLCT(8), NSLCTT, NVSH(8)
+real(kind=wp) :: CC
+logical(kind=iwp) :: PrEne, PrOcc
+character(len=132) :: Line
+character(len=8) :: Fmt1, Fmt2
+character(len=3) :: lIrrep(8)
+integer(kind=iwp), allocatable :: MrkIt(:), Slct(:)
 character(len=LenIn+8), external :: Clean_BName
-integer NVSH(8)
-integer, allocatable :: MrkIt(:), Slct(:)
-real*8 CC
-integer I, ib, iBas, iBOff, iCOff, iCol, IO, IORB, IS, ISEND, ISOFF, ISStart, IST, ISYM, left, lPaper, NB, NBTOT, nCols, ND, NFIA, &
-        NO, NS, NSKIP, NSLCTT, lLine
 
 call Get_cArray('Irreps',lIrrep,24)
 
@@ -47,7 +45,6 @@ lPaper = 132
 left = (lPaper-lLine)/2
 write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
 write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-Blank = ' '
 ! PAM Krapperup Nov 05: For the moment, selection of orbitals to be
 ! printed is ultimately determined here on the basis of PRETHR (and
 ! PROTHR) thresholds. These have either been set by the user, or
@@ -240,7 +237,7 @@ else if (OutFmt2 == 'COMPACT ') then
       do IS=1,NSLCT(ISYM)
         IORB = SLCT(ISOFF+IS)
         ICOL = IORB-IBOFF
-        LINE = BLANK
+        LINE = ''
         IST = 1
         write(LINE(IST:132),'(I5)') ICOL
         IST = IST+5
@@ -253,7 +250,7 @@ else if (OutFmt2 == 'COMPACT ') then
           IST = IST+10
         end if
         write(u6,FMT2//'A)') LINE
-        LINE = BLANK
+        LINE = ''
         IST = 9
         do IBAS=1,NB
           CC = CMO(ICOFF+(ICOL-1)*NB+IBAS)
@@ -262,13 +259,13 @@ else if (OutFmt2 == 'COMPACT ') then
             IST = IST+28
             if (IST > (132-LEFT-28)) then
               write(u6,FMT2//'A)') trim(LINE)
-              LINE = BLANK
+              LINE = ''
               IST = 9
             end if
           end if
         end do
         write(u6,FMT2//'A)') trim(LINE)
-        LINE = BLANK
+        LINE = ''
         IST = 9
       end do
     end if

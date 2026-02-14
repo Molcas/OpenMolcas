@@ -24,18 +24,16 @@ use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: NSYM, NASH, NISH, NSSH, SXDAMP
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CIN(*), HC(*), BM(*), SXN(*), G(*), H(*), DIA(*), F1(*), F2(*), X(*), C(*)
-integer NTRIAL
-character(len=16), parameter :: ROUTINE = 'SIGVEC  '
-real*8 HD(*)
-integer :: I, iPrLev, ISTAE, ISTBM, ISTH, ISTIA, ISTZ, ISYM, ITRIAL, NAE, NAO, NEO, NIA, NIO, NNST, NST
+real(kind=wp) :: CIN(*), HC(*), HD(*), BM(*), SXN(*), G(*), H(*), DIA(*), F1(*), F2(*), X(*), C(*)
+integer(kind=iwp) :: NTRIAL
+integer(kind=iwp) :: I, iPrLev, ISTAE, ISTBM, ISTH, ISTIA, ISTZ, ISYM, ITRIAL, NAE, NAO, NEO, NIA, NIO, NNST, NST
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering SIGVEC'
 NST = 0
 do ITRIAL=1,NTRIAL
   NNST = NROOT+NST

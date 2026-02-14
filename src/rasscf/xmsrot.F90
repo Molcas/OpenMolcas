@@ -20,17 +20,15 @@ subroutine XMSRot(CMO,FI,FA)
 use rasscf_global, only: LROOTS, NAC
 use general_data, only: NTOT1, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
+
+implicit none
+real(kind=wp) :: CMO(NTOT2), FI(NTOT1), FA(NTOT1)
+real(kind=wp), allocatable :: EigVec(:,:), FckO(:,:), FckS(:,:), GDMat(:,:,:)
 
 !FckO:  Fock matrix for MO
 !FckS:  Fock matrix for states
 !GDMat: density matrix or transition density matrix
-
-implicit none
-real*8, dimension(NTOT1) :: FI, FA
-real*8, dimension(NTOT2) :: CMO
-real*8, dimension(:,:), allocatable :: FckO
-real*8, dimension(:,:), allocatable :: FckS, EigVec
-real*8, dimension(:,:,:), allocatable :: GDMat
 
 ! Allocating Memory
 call mma_allocate(GDMat,lRoots*(lRoots+1)/2,NAC,NAC)

@@ -19,13 +19,11 @@ subroutine CalcVee(Vee,RMat,DDg)
 
 use rasscf_global, only: lRoots
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
-real*8, dimension(lroots,lroots) :: RMat
-real*8, dimension(lroots) :: Vee
-integer IState, iJ, iK, iL, iM
-#include "warnings.h"
+real(kind=wp) :: Vee(lRoots), RMat(lRoots,lRoots), DDG(lRoots,lRoots,lRoots,lRoots)
+integer(kind=iwp) :: iJ, iK, iL, iM, iState
 
 do IState=1,lRoots
   Vee(IState) = Zero

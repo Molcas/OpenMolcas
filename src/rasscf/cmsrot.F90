@@ -18,20 +18,17 @@ subroutine CMSRot(TUVX)
 ! ****************************************************************
 
 use CMS, only: CMSNotConverged
-use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
+use rasscf_global, only: CMSStartMat, lRoots, NAC, NACPR2
 use PrintLevel, only: USUAL
 use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8, dimension(NACPR2) :: TUVX
+real(kind=wp) :: TUVX(NACPR2)
+integer(kind=iwp) :: iPrLev
 character(len=16) :: VecName
-real*8, dimension(:,:,:,:), allocatable :: Gtuvx
-real*8, dimension(:,:,:,:), allocatable :: DDG
-real*8, dimension(:,:,:), allocatable :: GDMat
-real*8, dimension(:,:), allocatable :: RotMat
-integer iPrLev
+real(kind=wp), allocatable :: DDG(:,:,:,:), GDMat(:,:,:), Gtuvx(:,:,:,:), RotMat(:,:)
 #include "warnings.h"
 
 ! Allocating Memory
@@ -67,8 +64,7 @@ else
   !write(u6,*) 'Optimization Approach 2'
   call NStateOpt2(RotMat,GDMat,Gtuvx)
 end if
-VecName = 'CMS-PDFT'
-call PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
+call PrintMat('ROT_VEC','CMS-PDFT',RotMat,lroots,lroots,7,8,'N')
 
 ! Deallocating Memory
 call mma_deallocate(GDMat)

@@ -45,29 +45,27 @@ use wadr, only: FMO
 use rctfld_module, only: lRF
 use casvb_global, only: ifvb
 use timers, only: TimeDens
-use lucia_data, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
+use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, Ptmp
 use gas_data, only: iDoGAS
-use rasscf_global, only: KSDFT, ExFac, iPCMRoot, ITER, lRoots, n_Det, NAC, NACPAR, NACPR2, nFint, nRoots, S, iAdr15, iRoot, &
-                         Weight, DFTFOCK
+use rasscf_global, only: DFTFOCK, ExFac, iAdr15, iPCMRoot, iRoot, ITER, KSDFT, lRoots, n_Det, NAC, NACPAR, NACPR2, nFint, nRoots, &
+                         S, Weight
 use PrintLevel, only: DEBUG, INSANE
 use output_ras, only: IPRLOC
-use general_data, only: ISPIN, jobiph, nactel, ntot2, nash
+use general_data, only: ISPIN, jobiph, nactel, nash, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iFinal, IRst
-real*8 CMO(*), D(*), DS(*), P(*), PA(*), FI(*), D1I(*), D1A(*), TUVX(*)
-logical Do_ESPF
-real*8 rdum(1)
-real*8, allocatable :: RCT_F(:), RCT_FS(:), RCT(:), RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:), TmpPUVX(:), TmpTUVX(:)
-character(len=16), parameter :: ROUTINE = 'DMRGCTL '
-integer iPrLev, i, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
-real*8 dum1, dum2, dum3, Scal, Time(2)
+real(kind=wp) :: CMO(*), D(*), DS(*), P(*), PA(*), FI(*), D1I(*), D1A(*), TUVX(*)
+integer(kind=iwp) :: iFinal, IRst
+integer(kind=iwp) :: i, iPrLev, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
+real(kind=wp) :: dum1, dum2, dum3, rdum(1), Scal, Time(2)
+logical(kind=iwp) :: Do_ESPF
+real(kind=wp), allocatable :: P2MO(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), TmpD1S(:), TmpDS(:), TmpPUVX(:), TmpTUVX(:)
 
 IPRLEV = IPRLOC(3)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering DMRGCTL'
 
 ! set up flag 'IFCAS' for GAS option, which is set up in gugatcl originally.
 ! IFCAS = 0: This is a CAS calculation

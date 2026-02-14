@@ -19,22 +19,20 @@
 !***********************************************************************
 subroutine qcmaquis_rdinp(luinput,switch,nr_lines)
 
-use qcmaquis_interface_cfg
-use qcmaquis_interface_utility_routines, only: lower_to_upper, find_qcmaquis_keyword
-use rasscf_global, only: MPSCompressM, DoDelChk
-use Definitions, only: u6
+use qcmaquis_interface_cfg, only: dmrg_input, qcmaquis_param
+use qcmaquis_interface_utility_routines, only: find_qcmaquis_keyword, lower_to_upper
+use rasscf_global, only: DoDelChk, MPSCompressM
+use Definitions, only: iwp, u6
 
 implicit none
-integer, intent(in) :: luinput
-integer, intent(in) :: switch
-integer, intent(inout) :: nr_lines
+integer(kind=iwp), intent(in) :: luinput, switch
+integer(kind=iwp), intent(inout) :: nr_lines
+integer(kind=iwp) :: i, io, j
+logical(kind=iwp) :: compr_flag, donotdelete_flag
 character(len=500) :: line, line2
-integer :: i, io, j
-! Leon: flags for the compression keyword parsing
-logical :: compr_flag, donotdelete_flag
 
-! Leon: the evil common block that contains the MPSCompressM
 ! option for the MPS compression and the do not delete checkpoints flag
+compr_flag = .false.
 donotdelete_flag = .false.
 
 select case (switch)
@@ -56,7 +54,6 @@ select case (switch)
     if (nr_lines == 0) return
     allocate(dmrg_input%qcmaquis_input(nr_lines))
 
-    compr_flag = .false.
     DoDelChk = .false.
 
     dmrg_input%qcmaquis_input = ' '

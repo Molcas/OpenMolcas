@@ -18,33 +18,20 @@
 subroutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
 
 use rasscf_global, only: lRoots, NAC
-use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, deg2rad
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 ang, change
-integer I1, I2
-real*8, dimension(lRoots,lRoots) :: R
-real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GD
-real*8, dimension(lRoots) :: Vee
-real*8, dimension(NAC,NAC,NAC,NAC) :: G
-logical Converged
-integer Itera, Itermax, IA, IMax
-real*8 Threshold, StepSize, SumOld, Vee1, Vee2, SumOld2
-real*8, dimension(:), allocatable :: Angles, Sums
-real*8, dimension(:), allocatable :: ScanA, ScanS
-integer, external :: RMax
-#include "warnings.h"
-
-call mma_allocate(Angles,4)
-call mma_allocate(Sums,4)
-call mma_allocate(ScanA,31)
-call mma_allocate(ScanS,31)
+real(kind=wp) :: ang, change, R(lRoots,lRoots), GD(lRoots*(lRoots+1)/2,NAC,NAC), Vee(lRoots), G(NAC,NAC,NAC,NAC)
+integer(kind=iwp) :: I1, I2
+integer(kind=iwp) :: IA, IMax, Itera, Itermax
+real(kind=wp) :: Angles(4), ScanA(31), ScanS(31), StepSize, SumOld, SumOld2, Sums(4), Vee1, Vee2
+logical(kind=iwp) :: Converged
+real(kind=wp), parameter :: Threshold = 1.0e-8_wp
+integer(kind=iwp), external :: RMax
 
 Converged = .false.
 stepsize = Three*deg2rad
-Threshold = 1.0e-8_wp
 
 Angles(2) = Zero
 do Itera=1,31
@@ -53,7 +40,7 @@ do Itera=1,31
   !if (I2 == 1) write(u6,*) Iter,ScanA(Iter),ScanS(Iter)
 end do
 
-IMax = RMax(ScanS,21)
+IMax = sum(maxloc(ScanS(:)))
 
 Itera = 0
 IterMax = 100
@@ -88,9 +75,5 @@ do while (.not. Converged)
   end if
 end do
 change = Vee(I1)+Vee(I2)-SumOld2
-call mma_deallocate(Angles)
-call mma_deallocate(Sums)
-call mma_deallocate(ScanA)
-call mma_deallocate(ScanS)
 
 end subroutine OptOneAngle2

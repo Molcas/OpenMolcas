@@ -19,15 +19,13 @@ subroutine CalcNewX(X,H,G,nSPair,XScr,GScr,EigVal,ScrDiag,nScr)
 
 use CMS, only: CMSThres, PosHess, BigQaaGrad, nPosHess, LargestQaaGrad, NeedMoreStep
 use Constants, only: Zero, One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer nSPair, INFO, iPair, nScr
-real*8 X(nSPair), G(nSPair), XScr(nSPair)
-real*8 H(nSPair**2), ScrDiag(nScr), GScr(nSPair)
-real*8 EigVal(nSPair**2)
-real*8 MinGrad, ThreG, ThreH
-real*8 ValGrad, AbsGrad, ValHess, AbsHess
+integer(kind=iwp) :: nSPair, nScr
+real(kind=wp) :: X(nSPair), H(nSPair**2), G(nSPair), XScr(nSPair), GScr(nSPair), EigVal(nSPair**2), ScrDiag(nScr)
+integer(kind=iwp) :: INFO, iPair
+real(kind=wp) :: AbsGrad, AbsHess, MinGrad, ThreG, ThreH, ValGrad, ValHess
 
 ! Commented lines are options under development and may be used in future
 ! Thanks to Matthew R. Hermes for this algorithm

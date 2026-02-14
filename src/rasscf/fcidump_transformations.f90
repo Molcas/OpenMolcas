@@ -14,16 +14,16 @@
 
 module fcidump_transformations
 
-use general_data, only: nActEl, nAsh, ntot1, ntot2, nBas, nSym
-use rasscf_global, only: nAcPar, Emy, nAc
+use general_data, only: nActEl, nAsh, nBas, nSym, ntot1, ntot2
+use rasscf_global, only: nAc, nAcPar, Emy
 use index_symmetry, only: one_el_idx_flatten
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
-public :: get_orbital_E, fold_Fock
+public :: fold_Fock, get_orbital_E
 
 contains
 
@@ -42,9 +42,9 @@ contains
 !>  @param[out] orbital_energies
 subroutine get_orbital_E(actual_iter,DIAF,orbital_energies)
 
-  integer, intent(in) :: actual_iter
-  real*8, intent(in) :: DIAF(:)
-  real*8, intent(out) :: orbital_energies(:)
+  integer(kind=iwp), intent(in) :: actual_iter
+  real(kind=wp), intent(in) :: DIAF(:)
+  real(kind=wp), intent(out) :: orbital_energies(:)
 
   orbital_energies = Zero
   if ((0 <= actual_iter) .or. (actual_iter <= 1)) then
@@ -59,13 +59,14 @@ subroutine get_orbital_E(actual_iter,DIAF,orbital_energies)
 
     use Definitions, only: u6
 
-    integer, intent(in) :: nSym, nBas(:)
-    real*8, intent(inout) :: orbital_energies(:)
-    real*8 :: Dummy(1)
-    integer :: LuInpOrb = 10, iDummy(1), err
-    character(len=*), parameter :: FnInpOrb = 'INPORB'
+    integer(kind=iwp), intent(in) :: nSym, nBas(:)
+    real(kind=wp), intent(inout) :: orbital_energies(:)
+    integer(kind=iwp) :: err, iDummy(1)
+    real(kind=wp) :: Dummy(1)
     character(len=80) :: VecTit
-    logical :: okay
+    logical(kind=iwp) :: okay
+    integer(kind=iwp), parameter :: LuInpOrb = 10
+    character(len=*), parameter :: FnInpOrb = 'INPORB'
 
     call f_Inquire(FnInpOrb,okay)
     if (okay) then
@@ -108,13 +109,19 @@ end subroutine get_orbital_E
 !>    in the basis of the active MOs as obtained from ::SGFCIN.
 subroutine fold_Fock(CMO,D1I_AO,D1A_AO,D1S_MO,F_In,folded_Fock)
 
-  real*8, intent(in) :: CMO(nTot2), D1A_AO(nTot2), D1I_AO(nTot2), D1S_MO(nAcPar)
-  real*8, intent(inout) :: F_In(nTot1)
-  real*8, intent(out) :: folded_Fock(nAcPar)
-  integer :: i, n
-  real*8 :: core_E_per_act_el, D1S_AO(nTot2), D1S_MO_blocked(nAcPar)
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  real(kind=wp), intent(in) :: CMO(nTot2), D1A_AO(nTot2), D1I_AO(nTot2), D1S_MO(nAcPar)
+  real(kind=wp), intent(inout) :: F_In(nTot1)
+  real(kind=wp), intent(out) :: folded_Fock(nAcPar)
+  integer(kind=iwp) :: i, n
+  real(kind=wp) :: core_E_per_act_el
+  real(kind=wp), allocatable :: D1S_AO(:), D1S_MO_blocked(:)
+
   ! D1S_AO: one-body spin density matrix in AO-space
   ! D1S_MO: blocked one-body spin density matrix in MO-space
+  call mma_allocate(D1S_AO,nTot2,Label='D1S_AO')
+  call mma_allocate(D1S_MO_blocked,nAcPar,Label='D1S_MO_blocked')
 
   D1S_MO_blocked(:nAcPar) = D1S_MO(:nAcPar)
   if (nAsh(1) /= nAc) call DBlock(D1S_MO_blocked)
@@ -122,6 +129,9 @@ subroutine fold_Fock(CMO,D1I_AO,D1A_AO,D1S_MO,F_In,folded_Fock)
   ! SGFCIN has side effects and EMY/core_energy is set in this routine.
   ! Besides F_In will contain the one electron contribution afterwards.
   call SGFCIN(CMO,folded_fock,F_In,D1I_AO,D1A_AO,D1S_AO)
+
+  call mma_deallocate(D1S_AO)
+  call mma_deallocate(D1S_MO_blocked)
 
   ! Remove the core energy in the diagonal elements.
   if (nActEl /= 0) then

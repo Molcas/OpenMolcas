@@ -14,31 +14,29 @@
 subroutine PutRlx(D,DS,P,DAO,C)
 
 use spin_correlation, only: tRootGrad
-use rasscf_global, only: CBLBM, ENER, ExFac, iBLBM, IPCMROOT, iPr, iRLXRoot, iSymBB, ITER, lRoots, lSquare, NACPAR, NACPR2, &
-                         NewFock, nFint, nRoots, NSXS, NTOT4, RlxGrd, iAdr15, ISTORP, JBLBM
+use rasscf_global, only: CBLBM, ENER, ExFac, iAdr15, iBLBM, IPCMROOT, iPr, iRLXRoot, ISTORP, iSymBB, ITER, JBLBM, lRoots, lSquare, &
+                         NACPAR, NACPR2, NewFock, nFint, nRoots, NSXS, NTOT4, RlxGrd
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: NTOT1, NTOT2, NSYM, JOBIPH, NBAS
-use DWSol, only: DWSolv, DWSol_wgt, W_SOLV
+use general_data, only: JOBIPH, NBAS, NSYM, NTOT1, NTOT2
+use DWSol, only: DWSol_wgt, DWSolv, W_SOLV
 use rctfld_module, only: lRF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 D(*), DS(*), P(*), DAO(*), C(*)
-character(len=8) Fmt2
-character(len=16), parameter :: ROUTINE = 'PUTRLX  '
-real*8 rdum(1)
-integer i, iFinal, iPrLev, istmp, itmp, jDisk, jtmp, kDisk, left, NFSize, NZ
-real*8 rTmp, wgt
-real*8, external :: DNRM2_
-real*8, allocatable :: DA(:), DA_ave(:), DI(:), DSX(:), DS_ave(:), DX(:), F(:), B(:), Q(:), FA(:), FI(:), PUVX(:), TUVX(:), PX(:), &
-                       WRK1(:), WRK2(:)
-logical, external :: PCM_On
+real(kind=wp) :: D(*), DS(*), P(*), DAO(*), C(*)
+integer(kind=iwp) :: i, iFinal, iPrLev, istmp, itmp, jDisk, jtmp, kDisk, left, NFSize, NZ
+real(kind=wp) :: rdum(1), rTmp, wgt
+character(len=8) :: Fmt2
+real(kind=wp), allocatable :: B(:), DA(:), DA_ave(:), DI(:), DS_ave(:), DSX(:), DX(:), F(:), FA(:), FI(:), PUVX(:), PX(:), Q(:), &
+                              TUVX(:), WRK1(:), WRK2(:)
+real(kind=wp), external :: DNRM2_
+logical(kind=iwp), external :: PCM_On
 
 IPRLEV = IPRLOC(3)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering PUTRLX'
 
 ! Read in corresponding density matrixes
 

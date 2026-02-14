@@ -19,18 +19,14 @@ subroutine ThetaOpt2(R,theta,deltaQ,SPair,NP,GD,Vee,G)
 
 use rasscf_global, only: lRoots, NAC
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer NP
-real*8, dimension(NP) :: theta
-real*8 Change, deltaQ
-integer, dimension(NP,2) :: SPair
-real*8, dimension(lroots,lroots) :: R
-real*8, dimension(lroots) :: Vee
-real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GD
-real*8, dimension(NAC,NAC,NAC,NAC) :: G
-integer IP, I, J
-#include "warnings.h"
+integer(kind=iwp) :: NP
+real(kind=wp) :: R(lRoots,lRoots), theta(NP), deltaQ, GD(lRoots*(lRoots+1)/2,NAC,NAC), Vee(lRoots), G(NAC,NAC,NAC,NAC)
+integer(kind=iwp) :: SPair(NP,2)
+integer(kind=iwp) :: I, IP, J
+real(kind=wp) :: Change
 
 deltaQ = Zero
 do IP=1,NP

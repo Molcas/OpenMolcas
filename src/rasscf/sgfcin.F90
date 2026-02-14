@@ -51,39 +51,34 @@ use fciqmc, only: DoNECI
 use CC_CI_mod, only: Do_CC_CI
 use timers, only: TimeDens
 use lucia_data, only: INT1, INT1O
-use rasscf_global, only: EMY, KSDFT, dftfock, exfac, nac, nacpar, noneq, potnuc, rfpert, tot_charge, tot_el_charge, &
-                         tot_nuc_charge, doBlockDMRG, doDMRG
+use rasscf_global, only: dftfock, doBlockDMRG, doDMRG, EMY, exfac, KSDFT, nac, nacpar, noneq, potnuc, rfpert, tot_charge, &
+                         tot_el_charge, tot_nuc_charge
 use OneDat, only: sNoNuc, sNoOri
-use general_data, only: iSpin, nActEl, nSym, nTot1, nBas, nIsh, nAsh, nFro
-use OFEmbed, only: Do_OFemb, OFE_first, FMaux, Rep_EN
+use general_data, only: iSpin, nActEl, nAsh, nBas, nFro, nIsh, nSym, nTot1
+use OFEmbed, only: Do_OFemb, FMaux, OFE_first, Rep_EN
 use rctfld_module, only: lRF
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-#ifdef _DMRG_
-use qcmaquis_interface_cfg
-#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=16), parameter :: ROUTINE = 'SGFCIN  '
-real*8, intent(in) :: CMO(*), D1I(*), D1A(*)
-real*8, intent(inout) :: FI(*), D1S(*), F(*)
-character(len=8) Label
-logical First, Dff, Do_DFT, Found
-logical Do_ESPF
-real*8 :: CASDFT_Funct, dum1, dum2, dum3, dumm(1), Emyn, Eone, Erf1, Erf2, Erfx, Etwo, potnuc_ref, Time(2)
-integer :: i, iadd, ibas, icharge, iComp, ioff, iopt, iprlev, ntmpfck, irc, iSyLbl, iSym, iTu, j, mxna, mxnb, nAt, nst, nt, ntu, &
-           nu, nvxc
-real*8, allocatable :: TmpFckI(:), Tmpx(:)
-real*8, allocatable :: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:), Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:), Tmpz(:), X0(:), X1(:), X2(:), X3(:)
-real*8, external :: dDot_
+real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*)
+real(kind=wp), intent(inout) :: F(*), FI(*), D1S(*)
+integer(kind=iwp) :: i, iadd, ibas, icharge, iComp, ioff, iopt, iprlev, irc, iSyLbl, iSym, iTu, j, mxna, mxnb, nAt, nst, nt, &
+                     ntmpfck, ntu, nu, nvxc
+real(kind=wp) :: CASDFT_Funct, dum1, dum2, dum3, dumm(1), Emyn, Eone, Erf1, Erf2, Erfx, Etwo, potnuc_ref, Time(2)
+character(len=8) :: Label
+logical(kind=iwp) :: Dff, Do_DFT, Do_ESPF, First, Found
+real(kind=wp), allocatable :: Tmp0(:), Tmp1(:), Tmp2(:), Tmp3(:), Tmp4(:), Tmp5(:), Tmp6(:), Tmp7(:), TmpFckI(:), Tmpx(:), &
+                              Tmpz(:), X0(:), X1(:), X2(:), X3(:)
+real(kind=wp), external :: dDot_
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(3)
 IPRLEV = 0000
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering SGFCIN'
 
 ! Generate molecular charges
 call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')

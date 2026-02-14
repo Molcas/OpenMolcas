@@ -54,22 +54,19 @@ subroutine IvoGen_rasscf(nSym,nBas,nFro,nIsh,nAsh,nCMO,nEOrb,CMO,EOrb)
 use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nCMO, nEOrb, nSym
-integer nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym)
-real*8 CMO(nCMO), EOrb(nEOrb)
-real*8, dimension(:), allocatable :: FckS, FckH, FckT, OneHam, Scratch
-integer iSym, ij, nOrbi, iCMO, iEOr, iDum, nFound, iErr
-integer nOcc(nSym)
-integer MaxBas, MaxBOO, MaxOrO, nBT
-integer iRc, iOpt, iComp, iSyLbl
-real*8 Dummy
+integer(kind=iwp) :: nSym, nCMO, nEOrb, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym)
+real(kind=wp) :: CMO(nCMO), EOrb(nEOrb)
+integer(kind=iwp) :: i_EOr, iCMO, iComp, iDum, iErr, ij, iOpt, iRc, iSyLbl, iSym, MaxBas, MaxBOO, MaxOrO, nBT, nFound, nOcc(nSym), &
+                     nOrbi
+real(kind=wp) :: Dummy
 character(len=8) :: Label
 #ifdef _DEBUGPRINT_
-integer iOff, iBas
+integer(kind=iwp) :: iBas, iOff
 #endif
+real(kind=wp), allocatable :: FckH(:), FckS(:), FckT(:), OneHam(:), Scratch(:)
 #include "warnings.h"
 
 nBT = 0
@@ -137,14 +134,14 @@ call mma_allocate(FckT,MaxOrO*(MaxOrO+1)/2,Label='FckT')
 
 ij = 1
 iCMO = 1
-iEOr = 1
+i_EOr = 1
 do iSym=1,nSym
   nOrbi = nBas(iSym)-nOcc(iSym)
 
-  ! If nOrbi == 0 - no virtual orbitals; iCMO and iEOr must be
+  ! If nOrbi == 0 - no virtual orbitals; iCMO and i_EOr must be
   ! updated anyway (occupied orbitals may exist)
   iCMO = iCMO+nBas(iSym)*nOcc(iSym)
-  iEOr = iEOr+nOcc(iSym)
+  i_EOr = i_EOr+nOcc(iSym)
 
   if (nOrbi > 0) then
 
@@ -159,18 +156,18 @@ do iSym=1,nSym
     call mma_allocate(Scratch,nOrbi**2,Label='Scratch')
     Dummy = Zero
     iDum = 0
-    call Diag_Driver('V','A','L',nOrbi,FckT,Scratch,nOrbi,Dummy,Dummy,iDum,iDum,EOrb(iEOr),CMO(iCMO),nBas(iSym),0,-1,'J',nFound, &
+    call Diag_Driver('V','A','L',nOrbi,FckT,Scratch,nOrbi,Dummy,Dummy,iDum,iDum,EOrb(i_EOr),CMO(iCMO),nBas(iSym),0,-1,'J',nFound, &
                      iErr)
     call mma_deallocate(Scratch)
 
     ! Orbital energies are now meaningless; set them to zero
-    call dcopy_(nOrbi,[Zero],0,EOrb(iEOr),1)
+    call dcopy_(nOrbi,[Zero],0,EOrb(i_EOr),1)
 
   end if
 
   ! Update pointers
   iCMO = iCMO+nOrbi*nBas(iSym)
-  iEOr = iEOr+nOrbi
+  i_EOr = i_EOr+nOrbi
   ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
 
 end do

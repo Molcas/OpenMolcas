@@ -18,12 +18,12 @@
 subroutine CalcQaa(Qaa,DDg,lRoots,nDDg)
 
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer lRoots, nDDg
-real*8 DDg(nDDg)
-real*8 Qaa
-integer iState, iLoc, Int1, lRoots2
+integer(kind=iwp) :: lRoots, nDDg
+real(kind=wp) :: Qaa, DDg(nDDg)
+integer(kind=iwp) :: iLoc, Int1, iState, lRoots2
 
 lRoots2 = lRoots**2
 Int1 = (lRoots2+1)*(lRoots+1)

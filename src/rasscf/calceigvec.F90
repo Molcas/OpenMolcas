@@ -15,20 +15,15 @@ subroutine CalcEigVec(Matrix,NDIM,EigVec)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-!*****Input
-integer NDim
-!*****Input & Output
-real*8, dimension(NDIM,NDIM) :: Matrix, EigVec
-!*****Calculating rotation matrix
-real*8, allocatable :: Mat(:), Val(:,:), Scr(:)
-integer NScr, INFO
-real*8, dimension(2) :: WGRONK
-!*****Auxiliary quantities
-integer NElem ! NElem=NDim**2
-integer IRow, ICol, IRIC
-logical UseJacob
+integer(kind=iwp) :: NDim
+real(kind=wp) :: Matrix(NDIM,NDIM), EigVec(NDIM,NDIM)
+integer(kind=iwp) :: ICol, INFO, IRIC, IRow, NElem, NScr
+real(kind=wp) :: WGRONK(2)
+logical(kind=iwp) :: UseJacob
+real(kind=wp), allocatable :: Mat(:), Scr(:), Val(:,:)
 
 UseJacob = .true.
 EigVec(:,:) = Zero

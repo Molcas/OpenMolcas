@@ -17,13 +17,13 @@
 
 subroutine UnzipTUVX(TUVX,gtuvx,nTUVX)
 
-use rasscf_global, only: NACPR2, NAC
+use rasscf_global, only: NAC, NACPR2
+use Definitions, only: wp, iwp
 
 implicit none
-integer nTUVX
-real*8 gtuvx(nTUVX), TUVX(NACPR2)
-integer it, iu, iv, ix, ituvx, ixmax, jtuvx, jtuxv, jutvx, jutxv, jvxtu, jvxut, jxvtu, jxvut, NAC3, NAC2
-#include "warnings.h"
+integer(kind=iwp) :: nTUVX
+real(kind=wp) :: TUVX(NACPR2), gtuvx(nTUVX)
+integer(kind=iwp) :: it, ituvx, iu, iv, ix, ixmax, jtuvx, jtuxv, jutvx, jutxv, jvxtu, jvxut, jxvtu, jxvut, NAC2, NAC3
 
 !gtuvx(:) = Zero
 

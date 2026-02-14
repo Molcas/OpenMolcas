@@ -59,46 +59,38 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
 use Lucia_Interface, only: Lucia_Util
-use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
+use wadr, only: BM, DIA, F1, F2, NLX, SXG, SXH, SXN
 use input_ras, only: KeyHEUR
-use rasscf_global, only: ExFac, KSDFT, DoBlockDMRG, DoDMRG, ECAS, ESX, iCIOnly, iPT2, ITER, ITERSX, ITMAX, l_casdft, NAC, nDimSX, &
-                         nFint, NO2M, nQune, NROOT, NSXS, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA, ISTORP, IADR15, EMY
+use rasscf_global, only: DoBlockDMRG, DoDMRG, ECAS, EMY, ESX, ExFac, IADR15, iCIOnly, iPT2, ISTORP, ITER, ITERSX, ITMAX, KSDFT, &
+                         l_casdft, NAC, nDimSX, nFint, NO2M, nQune, NROOT, NSXS, NTOT4, QNSTEP, QNUPDT, SXSEL, TMIN, VIA
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NACTEL, JOBIPH, LUINTM, LUQUNE, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NRS3, NSSH, NTOT, &
+use general_data, only: JOBIPH, LUINTM, LUQUNE, NACTEL, NASH, NBAS, NDEL, NFRO, NISH, NORB, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT, &
                         NTOT1, NTOT2
-#ifdef _DMRG_
-use qcmaquis_interface_cfg
-#endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use raswfn, only: wfn_mocoef, wfn_occnum
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMO(*), OCC(*), D(*), P(*), PA(*), FI(*), FA(*), D1A(*)
-real*8 THMAX
-integer IFINAL
-character(len=16), parameter :: ROUTINE = 'SXCTL   '
-! PAM 2008 IndType, VecTyp added, see below at call to WrVec
-integer IndType(56)
-character(len=80) VecTyp
-integer, save :: nCall
-logical TraOnly
-real*8 P2act(1), CIDUMMY(1)
-real*8, allocatable :: SXHD(:)
-real*8, allocatable, target :: SMAT(:)
-real*8, allocatable :: PUVX(:), DA(:), STRP(:), P2reo(:), P2Raw(:), Fck(:), QMat(:), EDum(:), CMON(:), FTR(:), Vec(:), WO(:), &
-                       SQ(:), CMOX(:), SXDF(:), SXDD(:), CSX(:), Sigma(:), HH(:), CC(:), ENER_X(:), SC(:), QQ(:), OVL(:), VT(:), &
-                       VL(:), XQN(:), SCR(:), V1(:), V2(:), XMAT(:), X2(:)
-real*8 :: Dummy(1), CASDFT_En, CPES, CPTS, P2reo_size, TIOES, TIOS, XSXMAX
-real*8, external :: DDot_
-integer :: i, iBas, IC, iDisk, IndT, iOff, iOrb, iPrLev, iRC, iRef, iShift, iSym, iWay, j, kMax, LCSXI, LuvvVec, MIAAE, MNO, NA, &
-           NAEAE, NAOAE, NB, NCR, NCR1, NE, NI, NIA, NIAIA, NLCC, NLHH, NLOVL, NLQ, NLX1, NLX2, NO, nP2Act, NQ, NAE
-integer, external :: IsFreeUnit
+real(kind=wp) :: CMO(*), OCC(*), D(*), P(*), PA(*), FI(*), FA(*), D1A(*), THMAX
+integer(kind=iwp) :: IFINAL
+integer(kind=iwp) :: i, iBas, IC, iDisk, IndT, IndType(56), iOff, iOrb, iPrLev, iRC, iRef, iShift, iSym, iWay, j, kMax, LCSXI, &
+                     LuvvVec, MIAAE, MNO, NA, NAE, NAEAE, NAOAE, NB, NCR, NCR1, NE, NI, NIA, NIAIA, NLCC, NLHH, NLOVL, NLQ, NLX1, &
+                     NLX2, NO, nP2Act, NQ
+real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_size, TIOES, TIOS, XSXMAX
+character(len=80) :: VecTyp
+logical(kind=iwp) :: TraOnly
+integer(kind=iwp), save :: nCall
+real(kind=wp), allocatable :: CC(:), CMON(:), CMOX(:), CSX(:), DA(:), EDum(:), ENER_X(:), Fck(:), FTR(:), HH(:), OVL(:), P2Raw(:), &
+                              P2reo(:), PUVX(:), QMat(:), QQ(:), SC(:), SCR(:), Sigma(:), SQ(:), STRP(:), SXDD(:), SXDF(:), &
+                              SXHD(:), V1(:), V2(:), Vec(:), VL(:), VT(:), WO(:), X2(:), XMAT(:), XQN(:)
+real(kind=wp), allocatable, target :: SMAT(:)
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=wp), external :: DDot_
 
 ! PAM01 The SXCI part has been slightly modified by P-AA M Jan 15, 2001:
 ! Changes affect several of the subroutines of this part.
@@ -124,7 +116,7 @@ integer, external :: IsFreeUnit
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
 !write(u6,*) 'Entering SXCTL!'
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering SXCTL'
 
 ! --- Check for Cholesky ---------------
 

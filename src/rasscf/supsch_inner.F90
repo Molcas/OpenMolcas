@@ -27,27 +27,22 @@ use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: FDIAG, iSupSM, Iter, ixsym
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NBAS
+use general_data, only: NBAS, NSYM
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nOrbMX, nOrb_Tot
-real*8 CMOO(*), CMON(*), SMAT(*)
-real*8 Temp1(nOrbMX*nOrbMX), Temp2(nOrbMX*nOrbMX)
-integer IxSym2(nOrb_tot)
-character(len=16), parameter :: ROUTINE = 'SUPSCH_INNER'
-integer pSij
-real*8 DUM(1)
+integer(kind=iwp) :: nOrbMX, nOrb_Tot, IxSym2(nOrb_tot)
+real(kind=wp) :: SMAT(*), CMOO(*), CMON(*), Temp1(nOrbMX*nOrbMX), Temp2(nOrbMX*nOrbMX)
+integer(kind=iwp) :: i_Component, i_Opt, i_RC, i_SymLbl, iGroup, iLabel, iOrb, iOrder, iPrLev, iSafe, iSym, jOrb, kCof, kGroup, &
+                     kOrb, nBs, nnOrb, nOGr1, nOGr2, pSij
+real(kind=wp) :: DUM(1), OldOvlp, Ovlp1, Ovlp2, xOvlp
 character(len=8) :: Label
-integer :: i_Component, i_Opt, i_RC, i_SymLbl, iGroup, iLabel, iOrb, iOrder, iPrLev, iSafe, jOrb, kCof, kGroup, kOrb, nBs, nnOrb, &
-           nOGr1, nOGr2, iSym
-real*8 :: OldOvlp, Ovlp1, Ovlp2, xOvlp
 #include "warnings.h"
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering SUPSCH_INNER'
 
 ! Read overlap matrix SMAT:
 

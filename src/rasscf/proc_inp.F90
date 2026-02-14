@@ -20,129 +20,106 @@ use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
 use write_orbital_files, only: OrbFiles, write_orb_per_iter
 use fcidump, only: DumpOnly
-use fcidump_reorder, only: ReOrInp, ReOrFlag
-use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in, tPrepStochCASPT2, tNonDiagStochPT2
+use fcidump_reorder, only: ReOrFlag, ReOrInp
+use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in, tNonDiagStochPT2, tPrepStochCASPT2
 use fciqmc_read_RDM, only: MCM7, WRMA
+use fciqmc_make_inp, only: definedet, diagshift, memoryfacspawn, nmCyc, pops_trial, RDMsampling, realspawncutoff, semi_stochastic, &
+                           t_RDMsampling, Time, totalwalkers, trial_wavefunction
 use CC_CI_mod, only: Do_CC_CI
 use spin_correlation, only: orb_range_p, orb_range_q, same_orbs, tRootGrad
 use orthonormalization, only: ON_scheme, ON_scheme_values
-use fciqmc_make_inp, only: trial_wavefunction, pops_trial, t_RDMsampling, RDMsampling, totalwalkers, Time, nmCyc, memoryfacspawn, &
-                           realspawncutoff, diagshift, definedet, semi_stochastic
 use casvb_global, only: ifvb
 use KSDFT_Info, only: CoefR, CoefX
-use OFembed, only: Do_OFemb, KEonly, OFE_KSDFT, ThrFThaw, Xsigma, dFMD
-use CMS, only: iCMSOpt, CMSGiveOpt, CMSGuessFile
+use OFembed, only: dFMD, Do_OFemb, KEonly, OFE_KSDFT, ThrFThaw, Xsigma
+use CMS, only: CMSGiveOpt, CMSGuessFile, iCMSOpt
 use UnixInfo, only: SuperName
 use Lucia_Interface, only: Lucia_Util
-use gugx, only: SGS, CIS, EXS
-use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
+use gugx, only: CIS, EXS, SGS
+use gas_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
 use Symmetry_info, only: Mul
-use SplitCas_Data, only: DoSPlitCas, MxIterSplit, ThrSplit, lRootSplit, NumSplit, EnerSplit, PerSplit, PerCSpli, fOrdSplit, &
-                         iDimBlockA, GapSpli
-use PrintLevel, only: DEBUG, VERBOSE, TERSE
+use SplitCas_Data, only: DoSPlitCas, EnerSplit, fOrdSplit, GapSpli, iDimBlockA, lRootSplit, MxIterSplit, NumSplit, PerCSpli, &
+                         PerSplit, ThrSplit
+use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
-use general_data, only: MAXALTER, NALTER, JOBIPH, NSYM, INVEC, STARTORBFILE, NBAS, LUSTARTORB, JOBOLD, NTOT, NTOT1, NTOT2, NDELT, &
-                        NFROT, NTOTSP, NRS1T, NRS2T, NRS3T, NACTEL, NHOLE1, NELEC3, ISPIN, STSYM, NSEL, SXDAMP, LOWDIN_ON, NISH, &
-                        NCRVEC, NRS1, NRS2, NRS3, NCONF, MALTER, NASH, NDEL, NFRO, NORB, NSSH, CRVec, CleanMask, CRPROJ
-use spinfo, only: NSYM_MOLCAS, NACTEL_MOLCAS, MS2_MOLCAS, ISPIN_MOLCAS, LSYM_MOLCAS, NROOTS_MOLCAS, NGAS_MOLCAS, THRE_MOLCAS, &
-                  ITMAX_MOLCAS, INOCALC_MOLCAS, ISAVE_EXP_MOLCAS, IEXPAND_MOLCAS, IPT2_MOLCAS, I_ELIMINATE_GAS_MOLCAS, &
-                  N_ELIMINATED_GAS_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, IPRCI_MOLCAS, POTNUC_MOLCAS, I2ELIMINATED_IN_GAS_MOLCAS, &
-                  IELIMINATED_IN_GAS_MOLCAS, IGSOCCX_MOLCAS, ISPEED, NGSSH_MOLCAS, DOBKAP, NGASBK, IOCCPSPC, MS2, NDET, NCSASM, &
-                  NDTASM
+use general_data, only: CleanMask, CRPROJ, CRVec, INVEC, ISPIN, JOBIPH, JOBOLD, LOWDIN_ON, LUSTARTORB, MALTER, MAXALTER, NACTEL, &
+                        NALTER, NASH, NBAS, NCONF, NCRVEC, NDEL, NDELT, NELEC3, NFRO, NFROT, NHOLE1, NISH, NORB, NRS1, NRS1T, &
+                        NRS2, NRS2T, NRS3, NRS3T, NSEL, NSSH, NSYM, NTOT, NTOT1, NTOT2, NTOTSP, STARTORBFILE, STSYM, SXDAMP
+use spinfo, only: DOBKAP, I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, &
+                  IGSOCCX_MOLCAS, INOCALC_MOLCAS, IOCCPSPC, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, &
+                  ITMAX_MOLCAS, LSYM_MOLCAS, MS2, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, &
+                  NCSASM, NDET, NDTASM, NGAS_MOLCAS, NGASBK, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
 use DWSol, only: DWSol_DWRO
 use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras   ! It should be without the only option!
-use rasscf_global, only: KSDFT, IROOT, IRLXROOT, ICI, CCI, HFOCC, CMSStartMat, CMSThreshold, CoreShift, DFTFOCK, DoBLOCKDMRG, &
-                         ExFac, hRoots, iAlphaBeta, ICICH, iCIonly, iCIRFROOT, iCMSITERMAX, iCMSITERMin, iCMSP, iExpand, JCJ, &
-                         iFORDE, iOrbOnly, iOrbTyp, iOrdEM, iOverWr, iPCMRoot, iPhName, iPR, iPT2, iRotPsi, iSave_Exp, iSCF, &
-                         iSPDEN, iSupSM, ITCORE, ITMAX, IXMSP, kivo, kTight, l_CASDFT, LowMS, LvShft, MaxIt, MaxJt, MaxOrbOut, &
-                         n_keep, NAC, NACPAR, NACPR2, NFR, NIN, NO2M, NonEq, NQUNE, NORBT, NROOTS, NSEC, NTOT3, NTOT4, OutFmt1, &
-                         OutFmt2, PotNuc, PreThr, ProThr, PreThr, Purify, RFPert, S, SXSEL, ThFact, ThrE, ThrEn, ThrSX, ThrTE, &
-                         HFOcc, Title, Weight, DoFaro, DoFCIDump, iCIRST, IfCRPR, LROOTS, PrwThr, InOCalc, ixSym, iZRot
-#ifdef _DMRG_
-#endif
+use rasscf_global, only: CCI, CMSStartMat, CMSThreshold, CoreShift, DFTFOCK, DoBLOCKDMRG, DoFaro, DoFCIDump, ExFac, HFOCC, HFOcc, &
+                         hRoots, iAlphaBeta, ICI, ICICH, iCIonly, iCIRFROOT, iCIRST, iCMSITERMAX, iCMSITERMin, iCMSP, iExpand, &
+                         IfCRPR, iFORDE, InOCalc, iOrbOnly, iOrbTyp, iOrdEM, iOverWr, iPCMRoot, iPhName, iPR, iPT2, IRLXROOT, &
+                         IROOT, iRotPsi, iSave_Exp, iSCF, iSPDEN, iSupSM, ITCORE, ITMAX, IXMSP, ixSym, iZRot, JCJ, kivo, KSDFT, &
+                         kTight, l_CASDFT, LowMS, LROOTS, LvShft, MaxIt, MaxJt, MaxOrbOut, n_keep, NAC, NACPAR, NACPR2, NFR, NIN, &
+                         NO2M, NonEq, NORBT, NQUNE, NROOTS, NSEC, NTOT3, NTOT4, OutFmt1, OutFmt2, PotNuc, PreThr, PreThr, ProThr, &
+                         PrwThr, Purify, RFPert, S, SXSEL, ThFact, ThrE, ThrEn, ThrSX, ThrTE, Title, Weight
 #ifdef _ENABLE_DICE_SHCI_
-use rasscf_global, only: diceOcc, dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, nRef_dice
+use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceOcc, nRef_dice
 #endif
 #ifdef _ENABLE_CHEMPS2_DMRG_
-use rasscf_global, only: ChemPS2_Restart, ChemPS2_lRestart, Davidson_Tol, ChemPS2_BLB, Max_Sweep, ChemPS2_Noise, Max_Canonical, &
-                         MxDMRG, Do3RDM
+use rasscf_global, only: ChemPS2_BLB, ChemPS2_lRestart, ChemPS2_Noise, ChemPS2_Restart, Davidson_Tol, Do3RDM, Max_Canonical, &
+                         Max_Sweep, MxDMRG
 #endif
 #ifdef _DMRG_
-use qcmaquis_interface_cfg
-use qcmaquis_interface, only: qcmaquis_interface_init, remove_comment, qcmaquis_interface_set_param, qcmaquis_interface_stdout
+use qcmaquis_interface_cfg, only: dmrg_input, qcmaquis_param
+use qcmaquis_interface, only: qcmaquis_interface_init, qcmaquis_interface_set_param, qcmaquis_interface_stdout, remove_comment
 use active_space_solver_cfg, only: as_solver_inp_proc
-use rasscf_global, only: MPSCompressM, DoNEVPT2Prep, Twordm_qcm, DoMCPDFTDMRG, DoDMRG
+use rasscf_global, only: DoDMRG, DoMCPDFTDMRG, DoNEVPT2Prep, MPSCompressM, Twordm_qcm
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: mpp_procid, mpp_nprocs
+use Para_Info, only: mpp_nprocs, mpp_procid
 #endif
 #endif
 #ifdef _HDF5_
-use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
+use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, auToeV
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-logical lOPTO
-logical DSCF
-integer iRC
-character(len=180) Line
-character(len=8) NewJobIphName
-logical lExists, RunFile_Exists, RlxRCheck
-logical RF_On
-logical Langevin_On
-logical PCM_On
-integer iMAlter(MaxAlter,2)
-integer IPRGLB_IN, IPRLOC_IN(7)
-logical DBG, exist
-integer IScratch(10)
-character(len=8) InfoLbl
-integer NBAS_L(8), NORB_L(8)
-integer NFRO_L(8), NISH_L(8), NRS1_L(8), NRS2_L(8)
-integer NRS3_L(8), NSSH_L(8), NDEL_L(8)
-integer IADR19(15)
-character(len=180) Get_LN
-external Get_LN
-real*8 Get_ExFac
-external Get_ExFac
-character(len=72) ReadStatus
-character(len=72) JobTit(mxTit)
-character(len=256) myTitle
-character(len=8) MaxLab
-logical, external :: Is_First_Iter
-real*8 Dummy(1)
-character(len=(LenIn+8)*mxOrb) lJobH1
-character(len=2*72) lJobH2
-integer :: start, step, length
+logical(kind=iwp) :: DSCF, lOPTO
+integer(kind=iwp) :: iRC
+integer(kind=iwp) :: i, i_All, i1, i2, iad19, IADR19(15), iAlter, iChng1, iChng2, iDisk, iEnd, iErr, iGAS, iGrp, ii, ij, iJOB, &
+                     iMAlter(MaxAlter,2), inporb_version, iod_save, iOffSet, iOrb, iOrbData, IPRGLB_IN, iPrLev, IPRLOC_IN(7), iR, &
+                     iRC1, iRef, iReturn, is_in_group, IScratch(10), iStart, iSum, iSym, itu, j, jpcmroot, k, korb, kref, length, &
+                     mBas, mCof, mConf, mm, mOrb, N, NA, NAO, NASHT, NBAS_L(8), NCHRG, nClean, nCof, NCRPROJ, NDEL_L(8), nDiff, &
+                     NFRO_L(8), nGrp, NGSSH_HI, NGSSH_LO, NISH_L(8), NISHT, NISHT_old, nItems, nNUc, NORB_L(8), nOrbRoot, nOrbs, &
+                     NRS1_L(8), NRS2_L(8), NRS3_L(8), NSSH_L(8), nSym_l, nT, nU, nW, start, step
+real(kind=wp) :: dSum, dum1, dum2, dum3, Dummy(1), Eterna_1, Eterna_2, POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg
+logical(kind=iwp) :: DBG, Exists, Langevin_On, lExists, PCM_On, RF_On, RlxRCheck, RunFile_Exists
+character(len=(LenIn+8)*mxOrb) :: lJobH1
+character(len=256) :: myTitle
+character(len=180) :: Line
+character(len=2*72) :: lJobH2
+character(len=72) :: JobTit(mxTit), ReadStatus
 character(len=50) :: ON_scheme_inp, uppercased
+character(len=8) :: InfoLbl, MaxLab, NewJobIphName
+integer(kind=iwp), allocatable :: iType(:), Stab(:), Temp1(:), Temp2(:), Temp3(:), UG2SG_X(:)
+real(kind=wp), allocatable :: ENC(:), RF(:)
 character(len=:), allocatable :: buffer
-intrinsic INDEX, NINT, SQRT
-integer, allocatable :: Temp1(:), Temp2(:), Temp3(:), type(:), Stab(:), UG2SG_X(:)
-real*8, allocatable :: ENC(:), RF(:)
-real*8 dSum, dum1, dum2, dum3, Eterna_2, POTNUCDUMMY, PRO, SUHF, TEffNChrg, TotChrg, Eterna_1
-integer, external :: IsFreeUnit, nToken
-integer i, i1, i2, iad19, iChng1, iChng2, iDisk, iEnd, iErr, iGAS, iGrp, ii, ij, iJOB, inporb_version, iod_save, iOffSet, iOrb, &
-        iOrbData, iPrLev, iR, iRC1, iRef, iReturn, is_in_group, iStart, iSum, iSym, itu, j, jpcmroot, k, korb, kref, mBas, mCof, &
-        mConf, mm, mOrb, N, NA, NAO, NASHT, NCHRG, nClean, nCof, nDiff, nGrp, NGSSH_HI, NGSSH_LO, NISHT, nItems, nNUc, nOrbRoot, &
-        nOrbs, nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old, NCRPROJ
 #ifdef _ENABLE_DICE_SHCI_
-integer iref_dice
+integer(kind=iwp) :: iref_dice
 #endif
 #ifdef _DMRG_
-character(len=256) WorkDir
-character(len=72) ProjectName
-integer :: LRras2_dmrg(8)
-integer, allocatable :: initial_occ(:,:)
+integer(kind=iwp) :: LRras2_dmrg(8), nr_lines
+character(len=256) :: WorkDir
+character(len=72) :: ProjectName
 character(len=20) :: guess_dmrg
-integer nr_lines
+integer(kind=iwp), allocatable :: initial_occ(:,:)
 #endif
 #ifdef _HDF5_
-character(len=1), allocatable :: typestring(:)
-integer mh5id, lRoots_l
+integer(kind=iwp) :: lRoots_l, mh5id
+character, allocatable :: typestring(:)
 #endif
+integer(kind=iwp), external :: Get_ExFac, IsFreeUnit, nToken
+logical(kind=iwp), external :: Is_First_Iter
+character(len=180), external :: Get_LN
 #include "warnings.h"
 
 !...Dongxia note for GAS:
@@ -186,13 +163,13 @@ dice_iter = 20
 dice_restart = .false.
 #endif
 
-!    SplitCAS related variables declaration  (GLMJ)
+! SplitCAS related variables declaration  (GLMJ)
 DoSplitCAS = .false.
 NumSplit = .false.
 EnerSplit = .false.
 PerSplit = .false.
 FOrdSplit = .false.
-!    BK type of approximation (GLMJ)
+! BK type of approximation (GLMJ)
 DoBKAP = .false.
 
 ! ======================================================================
@@ -911,11 +888,11 @@ if (KeyRFRO) then
   Line = Get_Ln(LUInput)
   Line(80:80) = '0'
   JPCMROOT = 0
-  iall = 0
+  i_All = 0
   ReadStatus = ' Failure reading IPCMROOT after RFROOT keyword.'
   if (nToken(Line) >= 3) then
-    read(Line,*,end=9910,err=9920) IPCMROOT,JPCMROOT,iall
-    call DWSol_DWRO(LuInput,IPCMROOT,iall)
+    read(Line,*,end=9910,err=9920) IPCMROOT,JPCMROOT,i_All
+    call DWSol_DWRO(LuInput,IPCMROOT,i_All)
   else
     read(Line,*,end=9910,err=9920) IPCMROOT
   end if
@@ -923,8 +900,8 @@ if (KeyRFRO) then
 
   ! Check that the root value is not changed explicitly by input
   jPCMRoot = iPCMRoot
-  call Qpg_iScalar('RF0CASSCF root',Exist)
-  if (Exist) then
+  call Qpg_iScalar('RF0CASSCF root',Exists)
+  if (Exists) then
     call Get_iScalar('RF0CASSCF root',jPCMRoot)
   else
     call Put_iScalar('RF0CASSCF root',iPCMRoot)
@@ -937,8 +914,8 @@ if (KeyRFRO) then
 
     call Put_iScalar('RF CASSCF root',iPCMRoot)
     call Put_iScalar('RF0CASSCF root',iPCMRoot)
-    call Qpg_dArray('RF CASSCF Vector',Exist,mConf)
-    if (Exist) then
+    call Qpg_dArray('RF CASSCF Vector',Exists,mConf)
+    if (Exists) then
       call mma_allocate(RF,mConf,Label='RF')
       RF(:) = Zero
       call Put_dArray('RF CASSCF Vector',RF,mConf)
@@ -950,8 +927,8 @@ if (KeyRFRO) then
     ! Value not explicitly changed by input. See if it is
     ! changed by the RunFile, if it exists there.
 
-    call Qpg_iScalar('RF CASSCF root',Exist)
-    if (Exist) then
+    call Qpg_iScalar('RF CASSCF root',Exists)
+    if (Exists) then
       call Get_iScalar('RF CASSCF root',iPCMRoot)
     else
       call Put_iScalar('RF CASSCF root',iPCMRoot)
@@ -1143,7 +1120,7 @@ if (KeyCIRO) then
   !BOR.. Modification 001011
   Line(80:80) = '0'
   ReadStatus = ' Failure reading after CIROOTS keyword.'
-  read(Line,*,err=9920,end=9920) NROOTS,LROOTS,iall
+  read(Line,*,err=9920,end=9920) NROOTS,LROOTS,i_All
   ReadStatus = ' O.K reading after CIROOTS keyword.'
   if (NROOTS > MXROOT) then
     write(u6,*) 'Error: number of roots exceeds maximum'
@@ -1151,7 +1128,7 @@ if (KeyCIRO) then
     write(u6,*) 'MXROOT = ',MXROOT
     call AbEnd()
   end if
-  if (iall == 1) then
+  if (i_All == 1) then
     do i=1,NROOTS
       iroot(i) = i
       WEIGHT(i) = One/real(NROOTS,kind=wp)
@@ -1184,7 +1161,7 @@ if (KeyCIRO) then
   if (DBG) then
     write(u6,*) ' Nr of roots in CI: LROOTS=',LROOTS
     write(u6,*) ' Nr of roots optimized by super-CI: NROOTS=',NROOTS
-    if (iAll == 1) then
+    if (i_All == 1) then
       write(u6,*) ' (Equal-weighted)'
     else
       write(u6,*) ' Weights:'
@@ -1509,11 +1486,11 @@ if (KeyLUMO) then
       end if
       ! We will also take the opportunity to find the orbital spaces size
       ! according to typeindex, for possible need below:
-      call mma_allocate(type,mxOrb,Label='Type')
+      call mma_allocate(iType,mxOrb,Label='iType')
       LuStartOrb = 19
-      call RdVec(StartOrbFile,LuStartOrb,'IA',NSYM_L,NBAS_L,NBAS_L,Dummy,Dummy,Dummy,type,myTitle,0,iErr)
-      call tpidx2orb(NSYM_L,NBAS_L,type,NFRO_L,NISH_L,NRS1_L,NRS2_L,NRS3_L,NSSH_L,NDEL_L)
-      call mma_deallocate(type)
+      call RdVec(StartOrbFile,LuStartOrb,'IA',NSYM_L,NBAS_L,NBAS_L,Dummy,Dummy,Dummy,iType,myTitle,0,iErr)
+      call tpidx2orb(NSYM_L,NBAS_L,iType,NFRO_L,NISH_L,NRS1_L,NRS2_L,NRS3_L,NSSH_L,NDEL_L)
+      call mma_deallocate(iType)
       if (DBG) then
         write(u6,*) ' From RDTPIDX, we get:'
         write(u6,'(1x,A16,8I4)') ' NBAS_L:',(NBAS_L(I),I=1,NSYM_L)
@@ -1553,11 +1530,11 @@ if (KeyTYPE) then
     iOrbData = 3
     iOverwr = 0
     if (IPRLEV >= VERBOSE) write(u6,*) ' Orbital specification will be taken from orbital file'
-    call mma_allocate(type,mxOrb,Label='Type')
+    call mma_allocate(iType,mxOrb,Label='iType')
     LuStartOrb = 19
-    call RdVec(StartOrbFile,LuStartOrb,'IA',NSYM_L,NBAS_L,NBAS_L,Dummy,Dummy,Dummy,type,myTitle,0,iErr)
-    call tpidx2orb(NSYM_L,NBAS_L,type,NFRO_L,NISH_L,NRS1_L,NRS2_L,NRS3_L,NSSH_L,NDEL_L)
-    call mma_deallocate(type)
+    call RdVec(StartOrbFile,LuStartOrb,'IA',NSYM_L,NBAS_L,NBAS_L,Dummy,Dummy,Dummy,iType,myTitle,0,iErr)
+    call tpidx2orb(NSYM_L,NBAS_L,iType,NFRO_L,NISH_L,NRS1_L,NRS2_L,NRS3_L,NSSH_L,NDEL_L)
+    call mma_deallocate(iType)
     IERR = 0
     if (NSYM_L /= NSYM) IERR = 1
     if (IERR == 0) then

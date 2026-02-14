@@ -17,14 +17,13 @@
 
 subroutine CMSHeader(CMSSFile,LenCMSS)
 
-use CMS, only: iCMSOpt, CMSGuessFile
-use rasscf_global, only: CMSThreshold, iCMSIterMin, iCMSIterMax, lRoots
-use Definitions, only: wp, u6
+use CMS, only: CMSGuessFile, iCMSOpt
+use rasscf_global, only: CMSThreshold, iCMSIterMax, iCMSIterMin, lRoots
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer LenCMSS
+integer(kind=iwp) :: LenCMSS
 character(len=LenCMSS) :: CMSSFile
-#include "warnings.h"
 
 write(u6,*)
 write(u6,*)

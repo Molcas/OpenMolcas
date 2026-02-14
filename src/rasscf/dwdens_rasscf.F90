@@ -15,13 +15,12 @@
 
 subroutine DWDens_RASSCF(CMO,D1A,RCT_FS,IFINAL)
 
-use Constants, only: Zero, One
-use rasscf_global, only: DoDMRG, ITER, NAC, NACPAR, NACPR2, nRoots, IADR15, Ener
+use rasscf_global, only: DoDMRG, Ener, IADR15, ITER, NAC, NACPAR, NACPR2, nRoots
 use DWSol, only: DWSol_wgt, W_SOLV
 use gas_data, only: iDoGAS
 use general_data, only: JOBIPH, NACTEL, NCONF
 use gugx, only: SGS
-use lucia_data, only: PAtmp, Pscr, PTmp, DStmp, Dtmp
+use lucia_data, only: DStmp, Dtmp, PAtmp, Pscr, PTmp
 use Lucia_Interface, only: Lucia_Util
 use sxci, only: IDXSX
 #ifdef _DMRG_
@@ -29,6 +28,7 @@ use lucia_data, only: RF1, RF2
 use rasscf_global, only: TwoRDM_qcm
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none

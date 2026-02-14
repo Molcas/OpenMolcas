@@ -17,21 +17,19 @@ subroutine SPINORB(D,CMO,OCC)
 
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NASH, NBAS, NFRO, NISH
+use general_data, only: NASH, NBAS, NFRO, NISH, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 D(*), CMO(*), OCC(*)
-character(len=16) :: ROUTINE = 'SPINORB '
-real*8, allocatable :: W1(:,:), W2(:,:)
-integer :: I, IPCMO, IPDEN, IPOCC, iPrLev, iSym, NA, NB, NF, NI
-integer :: IDIAG
+real(kind=wp) :: D(*), CMO(*), OCC(*)
+integer(kind=iwp) :: I, IDIAG, IPCMO, IPDEN, IPOCC, iPrLev, iSym, NA, NB, NF, NI
+real(kind=wp), allocatable :: W1(:,:), W2(:,:)
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(6)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering SPINORB'
 
 IPDEN = 1
 IPCMO = 1

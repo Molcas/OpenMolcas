@@ -20,20 +20,19 @@
 !     calculating GD with lucia.
 subroutine CalcGD(GD,nGD)
 
-use lucia_data, only: DStmp, Dtmp
+use lucia_data, only: Dtmp, DStmp
 use Lucia_Interface, only: Lucia_Util
-use rasscf_global, only: lRoots, NAC, iADR15
+use rasscf_global, only: iADR15, lRoots, NAC
 use general_data, only: JOBIPH, NCONF
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer nGD
-real*8 GD(nGD)
-integer CIDisk1, CIDisk2
-integer p, q, ipq, iqp, NAC2, IOffNIJ1, IOffNIJ2, jRoot, kRoot
-real*8, allocatable :: SDtmp(:), TmpD(:)
-real*8, allocatable, target :: VecL(:), VecR(:)
-#include "warnings.h"
+integer(kind=iwp) :: nGD
+real(kind=wp) :: GD(nGD)
+integer(kind=iwp) :: CIDisk1, CIDisk2, IOffNIJ1, IOffNIJ2, ipq, iqp, jRoot, kRoot, NAC2, p, q
+real(kind=wp), allocatable :: SDtmp(:), TmpD(:)
+real(kind=wp), allocatable, target :: VecL(:), VecR(:)
 
 NAC2 = NAC**2
 call mma_allocate(VecL,NConf,Label='VecL')

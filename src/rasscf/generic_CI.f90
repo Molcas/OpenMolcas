@@ -52,14 +52,15 @@ abstract interface
 
     use general_data, only: ntot, ntot1, ntot2
     use rasscf_global, only: nAcPar, nAcpr2, nroots
-    use Definitions, only: wp
+    use Definitions, only: wp, iwp
 
     import :: CI_solver_t
-    class(CI_solver_t),intent(in) :: this
-    integer, intent(in) :: actual_iter, iroot(nroots), ifinal
+    class(CI_solver_t), intent(in) :: this
+    integer(kind=iwp), intent(in) :: actual_iter, ifinal, iroot(nroots)
     real(wp), intent(in) :: weight(nroots), CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
     real(wp), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
     real(wp), intent(out) :: DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
+
   end subroutine CI_run_t
 
   !> @brief
@@ -73,8 +74,10 @@ abstract interface
   !>
   !> @author Oskar Weser
   subroutine CI_cleanup_t(this)
+
     import :: CI_solver_t
-    class(CI_solver_t),intent(inout) :: this
+    class(CI_solver_t), intent(inout) :: this
+
   end subroutine CI_cleanup_t
 
 end interface

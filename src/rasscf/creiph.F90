@@ -73,18 +73,18 @@ subroutine CREIPH()
 ! ********** IBM 3090 MOLCAS Release 90 02 22 **********
 
 use sxci, only: IDXCI, IDXSX
-use rasscf_global, only: header, IPT2, iRoot, lRoots, NACPAR, NACPR2, BName, nOrbT, nRoots, NTOT3, POTNUC, Title, Weight, IADR15
-use general_data, only: NSYM, ISPIN, JOBIPH, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NTOT, &
+use rasscf_global, only: BName, header, IADR15, IPT2, iRoot, lRoots, NACPAR, NACPR2, nOrbT, nRoots, NTOT3, POTNUC, Title, Weight
+use general_data, only: ISPIN, JOBIPH, NACTEL, NASH, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSYM, NTOT, &
                         NTOT2, STSYM
-use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym, MxRoot
+use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Dum(1)
-real*8, allocatable :: HEFF(:,:)
-integer I, IAD15, ISYM, NFOCK, NOO
+integer(kind=iwp) :: I, IAD15, ISYM, NFOCK, NOO
+real(kind=wp) :: Dum(1)
+real(kind=wp), allocatable :: HEFF(:,:)
 
 do I=1,15
   IADR15(I) = 0

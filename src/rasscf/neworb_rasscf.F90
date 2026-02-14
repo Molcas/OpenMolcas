@@ -50,10 +50,9 @@ subroutine NEWORB_RASSCF(CMOO,CMON,FP,FTR,VEC,WO,SQ,CMOX,D,OCCN)
 use gas_data, only: NGAS, NGSSH
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NTOT, JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NSSH, NTOT2
-use rasscf_global, only: iFORDE, iOrbTyp, iOrdEM, iSupSM, FDIAG, ixSym, iTRI, iADR15
+use general_data, only: JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NSSH, NSYM, NTOT, NTOT2
+use rasscf_global, only: FDIAG, iADR15, iFORDE, iOrbTyp, iOrdEM, iSupSM, iTRI, ixSym
 #ifdef _DMRG_
-use qcmaquis_interface_cfg
 use rasscf_global, only: DoDMRG
 #else
 use rasscf_global, only: DoBLOCKDMRG
@@ -63,19 +62,18 @@ use mh5, only: mh5_put_dset
 use RASWfn, only: wfn_mocoef, wfn_occnum, wfn_orbene
 #endif
 use Constants, only: Zero, One, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=16), parameter :: ROUTINE = 'NEWORB  '
-real*8 CMOO(*), CMON(*), FP(*), FTR(*), VEC(*), WO(*), SQ(*), D(*), OCCN(*), CMOX(*)
-real*8 AVij, AVMx, Fact, FMin, Swap, VIJ
-integer iPrLev, i, iAd15, iB, iBas, iGas, ii, iOff, iOrd, iST, iSTD, iSTFCK, iSTI, iSTM, iSTMO, iSTMO1, iSTMOA, iSYM, ixSymT, j, &
-        jSel, k, Min, NA, NA1, NAB, NABT, NAO, NAO2, NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NEO2, NF, NFI_, NFNB, NFO, NI, &
-        NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1, NOO, NOT, NT, NTTR, NTU, NTUD, NU, NUT
+real(kind=wp) :: CMOO(*), CMON(*), FP(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*), D(*), OCCN(*)
+integer(kind=iwp) :: i, iAd15, iB, iBas, iGas, ii, iOff, iOrd, iPrLev, iST, iSTD, iSTFCK, iSTI, iSTM, iSTMO, iSTMO1, iSTMOA, iSYM, &
+                     ixSymT, j, jSel, k, M_IN, N_OT, NA, NA1, NAB, NABT, NAO, NAO2, NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, &
+                     NEO2, NF, NFI_, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1, NOO, NT, NTTR, NTU, NTUD, NU, NUT
+real(kind=wp) :: AVij, AVMx, Fact, FMin, Swap, VIJ
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering NEWORB_RASSCF'
 
 ! IORD = 1 Ordering of inactive and secondary orbitals
 
@@ -95,7 +93,7 @@ do ISYM=1,NSYM
   NAO = NASH(ISYM)
   NEO = NSSH(ISYM)
   NOO = NFO+NIO+NAO
-  NOT = NIO+NAO+NEO
+  N_OT = NIO+NAO+NEO
   ISTMO = ISTMO1+NFO*NBF
   !*********************************************************************
   !      Frozen orbitals (move MO's to CMON, and set zero to FDIAG)
@@ -150,21 +148,21 @@ do ISYM=1,NSYM
       NIO1 = NIO-1
       do NI=1,NIO1
         NI1 = NI+1
-        MIN = NI
+        M_IN = NI
         do NJ=NI1,NIO
-          if (FDIAG(NO1+NJ) < FDIAG(NO1+MIN)) MIN = NJ
+          if (FDIAG(NO1+NJ) < FDIAG(NO1+M_IN)) M_IN = NJ
         end do
-        if (MIN == NI) GO TO 20
-        FMIN = FDIAG(NO1+MIN)
-        FDIAG(NO1+MIN) = FDIAG(NO1+NI)
+        if (M_IN == NI) GO TO 20
+        FMIN = FDIAG(NO1+M_IN)
+        FDIAG(NO1+M_IN) = FDIAG(NO1+NI)
         FDIAG(NO1+NI) = FMIN
         ! (SVC) added: extra nodig voor verandering ordening met supsym
-        IXSYMT = IXSYM(NO1+MIN)
-        IXSYM(NO1+MIN) = IXSYM(NO1+NI)
+        IXSYMT = IXSYM(NO1+M_IN)
+        IXSYM(NO1+M_IN) = IXSYM(NO1+NI)
         IXSYM(NO1+NI) = IXSYMT
 
         ISTI = ISTMO+NBF*(NI-1)
-        ISTM = ISTMO+NBF*(MIN-1)
+        ISTM = ISTMO+NBF*(M_IN-1)
         call DSWAP_(NBF,CMON(ISTI),1,CMON(ISTM),1)
 20      continue
       end do
@@ -354,21 +352,21 @@ do ISYM=1,NSYM
       NEO1 = NEO-1
       do NA=1,NEO1
         NA1 = NA+1
-        MIN = NA
+        M_IN = NA
         do NB=NA1,NEO
-          if (FDIAG(NO1+NB) < FDIAG(NO1+MIN)) MIN = NB
+          if (FDIAG(NO1+NB) < FDIAG(NO1+M_IN)) M_IN = NB
         end do
-        if (MIN == NA) GO TO 99
-        FMIN = FDIAG(NO1+MIN)
-        FDIAG(NO1+MIN) = FDIAG(NO1+NA)
+        if (M_IN == NA) GO TO 99
+        FMIN = FDIAG(NO1+M_IN)
+        FDIAG(NO1+M_IN) = FDIAG(NO1+NA)
         FDIAG(NO1+NA) = FMIN
         ! (SVC) added: extra nodig voor verandering ordening met supsym
-        IXSYMT = IXSYM(NO1+MIN)
-        IXSYM(NO1+MIN) = IXSYM(NO1+NA)
+        IXSYMT = IXSYM(NO1+M_IN)
+        IXSYM(NO1+M_IN) = IXSYM(NO1+NA)
         IXSYM(NO1+NA) = IXSYMT
 
         ISTI = ISTMOA+NBF*(NA-1)
-        ISTM = ISTMOA+NBF*(MIN-1)
+        ISTM = ISTMOA+NBF*(M_IN-1)
         call DSWAP_(NBF,CMON(ISTI),1,CMON(ISTM),1)
 99      continue
       end do
@@ -390,7 +388,7 @@ do ISYM=1,NSYM
   end if
 
   IB = IB+NBF
-  ISTFCK = ISTFCK+(NOT**2+NOT)/2
+  ISTFCK = ISTFCK+(N_OT**2+N_OT)/2
   ISTMO1 = ISTMO1+NBF**2
   ISTD = ISTD+(NAO**2+NAO)/2
   ! End of a long loop over symmetry.

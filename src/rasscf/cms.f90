@@ -17,16 +17,18 @@
 
 module CMS
 
-implicit none
+use Definitions, only: wp, iwp
 
-logical CMSNotConverged
-logical CMSGiveOpt
-real*8 CMSThres
-real*8, dimension(:), allocatable :: RGD
-integer iCMSOpt
-logical PosHess, BigQaaGrad, NeedMoreStep
-integer nPosHess, nCMSScale
-real*8 LargestQaaGrad
-character*128 cmsguessfile
+implicit none
+private
+
+integer(kind=iwp) :: iCMSOpt, nCMSScale, nPosHess
+real(kind=wp) :: CMSThres, LargestQaaGrad
+logical(kind=iwp) :: BigQaaGrad, CMSGiveOpt, CMSNotConverged, NeedMoreStep, PosHess
+character(len=128) :: cmsguessfile
+real(kind=wp), allocatable :: RGD(:)
+
+public :: BigQaaGrad, CMSGiveOpt, cmsguessfile, CMSNotConverged, CMSThres, iCMSOpt, LargestQaaGrad, nCMSScale, NeedMoreStep, &
+          nPosHess, PosHess, RGD
 
 end module CMS

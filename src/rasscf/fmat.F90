@@ -57,25 +57,25 @@ subroutine Fmat(CMO,PUVX,D,D1A,FI,FA)
 !***********************************************************************
 
 use RunFile_procedures, only: Get_dExcdRa
-use rasscf_global, only: KSDFT, DFTFOCK, ECAS, EMY, ExFac, NAC, NewFock, nFint, VIA, VIA_DFT, l_casdft
+use rasscf_global, only: DFTFOCK, ECAS, EMY, ExFac, KSDFT, l_casdft, NAC, NewFock, nFint, VIA, VIA_DFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use general_data, only: NSYM, NTOT1, NASH, NBAS, NFRO, NISH, NORB
+use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSYM, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMO(*), PUVX(*), D(*), D1A(*), FI(*), FA(*)
-character(len=16), parameter :: ROUTINE = 'FMAT    '
-real*8, allocatable :: TmpFck(:), Tmp1(:), Tmp2(:), TmpD1A(:)
-integer iPrLev, iOff, iSym, iBas, i, iFro, ij, iOff1, iOff2, iOff3, iOrb, ipTmpFck, ipTmpFckA, ipTmpFckI, j, jOrb, nTmpFck
-real*8, external :: DDot_
+real(kind=wp) :: CMO(*), PUVX(*), D(*), D1A(*), FI(*), FA(*)
+integer(kind=iwp) :: i, iBas, iFro, ij, iOff, iOff1, iOff2, iOff3, iOrb, iPrLev, ipTmpFck, ipTmpFckA, ipTmpFckI, iSym, j, jOrb, &
+                     nTmpFck
+real(kind=wp), allocatable :: TmpFck(:), Tmp1(:), Tmp2(:), TmpD1A(:)
+real(kind=wp), external :: DDot_
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
 if (IPRLEV >= DEBUG) then
-  write(u6,*) ' Entering ',ROUTINE
+  write(u6,*) ' Entering FMAT'
 
   write(u6,*) repeat('*',65)
   write(u6,*) 'Entering FMAT routine called by SXCTL!'

@@ -19,13 +19,11 @@ subroutine CalcVee2(Vee,GD,Gtuvx)
 
 use rasscf_global, only: lRoots, NAC
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
 implicit none
-real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GD
-real*8, dimension(lRoots) :: Vee
-real*8, dimension(NAC,NAC,NAC,NAC) :: Gtuvx
-integer I, t, u, v, x, III
-#include "warnings.h"
+real(kind=wp) :: Vee(lRoots), GD(lRoots*(lRoots+1)/2,NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
+integer(kind=iwp) :: I, III, t, u, v, x
 
 do I=1,lRoots
   Vee(I) = Zero

@@ -18,35 +18,27 @@
 subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
 
 use CMS, only: CMSNotConverged
-use rasscf_global, only: lRoots, NAC, CMSThreshold, iCMSIterMax, iCMSIterMin
+use rasscf_global, only: CMSThreshold, iCMSIterMax, iCMSIterMin, lRoots, NAC
 use PrintLevel, only: USUAL
 use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, deg2rad
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GDMat
-real*8, dimension(lRoots,lRoots) :: RotMat
-real*8, dimension(NAC,NAC,NAC,NAC) :: Gtuvx
-integer IState, JState, NPairs, IPair, ICMSIter
-real*8 VeeSumOld, VeeSumNew, Threshold, VeeSumChange
-integer, dimension(:,:), allocatable :: StatePair
-real*8, dimension(:), allocatable :: theta
-real*8, dimension(:), allocatable :: Vee
-real*8, dimension(:,:), allocatable :: FRot
-logical Converged
-real*8, external :: SumArray
-integer iPrLev
-#include "warnings.h"
+real(kind=wp) :: RotMat(lRoots,lRoots), GDMat(lRoots*(lRoots+1)/2,NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
+integer(kind=iwp) :: ICMSIter, IPair, iPrLev, IState, JState, NPairs
+real(kind=wp) :: VeeSumChange, VeeSumNew, VeeSumOld
+logical(kind=iwp) :: Converged
+integer(kind=iwp), allocatable :: StatePair(:,:)
+real(kind=wp), allocatable :: FRot(:,:), theta(:), Vee(:)
 
 IPRLEV = IPRLOC(6)
 
-call mma_allocate(StatePair,LRoots*(LRoots-1)/2,2)
-call mma_allocate(theta,LRoots*(LRoots-1)/2)
-call mma_allocate(Vee,LRoots)
+call mma_allocate(StatePair,lRoots*(lRoots-1)/2,2)
+call mma_allocate(theta,lRoots*(lRoots-1)/2)
+call mma_allocate(Vee,lRoots)
 call mma_allocate(FRot,lRoots,lRoots)
-Threshold = CMSThreshold
 NPairs = lRoots*(lRoots-1)/2
 IPair = 0
 do IState=1,lRoots
@@ -57,10 +49,10 @@ do IState=1,lRoots
   end do
 end do
 Converged = .false.
-call Copy2DMat(FRot,RotMat,lRoots,lRoots)
+FRot(:,:) = RotMat(:,:)
 call RotGDMat(FRot,GDMat)
 call CalcVee2(Vee,GDMat,Gtuvx)
-VeeSumOld = SumArray(Vee,lRoots)
+VeeSumOld = sum(Vee(:))
 ICMSIter = 0
 !write(u6,'(6X,I4,8X,F16.8,8X,ES16.4E3)') ICMSIter,VeeSumOld,0.0d0
 do while (.not. Converged)
@@ -74,14 +66,14 @@ do while (.not. Converged)
     if (lRoots > 2) then
       write(u6,'(6X,I4,8X,F16.8,8X,ES16.4E3)') ICMSIter,VeeSumNew,VeeSumChange
       !call RecPrt(' ',' ',Vee,lRoots,1)
-      !write(u6,*) SumArray(Vee,lRoots)
+      !write(u6,*) sum(Vee(:))
     else
       write(u6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)') ICMSIter,asin(FRot(2,1))/deg2rad,VeeSumNew,VeeSumChange
       !call RecPrt(' ',' ',Vee,lRoots,1)
-      !write(u6,*) SumArray(Vee,lRoots)
+      !write(u6,*) sum(Vee(:))
     end if
   end if
-  if (abs(VeeSumChange) < Threshold) then
+  if (abs(VeeSumChange) < CMSThreshold) then
     if (ICMSIter >= ICMSIterMin) then
       Converged = .true.
       if (IPRLEV >= USUAL) write(u6,'(4X,A)') 'CONVERGENCE REACHED'
@@ -99,7 +91,7 @@ do while (.not. Converged)
 end do
 if (IPRLEV >= USUAL) write(u6,*) repeat('=',71)
 
-call Copy2DMat(RotMat,FRot,lRoots,lRoots)
+RotMat(:,:) = FRot(:,:)
 call mma_deallocate(StatePair)
 call mma_deallocate(theta)
 call mma_deallocate(Vee)

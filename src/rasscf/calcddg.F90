@@ -30,10 +30,11 @@ subroutine CalcDDg(DDg,GD,Dg,nDDg,nGD,lRoots2,NAC2)
 !*****************************************************************
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDDg, nGD, lRoots2, NAC2
-real*8 DDg(nDDg), GD(nGD), Dg(nGD)
+integer(kind=iwp) :: nDDg, nGD, lRoots2, NAC2
+real(kind=wp) :: DDg(nDDg), GD(nGD), Dg(nGD)
 
 call DGEMM_('T','N',lRoots2,lRoots2,NAC2,One,Dg,NAC2,GD,NAC2,Zero,DDg,lRoots2)
 

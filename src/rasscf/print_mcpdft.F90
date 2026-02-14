@@ -26,14 +26,13 @@ use KSDFT_Info, only: Funcaa, Funcbb, Funccc
 use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
 use PrintLevel, only: USUAL
 use output_ras, only: IPRLOC
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CASDFT_E
-integer left
-character(len=6) Fmt2
-character(len=120) Line
-integer IPRLEV
+real(kind=wp) :: CASDFT_E
+integer(kind=iwp) :: IPRLEV, left
+character(len=120) :: Line
+character(len=6) :: Fmt2
 
 IPRLEV = IPRLOC(6)
 if (IPRLEV >= USUAL) then

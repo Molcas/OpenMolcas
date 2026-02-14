@@ -16,7 +16,8 @@
 
 module fcidump_dump
 
-use fcidump_tables
+use fcidump_tables, only: FockTable, length, OrbitalTable, TwoElIntTable
+use Definitions, only: wp, iwp
 
 implicit none
 private
@@ -47,12 +48,13 @@ subroutine dump_ascii(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   use general_data, only: nActEl, iSpin, stSym, nAsh
 
   character(len=*), intent(in) :: path
-  real*8, intent(in) :: EMY
+  real(kind=wp), intent(in) :: EMY
   type(OrbitalTable), intent(in) :: orbital_table
   type(FockTable), intent(in) :: fock_table
   type(TwoElIntTable), intent(in) :: two_el_table
-  integer, intent(in) :: orbsym(:)
-  integer :: i, j, isFreeUnit, LuFCI
+  integer(kind=iwp), intent(in) :: orbsym(:)
+  integer(kind=iwp) :: i, j, LuFCI
+  integer(kind=iwp), external :: isFreeUnit
 
   LuFCI = isFreeUnit(38)
   call molcas_open(LuFCI,path)
@@ -63,15 +65,15 @@ subroutine dump_ascii(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   write(LuFCI,'(A)') ' &END'
 
   do j=1,length(two_el_table)
-    write(LuFCI,'(1X,G20.11,4I5)') two_el_table%values(j),(two_el_table%index(i,j),i=1,4)
+    write(LuFCI,'(1X,G20.11,4I5)') two_el_table%values(j),(two_el_table%idx(i,j),i=1,4)
   end do
 
   do j=1,length(fock_table)
-    write(LuFCI,'(1X,G20.11,4I5)') fock_table%values(j),(fock_table%index(i,j),i=1,2),0,0
+    write(LuFCI,'(1X,G20.11,4I5)') fock_table%values(j),(fock_table%idx(i,j),i=1,2),0,0
   end do
 
   do j=1,length(orbital_table)
-    write(LuFCI,'(1X,G20.11,4I5)') orbital_table%values(j),orbital_table%index(j),0,0,0
+    write(LuFCI,'(1X,G20.11,4I5)') orbital_table%values(j),orbital_table%idx(j),0,0,0
   end do
 
   write(LuFCI,'(1X,G20.11,4I5)') EMY,0,0,0,0
@@ -120,13 +122,13 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 # endif
 
   character(len=*), intent(in) :: path
-  real*8, intent(in) :: EMY
+  real(kind=wp), intent(in) :: EMY
   type(OrbitalTable), intent(in) :: orbital_table
   type(FockTable), intent(in) :: fock_table
   type(TwoElIntTable), intent(in) :: two_el_table
-  integer, intent(in) :: orbsym(:)
+  integer(kind=iwp), intent(in) :: orbsym(:)
 # ifdef _HDF5_
-  integer :: file_id, dset_id
+  integer(kind=iwp) :: dset_id, file_id
   character :: lIrrep(24)
 
   file_id = mh5_create_file(path)
@@ -154,7 +156,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
   dset_id = mh5_create_dset_int(file_id,'ORBITAL_INDEX',1,[length(orbital_table)])
   call mh5_init_attr(dset_id,'DESCRIPTION','Index for the orbitals in active space.')
-  call mh5_put_dset(dset_id,orbital_table%index)
+  call mh5_put_dset(dset_id,orbital_table%idx)
   call mh5_close_dset(dset_id)
 
   dset_id = mh5_create_dset_real(file_id,'ORBITAL_ENERGIES',1,[length(orbital_table)])
@@ -164,7 +166,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
   dset_id = mh5_create_dset_int(file_id,'FOCK_INDEX',2,[2,length(fock_table)])
   call mh5_init_attr(dset_id,'DESCRIPTION','The index i, j for the Fock matrix elements <i| F |j>.')
-  call mh5_put_dset(dset_id,fock_table%index)
+  call mh5_put_dset(dset_id,fock_table%idx)
   call mh5_close_dset(dset_id)
 
   dset_id = mh5_create_dset_real(file_id,'FOCK_VALUES',1,[length(fock_table)])
@@ -175,7 +177,7 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
   dset_id = mh5_create_dset_int(file_id,'TWO_EL_INT_INDEX',2,[4,length(two_el_table)])
   call mh5_init_attr(dset_id,'DESCRIPTION','The index i, j, k, l for the two electron integrals <i j | 1/r_{12} | k l >.')
-  call mh5_put_dset(dset_id,two_el_table%index)
+  call mh5_put_dset(dset_id,two_el_table%idx)
   call mh5_close_dset(dset_id)
 
   dset_id = mh5_create_dset_real(file_id,'TWO_EL_INT_VALUES',1,[length(two_el_table)])

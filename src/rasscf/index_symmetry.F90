@@ -14,6 +14,7 @@
 module index_symmetry
 
 use Constants, only: Two, Half
+use Definitions, only: iwp
 
 implicit none
 private
@@ -40,8 +41,8 @@ contains
 
 pure subroutine tuple_one_el_idx(n,i,j)
 
-  integer, intent(in) :: n
-  integer, intent(out) :: i, j
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp), intent(out) :: i, j
 
   i = ceiling(-Half+sqrt(Two*n))
   j = n-(i-1)*i/2
@@ -50,8 +51,8 @@ end subroutine tuple_one_el_idx
 
 pure subroutine array_one_el_idx(n,idx)
 
-  integer, intent(in) :: n
-  integer, intent(out) :: idx(2)
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp), intent(out) :: idx(2)
 
   idx(1) = ceiling(-Half+sqrt(Two*n))
   idx(2) = n-(idx(1)-1)*idx(1)/2
@@ -60,8 +61,8 @@ end subroutine array_one_el_idx
 
 pure function array_1el_idx_flatten(idx) result(n)
 
-  integer, intent(in) :: idx(2)
-  integer :: n
+  integer(kind=iwp), intent(in) :: idx(2)
+  integer(kind=iwp) :: n
 
   n = tuple_1el_idx_flatten(idx(1),idx(2))
 
@@ -69,9 +70,9 @@ end function array_1el_idx_flatten
 
 pure function tuple_1el_idx_flatten(i,j) result(n)
 
-  integer, intent(in) :: i, j
-  integer :: n
-  integer :: p, q
+  integer(kind=iwp) :: n
+  integer(kind=iwp), intent(in) :: i, j
+  integer(kind=iwp) :: p, q
 
   p = max(i,j)
   q = min(i,j)
@@ -81,9 +82,9 @@ end function tuple_1el_idx_flatten
 
 pure subroutine tuple_two_el_idx(n,iorb,jorb,korb,lorb)
 
-  integer, intent(in) :: n
-  integer, intent(out) :: iorb, jorb, korb, lorb
-  integer :: ijidx, klidx
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp), intent(out) :: iorb, jorb, korb, lorb
+  integer(kind=iwp) :: ijidx, klidx
 
   ijidx = ceiling(-Half+sqrt(Two*n))
   klidx = n-(ijidx-1)*ijidx/2
@@ -97,9 +98,9 @@ end subroutine tuple_two_el_idx
 
 pure subroutine array_two_el_idx(n,idx)
 
-  integer, intent(in) :: n
-  integer, intent(out) :: idx(4)
-  integer :: ijidx, klidx
+  integer(kind=iwp), intent(in) :: n
+  integer(kind=iwp), intent(out) :: idx(4)
+  integer(kind=iwp) :: ijidx, klidx
 
   ijidx = ceiling(-Half+sqrt(Two*n))
   klidx = n-(ijidx-1)*ijidx/2
@@ -113,8 +114,8 @@ end subroutine array_two_el_idx
 
 function array_2el_idx_flatten(idx) result(n)
 
-  integer, intent(in) :: idx(4)
-  integer :: n
+  integer(kind=iwp) :: n
+  integer(kind=iwp), intent(in) :: idx(4)
 
   n = tuple_2el_idx_flatten(idx(1),idx(2),idx(3),idx(4))
 
@@ -122,9 +123,9 @@ end function array_2el_idx_flatten
 
 function tuple_2el_idx_flatten(p,q,r,s) result(pqrs)
 
-  integer, intent(in) :: p, q, r, s
-  integer :: pqrs
-  integer :: pq, rs
+  integer(kind=iwp) :: pqrs
+  integer(kind=iwp), intent(in) :: p, q, r, s
+  integer(kind=iwp) :: pq, rs
 
   pqrs = tuple_2el_idx_flatten_2(p,q,r,s,pq,rs)
 
@@ -132,9 +133,9 @@ end function tuple_2el_idx_flatten
 
 function tuple_2el_idx_flatten_2(p,q,r,s,pq,rs) result(pqrs)
 
-  integer, intent(in) :: p, q, r, s
-  integer, intent(out) :: pq, rs
-  integer :: pqrs
+  integer(kind=iwp) :: pqrs
+  integer(kind=iwp), intent(in) :: p, q, r, s
+  integer(kind=iwp), intent(out) :: pq, rs
 
   if (p >= q) pq = p*(p-1)/2+q
   if (p < q) pq = q*(q-1)/2+p

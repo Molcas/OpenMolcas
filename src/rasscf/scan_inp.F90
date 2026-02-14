@@ -21,18 +21,18 @@ subroutine Scan_Inp(iRc)
 #ifdef _DMRG_
 use UnixInfo, only: ProgName
 #endif
-use input_ras, only: nKeys, CMD, KeyFlags, KeyEND, LuInput
+use input_ras, only: CMD, KeyEND, KeyFlags, LuInput, nKeys
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer iRC
-integer I, iCMD
-character(len=4) Command
-character(len=180) Line
+integer(kind=iwp) :: iRC
+integer(kind=iwp) :: I, iCMD
+character(len=180) :: Line
+character(len=4) :: Command
 #ifdef _DMRG_
-logical qcmaquis_input
+logical(kind=iwp) :: qcmaquis_input
 #endif
 #include "warnings.h"
 

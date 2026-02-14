@@ -28,14 +28,14 @@ subroutine OpnFls_RASSCF(DSCF,DoCholesky)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: JOBIPH, JOBOLD, LUONEL, LUINTA, LUINTM, LUQUNE, LUDAVID, ITERFILE
-use Definitions, only: u6
+use general_data, only: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE
+use Definitions, only: iwp, u6
 
 implicit none
-logical DSCF, DoCholesky
-logical test
-integer iOpt, iRC
-integer, external :: IsFreeUnit
+logical(kind=iwp) :: DSCF, DoCholesky
+integer(kind=iwp) :: iOpt, iRC
+logical(kind=iwp) :: test
+integer(kind=iwp), external :: IsFreeUnit
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

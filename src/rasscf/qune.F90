@@ -17,23 +17,20 @@ subroutine QUNE(NCALLS,ENOW,BK,XSX,VL,VM,XQN,XOLD,V1,V2,NDIM,LUQUNE,TMIN,QNSTEP,
 
 use RASDim, only: MxIter
 use Constants, only: Zero, One, Two, Three, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer NCALLS, NDIM
-real*8 ENOW, BK(NDIM), XSX(NDIM), VL(NDIM), VM(NDIM)
-real*8 XQN(NDIM), XOLD(NDIM), V1(NDIM), V2(NDIM)
-integer LUQUNE
-real*8 TMIn
-character(len=2) QNSTEP
-character(len=3) QNUPDT
-character(len=80) KSDFT
-real*8, save :: ELAST, FPLAST
-integer, save :: NVEC, NLS
-real*8, save :: ALPHA(mxiter+2), BETA(mxiter+2)
-integer IAD, IVEC, NLM
-real*8 FP, X, Y, P1, P2, C0, C1, C2, C3, P, Q, TLM, T0, T1, ELM, EMIN, E0, E1, EPRED_LS, EPRED_SX, EPRED_QN, SCLFCT, XSXNRM
-real*8, external :: DDot_, DNrm2_
+integer(kind=iwp) :: NCALLS, NDIM, LUQUNE
+real(kind=wp) :: ENOW, BK(NDIM), XSX(NDIM), VL(NDIM), VM(NDIM), XQN(NDIM), XOLD(NDIM), V1(NDIM), V2(NDIM), TMIn
+character(len=2) :: QNSTEP
+character(len=3) :: QNUPDT
+character(len=80) :: KSDFT
+integer(kind=iwp) :: IAD, IVEC, NLM
+real(kind=wp) :: C0, C1, C2, C3, E0, E1, ELM, EMIN, EPRED_LS, EPRED_QN, EPRED_SX, FP, P, P1, P2, Q, SCLFCT, T0, T1, TLM, X, &
+                 XSXNRM, Y
+integer(kind=iwp), save :: NLS, NVEC
+real(kind=wp), save :: ALPHA(mxiter+2), BETA(mxiter+2), ELAST, FPLAST
+real(kind=wp), external :: DDot_, DNrm2_
 
 NCALLS = NCALLS+1
 

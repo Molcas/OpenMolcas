@@ -12,19 +12,18 @@
 subroutine cpinp(LUnit,iRc)
 
 use UnixInfo, only: ProgName
-use spool, only: SpoolInp, Disable_Spool, Close_LuSpool
+use spool, only: Close_LuSpool, Disable_Spool, SpoolInp
 use Definitions, only: iwp
 
 implicit none
-integer(iwp), intent(out) :: LUnit
-integer(iwp), intent(out) :: iRC
-character(len=180) line
-character(len=1) ch
-integer(iwp) LUSpool
-integer(iwp), external :: IsFreeUnit
+integer(kind=iwp), intent(out) :: LUnit, iRC
+integer(kind=iwp) :: LUSpool
+character(len=180) :: line
+character :: ch
 #ifdef _DMRG_
-character(len=180) line2
+character(len=180) :: line2
 #endif
+integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 
 iRc = _RC_ALL_IS_WELL_

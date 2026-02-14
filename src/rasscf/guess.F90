@@ -34,16 +34,16 @@ subroutine Guess(CMO)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use general_data, only: NSYM, NBAS, NTOT1
+use general_data, only: NBAS, NSYM, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMO(*)
-character(len=8) Label
-real*8, allocatable :: Tmp1(:)
-integer iRC, i1, i2, iBas, iComp, iOpt, iSyLbl, iSym
+real(kind=wp) :: CMO(*)
+integer(kind=iwp) :: i1, i2, iBas, iComp, iOpt, iRC, iSyLbl, iSym
+character(len=8) :: Label
+real(kind=wp), allocatable :: Tmp1(:)
 #include "warnings.h"
 
 !----------------------------------------------------------------------*

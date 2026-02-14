@@ -18,15 +18,14 @@ subroutine CMSOpt(TUVX)
 ! ****************************************************************
 
 use CMS, only: CMSNotConverged, RGD
-use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
+use rasscf_global, only: CMSStartMat, lRoots, NAC, NACPR2
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-real*8, dimension(NACPR2) :: TUVX
-real*8, dimension(:), allocatable :: Gtuvx, R, GDstate, GDorbit, Dgstate, Dgorbit
-real*8, dimension(:,:), allocatable :: RotMat
-integer nTUVX, nGD, lRoots2, NAC2
-character(len=16) :: VecName
+real(kind=wp) :: TUVX(NACPR2)
+integer(kind=iwp) :: lRoots2, NAC2, nGD, nTUVX
+real(kind=wp), allocatable :: Dgorbit(:), Dgstate(:), GDorbit(:), GDstate(:), Gtuvx(:), R(:), RotMat(:,:)
 #include "warnings.h"
 
 !*****************************************************************
@@ -95,8 +94,7 @@ call CMSTail()
 
 ! Save rotation matrix
 call AntiOneDFoil(RotMat,R,lRoots,lRoots)
-VecName = 'CMS-PDFT'
-call PrintMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'T')
+call PrintMat('ROT_VEC','CMS-PDFT',RotMat,lroots,lroots,7,8,'T')
 
 ! releasing memory
 call mma_deallocate(R)

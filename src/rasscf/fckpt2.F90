@@ -30,46 +30,44 @@ subroutine FCKPT2(CMOO,CMON,FI,FP,FTR,VEC,WO,SQ,CMOX)
 !
 ! ********** IBM-3090 Release 88 09 07 **********
 
+use rasscf_global, only: NORBT, NTOT3, FDIAG, ixSym, IADR15
+use PrintLevel, only: DEBUG, VERBOSE
+use output_ras, only: IPRLOC
+use general_data, only: JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NTOT, NTOT2
 #ifdef _HDF5_
-use mh5, only: mh5_put_dset, mh5_close_dset, mh5_create_dset_real, mh5_create_dset_int, mh5_create_file
-use fciqmc, only: tPrepStochCASPT2, tNonDiagStochPT2
+use mh5, only: mh5_close_dset, mh5_create_dset_int, mh5_create_dset_real, mh5_create_file, mh5_put_dset
+use fciqmc, only: tNonDiagStochPT2, tPrepStochCASPT2
 use RASWfn, only: wfn_mocoef
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
 #endif
-use rasscf_global, only: NORBT, NTOT3, FDIAG, ixSym, IADR15
 #ifdef _ENABLE_CHEMPS2_DMRG_
 use rasscf_global, only: NAC
 #endif
-use PrintLevel, only: DEBUG, VERBOSE
-use output_ras, only: IPRLOC
-use general_data, only: NSYM, NTOT, JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, NSSH, NTOT2
 use Constants, only: Zero, One
-use Definitions, only: u6, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMOO(*), CMON(*), FI(*), FP(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*)
+real(kind=wp) :: CMOO(*), CMON(*), FI(*), FP(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*)
+integer(kind=iwp) :: i, I_F, iAd15, IB, iBas, ID, IFD, II, ioff, iPrLev, IST, ISTFCK, ISTMO, ISTMO1, iSym, j, M_IN, N_OT, NA, NA1, &
+                     NAB, NABT, NAO, NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NEO2, NF, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, &
+                     NIO2, NJ, NO1, NOC, NOO, NP, NPQ, NQ, NR1, NR11, NR12, NR2, NR21, NR22, NR3, NR31, NR32, NT, NT1, NTT, NTU, &
+                     NTUT, NU, NUT
+real(kind=wp) :: FMIN
 #ifdef _ENABLE_CHEMPS2_DMRG_
-integer iChMolpro(8)
-character(len=3) Label
-integer, allocatable :: OrbSym(:)
-integer ifock, iiash, iOrb, jOrb, LuFck, nOrbTot
-integer, external :: IsFreeUnit
+integer(kind=iwp) :: iChMolpro(8), ifock, iiash, iOrb, jOrb, LuFck, nOrbTot
+character(len=3) :: Label
+integer(kind=iwp), allocatable :: OrbSym(:)
+integer(kind=iwp), external :: IsFreeUnit
 #endif
 #ifdef _HDF5_
-integer, allocatable :: indices(:,:)
-real(wp), allocatable :: vals(:), fockmat(:,:), vecs(:,:)
-integer :: file_id, dset_id, nOrbCount, nActOrb, offset, index, k
+integer(kind=iwp) :: dset_id, file_id, idx, k, nActOrb, nOrbCount, offset
+integer(kind=iwp), allocatable :: indices(:,:)
+real(kind=wp), allocatable :: fockmat(:,:), vals(:), vecs(:,:)
 #endif
-character(len=16), parameter :: ROUTINE = 'FCKPT2  '
-real*8 FMIN
-integer iPrLev, IB, ISTMO1, ISTFCK, ID, i, iAd15, iBas, IF, IFD, II, ioff, IST, ISTMO, iSym, j, MIN, NA, NA1, NABT, NAO, NAT, NB, &
-        NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NF, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1, NOC, NOO, NOT, NP, NPQ, NR1, &
-        NR11, NR12, NR2, NR21, NR22, NR3, NR31, NR32, NT, NT1, NTT, NTU, NTUT, NU, NUT, NAB, NEO2, NQ
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(4)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering FCKPT2'
 
 IB = 0
 ISTMO1 = 1
@@ -142,7 +140,7 @@ do ISYM=1,NSYM
   NR3 = NRS3(ISYM)
   NEO = NSSH(ISYM)
   NOO = NFO+NIO+NAO
-  NOT = NIO+NAO+NEO
+  N_OT = NIO+NAO+NEO
   NOC = NIO+NAO
   ISTMO = ISTMO1+NFO*NBF
   !*********************************************************************
@@ -158,7 +156,7 @@ do ISYM=1,NSYM
 
   ! Clear the MO transformation matrix CMOX
 
-  call FZERO(CMOX,NOT*NOT)
+  call FZERO(CMOX,N_OT*N_OT)
 
   !*********************************************************************
   ! Inactive part of the Fock matrix
@@ -198,19 +196,19 @@ do ISYM=1,NSYM
       NIO1 = NIO-1
       do NI=1,NIO1
         NI1 = NI+1
-        MIN = NI
+        M_IN = NI
         do NJ=NI1,NIO
-          if (FDIAG(NO1+NJ) < FDIAG(NO1+MIN)) MIN = NJ
+          if (FDIAG(NO1+NJ) < FDIAG(NO1+M_IN)) M_IN = NJ
         end do
-        if (MIN == NI) GO TO 20
-        FMIN = FDIAG(NO1+MIN)
-        FDIAG(NO1+MIN) = FDIAG(NO1+NI)
+        if (M_IN == NI) GO TO 20
+        FMIN = FDIAG(NO1+M_IN)
+        FDIAG(NO1+M_IN) = FDIAG(NO1+NI)
         FDIAG(NO1+NI) = FMIN
-        call DSWAP_(NIO,VEC(1+NIO*(NI-1)),1,VEC(1+NIO*(MIN-1)),1)
+        call DSWAP_(NIO,VEC(1+NIO*(NI-1)),1,VEC(1+NIO*(M_IN-1)),1)
 20      continue
       end do
     end if
-    call DGEACC(One,VEC,NIO,'N',CMOX,NOT,NIO,NIO)
+    call DGEACC(One,VEC,NIO,'N',CMOX,N_OT,NIO,NIO)
   end if
 
   !*********************************************************************
@@ -259,19 +257,19 @@ do ISYM=1,NSYM
         NR11 = NR1-1
         do NT=1,NR11
           NT1 = NT+1
-          MIN = NT
+          M_IN = NT
           do NU=NT1,NR1
-            if (FDIAG(NO1+NU) < FDIAG(NO1+MIN)) MIN = NU
+            if (FDIAG(NO1+NU) < FDIAG(NO1+M_IN)) M_IN = NU
           end do
-          if (MIN == NT) GO TO 41
-          FMIN = FDIAG(NO1+MIN)
-          FDIAG(NO1+MIN) = FDIAG(NO1+NT)
+          if (M_IN == NT) GO TO 41
+          FMIN = FDIAG(NO1+M_IN)
+          FDIAG(NO1+M_IN) = FDIAG(NO1+NT)
           FDIAG(NO1+NT) = FMIN
-          call DSWAP_(NR1,VEC(1+NR1*(NT-1)),1,VEC(1+NR1*(MIN-1)),1)
+          call DSWAP_(NR1,VEC(1+NR1*(NT-1)),1,VEC(1+NR1*(M_IN-1)),1)
 41        continue
         end do
       end if
-      call DGEACC(One,VEC,NR1,'N',CMOX(1+NOT*NIO+NIO),NOT,NR1,NR1)
+      call DGEACC(One,VEC,NR1,'N',CMOX(1+N_OT*NIO+NIO),N_OT,NR1,NR1)
 
 #     ifdef _ENABLE_CHEMPS2_DMRG_
       II = 0
@@ -334,19 +332,19 @@ do ISYM=1,NSYM
         NR21 = NR2-1
         do NT=1,NR21
           NT1 = NT+1
-          MIN = NT
+          M_IN = NT
           do NU=NT1,NR2
-            if (FDIAG(NO1+NU) < FDIAG(NO1+MIN)) MIN = NU
+            if (FDIAG(NO1+NU) < FDIAG(NO1+M_IN)) M_IN = NU
           end do
-          if (MIN == NT) GO TO 42
-          FMIN = FDIAG(NO1+MIN)
-          FDIAG(NO1+MIN) = FDIAG(NO1+NT)
+          if (M_IN == NT) GO TO 42
+          FMIN = FDIAG(NO1+M_IN)
+          FDIAG(NO1+M_IN) = FDIAG(NO1+NT)
           FDIAG(NO1+NT) = FMIN
-          call DSWAP_(NR2,VEC(1+NR2*(NT-1)),1,VEC(1+NR2*(MIN-1)),1)
+          call DSWAP_(NR2,VEC(1+NR2*(NT-1)),1,VEC(1+NR2*(M_IN-1)),1)
 42        continue
         end do
       end if
-      call DGEACC(One,VEC,NR2,'N',CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
+      call DGEACC(One,VEC,NR2,'N',CMOX(1+N_OT*(NIO+NR1)+NIO+NR1),N_OT,NR2,NR2)
 
 #     ifdef _HDF5_
       if (tNonDiagStochPT2) then
@@ -420,19 +418,19 @@ do ISYM=1,NSYM
         NR31 = NR3-1
         do NT=1,NR31
           NT1 = NT+1
-          MIN = NT
+          M_IN = NT
           do NU=NT1,NR3
-            if (FDIAG(NO1+NU) < FDIAG(NO1+MIN)) MIN = NU
+            if (FDIAG(NO1+NU) < FDIAG(NO1+M_IN)) M_IN = NU
           end do
-          if (MIN == NT) GO TO 43
-          FMIN = FDIAG(NO1+MIN)
-          FDIAG(NO1+MIN) = FDIAG(NO1+NT)
+          if (M_IN == NT) GO TO 43
+          FMIN = FDIAG(NO1+M_IN)
+          FDIAG(NO1+M_IN) = FDIAG(NO1+NT)
           FDIAG(NO1+NT) = FMIN
-          call DSWAP_(NR3,VEC(1+NR3*(NT-1)),1,VEC(1+NR3*(MIN-1)),1)
+          call DSWAP_(NR3,VEC(1+NR3*(NT-1)),1,VEC(1+NR3*(M_IN-1)),1)
 43        continue
         end do
       end if
-      call DGEACC(One,VEC,NR3,'N',CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,NR3,NR3)
+      call DGEACC(One,VEC,NR3,'N',CMOX(1+N_OT*(NIO+NR1+NR2)+NIO+NR1+NR2),N_OT,NR3,NR3)
 
 #     ifdef _ENABLE_CHEMPS2_DMRG_
       II = 0
@@ -487,24 +485,24 @@ do ISYM=1,NSYM
       NEO1 = NEO-1
       do NA=1,NEO1
         NA1 = NA+1
-        MIN = NA
+        M_IN = NA
         do NB=NA1,NEO
-          if (FDIAG(NO1+NB) < FDIAG(NO1+MIN)) MIN = NB
+          if (FDIAG(NO1+NB) < FDIAG(NO1+M_IN)) M_IN = NB
         end do
-        if (MIN == NA) GO TO 60
-        FMIN = FDIAG(NO1+MIN)
-        FDIAG(NO1+MIN) = FDIAG(NO1+NA)
+        if (M_IN == NA) GO TO 60
+        FMIN = FDIAG(NO1+M_IN)
+        FDIAG(NO1+M_IN) = FDIAG(NO1+NA)
         FDIAG(NO1+NA) = FMIN
-        call DSWAP_(NEO,VEC(1+NEO*(NA-1)),1,VEC(1+NEO*(MIN-1)),1)
+        call DSWAP_(NEO,VEC(1+NEO*(NA-1)),1,VEC(1+NEO*(M_IN-1)),1)
 60      continue
       end do
     end if
-    call DGEACC(One,VEC,NEO,'N',CMOX(1+NOT*NOC+NOC),NOT,NEO,NEO)
+    call DGEACC(One,VEC,NEO,'N',CMOX(1+N_OT*NOC+NOC),N_OT,NEO,NEO)
   end if
 
   ! Transform molecular orbitals
 
-  if (NBF*NTOT > 0) call DGEMM_('N','N',NBF,NOT,NOT,One,CMOO(ISTMO),NBF,CMOX,NOT,Zero,CMON(ISTMO),NBF)
+  if (NBF*NTOT > 0) call DGEMM_('N','N',NBF,N_OT,N_OT,One,CMOO(ISTMO),NBF,CMOX,N_OT,Zero,CMON(ISTMO),NBF)
 
   !*********************************************************************
   ! Deleted orbitals (move MO's and set zero to FDIAG)
@@ -521,40 +519,40 @@ do ISYM=1,NSYM
 
   ! Transform inactive Fock matrix FI and the CASPT2 matrix FP
 
-  if (NOT > 0) then
-    call SQUARE(FI(ISTFCK+1),SQ,1,NOT,NOT)
-    call DGEMM_('N','N',NOT,NOT,NOT,One,SQ,NOT,CMOX,NOT,Zero,VEC,NOT)
-    call DGEMM_('T','N',NOT,NOT,NOT,One,CMOX,NOT,VEC,NOT,Zero,SQ,NOT)
+  if (N_OT > 0) then
+    call SQUARE(FI(ISTFCK+1),SQ,1,N_OT,N_OT)
+    call DGEMM_('N','N',N_OT,N_OT,N_OT,One,SQ,N_OT,CMOX,N_OT,Zero,VEC,N_OT)
+    call DGEMM_('T','N',N_OT,N_OT,N_OT,One,CMOX,N_OT,VEC,N_OT,Zero,SQ,N_OT)
 
     ! Move transformed Fock matrix back to FI
 
     NPQ = ISTFCK
-    do NP=1,NOT
+    do NP=1,N_OT
       do NQ=1,NP
         NPQ = NPQ+1
-        FI(NPQ) = SQ(NOT*(NP-1)+NQ)
+        FI(NPQ) = SQ(N_OT*(NP-1)+NQ)
       end do
     end do
 
     ! The FP matrix
 
-    call SQUARE(FP(ISTFCK+1),SQ,1,NOT,NOT)
-    call DGEMM_('N','N',NOT,NOT,NOT,One,SQ,NOT,CMOX,NOT,Zero,VEC,NOT)
-    call DGEMM_('T','N',NOT,NOT,NOT,One,CMOX,NOT,VEC,NOT,Zero,SQ,NOT)
+    call SQUARE(FP(ISTFCK+1),SQ,1,N_OT,N_OT)
+    call DGEMM_('N','N',N_OT,N_OT,N_OT,One,SQ,N_OT,CMOX,N_OT,Zero,VEC,N_OT)
+    call DGEMM_('T','N',N_OT,N_OT,N_OT,One,CMOX,N_OT,VEC,N_OT,Zero,SQ,N_OT)
 
     ! Move transformed Fock matrix back to FP
 
     NPQ = ISTFCK
-    do NP=1,NOT
+    do NP=1,N_OT
       do NQ=1,NP
         NPQ = NPQ+1
-        FP(NPQ) = SQ(NOT*(NP-1)+NQ)
+        FP(NPQ) = SQ(N_OT*(NP-1)+NQ)
       end do
     end do
   end if
 
   IB = IB+NBF
-  ISTFCK = ISTFCK+(NOT**2+NOT)/2
+  ISTFCK = ISTFCK+(N_OT**2+N_OT)/2
   ISTMO1 = ISTMO1+NBF**2
   ID = ID+(NAO**2+NAO)/2
 end do
@@ -565,10 +563,10 @@ if (tPrepStochCASPT2 .or. tNonDiagStochPT2) then
   if (tNonDiagStochPT2) then  ! linearise quadratic Fock matrix
     do i=1,nActOrb
       do j=1,i
-        index = (i**2-i)/2+j
-        indices(1,index) = i
-        indices(2,index) = j
-        vals(index) = fockmat(i,j)
+        idx = (i**2-i)/2+j
+        indices(1,idx) = i
+        indices(2,idx) = j
+        vals(idx) = fockmat(i,j)
       end do
     end do
     call mma_deallocate(fockmat)
@@ -636,15 +634,15 @@ call mh5_put_dset(wfn_mocoef,CMON)
 ! Write FI, FP and FDIAG to JOBIPH
 ! First remove frozen and deleted part of FDIAG
 
-if = 0
+I_F = 0
 IFD = 0
 do ISYM=1,NSYM
   NBF = NBAS(ISYM)
   do NB=1,NBF
     IFD = IFD+1
     if ((NB > NFRO(ISYM)) .and. (NB <= NBF-NDEL(ISYM))) then
-      if = if+1
-      SQ(if) = FDIAG(IFD)
+      I_F = I_F+1
+      SQ(I_F) = FDIAG(IFD)
     end if
   end do
 end do

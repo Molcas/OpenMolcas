@@ -20,18 +20,14 @@ subroutine SumVeeNew(SV,A,GD,I1,I2,G,V1,V2,Update)
 use rasscf_global, only: lRoots, NAC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 SV, A, V1, V2
-integer I1, I2
-real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GD
-real*8, dimension(NAC,NAC,NAC,NAC) :: G
-real*8, dimension(:,:), allocatable :: D11, D22
-real*8, dimension(:,:,:), allocatable :: D1J, D2J
-logical Update
-integer t, u, v, x, i11, i22, i12
-integer J, I1J, I2J
-#include "warnings.h"
+real(kind=wp) :: SV, A, GD(lRoots*(lRoots+1)/2,NAC,NAC), G(NAC,NAC,NAC,NAC), V1, V2
+integer(kind=iwp) :: I1, I2
+logical(kind=iwp) :: Update
+integer(kind=iwp) :: i11, i12, I1J, i22, I2J, J, t, u, v, x
+real(kind=wp), allocatable :: D11(:,:), D1J(:,:,:), D22(:,:), D2J(:,:,:)
 
 if (Update) then
   call mma_allocate(D1J,lRoots,NAC,NAC)

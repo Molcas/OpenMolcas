@@ -36,55 +36,55 @@ use Fock_util_global, only: DoLocK
 use Functionals, only: Init_Funcs, Print_Info
 use KSDFT_Info, only: CoefR, CoefX
 use rctfld_module, only: lRF
-use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
-use rasscf_global, only: KSDFT, DoBlockDMRG, DoDMRG, ICICH, ICIRST, iPCMRoot, iRLXRoot, iSupSM, ITMAX, l_casdft, lRoots, lSquare, &
-                         LvShft, MAXIT, n_Det, NAC, NFR, NIN, NONEQ, NROOTS, NSEC, nTit, RFPert, ThrE, ThrSX, ThrTE, Tot_Charge, &
-                         Tot_El_Charge, Tot_Nuc_Charge, Title, Header, iRoot, Weight, iCI, cCI, ixSym, NQUNE
+use gas_data, only: iDoGAS, IGSOCCX, NGAS, NGSSH
+use rasscf_global, only: cCI, DoBlockDMRG, DoDMRG, Header, iCI, ICICH, ICIRST, iPCMRoot, iRLXRoot, iRoot, iSupSM, ITMAX, ixSym, &
+                         KSDFT, l_casdft, lRoots, lSquare, LvShft, MAXIT, n_Det, NAC, NFR, NIN, NONEQ, NQUNE, NROOTS, NSEC, nTit, &
+                         RFPert, ThrE, ThrSX, ThrTE, Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, Weight
 #ifdef _DMRG_
-use qcmaquis_interface_cfg
+use qcmaquis_interface_cfg, only: dmrg_orbital_space, dmrg_warmup
 use qcmaquis_interface_utility_routines, only: print_dmrg_info
 #endif
 #ifdef _ENABLE_DICE_SHCI_
-use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_Restart, dice_SampleN, Dice_Stoc, nRef_Dice, diceocc
+use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_Restart, dice_SampleN, Dice_Stoc, diceocc, nRef_Dice
 #endif
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
-use rasscf_global, only: MXDMRG, ChemPS2_blb, ChemPS2_lreStart, ChemPS2_Noise, ChemPS2_Restart, Davidson_tol, Do3RDM, HFOcc, &
-                         Max_canonical, Max_Sweep
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
+use rasscf_global, only: ChemPS2_blb, ChemPS2_lreStart, ChemPS2_Noise, ChemPS2_Restart, Davidson_tol, Do3RDM, HFOcc, &
+                         Max_canonical, Max_Sweep, MXDMRG
 #endif
-use SplitCas_Data, only: DoSPlitCas, MxIterSplit, ThrSplit, lRootSplit, NumSplit, iDimBlockA, EnerSplit, GapSpli, PerSplit, &
-                         PerCSpli, fOrdSplit
-use PrintLevel, only: USUAL, SILENT
+use SplitCas_Data, only: DoSPlitCas, EnerSplit, fOrdSplit, GapSpli, iDimBlockA, lRootSplit, MxIterSplit, NumSplit, PerCSpli, &
+                         PerSplit, ThrSplit
+use PrintLevel, only: SILENT, USUAL
 use output_ras, only: IPRLOC
-use general_data, only: NACTEL, NHOLE1, NELEC3, ISPIN, STSYM, NSYM, NSEL, NTOT1, NASH, NBAS, NDEL, NFRO, NISH, NRS1, NRS2, NRS3, &
-                        NSSH
-use spinfo, only: DoComb, NCNFTP, NCSASM, NDTASM, NDTFTP, I_ELIMINATE_GAS_MOLCAS, NCSF_HEXS
-use DWSol, only: DWSolv, DWSol_fixed, W_SOLV
+use general_data, only: ISPIN, NACTEL, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSEL, NSSH, NSYM, NTOT1, &
+                        STSYM
+use spinfo, only: DoComb, I_ELIMINATE_GAS_MOLCAS, NCNFTP, NCSASM, NCSF_HEXS, NDTASM, NDTFTP
+use DWSol, only: DWSol_fixed, DWSolv, W_SOLV
 use RASDim, only: MxRef
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Two, Six, Half, OneHalf
-use Definitions, only: wp, u6, RtoB
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-logical lOPTO
-character(len=8) Fmt1, Fmt2, Label
-character(len=120) Line, BlLine, StLine
-character(len=3) lIrrep(8)
-character(len=2) GASidx
-character(len=80) KSDFT2
-logical DoCholesky
-real*8, allocatable :: Tmp0(:)
-real*8 AvailMB, WillNeedMB
-integer i, iCharge, iComp, iDoRI, iEnd, iGAS, iOpt, iPrLev, iRC, iRef, iStart, iSyLbl, iSym, iTemp, j, left, lLine, lPaper, &
-        MaxRem, n_paired_elec, n_unpaired_elec, nLine
+logical(kind=iwp) :: lOPTO
+integer(kind=iwp) :: i, iCharge, iComp, iDoRI, iEnd, iGAS, iOpt, iPrLev, iRC, iRef, iStart, iSyLbl, iSym, iTemp, j, left, lLine, &
+                     lPaper, MaxRem, n_paired_elec, n_unpaired_elec, nLine
+real(kind=wp) :: AvailMB, WillNeedMB
+logical(kind=iwp) :: DoCholesky
+character(len=120) :: BlLine, Line, StLine
+character(len=80) :: KSDFT2
+character(len=8) :: Fmt1, Fmt2, Label
+character(len=3) :: lIrrep(8)
+character(len=2) :: GASidx
+real(kind=wp), allocatable :: Tmp0(:)
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
-character(len=3) SNAC
-integer iHFOcc
+integer(kind=iwp) :: iHFOcc
+character(len=3) :: SNAC
 #endif
 #ifdef _DMRG_
 character(len=100) :: dmrg_start_guess
 #endif
 #ifdef _ENABLE_DICE_SHCI_
-integer iRef_Dice
+integer(kind=iwp) :: iRef_Dice
 #endif
 
 ! Print level:

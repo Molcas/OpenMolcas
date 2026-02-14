@@ -15,16 +15,16 @@ subroutine MKCRVEC(CMO_0,CRVEC)
 
 use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: ITCORE
-use general_data, only: NTOT, NTOT2, NTOT1, NBAS, NFRO, NISH
+use general_data, only: NBAS, NFRO, NISH, NTOT, NTOT1, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CRVEC(NTOT), CMO_0(NTOT2)
-character(len=8) LABEL
-real*8, allocatable :: STRI(:), SAO(:,:)
-integer IRC, IOPT, ICOMP, ISYMLBL, NB, NFI
+real(kind=wp) :: CMO_0(NTOT2), CRVEC(NTOT)
+integer(kind=iwp) :: ICOMP, IOPT, IRC, ISYMLBL, NB, NFI
+character(len=8) :: LABEL
+real(kind=wp), allocatable :: SAO(:,:), STRI(:)
 #include "warnings.h"
 
 ! Note: Nbas,etc are in included common. So is ITCORE.

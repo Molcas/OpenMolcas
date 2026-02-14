@@ -38,7 +38,7 @@ subroutine Done_RASSCF(CMO,OCC,D)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use general_data, only: NSYM, NASH, NBAS, NFRO, NISH
+use general_data, only: NASH, NBAS, NFRO, NISH, NSYM
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 

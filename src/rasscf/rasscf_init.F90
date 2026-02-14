@@ -26,31 +26,30 @@ subroutine RasScf_Init()
 use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk, DoCholesky, DoLocK, Estimate, Nscreen, Update
 use casvb_global, only: ifvb
 use Cholesky, only: ChFracMem, timings
-use CMS, only: iCMSOpt, CMSGiveOpt
+use CMS, only: CMSGiveOpt, iCMSOpt
 use UnixInfo, only: SuperName
-use gas_data, only: NGAS, NGSSH, IGSOCCX
+use gas_data, only: IGSOCCX, NGAS, NGSSH
 use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE, TimeHDiag, TimeHSel, TimeInput, TimeOrb, &
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
 use lucia_data, only: TDENSI, TSIGMA
-use rasscf_global, only: IROOT, CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoots, iAlphaBeta, ICICH, ICICP, iCIonly, &
-                         ICIRST, ICMSIterMax, ICMSIterMin, iCMSP, iExpand, IfCRPR, IfOrde, InOCalc, iOrbOnly, iOrbTyp, iOrdeM, &
-                         iPCMRoot, iPhName, iPT2, iRLXRoot, iRoot, irotPsi, iSave_Exp, iSPDen, iSupSM, itCore, ITMAX, ITRIM, &
-                         iXMSP, KSDFT, kTight, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NewFock, NonEq, NQUNE, &
-                         NROOTS, OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXSel, ThFact, Thre, &
-                         ThrEn, ThrSX, TMin, Weight, Title, ixSym, iTri, ThrTE
-use general_data, only: SXDAMP, NSEL, LOWDIN_ON, ISPIN, STSYM, NACTEL, NHOLE1, NELEC3, NALTER, STARTORBFILE, NASH, NBAS, NDEL, &
-                        NFRO, NISH, NRS1, NRS2, NRS3, NRS3, NSSH
+use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoots, iAlphaBeta, ICICH, ICICP, iCIonly, ICIRST, &
+                         ICMSIterMax, ICMSIterMin, iCMSP, iExpand, IfCRPR, IfOrde, InOCalc, iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot, &
+                         iPhName, iPT2, iRLXRoot, IROOT, iRoot, irotPsi, iSave_Exp, iSPDen, iSupSM, itCore, ITMAX, iTri, ITRIM, &
+                         iXMSP, ixSym, KSDFT, kTight, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NewFock, NonEq, &
+                         NQUNE, NROOTS, OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXSel, ThFact, &
+                         Thre, ThrEn, ThrSX, ThrTE, Title, TMin, Weight
+use general_data, only: ISPIN, LOWDIN_ON, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, &
+                        NSEL, NSSH, STARTORBFILE, STSYM, SXDAMP
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, ISPEED
 use Molcas, only: MxOrb, MxRoot, MxSym
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer IPRGLB_IN, IPRLOC_IN(7)
-logical, external :: Is_First_Iter
-integer I
-integer, external :: iPrintLevel
+integer(kind=iwp) :: I, IPRGLB_IN, IPRLOC_IN(7)
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Is_First_Iter
 
 !----------------------------------------------------------------------*
 ! How was the program called?

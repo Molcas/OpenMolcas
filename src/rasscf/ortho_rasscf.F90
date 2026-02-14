@@ -35,14 +35,14 @@ subroutine Ortho_RASSCF(SMAT,SCRATCH,CMO,TEMP)
 !***********************************************************************
 
 use OneDat, only: sNoNuc, sNoOri
-use general_data, only: NSYM, LOWDIN_ON, NBAS, NDEL
+use general_data, only: LOWDIN_ON, NBAS, NDEL, NSYM
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 Smat(*), SCRATCH(*), CMO(*), Temp(*)
+real(kind=wp) :: Smat(*), SCRATCH(*), CMO(*), Temp(*)
+integer(kind=iwp) :: i_Component, i_Opt, i_RC, i_SymLbl, iBas, iOcc, ip_CMO, ip_SMat, iSym
 character(len=8) :: Label
-integer i_Component, i_Opt, i_RC, i_SymLbl, iBas, iOcc, ip_CMO, ip_SMat, iSym
 #include "warnings.h"
 
 !                                                                      *

@@ -14,21 +14,21 @@
 module spin_correlation
 
 use CI_solver_util, only: rdm_from_runfile
-use rasscf_global, only: LRoots, iAdr15, nacpar, nacpr2
+use rasscf_global, only: iAdr15, lRoots, nacpar, nacpr2
 use index_symmetry, only: one_el_idx_flatten, two_el_idx_flatten
 use general_data, only: JobIPH
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
-integer, allocatable :: orb_range_p(:), orb_range_q(:)
-integer :: same_orbs
-logical :: tRootGrad = .false.
+integer(kind=iwp) :: same_orbs
+logical(kind=iwp) :: tRootGrad = .false.
+integer(kind=iwp), allocatable :: orb_range_p(:), orb_range_q(:)
 
-public :: spin_correlation_driver, orb_range_p, orb_range_q, same_orbs, tRootGrad
+public :: orb_range_p, orb_range_q, same_orbs, spin_correlation_driver, tRootGrad
 
 contains
 
@@ -36,13 +36,16 @@ subroutine spin_correlation_driver(orb_range_p,orb_range_q,iroot)
 !! spin-spin-correlation function using orbital-resolved 2RDMs.
 !! For details see Dobrautz et al. 2021, 10.1021/acs.jctc.1c00589.
 
-  integer, intent(in) :: orb_range_p(:), orb_range_q(:), iroot(:)
-  real(wp), allocatable :: spin_correlations(:)
-  real(wp) :: dmat(nacpar), dspn(nacpar), pamat(nacpr2), psmat(nacpr2)
-  integer :: jDisk, i, j
-  logical :: disk_pointer_moved
+  integer(kind=iwp), intent(in) :: orb_range_p(:), orb_range_q(:), iroot(:)
+  integer(kind=iwp) :: i, j, jDisk
+  logical(kind=iwp) :: disk_pointer_moved
+  real(kind=wp), allocatable :: dmat(:), dspn(:), pamat(:), psmat(:), spin_correlations(:)
 
   jDisk = iAdr15(3)
+  call mma_allocate(dmat,nacpar,Label='dmat')
+  call mma_allocate(dspn,nacpar,Label='dspn')
+  call mma_allocate(pamat,nacpr2,Label='pamat')
+  call mma_allocate(psmat,nacpr2,Label='psmat')
   call mma_allocate(spin_correlations,size(iroot))
   spin_correlations(:) = Zero
 
@@ -75,6 +78,10 @@ subroutine spin_correlation_driver(orb_range_p,orb_range_q,iroot)
   ! for testing purposes
   call Add_Info('spin correlation',spin_correlations(1),1,8)
 
+  call mma_deallocate(dmat)
+  call mma_deallocate(dspn)
+  call mma_deallocate(pamat)
+  call mma_deallocate(psmat)
   call mma_deallocate(spin_correlations)
 
 end subroutine spin_correlation_driver
@@ -84,11 +91,11 @@ function correlation_func(orb_range_p,orb_range_q,dmat,psmat,pamat) result(corr)
 
   use Constants, only: Half
 
-  real(wp) corr
-  integer, intent(in) :: orb_range_p(:), orb_range_q(:)
-  real(wp), intent(in) :: dmat(nacpar), psmat(nacpr2), pamat(nacpr2)
-  integer :: rp, rq, p, q, pp, pppp, pqqp, ppqq
-  real(wp) :: twordm_pqqp, twordm_ppqq, twordm_pppp, onerdm_pp
+  real(kind=wp) corr
+  integer(kind=iwp), intent(in) :: orb_range_p(:), orb_range_q(:)
+  real(kind=wp), intent(in) :: dmat(nacpar), psmat(nacpr2), pamat(nacpr2)
+  integer(kind=iwp) :: p, pp, pppp, ppqq, pqqp, q, rp, rq
+  real(kind=wp) :: onerdm_pp, twordm_pppp, twordm_ppqq, twordm_pqqp
 
   corr = Zero
 

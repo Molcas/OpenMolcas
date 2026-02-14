@@ -16,13 +16,13 @@ use Cholesky, only: timings
 use Para_Info, only: MyRank
 use rasscf_global, only: MaxIt, Thre, ThrSX, ThrTE
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer id_call
-integer iCount, iCOunt0
-character(len=512) List
-character(len=32) value
+integer(kind=iwp) :: id_call
+integer(kind=iwp) :: iCount, iCount0
+character(len=512) :: List
+character(len=32) :: val
 
 icount = 0
 
@@ -41,58 +41,58 @@ else
 
   ! Read the molcas control file
   !1
-  call MolcasControl('Cho_ALGO',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) ALGO
+  call MolcasControl('Cho_ALGO',val)
+  if (val(1:4) /= '    ') then
+    read(val,*,err=101,end=102) ALGO
     write(u6,*) '--- Warning: Cho_ALGO changed by user to the value ',ALGO
     icount = icount+1
   end if
   !2
-  call MolcasControl('Chotime',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) timings
+  call MolcasControl('Chotime',val)
+  if (val(1:4) /= '    ') then
+    read(val,*,err=101,end=102) timings
     write(u6,*) '--- Warning: Cholesky timings visualization changed by user to the value ',timings
     icount = icount+1
   end if
   !3
-  call MolcasControl('nScreen',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) nScreen
+  call MolcasControl('nScreen',val)
+  if (val(1:4) /= '    ') then
+    read(val,*,err=101,end=102) nScreen
     write(u6,*) '--- Warning: Cholesky LK option nSCREEN changed by user to the value ',nScreen
     icount = icount+1
   end if
   !4
-  call MolcasControl('dmpK',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) dmpK
+  call MolcasControl('dmpK',val)
+  if (val(1:4) /= '    ') then
+    read(val,*,err=101,end=102) dmpK
     write(u6,*) '--- Warning: Cholesky LK option DMPK changed by user to the value ',dmpK
     icount = icount+1
   end if
   !5
-  call MolcasControl('MaxIter',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) MaxIt
+  call MolcasControl('MaxIter',val)
+  if (val(1:4) /= '    ') then
+    read(val,*,err=101,end=102) MaxIt
     write(u6,*) '--- Warning: MaxIt changed by user to the value ',MaxIt
     icount = icount+1
   end if
   !6
-  call MolcasControl('ThrE',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) ThrE
+  call MolcasControl('ThrE',val)
+  if (val(1:4) /= '    ') then
+    read(val,*,err=101,end=102) ThrE
     write(u6,*) '--- Warning: ThrE changed by user to the value ',ThrE
     icount = icount+1
   end if
   !7
-  call MolcasControl('ThrSX',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) ThrSX
+  call MolcasControl('ThrSX',val)
+  if (val(1:4) /= '    ') then
+    read(val,*,err=101,end=102) ThrSX
     write(u6,*) '--- Warning: ThrSX changed by user to the value ',ThrSX
     icount = icount+1
   end if
   !8
-  call MolcasControl('ThrTE',value)
-  if (value(1:4) /= '    ') then
-    read(value,*,err=101,end=102) ThrTE
+  call MolcasControl('ThrTE',val)
+  if (val(1:4) /= '    ') then
+    read(val,*,err=101,end=102) ThrTE
     write(u6,*) '--- Warning: ThrTE changed by user to the value ',ThrTE
     icount = icount+1
   end if

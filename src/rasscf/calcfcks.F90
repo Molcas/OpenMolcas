@@ -15,15 +15,11 @@ subroutine CalcFckS(FckO,GDMat,FckS)
 
 use rasscf_global, only: lRoots, nAc
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-!*****Input
-real*8, dimension(NAC,NAC) :: FckO
-real*8, dimension(lRoots*(lRoots+1)/2,NAC,NAC) :: GDMat
-!*****Output
-real*8, dimension(lRoots,lRoots) :: FckS
-!*****Auxiliary variables
-integer IState, JState, iOrb, jOrb
+real(kind=wp) :: FckO(NAC,NAC), GDMat(lRoots*(lRoots+1)/2,NAC,NAC), FckS(lRoots,lRoots)
+integer(kind=iwp) :: iOrb, IState, jOrb, JState
 
 FckS(:,:) = Zero
 

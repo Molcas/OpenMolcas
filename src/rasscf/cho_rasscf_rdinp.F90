@@ -21,16 +21,15 @@ subroutine CHO_RASSCF_RDINP(DFonly,LuInput)
 use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpK, DoLocK, Estimate, Nscreen, Update
 use Cholesky, only: ChFracMem, timings
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-logical DFonly
-integer LuInput
-character(len=180) KWord, Key
+logical(kind=iwp) :: DFonly
+integer(kind=iwp) :: LuInput
+integer(kind=iwp) :: iChrct, iCLast, Last
+character(len=180) :: Key, KWord
+real(kind=wp) :: DMPK_DFL
 character(len=180), external :: Get_Ln
-character(len=16), parameter :: SECNAM = 'CHO_RASSCF_RDINP'
-integer iChrct, Last, iCLast
-real*8 DMPK_DFL
 
 !**** Algorithms for using Cholesky vectors in RASSCF ******************
 !
@@ -115,7 +114,7 @@ if (KWord(1:4) == 'ENDO') Go To 998
 iChrct = len(KWord)
 Last = iCLast(KWord,iChrct)
 write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-write(u6,*) SECNAM,' Error in keyword.'
+write(u6,*) 'CHO_RASSCF_RDINP Error in keyword.'
 call Quit_OnUserError()
 !                                                                      *
 !***** ALGO ************************************************************

@@ -11,10 +11,12 @@
 
 module write_orbital_files
 
-use general_data, only: nSym
-use gas_data, only: iDoGas, nGAS
+use general_data, only: iSpin, nActel, nAsh, nBas, nConf, nDel, nElec3, nFro, nHole1, nIsh, nRs1, nRs2, nRs3, nSym, nTot, nTot2, &
+                        stSym
+use gas_data, only: iDoGas, nGAS, nGssh
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 private
@@ -27,37 +29,32 @@ end interface get_typeidx
 
 interface
   function isfreeunit(iseed)
-    integer isfreeunit
-    integer, intent(in) :: iseed
+    import :: iwp
+    integer(kind=iwp) :: isfreeunit
+    integer(kind=iwp), intent(in) :: iseed
   end function
 end interface
 
-public :: OrbFiles, get_typeidx, putOrbFile, write_orb_per_iter
+public :: get_typeidx, OrbFiles, putOrbFile, write_orb_per_iter
 
 contains
 
 subroutine OrbFiles(JOBIPH,IPRLEV)
 
   use fortran_strings, only: str
-  use rasscf_global, only: iToc, BName, header, title, lRoots, nRoots, iRoot, iPt2, Weight, iOrbTyp, FDiag, E2Act, maxorbout
-  use general_data, only: nActel, iSpin, stSym, nFro, nIsh, nAsh, nDel, nBas, nRs1, nRs2, nRs3, nHole1, nElec3, nTot, nTot2, nConf
-  use gas_data, only: nGssh
+  use rasscf_global, only: BName, E2Act, FDiag, header, iOrbTyp, iPt2, iRoot, iToc, lRoots, maxorbout, nRoots, title, Weight
   use PrintLevel, only: USUAL
   use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
   use RASDim, only: MxIter, MxTit
-# ifdef _DMRG_
-  use qcmaquis_interface_cfg
-# endif
-  use Constants, only: Zero
   use Definitions, only: u6
 
   implicit none
-  integer, intent(in) :: JobIph, iPrlev
-  integer :: iDisk, iRt, iNDType(7,8), lUVVVec
-  real*8 :: Energy, PotNucDummy
-  character(len=80) :: VecTyp
+  integer(kind=iwp), intent(in) :: JobIph, iPrlev
+  integer(kind=iwp) :: iDisk, iNDType(7,8), iRt, lUVVVec
+  real(kind=wp) :: Energy, PotNucDummy
   character(len=128) :: Filename
-  real*8, allocatable :: CMO(:), Occ(:), Ene(:), EDum(:)
+  character(len=80) :: VecTyp
+  real(kind=wp), allocatable :: CMO(:), EDum(:), Ene(:), Occ(:)
 
   ! This routine is used at normal end of a RASSCF optimization, or
   ! when using the OrbOnly keyword to create orbital files.
@@ -201,8 +198,8 @@ end subroutine
 
 function RAS_get_typeidx(nFro,nIsh,nRs1,nRs2,nRs3,nBas,nDel) result(typeidx)
 
-  integer, intent(in) :: nFro(:), nIsh(:), nRs1(:), nRs2(:), nRs3(:), nBas(:), nDel(:)
-  integer :: typeidx(7,8)
+  integer(kind=iwp) :: typeidx(7,8)
+  integer(kind=iwp), intent(in) :: nFro(:), nIsh(:), nRs1(:), nRs2(:), nRs3(:), nBas(:), nDel(:)
 
   typeidx(1,:nSym) = nFro(:nSym)
   typeidx(2,:nSym) = nIsh(:nSym)
@@ -218,8 +215,8 @@ end function RAS_get_typeidx
 
 function GAS_get_typeidx(nFro,nIsh,nGSSH,nBas,nDel) result(typeidx)
 
-  integer, intent(in) :: nFro(:), nIsh(:), nBas(:), nGSSH(:,:), nDel(:)
-  integer :: typeidx(7,8)
+  integer(kind=iwp) :: typeidx(7,8)
+  integer(kind=iwp), intent(in) :: nFro(:), nIsh(:), nGSSH(:,:), nBas(:), nDel(:)
 
   typeidx(1,:nSym) = nFro(:nSym)
   typeidx(2,:nSym) = nIsh(:nSym)
@@ -235,19 +232,14 @@ end function GAS_get_typeidx
 
 subroutine putOrbFile(CMO,orbital_E,iDoGAS)
 
-  use general_data, only: ntot, nFro, nIsh, nRs1, nRs2, nRs3, nDel, nBas
-  use gas_data, only: nGSSH
+  real(kind=wp), intent(in) :: CMO(:), orbital_E(:)
+  logical(kind=iwp), intent(in) :: iDoGAS
+  integer(kind=iwp) :: file_id, typeidx(7,8)
+  real(kind=wp), allocatable :: occ_number(:)
+  character(len=*), parameter :: filename = 'ORTHORB', orbfile_title = 'Orbitals after Orthonormalization.'
+  integer(kind=iwp), parameter :: arbitrary_magic_number = 50
 
-  real*8, intent(in) :: CMO(:), orbital_E(:)
-  logical, intent(in) :: iDoGAS
-  character(len=*), parameter :: filename = 'ORTHORB'
-  real*8, allocatable :: occ_number(:)
-  integer, parameter :: arbitrary_magic_number = 50
-  integer :: file_id, typeidx(7,8)
-  character(len=80) :: orbfile_title = 'Orbitals after Orthonormalization.'
-
-  file_id = arbitrary_magic_number
-  file_id = isfreeunit(file_id)
+  file_id = isfreeunit(arbitrary_magic_number)
   if (.not. iDoGas) then
     typeidx = get_typeidx(nFro,nIsh,nRs1,nRs2,nRs3,nBas,nDel)
 

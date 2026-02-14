@@ -18,13 +18,16 @@
 subroutine RotGDMat(R,GD)
 
 use rasscf_global, only: lRoots, NAC
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GD, GD2
-real*8, dimension(lRoots,lRoots) :: R
-integer I, J, K, L, p, q, iIJ, iKL, ip, iq
-#include "warnings.h"
+real(kind=wp) :: R(lRoots,lRoots), GD(lRoots*(lRoots+1)/2,NAC,NAC)
+integer(kind=iwp) :: I, iIJ, iKL, ip, iq, J, K, L, p, q
+real(kind=wp), allocatable :: GD2(:,:,:)
+
+call mma_allocate(GD2,lRoots*(lRoots+1)/2,NAC,NAC,Label='GD2')
 
 do p=1,nac
   do q=1,nac
@@ -61,5 +64,7 @@ do p=1,nac
     end do
   end do
 end do
+
+call mma_deallocate(GD2)
 
 end subroutine RotGDMat

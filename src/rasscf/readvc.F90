@@ -59,47 +59,42 @@ subroutine ReadVC(CMO,OCC,D,DS,P,PA,scheme)
 !                                                                      *
 !***********************************************************************
 
-use rasscf_global, only: lRoots, nRoots, iRoot, Weight, nAcPar, iXsym, iAlphaBeta, iOverwr, iSUPSM, iCIrst, iPhName, nAcpr2, &
-                         nOrbT, purify, iAdr15
-use general_data, only: nSym, nDel, nBas, nOrb, nTot, nTot2, Invec, LuStartOrb, StartOrbFile, JobOld, JobIph, nSSH
+use rasscf_global, only: iAdr15, iAlphaBeta, iCIrst, iOverwr, iPhName, iRoot, iSUPSM, iXsym, lRoots, nAcPar, nAcpr2, nOrbT, &
+                         nRoots, purify, Weight
+use general_data, only: CleanMask, Invec, JobIph, JobOld, LuStartOrb, nBas, nDel, nOrb, nSSH, nSym, nTot, nTot2, StartOrbFile
 use casvb_global, only: ifvb
-use orthonormalization, only: t_ON_scheme, ON_scheme_values, orthonormalize
-use general_data, only: CleanMask
+use orthonormalization, only: ON_scheme_values, orthonormalize, t_ON_scheme
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
 use output_ras, only: IPRGLB, IPRLOC
 use Molcas, only: LenIn, MaxBfn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
 #ifdef _HDF5_
-use mh5, only: mh5_open_file_r, mh5_exists_dset, mh5_fetch_dset, mh5_close_file
+use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6, RtoI
+use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
-character(len=16), parameter :: ROUTINE = 'READVC  '
-real*8 :: CMO(*), OCC(*), D(*), DS(*), P(*), PA(*)
+real(kind=wp) :: CMO(*), OCC(*), D(*), DS(*), P(*), PA(*)
 type(t_ON_scheme), intent(in) :: scheme
-logical :: found, changed
-integer :: iPrlev, nData, i, j, NNwOrd, iSym, iErr, IAD19, iJOB, lll, iDisk, jRoot, kRoot, iDummy(1), IADR19(30), iAD15, nTmp(8)
-real*8 :: Dummy(1), Scal
-real*8, allocatable :: CMO_copy(:)
+integer(kind=iwp) :: i, iAD15, IAD19, IADR19(30), iDisk, iDummy(1), iErr, iJOB, iPrlev, iSym, j, jRoot, kRoot, lll, nData, NNwOrd, &
+                     nTmp(8)
+real(kind=wp) :: Dummy(1), Scal
+logical(kind=iwp) :: changed, found
 character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=2*72) :: lJobH2
-character(len=72) :: JobTit(mxTit)
 character(len=80) :: VecTit
+character(len=72) :: JobTit(mxTit)
 character(len=4) :: Label
-integer, allocatable :: TIND(:), NewOrd(:), TmpXSym(:), JobH(:)
-real*8, allocatable :: Scr(:), Ene(:), JobR(:)
+integer(kind=iwp), allocatable :: JobH(:), NewOrd(:), TIND(:), TmpXSym(:)
+real(kind=wp), allocatable :: CMO_copy(:), Ene(:), JobR(:), Scr(:)
 #ifdef _HDF5_
-integer mh5id
-character(len=maxbfn) typestring
+integer(kind=iwp) :: mh5id
+!character(len=maxbfn) :: typestring
+character(len=:), allocatable :: typestring
 #endif
-interface
-  integer function isfreeunit(seed)
-    integer, intent(in) :: seed
-  end function
-end interface
+integer(kind=iwp), external :: isfreeunit
 #include "warnings.h"
 
 !----------------------------------------------------------------------*
@@ -107,7 +102,7 @@ end interface
 !----------------------------------------------------------------------*
 ! Local print level (if any)
 IPRLEV = IPRLOC(1)
-if (IPRLEV >= DEBUG) write(u6,*) ' Entering ',ROUTINE
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering READVC'
 !----------------------------------------------------------------------*
 ! Do we use default orbitals?                                          *
 !----------------------------------------------------------------------*
@@ -138,8 +133,7 @@ call Check_InVec(InVec)
 if (Invec == 0) InVec = 1
 
 !----------------------------------------------------------------------*
-LUStartOrb = 19
-LUStartOrb = IsFreeUnit(LUStartOrb)
+LUStartOrb = IsFreeUnit(19)
 if (ifvb == 2) invec = 3
 if (InVec == 2) then
   ! read from unit formatted ascii file with starting orbitals
@@ -307,7 +301,8 @@ else if (InVec == 4) then
   end if
 
   mh5id = mh5_open_file_r(StartOrbFile)
-  typestring = ''
+  call mma_allocate(typestring,maxbfn,Label='typestring')
+  typestring(:) = ''
   select case (iAlphaBeta)
     case (1)
       Label = 'CA  '
@@ -345,6 +340,7 @@ else if (InVec == 4) then
     call mma_deallocate(NewOrd)
     call mma_deallocate(TInd)
   end if
+  call mma_deallocate(typestring)
 # else
   write(u6,*) 'Orbitals requested from HDF5, but this'
   write(u6,*) 'installation does not support that, abort!'

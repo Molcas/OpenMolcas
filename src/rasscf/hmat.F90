@@ -17,17 +17,17 @@ subroutine HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL)
 !
 ! ********** IBM-3090 Release 88 09 08 **********
 
-use wadr, only: DIA, SXN, BM, F1, F2, SXG, SXH, NLX
+use wadr, only: BM, DIA, F1, F2, NLX, SXG, SXH, SXN
 use rasscf_global, only: NSXS
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer NDIM, NDIMH, NTRIAL
-real*8 C(*), HC(*), HH(*)
-real*8 HD(NDIM)
-real*8, allocatable :: XX(:), XC(:)
-integer IST, IJ, L1, I, JST, J
-real*8, external :: DDot_
+integer(kind=iwp) :: NDIM, NDIMH, NTRIAL
+real(kind=wp) :: C(*), HC(*), HH(*), HD(NDIM)
+integer(kind=iwp) :: I, IJ, IST, J, JST, L1
+real(kind=wp), allocatable :: XC(:), XX(:)
+real(kind=wp), external :: DDot_
 
 ! COMPUTE SIGMA VECTORS
 

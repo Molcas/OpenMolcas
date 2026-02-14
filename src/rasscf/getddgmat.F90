@@ -19,13 +19,11 @@ subroutine GetDDgMat(DDg,GDMat,Gtuvx)
 
 use rasscf_global, only: lRoots, NAC
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8, dimension(lRoots,lRoots,lRoots,lRoots) :: DDG
-real*8, dimension(NAC,NAC,NAC,NAC) :: Gtuvx
-real*8, dimension(LRoots*(LRoots+1)/2,NAC,NAC) :: GDMat
-integer iI, iJ, iK, iL, it, iu, iv, ix, iII, iJJ, iKK, iLL
-#include "warnings.h"
+real(kind=wp) :: DDG(lRoots,lRoots,lRoots,lRoots), GDMat(lRoots*(lRoots+1)/2,NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
+integer(kind=iwp) :: iI, iII, iJ, iJJ, iK, iKK, iL, iLL, it, iu, iv, ix
 
 do iI=1,lRoots
   do iJ=1,lRoots

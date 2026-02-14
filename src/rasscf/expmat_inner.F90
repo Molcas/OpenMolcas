@@ -26,18 +26,19 @@ subroutine ExpMat_Inner(R,X,nLen)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer nLen, nLen2
-real*8 x(nLen**2)
-real*8 R(nLen**2)
-real*8 tau2(nLen), cospart(nLen**2), sinpart(nLen**2), scr(nLen**2), X2(nLen**2), tau(nLen)
-integer nScrDiag, INFO, I
-real*8, dimension(:), allocatable :: ScrDiag
-real*8 Coeff
+integer(kind=iwp) :: nLen
+real(kind=wp) :: R(nLen**2), X(nLen**2)
+integer(kind=iwp) :: I, INFO, nLen2, nScrDiag
+real(kind=wp) :: Coeff
+real(kind=wp), allocatable :: cospart(:), scr(:), ScrDiag(:), sinpart(:), tau(:), tau2(:), X2(:)
 
 nLen2 = nLen**2
+call mma_allocate(tau2,nLen,Label='tau2')
+call mma_allocate(scr,nLen2,Label='scr')
+call mma_allocate(X2,nLen2,Label='X2')
 
 !Step 1 calculate X2
 call DGEMM_('n','n',nLen,nLen,nLen,One,X,nLen,X,nLen,Zero,X2,nLen)
@@ -48,20 +49,25 @@ call mma_allocate(ScrDiag,nScrDiag)
 call DSYEV_('V','U',nLen,X2,nLen,tau2,ScrDiag,nScrDiag,INFO)
 call mma_deallocate(ScrDiag)
 
+call mma_allocate(tau,nLen,Label='tau')
 do I=1,nLen
   tau(I) = sqrt(abs(tau2(I)))
 end do
+call mma_deallocate(tau2)
 
 !Step 3 build cos part of R matrix
+call mma_allocate(cospart,nLen2,Label='cospart')
 call DCopy_(nLen2,X2,1,CosPart,1)
 do I=1,nLen
   call DScal_(nLen,cos(tau(I)),CosPart((I-1)*nLen+1),1)
 end do
 
 call DGEMM_('n','t',nLen,nLen,nLen,One,CosPart,nLen,X2,nLen,Zero,Scr,nLen)
+call mma_deallocate(cospart)
 ! R = W * cos(tau) * W^T
 call DCopy_(nLen2,Scr,1,R,1)
 !Step 4 build sin part of R matrix
+call mma_allocate(sinpart,nLen2,Label='sinpart')
 call DCopy_(nLen2,X2,1,SinPart,1)
 do I=1,nLen
   if (tau(I) < 1.0e-8_wp) then
@@ -71,10 +77,15 @@ do I=1,nLen
   end if
   call DScal_(nLen,Coeff,SinPart((I-1)*nLen+1),1)
 end do
+call mma_deallocate(tau)
 
 call DGEMM_('n','t',nLen,nLen,nLen,One,SinPart,nLen,X2,nLen,Zero,Scr,nLen)
 ! R  = R + W * tau^(-1) * sin(tau) * W^T * X
 call DGEMM_('n','n',nLen,nLen,nLen,One,Scr,nLen,X,nLen,One,R,nLen)
+
+call mma_deallocate(sinpart)
+call mma_deallocate(scr)
+call mma_deallocate(X2)
 
 return
 

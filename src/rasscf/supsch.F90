@@ -23,14 +23,15 @@ subroutine SUPSCH(SMAT,CMOO,CMON)
 ! University of Lund, Sweden, 1997
 ! **** Molcas-4 *** Release 97 04 01 **********
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use general_data, only: NSYM, NBAS
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CMOO(*), CMON(*), SMAT(*)
-real*8, allocatable :: Temp1(:), Temp2(:)
-integer, allocatable :: IxSym2(:)
-integer :: iSym, nOrb_Tot, nOrbMx
+real(kind=wp) SMAT(*), CMOO(*), CMON(*)
+integer(kind=iwp) :: iSym, nOrb_Tot, nOrbMx
+integer(kind=iwp), allocatable :: IxSym2(:)
+real(kind=wp), allocatable :: Temp1(:), Temp2(:)
 
 nOrbMX = 0
 nOrb_tot = 0

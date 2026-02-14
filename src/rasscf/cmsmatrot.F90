@@ -17,19 +17,24 @@
 
 subroutine CMSMatRot(Mat,A,I,J,N)
 
-implicit none
-integer I, J, N
-real*8 A
-real*8, dimension(N,N) :: Mat, TM
-integer K
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
+implicit none
+integer(kind=iwp) :: I, J, N
+real(kind=wp) :: Mat(N,N), A
+integer(kind=iwp) :: K
+real(kind=wp), allocatable :: TM(:,:)
+
+call mma_allocate(TM,2,N,Label='TM')
 do K=1,N
-  TM(I,K) = Mat(I,K)
-  TM(J,K) = Mat(J,K)
+  TM(1,K) = Mat(I,K)
+  TM(2,K) = Mat(J,K)
 end do
 do K=1,N
-  Mat(J,K) = cos(A)*TM(J,K)+sin(A)*TM(I,K)
-  Mat(I,K) = -sin(A)*TM(J,K)+cos(A)*TM(I,K)
+  Mat(J,K) = cos(A)*TM(2,K)+sin(A)*TM(1,K)
+  Mat(I,K) = -sin(A)*TM(2,K)+cos(A)*TM(1,K)
 end do
+call mma_deallocate(TM)
 
 end subroutine CMSMatRot

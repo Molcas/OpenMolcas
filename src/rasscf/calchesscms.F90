@@ -18,12 +18,13 @@
 subroutine CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
 
 use Constants, only: Zero, Two, Four
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDDg, lRoots, nSPair
-real*8 DDg(nDDg), Hess(nSPair**2)
-real*8 Vklmn, Vlknm, Vklnm, Vlkmn
-integer K, L, M, N, iKL, iMN, iLoc1, iLoc2, iLoc3, iLoc4, iLoc5, lRoots2, lRoots3, lRoots23
+integer(kind=iwp) :: nDDg, lRoots, nSPair
+real(kind=wp) :: Hess(nSPair**2), DDg(nDDg)
+integer(kind=iwp) :: K, L, M, N, iKL, iMN, iLoc1, iLoc2, iLoc3, iLoc4, iLoc5, lRoots2, lRoots3, lRoots23
+real(kind=wp) :: Vklmn, Vklnm, Vlkmn, Vlknm
 
 lRoots2 = lRoots**2
 lRoots3 = lRoots2*lRoots

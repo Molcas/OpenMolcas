@@ -10,21 +10,19 @@
 !***********************************************************************
 
 subroutine RdSupS(LuInput,n,iBuff)
-
-use Definitions, only: u6
-
-implicit none
 !***********************************************************************
 !                                                                      *
 !     Purpose:                                                         *
 !     Read supersymmetry input.                                        *
 !                                                                      *
 !***********************************************************************
-integer LuInput, n
-integer iBuff(*)
-integer is(288), ie(288)
-character(len=288) Line
-integer K, I, nRepeat, iLast, m, l, iZ
+
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: LuInput, n, iBuff(*)
+integer(kind=iwp) :: I, ie(288), iLast, is(288), iZ, K, l, m, nRepeat
+character(len=288) :: Line
 
 !----------------------------------------------------------------------*
 !     Start procedure, initialize data counter                         *

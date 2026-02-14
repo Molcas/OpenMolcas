@@ -18,11 +18,12 @@
 subroutine CMSFitTrigonometric(x,y)
 
 use Constants, only: Four, Quart, Pi
+use Definitions, only: wp
 
 implicit none
-real*8, dimension(4) :: x, y
-real*8 s12, s23, c12, c23, d12, d23, k, a, b, c, phi, psi1, psi2, val1, val2
-real*8, parameter :: atan1 = Quart*Pi
+real(kind=wp) :: x(4), y(4)
+real(kind=wp) :: a, b, c, c12, c23, d12, d23, k, phi, psi1, psi2, s12, s23, val1, val2
+real(kind=wp), parameter :: atan1 = Quart*Pi
 
 s12 = sin(Four*x(1))-sin(Four*x(2))
 s23 = sin(Four*x(2))-sin(Four*x(3))

@@ -11,9 +11,9 @@
 
 subroutine cvbstart_rvb_lt9(icode)
 
-use definitions, only: iwp
 use casvb_global, only: endvar, iprm, iunset, lstprm, recinp, recinp_old, variat
 use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: icode

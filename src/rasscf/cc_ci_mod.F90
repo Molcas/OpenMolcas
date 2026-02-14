@@ -17,37 +17,38 @@
 module CC_CI_mod
 
 use Para_Info, only: MyRank
-use filesystem, only: getcwd_, get_errno_, strerror_, real_path
-use linalg_mod, only: verify_, abort_
-use rasscf_global, only: iter, lRoots, EMY, S, KSDFT, Ener, nAc, nAcPar, nAcPr2, nroots
-use general_data, only: iSpin, nSym, nConf, ntot, ntot1, ntot2, nAsh, nActEl
-use gas_data, only: ngssh, iDoGas
+use filesystem, only: get_errno_, getcwd_, real_path, strerror_
+use linalg_mod, only: abort_, verify_
+use rasscf_global, only: EMY, Ener, iter, KSDFT, lRoots, nAc, nAcPar, nAcPr2, nroots, S
+use general_data, only: iSpin, nActEl, nAsh, nConf, nSym, ntot, ntot1, ntot2
+use gas_data, only: iDoGas, ngssh
 use generic_CI, only: CI_solver_t
 use index_symmetry, only: one_el_idx, two_el_idx_flatten
 use rctfld_module, only: lRF
-use CI_solver_util, only: wait_and_read, RDM_to_runfile, CleanMat, inv_triang_number, write_RDM
+use CI_solver_util, only: CleanMat, inv_triang_number, RDM_to_runfile, wait_and_read, write_RDM
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 use CI_solver_util, only: triangular_number
 #endif
 #ifdef _MOLCAS_MPP_
-use mpi
+use mpi, only: MPI_COMM_WORLD, MPI_REAL8
 use Para_Info, only: Is_Real_Par
 use Definitions, only: MPIInt
 #endif
-use Constants, only: Zero
-use Definitions, only: wp, u6
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
 public :: Do_CC_CI, CC_CI_solver_t, write_RDM
 
-logical :: Do_CC_CI = .false.
+logical(kind=iwp) :: Do_CC_CI = .false.
 
 interface
   function isfreeunit(iseed)
-    integer :: isfreeunit
-    integer, intent(in) :: iseed
+    import :: iwp
+    integer(kind=iwp) :: isfreeunit
+    integer(kind=iwp), intent(in) :: iseed
   end function
 end interface
 
@@ -67,20 +68,18 @@ subroutine CC_CI_ctl(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_AO
 
   use fcidump_reorder, only: get_P_GAS, get_P_inp, ReOrFlag, ReOrInp
   use fcidump, only: make_fcidumps, transform
-  use Constants, only: Half
 
-  class(CC_CI_solver_t),intent(in) :: this
-  integer, intent(in) :: actual_iter, iroot(nroots), ifinal
-  real(wp), intent(in) :: weight(nroots), CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
-  real(wp), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
-  real(wp), intent(out) :: DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
-  real(wp) :: energy(nroots)
-  integer :: jRoot
-  integer, allocatable :: permutation(:)
-  real(wp) :: orbital_E(nTot), folded_Fock(nAcPar)
+  class(CC_CI_solver_t), intent(in) :: this
+  integer, intent(in) :: actual_iter, ifinal, iroot(nroots)
+  real(kind=wp), intent(in) :: weight(nroots), CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
+  real(kind=wp), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
+  real(kind=wp), intent(out) :: DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
+  integer(kind=iwp) :: jRoot
 # ifdef _MOLCAS_MPP_
-  integer(MPIInt) :: error
+  integer(kind=MPIInt) :: error
 # endif
+  real(kind=wp) :: energy(nroots), folded_Fock(nAcPar), orbital_E(nTot)
+  integer(kind=iwp), allocatable :: permutation(:)
   character(len=*), parameter :: ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
   unused_var(this)
@@ -126,14 +125,13 @@ end subroutine CC_CI_ctl
 subroutine run_CC_CI(ascii_fcidmp,h5_fcidmp,fake_run,energy,D1S_MO,DMAT,PSMAT,PAMAT)
 
   character(len=*), intent(in) :: ascii_fcidmp, h5_fcidmp
-  logical, intent(in) :: fake_run
-  real(wp), intent(out) :: energy(nroots), D1S_MO(nAcPar), DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
-  !real(wp), save :: previous_energy = Zero
-  real(wp) :: previous_energy(nroots)
-  character(len=*), parameter :: input_name = 'CC_CI.inp', energy_file = 'NEWCYCLE'
+  logical(kind=iwp), intent(in) :: fake_run
+  real(kind=wp), intent(out) :: energy(nroots), D1S_MO(nAcPar), DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
+  real(kind=wp) :: previous_energy(nroots)
+  character(len=*), parameter :: energy_file = 'NEWCYCLE', input_name = 'CC_CI.inp'
 
   if (fake_run) then
-    energy = previous_energy
+    energy(:) = previous_energy(:)
   else
     call make_inp(input_name)
     if (myrank == 0) call write_user_message(input_name,ascii_fcidmp,h5_fcidmp)
@@ -158,7 +156,7 @@ subroutine cleanup(this)
 
   use fcidump, only: fcidump_cleanup => cleanup
 
-  class(CC_CI_solver_t),intent(inout) :: this
+  class(CC_CI_solver_t), intent(inout) :: this
 
   unused_var(this)
   call fcidump_cleanup()
@@ -184,10 +182,10 @@ end function
 
 subroutine check_options(lroots,lRf,KSDFT,DoGAS)
 
-  integer, intent(in) :: lroots
-  logical, intent(in) :: lRf, DoGAS
+  integer(kind=iwp), intent(in) :: lroots
+  logical(kind=iwp), intent(in) :: lRf, DoGAS
   character(len=*), intent(in) :: KSDFT
-  logical :: Do_ESPF
+  logical(kind=iwp) :: Do_ESPF
 
   call verify_(lroots == 1,"CC-CI doesn't support State Average!")
 
@@ -201,8 +199,8 @@ end subroutine check_options
 subroutine write_user_message(input_name,ascii_fcidmp,h5_fcidmp)
 
   character(len=*), intent(in) :: input_name, ascii_fcidmp, h5_fcidmp
+  integer(kind=iwp) :: err
   character(len=1024) :: WorkDir
-  integer :: err
 
   call getcwd_(WorkDir,err)
   if (err /= 0) write(u6,*) strerror_(get_errno_())
@@ -234,9 +232,9 @@ end subroutine write_user_message
 !>  @param[out] PAMAT Average antisymm. 2-dens matrix
 subroutine read_CC_RDM(DMAT,D1S_MO,PSMAT,PAMAT)
 
-  real(wp), intent(out) :: DMAT(nAcpar), D1S_MO(nAcPar), PSMAT(nAcpr2), PAMAT(nAcpr2)
+  real(kind=wp), intent(out) :: DMAT(nAcpar), D1S_MO(nAcPar), PSMAT(nAcpr2), PAMAT(nAcpr2)
 # ifdef _MOLCAS_MPP_
-  integer(MPIInt) :: error
+  integer(kind=MPIInt) :: error
 # endif
 
   if (myrank == 0) then
@@ -260,12 +258,10 @@ end subroutine read_CC_RDM
 
 subroutine calc_1RDM(PSMAT,DMAT)
 
-  use Constants, only: Two
-
-  real(wp), intent(in) :: PSMAT(:)
-  real(wp), intent(out) :: DMAT(:)
+  real(kind=wp), intent(in) :: PSMAT(:)
+  real(kind=wp), intent(out) :: DMAT(:)
+  integer(kind=iwp) :: p, pq, q, r
   debug_function_name('calc_1RDM')
-  integer :: pq, p, q, r
 
   ASSERT(size(PSMAT) == triangular_number(size(DMAT)))
 
@@ -283,15 +279,14 @@ end subroutine calc_1RDM
 subroutine read_2RDM(path,RDM_2)
 
   character(len=*), intent(in) :: path
-  real(wp), intent(out) :: RDM_2(:)
-  integer :: file_id, io_err, curr_line, i, n_lines
-  integer, parameter :: arbitrary_magic_number = 42
+  real(kind=wp), intent(out) :: RDM_2(:)
+  integer(kind=iwp) :: curr_line, file_id, i, io_err, n_lines
+  integer(kind=iwp), parameter :: arbitrary_magic_number = 42
 
   ASSERT(size(RDM_2) == nAcpr2)
   n_lines = inv_triang_number(nAcpr2)
 
-  file_id = arbitrary_magic_number
-  file_id = isfreeunit(file_id)
+  file_id = isfreeunit(arbitrary_magic_number)
   i = 1
   call molcas_open(file_id,trim(path))
   do curr_line=1,n_lines

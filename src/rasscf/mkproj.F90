@@ -14,16 +14,16 @@
 subroutine MKPROJ(CRVEC,CMO,TUVX)
 
 use rasscf_global, only: CORESHIFT
-use general_data, only: NCRVEC, NTOT2, NASH, NBAS
+use general_data, only: NASH, NBAS, NCRVEC, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CRVEC(NCRVEC), CMO(NTOT2)
-real*8 TUVX(*)
-real*8, allocatable :: CS_TMP(:)
-real*8 CS_TU, CS_TUV, COREPROJ
-integer NA, NB, IPOS, ITU, IT, IU, IVX, IV, IXMX, IX
-real*8, external :: DDot_
+real(kind=wp) :: CRVEC(NCRVEC), CMO(NTOT2), TUVX(*)
+integer(kind=iwp) :: IPOS, IT, ITU, IU, IV, IVX, IX, IXMX, NA, NB
+real(kind=wp) :: COREPROJ, CS_TU, CS_TUV
+real(kind=wp), allocatable :: CS_TMP(:)
+real(kind=wp), external :: DDot_
 
 NA = NASH(1)
 NB = NBAS(1)

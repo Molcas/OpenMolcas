@@ -35,13 +35,13 @@ subroutine Alter_MO(CMO)
 !                                                                      *
 !***********************************************************************
 
-use general_data, only: NALTER, MALTER, NBAS
-use Definitions, only: u6
+use general_data, only: MALTER, NALTER, NBAS
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMO(*)
-real*8 CMOex
-integer iAlter, iAlteri, iAlterj, iCMO, iSym
+real(kind=wp) :: CMO(*)
+integer(kind=iwp) :: iAlter, iAlteri, iAlterj, iCMO, iSym
+real(kind=wp) :: CMOex
 
 ! Local print level (if any)
 write(u6,*)

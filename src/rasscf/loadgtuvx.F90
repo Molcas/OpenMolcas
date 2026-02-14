@@ -22,13 +22,12 @@ subroutine LoadGtuvx(TUVX,Gtuvx)
 ! Copyied from src/molcas_ci_util/david5.f                       *
 ! ****************************************************************
 
-use rasscf_global, only: NACPR2, NAC
+use rasscf_global, only: NAC, NACPR2
+use Definitions, only: wp, iwp
 
 implicit none
-real*8, dimension(NACPR2) :: TUVX
-real*8, dimension(NAC,NAC,NAC,NAC) :: Gtuvx
-integer it, iu, iv, ix, ituvx, ixmax
-#include "warnings.h"
+real(kind=wp) :: TUVX(NACPR2), Gtuvx(NAC,NAC,NAC,NAC)
+integer(kind=iwp) :: it, ituvx, iu, iv, ix, ixmax
 
 ituvx = 0
 do it=1,NAC

@@ -39,41 +39,33 @@ subroutine DAVCRE(C,HC,HH,CC,E,HD,SC,Q,QQ,S,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
 ! ********** IBM-3090 Release 88 09 08 *****
 
 use fciqmc, only: DoNECI
-use wadr, only: PA, DIA, SXN
+use wadr, only: DIA, PA, SXN
 use PrintLevel, only: DEBUG, INSANE
 use output_ras, only: IPRLOC, RC_SX
 use RASDim, only: MxSXIt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NROOT, ITMAX, NDIM, ITERSX, NSXS
-real*8 C((NROOT+NSXS)*NROOT*(ITMAX+1))
-real*8 HC((NROOT+NSXS)*NROOT*ITMAX)
-real*8 HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
-real*8 CC((ITMAX*NROOT)**2)
-real*8 E((ITMAX*NROOT))
-real*8 HD(NROOT+NSXS)
-real*8 SC((NROOT+NSXS))
-real*8 Q((NROOT+NSXS)*(NROOT+1))
-real*8 QQ(NROOT)
-real*8 S(ITMAX*NROOT**2)
-character(len=*) SXSEL
-character(len=16) :: ROUTINE = 'DAVCRE  '
-character(len=4) IOUTW, IOUTX
-real*8 :: THRA = 1.0e-13_wp, THRLD2 = 5.0e-14_wp, THRQ = 1.0e-7_wp, THRZ = 1.0e-6_wp, THRLD1 = 1.0e-8_wp
-real*8, allocatable :: C1(:), C2(:), X(:)
-integer iPrLev, nTrial, nCR, ii, i, nDimH, kDimH, nDimH2, iSel, nST, j, ji, iConvQ, iST, iConvA, k, iPass, iConvL, nTotDC, ij, &
-        iSTQ, iSTC, jST, Length
-real*8 XMX, XX, SWAP, Ei, QNorm, ENO, ASQ, Ovl, XNorm
-real*8, external :: DDot_
+integer(kind=iwp) :: NROOT, ITMAX, NDIM, ITERSX, NSXS
+real(kind=wp) :: C((NROOT+NSXS)*NROOT*(ITMAX+1)), HC((NROOT+NSXS)*NROOT*ITMAX), HH((ITMAX*NROOT)*(ITMAX*NROOT+1)), &
+                 CC((ITMAX*NROOT)**2), E((ITMAX*NROOT)), HD(NROOT+NSXS), SC((NROOT+NSXS)), Q((NROOT+NSXS)*(NROOT+1)), QQ(NROOT), &
+                 S(ITMAX*NROOT**2)
+character(len=*) :: SXSEL
+integer(kind=iwp) :: i, iConvA, iConvL, iConvQ, ii, ij, iPass, iPrLev, iSel, iST, iSTC, iSTQ, j, ji, jST, k, kDimH, Length, nCR, &
+                     nDimH, nDimH2, nST, nTotDC, nTrial
+real(kind=wp) :: ASQ, Ei, ENO, Ovl, QNorm, SWAP, XMX, XNorm, XX
+character(len=4) :: IOUTW, IOUTX
+real(kind=wp), allocatable :: C1(:), C2(:), X(:)
+real(kind=wp), parameter :: THRA = 1.0e-13_wp, THRLD1 = 1.0e-8_wp, THRLD2 = 5.0e-14_wp, THRQ = 1.0e-7_wp, THRZ = 1.0e-6_wp
+real(kind=wp), external :: DDot_
 #include "warnings.h"
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(1)
 if (IPRLEV >= DEBUG) then
-  write(u6,*) ' Entering ',ROUTINE
+  write(u6,*) ' Entering DAVCRE'
   write(u6,*) 'Super-CI diagonalization. Max iterations: ',ITMAX
 end if
 

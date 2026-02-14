@@ -36,23 +36,20 @@ subroutine Export1(iFinal,CMO,DA,PA,DAO,Focc)
 !                                                                      *
 !***********************************************************************
 !
-#ifdef _DMRG_
-use qcmaquis_interface_cfg
-#endif
 use gas_data, only: iDoGAS
-use rasscf_global, only: DoDMRG, iRLXRoot, KSDFT, NAC, NACPAR, NACPR2, nRoots, ThrTE, ThrSX, Weight
+use rasscf_global, only: DoDMRG, iRLXRoot, KSDFT, NAC, NACPAR, NACPR2, nRoots, ThrSX, ThrTE, Weight
 use general_data, only: NACTEL, NSYM, NHOLE1, NELEC3, NASH, NDEL, NFRO, NISH, NTOT1, NTOT2
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer iFinal
-real*8 CMO(*), DA(*), PA(*), DAO(*), Focc(*)
-character(len=8) RlxLbl, Method
-logical SCF, Found
-integer nTemp(8)
-character(len=16) mstate
-real*8 Dum(1), Tmp
-integer i, iR, iRLXRoot1, iRLXRoot2, iS, iSA, nW
+integer(kind=iwp) :: iFinal
+real(kind=wp) :: CMO(*), DA(*), PA(*), DAO(*), Focc(*)
+integer(kind=iwp) :: i, iR, iRLXRoot1, iRLXRoot2, iS, iSA, nTemp(8), nW
+real(kind=wp) :: Dum(1), Tmp
+logical(kind=iwp) :: Found, SCF
+character(len=16) :: mstate
+character(len=8) :: Method, RlxLbl
 
 !----------------------------------------------------------------------*
 !     Save information pertinent to the gradient calculation           *

@@ -22,12 +22,12 @@ subroutine RotGD(GD,R,nGD,lRoots,NAC2)
 
 use CMS, only: RGD
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer nGD, lRoots, NAC2
-real*8 GD(nGD), R(lRoots**2)
-integer iNAC2, iLoc, lRoots2
-!real*8 RGD(lRoots**2), RGDR(lRoots**2)
+integer(kind=iwp) :: nGD, lRoots, NAC2
+real(kind=wp) :: GD(nGD), R(lRoots**2)
+integer(kind=iwp) :: iLoc, iNAC2, lRoots2
 
 lRoots2 = lRoots**2
 
