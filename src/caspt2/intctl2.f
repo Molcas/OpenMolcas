@@ -16,16 +16,18 @@
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nBTri
+      use definitions, only: iwp, wp
       IMPLICIT None
-      LOGICAL IF_TRNSF
+      LOGICAL(KIND=IWP), INTENT(IN):: IF_TRNSF
 
-      Real*8, Allocatable:: FFAO(:), FIAO(:), FAAO(:)
+      Real(kind=wp), Allocatable:: FFAO(:), FIAO(:), FAAO(:)
 
 * Compute using Cholesky vectors.
 * Frozen, inactive and active Fock matrix in AO basis:
       Call mma_allocate(FFAO,NBTRI,LABEL='FFAO')
       Call mma_allocate(FIAO,NBTRI,LABEL='FIAO')
       Call mma_allocate(FAAO,NBTRI,LABEL='FAAO')
+
 * tracho2 makes many allocations but should deallocate everything
 * before its return.
       IF (IPRGLB.GE.DEBUG) THEN
@@ -43,11 +45,16 @@
 * For gradient calculation, it is good to have FIAO and FAAO
       IF (do_grad.or.nStpGrd.eq.2) THEN
         !! FFAO has one-electron Hamiltonian
-        CALL DCOPY_(NBTRI,FFAO,1,FIMO_all,1)
-        CALL DAXPY_(NBTRI,One,FIAO,1,FIMO_all,1)
-        CALL DCOPY_(NBTRI,FIMO_all,1,FIFA_all,1)
-        CALL DAXPY_(NBTRI,One,FAAO,1,FIFA_all,1)
+
+        FIMO_all(1:NBTri)=FFAO(:) + FIAO(:)
+        FIFA_all(1:NBTri)=FIMO_all(:) + FAAO(:)
+
+!       CALL DCOPY_(NBTRI,FFAO,1,FIMO_all,1)
+!       CALL DAXPY_(NBTRI,One,FIAO,1,FIMO_all,1)
+!       CALL DCOPY_(NBTRI,FIMO_all,1,FIFA_all,1)
+!       CALL DAXPY_(NBTRI,One,FAAO,1,FIFA_all,1)
       END IF
+
 * Transform them to MO basis:
       HONE(:)=Zero
       FIMO(:)=Zero

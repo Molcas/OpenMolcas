@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE DIAFCK(NO,FOCK,IOSTA,IOEND,TSCT,NB,CMO1SCT,CMO2SCT)
-      use definitions, only: iwp, wp
       use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: iwp, wp
       IMPLICIT None
       integer(kind=iwp), intent(in):: NO,IOSTA,IOEND,NB
       real(kind=wp), intent(inout):: FOCK(NO,NO)
@@ -50,9 +50,11 @@
       CALL DCOPY_(NSCT,[One],0,TSCT,NSCT+1)
 C Diagonalize, and order for best submatrix condition:
       CALL Jacob(TMP,TSCT,NSCT,NSCT)
+
       DO I=IOSTA,IOEND
        JMX=I
        VMX=ABS(TSCT(I,JMX))
+
        DO J=I+1,IOEND
         V=ABS(TSCT(I,J))
         IF(V.GT.VMX) THEN
@@ -60,6 +62,7 @@ C Diagonalize, and order for best submatrix condition:
           VMX=V
         END IF
        END DO
+
        IF(JMX.GT.I) THEN
         DO K=IOSTA,IOEND
          SWAP=TSCT(K,I)
@@ -67,21 +70,27 @@ C Diagonalize, and order for best submatrix condition:
          TSCT(K,JMX)=SWAP
         END DO
        END IF
+
        IF(TSCT(I,I).LT.Zero) THEN
         DO K=IOSTA,IOEND
          TSCT(K,I)=-TSCT(K,I)
         END DO
        END IF
       END DO
+
 C Transform the Fock matrix:
-      CALL DGEMM_('N','N',NO,NSCT,NSCT,One,FOCK(1,IOSTA),NO,TSCT,NSCT,
-     &              Zero,TMP,NO)
+      CALL DGEMM_('N','N',NO,NSCT,NSCT,
+     &            One,FOCK(1,IOSTA),NO,
+     &                TSCT,NSCT,
+     &            Zero,TMP,NO)
       CALL DCOPY_(NO*NSCT,TMP,1,FOCK(1,IOSTA),1)
+
       DO I=IOSTA,IOEND
        DO J=1,NO
         FOCK(I,J)=TMP(J+NO*(I-IOSTA))
        END DO
       END DO
+
       CALL DGEMM_('T','N',NSCT,NSCT,NSCT,One,TSCT,NSCT,
      &         TMP(IOSTA),NO,Zero,FOCK(IOSTA,IOSTA),NO)
 

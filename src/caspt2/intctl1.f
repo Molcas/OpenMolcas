@@ -11,17 +11,20 @@
       SUBROUTINE INTCTL1(CMO,NCMO)
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG
+      use definitions, only: iwp, wp
       IMPLICIT None
-      INTEGER NCMO
-      REAL*8 CMO(NCMO)
+      INTEGER(kind=iwp), intent(in):: NCMO
+      REAL(kind=wp), intent(in):: CMO(NCMO)
 
 * Compute using conventional integral file:
       IF(IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL1 calling TRACTL...'
         CALL XFLUSH(6)
       END IF
+
       Call TRACTL(0)
       CALL TRAONE(CMO,NCMO)
+
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL1 back from TRAONE.'
         CALL XFLUSH(6)

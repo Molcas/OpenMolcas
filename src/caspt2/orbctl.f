@@ -27,15 +27,16 @@
       use caspt2_module, only: iEOF1M, bName, nBas, nSym, OutFmt, PrOrb,
      &                         ThrEne, ThrOcc, iAd1M, nFro, nOrb, nBasT,
      &                         EPS, nDel
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER NCMO
-      REAL*8 CMO_X(NCMO)
+      INTEGER(kind=iwp), intent(in):: NCMO
+      REAL(kind=wp), intent(inout):: CMO_X(NCMO)
 
-      INTEGER ISYM
-      INTEGER I1,I2
-      INTEGER IDISK
-      REAL*8  OCC_DUM(1)
-      REAL*8, ALLOCATABLE:: OrbE(:)
+      INTEGER(kind=iwp) ISYM
+      INTEGER(kind=iwp) I1,I2
+      INTEGER(kind=iwp) IDISK
+      REAL(kind=wp)  OCC_DUM(1)
+      REAL(kind=wp), ALLOCATABLE:: OrbE(:)
 
 C Calculate transformation matrix to PT2 orbitals, defined as those
 C that have standard Fock matrix FIFA diagonal within inactive,
@@ -84,7 +85,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 
 * DREF is not really used for anything important in MKEPS, this is why we don't
 * care that we pass the wrong one in...
-      CALL MKEPS(FIFA,DREF)
+      CALL MKEPS()
 
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from TRANSFOCK.'

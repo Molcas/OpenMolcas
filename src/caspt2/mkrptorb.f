@@ -36,37 +36,38 @@
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       use caspt2_module, only: DoCumulant
 #endif
+      use constants, only: zero
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-C Transform to orbitals that diagonalize the diagonal
-C blocks of FIFA. Affected data sets are CMO,
-C EPS, EPSI, EPSA, and EPSE. Also, the CI arrays are
-C transformed on file LUCIEX. Note: FIFA is unchanged
-C and is not valid for the new orbitals. It will be
-C recomputed later.
+C Transform to orbitals that diagonalize the diagonal blocks of FIFA.
+C Affected data sets are CMO, C EPS, EPSI, EPSA, and EPSE. Also, the
+C CI arrays are transformed on file LUCIEX.
+C Note: FIFA is unchanged  and is not valid for the new orbitals.
+C It will be recomputed later.
 C The transformation matrices are returned in TORB.
-      INTEGER, INTENT(IN) :: NFIFA,NTORB,NCMO
-      REAL*8, INTENT(IN) :: FIFA(NFIFA)
+      INTEGER(kind=iwp), INTENT(IN) :: NFIFA,NTORB,NCMO
+      REAL(kind=wp), INTENT(IN) :: FIFA(NFIFA)
 * -------------------------------------------
-      REAL*8, INTENT(OUT) :: TORB(NTORB)
-      REAL*8, INTENT(INOUT) :: CMO(NCMO)
+      REAL(kind=wp), INTENT(OUT) :: TORB(NTORB)
+      REAL(kind=wp), INTENT(INOUT) :: CMO(NCMO)
 
 C     indices
-      INTEGER I,II,IST,ISYM,ISTART
-      INTEGER ITO,ITOSTA,ITOEND
-      INTEGER ICMOSTA,ICMOEND
-      INTEGER IDR,IDW
-      INTEGER IEPS,IEPSI,IEPSA,IEPSE
-      INTEGER IOSTA,IOEND
-      INTEGER NFOCK,NFES
+      INTEGER(kind=iwp) I,II,IST,ISYM,ISTART
+      INTEGER(kind=iwp) ITO,ITOSTA,ITOEND
+      INTEGER(kind=iwp) ICMOSTA,ICMOEND
+      INTEGER(kind=iwp) IDR,IDW
+      INTEGER(kind=iwp) IEPS,IEPSI,IEPSA,IEPSE
+      INTEGER(kind=iwp) IOSTA,IOEND
+      INTEGER(kind=iwp) NFOCK,NFES
 #if defined(_ENABLE_BLOCK_DMRG_) || defined(_DMRG_)
-      INTEGER NXMAT
-      REAL*8, ALLOCATABLE:: XMAT(:)
+      INTEGER(kind=iwp) NXMAT
+      REAL(kind=wp), ALLOCATABLE:: XMAT(:)
 #endif
 C     #orbitals per symmetry
-      INTEGER NI,NA,NR1,NR2,NR3,NS,NO,NB
-      INTEGER NSCT,NCMOSCT
+      INTEGER(kind=iwp) NI,NA,NR1,NR2,NR3,NS,NO,NB
+      INTEGER(kind=iwp) NSCT,NCMOSCT
 C     work-arrays
-      REAL*8, ALLOCATABLE:: FOCK(:), CMO2(:), CI(:)
+      REAL(kind=wp), ALLOCATABLE:: FOCK(:), CMO2(:), CI(:)
 
 
 * Allocate space for temporary square Fock matrix in each symmetry:
@@ -243,7 +244,7 @@ C Finally, loop again over symmetries, transforming the CI:
         if (DMRG) then
           NXMAT=NASHT**2
           CALL mma_allocate(XMAT,NXMAT,LABEL='XMAT')
-          XMAT(:)=0.0D0
+          XMAT(:)=Zero
           CALL MKXMAT(TORB,XMAT)
 
           CALL qcmaquis_interface_rotate_rdms(int(JSTATE-1, c_int),
@@ -319,7 +320,7 @@ C Finally, loop again over symmetries, transforming the CI:
           NXMAT=NASHT**2
 * Workspace for transformation matrix
             CALL mma_allocate(XMAT,NXMAT,LABEL='XMAT')
-            XMAT(:)=0.0D0
+            XMAT(:)=Zero
             CALL MKXMAT(TORB,XMAT)
 
             CALL block_tran2pdm(NASHT,XMAT,JSTATE,JSTATE)

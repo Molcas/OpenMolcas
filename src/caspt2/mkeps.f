@@ -8,18 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MKEPS(FIFA,DREF)
+      SUBROUTINE MKEPS()
+      use definitions, only: iwp, wp
+      use constants, only: Zero
+      use caspt2_global, only: FIFA, DREF
       use caspt2_module, only: nSym, nIsh, nAsh, nOrb, EPS, EPSI, EPSA,
-     &                         EPSE, NAES, EASUM, nAshT
+     &                         EPSE, NAES, EASUM
 #ifdef _DEBUGPRINT_
-      use caspt2_module, only: nIshT, nOrbT, nSshT
+      use definitions, only: u6
+      use caspt2_module, only: nIshT, nOrbT, nSshT, nAsht
 #endif
       IMPLICIT NONE
-      REAL*8 FIFA(*),DREF(*)
 
-      INTEGER I, ID, IEPS, IEPSA, IEPSE, IEPSI, ISTLT, ISYM
-      INTEGER ITOT, NA, NI, NO
-      REAL*8 E
+      integer(kind=iwp) I, ID, IEPS, IEPSA, IEPSE, IEPSI, ISTLT, ISYM
+      integer(kind=iwp) ITOT, NA, NI, NO
+      real(kind=wp) E
 
 
 c   Orbital energies, EPS, EPSI,EPSA,EPSE:
@@ -57,7 +60,7 @@ c   Orbital energies, EPS, EPSI,EPSA,EPSE:
       END DO
 
 C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
-      EASUM=0.0D0
+      EASUM=Zero
       DO ISYM=1,NSYM
         NA=NASH(ISYM)
         DO I=1,NA
@@ -68,29 +71,26 @@ C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
       END DO
 
 #ifdef _DEBUGPRINT_
-      WRITE(6,*)
-      WRITE(6,*)'      ORBITAL ENERGIES, EPS:'
-      WRITE(6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
-      WRITE(6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
-      WRITE(6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
-      WRITE(6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
-      WRITE(6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
-      WRITE(6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'
-      WRITE(6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
-      WRITE(6,*)'      Active energies contr. w. DREF:'
-      WRITE(6,'(1X,5F12.6)') EASUM
-#endif
+      WRITE(u6,*)
+      WRITE(u6,*)'      ORBITAL ENERGIES, EPS:'
+      WRITE(u6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
+      WRITE(u6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
+      WRITE(u6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
+      WRITE(u6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
+      WRITE(u6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
+      WRITE(u6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'
+      WRITE(u6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
+      WRITE(u6,*)'      Active energies contr. w. DREF:'
+      WRITE(u6,'(1X,5F12.6)') EASUM
 
-      E=0.0D0
+      E=Zero
       DO I=1,NASHT
        E=E+EPSA(I)*DREF((I*(I+1))/2)
       END DO
 
-#ifdef _DEBUGPRINT_
-      WRITE(6,*)' Compare to E=',E
-      WRITE(6,*)' DREF:'
-      WRITE(6,'(1x,5F16.8)')(DREF(I),I=1,(NASHT*(NASHT+1))/2)
+      WRITE(u6,*)' Compare to E=',E
+      WRITE(u6,*)' DREF:'
+      WRITE(u6,'(1x,5F16.8)')(DREF(I),I=1,(NASHT*(NASHT+1))/2)
 #endif
 
-
-      END
+      END SUBROUTINE MKEPS

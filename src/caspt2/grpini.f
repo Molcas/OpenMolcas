@@ -27,6 +27,7 @@
      &                         nConf, STSym, TIOFMB, TIOINT, mState,
      &                         iAd1m, IfChol
       use pt2_guga, only: CIThr
+      use definitions, only: iwp, wp
       IMPLICIT None
       Integer IGROUP,NGRP,JSTATE_OFF
 * 2012  PER-AKE MALMQVIST
@@ -38,15 +39,15 @@
 * The states in the group can be obtained from the ordered MSTATE array,
 * for which a group offset JSTATE_OFF is passed in.
 #include "warnings.h"
-      real(8) Heff(Nstate,Nstate)
-      real(8) H0(Nstate,Nstate)
-      real(8) U0(Nstate,Nstate)
+      real(kind=wp) Heff(Nstate,Nstate)
+      real(kind=wp) H0(Nstate,Nstate)
+      real(kind=wp) U0(Nstate,Nstate)
 
-      LOGICAL IF_TRNSF
+      LOGICAL(kind=iwp) IF_TRNSF
       CHARACTER(LEN=27)  STLNE2
-      real(8), allocatable:: CIRef(:,:), CIXMS(:)
-      Integer I,J,iDisk,K,iState
-      Real*8 Wij,CPU1,CPU0,TIO1,TIO0,CPU,TIO
+      real(kind=wp), allocatable:: CIRef(:,:), CIXMS(:)
+      Integer(kind=iwp) I,J,iDisk,K,iState
+      Real(kind=wp) Wij,CPU1,CPU0,TIO1,TIO0,CPU,TIO
 
 * ---------------------------------------------------------------------
 * Number of states in this group.
@@ -103,10 +104,12 @@
           DREF(:)=0.0D0
           Do K = 1, Nstate
             wij = Weight(K)
-            CALL DAXPY_(SIZE(DREF),wij,DMIX(:,K),1,DREF,1)
+!           CALL DAXPY_(SIZE(DREF),wij,DMIX(:,K),1,DREF,1)
+            DREF(:)=DREF(:)+Weight(K)*DMIX(:,K)
           End Do
         Else
-         CALL DCOPY_(SIZE(DREF),DMIX(:,Jstate),1,DREF,1)
+!        CALL DCOPY_(SIZE(DREF),DMIX(:,Jstate),1,DREF,1)
+         DREF(:)=DMIX(:,Jstate)
         End If
 
 * Compute the Fock matrix in MO basis for state Jstate

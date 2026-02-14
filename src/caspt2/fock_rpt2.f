@@ -17,18 +17,15 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FOCK_RPT2()
-      use definitions, only: iwp, wp, u6
       use constants, only: Zero
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM, NASHT, NISHT, NOMX, NORBT, notri,
-     &                         NSSHT,NORB,NISH,NASH,EPS,EPSI,EPSA,EPSE
+      use caspt2_module, only: NSYM, NOMX, notri, NORB
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
 
       real(kind=wp), Allocatable:: BUF(:)
-      integer(kind=iwp) IFTEST,NBUF,ISTLT,ISYM,NO,I,IEPS,IEPSA,IEPSE,
-     &                  IEPSI,NA,NI
-      real(kind=wp) E
+      integer(kind=iwp) IFTEST,NBUF,ISTLT,ISYM,NO
 
 c Purpose: Compute the standard Fock matrix which defines
 c the PT2 orbitals and the standard H0 hamiltonian.
@@ -79,52 +76,17 @@ c Inactive and active Fock matrices:
       FIFA(1:notri) = FIMO(1:notri)+FAMO(1:notri)
 
 c   Orbital energies, EPS, EPSI,EPSA,EPSE:
-      IEPS=0
-      IEPSI=0
-      IEPSA=0
-      IEPSE=0
-      ISTLT=0
-      DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NA=NASH(ISYM)
-        NO=NORB(ISYM)
-        DO I=1,NI
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSI=IEPSI+1
-          EPSI(IEPSI)=E
-        END DO
-        DO I=NI+1,NI+NA
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSA=IEPSA+1
-          EPSA(IEPSA)=E
-        END DO
-        DO I=NI+NA+1,NO
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSE=IEPSE+1
-          EPSE(IEPSE)=E
-        END DO
-        ISTLT=ISTLT+(NO*(NO+1))/2
-      END DO
 
 C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
 C This is never used anywhere, and it is actually
 C wrong in XMS, since the DREF used is not the average
 C density.
-      ! EASUM=0.0D0
-      ! DO ISYM=1,NSYM
-      !   NA=NASH(ISYM)
-      !   DO I=1,NA
-      !     ITOT=NAES(ISYM)+I
-      !     ID=(ITOT*(ITOT+1))/2
-      !     EASUM=EASUM+EPSA(ITOT)*DREF(ID)
-      !   END DO
-      ! END DO
+
+      CALL MKEPS()
+
+! these active orbital energies are not the ones used in
+! MKFG3. Depending on whether the OUTO=canonical flag was set
+! in &RASSCF, it will differ from the EPSA array in mkfg3.f
 
       IF ( IFTEST.NE.0 ) THEN
         WRITE(u6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
@@ -159,18 +121,9 @@ C density.
           END IF
         END DO
 
-        WRITE(u6,*)
-        WRITE(u6,*)' FOCK_RPT2: ORBITAL ENERGIES, EPS:'
-        WRITE(u6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
-        WRITE(u6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
-        WRITE(u6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
         ! these active orbital energies are not the ones used in
         ! MKFG3. Depending on whether the OUTO=canonical flag was set
         ! in &RASSCF, it will differ from the EPSA array in mkfg3.f
-        WRITE(u6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
-        WRITE(u6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
-        WRITE(u6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'
-        WRITE(u6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
       END IF
 
       CALL mma_deallocate(BUF)

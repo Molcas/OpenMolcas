@@ -10,19 +10,15 @@
 ************************************************************************
       SUBROUTINE FMAT_CHO(CMO,NCMO,FFAO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
      &                                                       FAMO,NFAMO)
+      use constants, only: Zero, One
+      use caspt2_global, only: FIFA
+      use caspt2_global, only: LUONEM
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: NBTRI, IEOF1M, notri, NSYM, NBAS,
+     &                         NORB, NFRO, IAD1M
       use definitions, only: iwp, wp
 #ifdef _DEBUGPRINT_
       use definitions, only: u6
-#endif
-      use constants, only: Zero, One
-      use caspt2_global, only: FIFA, DREF
-      use caspt2_global, only: LUONEM
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NBTRI, EASUM, IEOF1M, notri, NSYM, NBAS,
-     &                         NORB, NFRO, IAD1M, NISH, NASH, EPS, EPSI,
-     &                         EPSA, EPSE, NAES
-#ifdef _DEBUGPRINT_
-      use caspt2_module, only: NASHT, NISHT, NORBT, NSSHT
 #endif
       IMPLICIT None
       integer(kind=iwp), intent(in):: NCMO, NHONE, NFIMO, NFAMO
@@ -31,11 +27,11 @@
       real(kind=wp), intent(out):: HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
 
       real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:)
-      real(kind=wp) E
-      integer(kind=iwp) I, ID, IDISK, IEPS, IEPSA, IEPSE, IEPSI, IFAO,
-     &                  IJ, IOFMO, ISTLT, ISYM, ITOT, J, LSC, LSCI,
-     &                  NA, NB, NBBMX, NBBT, NBOMX, NF, NI, NO, NO_X,
-     &                  NOOMX
+      integer(kind=iwp) I, IDISK, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI,
+     &                  NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
+#ifdef _DEBUGPRINT_
+      integer(kind=iwp) ISTLT
+#endif
 
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
@@ -130,53 +126,7 @@ c Transformed frozen Fock matrix = Effective one-electron
       CALL DCOPY_(NOTRI,FIMO,1,FIFA,1)
       CALL DAXPY_(notri,One,FAMO,1,FIFA,1)
 
-c   Orbital energies, EPS, EPSI,EPSA,EPSE:
-      IEPS=0
-      IEPSI=0
-      IEPSA=0
-      IEPSE=0
-      ISTLT=0
-      DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NA=NASH(ISYM)
-        NO=NORB(ISYM)
-        DO I=1,NI
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSI=IEPSI+1
-          EPSI(IEPSI)=E
-        END DO
-        DO I=NI+1,NI+NA
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSA=IEPSA+1
-          EPSA(IEPSA)=E
-        END DO
-        DO I=NI+NA+1,NO
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSE=IEPSE+1
-          EPSE(IEPSE)=E
-        END DO
-        ISTLT=ISTLT+(NO*(NO+1))/2
-      END DO
-
-C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
-C This is never used anywhere, and it is actually
-C wrong in XMS, since the DREF used is not the average
-C density.
-      EASUM=Zero
-      DO ISYM=1,NSYM
-        NA=NASH(ISYM)
-        DO I=1,NA
-          ITOT=NAES(ISYM)+I
-          ID=(ITOT*(ITOT+1))/2
-          EASUM=EASUM+EPSA(ITOT)*DREF(ID)
-        END DO
-      END DO
+      CALL MKEPS()
 
 #ifdef _DEBUGPRINT_
         WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
@@ -211,15 +161,6 @@ C density.
           END IF
         END DO
 
-        WRITE(u6,*)
-        WRITE(u6,*)'      ORBITAL ENERGIES, EPS:'
-        WRITE(u6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
-        WRITE(u6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
-        WRITE(u6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
-        WRITE(u6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
-        WRITE(u6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
-        WRITE(u6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'
-        WRITE(u6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
 #endif
 
       END SUBROUTINE FMAT_CHO
