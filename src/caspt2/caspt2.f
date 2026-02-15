@@ -46,9 +46,10 @@
      &                        TIOPT2,TIOSBM,TIOEIG,TIONAD,TIORHS,TIOSER,
      &                        TIOPCG,TIOSCA,TIOLCS,TIOOVL,TIOVEC,TIOSGM,
      &                         TIOPRP,TIOGRD
+      use definitions, only: iwp, wp
 
       IMPLICIT NONE
-      INTEGER IRETURN
+      INTEGER(kind=iwp), intent(out):: IRETURN
 *----------------------------------------------------------------------*
 *     1998  PER-AAKE MALMQUIST                                         *
 *     DEPARTMENT OF THEORETICAL CHEMISTRY                              *
@@ -98,30 +99,31 @@ C
 #include "warnings.h"
       CHARACTER(len=60) STLNE2
 * Timers
-      REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
+      REAL(kind=wp)  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
      &       TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14,
      &          CPE,CPUTOT,TIOE,TIOTOT
 * Indices
-      INTEGER I
+      INTEGER(kind=iwp) I
 #ifdef _DMRG_
-      integer J
+      integer(kind=iwp) J
 #endif
-      INTEGER ISTATE
-      INTEGER IGROUP,JSTATE_OFF
+      INTEGER(kind=iwp) ISTATE
+      INTEGER(kind=iwp) IGROUP,JSTATE_OFF
 * Convergence check
-      INTEGER ICONV
+      INTEGER(kind=iwp) ICONV
 * Relative energies
-      REAL*8  RELAU,RELEV,RELCM,RELKJ
+      REAL(kind=wp)  RELAU,RELEV,RELCM,RELKJ
 
 * Effective Hamiltonian
-      REAL*8, ALLOCATABLE :: Heff(:,:), Ueff(:,:)
+      REAL(kind=wp), ALLOCATABLE :: Heff(:,:), Ueff(:,:)
 
 * Zeroth-order Hamiltonian
-      REAL*8, ALLOCATABLE :: H0(:,:), U0(:,:)
+      REAL(kind=wp), ALLOCATABLE :: H0(:,:), U0(:,:)
 
 * Gradient stuff
-      REAL*8, ALLOCATABLE :: UeffSav(:,:),U0Sav(:,:),H0Sav(:,:),ESav(:)
-      LOGICAL :: IFGRDT0 = .False.
+      REAL(kind=wp), ALLOCATABLE :: UeffSav(:,:),
+     &                              U0Sav(:,:),H0Sav(:,:),ESav(:)
+      LOGICAL(kind=iwp) :: IFGRDT0 = .False.
 
       Call StatusLine('CASPT2: ','Just starting')
 
@@ -135,11 +137,12 @@ C
 *======================================================================*
 *
       CALL PT2INI()
+
 * Initialize effective Hamiltonian and eigenvectors
       CALL MMA_ALLOCATE(Heff,Nstate,Nstate,Label='Heff')
       CALL MMA_ALLOCATE(Ueff,Nstate,Nstate,Label='Ueff')
-      Heff=0.0D0
-      Ueff=0.0D0
+      Heff(:,:)=0.0D0
+      Ueff(:,:)=0.0D0
 * Initialize zeroth-order Hamiltonian and eigenvectors
       CALL MMA_ALLOCATE(H0,Nstate,Nstate,Label='H0')
       CALL MMA_ALLOCATE(U0,Nstate,Nstate,Label='U0')
@@ -155,6 +158,7 @@ C
         CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
         IDSAVGRD = 0
       End If
+
 *======================================================================*
 * Put the CASSCF energies on the diagonal of Heff, i.e. form the
 * first-order corrected effective Hamiltonian:
@@ -185,17 +189,13 @@ C
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
 * states according to the XMS prescription in xdwinit
-      if ((IFXMS .and. IFDW) .or. (IFRMS)) then
-        call xdwinit(Heff,H0,U0)
-        call wgtinit(Heff)
-      else
-        call wgtinit(Heff)
-      end if
+      if ((IFXMS .and. IFDW) .or. (IFRMS)) call xdwinit(Heff,H0,U0)
+      call wgtinit(Heff)
 
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of
 * calculation: MS, XMS, DW or XDW.
-      call rdminit
+      call rdminit()
 
       !! loop for multistate CASPT2 gradient
       !! In the first step, the effective Hamiltonian and the
@@ -228,7 +228,6 @@ C
         If ((IFXMS .and. IFDW) .or. IFRMS)
      *    Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
         iStpGrd = 2
-C       Call EQCTL2(ICONV)
         Go To 8999
       End If
 
@@ -249,6 +248,10 @@ C       Call EQCTL2(ICONV)
 #endif
 
 
+***********************************************************************
+*                                                                     *
+*                                                                     *
+***********************************************************************
 * For (X)Multi-State, a long loop over root states.
 * The states are ordered by group, with each group containing a number
 * of group states for which GRPINI is called.
@@ -460,6 +463,11 @@ C     transition density matrices.
 * End of long loop over groups
         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
       END DO STATELOOP
+
+***********************************************************************
+*                                                                     *
+*                                                                     *
+***********************************************************************
 
 1000  CONTINUE
 
