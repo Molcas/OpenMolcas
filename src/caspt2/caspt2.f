@@ -228,7 +228,9 @@ C
         If ((IFXMS .and. IFDW) .or. IFRMS)
      *    Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
         iStpGrd = 2
-        Go To 8999
+        Call Post_Process()
+        Call CASPT2_TERM()
+        Return
       End If
 
 * FIRST GRAD LOOP ITER
@@ -395,7 +397,7 @@ C     transition density matrices.
               WRITE(6,*)' CASPT2 MULTI-STATE COUPLINGS SECTION'
            END IF
            Call StatusLine('CASPT2: ','Multi-State couplings')
-           CALL MCCTL(HEFF)
+           CALL MCCTL(HEFF,NSTATE,JSTATE)
          END IF
 
          CALL TIMING(CPTF14,CPE,TIOTF14,TIOE)
@@ -512,8 +514,18 @@ C     transition density matrices.
        WRITE(6,*)
       END IF
 
- 8999 Continue
+      Call Post_Process()
 
+      Call CASPT2_TERM()
+
+***********************************************************************
+*                                                                     *
+      CONTAINS
+*                                                                     *
+***********************************************************************
+*                                                                     *
+
+      Subroutine Post_Process()
       if (.not. doFCIQMC) then
         if (iStpGrd.ne.2) then
           IF (NLYROOT.NE.0) IFMSCOUP=.FALSE.
@@ -591,10 +603,12 @@ C     transition density matrices.
         Call Put_iScalar('NumGradRoot',iRlxRoot)
         Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
       end if
+      End Subroutine Post_Process
 
-      Call CASPT2_TERM()
+*                                                                     *
+***********************************************************************
+*                                                                     *
 
-      CONTAINS
       Subroutine CASPT2_TERM()
 
       !! Finishing for gradient calculation
@@ -623,4 +637,9 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
 
       Call StatusLine('CASPT2: ','Finished.')
       END Subroutine CASPT2_TERM
+
+*                                                                     *
+***********************************************************************
+*                                                                     *
+
       END SUBROUTINE CASPT2
