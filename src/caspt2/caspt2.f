@@ -471,7 +471,11 @@ C     transition density matrices.
 
 1000  CONTINUE
 
-      IF (IRETURN.NE.0) GOTO 9000
+      IF (IRETURN.NE.0) THEN
+         CALL CASPT2_TERM()
+         RETURN
+      END IF
+
       IF(IPRGLB.GE.TERSE) THEN
        WRITE(6,*)' Total CASPT2 energies:'
        IF (IFXMS.or.IFRMS) THEN
@@ -588,8 +592,10 @@ C     transition density matrices.
         Call Store_Energies(NSTATE,ENERGY,iRlxRoot)
       end if
 
+      Call CASPT2_TERM()
 
-9000  CONTINUE
+      CONTAINS
+      Subroutine CASPT2_TERM()
 
       !! Finishing for gradient calculation
       IF (IFGRDT0) Then
@@ -601,6 +607,7 @@ C     transition density matrices.
           CALL MMA_DEALLOCATE(H0Sav)
         End If
       End If
+
 C Free resources, close files
       CALL PT2CLS()
 
@@ -615,4 +622,5 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       END IF
 
       Call StatusLine('CASPT2: ','Finished.')
+      END Subroutine CASPT2_TERM
       END SUBROUTINE CASPT2

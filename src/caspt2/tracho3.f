@@ -19,27 +19,28 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nInaBx, nSecBx, nSym, RHSDirect, nBas,
      &                         nBtches, nFro, nIsh, nAsh, nSsh, nBtch
+      use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "warnings.h"
-      INTEGER NCMO
-      REAL*8 CMO(NCMO)
+      INTEGER(kind=iwp), intent(in):: NCMO
+      REAL(kind=wp), intent(in):: CMO(NCMO)
 
-      INTEGER NCES(8),ip_HTVec(8)
-      INTEGER ISTART(8),NUSE(8)
-      INTEGER IC,ICASE,IRC,ILOC
-      INTEGER JSTART
-      INTEGER JRED,JRED1,JRED2,JREDC,JNUM,JV1,JV2
-      INTEGER IASTA,IAEND,IISTA,IIEND
-      INTEGER NA,NASZ,NI,NISZ,NBUFFY,NPQ
-      INTEGER IB,IBATCH,IBATCH_TOT,IBSTA,IBEND,NBATCH
-      INTEGER IP_LHT
-      INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYP,ISYQ
-      INTEGER N,N1,N2
-      INTEGER ip_htspc
-      INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
-      REAL*8, ALLOCATABLE:: CHSPC(:), FTSPC(:), HTSPC(:)
-      REAL*8, ALLOCATABLE:: BUFFY(:)
+      INTEGER(kind=iwp) NCES(8),ip_HTVec(8)
+      INTEGER(kind=iwp) ISTART(8),NUSE(8)
+      INTEGER(kind=iwp) IC,ICASE,IRC,ILOC
+      INTEGER(kind=iwp) JSTART
+      INTEGER(kind=iwp) JRED,JRED1,JRED2,JREDC,JNUM,JV1,JV2
+      INTEGER(kind=iwp) IASTA,IAEND,IISTA,IIEND
+      INTEGER(kind=iwp) NA,NASZ,NI,NISZ,NBUFFY,NPQ
+      INTEGER(kind=iwp) IB,IBATCH,IBATCH_TOT,IBSTA,IBEND,NBATCH
+      INTEGER(kind=iwp) IP_LHT
+      INTEGER(kind=iwp) ISYM,JSYM,ISYMA,ISYMB,ISYP,ISYQ
+      INTEGER(kind=iwp) N,N1,N2
+      INTEGER(kind=iwp) ip_htspc
+      INTEGER(kind=iwp) NUMV,NVECS_RED,NHTOFF,MUSED
+      REAL(kind=wp), ALLOCATABLE:: CHSPC(:), FTSPC(:), HTSPC(:)
+      REAL(kind=wp), ALLOCATABLE:: BUFFY(:)
 
 ************************************************************************
 * ======================================================================
@@ -63,7 +64,7 @@
       DO JSYM=1,NSYM
       IBATCH_TOT=NBTCHES(JSYM)
 
-      IF(NUMCHO_PT2(JSYM).EQ.0) GOTO 1000
+      IF(NUMCHO_PT2(JSYM).EQ.0) CYCLE
 
       JRED1=InfVec(1,2,jSym)
       JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
@@ -73,7 +74,7 @@
       DO JRED=JRED1,JRED2
 
       CALL Cho_X_nVecRS(JRED,JSYM,JSTART,NVECS_RED)
-      IF(NVECS_RED.EQ.0) GOTO 999
+      IF(NVECS_RED.EQ.0) CYCLE
 
       ILOC=3
       CALL CHO_X_SETRED(IRC,ILOC,JRED)
@@ -99,19 +100,19 @@
 * Read a batch of reduced vectors
       CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,JSYM,NUMV,JREDC,MUSED)
       IF(NUMV.ne.JNUM) THEN
-        write(6,*)' Rats! CHO_VECRD was called, assuming it to'
-        write(6,*)' read JNUM vectors. Instead it returned NUMV'
-        write(6,*)' vectors: JNUM, NUMV=',JNUM,NUMV
-        write(6,*)' Back to the drawing board?'
+        write(u6,*)' Rats! CHO_VECRD was called, assuming it to'
+        write(u6,*)' read JNUM vectors. Instead it returned NUMV'
+        write(u6,*)' vectors: JNUM, NUMV=',JNUM,NUMV
+        write(u6,*)' Back to the drawing board?'
         CALL QUIT(_RC_INTERNAL_ERROR_)
       END IF
       IF(JREDC.NE.JRED) THEN
-        write(6,*)' Rats! It was assumed that the Cholesky vectors'
-        write(6,*)' in HALFTRNSF all belonged to a given reduced'
-        write(6,*)' set, but they don''t!'
-        write(6,*)' JRED, JREDC:',JRED,JREDC
-        write(6,*)' Back to the drawing board?'
-        write(6,*)' Let the program continue and see what happens.'
+        write(u6,*)' Rats! It was assumed that the Cholesky vectors'
+        write(u6,*)' in HALFTRNSF all belonged to a given reduced'
+        write(u6,*)' set, but they don''t!'
+        write(u6,*)' JRED, JREDC:',JRED,JREDC
+        write(u6,*)' Back to the drawing board?'
+        write(u6,*)' Let the program continue and see what happens.'
       END IF
 
 * Frozen half-transformation:
@@ -254,11 +255,9 @@ C loop over secondary orbital index c is more efficient.
       END DO
 
 * End loop JRED
-  999 CONTINUE
       END DO
 
 * End loop JSYM
- 1000 CONTINUE
       END DO
 
       ! if using the RHS on-demand, we need all cholesky vectors on each
