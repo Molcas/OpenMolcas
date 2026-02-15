@@ -111,17 +111,11 @@
          DREF(:)=DMIX(:,Jstate)
         End If
 
+
 * Compute the Fock matrix in MO basis for state Jstate
-* INTCTL1/INTCTL2 call TRACTL(0) and other routines to compute the
-* Fock matrix in MO basis: FIMO, FAMO, FIFA and orbital energies
-        if (IfChol) then
-* INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis
-          call INTCTL2()
-        else
-* INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
-          call INTCTL1(CMO,NCMO)
-          CMOPT2(:)=CMO(:)
-        end If
+        Call MkFock()
+
+        If (.NOT.IfChol) CMOPT2(:)=CMO(:)
 
 c Modify the Fock matrix if needed
 c You don't have to be beautiful to turn me on

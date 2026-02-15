@@ -21,7 +21,7 @@
       use caspt2_global, only: LUONEM
       use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nState, IfChol, iSCF, nAshT, nConf,
+      use caspt2_module, only: nState, iSCF, nAshT, nConf,
      &                         STSym, iAd1m, mState
       use pt2_guga, only: CIThr
 
@@ -89,13 +89,7 @@
       call ddafile(LUONEM,2,CMO,NCMO,iDisk)
 
 * Build the state-average Fock matrix in MO basis
-      if (IfChol) then
-* INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis.
-        call INTCTL2()
-      else
-* INTCTL1 uses TRAONE and FOCK_RPT2 to get the matrices in MO basis.
-        call INTCTL1(CMO,SIZE(CMO))
-      end if
+      Call MkFock()
 
 * Loop again over all states to compute H0 in the model space
 * Loop over ket functions
