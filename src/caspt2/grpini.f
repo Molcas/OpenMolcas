@@ -43,7 +43,6 @@
       real(kind=wp) H0(Nstate,Nstate)
       real(kind=wp) U0(Nstate,Nstate)
 
-      LOGICAL(kind=iwp) IF_TRNSF
       CHARACTER(LEN=27)  STLNE2
       real(kind=wp), allocatable:: CIRef(:,:), CIXMS(:)
       Integer(kind=iwp) I,J,iDisk,K,iState
@@ -117,8 +116,7 @@
 * Fock matrix in MO basis: FIMO, FAMO, FIFA and orbital energies
         if (IfChol) then
 * INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis
-          IF_TRNSF=.FALSE.
-          call INTCTL2(IF_TRNSF)
+          call INTCTL2()
         else
 * INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
           call INTCTL1(CMO,NCMO)

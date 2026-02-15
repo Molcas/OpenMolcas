@@ -91,7 +91,7 @@
 * Build the state-average Fock matrix in MO basis
       if (IfChol) then
 * INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis.
-        call INTCTL2(.false.)
+        call INTCTL2()
       else
 * INTCTL1 uses TRAONE and FOCK_RPT2 to get the matrices in MO basis.
         call INTCTL1(CMO,SIZE(CMO))

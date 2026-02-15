@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE INTCTL2(IF_TRNSF)
+      SUBROUTINE INTCTL2()
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
       use caspt2_global, only: CMO, FIMO, FAMO, HONE, DREF
@@ -18,8 +18,8 @@
       use caspt2_module, only: nBTri
       use definitions, only: iwp, wp
       IMPLICIT None
-      LOGICAL(KIND=IWP), INTENT(IN):: IF_TRNSF
 
+      LOGICAL(KIND=IWP), parameter:: IF_TRNSF=.False.
       Real(kind=wp), Allocatable:: FFAO(:), FIAO(:), FAAO(:)
 
 * Compute using Cholesky vectors.
@@ -34,8 +34,10 @@
         WRITE(6,*)' INTCTL2 calling TRACHO2...'
         CALL XFLUSH(6)
       END IF
+
       Call TraCho2(CMO,SIZE(CMO),DREF,SIZE(DREF),FFAO,FIAO,FAAO,
      &             IF_TRNSF)
+
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 back from TRACHO2.'
         CALL XFLUSH(6)
@@ -49,10 +51,6 @@
         FIMO_all(1:NBTri)=FFAO(:) + FIAO(:)
         FIFA_all(1:NBTri)=FIMO_all(:) + FAAO(:)
 
-!       CALL DCOPY_(NBTRI,FFAO,1,FIMO_all,1)
-!       CALL DAXPY_(NBTRI,One,FIAO,1,FIMO_all,1)
-!       CALL DCOPY_(NBTRI,FIMO_all,1,FIFA_all,1)
-!       CALL DAXPY_(NBTRI,One,FAAO,1,FIFA_all,1)
       END IF
 
 * Transform them to MO basis:
