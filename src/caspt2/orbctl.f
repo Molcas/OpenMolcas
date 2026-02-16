@@ -58,7 +58,9 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE
 * CI arrays, stored sequentially. The original set starts at disk address
 * IDCIEX, the transformed ones are written after IDTCEX.
+
       CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO_X,NCMO)
+
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
       END IF
@@ -74,6 +76,10 @@ c Determine PT2 orbitals, and transform CI coeffs.
 *****
 
           CALL TRANSFOCK(TORB,SIZE(TORB),FIFA,SIZE(FIFA),1)
+          IF(IPRGLB.GE.DEBUG) THEN
+           WRITE(6,*)' ORBCTL back from TRANSFOCK.'
+          END IF
+
 
 * When doing XMS, DREF refers to the last state considered and it is not the
 * state average density, therefore it's wrong to transform it!
@@ -82,14 +88,6 @@ c Determine PT2 orbitals, and transform CI coeffs.
           CALL TRANSDREF(TORB,SIZE(TORB),DREF,SIZE(DREF))
 *****
       end if
-
-* DREF is not really used for anything important in MKEPS, this is why we don't
-* care that we pass the wrong one in...
-      CALL MKEPS()
-
-      IF(IPRGLB.GE.DEBUG) THEN
-       WRITE(6,*)' ORBCTL back from TRANSFOCK.'
-      END IF
 
       if (.not. DoFCIQMC) then
 C Save new MO coeffs, and the transformation matrices:

@@ -31,6 +31,4 @@ end If
 ! You don't have to be beautiful to turn me on
 CALL NEWFOCK(FIFA,SIZE(FIFA),CMO,NCMO)
 
-Call MkEPS()
-
 END SUBROUTINE MkFock
