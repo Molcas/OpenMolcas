@@ -45,8 +45,7 @@ endif ()
 
 # discover some necessary tools
 find_program (GIT "git")
-find_program (PERL "perl")
-mark_as_advanced (FORCE GIT PERL)
+mark_as_advanced (FORCE GIT)
 
 FIND_PACKAGE (Python COMPONENTS Interpreter)
 
