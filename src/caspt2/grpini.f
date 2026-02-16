@@ -11,7 +11,7 @@
 * Copyright (C) 2012, Per Ake Malmqvist                                *
 *               2019, Stefano Battaglia                                *
 ************************************************************************
-      SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
+      SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0,nState)
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
      &                       CMOPT2, NCMO, Weight
@@ -22,14 +22,14 @@
 #endif
       use PrintLevel, only: DEBUG, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nState, CPUFMB, CPUINT, DMRG, DoCumulant,
+      use caspt2_module, only: CPUFMB, CPUINT, DMRG, DoCumulant,
      &                         IEOF1M, IfDW, IfsadRef, IfXMS, jState,
      &                         nConf, STSym, TIOFMB, TIOINT, mState,
      &                         iAd1m, IfChol
       use pt2_guga, only: CIThr
       use definitions, only: iwp, wp
       IMPLICIT None
-      Integer IGROUP,NGRP,JSTATE_OFF
+      Integer(kind=iwp), intent(in):: IGROUP,NGRP,JSTATE_OFF,nState
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
 * Purpose: For a selected set IGROUP, create a set of CMO coefficients
@@ -39,9 +39,9 @@
 * The states in the group can be obtained from the ordered MSTATE array,
 * for which a group offset JSTATE_OFF is passed in.
 #include "warnings.h"
-      real(kind=wp) Heff(Nstate,Nstate)
-      real(kind=wp) H0(Nstate,Nstate)
-      real(kind=wp) U0(Nstate,Nstate)
+      real(kind=wp), intent(inout):: Heff(Nstate,Nstate)
+      real(kind=wp), intent(inout):: H0(Nstate,Nstate)
+      real(kind=wp), intent(inout):: U0(Nstate,Nstate)
 
       CHARACTER(LEN=27)  STLNE2
       real(kind=wp), allocatable:: CIRef(:,:), CIXMS(:)
@@ -111,7 +111,6 @@
          DREF(:)=DMIX(:,Jstate)
         End If
 
-
 * Compute the Fock matrix in MO basis for state Jstate
         Call MkFock()
 
@@ -120,7 +119,10 @@
 * NN.15, TODO:
 * the following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
-        IF (DoCumulant .or. DoFCIQMC .or. DMRG) GoTo 100
+        IF (DoCumulant .or. DoFCIQMC .or. DMRG) THEN
+           Call  GPRINI_FINISH()
+           Return
+        End If
 
 * Loop over bra functions
         do I=1,Ngrp
@@ -240,7 +242,11 @@
 
       end if
 
- 100  continue
+      Call  GPRINI_FINISH()
+
+      Contains
+
+      Subroutine  GPRINI_FINISH()
 
 * We now know FIFA as expressed in initial RAS (natural) orbitals.
 * Transform it to a new basis in which the non-diagonal couplings
@@ -290,4 +296,5 @@
         ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
       end if
 #endif
+      End Subroutine  GPRINI_FINISH
       end SUBROUTINE GRPINI
