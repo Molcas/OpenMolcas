@@ -10,7 +10,7 @@
 !                                                                      *
 !***********************************************************************
 SUBROUTINE MkFock()
-use caspt2_global, only: CMO, nCMO, FIFA
+use caspt2_global, only: CMO, nCMO, FIFA, FIMO, FAMO,DREF,HONE
 use caspt2_module, only: IfChol
 use definitions, only: iwp, wp
 IMPLICIT None
@@ -22,7 +22,7 @@ if (IfChol) then
 ! INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis
    call INTCTL2(CMO,NCMO)
 else
-   CALL FOCK_RPT2()
+   CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,SIZE(DREF),HONE)
 end If
 
 ! Modify the Fock matrix if needed (G Family of modifications).
