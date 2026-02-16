@@ -16,15 +16,13 @@ use definitions, only: iwp, wp
 IMPLICIT None
 
 ! Compute the Fock matrix in MO basis for state Jstate
-! INTCTL1/INTCTL2 call TRACTL(0) and other routines to compute the
-! Fock matrix in MO basis: FIMO, FAMO, FIFA and orbital energies
+! Fock matrix in MO basis: FIMO, FAMO, FIFA
 
 if (IfChol) then
 ! INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis
    call INTCTL2(CMO,NCMO)
 else
-! INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
-   call INTCTL1()
+   CALL FOCK_RPT2()
 end If
 
 ! Modify the Fock matrix if needed (G Family of modifications).
