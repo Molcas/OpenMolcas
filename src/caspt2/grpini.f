@@ -117,10 +117,6 @@
 
         If (.NOT.IfChol) CMOPT2(:)=CMO(:)
 
-c Modify the Fock matrix if needed
-c You don't have to be beautiful to turn me on
-        CALL NEWFOCK(FIFA,SIZE(FIFA),CMO,NCMO)
-
 * NN.15, TODO:
 * the following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2

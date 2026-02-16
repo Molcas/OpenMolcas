@@ -165,7 +165,6 @@
         end if
       end do
 C
-      If (do_grad) call dcopy_(NCMO,CMO,1,CMOPT2,1)
       If (do_grad) CMOPT2(:)=CMO(:)
 
 * Release all memory
