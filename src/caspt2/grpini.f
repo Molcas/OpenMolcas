@@ -27,7 +27,8 @@
      &                         nConf, STSym, TIOFMB, TIOINT, mState,
      &                         iAd1m, IfChol
       use pt2_guga, only: CIThr
-      use definitions, only: iwp, wp
+      use Constants, only: Zero, One
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
       Integer(kind=iwp), intent(in):: IGROUP,NGRP,JSTATE_OFF,nState
 * 2012  PER-AKE MALMQVIST
@@ -51,26 +52,26 @@
 * ---------------------------------------------------------------------
 * Number of states in this group.
       IF (IPRGLB.EQ.DEBUG) THEN
-        write(6,*)' Entered GRPINI.'
-        write(6,*)' NSTATE=',NSTATE
-        write(6,*)' The MSTATE array:'
-        write(6,'(1x,20I4)')(MSTATE(J),J=1,NSTATE)
-        write(6,*)' IGROUP,NGRP=',IGROUP,NGRP
+        write(u6,*)' Entered GRPINI.'
+        write(u6,*)' NSTATE=',NSTATE
+        write(u6,*)' The MSTATE array:'
+        write(u6,'(1x,20I4)')(MSTATE(J),J=1,NSTATE)
+        write(u6,*)' IGROUP,NGRP=',IGROUP,NGRP
       END IF
 
       IF (NGRP.EQ.0) THEN
-        WRITE(6,*) ' Number of states in the (X)MS group is 0!'
-        WRITE(6,*) ' This should never happen, aborting...'
-        CALL ABEND
+        WRITE(u6,*) ' Number of states in the (X)MS group is 0!'
+        WRITE(u6,*) ' This should never happen, aborting...'
+        CALL ABEND()
       END IF
 
       Write(STLNE2,'(A,I0)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2: ',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
-        WRITE(6,'(20A4)')('****',I=1,20)
-        WRITE(6,'(A,I3)')
+        WRITE(u6,'(20A4)')('****',I=1,20)
+        WRITE(u6,'(A,I3)')
      &  ' Multi-State initialization phase begins for group ',IGROUP
-        WRITE(6,'(20A4)')('----',I=1,20)
+        WRITE(u6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
       END IF
 * ---------------------------------------------------------------------
@@ -83,6 +84,13 @@
       IAD1M(2)=IDISK
       call ddafile(LUONEM,1,CMO,NCMO,IDISK)
       IEOF1M=IDISK
+
+*     Compute conventional integrals in the natural orbitals of
+*     the CASSSCF (stored in CMO in module CASPT2_module).
+      If (.NOT.IfChol) Then
+         Call TraOne(CMO,nCMO)
+         Call TraCtl(0)
+      End If
 
 * Loop over states, selecting those belonging to this group.
 * For each such state, compute the Fock matrix in original MO basis,
@@ -100,14 +108,12 @@
           !! This DREF is used only for constructing the Fock in H0.
           !! DREF used in other places will be constructed in elsewhere
           !! (STINI).
-          DREF(:)=0.0D0
+          DREF(:)=Zero
           Do K = 1, Nstate
             wij = Weight(K)
-!           CALL DAXPY_(SIZE(DREF),wij,DMIX(:,K),1,DREF,1)
             DREF(:)=DREF(:)+Weight(K)*DMIX(:,K)
           End Do
         Else
-!        CALL DCOPY_(SIZE(DREF),DMIX(:,Jstate),1,DREF,1)
          DREF(:)=DMIX(:,Jstate)
         End If
 
@@ -178,8 +184,8 @@
 
 * In case of XMS-CASPT2, printout H0 in original basis
         if (IPRGLB.ge.USUAL) then
-          write(6,*)
-          write(6,*)' H0 in the original model space basis:'
+          write(u6,*)
+          write(u6,*)' H0 in the original model space basis:'
           call prettyprint(H0,Ngrp,Ngrp)
         end if
 * Diagonalize H0 and save eigenvectors in U0
@@ -188,18 +194,18 @@
 * Transform the Fock matrix in the new basis
         call transmat(H0,U0,Ngrp)
         if (IPRGLB.ge.USUAL) then
-          write(6,*)' H0 eigenvectors:'
+          write(u6,*)' H0 eigenvectors:'
           call prettyprint(U0,Ngrp,Ngrp)
         end if
         if (IPRGLB.ge.DEBUG) then
-          write(6,*)' H0 in the rotated model space basis:'
+          write(u6,*)' H0 in the rotated model space basis:'
           call prettyprint(H0,Ngrp,Ngrp)
         end if
 
 * As well as Heff
         call transmat(Heff,U0,Ngrp)
         if (IPRGLB.ge.VERBOSE) then
-          write(6,*)' Heff[1] in the rotated model space basis:'
+          write(u6,*)' Heff[1] in the rotated model space basis:'
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
 
@@ -207,9 +213,9 @@
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
         if (IPRGLB.ge.VERBOSE) then
-          write(6,'(A)')' The CASSCF states are now rotated'//
+          write(u6,'(A)')' The CASSCF states are now rotated'//
      &                  ' according to the H0 eigenvectors'
-          write(6,*)
+          write(u6,*)
         end if
 
         call mma_allocate(CIref,Nconf,Ngrp,Label='CIRef')
@@ -222,8 +228,8 @@
         do J=1,Ngrp
 * Transform the states
           call dgemm_('N','N',Nconf,1,Ngrp,
-     &               1.0D0,CIREF,Nconf,U0(:,J),Ngrp,
-     &               0.0D0,CIXMS,Nconf)
+     &               One,CIREF,Nconf,U0(:,J),Ngrp,
+     &               Zero,CIXMS,Nconf)
 
 * Write the rotated CI coefficients back into LUCIEX and REPLACE the
 * original unrotated CASSCF states. Note that the original states
@@ -231,7 +237,7 @@
           call writeCI(CIXMS,J)
 
           if (IPRGLB.ge.VERBOSE) then
-            write(6,'(1x,a,i3)')
+            write(u6,'(1x,a,i3)')
      &      ' The CI coefficients of rotated model state nr. ',MSTATE(J)
             call PRWF_CP2(STSYM,NCONF,CIXMS,CITHR)
           end if
@@ -273,6 +279,7 @@
       else
           if (.not. DoFCIQMC) call TRACTL(0)
       end if
+
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUINT=CPU1-CPU0
       TIOINT=TIO1-TIO0

@@ -24,7 +24,7 @@ if (IfChol) then
    call INTCTL2(CMO,NCMO)
 else
 ! INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
-   call INTCTL1(CMO,NCMO)
+   call INTCTL1()
 end If
 
 ! Modify the Fock matrix if needed (G Family of modifications).

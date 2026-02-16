@@ -8,22 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE INTCTL1(CMO,NCMO)
+      SUBROUTINE INTCTL1()
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG
       use definitions, only: iwp, wp
       IMPLICIT None
-      INTEGER(kind=iwp), intent(in):: NCMO
-      REAL(kind=wp), intent(in):: CMO(NCMO)
 
 * Compute using conventional integral file:
       IF(IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL1 calling TRACTL...'
         CALL XFLUSH(6)
       END IF
-
-      Call TRACTL(0)
-      CALL TRAONE(CMO,NCMO)
 
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL1 back from TRAONE.'

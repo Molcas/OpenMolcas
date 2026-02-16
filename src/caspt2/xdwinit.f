@@ -22,7 +22,7 @@
       use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nState, iSCF, nAshT, nConf,
-     &                         STSym, iAd1m, mState
+     &                         STSym, iAd1m, mState, IfChol
       use pt2_guga, only: CIThr
 
       implicit none
@@ -87,6 +87,11 @@
       CMO=>CMO_Internal
       iDisk=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,iDisk)
+
+      If (.NOT.IfChol) Then
+         Call TraOne(CMO,nCMO)
+         Call TraCtl(0)
+      End If
 
 * Build the state-average Fock matrix in MO basis
       Call MkFock()
