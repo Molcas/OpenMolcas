@@ -418,6 +418,4 @@ c
         CALL mma_deallocate(XMAT)
  300  CONTINUE
 
-      Call MKEPS()
-
       END SUBROUTINE NEWFOCK

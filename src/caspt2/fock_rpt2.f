@@ -75,15 +75,6 @@ c Inactive and active Fock matrices:
 * over active orbitals and therefore are summed up together here
       FIFA(1:notri) = FIMO(1:notri)+FAMO(1:notri)
 
-c   Orbital energies, EPS, EPSI,EPSA,EPSE:
-
-C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
-C This is never used anywhere, and it is actually
-C wrong in XMS, since the DREF used is not the average
-C density.
-
-      CALL MKEPS()
-
 ! these active orbital energies are not the ones used in
 ! MKFG3. Depending on whether the OUTO=canonical flag was set
 ! in &RASSCF, it will differ from the EPSA array in mkfg3.f

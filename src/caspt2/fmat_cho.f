@@ -126,8 +126,6 @@ c Transformed frozen Fock matrix = Effective one-electron
       CALL DCOPY_(NOTRI,FIMO,1,FIFA,1)
       CALL DAXPY_(notri,One,FAMO,1,FIFA,1)
 
-      CALL MKEPS()
-
 #ifdef _DEBUGPRINT_
         WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
         ISTLT=1
