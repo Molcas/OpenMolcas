@@ -16,16 +16,16 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF)
+      SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF,HONE)
       use definitions, only: iwp, wp, u6
-      use constants, only: Half, One, Two
-      use caspt2_global, only: LUINTM
+      use constants, only: Zero, Half, One, Two
+      use caspt2_global, only: LUINTM, FIFA
       use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES, NoMx, NoTri
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT None
       integer(kind=iwp), intent(in):: NFIMO, NFAMO, NDREF
       real(kind=wp), intent(inout):: FIMO(NFIMO),FAMO(NFAMO)
-      real(kind=wp), intent(in)::DREF(NDREF)
+      real(kind=wp), intent(in)::DREF(NDREF), HONE(NFIMO)
 
       integer(kind=iwp) IAD2M(3,36*36)
       integer(kind=iwp) NDIM2M, IDISK, IFSTA, ISYR, NBR, NB3, NBNB,
@@ -47,6 +47,10 @@ C THIS ROUTINE USES DIRECTLY THE TRANSFORMED INTEGRALS TO SET UP
 C FIMO AND FAMO.
 C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
 
+c Inactive and active Fock matrices:
+      FIMO(:)=HONE(:)
+      FAMO(:)=Zero
+
 c notri=Size of an array with symmetry-blocked triangular
 c submatrices, using non-frozen, non-deleted MO indices.
 c NBUF=Max size of a LUINTM buffer.
@@ -57,10 +61,17 @@ c NBUF=Max size of a LUINTM buffer.
       IDISK=0
       CALL IDAFILE(LUINTM,2,IAD2M,3*36*36,IDISK)
 
-      Call Do_Loops(1)
-      Call Do_Loops(2)
+      Call Do_Loops(1) !     Do Coulomb contributions
+      Call Do_Loops(2) !     Do exchange contributions
 
       CALL mma_deallocate(BUF)
+
+* both FIMO and FAMO refer to the active space part only. FIMO comes
+* from contractions over inactive orbitals, while FAMO from contractions
+* over active orbitals and therefore are summed up together here
+
+      FIFA(1:notri) = FIMO(1:notri) + FAMO(1:notri)
+
 
       Contains
       Subroutine Do_Loops(icase)

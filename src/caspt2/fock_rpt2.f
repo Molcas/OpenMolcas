@@ -17,10 +17,10 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FOCK_RPT2()
-      use constants, only: Zero
+!     use constants, only: Zero
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM, notri, NORB
+      use caspt2_module, only: NSYM,  NORB
       use definitions, only: iwp, wp, u6
       IMPLICIT None
 
@@ -58,15 +58,16 @@ c One-electron Hamiltonian is in HONE
       END IF
 
 c Inactive and active Fock matrices:
-      FIMO(:)=HONE(:)
-      FAMO(:)=Zero
-      CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,SIZE(DREF))
+!     FIMO(:)=HONE(:)
+!     FAMO(:)=Zero
+      CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,SIZE(DREF),
+     &                 HONE)
 
 * both FIMO and FAMO refer to the active space part only. FIMO comes
 * from contractions over inactive orbitals, while FAMO from contractions
 * over active orbitals and therefore are summed up together here
 
-      FIFA(1:notri) = FIMO(1:notri) + FAMO(1:notri)
+!     FIFA(1:notri) = FIMO(1:notri) + FAMO(1:notri)
 
       IF ( IFTEST.NE.0 ) THEN
         WRITE(u6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
