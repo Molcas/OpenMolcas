@@ -16,22 +16,24 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF,NBUF,BUF)
+      SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF)
       use definitions, only: iwp, wp, u6
       use constants, only: Half, One, Two
       use caspt2_global, only: LUINTM
-      use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES
+      use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES, NoMx, NoTri
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT None
-      integer(kind=iwp), intent(in):: NFIMO, NFAMO, NDREF, NBUF
+      integer(kind=iwp), intent(in):: NFIMO, NFAMO, NDREF
       real(kind=wp), intent(inout):: FIMO(NFIMO),FAMO(NFAMO)
-      real(kind=wp), intent(inout):: BUF(NBUF)
       real(kind=wp), intent(in)::DREF(NDREF)
 
       integer(kind=iwp) IAD2M(3,36*36)
       integer(kind=iwp) NDIM2M, IDISK, IFSTA, ISYR, NBR, NB3, NBNB,
      &                  ISYS, IS3RS, ISYP, NIP, NOP, NAESP, ISYQ, IS3PQ,
-     &                  ISADDR, IDISK1, IT, ITABS, ITU, IU, IUABS, nInts
+     &                  ISADDR, IDISK1, IT, ITABS, ITU, IU, IUABS,
+     &                  nInts, nBUF
       real(kind=wp) DTU
+      real(kind=wp), Allocatable:: BUF(:)
 
 C COMPUTE THE INACTIVE FOCK MATRIX IN MO BASIS.
 C COMPUTE THE ACTIVE FOCK MATRIX IN MO BASIS.
@@ -45,6 +47,11 @@ C THIS ROUTINE USES DIRECTLY THE TRANSFORMED INTEGRALS TO SET UP
 C FIMO AND FAMO.
 C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
 
+c notri=Size of an array with symmetry-blocked triangular
+c submatrices, using non-frozen, non-deleted MO indices.
+c NBUF=Max size of a LUINTM buffer.
+      NBUF=MAX(NOMX**2,notri)
+      CALL mma_allocate(BUF,NBUF,Label='BUF')
 
       NDIM2M=(NSYM*(NSYM+1))/2
       IDISK=0
@@ -52,6 +59,8 @@ C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
 
       Call Do_Loops(1)
       Call Do_Loops(2)
+
+      CALL mma_deallocate(BUF)
 
       Contains
       Subroutine Do_Loops(icase)

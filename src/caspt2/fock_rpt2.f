@@ -20,12 +20,11 @@
       use constants, only: Zero
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM, NOMX, notri, NORB
+      use caspt2_module, only: NSYM, notri, NORB
       use definitions, only: iwp, wp, u6
       IMPLICIT None
 
-      real(kind=wp), Allocatable:: BUF(:)
-      integer(kind=iwp) IFTEST,NBUF,ISTLT,ISYM,NO
+      integer(kind=iwp) IFTEST,ISTLT,ISYM,NO
 
 c Purpose: Compute the standard Fock matrix which defines
 c the PT2 orbitals and the standard H0 hamiltonian.
@@ -41,12 +40,6 @@ c transformation, and TRAONE, are finished, or from H0CTL.
 #else
       IFTEST=0
 #endif
-
-c notri=Size of an array with symmetry-blocked triangular
-c submatrices, using non-frozen, non-deleted MO indices.
-c NBUF=Max size of a LUINTM buffer.
-      NBUF=MAX(NOMX**2,notri)
-      CALL mma_allocate(BUF,NBUF,Label='BUF')
 
 c One-electron Hamiltonian is in HONE
 
@@ -67,17 +60,13 @@ c One-electron Hamiltonian is in HONE
 c Inactive and active Fock matrices:
       FIMO(:)=HONE(:)
       FAMO(:)=Zero
-      CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,SIZE(DREF),
-     &                 NBUF,BUF)
+      CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,SIZE(DREF))
 
 * both FIMO and FAMO refer to the active space part only. FIMO comes
 * from contractions over inactive orbitals, while FAMO from contractions
 * over active orbitals and therefore are summed up together here
-      FIFA(1:notri) = FIMO(1:notri)+FAMO(1:notri)
 
-! these active orbital energies are not the ones used in
-! MKFG3. Depending on whether the OUTO=canonical flag was set
-! in &RASSCF, it will differ from the EPSA array in mkfg3.f
+      FIFA(1:notri) = FIMO(1:notri) + FAMO(1:notri)
 
       IF ( IFTEST.NE.0 ) THEN
         WRITE(u6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
@@ -116,7 +105,5 @@ c Inactive and active Fock matrices:
         ! MKFG3. Depending on whether the OUTO=canonical flag was set
         ! in &RASSCF, it will differ from the EPSA array in mkfg3.f
       END IF
-
-      CALL mma_deallocate(BUF)
 
       END SUBROUTINE FOCK_RPT2
