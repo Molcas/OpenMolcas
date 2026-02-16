@@ -184,7 +184,10 @@ C
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
         HEFF(:,:)=INPUT%HEFF(:,:)
-        GOTO 1000
+        Call Print_Truff()
+        Call Post_Process()
+        Call CASPT2_TERM()
+        Return
       END IF
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
@@ -471,8 +474,17 @@ C     transition density matrices.
 *                                                                     *
 ***********************************************************************
 
-1000  CONTINUE
+      Call Print_Truff()
+      Call Post_Process()
+      Call CASPT2_TERM()
 
+***********************************************************************
+*                                                                     *
+      CONTAINS
+*                                                                     *
+***********************************************************************
+*                                                                     *
+      Subroutine Print_Truff()
       IF (IRETURN.NE.0) THEN
          CALL CASPT2_TERM()
          RETURN
@@ -513,17 +525,7 @@ C     transition density matrices.
        END IF
        WRITE(6,*)
       END IF
-
-      Call Post_Process()
-
-      Call CASPT2_TERM()
-
-***********************************************************************
-*                                                                     *
-      CONTAINS
-*                                                                     *
-***********************************************************************
-*                                                                     *
+      End Subroutine Print_Truff
 
       Subroutine Post_Process()
       if (.not. doFCIQMC) then
