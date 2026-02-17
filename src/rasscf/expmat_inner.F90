@@ -57,25 +57,25 @@ call mma_deallocate(tau2)
 
 !Step 3 build cos part of R matrix
 call mma_allocate(cospart,nLen2,Label='cospart')
-call DCopy_(nLen2,X2,1,CosPart,1)
+CosPart(:) = X2(:)
 do I=1,nLen
-  call DScal_(nLen,cos(tau(I)),CosPart((I-1)*nLen+1),1)
+  CosPart((I-1)*nLen+1:I*nLen) = cos(tau(I))*CosPart((I-1)*nLen+1:I*nLen)
 end do
 
 call DGEMM_('n','t',nLen,nLen,nLen,One,CosPart,nLen,X2,nLen,Zero,Scr,nLen)
 call mma_deallocate(cospart)
 ! R = W * cos(tau) * W^T
-call DCopy_(nLen2,Scr,1,R,1)
+R(:) = Scr(:)
 !Step 4 build sin part of R matrix
 call mma_allocate(sinpart,nLen2,Label='sinpart')
-call DCopy_(nLen2,X2,1,SinPart,1)
+SinPart(:) = X2(:)
 do I=1,nLen
   if (tau(I) < 1.0e-8_wp) then
     Coeff = One
   else
     Coeff = sin(tau(I))/tau(I)
   end if
-  call DScal_(nLen,Coeff,SinPart((I-1)*nLen+1),1)
+  SinPart((I-1)*nLen+1:I*nLen) = Coeff*SinPart((I-1)*nLen+1:I*nLen)
 end do
 call mma_deallocate(tau)
 

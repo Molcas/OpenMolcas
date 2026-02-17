@@ -260,7 +260,7 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
   ! End of long if-block B over IPRLEV
 end if
 
-call dcopy_(2*mxRoot,[Zero],0,Temp,1)
+Temp(:,:) = Zero
 iRc1 = 0
 iRc2 = 0
 iOpt = ibset(0,sOpSiz)
@@ -379,7 +379,7 @@ IAD14 = IADR15(14)
 !BOR0511
 ! Save original orbitals for the spin density matrices
 call mma_allocate(cmon,nTot2,Label='CMON')
-call dcopy_(ntot2,cmo,1,cmon,1)
+cmon(:) = cmo(1:ntot2)
 !BOR0511
 FullMlk = (OutFmt1 /= 'NOTHING ')
 
@@ -472,10 +472,10 @@ if (IPRLEV >= VERBOSE) then
 end if
 
 ! Compute spin orbitals and spin population
-call DCOPY_(NTOT,[Zero],0,OCCN,1)
+OCCN(1:NTOT) = Zero
 !SVC-11-01-2007 store original cmon in cmoso, which gets changed
 call mma_allocate(CMOSO,NTOT2,Label='CMOSO')
-call DCOPY_(NTOT2,CMON,1,CMOSO,1)
+CMOSO(:) = CMON(:)
 
 call SPINORB(X6,CMOSO,OCCN)
 call mma_deallocate(X6)

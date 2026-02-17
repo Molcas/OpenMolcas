@@ -61,11 +61,11 @@ if (tRootGrad) then
 
     call mma_allocate(DX,NACPAR,Label='DX')
 
-    call DCOPY_(NACPAR,DS,1,DX,1)
+    DX(:) = DS(1:NACPAR)
     call DBLOCK(DX)
     call Get_D1A_RASSCF(C,DX,DSX)
 
-    call DCOPY_(NACPAR,D,1,DX,1)
+    DX(:) = D(1:NACPAR)
     call DBLOCK(DX)
     call Get_D1A_RASSCF(C,DX,DA)
 
@@ -86,8 +86,8 @@ if (tRootGrad) then
     PUVX(:) = Zero
     call TraCtl2(C,PUVX,TUVX,DI,FI,DA,FA,ipr,lsquare,ExFac)
     call SGFCIN(C,F,FI,DI,DA,DSX)
-    call dcopy_(ntot4,[Zero],0,F,1)
-    call dcopy_(ntot4,[Zero],0,B,1)
+    F(1:ntot4) = Zero
+    B(1:ntot4) = Zero
 
     ! Prevent FMAT from changing Active fock matrix
 
@@ -146,11 +146,11 @@ call Get_D1I_RASSCF(C,DI)
 
 call mma_allocate(DX,NACPAR,Label='DX')
 
-call DCOPY_(NACPAR,DS,1,DX,1)
+DX(:) = DS(1:NACPAR)
 call DBLOCK(DX)
 call Get_D1A_RASSCF(C,DX,DSX)
 
-call DCOPY_(NACPAR,D,1,DX,1)
+DX(:) = D(1:NACPAR)
 call DBLOCK(DX)
 call Get_D1A_RASSCF(C,DX,DA)
 
@@ -194,19 +194,19 @@ if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (
     call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
     call DDaFile(JOBIPH,0,rdum,NACPR2,kDisk)
     if (wgt < 1.0e-09_wp) cycle
-    call daxpy_(NACPAR,wgt,WRK1,1,DA_ave,1)
-    call daxpy_(NACPAR,wgt,WRK2,1,DS_ave,1)
+    DA_ave(1:NACPAR) = DA_ave(1:NACPAR)+wgt*WRK1(1:NACPAR)
+    DS_ave(1:NACPAR) = DS_ave(1:NACPAR)+wgt*WRK2(1:NACPAR)
   end do
 
   ! Construc D-ACTIVE AND D-INACTIVE IN AO BASIS
 
-  call DCOPY_(NACPAR,DS_ave,1,DX,1)
-  call dcopy_(NZ,DSX,1,DS_ave,1)
+  DX(:) = DS_ave(1:NACPAR)
+  DS_ave(1:NZ) = DSX(:)
   call DBLOCK(DX)
   call Get_D1A_RASSCF(C,DX,DSX)
 
-  call DCOPY_(NACPAR,DA_ave,1,DX,1)
-  call dcopy_(NZ,DA,1,DA_ave,1)
+  DX(:) = DA_ave(1:NACPAR)
+  DA_ave(1:NZ) = DA(:)
   call DBLOCK(DX)
   call Get_D1A_RASSCF(C,DX,DA)
 
@@ -222,8 +222,8 @@ if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (
 end if
 
 call SGFCIN(C,F,FI,DI,DA,DSX)
-call dcopy_(ntot4,[Zero],0,F,1)
-call dcopy_(ntot4,[Zero],0,B,1)
+F(1:ntot4) = Zero
+B(1:ntot4) = Zero
 
 ! Prevent FMAT from changing Active fock matrix
 
@@ -234,8 +234,8 @@ if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (
   ! The rest of the RASSCF program uses state-specific density
   ! (note that, it is iRlxRoot!), so restore the one constructed
   ! above, before TraCtl2
-  call dcopy_(NZ,DA_ave,1,DA,1)
-  call dcopy_(NZ,DS_ave,1,DSX,1)
+  DA(:) = DA_ave(1:NZ)
+  DSX(:) = DS_ave(1:NZ)
   call mma_deallocate(DA_ave)
   call mma_deallocate(DS_ave)
 
@@ -243,7 +243,7 @@ if (lRF .and. PCM_On() .and. ((IPCMROOT /= iRLXROOT) .or. (IPCMROOT <= 0) .or. (
   call mma_allocate(WRK2,nTot1,Label='WRK2')
   call Fold(nSym,nBas,DI,WRK1)
   call Fold(nSym,nBas,DA,WRK2)
-  call Daxpy_(nTot1,One,WRK1,1,WRK2,1)
+  WRK2(:) = WRK2(:)+WRK1(:)
   call Put_dArray('D1ao',WRK2,nTot1)
   call Fold(nSym,nBas,DSX,WRK1)
   call Put_dArray('D1sao',WRK1,nTot1)
@@ -286,7 +286,7 @@ call mma_deallocate(F)
 
 ! Add up one electron densities
 
-call daxpy_(nZ,One,DA,1,DI,1)
+DI(:) = DI(:)+DA(:)
 call Fold(nSym,nBas,DI,DAO)
 
 call mma_deallocate(DSX)

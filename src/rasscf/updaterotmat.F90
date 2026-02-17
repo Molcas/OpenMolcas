@@ -30,7 +30,7 @@ call mma_allocate(RScr,lRoots**2,Label='RScr')
 
 call ExpMat(ExpX,X,lRoots,nSPair)
 call DGEMM_('n','n',lRoots,lRoots,lRoots,One,RMat,lRoots,ExpX,lRoots,Zero,RScr,lRoots)
-call DCopy_(lRoots**2,RScr,1,RMat,1)
+RMat(:) = RScr(:)
 
 call mma_deallocate(RScr)
 

@@ -23,6 +23,7 @@ use rasscf_global, only: CMSThreshold, iCMSIterMax, iCMSIterMin, lRoots, NAC
 use PrintLevel, only: USUAL
 use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -57,7 +58,7 @@ call mma_allocate(RCopy,lRoots2)
 call mma_allocate(RotMat,lRoots,lRoots)
 ! Step 0
 iStep = 0
-Qold = 0.0d0
+Qold = Zero
 ! Note that the following six lines appear as a group
 call RotGD(GDstate,R,nGD,lRoots,NAC2)
 call RotGD(Dgstate,R,nGD,lRoots,NAC2)
@@ -66,7 +67,7 @@ call TransposeMat(GDorbit,GDstate,nGD,lRoots2,NAC2)
 call CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
 call CalcQaa(Qnew,DDg,lRoots,nDDg)
 nPosHess = 0
-LargestQaaGrad = 0.0d0
+LargestQaaGrad = Zero
 Qold = Qnew
 call PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
 call CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
@@ -83,9 +84,9 @@ do while (CMSNotConverged)
     exit
   end if
 
-  call DCopy_(lRoots2,R,1,RCopy,1)
-  call DCopy_(nGD,GDState,1,GDCopy,1)
-  call DCopy_(nGD,DgState,1,DgCopy,1)
+  RCopy(:) = R(:)
+  GDCopy(:) = GDState(:)
+  DgCopy(:) = DgState(:)
 
   call CalcNewX(X,Hess,Grad,nSPair,XScr,GScr,EigVal,ScrDiag,nScr)
   call UpDateRotMat(R,DeltaR,X,lRoots,nSPair)

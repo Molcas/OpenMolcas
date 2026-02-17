@@ -40,10 +40,10 @@ do while ((Qold-Qnew) > CMSThreshold)
     Saved = .false.
     exit
   end if
-  call DCopy_(lRoots2,RCopy,1,R,1)
-  call DCopy_(nGD,GDCopy,1,GDState,1)
-  call DCopy_(nGD,DgCopy,1,DgState,1)
-  call DScal_(nSPair,0.1_wp,X,1)
+  R(:) = RCopy(:)
+  GDState(:) = GDCopy(:)
+  DgState(:) = DgCopy(:)
+  X(:) = 0.1_wp*X(:)
 
   call UpDateRotMat(R,DeltaR,X,lRoots,nSPair)
   call RotGD(GDstate,DeltaR,nGD,lRoots,NAC2)

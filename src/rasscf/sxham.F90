@@ -169,7 +169,7 @@ do ISYM=1,NSYM
   ! and the occupied part DIA of the density matrix D
 
   IPQ = ISTFP
-  call FZERO(DIA(ISTIA+1),NIA**2)
+  DIA(ISTIA+1:ISTIA+NIA**2) = Zero
   do NP=1,NO
     do NQ=1,NP
       IPQ = IPQ+1

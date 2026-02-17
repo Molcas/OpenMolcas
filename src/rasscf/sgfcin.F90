@@ -189,7 +189,7 @@ call DecideOnESPF(Do_ESPF)
 
 call Fold(nSym,nBas,D1I,Tmp3)
 call Fold(nSym,nBas,D1A,Tmp4)
-call Daxpy_(nTot1,One,Tmp4,1,Tmp3,1)
+Tmp3(:) = Tmp3(:)+Tmp4(:)
 call Put_dArray('D1ao',Tmp3,nTot1)
 !write(u6,*)
 !write(u6,*) ' D1ao in AO basis in SGFCIN'
@@ -247,9 +247,9 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb) then
   ERF1 = Zero
   ERF2 = dDot_(nTot1,Tmp6,1,Tmp4,1)
   ERFX = ERF1-Half*ERF2
-  call Daxpy_(nTot1,One,Tmp5,1,Tmp1,1)
+  Tmp1(:) = Tmp1(:)+Tmp5(:)
 
-  call Daxpy_(nTot1,One,Tmp6,1,FI,1)
+  FI(1:nTot1) = FI(1:nTot1)+Tmp6(:)
 
   call mma_deallocate(Tmp6)
   call mma_deallocate(Tmp5)
@@ -268,7 +268,7 @@ if (RFpert) then
   call mma_allocate(TmpZ,nTot1,Label='TmpZ')
   call Get_dScalar('RF Self Energy',ERFX)
   call Get_dArray('Reaction field',TmpZ,nTot1)
-  call Daxpy_(nTot1,One,TmpZ,1,Tmp1,1)
+  Tmp1(:) = Tmp1(:)+TmpZ(:)
   call mma_deallocate(TmpZ)
   if (Found) call NameRun('#Pop')
 end if
@@ -295,15 +295,15 @@ if (Do_OFemb) then
   else
     call Coul_DMB(.false.,1,Rep_EN,FMaux,Tmp3,Dumm,nTot1)
   end if
-  call DaXpY_(nTot1,One,FMaux,1,Tmp1,1)
+  Tmp1(:) = Tmp1(:)+FMaux(:)
 
   call NameRun('AUXRFIL') ! switch the RUNFILE name
   call Get_dExcdRa(Tmpx,nVxc)
-  call DaXpY_(nTot1,One,Tmpx,1,Tmp1,1)
+  Tmp1(:) = Tmp1(:)+Tmpx(1:nTot1)
   if (nVxc == 2*nTot1) then ! Nuc Attr added twice
-    call DaXpY_(nTot1,One,Tmpx(1+nTot1),1,Tmp1,1)
+    Tmpx(:) = Tmp1(:)+Tmpx(nTot1+1:2*nTot1)
     call Get_dArray('Nuc Potential',Tmpx,nTot1)
-    call DaXpY_(nTot1,-One,Tmpx,1,Tmp1,1)
+    Tmp1(:) = Tmp1(:)-Tmpx(nTot1+1:2*nTot1)
   end if
   call mma_deallocate(Tmpx)
   call mma_deallocate(Tmp3)
@@ -355,7 +355,7 @@ if (IPRLEV >= DEBUG) then
 end if
 
 ! Assemble the one-electron Tmp1 and two-electron contribution to AO Fock matrix
-call DaXpY_(nTot1,One,Tmp1,1,FI,1)
+FI(1:nTot1) = FI(1:nTot1)+Tmp1(:)
 call mma_deallocate(Tmp1)
 
 if (IPRLEV >= DEBUG) then
@@ -384,10 +384,10 @@ call mma_allocate(X0,NTOT1,Label='X0')
 call mma_allocate(X1,NTOT1,Label='X1')
 call mma_allocate(X2,MXNB*MXNB,Label='X2')
 call mma_allocate(X3,MXNB*MXNA,Label='X3')
-call DCOPY_(NTOT1,FI,1,X1,1)
+X1(:) = FI(1:NTOT1)
 if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) then
   call Get_dExcdRa(TmpFckI,nTmpFck)
-  call DaXpY_(NTOT1,One,TmpFckI,1,X1,1)
+  X1(:) = X1(:)+TmpFckI(:)
   if (IPRLEV >= DEBUG) then
     write(u6,*)
     write(u6,*) ' Exchange correlation in AO basis in SGFCIN'
@@ -417,7 +417,7 @@ end if
 call MOTRAC(CMO,X1,X2,X3)
 call mma_deallocate(X3)
 call mma_deallocate(X2)
-call DCOPY_(NACPAR,[ZERO],0,F,1)
+F(1:NACPAR) = Zero
 NTU = 0
 ITU = 0
 IADD = 0

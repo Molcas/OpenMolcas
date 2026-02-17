@@ -67,7 +67,7 @@ end do
 !***********************************************************************
 ! add FI to FA to obtain FP
 !***********************************************************************
-call DAXPY_(NTOT3,One,FI,1,FP,1)
+FP(1:NTOT3) = FP(1:NTOT3)+FI(1:NTOT3)
 
 !***********************************************************************
 ! Loop over symmetry blocks
@@ -99,7 +99,7 @@ do ISYM=1,NSYM
   !************************
   ! clear F_gen matrix
   !************************
-  call FZERO(F(ISTFCK+1),NO**2)
+  F(ISTFCK+1:ISTFCK+NO**2) = Zero
 
   !*********************************************************************
   ! first index in F is inactive: F_gen is twice FP=FI+FA (Eq.10.8.27 MEST)

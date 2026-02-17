@@ -27,17 +27,17 @@ subroutine ExpMat(M,A,DimM,LenA)
 
 use Index_Functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: DimM, LenA
 real(kind=wp) :: M(DimM**2), A(LenA)
-integer(kind=iwp) :: I, iIJ1, iIJ2, J, N
+integer(kind=iwp) :: I, iIJ1, iIJ2, J
 real(kind=wp), allocatable :: MatA(:)
 
 call mma_allocate(MatA,DimM**2,Label='MatA')
-N = DimM**2
-call FZero(MatA,N)
+MatA(:) = Zero
 do I=2,DimM
   do J=1,I-1
     iIJ2 = iTri(I-1,J)

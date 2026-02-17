@@ -161,15 +161,15 @@ if (doDMRG) then
   doEntanglement = merge(.true.,IFINAL == 2,KeyCION)
 
   call mma_allocate(d1all,NACPAR,lRoots)
-  d1all = Zero
+  d1all(:) = Zero
   if (twordm_qcm) then
     call mma_allocate(d2all,NACPR2,lRoots)
-    d2all = Zero
+    d2all(:) = Zero
   end if
   ! Allocate spin density only for the last iteration
   if (doEntanglement) then
     call mma_allocate(spd1all,NACPAR,lRoots)
-    spd1all = Zero
+    spd1all(:) = Zero
   end if
 end if
 #endif
@@ -211,7 +211,7 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
     ! Get the spin density in MOs
 
     if (NACTEL == 0) then
-      call DCOPY_(NTOT2,[Zero],0,RCT_FS,1)
+      RCT_FS(:) = Zero
     else
       call mma_allocate(RCT_S,NACPAR,Label='RCT_S')
       call DDafile(JOBIPH,2,RCT_S,NACPAR,jDisk)
@@ -271,8 +271,8 @@ if ((lRf .or. (KSDFT /= 'SCF') .or. Do_ESPF) .and. IPCMROOT > 0) then
         if (doDMRG) then
 #         ifdef _DMRG_
           ! copy the DMs from d1rf/d2rf for ipcmroot
-          call dcopy_(NACPAR,rf1,1,Dtmp,1)
-          if (twordm_qcm) call dcopy_(NACPR2,rf2,1,Ptmp,1)
+          Dtmp(1:NACPAR) = rf1(1:NACPAR)
+          if (twordm_qcm) Ptmp(1:NACPR2) = rf2(1:NACPR2)
 
           ! Import RDMs from QCMaquis that we've got from the last optimization
           ! Here we should import one-particle spin density.
@@ -342,7 +342,7 @@ else
   end if
   call mma_allocate(TmpDS,NACPAR,Label='TmpDS')
   call mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
-  call dcopy_(NACPAR,DS,1,TmpDS,1)
+  TmpDS(:) = DS(1:NACPAR)
   if (NASH(1) /= NAC) call DBLOCK(TmpDS)
   call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
 
@@ -447,8 +447,8 @@ else
 
       ! For PCM calculations: copy RDMs for the PCM root
       if (PCM_On()) then
-        call dcopy_(NACPAR,d1all(:,ipcmroot),1,rf1,1)
-        if (twordm_qcm) call dcopy_(NACPR2,d2all(:,ipcmroot),1,rf2,1)
+        rf1(1:NACPAR) = d1all(:,ipcmroot)
+        if (twordm_qcm) rf2(1:NACPR2) = d2all(:,ipcmroot)
       end if
       ! Keep the root energies
       do jRoot=1,lRoots
@@ -475,10 +475,10 @@ end if
 ! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 
 call Timing(Time(1),dum1,dum2,dum3)
-call dCopy_(NACPAR,[Zero],0,D,1)
-call dCopy_(NACPAR,[Zero],0,DS,1)
-call dCopy_(NACPR2,[Zero],0,P,1)
-call dCopy_(NACPR2,[Zero],0,PA,1)
+D(1:NACPAR) = Zero
+DS(1:NACPAR) = Zero
+P(1:NACPR2) = Zero
+PA(1:NACPR2) = Zero
 call mma_allocate(CIVEC,NCONF,Label='CIVEC')
 call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
 call mma_allocate(DStmp,NAC**2,Label='DStmp')
@@ -542,13 +542,13 @@ if (.not. DoSplitCAS) then
 #     ifdef _DMRG_
       ! for QCMaquis, just copy the RDMs
       ! actually, copying is not needed! TODO
-      call dcopy_(NACPAR,d1all(:,jroot),1,Dtmp,1)
-      if (twordm_qcm) call dcopy_(NACPR2,d2all(:,jroot),1,Ptmp,1)
+      Dtmp(1:NACPAR) = d1all(:,jroot)
+      if (twordm_qcm) Ptmp(1:NACPR2) = d2all(:,jroot)
 
       !> import 1p-spin density
       ! disable spin density if not in the last iteration
       if (doEntanglement) then
-        call dcopy_(NACPAR,spd1all(:,jroot),1,DStmp,1)
+        DStmp(1:NACPAR) = spd1all(:,jroot)
       else
         DStmp(:) = Zero
       end if
@@ -582,17 +582,20 @@ if (.not. DoSplitCAS) then
 
     ! update average density matrices
     Scal = Zero
-    do kRoot=1,nRoots
-      if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
+    do kRoot=nRoots,1,-1
+      if (iRoot(kRoot) == jRoot) then
+        Scal = Weight(kRoot)
+        exit
+      end if
     end do
-    call daXpY_(NACPAR,Scal,Dtmp,1,D,1)
-    call daXpY_(NACPAR,Scal,DStmp,1,DS,1)
-    call daXpY_(NACPR2,Scal,Ptmp,1,P,1)
+    D(1:NACPAR) = D(1:NACPAR)+Scal*Dtmp(1:NACPAR)
+    DS(1:NACPAR) = DS(1:NACPAR)+Scal*DStmp(1:NACPAR)
+    P(1:NACPR2) = P(1:NACPR2)+Scal*Ptmp(1:NACPR2)
+    PA(1:NACPR2) = PA(1:NACPR2)+Scal*PAtmp(1:NACPR2)
     !GLM Put the D1MO and the P2MO values in RUNFILE
 
     call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
     call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
-    call daXpY_(NACPR2,Scal,PAtmp,1,PA,1)
     ! save density matrices on disk
     call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
     call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
@@ -623,11 +626,10 @@ else  ! SplitCAS run
   end if
   if (IDoGAS .or. (SGS%IFRAS > 2)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
   if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
-  Scal = One
-  call daxpy_(NACPAR,Scal,Dtmp,1,D,1)
-  call daxpy_(NACPAR,Scal,DStmp,1,DS,1)
-  call daxpy_(NACPR2,Scal,Ptmp,1,P,1)
-  call daxpy_(NACPR2,Scal,PAtmp,1,PA,1)
+  D(1:NACPAR) = D(1:NACPAR)+Dtmp(1:NACPAR)
+  DS(1:NACPAR) = DS(1:NACPAR)+DStmp(1:NACPAR)
+  P(1:NACPR2) = P(1:NACPR2)+Ptmp(1:NACPR2)
+  PA(1:NACPR2) = PA(1:NACPR2)+PAtmp(1:NACPR2)
   ! save density matrices on disk
   call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
   call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)

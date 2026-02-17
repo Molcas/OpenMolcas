@@ -77,8 +77,7 @@ i1 = 1
 i2 = 1
 do iSym=1,nSym
   iBas = nBas(iSym)
-  call dCopy_(iBas*iBas,[zero],0,CMO(i2),1)
-  call dCopy_(iBas,[one],0,CMO(i2),iBas+1)
+  call unitmat(CMO(i2),iBas)
   call Jacob(Tmp1(i1),CMO(i2),iBas,iBas)
   call JacOrd(Tmp1(i1),CMO(i2),iBas,iBas)
   i1 = i1+nTri_Elem(iBas)

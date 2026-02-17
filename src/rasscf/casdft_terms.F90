@@ -179,9 +179,7 @@ call Get_dScalar('PotNuc',potNuc)
 
 !if (IPRLEV >= DEBUG) then
 !  call mma_allocate(Tmp31,nBas*nBas,Label='Tmp31')
-!  Tmp31(:) = Zero
-!  call Daxpy_(nBas*nBas,One,D1I,1,Tmp31,1)
-!  call Daxpy_(nBas*nBas,One,D1A,1,Tmp31,1)
+!  Tmp31(:) = D1I(1:nBas**2)+D1A(1:nBas**2)
 !  write(u6,*)
 !  write(u6,*) ' DMAT not folded in AO basis in CASDFT_Terms'
 !  write(u6,*) ' ---------------------'
@@ -194,7 +192,7 @@ call mma_allocate(Tmp3,nTot1,Label='Tmp3')
 call mma_allocate(Tmp4,nTot1,Label='Tmp4')
 call Fold(nSym,nBas,D1I,Tmp3)
 call Fold(nSym,nBas,D1A,Tmp4)
-call Daxpy_(nTot1,One,Tmp4,1,Tmp3,1)
+Tmp3(:) = Tmp3(:)+Tmp4(:)
 call Put_dArray('D1ao',Tmp3,nTot1)
 !**********************************************************
 ! Generate spin-density
@@ -225,8 +223,8 @@ iCharge = int(Tot_Charge)
 ! Tmp5 and Tmp6 are not updated in DrvXV...
 call DrvXV(Tmp5,Tmp6,Tmp3,PotNuc,nTot1,First,Dff,NonEq,lRF,KSDFT_TEMP,ExFac,iCharge,iSpin,DFTFOCK,Do_DFT)
 
-call Daxpy_(nTot1,One,Tmp5,1,Tmp1,1)
-call Daxpy_(nTot1,One,Tmp6,1,FI,1)
+Tmp1(:) = Tmp1(:)+Tmp5(:)
+FI(1:nTot1) = FI(1:nTot1)+Tmp6(:)
 
 call mma_deallocate(Tmp6)
 call mma_deallocate(Tmp5)
@@ -274,7 +272,7 @@ if (IPRLEV >= DEBUG) then
   end do
 end if
 
-call DaXpY_(nTot1,One,Tmp1,1,FI,1)
+FI(1:nTot1) = FI(1:nTot1)+Tmp1(:)
 
 if (IPRLEV >= DEBUG) then
   write(u6,*)
@@ -310,9 +308,9 @@ call mma_allocate(X0,NTOT1,Label='X0')
 call mma_allocate(X1,NTOT1,Label='X1')
 call mma_allocate(X2,MXNB*MXNB,Label='X2')
 call mma_allocate(X3,MXNB*MXNA,Label='X3')
-call dcopy_(NTOT1,FI,1,X1,1)
+X1(:) = FI(1:NTOT1)
 !call Get_dExcdRa(TmpFckI,nTmpFck)
-!call DaXpY_(NTOT1,One,TmpFckI,1,X1,1)
+!X1(:) = X1(:)+TmpFckI(1:NTOT1)
 !if (IPRLEV >= DEBUG) then
 !  write(u6,*)
 !  write(u6,*) ' Exchange Corr. in AO basis in CASDFT_Terms'
@@ -342,7 +340,7 @@ call dcopy_(NTOT1,FI,1,X1,1)
 call MOTRAC(CMO,X1,X2,X3)
 call mma_deallocate(X3)
 call mma_deallocate(X2)
-call dcopy_(NACPAR,[ZERO],0,F,1)
+F(1:NACPAR) = Zero
 NTU = 0
 ITU = 0
 IADD = 0

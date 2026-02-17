@@ -50,9 +50,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp) :: CMOO(*), CMON(*), FI(*), FP(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*)
 integer(kind=iwp) :: i, I_F, iAd15, IB, iBas, ID, IFD, II, ioff, iPrLev, IST, ISTFCK, ISTMO, ISTMO1, iSym, j, M_IN, N_OT, NA, NA1, &
-                     NAB, NABT, NAO, NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, NEO2, NF, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, &
-                     NIO2, NJ, NO1, NOC, NOO, NP, NPQ, NQ, NR1, NR11, NR12, NR2, NR21, NR22, NR3, NR31, NR32, NT, NT1, NTT, NTU, &
-                     NTUT, NU, NUT
+                     NAB, NABT, NAO, NAT, NB, NBF, NBT, NDNB, NDO, NEO, NEO1, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, NJ, NO1, NOC, &
+                     NOO, NP, NPQ, NQ, NR1, NR11, NR2, NR21, NR3, NR31, NT, NT1, NTT, NTU, NTUT, NU, NUT
 real(kind=wp) :: FMIN
 #ifdef _ENABLE_CHEMPS2_DMRG_
 integer(kind=iwp) :: iChMolpro(8), ifock, iiash, iOrb, jOrb, LuFck, nOrbTot
@@ -149,15 +148,13 @@ do ISYM=1,NSYM
   !*********************************************************************
   if (NFO /= 0) then
     NFNB = NBF*NFO
-    call DCOPY_(NFNB,CMOO(ISTMO1),1,CMON(ISTMO1),1)
-    do NF=1,NFO
-      FDIAG(IB+NF) = Zero
-    end do
+    CMON(ISTMO1:ISTMO1+NFNB-1) = CMOO(ISTMO1:ISTMO1+NFNB-1)
+    FDIAG(IB+1:IB+NFO) = Zero
   end if
 
   ! Clear the MO transformation matrix CMOX
 
-  call FZERO(CMOX,N_OT*N_OT)
+  CMOX(1:N_OT**2) = Zero
 
   !*********************************************************************
   ! Inactive part of the Fock matrix
@@ -174,13 +171,7 @@ do ISYM=1,NSYM
       end do
     end do
     ! DIAGONALIZE
-    NIO2 = NIO**2
-    call FZERO(VEC,NIO2)
-    II = 1
-    do NI=1,NIO
-      VEC(II) = One
-      II = II+NIO+1
-    end do
+    call unitmat(VEC,NIO)
     call Jacob(FTR,VEC,NIO,NIO)
     ! MOVE EIGENVALUES TO FDIAG.
 
@@ -234,13 +225,7 @@ do ISYM=1,NSYM
         end do
       end do
       ! DIAGONALIZE
-      NR12 = NR1**2
-      call FZERO(VEC,NR12)
-      II = 1
-      do NT=1,NR1
-        VEC(II) = One
-        II = II+NR1+1
-      end do
+      call unitmat(VEC,NR1)
       call Jacob(FTR,VEC,NR1,NR1)
 
       ! Move eigenvalues to FDIAG.
@@ -309,13 +294,7 @@ do ISYM=1,NSYM
       end do
 
       ! DIAGONALIZE
-      NR22 = NR2**2
-      call FZERO(VEC,NR22)
-      II = 1
-      do NT=1,NR2
-        VEC(II) = One
-        II = II+NR2+1
-      end do
+      call unitmat(VEC,NR2)
       call Jacob(FTR,VEC,NR2,NR2)
 
       ! Move eigenvalues to FDIAG.
@@ -350,7 +329,7 @@ do ISYM=1,NSYM
 #     ifdef _HDF5_
       if (tNonDiagStochPT2) then
         ! grab the eigenvectors of the Fock matrix as well
-        do i=1,nr22
+        do i=1,NR2**2
           j = modulo((i-1),NR2)
           k = modulo((i-1-j)/NR2,NR2)
           vecs(j+1+nOrbCount,k+1+nOrbCount) = vec(i)
@@ -395,13 +374,7 @@ do ISYM=1,NSYM
         end do
       end do
       ! DIAGONALIZE
-      NR32 = NR3**2
-      call FZERO(VEC,NR32)
-      II = 1
-      do NT=1,NR3
-        VEC(II) = One
-        II = II+NR3+1
-      end do
+      call unitmat(VEC,NR3)
       call Jacob(FTR,VEC,NR3,NR3)
 
       ! Move eigenvalues to FDIAG.
@@ -462,13 +435,7 @@ do ISYM=1,NSYM
       end do
     end do
     ! DIAGONALIZE
-    NEO2 = NEO**2
-    call FZERO(VEC,NEO2)
-    II = 1
-    do NA=1,NEO
-      VEC(II) = One
-      II = II+NEO+1
-    end do
+    call unitmat(VEC,NEO)
     call Jacob(FTR,VEC,NEO,NEO)
 
     ! Move eigenvalues to FDIAG.
@@ -512,10 +479,8 @@ do ISYM=1,NSYM
   if (NDO /= 0) then
     NDNB = NDO*NBF
     IST = ISTMO1+NBF*(NOO+NEO)
-    call DCOPY_(NDNB,CMOO(IST),1,CMON(IST),1)
-    do ND=1,NDO
-      FDIAG(IB+NBF-NDO+ND) = Zero
-    end do
+    CMON(IST:IST+NDNB-1) = CMOO(IST:IST+NDNB-1)
+    FDIAG(IB+NBF-NDO+1:IB+NBF) = Zero
   end if
 
   ! Transform inactive Fock matrix FI and the CASPT2 matrix FP

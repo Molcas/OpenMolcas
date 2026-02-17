@@ -52,7 +52,7 @@ do ISYM=1,NSYM
         OCC(IPOCC+NF+NI+I-1) = D(IPDEN+IDIAG-1)
       end do
       call DGEMM_('N','N',NB,NA,NA,One,CMO(IPCMO+(NF+NI)*NB),NB,W1,NA,Zero,W2,NB)
-      call DCOPY_(NA*NB,W2,1,CMO(IPCMO+(NF+NI)*NB),1)
+      CMO(IPCMO+(NF+NI)*NB:IPCMO+(NF+NI+NA)*NB-1) = pack(W2,.true.)
       call mma_deallocate(W2)
       call mma_deallocate(W1)
       IPDEN = IPDEN+nTri_Elem(NA)

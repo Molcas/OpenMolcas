@@ -125,7 +125,7 @@ if (lRF .or. (KSDFT /= 'SCF') .or. Do_ESPF) then
     ! Get the spin density in MOs
 
     if (NACTEL == 0) then
-      call DCOPY_(NTOT2,[Zero],0,RCT_FS,1)
+      RCT_FS(:) = Zero
     else
       call mma_allocate(RCT_S,NACPAR,Label='RCT_S')
       call DDafile(JOBIPH,2,RCT_S,NACPAR,jDisk)
@@ -217,7 +217,7 @@ else
 
   call mma_allocate(TmpDS,NACPAR,Label='TmpDS')
   call mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
-  call dcopy_(NACPAR,DS,1,TmpDS,1)
+  TmpDS(:) = DS(1:NACPAR)
   if (NASH(1) /= NAC) call DBLOCK(TmpDS)
   call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
   call mma_deallocate(TmpDS)
@@ -242,7 +242,7 @@ else
     TmpTUVX(:) = Zero
     call Get_dArray('DFT_TwoEl',TmpPUVX,nTmpPUVX)
     call Get_TUVX(TmpPUVX,TmpTUVX)
-    call DaXpY_(NACPR2,One,TUVX,1,TmpTUVX,1)
+    TmpTUVX(:) = TMPTUVX(:)+TUVX(1:NACPR2)
 #   ifdef _ENABLE_BLOCK_DMRG_
     call BlockCtl(FMO,TmpTUVX,IFINAL,IRst)
 #   elif _ENABLE_CHEMPS2_DMRG_
@@ -274,10 +274,10 @@ end if
 ! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 
 call Timing(Time(1),dum1,dum2,dum3)
-call dCopy_(NACPAR,[Zero],0,D,1)
-call dCopy_(NACPAR,[Zero],0,DS,1)
-call dCopy_(NACPR2,[Zero],0,P,1)
-call dCopy_(NACPR2,[Zero],0,PA,1)
+D(1:NACPAR) = Zero
+DS(1:NACPAR) = Zero
+P(1:NACPR2) = Zero
+PA(1:NACPR2) = Zero
 call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
 call mma_allocate(DStmp,NAC**2,Label='DStmp')
 call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
@@ -321,10 +321,10 @@ do jRoot=1,lRoots
       exit
     end if
   end do
-  call daxpy_(NACPAR,Scal,Dtmp,1,D,1)
-  call daxpy_(NACPAR,Scal,DStmp,1,DS,1)
-  call daxpy_(NACPR2,Scal,Ptmp,1,P,1)
-  call daxpy_(NACPR2,Scal,PAtmp,1,PA,1)
+  D(1:NACPAR) = D(1:NACPAR)+Scal*Dtmp(1:NACPAR)
+  DS(1:NACPAR) = DS(1:NACPAR)+Scal*DStmp(1:NACPAR)
+  P(1:NACPR2) = P(1:NACPR2)+Scal*Ptmp(1:NACPR2)
+  PA(1:NACPR2) = PA(1:NACPR2)+Scal*PAtmp(1:NACPR2)
   ! save density matrices on disk
   call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
   call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)

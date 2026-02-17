@@ -38,8 +38,8 @@ if (NCALLS == 1) then
   NVEC = 0
   ! NLS: Nr of consecutive line searches.
   NLS = 0
-  call DCOPY_(mxiter+2,[Zero],0,ALPHA,1)
-  call DCOPY_(mxiter+2,[Zero],0,BETA,1)
+  ALPHA(:) = Zero
+  BETA(:) = Zero
   IAD = 0
   call DDAFILE(LUQUNE,1,BK,NDIM,IAD)
   call DDAFILE(LUQUNE,1,XSX,NDIM,IAD)
@@ -58,8 +58,7 @@ end if
 ! without the new update vectors (which are still unknown).
 IAD = 0
 call DDAFILE(LUQUNE,2,V1,NDIM,IAD)
-call DCOPY_(NDIM,BK,1,VL,1)
-call DAXPY_(NDIM,-One,V1,1,VL,1)
+VL(:) = BK(:)-V1(:)
 ! VL is the difference between the old and the new BLB gradient array:
 ! Read old QN step into VM:
 call DDAFILE(LUQUNE,2,VM,NDIM,IAD)
@@ -67,7 +66,7 @@ call DDAFILE(LUQUNE,2,XOLD,NDIM,IAD)
 ! -- FP WILL BE USED IN LINE SEARCH ANALYSIS LATER.
 FP = Two*DDOT_(NDIM,BK,1,XOLD,1)
 ! -- QN VECTOR UPDATED WITHOUT NEWEST UPDATE VECTORS: XQN=-HINV*BK
-call DCOPY_(NDIM,XSX,1,XQN,1)
+XQN(:) = XSX(:)
 do IVEC=1,NVEC
   call DDAFILE(LUQUNE,2,V1,NDIM,IAD)
   call DDAFILE(LUQUNE,2,V2,NDIM,IAD)
@@ -75,12 +74,11 @@ do IVEC=1,NVEC
   Y = -DDOT_(NDIM,V2,1,BK,1)
   P1 = ALPHA(IVEC)*X+BETA(IVEC)*Y
   P2 = BETA(IVEC)*X
-  call DAXPY_(NDIM,P1,V1,1,XQN,1)
-  call DAXPY_(NDIM,P2,V2,1,XQN,1)
+  XQN(:) = XQN(:)+P1*V1(:)+P2*V2(:)
 end do
 ! Subtract. VM will now contain the difference in QN steps, where the new one
 ! is computed without the update (which we still do not know).
-call DAXPY_(NDIM,-One,XQN,1,VM,1)
+VM(:) = VM(:)-XQN(:)
 ! -- NOTE: M ARRAY = HK(INV)*LK
 ! -- 2. DECIDE ON WHICH ROTATION TO USE.
 ! -- A LINE SEARCH ANALYSIS.
@@ -212,8 +210,8 @@ if (QNUPDT == 'YES') then
   ! VM is the difference between the old, and the new provisional, XQN arrays.
   NVEC = NVEC+1
   ! METHOD: BFGS
-  call DCOPY_(NDIM,XOLD,1,V1,1)
-  call DCOPY_(NDIM,VM,1,V2,1)
+  V1(:) = XOLD(:)
+  V2(:) = VM(:)
   X = DDOT_(NDIM,V1,1,VL,1)
   Y = DDOT_(NDIM,V2,1,VL,1)
   if (X == Zero) then
@@ -224,9 +222,8 @@ if (QNUPDT == 'YES') then
     BETA(NVEC) = -One/X
   end if
   ! METHOD: SYMMETRIZED POWELL 1-RANK:
-  !call DCOPY_(NDIM,VL,1,V1,1)
-  !call DCOPY_(NDIM,XOLD,1,V2,1)
-  !call DAXPY_(NDIM,-One,VM,1,V2,1)
+  !V1(:) = VL(:)
+  !V2(:) = XOLD(:)-VM(:)
   !X = DDOT_(NDIM,V1,1,V1,1)
   !Y = DDOT_(NDIM,V2,1,V1,1)
   !ALPHA(NVEC) = -Y/(X**2)
@@ -236,8 +233,7 @@ if (QNUPDT == 'YES') then
   Y = -DDOT_(NDIM,V2,1,BK,1)
   P1 = ALPHA(NVEC)*X+BETA(NVEC)*Y
   P2 = BETA(NVEC)*X
-  call DAXPY_(NDIM,P1,V1,1,XQN,1)
-  call DAXPY_(NDIM,P2,V2,1,XQN,1)
+  XQN(:) = XQN(:)+P1*V1(:)+P2*V2(:)
   call DDAFILE(LUQUNE,1,V1,NDIM,IAD)
   call DDAFILE(LUQUNE,1,V2,NDIM,IAD)
   ! We have added to XQN the two-rank update,
@@ -284,22 +280,18 @@ else
 end if
 if (QNSTEP == 'LS') then
   !write(u6,*) ' USE LINE SEARCH.'
-  X = TMIN-One
-  call DYAX(NDIM,X,XOLD,1,XSX,1)
+  XSX(:) = (TMIN-One)*XOLD(:)
 end if
 if (QNSTEP == 'QN') then
   !write(u6,*) ' USE QN STEP.'
-  call DCOPY_(NDIM,XQN,1,XSX,1)
+  XSX(:) = XQN(:)
 end if
 !if (QNSTEP == 'SX') write(u6,*) ' USE SX STEP.'
 
 ! Often, use of qune results in getting caught in a cyclic or caotic
 ! attractor towards the end. As an attempt to break such a pattern,
 ! apply a scaling whenever energy goes up:
-if (ENOW > ELAST) then
-  SCLFCT = 0.7_wp
-  call DSCAL_(NDIM,SCLFCT,XSX,1)
-end if
+if (ENOW > ELAST) XSX(:) = 0.7_wp*XSX(:)
 
 ! Before committing the finally suggested step (which is now in XSX),
 ! also apply a step size limitation. The squared 2-norm of the vector XSX
@@ -307,7 +299,7 @@ end if
 ! largest rotation angle, which we (arbitrarily) limit to 0.5 (say):
 XSXNRM = DNRM2_(NDIM,XSX,1)
 SCLFCT = One/(One+Two*XSXNRM)
-call DSCAL_(NDIM,SCLFCT,XSX,1)
+XSX(:) = SCLFCT*XSX(:)
 
 ELAST = ENOW
 FPLAST = Two*DDOT_(NDIM,BK,1,XSX,1)

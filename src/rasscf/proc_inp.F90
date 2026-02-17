@@ -1140,7 +1140,7 @@ if (KeyCIRO) then
     ReadStatus = ' Failure reading after CIROOTS keyword.'
     read(Line,*,err=9920,end=9920) (IROOT(I),I=1,NROOTS)
     ReadStatus = ' O.K.after CIROOTS keyword.'
-    call dCopy_(mxRoot,[Zero],0,WEIGHT,1)
+    WEIGHT(:) = Zero
     if (NROOTS == 1) then
       WEIGHT(1) = One
     else
@@ -3321,8 +3321,8 @@ MS2 = iSpin-1
 
 ! Set variables needed in Lucia_Ini
 
-call iCopy(mxGAS*mxSym,ngssh,1,ngssh_Molcas,1)
-call iCopy(mxGAS*2,igsoccx,1,igsoccx_Molcas,1)
+ngssh_Molcas(:,:) = ngssh(:,:)
+igsoccx_Molcas(:,:) = igsoccx(:,:)
 potnuc_Molcas = potnuc
 thre_Molcas = thre
 nsym_Molcas = nsym

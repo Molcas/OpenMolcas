@@ -82,14 +82,14 @@ do isym=1,nsym
     !No rotations active in this symmetry
     !Move orbitals from old to new set
 
-    call dcopy_(nb*nb,cmoo(istmo1+1),1,cmon(istmo1+1),1)
+    cmon(istmo1+1:istmo1+nb**2) = cmoo(istmo1+1:istmo1+nb**2)
     GO TO 100
   end if
   istmo = istmo1+nf*nb
 
   ! Form the quadratic matrix X from the coefficients C
 
-  call dcopy_(no*no,[Zero],0,x,1)
+  x(1:no**2) = Zero
   do nr=1,noc
     do np=max(nr+1,nio+1),no
       jpr = no*(nr-1)+np
@@ -379,7 +379,7 @@ do isym=1,nsym
 
   if (nf /= 0) then
     nfb = nf*nb
-    call dcopy_(nfb,cmoo(istmo1+1),1,cmon(istmo1+1),1)
+    cmon(istmo1+1:istmo1+nfb) = cmoo(istmo1+1:istmo1+nfb)
   end if
 
   ! MOVE DELETED ORBITALS.
@@ -388,7 +388,7 @@ do isym=1,nsym
   if (nd /= 0) then
     ist = istmo1+nb*(nf+no)+1
     ndb = nd*nb
-    call dcopy_(ndb,cmoo(ist),1,cmon(ist),1)
+    cmon(ist:ist+ndb-1) = cmoo(ist:ist+ndb-1)
   end if
 
   istbm = istbm+noc*nae
@@ -405,7 +405,7 @@ if (PURIFY(1:6) == 'LINEAR') call LINPUR(CMON)
 call supsch(x2,cmoo,cmon)
 ! PAM07: In ortho, cmoo is scratch and will be destroyed.
 call ortho_rasscf(x2,cmoo,cmon,y)
-call dcopy_(ntot2,cmon,1,cmoo,1)
+cmoo(1:ntot2) = cmon(1:ntot2)
 
 if (iprlev >= debug) then
   write(u6,*)

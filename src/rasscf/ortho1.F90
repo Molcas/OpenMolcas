@@ -42,7 +42,7 @@ do I=1,M
     do J=1,I-1
       OVL = DDOT_(N,U(IBASE),1,V(JBASE),1)
       OVL1 = -OVL
-      call DAXPY_(N,OVL1,U(JBASE),1,U(IBASE),1)
+      U(IBASE:IBASE+N-1) = U(IBASE:IBASE+N-1)+OVL1*U(JBASE:JBASE+N-1)
       XNORM = XNORM-OVL**2
       if (XNORM >= THR) exit
       JBASE = JBASE+N

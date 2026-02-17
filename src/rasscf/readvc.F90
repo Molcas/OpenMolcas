@@ -175,7 +175,7 @@ if (InVec == 2) then
         J = NewOrd(I)
         TmpXSym(I) = IXSYM(J)
       end do
-      call ICopy(NNwOrd,TmpXSym,1,IXSYM,1)
+      IXSYM(1:NNwOrd) = TmpXSym(:)
       call mma_deallocate(TMPXSYM)
     end if
 
@@ -264,17 +264,20 @@ else if (InVec == 3) then
     iDisk = IADR19(3)
     do jRoot=1,lRoots
       Scal = Zero
-      do kRoot=1,nRoots
-        if (iRoot(kRoot) == jRoot) Scal = Weight(kRoot)
+      do kRoot=nRoots,1,-1
+        if (iRoot(kRoot) == jRoot) then
+          Scal = Weight(kRoot)
+          exit
+        end if
       end do
       call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
-      call daxpy_(NACPAR,Scal,scr,1,D,1)
+      D(1:NACPAR) = D(1:NACPAR)+Scal*Scr(1:NACPAR)
       call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
-      call daxpy_(NACPAR,Scal,scr,1,DS,1)
+      DS(1:NACPAR) = DS(1:NACPAR)+Scal*Scr(1:NACPAR)
       call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
-      call daxpy_(NACPR2,Scal,scr,1,P,1)
+      P(1:NACPR2) = P(1:NACPR2)+Scal*Scr(1:NACPR2)
       call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
-      call daxpy_(NACPR2,Scal,scr,1,PA,1)
+      PA(1:NACPR2) = PA(1:NACPR2)+Scal*Scr(1:NACPR2)
     end do
     call mma_deallocate(Scr)
   end if
@@ -334,7 +337,7 @@ else if (InVec == 4) then
         j = NewOrd(i)
         TmpXSym(i) = iXSym(j)
       end do
-      call iCopy(NNwOrd,TmpXSym,1,iXSym,1)
+      iXSym(1:NNwOrd) = TmpXSym(:)
       call mma_deallocate(TmpXSym)
     end if
     call mma_deallocate(NewOrd)
@@ -436,7 +439,7 @@ end if
 ! print start orbitals
 if (IPRLEV >= DEBUG) then
   call mma_allocate(ENE,nTot,Label='ENE')
-  call DCOPY_(nTot,[Zero],0,ENE,1)
+  ENE(:) = Zero
   call PRIMO_RASSCF('Input orbitals',ENE,OCC,CMO)
   call mma_deallocate(ENE)
 end if

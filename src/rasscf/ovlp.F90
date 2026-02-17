@@ -60,7 +60,7 @@ real(kind=wp), allocatable :: OAO(:), Scr1(:), Scr2(:)
 
 ! prologue
 
-call dCopy_(nAc*nAc,[zero],0,Smat,1)
+Smat(1:nAc*nAc) = Zero
 call mma_allocate(OAO,nTot1,Label='OAO')
 
 ! read the overlap integrals

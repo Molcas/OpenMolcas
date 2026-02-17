@@ -37,7 +37,7 @@ do K=2,lRoots
     Grad(iKL) = DDg(iLoc1)-DDg(iLoc2)
   end do
 end do
-call DSCal_(nSPair,Two,Grad,1)
+Grad(:) = Two*Grad(:)
 
 return
 

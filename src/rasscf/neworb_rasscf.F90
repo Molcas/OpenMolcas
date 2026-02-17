@@ -68,8 +68,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp) :: CMOO(*), CMON(*), FP(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*), D(*), OCCN(*)
 integer(kind=iwp) :: i, iAd15, iB, iBas, iGas, ii, iOff, iOrd, iPrLev, iST, iSTD, iSTFCK, iSTI, iSTM, iSTMO, iSTMO1, iSTMOA, iSYM, &
-                     ixSymT, j, jSel, k, M_IN, N_OT, NA, NA1, NAB, NABT, NAO, NAO2, NAT, NB, NBF, NBT, ND, NDNB, NDO, NEO, NEO1, &
-                     NEO2, NF, NFI_, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, NIO2, NJ, NO1, NOO, NT, NTTR, NTU, NTUD, NU, NUT
+                     ixSymT, j, jSel, k, M_IN, N_OT, NA, NA1, NAB, NABT, NAO, NAT, NB, NBF, NBT, NDNB, NDO, NEO, NEO1, NFI_, NFNB, &
+                     NFO, NI, NI1, NIJ, NIO, NIO1, NJ, NO1, NOO, NT, NTTR, NTU, NTUD, NU, NUT
 real(kind=wp) :: AVij, AVMx, Fact, FMin, Swap, VIJ
 
 ! Local print level (if any)
@@ -101,11 +101,9 @@ do ISYM=1,NSYM
   !*********************************************************************
   if (NFO /= 0) then
     NFNB = NBF*NFO
-    call DCOPY_(NFNB,CMOO(ISTMO1),1,CMON(ISTMO1),1)
-    do NF=1,NFO
-      FDIAG(IB+NF) = Zero
-      OCCN(IB+NF) = Two
-    end do
+    CMON(ISTMO1:ISTMO1+NFNB-1) = CMOO(ISTMO1:ISTMO1+NFNB-1)
+    FDIAG(IB+1:IB+NFO) = Zero
+    OCCN(IB+1:IB+NFO) = Two
   end if
   !*********************************************************************
   !      Inactive part of the Fock matrix
@@ -121,13 +119,7 @@ do ISYM=1,NSYM
       end do
     end do
     ! DIAGONALIZE
-    NIO2 = NIO**2
-    call FZERO(VEC,NIO2)
-    II = 1
-    do NI=1,NIO
-      VEC(II) = One
-      II = II+NIO+1
-    end do
+    call unitmat(VEC,NIO)
     call JACOB(FTR,VEC,NIO,NIO)
 
     ! Transform molecular orbitals
@@ -207,13 +199,7 @@ do ISYM=1,NSYM
 #     endif
 
         ! DIAGONALIZE
-        NAO2 = ngssh(igas,isym)**2
-        call FZERO(VEC,NAO2)
-        II = 1
-        do NT=1,ngssh(igas,isym)
-          VEC(II) = One
-          II = II+ngssh(igas,isym)+1
-        end do
+        call unitmat(VEC,ngssh(igas,isym))
         call JACOB(FTR,VEC,ngssh(igas,isym),ngssh(igas,isym))
         !PAM01 Reorder to max-overlap agreement with input orbitals.
         !PAM01 This prevents numerical difficulty with the subsequent transformation
@@ -269,7 +255,7 @@ do ISYM=1,NSYM
       else ! if ((.not. DoDMRG) .or. (iOrbTyp == 2))
         ! NN.14 Just copy CMO(Old) to CMO(new)
         ISTMOA = ISTMO+NBF*(NIO+ioff)
-        call DCOPY_(NBF*ngssh(igas,isym),CMOO(ISTMOA),1,CMON(ISTMOA),1)
+        CMON(ISTMOA:ISTMOA+NBF*ngssh(igas,isym)-1) = CMOO(ISTMOA:ISTMOA+NBF*ngssh(igas,isym)-1)
       end if
 
       ! Move eigenvalues to OCCN
@@ -323,13 +309,7 @@ do ISYM=1,NSYM
       end do
     end do
     ! DIAGONALIZE
-    NEO2 = NEO**2
-    call FZERO(VEC,NEO2)
-    II = 1
-    do NA=1,NEO
-      VEC(II) = One
-      II = II+NEO+1
-    end do
+    call unitmat(VEC,NEO)
     call JACOB(FTR,VEC,NEO,NEO)
 
     ! Move eigenvalues to FDIAG and set occupation numbers to zero.
@@ -381,11 +361,9 @@ do ISYM=1,NSYM
   if (NDO /= 0) then
     NDNB = NDO*NBF
     IST = ISTMO1+NBF*(NOO+NEO)
-    call DCOPY_(NDNB,CMOO(IST),1,CMON(IST),1)
-    do ND=1,NDO
-      FDIAG(IB+NBF-NDO+ND) = Zero
-      OCCN(IB+NBF-NDO+ND) = Zero
-    end do
+    CMON(IST:IST+NDNB-1) = CMOO(IST:IST+NDNB-1)
+    FDIAG(IB+NBF-NDO+1:IB+NBF) = Zero
+    OCCN(IB+NBF-NDO+1:IB+NBF) = Zero
   end if
 
   IB = IB+NBF

@@ -215,8 +215,8 @@ subroutine CleanMat(MAT)
     ! blas routine for square*triangular operation
     call mma_allocate(Tmp,nac**2)
     call mma_allocate(Tmp2,nac**2)
-    call dCopy_(nac**2,[Zero],0,Tmp,1)
-    call dCopy_(nac**2,[Zero],0,Tmp2,1)
+    Tmp(:) = Zero
+    Tmp2(:) = Zero
     do i=1,nac
       do j=1,nac
         Tmp(j+(i-1)*nac) = EVC(j+(i-1)*NAC)*MAT_copy(nTri_Elem(I))

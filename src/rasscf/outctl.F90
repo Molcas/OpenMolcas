@@ -64,7 +64,7 @@ real(kind=wp) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp) :: lOPTO
 integer(kind=iwp) :: i, iAd03, iAd12, iAd14, iAd15, iCharge, iComp, iDimN, iDimO, iDimV, iDum(56), iEnd, iGAS, Ind, iOpt, iPrLev, &
                      iRC, iRC1, iRC2, iRef, iStart, iSyLbl, iSym, iTemp, iTol, j, kRoot, left, luTmp, NAO, nDCInt, nMVInt, NO
-real(kind=wp) :: CASDFT_Funct, Dum(1), EAV, EDC, Emv, Erel, Temp(2,mxRoot), vNentropy, xnu
+real(kind=wp) :: CASDFT_Funct, DM(3), Dum(1), EAV, EDC, Emv, Erel, Temp(2,mxRoot), vNentropy, xnu
 logical(kind=iwp) :: Do_DM, Do_ESPF, FullMlk, get_BasisType, lSave
 character(len=120) :: Line
 character(len=80) :: Note
@@ -77,8 +77,8 @@ character(len=3) :: SNAC
 #ifdef _ENABLE_DICE_SHCI_
 integer(kind=iwp) :: iref_dice
 #endif
-real(kind=wp), allocatable :: CMON(:), CMOSO(:), DM(:), DMs(:,:), DSave(:), DState(:), EneTmp(:), HEFF(:,:), Tmp0(:), X1(:), &
-                              X2(:), X3(:), X4(:), X6(:)
+real(kind=wp), allocatable :: CMON(:), CMOSO(:), DMs(:,:), DSave(:), DState(:), EneTmp(:), HEFF(:,:), Tmp0(:), X1(:), X2(:), &
+                              X3(:), X4(:), X6(:)
 integer(kind=iwp), external :: Cho_X_GetTol, IsFreeUnit
 
 !----------------------------------------------------------------------*
@@ -402,7 +402,7 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
   ! End of long if-block B over IPRLEV
 end if
 
-call dcopy_(2*mxRoot,[Zero],0,Temp,1)
+Temp(:,:) = Zero
 iRc1 = 0
 iRc2 = 0
 iOpt = ibset(0,sOpSiz)
@@ -559,7 +559,7 @@ IAD14 = IADR15(14)
 !BOR0511
 ! Save original orbitals for the spin density matrices
 call mma_allocate(cmon,nTot2,Label='CMON')
-call dcopy_(ntot2,cmo,1,cmon,1)
+cmon(:) = cmo(1:ntot2)
 !BOR0511
 FullMlk = (OutFmt1 /= 'NOTHING ')
 
@@ -575,7 +575,6 @@ call Get_dArray_chk('D1AO',DSave,NTOT1)
 
 ! The dipole moments will also be stored over all kroot states.
 
-call mma_allocate(DM,3,Label='DM')
 call mma_allocate(DMs,3,LROOTS,Label='DMs')
 DMs(:,:) = Zero
 Do_DM = .false.
@@ -643,7 +642,7 @@ do KROOT=1,LROOTS
     !write(u6,*) 'iRoot=',kRoot
     call Get_dArray('Dipole Moment',DM,3)
     !call RecPrt('Dipole Moment',' ',DM,1,3)
-    call DCopy_(3,DM,1,DMs(:,KROOT),1)
+    DMs(:,KROOT) = DM(:)
   end if
   !                                                                    *
   !*********************************************************************
@@ -692,10 +691,10 @@ do KROOT=1,LROOTS
     end if
 
     ! Compute spin orbitals and spin population
-    call DCOPY_(NTOT,[Zero],0,OCCN,1)
+    OCCN(1:NTOT) = Zero
     !SVC-11-01-2007 store original cmon in cmoso, which gets changed
     call mma_allocate(CMOSO,NTOT2,Label='CMOSO')
-    call DCOPY_(NTOT2,CMON,1,CMOSO,1)
+    CMOSO(:) = CMON(:)
 
     if (.not. doDMRG) call SPINORB(X6,CMOSO,OCCN)
     call mma_deallocate(X6)
@@ -762,7 +761,6 @@ call mma_deallocate(DSave)
 
 if (Do_DM) call Put_dArray('Last Dipole Moments',DMs,3*LROOTS)
 !call RecPrt('Last Dipole Moments',' ',DM),3,LROOTS)
-call mma_deallocate(DM)
 call mma_deallocate(DMs)
 !                                                                      *
 !***********************************************************************

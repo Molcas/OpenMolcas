@@ -52,8 +52,8 @@ if (.not. DoSplitCAS) then
     call DDaFile(JOBIPH,0,SCR1,NACPR2,jDisk)
     call DBLOCK(SCR1)
 
-    call dCopy_(NTOT,[Zero],0,OCCN,1)
-    call dCopy_(NTOT2,CMOO,1,CMON,1)
+    OCCN(1:NTOT) = Zero
+    CMON(1:NTOT2) = CMOO(1:NTOT2)
 
     ID = 0
     ISTMO1 = 0
@@ -69,7 +69,7 @@ if (.not. DoSplitCAS) then
 
       ! set occupation number of frozen and inactive orbitals
 
-      call dCopy_(NFI,[Two],0,OCCN(IB+1),1)
+      OCCN(IB+1:IB+NFI) = Two
 
       ! Diagonalize the density matrix and transform orbitals
 
@@ -149,8 +149,8 @@ else ! if DoSplitCAS (GLMJ)...
   call DDaFile(JOBIPH,0,SCR1,NACPR2,jDisk)
   call DBLOCK(SCR1)
 
-  call dCopy_(NTOT,[Zero],0,OCCN,1)
-  call dCopy_(NTOT2,CMOO,1,CMON,1)
+  OCCN(1:NTOT) = Zero
+  CMON(1:NTOT2) = CMOO(1:NTOT2)
 
   ID = 0
   ISTMO1 = 0
@@ -166,7 +166,7 @@ else ! if DoSplitCAS (GLMJ)...
 
     ! set occupation number of frozen and inactive orbitals
 
-    call dCopy_(NFI,[Two],0,OCCN(IB+1),1)
+    OCCN(IB+1:IB+NFI) = Two
 
     ! Diagonalize the density matrix and transform orbitals
 

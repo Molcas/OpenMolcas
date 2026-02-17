@@ -75,7 +75,7 @@ end if
 Rc_SX = 0
 NTRIAL = NROOT
 NCR = NROOT*NDIM
-call FZERO(C,NCR)
+C(1:NCR) = Zero
 II = 0
 do I=1,NROOT
   C(II+I) = One
@@ -105,7 +105,7 @@ KDIMH = nTri_Elem(NDIMH)
 
 ! Echo the HH-matrix before diagonalizing it.
 
-call DCOPY_(KDIMH,HH,1,HH(KDIMH+1),1)
+HH(KDIMH+1:2*KDIMH) = HH(1:KDIMH)
 
 if (IPRLEV >= DEBUG) then
   write(u6,*) ' Davidson H-matrix in iteration ',ITERSX
@@ -119,7 +119,7 @@ if (NDIMH > 1) then
   ! set eigenvector array to identity before JACO call
 
   NDIMH2 = NDIMH**2
-  call FZERO(CC,NDIMH2)
+  CC(1:NDIMH2) = Zero
   II = -NDIMH
   do I=1,NDIMH
     II = II+NDIMH+1
@@ -385,11 +385,7 @@ do I=1,NTOTDC
       NTRIAL = NTRIAL+1
       XNORM = One/(XNORM+1.0e-24_wp)
       !PAM01 Note that ISTQ can be (and is!) the same as IST:
-      if (ISTQ == IST) then
-        call DSCAL_(NDIM,XNORM,Q(IST),1)
-      else
-        call DYAX(NDIM,XNORM,Q(IST),1,Q(ISTQ),1)
-      end if
+      Q(ISTQ:ISTQ+NDIM-1) = XNORM*Q(IST:IST+NDIM-1)
     end if
   else
     ! Second pass: Demand accurate normalization, else we know that
@@ -401,11 +397,7 @@ do I=1,NTOTDC
       NTRIAL = NTRIAL+1
       XNORM = One/(XNORM+1.0e-24_wp)
       !PAM01 Note that ISTQ can be (and is!) the same as IST:
-      if (ISTQ == IST) then
-        call DSCAL_(NDIM,XNORM,Q(IST),1)
-      else
-        call DYAX(NDIM,XNORM,Q(IST),1,Q(ISTQ),1)
-      end if
+      Q(ISTQ:ISTQ+NDIM-1) = XNORM*Q(IST:IST+NDIM-1)
     end if
   end if
   IST = IST+NDIM
@@ -435,7 +427,7 @@ if (ICONVL == 1) GO TO 36
 
 NST = 1+NDIMH*NDIM
 LENGTH = NTRIAL*NDIM
-call DCOPY_(LENGTH,Q,1,C(NST),1)
+C(NST:NST+LENGTH-1) = Q(1:LENGTH)
 
 if (IPRLEV >= DEBUG) write(u6,'(1X,A,I2,A)') ' Adding ',NTRIAL,' new vectors.'
 if (IPRLEV >= INSANE) then
@@ -505,7 +497,7 @@ IST = 1
 do I=1,NROOT
   call COVLP(Q(IST),Q(IST),DIA,PA,SXN,C1,C2,X,XNORM)
   XNORM = One/XNORM
-  call DYAX(NDIM,XNORM,Q(IST),1,C(IST),1)
+  C(IST:IST+NDIM-1) = XNORM*Q(IST:IST+NDIM-1)
   IST = IST+NDIM
 end do
 

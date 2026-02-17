@@ -122,7 +122,7 @@ subroutine OrbFiles(JOBIPH,IPRLEV)
     call dDaFile(JobIph,2,CMO,ntot2,iDisk)
     if (IPRLEV >= USUAL) write(u6,'(6X,3A)') 'Canonical orbitals are written to the ',trim(filename),' file'
     VecTyp = '* RASSCF canonical orbitals for CASPT2'
-    call dcopy_(ntot,[One],0,Occ,1)
+    Occ(:) = One
   end if
   !--------------------------------------------------------------------*
   !     Write  orbitals                                                *

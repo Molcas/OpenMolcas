@@ -94,7 +94,7 @@ end do
 !----------------------------------------------------------------------*
 ! Allocate memory for the core Hamiltonian
 call mma_allocate(OneHam,nBT,Label='OneHam')
-call dcopy_(nBT,[Zero],0,OneHam,1)
+OneHam(:) = Zero
 ! Load bare nuclei Hamiltonian
 
 iRc = -1
@@ -162,7 +162,7 @@ do iSym=1,nSym
     call mma_deallocate(Scratch)
 
     ! Orbital energies are now meaningless; set them to zero
-    call dcopy_(nOrbi,[Zero],0,EOrb(i_EOr),1)
+    EOrb(i_EOr:i_EOr+nOrbi-1) = Zero
 
   end if
 

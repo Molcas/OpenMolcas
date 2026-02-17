@@ -52,7 +52,7 @@ do jRoot=1,lRoots
     IOffNIJ2 = (lRoots*(kRoot-1)+jRoot-1)*NAC2
     !write(u6,*) 'GD matrix',jRoot,kRoot
     !call RecPrt(' ',' ',Dtmp,NAC,NAC)
-    call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
+    GD(IOffNIJ1+1:IOffNIJ1+NAC2) = Dtmp(1:NAC2)
     do q=1,NAC
       do p=1,NAC
         ipq = (q-1)*NAC+p
@@ -68,7 +68,7 @@ do jRoot=1,lRoots
   IOffNIJ1 = (lRoots+1)*(jRoot-1)*NAC2
   !write(u6,*) 'GD matrix',jRoot,kRoot
   !call RecPrt(' ',' ',Dtmp,NAC,NAC)
-  call DCopy_(NAC2,Dtmp,1,GD(IOffNIJ1+1),1)
+  GD(IOffNIJ1+1:IOffNIJ1+NAC2) = Dtmp(1:NAC2)
 end do
 DStmp(:) = SDtmp(:)
 Dtmp(:) = TmpD(:)

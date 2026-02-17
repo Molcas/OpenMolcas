@@ -51,7 +51,7 @@ do ITRIAL=1,NTRIAL
   end do
 
   ! Initialize sigma vector to zero.
-  call DCOPY_(NROOT+NSXS,[Zero],0,HC(NST+1),1)
+  HC(NST+1:NST+NROOT+NSXS) = Zero
 
   ISTIA = 1
   ISTAE = 1
@@ -111,7 +111,7 @@ do ITRIAL=1,NTRIAL
 
     ! BM contributions to SX part of sigma
 
-    call DAXPY_(NSXS,CIN(NST+1),BM,1,HC(NNST+1),1)
+    HC(NNST+1:NNST+NSXS) = HC(NNST+1:NNST+NSXS)+CIN(NST+1)*BM(1:NSXS)
 
   end if
 
@@ -133,7 +133,7 @@ do ITRIAL=1,NTRIAL
   ! Too low SXDAMP may give erratic convergence in some exceptional
   ! cases.
   ! SXDAMP is set in READIN.
-  call DAXPY_(NSXS,SXDAMP,C,1,HC(NNST+1),1)
+  HC(NNST+1:NNST+NSXS) = HC(NNST+1:NNST+NSXS)+SXDAMP*C(1:NSXS)
 
   ! Renormalize the sigma vector
 
@@ -143,7 +143,7 @@ do ITRIAL=1,NTRIAL
 
   ! Add Level shift part of the diagonal
 
-  call DAXPY_(NSXS,SXSHFT,CIN(1+NNST),1,HC(1+NNST),1)
+  HC(NNST+1:NNST+NSXS) = HC(NNST+1:NNST+NSXS)+SXSHFT*CIN(NNST+1:NNST+NSXS)
   NST = NST+NDIMSX
 end do
 

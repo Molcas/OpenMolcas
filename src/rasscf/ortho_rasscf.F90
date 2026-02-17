@@ -103,7 +103,7 @@ do iSym=1,nSym
       ! PAM March 2016: Probable bugfix needed (Thanks, Liviu!)
       ! not affecting any tests (!)
       ! by adding the following line:
-      call DCOPY_(iBas*iOcc,Temp,1,CMO(ip_CMO),1)
+      CMO(ip_CMO:ip_CMO+iBas*iOcc-1) = Temp(1:iBas*iOcc)
     else
 
       call ORTHO1(Temp,CMO(ip_CMO),SCRATCH,iBas,iOcc)

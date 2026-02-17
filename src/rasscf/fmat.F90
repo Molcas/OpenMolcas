@@ -311,8 +311,8 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
   !end if
 
   if (DFTFOCK(1:4) /= 'ROKS') then
-    call daxpy_(NTOT1,One,TmpFck(ipTmpFckI),1,FI,1)
-    if (ipTmpFckA /= -99999) call daxpy_(NTOT1,One,TmpFck(ipTmpFckA),1,FA,1)
+    FI(1:NTOT1) = FI(1:NTOT1)+TmpFck(ipTmpFckI:ipTmpFckI+NTOT1-1)
+    if (ipTmpFckA /= -99999) FA(1:NTOT1) = FA(1:NTOT1)+TmpFck(ipTmpFckA:ipTmpFckA+NTOT1-1)
   else if (DFTFOCK(1:4) == 'ROKS') then
     iOff1 = 0
     do iSym=1,nSym

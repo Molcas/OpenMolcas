@@ -586,7 +586,7 @@ if (ITER == 1) then
   if (iCIRST == 1) then
 
     call mma_allocate(TmpDMAT,NACPAR,Label='TmpDMAT')
-    call dcopy_(NACPAR,DMAT,1,TmpDMAT,1)
+    TmpDMAT(:) = DMAT(:)
     if (NASH(1) /= NAC) call DBLOCK(TmpDMAT)
     call Get_D1A_RASSCF(CMO,TmpDMAT,D1A)
     call mma_deallocate(TmpDMAT)
@@ -824,7 +824,7 @@ if (ITER == 1) then
     call mma_allocate(scr2,NO2M,Label='Scr2')
     call mma_allocate(SMAT,NTOT1,Label='SMAT')
     call NATORB_RASSCF(CMO,scr1,scr2,SMAT,CMON,OCCX)
-    call dCopy_(NTOT2,CMON,1,CMO,1)
+    CMO(:) = CMON(:)
     call Put_dArray('Last orbitals',CMO,ntot2)
     call mma_deallocate(scr1)
     call mma_deallocate(scr2)
@@ -1114,7 +1114,7 @@ else
   end if
   call mma_allocate(TmpDS,NACPAR,Label='TmpDS')
   call mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
-  call dcopy_(NACPAR,DSPN,1,TmpDS,1)
+  TmpDS(:) = DSPN(:)
   if (NASH(1) /= NAC) call DBLOCK(TmpDS)
   call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
   call mma_deallocate(TmpDS)
