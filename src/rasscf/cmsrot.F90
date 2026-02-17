@@ -17,6 +17,7 @@ subroutine CMSRot(TUVX)
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
 
+use Index_Functions, only: nTri_Elem
 use CMS, only: CMSNotConverged
 use rasscf_global, only: CMSStartMat, lRoots, NAC, NACPR2
 use PrintLevel, only: USUAL
@@ -32,7 +33,7 @@ real(kind=wp), allocatable :: DDG(:,:,:,:), GDMat(:,:,:), Gtuvx(:,:,:,:), RotMat
 #include "warnings.h"
 
 ! Allocating Memory
-call mma_allocate(GDMat,LRoots*(LRoots+1)/2,NAC,NAC)
+call mma_allocate(GDMat,nTri_Elem(lRoots),NAC,NAC)
 call mma_allocate(RotMat,lRoots,lRoots)
 call mma_allocate(Gtuvx,NAC,NAC,NAC,NAC)
 call mma_allocate(DDG,lRoots,lRoots,lRoots,lRoots)

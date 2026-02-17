@@ -30,7 +30,6 @@ logical(kind=iwp) :: Converged
 real(kind=wp) :: Angles(4), ScanA(31), ScanS(31), Sums(4)
 real(kind=wp), allocatable :: RTmp(:,:)
 real(kind=wp), parameter :: Threshold = 1.0e-8_wp
-integer(kind=iwp), external :: RMax
 real(kind=wp), external :: CalcNSumVee
 
 call mma_allocate(RTmp,lRoots,lRoots)

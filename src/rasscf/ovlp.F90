@@ -42,6 +42,7 @@ subroutine Ovlp(iWay,C1,C2,Smat)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: NAC
 use general_data, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT1
@@ -119,7 +120,7 @@ do iSym=1,nSym
             if ((jOrb > nIs) .and. (jOrb <= (nIs+nAs))) then
               iiOrb = iOrb-nIs+nAcO
               jjOrb = jOrb-nIs+nAcO
-              ipSmat = jjOrb+(iiOrb*iiOrb-iiOrb)/2
+              ipSmat = jjOrb+nTri_Elem(iiOrb-1)
               ipSmat = jjOrb+(iiOrb-1)*nAc
               Smat(ipSmat) = Scr1(ij)
             end if
@@ -133,7 +134,7 @@ do iSym=1,nSym
     call mma_deallocate(Scr1)
   end if
   ipC = ipC+nBs*nBs
-  ipO = ipO+(nBs*nBs+nBs)/2
+  ipO = ipO+nTri_Elem(nBs)
   nAcO = nAcO+nAs
 end do
 

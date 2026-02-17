@@ -19,6 +19,7 @@ subroutine SIGVEC(CIN,HC,HD,BM,SXN,G,H,DIA,F1,F2,X,C,NTRIAL)
 !
 ! ********** IBM-3090 Release 88 09 01 **********
 
+use Index_Functions, only: nTri_Elem
 use rasscf_global, only: ICICP, ITER, NDIMSX, NROOT, NSXS, SXSHFT, IROOT, ENER
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
@@ -90,7 +91,7 @@ do ITRIAL=1,NTRIAL
     ISTAE = ISTAE+NAE**2
     ISTBM = ISTBM+NIA*NAE
     ISTH = ISTH+NAO*NAE
-    ISTZ = ISTZ+(NAO**2-NAO)/2
+    ISTZ = ISTZ+nTri_Elem(NAO-1)
   end do
 
   ! Add diagonal contributions to the CI part

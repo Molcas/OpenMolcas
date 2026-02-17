@@ -34,6 +34,7 @@ subroutine Ortho_RASSCF(SMAT,SCRATCH,CMO,TEMP)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use general_data, only: LOWDIN_ON, NBAS, NDEL, NSYM
 use Constants, only: Zero, One
@@ -110,7 +111,7 @@ do iSym=1,nSym
 
     !call RecPrt('CMO',' ',CMO(ip_CMO),iBas,iBas)
 
-    ip_Smat = ip_Smat+(iBas*iBas+iBas)/2
+    ip_Smat = ip_Smat+nTri_Elem(iBas)
     ip_CMO = ip_CMO+iBas*iBas
   end if
 end do

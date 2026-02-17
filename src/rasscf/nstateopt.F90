@@ -17,6 +17,7 @@
 
 subroutine NStateOpt(RotMat,DDg)
 
+use Index_Functions, only: nTri_Elem
 use CMS, only: CMSNotConverged
 use rasscf_global, only: CMSThreshold, iCMSIterMax, iCMSIterMin, lRoots
 use PrintLevel, only: USUAL
@@ -36,10 +37,10 @@ real(kind=wp), external :: CalcNSumVee
 
 IPRLEV = IPRLOC(6)
 
-call mma_allocate(StatePair,LRoots*(LRoots-1)/2,2)
-call mma_allocate(theta,LRoots*(LRoots-1)/2)
+NPairs = nTri_Elem(lRoots-1)
+call mma_allocate(StatePair,NPairs,2)
+call mma_allocate(theta,NPairs)
 call mma_allocate(FRot,lRoots,lRoots)
-NPairs = lRoots*(lRoots-1)/2
 IPair = 0
 do IState=1,lRoots
   do JState=1,IState-1

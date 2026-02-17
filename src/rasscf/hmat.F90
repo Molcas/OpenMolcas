@@ -17,6 +17,7 @@ subroutine HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL)
 !
 ! ********** IBM-3090 Release 88 09 08 **********
 
+use Index_Functions, only: nTri_Elem
 use wadr, only: BM, DIA, F1, F2, NLX, SXG, SXH, SXN
 use rasscf_global, only: NSXS
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -43,7 +44,7 @@ call mma_deallocate(XC)
 
 ! Compute a new block of the HH matrix
 
-IJ = (NDIMH+NDIMH**2)/2
+IJ = nTri_Elem(NDIMH)
 L1 = NDIMH+1
 NDIMH = NDIMH+NTRIAL
 do I=L1,NDIMH

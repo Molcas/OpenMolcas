@@ -13,12 +13,13 @@
 
 subroutine CalcFckS(FckO,GDMat,FckS)
 
+use Index_Functions, only: iTri, nTri_Elem
 use rasscf_global, only: lRoots, nAc
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: FckO(NAC,NAC), GDMat(lRoots*(lRoots+1)/2,NAC,NAC), FckS(lRoots,lRoots)
+real(kind=wp) :: FckO(NAC,NAC), GDMat(nTri_Elem(lRoots),NAC,NAC), FckS(lRoots,lRoots)
 integer(kind=iwp) :: iOrb, IState, jOrb, JState
 
 FckS(:,:) = Zero
@@ -27,7 +28,7 @@ do IState=1,lRoots
   do JState=1,IState
     do IOrb=1,NAC
       do JOrb=1,NAC
-        FckS(IState,JState) = FckS(IState,JState)+FckO(IOrb,JOrb)*GDMat(IState*(IState-1)/2+JState,IOrb,JOrb)
+        FckS(IState,JState) = FckS(IState,JState)+FckO(IOrb,JOrb)*GDMat(iTri(IState,JState),IOrb,JOrb)
       end do
     end do
     FckS(JState,IState) = FckS(IState,JState)

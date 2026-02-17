@@ -17,6 +17,7 @@
 
 subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
 
+use Index_Functions, only: nTri_Elem
 use CMS, only: CMSNotConverged
 use rasscf_global, only: CMSThreshold, iCMSIterMax, iCMSIterMin, lRoots, NAC
 use PrintLevel, only: USUAL
@@ -26,7 +27,7 @@ use Constants, only: Zero, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: RotMat(lRoots,lRoots), GDMat(lRoots*(lRoots+1)/2,NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
+real(kind=wp) :: RotMat(lRoots,lRoots), GDMat(nTri_Elem(lRoots),NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: ICMSIter, IPair, iPrLev, IState, JState, NPairs
 real(kind=wp) :: VeeSumChange, VeeSumNew, VeeSumOld
 logical(kind=iwp) :: Converged
@@ -35,11 +36,11 @@ real(kind=wp), allocatable :: FRot(:,:), theta(:), Vee(:)
 
 IPRLEV = IPRLOC(6)
 
-call mma_allocate(StatePair,lRoots*(lRoots-1)/2,2)
-call mma_allocate(theta,lRoots*(lRoots-1)/2)
+NPairs = nTri_Elem(lRoots-1)
+call mma_allocate(StatePair,NPairs,2)
+call mma_allocate(theta,NPairs)
 call mma_allocate(Vee,lRoots)
 call mma_allocate(FRot,lRoots,lRoots)
-NPairs = lRoots*(lRoots-1)/2
 IPair = 0
 do IState=1,lRoots
   do JState=1,IState-1

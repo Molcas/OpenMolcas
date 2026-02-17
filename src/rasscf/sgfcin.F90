@@ -45,6 +45,7 @@
 !>    \f[ D^{\text{AO}, A}_S = C^A (D^A_\alpha - D^A_\beta) (C^A)^\dagger \f]
 subroutine SGFCIN(CMO,F,FI,D1I,D1A,D1S)
 
+use Index_Functions, only: nTri_Elem
 use RunFile_procedures, only: Get_dExcdRa
 use fcidump, only: DumpOnly
 use fciqmc, only: DoNECI
@@ -165,7 +166,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 
@@ -198,7 +199,7 @@ call Put_dArray('D1ao',Tmp3,nTot1)
 !do iSym=1,nSym
 !  iBas = nBas(iSym)
 !  call TriPrt(' ','(5G17.11)',Tmp3(iOff),iBas)
-!  iOff = iOff+(iBas*iBas+iBas)/2
+!  iOff = iOff+nTri_Elem(iBas)
 !end do
 
 ! Generate spin-density
@@ -237,7 +238,7 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb) then
     do iSym=1,nSym
       iBas = nBas(iSym)
       call TriPrt(' ','(5G17.11)',Tmp5(iOff),iBas)
-      iOff = iOff+(iBas*iBas+iBas)/2
+      iOff = iOff+nTri_Elem(iBas)
     end do
   end if
   call Timing(Time(2),dum1,dum2,dum3)
@@ -281,7 +282,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ','(5G17.11)',D1I(ioff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 call Fold(nSym,nBas,D1I,Tmp2)
@@ -337,7 +338,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ','(5G17.11)',FI(iOff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 if (IPRLEV >= DEBUG) then
@@ -349,7 +350,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 
@@ -367,7 +368,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ','(5G17.11)',FI(iOff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 
@@ -396,7 +397,7 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) then
     do iSym=1,nSym
       iBas = nBas(iSym)
       call TriPrt(' ','(5G17.11)',TmpFckI(ioff),iBas)
-      iOff = iOff+(iBas*iBas+iBas)/2
+      iOff = iOff+nTri_Elem(iBas)
     end do
   end if
   call mma_deallocate(TmpFckI)
@@ -410,7 +411,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ','(5G17.11)',X1(ioff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 call MOTRAC(CMO,X1,X2,X3)

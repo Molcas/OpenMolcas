@@ -32,7 +32,7 @@ use index_symmetry, only: one_el_idx_flatten, two_el_idx_flatten
 use CI_solver_util, only: CleanMat, RDM_to_runfile
 use linalg_mod, only: abort_, verify_
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -573,7 +573,7 @@ function dspn_from_2rdm(psmat,pamat,dmat) result(dspn)
   real(kind=wp) :: AcEl, intermed, Spin
   integer(kind=iwp) :: fac, k, ks, n, p, pk, pkks, ps, s
 
-  Spin = (real(ispin,kind=wp)-1)/2  ! integer by default
+  Spin = Half*(ispin-1)  ! integer by default
   AcEl = real(nActEl,kind=wp)
   ! the cycle statements ensure proper handling of the logic
   ! for values connected to index pairs "pprs" and "rspp"
@@ -596,7 +596,7 @@ function dspn_from_2rdm(psmat,pamat,dmat) result(dspn)
         end if
       end do
       ps = one_el_idx_flatten(p,s)
-      dspn(ps) = 1/(Spin+1)*((2-AcEl/2)*dmat(ps)-intermed)
+      dspn(ps) = One/(Spin+1)*((Two-Half*AcEl)*dmat(ps)-intermed)
     end do
   end do
   if (ispin == 1) dspn(:) = dspn(:)*0
@@ -678,8 +678,8 @@ subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
             pqrs = one_el_idx_flatten(pq,rs)
             fac = merge(-1,1,p < q .neqv. r < s)
             n_rs = merge(2,1,r /= s)
-            psmat(pqrs) = Half*n_rs*(rdm2_temp(p,q,r,s)+rdm2_temp(q,p,r,s))/2
-            pamat(pqrs) = Half*n_rs*fac*(rdm2_temp(p,q,r,s)-rdm2_temp(q,p,r,s))/2
+            psmat(pqrs) = Quart*n_rs*(rdm2_temp(p,q,r,s)+rdm2_temp(q,p,r,s))
+            pamat(pqrs) = Quart*n_rs*fac*(rdm2_temp(p,q,r,s)-rdm2_temp(q,p,r,s))
           end if
         end do
       end do

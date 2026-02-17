@@ -16,6 +16,7 @@
 
 module CC_CI_mod
 
+use Index_Functions, only: nTri_Elem_Rev
 use Para_Info, only: MyRank
 use filesystem, only: get_errno_, getcwd_, real_path, strerror_
 use linalg_mod, only: abort_, verify_
@@ -25,10 +26,7 @@ use gas_data, only: iDoGas, ngssh
 use generic_CI, only: CI_solver_t
 use index_symmetry, only: one_el_idx, two_el_idx_flatten
 use rctfld_module, only: lRF
-use CI_solver_util, only: CleanMat, inv_triang_number, RDM_to_runfile, wait_and_read, write_RDM
-#ifdef _ADDITIONAL_RUNTIME_CHECK_
-use CI_solver_util, only: triangular_number
-#endif
+use CI_solver_util, only: CleanMat, RDM_to_runfile, wait_and_read, write_RDM
 #ifdef _MOLCAS_MPP_
 use mpi, only: MPI_COMM_WORLD, MPI_REAL8
 use Para_Info, only: Is_Real_Par
@@ -258,17 +256,21 @@ end subroutine read_CC_RDM
 
 subroutine calc_1RDM(PSMAT,DMAT)
 
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  use Index_Functions, only: nTri_Elem
+# endif
+
   real(kind=wp), intent(in) :: PSMAT(:)
   real(kind=wp), intent(out) :: DMAT(:)
   integer(kind=iwp) :: p, pq, q, r
   debug_function_name('calc_1RDM')
 
-  ASSERT(size(PSMAT) == triangular_number(size(DMAT)))
+  ASSERT(size(PSMAT) == nTri_Elem(size(DMAT)))
 
   DMAT(:) = Zero
   do pq=1,size(DMAT)
     call one_el_idx(pq,p,q)
-    do r=1,inv_triang_number(size(DMAT))
+    do r=1,nTri_Elem_Rev(size(DMAT))
       DMAT(pq) = DMAT(pq)+PSMAT(two_el_idx_flatten(p,q,r,r))
     end do
   end do
@@ -284,7 +286,7 @@ subroutine read_2RDM(path,RDM_2)
   integer(kind=iwp), parameter :: arbitrary_magic_number = 42
 
   ASSERT(size(RDM_2) == nAcpr2)
-  n_lines = inv_triang_number(nAcpr2)
+  n_lines = nTri_Elem_Rev(nAcpr2)
 
   file_id = isfreeunit(arbitrary_magic_number)
   i = 1

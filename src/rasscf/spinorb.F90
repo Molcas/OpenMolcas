@@ -15,6 +15,7 @@ subroutine SPINORB(D,CMO,OCC)
 ! Then the natural spinorbitals (CMONSO) are computed
 ! (only active).
 
+use Index_Functions, only: nTri_Elem
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: NASH, NBAS, NFRO, NISH, NSYM
@@ -54,7 +55,7 @@ do ISYM=1,NSYM
       call DCOPY_(NA*NB,W2,1,CMO(IPCMO+(NF+NI)*NB),1)
       call mma_deallocate(W2)
       call mma_deallocate(W1)
-      IPDEN = IPDEN+NA*(NA+1)/2
+      IPDEN = IPDEN+nTri_Elem(NA)
     end if
     IPCMO = IPCMO+NB*NB
     IPOCC = IPOCC+NB

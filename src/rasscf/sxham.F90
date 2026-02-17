@@ -40,7 +40,8 @@ subroutine SXHAM(D,P,PA,FP,SXN,F1,F2,DIA,G,H,HDIAG,DF,DDIAG)
 !
 ! ********** IBM-3090 RELEASE 89 01 23 **********
 
-use rasscf_global, only: Ener, ExFac, ICICP, IROOT, ISCF, ITER, ITRI, IXSYM, IZROT, LVSHFT, NROOT, NSXS, SXSHFT
+use Index_Functions, only: iTri, nTri_Elem
+use rasscf_global, only: Ener, ExFac, ICICP, IROOT, ISCF, ITER, IXSYM, IZROT, LVSHFT, NROOT, NSXS, SXSHFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
@@ -94,7 +95,7 @@ do ISYM=1,NSYM
     if (NP <= NIO) DDIAG(NP) = Two
     if (NP > NIA) DDIAG(NP) = Zero
     if ((NP > NIO) .and. (NP <= NIA)) then
-      DDIAG(NP) = D(ISTD+ITRI(NP-NIO+1))
+      DDIAG(NP) = D(ISTD+nTri_Elem(NP-NIO))
       if ((DDIAG(NP) < THRA) .and. (ISCF == 0)) then
         if (JustOne == 0) then
           call WarningMessage(1,'Problems in orbital optimization.')
@@ -132,8 +133,8 @@ do ISYM=1,NSYM
       if ((NR > NIO) .and. (NP <= NIA)) then
         NT = NP-NIO+IASHI
         NU = NR-NIO+IASHI
-        NTU = ITRI(NT)+NU
-        NTUTU = ITRI(NTU+1)
+        NTU = iTri(NT,NU)
+        NTUTU = nTri_Elem(NTU)
         PRPR = -Four*PA(NTUTU)
       end if
       SXNRM2 = PRPR+DRR+DPP
@@ -184,7 +185,7 @@ do ISYM=1,NSYM
       if (((NP > NIO) .and. (NP <= NIA)) .and. NQ > NIO) then
         NT = NP-NIO
         NU = NQ-NIO
-        NTU = ITRI(NT)+NU+ISTD
+        NTU = iTri(NT,NU)+ISTD
         DIA(ISTIA+NIA*(NP-1)+NQ) = D(NTU)
         DIA(ISTIA+NIA*(NQ-1)+NP) = D(NTU)
       end if
@@ -227,7 +228,7 @@ do ISYM=1,NSYM
         GTU = Zero
         NTT = NP-NIO+IASHI
         NUT = NQ-NIO+IASHI
-        NTUT = ITRI(NTT)+NUT
+        NTUT = iTri(NTT,NUT)
 
         IASHJ = 0
         ISTFPJ = 0
@@ -241,8 +242,8 @@ do ISYM=1,NSYM
             do NX=1,NV
               NXT = NX+IASHJ
               NVX = NVX+1
-              NVXT = ITRI(NVT)+NXT
-              NTUVX = ITRI(max(NTUT,NVXT))+min(NTUT,NVXT)
+              NVXT = iTri(NVT,NXT)
+              NTUVX = iTri(NTUT,NVXT)
               FAC = Two
               FACD = Two
               if (NV == NX) FACD = One
@@ -250,12 +251,12 @@ do ISYM=1,NSYM
                 if ((NVT /= NXT) .and. (NTT == NUT)) FAC = Four
                 if ((NVT == NXT) .and. (NTT /= NUT)) FAC = One
               end if
-              NVXF = ISTFPJ+ITRI(NV+NIOJ)+NX+NIOJ
+              NVXF = ISTFPJ+iTri(NV+NIOJ,NX+NIOJ)
               GTU = GTU+FP(NVXF)*(FAC*P(NTUVX)-FACD*DTU*D(NVX))
             end do
           end do
           IASHJ = IASHJ+NAOJ
-23        ISTFPJ = ISTFPJ+ITRI(NORB(JSYM)+1)
+23        ISTFPJ = ISTFPJ+nTri_Elem(NORB(JSYM))
         end do
         G(IPQ) = GTU
         G(IQP) = GTU
@@ -309,7 +310,7 @@ do ISYM=1,NSYM
           HDIAG(NPR+NROOT) = 1.0e32_wp
           SXN(NPR) = Zero
         else
-          NTU = ISTZ+ITRI(NT-1)+NU
+          NTU = ISTZ+nTri_Elem(NT-2)+NU
           if (IZROT(NTU) /= 0) then
             HDIAG(NPR+NROOT) = 1.0e32_wp
             SXN(NPR) = Zero
@@ -346,13 +347,13 @@ do ISYM=1,NSYM
   end if
 
   IASHI = IASHI+NAO
-  ISTD = ISTD+ITRI(NAO+1)
+  ISTD = ISTD+nTri_Elem(NAO)
 98 ISTIA = ISTIA+NIA**2
   ISTAE = ISTAE+NAE**2
-  ISTFP = ISTFP+ITRI(NO+1)
+  ISTFP = ISTFP+nTri_Elem(NO)
   ISTBM = ISTBM+NIA*NAE
   ISTH = ISTH+NAO*NAE
-  ISTZ = ISTZ+(NAO**2-NAO)/2
+  ISTZ = ISTZ+nTri_Elem(NAO-1)
   IX1 = IX1+NBAS(ISYM)
 
 end do

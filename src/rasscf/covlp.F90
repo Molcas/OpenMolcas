@@ -20,7 +20,8 @@ subroutine COVLP(C1IN,C2IN,DIA,PA,SXN,C1,C2,X,OVL)
 !PAM01 Added: replace correct overlap by adding a diagonal
 !PAM01 quantity to the overlap of brillouin states.
 
-use rasscf_global, only: ITRI, NROOT, NSXS
+use Index_Functions, only: iTri
+use rasscf_global, only: NROOT, NSXS
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: NASH, NISH, NSSH, NSYM
@@ -117,7 +118,7 @@ do ISYM=1,NSYM
     NTT = NT+IASHI
     do NU=1,NT-1
       NUT = NU+IASHI
-      NTUT = ITRI(NTT)+NUT
+      NTUT = iTri(NTT,NUT)
 
       IASHJ = 0
       TERM = Zero
@@ -134,8 +135,8 @@ do ISYM=1,NSYM
               NVT = NV+IASHJ
               do NX=1,NV-1
                 NXT = NX+IASHJ
-                NVXT = ITRI(NVT)+NXT
-                NTUVX = ITRI(max(NTUT,NVXT))+min(NTUT,NVXT)
+                NVXT = iTri(NVT,NXT)
+                NTUVX = iTri(NTUT,NVXT)
                 PRQS = -Four*PA(NTUVX)
                 if (NU == NX) PRQS = PRQS+DIA(ISTIA+NIA*(NT+NIO-1)+NV+NIO)
                 if (NT == NV) PRQS = PRQS+DIA(ISTIA+NIA*(NU+NIO-1)+NX+NIO)
@@ -150,8 +151,8 @@ do ISYM=1,NSYM
               NVT = NV+IASHJ
               do NX=1,NV-1
                 NXT = NX+IASHJ
-                NVXT = ITRI(NVT)+NXT
-                NTUVX = ITRI(max(NTUT,NVXT))+min(NTUT,NVXT)
+                NVXT = iTri(NVT,NXT)
+                NTUVX = iTri(NTUT,NVXT)
                 PRQS = -Four*PA(NTUVX)
                 TERM = TERM+PRQS*C2(ISTC2+NIAJ*(NV-1)+NIOJ+NX)
               end do

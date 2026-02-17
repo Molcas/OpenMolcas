@@ -21,6 +21,7 @@ subroutine rotorb(cmoo,cmon,c,x,x2,y,thmax,FA)
 !
 !      ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 
+use Index_Functions, only: nTri_Elem
 use gas_data, only: iDoGAS, NGAS, NGSSH
 use rasscf_global, only: CMAX, iXSym, PURIFY, ROTMAX
 use PrintLevel, only: DEBUG, TERSE, VERBOSE
@@ -52,7 +53,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FA(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
 
 end if
@@ -353,7 +354,7 @@ do isym=1,nsym
 
   call Fold_Mat(1,[no],SqFA,FA(iOff))
 
-  iOff = iOff+(no*no+no)/2
+  iOff = iOff+nTri_Elem(no)
 
   call mma_deallocate(Unt)
   call mma_deallocate(SqFA)

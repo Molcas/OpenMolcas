@@ -28,6 +28,7 @@ subroutine Readin_vb()
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use gas_data, only: IGSOCCX, NGAS, NGSSH
 use rasscf_global, only: iRlxRoot, iROOT, iZROT, NAC, NACPAR, NACPR2, NIN, NO2M, NORBT, NROOTS, NSEC, NTIT, NTOT3, NTOT4, Title
 use jobiph_j, only: ispin_j, lsym_j, nactel_j, ndel_j, nelec3_j, nfro_j, nhole1_j, nish_j, nrs1_j, nrs2_j, nrs3_j, title_j
@@ -141,7 +142,7 @@ NRS2T = 0
 NRS3T = 0
 do ISYM=1,NSYM
   NTOT = NTOT+NBAS(ISYM)
-  NTOT1 = NTOT1+(NBAS(ISYM)*(NBAS(ISYM)+1))/2
+  NTOT1 = NTOT1+nTri_Elem(NBAS(ISYM))
   NTOT2 = NTOT2+NBAS(ISYM)**2
   NO2M = max(NO2M,NBAS(ISYM)**2)
   NRS1T = NRS1T+NRS1(ISYM)
@@ -153,12 +154,12 @@ do ISYM=1,NSYM
   NDELT = NDELT+NDEL(ISYM)
   NSEC = NSEC+NSSH(ISYM)
   NORBT = NORBT+NORB(ISYM)
-  NTOT3 = NTOT3+(NORB(ISYM)+NORB(ISYM)**2)/2
-  NTOTSP = NTOTSP+(NASH(ISYM)*(NASH(ISYM)+1)/2)
+  NTOT3 = NTOT3+nTri_Elem(NORB(ISYM))
+  NTOTSP = NTOTSP+nTri_Elem(NASH(ISYM))
   NTOT4 = NTOT4+NORB(ISYM)**2
 end do
-NACPAR = (NAC+NAC**2)/2
-NACPR2 = (NACPAR+NACPAR**2)/2
+NACPAR = nTri_Elem(NAC)
+NACPR2 = nTri_Elem(NACPAR)
 
 call Put_iArray('nIsh',nIsh,nSym)
 call Put_iArray('nAsh',nAsh,nSym)

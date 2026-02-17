@@ -18,7 +18,7 @@
 subroutine CalcVee(Vee,RMat,DDg)
 
 use rasscf_global, only: lRoots
-use Constants, only: Zero
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
@@ -36,7 +36,7 @@ do IState=1,lRoots
       end do
     end do
   end do
-  Vee(IState) = Vee(IState)/2
+  Vee(IState) = Vee(IState)*Half
   !write(u6,'(A,I2,A,F10.6)') 'The classic coulomb energy for state ',IState,' is ',Vee(IState)
 end do
 

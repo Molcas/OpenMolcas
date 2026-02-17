@@ -23,6 +23,7 @@ subroutine SUPSCH_INNER(SMAT,CMOO,CMON,Temp1,Temp2,nOrbMX,IxSym2,nOrb_tot)
 ! University of Lund, Sweden, 1997
 ! **** Molcas-4 *** Release 97 04 01 **********
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use rasscf_global, only: FDIAG, iSupSM, Iter, ixsym
 use PrintLevel, only: DEBUG
@@ -144,7 +145,7 @@ if ((ISupsm == 1) .and. (Iter >= 1)) then
       end do
     end if
     kCof = kCof+(nBs*nBs)
-    pSij = pSij+(nBs*nBs+nBs)/2
+    pSij = pSij+nTri_Elem(nBs)
     kOrb = kOrb+nBs
 1966 continue
   end do

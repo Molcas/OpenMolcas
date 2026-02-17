@@ -28,6 +28,7 @@ subroutine OutCtl(CMO,OCCN,SMAT,lOPTO)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
 use gas_data, only: iDoGAS, NGAS, NGSSH
@@ -683,7 +684,7 @@ do KROOT=1,LROOTS
           write(u6,'(/6X,A,I2)') 'symmetry species',ISYM
           write(u6,*)
           call TRIPRT(' ',' ',X6(IND),NASH(ISYM))
-          IND = IND+NASH(ISYM)*(NASH(ISYM)+1)/2
+          IND = IND+nTri_Elem(NASH(ISYM))
 50        continue
         end do
       end if

@@ -34,10 +34,10 @@ use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE,
 use lucia_data, only: TDENSI, TSIGMA
 use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoots, iAlphaBeta, ICICH, ICICP, iCIonly, ICIRST, &
                          ICMSIterMax, ICMSIterMin, iCMSP, iExpand, IfCRPR, IfOrde, InOCalc, iOrbOnly, iOrbTyp, iOrdeM, iPCMRoot, &
-                         iPhName, iPT2, iRLXRoot, IROOT, iRoot, irotPsi, iSave_Exp, iSPDen, iSupSM, itCore, ITMAX, iTri, ITRIM, &
-                         iXMSP, ixSym, KSDFT, kTight, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NewFock, NonEq, &
-                         NQUNE, NROOTS, OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXSel, ThFact, &
-                         Thre, ThrEn, ThrSX, ThrTE, Title, TMin, Weight
+                         iPhName, iPT2, iRLXRoot, IROOT, iRoot, irotPsi, iSave_Exp, iSPDen, iSupSM, itCore, ITMAX, iXMSP, ixSym, &
+                         KSDFT, kTight, LowMS, LRoots, LvShft, MaxIt, MaxJT, MaxOrbOut, n_keep, NewFock, NonEq, NQUNE, NROOTS, &
+                         OutFmt1, OutFmt2, PreThr, ProThr, PrwThr, Purify, QNSTEP, QNUPDT, RFPert, SXSel, ThFact, Thre, ThrEn, &
+                         ThrSX, ThrTE, Title, TMin, Weight
 use general_data, only: ISPIN, LOWDIN_ON, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, &
                         NSEL, NSSH, STARTORBFILE, STSYM, SXDAMP
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, ISPEED
@@ -289,13 +289,6 @@ do I=1,mxOrb
   IXSYM(I) = 0
 end do
 PURIFY = 'NO'
-
-! Auxiliary vector ITRI(I)=I*(I-1)/2
-
-ITRI(1) = 0
-do I=2,ITRIM
-  ITRI(I) = ITRI(I-1)+I-1
-end do
 
 ! Initial guess for jobiph name to use:
 IPHNAME = 'JOBIPH'

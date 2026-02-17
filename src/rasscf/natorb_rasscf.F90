@@ -22,7 +22,8 @@ subroutine NatOrb_RASSCF(CMOO,SCR1,SCR2,SMAT,CMON,OCCN)
 !
 !      ****** IBM 3090 MOLCAS Release: 90 02 22 ******
 
-use rasscf_global, only: iADR15, iTri, KSDFT, lRoots, NACPAR, NACPR2
+use Index_Functions, only: nTri_Elem
+use rasscf_global, only: iADR15, KSDFT, lRoots, NACPAR, NACPR2
 use SplitCas_Data, only: DoSPlitCas, lRootSplit
 use PrintLevel, only: DEBUG, USUAL
 use output_ras, only: IPRLOC
@@ -62,7 +63,7 @@ if (.not. DoSplitCAS) then
       NFI = NFRO(ISYM)+NISH(ISYM)
       NAO = NASH(ISYM)
       NB2 = NB**2
-      NA1 = ITRI(NAO+1)
+      NA1 = nTri_Elem(NAO)
       IO = IB+NFI
       ISTMO = ISTMO1+NB*NFI
 
@@ -159,7 +160,7 @@ else ! if DoSplitCAS (GLMJ)...
     NFI = NFRO(ISYM)+NISH(ISYM)
     NAO = NASH(ISYM)
     NB2 = NB**2
-    NA1 = ITRI(NAO+1)
+    NA1 = nTri_Elem(NAO)
     IO = IB+NFI
     ISTMO = ISTMO1+NB*NFI
 

@@ -17,17 +17,18 @@
 
 subroutine CalcVee2(Vee,GD,Gtuvx)
 
+use Index_Functions, only: nTri_Elem
 use rasscf_global, only: lRoots, NAC
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Vee(lRoots), GD(lRoots*(lRoots+1)/2,NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
+real(kind=wp) :: Vee(lRoots), GD(nTri_Elem(lRoots),NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: I, III, t, u, v, x
 
 do I=1,lRoots
   Vee(I) = Zero
-  III = I*(I+1)/2
+  III = nTri_Elem(I)
   do t=1,nac
     do u=1,nac
       do v=1,nac

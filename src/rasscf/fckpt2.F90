@@ -30,6 +30,7 @@ subroutine FCKPT2(CMOO,CMON,FI,FP,FTR,VEC,WO,SQ,CMOX)
 !
 ! ********** IBM-3090 Release 88 09 07 **********
 
+use Index_Functions, only: iTri, nTri_Elem
 use rasscf_global, only: NORBT, NTOT3, FDIAG, ixSym, IADR15
 use PrintLevel, only: DEBUG, VERBOSE
 use output_ras, only: IPRLOC
@@ -84,8 +85,8 @@ if (tPrepStochCASPT2 .or. tNonDiagStochPT2) then
     call mma_allocate(indices,2,nActOrb)
     call mma_allocate(vals,nActOrb)
   else
-    call mma_allocate(indices,2,nActOrb*(nActOrb+1)/2)
-    call mma_allocate(vals,nActOrb*(nActOrb+1)/2)
+    call mma_allocate(indices,2,nTri_Elem(nActOrb))
+    call mma_allocate(vals,nTri_Elem(nActOrb))
     call mma_allocate(fockmat,nActOrb,nActOrb)
     call mma_allocate(vecs,nActOrb,nActOrb)
     fockmat(:,:) = Zero
@@ -227,7 +228,7 @@ do ISYM=1,NSYM
           NTU = NTU+1
           NTT = NT+NIO
           NUT = NU+NIO
-          NTUT = ISTFCK+(NTT**2-NTT)/2+NUT
+          NTUT = ISTFCK+iTri(NTT,NUT)
           FTR(NTU) = FP(NTUT)
           if (IXSYM(IB+NFO+NTT) /= IXSYM(IB+NFO+NUT)) FTR(NTU) = Zero
         end do
@@ -292,7 +293,7 @@ do ISYM=1,NSYM
           NTU = NTU+1
           NTT = NT+NIO+NR1
           NUT = NU+NIO+NR1
-          NTUT = ISTFCK+(NTT**2-NTT)/2+NUT
+          NTUT = ISTFCK+iTri(NTT,NUT)
           ! decoupling test of virtual orbitals
           ! if ((NT > 12) .and. (NU < 13)) FP(NTUT) = Zero
           ! write(u6,*) "t, u, F(t,u)", NT, NU, FP(NTUT)
@@ -388,7 +389,7 @@ do ISYM=1,NSYM
           NTU = NTU+1
           NTT = NT+NIO+NR1+NR2
           NUT = NU+NIO+NR1+NR2
-          NTUT = ISTFCK+(NTT**2-NTT)/2+NUT
+          NTUT = ISTFCK+iTri(NTT,NUT)
           FTR(NTU) = FP(NTUT)
           if (IXSYM(IB+NFO+NTT) /= IXSYM(IB+NFO+NUT)) FTR(NTU) = Zero
         end do
@@ -455,7 +456,7 @@ do ISYM=1,NSYM
         NAB = NAB+1
         NAT = NA+NIO+NAO
         NBT = NB+NIO+NAO
-        NABT = ISTFCK+(NAT**2-NAT)/2+NBT
+        NABT = ISTFCK+iTri(NAT,NBT)
         FTR(NAB) = FP(NABT)
         if (IXSYM(IB+NFO+NAT) /= IXSYM(IB+NFO+NBT)) FTR(NAB) = Zero
       end do
@@ -552,9 +553,9 @@ do ISYM=1,NSYM
   end if
 
   IB = IB+NBF
-  ISTFCK = ISTFCK+(N_OT**2+N_OT)/2
+  ISTFCK = ISTFCK+nTri_Elem(N_OT)
   ISTMO1 = ISTMO1+NBF**2
-  ID = ID+(NAO**2+NAO)/2
+  ID = ID+nTri_Elem(NAO)
 end do
 
 #ifdef _HDF5_
@@ -563,7 +564,7 @@ if (tPrepStochCASPT2 .or. tNonDiagStochPT2) then
   if (tNonDiagStochPT2) then  ! linearise quadratic Fock matrix
     do i=1,nActOrb
       do j=1,i
-        idx = (i**2-i)/2+j
+        idx = iTri(i,j)
         indices(1,idx) = i
         indices(2,idx) = j
         vals(idx) = fockmat(i,j)

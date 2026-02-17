@@ -38,6 +38,7 @@ subroutine DAVCRE(C,HC,HH,CC,E,HD,SC,Q,QQ,S,SXSEL,NROOT,ITMAX,NDIM,ITERSX,NSXS)
 !
 ! ********** IBM-3090 Release 88 09 08 *****
 
+use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use wadr, only: DIA, PA, SXN
 use PrintLevel, only: DEBUG, INSANE
@@ -100,7 +101,7 @@ ITERSX = 0
 100 continue
 ITERSX = ITERSX+1
 call HMAT(C,HC,HH,HD,NDIM,NDIMH,NTRIAL)
-KDIMH = (NDIMH+NDIMH**2)/2
+KDIMH = nTri_Elem(NDIMH)
 
 ! Echo the HH-matrix before diagonalizing it.
 
@@ -151,8 +152,8 @@ if (NDIMH > 1) then
         CC(I+NDIMH*(ISEL-1)) = CC(I)
         CC(I) = -SWAP
       end do
-      SWAP = HH(KDIMH+(ISEL*(ISEL+1))/2)
-      HH(KDIMH+(ISEL*(ISEL+1))/2) = HH(KDIMH+1)
+      SWAP = HH(KDIMH+nTri_Elem(ISEL))
+      HH(KDIMH+nTri_Elem(ISEL)) = HH(KDIMH+1)
       HH(KDIMH+1) = SWAP
     end if
   end if

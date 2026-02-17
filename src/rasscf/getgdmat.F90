@@ -13,6 +13,7 @@
 
 subroutine GetGDMat(GDMat)
 
+use Index_Functions, only: iTri, nTri_Elem
 use lucia_data, only: DStmp, Dtmp
 use Lucia_Interface, only: Lucia_Util
 use rasscf_global, only: iAdr15, lRoots, nAc
@@ -22,8 +23,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: GDMat(lRoots*(lRoots+1)/2,NAC,NAC)
-integer(kind=iwp) :: CIDisk1, CIDisk2, iOrb, jOrb, jRoot, kRoot, NIJ2
+real(kind=wp) :: GDMat(nTri_Elem(lRoots),NAC,NAC)
+integer(kind=iwp) :: CIDisk1, CIDisk2, iOrb, jOrb, jRoot, kRoot
 real(kind=wp), allocatable :: SDtmp(:), TmpD(:), VecL(:), VecR(:)
 
 call mma_allocate(VecL,NConf,Label='VecL')
@@ -47,10 +48,9 @@ do jRoot=1,lRoots
     !write(u6,*) 'GDMat for states',jRoot,kRoot
     do IOrb=1,NAC
       do JOrb=1,NAC
-        NIJ2 = jRoot*(jRoot-1)/2+kRoot
-        GDMat(NIJ2,JOrb,IOrb) = Dtmp(JOrb+(IOrb-1)*NAC)
+        GDMat(iTri(jRoot,kRoot),JOrb,IOrb) = Dtmp(JOrb+(IOrb-1)*NAC)
       end do
-      !write(u6,'(10(F8.4,2X))') (GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
+      !write(u6,'(10(F8.4,2X))') (GDMat(iTri(jRoot,kRoot),IOrb,JOrb),JOrb=1,NAC)
     end do
   end do
 end do

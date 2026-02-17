@@ -113,7 +113,6 @@ integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: DDot_
 #include "warnings.h"
 
-!PAM05 SymProd(i,j) = 1+ieor(i-1,j-1)
 ! Local print level (if any)
 IPRLEV = IPRLOC(3)
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering CICTL'

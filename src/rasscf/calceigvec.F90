@@ -13,6 +13,7 @@
 
 subroutine CalcEigVec(Matrix,NDIM,EigVec)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -29,7 +30,7 @@ UseJacob = .true.
 EigVec(:,:) = Zero
 
 if (UseJacob) then
-  NElem = NDim*(NDim+1)/2
+  NElem = nTri_Elem(NDim)
   call mma_allocate(Mat,nElem,Label='Mat')
   call mma_allocate(Val,nDim,nDim,Label='Val')
   IRIC = 0

@@ -36,9 +36,10 @@ subroutine FOCK(F,BM,FI,FP,D,P,Q,FINT,IFINAL,CMO)
 !
 !      ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 
+use Index_Functions, only: iTri, nTri_Elem
 use Fock_util_global, only: ALGO, DoCholesky
-use rasscf_global, only: CBLB, CBLBM, E2act, ECAS, HalfQ1, IBLB, IBLBM, ISTORD, ISTORP, iSymBB, iTri, ixSym, iZROT, JBLB, JBLBM, &
-                         KSDFT, NTOT3, via_DFT
+use rasscf_global, only: CBLB, CBLBM, E2act, ECAS, HalfQ1, IBLB, IBLBM, ISTORD, ISTORP, iSymBB, ixSym, iZROT, JBLB, JBLBM, KSDFT, &
+                         NTOT3, via_DFT
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
@@ -87,7 +88,7 @@ do ISYM=1,NSYM
   NEO = NSSH(ISYM)
   NIA = NIO+NAO
   NO = NORB(ISYM)
-  NO2 = (NO**2+NO)/2
+  NO2 = nTri_Elem(NO)
   CSX = Zero
   N1 = 0
   N2 = 0
@@ -106,9 +107,7 @@ do ISYM=1,NSYM
   if (NIO /= 0) then
     do NP=1,NO
       do NI=1,NIO
-        N1 = max(NP,NI)
-        N2 = min(NP,NI)
-        F(ISTFCK+NO*(NP-1)+NI) = 2*FP(ISTFP+(N1**2-N1)/2+N2)
+        F(ISTFCK+NO*(NP-1)+NI) = 2*FP(ISTFP+iTri(NP,NI))
       end do
     end do
   end if
@@ -179,8 +178,8 @@ do ISYM=1,NSYM
         QNTM = Q(NTM)
         do NV=1,NAO
           NVI = NV+NIO
-          NTV = ITRI(max(NT,NV))+min(NT,NV)+ISTD
-          NVM = ITRI(max(NVI,NM))+min(NVI,NM)+ISTFP
+          NTV = iTri(NT,NV)+ISTD
+          NVM = iTri(NVI,NM)+ISTFP
           QNTM = QNTM+D(NTV)*FI(NVM)
         end do
         F(ISTFCK+NO*(NM-1)+NT+NIO) = QNTM
@@ -210,7 +209,7 @@ do ISYM=1,NSYM
         if (NT <= NU) then
           BM(NPQ) = Zero
         else
-          NTU = ISTZ+ITRI(NT-1)+NU
+          NTU = ISTZ+nTri_Elem(NT-2)+NU
           if (IZROT(NTU) /= 0) BM(NPQ) = Zero
           if (IXSYM(IX+NP) /= IXSYM(IX+NQ)) BM(NPQ) = Zero
         end if
@@ -230,10 +229,10 @@ do ISYM=1,NSYM
 90 continue
   ISTFCK = ISTFCK+NO**2
   ISTFP = ISTFP+NO2
-  ISTD = ISTD+(NAO**2+NAO)/2
+  ISTD = ISTD+nTri_Elem(NAO)
   ISTBM = ISTBM+(NIO+NAO)*(NAO+NEO)
   IX1 = IX1+NBAS(ISYM)
-  ISTZ = ISTZ+(NAO**2-NAO)/2
+  ISTZ = ISTZ+nTri_Elem(NAO-1)
   CBLB(ISYM) = CSX
   IBLB(ISYM) = N1
   JBLB(ISYM) = N2

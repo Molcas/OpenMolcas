@@ -56,6 +56,7 @@ subroutine SXCtl(CMO,OCC,D,P,PA,FI,FA,D1A,THMAX,IFINAL)
 !                                                                  *
 !*******************************************************************
 
+use Index_Functions, only: nTri_Elem
 use fciqmc, only: DoNECI
 use Fock_util_global, only: ALGO, DoCholesky
 use Lucia_Interface, only: Lucia_Util
@@ -265,7 +266,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FA(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
 end if
 call mma_deallocate(FCK)
@@ -567,7 +568,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FA(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
 end if
 call mma_deallocate(CMON)

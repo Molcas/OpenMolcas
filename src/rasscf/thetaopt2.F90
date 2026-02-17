@@ -17,13 +17,14 @@
 
 subroutine ThetaOpt2(R,theta,deltaQ,SPair,NP,GD,Vee,G)
 
+use Index_Functions, only: nTri_Elem
 use rasscf_global, only: lRoots, NAC
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NP
-real(kind=wp) :: R(lRoots,lRoots), theta(NP), deltaQ, GD(lRoots*(lRoots+1)/2,NAC,NAC), Vee(lRoots), G(NAC,NAC,NAC,NAC)
+real(kind=wp) :: R(lRoots,lRoots), theta(NP), deltaQ, GD(nTri_Elem(lRoots),NAC,NAC), Vee(lRoots), G(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: SPair(NP,2)
 integer(kind=iwp) :: I, IP, J
 real(kind=wp) :: Change

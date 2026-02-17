@@ -33,6 +33,8 @@ subroutine Upd_FA(PUVX,F,D,ExFac)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
+use Symmetry_Info, only: Mul
 use general_data, only: NASH, NISH, NORB, NSYM
 use Molcas, only: MxSym
 use Constants, only: Zero, Two, Half
@@ -44,9 +46,6 @@ integer(kind=iwp) :: IASH, icase, IDOFF, IFOFF, IISH, IJSYM, IORB, IP, IPU, IPUV
                      IX, JASH, JDOFF, JFOFF, JISH, JORB, JSYM, KASH, KDOFF, KL_ORB_PAIRS, KLSYM, KSYM, LASH, LSYM, &
                      off_Dmat(mxSym), off_Fmat(mxSym), off_PUVX(mxSym)
 real(kind=wp) :: DUV, DUX, DVX, TEMP
-! Statement function
-integer(kind=iwp) :: i, iTri
-iTri(i) = (i*i-i)/2
 
 ! generate offsets
 
@@ -54,14 +53,14 @@ iStack = 0
 do iSym=1,nSym
   off_Dmat(iSym) = iStack
   iAsh = nAsh(iSym)
-  iStack = iStack+(iAsh*iAsh+iAsh)/2
+  iStack = iStack+nTri_Elem(iAsh)
 end do
 
 iStack = 0
 do iSym=1,nSym
   off_Fmat(iSym) = iStack
   iOrb = nOrb(iSym)
-  iStack = iStack+(iOrb*iOrb+iOrb)/2
+  iStack = iStack+nTri_Elem(iOrb)
 end do
 
 iStack = 0
@@ -70,15 +69,15 @@ do iSym=1,nSym
   iOrb = nOrb(iSym)
   do jSym=1,nSym
     jAsh = nAsh(jSym)
-    ijSym = 1+ieor(iSym-1,jSym-1)
+    ijSym = Mul(iSym,jSym)
     do kSym=1,nSym
       kAsh = nAsh(kSym)
       do lSym=1,kSym
         lAsh = nAsh(lSym)
-        klSym = 1+ieor(kSym-1,lSym-1)
+        klSym = Mul(kSym,lSym)
         if (ijSym == klSym) then
           kl_Orb_pairs = kAsh*lAsh
-          if (kSym == lSym) kl_Orb_pairs = (kAsh*kAsh+kAsh)/2
+          if (kSym == lSym) kl_Orb_pairs = nTri_Elem(kAsh)
           iStack = iStack+iOrb*jAsh*kl_Orb_pairs
         end if
       end do
@@ -95,14 +94,12 @@ do iSym=1,nSym
   iFoff = off_Fmat(iSym)
   do iU=iIsh+1,iIsh+iAsh
     do iP=1,iU
-      iPU = iP+iTri(iU)
-      F(iFoff+iPU) = Zero
+      F(iFoff+iTri(iU,iP)) = Zero
     end do
   end do
   do iU=iIsh+iAsh+1,iOrb
     do iP=iIsh+1,iIsh+iAsh
-      iPU = iP+iTri(iU)
-      F(iFoff+iPU) = Zero
+      F(iFoff+iTri(iP,iU)) = Zero
     end do
   end do
 end do
@@ -118,12 +115,12 @@ do iSym=1,nSym
     jOrb = nOrb(jSym)
     jAsh = nAsh(jSym)
     jIsh = nIsh(jSym)
-    ijSym = 1+ieor(iSym-1,jSym-1)
+    ijSym = Mul(iSym,jSym)
     do kSym=1,nSym
       kAsh = nAsh(kSym)
       do lSym=1,kSym
         lAsh = nAsh(lSym)
-        klSym = 1+ieor(kSym-1,lSym-1)
+        klSym = Mul(kSym,lSym)
 
         ! find cases
         icase = 4
@@ -140,15 +137,13 @@ do iSym=1,nSym
           iDoff = off_Dmat(iSym)
           do iV=1,kAsh
             do iX=1,iV
-              iVX = iTri(iV)+iX
+              iVX = iTri(iV,iX)
               DVX = Two*D(iDoff+iVX)
               if (iX == iV) DVX = D(iDoff+iVX)
               do iU=1,jAsh
-                iUV = iTri(iU)+iV
-                if (iV > iU) iUV = iTri(iV)+iU
+                iUV = iTri(iU,iV)
                 DUV = ExFac*Half*D(iDoff+iUV)
-                iUX = iTri(iU)+iX
-                if (iX > iU) iUX = iTri(iX)+iU
+                iUX = iTri(iU,iX)
                 DUX = ExFac*Half*D(iDoff+iUX)
                 if (iX == iV) then
                   DUV = ExFac*Half*DUV
@@ -159,25 +154,23 @@ do iSym=1,nSym
                 do iP=1,iIsh
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU)+iP
+                  iPU = iTri(iIsh+iU,iP)
                   F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
-                  iPV = iTri(iIsh+iV)+iP
+                  iPV = iTri(iIsh+iV,iP)
                   F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
-                  iPX = iTri(iIsh+iX)+iP
+                  iPX = iTri(iIsh+iX,iP)
                   F(iFoff+iPX) = F(iFoff+iPX)-DUV*Temp
                 end do
                 ! active/active block and iP<=(iIsh+iU)
                 do iP=iIsh+1,iIsh+iU
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU)+iP
+                  iPU = iTri(iIsh+iU,iP)
                   F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
-                  iPV = iTri(iIsh+iV)+iP
-                  if (iP > (iIsh+iV)) iPV = iTri(iP)+iIsh+iV
+                  iPV = iTri(iIsh+iV,iP)
                   F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
                   if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
-                  iPX = iTri(iIsh+iX)+iP
-                  if (iP > (iIsh+iX)) iPX = iTri(iP)+iIsh+iX
+                  iPX = iTri(iIsh+iX,iP)
                   F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
                   if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
                 end do
@@ -185,12 +178,10 @@ do iSym=1,nSym
                 do iP=iIsh+iU+1,iIsh+iAsh
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPV = iTri(iIsh+iV)+iP
-                  if (iP > (iIsh+iV)) iPV = iTri(iP)+iIsh+iV
+                  iPV = iTri(iIsh+iV,iP)
                   F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
                   if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
-                  iPX = iTri(iIsh+iX)+iP
-                  if (iP > (iIsh+iX)) iPX = iTri(iP)+iIsh+iX
+                  iPX = iTri(iIsh+iX,iP)
                   F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
                   if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
                 end do
@@ -198,11 +189,11 @@ do iSym=1,nSym
                 do iP=iIsh+iAsh+1,iOrb
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPU = iTri(iP)+iIsh+iU
+                  iPU = iTri(iIsh+iU,iP)
                   F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
-                  iPV = iTri(iP)+iIsh+iV
+                  iPV = iTri(iIsh+iV,iP)
                   F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
-                  iPX = iTri(iP)+iIsh+iX
+                  iPX = iTri(iIsh+iX,iP)
                   F(iFoff+iPX) = F(iFoff+iPX)-DUV*Temp
                 end do
                 off_PUVX(iSym) = off_PUVX(iSym)+iOrb
@@ -217,7 +208,7 @@ do iSym=1,nSym
           kDoff = off_Dmat(kSym)
           do iV=1,kAsh
             do iX=1,iV
-              iVX = iTri(iV)+iX
+              iVX = iTri(iV,iX)
               DVX = Two*D(kDoff+iVX)
               if (iX == iV) DVX = D(kDoff+iVX)
               do iU=1,jAsh
@@ -226,14 +217,14 @@ do iSym=1,nSym
                 do iP=1,iIsh
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU)+iP
+                  iPU = iTri(iIsh+iU,iP)
                   F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
                 end do
                 ! active/active block and iP<=(iIsh+iU)
                 do iP=iIsh+1,iIsh+iU
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU)+iP
+                  iPU = iTri(iIsh+iU,iP)
                   F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
                 end do
                 iPUVX = iPUVX+iAsh-iU
@@ -241,7 +232,7 @@ do iSym=1,nSym
                 do iP=iIsh+iAsh+1,iOrb
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPU = iTri(iP)+iIsh+iU
+                  iPU = iTri(iIsh+iU,iP)
                   F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
                 end do
                 off_PUVX(iSym) = off_PUVX(iSym)+iOrb
@@ -259,22 +250,21 @@ do iSym=1,nSym
           do iV=1,kAsh
             do iX=1,lAsh
               do iU=1,jAsh
-                iUX = iTri(iU)+iX
-                if (iX > iU) iUX = iTri(iX)+iU
+                iUX = iTri(iU,iX)
                 DUX = ExFac*Half*D(jDoff+iUX)
                 iPUVX = off_PUVX(iSym)
                 ! inactive/active block
                 do iP=1,iIsh
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPV = iTri(iIsh+iV)+iP
+                  iPV = iTri(iIsh+iV,iP)
                   F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
                 end do
                 ! active/active block and iP<=(iIsh+iV)
                 do iP=iIsh+1,iIsh+iV
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPV = iTri(iIsh+iV)+iP
+                  iPV = iTri(iIsh+iV,iP)
                   F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
                 end do
                 iPUVX = iPUVX+iAsh-iV
@@ -282,28 +272,27 @@ do iSym=1,nSym
                 do iP=iIsh+iAsh+1,iOrb
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPV = iTri(iP)+iIsh+iV
+                  iPV = iTri(iIsh+iV,iP)
                   F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
                 end do
                 off_PUVX(iSym) = off_PUVX(iSym)+iOrb
               end do
               do iU=1,iAsh
-                iUV = iTri(iU)+iV
-                if (iV > iU) iUV = iTri(iV)+iU
+                iUV = iTri(iU,iV)
                 DUV = ExFac*Half*D(iDoff+iUV)
                 iPUVX = off_PUVX(jSym)
                 ! inactive/active block
                 do iP=1,jIsh
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPX = iTri(jIsh+iX)+iP
+                  iPX = iTri(jIsh+iX,iP)
                   F(jFoff+iPX) = F(jFoff+iPX)-DUV*Temp
                 end do
                 ! active/active block and iP<=(jIsh+iX)
                 do iP=jIsh+1,jIsh+iX
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPX = iTri(jIsh+iX)+iP
+                  iPX = iTri(jIsh+iX,iP)
                   F(jFoff+iPX) = F(jFoff+iPX)-DUV*Temp
                 end do
                 iPUVX = iPUVX+jAsh-iX
@@ -311,7 +300,7 @@ do iSym=1,nSym
                 do iP=jIsh+jAsh+1,jOrb
                   iPUVX = iPUVX+1
                   Temp = PUVX(iPUVX)
-                  iPX = iTri(iP)+jIsh+iX
+                  iPX = iTri(jIsh+iX,iP)
                   F(jFoff+iPX) = F(jFoff+iPX)-DUV*Temp
                 end do
                 off_PUVX(jSym) = off_PUVX(jSym)+jOrb

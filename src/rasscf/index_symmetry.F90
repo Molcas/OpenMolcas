@@ -13,6 +13,7 @@
 
 module index_symmetry
 
+use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Two, Half
 use Definitions, only: iwp
 
@@ -45,7 +46,7 @@ pure subroutine tuple_one_el_idx(n,i,j)
   integer(kind=iwp), intent(out) :: i, j
 
   i = ceiling(-Half+sqrt(Two*n))
-  j = n-(i-1)*i/2
+  j = n-nTri_Elem(i-1)
 
 end subroutine tuple_one_el_idx
 
@@ -55,7 +56,7 @@ pure subroutine array_one_el_idx(n,idx)
   integer(kind=iwp), intent(out) :: idx(2)
 
   idx(1) = ceiling(-Half+sqrt(Two*n))
-  idx(2) = n-(idx(1)-1)*idx(1)/2
+  idx(2) = n-nTri_Elem(idx(1)-1)
 
 end subroutine array_one_el_idx
 
@@ -72,11 +73,8 @@ pure function tuple_1el_idx_flatten(i,j) result(n)
 
   integer(kind=iwp) :: n
   integer(kind=iwp), intent(in) :: i, j
-  integer(kind=iwp) :: p, q
 
-  p = max(i,j)
-  q = min(i,j)
-  n = q+p*(p-1)/2
+  n = iTri(i,j)
 
 end function tuple_1el_idx_flatten
 
@@ -87,12 +85,12 @@ pure subroutine tuple_two_el_idx(n,iorb,jorb,korb,lorb)
   integer(kind=iwp) :: ijidx, klidx
 
   ijidx = ceiling(-Half+sqrt(Two*n))
-  klidx = n-(ijidx-1)*ijidx/2
+  klidx = n-nTri_Elem(ijidx-1)
 
   iorb = ceiling(-Half+sqrt(Two*ijidx))
-  jorb = ijidx-(iorb-1)*iorb/2
+  jorb = ijidx-nTri_Elem(iorb-1)
   korb = ceiling(-Half+sqrt(Two*klidx))
-  lorb = klidx-(korb-1)*korb/2
+  lorb = klidx-nTri_Elem(korb-1)
 
 end subroutine tuple_two_el_idx
 
@@ -103,12 +101,12 @@ pure subroutine array_two_el_idx(n,idx)
   integer(kind=iwp) :: ijidx, klidx
 
   ijidx = ceiling(-Half+sqrt(Two*n))
-  klidx = n-(ijidx-1)*ijidx/2
+  klidx = n-nTri_Elem(ijidx-1)
 
   idx(1) = ceiling(-Half+sqrt(Two*ijidx))
-  idx(2) = ijidx-(idx(1)-1)*idx(1)/2
+  idx(2) = ijidx-nTri_Elem(idx(1)-1)
   idx(3) = ceiling(-Half+sqrt(Two*klidx))
-  idx(4) = klidx-(idx(3)-1)*idx(3)/2
+  idx(4) = klidx-nTri_Elem(idx(3)-1)
 
 end subroutine array_two_el_idx
 
@@ -137,12 +135,9 @@ function tuple_2el_idx_flatten_2(p,q,r,s,pq,rs) result(pqrs)
   integer(kind=iwp), intent(in) :: p, q, r, s
   integer(kind=iwp), intent(out) :: pq, rs
 
-  if (p >= q) pq = p*(p-1)/2+q
-  if (p < q) pq = q*(q-1)/2+p
-  if (r >= s) rs = r*(r-1)/2+s
-  if (r < s) rs = s*(s-1)/2+r
-  if (pq >= rs) pqrs = pq*(pq-1)/2+rs
-  if (pq < rs) pqrs = rs*(rs-1)/2+pq
+  pq = iTri(p,q)
+  rs = iTri(r,s)
+  pqrs = iTri(pq,rs)
 
 end function tuple_2el_idx_flatten_2
 

@@ -28,6 +28,7 @@ subroutine OutCtlSplit(CMO,OCCN,SMAT,lOPTO)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
 use rasscf_global, only: BName, CBLBM, CMax, DE, ECAS, Ener, ESX, FDIAG, HALFQ, iADR15, IBLBM, iPCMRoot, IPT2, iRLXRoot, iSPDen, &
@@ -462,7 +463,7 @@ if (IPRLEV >= VERBOSE) then
         write(u6,*)
         call TRIPRT(' ',' ',X6(IND),NASH(ISYM))
       end if
-      IND = IND+NASH(ISYM)*(NASH(ISYM)+1)/2
+      IND = IND+nTri_Elem(NASH(ISYM))
 50    continue
     end do
   end if

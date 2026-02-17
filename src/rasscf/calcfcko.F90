@@ -13,6 +13,7 @@
 
 subroutine CalcFckO(CMO,FI,FA,FckO)
 
+use Index_Functions, only: iTri, nTri_Elem
 use rasscf_global, only: NAC
 use general_data, only: NASH, NBAS, NFRO, NISH, NSYM, NTOT1, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -40,17 +41,17 @@ do ISym=1,NSym
     FckOt(:,:) = Zero
     !write(u6,*)'Print FI Matrix'
     !do IBas=1,NB
-    !  write(u6,*) (FI(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
+    !  write(u6,*) (FI(IOff1+iTri(IBas,JBas)),JBas=1,IBas)
     !end do
     !write(u6,*)'Print FA Matrix'
     !do IBas=1,NB
-    ! write(u6,*) ( FA(IOff1+(IBas-1)*IBas/2+JBas),JBas=1,IBas)
+    ! write(u6,*) ( FA(IOff1+iTri(IBas,JBas)),JBas=1,IBas)
     !end do
     !write(u6,*) 'Active CMO mat for sym',ISym
     !call RecPrt(' ',' ',CMO(IOff2+NI*NB),NB,NA)
     do IBas=1,NB
       do JBas=1,IBas
-        FIAAO(jBas,iBas) = FI(IOff1+(IBas-1)*IBas/2+JBas)+FA(IOff1+(IBas-1)*IBas/2+JBas)
+        FIAAO(jBas,iBas) = FI(IOff1+iTri(IBas,JBas))+FA(IOff1+iTri(IBas,JBas))
         FIAAO(iBas,jBas) = FIAAO(jBas,iBas)
       end do
     end do
@@ -69,7 +70,7 @@ do ISym=1,NSym
     call mma_deallocate(Scr)
     call mma_deallocate(FckOt)
   end if
-  IOff1 = IOff1+NB*(NB+1)/2
+  IOff1 = IOff1+nTri_Elem(NB)
   IOff2 = IOff2+NB**2
   IOff3 = IOff3+NA
 end do

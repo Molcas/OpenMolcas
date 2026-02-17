@@ -17,6 +17,7 @@
 
 subroutine CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
 
+use Index_Functions, only: nTri_Elem
 use CMS, only: CMSNotConverged, CMSThres, LargestQaaGrad, NCMSScale, NeedMoreStep, nPosHess
 use rasscf_global, only: CMSThreshold, iCMSIterMax, iCMSIterMin, lRoots, NAC
 use PrintLevel, only: USUAL
@@ -39,7 +40,7 @@ IPRLEV = IPRLOC(6)
 lRoots2 = lRoots**2
 NAC2 = NAC**2
 nDDg = lRoots2**2
-nSPair = (lRoots-1)*lRoots/2
+nSPair = nTri_Elem(lRoots-1)
 nSPair2 = nSPair**2
 CMSThres = CMSThreshold
 call mma_allocate(DDg,nDDg)

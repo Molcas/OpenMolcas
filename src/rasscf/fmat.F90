@@ -56,6 +56,7 @@ subroutine Fmat(CMO,PUVX,D,D1A,FI,FA)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use RunFile_procedures, only: Get_dExcdRa
 use rasscf_global, only: DFTFOCK, ECAS, EMY, ExFac, KSDFT, l_casdft, NAC, NewFock, nFint, VIA, VIA_DFT
 use PrintLevel, only: DEBUG
@@ -127,7 +128,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FI(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
 
   write(u6,*)
@@ -138,7 +139,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FA(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
 end if
 
@@ -175,7 +176,7 @@ if (iPrLev >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FI(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
   write(u6,*)
   write(u6,*) ' FA in AO-basis in fmat'
@@ -185,7 +186,7 @@ if (iPrLev >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FA(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
 end if
 
@@ -206,9 +207,9 @@ do iSym=1,nSym
   call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,FI(iOff3),iOrb)
   call mma_deallocate(Tmp2)
   call mma_deallocate(Tmp1)
-  iOff1 = iOff1+(iBas*iBas+iBas)/2
+  iOff1 = iOff1+nTri_Elem(iBas)
   iOff2 = iOff2+iBas*iBas
-  iOff3 = iOff3+(iOrb*iOrb+iOrb)/2
+  iOff3 = iOff3+nTri_Elem(iOrb)
 end do
 
 ! transform FA from AO to MO basis
@@ -228,9 +229,9 @@ do iSym=1,nSym
   call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,FA(iOff3),iOrb)
   call mma_deallocate(Tmp2)
   call mma_deallocate(Tmp1)
-  iOff1 = iOff1+(iBas*iBas+iBas)/2
+  iOff1 = iOff1+nTri_Elem(iBas)
   iOff2 = iOff2+iBas*iBas
-  iOff3 = iOff3+(iOrb*iOrb+iOrb)/2
+  iOff3 = iOff3+nTri_Elem(iOrb)
 end do
 
 !***********************************************************************
@@ -273,9 +274,9 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
     call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,TmpFck(ipTmpFckI+iOff3-1),iOrb)
     call mma_deallocate(Tmp2)
     call mma_deallocate(Tmp1)
-    iOff1 = iOff1+(iBas*iBas+iBas)/2
+    iOff1 = iOff1+nTri_Elem(iBas)
     iOff2 = iOff2+iBas*iBas
-    iOff3 = iOff3+(iOrb*iOrb+iOrb)/2
+    iOff3 = iOff3+nTri_Elem(iOrb)
   end do
 
   ! Transform Active DFT Fock from AO to MO
@@ -297,9 +298,9 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
       call DGEMM_Tri('T','N',iOrb,iOrb,iBas,One,Tmp2,iBas,CMO(iOff2+(iFro*iBas)),iBas,Zero,TmpFck(ipTmpFckA+iOff3-1),iOrb)
       call mma_deallocate(Tmp2)
       call mma_deallocate(Tmp1)
-      iOff1 = iOff1+(iBas*iBas+iBas)/2
+      iOff1 = iOff1+nTri_Elem(iBas)
       iOff2 = iOff2+iBas*iBas
-      iOff3 = iOff3+(iOrb*iOrb+iOrb)/2
+      iOff3 = iOff3+nTri_Elem(iOrb)
     end do
   end if
 
@@ -317,7 +318,7 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
     do iSym=1,nSym
       do iOrb=1,nOrb(iSym)
         do jOrb=1,iOrb
-          ij = iOff1+iOrb*(iOrb-1)/2+jOrb
+          ij = iOff1+iTri(iOrb,jOrb)
           if (iOrb <= nIsh(iSym)) FI(ij) = FI(ij)+Half*(TmpFck(ipTmpFckI+ij-1)+TmpFck(ipTmpFckA+ij-1))
           if ((iOrb > nIsh(iSym)) .and. (iOrb <= nIsh(iSym)+nAsh(iSym))) then
             if (jOrb <= nIsh(iSym)) then
@@ -336,7 +337,7 @@ if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM') .and. (.not. l_casdft)) th
           end if
         end do
       end do
-      iOff1 = iOff1+(nOrb(iSym)*nOrb(iSym)+nOrb(iSym))/2
+      iOff1 = iOff1+nTri_Elem(nOrb(iSym))
     end do
   else
     write(u6,*) ' Not implemented yet'
@@ -353,7 +354,7 @@ if (iPrLev >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FA(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
 end if
 ! update Fock matrix by rescaling exchange term...
@@ -369,7 +370,7 @@ if (iPrLev >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FI(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
 end if
 if (iPrLev >= DEBUG) then
@@ -381,7 +382,7 @@ if (iPrLev >= DEBUG) then
   do iSym=1,nSym
     iOrb = nOrb(iSym)
     call TriPrt(' ',' ',FA(iOff),iOrb)
-    iOff = iOff+(iOrb*iOrb+iOrb)/2
+    iOff = iOff+nTri_Elem(iOrb)
   end do
 end if
 

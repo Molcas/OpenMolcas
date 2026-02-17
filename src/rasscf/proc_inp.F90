@@ -13,6 +13,7 @@
 
 subroutine Proc_Inp(DSCF,lOPTO,iRc)
 
+use Index_Functions, only: nTri_Elem
 use fortran_strings, only: to_upper, operator(.in.)
 use csfbas, only: CONF
 use lucia_data, only: CFTP
@@ -1817,7 +1818,7 @@ NRS3T = 0
 !end if
 do ISYM=1,NSYM
   NTOT = NTOT+NBAS(ISYM)
-  NTOT1 = NTOT1+NBAS(ISYM)*(NBAS(ISYM)+1)/2
+  NTOT1 = NTOT1+nTri_Elem(NBAS(ISYM))
   NTOT2 = NTOT2+NBAS(ISYM)**2
   NO2M = max(NO2M,NBAS(ISYM)**2)
   NRS1T = NRS1T+NRS1(ISYM)  ! for RAS
@@ -1829,12 +1830,12 @@ do ISYM=1,NSYM
   NDELT = NDELT+NDEL(ISYM)
   NSEC = NSEC+NSSH(ISYM)
   NORBT = NORBT+NORB(ISYM)
-  NTOT3 = NTOT3+(NORB(ISYM)+NORB(ISYM)**2)/2
-  NTOTSP = NTOTSP+(NASH(ISYM)*(NASH(ISYM)+1)/2)
+  NTOT3 = NTOT3+nTri_Elem(NORB(ISYM))
+  NTOTSP = NTOTSP+nTri_Elem(NASH(ISYM))
   NTOT4 = NTOT4+NORB(ISYM)**2
 end do
-NACPAR = (NASHT+NASHT**2)/2
-NACPR2 = (NACPAR+NACPAR**2)/2
+NACPAR = nTri_Elem(NASHT)
+NACPR2 = nTri_Elem(NACPAR)
 ! NASHT is called NAC in some places:
 NAC = NASHT
 ! Same, NISHT, NIN:
@@ -1970,7 +1971,7 @@ else
       ! or, last chance fallback, guess on singlet or doublet:
       if (DBG) write(u6,*) ' Runfile does not know UHFSPIN.'
       ISPIN = 1
-      if (NACTEL /= 2*(NACTEL/2)) ISPIN = 2
+      if (mod(NACTEL,2) /= 0) ISPIN = 2
       if (IPRLEV >= TERSE) then
         call WarningMessage(1,'Had to guess the spin.')
         write(u6,*) ' Warning: no input and no reliable source'
@@ -2174,7 +2175,7 @@ else
   if (ISPIN == NASHT+1) then
     do ISYM=1,NSYM
       NA = NASH(ISYM)
-      if (NA /= 2*(NA/2)) STSYM = MUL(STSYM,ISYM)
+      if (mod(NA,2) /= 0) STSYM = MUL(STSYM,ISYM)
     end do
   end if
 end if

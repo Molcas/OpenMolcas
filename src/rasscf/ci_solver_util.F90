@@ -31,7 +31,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-public :: wait_and_read, RDM_to_runfile, rdm_from_runfile, cleanMat, triangular_number, inv_triang_number, write_RDM
+public :: wait_and_read, RDM_to_runfile, rdm_from_runfile, cleanMat, write_RDM
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -152,6 +152,7 @@ subroutine CleanMat(MAT)
   ! DMAT will be destroyed and replaced with a positive semi-definite one.
   ! N-representability will be preserved.
 
+  use Index_Functions, only: iTri, nTri_Elem
   use Constants, only: Zero, One, Two
 
   real(kind=wp), intent(inout) :: MAT(NacPar)
@@ -177,14 +178,14 @@ subroutine CleanMat(MAT)
   ! Step 1: Diagonalize MAT. Eigenvalues are stored in diagonal of MAT
   trace = Zero
   do i=1,nac
-    trace = trace+mat(i*(i+1)/2)
+    trace = trace+mat(nTri_Elem(i))
   end do
   call JACOB(MAT_copy,EVC,NAC,NAC)
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'eigenvalues: '
   do i=1,nac
-    write(u6,*) MAT_copy(I*(I+1)/2)
+    write(u6,*) MAT_copy(nTri_Elem(I))
   end do
   write(u6,*) 'eigenvectors: '
   do i=1,nac
@@ -194,12 +195,12 @@ subroutine CleanMat(MAT)
   ! Set to zero negative eigenvalue and to TWO values larger than 2.0.
   cleanup_required = .false.
   do j=1,nac
-    if (MAT_copy(j*(j+1)/2) > Two) then
-      MAT_copy(j*(j+1)/2) = Two
+    if (MAT_copy(nTri_Elem(j)) > Two) then
+      MAT_copy(nTri_Elem(j)) = Two
       cleanup_required = .true.
     end if
-    if (MAT_copy(j*(j+1)/2) < 1.0e-12_wp) then
-      MAT_copy(j*(j+1)/2) = Zero
+    if (MAT_copy(nTri_Elem(j)) < 1.0e-12_wp) then
+      MAT_copy(nTri_Elem(j)) = Zero
       cleanup_required = .true.
     end if
   end do
@@ -207,7 +208,7 @@ subroutine CleanMat(MAT)
   if (cleanup_required) then
     trace = Zero
     do i=1,nac
-      trace = trace+MAT_copy(I*(I+1)/2)
+      trace = trace+MAT_copy(nTri_Elem(I))
     end do
     write(u6,*) 'trace after removing negative eigenvalues =',trace
     ! Combine pieced to form the output MAT
@@ -218,21 +219,21 @@ subroutine CleanMat(MAT)
     call dCopy_(nac**2,[Zero],0,Tmp2,1)
     do i=1,nac
       do j=1,nac
-        Tmp(j+(i-1)*nac) = EVC(j+(i-1)*NAC)*MAT_copy(I*(I+1)/2)
+        Tmp(j+(i-1)*nac) = EVC(j+(i-1)*NAC)*MAT_copy(nTri_Elem(I))
       end do
     end do
     call DGEMM_('N','T',nac,nac,nac,One,Tmp,nac,EVC,nac,Zero,Tmp2,nac)
     ! Copy back to MAT
     do i=1,nac
       do j=1,i
-        MAT(j+(i-1)*i/2) = Tmp2(j+(i-1)*nac)
+        MAT(iTri(i,j)) = Tmp2(j+(i-1)*nac)
       end do
     end do
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'trace after recombination:'
     trace = Zero
     do i=1,nac
-      trace = trace+MAT(i*(i+1)/2)
+      trace = trace+MAT(nTri_Elem(i))
     end do
 #   endif
     call mma_deallocate(tmp)
@@ -247,35 +248,16 @@ subroutine CleanMat(MAT)
 
 end subroutine cleanMat
 
-elemental function triangular_number(n)
-
-  integer(kind=iwp) :: triangular_number
-  integer(kind=iwp), intent(in) :: n
-
-  triangular_number = n*(n+1)/2
-
-end function
-
-!> This is the inverse function of triangular_number
-elemental function inv_triang_number(n) result(res)
-
-  use Constants, only: Half, Quart
-
-  integer(kind=iwp) :: res
-  integer(kind=iwp), intent(in) :: n
-
-  res = nint(sqrt(Quart+real(2*n,kind=wp))-Half)
-
-end function
-
 subroutine write_RDM(RDM,i_unit)
+
+  use Index_Functions, only: nTri_Elem_Rev
 
   real(kind=wp), intent(in) :: RDM(:)
   integer(kind=iwp), intent(in) :: i_unit
   integer(kind=iwp) :: curr_line, i, io_err, j, n_lines
 
   if (myrank == 0) then
-    n_lines = inv_triang_number(size(RDM))
+    n_lines = nTri_Elem_Rev(size(RDM))
 
     i = 1
     do curr_line=1,n_lines

@@ -25,6 +25,7 @@ subroutine CASDFT_terms(CMO,F,FI,D1I,D1A,D1S)
 ! M.P. Fuelscher, Lund, July 1990
 ! GLM, Minneapolis,   May 2013
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use rctfld_module, only: lRF
 use PrintLevel, only: DEBUG
@@ -161,7 +162,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 
@@ -269,7 +270,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ','(5G17.11)',FI(iOff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 
@@ -285,7 +286,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ','(5G17.11)',FI(iOff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 
@@ -321,7 +322,7 @@ call dcopy_(NTOT1,FI,1,X1,1)
 !  do iSym=1,nSym
 !    iBas = nBas(iSym)
 !    call TriPrt(' ','(5G17.11)',TmpFckI(ioff),iBas)
-!    iOff = iOff+(iBas*iBas+iBas)/2
+!    iOff = iOff+nTri_Elem(iBas)
 !  end do
 !end if
 !Call mma_deallocate(TmpFckI)
@@ -334,7 +335,7 @@ call dcopy_(NTOT1,FI,1,X1,1)
 !  do iSym=1,nSym
 !    iBas = nBas(iSym)
 !    call TriPrt(' ','(5G17.11)',X1(ioff),iBas)
-!    iOff = iOff+(iBas*iBas+iBas)/2
+!    iOff = iOff+nTri_Elem(iBas)
 !  end do
 !end if
 

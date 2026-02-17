@@ -13,6 +13,7 @@
 
 module orthonormalization
 
+use Index_Functions, only: nTri_Elem
 use general_data, only: nActEl, nBas, nDel, nDelt, nOrb, nSSH, nSym
 use rasscf_global, only: nFr, nIn, nOrbt, nSec, nTot3, nTot4, Tot_Nuc_Charge
 use output_ras, only: IPRLOC
@@ -212,7 +213,7 @@ subroutine update_orb_numbers(n_to_ON,nNew,nDel,nSSH,nOrb,nDelt,nSec,nOrbt,nTot3
     nDelt = nDelt+total_remove
     nSec = nSec-total_remove
     nOrbt = nOrbt-total_remove
-    nTot3 = sum((nOrb(:nSym)+nOrb(:nSym)**2)/2)
+    nTot3 = sum(nTri_Elem(nOrb(:nSym)))
     nTot4 = sum(nOrb(:nSym)**2)
   end if
 
@@ -249,7 +250,7 @@ subroutine read_S(S)
   real(kind=wp) :: Mol_Charge
   real(kind=wp), allocatable :: S_buffer(:)
 
-  size_S_buffer = sum(nBas(:nSym)*(nBas(:nSym)+1)/2)
+  size_S_buffer = sum(nTri_Elem(nBas(:nSym)))
   call mma_allocate(S_buffer,size_S_buffer+4)
   call read_raw_S(S_buffer)
   Tot_Nuc_Charge = S_buffer(size_S_buffer+4)

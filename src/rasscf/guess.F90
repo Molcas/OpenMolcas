@@ -33,6 +33,7 @@ subroutine Guess(CMO)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use general_data, only: NBAS, NSYM, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -80,7 +81,7 @@ do iSym=1,nSym
   call dCopy_(iBas,[one],0,CMO(i2),iBas+1)
   call Jacob(Tmp1(i1),CMO(i2),iBas,iBas)
   call JacOrd(Tmp1(i1),CMO(i2),iBas,iBas)
-  i1 = i1+(iBas*iBas+iBas)/2
+  i1 = i1+nTri_Elem(iBas)
   i2 = i2+iBas*iBas
 end do
 

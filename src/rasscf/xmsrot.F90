@@ -17,6 +17,7 @@
 
 subroutine XMSRot(CMO,FI,FA)
 
+use Index_Functions, only: nTri_Elem
 use rasscf_global, only: LROOTS, NAC
 use general_data, only: NTOT1, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -31,7 +32,7 @@ real(kind=wp), allocatable :: EigVec(:,:), FckO(:,:), FckS(:,:), GDMat(:,:,:)
 !GDMat: density matrix or transition density matrix
 
 ! Allocating Memory
-call mma_allocate(GDMat,lRoots*(lRoots+1)/2,NAC,NAC)
+call mma_allocate(GDMat,nTri_Elem(lRoots),NAC,NAC)
 call mma_allocate(FckO,NAC,NAC)
 call mma_allocate(FckS,lRoots,lRoots)
 call mma_allocate(EigVec,lRoots,lRoots)

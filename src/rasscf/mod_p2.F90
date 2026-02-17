@@ -11,6 +11,8 @@
 
 subroutine Mod_P2(P2mo,nP2Act,D1mo,nD1mo,DS1mo,ExFac,nDet)
 
+use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use nq_Info, only: iOff_Ash, mIrrep, nAsh
 use Constants, only: One, Two, Quart
 use Definitions, only: wp, iwp, u6
@@ -20,9 +22,6 @@ integer(kind=iwp) :: nP2Act, nD1mo, nDet
 real(kind=wp) :: P2mo(nP2Act), D1mo(nD1mo), DS1mo(nD1mo), ExFac
 integer(kind=iwp) :: i, i_, iIrrep, ij, ijIrrep, ijkIrrep, ijkl, ik, il, iOff_, j, j_, jIrrep, jk, jl, k, k_, kIrrep, kl, l, l_
 real(kind=wp) :: Fact, P2Act
-! Statement function
-integer(kind=iwp) :: iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -45,9 +44,9 @@ if (nDet == 1) then
 
   do iIrrep=0,mIrrep-1
     do jIrrep=0,mIrrep-1
-      ijIrrep = ieor(iIrrep,jIrrep)
+      ijIrrep = Mul(iIrrep+1,jIrrep+1)-1
       do kIrrep=0,mIrrep-1
-        ijkIrrep = ieor(ijIrrep,kIrrep)
+        ijkIrrep = Mul(ijIrrep+1,kIrrep+1)-1
 
         do k_=1,nASh(kIrrep)
           k = iOff_Ash(kIrrep)+k_

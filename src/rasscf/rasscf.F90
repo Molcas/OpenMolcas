@@ -49,6 +49,7 @@ subroutine RASSCF(IRETURN)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use Fock_util_global, only: ALGO, DoActive, DoCholesky
 use write_orbital_files, only: OrbFiles, putOrbFile, write_orb_per_iter
@@ -267,8 +268,7 @@ end if
 
 if (KSDFT(1:3) == 'SCF') then
   call Get_iScalar('System BitSwitch',iFlags)
-  iFlags = iand(iFlags,not(2**6))
-  call Put_iScalar('System BitSwitch',iFlags)
+  call Put_iScalar('System BitSwitch',ibclr(iFlags,6))
 end if
 
 ! If the ORBONLY option was chosen, then Proc_Inp just generated
@@ -1015,8 +1015,8 @@ if (.not. l_casdft) then !the following is skipped in CASDFT-GLM
     call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,TUVX,IFINAL)
   end if
 
-  ! call triprt('twxy',' ',TUVX,nAc*(nAc+1)/2)
-  ! call triprt('P-mat 2',' ',PMAT,nAc*(nAc+1)/2)
+  ! call triprt('twxy',' ',TUVX,nTri_Elem(nAc))
+  ! call triprt('P-mat 2',' ',PMAT,nTri_Elem(nAc))
 
   EAV = Zero
   if (DoSplitCAS) then
@@ -1085,7 +1085,7 @@ if (.not. l_casdft) then !the following is skipped in CASDFT-GLM
     do iSym=1,nSym
       iBas = nBas(iSym)
       call TriPrt(' ','(5G17.11)',Tmp1(iOff),iBas)
-      iOff = iOff+(iBas*iBas+iBas)/2
+      iOff = iOff+nTri_Elem(iBas)
     end do
 
     call mma_deallocate(Tmp1)
@@ -1168,7 +1168,7 @@ if (IPRLEV >= DEBUG) then
   do iSym=1,nSym
     iBas = nBas(iSym)
     call TriPrt(' ',' ',FA(iOff),iBas)
-    iOff = iOff+(iBas*iBas+iBas)/2
+    iOff = iOff+nTri_Elem(iBas)
   end do
 end if
 

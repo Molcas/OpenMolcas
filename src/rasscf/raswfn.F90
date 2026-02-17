@@ -11,6 +11,7 @@
 
 module RASWfn
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp
 
 implicit none
@@ -163,12 +164,12 @@ subroutine cre_raswfn()
                      '[NROOTS,NAC,NAC].')
 
   if (KeyTDM) then
-    wfn_transdens = mh5_create_dset_real(wfn_fileid,'TRANSITION_DENSITY_MATRIX',3,[NAC,NAC,lRoots*(lRoots-1)/2])
+    wfn_transdens = mh5_create_dset_real(wfn_fileid,'TRANSITION_DENSITY_MATRIX',3,[NAC,NAC,nTri_Elem(lRoots-1)])
     call mh5_init_attr(wfn_transdens,'DESCRIPTION','active 1-body transition density matrix, size [NAC,NAC] for each pair of '// &
                        'roots in NROOTS: [NROOTS*(NROOTS-1)/2,NAC,NAC].')
 
     if (iSpin > 1) then
-      wfn_transsdens = mh5_create_dset_real(wfn_fileid,'TRANSITION_SPIN_DENSITY_MATRIX',3,[NAC,NAC,lRoots*(lRoots-1)/2])
+      wfn_transsdens = mh5_create_dset_real(wfn_fileid,'TRANSITION_SPIN_DENSITY_MATRIX',3,[NAC,NAC,nTri_Elem(lRoots-1)])
       call mh5_init_attr(wfn_transsdens,'DESCRIPTION','active 1-body transition spin density matrix, size [NAC,NAC] for each '// &
                          'pair of roots in NROOTS: [NAC,NAC,NROOTS*(NROOTS-1)/2].')
     end if

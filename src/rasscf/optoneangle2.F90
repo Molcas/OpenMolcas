@@ -17,18 +17,18 @@
 
 subroutine OptOneAngle2(ang,change,R,GD,I1,I2,Vee,G)
 
+use Index_Functions, only: nTri_Elem
 use rasscf_global, only: lRoots, NAC
 use Constants, only: Zero, Three, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: ang, change, R(lRoots,lRoots), GD(lRoots*(lRoots+1)/2,NAC,NAC), Vee(lRoots), G(NAC,NAC,NAC,NAC)
+real(kind=wp) :: ang, change, R(lRoots,lRoots), GD(nTri_Elem(lRoots),NAC,NAC), Vee(lRoots), G(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: I1, I2
 integer(kind=iwp) :: IA, IMax, Itera, Itermax
 real(kind=wp) :: Angles(4), ScanA(31), ScanS(31), StepSize, SumOld, SumOld2, Sums(4), Vee1, Vee2
 logical(kind=iwp) :: Converged
 real(kind=wp), parameter :: Threshold = 1.0e-8_wp
-integer(kind=iwp), external :: RMax
 
 Converged = .false.
 stepsize = Three*deg2rad

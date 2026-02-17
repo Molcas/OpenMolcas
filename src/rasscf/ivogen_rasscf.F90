@@ -51,6 +51,7 @@ subroutine IvoGen_rasscf(nSym,nBas,nFro,nIsh,nAsh,nCMO,nEOrb,CMO,EOrb)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -76,7 +77,7 @@ MaxBOO = 0
 nOcc(1:nSym) = 0
 do iSym=1,nSym
   nOcc(iSym) = nFro(iSym)+nIsh(iSym)+nAsh(iSym)
-  nBT = nBT+nBas(iSym)*(nBas(iSym)+1)/2
+  nBT = nBT+nTri_Elem(nBas(iSym))
   MaxBas = max(MaxBas,nBas(iSym))
   MaxOrO = max(MaxOrO,nBas(iSym)-nOcc(iSym))
   MaxBOO = max(MaxBOO,nBas(iSym)*(nBas(iSym)-nOcc(iSym)))
@@ -119,7 +120,7 @@ iOff = 0
 do iSym=1,nSym
   iBas = nBas(iSym)
   call TriPrt('IvoGen: OneHam:','(5G17.11)',OneHam(1+iOff),iBas)
-  iOff = iOff+(iBas*iBas+iBas)/2
+  iOff = iOff+nTri_Elem(iBas)
 end do
 #endif
 
@@ -130,7 +131,7 @@ call mma_allocate(FckS,MaxBas**2,Label='FckS')
 call mma_allocate(FckH,MaxBOO,Label='FckH')
 
 ! Allocate memory for transformed Fock matrix
-call mma_allocate(FckT,MaxOrO*(MaxOrO+1)/2,Label='FckT')
+call mma_allocate(FckT,nTri_Elem(MaxOrO),Label='FckT')
 
 ij = 1
 iCMO = 1
@@ -168,7 +169,7 @@ do iSym=1,nSym
   ! Update pointers
   iCMO = iCMO+nOrbi*nBas(iSym)
   i_EOr = i_EOr+nOrbi
-  ij = ij+nBas(iSym)*(nBas(iSym)+1)/2
+  ij = ij+nTri_Elem(nBas(iSym))
 
 end do
 

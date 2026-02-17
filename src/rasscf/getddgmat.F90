@@ -17,38 +17,25 @@
 
 subroutine GetDDgMat(DDg,GDMat,Gtuvx)
 
+use Index_Functions, only: iTri, nTri_Elem
 use rasscf_global, only: lRoots, NAC
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DDG(lRoots,lRoots,lRoots,lRoots), GDMat(lRoots*(lRoots+1)/2,NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
-integer(kind=iwp) :: iI, iII, iJ, iJJ, iK, iKK, iL, iLL, it, iu, iv, ix
+real(kind=wp) :: DDG(lRoots,lRoots,lRoots,lRoots), GDMat(nTri_Elem(lRoots),NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
+integer(kind=iwp) :: iI, iJ, iK, iL, it, iu, iv, ix
 
 do iI=1,lRoots
   do iJ=1,lRoots
-    if (iJ > iI) then
-      iJJ = iI
-      iII = iJ
-    else
-      iII = iI
-      iJJ = iJ
-    end if
     do iK=1,lRoots
       do iL=1,lRoots
-        if (iL > iK) then
-          iLL = iK
-          iKK = iL
-        else
-          iLL = iL
-          iKK = iK
-        end if
         DDG(iI,iJ,iK,iL) = Zero
         do it=1,NAC
           do iu=1,NAC
             do iv=1,NAC
               do ix=1,NAC
-                DDG(iI,iJ,iK,iL) = DDG(iI,iJ,iK,iL)+GDMat(iII*(iII-1)/2+iJJ,it,iu)*GDMat(iKK*(iKK-1)/2+iLL,iv,ix)*Gtuvx(it,iu,iv,ix)
+                DDG(iI,iJ,iK,iL) = DDG(iI,iJ,iK,iL)+GDMat(iTri(iI,iJ),it,iu)*GDMat(iTri(iL,IK),iv,ix)*Gtuvx(it,iu,iv,ix)
               end do
             end do
           end do

@@ -17,6 +17,7 @@
 
 subroutine CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
 
+use Index_Functions, only: iTri
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -32,7 +33,7 @@ do K=2,lRoots
   do L=1,K-1
     iLoc1 = K+(K-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
     iLoc2 = L+(L-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
-    iKL = (K-1)*(K-2)/2+L
+    iKL = iTri(K-1,L)
     Grad(iKL) = DDg(iLoc1)-DDg(iLoc2)
   end do
 end do

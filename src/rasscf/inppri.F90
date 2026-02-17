@@ -438,7 +438,7 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
   call DecideOnCholesky(DoCholesky)
   if (DoCholesky) then
     call Get_iScalar('System BitSwitch',iDoRI)
-    if (iand(iDoRI,1024) == 1024) then
+    if (btest(iDoRI,10)) then
       if (DoLocK) then
         write(u6,Fmt2//'A,T45,I6)') 'RASSCF algorithm: LK RI/DF'
       else

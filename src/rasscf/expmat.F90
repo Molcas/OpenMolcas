@@ -25,6 +25,7 @@
 
 subroutine ExpMat(M,A,DimM,LenA)
 
+use Index_Functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -39,7 +40,7 @@ N = DimM**2
 call FZero(MatA,N)
 do I=2,DimM
   do J=1,I-1
-    iIJ2 = (I-2)*(I-1)/2+J
+    iIJ2 = iTri(I-1,J)
     iIJ1 = (I-1)*DimM+J
     MatA(iIJ1) = A(iIJ2)
     iIJ1 = (J-1)*DimM+I

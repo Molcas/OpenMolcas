@@ -47,11 +47,12 @@ subroutine NEWORB_RASSCF(CMOO,CMON,FP,FTR,VEC,WO,SQ,CMOX,D,OCCN)
 ! OCNN    : array of real, input/output
 !           MO occupation numbers
 
+use Index_Functions, only: iTri, nTri_Elem
 use gas_data, only: NGAS, NGSSH
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use general_data, only: JOBIPH, NASH, NBAS, NDEL, NFRO, NISH, NSSH, NSYM, NTOT, NTOT2
-use rasscf_global, only: FDIAG, iADR15, iFORDE, iOrbTyp, iOrdEM, iSupSM, iTRI, ixSym
+use rasscf_global, only: FDIAG, iADR15, iFORDE, iOrbTyp, iOrdEM, iSupSM, ixSym
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 #else
@@ -179,7 +180,7 @@ do ISYM=1,NSYM
     if (ngssh(igas,isym) /= 0) then
       ! MOVE D TO TRIANGULAR FORM
       NTU = 0
-      ntud = istd+itri(ioff+1)
+      ntud = istd+nTri_Elem(ioff)
       do NT=1,ngssh(igas,isym)
         ntud = ntud+ioff
         nttr = nt+nio+ioff
@@ -245,9 +246,9 @@ do ISYM=1,NSYM
               end do
             end if
             ! Also swap eigenvalues:
-            SWAP = FTR((JSEL*(JSEL+1))/2)
-            FTR((JSEL*(JSEL+1))/2) = FTR((I*(I+1))/2)
-            FTR((I*(I+1))/2) = SWAP
+            SWAP = FTR(nTri_Elem(JSEL))
+            FTR(nTri_Elem(JSEL)) = FTR(nTri_Elem(I))
+            FTR(nTri_Elem(I)) = SWAP
           else
             !PAM01 If swap is not needed, still apply phase control!!
             if (VEC(I+ngssh(igas,isym)*(I-1)) < Zero) then
@@ -284,7 +285,7 @@ do ISYM=1,NSYM
       ! FA:  no longer setting energies to 0 (though in principle ill-def).
 
       ! IFG: Pick the diagonal elements of the transformed Fock matrix
-      NFI_ = (NFO+NIO+ioff)*(NFO+NIO+ioff+1)/2
+      NFI_ = nTri_Elem(NFO+NIO+ioff)
       NO1 = IB+NFO+NIO+ioff
       do NT=1,ngssh(igas,isym)
         NFI_ = NFI_+NFO+NIO+ioff
@@ -316,7 +317,7 @@ do ISYM=1,NSYM
         NAB = NAB+1
         NAT = NA+NIO+NAO
         NBT = NB+NIO+NAO
-        NABT = ISTFCK+(NAT**2-NAT)/2+NBT
+        NABT = ISTFCK+iTri(NAT,NBT)
         FTR(NAB) = FP(NABT)
         if (IXSYM(IB+NFO+NAT) /= IXSYM(IB+NFO+NBT)) FTR(NAB) = Zero
       end do
@@ -388,9 +389,9 @@ do ISYM=1,NSYM
   end if
 
   IB = IB+NBF
-  ISTFCK = ISTFCK+(N_OT**2+N_OT)/2
+  ISTFCK = ISTFCK+nTri_Elem(N_OT)
   ISTMO1 = ISTMO1+NBF**2
-  ISTD = ISTD+(NAO**2+NAO)/2
+  ISTD = ISTD+nTri_Elem(NAO)
   ! End of a long loop over symmetry.
 end do
 

@@ -17,6 +17,7 @@
 
 subroutine CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
 
+use Index_Functions, only: iTri
 use Constants, only: Zero, Two, Four
 use Definitions, only: wp, iwp
 
@@ -32,10 +33,10 @@ lRoots23 = lRoots2+lRoots3
 
 do K=2,lRoots
   do L=1,K-1
-    iKL = (K-2)*(K-1)/2+L
+    iKL = iTri(K-1,L)
     do M=2,lRoots
       do N=1,M-1
-        iMN = (M-2)*(M-1)/2+N
+        iMN = iTri(M-1,N)
         Vklmn = Zero
         Vlknm = Zero
         Vlkmn = Zero
