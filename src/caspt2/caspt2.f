@@ -178,7 +178,7 @@ C
       IF (INPUT%JMS) THEN
         ! in case of XMS, XDW, RMS, we need to rotate the states
         if (IFXMS .or. IFRMS) then
-          call xdwinit(Heff,H0,U0)
+          call xdwinit(Heff,H0,U0,nState)
         end if
         DO I=1,NSTATE
           ENERGY(I)=INPUT%HEFF(I,I)
@@ -192,8 +192,9 @@ C
 
 * In case of a XDW-CASPT2 calculation we first rotate the CASSCF
 * states according to the XMS prescription in xdwinit
-      if ((IFXMS .and. IFDW) .or. (IFRMS)) call xdwinit(Heff,H0,U0)
-      call wgtinit(Heff)
+      if ((IFXMS .and. IFDW) .or. (IFRMS)) call xdwinit(Heff,H0,U0,
+     &                                                  nState)
+      call wgtinit(Heff,nState)
 
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of

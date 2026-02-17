@@ -351,35 +351,14 @@ do NSP=1,NSYM
           LTUPQ = LTURS
         end if
         if (iSquar) then
-          ! TR2Sq(CMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
           call tr2Sq(CMO,NCMO,W1(LW1),W1(LW2),W1(LW3),W1(LW4),W1(LW5),W1(LW6),lBuf)
         else
-          ! tr2NsA(CMO,X1,X2,X3,pqUs,pqrU,pqTU,lBuf)
-          !LW2 = LW1+Mxx1
-          !LW3 = LW2+Mxx2
-          !LW4 = LW3+Mxx3
-          !LW5 = LW4+LURPQ
-          !LW6 = LW5+LRUPQ
-
-          if (IFTEST) then
-            write(u6,*) 'Calling tr2Nsa'
-            write(u6,*) 'MEMX=',MEMX
-            write(u6,*) 'lLW1=',LW2-LW1
-            write(u6,*) 'lLW2=',LW3-LW2
-            write(u6,*) 'lLW3=',LW4-LW3
-            write(u6,*) 'lLW4=',LW5-LW4
-            write(u6,*) 'lLW5=',LW6-LW5
-            write(u6,*) 'lLW6=',MEMX-(LW6-LW1)
-            write(u6,*)
-          end if
-
           LTUPQ = LTUPQX
           call tr2NsA1(CMO,NCMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW3),LW4-LW3,W1(LW4),LW5-LW4,W1(LW5),LW6-LW5,W1(LW6), &
                        MEMX-(LW6-LW1),lBuf)
           call tr2NsA2(CMO,NCMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW5),LW6-LW5,W1(LW6),MEMX-(LW6-LW1))
           call tr2NsA3(CMO,NCMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW4),LW5-LW4,W1(LW5),MEMX-(LW5-LW1))
           LTUPQ = LTURS
-          ! tr2NsB(CMO,X1,X2,pqrs,TUrs,lBuf,MAXRS)
           call tr2NsB(CMO,NCMO,W1(LW1),W1(LW2B),W1(LW3B),W1(LW4B),lBuf,MaxRS)
         end if
       end do

@@ -11,7 +11,7 @@
 * Copyright (C) 2012, Per Ake Malmqvist                                *
 *               2019, Stefano Battaglia                                *
 ************************************************************************
-      subroutine xdwinit(Heff,H0,U0)
+      subroutine xdwinit(Heff,H0,U0, nState)
 
       use definitions, only: wp, iwp, u6
       use caspt2_global, only: iPrGlb
@@ -21,12 +21,13 @@
       use caspt2_global, only: LUONEM
       use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nState, iSCF, nAshT, nConf,
+      use caspt2_module, only: iSCF, nAshT, nConf,
      &                         STSym, iAd1m, mState, IfChol
       use pt2_guga, only: CIThr
 
       implicit none
 
+      Integer(kind=iwp),intent(in):: NState
       Real(kind=wp),intent(inout) :: Heff(Nstate,Nstate)
       Real(kind=wp),intent(inout) :: H0(Nstate,Nstate)
       Real(kind=wp),intent(inout) :: U0(Nstate,Nstate)
@@ -64,9 +65,11 @@
         call GETDREF(DREF,SIZE(DREF))
 
 * Average the density
-        call DAXPY_(SIZE(DREF),wgt,DREF,1,DAVE,1)
+        DAVE(:) = DAVE(:) + DREF(:)
+!       call DAXPY_(SIZE(DREF),wgt,DREF,1,DAVE,1)
 
       end do
+      DAVE(:) = Wgt * DAVE(:)
 
       if (IPRGLB.GE.INSANE) then
         write(u6,*)' State-average 1-RDM'
