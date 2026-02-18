@@ -38,6 +38,11 @@
 C     Cholesky
       Integer iSym, iRC
 
+      CALL SETTIM()
+
+* Probe the environment to globally set the IPRGLB value
+      Call Set_Print_Level()
+
 *
 * Probe the RunFile for some basic information
 *

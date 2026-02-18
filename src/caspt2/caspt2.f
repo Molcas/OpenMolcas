@@ -130,57 +130,28 @@ C
 
       IRETURN = 0
 
-      CALL SETTIM()
-
-* Probe the environment to globally set the IPRGLB value
-      Call Set_Print_Level()
-
 *======================================================================*
 *
+!     Miscellaneous setup, reading of the input and start of writing
+!     input parameters in the log file.
       CALL PT2INI()
 
+!     Set up effective Hessian for multi-state calculations. Note that
+!     single state calculations are treated as an one-dimensional case.
       CALL HEFF_INI()
 
-*======================================================================*
-* Put the CASSCF energies on the diagonal of Heff, i.e. form the
-* first-order corrected effective Hamiltonian:
-*     Heff[1] = PHP
-* and later on we will add the second-order correction
-* Heff(2) = PH \Omega_1 P to Heff[1]
-      DO I=1,NSTATE
-        HEFF(I,I) = REFENE(I)
-      END DO
-      IF (IPRGLB.GE.VERBOSE) THEN
-        write(6,*)' Heff[1] in the original model space basis:'
-        call prettyprint(Heff,Nstate,Nstate)
-      END IF
-* If the EFFE keyword has been used, we already have the multi state
-* coupling Hamiltonian effective matrix, just copy the energies and
-* proceed to the MS coupling section.
+* If the EFFE keyword has been used proceed to the MS coupling section.
       IF (INPUT%JMS) THEN
-        ! in case of XMS, XDW, RMS, we need to rotate the states
-        if (IFXMS .or. IFRMS) then
-          call xdwinit(Heff,H0,U0,nState)
-        end if
-        DO I=1,NSTATE
-          ENERGY(I)=INPUT%HEFF(I,I)
-        END DO
-        HEFF(:,:)=INPUT%HEFF(:,:)
         Call Print_Truff()
         Call Post_Process()
         Call CASPT2_TERM()
         Return
       END IF
 
-* In case of a XDW-CASPT2 calculation we first rotate the CASSCF
-* states according to the XMS prescription in xdwinit
-      if ((IFXMS .and. IFDW) .or. (IFRMS)) call xdwinit(Heff,H0,U0,
-     &                                                  nState)
-      call wgtinit(Heff,nState)
-
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of
 * calculation: MS, XMS, DW or XDW.
+
       call rdminit()
 
       !! loop for multistate CASPT2 gradient
@@ -337,41 +308,7 @@ C
          TIOPRP=TIOTF13-TIOTF12
 
         if (.not. DoFCIQMC) then
-* Gradients.
-* Note: Quantities computed in gradients section can also
-* be used efficiently for computing Multi-State HEFF.
-* NOTE: atm the MS-CASPT2 couplings computed here are wrong!
 
-! The following gradient section computes neither gradient-related
-! quantities and effective Hamiltonian elements correctly. Commenting
-! it out must be a sensible solution.
-        !IF (IFDENS.AND..NOT.IFGRDT0) THEN
-        !  IF (IPRGLB.GE.VERBOSE) THEN
-        !     WRITE(6,*)
-        !     WRITE(6,'(20A4)')('****',I=1,20)
-        !     IF(NSTATE.GT.1) THEN
-        !     WRITE(6,*)' CASPT2 GRADIENT/MULTI-STATE COUPLINGS SECTION'
-        !     ELSE
-        !        WRITE(6,*)' CASPT2 GRADIENT SECTION'
-        !     END IF
-        !  END IF
-        !  Call StatusLine('CASPT2: ','Multi-State couplings')
-* SVC: for now, this part is only performed on the master node
-!#ifdef _MOLCAS_MPP_
-        !  IF (Is_Real_Par()) THEN
-        !    Call Set_Do_Parallel(.False.)
-        !    IF (KING()) CALL GRDCTL(HEFF)
-        !    Call Set_Do_Parallel(.True.)
-        !    CALL GASync()
-        !  ELSE
-!#endif
-        !    CALL GRDCTL(HEFF)
-!#ifdef _MOLCAS_MPP_
-        !  END IF
-!#endif
-        !END IF
-
-!        IF ((.NOT.IFDENS.OR.IFGRDT0).AND.IFMSCOUP) THEN
          IF (IFMSCOUP) THEN
 C     If this was NOT a gradient, calculation, then the multi-state
 C     couplings are more efficiently computed via three-body
@@ -385,68 +322,18 @@ C     transition density matrices.
            CALL MCCTL(HEFF,NSTATE,JSTATE)
          END IF
 
-         CALL TIMING(CPTF14,CPE,TIOTF14,TIOE)
-         CPUGRD=CPTF14-CPTF13
-         TIOGRD=TIOTF14-TIOTF13
-         CPUTOT=CPTF14-CPTF0
-         TIOTOT=TIOTF14-TIOTF0
+         end if
 
-         IF (ISTATE.EQ.1) THEN
-           CPUTOT=CPUTOT+CPUGIN
-           TIOTOT=TIOTOT+TIOGIN
-         ELSE
-           CPUGIN=0.0D0
-           TIOGIN=0.0D0
-           CPUFMB=0.0D0
-           TIOFMB=0.0D0
-           CPUINT=0.0D0
-           TIOINT=0.0D0
-         END IF
-        end if
-
-        IF (IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)
-          WRITE(6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',
-     &                         MSTATE(JSTATE)
-          WRITE(6,*)
-          WRITE(6,'(A)')       '                        '//
-     &                         ' cpu time  (s) '//
-     &                         ' wall time (s) '
-          WRITE(6,'(A)')       '                        '//
-     &                         ' ------------- '//
-     &                         ' ------------- '
-          WRITE(6,*)
-          WRITE(6,'(A,2F14.2)')'  Group initialization  ',CPUGIN,TIOGIN
-          WRITE(6,'(A,2F14.2)')'  - Fock matrix build   ',CPUFMB,TIOFMB
-          WRITE(6,'(A,2F14.2)')'  - integral transforms ',CPUINT,TIOINT
-          WRITE(6,'(A,2F14.2)')'  State initialization  ',CPUSIN,TIOSIN
-          WRITE(6,'(A,2F14.2)')'  - density matrices    ',CPUFG3,TIOFG3
-          WRITE(6,'(A,2F14.2)')'  CASPT2 equations      ',CPUPT2,TIOPT2
-          WRITE(6,'(A,2F14.2)')'  - H0 S/B matrices     ',CPUSBM,TIOSBM
-          WRITE(6,'(A,2F14.2)')'  - H0 S/B diag         ',CPUEIG,TIOEIG
-          WRITE(6,'(A,2F14.2)')'  - H0 NA diag          ',CPUNAD,TIONAD
-          WRITE(6,'(A,2F14.2)')'  - RHS construction    ',CPURHS,TIORHS
-          WRITE(6,'(A,2F14.2)')'  - PCG solver          ',CPUPCG,TIOPCG
-          WRITE(6,'(A,2F14.2)')'    - scaling           ',CPUSCA,TIOSCA
-          WRITE(6,'(A,2F14.2)')'    - lin. comb.        ',CPULCS,TIOLCS
-          WRITE(6,'(A,2F14.2)')'    - inner products    ',CPUOVL,TIOOVL
-          WRITE(6,'(A,2F14.2)')'    - basis transforms  ',CPUVEC,TIOVEC
-          WRITE(6,'(A,2F14.2)')'    - sigma routines    ',CPUSGM,TIOSGM
-          WRITE(6,'(A,2F14.2)')'  - array collection    ',CPUSER,TIOSER
-          WRITE(6,'(A,2F14.2)')'  Properties            ',CPUPRP,TIOPRP
-          if (.not. DoFCIQMC) then ! MS-CASPT2 currently not possible
-           WRITE(6,'(A,2F14.2)')'  MS coupling           ',CPUGRD,TIOGRD
-          end if
-          WRITE(6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
-          WRITE(6,*)
-        END IF
+        Call Iter_Timing()
 
 * End of long loop over states in the group
        END DO
+
        IF (IPRGLB.GE.USUAL) THEN
          CALL CollapseOutput(0,'CASPT2 computation for group ')
          WRITE(6,*)
        END IF
+
 * End of long loop over groups
         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
       END DO STATELOOP
@@ -643,7 +530,98 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
         CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
         IDSAVGRD = 0
       End If
+*======================================================================*
+* Put the CASSCF energies on the diagonal of Heff, i.e. form the
+* first-order corrected effective Hamiltonian:
+*     Heff[1] = PHP
+* and later on we will add the second-order correction
+* Heff(2) = PH \Omega_1 P to Heff[1]
+      DO I=1,NSTATE
+        HEFF(I,I) = REFENE(I)
+      END DO
+      IF (IPRGLB.GE.VERBOSE) THEN
+        write(6,*)' Heff[1] in the original model space basis:'
+        call prettyprint(Heff,Nstate,Nstate)
+      END IF
+* If the EFFE keyword has been used, we already have the multi state
+* coupling Hamiltonian effective matrix, just copy the energies.
+      IF (INPUT%JMS) THEN
+        ! in case of XMS, XDW, RMS, we need to rotate the states
+        if (IFXMS .or. IFRMS) then
+          call xdwinit(Heff,H0,U0,nState)
+        end if
+        DO I=1,NSTATE
+          ENERGY(I)=INPUT%HEFF(I,I)
+        END DO
+        HEFF(:,:)=INPUT%HEFF(:,:)
+      ELSE
+
+* In case of a XDW-CASPT2 calculation we first rotate the CASSCF
+* states according to the XMS prescription in xdwinit
+      if ((IFXMS .and. IFDW) .or. (IFRMS)) call xdwinit(Heff,H0,U0,
+     &                                                  nState)
+      call wgtinit(Heff,nState)
+      END IF
       End Subroutine HEFF_INI
+
+      Subroutine Iter_Timing()
+        if (.not. DoFCIQMC) then
+         CALL TIMING(CPTF14,CPE,TIOTF14,TIOE)
+         CPUGRD=CPTF14-CPTF13
+         TIOGRD=TIOTF14-TIOTF13
+         CPUTOT=CPTF14-CPTF0
+         TIOTOT=TIOTF14-TIOTF0
+
+         IF (ISTATE.EQ.1) THEN
+           CPUTOT=CPUTOT+CPUGIN
+           TIOTOT=TIOTOT+TIOGIN
+         ELSE
+           CPUGIN=0.0D0
+           TIOGIN=0.0D0
+           CPUFMB=0.0D0
+           TIOFMB=0.0D0
+           CPUINT=0.0D0
+           TIOINT=0.0D0
+         END IF
+        end if
+
+        IF (IPRGLB.GE.VERBOSE) THEN
+          WRITE(6,*)
+          WRITE(6,'(A,I6)')    '  CASPT2 TIMING INFO FOR STATE ',
+     &                         MSTATE(JSTATE)
+          WRITE(6,*)
+          WRITE(6,'(A)')       '                        '//
+     &                         ' cpu time  (s) '//
+     &                         ' wall time (s) '
+          WRITE(6,'(A)')       '                        '//
+     &                         ' ------------- '//
+     &                         ' ------------- '
+          WRITE(6,*)
+          WRITE(6,'(A,2F14.2)')'  Group initialization  ',CPUGIN,TIOGIN
+          WRITE(6,'(A,2F14.2)')'  - Fock matrix build   ',CPUFMB,TIOFMB
+          WRITE(6,'(A,2F14.2)')'  - integral transforms ',CPUINT,TIOINT
+          WRITE(6,'(A,2F14.2)')'  State initialization  ',CPUSIN,TIOSIN
+          WRITE(6,'(A,2F14.2)')'  - density matrices    ',CPUFG3,TIOFG3
+          WRITE(6,'(A,2F14.2)')'  CASPT2 equations      ',CPUPT2,TIOPT2
+          WRITE(6,'(A,2F14.2)')'  - H0 S/B matrices     ',CPUSBM,TIOSBM
+          WRITE(6,'(A,2F14.2)')'  - H0 S/B diag         ',CPUEIG,TIOEIG
+          WRITE(6,'(A,2F14.2)')'  - H0 NA diag          ',CPUNAD,TIONAD
+          WRITE(6,'(A,2F14.2)')'  - RHS construction    ',CPURHS,TIORHS
+          WRITE(6,'(A,2F14.2)')'  - PCG solver          ',CPUPCG,TIOPCG
+          WRITE(6,'(A,2F14.2)')'    - scaling           ',CPUSCA,TIOSCA
+          WRITE(6,'(A,2F14.2)')'    - lin. comb.        ',CPULCS,TIOLCS
+          WRITE(6,'(A,2F14.2)')'    - inner products    ',CPUOVL,TIOOVL
+          WRITE(6,'(A,2F14.2)')'    - basis transforms  ',CPUVEC,TIOVEC
+          WRITE(6,'(A,2F14.2)')'    - sigma routines    ',CPUSGM,TIOSGM
+          WRITE(6,'(A,2F14.2)')'  - array collection    ',CPUSER,TIOSER
+          WRITE(6,'(A,2F14.2)')'  Properties            ',CPUPRP,TIOPRP
+          if (.not. DoFCIQMC) then ! MS-CASPT2 currently not possible
+           WRITE(6,'(A,2F14.2)')'  MS coupling           ',CPUGRD,TIOGRD
+          end if
+          WRITE(6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
+          WRITE(6,*)
+        END IF
+      End Subroutine Iter_Timing
 *                                                                     *
 ***********************************************************************
 *                                                                     *
