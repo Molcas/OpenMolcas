@@ -25,7 +25,7 @@
       use caspt2_module, only: CPUFMB, CPUINT, DMRG, DoCumulant,
      &                         IEOF1M, IfDW, IfsadRef, IfXMS, jState,
      &                         nConf, STSym, TIOFMB, TIOINT, mState,
-     &                         iAd1m, IfChol
+     &                         iAd1m, IfChol, CPUGIN, TIOGIN
       use pt2_guga, only: CIThr
       use Constants, only: Zero, One
       use definitions, only: iwp, wp, u6
@@ -48,7 +48,10 @@
       real(kind=wp), allocatable:: CIRef(:,:), CIXMS(:)
       Integer(kind=iwp) I,J,iDisk,K,iState
       Real(kind=wp) Wij,CPU1,CPU0,TIO1,TIO0,CPU,TIO
+      Real(kind=wp) CPE,TIOE,CPTF0,TIOTF0,CPTF10,TIOTF10
 
+* ---------------------------------------------------------------------
+      CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 * ---------------------------------------------------------------------
 * Number of states in this group.
       IF (IPRGLB.EQ.DEBUG) THEN
@@ -303,5 +306,10 @@
         ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
       end if
 #endif
+* ---------------------------------------------------------------------
+      CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+      CPUGIN=CPTF10-CPTF0
+      TIOGIN=TIOTF10-TIOTF0
+* ---------------------------------------------------------------------
       End Subroutine  GPRINI_FINISH
       end SUBROUTINE GRPINI

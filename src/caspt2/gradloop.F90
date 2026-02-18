@@ -38,8 +38,8 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   character(len=60) :: STLNE2
 
 ! Timers
-  Real(kind=wp) :: CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14, &
-     &            TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14, &
+  Real(kind=wp) :: CPTF0, CPTF11, CPTF12, CPTF13, CPTF14, &
+     &            TIOTF0,TIOTF11,TIOTF12,TIOTF13,TIOTF14, &
      &               CPE,CPUTOT,TIOE,TIOTOT
 ! Indices
   Integer(kind=iwp) :: I,ISTATE,IGROUP,JSTATE_OFF
@@ -79,12 +79,8 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       WRITE(u6,*)
     END IF
 
-    CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
     CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0,nState)
 !   If ((IFXMS.and.IFDW).OR.IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
-    CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-    CPUGIN=CPTF10-CPTF0
-    TIOGIN=TIOTF10-TIOTF0
 
     If (do_grad) CALL CNSTFIFAFIMO(1)
 

@@ -20,16 +20,19 @@
       use caspt2_global, only: DREF, PREF
       use PrintLevel, only: DEBUG, USUAL
       use caspt2_module, only: CPUFG3, ERef, jState, nAshT, EASUM,
-     &                         TIOFG3, EPSA, mState, RefEne
+     &                         TIOFG3, EPSA, mState, RefEne,
+     &                         CPUSIN, TIOSIN
       use pt2_guga, only: iAdr10, CLab10
       IMPLICIT NONE
       CHARACTER(LEN=50)  STLNE2
 C     timers
-      REAL*8 CPU0,CPU1,CPU,
-     &       TIO0,TIO1,TIO
+      REAL*8 CPU0,CPU1,CPU,  CPTF0, CPTF11, CPE,
+     &       TIO0,TIO1,TIO, TIOTF0,TIOTF11,TIOE
 C     indices
       INTEGER I,J,IFTEST
-      ! INTEGER IDCI
+************************************************************************
+      CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+************************************************************************
 
       Write(STLNE2,'(A,I0)')
      &                'Compute H0 matrices for state ',MSTATE(JSTATE)
@@ -100,6 +103,9 @@ C     indices
        WRITE(6,'(A)')' H0 matrices have been computed.'
        WRITE(6,*)
       ENDIF
-
-      RETURN
-      END
+************************************************************************
+      CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
+      CPUSIN=CPTF11-CPTF0
+      TIOSIN=TIOTF11-TIOTF0
+************************************************************************
+      END SUBROUTINE STINI

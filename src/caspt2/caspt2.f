@@ -99,9 +99,10 @@ C
 #include "warnings.h"
       CHARACTER(len=60) STLNE2
 * Timers
-      REAL(kind=wp)  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
-     &       TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14,
-     &          CPE,CPUTOT,TIOE,TIOTOT
+      REAL(kind=wp)  CPTF12, CPTF13, CPTF14,
+     &               TIOTF12,TIOTF13,TIOTF14,
+     &               CPE,CPUTOT,TIOE,TIOTOT,
+     &               CPTF0, CPTF11, TIOTF0, TIOTF11
 * Indices
       INTEGER(kind=iwp) I
 #ifdef _DMRG_
@@ -264,6 +265,8 @@ C
       JSTATE_OFF=0
       STATELOOP: DO IGROUP=1,NGROUP
 
+       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+
        IF ((NLYGROUP.NE.0).AND.(IGROUP.NE.NLYGROUP)) THEN
          JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
          CYCLE
@@ -275,12 +278,8 @@ C
          WRITE(6,*)
        END IF
 
-       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
        CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,
      &             HEFF,H0,U0,nState)
-       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-       CPUGIN=CPTF10-CPTF0
-       TIOGIN=TIOTF10-TIOTF0
 
        If (do_grad) CALL CNSTFIFAFIMO(1)
 
@@ -290,11 +289,8 @@ C
 * Skip this state if we only need 1 state and it isn't this "one".
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
 
-         CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
          CALL STINI()
-         CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
-         CPUSIN=CPTF11-CPTF0
-         TIOSIN=TIOTF11-TIOTF0
+
 
 * Solve CASPT2 equation system and compute corr energies.
          IF (IPRGLB.GE.USUAL) THEN
@@ -305,6 +301,9 @@ C
 
          Write(STLNE2,'(A,I0)')'Solve CASPT2 eqs. for state ',
      &                               MSTATE(JSTATE)
+
+         CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
+
          Call StatusLine('CASPT2: ',STLNE2)
          CALL EQCTL2(ICONV)
 
