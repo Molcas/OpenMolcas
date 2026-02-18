@@ -32,7 +32,7 @@ use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoOri, sOpSiz
 use rctfld_module, only: lRF
 use gas_data, only: iDoGAS, NGAS, NGSSH
-use input_ras, only: KeyCION
+use input_ras, only: Key
 use rasscf_global, only: BName, CBLBM, cCI, CMAX, DE, DoDMRG, ECAS, Ener, ESX, FDIAG, HalfQ, iADR15, IBLBM, iCI, ICICH, iPCMRoot, &
                          iPT2, iRLXRoot, iRoot, iSPDen, iSupSM, iSymBB, ITER, ixSym, JBLBM, kIVO, KSDFT, lRoots, MaxOrbOut, NAC, &
                          NACPAR, NACPR2, NIN, NONEQ, nRoots, NSEC, OutFmt1, RFPert, RLXGrd, RotMax, Tot_Charge, Tot_El_Charge, &
@@ -158,169 +158,164 @@ if ((IPRLEV >= DEBUG) .and. (.not. lOPTO)) then
   write(u6,*)
 
 # if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
-  if (.not. DoBlockDMRG) goto 113
+  if (DoBlockDMRG) then
 
-# ifdef _ENABLE_DICE_SHCI_
-  Line = ' '
-  write(Line(left-2:),'(A)') 'DICE specifications:'
-  call CollapseOutput(1,Line)
-  write(u6,Fmt2//'A)') '--------------------------'
-  write(u6,*)
-  write(u6,Fmt2//'A,T70,L6)') 'Heat-bath configuration interaction (JCTC, 2017, 13, 1595)',DoBlockDMRG
-  write(u6,Fmt2//'A,T45,L6)') 'Semistochastic algorithm',Dice_stoc
-  write(u6,Fmt2//'A,T45,L6)') 'Full restart',dice_restart
-  write(u6,Fmt2//'A,T45,I6)') 'Max iterations',dice_iter
-  write(u6,Fmt2//'A,T45,ES10.3)') 'Epsilon1',dice_eps1
-  write(u6,Fmt2//'A,T45,ES10.3)') 'Epsilon2',dice_eps2
-  write(u6,Fmt2//'A,T45,I6)') 'SampleN',dice_sampleN
-  write(u6,Fmt2//'A,T45)') 'Occupation guess'
-  do iref_dice=1,nref_dice
-    write(u6,Fmt2//'A)') trim(diceocc(iref_dice))
-  end do
-  call CollapseOutput(0,'DICE specifications:')
-
-  ! Skip printing CI specifications in DICE
-  goto 114
-# endif
-
-  Line = ''
-  write(Line(left-2:),'(A)') 'DMRG sweep specifications:'
-  call CollapseOutput(1,Line)
-  write(u6,Fmt2//'A)') '--------------------------'
-  write(u6,*)
-  write(u6,Fmt2//'A,T45,I6)') 'Number of renormalized basis',MxDMRG
-  write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
-# ifdef _ENABLE_CHEMPS2_DMRG_
-  write(u6,Fmt2//'A,T45,I6)') 'Maximum number of sweeps',max_sweep
-  write(u6,Fmt2//'A,T45,I6)') 'Maximum number of sweeps in RDM',max_canonical
-  write(u6,Fmt2//'A,T45,ES10.3)') 'Threshold for restarting',chemps2_blb
-  write(u6,Fmt2//'A,T45,ES10.3)') 'Minimum Davidson tolerance',davidson_tol
-  write(u6,Fmt2//'A,T45,ES10.3)') 'DMRG convergence threshold',Half*THRE
-  write(u6,Fmt2//'A,T45,ES10.3)') 'Noise prefactor',chemps2_noise
-  write(u6,Fmt2//'A,T45,L6)') 'Restart from previous calculation',chemps2_restart
-  write(u6,Fmt2//'A,T45,L6)') 'Calculate 3-RDM and F.4-RDM',Do3RDM
-  write(u6,Fmt2//'A,T45,I6)') 'Restart scheme in 3-RDM and F.4-RDM',chemps2_lrestart
-  write(SNAC,'(I3)') NAC
-  write(u6,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)') 'Occupation guess',(HFOCC(ihfocc),ihfocc=1,NAC)
-# endif
-
-  ! NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
-  write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
-  call CollapseOutput(0,'DMRG sweep specifications:')
-
-  ! Skip printing CI specifications in DMRG-CASSCF
-  goto 114
-
-113 continue
-# endif
-
-  if (.not. doDMRG) then
-    Line = ''
-    write(Line(left-2:),'(A)') 'CI expansion specifications:'
+#   ifdef _ENABLE_DICE_SHCI_
+    Line = ' '
+    write(Line(left-2:),'(A)') 'DICE specifications:'
     call CollapseOutput(1,Line)
-    write(u6,Fmt2//'A)') '----------------------------'
+    write(u6,Fmt2//'A)') '--------------------------'
     write(u6,*)
-    write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
-    write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
-  end if
-  write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
-  if (ICICH == 0) then
-    if (nRoots == 1) then
-      if (doDMRG) then
-        write(u6,Fmt2//'A,(T45,10I6))') 'DMRG root used',IROOT(1)
+    write(u6,Fmt2//'A,T70,L6)') 'Heat-bath configuration interaction (JCTC, 2017, 13, 1595)',DoBlockDMRG
+    write(u6,Fmt2//'A,T45,L6)') 'Semistochastic algorithm',Dice_stoc
+    write(u6,Fmt2//'A,T45,L6)') 'Full restart',dice_restart
+    write(u6,Fmt2//'A,T45,I6)') 'Max iterations',dice_iter
+    write(u6,Fmt2//'A,T45,ES10.3)') 'Epsilon1',dice_eps1
+    write(u6,Fmt2//'A,T45,ES10.3)') 'Epsilon2',dice_eps2
+    write(u6,Fmt2//'A,T45,I6)') 'SampleN',dice_sampleN
+    write(u6,Fmt2//'A,T45)') 'Occupation guess'
+    do iref_dice=1,nref_dice
+      write(u6,Fmt2//'A)') trim(diceocc(iref_dice))
+    end do
+    call CollapseOutput(0,'DICE specifications:')
+#   else
+
+    Line = ''
+    write(Line(left-2:),'(A)') 'DMRG sweep specifications:'
+    call CollapseOutput(1,Line)
+    write(u6,Fmt2//'A)') '--------------------------'
+    write(u6,*)
+    write(u6,Fmt2//'A,T45,I6)') 'Number of renormalized basis',MxDMRG
+    write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
+#   ifdef _ENABLE_CHEMPS2_DMRG_
+    write(u6,Fmt2//'A,T45,I6)') 'Maximum number of sweeps',max_sweep
+    write(u6,Fmt2//'A,T45,I6)') 'Maximum number of sweeps in RDM',max_canonical
+    write(u6,Fmt2//'A,T45,ES10.3)') 'Threshold for restarting',chemps2_blb
+    write(u6,Fmt2//'A,T45,ES10.3)') 'Minimum Davidson tolerance',davidson_tol
+    write(u6,Fmt2//'A,T45,ES10.3)') 'DMRG convergence threshold',Half*THRE
+    write(u6,Fmt2//'A,T45,ES10.3)') 'Noise prefactor',chemps2_noise
+    write(u6,Fmt2//'A,T45,L6)') 'Restart from previous calculation',chemps2_restart
+    write(u6,Fmt2//'A,T45,L6)') 'Calculate 3-RDM and F.4-RDM',Do3RDM
+    write(u6,Fmt2//'A,T45,I6)') 'Restart scheme in 3-RDM and F.4-RDM',chemps2_lrestart
+    write(SNAC,'(I3)') NAC
+    write(u6,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)') 'Occupation guess',(HFOCC(ihfocc),ihfocc=1,NAC)
+#   endif
+
+    ! NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
+    write(u6,Fmt2//'A,T45,I6)') 'Root chosen for geometry opt.',IRLXROOT
+    call CollapseOutput(0,'DMRG sweep specifications:')
+#   endif
+
+  else
+# endif
+
+    if (.not. doDMRG) then
+      Line = ''
+      write(Line(left-2:),'(A)') 'CI expansion specifications:'
+      call CollapseOutput(1,Line)
+      write(u6,Fmt2//'A)') '----------------------------'
+      write(u6,*)
+      write(u6,Fmt2//'A,T40,I11)') 'Number of CSFs',NCSASM(STSYM)
+      write(u6,Fmt2//'A,T40,I11)') 'Number of determinants',NDTASM(STSYM)
+    end if
+    write(u6,Fmt2//'A,T45,I6)') 'Number of root(s) required',NROOTS
+    if (ICICH == 0) then
+      if (nRoots == 1) then
+        if (doDMRG) then
+          write(u6,Fmt2//'A,(T45,10I6))') 'DMRG root used',IROOT(1)
+        else
+          write(u6,Fmt2//'A,(T45,10I6))') 'CI root used',IROOT(1)
+        end if
       else
-        write(u6,Fmt2//'A,(T45,10I6))') 'CI root used',IROOT(1)
+        if (doDMRG) then
+          write(u6,Fmt2//'A,(T45,10I6))') 'DMRG roots used',(IROOT(i),i=1,nRoots)
+        else
+          write(u6,Fmt2//'A,(T45,10I6))') 'CI roots used',(IROOT(i),i=1,nRoots)
+        end if
+        write(u6,Fmt2//'A,(T45,10F6.3))') 'weights',(Weight(i),i=1,nRoots)
       end if
     else
-      if (doDMRG) then
-        write(u6,Fmt2//'A,(T45,10I6))') 'DMRG roots used',(IROOT(i),i=1,nRoots)
-      else
-        write(u6,Fmt2//'A,(T45,10I6))') 'CI roots used',(IROOT(i),i=1,nRoots)
+      do i=1,nRoots
+        write(u6,Fmt2//'A,T45,I6)') 'root',i
+        write(u6,Fmt2//'A,T45,10I6)') 'Reference configuartions',(iCI(iRef,i),iRef=1,mxRef)
+        write(u6,Fmt2//'A,T45,10F6.3)') 'CI-coeff',(cCI(iRef,i),iRef=1,mxRef)
+      end do
+    end if
+    if (doDMRG) then
+      write(u6,Fmt2//'A,T45,I6)') 'highest root included in the DMRG',LROOTS
+    else
+      write(u6,Fmt2//'A,T45,I6)') 'highest root included in the CI',LROOTS
+    end if
+    if (irlxroot /= 0) write(u6,Fmt2//'A,T45,I6)') 'Root passed to geometry opt.',iRlxRoot
+    if (lRF) then
+      call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
+      iRc = -1
+      iOpt = ibset(0,sNoOri)
+      iComp = 1
+      iSyLbl = 1
+      Label = 'Mltpl  0'
+      call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
+      Tot_Nuc_Charge = Tmp0(nTot1+4)
+      if (iRc /= 0) then
+        write(u6,*) 'OutCtl: iRc from Call RdOne not 0'
+        write(u6,*) 'Label = ',Label
+        write(u6,*) 'iRc = ',iRc
+        call Abend()
       end if
-      write(u6,Fmt2//'A,(T45,10F6.3))') 'weights',(Weight(i),i=1,nRoots)
-    end if
-  else
-    do i=1,nRoots
-      write(u6,Fmt2//'A,T45,I6)') 'root',i
-      write(u6,Fmt2//'A,T45,10I6)') 'Reference configuartions',(iCI(iRef,i),iRef=1,mxRef)
-      write(u6,Fmt2//'A,T45,10F6.3)') 'CI-coeff',(cCI(iRef,i),iRef=1,mxRef)
-    end do
-  end if
-  if (doDMRG) then
-    write(u6,Fmt2//'A,T45,I6)') 'highest root included in the DMRG',LROOTS
-  else
-    write(u6,Fmt2//'A,T45,I6)') 'highest root included in the CI',LROOTS
-  end if
-  if (irlxroot /= 0) write(u6,Fmt2//'A,T45,I6)') 'Root passed to geometry opt.',iRlxRoot
-  if (lRF) then
-    call mma_allocate(Tmp0,nTot1+4,Label='Tmp0')
-    iRc = -1
-    iOpt = ibset(0,sNoOri)
-    iComp = 1
-    iSyLbl = 1
-    Label = 'Mltpl  0'
-    call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
-    Tot_Nuc_Charge = Tmp0(nTot1+4)
-    if (iRc /= 0) then
-      write(u6,*) 'OutCtl: iRc from Call RdOne not 0'
-      write(u6,*) 'Label = ',Label
-      write(u6,*) 'iRc = ',iRc
-      call Abend()
-    end if
-    call mma_deallocate(Tmp0)
-    Tot_El_Charge = Zero
-    do iSym=1,nSym
-      Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
-    end do
-    Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
-    Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
-    iCharge = int(Tot_Charge)
-    call PrRF(.false.,NonEq,iCharge,2)
-    if (DWSolv%DWZeta == -12345.0_wp) then
-      write(u6,Fmt2//'A)') 'Weights of the reaction field are specified by RFROOT'
-      write(u6,Fmt2//'(T45,10F6.3))') (W_SOLV(i),i=1,nRoots)
-    else if (DWSolv%DWZeta < Zero) then
-      call DWSol_fixed(i,j)
-      if ((i == 0) .and. (j == 0)) then
-        write(u6,Fmt2//'A)') 'Unrecognized negative DWZeta (DWSOl)'
-        write(u6,Fmt2//'A,T51,A)') 'Dynamically weighted solvation is ','automatically turned off!'
+      call mma_deallocate(Tmp0)
+      Tot_El_Charge = Zero
+      do iSym=1,nSym
+        Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
+      end do
+      Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
+      Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
+      iCharge = int(Tot_Charge)
+      call PrRF(.false.,NonEq,iCharge,2)
+      if (DWSolv%DWZeta == -12345.0_wp) then
+        write(u6,Fmt2//'A)') 'Weights of the reaction field are specified by RFROOT'
+        write(u6,Fmt2//'(T45,10F6.3))') (W_SOLV(i),i=1,nRoots)
+      else if (DWSolv%DWZeta < Zero) then
+        call DWSol_fixed(i,j)
+        if ((i == 0) .and. (j == 0)) then
+          write(u6,Fmt2//'A)') 'Unrecognized negative DWZeta (DWSOl)'
+          write(u6,Fmt2//'A,T51,A)') 'Dynamically weighted solvation is ','automatically turned off!'
+        else
+          write(u6,Fmt2//'A,T45,I2,X,I2)') 'Reaction field from states:',i,j
+          if (max(i,j) > nRoots) then
+            write(u6,Fmt2//'A)') 'The specified state is too high! Cannot proceed...'
+            call Quit_OnUserError()
+          end if
+        end if
+      else if (IPCMROOT <= 0) then
+        write(u6,Fmt2//'A,T45,T15)') ' Reaction field from state:',' State-Averaged'
+        if (DWSolv%DWZeta /= Zero) then
+          write(u6,Fmt2//'A,T51,A)') 'Dynamically weighted solvation is ','automatically turned off!'
+          DWSolv%DWZeta = Zero
+        end if
       else
-        write(u6,Fmt2//'A,T45,I2,X,I2)') 'Reaction field from states:',i,j
-        if (max(i,j) > nRoots) then
-          write(u6,Fmt2//'A)') 'The specified state is too high! Cannot proceed...'
-          call Quit_OnUserError()
+        write(u6,Fmt2//'A,T45,I2)') ' Reaction field from state:',IPCMROOT
+        if (DWSolv%DWZeta > Zero) then
+          write(u6,Fmt2//'A,ES10.3,A,I1,A)') 'Dynamically weighted solvation is used with DWSOlv = ',DWSolv%DWZeta,' (DWTYpe = ', &
+                                             DWSolv%DWType,')'
+          write(u6,Fmt2//'A,(T45,10F6.3))') 'Final weights for the reaction field',(W_SOLV(i),i=1,nRoots)
         end if
       end if
-    else if (IPCMROOT <= 0) then
-      write(u6,Fmt2//'A,T45,T15)') ' Reaction field from state:',' State-Averaged'
-      if (DWSolv%DWZeta /= Zero) then
-        write(u6,Fmt2//'A,T51,A)') 'Dynamically weighted solvation is ','automatically turned off!'
-        DWSolv%DWZeta = Zero
-      end if
-    else
-      write(u6,Fmt2//'A,T45,I2)') ' Reaction field from state:',IPCMROOT
-      if (DWSolv%DWZeta > Zero) then
-        write(u6,Fmt2//'A,ES10.3,A,I1,A)') 'Dynamically weighted solvation is used with DWSOlv = ',DWSolv%DWZeta,' (DWTYpe = ', &
-                                           DWSolv%DWType,')'
-        write(u6,Fmt2//'A,(T45,10F6.3))') 'Final weights for the reaction field',(W_SOLV(i),i=1,nRoots)
-      end if
     end if
-  end if
-  if (RFpert) then
-    write(u6,*)
-    write(u6,*)
-    write(u6,Fmt2//'A)') 'Reaction field specifications:'
-    write(u6,Fmt2//'A)') '------------------------------'
-    write(u6,*)
-    write(u6,'(6X,A)') 'The Reaction field has been added as a perturbation and has been determined in a previous calculation'
-    write(u6,*)
-  end if
-  if ((KSDFT /= 'SCF') .and. (KSDFT /= 'PAM')) call Print_NQ_Info()
-  call CollapseOutput(0,'CI expansion specifications:')
+    if (RFpert) then
+      write(u6,*)
+      write(u6,*)
+      write(u6,Fmt2//'A)') 'Reaction field specifications:'
+      write(u6,Fmt2//'A)') '------------------------------'
+      write(u6,*)
+      write(u6,'(6X,A)') 'The Reaction field has been added as a perturbation and has been determined in a previous calculation'
+      write(u6,*)
+    end if
+    if ((KSDFT /= 'SCF') .and. (KSDFT /= 'PAM')) call Print_NQ_Info()
+    call CollapseOutput(0,'CI expansion specifications:')
 
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
-114 continue
-#endif
+# if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
+  end if
+# endif
 
 ! End of long if-block A over IPRLEV
 end if
@@ -358,8 +353,8 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
   write(u6,*)
   write(u6,Fmt2//'A,T45,F20.8)') 'Average CI energy',EAV
 
-  if (KeyCION .and. doDMRG) then
-    !write(u6,*) 'KeyCION.and.doDMRG',KeyCION,doDMRG -- yma
+  if (Key('CION') .and. doDMRG) then
+    !write(u6,*) 'Key("CION").and.doDMRG',Key('CION'),doDMRG -- yma
     ! If DMRG, no 2'-DMs thus omit ECAS and other properties
   else
     if (irlxroot == 0) then
@@ -675,7 +670,7 @@ do KROOT=1,LROOTS
         IDIMN = 0
         do ISYM=1,NSYM
           NAO = NASH(ISYM)
-          if (NAO == 0) GO TO 50
+          if (NAO == 0) cycle
           NO = NBAS(ISYM)
           IDIMV = IDIMV+NAO*NAO
           IDIMO = IDIMO+NAO
@@ -684,7 +679,6 @@ do KROOT=1,LROOTS
           write(u6,*)
           call TRIPRT(' ',' ',X6(IND),NASH(ISYM))
           IND = IND+nTri_Elem(NASH(ISYM))
-50        continue
         end do
       end if
       ! End of long if-block F over IPRLEV

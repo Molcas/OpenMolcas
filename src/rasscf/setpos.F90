@@ -18,7 +18,7 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: LUNIT, iRC
 character(len=*) KeyIn, Line
-integer(kind=iwp) :: IPRLEV, KLen
+integer(kind=iwp) :: IPRLEV, istatus, KLen
 character(len=16) :: Command, Key
 #include "warnings.h"
 
@@ -30,35 +30,31 @@ character(len=16) :: Command, Key
 
 IPRLEV = IPRLOC(1)
 iRc = _RC_ALL_IS_WELL_
-KLen = min(16,len(KeyIn))
+KLen = min(len(Key),len(KeyIn))
 Key = ' '
 Command = ' '
 rewind(LUnit)
 
-Key(1:KLen) = KeyIn(1:KLen)
+Key = KeyIn(1:KLen)
 call upcase(Key)
-10 continue
-read(LUnit,'(A)',end=9910,err=9920) Line
-Command(1:KLen) = Line(1:KLen)
-call upcase(Command)
-if (Command /= Key) goto 10
-return
-
-!---  Error exits ----------------------
-9910 continue
-if (IPRLEV >= TERSE) then
-  write(u6,*) ' SETPOS: Attempt to find an input line beginning'
-  write(u6,*) ' with the keyword "',KeyIn,'" failed.'
-end if
-!call Quit(_RC_INPUT_ERROR_)
-iRc = _RC_INPUT_ERROR_
-return
-9920 continue
-if (IPRLEV >= TERSE) then
-  write(u6,*) ' SETPOS: Attempt to find an input line beginning'
-  write(u6,*) ' with the keyword "',KeyIn,'" failed.'
-end if
-!call Quit(_RC_INPUT_ERROR_)
-iRc = _RC_INPUT_ERROR_
+do
+  read(LUnit,'(A)',iostat=istatus) Line
+  if (istatus /= 0) then
+    if (IPRLEV >= TERSE) then
+      if (istatus < 0) then
+        write(u6,*) ' SETPOS: Attempt to find an input line beginning'
+      else
+        write(u6,*) ' SETPOS: Attempt to find an input line beginning'
+      end if
+      write(u6,*) ' with the keyword "',KeyIn,'" failed.'
+    end if
+    !call Quit(_RC_INPUT_ERROR_)
+    iRc = _RC_INPUT_ERROR_
+    exit
+  end if
+  Command(1:KLen) = Line(1:KLen)
+  call upcase(Command)
+  if (Command == Key) exit
+end do
 
 end subroutine SetPos

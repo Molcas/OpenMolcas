@@ -163,7 +163,7 @@ subroutine CleanMat(MAT)
 
   if (nacpar < 1) then
     write(u6,*) 'matrix size < 1.'
-    Go To 10
+    return
   end if
 
   call mma_allocate(MAT_copy,NacPar)
@@ -241,8 +241,7 @@ subroutine CleanMat(MAT)
   end if
   call mma_deallocate(MAT_copy)
   call mma_deallocate(EVC)
-!***************** Exit ****************
-10 continue
+  !***************** Exit ****************
 
   return
 

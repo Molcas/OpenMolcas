@@ -53,76 +53,75 @@ IORBES = 0
 do ISYM=1,NSYM
   NB = NBAS(ISYM)
   NO = NORB(ISYM)
-  if (NO == 0) goto 100
-  do IO=1,NO
-    IORB = IORBES+IO
-    do L=0,9
-      WGTLQN(L) = Zero
-    end do
-    do IB=1,NB
-      IBAS = IBASES+IB
-      L = LQN(IBAS)
-      WGT = CMO(ICMOES+IB+NB*(IO-1))**2
-      WGTLQN(L) = WGTLQN(L)+WGT
-    end do
-    LMX = 0
-    WMX = WGTLQN(0)
-    do L=0,9
-      if (WGTLQN(L) > WMX) then
-        LMX = L
-        WMX = WGTLQN(L)
-      end if
-    end do
-    IXSYM(IORB) = LMX
-  end do
-  ! We have now a provisional IXSYM array. How many different
-  ! L values appear in it?
-  MNL = 9
-  MXL = 0
-  NONZ = 0
-  do L=0,9
-    LEXIST = 0
+  if (NO /= 0) then
     do IO=1,NO
       IORB = IORBES+IO
-      if (L == IXSYM(IORB)) then
-        LEXIST = 1
-        MNL = min(L,MNL)
-        MXL = max(L,MXL)
-        goto 19
-      end if
+      do L=0,9
+        WGTLQN(L) = Zero
+      end do
+      do IB=1,NB
+        IBAS = IBASES+IB
+        L = LQN(IBAS)
+        WGT = CMO(ICMOES+IB+NB*(IO-1))**2
+        WGTLQN(L) = WGTLQN(L)+WGT
+      end do
+      LMX = 0
+      WMX = WGTLQN(0)
+      do L=0,9
+        if (WGTLQN(L) > WMX) then
+          LMX = L
+          WMX = WGTLQN(L)
+        end if
+      end do
+      IXSYM(IORB) = LMX
     end do
-19  continue
-    NONZ = NONZ+LEXIST
-  end do
-  ! There are NONZ different values, so we want NONZ-1 special supsym
-  ! labels for this symmetry. Reuse IWORK(LLQN) for orbital numbers:
-  ! This will be the supsym label:
-  if (IFTEST) write(u6,*) NONZ-1
-  ISSLAB = 0
-  do L=MNL,MXL
-    LCOUNT = 0
-    do IO=1,NO
-      IORB = IORBES+IO
-      if (L == IXSYM(IORB)) then
-        LCOUNT = LCOUNT+1
-        LQN(LCOUNT) = IO
-      end if
-    end do
-    if (LCOUNT > 0) then
-      ! Replace provisional IXSYM value with correct label:
+    ! We have now a provisional IXSYM array. How many different
+    ! L values appear in it?
+    MNL = 9
+    MXL = 0
+    NONZ = 0
+    do L=0,9
+      LEXIST = 0
       do IO=1,NO
         IORB = IORBES+IO
-        if (IXSYM(IORB) == L) IXSYM(IORB) = ISSLAB
+        if (L == IXSYM(IORB)) then
+          LEXIST = 1
+          MNL = min(L,MNL)
+          MXL = max(L,MXL)
+          exit
+        end if
       end do
-      ! Lowest L = label zero = do not specify in input:
-      if (IFTEST .and. (ISSLAB > 0)) write(u6,'(1x,I3,16I5,(/,5X,16I5))') LCOUNT,(LQN(i),i=1,LCOUNT)
-      ISSLAB = ISSLAB+1
-    end if
-  end do
+      NONZ = NONZ+LEXIST
+    end do
+    ! There are NONZ different values, so we want NONZ-1 special supsym
+    ! labels for this symmetry. Reuse IWORK(LLQN) for orbital numbers:
+    ! This will be the supsym label:
+    if (IFTEST) write(u6,*) NONZ-1
+    ISSLAB = 0
+    do L=MNL,MXL
+      LCOUNT = 0
+      do IO=1,NO
+        IORB = IORBES+IO
+        if (L == IXSYM(IORB)) then
+          LCOUNT = LCOUNT+1
+          LQN(LCOUNT) = IO
+        end if
+      end do
+      if (LCOUNT > 0) then
+        ! Replace provisional IXSYM value with correct label:
+        do IO=1,NO
+          IORB = IORBES+IO
+          if (IXSYM(IORB) == L) IXSYM(IORB) = ISSLAB
+        end do
+        ! Lowest L = label zero = do not specify in input:
+        if (IFTEST .and. (ISSLAB > 0)) write(u6,'(1x,I3,16I5,(/,5X,16I5))') LCOUNT,(LQN(i),i=1,LCOUNT)
+        ISSLAB = ISSLAB+1
+      end if
+    end do
 
-  ICMOES = ICMOES+NO*NB
-  IORBES = IORBES+NO
-100 continue
+    ICMOES = ICMOES+NO*NB
+    IORBES = IORBES+NO
+  end if
   IBASES = IBASES+NB
 end do
 call mma_deallocate(LQN)

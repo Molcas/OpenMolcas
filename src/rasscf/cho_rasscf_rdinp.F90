@@ -69,7 +69,7 @@ Nscreen = 10
 dmpk = 1.0e-1_wp
 Update = .true.
 Estimate = .false.
-if (DFonly) goto 999  !return flag
+if (DFonly) return
 
 dmpk_dfl = 1.0e-1_wp
 !***********************************************************************
@@ -79,162 +79,141 @@ dmpk_dfl = 1.0e-1_wp
 !----------------------------------------------------------------------*
 ! The big turning point.                                               *
 !----------------------------------------------------------------------*
-1000 continue
-!----------------------------------------------------------------------*
-! Use Get_Ln to read the lines.                                        *
-!----------------------------------------------------------------------*
-Key = Get_Ln(LuInput)
-Kword = Key
-call UpCase(Kword)
-!----------------------------------------------------------------------*
-! The keywords and their labels.                                       *
-!----------------------------------------------------------------------*
+outer: do
+  !--------------------------------------------------------------------*
+  ! Use Get_Ln to read the lines.                                      *
+  !--------------------------------------------------------------------*
+  Key = Get_Ln(LuInput)
+  Kword = Key
+  call UpCase(Kword)
+  !--------------------------------------------------------------------*
+  ! The keywords and their labels.                                     *
+  !--------------------------------------------------------------------*
 
-if (KWord(1:1) == '*') Go To 1000
-if (KWord == '') Go To 1000
-if (KWord(1:4) == 'ALGO') Go To 900
-if (KWord(1:4) == 'LOCK') Go To 910
-if (KWord(1:4) == 'LK  ') Go To 910
-if (KWord(1:4) == 'NOLK') Go To 915
-if (KWord(1:4) == 'DMPK') Go To 920
-if (KWord(1:4) == 'NODE') Go To 930
-if (KWord(1:4) == 'SCRN') Go To 940
-if (KWord(1:4) == 'MEMF') Go To 950
-if (KWord(1:4) == 'DCHK') Go To 820
-if (KWord(1:4) == 'TIME') Go To 830
-if (KWord(1:4) == 'ESTI') Go To 840
-if (KWord(1:4) == 'UPDA') Go To 850
-if (KWord(1:4) == 'ENDC') Go To 998
-if (KWord(1:4) == 'END ') Go To 998
-if (KWord(1:4) == 'ENDO') Go To 998
+  if ((KWord(1:1) == '*') .or. (KWord == '')) cycle outer
+  select case (KWord(1:4))
+    case ('ALGO')
+      !                                                                *
+      !***** ALGO ******************************************************
+      !                                                                *
+      !-----Read Cholesky algorithm parameters
 
-!----------------------------------------------------------------------*
-! Control section                                                      *
-!----------------------------------------------------------------------*
-iChrct = len(KWord)
-Last = iCLast(KWord,iChrct)
-write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-write(u6,*) 'CHO_RASSCF_RDINP Error in keyword.'
-call Quit_OnUserError()
-!                                                                      *
-!***** ALGO ************************************************************
-!                                                                      *
-!-----Read Cholesky algorithm parameters
+      !call Get_F1(1,Eps)
+      !call Get_F1(2,rds)
+      !call Get_I1(1,ALGO)
+      !if (nToken(KWord) > 1) exit outer
 
-900 continue
-!call Get_F1(1,Eps)
-!call Get_F1(2,rds)
-!call Get_I1(1,ALGO)
-!if (nToken(KWord) > 1) goto 988
+      read(LuInput,*) ALGO
 
-read(LuInput,*) ALGO
+      if (ALGO == 1) then
+        write(u6,*) 'Default RASSCF algorithm reset to  ',ALGO
+        write(u6,*)
+      else if (ALGO == 2) then
+        write(u6,*) 'Default RASSCF algorithm reset to  ',ALGO
+        write(u6,*)
+        write(u6,*) ' !!! STILL UNDER DEBUGGING !!! '
+      else
+        write(u6,*) 'The specified algorithm is not implemented. Option Ignored '
+        write(u6,*)
+      end if
 
-if (ALGO == 1) then
-  write(u6,*) 'Default RASSCF algorithm reset to  ',ALGO
-  write(u6,*)
-else if (ALGO == 2) then
-  write(u6,*) 'Default RASSCF algorithm reset to  ',ALGO
-  write(u6,*)
-  write(u6,*) ' !!! STILL UNDER DEBUGGING !!! '
-else
-  write(u6,*) 'The specified algorithm is not implemented. Option Ignored '
-  write(u6,*)
-end if
+    case ('LOCK','LK')
+      !                                                                *
+      !***** LOCK or LK ************************************************
+      !                                                                *
+      DoLocK = .true.
+      !write(u6,*) 'Using Local K scheme for Exchange matrices'
 
-Go To 1000
-!                                                                      *
-!***** LOCK or LK ******************************************************
-!                                                                      *
-910 continue
-DoLocK = .true.
-!write(u6,*) 'Using Local K scheme for Exchange matrices'
+    case ('NOLK')
+      !                                                                *
+      !***** NOLK ******************************************************
+      !                                                                *
+      DoLocK = .false.
+      !write(u6,*) 'LK screening for Exchange matrices turned off!'
 
-Go To 1000
-!                                                                      *
-!***** NOLK ************************************************************
-!                                                                      *
-915 continue
-DoLocK = .false.
-!write(u6,*) 'LK screening for Exchange matrices turned off!'
-!
-Go To 1000
-!                                                                      *
-!***** DMPK ************************************************************
-!                                                                      *
-920 continue
-read(LuInput,*) dmpk
-if (dmpk < Zero) then
-  write(u6,*) 'OBS! Specified Negative DMPK value. Restore Defaults'
-  dmpk = dmpk_dfl
-end if
+    case ('DMPK')
+      !                                                                *
+      !***** DMPK ******************************************************
+      !                                                                *
+      read(LuInput,*) dmpk
+      if (dmpk < Zero) then
+        write(u6,*) 'OBS! Specified Negative DMPK value. Restore Defaults'
+        dmpk = dmpk_dfl
+      end if
 
-Go To 1000
-!                                                                      *
-!***** NODE ************************************************************
-!                                                                      *
-930 continue
-Deco = .false.
-write(u6,*) 'Not-Using Cholesky decomposed Inactive density'
+    case ('NODE')
+      !                                                                *
+      !***** NODE ******************************************************
+      !                                                                *
+      Deco = .false.
+      write(u6,*) 'Not-Using Cholesky decomposed Inactive density'
 
-Go To 1000
-!                                                                      *
-!***** SCRN ************************************************************
-!                                                                      *
-940 continue
-read(LuInput,*) Nscreen
+    case ('SCRN')
+      !                                                                *
+      !***** SCRN ******************************************************
+      !                                                                *
+      read(LuInput,*) Nscreen
 
-Go To 1000
-!                                                                      *
-!***** MEMF ************************************************************
-!                                                                      *
-950 continue
-read(LuInput,*) ChFracMem
+    case ('MEMF')
+      !                                                                *
+      !***** MEMF ******************************************************
+      !                                                                *
+      read(LuInput,*) ChFracMem
 
-Go To 1000
-!                                                                      *
-!***** DCHK ************************************************************
-!                                                                      *
-820 continue
-DensityCheck = .true.
-write(u6,*) 'Non-valid option. IGNORED !! '
+    case ('DCHK')
+      !                                                                *
+      !***** DCHK ******************************************************
+      !                                                                *
+      DensityCheck = .true.
+      write(u6,*) 'Non-valid option. IGNORED !! '
 
-Go To 1000
-!                                                                      *
-!***** ESTI ************************************************************
-!                                                                      *
-840 continue
-Estimate = .true.
-write(u6,*) 'Diagonal integrals estimated from the current Cholesky vectors'
+    case ('TIME')
+      !                                                                *
+      !***** TIME ******************************************************
+      !                                                                *
+      timings = .true.
 
-Go To 1000
-!                                                                      *
-!***** UPDA ************************************************************
-!                                                                      *
-850 continue
-Update = .true.
-write(u6,*) 'Updating of the true diagonal integrals'
+    case ('ESTI')
+      !                                                                *
+      !***** ESTI ******************************************************
+      !                                                                *
+      Estimate = .true.
+      write(u6,*) 'Diagonal integrals estimated from the current Cholesky vectors'
 
-Go To 1000
-!                                                                      *
-!***** TIME ************************************************************
-!                                                                      *
-830 continue
-timings = .true.
+    case ('UPDA')
+      !                                                                *
+      !***** UPDA ******************************************************
+      !                                                                *
+      Update = .true.
+      write(u6,*) 'Updating of the true diagonal integrals'
 
-Go To 1000
-!                                                                      *
-!***** END  ************************************************************
-!                                                                      *
-!-----End of input
+    case ('END','ENDC','ENDO')
+      !                                                                *
+      !***** END  ******************************************************
+      !                                                                *
+      !-----End of input
+      exit outer
 
-998 continue
+    case default
+      !----------------------------------------------------------------*
+      ! Control section                                                *
+      !----------------------------------------------------------------*
+      iChrct = len(KWord)
+      Last = iCLast(KWord,iChrct)
+      write(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+      write(u6,*) 'CHO_RASSCF_RDINP Error in keyword.'
+      call Quit_OnUserError()
+
+  end select
+
+end do outer
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-999 continue
+
 !write(u6,'(1X,A,I4)') 'Default Cholesky algorithm in RASSCF = ',ALGO
 write(u6,*)
-if (ALGO == 2) then
+if ((ALGO == 2) .and. (DoLocK)) then
   write(u6,*) 'Local K scheme not implemented for the chosen algorithm. LocK keyword ignored !'
   DoLocK = .false.
 end if

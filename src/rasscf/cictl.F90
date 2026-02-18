@@ -60,7 +60,6 @@ use qcmaquis_interface_utility_routines, only: fiedlerorder_length, file_name_ge
 use lucia_data, only: RF1, RF2
 use RASWfn, only: wfn_dmrg_checkpoint
 use rasscf_global, only: DOFCIDump, Emy, TwoRDM_qcm
-use input_ras, only: KeyCION
 #endif
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
@@ -76,7 +75,7 @@ use wadr, only: FMO
 use gugx, only: CIS, SGS
 use sxci, only: IDXSX
 use gas_data, only: iDoGAS
-use input_ras, only: KeyCIRF, KeyCISE, KeyPRSD
+use input_ras, only: Key
 use timers, only: TimeDens
 use rasscf_global, only: CMSStartMat, DoDMRG, Ener, ExFac, IADR15, iCIRFRoot, ICMSP, IFCRPR, iPCMRoot, iRoot, iRotPsi, ITER, &
                          IXMSP, KSDFT, l_casdft, lroots, n_Det, NAC, NACPAR, NACPR2, nRoots, PrwThr, RotMax, S, Weight
@@ -94,7 +93,7 @@ real(kind=wp) :: CMO(*), D(*), DS(*), P(*), PA(*), FI(*), FA(*), D1I(*), D1A(*),
 integer(kind=iwp) :: iFinal
 integer(kind=iwp) :: i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVecDet, mconf
 real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
-logical(kind=iwp) :: Do_ESPF, do_rotate, Exists
+logical(kind=iwp) :: Do_ESPF, do_rotate, Exists, Skip
 character(len=128) :: filename
 real(kind=wp), allocatable :: CIV(:), CIVec(:), P2MO(:), RCT(:), RCT_F(:), RCT_FS(:), RCT_S(:), RF(:), Temp(:), TmpD1S(:), TmpDS(:)
 integer, allocatable :: kCnf(:)
@@ -158,7 +157,7 @@ if (doDMRG) then
   ! only in the last iteration
   ! i.e. only for IFINAL == 2 if we do DMRG-SCF
   ! otherwise always
-  doEntanglement = merge(.true.,IFINAL == 2,KeyCION)
+  doEntanglement = merge(.true.,IFINAL == 2,Key('CION'))
 
   call mma_allocate(d1all,NACPAR,lRoots)
   d1all(:) = Zero
@@ -353,8 +352,9 @@ else
 
 end if
 
+Skip = .false.
+#ifdef _DMRG_
 if (doDMRG) then
-# ifdef _DMRG_
   ! update integrals for QCMaquis
 
   call qcmaquis_interface_update_integrals(FMO,tuvx,emy)
@@ -391,406 +391,405 @@ if (doDMRG) then
     ! and remove the code below
     call qcmaquis_interface_fcidump(FMO,tuvx,emy)
     call mma_deallocate(FMO)
-    goto 9000
-  end if
-# endif
-end if
-
-if (IfVB == 2) goto 9000
-
-! DAVIDSON DIAGONALIZATION
-
-if (IfVB == 1) then
-  call cvbmn_rvb(max(ifinal,1))
-else
-  if (DoSplitCAS) then !(GLMJ)
-    call SplitCtl(FMO,TUVX,IFINAL,iErrSplit)
-    if (iErrSplit == 1) then
-      write(u6,*) repeat('*',120)
-      write(u6,*) 'WARNING!!!'
-      write(u6,*) 'SplitCAS iterations don''t converge.'
-      write(u6,*) 'The program will continue'
-      write(u6,*) 'Hopefully your calculation will converge next iteration!'
-      write(u6,*) repeat('*',120)
-    end if
-    if (iErrSplit == 2) then
-      write(u6,*) repeat('*',120)
-      write(u6,*) 'WARNING!!!'
-      write(u6,*) 'SplitCAS iterations don''t converge.'
-      write(u6,*) 'MxIterSplit',MxIterSplit
-      write(u6,*) 'SplitCAS ThreShold',ThrSplit
-      write(u6,*) 'Try to increase MxIterSplit or SplitCAS threshold'
-      write(u6,*) 'The program will STOP'
-      write(u6,*) repeat('*',120)
-      call xQuit(_RC_NOT_CONVERGED_)
-    end if
-  end if
-  if (.not. DoSplitCAS) then
-    if (doDMRG) then
-#     ifdef _DMRG_
-      ! Get also spin density at the last iteration
-      ! Please help me call it more cleanly than with these if clauses
-      ! and different optional arguments
-      if (doEntanglement) then
-        if (twordm_qcm) then
-          call qcmaquis_interface_run_dmrg(nstates=lroots,d1=d1all,d2=d2all,spd=spd1all,entanglement=doEntanglement)
-        else
-          call qcmaquis_interface_run_dmrg(nstates=lroots,d1=d1all,spd=spd1all,entanglement=doEntanglement)
-        end if
-      else
-        if (twordm_qcm) then
-          call qcmaquis_interface_run_dmrg(nstates=lroots,d1=d1all,d2=d2all,entanglement=doEntanglement)
-        else
-          call qcmaquis_interface_run_dmrg(nstates=lroots,d1=d1all,entanglement=doEntanglement)
-        end if
-      end if
-
-      ! For PCM calculations: copy RDMs for the PCM root
-      if (PCM_On()) then
-        rf1(1:NACPAR) = d1all(:,ipcmroot)
-        if (twordm_qcm) rf2(1:NACPR2) = d2all(:,ipcmroot)
-      end if
-      ! Keep the root energies
-      do jRoot=1,lRoots
-        ENER(jRoot,ITER) = dmrg_energy%dmrg_state_specific(jroot)
-      end do
-      ! The new QCMaquis interface requires that the density matrices are calculated immediately after the DMRG run
-      ! So we either need to keep them all in memory, or move the saving routines up here.
-      ! The 2nd option requires code refactoring, so for now we keep them all in memory.
-#     endif
-    else
-      ! Normal Davidson algorithm
-      call DavCtl(FMO,TUVX,IFINAL)
-    end if
+    Skip = .true.
   end if
 end if
-
-! CALCULATE DENSITY MATRICES
-! SAVE DENSITY MATRICES ON FILE
-! COMPUTE AVERAGE DENSITY MATRICES
-
-! Dtmp: ONE-BODY DENSITY
-! DStmp: ONE-BODY SPIN DENSITY
-! Ptmp: SYMMETRIC TWO-BODY DENSITY
-! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
-
-call Timing(Time(1),dum1,dum2,dum3)
-D(1:NACPAR) = Zero
-DS(1:NACPAR) = Zero
-P(1:NACPR2) = Zero
-PA(1:NACPR2) = Zero
-call mma_allocate(CIVEC,NCONF,Label='CIVEC')
-call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
-call mma_allocate(DStmp,NAC**2,Label='DStmp')
-call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
-call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-call mma_allocate(Pscr,NACPR2,Label='Pscr')
-#ifdef _HDF5_
-call mma_allocate(density_square,nac,nac)
 #endif
 
-!if (DWSCF%do_DW) call DWSol_wgt(1,ENER(:,ITER),weight)
-iDisk = IADR15(4)
-jDisk = IADR15(3)
-if (.not. DoSplitCAS) then
-  !JB Instead of RASSCF/RASCI energy, print out energy for rotated states
-  do_rotate = .false.
-  if (ifinal == 2) then
-    if (IXMSP == 1) call XMSRot(CMO,FI,FA)
-    if (ICMSP == 1) then
-      if (trim(CMSStartMat) == 'XMS') call XMSRot(CMO,FI,FA)
-      if (.not. CMSGiveOpt) then
-        if (lRoots == 2) iCMSOpt = 2
-        if (lRoots >= 3) iCMSOpt = 1
-      end if
-      if (iCMSOpt == 1) then
-        call CMSOpt(TUVX)
-      else if (iCMSOpt == 2) then
-        call CMSRot(TUVX)
-      end if
-    end if
-    if (IRotPsi == 1) call f_inquire('ROT_VEC',Do_Rotate)
-    if (Do_Rotate) then
-      call RotState()
-    else
-      if (IRotPsi == 1) write(u6,'(6X,A)') 'Do_Rotate.txt is not found. MCSCF states will not be rotated'
-    end if
-    !JB End of condition 'Do_Rotate' to initialize rotated states
-  end if
-  !JB End If for ifinal=2
-  do jRoot=1,lRoots
-    ! load back one CI vector at the time
-    !JB If do_rotate=.true., then we read CI vectors from CIVec
-    !JB Otherwise we read if from JOBIPH
-    call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
-    if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL',' ',CIVEC,nConf)
-    ! compute density matrices
+if ((.not. Skip) .and. (IfVB /= 2)) then
 
+  ! DAVIDSON DIAGONALIZATION
+
+  if (IfVB == 1) then
+    call cvbmn_rvb(max(ifinal,1))
+  else
+    if (DoSplitCAS) then !(GLMJ)
+      call SplitCtl(FMO,TUVX,IFINAL,iErrSplit)
+      if (iErrSplit == 1) then
+        write(u6,*) repeat('*',120)
+        write(u6,*) 'WARNING!!!'
+        write(u6,*) 'SplitCAS iterations don''t converge.'
+        write(u6,*) 'The program will continue'
+        write(u6,*) 'Hopefully your calculation will converge next iteration!'
+        write(u6,*) repeat('*',120)
+      end if
+      if (iErrSplit == 2) then
+        write(u6,*) repeat('*',120)
+        write(u6,*) 'WARNING!!!'
+        write(u6,*) 'SplitCAS iterations don''t converge.'
+        write(u6,*) 'MxIterSplit',MxIterSplit
+        write(u6,*) 'SplitCAS ThreShold',ThrSplit
+        write(u6,*) 'Try to increase MxIterSplit or SplitCAS threshold'
+        write(u6,*) 'The program will STOP'
+        write(u6,*) repeat('*',120)
+        call xQuit(_RC_NOT_CONVERGED_)
+      end if
+    end if
+    if (.not. DoSplitCAS) then
+      if (doDMRG) then
+#       ifdef _DMRG_
+        ! Get also spin density at the last iteration
+        ! Please help me call it more cleanly than with these if clauses
+        ! and different optional arguments
+        if (doEntanglement) then
+          if (twordm_qcm) then
+            call qcmaquis_interface_run_dmrg(nstates=lroots,d1=d1all,d2=d2all,spd=spd1all,entanglement=doEntanglement)
+          else
+            call qcmaquis_interface_run_dmrg(nstates=lroots,d1=d1all,spd=spd1all,entanglement=doEntanglement)
+          end if
+        else
+          if (twordm_qcm) then
+            call qcmaquis_interface_run_dmrg(nstates=lroots,d1=d1all,d2=d2all,entanglement=doEntanglement)
+          else
+            call qcmaquis_interface_run_dmrg(nstates=lroots,d1=d1all,entanglement=doEntanglement)
+          end if
+        end if
+
+        ! For PCM calculations: copy RDMs for the PCM root
+        if (PCM_On()) then
+          rf1(1:NACPAR) = d1all(:,ipcmroot)
+          if (twordm_qcm) rf2(1:NACPR2) = d2all(:,ipcmroot)
+        end if
+        ! Keep the root energies
+        do jRoot=1,lRoots
+          ENER(jRoot,ITER) = dmrg_energy%dmrg_state_specific(jroot)
+        end do
+        ! The new QCMaquis interface requires that the density matrices are calculated immediately after the DMRG run
+        ! So we either need to keep them all in memory, or move the saving routines up here.
+        ! The 2nd option requires code refactoring, so for now we keep them all in memory.
+#       endif
+      else
+        ! Normal Davidson algorithm
+        call DavCtl(FMO,TUVX,IFINAL)
+      end if
+    end if
+  end if
+
+  ! CALCULATE DENSITY MATRICES
+  ! SAVE DENSITY MATRICES ON FILE
+  ! COMPUTE AVERAGE DENSITY MATRICES
+
+  ! Dtmp: ONE-BODY DENSITY
+  ! DStmp: ONE-BODY SPIN DENSITY
+  ! Ptmp: SYMMETRIC TWO-BODY DENSITY
+  ! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
+
+  call Timing(Time(1),dum1,dum2,dum3)
+  D(1:NACPAR) = Zero
+  DS(1:NACPAR) = Zero
+  P(1:NACPR2) = Zero
+  PA(1:NACPR2) = Zero
+  call mma_allocate(CIVEC,NCONF,Label='CIVEC')
+  call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+  call mma_allocate(DStmp,NAC**2,Label='DStmp')
+  call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
+  call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+  call mma_allocate(Pscr,NACPR2,Label='Pscr')
+# ifdef _HDF5_
+  call mma_allocate(density_square,nac,nac)
+# endif
+
+  !if (DWSCF%do_DW) call DWSol_wgt(1,ENER(:,ITER),weight)
+  iDisk = IADR15(4)
+  jDisk = IADR15(3)
+  if (.not. DoSplitCAS) then
+    !JB Instead of RASSCF/RASCI energy, print out energy for rotated states
+    do_rotate = .false.
+    if (ifinal == 2) then
+      if (IXMSP == 1) call XMSRot(CMO,FI,FA)
+      if (ICMSP == 1) then
+        if (trim(CMSStartMat) == 'XMS') call XMSRot(CMO,FI,FA)
+        if (.not. CMSGiveOpt) then
+          if (lRoots == 2) iCMSOpt = 2
+          if (lRoots >= 3) iCMSOpt = 1
+        end if
+        if (iCMSOpt == 1) then
+          call CMSOpt(TUVX)
+        else if (iCMSOpt == 2) then
+          call CMSRot(TUVX)
+        end if
+      end if
+      if (IRotPsi == 1) call f_inquire('ROT_VEC',Do_Rotate)
+      if (Do_Rotate) then
+        call RotState()
+      else
+        if (IRotPsi == 1) write(u6,'(6X,A)') 'Do_Rotate.txt is not found. MCSCF states will not be rotated'
+      end if
+      !JB End of condition 'Do_Rotate' to initialize rotated states
+    end if
+    !JB End If for ifinal=2
+    do jRoot=1,lRoots
+      ! load back one CI vector at the time
+      !JB If do_rotate=.true., then we read CI vectors from CIVec
+      !JB Otherwise we read if from JOBIPH
+      call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
+      if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL',' ',CIVEC,nConf)
+      ! compute density matrices
+
+      if (NAC >= 1) then
+        if (.not. doDMRG) call Lucia_Util('Densi',CI_Vector=CIVEC)
+        if (IPRLEV >= INSANE) then
+          write(u6,*) 'At root number =',jroot
+          call TRIPRT('D after lucia  ',' ',Dtmp,NAC)
+          call TRIPRT('DS after lucia  ',' ',DStmp,NAC)
+          call TRIPRT('P after lucia',' ',Ptmp,NACPAR)
+          call TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
+        end if
+      end if
+      if ((.not. doDMRG) .and. ((SGS%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+      ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
+      if (doDMRG) then
+#       ifdef _DMRG_
+        ! for QCMaquis, just copy the RDMs
+        ! actually, copying is not needed! TODO
+        Dtmp(1:NACPAR) = d1all(:,jroot)
+        if (twordm_qcm) Ptmp(1:NACPR2) = d2all(:,jroot)
+
+        !> import 1p-spin density
+        ! disable spin density if not in the last iteration
+        if (doEntanglement) then
+          DStmp(1:NACPAR) = spd1all(:,jroot)
+        else
+          DStmp(:) = Zero
+        end if
+
+        ! disable antisymmetric 2-RDM
+        PAtmp(:) = Zero
+
+        if (IPRLEV >= INSANE) then
+          call TRIPRT('D after  DMRG',' ',Dtmp,NAC)
+          call TRIPRT('DS after DMRG',' ',DStmp,NAC)
+          call TRIPRT('P after  DMRG',' ',Ptmp,NACPAR)
+          call TRIPRT('PA after DMRG',' ',PAtmp,NACPAR)
+        end if
+#     endif
+      end if
+      ! Modify the symmetric 2-particle density if only partial "exact exchange" is included.
+      !n_Det = 2
+      !n_unpaired_elec = iSpin-1
+      !n_paired_elec = nActEl-n_unpaired_elec
+      !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
+      !  write(u6,*) ' iSpin=',iSpin
+      !  write(u6,*) ' n_unpaired_elec',n_unpaired_elec
+      !  write(u6,*) ' n_paired_elec', n_paired_elec
+      !  write(u6,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
+      !  write(u6,*) ' n_Det=',n_Det
+      !end if
+
+      !write(u6,*) 'second call to Mod_P2'
+
+      if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
+
+      ! update average density matrices
+      Scal = Zero
+      do kRoot=nRoots,1,-1
+        if (iRoot(kRoot) == jRoot) then
+          Scal = Weight(kRoot)
+          exit
+        end if
+      end do
+      D(1:NACPAR) = D(1:NACPAR)+Scal*Dtmp(1:NACPAR)
+      DS(1:NACPAR) = DS(1:NACPAR)+Scal*DStmp(1:NACPAR)
+      P(1:NACPR2) = P(1:NACPR2)+Scal*Ptmp(1:NACPR2)
+      PA(1:NACPR2) = PA(1:NACPR2)+Scal*PAtmp(1:NACPR2)
+      !GLM Put the D1MO and the P2MO values in RUNFILE
+
+      call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
+      call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
+      ! save density matrices on disk
+      call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
+      call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
+      call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
+      call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
+#     ifdef _HDF5_
+      !SVC: store a single column instead of the whole array (which is for each root!)
+      ! and for now don't bother with 2-electron active density matrices
+      call square(Dtmp,density_square,1,nac,nac)
+      call mh5_put_dset(wfn_dens,density_square,[nac,nac,1],[0,0,jRoot-1])
+      call square(DStmp,density_square,1,nac,nac)
+      call mh5_put_dset(wfn_spindens,density_square,[nac,nac,1],[0,0,jRoot-1])
+#     endif
+    end do
+
+  else  ! SplitCAS run
+    call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
+    if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL SplitCAS sect',' ',CIVEC,nConf)
+    ! compute density matrices
     if (NAC >= 1) then
-      if (.not. doDMRG) call Lucia_Util('Densi',CI_Vector=CIVEC)
+      call Lucia_Util('Densi',CI_Vector=CIVEC)
       if (IPRLEV >= INSANE) then
-        write(u6,*) 'At root number =',jroot
-        call TRIPRT('D after lucia  ',' ',Dtmp,NAC)
-        call TRIPRT('DS after lucia  ',' ',DStmp,NAC)
+        call TRIPRT('D after lucia',' ',Dtmp,NAC)
+        call TRIPRT('DS after lucia',' ',DStmp,NAC)
         call TRIPRT('P after lucia',' ',Ptmp,NACPAR)
         call TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
       end if
     end if
-    if ((.not. doDMRG) .and. ((SGS%IFRAS > 2) .or. iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-    ! 1,2-RDMs importing from DMRG calculation -- Stefan/Yingjin
-    if (doDMRG) then
-#     ifdef _DMRG_
-      ! for QCMaquis, just copy the RDMs
-      ! actually, copying is not needed! TODO
-      Dtmp(1:NACPAR) = d1all(:,jroot)
-      if (twordm_qcm) Ptmp(1:NACPR2) = d2all(:,jroot)
-
-      !> import 1p-spin density
-      ! disable spin density if not in the last iteration
-      if (doEntanglement) then
-        DStmp(1:NACPAR) = spd1all(:,jroot)
-      else
-        DStmp(:) = Zero
-      end if
-
-      ! disable antisymmetric 2-RDM
-      PAtmp(:) = Zero
-
-      if (IPRLEV >= INSANE) then
-        call TRIPRT('D after  DMRG',' ',Dtmp,NAC)
-        call TRIPRT('DS after DMRG',' ',DStmp,NAC)
-        call TRIPRT('P after  DMRG',' ',Ptmp,NACPAR)
-        call TRIPRT('PA after DMRG',' ',PAtmp,NACPAR)
-      end if
-#   endif
-    end if
-    ! Modify the symmetric 2-particle density if only partial "exact exchange" is included.
-    !n_Det = 2
-    !n_unpaired_elec = iSpin-1
-    !n_paired_elec = nActEl-n_unpaired_elec
-    !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
-    !  write(u6,*) ' iSpin=',iSpin
-    !  write(u6,*) ' n_unpaired_elec',n_unpaired_elec
-    !  write(u6,*) ' n_paired_elec', n_paired_elec
-    !  write(u6,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
-    !  write(u6,*) ' n_Det=',n_Det
-    !end if
-
-    !write(u6,*) 'second call to Mod_P2'
-
+    if (IDoGAS .or. (SGS%IFRAS > 2)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
-
-    ! update average density matrices
-    Scal = Zero
-    do kRoot=nRoots,1,-1
-      if (iRoot(kRoot) == jRoot) then
-        Scal = Weight(kRoot)
-        exit
-      end if
-    end do
-    D(1:NACPAR) = D(1:NACPAR)+Scal*Dtmp(1:NACPAR)
-    DS(1:NACPAR) = DS(1:NACPAR)+Scal*DStmp(1:NACPAR)
-    P(1:NACPR2) = P(1:NACPR2)+Scal*Ptmp(1:NACPR2)
-    PA(1:NACPR2) = PA(1:NACPR2)+Scal*PAtmp(1:NACPR2)
-    !GLM Put the D1MO and the P2MO values in RUNFILE
-
-    call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
-    call Put_dArray('P2mo',Ptmp,NACPR2) ! Put on RUNFILE
+    D(1:NACPAR) = D(1:NACPAR)+Dtmp(1:NACPAR)
+    DS(1:NACPAR) = DS(1:NACPAR)+DStmp(1:NACPAR)
+    P(1:NACPR2) = P(1:NACPR2)+Ptmp(1:NACPR2)
+    PA(1:NACPR2) = PA(1:NACPR2)+PAtmp(1:NACPR2)
     ! save density matrices on disk
     call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
     call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
     call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
     call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
-#   ifdef _HDF5_
-    !SVC: store a single column instead of the whole array (which is for each root!)
-    ! and for now don't bother with 2-electron active density matrices
-    call square(Dtmp,density_square,1,nac,nac)
-    call mh5_put_dset(wfn_dens,density_square,[nac,nac,1],[0,0,jRoot-1])
-    call square(DStmp,density_square,1,nac,nac)
-    call mh5_put_dset(wfn_spindens,density_square,[nac,nac,1],[0,0,jRoot-1])
-#   endif
-  end do
+  end if
 
-else  ! SplitCAS run
-  call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
-  if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL SplitCAS sect',' ',CIVEC,nConf)
-  ! compute density matrices
-  if (NAC >= 1) then
-    call Lucia_Util('Densi',CI_Vector=CIVEC)
-    if (IPRLEV >= INSANE) then
-      call TRIPRT('D after lucia',' ',Dtmp,NAC)
-      call TRIPRT('DS after lucia',' ',DStmp,NAC)
-      call TRIPRT('P after lucia',' ',Ptmp,NACPAR)
-      call TRIPRT('PA after lucia',' ',PAtmp,NACPAR)
+# ifdef _HDF5_
+  call mma_deallocate(density_square)
+# endif
+  call mma_deallocate(Pscr)
+  call mma_deallocate(PAtmp)
+  call mma_deallocate(Ptmp)
+  call mma_deallocate(DStmp)
+  call mma_deallocate(Dtmp)
+
+  ! print matrices
+  if (IPRLEV >= INSANE) then
+    call TRIPRT('Averaged one-body density matrix, D',' ',D,NAC)
+    call TRIPRT('Averaged one-body spin density matrix, DS',' ',DS,NAC)
+    call TRIPRT('Averaged two-body density matrix, P',' ',P,NACPAR)
+    call TRIPRT('Averaged antisymmetric two-body density matrix,PA',' ',PA,NACPAR)
+  end if
+  call Put_dArray('D1mo',D,NACPAR) ! Put on RUNFILE
+  if (lRf .and. (IPCMROOT <= 0)) call Put_dArray('P2mo',P,NACPR2) ! Put on RUNFILE
+
+  if (NASH(1) /= NAC) call DBLOCK(D)
+  call Timing(Time(2),dum1,dum2,dum3)
+  TimeDens = TimeDens+Time(2)-Time(1)
+
+  ! IF FINAL ITERATION REORDER THE WAVEFUNCTION ACCORDING TO
+  ! THE SPLIT GRAPH GUGA CONVENTIONS AND PRINT IT.
+
+  ! CIV: Temporary copy of a CI vector
+
+  if ((IFINAL == 2) .and. (NAC > 0)) then
+    if (IPRLEV >= USUAL) then
+      write(u6,*)
+      write(u6,'(6X,A)') repeat('*',120)
+      write(u6,'(54X,A)') 'Wave function printout:'
+      write(u6,'(23X,A)') 'occupation of active orbitals, and spin coupling of open shells (u,d: Spin up or down)'
+      write(u6,'(6X,A)') repeat('*',120)
+      write(u6,*)
+      write(u6,'(6x,A)') 'Note: transformation to natural orbitals'
+      write(u6,'(6x,A)') 'has been made, which may change the order of the CSFs.'
     end if
-  end if
-  if (IDoGAS .or. (SGS%IFRAS > 2)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-  if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
-  D(1:NACPAR) = D(1:NACPAR)+Dtmp(1:NACPAR)
-  DS(1:NACPAR) = DS(1:NACPAR)+DStmp(1:NACPAR)
-  P(1:NACPR2) = P(1:NACPR2)+Ptmp(1:NACPR2)
-  PA(1:NACPR2) = PA(1:NACPR2)+PAtmp(1:NACPR2)
-  ! save density matrices on disk
-  call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
-  call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
-  call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
-  call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
-end if
+    call mma_allocate(CIV,nConf,Label='CIV')
+    iDisk = IADR15(4)
 
-#ifdef _HDF5_
-call mma_deallocate(density_square)
-#endif
-call mma_deallocate(Pscr)
-call mma_deallocate(PAtmp)
-call mma_deallocate(Ptmp)
-call mma_deallocate(DStmp)
-call mma_deallocate(Dtmp)
+    if (.not. doDMRG) then
+      if (.not. DoSplitCAS) then
+        do i=1,lRoots
+          jDisk = iDisk
+          ! load back one CI vector at the time
+          call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
+          if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
+          call mma_allocate(kcnf,nactel,Label='kCnf')
+          if (.not. iDoGas) then
+            call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
+            !end if
+            !call mma_deallocate(kcnf)
 
-! print matrices
-if (IPRLEV >= INSANE) then
-  call TRIPRT('Averaged one-body density matrix, D',' ',D,NAC)
-  call TRIPRT('Averaged one-body spin density matrix, DS',' ',DS,NAC)
-  call TRIPRT('Averaged two-body density matrix, P',' ',P,NACPAR)
-  call TRIPRT('Averaged antisymmetric two-body density matrix,PA',' ',PA,NACPAR)
-end if
-call Put_dArray('D1mo',D,NACPAR) ! Put on RUNFILE
-if (lRf .and. (IPCMROOT <= 0)) call Put_dArray('P2mo',P,NACPR2) ! Put on RUNFILE
-!
-if (NASH(1) /= NAC) call DBLOCK(D)
-call Timing(Time(2),dum1,dum2,dum3)
-TimeDens = TimeDens+Time(2)-Time(1)
+            ! save reorder CI vector on disk
+            !if (.not. iDoGas) then
+            call DDafile(JOBIPH,1,CIV,nConf,jDisk)
+#           ifdef _HDF5_
+            call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
+#           endif
+            !else
+            !  call DDafile(JOBIPH,1,CIVEC,nConf,jDisk)
+            !end if
+            ! printout of the wave function
+            if (IPRLEV >= USUAL) then
+              write(u6,*)
+              write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',i
+              write(u6,'(6X,A,F15.6)') 'energy=',ENER(I,ITER)
+              if (Key('PRSD')) then
+                ! Define filename to write GronOR vecdet files (tps/cdg 20210430)
+                write(filename,'(a7,i0)') 'VECDET.',i
+                !filename = 'VECDET.'//merge(str(i),'x',i <= 999)
+                LuVecDet = IsFreeUnit(39)
+                call Molcas_open(LuVecDet,filename)
+                write(LuVecDet,'(8i4)') nish
+              end if
+              call SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+              ! Close GronOR vecdet file (tps/cdg 20210430)
+              if (Key('PRSD')) close(LuVecDet)
+            end if
+          else ! for iDoGas
+            write(u6,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'
+            !.. save CI vector on disk
+            call DDafile(JOBIPH,1,CIVEC,nconf,jDisk)
+#           ifdef _HDF5_
+            !SVC: store CI as a column array of the on-disk CI (which is for all roots!)
+            call mh5_put_dset(wfn_cicoef,CIVEC(1:nconf),[nconf,1],[0,i-1])
+#           endif
+            !.. printout of the wave function
+            if (IPRLEV >= USUAL) then
+              write(u6,*)
+              write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',prwthr,' for root',i
+              write(u6,'(6X,A,F15.6)') 'energy=',ener(i,iter)
 
-! IF FINAL ITERATION REORDER THE WAVEFUNCTION ACCORDING TO
-! THE SPLIT GRAPH GUGA CONVENTIONS AND PRINT IT.
+              call gasprwf(nac,nactel,stsym,conf,cftp,CIVEC,kcnf)
+            end if
+          end if
+          call mma_deallocate(kcnf)
+          !end if
+        end do
 
-! CIV: Temporary copy of a CI vector
+      else !RUN SPLITCAS
 
-if ((IFINAL == 2) .and. (NAC > 0)) then
-  if (IPRLEV >= USUAL) then
-    write(u6,*)
-    write(u6,'(6X,A)') repeat('*',120)
-    write(u6,'(54X,A)') 'Wave function printout:'
-    write(u6,'(23X,A)') 'occupation of active orbitals, and spin coupling of open shells (u,d: Spin up or down)'
-    write(u6,'(6X,A)') repeat('*',120)
-    write(u6,*)
-    write(u6,'(6x,A)') 'Note: transformation to natural orbitals'
-    write(u6,'(6x,A)') 'has been made, which may change the order of the CSFs.'
-  end if
-  call mma_allocate(CIV,nConf,Label='CIV')
-  iDisk = IADR15(4)
-
-  if (.not. doDMRG) then
-    if (.not. DoSplitCAS) then
-      do i=1,lRoots
         jDisk = iDisk
         ! load back one CI vector at the time
         call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
-        if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL last cycle',' ',CIVEC,nConf)
-        call mma_allocate(kcnf,nactel,Label='kCnf')
-        if (.not. iDoGas) then
-          call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
-          !end if
-          !call mma_deallocate(kcnf)
-
-          ! save reorder CI vector on disk
-          !if (.not. iDoGas) then
-          call DDafile(JOBIPH,1,CIV,nConf,jDisk)
-#         ifdef _HDF5_
-          call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
-#         endif
-          !else
-          !  call DDafile(JOBIPH,1,CIVEC,nConf,jDisk)
-          !end if
-          ! printout of the wave function
-          if (IPRLEV >= USUAL) then
-            write(u6,*)
-            write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',i
-            write(u6,'(6X,A,F15.6)') 'energy=',ENER(I,ITER)
-            if (KeyPRSD) then
-              ! Define filename to write GronOR vecdet files (tps/cdg 20210430)
-              write(filename,'(a7,i0)') 'VECDET.',i
-              !filename = 'VECDET.'//merge(str(i),'x',i <= 999)
-              LuVecDet = 39
-              LuVecDet = IsFreeUnit(LuVecDet)
-              call Molcas_open(LuVecDet,filename)
-              write(LuVecDet,'(8i4)') nish
-            end if
-            call SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,KeyPRSD,LUVECDET)
-            ! Close GronOR vecdet file (tps/cdg 20210430)
-            if (KeyPRSD) close(LuVecDet)
-          end if
-        else ! for iDoGas
-          write(u6,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'
-          !.. save CI vector on disk
-          call DDafile(JOBIPH,1,CIVEC,nconf,jDisk)
-#         ifdef _HDF5_
-          !SVC: store CI as a column array of the on-disk CI (which is for all roots!)
-          call mh5_put_dset(wfn_cicoef,CIVEC(1:nconf),[nconf,1],[0,i-1])
-#         endif
-          !.. printout of the wave function
-          if (IPRLEV >= USUAL) then
-            write(u6,*)
-            write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',prwthr,' for root',i
-            write(u6,'(6X,A,F15.6)') 'energy=',ener(i,iter)
-
-            call gasprwf(nac,nactel,stsym,conf,cftp,CIVEC,kcnf)
-          end if
-        end if
+        if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL SplitCAS last cycle',' ',CIVEC,nConf)
+        ! reorder it according to the split graph GUGA conventions
+        call mma_allocate(kcnf,nactel,Label='kcnf')
+        call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
         call mma_deallocate(kcnf)
-        !end if
-      end do
-
-    else !RUN SPLITCAS
-
-      jDisk = iDisk
-      ! load back one CI vector at the time
-      call DDafile(JOBIPH,2,CIVEC,nConf,iDisk)
-      if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL SplitCAS last cycle',' ',CIVEC,nConf)
-      ! reorder it according to the split graph GUGA conventions
-      call mma_allocate(kcnf,nactel,Label='kcnf')
-      call Reord2(NAC,NACTEL,STSYM,0,CONF,CFTP,CIVEC,CIV,kcnf)
-      call mma_deallocate(kcnf)
-      ! save reorder CI vector on disk
-      call DDafile(JOBIPH,1,CIV,nConf,jDisk)
-#     ifdef _HDF5_
-      call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
-#     endif
-      if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL after Reord',' ',CIV,nConf)
-      ! printout of the wave function
-      if (IPRLEV >= USUAL) then
-        write(u6,*)
-        write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',lRootSplit
-        write(u6,'(6X,A,F15.6)') 'Split-energy=',ENER(lRootSplit,ITER)
-        ! Open GronOR vecdet file (tps/cdg 20210430)
-        write(filename,'(a7,i0)') 'VECDET.',i
-        !filename = 'VECDET.'//merge(str(i),'x',i <= 999)
-        LuVecDet = 39
-        LuVecDet = IsFreeUnit(LuVecDet)
-        call Molcas_open(LuVecDet,filename)
-        write(LuVecDet,'(8i4)') nish
-        call SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,KeyPRSD,LUVECDET)
-        ! Close GronOR vecdet file (tps/cdg 20210430)
-        close(LuVecDet)
+        ! save reorder CI vector on disk
+        call DDafile(JOBIPH,1,CIV,nConf,jDisk)
+#       ifdef _HDF5_
+        call mh5_put_dset(wfn_cicoef,CIV(1:nConf),[nconf,1],[0,i-1])
+#       endif
+        if (IPRLEV >= DEBUG) call DVcPrt('CI-Vec in CICTL after Reord',' ',CIV,nConf)
+        ! printout of the wave function
+        if (IPRLEV >= USUAL) then
+          write(u6,*)
+          write(u6,'(6X,A,F6.2,A,I3)') 'printout of CI-coefficients larger than',PRWTHR,' for root',lRootSplit
+          write(u6,'(6X,A,F15.6)') 'Split-energy=',ENER(lRootSplit,ITER)
+          ! Open GronOR vecdet file (tps/cdg 20210430)
+          write(filename,'(a7,i0)') 'VECDET.',i
+          !filename = 'VECDET.'//merge(str(i),'x',i <= 999)
+          LuVecDet = 39
+          LuVecDet = IsFreeUnit(LuVecDet)
+          call Molcas_open(LuVecDet,filename)
+          write(LuVecDet,'(8i4)') nish
+          call SGPRWF(SGS,CIS,STSYM,PRWTHR,iSpin,CIV,nConf,Key('PRSD'),LUVECDET)
+          ! Close GronOR vecdet file (tps/cdg 20210430)
+          close(LuVecDet)
+        end if
       end if
     end if
+
+    call mma_deallocate(CIV)
   end if
 
-  call mma_deallocate(CIV)
+# ifdef _DMRG_
+  if (doDMRG) then
+    call mh5_put_dset(wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
+    call mma_deallocate(d1all)
+    if (twordm_qcm) call mma_deallocate(d2all)
+    if (doEntanglement) call mma_deallocate(spd1all,safe='*')
+  end if
+# endif
+
+  call mma_deallocate(CIVEC)
+  call mma_deallocate(FMO)
+
 end if
-
-#ifdef _DMRG_
-if (doDMRG) then
-  call mh5_put_dset(wfn_dmrg_checkpoint,dmrg_file%qcmaquis_checkpoint_file)
-  call mma_deallocate(d1all)
-  if (twordm_qcm) call mma_deallocate(d2all)
-  if (doEntanglement) call mma_deallocate(spd1all,safe='*')
-end if
-#endif
-
-call mma_deallocate(CIVEC)
-call mma_deallocate(FMO)
-
-9000 continue
 
 ! For RF calculations make sure that the we are following the
 ! correct root.
@@ -808,7 +807,7 @@ call mma_deallocate(FMO)
 !     rotation, so in that case ignore the automatic tracing and follow
 !     the relative CISE root given in the input by the 'CIRF' keyword.
 
-if (lRF .and. KeyCISE .and. KeyCIRF .and. (IPCMROOT > 0)) then
+if (lRF .and. Key('CISE') .and. Key('CIRF') .and. (IPCMROOT > 0)) then
   JPCMROOT = IPCMROOT
   IPCMROOT = IROOT(ICIRFROOT)
   call Put_iScalar('RF CASSCF root',IPCMROOT)
@@ -845,7 +844,7 @@ else if (lRF .and. (IPCMROOT > 0)) then
   end if
 # endif
 
-  if (Exists .and. (mConf == nConf) .and. (iFinal /= 2) .and. ((abs(RotMax) < 1.0e-3_wp) .or. KeyCISE)) then
+  if (Exists .and. (mConf == nConf) .and. (iFinal /= 2) .and. ((abs(RotMax) < 1.0e-3_wp) .or. Key('CISE'))) then
 
     rNorm = One
     ! Shouldn't the overlap in this case be always 1?

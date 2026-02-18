@@ -52,7 +52,7 @@ if (nDet == 1) then
           k = iOff_Ash(kIrrep)+k_
           do l_=1,nASh(ijkIrrep)
             l = iOff_Ash(ijkIrrep)+l_
-            if (l > k) Go To 100
+            if (l > k) exit
             kl = iTri(k,l)
             do i_=1,nASh(iIrrep)
               i = iOff_Ash(iIrrep)+i_
@@ -60,9 +60,9 @@ if (nDet == 1) then
               ik = iTri(i,k)
               do j_=1,nASh(jIrrep)
                 j = iOff_Ash(jIrrep)+j_
-                if (j > i) Go To 200
+                if (j > i) cycle
                 ij = iTri(i,j)
-                if (kl > ij) Go To 200
+                if (kl > ij) cycle
                 ijkl = iTri(ij,kl)
                 jk = iTri(j,k)
                 jl = iTri(j,l)
@@ -77,10 +77,8 @@ if (nDet == 1) then
 
                 P2mo(ijkl) = P2mo(ijkl)/Fact
 
-200             continue
               end do
             end do
-100         continue
           end do
         end do
 

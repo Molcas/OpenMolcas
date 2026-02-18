@@ -64,30 +64,31 @@ do ITRIAL=1,NTRIAL
     NEO = NSSH(ISYM)
     NIA = NIO+NAO
     NAE = NAO+NEO
-    if ((NIA == 0) .or. (NAE == 0)) GO TO 98
 
-    ! G-matrix contribution to HC (G*C)
+    if ((NIA /= 0) .and. (NAE /= 0)) then
+      ! G-matrix contribution to HC (G*C)
 
-    call DGEMM_('N','N',NIA,NAE,NIA,One,G(ISTIA),NIA,C(ISTBM+NST),NIA,One,HC(ISTBM+NNST),NIA)
+      call DGEMM_('N','N',NIA,NAE,NIA,One,G(ISTIA),NIA,C(ISTBM+NST),NIA,One,HC(ISTBM+NNST),NIA)
 
-    ! H-matrix contribution to HC (-C*H)
+      ! H-matrix contribution to HC (-C*H)
 
-    if (NAO /= 0) call DGEMM_('N','N',NIA,NAO,NAE,-One,C(ISTBM+NST),NIA,H(ISTH),NAE,One,HC(ISTBM+NNST),NIA)
-    if (NAO*NEO /= 0) call DGEMM_('N','T',NIA,NEO,NAO,-One,C(ISTBM+NST),NIA,H(ISTH+NAO),NAE,One,HC(ISTBM+NAO*NIA+NNST),NIA)
+      if (NAO /= 0) call DGEMM_('N','N',NIA,NAO,NAE,-One,C(ISTBM+NST),NIA,H(ISTH),NAE,One,HC(ISTBM+NNST),NIA)
+      if (NAO*NEO /= 0) call DGEMM_('N','T',NIA,NEO,NAO,-One,C(ISTBM+NST),NIA,H(ISTH+NAO),NAE,One,HC(ISTBM+NAO*NIA+NNST),NIA)
 
-    ! First Fock matrix contribution D*C*FP
+      ! First Fock matrix contribution D*C*FP
 
-    call DGEMM_('N','N',NIA,NAE,NAE,One,C(ISTBM+NST),NIA,F2(ISTAE),NAE,Zero,X,NIA)
-    call DGEMM_('N','N',NIA,NAE,NIA,One,DIA(ISTIA),NIA,X,NIA,One,HC(ISTBM+NNST),NIA)
+      call DGEMM_('N','N',NIA,NAE,NAE,One,C(ISTBM+NST),NIA,F2(ISTAE),NAE,Zero,X,NIA)
+      call DGEMM_('N','N',NIA,NAE,NIA,One,DIA(ISTIA),NIA,X,NIA,One,HC(ISTBM+NNST),NIA)
 
-    ! Second Fock matrix contribution FP*C*D
+      ! Second Fock matrix contribution FP*C*D
 
-    if (NAO /= 0) then
-      call DGEMM_('N','N',NIA,NAO,NIA,One,F1(ISTIA),NIA,C(ISTBM+NST),NIA,Zero,X,NIA)
-      call DGEMM_('N','N',NIA,NAO,NAO,One,X,NIA,DIA(ISTIA+NIA*NIO+NIO),NIA,One,HC(ISTBM+NNST),NIA)
+      if (NAO /= 0) then
+        call DGEMM_('N','N',NIA,NAO,NIA,One,F1(ISTIA),NIA,C(ISTBM+NST),NIA,Zero,X,NIA)
+        call DGEMM_('N','N',NIA,NAO,NAO,One,X,NIA,DIA(ISTIA+NIA*NIO+NIO),NIA,One,HC(ISTBM+NNST),NIA)
+      end if
     end if
 
-98  ISTIA = ISTIA+NIA**2
+    ISTIA = ISTIA+NIA**2
     ISTAE = ISTAE+NAE**2
     ISTBM = ISTBM+NIA*NAE
     ISTH = ISTH+NAO*NAE
@@ -150,6 +151,7 @@ end do
 ! Test print out of the sigma vector
 
 if (IPRLEV >= DEBUG) write(u6,1000) (HC(I),I=1,NDIMSX)
+
 1000 format(/1X,'Sigma vector in SIGVEC'/(1X,10F11.6))
 
 return

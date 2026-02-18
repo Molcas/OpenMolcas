@@ -192,12 +192,12 @@ do ISYM=1,NSYM
         do NJ=NI1,NIO
           if (FDIAG(NO1+NJ) < FDIAG(NO1+M_IN)) M_IN = NJ
         end do
-        if (M_IN == NI) GO TO 20
-        FMIN = FDIAG(NO1+M_IN)
-        FDIAG(NO1+M_IN) = FDIAG(NO1+NI)
-        FDIAG(NO1+NI) = FMIN
-        call DSWAP_(NIO,VEC(1+NIO*(NI-1)),1,VEC(1+NIO*(M_IN-1)),1)
-20      continue
+        if (M_IN /= NI) then
+          FMIN = FDIAG(NO1+M_IN)
+          FDIAG(NO1+M_IN) = FDIAG(NO1+NI)
+          FDIAG(NO1+NI) = FMIN
+          call DSWAP_(NIO,VEC(1+NIO*(NI-1)),1,VEC(1+NIO*(M_IN-1)),1)
+        end if
       end do
     end if
     call DGEACC(One,VEC,NIO,'N',CMOX,N_OT,NIO,NIO)
@@ -247,12 +247,12 @@ do ISYM=1,NSYM
           do NU=NT1,NR1
             if (FDIAG(NO1+NU) < FDIAG(NO1+M_IN)) M_IN = NU
           end do
-          if (M_IN == NT) GO TO 41
-          FMIN = FDIAG(NO1+M_IN)
-          FDIAG(NO1+M_IN) = FDIAG(NO1+NT)
-          FDIAG(NO1+NT) = FMIN
-          call DSWAP_(NR1,VEC(1+NR1*(NT-1)),1,VEC(1+NR1*(M_IN-1)),1)
-41        continue
+          if (M_IN /= NT) then
+            FMIN = FDIAG(NO1+M_IN)
+            FDIAG(NO1+M_IN) = FDIAG(NO1+NT)
+            FDIAG(NO1+NT) = FMIN
+            call DSWAP_(NR1,VEC(1+NR1*(NT-1)),1,VEC(1+NR1*(M_IN-1)),1)
+          end if
         end do
       end if
       call DGEACC(One,VEC,NR1,'N',CMOX(1+N_OT*NIO+NIO),N_OT,NR1,NR1)
@@ -316,12 +316,12 @@ do ISYM=1,NSYM
           do NU=NT1,NR2
             if (FDIAG(NO1+NU) < FDIAG(NO1+M_IN)) M_IN = NU
           end do
-          if (M_IN == NT) GO TO 42
-          FMIN = FDIAG(NO1+M_IN)
-          FDIAG(NO1+M_IN) = FDIAG(NO1+NT)
-          FDIAG(NO1+NT) = FMIN
-          call DSWAP_(NR2,VEC(1+NR2*(NT-1)),1,VEC(1+NR2*(M_IN-1)),1)
-42        continue
+          if (M_IN /= NT) then
+            FMIN = FDIAG(NO1+M_IN)
+            FDIAG(NO1+M_IN) = FDIAG(NO1+NT)
+            FDIAG(NO1+NT) = FMIN
+            call DSWAP_(NR2,VEC(1+NR2*(NT-1)),1,VEC(1+NR2*(M_IN-1)),1)
+          end if
         end do
       end if
       call DGEACC(One,VEC,NR2,'N',CMOX(1+N_OT*(NIO+NR1)+NIO+NR1),N_OT,NR2,NR2)
@@ -396,12 +396,12 @@ do ISYM=1,NSYM
           do NU=NT1,NR3
             if (FDIAG(NO1+NU) < FDIAG(NO1+M_IN)) M_IN = NU
           end do
-          if (M_IN == NT) GO TO 43
-          FMIN = FDIAG(NO1+M_IN)
-          FDIAG(NO1+M_IN) = FDIAG(NO1+NT)
-          FDIAG(NO1+NT) = FMIN
-          call DSWAP_(NR3,VEC(1+NR3*(NT-1)),1,VEC(1+NR3*(M_IN-1)),1)
-43        continue
+          if (M_IN /= NT) then
+            FMIN = FDIAG(NO1+M_IN)
+            FDIAG(NO1+M_IN) = FDIAG(NO1+NT)
+            FDIAG(NO1+NT) = FMIN
+            call DSWAP_(NR3,VEC(1+NR3*(NT-1)),1,VEC(1+NR3*(M_IN-1)),1)
+          end if
         end do
       end if
       call DGEACC(One,VEC,NR3,'N',CMOX(1+N_OT*(NIO+NR1+NR2)+NIO+NR1+NR2),N_OT,NR3,NR3)
@@ -457,12 +457,12 @@ do ISYM=1,NSYM
         do NB=NA1,NEO
           if (FDIAG(NO1+NB) < FDIAG(NO1+M_IN)) M_IN = NB
         end do
-        if (M_IN == NA) GO TO 60
-        FMIN = FDIAG(NO1+M_IN)
-        FDIAG(NO1+M_IN) = FDIAG(NO1+NA)
-        FDIAG(NO1+NA) = FMIN
-        call DSWAP_(NEO,VEC(1+NEO*(NA-1)),1,VEC(1+NEO*(M_IN-1)),1)
-60      continue
+        if (M_IN /= NA) then
+          FMIN = FDIAG(NO1+M_IN)
+          FDIAG(NO1+M_IN) = FDIAG(NO1+NA)
+          FDIAG(NO1+NA) = FMIN
+          call DSWAP_(NEO,VEC(1+NEO*(NA-1)),1,VEC(1+NEO*(M_IN-1)),1)
+        end if
       end do
     end if
     call DGEACC(One,VEC,NEO,'N',CMOX(1+N_OT*NOC+NOC),N_OT,NEO,NEO)

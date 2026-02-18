@@ -94,139 +94,138 @@ do ISYM=1,NSYM
   N2 = 0
 
   ! If no orbitals in this symmetry block go to next symm
-  if (NO == 0) GO TO 90
+  if (NO /= 0) then
 
-  !************************
-  ! clear F_gen matrix
-  !************************
-  F(ISTFCK+1:ISTFCK+NO**2) = Zero
-
-  !*********************************************************************
-  ! first index in F is inactive: F_gen is twice FP=FI+FA (Eq.10.8.27 MEST)
-  !*********************************************************************
-  if (NIO /= 0) then
-    do NP=1,NO
-      do NI=1,NIO
-        F(ISTFCK+NO*(NP-1)+NI) = 2*FP(ISTFP+iTri(NP,NI))
-      end do
-    end do
-  end if
-
-  !*********************************************************************
-  ! first index in F active
-  !*********************************************************************
-  if (NAO /= 0) then
-    ISTP = ISTORP(ISYM)+1
-    JSTF = ISTORD(ISYM)+1
-    NUVX = (ISTORP(ISYM+1)-ISTORP(ISYM))/NAO
-
-    if ((.not. DoCholesky) .or. (ALGO == 1)) then
-      !*****************************************************************
-      ! Compute the Q-matrix (Eq. (19) in IJQC S14 175 1980 or Eq. 10.8.31 MEST)
-      ! Q(m,v) = sum_wxy  (m|wxy) * P(wxy,v)
-      ! P is packed in xy and pre-multiplied by 2 and reordered
-      !*****************************************************************
-      if (IPRLEV >= DEBUG) then
-        write(u6,*) 'PUVX integrals in FOCK'
-        call wrtmat(FINT(JSTF),NO,NUVX,NO,NUVX)
-        write(u6,*) 'two-elec density mat OR DMAT*DMAT in FOCK'
-        call wrtmat(P(ISTP),NAO,NUVX,NAO,NUVX)
-      end if
-
-      call DGEMM_('N','N',NO,NAO,NUVX,One,FINT(JSTF),NO,P(ISTP),NUVX,Zero,Q,NO)
-
-    else if (ALGO == 2) then
-      !*****************************************************************
-      ! --- the Q-matrix has been already computed as Q(a,v)
-      ! --- where a is an AO index and v is an active index
-      ! --- Transform the 1st index to MOs (one symmetry at the time)
-      ! --- Q(m,v) = C(a,m) * Q(a,v)
-      !*****************************************************************
-      ipQS = 1+ISTAV(iSym)
-      ipMOs = 1+ISTSQ(iSym)+nBas(iSym)*nFro(iSym)
-
-      call DGEMM_('T','N',nOrb(iSym),nAsh(iSym),nBas(iSym),One,CMO(ipMOs),nBas(iSym),Q(ipQS),nBas(iSym),Zero,Q(1),nOrb(iSym))
-    else
-      write(u6,*) 'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-      call abend()
-    end if
-
-    if (IPRLEV >= DEBUG) call recprt('Q-mat in fock.f',' ',Q(1),NO,NAO)
+    !************************
+    ! clear F_gen matrix
+    !************************
+    F(ISTFCK+1:ISTFCK+NO**2) = Zero
 
     !*******************************************************************
-    ! active-active interaction energy term in the RASSCF energy: trace of Q
+    ! first index in F is inactive: F_gen is twice FP=FI+FA (Eq.10.8.27 MEST)
     !*******************************************************************
-    ECAS0 = ECAS
-    do NT=1,NAO
-      NTT = (NT-1)*NO+NIO+NT
-      ECAS = ECAS+Half*Q(NTT)
-      HALFQ1 = HALFQ1+Half*Q(NTT)
-      E2act = E2act+Half*Q(NTT)
-    end do
-    if (IPRLEV >= DEBUG) then
-      write(u6,*) 'Two-electron contribution (Q term):',ECAS-ECAS0
-      write(u6,*) 'ECAS aft adding Q in fock.f :',ECAS
-    end if
-
-    !*******************************************************************
-    ! Continue... Fock matrix for first index active
-    !*******************************************************************
-    NTM = 0
-    do NT=1,NAO
-      do NM=1,NO
-        NTM = NTM+1
-        QNTM = Q(NTM)
-        do NV=1,NAO
-          NVI = NV+NIO
-          NTV = iTri(NT,NV)+ISTD
-          NVM = iTri(NVI,NM)+ISTFP
-          QNTM = QNTM+D(NTV)*FI(NVM)
+    if (NIO /= 0) then
+      do NP=1,NO
+        do NI=1,NIO
+          F(ISTFCK+NO*(NP-1)+NI) = 2*FP(ISTFP+iTri(NP,NI))
         end do
-        F(ISTFCK+NO*(NM-1)+NT+NIO) = QNTM
       end do
-    end do
+    end if
 
-  end if
-  !*********************************************************************
-  !^ End if related to first index in F active
-  !*********************************************************************
+    !*******************************************************************
+    ! first index in F active
+    !*******************************************************************
+    if (NAO /= 0) then
+      ISTP = ISTORP(ISYM)+1
+      JSTF = ISTORD(ISYM)+1
+      NUVX = (ISTORP(ISYM+1)-ISTORP(ISYM))/NAO
 
-  !*********************************************************************
-  !       The Brillouin matrix BM(pq)=F(qp)-F(pq)
-  !*********************************************************************
-  NPQ = ISTBM
-  do NP=NIO+1,NO
-    do NQ=1,NIA
-      NPQ = NPQ+1
-      BM(NPQ) = F(ISTFCK+NO*(NP-1)+NQ)-F(ISTFCK+NO*(NQ-1)+NP)
-
-      ! Set zeroes to BM elements corresponding to rotations not allowed
-      ! as controlled by the array IZROT.
-
-      if ((NP <= NIA) .and. (NQ > NIO)) then
-        NT = NP-NIO
-        NU = NQ-NIO
-        if (NT <= NU) then
-          BM(NPQ) = Zero
-        else
-          NTU = ISTZ+nTri_Elem(NT-2)+NU
-          if (IZROT(NTU) /= 0) BM(NPQ) = Zero
-          if (IXSYM(IX+NP) /= IXSYM(IX+NQ)) BM(NPQ) = Zero
+      if ((.not. DoCholesky) .or. (ALGO == 1)) then
+        !***************************************************************
+        ! Compute the Q-matrix (Eq. (19) in IJQC S14 175 1980 or Eq. 10.8.31 MEST)
+        ! Q(m,v) = sum_wxy  (m|wxy) * P(wxy,v)
+        ! P is packed in xy and pre-multiplied by 2 and reordered
+        !***************************************************************
+        if (IPRLEV >= DEBUG) then
+          write(u6,*) 'PUVX integrals in FOCK'
+          call wrtmat(FINT(JSTF),NO,NUVX,NO,NUVX)
+          write(u6,*) 'two-elec density mat OR DMAT*DMAT in FOCK'
+          call wrtmat(P(ISTP),NAO,NUVX,NAO,NUVX)
         end if
+
+        call DGEMM_('N','N',NO,NAO,NUVX,One,FINT(JSTF),NO,P(ISTP),NUVX,Zero,Q,NO)
+
+      else if (ALGO == 2) then
+        !***************************************************************
+        ! --- the Q-matrix has been already computed as Q(a,v)
+        ! --- where a is an AO index and v is an active index
+        ! --- Transform the 1st index to MOs (one symmetry at the time)
+        ! --- Q(m,v) = C(a,m) * Q(a,v)
+        !***************************************************************
+        ipQS = 1+ISTAV(iSym)
+        ipMOs = 1+ISTSQ(iSym)+nBas(iSym)*nFro(iSym)
+
+        call DGEMM_('T','N',nOrb(iSym),nAsh(iSym),nBas(iSym),One,CMO(ipMOs),nBas(iSym),Q(ipQS),nBas(iSym),Zero,Q(1),nOrb(iSym))
+      else
+        write(u6,*) 'FOCK: illegal Cholesky parameter ALGO= ',ALGO
+        call abend()
       end if
 
-      ! check for largest Brillouin matrix element
+      if (IPRLEV >= DEBUG) call recprt('Q-mat in fock.f',' ',Q(1),NO,NAO)
 
-      if (abs(BM(NPQ)) < abs(CSX)) GO TO 20
-      if (IXSYM(IX+NP) /= IXSYM(IX+NQ)) GO TO 20
-      CSX = BM(NPQ)
-      N1 = NQ+NFRO(ISYM)
-      N2 = NP+NFRO(ISYM)
-20    continue
+      !*****************************************************************
+      ! active-active interaction energy term in the RASSCF energy: trace of Q
+      !*****************************************************************
+      ECAS0 = ECAS
+      do NT=1,NAO
+        NTT = (NT-1)*NO+NIO+NT
+        ECAS = ECAS+Half*Q(NTT)
+        HALFQ1 = HALFQ1+Half*Q(NTT)
+        E2act = E2act+Half*Q(NTT)
+      end do
+      if (IPRLEV >= DEBUG) then
+        write(u6,*) 'Two-electron contribution (Q term):',ECAS-ECAS0
+        write(u6,*) 'ECAS aft adding Q in fock.f :',ECAS
+      end if
+
+      !*****************************************************************
+      ! Continue... Fock matrix for first index active
+      !*****************************************************************
+      NTM = 0
+      do NT=1,NAO
+        do NM=1,NO
+          NTM = NTM+1
+          QNTM = Q(NTM)
+          do NV=1,NAO
+            NVI = NV+NIO
+            NTV = iTri(NT,NV)+ISTD
+            NVM = iTri(NVI,NM)+ISTFP
+            QNTM = QNTM+D(NTV)*FI(NVM)
+          end do
+          F(ISTFCK+NO*(NM-1)+NT+NIO) = QNTM
+        end do
+      end do
+
+    end if
+    !*******************************************************************
+    !^ End if related to first index in F active
+    !*******************************************************************
+
+    !*******************************************************************
+    !       The Brillouin matrix BM(pq)=F(qp)-F(pq)
+    !*******************************************************************
+    NPQ = ISTBM
+    do NP=NIO+1,NO
+      do NQ=1,NIA
+        NPQ = NPQ+1
+        BM(NPQ) = F(ISTFCK+NO*(NP-1)+NQ)-F(ISTFCK+NO*(NQ-1)+NP)
+
+        ! Set zeroes to BM elements corresponding to rotations not allowed
+        ! as controlled by the array IZROT.
+
+        if ((NP <= NIA) .and. (NQ > NIO)) then
+          NT = NP-NIO
+          NU = NQ-NIO
+          if (NT <= NU) then
+            BM(NPQ) = Zero
+          else
+            NTU = ISTZ+nTri_Elem(NT-2)+NU
+            if (IZROT(NTU) /= 0) BM(NPQ) = Zero
+            if (IXSYM(IX+NP) /= IXSYM(IX+NQ)) BM(NPQ) = Zero
+          end if
+        end if
+
+        ! check for largest Brillouin matrix element
+
+        if (abs(BM(NPQ)) < abs(CSX)) cycle
+        if (IXSYM(IX+NP) /= IXSYM(IX+NQ)) cycle
+        CSX = BM(NPQ)
+        N1 = NQ+NFRO(ISYM)
+        N2 = NP+NFRO(ISYM)
+      end do
     end do
-  end do
+  end if
 
-90 continue
   ISTFCK = ISTFCK+NO**2
   ISTFP = ISTFP+NO2
   ISTD = ISTD+nTri_Elem(NAO)
@@ -272,12 +271,11 @@ end if
 CBLBM = Zero
 ISYMBB = 0
 do ISYM=1,NSYM
-  if (abs(CBLB(ISYM)) < abs(CBLBM)) GO TO 150
+  if (abs(CBLB(ISYM)) < abs(CBLBM)) cycle
   CBLBM = CBLB(ISYM)
   IBLBM = IBLB(ISYM)
   JBLBM = JBLB(ISYM)
   ISYMBB = ISYM
-150 continue
 end do
 
 !***********************************************************************

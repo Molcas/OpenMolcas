@@ -86,269 +86,271 @@ do ISYM=1,NSYM
   NEO = NSSH(ISYM)
   NAE = NAO+NEO
   NO = NORB(ISYM)
-  if ((NIA == 0) .or. (NAE == 0)) GO TO 98
+  if ((NIA /= 0) .and. (NAE /= 0)) then
 
-  ! Form the diagonal of the density matrix for all orbitals
+    ! Form the diagonal of the density matrix for all orbitals
 
-  justone = 0
-  do NP=1,NO
-    if (NP <= NIO) DDIAG(NP) = Two
-    if (NP > NIA) DDIAG(NP) = Zero
-    if ((NP > NIO) .and. (NP <= NIA)) then
-      DDIAG(NP) = D(ISTD+nTri_Elem(NP-NIO))
-      if ((DDIAG(NP) < THRA) .and. (ISCF == 0)) then
-        if (JustOne == 0) then
-          call WarningMessage(1,'Problems in orbital optimization.')
-          JustOne = JustOne+1
+    justone = 0
+    do NP=1,NO
+      if (NP <= NIO) DDIAG(NP) = Two
+      if (NP > NIA) DDIAG(NP) = Zero
+      if ((NP > NIO) .and. (NP <= NIA)) then
+        DDIAG(NP) = D(ISTD+nTri_Elem(NP-NIO))
+        if ((DDIAG(NP) < THRA) .and. (ISCF == 0)) then
+          if (JustOne == 0) then
+            call WarningMessage(1,'Problems in orbital optimization.')
+            JustOne = JustOne+1
+          end if
+          write(u6,'(1x,a,i2,a,i4,a,es14.6)') ' Warning: In symmetry ',ISYM,', orbital p=',NP, &
+                                              ' has diagonal density matrix element D(p,p) close to zero. D(p,p)=',DDIAG(NP)
         end if
-        write(u6,'(1x,a,i2,a,i4,a,es14.6)') ' Warning: In symmetry ',ISYM,', orbital p=',NP, &
-                                            ' has diagonal density matrix element D(p,p) close to zero. D(p,p)=',DDIAG(NP)
-      end if
-      if ((Two-DDIAG(NP) < THRA) .and. (ISCF == 0)) then
-        if (JustOne == 0) then
-          call WarningMessage(1,'Problems in orbital optimization.')
-          JustOne = JustOne+1
+        if ((Two-DDIAG(NP) < THRA) .and. (ISCF == 0)) then
+          if (JustOne == 0) then
+            call WarningMessage(1,'Problems in orbital optimization.')
+            JustOne = JustOne+1
+          end if
+          write(u6,'(1x,a,i2,a,i4,a,es14.6)') ' Warning: In symmetry ',ISYM,', orbital p=',NP, &
+                                              ' has diagonal density matrix element D(p,p) close to two. (2 - D(p,p))=', &
+                                              Two-DDIAG(NP)
         end if
-        write(u6,'(1x,a,i2,a,i4,a,es14.6)') ' Warning: In symmetry ',ISYM,', orbital p=',NP, &
-                                            ' has diagonal density matrix element D(p,p) close to two. (2 - D(p,p))=',Two-DDIAG(NP)
-      end if
-    end if
-  end do
-
-  ! Compute the normalization constants:
-  ! SXN(pq)=4*(P(prrp)-P(prpr))+D(rr)+D(pp)
-
-  NPR = ISTBM
-  ! NP loops over active and secondary indices.
-  do NP=NIO+1,NO
-    ! NR loops over inactive and active indices.
-    do NR=1,NIA
-      NPR = NPR+1
-      SXN(NPR) = One
-      if (NR >= NP) GO TO 95
-      DRR = DDIAG(NR)
-      DPP = DDIAG(NP)
-      PRPR = -Two*DPP
-      if (NP > NIA) PRPR = Zero
-      if ((NR > NIO) .and. (NP <= NIA)) then
-        NT = NP-NIO+IASHI
-        NU = NR-NIO+IASHI
-        NTU = iTri(NT,NU)
-        NTUTU = nTri_Elem(NTU)
-        PRPR = -Four*PA(NTUTU)
-      end if
-      SXNRM2 = PRPR+DRR+DPP
-      if (SXNRM2 < -1.0e-12_wp) then
-        call WarningMessage(1,'Negative norm occured in SXHAM.')
-        write(u6,*) 'SXHAM Error: Negative SXNRM2.'
-        write(u6,*) ' Symmetry block ISYM:',ISYM
-        write(u6,*) '      Orbitals NP,NR:',NP,NR
-        write(u6,*) '                PRPR:',PRPR
-        write(u6,*) '                 DRR:',DRR
-        write(u6,*) '                 DPP:',DPP
-        write(u6,*) '      Norm**2 SXNRM2:',SXNRM2
-        write(u6,*)
-        write(u6,*) ' The squared norm of a trial vector has been'
-        write(u6,*) ' computed to be negative.'
-        write(u6,*) ' This is possible only for some severe malfunction'
-        write(u6,*) ' of the rasscf program. Please issue a bug report.'
-        write(u6,*)
-        call Quit(_RC_GENERAL_ERROR_)
-      end if
-
-      if (SXNRM2 < 1.0e-12_wp) then
-        SXN(NPR) = Zero
-      else
-        SXN(NPR) = One/sqrt(SXNRM2)
-      end if
-95    continue
-    end do
-  end do
-
-  ! Form the occupied (F1) and active-external (F2) part of FP
-  ! and the occupied part DIA of the density matrix D
-
-  IPQ = ISTFP
-  DIA(ISTIA+1:ISTIA+NIA**2) = Zero
-  do NP=1,NO
-    do NQ=1,NP
-      IPQ = IPQ+1
-      if ((NP <= NIA) .and. (NQ <= NIA)) then
-        F1(ISTIA+NIA*(NP-1)+NQ) = FP(IPQ)
-        F1(ISTIA+NIA*(NQ-1)+NP) = FP(IPQ)
-      end if
-      if ((NP > NIO) .and. (NQ > NIO)) then
-        F2(NAE*(NP-NIO-1)+NQ-NIO+ISTAE) = FP(IPQ)
-        F2(NAE*(NQ-NIO-1)+NP-NIO+ISTAE) = FP(IPQ)
-      end if
-      if ((NP <= NIO) .and. (NP == NQ)) DIA(ISTIA+NIA*(NP-1)+NP) = Two
-      if (((NP > NIO) .and. (NP <= NIA)) .and. NQ > NIO) then
-        NT = NP-NIO
-        NU = NQ-NIO
-        NTU = iTri(NT,NU)+ISTD
-        DIA(ISTIA+NIA*(NP-1)+NQ) = D(NTU)
-        DIA(ISTIA+NIA*(NQ-1)+NP) = D(NTU)
       end if
     end do
-  end do
-  if (IPRLEV >= DEBUG) then
-    write(u6,*) 'DIA in SXHAM:'
-    write(u6,*) (DIA(ISTIA+i),i=1,NIA**2)
-  end if
 
-  ! Form the matrix DF (row index active, column index all orbitals)
+    ! Compute the normalization constants:
+    ! SXN(pq)=4*(P(prrp)-P(prpr))+D(rr)+D(pp)
 
-  if (NAO /= 0) then
-    call DGEMM_('N','N',NAO,NAE,NAO,One,DIA(ISTIA+NIO*NIA+NIO+1),NIA,F2(ISTAE+1),NAE,Zero,DF(NAO*NIO+1),NAO)
-    if (NIO /= 0) call DGEMM_('N','N',NAO,NIO,NAO,One,DIA(ISTIA+NIO*NIA+NIO+1),NIA,F1(ISTIA+NIO+1),NIA,Zero,DF,NAO)
-  end if
+    NPR = ISTBM
+    ! NP loops over active and secondary indices.
+    do NP=NIO+1,NO
+      ! NR loops over inactive and active indices.
+      do NR=1,NIA
+        NPR = NPR+1
+        SXN(NPR) = One
+        if (NR >= NP) cycle
+        DRR = DDIAG(NR)
+        DPP = DDIAG(NP)
+        PRPR = -Two*DPP
+        if (NP > NIA) PRPR = Zero
+        if ((NR > NIO) .and. (NP <= NIA)) then
+          NT = NP-NIO+IASHI
+          NU = NR-NIO+IASHI
+          NTU = iTri(NT,NU)
+          NTUTU = nTri_Elem(NTU)
+          PRPR = -Four*PA(NTUTU)
+        end if
+        SXNRM2 = PRPR+DRR+DPP
+        if (SXNRM2 < -1.0e-12_wp) then
+          call WarningMessage(1,'Negative norm occured in SXHAM.')
+          write(u6,*) 'SXHAM Error: Negative SXNRM2.'
+          write(u6,*) ' Symmetry block ISYM:',ISYM
+          write(u6,*) '      Orbitals NP,NR:',NP,NR
+          write(u6,*) '                PRPR:',PRPR
+          write(u6,*) '                 DRR:',DRR
+          write(u6,*) '                 DPP:',DPP
+          write(u6,*) '      Norm**2 SXNRM2:',SXNRM2
+          write(u6,*)
+          write(u6,*) ' The squared norm of a trial vector has been'
+          write(u6,*) ' computed to be negative.'
+          write(u6,*) ' This is possible only for some severe malfunction'
+          write(u6,*) ' of the rasscf program. Please issue a bug report.'
+          write(u6,*)
+          call Quit(_RC_GENERAL_ERROR_)
+        end if
 
-  ! compute the G matrix:
-  ! G(ij)=-2*FP(ij)
-  ! G(ti)=G(it)=-DF(ti)
-  ! G(tu)=sum(vx)(2P(tuvx)-D(tu)D(vx))F(vx)
-
-  if (ExFac /= One) then
-    call Get_Temp('nP2Act  ',P2Act,1)
-    nP2Act = int(P2Act(1))
-    call Get_Temp('P2_RAW  ',P,nP2Act)
-  end if
-  do NP=1,NIA
-    do NQ=1,NP
-      IPQ = ISTIA+NIA*(NP-1)+NQ
-      IQP = ISTIA+NIA*(NQ-1)+NP
-      if (NP <= NIO) then
-        G(IPQ) = -Two*F1(IPQ)
-        G(IQP) = G(IPQ)
-      else if ((NP > NIO) .and. (NQ <= NIO)) then
-        G(IPQ) = -DF(NAO*(NQ-1)+NP-NIO)
-        G(IQP) = G(IPQ)
-      else if (NQ > NIO) then
-        DTU = DIA(ISTIA+NIA*(NP-1)+NQ)
-        GTU = Zero
-        NTT = NP-NIO+IASHI
-        NUT = NQ-NIO+IASHI
-        NTUT = iTri(NTT,NUT)
-
-        IASHJ = 0
-        ISTFPJ = 0
-        NVX = 0
-        do JSYM=1,NSYM
-          NAOJ = NASH(JSYM)
-          NIOJ = NISH(JSYM)
-          if (NAOJ == 0) GO TO 23
-          do NV=1,NAOJ
-            NVT = NV+IASHJ
-            do NX=1,NV
-              NXT = NX+IASHJ
-              NVX = NVX+1
-              NVXT = iTri(NVT,NXT)
-              NTUVX = iTri(NTUT,NVXT)
-              FAC = Two
-              FACD = Two
-              if (NV == NX) FACD = One
-              if (NTUT < NVXT) then
-                if ((NVT /= NXT) .and. (NTT == NUT)) FAC = Four
-                if ((NVT == NXT) .and. (NTT /= NUT)) FAC = One
-              end if
-              NVXF = ISTFPJ+iTri(NV+NIOJ,NX+NIOJ)
-              GTU = GTU+FP(NVXF)*(FAC*P(NTUVX)-FACD*DTU*D(NVX))
-            end do
-          end do
-          IASHJ = IASHJ+NAOJ
-23        ISTFPJ = ISTFPJ+nTri_Elem(NORB(JSYM))
-        end do
-        G(IPQ) = GTU
-        G(IQP) = GTU
-      end if
-    end do
-  end do
-  if (ExFac /= One) call Get_Temp('P2_KS   ',P,nP2Act)
-
-  ! FORM THE H MATRIX (only the nae*nao block is needed)
-  ! H(tu)=G(tu)+DF(tu)+DF(ut)
-  ! H(at)=DF(ta)
-  ! H(ab) and H(ta) are not included.
-
-  if (NAO /= 0) then
-    IPQ = ISTH
-    do NP=1,NAO
-      do NQ=1,NAE
-        IPQ = IPQ+1
-        if (NQ <= NAO) then
-          H(IPQ) = G(ISTIA+NIA*(NP+NIO-1)+NQ+NIO)+DF(NAO*(NP+NIO-1)+NQ)+DF(NAO*(NQ+NIO-1)+NP)
+        if (SXNRM2 < 1.0e-12_wp) then
+          SXN(NPR) = Zero
         else
-          H(IPQ) = DF(NAO*(NQ+NIO-1)+NP)
+          SXN(NPR) = One/sqrt(SXNRM2)
         end if
       end do
     end do
-  end if
 
-  ! Diagonal elements of the SX Hamiltonian
+    ! Form the occupied (F1) and active-external (F2) part of FP
+    ! and the occupied part DIA of the density matrix D
 
-  NPR = ISTBM
-  do NP=1,NAE
-    FPP = F2(ISTAE+NAE*(NP-1)+NP)
-    HPP = Zero
-    DPP = Zero
-    if (NP <= NAO) then
-      HPP = H(ISTH+NAE*(NP-1)+NP)
-      DPP = DIA(ISTIA+NIA*(NP+NIO-1)+NP+NIO)
+    IPQ = ISTFP
+    DIA(ISTIA+1:ISTIA+NIA**2) = Zero
+    do NP=1,NO
+      do NQ=1,NP
+        IPQ = IPQ+1
+        if ((NP <= NIA) .and. (NQ <= NIA)) then
+          F1(ISTIA+NIA*(NP-1)+NQ) = FP(IPQ)
+          F1(ISTIA+NIA*(NQ-1)+NP) = FP(IPQ)
+        end if
+        if ((NP > NIO) .and. (NQ > NIO)) then
+          F2(NAE*(NP-NIO-1)+NQ-NIO+ISTAE) = FP(IPQ)
+          F2(NAE*(NQ-NIO-1)+NP-NIO+ISTAE) = FP(IPQ)
+        end if
+        if ((NP <= NIO) .and. (NP == NQ)) DIA(ISTIA+NIA*(NP-1)+NP) = Two
+        if (((NP > NIO) .and. (NP <= NIA)) .and. NQ > NIO) then
+          NT = NP-NIO
+          NU = NQ-NIO
+          NTU = iTri(NT,NU)+ISTD
+          DIA(ISTIA+NIA*(NP-1)+NQ) = D(NTU)
+          DIA(ISTIA+NIA*(NQ-1)+NP) = D(NTU)
+        end if
+      end do
+    end do
+    if (IPRLEV >= DEBUG) then
+      write(u6,*) 'DIA in SXHAM:'
+      write(u6,*) (DIA(ISTIA+i),i=1,NIA**2)
     end if
-    NRR = ISTIA+1
-    do NR=1,NIA
-      NPR = NPR+1
-      HDIAG(NPR+NROOT) = (G(NRR)-HPP+DIA(NRR)*FPP+DPP*F1(NRR))*SXN(NPR)**2
-      NRR = NRR+NIA+1
 
-      ! Make this matrix element large for forbidden rotations
+    ! Form the matrix DF (row index active, column index all orbitals)
 
-      if ((NP <= NAO) .and. (NR > NIO)) then
-        NT = NP
-        NU = NR-NIO
-        if (NT <= NU) then
-          HDIAG(NPR+NROOT) = 1.0e32_wp
-          SXN(NPR) = Zero
-        else
-          NTU = ISTZ+nTri_Elem(NT-2)+NU
-          if (IZROT(NTU) /= 0) then
+    if (NAO /= 0) then
+      call DGEMM_('N','N',NAO,NAE,NAO,One,DIA(ISTIA+NIO*NIA+NIO+1),NIA,F2(ISTAE+1),NAE,Zero,DF(NAO*NIO+1),NAO)
+      if (NIO /= 0) call DGEMM_('N','N',NAO,NIO,NAO,One,DIA(ISTIA+NIO*NIA+NIO+1),NIA,F1(ISTIA+NIO+1),NIA,Zero,DF,NAO)
+    end if
+
+    ! compute the G matrix:
+    ! G(ij)=-2*FP(ij)
+    ! G(ti)=G(it)=-DF(ti)
+    ! G(tu)=sum(vx)(2P(tuvx)-D(tu)D(vx))F(vx)
+
+    if (ExFac /= One) then
+      call Get_Temp('nP2Act  ',P2Act,1)
+      nP2Act = int(P2Act(1))
+      call Get_Temp('P2_RAW  ',P,nP2Act)
+    end if
+    do NP=1,NIA
+      do NQ=1,NP
+        IPQ = ISTIA+NIA*(NP-1)+NQ
+        IQP = ISTIA+NIA*(NQ-1)+NP
+        if (NP <= NIO) then
+          G(IPQ) = -Two*F1(IPQ)
+          G(IQP) = G(IPQ)
+        else if ((NP > NIO) .and. (NQ <= NIO)) then
+          G(IPQ) = -DF(NAO*(NQ-1)+NP-NIO)
+          G(IQP) = G(IPQ)
+        else if (NQ > NIO) then
+          DTU = DIA(ISTIA+NIA*(NP-1)+NQ)
+          GTU = Zero
+          NTT = NP-NIO+IASHI
+          NUT = NQ-NIO+IASHI
+          NTUT = iTri(NTT,NUT)
+
+          IASHJ = 0
+          ISTFPJ = 0
+          NVX = 0
+          do JSYM=1,NSYM
+            NAOJ = NASH(JSYM)
+            NIOJ = NISH(JSYM)
+            if (NAOJ /= 0) then
+              do NV=1,NAOJ
+                NVT = NV+IASHJ
+                do NX=1,NV
+                  NXT = NX+IASHJ
+                  NVX = NVX+1
+                  NVXT = iTri(NVT,NXT)
+                  NTUVX = iTri(NTUT,NVXT)
+                  FAC = Two
+                  FACD = Two
+                  if (NV == NX) FACD = One
+                  if (NTUT < NVXT) then
+                    if ((NVT /= NXT) .and. (NTT == NUT)) FAC = Four
+                    if ((NVT == NXT) .and. (NTT /= NUT)) FAC = One
+                  end if
+                  NVXF = ISTFPJ+iTri(NV+NIOJ,NX+NIOJ)
+                  GTU = GTU+FP(NVXF)*(FAC*P(NTUVX)-FACD*DTU*D(NVX))
+                end do
+              end do
+              IASHJ = IASHJ+NAOJ
+            end if
+            ISTFPJ = ISTFPJ+nTri_Elem(NORB(JSYM))
+          end do
+          G(IPQ) = GTU
+          G(IQP) = GTU
+        end if
+      end do
+    end do
+    if (ExFac /= One) call Get_Temp('P2_KS   ',P,nP2Act)
+
+    ! FORM THE H MATRIX (only the nae*nao block is needed)
+    ! H(tu)=G(tu)+DF(tu)+DF(ut)
+    ! H(at)=DF(ta)
+    ! H(ab) and H(ta) are not included.
+
+    if (NAO /= 0) then
+      IPQ = ISTH
+      do NP=1,NAO
+        do NQ=1,NAE
+          IPQ = IPQ+1
+          if (NQ <= NAO) then
+            H(IPQ) = G(ISTIA+NIA*(NP+NIO-1)+NQ+NIO)+DF(NAO*(NP+NIO-1)+NQ)+DF(NAO*(NQ+NIO-1)+NP)
+          else
+            H(IPQ) = DF(NAO*(NQ+NIO-1)+NP)
+          end if
+        end do
+      end do
+    end if
+
+    ! Diagonal elements of the SX Hamiltonian
+
+    NPR = ISTBM
+    do NP=1,NAE
+      FPP = F2(ISTAE+NAE*(NP-1)+NP)
+      HPP = Zero
+      DPP = Zero
+      if (NP <= NAO) then
+        HPP = H(ISTH+NAE*(NP-1)+NP)
+        DPP = DIA(ISTIA+NIA*(NP+NIO-1)+NP+NIO)
+      end if
+      NRR = ISTIA+1
+      do NR=1,NIA
+        NPR = NPR+1
+        HDIAG(NPR+NROOT) = (G(NRR)-HPP+DIA(NRR)*FPP+DPP*F1(NRR))*SXN(NPR)**2
+        NRR = NRR+NIA+1
+
+        ! Make this matrix element large for forbidden rotations
+
+        if ((NP <= NAO) .and. (NR > NIO)) then
+          NT = NP
+          NU = NR-NIO
+          if (NT <= NU) then
             HDIAG(NPR+NROOT) = 1.0e32_wp
             SXN(NPR) = Zero
-            !write(u6,*) 'SXHAM. IZROT == 1 for NP,NR=',NP,NR
+          else
+            NTU = ISTZ+nTri_Elem(NT-2)+NU
+            if (IZROT(NTU) /= 0) then
+              HDIAG(NPR+NROOT) = 1.0e32_wp
+              SXN(NPR) = Zero
+              !write(u6,*) 'SXHAM. IZROT == 1 for NP,NR=',NP,NR
+            end if
           end if
         end if
-      end if
 
-      ! Make HDIAG large for rotations forbidden by IXSYM input
+        ! Make HDIAG large for rotations forbidden by IXSYM input
 
-      if (IXSYM(NR+IX) /= IXSYM(NP+NIO+IX)) then
-        !write(u6,*) 'SXHAM. IXSYM forbids NP,NR=',NP,NR
-        HDIAG(NPR+NROOT) = 1.0e32_wp
-        SXN(NPR) = Zero
-      end if
+        if (IXSYM(NR+IX) /= IXSYM(NP+NIO+IX)) then
+          !write(u6,*) 'SXHAM. IXSYM forbids NP,NR=',NP,NR
+          HDIAG(NPR+NROOT) = 1.0e32_wp
+          SXN(NPR) = Zero
+        end if
 
+      end do
     end do
-  end do
-  !write(u6,*) 'SXHAM: The IXSYM array='
-  !write(u6,'(1x,40i2)') (ixsym(i),i=1,ntot)
+    !write(u6,*) 'SXHAM: The IXSYM array='
+    !write(u6,'(1x,40i2)') (ixsym(i),i=1,ntot)
 
-  ! Test print of all matrices
+    ! Test print of all matrices
 
-  if (IPRLEV >= DEBUG) then
-    write(u6,1000) ISYM
-    write(u6,1100) (DDIAG(I),I=1,NO)
-    write(u6,1200) (SXN(I),I=ISTBM+1,ISTBM+NIA*NAE)
-    write(u6,1300) (DF(I),I=1,NAO*NO)
-    write(u6,1400) (F1(I),I=ISTIA+1,ISTIA+NIA**2)
-    write(u6,1500) (F2(I),I=ISTAE+1,ISTAE+NAE**2)
-    write(u6,1600) (G(I),I=ISTIA+1,ISTIA+NIA**2)
-    write(u6,1700) (H(I),I=ISTH+1,ISTH+NAO*NAE)
-    write(u6,1800) (HDIAG(I),I=ISTBM+1+NROOT,ISTBM+NAE*NIA+NROOT)
+    if (IPRLEV >= DEBUG) then
+      write(u6,1000) ISYM
+      write(u6,1100) (DDIAG(I),I=1,NO)
+      write(u6,1200) (SXN(I),I=ISTBM+1,ISTBM+NIA*NAE)
+      write(u6,1300) (DF(I),I=1,NAO*NO)
+      write(u6,1400) (F1(I),I=ISTIA+1,ISTIA+NIA**2)
+      write(u6,1500) (F2(I),I=ISTAE+1,ISTAE+NAE**2)
+      write(u6,1600) (G(I),I=ISTIA+1,ISTIA+NIA**2)
+      write(u6,1700) (H(I),I=ISTH+1,ISTH+NAO*NAE)
+      write(u6,1800) (HDIAG(I),I=ISTBM+1+NROOT,ISTBM+NAE*NIA+NROOT)
+    end if
+
+    IASHI = IASHI+NAO
+    ISTD = ISTD+nTri_Elem(NAO)
   end if
-
-  IASHI = IASHI+NAO
-  ISTD = ISTD+nTri_Elem(NAO)
-98 ISTIA = ISTIA+NIA**2
+  ISTIA = ISTIA+NIA**2
   ISTAE = ISTAE+NAE**2
   ISTFP = ISTFP+nTri_Elem(NO)
   ISTBM = ISTBM+NIA*NAE

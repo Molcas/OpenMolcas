@@ -227,132 +227,132 @@ else
 
 end if
 
-if (IfVB == 2) goto 9000
+if (IfVB /= 2) then
 
-! SOLVE DMRG WAVEFUNCTION
+  ! SOLVE DMRG WAVEFUNCTION
 
-if (IfVB == 1) then
-  ! NN.14 FIXME: I'm not sure whether this option should work?
-  call cvbmn_rvb(max(ifinal,1))
-else
-  if ((KSDFT(1:3) /= 'SCF') .and. (DFTFOCK(1:4) == 'DIFF') .and. (nac /= 0)) then
-    nTmpPUVX = nFint
-    call mma_allocate(TmpPUVX,nTmpPUVX,Label='TmpPUVX')
-    call mma_allocate(TmpTUVX,NACPR2,Label='TmpTUVX')
-    TmpTUVX(:) = Zero
-    call Get_dArray('DFT_TwoEl',TmpPUVX,nTmpPUVX)
-    call Get_TUVX(TmpPUVX,TmpTUVX)
-    TmpTUVX(:) = TMPTUVX(:)+TUVX(1:NACPR2)
-#   ifdef _ENABLE_BLOCK_DMRG_
-    call BlockCtl(FMO,TmpTUVX,IFINAL,IRst)
-#   elif _ENABLE_CHEMPS2_DMRG_
-    call Chemps2Ctl(FMO,TmpTUVX,IFINAL,IRst)
-#   elif _ENABLE_DICE_SHCI_
-    call DiceCtl(FMO,TmpTUVX,IFINAL,IRst)
-#   endif
-
-    call mma_deallocate(TmpTUVX)
-    call mma_deallocate(TmpPUVX)
+  if (IfVB == 1) then
+    ! NN.14 FIXME: I'm not sure whether this option should work?
+    call cvbmn_rvb(max(ifinal,1))
   else
-#   ifdef _ENABLE_BLOCK_DMRG_
-    call BlockCtl(FMO,TUVX,IFINAL,IRst)
-#   elif _ENABLE_CHEMPS2_DMRG_
-    call Chemps2Ctl(FMO,TUVX,IFINAL,IRst)
-#   elif _ENABLE_DICE_SHCI_
-    call DiceCtl(FMO,TUVX,IFINAL,IRst)
-#   endif
-  end if
-end if
+    if ((KSDFT(1:3) /= 'SCF') .and. (DFTFOCK(1:4) == 'DIFF') .and. (nac /= 0)) then
+      nTmpPUVX = nFint
+      call mma_allocate(TmpPUVX,nTmpPUVX,Label='TmpPUVX')
+      call mma_allocate(TmpTUVX,NACPR2,Label='TmpTUVX')
+      TmpTUVX(:) = Zero
+      call Get_dArray('DFT_TwoEl',TmpPUVX,nTmpPUVX)
+      call Get_TUVX(TmpPUVX,TmpTUVX)
+      TmpTUVX(:) = TMPTUVX(:)+TUVX(1:NACPR2)
+#     ifdef _ENABLE_BLOCK_DMRG_
+      call BlockCtl(FMO,TmpTUVX,IFINAL,IRst)
+#     elif _ENABLE_CHEMPS2_DMRG_
+      call Chemps2Ctl(FMO,TmpTUVX,IFINAL,IRst)
+#     elif _ENABLE_DICE_SHCI_
+      call DiceCtl(FMO,TmpTUVX,IFINAL,IRst)
+#     endif
 
-! CALCULATE DENSITY MATRICES
-! SAVE DENSITY MATRICES ON FILE
-! COMPUTE AVERAGE DENSITY MATRICES
-
-! Dtmp: ONE-BODY DENSITY
-! DStmp: ONE-BODY SPIN DENSITY
-! Ptmp: SYMMETRIC TWO-BODY DENSITY
-! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
-
-call Timing(Time(1),dum1,dum2,dum3)
-D(1:NACPAR) = Zero
-DS(1:NACPAR) = Zero
-P(1:NACPR2) = Zero
-PA(1:NACPR2) = Zero
-call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
-call mma_allocate(DStmp,NAC**2,Label='DStmp')
-call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
-call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-jDisk = IADR15(3)
-
-do jRoot=1,lRoots
-  ! load density matrices from DMRG run
-  if (NAC >= 1) then
-    NACT4 = NAC**4
-    call mma_allocate(Pscr,NACT4,Label='Pscr')
-#   ifdef _ENABLE_BLOCK_DMRG_
-    call block_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-#   elif _ENABLE_CHEMPS2_DMRG_
-    call chemps2_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-#   elif _ENABLE_DICE_SHCI_
-    call dice_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-#   endif
-    call mma_deallocate(Pscr)
-  end if
-  ! Modify the symmetric 2-particle density if only partial
-  ! "exact exchange" is included.
-  !n_Det = 2
-  !n_unpaired_elec = iSpin-1
-  !n_paired_elec = nActEl-n_unpaired_elec
-  !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
-  !  write(u6,*) ' iSpin=',iSpin
-  !  write(u6,*) ' n_unpaired_elec',n_unpaired_elec
-  !  write(u6,*) ' n_paired_elec',n_paired_elec
-  !  write(u6,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
-  !  write(u6,*) ' n_Det=',n_Det
-  !end if
-
-  if (ExFac /= One) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
-
-  ! update average density matrices
-  Scal = Zero
-  do kRoot=1,nRoots
-    if (iRoot(kRoot) == jRoot) then
-      Scal = Weight(kRoot)
-      exit
+      call mma_deallocate(TmpTUVX)
+      call mma_deallocate(TmpPUVX)
+    else
+#     ifdef _ENABLE_BLOCK_DMRG_
+      call BlockCtl(FMO,TUVX,IFINAL,IRst)
+#     elif _ENABLE_CHEMPS2_DMRG_
+      call Chemps2Ctl(FMO,TUVX,IFINAL,IRst)
+#     elif _ENABLE_DICE_SHCI_
+      call DiceCtl(FMO,TUVX,IFINAL,IRst)
+#     endif
     end if
+  end if
+
+  ! CALCULATE DENSITY MATRICES
+  ! SAVE DENSITY MATRICES ON FILE
+  ! COMPUTE AVERAGE DENSITY MATRICES
+
+  ! Dtmp: ONE-BODY DENSITY
+  ! DStmp: ONE-BODY SPIN DENSITY
+  ! Ptmp: SYMMETRIC TWO-BODY DENSITY
+  ! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
+
+  call Timing(Time(1),dum1,dum2,dum3)
+  D(1:NACPAR) = Zero
+  DS(1:NACPAR) = Zero
+  P(1:NACPR2) = Zero
+  PA(1:NACPR2) = Zero
+  call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
+  call mma_allocate(DStmp,NAC**2,Label='DStmp')
+  call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
+  call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+  jDisk = IADR15(3)
+
+  do jRoot=1,lRoots
+    ! load density matrices from DMRG run
+    if (NAC >= 1) then
+      NACT4 = NAC**4
+      call mma_allocate(Pscr,NACT4,Label='Pscr')
+#     ifdef _ENABLE_BLOCK_DMRG_
+      call block_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+#     elif _ENABLE_CHEMPS2_DMRG_
+      call chemps2_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+#     elif _ENABLE_DICE_SHCI_
+      call dice_densi_rasscf(jRoot,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+#     endif
+      call mma_deallocate(Pscr)
+    end if
+    ! Modify the symmetric 2-particle density if only partial
+    ! "exact exchange" is included.
+    !n_Det = 2
+    !n_unpaired_elec = iSpin-1
+    !n_paired_elec = nActEl-n_unpaired_elec
+    !if (n_unpaired_elec+n_paired_elec/2 == nac) n_Det = 1
+    !  write(u6,*) ' iSpin=',iSpin
+    !  write(u6,*) ' n_unpaired_elec',n_unpaired_elec
+    !  write(u6,*) ' n_paired_elec',n_paired_elec
+    !  write(u6,*) ' n_unpaired_elec+n_paired_elec/2',n_unpaired_elec+n_paired_elec/2
+    !  write(u6,*) ' n_Det=',n_Det
+    !end if
+
+    if (ExFac /= One) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
+
+    ! update average density matrices
+    Scal = Zero
+    do kRoot=1,nRoots
+      if (iRoot(kRoot) == jRoot) then
+        Scal = Weight(kRoot)
+        exit
+      end if
+    end do
+    D(1:NACPAR) = D(1:NACPAR)+Scal*Dtmp(1:NACPAR)
+    DS(1:NACPAR) = DS(1:NACPAR)+Scal*DStmp(1:NACPAR)
+    P(1:NACPR2) = P(1:NACPR2)+Scal*Ptmp(1:NACPR2)
+    PA(1:NACPR2) = PA(1:NACPR2)+Scal*PAtmp(1:NACPR2)
+    ! save density matrices on disk
+    call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
+    call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
+    call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
+    call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
   end do
-  D(1:NACPAR) = D(1:NACPAR)+Scal*Dtmp(1:NACPAR)
-  DS(1:NACPAR) = DS(1:NACPAR)+Scal*DStmp(1:NACPAR)
-  P(1:NACPR2) = P(1:NACPR2)+Scal*Ptmp(1:NACPR2)
-  PA(1:NACPR2) = PA(1:NACPR2)+Scal*PAtmp(1:NACPR2)
-  ! save density matrices on disk
-  call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
-  call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)
-  call DDafile(JOBIPH,1,Ptmp,NACPR2,jDisk)
-  call DDafile(JOBIPH,1,PAtmp,NACPR2,jDisk)
-end do
 
-call mma_deallocate(PAtmp)
-call mma_deallocate(Ptmp)
-call mma_deallocate(DStmp)
-call mma_deallocate(Dtmp)
+  call mma_deallocate(PAtmp)
+  call mma_deallocate(Ptmp)
+  call mma_deallocate(DStmp)
+  call mma_deallocate(Dtmp)
 
-! PREPARE DENSITY MATRICES AS USED BY THE SUPER CI SECTION
+  ! PREPARE DENSITY MATRICES AS USED BY THE SUPER CI SECTION
 
-! print matrices
-if (IPRLEV >= INSANE) then
-  call TRIPRT('Averaged one-body density matrix, D',' ',D,NAC)
-  call TRIPRT('Averaged one-body spin density matrix, DS',' ',DS,NAC)
-  call TRIPRT('Averaged two-body density matrix, P',' ',P,NACPAR)
-  call TRIPRT('Averaged antisymmetric two-body density matrix,PA',' ',PA,NACPAR)
+  ! print matrices
+  if (IPRLEV >= INSANE) then
+    call TRIPRT('Averaged one-body density matrix, D',' ',D,NAC)
+    call TRIPRT('Averaged one-body spin density matrix, DS',' ',DS,NAC)
+    call TRIPRT('Averaged two-body density matrix, P',' ',P,NACPAR)
+    call TRIPRT('Averaged antisymmetric two-body density matrix,PA',' ',PA,NACPAR)
+  end if
+  if (NASH(1) /= NAC) call DBLOCK(D)
+  call Timing(Time(2),dum1,dum2,dum3)
+  TimeDens = TimeDens+Time(2)-Time(1)
+
+  call mma_deallocate(FMO)
+
 end if
-if (NASH(1) /= NAC) call DBLOCK(D)
-call Timing(Time(2),dum1,dum2,dum3)
-TimeDens = TimeDens+Time(2)-Time(1)
-
-call mma_deallocate(FMO)
-
-9000 continue
 
 ! For RF calculations make sure that the we are following the
 ! correct root.

@@ -129,196 +129,193 @@ do iSym=1,nSym
 
         if ((ijSym == klSym) .and. (iAsh*jAsh*kAsh*lAsh /= 0)) then
 
-          goto(100,200,300,400) icase
+          select case (icase)
 
-          ! symmetry case (II!II)
-100       continue
-          iFoff = off_Fmat(iSym)
-          iDoff = off_Dmat(iSym)
-          do iV=1,kAsh
-            do iX=1,iV
-              iVX = iTri(iV,iX)
-              DVX = Two*D(iDoff+iVX)
-              if (iX == iV) DVX = D(iDoff+iVX)
-              do iU=1,jAsh
-                iUV = iTri(iU,iV)
-                DUV = ExFac*Half*D(iDoff+iUV)
-                iUX = iTri(iU,iX)
-                DUX = ExFac*Half*D(iDoff+iUX)
-                if (iX == iV) then
-                  DUV = ExFac*Half*DUV
-                  DUX = ExFac*Half*DUX
-                end if
-                iPUVX = off_PUVX(iSym)
-                ! inactive/active block
-                do iP=1,iIsh
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU,iP)
-                  F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
-                  iPV = iTri(iIsh+iV,iP)
-                  F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
-                  iPX = iTri(iIsh+iX,iP)
-                  F(iFoff+iPX) = F(iFoff+iPX)-DUV*Temp
+            case (1)
+              ! symmetry case (II!II)
+              iFoff = off_Fmat(iSym)
+              iDoff = off_Dmat(iSym)
+              do iV=1,kAsh
+                do iX=1,iV
+                  iVX = iTri(iV,iX)
+                  DVX = Two*D(iDoff+iVX)
+                  if (iX == iV) DVX = D(iDoff+iVX)
+                  do iU=1,jAsh
+                    iUV = iTri(iU,iV)
+                    DUV = ExFac*Half*D(iDoff+iUV)
+                    iUX = iTri(iU,iX)
+                    DUX = ExFac*Half*D(iDoff+iUX)
+                    if (iX == iV) then
+                      DUV = ExFac*Half*DUV
+                      DUX = ExFac*Half*DUX
+                    end if
+                    iPUVX = off_PUVX(iSym)
+                    ! inactive/active block
+                    do iP=1,iIsh
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPU = iTri(iIsh+iU,iP)
+                      F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
+                      iPV = iTri(iIsh+iV,iP)
+                      F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
+                      iPX = iTri(iIsh+iX,iP)
+                      F(iFoff+iPX) = F(iFoff+iPX)-DUV*Temp
+                    end do
+                    ! active/active block and iP<=(iIsh+iU)
+                    do iP=iIsh+1,iIsh+iU
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPU = iTri(iIsh+iU,iP)
+                      F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
+                      iPV = iTri(iIsh+iV,iP)
+                      F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
+                      if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
+                      iPX = iTri(iIsh+iX,iP)
+                      F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
+                      if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
+                    end do
+                    ! active/active block and iP>(iIsh+iU)
+                    do iP=iIsh+iU+1,iIsh+iAsh
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPV = iTri(iIsh+iV,iP)
+                      F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
+                      if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
+                      iPX = iTri(iIsh+iX,iP)
+                      F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
+                      if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
+                    end do
+                    ! active/secondary block
+                    do iP=iIsh+iAsh+1,iOrb
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPU = iTri(iIsh+iU,iP)
+                      F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
+                      iPV = iTri(iIsh+iV,iP)
+                      F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
+                      iPX = iTri(iIsh+iX,iP)
+                      F(iFoff+iPX) = F(iFoff+iPX)-DUV*Temp
+                    end do
+                    off_PUVX(iSym) = off_PUVX(iSym)+iOrb
+                  end do
                 end do
-                ! active/active block and iP<=(iIsh+iU)
-                do iP=iIsh+1,iIsh+iU
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU,iP)
-                  F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
-                  iPV = iTri(iIsh+iV,iP)
-                  F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
-                  if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
-                  iPX = iTri(iIsh+iX,iP)
-                  F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
-                  if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
-                end do
-                ! active/active block and iP>(iIsh+iU)
-                do iP=iIsh+iU+1,iIsh+iAsh
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPV = iTri(iIsh+iV,iP)
-                  F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
-                  if (iP == (iIsh+iV)) F(iFoff+iPV) = F(iFoff+iPV)-ExFac*Half*DUX*Temp
-                  iPX = iTri(iIsh+iX,iP)
-                  F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
-                  if (iP == (iIsh+iX)) F(iFoff+iPX) = F(iFoff+iPX)-ExFac*Half*DUV*Temp
-                end do
-                ! active/secondary block
-                do iP=iIsh+iAsh+1,iOrb
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU,iP)
-                  F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
-                  iPV = iTri(iIsh+iV,iP)
-                  F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
-                  iPX = iTri(iIsh+iX,iP)
-                  F(iFoff+iPX) = F(iFoff+iPX)-DUV*Temp
-                end do
-                off_PUVX(iSym) = off_PUVX(iSym)+iOrb
               end do
-            end do
-          end do
-          goto 500
 
-          ! symmetry case (II!KK)
-200       continue
-          iFoff = off_Fmat(iSym)
-          kDoff = off_Dmat(kSym)
-          do iV=1,kAsh
-            do iX=1,iV
-              iVX = iTri(iV,iX)
-              DVX = Two*D(kDoff+iVX)
-              if (iX == iV) DVX = D(kDoff+iVX)
-              do iU=1,jAsh
-                iPUVX = off_PUVX(iSym)
-                ! inactive/active block
-                do iP=1,iIsh
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU,iP)
-                  F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
+            case (2)
+              ! symmetry case (II!KK)
+              iFoff = off_Fmat(iSym)
+              kDoff = off_Dmat(kSym)
+              do iV=1,kAsh
+                do iX=1,iV
+                  iVX = iTri(iV,iX)
+                  DVX = Two*D(kDoff+iVX)
+                  if (iX == iV) DVX = D(kDoff+iVX)
+                  do iU=1,jAsh
+                    iPUVX = off_PUVX(iSym)
+                    ! inactive/active block
+                    do iP=1,iIsh
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPU = iTri(iIsh+iU,iP)
+                      F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
+                    end do
+                    ! active/active block and iP<=(iIsh+iU)
+                    do iP=iIsh+1,iIsh+iU
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPU = iTri(iIsh+iU,iP)
+                      F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
+                    end do
+                    iPUVX = iPUVX+iAsh-iU
+                    ! active/secondary block
+                    do iP=iIsh+iAsh+1,iOrb
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPU = iTri(iIsh+iU,iP)
+                      F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
+                    end do
+                    off_PUVX(iSym) = off_PUVX(iSym)+iOrb
+                  end do
                 end do
-                ! active/active block and iP<=(iIsh+iU)
-                do iP=iIsh+1,iIsh+iU
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU,iP)
-                  F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
-                end do
-                iPUVX = iPUVX+iAsh-iU
-                ! active/secondary block
-                do iP=iIsh+iAsh+1,iOrb
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPU = iTri(iIsh+iU,iP)
-                  F(iFoff+iPU) = F(iFoff+iPU)+DVX*Temp
-                end do
-                off_PUVX(iSym) = off_PUVX(iSym)+iOrb
               end do
-            end do
-          end do
-          goto 500
 
-          ! symmetry case (IJ!IJ)
-300       continue
-          iFoff = off_Fmat(iSym)
-          jFoff = off_Fmat(jSym)
-          iDoff = off_Dmat(iSym)
-          jDoff = off_Dmat(jSym)
-          do iV=1,kAsh
-            do iX=1,lAsh
-              do iU=1,jAsh
-                iUX = iTri(iU,iX)
-                DUX = ExFac*Half*D(jDoff+iUX)
-                iPUVX = off_PUVX(iSym)
-                ! inactive/active block
-                do iP=1,iIsh
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPV = iTri(iIsh+iV,iP)
-                  F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
+            case (3)
+              ! symmetry case (IJ!IJ)
+              iFoff = off_Fmat(iSym)
+              jFoff = off_Fmat(jSym)
+              iDoff = off_Dmat(iSym)
+              jDoff = off_Dmat(jSym)
+              do iV=1,kAsh
+                do iX=1,lAsh
+                  do iU=1,jAsh
+                    iUX = iTri(iU,iX)
+                    DUX = ExFac*Half*D(jDoff+iUX)
+                    iPUVX = off_PUVX(iSym)
+                    ! inactive/active block
+                    do iP=1,iIsh
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPV = iTri(iIsh+iV,iP)
+                      F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
+                    end do
+                    ! active/active block and iP<=(iIsh+iV)
+                    do iP=iIsh+1,iIsh+iV
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPV = iTri(iIsh+iV,iP)
+                      F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
+                    end do
+                    iPUVX = iPUVX+iAsh-iV
+                    ! active/secondary block
+                    do iP=iIsh+iAsh+1,iOrb
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPV = iTri(iIsh+iV,iP)
+                      F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
+                    end do
+                    off_PUVX(iSym) = off_PUVX(iSym)+iOrb
+                  end do
+                  do iU=1,iAsh
+                    iUV = iTri(iU,iV)
+                    DUV = ExFac*Half*D(iDoff+iUV)
+                    iPUVX = off_PUVX(jSym)
+                    ! inactive/active block
+                    do iP=1,jIsh
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPX = iTri(jIsh+iX,iP)
+                      F(jFoff+iPX) = F(jFoff+iPX)-DUV*Temp
+                    end do
+                    ! active/active block and iP<=(jIsh+iX)
+                    do iP=jIsh+1,jIsh+iX
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPX = iTri(jIsh+iX,iP)
+                      F(jFoff+iPX) = F(jFoff+iPX)-DUV*Temp
+                    end do
+                    iPUVX = iPUVX+jAsh-iX
+                    ! active/secondary block
+                    do iP=jIsh+jAsh+1,jOrb
+                      iPUVX = iPUVX+1
+                      Temp = PUVX(iPUVX)
+                      iPX = iTri(jIsh+iX,iP)
+                      F(jFoff+iPX) = F(jFoff+iPX)-DUV*Temp
+                    end do
+                    off_PUVX(jSym) = off_PUVX(jSym)+jOrb
+                  end do
                 end do
-                ! active/active block and iP<=(iIsh+iV)
-                do iP=iIsh+1,iIsh+iV
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPV = iTri(iIsh+iV,iP)
-                  F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
-                end do
-                iPUVX = iPUVX+iAsh-iV
-                ! active/secondary block
-                do iP=iIsh+iAsh+1,iOrb
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPV = iTri(iIsh+iV,iP)
-                  F(iFoff+iPV) = F(iFoff+iPV)-DUX*Temp
-                end do
-                off_PUVX(iSym) = off_PUVX(iSym)+iOrb
               end do
-              do iU=1,iAsh
-                iUV = iTri(iU,iV)
-                DUV = ExFac*Half*D(iDoff+iUV)
-                iPUVX = off_PUVX(jSym)
-                ! inactive/active block
-                do iP=1,jIsh
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPX = iTri(jIsh+iX,iP)
-                  F(jFoff+iPX) = F(jFoff+iPX)-DUV*Temp
+
+            case (4)
+              ! symmetry case (IJ!KL)
+              do iV=1,kAsh
+                do iX=1,lAsh
+                  off_PUVX(iSym) = off_PUVX(iSym)+jAsh*iOrb
+                  off_PUVX(jSym) = off_PUVX(jSym)+iAsh*jOrb
                 end do
-                ! active/active block and iP<=(jIsh+iX)
-                do iP=jIsh+1,jIsh+iX
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPX = iTri(jIsh+iX,iP)
-                  F(jFoff+iPX) = F(jFoff+iPX)-DUV*Temp
-                end do
-                iPUVX = iPUVX+jAsh-iX
-                ! active/secondary block
-                do iP=jIsh+jAsh+1,jOrb
-                  iPUVX = iPUVX+1
-                  Temp = PUVX(iPUVX)
-                  iPX = iTri(jIsh+iX,iP)
-                  F(jFoff+iPX) = F(jFoff+iPX)-DUV*Temp
-                end do
-                off_PUVX(jSym) = off_PUVX(jSym)+jOrb
               end do
-            end do
-          end do
-          goto 500
 
-          ! symmetry case (IJ!KL)
-400       continue
-          do iV=1,kAsh
-            do iX=1,lAsh
-              off_PUVX(iSym) = off_PUVX(iSym)+jAsh*iOrb
-              off_PUVX(jSym) = off_PUVX(jSym)+iAsh*jOrb
-            end do
-          end do
-
-500       continue
+          end select
         end if
 
       end do

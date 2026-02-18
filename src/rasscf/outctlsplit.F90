@@ -453,7 +453,7 @@ if (IPRLEV >= VERBOSE) then
     IDIMN = 0
     do ISYM=1,NSYM
       NAO = NASH(ISYM)
-      if (NAO == 0) GO TO 50
+      if (NAO == 0) cycle
       NO = NBAS(ISYM)
       IDIMV = IDIMV+NAO*NAO
       IDIMO = IDIMO+NAO
@@ -464,7 +464,6 @@ if (IPRLEV >= VERBOSE) then
         call TRIPRT(' ',' ',X6(IND),NASH(ISYM))
       end if
       IND = IND+nTri_Elem(NASH(ISYM))
-50    continue
     end do
   end if
 

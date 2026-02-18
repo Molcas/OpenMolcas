@@ -65,16 +65,16 @@ do ISYM=1,NSYM
   NIA = NIO+NAO
   NEO = NSSH(ISYM)
   NAE = NAO+NEO
-  if ((NIA == 0) .or. (NAE == 0)) GO TO 97
+  if ((NIA /= 0) .and. (NAE /= 0)) then
 
-  ! p is secondary (p = q = a)
+    ! p is secondary (p = q = a)
 
-  if (NEO /= 0) then
-    call DGEMM_('N','N',NIA,NEO,NIA,One,DIA(ISTIA+1),NIA,C1(ISTBM+1+NIA*NAO),NIA,Zero,X,NIA)
-    OVLADD = DDOT_(NIA*NEO,X,1,C2(ISTBM+1+NIA*NAO),1)
-    OVL = OVL+OVLADD
+    if (NEO /= 0) then
+      call DGEMM_('N','N',NIA,NEO,NIA,One,DIA(ISTIA+1),NIA,C1(ISTBM+1+NIA*NAO),NIA,Zero,X,NIA)
+      OVLADD = DDOT_(NIA*NEO,X,1,C2(ISTBM+1+NIA*NAO),1)
+      OVL = OVL+OVLADD
+    end if
   end if
-97 continue
   ISTIA = ISTIA+NIA**2
   ISTBM = ISTBM+NIA*NAE
   IASHI = IASHI+NAO

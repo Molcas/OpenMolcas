@@ -30,75 +30,76 @@ character(len=288) :: Line
 n = 0
 k = -1
 !---  Read next line as a chatacter string  ---------------------------*
-100 read(LuInput,'(A)',end=900) Line
-!---  Left adjust line  -----------------------------------------------*
-Line = adjustl(Line)
-if (Line(1:1) == ' ') goto 100
-if (Line(1:1) == '*') goto 100
-!---  Remove multiple intervening blanks  -----------------------------*
-do i=1,287
-  nRepeat = 0
-  do while ((Line(i:i+1) == '  ') .and. (nRepeat < 288))
-    nRepeat = nRepeat+1
-    Line(i:287) = Line(i+1:288)
-    Line(288:288) = ' '
+do
+  read(LuInput,'(A)',end=900) Line
+  !---  Left adjust line  ---------------------------------------------*
+  Line = adjustl(Line)
+  if ((Line(1:1) == ' ') .or.(Line(1:1) == '*')) cycle
+  !---  Remove multiple intervening blanks  ---------------------------*
+  do i=1,287
+    nRepeat = 0
+    do while ((Line(i:i+1) == '  ') .and. (nRepeat < 288))
+      nRepeat = nRepeat+1
+      Line(i:287) = Line(i+1:288)
+      Line(288:288) = ' '
+    end do
   end do
-end do
-!---  Insert commas as the only valid separators  ---------------------*
-do i=2,287
-  if (Line(i:i) == ' ') then
-    if ((Line(i-1:i-1) /= ' ') .and. (Line(i-1:i-1) /= ',')) then
-      if ((Line(i+1:i+1) /= ' ') .and. (Line(i+1:i+1) /= ',')) Line(i:i) = ','
+  !---  Insert commas as the only valid separators  -------------------*
+  do i=2,287
+    if (Line(i:i) == ' ') then
+      if ((Line(i-1:i-1) /= ' ') .and. (Line(i-1:i-1) /= ',')) then
+        if ((Line(i+1:i+1) /= ' ') .and. (Line(i+1:i+1) /= ',')) Line(i:i) = ','
+      end if
     end if
-  end if
+  end do
+  !---  Get the last noblank character  -------------------------------*
+  iLast = 0
+  do i=1,288
+    if (Line(i:i) /= ' ') iLast = i
+  end do
+  !---  Initialize markers  -------------------------------------------*
+  do i=1,288
+    is(i) = 0
+    ie(i) = 0
+  end do
+  !---  Divide the line into substrings  ------------------------------*
+  m = 1
+  is(m) = 0
+  do i=1,iLast
+    if (Line(i:i) == ',') then
+      m = m+1
+      is(m) = i
+    end if
+  end do
+  m = 0
+  do i=1,iLast
+    if (Line(i:i) == ',') then
+      m = m+1
+      ie(m) = i
+    end if
+  end do
+  if (Line(iLast:iLast) /= ',') m = m+1
+  ie(m) = iLast+1
+  !---  Read by substrings  -------------------------------------------*
+  do i=1,m
+    l = ie(i)-is(i)
+    iz = 0
+    if (l > 2) then
+      read(Line(is(i)+1:ie(i)-1),*,err=910) iz
+    else if ((l == 2) .and. (Line(is(i)+1:ie(i)-1) /= ' ')) then
+      read(Line(is(i)+1:ie(i)-1),*,err=910) iz
+    end if
+    if (k == -1) then
+      k = k+1
+      n = iz
+    else if (k < n) then
+      k = k+1
+      iBuff(k) = iz
+    end if
+  end do
+  !---  If necessary continue by next line  ---------------------------*
+  if (k >= n) exit
 end do
-!---  Get the last noblank character  ---------------------------------*
-iLast = 0
-do i=1,288
-  if (Line(i:i) /= ' ') iLast = i
-end do
-!---  Initialize markers  ---------------------------------------------*
-do i=1,288
-  is(i) = 0
-  ie(i) = 0
-end do
-!---  Divide the line into substrings  --------------------------------*
-m = 1
-is(m) = 0
-do i=1,iLast
-  if (Line(i:i) == ',') then
-    m = m+1
-    is(m) = i
-  end if
-end do
-m = 0
-do i=1,iLast
-  if (Line(i:i) == ',') then
-    m = m+1
-    ie(m) = i
-  end if
-end do
-if (Line(iLast:iLast) /= ',') m = m+1
-ie(m) = iLast+1
-!---  Read by substrings  ---------------------------------------------*
-do i=1,m
-  l = ie(i)-is(i)
-  iz = 0
-  if (l > 2) then
-    read(Line(is(i)+1:ie(i)-1),*,err=910) iz
-  else if ((l == 2) .and. (Line(is(i)+1:ie(i)-1) /= ' ')) then
-    read(Line(is(i)+1:ie(i)-1),*,err=910) iz
-  end if
-  if (k == -1) then
-    k = k+1
-    n = iz
-  else if (k < n) then
-    k = k+1
-    iBuff(k) = iz
-  end if
-end do
-!---  If necessary continue by next line  -----------------------------*
-if (k < n) goto 100
 !----------------------------------------------------------------------*
 !     Normal termination                                               *
 !----------------------------------------------------------------------*

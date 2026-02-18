@@ -41,7 +41,7 @@ subroutine cre_raswfn()
   use gugx, only: SGS
   use sxci, only: IDXCI, IDXSX
   use gas_data, only: iDoGAS, NGAS, NGSSH
-  use input_ras, only: KeyTDM
+  use input_ras, only: Key
   use general_data, only: ISPIN, NACTEL, NBAS, NCONF, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NSSH, NSYM, NSYM, NTOT, &
                           NTOT2, STSYM
   use spinfo, only: NDET
@@ -163,7 +163,7 @@ subroutine cre_raswfn()
   call mh5_init_attr(wfn_spindens,'DESCRIPTION','active 1-body spin density matrix, size [NAC,NAC] for each root in NROOTS: '// &
                      '[NROOTS,NAC,NAC].')
 
-  if (KeyTDM) then
+  if (Key('TDM')) then
     wfn_transdens = mh5_create_dset_real(wfn_fileid,'TRANSITION_DENSITY_MATRIX',3,[NAC,NAC,nTri_Elem(lRoots-1)])
     call mh5_init_attr(wfn_transdens,'DESCRIPTION','active 1-body transition density matrix, size [NAC,NAC] for each pair of '// &
                        'roots in NROOTS: [NROOTS*(NROOTS-1)/2,NAC,NAC].')

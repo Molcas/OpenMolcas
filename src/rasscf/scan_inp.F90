@@ -21,14 +21,14 @@ subroutine Scan_Inp(iRc)
 #ifdef _DMRG_
 use UnixInfo, only: ProgName
 #endif
-use input_ras, only: CMD, KeyEND, KeyFlags, LuInput, nKeys
+use input_ras, only: CMD, Key, KeyFlags, LuInput, nKeys
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: iRC
-integer(kind=iwp) :: I, iCMD
+integer(kind=iwp) :: I, iCMD, istatus
 character(len=180) :: Line
 character(len=4) :: Command
 #ifdef _DMRG_
@@ -43,117 +43,139 @@ qcmaquis_input = .false.
 ! If the return code is already set to indicate an error, there will
 ! be an error trace written out.
 ! Also at very high print level, there will be an error trace.
-if ((IPRLOC(1) >= DEBUG) .or. (iRc /= _RC_ALL_IS_WELL_)) goto 200
+if ((IPRLOC(1) < DEBUG) .and. (iRc == _RC_ALL_IS_WELL_)) then
 
-! Find keywords in input and set keyword flags
-do I=0,NKeys
-  KeyFlags(I) = .false.
-end do
-rewind(LuInput)
-10 continue
-read(LuInput,'(A)',end=9910,err=9920) Line
-Command = Line(1:4)
-call UpCase(Command)
-do iCmd=1,NKeys
-
-# ifdef _DMRG_
-  if ((ProgName(1:5) == 'rassc') .and. (command == 'ENDR')) then
-    qcmaquis_input = .false.
-  else if ((ProgName(1:5) == 'dmrgs') .and. (command == 'ENDO')) then
-    goto 9990
-  end if
-# endif
-
-  if (Command == Cmd(iCmd)) then
-
-#   ifdef _DMRG_
-    !> check for QCMaquis input section
-    if ((ProgName(1:5) == 'rassc') .and. (command == 'RGIN')) then
-      qcmaquis_input = .true.
-      KeyFlags(iCmd) = .true.
+  ! Find keywords in input and set keyword flags
+  do I=0,NKeys
+    KeyFlags(I) = .false.
+  end do
+  rewind(LuInput)
+  outer1: do
+    read(LuInput,'(A)',iostat=istatus) Line
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
     end if
-    if (qcmaquis_input) goto 20
-#   endif
+    Command = Line(1:4)
+    call UpCase(Command)
+    do iCmd=1,NKeys
 
-    KeyFlags(iCmd) = .true.
-    ! Special case: Skip title line.
-    if (Command == 'TITL') read(LuInput,'(A)',end=9910,err=9920) Line
-    ! SVC (ugly hack) Special case: Skip fileorb line. FIXME: we need a more
-    ! robust input scanning method so that these things are not necessary
-    if (Command == 'FILE') read(LuInput,'(A)',end=9910,err=9920) Line
-    goto 20
+#     ifdef _DMRG_
+      if ((ProgName(1:5) == 'rassc') .and. (command == 'ENDR')) then
+        qcmaquis_input = .false.
+      else if ((ProgName(1:5) == 'dmrgs') .and. (command == 'ENDO')) then
+        exit outer1
+      end if
+#     endif
 
-  end if
+      if (Command == Cmd(iCmd)) then
 
-end do
-20 continue
-if (.not. KeyEND) goto 10
-Go To 9990
+#       ifdef _DMRG_
+        !> check for QCMaquis input section
+        if ((ProgName(1:5) == 'rassc') .and. (command == 'RGIN')) then
+          qcmaquis_input = .true.
+          KeyFlags(iCmd) = .true.
+        end if
+        if (qcmaquis_input) exit
+#       endif
 
-200 continue
-! Similar functionality, but with written trace:
-do I=0,NKeys
-  KeyFlags(I) = .false.
-end do
-write(u6,*) ' Scanning the input for keywords:'
-write(u6,*) ' Rewinding LUInput=',LUInput
-rewind(LuInput)
-write(u6,*) ' OK after rewind.'
-210 continue
-write(u6,*) ' Reading a line...'
-read(LuInput,'(A)',end=9910,err=9920) Line
-write(u6,*) ' '''//line(1:64)//' ...'''
-Command = Line(1:4)
-call UpCase(Command)
-do iCmd=1,NKeys
+        KeyFlags(iCmd) = .true.
+        ! Special case: Skip title line.
+        if (Command == 'TITL') read(LuInput,'(A)',iostat=istatus) Line
+        if (istatus /= 0) then
+          call Error(istatus)
+          return
+        end if
+        ! SVC (ugly hack) Special case: Skip fileorb line. FIXME: we need a more
+        ! robust input scanning method so that these things are not necessary
+        if (Command == 'FILE') read(LuInput,'(A)',iostat=istatus) Line
+        if (istatus /= 0) then
+          call Error(istatus)
+          return
+        end if
+        exit
 
-# ifdef _DMRG_
-  if ((ProgName(1:5) == 'rassc') .and. (command == 'ENDR')) then
-    qcmaquis_input = .false.
-  else if ((ProgName(1:5) == 'dmrgs') .and. (command == 'ENDO')) then
-    goto 9990
-  end if
-# endif
+      end if
 
-  if (Command == Cmd(iCmd)) then
+    end do
+    if (Key('END')) exit outer1
+  end do outer1
 
-#   ifdef _DMRG_
-    !> check for QCMaquis input section
-    if ((ProgName(1:5) == 'rassc') .and. (command == 'RGIN')) then
-      qcmaquis_input = .true.
-      KeyFlags(iCmd) = .true.
+else
+
+  ! Similar functionality, but with written trace:
+  do I=0,NKeys
+    KeyFlags(I) = .false.
+  end do
+  write(u6,*) ' Scanning the input for keywords:'
+  write(u6,*) ' Rewinding LUInput=',LUInput
+  rewind(LuInput)
+  write(u6,*) ' OK after rewind.'
+  outer2: do
+    write(u6,*) ' Reading a line...'
+    read(LuInput,'(A)',iostat=istatus) Line
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
     end if
-    if (qcmaquis_input) goto 220
-#   endif
+    write(u6,*) ' '''//line(1:64)//' ...'''
+    Command = Line(1:4)
+    call UpCase(Command)
+    do iCmd=1,NKeys
 
-    write(u6,*) ' Understood keyword '''//Cmd(iCmd)//''''
-    KeyFlags(iCmd) = .true.
-    ! Special case: Skip title line.
-    if (Command == 'TITL') then
-      write(u6,*) ' Dummy read title line.'
-      read(LuInput,'(A)',end=9910,err=9920) Line
-    end if
-    goto 220
+#     ifdef _DMRG_
+      if ((ProgName(1:5) == 'rassc') .and. (command == 'ENDR')) then
+        qcmaquis_input = .false.
+      else if ((ProgName(1:5) == 'dmrgs') .and. (command == 'ENDO')) then
+        exit outer2
+      end if
+#     endif
+
+      if (Command == Cmd(iCmd)) then
+
+#       ifdef _DMRG_
+        !> check for QCMaquis input section
+        if ((ProgName(1:5) == 'rassc') .and. (command == 'RGIN')) then
+          qcmaquis_input = .true.
+          KeyFlags(iCmd) = .true.
+        end if
+        if (qcmaquis_input) exit
+#       endif
+
+        write(u6,*) ' Understood keyword '''//Cmd(iCmd)//''''
+        KeyFlags(iCmd) = .true.
+        ! Special case: Skip title line.
+        if (Command == 'TITL') then
+          write(u6,*) ' Dummy read title line.'
+          read(LuInput,'(A)',iostat=istatus) Line
+          if (istatus /= 0) then
+            call Error(istatus)
+            return
+          end if
+        end if
+        exit
+      end if
+
+    end do
+    if (Key('END')) exit outer2
+  end do outer2
+
+end if
+
+contains
+
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  if (code < 0) then
+    write(u6,*) ' Tried to read a new line. Hit End of record.'
+  else
+    write(u6,*) ' Tried, and failed, to read a new line.'
   end if
+  write(u6,*) ' Last word was ',Command
+  irc = _RC_INPUT_ERROR_
 
-end do
-220 continue
-if (.not. KeyEND) goto 210
-Go To 9990
-
-! Error exits ---------------------------------------
-9910 continue
-write(u6,*) ' Tried to read a new line. Hit End of record.'
-write(u6,*) ' Last word was ',Command
-irc = _RC_INPUT_ERROR_
-goto 9990
-!----------------------------------------------------
-9920 continue
-write(u6,*) ' Tried, and failed, to read a new line.'
-write(u6,*) ' Last word was ',Command
-irc = _RC_INPUT_ERROR_
-goto 9990
-!----------------------------------------------------
-9990 continue
+end subroutine Error
 
 end subroutine Scan_Inp

@@ -83,7 +83,7 @@ if ((ISupsm == 1) .and. (Iter >= 1)) then
   do iSym=1,nSym
     iSafe = 0
     nBs = nBas(iSym)
-    if (nBs <= 0) goto 1966
+    if (nBs <= 0) cycle
 
     ! Computing orbital overlaping Sum(p,q) C1kp* C2lq Spq
 
@@ -147,7 +147,6 @@ if ((ISupsm == 1) .and. (Iter >= 1)) then
     kCof = kCof+(nBs*nBs)
     pSij = pSij+nTri_Elem(nBs)
     kOrb = kOrb+nBs
-1966 continue
   end do
 end if
 

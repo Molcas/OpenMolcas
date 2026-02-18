@@ -17,7 +17,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: LUnit, iRC
-integer(kind=iwp) :: LUSpool
+integer(kind=iwp) :: istatus, LUSpool
 character(len=180) :: line
 character :: ch
 #ifdef _DMRG_
@@ -55,35 +55,33 @@ call Molcas_Open(LUnit,'CleanInput')
 line = ' '
 line(1:7) = '&RASSCF'
 write(LUnit,'(A180)') line
-10 continue
-read(luspool,'(A180)',err=9910,end=9910) line
-line = adjustl(line)
-#ifdef _DMRG_
-if (ProgName(1:5) == 'dmrgs') then
-  line2 = line
-  call upcase(line2(1:4))
-  if (line2(1:4) == 'ENDO') then
-    line = ' '
-    line(1:12) = 'End of Input'
-    write(LUnit,'(A180)') line
-    goto 9909
+do
+  read(luspool,'(A180)',iostat=istatus) line
+  if (istatus /= 0) then
+    ! Something went wrong...Let the caller handle it:
+    iRc = _RC_INPUT_ERROR_
+    return
   end if
-end if
-#endif
-ch = line(1:1)
-if ((ch /= ' ') .and. (ch /= '*') .and. (ch /= '!')) write(LUnit,'(A180)') line
-call upcase(line(1:12))
-if (line(1:12) /= 'END OF INPUT') goto 10
-#ifdef _DMRG_
-9909 continue
-#endif
+  line = adjustl(line)
+# ifdef _DMRG_
+  if (ProgName(1:5) == 'dmrgs') then
+    line2 = line
+    call upcase(line2(1:4))
+    if (line2(1:4) == 'ENDO') then
+      line = ' '
+      line(1:12) = 'End of Input'
+      write(LUnit,'(A180)') line
+      exit
+    end if
+  end if
+# endif
+  ch = line(1:1)
+  if ((ch /= ' ') .and. (ch /= '*') .and. (ch /= '!')) write(LUnit,'(A180)') line
+  call upcase(line(1:12))
+  if (line(1:12) == 'END OF INPUT') exit
+end do
 call close_luspool(LUSpool)
 
-return
-
-9910 continue
-! Something went wrong...Let the caller handle it:
-iRc = _RC_INPUT_ERROR_
 return
 
 end subroutine cpinp

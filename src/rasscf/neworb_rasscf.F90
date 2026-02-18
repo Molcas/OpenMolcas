@@ -145,19 +145,19 @@ do ISYM=1,NSYM
         do NJ=NI1,NIO
           if (FDIAG(NO1+NJ) < FDIAG(NO1+M_IN)) M_IN = NJ
         end do
-        if (M_IN == NI) GO TO 20
-        FMIN = FDIAG(NO1+M_IN)
-        FDIAG(NO1+M_IN) = FDIAG(NO1+NI)
-        FDIAG(NO1+NI) = FMIN
-        ! (SVC) added: extra nodig voor verandering ordening met supsym
-        IXSYMT = IXSYM(NO1+M_IN)
-        IXSYM(NO1+M_IN) = IXSYM(NO1+NI)
-        IXSYM(NO1+NI) = IXSYMT
+        if (M_IN /= NI) then
+          FMIN = FDIAG(NO1+M_IN)
+          FDIAG(NO1+M_IN) = FDIAG(NO1+NI)
+          FDIAG(NO1+NI) = FMIN
+          ! (SVC) added: extra nodig voor verandering ordening met supsym
+          IXSYMT = IXSYM(NO1+M_IN)
+          IXSYM(NO1+M_IN) = IXSYM(NO1+NI)
+          IXSYM(NO1+NI) = IXSYMT
 
-        ISTI = ISTMO+NBF*(NI-1)
-        ISTM = ISTMO+NBF*(M_IN-1)
-        call DSWAP_(NBF,CMON(ISTI),1,CMON(ISTM),1)
-20      continue
+          ISTI = ISTMO+NBF*(NI-1)
+          ISTM = ISTMO+NBF*(M_IN-1)
+          call DSWAP_(NBF,CMON(ISTI),1,CMON(ISTM),1)
+        end if
       end do
     end if
   end if
@@ -337,19 +337,19 @@ do ISYM=1,NSYM
         do NB=NA1,NEO
           if (FDIAG(NO1+NB) < FDIAG(NO1+M_IN)) M_IN = NB
         end do
-        if (M_IN == NA) GO TO 99
-        FMIN = FDIAG(NO1+M_IN)
-        FDIAG(NO1+M_IN) = FDIAG(NO1+NA)
-        FDIAG(NO1+NA) = FMIN
-        ! (SVC) added: extra nodig voor verandering ordening met supsym
-        IXSYMT = IXSYM(NO1+M_IN)
-        IXSYM(NO1+M_IN) = IXSYM(NO1+NA)
-        IXSYM(NO1+NA) = IXSYMT
+        if (M_IN /= NA) then
+          FMIN = FDIAG(NO1+M_IN)
+          FDIAG(NO1+M_IN) = FDIAG(NO1+NA)
+          FDIAG(NO1+NA) = FMIN
+          ! (SVC) added: extra nodig voor verandering ordening met supsym
+          IXSYMT = IXSYM(NO1+M_IN)
+          IXSYM(NO1+M_IN) = IXSYM(NO1+NA)
+          IXSYM(NO1+NA) = IXSYMT
 
-        ISTI = ISTMOA+NBF*(NA-1)
-        ISTM = ISTMOA+NBF*(M_IN-1)
-        call DSWAP_(NBF,CMON(ISTI),1,CMON(ISTM),1)
-99      continue
+          ISTI = ISTMOA+NBF*(NA-1)
+          ISTM = ISTMOA+NBF*(M_IN-1)
+          call DSWAP_(NBF,CMON(ISTI),1,CMON(ISTM),1)
+        end if
       end do
     end if
   end if
