@@ -60,6 +60,12 @@
      &                  NDMAT, NO, NOCC
       integer(kind=iwp), external:: IsFreeUnit
 
+      IF (IPRGLB.GE.USUAL) THEN
+         WRITE(6,*)
+         WRITE(6,'(20A4)')('****',I=1,20)
+         WRITE(6,*)' CASPT2 PROPERTY SECTION'
+      END IF
+
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par() .AND. IPRGLB.GE.USUAL .AND. .not.do_grad) THEN
         WRITE(u6,'(1X,A)') ' ====================================='

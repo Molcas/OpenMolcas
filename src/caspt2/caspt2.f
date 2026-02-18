@@ -257,6 +257,7 @@ C
          CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
 
          Call StatusLine('CASPT2: ',STLNE2)
+
          CALL EQCTL2(ICONV)
 
 * Save the final caspt2 energy in the global array ENERGY():
@@ -287,12 +288,9 @@ C
          END IF
 
          IF (IFPROP.OR.(do_grad.and.(iRlxRoot.eq.MSTATE(JSTATE)))) THEN
-           IF (IPRGLB.GE.USUAL) THEN
-             WRITE(6,*)
-             WRITE(6,'(20A4)')('****',I=1,20)
-             WRITE(6,*)' CASPT2 PROPERTY SECTION'
-           END IF
+
            CALL PRPCTL(0,UEFF,U0)
+
          ELSE
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)

@@ -80,7 +80,6 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
     END IF
 
     CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0,nState)
-!   If ((IFXMS.and.IFDW).OR.IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
 
     If (do_grad) CALL CNSTFIFAFIMO(1)
 
@@ -129,12 +128,9 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       END IF
 
       IF (IFPROP.OR.(do_grad.and.(IRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP))) THEN
-        IF (IPRGLB.GE.USUAL) THEN
-          WRITE(u6,*)
-          WRITE(u6,'(20A4)')('****',I=1,20)
-          WRITE(u6,*)' CASPT2 PROPERTY SECTION'
-        END IF
+
         CALL PRPCTL(0,UEFF,U0)
+
       ELSE
         IF (IPRGLB.GE.USUAL) THEN
           WRITE(u6,*)
@@ -154,6 +150,25 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       CPUTOT=CPTF14-CPTF0
       TIOTOT=TIOTF14-TIOTF0
 
+      Call Iter_Timing()
+
+! End of long loop over states in the group
+    END DO
+
+    IF (IPRGLB >= USUAL) THEN
+      CALL CollapseOutput(0,'CASPT2 computation for group ')
+      WRITE(u6,*)
+    END IF
+! End of long loop over groups
+    JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
+  END DO STATELOOP2
+
+Contains
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+Subroutine Iter_Timing()
       IF (ISTATE == 1) THEN
         CPUTOT=CPUTOT+CPUGIN
         TIOTOT=TIOTOT+TIOGIN
@@ -199,16 +214,5 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
         WRITE(u6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
         WRITE(u6,*)
       END IF
-
-! End of long loop over states in the group
-    END DO
-
-    IF (IPRGLB >= USUAL) THEN
-      CALL CollapseOutput(0,'CASPT2 computation for group ')
-      WRITE(u6,*)
-    END IF
-! End of long loop over groups
-    JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
-  END DO STATELOOP2
-
+End Subroutine Iter_Timing
 End Subroutine GradLoop
