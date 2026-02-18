@@ -139,26 +139,7 @@ C
 *
       CALL PT2INI()
 
-* Initialize effective Hamiltonian and eigenvectors
-      CALL MMA_ALLOCATE(Heff,Nstate,Nstate,Label='Heff')
-      CALL MMA_ALLOCATE(Ueff,Nstate,Nstate,Label='Ueff')
-      Heff(:,:)=0.0D0
-      Ueff(:,:)=0.0D0
-* Initialize zeroth-order Hamiltonian and eigenvectors
-      CALL MMA_ALLOCATE(H0,Nstate,Nstate,Label='H0')
-      CALL MMA_ALLOCATE(U0,Nstate,Nstate,Label='U0')
-      H0(:,:)=0.0D0
-* U0 is initialized as the identity matrix, in the case of a
-* standard MS-CASPT2 calculation it will not be touched anymore
-      U0(:,:)=0.0D0
-      call dcopy_(Nstate,[1.0d0],0,U0,Nstate+1)
-*
-* Some preparations for gradient calculation
-      IF (do_grad) Then
-        CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
-        CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
-        IDSAVGRD = 0
-      End If
+      CALL HEFF_INI()
 
 *======================================================================*
 * Put the CASSCF energies on the diagonal of Heff, i.e. form the
@@ -641,6 +622,28 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       Call StatusLine('CASPT2: ','Finished.')
       END Subroutine CASPT2_TERM
 
+      Subroutine HEFF_INI()
+* Initialize effective Hamiltonian and eigenvectors
+      CALL MMA_ALLOCATE(Heff,Nstate,Nstate,Label='Heff')
+      CALL MMA_ALLOCATE(Ueff,Nstate,Nstate,Label='Ueff')
+      Heff(:,:)=0.0D0
+      Ueff(:,:)=0.0D0
+* Initialize zeroth-order Hamiltonian and eigenvectors
+      CALL MMA_ALLOCATE(H0,Nstate,Nstate,Label='H0')
+      CALL MMA_ALLOCATE(U0,Nstate,Nstate,Label='U0')
+      H0(:,:)=0.0D0
+* U0 is initialized as the identity matrix, in the case of a
+* standard MS-CASPT2 calculation it will not be touched anymore
+      U0(:,:)=0.0D0
+      call dcopy_(Nstate,[1.0d0],0,U0,Nstate+1)
+*
+* Some preparations for gradient calculation
+      IF (do_grad) Then
+        CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
+        CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
+        IDSAVGRD = 0
+      End If
+      End Subroutine HEFF_INI
 *                                                                     *
 ***********************************************************************
 *                                                                     *
