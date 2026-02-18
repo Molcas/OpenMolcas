@@ -9,7 +9,7 @@
 	url = https://github.com/libwfa/libwfa.git
 [submodule "External/efp"]
 	path = External/efp
-	url = https://github.com/ilyak/libefp.git
+	url = https://github.com/libefp2/libefp
 [submodule "External/lapack"]
 	path = External/lapack
 	url = https://github.com/Reference-LAPACK/lapack.git
