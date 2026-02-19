@@ -45,7 +45,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: iFinal
 real(kind=wp) :: CMO(*), DA(*), PA(*), DAO(*), Focc(*)
-integer(kind=iwp) :: i, iR, iRLXRoot1, iRLXRoot2, iS, iSA, nTemp(8), nW
+integer(kind=iwp) :: i, iR, iRLXRoot1, iRLXRoot2, iSA, nTemp(8), nW
 real(kind=wp) :: Dum(1), Tmp
 logical(kind=iwp) :: Found, SCF
 character(len=16) :: mstate
@@ -59,13 +59,9 @@ SCF = .false.
 if ((nac == 0) .or. (2*nac == nactel)) SCF = .true.
 
 if (SCF) then
-  do iS=1,nSym
-    nTemp(is) = nAsh(is)+nIsh(is)
-  end do
+  nTemp(1:nSym) = nAsh(1:nSym)+nIsh(1:nSym)
   call Put_iArray('nIsh',nTemp,nSym)
-  do iS=1,nSym
-    nTemp(is) = 0
-  end do
+  nTemp(1:nSym) = 0
   call Put_iArray('nAsh',nTemp,nSym)
 else
   call Put_iArray('nIsh',nIsh,nSym)

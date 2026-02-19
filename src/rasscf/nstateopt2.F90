@@ -57,9 +57,7 @@ VeeSumOld = sum(Vee(:))
 ICMSIter = 0
 !write(u6,'(6X,I4,8X,F16.8,8X,ES16.4E3)') ICMSIter,VeeSumOld,0.0d0
 do while (.not. Converged)
-  do IPair=1,NPairs
-    theta(IPair) = Zero
-  end do
+  theta(:) = Zero
   ICMSIter = ICMSIter+1
   call ThetaOpt2(FRot,theta,VeeSumChange,StatePair,NPairs,GDMat,Vee,Gtuvx)
   VeeSumNew = VeeSumOld+VeeSumChange

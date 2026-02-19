@@ -20,17 +20,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: FckO(NAC,NAC), GDMat(nTri_Elem(lRoots),NAC,NAC), FckS(lRoots,lRoots)
-integer(kind=iwp) :: iOrb, IState, jOrb, JState
+integer(kind=iwp) :: IState, JState
 
 FckS(:,:) = Zero
 
 do IState=1,lRoots
   do JState=1,IState
-    do IOrb=1,NAC
-      do JOrb=1,NAC
-        FckS(IState,JState) = FckS(IState,JState)+FckO(IOrb,JOrb)*GDMat(iTri(IState,JState),IOrb,JOrb)
-      end do
-    end do
+    FckS(IState,JState) = FckS(IState,JState)+sum(FckO(:,:)*GDMat(iTri(IState,JState),:,:))
     FckS(JState,IState) = FckS(IState,JState)
   end do
 end do

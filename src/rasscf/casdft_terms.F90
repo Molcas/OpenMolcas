@@ -126,10 +126,7 @@ if (iRc /= 0) then
 end if
 call mma_deallocate(Tmp0)
 
-Tot_El_Charge = Zero
-do iSym=1,nSym
-  Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
-end do
+Tot_El_Charge = -Two*sum(nFro(1:nSym)+nIsh(1:nSym))
 Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
 Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
 !if (IPRLEV >= DEBUG) then
@@ -298,12 +295,8 @@ call mma_deallocate(Tmp1)
 ! Shall I add here the DFT contribution? Maybe not yet!
 ! I am commenting off... if needed we can always re-activate.
 !**********************************************************
-MXNB = 0
-MXNA = 0
-do ISYM=1,NSYM
-  MXNB = max(MXNB,NBAS(ISYM))
-  MXNA = max(MXNA,NASH(ISYM))
-end do
+MXNB = maxval(NBAS(1:NSYM))
+MXNA = maxval(NASH(1:NSYM))
 call mma_allocate(X0,NTOT1,Label='X0')
 call mma_allocate(X1,NTOT1,Label='X1')
 call mma_allocate(X2,MXNB*MXNB,Label='X2')

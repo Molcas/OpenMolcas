@@ -36,7 +36,7 @@ implicit none
 integer(kind=iwp) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ICONF(*), ISPIN(*), IORD(*), MXROOTS, ICI(MXROOTS,*), JCJ(MXROOTS,*)
 real(kind=wp) :: CCI(MXROOTS,*)
 integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ISGNUM, ITYP, &
-                     IWALK(mxAct), JOCC, K, KCNF(mxAct), KOCC, KORB, KREF, KROOT, L, LPRINT, MxDwn, MxUp, nLev, nMidV, nVert
+                     IWALK(mxAct), JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT, MxDwn, MxUp, nLev, nMidV, nVert
 real(kind=wp) :: PHASE
 integer(kind=iwp), external :: IPHASE
 
@@ -57,11 +57,7 @@ if (IPRINT >= 5) then
   end do
 end if
 
-do kRef=1,mxRef
-  do kRoot=1,mxRoots
-    JCJ(kRoot,kRef) = 0
-  end do
-end do
+JCJ(:,1:mxRef) = 0
 
 ! LOOP OVER CONFIGURATIONS TYPES
 

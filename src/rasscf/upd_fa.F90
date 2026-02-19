@@ -52,15 +52,13 @@ real(kind=wp) :: DUV, DUX, DVX, TEMP
 iStack = 0
 do iSym=1,nSym
   off_Dmat(iSym) = iStack
-  iAsh = nAsh(iSym)
-  iStack = iStack+nTri_Elem(iAsh)
+  iStack = iStack+nTri_Elem(nAsh(iSym))
 end do
 
 iStack = 0
 do iSym=1,nSym
   off_Fmat(iSym) = iStack
-  iOrb = nOrb(iSym)
-  iStack = iStack+nTri_Elem(iOrb)
+  iStack = iStack+nTri_Elem(nOrb(iSym))
 end do
 
 iStack = 0
@@ -308,12 +306,8 @@ do iSym=1,nSym
 
             case (4)
               ! symmetry case (IJ!KL)
-              do iV=1,kAsh
-                do iX=1,lAsh
-                  off_PUVX(iSym) = off_PUVX(iSym)+jAsh*iOrb
-                  off_PUVX(jSym) = off_PUVX(jSym)+iAsh*jOrb
-                end do
-              end do
+              off_PUVX(iSym) = off_PUVX(iSym)+iOrb*jAsh*kAsh*lAsh
+              off_PUVX(jSym) = off_PUVX(jSym)+iAsh*jOrb*kAsh*lAsh
 
           end select
         end if

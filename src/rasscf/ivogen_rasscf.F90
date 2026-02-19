@@ -70,18 +70,11 @@ integer(kind=iwp) :: iBas, iOff
 real(kind=wp), allocatable :: FckH(:), FckS(:), FckT(:), OneHam(:), Scratch(:)
 #include "warnings.h"
 
-nBT = 0
-MaxBas = 0
-MaxOrO = 0
-MaxBOO = 0
-nOcc(1:nSym) = 0
-do iSym=1,nSym
-  nOcc(iSym) = nFro(iSym)+nIsh(iSym)+nAsh(iSym)
-  nBT = nBT+nTri_Elem(nBas(iSym))
-  MaxBas = max(MaxBas,nBas(iSym))
-  MaxOrO = max(MaxOrO,nBas(iSym)-nOcc(iSym))
-  MaxBOO = max(MaxBOO,nBas(iSym)*(nBas(iSym)-nOcc(iSym)))
-end do
+nBT = sum(nTri_Elem(nBas(1:nSym)))
+nOcc(1:nSym) = nFro(1:nSym)+nIsh(1:nSym)+nAsh(1:nSym)
+MaxBas = maxval(nBas(1:nSym))
+MaxOrO = maxval(nBas(1:nSym)-nOcc(1:nSym))
+MaxBOO = maxval(nBas(1:nSym)*(nBas(1:nSym)-nOcc(1:nSym)))
 #ifdef _DEBUGPRINT_
 iCMO = 1
 do iSym=1,nSym

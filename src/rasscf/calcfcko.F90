@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: CMO(NTOT2), FI(NTOT1), FA(NTOT1), FckO(NAC,NAC)
-integer(kind=iwp) :: IBas, IOff1, IOff2, IOff3, IOrb, ISym, JBas, JOrb, NA, NB, NI
+integer(kind=iwp) :: IBas, IOff1, IOff2, IOff3, IOrb, ISym, JBas, NA, NB, NI
 real(kind=wp), allocatable :: FIAAO(:,:), FckOt(:,:), Scr(:,:)
 
 FckO(:,:) = Zero
@@ -62,9 +62,7 @@ do ISym=1,NSym
     !write(u6,*) 'FckO mat for sym',ISym
     !call RecPrt(' ',' ',FckOt,NA,NA)
     do IOrb=1,NA
-      do JOrb=1,NA
-        FckO(IOrb+IOff3,JOrb+IOff3) = FckOt(jOrb,iOrb)
-      end do
+      FckO(IOrb+IOff3,IOff3+1:IOff3+NA) = FckOt(:,iOrb)
     end do
     call mma_deallocate(FIAAO)
     call mma_deallocate(Scr)

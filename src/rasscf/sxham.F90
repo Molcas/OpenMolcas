@@ -373,9 +373,7 @@ SXSHFT = max(XLEV-HDMIN,Zero)
 ! no level shift if input (alpha) is zero
 
 if (LVSHFT == Zero) SXSHFT = Zero
-do I=NROOT+1,NROOT+NSXS
-  HDIAG(I) = HDIAG(I)+SXSHFT
-end do
+HDIAG(NROOT+1:NROOT+NSXS) = HDIAG(NROOT+1:NROOT+NSXS)+SXSHFT
 if (IPRLEV >= DEBUG) write(u6,1900) HDMIN,SXSHFT
 
 ! Add diagonal elements for the reference space (CI-states)
@@ -383,9 +381,7 @@ if (IPRLEV >= DEBUG) write(u6,1900) HDMIN,SXSHFT
 HDIAG(1) = Zero
 if (ICICP /= 0) then
   IROOT1 = IROOT(1)
-  do I=1,NROOT
-    HDIAG(I) = ENER(I,ITER)-ENER(IROOT1,ITER)
-  end do
+  HDIAG(1:NROOT) = ENER(1:NROOT,ITER)-ENER(IROOT1,ITER)
 end if
 
 return

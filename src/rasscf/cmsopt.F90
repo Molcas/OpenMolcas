@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: TUVX(NACPR2)
 integer(kind=iwp) :: lRoots2, NAC2, nGD, nTUVX
-real(kind=wp), allocatable :: Dgorbit(:), Dgstate(:), GDorbit(:), GDstate(:), Gtuvx(:), R(:), RotMat(:,:)
+real(kind=wp), allocatable :: Dgorbit(:), Dgstate(:), GDorbit(:), GDstate(:), Gtuvx(:), RotMat(:,:)
 #include "warnings.h"
 
 !*****************************************************************
@@ -50,7 +50,6 @@ nGD = lRoots2*NAC2
 CMSNotConverged = .true.
 
 ! Memory Allocation
-call mma_allocate(R,lRoots2)
 call mma_allocate(GDstate,nGD)
 call mma_allocate(Dgstate,nGD)
 call mma_allocate(GDorbit,nGD)
@@ -60,7 +59,7 @@ call mma_allocate(RGD,lRoots2)
 call mma_allocate(RotMat,lRoots,lRoots)
 
 ! Calculate generalized density mtrix
-call UnzipTUVX(TUVX,Gtuvx,nTUVX)
+call LoadGtuvx(TUVX,Gtuvx)
 
 !write(u6,*) 'Gtuvx matrix'
 !call RecPrt(' ',' ',Gtuvx,NAC2,NAC2)
@@ -74,30 +73,26 @@ call CalcDg(Dgorbit,GDorbit,Gtuvx,nGD,nTUVX,NAC,lRoots)
 
 call mma_deallocate(Gtuvx)
 
-call TransposeMat(Dgstate,Dgorbit,nGD,NAC2,lRoots2)
-call TransposeMat(GDstate,GDorbit,nGD,NAC2,lRoots2)
+call Trnsps(NAC2,lRoots2,Dgorbit,Dgstate)
+call Trnsps(NAC2,lRoots2,GDorbit,GDstate)
 
 ! Load initial rotation matrix
 call InitRotMat(RotMat,lRoots,trim(CMSStartMat),len_trim(CMSStartMat))
-
-call OneDFoil(R,RotMat,lRoots,lRoots)
 
 ! Print header of CMS iterations
 call CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
 
 ! Start CMS Optimization
 CMSNotConverged = .true.
-call CMSNewton(R,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
+call CMSNewton(RotMat,GDorbit,GDstate,Dgorbit,Dgstate,nGD)
 
 ! Print end of CMS intermediate-state optimization
 call CMSTail()
 
 ! Save rotation matrix
-call AntiOneDFoil(RotMat,R,lRoots,lRoots)
 call PrintMat('ROT_VEC','CMS-PDFT',RotMat,lroots,lroots,7,8,'T')
 
 ! releasing memory
-call mma_deallocate(R)
 call mma_deallocate(GDstate)
 call mma_deallocate(Dgstate)
 call mma_deallocate(GDorbit)

@@ -99,9 +99,7 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
   call CollapseOutput(0,'Wave function specifications:')
 
   call Get_cArray('Irreps',lIrrep,24)
-  do iSym=1,nSym
-    lIrrep(iSym) = adjustr(lIrrep(iSym))
-  end do
+  lIrrep(1:nSym) = adjustr(lIrrep(1:nSym))
 
   write(u6,*)
   Line = ''
@@ -152,10 +150,7 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
       call Abend()
     end if
     call mma_deallocate(Tmp0)
-    Tot_El_Charge = Zero
-    do iSym=1,nSym
-      Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
-    end do
+    Tot_El_Charge = -Two*sum(nFro(1:nSym)+nIsh(1:nSym))
     Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
     Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
     iCharge = int(Tot_Charge)
@@ -243,10 +238,7 @@ if ((IPRLEV >= USUAL) .and. (.not. lOPTO)) then
     do iSym=1,nSym
       iStart = iEnd+1
       iEnd = iEnd+nBas(iSym)
-      iTemp = 0
-      do i=iStart,iEnd
-        iTemp = iTemp+IXSYM(i)
-      end do
+      iTemp = sum(IXSYM(iStart:iEnd))
       if (iTemp > 0) then
         write(u6,Fmt2//'A,I3)') 'Supersymmetry vector for symmetry species',iSym
         write(u6,Fmt2//'30I3)') (IXSYM(i),i=iStart,iEnd)

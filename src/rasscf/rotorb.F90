@@ -35,7 +35,7 @@ implicit none
 real(kind=wp) :: cmoo(*), cmon(*), c(*), x(*), x2(*), y(*), THMAX, FA(*)
 integer(kind=iwp) :: I, IB, ICORE, ICOREGAS(0:4,0:4), IDAMP, IDAMPGAS(0:4,0:4), IGAS, II, IJ, IO, iOff, iOrb, iPrLev, iSpace, IST, &
                      ISTBM, ISTMO, ISTMO1, ISUM, ISYM, jPr, jSPace, MOType, NACI, NACJ, NAE, NAO, NB, NBO, ND, NDB, NEO, NF, NFB, &
-                     NI, NII, NIO, NIO1, NJ, NO, NOC, NOC1, NP, NR
+                     NI, NIO, NIO1, NJ, NO, NOC, NOC1, NP, NR
 real(kind=wp) :: COREGAS(10), DAMPGAS(10), TERM, THM, Xn, XX
 logical(kind=iwp) :: iFrzAct
 real(kind=wp), allocatable :: SqFA(:), Unt(:)
@@ -285,10 +285,7 @@ do isym=1,nsym
     do ni=1,no
       if (ni <= nio) then
         motype = 1
-        xn = Zero
-        do nii=1,nio
-          xn = xn+x(ist+nii)**2
-        end do
+        xn = sum(x(ist+1:ist+nio)**2)
         if (IPRLEV >= TERSE) then
           if (xn < Half) then
             call WarningMessage(1,'Large orbital rotation.')
@@ -298,11 +295,8 @@ do isym=1,nsym
       end if
       if ((ni > nio) .and. (ni <= noc)) then
         motype = 2
-        xn = Zero
         nio1 = nio+1
-        do nii=nio1,noc
-          xn = xn+x(ist+nii)**2
-        end do
+        xn = sum(x(ist+nio1:ist+noc)**2)
         if (IPRLEV >= TERSE) then
           if (xn < Half) then
             call WarningMessage(1,'Large orbital rotation.')
@@ -313,10 +307,7 @@ do isym=1,nsym
       if (ni > noc) then
         motype = 3
         noc1 = noc+1
-        xn = Zero
-        do nii=noc1,no
-          xn = xn+x(ist+nii)**2
-        end do
+        xn = sum(x(ist+noc1:ist+no)**2)
         if (IPRLEV >= TERSE) then
           if (xn < Half) then
             call WarningMessage(1,'Large orbital rotation.')

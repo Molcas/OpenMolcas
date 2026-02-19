@@ -135,8 +135,8 @@ do ISYM=1,NSYM
     do NI=1,NIO
       II = II+NI
       FDIAG(NO1+NI) = FTR(II)
-      OCCN(NO1+NI) = Two
     end do
+    OCCN(NO1+1:NO1+NIO) = Two
     if ((NIO > 1) .and. (IORD /= 0)) then
       NIO1 = NIO-1
       do NI=1,NIO1
@@ -265,8 +265,8 @@ do ISYM=1,NSYM
       do NT=1,ngssh(igas,isym)
         II = II+NT
         OCCN(NO1+NT) = FTR(II)
-        FDIAG(NO1+NT) = Zero
       end do
+      FDIAG(NO1+1:NO1+ngssh(igas,isym)) = Zero
 
       ! FA:  no longer setting energies to 0 (though in principle ill-def).
 
@@ -319,8 +319,8 @@ do ISYM=1,NSYM
     do NA=1,NEO
       II = II+NA
       FDIAG(NO1+NA) = FTR(II)
-      OCCN(NO1+NA) = Zero
     end do
+    OCCN(NO1+1:NO1+NEO) = Zero
 
     ! Transform molecular orbitals
 

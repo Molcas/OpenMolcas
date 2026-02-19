@@ -24,21 +24,17 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Vee(lRoots), GD(nTri_Elem(lRoots),NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
-integer(kind=iwp) :: I, III, t, u, v, x
+integer(kind=iwp) :: I, III, v, x
 
+Vee(:) = Zero
 do I=1,lRoots
-  Vee(I) = Zero
   III = nTri_Elem(I)
-  do t=1,nac
-    do u=1,nac
-      do v=1,nac
-        do x=1,nac
-          Vee(I) = Vee(I)+GD(III,t,u)*GD(III,v,x)*Gtuvx(t,u,v,x)
-        end do
-      end do
+  do x=1,nac
+    do v=1,nac
+      Vee(I) = Vee(I)+GD(III,v,x)*sum(GD(III,:,:)*Gtuvx(:,:,v,x))
     end do
   end do
-  Vee(I) = Vee(I)*Half
 end do
+Vee(:) = Half*Vee(:)
 
 end subroutine CalcVee2

@@ -82,13 +82,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: I, IAD15, ISYM, NFOCK, NOO
+integer(kind=iwp) :: I, IAD15, NFOCK
 real(kind=wp) :: Dum(1)
 real(kind=wp), allocatable :: HEFF(:,:)
 
-do I=1,15
-  IADR15(I) = 0
-end do
+IADR15(1:15) = 0
 ! Dummy write table of contents.
 ! New layout scheme; length is 30 integers.
 IAD15 = 0
@@ -115,11 +113,7 @@ do i=1,lRoots
   call DDafIle(JOBIPH,0,Dum,nConf,IAD15)
 end do
 IADR15(5) = IAD15
-NFOCK = 0
-do ISYM=1,NSYM
-  NOO = NISH(ISYM)+NASH(ISYM)
-  NFOCK = NFOCK+NOO**2
-end do
+NFOCK = sum((NISH(1:NSYM)+NASH(1:NSYM))**2)
 call DDAFILE(JOBIPH,0,DUM,NFOCK,IAD15)
 IADR15(6) = IAD15
 call DDAFILE(JOBIPH,0,DUM,mxRoot*mxIter,IAD15)
@@ -157,9 +151,7 @@ IADR15(18) = IAD15
 call IDAFILE(JOBIPH,1,IDXSX,mxAct,IAD15)
 !SVC: translates orbital index to levels (LEVEL in caspt2)
 call IDAFILE(JOBIPH,1,IDXCI,mxAct,IAD15)
-do I=19,30
-  IADR15(I) = 0
-end do
+IADR15(19:30) = 0
 ! First unused disk address at IADR(16):
 IADR15(16) = IAD15
 

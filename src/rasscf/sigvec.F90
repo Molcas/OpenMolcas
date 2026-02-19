@@ -41,9 +41,7 @@ do ITRIAL=1,NTRIAL
 
   ! renormalize the C vector
 
-  do I=1,NSXS
-    C(I) = SXN(I)*CIN(I+NNST)
-  end do
+  C(1:NSXS) = SXN(1:NSXS)*CIN(NNST+1:NNST+NSXS)
 
   ! Remove any unwanted rotations from C:
   do I=1,NSXS
@@ -97,11 +95,7 @@ do ITRIAL=1,NTRIAL
 
   ! Add diagonal contributions to the CI part
 
-  if (ICICP /= 0) then
-    do I=1,NROOT
-      HC(NST+I) = HC(NST+I)+CIN(NST+I)*(ENER(I,ITER)-ENER(IROOT(1),ITER))
-    end do
-  end if
+  if (ICICP /= 0) HC(NST+1:NST+NROOT) = HC(NST+1:NST+NROOT)+CIN(NST+1:NST+NROOT)*(ENER(1:NROOT,ITER)-ENER(IROOT(1),ITER))
 
   if (NSXS /= 0) then
 
@@ -138,9 +132,7 @@ do ITRIAL=1,NTRIAL
 
   ! Renormalize the sigma vector
 
-  do I=1,NSXS
-    HC(I+NNST) = HC(I+NNST)*SXN(I)
-  end do
+  HC(NNST+1:NNST+NSXS) = SXN(1:NSXS)*HC(NNST+1:NNST+NSXS)
 
   ! Add Level shift part of the diagonal
 

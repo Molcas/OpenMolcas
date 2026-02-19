@@ -39,14 +39,12 @@ use RASDim, only: MxTit
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IGAS, II, ISYM, ITU, J, NAO, NGSSH_HI, NGSSH_LO, NT, NU
+integer(kind=iwp) :: IGAS, II, ISYM, ITU, NAO, NGSSH_HI, NGSSH_LO, NT, NU
 
 !---  set INVEC -> get MOs from JOBIPH file ---------------------------*
 INVEC = 3
 !---  Initialize ------------------------------------------------------*
-do j=1,18
-  Title(j) = ' '
-end do
+Title(:) = ' '
 
 !---  Read input from standard input ----------------------------------*
 !---  process TITLE    command ----------------------------------------*
@@ -81,11 +79,9 @@ ndel(:) = ndel_j(:)
 if ((nroots > 1) .and. (irlxroot == 0)) iRlxRoot = iroot(nroots)
 if (nroots == 1) iRlxRoot = 0
 !---  complete orbital specifications ---------------------------------*
-do iSym=1,mxsym
-  NASH(ISYM) = NRS1(ISYM)+NRS2(ISYM)+NRS3(ISYM)
-  NORB(ISYM) = NBAS(ISYM)-NFRO(ISYM)-NDEL(ISYM)
-  NSSH(ISYM) = NORB(ISYM)-NISH(ISYM)-NASH(ISYM)
-end do
+NASH(1:mxsym) = NRS1(1:mxsym)+NRS2(1:mxsym)+NRS3(1:mxsym)
+NORB(1:mxsym) = NBAS(1:mxsym)-NFRO(1:mxsym)-NDEL(1:mxsym)
+NSSH(1:mxsym) = NORB(1:mxsym)-NISH(1:mxsym)-NASH(1:mxsym)
 
 ! SVC: convert CAS/RAS to general GAS description here, then we only
 ! need to copy it for lucia later, which always uses GAS description.
@@ -124,40 +120,22 @@ do ISYM=1,mxsym
   end if
 end do
 !---  complete the input processing -----------------------------------*
-NTOT = 0
-NTOT1 = 0
-NTOT2 = 0
-NO2M = 0
-NIN = 0
-NAC = 0
-NDELT = 0
-NFROT = 0
-NSEC = 0
-NORBT = 0
-NTOT3 = 0
-NTOTSP = 0
-NTOT4 = 0
-NRS1T = 0
-NRS2T = 0
-NRS3T = 0
-do ISYM=1,NSYM
-  NTOT = NTOT+NBAS(ISYM)
-  NTOT1 = NTOT1+nTri_Elem(NBAS(ISYM))
-  NTOT2 = NTOT2+NBAS(ISYM)**2
-  NO2M = max(NO2M,NBAS(ISYM)**2)
-  NRS1T = NRS1T+NRS1(ISYM)
-  NRS2T = NRS2T+NRS2(ISYM)
-  NRS3T = NRS3T+NRS3(ISYM)
-  NFROT = NFROT+NFRO(ISYM)
-  NIN = NIN+NISH(ISYM)
-  NAC = NAC+NASH(ISYM)
-  NDELT = NDELT+NDEL(ISYM)
-  NSEC = NSEC+NSSH(ISYM)
-  NORBT = NORBT+NORB(ISYM)
-  NTOT3 = NTOT3+nTri_Elem(NORB(ISYM))
-  NTOTSP = NTOTSP+nTri_Elem(NASH(ISYM))
-  NTOT4 = NTOT4+NORB(ISYM)**2
-end do
+NTOT = sum(NBAS(1:NSYM))
+NTOT1 = sum(nTri_Elem(NBAS(1:NSYM)))
+NTOT2 = sum(NBAS(1:NSYM)**2)
+NO2M = maxval(NBAS(1:NSYM)**2)
+NIN = sum(NISH(1:NSYM))
+NAC = sum(NASH(1:NSYM))
+NDELT = sum(NDEL(1:NSYM))
+NFROT = sum(NFRO(1:NSYM))
+NSEC = sum(NSSH(1:NSYM))
+NORBT = sum(NORB(1:NSYM))
+NTOT3 = sum(nTri_Elem(NORB(1:NSYM)))
+NTOTSP = sum(nTri_Elem(NASH(1:NSYM)))
+NTOT4 = sum(NORB(1:NSYM)**2)
+NRS1T = sum(NRS1(1:NSYM))
+NRS2T = sum(NRS2(1:NSYM))
+NRS3T = sum(NRS3(1:NSYM))
 NACPAR = nTri_Elem(NAC)
 NACPR2 = nTri_Elem(NACPAR)
 

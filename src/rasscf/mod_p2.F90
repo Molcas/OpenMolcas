@@ -20,16 +20,15 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nP2Act, nD1mo, nDet
 real(kind=wp) :: P2mo(nP2Act), D1mo(nD1mo), DS1mo(nD1mo), ExFac
-integer(kind=iwp) :: i, i_, iIrrep, ij, ijIrrep, ijkIrrep, ijkl, ik, il, iOff_, j, j_, jIrrep, jk, jl, k, k_, kIrrep, kl, l, l_
+integer(kind=iwp) :: i, i_, iIrrep, ij, ijIrrep, ijkIrrep, ijkl, ik, il, j, j_, jIrrep, jk, jl, k, k_, kIrrep, kl, l, l_
 real(kind=wp) :: Fact, P2Act
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iOff_ = 0
-do iIrrep=0,mIrrep-1
-  iOff_Ash(iIrrep) = iOff_
-  iOff_ = iOff_+nAsh(iIrrep)
+iOff_Ash(0) = 0
+do iIrrep=1,mIrrep-1
+  iOff_Ash(iIrrep) = iOff_Ash(iIrrep-1)+nAsh(iIrrep-1)
 end do
 !
 !***********************************************************************

@@ -20,7 +20,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: id_call
-integer(kind=iwp) :: iCount, iCount0
+integer(kind=iwp) :: iCount, iCount0, istatus
 character(len=512) :: List
 character(len=32) :: val
 
@@ -43,56 +43,88 @@ else
   !1
   call MolcasControl('Cho_ALGO',val)
   if (val(1:4) /= '    ') then
-    read(val,*,err=101,end=102) ALGO
+    read(val,*,iostat=istatus) ALGO
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
+    end if
     write(u6,*) '--- Warning: Cho_ALGO changed by user to the value ',ALGO
     icount = icount+1
   end if
   !2
   call MolcasControl('Chotime',val)
   if (val(1:4) /= '    ') then
-    read(val,*,err=101,end=102) timings
+    read(val,*,iostat=istatus) timings
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
+    end if
     write(u6,*) '--- Warning: Cholesky timings visualization changed by user to the value ',timings
     icount = icount+1
   end if
   !3
   call MolcasControl('nScreen',val)
   if (val(1:4) /= '    ') then
-    read(val,*,err=101,end=102) nScreen
+    read(val,*,iostat=istatus) nScreen
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
+    end if
     write(u6,*) '--- Warning: Cholesky LK option nSCREEN changed by user to the value ',nScreen
     icount = icount+1
   end if
   !4
   call MolcasControl('dmpK',val)
   if (val(1:4) /= '    ') then
-    read(val,*,err=101,end=102) dmpK
+    read(val,*,iostat=istatus) dmpK
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
+    end if
     write(u6,*) '--- Warning: Cholesky LK option DMPK changed by user to the value ',dmpK
     icount = icount+1
   end if
   !5
   call MolcasControl('MaxIter',val)
   if (val(1:4) /= '    ') then
-    read(val,*,err=101,end=102) MaxIt
+    read(val,*,iostat=istatus) MaxIt
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
+    end if
     write(u6,*) '--- Warning: MaxIt changed by user to the value ',MaxIt
     icount = icount+1
   end if
   !6
   call MolcasControl('ThrE',val)
   if (val(1:4) /= '    ') then
-    read(val,*,err=101,end=102) ThrE
+    read(val,*,iostat=istatus) ThrE
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
+    end if
     write(u6,*) '--- Warning: ThrE changed by user to the value ',ThrE
     icount = icount+1
   end if
   !7
   call MolcasControl('ThrSX',val)
   if (val(1:4) /= '    ') then
-    read(val,*,err=101,end=102) ThrSX
+    read(val,*,iostat=istatus) ThrSX
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
+    end if
     write(u6,*) '--- Warning: ThrSX changed by user to the value ',ThrSX
     icount = icount+1
   end if
   !8
   call MolcasControl('ThrTE',val)
   if (val(1:4) /= '    ') then
-    read(val,*,err=101,end=102) ThrTE
+    read(val,*,iostat=istatus) ThrTE
+    if (istatus /= 0) then
+      call Error(istatus)
+      return
+    end if
     write(u6,*) '--- Warning: ThrTE changed by user to the value ',ThrTE
     icount = icount+1
   end if
@@ -150,7 +182,18 @@ return
 100 format(A24,',Cho_ALGO=',I2,',Chotime=',L2,',dmpK=',ES11.4,',nScreen=',I4,',MaxIter=',I4,',ThrE=',ES11.4,',ThrSX=',ES11.4, &
            ',ThrTE=',ES11.4)
 
-101 write(u6,*) 'RasScf_Mcontrol: error in data Input. ( icount= ',icount,' )'
-102 write(u6,*) 'RasScf_Mcontrol: reached end of file. ( icount= ',icount,' )'
+contains
+
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  if (code < 0) then
+    write(u6,*) 'RasScf_Mcontrol: reached end of file. ( icount= ',icount,' )'
+  else if (code > 0) then
+    write(u6,*) 'RasScf_Mcontrol: error in data Input. ( icount= ',icount,' )'
+  end if
+
+end subroutine Error
 
 end subroutine RasScf_Mcontrol

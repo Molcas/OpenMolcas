@@ -34,10 +34,7 @@ IFTEST = .false.
 if (IFTEST) write(u6,*) 'SUPSYM'
 
 ! Set up array with angular quant num for each basis function:
-NBTOT = 0
-do ISYM=1,NSYM
-  NBTOT = NBTOT+NBAS(ISYM)
-end do
+NBTOT = sum(NBAS(1:NSYM))
 call mma_allocate(LQN,NBTOT,Label='LQN')
 do IBAS=1,NBTOT
   LCHAR = BName(IBAS)(LenIn+3:LenIn+3)
@@ -56,9 +53,7 @@ do ISYM=1,NSYM
   if (NO /= 0) then
     do IO=1,NO
       IORB = IORBES+IO
-      do L=0,9
-        WGTLQN(L) = Zero
-      end do
+      WGTLQN(:) = Zero
       do IB=1,NB
         IBAS = IBASES+IB
         L = LQN(IBAS)

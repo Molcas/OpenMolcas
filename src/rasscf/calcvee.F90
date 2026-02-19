@@ -23,21 +23,19 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Vee(lRoots), RMat(lRoots,lRoots), DDG(lRoots,lRoots,lRoots,lRoots)
-integer(kind=iwp) :: iJ, iK, iL, iM, iState
+integer(kind=iwp) :: iK, iL, iM, iState
 
+Vee(:) = Zero
 do IState=1,lRoots
-  Vee(IState) = Zero
-  do iJ=1,lRoots
-    do iK=1,lRoots
-      do iL=1,lRoots
-        do iM=1,lRoots
-          Vee(Istate) = Vee(IState)+RMat(IState,iJ)*RMat(IState,iK)*RMat(IState,iL)*RMat(IState,iM)*DDG(iJ,iK,iL,iM)
-        end do
+  do iL=1,lRoots
+    do iM=1,lRoots
+      do iK=1,lRoots
+        Vee(Istate) = Vee(IState)+RMat(IState,iL)*RMat(IState,iM)*RMat(IState,iK)*sum(RMat(IState,:)*DDG(:,iK,iL,iM))
       end do
     end do
   end do
-  Vee(IState) = Vee(IState)*Half
-  !write(u6,'(A,I2,A,F10.6)') 'The classic coulomb energy for state ',IState,' is ',Vee(IState)
+  !write(u6,'(A,I2,A,F10.6)') 'The classic coulomb energy for state ',IState,' is ',Half*Vee(IState)
 end do
+Vee(:) = Half*Vee(:)
 
 end subroutine CalcVee

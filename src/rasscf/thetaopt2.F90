@@ -26,22 +26,18 @@ implicit none
 integer(kind=iwp) :: NP
 real(kind=wp) :: R(lRoots,lRoots), theta(NP), deltaQ, GD(nTri_Elem(lRoots),NAC,NAC), Vee(lRoots), G(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: SPair(NP,2)
-integer(kind=iwp) :: I, IP, J
+integer(kind=iwp) :: IP
 real(kind=wp) :: Change
 
 deltaQ = Zero
 do IP=1,NP
-  I = SPair(IP,1)
-  J = SPair(IP,2)
-  call OptOneAngle2(theta(iP),change,R,GD,I,J,Vee,G)
-  deltaQ = deltaQ+change
+  call OptOneAngle2(theta(iP),Change,R,GD,SPair(IP,1),SPair(IP,2),Vee,G)
+  deltaQ = deltaQ+Change
 end do
 
 do IP=NP-1,1,-1
-  I = SPair(IP,1)
-  J = SPair(IP,2)
-  call OptOneAngle2(theta(iP),change,R,GD,I,J,Vee,G)
-  deltaQ = deltaQ+change
+  call OptOneAngle2(theta(iP),Change,R,GD,SPair(IP,1),SPair(IP,2),Vee,G)
+  deltaQ = deltaQ+Change
 end do
 
 end subroutine ThetaOpt2

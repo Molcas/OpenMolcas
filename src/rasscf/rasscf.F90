@@ -112,9 +112,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: IReturn
-integer(kind=iwp) :: actual_iter, i, i_ROOT, iAd, iAd15, iBas, iComp, iFinal, iFlags, ihh, imm, Ind, IndT, IndType(56), iOff, &
-                     iOpt, iPrLev, iRC, iRot, iShift, iss, iSyLbl, iSym, iTerm, j, kau, kRoot, LuOne, LuvvVec, mRoots, NoScr1, &
-                     nTav, RC_RAS
+integer(kind=iwp) :: actual_iter, i, i_ROOT, iAd, iAd15, iBas, iComp, iFinal, iFlags, ihh, imm, Ind, IndType(7,8), iOff, iOpt, &
+                     iPrLev, iRC, iRot, iss, istatus, iSyLbl, iSym, iTerm, j, kau, kRoot, LuOne, LuvvVec, mRoots, NoScr1, nTav, &
+                     RC_RAS
 real(kind=wp) :: CASDFT_E, CASDFT_FUNCT, DiffE, DiffETol, dum1, dum2, dum3, EAv, ECAS1, EVAC, ThMax, time0(2), time1(2), time2(2), &
                  time3(2), TMXTOT
 logical(kind=iwp) :: DSCF, IfOpened, lOPTO, lTemp
@@ -241,10 +241,10 @@ if (iRc /= _RC_ALL_IS_WELL_) then
     write(u6,*) ' was processed:'
     rewind(LUInput)
     do
-      read(LuInput,'(A80)',end=16,err=16) Line
+      read(LuInput,'(A80)',iostat=istatus) Line
+      if (istatus /= 0) exit
       write(u6,*) Line
     end do
-16  continue
   end if
   IRETURN = iRc
   call Finalize()
@@ -912,10 +912,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     DoActive = .true.
 
     if (DoCholesky .and. (ALGO == 2)) then
-      NTav = 0
-      do iSym=1,nSym
-        NTav = NTav+nBas(iSym)*nAsh(iSym)
-      end do
+      NTav = sum(nBas(1:nSym)*nAsh(1:nSym))
       call mma_allocate(Qmat,NTav,Label='QMat')
       QMat(:) = Zero
     end if
@@ -967,23 +964,10 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
         ! In addition to writing the last RasOrb to disk, the current
         ! orbitals have to be dumped *before* the CI step. The PERI
         ! keyword writes only the orbitals from the last iteration.
-        iShift = 0
+        IndType(:,:) = 0
         do ISYM=1,NSYM
-          IndT = 0
-          IndType(1+iShift) = NFRO(ISYM)
-          IndT = IndT+NFRO(ISYM)
-          IndType(2+iShift) = NISH(ISYM)
-          IndT = IndT+NISH(ISYM)
-          IndType(3+iShift) = NRS1(ISYM)
-          IndT = IndT+NRS1(ISYM)
-          IndType(4+iShift) = NRS2(ISYM)
-          IndT = IndT+NRS2(ISYM)
-          IndType(5+iShift) = NRS3(ISYM)
-          IndT = IndT+NRS3(ISYM)
-          IndType(7+iShift) = NDEL(ISYM)
-          IndT = IndT+NDEL(ISYM)
-          IndType(6+iShift) = NBAS(ISYM)-IndT
-          iShift = iShift+7
+          IndType(:,ISYM) = [NFRO(ISYM),NISH(ISYM),NRS1(ISYM),NRS2(ISYM),NRS3(ISYM),NDEL(ISYM),NBAS(ISYM)]
+          IndType(7,ISYM) = IndType(7,ISYM)-sum(IndType(1:6,ISYM))
         end do
         call mma_allocate(EDUM,NTOT,Label='EDum')
         EDum(:) = Zero
@@ -1583,7 +1567,7 @@ if ((.not. Key('ORBO')) .and. (MAXIT /= 0)) then
     ! (to exclude potential side effects)
     ! but consider extending it to other cases!
     else if (doDMRG .and. (ICIONLY /= 0)) then
-      continue
+      !continue
 #   endif
     else
       call CICTL(CMO,DMAT,DSPN,PMAT,PA,FI,FA,D1I,D1A,TUVX,IFINAL)

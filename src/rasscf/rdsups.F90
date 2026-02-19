@@ -21,7 +21,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: LuInput, n, iBuff(*)
-integer(kind=iwp) :: I, ie(288), iLast, is(288), iZ, K, l, m, nRepeat
+integer(kind=iwp) :: I, ie(288), iLast, is(288), istatus, iZ, K, l, m, nRepeat
 character(len=288) :: Line
 
 !----------------------------------------------------------------------*
@@ -29,9 +29,10 @@ character(len=288) :: Line
 !----------------------------------------------------------------------*
 n = 0
 k = -1
-!---  Read next line as a chatacter string  ---------------------------*
+!---  Read next line as a character string  ---------------------------*
 do
-  read(LuInput,'(A)',end=900) Line
+  read(LuInput,'(A)',iostat=istatus) Line
+  if (istatus < 0) call Error(istatus)
   !---  Left adjust line  ---------------------------------------------*
   Line = adjustl(Line)
   if ((Line(1:1) == ' ') .or.(Line(1:1) == '*')) cycle
@@ -58,10 +59,8 @@ do
     if (Line(i:i) /= ' ') iLast = i
   end do
   !---  Initialize markers  -------------------------------------------*
-  do i=1,288
-    is(i) = 0
-    ie(i) = 0
-  end do
+  is(:) = 0
+  ie(:) = 0
   !---  Divide the line into substrings  ------------------------------*
   m = 1
   is(m) = 0
@@ -85,9 +84,11 @@ do
     l = ie(i)-is(i)
     iz = 0
     if (l > 2) then
-      read(Line(is(i)+1:ie(i)-1),*,err=910) iz
+      read(Line(is(i)+1:ie(i)-1),*,iostat=istatus) iz
+      if (istatus > 0) call Error(istatus)
     else if ((l == 2) .and. (Line(is(i)+1:ie(i)-1) /= ' ')) then
-      read(Line(is(i)+1:ie(i)-1),*,err=910) iz
+      read(Line(is(i)+1:ie(i)-1),*,iostat=istatus) iz
+      if (istatus > 0) call Error(istatus)
     end if
     if (k == -1) then
       k = k+1
@@ -105,20 +106,28 @@ end do
 !----------------------------------------------------------------------*
 return
 
+contains
+
 !----------------------------------------------------------------------*
 !     Error exit                                                       *
 !----------------------------------------------------------------------*
-900 write(u6,*)
-write(u6,'(6X,A)') ' RASSCF was reading supersymmetry input from'
-write(u6,'(6X,A)') 'the input file, when some error occurred,'
-write(u6,'(6X,A)') 'probably end of file.'
-write(u6,*)
-call Quit_OnUserError()
-910 write(u6,*)
-write(u6,'(6X,A)') ' RASSCF was reading supersymmetry input from'
-write(u6,'(6X,A)') 'the input file, when some error occurred.'
-write(u6,'(6X,A)') 'Some of the input data seems to be in error.'
-write(u6,*)
-call Quit_OnUserError()
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  write(u6,*)
+  if (code < 0) then
+    write(u6,'(6X,A)') ' RASSCF was reading supersymmetry input from'
+    write(u6,'(6X,A)') 'the input file, when some error occurred,'
+    write(u6,'(6X,A)') 'probably end of file.'
+  else if (code > 0) then
+    write(u6,'(6X,A)') ' RASSCF was reading supersymmetry input from'
+    write(u6,'(6X,A)') 'the input file, when some error occurred.'
+    write(u6,'(6X,A)') 'Some of the input data seems to be in error.'
+  end if
+  write(u6,*)
+  call Quit_OnUserError()
+
+end subroutine Error
 
 end subroutine RdSupS

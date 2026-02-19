@@ -79,9 +79,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp) :: CMO(*), OCC(*), D(*), P(*), PA(*), FI(*), FA(*), D1A(*), THMAX
 integer(kind=iwp) :: IFINAL
-integer(kind=iwp) :: i, iBas, IC, iDisk, IndT, IndType(56), iOff, iOrb, iPrLev, iRC, iRef, iShift, iSym, iWay, j, kMax, LCSXI, &
-                     LuvvVec, MIAAE, MNO, NA, NAE, NAEAE, NAOAE, NB, NCR, NCR1, NE, NI, NIA, NIAIA, NLCC, NLHH, NLOVL, NLQ, NLX1, &
-                     NLX2, NO, nP2Act, NQ
+integer(kind=iwp) :: i, iBas, IC, iDisk, IndType(7,8), iOff, iOrb, iPrLev, iRC, iRef, iSym, iWay, j, kMax, LCSXI, LuvvVec, MIAAE, &
+                     MNO, NAEAE, NAOAE, NCR, NCR1, NIAIA, NLCC, NLHH, NLOVL, NLQ, NLX1, NLX2, nP2Act, NQ
 real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_size, TIOES, TIOS, XSXMAX
 character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
@@ -125,36 +124,16 @@ if (IPRLEV >= DEBUG) write(u6,*) ' Entering SXCTL'
 ! --------------------------------------
 
 ! compute constants needed for addressing
-NLX1 = 0
-NLX2 = 0
-NQ = 0
-NSXS = 0
-NIAIA = 0
-NAEAE = 0
-NAOAE = 0
-MNO = 0
-MIAAE = 0
-NLX = 0
-do ISYM=1,NSYM
-  NB = NBAS(ISYM)
-  NA = NASH(ISYM)
-  NI = NISH(ISYM)
-  NE = NSSH(ISYM)
-  NO = NORB(ISYM)
-  NIA = NI+NA
-  NAE = NA+NE
-  NSXS = NSXS+NIA*NAE
-  NIAIA = NIAIA+NIA**2
-  NAEAE = NAEAE+NAE**2
-  NAOAE = NAOAE+NA*NAE
-  NLX1 = max(NLX1,NO**2)
-  NLX2 = max(NLX2,NB*NO)
-  NQ = max(NQ,NA*NO)
-  MNO = max(MNO,NO)
-  MIAAE = max(MIAAE,NIA*NAE)
-  NLX = max(NLX,NIA*NA,NIA*NAE)
-end do
-if (NQ < NIAIA) NQ = NIAIA
+NLX1 = maxval(NORB(1:NSYM)**2)
+NLX2 = maxval(NBAS(1:NSYM)*NORB(1:NSYM))
+NSXS = sum((NISH(1:NSYM)+NASH(1:NSYM))*(NASH(1:NSYM)+NSSH(1:NSYM)))
+NIAIA = sum((NISH(1:NSYM)+NASH(1:NSYM))**2)
+NAEAE = sum((NASH(1:NSYM)+NSSH(1:NSYM))**2)
+NAOAE = sum(NASH(1:NSYM)*(NASH(1:NSYM)+NSSH(1:NSYM)))
+MNO = maxval(NORB(1:NSYM))
+MIAAE = maxval((NISH(1:NSYM)+NASH(1:NSYM))*(NASH(1:NSYM)+NSSH(1:NSYM)))
+NLX = max(MIAAE,maxval(NASH(1:NSYM)*(NISH(1:NSYM)+NASH(1:NSYM))))
+NQ = max(NIAIA,maxval(NASH(1:NSYM)*NORB(1:NSYM)))
 NROOT = 1
 NDIMSX = NROOT+NSXS
 !***********************************************************************
@@ -277,23 +256,10 @@ call mma_deallocate(PUVX,safe='*')
 ! PAM 2008: Orbital files should be updated each iteration
 ! for easy access in case of catastrophic failure.
 if (IFINAL /= 1) then
-  iShift = 0
+  IndType(:,:) = 0
   do ISYM=1,NSYM
-    IndT = 0
-    IndType(1+iShift) = NFRO(ISYM)
-    IndT = IndT+NFRO(ISYM)
-    IndType(2+iShift) = NISH(ISYM)
-    IndT = IndT+NISH(ISYM)
-    IndType(3+iShift) = NRS1(ISYM)
-    IndT = IndT+NRS1(ISYM)
-    IndType(4+iShift) = NRS2(ISYM)
-    IndT = IndT+NRS2(ISYM)
-    IndType(5+iShift) = NRS3(ISYM)
-    IndT = IndT+NRS3(ISYM)
-    IndType(7+iShift) = NDEL(ISYM)
-    IndT = IndT+NDEL(ISYM)
-    IndType(6+iShift) = NBAS(ISYM)-IndT
-    iShift = iShift+7
+    IndType(:,ISYM) = [NFRO(ISYM),NISH(ISYM),NRS1(ISYM),NRS2(ISYM),NRS3(ISYM),NDEL(ISYM),NBAS(ISYM)]
+    IndType(7,ISYM) = IndType(7,ISYM)-sum(IndType(1:6,ISYM))
   end do
   ! Note: This is not the final orbitals, and the orbital energies and
   ! active occupation numbers may be meaningless.
@@ -499,11 +465,8 @@ else
   IREF = 1
   LCSXI = 1+NDIMSX*(IREF-1)
   IC = NROOT+LCSXI-1
-  XSXMAX = Zero
-  do I=1,NSXS
-    CSX(IC+I) = SXN(I)*CSX(IC+I)/CSX(LCSXI)
-    XSXMAX = max(XSXMAX,abs(CSX(IC+I)))
-  end do
+  CSX(IC+1:IC+NSXS) = SXN(1:NSXS)*CSX(IC+1:IC+NSXS)/CSX(LCSXI)
+  XSXMAX = maxval(abs(CSX(IC+1:IC+NSXS)))
   if (IPRLEV >= DEBUG) then
     write(u6,*) 'SXCTL after DAVCRE, Renormalized SX coeffs:'
     write(u6,'(1X,8F14.6)') (CSX(IC+I),I=1,NSXS)

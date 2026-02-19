@@ -28,7 +28,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: iRC
-integer(kind=iwp) :: I, iCMD, istatus
+integer(kind=iwp) :: iCMD, istatus
 character(len=180) :: Line
 character(len=4) :: Command
 #ifdef _DMRG_
@@ -46,9 +46,7 @@ qcmaquis_input = .false.
 if ((IPRLOC(1) < DEBUG) .and. (iRc == _RC_ALL_IS_WELL_)) then
 
   ! Find keywords in input and set keyword flags
-  do I=0,NKeys
-    KeyFlags(I) = .false.
-  end do
+  KeyFlags(:) = .false.
   rewind(LuInput)
   outer1: do
     read(LuInput,'(A)',iostat=istatus) Line
@@ -104,9 +102,7 @@ if ((IPRLOC(1) < DEBUG) .and. (iRc == _RC_ALL_IS_WELL_)) then
 else
 
   ! Similar functionality, but with written trace:
-  do I=0,NKeys
-    KeyFlags(I) = .false.
-  end do
+  KeyFlags(:) = .false.
   write(u6,*) ' Scanning the input for keywords:'
   write(u6,*) ' Rewinding LUInput=',LUInput
   rewind(LuInput)

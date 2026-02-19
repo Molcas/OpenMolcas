@@ -102,7 +102,8 @@ function correlation_func(orb_range_p,orb_range_q,dmat,psmat,pamat) result(corr)
   do p=1,size(orb_range_p)
     do q=1,size(orb_range_q)
       ! dummy variables to save space
-      rp = orb_range_p(p); rq = orb_range_q(q)
+      rp = orb_range_p(p)
+      rq = orb_range_q(q)
       if (rp /= rq) then
         pqqp = two_el_idx_flatten(rp,rq,rq,rp)
         ppqq = two_el_idx_flatten(rp,rp,rq,rq)

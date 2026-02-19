@@ -70,7 +70,7 @@ integer(kind=iwp) :: i, iCharge, iComp, iDoRI, iEnd, iGAS, iOpt, iPrLev, iRC, iR
                      lPaper, MaxRem, n_paired_elec, n_unpaired_elec, nLine
 real(kind=wp) :: AvailMB, WillNeedMB
 logical(kind=iwp) :: DoCholesky
-character(len=120) :: BlLine, Line, StLine
+character(len=120) :: Line
 character(len=80) :: KSDFT2
 character(len=8) :: Fmt1, Fmt2, Label
 character(len=3) :: lIrrep(8)
@@ -97,10 +97,6 @@ lPaper = 132
 !     Initialize blank and header lines                                *
 !----------------------------------------------------------------------*
 lLine = len(Line)
-do i=1,lLine
-  BlLine(i:i) = ' '
-  StLine(i:i) = '*'
-end do
 lPaper = 132
 left = (lPaper-lLine)/2
 write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
@@ -114,8 +110,8 @@ if (IPRLEV > SILENT) then
       write(u6,*)
       nLine = nTit+5
       do i=1,nLine
-        Line = BlLine
-        if ((i == 1) .or. (i == nLine)) Line = StLine
+        Line = ''
+        if ((i == 1) .or. (i == nLine)) Line = repeat('*',lLine)
         if (i == 3) Line = 'Project:'
         if ((i >= 4) .and. (i <= nLine-2)) write(Line,'(A72)') Title(i-3)
         call Center_Text(Line)
@@ -185,9 +181,7 @@ if (IPRLEV > SILENT) then
     call CollapseOutput(0,'Wave function specifications:')
 
     call Get_cArray('Irreps',lIrrep,24)
-    do iSym=1,nSym
-      lIrrep(iSym) = adjustr(lIrrep(iSym))
-    end do
+    lIrrep(1:nSym) = adjustr(lIrrep(1:nSym))
 
     write(u6,*)
     Line = ' '
@@ -471,10 +465,7 @@ if (IPRLEV > SILENT) then
       do iSym=1,nSym
         iStart = iEnd+1
         iEnd = iEnd+nBas(iSym)
-        iTemp = 0
-        do i=iStart,iEnd
-          iTemp = iTemp+IXSYM(i)
-        end do
+        iTemp = sum(IXSYM(iStart:iEnd))
         if (iTemp > 0) then
           write(u6,Fmt2//'A,I3)') 'Supersymmetry vector for symmetry species',iSym
           write(u6,Fmt2//'30I3)') (IXSYM(i),i=iStart,iEnd)
@@ -497,10 +488,7 @@ if (IPRLEV > SILENT) then
         call Abend()
       end if
       call mma_deallocate(Tmp0)
-      Tot_El_Charge = Zero
-      do iSym=1,nSym
-        Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
-      end do
+      Tot_El_Charge = -Two*sum(nFro(1:nSym)+nIsh(1:nSym))
       Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
       Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
       iCharge = int(Tot_Charge)

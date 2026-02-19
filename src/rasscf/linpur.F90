@@ -33,10 +33,7 @@ logical(kind=iwp), parameter :: IFTEST = .false.
 if (IFTEST) write(u6,*) 'SUPSYM'
 
 ! Set up array with lambda for each basis function:
-NBTOT = 0
-do ISYM=1,NSYM
-  NBTOT = NBTOT+NBAS(ISYM)
-end do
+NBTOT = sum(NBAS(1:NSYM))
 call mma_allocate(LMB,NBTOT,Label='LMB')
 do IBAS=1,NBTOT
   LCHAR = BName(IBAS)(LenIn+4:LenIn+5)
@@ -63,9 +60,7 @@ do ISYM=1,NSYM
   if (NO /= 0) then
     do IO=1,NO
       IORB = IORBES+IO
-      do L=0,9
-        WGTLMB(L) = Zero
-      end do
+      WGTLMB(:) = Zero
       do IB=1,NB
         IBAS = IBASES+IB
         L = LMB(IBAS)

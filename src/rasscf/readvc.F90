@@ -78,7 +78,7 @@ use Definitions, only: wp, iwp, u6, RtoI
 implicit none
 real(kind=wp) :: CMO(*), OCC(*), D(*), DS(*), P(*), PA(*)
 type(t_ON_scheme), intent(in) :: scheme
-integer(kind=iwp) :: i, iAD15, IAD19, IADR19(30), iDisk, iDummy(1), iErr, iJOB, iPrlev, iSym, j, jRoot, kRoot, lll, nData, NNwOrd, &
+integer(kind=iwp) :: i, iAD15, IAD19, IADR19(30), iDisk, iDummy(1), iErr, iJOB, iPrlev, iSym, jRoot, kRoot, lll, nData, NNwOrd, &
                      nTmp(8)
 real(kind=wp) :: Dummy(1), Scal
 logical(kind=iwp) :: changed, found
@@ -161,10 +161,7 @@ if (InVec == 2) then
     ! But VecSort does not return any indexing information -- how are
     ! we to know how to change IXSYM?
     ! VecSort changed to include a reindexing array!
-    NNwOrd = 0
-    do ISym=1,NSym
-      NNwOrd = NNwOrd+NBas(ISym)
-    end do
+    NNwOrd = sum(NBas(1:NSym))
     call mma_allocate(NEWORD,NNwOrd,Label='NewOrd')
     !call VecSort(NSYM,NBAS,NBAS,CMO,OCC,TIND,iErr)
     call VecSort(NSYM,NBAS,NBAS,CMO,OCC,TIND,NNwOrd,NewOrd,iErr)
@@ -172,8 +169,7 @@ if (InVec == 2) then
     if (iSUPSM /= 0) then
       call mma_allocate(TMPXSYM,NNwOrd,Label='TmpXSym')
       do I=1,NNwOrd
-        J = NewOrd(I)
-        TmpXSym(I) = IXSYM(J)
+        TmpXSym(I) = IXSYM(NewOrd(I))
       end do
       IXSYM(1:NNwOrd) = TmpXSym(:)
       call mma_deallocate(TMPXSYM)
@@ -221,9 +217,7 @@ else if (InVec == 3) then
     IAD19 = 0
     call IDAFILE(JOBOLD,2,IADR19,30,IAD19)
   else
-    do I=16,30
-      IADR19(I) = 0
-    end do
+    IADR19(16:30) = 0
     if (IPRGLB >= VERBOSE) call WarningMessage(1,'Old JOBIP file layout.')
   end if
   lll = 10+RtoI
@@ -322,10 +316,7 @@ else if (InVec == 4) then
   call mh5_close_file(mh5id)
   ! Reorder orbitals based on typeindex
   if (typestring /= '') then
-    NNwOrd = 0
-    do iSym=1,nSym
-      NNwOrd = NNwOrd+NBas(iSym)
-    end do
+    NNwOrd = sum(NBas(1:nSym))
     call mma_allocate(TInd,NNWOrd,Label='TIND')
     call mma_allocate(NewOrd,NNwOrd,Label='NewOrd')
     call tpstr2tpidx(typestring,TInd,NNWOrd)
@@ -334,8 +325,7 @@ else if (InVec == 4) then
     if (iSUPSM /= 0) then
       call mma_allocate(TmpXSym,NNwOrd,Label='TmpXSym')
       do i=1,NNwOrd
-        j = NewOrd(i)
-        TmpXSym(i) = iXSym(j)
+        TmpXSym(i) = iXSym(NewOrd(i))
       end do
       iXSym(1:NNwOrd) = TmpXSym(:)
       call mma_deallocate(TmpXSym)

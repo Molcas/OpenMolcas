@@ -24,20 +24,18 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: DDG(lRoots,lRoots,lRoots,lRoots), GDMat(nTri_Elem(lRoots),NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
-integer(kind=iwp) :: iI, iJ, iK, iL, it, iu, iv, ix
+integer(kind=iwp) :: iI, iIJ, iJ, iK, iKL, iL, iv, ix
 
-do iI=1,lRoots
-  do iJ=1,lRoots
-    do iK=1,lRoots
-      do iL=1,lRoots
-        DDG(iI,iJ,iK,iL) = Zero
-        do it=1,NAC
-          do iu=1,NAC
-            do iv=1,NAC
-              do ix=1,NAC
-                DDG(iI,iJ,iK,iL) = DDG(iI,iJ,iK,iL)+GDMat(iTri(iI,iJ),it,iu)*GDMat(iTri(iL,IK),iv,ix)*Gtuvx(it,iu,iv,ix)
-              end do
-            end do
+DDG(:,:,:,:) = Zero
+do iL=1,lRoots
+  do iK=1,lRoots
+    iKL = iTri(iL,iK)
+    do iJ=1,lRoots
+      do iI=1,lRoots
+        iIJ = iTri(iI,iJ)
+        do ix=1,NAC
+          do iv=1,NAC
+            DDG(iI,iJ,iK,iL) = DDG(iI,iJ,iK,iL)+sum(GDMat(iKL,iv,ix)*GDMat(iIJ,:,:)*Gtuvx(:,:,iv,ix))
           end do
         end do
       end do

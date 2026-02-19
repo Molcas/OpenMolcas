@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: GDMat(nTri_Elem(lRoots),NAC,NAC)
-integer(kind=iwp) :: CIDisk1, CIDisk2, iOrb, jOrb, jRoot, kRoot
+integer(kind=iwp) :: CIDisk1, CIDisk2, iOrb, jRoot, kRoot
 real(kind=wp), allocatable :: SDtmp(:), TmpD(:), VecL(:), VecR(:)
 
 call mma_allocate(VecL,NConf,Label='VecL')
@@ -47,10 +47,8 @@ do jRoot=1,lRoots
     call Lucia_Util('Densi',CI_Vector=VecL(:),RVEC=VECR(:))
     !write(u6,*) 'GDMat for states',jRoot,kRoot
     do IOrb=1,NAC
-      do JOrb=1,NAC
-        GDMat(iTri(jRoot,kRoot),JOrb,IOrb) = Dtmp(JOrb+(IOrb-1)*NAC)
-      end do
-      !write(u6,'(10(F8.4,2X))') (GDMat(iTri(jRoot,kRoot),IOrb,JOrb),JOrb=1,NAC)
+      GDMat(iTri(jRoot,kRoot),:,IOrb) = Dtmp((IOrb-1)*NAC+1:IOrb*NAC)
+      !write(u6,'(10(F8.4,2X))') (GDMat(iTri(jRoot,kRoot),JOrb,IOrb),JOrb=1,NAC)
     end do
   end do
 end do

@@ -150,9 +150,7 @@ max_canonical = max_sweep*5
 ! This array is used by DMRG codes (Block as well as CheMPS2).
 ! Terefore I took it out of any ifdef preprocessing flag.
 
-do i=1,MxAct
-  hfocc(i) = 0
-end do
+hfocc(:) = 0
 
 #ifdef _ENABLE_DICE_SHCI_
 dice_stoc = .false.
@@ -1299,9 +1297,9 @@ else
       end do
     else
       do i=1,norbs
-        orb_range_p(i) = i
-        orb_range_q(i) = i
       end do
+      orb_range_p(1:norbs) = [(i,i=1,norbs)]
+      orb_range_q(1:norbs) = [(i,i=1,norbs)]
     end if
     call ChkIfKey()
   end if
@@ -1332,10 +1330,8 @@ else
     end if
     ReadStatus = ' O.K. reading spin after STAVERAGE keyword.'
     LROOTS = NROOTS
-    do i=1,NROOTS
-      iroot(i) = i
-      WEIGHT(i) = One/real(NROOTS,kind=wp)
-    end do
+    iroot(1:NROOTS) = [(i,i=1,NROOTS)]
+    WEIGHT(1:NROOTS) = One/real(NROOTS,kind=wp)
     if (DBG) then
       write(u6,*) ' Nr of roots in CI: LROOTS=',LROOTS
       write(u6,*) ' Nr of roots optimized by super-CI: NROOTS=',NROOTS
@@ -1369,10 +1365,8 @@ else
       call AbEnd()
     end if
     if (i_All == 1) then
-      do i=1,NROOTS
-        iroot(i) = i
-        WEIGHT(i) = One/real(NROOTS,kind=wp)
-      end do
+      iroot(1:NROOTS) = [(i,i=1,NROOTS)]
+      WEIGHT(1:NROOTS) = One/real(NROOTS,kind=wp)
     else
       !BOR.. End modification 001011
       Line = Get_Ln(LUInput)
@@ -1396,13 +1390,8 @@ else
           return
         end if
         ReadStatus = ' O.K.after CIROOTS keyword.'
-        iSum = 0
-        do i=1,NROOTS
-          iSum = iSum+Temp1(i)
-        end do
-        do i=1,NROOTS
-          WEIGHT(i) = real(Temp1(i),kind=wp)/real(iSum,kind=wp)
-        end do
+        iSum = sum(Temp1(1:NROOTS))
+        WEIGHT(1:NROOTS) = real(Temp1(1:NROOTS),kind=wp)/real(iSum,kind=wp)
         call mma_deallocate(Temp1)
       end if
     end if
@@ -1545,17 +1534,10 @@ else
         return
       end if
       ReadStatus = ' O.K. reading after CISELECT keyword.'
-      dSum = Zero
-      do iRef=1,kRef
-        dSum = dSum+CCI(i,iRef)**2
-      end do
-      do iRef=1,kRef
-        CCI(i,iRef) = CCI(i,iRef)/sqrt(dSum)
-      end do
-      do iRef=kRef+1,mxRef
-        CCI(i,iRef) = Zero
-        ICI(i,iRef) = 0
-      end do
+      dSum = sum(CCI(i,1:kRef)**2)
+      CCI(i,1:kRef) = CCI(i,1:kRef)/sqrt(dSum)
+      CCI(i,kRef+1:mxRef) = Zero
+      ICI(i,kRef+1:mxRef) = 0
     end do
     call ChkIfKey()
   end if
@@ -1878,15 +1860,13 @@ else
         write(u6,*) StartOrbFile
         iOrbData = 0
       else
-        do ISYM=1,NSYM
-          NFRO(ISYM) = NFRO_L(ISYM)
-          NISH(ISYM) = NISH_L(ISYM)
-          NRS1(ISYM) = NRS1_L(ISYM)
-          NRS2(ISYM) = NRS2_L(ISYM)
-          NRS3(ISYM) = NRS3_L(ISYM)
-          NSSH(ISYM) = NSSH_L(ISYM)
-          NDEL(ISYM) = NDEL_L(ISYM)
-        end do
+        NFRO(1:NSYM) = NFRO_L(1:NSYM)
+        NISH(1:NSYM) = NISH_L(1:NSYM)
+        NRS1(1:NSYM) = NRS1_L(1:NSYM)
+        NRS2(1:NSYM) = NRS2_L(1:NSYM)
+        NRS3(1:NSYM) = NRS3_L(1:NSYM)
+        NSSH(1:NSYM) = NSSH_L(1:NSYM)
+        NDEL(1:NSYM) = NDEL_L(1:NSYM)
       end if
     else
       if (DBG) write(u6,*) ' Typeindex cannot be read!'
@@ -2091,15 +2071,13 @@ else
   if ((IOD_SAVE == 3) .and. (IORBDATA == 1)) then
     ! See if the input matches the values on file
     IERR = 0
-    do ISYM=1,NSYM
-      if (NFRO(ISYM) /= NFRO_L(ISYM)) IERR = 1
-      if (NISH(ISYM) /= NISH_L(ISYM)) IERR = 1
-      if (NRS1(ISYM) /= NRS1_L(ISYM)) IERR = 1
-      if (NRS2(ISYM) /= NRS2_L(ISYM)) IERR = 1
-      if (NRS3(ISYM) /= NRS3_L(ISYM)) IERR = 1
-      if (NSSH(ISYM) /= NSSH_L(ISYM)) IERR = 1
-      if (NDEL(ISYM) /= NDEL_L(ISYM)) IERR = 1
-    end do
+    if (any(NFRO(1:NSYM) /= NFRO_L(1:NSYM))) IERR = 1
+    if (any(NISH(1:NSYM) /= NISH_L(1:NSYM))) IERR = 1
+    if (any(NRS1(1:NSYM) /= NRS1_L(1:NSYM))) IERR = 1
+    if (any(NRS2(1:NSYM) /= NRS2_L(1:NSYM))) IERR = 1
+    if (any(NRS3(1:NSYM) /= NRS3_L(1:NSYM))) IERR = 1
+    if (any(NSSH(1:NSYM) /= NSSH_L(1:NSYM))) IERR = 1
+    if (any(NDEL(1:NSYM) /= NDEL_L(1:NSYM))) IERR = 1
     if (IERR == 0) then
       if ((IORBDATA == 1) .and. (IPRLEV >= VERBOSE)) then
         write(u6,*) ' However, input matches the typeindex on the'
@@ -2111,15 +2089,13 @@ else
     end if
   end if
   if (IORBDATA == 3) then
-    do ISYM=1,NSYM
-      NFRO(ISYM) = NFRO_L(ISYM)
-      NISH(ISYM) = NISH_L(ISYM)
-      NRS1(ISYM) = NRS1_L(ISYM)
-      NRS2(ISYM) = NRS2_L(ISYM)
-      NRS3(ISYM) = NRS3_L(ISYM)
-      NSSH(ISYM) = NSSH_L(ISYM)
-      NDEL(ISYM) = NDEL_L(ISYM)
-    end do
+    NFRO(1:NSYM) = NFRO_L(1:NSYM)
+    NISH(1:NSYM) = NISH_L(1:NSYM)
+    NRS1(1:NSYM) = NRS1_L(1:NSYM)
+    NRS2(1:NSYM) = NRS2_L(1:NSYM)
+    NRS3(1:NSYM) = NRS3_L(1:NSYM)
+    NSSH(1:NSYM) = NSSH_L(1:NSYM)
+    NDEL(1:NSYM) = NDEL_L(1:NSYM)
   end if
   ! ====================================================================
   ! If IORBDATA is still 0, lets hope there is information on the runfile.
@@ -2182,48 +2158,30 @@ else
     NSSH(ISYM) = NORB(ISYM)-NISH(ISYM)-NASH(ISYM)
   end do
   ! Related data for sizes, etc.
-  NTOT = 0
-  NTOT1 = 0
-  NTOT2 = 0
-  NO2M = 0
-  NISHT = 0
-  NASHT = 0
-  NDELT = 0
-  NFROT = 0
-  NSEC = 0
-  NORBT = 0
-  NTOT3 = 0
-  NTOTSP = 0
-  NTOT4 = 0
-  NRS1T = 0 ! for RASSCF
-  NRS2T = 0
-  NRS3T = 0
+  NTOT = sum(NBAS(1:NSYM))
+  NTOT1 = sum(nTri_Elem(NBAS(1:NSYM)))
+  NTOT2 = sum(NBAS(1:NSYM)**2)
+  NO2M = maxval(NBAS(1:NSYM)**2)
+  NISHT = sum(NISH(1:NSYM))
+  NASHT = sum(NASH(1:NSYM))
+  NDELT = sum(NDEL(1:NSYM))
+  NFROT = sum(NFRO(1:NSYM))
+  NSEC = sum(NSSH(1:NSYM))
+  NORBT = sum(NORB(1:NSYM))
+  NTOT3 = sum(nTri_Elem(NORB(1:NSYM)))
+  NTOTSP = sum(nTri_Elem(NASH(1:NSYM)))
+  NTOT4 = sum(NORB(1:NSYM)**2)
+  NRS1T = sum(NRS1(1:NSYM)) ! for RASSCF
+  NRS2T = sum(NRS2(1:NSYM))
+  NRS3T = sum(NRS3(1:NSYM))
   !NGSSH_tot(:) = Zero
   !do igas=1,ngas
-  !  NGSSH_tot(igas) = SUM(NGSSH(IGAS,1:NSYM))
+  !  NGSSH_tot(igas) = sum(NGSSH(igas,1:NSYM))
   !end do
   !if (dbg) then
   !  write(u6,*) 'NGSSH_tot(igas):'
   !  write(u6,*) (NGSSH_tot(igas),igas=1,ngas)
   !end if
-  do ISYM=1,NSYM
-    NTOT = NTOT+NBAS(ISYM)
-    NTOT1 = NTOT1+nTri_Elem(NBAS(ISYM))
-    NTOT2 = NTOT2+NBAS(ISYM)**2
-    NO2M = max(NO2M,NBAS(ISYM)**2)
-    NRS1T = NRS1T+NRS1(ISYM)  ! for RAS
-    NRS2T = NRS2T+NRS2(ISYM)
-    NRS3T = NRS3T+NRS3(ISYM)
-    NFROT = NFROT+NFRO(ISYM)
-    NISHT = NISHT+NISH(ISYM)
-    NASHT = NASHT+NASH(ISYM)
-    NDELT = NDELT+NDEL(ISYM)
-    NSEC = NSEC+NSSH(ISYM)
-    NORBT = NORBT+NORB(ISYM)
-    NTOT3 = NTOT3+nTri_Elem(NORB(ISYM))
-    NTOTSP = NTOTSP+nTri_Elem(NASH(ISYM))
-    NTOT4 = NTOT4+NORB(ISYM)**2
-  end do
   NACPAR = nTri_Elem(NASHT)
   NACPR2 = nTri_Elem(NACPAR)
   ! NASHT is called NAC in some places:
@@ -2963,21 +2921,12 @@ else
     call mma_allocate(Temp1,mxOrb,Label='Temp1')
     call mma_allocate(Temp2,mxOrb,Label='Temp2')
     call mma_allocate(Temp3,mxOrb,Label='Temp3')
-    nClean = 0
-    do iSym=1,nSym
-      nClean = nClean+nBas(iSym)**2
-    end do
+    nClean = sum(nBas(1:nSym)**2)
     call mma_allocate(Cleanmask,nClean,Label='CleanMask')
+    CleanMask(:) = 0
     iOffset = 0
     do iSym=1,nSym
       mBas = nBas(iSym)
-      do i=1,mBas
-        ii = (i-1)*mBas
-        do j=1,mBas
-          ij = j+ii+iOffset
-          CleanMask(ij) = 0
-        end do
-      end do
       ReadStatus = ' Failure reading data following CLEAN keyword.'
       read(LUInput,*,iostat=istatus) nGrp
       if (istatus < 0) then
@@ -3669,12 +3618,11 @@ else
     doDMRG = .true.
     LRras2_dmrg(1:8) = 0
     !> LRras2 = Ras2 as the default
-    do i=1,nsym
-      LRras2_dmrg(i) = NRS2(i)
-    end do
+    LRras2_dmrg(1:nsym) = NRS2(1:nsym)
     !> initial guess setup
     guess_dmrg(1:7) = 'DEFAULT'
-    call mma_allocate(initial_occ,nrs2t,nroots); initial_occ = 0
+    call mma_allocate(initial_occ,nrs2t,nroots)
+    initial_occ(:) = 0
   end if
 
   !---  Process RGIN command (QCMaquis Custom Input)
@@ -4195,10 +4143,8 @@ else
     if (DOBKAP) then
       !.Giovanni... BK stuff SplitCAS related. We want to treat RAS CI space as CAS.
       do NT=2,NAO
-        do NU=1,NT-1
-          ITU = ITU+1
-          IZROT(ITU) = 1
-        end do
+        IZROT(ITU+1:ITU+NT-1) = 1
+        ITU = ITU+NT-1
       end do
     else
 
@@ -4413,12 +4359,8 @@ if (.not. SkipGUGA) then
       call Lucia_Util('Ini')
       ! to get number of CSFs for GAS
       ! and number of determinants to store
-      nconf = 0
-      nDet = 0
-      do i=1,mxsym
-        nconf = nconf+ncsasm(i)
-        nDet = nDet+ndtasm(i)
-      end do
+      nconf = sum(ncsasm(1:mxsym))
+      nDet = sum(ndtasm(1:mxsym))
 #   ifdef _DMRG_
     end if
 #   endif

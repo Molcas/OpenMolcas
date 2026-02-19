@@ -32,8 +32,8 @@ real(kind=wp) :: R(lRoots**2), GDorbit(nGD), GDstate(nGD), Dgorbit(nGD), Dgstate
 integer(kind=iwp) :: iPrLev, iStep, lRoots2, NAC2, nDDg, nScr, nSPair, nSPair2
 real(kind=wp) :: Qnew, Qold
 logical(kind=iwp) :: Saved
-real(kind=wp), allocatable :: DDg(:), deltaR(:), DgCopy(:), EigVal(:), GDCopy(:), Grad(:), GScr(:), Hess(:), RCopy(:), &
-                              RotMat(:,:), ScrDiag(:), X(:), XScr(:)
+real(kind=wp), allocatable :: DDg(:), deltaR(:), DgCopy(:), EigVal(:), GDCopy(:), Grad(:), GScr(:), Hess(:), RCopy(:), ScrDiag(:), &
+                              X(:), XScr(:)
 
 IPRLEV = IPRLOC(6)
 
@@ -55,15 +55,14 @@ call mma_allocate(DeltaR,lRoots2)
 call mma_allocate(GDCopy,nGD)
 call mma_allocate(DgCopy,nGD)
 call mma_allocate(RCopy,lRoots2)
-call mma_allocate(RotMat,lRoots,lRoots)
 ! Step 0
 iStep = 0
 Qold = Zero
 ! Note that the following six lines appear as a group
 call RotGD(GDstate,R,nGD,lRoots,NAC2)
 call RotGD(Dgstate,R,nGD,lRoots,NAC2)
-call TransposeMat(Dgorbit,Dgstate,nGD,lRoots2,NAC2)
-call TransposeMat(GDorbit,GDstate,nGD,lRoots2,NAC2)
+call Trnsps(lRoots2,NAC2,Dgstate,Dgorbit)
+call Trnsps(lRoots2,NAC2,GDstate,GDorbit)
 call CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
 call CalcQaa(Qnew,DDg,lRoots,nDDg)
 nPosHess = 0
@@ -93,8 +92,8 @@ do while (CMSNotConverged)
 
   call RotGD(GDstate,DeltaR,nGD,lRoots,NAC2)
   call RotGD(Dgstate,DeltaR,nGD,lRoots,NAC2)
-  call TransposeMat(Dgorbit,Dgstate,nGD,lRoots2,NAC2)
-  call TransposeMat(GDorbit,GDstate,nGD,lRoots2,NAC2)
+  call Trnsps(lRoots2,NAC2,Dgstate,Dgorbit)
+  call Trnsps(lRoots2,NAC2,GDstate,GDorbit)
   call CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
   call CalcQaa(Qnew,DDg,lRoots,nDDg)
 
@@ -106,8 +105,7 @@ do while (CMSNotConverged)
                                             lRoots2,nGD,NAC2,nDDg,Saved)
   end if
   if (IPRLEV >= USUAL) call PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
-  call AntiOneDFoil(RotMat,R,lRoots,lRoots)
-  call PrintMat('ROT_VEC','CMS-PDFT temp',RotMat,lroots,lroots,7,13,'T')
+  call PrintMat('ROT_VEC','CMS-PDFT temp',R,lroots,lroots,7,13,'T')
 
   if (.not. Saved) then
     CMSNotConverged = .true.
@@ -140,6 +138,5 @@ call mma_deallocate(ScrDiag)
 call mma_deallocate(GDCopy)
 call mma_deallocate(DgCopy)
 call mma_deallocate(RCopy)
-call mma_deallocate(RotMat)
 
 end subroutine CMSNewton

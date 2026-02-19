@@ -30,8 +30,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: C1IN(*), C2IN(*), DIA(*), PA(*), SXN(*), C1(*), C2(*), X(*), OVL
-integer(kind=iwp) :: I, iAshI, iAshJ, iC1, iC2, iPrLev, ISTBM, ISTC2, iSTIA, ISYM, JSYM, NAE, NAEJ, NAO, NAOJ, NEO, NI, NIA, NIAJ, &
-                     NIO, NIOJ, NP, NQ, NT, NTT, NTUT, NTUVX, NU, NUT, NV, NVT, NVXT, NX, NXT
+integer(kind=iwp) :: iAshI, iAshJ, iC1, iC2, iPrLev, ISTBM, ISTC2, iSTIA, ISYM, JSYM, NAE, NAEJ, NAO, NAOJ, NEO, NIA, NIAJ, NIO, &
+                     NIOJ, NP, NQ, NT, NTT, NTUT, NTUVX, NU, NUT, NV, NVT, NVXT, NX, NXT
 real(kind=wp) :: C1C2, FAC, OVLADD, PRQS, TERM
 real(kind=wp), external :: DDot_
 
@@ -41,20 +41,15 @@ if (IPRLEV >= DEBUG) write(u6,*) ' Entering COVLP'
 !PAM02 Elements NROOT+1,..,NROOT+NSXS contain the usual SX elements.
 !PAM02 NROOT=1 always right now. Part of the code is prepared for using
 !PAM02 several roots, so most of the code must use the general case.
-OVL = Zero
-do I=1,NROOT
-  OVL = OVL+C1IN(I)*C2IN(I)
-end do
+OVL = sum(C1IN(1:NROOT)*C2IN(1:NROOT))
 
 !PAM01 Adding overlap from small shift of SX overlaps:
 OVL = OVL+1.0e-6_wp*DDOT_(NSXS,C1IN(NROOT+1),1,C2IN(NROOT+1),1)
 
 ! renormalize the C vector (simple element-by-element scaling).
 
-do I=1,NSXS
-  C1(I) = SXN(I)*C1IN(I+NROOT)
-  C2(I) = SXN(I)*C2IN(I+NROOT)
-end do
+C1(1:NSXS) = SXN(1:NSXS)*C1IN(NROOT+1:NROOT+NSXS)
+C2(1:NSXS) = SXN(1:NSXS)*C2IN(NROOT+1:NROOT+NSXS)
 
 ISTIA = 0
 ISTBM = 0
@@ -98,10 +93,7 @@ do ISYM=1,NSYM
     do NP=NIO+1,NIA
       IC2 = ISTBM
       do NQ=NIO+1,NIA
-        C1C2 = Zero
-        do NI=1,NIO
-          C1C2 = C1C2+C1(IC1+NI)*C2(IC2+NI)
-        end do
+        C1C2 = sum(C1(IC1+1:IC1+NIO)*C2(IC2+1:IC2+NIO))
         FAC = -DIA(ISTIA+NIA*(NP-1)+NQ)
         if (NP == NQ) FAC = FAC+Two
         OVLADD = C1C2*FAC

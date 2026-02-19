@@ -52,9 +52,7 @@ if (UseJacob) then
   !  write(u6,*) (EigVec(IRow,ICol),ICol=1,NDim)
   !end do
   do ICol=1,NDIM
-    do IRow=1,NDIM
-      EigVec(IRow,ICol) = Val(iCol,iRow)
-    end do
+    EigVec(:,ICol) = Val(iCol,:)
   end do
   call mma_deallocate(Val)
   call mma_deallocate(Mat)
@@ -64,19 +62,15 @@ else
   call mma_allocate(Mat,nElem,Label='Mat')
   call mma_allocate(Val,nDim,nDim,Label='Val')
   do ICol=1,NDIM
-    do IRow=1,NDIM
-      Mat((ICol-1)*NDIM+IRow) = Matrix(IRow,ICol)
-    end do
+    Mat((ICol-1)*NDIM+1:ICol*NDIM) = Matrix(:,ICol)
   end do
   Val(:,:) = Zero
   call Dsyev_('V','U',NDIM,Mat,NDIM,Val,WGRONK,-1,INFO)
   NScr = int(WGRONK(1))
   call mma_allocate(Scr,nScr,Label='Scr')
   call Dsyev_('V','U',NDIM,Mat,NDIM,Val,Scr,NScr,INFO)
-  do ICol=1,NDIM
-    do IRow=1,NDIM
-      EigVec(IRow,ICol) = Mat((IRow-1)*NDIM+ICol)
-    end do
+  do IRow=1,NDIM
+    EigVec(IRow,:) = Mat((IRow-1)*NDIM+1:IRow*NDIM)
   end do
   call mma_deallocate(Scr)
   call mma_deallocate(Val)

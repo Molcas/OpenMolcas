@@ -190,9 +190,12 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
 
   call FastIO('STATUS')
 # else
-  unused_var(EMY); unused_var(path)
-  unused_var(orbital_table); unused_var(fock_table)
-  unused_var(two_el_table); unused_var(orbsym)
+  unused_var(EMY)
+  unused_var(path)
+  unused_var(orbital_table)
+  unused_var(fock_table)
+  unused_var(two_el_table)
+  unused_var(orbsym)
 # endif
 
 end subroutine dump_hdf5

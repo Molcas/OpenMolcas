@@ -24,16 +24,12 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: RotMat(lroots,lroots), DDG(lRoots,lRoots,lRoots,lRoots)
-integer(kind=iwp) :: IState
 real(kind=wp) :: CalcNSumVee
 real(kind=wp), allocatable :: Vee(:)
 
 call mma_allocate(Vee,lRoots)
-CalcNSumVee = Zero
 call CalcVee(Vee,RotMat,DDg)
-do IState=1,lRoots
-  CalcNSumVee = CalcNSumVee+Vee(IState)
-end do
+CalcNSumVee = sum(Vee(:))
 call mma_deallocate(Vee)
 
 end function CalcNSumVee

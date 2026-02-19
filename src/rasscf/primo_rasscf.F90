@@ -83,10 +83,7 @@ end if
 ! PrOThr are also printed.
 
 ! Nr of orbitals=nr of basis functions
-NBTOT = 0
-do ISYM=1,NSYM
-  NBTOT = NBTOT+NBAS(ISYM)
-end do
+NBTOT = sum(NBAS(1:NSYM))
 
 ! Put rasscf orbital energies on the runfile
 call Put_darray('RASSCF OrbE',ENE,NBTOT)
@@ -202,7 +199,7 @@ if (OutFmt2 == 'FULL    ') then
         if (PROCC) write(u6,Fmt2//'A,7X,10F10.4)') 'Occ. No.',(OCC(SLCT(ISOFF+I)),I=ISSTART,ISEND)
         write(u6,*)
         do IB=1,NB
-          write(u6,'(2X,I4,1X,A,10F10.4)') IB,Clean_BName(BName(IBOFF+IB),LENIN), &
+          write(u6,'(2X,I4,1X,A,10F10.4)') IB,Clean_BName(BName(IBOFF+IB),LenIn), &
                                            (CMO(ICOFF+(SLCT(ISOFF+I)-1-IBOFF)*NB+IB),I=ISSTART,ISEND)
         end do
       end do
@@ -255,7 +252,7 @@ else if (OutFmt2 == 'COMPACT ') then
         do IBAS=1,NB
           CC = CMO(ICOFF+(ICOL-1)*NB+IBAS)
           if (abs(CC) >= 0.1_wp) then
-            write(LINE(IST:132),'(I4,1X,A,A,F7.4,A)') IBAS,Clean_BName(BName(IBOFF+IBAS),LENIN),'(',CC,')'
+            write(LINE(IST:132),'(I4,1X,A,A,F7.4,A)') IBAS,Clean_BName(BName(IBOFF+IBAS),LenIn),'(',CC,')'
             IST = IST+28
             if (IST > (132-LEFT-28)) then
               write(u6,FMT2//'A)') trim(LINE)

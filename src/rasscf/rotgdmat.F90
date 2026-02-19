@@ -54,14 +54,10 @@ do p=1,nac
   end do
 end do
 
-do p=1,nac
-  do q=1,nac
-    do I=1,lRoots
-      do J=1,I
-        iIJ = iTri(I,J)
-        GD(iIJ,p,q) = GD2(iIJ,p,q)
-      end do
-    end do
+do I=1,lRoots
+  do J=1,I
+    iIJ = iTri(I,J)
+    GD(iIJ,:,:) = GD2(iIJ,:,:)
   end do
 end do
 

@@ -36,35 +36,32 @@ subroutine Alter_MO(CMO)
 !***********************************************************************
 
 use general_data, only: MALTER, NALTER, NBAS
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: CMO(*)
-integer(kind=iwp) :: iAlter, iAlteri, iAlterj, iCMO, iSym
-real(kind=wp) :: CMOex
+integer(kind=iwp) :: iAlter, iAlteri, iAlterj, iOrb, iSym, jOrb
+real(kind=wp), allocatable :: CMOex(:)
 
-! Local print level (if any)
 write(u6,*)
 write(u6,'(6X,A)') 'Molecular orbitals exchanged:'
 
+call mma_allocate(CMOex,maxval(nBas(:)),Label='CMOex')
+
 do iAlter=1,NAlter
-  write(u6,'(8X,A,I2,A,2I4)') 'In symmetry ',MAlter(iAlter,1),' :',MAlter(iAlter,2),MAlter(iAlter,3)
-  iAlterI = 0
-  iAlterJ = 0
-  if (MAlter(iAlter,1) > 1) then
-    do iSym=1,MAlter(iAlter,1)-1
-      iAlterI = iAlterI+nBas(iSym)**2
-      iAlterJ = iAlterJ+nBas(iSym)**2
-    end do
-  end if
-  iAlterI = iAlterI+nBas(MAlter(iAlter,1))*(MAlter(iAlter,2)-1)
-  iAlterJ = iAlterJ+nBas(MAlter(iAlter,1))*(MAlter(iAlter,3)-1)
-  do iCMO=1,nBas(MAlter(iAlter,1))
-    CMOex = CMO(iAlterI+iCMO)
-    CMO(iAlterI+iCMO) = CMO(iAlterJ+iCMO)
-    CMO(iAlterJ+iCMO) = CMOex
-  end do
+  iSym = MAlter(iAlter,1)
+  iOrb = MAlter(iAlter,2)
+  jOrb = MAlter(iAlter,3)
+  write(u6,'(8X,A,I2,A,2I4)') 'In symmetry ',iSym,' :',iOrb,jOrb
+  iAlterI = sum(nBas(1:iSym-1)**2)+nBas(iSym)*(iOrb-1)
+  iAlterJ = sum(nBas(1:iSym-1)**2)+nBas(iSym)*(jOrb-1)
+  CMOex(1:nBas(iSym)) = CMO(iAlterI+1:iAlterI+nBas(iSym))
+  CMO(iAlterI+1:iAlterI+nBas(iSym)) = CMO(iAlterJ+1:iAlterJ+nBas(iSym))
+  CMO(iAlterJ+1:iAlterJ+nBas(iSym)) = CMOex(1:nBas(iSym))
 end do
 write(u6,*)
+
+call mma_deallocate(CMOex)
 
 end subroutine Alter_MO

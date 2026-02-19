@@ -40,7 +40,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: c_orbs_per_GAS(nGAS), i, iA0, iAlter, iB0, iC0, ierr, ierr1, ierr2, iSym
+integer(kind=iwp) :: c_orbs_per_GAS(nGAS), iA0, iAlter, iB0, iC0, ierr, ierr1, ierr2, iSym
 #include "warnings.h"
 
 !c_orbs_per_GAS: These are the cumulated number of spin orbitals per GAS space.
@@ -195,31 +195,27 @@ end if
 if (IERR == 1) call Quit(_RC_INPUT_ERROR_)
 
 IERR1 = 0
-do iSym=1,nSym
-  if (nBas(iSym) < 0) IERR1 = 1
-  if (nFro(iSym) < 0) IERR1 = 1
-  if (nDel(iSym) < 0) IERR1 = 1
-  if (nOrb(iSym) < 0) IERR1 = 1
-  if (nISh(iSym) < 0) IERR1 = 1
-  if (nASh(iSym) < 0) IERR1 = 1
-  if (nSSh(iSym) < 0) IERR1 = 1
-  if (nRS1(iSym) < 0) IERR1 = 1
-  if (nRS2(iSym) < 0) IERR1 = 1
-  if (nRS3(iSym) < 0) IERR1 = 1
-end do
+if (any(nBas(1:nSym) < 0)) IERR1 = 1
+if (any(nFro(1:nSym) < 0)) IERR1 = 1
+if (any(nDel(1:nSym) < 0)) IERR1 = 1
+if (any(nOrb(1:nSym) < 0)) IERR1 = 1
+if (any(nISh(1:nSym) < 0)) IERR1 = 1
+if (any(nASh(1:nSym) < 0)) IERR1 = 1
+if (any(nSSh(1:nSym) < 0)) IERR1 = 1
+if (any(nRS1(1:nSym) < 0)) IERR1 = 1
+if (any(nRS2(1:nSym) < 0)) IERR1 = 1
+if (any(nRS3(1:nSym) < 0)) IERR1 = 1
 IERR2 = 0
-do iSym=1,nSym
-  if (nBas(iSym) > mxBas) IERR2 = 1
-  if (nFro(iSym) > mxBas) IERR2 = 1
-  if (nDel(iSym) > mxBas) IERR2 = 1
-  if (nOrb(iSym) > mxBas) IERR2 = 1
-  if (nISh(iSym) > mxBas) IERR2 = 1
-  if (nASh(iSym) > mxBas) IERR2 = 1
-  if (nSSh(iSym) > mxBas) IERR2 = 1
-  if (nRS1(iSym) > mxBas) IERR2 = 1
-  if (nRS2(iSym) > mxBas) IERR2 = 1
-  if (nRS3(iSym) > mxBas) IERR2 = 1
-end do
+if (any(nBas(1:nSym) > mxBas)) IERR2 = 1
+if (any(nFro(1:nSym) > mxBas)) IERR2 = 1
+if (any(nDel(1:nSym) > mxBas)) IERR2 = 1
+if (any(nOrb(1:nSym) > mxBas)) IERR2 = 1
+if (any(nISh(1:nSym) > mxBas)) IERR2 = 1
+if (any(nASh(1:nSym) > mxBas)) IERR2 = 1
+if (any(nSSh(1:nSym) > mxBas)) IERR2 = 1
+if (any(nRS1(1:nSym) > mxBas)) IERR2 = 1
+if (any(nRS2(1:nSym) > mxBas)) IERR2 = 1
+if (any(nRS3(1:nSym) > mxBas)) IERR2 = 1
 if (IERR1+IERR2 > 0) then
   write(u6,*)
   write(u6,*) '****************** ERROR *******************'
@@ -311,9 +307,7 @@ if (IERR == 1) then
   write(u6,*) '************************************************'
   call Quit(_RC_INPUT_ERROR_)
 end if
-do i=1,NROOTS
-  if ((IROOT(i) < 0) .or. (IROOT(i) > LROOTS)) IERR = 1
-end do
+if (any(IROOT(1:NROOTS) < 0) .or. any(IROOT(1:NROOTS) > LROOTS)) IERR = 1
 if (IERR == 1) then
   write(u6,*)
   write(u6,*) '***************** ERROR *****************'
@@ -459,6 +453,7 @@ pure function cumsum(X) result(res)
   do i=2,size(res)
     res(i) = res(i-1)+X(i)
   end do
+
 end function cumsum
 
 end subroutine ChkInp

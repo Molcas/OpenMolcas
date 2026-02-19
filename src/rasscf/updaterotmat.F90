@@ -17,18 +17,30 @@
 
 subroutine UpdateRotMat(RMat,ExpX,X,lRoots,nSPair)
 
+use Index_Functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lRoots, nSPair
-real(kind=wp) :: RMat(lRoots**2), ExpX(lRoots**2), X(nSPair)
+real(kind=wp) :: RMat(lRoots**2), ExpX(lRoots,lRoots), X(nSPair)
+integer(kind=iwp) :: I, iIJ, J
+real(kind=wp) :: maxtheta
 real(kind=wp), allocatable :: RScr(:)
 
 call mma_allocate(RScr,lRoots**2,Label='RScr')
 
-call ExpMat(ExpX,X,lRoots,nSPair)
+ExpX(1,1) = Zero
+do I=2,lRoots
+  ExpX(I,I) = Zero
+  do J=1,I-1
+    iIJ = iTri(I-1,J)
+    ExpX(J,I) = X(iIJ)
+    ExpX(I,J) = -X(iIJ)
+  end do
+end do
+call Exp_eig(lRoots,ExpX,maxtheta)
 call DGEMM_('n','n',lRoots,lRoots,lRoots,One,RMat,lRoots,ExpX,lRoots,Zero,RScr,lRoots)
 RMat(:) = RScr(:)
 

@@ -24,13 +24,9 @@ logical(kind=iwp), external :: REDUCE_PRT
 ! local ones, except that if any of IPRGLB or IPRLOC(I) is zero
 ! (meaning silence), then IPRLOC(I) is set to zero.
 IPRGLB = IPRGLB_IN
-if (IPRGLB_IN == 0) then
+IPRLOC(:) = 0
+if (IPRGLB_IN /= 0) then
   do I=1,7
-    IPRLOC(I) = 0
-  end do
-else
-  do I=1,7
-    IPRLOC(I) = 0
     if (IPRLOC_IN(I) > 0) IPRLOC(I) = max(IPRGLB_IN,IPRLOC_IN(I))
   end do
 end if
@@ -38,9 +34,7 @@ end if
 ! level unless we *really* want a lot of output.
 if (REDUCE_PRT()) then
   IPRGLB = max(IPRGLB-USUAL,SILENT)
-  do I=1,7
-    IPRLOC(I) = max(IPRLOC(I)-USUAL,SILENT)
-  end do
+  IPRLOC(:) = max(IPRLOC(:)-USUAL,SILENT)
 end if
 
 if (IPRLOC(1) >= DEBUG) then

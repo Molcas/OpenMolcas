@@ -133,7 +133,8 @@ select case (switch)
         end if
         call WarningMessage(2,'Error in input preprocessing.')
         write(u6,*) ' qcmaquis_rdinp: mandatory keyword ',trim(line),' missing in QCMaquis DMRG input section'
-        nr_lines = -1; return
+        nr_lines = -1
+        return
 
       else
         select case (j)

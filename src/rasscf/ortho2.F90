@@ -46,9 +46,7 @@ if (rSUM < THR) then
   call QUIT(_RC_GENERAL_ERROR_)
 end if
 X = One/sqrt(rSUM)
-do I=1,N
-  U(I) = X*U(I)
-  V(I) = X*V(I)
-end do
+U(1:N) = X*U(1:N)
+V(1:N) = X*V(1:N)
 
 end subroutine ORTHO2

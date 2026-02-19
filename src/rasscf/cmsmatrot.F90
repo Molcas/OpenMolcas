@@ -23,18 +23,13 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: I, J, N
 real(kind=wp) :: Mat(N,N), A
-integer(kind=iwp) :: K
 real(kind=wp), allocatable :: TM(:,:)
 
 call mma_allocate(TM,2,N,Label='TM')
-do K=1,N
-  TM(1,K) = Mat(I,K)
-  TM(2,K) = Mat(J,K)
-end do
-do K=1,N
-  Mat(J,K) = cos(A)*TM(2,K)+sin(A)*TM(1,K)
-  Mat(I,K) = -sin(A)*TM(2,K)+cos(A)*TM(1,K)
-end do
+TM(1,:) = Mat(I,:)
+TM(2,:) = Mat(J,:)
+Mat(J,:) = cos(A)*TM(2,:)+sin(A)*TM(1,:)
+Mat(I,:) = -sin(A)*TM(2,:)+cos(A)*TM(1,:)
 call mma_deallocate(TM)
 
 end subroutine CMSMatRot

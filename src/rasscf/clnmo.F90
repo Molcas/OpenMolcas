@@ -41,15 +41,14 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: CMO(*)
-integer(kind=iwp) :: i, ij, iSym, j, mBas
+integer(kind=iwp) :: i, ij, iSym, j
 
 ! Body
 
 ij = 0
 do iSym=1,nSym
-  mBas = nBas(iSym)
-  do i=1,mBas
-    do j=1,mBas
+  do i=1,nBas(iSym)
+    do j=1,nBas(iSym)
       ij = ij+1
       if (CleanMask(ij) == 1) CMO(ij) = Zero
     end do

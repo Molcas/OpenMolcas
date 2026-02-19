@@ -54,7 +54,7 @@ integer(kind=iwp) :: i, I_F, iAd15, IB, iBas, ID, IFD, II, ioff, iPrLev, IST, IS
                      NOO, NP, NPQ, NQ, NR1, NR11, NR2, NR21, NR3, NR31, NT, NT1, NTT, NTU, NTUT, NU, NUT
 real(kind=wp) :: FMIN
 #ifdef _ENABLE_CHEMPS2_DMRG_
-integer(kind=iwp) :: iChMolpro(8), ifock, iiash, iOrb, jOrb, LuFck, nOrbTot
+integer(kind=iwp) :: iChMolpro(8), ifock, iOrb, LuFck, nOrbTot
 character(len=3) :: Label
 integer(kind=iwp), allocatable :: OrbSym(:)
 integer(kind=iwp), external :: IsFreeUnit
@@ -76,10 +76,7 @@ ID = 0
 
 #ifdef _HDF5_
 if (tPrepStochCASPT2 .or. tNonDiagStochPT2) then
-  nActOrb = 0
-  do isym=1,nsym
-    nActOrb = nActOrb+nAsh(isym)
-  end do
+  nActOrb = sum(nAsh(1:nsym))
   if (tPrepStochCASPT2) then
     call mma_allocate(indices,2,nActOrb)
     call mma_allocate(vals,nActOrb)
@@ -99,10 +96,7 @@ end if
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
 ifock = 1
-norbtot = 0
-do iiash=1,nsym
-  norbtot = norbtot+nAsh(iiash)
-end do
+norbtot = sum(nAsh(1:nsym))
 
 ! Get character table to convert MOLPRO symmetry format
 call MOLPRO_ChTab(nSym,Label,iChMolpro)
@@ -111,10 +105,8 @@ call MOLPRO_ChTab(nSym,Label,iChMolpro)
 call mma_allocate(OrbSym,NAC,Label='OrbSym')
 iOrb = 1
 do iSym=1,nSym
-  do jOrb=1,NASH(iSym)
-    OrbSym(iOrb) = iChMolpro(iSym)
-    iOrb = iOrb+1
-  end do
+  OrbSym(iOrb:iOrb+NASH(iSym)-1) = iChMolpro(iSym)
+  iOrb = iOrb+NASH(iSym)
 end do
 
 LuFCK = isFreeUnit(27)

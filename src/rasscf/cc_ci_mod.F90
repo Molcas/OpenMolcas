@@ -72,7 +72,6 @@ subroutine CC_CI_ctl(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_AO
   real(kind=wp), intent(in) :: weight(nroots), CMO(nTot2), DIAF(nTot), D1I_AO(nTot2), D1A_AO(nTot2), TUVX(nAcpr2)
   real(kind=wp), intent(inout) :: F_In(nTot1), D1S_MO(nAcPar)
   real(kind=wp), intent(out) :: DMAT(nAcpar), PSMAT(nAcpr2), PAMAT(nAcpr2)
-  integer(kind=iwp) :: jRoot
 # ifdef _MOLCAS_MPP_
   integer(kind=MPIInt) :: error
 # endif
@@ -112,9 +111,7 @@ subroutine CC_CI_ctl(this,actual_iter,ifinal,iroot,weight,CMO,DIAF,D1I_AO,D1A_AO
 # endif
 
   call run_CC_CI(ascii_fcidmp,h5_fcidmp,fake_run=actual_iter == 1,energy=energy,D1S_MO=D1S_MO,DMAT=DMAT,PSMAT=PSMAT,PAMAT=PAMAT)
-  do jRoot=1,lRoots
-    ENER(jRoot,ITER) = energy(jRoot)
-  end do
+  ENER(1:lRoots,ITER) = energy(1:lRoots)
 
   if (nAsh(1) /= nac) call dblock(dmat)
 

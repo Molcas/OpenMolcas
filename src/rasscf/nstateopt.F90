@@ -54,9 +54,7 @@ FRot(:,:) = RotMat(:,:)
 VeeSumOld = CalcNSumVee(RotMat,DDg)
 ICMSIter = 0
 do while (.not. Converged)
-  do IPair=1,NPairs
-    theta(IPair) = Zero
-  end do
+  theta(:) = Zero
   ICMSIter = ICMSIter+1
   call ThetaOpt(FRot,theta,VeeSumNew,StatePair,NPairs,DDg)
   if (IPRLEV >= USUAL) then

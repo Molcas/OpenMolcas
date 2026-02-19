@@ -47,7 +47,7 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: I, IPRGLB_IN, IPRLOC_IN(7)
+integer(kind=iwp) :: IPRGLB_IN, IPRLOC_IN(7)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Is_First_Iter
 
@@ -76,9 +76,7 @@ end if
 ! Initialize print levels: Module output_ras
 ! Externally set default print level control. Should the program be silent?
 IPRGLB_IN = iPrintLevel(-1)
-do I=1,7
-  IPRLOC_IN(I) = IPRGLB_IN
-end do
+IPRLOC_IN(:) = IPRGLB_IN
 ! Set print levels, and adjust them if needed:
 call setprlev(IPRGLB_IN,IPRLOC_IN)
 
@@ -269,25 +267,21 @@ NonEq = .false.
 NAlter = 0
 ! set default values for orbitals
 
-do I=1,mxSym
-  NFRO(I) = 0
-  NISH(I) = 0
-  NASH(I) = 0
-  NRS1(I) = 0
-  NRS2(I) = 0
-  NRS3(I) = 0
-  NSSH(I) = 0
-  NDEL(I) = 0
-  NBAS(I) = 0
-end do
+NFRO(:) = 0
+NISH(:) = 0
+NASH(:) = 0
+NRS1(:) = 0
+NRS2(:) = 0
+NRS3(:) = 0
+NSSH(:) = 0
+NDEL(:) = 0
+NBAS(:) = 0
 ! initialize occupation numbers for GAS
 
 NGAS = 3
 NGSSH = 0
 IGSOCCX = 0
-do I=1,mxOrb
-  IXSYM(I) = 0
-end do
+IXSYM(:) = 0
 PURIFY = 'NO'
 
 ! Initial guess for jobiph name to use:
@@ -298,15 +292,9 @@ StartOrbFile = 'INPORB'
 iAlphaBeta = 0
 
 ! Initialize speed options (turn everything that's working on)
-
-do i=1,size(iSpeed)
-  if (i <= 2) then
-    iSpeed(i) = 1
-  else
-    ! The rest is at the present time just to allow testing
-    iSpeed(i) = 0
-  end if
-end do
+iSpeed(1:2) = 1
+! The rest is at the present time just to allow testing
+iSpeed(3:) = 0
 
 TimeTotal = Zero
 TimeInput = Zero

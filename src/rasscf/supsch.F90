@@ -23,31 +23,143 @@ subroutine SUPSCH(SMAT,CMOO,CMON)
 ! University of Lund, Sweden, 1997
 ! **** Molcas-4 *** Release 97 04 01 **********
 
-use general_data, only: NSYM, NBAS
+use Index_Functions, only: nTri_Elem
+use OneDat, only: sNoNuc, sNoOri
+use rasscf_global, only: FDIAG, iSupSM, Iter, ixsym
+use PrintLevel, only: DEBUG
+use output_ras, only: IPRLOC
+use general_data, only: NBAS, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) SMAT(*), CMOO(*), CMON(*)
-integer(kind=iwp) :: iSym, nOrb_Tot, nOrbMx
+real(kind=wp) :: SMAT(*), CMOO(*), CMON(*)
+integer(kind=iwp) :: i_Component, i_Opt, i_RC, i_SymLbl, iGroup, iLabel, iOrb, iOrder, iPrLev, iSafe, iSym, jOrb, kCof, kGroup, &
+                     kOrb, nBs, nnOrb, nOGr1, nOGr2, nOrb_Tot, nOrbMX, pSij
+real(kind=wp) :: DUM(1), OldOvlp, Ovlp1, Ovlp2, xOvlp
+character(len=8) :: Label
 integer(kind=iwp), allocatable :: IxSym2(:)
 real(kind=wp), allocatable :: Temp1(:), Temp2(:)
+#include "warnings.h"
 
-nOrbMX = 0
-nOrb_tot = 0
-do iSym=1,nSym
-  nOrbMX = max(nOrbMX,nBas(iSym))
-  nOrb_tot = nOrb_tot+nBas(iSym)
-end do
+! Local print level (if any)
+IPRLEV = IPRLOC(4)
+if (IPRLEV >= DEBUG) write(u6,*) ' Entering SUPSCH_INNER'
 
+nOrbMX = maxval(nBas(1:nSym))
+nOrb_tot = sum(nBas(1:nSym))
 call mma_allocate(Temp1,nOrbMX*nOrbMX,Label='Temp1')
 call mma_allocate(Temp2,nOrbMX*nOrbMX,Label='Temp2')
 call mma_allocate(IxSym2,nOrb_tot,Label='IxSym2')
 
-call SUPSCH_INNER(SMAT,CMOO,CMON,Temp1,Temp2,nOrbMX,IxSym2,nOrb_tot)
+! Read overlap matrix SMAT:
 
-call mma_deallocate(IxSym2)
-call mma_deallocate(Temp2)
+i_Rc = 0
+i_Opt = ibset(ibset(0,sNoOri),sNoNuc)
+i_Component = 1
+i_SymLbl = 1
+Label = 'Mltpl  0'
+call RdOne(i_Rc,i_Opt,Label,i_Component,Smat,i_SymLbl)
+if (i_Rc /= 0) then
+  write(u6,*)
+  write(u6,*) ' ********************* ERROR **********************'
+  write(u6,*) ' SUPSCH: Failed to read overlap from ONEINT.       '
+  write(u6,*) ' RASSCF is using overlaps to compare old and new   '
+  write(u6,*) ' orbitals, but could not read overlaps from ONEINT.'
+  write(u6,*) ' Something is wrong with the file, or possibly with'
+  write(u6,*) ' the program. Please check.                        '
+  write(u6,*) ' **************************************************'
+  call Quit(_RC_IO_ERROR_READ_)
+end if
+
+! Check order of the orbitals for supersymmetry option
+
+if ((ISupsm == 1) .and. (Iter >= 1)) then
+
+  if (IPRLEV >= DEBUG) then
+    call PRIMO_RASSCF('Testing old orb for supersymmetry',FDIAG,DUM,CMOO)
+    call PRIMO_RASSCF('Testing new orb for supersymmetry',FDIAG,DUM,CMON)
+  end if
+
+  kOrb = 0
+  kCof = 0
+  pSij = 0
+  do iOrb=1,nOrb_tot
+    IxSym2(iOrb) = 0
+  end do
+  do iSym=1,nSym
+    iSafe = 0
+    nBs = nBas(iSym)
+    if (nBs <= 0) cycle
+
+    ! Computing orbital overlaping Sum(p,q) C1kp* C2lq Spq
+
+    call Square(SMat(pSij+1),Temp1,1,nBs,nBs)
+    call DGEMM_('N','N',nBs,nBs,nBs,One,Temp1,nBs,CMON(kCof+1),nBs,Zero,Temp2,nBs)
+    call DGEMM_('T','N',nBs,nBs,nBs,One,CMOO(kCof+1),nBs,Temp2,nBs,Zero,Temp1,nBs)
+
+    ! Checking the maximum overlap between the orbitals
+    ! and building the new supersymmetry matrix
+
+    nnOrb = 1
+    do iOrb=1,nBs
+      iLabel = IxSym(kOrb+iOrb)
+      iOrder = 1
+      xOvlp = Zero
+      do jOrb=0,nBs-2
+        Ovlp1 = abs(Temp1(nnOrb+(jOrb*nBs)))
+        Ovlp2 = abs(Temp1(nnOrb+((jOrb+1)*nBs)))
+        OldOvlp = xOvlp
+        xOvlp = max(Ovlp1,Ovlp2,xOvlp)
+        if (jOrb == 0) then
+          if (Ovlp1 < Ovlp2) iOrder = 2
+        else
+          if (xOvlp /= OldOvlp) iOrder = jOrb+2
+        end if
+      end do
+      IxSym2(kOrb+iOrder) = iLabel
+      nnOrb = nnOrb+1
+    end do
+
+    ! Number of orbital groups on the symmetry
+
+    kGroup = 0
+    do iOrb=1,nBs-1
+      kGroup = max(IxSym(kOrb+iOrb),IxSym(kOrb+iOrb+1),kGroup)
+    end do
+    do iGroup=0,kGroup
+      nOGr1 = 0
+      nOGr2 = 0
+      do iOrb=1,nBs
+        if (IxSym(kOrb+iOrb) == iGroup) nOGr1 = nOGr1+1
+        if (IxSym2(kOrb+iOrb) == iGroup) nOGr2 = nOGr2+1
+      end do
+
+      ! Checking if we have the same number of orbitals per group
+
+      if ((nOGr2 /= nOGr1) .and. (iGroup /= 0)) then
+        iSafe = 1
+        call WarningMessage(1,'Supersymmetry may have failed.')
+        write(u6,*) ' Check orbital order or try cleaning orbitals.'
+      end if
+    end do
+
+    ! New matrix replaces the old one
+
+    if (iSafe == 0) then
+      do iOrb=1,nBs
+        IxSym(kOrb+iOrb) = IxSym2(kOrb+iOrb)
+      end do
+    end if
+    kCof = kCof+(nBs*nBs)
+    pSij = pSij+nTri_Elem(nBs)
+    kOrb = kOrb+nBs
+  end do
+end if
+
 call mma_deallocate(Temp1)
+call mma_deallocate(Temp2)
+call mma_deallocate(IxSym2)
 
 end subroutine SUPSCH

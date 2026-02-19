@@ -655,8 +655,10 @@ subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
   rdm1_temp(:,:) = Zero
   rdm2_temp(:,:,:,:) = Zero
   do i=1,len4index(2)
-    p = indices(1,i)+1; q = indices(2,i)+1
-    r = indices(3,i)+1; s = indices(4,i)+1
+    p = indices(1,i)+1
+    q = indices(2,i)+1
+    r = indices(3,i)+1
+    s = indices(4,i)+1
     rdm2_temp(p,r,q,s) = values(i)
   end do
   call mma_deallocate(indices)
@@ -687,13 +689,9 @@ subroutine read_hdf5_denmats(iroot,dmat,dspn,psmat,pamat)
   end do
 
   do r=1,nAc
-    do q=1,nAc
-      do p=1,nAc
-        rdm1_temp(p,q) = rdm1_temp(p,q)+rdm2_temp(p,q,r,r)
-      end do
-    end do
+    rdm1_temp(:,:) = rdm1_temp(:,:)+rdm2_temp(:,:,r,r)
   end do
-  rdm1_temp(:,:) = rdm1_temp(:,:)/(nActEl-1)
+  rdm1_temp(:,:) = rdm1_temp(:,:)/real(nActEl-1,kind=wp)
 
   do q=1,nAc
     do p=1,nAc

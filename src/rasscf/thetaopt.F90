@@ -24,17 +24,13 @@ implicit none
 integer(kind=iwp) :: NPairs
 real(kind=wp) :: FRot(lRoots,lRoots), theta(NPairs), SumVee, DDG(lRoots,lRoots,lRoots,lRoots)
 integer(kind=iwp) :: StatePair(NPairs,2)
-integer(kind=iwp) :: IPair, IState, JState
+integer(kind=iwp) :: IPair
 
 do IPair=1,NPairs
-  IState = StatePair(IPair,1)
-  JState = StatePair(IPair,2)
-  call OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
+  call OptOneAngle(theta(iPair),SumVee,FRot,DDg,StatePair(IPair,1),StatePair(IPair,2),lRoots)
 end do
 do IPair=NPairs-1,1,-1
-  IState = StatePair(IPair,1)
-  JState = StatePair(IPair,2)
-  call OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
+  call OptOneAngle(theta(iPair),SumVee,FRot,DDg,StatePair(IPair,1),StatePair(IPair,2),lRoots)
 end do
 
 end subroutine ThetaOpt
