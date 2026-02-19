@@ -26,12 +26,12 @@
      &                         nRas3T, nSym, STSym, nAsh
 
       use pt2_guga, only: MxCI
+      use definitions, only: iwp
       IMPLICIT NONE
 
 
-      Integer nLev
-
-      INTEGER I,IT,ITABS,ILEV,ISYM, iq
+      Integer(kind=iwp) nLev
+      INTEGER(kind=iwp) I,IT,ITABS,ILEV,ISYM, iq
 
       if ((.NOT.DoCumulant) .and. (nactel.gt.0) .and. (iscf.eq.0)
      &      .and. (.not. DoFCIQMC) .and. (.not. DMRG)) Then

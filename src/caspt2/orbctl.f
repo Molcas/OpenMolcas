@@ -87,16 +87,13 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * is actually recomputed for the right place.
           CALL TRANSDREF(TORB,SIZE(TORB),DREF,SIZE(DREF))
 *****
-      end if
-
-      if (.not. DoFCIQMC) then
 C Save new MO coeffs, and the transformation matrices:
-      IDISK=IAD1M(2)
-      CALL DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
-      IAD1M(4)=IEOF1M
-      IDISK=IAD1M(4)
-      CALL DDAFILE(LUONEM,1,TORB,SIZE(TORB),IDISK)
-      IEOF1M=IDISK
+         IDISK=IAD1M(2)
+         CALL DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
+         IAD1M(4)=IEOF1M
+         IDISK=IAD1M(4)
+         CALL DDAFILE(LUONEM,1,TORB,SIZE(TORB),IDISK)
+         IEOF1M=IDISK
       end if
 
 c Print new orbitals. First, form array of orbital energies.

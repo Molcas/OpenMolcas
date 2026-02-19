@@ -29,6 +29,8 @@
       use caspt2_module, only: DMRG
 #endif
       use pt2_guga, only: CIThr, nG1, nG2, nG3, nG3Tot, Eta
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp, u6, Byte
       IMPLICIT NONE
 C  IBM TEST VERSION 0, 1988-06-23.
 C  NEW VERSION 1991-02-23, FOR USE WITH RASSCF IN MOLCAS PACKAGE.
@@ -49,27 +51,27 @@ C THE RDSTAT AND THE GUGA ROUTINES USED IN THIS
 C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
 
-      INTEGER IFF
+      INTEGER(kind=iwp) IFF
 
-      INTEGER ILEV
-      INTEGER NG3MAX
-      INTEGER ILUID
+      INTEGER(kind=iwp) ILEV
+      INTEGER(kind=iwp) NG3MAX
+      INTEGER(kind=iwp) ILUID
 
-      INTEGER IDCI
-      INTEGER J
+      INTEGER(kind=iwp) IDCI
+      INTEGER(kind=iwp) J
 
-      INTEGER IPARDIV
-      INTEGER*1, ALLOCATABLE :: idxG3(:,:)
-      REAL*8, ALLOCATABLE, TARGET:: G1(:), G2(:), G3(:)
-      REAL*8, ALLOCATABLE, TARGET:: F1_H(:), F2_H(:), F3_H(:)
-      REAL*8, POINTER:: F1(:), F2(:), F3(:)
-      REAL*8, ALLOCATABLE:: CI(:)
+      INTEGER(kind=iwp) IPARDIV
+      INTEGER(kind=Byte), ALLOCATABLE :: idxG3(:,:)
+      REAL(kind=wp), ALLOCATABLE, TARGET:: G1(:), G2(:), G3(:)
+      REAL(kind=wp), ALLOCATABLE, TARGET:: F1_H(:), F2_H(:), F3_H(:)
+      REAL(kind=wp), POINTER:: F1(:), F2(:), F3(:)
+      REAL(kind=wp), ALLOCATABLE:: CI(:)
+      Integer(kind=iwp) :: nLev
 
-      Integer :: nLev
       nLev = SGS%nLev
 
 
-      IF (IFF.EQ.1) THEN
+      IF (IFF==1) THEN
 C ORBITAL ENERGIES IN CI-COUPLING ORDER:
         DO ILEV=1,NLEV
           ETA(ILEV)=EPSA(L2ACT(ILEV))
@@ -88,9 +90,9 @@ C-SVC20100831: allocate local G3 matrices
       CALL mma_allocate(idxG3,6,NG3MAX,label='idxG3')
       idxG3(:,:)=0
 
-      G1(1)=0.0D0
-      G2(1)=0.0D0
-      G3(1)=0.0D0
+      G1(1)=Zero
+      G2(1)=Zero
+      G3(1)=Zero
 
 C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
       IF (IFF.EQ.1) THEN
@@ -122,17 +124,17 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
           END DO
           CALL DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
           IF (IPRGLB.GE.VERBOSE) THEN
-            WRITE(6,*)
+            WRITE(u6,*)
             IF (NSTATE.GT.1) THEN
-              WRITE(6,'(A,I4)')
+              WRITE(u6,'(A,I4)')
      &       ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
             ELSE
-              WRITE(6,*)' With new orbitals, the CI array is:'
+              WRITE(u6,*)' With new orbitals, the CI array is:'
             END IF
             CALL PRWF_CP2(STSYM,NCONF,CI,CITHR)
           END IF
         ELSE
-          CI(1)=1.0D0
+          CI(1)=One
         END IF
       end if
 
@@ -167,12 +169,12 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         END IF
       END IF
 
-      IF(NLEV.GT.0) THEN
+      IF(NLEV>0) THEN
         CALL mma_deallocate(G1)
         CALL mma_deallocate(G2)
         CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
-        IF(IFF.EQ.1) THEN
+        IF(IFF==1) THEN
           CALL mma_deallocate(F1_H)
           CALL mma_deallocate(F2_H)
           CALL mma_deallocate(F3_H)
