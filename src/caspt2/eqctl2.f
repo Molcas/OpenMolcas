@@ -68,14 +68,17 @@ CPAM98      IF(SMATRIX.NE.'NO      ')CALL SBMAT
           IF(NISUP(ISYM,ICASE).EQ.0) NINDEP(ISYM,ICASE)=0
          END DO
         END DO
+
         IF(SMATRIX.NE.'NO      ') THEN
           CALL MKSMAT()
           CALL MKBMAT()
         END IF
+
 C Modify B matrices, if necessary:
         IF(HZERO.EQ.'CUSTOM') THEN
           CALL NEWB()
         END IF
+
         CALL GASync()
         CALL TIMING(CPU1,CPU,TIO1,TIO)
         CPUSBM=CPU1-CPU0
