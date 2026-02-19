@@ -11,23 +11,21 @@
       SUBROUTINE ASIND(IAS,ISYM,ICASE,IP,IQ,IR)
       USE SUPERINDEX, only: MAGEB, MAGTB
       use caspt2_module, only: NAGEBES, NAGTBES, IEXTIS
+      use definitions, only: iwp, u6
       IMPLICIT None
-      integer, intent(in) :: IAS, ISYM, ICASE
-      integer, intent(out) :: IP, IQ, IR
-      integer IABABS,  IAABS, IBABS
+      integer(kind=iwp), intent(in) :: IAS, ISYM, ICASE
+      integer(kind=iwp), intent(out) :: IP, IQ, IR
+      integer(kind=iwp) :: IABABS,  IAABS, IBABS
 
-      GOTO (12,13) ICASE
-
-  12  CONTINUE
-      IABABS=IAS+NAGEBES(ISYM)
-      IAABS=MAGEB(1,IABABS)
-      IBABS=MAGEB(2,IABABS)
-      GOTO 1213
-  13  CONTINUE
-      IABABS=IAS+NAGTBES(ISYM)
-      IAABS=MAGTB(1,IABABS)
-      IBABS=MAGTB(2,IABABS)
- 1213 CONTINUE
+      IF (ICASE==2) THEN
+         IABABS=IAS+NAGTBES(ISYM)
+         IAABS=MAGTB(1,IABABS)
+         IBABS=MAGTB(2,IABABS)
+      ELSE
+         IABABS=IAS+NAGEBES(ISYM)
+         IAABS=MAGEB(1,IABABS)
+         IBABS=MAGEB(2,IABABS)
+      END IF
 
       IP=IEXTIS(IAABS)
       IQ=IEXTIS(IBABS)

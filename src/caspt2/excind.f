@@ -9,12 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE EXCIND(IAS,INS,ISYM,ICASE,IP,IQ,IR,IS)
+      use definitions, only: iwp
       IMPLICIT None
 
-      Integer :: IAS,INS,ISYM,ICASE
-      Integer, Intent(Out) :: IP,IQ,IR,IS
+      Integer(kind=iwp), intent(in) :: IAS,INS,ISYM,ICASE
+      Integer(kind=iwp), Intent(Out) :: IP,IQ,IR,IS
       EXTERNAL ASIND
-      Integer :: IP1,IQ1,IR1,IP2,IQ2,IR2
+      Integer(kind=iwp) :: IP1,IQ1,IR1,IP2,IQ2,IR2
 
 CPAM99 New call sequence for ASIND
       CALL ASIND(IAS,ISYM,ICASE,IP1,IQ1,IR1)
