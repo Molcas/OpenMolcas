@@ -11,32 +11,23 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis, BName,nAtoms,nBas_per_Atom,nBas_Start,PA)
+subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,nAtoms,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
 
 use definitions, only: wp,iwp,u6
 use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero,One
-use Molcas, only: LenIn
 use Localisation_globals, only: Debug, OptMeth
 
 implicit none
 
-integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
+integer(kind=iwp), intent(in) :: nAtoms, nBasis, nOrb2Loc
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
-real(kind=wp), intent(in) :: kappa(nOrb2Loc,nOrb2Loc)
-real(kind=wp), intent(out) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
-character(len=LenIn+8), intent(in) :: BName(nBasis)
-
-real(kind=wp), allocatable :: kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:)
+real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
+                             unitary_mat(nOrb2Loc,nOrb2Loc), rotated_CMO(nBasis,nOrb2Loc)
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
 real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt,i,k, iBas
 logical(kind=iwp), parameter :: debug_exp = .false.
-
-call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
-call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
-call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
-call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
 
 kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
 xkappa_cnt(:,:) = kappa_cnt
@@ -70,7 +61,6 @@ do while (ithrsh > thrsh_taylor)
     factor = factor*DBLE(cnt)
 
     !calculate the cnt'th exponent of the kappa matrix
-    ! this works by multiplying the matrix from the previous term (kappa^cnt) by the
     ! initial kappa matrix (just kappa^1)
     ! C <= alpha*A*B + beta*C
     ! kappa_cnt <= 1*kappa_cnt*kappa + 0*kappa_cnt
@@ -125,10 +115,5 @@ end do
 
 !reset CMO to be updated
 CMO(:,:) = rotated_CMO(:,:)
-
-call mma_Deallocate(kappa_cnt)
-call mma_Deallocate(xkappa_cnt)
-call mma_Deallocate(unitary_mat)
-call mma_Deallocate(rotated_CMO)
 
 end subroutine RotateNxN

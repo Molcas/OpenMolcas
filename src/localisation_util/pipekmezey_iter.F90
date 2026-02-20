@@ -33,7 +33,8 @@ logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
-                              SCR(:), Ovlp_sqrt(:,:), kappa(:,:)
+                              SCR(:), Ovlp_sqrt(:,:),&
+                              kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:)
 logical(kind=iwp), parameter :: debug_lowdin = .false.
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
@@ -43,12 +44,17 @@ real(kind=wp), External :: DDot_
 
 if (.not. Silent) call CWTime(C1,W1)
 
-! for the GEK it is needed to store data from old iterations:
 if (OptMeth == 2 .or. OptMeth == 3) then
     call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
     call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
     FunctionalList(:)=0
     call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
+
+    call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
+    call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
+    call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
+    call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
+    call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
 end if
 
 nIter = 0
@@ -106,7 +112,6 @@ end if
 ! Iterations.
 ! -----------
 call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
-call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
 Converged = .false.
 
 do while ((nIter < nMxIter) .and. (.not. Converged))
@@ -131,6 +136,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         else if (OptMeth == 3) then
             kappa(:,:) = alpha*GradientList(:,:,nIter)
         end if
+
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
         Thr= 0.5E0_wp * Pi
         If (DD>=Thr)Then
@@ -138,7 +144,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
         End If
 
-        call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,BName,nAtoms,nBas_per_Atom,nBas_Start,PA(:,:,:))
+        call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,nAtoms,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
@@ -191,9 +197,14 @@ if (OptMeth == 2 .or. OptMeth == 3) then
     call mma_Deallocate(GradientList)
     call mma_Deallocate(FunctionalList)
     call mma_Deallocate(Hdiag)
+
+    call mma_Deallocate(kappa)
+    call mma_Deallocate(kappa_cnt)
+    call mma_Deallocate(xkappa_cnt)
+    call mma_Deallocate(unitary_mat)
+    call mma_Deallocate(rotated_CMO)
 end if
 
-call mma_Deallocate(kappa)
 call mma_Deallocate(PACol)
 call mma_Deallocate(Ovlp_sqrt)
 
