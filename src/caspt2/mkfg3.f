@@ -105,7 +105,7 @@ C>                   to active indices
       INTEGER(kind=iwp) NTRI1,NTRI2
       INTEGER(kind=iwp) MEMMAX, MEMMAX_SAFE
       INTEGER(kind=iwp) NLEV2
-      INTEGER(kind=iwp) NCI,ICSF
+      INTEGER(kind=iwp) NCI
 
       real(kind=wp), EXTERNAL :: DDOT_,DNRM2_
 
@@ -218,10 +218,16 @@ C-SVC20100301: calculate maximum number of tasks possible
         call xFlush(6)
       ENDIF
 
-      iG3OFF=0
+************************************************************************
+*                                                                      *
 * A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
-      DO issg1=1,nsym
+*                                                                      *
+      iG3OFF=0
+      Symmetry_Loop: DO issg1=1,nsym
+*                                                                      *
+************************************************************************
+
         isp1=Mul(issg1,stsym)
         if (.not. DoFCIQMC) then
           nsgm1=CIS%ncsf(issg1)
@@ -236,10 +242,10 @@ C-is basically the number of buffers we fill with sigma1 vectors.
         itlev=idx2ij(1,ip1)
         iulev=idx2ij(2,ip1)
         istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
-        IF (istu.EQ.isp1) THEN
+        IF (istu==isp1) THEN
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
-          IF (ibuf1.EQ.1) TaskList(iTask,1)=ip1
+          IF (ibuf1==1) TaskList(iTask,1)=ip1
         ENDIF
         IF (ibuf1.EQ.nbuf1.OR.(ibuf1.GT.0.AND.
      &         (ip1.EQ.ntri2.OR.ip1.EQ.nlev2))) THEN
@@ -250,7 +256,7 @@ C-is basically the number of buffers we fill with sigma1 vectors.
         ENDIF
       ENDDO
       nTasks=iTask
-      IF (ibuf1.EQ.0) nTasks=nTasks-1
+      IF (ibuf1==0) nTasks=nTasks-1
 C-SVC20100309: calculate number of inner loop iteration tasks.
       iOffSet=0
       DO iTask=1,nTasks
@@ -301,8 +307,6 @@ C-SVC20100301: initialize the series of subtasks
       Call Init_Tsk(ID, nSubTasks)
 
       myBuffer=0
-
-
       Do
 
 C-SVC20100908: first check: can I actually do any task?
@@ -314,7 +318,7 @@ C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
       myTask=nTasks
       DO iTask=1,nTasks
         iBuf=iSubTask-TaskList(iTask,4)
-        IF (iBuf.LE.0) THEN
+        IF (iBuf<=0) THEN
           myTask=iTask-1
           Exit
         ENDIF
@@ -355,6 +359,7 @@ C-sigma vectors in the buffer.
       ELSE
         ibuf1=TaskList(iTask,3)
       ENDIF
+
 C-SVC20100301: necessary batch of sigma vectors is now in the buffer
       if (.not. DoFCIQMC) then
           ! The ip1 buffer could be the same on different processes
@@ -399,9 +404,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       izlev=idx2ij(2,ip3)
       isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
       issg2=Mul(isyz,stsym)
-      if (.not. DoFCIQMC) then
-         nsgm2=CIS%ncsf(issg2)
-      end if
+      if (.not. DoFCIQMC) nsgm2=CIS%ncsf(issg2)
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
       if (.not. DoFCIQMC) then
@@ -488,10 +491,12 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         if (.not. DoFCIQMC) then
             IF(IFF.ne.0) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
-                do icsf=1,nsgm1
-                  buft(icsf)= (bufd(icsf)-epsa(iv))*buft(icsf)
-                end do
+                BufT(1:nSgm1)=(BufD(:)-EpsA(iv))*BufT(:)
+!               do icsf=1,nsgm1
+!                 buft(icsf)= (bufd(icsf)-epsa(iv))*buft(icsf)
+!               end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
+
                 call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
      &           buft,1,Zero,bufr,1)
                 F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
@@ -538,10 +543,14 @@ C-position 12345678901234567890
         END IF
       END IF
 
+************************************************************************
+*                                                                      *
 * End of sectioning loop over symmetry of Sgm1 wave functions.
-      END DO
+      END DO Symmetry_Loop
 C-SVC20100831: set correct number of elements in new G3
       NG3=iG3OFF
+*                                                                      *
+************************************************************************
 
       CALL mma_deallocate(TASKLIST)
       ! free CI buffers
