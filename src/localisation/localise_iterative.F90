@@ -71,6 +71,10 @@ if (myModel == 'PIPE') then
     write(u6,'(1X,A)') 'Optimization Method  : Jacobi Sweeps'
   else if (OptMeth == 2) then
     write(u6,'(1X,A)') 'Optimization Method  : Newton Raphson'
+  else if (OptMeth == 3) then
+    write(u6,'(1X,A)') 'Optimization Method  : Gradient Ascent'
+  else if (OptMeth == 4) then
+    write(u6,'(1X,A)') 'Optimization Method  : S-GEK'
   end if
   If (ChargeType == 1) then
     write(u6,'(1X,A)') 'Framework for PMLoc  : Mulliken charges'

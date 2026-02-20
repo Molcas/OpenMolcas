@@ -162,9 +162,17 @@ do
             case('JACO')
             OptMeth = 1
 
-            case ('NEWT')
+             case ('NEWT')
             ! Newton Raphson for PM localisation
             OptMeth = 2
+
+            case ('GRAS')
+            ! Gradient Ascent for PM localisation
+            OptMeth = 3
+
+            case ('SGEK')
+            ! S-GEK for PM localisation
+            OptMeth = 4
 
             case default
                 write(u6,*) 'WARNING!!!'
