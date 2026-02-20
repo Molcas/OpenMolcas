@@ -18,7 +18,7 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName
 ! Based on the original routines by Y. Carissan.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType
@@ -31,17 +31,12 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
-                              SCR(:), Ovlp_sqrt(:,:)
+                              SCR(:), Ovlp_sqrt(:,:), kappa(:,:)
 logical(kind=iwp), parameter :: debug_lowdin = .false.
-
-! new stuff added for the GEK
-integer(kind=iwp) ::fullspace_dim,&
-                    n_SGEK, & !n^diis ()
-                    m_SGEK, &
-                    nExplicit ! number of vectors used to get a basis (some are likely linearly dependent)
-integer(kind=iwp), parameter :: Max_Iter_SGEK = 50, nWindow_SGEK = 20
+real(kind=wp), parameter :: alpha = 0.3
+real(kind=wp), External :: DDot_
 
 ! Initialization (iteration 0).
 ! -----------------------------
@@ -111,6 +106,7 @@ end if
 ! Iterations.
 ! -----------
 call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
+call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
 Converged = .false.
 
 do while ((nIter < nMxIter) .and. (.not. Converged))
@@ -128,16 +124,28 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     ! Gradient Ascent or Newton Raphson
     else if (OptMeth == 2 .or. OptMeth == 3) then
-        call RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt(:,:),GradientList(:,:,nIter),Hdiag(:,:),BName,nAtoms,&
-                       nBas_per_Atom,nBas_Start,PA(:,:,:)) !uses gradient info from previous iteration
+
+        kappa(:,:) = Zero
+        if (OptMeth == 2) then
+            kappa(:,:) = -GradientList(:,:,nIter)/Hdiag(:,:)
+        else if (OptMeth == 3) then
+            kappa(:,:) = alpha*GradientList(:,:,nIter)
+        end if
+        DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
+        Thr= 0.5E0_wp * Pi
+        If (DD>=Thr)Then
+        !           Write(6,*) 'Rescale Kappa(:,:)'
+            Kappa(:,:) = (Thr/DD)*Kappa(:,:)
+        End If
+
+        call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,BName,nAtoms,nBas_per_Atom,nBas_Start,PA(:,:,:))
+        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         FunctionalList(nIter+1)=Functional !first entry is from before first iteration
 
     ! GEK in full space
     else if (OptMeth == 4) then
-        call RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt(:,:),GradientList(:,:,nIter),Hdiag(:,:),BName,nAtoms,&
-                       nBas_per_Atom,nBas_Start,PA(:,:,:)) !uses gradient info from previous iteration
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         FunctionalList(nIter+1)=Functional !first entry is from before first iteration
@@ -185,6 +193,7 @@ if (OptMeth == 2 .or. OptMeth == 3) then
     call mma_Deallocate(Hdiag)
 end if
 
+call mma_Deallocate(kappa)
 call mma_Deallocate(PACol)
 call mma_Deallocate(Ovlp_sqrt)
 

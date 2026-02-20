@@ -43,6 +43,14 @@ real(kind=wp), allocatable :: aux_a(:), aux_b(:)
 real(kind=wp), external :: DDot_
 
 
+! new stuff added for the GEK
+integer(kind=iwp) ::fullspace_dim,&
+                    n_SGEK, & !n^diis ()
+                    m_SGEK, &
+                    nExplicit ! number of vectors used to get a basis (some are likely linearly dependent)
+integer(kind=iwp), parameter :: Max_Iter_SGEK = 50, nWindow_SGEK = 20
+
+
 
 !subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SORange)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

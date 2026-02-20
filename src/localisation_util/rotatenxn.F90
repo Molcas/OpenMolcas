@@ -11,11 +11,11 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt, Gradient, Hdiag, BName,nAtoms,nBas_per_Atom,nBas_Start,PA)
+subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis, BName,nAtoms,nBas_per_Atom,nBas_Start,PA)
 
 use definitions, only: wp,iwp,u6
 use stdalloc, only: mma_allocate, mma_deallocate
-use constants, only: Zero,One, Pi
+use constants, only: Zero,One
 use Molcas, only: LenIn
 use Localisation_globals, only: Debug, OptMeth
 
@@ -23,39 +23,20 @@ implicit none
 
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
-real(kind=wp), intent(in) :: Ovlp_sqrt(nBasis,nBasis),Gradient(nOrb2Loc,nOrb2Loc), Hdiag(nOrb2Loc,nOrb2Loc),Ovlp(nBasis,nBasis)
+real(kind=wp), intent(in) :: kappa(nOrb2Loc,nOrb2Loc)
 real(kind=wp), intent(out) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 
-real(kind=wp), allocatable :: kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:)
-real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp, alpha = 0.3
-real(kind=wp) :: factor, ithrsh, DD, Thr
+real(kind=wp), allocatable :: kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:)
+real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
+real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt,i,k, iBas
 logical(kind=iwp), parameter :: debug_exp = .false.
-real(kind=wp), External :: DDot_
 
-call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
 call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
 call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
 call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
 call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
-
-! define the transformation matrix
-kappa(:,:) = Zero
-kappa_cnt(:,:) = Zero
-xkappa_cnt(:,:) = Zero
-
-if (OptMeth == 2) then
-    kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
-else if (OptMeth == 3) then
-    kappa(:,:) = alpha*Gradient(:,:)
-end if
-DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
-Thr= 0.5E0_wp * Pi
-If (DD>=Thr)Then
-!           Write(6,*) 'Rescale Kappa(:,:)'
-    Kappa(:,:) = (Thr/DD)*Kappa(:,:)
-End If
 
 kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
 xkappa_cnt(:,:) = kappa_cnt
@@ -144,9 +125,7 @@ end do
 
 !reset CMO to be updated
 CMO(:,:) = rotated_CMO(:,:)
-call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 
-call mma_Deallocate(kappa)
 call mma_Deallocate(kappa_cnt)
 call mma_Deallocate(xkappa_cnt)
 call mma_Deallocate(unitary_mat)
