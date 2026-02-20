@@ -12,6 +12,11 @@
 !***********************************************************************
 
 subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,nAtoms,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+! this subroutine rotates the orbitals as CMO = exp(-kappa) * CMO
+!
+! for technical reasons, auxiliary matrices (kappa_cnt, xkappa_cnt, unitary_mat, rotated_CMO) are allocated outside of the loop
+! that calls this routine. However it would work perfectly fine if these are allocated and deallocated within this routine to reduce
+! the number of arguments (not recommended for speed)
 
 use definitions, only: wp,iwp,u6
 use stdalloc, only: mma_allocate, mma_deallocate

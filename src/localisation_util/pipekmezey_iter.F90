@@ -128,13 +128,22 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
     ! Gradient Ascent or Newton Raphson
-    else if (OptMeth == 2 .or. OptMeth == 3) then
+    else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
 
         kappa(:,:) = Zero
-        if (OptMeth == 2) then
+
+        if (OptMeth == 2) then ! Newton Raphson
             kappa(:,:) = -GradientList(:,:,nIter)/Hdiag(:,:)
-        else if (OptMeth == 3) then
+
+        else if (OptMeth == 3) then ! Gradient Ascent
             kappa(:,:) = alpha*GradientList(:,:,nIter)
+
+        else if (OptMeth == 4) then ! S-GEK
+
+            !construct subspace to define the following variables:
+            !call S_GEK_localisation()
+
+
         end if
 
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
@@ -150,15 +159,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         FunctionalList(nIter+1)=Functional !first entry is from before first iteration
 
-    ! GEK in full space
-    else if (OptMeth == 4) then
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        FunctionalList(nIter+1)=Functional !first entry is from before first iteration
-
-        !construct subspace to define the following variables:
-        !call S_GEK_localisation()
-   end if
+    end if
 
     !check if converged
     Delta = Functional-OldFunctional
