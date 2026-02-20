@@ -32,15 +32,15 @@ character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr
-real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
-                              SCR(:), Ovlp_sqrt(:,:),displacements(:,:,:),&
+real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
+                              SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:)
 logical(kind=iwp), parameter :: debug_lowdin = .false.
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
 !for S-GEK
-integer(kind=iwp) :: nDiis,iFirst
+integer(kind=iwp) :: nDiis,iFirst,fsdim,i,j,listindex
 integer(kind=iwp), parameter :: nWindow = 20
 
 ! Initialization (iteration 0).
@@ -49,8 +49,10 @@ integer(kind=iwp), parameter :: nWindow = 20
 if (.not. Silent) call CWTime(C1,W1)
 
 if (OptMeth == 2 .or. OptMeth == 3) then
-    call mma_Allocate(displacements,nOrb2Loc,nOrb2Loc,nWindow,Label='displacements')  ! kappa matrices
-    call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nWindow,Label='GradientList')
+    fsdim = nOrb2Loc*(nOrb2Loc-1)/2
+    call mma_Allocate(displacements,fsdim,nWindow,Label='displacements')  ! kappa matrices
+    call mma_Allocate(Gradient,nOrb2Loc,nOrb2Loc,Label='Gradient')
+    call mma_Allocate(GradientList,fsdim,nWindow,Label='GradientList')
     call mma_Allocate(FunctionalList,nWindow,Label='FunctionalList')
     FunctionalList(:)=0
     call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
@@ -95,8 +97,12 @@ else
 end if
 
 if (OptMeth == 2 .or. OptMeth == 3) then
-    FunctionalList(1)=Functional
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, GradientList(:,:,1), Hdiag(:,:))
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiag(:,:))
+    displacements(:,1) = Zero
+    GradientList(:,1) = Zero
+    call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
+
+    FunctionalList(1) = Functional
 end if
 
 OldFunctional = Functional
@@ -138,10 +144,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         kappa(:,:) = Zero
 
         if (OptMeth == 2) then ! Newton Raphson
-            kappa(:,:) = -GradientList(:,:,nIter)/Hdiag(:,:)
+            !kappa(:,:) = -GradientList(:,:,nIter)/Hdiag(:,:)
+            kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
 
         else if (OptMeth == 3) then ! Gradient Ascent
-            kappa(:,:) = alpha*GradientList(:,:,nIter)
+            !kappa(:,:) = alpha*GradientList(:,:,nIter)
+            kappa(:,:) = alpha*Gradient(:,:)
 
         else if (OptMeth == 4) then ! S-GEK
             ! the subroutine builds the subspace; calls the GEK_optimizer; returns a displacement in the fullspace -> kappa
@@ -149,7 +157,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             iFirst = nIter-nDIIS+1
             !call S_GEK_localisation(nOrb2Loc,nDiis,kappa,GradientList(:,:,iFirst:nIter))
 
-            kappa(:,:) = -GradientList(:,:,nIter)/Hdiag(:,:)
+            !kappa(:,:) = -GradientList(:,:,nIter)/Hdiag(:,:)
+            kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
         end if
 
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
@@ -161,7 +170,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,nAtoms,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
+        !call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiag(:,:)) ! gets the new gradient
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         FunctionalList(nIter+1)=Functional !first entry is from before first iteration
 
@@ -203,6 +213,7 @@ end if
 if (OptMeth == 2 .or. OptMeth == 3) then
     call mma_Deallocate(displacements)
     call mma_Deallocate(GradientList)
+    call mma_Deallocate(Gradient)
     call mma_Deallocate(FunctionalList)
     call mma_Deallocate(Hdiag)
 
@@ -216,6 +227,34 @@ end if
 call mma_Deallocate(PACol)
 call mma_Deallocate(Ovlp_sqrt)
 
-
 end subroutine PipekMezey_Iter
 
+subroutine upper_triag2vec(squaremat,matdim,vec,vecdim)
+
+use Definitions, only: u6,wp,iwp
+
+implicit none
+
+real(kind=wp),intent(in) :: squaremat(matdim,matdim)
+integer(kind=iwp),intent(in) :: matdim,vecdim
+real(kind=wp),intent(out) :: vec(vecdim)
+integer(kind=iwp) :: i,j,listindex
+
+call RecPrt("NxN Matrix",' ',squaremat,matdim,matdim)
+
+! putting the upper triagonal elements into the list; the grad mat is antisymmetric
+listindex=0
+do i=1,matdim-1
+    do j=i+1,matdim
+        listindex=listindex+1
+        if (.false.) then
+            write(u6,"(A,I5,A,I5,A,I5,A,F8.3)") "i=",i ,"j= ",j,"listindex=",listindex,"mat(i,j)=",squaremat(i,j)
+        end if
+        vec(listindex)=squaremat(i,j)
+    end do
+end do
+
+call RecPrt("matrix as vector of upper triagonal values:",' ',vec,listindex,1)
+
+
+end subroutine upper_triag2vec
