@@ -67,7 +67,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*), PUVX(*), D(*), D1A(*), FI(*), FA(*)
+real(kind=wp), intent(in) :: CMO(*), PUVX(*), D(*), D1A(*)
+real(kind=wp), intent(inout) :: FI(*), FA(*)
 integer(kind=iwp) :: i, iBas, iFro, ij, iOff, iOff1, iOff2, iOff3, iOrb, iPrLev, ipTmpFck, ipTmpFckA, ipTmpFckI, iSym, j, jOrb, &
                      nTmpFck
 real(kind=wp), allocatable :: TmpFck(:), Tmp1(:), Tmp2(:), TmpD1A(:)

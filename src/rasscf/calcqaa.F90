@@ -21,8 +21,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lRoots, nDDg
-real(kind=wp) :: Qaa, DDg(nDDg)
+real(kind=wp), intent(out) :: Qaa
+integer(kind=iwp), intent(in) :: lRoots, nDDg
+real(kind=wp), intent(in) :: DDg(nDDg)
 integer(kind=iwp) :: iLoc, Int1, iState, lRoots2
 
 lRoots2 = lRoots**2

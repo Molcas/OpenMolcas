@@ -60,8 +60,9 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*), OCCN(*), SMAT(*)
-logical(kind=iwp) :: lOPTO
+real(kind=wp), intent(inout) :: CMO(*), OCCN(*)
+real(kind=wp), intent(in) :: SMAT(*)
+logical(kind=iwp), intent(in) :: lOPTO
 integer(kind=iwp) :: i, iAd03, iAd12, iAd14, iAd15, iCharge, iComp, iDimN, iDimO, iDimV, iDum(56), iEnd, iGAS, Ind, iOpt, iPrLev, &
                      iRC, iRC1, iRC2, iRef, iStart, iSyLbl, iSym, iTemp, iTol, j, kRoot, left, luTmp, NAO, nDCInt, nMVInt, NO
 real(kind=wp) :: CASDFT_Funct, DM(3), Dum(1), EAV, EDC, Emv, Erel, Temp(2,mxRoot), vNentropy, xnu

@@ -28,8 +28,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nGD
-real(kind=wp) :: GD(nGD)
+integer(kind=iwp), intent(in) :: nGD
+real(kind=wp), intent(out) :: GD(nGD)
 integer(kind=iwp) :: CIDisk1, CIDisk2, IOffNIJ1, IOffNIJ2, ipq, iqp, jRoot, kRoot, NAC2, p, q
 real(kind=wp), allocatable :: SDtmp(:), TmpD(:)
 real(kind=wp), allocatable, target :: VecL(:), VecR(:)

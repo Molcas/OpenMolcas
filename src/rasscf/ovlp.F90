@@ -51,8 +51,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iWay
-real(kind=wp) :: C1(*), C2(*), Smat(*)
+integer(kind=iwp), intent(in) :: iWay
+real(kind=wp), intent(in) :: C1(*), C2(*)
+real(kind=wp), intent(out) :: Smat(NAC**2)
 integer(kind=iwp) :: iComp, iiOrb, ij, iOpt, iOrb, ipC, ipO, ipSMat, iRC, iSyLbl, iSym, jjOrb, jOrb, nAcO, nAs, nBs, nIs
 character(len=8) :: Label
 real(kind=wp), allocatable :: OAO(:), Scr1(:), Scr2(:)

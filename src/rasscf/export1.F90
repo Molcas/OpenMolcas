@@ -43,8 +43,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iFinal
-real(kind=wp) :: CMO(*), DA(*), PA(*), DAO(*), Focc(*)
+integer(kind=iwp), intent(in) :: iFinal
+real(kind=wp), intent(in) :: CMO(*), DA(*), PA(*), DAO(*), Focc(*)
 integer(kind=iwp) :: i, iR, iRLXRoot1, iRLXRoot2, iSA, nTemp(8), nW
 real(kind=wp) :: Dum(1), Tmp
 logical(kind=iwp) :: Found, SCF

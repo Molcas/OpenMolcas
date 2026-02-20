@@ -15,15 +15,14 @@
 ! Jie J. Bao, on Apr. 07, 2022, created this file.               *
 !*****************************************************************
 
-subroutine CMSHeader(CMSSFile,LenCMSS)
+subroutine CMSHeader(CMSSFile)
 
 use CMS, only: CMSGuessFile, iCMSOpt
 use rasscf_global, only: CMSThreshold, iCMSIterMax, iCMSIterMin, lRoots
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, u6
 
 implicit none
-integer(kind=iwp) :: LenCMSS
-character(len=LenCMSS) :: CMSSFile
+character(len=*), intent(in) :: CMSSFile
 
 write(u6,*)
 write(u6,*)

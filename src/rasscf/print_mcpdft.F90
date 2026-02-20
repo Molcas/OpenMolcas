@@ -29,7 +29,7 @@ use output_ras, only: IPRLOC
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CASDFT_E
+real(kind=wp), intent(in) :: CASDFT_E
 integer(kind=iwp) :: IPRLEV, left
 character(len=120) :: Line
 character(len=6) :: Fmt2

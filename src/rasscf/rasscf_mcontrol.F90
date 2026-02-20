@@ -19,7 +19,7 @@ use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: id_call
+integer(kind=iwp), intent(in) :: id_call
 integer(kind=iwp) :: iCount, iCount0, istatus
 character(len=512) :: List
 character(len=32) :: val

@@ -22,8 +22,8 @@ use Constants, only: deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iStep, lRoots
-real(kind=wp) :: Qnew, Qold, RMat(lRoots**2)
+integer(kind=iwp), intent(in) :: iStep, lRoots
+real(kind=wp), intent(in) :: Qnew, Qold, RMat(lRoots**2)
 real(kind=wp) :: Diff
 
 !write(u6,*) 'iteration information'

@@ -16,7 +16,7 @@ use output_ras, only: IPRGLB, IPRLOC
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPRGLB_IN, IPRLOC_IN(7)
+integer(kind=iwp), intent(in) :: IPRGLB_IN, IPRLOC_IN(7)
 integer(kind=iwp) :: I
 logical(kind=iwp), external :: REDUCE_PRT
 

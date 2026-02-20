@@ -16,10 +16,10 @@ subroutine ReadMat(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NRow, NCol, LenName, LenInfo
-character(len=LenName) :: FileName
-character(len=LenInfo) :: MatInfo
-real(kind=wp) :: Matrix(NRow,NCol)
+integer(kind=iwp), intent(in) :: NRow, NCol, LenName, LenInfo
+character(len=LenName), intent(in) :: FileName
+character(len=LenInfo), intent(out) :: MatInfo
+real(kind=wp), intent(out) :: Matrix(NRow,NCol)
 character :: Trans
 integer(kind=iwp) :: ICol, IRow, LU
 integer(kind=iwp), external :: IsFreeUnit

@@ -111,7 +111,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IReturn
+integer(kind=iwp), intent(out) :: IReturn
 integer(kind=iwp) :: actual_iter, i, i_ROOT, iAd, iAd15, iBas, iComp, iFinal, iFlags, ihh, imm, Ind, IndType(7,8), iOff, iOpt, &
                      iPrLev, iRC, iRot, iss, istatus, iSyLbl, iSym, iTerm, j, kau, kRoot, LuOne, LuvvVec, mRoots, NoScr1, nTav, &
                      RC_RAS
@@ -156,7 +156,6 @@ wfn_fileid = 0
 
 ! Set some Cholesky stuff
 DoActive = .true.
-lOPTO = .false.
 ! Initialise doDMRG if compiled without QCMaquis
 #ifndef _DMRG_
 DoDMRG = .false.
@@ -1914,6 +1913,8 @@ return
 contains
 
 subroutine Finalize()
+
+  integer(kind=iwp) :: I
 
   ! Close the one-electron integral file:
   iRC = -1

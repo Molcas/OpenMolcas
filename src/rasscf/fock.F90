@@ -46,9 +46,13 @@ use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: F(*), BM(*), FI(*), FP(*), D(*), P(*), Q(*), FINT(*), CMO(*)
-integer(kind=iwp) :: iFinal
+real(kind=wp), intent(_OUT_) :: F(*), BM(*), Q(*)
+real(kind=wp), intent(in) :: FI(*), D(*), P(*), FINT(*), CMO(*)
+real(kind=wp), intent(inout) :: FP(*)
+integer(kind=iwp), intent(in) :: iFinal
 integer(kind=iwp) :: ipBM, ipFMCSCF, ipMOs, ipQs, iPrLev, ISTAV(8), ISTBM, ISTD, ISTFCK, ISTFP, ISTP, ISTSQ(8), ISTZ, iSym, IX, &
                      IX1, JSTF, N1, N2, NAO, NAS, NEO, NI, NIA, NIO, NIS, NM, NO, NO2, nOr, NP, NPQ, NQ, nSs, NT, NTM, NTT, NTU, &
                      NTV, NU, NUVX, NV, NVI, NVM

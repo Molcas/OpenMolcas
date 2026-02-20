@@ -20,13 +20,15 @@ subroutine CMSScaleX(X,R,DeltaR,Qnew,Qold,RCopy,GDCopy,DgCopy,GDstate,GDOrbit,Dg
 
 use CMS, only: NCMSScale
 use rasscf_global, only: CMSThreshold, lRoots
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSPair, lRoots2, nGD, NAC2, nDDg
-real(kind=wp) :: X(nSPair), R(lRoots2), DeltaR(lRoots2), Qnew, QOld, RCopy(lRoots2), GDCopy(nGD), DgCopy(nGD), GDState(nGD), &
-                 GDOrbit(nGD), Dgstate(nGD), DgOrbit(nGD), DDg(nDDg)
-logical(kind=iwp) :: Saved
+integer(kind=iwp), intent(in) :: nSPair, lRoots2, nGD, NAC2, nDDg
+real(kind=wp), intent(inout) :: X(nSPair), Qnew, GDstate(nGD), Dgstate(nGD)
+real(kind=wp), intent(out) :: R(lRoots2), DeltaR(lRoots2), GDOrbit(nGD), DgOrbit(nGD), DDg(nDDg)
+real(kind=wp), intent(in) :: QOld, RCopy(lRoots2), GDCopy(nGD), DgCopy(nGD)
+logical(kind=iwp), intent(out) :: Saved
 integer(kind=iwp) :: nScaleMax
 
 Saved = .true.
@@ -50,7 +52,7 @@ do while ((Qold-Qnew) > CMSThreshold)
   call RotGD(Dgstate,DeltaR,nGD,lRoots,NAC2)
   call Trnsps(lRoots2,NAC2,Dgstate,Dgorbit)
   call Trnsps(lRoots2,NAC2,GDstate,GDorbit)
-  call CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
+  call DGEMM_('T','N',lRoots2,lRoots2,NAC2,One,Dgorbit,NAC2,GDorbit,NAC2,Zero,DDg,lRoots2)
   call CalcQaa(Qnew,DDg,lRoots,nDDg)
 
 end do

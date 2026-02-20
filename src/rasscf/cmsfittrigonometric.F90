@@ -21,7 +21,7 @@ use Constants, only: Four, Quart, Pi
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: x(4), y(4)
+real(kind=wp), intent(inout) :: x(4), y(4)
 real(kind=wp) :: a, b, c, c12, c23, d12, d23, k, phi, psi1, psi2, s12, s23, val1, val2
 real(kind=wp), parameter :: atan1 = Quart*Pi
 

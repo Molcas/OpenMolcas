@@ -15,26 +15,22 @@
 ! Jie J. Bao, on Apr. 12, 2022, created this file.               *
 !*****************************************************************
 
-subroutine CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
+subroutine CalcGradCMS(Grad,DDg,lRoots,nSPair)
 
 use Index_Functions, only: iTri
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDDg, lRoots, nSPair
-real(kind=wp) :: Grad(nSPair), DDg(nDDg)
-integer(kind=iwp) :: iKL, iLoc1, iLoc2, K, L, lRoots2, lRoots3
-
-lRoots2 = lRoots**2
-lRoots3 = lRoots*lRoots2
+integer(kind=iwp), intent(in) :: lRoots, nSPair
+real(kind=wp), intent(out) :: Grad(nSPair)
+real(kind=wp), intent(in) :: DDg(lRoots,lRoots,lRoots,lRoots)
+integer(kind=iwp) :: iKL, K, L
 
 do K=2,lRoots
   do L=1,K-1
-    iLoc1 = K+(K-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
-    iLoc2 = L+(L-1)*lRoots+(K-1)*lRoots2+(L-1)*lRoots3
     iKL = iTri(K-1,L)
-    Grad(iKL) = DDg(iLoc1)-DDg(iLoc2)
+    Grad(iKL) = DDg(K,K,K,L)-DDg(L,L,K,L)
   end do
 end do
 Grad(:) = Two*Grad(:)

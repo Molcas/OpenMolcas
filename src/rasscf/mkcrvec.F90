@@ -21,7 +21,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO_0(NTOT2), CRVEC(NTOT)
+real(kind=wp), intent(in) :: CMO_0(NTOT2)
+real(kind=wp), intent(out) :: CRVEC(NTOT)
 integer(kind=iwp) :: ICOMP, IOPT, IRC, ISYMLBL, NB, NFI
 character(len=8) :: LABEL
 real(kind=wp), allocatable :: SAO(:,:), STRI(:)

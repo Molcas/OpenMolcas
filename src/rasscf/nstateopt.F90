@@ -27,7 +27,8 @@ use Constants, only: Zero, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: RotMat(lRoots,lRoots), DDG(lRoots,lRoots,lRoots,lRoots)
+real(kind=wp), intent(inout) :: RotMat(lRoots,lRoots)
+real(kind=wp), intent(in) :: DDG(lRoots,lRoots,lRoots,lRoots)
 integer(kind=iwp) :: ICMSIter, IPair, iPrLev, IState, JState, NPairs
 real(kind=wp) :: VeeSumNew, VeeSumOld
 logical(kind=iwp) :: Converged

@@ -16,8 +16,10 @@ use output_ras, only: IPRLOC
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: LUNIT, iRC
-character(len=*) KeyIn, Line
+integer(kind=iwp), intent(in) :: LUNIT
+character(len=*), intent(in) :: KeyIn
+character(len=*), intent(out) :: Line
+integer(kind=iwp), intent(out) :: iRC
 integer(kind=iwp) :: IPRLEV, istatus, KLen
 character(len=16) :: Command, Key
 #include "warnings.h"

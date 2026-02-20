@@ -77,10 +77,12 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*), OCC(*), D(*), P(*), PA(*), FI(*), FA(*), D1A(*), THMAX
-integer(kind=iwp) :: IFINAL
+real(kind=wp), intent(inout) :: CMO(*), OCC(*), P(*), FI(*), FA(*)
+real(kind=wp), intent(in) :: D(*), PA(*), D1A(*)
+real(kind=wp), intent(out) :: THMAX
+integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iBas, IC, iDisk, IndType(7,8), iOff, iOrb, iPrLev, iRC, iRef, iSym, iWay, j, kMax, LCSXI, LuvvVec, MIAAE, &
-                     MNO, NAEAE, NAOAE, NCR, NCR1, NIAIA, NLCC, NLHH, NLOVL, NLQ, NLX1, NLX2, nP2Act, NQ
+                     MNO, NAEAE, NAOAE, NCR, NCR1, NIAIA, NLCC, NLHH, NLOVL, NLQ, nP2Act, NQ
 real(kind=wp) :: CASDFT_En, CIDUMMY(1), CPES, CPTS, Dummy(1), P2act(1), P2reo_size, TIOES, TIOS, XSXMAX
 character(len=80) :: VecTyp
 logical(kind=iwp) :: TraOnly
@@ -124,8 +126,6 @@ if (IPRLEV >= DEBUG) write(u6,*) ' Entering SXCTL'
 ! --------------------------------------
 
 ! compute constants needed for addressing
-NLX1 = maxval(NORB(1:NSYM)**2)
-NLX2 = maxval(NBAS(1:NSYM)*NORB(1:NSYM))
 NSXS = sum((NISH(1:NSYM)+NASH(1:NSYM))*(NASH(1:NSYM)+NSSH(1:NSYM)))
 NIAIA = sum((NISH(1:NSYM)+NASH(1:NSYM))**2)
 NAEAE = sum((NASH(1:NSYM)+NSSH(1:NSYM))**2)

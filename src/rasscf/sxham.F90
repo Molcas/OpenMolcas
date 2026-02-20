@@ -48,13 +48,16 @@ use general_data, only: NASH, NBAS, NFRO, NISH, NORB, NSSH, NSYM
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: D(*), P(*), PA(*), FP(*), SXN(*), F1(*), F2(*), DIA(*), G(*), H(*), HDIAG(*), DF(*), DDIAG(*)
+real(kind=wp), intent(in) :: D(*), PA(*), FP(*)
+real(kind=wp), intent(_OUT_) :: P(*), SXN(*), F1(*), F2(*), DIA(*), G(*), H(*), HDIAG(*), DF(*), DDIAG(*)
 integer(kind=iwp) :: I, IASHI, IASHJ, IPQ, IPRLEV, IQP, IROOT1, ISTAE, ISTBM, ISTD, ISTFP, ISTFPJ, ISTH, ISTIA, ISTZ, ISYM, IX, &
                      IX1, JSYM, JUSTONE, NAE, NAO, NAOJ, NEO, NIA, NIO, NIOJ, NO, NP, nP2Act, NPR, NQ, NR, NRR, NT, NTT, NTU, &
                      NTUT, NTUTU, NTUVX, NU, NUT, NV, NVT, NVX, NVXF, NVXT, NX, NXT
 real(kind=wp) :: DPP, DRR, DTU, FAC, FACD, FPP, GTU, HDMIN, HPP, P2Act(1), PRPR, SXNRM2, XLEV
-real(kind=wp), parameter :: THRA = 1.0e-6_wp
+real(kind=wp), parameter :: Large = 1.0e32_wp, THRA = 1.0e-6_wp
 #include "warnings.h"
 
 ! -- THRA: THRESHOLD FOR WARNING, ACTIVE OCC NO CLOSE TO 0 OR 2.
@@ -92,9 +95,11 @@ do ISYM=1,NSYM
 
     justone = 0
     do NP=1,NO
-      if (NP <= NIO) DDIAG(NP) = Two
-      if (NP > NIA) DDIAG(NP) = Zero
-      if ((NP > NIO) .and. (NP <= NIA)) then
+      if (NP <= NIO) then
+        DDIAG(NP) = Two
+      else if (NP > NIA) then
+        DDIAG(NP) = Zero
+      else
         DDIAG(NP) = D(ISTD+nTri_Elem(NP-NIO))
         if ((DDIAG(NP) < THRA) .and. (ISCF == 0)) then
           if (JustOne == 0) then
@@ -308,12 +313,12 @@ do ISYM=1,NSYM
           NT = NP
           NU = NR-NIO
           if (NT <= NU) then
-            HDIAG(NPR+NROOT) = 1.0e32_wp
+            HDIAG(NPR+NROOT) = Large
             SXN(NPR) = Zero
           else
             NTU = ISTZ+nTri_Elem(NT-2)+NU
             if (IZROT(NTU) /= 0) then
-              HDIAG(NPR+NROOT) = 1.0e32_wp
+              HDIAG(NPR+NROOT) = Large
               SXN(NPR) = Zero
               !write(u6,*) 'SXHAM. IZROT == 1 for NP,NR=',NP,NR
             end if
@@ -324,7 +329,7 @@ do ISYM=1,NSYM
 
         if (IXSYM(NR+IX) /= IXSYM(NP+NIO+IX)) then
           !write(u6,*) 'SXHAM. IXSYM forbids NP,NR=',NP,NR
-          HDIAG(NPR+NROOT) = 1.0e32_wp
+          HDIAG(NPR+NROOT) = Large
           SXN(NPR) = Zero
         end if
 
@@ -364,7 +369,7 @@ end do
 
 XLEV = LVSHFT
 SXSHFT = Zero
-HDMIN = 1.0e32_wp
+HDMIN = Large
 do I=NROOT+1,NROOT+NSXS
   if (HDIAG(I) < HDMIN) HDMIN = HDIAG(I)
 end do

@@ -61,12 +61,13 @@ use rctfld_module, only: lRF
 use PrintLevel, only: DEBUG
 use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*)
-real(kind=wp), intent(inout) :: F(*), FI(*), D1S(*)
+real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*), D1S(*)
+real(kind=wp), intent(out) :: F(NACPAR)
+real(kind=wp), intent(inout) :: FI(nTot1)
 integer(kind=iwp) :: i, iadd, ibas, icharge, iComp, ioff, iopt, iprlev, irc, iSyLbl, iSym, iTu, j, mxna, mxnb, nAt, nst, nt, &
                      ntmpfck, ntu, nu, nvxc
 real(kind=wp) :: CASDFT_Funct, dum1, dum2, dum3, dumm(1), Emyn, Eone, Erf1, Erf2, Erfx, Etwo, potnuc_ref, Time(2)
@@ -246,7 +247,7 @@ if (Do_ESPF .or. lRF .or. (KSDFT /= 'SCF') .or. Do_OFemb) then
   ERFX = ERF1-Half*ERF2
   Tmp1(:) = Tmp1(:)+Tmp5(:)
 
-  FI(1:nTot1) = FI(1:nTot1)+Tmp6(:)
+  FI(:) = FI(:)+Tmp6(:)
 
   call mma_deallocate(Tmp6)
   call mma_deallocate(Tmp5)
@@ -352,7 +353,7 @@ if (IPRLEV >= DEBUG) then
 end if
 
 ! Assemble the one-electron Tmp1 and two-electron contribution to AO Fock matrix
-FI(1:nTot1) = FI(1:nTot1)+Tmp1(:)
+FI(:) = FI(:)+Tmp1(:)
 call mma_deallocate(Tmp1)
 
 if (IPRLEV >= DEBUG) then
@@ -377,7 +378,7 @@ call mma_allocate(X0,NTOT1,Label='X0')
 call mma_allocate(X1,NTOT1,Label='X1')
 call mma_allocate(X2,MXNB*MXNB,Label='X2')
 call mma_allocate(X3,MXNB*MXNA,Label='X3')
-X1(:) = FI(1:NTOT1)
+X1(:) = FI(:)
 if ((KSDFT(1:3) /= 'SCF') .and. (KSDFT(1:3) /= 'PAM')) then
   call Get_dExcdRa(TmpFckI,nTmpFck)
   X1(:) = X1(:)+TmpFckI(:)
@@ -410,7 +411,7 @@ end if
 call MOTRAC(CMO,X1,X2,X3)
 call mma_deallocate(X3)
 call mma_deallocate(X2)
-F(1:NACPAR) = Zero
+F(:) = Zero
 NTU = 0
 ITU = 0
 IADD = 0

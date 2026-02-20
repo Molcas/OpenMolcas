@@ -31,7 +31,7 @@ subroutine gasprwf(NORB,NEL,IREFSM,ICONF,ISPIN,CICOEF,kcnf)
 !               spin coupling information                              *
 !     nSm     : array of integer                                       *
 !               symmetry per active orbital                            *
-!     CiCoef   : array of real*8                                       *
+!     CiCoef  : array of real*8                                        *
 !               incoming CI vector                                     *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -48,8 +48,9 @@ use Molcas, only: MxAct
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nOrb, nEl, iRefSM, ICONF(*), ISPIN(*), KCNF(NEL)
-real(kind=wp) :: CICOEF(*)
+integer(kind=iwp), intent(in) :: nOrb, nEl, iRefSM, ICONF(*), ISPIN(*)
+real(kind=wp), intent(in) :: CICOEF(*)
+integer(kind=iwp), intent(out) :: KCNF(NEL)
 integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, iCSBAS, ICSFJP, IIBCL, IIBOP, IICSF, iOff, iOpen, iOrb, ipBas, iSym, iTyp, &
                      IWALK(mxAct), jOCC, kOCC, kOrb
 real(kind=wp) :: COEF

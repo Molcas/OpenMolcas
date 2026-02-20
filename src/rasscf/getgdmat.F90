@@ -23,7 +23,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: GDMat(nTri_Elem(lRoots),NAC,NAC)
+real(kind=wp), intent(out) :: GDMat(nTri_Elem(lRoots),NAC,NAC)
 integer(kind=iwp) :: CIDisk1, CIDisk2, iOrb, jRoot, kRoot
 real(kind=wp), allocatable :: SDtmp(:), TmpD(:), VecL(:), VecR(:)
 

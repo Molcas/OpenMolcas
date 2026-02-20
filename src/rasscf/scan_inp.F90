@@ -27,7 +27,7 @@ use output_ras, only: IPRLOC
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iRC
+integer(kind=iwp), intent(inout) :: iRC
 integer(kind=iwp) :: iCMD, istatus
 character(len=180) :: Line
 character(len=4) :: Command

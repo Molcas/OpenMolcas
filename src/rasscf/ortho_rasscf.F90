@@ -40,8 +40,11 @@ use general_data, only: LOWDIN_ON, NBAS, NDEL, NSYM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Smat(*), SCRATCH(*), CMO(*), Temp(*)
+real(kind=wp), intent(_OUT_) :: Smat(*), SCRATCH(*), Temp(*)
+real(kind=wp), intent(inout) :: CMO(*)
 integer(kind=iwp) :: i_Component, i_Opt, i_RC, i_SymLbl, iBas, iOcc, ip_CMO, ip_SMat, iSym
 character(len=8) :: Label
 #include "warnings.h"

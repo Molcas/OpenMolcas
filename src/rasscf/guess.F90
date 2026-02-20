@@ -37,11 +37,12 @@ use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use general_data, only: NBAS, NSYM, NTOT1
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMO(*)
+real(kind=wp), intent(_OUT_) :: CMO(*)
 integer(kind=iwp) :: i1, i2, iBas, iComp, iOpt, iRC, iSyLbl, iSym
 character(len=8) :: Label
 real(kind=wp), allocatable :: Tmp1(:)

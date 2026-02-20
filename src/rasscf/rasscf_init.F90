@@ -41,7 +41,6 @@ use rasscf_global, only: CMSStartMat, CMSThreshold, CORESHIFT, Ener, ExFac, hRoo
 use general_data, only: ISPIN, LOWDIN_ON, NACTEL, NALTER, NASH, NBAS, NDEL, NELEC3, NFRO, NHOLE1, NISH, NRS1, NRS2, NRS3, NRS3, &
                         NSEL, NSSH, STARTORBFILE, STSYM, SXDAMP
 use spinfo, only: I_ELIMINATE_GAS_MOLCAS, ISPEED
-use Molcas, only: MxOrb, MxRoot, MxSym
 use RASDim, only: MxCIIt, MxIter, MxSXIt
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp

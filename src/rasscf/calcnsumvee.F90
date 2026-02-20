@@ -19,12 +19,11 @@ function CalcNSumVee(RotMat,DDg)
 
 use rasscf_global, only: lRoots
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: RotMat(lroots,lroots), DDG(lRoots,lRoots,lRoots,lRoots)
 real(kind=wp) :: CalcNSumVee
+real(kind=wp), intent(in) :: RotMat(lRoots,lRoots), DDG(lRoots,lRoots,lRoots,lRoots)
 real(kind=wp), allocatable :: Vee(:)
 
 call mma_allocate(Vee,lRoots)

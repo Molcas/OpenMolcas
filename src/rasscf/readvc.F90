@@ -76,7 +76,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
-real(kind=wp) :: CMO(*), OCC(*), D(*), DS(*), P(*), PA(*)
+real(kind=wp), intent(out) :: CMO(nTot2)
+real(kind=wp), intent(inout) :: OCC(nTot), D(nAcPar), DS(nAcPar), P(nAcpr2), PA(nAcpr2)
 type(t_ON_scheme), intent(in) :: scheme
 integer(kind=iwp) :: i, iAD15, IAD19, IADR19(30), iDisk, iDummy(1), iErr, iJOB, iPrlev, iSym, jRoot, kRoot, lll, nData, NNwOrd, &
                      nTmp(8)
@@ -91,7 +92,6 @@ integer(kind=iwp), allocatable :: JobH(:), NewOrd(:), TIND(:), TmpXSym(:)
 real(kind=wp), allocatable :: CMO_copy(:), Ene(:), JobR(:), Scr(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: mh5id
-!character(len=maxbfn) :: typestring
 character(len=:), allocatable :: typestring
 #endif
 integer(kind=iwp), external :: isfreeunit
@@ -265,13 +265,13 @@ else if (InVec == 3) then
         end if
       end do
       call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
-      D(1:NACPAR) = D(1:NACPAR)+Scal*Scr(1:NACPAR)
+      D(:) = D(:)+Scal*Scr(1:NACPAR)
       call DDaFile(JOBOLD,2,scr,NACPAR,iDisk)
-      DS(1:NACPAR) = DS(1:NACPAR)+Scal*Scr(1:NACPAR)
+      DS(:) = DS(:)+Scal*Scr(1:NACPAR)
       call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
-      P(1:NACPR2) = P(1:NACPR2)+Scal*Scr(1:NACPR2)
+      P(:) = P(:)+Scal*Scr(:)
       call DDaFile(JOBOLD,2,scr,NACPR2,iDisk)
-      PA(1:NACPR2) = PA(1:NACPR2)+Scal*Scr(1:NACPR2)
+      PA(:) = PA(:)+Scal*Scr(:)
     end do
     call mma_deallocate(Scr)
   end if
@@ -340,9 +340,9 @@ else if (InVec == 4) then
   call abend()
 # endif
 
+else if (InVec == 5) then
   ! guess MO-coefficients
 
-else if (InVec == 5) then
   if (IPRLEV >= VERBOSE) write(u6,'(6x,a)') 'Detected guessorb orbitals'
   call Qpg_dArray('Guessorb',Found,nData)
   call Get_dArray('Guessorb',CMO,nData)
@@ -442,8 +442,8 @@ if (PURIFY(1:4) == 'ATOM') call SPHPUR(CMO)
 
 if (scheme%val /= ON_scheme_values%no_ON) then
   call mma_allocate(CMO_copy,nTot2)
-  CMO_copy(:nTot2) = CMO(:nTot2)
-  call orthonormalize(CMO_copy,scheme,CMO(:nTot2))
+  CMO_copy(:) = CMO(:)
+  call orthonormalize(CMO_copy,scheme,CMO)
   call mma_deallocate(CMO_copy)
 end if
 

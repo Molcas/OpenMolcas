@@ -22,8 +22,10 @@ use Constants, only: Zero, Three, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: I1, I2, lRoots
-real(kind=wp) :: Angle, SumVee, RotMat(lRoots,lRoots), DDg(lRoots,lRoots,lRoots,lRoots)
+real(kind=wp), intent(out) :: Angle, SumVee
+integer(kind=iwp), intent(in) :: I1, I2, lRoots
+real(kind=wp), intent(inout) :: RotMat(lRoots,lRoots)
+real(kind=wp), intent(in) :: DDg(lRoots,lRoots,lRoots,lRoots)
 integer(kind=iwp) :: IA, IMax, Iter, IterMax
 real(kind=wp) :: StepSize, SumOld
 logical(kind=iwp) :: Converged

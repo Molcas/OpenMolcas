@@ -28,9 +28,9 @@
 !> @param[out]    DS     Average spin 1-dens matrix
 !> @param[out]    P      Average symm. 2-dens matrix
 !> @param[out]    PA     Average antisymm. 2-dens matrix
-!> @param[out]    FI     Fock matrix from inactive density
-!> @param[in,out] D1I    Inactive 1-dens matrix
-!> @param[in,out] D1A    Active 1-dens matrix
+!> @param[in,out] FI     Fock matrix from inactive density
+!> @param[in]     D1I    Inactive 1-dens matrix
+!> @param[in]     D1A    Active 1-dens matrix
 !> @param[in]     TUVX   Active 2-el integrals
 !> @param[in]     IFINAL Calculation status switch
 !> @param[in]     IRst   DMRG restart status switch
@@ -57,8 +57,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*), D(*), DS(*), P(*), PA(*), FI(*), D1I(*), D1A(*), TUVX(*)
-integer(kind=iwp) :: iFinal, IRst
+real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*), TUVX(*)
+real(kind=wp), intent(inout) :: D(NACPAR), DS(NACPAR), P(NACPR2), PA(NACPR2), FI(*)
+integer(kind=iwp), intent(in) :: iFinal, IRst
 integer(kind=iwp) :: i, iPrLev, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
 real(kind=wp) :: dum1, dum2, dum3, rdum(1), Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF
@@ -217,7 +218,7 @@ else
 
   call mma_allocate(TmpDS,NACPAR,Label='TmpDS')
   call mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
-  TmpDS(:) = DS(1:NACPAR)
+  TmpDS(:) = DS(:)
   if (NASH(1) /= NAC) call DBLOCK(TmpDS)
   call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
   call mma_deallocate(TmpDS)
@@ -274,12 +275,12 @@ if (IfVB /= 2) then
   ! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 
   call Timing(Time(1),dum1,dum2,dum3)
-  D(1:NACPAR) = Zero
-  DS(1:NACPAR) = Zero
-  P(1:NACPR2) = Zero
-  PA(1:NACPR2) = Zero
-  call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
-  call mma_allocate(DStmp,NAC**2,Label='DStmp')
+  D(:) = Zero
+  DS(:) = Zero
+  P(:) = Zero
+  PA(:) = Zero
+  call mma_allocate(Dtmp,NACPAR,Label='Dtmp')
+  call mma_allocate(DStmp,NACPAR,Label='DStmp')
   call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
   call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
   jDisk = IADR15(3)
@@ -321,10 +322,10 @@ if (IfVB /= 2) then
         exit
       end if
     end do
-    D(1:NACPAR) = D(1:NACPAR)+Scal*Dtmp(1:NACPAR)
-    DS(1:NACPAR) = DS(1:NACPAR)+Scal*DStmp(1:NACPAR)
-    P(1:NACPR2) = P(1:NACPR2)+Scal*Ptmp(1:NACPR2)
-    PA(1:NACPR2) = PA(1:NACPR2)+Scal*PAtmp(1:NACPR2)
+    D(:) = D(:)+Scal*Dtmp(:)
+    DS(:) = DS(:)+Scal*DStmp(:)
+    P(:) = P(:)+Scal*Ptmp(:)
+    PA(:) = PA(:)+Scal*PAtmp(:)
     ! save density matrices on disk
     call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
     call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)

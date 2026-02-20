@@ -40,7 +40,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CMO(*)
+real(kind=wp), intent(inout) :: CMO(*)
 integer(kind=iwp) :: i, ij, iSym, j
 
 ! Body

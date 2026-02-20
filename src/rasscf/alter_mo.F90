@@ -40,7 +40,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*)
+real(kind=wp), intent(inout) :: CMO(*)
 integer(kind=iwp) :: iAlter, iAlteri, iAlterj, iOrb, iSym, jOrb
 real(kind=wp), allocatable :: CMOex(:)
 

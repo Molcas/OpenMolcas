@@ -27,8 +27,11 @@ use general_data, only: NSYM, NASH, NISH, NSSH, SXDAMP
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CIN(*), HC(*), HD(*), BM(*), SXN(*), G(*), H(*), DIA(*), F1(*), F2(*), X(*), C(*)
+real(kind=wp), intent(in) :: CIN(*), HD(*), BM(*), SXN(*), G(*), H(*), DIA(*), F1(*), F2(*)
+real(kind=wp), intent(_OUT_) :: HC(*), X(*), C(*)
 integer(kind=iwp) :: NTRIAL
 integer(kind=iwp) :: I, iPrLev, ISTAE, ISTBM, ISTH, ISTIA, ISTZ, ISYM, ITRIAL, NAE, NAO, NEO, NIA, NIO, NNST, NST
 

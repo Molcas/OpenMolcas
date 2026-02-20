@@ -65,8 +65,11 @@ use RASWfn, only: wfn_mocoef, wfn_occnum, wfn_orbene
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMOO(*), CMON(*), FP(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*), D(*), OCCN(*)
+real(kind=wp), intent(in) :: CMOO(*), FP(*), D(*)
+real(kind=wp), intent(_OUT_) :: CMON(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*), OCCN(*)
 integer(kind=iwp) :: i, iAd15, iB, iBas, iGas, ii, iOff, iOrd, iPrLev, iST, iSTD, iSTFCK, iSTI, iSTM, iSTMO, iSTMO1, iSTMOA, iSYM, &
                      ixSymT, j, jSel, k, M_IN, N_OT, NA, NA1, NAB, NABT, NAO, NAT, NB, NBF, NBT, NDNB, NDO, NEO, NEO1, NFI_, NFNB, &
                      NFO, NI, NI1, NIJ, NIO, NIO1, NJ, NO1, NOO, NT, NTTR, NTU, NTUD, NU, NUT
@@ -381,7 +384,7 @@ end if
 !***********************************************************************
 !     Orthogonalise new orbitals
 !***********************************************************************
-call ORTHO_rASSCF(WO,CMOX,CMON,SQ)
+call ORTHO_RASSCF(WO,CMOX,CMON,SQ)
 if (IPRLEV >= DEBUG) then
   write(u6,*)
   write(u6,*) ' CMO in NEWORB_RASSCF after diag and orthog'

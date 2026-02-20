@@ -22,11 +22,14 @@ use general_data, only: JOBIPH, NBAS, NSYM, NTOT1, NTOT2
 use DWSol, only: DWSol_wgt, DWSolv, W_SOLV
 use rctfld_module, only: lRF
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: D(*), DS(*), P(*), DAO(*), C(*)
+real(kind=wp), intent(_OUT_) :: D(*), DS(*), P(*), DAO(*)
+real(kind=wp), intent(in) :: C(*)
 integer(kind=iwp) :: i, iFinal, iPrLev, istmp, itmp, jDisk, jtmp, kDisk, left, NFSize, NZ
 real(kind=wp) :: rdum(1), rTmp, wgt
 character(len=8) :: Fmt2

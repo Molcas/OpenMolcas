@@ -32,7 +32,7 @@ use general_data, only: ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONE
 use Definitions, only: iwp, u6
 
 implicit none
-logical(kind=iwp) :: DSCF, DoCholesky
+logical(kind=iwp), intent(out) :: DSCF, DoCholesky
 integer(kind=iwp) :: iOpt, iRC
 logical(kind=iwp) :: test
 integer(kind=iwp), external :: IsFreeUnit

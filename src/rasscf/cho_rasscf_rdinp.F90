@@ -24,8 +24,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: DFonly
-integer(kind=iwp) :: LuInput
+logical(kind=iwp), intent(in) :: DFonly
+integer(kind=iwp), intent(in) :: LuInput
 integer(kind=iwp) :: iChrct, iCLast, Last
 character(len=180) :: Key, KWord
 real(kind=wp) :: DMPK_DFL

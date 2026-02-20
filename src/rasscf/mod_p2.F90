@@ -18,8 +18,9 @@ use Constants, only: One, Two, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nP2Act, nD1mo, nDet
-real(kind=wp) :: P2mo(nP2Act), D1mo(nD1mo), DS1mo(nD1mo), ExFac
+integer(kind=iwp), intent(in) :: nP2Act, nD1mo, nDet
+real(kind=wp), intent(inout) :: P2mo(nP2Act)
+real(kind=wp), intent(in) :: D1mo(nD1mo), DS1mo(nD1mo), ExFac
 integer(kind=iwp) :: i, i_, iIrrep, ij, ijIrrep, ijkIrrep, ijkl, ik, il, j, j_, jIrrep, jk, jl, k, k_, kIrrep, kl, l, l_
 real(kind=wp) :: Fact, P2Act
 

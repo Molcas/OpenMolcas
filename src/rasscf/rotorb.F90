@@ -31,8 +31,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: cmoo(*), cmon(*), c(*), x(*), x2(*), y(*), THMAX, FA(*)
+real(kind=wp), intent(inout) :: cmoo(NTOT2), FA(*)
+real(kind=wp), intent(out) :: cmon(NTOT2), THMAX
+real(kind=wp), intent(in) :: c(*)
+real(kind=wp), intent(_OUT_) :: x(*), x2(*), y(*)
 integer(kind=iwp) :: I, IB, ICORE, ICOREGAS(0:4,0:4), IDAMP, IDAMPGAS(0:4,0:4), IGAS, II, IJ, IO, iOff, iOrb, iPrLev, iSpace, IST, &
                      ISTBM, ISTMO, ISTMO1, ISUM, ISYM, jPr, jSPace, MOType, NACI, NACJ, NAE, NAO, NB, NBO, ND, NDB, NEO, NF, NFB, &
                      NI, NIO, NIO1, NJ, NO, NOC, NOC1, NP, NR

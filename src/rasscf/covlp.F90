@@ -29,7 +29,8 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: C1IN(*), C2IN(*), DIA(*), PA(*), SXN(*), C1(*), C2(*), X(*), OVL
+real(kind=wp), intent(in) :: C1IN(*), C2IN(*), DIA(*), PA(*), SXN(NSXS)
+real(kind=wp), intent(out) :: C1(NSXS), C2(NSXS), X(NSXS), OVL
 integer(kind=iwp) :: iAshI, iAshJ, iC1, iC2, iPrLev, ISTBM, ISTC2, iSTIA, ISYM, JSYM, NAE, NAEJ, NAO, NAOJ, NEO, NIA, NIAJ, NIO, &
                      NIOJ, NP, NQ, NT, NTT, NTUT, NTUVX, NU, NUT, NV, NVT, NVXT, NX, NXT
 real(kind=wp) :: C1C2, FAC, OVLADD, PRQS, TERM
@@ -48,8 +49,8 @@ OVL = OVL+1.0e-6_wp*DDOT_(NSXS,C1IN(NROOT+1),1,C2IN(NROOT+1),1)
 
 ! renormalize the C vector (simple element-by-element scaling).
 
-C1(1:NSXS) = SXN(1:NSXS)*C1IN(NROOT+1:NROOT+NSXS)
-C2(1:NSXS) = SXN(1:NSXS)*C2IN(NROOT+1:NROOT+NSXS)
+C1(:) = SXN(:)*C1IN(NROOT+1:NROOT+NSXS)
+C2(:) = SXN(:)*C2IN(NROOT+1:NROOT+NSXS)
 
 ISTIA = 0
 ISTBM = 0

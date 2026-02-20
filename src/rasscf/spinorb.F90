@@ -24,17 +24,17 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: D(*), CMO(*), OCC(*)
+real(kind=wp), intent(inout) :: D(*), CMO(*), OCC(*)
 integer(kind=iwp) :: I, IDIAG, IPCMO, IPDEN, IPOCC, iPrLev, iSym, NA, NB, NF, NI
-real(kind=wp), allocatable :: W1(:,:), W2(:,:)
+real(kind=wp), allocatable :: W1(:,:), W2(:)
 
 ! Local print level (if any)
 IPRLEV = IPRLOC(6)
 if (IPRLEV >= DEBUG) write(u6,*) ' Entering SPINORB'
 
-IPDEN = 1
-IPCMO = 1
-IPOCC = 1
+IPDEN = 0
+IPCMO = 0
+IPOCC = 0
 do ISYM=1,NSYM
   NB = NBAS(ISYM)
   NF = NFRO(ISYM)
@@ -43,16 +43,16 @@ do ISYM=1,NSYM
     NA = NASH(ISYM)
     if (NA /= 0) then
       call mma_allocate(W1,NA,NA,Label='W1')
-      call mma_allocate(W2,NB,NA,Label='W2')
+      call mma_allocate(W2,NB*NA,Label='W2')
       call unitmat(W1,NA)
-      call Jacob(D(IPDEN),W1,NA,NA)
+      call Jacob(D(IPDEN+1),W1,NA,NA)
       IDIAG = 0
       do I=1,NA
         IDIAG = IDIAG+I
-        OCC(IPOCC+NF+NI+I-1) = D(IPDEN+IDIAG-1)
+        OCC(IPOCC+NF+NI+I) = D(IPDEN+IDIAG)
       end do
-      call DGEMM_('N','N',NB,NA,NA,One,CMO(IPCMO+(NF+NI)*NB),NB,W1,NA,Zero,W2,NB)
-      CMO(IPCMO+(NF+NI)*NB:IPCMO+(NF+NI+NA)*NB-1) = pack(W2,.true.)
+      call DGEMM_('N','N',NB,NA,NA,One,CMO(IPCMO+(NF+NI)*NB+1),NB,W1,NA,Zero,W2,NB)
+      CMO(IPCMO+(NF+NI)*NB+1:IPCMO+(NF+NI+NA)*NB) = W2(:)
       call mma_deallocate(W2)
       call mma_deallocate(W1)
       IPDEN = IPDEN+nTri_Elem(NA)

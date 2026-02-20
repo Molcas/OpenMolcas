@@ -24,7 +24,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: R(lRoots,lRoots), GD(nTri_Elem(lRoots),NAC,NAC)
+real(kind=wp), intent(in) :: R(lRoots,lRoots)
+real(kind=wp), intent(inout) :: GD(nTri_Elem(lRoots),NAC,NAC)
 integer(kind=iwp) :: I, iIJ, iKL, ip, iq, J, K, L, p, q
 real(kind=wp), allocatable :: GD2(:,:,:)
 

@@ -50,7 +50,7 @@ use spinfo, only: DOBKAP, I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IE
                   ITMAX_MOLCAS, LSYM_MOLCAS, MS2, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, &
                   NCSASM, NDET, NDTASM, NGAS_MOLCAS, NGASBK, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
 use DWSol, only: DWSol_DWRO
-use Molcas, only: LenIn, MxAct, MxGAS, MxOrb, MxRoot, MxSym
+use Molcas, only: LenIn, MxAct, MxOrb, MxRoot, MxSym
 use RASDim, only: MxRef, MxTit
 use input_ras, only: Key, LUInput, SetKey
 use rasscf_global, only: CCI, CMSStartMat, CMSThreshold, CoreShift, DFTFOCK, DoBLOCKDMRG, DoFaro, DoFCIDump, ExFac, HFOCC, HFOcc, &
@@ -84,8 +84,9 @@ use Constants, only: Zero, One, Two, Half, auToeV
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: DSCF, lOPTO
-integer(kind=iwp) :: iRC
+logical(kind=iwp), intent(in) :: DSCF
+logical(kind=iwp), intent(out) :: lOPTO
+integer(kind=iwp), intent(out) :: iRC
 integer(kind=iwp) :: i, i_All, i1, i2, iad19, IADR19(15), iAlter, iChng1, iChng2, iDisk, iEnd, iErr, iGAS, iGrp, ii, ij, iJOB, &
                      iMAlter(MaxAlter,2), inporb_version, iod_save, iOffSet, iOrb, iOrbData, IPRGLB_IN, iPrLev, IPRLOC_IN(7), iR, &
                      iRC1, iRef, iReturn, is_in_group, IScratch(10), iStart, istatus, iSum, iSym, itu, j, jpcmroot, k, korb, kref, &
@@ -118,7 +119,8 @@ integer(kind=iwp), allocatable :: initial_occ(:,:)
 integer(kind=iwp) :: lRoots_l, mh5id
 character, allocatable :: typestring(:)
 #endif
-integer(kind=iwp), external :: Get_ExFac, IsFreeUnit, nToken
+integer(kind=iwp), external :: IsFreeUnit, nToken
+real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Is_First_Iter
 character(len=180), external :: Get_LN
 #include "warnings.h"
@@ -187,6 +189,7 @@ NASHT = 0
 DBG = .false.
 NAlter = 0
 iRc = _RC_ALL_IS_WELL_
+lOPTO = .false.
 
 ! Note: During process of keywords, there is either a call to ChkIfKey
 ! once any input data for that keyword has been processed, to check that

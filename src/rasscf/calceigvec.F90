@@ -19,14 +19,14 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NDim
-real(kind=wp) :: Matrix(NDIM,NDIM), EigVec(NDIM,NDIM)
+integer(kind=iwp), intent(in) :: NDim
+real(kind=wp), intent(in) :: Matrix(NDIM,NDIM)
+real(kind=wp), intent(out) :: EigVec(NDIM,NDIM)
 integer(kind=iwp) :: ICol, INFO, IRIC, IRow, NElem, NScr
 real(kind=wp) :: WGRONK(2)
-logical(kind=iwp) :: UseJacob
 real(kind=wp), allocatable :: Mat(:), Scr(:), Val(:,:)
+logical(kind=iwp), parameter :: UseJacob = .true.
 
-UseJacob = .true.
 EigVec(:,:) = Zero
 
 if (UseJacob) then

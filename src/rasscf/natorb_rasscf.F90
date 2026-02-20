@@ -31,8 +31,11 @@ use general_data, only: JOBIPH, NASH, NBAS, NFRO, NISH, NSYM, NTOT, NTOT2
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMOO(*), SCR1(*), SCR2(*), SMAT(*), CMON(*), OCCN(*)
+real(kind=wp), intent(in) :: CMOO(*)
+real(kind=wp), intent(_OUT_) :: SCR1(*), SCR2(*), SMAT(*), CMON(*), OCCN(*)
 integer(kind=iwp) :: I, IA, IB, IBAS, ID, iDisk, IEND, II, IO, iOff, iPrLev, IST, iSTMO, ISTMO1, ISYM, J, JA, jDisk, jOff, kRoot, &
                      NA1, NAO, NB, NB2, NFI
 

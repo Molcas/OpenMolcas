@@ -19,8 +19,12 @@ subroutine RdSupS(LuInput,n,iBuff)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: LuInput, n, iBuff(*)
+integer(kind=iwp), intent(in) :: LuInput
+integer(kind=iwp), intent(out) :: n
+integer(kind=iwp), intent(_OUT_) :: iBuff(*)
 integer(kind=iwp) :: I, ie(288), iLast, is(288), istatus, iZ, K, l, m, nRepeat
 character(len=288) :: Line
 

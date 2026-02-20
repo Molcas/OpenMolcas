@@ -24,8 +24,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: VecTit
-real(kind=wp) :: Ene(*), Occ(*), CMO(*)
+character(len=*), intent(in) :: VecTit
+real(kind=wp), intent(in) :: Ene(*), Occ(*), CMO(*)
 integer(kind=iwp) :: I, ib, iBas, iBOff, iCOff, iCol, IO, IORB, IS, ISEND, ISOFF, ISStart, IST, ISYM, left, lLine, lPaper, NB, &
                      NBTOT, nCols, ND, NFIA, NO, NS, NSKIP, NSLCT(8), NSLCTT, NVSH(8)
 real(kind=wp) :: CC

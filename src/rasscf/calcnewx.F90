@@ -22,8 +22,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nSPair, nScr
-real(kind=wp) :: X(nSPair), H(nSPair**2), G(nSPair), XScr(nSPair), GScr(nSPair), EigVal(nSPair**2), ScrDiag(nScr)
+integer(kind=iwp), intent(in) :: nSPair, nScr
+real(kind=wp), intent(out) :: X(nSPair), XScr(nSPair), GScr(nSPair), EigVal(nSPair), ScrDiag(nScr)
+real(kind=wp), intent(inout) :: H(nSPair**2)
+real(kind=wp), intent(in) :: G(nSPair)
 integer(kind=iwp) :: INFO, iPair
 real(kind=wp) :: AbsGrad, AbsHess, MinGrad, ThreG, ThreH, ValGrad, ValHess
 

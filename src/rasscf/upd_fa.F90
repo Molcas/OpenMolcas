@@ -41,7 +41,8 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: PUVX(*), F(*), D(*), ExFac
+real(kind=wp), intent(in) :: PUVX(*), D(*), ExFac
+real(kind=wp), intent(inout) :: F(*)
 integer(kind=iwp) :: IASH, icase, IDOFF, IFOFF, IISH, IJSYM, IORB, IP, IPU, IPUVX, IPV, IPX, ISTACK, ISYM, IU, IUV, IUX, IV, IVX, &
                      IX, JASH, JDOFF, JFOFF, JISH, JORB, JSYM, KASH, KDOFF, KL_ORB_PAIRS, KLSYM, KSYM, LASH, LSYM, &
                      off_Dmat(mxSym), off_Fmat(mxSym), off_PUVX(mxSym)

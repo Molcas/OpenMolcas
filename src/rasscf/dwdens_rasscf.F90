@@ -33,17 +33,17 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
-real(kind=wp), intent(inout) :: D1A(*), RCT_FS(*)
+real(kind=wp), intent(out) :: D1A(NACPAR), RCT_FS(NACPAR)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp) :: i, iDisk, iOpt, ITERcurr, jDisk
 real(kind=wp) :: rdum(1), wgt
 real(kind=wp), allocatable :: CIVEC(:), DA_ave(:), DS_ave(:), DX(:)
 
-call mma_allocate(DA_ave,NAC**2,Label='DA_ave')
-call mma_allocate(DS_ave,NAC**2,Label='DS_ave')
+call mma_allocate(DA_ave,NACPAR,Label='DA_ave')
+call mma_allocate(DS_ave,NACPAR,Label='DS_ave')
 call mma_allocate(DX,NACPAR,Label='DX')
-DA_ave(1:NACPAR) = Zero
-DS_ave(1:NACPAR) = Zero
+DA_ave(:) = Zero
+DS_ave(:) = Zero
 
 ITERcurr = 1
 if (ITER /= 1) ITERcurr = ITER-1
@@ -58,13 +58,13 @@ if ((iFinal == 0) .or. (iFinal == 1)) then
     call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
     call DDaFile(JOBIPH,0,rdum,NACPR2,jDisk)
     if (wgt < 1.0e-10_wp) cycle
-    DA_ave(1:NACPAR) = DA_ave(1:NACPAR)+wgt*DX(1:NACPAR)
-    DS_ave(1:NACPAR) = DS_ave(1:NACPAR)+wgt*RCT_FS(1:NACPAR)
+    DA_ave(:) = DA_ave(:)+wgt*DX(:)
+    DS_ave(:) = DS_ave(:)+wgt*RCT_FS(:)
   end do
 else if (iFinal == 2) then
   call mma_allocate(CIVEC,NCONF,Label='CIVEC')
-  call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
-  call mma_allocate(DStmp,NAC**2,Label='DStmp')
+  call mma_allocate(Dtmp,NACPAR,Label='Dtmp')
+  call mma_allocate(DStmp,NACPAR,Label='DStmp')
   call mma_allocate(Ptmp,NACPR2,Label='Ptmp')
 
   iDisk = IADR15(4)
@@ -87,30 +87,28 @@ else if (iFinal == 2) then
         Dtmp(:) = Zero
         DStmp(:) = Zero
         Ptmp(:) = Zero
+      else if (doDMRG) then
+#       ifdef _DMRG_
+        ! copy the DMs from d1rf/d2rf for ipcmroot
+        Dtmp(:) = rf1(1:NACPAR)
+        if (twordm_qcm) Ptmp(:) = rf2(1:NACPR2)
+        DStmp(:) = Zero
+#       endif
       else
-        if (doDMRG) then
-#         ifdef _DMRG_
-          ! copy the DMs from d1rf/d2rf for ipcmroot
-          Dtmp(1:NACPAR) = rf1(1:NACPAR)
-          if (twordm_qcm) Ptmp(1:NACPR2) = rf2(1:NACPR2)
-          DStmp(:) = Zero
-#         endif
-        else
-          call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
-          call mma_allocate(Pscr,NACPR2,Label='Pscr')
-          call Lucia_Util('Densi',CI_Vector=CIVEC(:))
-          if ((SGS%IFRAS > 2) .or. (iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
-          call mma_deallocate(Pscr)
-          call mma_deallocate(PAtmp)
-        end if ! doDMRG/doBLOK or CI
-      end if
+        call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
+        call mma_allocate(Pscr,NACPR2,Label='Pscr')
+        call Lucia_Util('Densi',CI_Vector=CIVEC(:))
+        if ((SGS%IFRAS > 2) .or. (iDoGAS)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
+        call mma_deallocate(Pscr)
+        call mma_deallocate(PAtmp)
+      end if ! doDMRG/doBLOK or CI
     else
       Dtmp(:) = Zero
       DStmp(:) = Zero
       Ptmp(:) = Zero
     end if
-    DA_ave(1:NACPAR) = DA_ave(1:NACPAR)+wgt*Dtmp(1:NACPAR)
-    DS_ave(1:NACPAR) = DS_ave(1:NACPAR)+wgt*DStmp(1:NACPAR)
+    DA_ave(:) = DA_ave(:)+wgt*Dtmp(:)
+    DS_ave(:) = DS_ave(:)+wgt*DStmp(:)
   end do
   call mma_deallocate(DStmp)
   call mma_deallocate(Dtmp)
@@ -120,11 +118,11 @@ end if
 
 ! Construct D-ACTIVE AND D-INACTIVE IN AO BASIS
 
-DX(1:NACPAR) = DS_ave(1:NACPAR)
+DX(:) = DS_ave(:)
 call DBLOCK(DX)
 call Get_D1A_RASSCF(CMO,DX,RCT_FS)
 
-DX(1:NACPAR) = DA_ave(1:NACPAR)
+DX(:) = DA_ave(:)
 call DBLOCK(DX)
 call Get_D1A_RASSCF(CMO,DX,D1A)
 

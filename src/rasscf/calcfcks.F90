@@ -19,7 +19,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: FckO(NAC,NAC), GDMat(nTri_Elem(lRoots),NAC,NAC), FckS(lRoots,lRoots)
+real(kind=wp), intent(in) :: FckO(NAC,NAC), GDMat(nTri_Elem(lRoots),NAC,NAC)
+real(kind=wp), intent(inout) :: FckS(lRoots,lRoots)
 integer(kind=iwp) :: IState, JState
 
 FckS(:,:) = Zero

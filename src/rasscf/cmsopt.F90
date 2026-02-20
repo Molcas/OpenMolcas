@@ -20,10 +20,11 @@ subroutine CMSOpt(TUVX)
 use CMS, only: CMSNotConverged, RGD
 use rasscf_global, only: CMSStartMat, lRoots, NAC, NACPR2
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: TUVX(NACPR2)
+real(kind=wp), intent(in) :: TUVX(NACPR2)
 integer(kind=iwp) :: lRoots2, NAC2, nGD, nTUVX
 real(kind=wp), allocatable :: Dgorbit(:), Dgstate(:), GDorbit(:), GDstate(:), Gtuvx(:), RotMat(:,:)
 #include "warnings.h"
@@ -67,7 +68,7 @@ call LoadGtuvx(TUVX,Gtuvx)
 call CalcGD(GDorbit,nGD)
 !write(u6,*) 'GD matrix orbital-leading'
 !call RecPrt(' ',' ',GDorbit,NAC2,lRoots2)
-call CalcDg(Dgorbit,GDorbit,Gtuvx,nGD,nTUVX,NAC,lRoots)
+call DGEMM_('T','N',NAC**2,lRoots**2,NAC**2,One,Gtuvx,NAC**2,GDorbit,NAC**2,Zero,Dgorbit,NAC**2)
 !write(u6,*) 'Dg matrix orbital-leading'
 !call RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)
 
@@ -80,7 +81,7 @@ call Trnsps(NAC2,lRoots2,GDorbit,GDstate)
 call InitRotMat(RotMat,lRoots,trim(CMSStartMat),len_trim(CMSStartMat))
 
 ! Print header of CMS iterations
-call CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
+call CMSHeader(trim(CMSStartMat))
 
 ! Start CMS Optimization
 CMSNotConverged = .true.

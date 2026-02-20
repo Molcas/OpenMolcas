@@ -26,7 +26,8 @@ use rasscf_global, only: NAC, NACPR2
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: TUVX(NACPR2), Gtuvx(NAC,NAC,NAC,NAC)
+real(kind=wp), intent(in) :: TUVX(NACPR2)
+real(kind=wp), intent(out) :: Gtuvx(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: it, ituvx, iu, iv, ix, ixmax
 
 ituvx = 0

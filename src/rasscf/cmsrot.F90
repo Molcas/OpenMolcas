@@ -26,7 +26,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: TUVX(NACPR2)
+real(kind=wp), intent(in) :: TUVX(NACPR2)
 integer(kind=iwp) :: iPrLev
 character(len=16) :: VecName
 real(kind=wp), allocatable :: DDG(:,:,:,:), GDMat(:,:,:), Gtuvx(:,:,:,:), RotMat(:,:)
@@ -51,7 +51,7 @@ if (trim(CMSStartMat) == 'XMS') then
 else
   call ReadMat(trim(CMSStartMat),VecName,RotMat,lroots,lroots,len_trim(CMSStartMat),16,'N')
 end if
-if (IPRLEV >= USUAL) call CMSHeader(trim(CMSStartMat),len_trim(CMSStartMat))
+if (IPRLEV >= USUAL) call CMSHeader(trim(CMSStartMat))
 
 call LoadGtuvx(TUVX,Gtuvx)
 

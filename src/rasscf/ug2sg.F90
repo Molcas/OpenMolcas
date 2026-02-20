@@ -33,8 +33,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ICONF(*), ISPIN(*), IORD(*), MXROOTS, ICI(MXROOTS,*), JCJ(MXROOTS,*)
-real(kind=wp) :: CCI(MXROOTS,*)
+integer(kind=iwp), intent(in) :: NROOTS, NCONF, NORB, NEL, IREFSM, IPRINT, ICONF(*), ISPIN(*), MXROOTS, ICI(MXROOTS,MxRef)
+integer(kind=iwp), intent(out) :: IORD(NCONF), JCJ(MXROOTS,MxRef)
+real(kind=wp), intent(inout) :: CCI(MXROOTS,MxRef)
 integer(kind=iwp) :: I, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, ISG, ISGNUM, ITYP, &
                      IWALK(mxAct), JOCC, K, KCNF(mxAct), KOCC, KORB, L, LPRINT, MxDwn, MxUp, nLev, nMidV, nVert
 real(kind=wp) :: PHASE
@@ -57,7 +58,7 @@ if (IPRINT >= 5) then
   end do
 end if
 
-JCJ(:,1:mxRef) = 0
+JCJ(:,:) = 0
 
 ! LOOP OVER CONFIGURATIONS TYPES
 

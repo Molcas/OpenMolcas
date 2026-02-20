@@ -21,7 +21,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CMO(NTOT2), FI(NTOT1), FA(NTOT1), FckO(NAC,NAC)
+real(kind=wp), intent(in) :: CMO(NTOT2), FI(NTOT1), FA(NTOT1)
+real(kind=wp), intent(out) :: FckO(NAC,NAC)
 integer(kind=iwp) :: IBas, IOff1, IOff2, IOff3, IOrb, ISym, JBas, NA, NB, NI
 real(kind=wp), allocatable :: FIAAO(:,:), FckOt(:,:), Scr(:,:)
 

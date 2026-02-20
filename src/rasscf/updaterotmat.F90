@@ -23,8 +23,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lRoots, nSPair
-real(kind=wp) :: RMat(lRoots**2), ExpX(lRoots,lRoots), X(nSPair)
+integer(kind=iwp), intent(in) :: lRoots, nSPair
+real(kind=wp), intent(inout) :: RMat(lRoots**2)
+real(kind=wp), intent(out) :: ExpX(lRoots,lRoots)
+real(kind=wp), intent(in) :: X(nSPair)
 integer(kind=iwp) :: I, iIJ, J
 real(kind=wp) :: maxtheta
 real(kind=wp), allocatable :: RScr(:)

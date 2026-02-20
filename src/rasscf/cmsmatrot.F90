@@ -21,8 +21,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: I, J, N
-real(kind=wp) :: Mat(N,N), A
+integer(kind=iwp), intent(in) :: I, J, N
+real(kind=wp), intent(inout) :: Mat(N,N)
+real(kind=wp), intent(in) :: A
 real(kind=wp), allocatable :: TM(:,:)
 
 call mma_allocate(TM,2,N,Label='TM')

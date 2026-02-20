@@ -23,12 +23,13 @@ use rasscf_global, only: CMSThreshold, iCMSIterMax, iCMSIterMin, lRoots, NAC
 use PrintLevel, only: USUAL
 use output_ras, only: IPRLOC
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: One, Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nGD
-real(kind=wp) :: R(lRoots**2), GDorbit(nGD), GDstate(nGD), Dgorbit(nGD), Dgstate(nGD)
+integer(kind=iwp), intent(in) :: nGD
+real(kind=wp), intent(inout) :: R(lRoots**2), GDstate(nGD), Dgstate(nGD)
+real(kind=wp), intent(out) :: GDorbit(nGD), Dgorbit(nGD)
 integer(kind=iwp) :: iPrLev, iStep, lRoots2, NAC2, nDDg, nScr, nSPair, nSPair2
 real(kind=wp) :: Qnew, Qold
 logical(kind=iwp) :: Saved
@@ -63,14 +64,14 @@ call RotGD(GDstate,R,nGD,lRoots,NAC2)
 call RotGD(Dgstate,R,nGD,lRoots,NAC2)
 call Trnsps(lRoots2,NAC2,Dgstate,Dgorbit)
 call Trnsps(lRoots2,NAC2,GDstate,GDorbit)
-call CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
+call DGEMM_('T','N',lRoots2,lRoots2,NAC2,One,Dgorbit,NAC2,GDorbit,NAC2,Zero,DDg,lRoots2)
 call CalcQaa(Qnew,DDg,lRoots,nDDg)
 nPosHess = 0
 LargestQaaGrad = Zero
 Qold = Qnew
 call PrintCMSIter(iStep,Qnew,Qold,R,lRoots)
-call CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
-call CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
+call CalcGradCMS(Grad,DDg,lRoots,nSPair)
+call CalcHessCMS(Hess,DDg,lRoots,nSPair)
 call GetDiagScr(nScr,Hess,EigVal,nSPair)
 call mma_allocate(ScrDiag,nScr)
 
@@ -94,7 +95,7 @@ do while (CMSNotConverged)
   call RotGD(Dgstate,DeltaR,nGD,lRoots,NAC2)
   call Trnsps(lRoots2,NAC2,Dgstate,Dgorbit)
   call Trnsps(lRoots2,NAC2,GDstate,GDorbit)
-  call CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
+  call DGEMM_('T','N',lRoots2,lRoots2,NAC2,One,Dgorbit,NAC2,GDorbit,NAC2,Zero,DDg,lRoots2)
   call CalcQaa(Qnew,DDg,lRoots,nDDg)
 
   NCMSScale = 0
@@ -119,8 +120,8 @@ do while (CMSNotConverged)
     if (NCMSScale > 0) CMSNotConverged = .true.
   end if
   if (CMSNotConverged) then
-    call CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
-    call CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
+    call CalcGradCMS(Grad,DDg,lRoots,nSPair)
+    call CalcHessCMS(Hess,DDg,lRoots,nSPair)
   else
     if (IPRLEV >= USUAL) write(6,'(4X,A)') 'CONVERGENCE REACHED'
   end if

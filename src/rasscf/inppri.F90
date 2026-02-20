@@ -65,7 +65,7 @@ use Constants, only: Zero, Two, Six, Half, OneHalf
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-logical(kind=iwp) :: lOPTO
+logical(kind=iwp), intent(in) :: lOPTO
 integer(kind=iwp) :: i, iCharge, iComp, iDoRI, iEnd, iGAS, iOpt, iPrLev, iRC, iRef, iStart, iSyLbl, iSym, iTemp, j, left, lLine, &
                      lPaper, MaxRem, n_paired_elec, n_unpaired_elec, nLine
 real(kind=wp) :: AvailMB, WillNeedMB

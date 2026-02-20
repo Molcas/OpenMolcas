@@ -23,7 +23,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: DDG(lRoots,lRoots,lRoots,lRoots), GDMat(nTri_Elem(lRoots),NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
+real(kind=wp), intent(out) :: DDG(lRoots,lRoots,lRoots,lRoots)
+real(kind=wp), intent(in) :: GDMat(nTri_Elem(lRoots),NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: iI, iIJ, iJ, iK, iKL, iL, iv, ix
 
 DDG(:,:,:,:) = Zero

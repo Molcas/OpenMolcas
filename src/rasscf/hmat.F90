@@ -24,8 +24,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NDIM, NDIMH, NTRIAL
-real(kind=wp) :: C(*), HC(*), HH(*), HD(NDIM)
+integer(kind=iwp), intent(in) :: NDIM, NTRIAL
+real(kind=wp), intent(in) :: C(*), HD(NDIM)
+real(kind=wp), intent(inout) :: HC(*), HH(*)
+integer(kind=iwp), intent(inout) :: NDIMH
 integer(kind=iwp) :: I, IJ, IST, J, JST, L1
 real(kind=wp), allocatable :: XC(:), XX(:)
 real(kind=wp), external :: DDot_

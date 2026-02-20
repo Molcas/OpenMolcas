@@ -47,8 +47,12 @@ use rasscf_global, only: NAC
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMOO(*), CMON(*), FI(*), FP(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*)
+real(kind=wp), intent(in) :: CMOO(*)
+real(kind=wp), intent(_OUT_) :: CMON(*), FTR(*), VEC(*), WO(*), SQ(*), CMOX(*)
+real(kind=wp), intent(inout) :: FI(*), FP(*)
 integer(kind=iwp) :: i, I_F, iAd15, IB, iBas, ID, IFD, II, ioff, iPrLev, IST, ISTFCK, ISTMO, ISTMO1, iSym, j, M_IN, N_OT, NA, NA1, &
                      NAB, NABT, NAO, NAT, NB, NBF, NBT, NDNB, NDO, NEO, NEO1, NFNB, NFO, NI, NI1, NIJ, NIO, NIO1, NJ, NO1, NOC, &
                      NOO, NP, NPQ, NQ, NR1, NR11, NR2, NR21, NR3, NR31, NT, NT1, NTT, NTU, NTUT, NU, NUT

@@ -19,7 +19,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: CRVEC(NCRVEC), CMO(NTOT2), TUVX(*)
+real(kind=wp), intent(in) :: CRVEC(NCRVEC), CMO(NTOT2)
+real(kind=wp), intent(inout) :: TUVX(*)
 integer(kind=iwp) :: IPOS, IT, ITU, IU, IV, IVX, IX, IXMX, NA, NB
 real(kind=wp) :: COREPROJ, CS_TU, CS_TUV
 real(kind=wp), allocatable :: CS_TMP(:)

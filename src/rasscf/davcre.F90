@@ -49,11 +49,14 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NROOT, ITMAX, NDIM, ITERSX, NSXS
-real(kind=wp) :: C((NROOT+NSXS)*NROOT*(ITMAX+1)), HC((NROOT+NSXS)*NROOT*ITMAX), HH((ITMAX*NROOT)*(ITMAX*NROOT+1)), &
-                 CC((ITMAX*NROOT)**2), E((ITMAX*NROOT)), HD(NROOT+NSXS), SC((NROOT+NSXS)), Q((NROOT+NSXS)*(NROOT+1)), QQ(NROOT), &
-                 S(ITMAX*NROOT**2)
-character(len=*) :: SXSEL
+integer(kind=iwp), intent(in) :: NROOT, NDIM, NSXS
+integer(kind=iwp), intent(inout) :: ITMAX
+real(kind=wp), intent(out) :: C((NROOT+NSXS)*NROOT*(ITMAX+1)), CC((ITMAX*NROOT)**2), E((ITMAX*NROOT)), SC((NROOT+NSXS)), &
+                              Q((NROOT+NSXS)*(NROOT+1)), QQ(NROOT), S(ITMAX*NROOT**2)
+real(kind=wp), intent(inout) :: HC((NROOT+NSXS)*NROOT*ITMAX), HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
+real(kind=wp), intent(in) :: HD(NROOT+NSXS)
+character(len=*), intent(in) :: SXSEL
+integer(kind=iwp), intent(out) :: ITERSX
 integer(kind=iwp) :: i, iConvA, iConvL, iConvQ, ii, ij, iPass, iPrLev, iSel, iST, iSTC, iSTQ, j, ji, jST, k, kDimH, Length, nCR, &
                      nDimH, nDimH2, nST, nTotDC, nTrial
 real(kind=wp) :: ASQ, Ei, ENO, Ovl, QNorm, SWAP, XMX, XNorm, XX

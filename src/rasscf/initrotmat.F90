@@ -20,9 +20,9 @@ subroutine InitRotMat(RotMat,lRoots,CMSSFile,LenCMSS)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lRoots, LenCMSS
-real(kind=wp) :: RotMat(lRoots,lRoots)
-character(len=LenCMSS) :: CMSSFile
+integer(kind=iwp), intent(in) :: lRoots, LenCMSS
+real(kind=wp), intent(out) :: RotMat(lRoots,lRoots)
+character(len=LenCMSS), intent(in) :: CMSSFile
 character(len=16) :: ScrChar
 
 if (CMSSFile == 'XMS') then

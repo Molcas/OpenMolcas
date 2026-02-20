@@ -19,7 +19,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*)
+real(kind=wp), intent(in) :: CMO(*)
 integer(kind=iwp) :: i, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB, ISYM, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT, NO, &
                      NONZ
 real(kind=wp) :: WGT, WGTLMB(0:9), WMX

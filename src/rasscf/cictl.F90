@@ -34,7 +34,7 @@
 !> @param[out]    P      Average symm. 2-dens matrix
 !> @param[out]    PA     Average antisymm. 2-dens matrix
 !> @param[out]    FI     Fock matrix from inactive density
-!> @param         FA
+!> @param[in]     FA
 !> @param[in,out] D1I    Inactive 1-dens matrix
 !> @param[in,out] D1A    Active 1-dens matrix
 !> @param[in]     TUVX   Active 2-el integrals
@@ -89,8 +89,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*), D(*), DS(*), P(*), PA(*), FI(*), FA(*), D1I(*), D1A(*), TUVX(*)
-integer(kind=iwp) :: iFinal
+real(kind=wp), intent(in) :: CMO(*), FA(*), D1I(*)
+real(kind=wp), intent(inout) :: D(*), DS(*), P(*), PA(*), FI(*), D1A(*), TUVX(*)
+integer(kind=iwp), intent(in) :: iFinal
 integer(kind=iwp) :: i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVecDet, mconf
 real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
 logical(kind=iwp) :: Do_ESPF, do_rotate, Exists, Skip

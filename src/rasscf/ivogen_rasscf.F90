@@ -58,8 +58,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nSym, nCMO, nEOrb, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym)
-real(kind=wp) :: CMO(nCMO), EOrb(nEOrb)
+integer(kind=iwp), intent(in) :: nSym, nCMO, nEOrb, nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym)
+real(kind=wp), intent(inout) :: CMO(nCMO)
+real(kind=wp), intent(out) :: EOrb(nEOrb)
 integer(kind=iwp) :: i_EOr, iCMO, iComp, iDum, iErr, ij, iOpt, iRc, iSyLbl, iSym, MaxBas, MaxBOO, MaxOrO, nBT, nFound, nOcc(nSym), &
                      nOrbi
 real(kind=wp) :: Dummy

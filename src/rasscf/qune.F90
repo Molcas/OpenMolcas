@@ -19,12 +19,18 @@ use RASDim, only: MxIter
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NCALLS, NDIM, LUQUNE
-real(kind=wp) :: ENOW, BK(NDIM), XSX(NDIM), VL(NDIM), VM(NDIM), XQN(NDIM), XOLD(NDIM), V1(NDIM), V2(NDIM), TMIn
-character(len=2) :: QNSTEP
-character(len=3) :: QNUPDT
-character(len=80) :: KSDFT
+integer(kind=iwp), intent(inout) :: NCALLS
+real(kind=wp), intent(in) :: ENOW
+integer(kind=iwp), intent(in) :: NDIM, LUQUNE
+real(kind=wp), intent(_IN_) :: BK(NDIM)
+real(kind=wp), intent(inout) :: XSX(NDIM)
+real(kind=wp), intent(out) :: VL(NDIM), VM(NDIM), XQN(NDIM), XOLD(NDIM), V1(NDIM), V2(NDIM), TMIn
+character(len=2), intent(out) :: QNSTEP
+character(len=3), intent(out) :: QNUPDT
+character(len=80), intent(in) :: KSDFT
 integer(kind=iwp) :: IAD, IVEC, NLM
 real(kind=wp) :: C0, C1, C2, C3, E0, E1, ELM, EMIN, EPRED_LS, EPRED_QN, EPRED_SX, FP, P, P1, P2, Q, SCLFCT, T0, T1, TLM, X, &
                  XSXNRM, Y

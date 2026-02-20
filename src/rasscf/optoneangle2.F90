@@ -23,8 +23,10 @@ use Constants, only: Zero, Three, deg2rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: ang, change, R(lRoots,lRoots), GD(nTri_Elem(lRoots),NAC,NAC), Vee(lRoots), G(NAC,NAC,NAC,NAC)
-integer(kind=iwp) :: I1, I2
+real(kind=wp), intent(out) :: ang, change
+real(kind=wp), intent(inout) :: R(lRoots,lRoots), GD(nTri_Elem(lRoots),NAC,NAC), Vee(lRoots)
+integer(kind=iwp), intent(in) :: I1, I2
+real(kind=wp), intent(in) :: G(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: IA, IMax, Itera, Itermax
 real(kind=wp) :: Angles(4), ScanA(31), ScanS(31), StepSize, SumOld, SumOld2, Sums(4), Vee1, Vee2
 logical(kind=iwp) :: Converged

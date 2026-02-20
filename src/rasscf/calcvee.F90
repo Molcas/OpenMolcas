@@ -22,7 +22,8 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Vee(lRoots), RMat(lRoots,lRoots), DDG(lRoots,lRoots,lRoots,lRoots)
+real(kind=wp), intent(out) :: Vee(lRoots)
+real(kind=wp), intent(in) :: RMat(lRoots,lRoots), DDG(lRoots,lRoots,lRoots,lRoots)
 integer(kind=iwp) :: iK, iL, iM, iState
 
 Vee(:) = Zero

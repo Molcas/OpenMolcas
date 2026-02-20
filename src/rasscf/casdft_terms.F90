@@ -37,11 +37,13 @@ use lucia_data, only: INT1, INT1O
 use rasscf_global, only: DoDMRG
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*), F(*), FI(*), D1I(*), D1A(*), D1S(*)
+real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*), D1S(*)
+real(kind=wp), intent(out) :: F(NACPAR)
+real(kind=wp), intent(inout) :: FI(*)
 integer(kind=iwp) :: i, IADD, iBas, iCharge, iCOmp, iOff, iOpt, iPrLev, iRC, iSyLbl, iSym, ITU, j, MXNA, MXNB, NAT, NST, NT, NTU, NU
 real(kind=wp) :: CASDFT_Funct, Emyn, Eone, ETwo, PotNuc_Ref
 logical(kind=iwp) :: Dff, Do_DFT, First
@@ -333,7 +335,7 @@ X1(:) = FI(1:NTOT1)
 call MOTRAC(CMO,X1,X2,X3)
 call mma_deallocate(X3)
 call mma_deallocate(X2)
-F(1:NACPAR) = Zero
+F(:) = Zero
 NTU = 0
 ITU = 0
 IADD = 0

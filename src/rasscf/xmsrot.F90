@@ -24,7 +24,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: CMO(NTOT2), FI(NTOT1), FA(NTOT1)
+real(kind=wp), intent(in) :: CMO(NTOT2), FI(NTOT1), FA(NTOT1)
 real(kind=wp), allocatable :: EigVec(:,:), FckO(:,:), FckS(:,:), GDMat(:,:,:)
 
 !FckO:  Fock matrix for MO

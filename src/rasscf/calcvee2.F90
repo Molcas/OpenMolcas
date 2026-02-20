@@ -23,7 +23,8 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Vee(lRoots), GD(nTri_Elem(lRoots),NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
+real(kind=wp), intent(out) :: Vee(lRoots)
+real(kind=wp), intent(in) :: GD(nTri_Elem(lRoots),NAC,NAC), Gtuvx(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: I, III, v, x
 
 Vee(:) = Zero

@@ -21,9 +21,10 @@ use rasscf_global, only: lRoots
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NPairs
-real(kind=wp) :: FRot(lRoots,lRoots), theta(NPairs), SumVee, DDG(lRoots,lRoots,lRoots,lRoots)
-integer(kind=iwp) :: StatePair(NPairs,2)
+real(kind=wp), intent(inout) :: FRot(lRoots,lRoots)
+integer(kind=iwp), intent(in) :: NPairs, StatePair(NPairs,2)
+real(kind=wp), intent(out) :: theta(NPairs), SumVee
+real(kind=wp), intent(in) :: DDG(lRoots,lRoots,lRoots,lRoots)
 integer(kind=iwp) :: IPair
 
 do IPair=1,NPairs

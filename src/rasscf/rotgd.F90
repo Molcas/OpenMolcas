@@ -25,8 +25,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nGD, lRoots, NAC2
-real(kind=wp) :: GD(nGD), R(lRoots**2)
+integer(kind=iwp), intent(in) :: nGD, lRoots, NAC2
+real(kind=wp), intent(inout) :: GD(nGD)
+real(kind=wp), intent(in) :: R(lRoots**2)
 integer(kind=iwp) :: iLoc, iNAC2, lRoots2
 
 lRoots2 = lRoots**2

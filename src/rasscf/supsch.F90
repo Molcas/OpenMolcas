@@ -33,8 +33,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: SMAT(*), CMOO(*), CMON(*)
+real(kind=wp), intent(_OUT_) :: SMAT(*)
+real(kind=wp), intent(in) :: CMOO(*), CMON(*)
 integer(kind=iwp) :: i_Component, i_Opt, i_RC, i_SymLbl, iGroup, iLabel, iOrb, iOrder, iPrLev, iSafe, iSym, jOrb, kCof, kGroup, &
                      kOrb, nBs, nnOrb, nOGr1, nOGr2, nOrb_Tot, nOrbMX, pSij
 real(kind=wp) :: DUM(1), OldOvlp, Ovlp1, Ovlp2, xOvlp

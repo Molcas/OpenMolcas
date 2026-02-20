@@ -20,8 +20,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: S(*), U(*), V(*)
-integer(kind=iwp) :: N
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: S(N**2)
+real(kind=wp), intent(inout) :: U(N), V(N)
 integer(kind=iwp) :: I
 real(kind=wp) :: rSUM, X
 real(kind=wp), parameter :: THR = 1.0e-10_wp
@@ -46,7 +47,7 @@ if (rSUM < THR) then
   call QUIT(_RC_GENERAL_ERROR_)
 end if
 X = One/sqrt(rSUM)
-U(1:N) = X*U(1:N)
-V(1:N) = X*V(1:N)
+U(:) = X*U(:)
+V(:) = X*V(:)
 
 end subroutine ORTHO2

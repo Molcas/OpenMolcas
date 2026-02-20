@@ -24,9 +24,10 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: SV, A, GD(nTri_Elem(lRoots),NAC,NAC), G(NAC,NAC,NAC,NAC), V1, V2
-integer(kind=iwp) :: I1, I2
-logical(kind=iwp) :: Update
+real(kind=wp), intent(inout) :: SV, GD(nTri_Elem(lRoots),NAC,NAC), V1, V2
+real(kind=wp), intent(in) :: A, G(NAC,NAC,NAC,NAC)
+integer(kind=iwp), intent(in) :: I1, I2
+logical(kind=iwp), intent(in) :: Update
 integer(kind=iwp) :: i11, i12, I1J, i22, I2J, J, u, v, x
 real(kind=wp), allocatable :: D11(:,:), D1J(:,:,:), D22(:,:), D2J(:,:,:)
 

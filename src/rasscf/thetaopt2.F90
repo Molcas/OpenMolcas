@@ -23,9 +23,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NP
-real(kind=wp) :: R(lRoots,lRoots), theta(NP), deltaQ, GD(nTri_Elem(lRoots),NAC,NAC), Vee(lRoots), G(NAC,NAC,NAC,NAC)
-integer(kind=iwp) :: SPair(NP,2)
+real(kind=wp), intent(inout) :: R(lRoots,lRoots), GD(nTri_Elem(lRoots),NAC,NAC), Vee(lRoots)
+integer(kind=iwp), intent(in) :: NP, SPair(NP,2)
+real(kind=wp), intent(out) :: theta(NP), deltaQ
+real(kind=wp), intent(in) :: G(NAC,NAC,NAC,NAC)
 integer(kind=iwp) :: IP
 real(kind=wp) :: Change
 
