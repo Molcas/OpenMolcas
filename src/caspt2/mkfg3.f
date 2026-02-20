@@ -68,71 +68,77 @@ C>                   to active indices
       use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, EPSA
       use gugx, only: MxLev
       use pt2_guga, only: MxCI, nG1, nG2, nG3
+      use constants, only: Zero
+      use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 
 
-      INTEGER, INTENT(IN) :: IFF, NLEV
-      REAL*8, INTENT(IN) :: CI(MXCI)
-      REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: G3(*), F3(*)
+      INTEGER(kind=iwp), INTENT(IN) :: IFF, NLEV
+      real(kind=wp), INTENT(IN) :: CI(MXCI)
+      real(kind=wp), INTENT(OUT) :: G1(NLEV,NLEV),
+     &                              G2(NLEV,NLEV,NLEV,NLEV)
+      real(kind=wp), INTENT(OUT) :: F1(NLEV,NLEV),
+     &                              F2(NLEV,NLEV,NLEV,NLEV)
+      real(kind=wp), INTENT(OUT) :: G3(*), F3(*)
       INTEGER*1, INTENT(OUT) :: idxG3(6,*)
 
-      INTEGER, PARAMETER :: I1=KIND(idxG3)
-      LOGICAL RSV_TSK
-      REAL*8 DG1,DG2,DG3,DF1,DF2,DF3
-      REAL*8 F1SUM,F2SUM
-      INTEGER I,J,IDX,JDX
-      INTEGER IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
-      INTEGER IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,IP3MX,IQ1
-      INTEGER IG3,IG3OFF
-      INTEGER ISTU,ISVX,ISYZ
-      INTEGER IT,IU,IV,IX,IY,IZ
-      INTEGER ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
-      INTEGER NBUF1
-      INTEGER IOFFSET
-      INTEGER ISSG1,ISSG2,ISP1
-      INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,MXTASK,MYTASK,MYBUFFER
-      INTEGER NSGM1,NSGM2
-      INTEGER NTRI1,NTRI2
-      INTEGER MEMMAX, MEMMAX_SAFE
-      INTEGER NLEV2
-      INTEGER NCI,ICSF
+      INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
+      LOGICAL(kind=iwp) RSV_TSK
+      real(kind=wp) DG1,DG2,DG3,DF1,DF2,DF3
+      real(kind=wp) F1SUM,F2SUM
+      INTEGER(kind=iwp) I,J,IDX,JDX
+      INTEGER(kind=iwp) IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
+      INTEGER(kind=iwp) IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,
+     &                  IP3MX,IQ1
+      INTEGER(kind=iwp) IG3,IG3OFF
+      INTEGER(kind=iwp) ISTU,ISVX,ISYZ
+      INTEGER(kind=iwp) IT,IU,IV,IX,IY,IZ
+      INTEGER(kind=iwp) ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
+      INTEGER(kind=iwp) NBUF1
+      INTEGER(kind=iwp) IOFFSET
+      INTEGER(kind=iwp) ISSG1,ISSG2,ISP1
+      INTEGER(kind=iwp) ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,MXTASK,
+     &                  MYTASK,MYBUFFER
+      INTEGER(kind=iwp) NSGM1,NSGM2
+      INTEGER(kind=iwp) NTRI1,NTRI2
+      INTEGER(kind=iwp) MEMMAX, MEMMAX_SAFE
+      INTEGER(kind=iwp) NLEV2
+      INTEGER(kind=iwp) NCI,ICSF
 
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
+      real(kind=wp), EXTERNAL :: DDOT_,DNRM2_
 
       ! translation tables for levels i,j to and from pair indices idx
-      INTEGER IJ2IDX(MXLEV,MXLEV)
-      INTEGER IDX2IJ(2,MXLEV**2)
-      INTEGER ICNJ(MXLEV**2)
-      INTEGER IP1_BUF(MXLEV**2)
+      INTEGER(kind=iwp) IJ2IDX(MXLEV,MXLEV)
+      INTEGER(kind=iwp) IDX2IJ(2,MXLEV**2)
+      INTEGER(kind=iwp) ICNJ(MXLEV**2)
+      INTEGER(kind=iwp) IP1_BUF(MXLEV**2)
 
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
-      REAL*8 BUFR(MXLEV**2)
-      REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
+      REAL(kind=wp) BUFR(MXLEV**2)
+      REAL(kind=wp), ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
       INTEGER, ALLOCATABLE:: TASKLIST(:,:)
 
       Integer :: nMidV
       nMidV = CIS%nMidV
 
 C Put in zeroes. Recognize special cases:
-      IF(nlev.EQ.0) GOTO 999
+      IF(nlev.EQ.0) RETURN
 
-      CALL DCOPY_(NG1,[0.0D0],0,G1,1)
-      CALL DCOPY_(NG2,[0.0D0],0,G2,1)
+      G1(:,:)=Zero
+      G2(:,:,:,:)=Zero
       CALL DCOPY_(NG3,[0.0D0],0,G3,1)
-      IF(IFF.ne.0) THEN
-       CALL DCOPY_(NG1,[0.0D0],0,F1,1)
-       CALL DCOPY_(NG2,[0.0D0],0,F2,1)
+      IF(IFF/=0) THEN
+       F1(:,:)=Zero
+       F2(:,:,:,:)=Zero
        CALL DCOPY_(NG3,[0.0D0],0,F3,1)
       END IF
 
-      IF(NACTEL.EQ.0) GOTO 999
+      IF(NACTEL.EQ.0) RETURN
 
       NCI=CIS%NCSF(STSYM)
 * This should not happen, but...
-      IF(NCI.EQ.0) GOTO 999
+      IF(NCI.EQ.0) RETURN
 
 C Here, for regular CAS or RAS cases.
 
@@ -202,11 +208,11 @@ C-SVC20100301: calculate maximum number of tasks possible
       CALL mma_allocate (TaskList,mxTask,4,LABEL='TaskList')
 
       IF(iPrGlb.GE.VERBOSE) THEN
-        WRITE(6,*)
-        WRITE(6,'(2X,A)') 'Constructing G3/F3'
-        WRITE(6,'(2X,A,F16.9,A)') ' memory avail: ',
+        WRITE(u6,*)
+        WRITE(u6,'(2X,A)') 'Constructing G3/F3'
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory avail: ',
      &    (memmax*RtoB)/1.0D9, ' GB'
-        WRITE(6,'(2X,A,F16.9,A)') ' memory used:  ',
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory used:  ',
      &    (((nbuf1+3)*MXCI)*RtoB)/1.0D9, ' GB'
         call xFlush(6)
       ENDIF
@@ -268,19 +274,19 @@ C       iOffSet=iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
 
       IF(iPrGlb.GE.DEBUG) THEN
         IF (nSubTasks .GT. 0) THEN
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "--------",
      &    "------------",
      &    "----",
      &    "---------"
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "task ID ",
      &    " ip1 range  ",
      &    "ip3 ",
      &    "#elements"
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "--------",
      &    "------------",
@@ -308,10 +314,9 @@ C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
         iBuf=iSubTask-TaskList(iTask,4)
         IF (iBuf.LE.0) THEN
           myTask=iTask-1
-          goto 666
+          Exit
         ENDIF
       ENDDO
-666   continue
       iTask=myTask
 
       iOffSet=TaskList(iTask,4)
@@ -426,7 +431,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
-        if(isvx.ne.Mul(issg1,issg2)) goto 99
+        if(.Not.(isvx.ne.Mul(issg1,issg2))) Then
         if (.not. DoFCIQMC) then
             call dcopy_(nsgm1,[0.0D0],0,BUFT,1)
             CALL SIGMA1(SGS,CIS,EXS,
@@ -453,7 +458,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           if(ip1.le.ip1mx)ibmx=ib
         end do
         nb=ibmx-ibmn+1
-        if(nb.le.0) goto 99
+        if(nb>0) Then
 
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
@@ -493,7 +498,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         end if
         iG3OFF=iG3OFF+nb
         nbtot=nbtot+nb
- 99     continue
+        end if
+        end if
       end do
 *     end do
 
@@ -702,6 +708,4 @@ C     so make sure that the _total_ fingerprint is computed
         WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F3:", dF3
       ENDIF
 
- 999  continue
-      RETURN
-      END
+      END SUBROUTINE MKFG3
