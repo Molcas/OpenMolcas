@@ -36,6 +36,13 @@ real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:,:), Functionallist(:)
                               SCR(:), Ovlp_sqrt(:,:)
 logical(kind=iwp), parameter :: debug_lowdin = .false.
 
+! new stuff added for the GEK
+integer(kind=iwp) ::fullspace_dim,&
+                    n_SGEK, & !n^diis ()
+                    m_SGEK, &
+                    nExplicit ! number of vectors used to get a basis (some are likely linearly dependent)
+integer(kind=iwp), parameter :: Max_Iter_SGEK = 50, nWindow_SGEK = 20
+
 ! Initialization (iteration 0).
 ! -----------------------------
 
@@ -112,19 +119,32 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     nIter = nIter+1
 
     !choose between optimization methods
+
+    ! Jacobi Sweeps
     if (OptMeth == 1) then
-        ! 2x2 rotations: Jacobi Sweeps
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+
+    ! Gradient Ascent or Newton Raphson
     else if (OptMeth == 2 .or. OptMeth == 3) then
-        ! NXN rotations: Gradient Ascent or Newton Raphson
         call RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt(:,:),GradientList(:,:,nIter),Hdiag(:,:),BName,nAtoms,&
                        nBas_per_Atom,nBas_Start,PA(:,:,:)) !uses gradient info from previous iteration
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         FunctionalList(nIter+1)=Functional !first entry is from before first iteration
-    end if
+
+    ! GEK in full space
+    else if (OptMeth == 4) then
+        call RotateNxN(CMO,Ovlp,nOrb2Loc,nBasis,Ovlp_sqrt(:,:),GradientList(:,:,nIter),Hdiag(:,:),BName,nAtoms,&
+                       nBas_per_Atom,nBas_Start,PA(:,:,:)) !uses gradient info from previous iteration
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,GradientList(:,:,nIter+1), Hdiag(:,:)) ! gets the new gradient
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        FunctionalList(nIter+1)=Functional !first entry is from before first iteration
+
+        !construct subspace to define the following variables:
+        !call S_GEK_localisation()
+   end if
 
     !check if converged
     Delta = Functional-OldFunctional

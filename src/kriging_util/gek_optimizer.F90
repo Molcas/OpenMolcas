@@ -13,6 +13,23 @@
 !***********************************************************************
 
 subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SORange)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! mDiis             subspace dimensionality (<=2*ndiis); number of linear independent e_diis column vectors
+! nDiis             number of iterations used to span the subspace; nDIIS = min(IterGEK,nWindow)
+! Max_Iter          maximal number of iterations to consider for the GEK surrogate model; usually Max_Iter = 50
+! q_diis            projected coordinate vectors
+! g_diis            projected gradient vectors
+! dq_diis           output displacement, suggested by the optimization in the subspace; still in subspace representation
+!                   get fullspace representation by doing: dq(:) = dq(:)+dq_diis(i)*e_diis(:,i) for i=1,mdiis
+! Energy            y vector
+! H_diis            projected Hessian diagonal
+! dqdq              some output, (real) that has to do with the full space displacement
+! Step_Trunc        some output (character)
+! UpMeth            some output (string), e.g. "RVO"
+! SORange           some input (logical)
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 
 use Index_Functions, only: iTri, nTri_Elem
 use Kriging_mod, only: blavAI
