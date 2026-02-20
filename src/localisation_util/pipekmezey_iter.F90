@@ -33,11 +33,15 @@ logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
-                              SCR(:), Ovlp_sqrt(:,:),&
+                              SCR(:), Ovlp_sqrt(:,:),displacements(:,:,:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:)
 logical(kind=iwp), parameter :: debug_lowdin = .false.
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
+
+!for S-GEK
+integer(kind=iwp) :: nDiis,iFirst
+integer(kind=iwp), parameter :: nWindow = 20
 
 ! Initialization (iteration 0).
 ! -----------------------------
@@ -45,8 +49,9 @@ real(kind=wp), External :: DDot_
 if (.not. Silent) call CWTime(C1,W1)
 
 if (OptMeth == 2 .or. OptMeth == 3) then
-    call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
-    call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
+    call mma_Allocate(displacements,nOrb2Loc,nOrb2Loc,nWindow,Label='displacements')  ! kappa matrices
+    call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nWindow,Label='GradientList')
+    call mma_Allocate(FunctionalList,nWindow,Label='FunctionalList')
     FunctionalList(:)=0
     call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
 
@@ -139,11 +144,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             kappa(:,:) = alpha*GradientList(:,:,nIter)
 
         else if (OptMeth == 4) then ! S-GEK
+            ! the subroutine builds the subspace; calls the GEK_optimizer; returns a displacement in the fullspace -> kappa
+            nDIIS = min(nIter,nWindow)
+            iFirst = nIter-nDIIS+1
+            !call S_GEK_localisation(nOrb2Loc,nDiis,kappa,GradientList(:,:,iFirst:nIter))
 
-            !construct subspace to define the following variables:
-            !call S_GEK_localisation()
-
-
+            kappa(:,:) = -GradientList(:,:,nIter)/Hdiag(:,:)
         end if
 
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
@@ -195,6 +201,7 @@ if (.not. Silent) then
 end if
 
 if (OptMeth == 2 .or. OptMeth == 3) then
+    call mma_Deallocate(displacements)
     call mma_Deallocate(GradientList)
     call mma_Deallocate(FunctionalList)
     call mma_Deallocate(Hdiag)

@@ -111,11 +111,11 @@ call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 !=======================================================================
 ! Select the subspace
 
+call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
 #ifdef _FULL_SPACE_
 
 ! Set up the full space
 nExplicit = mOV
-call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
 e_diis(:,:) = Zero
 do k=1,nExplicit
   e_diis(k,k) = One
@@ -125,7 +125,6 @@ end do
 
 !nExplicit = 2 * (nDIIS - 1) + mOV + 2
 nExplicit = 2*(nDIIS-1)+2
-call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
 
 call mma_allocate(Aux_a,mOV,Label='Aux_a')
 call mma_allocate(Aux_b,mOV,Label='Aux_b')
