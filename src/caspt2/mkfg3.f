@@ -55,7 +55,7 @@ C>                   contracted with diagonal 1-el Hamiltonian
 C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
-      SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
+      SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
       use Symmetry_Info, only: Mul
       use caspt2_global, only: iPrGlb
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
@@ -67,23 +67,25 @@ C>                   to active indices
       use Definitions, only: RtoB
       use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, EPSA
       use gugx, only: MxLev
-      use pt2_guga, only: MxCI, nG1, nG2, nG3
-      use constants, only: Zero
-      use definitions, only: iwp, wp, u6
+      use pt2_guga, only: MxCI
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp, u6, Byte
       IMPLICIT NONE
 
 
       INTEGER(kind=iwp), INTENT(IN) :: IFF, NLEV
+      INTEGER(kind=iwp), INTENT(IN) :: nG1, nG2
+      INTEGER(kind=iwp), INTENT(INOUT) :: nG3
       real(kind=wp), INTENT(IN) :: CI(MXCI)
       real(kind=wp), INTENT(OUT) :: G1(NLEV,NLEV),
      &                              G2(NLEV,NLEV,NLEV,NLEV)
       real(kind=wp), INTENT(OUT) :: F1(NLEV,NLEV),
      &                              F2(NLEV,NLEV,NLEV,NLEV)
-      real(kind=wp), INTENT(OUT) :: G3(*), F3(*)
-      INTEGER*1, INTENT(OUT) :: idxG3(6,*)
+      real(kind=wp), INTENT(OUT) :: G3(nG3), F3(nG3)
+      INTEGER(kind=Byte), INTENT(OUT) :: idxG3(6,nG3)
 
       INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
-      LOGICAL(kind=iwp) RSV_TSK
+      LOGICAL(kind=iwp), External:: RSV_TSK
       real(kind=wp) DG1,DG2,DG3,DF1,DF2,DF3
       real(kind=wp) F1SUM,F2SUM
       INTEGER(kind=iwp) I,J,IDX,JDX
@@ -127,11 +129,11 @@ C Put in zeroes. Recognize special cases:
 
       G1(:,:)=Zero
       G2(:,:,:,:)=Zero
-      CALL DCOPY_(NG3,[0.0D0],0,G3,1)
+      G3(:)=Zero
       IF(IFF/=0) THEN
        F1(:,:)=Zero
        F2(:,:,:,:)=Zero
-       CALL DCOPY_(NG3,[0.0D0],0,F3,1)
+       F3(:)=Zero
       END IF
 
       IF(NACTEL.EQ.0) RETURN
@@ -172,11 +174,10 @@ C Special pair index idx2ij allows true RAS cases to be handled:
         icnj(idx)=jdx
       end do
 
-* Dummy values necessary for fooling syntax checkers:
       call mma_MaxDBLE(memmax)
 
 * Use *almost* all remaining memory:
-      memmax_safe=int(dble(memmax)*0.95D0)
+      memmax_safe=int(dble(memmax)*0.95_wp)
 
 * Buffers to compute CI expansion vectors into:
 * <Psi0|E_ip1 | E_ip2 E_ip3|Psi0>
@@ -268,7 +269,7 @@ C       iOffSet=iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
       nSubTasks=iOffSet
 
       IF(iPrGlb.GE.VERBOSE) THEN
-        WRITE(6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
+        WRITE(u6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
         call xFlush(6)
       ENDIF
 
@@ -302,12 +303,13 @@ C-SVC20100301: initialize the series of subtasks
       myBuffer=0
 
 
- 500  CONTINUE
+      Do
+
 C-SVC20100908: first check: can I actually do any task?
-      IF ((NG3-iG3OFF).LT.nbuf1*ntri2) GOTO 501
+      IF ((NG3-iG3OFF).LT.nbuf1*ntri2) Exit
 C-SVC20100831: initialize counter for offset into G3
 C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
-      If (.NOT.Rsv_Tsk(ID,iSubTask)) GOTO 501
+      If (.NOT.Rsv_Tsk(ID,iSubTask)) Exit
 
       myTask=nTasks
       DO iTask=1,nTasks
@@ -403,9 +405,9 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
       if (.not. DoFCIQMC) then
-          call dcopy_(nsgm2,[0.0D0],0,BUF2,1)
+          BUF2(1:nSgm2)=Zero
           CALL SIGMA1(SGS,CIS,EXS,
-     &                IYLEV,IZLEV,1.0D00,STSYM,CI,BUF2)
+     &                IYLEV,IZLEV,One,STSYM,CI,BUF2)
           if(issg2.eq.issg1) then
             do ib=1,ibuf1
               idx=ip1_buf(ib)
@@ -415,7 +417,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
               iu=L2ACT(iulev)
               G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
               IF(IFF.ne.0) THEN
-                F2sum=0.0D0
+                F2sum=Zero
                 do i=1,nsgm1
                   F2sum=F2sum+BUF2(i)*bufd(i)*buf1(i,ib)
                 end do
@@ -433,9 +435,9 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         ix=L2ACT(ixlev)
         if(.Not.(isvx.ne.Mul(issg1,issg2))) Then
         if (.not. DoFCIQMC) then
-            call dcopy_(nsgm1,[0.0D0],0,BUFT,1)
+            BUFT(1:nSgm1)=Zero
             CALL SIGMA1(SGS,CIS,EXS,
-     &                  IVLEV,IXLEV,1.0D00,ISSG2,BUF2,BUFT)
+     &                  IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
         end if
 *-----------
 * Max and min values of index p1:
@@ -463,10 +465,10 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
         if (.not. DoFCIQMC) then
-            call DGEMV_ ('T',nsgm1,nb,1.0D0,BUF1(:,ibmn),mxci,
-     &           buft,1,0.0D0,bufr,1)
+            call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
+     &           buft,1,Zero,bufr,1)
 * and distribute this result into G3:
-            call dcopy_(nb,bufr,1,G3(iG3OFF+1),1)
+            G3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
 * and copy the active indices into idxG3:
         end if
         do ib=1,nb
@@ -487,13 +489,12 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
             IF(IFF.ne.0) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
                 do icsf=1,nsgm1
-                  buft(icsf)=
-     &                 (bufd(icsf)-epsa(iv))*buft(icsf)
+                  buft(icsf)= (bufd(icsf)-epsa(iv))*buft(icsf)
                 end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-                call DGEMV_ ('T',nsgm1,nb,1.0D0,BUF1(:,ibmn),mxci,
-     &           buft,1,0.0D0,bufr,1)
-                call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
+                call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
+     &           buft,1,Zero,bufr,1)
+                F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
             END IF
         end if
         iG3OFF=iG3OFF+nb
@@ -520,9 +521,7 @@ C     list.  It has to do it here since each process gets at least one
 C     task.
 
 C-SVC20100301: end of the task
-      GOTO 500
-
- 501  CONTINUE
+      End Do
 
 C-SVC20100302: no more tasks, wait here for the others, then proceed
 C with next symmetry

@@ -146,7 +146,7 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         IF (.NOT. DoCumulant .AND. .NOT. DMRG) THEN
 #endif
           If (.NOT.ALLOCATED(CI)) CALL mma_allocate(CI,1,LABEL='CI')
-          CALL MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,nLev)
+          CALL MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
         ELSE
           CALL MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,nLev)
