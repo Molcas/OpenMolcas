@@ -22,17 +22,15 @@
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_global, only: DREF, PREF, LUSOLV, LUSBT
-      use EQSOLV, only: IDSMAT
-      use caspt2_module, only: NASHT, NSYM, NINDEP
+      use caspt2_global, only: DREF, PREF, LUSOLV
+      use caspt2_module, only: NASHT
       use pt2_guga, only: NG3
       IMPLICIT None
 C     Set up S matrices for cases 1..13.
-      real(kind=wp) DUM(1)
       INTEGER(kind=byte), ALLOCATABLE :: idxG3(:,:)
 
       real(kind=wp), ALLOCATABLE:: G3(:)
-      integer(kind=iwp) ICASE, IDISK, iLUID, ISYM, NIN
+      integer(kind=iwp) iLUID
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -71,9 +69,17 @@ C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
 
       Call MKSH()
 
-      CONTAINS
+      END SUBROUTINE MKSMAT
 
       Subroutine MKSH()
+      use caspt2_module, only: NSYM, NINDEP
+      use caspt2_global, only: LUSBT
+      use EQSOLV, only: IDSMAT
+      use constants, only: One
+      use definitions, only: iwp, wp
+      Implicit none
+      real(kind=wp) Dum(1)
+      integer(kind=iwp) ISYM,ICASE,IDISK,NIN
 C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest  of the routines.
@@ -89,7 +95,6 @@ C looping, etc in the rest  of the routines.
       END DO
       End Subroutine MKSH
 
-      END SUBROUTINE MKSMAT
 
 ********************************************************************************
 * Case A (ICASE=1)
