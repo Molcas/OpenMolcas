@@ -40,9 +40,8 @@ real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
 !for S-GEK
-integer(kind=iwp) :: nDiis,iFirst,fsdim,i,j,listindex
+integer(kind=iwp) :: nDiis,iFirst,fsdim
 integer(kind=iwp), parameter :: nWindow = 20
-logical :: sgek_debug
 
 ! Initialization (iteration 0).
 ! -----------------------------
