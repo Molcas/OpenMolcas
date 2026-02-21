@@ -41,7 +41,8 @@ real(kind=wp), External :: DDot_
 
 !for S-GEK
 integer(kind=iwp) :: nDiis,iFirst,fsdim,i,j
-integer(kind=iwp), parameter :: nWindow = 20
+real(kind=wp), allocatable :: q(:,:),g(:,:)
+integer(kind=iwp), parameter :: nWindow = 5
 
 ! Initialization (iteration 0).
 ! -----------------------------
@@ -115,7 +116,7 @@ end if
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiag(:,:))
     call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
-
+    call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
     FunctionalList(1) = Functional
 end if
 
@@ -180,6 +181,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             nDIIS = min(nIter,nWindow)
             iFirst = nIter-nDIIS+1
 
+            call mma_Allocate(q,fsdim, nDiis,Label="q")
+            call mma_Allocate(g,fsdim, nDiis,Label="g")
             ! Pick up coordinates and gradients in full space
             j = 0
             do i=iFirst,nIter
@@ -187,15 +190,18 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 write(u6,*) 'i,j,iter=',i,j,nIter
 
                 ! Coordinates
-                !q(:,j) = displacements(:,)
+                q(:,j) = displacements(:,i)
 
                 ! Gradients
-                !g(:,j) = SCF_V(ipg)%A(:)
+                g(:,j) = GradientList(:,i)
 
             end do
 
+            call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
+            call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
 
-
+            call mma_Deallocate(q)
+            call mma_Deallocate(g)
 
 
             !call S_GEK_localisation(nOrb2Loc,nDiis,kappa,GradientList(:,:),displacements(:,:))

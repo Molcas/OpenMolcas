@@ -19,7 +19,6 @@ subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,
 ! the number of arguments (not recommended for speed)
 
 use definitions, only: wp,iwp,u6
-use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero,One
 use Localisation_globals, only: Debug
 
