@@ -11,7 +11,7 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,nAtoms,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
 ! this subroutine rotates the orbitals as CMO = exp(-kappa) * CMO
 !
 ! for technical reasons, auxiliary matrices (kappa_cnt, xkappa_cnt, unitary_mat, rotated_CMO) are allocated outside of the loop
@@ -21,11 +21,11 @@ subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,nAtoms,kappa_cnt,xkappa_cnt,unita
 use definitions, only: wp,iwp,u6
 use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero,One
-use Localisation_globals, only: Debug, OptMeth
+use Localisation_globals, only: Debug
 
 implicit none
 
-integer(kind=iwp), intent(in) :: nAtoms, nBasis, nOrb2Loc
+integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
                              unitary_mat(nOrb2Loc,nOrb2Loc), rotated_CMO(nBasis,nOrb2Loc)

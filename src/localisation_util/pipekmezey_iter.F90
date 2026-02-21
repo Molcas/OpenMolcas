@@ -184,7 +184,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             j = 0
             do i=iFirst,nIter
                 j = i-iFirst+1
-                write(u6,*) 'i,j,iter=',i,j,iter
+                write(u6,*) 'i,j,iter=',i,j,nIter
 
                 ! Coordinates
                 !q(:,j) = displacements(:,)
@@ -213,7 +213,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
         End If
 
-        call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,nAtoms,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+        call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiag(:,:)) ! gets the new gradient
         call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,nIter+1),fsdim)
