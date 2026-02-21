@@ -40,7 +40,7 @@ C Set up B matrices for cases 1..13.
       IF(NASHT/=0) THEN
 
       CALL mma_allocate(F1,NG1,Label='F1')
-      NFD=SIZE(PREF)
+      NFD=SIZE(DREF)
       CALL mma_allocate(FD,NFD,Label='FD')
 
       CALL PT2_GET(NG1,'DELTA1',F1)
@@ -81,6 +81,7 @@ C Set up B matrices for cases 1..13.
       CALL MKBE(DREF,SIZE(DREF),FD)
       CALL MKBF(DREF,SIZE(DREF),PREF,SIZE(PREF),FP)
       CALL MKBG(DREF,SIZE(DREF),FD)
+
       CALL mma_deallocate(FP)
       CALL mma_deallocate(FD)
 

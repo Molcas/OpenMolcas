@@ -70,6 +70,11 @@ C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
         CALL MKSG(DREF,nDREF)
       END IF
 
+      Call MKSH()
+
+      CONTAINS
+
+      Subroutine MKSH()
 C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest  of the routines.
@@ -83,6 +88,7 @@ C looping, etc in the rest  of the routines.
           END IF
         END DO
       END DO
+      End Subroutine MKSH
 
       END SUBROUTINE MKSMAT
 
