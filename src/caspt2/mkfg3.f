@@ -119,10 +119,7 @@ C>                   to active indices
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
       REAL(kind=wp) BUFR(MXLEV**2)
       REAL(kind=wp), ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
-      INTEGER, ALLOCATABLE:: TASKLIST(:,:)
-
-      Integer :: nMidV
-      nMidV = CIS%nMidV
+      INTEGER(kind=iwp), ALLOCATABLE:: TASKLIST(:,:)
 
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) RETURN
@@ -231,7 +228,7 @@ C-SVC20100301: calculate maximum number of tasks possible
         isp1=Mul(issg1,stsym)
         if (.not. DoFCIQMC) then
           nsgm1=CIS%ncsf(issg1)
-          CALL H0DIAG_CASPT2(ISSG1,BUFD,CIS%NOW,CIS%IOW,NMIDV)
+          CALL H0DIAG_CASPT2(ISSG1,BUFD,CIS%NOW,CIS%IOW,CIS%nMidV)
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
