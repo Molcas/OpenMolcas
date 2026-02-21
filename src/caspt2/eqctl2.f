@@ -69,15 +69,10 @@ CPAM98      IF(SMATRIX.NE.'NO      ')CALL SBMAT
          END DO
         END DO
 
-        IF(SMATRIX.NE.'NO      ') THEN
-          CALL MKSMAT()
-          CALL MKBMAT()
-        END IF
+        IF(SMATRIX.NE.'NO      ') CALL MKSBMAT()
 
 C Modify B matrices, if necessary:
-        IF(HZERO.EQ.'CUSTOM') THEN
-          CALL NEWB()
-        END IF
+        IF(HZERO.EQ.'CUSTOM') CALL NEWB()
 
         CALL GASync()
         CALL TIMING(CPU1,CPU,TIO1,TIO)
@@ -122,9 +117,7 @@ C Non-active part of diagonal elements of H0 are computed
 C and written to LUSBT:
       CALL NADIAG()
 C Modify diagonal elements, if requested:
-      IF(HZERO.EQ.'CUSTOM') THEN
-        CALL NEWDIA()
-      END IF
+      IF(HZERO.EQ.'CUSTOM') CALL NEWDIA()
 C A second set of energy parameters may now have been
 C computed and written to LUSBT.
       CALL GASync()
