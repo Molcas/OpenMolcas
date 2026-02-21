@@ -1,4 +1,4 @@
-!**********************************************************************
+!***********************************************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -40,7 +40,7 @@ real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
 !for S-GEK
-integer(kind=iwp) :: nDiis,iFirst,fsdim
+integer(kind=iwp) :: nDiis,iFirst,fsdim,i,j
 integer(kind=iwp), parameter :: nWindow = 20
 
 ! Initialization (iteration 0).
@@ -48,6 +48,9 @@ integer(kind=iwp), parameter :: nWindow = 20
 
 if (.not. Silent) call CWTime(C1,W1)
 
+
+! allocating matrices for NxN optimizations
+! ---------------------------------------------------------------------------------------------------
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
 
     fsdim = nOrb2Loc*(nOrb2Loc-1)/2
@@ -56,9 +59,9 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call mma_Allocate(Gradient,nOrb2Loc,nOrb2Loc,Label='Gradient')
     call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
 
-    call mma_Allocate(displacements,fsdim,nWindow,Label='displacements')  ! kappa matrices
-    call mma_Allocate(GradientList,fsdim,nWindow,Label='GradientList')
-    call mma_Allocate(FunctionalList,nWindow,Label='FunctionalList')
+    call mma_Allocate(displacements,fsdim,nMxIter,Label='displacements')  ! kappa matrices
+    call mma_Allocate(GradientList,fsdim,nMxIter,Label='GradientList')
+    call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
     displacements(:,:)=Zero
     GradientList(:,:)=Zero
     FunctionalList(:)=Zero
@@ -68,12 +71,15 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
 end if
+! ---------------------------------------------------------------------------------------------------
 
 nIter = 0
 
 call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
 
+
 ! if the Loewdin charge framework is requested instead of Mulliken
+! ---------------------------------------------------------------------------------------------------
 if (ChargeType ==2) then
     call mma_allocate(Ovlp_aux, nBasis, nBasis,Label = "S^{-1/2}")
     lSCR = 2*nBasis**2+nBasis*(nBasis+1)/2
@@ -91,9 +97,10 @@ if (ChargeType ==2) then
     end if
     call mma_deallocate(Ovlp_aux)
 end if
-
+! ---------------------------------------------------------------------------------------------------
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+
 
 if (.not. Silent) then
     write(u6,"(/A)") "MO extension before localisation:"
@@ -102,6 +109,9 @@ else
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 end if
 
+
+! get initial gradient, hessian diagonal, add initial functional value to list
+! ---------------------------------------------------------------------------------------------------
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiag(:,:))
     call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
@@ -109,12 +119,13 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     FunctionalList(1) = Functional
 end if
 
+
+! Print iteration table header.
+! ---------------------------------------------------------------------------------------------------
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
 
-! Print iteration table header.
-! -----------------------------
 if (.not. Silent) then
   write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
                                'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
@@ -124,8 +135,9 @@ if (.not. Silent) then
     write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
 end if
 
+
 ! Iterations.
-! -----------
+! ---------------------------------------------------------------------------------------------------
 call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 Converged = .false.
 
@@ -136,33 +148,63 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     !choose between optimization methods
 
-    ! Jacobi Sweeps
+    ! Jacobi Sweeps (2x2 rotations)
+    ! ---------------------------------------------------------------------------------------------------
     if (OptMeth == 1) then
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
-    ! Gradient Ascent or Newton Raphson
+    ! Employing NxN rotations
+    ! ---------------------------------------------------------------------------------------------------
     else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
 
         kappa(:,:) = Zero
 
-        if (OptMeth == 2) then ! Newton Raphson
+        ! Newton Raphson
+        ! ---------------------------------------------------------------------------------------------------
+        if (OptMeth == 2) then
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
 
-        else if (OptMeth == 3) then ! Gradient Ascent
+
+        ! Gradient Ascent (no line search yet)
+        ! ---------------------------------------------------------------------------------------------------
+        else if (OptMeth == 3) then
             kappa(:,:) = alpha*Gradient(:,:)
 
+
+        ! S-GEK
+        ! ---------------------------------------------------------------------------------------------------
         else if (OptMeth == 4) then ! S-GEK
             ! the subroutine builds the subspace; calls the GEK_optimizer; returns a displacement in the fullspace -> kappa
             nDIIS = min(nIter,nWindow)
             iFirst = nIter-nDIIS+1
+
+            ! Pick up coordinates and gradients in full space
+            j = 0
+            do i=iFirst,nIter
+                j = i-iFirst+1
+                write(u6,*) 'i,j,iter=',i,j,iter
+
+                ! Coordinates
+                !q(:,j) = displacements(:,)
+
+                ! Gradients
+                !g(:,j) = SCF_V(ipg)%A(:)
+
+            end do
+
+
+
+
+
             !call S_GEK_localisation(nOrb2Loc,nDiis,kappa,GradientList(:,:),displacements(:,:))
 
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
 
-        end if
+        end if ! different NxN rotations
+        ! ---------------------------------------------------------------------------------------------------
 
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
         Thr= 0.5E0_wp * Pi
@@ -178,9 +220,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         FunctionalList(nIter+1)=Functional !first entry is from before first iteration
 
-    end if
+    end if ! different opt methods
 
     !check if converged
+    ! ---------------------------------------------------------------------------------------------------
     Delta = Functional-OldFunctional
     OldFunctional = Functional
     if (.not. Silent) then
@@ -190,17 +233,19 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
     end if
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-end do
+end do !Iterations
+
 
 ! print info about each localized MO
+! ---------------------------------------------------------------------------------------------------
 if (.not. Silent) then
     write(u6,"(/A)") "MO extension after localisation:"
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
 end if
 
-! Print convergence message.
-! --------------------------
 
+! Print convergence message.
+! ---------------------------------------------------------------------------------------------------
 if (.not. Silent) then
     if (.not. Converged) then
         write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
@@ -213,7 +258,9 @@ if (.not. Silent) then
     end if
 end if
 
-if (OptMeth == 2 .or. OptMeth == 3) then
+! deallocate matrices used for NxN optimizations
+! ---------------------------------------------------------------------------------------------------
+if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call mma_Deallocate(Gradient)
     call mma_Deallocate(Hdiag)
     call mma_Deallocate(kappa)
@@ -228,34 +275,8 @@ if (OptMeth == 2 .or. OptMeth == 3) then
     call mma_Deallocate(displacements)
 end if
 
+! deallocate other matrices
 call mma_Deallocate(PACol)
 call mma_Deallocate(Ovlp_sqrt)
 
 end subroutine PipekMezey_Iter
-
-subroutine upper_triag2vec(squaremat,matdim,vec,vecdim)
-use Definitions, only: u6,wp,iwp
-implicit none
-real(kind=wp),intent(in) :: squaremat(matdim,matdim)
-integer(kind=iwp),intent(in) :: matdim,vecdim
-real(kind=wp),intent(out) :: vec(vecdim)
-integer(kind=iwp) :: i,j,listindex
-
-! putting the upper triagonal elements into the list; the grad mat is antisymmetric
-listindex=0
-do i=1,matdim-1
-    do j=i+1,matdim
-        listindex=listindex+1
-        if (.false.) then
-            write(u6,"(A,I5,A,I5,A,I5,A,F8.3)") "i=",i ,"j= ",j,"listindex=",listindex,"mat(i,j)=",squaremat(i,j)
-        end if
-        vec(listindex)=squaremat(i,j)
-    end do
-end do
-
-if (.false.) then
-    call RecPrt("NxN Matrix",' ',squaremat,matdim,matdim)
-    call RecPrt("matrix as vector of upper triagonal values:",' ',vec,listindex,1)
-end if
-
-end subroutine upper_triag2vec
