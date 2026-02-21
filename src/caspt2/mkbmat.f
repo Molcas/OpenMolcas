@@ -30,7 +30,7 @@ C Set up B matrices for cases 1..13.
 
       INTEGER(kind=Byte), ALLOCATABLE :: idxG3(:,:)
       real(kind=wp), ALLOCATABLE:: F1(:), F2(:), F3(:), FD(:), FP(:)
-      INTEGER(kind=iwp) NFD, NFP, iLUID
+      INTEGER(kind=iwp) iLUID
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -40,25 +40,22 @@ C Set up B matrices for cases 1..13.
       IF(NASHT/=0) THEN
 
       CALL mma_allocate(F1,NG1,Label='F1')
-      NFD=SIZE(DREF)
-      CALL mma_allocate(FD,NFD,Label='FD')
-
       CALL PT2_GET(NG1,'DELTA1',F1)
+
+      CALL mma_allocate(FD,SIZE(DREF),Label='FD')
       CALL MKDREF_RPT2(NASHT,F1,FD)
 
       CALL mma_deallocate(F1)
-      CALL mma_allocate(F2,NG2,Label='F2')
 
+      CALL mma_allocate(F2,NG2,Label='F2')
       CALL PT2_GET(NG2,'DELTA2',F2)
 
-      NFP=SIZE(PREF)
-      CALL mma_allocate(FP,NFP,Label='FP')
-
+      CALL mma_allocate(FP,SIZE(PREF),Label='FP')
       CALL MKPREF_RPT2(NASHT,F2,FP)
 
       CALL mma_deallocate(F2)
-      CALL mma_allocate(F3,NG3,Label='F3')
 
+      CALL mma_allocate(F3,NG3,Label='F3')
       CALL PT2_GET(NG3,'DELTA3',F3)
 
       IF(IPRGLB.GE.DEBUG) THEN

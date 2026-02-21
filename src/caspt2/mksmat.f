@@ -32,7 +32,7 @@ C     Set up S matrices for cases 1..13.
       INTEGER(kind=byte), ALLOCATABLE :: idxG3(:,:)
 
       real(kind=wp), ALLOCATABLE:: G3(:)
-      integer(kind=iwp) nDREF, nPREF, ICASE, IDISK, iLUID, ISYM, NIN
+      integer(kind=iwp) ICASE, IDISK, iLUID, ISYM, NIN
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -50,24 +50,23 @@ C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
         CALL mma_allocate(G3,NG3,Label='G3')
         CALL PT2_GET(NG3,'GAMMA3',G3)
+
         CALL mma_allocate(idxG3,6,NG3,label='idxG3')
         iLUID=0
         CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-        nDREF=SIZE(DREF)
-        nPREF=SIZE(PREF)
-        CALL MKSA(DREF,nDREF,PREF,nPREF,NG3,G3,idxG3)
-        CALL MKSC(DREF,nDREF,PREF,nPREF,NG3,G3,idxG3)
+        CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
+        CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
 
         CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
-        CALL MKSB(DREF,nDREF,PREF,nPREF)
-        CALL MKSD(DREF,nDREF,PREF,nPREF)
-        CALL MKSE(DREF,nDREF)
-        CALL MKSF(PREF,nPREF)
-        CALL MKSG(DREF,nDREF)
+        CALL MKSB(DREF,SIZE(DREF),PREF,SIZE(PREF))
+        CALL MKSD(DREF,SIZE(DREF),PREF,SIZE(PREF))
+        CALL MKSE(DREF,SIZE(DREF))
+        CALL MKSF(PREF,SIZE(PREF))
+        CALL MKSG(DREF,SIZE(DREF))
       END IF
 
       Call MKSH()
