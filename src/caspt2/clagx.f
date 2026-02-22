@@ -2195,7 +2195,7 @@
       SUBROUTINE CLagX_TrfCI(CI)
 
       use caspt2_global, only: TAT, TORB
-      use caspt2_module, only: NSYM, STSYM, NCONF, NISH, NAES, NRAS1,
+      use caspt2_module, only: NSYM, STSYM, NCONF, NISH, NRAS1,
      &                         NRAS2, NRAS3, NSSH
       use Constants, only: Zero
       use definitions, only: wp, iwp
@@ -2205,8 +2205,7 @@
       real(kind=wp), intent(inout) :: CI(*)
 
       integer(kind=iwp) :: IOFF1, IOFF2, ISYM, NI, NR1, NR2, NR3, NS,
-     &                     I, J, IJ, JI, ITOEND, NSG, ITOSTA, ITO,
-     &                     ISTART
+     &                     I, J, IJ, JI, NISH_SAVE(8)
 
       TAT(:) = Zero
 
@@ -2254,39 +2253,14 @@
         IOFF1=IOFF1+NS**2
       END DO
 ! Transform SGM to use original MO:
-      ITOEND=0
-      NSG=NCONF
-      DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NR1=NRAS1(ISYM)
-        NR2=NRAS2(ISYM)
-        NR3=NRAS3(ISYM)
-        NS=NSSH(ISYM)
-        ITOSTA=ITOEND+1
-        ITOEND=ITOEND+NR1**2+NR2**2+NR3**2
-*        ITO=ITOSTA+NI**2
-        ITO=ITOSTA
-        IF(NR1 > 0) THEN
-          ISTART=NAES(ISYM)+1
-          CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
-     &                                         NSG,CI)
-        END IF
-        ITO=ITO+NR1**2
-        IF(NR2 > 0) THEN
-          ISTART=NAES(ISYM)+NR1+1
-          CALL TRACI_RPT2(ISTART,NR2,TAT(ITO),STSYM,
-     &                                         NSG,CI)
-        END IF
-        ITO=ITO+NR2**2
-        IF(NR3 > 0) THEN
-          ISTART=NAES(ISYM)+NR1+NR2+1
-         !! NR1 should be NR3?
-          CALL TRACI_RPT2(ISTART,NR3,TAT(ITO),STSYM,
-     &                                         NSG,CI)
-        END IF
-      END DO
 
-      RETURN
+!     In difference to TORB TAT only includes the active orbitals. We trick
+!     MkTraCI to work with this by temporarily setting the number of inactive
+!     orbitals to zero.
+      NISH_SAVE(:)=NISH(:)
+      NISH(:)=0
+      Call mkTraCI(SIZE(TAT),TAT,STSYM,nConf,CI)
+      NISH(:)=NISH_SAVE(:)
 
       END SUBROUTINE CLagX_TrfCI
 !
