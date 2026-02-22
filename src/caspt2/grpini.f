@@ -77,22 +77,27 @@
         WRITE(u6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
       END IF
+*
 * ---------------------------------------------------------------------
-
+*
 * Load CASSCF MO coefficients
       call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
       CMO=>CMO_Internal
+
       IDISK=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,IDISK)
+
       IAD1M(2)=IDISK
       call ddafile(LUONEM,1,CMO,NCMO,IDISK)
+
+!     IEOF1M is the next free disk address on LUOneM
       IEOF1M=IDISK
 
 *     Compute conventional integrals in the natural orbitals of
 *     the CASSSCF (stored in CMO in module CASPT2_module).
       If (.NOT.IfChol) Then
          Call TraOne(CMO,nCMO)
-         Call TraCtl(0)
+         Call TraCtl(nCMO,CMO,0)
       End If
 
 * Loop over states, selecting those belonging to this group.
@@ -276,11 +281,11 @@
 
 * TRACHO3 computes MO-transformed Cholesky vectors without computing
 * Fock matrices
-* TRACTL(0) computes transformed 2-body MO integrals
+* TRACTL(nCMO,CMO,0) computes transformed 2-body MO integrals
       if (IfChol) then
           call TRACHO3(CMO,NCMO)
       else
-          if (.not. DoFCIQMC) call TRACTL(0)
+          if (.not. DoFCIQMC) call TRACTL(nCMO,CMO,0)
       end if
 
       CALL TIMING(CPU1,CPU,TIO1,TIO)

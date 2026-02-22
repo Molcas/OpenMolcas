@@ -93,7 +93,7 @@
 
       If (.NOT.IfChol) Then
          Call TraOne(CMO,nCMO)
-         Call TraCtl(0)
+         Call TraCtl(nCMO,CMO,0)
       End If
 
 * Build the state-average Fock matrix in MO basis

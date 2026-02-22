@@ -1350,7 +1350,7 @@
       if (IfChol) then
         call TRACHO3(CMO,NCMO)
       else
-        call TRACTL(0)
+        call TRACTL(nCMO,CMO,0)
       end if
       Call mma_deallocate(CMO_Internal)
       nullify(CMO)
