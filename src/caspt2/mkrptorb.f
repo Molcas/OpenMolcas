@@ -31,8 +31,7 @@
       use caspt2_module, only: iSCF, nConf, nOMx,
      &                         nState, nSym, STSym, nIsh, nAsh, nRas1,
      &                         nRas2, nRas3, nSsh, nOrb, nBas, nFro,
-     &                         EPS, EPSI, EPSA, nDel, nAES,
-     &                         EPSE
+     &                         EPS, EPSI, EPSA, nDel, EPSE
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       use caspt2_module, only: DoCumulant
 #endif
@@ -52,8 +51,8 @@ C The transformation matrices are returned in TORB.
       REAL(kind=wp), INTENT(INOUT) :: CMO(NCMO)
 
 C     indices
-      INTEGER(kind=iwp) I,II,IST,ISYM,ISTART
-      INTEGER(kind=iwp) ITO,ITOSTA,ITOEND
+      INTEGER(kind=iwp) I,II,IST,ISYM
+      INTEGER(kind=iwp) ITOSTA,ITOEND
       INTEGER(kind=iwp) ICMOSTA,ICMOEND
       INTEGER(kind=iwp) IDR,IDW
       INTEGER(kind=iwp) IEPS,IEPSI,IEPSA,IEPSE
@@ -232,13 +231,15 @@ C     work-arrays
 
 * Actually, we will not use the old CMO array any more, so just
 * overwrite it with the new ones and get rid of the allocated array.
-      CALL DCOPY_(NCMO,CMO2,1,CMO,1)
+      CMO(:)=CMO2(:)
       CALL mma_deallocate(CMO2)
+
 * We will not use the Fock matrix either. It was just used temporarily
 * for each turn of the symmetry loop. Skip it.
       CALL mma_deallocate(FOCK)
 
 C Finally, loop again over symmetries, transforming the CI:
+
       IF(ISCF.EQ.0) THEN
 #ifdef _DMRG_
         if (DMRG) then
@@ -278,37 +279,9 @@ C Finally, loop again over symmetries, transforming the CI:
             IDW=IDTCEX
             DO IST=1,NSTATE
              CALL DDAFILE(LUCIEX,2,CI,NCONF,IDR)
-             ITOEND=0
-             DO ISYM=1,NSYM
-              NI=NISH(ISYM)
-              NA=NASH(ISYM)
-              NR1=NRAS1(ISYM)
-              NR2=NRAS2(ISYM)
-              NR3=NRAS3(ISYM)
-              NS=NSSH(ISYM)
-              NO=NORB(ISYM)
-              NB=NBAS(ISYM)
-              ITOSTA=ITOEND+1
-              ITOEND=ITOEND+NI**2+NR1**2+NR2**2+NR3**2+NS**2
 
-              ITO=ITOSTA+NI**2
-              IF(NA.GT.0) THEN
-                IF(NR1.GT.0) THEN
-                  ISTART=NAES(ISYM)+1
-                  CALL TRACI_RPT2(ISTART,NR1,TORB(ITO),STSYM,NCONF,CI)
-                END IF
-                ITO=ITO+NR1**2
-                IF(NR2.GT.0) THEN
-                  ISTART=NAES(ISYM)+NR1+1
-                  CALL TRACI_RPT2(ISTART,NR2,TORB(ITO),STSYM,NCONF,CI)
-                END IF
-                ITO=ITO+NR2**2
-                IF(NR3.GT.0) THEN
-                  ISTART=NAES(ISYM)+NR1+NR2+1
-                  CALL TRACI_RPT2(ISTART,NR3,TORB(ITO),STSYM,NCONF,CI)
-                END IF
-              END IF
-             END DO
+             Call mkTraCI(nTORB,TORB,STSYM,nConf,CI)
+
              CALL DDAFILE(LUCIEX,1,CI,NCONF,IDW)
             END DO
             CALL mma_deallocate(CI)
