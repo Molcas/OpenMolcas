@@ -49,9 +49,7 @@ nDIIS = min(nIter,nWindow) !1 for first iteration; 2
 ! index of the first iteration to consider for the subspace
 iFirst = nIter-nDIIS+1 !1 for first iteration; 1
 
-write(u6,*) "CHRISSIEEE, fsdim",fsdim
 call mma_Allocate(q,fsdim, nDiis,Label="q")
-write(u6,*) "CHRISSIEEE WAKE UP"
 call mma_Allocate(g,fsdim, nDiis,Label="g")
 
 call mma_Allocate(dq,fsdim,Label='dq')
@@ -219,7 +217,7 @@ call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
-!Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis,g_diis,dq_diis,Functionallist(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SORange)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis,g_diis,dq_diis,Functionallist(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SORange)
 
 
 ! project the resulting displacement dq_diis back into the fullspace
@@ -230,7 +228,6 @@ do i=1,mDIIS
 end do
 dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
-write(u6,*) '||dq||=',sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 write(u6,*) '||dq||=',dqdq
 call RecPrt('dq',' ',dq(:),size(dq),1)
 

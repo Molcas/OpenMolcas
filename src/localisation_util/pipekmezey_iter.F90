@@ -184,6 +184,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             end if
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
+            call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
         end if ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
