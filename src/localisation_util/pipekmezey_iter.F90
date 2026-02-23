@@ -40,7 +40,8 @@ real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
 !for S-GEK
-integer(kind=iwp) :: nDiis,iFirst,fsdim,i,j,k,nExplicit
+integer(kind=iwp) :: nDiis,iFirst,fsdim,i,j,k,l,nExplicit,mDiis
+real(kind=wp) :: gg
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),dq(:)
 integer(kind=iwp), parameter :: nWindow = 5
 
@@ -177,8 +178,18 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! S-GEK
         ! ---------------------------------------------------------------------------------------------------
         else if (OptMeth == 4) then ! S-GEK
+
+            ! Pick up coordinates and gradients in full space
+            ! -----------------------------------------------
+
             ! number of iterations used to build the subspace
             nDIIS = min(nIter,nWindow) !1 for first iteration; 2
+
+            if (nDIIS == 1) then
+                write(u6,*) 'Exit S-GEK Optimizer'
+                kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
+            else
+
 
             ! index of the first iteration to consider for the subspace
             iFirst = nIter-nDIIS+1 !1 for first iteration; 1
@@ -188,11 +199,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             call mma_Allocate(dq,fsdim,Label='dq')
 
-            ! Pick up coordinates and gradients in full space
             j = 0
             do i=iFirst,nIter
                 j = i-iFirst+1
-                write(u6,*) 'i,j,iter=',i,j,nIter
+                !write(u6,*) 'i,j,iter=',i,j,nIter
 
                 ! Coordinates
                 q(:,j) = displacements(:,i)
@@ -204,6 +214,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             !change this later
             dq(:) = displacements(:,nIter)
+
+            write(u6,*) 'nWindow =',nWindow
+            write(u6,*) '  nDIIS =',nDIIS
+            write(u6,*) '  nIter =',nIter
+            call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
+            call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
+            call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
+            call RecPrt("dq(:)",' ',dq,fsdim, 1)
+
+            ! select subspace basis vectors; construct normalized e_diis
+            ! -----------------------------------------------------------
 
             !number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
             nExplicit = 2*(nDIIS-1)+2
@@ -247,14 +268,64 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
             call mma_deallocate(Aux_a)
 
-
-            call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
-            call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
             if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
 
             call mma_Deallocate(q)
             call mma_Deallocate(g)
             call mma_Deallocate(dq)
+
+
+            ! orthogonalize e_diis; remove redundancies from linear dependences
+            ! -----------------------------------------------------------------
+            do l=1,2
+                j = 1
+                do i=2,nExplicit
+                    do k=1,j
+                        gg = DDot_(fsdim,e_diis(:,i),1,e_diis(:,k),1)
+                        write(u6,*) 'i,k,gg=',i,k,gg
+                        e_diis(:,i) = e_diis(:,i)-gg*e_diis(:,k)
+                    end do
+                    gg = DDot_(fsdim,e_diis(:,i),1,e_diis(:,i),1) ! renormalize
+                    write(u6,*) 'j,i,gg=',j,i,gg
+
+                    if (gg > 1.0e-17_wp) then   ! Skip vector if linear dependent.
+                        j = j+1
+                        e_diis(:,j) = e_diis(:,i)/sqrt(gg)
+                    end if
+                end do
+            end do
+
+            ! normally mDIIS=2*nDIIS, but it can happen that not all unit vectors are linear independent (mDIIS<=2*nDIIS).
+            ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
+            mDIIS = j
+
+
+            write(u6,*) '    fsdim:',fsdim
+            write(u6,*) 'nExplicit:',nExplicit
+            write(u6,*) '    nIter:',nIter
+            write(u6,*) '    nDIIS:',nDIIS
+            write(u6,*) '    mDIIS:',mDIIS
+
+            write(u6,*) 'Check the orthonormality'
+            do i=1,mDIIS
+                do j=1,i
+                    write(u6,*) i,j,DDot_(fsdim,e_diis(:,i),1,e_diis(:,j),1)
+                end do
+                write(u6,*)
+            end do
+            if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,fsdim,mDIIS)
+
+
+
+
+
+
+
+
+
+
+
+
             call mma_Deallocate(e_diis)
 
 
@@ -262,7 +333,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
-
+            end if ! S-GEK with nIter > 1
         end if ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 

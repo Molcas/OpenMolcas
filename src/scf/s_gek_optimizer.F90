@@ -99,14 +99,14 @@ do i=iFirst,iter
 
 end do
 
-!#ifdef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
 write(u6,*) 'nWindow=',nWindow
 write(u6,*) 'nDIIS=',nDIIS
 write(u6,*) 'IterGEK=',IterGEK
 call RecPrt('q',' ',q,mOV,nDIIS)
 call RecPrt('g',' ',g,mOV,nDIIS)
-!call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
-!#endif
+call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
+#endif
 
 !=======================================================================
 ! Select the subspace
@@ -157,9 +157,10 @@ call mma_deallocate(Aux_a)
 #endif
 
 ! Now orthogonalize all unit vectors
-!#ifdef _DEBUGPRINT_
+! ----------------------------------
+#ifdef _DEBUGPRINT_
 if (allocated(e_diis)) call RecPrt('e_diis(unnorm)',' ',e_diis,mOV,nExplicit)
-!#endif
+#endif
 do l=1,2
   j = 1
   do i=2,nExplicit
