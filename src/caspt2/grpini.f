@@ -80,7 +80,7 @@
 *
 * ---------------------------------------------------------------------
 *
-* Load CASSCF MO coefficients
+* Load the CASSCF naural orbital MO coefficients
       call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
       CMO=>CMO_Internal
 
@@ -125,7 +125,7 @@
 * Compute the Fock matrix in MO basis for state Jstate
         Call MkFock()
 
-        If (.NOT.IfChol) CMOPT2(:)=CMO(:)
+!       If (.NOT.IfChol) CMOPT2(:)=CMO(:)
 
 * NN.15, TODO:
 * the following transformation are skipped in DMRG-CASPT2 run
