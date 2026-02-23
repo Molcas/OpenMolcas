@@ -53,8 +53,8 @@
       call mma_allocate(CI2,MXCI,Label='MCCI2')
       IF(ISCF == 0) THEN
 ! Read root vectors nr. IST and JST from LUCI.
-        IDCI=IDTCEX(1)
         DO I=1,NSTATE
+          IDCI=IDTCEX(I)
           IF(I == IST) THEN
             CALL DDAFILE(LUCIEX,2,CI1,NCONF,IDCI)
             IF(I == JST) THEN
