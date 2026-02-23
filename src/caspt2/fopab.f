@@ -108,10 +108,7 @@
       CALL mma_allocate(SGM,NCONF,LABEL='SGM')
 
 * Load ket wave function
-      ID=IDCIEX(1)
-      DO I=1,IKET-1
-        CALL DDAFILE(LUCIEX,0,KET,NCONF,ID)
-      END DO
+      ID=IDCIEX(IKET)
       CALL DDAFILE(LUCIEX,2,KET,NCONF,ID)
 
       IF (IFTEST.GT.0) THEN
@@ -154,10 +151,7 @@
       END IF
 
 * Load bra wave function
-      ID=IDCIEX(1)
-      DO I=1,IBRA-1
-        CALL DDAFILE(LUCIEX,0,BRA,NCONF,ID)
-      END DO
+      ID=IDCIEX(IBRA)
       CALL DDAFILE(LUCIEX,2,BRA,NCONF,ID)
 
 * Put matrix element into FOPEL:
@@ -201,10 +195,7 @@
       END IF
 
 * Load ket wave function
-      ID=IDCIEX(1)
-      DO I=1,IKET-1
-        CALL DDAFILE(LUCIEX,0,KET,NCONF,ID)
-      END DO
+      ID=IDCIEX(IKET)
       CALL DDAFILE(LUCIEX,2,KET,NCONF,ID)
 
 * Add contribution to matrix element FOPEL
