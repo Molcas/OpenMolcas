@@ -34,7 +34,7 @@ integer(kind=iwp) :: nIter, lSCR, fsdim
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),&
-                              kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:)
+                              kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:)
 logical(kind=iwp), parameter :: debug_lowdin = .false.
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
@@ -56,6 +56,7 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call mma_Allocate(Gradient,nOrb2Loc,nOrb2Loc,Label='Gradient')
     call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
 
+    call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
     call mma_Allocate(displacements,fsdim,nMxIter,Label='displacements')  ! kappa matrices
     call mma_Allocate(GradientList,fsdim,nMxIter,Label='GradientList')
     call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
@@ -176,7 +177,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             if (nIter == 1) then
                 write(u6,*) 'Exit S-GEK Optimizer'
             else
-                call S_GEK_localisation(nIter,GradientList(:,:),displacements(:,:),fsdim)
+                call upper_triag2vec(hdiag(:,:),nOrb2Loc,hdiagvec(:),fsdim)
+                call S_GEK_localisation(nIter,GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim)
             end if
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
@@ -250,6 +252,7 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call mma_Deallocate(FunctionalList)
     call mma_Deallocate(GradientList)
     call mma_Deallocate(displacements)
+    call mma_Deallocate(Hdiagvec)
 end if
 
 ! deallocate other matrices
@@ -263,7 +266,7 @@ end subroutine PipekMezey_Iter
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-subroutine S_GEK_localisation(nIter, GradientList,displacements,fsdim)
+subroutine S_GEK_localisation(nIter, GradientList,displacements,hdiag,fsdim)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -273,11 +276,11 @@ use Localisation_globals, only: nMxIter
 implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim
-real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter)
+real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
 
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
 real(kind=wp) :: gg
-real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),dq(:),q_diis(:,:),g_diis(:,:)
+real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),dq(:),q_diis(:,:),g_diis(:,:),H_diis(:,:)
 integer(kind=iwp), parameter :: nWindow = 5
 real(kind=wp), External :: DDot_
 
@@ -427,6 +430,7 @@ end do
 
 ! Compute projected gradients
 ! ---------------------------
+! g_diis(u) = e_diis(Kxu)^T * g(K)
 call mma_Allocate(g_diis,mDiis,nDiis,Label='g_diis')
 g_diis(:,:) = Zero
 do i=1,nDIIS
@@ -434,6 +438,19 @@ do i=1,nDIIS
         g_diis(k,i) = sum(g(:,i)*e_diis(:,k))
     end do
 end do
+
+
+! project also the Hessian (diagonal) onto the subspace
+! -----------------------------------------------------
+! H_diis(uxu) = e_diis(Kxu)^T * H(KxK) * e_diis(Kxu)
+call mma_allocate(H_diis,mDIIS,mDIIS,Label='H_diis')
+
+do i=1,mDiis
+  do j=1,mDiis
+    H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
+  end do
+end do
+
 
 call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
 call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
@@ -447,5 +464,6 @@ call mma_Deallocate(dq)
 call mma_Deallocate(e_diis)
 call mma_Deallocate(q_diis)
 call mma_Deallocate(g_diis)
+call mma_Deallocate(H_diis)
 
 end subroutine S_GEK_localisation
