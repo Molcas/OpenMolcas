@@ -37,7 +37,7 @@ C Local array:
       REAL*8, ALLOCATABLE :: TRDTMP(:), TRDCI(:), TRDSGM(:)
       INTEGER :: NTMP
 
-      INTEGER :: I, J, ID
+      INTEGER :: I, ID
       INTEGER :: ISYM, ISYMT
       INTEGER :: ITABS, ITLEV, IU, IUABS, IULEV
       REAL*8 :: OP0, OCCNUM, SCP, DDOT_
@@ -70,10 +70,7 @@ C First modify the coefficients, see subroutine MODOP.
       CALL MMA_ALLOCATE(TRDTMP,NTMP)
       CALL MMA_ALLOCATE(TRDCI,NCONF)
       IF(ISCF.EQ.0) THEN
-        ID=IDTCEX(1)
-        DO J=1,JSTATE-1
-         CALL DDAFILE(LUCIEX,0,TRDCI,NCONF,ID)
-        END DO
+        ID=IDTCEX(JSTATE)
         CALL DDAFILE(LUCIEX,2,TRDCI,NCONF,ID)
       ELSE
         TRDCI=1.0D0

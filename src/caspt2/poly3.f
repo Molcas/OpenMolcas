@@ -52,14 +52,10 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
 
       INTEGER(kind=iwp) IFF
-
       INTEGER(kind=iwp) ILEV
       INTEGER(kind=iwp) NG3MAX
       INTEGER(kind=iwp) ILUID
-
       INTEGER(kind=iwp) IDCI
-      INTEGER(kind=iwp) J
-
       INTEGER(kind=iwp) IPARDIV
       INTEGER(kind=Byte), ALLOCATABLE :: idxG3(:,:)
       REAL(kind=wp), ALLOCATABLE, TARGET:: G1(:), G2(:), G3(:)
@@ -118,10 +114,7 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
         CALL mma_allocate(CI,NCONF,Label='CI')
 
         IF (.NOT. DoCumulant .AND. ISCF.EQ.0) THEN
-          IDCI=IDTCEX(1)
-          DO J=1,JSTATE-1
-            CALL DDAFILE(LUCIEX,0,CI,NCONF,IDCI)
-          END DO
+          IDCI=IDTCEX(JSTATE)
           CALL DDAFILE(LUCIEX,2,CI,NCONF,IDCI)
           IF (IPRGLB.GE.VERBOSE) THEN
             WRITE(u6,*)
