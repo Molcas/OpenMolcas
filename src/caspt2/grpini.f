@@ -87,9 +87,6 @@
       IDISK=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,IDISK)
 
-      IAD1M(2)=IDISK
-      call ddafile(LUONEM,1,CMO,NCMO,IDISK)
-
 !     IEOF1M is the next free disk address on LUOneM
       IEOF1M=IDISK
 
