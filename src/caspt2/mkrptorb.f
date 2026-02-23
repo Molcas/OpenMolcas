@@ -275,13 +275,13 @@ C Finally, loop again over symmetries, transforming the CI:
           IF(.NOT.DoCumulant) THEN
 #endif
             CALL mma_allocate(CI,NCONF,Label='CI')
-            IDR=IDCIEX(1)
-            IDW=IDTCEX(1)
             DO IST=1,NSTATE
+             IDR=IDCIEX(IST)
              CALL DDAFILE(LUCIEX,2,CI,NCONF,IDR)
 
              Call mkTraCI(nTORB,TORB,STSYM,nConf,CI)
 
+             IDW=IDTCEX(IST)
              CALL DDAFILE(LUCIEX,1,CI,NCONF,IDW)
             END DO
             CALL mma_deallocate(CI)
