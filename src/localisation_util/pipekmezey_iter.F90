@@ -40,8 +40,8 @@ real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
 !for S-GEK
-integer(kind=iwp) :: nDiis,iFirst,fsdim,i,j
-real(kind=wp), allocatable :: q(:,:),g(:,:)
+integer(kind=iwp) :: nDiis,iFirst,fsdim,i,j,k,nExplicit
+real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),dq(:)
 integer(kind=iwp), parameter :: nWindow = 5
 
 ! Initialization (iteration 0).
@@ -177,12 +177,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! S-GEK
         ! ---------------------------------------------------------------------------------------------------
         else if (OptMeth == 4) then ! S-GEK
-            ! the subroutine builds the subspace; calls the GEK_optimizer; returns a displacement in the fullspace -> kappa
-            nDIIS = min(nIter,nWindow)
-            iFirst = nIter-nDIIS+1
+            ! number of iterations used to build the subspace
+            nDIIS = min(nIter,nWindow) !1 for first iteration; 2
+
+            ! index of the first iteration to consider for the subspace
+            iFirst = nIter-nDIIS+1 !1 for first iteration; 1
 
             call mma_Allocate(q,fsdim, nDiis,Label="q")
             call mma_Allocate(g,fsdim, nDiis,Label="g")
+
+            call mma_Allocate(dq,fsdim,Label='dq')
+
             ! Pick up coordinates and gradients in full space
             j = 0
             do i=iFirst,nIter
@@ -197,11 +202,60 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             end do
 
+            !change this later
+            dq(:) = displacements(:,nIter)
+
+            !number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
+            nExplicit = 2*(nDIIS-1)+2
+
+            call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
+
+            call mma_allocate(Aux_a,fsdim,Label='Aux_a')
+            call mma_allocate(Aux_b,fsdim,Label='Aux_b')
+
+            j = 0
+            do k=1,nDIIS-1
+                !n-th column of e_diis
+                j = j+1
+                ! gradient difference vector
+                Aux_a(:) = g(:,k+1)-g(:,k)
+                !normalize
+                e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
+
+                !(n+1)-th column of e_diis
+                j = j+1
+                ! displacement difference vector
+                Aux_a(:) = q(:,k+1)-q(:,k)
+                Aux_b(:) = Aux_a(:)
+                !normalize
+                e_diis(:,j) = Aux_b(:)/sqrt(DDot_(fsdim,Aux_b(:),1,Aux_b(:),1))
+
+            end do
+            call mma_deallocate(Aux_b)
+
+            ! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
+            j = j+1
+            !current gradient
+            Aux_a(:) = g(:,nDIIS)
+            !normalize
+            e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
+
+            j = j+1
+            !second order method's displacement suggestion
+            Aux_a(:) = dq(:)
+            !normalize
+            e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
+            call mma_deallocate(Aux_a)
+
+
             call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
             call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
+            if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
 
             call mma_Deallocate(q)
             call mma_Deallocate(g)
+            call mma_Deallocate(dq)
+            call mma_Deallocate(e_diis)
 
 
             !call S_GEK_localisation(nOrb2Loc,nDiis,kappa,GradientList(:,:),displacements(:,:))
