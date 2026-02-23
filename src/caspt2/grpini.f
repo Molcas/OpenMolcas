@@ -125,8 +125,6 @@
 * Compute the Fock matrix in MO basis for state Jstate
         Call MkFock()
 
-!       If (.NOT.IfChol) CMOPT2(:)=CMO(:)
-
 * NN.15, TODO:
 * the following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
