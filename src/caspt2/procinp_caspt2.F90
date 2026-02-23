@@ -185,9 +185,7 @@ subroutine procinp_caspt2
   !---  Initialize
   IDCIEX = 0
   IEOF1M = 0
-  do I = 1,64
-    IAD1M(I) = -1
-  end do
+  IAD1M(:) = -1
   RFpert = Input%RFPert
 
   OUTFMT = 'DEFAULT'

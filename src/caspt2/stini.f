@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
 ************************************************************************
-      SUBROUTINE STINI()
+      SUBROUTINE STINI(JSTATE)
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_set_state
       use iso_c_binding, only: c_int
@@ -19,13 +19,15 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF, PREF
       use PrintLevel, only: DEBUG, USUAL
-      use caspt2_module, only: CPUFG3, ERef, jState, nAshT, EASUM,
+      use caspt2_module, only: CPUFG3, ERef, nAshT, EASUM,
      &                         TIOFG3, EPSA, mState, RefEne,
      &                         CPUSIN, TIOSIN
       use pt2_guga, only: iAdr10, CLab10
       use constants, only: Zero
       use definitions, only: iwp, wp, u6
       IMPLICIT NONE
+      integer(kind=iwp), intent(in):: JSTATE
+
       CHARACTER(LEN=50)  STLNE2
 C     timers
       REAL(kind=wp) CPU0,CPU1,CPU,  CPTF0, CPTF11, CPE,
@@ -70,7 +72,9 @@ C     indices
         WRITE(u6,*)' STINI calling POLY3...'
       END IF
       CALL TIMING(CPU0,CPU,TIO0,TIO)
+
       CALL POLY3(1)
+
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUFG3=CPU1-CPU0
       TIOFG3=TIO1-TIO0

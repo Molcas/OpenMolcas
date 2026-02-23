@@ -231,10 +231,38 @@ C
          WRITE(6,*)
        END IF
 
+!      GRPINI does a number of things as follows (note this list is not
+!      complete).
+!
+!      1. Reads the natural orbitals (NO) MOs from LUONEM. Stored in
+!         CMO.
+!      2. transforms HONE from AO to NO basis
+!      3. transforms the two-electron integrals to the NO basis
+!      4. Form the 1-particle density matrix (DREF) from DMIX as
+!         generated RDMINIT above. In the NO basis
+!      5. Forms the Fock matrix in NO basis by a call to MkOrb
+!         For conventional integrals for it directly in the NO basis,
+!         while for the Cholesky decomposition approach the Fock matrix
+!         is first formed in the AO basis and then transformed to NO
+!         basis. This routine also reads the CI coefficients in the
+!         NO basis from the file LUCIEX. Transforms the to PCO basis and
+!         writes them back to LUCIEX on another place.
+!      6. Forms the pseudo canonical orbitals (PCO), in OrbCtl.
+!         6a. For the PCO basis and the transformation matrix between
+!             the NO and the PCO basis, the TOrb matrix.
+!         6b. Transform the HONE to the PCO basis
+!         6c. Transform the FIMO matrix to the PCO basis
+!         6d. Transform the FIFA matrix to the PCO basis
+!         6e. Transform the DREF matrix to the PCO basis
+!      7. Transforms the Cholesky vectors or the two-electron integrals
+!         to the PCO basis.
+!      8. Drops the NO CMO orbitals as stored in CMO.
+!
        CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,
      &             HEFF,H0,U0,nState)
 
        If (do_grad) CALL CNSTFIFAFIMO(1)
+
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -242,8 +270,7 @@ C
 * Skip this state if we only need 1 state and it isn't this "one".
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
 
-         CALL STINI()
-
+         CALL STINI(JSTATE)
 
 * Solve CASPT2 equation system and compute corr energies.
          IF (IPRGLB.GE.USUAL) THEN

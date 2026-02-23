@@ -72,8 +72,8 @@ c NBUF=Max size of a LUINTM buffer.
 
       FIFA(1:notri) = FIMO(1:notri) + FAMO(1:notri)
 
-
       Contains
+
       Subroutine Do_Loops(icase)
       integer(kind=iwp), intent(in):: iCase
 
