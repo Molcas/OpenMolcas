@@ -15,9 +15,9 @@ Coor,NoInts,SOInt,nijkl,nSOInt,Wrk,nWork2,iSD4 &
 
 #else
 
-integer(kind=iwp), intent(in) :: nijkl, nSOInt, nWork2, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4)
-logical(kind=iwp), intent(out) :: NoInts
+logical(kind=iwp), intent(inout) :: NoInts
+integer(kind=iwp), intent(in) :: nijkl, nSOInt, nWork2, iSD4(0:nSD,4)
 real(kind=wp), intent(inout) ::  SOInt(nijkl,nSOInt)
 real(kind=wp), intent(out) :: Wrk(nWork2)
 
