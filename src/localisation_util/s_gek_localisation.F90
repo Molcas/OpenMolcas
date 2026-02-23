@@ -13,7 +13,7 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
-subroutine S_GEK_localisation(nIter, GradientList,displacements,hdiag,fsdim,dqdq)
+subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -23,14 +23,16 @@ use Localisation_globals, only: nMxIter
 implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim
-real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
+real(kind=wp),intent(in) :: FunctionalList(nMxIter),GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
 real(kind=wp), intent(out) :: dqdq
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),dq(:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:)
-integer(kind=iwp), parameter :: nWindow = 5, Max_Iter_GEK = 50
+integer(kind=iwp), parameter :: nWindow = 20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
-
+character(len=6) :: UpMeth
+logical :: SORange
+character :: Step_Trunc
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
@@ -44,11 +46,12 @@ write(u6,*) 'Enter S-GEK Optimizer'
 nDIIS = min(nIter,nWindow) !1 for first iteration; 2
 
 
-
 ! index of the first iteration to consider for the subspace
 iFirst = nIter-nDIIS+1 !1 for first iteration; 1
 
+write(u6,*) "CHRISSIEEE, fsdim",fsdim
 call mma_Allocate(q,fsdim, nDiis,Label="q")
+write(u6,*) "CHRISSIEEE WAKE UP"
 call mma_Allocate(g,fsdim, nDiis,Label="g")
 
 call mma_Allocate(dq,fsdim,Label='dq')
@@ -216,7 +219,7 @@ call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
-!Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SORange)
+!Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis,g_diis,dq_diis,Functionallist(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SORange)
 
 
 ! project the resulting displacement dq_diis back into the fullspace
@@ -228,9 +231,9 @@ end do
 dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
 write(u6,*) '||dq||=',sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
+write(u6,*) '||dq||=',dqdq
 call RecPrt('dq',' ',dq(:),size(dq),1)
 
-!call Finish_Kriging()
 
 
 
@@ -242,10 +245,10 @@ call mma_Deallocate(g)
 call mma_Deallocate(dq)
 
 call mma_Deallocate(e_diis,safe='*')
-call mma_Deallocate(q_diis,safe='*')
-call mma_Deallocate(g_diis,safe='*')
-call mma_Deallocate(H_diis,safe='*')
-call mma_Deallocate(dq_diis,safe='*')
+call mma_Deallocate(q_diis)
+call mma_Deallocate(g_diis)
+call mma_Deallocate(H_diis)
+call mma_Deallocate(dq_diis)
 
 ! print timing & finalize GEK
 ! ---------------------------
