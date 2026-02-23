@@ -208,8 +208,8 @@
       If (pt2wfn_is_h5) Then
         if (.not. DMRG) then
           call mma_allocate(BUF,NCONF)
-          IDISK = IDCIEX(1)
           DO ISTATE=1,NSTATE
+            IDISK = IDCIEX(ISTATE)
             CALL DDAFILE(LUCIEX,2,BUF,NCONF,IDISK)
             call mh5_put_dset(pt2wfn_cicoef,BUF,[NCONF,1],[0,ISTATE-1])
           END DO

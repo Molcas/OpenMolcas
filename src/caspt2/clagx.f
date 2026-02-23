@@ -1774,7 +1774,7 @@
       real(kind=wp), intent(inout) :: CLag(nConf), DG1(*), DG2(*),
      &  DG3(*), DF1(*), DF2(*), DF3(*), DEPSA(*)
 
-      integer(kind=iwp) :: ILEV, NG3MAX, ILUID, IDCI, J
+      integer(kind=iwp) :: ILEV, NG3MAX, ILUID, IDCI
       integer(kind=iwp), external :: iPARDIV
       integer(kind=byte), allocatable :: idxG3(:,:)
       real(kind=wp), allocatable :: CI1(:)
@@ -1805,10 +1805,7 @@
       call mma_allocate(CI1,NCONF,LABEL='CI')
       If (ISCF == 0) Then
         if (iff == 1) then
-          IDCI=IDTCEX(1)
-          DO J=1,JSTATE-1
-            CALL DDAFILE(LUCIEX,0,CI1,NCONF,IDCI)
-          END DO
+          IDCI=IDTCEX(JSTATE)
           CALL DDAFILE(LUCIEX,2,CI1,NCONF,IDCI)
         else
 !         Call LoadCI_XMS('C',1,CI1,JSTATE,U0)
