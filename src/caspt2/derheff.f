@@ -59,10 +59,10 @@
       call mma_allocate(CI3,MXCI,Label='MCCI3')
 
       IF(ISCF == 0) THEN
-        IDCI=IDTCEX(1)
         JST = jState
         CI1(1:NCONF) = Zero
         DO I=1,NSTATE
+          IDCI=IDTCEX(I)
           IST = I
           IF (IST == JST) THEN
             CALL DDAFILE(LUCIEX,2,CI2,NCONF,IDCI)
