@@ -42,7 +42,7 @@ real(kind=wp), External :: DDot_
 !for S-GEK
 integer(kind=iwp) :: nDiis,iFirst,fsdim,i,j,k,l,nExplicit,mDiis
 real(kind=wp) :: gg
-real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),dq(:)
+real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),dq(:),q_diis(:,:),g_diis(:,:)
 integer(kind=iwp), parameter :: nWindow = 5
 
 ! Initialization (iteration 0).
@@ -270,10 +270,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
 
-            call mma_Deallocate(q)
-            call mma_Deallocate(g)
-            call mma_Deallocate(dq)
-
 
             ! orthogonalize e_diis; remove redundancies from linear dependences
             ! -----------------------------------------------------------------
@@ -317,16 +313,42 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 
 
+            ! Compute the projected displacement coordinates
+            ! ----------------------------------------------
+            !Note that the displacements are relative to the last coordinate, q(:,nDIIS).
+            ! q_diis(u) = e_diis(Kxu)^T * q(KxK)
+            ! where u is the subspace dimension mDiis; and K is the fullspace dimension fsdim
+            call mma_Allocate(q_diis,mDiis,nDiis,Label='q_diis')
+            q_diis(:,:) = Zero
+            do i=1,nDiis ! we project only those q vectors that were used to build the subspace, so that they are fully expressed within it
+                do k=1,mDiis
+                    q_diis(k,i) = sum( (q(:,i)-q(:,nDIIS)) * e_diis(:,k))
+                end do
+            end do
+
+            ! Compute projected gradients
+            ! ---------------------------
+            call mma_Allocate(g_diis,mDiis,nDiis,Label='g_diis')
+            g_diis(:,:) = Zero
+            do i=1,nDIIS
+                do k=1,mDIIS
+                    g_diis(k,i) = sum(g(:,i)*e_diis(:,k))
+                end do
+            end do
+
+            call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
+            call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
 
 
 
-
-
-
-
-
+            call mma_Deallocate(q)
+            call mma_Deallocate(g)
+            call mma_Deallocate(dq)
 
             call mma_Deallocate(e_diis)
+            call mma_Deallocate(q_diis)
+            call mma_Deallocate(g_diis)
+
 
 
             !call S_GEK_localisation(nOrb2Loc,nDiis,kappa,GradientList(:,:),displacements(:,:))
