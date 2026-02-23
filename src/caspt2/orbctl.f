@@ -16,11 +16,11 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE ORBCTL(CMO_X,NCMO)
+      SUBROUTINE ORBCTL(CMO,NCMO)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_global, only: CMO, FIMO, FIFA, HONE, DREF, TORB
+      use caspt2_global, only: FIMO, FIFA, HONE, DREF, TORB
       use caspt2_global, only: LUONEM
       use ChoCASPT2
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -30,7 +30,7 @@
       use definitions, only: iwp, wp
       IMPLICIT NONE
       INTEGER(kind=iwp), intent(in):: NCMO
-      REAL(kind=wp), intent(inout):: CMO_X(NCMO)
+      REAL(kind=wp), intent(inout):: CMO(NCMO)
 
       INTEGER(kind=iwp) ISYM
       INTEGER(kind=iwp) I1,I2
@@ -59,7 +59,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * CI arrays, stored sequentially. The original set starts at disk address
 * IDCIEX, the transformed ones are written after IDTCEX.
 
-      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO_X,NCMO)
+      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO,NCMO)
 
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
@@ -90,6 +90,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 C Save new MO coeffs, and the transformation matrices:
          IDISK=IAD1M(2)
          CALL DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
+
          IAD1M(4)=IEOF1M
          IDISK=IAD1M(4)
          CALL DDAFILE(LUONEM,1,TORB,SIZE(TORB),IDISK)
@@ -139,7 +140,7 @@ C Print orbitals. Different options:
         END IF
         CALL PRIMO(' Quasi-canonical orbitals',.FALSE.,.TRUE.,
      &              THROCC,THRENE,NSYM,NBAS,NBAS,BNAME,
-     &              ORBE,OCC_DUM,CMO_X,-1)
+     &              ORBE,OCC_DUM,CMO,-1)
       END IF
 
       CALL mma_deallocate(ORBE)
