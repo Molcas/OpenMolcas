@@ -20,15 +20,10 @@
       real(kind=wp), intent(out):: CI(Nconf)
       integer(kind=iwp), intent(In):: Istate
 
-      integer(kind=iwp) :: ID, I
-
-* Skip over states
-      ID=IDCIEX(1)
-      do I=1,Istate-1
-        call ddafile(LUCIEX,0,CI,Nconf,ID)
-      end do
+      integer(kind=iwp) :: ID
 
 * Load the CI array
+      ID=IDCIEX(ISTATE)
       call ddafile(LUCIEX,2,CI,Nconf,ID)
 
       end subroutine loadCI
@@ -47,15 +42,10 @@
       real(kind=wp), intent(InOut):: CI(Nconf)
       integer(kind=iwp), intent(In):: Istate
 
-      integer(kind=iwp) :: ID, I
-
-* Skip over states
-      ID=IDCIEX(1)
-      do I=1,Istate-1
-        call ddafile(LUCIEX,0,CI,Nconf,ID)
-      end do
+      integer(kind=iwp) :: ID
 
 * Write the CI array
+      ID=IDCIEX(iState)
       call ddafile(LUCIEX,1,CI,Nconf,ID)
 
       end subroutine writeCI
