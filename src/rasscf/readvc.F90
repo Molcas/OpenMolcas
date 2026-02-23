@@ -299,7 +299,7 @@ else if (InVec == 4) then
 
   mh5id = mh5_open_file_r(StartOrbFile)
   call mma_allocate(typestring,maxbfn,Label='typestring')
-  typestring(:) = ''
+  typestring(1:maxbfn) = ''
   select case (iAlphaBeta)
     case (1)
       Label = 'CA  '
