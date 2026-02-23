@@ -4105,8 +4105,8 @@
       !! It can be computed with TimesE2
       iSym = 1
       Call CnstInt(0,INT1,INT2)
-      ID = IDTCEX(1) !! IDCIEX !! this parameter is hacked
       Do iState = 1, nState
+        ID = IDTCEX(iState)
         If (ISCF == 0) Then
           !! quasi-canonical, XMS
           Call DDaFile(LUCIEX,2,VecCIT(1,iState),nConf,ID)
@@ -4249,8 +4249,8 @@
 !     Compute the second term in Eq. (70) = Eq. (72)
 !     The SCF, not XMS, basis is used
 !
-      ID = IDCIEX(1) !! idtcex?
       Do iState = 1, nState
+        ID = IDCIEX(iState) !! idtcex?
         If (ISCF == 0) Then
           If (IFXMS .OR. IFRMS) THen
             !! Use unrotated (SCF) CI vector
