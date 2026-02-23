@@ -272,20 +272,25 @@ call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 #endif
 
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! define dq as null vector in the subspace !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 dq_diis(:) = Zero
 
-!=======================================================================
-! Start the optimization
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Perform the optimization !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!=======================================================================
 Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SORange)
-
 !=======================================================================
 
-! Compute the displacement in the full space.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Compute the displacement in the full space.!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 dq(:) = Zero
 do i=1,mDIIS
   dq(:) = dq(:)+dq_diis(i)*e_diis(:,i)
