@@ -108,7 +108,7 @@
       CALL mma_allocate(SGM,NCONF,LABEL='SGM')
 
 * Load ket wave function
-      ID=IDCIEX
+      ID=IDCIEX(1)
       DO I=1,IKET-1
         CALL DDAFILE(LUCIEX,0,KET,NCONF,ID)
       END DO
@@ -154,7 +154,7 @@
       END IF
 
 * Load bra wave function
-      ID=IDCIEX
+      ID=IDCIEX(1)
       DO I=1,IBRA-1
         CALL DDAFILE(LUCIEX,0,BRA,NCONF,ID)
       END DO
@@ -201,7 +201,7 @@
       END IF
 
 * Load ket wave function
-      ID=IDCIEX
+      ID=IDCIEX(1)
       DO I=1,IKET-1
         CALL DDAFILE(LUCIEX,0,KET,NCONF,ID)
       END DO

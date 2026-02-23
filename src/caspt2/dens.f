@@ -64,7 +64,7 @@
       integer(kind=iwp) :: NDMAT, NDPT, nDPTAO, ISYM, NO, nAO, IDMOFF,
      &  NI, NA, II, IDM, IT, ITABS, ITTOT, IU, IUTOT, IDRF, IUABS, I, J,
      &  nch, iState, JJ, iStLag, ibk, NumChoTot, nOcc, lT2AO, iSQ, iTR,
-     &  nOrbI, ISAV, iBasTr, iBasSq, liBasTr, liBasSq, jBasI, IDSOFF,
+     &  nOrbI, ISAV(1), iBasTr, iBasSq, liBasTr, liBasSq, jBasI, IDSOFF,
      &  IP, IQ, IDSUM, nBasI, iBasI
       real(kind=wp) :: wgt, val, Scal, X
       real(kind=wp) :: CPTF0, CPE, TIOTF0, TIOE, CPTF10, TIOTF10, CPUT,
@@ -720,8 +720,8 @@
           end if
         End If
         !! Use canonical CSFs rather than natural CSFs in CLagEig
-        ISAV = IDCIEX
-        IDCIEX = IDTCEX
+        ISAV = IDCIEX(1)
+        IDCIEX(1) = IDTCEX(1)
         !! Now, compute the configuration Lagrangian
         Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
 #ifdef _MOLCAS_MPP_
@@ -800,7 +800,7 @@
         If ((nFroT /= 0 .or. .not.if_invaria) .and. .not.IfChol)
      &    Call TRAFRO(2)
 
-        IDCIEX = ISAV
+        IDCIEX(1) = ISAV(1)
         !! Canonical -> natural transformation
         IF(ORBIN == 'TRANSFOR') Then
           Do iState = 1, nState

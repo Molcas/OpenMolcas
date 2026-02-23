@@ -23,7 +23,7 @@
       integer(kind=iwp) :: ID, I
 
 * Skip over states
-      ID=IDCIEX
+      ID=IDCIEX(1)
       do I=1,Istate-1
         call ddafile(LUCIEX,0,CI,Nconf,ID)
       end do
@@ -50,7 +50,7 @@
       integer(kind=iwp) :: ID, I
 
 * Skip over states
-      ID=IDCIEX
+      ID=IDCIEX(1)
       do I=1,Istate-1
         call ddafile(LUCIEX,0,CI,Nconf,ID)
       end do

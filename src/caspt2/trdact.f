@@ -70,10 +70,7 @@ C First modify the coefficients, see subroutine MODOP.
       CALL MMA_ALLOCATE(TRDTMP,NTMP)
       CALL MMA_ALLOCATE(TRDCI,NCONF)
       IF(ISCF.EQ.0) THEN
-*PAM07 Eliminate the unsafe IPOSFILE call
-*        ID=IDTCEX+iPosFile(NCONF)*(JSTATE-1)
-*PAM07 Use instead dummy operations:
-        ID=IDTCEX
+        ID=IDTCEX(1)
         DO J=1,JSTATE-1
          CALL DDAFILE(LUCIEX,0,TRDCI,NCONF,ID)
         END DO

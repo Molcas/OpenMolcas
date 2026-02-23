@@ -59,7 +59,7 @@
       call mma_allocate(CI3,MXCI,Label='MCCI3')
 
       IF(ISCF == 0) THEN
-        IDCI=IDTCEX
+        IDCI=IDTCEX(1)
         JST = jState
         CI1(1:NCONF) = Zero
         DO I=1,NSTATE

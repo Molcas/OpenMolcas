@@ -65,7 +65,7 @@ subroutine hefval(ist, jst, dvalue)
     call mma_allocate(ci2, mxci, label='CI2')
     if (iscf == 0) then
       ! Read root vectors nr. IST and JST from LUCI.
-      idci = idtcex
+      idci = idtcex(1)
       do i = 1, nstate
         if (i == ist) then
           call ddafile(luciex, 2, ci1, nconf, idci)

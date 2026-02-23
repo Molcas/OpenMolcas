@@ -13,6 +13,9 @@
 ! TODO: move here all variables from CASPT2 common blocks defined in caspt2_module
 module caspt2_global
 
+! Disk addressed on LUCIEX:
+! IDCIEX, IDTCEX
+
 ! UNIT numbers:
 ! IDCIEX, IDTCEX, LUCIEX, LUDMAT, LUDRA, LUDRATOT, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LURHS, LUSBT, LUSOLV
 !
@@ -67,7 +70,7 @@ private
 
 integer(kind=iwp), parameter :: iVecL = 7
 
-integer(kind=iwp) :: idBoriMat(8,13) = 0, IDCIEX, IDSAVGRD = 0, idSDMat(8,13) = 0, IDTCEX, iParRHS, iPrGlb, iRoot1 = 0, &
+integer(kind=iwp) :: idBoriMat(8,13) = 0, IDSAVGRD = 0, idSDMat(8,13) = 0, iParRHS, iPrGlb, iRoot1 = 0, &
                      iRoot2 = 0, iStpGrd = 1, jStLag = 0, LuAPT2 = 0, LUCIEX, LuCMOPT2 = 0, LUDMAT, LUDRA, LUDRATOT, LuGAMMA = 0, &
                      LUGRAD = 0, LUH0T(4), LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2 = 0, LURHS(8), LUSBT, LUSOLV, LuSTD = 0, &
                      MAXBUF = 1, nbuf1_grad = 0, nCLag = 0, NCMO = 0, NDREF = 0, nOLag = 0, NPREF = 0, nStpGrd = 1, &
@@ -76,7 +79,7 @@ real(kind=wp) :: cmpThr, cntThr, ConvInvar = Zero, dnmThr, EMP2, imag_shift = Ze
                  sigma_p_epsilon = Zero
 logical(kind=iwp) :: do_csf = .false., do_grad = .false., do_lindep = .false., do_nac = .false., if_invar = .true., &
                      if_invaria = .true., if_equalW = .true., if_SSDM = .false.
-integer(kind=iwp), allocatable :: IDSCT(:), iTasks_grad(:), LISTS(:)
+integer(kind=iwp), allocatable :: IDSCT(:), iTasks_grad(:), LISTS(:), IDCIEX(:), IDTCEX(:)
 real(kind=wp), allocatable :: CLag(:,:), CLagFull(:,:), CMOPT2(:), DMIX(:,:), DPT2_AO_tot(:), DPT2_tot(:), DPT2C_AO_tot(:), &
                               DPT2C_tot(:), DPT2Canti_tot(:), DREF(:), DWGT(:,:), FAMO(:), FIFA(:), FIFA_all(:), FIFASA_all(:), &
                               FIMO(:), FIMO_all(:), HONE(:), OLag(:), OLagFull(:), OMGDER(:,:), PREF(:), SLag(:,:), TAT(:), &

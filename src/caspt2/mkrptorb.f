@@ -275,8 +275,8 @@ C Finally, loop again over symmetries, transforming the CI:
           IF(.NOT.DoCumulant) THEN
 #endif
             CALL mma_allocate(CI,NCONF,Label='CI')
-            IDR=IDCIEX
-            IDW=IDTCEX
+            IDR=IDCIEX(1)
+            IDW=IDTCEX(1)
             DO IST=1,NSTATE
              CALL DDAFILE(LUCIEX,2,CI,NCONF,IDR)
 

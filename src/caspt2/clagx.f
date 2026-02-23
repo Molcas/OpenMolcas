@@ -1805,7 +1805,7 @@
       call mma_allocate(CI1,NCONF,LABEL='CI')
       If (ISCF == 0) Then
         if (iff == 1) then
-          IDCI=IDTCEX
+          IDCI=IDTCEX(1)
           DO J=1,JSTATE-1
             CALL DDAFILE(LUCIEX,0,CI1,NCONF,IDCI)
           END DO
@@ -4105,7 +4105,7 @@
       !! It can be computed with TimesE2
       iSym = 1
       Call CnstInt(0,INT1,INT2)
-      ID = IDTCEX !! IDCIEX !! this parameter is hacked
+      ID = IDTCEX(1) !! IDCIEX !! this parameter is hacked
       Do iState = 1, nState
         If (ISCF == 0) Then
           !! quasi-canonical, XMS
@@ -4249,7 +4249,7 @@
 !     Compute the second term in Eq. (70) = Eq. (72)
 !     The SCF, not XMS, basis is used
 !
-      ID = IDCIEX !! idtcex?
+      ID = IDCIEX(1) !! idtcex?
       Do iState = 1, nState
         If (ISCF == 0) Then
           If (IFXMS .OR. IFRMS) THen

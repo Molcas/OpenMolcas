@@ -53,7 +53,7 @@
       call mma_allocate(CI2,MXCI,Label='MCCI2')
       IF(ISCF == 0) THEN
 ! Read root vectors nr. IST and JST from LUCI.
-        IDCI=IDTCEX
+        IDCI=IDTCEX(1)
         DO I=1,NSTATE
           IF(I == IST) THEN
             CALL DDAFILE(LUCIEX,2,CI1,NCONF,IDCI)
@@ -721,9 +721,9 @@
 !     CSF in natural (Bas=N) or quasi-canonical (Bas=C) orbital basis
 !
       If (Bas == 'N' .or. Bas == 'n') Then
-        ID = IDCIEX !! natural
+        ID = IDCIEX(1) !! natural
       Else If (Bas == 'C' .or. Bas == 'c') Then
-        ID = IDTCEX !! quasi-canonical
+        ID = IDTCEX(1) !! quasi-canonical
       ELse
         write (u6,*)'the first argument in LoadCI_XMS should be either',
      &              'N (natural) or C (quasi-canonical)'
@@ -1049,8 +1049,6 @@
 !       ----- Calculate CI derivatives -----
 !
         !! use quasi-canonical CSF rather than natural CSF
-!     ISAV = IDCIEX
-!     IDCIEX = IDTCEX
         CLag(:,:) = Zero
 
         !! 1) Explicit CI derivative
@@ -1155,7 +1153,6 @@
 
       !! Finally, add to the total CI derivative array
       CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
-!     IDCIEX = ISAV
 
       End Subroutine XMS_Grad
 !

@@ -179,7 +179,8 @@ C Initialize sizes, offsets etc used in equation solver.
       use PT2WFN, ONLY: PT2WFN_CLOSE
       use gugx, only: SGS, CIS, EXS
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
-     &                       DWGT, CMOPT2, TAT, TORB, IDSCT, Weight
+     &                         DWGT, CMOPT2, TAT, TORB, IDSCT, Weight,
+     &                         IDCIEX, IDTCEX
       use stdalloc, only: mma_deallocate
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_deinit
@@ -238,6 +239,8 @@ C     size of idsct array
 C     Deallocate MAGEB, etc, superindex tables:
       CALL SUPFREE()
 * Deallocate global array for Fock matrix, etc:
+      CALL mma_deallocate(IDCIEX)
+      CALL mma_deallocate(IDTCEX)
       CALL mma_deallocate(FIFA)
       CALL mma_deallocate(HONE)
       CALL mma_deallocate(FIMO)

@@ -118,7 +118,7 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
         CALL mma_allocate(CI,NCONF,Label='CI')
 
         IF (.NOT. DoCumulant .AND. ISCF.EQ.0) THEN
-          IDCI=IDTCEX
+          IDCI=IDTCEX(1)
           DO J=1,JSTATE-1
             CALL DDAFILE(LUCIEX,0,CI,NCONF,IDCI)
           END DO

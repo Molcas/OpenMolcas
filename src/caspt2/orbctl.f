@@ -54,7 +54,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE
 * CI arrays, stored sequentially. The original set starts at disk address
-* IDCIEX, the transformed ones are written after IDTCEX.
+* IDCIEX(1), the transformed ones are written after IDTCEX(1).
 
       CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO,NCMO)
 

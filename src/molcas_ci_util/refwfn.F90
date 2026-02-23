@@ -270,8 +270,10 @@ subroutine refwfn_data()
   call mma_deallocate(CMO_Internal)
 
   ! IDCIEX: Present EOF on LUCIEX.
-  IDCIEX = 0
-  ID = IDCIEX
+  Call mma_allocate(IDCIEX,nState,Label='IDCIEX')
+  Call mma_allocate(IDTCEX,nState,Label='IDTCEX')
+  IDCIEX(1) = 0
+  ID = IDCIEX(1)
   ! Skip when using cumulant reconstruction of (3-,) 4-RDM
   !     Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
   !     because for now we only support DMRG-NEVPT2
@@ -280,6 +282,7 @@ subroutine refwfn_data()
       call mma_allocate(tmp,NCONF,label='LCI')
       do I=1,NSTATE
         ISNUM = MSTATE(I)
+        IDCIEX(I)=ID
 #       ifdef _HDF5_
         if (refwfn_is_h5) then
           !---  Read the CI coefficients from the HDF5 file
@@ -309,13 +312,13 @@ subroutine refwfn_data()
       ! Disk address = present EOF on LUCIEX.
       ! IDTCEX = Disk address to transformed CI.
       if (ORBIN == 'TRANSFOR') then
-        IDTCEX = ID
         ! Dummy writes:
         do II=1,NSTATE
+           IDTCEX(II) = ID
           call DDAFILE(LUCIEX,0,tmp,NCONF,ID)
         end do
       else
-        IDTCEX = IDCIEX
+        IDTCEX(:) = IDCIEX(:)
       end if
       call mma_deallocate(tmp)
     else
