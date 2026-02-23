@@ -90,7 +90,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*), FA(*), D1I(*)
-real(kind=wp), intent(inout) :: D(*), DS(*), P(*), PA(*), FI(*), D1A(*), TUVX(*)
+real(kind=wp), intent(inout) :: D(NACPAR), DS(NACPAR), P(NACPR2), PA(NACPR2), FI(*), D1A(*), TUVX(*)
 integer(kind=iwp), intent(in) :: iFinal
 integer(kind=iwp) :: i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot, jRoot, kRoot, LuVecDet, mconf
 real(kind=wp) :: dum1, dum2, dum3, qMax, rdum(1), rMax, rNorm, Scal, Time(2)
@@ -161,15 +161,15 @@ if (doDMRG) then
   doEntanglement = merge(.true.,IFINAL == 2,Key('CION'))
 
   call mma_allocate(d1all,NACPAR,lRoots)
-  d1all(:) = Zero
+  d1all(:,:) = Zero
   if (twordm_qcm) then
     call mma_allocate(d2all,NACPR2,lRoots)
-    d2all(:) = Zero
+    d2all(:,:) = Zero
   end if
   ! Allocate spin density only for the last iteration
   if (doEntanglement) then
     call mma_allocate(spd1all,NACPAR,lRoots)
-    spd1all(:) = Zero
+    spd1all(:,:) = Zero
   end if
 end if
 #endif
@@ -342,7 +342,7 @@ else
   end if
   call mma_allocate(TmpDS,NACPAR,Label='TmpDS')
   call mma_allocate(TmpD1S,NTOT2,Label='TmpD1S')
-  TmpDS(:) = DS(1:NACPAR)
+  TmpDS(:) = DS(:)
   if (NASH(1) /= NAC) call DBLOCK(TmpDS)
   call Get_D1A_RASSCF(CMO,TmpDS,TmpD1S)
 
@@ -476,10 +476,10 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
   ! PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 
   call Timing(Time(1),dum1,dum2,dum3)
-  D(1:NACPAR) = Zero
-  DS(1:NACPAR) = Zero
-  P(1:NACPR2) = Zero
-  PA(1:NACPR2) = Zero
+  D(:) = Zero
+  DS(:) = Zero
+  P(:) = Zero
+  PA(:) = Zero
   call mma_allocate(CIVEC,NCONF,Label='CIVEC')
   call mma_allocate(Dtmp,NAC**2,Label='Dtmp')
   call mma_allocate(DStmp,NAC**2,Label='DStmp')
@@ -589,10 +589,10 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
           exit
         end if
       end do
-      D(1:NACPAR) = D(1:NACPAR)+Scal*Dtmp(1:NACPAR)
-      DS(1:NACPAR) = DS(1:NACPAR)+Scal*DStmp(1:NACPAR)
-      P(1:NACPR2) = P(1:NACPR2)+Scal*Ptmp(1:NACPR2)
-      PA(1:NACPR2) = PA(1:NACPR2)+Scal*PAtmp(1:NACPR2)
+      D(:) = D(:)+Scal*Dtmp(1:NACPAR)
+      DS(:) = DS(:)+Scal*DStmp(1:NACPAR)
+      P(:) = P(:)+Scal*Ptmp(1:NACPR2)
+      PA(:) = PA(:)+Scal*PAtmp(1:NACPR2)
       !GLM Put the D1MO and the P2MO values in RUNFILE
 
       call Put_dArray('D1mo',Dtmp,NACPAR) ! Put on RUNFILE
@@ -627,10 +627,10 @@ if ((.not. Skip) .and. (IfVB /= 2)) then
     end if
     if (IDoGAS .or. (SGS%IFRAS > 2)) call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
     if ((ExFac /= One) .and. (.not. l_casdft)) call Mod_P2(Ptmp,NACPR2,Dtmp,NACPAR,DStmp,ExFac,n_Det)
-    D(1:NACPAR) = D(1:NACPAR)+Dtmp(1:NACPAR)
-    DS(1:NACPAR) = DS(1:NACPAR)+DStmp(1:NACPAR)
-    P(1:NACPR2) = P(1:NACPR2)+Ptmp(1:NACPR2)
-    PA(1:NACPR2) = PA(1:NACPR2)+PAtmp(1:NACPR2)
+    D(:) = D(:)+Dtmp(1:NACPAR)
+    DS(:) = DS(:)+DStmp(1:NACPAR)
+    P(:) = P(:)+Ptmp(1:NACPR2)
+    PA(:) = PA(:)+PAtmp(1:NACPR2)
     ! save density matrices on disk
     call DDafile(JOBIPH,1,Dtmp,NACPAR,jDisk)
     call DDafile(JOBIPH,1,DStmp,NACPAR,jDisk)

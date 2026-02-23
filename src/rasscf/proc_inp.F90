@@ -3625,7 +3625,7 @@ else
     !> initial guess setup
     guess_dmrg(1:7) = 'DEFAULT'
     call mma_allocate(initial_occ,nrs2t,nroots)
-    initial_occ(:) = 0
+    initial_occ(:,:) = 0
   end if
 
   !---  Process RGIN command (QCMaquis Custom Input)
