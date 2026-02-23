@@ -33,7 +33,7 @@ logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
-                              SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),&
+                              SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),dq(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:)
 logical(kind=iwp), parameter :: debug_lowdin = .false.
 real(kind=wp), parameter :: alpha = 0.3
@@ -60,6 +60,7 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
     call mma_Allocate(displacements,fsdim,nMxIter,Label='displacements')  ! kappa matrices
+    call mma_Allocate(dq,fsdim,Label='dq')  ! GEK suggestion for kappa
     call mma_Allocate(GradientList,fsdim,nMxIter,Label='GradientList')
     call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
     displacements(:,:)=Zero
@@ -179,12 +180,19 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             if (nIter == 1) then
                 write(u6,*) 'Exit S-GEK Optimizer'
             else
+                kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
+                write(u6,*) "TRANSFORMING GRADIENT/HDIAG TO VECTOR:"
+                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
+                call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
+                write(u6,*) "TRANSFORMING HDIAG TO VECTOR:"
                 call upper_triag2vec(hdiag(:,:),nOrb2Loc,hdiagvec(:),fsdim)
-                call S_GEK_localisation(nIter,Functionallist(:),GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,dqdq)
+                call S_GEK_localisation(nIter,Functionallist(:),GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,dqdq,&
+                                        displacements(:,nIter+1))
             end if
-            kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
-            call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
-            call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
+
+            write(u6,*) "TRANSFORMING GEK STEP FROM VECTOR TO MATRIX:"
+            call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
+            call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
         end if ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
@@ -256,6 +264,7 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call mma_Deallocate(GradientList)
     call mma_Deallocate(displacements)
     call mma_Deallocate(Hdiagvec)
+    call mma_Deallocate(dq)
 end if
 
 ! deallocate other matrices

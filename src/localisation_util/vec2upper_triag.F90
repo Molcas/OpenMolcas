@@ -11,16 +11,17 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine upper_triag2vec(squaremat,matdim,vec,vecdim)
+subroutine vec2upper_triag(squaremat,matdim,vec,vecdim)
 use Definitions, only: u6,wp,iwp
+use Constants, only: Zero
 
 implicit none
 integer(kind=iwp),intent(in) :: matdim,vecdim
-real(kind=wp),intent(in) :: squaremat(matdim,matdim)
-real(kind=wp),intent(out) :: vec(vecdim)
+real(kind=wp),intent(out) :: squaremat(matdim,matdim) !antisymmetric
+real(kind=wp),intent(in) :: vec(vecdim)
 integer(kind=iwp) :: i,j,listindex
 
-! putting the upper triagonal elements into the list; the grad mat is antisymmetric
+! putting data stored as vector back into antisymmetric matrix format
 listindex=0
 do i=1,matdim-1
     do j=i+1,matdim
@@ -28,14 +29,16 @@ do i=1,matdim-1
         if (.false.) then
             write(u6,"(A,I5,A,I5,A,I5,A,F8.3)") "i=",i ,"j= ",j,"listindex=",listindex,"mat(i,j)=",squaremat(i,j)
         end if
-        vec(listindex)=squaremat(i,j)
+        squaremat(i,j)=vec(listindex)
+        squaremat(j,i)=-vec(listindex)
+        squaremat(i,i)=Zero
     end do
 end do
 
 if (.true.) then
-    write(u6,*) "In upper_triag2vec:"
-    call RecPrt("NxN Matrix",' ',squaremat,matdim,matdim)
+    write(u6,*) "In vec2upper_triag:"
     call RecPrt("matrix as vector of upper triagonal values:",' ',vec,listindex,1)
+    call RecPrt("NxN Matrix",' ',squaremat,matdim,matdim)
 end if
 
-end subroutine upper_triag2vec
+end subroutine vec2upper_triag

@@ -79,6 +79,7 @@ set (sources
      updateb.F90
      updatep.F90
      upper_triag2vec.F90
+     vec2upper_triag.F90
      wavelet_transform.F90
      xdiaxt.F90
 )

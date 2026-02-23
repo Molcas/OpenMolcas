@@ -13,7 +13,7 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
-subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq)
+subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -24,10 +24,10 @@ implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim
 real(kind=wp),intent(in) :: FunctionalList(nMxIter),GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
-real(kind=wp), intent(out) :: dqdq
+real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3
-real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),dq(:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:)
+real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6) :: UpMeth
@@ -52,7 +52,6 @@ iFirst = nIter-nDIIS+1 !1 for first iteration; 1
 call mma_Allocate(q,fsdim, nDiis,Label="q")
 call mma_Allocate(g,fsdim, nDiis,Label="g")
 
-call mma_Allocate(dq,fsdim,Label='dq')
 
 j = 0
 do i=iFirst,nIter
@@ -66,9 +65,6 @@ do i=iFirst,nIter
     g(:,j) = GradientList(:,i)
 
 end do
-
-!change this later
-dq(:) = displacements(:,nIter)
 
 write(u6,*) 'nWindow =',nWindow
 write(u6,*) '  nDIIS =',nDIIS
@@ -239,7 +235,6 @@ call RecPrt('dq',' ',dq(:),size(dq),1)
 ! -------------
 call mma_Deallocate(q)
 call mma_Deallocate(g)
-call mma_Deallocate(dq)
 
 call mma_Deallocate(e_diis,safe='*')
 call mma_Deallocate(q_diis)
