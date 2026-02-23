@@ -12,8 +12,8 @@
 !***********************************************************************
 
 subroutine MKXMAT(TORB,XMAT)
-! Make full transformation matrix for active space
-! from that stored for each symmetry in IAD1M(4)
+! Make full transformation matrix for active space from the TOrb matrix
+! for each symmetry.
 ! Written by N. Nakatani, Oct. 2014
 
 use Definitions, only: wp, iwp
