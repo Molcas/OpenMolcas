@@ -302,7 +302,7 @@ write(u6,*) '||dq||=',sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 call RecPrt('dq',' ',dq(:),size(dq),1)
 #endif
 
-call Finish_Kriging()
+!call Finish_Kriging()
 call mma_deallocate(dq_diis)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

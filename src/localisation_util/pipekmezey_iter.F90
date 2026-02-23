@@ -39,6 +39,8 @@ logical(kind=iwp), parameter :: debug_lowdin = .false.
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
+!S-GEK
+real(kind=wp) :: dqdq
 
 ! Initialization (iteration 0).
 ! -----------------------------
@@ -178,7 +180,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 write(u6,*) 'Exit S-GEK Optimizer'
             else
                 call upper_triag2vec(hdiag(:,:),nOrb2Loc,hdiagvec(:),fsdim)
-                call S_GEK_localisation(nIter,GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim)
+                call S_GEK_localisation(nIter,GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,dqdq)
             end if
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)

@@ -285,4 +285,7 @@ call RecPrt('dq_diis',' ',dq_diis(:),size(dq_diis),1)
 call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),size(g_diis,1),1)
 #endif
 
+call Finish_Kriging()
+
+
 end subroutine GEK_Optimizer
