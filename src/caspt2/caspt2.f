@@ -150,7 +150,8 @@ C
 
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of
-* calculation: MS, XMS, DW or XDW.
+* calculation: MS, XMS, DW or XDW. This is done in the natural
+* orbital basis.
 
       call rdminit()
 
