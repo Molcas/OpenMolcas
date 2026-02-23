@@ -259,6 +259,7 @@ subroutine refwfn_data()
 # ifdef _HDF5_
   end if
 # endif
+  IAD1M(:) = -1
   IEOF1M = 0
   IDISK = IEOF1M
   IAD1M(1) = IDISK
@@ -269,6 +270,7 @@ subroutine refwfn_data()
   call mma_deallocate(CMO_Internal)
 
   ! IDCIEX: Present EOF on LUCIEX.
+  IDCIEX = 0
   ID = IDCIEX
   ! Skip when using cumulant reconstruction of (3-,) 4-RDM
   !     Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted

@@ -20,7 +20,6 @@ subroutine procinp_caspt2
                            if_invar, iParRHS, iRoot1, iRoot2, &
                            if_invaria, ConvInvar, if_equalW, if_SSDM, &
                            MAXBUF, Weight
-  use caspt2_global, only: IDCIEX
   use PrintLevel, only: TERSE
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
@@ -41,11 +40,11 @@ subroutine procinp_caspt2
   use OFembed, only:Do_OFemb
 #endif
   use Molcas, only: MxRoot, MxSym
-  use caspt2_module, only: nGroupState, mState, nDel, nSsh, nFro, nIsh, iAd1m, Zeta, ThrSHS, ThrSHN, ThrOCC, &
+  use caspt2_module, only: nGroupState, mState, nDel, nSsh, nFro, nIsh, Zeta, ThrSHS, ThrSHN, ThrOCC, &
                            ThrEne, ThrConv, SMatrix, SDECOM, Root2State, RHSDirect, RFPERT, PRSD, OutFmt, OrbIn,  &
                            PrOrb, nSym, nState, nRas3T, nRas1T, nRoots, nLYRoot, nLYGroup, nGroup, nCases,  &
                            MaxIt, nRoots, iRoot, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfProp, JMS,    &
-                           IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, ieoF1m, HZero, G1SECIN, FockType,     &
+                           IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, HZero, G1SECIN, FockType,     &
                            DWType, DoCumulant, BTrans, BSpect, BMatrix, DMRG
 
       use pt2_guga, only: CIThr
@@ -183,9 +182,6 @@ subroutine procinp_caspt2
   end if
 
   !---  Initialize
-  IDCIEX = 0
-  IEOF1M = 0
-  IAD1M(:) = -1
   RFpert = Input%RFPert
 
   OUTFMT = 'DEFAULT'
