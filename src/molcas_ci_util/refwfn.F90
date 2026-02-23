@@ -228,7 +228,7 @@ subroutine refwfn_data()
   use gugx, only: L2ACT, LEVEL
   use Molcas, only: MxAct, MxRoot
   use RASDim, only: MxIter
-  use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO
+  use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO, CMO, CMO_Internal
   use caspt2_module, only: DMRG, DoCumulant, iAd1m, IEOF1M, IFQCAN, ISCF, mState, nBSqt, nConf, nRoots, nState, OrbIn, RefEne
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
@@ -246,24 +246,27 @@ subroutine refwfn_data()
 
   !---  Read the MO coefficients from HDF5/JOBIPH and store on LUONEM
   NCMO = NBSQT
-  call mma_allocate(tmp,NCMO,label='LCMORAS')
+  call mma_allocate(CMO_internal,NCMO,label='LCMORAS')
+  CMO=>CMO_Internal
 # ifdef _HDF5_
   if (refwfn_is_h5) then
-    call mh5_fetch_dset(refwfn_id,'MO_VECTORS',tmp)
+    call mh5_fetch_dset(refwfn_id,'MO_VECTORS',CMO)
   else
 # endif
     IAD15 = IADR15(9)
     if (IFQCAN == 0) IAD15 = IADR15(2)
-    call DDAFILE(refwfn_id,2,tmp,NCMO,IAD15)
+    call DDAFILE(refwfn_id,2,CMO,NCMO,IAD15)
 # ifdef _HDF5_
   end if
 # endif
   IEOF1M = 0
   IDISK = IEOF1M
   IAD1M(1) = IDISK
-  call DDAFILE(LUONEM,1,tmp,NCMO,IDISK)
-  call mma_deallocate(tmp)
+  call DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
   IEOF1M = IDISK
+
+  CMO=>Null()
+  call mma_deallocate(CMO_Internal)
 
   ! IDCIEX: Present EOF on LUCIEX.
   ID = IDCIEX
