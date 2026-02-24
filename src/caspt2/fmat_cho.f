@@ -34,13 +34,15 @@
 #ifdef _DEBUGPRINT_
       integer(kind=iwp) ISTLT
 #endif
+      real(kind=wp) TMP
 
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
 C TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
 C TO MO BASIS FOR USE IN CASPT2.
 
-
+      TMP=FFAO(1)
+      TMP=SQRT(TMP)
 
       NBBT=0
       NBBMX=0
@@ -69,19 +71,6 @@ C TO MO BASIS FOR USE IN CASPT2.
        NO_X = Max(1,NO)
        NF=NFRO(ISYM)
        LSCI=LSC+NF*NB
-* The frozen Fock matrix:
-       CALL SQUARE(FFAO(IFAO),SCR1,NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,
-     &            CMO(LSCI),NB,Zero,SCR2,NB)
-       CALL DGEMM_('T','N',NO,NO,NB, One,CMO(LSCI),NB,
-     &            SCR2,NB,Zero,SCR3,NO_X)
-       IJ=0
-       DO I=1,NO
-        DO J=1,I
-         IJ=IJ+1
-         HONE(IOFMO+IJ)=SCR3(I+NO*(J-1))
-        END DO
-       END DO
 * The inactive Fock matrix:
        CALL SQUARE(FIAO(IFAO),SCR1,NB,1,NB)
        CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,
