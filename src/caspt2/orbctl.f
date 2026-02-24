@@ -28,7 +28,8 @@
       use definitions, only: iwp, wp
       IMPLICIT NONE
       INTEGER(kind=iwp), intent(in):: NCMO, NTORB
-      REAL(kind=wp), intent(inout):: CMO(NCMO), TORB(NTORB)
+      REAL(kind=wp), intent(inout):: CMO(NCMO)
+      REAL(kind=wp), intent(out):: TORB(NTORB)
 
       INTEGER(kind=iwp) ISYM
       INTEGER(kind=iwp) I1,I2

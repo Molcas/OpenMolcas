@@ -94,9 +94,7 @@
 *     Compute conventional integrals in the natural orbitals of
 *     the CASSSCF (stored in CMO in module CASPT2_module).
       Call TraOne(CMO,nCMO,HONE,SIZE(HONE))
-      If (.NOT.IfChol) Then
-         Call TraCtl(nCMO,CMO,0)
-      End If
+      If (.NOT.IfChol) Call TraCtl(nCMO,CMO,0)
 
 * Loop over states, selecting those belonging to this group.
 * For each such state, compute the Fock matrix in original MO basis,
