@@ -13,7 +13,6 @@
 
 subroutine vec2upper_triag(squaremat,matdim,vec,vecdim,antisymmetric)
 use Definitions, only: u6,wp,iwp
-use Constants, only: Zero
 
 implicit none
 integer(kind=iwp),intent(in) :: matdim,vecdim

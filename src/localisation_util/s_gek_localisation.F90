@@ -24,7 +24,9 @@ implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim
 logical, intent(in) :: SGEKdebug
-real(kind=wp),intent(inout) :: FunctionalList(nMxIter),GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
+!real(kind=wp),intent(inout) :: FunctionalList(nMxIter),GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
+real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
+real(kind=wp),intent(inout) :: FunctionalList(nMxIter)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3
@@ -34,6 +36,14 @@ real(kind=wp), External :: DDot_
 character(len=6) :: UpMeth
 logical :: SORange
 character :: Step_Trunc
+
+! since the GEK Optimizer is set up for minimization, we turn the sign of the functional and every list
+Functionallist(:) = -Functionallist(:)
+!Gradientlist(:,:) = -Gradientlist(:,:)
+!displacements(:,:) = -displacements(:,:)
+!Hdiag(:) = -Hdiag(:)
+dq(:) = -dq(:)
+
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
@@ -66,7 +76,7 @@ do i=iFirst,nIter
 
 end do
 
-if (SGEKdebug) then
+!if (SGEKdebug) then
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
     write(u6,*) '  nIter =',nIter
@@ -74,7 +84,7 @@ if (SGEKdebug) then
     call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
     call RecPrt("dq(:)",' ',dq,fsdim, 1)
-end if
+!end if
 
 ! select subspace basis vectors; construct normalized e_diis
 ! -----------------------------------------------------------
@@ -132,11 +142,11 @@ do l=1,2
     do i=2,nExplicit
         do k=1,j
             gg = DDot_(fsdim,e_diis(:,i),1,e_diis(:,k),1)
-            if (SGEKdebug) write(u6,*) 'i,k,gg=',i,k,gg
+!            if (SGEKdebug) write(u6,*) 'i,k,gg=',i,k,gg
             e_diis(:,i) = e_diis(:,i)-gg*e_diis(:,k)
         end do
         gg = DDot_(fsdim,e_diis(:,i),1,e_diis(:,i),1) ! renormalize
-        if (SGEKdebug) write(u6,*) 'j,i,gg=',j,i,gg
+!        if (SGEKdebug) write(u6,*) 'j,i,gg=',j,i,gg
 
         if (gg > 1.0e-17_wp) then   ! Skip vector if linear dependent.
             j = j+1
@@ -156,13 +166,13 @@ write(u6,*) '    nIter:',nIter
 write(u6,*) '    nDIIS:',nDIIS
 write(u6,*) '    mDIIS:',mDIIS
 
-write(u6,*) 'Check the orthonormality'
-do i=1,mDIIS
-    do j=1,i
-        write(u6,*) i,j,DDot_(fsdim,e_diis(:,i),1,e_diis(:,j),1)
-    end do
-    write(u6,*)
-end do
+!write(u6,*) 'Check the orthonormality'
+!do i=1,mDIIS
+!    do j=1,i
+!        write(u6,*) i,j,DDot_(fsdim,e_diis(:,i),1,e_diis(:,j),1)
+!    end do
+!    write(u6,*)
+!end do
 if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,fsdim,mDIIS)
 end if
 
@@ -232,6 +242,15 @@ if (SGEKdebug) then
     write(u6,*) '||dq||=',dqdq
     call RecPrt('dq',' ',dq(:),size(dq),1)
 end if
+
+
+! since the GEK Optimizer is set up for minimization, we turn the sign of the functional and every list
+! outside of this routine, the signs are different, so we revert back
+Functionallist(:) = -Functionallist(:)
+!Gradientlist(:,:) = -Gradientlist(:,:)
+!displacements(:,:) = -displacements(:,:)
+!Hdiag(:) = -Hdiag(:)
+dq(:) = -dq(:)
 
 
 
