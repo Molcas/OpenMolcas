@@ -26,15 +26,13 @@ use timers, only: TimeAoMo, TimeCIOpt, TimeDavid, TimeDens, TimeFock, TimeHCSCE,
                   TimePage, TimeRelax, TimeSigma, TimeTotal, TimeTrans, TimeWfn
 use mcpdft_output, only: set_print_level
 use general_data, only: ispin, nactel, nash, nbas, ndel, nelec3, nfro, nhole1, nish, nrs1, nrs2, nrs3, nssh, stsym
-use rasscf_global, only: DFTFOCK, ExFac, IPT2, iroot, iTRI, iTRIM, iXSym, lROOTS, NonEq, NROOTS, TITLE, weight
+use rasscf_global, only: DFTFOCK, ExFac, IPT2, iroot, iXSym, lROOTS, NonEq, NROOTS, TITLE, weight
 use Constants, only: Zero, One
-use Definitions, only: iwp
 #ifdef _MOLCAS_MPP_
 use Definitions, only: wp
 #endif
 
 implicit none
-integer(kind=iwp) :: i
 
 !----------------------------------------------------------------------*
 
@@ -99,11 +97,6 @@ NSSH(:) = 0
 NDEL(:) = 0
 NBAS(:) = 0
 ixsym(:) = 0
-
-! Auxiliary vector ITRI(I)=I*(I-1)/2
-do I=2,ITRIM
-  ITRI(I) = ITRI(I-1)+I-1
-end do
 
 ! Initialize Timing Variables
 TimeTotal = Zero

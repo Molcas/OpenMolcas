@@ -1,0 +1,39 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine ChkIfKey()
+! ------------------------------------------------------------
+! Check if the next item on luinput is a string that starts with
+! a keyword. Print warning else.
+! ------------------------------------------------------------
+
+use input_ras, only: LUInput, nKeys, CMD
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: iCmd
+character(len=180) :: Line
+character(len=4) :: Command
+
+read(LUInput,*) Line
+Command = Line(1:4)
+call UpCase(Command)
+do iCmd=1,NKeys
+  if (Command == Cmd(iCmd)) return
+end do
+write(u6,*) ' ****************************************************'
+write(u6,*) ' ChkIfKey Warning: The following line seems intended'
+write(u6,*) ' to give some keyword input, but was not recognized:'
+write(u6,*) ' '''//line(1:32)//''''
+write(u6,*) ' Spelling or syntactic mistake? Ignored!'
+write(u6,*) ' ****************************************************'
+
+end subroutine ChkIfKey
