@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FMAT_CHO(CMO,NCMO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
-     &                                                       FAMO,NFAMO,
      &                                                       FIFA,NFIFA)
       use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -20,19 +19,21 @@
       use definitions, only: u6
 #endif
       IMPLICIT None
-      integer(kind=iwp), intent(in):: NCMO, NHONE, NFIMO, NFAMO, NFIFA
+      integer(kind=iwp), intent(in):: NCMO, NHONE, NFIMO, NFIFA
       real(kind=wp), intent(in):: CMO(NCMO)
       real(kind=wp), intent(in):: FIAO(NBTRI),FAAO(NBTRI)
       real(kind=wp), intent(in):: HONE(NHONE)
-      real(kind=wp), intent(out):: FIMO(NFIMO),FAMO(NFAMO),FIFA(NFIFA)
+      real(kind=wp), intent(out):: FIMO(NFIMO),FIFA(NFIFA)
 
-      real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:)
+      real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:), FAMO(:)
       integer(kind=iwp) I, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI,
      &                  NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
 #ifdef _DEBUGPRINT_
       integer(kind=iwp) ISTLT
 #endif
 
+      Call mma_allocate(FAMO,nFIMO,Label='FAMO')
+      FAMO(:)=Zero
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
 C TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
@@ -138,5 +139,6 @@ C TO MO BASIS FOR USE IN CASPT2.
         END DO
 
 #endif
+      Call mma_deallocate(FAMO)
 
       END SUBROUTINE FMAT_CHO

@@ -81,7 +81,7 @@ logical(kind=iwp) :: do_csf = .false., do_grad = .false., do_lindep = .false., d
                      if_invaria = .true., if_equalW = .true., if_SSDM = .false.
 integer(kind=iwp), allocatable :: IDSCT(:), iTasks_grad(:), LISTS(:), IDCIEX(:), IDTCEX(:)
 real(kind=wp), allocatable :: CLag(:,:), CLagFull(:,:), CMOPT2(:), DMIX(:,:), DPT2_AO_tot(:), DPT2_tot(:), DPT2C_AO_tot(:), &
-                              DPT2C_tot(:), DPT2Canti_tot(:), DREF(:), DWGT(:,:), FAMO(:), FIFA(:), FIFA_all(:), FIFASA_all(:), &
+                              DPT2C_tot(:), DPT2Canti_tot(:), DREF(:), DWGT(:,:), FIFA(:), FIFA_all(:), FIFASA_all(:), &
                               FIMO(:), FIMO_all(:), HONE(:), OLag(:), OLagFull(:), OMGDER(:,:), PREF(:), SLag(:,:), TAT(:), &
                               TORB(:), TraFro(:), Weight(:), WLag(:)
 real(kind=wp), allocatable, target :: CMO_Internal(:)
@@ -90,7 +90,7 @@ real(kind=wp), allocatable:: PIQK(:), Buff(:)
 integer(kind=iwp), allocatable :: IDXB(:)
 
 public :: CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, ConvInvar, DMIX, dnmThr, do_csf, do_grad, do_lindep, do_nac, &
-          DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, DREF, DWGT, EMP2, FAMO, FIFA, FIFA_all, FIFASA_all, FIMO, &
+          DPT2_AO_tot, DPT2_tot, DPT2C_AO_tot, DPT2C_tot, DPT2Canti_tot, DREF, DWGT, EMP2, FIFA, FIFA_all, FIFASA_all, FIMO, &
           FIMO_all, HONE, idBoriMat, IDCIEX, IDSAVGRD, IDSCT, idSDMat, IDTCEX, if_invar, if_invaria, if_equalW, if_SSDM, &
           imag_shift, iParRHS, ipea_shift, iPrGlb, iRoot1, iRoot2, iStpGrd, iTasks_grad, iVecL, jStLag, LISTS, LuAPT2, LUCIEX, &
           LuCMOPT2, LUDMAT, LUDRA, LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, LURHS, LUSBT, &

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE INTCTL2(CMO,nCMO,DREF,nDREF,FIFA,NFIFA,HONE,nHONE,
-     &                   FIMO,nFIMO,FAMO,nFAMO)
+     &                   FIMO,nFIMO)
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
       use PrintLevel, only: DEBUG
@@ -18,10 +18,9 @@
       use caspt2_module, only: nBTri
       use definitions, only: iwp, wp
       IMPLICIT None
-      integer(kind=iwp), intent(in):: nCMO, nDREF, NFIFA, nHONE, nFIMO,
-     &                                nFAMO
+      integer(kind=iwp), intent(in):: nCMO, nDREF, NFIFA, nHONE, nFIMO
       Real(kind=wp), intent(in):: CMO(nCMO), DREF(nDREF), HONE(nHONE)
-      Real(kind=wp), intent(out):: FIFA(NFIFA),FIMO(nFIMO),FAMO(nFAMO)
+      Real(kind=wp), intent(out):: FIFA(NFIFA),FIMO(nFIMO)
 
       LOGICAL(KIND=IWP), parameter:: IF_TRNSF=.False.
       Real(kind=wp), Allocatable:: FFAO(:), FIAO(:), FAAO(:)
@@ -58,12 +57,10 @@
 
 * Transform them to MO basis:
       FIMO(:)=Zero
-      FAMO(:)=Zero
 
 c Compute FIMO, FAMO, ...  to workspace:
       Call FMat_Cho(CMO,SIZE(CMO),FIAO,FAAO,
      &              HONE,SIZE(HONE),FIMO,SIZE(FIMO),
-     &                              FAMO,SIZE(FAMO),
      &                              FIFA,nFIFA)
 
       Call mma_deallocate(FFAO)

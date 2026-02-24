@@ -19,8 +19,6 @@ real(kind=wp), intent(in):: CMO(nCMO), DREF(nDREF)
 real(kind=wp), intent(inout):: FIMO(nFIMO), FIFA(nFIFA)
 real(kind=wp), intent(in):: HONE(nHONE)
 
-real(kind=wp), allocatable:: FAMO(:)
-Call mma_allocate(FAMO,nFIMO,Label='FAMO')
 
 ! Compute the Fock matrix in MO basis for state Jstate
 ! Fock matrix in MO basis: FIMO, FAMO, FIFA
@@ -28,15 +26,14 @@ Call mma_allocate(FAMO,nFIMO,Label='FAMO')
 if (IfChol) then
 !  INTCTL2 uses TraCho2 to generate the fock matrix in AO basis. Subsequently, FMatCho
 !  transform to the MO basis.
-   call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA,HONE,nHONE,FIMO,SIZE(FIMO),FAMO,SIZE(FAMO))
+   call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA,HONE,nHONE,FIMO,nFIMO)
 else
 !  Matrix elements generated directly from one-ham and two-electron integrals in th MO basis.
-   CALL FMAT_CASPT2(FIFA,SIZE(FIFA),FIMO,SIZE(FIMO),DREF,nDREF,HONE,nHONE)
+   CALL FMAT_CASPT2(FIFA,nFIFA,FIMO,nFIMO,DREF,nDREF,HONE,nHONE)
 end If
 
 ! Modify the Fock matrix if needed (G Family of modifications).
 ! You don't have to be beautiful to turn me on
 CALL NEWFOCK(FIFA,nFIFA,CMO,NCMO,DREF,nDREF)
 
-Call mma_deallocate(FAMO)
 END SUBROUTINE MkFock
