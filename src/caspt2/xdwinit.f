@@ -97,7 +97,9 @@
       End If
 
 * Build the state-average Fock matrix in MO basis
-      Call MkFock(CMO,nCMO,FIFA,SIZE(FIFA),DREF,SIZE(DREF))
+      Call MkFock(CMO,nCMO,FIFA,SIZE(FIFA),DREF,SIZE(DREF),
+     &              HONE,SIZE(HONE))
+
 
 * Loop again over all states to compute H0 in the model space
 * Loop over ket functions
