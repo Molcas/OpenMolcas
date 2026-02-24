@@ -231,16 +231,17 @@ C
          WRITE(6,*)
        END IF
 
-!      GRPINI does a number of things as follows (note this list is not
-!      complete).
+!      GRPINI (group init?) does a number of things as follows (note this
+!      list is not complete).
 !
 !      1. Reads the natural orbitals (NO) MOs from LUONEM. Stored in
 !         CMO.
 !      2. transforms HONE from AO to NO basis
 !      3. transforms the two-electron integrals to the NO basis
 !      4. Form the 1-particle density matrix (DREF) from DMIX as
-!         generated RDMINIT above. In the NO basis
-!      5. Forms the Fock matrix in NO basis by a call to MkOrb
+!         generated RDMINIT above. In the NO basis. This is needed
+!         to form the Fock matrix in the NO basis.
+!      5. Forms the Fock matrix in NO basis by a call to MkOrb.
 !         For conventional integrals for it directly in the NO basis,
 !         while for the Cholesky decomposition approach the Fock matrix
 !         is first formed in the AO basis and then transformed to NO
@@ -270,6 +271,18 @@ C
 * Skip this state if we only need 1 state and it isn't this "one".
          IF ((NLYROOT.NE.0).AND.(JSTATE.NE.NLYROOT)) CYCLE
 
+!        STINI (state init?) does the following
+!
+!        1. It calls POLY3 to form the 1-, 2-, and 3-particle density
+!           matrix in the PCO basis. This is based on the CI vector
+!           expressed in the PCO basis. Using pt2_put the result is
+!           stored on LUDMAT.
+!        2. Using GETDPREF it pulls the one- and two-particle density
+!           matrices (gamma 1 and gamma 2), using pt2_get, of the
+!           LUDMAT file and sticks them intop DREF and PREF.
+!        3. Sets the EREF value
+!        4. Recomputes EASUM.
+!
          CALL STINI(JSTATE)
 
 * Solve CASPT2 equation system and compute corr energies.

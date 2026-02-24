@@ -16,19 +16,20 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE ORBCTL(CMO,NCMO)
+      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_global, only: FIMO, FIFA, HONE, DREF, TORB
+!     use caspt2_global, only: FIMO, FIFA, HONE, DREF
+      use caspt2_global, only: FIMO, FIFA, HONE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne,
      &                         ThrOcc, nFro, nOrb, nBasT, EPS, nDel
       use constants, only: Zero, Two, Five
       use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER(kind=iwp), intent(in):: NCMO
-      REAL(kind=wp), intent(inout):: CMO(NCMO)
+      INTEGER(kind=iwp), intent(in):: NCMO, NTORB
+      REAL(kind=wp), intent(inout):: CMO(NCMO), TORB(NTORB)
 
       INTEGER(kind=iwp) ISYM
       INTEGER(kind=iwp) I1,I2
@@ -56,7 +57,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * CI arrays, stored sequentially. The original set starts at disk address
 * IDCIEX(1), the transformed ones are written after IDTCEX(1).
 
-      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO,NCMO)
+      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,nTORB,CMO,NCMO)
 
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
@@ -64,14 +65,14 @@ c Determine PT2 orbitals, and transform CI coeffs.
 
 * Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
       if (.not. DoFCIQMC) then
-          CALL TRANSFOCK(TORB,SIZE(TORB),HONE,SIZE(HONE),1)
-          CALL TRANSFOCK(TORB,SIZE(TORB),FIMO,SIZE(FIMO),1)
+          CALL TRANSFOCK(TORB,nTORB,HONE,SIZE(HONE),1)
+          CALL TRANSFOCK(TORB,nTORB,FIMO,SIZE(FIMO),1)
 
 * When doing XMS, FAMO refers only to the last state, therefore it's wrong!
 * However, we never use it anywhere else...
           ! CALL TRANSFOCK(TORB,FAMO,1)
 
-          CALL TRANSFOCK(TORB,SIZE(TORB),FIFA,SIZE(FIFA),1)
+          CALL TRANSFOCK(TORB,nTORB,FIFA,SIZE(FIFA),1)
 
           IF(IPRGLB.GE.DEBUG) THEN
            WRITE(6,*)' ORBCTL back from TRANSFOCK.'
@@ -81,7 +82,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * state average density, therefore it's wrong to transform it!
 * However, it is never used again in this part, and next time it is used, it
 * is actually recomputed for the right place.
-          CALL TRANSDREF(TORB,SIZE(TORB),DREF,SIZE(DREF))
+!         CALL TRANSDREF(TORB,SIZE(TORB),DREF,SIZE(DREF))
       end if
 
       IF ( IPRGLB.GE.VERBOSE ) THEN

@@ -14,7 +14,7 @@
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0,nState)
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
-     &                       CMOPT2, NCMO, Weight
+     &                       CMOPT2, NCMO, Weight, TORB
       use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
 #ifdef _DMRG_
@@ -264,7 +264,7 @@
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      CALL ORBCTL(CMO,NCMO)
+      CALL ORBCTL(CMO,NCMO,TORB,SIZE(TORB))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then
