@@ -17,7 +17,7 @@ subroutine DBLOCK(D)
 !
 ! ********** IBM-3090 release 88 10 10 **********
 
-use rasscf_global, only: ITRI
+use Index_Functions, only: iTri, nTri_Elem
 use general_data, only: NASH, NSYM
 use Definitions, only: wp, iwp
 
@@ -26,14 +26,14 @@ real(kind=wp), intent(inout) :: D(*)
 integer(kind=iwp) :: IA, ISYM, ITU, NA, NAT, NAU, NTU
 
 IA = NASH(1)
-NTU = ITRI(IA+1)
+NTU = nTri_Elem(IA)
 do ISYM=2,NSYM
   NA = NASH(ISYM)
   if (NA == 0) cycle
   do NAT=1,NA
     do NAU=1,NAT
       NTU = NTU+1
-      ITU = ITRI(NAT+IA)+NAU+IA
+      ITU = iTri(NAT+IA,NAU+IA)
       D(NTU) = D(ITU)
     end do
   end do

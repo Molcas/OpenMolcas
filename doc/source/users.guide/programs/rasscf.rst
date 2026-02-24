@@ -2249,7 +2249,7 @@ A list of these keywords is given below:
   levels for various logical code sections. It has the following structure:
   IW IPR IPRSEC(I), I=1,7
 
-  * IW --- logical unit number of printed output (normally 6).
+  * IW --- logical unit number of printed output (not used).
   * IPR --- is the overall print level (normally 2).
   * IPRSEC(I) --- gives print levels in different sections of the program.
 

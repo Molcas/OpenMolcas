@@ -38,12 +38,15 @@ subroutine Done_RASSCF(CMO,OCC,D)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use general_data, only: NASH, NBAS, NFRO, NISH, NSYM
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
-use general_data, only: NSYM,NASH,NBAS,NFRO,NISH
+
+#include "intent.fh"
 
 implicit none
-real(kind=wp) :: CMO(*), OCC(*), D(*)
+real(kind=wp), intent(in) :: CMO(*), OCC(*)
+real(kind=wp), intent(_OUT_) :: D(*)
 integer(kind=iwp) :: i, iAsh, iBas, iFro, iIsh, ij, iOff1, iOff2, iOff3, iSym, j, k
 real(kind=wp) :: rSum
 
