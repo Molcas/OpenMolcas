@@ -16,16 +16,16 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE FMAT_CASPT2(FIMO,NFIMO,FAMO,NFAMO,DREF,NDREF,HONE,
-     &                       nHONE)
+      SUBROUTINE FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,FAMO,NFAMO,DREF,
+     &                       NDREF,HONE,nHONE)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, Half, One, Two
-      use caspt2_global, only: LUINTM, FIFA
+      use caspt2_global, only: LUINTM
       use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES, NoMx, NoTri
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT None
-      integer(kind=iwp), intent(in):: NFIMO, NFAMO, NDREF, nHONE
-      real(kind=wp), intent(inout):: FIMO(NFIMO),FAMO(NFAMO)
+      integer(kind=iwp), intent(in):: nFIFA, NFIMO, NFAMO, NDREF, nHONE
+      real(kind=wp), intent(inout):: FIFA(nFIFA),FIMO(NFIMO),FAMO(NFAMO)
       real(kind=wp), intent(in)::DREF(NDREF), HONE(nHONE)
 
       integer(kind=iwp) IAD2M(3,36*36)

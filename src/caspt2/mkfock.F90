@@ -27,8 +27,8 @@ if (IfChol) then
 !  transform to the MO basis.
    call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA,HONE,nHONE,FIMO,SIZE(FIMO),FAMO,SIZE(FAMO))
 else
-!  Matrix elements generated directly from one-ham and two-electron integrals in th MO basis
-   CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,nDREF,HONE,nHONE)
+!  Matrix elements generated directly from one-ham and two-electron integrals in th MO basis.
+   CALL FMAT_CASPT2(FIFA,SIZE(FIFA),FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,nDREF,HONE,nHONE)
 end If
 
 ! Modify the Fock matrix if needed (G Family of modifications).
