@@ -12,11 +12,9 @@
      &                                                       FAMO,NFAMO,
      &                                                       FIFA,NFIFA)
       use constants, only: Zero, One
-      use caspt2_global, only: LUONEM
       use stdalloc, only: mma_allocate, mma_deallocate
-!     use caspt2_module, only: NBTRI, IEOF1M, notri, NSYM, NBAS,
       use caspt2_module, only: NBTRI, notri, NSYM, NBAS,
-     &                         NORB, NFRO, IAD1M
+     &                         NORB, NFRO
       use definitions, only: iwp, wp
 #ifdef _DEBUGPRINT_
       use definitions, only: u6
@@ -25,11 +23,11 @@
       integer(kind=iwp), intent(in):: NCMO, NHONE, NFIMO, NFAMO, NFIFA
       real(kind=wp), intent(in):: CMO(NCMO)
       real(kind=wp), intent(in):: FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
-      real(kind=wp), intent(out):: HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO),
-     &                             FIFA(NFIFA)
+      real(kind=wp), intent(in):: HONE(NHONE)
+      real(kind=wp), intent(out):: FIMO(NFIMO),FAMO(NFAMO),FIFA(NFIFA)
 
       real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:)
-      integer(kind=iwp) I, IDISK, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI,
+      integer(kind=iwp) I, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI,
      &                  NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
 #ifdef _DEBUGPRINT_
       integer(kind=iwp) ISTLT
@@ -105,18 +103,6 @@ C TO MO BASIS FOR USE IN CASPT2.
       CALL mma_deallocate(SCR1)
       CALL mma_deallocate(SCR2)
       CALL mma_deallocate(SCR3)
-
-c Transformed frozen Fock matrix = Effective one-electron
-* Hamiltonian HONE at IAD1M(3)
-#ifdef _OLDCODE_
-      IDISK=IEOF1M
-      IAD1M(3)=IDISK
-      CALL DDAFILE(LUONEM,1,HONE,notri,IDISK)
-      IEOF1M=IDISK
-#else
-      IDISK=IAD1M(3)
-      CALL DDAFILE(LUONEM,2,HONE,notri,IDISK)
-#endif
 
       FIMO(1:NoTri)=FIMO(:) + HONE(:)
       FIFA(1:NoTri)=FIMO(:) + FAMO(:)

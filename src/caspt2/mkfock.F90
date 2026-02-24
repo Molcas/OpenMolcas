@@ -24,9 +24,9 @@ real(kind=wp), intent(inout):: HONE(nHONE)
 
 if (IfChol) then
 ! INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis
-   call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA)
+   call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA,HONE,nHONE)
 else
-   CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,nDREF,HONE)
+   CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,nDREF,HONE,nHONE)
 end If
 
 ! Modify the Fock matrix if needed (G Family of modifications).
