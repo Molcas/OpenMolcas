@@ -25,13 +25,13 @@
 !> vector stored at position \p IVEC on \p LUSOLV. The result is stored
 !> in the vector at position \p JVEC. Furthermore, it computes the
 !> "overlap" as \p IVEC squared divided by the resolvent.
-!> The parallel part is thaken care of in subroutine calls \p RHS_.
+!> The parallel part is taken care of in subroutine calls \p RHS_.
 !> Potential shifts and modification of \f$ H_0 \f$ are considered
 !> in ::rhs_resdia
 !>
 !> @param[in]     IVEC   Vector position to which the res is applied
-!> @param[out]    JVEC   Vector position where the result is saved
-!> @param[in]     OVLAPS Array containing the overlaps
+!> @param[in]    JVEC   Vector position where the result is saved
+!> @param[out]     OVLAPS Array containing the overlaps
       SUBROUTINE PRESDIA(IVEC,JVEC,OVLAPS)
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDBMAT
@@ -65,7 +65,7 @@ C nr. JVEC. Also compute overlaps, see OVLVEC for structure.
         DO ISYM=1,NSYM
           OVL=Zero
           NIN=NINDEP(ISYM,ICASE)
-          IF (NIN>0) THEN
+          IF (NIN<=0) CYCLE
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
 C Remember: NIN values in BDIAG, but must read NAS for correct
@@ -89,7 +89,6 @@ C positioning.
 
           CALL mma_deallocate(BD)
           CALL mma_deallocate(ID)
-          ENDIF
           OVLAPS(ISYM,0)=OVLAPS(ISYM,0)+OVL
           OVLSUM=OVLSUM+OVL
         End Do
