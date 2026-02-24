@@ -265,7 +265,7 @@
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      CALL ORBCTL(CMO,NCMO,TORB,SIZE(TORB))
+      CALL ORBCTL(CMO,NCMO,TORB,SIZE(TORB),FIFA,SIZE(FIFA))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then

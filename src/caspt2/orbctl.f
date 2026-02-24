@@ -16,20 +16,21 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB)
+      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_global, only: FIMO, FIFA, HONE
+      use caspt2_global, only: FIMO, HONE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne,
      &                         ThrOcc, nFro, nOrb, nBasT, EPS, nDel
       use constants, only: Zero, Two, Five
       use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER(kind=iwp), intent(in):: NCMO, NTORB
+      INTEGER(kind=iwp), intent(in):: NCMO, NTORB, nFIFA
       REAL(kind=wp), intent(inout):: CMO(NCMO)
       REAL(kind=wp), intent(out):: TORB(NTORB)
+      REAL(kind=wp), intent(inout):: FIFA(nFIFA)
 
       INTEGER(kind=iwp) ISYM
       INTEGER(kind=iwp) I1,I2
@@ -57,7 +58,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * CI arrays, stored sequentially. The original set starts at disk address
 * IDCIEX(1), the transformed ones are written after IDTCEX(1).
 
-      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,nTORB,CMO,NCMO)
+      CALL MKRPTORB(FIFA,nFIFA,TORB,nTORB,CMO,NCMO)
 
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
@@ -72,7 +73,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * However, we never use it anywhere else...
           ! CALL TRANSFOCK(TORB,FAMO,1)
 
-          CALL TRANSFOCK(TORB,nTORB,FIFA,SIZE(FIFA),1)
+          CALL TRANSFOCK(TORB,nTORB,FIFA,nFIFA,1)
 
           IF(IPRGLB.GE.DEBUG) THEN
            WRITE(6,*)' ORBCTL back from TRANSFOCK.'
