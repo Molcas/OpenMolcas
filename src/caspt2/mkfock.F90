@@ -23,7 +23,7 @@ real(kind=wp), intent(inout):: FIFA(nFIFA)
 
 if (IfChol) then
 ! INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis
-   call INTCTL2(CMO,NCMO,DREF,nDREF)
+   call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA)
 else
    CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,nDREF,HONE)
 end If
