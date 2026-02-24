@@ -16,7 +16,7 @@
       use definitions, only: wp, iwp, u6
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad
-      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
+      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO, HONE
       use caspt2_global, only: FIFA, DREF
       use caspt2_global, only: LUONEM
       use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
@@ -91,7 +91,7 @@
       iDisk=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,iDisk)
 
-      Call TraOne(CMO,nCMO)
+      Call TraOne(CMO,nCMO,HONE,SIZE(HONE))
       If (.NOT.IfChol) Then
          Call TraCtl(nCMO,CMO,0)
       End If

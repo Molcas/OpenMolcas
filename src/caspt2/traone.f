@@ -8,11 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRAONE(CMO,NCMO)
+      SUBROUTINE TRAONE(CMO,NCMO,HONE,nHONE)
       use constants, only: Zero, Half, One, Two
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_global, only:iPrGlb
-      use caspt2_global, only: HONE
       use caspt2_global, only: LUONEM
       use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,8 +21,9 @@
       use definitions, only: iwp, wp, u6
       IMPLICIT None
 #include "warnings.h"
-      integer(kind=iwp), intent(in):: NCMO
+      integer(kind=iwp), intent(in):: NCMO, nHONE
       real(kind=wp), intent(in)::  CMO(NCMO)
+      real(kind=wp), intent(out):: HONE(nHONE)
 
       integer(kind=iwp) nBasXX(8),Keep(8)
       logical(kind=iwp) iSquar, Found

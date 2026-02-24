@@ -14,7 +14,7 @@
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0,nState)
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
-     &                       CMOPT2, NCMO, Weight, TORB
+     &                       CMOPT2, NCMO, Weight, TORB, HONE
       use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
 #ifdef _DMRG_
@@ -92,7 +92,7 @@
 
 *     Compute conventional integrals in the natural orbitals of
 *     the CASSSCF (stored in CMO in module CASPT2_module).
-      Call TraOne(CMO,nCMO)
+      Call TraOne(CMO,nCMO,HONE,SIZE(HONE))
       If (.NOT.IfChol) Then
          Call TraCtl(nCMO,CMO,0)
       End If
