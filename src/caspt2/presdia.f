@@ -58,7 +58,7 @@ C vector in vector nr. IVEC on LUSOLV. Put the results in vector
 C nr. JVEC. Also compute overlaps, see OVLVEC for structure.
 
       OVLTOT=Zero
-      OVLAPS(:,0)=Zero
+      OVLAPS(:,:)=Zero
 
       DO ICASE=1,13
         OVLSUM=Zero
