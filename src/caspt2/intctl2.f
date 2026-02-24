@@ -8,19 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE INTCTL2(CMO,nCMO,DREF,nDREF,FIFA,NFIFA,HONE,nHONE)
+      SUBROUTINE INTCTL2(CMO,nCMO,DREF,nDREF,FIFA,NFIFA,HONE,nHONE,
+     &                   FIMO,nFIMO,FAMO,nFAMO)
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
-      use caspt2_global, only: FIMO, FAMO
       use PrintLevel, only: DEBUG
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nBTri
       use definitions, only: iwp, wp
       IMPLICIT None
-      integer(kind=iwp), intent(in):: nCMO, nDREF, NFIFA, nHONE
+      integer(kind=iwp), intent(in):: nCMO, nDREF, NFIFA, nHONE, nFIMO,
+     &                                nFAMO
       Real(kind=wp), intent(in):: CMO(nCMO), DREF(nDREF), HONE(nHONE)
-      Real(kind=wp), intent(out):: FIFA(NFIFA)
+      Real(kind=wp), intent(out):: FIFA(NFIFA),FIMO(nFIMO),FAMO(nFAMO)
 
       LOGICAL(KIND=IWP), parameter:: IF_TRNSF=.False.
       Real(kind=wp), Allocatable:: FFAO(:), FIAO(:), FAAO(:)

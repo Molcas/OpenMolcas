@@ -23,9 +23,11 @@ real(kind=wp), intent(in):: HONE(nHONE)
 ! Fock matrix in MO basis: FIMO, FAMO, FIFA
 
 if (IfChol) then
-! INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis
-   call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA,HONE,nHONE)
+!  INTCTL2 uses TraCho2 to generate the fock matrix in AO basis. Subsequently, FMatCho
+!  transform to the MO basis.
+   call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA,HONE,nHONE,FIMO,SIZE(FIMO),FAMO,SIZE(FAMO))
 else
+!  Matrix elements generated directly from one-ham and two-electron integrals in th MO basis
    CALL FMAT_CASPT2(FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),DREF,nDREF,HONE,nHONE)
 end If
 
