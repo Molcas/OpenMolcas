@@ -123,7 +123,7 @@
         End If
 
 * Compute the Fock matrix in MO basis for state Jstate
-        Call MkFock()
+        Call MkFock(CMO,nCMO,FIFA,SIZE(FIFA))
 
 * NN.15, TODO:
 * the following transformation are skipped in DMRG-CASPT2 run
