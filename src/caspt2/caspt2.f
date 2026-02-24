@@ -254,7 +254,6 @@ C
 !         6b. Transform the HONE to the PCO basis
 !         6c. Transform the FIMO matrix to the PCO basis
 !         6d. Transform the FIFA matrix to the PCO basis
-!         6e. Transform the DREF matrix to the PCO basis
 !      7. Transforms the Cholesky vectors or the two-electron integrals
 !         to the PCO basis.
 !      8. Drops the NO CMO orbitals as stored in CMO.

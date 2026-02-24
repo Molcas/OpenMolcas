@@ -20,7 +20,6 @@
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
-!     use caspt2_global, only: FIMO, FIFA, HONE, DREF
       use caspt2_global, only: FIMO, FIFA, HONE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne,
@@ -78,11 +77,6 @@ c Determine PT2 orbitals, and transform CI coeffs.
            WRITE(6,*)' ORBCTL back from TRANSFOCK.'
           END IF
 
-* When doing XMS, DREF refers to the last state considered and it is not the
-* state average density, therefore it's wrong to transform it!
-* However, it is never used again in this part, and next time it is used, it
-* is actually recomputed for the right place.
-!         CALL TRANSDREF(TORB,SIZE(TORB),DREF,SIZE(DREF))
       end if
 
       IF ( IPRGLB.GE.VERBOSE ) THEN
