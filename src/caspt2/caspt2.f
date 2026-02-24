@@ -278,7 +278,7 @@ C
 !           stored on LUDMAT.
 !        2. Using GETDPREF it pulls the one- and two-particle density
 !           matrices (gamma 1 and gamma 2), using pt2_get, of the
-!           LUDMAT file and sticks them intop DREF and PREF.
+!           LUDMAT file and sticks them in to DREF and PREF.
 !        3. Sets the EREF value
 !        4. Recomputes EASUM.
 !

@@ -91,8 +91,8 @@
       iDisk=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,iDisk)
 
+      Call TraOne(CMO,nCMO)
       If (.NOT.IfChol) Then
-         Call TraOne(CMO,nCMO)
          Call TraCtl(nCMO,CMO,0)
       End If
 

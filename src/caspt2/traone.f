@@ -156,8 +156,10 @@ c with non-diagonal elements doubled.
         NF=NFRO(ISYM)
         NB=NBAS(ISYM)
         IF (NB*NF>0) THEN
-           CALL DGEMM_('N','T',NB,NB,NF,Two,CMO(ISTMO),NB,
-     &                 CMO(ISTMO),NB,Zero,WDSQ(ISTSQ),NB)
+           CALL DGEMM_('N','T',NB,NB,NF,
+     &                 Two,CMO(ISTMO),NB,
+     &                     CMO(ISTMO),NB,
+     &                Zero,WDSQ(ISTSQ),NB)
            IJ=ISTLT-1
            DO IB=1,NB
              DO JB=1,IB

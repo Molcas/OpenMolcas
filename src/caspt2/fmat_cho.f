@@ -14,7 +14,8 @@
       use constants, only: Zero, One
       use caspt2_global, only: LUONEM
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NBTRI, IEOF1M, notri, NSYM, NBAS,
+!     use caspt2_module, only: NBTRI, IEOF1M, notri, NSYM, NBAS,
+      use caspt2_module, only: NBTRI, notri, NSYM, NBAS,
      &                         NORB, NFRO, IAD1M
       use definitions, only: iwp, wp
 #ifdef _DEBUGPRINT_
@@ -118,10 +119,15 @@ C TO MO BASIS FOR USE IN CASPT2.
 
 c Transformed frozen Fock matrix = Effective one-electron
 * Hamiltonian HONE at IAD1M(3)
+#ifdef _OLDCODE_
       IDISK=IEOF1M
       IAD1M(3)=IDISK
       CALL DDAFILE(LUONEM,1,HONE,notri,IDISK)
       IEOF1M=IDISK
+#else
+      IDISK=IAD1M(3)
+      CALL DDAFILE(LUONEM,2,HONE,notri,IDISK)
+#endif
 
       FIMO(1:NoTri)=FIMO(:) + HONE(:)
       FIFA(1:NoTri)=FIMO(:) + FAMO(:)

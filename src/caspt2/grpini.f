@@ -92,8 +92,8 @@
 
 *     Compute conventional integrals in the natural orbitals of
 *     the CASSSCF (stored in CMO in module CASPT2_module).
+      Call TraOne(CMO,nCMO)
       If (.NOT.IfChol) Then
-         Call TraOne(CMO,nCMO)
          Call TraCtl(nCMO,CMO,0)
       End If
 
