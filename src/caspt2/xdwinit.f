@@ -17,7 +17,7 @@
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad
       use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO, HONE
-      use caspt2_global, only: FIFA, DREF
+      use caspt2_global, only: FIFA, DREF, FIMO, FAMO
       use caspt2_global, only: LUONEM
       use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -97,9 +97,9 @@
       End If
 
 * Build the state-average Fock matrix in MO basis
-      Call MkFock(CMO,nCMO,FIFA,SIZE(FIFA),DREF,SIZE(DREF),
-     &              HONE,SIZE(HONE))
-
+      Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),
+     &            FIFA,SIZE(FIFA),DREF,SIZE(DREF),
+     &             HONE,SIZE(HONE))
 
 * Loop again over all states to compute H0 in the model space
 * Loop over ket functions

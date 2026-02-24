@@ -9,14 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 !***********************************************************************
-SUBROUTINE MkFock(CMO,nCMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE)
-use caspt2_global, only: FIMO, FAMO
+SUBROUTINE MkFock(CMO,nCMO,FIMO,NFIMO,FAMO,nFAMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE)
 use caspt2_module, only: IfChol
 use definitions, only: iwp, wp
 IMPLICIT None
-integer(kind=iwp), intent(in):: nCMO, nFIFA, nDREF, nHONE
+integer(kind=iwp), intent(in):: nCMO, nFIMO, nFAMO, nFIFA, nDREF, nHONE
 real(kind=wp), intent(in):: CMO(nCMO), DREF(nDREF)
-real(kind=wp), intent(inout):: FIFA(nFIFA)
+real(kind=wp), intent(inout):: FIMO(nFIMO), FAMO(nFAMO), FIFA(nFIFA)
 real(kind=wp), intent(in):: HONE(nHONE)
 
 ! Compute the Fock matrix in MO basis for state Jstate

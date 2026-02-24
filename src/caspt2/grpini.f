@@ -14,7 +14,8 @@
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0,nState)
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
-     &                       CMOPT2, NCMO, Weight, TORB, HONE
+     &                       CMOPT2, NCMO, Weight, TORB, HONE,
+     &                       FAMO, FIMO
       use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
 #ifdef _DMRG_
@@ -123,7 +124,8 @@
         End If
 
 * Compute the Fock matrix in MO basis for state Jstate
-        Call MkFock(CMO,nCMO,FIFA,SIZE(FIFA),DREF,SIZE(DREF),
+        Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),
+     &              FIFA,SIZE(FIFA),DREF,SIZE(DREF),
      &              HONE,SIZE(HONE))
 
 * NN.15, TODO:
