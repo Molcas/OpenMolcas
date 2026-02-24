@@ -16,21 +16,21 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA)
+      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA,FIMO,nFIMO)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_global, only: FIMO, HONE
+      use caspt2_global, only: HONE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne,
      &                         ThrOcc, nFro, nOrb, nBasT, EPS, nDel
       use constants, only: Zero, Two, Five
       use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER(kind=iwp), intent(in):: NCMO, NTORB, nFIFA
+      INTEGER(kind=iwp), intent(in):: NCMO, NTORB, nFIFA, nFIMO
       REAL(kind=wp), intent(inout):: CMO(NCMO)
       REAL(kind=wp), intent(out):: TORB(NTORB)
-      REAL(kind=wp), intent(inout):: FIFA(nFIFA)
+      REAL(kind=wp), intent(inout):: FIFA(nFIFA), FIMO(nFIMO)
 
       INTEGER(kind=iwp) ISYM
       INTEGER(kind=iwp) I1,I2
