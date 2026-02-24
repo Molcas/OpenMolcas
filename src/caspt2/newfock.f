@@ -16,18 +16,18 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO,NCMO)
+      SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO,NCMO,DREF,nDREF)
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: USUAL
-      use caspt2_global, only: DREF
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: FockType, IfChol, nAMx, nAshT,
      &                         nIMx, nOMx, nOSqT, nSMx, nSym, nIsh,
      &                         nAsh, nSsh, nAES, nOrb
       use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER(kind=iwp) NFIFA, NCMO
-      REAL(kind=wp) FIFA(NFIFA),CMO(NCMO)
+      INTEGER(kind=iwp), intent(in):: NFIFA, NCMO, nDREF
+      REAL(kind=wp), intent(in):: CMO(NCMO), DREF(nDREF)
+      REAL(kind=wp), intent(inout):: FIFA(NFIFA)
 
       REAL(kind=wp) D,DDVX,EIGVAL
       INTEGER(kind=iwp) LINT,LSC,LSC1,LSC2,LSCR,
