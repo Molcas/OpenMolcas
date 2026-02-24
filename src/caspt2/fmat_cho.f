@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FMAT_CHO(CMO,NCMO,FFAO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
+      SUBROUTINE FMAT_CHO(CMO,NCMO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
      &                                                       FAMO,NFAMO,
      &                                                       FIFA,NFIFA)
       use constants, only: Zero, One
@@ -22,7 +22,7 @@
       IMPLICIT None
       integer(kind=iwp), intent(in):: NCMO, NHONE, NFIMO, NFAMO, NFIFA
       real(kind=wp), intent(in):: CMO(NCMO)
-      real(kind=wp), intent(in):: FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
+      real(kind=wp), intent(in):: FIAO(NBTRI),FAAO(NBTRI)
       real(kind=wp), intent(in):: HONE(NHONE)
       real(kind=wp), intent(out):: FIMO(NFIMO),FAMO(NFAMO),FIFA(NFIFA)
 
@@ -32,15 +32,12 @@
 #ifdef _DEBUGPRINT_
       integer(kind=iwp) ISTLT
 #endif
-      real(kind=wp) TMP
 
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
 C TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
 C TO MO BASIS FOR USE IN CASPT2.
 
-      TMP=FFAO(1)
-      TMP=SQRT(TMP)
 
       NBBT=0
       NBBMX=0

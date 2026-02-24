@@ -17,7 +17,7 @@ IMPLICIT None
 integer(kind=iwp), intent(in):: nCMO, nFIFA, nDREF, nHONE
 real(kind=wp), intent(in):: CMO(nCMO), DREF(nDREF)
 real(kind=wp), intent(inout):: FIFA(nFIFA)
-real(kind=wp), intent(inout):: HONE(nHONE)
+real(kind=wp), intent(in):: HONE(nHONE)
 
 ! Compute the Fock matrix in MO basis for state Jstate
 ! Fock matrix in MO basis: FIMO, FAMO, FIFA

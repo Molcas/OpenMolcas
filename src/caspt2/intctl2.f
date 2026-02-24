@@ -24,6 +24,7 @@
 
       LOGICAL(KIND=IWP), parameter:: IF_TRNSF=.False.
       Real(kind=wp), Allocatable:: FFAO(:), FIAO(:), FAAO(:)
+      Real(kind=wp) tmp
 
 * Compute using Cholesky vectors.
 * Frozen, inactive and active Fock matrix in AO basis:
@@ -39,6 +40,9 @@
       END IF
 
       Call TraCho2(CMO,nCMO,DREF,nDREF,FFAO,FIAO,FAAO,IF_TRNSF)
+
+       tmp=FFAO(1)
+       tmp=sqrt(tmp)
 
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 back from TRACHO2.'
@@ -60,7 +64,7 @@
       FAMO(:)=Zero
 
 c Compute FIMO, FAMO, ...  to workspace:
-      Call FMat_Cho(CMO,SIZE(CMO),FFAO,FIAO,FAAO,
+      Call FMat_Cho(CMO,SIZE(CMO),FIAO,FAAO,
      &              HONE,SIZE(HONE),FIMO,SIZE(FIMO),
      &                              FAMO,SIZE(FAMO),
      &                              FIFA,nFIFA)

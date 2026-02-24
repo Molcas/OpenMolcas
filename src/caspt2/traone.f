@@ -12,12 +12,11 @@
       use constants, only: Zero, Half, One, Two
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_global, only:iPrGlb
-      use caspt2_global, only: LUONEM
       use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: ERFSELF, IEOF1M, nBMX, nBSqT,
+      use caspt2_module, only: ERFSELF, nBMX, nBSqT,
      &                         nBTri, nFroT, nOTri, nSym, PotNuc,
-     &                         RFPert, nBas, nFro, nDel, nOrb, iAd1M
+     &                         RFPert, nBas, nFro, nDel, nOrb
       use definitions, only: iwp, wp, u6
       IMPLICIT None
 #include "warnings.h"
@@ -31,7 +30,7 @@
       real(kind=wp), allocatable:: WFLT(:), Temp(:), WDLT(:), WDSQ(:),
      &                      WFMO(:), WTMP(:)
       real(kind=wp) ECORE, EONE, ETWO, ExFac
-      integer(kind=iwp) I, iAO, IB, ICMO, ICOMP, IDISK, IERR, IFTEST,
+      integer(kind=iwp) I, iAO, IB, ICMO, ICOMP, IERR, IFTEST,
      &                  IJ, IMO, IOFF, IOPT, IRC, ISTLT, ISTMO, ISTSQ,
      &                  ISYLBL, ISYM, JB, NB, NF, NSYMXX, nTemp, NWTMP
       real(kind=wp), External:: DDot_
@@ -256,10 +255,5 @@ c Transform one-electron effective Hamiltonian:
       CALL mma_deallocate(WTMP)
       CALL mma_deallocate(WFMO)
       CALL mma_deallocate(WFLT)
-
-      IDISK=IEOF1M
-      IAD1M(3)=IDISK
-      CALL DDAFILE(LUONEM,1,HONE,notri,IDISK)
-      IEOF1M=IDISK
 
       End SUBROUTINE TRAONE
