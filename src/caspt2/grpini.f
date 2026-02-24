@@ -15,7 +15,7 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
      &                       CMOPT2, NCMO, Weight, TORB, HONE,
-     &                       FAMO, FIMO
+     &                       FIMO
       use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
 #ifdef _DMRG_
@@ -122,7 +122,7 @@
         End If
 
 * Compute the Fock matrix in MO basis for state Jstate
-        Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),FAMO,SIZE(FAMO),
+        Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),
      &              FIFA,SIZE(FIFA),DREF,SIZE(DREF),
      &              HONE,SIZE(HONE))
 
@@ -266,7 +266,7 @@
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
       CALL ORBCTL(CMO,NCMO,TORB,SIZE(TORB),FIFA,SIZE(FIFA),
-     &            FIMO,SIZE(FIMO))
+     &            FIMO,SIZE(FIMO),HONE,SIZE(HONE))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then

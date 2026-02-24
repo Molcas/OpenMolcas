@@ -9,14 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 !***********************************************************************
-SUBROUTINE MkFock(CMO,nCMO,FIMO,NFIMO,FAMO,nFAMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE)
+SUBROUTINE MkFock(CMO,nCMO,FIMO,NFIMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE)
+use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: IfChol
 use definitions, only: iwp, wp
 IMPLICIT None
-integer(kind=iwp), intent(in):: nCMO, nFIMO, nFAMO, nFIFA, nDREF, nHONE
+integer(kind=iwp), intent(in):: nCMO, nFIMO, nFIFA, nDREF, nHONE
 real(kind=wp), intent(in):: CMO(nCMO), DREF(nDREF)
-real(kind=wp), intent(inout):: FIMO(nFIMO), FAMO(nFAMO), FIFA(nFIFA)
+real(kind=wp), intent(inout):: FIMO(nFIMO), FIFA(nFIFA)
 real(kind=wp), intent(in):: HONE(nHONE)
+
+real(kind=wp), allocatable:: FAMO(:)
+Call mma_allocate(FAMO,nFIMO,Label='FAMO')
 
 ! Compute the Fock matrix in MO basis for state Jstate
 ! Fock matrix in MO basis: FIMO, FAMO, FIFA
@@ -34,4 +38,5 @@ end If
 ! You don't have to be beautiful to turn me on
 CALL NEWFOCK(FIFA,nFIFA,CMO,NCMO,DREF,nDREF)
 
+Call mma_deallocate(FAMO)
 END SUBROUTINE MkFock

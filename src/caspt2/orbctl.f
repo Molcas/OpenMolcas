@@ -16,21 +16,22 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA,FIMO,nFIMO)
+      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA,FIMO,nFIMO,
+     &                  HONE,nHONE)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_global, only: HONE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne,
      &                         ThrOcc, nFro, nOrb, nBasT, EPS, nDel
       use constants, only: Zero, Two, Five
       use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER(kind=iwp), intent(in):: NCMO, NTORB, nFIFA, nFIMO
+      INTEGER(kind=iwp), intent(in):: NCMO, NTORB, nFIFA, nFIMO, nHONE
       REAL(kind=wp), intent(inout):: CMO(NCMO)
       REAL(kind=wp), intent(out):: TORB(NTORB)
-      REAL(kind=wp), intent(inout):: FIFA(nFIFA), FIMO(nFIMO)
+      REAL(kind=wp), intent(inout):: FIFA(nFIFA), FIMO(nFIMO),
+     &                               HONE(nHONE)
 
       INTEGER(kind=iwp) ISYM
       INTEGER(kind=iwp) I1,I2
@@ -68,17 +69,11 @@ c Determine PT2 orbitals, and transform CI coeffs.
       if (.not. DoFCIQMC) then
           CALL TRANSFOCK(TORB,nTORB,HONE,SIZE(HONE),1)
           CALL TRANSFOCK(TORB,nTORB,FIMO,SIZE(FIMO),1)
-
-* When doing XMS, FAMO refers only to the last state, therefore it's wrong!
-* However, we never use it anywhere else...
-          ! CALL TRANSFOCK(TORB,FAMO,1)
-
           CALL TRANSFOCK(TORB,nTORB,FIFA,nFIFA,1)
 
           IF(IPRGLB.GE.DEBUG) THEN
            WRITE(6,*)' ORBCTL back from TRANSFOCK.'
           END IF
-
       end if
 
       IF ( IPRGLB.GE.VERBOSE ) THEN
