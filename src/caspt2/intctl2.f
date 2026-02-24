@@ -24,7 +24,6 @@
 
       LOGICAL(KIND=IWP), parameter:: IF_TRNSF=.False.
       Real(kind=wp), Allocatable:: FFAO(:), FIAO(:), FAAO(:)
-      Real(kind=wp) tmp
 
 * Compute using Cholesky vectors.
 * Frozen, inactive and active Fock matrix in AO basis:
@@ -41,9 +40,6 @@
 
       Call TraCho2(CMO,nCMO,DREF,nDREF,FFAO,FIAO,FAAO,IF_TRNSF)
 
-       tmp=FFAO(1)
-       tmp=sqrt(tmp)
-
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 back from TRACHO2.'
         CALL XFLUSH(6)
@@ -52,8 +48,8 @@
 
 * For gradient calculation, it is good to have FIAO and FAAO
       IF (do_grad.or.nStpGrd.eq.2) THEN
-        !! FFAO has one-electron Hamiltonian
 
+        !! FFAO has one-electron Hamiltonian
         FIMO_all(1:NBTri)=FFAO(:) + FIAO(:)
         FIFA_all(1:NBTri)=FIMO_all(:) + FAAO(:)
 
