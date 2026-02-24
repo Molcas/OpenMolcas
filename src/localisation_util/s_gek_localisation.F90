@@ -13,7 +13,7 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
-subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq)
+subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,SGEKdebug)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -23,6 +23,7 @@ use Localisation_globals, only: nMxIter
 implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim
+logical, intent(in) :: SGEKdebug
 real(kind=wp),intent(inout) :: FunctionalList(nMxIter),GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
@@ -36,8 +37,7 @@ character :: Step_Trunc
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
-write(u6,*) 'Enter S-GEK Optimizer'
-
+if (SGEKdebug) write(u6,*) 'Enter S-GEK Optimizer'
 
 ! Pick up coordinates and gradients in full space
 ! -----------------------------------------------
@@ -66,13 +66,15 @@ do i=iFirst,nIter
 
 end do
 
-write(u6,*) 'nWindow =',nWindow
-write(u6,*) '  nDIIS =',nDIIS
-write(u6,*) '  nIter =',nIter
-call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
-call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
-call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
-call RecPrt("dq(:)",' ',dq,fsdim, 1)
+if (SGEKdebug) then
+    write(u6,*) 'nWindow =',nWindow
+    write(u6,*) '  nDIIS =',nDIIS
+    write(u6,*) '  nIter =',nIter
+    call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
+    call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
+    call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
+    call RecPrt("dq(:)",' ',dq,fsdim, 1)
+end if
 
 ! select subspace basis vectors; construct normalized e_diis
 ! -----------------------------------------------------------
@@ -81,7 +83,6 @@ call RecPrt("dq(:)",' ',dq,fsdim, 1)
 nExplicit = 2*(nDIIS-1)+2
 
 call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
-
 call mma_allocate(Aux_a,fsdim,Label='Aux_a')
 call mma_allocate(Aux_b,fsdim,Label='Aux_b')
 
@@ -119,8 +120,10 @@ Aux_a(:) = dq(:)
 e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
 call mma_deallocate(Aux_a)
 
-if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
 
+if (SGEKdebug) then
+    if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
+end if
 
 ! orthogonalize e_diis; remove redundancies from linear dependences
 ! -----------------------------------------------------------------
@@ -129,11 +132,11 @@ do l=1,2
     do i=2,nExplicit
         do k=1,j
             gg = DDot_(fsdim,e_diis(:,i),1,e_diis(:,k),1)
-            write(u6,*) 'i,k,gg=',i,k,gg
+            if (SGEKdebug) write(u6,*) 'i,k,gg=',i,k,gg
             e_diis(:,i) = e_diis(:,i)-gg*e_diis(:,k)
         end do
         gg = DDot_(fsdim,e_diis(:,i),1,e_diis(:,i),1) ! renormalize
-        write(u6,*) 'j,i,gg=',j,i,gg
+        if (SGEKdebug) write(u6,*) 'j,i,gg=',j,i,gg
 
         if (gg > 1.0e-17_wp) then   ! Skip vector if linear dependent.
             j = j+1
@@ -146,7 +149,7 @@ end do
 ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
 mDIIS = j
 
-
+if (SGEKdebug) then
 write(u6,*) '    fsdim:',fsdim
 write(u6,*) 'nExplicit:',nExplicit
 write(u6,*) '    nIter:',nIter
@@ -161,7 +164,7 @@ do i=1,mDIIS
     write(u6,*)
 end do
 if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,fsdim,mDIIS)
-
+end if
 
 ! Compute the projected displacement coordinates
 ! ----------------------------------------------
@@ -206,10 +209,11 @@ end do
 call mma_allocate(dq_diis,mDiis,Label='dq_diis')
 dq_diis(:) = Zero
 
-call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
-call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
-call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
-
+if (SGEKdebug) then
+    call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
+    call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
+    call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
+end if
 
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
@@ -224,9 +228,10 @@ do i=1,mDIIS
 end do
 dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
-write(u6,*) '||dq||=',dqdq
-call RecPrt('dq',' ',dq(:),size(dq),1)
-
+if (SGEKdebug) then
+    write(u6,*) '||dq||=',dqdq
+    call RecPrt('dq',' ',dq(:),size(dq),1)
+end if
 
 
 
@@ -244,9 +249,9 @@ call mma_Deallocate(dq_diis)
 
 ! print timing & finalize GEK
 ! ---------------------------
-write(u6,*) 'Exit S-GEK Optimizer'
+if (SGEKdebug) write(u6,*) 'Exit S-GEK Optimizer'
 call Timing(Cpu2,Tim1,Tim2,Tim3)
 
-write(u6,*) 'CPU Time for GEK iteration',Cpu2-Cpu1
+if (SGEKdebug) write(u6,*) 'CPU Time for GEK iteration',Cpu2-Cpu1
 
 end subroutine S_GEK_localisation

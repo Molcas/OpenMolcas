@@ -41,6 +41,7 @@ real(kind=wp), External :: DDot_
 
 !S-GEK
 real(kind=wp) :: dqdq
+logical, parameter :: SGEKdebug = .false.
 
 ! Initialization (iteration 0).
 ! -----------------------------
@@ -52,7 +53,7 @@ if (.not. Silent) call CWTime(C1,W1)
 ! ---------------------------------------------------------------------------------------------------
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
 
-    fsdim = nOrb2Loc*(nOrb2Loc-1)/2
+    fsdim = nOrb2Loc*(nOrb2Loc-1)/2 + nOrb2Loc
 
     call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
     call mma_Allocate(Gradient,nOrb2Loc,nOrb2Loc,Label='Gradient')
@@ -177,22 +178,24 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! S-GEK
         ! ---------------------------------------------------------------------------------------------------
         else if (OptMeth == 4) then ! S-GEK
+
+            kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
+
             if (nIter == 1) then
-                write(u6,*) 'Exit S-GEK Optimizer'
+                if (SGEKdebug) write(u6,*) 'Exit S-GEK Optimizer'
             else
-                kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
-                write(u6,*) "TRANSFORMING GRADIENT/HDIAG TO VECTOR:"
+                if (SGEKdebug) write(u6,*) "TRANSFORMING GRADIENT/HDIAG TO VECTOR:"
                 call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
-                call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
-                write(u6,*) "TRANSFORMING HDIAG TO VECTOR:"
+                !call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
+                if (SGEKdebug) write(u6,*) "TRANSFORMING HDIAG TO VECTOR:"
                 call upper_triag2vec(hdiag(:,:),nOrb2Loc,hdiagvec(:),fsdim)
                 call S_GEK_localisation(nIter,Functionallist(:),GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,dqdq,&
-                                        displacements(:,nIter+1))
-            end if
+                                        displacements(:,nIter+1),SGEKdebug)
 
-            write(u6,*) "TRANSFORMING GEK STEP FROM VECTOR TO MATRIX:"
-            call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
-            call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
+                if (SGEKdebug) write(u6,*) "TRANSFORMING GEK STEP FROM VECTOR TO MATRIX:"
+                call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
+                if (SGEKdebug) call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
+            end if
         end if ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
@@ -223,7 +226,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
     end if
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
+
+    ! this is just to see the orbitals (REMOVE LATER)
+    if (nIter == nMxIter-5) then
+        Converged = .true.
+    end if
 end do !Iterations
+
+
 
 
 ! print info about each localized MO

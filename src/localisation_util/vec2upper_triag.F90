@@ -11,32 +11,38 @@
 ! Copyright (C) 2026, Lila Zapp                                        *
 !***********************************************************************
 
-subroutine vec2upper_triag(squaremat,matdim,vec,vecdim)
+subroutine vec2upper_triag(squaremat,matdim,vec,vecdim,antisymmetric)
 use Definitions, only: u6,wp,iwp
 use Constants, only: Zero
 
 implicit none
 integer(kind=iwp),intent(in) :: matdim,vecdim
-real(kind=wp),intent(out) :: squaremat(matdim,matdim) !antisymmetric
+real(kind=wp),intent(out) :: squaremat(matdim,matdim) !antisymmetric or symmetric
 real(kind=wp),intent(in) :: vec(vecdim)
 integer(kind=iwp) :: i,j,listindex
+logical, intent(in) :: antisymmetric
 
-! putting data stored as vector back into antisymmetric matrix format
+! putting data stored as vector back into anti/symmetric matrix format
 listindex=0
-do i=1,matdim-1
-    do j=i+1,matdim
+do i=1,matdim
+    do j=i,matdim
         listindex=listindex+1
         if (.false.) then
             write(u6,"(A,I5,A,I5,A,I5,A,F8.3)") "i=",i ,"j= ",j,"listindex=",listindex,"mat(i,j)=",squaremat(i,j)
         end if
+
         squaremat(i,j)=vec(listindex)
-        squaremat(j,i)=-vec(listindex)
-        squaremat(i,i)=Zero
+
+        if (antisymmetric) then
+            squaremat(j,i)=-vec(listindex)
+        else
+            squaremat(j,i)=vec(listindex)
+        end if
     end do
 end do
 
-if (.true.) then
-    write(u6,*) "In vec2upper_triag:"
+if (.false.) then
+    write(u6,*) "In vec2upper_triag:  antisymmetric = ",antisymmetric
     call RecPrt("matrix as vector of upper triagonal values:",' ',vec,listindex,1)
     call RecPrt("NxN Matrix",' ',squaremat,matdim,matdim)
 end if
