@@ -16,16 +16,16 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,FAMO,NFAMO,DREF,
-     &                       NDREF,HONE,nHONE)
+      SUBROUTINE FMAT_CASPT2(FIFA,nFIFA,FIMO,NFIMO,DREF,NDREF,
+     &                       HONE,nHONE)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, Half, One, Two
       use caspt2_global, only: LUINTM
       use caspt2_module, only: NSYM, NORB, NISH, NOSH, NAES, NoMx, NoTri
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT None
-      integer(kind=iwp), intent(in):: nFIFA, NFIMO, NFAMO, NDREF, nHONE
-      real(kind=wp), intent(inout):: FIFA(nFIFA),FIMO(NFIMO),FAMO(NFAMO)
+      integer(kind=iwp), intent(in):: nFIFA, NFIMO, NDREF, nHONE
+      real(kind=wp), intent(inout):: FIFA(nFIFA), FIMO(NFIMO)
       real(kind=wp), intent(in)::DREF(NDREF), HONE(nHONE)
 
       integer(kind=iwp) IAD2M(3,36*36)
@@ -34,7 +34,7 @@
      &                  ISADDR, IDISK1, IT, ITABS, ITU, IU, IUABS,
      &                  nInts, nBUF
       real(kind=wp) DTU
-      real(kind=wp), Allocatable:: BUF(:)
+      real(kind=wp), Allocatable:: BUF(:), FAMO(:)
 
 C COMPUTE THE INACTIVE FOCK MATRIX IN MO BASIS.
 C COMPUTE THE ACTIVE FOCK MATRIX IN MO BASIS.
@@ -50,6 +50,8 @@ C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
 
 c Inactive and active Fock matrices:
       FIMO(:)=HONE(:)
+
+      CALL mma_allocate(FAMO,nFIMO,Label='FAMO')
       FAMO(:)=Zero
 
 c notri=Size of an array with symmetry-blocked triangular
@@ -72,6 +74,8 @@ c NBUF=Max size of a LUINTM buffer.
 * over active orbitals and therefore are summed up together here
 
       FIFA(1:notri) = FIMO(1:notri) + FAMO(1:notri)
+
+      CALL mma_deallocate(FAMO)
 
       Contains
 
