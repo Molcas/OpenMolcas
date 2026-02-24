@@ -189,9 +189,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 !call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
                 if (SGEKdebug) write(u6,*) "TRANSFORMING HDIAG TO VECTOR:"
                 call upper_triag2vec(hdiag(:,:),nOrb2Loc,hdiagvec(:),fsdim)
-                call S_GEK_localisation(nIter,Functionallist(:),GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,dqdq,&
-                                        displacements(:,nIter+1),SGEKdebug)
-
+                call S_GEK_localisation(nIter,-Functionallist(:),-GradientList(:,:),-displacements(:,:),-hdiagvec(:),fsdim,&
+                                        dqdq,-displacements(:,nIter+1),SGEKdebug)
                 if (SGEKdebug) write(u6,*) "TRANSFORMING GEK STEP FROM VECTOR TO MATRIX:"
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
                 if (SGEKdebug) call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
