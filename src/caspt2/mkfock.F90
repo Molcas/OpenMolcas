@@ -21,7 +21,7 @@ real(kind=wp), intent(in):: HONE(nHONE)
 
 
 ! Compute the Fock matrix in MO basis for state Jstate
-! Fock matrix in MO basis: FIMO, FAMO, FIFA
+! Fock matrix in MO basis: FIMO, FIFA
 
 if (IfChol) then
 !  INTCTL2 uses TraCho2 to generate the fock matrix in AO basis. Subsequently, FMatCho

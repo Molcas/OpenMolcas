@@ -25,15 +25,15 @@
       real(kind=wp), intent(in):: HONE(NHONE)
       real(kind=wp), intent(out):: FIMO(NFIMO),FIFA(NFIFA)
 
-      real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:), FAMO(:)
+      real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:)
       integer(kind=iwp) I, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI,
      &                  NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
 #ifdef _DEBUGPRINT_
       integer(kind=iwp) ISTLT
 #endif
 
-      Call mma_allocate(FAMO,nFIMO,Label='FAMO')
-      FAMO(:)=Zero
+      FIMO(:)=Zero
+      FIFA(:)=Zero ! initially used as FAMO
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
 C TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
@@ -90,7 +90,7 @@ C TO MO BASIS FOR USE IN CASPT2.
        DO I=1,NO
         DO J=1,I
          IJ=IJ+1
-         FAMO(IOFMO+IJ)=SCR3(I+NO*(J-1))
+         FIFA(IOFMO+IJ)=SCR3(I+NO*(J-1))
         END DO
        END DO
        IFAO=IFAO+(NB*(NB+1))/2
@@ -103,7 +103,7 @@ C TO MO BASIS FOR USE IN CASPT2.
       CALL mma_deallocate(SCR3)
 
       FIMO(1:NoTri)=FIMO(:) + HONE(:)
-      FIFA(1:NoTri)=FIMO(:) + FAMO(:)
+      FIFA(1:NoTri)=FIMO(:) + FIFA(:)
 
 #ifdef _DEBUGPRINT_
         WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
@@ -139,6 +139,5 @@ C TO MO BASIS FOR USE IN CASPT2.
         END DO
 
 #endif
-      Call mma_deallocate(FAMO)
 
       END SUBROUTINE FMAT_CHO

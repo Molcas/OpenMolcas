@@ -55,13 +55,8 @@
 
       END IF
 
-* Transform them to MO basis:
-      FIMO(:)=Zero
-
-c Compute FIMO, FAMO, ...  to workspace:
-      Call FMat_Cho(CMO,SIZE(CMO),FIAO,FAAO,
-     &              HONE,SIZE(HONE),FIMO,SIZE(FIMO),
-     &                              FIFA,nFIFA)
+* Transform to MO basis: generating HONE, FIMO and FIFA
+      Call FMat_Cho(CMO,nCMO,FIAO,FAAO,HONE,nHONE,FIMO,nFIMO,FIFA,nFIFA)
 
       Call mma_deallocate(FFAO)
       Call mma_deallocate(FIAO)
