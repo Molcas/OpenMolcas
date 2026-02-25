@@ -11,6 +11,13 @@
 ! Copyright (C) Valera Veryazov                                        *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _NEVER_OMIT_E_
+#  define _DO_CLAMP_(x) Clamp(x)
+#else
+#  define _DO_CLAMP_(x) x
+#endif
+
 subroutine WRVEC_(FName,LU_,LABEL,IUHF,NSYM,NBAS,NORB,CMO,CMO_ab,OCC,OCC_ab,EORB,EORB_ab,INDT,TITLE,iWFtype)
 ! The routine to dump information to INPORB
 !-----------------------------------------------------------------------
@@ -149,7 +156,7 @@ if (iCMO == 1) then
       write(LU,'(A,2I5)') '* ORBITAL',ISYM,IORB
       do IBAS=1,NBAS(ISYM),NDIV
         IBASEND = min(IBAS+NDIV-1,NBAS(ISYM))
-        write(LU,FRMT) (CMO(I+KCMO),I=IBAS,IBASEND)
+        write(LU,FRMT) (_DO_CLAMP_(CMO(I+KCMO)),I=IBAS,IBASEND)
       end do
       KCMO = KCMO+NBAS(ISYM)
     end do
@@ -162,7 +169,7 @@ if (iCMO == 1) then
         write(LU,'(A,2I5)') '* ORBITAL',ISYM,IORB
         do IBAS=1,NBAS(ISYM),NDIV
           IBASEND = min(IBAS+NDIV-1,NBAS(ISYM))
-          write(LU,FRMT) (CMO_ab(I+KCMO),I=IBAS,IBASEND)
+          write(LU,FRMT) (_DO_CLAMP_(CMO_ab(I+KCMO)),I=IBAS,IBASEND)
         end do
         KCMO = KCMO+NBAS(ISYM)
       end do
@@ -282,6 +289,7 @@ return
 contains
 
 subroutine WrInd()
+
   integer(kind=iwp) :: I, IB, IORB, ISYM
 
   ! INDEX section. NOTE THIS SECTION SHOULD ALWAYS BE LAST (Gv constraint)
@@ -344,5 +352,33 @@ subroutine WrInd()
   close(Lu)
 
 end subroutine WrInd
+
+#ifdef _NEVER_OMIT_E_
+! If the compiler fails to omit the E when the exponent's width is > 2
+elemental function Clamp(val)
+
+  use Constants, only: Zero
+
+  real(kind=wp) :: Clamp
+  real(kind=wp), intent(in) :: val
+
+  ! EXPECTED output for -huge, -tiny, tiny, huge:
+  ! -1.79769313486232+308,-2.22507385850720-308, 2.22507385850720-308, 1.79769313486232+308
+  ! OBSERVED output when E is not omitted:
+  ! *********************,*********************,2.22507385850720E-308,1.79769313486232E+308
+  ! So only negative values need to be clamped
+
+  if (val > Zero) then
+    Clamp = val
+  else if (val > -1.0e-99_wp) then
+    Clamp = Zero
+  elseif (val <= -1.0e100_wp) then
+    Clamp = -9.999999e99_wp
+  else
+    Clamp = val
+  end if
+
+end function Clamp
+#endif
 
 end subroutine WRVEC_
