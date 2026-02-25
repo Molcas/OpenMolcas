@@ -151,6 +151,7 @@ set (modfile_list
      rasdim.F90
      rasscf_global.F90
      rassi_data.F90
+     refwfn.F90
      spinfo.F90
      timers.F90
      wadr.F90
