@@ -91,11 +91,14 @@
 !     IEOF1M is the next free disk address on LUOneM
       IEOF1M=IDISK
 
-*     Compute conventional integrals in the natural orbitals of
-*     the CASSSCF (stored in CMO in module CASPT2_module).
+!     Allocate memory for HONE, used exclusivly in MkFock.
+!     Since MkFock might be called several times with the same
+!     CMOs but different density matrices we controll the computation
+!     of the one- and two-electron integrals from the outside. This to
+!     remove redundant work.
+
       Call mma_allocate(HONE,NoTri,Label='HONE')
       Initiate=.TRUE.
-      If (.NOT.IfChol) Call TraCtl(nCMO,CMO,0)
 
 * Loop over states, selecting those belonging to this group.
 * For each such state, compute the Fock matrix in original MO basis,

@@ -22,7 +22,6 @@ logical(kind=iwp), intent(inout):: INITIATE
 
 If (INITIATE) Call TraOne(CMO,nCMO,HONE,nHONE)
 
-
 ! Compute the Fock matrix in MO basis for state Jstate
 ! Fock matrix in MO basis: FIMO, FIFA
 
@@ -32,6 +31,7 @@ if (IfChol) then
    call INTCTL2(CMO,NCMO,DREF,nDREF,FIFA,nFIFA,HONE,nHONE,FIMO,nFIMO)
 else
 !  Matrix elements generated directly from one-ham and two-electron integrals in th MO basis.
+   If (Initiate) Call TraCtl(nCMO,CMO,0)
    CALL FMAT_CASPT2(FIFA,nFIFA,FIMO,nFIMO,DREF,nDREF,HONE,nHONE)
 end If
 INITIATE=.FALSE.

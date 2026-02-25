@@ -22,7 +22,7 @@
       use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, nAshT, nConf, NoTri,
-     &                         STSym, iAd1m, mState, IfChol
+     &                         STSym, iAd1m, mState
       use pt2_guga, only: CIThr
 
       implicit none
@@ -92,11 +92,10 @@
       iDisk=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,iDisk)
 
+* Allocate memory for HONE and call for the computation of the
+* one- and two-electron in the CMO basis.
       Call mma_allocate(HONE,NoTri,Label='HONE')
       Initiate=.True.
-      If (.NOT.IfChol) Then
-         Call TraCtl(nCMO,CMO,0)
-      End If
 
 * Build the state-average Fock matrix in MO basis
       Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),
@@ -104,6 +103,7 @@
      &            HONE,SIZE(HONE),Initiate)
 
       Call mma_deallocate(HONE)
+
 * Loop again over all states to compute H0 in the model space
 * Loop over ket functions
       do J=1,Nstate
