@@ -469,6 +469,7 @@ end do
 call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,CMO,Occ,EOrb,IndT,Title)
 if (.not. Silent) then
   write(u6,'(1X,A)') 'The LOCORB file has been written.'
+  write(u6,*) "Namefile = ",Namefile,"Title=",Title,"LU_=",LU_
 end if
 
 ! Write local.h5 file.

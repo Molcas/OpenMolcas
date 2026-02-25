@@ -41,7 +41,7 @@ real(kind=wp), External :: DDot_
 
 !S-GEK
 real(kind=wp) :: dqdq
-logical, parameter :: SGEKdebug = .false.
+logical, parameter :: SGEKdebug = .true.
 
 ! Initialization (iteration 0).
 ! -----------------------------
@@ -137,6 +137,7 @@ if (.not. Silent) then
     write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
 end if
 
+call writeLOCORB(CMO,nBasis,nOrb2Loc)
 
 ! Iterations.
 ! ---------------------------------------------------------------------------------------------------
@@ -203,8 +204,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 ! create subspace and perform GEK/RVO opt in it
                 ! ---------------------------------------------
-                !call S_GEK_localisation(nIter,Functionallist(:),GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,&
-                !                        dqdq,displacements(:,nIter+1),SGEKdebug)
                 call S_GEK_localisation(nIter,Functionallist(:),GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,&
                                         dqdq,displacements(:,nIter+1),SGEKdebug)
 
@@ -224,7 +223,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
         End If
 
+        if (OptMeth == 4 .and. SGEKdebug) then
         call RecPrt('actual displacement taken',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+        end if
 
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
@@ -302,3 +303,64 @@ call mma_Deallocate(PACol)
 call mma_Deallocate(Ovlp_sqrt)
 
 end subroutine PipekMezey_Iter
+
+subroutine get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+! call this subroutine to view intermediately localized orbitals at one (!) iteration of interest
+
+! creates an additional LOCORB (LOCOIM) file, with extension .LocOrbIM
+! creates an additional MD_LOC (MD_LOIM) file, with extension .imlocal.molden
+
+! the code is mostly copied from localisation.F90
+
+use Definitions, only:iwp,wp,u6
+use Localisation_globals, only: EOrb,nOrb,nBas,nSym,Silent,Occ,Ind
+
+implicit none
+
+integer(kind=iwp) ::nBasis, nOrb2Loc
+real(kind=wp), intent(in) :: CMO(nBasis,norb2Loc)
+integer(kind=iwp) :: j, IndT(7,8), k, kIndT, LU_, iSym,iUHF
+character(len=80) :: Title
+character(len=20) :: NameFile
+character(len=9) :: Filename
+integer(kind=iwp), external :: isFreeUnit
+
+! Write LOCORB file.
+! ------------------
+
+write(Namefile,'(A)') 'LOCOIM'
+write(Title,'(80X)')
+write(Title,'(A)') 'Intermediate Orbitals'
+LU_ = isFreeUnit(12)
+j = 0
+IndT(:,:) = 0
+do iSym=1,nSym
+  do k=1,nOrb(iSym)
+    kIndT = Ind(j+k)
+    if ((kIndT > 0) .and. (kIndT <= 7)) then
+      IndT(kIndT,iSym) = IndT(kIndT,iSym)+1
+    else
+      call WarningMessage(2,'Localisation: Illegal orbital type')
+      write(u6,'(A,I6,A,I2,A,I9)') 'Orbital',k,' of sym.',iSym,' has illegal type:',kIndT
+      call Abend()
+    end if
+  end do
+  j = j+nBas(iSym)
+end do
+call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,CMO,Occ,EOrb,IndT,Title)
+if (.not. Silent) then
+  write(u6,'(1X,A)') 'The LOCOIM file has been written.'
+  write(u6,*) "Namefile = ",Namefile,"Title=",Title,"LU_=",LU_
+end if
+
+! Write MOLDEN file.
+! ------------------
+
+iUHF = 0
+Filename = 'MD_LOIM'
+call Molden_Interface(iUHF,Namefile,Filename)
+if (.not. Silent) then
+  write(u6,'(1X,A)') 'The MOLDEN file has been written.'
+end if
+
+end subroutine get_intermediate_molden
