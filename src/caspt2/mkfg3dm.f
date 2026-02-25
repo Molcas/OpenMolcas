@@ -187,7 +187,7 @@ C-SVC20100301: calculate maximum number of tasks possible
       DO issg1=1,nsym
        isp1=Mul(issg1,stsym)
 *      nsgm1=CIS%ncsf(issg1)
-*      CALL H0DIAG_CASPT2(ISSG1,BUFD,NOW1,IOW1,NMIDV)
+*      CALL H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,NOW1,IOW1,NMIDV)
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
 C-is basically the number of buffers we fill with sigma1 vectors.

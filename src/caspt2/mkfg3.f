@@ -227,8 +227,9 @@ C-SVC20100301: calculate maximum number of tasks possible
 
         isp1=Mul(issg1,stsym)
         if (.not. DoFCIQMC) then
+!         form: BufD_I = \sum_t <I|E_{tt}|I>*f_{tt}
           nsgm1=CIS%ncsf(issg1)
-          CALL H0DIAG_CASPT2(ISSG1,BUFD,CIS%NOW,CIS%IOW,CIS%nMidV)
+          CALL H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,CIS%nMidV)
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this

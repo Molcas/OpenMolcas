@@ -99,6 +99,8 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
         F2=>F2_H
         F3=>F3_H
       ELSE
+!       This is just done such that in the case of IFF==0 that
+!       F1, F2, and F3 refer to an actual array.
         F1=>G1
         F2=>G2
         F3=>G3

@@ -331,8 +331,8 @@
       DO issg1=1,nsym
        isp1=Mul(issg1,STSYM)
        nsgm1=CIS%ncsf(issg1)
-       !! Work(LBufD) = \sum_t <I|E_{tt}|I>*f_{tt}
-       CALL H0DIAG_CASPT2(ISSG1,BUFD,CIS%NOW,CIS%IOW,nMidV)
+       !!BufD_I = \sum_t <I|E_{tt}|I>*f_{tt}
+       CALL H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,nMidV)
 
 !-SVC20100301: calculate number of larger tasks for this symmetry, this
 !-is basically the number of buffers we fill with sigma1 vectors.

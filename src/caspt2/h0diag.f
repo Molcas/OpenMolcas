@@ -16,24 +16,26 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,NOW,IOW,nMidV)
+      SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,nDiag,NOW,IOW,nMidV)
       use Symmetry_Info, only: Mul
       use gugx, only: CIS
       use caspt2_module, only: nSym
-      use pt2_guga, only: MxCI
+      use constants, only: Zero
+      use definitions, only: iwp, wp
       IMPLICIT None
 C INPUT ARRAYS:
 
 
-      Integer, Intent(In):: nMidV, ISYCI
-      Integer, Intent(In):: NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
-      Real*8, Intent(Out):: DIAG(MXCI)
+      Integer(kind=iwp), Intent(In):: nMidV, ISYCI, nDiag
+      Integer(kind=iwp), Intent(In):: NOW(2,NSYM,NMIDV),
+     &                                IOW(2,NSYM,NMIDV)
+      Real(kind=wp), Intent(Out):: DIAG(nDiag)
 
-      Integer IEMU, MV, ISYUP, NUP, ISYDWN, NDWN, ICS, JCS, NC
+      Integer(kind=iwp) IEMU, MV, ISYUP, NUP, ISYDWN, NDWN, ICS, JCS, NC
 C PURPOSE: FORM AN ARRAY OF DIAGONAL HAMILTONIAN MATRIX ELEMENTS
 C FOR THE SPECIFIED TOTAL SYMMETRY ISYCI
 
-      DIAG(1:MXCI)=0.0D0
+      DIAG(:)=Zero
       IEMU=1
       DO MV=1,NMIDV
         DO ISYUP=1,NSYM
