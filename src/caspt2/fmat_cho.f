@@ -30,6 +30,7 @@
      &                  NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
 #ifdef _DEBUGPRINT_
       integer(kind=iwp) ISTLT
+      real(kind=wp), allocatable:: FAMO(:)
 #endif
 
       FIMO(:)=Zero
@@ -117,6 +118,8 @@ C TO MO BASIS FOR USE IN CASPT2.
           END IF
         END DO
 
+        Call mma_allocate(FAMO,nFIMO,Label='FAMO')
+        FAMO(:)=FIFA(:)-FIMO(:)
         WRITE(6,*)'        ACTIVE FOCK MATRIX IN MO BASIS'
         ISTLT=1
         DO ISYM=1,NSYM
@@ -127,6 +130,7 @@ C TO MO BASIS FOR USE IN CASPT2.
             ISTLT=ISTLT+(NO*(NO+1))/2
           END IF
         END DO
+        Call mma_deallocate(FAMO)
 
         WRITE(6,*)'      TOTAL FOCK MATRIX IN MO BASIS'
         ISTLT=1
