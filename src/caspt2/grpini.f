@@ -14,8 +14,7 @@
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0,nState)
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
-     &                       CMOPT2, NCMO, Weight, TORB, HONE,
-     &                       FIMO
+     &                       CMOPT2, NCMO, Weight, TORB, FIMO
       use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
 #ifdef _DMRG_
@@ -26,7 +25,7 @@
       use caspt2_module, only: CPUFMB, CPUINT, DMRG, DoCumulant,
      &                         IEOF1M, IfDW, IfsadRef, IfXMS, jState,
      &                         nConf, STSym, TIOFMB, TIOINT, mState,
-     &                         iAd1m, IfChol, CPUGIN, TIOGIN
+     &                         iAd1m, IfChol, CPUGIN, TIOGIN, NoTri
       use pt2_guga, only: CIThr
       use Constants, only: Zero, One
       use definitions, only: iwp, wp, u6
@@ -46,7 +45,7 @@
       real(kind=wp), intent(inout):: U0(Nstate,Nstate)
 
       CHARACTER(LEN=27)  STLNE2
-      real(kind=wp), allocatable:: CIRef(:,:), CIXMS(:)
+      real(kind=wp), allocatable:: CIRef(:,:), CIXMS(:), HONE(:)
       Integer(kind=iwp) I,J,iDisk,K,iState
       Real(kind=wp) Wij,CPU1,CPU0,TIO1,TIO0,CPU,TIO
       Real(kind=wp) CPE,TIOE,CPTF0,TIOTF0,CPTF10,TIOTF10
@@ -93,6 +92,7 @@
 
 *     Compute conventional integrals in the natural orbitals of
 *     the CASSSCF (stored in CMO in module CASPT2_module).
+      Call mma_allocate(HONE,NoTri,Label='HONE')
       Call TraOne(CMO,nCMO,HONE,SIZE(HONE))
       If (.NOT.IfChol) Call TraCtl(nCMO,CMO,0)
 
@@ -172,7 +172,6 @@
 
 * End of long loop over Jstate
       end do
-
 * End timer Fock matrix build
       call timing(CPU1,CPU,TIO1,TIO)
       CPUFMB=CPU1-CPU0
@@ -267,6 +266,7 @@
 
       CALL ORBCTL(CMO,NCMO,TORB,SIZE(TORB),FIFA,SIZE(FIFA),
      &            FIMO,SIZE(FIMO),HONE,SIZE(HONE))
+      Call mma_deallocate(HONE)
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then

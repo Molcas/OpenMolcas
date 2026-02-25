@@ -16,12 +16,12 @@
       use definitions, only: wp, iwp, u6
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad
-      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO, HONE
+      use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
       use caspt2_global, only: FIFA, DREF, FIMO
       use caspt2_global, only: LUONEM
       use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: iSCF, nAshT, nConf,
+      use caspt2_module, only: iSCF, nAshT, nConf, NoTri,
      &                         STSym, iAd1m, mState, IfChol
       use pt2_guga, only: CIThr
 
@@ -36,7 +36,7 @@
 
       Integer(kind=iwp) :: iState,iDisk,I,J
       Real(kind=wp), allocatable:: CI(:), DAVE(:), CIRef(:,:),
-     &                              CIXMS(:)
+     &                              CIXMS(:), HONE(:)
 
 
 * Allocate memory for CI array state averaged 1-RDM
@@ -91,6 +91,7 @@
       iDisk=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,iDisk)
 
+      Call mma_allocate(HONE,NoTri,Label='HONE')
       Call TraOne(CMO,nCMO,HONE,SIZE(HONE))
       If (.NOT.IfChol) Then
          Call TraCtl(nCMO,CMO,0)
@@ -101,6 +102,7 @@
      &            FIFA,SIZE(FIFA),DREF,SIZE(DREF),
      &             HONE,SIZE(HONE))
 
+      Call mma_deallocate(HONE)
 * Loop again over all states to compute H0 in the model space
 * Loop over ket functions
       do J=1,Nstate
