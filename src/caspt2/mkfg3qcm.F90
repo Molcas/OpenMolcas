@@ -12,7 +12,7 @@
 !***********************************************************************
 #ifdef _DMRG_
 
-subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
+subroutine mkfg3qcm(mkF, G1, F1, G2, F2, G3, F3, idxG3)
 
    use Symmetry_Info, only: Mul
    use stdalloc, only: mma_allocate, mma_deallocate
@@ -27,7 +27,7 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    implicit none
 
 
-   Integer(kind=iwp), intent(in)  :: IFF
+   Logical(kind=iwp), intent(in)  :: mkF
    Real(kind=wp), intent(out) :: G1(nasht, nasht), G2(nasht, nasht, nasht, nasht)
    Real(kind=wp), intent(out) :: F1(nasht, nasht), F2(nasht, nasht, nasht, nasht)
    Real(kind=wp), intent(out) :: G3(*), F3(*)
@@ -71,7 +71,7 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    ! call mma_allocate(G4,n4,nasht,nasht,nasht,nasht,Label='G4')
    ! call qcmaquis_interface_get_4rdm_full(G4)
 
-   if (iff > 0) then
+   if (mkF) then
       do t = 1, nasht
          do u = 1, t
             if (Mul(SGS%ism(t), SGS%ism(u)) == 1) then
@@ -84,7 +84,7 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
       end do
    end if
 
-   if (iff > 0) then
+   if (mkF) then
       do t = 1, nasht
          do u = 1, nasht
             do v = 1, nasht
@@ -111,7 +111,7 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
       G3(i) = G3tmp(t, v, y, u, x, z)
       ! F_tvyuxz = <| e_{tv,yu,xz} E_ww f_ww |> - <| e_{tv,yu,xz} |> (f_uu + f_xx + f_zz)
       ! Compute first term using transition RDM between <| and |'> = E_ww f_ww |>: <| e_{tv,yu,xz} |'>
-      F3(i) = TG3tmp(t, v, y, u, x, z) - G3(i)*(epsa(u) + epsa(x) + epsa(z))
+      If (mkF) F3(i) = TG3tmp(t, v, y, u, x, z) - G3(i)*(epsa(u) + epsa(x) + epsa(z))
 
       ! do w = 1,nasht
       !   val = get_p4_element(G4,w,t,v,y,w,u,x,z,nasht)

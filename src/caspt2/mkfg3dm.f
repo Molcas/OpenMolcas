@@ -82,7 +82,7 @@ C
      &                  MYTASK,MYBUFFER
       INTEGER(kind=iwp) NTRI1,NTRI2
       INTEGER(kind=iwp) MEMMAX, MEMMAX_SAFE
-      INTEGER(kind=iwp) NLEV2, IFF
+      INTEGER(kind=iwp) NLEV2
 #ifdef _ENABLE_BLOCK_DMRG_
       INTEGER(kind=iwp) NLEV4
       REAL(kind=wp), ALLOCATABLE:: G3Tmp(:)
@@ -108,9 +108,6 @@ C
 
 C Put in zeroes. Recognize special cases:
       IF(nlev.EQ.0) RETURN
-
-      IFF=0
-      If (mkF) IFF=1
 
       G1(:,:)=Zero
       G2(:,:,:,:)=Zero
@@ -519,19 +516,19 @@ C Currently implemented only cu4, but cu34 and F3 from DMRG-sweep
 C will be possible. They should be implemented at this section.
 C
 C MKFG3CU4 is located under block_dmrg_util/
-      Call MKFG3CU4(IFF,G1,F1,G2,F2,G3,F3,idxG3,G3TMP)
+      Call MKFG3CU4(mkF,G1,F1,G2,F2,G3,F3,idxG3,G3TMP)
 C
       Call mma_deallocate(G3TMP)
 #endif
 
 ! TODO: @kszenes: this should be wrapped in an if statement
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Call mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
+      Call mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
 #endif
 
 #ifdef _DMRG_
       if (DMRG) then
-        call mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+        call mkfg3qcm(mkF,G1,F1,G2,F2,G3,F3,idxG3)
       endif
 #endif
 

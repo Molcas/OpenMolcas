@@ -14,7 +14,7 @@
 #include "compiler_features.h"
 
 #ifdef _ENABLE_BLOCK_DMRG_
-      Subroutine MKFG3CU4(IFF,G1,F1,G2,F2,G3,F3,idxG3,W3)
+      Subroutine MKFG3CU4(mkF,G1,F1,G2,F2,G3,F3,idxG3,W3)
 *
 * Load 1-el, 2-el, and 3-el density matrices to resp. G1, G2, and G3
 * and compute 1-el to 4-el contractions of Fock operator F1, F2, and F3.
@@ -26,7 +26,7 @@
       IMPLICIT NONE
 *
 *
-      INTEGER, INTENT(IN) :: IFF
+      LOGICAL, INTENT(IN) :: mkF
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
       REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
       REAL*8, INTENT(OUT) :: G3(*), F3(*)
@@ -66,7 +66,7 @@
         izSym=ism(iz)
         Do iy=1,nlev
           iyzSym=Mul(ism(iy),izSym)
-          If(IFF.NE.0.AND.iyzSym.EQ.1) Then
+          If(mkF.AND.iyzSym.EQ.1) Then
             Do iw=1,nlev
               F1(iy,iz)=F1(iy,iz)+G2(iw,iw,iy,iz)*EPSA(iw)
             End Do
@@ -83,7 +83,7 @@
           iyzSym=Mul(ism(iy),izSym)
 * load 3PDM of which is G3(:,:,:,:,iy,iz)
           Call block_load3pdm2f(nlev,W3,jstate,jstate,iy,iz)
-          If(IFF.NE.0) Then
+          If(mkF) Then
             Do ix=1,nlev
               ixyzSym=Mul(ism(ix),iyzSym)
               Do iv=1,nlev
@@ -107,7 +107,7 @@
             jz=idxG3(6,iG3)
             If(iy.EQ.jy.AND.iz.EQ.jz) Then
               G3(iG3)=W3(jt,ju,jv,jx)
-              If(IFF.NE.0) Then
+              If(mkF) Then
 * CU4F3 Contrib. :: + G1(lT,lT)*G3(iP,iQ,jP,jQ,kP,kQ)
                 F3(iG3)=F3(iG3)+EASUM*G3(iG3)
                 Do iw=1,nlev
@@ -120,7 +120,7 @@
               End If
             End If
 
-            If(IFF.NE.0.AND.iy.EQ.jy.AND.iz.EQ.jz) Then
+            If(mkF.AND.iy.EQ.jy.AND.iz.EQ.jz) Then
               Do iw=1,nlev
                 F3(iG3)=F3(iG3)
 * CU4F3 Contrib. :: - 0.5D0*G1(jP,lT)*G3(lT,jQ,iP,iQ,kP,kQ)
@@ -130,7 +130,7 @@
               End Do
             End If
 
-            If(IFF.NE.0.AND.iy.EQ.jv.AND.iz.EQ.jx) Then
+            If(mkF.AND.iy.EQ.jv.AND.iz.EQ.jx) Then
               Do iw=1,nlev
                 F3(iG3)=F3(iG3)
 * CU4F3 Contrib. :: - 0.5D0*G1(kP,lT)*G3(lT,kQ,iP,iQ,jP,jQ)
@@ -143,7 +143,7 @@
         End Do
       End Do
 *
-      If(IFF.NE.0) Then
+      If(mkF) Then
         Do iG3=1,NG3
           it=idxG3(1,iG3)
           iu=idxG3(2,iG3)
