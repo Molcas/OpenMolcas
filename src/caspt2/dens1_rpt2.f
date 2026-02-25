@@ -33,47 +33,50 @@
       use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,
      &                         mState
       use pt2_guga, only: MxCI, nG1
+      use constants, only: Zero, One, Two
+      use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 
+      LOGICAL(kind=iwp) RSV_TSK
 
-      LOGICAL RSV_TSK
-
-      Integer, Intent(In):: nLev
-      REAL*8 CI(MXCI),SGM1(MXCI)
-      REAL*8 G1(NLEV,NLEV)
+      Integer(kind=iwp), Intent(In):: nLev
+      REAL(kind=wp), Intent(inout):: CI(MXCI),SGM1(MXCI)
+      REAL(kind=wp), Intent(out):: G1(NLEV,NLEV)
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      REAL*8 G2(NLEV,NLEV,NLEV,NLEV)
+      REAL(kind=wp) G2(NLEV,NLEV,NLEV,NLEV)
 #endif
 
-      REAL*8 GTU
+      REAL(kind=wp) GTU
 
-      INTEGER ID
-      INTEGER IST,ISU,ISTU
-      INTEGER IT,IU,LT,LU
+      INTEGER(kind=iwp) ID
+      INTEGER(kind=iwp) IST,ISU,ISTU
+      INTEGER(kind=iwp) IT,IU,LT,LU
 
-      INTEGER ITASK,NTASKS
+      INTEGER(kind=iwp) ITASK,NTASKS
 
-      INTEGER ISSG,NSGM
+      INTEGER(kind=iwp) ISSG,NSGM
 
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
-      INTEGER, ALLOCATABLE:: TASK(:,:)
+      REAL(kind=wp), EXTERNAL :: DDOT_,DNRM2_
+      INTEGER(kind=iwp), ALLOCATABLE:: TASK(:,:)
 
 * Purpose: Compute the 1-electron density matrix array G1.
 
-      CALL DCOPY_(NG1,[0.0D0],0,G1,1)
+      G1(:,:)=Zero
 
       if (DoFCIQMC) then
         call load_fciqmc_g1(g1, mstate(jstate),nLev)
-        goto 99
+        Call End_Stuff()
+        Return
       end if
 
 #ifdef _DMRG_
       if (DMRG) then
         if (iPrGlb >= DEBUG) then
-            write (6,*) 'DENS1_RPT2> Calculating 1RDM...'
+            write (u6,*) 'DENS1_RPT2> Calculating 1RDM...'
         end if
         call qcmaquis_interface_get_1rdm_full(G1)
-        goto 99
+        Call End_Stuff()
+        Return
       end if
 #endif
 
@@ -81,16 +84,18 @@
 * Special code for hi-spin case:
       IF(ISCF.EQ.2) THEN
         DO IT=1,NASHT
-          G1(IT,IT)=1.0D00
+          G1(IT,IT)=One
         END DO
-        GOTO 99
+        Call End_Stuff()
+        Return
       END IF
 * Special code for closed-shell:
       IF(ISCF.EQ.1 .AND. NACTEL.GT.0) THEN
         DO IT=1,NASHT
-          G1(IT,IT)=2.0D00
+          G1(IT,IT)=Two
         END DO
-        GOTO 99
+        Call End_Stuff()
+        Return
       END IF
 
 ! TODO: skip completely this part if using a DMRG reference!
@@ -115,16 +120,17 @@
           TASK(iTask,2)=LU
         ENDDO
       ENDDO
-      IF (iTask.NE.nTasks) WRITE(6,*) "ERROR nTasks"
+      IF (iTask.NE.nTasks) WRITE(u6,*) "ERROR nTasks"
 
       Call Init_Tsk(ID, nTasks)
 
 * SVC20100311: BEGIN SEPARATE TASK EXECUTION
- 500  If (.NOT.Rsv_Tsk (ID,iTask)) GOTO 501
+      Do
+        If (.NOT.Rsv_Tsk (ID,iTask)) Exit
 
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
-      LT=TASK(iTask,1)
+        LT=TASK(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
         LU=Task(iTask,2)
@@ -133,7 +139,7 @@
           ISTU=Mul(IST,ISU)
           ISSG=Mul(ISTU,STSYM)
           NSGM=CIS%NCSF(ISSG)
-          IF(NSGM.EQ.0) GOTO 500
+          IF(NSGM.EQ.0) Cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
           CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
           IF(ISTU.EQ.1) THEN
@@ -147,16 +153,18 @@
 *      list. It has to do it here since each process gets at least one
 *      task.
 
-      GOTO 500
- 501  CONTINUE
+      End Do
       CALL Free_Tsk(ID)
 
       CALL mma_deallocate(Task)
 
       CALL GAdSUM (G1,NG1)
 
-  99  CONTINUE
+      Call End_Stuff()
 
+      Contains
+
+      Subroutine End_Stuff()
 #ifdef _ENABLE_CHEMPS2_DMRG_
       If (DoCumulant) THEN
       If(NACTEL.GT.1) Then
@@ -164,7 +172,7 @@
         Call chemps2_load2pdm( nlev, G2, MSTATE(1) )
         Call two2onerdm( nlev, NACTEL, G2, G1 )
       Else
-        write(6,*) "FATAL ERROR: DMRG-CASPT2 with
+        write(u6,*) "FATAL ERROR: DMRG-CASPT2 with
      & CHEMPS2 does not work with NACTEL=1"
       End If
       End If
@@ -179,11 +187,11 @@
 
 
       IF(iPrGlb.GE.DEBUG) THEN
-        WRITE(6,'("DEBUG> ",A)')
+        WRITE(u6,'("DEBUG> ",A)')
      &   "DENS1_RPT2: norms of the 1-el density matrix:"
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
       ENDIF
+      End Subroutine End_Stuff
 
 
-      RETURN
       END SUBROUTINE DENS1_RPT2
