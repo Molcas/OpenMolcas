@@ -16,8 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA,FIMO,nFIMO,
-     &                  HONE,nHONE)
+      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA,FIMO,nFIMO)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
@@ -27,11 +26,10 @@
       use constants, only: Zero, Two, Five
       use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER(kind=iwp), intent(in):: NCMO, NTORB, nFIFA, nFIMO, nHONE
+      INTEGER(kind=iwp), intent(in):: NCMO, NTORB, nFIFA, nFIMO
       REAL(kind=wp), intent(inout):: CMO(NCMO)
       REAL(kind=wp), intent(out):: TORB(NTORB)
-      REAL(kind=wp), intent(inout):: FIFA(nFIFA), FIMO(nFIMO),
-     &                               HONE(nHONE)
+      REAL(kind=wp), intent(inout):: FIFA(nFIFA), FIMO(nFIMO)
 
       INTEGER(kind=iwp) ISYM
       INTEGER(kind=iwp) I1,I2
@@ -65,9 +63,8 @@ c Determine PT2 orbitals, and transform CI coeffs.
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
       END IF
 
-* Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
+* Use the transformation matrices to change the FIMO and FIFA arrays:
       if (.not. DoFCIQMC) then
-          CALL TRANSFOCK(TORB,nTORB,HONE,SIZE(HONE),1)
           CALL TRANSFOCK(TORB,nTORB,FIMO,SIZE(FIMO),1)
           CALL TRANSFOCK(TORB,nTORB,FIFA,nFIFA,1)
 

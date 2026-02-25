@@ -257,6 +257,7 @@
 
       Subroutine  GPRINI_FINISH()
 
+      Call mma_deallocate(HONE)
 * We now know FIFA as expressed in initial RAS (natural) orbitals.
 * Transform it to a new basis in which the non-diagonal couplings
 * between subspaces (inactive, ras1, etc) are zero. As a by-product,
@@ -265,8 +266,7 @@
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
       CALL ORBCTL(CMO,NCMO,TORB,SIZE(TORB),FIFA,SIZE(FIFA),
-     &            FIMO,SIZE(FIMO),HONE,SIZE(HONE))
-      Call mma_deallocate(HONE)
+     &            FIMO,SIZE(FIMO))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then
