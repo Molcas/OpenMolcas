@@ -236,7 +236,7 @@ C
 !
 !      1. Reads the natural orbitals (NO) MOs from LUONEM. Stored in
 !         CMO.
-!      2. transforms HONE from AO to NO basis
+!      2. transforms HONE from AO to NO basis (traone).
 !      3. transforms the two-electron integrals to the NO basis
 !      4. Form the 1-particle density matrix (DREF) from DMIX as
 !         generated RDMINIT above. In the NO basis. This is needed
@@ -251,9 +251,8 @@ C
 !      6. Forms the pseudo canonical orbitals (PCO), in OrbCtl.
 !         6a. For the PCO basis and the transformation matrix between
 !             the NO and the PCO basis, the TOrb matrix.
-!         6b. Transform the HONE to the PCO basis
-!         6c. Transform the FIMO matrix to the PCO basis
-!         6d. Transform the FIFA matrix to the PCO basis
+!         6b. Transform the FIMO matrix to the PCO basis
+!         6c. Transform the FIFA matrix to the PCO basis
 !      7. Transforms the Cholesky vectors or the two-electron integrals
 !         to the PCO basis.
 !      8. Drops the NO CMO orbitals as stored in CMO.

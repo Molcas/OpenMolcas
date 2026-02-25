@@ -23,7 +23,7 @@
       integer(kind=iwp) NT, NI, NR1, NR2, NR3, NS, NO, IJOFF,
      &                  ITOFF, I, J, II, JJ, IJ, ISYM, IOFF
 * Purpose: given an orbital transformation array and some
-* one-electron matrix in storage format as e.g. HONE, FIFA,
+* one-electron matrix in storage format as e.g. FIFA and FIMO
 * transform the matrix to use the new orbital basis.
 
       NT=0

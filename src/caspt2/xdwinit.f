@@ -100,7 +100,7 @@
 * Build the state-average Fock matrix in MO basis
       Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),
      &            FIFA,SIZE(FIFA),DREF,SIZE(DREF),
-     &             HONE,SIZE(HONE))
+     &            HONE,SIZE(HONE))
 
       Call mma_deallocate(HONE)
 * Loop again over all states to compute H0 in the model space

@@ -20,7 +20,7 @@
       use caspt2_module, only: DMRG, nAshT
 #endif
       use caspt2_global, only: do_grad, iStpGrd
-      use caspt2_global, only: FIMO, FIFA, HONE, DREF, PREF, DMIX,
+      use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
      &                       NDREF, NPREF, NCMO
       use stdalloc, only: mma_allocate
@@ -116,8 +116,6 @@ C     Cholesky
 *
 * The total fock matrix (sum of inactive and active contrib.)
       CALL mma_allocate(FIFA,NOTRI,Label='FIFA')
-* The one-electron Hamiltonian
-      CALL mma_allocate(HONE,NOTRI,Label='HONE')
 * The fock matrix with contributions from inactive orbitals, only.
       CALL mma_allocate(FIMO,NOTRI,Label='FIMO')
 * Density matrices, active indices.
@@ -176,7 +174,7 @@ C Initialize sizes, offsets etc used in equation solver.
       USE SUPERINDEX, ONLY: SUPFREE
       use PT2WFN, ONLY: PT2WFN_CLOSE
       use gugx, only: SGS, CIS, EXS
-      use caspt2_global, only: FIMO, FIFA, HONE, DREF, PREF, DMIX,
+      use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX,
      &                         DWGT, CMOPT2, TAT, TORB, IDSCT, Weight,
      &                         IDCIEX, IDTCEX
       use stdalloc, only: mma_deallocate
@@ -240,7 +238,6 @@ C     Deallocate MAGEB, etc, superindex tables:
       CALL mma_deallocate(IDCIEX)
       CALL mma_deallocate(IDTCEX)
       CALL mma_deallocate(FIFA)
-      CALL mma_deallocate(HONE)
       CALL mma_deallocate(FIMO)
       CALL mma_deallocate(DREF)
       CALL mma_deallocate(PREF)
