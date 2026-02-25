@@ -34,7 +34,7 @@
      &                  ISADDR, IDISK1, IT, ITABS, ITU, IU, IUABS,
      &                  nInts, nBUF
       real(kind=wp) DTU
-      real(kind=wp), Allocatable:: BUF(:), FAMO(:)
+      real(kind=wp), Allocatable:: BUF(:)
 
 C COMPUTE THE INACTIVE FOCK MATRIX IN MO BASIS.
 C COMPUTE THE ACTIVE FOCK MATRIX IN MO BASIS.
@@ -49,10 +49,8 @@ C FIMO AND FAMO.
 C CODED 92-12-04 BY MALMQVIST FOR CASPT2, MOLCAS-3 VERSION.
 
 c Inactive and active Fock matrices:
-      FIMO(:)=HONE(:)
-
-      CALL mma_allocate(FAMO,nFIMO,Label='FAMO')
-      FAMO(:)=Zero
+      FIMO(:)=Zero
+      FIFA(:)=Zero ! ued temporarily as FAMO
 
 c notri=Size of an array with symmetry-blocked triangular
 c submatrices, using non-frozen, non-deleted MO indices.
@@ -69,13 +67,12 @@ c NBUF=Max size of a LUINTM buffer.
 
       CALL mma_deallocate(BUF)
 
-* both FIMO and FAMO refer to the active space part only. FIMO comes
-* from contractions over inactive orbitals, while FAMO from contractions
-* over active orbitals and therefore are summed up together here
+* FIMO comes from contractions over inactive orbitals, while FAMO from
+* contractions over active orbitals and therefore are summed up together
+* here into FIFA.
 
-      FIFA(1:notri) = FIMO(1:notri) + FAMO(1:notri)
-
-      CALL mma_deallocate(FAMO)
+      FIMO(1:notri) = FIMO(:) + HONE(:)
+      FIFA(1:notri) = FIFA(:) + FIMO(:)
 
       Contains
 
@@ -138,10 +135,10 @@ C ADD -1* BUFFER INTO CORRECT POSITION OF  FIMO.
                 IF(IT.EQ.IU) DTU=half*DTU
                 CALL DDAFILE(LUINTM,2,BUF,nInts,IDISK1)
                 If (iCase==1) Then
-                   CALL DAXPY_(NB3,Two*DTU,BUF,1,FAMO(IFSTA),1)
+                   CALL DAXPY_(NB3,Two*DTU,BUF,1,FIFA(IFSTA),1)
                 Else
                    CALL TRIANG(NBR,BUF)
-                   CALL DAXPY_(NB3,-DTU,BUF,1,FAMO(IFSTA),1)
+                   CALL DAXPY_(NB3,-DTU,BUF,1,FIFA(IFSTA),1)
                 End If
               ELSE
                 CALL DDAFILE(LUINTM,0,BUF,nInts,IDISK1)

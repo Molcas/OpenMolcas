@@ -117,7 +117,6 @@
             wij = Weight(K)
             DREF(:)=DREF(:)+Weight(K)*DMIX(:,K)
           End Do
-          If (nGrp>1) Stop 23
         Else
          DREF(:)=DMIX(:,Jstate)
         End If
