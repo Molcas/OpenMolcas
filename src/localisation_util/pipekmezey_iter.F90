@@ -137,7 +137,7 @@ if (.not. Silent) then
     write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
 end if
 
-call writeLOCORB(CMO,nBasis,nOrb2Loc)
+call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
 
 ! Iterations.
 ! ---------------------------------------------------------------------------------------------------
