@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 !***********************************************************************
-SUBROUTINE MkFock(CMO,nCMO,FIMO,NFIMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE)
+SUBROUTINE MkFock(CMO,nCMO,FIMO,NFIMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE,INITIATE)
 use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: IfChol
 use definitions, only: iwp, wp
@@ -18,6 +18,9 @@ integer(kind=iwp), intent(in):: nCMO, nFIMO, nFIFA, nDREF, nHONE
 real(kind=wp), intent(in):: CMO(nCMO), DREF(nDREF)
 real(kind=wp), intent(inout):: FIMO(nFIMO), FIFA(nFIFA)
 real(kind=wp), intent(in):: HONE(nHONE)
+logical(kind=iwp), intent(inout):: INITIATE
+
+If (INITIATE) Call TraOne(CMO,nCMO,HONE,nHONE)
 
 
 ! Compute the Fock matrix in MO basis for state Jstate
@@ -31,6 +34,7 @@ else
 !  Matrix elements generated directly from one-ham and two-electron integrals in th MO basis.
    CALL FMAT_CASPT2(FIFA,nFIFA,FIMO,nFIMO,DREF,nDREF,HONE,nHONE)
 end If
+INITIATE=.FALSE.
 
 ! Modify the Fock matrix if needed (G Family of modifications).
 ! You don't have to be beautiful to turn me on

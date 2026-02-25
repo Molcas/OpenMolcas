@@ -49,6 +49,7 @@
       Integer(kind=iwp) I,J,iDisk,K,iState
       Real(kind=wp) Wij,CPU1,CPU0,TIO1,TIO0,CPU,TIO
       Real(kind=wp) CPE,TIOE,CPTF0,TIOTF0,CPTF10,TIOTF10
+      logical(kind=iwp) Initiate
 
 * ---------------------------------------------------------------------
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
@@ -93,7 +94,7 @@
 *     Compute conventional integrals in the natural orbitals of
 *     the CASSSCF (stored in CMO in module CASPT2_module).
       Call mma_allocate(HONE,NoTri,Label='HONE')
-      Call TraOne(CMO,nCMO,HONE,SIZE(HONE))
+      Initiate=.TRUE.
       If (.NOT.IfChol) Call TraCtl(nCMO,CMO,0)
 
 * Loop over states, selecting those belonging to this group.
@@ -124,7 +125,7 @@
 * Compute the Fock matrix in MO basis for state Jstate
         Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),
      &              FIFA,SIZE(FIFA),DREF,SIZE(DREF),
-     &              HONE,SIZE(HONE))
+     &              HONE,SIZE(HONE),Initiate)
 
 * NN.15, TODO:
 * the following transformation are skipped in DMRG-CASPT2 run

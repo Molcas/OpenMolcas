@@ -37,6 +37,7 @@
       Integer(kind=iwp) :: iState,iDisk,I,J
       Real(kind=wp), allocatable:: CI(:), DAVE(:), CIRef(:,:),
      &                              CIXMS(:), HONE(:)
+      Logical(kind=iwp) Initiate
 
 
 * Allocate memory for CI array state averaged 1-RDM
@@ -92,7 +93,7 @@
       call ddafile(LUONEM,2,CMO,NCMO,iDisk)
 
       Call mma_allocate(HONE,NoTri,Label='HONE')
-      Call TraOne(CMO,nCMO,HONE,SIZE(HONE))
+      Initiate=.True.
       If (.NOT.IfChol) Then
          Call TraCtl(nCMO,CMO,0)
       End If
@@ -100,7 +101,7 @@
 * Build the state-average Fock matrix in MO basis
       Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),
      &            FIFA,SIZE(FIFA),DREF,SIZE(DREF),
-     &            HONE,SIZE(HONE))
+     &            HONE,SIZE(HONE),Initiate)
 
       Call mma_deallocate(HONE)
 * Loop again over all states to compute H0 in the model space
