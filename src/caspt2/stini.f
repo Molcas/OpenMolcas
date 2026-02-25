@@ -34,6 +34,7 @@ C     timers
      &       TIO0,TIO1,TIO, TIOTF0,TIOTF11,TIOE
 C     indices
       INTEGER(kind=iwp) :: I,J,IFTEST=0
+      Logical(kind=iwp), parameter:: mkF=.TRUE.
 ************************************************************************
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 ************************************************************************
@@ -73,7 +74,7 @@ C     indices
       END IF
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 
-      CALL POLY3(1)
+      CALL POLY3(mkF)
 
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUFG3=CPU1-CPU0

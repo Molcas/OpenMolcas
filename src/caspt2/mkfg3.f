@@ -41,7 +41,7 @@ C> Later, the full matrix can be restored on the fly by using the
 C> full permutational symmetry (see ::mksmat and ::mkbmat). The
 C> same storage applies to the \f$ F \f$ matrices.
 C>
-C> @param[in]  IFF   switch to activate computation of \f$ F \f$ matrices
+C> @param[in]  mkF   switch to activate computation of \f$ F \f$ matrices
 C> @param[in]  CI    wave function CI coefficients, with symmetry \c STSYM
 C> @param[out] G1    1-body active density matrix
 C> @param[out] G2    2-body active density matrix
@@ -55,7 +55,7 @@ C>                   contracted with diagonal 1-el Hamiltonian
 C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
-      SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
+      SUBROUTINE MKFG3(mkF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
       use Symmetry_Info, only: Mul
       use caspt2_global, only: iPrGlb
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
@@ -73,7 +73,8 @@ C>                   to active indices
       IMPLICIT NONE
 
 
-      INTEGER(kind=iwp), INTENT(IN) :: IFF, NLEV
+      LOGICAL(kind=iwp), INTENT(IN) :: mkF
+      INTEGER(kind=iwp), INTENT(IN) :: NLEV
       INTEGER(kind=iwp), INTENT(IN) :: nG1, nG2
       INTEGER(kind=iwp), INTENT(INOUT) :: nG3
       real(kind=wp), INTENT(IN) :: CI(MXCI)
@@ -127,7 +128,7 @@ C Put in zeroes. Recognize special cases:
       G1(:,:)=Zero
       G2(:,:,:,:)=Zero
       G3(:)=Zero
-      IF(IFF/=0) THEN
+      IF(mkF) THEN
        F1(:,:)=Zero
        F2(:,:,:,:)=Zero
        F3(:)=Zero
@@ -371,7 +372,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
               it=L2ACT(itlev)
               iu=L2ACT(iulev)
               G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
-              IF(IFF.ne.0) then
+              IF(mkF) then
                 F1sum=0.0D0
                 do i=1,nsgm1
                   F1sum=F1sum+CI(i)*BUF1(i,ib)*bufd(i)
@@ -417,7 +418,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
               it=L2ACT(itlev)
               iu=L2ACT(iulev)
               G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
-              IF(IFF.ne.0) THEN
+              IF(mkF) THEN
                 F2sum=Zero
                 do i=1,nsgm1
                   F2sum=F2sum+BUF2(i)*bufd(i)*buf1(i,ib)
@@ -487,7 +488,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
          idxG3(6,iG3)=int(iZ,I1)
         end do
         if (.not. DoFCIQMC) then
-            IF(IFF.ne.0) THEN
+            IF(mkF) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
                 BufT(1:nSgm1)=(BufD(:)-EpsA(iv))*BufT(:)
 !               do icsf=1,nsgm1
@@ -606,7 +607,7 @@ C  only for the G1 and G2 replicate arrays
             G2(it,iu,iy,iz)=G2(iy,iz,it,iu)
            end do
           end do
-          IF(IFF.ne.0) THEN
+          IF(mkF) THEN
            ! Correction to F2: It is now = <0| E_tu H0Diag E_yz |0>
            do iz=1,nlev
             do iy=1,nlev
@@ -670,24 +671,24 @@ C  only for the G1 and G2 replicate arrays
       ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
            if(iY.eq.iX) then
             G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
-            IF(IFF.ne.0) F3(iG3)=
+            IF(mkF) F3(iG3)=
      &               F3(iG3)-(F2(iT,iU,iV,iZ)+EPSA(iu)*G2(iT,iU,iV,iZ))
             if(iv.eq.iu) then
              G3(iG3)=G3(iG3)-G1(iT,iZ)
-             IF(IFF.ne.0) F3(iG3)=F3(iG3)-F1(iT,iZ)
+             IF(mkF) F3(iG3)=F3(iG3)-F1(iT,iZ)
             end if
            end if
            if(iV.eq.iU) then
              G3(iG3)=G3(iG3)-G2(iT,iX,iY,iZ)
-             IF(IFF.ne.0) F3(iG3)=F3(iG3)-
+             IF(mkF) F3(iG3)=F3(iG3)-
      &                (F2(iT,iX,iY,iZ)+EPSA(iY)*G2(iT,iX,iY,iZ))
            end if
            if(iY.eq.iU) then
              G3(iG3)=G3(iG3)-G2(iV,iX,iT,iZ)
-             IF(IFF.ne.0) F3(iG3)=
+             IF(mkF) F3(iG3)=
      &                F3(iG3)-(F2(iV,iX,iT,iZ)+EPSA(iU)*G2(iV,iX,iT,iZ))
            end if
-           IF(IFF.ne.0) F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
+           IF(mkF) F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
           END DO
       end if
 

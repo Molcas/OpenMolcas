@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE POLY3(IFF)
+      SUBROUTINE POLY3(mkF)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use caspt2_global, only:LUCIEX, IDTCEX, LUSOLV
@@ -51,7 +51,7 @@ C THE RDSTAT AND THE GUGA ROUTINES USED IN THIS
 C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
 
 
-      INTEGER(kind=iwp) IFF
+      Logical(kind=iwp), intent(in):: mkF
       INTEGER(kind=iwp) ILEV
       INTEGER(kind=iwp) NG3MAX
       INTEGER(kind=iwp) ILUID
@@ -67,7 +67,7 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
       nLev = SGS%nLev
 
 
-      IF (IFF==1) THEN
+      IF (mkF) THEN
 C ORBITAL ENERGIES IN CI-COUPLING ORDER:
         DO ILEV=1,NLEV
           ETA(ILEV)=EPSA(L2ACT(ILEV))
@@ -91,7 +91,7 @@ C-SVC20100831: allocate local G3 matrices
       G3(1)=Zero
 
 C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
-      IF (IFF.EQ.1) THEN
+      IF (mkF) THEN
         CALL mma_allocate(F1_H,NG1,LABEL='F1_H')
         CALL mma_allocate(F2_H,NG2,LABEL='F2_H')
         CALL mma_allocate(F3_H,NG3MAX,LABEL='F3_H')
@@ -99,7 +99,7 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
         F2=>F2_H
         F3=>F3_H
       ELSE
-!       This is just done such that in the case of IFF==0 that
+!       This is just done such that in the case of mkF=.FALSE. that
 !       F1, F2, and F3 refer to an actual array.
         F1=>G1
         F2=>G2
@@ -141,10 +141,10 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         IF (.NOT. DoCumulant .AND. .NOT. DMRG) THEN
 #endif
           If (.NOT.ALLOCATED(CI)) CALL mma_allocate(CI,1,LABEL='CI')
-          CALL MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
+          CALL MKFG3(mkF,CI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
         ELSE
-          CALL MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,nLev)
+          CALL MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev)
         END IF
 #endif
       END IF
@@ -157,7 +157,7 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         CALL PT2_PUT(NG3,' GAMMA3',G3)
         iLUID=0
         CALL I1DAFILE(LUSOLV,1,idxG3,6*NG3,iLUID)
-        IF(IFF.EQ.1) THEN
+        IF(mkF) THEN
           CALL PT2_PUT(NG1,' DELTA1',F1)
           CALL PT2_PUT(NG2,' DELTA2',F2)
           CALL PT2_PUT(NG3,' DELTA3',F3)
@@ -169,7 +169,7 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         CALL mma_deallocate(G2)
         CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
-        IF(IFF==1) THEN
+        IF(mkF) THEN
           CALL mma_deallocate(F1_H)
           CALL mma_deallocate(F2_H)
           CALL mma_deallocate(F3_H)
