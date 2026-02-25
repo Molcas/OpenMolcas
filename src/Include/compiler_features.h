@@ -114,7 +114,7 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 
 /* Compiler bugs (see https://community.intel.com/t5/Intel-Fortran-Compiler/Wrong-results-with-ifx-2024-0-1/td-p/1554375         */
 /*                    https://community.intel.com/t5/Intel-Fortran-Compiler/Wrong-results-in-apparently-simple-loop/m-p/1592647) */
-#if (( __INTEL_LLVM_COMPILER ) && ( __INTEL_COMPILER_BUILD_DATE > 20240000 ) && ( __INTEL_COMPILER_BUILD_DATE < 20241200 ))
+#if (( __INTEL_LLVM_COMPILER ) && ( __INTEL_COMPILER_BUILD_DATE < 20241200 ))
 #  define _BUGGY_INTEL_LLVM_
 #else
 #  undef _BUGGY_INTEL_LLVM_
