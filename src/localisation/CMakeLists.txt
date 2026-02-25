@@ -38,6 +38,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     wrvec_localisation.F90
 )
 
 
