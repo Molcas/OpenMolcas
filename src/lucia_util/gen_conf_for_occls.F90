@@ -56,7 +56,7 @@ integer(kind=iwp), intent(inout) :: NCONF_OP(MAXOP+1), NCONF_ALL_SYM
 integer(kind=iwp), intent(out) :: NCONF, ireo(nconf_tot)
 integer(kind=iwp), intent(_OUT_) :: ICONF(*)
 integer(kind=iwp) :: I, IB_OCC, IDUM, IDUM_ARR(1), ILEXNUM, INI, ISUM, ISYM_CONF, ISYMST, JCONF(2*MXPORB), JREO, NEL, NOCOB, &
-                     NONEW, NOP_FOR_CONF, NOPEN
+                     NONEW, NOP_FOR_CONF, NOPEN, totNOBPT
 integer(kind=iwp), external :: ILEX_FOR_CONF_NEW
 
 ! Total number of electrons
@@ -70,12 +70,14 @@ INI = 1
 NCONF = 0
 ISUM = 0
 JCONF(:) = 0
+totNOBPT = sum(NOBPT)
 
 do
   ! Generate an array of integers from 1 to NEL.
   ! It is the only CSF that matter for HS calculations.
   ! Skip any loop below... It is an overwhelmingly long loop.
-  if ((NEL == MINOP) .and. (NEL == NOBPT(2)) .and. NOBPT(3) == 0) then
+!  if ((NEL == MINOP) .and. (NEL == NOBPT(2)) .and. NOBPT(3) == 0) then
+  if ((NEL == MINOP) .and. (NEL == totNOBPT)) then
     JCONF(1:NEL) = [(i,i=1,NEL)]
     NONEW = 0
   else
@@ -106,7 +108,8 @@ do
         end if
       end if
     end if
-    if ((NEL == MINOP) .and. (NEL == NOBPT(2)) .and. NOBPT(3) == 0) exit
+!    if ((NEL == MINOP) .and. (NEL == NOBPT(2)) .and. NOBPT(3) == 0) exit
+    if ((NEL == MINOP) .and. (NEL == totNOBPT)) exit
   else
     exit
   end if
