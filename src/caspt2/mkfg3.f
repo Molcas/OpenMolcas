@@ -43,6 +43,7 @@ C> same storage applies to the \f$ F \f$ matrices.
 C>
 C> @param[in]  mkF   switch to activate computation of \f$ F \f$ matrices
 C> @param[in]  CI    wave function CI coefficients, with symmetry \c STSYM
+C> @param[in]  nCI   number of CI coefficients, with symmetry \c STSYM
 C> @param[out] G1    1-body active density matrix
 C> @param[out] G2    2-body active density matrix
 C> @param[out] G3    process-local part of 3-body active density matrix
@@ -55,7 +56,8 @@ C>                   contracted with diagonal 1-el Hamiltonian
 C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
-      SUBROUTINE MKFG3(mkF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
+      SUBROUTINE MKFG3(mkF,CI,nCI,
+     &                 G1,F1,G2,F2,G3,F3,idxG3,NLEV,nG1,nG2,nG3)
       use Symmetry_Info, only: Mul
       use caspt2_global, only: iPrGlb
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
@@ -74,10 +76,10 @@ C>                   to active indices
 
 
       LOGICAL(kind=iwp), INTENT(IN) :: mkF
-      INTEGER(kind=iwp), INTENT(IN) :: NLEV
+      INTEGER(kind=iwp), INTENT(IN) :: nCI, NLEV
       INTEGER(kind=iwp), INTENT(IN) :: nG1, nG2
       INTEGER(kind=iwp), INTENT(INOUT) :: nG3
-      real(kind=wp), INTENT(IN) :: CI(MXCI)
+      real(kind=wp), INTENT(IN) :: CI(nCI)
       real(kind=wp), INTENT(OUT) :: G1(NLEV,NLEV),
      &                              G2(NLEV,NLEV,NLEV,NLEV)
       real(kind=wp), INTENT(OUT) :: F1(NLEV,NLEV),
@@ -106,7 +108,6 @@ C>                   to active indices
       INTEGER(kind=iwp) NTRI1,NTRI2
       INTEGER(kind=iwp) MEMMAX, MEMMAX_SAFE
       INTEGER(kind=iwp) NLEV2
-      INTEGER(kind=iwp) NCI
 
       real(kind=wp), EXTERNAL :: DDOT_,DNRM2_
 
@@ -136,7 +137,6 @@ C Put in zeroes. Recognize special cases:
 
       IF(NACTEL.EQ.0) RETURN
 
-      NCI=CIS%NCSF(STSYM)
 * This should not happen, but...
       IF(NCI.EQ.0) RETURN
 

@@ -21,7 +21,7 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only:LUCIEX, IDTCEX, LUSOLV
       use PrintLevel, only: VERBOSE
-      use gugx, only: SGS, L2ACT
+      use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: DoCumulant, iSCF, jState, nActel,
      &                         nConf, nState, STSym, EPSA, mState
@@ -62,10 +62,12 @@ C PROGRAM ASSUMES THE JOBIPH IS PRODUCED BY THE RASSCF PROGRAM.
       REAL(kind=wp), ALLOCATABLE, TARGET:: F1_H(:), F2_H(:), F3_H(:)
       REAL(kind=wp), POINTER:: F1(:), F2(:), F3(:)
       REAL(kind=wp), ALLOCATABLE:: CI(:)
-      Integer(kind=iwp) :: nLev
+      Integer(kind=iwp) :: nLev, nCI
 
       nLev = SGS%nLev
 
+!     Note that in case of FCIQMC nConf is set to 0.
+      nCI=CIS%NCSF(STSYM)
 
       IF (mkF) THEN
 C ORBITAL ENERGIES IN CI-COUPLING ORDER:
@@ -141,7 +143,8 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
         IF (.NOT. DoCumulant .AND. .NOT. DMRG) THEN
 #endif
           If (.NOT.ALLOCATED(CI)) CALL mma_allocate(CI,1,LABEL='CI')
-          CALL MKFG3(mkF,CI,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
+          CALL MKFG3(mkF,CI,nCI,
+     &               G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
         ELSE
           CALL MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev)
