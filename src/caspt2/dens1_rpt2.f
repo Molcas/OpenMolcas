@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS1_RPT2 (CI,SGM1,nCI,nSGM1,G1,nLev)
+      SUBROUTINE DENS1_RPT2 (CI,SGM1,nCI,G1,nLev)
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
@@ -39,8 +39,8 @@
 
       LOGICAL(kind=iwp) RSV_TSK
 
-      Integer(kind=iwp), Intent(In):: nCI, nSGM1, nLev
-      REAL(kind=wp), Intent(inout):: CI(nCI),SGM1(nSGM1)
+      Integer(kind=iwp), Intent(In):: nCI, nLev
+      REAL(kind=wp), Intent(inout):: CI(nCI),SGM1(nCI)
       REAL(kind=wp), Intent(out):: G1(NLEV,NLEV)
 #ifdef _ENABLE_CHEMPS2_DMRG_
       REAL(kind=wp) G2(NLEV,NLEV,NLEV,NLEV)
@@ -125,8 +125,7 @@
       Call Init_Tsk(ID, nTasks)
 
 * SVC20100311: BEGIN SEPARATE TASK EXECUTION
-      Do
-        If (.NOT.Rsv_Tsk (ID,iTask)) Exit
+      Do While (Rsv_Tsk (ID,iTask))
 
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
@@ -134,18 +133,18 @@
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
         LU=Task(iTask,2)
-          ISU=SGS%ISM(LU)
-          IU=L2ACT(LU)
-          ISTU=Mul(IST,ISU)
-          IF (ISTU/=1) CYCLE
-          ISSG=Mul(ISTU,STSYM)
-          NSGM=CIS%NCSF(ISSG)
-          IF(NSGM.EQ.0) Cycle
+        ISU=SGS%ISM(LU)
+        IU=L2ACT(LU)
+        ISTU=Mul(IST,ISU)
+        IF (ISTU/=1) CYCLE
+        ISSG=Mul(ISTU,STSYM)
+        NSGM=CIS%NCSF(ISSG)
+        IF(NSGM.EQ.0) Cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
-          CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
-          GTU=DDOT_(NSGM,CI,1,SGM1,1)
-          G1(IT,IU)=GTU
-          G1(IU,IT)=GTU
+        CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
+        GTU=DDOT_(NSGM,CI,1,SGM1,1)
+        G1(IT,IU)=GTU
+        G1(IU,IT)=GTU
 
 * SVC: The master node now continues to only handle task scheduling,
 *      needed to achieve better load balancing. So it exits from the task
@@ -153,8 +152,8 @@
 *      task.
 
       End Do
-      CALL Free_Tsk(ID)
 
+      CALL Free_Tsk(ID)
       CALL mma_deallocate(Task)
 
       CALL GAdSUM (G1,NG1)

@@ -19,7 +19,7 @@
       SUBROUTINE POLY1(CI,NCI)
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use pt2_guga, only: MXCI, nG1, iAdr10, cLab10
+      use pt2_guga, only: nG1, iAdr10, cLab10
       use definitions, only: iwp, wp
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
@@ -35,9 +35,9 @@
       nLev = SGS%nLev
 
       IF(NLEV>0) THEN
-        CALL mma_allocate(SGM1 ,MXCI,LABEL='SGM1')
+        CALL mma_allocate(SGM1 ,NCI,LABEL='SGM1')
         CALL mma_allocate(G1TMP,NG1,LABEL='G1TMP')
-        CALL DENS1_RPT2(CI,SGM1,nCI,MxCI,G1TMP,nLev)
+        CALL DENS1_RPT2(CI,SGM1,nCI,G1TMP,nLev)
       END IF
 
 * REINITIALIZE USE OF DMAT.
