@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2007, Bjorn O. Roos                                    *
 ************************************************************************
-      SUBROUTINE AFREEZ(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,NAME,
-     &           NAMFRO,LNFRO,DPQ,THRFR,THRDE,IFQCAN,CMO,NCMO)
+      SUBROUTINE AFREEZ(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,NAME,nName,
+     &           NAMFRO,LNFRO,DPQ,nDPQ,THRFR,THRDE,IFQCAN,CMO,NCMO)
 *****************************************************************************
 *                                                                           *
 * Purpose: to select orbitals, which will be frozen in the CASPT2           *
@@ -46,14 +46,16 @@
       integer(kind=iwp), intent(in):: NBAS(NSYM),NASH(NSYM)
       integer(kind=iwp), intent(inout):: NFRO(NSYM),NISH(NSYM),
      &                                   NSSH(NSYM),NDEL(NSYM)
-      CHARACTER(LEN=LenIn+8), intent(in):: NAME(*)
+      integer(kind=iwp), intent(in):: nName
+      CHARACTER(LEN=LenIn+8), intent(in):: NAME(nName)
       integer(kind=iwp), intent(in):: LnFro
       CHARACTER(LEN=4), intent(in):: NAMFRO(LnFro)
-      real(kind=wp), intent(out):: DPQ(*)
+      integer(kind=iwp), intent(in):: nDPQ
+      real(kind=wp), intent(out):: DPQ(nDPQ)
       real(kind=wp), intent(in):: THRFR,THRDE
       integer(kind=iwp), intent(inout):: IFQCAN
       integer(kind=iwp), intent(in):: NCMO
-      real(kind=wp), intent(inout):: CMO(*)
+      real(kind=wp), intent(inout):: CMO(nCMO)
 
       integer(kind=iwp):: LABFRO(mxbas)
       real(kind=wp), ALLOCATABLE :: SMAT(:)

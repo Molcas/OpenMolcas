@@ -538,7 +538,7 @@ C ---------------------------------------------------------------------
 
 c Add OneHam to finalize frozen Fock matrix in AO basis.
 c (It is in fact an effective one-electron Hamiltonian).
-      CALL ADD1HAM(FFAO)
+      CALL ADD1HAM(FFAO,NBTRI)
 #ifdef _DEBUGPRINT_
 * Two-electron contribution to the effective core energy
       ECORE2=0.5D0*DDOT_(NBTRI,DF,1,FFAO,1)

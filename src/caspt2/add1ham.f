@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE ADD1HAM(H1EFF)
+      SUBROUTINE ADD1HAM(H1EFF,nH1Eff)
 * NOT TESTED (used for OFEmbed below)
 !#define _OFEmbed_
 #ifdef _OFEmbed_
@@ -26,7 +26,8 @@
 
       Implicit None
 
-      real(kind=wp), intent(inout):: H1EFF(*)
+      integer(kind=iwp), intent(in):: nH1EFF
+      real(kind=wp), intent(inout):: H1EFF(nH1Eff)
 * ----------------------------------------------------------------
 * Purpose: Reads and adds one-electron naked Hamiltonian into H1EFF.
 * Dress it with reaction field (if any).
