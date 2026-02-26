@@ -20,7 +20,7 @@
 # Gerardo Raggi - AppleClang
 
 cmake_minimum_required (VERSION 3.12)
-cmake_policy (VERSION 3.12...3.21)
+cmake_policy (VERSION 3.12...4.0.0)
 
 project (OpenMolcas
          LANGUAGES Fortran C
@@ -1183,7 +1183,7 @@ else ()
   set (EP_PATH ${PROJECT_BINARY_DIR}/External/${EP_PROJECT})
   set (EP_INSTALL ${PROJECT_BINARY_DIR}/External/${EP_PROJECT}_install)
 
-  set (Libxc_REPO https://gitlab.com/libxc/libxc.git)
+  set (Libxc_REPO https://gitlab.com/Molcas/Mirrors/libxc.git)
   set (Libxc_HASH 7bd5bb41) # Release 7.0.0
 
   if (";Debug;Release;RelWithDebInfo;" MATCHES ";${CMAKE_BUILD_TYPE};")

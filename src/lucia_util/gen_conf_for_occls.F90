@@ -75,7 +75,7 @@ do
   ! Generate an array of integers from 1 to NEL.
   ! It is the only CSF that matter for HS calculations.
   ! Skip any loop below... It is an overwhelmingly long loop.
-  if ((NEL == MINOP) .and. (NEL == NOBPT(2))) then
+  if ((NEL == MINOP) .and. (NEL == NOBPT(2)) .and. NOBPT(3) == 0) then
     JCONF(1:NEL) = [(i,i=1,NEL)]
     NONEW = 0
   else
@@ -106,7 +106,7 @@ do
         end if
       end if
     end if
-    if ((NEL == MINOP) .and. (NEL == NOBPT(2))) exit
+    if ((NEL == MINOP) .and. (NEL == NOBPT(2)) .and. NOBPT(3) == 0) exit
   else
     exit
   end if
