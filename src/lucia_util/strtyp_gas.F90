@@ -30,7 +30,7 @@ implicit none
 integer(kind=iwp) :: I_AM_OKAY, I_DIM, IADD, IBASSPC(1), IBTYP, IDEL, IEL, IGAS, IGRP, IOCCLS(1), IOCTYP(MXPSTT), IOELMX, IOFF, &
                      IRED, IREOSPGP(MXPSTT), ISCR(MXPSTT), ISPGP, ISPGP_N, ITYP, JGAS, JGRP, MAXSUB, MNA, MNA1, MNAB, MNAL, MNB, &
                      MNB1, MNBL, MXA, MXA1, MXAB, MXAL, MXB, MXB1, MXBL, NABEL, NAEL, NBEL, NEL, NELEC_REF, NOCCLS, NONEW, NSPGP, &
-                     NSPGP_TOT
+                     NSPGP_TOT, totNOBPT
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: MNELFGP(NGAS), MXELFGP(NGAS)
 #endif
@@ -240,8 +240,10 @@ do IGAS=1,NGAS
 # ifdef _DEBUGPRINT_
   write(u6,*) ' MNAB,MXAB',MNAB,MXAB
 # endif
+  totNOBPT = sum(NOBPT)
   NGPSTR(IGAS) = MXAB-MNAB+1
-  if ((Nactel == MS2) .and. (Nactel > 2) .and. (Nactel == NOBPT(2)) .and. (NOBPT(3) ==0) .and. (IGAS == 2)) then
+!  if ((Nactel == MS2) .and. (Nactel > 2) .and. (Nactel == NOBPT(2)) .and. (NOBPT(3) ==0) .and. (IGAS == 2)) then
+  if ((Nactel == MS2) .and. (Nactel > 2) .and. (Nactel == totNOBPT) .and. (IGAS == 2)) then
     NGPSTR(IGAS) = 4 ! Either EMPTY, (FULL-2), (FULL -1), FULL
     MNAB = NAEL-2
   end if
@@ -261,7 +263,7 @@ do IGAS=1,NGAS
       call SYSABENDMSG('lucia_util/gasstr','Internal error','')
     end if
 
-    if ((Nactel == MS2) .and. (Nactel > 2) .and. (Nactel == NOBPT(2)) .and. (NOBPT(3) ==0)  .and. (IGAS == 2) .and. (JGRP == 2)) then
+    if ((Nactel == MS2) .and. (Nactel > 2) .and. (Nactel == totNOBPT) .and. (IGAS == 2) .and. (JGRP == 2)) then
       IEL = 0
     else
       IADD = IADD+1
