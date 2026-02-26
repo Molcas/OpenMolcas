@@ -41,6 +41,7 @@ set (sources
      generateb.F90
      generatep.F90
      get_can_lorb.F90
+     get_intermediate_molden.F90
      get_orb_select.F90
      get_vir_select.F90
      getat_localisation.F90
@@ -81,6 +82,7 @@ set (sources
      upper_triag2vec.F90
      vec2upper_triag.F90
      wavelet_transform.F90
+     wrvec_localisation.F90
      xdiaxt.F90
 )
 

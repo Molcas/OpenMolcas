@@ -76,7 +76,7 @@ do i=iFirst,nIter
 
 end do
 
-!if (SGEKdebug) then
+if (SGEKdebug) then
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
     write(u6,*) '  nIter =',nIter
@@ -84,7 +84,7 @@ end do
     call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
     call RecPrt("dq(:)",' ',dq,fsdim, 1)
-!end if
+end if
 
 ! select subspace basis vectors; construct normalized e_diis
 ! -----------------------------------------------------------

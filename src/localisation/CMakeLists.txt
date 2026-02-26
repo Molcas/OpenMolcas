@@ -33,12 +33,10 @@ set (sources
      rdvec_localisation.F90
      readinp_localisation.F90
      testloc.F90
-     wrvec_localisation.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     wrvec_localisation.F90
 )
 
 
