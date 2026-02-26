@@ -321,7 +321,7 @@ C         CALL RHS_READ(NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
             idSDer = idSDMat(iSym1,iCase1)
             CALL DDAFILE(LuSTD,2,SDER1,nAS1*nAS1,idSDer)
 
-            Call C1S1DER(SDER1)
+            Call C1S1DER(SDER1,NAS1*NAS1)
 
             idSDer = idSDMat(iSym1,iCase1)
             CALL DDAFILE(LuSTD,1,SDER1,nAS1*nAS1,idSDer)
@@ -457,7 +457,7 @@ C               CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Array(LSGMX)%A)
                 idSDer = idSDMat(iSym2,iCase2)
                 CALL DDAFILE(LuSTD,2,SDER2,nAS2*nAS2,idSDer)
 
-                Call C2DER(SDER2)
+                Call C2DER(SDER2,NAS2*NAS2)
 
                 idSDer = idSDMat(iSym2,iCase2)
                 CALL DDAFILE(LuSTD,1,SDER2,nAS2*nAS2,idSDer)
@@ -508,11 +508,12 @@ C Transform contrav C  to ei%Agenbasis of H0(diag):
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine C1S1DER(SDER)
+      Subroutine C1S1DER(SDER,nSDER)
 C
       Implicit None
 C
-      real(kind=wp), intent(inout):: SDER(*)
+      integer(kind=iwp), intent(in):: nSDER
+      real(kind=wp), intent(inout):: SDER(nSDER)
 
       integer(kind=iwp) iType
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
@@ -580,11 +581,12 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine C2DER(SDER)
+      Subroutine C2DER(SDER,nSDER)
 C
       Implicit None
 C
-      real(kind=wp), intent(inout):: SDER(*)
+      integer(kind=iwp), intent(in):: nSDER
+      real(kind=wp), intent(inout):: SDER(nSDER)
 
       integer(kind=iwp) iType, lg_Sgm, lg_v2
 #if defined(_MOLCAS_MPP_) && defined(_GA_)

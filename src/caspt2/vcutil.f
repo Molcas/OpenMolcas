@@ -23,6 +23,7 @@
       use caspt2_module, only: NASUP, NISUP, MxCASE
 #ifdef _DEBUGPRINT_
       use caspt2_module, only: cases
+      use definitions, only: u6
 #endif
       IMPLICIT NONE
       integer(kind=iwp), intent(In):: ISCT, iSYM, ICASE, IVEC, nVSCT
@@ -36,8 +37,8 @@
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
-        WRITE(6,*)' RDSCTC (Normal repres.)'
-        WRITE(6,'(a,i2,a,a,a,i2,a,i2)')' Vector nr.',IVEC,
+        WRITE(u6,*)' RDSCTC (Normal repres.)'
+        WRITE(u6,'(a,i2,a,a,a,i2,a,i2)')' Vector nr.',IVEC,
      &          '  Case ',CASES(ICASE),' Symm ',ISYM,
      &          ' Section ',ISCT
 #endif
@@ -53,22 +54,23 @@ C Read coefficient vector from LUSOLV (C repres).
       NSCT=NAS*NCOL
       CALL DDAFILE(LUSOLV,2,VSCT,NSCT,IDS)
 #ifdef _DEBUGPRINT_
-        WRITE(6,*)' First few elements:'
-        WRITE(6,'(1x,5f15.6)')(VSCT(I),I=1,MIN(NSCT,10))
+        WRITE(u6,*)' First few elements:'
+        WRITE(u6,'(1x,5f15.6)')(VSCT(I),I=1,MIN(NSCT,10))
 #endif
       END SUBROUTINE RDSCTC
 
-      SUBROUTINE RDBLKC(ISYM,ICASE,IVEC,VEC)
+      SUBROUTINE RDBLKC(ISYM,ICASE,IVEC,VEC,nVEC)
       use definitions, only: iwp, wp
       use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV, only: MxSct, ModVec
       use caspt2_module, only: NASUP, NISUP, MxCase
 #ifdef _DEBUGPRINT_
       use caspt2_module, only: CASES
+      use definitions, only: u6
 #endif
       IMPLICIT None
-      real(kind=wp), intent(out):: VEC(*)
-      integer(kind=iwp), intent(in):: iSym,iCase,iVec
+      integer(kind=iwp), intent(in):: iSym,iCase,iVec,nVec
+      real(kind=wp), intent(out):: VEC(nVec)
 
       integer(kind=iwp) NAS, NIS, NCOEF, MDVEC, IDV, LVEC, IISTA,
      &                  NCOL, NBLK
@@ -78,8 +80,8 @@ C Read coefficient vector from LUSOLV (C repres).
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
-        WRITE(6,*)' RDBLKC (Normal repres.)'
-        WRITE(6,'(a,i2,a,a,a,i2)')' Vector nr.',IVEC,
+        WRITE(u6,*)' RDBLKC (Normal repres.)'
+        WRITE(u6,'(a,i2,a,a,a,i2)')' Vector nr.',IVEC,
      &          '  Case ',CASES(ICASE),' Symm ',ISYM
 #endif
       NAS=NASUP(ISYM,ICASE)
@@ -98,8 +100,8 @@ C Read coefficient vector from LUSOLV (C repres).
         LVEC=LVEC+NBLK
       End Do
 #ifdef _DEBUGPRINT_
-        WRITE(6,*)' First few elements:'
-        WRITE(6,'(1x,5f15.6)')(VEC(I),I=1,MIN(NCOEF,10))
+        WRITE(u6,*)' First few elements:'
+        WRITE(u6,'(1x,5f15.6)')(VEC(I),I=1,MIN(NCOEF,10))
 #endif
       END SUBROUTINE RDBLKC
 
@@ -111,12 +113,12 @@ C Read coefficient vector from LUSOLV (C repres).
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PSCAVEC (FACT,IVEC,JVEC)
-      use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, ONLY: iPrGlb
       USE PrintLevel, ONLY: USUAL
       use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep,
      &                         niSup
+      use definitions, only: iwp, wp, u6
 
       IMPLICIT NONE
 
@@ -152,8 +154,8 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
         END DO
       END DO
       IF ((IPRGLB.GE.USUAL).AND.(FACT.EQ.-One)) THEN ! it is at ITER=0
-         WRITE(6,*)
-         WRITE(6,'(1x,a,f18.10)') 'Variance of |WF0>: ',SIGMA2
+         WRITE(u6,*)
+         WRITE(u6,'(1x,a,f18.10)') 'Variance of |WF0>: ',SIGMA2
       END IF
 
       CALL TIMING(CPU1,CPU,TIO1,TIO)
@@ -164,10 +166,10 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE POVLVEC (IVEC,JVEC,OVLAPS)
-      use definitions, only: wp, iwp
       use constants, only: Zero
       use caspt2_module, only: NINDEP, NISUP, MxCase, nCASES, CPUOVL,
      &                         TIOOVL, nSym
+      use definitions, only: wp, iwp
       IMPLICIT None
 
       real(kind=wp), intent(out) :: OVLAPS(0:8,0:MXCASE)
@@ -227,9 +229,9 @@ C sum in OVLAPS(0,0).
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PLCVEC (ALPHA,BETA,IVEC,JVEC)
       use constants, only: Zero, One
-      use definitions, only: iwp, wp
       use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPULCS,
      &                         TIOLCS
+      use definitions, only: iwp, wp
       IMPLICIT None
 
       real(kind=wp), intent(in):: Alpha, Beta
@@ -290,10 +292,10 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOC (ITYPE,IVEC,JVEC)
-      use definitions, only: iwp, wp
       use Constants, only: Zero
       use caspt2_module, only: nCases, nSym, nInDep, NISUP, CPUVEC,
      &                         TIOVEC, NASUP
+      use definitions, only: iwp, wp
       IMPLICIT None
 
       integer(kind=iwp), intent(In):: iType, iVec, jVec
@@ -346,10 +348,10 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOSR (ITYPE,IVEC,JVEC)
-      use definitions, only: iwp, wp
       use Constants, only: Zero
       use caspt2_module, only: nSym, nInDep, nASup, nISup, nCases,
      &                         CPUVec, TIOVec
+      use definitions, only: iwp, wp
       IMPLICIT None
 
       integer(kind=iwp), intent(In):: iTYPE, iVec, jVec
