@@ -1746,8 +1746,6 @@
       call mma_deallocate(TRANS)
       call mma_deallocate(EIG)
 
-      Return
-
       End Subroutine CLagDX
 !
 !-----------------------------------------------------------------------
@@ -1826,7 +1824,7 @@
 
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       If (ISCF == 0) Then
-        CALL DERFG3(CI1,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
+        CALL DERFG3(CI1,NCONF,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
      &              DEPSA,G1,G2,nLev)
       Else
         CALL DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
