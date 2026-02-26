@@ -16,16 +16,16 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE W1TW2(IVEC,JVEC,CI,SGM)
+      SUBROUTINE W1TW2(IVEC,JVEC,CI,SGM,nCI)
       use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nAshT, STSym
       implicit none
 
 
-      integer(kind=iwp), intent(in):: IVEC, JVEC
-      Real(kind=wp), intent(in):: ci(*)
-      Real(kind=wp), intent(inout)::  sgm(*)
+      integer(kind=iwp), intent(in):: IVEC, JVEC, nCI
+      Real(kind=wp), intent(in):: ci(nCI)
+      Real(kind=wp), intent(inout)::  sgm(nCI)
 
       integer(kind=iwp) :: nOp1, nOp2, nOp3
       Real(kind=wp), Allocatable:: OP1(:), OP2(:), OP3(:)

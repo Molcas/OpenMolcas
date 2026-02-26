@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT)
+      SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT,nVSCT)
       use definitions, only: iwp, wp
       use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV, only: MxSCT, ModVec
@@ -25,8 +25,8 @@
       use caspt2_module, only: cases
 #endif
       IMPLICIT NONE
-      real(kind=wp), intent(out) :: VSCT(*)
-      integer(kind=iwp), intent(In):: ISCT, iSYM, ICASE, IVEC
+      integer(kind=iwp), intent(In):: ISCT, iSYM, ICASE, IVEC, nVSCT
+      real(kind=wp), intent(out) :: VSCT(nVSCT)
 
       integer(kind=iwp) iDS, MDVEC, NAS, NIS, NCOEF, NCOL, NSCT
 #ifdef _DEBUGPRINT_

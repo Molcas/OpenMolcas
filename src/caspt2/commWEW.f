@@ -18,7 +18,6 @@
 *--------------------------------------------*
       SUBROUTINE COMMWEW(IVEC,JVEC,DCOM)
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
       USE SUPERINDEX, only: KTUV,KTGEU,KTGTU,KTU
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -26,6 +25,7 @@
       use EQSOLV, only: IDSMAT
       use caspt2_module, only: NSYM,NASUP,NISUP,NASHT,NTUVES,NASH,NAES,
      &                         IASYM,NTGEUES,NTGTUES,NTUES
+      use definitions, only: iwp, wp
       IMPLICIT NONE
 
       INTEGER(KIND=IWP), INTENT(IN):: IVEC, JVEC
@@ -60,11 +60,11 @@ CTEST       WRITE(*,*)'                NIS:',NIS
 CTEST       WRITE(*,*)'              NCBLK:',NCBLK
           IF(NCBLK.EQ.0) CYCLE
 C Allocate CBLK, TBLK
-          CALL MMA_ALLOCATE(CBLK,NCBLK)
-          CALL MMA_ALLOCATE(TBLK,NCBLK)
+          CALL MMA_ALLOCATE(CBLK,NCBLK,Label='CBLK')
+          CALL MMA_ALLOCATE(TBLK,NCBLK,Label='TBLK')
 C First, read in the ICASE, ISYM block of coefficients from JVEC into CBLK:
 C Note carefully, this is not a mistake: vector JVEC into CBLK it is!
-          CALL RDBLKC(ISYM,ICASE,JVEC,CBLK)
+          CALL RDBLKC(ISYM,ICASE,JVEC,CBLK,NCBLK)
 C Allocate overlap matrix:
           NS=(NAS*(NAS+1))/2
           CALL MMA_ALLOCATE(SMAT,NS)
@@ -78,7 +78,7 @@ C with the overlap matrix. Then get rid of the overlap matrix.
 C Finally, if IVEC not equals JVEC, read in the contravariant block of vector
 C IVEC into CBLK:
           IF(IVEC.NE.JVEC) THEN
-            CALL RDBLKC(ISYM,ICASE,IVEC,CBLK)
+            CALL RDBLKC(ISYM,ICASE,IVEC,CBLK,NCBLK)
           END IF
 C Finally, branch to the appropriate code section:
 
