@@ -29,7 +29,7 @@ real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxI
 real(kind=wp),intent(inout) :: FunctionalList(nMxIter)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
-real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3
+real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
@@ -97,13 +97,19 @@ call mma_allocate(Aux_a,fsdim,Label='Aux_a')
 call mma_allocate(Aux_b,fsdim,Label='Aux_b')
 
 j = 0
+thr = 1E-18_wp
 do k=1,nDIIS-1
     !n-th column of e_diis
     j = j+1
     ! gradient difference vector
     Aux_a(:) = g(:,k+1)-g(:,k)
     !normalize
-    e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
+    norm = sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
+    if (norm < thr) then
+        e_diis(:,j) = Zero
+    else
+        e_diis(:,j) = Aux_a(:)/norm
+    end if
 
     !(n+1)-th column of e_diis
     j = j+1
@@ -111,7 +117,13 @@ do k=1,nDIIS-1
     Aux_a(:) = q(:,k+1)-q(:,k)
     Aux_b(:) = Aux_a(:)
     !normalize
-    e_diis(:,j) = Aux_b(:)/sqrt(DDot_(fsdim,Aux_b(:),1,Aux_b(:),1))
+    norm = sqrt(DDot_(fsdim,Aux_b(:),1,Aux_b(:),1))
+    if (norm < thr) then
+        e_diis(:,j) = Zero
+    else
+        e_diis(:,j) = Aux_b(:)/norm
+    end if
+
 
 end do
 call mma_deallocate(Aux_b)
