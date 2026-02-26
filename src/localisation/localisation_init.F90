@@ -25,7 +25,7 @@ use constants, only: Ten
 implicit none
 integer(kind=iwp) :: iSym
 integer(kind=iwp), parameter :: Occupied = 0
-real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, ThrRotDef=1.0e-10_wp, ThrGradDef=1.0e-2_wp
+real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, ThrRotDef=1.0e-10_wp, ThrGradDef=1.0e-6_wp
 
 do iSym=1,nSym
   nOrb2Loc(iSym) = 0
