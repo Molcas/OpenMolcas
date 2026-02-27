@@ -12,6 +12,8 @@
 !               2025, Lila Zapp                                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
+
 subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SORange)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! mDiis             subspace dimensionality (<=2*ndiis); number of linear independent e_diis column vectors
