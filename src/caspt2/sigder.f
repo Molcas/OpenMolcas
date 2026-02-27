@@ -289,11 +289,14 @@ C part (This requires a non-empty active space.)
           IF(NSGM1.GT.0) THEN
             FACT=One/(DBLE(MAX(1,NACTEL)))
             IF (ICASE1.EQ.1) THEN
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,SGM2,SGM1)
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),
+     &                                      SGM1,SIZE(SGM1))
             ELSE IF(ICASE1.EQ.4) THEN
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,SGM2,SGM1)
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),
+     &                                      SGM1,SIZE(SGM1))
             ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-              CALL SPEC1D(IMLTOP,FACT,SGM2,SGM1)
+              CALL SPEC1D(IMLTOP,FACT,SGM2,SIZE(SGM2),
+     &                                SGM1,SIZE(SGM1))
             END IF
           END IF
           call mma_deallocate(SGM1)
@@ -394,21 +397,21 @@ C         LD1=1
             IF(ND1.GT.0) THEN
               call mma_allocate(D1,ND1,Label='D1')
               D1(:) = Zero
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,D2,D1)
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           ELSE IF(ICASE1.EQ.4) THEN
             ND1=NASH(ISYM1)*NSSH(ISYM1)
             IF(ND1.GT.0) THEN
               call mma_allocate(D1,ND1,Label='D1')
               D1(:) = Zero
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,D2,D1)
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
             ND1=NIS1
             IF(ND1.GT.0) THEN
               call mma_allocate(D1,ND1,Label='D1')
               D1(:) = Zero
-              CALL SPEC1D(IMLTOP,FACT,D2,D1)
+              CALL SPEC1D(IMLTOP,FACT,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           END IF
           If (.NOT.ALLOCATED(D1)) CALL mma_allocate(D1,1,Label='D1')

@@ -88,13 +88,15 @@ C Transform to standard representation, covariant form.
           IF (KING()) THEN
             CALL mma_allocate(TMP,NVEC,Label='TMP')
             CALL RHS_GET (NAS,NIS,LVEC,TMP)
-            CALL SPEC1A(IMLTOP,FACT,ISYM,TMP,WTI(IWOFF))
+            CALL SPEC1A(IMLTOP,FACT,ISYM,TMP,SIZE(TMP),
+     &                                   WTI(IWOFF),SIZE(WTI(IWOFF:)))
             CALL mma_deallocate(TMP)
           END IF
         ELSE
 #endif
-          CALL SPEC1A(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%A,
-     &                                 WTI(IWOFF))
+          CALL SPEC1A(IMLTOP,FACT,ISYM,
+     &               GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),
+     &               WTI(IWOFF),SIZE(WTI(IWOFF:)))
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -123,12 +125,15 @@ C Transform to standard representation, covariant form.
           IF (KING()) THEN
             CALL mma_allocate(TMP,NVEC,LABEL='TMP')
             CALL RHS_GET (NAS,NIS,LVEC,TMP)
-            CALL SPEC1C(IMLTOP,FACT,ISYM,TMP,WAT(IWOFF))
+            CALL SPEC1C(IMLTOP,FACT,ISYM,TMP,SIZE(TMP),
+     &                                   WAT(IWOFF),SIZE(WAT(IWOFF:)))
             CALL mma_deallocate(TMP)
           END IF
         ELSE
 #endif
-          CALL SPEC1C(IMLTOP,FACT,ISYM,GA_Arrays(LVEC)%A,WAT(IWOFF))
+          CALL SPEC1C(IMLTOP,FACT,ISYM,
+     &                GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),
+     &                WAT(IWOFF),SIZE(WAT(IWOFF:)))
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -155,12 +160,14 @@ C Transform to standard representation, covariant form.
         IF (KING()) THEN
           CALL mma_allocate(TMP,NVEC,LABEL='TMP')
           CALL RHS_GET (NAS,NIS,LVEC,TMP)
-          CALL SPEC1D(IMLTOP,FACT,TMP,WAI)
+          CALL SPEC1D(IMLTOP,FACT,TMP,NVEC,WAI,NWAI)
           CALL mma_deallocate(TMP)
         END IF
       ELSE
 #endif
-        CALL SPEC1D(IMLTOP,FACT,GA_Arrays(LVEC)%A,WAI)
+        CALL SPEC1D(IMLTOP,FACT,
+     &              GA_Arrays(LVEC)%A,SIZE(GA_Arrays(LVEC)%A),
+     &              WAI,nWAI)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
