@@ -515,7 +515,7 @@ Contains
 
 End Subroutine SavGradParams
 
-Subroutine SavGradParams2(Mode,UEFF,U0,H0)
+Subroutine SavGradParams2(Mode,UEFF,U0,H0,nState)
 !
 ! It seems that values that are unchanged during the gradient loop
 ! have to be separately saved and restored
@@ -525,12 +525,12 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
   use caspt2_global, only: LUGRAD
   use definitions, only: iwp,wp
   use stdalloc, only: mma_allocate, mma_deallocate
-  use caspt2_module, only: Energy, ERFSelf, nBTri, nState, RFPert
+  use caspt2_module, only: Energy, ERFSelf, nBTri, RFPert
 
   Implicit None
 
-  integer(kind=iwp), intent(in) :: Mode
-  real(kind=wp)    , intent(inout) :: UEFF(*),U0(*),H0(*)
+  integer(kind=iwp), intent(in) :: Mode, nState
+  real(kind=wp)    , intent(inout) :: UEFF(nState,nState),U0(nState,nstate),H0(nSTate,nState)
 
   integer(kind=iwp) :: IORW,ID
   real(kind=wp), allocatable :: lTemp(:)

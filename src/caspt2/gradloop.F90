@@ -11,7 +11,7 @@
 ! Copyright (C) 2023, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
+Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav,nState)
 !
 ! Gradient loop for MS-CASPT2 variants
 ! Usually, we do not solve the CASPT2 equation again; the excitation
@@ -22,18 +22,25 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   use caspt2_global, only: iPrGlb
   use caspt2_global, only: do_grad, IDSAVGRD, iStpGrd
   use PrintLevel, only: USUAL, VERBOSE
-  use definitions, only: iwp,wp,u6
   use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
   use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, &
                            CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, CPUPRP, CPUPT2, CPURHS, CPUSBM, &
                            TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, TIONAD, TIOOVL, TIOPCG, &
                            TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC, TIOPRP, TIOPT2, TIORHS, TIOSBM, &
                            Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot, jState, &
-                           nGroup, nState, nGroupState, mState
+                           nGroup, nGroupState, mState
+  use definitions, only: iwp,wp,u6
 
   Implicit None
 
 #include "warnings.h"
+  Integer(kind=iwp), intent(in) :: nState
+! Effective Hamiltonian
+! Real(kind=wp), Allocatable :: Heff(:,:), Ueff(:,:)
+  Real(kind=wp), intent(inout) :: Heff(nState,nState), Ueff(nState,nState)
+! Zeroth-order Hamiltonian
+! Real(kind=wp), Allocatable :: H0(:,:), U0(:,:)
+  Real(kind=wp), intent(inout) :: H0(nState,nState), U0(nState,nState), H0Sav(nState,nState)
 
   character(len=60) :: STLNE2
 
@@ -45,12 +52,6 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   Integer(kind=iwp) :: I,ISTATE,IGROUP,JSTATE_OFF
 ! Convergence check
   Integer(kind=iwp) :: ICONV
-! Effective Hamiltonian
-! Real(kind=wp), Allocatable :: Heff(:,:), Ueff(:,:)
-  Real(kind=wp) :: Heff(*), Ueff(*)
-! Zeroth-order Hamiltonian
-! Real(kind=wp), Allocatable :: H0(:,:), U0(:,:)
-  Real(kind=wp) :: H0(*), U0(*), H0Sav(*)
 
 ! For verification only
   INTEGER LAXITY,Cho_X_GetTol
@@ -90,8 +91,8 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       !CALL STINI(JSTATE)
       CALL RHS_INIT() !! somehow
       Call SavGradParams(2,IDSAVGRD)
-      Call SavGradParams2(2,UEFF,U0,H0)
-      If ((IFXMS .and. IFDW) .OR. IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
+      Call SavGradParams2(2,UEFF,U0,H0,nState)
+      If ((IFXMS .and. IFDW) .OR. IFRMS) H0(:,:)=H0Sav(:,:)
       CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
       CPUSIN=CPTF11-CPTF0
       TIOSIN=TIOTF11-TIOTF0

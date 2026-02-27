@@ -179,7 +179,7 @@ C
       !! for the second root or NAC vectors. Skip the energy calculation
       !! and directly goes to the gradient part
       If (iStpGrd == 0) Then
-        Call SavGradParams2(2,UEFF,U0,H0)
+        Call SavGradParams2(2,UEFF,U0,H0,Nstate)
         Call DCopy_(Nstate,ENERGY,1,Esav,1)
         Call DCopy_(Nstate*Nstate,UEFF,1,UEFFSav,1)
         Call DCopy_(Nstate*Nstate,U0,1,U0Sav,1)
@@ -482,9 +482,9 @@ C     transition density matrices.
               Call DCopy_(nState*nState,H0Sav,1,H0,1)
             End If
           End If
-          Call SavGradParams2(1,UEFF,U0,H0)
+          Call SavGradParams2(1,UEFF,U0,H0,nState)
 !
-          Call GradLoop(Heff,Ueff,H0,U0,H0Sav)
+          Call GradLoop(Heff,Ueff,H0,U0,H0Sav,nState)
         End If
 
 * Back-transform the effective Hamiltonian and the transformation matrix
