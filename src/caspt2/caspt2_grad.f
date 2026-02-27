@@ -386,7 +386,7 @@
         End If
 
         !! Compute true unrelaxed properties for MS-CASPT2
-        if (.not.do_nac .and. ifmscoup) CALL PRPCTL(1,UEFF,U0)
+        if (.not.do_nac .and. ifmscoup) CALL PRPCTL(1,UEFF,U0,nState)
 
         LuPT2 = isFreeUnit(LuPT2)
         Call Molcas_Open(LuPT2,'PT2_Lag')

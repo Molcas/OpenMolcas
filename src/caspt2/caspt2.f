@@ -328,7 +328,7 @@ C
 
          IF (IFPROP.OR.(do_grad.and.(iRlxRoot.eq.MSTATE(JSTATE)))) THEN
 
-           CALL PRPCTL(0,UEFF,U0)
+           CALL PRPCTL(0,UEFF,U0,nState)
 
          ELSE
            IF (IPRGLB.GE.USUAL) THEN

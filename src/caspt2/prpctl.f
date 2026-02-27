@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PRPCTL(MODE,UEFF,U0)
+      SUBROUTINE PRPCTL(MODE,UEFF,U0,nState)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, Half, One, Five
       USE PT2WFN, only: PT2WFN_DENSSTORE
@@ -33,7 +33,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV, only: IVECX, NLSTOT
-      use caspt2_module, only: NSTATE, IFMSCOUP, IFPROP, irlxroot,
+      use caspt2_module, only: IFMSCOUP, IFPROP, irlxroot,
      &                         ISCF, JSTATE, BNAME, NASHT, NBAST, NCONF,
      &                         NSYM, OUTFMT, PRORB, THRENE, THROCC,
      &                         NORB, NBAS, NISH, NASH, IAD1M, NFRO,
@@ -42,8 +42,8 @@
 
       IMPLICIT None
 
-      integer(kind=iwp), intent(in):: Mode
-      real(kind=wp), intent(in):: UEFF(NSTATE,NSTATE),U0(*)
+      integer(kind=iwp), intent(in):: Mode, nState
+      real(kind=wp), intent(in):: UEFF(NSTATE,NSTATE),U0(nState,nState)
 
       Logical(kind=iwp) FullMlk,lSave,Do_ESPF
       Character(Len=8) Label

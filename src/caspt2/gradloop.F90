@@ -129,7 +129,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 
       IF (IFPROP.OR.(do_grad.and.(IRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP))) THEN
 
-        CALL PRPCTL(0,UEFF,U0)
+        CALL PRPCTL(0,UEFF,U0,nState)
 
       ELSE
         IF (IPRGLB.GE.USUAL) THEN
