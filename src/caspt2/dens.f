@@ -51,7 +51,7 @@
       real(kind=wp), intent(inout) :: DMAT(*)
       real(kind=wp), intent(in) :: UEFF(nState,nState),U0(nState,nState)
 
-      real(kind=wp) :: VECROT(nState)
+      real(kind=wp), allocatable :: VECROT(:)
 
       real(kind=wp),allocatable :: DPT(:),DSUM(:),DPT2(:),DPT2_AO(:),
      &  DPT2C_AO(:),FPT2(:),FPT2C(:),FPT2_AO(:),FPT2C_AO(:),Trf(:),
@@ -73,6 +73,7 @@
 
       IF (do_grad) THEN
         !! Set indices for densities and partial derivatives
+        Call mma_allocate(VECROT,nState,Label='VECROT')
         Call GradPrep(UEFF,VECROT)
 !
 ! Compute total density matrix as symmetry-blocked array of
@@ -137,7 +138,7 @@
         !! After this subroutine, iVecR has multi-state weighted (?)
         !! contributions.
         CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-        Call CASPT2_Res(VECROT)
+        Call CASPT2_Res(VECROT,nState)
         CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
         IF (IPRGLB >= VERBOSE) THEN
           CPUT =CPTF10-CPTF0
@@ -974,6 +975,7 @@
         call mma_deallocate(WRK2)
         call mma_deallocate(RDMSA)
         call mma_deallocate(RDMEIG)
+        call mma_deallocate(VECROT)
         DENORM = One
         !! end of with gradient
       ELSE
