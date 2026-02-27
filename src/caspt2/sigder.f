@@ -262,7 +262,8 @@ C    &                         GA_Arrays(LCX)%A,1)
 #endif
 C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 SGM1,SGM2,LCX,LISTS)
+     &                 SGM1,SIZE(SGM1),SGM2,SIZE(SGM2),LCX,
+     &                 LISTS,SIZE(LISTS))
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(lg_CX)
@@ -438,7 +439,8 @@ C         LD1=1
 #endif
 C Compute contribution SGMX <- D2, and SGMX <- D1  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 D1,D2,LSGMX,LISTS)
+     &                 D1,SIZE(D1),D2,SIZE(D2),LSGMX,
+     &                 LISTS,SIZE(LISTS))
 C             If (iCase2.LE.11) Then
 C             End If
 

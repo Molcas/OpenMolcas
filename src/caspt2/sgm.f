@@ -34,7 +34,7 @@ C so each chunk has all the row indices (full columns).
 
 
       SUBROUTINE SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &               X1,X2,lg_Y,LIST)
+     &               X1,nX1,X2,nX2,lg_Y,LIST,mList)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use Constants, only: One,  Half, Two, Three, Six
@@ -50,12 +50,14 @@ C so each chunk has all the row indices (full columns).
 #ifdef _DEBUGPRINT_
       use caspt2_module, only: Cases
 #endif
+      use definitions, only: iwp, wp, u6
 
       IMPLICIT None
 
-      integer(kind=iwp), intent(in):: IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2
-      real(kind=wp), intent(inout) ::  X1(*), X2(*)
-      integer(kind=iwp), intent(in) ::  LIST(*)
+      integer(kind=iwp), intent(in):: IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
+     &                                nX1, nX2, mList
+      real(kind=wp), intent(inout) ::  X1(nX1), X2(nX2)
+      integer(kind=iwp), intent(in) ::  LIST(mLIST)
 
       integer(kind=iwp) IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
      &                  IOFCGM(8,8)
@@ -79,15 +81,15 @@ CFUE  IF( (ICASE1.EQ.1 .AND. ICASE2.EQ.2) .AND.
 CFUE &    (ISYM1.EQ.1  .AND. ISYM2.EQ.1 )       ) IFTEST=1
 CPAM      IF(ICASE1.EQ.5.AND.ICASE2.GT.11) IFTEST=1
 #ifdef _DEBUGPRINT_
-      WRITE(6,'(A,10I5)')' ENTERING SGM.'
-      WRITE(6,'(A,10I5)')'       IMLTOP:',IMLTOP
-      WRITE(6,'(A,10I5)')' ISYM1,ICASE1:',ISYM1,ICASE1
-      WRITE(6,'(A,10I5)')' ISYM2,ICASE2:',ISYM2,ICASE2
-      WRITE(6,'(A,A,A)') ' CASES: ',CASES(ICASE1),CASES(ICASE2)
+      WRITE(u6,'(A,10I5)')' ENTERING SGM.'
+      WRITE(u6,'(A,10I5)')'       IMLTOP:',IMLTOP
+      WRITE(u6,'(A,10I5)')' ISYM1,ICASE1:',ISYM1,ICASE1
+      WRITE(u6,'(A,10I5)')' ISYM2,ICASE2:',ISYM2,ICASE2
+      WRITE(u6,'(A,A,A)') ' CASES: ',CASES(ICASE1),CASES(ICASE2)
 #endif
 
       IF(IMLTOP.LT.0 .OR. IMLTOP.GT.2) THEN
-        WRITE(6,*) 'Error in SGM: IMLTOP = ', IMLTOP
+        WRITE(u6,*) 'Error in SGM: IMLTOP = ', IMLTOP
         CALL AbEnd()
       END IF
 
@@ -1050,7 +1052,7 @@ C  D&HM One-el
         END IF
 C ---------------------------
       CASE DEFAULT
-        WRITE(6,*)' INTERNAL ERROR: SGM reached invalid KOD=',KOD
+        WRITE(u6,*)' INTERNAL ERROR: SGM reached invalid KOD=',KOD
         Call Abend()
       END SELECT
 
