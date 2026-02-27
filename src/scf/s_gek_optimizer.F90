@@ -52,9 +52,9 @@ real(kind=wp), external :: DDot_
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
 write(u6,*) 'Enter S-GEK Optimizer'
-#endif
+!#endif
 if (.not. Init_LLs) then
   write(u6,*) 'Link list not initiated'
   call Abend()
@@ -75,9 +75,9 @@ call mma_allocate(q,mOV,nDIIS,Label='q')
 call mma_allocate(g,mOV,nDIIS,Label='g')
 
 if (nDIIS == 1) then
-# ifdef _DEBUGPRINT_
+!# ifdef _DEBUGPRINT_
   write(u6,*) 'Exit S-GEK Optimizer'
-# endif
+!# endif
   call mma_deallocate(g)
   call mma_deallocate(q)
   return
@@ -99,14 +99,15 @@ do i=iFirst,iter
 
 end do
 
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
 write(u6,*) 'nWindow=',nWindow
 write(u6,*) 'nDIIS=',nDIIS
 write(u6,*) 'IterGEK=',IterGEK
 call RecPrt('q',' ',q,mOV,nDIIS)
 call RecPrt('g',' ',g,mOV,nDIIS)
 call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
-#endif
+call RecPrt('dq(:)',' ',dq,mOV,1)
+!#endif
 
 !=======================================================================
 ! Select the subspace
@@ -158,9 +159,9 @@ call mma_deallocate(Aux_a)
 
 ! Now orthogonalize all unit vectors
 ! ----------------------------------
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
 if (allocated(e_diis)) call RecPrt('e_diis(unnorm)',' ',e_diis,mOV,nExplicit)
-#endif
+!#endif
 do l=1,2
   j = 1
   do i=2,nExplicit
@@ -185,7 +186,7 @@ end do
 ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
 mDIIS = j
 
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
 write(u6,*) '      mOV:',mOV
 write(u6,*) 'nExplicit:',nExplicit
 write(u6,*) 'IterGEK   :',IterGEK
@@ -200,7 +201,7 @@ do i=1,mDIIS
   write(u6,*)
 end do
 if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,mOV,mDIIS)
-#endif
+!#endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Compute the projected displacement coordinates. Note that the displacements are relative to the last coordinate, q(:,nDIIS). !
@@ -224,10 +225,10 @@ do i=1,nDIIS
   end do
 end do
 
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
 call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
 call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
-#endif
+!#endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Project the approximate Hessian to the subspace !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -297,10 +298,10 @@ do i=1,mDIIS
 end do
 dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
 write(u6,*) '||dq||=',sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 call RecPrt('dq',' ',dq(:),size(dq),1)
-#endif
+!#endif
 
 call mma_deallocate(dq_diis)
 

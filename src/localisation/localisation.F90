@@ -74,6 +74,7 @@ call CWTime(C1,W1)
 ! Read basic info from runfile and INPORB.
 ! ----------------------------------------
 
+
 ! Quick and dirty read of the FileOrb name before INPORB is opened
 LuSpool = 17
 LuSpool = isFreeUnit(LuSpool)

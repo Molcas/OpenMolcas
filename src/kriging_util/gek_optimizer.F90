@@ -24,7 +24,7 @@ subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_dii
 ! Energy            y vector
 ! H_diis            projected Hessian diagonal
 ! dqdq              some output, (real) that has to do with the full space displacement
-! Step_Trunc        some output (character)
+! Step_Tru     1         4.03686608   2.6222E-01  nc        some output (character)
 ! UpMeth            some output (string), e.g. "RVO"
 ! SORange           some input (logical)
 !

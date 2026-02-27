@@ -41,13 +41,15 @@ real(kind=wp), External :: DDot_
 
 !S-GEK
 real(kind=wp) :: dqdq
-logical, parameter :: SGEKdebug = .true.
+logical, parameter :: SGEKdebug = .false.
 
 ! Initialization (iteration 0).
 ! -----------------------------
 
 if (.not. Silent) call CWTime(C1,W1)
 
+! to allow property printing later
+call Put_cArray('Relax Method','LOCALIS ',8)
 
 ! allocating matrices for NxN optimizations
 ! ---------------------------------------------------------------------------------------------------
@@ -216,8 +218,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
+        if (OptMeth == 4 .and. SGEKdebug) then
+        call RecPrt('kappa before rescaling',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+        end if
+
+
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
-        Thr= 0.5E0_wp * Pi
+        !Thr= 0.5E0_wp * Pi
+        Thr= Pi
         If (DD>=Thr)Then
         !           Write(6,*) 'Rescale Kappa(:,:)'
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
@@ -228,9 +236,26 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if
 
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+
+        if (SGEKDebug) then
+            write(u6,*) "=================================================================="
+            write(u6,*) "               ORBITALS HAVE BEEN ROTATED"
+            write(u6,*) "=================================================================="
+        end if
+
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiag(:,:)) ! gets the new gradient
+
+
+        if (SGEKDebug) then
+            write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
+        call RecPrt('kappa',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+        call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
+        call RecPrt('Hdiag',' ',Hdiag(:,:),nOrb2Loc,nOrb2Loc)
+        end if
+
         call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,nIter+1),fsdim)
+
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         FunctionalList(nIter+1)=Functional !first entry is from before first iteration
 
@@ -278,6 +303,8 @@ if (.not. Silent) then
         write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
     end if
 end if
+
+!call Prpt()
 
 ! deallocate matrices used for NxN optimizations
 ! ---------------------------------------------------------------------------------------------------

@@ -117,7 +117,7 @@ do i=1,maxlab,6
       jcount = jcount+1
       TotEl(jcount) = PrEl(1,j)
     end do
-  else
+  else !long
     do j=1,6
       TotEl(j) = Zero
     end do
@@ -143,6 +143,7 @@ do i=1,maxlab,6
           end if
         end do
         if (ifallorb .or. (Occ(icount) > ThrSV)) then
+          ! print each orbital's (jj) contribution:
           write(u6,Format1) ii+1,jj,Occ(icount),(sig*PrEl(icount,j),j=i,min(i+5,maxlab))
         end if
       end do
