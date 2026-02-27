@@ -23,7 +23,7 @@
       use PrintLevel, only: VERBOSE
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: DoCumulant, iSCF, jState, nActel,
+      use caspt2_module, only: DoCumulant, iSCF, jState, nActel, NAshT,
      &                         nConf, nState, STSym, EPSA, mState
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
       use caspt2_module, only: DMRG
@@ -136,7 +136,7 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
       end if
 
       IF (ISCF.NE.0.AND.NACTEL.NE.0) THEN
-        CALL SPECIAL( G1,G2,G3,F1,F2,F3,idxG3)
+        CALL SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nAshT,nG3)
       ELSE IF (ISCF.EQ.0) THEN
 C-SVC20100903: during mkfg3, NG3 is set to the actual value
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_

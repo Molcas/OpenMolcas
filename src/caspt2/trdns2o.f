@@ -16,9 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2,NDPT2,SCAL)
-      use definitions, only: iwp, wp
-      use constants, only: Zero, One
+      SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2,MDPT2,NDPT2,SCAL)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -28,13 +26,16 @@
       use fake_GA, only: GA_Arrays
       use caspt2_module, only: FockType, G1SecIn, nActEl, nSym, nOrb,
      &                         nInDep, nISup, nASup, nIsh, nSsh, nAsh
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp
 
       IMPLICIT None
 
-      Integer(kind=iwp), Intent(out):: NDPT2
+      Integer(kind=iwp), Intent(in):: MDPT2
+      Integer(kind=iwp), Intent(inout):: NDPT2
       Integer(kind=iwp), Intent(in):: IVEC, JVEC
       real(kind=wp), intent(in):: SCAL
-      real(kind=wp), intent(inout):: DPT2(*)
+      real(kind=wp), intent(inout):: DPT2(MDPT2)
 
       real(kind=wp), Allocatable:: WEC1(:), SCR(:)
 #ifdef _MOLCAS_MPP_

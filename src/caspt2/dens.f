@@ -166,7 +166,7 @@
         IF (MAXIT /= 0) THEN
           !! off-diagonal are ignored for CASPT2-D
           DPT(:) = Zero
-          CALL TRDNS2O(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
+          CALL TRDNS2O(iVecX,iVecR,DPT,SIZE(DPT),NDPT,VECROT(JSTATE))
           DSUM(:) = DSUM(:) + DPT(:)
         END IF
 *       write(u6,*)' DPT after TRDNS2O.'
@@ -1040,7 +1040,7 @@
 *       WRITE(u6,*)' DPT after TRDNS2D.'
 *       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
         DPT(1:NDPT) = Zero
-        CALL TRDNS2O(IVEC,IVEC,DPT,NDPT,One)
+        CALL TRDNS2O(IVEC,IVEC,DPT,SIZE(DPT),NDPT,One)
         DSUM(1:NDPT) = DSUM(1:NDPT) + DPT(1:NDPT)
         ! WRITE(u6,*)' DPT after TRDNS2O.'
         ! WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)

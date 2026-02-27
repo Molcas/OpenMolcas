@@ -16,18 +16,23 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3)
-      use definitions, only: iwp, wp, byte
+      SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nAshT,mG3)
       use constants, only: Zero, One, Two
       use gugx, only: SGS, LEVEL
-      use caspt2_module, only: nAshT, iSCF, nActel
-      use pt2_guga, only: NG1, NG2, NG3, ETA
+      use caspt2_module, only: iSCF, nActel
+      use pt2_guga, only: NG3, ETA
+      use definitions, only: iwp, wp, byte
       IMPLICIT None
+      integer(kind=iwp), intent(in):: nAshT, mG3
       real(kind=wp), intent(out) ::
-     &                 G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
+     &                             G1(NASHT,NASHT),
+     &                             G2(NASHT,NASHT,NASHT,NASHT),
+     &                             G3(mG3)
       real(kind=wp), intent(out) ::
-     &                 F1(NASHT,NASHT),F2(NASHT,NASHT,NASHT,NASHT),F3(*)
-      INTEGER(kind=byte), intent(Out) ::  idxG3(6,*)
+     &                             F1(NASHT,NASHT),
+     &                             F2(NASHT,NASHT,NASHT,NASHT),
+     &                             F3(mG3)
+      INTEGER(kind=byte), intent(Out) ::  idxG3(6,mG3)
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
       INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
@@ -41,12 +46,12 @@ C OR CLOSED-SHELL SCF CASE.
 
       nLev = SGS%nLev
 
-      CALL DCOPY_(NG1,[Zero],0,G1,1)
-      CALL DCOPY_(NG2,[Zero],0,G2,1)
-      CALL DCOPY_(NG3,[Zero],0,G3,1)
-      CALL DCOPY_(NG1,[Zero],0,F1,1)
-      CALL DCOPY_(NG2,[Zero],0,F2,1)
-      CALL DCOPY_(NG3,[Zero],0,F3,1)
+      G1(:,:)=Zero
+      G2(:,:,:,:)=Zero
+      G3(:)=Zero
+      F1(:,:)=Zero
+      F2(:,:,:,:)=Zero
+      F3(:)=Zero
 
       ESUM=Zero
       DO I=1,NLEV
@@ -54,7 +59,7 @@ C OR CLOSED-SHELL SCF CASE.
       END DO
 C ISCF=1 for closed-shell, =2 for hispin
       OCC=Two
-      IF(ISCF.EQ.2) OCC=One
+      IF(ISCF==2) OCC=One
       DO IT=1,NASHT
         G1(IT,IT)=OCC
         LT=LEVEL(IT)
