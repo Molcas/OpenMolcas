@@ -4486,7 +4486,7 @@
             !! int2(tuvx) = (tu|vx)/2
             !! This can be computed without frozen orbitals
             Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                                KET,nKet,
+     &                                KET,SIZE(KET),nKet,
      &                                IBSTA,IBEND)
 
             Call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,

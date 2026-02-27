@@ -125,22 +125,26 @@
           NV = NVEC(IBGRP,ISYM)
           IF (NV == 0) EXIT
           ! Inactive-Inactive
-          CALL Get_Cholesky_Vectors(Inac,Acti,ISYM,BRABUF,NBUF,IB1,IB2)
+          CALL Get_Cholesky_Vectors(Inac,Acti,ISYM,BRABUF,SIZE(BRABUF),
+     &                              NBUF,IB1,IB2)
           CALL Accum(Inac,Inac,BRABUF,BRABUF,ICI,ICI)
           ! Inactive-Active
-          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,KETBUF,NBUF,IB1,IB2)
+          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,KETBUF,SIZE(KETBUF),
+     &                              NBUF,IB1,IB2)
           CALL Accum(Inac,Acti,BRABUF,KETBUF,ICI,ICA)
           ! Active-Active
           CALL Accum(Acti,Acti,KETBUF,KETBUF,ICA,ICA)
           ! Inactive-Virtual
-          CALL Get_Cholesky_Vectors(Virt,Acti,ISYM,KETBUF,NBUF,IB1,IB2)
+          CALL Get_Cholesky_Vectors(Virt,Acti,ISYM,KETBUF,SIZE(KETBUF),
+     &                              NBUF,IB1,IB2)
           CALL Accum(Inac,Virt,BRABUF,KETBUF,ICI,ICV)
           ! Virtual-Virtual
           CALL Accum(Virt,Virt,KETBUF,KETBUF,ICV,ICV)
           ! Active-Virtual
           ! We could have saved these Cholesky vectors,
           ! but there's joy in repetition
-          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,BRABUF,NBUF,IB1,IB2)
+          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,BRABUF,SIZE(BRABUF),
+     &                              NBUF,IB1,IB2)
           CALL Accum(Acti,Virt,BRABUF,KETBUF,ICA,ICV)
         END DO
       END DO

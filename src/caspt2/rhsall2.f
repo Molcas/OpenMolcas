@@ -146,7 +146,7 @@
 *      Read kets (Cholesky vectors) in the form L(VX), all symmetries:
 *
        Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                           KET,nKet,
+     &                           KET,SIZE(KET),nKet,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -198,7 +198,7 @@
 *      Read bra (Cholesky vectors) in the form L(TJ): All symmetries
 *
        Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                           BRA,nBra,
+     &                           BRA,SIZE(BRA),nBra,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -227,7 +227,7 @@
 * We still have L(VX) vectors in core, at KET.
 *
        Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                           BRA,nBra,
+     &                           BRA,SIZE(BRA),nBra,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -255,7 +255,7 @@
 * Read Bra (Cholesky vectors)= L(AU)
 *
        Call Get_Cholesky_Vectors(Active,Virtual,JSYM,
-     &                           BRA,nBra,
+     &                           BRA,SIZE(BRA),nBra,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -283,7 +283,7 @@
 * Read kets (Cholesky vectors) in the form L(VL), all symmetries:
 *
        Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                           KET,nKet,
+     &                           KET,SIZE(KET),nKet,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -301,7 +301,7 @@
 * Read kets (Cholesky vectors) in the form L(CL), all symmetries:
 *
        Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                           KET,nKet,
+     &                           KET,SIZE(KET),nKet,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -319,7 +319,7 @@
 * Read bra vectors AJ
 *
        Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
-     &                           BRA,nBra,
+     &                           BRA,SIZE(BRA),nBra,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -327,7 +327,7 @@
 * Read kets in the form L(VL)
 *
        Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                           KET,nKet,
+     &                           KET,SIZE(KET),nKet,
      &                           IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
@@ -403,7 +403,7 @@ C      the case, symmetry, and rhs vector respectively.
       END SUBROUTINE RHSALL2
 
       Subroutine Get_Cholesky_Vectors(ITK,ITQ,JSYM,
-     &                                Array,nArray,
+     &                                Array,mArray, nArray,
      &                                IBSTA,IBEND)
       use definitions, only: iwp, wp
       USE CHOVEC_IO, only: NPQ_CHOTYPE, NVLOC_CHOBATCH, IDLOC_CHOGROUP
@@ -411,8 +411,9 @@ C      the case, symmetry, and rhs vector respectively.
       use caspt2_module, only: NSYM
       IMPLICIT None
       integer(kind=iwp), Intent(in):: ITK,ITQ,JSYM,IBSTA,IBEND
+      integer(kind=iwp), Intent(in):: mArray
       integer(kind=iwp), Intent(Out):: nArray
-      real(kind=wp), intent(Out):: Array(*)
+      real(kind=wp), intent(Out):: Array(mArray)
 
       integer(kind=iwp) ICASE, LKETSM, ISYK, NQK, IB, NV, NKETSM, IDISK
 
