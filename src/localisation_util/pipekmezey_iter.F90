@@ -12,6 +12,7 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
+
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
 !
@@ -206,7 +207,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 ! create subspace and perform GEK/RVO opt in it
                 ! ---------------------------------------------
-                call S_GEK_localisation(nIter,Functionallist(:),GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,&
+                call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                                         dqdq,displacements(:,nIter+1),SGEKdebug)
 
                 ! transform GEK suggested displacement back into an antisymmetric matrix

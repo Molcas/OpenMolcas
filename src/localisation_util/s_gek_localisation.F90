@@ -13,10 +13,12 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
+!#define _FULL_SPACE_
+
 subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,SGEKdebug)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero,One
 use Definitions, only: iwp,wp,u6
 use Localisation_globals, only: nMxIter
 
@@ -36,13 +38,6 @@ real(kind=wp), External :: DDot_
 character(len=6) :: UpMeth
 logical :: SORange
 character :: Step_Trunc
-
-! since the GEK Optimizer is set up for minimization, we turn the sign of the functional and every list
-Functionallist(:) = -Functionallist(:)
-!Gradientlist(:,:) = -Gradientlist(:,:)
-!displacements(:,:) = -displacements(:,:)
-!Hdiag(:) = -Hdiag(:)
-dq(:) = -dq(:)
 
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
@@ -88,6 +83,17 @@ end if
 
 ! select subspace basis vectors; construct normalized e_diis
 ! -----------------------------------------------------------
+#ifdef _FULL_SPACE_
+
+! Set up the full space
+nExplicit = fsdim
+call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
+e_diis(:,:) = Zero
+do k = 1,nExplicit
+    e_diis(k,k) = One
+end do
+
+#else
 
 !number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
 nExplicit = 2*(nDIIS-1)+2
@@ -147,6 +153,7 @@ if (SGEKdebug) then
     if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
 end if
 
+#endif
 ! orthogonalize e_diis; remove redundancies from linear dependences
 ! -----------------------------------------------------------------
 do l=1,2
@@ -187,6 +194,9 @@ write(u6,*) '    mDIIS:',mDIIS
 !end do
 if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,fsdim,mDIIS)
 end if
+
+
+
 
 ! Compute the projected displacement coordinates
 ! ----------------------------------------------
@@ -254,17 +264,6 @@ if (SGEKdebug) then
     write(u6,*) '||dq||=',dqdq
     call RecPrt('dq',' ',dq(:),size(dq),1)
 end if
-
-
-! since the GEK Optimizer is set up for minimization, we turn the sign of the functional and every list
-! outside of this routine, the signs are different, so we revert back
-Functionallist(:) = -Functionallist(:)
-!Gradientlist(:,:) = -Gradientlist(:,:)
-!displacements(:,:) = -displacements(:,:)
-!Hdiag(:) = -Hdiag(:)
-dq(:) = -dq(:)
-
-
 
 
 ! deallocations
