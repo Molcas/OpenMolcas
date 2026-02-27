@@ -24,45 +24,50 @@
      &                         nSsh, nBtch
 #ifdef _DEBUGPRINT_
       use caspt2_module, only: PotNuc
+      use definitions, only: u6
 #endif
+      use constants, only: Zero, Half, One, Two
+      use definitions, only: iwp, wp
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "warnings.h"
-      INTEGER NCMO, NDREF
-      REAL*8 CMO(NCMO),DREF(NDREF),
-     &       FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
-      LOGICAL IF_TRNSF
+      INTEGER(kind=iwp), Intent(in):: NCMO, NDREF
+      REAL(kind=wp), Intent(in):: CMO(NCMO),DREF(NDREF)
+      REAL(kind=wp), intent(out):: FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
+      LOGICAL(kind=iwp), Intent(in):: IF_TRNSF
 
-      INTEGER NCES(8),ip_HTVec(8)
-      INTEGER ISTART(8),NUSE(8)
+      INTEGER(kind=iwp) NCES(8),ip_HTVec(8)
+      INTEGER(kind=iwp) ISTART(8),NUSE(8)
 
-      REAL*8 FACTC,FACTXA,FACTXI
+      REAL(kind=wp) FACTC,FACTXA,FACTXI
 
-      INTEGER I,J,IC,IA,ICASE,IRC,ILOC
-      INTEGER JSTART
-      INTEGER JRED,JRED1,JRED2,JREDC,JNUM,JV1,JV2
-      INTEGER IASTA,IAEND,IISTA,IIEND
-      INTEGER NA,NASZ,NI,NISZ,NBUFFY,NF,NK,NW,NPQ,NRS
-      INTEGER IB,IBATCH,IBATCH_TOT,IBSTA,IBEND,NB,NBATCH
-      INTEGER IDFIJ,IDIIJ,IDAIJ
-      INTEGER IP_LHT
-      INTEGER LC,LO,LSC,LSO
-      INTEGER ISFA,ISFF,ISFI
-      INTEGER ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
-      INTEGER N,N1,N2
-      INTEGER ip_htspc
-      INTEGER NUMV,NVECS_RED,NHTOFF,MUSED
+      INTEGER(kind=iwp) I,J,IC,IA,ICASE,IRC,ILOC
+      INTEGER(kind=iwp) JSTART
+      INTEGER(kind=iwp) JRED,JRED1,JRED2,JREDC,JNUM,JV1,JV2
+      INTEGER(kind=iwp) IASTA,IAEND,IISTA,IIEND
+      INTEGER(kind=iwp) NA,NASZ,NI,NISZ,NBUFFY,NF,NK,NW,NPQ,NRS
+      INTEGER(kind=iwp) IB,IBATCH,IBATCH_TOT,IBSTA,IBEND,NB,NBATCH
+      INTEGER(kind=iwp) IDFIJ,IDIIJ,IDAIJ
+      INTEGER(kind=iwp) IP_LHT
+      INTEGER(kind=iwp) LC,LO,LSC,LSO
+      INTEGER(kind=iwp) ISFA,ISFF,ISFI
+      INTEGER(kind=iwp) ISYM,JSYM,ISYMA,ISYMB,ISYMK,ISYMW,ISYP,ISYQ
+      INTEGER(kind=iwp) N,N1,N2
+      INTEGER(kind=iwp) ip_htspc
+      INTEGER(kind=iwp) NUMV,NVECS_RED,NHTOFF,MUSED
 
-      REAL*8 SCL
+      REAL(kind=wp) SCL
 
-      REAL*8, ALLOCATABLE:: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
-      REAL*8, ALLOCATABLE:: VEC(:), DF_RED(:), DI_RED(:), DA_RED(:)
-      REAL*8, ALLOCATABLE:: FA_RED(:), FF_RED(:), FI_RED(:)
-      REAL*8, ALLOCATABLE:: BUFFY(:), CHSPC(:), FTSPC(:), HTSPC(:)
+      REAL(kind=wp), ALLOCATABLE:: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
+      REAL(kind=wp), ALLOCATABLE:: VEC(:), DF_RED(:), DI_RED(:),
+     &                             DA_RED(:)
+      REAL(kind=wp), ALLOCATABLE:: FA_RED(:), FF_RED(:), FI_RED(:)
+      REAL(kind=wp), ALLOCATABLE:: BUFFY(:), CHSPC(:), FTSPC(:),
+     &                             HTSPC(:)
 
 #ifdef _DEBUGPRINT_
-      REAL*8 E,ECORE,ECORE1,ECORE2
-      REAL*8, EXTERNAL :: DDOT_
+      REAL(kind=wp) E,ECORE,ECORE1,ECORE2
+      REAL(kind=wp), EXTERNAL :: DDOT_
 #endif
 
 ************************************************************************
@@ -82,12 +87,12 @@
 *      IF( NASHT.GT.0 ) THEN
 *        call TRIPRT(' ',' ',DREF,NASHT)
 *      ENDIF
-      CALL REF_NATO(DREF,CMO,OCC,CNAT)
+      CALL REF_NATO(DREF,nDREF,CMO,nCMO,OCC,NBasT,CNAT,NBSQT)
 
 c Initialize Fock matrices in AO basis to zero:
-      FFAO(:)=0.0D0
-      FIAO(:)=0.0D0
-      FAAO(:)=0.0D0
+      FFAO(:)=Zero
+      FIAO(:)=Zero
+      FAAO(:)=Zero
 * Construct density matrix for frozen orbitals
       Call mma_allocate(DF,NBTRI,Label='DF')
       DO ISYM=1,NSYM
@@ -117,9 +122,9 @@ c Initialize Fock matrices in AO basis to zero:
       DO ISYM=1,NSYM
        DO I=1,NBAS(ISYM)
         DO J=1,I-1
-         DF(IDFIJ)=2.0D0*DF(IDFIJ)
-         DI(IDIIJ)=2.0D0*DI(IDIIJ)
-         DA(IDAIJ)=2.0D0*DA(IDAIJ)
+         DF(IDFIJ)=Two*DF(IDFIJ)
+         DI(IDIIJ)=Two*DI(IDIIJ)
+         DA(IDAIJ)=Two*DA(IDAIJ)
          IDFIJ=IDFIJ+1
          IDIIJ=IDIIJ+1
          IDAIJ=IDAIJ+1
@@ -143,7 +148,7 @@ c Initialize Fock matrices in AO basis to zero:
        LO=LSO+NF+NI
        LC=LSC+NB*(NF+NI)
        DO IA=1,NA
-        SCL=SQRT(0.5D0*OCC(LO))
+        SCL=SQRT(Half*OCC(LO))
         CALL DSCAL_(NB,SCL,CNAT(LC),1)
         LO=LO+1
         LC=LC+NB
@@ -167,7 +172,7 @@ c Initialize Fock matrices in AO basis to zero:
 
 *     write(6,*)' Tracho2 JSYM=',JSYM
 *     write(6,*)'    NUMCHO_PT2(JSYM)=',NUMCHO_PT2(JSYM)
-      IF(NUMCHO_PT2(JSYM).EQ.0) GOTO 1000
+      IF(NUMCHO_PT2(JSYM).EQ.0) Cycle
 
       JRED1=InfVec(1,2,jSym)
       JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
@@ -192,7 +197,7 @@ c Initialize Fock matrices in AO basis to zero:
       DO JRED=JRED1,JRED2
 
       CALL Cho_X_nVecRS(JRED,JSYM,JSTART,NVECS_RED)
-      IF(NVECS_RED.EQ.0) GOTO 999
+      IF(NVECS_RED.EQ.0) Cycle
 
       ILOC=3
       CALL CHO_X_SETRED(IRC,ILOC,JRED)
@@ -205,15 +210,15 @@ c Initialize Fock matrices in AO basis to zero:
 
       IF(JSYM.EQ.1) THEN
       NRS=NDIMRS(JSYM,JRED)
-      CALL DCOPY_(NRS,[0.0D0],0,DF_RED,1)
+      CALL DCOPY_(NRS,[Zero],0,DF_RED,1)
       CALL full2red(DF,DF_Red)
-      CALL DCOPY_(NRS,[0.0D0],0,DI_RED,1)
+      CALL DCOPY_(NRS,[Zero],0,DI_RED,1)
       CALL full2red(DI,DI_Red)
-      CALL DCOPY_(NRS,[0.0D0],0,DA_RED,1)
+      CALL DCOPY_(NRS,[Zero],0,DA_RED,1)
       CALL full2red(DA,DA_Red)
-      CALL DCOPY_(NRS,[0.0D0],0,FF_RED,1)
-      CALL DCOPY_(NRS,[0.0D0],0,FI_RED,1)
-      CALL DCOPY_(NRS,[0.0D0],0,FA_RED,1)
+      CALL DCOPY_(NRS,[Zero],0,FF_RED,1)
+      CALL DCOPY_(NRS,[Zero],0,FI_RED,1)
+      CALL DCOPY_(NRS,[Zero],0,FA_RED,1)
       END IF
 
 * Determine batch length for this reduced set.
@@ -255,28 +260,28 @@ c Initialize Fock matrices in AO basis to zero:
 * L(rs,J), where temporarily we can regard J as ranging 1..JNUM, and
 * the layout of pair indices rs is unknown ('reduced storage', a secret
 * inside cholesky.) Compute array V(J) at temporary space VEC:
-       CALL DGEMV_('T',NRS,JNUM,1.0D0,CHSPC,NRS,
-     &            DF_RED,1,0.0D0,VEC,1)
+       CALL DGEMV_('T',NRS,JNUM,One,CHSPC,NRS,
+     &            DF_RED,1,Zero,VEC,1)
 * F(rs){#J} <- F(rs){#J} + FactC * sum_J L(rs,{#J})*V{#J}
-             FactC=1.0D0
+             FactC=One
        CALL DGEMV_('N',NRS,JNUM,FactC,CHSPC,NRS,
-     &             VEC,1,1.0D0,FF_RED,1)
+     &             VEC,1,One,FF_RED,1)
 * The same thing, now for the inactive and active density matrices:
-       CALL DGEMV_('T',NRS,JNUM,1.0D0,CHSPC,NRS,
-     &            DI_RED,1,0.0D0,VEC,1)
+       CALL DGEMV_('T',NRS,JNUM,One,CHSPC,NRS,
+     &            DI_RED,1,Zero,VEC,1)
        CALL DGEMV_('N',NRS,JNUM,FactC,CHSPC,NRS,
-     &             VEC,1,1.0D0,FI_RED,1)
-       CALL DGEMV_('T',NRS,JNUM,1.0D0,CHSPC,NRS,
-     &             DA_RED,1,0.0D0,VEC,1)
+     &             VEC,1,One,FI_RED,1)
+       CALL DGEMV_('T',NRS,JNUM,One,CHSPC,NRS,
+     &             DA_RED,1,Zero,VEC,1)
        CALL DGEMV_('N',NRS,JNUM,FactC,CHSPC,NRS,
-     &             VEC,1,1.0D0,FA_RED,1)
-*      write(6,*)' Finished Coulomb contributions to Fock matrix.'
-*      write(6,*)' Frozen Fock mat at FF_RED'
-*      write(6,'(1x,8f10.4)')(FF_RED(i),i=1,nRS)
-*      write(6,*)' Inactive Fock mat at FI_RED'
-*      write(6,'(1x,8f10.4)')(FI_RED(i),i=1,nRS)
-*      write(6,*)' Active Fock matrix at FA_RED.'
-*      write(6,'(1x,8f10.4)')(FA_RED(i),i=1,nRS)
+     &             VEC,1,One,FA_RED,1)
+*      write(u6,*)' Finished Coulomb contributions to Fock matrix.'
+*      write(u6,*)' Frozen Fock mat at FF_RED'
+*      write(u6,'(1x,8f10.4)')(FF_RED(i),i=1,nRS)
+*      write(u6,*)' Inactive Fock mat at FI_RED'
+*      write(u6,'(1x,8f10.4)')(FI_RED(i),i=1,nRS)
+*      write(u6,*)' Active Fock matrix at FA_RED.'
+*      write(u6,'(1x,8f10.4)')(FA_RED(i),i=1,nRS)
       END IF
 
 * Frozen half-transformation:
@@ -291,7 +296,7 @@ c Initialize Fock matrices in AO basis to zero:
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 * Frozen contributions to exchange:
-          FactXI=-1.0D0
+          FactXI=-One
           ISFF=1
           DO ISYMB=1,NSYM
            iSymk = Mul(jSym,iSymb)
@@ -305,7 +310,7 @@ C ---------------------------------------------------------------------
             CALL DGEMM_TRI('T','N',NB,NB,NK*JNUM,
      &                  FactXI,HTSPC(ip_HTVec(iSymk)),NK*JNUM,
      &                  HTSPC(ip_HTVec(iSymk)),NK*JNUM,
-     &                  1.0D0,FFAO(ISFF),NB)
+     &                  One,FFAO(ISFF),NB)
            EndIf
            ISFF = ISFF+(NB*(NB+1))/2
           END DO
@@ -327,7 +332,7 @@ C ---------------------------------------------------------------------
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &     JSYM,JREDC,CMO,NCMO,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 * Inactive contributions to exchange:
-          FactXI=-1.0D0
+          FactXI=-One
           ISFI=1
           DO ISYMB=1,NSYM
            iSymk = Mul(jSym,iSymb)
@@ -341,12 +346,12 @@ C ---------------------------------------------------------------------
            CALL DGEMM_TRI('T','N',NB,NB,NK*JNUM,
      &                   FactXI,HTSPC(ip_HTVec(iSymk)),NK*JNUM,
      &                   HTSPC(ip_HTVec(iSymk)),NK*JNUM,
-     &                   1.0D0,FIAO(ISFI),NB)
+     &                   One,FIAO(ISFI),NB)
            EndIf
            ISFI = ISFI+(NB*(NB+1))/2
           END DO
-*      write(6,*)' Inactive Fock mat in FIAO'
-*      write(6,'(1x,8f10.4)')(FIAO(i),i=1,nbtri)
+*      write(u6,*)' Inactive Fock mat in FIAO'
+*      write(u6,'(1x,8f10.4)')(FIAO(i),i=1,nbtri)
 
       IF (IF_TRNSF) THEN
 * Loop over ISYQ
@@ -423,7 +428,7 @@ C loop over secondary orbital index c is more efficient.
       CALL HALFTRNSF(IRC,CHSPC,NCHSPC,1,JV1,JNUM,JNUM,
      &    JSYM,JREDC,CNAT,NBSQT,ISTART,NUSE,IP_HTVEC,HTSPC,NHTSPC)
 * Active (scaled) contributions to exchange:
-      FactXA=-1.0D0
+      FactXA=-One
       ISFA=1
       DO ISYMB=1,NSYM
        iSymw = Mul(jSym,iSymb)
@@ -437,13 +442,13 @@ C ---------------------------------------------------------------------
        CALL DGEMM_TRI('T','N',NB,NB,NW*JNUM,
      &               FactXA,HTSPC(ip_HTVec(iSymw)),NW*JNUM,
      &               HTSPC(ip_HTVec(iSymw)),NW*JNUM,
-     &               1.0D0,FAAO(ISFA),NB)
+     &               One,FAAO(ISFA),NB)
        EndIf
        ISFA = ISFA+(NB*(NB+1))/2
       END DO
 
-*      write(6,*)' Active Fock matrix in FAAO.'
-*      write(6,'(1x,8f10.4)')(FAAO(i),i=1,nbtri)
+*      write(u6,*)' Active Fock matrix in FAAO.'
+*      write(u6,'(1x,8f10.4)')(FAAO(i),i=1,nbtri)
 
 * ---------------------------------------------------
 * Active half-transformation:
@@ -495,7 +500,6 @@ C ---------------------------------------------------------------------
         CALL red2full(FAAO,FA_RED)
       END IF
 * End loop JRED
-  999 CONTINUE
       END DO
 
       IF (jSym.eq.1) THEN
@@ -509,7 +513,6 @@ C ---------------------------------------------------------------------
         CALL mma_deallocate(FA_RED)
       END IF
 * End loop JSYM
- 1000 CONTINUE
       END DO
 
       ! if using the RHS on-demand, we need all cholesky vectors on each
@@ -541,7 +544,7 @@ c (It is in fact an effective one-electron Hamiltonian).
       CALL ADD1HAM(FFAO,NBTRI)
 #ifdef _DEBUGPRINT_
 * Two-electron contribution to the effective core energy
-      ECORE2=0.5D0*DDOT_(NBTRI,DF,1,FFAO,1)
+      ECORE2=Half*DDOT_(NBTRI,DF,1,FFAO,1)
 * The contraction of frozen Fock matrix with frozen density:
       E=DDOT_(NBTRI,DF,1,FFAO,1)
 * Correct for double-counting two-electron part:
@@ -551,10 +554,10 @@ c (It is in fact an effective one-electron Hamiltonian).
 * Nuclear repulsion energy:
       ECORE=POTNUC+ECORE1+ECORE2
 
-       WRITE(6,'(6X,A,ES20.10)') 'NUCLEAR REPULSION ENERGY:',POTNUC
-       WRITE(6,'(6X,A,ES20.10)') 'ONE-ELECTRON CORE ENERGY:',ECORE1
-       WRITE(6,'(6X,A,ES20.10)') 'TWO-ELECTRON CORE ENERGY:',ECORE2
-       WRITE(6,'(6X,A,ES20.10)') '       TOTAL CORE ENERGY:',ECORE
+       WRITE(u6,'(6X,A,ES20.10)') 'NUCLEAR REPULSION ENERGY:',POTNUC
+       WRITE(u6,'(6X,A,ES20.10)') 'ONE-ELECTRON CORE ENERGY:',ECORE1
+       WRITE(u6,'(6X,A,ES20.10)') 'TWO-ELECTRON CORE ENERGY:',ECORE2
+       WRITE(u6,'(6X,A,ES20.10)') '       TOTAL CORE ENERGY:',ECORE
 #endif
 
       Call mma_deallocate(OCC)
@@ -570,12 +573,12 @@ c (It is in fact an effective one-electron Hamiltonian).
       END IF
 
 #ifdef _DEBUGPRINT_
-        WRITE(6,'(6X,A)')'TEST PRINT FROM TRACHO2.'
-        WRITE(6,'(6X,A)')
-        write(6,*)' NSYM:',NSYM
-        write(6,*)' NBAS:',(NBAS(ISYM),ISYM=1,8)
-        WRITE(6,'(6X,A)')
-        WRITE(6,'(6X,A)')'***** FROZEN FOCK MATRIX ***** '
+        WRITE(u6,'(6X,A)')'TEST PRINT FROM TRACHO2.'
+        WRITE(u6,'(6X,A)')
+        write(u6,*)' NSYM:',NSYM
+        write(u6,*)' NBAS:',(NBAS(ISYM),ISYM=1,8)
+        WRITE(u6,'(6X,A)')
+        WRITE(u6,'(6X,A)')'***** FROZEN FOCK MATRIX ***** '
         ISFF=1
         DO ISYM=1,NSYM
           NB=NBAS(ISYM)
@@ -586,26 +589,26 @@ c (It is in fact an effective one-electron Hamiltonian).
             ISFI=ISFF+(NB*(NB+1))/2
           ENDIF
         END DO
-        WRITE(6,'(6X,A)')
-        WRITE(6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
+        WRITE(u6,'(6X,A)')
+        WRITE(u6,'(6X,A)')'***** INACTIVE FOCK MATRIX ***** '
         ISFI=1
         DO ISYM=1,NSYM
           NB=NBAS(ISYM)
           IF( NB.GT.0 ) THEN
-            WRITE(6,'(6X,A)')
-            WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
+            WRITE(u6,'(6X,A)')
+            WRITE(u6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
             call TRIPRT(' ',' ',FIAO(ISFI),NB)
             ISFI=ISFI+(NB*(NB+1))/2
           ENDIF
         END DO
-        WRITE(6,'(6X,A)')
-        WRITE(6,'(6X,A)')'***** ACTIVE FOCK MATRIX ***** '
+        WRITE(u6,'(6X,A)')
+        WRITE(u6,'(6X,A)')'***** ACTIVE FOCK MATRIX ***** '
         ISFA=1
         DO ISYM=1,NSYM
           NB=NBAS(ISYM)
           IF( NB.GT.0 ) THEN
-            WRITE(6,'(6X,A)')
-            WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
+            WRITE(u6,'(6X,A)')
+            WRITE(u6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
             call TRIPRT(' ',' ',FAAO(ISFA),NB)
             ISFA=ISFA+(NB*(NB+1))/2
           ENDIF
