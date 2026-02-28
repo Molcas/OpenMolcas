@@ -9,15 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                          CMO,OrbE,TrD)
+     &                          CMO,nCMO,OrbE,nOrbE,TrD)
       use definitions, only: iwp, wp
       use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       integer(kind=iwp), intent(in):: nSym, nBas(nSym), nFro(nSym),
      &                                nIsh(nSym), nAsh(nSym),
-     &                                nSsh(nSym), nDel(nSym)
-      real(kind=wp), intent(in)::  CMO(*), OrbE(*)
+     &                                nSsh(nSym), nDel(nSym),
+     &                                nCMO, nOrbE
+      real(kind=wp), intent(in)::  CMO(nCMO), OrbE(nOrbE)
       real(kind=wp), intent(out):: TrD(nSym)
 
       integer(kind=iwp) nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8),

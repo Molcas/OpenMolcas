@@ -251,7 +251,7 @@ C     -----------------------------------------------------------
       ipOrbE=1
       Call Get_darray('RASSCF OrbE',OrbE(ipOrbE),nOrb)
       Call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                    CMOX(ipCMO),OrbE(ipOrbE),TrX)
+     &                    CMOX(ipCMO),nCMO,OrbE(ipOrbE),4*nOrb,TrX)
 *
 *---  MP2 calculation on the whole system (incompatible with DoMP2)
       If (DoEnv) Then
@@ -498,7 +498,7 @@ C     -----------------------------------------------------------
       End Do
 
       Call Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                    CMOX,OrbE(ipOrbE),TrA)
+     &                    CMOX,nCMO,OrbE(ipOrbE),4*nOrb,TrA)
 
       write(u6,*)
      &    '------------------------------------------------------'
