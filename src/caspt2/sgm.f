@@ -150,10 +150,11 @@ C  A&BP One-el
           IY=1
           INCY1=1
           INCY2=NTGEU(ISYM2)
-          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X1(IXTI),
-     &                FIT(ISYM12)%A,
-     &                GA_Arrays(lg_Y)%A(IY))
+          CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &                X1(IXTI),SIZE(X1(IXTI:)),
+     &                FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
+     &                GA_Arrays(lg_Y)%A(IY),
+     &           SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 
 C  A&BP Two-el
@@ -174,10 +175,11 @@ C  A&BP Two-el
           IY=1
           INCY1=1
           INCY2=NTGEU(ISYM2)
-          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),
-     &                FIT(ISYM12)%A,
-     &                GA_Arrays(lg_Y)%A(IY))
+          CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &                X2(IX),SIZE(X2(IX:)),
+     &                FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
+     &                GA_Arrays(lg_Y)%A(IY),
+     &           SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (2)
@@ -206,10 +208,11 @@ C A&BM One-el
           IY=1
           INCY1=1
           INCY2=NTGTU(ISYM2)
-          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X1(IXTI),
-     &                FIT(ISYM12)%A,
-     &                GA_Arrays(lg_Y)%A(IY))
+          CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &                X1(IXTI),SIZE(X1(IXTI:)),
+     &                FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
+     &                GA_Arrays(lg_Y)%A(IY),
+     &           SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 
 C A&BM Two-el
@@ -234,10 +237,11 @@ C A&BM Two-el
           IY=1
           INCY1=1
           INCY2=NTGTU(ISYM2)
-          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),
-     &                FIT(ISYM12)%A,
-     &                GA_Arrays(lg_Y)%A(IY))
+          CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &                X2(IX),SIZE(X2(IX:)),
+     &                FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
+     &                GA_Arrays(lg_Y)%A(IY),
+     &           SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (3)
@@ -473,10 +477,11 @@ C  C&FP One-el
           IY=1
           INCY1=1
           INCY2=NTGEU(ISYM2)
-          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X1(IXTA),
-     &                FTA(ISYM12)%A,
-     &                GA_Arrays(lg_Y)%A(IY))
+          CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &                X1(IXTA),SIZE(X1(IXTA:)),
+     &                FTA(ISYM12)%A,SIZE(FTA(ISYM12)%A),
+     &                GA_Arrays(lg_Y)%A(IY),
+     &           SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 
 C  C&FP Two-el
@@ -497,10 +502,11 @@ C  C&FP Two-el
           IY=1
           INCY1=1
           INCY2=NTGEU(ISYM2)
-          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),
-     &                FTA(ISYM12)%A,
-     &                GA_Arrays(lg_Y)%A(IY))
+          CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &                X2(IX),SIZE(X2(IX:)),
+     &                FTA(ISYM12)%A,SIZE(FTA(ISYM12)%A),
+     &                GA_Arrays(lg_Y)%A(IY),
+     &           SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (10)
@@ -525,10 +531,11 @@ C  C&FM One-el
           IY=1
           INCY1=1
           INCY2=NTGTU(ISYM2)
-          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X1(IXTA),
-     &                FTA(ISYM12)%A,
-     &                GA_Arrays(lg_Y)%A(IY))
+          CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &                X1(IXTA),SIZE(X1(IXTA:)),
+     &                FTA(ISYM12)%A,SIZE(FTA(ISYM12)%A),
+     &                GA_Arrays(lg_Y)%A(IY),
+     &           SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 
 C  C&FM Two-el
@@ -549,10 +556,11 @@ C  C&FM Two-el
           IY=1
           INCY1=1
           INCY2=NTGTU(ISYM2)
-          CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),
-     &                FTA(ISYM12)%A,
-     &                GA_Arrays(lg_Y)%A(IY))
+          CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &                X2(IX),SIZE(X2(IX:)),
+     &                FTA(ISYM12)%A,SIZE(FTA(ISYM12)%A),
+     &                GA_Arrays(lg_Y)%A(IY),
+     &           SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (11)

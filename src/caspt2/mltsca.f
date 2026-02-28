@@ -16,16 +16,16 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MLTSCA(IMLTOP,LST1,LST2,X,F,Y)
-      use definitions, only: iwp, wp
+      SUBROUTINE MLTSCA(IMLTOP,LST1,NLST1,LST2,NLST2,X,nX,F,nF,Y,nY)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
-      use Sigma_data, only: NLST1, NLST2, INCF1, INCF2, INCX1, INCX2,
+      use Sigma_data, only: INCF1, INCF2, INCX1, INCX2,
      &                      INCY1, INCY2, NFSCA, VAL1, VAL2
+      use definitions, only: iwp, wp
       IMPLICIT None
-      integer(kind=iwp), intent(in):: IMLTOP
-      real(kind=wp), intent(inout):: X(*),F(*),Y(*)
+      integer(kind=iwp), intent(in):: IMLTOP,NLST1,NLST2,nX,nF,nY
+      real(kind=wp), intent(inout):: X(nX),F(nF),Y(nY)
       integer(kind=iwp), intent(in)::  LST1(4,NLST1), LST2(4,NLST2)
 
       integer(kind=iwp) IF, ILST1, ILST1_IOFF, ILST1_SKIP, ILST2,
