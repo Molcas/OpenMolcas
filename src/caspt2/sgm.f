@@ -265,10 +265,11 @@ C  A&D  Two-el
           INCY3=NAS2*NISH(ISYM1)
           LEN1=NISH(ISYM1)
           LEN2=NSSH(ISYM12)
-          CALL MLTMV(IMLTOP,LIST(LLST1),
-     &               X2(IX),
-     &               FAT(ISYM12)%A,
-     &               GA_Arrays(lg_Y)%A(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X2(IX),SIZE(X2(IX:)),
+     &               FAT(ISYM12)%A,SIZE(FAT(ISYM12)%A),
+     &               GA_Arrays(lg_Y)%A(IY),
+     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (4)
@@ -298,10 +299,11 @@ C  A&EP One-el
               INCY3=NT
               LEN1=NT
               LEN2=NA
-              CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                   X1(IXTI),
-     &                   FAI(ISYMA)%A,
-     &                   GA_Arrays(lg_Y)%A(IY))
+              CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &                   X1(IXTI),SIZE(X1(IXTI:)),
+     &                   FAI(ISYMA)%A,SIZE(FAI(ISYM12)%A),
+     &                   GA_Arrays(lg_Y)%A(IY),
+     &                   SIZE(GA_Arrays(lg_Y)%A(IY:)))
             END IF
             END DO
           END IF
@@ -334,10 +336,11 @@ C  A&EM One-el
               INCY3=NT
               LEN1=NT
               LEN2=NA
-              CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                   X1(IXTI),
-     &                   FAI(ISYMA)%A,
-     &                   GA_Arrays(lg_Y)%A(IY))
+              CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &                   X1(IXTI),SIZE(X1(IXTI:)),
+     &                   FAI(ISYMA)%A,SIZE(FAI(ISYM12)%A),
+     &                   GA_Arrays(lg_Y)%A(IY),
+     &                   SIZE(GA_Arrays(lg_Y)%A(IY:)))
             END IF
             END DO
           END IF
@@ -365,10 +368,11 @@ C  BP&EP Two-el
           INCY3=NAS2
           LEN1=NIS1
           LEN2=NA
-          CALL MLTMV(IMLTOP,LIST(LLST1),
-     &               X2(IX),
-     &               FAT(ISYM12)%A,
-     &               GA_Arrays(lg_Y)%A(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X2(IX),SIZE(X2(IX:)),
+     &               FAT(ISYM12)%A,SIZE(FAT(ISYM12)%A),
+     &               GA_Arrays(lg_Y)%A(IY),
+     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (7)
@@ -397,10 +401,11 @@ C  BM&EM Two-el
           INCY3=NAS2
           LEN1=NIS1
           LEN2=NA
-          CALL MLTMV(IMLTOP,LIST(LLST1),
-     &               X2(IX),
-     &               FAT(ISYM12)%A,
-     &               GA_Arrays(lg_Y)%A(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X2(IX),SIZE(X2(IX:)),
+     &               FAT(ISYM12)%A,SIZE(FAT(ISYM12)%A),
+     &               GA_Arrays(lg_Y)%A(IY),
+     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (8)
@@ -425,10 +430,11 @@ C  C&D  One-el
           INCY3=NAS2
           LEN1=NSSH(ISYM1)
           LEN2=NI
-          CALL MLTMV(IMLTOP,LIST(LLST1),
-     &               X1(IXTA),
-     &               FIT(ISYM12)%A,
-     &               GA_Arrays(lg_Y)%A(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X1(IXTA),SIZE(X1(IXTA:)),
+     &               FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
+     &               GA_Arrays(lg_Y)%A(IY),
+     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 
 C  C&D  Two-el
@@ -449,10 +455,11 @@ C  C&D  Two-el
           INCY3=NAS2
           LEN1=NSSH(ISYM1)
           LEN2=NI
-          CALL MLTMV(IMLTOP,LIST(LLST1),
-     &               X2(IX),
-     &               FIT(ISYM12)%A,
-     &               GA_Arrays(lg_Y)%A(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X2(IX),SIZE(X2(IX:)),
+     &               FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
+     &               GA_Arrays(lg_Y)%A(IY),
+     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (9)
@@ -589,10 +596,11 @@ C  C&GP One-el
             INCY3=NT
             LEN1=NT
             LEN2=NI
-            CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                 X1(IXTA),
-     &                 FIA(ISYMI)%A,
-     &                 GA_Arrays(lg_Y)%A(IY))
+            CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &                 X1(IXTA),SIZE(X1(IXTA:)),
+     &                 FIA(ISYMI)%A,SIZE(FIA(ISYM12)%A),
+     &                 GA_Arrays(lg_Y)%A(IY),
+     &                 SIZE(GA_Arrays(lg_Y)%A(IY:)))
           END IF
           END DO
         END IF
@@ -623,10 +631,11 @@ C  C&GM One-el
             INCY3=NT
             LEN1=NT
             LEN2=NI
-            CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                 X1(IXTA),
-     &                 FIA(ISYMI)%A,
-     &                 GA_Arrays(lg_Y)%A(IY))
+            CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &                 X1(IXTA),SIZE(X1(IXTA:)),
+     &                 FIA(ISYMI)%A,SIZE(FIA(ISYM12)%A),
+     &                 GA_Arrays(lg_Y)%A(IY),
+     &                 SIZE(GA_Arrays(lg_Y)%A(IY:)))
           END IF
           END DO
         END IF
@@ -658,10 +667,11 @@ C  D&EP One-el
             INCY3=1
             LEN1=NA
             LEN2=NT
-            CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                 X1(IXIA),
-     &                 FTI(ISYM2)%A,
-     &                 GA_Arrays(lg_Y)%A(IY))
+            CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &                 X1(IXIA),SIZE(X1(IXIA:)),
+     &                 FTI(ISYM2)%A,SIZE(FTI(ISYM12)%A),
+     &                 GA_Arrays(lg_Y)%A(IY),
+     &                 SIZE(GA_Arrays(lg_Y)%A(IY:)))
           END IF
           END DO
         END IF
@@ -729,10 +739,11 @@ C  D&EM One-el
             INCY3=1
             LEN1=NA
             LEN2=NT
-            CALL MLTMV(IMLTOP,LIST(LLST1),
-     &                 X1(IXIA),
-     &                 FTI(ISYM2)%A,
-     &                 GA_Arrays(lg_Y)%A(IY))
+            CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &                 X1(IXIA),SIZE(X1(IXIA:)),
+     &                 FTI(ISYM2)%A,SIZE(FTI(ISYM12)%A),
+     &                 GA_Arrays(lg_Y)%A(IY),
+     &                 SIZE(GA_Arrays(lg_Y)%A(IY:)))
           END IF
           END DO
         END IF
@@ -915,10 +926,11 @@ C  FP&GP Two-el
           INCY3=NAS2
           LEN1=NIS1
           LEN2=NI
-          CALL MLTMV(IMLTOP,LIST(LLST1),
-     &               X2(IX),
-     &               FIT(ISYM12)%A,
-     &               GA_Arrays(lg_Y)%A(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X2(IX),SIZE(X2(IX:)),
+     &               FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
+     &               GA_Arrays(lg_Y)%A(IY),
+     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (20)
@@ -943,10 +955,11 @@ C  FM&GM Two-el
           INCY3=NAS2
           LEN1=NIS1
           LEN2=NI
-          CALL MLTMV(IMLTOP,LIST(LLST1),
-     &               X2(IX),
-     &               FIT(ISYM12)%A,
-     &               GA_Arrays(lg_Y)%A(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X2(IX),SIZE(X2(IX:)),
+     &               FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
+     &               GA_Arrays(lg_Y)%A(IY),
+     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (21)
