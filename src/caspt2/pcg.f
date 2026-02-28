@@ -53,7 +53,7 @@ C Flag to tell whether convergence was obtained
 C Lists of coupling coefficients, used for sigma vector
 C generation from non-diagonal blocks of H0.
       CALL mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
-      CALL MKLIST(LISTS)
+      CALL MKLIST(LISTS,NLSTOT)
 
 
 C Mnemonic names for vectors stored on LUSOLV, see EQCTL.

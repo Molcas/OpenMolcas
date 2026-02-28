@@ -125,7 +125,7 @@ C This density matrix may be approximated in several ways, see DENS.
         call mma_allocate(DMAT,NDMAT,Label='DMAT')
         CALL DCOPY_(NDMAT,[Zero],0,DMAT,1)
         CALL mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
-        CALL MKLIST(LISTS)
+        CALL MKLIST(LISTS,NLSTOT)
         CALL DENS(IVECX,DMAT,UEFF,U0)
         CALL mma_deallocate(LISTS)
       ELSE
