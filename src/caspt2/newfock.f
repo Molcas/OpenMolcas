@@ -180,7 +180,7 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
 C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
         XMAT(:)=0.0D0
         IF (IfChol) THEN
-          CALL Cho_Amatrix(XMAT,CMO,NCMO,DDTR,NATR)
+          CALL Cho_Amatrix(XMAT,NOSQT,CMO,NCMO,DDTR,NATR)
         ELSE
           NOSQES=0
           DO ISYMPQ=1,NSYM
