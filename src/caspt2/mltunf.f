@@ -16,29 +16,29 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MLTUNF(LST,X,Y)
+      SUBROUTINE MLTUNF(LST,nLST,X,nX,Y,nY)
       use definitions, only: iwp, wp
-      use Sigma_data, only: NLST1,INCX1,INCX2,INCX3,INCY1,INCY2,LEN1,
-     &                      VAL1
+      use Sigma_data, only: INCX1,INCX2,INCX3,INCY1,INCY2,LEN1,VAL1
       IMPLICIT None
-      real(kind=wp), Intent(inout):: X(*)
-      real(kind=wp), Intent(in):: Y(*)
-      integer(kind=iwp), intent(in):: LST(4,NLST1)
+      integer(kind=iwp), intent(in):: nLST,nX,nY
+      real(kind=wp), Intent(inout):: X(nX)
+      real(kind=wp), Intent(in):: Y(nY)
+      integer(kind=iwp), intent(in):: LST(4,NLST)
 
       integer(kind=iwp) ILST,L1,L2,L3,L4,IX,IY
       real(kind=wp) V
-C Given a list with entries LST(4,ITEM), ITEM=1,NLST1,
+C Given a list with entries LST(4,ITEM), ITEM=1,NLST,
 C with entries called L1,L2,L3,L4 for given ITEM, and
 C an array of the form Y(p,q), compute the matrix
 C    X(p,L1,L2) := Add V*Y(p,L3), p=1..LEN1
-C where V=VAL1(L4), looped over ITEM=1,NLST1.
+C where V=VAL1(L4), looped over ITEM=1,NLST.
 C Note: Arrays are addressed by strides given in common.
 *     write(6,*)' In MLTUNF. List:'
-*     write(*,'(1x,4i5)') ((LST(I,J),I=1,4),J=1,NLST1)
+*     write(*,'(1x,4i5)') ((LST(I,J),I=1,4),J=1,NLST)
 *     write(*,'(1x,a,3i5)')'INCX:',INCX1,INCX2,INCX3
 *     write(*,'(1x,a,3i5)')'INCY:',INCY1,INCY2
 *     write(*,'(1x,a,3i5)')'LEN1:',LEN1
-      DO ILST=1,NLST1
+      DO ILST=1,NLST
         L1=LST(1,ILST)
         L2=LST(2,ILST)
         L3=LST(3,ILST)
