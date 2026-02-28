@@ -15,10 +15,10 @@
       use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV, only: IVECC, IVECC2, IVECW
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp, iwp
       use caspt2_module, only: STSYM, NCONF, NASHT, ISCF, NSTATE
       use pt2_guga, only: MXCI
       use Constants, only: Zero
+      use definitions, only: wp, iwp
 !
 !     Compute the derivative of E^PT2 with respct to the T amplitude
 !
@@ -220,7 +220,8 @@
         END DO
 
         WRITE(u6,'(20a4)')('----',i=1,20)
-       WRITE(u6,*)'HCOUP: The contributions to the Hamiltonian coupling'
+        WRITE(u6,*)
+     &          'HCOUP: The contributions to the Hamiltonian coupling'
         WRITE(u6,*)' elements, by case and by symmetry label.'
         DO IC=1,13
           WRITE(u6,'(1X,A8,9F12.8)')
@@ -842,8 +843,6 @@
             Else
               Scal = UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
             End If
-!       write (*,*) ' scal in xms'
-!       write (*,*) istat,jstat,scal
             if (IFDW .and. zeta >= Zero) then
               scal = scal + OMGDER(iStat,jStat)
             end if
@@ -870,9 +869,6 @@
      &              One,U0,nState,UEFF,nState,
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
-!     write (u6,*) 'ueff in casscf basis'
-!     call sqprt(ueff,nstate)
-
         call mma_deallocate(DG1)
         call mma_deallocate(DG2)
 
@@ -890,7 +886,6 @@
         !! The diagonal element is always zero.
         !! The code has an additional scaling with 0.5,
         !! because some contributions are doubled.
-!     write (*,*) 'istat,jstat,scal'
         SLag(:) = Zero
         Do iStat = 1, nState
           Call LoadCI_XMS('N',0,CI1,iStat,U0)
@@ -904,7 +899,6 @@
 
               Scal = DDOT_(nConf,CI1,1,CLagFull(1,jStat),1)
      &             - DDOT_(nConf,CI2,1,CLagFull(1,iStat),1)
-!      write (*,*) 'original scal = ', scal
               If (do_csf) Then
                 !! JCTC 2017, 13, 2561: eq.(66)
                 !! iStat and jStat: XMS
@@ -919,11 +913,8 @@
                   End Do
                 End Do
                 Scal = Scal+fact*(ENERGY(iRoot2)-ENERGY(iRoot1))*Two
-!      write (*,*) 'scal after= ', scal
-!      write (*,*) fact,energy(iroot2)-energy(iroot1)
               End If
               Scal = Quart*Scal/(EEJ-EEI)
-!           write (*,*) istat,jstat,scal
               SLag(iStat+nState*(jStat-1)) = Scal
               SLag(jStat+nState*(iStat-1)) = Scal
             End If
@@ -947,13 +938,9 @@
             Call Dens1T_RPT2(CI1,CI2,
      &                       SGM1,TG1,nLev)
             Scal = SLag(iStat+nState*(jStat-1))*Two
-!         write (*,*) 'istat,jstat=',istat,jstat
-!         write (*,*) 'scal = ', scal
             Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
           End Do
         End Do
-!     write (*,*) 'G1'
-!     call sqprt(G1,nasht)
 
         call mma_deallocate(CI1)
         call mma_deallocate(CI2)
@@ -1073,7 +1060,6 @@
 !       call sqprt(g1),nasht)
         !! Transform quasi-canonical to natural
         nCor = nFro(1)+nIsh(1)
-!     write (*,*) nfro(1),nish(1)
 !     call sqprt(trf,nbast)
         Call DGemm_('N','N',nAshT,nAshT,nAshT,
      &              One,Trf(1+nBasT*nCor+nCor),nBasT,G1,nAshT,
@@ -1582,7 +1568,6 @@
           Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)
      &         - UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1)
           Scal = Scal*Half
-!         write (*,*) istat,jstat,scal
 !         call sqprt(tg1,5)
           Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
         End Do
@@ -1621,9 +1606,6 @@
         iMO1 = iMO1 + nOrbI1*nOrbI1
         iMO2 = iMO2 + nOrbI2*nOrbI2
       End Do
-!     write (*,*) 'dpt2anti after'
-!     call sqprt(dpt2canti,nbast)
-
       call mma_deallocate(G1)
 
       !! Add orbital response
@@ -1638,8 +1620,6 @@
      &            WRK1,nBas(1),'T',
      &            WRK2,nBas(1),
      &            nBas(1),nBas(1))
-!      write (*,*) 'wrk1'
-!      call sqprt(wrk),nbast)
 
       !! Probably, the way CSF term is computed in MOLCAS is different
       !! from in BAGEL; see Eqs.(51)--(53). In the active space, i.e.
@@ -1662,12 +1642,6 @@
           DPT2Canti(j+nBasT*(i-1)) = -Scal*Half
         End Do
       End Do
-!     write (*,*) 'dpt2anti sym'
-!     call sqprt(dpt2canti,nbast)
-!     write (*,*) 'dpt2c'
-!     call sqprt(dpt2c_tot,nbast)
-
-      Return
 
       End Subroutine CnstAntiC
 !

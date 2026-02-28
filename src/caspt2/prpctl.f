@@ -225,7 +225,7 @@ C Compute natural orbitals of CASPT2 wave function.
       END IF
       call mma_allocate(CNAT,NCMO,Label='CNAT')
       call mma_allocate(OCC,NOCC,Label='OCC')
-      CALL NATORB_CASPT2(DMAT,CMO,OCC,CNAT)
+      CALL NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOCC,CNAT,nCMO)
       CALL mma_deallocate(CMO_Internal)
       nullify(CMO)
 C Backtransform density matrix to original MO basis before storing
