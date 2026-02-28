@@ -17,10 +17,10 @@
 * SWEDEN                                     *
 *--------------------------------------------*
 
-      SUBROUTINE DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LIST)
+      SUBROUTINE DIADNS(ISYM,ICASE,VEC1,nVec1,VEC2,nVec2,DPT2,nDPT2,
+     &                  LIST,mList)
 
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
       use caspt2_global, only: do_grad
       use EQSOLV, only: LLIST,NLIST
@@ -30,12 +30,14 @@
       use caspt2_module, only: NIMX,NSMX,NSYM,NINDEP,NISUP,NASUP,NISH,
      &                         NORB,NIGEJ,NIGTJ,NAGEB,NAGTB,NORB,
      &                         NASH,NSSH
+      use definitions, only: iwp, wp
       IMPLICIT NONE
 
+      integer(kind=iwp), intent(in):: nVEC1,nVec2,nDPT2,mList
       integer(kind=iwp), intent(in):: ISYM, ICASE
-      real(kind=wp), Intent(in):: VEC1(*),VEC2(*)
-      real(kind=wp), Intent(inout):: DPT2(*)
-      integer(kind=iwp), intent(in):: LIST(*)
+      real(kind=wp), Intent(in):: VEC1(nVec1),VEC2(nVec2)
+      real(kind=wp), Intent(inout):: DPT2(nDPT2)
+      integer(kind=iwp), intent(in):: LIST(mList)
 
       integer(kind=iwp) IOFDIJ(8),IOFDAB(8)
       integer(kind=iwp) IOFCD(8,8)
