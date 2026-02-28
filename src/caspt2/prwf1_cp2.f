@@ -16,20 +16,20 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR,nMidV)
+      SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,mCI,THR,nMidV)
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp, u6
       use gugx, only: SGS, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM, ISPIN, PRSD
       use gugx, only: MxLev
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
-      Integer(kind=iwp), Intent(In):: ISYCI, nMidV
+      Integer(kind=iwp), Intent(In):: ISYCI, mCI,nMidV
       integer(kind=iwp), intent(in):: NOCSF(NSYM,NMIDV,NSYM),
      &                                IOCSF(NSYM,NMIDV,NSYM)
       integer(kind=iwp), intent(in):: NOW(2,NSYM,NMIDV),
      &                                IOW(2,NSYM,NMIDV)
-      real(kind=wp), intent(in):: CI(*), THR
+      real(kind=wp), intent(in):: CI(mCI), THR
 
       CHARACTER(LEN=256) LINE
       CHARACTER(LEN=1) :: CODE(0:3)=['0','u','d','2']

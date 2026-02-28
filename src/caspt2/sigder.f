@@ -546,7 +546,7 @@ C
       end if
 #endif
 C     do i = 1, nas1*nis1
-C       write (*,'(i4,2f20.10)') ,i,GA_Arrays(lg_cx)%A(i),
+C       write (u6,'(i4,2f20.10)') ,i,GA_Arrays(lg_cx)%A(i),
 C    &                              GA_Arrays(lg_sgm2)%A(i)
 C     end do
 C

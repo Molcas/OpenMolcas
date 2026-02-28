@@ -683,12 +683,12 @@ subroutine procinp_caspt2
     call Qpg_cArray('MCLR Root',Found,I)
     if (Found) then
       call Get_cArray('MCLR Root',mstate1,16)
-!     write (*,*) "mstate1"
-!     write (*,'(a)') mstate1
+!     write (u6 "mstate1"
+!     write (u6a)') mstate1
       if (mstate1 /= '****************') then
         if (index(mstate1,'@') /= 0) then
           read(mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
-!         write (*,*) "MCLR Root read:", iRoot1,iRoot2
+!         write (u6 "MCLR Root read:", iRoot1,iRoot2
           if (iRoot1 /= 0) do_nac = .true.
           if (iRoot1 == 0) then
             iRoot1 = iRoot2
@@ -699,7 +699,7 @@ subroutine procinp_caspt2
       end if
     end if
 
-!   write (*,*) "roots after MCLR Root:",iRoot1,iRoot2
+!   write (u6 "roots after MCLR Root:",iRoot1,iRoot2
 
     !! If nothing is specified by ALASKA, use the states in &CASPT2
     if ((iRoot1 == 0) .and. (iRoot2 == 0)) then
