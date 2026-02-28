@@ -19,11 +19,12 @@
       SUBROUTINE PT2_GET(NSIZE,LAB,VEC)
       use caspt2_global, only: LUDMAT
       use pt2_guga, only: CLab10, iAdr10
+      use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 
-      INTEGER NSIZE
-      CHARACTER(len=*) LAB
-      REAL*8 VEC(*)
+      INTEGER(kind=iwp), intent(in):: NSIZE
+      CHARACTER(len=*), intent(in):: LAB
+      REAL(kind=wp), intent(out):: VEC(NSIZE)
 
       CHARACTER(LEN=8) LAB1
 
@@ -41,7 +42,7 @@
       END IF
 
 C FIND DISK ADDRESS:
-      DO I=1,64
+      DO I=1,SIZE(CLAB10)
         IF (CLAB10(I).EQ.LAB1) THEN
           NSZ=MIN(IADR10(I,2),NSIZE)
           IAD=IADR10(I,1)
@@ -55,6 +56,6 @@ C FIND DISK ADDRESS:
           RETURN
         END IF
       END DO
-      WRITE(6,*)' LABEL ',LAB1,' NOT FOUND ON LUDMAT.'
+      WRITE(u6,*)' LABEL ',LAB1,' NOT FOUND ON LUDMAT.'
       CALL ABEND()
       END SUBROUTINE PT2_GET
