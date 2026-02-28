@@ -134,11 +134,11 @@ C Form WEC1 from VEC1, if needed.
                 CALL mma_allocate(TMP1,NVEC1,Label='TMP1')
                 CALL RHS_GET(NAS1,NIS1,LVEC1,TMP1)
                 IF(ICASE1.EQ.1) THEN
-                  CALL SPEC1A(IMLTOP,FACT,ISYM1,TMP1,SIZE(TMP1),
-     &                                          WEC1,SIZE(WEC1))
+                  CALL SPEC1A(IMLTOP,FACT,ISYM1,TMP1,NVEC1,
+     &                                          WEC1,NWEC1)
                 ELSE IF(ICASE1.EQ.4) THEN
-                  CALL SPEC1C(IMLTOP,FACT,ISYM1,TMP1,SIZE(TMP1),
-     &                                          WEC1,SIZE(WEC1))
+                  CALL SPEC1C(IMLTOP,FACT,ISYM1,TMP1,NVEC1,
+     &                                          WEC1,NWEC1)
                 ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
                   CALL SPEC1D(IMLTOP,FACT,TMP1,NVEC1,WEC1,NWEC1)
                 END IF
@@ -148,21 +148,22 @@ C Form WEC1 from VEC1, if needed.
               IF(ICASE1.EQ.1) THEN
                 CALL SPEC1A(IMLTOP,FACT,ISYM1,
      &                      GA_Arrays(LVEC1)%A,SIZE(GA_Arrays(LVEC1)%A),
-     &                      WEC1,SIZE(WEC1))
+     &                      WEC1,NWEC1)
               ELSE IF(ICASE1.EQ.4) THEN
                 CALL SPEC1C(IMLTOP,FACT,ISYM1,
      &                      GA_Arrays(LVEC1)%A,SIZE(GA_Arrays(LVEC1)%A),
-     &                      WEC1,SIZE(WEC1))
+     &                      WEC1,NWEC1)
               ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
                 CALL SPEC1D(IMLTOP,FACT,
      &                      GA_Arrays(LVEC1)%A,SIZE(GA_Arrays(LVEC1)%A),
-     &                      WEC1,nWEC1)
+     &                      WEC1,NWEC1)
               END IF
 #ifdef _MOLCAS_MPP_
             END IF
 #endif
           ELSE
-            CALL mma_allocate(WEC1,1,Label='WEC1')
+            NWEC1=1
+            CALL mma_allocate(WEC1,NWEC1,Label='WEC1')
           END IF
 C Note: WEC1 is identical to <IBRA| E(p,q) |0> for the cases
 C (p,q)=(t,i), (a,t), and (a,i), resp.
@@ -190,14 +191,18 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
                   CALL RHS_GET(NAS1,NIS1,LVEC1,TMP1)
                   CALL RHS_GET(NAS2,NIS2,LVEC2,TMP2)
                   CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                        WEC1,TMP1,DPT2,TMP2,LISTS)
+     &                        WEC1,NWEC1,TMP1,nVEC1,
+     &                        DPT2,mDPT2,TMP2,nVEC2,LISTS,SIZE(LISTS))
                   CALL mma_deallocate(TMP1)
                   CALL mma_deallocate(TMP2)
               ELSE
 #endif
                 CALL OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,
-     &                      WEC1,GA_Arrays(LVEC1)%A,DPT2,
-     &                           GA_Arrays(LVEC2)%A,LISTS)
+     &                      WEC1,NWEC1,
+     &                      GA_Arrays(LVEC1)%A,SIZE(GA_Arrays(LVEC1)%A),
+     &                      DPT2,MDPT2,
+     &                      GA_Arrays(LVEC2)%A,SIZE(GA_Arrays(LVEC2)%A),
+     &                      LISTS,SIZE(LISTS))
 #ifdef _MOLCAS_MPP_
               END IF
 #endif

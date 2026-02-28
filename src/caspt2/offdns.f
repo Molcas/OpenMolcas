@@ -16,7 +16,8 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,X2,DPT2,Y,LIST)
+      SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,nX1,X2,nX2,
+     &                  DPT2,nDPT2,Y,nY,LIST,MLIST)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half, One, Two, Three, Six
@@ -30,9 +31,10 @@
       IMPLICIT None
 
       integer(kind=iwp), intent(in)::  ISYM1,ICASE1,ISYM2,ICASE2
-      real(kind=wp), intent(inout):: X1(*),X2(*),Y(*)
-      real(kind=wp), intent(inout):: DPT2(*)
-      integer(kind=iwp), intent(in):: LIST(*)
+      integer(kind=iwp), intent(in)::  nX1,nX2,nY,nDPT2,mLIST
+      real(kind=wp), intent(inout):: X1(nX1),X2(nX2),Y(nY)
+      real(kind=wp), intent(inout):: DPT2(nDPT2)
+      integer(kind=iwp), intent(in):: LIST(mList)
 
       integer(kind=iwp) IOFDIT(8),IOFDIA(8),IOFDTA(8)
       integer(kind=iwp) IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),

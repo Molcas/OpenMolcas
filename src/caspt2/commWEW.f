@@ -54,10 +54,6 @@ C are both in contravariant representation. Possibly, IVEC equals JVEC.
           NAS=NASUP(ISYM,ICASE)
           NIS=NISUP(ISYM,ICASE)
           NCBLK=NAS*NIS
-CTEST       WRITE(*,*)' COMMWEW ISYM,ICASE:',ISYM,ICASE
-CTEST       WRITE(*,*)'                NAS:',NAS
-CTEST       WRITE(*,*)'                NIS:',NIS
-CTEST       WRITE(*,*)'              NCBLK:',NCBLK
           IF(NCBLK.EQ.0) CYCLE
 C Allocate CBLK, TBLK
           CALL MMA_ALLOCATE(CBLK,NCBLK,Label='CBLK')

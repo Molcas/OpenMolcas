@@ -1160,7 +1160,7 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: NIN,NIS,lg_W
-      real(kind=wp), Intent(in):: DIN(*),DIS(*)
+      real(kind=wp), Intent(in):: DIN(NIN),DIS(NIS)
       real(kind=wp), Intent(Out):: DOVL
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
@@ -1204,7 +1204,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: NIN,NIS,lg_W
-      real(kind=wp), Intent(in):: DIN(*),DIS(*)
+      real(kind=wp), Intent(in):: DIN(NIN),DIS(NIS)
 
 C Apply the resolvent of the diagonal part of H0 to an RHS array
 
