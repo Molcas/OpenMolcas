@@ -994,8 +994,9 @@ c Avoid unused argument warnings
       INTEGER(KIND=Byte), INTENT(IN):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       Real(KIND=WP) Dummy(1)
-      INTEGER(KIND=IWP) MYRANK,ILO,IHI,JLO,JHI,MA,LDA
+      INTEGER(KIND=IWP) MYRANK,MA
 #endif
+      INTEGER(KIND=IWP) ILO,IHI,JLO,JHI,LDA,MBC
       INTEGER(KIND=IWP) ICASE,ISYM,NIN,NAS,NBC,lg_BC
       Real(KIND=WP) DBC
       Real(KIND=WP), EXTERNAL:: PSBMAT_FPRINT
@@ -1036,8 +1037,10 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
             CALL GA_ACCESS (LG_BC,ILO,IHI,JLO,JHI,MA,LDA)
+            MBC=LDA*(JHI-JLO+1)
             CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
-     &                   DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
+     &                   DBL_MB(MA),MBC,
+     &                   ILO,IHI,JLO,JHI,LDA)
             CALL MKBC_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
      &                       NG3,F3,IDXG3)
             CALL GA_RELEASE_UPDATE (LG_BC,ILO,IHI,JLO,JHI)
@@ -1047,9 +1050,16 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           END IF
         ELSE
 #endif
+          ILO=1
+          IHI=NAS
+          JLO=1
+          JHI=NAS
+          LDA=0
+          MBC=NAS*(NAS+1)/2
           CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,
-     &                 ISYM,GA_Arrays(lg_BC)%A(:),1,NAS,1,NAS,0)
-          CALL MKBC_F3(ISYM,GA_Arrays(lg_BC)%A(:),NG3,F3,IDXG3)
+     &                 ISYM,GA_Arrays(lg_BC)%A(:),MBC,
+     &                 ILO,IHI,JLO,JHI,LDA)
+          CALL MKBC_F3(ISYM,GA_Arrays(lg_BC)%A(:),MBC,NG3,F3,IDXG3)
 
 #ifdef _MOLCAS_MPP_
         END IF
@@ -1068,18 +1078,18 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       END SUBROUTINE MKBC
 
       SUBROUTINE MKBC_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
-     &                    BC,iLo,iHi,jLo,jHi,LDC)
+     &                    BC,MBC,iLo,iHi,jLo,jHi,LDC)
       use definitions, only: iwp, wp
       use constants, only: Half, Two, Four
       USE SUPERINDEX, only: MTUV
       use caspt2_global, only:ipea_shift
       use caspt2_module, only: EASUM,NASHT,NTUVES,EPSA
       IMPLICIT NONE
-      INTEGER(KIND=IWP), intent(in):: NDREF,NPREF, iSYM,
+      INTEGER(KIND=IWP), intent(in):: NDREF,NPREF, iSYM,MBC,
      &                                iLo,iHi,jLo,jHi,LDC
       REAL(KIND=WP), intent(in):: DREF(NDREF),PREF(NPREF)
       REAL(KIND=WP), intent(in):: FD(NDREF),FP(NPREF)
-      REAL(KIND=WP), intent(inout):: BC(*)
+      REAL(KIND=WP), intent(inout):: BC(MBC)
 
       INTEGER(KIND=IWP) IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,ITUVABS,
      &                  ITABS,IUABS,IVABS,ISADR,IVZ,ITX,IVU,ITZ,IP1,
@@ -1158,15 +1168,16 @@ CGG End
       END DO
       END SUBROUTINE MKBC_DP
 
-      SUBROUTINE MKBC_F3(ISYM,BC,NG3,F3,idxG3)
+      SUBROUTINE MKBC_F3(ISYM,BC,NBC,NG3,F3,idxG3)
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp, Byte
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NASHT,IASYM,nTUVES
+      use definitions, only: iwp, wp, Byte
+
       IMPLICIT NONE
 
-      INTEGER(KIND=IWP), INTENT(IN):: ISYM, NG3
-      REAL(KIND=WP), INTENT(INOUT):: BC(*)
+      INTEGER(KIND=IWP), INTENT(IN):: ISYM, NBC,NG3
+      REAL(KIND=WP), INTENT(INOUT):: BC(NBC)
       REAL(KIND=WP), INTENT(IN):: F3(NG3)
       INTEGER(KIND=BYTE), INTENT(IN):: idxG3(6,NG3)
 
@@ -1348,7 +1359,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
 #include "mafdecls.fh"
 
       INTEGER(KIND=IWP), INTENT(IN):: ISYM,iLo,iHi,jLo,jHi,LDC,NG3
-      REAL(KIND=WP), INTENT(INOUT):: BC(LDC,*)
+      REAL(KIND=WP), INTENT(INOUT):: BC(LDC,jHi-jLo+1)
       REAL(KIND=WP), INTENT(IN):: F3(NG3)
       INTEGER(kind=Byte),INTENT(IN):: idxG3(6,NG3)
 
