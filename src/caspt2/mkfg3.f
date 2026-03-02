@@ -490,12 +490,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         if (.not. DoFCIQMC) then
             IF(mkF) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
-                Write (6,*) 'SIZE(BUFT)',SIZE(BUFT)
-                Write (6,*) 'SIZE(BUFD)',SIZE(BUFD)
-                Write (6,*) 'MxCI=',MxCI
-                Write (6,*) 'nSGM1=',nSgm1
-                BufT(1:nSgm1)=(BufD(:)-EpsA(iv))*BufT(:)
-                Write (6,*) 'PASSED'
+                BufT(1:nSgm1)=(BufD(1:nSgm1)-EpsA(iv))*BufT(1:nSgm1)
 !               do icsf=1,nsgm1
 !                 buft(icsf)= (bufd(icsf)-epsa(iv))*buft(icsf)
 !               end do

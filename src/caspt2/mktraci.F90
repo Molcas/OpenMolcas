@@ -13,7 +13,7 @@ use caspt2_module, only: nSym, nIsh, nAsh, nRas1, nRas2, nRas3, nSsh, nOrb, nBas
 
 use definitions, only: iwp, wp
 integer(kind=iwp), intent(in):: nTORB,STSYM,nCONF
-real(kind=wp), intent(in):: TORB(nTORB)
+real(kind=wp), intent(inout):: TORB(nTORB)
 real(kind=wp), intent(inout):: CI(nConf)
 
 integer(kind=iwp) ITOEND,ISYM,NI,NA,NR1,NR2,NR3,NS,NO,NB,ITOSTA,ITO,iSTART
