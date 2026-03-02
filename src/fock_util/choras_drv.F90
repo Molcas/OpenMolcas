@@ -15,6 +15,9 @@ use Fock_util_global, only: ALGO, Deco, Lunit, REORD
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, Integer_Pointer
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
+#ifdef _MOLCAS_MPP_
+Use Para_Info, Only: nProcs
+#endif
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,6 +33,9 @@ logical(kind=iwp) :: DoCoulomb(MaxDs), DoExchange(MaxDs)
 type(DSBA_Type) :: DDec, DLT(1), DSQ(1), FLT(1), MSQ(MaxDs), Vec
 type(Integer_Pointer) :: pNocc(1)
 integer(kind=iwp), allocatable, target :: nVec(:)
+#ifdef _MOLCAS_MPP_
+integer(kind=iwp) jDen
+#endif
 
 !                                                                      *
 !***********************************************************************
@@ -154,6 +160,11 @@ else
 end if
 
 call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
+
+#ifdef _MOLCAS_MPP_
+If (nProcs>1) Call GADSUM(FLT(1)%A0,SIZE(FLT(jDen)%A0))
+#endif
+
 
 if (rc /= 0) call Error(rc)
 
