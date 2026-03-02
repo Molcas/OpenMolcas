@@ -40,7 +40,8 @@
       LOGICAL(kind=iwp) RSV_TSK
 
       Integer(kind=iwp), Intent(In):: nCI, nLev
-      REAL(kind=wp), Intent(inout):: CI(nCI),SGM1(nCI)
+      REAL(kind=wp), Intent(in):: CI(nCI)
+      REAL(kind=wp), Intent(out):: SGM1(nCI)
       REAL(kind=wp), Intent(out):: G1(NLEV,NLEV)
 #ifdef _ENABLE_CHEMPS2_DMRG_
       REAL(kind=wp) G2(NLEV,NLEV,NLEV,NLEV)

@@ -166,8 +166,8 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        INCY1=1
        INCY2=NIN
        LEN1=NIN
-       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1)
-       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2)
+       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
+       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
 C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        IDIJ=1+IOFDIJ(ISYMI)
        NO=NORB(ISYMI)
@@ -270,8 +270,8 @@ C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
         INCY1=1
         INCY2=NIN*NA
         LEN1=NIN*NA
-        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY))
-        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY))
+        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY),nVEC1-IY+1)
+        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY),nVEC2-IY+1)
 C  D(I,J) := Add contraction -X2(MU,A,K,I)*X1(MU,A,K,J):
         IDIJ=1+IOFDIJ(ISYMI)
         NOI=NORB(ISYMI)
@@ -332,8 +332,8 @@ C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
        INCY1=1
        INCY2=NIN
        LEN1=NIN
-       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1)
-       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2)
+       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
+       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
 C D(A,B) := Add contraction  X1(MU,C,A)*X2(MU,C,B):
        IDAB=1+IOFDAB(ISYMA)
        NOA=NORB(ISYMA)
@@ -386,8 +386,8 @@ C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
         INCY1=1
         INCY2=NIN*NI
         LEN1=NIN*NI
-        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY))
-        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY))
+        CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1(IY),nVec1-IY+1)
+        CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2(IY),nVec2-IY+1)
 C  D(A,B) := Add contraction +X1(MU,I,C,A)*X2(MU,I,C,B):
         IDAB=1+IOFDAB(ISYMA)
         NOA=NORB(ISYMA)
@@ -448,8 +448,8 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        INCY1=1
        INCY2=NAS
        LEN1=NAS
-       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1)
-       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2)
+       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
+       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
 C D(I,J) := Add contraction -X2(MU,K,I)*X1(MU,K,J):
        IDIJ=1+IOFDIJ(ISYMI)
        NOI=NORB(ISYMI)
@@ -489,8 +489,8 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
        INCY1=NAS
        INCY2=1
        LEN1=NIS
-       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1)
-       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2)
+       CALL MLTUNF(LIST(LLST1),NLST1,X1,nX,VEC1,nVec1)
+       CALL MLTUNF(LIST(LLST1),NLST1,X2,nX,VEC2,nVec2)
 C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
        IDAB=1+IOFDAB(ISYMA)
        NOA=NORB(ISYMA)
@@ -504,5 +504,36 @@ C D(A,B) := Add contraction  X1(A,C,IJ)*X2(B,C,IJ):
         CALL ABEND()
       END SELECT
 C -----------------------------------------------
+      Contains
+
+      SUBROUTINE MLTUNF(LST,nLST,X,nX,Y,nY)
+      use Sigma_data, only: INCX1,INCX2,INCX3,INCY1,INCY2,LEN1,VAL1
+      use definitions, only: iwp, wp
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: nLST,nX,nY
+      real(kind=wp), Intent(inout):: X(nX)
+      real(kind=wp), Intent(in):: Y(nY)
+      integer(kind=iwp), intent(in):: LST(4,NLST)
+
+      integer(kind=iwp) ILST,L1,L2,L3,L4,IX,IY
+      real(kind=wp) V
+C Given a list with entries LST(4,ITEM), ITEM=1,NLST,
+C with entries called L1,L2,L3,L4 for given ITEM, and
+C an array of the form Y(p,q), compute the matrix
+C    X(p,L1,L2) := Add V*Y(p,L3), p=1..LEN1
+C where V=VAL1(L4), looped over ITEM=1,NLST.
+C Note: Arrays are addressed by strides given in common.
+      DO ILST=1,NLST
+        L1=LST(1,ILST)
+        L2=LST(2,ILST)
+        L3=LST(3,ILST)
+        L4=LST(4,ILST)
+        V=VAL1(L4)
+        IX=1+INCX2*(L1-1)+INCX3*(L2-1)
+        IY=1+INCY2*(L3-1)
+        CALL DAXPY_(LEN1,V,Y(IY),INCY1,X(IX),INCX1)
+      END DO
+
+      END SUBROUTINE MLTUNF
 
       END SUBROUTINE DIADNS
