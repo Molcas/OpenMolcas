@@ -13,6 +13,7 @@
 
 subroutine vec2upper_triag(squaremat,matdim,vec,vecdim,antisymmetric)
 use Definitions, only: u6,wp,iwp
+use Constants, only: Zero
 
 implicit none
 integer(kind=iwp),intent(in) :: matdim,vecdim
@@ -23,8 +24,8 @@ logical, intent(in) :: antisymmetric
 
 ! putting data stored as vector back into anti/symmetric matrix format
 listindex=0
-do i=1,matdim
-    do j=i,matdim
+do i=1,matdim-1
+    do j=i+1,matdim
         listindex=listindex+1
         if (.false.) then
             write(u6,"(A,I5,A,I5,A,I5,A,F8.3)") "i=",i ,"j= ",j,"listindex=",listindex,"mat(i,j)=",squaremat(i,j)
@@ -33,7 +34,11 @@ do i=1,matdim
         squaremat(i,j)=vec(listindex)
 
         if (antisymmetric) then
-            squaremat(j,i)=-vec(listindex)
+            if (i==j) then
+                squaremat(i,j) = Zero
+            else
+                squaremat(j,i)=-vec(listindex)
+            end if
         else
             squaremat(j,i)=vec(listindex)
         end if

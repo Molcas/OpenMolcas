@@ -22,8 +22,8 @@ integer(kind=iwp) :: i,j,listindex
 
 ! putting the upper triagonal elements & diagonal elements into a list
 listindex=0
-do i=1,matdim
-    do j=i,matdim
+do i=1,matdim-1
+    do j=i+1,matdim
         listindex=listindex+1
         if (.false.) then
             write(u6,"(A,I5,A,I5,A,I5,A,F8.3)") "i=",i ,"j= ",j,"listindex=",listindex,"mat(i,j)=",squaremat(i,j)
@@ -32,8 +32,8 @@ do i=1,matdim
     end do
 end do
 
-if (.false.) then
-    write(u6,*) "pper_per_triag2vec:"
+if (.true.) then
+    write(u6,*) "In upper_triag2vec:"
     call RecPrt("NxN Matrix",' ',squaremat,matdim,matdim)
     call RecPrt("matrix as vector of upper triagonal values:",' ',vec,listindex,1)
 end if

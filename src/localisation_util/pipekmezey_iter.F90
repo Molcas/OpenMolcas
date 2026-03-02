@@ -64,7 +64,7 @@ call Put_cArray('Relax Method','LOCALIS ',8)
 ! ---------------------------------------------------------------------------------------------------
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
 
-    fsdim = nOrb2Loc*(nOrb2Loc-1)/2 + nOrb2Loc
+    fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
     call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
     call mma_Allocate(Gradient,nOrb2Loc,nOrb2Loc,Label='Gradient')
