@@ -27,6 +27,9 @@ use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
+#ifdef _MOLCAS_MPP_
+Use Para_Info, Only: nProcs
+#endif
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
@@ -34,7 +37,7 @@ integer(kind=iwp), intent(in) :: nSym, nBas(8), nD
 logical(kind=iwp), intent(in) :: DoExchange(*)
 type(DSBA_Type), intent(inout) :: FLT(*), FSQ(*)
 integer(kind=iwp) :: IB, IJB, ISYM, JB, NB, nDen
-#ifdef _DEBUGPRINT_
+#if defined(_DEBUGPRINT_) || defined(_MOLCAS_MPP_)
 integer(kind=iwp) :: jDen
 #endif
 
@@ -86,6 +89,14 @@ else ! nDen=3
   end do
 
 end if ! nDen=3
+
+#ifdef _MOLCAS_MPP_
+If (nProcs>1) Then
+Do jDen=1,nDen
+   Call GADSUM(FLT(jDen)%A0,SIZE(FLT(jDen)%A0))
+End Do
+End If
+#endif
 
 ! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
