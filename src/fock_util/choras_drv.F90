@@ -162,7 +162,7 @@ end if
 call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
 #ifdef _MOLCAS_MPP_
-If (nProcs>1) Call GADSUM(FLT(1)%A0,SIZE(FLT(jDen)%A0))
+If (nProcs>1) Call GADSUM(FLT(1)%A0,SIZE(FLT(1)%A0))
 #endif
 
 

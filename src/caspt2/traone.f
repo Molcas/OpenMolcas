@@ -22,7 +22,7 @@
 #include "warnings.h"
       integer(kind=iwp), intent(in):: NCMO, nHONE
       real(kind=wp), intent(in)::  CMO(NCMO)
-      real(kind=wp), intent(out):: HONE(nHONE)
+      real(kind=wp), intent(inout):: HONE(nHONE)
 
       integer(kind=iwp) nBasXX(8),Keep(8)
       logical(kind=iwp) iSquar, Found

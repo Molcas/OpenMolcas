@@ -17,7 +17,7 @@ IMPLICIT None
 integer(kind=iwp), intent(in):: nCMO, nFIMO, nFIFA, nDREF, nHONE
 real(kind=wp), intent(in):: CMO(nCMO), DREF(nDREF)
 real(kind=wp), intent(inout):: FIMO(nFIMO), FIFA(nFIFA)
-real(kind=wp), intent(in):: HONE(nHONE)
+real(kind=wp), intent(inout):: HONE(nHONE)
 logical(kind=iwp), intent(inout):: INITIATE
 
 If (INITIATE) Call TraOne(CMO,nCMO,HONE,nHONE)
