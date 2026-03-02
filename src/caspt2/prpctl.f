@@ -367,7 +367,7 @@ C Write natural orbitals to standard output.
       End Do
       call mma_allocate(Scr,NDENS,Label='Scr')
 *
-      Call DOne_Caspt2(CNAT,OCC,Scr)
+      Call DOne_Caspt2(CNAT,nCMO,OCC,nOcc,Scr,nDENS)
       Call Put_dArray('D1ao',Scr,nDens)
 *
       Note='Temporary orbital file used by prpt.'
