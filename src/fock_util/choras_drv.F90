@@ -33,9 +33,6 @@ logical(kind=iwp) :: DoCoulomb(MaxDs), DoExchange(MaxDs)
 type(DSBA_Type) :: DDec, DLT(1), DSQ(1), FLT(1), MSQ(MaxDs), Vec
 type(Integer_Pointer) :: pNocc(1)
 integer(kind=iwp), allocatable, target :: nVec(:)
-#ifdef _MOLCAS_MPP_
-integer(kind=iwp) jDen
-#endif
 
 !                                                                      *
 !***********************************************************************
@@ -177,8 +174,6 @@ end if
 call Deallocate_DT(DSQ(1))
 call Deallocate_DT(DLT(1))
 call Deallocate_DT(FLT(1))
-
-return
 
 contains
 
