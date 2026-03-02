@@ -39,6 +39,9 @@ character(len=6) :: UpMeth
 logical :: SORange
 character :: Step_Trunc
 
+SORange=.false.
+
+Functionallist(:) =-Functionallist(:)
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
@@ -78,7 +81,7 @@ if (SGEKdebug) then
     call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
     call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
-    call RecPrt("dq(:)",' ',dq,fsdim, 1)
+    call RecPrt("dq(:) before projecting in",' ',dq,fsdim, 1)
 end if
 
 ! select subspace basis vectors; construct normalized e_diis
@@ -254,6 +257,8 @@ Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis,g_diis,dq_diis,Functionallist
 
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
+if (SGEKdebug) call RecPrt('dq(:) before projecting out',' ',dq_diis(:),size(dq_diis),1)
+
 dq(:) = Zero
 do i=1,mDIIS
   dq(:) = dq(:)+dq_diis(i)*e_diis(:,i)
@@ -262,7 +267,7 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
 if (SGEKdebug) then
     write(u6,*) '||dq||=',dqdq
-    call RecPrt('dq',' ',dq(:),size(dq),1)
+    call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 end if
 
 
@@ -284,4 +289,5 @@ call Timing(Cpu2,Tim1,Tim2,Tim3)
 
 if (SGEKdebug) write(u6,*) 'CPU Time for GEK iteration',Cpu2-Cpu1
 
+Functionallist(:) =-Functionallist(:)
 end subroutine S_GEK_localisation

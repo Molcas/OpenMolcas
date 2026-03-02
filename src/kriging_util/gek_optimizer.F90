@@ -32,7 +32,6 @@ subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_dii
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-
 use Index_Functions, only: iTri, nTri_Elem
 use Kriging_mod, only: blavAI
 use Kriging_procedures, only: Setup_Kriging
@@ -58,6 +57,7 @@ character(len=6) :: UpMeth_
 character :: Step_Trunc_
 real(kind=wp), allocatable :: Val(:), Vec(:,:)
 integer(kind=iwp), parameter :: nWindow = 20
+
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
 real(kind=wp), external :: DDot_
@@ -65,11 +65,9 @@ real(kind=wp), external :: DDot_
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! We need to set the bias
-
 blavAI = Ten
 call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy,Hessian_HMF=H_diis)
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Here starts the code doing the actual optimization
 
@@ -78,16 +76,20 @@ Terminate = .false.
 Step_Trunc = 'N'
 Converged = .false.
 
+
+
 if (SORange) then
   SOFact = One
 else
   SOFact = 10000.0_wp
 end if
+
 Beta_Disp = Beta_Disp_Seed*SOFact
 Iteration = nDiis-1
 Iteration_Micro = 0
 Iteration_Total = nDIIS-1
 if (nDIIS > 1) Beta_Disp = min(Beta_Disp_Seed*SOFact,max(Beta_Disp_Min,abs(Energy(nDIIS)-Energy(nDIIS-1))))
+
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Energy(nDIIS)-Energy(nDIIS-1)=',Energy(nDIIS)-Energy(nDIIS-1)
 write(u6,*) 'nDIIS=',nDIIS
@@ -96,6 +98,10 @@ write(u6,*) 'Beta_Disp_Min=',Beta_Disp_Min
 write(u6,*) 'Beta_Disp=',Beta_Disp
 #endif
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111111111
+! MICRO ITERATIONS
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111111111
 do while (.not. Converged) ! Micro iterate on the surrogate model
 
   Iteration_Micro = Iteration_Micro+1
@@ -120,7 +126,6 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   write(u6,*) '-----> Start RVO step'
 # endif
 
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Fact = One
   StepMax = StepMax_Seed*SOFact*real(Iteration_Micro,kind=wp)
@@ -148,9 +153,11 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     ! If negative eigenvalues then correct and signal that the micro iterations should be terminanted.
     do i=1,mDIIS
       ii = nTri_Elem(i)
+
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Eigenvalue:',Val(ii)
 #     endif
+
       if (Val(ii) < Zero) then
         Terminate = .true.
         do j=1,mDIIS
@@ -184,6 +191,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
     call RecPrt('q_diis(:,Iteration+1)',' ',q_diis(:,Iteration+1),mDIIS,1)
 #   endif
+
     if (Step_Trunc == 'N') Step_Trunc = ' '   ! set to blank if not touched
     if (Step_Trunc//Step_Trunc_ == ' *') Step_Trunc = '.' ! Mark that we have had a step Reduction
 
@@ -201,6 +209,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     write(u6,*) 'Fact      =',Fact
     write(u6,*) 'StepMax   =',StepMax
 #   endif
+
     if ((Fact < 1.0e-5_wp) .or. (Variance(1) < Beta_Disp)) exit
     if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) exit
     Fact = Half*Fact
@@ -244,6 +253,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   do i=1,mDIIS
     RMSMx = max(RMSMx,abs(dq_diis(i)))
   end do
+
 # ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*) 'FAbs=',FAbs
@@ -251,13 +261,16 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   write(u6,*) 'RMSMx=',RMSMx
   write(u6,*)
 # endif
+
   if (Step_Trunc == '.') Step_Trunc = ' '
   Converged = ((FAbs < ThrGrd) .and. (RMS < Four*ThrGrd) .and. (RMSMx < ThrGrd*Six) .and. &
                ((Step_Trunc == ' ') .or. (Step_Trunc == '#')))
+
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Step_Trunc:',Step_Trunc
   write(u6,*) 'Converged:',Converged
 # endif
+
   if (Step_Trunc == '*') Converged = .true.
   if ((.not. Converged) .and. (Iteration_Micro == Max_Iter)) Terminate = .true.
   if (Terminate) then
@@ -277,6 +290,7 @@ else
 end if
 write(u6,*) 'Energy(Iteration_Total+1):',Energy(Iteration_Total+1)
 #endif
+
 write(UpMeth(5:6),'(I2)') Iteration_Micro
 
 ! Compute the displacement in the reduced space relative to the last structure of the full space

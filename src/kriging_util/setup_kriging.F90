@@ -76,6 +76,7 @@ if (present(Hessian_HMF)) then
     call RecPrt('Setup_kriging: Grad',' ',Grad(:,:,i),nInter,nRaw)
   end do
 # endif
+
   call mma_allocate(Array_l,nInter,Label='Array_l')
   if (Set_l) then
     call Get_dScalar('Value_l',Value_l)
