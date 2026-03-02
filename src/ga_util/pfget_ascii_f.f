@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2017, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
+!***********************************************************************
 
 #include "compiler_features.h"
 
 #ifndef _HAVE_EXTRA_
 
-* Broadcast a file from the master to the slaves
+! Broadcast a file from the master to the slaves
 
       Subroutine PFGet_ASCII(FName)
 #ifdef _MOLCAS_MPP_
@@ -46,7 +46,7 @@
       If (King()) Then
         Call f_Inquire(FName, Found)
         If (Found) Then
-          Call Molcas_Open_Ext2(LU, FName, "stream", "unformatted", Err,
+          Call Molcas_Open_Ext2(LU, FName, "stream", "unformatted", Err,&
      &                          .False., 0, "old", Failed)
           If (Failed .or. (Err .ne. 0)) Then
             Write(6,*) "Failed to open file ", Trim(FName)
@@ -63,7 +63,7 @@
       If (FLen .le. 0) Return
       ! Open file for writing in the slaves
       If (.not.King()) Then
-        Call Molcas_Open_Ext2(LU, FName, "stream", "unformatted", Err,
+        Call Molcas_Open_Ext2(LU, FName, "stream", "unformatted", Err,  &
      &                        .False., 0, "replace", Failed)
         If (Failed .or. (Err .ne. 0)) Then
           Write(6,*) "Failed to open file ", Trim(FName)

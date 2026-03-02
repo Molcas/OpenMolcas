@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Init_TList(Triangular,P_Eff)
       use definitions, only: iwp, wp, u6
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
@@ -18,16 +18,16 @@
       Logical(kind=iwp), intent(in):: Triangular
       real(kind=wp), intent(in):: P_Eff
 
-      real(kind=wp)  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,
+      real(kind=wp)  distrib,PQpTsk,TskLw,TskHi,MinPQ1,a,fint,          &
      &               tskmin,tskmax
 
-* parameters concerning task distribution...
+! parameters concerning task distribution...
       Integer(kind=iwp), Parameter:: iDen_PQ  = 2
       Integer(kind=iwp), Parameter:: iDen_Tsk = 4
       Integer(kind=iwp), Parameter:: MinPQ    = 4
-* max number of tasks in tasklist per node...
+! max number of tasks in tasklist per node...
       Integer(kind=iwp), Parameter:: MxnTsk = 100
-      Integer(kind=iwp) iDen_PQ1,iDen_Tsk1,iTsk,kTsk,kTskHi,MxnTsk1,
+      Integer(kind=iwp) iDen_PQ1,iDen_Tsk1,iTsk,kTsk,kTskHi,MxnTsk1,    &
      &                  nTaskpP,nTaskpP_seg
 
       fint(a)=dble(int(a))
@@ -37,7 +37,7 @@
       MxnTsk1=MxnTsk
       iDen_PQ1=iDen_PQ
       iDen_Tsk1=iDen_Tsk
-c
+!
       P = P_Eff
       If (Triangular) Then
          PQ = P*(P+One)/Two
@@ -46,27 +46,27 @@ c
       End If
       nTasks = nint(Min(PQ,dble(MxnTsk1*nProcs)))
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
-*
+!
       Call mma_allocate(TskM,2,nTasks,Label='TskM')
       TskM(:,:)=0
       Call mma_allocate(TskQ,2,nTasks,Label='TskQ')
       TskQ(:,:)=Not_Used
       Call mma_allocate(TskL,nTasks*2,Label='TskL')
-*
+!
       tskmin=1.d14
       tskmax=Zero
       TskLw=One
       TskHi=Zero
       iTsk=0
 
-*     REPEAT
+!     REPEAT
       Do
         distrib = fint(PQ/dble(iDen_PQ1))
         nTaskpP=nTasks/nProcs
         nTaskpP_seg=nTaskpP/iDen_Tsk1
         PQpTsk=MinPQ1
-        If (nTaskpP_seg.ge.1)
-     >    PQpTsk=fint(distrib/dble(nTaskpP_seg*nProcs))
+        If (nTaskpP_seg.ge.1)                                           &
+     &    PQpTsk=fint(distrib/dble(nTaskpP_seg*nProcs))
         If (PQpTsk.gt.MinPQ1) Then
           PQpTsk  = fint(distrib/dble(nTaskpP_seg*nProcs))
           distrib = fint(PQpTsk*dble(nTaskpP_seg*nProcs))
@@ -97,9 +97,9 @@ c
         End Do
         nTasks=nTasks-kTskHi
 
-*       UNTIL (PQ == 0)
-*       If (abs(PQ).gt.1.d-10) Cycle
-*       Exit
+!       UNTIL (PQ == 0)
+!       If (abs(PQ).gt.1.d-10) Cycle
+!       Exit
         If (abs(PQ)<=1.d-10) Exit
 
       END DO
@@ -110,19 +110,19 @@ c
           Call Abend()
       End If
       nTasks=iTsk
-*
+!
       End Subroutine Init_TList
-*
+!
       Subroutine Free_TList()
       use TList_Mod, only: TskQ,TskM
       Use Para_Info, Only: nProcs, Is_Real_Par
       use stdalloc, only: mma_deallocate
       implicit None
-*
+!
       If (.Not.Allocated(TskQ)) Return
-*
+!
       If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
       Call mma_deallocate(TskQ)
       Call mma_deallocate(TskM)
-*
+!
       End Subroutine Free_TList

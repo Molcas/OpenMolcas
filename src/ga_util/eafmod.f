@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Martin Schuetz                                         *
-*               Roland Lindh                                           *
-*               2015, Steven Vancoillie                                *
-*               2017, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Martin Schuetz                                         *
+!               Roland Lindh                                           *
+!               2015, Steven Vancoillie                                *
+!               2017, Ignacio Fdez. Galvan                             *
+!***********************************************************************
 
-************************************************************************
-* Wrapper routines against the GA-ChemIO or MPI-IO package.            *
-* (EAF = exclusive access file)                                        *
-*                                                                      *
-* If not an mpp installation the AIX-IO facility will be used.         *
-************************************************************************
+!***********************************************************************
+! Wrapper routines against the GA-ChemIO or MPI-IO package.            *
+! (EAF = exclusive access file)                                        *
+!                                                                      *
+! If not an mpp installation the AIX-IO facility will be used.         *
+!***********************************************************************
 
 #ifdef ADD_
 #define eaf_open eaf_open_
@@ -31,8 +31,8 @@
 #define eaf_wait eaf_wait_
 #endif
 
-************************************************************************
-*                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine EAFOpen(Lu,FName)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -77,9 +77,9 @@
       End If
 #endif
       End Subroutine EAFOpen
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine EAFClose(Lu)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -109,9 +109,9 @@
       End If
 #endif
       End Subroutine EAFClose
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine EAFAWrite(Lu,Buf,nBuf,Disk,id)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -145,9 +145,9 @@
       End If
 #endif
       End Subroutine EAFAWrite
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine EAFARead(Lu,Buf,nBuf,Disk,id)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -181,9 +181,9 @@
       End If
 #endif
       End Subroutine EAFARead
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine EAFWrite(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -219,9 +219,9 @@
       End If
 #endif
       End Subroutine EAFWrite
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine EAFRead(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -257,9 +257,9 @@
       End If
 #endif
       End Subroutine EAFRead
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Subroutine EAFWait(Lu,id)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -286,12 +286,12 @@
 #endif
       Return
 #ifndef _MOLCAS_MPP_
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(Lu)
          Call Unused_integer(id)
       End If
 #endif
       End Subroutine EAFWait
-*                                                                      *
-************************************************************************
+!                                                                      *
+!***********************************************************************

@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-************************************************************************
-* SubRoutine GATskL(create,nTsk,igaTsk)                                *
-*  -> initialize or kill global task list                              *
-*     create:   Logical: .TRUE. -> create / .FALSE. -> kill            *
-*     nTsk:     # of tasks                                             *
-*     igaTsk:   global array handle to global task list (on return)    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!***********************************************************************
+! SubRoutine GATskL(create,nTsk,igaTsk)                                *
+!  -> initialize or kill global task list                              *
+!     create:   Logical: .TRUE. -> create / .FALSE. -> kill            *
+!     nTsk:     # of tasks                                             *
+!     igaTsk:   global array handle to global task list (on return)    *
+!***********************************************************************
       SubRoutine GATskL(create,nTsk,igaTsk)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -27,7 +27,7 @@
 #  include "mafdecls.fh"
       Logical ok
       Integer nProcs,Chk
-*
+!
       If (.Not. Is_Real_Par()) Return
       If (create) Then
         nProcs=ga_nnodes()
@@ -43,7 +43,7 @@
         ok=ga_destroy(igaTsk)
       End If
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_logical(create)
          Call Unused_integer(nTsk)
@@ -51,7 +51,7 @@ c Avoid unused argument warnings
       End If
 #endif
       End SubRoutine GATskL
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GATskL_Zero(igaTsk)
       Implicit None
       Integer igaTsk
@@ -60,19 +60,19 @@ c Avoid unused argument warnings
 
       Call ga_zero(igaTsk)
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(igaTsk)
 #endif
       End SubRoutine GATskL_Zero
-************************************************************************
-* Integer Function RsvTsk(igaTsk,iTskLs,nTsk,iStart)                   *
-*  -> reserve a task for my node and mark it on the global task list   *
-*     as reserved.                                                     *
-*     igaTsk:   global array handle to global task list                *
-*     iTskLs:   my private task list (my favourite sequence of tasks)  *
-*     nTsk:     # of tasks                                             *
-*     iStart:   starting value of index of private task list           *
-************************************************************************
+!***********************************************************************
+! Integer Function RsvTsk(igaTsk,iTskLs,nTsk,iStart)                   *
+!  -> reserve a task for my node and mark it on the global task list   *
+!     as reserved.                                                     *
+!     igaTsk:   global array handle to global task list                *
+!     iTskLs:   my private task list (my favourite sequence of tasks)  *
+!     nTsk:     # of tasks                                             *
+!     iStart:   starting value of index of private task list           *
+!***********************************************************************
       Integer Function RsvTsk(igaTsk,iTskLs,nTsk,mTsk,iStart,iS,iE)
 #ifdef _MOLCAS_MPP_
 #  ifdef _GA_
@@ -81,14 +81,14 @@ c Avoid unused argument warnings
 #  include "global.fh"
       Logical Reserved
       Integer iCnt,iTsk
-*
+!
       If (iStart.gt.mTsk) Then
         iTsk=0
         iCnt=nTsk
       Else
         Do iCnt = iStart, mTsk
           iTsk = iTskLs(iCnt,1)
-*         try to reserve iTsk on global task list...
+!         try to reserve iTsk on global task list...
           Reserved = ga_read_inc(igaTsk,iTsk,1,1) .ne. 0
           If (Reserved) Then
              iE = iE - 1
@@ -101,7 +101,7 @@ c Avoid unused argument warnings
         End Do
         iTsk=0
   100   Continue
-*
+!
       End If
       RsvTsk=iTsk
       iStart=iCnt
@@ -114,7 +114,7 @@ c Avoid unused argument warnings
       Integer iCnt,iTsk
       Integer :: One=1
       Integer, allocatable:: TSKR(:)
-*
+!
       If (iStart.gt.mTsk) Then
         iTsk=0
         iCnt=nTsk
@@ -145,7 +145,7 @@ c Avoid unused argument warnings
       Integer nTsk,mTsk,igaTsk,iTskLs(nTsk,2),iStart,iS,iE
       RsvTsk=0
       iStart=nTsk
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(igaTsk)
          Call Unused_integer_array(iTskLs)

@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-****************************************************************************
-* GA to/from ScaLAPACK (square block scattered decomposition) interface    *
-*                                                                          *
-* common variables:                                                        *
-*     nnodes        - number of processors                                 *
-*     iam           - my processor number                                  *
-*     nprow/ npcol  - number of processor rows/cols in virtual proc. grid  *
-*     myrow/mycol   - cordinates of my processor in virtual proc. grid     *
-*                                                                          *
-c***************************************************************************
-c* 04/12/96  GVT  Changed the code to adapt to a new version of ScaLAPACK  *
-c*           Giuseppe Vitillaro peppe@unipg.it                             *
-c* 11/12/14  Slightly modified for the DGA interface                       *
-c*           Victor Vysotskiy                                              *
-c***************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!***************************************************************************
+! GA to/from ScaLAPACK (square block scattered decomposition) interface    *
+!                                                                          *
+! common variables:                                                        *
+!     nnodes        - number of processors                                 *
+!     iam           - my processor number                                  *
+!     nprow/ npcol  - number of processor rows/cols in virtual proc. grid  *
+!     myrow/mycol   - cordinates of my processor in virtual proc. grid     *
+!                                                                          *
+!***************************************************************************
+!* 04/12/96  GVT  Changed the code to adapt to a new version of ScaLAPACK  *
+!*           Giuseppe Vitillaro peppe@unipg.it                             *
+!* 11/12/14  Slightly modified for the DGA interface                       *
+!*           Victor Vysotskiy                                              *
+!***************************************************************************
 #if defined (_SCALAPACK_) && defined (_MOLCAS_MPP_)
       subroutine ga_pdsyevx_(g_a, g_b, eval, nb8)
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -37,20 +37,20 @@ c***************************************************************************
       real*8 eval(*)
 
       character*1 jobz, range, uplo
-c
+!
       real*8, allocatable:: adrA(:)          ! A
       real*8, allocatable:: adrB(:)          ! B
-c
-c
+!
+!
       logical oactive           ! true iff this process participates
       integer dimA18, dimA28, typeA
       integer dimB18, dimB28, typeB
       SCALAPACKINT dimA1, dimA2
       SCALAPACKINT dimB1, dimB2
-c
+!
       SCALAPACKINT mpA, nqA     ! rows/cols of A held by the processor
       SCALAPACKINT mpB, nqB     ! rows/cols of B held by the processor
-c
+!
       integer me
       SCALAPACKINT lda, ldb
       integer elemA,elemB
@@ -59,7 +59,7 @@ c
       SCALAPACKINT nb                ! block size
       SCALAPACKINT descA(9), descB(9) !descriptor for scalapack
 
-c
+!
       integer ngaps
       real*8, allocatable:: adrgaps(:)
       integer iclu
@@ -71,7 +71,7 @@ c
       real*8, allocatable:: adrcwork(:)
       SCALAPACKINT lcwork4
       SCALAPACKINT liwork4
-c
+!
       SCALAPACKINT nn,mq0, np0
       real*8 vl, vu, abstol, orfac
       SCALAPACKINT il, iu
@@ -87,21 +87,21 @@ c
       external pdlamch
       SCALAPACKINT iceil
 
-c
-c     processor dependent; machine dependent
-c
+!
+!     processor dependent; machine dependent
+!
       if(nb8.eq.0) then
          nb=16
       else
          nb=nb8
       endif
-c
-c***  check environment
-c
+!
+!***  check environment
+!
       me     = ga_nodeid()
-c
-c***  check GA info for input arrays
-c
+!
+!***  check GA info for input arrays
+!
       call ga_inquire(g_a, typeA, dimA18, dimA28)
       call ga_inquire(g_b, typeB, dimB18, dimB28)
 
@@ -111,85 +111,85 @@ c
       dimb2=dimb28
       n=dima1
       if(nb.lt.1) nb=1
-      if(dimA1.ne.dima2) call ga_error(
-     $     'ga_pdsyevx: matrix A not square ',0)
-      if(dimb1.ne.dimb2) call ga_error(
-     $     'ga_pdsyevx: matrix B not square ',0)
-      if(dimb1.ne.n) call ga_error(
-     $     'ga_pdsyevx: size matrix A and B differ ',0)
+      if(dimA1.ne.dima2) call ga_error(                                 &
+     &     'ga_pdsyevx: matrix A not square ',0)
+      if(dimb1.ne.dimb2) call ga_error(                                 &
+     &     'ga_pdsyevx: matrix B not square ',0)
+      if(dimb1.ne.n) call ga_error(                                     &
+     &     'ga_pdsyevx: size matrix A and B differ ',0)
 
 
-c
-c
-c***  initialize SL interface
-c
+!
+!
+!***  initialize SL interface
+!
       call SLinit2_(n)
       oactive=iam.lt.maxproc
       call ga_sync
       if (oactive) then
-c
-c***  find SBS format parameters
-c
-c
+!
+!***  find SBS format parameters
+!
+!
          mpA = numroc(dimA1, nb, myrow2, zero4, nprow2)
          nqA = numroc(dimA2, nb, mycol2, zero4, npcol2)
-c
+!
          mpB = numroc(dimB1, nb, myrow2, zero4, nprow2)
          nqB = numroc(dimB2, nb, mycol2, zero4, npcol2)
-c
-c
+!
+!
          lda = max(one4,mpA)
          ldb = max(one4,mpB)
-c
-c
-c     let scalapack check for errors
-c
-c     should check to see if this is a compute node
-c     check to see how this works in the new data server model
-c
-c
+!
+!
+!     let scalapack check for errors
+!
+!     should check to see if this is a compute node
+!     check to see how this works in the new data server model
+!
+!
          elemA= mpA*nqA
-         if(elemA.ne.0)
-     $   Call mma_allocate(adrA,elemA,Label='adrA')
-c
-c***  copy g_a to A using the block cyclic scalapack format
-c
+         if(elemA.ne.0)                                                 &
+     &   Call mma_allocate(adrA,elemA,Label='adrA')
+!
+!***  copy g_a to A using the block cyclic scalapack format
+!
 
          call ga_to_SL2_(g_a, dimA1, dimA2, nb, nb, adrA, lda)
-c
+!
          elemB= mpB*nqB
 
-         if(elemB.ne.0)
-     $   Call mma_allocate(adrB,elemB,Label='adrB')
+         if(elemB.ne.0)                                                 &
+     &   Call mma_allocate(adrB,elemB,Label='adrB')
 
-c
+!
          ngaps = nprow2*npcol2
-         if(ngaps.ne.0)
-     $   Call mma_allocate(adrgaps,ngaps,Label='adrgaps')
-c
+         if(ngaps.ne.0)                                                 &
+     &   Call mma_allocate(adrgaps,ngaps,Label='adrgaps')
+!
          iclu = 2*nprow2*npcol2
          two4n=two4*n
          iclu = max(two4n,iclu)
-         if(iclu.ne.0)
-     $   Call mma_allocate(adrclustr,iclu,Label='adrclustr')
+         if(iclu.ne.0)                                                  &
+     &   Call mma_allocate(adrclustr,iclu,Label='adrclustr')
          Call mma_allocate(adrfail,dima18,Label='adrfail')
       endif
       call ga_sync()
       if(oactive) then
-c
-c***  fill SCALAPACK matrix descriptors
-c
-         call descinit(descA, dimA1, dimA2, nb, nb, zero4, zero4,
-     $        islctxt2, lda, info)
+!
+!***  fill SCALAPACK matrix descriptors
+!
+         call descinit(descA, dimA1, dimA2, nb, nb, zero4, zero4,       &
+     &        islctxt2, lda, info)
          info8=info
-         if(info8.ne.0) call ga_error(' ga_pdsyevx: descinit A failed ',
-     $        -info8)
-         call descinit(descB, dimB1, dimB2, nb, nb, zero4, zero4,
-     $        islctxt2, ldb, info)
+         if(info8.ne.0) call ga_error(' ga_pdsyevx: descinit A failed ',&
+     &        -info8)
+         call descinit(descB, dimB1, dimB2, nb, nb, zero4, zero4,       &
+     &        islctxt2, ldb, info)
          info8=info
-         if(info8.ne.0) call ga_error(' ga_pdsyevx: descinit B failed ',
-     $        -info8)
-c
+         if(info8.ne.0) call ga_error(' ga_pdsyevx: descinit B failed ',&
+     &        -info8)
+!
          jobz = 'V'
          range = 'A'
          range = 'I'
@@ -201,63 +201,63 @@ c
          il = 1
          iu = n
          nz = 0
-c
-c     ability to deal with orthonormality ; let's just
-c     have the regular scalapack stuff for the moment
-c
+!
+!     ability to deal with orthonormality ; let's just
+!     have the regular scalapack stuff for the moment
+!
          liwork = 6*max(n, nprow2*npcol2+one4, four4)
          liwork=liwork
-         if(liwork.ne.0)
-     $   Call mma_allocate(adriwork,liwork,Label='adriwork')
-c
+         if(liwork.ne.0)                                                &
+     &   Call mma_allocate(adriwork,liwork,Label='adriwork')
+!
          nn = max(n, nb, two4)
          np0 = numroc(nn, nb, zero4, zero4, nprow2)
          mq0 = numroc(nn, nb, zero4, zero4, npcol2)
-c
-c
+!
+!
          orfac = 1.d-3
-c
-c
-         lcwork = 5*n +MAX(5*NN,(NP0*MQ0 + 2*nb*nb))+
-     $          ICEIL( N, NPROW2*NPCOL2)*NN+1
-         if(lcwork.ne.0)
-     $   Call mma_allocate(adrcwork,lcwork,Label='adrcwork')
-c
-c
+!
+!
+         lcwork = 5*n +MAX(5*NN,(NP0*MQ0 + 2*nb*nb))+                   &
+     &          ICEIL( N, NPROW2*NPCOL2)*NN+1
+         if(lcwork.ne.0)                                                &
+     &   Call mma_allocate(adrcwork,lcwork,Label='adrcwork')
+!
+!
          abstol=pdlamch(islctxt2, 'U')
-c
-c
+!
+!
          liwork4=liwork
          lcwork4=lcwork
-         call pdsyevx(jobz, range, uplo,
-     $        n, adrA, one4, one4, descA,vl,
-     $        vu, il, iu, abstol, m, nz, eval, orfac, adrB,
-     $        one4, one4, descB, adrcwork, lcwork4,
-     $        adriwork, liwork4, adrfail,
-     $        adrclustr, adrgaps, info)
-c
+         call pdsyevx(jobz, range, uplo,                                &
+     &        n, adrA, one4, one4, descA,vl,                            &
+     &        vu, il, iu, abstol, m, nz, eval, orfac, adrB,             &
+     &        one4, one4, descB, adrcwork, lcwork4,                     &
+     &        adriwork, liwork4, adrfail,                               &
+     &        adrclustr, adrgaps, info)
+!
 
          if (nz .ne. n ) then
             if ( info .ne. 0 ) then
                if ( info .gt. 0 ) then
          call ga_error(' ga_pdsyevx: argument is illegal ', info)
                else
-         call ga_error(' ga_pdsyevx: eigenvectors failed to converge ',
-     $                 info)
+         call ga_error(' ga_pdsyevx: eigenvectors failed to converge ', &
+     &                 info)
                endif
             endif
          endif
-c
-c
-c
-c***  copy solution matrix back to g_c
-c
+!
+!
+!
+!***  copy solution matrix back to g_c
+!
          call ga_from_SL2_(g_b, dimA1, dimB2, nb, nb, adrB, ldb)
-c
-c
-c
-c***  deallocate work/SL arrays
-c
+!
+!
+!
+!***  deallocate work/SL arrays
+!
          if ( lcwork .ne. 0 ) Call mma_deallocate(adrcwork)
          if ( liwork .ne. 0 ) Call mma_deallocate(adriwork)
          if ( iclu .ne. 0 ) Call mma_deallocate(adrclustr)
@@ -266,10 +266,10 @@ c
          if ( elemA .ne. 0 ) Call mma_deallocate(adrA)
          Call mma_deallocate(adrfail)
       endif
-c
+!
       call ga_sync()
       if(maxproc.lt.nnodes.or.dima1.le.nb) then
-c     broadcast evals
+!     broadcast evals
         Call GA_Brdcst(MT_DBL, eval, dima18, 0)
       endif
       return
@@ -280,29 +280,29 @@ c     broadcast evals
 #include "scalapack_.fh"
 #include "global.fh"
       SCALAPACKINT n
-c
+!
       SCALAPACKINT zero4
       parameter(zero4=0)
       SCALAPACKINT slgetmxproc_
       external slgetmxproc_
-c
+!
       if(init2)return
-c
-c**** call ga_sync before to enter in BLACS and after
+!
+!**** call ga_sync before to enter in BLACS and after
       call ga_sync()
-c
+!
       call blacs_pinfo(iam, nnodes)
-c
-c     determine optimal nprocs for eigensolvers based on matrix size n
-c
+!
+!     determine optimal nprocs for eigensolvers based on matrix size n
+!
       maxproc=slgetmxproc_(n,nnodes)
       call FindGrid_(maxproc, nprow2, npcol2)
-c
+!
       call blacs_get( zero4, zero4, islctxt2 )
       call blacs_gridinit(islctxt2, 'R', nprow2, npcol2)
 
 
-c
+!
       if(iam.lt.maxproc) then
          call blacs_gridinfo(iSLctxt2, nprow2, npcol2, myrow2, mycol2)
       else
@@ -312,12 +312,12 @@ c
          mycol2=0
       endif
       init2=.true.
-c
+!
       call ga_sync()
 
-c
+!
       end
-c
+!
       SCALAPACKINT function slgetmxproc_(n,nnodes)
       implicit none
       SCALAPACKINT nnodes
@@ -328,12 +328,12 @@ c
       real*8 nprocs0
       real*8 otto
       parameter(nmax=11,fact=((7108d0*7108d0)/1024d0),otto=8d0)
-cnew      parameter(nmax=11,fact=((7108d0*7108d0)/512d0),otto=8d0)
-c     lower bound of 8 procs
+!new      parameter(nmax=11,fact=((7108d0*7108d0)/512d0),otto=8d0)
+!     lower bound of 8 procs
       nprocs0=max((n*n)/fact,otto)
-c
-c     try to get powers of two
-c
+!
+!     try to get powers of two
+!
       do i = nmax, 0, -1
          if(nint(nprocs0/(2d0**i)).eq.1) goto 1
       enddo
@@ -344,15 +344,15 @@ c
       end
 
       subroutine FindGrid_(nnodes, nprow, npcol)
-c
-c***  determine nprow, npcol from nnodes
-c***  solution is searched in the neighborhood of the square grid
-c
+!
+!***  determine nprow, npcol from nnodes
+!***  solution is searched in the neighborhood of the square grid
+!
       implicit none
       SCALAPACKINT nnodes, nprow, npcol,i
-c
-c     try to get the 1:4 ratio
-c
+!
+!     try to get the 1:4 ratio
+!
       npcol = 2*int(sqrt(dble(nnodes)))
       do i = npcol, 1, -1
          if(mod(nnodes,i).eq.0) goto 1
@@ -368,16 +368,16 @@ c
       end
 
       subroutine ga_to_SL2_(g_a, dim1, dim2, nbr, nbc, s_a, lda4)
-c
-c***  transforms a GA to SL format
-c***  reference: Dongarra et al, 'A look at scalable dense lin. alg. libs'
-c
-c   g_a         - handle for Global Array that is being converted SL format
-c   dim1, dim2  - dimensions of Global Array
-c   nbr         - number of block rows?
-c   nbc         - number of block columns?
-c   s_a         - local array holding SL formatted data
-c   lda4        - leading dimension of s_a
+!
+!***  transforms a GA to SL format
+!***  reference: Dongarra et al, 'A look at scalable dense lin. alg. libs'
+!
+!   g_a         - handle for Global Array that is being converted SL format
+!   dim1, dim2  - dimensions of Global Array
+!   nbr         - number of block rows?
+!   nbc         - number of block columns?
+!   s_a         - local array holding SL formatted data
+!   lda4        - leading dimension of s_a
       implicit none
 #include "scalapack_.fh"
 #include "global.fh"
@@ -391,12 +391,12 @@ c   lda4        - leading dimension of s_a
       integer marg1,marg2
       logical putpending
 
-c***  Synchronize at the beginning
-c
+!***  Synchronize at the beginning
+!
       lda=lda4
       rbase = 1
       cbase = 1
-c
+!
       Trow = nbr * nprow2
       Tcol = nbc * npcol2
       do col  = 1, dim2, nbc
@@ -430,8 +430,8 @@ c
                      putpending=.true.
                   else
                   rowl=r1i
-                  call ga_get(g_a,r0im1,rowl,col,
-     $                    coll, s_a(rbase,cbase), lda)
+                  call ga_get(g_a,r0im1,rowl,col,                       &
+     &                    coll, s_a(rbase,cbase), lda)
                      putpending=.false.
                      rbase = rbase + rowl - r0im1 +1
                      r0im1=-1
@@ -444,16 +444,16 @@ c
          endif
       enddo
 
-c**** ... and at the end
+!**** ... and at the end
       end
 
 
 
       subroutine ga_from_SL2_(g_a,dim1,dim2,nbr, nbc, s_a, lda4)
-c
-c***  transforms a matrix from SL to GA format
-c***  reference: Dongarra et al, 'A look at scalable dense lin. alg. libs'
-c
+!
+!***  transforms a matrix from SL to GA format
+!***  reference: Dongarra et al, 'A look at scalable dense lin. alg. libs'
+!
       implicit none
 #include "scalapack_.fh"
 #include "global.fh"
@@ -467,17 +467,17 @@ c
       integer r0i,r1i,r0im1,r1im1
       integer marg1,marg2
       logical putpending
-c
+!
       lda=lda4
-c
-c**** Syncronize at the beginning
-c
+!
+!**** Syncronize at the beginning
+!
       rbase = 1
       cbase = 1
-c
+!
       Trow = nbr * nprow2
       Tcol = nbc * npcol2
-c
+!
       do col  = 1, dim2, nbc
          ! processor column that holds "col"
          pcol = mod(col,Tcol)/nbc
@@ -508,8 +508,8 @@ c
                      putpending=.true.
                   else
                   rowl=r1i
-                  call ga_put(g_a,r0im1,rowl,col,
-     $                    coll, s_a(rbase,cbase), lda)
+                  call ga_put(g_a,r0im1,rowl,col,                       &
+     &                    coll, s_a(rbase,cbase), lda)
                      putpending=.false.
                      rbase = rbase + rowl - r0im1 +1
                      r0im1=-1
@@ -522,7 +522,7 @@ c
          endif
       enddo
 
-c**** ... and at the end
+!**** ... and at the end
       end
 #else
       subroutine dummy_ga_pdsyevx()

@@ -1,30 +1,30 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2015, Steven Vancoillie                                *
-************************************************************************
-* Molcas task manager
-* Steven Vancoillie, june 2015
-*   Reimplementation of the task manager routines
-*   based solely on atomic read+increment operations on
-*   a global task counter.
-*
-*   For GA, we use the ga_read_inc function, and for DGA
-*   we use the gtsk_nxtval function. The latter has a special
-*   "gtsk_nxtval_even" sibling for better performance. It is
-*   only used when both MPI and DGA are active. The routines
-*   that use this special flavour can be found in the second
-*   part of the file.
-*
-*   The task lists are stacked, and have to be freed in
-*   the order of last initialized = freed first!
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2015, Steven Vancoillie                                *
+!***********************************************************************
+! Molcas task manager
+! Steven Vancoillie, june 2015
+!   Reimplementation of the task manager routines
+!   based solely on atomic read+increment operations on
+!   a global task counter.
+!
+!   For GA, we use the ga_read_inc function, and for DGA
+!   we use the gtsk_nxtval function. The latter has a special
+!   "gtsk_nxtval_even" sibling for better performance. It is
+!   only used when both MPI and DGA are active. The routines
+!   that use this special flavour can be found in the second
+!   part of the file.
+!
+!   The task lists are stacked, and have to be freed in
+!   the order of last initialized = freed first!
 
       block data block_tsk
         implicit none
@@ -48,7 +48,7 @@
 #endif
 
       if (list_counter.eq.mxtsklst) then
-        call sysabendmsg ('init_tsk',
+        call sysabendmsg ('init_tsk',                                   &
      &    'no free task lists available',' ')
       end if
       list_counter = list_counter + 1
@@ -57,8 +57,8 @@
       ntasks(id) = n
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
-        if (.not.ga_create(MT_INT,1,1,'gltskl',0,0,task_counter(id)))
-     &    call sysabendmsg ('init_tsk',
+        if (.not.ga_create(MT_INT,1,1,'gltskl',0,0,task_counter(id)))   &
+     &    call sysabendmsg ('init_tsk',                                 &
      &      'failed to create global task list',' ')
 #  ifdef _GA_
         call ga_fill(task_counter(id),1)
@@ -92,17 +92,17 @@
 #endif
 
       if (list_counter.eq.0) then
-        call sysabendmsg ('free_tsk',
+        call sysabendmsg ('free_tsk',                                   &
      &    'attempting to free a non-existent task list.',' ')
       end if
       if (id .ne. list_counter) then
-        call sysabendmsg ('free_tsk',
+        call sysabendmsg ('free_tsk',                                   &
      &    'only stack-based task lists are supported.',' ')
       end if
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
-        if (.not.ga_destroy(task_counter(id)))
-     &    call sysabendmsg ('free_tsk',
+        if (.not.ga_destroy(task_counter(id)))                          &
+     &    call sysabendmsg ('free_tsk',                                 &
      &      'failed to destroy global task list.',' ')
 #  ifndef _GA_
         call gtsk_reset(id)
@@ -128,7 +128,7 @@
 
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
-* (atomically) read+increment next task number
+! (atomically) read+increment next task number
 #  ifdef _GA_
         task = ga_read_inc(task_counter(id),1,1,1)
 #  else
@@ -145,10 +145,10 @@
       rsv_tsk = task.le.ntasks(id)
       end
 
-*****************************************************************
-* The "even" flavour of the task routines just give each process
-* a spread of numbers just as they would do with a loop stride.
-*****************************************************************
+!****************************************************************
+! The "even" flavour of the task routines just give each process
+! a spread of numbers just as they would do with a loop stride.
+!****************************************************************
       subroutine init_tsk_even(id,n)
 #ifdef _MOLCAS_MPP_
       use Para_Info, only: MyRank, Is_Real_Par
@@ -161,7 +161,7 @@
 #endif
 
       if (list_counter.eq.mxtsklst) then
-        call sysabendmsg ('init_tsk_even',
+        call sysabendmsg ('init_tsk_even',                              &
      &    'no free task lists available',' ')
       end if
       list_counter = list_counter + 1
@@ -191,11 +191,11 @@
 #endif
 
       if (list_counter.eq.0) then
-        call sysabendmsg ('free_tsk_even',
+        call sysabendmsg ('free_tsk_even',                              &
      &    'attempting to free a non-existent task list.',' ')
       end if
       if (id .ne. list_counter) then
-        call sysabendmsg ('free_tsk_even',
+        call sysabendmsg ('free_tsk_even',                              &
      &    'only stack-based task lists are supported.',' ')
       end if
       list_counter = list_counter - 1
@@ -215,7 +215,7 @@
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) then
         task = task_counter(id)
-* the next task is a stride of <nprocs> away
+! the next task is a stride of <nprocs> away
         task_counter(id) = task_counter(id) + nprocs
       else
         task = task_counter(id)

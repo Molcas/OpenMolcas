@@ -1,71 +1,71 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Martin Schuetz                                   *
-*               1998, Roland Lindh                                     *
-*               2000-2015, Steven Vancoillie                           *
-************************************************************************
-************************************************************************
-* This Module contains subroutines and functions which interface calls *
-* to the Global Array Tools (GA)                                       *
-*  DISTRIBUTED DATA PARALLEL VERSION for SCF                           *
-************************************************************************
-* SubRoutine GAInit                                                    *
-*  ->     initialize GA, returns rank of process and # of processes    *
-* SubRoutine GATerminate                                               *
-*  ->     finalize GA                                                  *
-* SubRoutine GASync                                                    *
-*  -> synchronize processes...                                         *
-* Subroutine GABrdcst(dType,Buf,nByte,Root)                            *
-*  -> broadcast message Buf of size nByte from Root                    *
-* SubRoutine GAStp(msg,ierr)                                           *
-*  -> terminate parallel application...                                *
-*     msg:      message to be printed...                               *
-*     ierr:     error code...                                          *
-* SubRoutine GAIGOP(k,n,op)                                            *
-*  -> integer global operation; stub routine to ga_igop...             *
-*     k(n):     global vector                                          *
-*     op:       global operation '+','*','max','min','absmax','absmin' *
-* SubRoutine GADGOP(x,n,op)                                            *
-*  -> double global operation; stub routine to ga_dgop...              *
-*     x(n):     global vector                                          *
-*     op:       global operation '+','*','max','min','absmax','absmin' *
-* SubRoutine GAAccP(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)                  *
-*  -> accumulate to GA patch; stub routine to ga_acc...                *
-*     iGA:      GA handle                                              *
-*     ilo,ihi,jlo,jhi: defines GA patch...                             *
-*     buf:      local buffer, containing data to accumulate...         *
-*     ld:       leading dimension of buf...                            *
-*     alpha:    scaling factor...                                      *
-* SubRoutine GADupl(iGA1,iGA2)                                         *
-*  -> duplicate & copy a global array...                               *
-*     iGA1,iGA2  :       GA handles...                                 *
-* SubRoutine GAAdd(alpha,iGA1,beta,iGA2,iGA3)                          *
-*  -> add to global arrays; stub routine to ga_dadd...                 *
-*     iGA3 = alpha * iGA1 + beta * iGA2                                *
-*----------------------------------------------------------------------*
-*     written by:                                                      *
-*     M. Schuetz, University of Lund, Sweden, 1995                     *
-*                                                                      *
-*     modified by:                                                     *
-*     R. Lindh, University of Lund, Sweden, 1998                       *
-*     S. Vancoillie, University of Lund, Sweden, 2010-2015             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Martin Schuetz                                   *
+!               1998, Roland Lindh                                     *
+!               2000-2015, Steven Vancoillie                           *
+!***********************************************************************
+!***********************************************************************
+! This Module contains subroutines and functions which interface calls *
+! to the Global Array Tools (GA)                                       *
+!  DISTRIBUTED DATA PARALLEL VERSION for SCF                           *
+!***********************************************************************
+! SubRoutine GAInit                                                    *
+!  ->     initialize GA, returns rank of process and # of processes    *
+! SubRoutine GATerminate                                               *
+!  ->     finalize GA                                                  *
+! SubRoutine GASync                                                    *
+!  -> synchronize processes...                                         *
+! Subroutine GABrdcst(dType,Buf,nByte,Root)                            *
+!  -> broadcast message Buf of size nByte from Root                    *
+! SubRoutine GAStp(msg,ierr)                                           *
+!  -> terminate parallel application...                                *
+!     msg:      message to be printed...                               *
+!     ierr:     error code...                                          *
+! SubRoutine GAIGOP(k,n,op)                                            *
+!  -> integer global operation; stub routine to ga_igop...             *
+!     k(n):     global vector                                          *
+!     op:       global operation '+','*','max','min','absmax','absmin' *
+! SubRoutine GADGOP(x,n,op)                                            *
+!  -> double global operation; stub routine to ga_dgop...              *
+!     x(n):     global vector                                          *
+!     op:       global operation '+','*','max','min','absmax','absmin' *
+! SubRoutine GAAccP(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)                  *
+!  -> accumulate to GA patch; stub routine to ga_acc...                *
+!     iGA:      GA handle                                              *
+!     ilo,ihi,jlo,jhi: defines GA patch...                             *
+!     buf:      local buffer, containing data to accumulate...         *
+!     ld:       leading dimension of buf...                            *
+!     alpha:    scaling factor...                                      *
+! SubRoutine GADupl(iGA1,iGA2)                                         *
+!  -> duplicate & copy a global array...                               *
+!     iGA1,iGA2  :       GA handles...                                 *
+! SubRoutine GAAdd(alpha,iGA1,beta,iGA2,iGA3)                          *
+!  -> add to global arrays; stub routine to ga_dadd...                 *
+!     iGA3 = alpha * iGA1 + beta * iGA2                                *
+!----------------------------------------------------------------------*
+!     written by:                                                      *
+!     M. Schuetz, University of Lund, Sweden, 1995                     *
+!                                                                      *
+!     modified by:                                                     *
+!     R. Lindh, University of Lund, Sweden, 1998                       *
+!     S. Vancoillie, University of Lund, Sweden, 2010-2015             *
+!***********************************************************************
       SubRoutine GAInit
-************************************************************************
-*     purpose: initialize DGA and set the global rank and number of    *
-*              processes in mpp_procid and mpp_nprocs. Then also set   *
-*              the (initial) local myRank and nProcs variables.        *
-*     called from: DPMP2 (distributed parallel MP2)                    *
-*     calls to: MPI-2/DGA routines                                     *
-************************************************************************
+!***********************************************************************
+!     purpose: initialize DGA and set the global rank and number of    *
+!              processes in mpp_procid and mpp_nprocs. Then also set   *
+!              the (initial) local myRank and nProcs variables.        *
+!     called from: DPMP2 (distributed parallel MP2)                    *
+!     calls to: MPI-2/DGA routines                                     *
+!***********************************************************************
       Use Para_Info, Only: MyRank, nProcs
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: mpp_procid, mpp_nprocs, mpp_workshare
@@ -76,11 +76,11 @@
       Character(Len=8) :: molcas_nprocs_env
       Integer :: molcas_nprocs, iRC
 
-C     SVC: bypass MPI initialization if only 1 process, this is needed for a
-C     specific version of GEO (so that the serial tasks which are run by MPI
-C     do not try to re-initialize MPI). This has the consequence that for any
-C     calculation where the number of processes is 1, calls to MPI/GA will fail
-C     at runtime (even though it will compile when inside _MOLCAS_MPP_!)
+!     SVC: bypass MPI initialization if only 1 process, this is needed for a
+!     specific version of GEO (so that the serial tasks which are run by MPI
+!     do not try to re-initialize MPI). This has the consequence that for any
+!     calculation where the number of processes is 1, calls to MPI/GA will fail
+!     at runtime (even though it will compile when inside _MOLCAS_MPP_!)
       Call getenvf('MOLCAS_NPROCS',molcas_nprocs_env)
       If(molcas_nprocs_env(1:1).eq.' ') Then
          molcas_nprocs=-1
@@ -98,7 +98,7 @@ C     at runtime (even though it will compile when inside _MOLCAS_MPP_!)
          mpp_procid=ga_nodeid()
          mpp_nprocs=ga_nnodes()
          mpp_workshare = .True.
-C make each slave process go to its proper work directory
+! make each slave process go to its proper work directory
          Call slaveschdir (mpp_procid, iRC)
          IF (iRC.NE.0) CALL Abend()
       Else
@@ -114,16 +114,16 @@ C make each slave process go to its proper work directory
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GATerminate
-CSVC: This terminates the parallel runtime after which the processes
-C     are no longer allowed to make ga/mpi calls. When called more than
-C     once, the routine does nothing. This is to support early
-C     termination of the parallel runtime without actually exiting.
-C     In such a situation, when the process eventually finishes, it
-C     will call this routine again, but then doing nothing. Such a use
-C     case is e.g. when we want to terminate slave processes and only
-C     continue to run the master process in serial mode.
+!SVC: This terminates the parallel runtime after which the processes
+!     are no longer allowed to make ga/mpi calls. When called more than
+!     once, the routine does nothing. This is to support early
+!     termination of the parallel runtime without actually exiting.
+!     In such a situation, when the process eventually finishes, it
+!     will call this routine again, but then doing nothing. Such a use
+!     case is e.g. when we want to terminate slave processes and only
+!     continue to run the master process in serial mode.
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: mpp_nprocs
 #endif
@@ -147,7 +147,7 @@ C     continue to run the master process in serial mode.
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GASync
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -162,7 +162,7 @@ C     continue to run the master process in serial mode.
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       Subroutine GABrdcst(dType,Buf,nByte,Root)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -181,7 +181,7 @@ C     continue to run the master process in serial mode.
 
       If (Is_Real_Par()) CALL GA_Brdcst(dType,Buf,nByte,Root)
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(dType)
          Call Unused_character(Buf)
@@ -191,7 +191,7 @@ c Avoid unused argument warnings
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GAStp(msg,ierr)
       Implicit None
       Character*(*) msg
@@ -201,7 +201,7 @@ c Avoid unused argument warnings
 
       Call ga_error(msg,ierr)
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_character(msg)
          Call Unused_integer(ierr)
@@ -209,7 +209,7 @@ c Avoid unused argument warnings
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GADGOP(x,n,op)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -226,7 +226,7 @@ c Avoid unused argument warnings
          Call ga_dgop(MT_DBL,x,n,op)
       End If
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(x)
          Call Unused_character(op)
@@ -234,7 +234,7 @@ c Avoid unused argument warnings
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GAdGOp_Scal(x,op)
       Implicit None
       Real*8 x
@@ -245,7 +245,7 @@ c Avoid unused argument warnings
       Call GAdGOp(x_arr,1,op)
       x=x_arr(1)
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GADSUM(x,n)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -261,12 +261,12 @@ c Avoid unused argument warnings
          Call ga_dgop(MT_DBL,x,n,'+')
       End If
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_real_array(x)
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GAdSum_Scal(x)
       Implicit None
       Real*8 x
@@ -275,7 +275,7 @@ c Avoid unused argument warnings
       Call GAdSum(x_arr,1)
       x=x_arr(1)
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GAIGOP(k,n,op)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -292,7 +292,7 @@ c Avoid unused argument warnings
          Call ga_igop(MT_INT,k,n,op)
       End If
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer_array(k)
          Call Unused_character(op)
@@ -300,7 +300,7 @@ c Avoid unused argument warnings
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GAiGOp_Scal(k,op)
       Implicit None
       Integer k
@@ -311,7 +311,7 @@ c Avoid unused argument warnings
       Call GAiGOp(k_arr,1,op)
       k=k_arr(1)
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GAAccP(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -326,7 +326,7 @@ c Avoid unused argument warnings
          Call ga_acc(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
       End IF
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(iGA)
          Call Unused_integer(ilo)
@@ -339,7 +339,7 @@ c Avoid unused argument warnings
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GADupl(iGA1,iGA2)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -365,7 +365,7 @@ c Avoid unused argument warnings
 
       Call ga_copy(iGA1,iGA2)
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(iGA1)
          Call Unused_integer(iGA2)
@@ -373,7 +373,7 @@ c Avoid unused argument warnings
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SubRoutine GAAdd(alpha,iGA1,beta,iGA2,iGA3)
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
@@ -388,7 +388,7 @@ c Avoid unused argument warnings
       If ((iGA1.ge.0).OR.(iGA2.ge.0).OR.(iGA3.ge.0)) Return
       Call ga_dadd(alpha,iGA1,beta,iGA2,iGA3)
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real(alpha)
          Call Unused_integer(iGA1)
@@ -399,7 +399,7 @@ c Avoid unused argument warnings
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       Integer Function GANodeID()
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: mpp_procid
@@ -412,7 +412,7 @@ c Avoid unused argument warnings
 #endif
       Return
       End
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       Integer Function GAnNodes()
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: mpp_nprocs

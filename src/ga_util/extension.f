@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Extension(FileName)
       implicit none
       Character(LEN=*), intent(inout):: FileName
@@ -33,7 +33,7 @@
       Filename(NameLength+1:NameLength+1)='_'
       Call WrNumber(Filename(NameLength+2:Length),PID)
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_character(FileName)
 #endif
       End Subroutine Ext_PID
@@ -56,7 +56,7 @@ c Avoid unused argument warnings
       Filename(NameLength+1:NameLength+1)='_'
       Call WrNumber(FileName(NameLength+2:Length),MyRank)
 #else
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_character(FileName)
 #endif
       End Subroutine Ext_Rank

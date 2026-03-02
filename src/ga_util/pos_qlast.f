@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Pos_QLast(Disc)
       use definitions, only: iwp, wp, u6, RtoI
       use TList_Mod, only: iTskCan, Not_Used, TskQ, QLast
@@ -17,24 +17,24 @@
       Integer(kind=iwp) iWR(2), mInts
       Real(kind=wp) Dummy(1), Quad_ijkl, RST_triplet
       Logical :: Copy=.True., NoCopy=.False.
-*
+!
       if(.NOT.Allocated(TskQ)) return
 
       Quad_ijkl  =TskQ(1,iTskCan)
       RST_triplet=TskQ(2,iTskCan)
       If (Quad_ijkl.eq.Not_Used) Return
-*
-*---- If already at the right position return
-*
-      If (Quad_ijkl==QLast(1) .and.
+!
+!---- If already at the right position return
+!
+      If (Quad_ijkl==QLast(1) .and.                                     &
      &    RST_triplet==QLast(2)) Return
-*
+!
       Do
 
          Call iRBuf(iWR,2,Copy)
          Call dRBuf(QLast,2,Copy)
          mInts=iWR(2)
-         If (QLast(1)==Quad_ijkl .and.
+         If (QLast(1)==Quad_ijkl .and.                                  &
      &       QLast(2)==RST_triplet) Then
             If (mInts.gt.0) Call dRBuf(Dummy,mInts,NoCopy)
             Disc = Disc + DBLE(2/RtoI + 2 + mInts)
@@ -52,7 +52,7 @@
             Write (u6,*)
             Call Abend()
        End If
-*
+!
       End Do
 
       Write (u6,*) 'Pos_QLast: Fatal problem!'
