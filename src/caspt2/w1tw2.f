@@ -52,7 +52,7 @@ C Modify the coefficients, see subroutine MODOP.
       CALL MODOP(OP1,NOP2,OP2,NOP3,OP3)
 
 C (2) Apply the operators:
-      CALL HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,STSYM,CI,SGM)
+      CALL HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,STSYM,CI,SGM,nCI)
 
       CALL mma_deallocate(OP1)
       CALL mma_deallocate(OP2)

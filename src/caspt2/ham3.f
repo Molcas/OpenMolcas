@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
+      SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM,NCI)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
@@ -19,11 +19,11 @@
       use pt2_guga, only: MxCI
       IMPLICIT NONE
 
-      integer(kind=iwp), intent(in):: NOP2,NOP3,ISYCI
+      integer(kind=iwp), intent(in):: NOP2,NOP3,ISYCI,NCI
       real(kind=wp) , intent(in)::OP0
       real(kind=wp), intent(in):: OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
-      real(kind=wp), intent(in):: CI(*)
-      real(kind=wp), intent(inout):: SGM(*)
+      real(kind=wp), intent(in):: CI(NCI)
+      real(kind=wp), intent(inout):: SGM(NCI)
 C Local arrays:
       integer(kind=iwp) IATOG(MXLEV)
       real(kind=wp), Allocatable:: SGM1(:), SGM2(:)
@@ -49,7 +49,7 @@ C NOP2=(NASHT**2+1 over 2)  (Binomial coefficient)
 C NOP3=(NASHT**2+2 over 3)  (Binomial coefficient)
 
       IF(NCONF.EQ.0) RETURN
-      IF(ABS(OP0).GT.1.0D-15) CALL DAXPY_(NCONF,OP0,CI,1,SGM,1)
+      IF(ABS(OP0).GT.1.0E-15_wp) CALL DAXPY_(NCONF,OP0,CI,1,SGM,1)
       IF(NACTEL.EQ.0) RETURN
 
 C Unless this is a special-case wave function, reserve space
@@ -85,7 +85,7 @@ C ordinal number of each active orbital.
         IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM1:=E(IY,IZ) PSI
-          CALL DCOPY_(NSGM1,[Zero],0,SGM1,1)
+          SGM1(1:nSGM1)=Zero
           LEVY=IATOG(IY)
           LEVZ=IATOG(IZ)
           CALL SIGMA1(SGS,CIS,EXS,
@@ -93,9 +93,8 @@ C Compute SGM1:=E(IY,IZ) PSI
 C Add non-zero 1-el contribution to SGM:
           IF(ISYZ.EQ.1) THEN
             X=OP1(IY,IZ)
-            IF(ABS(X).GT.1.0D-15) THEN
-              CALL DAXPY_(NCONF,X,SGM1,1,SGM,1)
-            END IF
+            IF (ABS(X).GT.1.0E-15_wp)
+     &         SGM(1:nConf)=SGM(1:nConf)+X*SGM1(1:nConf)
           END IF
         ELSE
 C Closed-shell or hi-spin case:
@@ -118,7 +117,7 @@ C Closed-shell or hi-spin case:
           IF(ISCF.EQ.0) THEN
 C The general case:
 C Compute SGM2:=E(IV,IX) SGM1
-            CALL DCOPY_(NSGM2,[Zero],0,SGM2,1)
+            SGM2(1:nSGM2)=Zero
             LEVV=IATOG(IV)
             LEVX=IATOG(IX)
             CALL SIGMA1(SGS,CIS,EXS,
@@ -126,9 +125,8 @@ C Compute SGM2:=E(IV,IX) SGM1
 C Add non-zero 2-el contribution to SGM:
             IF(ISVXYZ.EQ.1) THEN
               X=OP2(IVXYZ)
-              IF(ABS(X).GT.1.0D-15) THEN
-                CALL DAXPY_(NCONF,X,SGM2,1,SGM,1)
-              END IF
+              IF (ABS(X).GT.1.0E-15_wp)
+     &           SGM(1:nConf)=SGM(1:nConf)+X*SGM2(1:nConf)
             END IF
           ELSE
 C Closed-shell or hi-spin case:
@@ -147,7 +145,7 @@ C Closed-shell or hi-spin case:
             IF(ISTU.NE.ISVXYZ) CYCLE
             ITUVXYZ=((ITU+1)*ITU*(ITU-1))/6+IVXYZ
             X=OP3(ITUVXYZ)
-            IF(ABS(X).LT.1.0D-15) CYCLE
+            IF(ABS(X).LT.1.0E-15_wp) CYCLE
 C Add non-zero 3-el contribution to SGM:
             IF(ISCF.EQ.0) THEN
               LEVT=IATOG(IT)
