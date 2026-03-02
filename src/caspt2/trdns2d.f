@@ -60,6 +60,8 @@ C       if (icase/=12 .and. icase.ne.13) cycle ! H
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN==0) CYCLE
           NIS=NISUP(ISYM,ICASE)
+          Write (6,*) 'NIN=',NIN
+          Write (6,*) 'NIS=',NIS
           NVEC=NIN*NIS
           IF(NVEC==0) CYCLE
           !! lg_V1: T+lambda
@@ -116,8 +118,8 @@ C full array in case we are running in parallel
           ELSE
 #endif
             CALL DIADNS(ISYM,ICASE,
-     &                  GA_Arrays(lg_V1)%A,SIZE(GA_Arrays(lg_V1)%A),
-     &                  GA_Arrays(lg_V2)%A,SIZE(GA_Arrays(lg_V2)%A),
+     &                  GA_Arrays(lg_V1)%A,NVEC,
+     &                  GA_Arrays(lg_V2)%A,NVEC,
      &                  DPT2,nDPT2,
      &                  LISTS,Size(LISTS))
 #ifdef _MOLCAS_MPP_
@@ -161,8 +163,8 @@ C
             ELSE
 #endif
               CALL DIADNS(ISYM,ICASE,
-     &                    GA_Arrays(lg_V1)%A,SIZE(GA_Arrays(lg_V1)%A),
-     &                    GA_Arrays(lg_V2)%A,SIZE(GA_Arrays(lg_V2)%A),
+     &                    GA_Arrays(lg_V1)%A,NVEC,
+     &                    GA_Arrays(lg_V2)%A,NVEC,
      &                    DPT2,nDPT2,LISTS,SIZE(LISTS))
 #ifdef _MOLCAS_MPP_
             END IF

@@ -64,9 +64,9 @@ C contributions. This should be added in a separate routine,
 C since it requires transformation to standard (Non-ON) basis.
 
       NIN=NINDEP(ISYM,ICASE)
-      IF(NIN.EQ.0) RETURN
+      IF(NIN==0) RETURN
       NIS=NISUP(ISYM,ICASE)
-      IF(NIS.EQ.0) RETURN
+      IF(NIS==0) RETURN
       NAS=NASUP(ISYM,ICASE)
       NVEC=NIN*NIS
 
@@ -145,21 +145,21 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        NK=NISH(ISYMK)
        NI=NISH(ISYMI)
        NKI=NK*NI
-       IF(NKI.EQ.0) CYCLE
+       IF(NKI==0) CYCLE
        CALL DCOPY_(NIN*NKI,[Zero],0,X1,1)
        CALL DCOPY_(NIN*NKI,[Zero],0,X2,1)
-       IF(ICASE.EQ.2) THEN
+       IF(ICASE==2) THEN
          LLST1=LLIST(ISYMK,ISYM,14)
          NLST1=NLIST(ISYMK,ISYM,14)
          VAL1(1)= One
          VAL1(2)= SQR2
-       ELSE IF(ICASE.EQ.3) THEN
+       ELSE IF(ICASE==3) THEN
          LLST1=LLIST(ISYMK,ISYM,15)
          NLST1=NLIST(ISYMK,ISYM,15)
          VAL1(1)= One
          VAL1(2)=-One
        END IF
-       IF(NLST1.EQ.0) CYCLE
+       IF(NLST1==0) CYCLE
        INCX1=1
        INCX2=NIN
        INCX3=NIN*NK
@@ -202,6 +202,7 @@ C Case D
        NOI=NORB(ISYMI)
        IV=1+NIN*IOFCD(ISYM,ISYMA)
        INCA=NIN*NI
+       If (NI==0) CYCLE
        DO II=1,NI
          IV2=IV+NIN*(II-1)
          DO IJ=1,NI
@@ -221,7 +222,7 @@ C Case D
          DO IB=1,NS
            IDAB=IOFDAB(ISYMA)+IA+NOA*(IB-1)
            IV2=IV+INCA*(IB-1)
-             DPT2(IDAB)=DPT2(IDAB)+
+           DPT2(IDAB)=DPT2(IDAB)+
      &             DDOT_(INCA,VEC1(IV1),1,VEC2(IV2),1)
          END DO
        END DO
@@ -239,8 +240,8 @@ C Case EM
        ISYMKI=Mul(ISYMA,ISYM)
        NA=NSSH(ISYMA)
        NOA=NORB(ISYMA)
-       IF(ICASE.EQ.6) NKIY=NIGEJ(ISYMKI)
-       IF(ICASE.EQ.7) NKIY=NIGTJ(ISYMKI)
+       IF(ICASE==6) NKIY=NIGEJ(ISYMKI)
+       IF(ICASE==7) NKIY=NIGTJ(ISYMKI)
        IY=1+IYOFF
 C First, contributions to DIJ.
 C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
@@ -249,21 +250,21 @@ C Unfold VEC1 and VEC2 into X1(MU,A;K,I), X2(MU,A;K,I):
         NK=NISH(ISYMK)
         NI=NISH(ISYMI)
         NAKI=NA*NK*NI
-        IF(NAKI.EQ.0) CYCLE
+        IF(NAKI==0) CYCLE
         CALL DCOPY_(NIN*NAKI,[Zero],0,X1,1)
         CALL DCOPY_(NIN*NAKI,[Zero],0,X2,1)
-        IF(ICASE.EQ.6) THEN
+        IF(ICASE==6) THEN
           LLST1=LLIST(ISYMK,ISYMKI,14)
           NLST1=NLIST(ISYMK,ISYMKI,14)
           VAL1(1)= One
           VAL1(2)= SQR2
-        ELSE IF(ICASE.EQ.7) THEN
+        ELSE IF(ICASE==7) THEN
           LLST1=LLIST(ISYMK,ISYMKI,15)
           NLST1=NLIST(ISYMK,ISYMKI,15)
           VAL1(1)= One
           VAL1(2)=-One
         END IF
-        IF(NLST1.EQ.0) CYCLE
+        IF(NLST1==0) CYCLE
         INCX1=1
         INCX2=NIN*NA
         INCX3=NIN*NA*NK
@@ -280,20 +281,19 @@ C  D(I,J) := Add contraction -X2(MU,A,K,I)*X1(MU,A,K,J):
      &             One,DPT2(IDIJ),NOI)
        END DO
 C Second, contributions to DAB.
-       IF(NKIY.GT.0) THEN
-        DO IA=1,NA
-         DO IB=1,NA
-          IDAB=IOFDAB(ISYMA)+IA+NOA*(IB-1)
-          SUM=DPT2(IDAB)
-          DO MU=1,NIN
-            IY1=IYOFF+MU+NIN*(IA-1)
-            IY2=IYOFF+MU+NIN*(IB-1)
-            SUM=SUM+DDOT_(NKIY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
-          END DO
-          DPT2(IDAB)=SUM
+       IF(NKIY==0) CYCLE
+       DO IA=1,NA
+        DO IB=1,NA
+         IDAB=IOFDAB(ISYMA)+IA+NOA*(IB-1)
+         SUM=DPT2(IDAB)
+         DO MU=1,NIN
+           IY1=IYOFF+MU+NIN*(IA-1)
+           IY2=IYOFF+MU+NIN*(IB-1)
+           SUM=SUM+DDOT_(NKIY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
          END DO
+         DPT2(IDAB)=SUM
         END DO
-       END IF
+       END DO
        IYOFF=IYOFF+NIN*NA*NKIY
       END DO
       Call mma_deallocate(X1)
@@ -311,21 +311,21 @@ C Unfold VEC1 and VEC2 into X1(MU,C,A), X2(MU,C,B):
        NC=NSSH(ISYMC)
        NA=NSSH(ISYMA)
        NCA=NC*NA
-       IF(NCA.EQ.0) CYCLE
+       IF(NCA==0) CYCLE
        CALL DCOPY_(NIN*NCA,[Zero],0,X1,1)
        CALL DCOPY_(NIN*NCA,[Zero],0,X2,1)
-       IF(ICASE.EQ.8) THEN
+       IF(ICASE==8) THEN
          LLST1=LLIST(ISYMC,ISYM,16)
          NLST1=NLIST(ISYMC,ISYM,16)
          VAL1(1)= One
          VAL1(2)= SQR2
-       ELSE IF(ICASE.EQ.9) THEN
+       ELSE IF(ICASE==9) THEN
          LLST1=LLIST(ISYMC,ISYM,17)
          NLST1=NLIST(ISYMC,ISYM,17)
          VAL1(1)= One
          VAL1(2)=-One
        END IF
-       IF(NLST1.EQ.0) CYCLE
+       IF(NLST1==0) CYCLE
        INCX1=1
        INCX2=NIN
        INCX3=NIN*NC
@@ -355,8 +355,8 @@ C Case GM
        ISYMCA=Mul(ISYMI,ISYM)
        NI=NISH(ISYMI)
        NOI=NORB(ISYMI)
-       IF(ICASE.EQ.10) NCAY=NAGEB(ISYMCA)
-       IF(ICASE.EQ.11) NCAY=NAGTB(ISYMCA)
+       IF(ICASE==10) NCAY=NAGEB(ISYMCA)
+       IF(ICASE==11) NCAY=NAGTB(ISYMCA)
        IY=1+IYOFF
 C First, contributions to DAB.
 C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
@@ -365,21 +365,21 @@ C Unfold VEC1 and VEC2 into X1(MU,I;C,A), X2(MU,I;C,A):
         NC=NSSH(ISYMC)
         NA=NSSH(ISYMA)
         NICA=NI*NC*NA
-        IF(NICA.EQ.0) CYCLE
+        IF(NICA==0) CYCLE
         CALL DCOPY_(NIN*NICA,[Zero],0,X1,1)
         CALL DCOPY_(NIN*NICA,[Zero],0,X2,1)
-        IF(ICASE.EQ.10) THEN
+        IF(ICASE==10) THEN
           LLST1=LLIST(ISYMC,ISYMCA,16)
           NLST1=NLIST(ISYMC,ISYMCA,16)
           VAL1(1)= One
           VAL1(2)= SQR2
-        ELSE IF(ICASE.EQ.11) THEN
+        ELSE IF(ICASE==11) THEN
           LLST1=LLIST(ISYMC,ISYMCA,17)
           NLST1=NLIST(ISYMC,ISYMCA,17)
           VAL1(1)= One
           VAL1(2)=-One
         END IF
-        IF(NLST1.EQ.0) CYCLE
+        IF(NLST1==0) CYCLE
         INCX1=1
         INCX2=NIN*NI
         INCX3=NIN*NI*NC
@@ -396,20 +396,19 @@ C  D(A,B) := Add contraction +X1(MU,I,C,A)*X2(MU,I,C,B):
      &             One,DPT2(IDAB),NOA)
        END DO
 C Second, contributions to DIJ.
-       IF(NCAY.GT.0) THEN
-        DO II=1,NI
-         DO IJ=1,NI
-          IDIJ=IOFDIJ(ISYMI)+II+NOI*(IJ-1)
-          SUM=DPT2(IDIJ)
-          DO MU=1,NIN
-            IY1=IYOFF+MU+NIN*(IJ-1)
-            IY2=IYOFF+MU+NIN*(II-1)
-            SUM=SUM-DDOT_(NCAY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
-          END DO
-          DPT2(IDIJ)=SUM
+       IF(NCAY==0) CYCLE
+       DO II=1,NI
+        DO IJ=1,NI
+         IDIJ=IOFDIJ(ISYMI)+II+NOI*(IJ-1)
+         SUM=DPT2(IDIJ)
+         DO MU=1,NIN
+           IY1=IYOFF+MU+NIN*(IJ-1)
+           IY2=IYOFF+MU+NIN*(II-1)
+           SUM=SUM-DDOT_(NCAY,VEC1(IY1),INCY2,VEC2(IY2),INCY2)
          END DO
+         DPT2(IDIJ)=SUM
         END DO
-       END IF
+       END DO
        IYOFF=IYOFF+NIN*NI*NCAY
       END DO
       Call mma_deallocate(X1)
@@ -427,21 +426,21 @@ C Unfold VEC1 and VEC2 into X1(MU,K,I), X2(MU,K,I):
        NK=NISH(ISYMK)
        NI=NISH(ISYMI)
        NKI=NK*NI
-       IF(NKI.EQ.0) CYCLE
+       IF(NKI==0) CYCLE
        CALL DCOPY_(NAS*NKI,[Zero],0,X1,1)
        CALL DCOPY_(NAS*NKI,[Zero],0,X2,1)
-       IF(ICASE.EQ.12) THEN
+       IF(ICASE==12) THEN
          LLST1=LLIST(ISYMK,ISYM,14)
          NLST1=NLIST(ISYMK,ISYM,14)
          VAL1(1)= One
          VAL1(2)= SQR2
-       ELSE IF(ICASE.EQ.13) THEN
+       ELSE IF(ICASE==13) THEN
          LLST1=LLIST(ISYMK,ISYM,15)
          NLST1=NLIST(ISYMK,ISYM,15)
          VAL1(1)= One
          VAL1(2)=-One
        END IF
-       IF(NLST1.EQ.0) CYCLE
+       IF(NLST1==0) CYCLE
        INCX1=1
        INCX2=NAS
        INCX3=NAS*NK
@@ -468,21 +467,21 @@ C Unfold VEC1 and VEC2 into X1(A,C,IJ), X2(A,C,IJ):
        NC=NSSH(ISYMC)
        NA=NSSH(ISYMA)
        NCA=NC*NA
-       IF(NCA.EQ.0) CYCLE
+       IF(NCA==0) CYCLE
        CALL DCOPY_(NIS*NCA,[Zero],0,X1,1)
        CALL DCOPY_(NIS*NCA,[Zero],0,X2,1)
-       IF(ICASE.EQ.12) THEN
+       IF(ICASE==12) THEN
          LLST1=LLIST(ISYMA,ISYM,16)
          NLST1=NLIST(ISYMA,ISYM,16)
          VAL1(1)= One
          VAL1(2)= SQR2
-       ELSE IF(ICASE.EQ.13) THEN
+       ELSE IF(ICASE==13) THEN
          LLST1=LLIST(ISYMA,ISYM,17)
          NLST1=NLIST(ISYMA,ISYM,17)
          VAL1(1)= One
          VAL1(2)=-One
        END IF
-       IF(NLST1.EQ.0) CYCLE
+       IF(NLST1==0) CYCLE
        INCX1=NCA
        INCX2=1
        INCX3=NA
