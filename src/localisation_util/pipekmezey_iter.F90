@@ -31,7 +31,7 @@ real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: nIter, lSCR, fsdim
+integer(kind=iwp) :: nIter, lSCR, fsdim,i,j
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),dq(:),&
@@ -39,6 +39,7 @@ real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), 
 logical(kind=iwp), parameter :: debug_lowdin = .false.
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
+real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 
 !S-GEK
 real(kind=wp) :: dqdq
@@ -48,6 +49,13 @@ logical, parameter :: SGEKdebug = .false.
 ! -----------------------------
 
 if (.not. Silent) call CWTime(C1,W1)
+
+write(u6,*) 'Check the orthonormality of the orbitals'
+write(u6,*) '========================================'
+call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
+call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
+call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
+
 
 ! to allow property printing later
 call Put_cArray('Relax Method','LOCALIS ',8)
@@ -140,7 +148,6 @@ if (.not. Silent) then
     write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
 end if
 
-call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
 
 ! Iterations.
 ! ---------------------------------------------------------------------------------------------------
@@ -193,6 +200,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
             !call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
 
+            if (nIter == 250) then
+                call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+            end if
 
             if (nIter == 1) then
 
@@ -274,13 +284,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     end if
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 
-    ! this is just to see the orbitals (REMOVE LATER)
-    !if (nIter == nMxIter-5) then
-    !    Converged = .true.
-    !end if
+    !this is just to see the orbitals (REMOVE LATER)
+    if (nIter == nMxIter-2) then
+        Converged = .true.
+    end if
 end do !Iterations
-
-
 
 
 ! print info about each localized MO
@@ -306,6 +314,13 @@ if (.not. Silent) then
 end if
 
 !call Prpt()
+write(u6,*) 'Check the orthonormality of the orbitals'
+write(u6,*) '========================================'
+call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
+call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
+call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
+
+
 
 ! deallocate matrices used for NxN optimizations
 ! ---------------------------------------------------------------------------------------------------
