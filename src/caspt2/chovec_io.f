@@ -211,7 +211,7 @@ C as this is how they are used to compute the integrals for RHS.
       END SUBROUTINE CHOVEC_READ
 
 ************************************************************************
-      SUBROUTINE CHOVEC_SAVE(CHOBUF,ICASE,ISYQ,JSYM,IB)
+      SUBROUTINE CHOVEC_SAVE(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 ************************************************************************
 * Write Cholesky vectors to disk.
 ************************************************************************
@@ -221,8 +221,8 @@ C as this is how they are used to compute the integrals for RHS.
 #endif
       IMPLICIT NONE
 #include "warnings.h"
-      INTEGER(KIND=IWP), INTENT(IN):: ICASE,ISYQ,JSYM,IB
-      REAL(KIND=WP), INTENT(INOUT):: CHOBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NCHOBUF,ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(INOUT):: CHOBUF(NCHOBUF)
 
       INTEGER(KIND=IWP) NPQ, JNUM, IDISK
 #ifdef _DEBUGPRINT_
@@ -250,7 +250,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       END SUBROUTINE CHOVEC_SAVE
 
 ************************************************************************
-      SUBROUTINE CHOVEC_LOAD(CHOBUF,ICASE,ISYQ,JSYM,IB)
+      SUBROUTINE CHOVEC_LOAD(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 ************************************************************************
 * Read Cholesky vectors from disk.
 ************************************************************************
@@ -260,8 +260,8 @@ C always write the chunks to LUDRA, both for serial and parallel
 #endif
       IMPLICIT NONE
 #include "warnings.h"
-      INTEGER(KIND=IWP), INTENT(IN):: ICASE,ISYQ,JSYM,IB
-      REAL(KIND=WP), INTENT(OUT):: CHOBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NCHOBUF,ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(OUT):: CHOBUF(NCHOBUF)
 
       INTEGER(KIND=IWP) NPQ, JNUM, IDISK
 #ifdef _DEBUGPRINT_
@@ -288,7 +288,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       END SUBROUTINE CHOVEC_LOAD
 
 ************************************************************************
-      SUBROUTINE CHOVEC_COLL(CHOBUF,ICASE,ISYQ,JSYM,IB)
+      SUBROUTINE CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 ************************************************************************
 * Routine to gather locally available cholesky vectors and collect
 * all of them on each process in case of parallel run.
@@ -309,8 +309,8 @@ C always write the chunks to LUDRA, both for serial and parallel
 #endif
       IMPLICIT NONE
 #include "warnings.h"
-      REAL(KIND=WP), INTENT(INOUT) :: CHOBUF(*)
-      INTEGER(KIND=IWP), INTENT(IN) :: ICASE,ISYQ,JSYM,IB
+      INTEGER(KIND=IWP), INTENT(IN) :: NCHOBUF,ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(INOUT) :: CHOBUF(NCHOBUF)
 
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"

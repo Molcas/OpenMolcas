@@ -157,7 +157,7 @@
 *   Compute fully transformed TK
        IF(N1*N2.GT.0) THEN
         CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
-        CALL CHOVEC_SAVE(FTSPC,1,ISYQ,JSYM,IBATCH_TOT)
+        CALL CHOVEC_SAVE(FTSPC,NFTSPC,1,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
        N1=NSSH(ISYP)
@@ -194,7 +194,7 @@ C loop over secondary orbital index c is more efficient.
          ENDDO
         ENDDO
         CALL mma_deallocate(BUFFY)
-        CALL CHOVEC_SAVE(FTSPC,4,ISYQ,JSYM,IBATCH_TOT)
+        CALL CHOVEC_SAVE(FTSPC,NFTSPC,4,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * End loop ISYQ
       END DO
@@ -233,7 +233,7 @@ C loop over secondary orbital index c is more efficient.
 * Compute fully transformed TV
        IF(N1*N2.GT.0) THEN
         CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
-        CALL CHOVEC_SAVE(FTSPC,2,ISYQ,JSYM,IBATCH_TOT)
+        CALL CHOVEC_SAVE(FTSPC,NFTSPC,2,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
        N1=NSSH(ISYP)
@@ -243,7 +243,7 @@ C loop over secondary orbital index c is more efficient.
 *   Compute fully transformed AV
        IF(N1*N2.GT.0) THEN
         CALL FULLTRNSF(N1,N2,N,CMO(IC),JNUM,HTSPC(IP_LHT),FTSPC)
-        CALL CHOVEC_SAVE(FTSPC,3,ISYQ,JSYM,IBATCH_TOT)
+        CALL CHOVEC_SAVE(FTSPC,NFTSPC,3,ISYQ,JSYM,IBATCH_TOT)
        END IF
 * ---------------------------------------------------
 * End loop ISYQ
@@ -271,8 +271,8 @@ C loop over secondary orbital index c is more efficient.
               DO ICASE=1,4
                 NPQ=NPQ_CHOTYPE(ICASE,ISYQ,JSYM)
                 IF (NPQ.EQ.0) CYCLE
-                CALL CHOVEC_LOAD(FTSPC,ICASE,ISYQ,JSYM,IB)
-                CALL CHOVEC_COLL(FTSPC,ICASE,ISYQ,JSYM,IB)
+                CALL CHOVEC_LOAD(FTSPC,NFTSPC,ICASE,ISYQ,JSYM,IB)
+                CALL CHOVEC_COLL(FTSPC,NFTSPC,ICASE,ISYQ,JSYM,IB)
               END DO
             END DO
           END DO
