@@ -70,10 +70,10 @@ CPAM98      IF(SMATRIX.NE.'NO      ')CALL SBMAT
         END DO
 
         IF (SMATRIX.NE.'NO      ') Then
-!          CALL MKSMAT()
-!          CALL MKBMAT()
+           CALL MKSMAT()
+           CALL MKBMAT()
 !          CALL MKSBMAT()
-           CALL MKSBMAT_G()
+!          CALL MKSBMAT_G()
         END IF
 
 C Modify B matrices, if necessary:
