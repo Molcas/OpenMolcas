@@ -254,14 +254,13 @@ C on entry, BA should contain SA!!
           EU=EPSA(IUABS)
           ETU=ET+EU
           FACT=EY+EU+EX+ET-EASUM
+          ISADR=1+iTUV-iLo+LDA*(iXYZ-jLo)
           IF (LDA.EQ.0) THEN
             IF (iXYZ.LE.iTUV) THEN
               ISADR=(ITUV*(ITUV-1))/2+IXYZ
             ELSE
               CYCLE
             END IF
-          ELSE
-            ISADR=1+iTUV-iLo+LDA*(iXYZ-jLo)
           END IF
           VALUE=FACT*BA(ISADR)
           IF(IYABS.EQ.IUABS) THEN
