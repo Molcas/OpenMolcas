@@ -37,7 +37,7 @@
       use EQSOLV, only: IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nISup, nASup, nInDep, MxCase, nSym
-      use constants, only: Zero, One
+      use constants, only: Zero
       use definitions, only: iwp, wp
       IMPLICIT NONE
 

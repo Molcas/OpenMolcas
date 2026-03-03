@@ -47,7 +47,7 @@
       CHARACTER(LEN=27)  STLNE2
       real(kind=wp), allocatable:: CIRef(:,:), CIXMS(:), HONE(:)
       Integer(kind=iwp) I,J,iDisk,K,iState
-      Real(kind=wp) Wij,CPU1,CPU0,TIO1,TIO0,CPU,TIO
+      Real(kind=wp) CPU1,CPU0,TIO1,TIO0,CPU,TIO
       Real(kind=wp) CPE,TIOE,CPTF0,TIOTF0,CPTF10,TIOTF10
       logical(kind=iwp) Initiate
 
@@ -118,7 +118,6 @@
           !! (STINI).
           DREF(:)=Zero
           Do K = 1, Nstate
-            wij = Weight(K)
             DREF(:)=DREF(:)+Weight(K)*DMIX(:,K)
           End Do
         Else

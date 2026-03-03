@@ -13,7 +13,6 @@
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
       use PrintLevel, only: DEBUG
-      use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nBTri
       use definitions, only: iwp, wp

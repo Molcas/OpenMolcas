@@ -27,15 +27,15 @@
 #endif
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_DMRG_)
       use caspt2_module, only: jState, nAshT
+      use constants, only: zero
 #endif
       use caspt2_module, only: iSCF, nConf, nOMx,
-     &                         nState, nSym, STSym, nIsh, nAsh, nRas1,
+     &                         nState, nSym, STSym, nIsh, nRas1,
      &                         nRas2, nRas3, nSsh, nOrb, nBas, nFro,
      &                         EPS, EPSI, EPSA, nDel, EPSE
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       use caspt2_module, only: DoCumulant
 #endif
-      use constants, only: zero
       use definitions, only: iwp, wp
       IMPLICIT NONE
 C Transform to orbitals that diagonalize the diagonal blocks of FIFA.
@@ -63,7 +63,7 @@ C     indices
       REAL(kind=wp), ALLOCATABLE:: XMAT(:)
 #endif
 C     #orbitals per symmetry
-      INTEGER(kind=iwp) NI,NA,NR1,NR2,NR3,NS,NO,NB
+      INTEGER(kind=iwp) NO,NB
       INTEGER(kind=iwp) NSCT,NCMOSCT
 C     work-arrays
       REAL(kind=wp), ALLOCATABLE:: FOCK(:), CMO2(:), CI(:)
@@ -92,12 +92,6 @@ C     work-arrays
 * ICMOSTA,ICMOEND: Section of CMO for each subspace.
       ICMOEND=0
       DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NA=NASH(ISYM)
-        NR1=NRAS1(ISYM)
-        NR2=NRAS2(ISYM)
-        NR3=NRAS3(ISYM)
-        NS=NSSH(ISYM)
         NO=NORB(ISYM)
         NB=NBAS(ISYM)
 * Put Fock matrix in square format in FOCK

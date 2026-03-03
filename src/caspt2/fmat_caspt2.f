@@ -29,9 +29,9 @@
       real(kind=wp), intent(in)::DREF(NDREF), HONE(nHONE)
 
       integer(kind=iwp) IAD2M(3,36*36)
-      integer(kind=iwp) NDIM2M, IDISK, IFSTA, ISYR, NBR, NB3, NBNB,
-     &                  ISYS, IS3RS, ISYP, NIP, NOP, NAESP, ISYQ, IS3PQ,
-     &                  ISADDR, IDISK1, IT, ITABS, ITU, IU, IUABS,
+      integer(kind=iwp) NDIM2M, IDISK, IFSTA, NBR, NB3, NBNB,
+     &                  ISYS, IS3RS, NIP, NOP, NAESP, ISYQ, IS3PQ,
+     &                  ISADDR, IDISK1, ITABS, ITU, IUABS,
      &                  nInts, nBUF
       real(kind=wp) DTU
       real(kind=wp), Allocatable:: BUF(:)
@@ -71,13 +71,15 @@ c NBUF=Max size of a LUINTM buffer.
 * contractions over active orbitals and therefore are summed up together
 * here into FIFA.
 
-      FIMO(1:notri) = FIMO(:) + HONE(:)
-      FIFA(1:notri) = FIFA(:) + FIMO(:)
+      FIMO(1:notri) = FIMO(1:notri) + HONE(1:notri)
+      FIFA(1:notri) = FIFA(1:notri) + FIMO(1:notri)
 
       Contains
 
       Subroutine Do_Loops(icase)
       integer(kind=iwp), intent(in):: iCase
+
+      integer(kind=iwp) ISYR, ISYP, IT, IU
 
       IFSTA=1
       DO ISYR=1,NSYM

@@ -391,6 +391,8 @@ C     transition density matrices.
 ***********************************************************************
 *                                                                     *
       Subroutine Print_Truff()
+      implicit None
+      integer(kind=iwp) I
       IF (IRETURN.NE.0) THEN
          CALL CASPT2_TERM()
          RETURN
@@ -434,6 +436,8 @@ C     transition density matrices.
       End Subroutine Print_Truff
 
       Subroutine Post_Process()
+      implicit None
+      integer(kind=iwp) I
       if (.not. doFCIQMC) then
         if (iStpGrd.ne.2) then
           IF (NLYROOT.NE.0) IFMSCOUP=.FALSE.
@@ -547,6 +551,8 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       END Subroutine CASPT2_TERM
 
       Subroutine HEFF_INI()
+      Implicit None
+      Integer(kind=iwp) I
 * Initialize effective Hamiltonian and eigenvectors
       CALL MMA_ALLOCATE(Heff,Nstate,Nstate,Label='Heff')
       CALL MMA_ALLOCATE(Ueff,Nstate,Nstate,Label='Ueff')
@@ -602,6 +608,7 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
       End Subroutine HEFF_INI
 
       Subroutine Iter_Timing()
+      Implicit None
         if (.not. DoFCIQMC) then
          CALL TIMING(CPTF14,CPE,TIOTF14,TIOE)
          CPUGRD=CPTF14-CPTF13

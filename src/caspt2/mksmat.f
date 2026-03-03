@@ -18,7 +18,6 @@
 *--------------------------------------------*
       SUBROUTINE MKSMAT()
       use definitions, only: iwp, wp, u6, byte
-      use constants, only: One
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate

@@ -11,7 +11,7 @@
       SUBROUTINE ASIND(IAS,ISYM,ICASE,IP,IQ,IR)
       USE SUPERINDEX, only: MAGEB, MAGTB
       use caspt2_module, only: NAGEBES, NAGTBES, IEXTIS
-      use definitions, only: iwp, u6
+      use definitions, only: iwp
       IMPLICIT None
       integer(kind=iwp), intent(in) :: IAS, ISYM, ICASE
       integer(kind=iwp), intent(out) :: IP, IQ, IR

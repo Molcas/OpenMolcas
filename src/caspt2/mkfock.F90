@@ -10,7 +10,6 @@
 !                                                                      *
 !***********************************************************************
 SUBROUTINE MkFock(CMO,nCMO,FIMO,NFIMO,FIFA,nFIFA,DREF,nDREF,HONE,nHONE,INITIATE)
-use stdalloc, only: mma_allocate, mma_deallocate
 use caspt2_module, only: IfChol
 use definitions, only: iwp, wp
 IMPLICIT None

@@ -187,6 +187,7 @@ C Set up S and B matrices for cases 1..13.
       CASE DEFAULT
          Call Abend()
       End Select
+      Write (6,*) 'iClass=',iClass
       End Subroutine Modify_Fock_and_parameters
 
       Subroutine Store_away_parameters()
