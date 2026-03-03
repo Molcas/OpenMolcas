@@ -50,8 +50,8 @@
       IF (do_grad.or.nStpGrd.eq.2) THEN
 
         !! FFAO has one-electron Hamiltonian
-        FIMO_all(1:NBTri)=FFAO(:) + FIAO(:)
-        FIFA_all(1:NBTri)=FIMO_all(:) + FAAO(:)
+        FIMO_all(1:NBTri)=FFAO(1:NBTri) + FIAO(1:NBTri)
+        FIFA_all(1:NBTri)=FIMO_all(1:NBTri) + FAAO(1:NBTri)
 
       END IF
 
