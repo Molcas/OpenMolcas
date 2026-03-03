@@ -26,7 +26,6 @@ implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim
 logical, intent(in) :: SGEKdebug
-!real(kind=wp),intent(inout) :: FunctionalList(nMxIter),GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
 real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
 real(kind=wp),intent(inout) :: FunctionalList(nMxIter)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)

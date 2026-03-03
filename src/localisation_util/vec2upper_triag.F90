@@ -13,7 +13,7 @@
 
 subroutine vec2upper_triag(squaremat,matdim,vec,vecdim,antisymmetric)
 use Definitions, only: u6,wp,iwp
-use Constants, only: Zero
+use Constants, only: Zero,One
 
 implicit none
 integer(kind=iwp),intent(in) :: matdim,vecdim
@@ -23,6 +23,15 @@ integer(kind=iwp) :: i,j,listindex
 logical, intent(in) :: antisymmetric
 
 ! putting data stored as vector back into anti/symmetric matrix format
+! note that diagonal elements are produced here, because the input vector does not contain them
+!  -> they will be zero for antisymmetric matrices an one for symmetric matrices (needed to do grad(:,:)/hessian(:,:))
+
+if (antisymmetric) then
+    squaremat(:,:) = Zero
+else
+    squaremat(:,:) = One
+end if
+
 listindex=0
 do i=1,matdim-1
     do j=i+1,matdim
@@ -34,11 +43,7 @@ do i=1,matdim-1
         squaremat(i,j)=vec(listindex)
 
         if (antisymmetric) then
-            if (i==j) then
-                squaremat(i,j) = Zero
-            else
-                squaremat(j,i)=-vec(listindex)
-            end if
+            squaremat(j,i)=-vec(listindex)
         else
             squaremat(j,i)=vec(listindex)
         end if

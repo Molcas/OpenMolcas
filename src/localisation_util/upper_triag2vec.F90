@@ -32,7 +32,7 @@ do i=1,matdim-1
     end do
 end do
 
-if (.true.) then
+if (.false.) then
     write(u6,*) "In upper_triag2vec:"
     call RecPrt("NxN Matrix",' ',squaremat,matdim,matdim)
     call RecPrt("matrix as vector of upper triagonal values:",' ',vec,listindex,1)

@@ -31,7 +31,7 @@ real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: nIter, lSCR, fsdim,i,j
+integer(kind=iwp) :: nIter, lSCR, fsdim
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),dq(:),&
@@ -126,7 +126,7 @@ end if
 ! get initial gradient, hessian diagonal, add initial functional value to list
 ! ---------------------------------------------------------------------------------------------------
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiag(:,:))
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiagvec(:))
     call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
     call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
     FunctionalList(1) = Functional
@@ -177,6 +177,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! Newton Raphson
         ! ---------------------------------------------------------------------------------------------------
         if (OptMeth == 2) then
+            call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
 
 
@@ -192,6 +193,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             ! compute standard newton raphson step
             ! ------------------------------------
+            call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
             if (SGEKdebug) call RecPrt('-g/hdiag (NR step)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
 
@@ -211,10 +213,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 if (SGEKdebug) write(u6,*) 'Exit S-GEK Optimizer'
 
             else
-                ! transform (symmetric) Hessian diagonal matrix into vector
-                ! ---------------------------------------------------------
-                call upper_triag2vec(hdiag(:,:),nOrb2Loc,hdiagvec(:),fsdim)
-
                 ! create subspace and perform GEK/RVO opt in it
                 ! ---------------------------------------------
                 call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
@@ -255,7 +253,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiag(:,:)) ! gets the new gradient
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiagvec(:)) ! gets the new gradient
 
 
         if (SGEKDebug) then
