@@ -301,7 +301,7 @@ C  A&EP One-el
               LEN2=NA
               CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
      &                   X1(IXTI),SIZE(X1(IXTI:)),
-     &                   FAI(ISYMA)%A,SIZE(FAI(ISYM12)%A),
+     &                   FAI(ISYMA)%A,SIZE(FAI(ISYMA)%A),
      &                   GA_Arrays(lg_Y)%A(IY),
      &                   SIZE(GA_Arrays(lg_Y)%A(IY:)))
             END IF
@@ -338,7 +338,7 @@ C  A&EM One-el
               LEN2=NA
               CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
      &                   X1(IXTI),SIZE(X1(IXTI:)),
-     &                   FAI(ISYMA)%A,SIZE(FAI(ISYM12)%A),
+     &                   FAI(ISYMA)%A,SIZE(FAI(ISYMA)%A),
      &                   GA_Arrays(lg_Y)%A(IY),
      &                   SIZE(GA_Arrays(lg_Y)%A(IY:)))
             END IF
@@ -598,7 +598,7 @@ C  C&GP One-el
             LEN2=NI
             CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
      &                 X1(IXTA),SIZE(X1(IXTA:)),
-     &                 FIA(ISYMI)%A,SIZE(FIA(ISYM12)%A),
+     &                 FIA(ISYMI)%A,SIZE(FIA(ISYMI)%A),
      &                 GA_Arrays(lg_Y)%A(IY),
      &                 SIZE(GA_Arrays(lg_Y)%A(IY:)))
           END IF
@@ -633,7 +633,7 @@ C  C&GM One-el
             LEN2=NI
             CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
      &                 X1(IXTA),SIZE(X1(IXTA:)),
-     &                 FIA(ISYMI)%A,SIZE(FIA(ISYM12)%A),
+     &                 FIA(ISYMI)%A,SIZE(FIA(ISYMI)%A),
      &                 GA_Arrays(lg_Y)%A(IY),
      &                 SIZE(GA_Arrays(lg_Y)%A(IY:)))
           END IF
@@ -669,7 +669,7 @@ C  D&EP One-el
             LEN2=NT
             CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
      &                 X1(IXIA),SIZE(X1(IXIA:)),
-     &                 FTI(ISYM2)%A,SIZE(FTI(ISYM12)%A),
+     &                 FTI(ISYM2)%A,SIZE(FTI(ISYM2)%A),
      &                 GA_Arrays(lg_Y)%A(IY),
      &                 SIZE(GA_Arrays(lg_Y)%A(IY:)))
           END IF
