@@ -9,42 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Sync_Data(Pren,Prem,nBtch,mBtch,kBtch)
+subroutine Free_GTList()
 
-use definitions, only: iwp, wp
-#ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs, Is_Real_Par
+use TList_Mod, only: GT_Status, iTCnSt
+#ifdef _MOLCAS_MPP_
+use TList_Mod, only: nTasks, igaTsk
 #endif
 
 implicit none
-real(kind=wp), intent(inout) :: Pren, Prem
-integer(kind=iwp), intent(in) :: nBtch, mBtch, kBtch
+
+if (.not. GT_Status) return
+GT_Status = .false.
+
+iTCnSt = 1
+if ((.not. Is_Real_Par()) .or. (nProcs == 1)) return
 #ifdef _MOLCAS_MPP_
-real(kind=wp) PrenV(2)
-integer(kind=iwp) nBtchV(3)
-
-if (.not. Is_Real_Par()) return
-if (nProcs == 1) return
-PrenV(1) = Pren
-PrenV(2) = Prem
-call GADGOP(PrenV,2,'+')
-Pren = PrenV(1)
-Prem = PrenV(2)
-
-nBtchV(1) = nBtch
-nBtchV(2) = mBtch
-nBtchV(3) = kBtch
-call GAIGOP(nBtchV,3,'+')
-nBtchV(1) = nBtch
-nBtchV(2) = mBtch
-nBtchV(3) = kBtch
-#else
-#include "macros.fh"
-unused_var(Pren)
-unused_var(Prem)
-unused_var(nBtch)
-unused_var(mBtch)
-unused_var(kBtch)
+! create global tasklist...
+call GATskL(.false.,nTasks,igaTsk)
 #endif
 
-end subroutine Sync_Data
+end subroutine Free_GTList

@@ -8,13 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Store_QLast(Q)
-      use definitions, only: wp
-      use TList_Mod, only: QLast
-      Implicit None
-      Real(kind=wp), Intent(in):: Q(2)
-!
-      QLast(1)=Q(1)
-      QLast(2)=Q(2)
-!
-      End Subroutine Store_QLast
+
+subroutine Store_QLast(Q)
+
+use definitions, only: wp
+use TList_Mod, only: QLast
+
+implicit none
+real(kind=wp), intent(in) :: Q(2)
+
+QLast(1) = Q(1)
+QLast(2) = Q(2)
+
+end subroutine Store_QLast

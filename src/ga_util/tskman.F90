@@ -26,204 +26,178 @@
 !   The task lists are stacked, and have to be freed in
 !   the order of last initialized = freed first!
 
-      block data block_tsk
-        implicit none
+block data block_tsk
+
+implicit none
 #include "tsk.fh"
-        data list_counter/0/
-      end
+data list_counter/0/
 
-      subroutine init_tsk(id,n)
+end block data block_tsk
+!=!=
+subroutine init_tsk(id,n)
+
 #ifdef _MOLCAS_MPP_
-      use Para_Info, only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      implicit none
+
+implicit none
 #include "tsk.fh"
 #ifdef _MOLCAS_MPP_
-#  include "global.fh"
-#  include "mafdecls.fh"
+#include "global.fh"
+#include "mafdecls.fh"
 #endif
-      integer :: id, n
+integer :: id, n
 
-#ifdef _debug_trace_
-#endif
+if (list_counter == mxtsklst) call sysabendmsg('init_tsk','no free task lists available',' ')
+list_counter = list_counter+1
 
-      if (list_counter.eq.mxtsklst) then
-        call sysabendmsg ('init_tsk',                                   &
-     &    'no free task lists available',' ')
-      end if
-      list_counter = list_counter + 1
-
-      id = list_counter
-      ntasks(id) = n
+id = list_counter
+ntasks(id) = n
 #ifdef _MOLCAS_MPP_
-      if (is_real_par()) then
-        if (.not.ga_create(MT_INT,1,1,'gltskl',0,0,task_counter(id)))   &
-     &    call sysabendmsg ('init_tsk',                                 &
-     &      'failed to create global task list',' ')
-#  ifdef _GA_
-        call ga_fill(task_counter(id),1)
-#  else
-        call ga_zero(task_counter(id))
-        call gtsk_setup(id,task_counter(id))
-#  endif
-      else
-        task_counter(id) = 1
-      endif
+if (is_real_par()) then
+  if (.not. ga_create(MT_INT,1,1,'gltskl',0,0,task_counter(id))) &
+    call sysabendmsg('init_tsk','failed to create global task list',' ')
+# ifdef _GA_
+  call ga_fill(task_counter(id),1)
+# else
+  call ga_zero(task_counter(id))
+  call gtsk_setup(id,task_counter(id))
+# endif
+else
+  task_counter(id) = 1
+end if
 #else
-      task_counter(id) = 1
+task_counter(id) = 1
 #endif
 
-#ifdef _debug_trace_
-#endif
-      end
+end subroutine init_tsk
+!=!=
+subroutine free_tsk(id)
 
-      subroutine free_tsk(id)
 #ifdef _MOLCAS_MPP_
-      use Para_Info, only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      implicit none
+
+implicit none
 #include "tsk.fh"
 #ifdef _MOLCAS_MPP_
-#  include "global.fh"
+#include "global.fh"
 #endif
-      integer :: id
+integer :: id
 
-#ifdef _debug_trace_
-#endif
-
-      if (list_counter.eq.0) then
-        call sysabendmsg ('free_tsk',                                   &
-     &    'attempting to free a non-existent task list.',' ')
-      end if
-      if (id .ne. list_counter) then
-        call sysabendmsg ('free_tsk',                                   &
-     &    'only stack-based task lists are supported.',' ')
-      end if
+if (list_counter == 0) call sysabendmsg('free_tsk','attempting to free a non-existent task list.',' ')
+if (id /= list_counter) call sysabendmsg('free_tsk','only stack-based task lists are supported.',' ')
 #ifdef _MOLCAS_MPP_
-      if (is_real_par()) then
-        if (.not.ga_destroy(task_counter(id)))                          &
-     &    call sysabendmsg ('free_tsk',                                 &
-     &      'failed to destroy global task list.',' ')
-#  ifndef _GA_
-        call gtsk_reset(id)
-#  endif
-      end if
+if (is_real_par()) then
+  if (.not. ga_destroy(task_counter(id))) call sysabendmsg('free_tsk','failed to destroy global task list.',' ')
+# ifndef _GA_
+  call gtsk_reset(id)
+# endif
+end if
 #endif
-      list_counter = list_counter - 1
+list_counter = list_counter-1
 
-#ifdef _debug_trace_
-#endif
-      end
+end subroutine free_tsk
+!=!=
+logical function rsv_tsk(id,task)
 
-      logical function rsv_tsk(id,task)
 #ifdef _MOLCAS_MPP_
-      use Para_Info, only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      implicit none
+
+implicit none
 #include "tsk.fh"
 #ifdef _MOLCAS_MPP_
-#  include "global.fh"
+#include "global.fh"
 #endif
-      integer :: id, task
+integer :: id, task
 
 #ifdef _MOLCAS_MPP_
-      if (is_real_par()) then
-! (atomically) read+increment next task number
-#  ifdef _GA_
-        task = ga_read_inc(task_counter(id),1,1,1)
-#  else
-        task = gtsk_nxtval(id,1)
-#  endif
-      else
-        task = task_counter(id)
-        task_counter(id) = task_counter(id) + 1
-      endif
+if (is_real_par()) then
+  ! (atomically) read+increment next task number
+# ifdef _GA_
+  task = ga_read_inc(task_counter(id),1,1,1)
+# else
+  task = gtsk_nxtval(id,1)
+# endif
+else
+  task = task_counter(id)
+  task_counter(id) = task_counter(id)+1
+end if
 #else
-      task = task_counter(id)
-      task_counter(id) = task_counter(id) + 1
+task = task_counter(id)
+task_counter(id) = task_counter(id)+1
 #endif
-      rsv_tsk = task.le.ntasks(id)
-      end
+rsv_tsk = task <= ntasks(id)
 
+end function rsv_tsk
+!=!=
 !****************************************************************
 ! The "even" flavour of the task routines just give each process
 ! a spread of numbers just as they would do with a loop stride.
 !****************************************************************
-      subroutine init_tsk_even(id,n)
+subroutine init_tsk_even(id,n)
+
 #ifdef _MOLCAS_MPP_
-      use Para_Info, only: MyRank, Is_Real_Par
+use Para_Info, only: MyRank, Is_Real_Par
 #endif
-      implicit none
+
+implicit none
 #include "tsk.fh"
-      integer :: id, n
+integer :: id, n
 
-#ifdef _debug_trace_
-#endif
+if (list_counter == mxtsklst) call sysabendmsg('init_tsk_even','no free task lists available',' ')
+list_counter = list_counter+1
 
-      if (list_counter.eq.mxtsklst) then
-        call sysabendmsg ('init_tsk_even',                              &
-     &    'no free task lists available',' ')
-      end if
-      list_counter = list_counter + 1
-
-      id = list_counter
-      ntasks(id) = n
+id = list_counter
+ntasks(id) = n
 #ifdef _MOLCAS_MPP_
-      if (is_real_par()) then
-        task_counter(id) = myrank + 1
-      else
-        task_counter(id) = 1
-      endif
+if (is_real_par()) then
+  task_counter(id) = myrank+1
+else
+  task_counter(id) = 1
+end if
 #else
-      task_counter(id) = 1
+task_counter(id) = 1
 #endif
 
-#ifdef _debug_trace_
-#endif
-      end
+end subroutine init_tsk_even
+!=!=
+subroutine free_tsk_even(id)
 
-      subroutine free_tsk_even(id)
-      implicit none
+implicit none
 #include "tsk.fh"
-      integer :: id
+integer :: id
 
-#ifdef _debug_trace_
-#endif
+if (list_counter == 0) call sysabendmsg('free_tsk_even','attempting to free a non-existent task list.',' ')
+if (id /= list_counter) call sysabendmsg('free_tsk_even','only stack-based task lists are supported.',' ')
+list_counter = list_counter-1
 
-      if (list_counter.eq.0) then
-        call sysabendmsg ('free_tsk_even',                              &
-     &    'attempting to free a non-existent task list.',' ')
-      end if
-      if (id .ne. list_counter) then
-        call sysabendmsg ('free_tsk_even',                              &
-     &    'only stack-based task lists are supported.',' ')
-      end if
-      list_counter = list_counter - 1
-
-#ifdef _debug_trace_
-#endif
-      end
-
-      logical function rsv_tsk_even(id,task)
-#ifdef _MOLCAS_MPP_
-      use Para_Info, only: nProcs, Is_Real_Par
-#endif
-      implicit none
-#include "tsk.fh"
-      integer :: id, task
+end subroutine free_tsk_even
+!=!=
+logical function rsv_tsk_even(id,task)
 
 #ifdef _MOLCAS_MPP_
-      if (is_real_par()) then
-        task = task_counter(id)
-! the next task is a stride of <nprocs> away
-        task_counter(id) = task_counter(id) + nprocs
-      else
-        task = task_counter(id)
-        task_counter(id) = task_counter(id) + 1
-      endif
+use Para_Info, only: nProcs, Is_Real_Par
+#endif
+
+implicit none
+#include "tsk.fh"
+integer :: id, task
+
+#ifdef _MOLCAS_MPP_
+if (is_real_par()) then
+  task = task_counter(id)
+  ! the next task is a stride of <nprocs> away
+  task_counter(id) = task_counter(id)+nprocs
+else
+  task = task_counter(id)
+  task_counter(id) = task_counter(id)+1
+end if
 #else
-      task = task_counter(id)
-      task_counter(id) = task_counter(id) + 1
+task = task_counter(id)
+task_counter(id) = task_counter(id)+1
 #endif
-      rsv_tsk_even = task.le.ntasks(id)
-      end
+rsv_tsk_even = task <= ntasks(id)
+
+end function rsv_tsk_even

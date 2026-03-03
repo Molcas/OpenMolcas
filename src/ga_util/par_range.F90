@@ -8,19 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine par_range(n,i,j)
-      ! Distribute 'n' evenly over processes and return
-      ! the range (i,j) of this particular process.
-      ! If there is no valid range, then j<i will be returned,
-      ! so it is possible to use it consistently for looping.
-      use Para_Info, only: MyRank, nProcs
-      nqot = n / nprocs
-      nrem = n - nqot * nprocs
-      if (myrank .lt. nrem) then
-        i = myrank * (nqot + 1) + 1
-        j = i + nqot
-      else
-        i = nrem * (nqot + 1) + (myrank - nrem) * nqot + 1
-        j = i + nqot - 1
-      end if
-      end
+
+subroutine par_range(n,i,j)
+! Distribute 'n' evenly over processes and return
+! the range (i,j) of this particular process.
+! If there is no valid range, then j<i will be returned,
+! so it is possible to use it consistently for looping.
+
+use Para_Info, only: MyRank, nProcs
+
+implicit none
+integer :: n, i, j
+integer :: nqot, nrem
+
+nqot = n/nprocs
+nrem = n-nqot*nprocs
+if (myrank < nrem) then
+  i = myrank*(nqot+1)+1
+  j = i+nqot
+else
+  i = nrem*(nqot+1)+(myrank-nrem)*nqot+1
+  j = i+nqot-1
+end if
+
+end subroutine par_range

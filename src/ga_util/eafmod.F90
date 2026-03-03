@@ -31,267 +31,270 @@
 #define eaf_wait eaf_wait_
 #endif
 
-!***********************************************************************
-!                                                                      *
-      Subroutine EAFOpen(Lu,FName)
+subroutine EAFOpen(Lu,FName)
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      Implicit None
-      Character*(*) FName
-      Integer Lu
-      Integer  isfreeunit
-      External isfreeunit
+implicit none
+character*(*) FName
+integer Lu
+integer isfreeunit
+external isfreeunit
 #ifdef _MOLCAS_MPP_
-      Character*200 FN
-      Integer  iRC
+character*200 FN
+integer iRC
 #ifdef _HAVE_EXTRA_
-      Integer  n
+integer n
 #endif
 #include "molcas_eaf.fh"
 #endif
 #ifdef _MOLCAS_MPP_
-      If(Is_Real_Par()) Then
-      FN=FName
-      Call Ext_Rank(FN)
-#ifdef _HAVE_EXTRA_
-      n=Len_Trim(FName)
-      FN(n+1:n+1)=Char(0)
-      iRC=molcas_eaf_open(FN,Lu)
-#else
-      iRC=eaf_open(FN,eaf_rw,Lu)
+if (Is_Real_Par()) then
+  FN = FName
+  call Ext_Rank(FN)
+# ifdef _HAVE_EXTRA_
+  n = len_trim(FName)
+  FN(n+1:n+1) = char(0)
+  iRC = molcas_eaf_open(FN,Lu)
+# else
+  iRC = eaf_open(FN,eaf_rw,Lu)
+# endif
+  if (iRC /= 0) then
+    write(6,*) 'EAFOpen: Abort!'
+    write(6,*) 'iRC=',iRC
+    write(6,*) 'Lu=',Lu
+    write(6,*) 'Fname=',FName
+    write(6,*) 'EAF_Err_Code =',iRC
+    call Abend()
+  end if
+else
 #endif
-      If (iRC.ne.0) Then
-         Write (6,*) 'EAFOpen: Abort!'
-         Write (6,*) 'iRC=',iRC
-         Write (6,*) 'Lu=',Lu
-         Write (6,*) 'Fname=',FName
-         Write (6,*) 'EAF_Err_Code =',iRC
-         Call Abend()
-      End If
-      Else
-#endif
-      Lu=isfreeunit(7)
-      Call DaName_MF(Lu,FName)
+  Lu = isfreeunit(7)
+  call DaName_MF(Lu,FName)
 #ifdef _MOLCAS_MPP_
-      End If
+end if
 #endif
-      End Subroutine EAFOpen
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Subroutine EAFClose(Lu)
+end subroutine EAFOpen
+!=!=
+subroutine EAFClose(Lu)
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      Implicit None
-      Integer Lu
+
+implicit none
+integer Lu
 #ifdef _MOLCAS_MPP_
-      Integer  iRC
+integer iRC
 #include "molcas_eaf.fh"
 #endif
+
 #ifdef _MOLCAS_MPP_
-      If(Is_Real_Par()) Then
-#ifdef _HAVE_EXTRA_
-      iRC=molcas_eaf_close(Lu)
-#else
-      iRC=eaf_close(Lu)
+if (Is_Real_Par()) then
+# ifdef _HAVE_EXTRA_
+  iRC = molcas_eaf_close(Lu)
+# else
+  iRC = eaf_close(Lu)
+# endif
+  if (iRC /= 0) then
+    write(6,*) 'EAFClose: Abort!'
+    write(6,*) 'EAF_Err_Code =',iRC
+    call Abend()
+  end if
+else
 #endif
-      If (iRC.ne.0) Then
-         Write (6,*) 'EAFClose: Abort!'
-         Write (6,*) 'EAF_Err_Code =',iRC
-         Call Abend()
-      End If
-      Else
-#endif
-      Call DaClos(Lu)
+  call DaClos(Lu)
 #ifdef _MOLCAS_MPP_
-      End If
+end if
 #endif
-      End Subroutine EAFClose
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Subroutine EAFAWrite(Lu,Buf,nBuf,Disk,id)
+
+end subroutine EAFClose
+!=!=
+subroutine EAFAWrite(Lu,Buf,nBuf,Disk,id)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-      use Definitions, only: ItoB
+use Para_Info, only: Is_Real_Par
+use Definitions, only: ItoB
 #endif
-      Implicit None
-      Integer Lu, nBuf, Buf(nBuf), id
-      Real*8 Disk
+
+implicit none
+integer Lu, nBuf, Buf(nBuf), id
+real*8 Disk
 #ifdef _MOLCAS_MPP_
-      Integer  iRC
+integer iRC
 #include "molcas_eaf.fh"
 #endif
+
 #ifdef _MOLCAS_MPP_
-      If(Is_Real_Par()) Then
-#ifdef _HAVE_EXTRA_
-      iRC=molcas_eaf_awrite(Lu,Disk,Buf,nBuf*ItoB,id)
-#else
-      iRC=eaf_awrite(Lu,Disk,Buf,nBuf*ItoB,id)
-      Disk=Disk+Dble(nBuf*ItoB)
+if (Is_Real_Par()) then
+# ifdef _HAVE_EXTRA_
+  iRC = molcas_eaf_awrite(Lu,Disk,Buf,nBuf*ItoB,id)
+# else
+  iRC = eaf_awrite(Lu,Disk,Buf,nBuf*ItoB,id)
+  Disk = Disk+dble(nBuf*ItoB)
+# endif
+  if (iRC /= 0) then
+    write(6,*) 'EAFAWrite: Abort!'
+    write(6,*) 'EAF_Err_Code =',iRC
+    call Abend()
+  end if
+else
 #endif
-      If (iRC.ne.0) Then
-         Write (6,*) 'EAFAWrite: Abort!'
-         Write (6,*) 'EAF_Err_Code =',iRC
-         Call Abend()
-      End If
-      Else
-#endif
-      id=0
-      Call EAFWrite(Lu,Buf,nBuf,Disk)
+  id = 0
+  call EAFWrite(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
-      End If
+end if
 #endif
-      End Subroutine EAFAWrite
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Subroutine EAFARead(Lu,Buf,nBuf,Disk,id)
+
+end subroutine EAFAWrite
+!=!=
+subroutine EAFARead(Lu,Buf,nBuf,Disk,id)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-      use Definitions, only: ItoB
+use Para_Info, only: Is_Real_Par
+use Definitions, only: ItoB
 #endif
-      Implicit None
-      Integer Lu, nBuf, Buf(nBuf), id
-      Real*8 Disk
+
+implicit none
+integer Lu, nBuf, Buf(nBuf), id
+real*8 Disk
 #ifdef _MOLCAS_MPP_
-      Integer  iRC
+integer iRC
 #include "molcas_eaf.fh"
 #endif
+
 #ifdef _MOLCAS_MPP_
-      If(Is_Real_Par()) Then
-#ifdef _HAVE_EXTRA_
-      iRC=molcas_eaf_aread(Lu,Disk,Buf,nBuf*ItoB,id)
-#else
-      iRC=eaf_aread(Lu,Disk,Buf,nBuf*ItoB,id)
-      Disk=Disk+Dble(nBuf*ItoB)
+if (Is_Real_Par()) then
+# ifdef _HAVE_EXTRA_
+  iRC = molcas_eaf_aread(Lu,Disk,Buf,nBuf*ItoB,id)
+# else
+  iRC = eaf_aread(Lu,Disk,Buf,nBuf*ItoB,id)
+  Disk = Disk+dble(nBuf*ItoB)
+# endif
+  if (iRC /= 0) then
+    write(6,*) 'EAFARead: Abort!'
+    write(6,*) 'EAF_Err_Code =',iRC
+    call Abend()
+  end if
+else
 #endif
-      If (iRC.ne.0) Then
-         Write (6,*) 'EAFARead: Abort!'
-         Write (6,*) 'EAF_Err_Code =',iRC
-         Call Abend()
-      End If
-      Else
-#endif
-      id=0
-      Call EAFRead(Lu,Buf,nBuf,Disk)
+  id = 0
+  call EAFRead(Lu,Buf,nBuf,Disk)
 #ifdef _MOLCAS_MPP_
-      End If
+end if
 #endif
-      End Subroutine EAFARead
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Subroutine EAFWrite(Lu,Buf,nBuf,Disk)
+
+end subroutine EAFARead
+!=!=
+subroutine EAFWrite(Lu,Buf,nBuf,Disk)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-      use Definitions, only: ItoB
+use Para_Info, only: Is_Real_Par
+use Definitions, only: ItoB
 #endif
-      Implicit None
-      Integer Lu, nBuf, Buf(nBuf)
-      Real*8 Disk
-      Integer iDisk
+
+implicit none
+integer Lu, nBuf, Buf(nBuf)
+real*8 Disk
+integer iDisk
 #ifdef _MOLCAS_MPP_
-      Integer  iRC
+integer iRC
 #include "molcas_eaf.fh"
 #endif
+
 #ifdef _MOLCAS_MPP_
-      If(Is_Real_Par()) Then
-#ifdef _HAVE_EXTRA_
-      iRC=molcas_eaf_write(Lu,Disk,Buf,nBuf*ItoB)
-#else
-      iRC=eaf_write(Lu,Disk,Buf,nBuf*ItoB)
-      Disk=Disk+Dble(nBuf*ItoB)
+if (Is_Real_Par()) then
+# ifdef _HAVE_EXTRA_
+  iRC = molcas_eaf_write(Lu,Disk,Buf,nBuf*ItoB)
+# else
+  iRC = eaf_write(Lu,Disk,Buf,nBuf*ItoB)
+  Disk = Disk+dble(nBuf*ItoB)
+# endif
+  if (iRC /= 0) then
+    write(6,*) 'EAFWrite: Abort!'
+    write(6,*) 'EAF_Err_Code =',iRC
+    call Abend()
+  end if
+else
 #endif
-      If (iRC.ne.0) Then
-         Write (6,*) 'EAFWrite: Abort!'
-         Write (6,*) 'EAF_Err_Code =',iRC
-         Call Abend()
-      End If
-      Else
-#endif
-      iDisk=Int(Disk)
-      Call iDaFile(Lu,1,Buf,nBuf,iDisk)
-      Disk=Dble(iDisk)
+  iDisk = int(Disk)
+  call iDaFile(Lu,1,Buf,nBuf,iDisk)
+  Disk = dble(iDisk)
 #ifdef _MOLCAS_MPP_
-      End If
+end if
 #endif
-      End Subroutine EAFWrite
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Subroutine EAFRead(Lu,Buf,nBuf,Disk)
+
+end subroutine EAFWrite
+!=!=
+subroutine EAFRead(Lu,Buf,nBuf,Disk)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-      use Definitions, only: ItoB
+use Para_Info, only: Is_Real_Par
+use Definitions, only: ItoB
 #endif
-      Implicit None
-      Integer Lu, nBuf, Buf(nBuf)
-      Real*8 Disk
-      Integer iDisk
+
+implicit none
+integer Lu, nBuf, Buf(nBuf)
+real*8 Disk
+integer iDisk
 #ifdef _MOLCAS_MPP_
-      Integer  iRC
+integer iRC
 #include "molcas_eaf.fh"
 #endif
+
 #ifdef _MOLCAS_MPP_
-      If(Is_Real_Par()) Then
-#ifdef _HAVE_EXTRA_
-      iRC=molcas_eaf_read(Lu,Disk,Buf,nBuf*ItoB)
-#else
-      iRC=eaf_read(Lu,Disk,Buf,nBuf*ItoB)
-      Disk=Disk+Dble(nBuf*ItoB)
+if (Is_Real_Par()) then
+# ifdef _HAVE_EXTRA_
+  iRC = molcas_eaf_read(Lu,Disk,Buf,nBuf*ItoB)
+# else
+  iRC = eaf_read(Lu,Disk,Buf,nBuf*ItoB)
+  Disk = Disk+dble(nBuf*ItoB)
+# endif
+  if (iRC /= 0) then
+    write(6,*) 'EAFRead: Abort!'
+    write(6,*) 'EAF_Err_Code =',iRC
+    call Abend()
+  end if
+else
 #endif
-      If (iRC.ne.0) Then
-         Write (6,*) 'EAFRead: Abort!'
-         Write (6,*) 'EAF_Err_Code =',iRC
-         Call Abend()
-      End If
-      Else
-#endif
-      iDisk=Int(Disk)
-      Call iDaFile(Lu,2,Buf,nBuf,iDisk)
-      Disk=Dble(iDisk)
+  iDisk = int(Disk)
+  call iDaFile(Lu,2,Buf,nBuf,iDisk)
+  Disk = dble(iDisk)
 #ifdef _MOLCAS_MPP_
-      End If
+end if
 #endif
-      End Subroutine EAFRead
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Subroutine EAFWait(Lu,id)
+
+end subroutine EAFRead
+!=!=
+subroutine EAFWait(Lu,id)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      Implicit None
-      Integer Lu, id
+
+implicit none
+integer Lu, id
 #ifdef _MOLCAS_MPP_
-      Integer iRC
+integer iRC
 #include "molcas_eaf.fh"
 #endif
+
 #ifdef _MOLCAS_MPP_
-      If(Is_Real_Par()) Then
-#ifdef _HAVE_EXTRA_
-      iRC=molcas_eaf_wait(Lu,id)
+if (Is_Real_Par()) then
+# ifdef _HAVE_EXTRA_
+  iRC = molcas_eaf_wait(Lu,id)
+# else
+  iRC = eaf_wait(Lu,id)
+# endif
+  if (iRC /= 0) then
+    write(6,*) 'EAFWait: Abort!'
+    write(6,*) 'EAF_Err_Code =',iRC
+    call Abend()
+  end if
+end if
 #else
-      iRC=eaf_wait(Lu,id)
+#include "macros.fh"
+unused_var(Lu)
+unused_var(id)
 #endif
-      If (iRC.ne.0) Then
-         Write (6,*) 'EAFWait: Abort!'
-         Write (6,*) 'EAF_Err_Code =',iRC
-         Call Abend()
-      End If
-      End If
-#endif
-      Return
-#ifndef _MOLCAS_MPP_
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(Lu)
-         Call Unused_integer(id)
-      End If
-#endif
-      End Subroutine EAFWait
-!                                                                      *
-!***********************************************************************
+
+end subroutine EAFWait

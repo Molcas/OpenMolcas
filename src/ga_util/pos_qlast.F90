@@ -8,55 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Pos_QLast(Disc)
-      use definitions, only: iwp, wp, u6, RtoI
-      use TList_Mod, only: iTskCan, Not_Used, TskQ, QLast
-      Implicit None
-      real(kind=wp), intent(inout):: Disc
 
-      Integer(kind=iwp) iWR(2), mInts
-      Real(kind=wp) Dummy(1), Quad_ijkl, RST_triplet
-      Logical :: Copy=.True., NoCopy=.False.
-!
-      if(.NOT.Allocated(TskQ)) return
+subroutine Pos_QLast(Disc)
 
-      Quad_ijkl  =TskQ(1,iTskCan)
-      RST_triplet=TskQ(2,iTskCan)
-      If (Quad_ijkl.eq.Not_Used) Return
-!
-!---- If already at the right position return
-!
-      If (Quad_ijkl==QLast(1) .and.                                     &
-     &    RST_triplet==QLast(2)) Return
-!
-      Do
+use definitions, only: iwp, wp, u6, RtoI
+use TList_Mod, only: iTskCan, Not_Used, TskQ, QLast
 
-         Call iRBuf(iWR,2,Copy)
-         Call dRBuf(QLast,2,Copy)
-         mInts=iWR(2)
-         If (QLast(1)==Quad_ijkl .and.                                  &
-     &       QLast(2)==RST_triplet) Then
-            If (mInts.gt.0) Call dRBuf(Dummy,mInts,NoCopy)
-            Disc = Disc + DBLE(2/RtoI + 2 + mInts)
-            Return
-         Else If (QLast(1)<=Quad_ijkl ) Then
-            If (mInts>0) Call dRBuf(Dummy,mInts,NoCopy)
-            Disc = Disc + DBLE(2/RtoI + 2 + mInts)
-            Cycle
-         Else
-            Write (u6,*) 'Pos_QLast: batch is lost!'
-            Write (u6,'(A,2F10.1)') 'Index,1.0:  ',QLast(1),QLast(2)
-            Write (u6,'(A,2F10.1)') 'Looking for ',Quad_ijkl,RST_triplet
-            Write (u6,*) ' iTskCan,=',iTskCan
-            Call RecPrt('TskQ',' ',TskQ,2,iTskCan)
-            Write (u6,*)
-            Call Abend()
-       End If
-!
-      End Do
+implicit none
+real(kind=wp), intent(inout) :: Disc
+integer(kind=iwp) iWR(2), mInts
+real(kind=wp) Dummy(1), Quad_ijkl, RST_triplet
+logical :: Copy = .true., NoCopy = .false.
 
-      Write (u6,*) 'Pos_QLast: Fatal problem!'
-      Call XFlush(6)
-      Call Abend()
+if (.not. allocated(TskQ)) return
 
-      End Subroutine Pos_QLast
+Quad_ijkl = TskQ(1,iTskCan)
+RST_triplet = TskQ(2,iTskCan)
+if (Quad_ijkl == Not_Used) return
+
+! If already at the right position return
+
+if ((Quad_ijkl == QLast(1)) .and. (RST_triplet == QLast(2))) return
+
+do
+
+  call iRBuf(iWR,2,Copy)
+  call dRBuf(QLast,2,Copy)
+  mInts = iWR(2)
+  if ((QLast(1) == Quad_ijkl) .and. (QLast(2) == RST_triplet)) then
+    if (mInts > 0) call dRBuf(Dummy,mInts,NoCopy)
+    Disc = Disc+dble(2/RtoI+2+mInts)
+    return
+  else if (QLast(1) <= Quad_ijkl) then
+    if (mInts > 0) call dRBuf(Dummy,mInts,NoCopy)
+    Disc = Disc+dble(2/RtoI+2+mInts)
+    cycle
+  else
+    write(u6,*) 'Pos_QLast: batch is lost!'
+    write(u6,'(A,2F10.1)') 'Index,1.0:  ',QLast(1),QLast(2)
+    write(u6,'(A,2F10.1)') 'Looking for ',Quad_ijkl,RST_triplet
+    write(u6,*) ' iTskCan,=',iTskCan
+    call RecPrt('TskQ',' ',TskQ,2,iTskCan)
+    write(u6,*)
+    call Abend()
+  end if
+
+end do
+
+write(u6,*) 'Pos_QLast: Fatal problem!'
+call Abend()
+
+end subroutine Pos_QLast

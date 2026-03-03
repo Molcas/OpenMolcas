@@ -28,39 +28,35 @@
 !     R. Lindh                                                         *
 !     University of Lund, Sweden, 1998                                 *
 !***********************************************************************
-!
-!
-!----------------------------------------------------------------------*
-      SubRoutine BCTwoHam(TwoHam,nDens,TCPU,TWall)
-      use definitions, only: iwp, wp
-#ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-#endif
-      Implicit None
-      integer(kind=iwp), intent(in):: nDens
-      real(kind=wp), intent(inout):: TwoHam(nDens)
-      real(kind=wp), intent(inout):: TCPU,TWall
 
+subroutine BCTwoHam(TwoHam,nDens,TCPU,TWall)
+
+use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
-      real(kind=wp) TCPU1,TWall1
-      real(kind=wp) TCPU2,TWall2
-!
-#include "global.fh"
-!
-!
-      If (.Not. Is_Real_Par()) Return
-      Call CWTime(TCpu1,TWall1)
-      Call GADGOP(TwoHam,nDens,'+')
-      Call CWTime(TCpu2,TWall2)
-      TCPU=TCpu2-TCpu1
-      TWall=TWall2-TWall1
-!
-#else
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(TwoHam)
-         Call Unused_real(TCPU)
-         Call Unused_real(Twall)
-      End If
+use Para_Info, only: Is_Real_Par
 #endif
-      End SubRoutine BCTwoHam
+
+implicit none
+integer(kind=iwp), intent(in) :: nDens
+real(kind=wp), intent(inout) :: TwoHam(nDens)
+real(kind=wp), intent(inout) :: TCPU, TWall
+#ifdef _MOLCAS_MPP_
+real(kind=wp) TCPU1, TWall1
+real(kind=wp) TCPU2, TWall2
+#include "global.fh"
+
+if (.not. Is_Real_Par()) return
+call CWTime(TCpu1,TWall1)
+call GADGOP(TwoHam,nDens,'+')
+call CWTime(TCpu2,TWall2)
+TCPU = TCpu2-TCpu1
+TWall = TWall2-TWall1
+
+#else
+#include "macros.fh"
+unused_var(TwoHam)
+unused_var(TCPU)
+unused_var(TWall)
+#endif
+
+end subroutine BCTwoHam

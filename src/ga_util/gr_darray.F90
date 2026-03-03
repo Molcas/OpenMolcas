@@ -8,26 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine GR_DArray(Array,nArray)
-      use definitions, only: iwp, wp
-#ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: nProcs, Is_Real_Par
-#endif
-      Implicit None
-!
-      integer(kind=iwp), intent(in):: nArray
-      real(kind=wp), intent(inout):: Array(nArray)
-!
-#ifdef _MOLCAS_MPP_
-      real(kind=wp) TCpu1,TWall1,TCpu2,TWall2
 
-      If (.Not. Is_Real_Par() .OR. nProcs.eq.1) Return
-      Call CWTime(TCpu1,TWall1)
-      Call GADGOP(Array,nArray,'+')
-      Call CWTime(TCpu2,TWall2)
-#else
-! Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(Array)
+subroutine GR_DArray(Array,nArray)
+
+use definitions, only: iwp, wp
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: nProcs, Is_Real_Par
 #endif
-!
-      End Subroutine GR_DArray
+
+implicit none
+integer(kind=iwp), intent(in) :: nArray
+real(kind=wp), intent(inout) :: Array(nArray)
+
+#ifdef _MOLCAS_MPP_
+real(kind=wp) TCpu1, TWall1, TCpu2, TWall2
+
+if ((.not. Is_Real_Par()) .or. (nProcs == 1)) return
+call CWTime(TCpu1,TWall1)
+call GADGOP(Array,nArray,'+')
+call CWTime(TCpu2,TWall2)
+#else
+#include "macros.fh"
+unused_var(Array)
+#endif
+
+end subroutine GR_DArray

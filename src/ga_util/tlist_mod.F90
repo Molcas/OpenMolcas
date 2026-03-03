@@ -10,13 +10,16 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-Module TList_Mod
-Real*8, Parameter:: Not_Used=-1.0D0
-Real*8 QLast(2),P,PQ
-Integer nTasks, igaTsk, iTCnSt, mTasks, iStrt_TList, iEnd_TList, iTskCan
-Real*8, Allocatable:: TskQ(:,:)
-Real*8, Allocatable:: TskM(:,:)
-Integer, Allocatable, Target:: TskL(:)
-Logical:: PP_Status=.False.
-Logical:: GT_Status=.False.
-End Module TList_Mod
+
+module TList_Mod
+
+real*8, parameter :: Not_Used = -1.0d0
+real*8 QLast(2), P, PQ
+integer nTasks, igaTsk, iTCnSt, mTasks, iStrt_TList, iEnd_TList, iTskCan
+real*8, allocatable :: TskQ(:,:)
+real*8, allocatable :: TskM(:,:)
+integer, allocatable, target :: TskL(:)
+logical :: PP_Status = .false.
+logical :: GT_Status = .false.
+
+end module TList_Mod

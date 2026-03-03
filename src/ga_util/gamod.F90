@@ -58,7 +58,8 @@
 !     R. Lindh, University of Lund, Sweden, 1998                       *
 !     S. Vancoillie, University of Lund, Sweden, 2010-2015             *
 !***********************************************************************
-      SubRoutine GAInit
+
+subroutine GAInit()
 !***********************************************************************
 !     purpose: initialize DGA and set the global rank and number of    *
 !              processes in mpp_procid and mpp_nprocs. Then also set   *
@@ -66,362 +67,371 @@
 !     called from: DPMP2 (distributed parallel MP2)                    *
 !     calls to: MPI-2/DGA routines                                     *
 !***********************************************************************
-      Use Para_Info, Only: MyRank, nProcs
-#ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: mpp_procid, mpp_nprocs, mpp_workshare
-#endif
-      Implicit None
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
-      Character(Len=8) :: molcas_nprocs_env
-      Integer :: molcas_nprocs, iRC
 
-!     SVC: bypass MPI initialization if only 1 process, this is needed for a
-!     specific version of GEO (so that the serial tasks which are run by MPI
-!     do not try to re-initialize MPI). This has the consequence that for any
-!     calculation where the number of processes is 1, calls to MPI/GA will fail
-!     at runtime (even though it will compile when inside _MOLCAS_MPP_!)
-      Call getenvf('MOLCAS_NPROCS',molcas_nprocs_env)
-      If(molcas_nprocs_env(1:1).eq.' ') Then
-         molcas_nprocs=-1
-      Else
-         Read(molcas_nprocs_env,*) molcas_nprocs
-      End If
-      If(molcas_nprocs.ne.1) Then
-#  ifdef _GA_
-         Call mpi_init(iRC)
-         Call ga_initialize()
-         Call ga_replace_ma()
-#  else
-         Call ga_initialize()
-#  endif
-         mpp_procid=ga_nodeid()
-         mpp_nprocs=ga_nnodes()
-         mpp_workshare = .True.
-! make each slave process go to its proper work directory
-         Call slaveschdir (mpp_procid, iRC)
-         IF (iRC.NE.0) CALL Abend()
-      Else
-         mpp_procid=0
-         mpp_nprocs=1
-         mpp_workshare = .False.
-      End If
-      MyRank = mpp_procid
-      nProcs = mpp_nprocs
+use Para_Info, only: MyRank, nProcs
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: mpp_procid, mpp_nprocs, mpp_workshare
+#endif
+
+implicit none
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+character(len=8) :: molcas_nprocs_env
+integer :: molcas_nprocs, iRC
+
+! SVC: bypass MPI initialization if only 1 process, this is needed for a
+! specific version of GEO (so that the serial tasks which are run by MPI
+! do not try to re-initialize MPI). This has the consequence that for any
+! calculation where the number of processes is 1, calls to MPI/GA will fail
+! at runtime (even though it will compile when inside _MOLCAS_MPP_!)
+call getenvf('MOLCAS_NPROCS',molcas_nprocs_env)
+if (molcas_nprocs_env(1:1) == ' ') then
+  molcas_nprocs = -1
+else
+  read(molcas_nprocs_env,*) molcas_nprocs
+end if
+if (molcas_nprocs /= 1) then
+# ifdef _GA_
+  call mpi_init(iRC)
+  call ga_initialize()
+  call ga_replace_ma()
+# else
+  call ga_initialize()
+# endif
+  mpp_procid = ga_nodeid()
+  mpp_nprocs = ga_nnodes()
+  mpp_workshare = .true.
+  ! make each slave process go to its proper work directory
+  call slaveschdir(mpp_procid,iRC)
+  if (iRC /= 0) call Abend()
+else
+  mpp_procid = 0
+  mpp_nprocs = 1
+  mpp_workshare = .false.
+end if
+MyRank = mpp_procid
+nProcs = mpp_nprocs
 #else
-      MyRank=0
-      nProcs=1
+MyRank = 0
+nProcs = 1
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GATerminate
-!SVC: This terminates the parallel runtime after which the processes
-!     are no longer allowed to make ga/mpi calls. When called more than
-!     once, the routine does nothing. This is to support early
-!     termination of the parallel runtime without actually exiting.
-!     In such a situation, when the process eventually finishes, it
-!     will call this routine again, but then doing nothing. Such a use
-!     case is e.g. when we want to terminate slave processes and only
-!     continue to run the master process in serial mode.
+
+end subroutine GAInit
+!=!=
+subroutine GATerminate()
+! SVC: This terminates the parallel runtime after which the processes
+! are no longer allowed to make ga/mpi calls. When called more than
+! once, the routine does nothing. This is to support early
+! termination of the parallel runtime without actually exiting.
+! In such a situation, when the process eventually finishes, it
+! will call this routine again, but then doing nothing. Such a use
+! case is e.g. when we want to terminate slave processes and only
+! continue to run the master process in serial mode.
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: mpp_nprocs
+use Para_Info, only: mpp_nprocs
 #endif
-      Implicit None
+implicit none
 #ifdef _MOLCAS_MPP_
-#  include "global.fh"
-      Logical, Save :: FirstCall = .true.
+#include "global.fh"
+logical, save :: FirstCall = .true.
 #ifdef _GA_
-      Integer iErr
+integer iErr
 #endif
 
-      if (FirstCall) then
-        FirstCall=.false.
-        if(mpp_nprocs.gt.1) then
-          Call ga_terminate()
-#  ifdef _GA_
-          Call mpi_finalize(iErr)
-#  endif
-        endif
-      endif
+if (FirstCall) then
+  FirstCall = .false.
+  if (mpp_nprocs > 1) then
+    call ga_terminate()
+#   ifdef _GA_
+    call mpi_finalize(iErr)
+#   endif
+  end if
+end if
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GASync
-#ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-#endif
-      Implicit None
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
 
-      If (Is_Real_Par()) Then
-         Call ga_sync()
-      End If
-#endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      Subroutine GABrdcst(dType,Buf,nByte,Root)
-#ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-#endif
-      Implicit None
-      Integer       dType,nByte,Root
-      Character(Len=*)  buf
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
-      Interface
-        Subroutine GA_Brdcst(type,buf,lenbuf,root)
-          Integer type,lenbuf,root
-          Type(*) buf
-        End Subroutine GA_Brdcst
-      End Interface
+end subroutine GATerminate
+!=!=
+subroutine GASync()
 
-      If (Is_Real_Par()) CALL GA_Brdcst(dType,Buf,nByte,Root)
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
+
+implicit none
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+
+if (Is_Real_Par()) call ga_sync()
+#endif
+
+end subroutine GASync
+!=!=
+subroutine GABrdcst(dType,Buf,nByte,Root)
+
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
+
+implicit none
+integer dType, nByte, Root
+character(len=*) buf
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+interface
+  subroutine GA_Brdcst(type,buf,lenbuf,root)
+    integer type, lenbuf, root
+    type(*) buf
+  end subroutine GA_Brdcst
+end interface
+
+if (Is_Real_Par()) call GA_Brdcst(dType,Buf,nByte,Root)
 #else
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(dType)
-         Call Unused_character(Buf)
-         Call Unused_integer(nByte)
-         Call Unused_integer(Root)
-      End If
+#include "macros.fh"
+unused_var(dType)
+unused_var(Buf)
+unused_var(nByte)
+unused_var(Root)
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GAStp(msg,ierr)
-      Implicit None
-      Character*(*) msg
-      Integer ierr
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
 
-      Call ga_error(msg,ierr)
+end subroutine GABrdcst
+!=!=
+subroutine GAStp(msg,ierr)
+
+implicit none
+character*(*) msg
+integer ierr
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+
+call ga_error(msg,ierr)
 #else
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_character(msg)
-         Call Unused_integer(ierr)
-      End If
+#include "macros.fh"
+unused_var(msg)
+unused_var(ierr)
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GADGOP(x,n,op)
-#ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-#endif
-      Implicit None
-      Integer n
-      Real*8 x(n)
-      Character*(*) op
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
-#  include "mafdecls.fh"
 
-      If (Is_Real_Par()) Then
-         Call ga_dgop(MT_DBL,x,n,op)
-      End If
+end subroutine GAStp
+!=!=
+subroutine GADGOP(x,n,op)
+
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
+
+implicit none
+integer n
+real*8 x(n)
+character*(*) op
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+
+if (Is_Real_Par()) call ga_dgop(MT_DBL,x,n,op)
 #else
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real_array(x)
-         Call Unused_character(op)
-      End If
+#include "macros.fh"
+unused_var(x)
+unused_var(op)
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GAdGOp_Scal(x,op)
-      Implicit None
-      Real*8 x
-      Character(Len=*) op
-      Real*8 x_arr(1)
 
-      x_arr(1)=x
-      Call GAdGOp(x_arr,1,op)
-      x=x_arr(1)
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GADSUM(x,n)
+end subroutine GADGOP
+!=!=
+subroutine GAdGOp_Scal(x,op)
+
+implicit none
+real*8 x
+character(len=*) op
+real*8 x_arr(1)
+
+x_arr(1) = x
+call GAdGOp(x_arr,1,op)
+x = x_arr(1)
+
+end subroutine GAdGOp_Scal
+!=!=
+subroutine GADSUM(x,n)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      Implicit None
-      Integer n
-      Real*8 x(n)
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
-#  include "mafdecls.fh"
 
-      If (Is_Real_Par()) Then
-         Call ga_dgop(MT_DBL,x,n,'+')
-      End If
+implicit none
+integer n
+real*8 x(n)
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+
+if (Is_Real_Par()) call ga_dgop(MT_DBL,x,n,'+')
 #else
-! Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(x)
+#include "macros.fh"
+unused_var(x)
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GAdSum_Scal(x)
-      Implicit None
-      Real*8 x
-      Real*8 x_arr(1)
-      x_arr(1)=x
-      Call GAdSum(x_arr,1)
-      x=x_arr(1)
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GAIGOP(k,n,op)
-#ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-#endif
-      Implicit None
-      Integer n
-      Integer k(n)
-      Character*(*) op
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
-#  include "mafdecls.fh"
 
-      If (Is_Real_Par()) Then
-         Call ga_igop(MT_INT,k,n,op)
-      End If
+end subroutine GADSUM
+!=!=
+subroutine GAdSum_Scal(x)
+
+implicit none
+real*8 x
+real*8 x_arr(1)
+
+x_arr(1) = x
+call GAdSum(x_arr,1)
+x = x_arr(1)
+
+end subroutine GAdSum_Scal
+!=!=
+subroutine GAIGOP(k,n,op)
+
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
+
+implicit none
+integer n
+integer k(n)
+character*(*) op
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+
+if (Is_Real_Par()) call ga_igop(MT_INT,k,n,op)
 #else
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer_array(k)
-         Call Unused_character(op)
-      End If
+#include "macros.fh"
+unused_var(k)
+unused_var(op)
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GAiGOp_Scal(k,op)
-      Implicit None
-      Integer k
-      Character(Len=*) op
-      Integer k_arr(1)
 
-      k_arr(1)=k
-      Call GAiGOp(k_arr,1,op)
-      k=k_arr(1)
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GAAccP(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
+end subroutine GAIGOP
+!=!=
+subroutine GAiGOp_Scal(k,op)
+
+implicit none
+integer k
+character(len=*) op
+integer k_arr(1)
+
+k_arr(1) = k
+call GAiGOp(k_arr,1,op)
+k = k_arr(1)
+
+end subroutine GAiGOp_Scal
+!=!=
+subroutine GAAccP(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
+use Para_Info, only: Is_Real_Par
 #endif
-      Implicit None
-      Integer iGA,ilo,ihi,jlo,jhi,ld
-      Real*8 buf(1:ld,1:*),alpha
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
 
-      If (Is_Real_Par()) Then
-         Call ga_acc(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
-      End IF
+implicit none
+integer iGA, ilo, ihi, jlo, jhi, ld
+real*8 buf(1:ld,1:*), alpha
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+
+if (Is_Real_Par()) call ga_acc(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
 #else
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iGA)
-         Call Unused_integer(ilo)
-         Call Unused_integer(ihi)
-         Call Unused_integer(jlo)
-         Call Unused_integer(jhi)
-         Call Unused_real_array(buf)
-         Call Unused_real(alpha)
-      End If
+#include "macros.fh"
+#unused_var(iGa)
+#unused_var(ilo
+#unused_var(ihi)
+#unused_var(jlo)
+#unused_var(jhi)
+#unused_var(buf)
+#unused_var(alpha)
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GADupl(iGA1,iGA2)
-#ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-#endif
-      Implicit None
-      Integer iGA1,iGA2
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
-      Character gaLbl*5,gaLbl2*6
-      Logical ok
 
-      If (.Not. Is_Real_Par()) Return
-      If (iGA1.ge.0) Return
-      Call ga_inquire_name(iGA1,gaLbl)
-      Write(gaLbl2,'(A,I1)') gaLbl,2
+end subroutine GAAccP
+!=!=
+subroutine GADupl(iGA1,iGA2)
 
-      ok=ga_duplicate(iGA1,iGA2,gaLbl2)
-      If (.NOT.ok) Then
-        Write (6,*) 'GADupl: ga_duplicate not OK!'
-        Call GAStp('GADupl',42)
-        Call Abend()
-      End If
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
 
-      Call ga_copy(iGA1,iGA2)
-#else
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(iGA1)
-         Call Unused_integer(iGA2)
-      End If
-#endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      SubRoutine GAAdd(alpha,iGA1,beta,iGA2,iGA3)
+implicit none
+integer iGA1, iGA2
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: Is_Real_Par
-#endif
-      Implicit None
-      Integer iGA1,iGA2,iGA3
-      Real*8 alpha,beta
-#ifdef _MOLCAS_MPP_
-#  include "global.fh"
+#include "global.fh"
+character gaLbl*5, gaLbl2*6
+logical ok
 
-      If (.Not. Is_Real_Par()) Return
-      If ((iGA1.ge.0).OR.(iGA2.ge.0).OR.(iGA3.ge.0)) Return
-      Call ga_dadd(alpha,iGA1,beta,iGA2,iGA3)
+if (.not. Is_Real_Par()) return
+if (iGA1 >= 0) return
+call ga_inquire_name(iGA1,gaLbl)
+write(gaLbl2,'(A,I1)') gaLbl,2
+
+ok = ga_duplicate(iGA1,iGA2,gaLbl2)
+if (.not. ok) then
+  write(6,*) 'GADupl: ga_duplicate not OK!'
+  call GAStp('GADupl',42)
+  call Abend()
+end if
+
+call ga_copy(iGA1,iGA2)
 #else
-! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real(alpha)
-         Call Unused_integer(iGA1)
-         Call Unused_real(beta)
-         Call Unused_integer(iGA2)
-         Call Unused_integer(iGA3)
-      End If
+#include "macros.fh"
+unused_var(iGA1)
+unused_var(iGA2)
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      Integer Function GANodeID()
+
+end subroutine GADupl
+!=!=
+subroutine GAAdd(alpha,iGA1,beta,iGA2,iGA3)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: mpp_procid
+use Para_Info, only: Is_Real_Par
 #endif
-      Implicit None
+
+implicit none
+integer iGA1, iGA2, iGA3
+real*8 alpha, beta
 #ifdef _MOLCAS_MPP_
-      GANodeID = mpp_procid
+#include "global.fh"
+
+if (.not. Is_Real_Par()) return
+if ((iGA1 >= 0) .or. (iGA2 >= 0) .or. (iGA3 >= 0)) return
+call ga_dadd(alpha,iGA1,beta,iGA2,iGA3)
 #else
-      GANodeID = 0
+#include "macros.fh"
+unused_var(alpha)
+unused_var(iGA1)
+unused_var(beta)
+unused_var(iGA2)
+unused_var(iGA3)
 #endif
-      Return
-      End
-!----------------------------------------------------------------------*
-      Integer Function GAnNodes()
+
+end subroutine GAAdd
+!=!=
+integer function GANodeID()
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: mpp_nprocs
+use Para_Info, only: mpp_procid
 #endif
-      Implicit None
+
+implicit none
+
 #ifdef _MOLCAS_MPP_
-      GAnNodes = mpp_nprocs
+GANodeID = mpp_procid
 #else
-      GAnNodes = 1
+GANodeID = 0
 #endif
-      Return
-      End
+
+end function GANodeID
+!=!=
+integer function GAnNodes()
+
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: mpp_nprocs
+#endif
+
+implicit none
+
+#ifdef _MOLCAS_MPP_
+GAnNodes = mpp_nprocs
+#else
+GAnNodes = 1
+#endif
+
+end function GAnNodes

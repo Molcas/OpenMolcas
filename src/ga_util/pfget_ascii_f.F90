@@ -12,102 +12,99 @@
 !***********************************************************************
 
 #include "compiler_features.h"
-
 #ifndef _HAVE_EXTRA_
 
 ! Broadcast a file from the master to the slaves
 
-      Subroutine PFGet_ASCII(FName)
+subroutine PFGet_ASCII(FName)
+
 #ifdef _MOLCAS_MPP_
-      Use Para_Info, Only: mpp_rootid, King
-      use Definitions, only: ItoB
+use Para_Info, only: mpp_rootid, King
+use Definitions, only: ItoB
 #endif
-      Implicit None
-      Character (Len=*), Intent(In) :: FName
+
+implicit none
+character(len=*), intent(In) :: FName
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
-      Integer, Parameter :: LBuf=4096
-      Character (Len=LBuf) :: Buf
-      Integer :: LU, Err, FLen, Pos, Num
-      Logical :: Found, Failed
-      Integer, External :: IsFreeUnit
-      Interface
-        Subroutine GA_Brdcst(type,buf,lenbuf,root)
-          Integer type,lenbuf,root
-          Type(*) buf
-        End Subroutine GA_Brdcst
-      End Interface
+integer, parameter :: LBuf = 4096
+character(len=LBuf) :: Buf
+integer :: LU, Err, FLen, Pos, Num
+logical :: Found, Failed
+integer, external :: IsFreeUnit
+interface
+  subroutine GA_Brdcst(type,buf,lenbuf,root)
+    integer type, lenbuf, root
+    type(*) buf
+  end subroutine GA_Brdcst
+end interface
 
-      ! Note that each process opens only one file, so there is a single
-      ! unit number LU
-      LU=10
-      LU=IsFreeUnit(LU)
-      ! Check file existence and read size on the master
-      If (King()) Then
-        Call f_Inquire(FName, Found)
-        If (Found) Then
-          Call Molcas_Open_Ext2(LU, FName, "stream", "unformatted", Err,&
-     &                          .False., 0, "old", Failed)
-          If (Failed .or. (Err .ne. 0)) Then
-            Write(6,*) "Failed to open file ", Trim(FName)
-            Call AbEnd()
-          End If
-          Inquire(LU, Size=FLen)
-        Else
-          FLen=0
-        End If
-      End If
-      ! Broadcast the file size
-      Err=0
-      Call GA_Brdcst(MT_INT, FLen, 1*ItoB, mpp_rootid)
-      If (FLen .le. 0) Return
-      ! Open file for writing in the slaves
-      If (.not.King()) Then
-        Call Molcas_Open_Ext2(LU, FName, "stream", "unformatted", Err,  &
-     &                        .False., 0, "replace", Failed)
-        If (Failed .or. (Err .ne. 0)) Then
-          Write(6,*) "Failed to open file ", Trim(FName)
-          Call AbEnd()
-        End If
-      End If
-      ! Pass the file content in chunks
-      Pos=0
-      Do While (Pos .lt. FLen)
-        ! Length of this chunk
-        Num = Min(LBuf, FLen-Pos)
-        ! The master reads the file
-        If (King()) Then
-          Read(LU, IOStat=Err) Buf(1:Num)
-          If (Err .ne. 0) Then
-            Write(6,*) "Error reading the file ", Trim(FName)
-            Call AbEnd()
-          End If
-        End If
-        Call GA_Brdcst(MT_BYTE, Buf(1:Num), Num, mpp_rootid)
-        ! The slaves write the file
-        If (.not. King()) Then
-          Write(LU, IOStat=Err) Buf(1:Num)
-          If (Err .ne. 0) Then
-            Write(6,*) "Error writing the file ", Trim(FName)
-            Call AbEnd()
-          End If
-        End If
-        Pos = Pos + LBuf
-      End Do
-      Close(LU)
-      Return
+! Note that each process opens only one file, so there is a single
+! unit number LU
+LU = 10
+LU = IsFreeUnit(LU)
+! Check file existence and read size on the master
+if (King()) then
+  call f_Inquire(FName,Found)
+  if (Found) then
+    call Molcas_Open_Ext2(LU,FName,"stream","unformatted",Err,.false.,0,"old",Failed)
+    if (Failed .or. (Err /= 0)) then
+      write(6,*) "Failed to open file ",trim(FName)
+      call AbEnd()
+    end if
+    inquire(LU,Size=FLen)
+  else
+    FLen = 0
+  end if
+end if
+! Broadcast the file size
+Err = 0
+call GA_Brdcst(MT_INT,FLen,1*ItoB,mpp_rootid)
+if (FLen <= 0) return
+! Open file for writing in the slaves
+if (.not. King()) then
+  call Molcas_Open_Ext2(LU,FName,"stream","unformatted",Err,.false.,0,"replace",Failed)
+  if (Failed .or. (Err /= 0)) then
+    write(6,*) "Failed to open file ",trim(FName)
+    call AbEnd()
+  end if
+end if
+! Pass the file content in chunks
+Pos = 0
+do while (Pos < FLen)
+  ! Length of this chunk
+  Num = min(LBuf,FLen-Pos)
+  ! The master reads the file
+  if (King()) then
+    read(LU,IOStat=Err) Buf(1:Num)
+    if (Err /= 0) then
+      write(6,*) "Error reading the file ",trim(FName)
+      call AbEnd()
+    end if
+  end if
+  call GA_Brdcst(MT_BYTE,Buf(1:Num),Num,mpp_rootid)
+  ! The slaves write the file
+  if (.not. King()) then
+    write(LU,IOStat=Err) Buf(1:Num)
+    if (Err /= 0) then
+      write(6,*) "Error writing the file ",trim(FName)
+      call AbEnd()
+    end if
+  end if
+  Pos = Pos+LBuf
+end do
+close(LU)
 #else
-      ! Avoid unused argument warnings
-      If (.False.) Call Unused_Character(FName)
+#include "macros.fh"
+unused_var(FName)
 #endif
 
-      End Subroutine PFGet_ASCII
+end subroutine PFGet_ASCII
 
 #elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files
-#     include "macros.fh"
-      subroutine empty_PFGet_ASCII()
-      end subroutine empty_PFGet_ASCII
+#include "macros.fh"
+dummy_empty_procedure(PFGet_ASCII)
 
 #endif
