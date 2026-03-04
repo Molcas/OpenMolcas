@@ -43,7 +43,7 @@ C Set up B matrices for cases 1..13.
       CALL PT2_GET(NG1,'DELTA1',F1)
 
       CALL mma_allocate(FD,SIZE(DREF),Label='FD')
-      CALL MKDREF_RPT2(NASHT,F1,FD)
+      CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
 
       CALL mma_deallocate(F1)
 
@@ -51,7 +51,7 @@ C Set up B matrices for cases 1..13.
       CALL PT2_GET(NG2,'DELTA2',F2)
 
       CALL mma_allocate(FP,SIZE(PREF),Label='FP')
-      CALL MKPREF_RPT2(NASHT,F2,FP)
+      CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
 
       CALL mma_deallocate(F2)
 

@@ -61,10 +61,10 @@ C Set up S and B matrices for cases 1..13.
 ***********************************************************************
          Call Modify_Fock_and_parameters('A')
          CALL PT2_GET(NG1,'DELTA1',F1)
-         CALL MKDREF_RPT2(NASHT,F1,FD)
+         CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
 
          CALL PT2_GET(NG2,'DELTA2',F2)
-         CALL MKPREF_RPT2(NASHT,F2,FP)
+         CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
 
          CALL PT2_GET(NG3,'DELTA3',F3)
 
@@ -77,10 +77,10 @@ C Set up S and B matrices for cases 1..13.
 ***********************************************************************
          Call Modify_Fock_and_parameters('C')
          CALL PT2_GET(NG1,'DELTA1',F1)
-         CALL MKDREF_RPT2(NASHT,F1,FD)
+         CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
 
          CALL PT2_GET(NG2,'DELTA2',F2)
-         CALL MKPREF_RPT2(NASHT,F2,FP)
+         CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
 
          CALL PT2_GET(NG3,'DELTA3',F3)
 
@@ -99,10 +99,10 @@ C Set up S and B matrices for cases 1..13.
 ***********************************************************************
          Call Modify_Fock_and_parameters('B')
          CALL PT2_GET(NG1,'DELTA1',F1)
-         CALL MKDREF_RPT2(NASHT,F1,FD)
+         CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
 
          CALL PT2_GET(NG2,'DELTA2',F2)
-         CALL MKPREF_RPT2(NASHT,F2,FP)
+         CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
 
          CALL MKSB(DREF,SIZE(DREF),PREF,SIZE(PREF))
          CALL MKBB(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
@@ -111,10 +111,10 @@ C Set up S and B matrices for cases 1..13.
 ***********************************************************************
          Call Modify_Fock_and_parameters('D')
          CALL PT2_GET(NG1,'DELTA1',F1)
-         CALL MKDREF_RPT2(NASHT,F1,FD)
+         CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
 
          CALL PT2_GET(NG2,'DELTA2',F2)
-         CALL MKPREF_RPT2(NASHT,F2,FP)
+         CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
 
          CALL MKSD(DREF,SIZE(DREF),PREF,SIZE(PREF))
          CALL MKBD(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
@@ -123,7 +123,7 @@ C Set up S and B matrices for cases 1..13.
 ***********************************************************************
          Call Modify_Fock_and_parameters('E')
          CALL PT2_GET(NG1,'DELTA1',F1)
-         CALL MKDREF_RPT2(NASHT,F1,FD)
+         CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
 
          CALL MKSE(DREF,SIZE(DREF))
          CALL MKBE(DREF,SIZE(DREF),FD)
@@ -132,7 +132,7 @@ C Set up S and B matrices for cases 1..13.
 ***********************************************************************
          Call Modify_Fock_and_parameters('F')
          CALL PT2_GET(NG2,'DELTA2',F2)
-         CALL MKPREF_RPT2(NASHT,F2,FP)
+         CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
 
          CALL MKSF(PREF,SIZE(PREF))
          CALL MKBF(DREF,SIZE(DREF),PREF,SIZE(PREF),FP)
@@ -141,7 +141,7 @@ C Set up S and B matrices for cases 1..13.
 ***********************************************************************
          Call Modify_Fock_and_parameters('G')
          CALL PT2_GET(NG1,'DELTA1',F1)
-         CALL MKDREF_RPT2(NASHT,F1,FD)
+         CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
 
          CALL MKSG(DREF,SIZE(DREF))
          CALL MKBG(DREF,SIZE(DREF),FD)
