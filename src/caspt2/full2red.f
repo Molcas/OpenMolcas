@@ -59,7 +59,6 @@ c Offsets to symmetry block in the LT matrix
       SUBROUTINE red2full(XLT,nXLT,Xab,nXab)
       use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR,
      &                    nSym
-      use constants, only: Zero
       use definitions, only: iwp, wp
       Implicit None
       Integer(kind=iwp), intent(in):: nXLT, nXab
