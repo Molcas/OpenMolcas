@@ -492,9 +492,9 @@ C ---------------------------------------------------------------------
       IF (jSym.eq.1) THEN
 * Add Coulomb contributions in local Fock matrices (in 'reduced storage')
 * into the global ones:
-        CALL red2full(FFAO,FF_RED)
-        CALL red2full(FIAO,FI_RED)
-        CALL red2full(FAAO,FA_RED)
+        CALL red2full(FFAO,NBTRI,FF_RED,nRS)
+        CALL red2full(FIAO,NBTRI,FI_RED,nRS)
+        CALL red2full(FAAO,NBTRI,FA_RED,nRS)
       END IF
 * End loop JRED
       END DO
