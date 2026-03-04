@@ -10,13 +10,8 @@
 !***********************************************************************
 
 #ifdef _HAVE_EXTRA_
-      Integer, External :: molcas_eaf_open,
-     &                     molcas_eaf_close,
-     &                     molcas_eaf_awrite,
-     &                     molcas_eaf_aread,
-     &                     molcas_eaf_write,
-     &                     molcas_eaf_read,
-     &                     molcas_eaf_wait
+integer(kind=iwp), external :: molcas_eaf_aread, molcas_eaf_awrite, molcas_eaf_close, molcas_eaf_open, molcas_eaf_read, &
+                               molcas_eaf_wait molcas_eaf_write,
 #else
 ! Include file from GlobalArrays
 #include "eaf.fh"

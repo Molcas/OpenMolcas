@@ -31,19 +31,17 @@
 
 subroutine BCTwoHam(TwoHam,nDens,TCPU,TWall)
 
-use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDens
 real(kind=wp), intent(inout) :: TwoHam(nDens)
 real(kind=wp), intent(inout) :: TCPU, TWall
 #ifdef _MOLCAS_MPP_
-real(kind=wp) TCPU1, TWall1
-real(kind=wp) TCPU2, TWall2
-#include "global.fh"
+real(kind=wp) :: TCPU1, TCPU2, TWall1, TWall2
 
 if (.not. Is_Real_Par()) return
 call CWTime(TCpu1,TWall1)

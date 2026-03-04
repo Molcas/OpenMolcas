@@ -16,10 +16,11 @@ subroutine par_range(n,i,j)
 ! so it is possible to use it consistently for looping.
 
 use Para_Info, only: MyRank, nProcs
+use Definitions, only: iwp
 
 implicit none
-integer :: n, i, j
-integer :: nqot, nrem
+integer(kind=iwp) :: n, i, j
+integer(kind=iwp) :: nqot, nrem
 
 nqot = n/nprocs
 nrem = n-nqot*nprocs

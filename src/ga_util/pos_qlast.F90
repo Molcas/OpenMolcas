@@ -11,14 +11,14 @@
 
 subroutine Pos_QLast(Disc)
 
-use definitions, only: iwp, wp, u6, RtoI
-use TList_Mod, only: iTskCan, Not_Used, TskQ, QLast
+use TList_Mod, only: iTskCan, Not_Used, QLast, TskQ
+use Definitions, only: wp, iwp, u6, RtoI
 
 implicit none
 real(kind=wp), intent(inout) :: Disc
-integer(kind=iwp) iWR(2), mInts
-real(kind=wp) Dummy(1), Quad_ijkl, RST_triplet
-logical :: Copy = .true., NoCopy = .false.
+integer(kind=iwp) :: iWR(2), mInts
+real(kind=wp) :: Dummy(1), Quad_ijkl, RST_triplet
+logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 
 if (.not. allocated(TskQ)) return
 
@@ -37,11 +37,11 @@ do
   mInts = iWR(2)
   if ((QLast(1) == Quad_ijkl) .and. (QLast(2) == RST_triplet)) then
     if (mInts > 0) call dRBuf(Dummy,mInts,NoCopy)
-    Disc = Disc+dble(2/RtoI+2+mInts)
+    Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
     return
   else if (QLast(1) <= Quad_ijkl) then
     if (mInts > 0) call dRBuf(Dummy,mInts,NoCopy)
-    Disc = Disc+dble(2/RtoI+2+mInts)
+    Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
     cycle
   else
     write(u6,*) 'Pos_QLast: batch is lost!'

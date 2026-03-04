@@ -70,14 +70,15 @@ subroutine GAInit()
 
 use Para_Info, only: MyRank, nProcs
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: mpp_procid, mpp_nprocs, mpp_workshare
+use Para_Info, only: mpp_nprocs, mpp_procid, mpp_workshare
+use Definitions, only: iwp
 #endif
 
 implicit none
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
+integer(kind=iwp) :: molcas_nprocs, iRC
 character(len=8) :: molcas_nprocs_env
-integer :: molcas_nprocs, iRC
+#include "global.fh"
 
 ! SVC: bypass MPI initialization if only 1 process, this is needed for a
 ! specific version of GEO (so that the serial tasks which are run by MPI
@@ -130,13 +131,12 @@ subroutine GATerminate()
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_nprocs
-#endif
+use Definitions, only: iwp
+
 implicit none
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
-logical, save :: FirstCall = .true.
+logical(kind=iwp) :: FirstCall = .true.
 #ifdef _GA_
-integer iErr
+integer(kind=iwp) :: iErr
 #endif
 
 if (FirstCall) then
@@ -156,11 +156,8 @@ subroutine GASync()
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-#endif
 
 implicit none
-#ifdef _MOLCAS_MPP_
-#include "global.fh"
 
 if (Is_Real_Par()) call ga_sync()
 #endif
@@ -172,16 +169,17 @@ subroutine GABrdcst(dType,Buf,nByte,Root)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer dType, nByte, Root
-character(len=*) buf
+integer(kind=iwp) :: dType, nByte, Root
+character(len=*) :: Buf
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
 interface
-  subroutine GA_Brdcst(type,buf,lenbuf,root)
-    integer type, lenbuf, root
-    type(*) buf
+  subroutine GA_Brdcst(tp,buf,lenbuf,root)
+    import :: iwp
+    integer(kind=iwp) :: tp, lenbuf, root
+    type(*) :: buf
   end subroutine GA_Brdcst
 end interface
 
@@ -198,11 +196,12 @@ end subroutine GABrdcst
 !=!=
 subroutine GAStp(msg,ierr)
 
+use Definitions, only: iwp
+
 implicit none
-character*(*) msg
-integer ierr
+character(len=*) :: msg
+integer(kind=iwp) :: ierr
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
 
 call ga_error(msg,ierr)
 #else
@@ -218,13 +217,13 @@ subroutine GADGOP(x,n,op)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer n
-real*8 x(n)
-character*(*) op
+integer(kind=iwp) :: n
+real(kind=wp) :: x(n)
+character(len=*) :: op
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
 #include "mafdecls.fh"
 
 if (Is_Real_Par()) call ga_dgop(MT_DBL,x,n,op)
@@ -238,10 +237,12 @@ end subroutine GADGOP
 !=!=
 subroutine GAdGOp_Scal(x,op)
 
+use Definitions, only: wp
+
 implicit none
-real*8 x
-character(len=*) op
-real*8 x_arr(1)
+real(kind=wp) :: x
+character(len=*) :: op
+real(kind=wp) :: x_arr(1)
 
 x_arr(1) = x
 call GAdGOp(x_arr,1,op)
@@ -254,12 +255,12 @@ subroutine GADSUM(x,n)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer n
-real*8 x(n)
+integer(kind=iwp) :: n
+real(kind=wp) :: x(n)
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
 #include "mafdecls.fh"
 
 if (Is_Real_Par()) call ga_dgop(MT_DBL,x,n,'+')
@@ -272,9 +273,11 @@ end subroutine GADSUM
 !=!=
 subroutine GAdSum_Scal(x)
 
+use Definitions, only: wp
+
 implicit none
-real*8 x
-real*8 x_arr(1)
+real(kind=wp) :: x
+real(kind=wp) :: x_arr(1)
 
 x_arr(1) = x
 call GAdSum(x_arr,1)
@@ -287,13 +290,12 @@ subroutine GAIGOP(k,n,op)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer n
-integer k(n)
-character*(*) op
+integer(kind=iwp) :: n, k(n)
+character(len=*) :: op
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
 #include "mafdecls.fh"
 
 if (Is_Real_Par()) call ga_igop(MT_INT,k,n,op)
@@ -307,10 +309,12 @@ end subroutine GAIGOP
 !=!=
 subroutine GAiGOp_Scal(k,op)
 
+use Definitions, only: iwp
+
 implicit none
-integer k
-character(len=*) op
-integer k_arr(1)
+integer(kind=iwp) :: k
+character(len=*) :: op
+integer(kind=iwp) :: k_arr(1)
 
 k_arr(1) = k
 call GAiGOp(k_arr,1,op)
@@ -323,23 +327,23 @@ subroutine GAAccP(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer iGA, ilo, ihi, jlo, jhi, ld
-real*8 buf(1:ld,1:*), alpha
+integer(kind=iwp) :: iGA, ilo, ihi, jlo, jhi, ld
+real(kind=wp) :: buf(ld,*), alpha
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
 
 if (Is_Real_Par()) call ga_acc(iGA,ilo,ihi,jlo,jhi,buf,ld,alpha)
 #else
 #include "macros.fh"
-#unused_var(iGa)
-#unused_var(ilo
-#unused_var(ihi)
-#unused_var(jlo)
-#unused_var(jhi)
-#unused_var(buf)
-#unused_var(alpha)
+unused_var(iGa)
+unused_var(ilo)
+unused_var(ihi)
+unused_var(jlo)
+unused_var(jhi)
+unused_var(buf(1,1))
+unused_var(alpha)
 #endif
 
 end subroutine GAAccP
@@ -348,14 +352,17 @@ subroutine GADupl(iGA1,iGA2)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use Definitions, only: u6
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer iGA1, iGA2
+integer(kind=iwp) :: iGA1, iGA2
 #ifdef _MOLCAS_MPP_
+logical(kind=iwp) :: ok
+character(len=6) :: gaLbl2
+character(len=5) :: gaLbl
 #include "global.fh"
-character gaLbl*5, gaLbl2*6
-logical ok
 
 if (.not. Is_Real_Par()) return
 if (iGA1 >= 0) return
@@ -364,7 +371,7 @@ write(gaLbl2,'(A,I1)') gaLbl,2
 
 ok = ga_duplicate(iGA1,iGA2,gaLbl2)
 if (.not. ok) then
-  write(6,*) 'GADupl: ga_duplicate not OK!'
+  write(u6,*) 'GADupl: ga_duplicate not OK!'
   call GAStp('GADupl',42)
   call Abend()
 end if
@@ -383,12 +390,12 @@ subroutine GAAdd(alpha,iGA1,beta,iGA2,iGA3)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer iGA1, iGA2, iGA3
-real*8 alpha, beta
+real(kind=wp) :: alpha, beta
+integer(kind=iwp) :: iGA1, iGA2, iGA3
 #ifdef _MOLCAS_MPP_
-#include "global.fh"
 
 if (.not. Is_Real_Par()) return
 if ((iGA1 >= 0) .or. (iGA2 >= 0) .or. (iGA3 >= 0)) return
@@ -404,13 +411,15 @@ unused_var(iGA3)
 
 end subroutine GAAdd
 !=!=
-integer function GANodeID()
+function GANodeID()
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_procid
 #endif
+use Definitions, only: iwp
 
 implicit none
+integer(kind=iwp) :: GANodeID
 
 #ifdef _MOLCAS_MPP_
 GANodeID = mpp_procid
@@ -420,13 +429,15 @@ GANodeID = 0
 
 end function GANodeID
 !=!=
-integer function GAnNodes()
+function GAnNodes()
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_nprocs
 #endif
+use Definitions, only: iwp
 
 implicit none
+integer(kind=iwp) :: GAnNodes
 
 #ifdef _MOLCAS_MPP_
 GAnNodes = mpp_nprocs

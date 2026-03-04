@@ -11,8 +11,8 @@
 
 subroutine Free_TList()
 
-use TList_Mod, only: TskQ, TskM
-use Para_Info, only: nProcs, Is_Real_Par
+use TList_Mod, only: TskM, TskQ
+use Para_Info, only: Is_Real_Par, nProcs
 use stdalloc, only: mma_deallocate
 
 implicit none

@@ -11,10 +11,10 @@
 
 subroutine Free_GTList()
 
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 use TList_Mod, only: GT_Status, iTCnSt
 #ifdef _MOLCAS_MPP_
-use TList_Mod, only: nTasks, igaTsk
+use TList_Mod, only: igaTsk, nTasks
 #endif
 
 implicit none

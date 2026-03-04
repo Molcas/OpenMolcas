@@ -32,22 +32,26 @@
 #endif
 
 subroutine EAFOpen(Lu,FName)
+
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use Definitions, only: u6
 #endif
+use Definitions, only: iwp
+
 implicit none
-character*(*) FName
-integer Lu
-integer isfreeunit
-external isfreeunit
+integer(kind=iwp) :: Lu
+character(len=*) :: FName
+integer(kind=iwp), external :: isfreeunit
 #ifdef _MOLCAS_MPP_
-character*200 FN
-integer iRC
+integer(kind=iwp) :: iRC
+character(len=200) :: FN
 #ifdef _HAVE_EXTRA_
-integer n
+integer(kind=iwp) :: n
 #endif
 #include "molcas_eaf.fh"
 #endif
+
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
   FN = FName
@@ -60,11 +64,11 @@ if (Is_Real_Par()) then
   iRC = eaf_open(FN,eaf_rw,Lu)
 # endif
   if (iRC /= 0) then
-    write(6,*) 'EAFOpen: Abort!'
-    write(6,*) 'iRC=',iRC
-    write(6,*) 'Lu=',Lu
-    write(6,*) 'Fname=',FName
-    write(6,*) 'EAF_Err_Code =',iRC
+    write(u6,*) 'EAFOpen: Abort!'
+    write(u6,*) 'iRC=',iRC
+    write(u6,*) 'Lu=',Lu
+    write(u6,*) 'Fname=',FName
+    write(u6,*) 'EAF_Err_Code =',iRC
     call Abend()
   end if
 else
@@ -77,14 +81,17 @@ end if
 end subroutine EAFOpen
 !=!=
 subroutine EAFClose(Lu)
+
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use Definitions, only: wp, u6
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer Lu
+integer(kind=iwp) :: Lu
 #ifdef _MOLCAS_MPP_
-integer iRC
+integer(kind=iwp) :: iRC
 #include "molcas_eaf.fh"
 #endif
 
@@ -96,8 +103,8 @@ if (Is_Real_Par()) then
   iRC = eaf_close(Lu)
 # endif
   if (iRC /= 0) then
-    write(6,*) 'EAFClose: Abort!'
-    write(6,*) 'EAF_Err_Code =',iRC
+    write(u6,*) 'EAFClose: Abort!'
+    write(u6,*) 'EAF_Err_Code =',iRC
     call Abend()
   end if
 else
@@ -113,14 +120,15 @@ subroutine EAFAWrite(Lu,Buf,nBuf,Disk,id)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use Definitions, only: ItoB
+use Definitions, only: u6, ItoB
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer Lu, nBuf, Buf(nBuf), id
-real*8 Disk
+integer(kind=iwp) :: Lu, nBuf, Buf(nBuf), id
+real(kind=wp) :: Disk
 #ifdef _MOLCAS_MPP_
-integer iRC
+integer(kind=iwp) :: iRC
 #include "molcas_eaf.fh"
 #endif
 
@@ -130,11 +138,11 @@ if (Is_Real_Par()) then
   iRC = molcas_eaf_awrite(Lu,Disk,Buf,nBuf*ItoB,id)
 # else
   iRC = eaf_awrite(Lu,Disk,Buf,nBuf*ItoB,id)
-  Disk = Disk+dble(nBuf*ItoB)
+  Disk = Disk+real(nBuf*ItoB,kind=wp)
 # endif
   if (iRC /= 0) then
-    write(6,*) 'EAFAWrite: Abort!'
-    write(6,*) 'EAF_Err_Code =',iRC
+    write(u6,*) 'EAFAWrite: Abort!'
+    write(u6,*) 'EAF_Err_Code =',iRC
     call Abend()
   end if
 else
@@ -151,14 +159,15 @@ subroutine EAFARead(Lu,Buf,nBuf,Disk,id)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use Definitions, only: ItoB
+use Definitions, only: u6, ItoB
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer Lu, nBuf, Buf(nBuf), id
-real*8 Disk
+integer(kind=iwp) :: Lu, nBuf, Buf(nBuf), id
+real(kind=wp) :: Disk
 #ifdef _MOLCAS_MPP_
-integer iRC
+integer(kind=iwp) :: iRC
 #include "molcas_eaf.fh"
 #endif
 
@@ -168,11 +177,11 @@ if (Is_Real_Par()) then
   iRC = molcas_eaf_aread(Lu,Disk,Buf,nBuf*ItoB,id)
 # else
   iRC = eaf_aread(Lu,Disk,Buf,nBuf*ItoB,id)
-  Disk = Disk+dble(nBuf*ItoB)
+  Disk = Disk+real(nBuf*ItoB,kind=wp)
 # endif
   if (iRC /= 0) then
-    write(6,*) 'EAFARead: Abort!'
-    write(6,*) 'EAF_Err_Code =',iRC
+    write(u6,*) 'EAFARead: Abort!'
+    write(u6,*) 'EAF_Err_Code =',iRC
     call Abend()
   end if
 else
@@ -189,15 +198,16 @@ subroutine EAFWrite(Lu,Buf,nBuf,Disk)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use Definitions, only: ItoB
+use Definitions, only: u6, ItoB
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer Lu, nBuf, Buf(nBuf)
-real*8 Disk
-integer iDisk
+integer(kind=iwp) :: Lu, nBuf, Buf(nBuf)
+real(kind=wp) :: Disk
+integer(kind=iwp) :: iDisk
 #ifdef _MOLCAS_MPP_
-integer iRC
+integer(kind=iwp) :: iRC
 #include "molcas_eaf.fh"
 #endif
 
@@ -207,18 +217,18 @@ if (Is_Real_Par()) then
   iRC = molcas_eaf_write(Lu,Disk,Buf,nBuf*ItoB)
 # else
   iRC = eaf_write(Lu,Disk,Buf,nBuf*ItoB)
-  Disk = Disk+dble(nBuf*ItoB)
+  Disk = Disk+real(nBuf*ItoB,kind=wp)
 # endif
   if (iRC /= 0) then
-    write(6,*) 'EAFWrite: Abort!'
-    write(6,*) 'EAF_Err_Code =',iRC
+    write(u6,*) 'EAFWrite: Abort!'
+    write(u6,*) 'EAF_Err_Code =',iRC
     call Abend()
   end if
 else
 #endif
   iDisk = int(Disk)
   call iDaFile(Lu,1,Buf,nBuf,iDisk)
-  Disk = dble(iDisk)
+  Disk = real(iDisk,kind=wp)
 #ifdef _MOLCAS_MPP_
 end if
 #endif
@@ -229,15 +239,16 @@ subroutine EAFRead(Lu,Buf,nBuf,Disk)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
-use Definitions, only: ItoB
+use Definitions, only: u6, ItoB
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer Lu, nBuf, Buf(nBuf)
-real*8 Disk
-integer iDisk
+integer(kind=iwp) :: Lu, nBuf, Buf(nBuf)
+real(kind=wp) :: Disk
+integer(kind=iwp) :: iDisk
 #ifdef _MOLCAS_MPP_
-integer iRC
+integer(kind=iwp) :: iRC
 #include "molcas_eaf.fh"
 #endif
 
@@ -247,18 +258,18 @@ if (Is_Real_Par()) then
   iRC = molcas_eaf_read(Lu,Disk,Buf,nBuf*ItoB)
 # else
   iRC = eaf_read(Lu,Disk,Buf,nBuf*ItoB)
-  Disk = Disk+dble(nBuf*ItoB)
+  Disk = Disk+real(nBuf*ItoB,kind=wp)
 # endif
   if (iRC /= 0) then
-    write(6,*) 'EAFRead: Abort!'
-    write(6,*) 'EAF_Err_Code =',iRC
+    write(u6,*) 'EAFRead: Abort!'
+    write(u6,*) 'EAF_Err_Code =',iRC
     call Abend()
   end if
 else
 #endif
   iDisk = int(Disk)
   call iDaFile(Lu,2,Buf,nBuf,iDisk)
-  Disk = dble(iDisk)
+  Disk = real(iDisk,kind=wp)
 #ifdef _MOLCAS_MPP_
 end if
 #endif
@@ -269,12 +280,14 @@ subroutine EAFWait(Lu,id)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use Definitions, only: u6
 #endif
+use Definitions, only: iwp
 
 implicit none
-integer Lu, id
+integer(kind=iwp) :: Lu, id
 #ifdef _MOLCAS_MPP_
-integer iRC
+integer(kind=iwp) :: iRC
 #include "molcas_eaf.fh"
 #endif
 
@@ -286,8 +299,8 @@ if (Is_Real_Par()) then
   iRC = eaf_wait(Lu,id)
 # endif
   if (iRC /= 0) then
-    write(6,*) 'EAFWait: Abort!'
-    write(6,*) 'EAF_Err_Code =',iRC
+    write(u6,*) 'EAFWait: Abort!'
+    write(u6,*) 'EAF_Err_Code =',iRC
     call Abend()
   end if
 end if

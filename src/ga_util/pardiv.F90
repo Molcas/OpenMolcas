@@ -9,14 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function iParDiv(nMax,nMin)
+function iParDiv(nMax,nMin)
 
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
+#endif
+use Definitions, only: iwp
 
 implicit none
-integer :: nMax, nMin
+integer(kind=iwp) :: iParDiv
+integer(kind=iwp) :: nMax, nMin
 
+#ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
   iParDiv = nMax/nProcs+1+nMin
 else

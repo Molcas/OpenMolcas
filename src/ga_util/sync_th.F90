@@ -11,16 +11,16 @@
 
 subroutine Sync_TH(TwoHam,nDens)
 
-use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nDens
 real(kind=wp), intent(inout) :: TwoHam(nDens)
 #ifdef _MOLCAS_MPP_
-real(kind=wp) TCPU, TWall
+real(kind=wp) :: TCPU, TWall
 
 if (.not. Is_Real_Par()) return
 if (nProcs == 1) return

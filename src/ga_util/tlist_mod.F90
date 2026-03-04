@@ -13,13 +13,20 @@
 
 module TList_Mod
 
-real*8, parameter :: Not_Used = -1.0d0
-real*8 QLast(2), P, PQ
-integer nTasks, igaTsk, iTCnSt, mTasks, iStrt_TList, iEnd_TList, iTskCan
-real*8, allocatable :: TskQ(:,:)
-real*8, allocatable :: TskM(:,:)
-integer, allocatable, target :: TskL(:)
-logical :: PP_Status = .false.
-logical :: GT_Status = .false.
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: iEnd_TList, igaTsk, iStrt_TList, iTCnSt, iTskCan, mTasks, nTasks
+real(kind=wp) :: P, PQ, QLast(2)
+logical(kind=iwp) :: GT_Status = .false., PP_Status = .false.
+integer(kind=iwp), allocatable, target :: TskL(:)
+real(kind=wp), allocatable :: TskM(:,:), TskQ(:,:)
+real(kind=wp), parameter :: Not_Used = -One
+
+public :: GT_Status, iEnd_TList, igaTsk, iStrt_TList, iTCnSt, iTskCan, mTasks, Not_Used, nTasks, P, PP_Status, PQ, QLast, TskL, &
+          TskM, TskQ
 
 end module TList_Mod

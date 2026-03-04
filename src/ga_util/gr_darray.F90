@@ -11,17 +11,16 @@
 
 subroutine GR_DArray(Array,nArray)
 
-use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nArray
 real(kind=wp), intent(inout) :: Array(nArray)
-
 #ifdef _MOLCAS_MPP_
-real(kind=wp) TCpu1, TWall1, TCpu2, TWall2
+real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 
 if ((.not. Is_Real_Par()) .or. (nProcs == 1)) return
 call CWTime(TCpu1,TWall1)

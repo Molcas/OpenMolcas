@@ -11,7 +11,7 @@
 
 subroutine Put_QLast()
 
-use TList_Mod, only: TskQ, Not_Used, QLast, iTskCan
+use TList_Mod, only: iTskCan, Not_Used, QLast, TskQ
 
 implicit none
 

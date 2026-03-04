@@ -20,16 +20,18 @@ subroutine GATskL(create,nTsk,igaTsk)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
+use Definitions, only: u6
 #endif
+use Definitions, only: iwp
 
 implicit none
-logical create
-integer nTsk, igaTsk
+logical(kind=iwp) :: create
+integer(kind=iwp) :: nTsk, igaTsk
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: Chk, nProcs
+logical(kind=iwp) :: ok
 #include "global.fh"
 #include "mafdecls.fh"
-logical ok
-integer nProcs, Chk
 
 if (.not. Is_Real_Par()) return
 if (create) then
@@ -37,7 +39,7 @@ if (create) then
   Chk = (nTsk+nProcs-1)/nProcs
   ok = ga_create(MT_INT,nTsk,1,'GlTskL',Chk,1,igaTsk)
   if (.not. ok) then
-    write(6,*) 'GATskL: ga_create not OK!'
+    write(u6,*) 'GATskL: ga_create not OK!'
     call GAStp('GATskL',42)
     call Abend()
   end if

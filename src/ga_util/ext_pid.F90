@@ -12,16 +12,16 @@
 subroutine Ext_PID(FileName)
 
 #ifdef _MOLCAS_MPP_
-use definitions, only: iwp
 use UnixInfo, only: PID
+use Definitions, only: iwp
 #endif
 
 implicit none
+character(len=*), intent(inout) :: FileName
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) Length, NameLength
+integer(kind=iwp) :: Length, NameLength
 integer(kind=iwp), external :: StrnLn
 #endif
-character(len=*), intent(inout) :: FileName
 
 #ifdef _MOLCAS_MPP_
 Length = len(FileName)

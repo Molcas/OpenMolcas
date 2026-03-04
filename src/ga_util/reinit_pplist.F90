@@ -11,15 +11,15 @@
 
 subroutine ReInit_PPList(Semi_Direct)
 
-use definitions, only: iwp, u6
 use Para_Info, only: MyRank, nProcs
-use TList_Mod, only: TskL, iStrt_TList, iEnd_TList, iTskCan, mTasks, Not_Used, nTasks, PP_Status, QLast
+use TList_Mod, only: iEnd_TList, iStrt_TList, iTskCan, mTasks, Not_Used, nTasks, PP_Status, QLast, TskL
+use Definitions, only: iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: Semi_Direct
-logical(kind=iwp) :: Debug = .false.
-integer(kind=iwp), pointer :: TskList(:,:)
 integer(kind=iwp) i, iCount, iE
+integer(kind=iwp), pointer :: TskList(:,:)
+logical(kind=iwp), parameter :: Debug = .false.
 
 if (Debug) then
   if (PP_Status) then

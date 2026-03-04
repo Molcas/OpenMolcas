@@ -11,23 +11,25 @@
 
 function Rsv_GTList(TskLw,TskHi,iOpt,NewBatch)
 
-use definitions, only: iwp, wp
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 use TList_Mod, only: iStrt_TList, iTCnSt, iTskCan, PQ
 #ifdef _MOLCAS_MPP_
-use TList_Mod, only: igaTsk, TskL, nTasks, iEnd_TList, mTasks, TskM
+use TList_Mod, only: iEnd_TList, igaTsk, mTasks, nTasks, TskL, TskM
+use Definitions, only: u6
 #endif
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-logical(kind=iwp) Rsv_GTList
-logical(kind=iwp), intent(out) :: NewBatch
+logical(kind=iwp) :: Rsv_GTList
 real(kind=wp), intent(out) :: TskLw, TskHi
 integer(kind=iwp), intent(in) :: iOpt
+logical(kind=iwp), intent(out) :: NewBatch
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: MyTask
 integer(kind=iwp), external :: RsvTsk
-integer(kind=iwp) MyTask
 #endif
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -64,7 +66,7 @@ else
     NewBatch = (iStrt_TList > mTasks) .or. (iStrt_TList /= iTCnST)
   else
     MyTask = 0
-    write(6,*) 'Rsv_GTList: Invalid option:',iOpt
+    write(u6,*) 'Rsv_GTList: Invalid option:',iOpt
     call Abend()
   end if
   if (MyTask >= 1) then
@@ -79,4 +81,5 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+
 end function Rsv_GTList

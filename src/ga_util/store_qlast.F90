@@ -11,8 +11,8 @@
 
 subroutine Store_QLast(Q)
 
-use definitions, only: wp
 use TList_Mod, only: QLast
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(in) :: Q(2)

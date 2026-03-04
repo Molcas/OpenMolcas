@@ -11,14 +11,14 @@
 
 subroutine Init_PPList()
 
-use definitions, only: iwp, u6
-use TList_Mod, only: iStrt_TList, iEnd_TList, iTskCan, mTasks, Not_Used, nTasks, PP_Status, QLast, TskL
-use Para_Info, only: MyRank, nProcs, Is_Real_Par
+use TList_Mod, only: iEnd_TList, iStrt_TList, iTskCan, mTasks, Not_Used, nTasks, PP_Status, QLast, TskL
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
+use Definitions, only: iwp, u6
 
 implicit none
-logical(kind=iwp) :: Debug = .false.
+integer(kind=iwp) :: i, iE, iTsk
 integer(kind=iwp), pointer :: TskList(:,:)
-integer(kind=iwp) i, iE, iTsk
+logical(kind=iwp), parameter :: Debug = .false.
 
 if (Debug) then
   if (PP_Status) then

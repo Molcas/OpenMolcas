@@ -15,41 +15,40 @@
 #ifndef _HAVE_EXTRA_
 
 ! Broadcast a file from the master to the slaves
-
 subroutine PFGet_ASCII(FName)
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_rootid, King
-use Definitions, only: ItoB
+use Definitions, only: iwp, u6, ItoB
 #endif
 
 implicit none
-character(len=*), intent(In) :: FName
+character(len=*), intent(in) :: FName
 #ifdef _MOLCAS_MPP_
-#include "mafdecls.fh"
-integer, parameter :: LBuf = 4096
+integer(kind=iwp), parameter :: LBuf = 4096
+integer(kind=iwp) :: Err, FLen, LU, Num, Pos
+logical(kind=iwp) :: Failed, Found
 character(len=LBuf) :: Buf
-integer :: LU, Err, FLen, Pos, Num
-logical :: Found, Failed
-integer, external :: IsFreeUnit
+integer(kind=iwp), external :: IsFreeUnit
+#include "mafdecls.fh"
 interface
-  subroutine GA_Brdcst(type,buf,lenbuf,root)
-    integer type, lenbuf, root
-    type(*) buf
+  subroutine GA_Brdcst(tp,buf,lenbuf,root)
+    import :: iwp
+    integer(kind=iwp) :: tp, lenbuf, root
+    type(*) :: buf
   end subroutine GA_Brdcst
 end interface
 
 ! Note that each process opens only one file, so there is a single
 ! unit number LU
-LU = 10
-LU = IsFreeUnit(LU)
+LU = IsFreeUnit(10)
 ! Check file existence and read size on the master
 if (King()) then
   call f_Inquire(FName,Found)
   if (Found) then
     call Molcas_Open_Ext2(LU,FName,"stream","unformatted",Err,.false.,0,"old",Failed)
     if (Failed .or. (Err /= 0)) then
-      write(6,*) "Failed to open file ",trim(FName)
+      write(u6,*) "Failed to open file ",trim(FName)
       call AbEnd()
     end if
     inquire(LU,Size=FLen)
@@ -65,7 +64,7 @@ if (FLen <= 0) return
 if (.not. King()) then
   call Molcas_Open_Ext2(LU,FName,"stream","unformatted",Err,.false.,0,"replace",Failed)
   if (Failed .or. (Err /= 0)) then
-    write(6,*) "Failed to open file ",trim(FName)
+    write(u6,*) "Failed to open file ",trim(FName)
     call AbEnd()
   end if
 end if
@@ -78,7 +77,7 @@ do while (Pos < FLen)
   if (King()) then
     read(LU,IOStat=Err) Buf(1:Num)
     if (Err /= 0) then
-      write(6,*) "Error reading the file ",trim(FName)
+      write(u6,*) "Error reading the file ",trim(FName)
       call AbEnd()
     end if
   end if
@@ -87,7 +86,7 @@ do while (Pos < FLen)
   if (.not. King()) then
     write(LU,IOStat=Err) Buf(1:Num)
     if (Err /= 0) then
-      write(6,*) "Error writing the file ",trim(FName)
+      write(u6,*) "Error writing the file ",trim(FName)
       call AbEnd()
     end if
   end if

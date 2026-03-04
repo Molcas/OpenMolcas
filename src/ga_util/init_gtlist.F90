@@ -11,11 +11,11 @@
 
 subroutine Init_GTList()
 
-use TList_Mod, only: GT_Status, iTCnSt
+use TList_Mod, only: iTCnSt, GT_Status
 #ifdef _MOLCAS_MPP_
-use TList_Mod, only: nTasks, igaTsk
+use TList_Mod, only: igaTsk, nTasks
 #endif
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 
 implicit none
 

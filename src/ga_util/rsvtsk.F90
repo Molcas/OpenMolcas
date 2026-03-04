@@ -18,16 +18,22 @@
 !     iStart:   starting value of index of private task list           *
 !***********************************************************************
 
-integer function RsvTsk(igaTsk,iTskLs,nTsk,mTsk,iStart,iS,iE)
+function RsvTsk(igaTsk,iTskLs,nTsk,mTsk,iStart,iS,iE)
+
+#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+use stdalloc, only: mma_allocate, mma_deallocate
+#endif
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: RsvTsk
+integer(kind=iwp) :: igaTsk, nTsk, iTskLs(nTsk,2), mTsk, iStart, iS, iE
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp) :: iCnt, iTsk
+logical(kind=iwp) :: Reserved
+#include "global.fh"
 
 #ifdef _GA_
-implicit none
-integer nTsk, mTsk, igaTsk, iTskLs(nTsk,2), iStart, iS, iE
-#include "global.fh"
-logical Reserved
-integer iCnt, iTsk
-
 if (iStart > mTsk) then
   iTsk = 0
   iCnt = nTsk
@@ -53,16 +59,7 @@ RsvTsk = iTsk
 iStart = iCnt
 
 #else
-
-use stdalloc, only: mma_allocate, mma_deallocate
-
-implicit none
-integer nTsk, mTsk, igaTsk, iTskLs(nTsk,2), iStart, iS, iE
-#include "global.fh"
-logical Reserved
-integer iCnt, iTsk
-integer :: One = 1
-integer, allocatable :: TSKR(:)
+integer(kind=iwp), allocatable :: TSKR(:)
 
 if (iStart > mTsk) then
   iTsk = 0
@@ -91,9 +88,6 @@ iStart = iCnt
 
 #endif
 #else
-
-implicit none
-integer nTsk, mTsk, igaTsk, iTskLs(nTsk,2), iStart, iS, iE
 
 #include "macros.fh"
 unused_var(igaTsk)

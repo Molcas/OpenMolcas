@@ -11,25 +11,19 @@
 
 subroutine Init_TList(Triangular,P_Eff)
 
-use definitions, only: iwp, wp, u6
-use Para_Info, only: MyRank, nProcs, Is_Real_Par
-use TList_Mod, only: nTasks, P, PQ, TskL, TskM, TskQ, Not_Used
+use Para_Info, only: Is_Real_Par, MyRank, nProcs
+use TList_Mod, only: nTasks, Not_Used, P, PQ, TskL, TskM, TskQ
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: Triangular
 real(kind=wp), intent(in) :: P_Eff
-real(kind=wp) distrib, PQpTsk, TskLw, TskHi, MinPQ1, a, fint, tskmin, tskmax
-! parameters concerning task distribution...
-integer(kind=iwp), parameter :: iDen_PQ = 2
-integer(kind=iwp), parameter :: iDen_Tsk = 4
-integer(kind=iwp), parameter :: MinPQ = 4
-! max number of tasks in tasklist per node...
-integer(kind=iwp), parameter :: MxnTsk = 100
-integer(kind=iwp) iDen_PQ1, iDen_Tsk1, iTsk, kTsk, kTskHi, MxnTsk1, nTaskpP, nTaskpP_seg
 
-fint(a) = dble(int(a))
+integer(kind=iwp) :: iDen_PQ1, iDen_Tsk1, iTsk, kTsk, kTskHi, MxnTsk1, nTaskpP, nTaskpP_seg
+real(kind=wp) distrib, PQpTsk, TskLw, TskHi, MinPQ1, tskmin, tskmax
+integer(kind=iwp), parameter :: iDen_PQ = 2, iDen_Tsk = 4, MinPQ = 4, MxnTsk = 100
 
 if (allocated(TskL)) return
 MinPQ1 = MinPQ
@@ -43,7 +37,7 @@ if (Triangular) then
 else
   PQ = P*P
 end if
-nTasks = nint(min(PQ,dble(MxnTsk1*nProcs)))
+nTasks = nint(min(PQ,real(MxnTsk1*nProcs,kind=wp)))
 if ((.not. Is_Real_Par()) .or. (nProcs == 1)) return
 
 call mma_allocate(TskM,2,nTasks,Label='TskM')
@@ -52,7 +46,7 @@ call mma_allocate(TskQ,2,nTasks,Label='TskQ')
 TskQ(:,:) = Not_Used
 call mma_allocate(TskL,nTasks*2,Label='TskL')
 
-tskmin = 1.d14
+tskmin = 1.0e14_wp
 tskmax = Zero
 TskLw = One
 TskHi = Zero
@@ -60,24 +54,24 @@ iTsk = 0
 
 ! REPEAT
 do
-  distrib = fint(PQ/dble(iDen_PQ1))
+  distrib = fint(PQ/real(iDen_PQ1,kind=wp))
   nTaskpP = nTasks/nProcs
   nTaskpP_seg = nTaskpP/iDen_Tsk1
   PQpTsk = MinPQ1
-  if (nTaskpP_seg >= 1) PQpTsk = fint(distrib/dble(nTaskpP_seg*nProcs))
+  if (nTaskpP_seg >= 1) PQpTsk = fint(distrib/real(nTaskpP_seg*nProcs,kind=wp))
   if (PQpTsk > MinPQ1) then
-    PQpTsk = fint(distrib/dble(nTaskpP_seg*nProcs))
-    distrib = fint(PQpTsk*dble(nTaskpP_seg*nProcs))
+    PQpTsk = fint(distrib/real(nTaskpP_seg*nProcs,kind=wp))
+    distrib = fint(PQpTsk*real(nTaskpP_seg*nProcs,kind=wp))
     PQ = PQ-distrib
     kTskHi = nTaskpP_seg*nProcs
   else if ((PQ > MinPQ1) .and. (nTasks > 1)) then
-    PQpTsk = max(MinPQ1,fint((PQ+dble(nTasks)-Two)/dble(nTasks-1)))
-    kTskHi = nint(fint(PQ/PQpTsk))
-    PQ = PQ-dble(kTskHi)*PQpTsk
+    PQpTsk = max(MinPQ1,fint((PQ+real(nTasks,kind=wp)-Two)/real(nTasks-1,kind=wp)))
+    kTskHi = int(PQ/PQpTsk)
+    PQ = PQ-real(kTskHi,kind=wp)*PQpTsk
   else if (PQ > Zero) then
     PQpTsk = PQ
     kTskHi = 1
-    PQ = 0d0
+    PQ = Zero
   else
     kTskHi = 0
     write(u6,*) 'Init_TList: you should not be here!'
@@ -98,7 +92,7 @@ do
   ! until (PQ == 0)
   ! if (abs(PQ) > 1.0e-10_wp) cycle
   ! exit
-  if (abs(PQ) <= 1.d-10) exit
+  if (abs(PQ) <= 1.0e-10_wp) exit
 
 end do
 
@@ -108,5 +102,16 @@ if (nTasks < 0) then
   call Abend()
 end if
 nTasks = iTsk
+
+contains
+
+elemental function fint(a)
+
+real(kind=wp) :: fint
+real(kind=wp), intent(in) :: a
+
+fint = real(int(a),kind=wp)
+
+end function fint
 
 end subroutine Init_TList

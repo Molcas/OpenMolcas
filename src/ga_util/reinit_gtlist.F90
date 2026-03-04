@@ -15,12 +15,13 @@ use TList_Mod, only: GT_Status, iTCnSt
 #ifdef _MOLCAS_MPP_
 use TList_Mod, only: iGATsk
 #endif
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
+use Definitions, only: u6
 
 implicit none
 
 if (.not. GT_Status) then
-  write(6,*) 'ReInit_GTList: List not active!'
+  write(u6,*) 'ReInit_GTList: List not active!'
   call Abend()
 end if
 iTCnSt = 1

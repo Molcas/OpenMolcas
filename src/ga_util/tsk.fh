@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      integer, parameter :: mxtsklst = 4
-      integer :: task_counter(mxtsklst), ntasks(mxtsklst)
-      integer :: list_counter
-      common /tsklst/ task_counter, ntasks, list_counter
+
+integer(kind=iwp), parameter :: mxtsklst = 4
+integer(kind=iwp) :: list_counter, ntasks(mxtsklst), task_counter(mxtsklst)
+common/tsklst/ task_counter, ntasks, list_counter

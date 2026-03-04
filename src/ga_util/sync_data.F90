@@ -11,17 +11,17 @@
 
 subroutine Sync_Data(Pren,Prem,nBtch,mBtch,kBtch)
 
-use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
-use Para_Info, only: nProcs, Is_Real_Par
+use Para_Info, only: Is_Real_Par, nProcs
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: Pren, Prem
 integer(kind=iwp), intent(in) :: nBtch, mBtch, kBtch
 #ifdef _MOLCAS_MPP_
-real(kind=wp) PrenV(2)
-integer(kind=iwp) nBtchV(3)
+integer(kind=iwp) :: nBtchV(3)
+real(kind=wp) :: PrenV(2)
 
 if (.not. Is_Real_Par()) return
 if (nProcs == 1) return

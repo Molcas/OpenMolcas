@@ -9,36 +9,36 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine WrNumber(Name,Number)
+subroutine WrNumber(Nam,Nmbr)
 
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: Number
-character(len=*), intent(inout) :: Name
-character(len=10) format
-integer(kind=iwp) Limit, iTens
-real(kind=wp) ANumber
+character(len=*), intent(inout) :: Nam
+integer(kind=iwp), intent(in) :: Nmbr
+integer(kind=iwp) :: iTens, Limit
+real(kind=wp) :: ANumber
+character(len=10) :: frmt
 
-format = ' '
-if (Number >= 0) then
+frmt = ' '
+if (Nmbr >= 0) then
   Limit = 0
   do iTens=0,99
     Limit = Limit+9*(10**iTens)
-    if (Number <= Limit) then
-      write(format,'(A,I4.4,A)') '(I',iTens+1,')'
-      write(Name,format) Number
+    if (Nmbr <= Limit) then
+      write(frmt,'(A,I4.4,A)') '(I',iTens+1,')'
+      write(Nam,frmt) Nmbr
       return
     end if
   end do
 else
-  ANumber = -dble(Number)
+  ANumber = real(-Nmbr,kind=wp)
   Limit = 0
   do iTens=0,99
     Limit = Limit+9*(10**iTens)
-    if (ANumber <= dble(Limit)) then
-      write(format,'(A,I4.4,A)') '(A,I',iTens+1,')'
-      write(Name,format) '-',ANumber
+    if (ANumber <= real(Limit,kind=wp)) then
+      write(frmt,'(A,I4.4,A)') '(A,I',iTens+1,')'
+      write(Nam,frmt) '-',ANumber
       return
     end if
   end do
