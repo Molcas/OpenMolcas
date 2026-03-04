@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS1_RPT2 (CI,SGM1,nCI,G1,nLev)
+      SUBROUTINE DENS1_RPT2 (CI,nCI,SGM1,nSGM1,G1,nLev)
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
@@ -39,9 +39,9 @@
 
       LOGICAL(kind=iwp) RSV_TSK
 
-      Integer(kind=iwp), Intent(In):: nCI, nLev
+      Integer(kind=iwp), Intent(In):: nCI, nSGM1, nLev
       REAL(kind=wp), Intent(in):: CI(nCI)
-      REAL(kind=wp), Intent(out):: SGM1(nCI)
+      REAL(kind=wp), Intent(out):: SGM1(nSGM1)
       REAL(kind=wp), Intent(out):: G1(NLEV,NLEV)
 #ifdef _ENABLE_CHEMPS2_DMRG_
       REAL(kind=wp) G2(NLEV,NLEV,NLEV,NLEV)

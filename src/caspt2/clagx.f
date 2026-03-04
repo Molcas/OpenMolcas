@@ -2057,7 +2057,7 @@
 
       IF(NLEV > 0) THEN
         CALL MMA_ALLOCATE(SGM1,MXCI,LABEL='SGM1')
-        CALL DENS1_RPT2_CLag(CI,SGM1,CLag,RDMEIG,nLev)
+        CALL DENS1_RPT2_CLag(CI,NCONF,SGM1,MXCI,CLag,RDMEIG,nLev)
       END IF
 !     return !! for test purpose
 
@@ -2082,7 +2082,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG,nLev)
+      SUBROUTINE DENS1_RPT2_CLag (CI,NCI,SGM1,NSGM1,CLag,RDMEIG,nLev)
       use Symmetry_Info, only: Mul
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -2091,13 +2091,11 @@
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King, nProcs
 #endif
-      use pt2_guga, only: MxCI
-
       IMPLICIT NONE
 
-      integer(kind=iwp), intent(in) :: nLev
-      real(kind=wp), intent(in) :: CI(MXCI), RDMEIG(NLEV,NLEV)
-      real(kind=wp), intent(inout) :: SGM1(MXCI), CLag(nConf)
+      integer(kind=iwp), intent(in) :: NCI, NSGM1, nLev
+      real(kind=wp), intent(in) :: CI(NCI), RDMEIG(NLEV,NLEV)
+      real(kind=wp), intent(inout) :: SGM1(NSGM1), CLag(nConf)
 
       logical(kind=iwp), external :: RSV_TSK
       integer(kind=iwp), allocatable :: TASK(:,:)

@@ -37,7 +37,7 @@
       IF(NLEV>0) THEN
         CALL mma_allocate(SGM1 ,NCI,LABEL='SGM1')
         CALL mma_allocate(G1TMP,NG1,LABEL='G1TMP')
-        CALL DENS1_RPT2(CI,SGM1,nCI,G1TMP,nLev)
+        CALL DENS1_RPT2(CI,nCI,SGM1,nCI,G1TMP,nLev)
       END IF
 
 * REINITIALIZE USE OF DMAT.
