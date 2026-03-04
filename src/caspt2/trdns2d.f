@@ -60,8 +60,6 @@ C       if (icase/=12 .and. icase.ne.13) cycle ! H
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN==0) CYCLE
           NIS=NISUP(ISYM,ICASE)
-          Write (6,*) 'NIN=',NIN
-          Write (6,*) 'NIS=',NIS
           NVEC=NIN*NIS
           IF(NVEC==0) CYCLE
           !! lg_V1: T+lambda
