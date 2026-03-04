@@ -208,17 +208,14 @@ c Initialize Fock matrices in AO basis to zero:
 *      JEND=JSTART+NVECS_RED-1
 *      write(6,*)'  JRED:  JSTART,JEND:',JRED,JSTART,JEND
 
-      IF(JSYM.EQ.1) THEN
-      NRS=NDIMRS(JSYM,JRED)
-      CALL DCOPY_(NRS,[Zero],0,DF_RED,1)
-      CALL full2red(DF,DF_Red)
-      CALL DCOPY_(NRS,[Zero],0,DI_RED,1)
-      CALL full2red(DI,DI_Red)
-      CALL DCOPY_(NRS,[Zero],0,DA_RED,1)
-      CALL full2red(DA,DA_Red)
-      CALL DCOPY_(NRS,[Zero],0,FF_RED,1)
-      CALL DCOPY_(NRS,[Zero],0,FI_RED,1)
-      CALL DCOPY_(NRS,[Zero],0,FA_RED,1)
+      IF (JSYM==1) THEN
+         NRS=NDIMRS(JSYM,JRED)
+         CALL full2red(DF,NBTRI,DF_Red,nRS)
+         CALL full2red(DI,NBTRI,DI_Red,nRS)
+         CALL full2red(DA,NBTRI,DA_Red,nRS)
+         FF_RED(1:nRS)=Zero
+         FI_RED(1:nRS)=Zero
+         FA_RED(1:nRS)=Zero
       END IF
 
 * Determine batch length for this reduced set.
