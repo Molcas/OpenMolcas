@@ -105,9 +105,7 @@ C ordinal number of each active orbital.
           DO IU=1,NASH(ISYMT)
             IUABS=NAES(ISYMT)+IU
             IULEV=IATOG(IUABS)
-CPAM00          CALL GETSGM(IULEV,ITLEV,IDEX,TRDSGM)
-CPAM00 GETSGM replaced by GETSGM2
-            CALL GETSGM2(IULEV,ITLEV,STSYM,TRDCI,TRDSGM)
+            CALL GETSGM2(IULEV,ITLEV,STSYM,TRDCI,NCONF,TRDSGM,NCONF)
             SCP=DDOT_(NCONF,TRDSGM,1,TRDTMP,1)
             DTU(ITABS,IUABS)=DTU(ITABS,IUABS)+SCP
           END DO
@@ -120,7 +118,7 @@ CPAM00 GETSGM replaced by GETSGM2
           DTU(ITABS,ITABS)=DTU(ITABS,ITABS)+OCCNUM
         END DO
       END IF
-CPAM00 No more need for CI array
+C No more need for CI array
       CALL MMA_DEALLOCATE(TRDCI)
 C No more need for the TMP state vector
       CALL MMA_DEALLOCATE(TRDTMP)

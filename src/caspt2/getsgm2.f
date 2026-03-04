@@ -16,18 +16,17 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
+      SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
       use Symmetry_Info, only: Mul
       use gugx, only:  SGS, CIS, EXS
-      use pt2_guga, only: MxCI
       use constants, only: Zero, One
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
 
 
-      Integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI
-      Real(kind=wp), Intent(In) ::  CI(MXCI)
-      Real(kind=wp), Intent(inOut)::  SGM(MXCI)
+      Integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI, nCI, MSGM
+      Real(kind=wp), Intent(In) ::  CI(nCI)
+      Real(kind=wp), Intent(inOut)::  SGM(MSGM)
 
       Integer(kind=iwp) IS, JS, IJS, ISSG, NSGM
 
@@ -44,13 +43,17 @@ C NOTE!! THE EARLIER CALL GETSGM(ILEV,JLEV,IDARR,SGM) IS REPLACED BY
 C GETSGM2(ILEV,JLEV,CI,SGM)!!
 C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+      SGM(1:MSGM)=Zero
       IS=SGS%ISM(ILEV)
       JS=SGS%ISM(JLEV)
       IJS=Mul(IS,JS)
       ISSG=Mul(IJS,ISYCI)
       NSGM=CIS%NCSF(ISSG)
+      If (NSGM>MSGM) THEN
+         Write (u6,*) 'GETSGM2: NSGM>MSGM'
+         Call Abend()
+      End If
       IF(NSGM.EQ.0) RETURN
-      SGM(1:NSGM)=Zero
 
       CALL SIGMA1(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
 

@@ -2160,7 +2160,7 @@
         NSGM=CIS%NCSF(ISSG)
         IF(NSGM == 0) cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
-        CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
+        CALL GETSGM2(LU,LT,STSYM,CI,NCI,SGM1,NSGM)
         IF(ISTU == 1) THEN
           ! Symmetry not yet
 !          write(u6,*) 'it,iu = ', it,iu
@@ -4631,7 +4631,7 @@
           NSGM=CIS%NCSF(ISSG)
           IF(NSGM == 0) cycle
           !! <CIin|Etu
-          CALL GETSGM2(LU,LT,STSYM,CIin(1,kState),SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CIin(1,kState),nConf,SGM1,NSGM)
           IF(ISTU == 1) THEN
             !! <CIin|Etu|CIout>*I1tu
             CIout(1:NSGM,kState) = CIout(1:NSGM,kState)
@@ -4652,7 +4652,7 @@
 !             if (vras.and.xras) cycle
               IF (ISVX /= ISTU) cycle
               IX=L2ACT(LX)
-              CALL GETSGM2(LX,LV,ISSG,SGM1,SGM2)
+              CALL GETSGM2(LX,LV,ISSG,SGM1,NSGM,SGM2,NSGM)
               CIout(1:NSGM,kState) = CIout(1:NSGM,kState)
      &          + INT2(IT,IU,IV,IX)*SGM2(1:NSGM)
             END DO

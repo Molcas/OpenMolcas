@@ -1350,10 +1350,10 @@
         IF(NSGM == 0) cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
         IF(ISTU == 1) THEN
-          CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
           CLag2(1:NSGM) = CLag2(1:NSGM)
      &      + SCAL*RDMEIG(IT,IU)*SGM1(1:NSGM)
-          CALL GETSGM2(LU,LT,STSYM,CI2,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI2,MXCI,SGM1,NSGM)
           CLag1(1:NSGM) = CLag1(1:NSGM)
      &      + SCAL*RDMEIG(IT,IU)*SGM1(1:NSGM)
         END IF
@@ -1733,7 +1733,7 @@
           ISSG=Mul(ISTU,STSYM)
           NSGM=CIS%NCSF(ISSG)
           IF(NSGM == 0) cycle
-          CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
           IF(ISTU == 1) THEN
             GTU=DDOT_(NSGM,CI2,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU
