@@ -230,7 +230,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
      &                                MBA,iLo, iHi, jLo, jHi, LDA
       REAL(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF)
       REAL(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
-      REAL(KIND=WP), INTENT(OUT):: BA(MBA)
+      REAL(KIND=WP), INTENT(INOUT):: BA(MBA)
 
       INTEGER(KIND=IWP) IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUVABS,ITABS,
      &                  IUABS,IVABS,ISADR,IVZ,IXT,IP1,IP2,IP,ID,ID1,

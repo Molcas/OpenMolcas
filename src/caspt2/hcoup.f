@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
-      SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,TG3,HEL)
+      SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,NASHT,TG3,NTG3,HEL)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero
       use caspt2_global, only:iPrGlb
@@ -19,7 +19,7 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: GA_Arrays
-      use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP, CASES
+      use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, CASES
       IMPLICIT NONE
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -34,20 +34,20 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-      integer(kind=iwp), intent(in):: IVEC, JVEC
+      integer(kind=iwp), intent(in):: IVEC, JVEC, NASHT, NTG3
       real(kind=wp), intent(in):: OVL
       real(kind=wp), intent(out):: HEL
       real(kind=wp), intent(in)::TG1(NASHT,NASHT)
       real(kind=wp), intent(in):: TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      real(kind=wp), intent(in)::  TG3(*)
+      real(kind=wp), intent(in)::  TG3(NTG3)
 
       real(kind=wp) HECOMP(14,9)
       integer(kind=iwp) ICASE,ISYM,NAS,NIN,NIS,i,IC,IS,NHECOMP,
      &                  lg_V1,IASTA1,IAEND1,IISTA1,IIEND1,
-     &                  iLo1,iHi1,jLo1,jHi1,MV1,
+     &                  iLo1,iHi1,jLo1,jHi1,MV1,NV1,
      &                  lg_V2,IASTA2,IAEND2,IISTA2,IIEND2,
-     &                  iLo2,iHi2,jLo2,jHi2,MV2
+     &                  iLo2,iHi2,jLo2,jHi2,MV2,NV2
       real(kind=wp) HEBLK, SUMCASE, SUMSYM
 
 #ifdef _MOLCAS_MPP_
@@ -85,7 +85,9 @@ C  End of loop.
           CALL RHS_READ (NAS,NIS,lg_V1,ICASE,ISYM,IVEC)
           CALL RHS_READ (NAS,NIS,lg_V2,ICASE,ISYM,JVEC)
           CALL RHS_ACCESS(NAS,NIS,lg_V1,iLo1,iHi1,jLo1,jHi1,MV1)
+          NV1=(iHi1-iLo1+1)*(jHi1-jLo1+1)
           CALL RHS_ACCESS(NAS,NIS,lg_V2,iLo2,iHi2,jLo2,jHi2,MV2)
+          NV2=(iHi2-iLo2+1)*(jHi2-jLo2+1)
 
           IF ((iLo1.NE.iLo2) .OR.
      &        (iHi1.NE.iHi2) .OR.
@@ -98,14 +100,17 @@ C  End of loop.
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
             CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                     DBL_MB(MV1),DBL_MB(MV2),OVL,HEBLK,
-     &                     TG1,TG2,TG3)
+     &                     DBL_MB(MV1),NV1,
+     &                     DBL_MB(MV2),NV2,
+     &                     OVL,HEBLK,
+     &                     TG1,TG2,NASHT,TG3,NTG3)
           ELSE
 #endif
             CALL HCOUP_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
-     &                     GA_Arrays(MV1)%A,
-     &                     GA_Arrays(MV2)%A,OVL,HEBLK,
-     &                     TG1,TG2,TG3)
+     &                     GA_Arrays(MV1)%A,NV1,
+     &                     GA_Arrays(MV2)%A,NV2,
+     &                     OVL,HEBLK,
+     &                     TG1,TG2,NASHT,TG3,NTG3)
 #ifdef _MOLCAS_MPP_
           END IF
 #endif
@@ -158,13 +163,12 @@ C Sum-reduce the per-process contributions
 
       END SUBROUTINE HCOUP
 
-      SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,HEBLK,
-     &                     TG1,TG2,TG3)
+      SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,nV1,V2,nV2,
+     &                     OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
       use definitions, only: iwp, wp
       use constants, only: Zero, Two, Four, Eight
       USE SUPERINDEX, only: MTUV, MTGEU, MTGTU, MTU
-      use caspt2_module, only: NASHT, NTUVES, NTGEUES, NTUES, NAES,
-     &                         NTGTUES
+      use caspt2_module, only: NTUVES, NTGEUES, NTUES, NAES, NTGTUES
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -174,15 +178,16 @@ C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
       IMPLICIT NONE
 
-      integer(kind=iwp), intent(in):: ICASE,ISYM,NAS,IISTA,IIEND
-      real(kind=wp), intent(in):: V1(*), V2(*)
+      integer(kind=iwp), intent(in):: ICASE,ISYM,NAS,IISTA,IIEND,
+     &                                NV1,NV2,NASHT, NTG3
+      real(kind=wp), intent(in):: V1(NV1), V2(NV2)
       real(kind=wp), intent(in):: OVL
       real(kind=wp), intent(out):: HEBLK
 
       real(kind=wp), intent(in):: TG1(NASHT,NASHT)
       real(kind=wp), intent(in):: TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
-      real(kind=wp), intent(in):: TG3(*)
+      real(kind=wp), intent(in):: TG3(NTG3)
 
       integer(kind=iwp) NISBLK,
      &                  IAS, IASABS, ITABS, IUABS, IVABS,

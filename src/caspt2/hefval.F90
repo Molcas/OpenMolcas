@@ -91,7 +91,7 @@ subroutine hefval(ist, jst, dvalue)
   end if
 #endif
 
-  call hcoup(ivecw, ivecc, ovl, tg1, tg2, tg3, dvalue)
+  call hcoup(ivecw, ivecc, ovl, tg1, tg2, nAshT, tg3, ntg3, dvalue)
 
   call mma_deallocate(tg1)
   call mma_deallocate(tg2)

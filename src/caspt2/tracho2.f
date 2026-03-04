@@ -99,21 +99,21 @@ c Initialize Fock matrices in AO basis to zero:
        ISTART(ISYM)=1
        NUSE(ISYM)=NFRO(ISYM)
       END DO
-      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,DF)
+      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,NBSQT,OCC,NBasT,DF,NBTRI)
 * Construct density matrix for inactive orbitals
       Call mma_allocate(DI,NBTRI,Label='DI')
       DO ISYM=1,NSYM
        ISTART(ISYM)=NFRO(ISYM)+1
        NUSE(ISYM)=NISH(ISYM)
       END DO
-      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,DI)
+      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,NBSQT,OCC,NBasT,DI,NBTRI)
 * Same, for active density:
       Call mma_allocate(DA ,NBTRI,Label='DA')
       DO ISYM=1,NSYM
        ISTART(ISYM)=NFRO(ISYM)+NISH(ISYM)+1
        NUSE(ISYM)=NASH(ISYM)
       END DO
-      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,DA)
+      CALL GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,NBSQT,OCC,NBasT,DA,NBTRI)
 * The Cholesky routines want density matrices in a particular storage, and
 * also the off-diagonal elements should be doubled. Double them:
       IDFIJ=1
