@@ -118,8 +118,9 @@ C looping, etc in the rest  of the routines.
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
-      integer(kind=iwp) MYRANK,ILO,IHI,JLO,JHI,MA,LDA
+      integer(kind=iwp) MYRANK,MA
 #endif
+      integer(kind=iwp) ILO,IHI,JLO,JHI,LDA
       integer(kind=iwp) ICASE, ISYM, lg_SA, NAS, NIN, NSA
       real(kind=wp), external:: PSBMAT_FPRINT
       real(kind=wp) DSA
@@ -163,8 +164,13 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
         ELSE
 #endif
           CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),NG3,G3,IDXG3)
+          iLo=1
+          iHi=NAS
+          jLo=1
+          jHi=NAS
+          LDA=0
           CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SA)%A(:),1,NAS,1,NAS,0)
+     &                 ISYM,GA_Arrays(lg_SA)%A(:),ILO,IHI,JLO,JHI,LDA)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -378,7 +384,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
 #include "mafdecls.fh"
 
       integer(kind=iwp), intent(in):: ISYM,iLo,iHi,jLo,jHi,LDA,NG3
-      real(kind=wp), intent(out):: SA(LDA,*)
+      real(kind=wp), intent(out):: SA(LDA,(jHi-jLo+1))
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
@@ -970,8 +976,9 @@ C Add -dyu Gvzxt
 
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
-      INTEGER(kind=iwp) MYRANK,ILO,IHI,JLO,JHI,MC,LDC
+      INTEGER(kind=iwp) MYRANK,MC
 #endif
+      INTEGER(kind=iwp) ILO,IHI,JLO,JHI,LDC
       INTEGER(kind=iwp) ICASE,ISYM,lg_SC,NAS,NIN,NSC
       real(kind=wp) DSC
       real(kind=wp), EXTERNAL:: PSBMAT_FPRINT
@@ -1016,8 +1023,13 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
         ELSE
 #endif
           CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),NG3,G3,IDXG3)
+          iLo=1
+          iHi=NAS
+          jLo=1
+          jHi=NAS
+          LDC=0
           CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SC)%A(:),1,NAS,1,NAS,0)
+     &                 ISYM,GA_Arrays(lg_SC)%A(:),ILO,IHI,JLO,JHI,LDC)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -1223,7 +1235,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
 #include "mafdecls.fh"
 
       integer(kind=iwp) ISYM,iLo,iHi,jLo,jHi,LDC,NG3
-      real(kind=wp), intent(out):: SC(LDC,*)
+      real(kind=wp), intent(out):: SC(LDC,jHi-jLo+1)
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
