@@ -27,7 +27,8 @@
 * construct DREF in a tringular storage.
 
 * Remember: NDREF=1 if NASHT=0.
-      DREF(1)=Zero
+      DREF(:)=Zero
+
       IF(NASHT==0) RETURN
 * Active 1-el density matrix:
       CALL mma_allocate(G1,NG1,Label='G1')

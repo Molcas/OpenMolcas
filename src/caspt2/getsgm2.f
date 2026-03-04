@@ -20,13 +20,16 @@
       use Symmetry_Info, only: Mul
       use gugx, only:  SGS, CIS, EXS
       use pt2_guga, only: MxCI
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp
       IMPLICIT None
 
 
-      Integer :: ILEV, JLEV, ISYCI
-      Real*8, Intent(In) ::  CI(MXCI)
-      Real*8, Intent(Out)::  SGM(MXCI)
-      Integer IS, JS, IJS, ISSG, NSGM
+      Integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI
+      Real(kind=wp), Intent(In) ::  CI(MXCI)
+      Real(kind=wp), Intent(inOut)::  SGM(MXCI)
+
+      Integer(kind=iwp) IS, JS, IJS, ISSG, NSGM
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI
 C ILEV,JLEV ARE IN PRINCIPLE ACTIVE ORBITAL NUMBERS, BUT POSSIBLY
@@ -47,8 +50,8 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       ISSG=Mul(IJS,ISYCI)
       NSGM=CIS%NCSF(ISSG)
       IF(NSGM.EQ.0) RETURN
+      SGM(1:NSGM)=Zero
 
-      SGM(1:NSGM)=0.0D0
-      CALL SIGMA1(SGS,CIS,EXS,ILEV,JLEV,1.0D00,ISYCI,CI,SGM)
+      CALL SIGMA1(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
 
       END SUBROUTINE GETSGM2
