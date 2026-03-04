@@ -27,7 +27,7 @@
 
       IMPLICIT NONE
       INTEGER(kind=iwp), intent(in) :: nXMAT, nCMO, NATR
-      REAL(kind=wp), intent(out) :: XMAT(nXMAT)
+      REAL(kind=wp), intent(inout) :: XMAT(nXMAT)
       REAL(kind=wp), intent(in) :: CMO(nCMO), DDTR(NATR)
       INTEGER(kind=iwp) :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP,
      &                     MXCHOBUF, MXINT, MXPIQK, NADDBUFF, NBUF,
@@ -262,15 +262,11 @@
             ! Index of (p1|**) and (**|q1)
             II = (I-1)*B1+1
             JJ = (J-1)*K1+1
-            Write (6,*) 'Cho_amatrix'
-            Write (6,*) 'NA,IJ=',NA,IJ
             DO JA=1,NA
-              Write (6,*) 'JA=',JA
               XMAT(IJ) = XMAT(IJ)+dDot_(NA,INT2(II:,JJ),BS,
      &                   HDSQ%SB(TUSYM)%A2(:,JA),1)
               JJ = JJ+KS
             END DO
-            Write (6,*) 'Xho_amatrix'
             ! Symmetric element
             IF (diag .AND. (I == J)) EXIT
             IJT = IXMAT(PQSYM)+
