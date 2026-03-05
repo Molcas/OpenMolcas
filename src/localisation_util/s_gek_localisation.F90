@@ -13,9 +13,9 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
-!#define _FULL_SPACE_
+#define _FULL_SPACE_
 
-subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,SGEKdebug)
+subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,SGEKdebug,UpMeth,framework)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -34,7 +34,8 @@ real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
-character(len=6) :: UpMeth
+character(len=6),intent(out) :: UpMeth
+character(len=6),intent(in) :: framework
 logical :: SORange
 character :: Step_Trunc
 
@@ -85,7 +86,7 @@ end if
 
 ! select subspace basis vectors; construct normalized e_diis
 ! -----------------------------------------------------------
-#ifdef _FULL_SPACE_
+if (framework == 'fullspace') then
 
 ! Set up the full space
 nExplicit = fsdim
@@ -95,7 +96,7 @@ do k = 1,nExplicit
     e_diis(k,k) = One
 end do
 
-#else
+else if (framework == 'subspace') then
 
 !number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
 nExplicit = 2*(nDIIS-1)+2
@@ -155,7 +156,8 @@ if (SGEKdebug) then
     if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
 end if
 
-#endif
+end if !framework: fullspace/subspace
+
 ! orthogonalize e_diis; remove redundancies from linear dependences
 ! -----------------------------------------------------------------
 do l=1,2

@@ -412,16 +412,16 @@ Optional general keywords
 
 :kword:`THRGradient`
   The following line specifies the convergence threshold used for
-  the gradient of the localisation functional. The default is 1.0d-2.
+  the gradient of the localisation functional. The default is 1.0d-4.
 
   .. xmldoc:: <KEYWORD MODULE="LOCALISATION" NAME="THRG" APPEAR="Gradient threshold" LEVEL="ADVANCED" KIND="REAL">
               <HELP>
               Please, specify the convergence threshold used for
-              changes in the gradient of the localisation functional. The default is 1.0d-6.
+              changes in the gradient of the localisation functional. The default is 1.0d-4.
               </HELP>
               %%Keyword: THRG <advanced>
               The following line specifies the convergence threshold used for
-              the gradient of the localisation functional. The default is 1.0d-6.
+              the gradient of the localisation functional. The default is 1.0d-4.
               </KEYWORD>
 
 :kword:`THRRotations`

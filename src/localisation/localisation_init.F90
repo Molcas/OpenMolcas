@@ -25,7 +25,7 @@ use constants, only: Ten
 implicit none
 integer(kind=iwp) :: iSym
 integer(kind=iwp), parameter :: Occupied = 0
-real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, ThrRotDef=1.0e-10_wp, ThrGradDef=1.0e-6_wp
+real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, ThrRotDef=1.0e-10_wp, ThrGradDef=1.0e-4_wp
 
 do iSym=1,nSym
   nOrb2Loc(iSym) = 0
@@ -46,7 +46,7 @@ ChargeType = 1 ! PM localisation done within the Mulliken population framework
 if (nSym > 1) LocModel = 3  ! Cholesky localisation
 LocModel_UsrDef = .false.
 Test_Localisation = .false.
-NMxIter = 300
+NMxIter = 100
 Thrs = ThrsDef
 ThrRot = ThrRotDef
 ThrGrad = ThrGradDef

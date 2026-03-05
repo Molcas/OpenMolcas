@@ -44,6 +44,7 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 !S-GEK
 real(kind=wp) :: dqdq
 logical, parameter :: SGEKdebug = .false.
+character(len=6):: UpMeth
 
 ! Initialization (iteration 0).
 ! -----------------------------
@@ -139,13 +140,15 @@ OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
 
+UpMeth=" -  - "
 if (.not. Silent) then
-  write(u6,'(//,1X,A,/,1X,A)') '                                                        CPU       Wall', &
-                               'nIter       Functional P        Delta     Gradient     (sec)     (sec) %Screen'
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
-    write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,Zero
+    write(u6,'(//,1X,A,/,1X,A)') '                                                                   CPU       Wall', &
+                                 'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) %Screen'
+    write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,UpMeth,&
+                                                    TimC,TimW,Zero
 end if
 
 
@@ -186,19 +189,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         else if (OptMeth == 3) then
             kappa(:,:) = alpha*Gradient(:,:)
 
-
-        ! S-GEK
+        ! FULLSPACE GEK
         ! ---------------------------------------------------------------------------------------------------
-        else if (OptMeth == 4) then ! S-GEK
+        else if (OptMeth == 4) then ! GEK
 
             ! compute standard newton raphson step
-            ! ------------------------------------
             call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
             if (SGEKdebug) call RecPrt('-g/hdiag (NR step)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
-
-            ! transform (antisymmetric) NR step matrix into vector
-            ! ----------------------------------------------------
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
             !call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
 
@@ -206,20 +204,47 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
             end if
 
-            if (nIter == 1) then
+            if (nIter < 10) then
+                ! skip GEK and perform normal NR step
+                if (SGEKdebug) write(u6,*) 'Exit S-GEK Optimizer'
+            else
+                ! create subspace and perform GEK/RVO opt in it
+                call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+                                        dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth,'fullspace')
+
+                ! transform GEK suggested displacement back into an antisymmetric matrix
+                call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
+                if (SGEKdebug) call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
+            end if
+
+        ! S-GEK
+        ! ---------------------------------------------------------------------------------------------------
+        else if (OptMeth == 5) then ! S-GEK
+
+            ! compute standard newton raphson step
+            call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
+            kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
+            if (SGEKdebug) call RecPrt('-g/hdiag (NR step)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+
+            ! transform (antisymmetric) NR step matrix into vector
+            call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
+            !call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
+
+            if (nIter == 250) then
+                call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+            end if
+
+            if (nIter < 10) then
 
                 ! skip GEK and perform normal NR step
-                ! -----------------------------------
                 if (SGEKdebug) write(u6,*) 'Exit S-GEK Optimizer'
 
             else
                 ! create subspace and perform GEK/RVO opt in it
-                ! ---------------------------------------------
                 call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,displacements(:,nIter+1),SGEKdebug)
+                                        dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth,'subspace')
 
                 ! transform GEK suggested displacement back into an antisymmetric matrix
-                ! ----------------------------------------------------------------------
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
                 if (SGEKdebug) call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
 
@@ -278,7 +303,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call CWTime(C2,W2)
         TimC = C2-C1
         TimW = W2-W1
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,UpMeth,&
+                                                                                TimC,TimW,PctSkp
     end if
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 
