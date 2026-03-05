@@ -209,6 +209,6 @@ CPAM00 OK -- Now add Coulomb contributions:
       CALL mma_deallocate(SQBUF)
       CALL mma_deallocate(FTRI)
 *
-      Call GADSum(FOCKAO,NBSQ)
+      Call GADGOp(FOCKAO,NBSQ,'+')
 
       END SUBROUTINE FOCK_RASSI

@@ -89,11 +89,11 @@ do iSym=1,nSym
         call GASync()
         Length = nDensC
         Kap1(1:Length) = Zero
-        call GADSum(Kap1,Length)
+        call GADGOp(Kap1,Length,'+')
         if (CI) then
           Length = nconfM
           CIp1(1:Length) = Zero
-          call GADSum(CIp1,Length)
+          call GADGOp(CIp1,Length,'+')
         end if
       end if
       call GASync()

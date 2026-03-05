@@ -7,42 +7,34 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Martin Schuetz                                   *
+!               1998, Roland Lindh                                     *
+!               2000-2015, Steven Vancoillie                           *
 !***********************************************************************
 
-subroutine WrNumber(Nam,Nmbr)
+! double global operation; stub routine to ga_dgop...
+! x(n):     global vector
+! op:       global operation '+','*','max','min','absmax','absmin'
+subroutine GADGOP(x,n,op)
 
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*), intent(inout) :: Nam
-integer(kind=iwp), intent(in) :: Nmbr
-integer(kind=iwp) :: iTens, Limit
-real(kind=wp) :: ANumber
-character(len=10) :: frmt
+integer(kind=iwp) :: n
+real(kind=wp) :: x(n)
+character(len=*) :: op
+#ifdef _MOLCAS_MPP_
+#include "mafdecls.fh"
 
-frmt = ' '
-if (Nmbr >= 0) then
-  Limit = 0
-  do iTens=0,99
-    Limit = Limit+9*(10**iTens)
-    if (Nmbr <= Limit) then
-      write(frmt,'(A,I4.4,A)') '(I',iTens+1,')'
-      write(Nam,frmt) Nmbr
-      return
-    end if
-  end do
-else
-  ANumber = real(-Nmbr,kind=wp)
-  Limit = 0
-  do iTens=0,99
-    Limit = Limit+9*(10**iTens)
-    if (ANumber <= real(Limit,kind=wp)) then
-      write(frmt,'(A,I4.4,A)') '(A,I',iTens+1,')'
-      write(Nam,frmt) '-',ANumber
-      return
-    end if
-  end do
-end if
-call SysAbendMsg('wrnumber','Number too large',' ')
+if (Is_Real_Par()) call ga_dgop(MT_DBL,x,n,op)
+#else
+#include "macros.fh"
+unused_var(x)
+unused_var(op)
+#endif
 
-end subroutine WrNumber
+end subroutine GADGOP

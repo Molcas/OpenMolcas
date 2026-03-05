@@ -20,7 +20,7 @@
 
 function RsvTsk(igaTsk,iTskLs,nTsk,mTsk,iStart,iS,iE)
 
-#if defined (_MOLCAS_MPP_) && !defined (_GA_)
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use Definitions, only: iwp
@@ -31,9 +31,10 @@ integer(kind=iwp) :: igaTsk, nTsk, iTskLs(nTsk,2), mTsk, iStart, iS, iE
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iCnt, iTsk
 logical(kind=iwp) :: Reserved
-#include "global.fh"
 
 #ifdef _GA_
+#include "global.fh"
+
 if (iStart > mTsk) then
   iTsk = 0
   iCnt = nTsk

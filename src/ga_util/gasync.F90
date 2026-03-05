@@ -7,13 +7,21 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Martin Schuetz                                   *
+!               1998, Roland Lindh                                     *
+!               2000-2015, Steven Vancoillie                           *
 !***********************************************************************
 
-subroutine Extension(FileName)
+! synchronize processes...
+subroutine GASync()
+
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
 
 implicit none
-character(len=*), intent(inout) :: FileName
 
-call Ext_PID(FileName)
+if (Is_Real_Par()) call ga_sync()
+#endif
 
-end subroutine Extension
+end subroutine GASync

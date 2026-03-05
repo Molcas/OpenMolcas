@@ -408,8 +408,8 @@
           DPT2AO(1:NBSQT) = Zero
           DPT2CAO(1:NBSQT) = Zero
         End If
-        CALL GADSUM (DPT2AO,NBSQT)
-        CALL GADSUM (DPT2CAO,NBSQT)
+        CALL GADGOP (DPT2AO,NBSQT,'+')
+        CALL GADGOP (DPT2CAO,NBSQT,'+')
       End If
 #endif
 
@@ -556,8 +556,8 @@
 
 #ifdef _MOLCAS_MPP_
       If (Is_Real_Par()) Then
-        CALL GADSUM (FPT2AO,NBSQT)
-        CALL GADSUM (FPT2CAO,NBSQT)
+        CALL GADGOP (FPT2AO,NBSQT,'+')
+        CALL GADGOP (FPT2CAO,NBSQT,'+')
       End If
 #endif
 

@@ -40,7 +40,7 @@ if (create) then
   ok = ga_create(MT_INT,nTsk,1,'GlTskL',Chk,1,igaTsk)
   if (.not. ok) then
     write(u6,*) 'GATskL: ga_create not OK!'
-    call GAStp('GATskL',42)
+    call ga_error('GATskL',42)
     call Abend()
   end if
   call ga_zero(igaTsk)

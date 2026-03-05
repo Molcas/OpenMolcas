@@ -1184,7 +1184,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
-        CALL GAdSUM_SCAL(DOVL)
+        CALL GAdGOP_SCAL(DOVL,'+')
       ELSE
 #endif
         CALL RESDIA(NIN,NIS,GA_Arrays(lg_W)%A,NIN,DIN,DIS,DOVL)

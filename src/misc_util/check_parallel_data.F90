@@ -43,7 +43,7 @@ x_prll(:,:) = Zero
 
 this = MyRank+1
 x_prll(:,this) = x
-call GADsum(x_prll,n*nProcs)
+call GADgop(x_prll,n*nProcs,'+')
 
 if (act == 'C') then
   do irank=1,nProcs

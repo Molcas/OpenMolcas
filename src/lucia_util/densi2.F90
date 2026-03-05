@@ -268,7 +268,7 @@ else if (ICISTR >= 2) then
               XI4S,INSCR,RHO1S,LUL,LUR,PSSIGN,PSSIGN,NBATCHL,LLBTL,LI1BTL,LIBTL,NBATCHR,LLBTR,LI1BTR,LIBTR,CONSPA,CONSPB,LSCLFCL, &
               LSCLFCR,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
 
-  call GADSUM(RHO1,NACOB**2)
+  call GADGOP(RHO1,NACOB**2,'+')
   if (I12 == 2) then
     if (IPACK) then
       ! If IPACK == .TRUE. then
@@ -276,14 +276,14 @@ else if (ICISTR >= 2) then
       ! density matrices are given in Nijkl.
       NIJ = nTri_Elem(NACOB)
       NIJKL = nTri_Elem(NIJ)
-      call GADSUM(RHO2S,NIJKL)
-      call GADSUM(RHO2A,NIJKL)
+      call GADGOP(RHO2S,NIJKL,'+')
+      call GADGOP(RHO2A,NIJKL,'+')
     else
-      call GADSUM(RHO2,nTri_Elem(NACOB**2))
+      call GADGOP(RHO2,nTri_Elem(NACOB**2),'+')
     end if
   end if
-  if (IDOSRHO1 == 1) call GADSUM(SRHO1,NACOB**2)
-  call GADSUM_SCAL(S2_TERM1)
+  if (IDOSRHO1 == 1) call GADGOP(SRHO1,NACOB**2,'+')
+  call GADGOP_SCAL(S2_TERM1,'+')
 
   ! CALL GASDN2 --> 89
   !

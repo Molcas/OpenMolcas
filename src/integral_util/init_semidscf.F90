@@ -15,7 +15,7 @@
 
 subroutine Init_SemiDSCF(FstItr,Thize,Cutint)
 
-use dEAF, only: dEAFARead, dEAFAWrite, dEAFRead
+use EAFmod, only: dEAFARead, dEAFAWrite, dEAFRead
 use IOBUF, only: Buffer, Disk, Disk_1, Disk_2, iBuf, ID, IODone, ipos, iStatIO, lBuf, LuTmp, Mode_Read, Mode_Write, nBuf, OnDisk
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, RtoI
@@ -84,7 +84,7 @@ else
       call Abend()
     end if
     !write(u6,*) ' Initiate read @',Disk,'iBuf=',iBuf
-    !if (OnDisk) write(u6,*) ' Initial EAFARead'
+    !if (OnDisk) write(u6,*) ' Initial dEAFARead'
     call dEAFARead(LuTmp,Buffer(1,iBuf),lBuf*RtoI,Disk,id)
   end if
 end if

@@ -36,6 +36,7 @@ subroutine Drv2El_3Center_RI(ThrAO)
 !             Modified to out-of-core version Feb '07                  *
 !***********************************************************************
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Index_Functions, only: nTri_Elem
 use RI_procedures, only: Drv2El_2Center_RI
 use iSD_data, only: iSD
@@ -64,7 +65,7 @@ integer(kind=iwp), allocatable :: Addr(:), iRv(:), LBList(:), NuMu(:,:), TmpList
 real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Scr(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), Tmp(:,:)
 procedure(int_wrout) :: Integral_RI_3
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
-logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
+logical(kind=iwp), external :: Reduce_Prt
 
 !                                                                      *
 !***********************************************************************

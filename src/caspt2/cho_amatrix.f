@@ -145,7 +145,7 @@
         END DO
       END DO
 
-      CALL GADSum(XMAT,NOSQT)
+      CALL GADGOp(XMAT,NOSQT,'+')
 
       CALL Deallocate_DT(HDSQ)
       CALL mma_deallocate(IXMAT)

@@ -385,10 +385,10 @@ else
     call Deallocate_DT(CVa(1))
     call deallocate_DT(DA)
 
-    call GADSum(FockI,nDens)
-    call GADSum(FockA,nDens)
-    call GADSum(Q,nDens)
-    call GADSum(MO1,nAtri)
+    call GADGOp(FockI,nDens,'+')
+    call GADGOp(FockA,nDens,'+')
+    call GADGOp(Q,nDens,'+')
+    call GADGOp(MO1,nAtri,'+')
 
   end if
   !                                                                    *

@@ -2358,8 +2358,8 @@ C      NBXSZJ=NINABX
       integer(kind=iwp), intent(in) :: nbuff
       real(kind=wp), intent(inout) :: buff(nbuff)
       integer(kind=iwp) :: istart
-      ! GADSUM wrapper: avoid the 2 GB limit of 32-bit MPI
+      ! GADGOP wrapper: avoid the 2 GB limit of 32-bit MPI
       do istart = 1, nbuff, MAXBUF
-       CALL GADSUM(buff(istart),MIN(nbuff-istart+1,MAXBUF))
+       CALL GADGOP(buff(istart),MIN(nbuff-istart+1,MAXBUF),'+')
       end do
       end subroutine GADSUM_ADDRHS

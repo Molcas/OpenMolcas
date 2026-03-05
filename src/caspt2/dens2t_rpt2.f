@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS2T_RPT2 (CI1,CI2,SGM1,SGM2,G1,G2,nLev)
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -30,7 +31,6 @@
       IMPLICIT NONE
 
 
-      LOGICAL RSV_TSK
       Integer, Intent(In):: nLev
       REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI),SGM2(MXCI)
       REAL*8 G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
@@ -210,8 +210,8 @@ C     task.
 
       CALL mma_deallocate(Task)
 
-      CALL GAdSUM (G1,NG1)
-      CALL GAdSUM (G2,NG2)
+      CALL GAdGOP (G1,NG1,'+')
+      CALL GAdGOP (G2,NG2,'+')
 
 C     write(6,*) "before"
 C     call sqprt(g2,nlev**2)

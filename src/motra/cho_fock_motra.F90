@@ -82,7 +82,7 @@ end if
 call Deallocate_DT(KLT(1))
 call Deallocate_DT(FLT(1))
 
-call GADSUM(W_FLT,nFLT)
+call GADGOP(W_FLT,nFLT,'+')
 
 call deallocate_DT(MOs(1))
 call deallocate_DT(DSQ)

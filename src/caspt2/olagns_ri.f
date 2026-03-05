@@ -452,7 +452,7 @@
 
 #ifdef _MOLCAS_MPP_
       If (is_real_par()) then
-        CALL GADSUM (A_PT2,MaxVec_PT2**2)
+        CALL GADGOP (A_PT2,MaxVec_PT2**2,'+')
       end if
 #endif
 
