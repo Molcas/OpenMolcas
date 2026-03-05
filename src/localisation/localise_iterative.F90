@@ -74,6 +74,8 @@ if (myModel == 'PIPE') then
   else if (OptMeth == 3) then
     write(u6,'(1X,A)') 'Optimization Method  : Gradient Ascent'
   else if (OptMeth == 4) then
+    write(u6,'(1X,A)') 'Optimization Method  : GEK (fullspace)'
+  else if (OptMeth == 5) then
     write(u6,'(1X,A)') 'Optimization Method  : S-GEK'
   end if
   If (ChargeType == 1) then

@@ -35,7 +35,7 @@ real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis
 integer(kind=iwp), parameter :: nWindow = 20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
-character(len=6),intent(in) :: framework
+character(len=9),intent(in) :: framework
 logical :: SORange
 character :: Step_Trunc
 

@@ -51,12 +51,13 @@ character(len=6):: UpMeth
 
 if (.not. Silent) call CWTime(C1,W1)
 
-write(u6,*) 'Check the orthonormality of the orbitals'
+if (SGEKdebug) then
+write(u6,'(/A)') 'Check the orthonormality of the orbitals'
 write(u6,*) '========================================'
 call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
 call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
 call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
-
+end if
 
 ! to allow property printing later
 call Put_cArray('Relax Method','LOCALIS ',8)
@@ -129,7 +130,7 @@ end if
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiagvec(:))
     call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
-    call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
+    !call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
     FunctionalList(1) = Functional
 end if
 
@@ -220,7 +221,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! S-GEK
         ! ---------------------------------------------------------------------------------------------------
         else if (OptMeth == 5) then ! S-GEK
-
+            write(u6,*) "SGEK STARTTTTING"
             ! compute standard newton raphson step
             call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
@@ -338,12 +339,13 @@ if (.not. Silent) then
 end if
 
 !call Prpt()
-write(u6,*) 'Check the orthonormality of the orbitals'
+if (SGEKDebug) then
+write(u6,'(/A)') 'Check the orthonormality of the orbitals'
 write(u6,*) '========================================'
 call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
 call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
 call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
-
+end if
 
 
 ! deallocate matrices used for NxN optimizations

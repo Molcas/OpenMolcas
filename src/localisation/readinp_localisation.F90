@@ -170,9 +170,14 @@ do
             ! Gradient Ascent for PM localisation
             OptMeth = 3
 
-            case ('SGEK')
-            ! S-GEK for PM localisation
+            case ('GEK')
+            ! GEK (fullspace) for PM localisation
             OptMeth = 4
+
+            case ('SGEK','S-GEK')
+            ! S-GEK for PM localisation
+            OptMeth = 5
+
 
             case default
                 write(u6,*) 'WARNING!!!'
