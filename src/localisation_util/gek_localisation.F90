@@ -13,7 +13,8 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
-subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,SGEKdebug,UpMeth,framework)
+
+subroutine GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,SGEKdebug,UpMeth)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -33,7 +34,6 @@ real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis
 integer(kind=iwp), parameter :: nWindow = 20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
-character(len=9),intent(in) :: framework
 logical :: SORange
 character :: Step_Trunc
 
@@ -47,7 +47,6 @@ if (SGEKdebug) write(u6,*) 'Enter S-GEK Optimizer'
 
 ! Pick up coordinates and gradients in full space
 ! -----------------------------------------------
-
 ! number of iterations used to build the subspace
 nDIIS = min(nIter,nWindow) !1 for first iteration; 2
 
@@ -83,9 +82,6 @@ if (SGEKdebug) then
 end if
 
 ! select subspace basis vectors; construct normalized e_diis
-! -----------------------------------------------------------
-if (framework == 'fullspace') then
-
 ! Set up the full space
 nExplicit = fsdim
 call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
@@ -94,101 +90,19 @@ do k = 1,nExplicit
     e_diis(k,k) = One
 end do
 
-else if (framework == 'subspace') then
-
-!number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
-nExplicit = 2*(nDIIS-1)+2
-
-write(u6,*) 'nExplicit:',nExplicit
-call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
-call mma_allocate(Aux_a,fsdim,Label='Aux_a')
-call mma_allocate(Aux_b,fsdim,Label='Aux_b')
-
-j = 0
-thr = 1E-18_wp
-do k=1,nDIIS-1
-    !n-th column of e_diis
-    j = j+1
-    ! gradient difference vector
-    Aux_a(:) = g(:,k+1)-g(:,k)
-    !normalize
-    norm = sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
-    if (norm < thr) then
-        e_diis(:,j) = Zero
-    else
-        e_diis(:,j) = Aux_a(:)/norm
-    end if
-
-    !(n+1)-th column of e_diis
-    j = j+1
-    ! displacement difference vector
-    Aux_a(:) = q(:,k+1)-q(:,k)
-    Aux_b(:) = Aux_a(:)
-    !normalize
-    norm = sqrt(DDot_(fsdim,Aux_b(:),1,Aux_b(:),1))
-    if (norm < thr) then
-        e_diis(:,j) = Zero
-    else
-        e_diis(:,j) = Aux_b(:)/norm
-    end if
-
-
-end do
-call mma_deallocate(Aux_b)
-
-! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
-j = j+1
-!current gradient
-Aux_a(:) = g(:,nDIIS)
-!normalize
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
-
-j = j+1
-!second order method's displacement suggestion
-Aux_a(:) = dq(:)
-!normalize
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
-call mma_deallocate(Aux_a)
-
-
-if (SGEKdebug) then
-    if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
-end if
-
-end if !framework: fullspace/subspace
-
-! orthogonalize e_diis; remove redundancies from linear dependences
-! -----------------------------------------------------------------
-do l=1,2
-    j = 1
-    do i=2,nExplicit
-        do k=1,j
-            gg = DDot_(fsdim,e_diis(:,i),1,e_diis(:,k),1)
-!            if (SGEKdebug) write(u6,*) 'i,k,gg=',i,k,gg
-            e_diis(:,i) = e_diis(:,i)-gg*e_diis(:,k)
-        end do
-        gg = DDot_(fsdim,e_diis(:,i),1,e_diis(:,i),1) ! renormalize
-!        if (SGEKdebug) write(u6,*) 'j,i,gg=',j,i,gg
-
-        if (gg > 1.0e-17_wp) then   ! Skip vector if linear dependent.
-            j = j+1
-            e_diis(:,j) = e_diis(:,i)/sqrt(gg)
-        end if
-    end do
-end do
-
 ! normally mDIIS=2*nDIIS, but it can happen that not all unit vectors are linear independent (mDIIS<=2*nDIIS).
 ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
-mDIIS = j
+!mDIIS = j
+mDiis = fsdim
 
-!if (SGEKdebug) then
+if (SGEKdebug) then
 write(u6,*) '    fsdim:',fsdim
 write(u6,*) 'nExplicit:',nExplicit
 write(u6,*) '    nIter:',nIter
 write(u6,*) '    nDIIS:',nDIIS
 write(u6,*) '    mDIIS:',mDIIS
 
-!write(u6,*) 'Check the orthonormality'
+write(u6,*) 'Check the orthonormality'
 !do i=1,mDIIS
 !    do j=1,i
 !        write(u6,*) i,j,DDot_(fsdim,e_diis(:,i),1,e_diis(:,j),1)
@@ -196,7 +110,7 @@ write(u6,*) '    mDIIS:',mDIIS
 !    write(u6,*)
 !end do
 if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,fsdim,nExplicit)
-!end if
+end if
 
 
 
@@ -290,4 +204,4 @@ call Timing(Cpu2,Tim1,Tim2,Tim3)
 if (SGEKdebug) write(u6,*) 'CPU Time for GEK iteration',Cpu2-Cpu1
 
 Functionallist(:) =-Functionallist(:)
-end subroutine S_GEK_localisation
+end subroutine GEK_localisation

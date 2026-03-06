@@ -36,6 +36,7 @@ set (sources
      erchk_localisation.F90
      evalerfun.F90
      fwt_haar.F90
+     gek_localisation.F90
      genbmp.F90
      genbmp_loc.F90
      generateb.F90

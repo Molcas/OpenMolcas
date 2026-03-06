@@ -43,7 +43,7 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 
 !S-GEK
 real(kind=wp) :: dqdq
-logical, parameter :: SGEKdebug = .false.
+logical, parameter :: SGEKdebug = .true.
 character(len=6):: UpMeth
 
 ! Initialization (iteration 0).
@@ -64,7 +64,7 @@ call Put_cArray('Relax Method','LOCALIS ',8)
 
 ! allocating matrices for NxN optimizations
 ! ---------------------------------------------------------------------------------------------------
-if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
+if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
 
     fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
@@ -127,7 +127,7 @@ end if
 
 ! get initial gradient, hessian diagonal, add initial functional value to list
 ! ---------------------------------------------------------------------------------------------------
-if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
+if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiagvec(:))
     call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
     !call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
@@ -174,7 +174,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     ! Employing NxN rotations
     ! ---------------------------------------------------------------------------------------------------
-    else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
+    else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
 
         kappa(:,:) = Zero
 
@@ -190,60 +190,43 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         else if (OptMeth == 3) then
             kappa(:,:) = alpha*Gradient(:,:)
 
-        ! FULLSPACE GEK
+        ! (S)-GEK
         ! ---------------------------------------------------------------------------------------------------
-        else if (OptMeth == 4) then ! GEK
+        else if (OptMeth == 4 .or. OptMeth == 5) then
 
             ! compute standard newton raphson step
             call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
-            if (SGEKdebug) call RecPrt('-g/hdiag (NR step)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
-            !call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
 
-            if (nIter == 250) then
-                call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+            if (SGEKdebug) then
+                call RecPrt('-g/hdiag (NR step) as matrix',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+                call RecPrt('-g/hdiag (NR step) as vector',' ',displacements(:,nIter+1),fsdim,1)
             end if
 
-            if (nIter < 10) then
-                ! skip GEK and perform normal NR step
-                if (SGEKdebug) write(u6,*) 'Exit S-GEK Optimizer'
-            else
-                ! create subspace and perform GEK/RVO opt in it
-                call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth,'fullspace')
+            !if (nIter == 250) then
+            !    call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+            !end if
 
-                ! transform GEK suggested displacement back into an antisymmetric matrix
-                call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
-                if (SGEKdebug) call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
-            end if
-
-        ! S-GEK
-        ! ---------------------------------------------------------------------------------------------------
-        else if (OptMeth == 5) then ! S-GEK
-            write(u6,*) "SGEK STARTTTTING"
-            ! compute standard newton raphson step
-            call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
-            kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
-            if (SGEKdebug) call RecPrt('-g/hdiag (NR step)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
-
-            ! transform (antisymmetric) NR step matrix into vector
-            call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
-            !call RecPrt('-g/hdiag (NR step)',' ',displacements(:,nIter+1),fsdim,1)
-
-            if (nIter == 250) then
-                call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
-            end if
-
+            ! start GEK only from iteration x
             if (nIter < 10) then
 
                 ! skip GEK and perform normal NR step
                 if (SGEKdebug) write(u6,*) 'Exit S-GEK Optimizer'
 
             else
-                ! create subspace and perform GEK/RVO opt in it
-                call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth,'subspace')
+
+                if (OptMeth == 4) then ! GEK
+                    ! perform GEK/RVO opt in the full space
+                    call GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+                                          dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth)
+
+                else if (OptMeth == 5) then ! S-GEK
+                    write(u6,*) "building the subspace"
+                    ! create subspace and perform GEK/RVO opt in it
+                    call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+                                        dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth,'subspace ')
+                end if
 
                 ! transform GEK suggested displacement back into an antisymmetric matrix
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
@@ -253,21 +236,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
-        if (OptMeth == 4 .and. SGEKdebug) then
-        call RecPrt('kappa before rescaling',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
-        end if
-
-
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
         !Thr= 0.5E0_wp * Pi
         Thr= Pi
         If (DD>=Thr)Then
-        !           Write(6,*) 'Rescale Kappa(:,:)'
+            if (SGEKdebug) Write(6,*) 'Rescale Kappa(:,:)'
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
         End If
 
-        if (OptMeth == 4 .and. SGEKdebug) then
-        call RecPrt('actual displacement taken',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+
+        if (SGEKdebug) then
+            call RecPrt('displacement taken (kappa mat)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
         end if
 
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
@@ -284,9 +263,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         if (SGEKDebug) then
             write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
-        call RecPrt('kappa',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
-        call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
-        call RecPrt('Hdiag',' ',Hdiag(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('Hdiag',' ',Hdiag(:,:),nOrb2Loc,nOrb2Loc)
         end if
 
         call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,nIter+1),fsdim)
