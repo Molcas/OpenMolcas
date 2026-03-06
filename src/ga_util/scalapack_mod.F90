@@ -264,10 +264,10 @@ function slgetmxproc_(n,nnodes)
   ! try to get powers of two
 
   do i=nmax,0,-1
-    if (nint(nprocs0/(Two**i)) == 1) goto 1
+    if (nint(nprocs0/(Two**i)) == 1) exit
   end do
-  i = 4
-1 twoi = 2**i
+  if (i < 0) i = 4
+  twoi = 2**i
   slgetmxproc_ = min(nnodes,twoi)
 
 end function slgetmxproc_
@@ -283,9 +283,8 @@ subroutine FindGrid_(nnodes,npr,npc)
 
   npc = 2*int(sqrt(real(nnodes,kind=wp)))
   do i=npc,1,-1
-    if (mod(nnodes,i) == 0) goto 1
+    if (mod(nnodes,i) == 0) exit
   end do
-1 continue
   npc = i
   npr = nnodes/npc
   if (npr > npc) then
@@ -434,7 +433,7 @@ subroutine ga_from_SL2_(g_a,dim_1,dim_2,nbr,nbc,s_a,lda4)
   end do
 
   !**** ... and at the end
-  end subroutine ga_from_SL2_
+end subroutine ga_from_SL2_
 
 #endif
 

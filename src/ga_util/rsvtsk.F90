@@ -31,63 +31,45 @@ integer(kind=iwp) :: igaTsk, nTsk, iTskLs(nTsk,2), mTsk, iStart, iS, iE
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iCnt, iTsk
 logical(kind=iwp) :: Reserved
-
 #ifdef _GA_
 #include "global.fh"
+#else
+integer(kind=iwp), allocatable :: TSKR(:)
+#endif
 
 if (iStart > mTsk) then
   iTsk = 0
   iCnt = nTsk
 else
+# ifndef _GA_
+  call mma_allocate(TSKR,mTsk,Label='TSKR')
+  call ga_readb_inc(igaTsk,mTsk,iTskLs(iStart,1),TSKR)
+# endif
   do iCnt=iStart,mTsk
     iTsk = iTskLs(iCnt,1)
     ! try to reserve iTsk on global task list...
+#   ifdef _GA_
     Reserved = ga_read_inc(igaTsk,iTsk,1,1) /= 0
-    if (Reserved) then
-      iE = iE-1
-      iTskLs(iE,2) = iTsk
-    else
-      iS = iS+1
-      iTskLs(iS,2) = iTsk
-      Go To 100
-    end if
-  end do
-  iTsk = 0
-100 continue
-
-end if
-RsvTsk = iTsk
-iStart = iCnt
-
-#else
-integer(kind=iwp), allocatable :: TSKR(:)
-
-if (iStart > mTsk) then
-  iTsk = 0
-  iCnt = nTsk
-else
-  call mma_allocate(TSKR,mTsk,Label='TSKR')
-  call ga_readb_inc(igaTsk,mTsk,iTskLs(iStart,1),TSKR)
-  do iCnt=iStart,mTsk
-    iTsk = iTskLs(iCnt,1)
+#   else
     Reserved = TSKR(1+iCnt-iStart) /= 0
+#   endif
     if (Reserved) then
       iE = iE-1
       iTskLs(iE,2) = iTsk
     else
       iS = iS+1
       iTskLs(iS,2) = iTsk
-      Go To 100
+      exit
     end if
   end do
-  iTsk = 0
-100 continue
+  if (iCnt > mTsk) iTsk = 0
+# ifndef _GA_
   call mma_deallocate(TSKR)
+# endif
 end if
 RsvTsk = iTsk
 iStart = iCnt
 
-#endif
 #else
 
 #include "macros.fh"
