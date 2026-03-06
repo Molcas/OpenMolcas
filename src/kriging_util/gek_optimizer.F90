@@ -12,7 +12,7 @@
 !               2025, Lila Zapp                                        *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 
 subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SORange)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -44,13 +44,13 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: mDiis, nDiis, Max_Iter
-real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter), g_diis(mDiis,nDiis+Max_Iter), Energy(nDiis+Max_Iter), &
+real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter), g_diis(mDiis,nDiis+Max_Iter), Energy(nDiis+Max_Iter),&
                                 H_diis(mDiis,mDiis)
 real(kind=wp), intent(out) :: dq_diis(mDiis), dqdq
 character, intent(out) :: Step_Trunc
 character(len=6), intent(out) :: UpMeth
 logical(kind=iwp), intent(in) :: SORange
-integer(kind=iwp) :: i, ii, Iteration, Iteration_Micro, Iteration_Total, j, k
+integer(kind=iwp) :: i, ii, Iteration, Iteration_Micro, Iteration_Total, j, k,cnt
 real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, SOFact, StepMax, Variance(1)
 logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
@@ -131,7 +131,10 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   StepMax = StepMax_Seed*SOFact*real(Iteration_Micro,kind=wp)
   ! Loop to enforce restricted variance. Note, if the step restriction kicks in no problem since we will still microiterate.
   ! Normally a full step will be allowed -- no step restriction -- and the loop will be exited after the first iteration.
-  do
+  cnt = 0
+  do ! Restricted variance step
+    cnt = cnt +1
+    write(u6,*) 'inside RVO step loop, iter = ',cnt
 
     ! Compute the surrogate Hessian
     call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
@@ -154,6 +157,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     do i=1,mDIIS
       ii = nTri_Elem(i)
 
+      write(u6,*) 'RVO Eigenvalue:',Val(ii)
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Eigenvalue:',Val(ii)
 #     endif
@@ -210,8 +214,24 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     write(u6,*) 'StepMax   =',StepMax
 #   endif
 
-    if ((Fact < 1.0e-5_wp) .or. (Variance(1) < Beta_Disp)) exit
-    if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) exit
+    if (Fact < 1.0e-5_wp) then
+        write(u6,'(A,/A)') 'Fact < 1.0e-5_wp     Exitting sub-iterations'
+        exit
+    end if
+
+    if (Variance(1) < Beta_Disp) then
+        write(u6,'(A,/A)') 'Var < Beta_Disp;     Exitting sub-iterations'
+        exit
+    end if
+
+    if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) then
+        write(u6,'(A,/A)') 'One-Variance(1)/Beta_Disp > 1.0e-3_wp      Exitting sub-iterations'
+        exit
+    end if
+
+    !if ((Fact < 1.0e-5_wp) .or. (Variance(1) < Beta_Disp)) exit
+    !if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) exit
+
     Fact = Half*Fact
     StepMax = Half*StepMax
     Step_Trunc = '*' ! This will only happen if the variance restriction kicks in
