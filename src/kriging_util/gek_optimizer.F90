@@ -14,7 +14,7 @@
 
 !#define _DEBUGPRINT_
 
-subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SORange)
+subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SORange,bias)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! mDiis             subspace dimensionality (<=2*ndiis); number of linear independent e_diis column vectors
 ! nDiis             number of iterations used to span the subspace; nDIIS = min(IterGEK,nWindow)
@@ -44,6 +44,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
+real(kind=wp), intent(in) :: bias
 integer(kind=iwp), intent(in) :: mDiis, nDiis, Max_Iter
 real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter), g_diis(mDiis,nDiis+Max_Iter), Energy(nDiis+Max_Iter)
 real(kind=wp),intent(inout) :: H_diis(mDiis,mDiis)
@@ -67,7 +68,7 @@ real(kind=wp), external :: DDot_
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! We need to set the bias
-blavAI = Ten
+blavAI = bias
 call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy,Hessian_HMF=H_diis)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

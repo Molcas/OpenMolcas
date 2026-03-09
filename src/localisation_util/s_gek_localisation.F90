@@ -42,7 +42,7 @@ character(len=9),intent(in) :: framework
 logical :: SORange
 character :: Step_Trunc
 
-SORange=.true.
+SORange=.false.
 
 Functionallist(:) =-Functionallist(:)
 
@@ -258,7 +258,8 @@ dq_diis(:) = Zero
 
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis,g_diis,dq_diis,Functionallist(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SORange)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis,g_diis,dq_diis,Functionallist(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,&
+                    SORange,10000.0_wp)
 
 
 ! project the resulting displacement dq_diis back into the fullspace
