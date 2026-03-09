@@ -165,35 +165,28 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     nIter = nIter+1
 
     !choose between optimization methods
+    select case (OptMeth)
 
-    ! Jacobi Sweeps (2x2 rotations)
-    ! ---------------------------------------------------------------------------------------------------
-    if (OptMeth == 1) then
+    case (1) ! Jacobi Sweeps (2x2 rotations)
+
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
-    ! Employing NxN rotations
-    ! ---------------------------------------------------------------------------------------------------
-    else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
+    case (2,3,4,5) ! Employing NxN rotations
 
         kappa(:,:) = Zero
 
-        ! Newton Raphson
-        ! ---------------------------------------------------------------------------------------------------
-        if (OptMeth == 2) then
+        select case(OptMeth) !different NxN rot based methods
+
+        case (2) ! Newton Raphson
             call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
 
-
-        ! Gradient Ascent (no line search yet)
-        ! ---------------------------------------------------------------------------------------------------
-        else if (OptMeth == 3) then
+        case (3) ! Gradient Ascent (no line search yet)
             kappa(:,:) = alpha*Gradient(:,:)
 
-        ! (S)-GEK
-        ! ---------------------------------------------------------------------------------------------------
-        else if (OptMeth == 4 .or. OptMeth == 5) then
+        case (4,5) ! (S)-GEK
 
             ! compute standard newton raphson step
             call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
@@ -212,6 +205,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 write(u6,"(A,I3,A)") "kappa'_",nIter,"="
                 call RecPrt('-g/hdiag (NR step) as vector ABSOLUTE',' ',displacements(:,nIter+1),fsdim,1)
             end if
+
             !if (nIter == 250) then
             !    call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
             !end if
@@ -226,27 +220,26 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 SORange = .true.
 
-                if (OptMeth == 4) then ! GEK
+                select case(OptMeth)
 
-                    ! perform GEK/RVO opt in the full space
+                case (4) ! Full space GEK
+
                     call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                                             dqdq,displacements(:,nIter+1),UpMeth,'fullspace',SORange)
-                    !call GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                    !                      dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth)
 
-                else if (OptMeth == 5) then ! S-GEK
+                case (5) ! subspace GEK
+
                     write(u6,*) "building the subspace"
-                    ! create subspace and perform GEK/RVO opt in it
                     call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                                         dqdq,displacements(:,nIter+1),UpMeth,'subspace ',SORange)
-                end if
+                end select !(s)-GEK
 
-                ! transform GEK suggested displacement back into an antisymmetric matrix
+                ! transform GEK disp vec to matrix
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
                 if (SGEKdebug) call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
 
             end if
-        end if ! different NxN rotations
+        end select ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
@@ -285,7 +278,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         FunctionalList(nIter+1)=Functional !first entry is from before first iteration
 
-    end if ! different opt methods
+    end select ! 2x2 or NxN rotations
 
     !check if converged
     ! ---------------------------------------------------------------------------------------------------
