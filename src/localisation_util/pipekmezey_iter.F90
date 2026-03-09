@@ -43,7 +43,7 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 
 !S-GEK
 real(kind=wp) :: dqdq
-logical, parameter :: SGEKdebug = .true.
+logical, parameter :: SGEKdebug = .false.
 character(len=6):: UpMeth
 
 ! Initialization (iteration 0).
@@ -130,7 +130,7 @@ end if
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiagvec(:))
     call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
-    !call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
+    if (SGEKdebug) call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
     FunctionalList(1) = Functional
 end if
 
@@ -200,10 +200,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
 
             if (SGEKdebug) then
+                write(u6,"(A,I3,A)") "kappa_",nIter,"="
                 call RecPrt('-g/hdiag (NR step) as matrix',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
                 call RecPrt('-g/hdiag (NR step) as vector',' ',displacements(:,nIter+1),fsdim,1)
             end if
 
+            displacements(:,nIter+1) = displacements(:,nIter+1) + displacements(:,nIter)
+
+            if (SGEKdebug) then
+                write(u6,"(A,I3,A)") "kappa'_",nIter,"="
+                call RecPrt('-g/hdiag (NR step) as vector ABSOLUTE',' ',displacements(:,nIter+1),fsdim,1)
+            end if
             !if (nIter == 250) then
             !    call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
             !end if
@@ -218,14 +225,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 if (OptMeth == 4) then ! GEK
                     ! perform GEK/RVO opt in the full space
-                    call GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                          dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth)
+                    call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+                                            dqdq,displacements(:,nIter+1),UpMeth,'fullspace')
+                    !call GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+                    !                      dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth)
 
                 else if (OptMeth == 5) then ! S-GEK
                     write(u6,*) "building the subspace"
                     ! create subspace and perform GEK/RVO opt in it
                     call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth,'subspace ')
+                                        dqdq,displacements(:,nIter+1),UpMeth,'subspace ')
                 end if
 
                 ! transform GEK suggested displacement back into an antisymmetric matrix

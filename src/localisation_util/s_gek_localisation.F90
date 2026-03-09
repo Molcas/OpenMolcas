@@ -13,17 +13,22 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
-subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,SGEKdebug,UpMeth,framework)
+!#define _DEBUGPRINT_
+
+
+subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
-use Definitions, only: iwp,wp,u6
+use Definitions, only: iwp,wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 use Localisation_globals, only: nMxIter
 
 implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim
-logical, intent(in) :: SGEKdebug
 real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
 real(kind=wp),intent(inout) :: FunctionalList(nMxIter)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
@@ -37,13 +42,15 @@ character(len=9),intent(in) :: framework
 logical :: SORange
 character :: Step_Trunc
 
-SORange=.false.
+SORange=.true.
 
 Functionallist(:) =-Functionallist(:)
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
-if (SGEKdebug) write(u6,*) 'Enter S-GEK Optimizer'
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Enter S-GEK Optimizer'
+#endif
 
 ! Pick up coordinates and gradients in full space
 ! -----------------------------------------------
@@ -72,7 +79,7 @@ do i=iFirst,nIter
 
 end do
 
-if (SGEKdebug) then
+#ifdef _DEBUGPRINT_
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
     write(u6,*) '  nIter =',nIter
@@ -80,7 +87,7 @@ if (SGEKdebug) then
     call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
     call RecPrt("dq(:) before projecting in",' ',dq,fsdim, 1)
-end if
+#endif
 
 ! select subspace basis vectors; construct normalized e_diis
 ! -----------------------------------------------------------
@@ -99,7 +106,6 @@ else if (framework == 'subspace') then
 !number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
 nExplicit = 2*(nDIIS-1)+2
 
-write(u6,*) 'nExplicit:',nExplicit
 call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
 call mma_allocate(Aux_a,fsdim,Label='Aux_a')
 call mma_allocate(Aux_b,fsdim,Label='Aux_b')
@@ -151,9 +157,9 @@ e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
 call mma_deallocate(Aux_a)
 
 
-if (SGEKdebug) then
+#ifdef _DEBUGPRINT_
     if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
-end if
+#endif
 
 end if !framework: fullspace/subspace
 
@@ -181,7 +187,7 @@ end do
 ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
 mDIIS = j
 
-!if (SGEKdebug) then
+#ifdef _DEBUGPRINT_
 write(u6,*) '    fsdim:',fsdim
 write(u6,*) 'nExplicit:',nExplicit
 write(u6,*) '    nIter:',nIter
@@ -196,7 +202,7 @@ write(u6,*) '    mDIIS:',mDIIS
 !    write(u6,*)
 !end do
 if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,fsdim,nExplicit)
-!end if
+#endif
 
 
 
@@ -244,11 +250,11 @@ end do
 call mma_allocate(dq_diis,mDiis,Label='dq_diis')
 dq_diis(:) = Zero
 
-if (SGEKdebug) then
+#ifdef _DEBUGPRINT_
     call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
     call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
     call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
-end if
+#endif
 
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
@@ -257,7 +263,9 @@ Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis,g_diis,dq_diis,Functionallist
 
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
-if (SGEKdebug) call RecPrt('dq(:) before projecting out',' ',dq_diis(:),size(dq_diis),1)
+#ifdef _DEBUGPRINT_
+call RecPrt('dq(:) before projecting out',' ',dq_diis(:),size(dq_diis),1)
+#endif
 
 dq(:) = Zero
 do i=1,mDIIS
@@ -265,11 +273,12 @@ do i=1,mDIIS
 end do
 dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
-if (SGEKdebug) then
+#ifdef _DEBUGPRINT_
     write(u6,*) '||dq||=',dqdq
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
-end if
+#endif
 
+Functionallist(:) =-Functionallist(:)
 
 ! deallocations
 ! -------------
@@ -284,10 +293,11 @@ call mma_Deallocate(dq_diis)
 
 ! print timing & finalize GEK
 ! ---------------------------
-if (SGEKdebug) write(u6,*) 'Exit S-GEK Optimizer'
 call Timing(Cpu2,Tim1,Tim2,Tim3)
 
-if (SGEKdebug) write(u6,*) 'CPU Time for GEK iteration',Cpu2-Cpu1
+#ifdef _DEBUGPRINT_
+write(u6,*) 'CPU Time for GEK iteration',Cpu2-Cpu1
+write(u6,*) 'Exit S-GEK Optimizer'
+#endif
 
-Functionallist(:) =-Functionallist(:)
 end subroutine S_GEK_localisation

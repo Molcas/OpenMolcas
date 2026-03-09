@@ -12,7 +12,7 @@
 !               2025, Lila Zapp                                        *
 !***********************************************************************
 
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 
 subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SORange)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -25,6 +25,7 @@ subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_dii
 !                   get fullspace representation by doing: dq(:) = dq(:)+dq_diis(i)*e_diis(:,i) for i=1,mdiis
 ! Energy            y vector
 ! H_diis            projected Hessian diagonal
+! H_surr            surrogate Hessian
 ! dqdq              some output, (real) that has to do with the full space displacement
 ! Step_Tru     1         4.03686608   2.6222E-01  nc        some output (character)
 ! UpMeth            some output (string), e.g. "RVO"
@@ -44,8 +45,9 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: mDiis, nDiis, Max_Iter
-real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter), g_diis(mDiis,nDiis+Max_Iter), Energy(nDiis+Max_Iter),&
-                                H_diis(mDiis,mDiis)
+real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter), g_diis(mDiis,nDiis+Max_Iter), Energy(nDiis+Max_Iter)
+real(kind=wp),intent(inout) :: H_diis(mDiis,mDiis)
+real(kind=wp) :: H_surr(mDiis,mDiis)
 real(kind=wp), intent(out) :: dq_diis(mDiis), dqdq
 character, intent(out) :: Step_Trunc
 character(len=6), intent(out) :: UpMeth
@@ -134,10 +136,10 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   cnt = 0
   do ! Restricted variance step
     cnt = cnt +1
-    write(u6,*) 'inside RVO step loop, iter = ',cnt
+    !write(u6,*) 'inside RVO step loop, iter = ',cnt
 
     ! Compute the surrogate Hessian
-    call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
+    call Hessian_Kriging_Layer(q_diis(:,Iteration),H_surr,mDiis)
     !call Hessian_Kriging(q_diis(:,Iteration),H_diis,mDiis)
 
     call mma_allocate(Val,nTri_Elem(mDIIS),Label='Val')
@@ -146,7 +148,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     call unitmat(Vec,mDIIS)
     do i=1,mDIIS
       do j=1,i
-        Val(iTri(i,j)) = H_diis(i,j)
+        Val(iTri(i,j)) = H_surr(i,j)
       end do
     end do
 
@@ -157,7 +159,6 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     do i=1,mDIIS
       ii = nTri_Elem(i)
 
-      write(u6,*) 'RVO Eigenvalue:',Val(ii)
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Eigenvalue:',Val(ii)
 #     endif
@@ -166,7 +167,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
         Terminate = .true.
         do j=1,mDIIS
           do k=1,mDIIS
-            H_Diis(j,k) = H_Diis(j,k)+Two*abs(Val(ii))*Vec(j,i)*Vec(k,i)
+            H_surr(j,k) = H_surr(j,k)+Two*abs(Val(ii))*Vec(j,i)*Vec(k,i)
           end do
         end do
       end if
@@ -177,13 +178,13 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 
 #   ifdef _DEBUGPRINT_
     call RecPrt('q_diis(:,Iteration)',' ',q_diis(:,Iteration),mDIIS,1)
-    call RecPrt('H_diis(updated)',' ',H_diis,mDIIS,mDIIS)
+    call RecPrt('H_surr(updated)',' ',H_surr,mDIIS,mDIIS)
     write(u6,*) 'Step_Trunc:',Step_Trunc
 #   endif
 
     Step_Trunc_ = Step_Trunc
     dqHdq = Zero
-    call RS_RFO(H_diis,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth_,dqHdq,StepMax,Step_Trunc_,Thr_RS)
+    call RS_RFO(H_surr,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth_,dqHdq,StepMax,Step_Trunc_,Thr_RS)
     dq_diis(:) = -dq_diis(:)
     q_diis(:,Iteration+1) = q_diis(:,Iteration)+dq_diis(:)
     dqdq = sqrt(DDot_(size(dq_diis),dq_diis(:),1,dq_diis(:),1))
@@ -215,17 +216,17 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 #   endif
 
     if (Fact < 1.0e-5_wp) then
-        write(u6,'(A,/A)') 'Fact < 1.0e-5_wp     Exitting sub-iterations'
+        !write(u6,'(A,I2)') 'Fact < 1.0e-5_wp     Exitting sub-iterations after ',cnt
         exit
     end if
 
     if (Variance(1) < Beta_Disp) then
-        write(u6,'(A,/A)') 'Var < Beta_Disp;     Exitting sub-iterations'
+        !write(u6,'(A,I2)') 'Var < Beta_Disp;     Exitting sub-iterations after', cnt
         exit
     end if
 
     if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) then
-        write(u6,'(A,/A)') 'One-Variance(1)/Beta_Disp > 1.0e-3_wp      Exitting sub-iterations'
+        !write(u6,'(A,I2)') 'One-Variance(1)/Beta_Disp > 1.0e-3_wp      Exitting sub-iterations after',cnt
         exit
     end if
 
