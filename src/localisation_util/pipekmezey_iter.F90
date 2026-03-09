@@ -43,7 +43,8 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 
 !S-GEK
 real(kind=wp) :: dqdq
-logical, parameter :: SGEKdebug = .false.
+logical(kind=iwp) :: SORange
+logical(kind=iwp), parameter :: SGEKdebug = .false.
 character(len=6):: UpMeth
 
 ! Initialization (iteration 0).
@@ -223,10 +224,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             else
 
+                SORange = .true.
+
                 if (OptMeth == 4) then ! GEK
+
                     ! perform GEK/RVO opt in the full space
                     call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                            dqdq,displacements(:,nIter+1),UpMeth,'fullspace')
+                                            dqdq,displacements(:,nIter+1),UpMeth,'fullspace',SORange)
                     !call GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                     !                      dqdq,displacements(:,nIter+1),SGEKdebug,UpMeth)
 
@@ -234,7 +238,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                     write(u6,*) "building the subspace"
                     ! create subspace and perform GEK/RVO opt in it
                     call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,displacements(:,nIter+1),UpMeth,'subspace ')
+                                        dqdq,displacements(:,nIter+1),UpMeth,'subspace ',SORange)
                 end if
 
                 ! transform GEK suggested displacement back into an antisymmetric matrix

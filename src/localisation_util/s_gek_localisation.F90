@@ -16,7 +16,7 @@
 !#define _DEBUGPRINT_
 
 
-subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework)
+subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework,SORange)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -33,16 +33,15 @@ real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxI
 real(kind=wp),intent(inout) :: FunctionalList(nMxIter)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
-real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr
+real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 character(len=9),intent(in) :: framework
-logical :: SORange
+logical, intent(in) :: SORange
 character :: Step_Trunc
 
-SORange=.false.
 
 Functionallist(:) =-Functionallist(:)
 
@@ -51,9 +50,6 @@ call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter S-GEK Optimizer'
 #endif
-
-! Pick up coordinates and gradients in full space
-! -----------------------------------------------
 
 ! number of iterations used to build the subspace
 nDIIS = min(nIter,nWindow) !1 for first iteration; 2
@@ -258,8 +254,17 @@ dq_diis(:) = Zero
 
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
+
+
+if (SORange) then
+  SOFact = One
+else
+  SOFact = 10000.0_wp
+end if
+
+
 Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis,g_diis,dq_diis,Functionallist(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,&
-                    SORange,10000.0_wp)
+                    SOFact,10000.0_wp)
 
 
 ! project the resulting displacement dq_diis back into the fullspace

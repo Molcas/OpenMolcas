@@ -14,7 +14,7 @@
 
 !#define _DEBUGPRINT_
 
-subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SORange,bias)
+subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! mDiis             subspace dimensionality (<=2*ndiis); number of linear independent e_diis column vectors
 ! nDiis             number of iterations used to span the subspace; nDIIS = min(IterGEK,nWindow)
@@ -44,7 +44,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-real(kind=wp), intent(in) :: bias
+real(kind=wp), intent(in) :: bias, SOFact
 integer(kind=iwp), intent(in) :: mDiis, nDiis, Max_Iter
 real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter), g_diis(mDiis,nDiis+Max_Iter), Energy(nDiis+Max_Iter)
 real(kind=wp),intent(inout) :: H_diis(mDiis,mDiis)
@@ -52,9 +52,8 @@ real(kind=wp) :: H_surr(mDiis,mDiis)
 real(kind=wp), intent(out) :: dq_diis(mDiis), dqdq
 character, intent(out) :: Step_Trunc
 character(len=6), intent(out) :: UpMeth
-logical(kind=iwp), intent(in) :: SORange
 integer(kind=iwp) :: i, ii, Iteration, Iteration_Micro, Iteration_Total, j, k,cnt
-real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, SOFact, StepMax, Variance(1)
+real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1)
 logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
@@ -79,13 +78,6 @@ Terminate = .false.
 Step_Trunc = 'N'
 Converged = .false.
 
-
-
-if (SORange) then
-  SOFact = One
-else
-  SOFact = 10000.0_wp
-end if
 
 Beta_Disp = Beta_Disp_Seed*SOFact
 Iteration = nDiis-1

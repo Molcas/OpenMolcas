@@ -40,7 +40,7 @@ character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
 logical(kind=iwp), intent(in) :: SOrange
 integer(kind=iwp) :: i, iFirst, ipg, ipq, j, k, l, mDIIS, nDIIS, nExplicit
-real(kind=wp) :: Cpu1, Cpu2, gg, Tim1, Tim2, Tim3
+real(kind=wp) :: Cpu1, Cpu2, gg, Tim1, Tim2, Tim3, SOFact
 real(kind=wp), allocatable :: D(:,:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), q(:,:), q_diis(:,:), w(:,:)
 integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 20
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
@@ -285,8 +285,15 @@ dq_diis(:) = Zero
 ! Perform the optimization !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+
+if (SORange) then
+  SOFact = One
+else
+  SOFact = 10000.0_wp
+end if
+
 !=======================================================================
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SORange,Ten)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SOFact,Ten)
 !=======================================================================
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
