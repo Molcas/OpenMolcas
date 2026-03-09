@@ -558,16 +558,17 @@ C-SVC20100902: global arrays header files
 #include "mafdecls.fh"
 #ifndef _SCALAPACK_
       real(kind=wp) WGRONK(2)
+      real(kind=wp), allocatable:: VEC(:), SCRATCH(:)
+      integer(kind=iwp) Info, NSCRATCH
 #endif
       LOGICAL(kind=iwp) bSTAT
       CHARACTER(LEN=2) cSYM,cCASE
       real(kind=wp), allocatable:: COL(:), TMP(:), SD(:), SCA(:),
-     &                             EIG(:), VEC(:), SCRATCH(:), COND(:),
-     &                             TRANS(:), BD(:)
+     &                             EIG(:), COND(:), TRANS(:), BD(:)
       integer(kind=iwp) NAS, NIS, NCOEF, lg_S, NCOL, NTMP, IOFF, J, IDS,
      &                  MyRank, iLo, iHi, jLo, jHi, ISTA, IEND, MS, LDS,
      &                  I, lg_V, NIN, mV, LDV, lg_T, IDT, lg_B, mB, lDB,
-     &                  IDB, IDB2, lg_X, lg_ST, Info, NSCRATCH
+     &                  IDB, IDB2, lg_X, lg_ST
       real(kind=wp) FP, SDiag, SZMIN, SZMAX, SZ, dTrans
       real(kind=wp) CPU1, CPUE, TIO, TIOE, CPU2
       real(kind=wp), External:: PSBMAT_FPRINT, DNRM2_

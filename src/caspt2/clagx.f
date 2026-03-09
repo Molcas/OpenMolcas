@@ -5389,12 +5389,14 @@
 
 #if ! defined (_SCALAPACK_)
       real(kind=wp) :: WGRONK(2)
+      integer(kind=iwp) :: NSCRATCH, info
+      real(kind=wp), allocatable :: VEC(:),SCRATCH(:)
 #endif
       logical(kind=iwp) :: bStat
-      integer(kind=iwp) :: lg_S, myRank, lg_Vec, NSCRATCH, iLo, iHi,
-     &  jLo, jHi, mV, LDV, I, lg_Lag, lg_B, IDB, mB, LDB, J, info
+      integer(kind=iwp) :: lg_S, myRank, lg_Vec, iLo, iHi,
+     &  jLo, jHi, mV, LDV, I, lg_Lag, lg_B, IDB, mB, LDB, J
       real(kind=wp) :: EVAL, FACT
-      real(kind=wp), allocatable :: EIG(:),VEC(:),SCRATCH(:)
+      real(kind=wp), allocatable :: EIG(:)
 !
 !     Parallel LinDepLag
 !     We always use the canonical orthonormalization.
