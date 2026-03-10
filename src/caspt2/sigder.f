@@ -27,7 +27,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV, only: IFCOUP
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
-      USE Para_Info, ONLY: Is_Real_Par, King
+      USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,
      &                   GA_Arrays

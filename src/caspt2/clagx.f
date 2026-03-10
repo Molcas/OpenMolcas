@@ -10,6 +10,9 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
+
+#include "macros.fh"
+
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
       use PrintLevel, only: VERBOSE
@@ -89,13 +92,13 @@
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(u6,'(a,2f10.2)')' CLagD   : CPU/WALL TIME=', cput,wallt
-#ifdef _MOLCAS_MPP_
+!#ifdef _MOLCAS_MPP_
 !       if (is_real_par()) CALL GADGOP_SCAL (deasum,'+')
-#endif
+!#endif
 !       write(u6,*) 'Deasum = ', deasum
-#ifdef _MOLCAS_MPP_
+!#ifdef _MOLCAS_MPP_
 !       if (is_real_par()) DEASUM = DEASUM/GA_NNODES()
-#endif
+!#endif
       END IF
 
       !! Some symmetrizations are likely required
@@ -1138,7 +1141,7 @@
       real(kind=wp),allocatable :: EIG(:),WRK(:,:)
 
       logical(kind=iwp) :: bStat
-      integer(kind=iwp) :: myrank, nprocs, lg_T, lg_WRK, lg_WRK2,
+      integer(kind=iwp) :: myrank, lg_T, lg_WRK, lg_WRK2,
      &                     lg_BDER, iLoV1, iHiV1, jLoV1, jHiV1, NROW,
      &                     NCOL, idB, mV1, LDV1, i, j, iICB, jICB,
      &                     lg_SDER, idSD, mBDER, mSDER
@@ -1151,7 +1154,6 @@
       SCAL = One
       IF (IFMSCOUP) SCAL = VECROT(jState)
       MYRANK=GA_NODEID()
-      NPROCS=GA_NNODES()
 
       !! First, distribute the transformation matrix
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TRANS',lg_T)
@@ -1530,6 +1532,8 @@
 
       bStat = GA_destroy(lg_BDER)
       bStat = GA_destroy(lg_SDER)
+
+      unused_var(bStat)
 
       End Subroutine CLagDX_MPP
 #endif
@@ -2611,7 +2615,7 @@
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
-      USE Para_Info, ONLY: Is_Real_Par, nProcs
+      USE Para_Info, ONLY: nProcs
       use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
       use pt2_guga, only: NG3
       use Constants, only: Zero
@@ -2941,8 +2945,6 @@
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
-#else
-#include "macros.fh"
 #endif
 
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
@@ -3413,7 +3415,7 @@
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
-      USE Para_Info, ONLY: Is_Real_Par, nProcs
+      USE Para_Info, ONLY: nProcs
       use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
       use pt2_guga, only: NG3
       use Constants, only: Zero
@@ -3752,8 +3754,6 @@
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
-#else
-#include "macros.fh"
 #endif
 
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
@@ -4054,9 +4054,6 @@
      &                         NISH, NASH, NASHT, NORB, NBAS,
      &                         NBAST, ISCF, NSTATE, NBTCH, NBTCHES
 !     use caspt2_module, only: NSSH
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
 
       implicit none
 
@@ -5376,9 +5373,6 @@
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: THRSHS
       use Constants, only: Zero, One, Two
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
 
       implicit none
 
@@ -5525,6 +5519,8 @@
       CALL PSBMAT_FREEMEM(lg_Vec)
       bSTAT = GA_Destroy (lg_Lag)
       CALL PSBMAT_FREEMEM (lg_B)
+
+      unused_var(bStat)
 
       Return
 

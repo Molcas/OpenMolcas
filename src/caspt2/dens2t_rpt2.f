@@ -18,9 +18,6 @@
 *--------------------------------------------*
       SUBROUTINE DENS2T_RPT2 (CI1,CI2,SGM1,SGM2,G1,G2,nLev)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG

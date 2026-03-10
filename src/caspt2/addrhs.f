@@ -17,9 +17,6 @@
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NINDEP, NTUV, NISH, NAES, NTUVES
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -157,9 +154,6 @@ C Put W on disk:
       use caspt2_module, only: NINDEP, NAES, NTGEU, NIGEJ, NTGTU,
      &                         NIGTJ, NTGEUES, NIES, NIGEJES, NTGTUES,
      &                         NIGTJES
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -457,9 +451,6 @@ C Put WBM on disk:
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NINDEP, NTUV, NSSH, NAES, NTUVES
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -595,9 +586,6 @@ C Put W on disk:
       USE SUPERINDEX, only: KTU
       use caspt2_module, only: NINDEP, NTU, NSSH, NISUP, NINABX,
      &                         NSECBX, NSYM, NISH, NAES, NTUES
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -784,9 +772,6 @@ C Put W on disk:
       USE SUPERINDEX, only: KTU
       use caspt2_module, only: NINDEP, NTU, NSSH, NISUP,
      &                         NSYM, NISH, NAES, NTUES
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -936,9 +921,6 @@ C Put W on disk:
       use caspt2_module, only: NIGEJ, NIGTJ, NSSH, NASH,
      &                         NISUP, NINABX, NSECBX, NSYM, NIES,
      &                         NIGEJES, NIGTJES
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1559,9 +1541,6 @@ C Put WFM on disk:
       USE SUPERINDEX, only: KAGEB, KAGTB
       use caspt2_module, only: NAGEB, NAGTB, NSYM, NISH, NASH,
      &                         NISUP, NSECBX, NSES, NAGEBES, NAGTBES
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -1926,9 +1905,6 @@ C      NBXSZJ=NINABX
       use caspt2_module, only: NIGEJ, NAGEB, NIGTJ, NAGTB, NINABX,
      &                         NSECBX, NIES, NSES, NIGEJES, NAGEBES,
      &                         NIGTJES, NAGTBES
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"

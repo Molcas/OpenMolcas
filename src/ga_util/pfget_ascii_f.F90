@@ -81,7 +81,7 @@ do while (Pos < FLen)
       call AbEnd()
     end if
   end if
-  call GA_Brdcst(MT_BYTE,Buf(1:Num),Num,mpp_rootid)
+  call GA_Brdcst(MT_BYTE,Buf,Num,mpp_rootid)
   ! The slaves write the file
   if (.not. King()) then
     write(LU,IOStat=Err) Buf(1:Num)

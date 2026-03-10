@@ -804,9 +804,6 @@
 *--------------------------------------------*
       SUBROUTINE DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
       use gugx, only: SGS, LEVEL
       use caspt2_module, only: NACTEL, NASHT, ISCF
       use pt2_guga, only: ETA, NG3

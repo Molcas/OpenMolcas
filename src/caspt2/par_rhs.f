@@ -181,6 +181,8 @@ CSVC: Destroy the global array
         Call Deallocate_GA_Array(lg_W)
 #ifdef _MOLCAS_MPP_
       END IF
+#include "macros.fh"
+      unused_var(bStat)
 #endif
 
       END SUBROUTINE RHS_FREE
@@ -981,6 +983,8 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
         CALL mma_deallocate(T)
 #ifdef _MOLCAS_MPP_
       END IF
+#include "macros.fh"
+      unused_var(bStat)
 #endif
 
       END SUBROUTINE RHS_SR2C
@@ -1072,6 +1076,8 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
         CALL mma_deallocate(S)
 #ifdef _MOLCAS_MPP_
       END IF
+#include "macros.fh"
+      unused_var(bStat)
 #endif
 
       END SUBROUTINE RHS_STRANS

@@ -2135,6 +2135,8 @@
         CALL GADGOP (V2,MaxVec_PT2,'+')
         call mma_deallocate(MAP2)
       end if
+#include "macros.fh"
+      unused_var(bStat)
 #endif
 
       !! Coulomb for A_PT2

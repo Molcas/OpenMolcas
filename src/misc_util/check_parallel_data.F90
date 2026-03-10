@@ -65,7 +65,7 @@ else
   write(u6,*) 'check_parallel_data(), illegal value:'
   write(u6,*) 'act=',act
   write(u6,*) 'correct function call!!'
-  call abort()
+  call abend()
 end if
 
 call mma_deallocate(x_prll)

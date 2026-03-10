@@ -26,12 +26,15 @@ subroutine GATerminate()
 
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_nprocs
+#ifdef _GA_
+use Definitions, only: MPIInt
+#endif
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: FirstCall = .true.
 #ifdef _GA_
-integer(kind=iwp) :: iErr
+integer(kind=MPIInt) :: iErr
 #endif
 
 if (FirstCall) then

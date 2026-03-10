@@ -1000,6 +1000,9 @@ C replicate array.  FIXME: Should be removed later.
       call ga_sync()
       bStat = GA_Destroy (lg_T)
 
+#include "macros.fh"
+      unused_var(bStat)
+
       END SUBROUTINE SBDIAG_MPP
 
       SUBROUTINE S_SCALE (NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)

@@ -24,12 +24,18 @@ subroutine GAInit()
 use Para_Info, only: MyRank, nProcs
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: mpp_nprocs, mpp_procid, mpp_workshare
+#ifdef _GA_
+use Definitions, only: MPIInt
+#endif
 use Definitions, only: iwp
 #endif
 
 implicit none
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: molcas_nprocs, iRC
+#ifdef _GA_
+integer(kind=MPIInt) :: iRC2
+#endif
 character(len=8) :: molcas_nprocs_env
 #include "global.fh"
 
@@ -46,7 +52,7 @@ else
 end if
 if (molcas_nprocs /= 1) then
 # ifdef _GA_
-  call mpi_init(iRC)
+  call mpi_init(iRC2)
   call ga_initialize()
   call ga_replace_ma()
 # else

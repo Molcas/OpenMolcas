@@ -35,7 +35,7 @@
 #ifdef _MOLCAS_MPP_
       INTEGER(KIND=IWP), ALLOCATABLE, TARGET:: IDX_H(:,:)
       REAL(KIND=WP), ALLOCATABLE, TARGET:: VAL_H(:,:)
-      INTEGER(KIND=IWP) myRank,mRHS,LD,mVEC,NA
+      INTEGER(KIND=IWP) myRank,mRHS,LD,mVEC
 #endif
       INTEGER(KIND=IWP), POINTER:: IDX(:,:)=>Null()
       REAL(KIND=WP), POINTER:: VAL(:,:)=>Null()
@@ -128,7 +128,6 @@ C positioning.
                 WRITE(u6,*) 'RHSOD: assumption NAS=LDW wrong, abort'
                 CALL AbEnd()
               END IF
-              NA=NAS*(IIEND-IISTA+1)
             END IF
           ELSE
 #endif
