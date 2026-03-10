@@ -45,7 +45,8 @@ contains
 
 subroutine init_tsk(id,n)
 
-  integer(kind=iwp) :: id, n
+  integer(kind=iwp), intent(out) :: id
+  integer(kind=iwp), intent(in) :: n
 # ifdef _MOLCAS_MPP_
 # include "global.fh"
 # include "mafdecls.fh"
@@ -77,7 +78,7 @@ end subroutine init_tsk
 
 subroutine free_tsk(id)
 
-  integer(kind=iwp) :: id
+  integer(kind=iwp), intent(in) :: id
 # ifdef _MOLCAS_MPP_
 # include "global.fh"
 # endif
@@ -99,7 +100,8 @@ end subroutine free_tsk
 function rsv_tsk(id,task)
 
   logical(kind=iwp) :: rsv_tsk
-  integer(kind=iwp) :: id, task
+  integer(kind=iwp), intent(in) :: id
+  integer(kind=iwp), intent(out) :: task
 # ifdef _MOLCAS_MPP_
 # include "global.fh"
 # endif
@@ -134,7 +136,8 @@ subroutine init_tsk_even(id,n)
   use Para_Info, only: MyRank
 # endif
 
-  integer(kind=iwp) :: id, n
+  integer(kind=iwp), intent(out) :: id
+  integer(kind=iwp), intent(in) :: n
 
   if (list_counter == mxtsklst) call sysabendmsg('init_tsk_even','no free task lists available',' ')
   list_counter = list_counter+1
@@ -155,7 +158,7 @@ end subroutine init_tsk_even
 
 subroutine free_tsk_even(id)
 
-  integer(kind=iwp) :: id
+  integer(kind=iwp), intent(in) :: id
 
   if (list_counter == 0) call sysabendmsg('free_tsk_even','attempting to free a non-existent task list.',' ')
   if (id /= list_counter) call sysabendmsg('free_tsk_even','only stack-based task lists are supported.',' ')
@@ -170,7 +173,8 @@ function rsv_tsk_even(id,task)
 # endif
 
   logical(kind=iwp) :: rsv_tsk_even
-  integer(kind=iwp) :: id, task
+  integer(kind=iwp), intent(in) :: id
+  integer(kind=iwp), intent(out) :: task
 
 # ifdef _MOLCAS_MPP_
   if (is_real_par()) then

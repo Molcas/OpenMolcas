@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iParDiv
-integer(kind=iwp) :: nMax, nMin
+integer(kind=iwp), intent(in) :: nMax, nMin
 
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then

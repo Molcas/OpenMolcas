@@ -14,7 +14,7 @@ subroutine GATskL_Zero(igaTsk)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: igaTsk
+integer(kind=iwp), intent(in) :: igaTsk
 
 #ifdef _MOLCAS_MPP_
 call ga_zero(igaTsk)

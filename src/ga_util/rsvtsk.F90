@@ -27,7 +27,8 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: RsvTsk
-integer(kind=iwp) :: igaTsk, nTsk, iTskLs(nTsk,2), mTsk, iStart, iS, iE
+integer(kind=iwp), intent(in) :: igaTsk, nTsk, mTsk
+integer(kind=iwp), intent(inout) :: iTskLs(nTsk,2), iStart, iS, iE
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iCnt, iTsk
 logical(kind=iwp) :: Reserved

@@ -41,13 +41,15 @@ public :: ga_pdsyevx_
 
 contains
 
+#include "intent.fh"
+
 subroutine ga_pdsyevx_(g_a,g_b,eval,nb8)
 
   use stdalloc, only: mma_allocate, mma_deallocate
   use Constants, only: Zero
 
-  integer(kind=iwp) :: g_a, g_b, nb8
-  real(kind=wp) :: eval(*)
+  integer(kind=iwp), intent(in) :: g_a, g_b, nb8
+  real(kind=wp), intent(_OUT_) :: eval(*)
   integer(kind=iwp) :: dimA18, dimA28, dimB18, dimB28, elemA, elemB, iclu, info8, lcwork, liwork, me, ngaps, two4n, typeA, typeB
   integer(kind=BLASInt) :: descA(9), descB(9), dimA1, dimA2, dimB1, dimB2, iceil, il, info, iu, lcwork4, lda, ldb, liwork4, m, &
                            mpA, mpB, mq0, n, nb, nn, np0, nqA, nqB, numroc, nz
@@ -306,9 +308,9 @@ subroutine ga_to_SL2_(g_a,dim_1,dim_2,nbr,nbc,s_a,lda4)
 ! s_a          - local array holding SL formatted data
 ! lda4         - leading dimension of s_a
 
-  integer(kind=iwp) :: g_a
-  integer(kind=BLASInt) :: dim_1, dim_2, nbr, nbc, lda4
-  real(kind=wp) :: s_a(lda4,*)
+  integer(kind=iwp), intent(in) :: g_a
+  integer(kind=BLASInt), intent(in) :: dim_1, dim_2, nbr, nbc, lda4
+  real(kind=wp), intent(_OUT_) :: s_a(lda4,*)
   integer(kind=iwp) :: cbase, col, coll, lda, marg1, marg2, r0i, r0im1, r1i, r1im1, rbase, row, rowl, tcol, trow
   integer(kind=BLASInt) :: pcol, prow
   logical(kind=iwp) :: putpending
@@ -373,9 +375,9 @@ subroutine ga_from_SL2_(g_a,dim_1,dim_2,nbr,nbc,s_a,lda4)
 !*** transforms a matrix from SL to GA format
 !*** reference: Dongarra et al, 'A look at scalable dense lin. alg. libs'
 
-  integer(kind=iwp) :: g_a
-  integer(kind=BLASInt) :: dim_1, dim_2, nbr, nbc, lda4
-  real(kind=wp) :: s_a(lda4,*)
+  integer(kind=iwp), intent(in) :: g_a
+  integer(kind=BLASInt), intent(in) :: dim_1, dim_2, nbr, nbc, lda4
+  real(kind=wp), intent(in) :: s_a(lda4,*)
   integer(kind=iwp) :: cbase, col, coll, lda, marg1, marg2, r0i, r0im1, r1i, r1im1, rbase, row, rowl, tcol, trow
   integer(kind=BLASInt) :: pcol, prow
   logical(kind=iwp) :: putpending

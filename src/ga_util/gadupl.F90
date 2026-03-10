@@ -24,8 +24,9 @@ use Definitions, only: u6
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iGA1, iGA2
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp), intent(in) :: iGA1
+integer(kind=iwp), intent(out) :: iGA2
 logical(kind=iwp) :: ok
 character(len=6) :: gaLbl2
 character(len=5) :: gaLbl
@@ -45,6 +46,7 @@ end if
 
 call ga_copy(iGA1,iGA2)
 #else
+integer(kind=iwp), intent(in) :: iGA1, iGA2
 #include "macros.fh"
 unused_var(iGA1)
 unused_var(iGA2)

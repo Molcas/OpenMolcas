@@ -95,7 +95,7 @@ end do
 close(LU)
 #else
 #include "macros.fh"
-unused_var(FName)
+unused_var(_str(FName))
 #endif
 
 end subroutine PFGet_ASCII

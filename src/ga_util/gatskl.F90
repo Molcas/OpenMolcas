@@ -25,9 +25,10 @@ use Definitions, only: u6
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: create
-integer(kind=iwp) :: nTsk, igaTsk
+logical(kind=iwp), intent(in) :: create
 #ifdef _MOLCAS_MPP_
+integer(kind=iwp), intent(in) :: nTsk
+integer(kind=iwp), intent(out) :: igaTsk
 integer(kind=iwp) :: Chk, nProcs
 logical(kind=iwp) :: ok
 #include "global.fh"
@@ -48,6 +49,7 @@ else
   ok = ga_destroy(igaTsk)
 end if
 #else
+integer(kind=iwp), intent(in) :: nTsk, igaTsk
 #include "macros.fh"
 unused_var(create)
 unused_var(nTsk)

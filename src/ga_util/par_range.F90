@@ -19,7 +19,8 @@ use Para_Info, only: MyRank, nProcs
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n, i, j
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(out) :: i, j
 integer(kind=iwp) :: nqot, nrem
 
 nqot = n/nprocs

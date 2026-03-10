@@ -24,9 +24,9 @@ use Para_Info, only: Is_Real_Par
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: x(n)
-character(len=*) :: op
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: x(n)
+character(len=*), intent(in) :: op
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
 
@@ -34,7 +34,7 @@ if (Is_Real_Par()) call ga_dgop(MT_DBL,x,n,op)
 #else
 #include "macros.fh"
 unused_var(x)
-unused_var(op)
+unused_var(_str(op))
 #endif
 
 end subroutine GADGOP

@@ -23,7 +23,6 @@ set (sources
      gatskl_zero.F90
      gasync.F90
      gaterminate.F90
-     gr_darray.F90
      nap_time.c
      par_range.F90
      pardiv.F90

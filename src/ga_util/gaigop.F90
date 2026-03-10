@@ -24,8 +24,9 @@ use Para_Info, only: Is_Real_Par
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n, k(n)
-character(len=*) :: op
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(inout) :: k(n)
+character(len=*), intent(in) :: op
 #ifdef _MOLCAS_MPP_
 #include "mafdecls.fh"
 
@@ -33,7 +34,7 @@ if (Is_Real_Par()) call ga_igop(MT_INT,k,n,op)
 #else
 #include "macros.fh"
 unused_var(k)
-unused_var(op)
+unused_var(_str(op))
 #endif
 
 end subroutine GAIGOP

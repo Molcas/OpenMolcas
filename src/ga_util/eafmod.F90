@@ -47,6 +47,8 @@ use Definitions, only: iwp, wp
 implicit none
 private
 
+#include "intent.fh"
+
 #ifdef _MOLCAS_MPP_
 #ifdef _HAVE_EXTRA_
 integer(kind=iwp), external :: molcas_eaf_aread, molcas_eaf_awrite, molcas_eaf_close, molcas_eaf_open, molcas_eaf_read, &
@@ -67,8 +69,8 @@ subroutine EAFOpen(Lu,FName)
   use Para_Info, only: MyRank
 # endif
 
-  integer(kind=iwp) :: Lu
-  character(len=*) :: FName
+  integer(kind=iwp), intent(out) :: Lu
+  character(len=*), intent(in) :: FName
   integer(kind=iwp), external :: IsFreeUnit
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: iRC
@@ -107,7 +109,7 @@ end subroutine EAFOpen
 
 subroutine EAFClose(Lu)
 
-  integer(kind=iwp) :: Lu
+  integer(kind=iwp), intent(in) :: Lu
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: iRC
 # endif
@@ -135,8 +137,10 @@ end subroutine EAFClose
 
 subroutine EAFAWrite(Lu,Buf,nBuf,Disk,id)
 
-  integer(kind=iwp) :: Lu, nBuf, Buf(nBuf), id
-  real(kind=wp) :: Disk
+  integer(kind=iwp), intent(in) :: Lu, nBuf
+  integer(kind=iwp), intent(_IN_) :: Buf(nBuf)
+  real(kind=wp), intent(inout) :: Disk
+  integer(kind=iwp), intent(out) :: id
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: iRC
 # endif
@@ -166,8 +170,9 @@ end subroutine EAFAWrite
 
 subroutine EAFARead(Lu,Buf,nBuf,Disk,id)
 
-  integer(kind=iwp) :: Lu, nBuf, Buf(nBuf), id
-  real(kind=wp) :: Disk
+  integer(kind=iwp), intent(in) :: Lu, nBuf
+  integer(kind=iwp), intent(out) :: Buf(nBuf), id
+  real(kind=wp), intent(inout) :: Disk
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: iRC
 # endif
@@ -197,8 +202,9 @@ end subroutine EAFARead
 
 subroutine EAFWrite(Lu,Buf,nBuf,Disk)
 
-  integer(kind=iwp) :: Lu, nBuf, Buf(nBuf)
-  real(kind=wp) :: Disk
+  integer(kind=iwp), intent(in) :: Lu, nBuf
+  integer(kind=iwp), intent(_IN_) :: Buf(nBuf)
+  real(kind=wp), intent(inout) :: Disk
   integer(kind=iwp) :: iDisk
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: iRC
@@ -230,8 +236,9 @@ end subroutine EAFWrite
 
 subroutine EAFRead(Lu,Buf,nBuf,Disk)
 
-  integer(kind=iwp) :: Lu, nBuf, Buf(nBuf)
-  real(kind=wp) :: Disk
+  integer(kind=iwp), intent(in) :: Lu, nBuf
+  integer(kind=iwp), intent(out) :: Buf(nBuf)
+  real(kind=wp), intent(inout) :: Disk
   integer(kind=iwp) :: iDisk
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: iRC
@@ -263,7 +270,7 @@ end subroutine EAFRead
 
 subroutine EAFWait(Lu,id)
 
-  integer(kind=iwp) :: Lu, id
+  integer(kind=iwp), intent(in) :: Lu, id
 # ifdef _MOLCAS_MPP_
   integer(kind=iwp) :: iRC
 # endif
