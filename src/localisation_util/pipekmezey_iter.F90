@@ -13,8 +13,8 @@
 !***********************************************************************
 
 #define _DEBUGPRINT_
-#define _DEBUG2_
-#define _DEBUGLOWD_
+!#define _DEBUG2_
+!#define _DEBUGLOWD_
 
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
@@ -142,6 +142,7 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
 #   ifdef _DEBUGPRINT_
     call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
+    call RecPrt("initial hessian"," ",Hdiagvec(:),fsdim,1)
 #   endif
     FunctionalList(1) = Functional
 end if
@@ -302,7 +303,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       ifdef _DEBUGPRINT_
             write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
             call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
-            call RecPrt('Hdiag',' ',Hdiag(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('Hdiag',' ',Hdiagvec(:),fsdim,1)
 #       endif
 
         call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,nIter+1),fsdim)
