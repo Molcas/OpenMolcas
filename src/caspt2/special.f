@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3)
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use definitions, only: iwp, wp, byte
       use constants, only: Zero, One, Two
       use gugx, only: SGS, LEVEL
@@ -31,7 +32,6 @@
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
       INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
-      LOGICAL(kind=iwp) RSV_TSK
       Integer(kind=iwp) :: nLev
       real(kind=wp) ESUM, Occ, Val
       Integer(kind=iwp) :: I, ID, IG3, IND1, IND2, IND3, IT, IT1, IT2,

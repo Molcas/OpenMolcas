@@ -170,9 +170,9 @@ C Transform to standard representation, covariant form.
 C Transform vectors back to eigenbasis of H0(diag).
       CALL PTRTOSR(0,IVEC,IVEC)
 
-      IF(NWTI.GT.0) CALL GADSUM(WTI,NWTI)
-      IF(NWAI.GT.0) CALL GADSUM(WAI,NWAI)
-      IF(NWAT.GT.0) CALL GADSUM(WAT,NWAT)
+      IF(NWTI.GT.0) CALL GADGOP(WTI,NWTI,'+')
+      IF(NWAI.GT.0) CALL GADGOP(WAI,NWAI,'+')
+      IF(NWAT.GT.0) CALL GADGOP(WAT,NWAT,'+')
 C Put transition density elements in temporaries W into
 C proper positions, as subdiagonal matrices in DPT1:
       IDOFF=0

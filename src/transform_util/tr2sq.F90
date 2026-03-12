@@ -261,7 +261,7 @@ if (NOCR*NOCS /= 0) then
       ! ONE BLOCK FOR EACH TU STARTING AT ADDRESS IAD2M(1,ISPQRS).
       ! TRIANGULAR IN AB AND TU IF ISP == ISQ ( AND ISR == ISS)
 
-      call GADSum(X2,IX2)
+      call GADGOp(X2,IX2,'+')
       call dDAFILE(LUINTM,1,X2,IX2,IAD13)
 
       ! EXTRACT INTEGRALS WITH ALL INDICES ACTIVE INTO TUVX
@@ -383,7 +383,7 @@ if ((ISP >= ISR) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOP*NOR)
+      call GADGOp(X2,NOP*NOR,'+')
       call dDAFILE(LUINTM,1,X2,NOP*NOR,IAD13)
     end do
   end do
@@ -475,7 +475,7 @@ if (((ISP /= ISQ) .and. (ISQ > ISR)) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOR*NOQ)
+      call GADGOp(X2,NOR*NOQ,'+')
       call dDAFILE(LUINTM,1,X2,NOR*NOQ,IAD13)
     end do
   end do
@@ -575,7 +575,7 @@ if (((ISP /= ISQ) .and. (ISP > ISS)) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOS*NOP)
+      call GADGOp(X2,NOS*NOP,'+')
       call dDAFILE(LUINTM,1,X2,NOS*NOP,IAD13)
     end do
   end do
@@ -686,7 +686,7 @@ if (((ISP /= ISQ) .and. (ISQ >= ISS)) .and. (NOTU /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOS*NOQ)
+      call GADGOp(X2,NOS*NOQ,'+')
       call dDAFILE(LUINTM,1,X2,NOS*NOQ,IAD13)
     end do
   end do

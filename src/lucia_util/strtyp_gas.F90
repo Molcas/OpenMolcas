@@ -242,7 +242,7 @@ do IGAS=1,NGAS
 # endif
   totNOBPT = sum(NOBPT)
   NGPSTR(IGAS) = MXAB-MNAB+1
-!  if ((Nactel == MS2) .and. (Nactel > 2) .and. (Nactel == NOBPT(2)) .and. (NOBPT(3) ==0) .and. (IGAS == 2)) then
+  !if ((Nactel == MS2) .and. (Nactel > 2) .and. (Nactel == NOBPT(2)) .and. (NOBPT(3) ==0) .and. (IGAS == 2)) then
   if ((Nactel == MS2) .and. (Nactel > 2) .and. (Nactel == totNOBPT) .and. (IGAS == 2)) then
     NGPSTR(IGAS) = 4 ! Either EMPTY, (FULL-2), (FULL -1), FULL
     MNAB = NAEL-2

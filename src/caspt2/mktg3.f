@@ -273,8 +273,8 @@ C element.
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par() .and. POOR_PAR) THEN
-       CALL GADSUM(TG2,NASHT**4)
-       CALL GADSUM(TG3,NTG3)
+       CALL GADGOP(TG2,NASHT**4,'+')
+       CALL GADGOP(TG3,NTG3,'+')
       END IF
 #endif
 

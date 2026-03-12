@@ -231,6 +231,7 @@ subroutine read_CC_RDM(DMAT,D1S_MO,PSMAT,PAMAT)
   real(kind=wp), intent(out) :: DMAT(nAcpar), D1S_MO(nAcPar), PSMAT(nAcpr2), PAMAT(nAcpr2)
 # ifdef _MOLCAS_MPP_
   integer(kind=MPIInt) :: error
+# include "mpi_interfaces.fh"
 # endif
 
   if (myrank == 0) then

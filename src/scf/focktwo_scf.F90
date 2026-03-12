@@ -105,7 +105,7 @@ do ISYM=1,NSYM
   end do
 end do
 
-call GADSum(Flt,nFlt*nD)
+call GADGOp(Flt,nFlt*nD,'+')
 
 ! Print the Fock-matrix
 #ifdef _DEBUGPRINT_

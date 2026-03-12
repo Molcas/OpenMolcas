@@ -32,6 +32,7 @@ subroutine TwoEl_Sym( &
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri3_Elem1
+use TList_Mod, only: QLast
 use iSD_data, only: nSD
 use Basis_Info, only: Shells
 use Phase_Info, only: iPhase
@@ -339,7 +340,7 @@ do lDCRR=0,nDCRR-1
           do
             call iRBuf(iWR,2,Copy)
             call dRBuf(QInd,2,Copy)
-            call Store_QLast(QInd)
+            QLast(:) = QInd(:)
             kInts = iWR(1)
             mInts = iWR(2)
             if ((QInd(1) == Quad_ijkl) .and. (QInd(2) == RST_triplet)) then
@@ -524,7 +525,7 @@ do lDCRR=0,nDCRR-1
               iWR(2) = mInts
               call iWBuf(iWR,RtoI)
               call dWBuf(QInd,2)
-              call Store_QLast(QInd)
+              QLast(:) = QInd(:)
 
               Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
             end if
@@ -570,7 +571,7 @@ do lDCRR=0,nDCRR-1
           iWR(2) = mInts
           call iWBuf(iWR,2)
           call dWBuf(QInd,2)
-          call Store_QLast(Qind)
+          QLast(:) = QInd(:)
           call dWBuf(Wrk(iW3),mInts)
           Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
 
@@ -581,7 +582,7 @@ do lDCRR=0,nDCRR-1
         do
           call iRBuf(iWR,2,Copy)
           call dRBuf(QInd,2,Copy)
-          call Store_QLast(QInd)
+          QLast(:) = QInd(:)
           kInts = iWR(1)
           mInts = iWR(2)
           if ((QInd(1) == Quad_ijkl) .and. (QInd(2) == RST_triplet)) then

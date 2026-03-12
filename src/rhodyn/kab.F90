@@ -190,6 +190,8 @@ if (ipglob > 3) then
   end do
   close(lu)
   max_k = Zero
+  max_i = 0
+  max_j = 0
   do i=1,Nstate
     do j=1,Nstate
       if (real(k_ab(i,j)) >= max_k) then

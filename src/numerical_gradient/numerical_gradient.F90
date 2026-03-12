@@ -14,8 +14,10 @@ subroutine Numerical_Gradient(ireturn)
 #ifndef _HAVE_EXTRA_
 use Prgm, only: PrgmFree
 #endif
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Para_Info, only: MyRank, nProcs, Set_Do_Parallel
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
+use Task_Manager, only: Free_Tsk_Even, Init_Tsk_Even, Rsv_Tsk_Even
 use Para_Info, only: King
 #endif
 use spool, only: disable_spool, LuWr
@@ -45,12 +47,11 @@ real(kind=wp), allocatable :: AllC(:,:), BMtrx(:,:), C(:,:), Coor(:,:), Deg(:,:)
 character(len=LenIn), allocatable :: AtomLbl(:)
 real(kind=wp), parameter :: ToHartree = One/auTokcalmol
 integer(kind=iwp), external :: iChAtm, iDeg, iPrintLevel, IsFreeUnit, Read_Grad
-logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
+logical(kind=iwp), external :: Reduce_Prt
 character(len=180), external :: Get_Ln
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 character(len=80) :: SSTMNGR
 integer(kind=iwp) :: SSTMODE
-logical(kind=iwp), external :: Rsv_Tsk_Even
 #endif
 
 #include "warnings.h"
@@ -764,7 +765,7 @@ end if
 #else
 call Free_Tsk(id_Tsk)
 #endif
-call GADSum(EnergyArray,nRoots*mDisp)
+call GADGOp(EnergyArray,nRoots*mDisp,'+')
 call mma_deallocate(C)
 call mma_deallocate(XYZ)
 !                                                                      *

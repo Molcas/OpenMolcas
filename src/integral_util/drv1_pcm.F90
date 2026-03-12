@@ -340,7 +340,7 @@ call mma_deallocate(ZI)
 call mma_deallocate(Zeta)
 
 #ifdef _MOLCAS_MPP_
-if (ProgName(1:6) /= 'alaska') call GADSUM(VTessera,nComp*2*nTs)
+if (ProgName(1:6) /= 'alaska') call GADGOP(VTessera,nComp*2*nTs,'+')
 #endif
 
 return

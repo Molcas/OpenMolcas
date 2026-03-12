@@ -23,6 +23,7 @@ subroutine WfCtl_Hess(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,c
 !                                                                      *
 !***********************************************************************
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use Para_Info, only: myRank, nProcs
@@ -66,7 +67,6 @@ real(kind=wp), allocatable :: Dens(:), dKappa(:), Kappa(:), Pens(:), rmoaa(:), S
 integer(kind=iwp), parameter :: iTimeCC = 1, iTimeKK = 2, iTimeKC = 3, iTimeCK = 4
 integer(kind=iwp), external :: IsFreeUnit, niPre, nPre
 real(kind=wp), external :: DDot_
-logical(kind=iwp), external :: Rsv_Tsk
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

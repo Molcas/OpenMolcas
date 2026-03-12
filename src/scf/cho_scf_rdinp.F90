@@ -21,7 +21,10 @@ subroutine CHO_SCF_RDINP(DFonly,LuSpool)
 use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 use Cholesky, only: ChFracMem, timings
 use InfSCF, only: ALGO, dmpk, nScreen, ReOrd
-use Constants, only: Zero, Half
+use Constants, only: Zero
+#ifndef _MOLCAS_MPP_
+use Constants, only: Half
+#endif
 use Definitions, only: wp, iwp, u6
 
 implicit none

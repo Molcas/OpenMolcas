@@ -56,6 +56,7 @@ C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
       SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use caspt2_global, only: iPrGlb
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
@@ -79,7 +80,6 @@ C>                   to active indices
       INTEGER*1, INTENT(OUT) :: idxG3(6,*)
 
       INTEGER, PARAMETER :: I1=KIND(idxG3)
-      LOGICAL RSV_TSK
       REAL*8 DG1,DG2,DG3,DF1,DF2,DF3
       REAL*8 F1SUM,F2SUM
       INTEGER I,J,IDX,JDX
@@ -547,11 +547,11 @@ C-SVC20100831: set correct number of elements in new G3
 
 C-SVC20100302: Synchronized add into the densitry matrices
 C  only for the G1 and G2 replicate arrays
-      CALL GADSUM(G1,NG1)
-      CALL GADSUM(G2,NG2)
+      CALL GADGOP(G1,NG1,'+')
+      CALL GADGOP(G2,NG2,'+')
 
-      CALL GADSUM(F1,NG1)
-      CALL GADSUM(F2,NG2)
+      CALL GADGOP(F1,NG1,'+')
+      CALL GADGOP(F2,NG2,'+')
 
       if (DoFCIQMC) then
           call mkfg3fciqmc(G1,G2,G3,F1,F2,F3,idxG3,nLev)
@@ -566,7 +566,7 @@ C  only for the G1 and G2 replicate arrays
           end do
         ! SVC20100310: took some spurious mirroring of G2 values out
         ! of the loops and put them here, after the parallel section has
-        ! finished, so that GAdSUM works correctly.
+        ! finished, so that GAdGOP works correctly.
           do ip1=ntri2+1,nlev2
            itlev=idx2ij(1,ip1)
            iulev=idx2ij(2,ip1)
@@ -616,7 +616,7 @@ C  only for the G1 and G2 replicate arrays
            end do
         ! SVC20100310: took some spurious mirroring of F2 values out
         ! of the loops and put them here, after the parallel section has
-        ! finished, so that GAdSUM works correctly.
+        ! finished, so that GAdGOP works correctly.
            do ip1=ntri2+1,nlev2
             itlev=idx2ij(1,ip1)
             iulev=idx2ij(2,ip1)

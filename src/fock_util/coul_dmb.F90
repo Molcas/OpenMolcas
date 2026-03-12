@@ -45,7 +45,7 @@ if (GetFM) then
   if (irc /= 0) then
     call SysAbendMsg('Coul_DMB ',' non-zero rc ',' ')
   end if
-  call GADSum(FM,lFDM)
+  call GADGOp(FM,lFDM,'+')
 
   call Deallocate_DT(DLT(1))
   call Deallocate_DT(FLT(1))

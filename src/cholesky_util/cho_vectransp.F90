@@ -17,9 +17,9 @@ use Cholesky, only: Cho_AdrVec, Cho_Real_Par, iiBstR, iiBstR_G, iL2G, IndRed, In
                     nnBstR_G
 #ifdef _DEBUGPRINT_
 use Cholesky, only: LuPri
+use Definitions, only: u6
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: u6
 #endif
 use Definitions, only: wp, iwp
 

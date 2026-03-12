@@ -66,6 +66,8 @@ C tridiagonal local array at Work(lg_M)
         Call Deallocate_GA_Array(lg_M)
 #ifdef _MOLCAS_MPP_
       END IF
+#include "macros.fh"
+      unused_var(bStat)
 #endif
       END SUBROUTINE PSBMAT_FREEMEM
 

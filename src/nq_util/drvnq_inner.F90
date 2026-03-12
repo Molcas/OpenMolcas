@@ -23,6 +23,7 @@ subroutine DrvNQ_Inner(Kernel,Func,Maps2p,nSym,list_s,list_exp,list_bas,nShell,l
 !             August 1999                                              *
 !***********************************************************************
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Symmetry_Info, only: nIrrep, iOper
 use KSDFT_Info, only: do_pdftpot, FA_time, FI_time, Funcaa, Funcbb, Funccc, PUVX_time, sp_time
 use nq_Grid, only: l_casdft, D1UnZip, P2UnZip
@@ -57,7 +58,6 @@ real(kind=wp), allocatable :: EG_OT(:), FA_V(:), FI_V(:), OE_OT(:), PDFTFocA(:),
 integer(kind=iwp) :: iOff, lB, nB
 logical(kind=iwp) :: Exists
 #endif
-logical(kind=iwp), external :: Rsv_Tsk
 
 !***********************************************************************
 ! Initializations for MC-PDFT                                          *
@@ -283,37 +283,37 @@ end if
 
 l_tgga = .true.
 if (Do_Grad) then
-  call GADSum(Grad,nGrad)
+  call GADGOp(Grad,nGrad,'+')
 else
-  call GADSum_SCAL(Func)
-  call GADSum_SCAL(Funcaa)
-  call GADSum_SCAL(Funcbb)
-  call GADSum_SCAL(Funccc)
-  call GADSum_SCAL(Dens_I)
-  call GADSum_SCAL(Dens_t1)
-  call GADSum_SCAL(Dens_t2)
-  call GADSum_SCAL(Dens_a1)
-  call GADSum_SCAL(Dens_a2)
-  call GADSum_SCAL(Dens_b1)
-  call GADSum_SCAL(Dens_b2)
+  call GADGOp_SCAL(Func,'+')
+  call GADGOp_SCAL(Funcaa,'+')
+  call GADGOp_SCAL(Funcbb,'+')
+  call GADGOp_SCAL(Funccc,'+')
+  call GADGOp_SCAL(Dens_I,'+')
+  call GADGOp_SCAL(Dens_t1,'+')
+  call GADGOp_SCAL(Dens_t2,'+')
+  call GADGOp_SCAL(Dens_a1,'+')
+  call GADGOp_SCAL(Dens_a2,'+')
+  call GADGOp_SCAL(Dens_b1,'+')
+  call GADGOp_SCAL(Dens_b2,'+')
   if (functional_type == meta_GGA_type1) then
-    call GADSum_SCAL(Tau_a1)
-    call GADSum_SCAL(Tau_a2)
-    call GADSum_SCAL(Tau_b1)
-    call GADSum_SCAL(Tau_b2)
+    call GADGOp_SCAL(Tau_a1,'+')
+    call GADGOp_SCAL(Tau_a2,'+')
+    call GADGOp_SCAL(Tau_b1,'+')
+    call GADGOp_SCAL(Tau_b2,'+')
   end if
-  call GADSum_SCAL(Grad_I)
-  call GADSum_SCAL(Tau_I)
-  call GADSum(FckInt,nFckInt*nD)
+  call GADGOp_SCAL(Grad_I,'+')
+  call GADGOp_SCAL(Tau_I,'+')
+  call GADGOp(FckInt,nFckInt*nD,'+')
   if (l_casdft .and. do_pdftPot) then
-    call GADSum(OE_OT,nFckInt)
-    call GADSum(EG_OT,nTmpPUVX)
-    call GADSum(FI_V,nFckInt)
-    call GADSum(FA_V,nFckInt)
+    call GADGOp(OE_OT,nFckInt,'+')
+    call GADGOp(EG_OT,nTmpPUVX,'+')
+    call GADGOp(FI_V,nFckInt,'+')
+    call GADGOp(FA_V,nFckInt,'+')
     if (l_tgga) then
-      call GADSum(PDFTPot1,nPot1)
-      call GADSum(PDFTFocI,nPot1)
-      call GADSum(PDFTFocA,nPot1)
+      call GADGOp(PDFTPot1,nPot1,'+')
+      call GADGOp(PDFTFocI,nPot1,'+')
+      call GADGOp(PDFTFocA,nPot1,'+')
     end if
   end if
 end if

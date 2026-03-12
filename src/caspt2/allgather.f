@@ -39,15 +39,15 @@
 #include "global.fh"
 #include "mafdecls.fh"
 
-      real*8, intent(in) :: SEND(nSend)
       integer, intent(in) :: nSend
-      real*8, intent(out) :: RECV(nRecv)
+      real*8, intent(in) :: SEND(nSend)
       integer, intent(in) :: nRecv
+      real*8, intent(out) :: RECV(nRecv)
 
       integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
       integer(kind=MPIInt), ALLOCATABLE :: NRECV4(:),IDISP4(:)
       integer(kind=MPIInt), PARAMETER :: ONE4 = 1
-      integer :: nBytes, myrank, nProcs, i
+      integer :: nBytes, nProcs, i
 
       ITYPE4 = MPI_REAL8
       NBYTES = 8 * NRECV
@@ -59,7 +59,6 @@
         CALL XFLUSH(6)
       END IF
 
-      MYRANK = GA_NODEID()
       NPROCS = GA_NNODES()
 
       ALLOCATE(NRECV4(0:NPROCS-1))
@@ -115,15 +114,15 @@
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer, intent(in) :: SEND(nSend)
       integer, intent(in) :: nSend
-      integer, intent(out) :: RECV(nRecv)
+      integer, intent(in) :: SEND(nSend)
       integer, intent(in) :: nRecv
+      integer, intent(out) :: RECV(nRecv)
 
       integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
       integer(kind=MPIInt), ALLOCATABLE :: NRECV4(:),IDISP4(:)
       integer(kind=MPIInt), PARAMETER :: ONE4 = 1
-      integer :: nBytes, myrank, nProcs, i
+      integer :: nBytes, nProcs, i
 
 #ifdef _I8_
         ITYPE4=MPI_INTEGER8
@@ -140,7 +139,6 @@
         CALL XFLUSH(6)
       END IF
 
-      MYRANK = GA_NODEID()
       NPROCS = GA_NNODES()
 
       ALLOCATE(NRECV4(0:NPROCS-1))

@@ -118,7 +118,7 @@ if (icc /= 0) then
         IX2 = NOP*NOQ
       end if
       ! Store (AB,TU) of this t,u pair
-      call GADSum(X2,IX2)
+      call GADGOp(X2,IX2,'+')
       call dDAFILE(LUINTM,1,X2,IX2,IAD13)
     end do
   end do
@@ -224,7 +224,7 @@ if (icxc1 /= 0) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOP*NOR)
+      call GADGOp(X2,NOP*NOR,'+')
       call dDAFILE(LUINTM,1,X2,NOP*NOR,IAD13)
     end do
   end do
@@ -313,7 +313,7 @@ if (((ISQ >= ISR) .or. (ISP /= ISR)) .and. (ISP /= ISQ) .and. (icxc5 /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOQ*NOR)
+      call GADGOp(X2,NOQ*NOR,'+')
       call dDAFILE(LUINTM,1,X2,NOQ*NOR,IAD13)
     end do
   end do

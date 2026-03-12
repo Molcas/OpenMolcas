@@ -32,6 +32,7 @@ subroutine TwoEl_NoSym( &
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri3_Elem1
+use TList_Mod, only: QLast
 use Basis_Info, only: Shells
 use iSD_data, only: nSD
 use Gateway_Info, only: CutInt, ThrInt
@@ -211,7 +212,7 @@ if (.not. DoAOBatch) then
     do
       call iRBuf(iWR,2,Copy)
       call dRBuf(QInd,2,Copy)
-      call Store_QLast(QInd)
+      QLast(:) = QInd(:)
       kInts = iWR(1)
       mInts = iWR(2)
       if (QInd(1) == Quad_ijkl) then
@@ -326,7 +327,7 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
         call iWBuf(iWR,2)
         QInd(1) = Quad_ijkl
         call dWBuf(QInd,2)
-        call Store_QLast(QInd)
+        QLast(:) = QInd(:)
 
         Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
       end if
@@ -374,7 +375,7 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
     call iWBuf(iWR,2)
     QInd(1) = Quad_ijkl
     call dWBuf(QInd,2)
-    call Store_QLast(QInd)
+    QLast(:) = QInd(:)
     call dWBuf(Wrk(iW3),mInts)
 
     Disc = Disc+real(2/RtoI+2+mInts,kind=wp)
@@ -386,7 +387,7 @@ if (Batch_On_Disk .and. (.not. W2Disc)) then
   do
     call iRBuf(iWR,2,Copy)
     call dRBuf(QInd,2,Copy)
-    call Store_QLast(QInd)
+    QLast(:) = QInd(:)
     kInts = iWR(1)
     mInts = iWR(2)
     if (QInd(1) == Quad_ijkl) then

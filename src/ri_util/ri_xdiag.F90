@@ -16,6 +16,7 @@ subroutine RI_XDiag(Diag,nDiag)
 !
 ! Purpose: compute exact integral diagonal.
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Index_Functions, only: nTri_Elem
 use Cholesky, only: iiBstR, iiBstRSh, IndRed, iSP2F, Mx2Sh, nBstSh, nnBstRSh, nnBstRT, nnShl, nSym, ShA, ShB
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
@@ -29,7 +30,6 @@ integer(kind=iwp), intent(in) :: nDiag
 real(kind=wp), intent(_OUT_) :: Diag(nDiag)
 integer(kind=iwp) :: i, i1, i2, ID, iSAB, iShlA, iShlB, iSym, l_SewMem, NumAB
 real(kind=wp), allocatable :: Scr(:)
-logical(kind=iwp), external :: Rsv_Tsk
 
 ! Allocate memory.
 ! ----------------

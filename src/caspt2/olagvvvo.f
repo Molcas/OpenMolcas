@@ -270,10 +270,10 @@
 !
 #ifdef _MOLCAS_MPP_
       If (Is_Real_Par()) Then
-        if (DoCholesky) call GADSUM(OLag,nOLag)
+        if (DoCholesky) call GADGOP(OLag,nOLag,'+')
         If (nFroT == 0) Then
-          CALL GADSUM (FPT2AO,nBasT**2)
-          CALL GADSUM (FPT2CAO,nBasT**2)
+          CALL GADGOP (FPT2AO,nBasT**2,'+')
+          CALL GADGOP (FPT2CAO,nBasT**2,'+')
         End If
       End If
 #endif

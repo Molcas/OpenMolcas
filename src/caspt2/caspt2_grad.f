@@ -404,7 +404,7 @@
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
           If (.not.King()) OLagFull(:) = Zero
-          CALL GADSUM (OLagFull,nOLag)
+          CALL GADGOP (OLagFull,nOLag,'+')
         end if
 #endif
         If (DEB) call RecPrt('OLagFull','',OLagFull,nBasT,nBasT)
@@ -424,7 +424,7 @@
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
           If (.not.King()) WLag(:) = Zero
-          CALL GADSUM (WLag,nWLag)
+          CALL GADGOP (WLag,nWLag,'+')
         end if
 #endif
         If (DEB) call TriPrt('WLag', '', WLag, nBast)
@@ -436,7 +436,7 @@
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
           If (.not.King()) DPT2_tot(:) = Zero
-          CALL GADSUM (DPT2_tot,NBSQT)
+          CALL GADGOP (DPT2_tot,NBSQT,'+')
         end if
 #endif
         If (DEB) call RecPrt('DPT2', '', DPT2_tot, nBast, nBast)
@@ -448,7 +448,7 @@
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
           If (.not.King()) DPT2C_tot(:) = Zero
-          CALL GADSUM (DPT2C_tot,NBSQT)
+          CALL GADGOP (DPT2C_tot,NBSQT,'+')
         end if
 #endif
         If (DEB) call RecPrt('DPT2C', '', DPT2C_tot, nBast, nBast)

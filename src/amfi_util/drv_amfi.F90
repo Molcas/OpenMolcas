@@ -11,6 +11,7 @@
 
 subroutine Drv_AMFI(Label,lOper,nComp,iAtmNr2,Charge2)
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use AMFI_global, only: Lmax
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, Gaussian_Type, MolWgh, nBas, nCnttp, Nuclear_Model, Shells
@@ -37,7 +38,7 @@ integer(kind=iwp), allocatable :: iDel(:)
 #define _TEST_ .false.
 #endif
 logical(kind=iwp), parameter :: IfTest = _TEST_
-logical(kind=iwp), external :: EQ, Rsv_Tsk
+logical(kind=iwp), external :: EQ
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In OneEl: Label',Label
