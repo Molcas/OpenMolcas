@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Per Ake Malmqvist                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Per Ake Malmqvist                                *
+!***********************************************************************
       SUBROUTINE ProtoSD(NPELA,NPELB,NPSDSZ,IPSDMS)
       DIMENSION IPSDMS(NPELA+NPELB,NPSDSZ)
       DIMENSION ITMP(50)
       INTEGER ASPIN, BSPIN
       PARAMETER (ASPIN=1,BSPIN=0)
-C Given NPELA and NPELB, returns a table of all possible
-C Slater determinants with NPELA alpha electrons and NPELB
-C beta electrons in NPELA+NPELB orbitals.
-C The ordering of the resulting SD is consistent with the
-C index function   Index=1+Sum(j) noverm(k-1,j), where the sum
-C is over only the alpha spins, enumerated j=1..NPELA,
-C while k is the orbital with the j-th alpha electron.
+! Given NPELA and NPELB, returns a table of all possible
+! Slater determinants with NPELA alpha electrons and NPELB
+! beta electrons in NPELA+NPELB orbitals.
+! The ordering of the resulting SD is consistent with the
+! index function   Index=1+Sum(j) noverm(k-1,j), where the sum
+! is over only the alpha spins, enumerated j=1..NPELA,
+! while k is the orbital with the j-th alpha electron.
 
       IF(NPELA.LT.0) GOTO 999
       IF(NPELB.LT.0) GOTO 999
@@ -39,9 +39,9 @@ C while k is the orbital with the j-th alpha electron.
 
       NDET=NOVERM(NPORB,NPELA)
       IF(NDET.GT.NPSDSZ) GOTO 998
-CPAM      write(*,*)'PROTOSD. Nr of orbitals:',NPORB
-CPAM      write(*,*)'         Nr of determin:',NDET
-CPAM      write(*,*)'         Need array siz:',NPORB*NDET
+!PAM      write(*,*)'PROTOSD. Nr of orbitals:',NPORB
+!PAM      write(*,*)'         Nr of determin:',NDET
+!PAM      write(*,*)'         Need array siz:',NPORB*NDET
 
       ITMP(NPELA+1)=NPORB+1
       NDET=1
@@ -69,7 +69,7 @@ CPAM      write(*,*)'         Need array siz:',NPORB*NDET
   30  CONTINUE
       RETURN
  997  CONTINUE
-      WRITE(6,*)' Serious error in PROTOSD. '//
+      WRITE(6,*)' Serious error in PROTOSD. '//                         &
      &            'Too many SD''s are produced.'
       CALL ABEND()
  998  CONTINUE

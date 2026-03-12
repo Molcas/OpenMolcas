@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Per Ake Malmqvist                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Per Ake Malmqvist                                *
+!***********************************************************************
       SUBROUTINE PROTOCSF(NPEL,MLTPL,NPCSFSZ,IPCSFCP)
       DIMENSION IPCSFCP(NPEL,NPCSFSZ)
       INTEGER UPCPL,DWNCPL
       PARAMETER (UPCPL=1,DWNCPL=0)
-C Return a table with all possible CSF's with NPEL electrons
-C coupled to give a total spin multiplicity MLTPL.
-C The order of the resulting CSF's is consistent with the
-C index function,
-C  Index=1+Sum(j) NGENE(j-1,2*S_j+2)
-C where the sum is over only the up-coupled orbitals j,
-C S_j is the accumulated spin, summed over orbitals <= j,
-C and NGENE(N,2*S+1) is in general the number of genealogical
-C couplings of N electrons to obtain spin S.
+! Return a table with all possible CSF's with NPEL electrons
+! coupled to give a total spin multiplicity MLTPL.
+! The order of the resulting CSF's is consistent with the
+! index function,
+!  Index=1+Sum(j) NGENE(j-1,2*S_j+2)
+! where the sum is over only the up-coupled orbitals j,
+! S_j is the accumulated spin, summed over orbitals <= j,
+! and NGENE(N,2*S+1) is in general the number of genealogical
+! couplings of N electrons to obtain spin S.
 
       IF(NPEL.EQ.0) RETURN
       ISP2=MLTPL-1

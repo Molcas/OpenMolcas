@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1982,1983, Per Ake Malmqvist                           *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1982,1983, Per Ake Malmqvist                           *
+!***********************************************************************
       SUBROUTINE DOOL(NDIMEN,MDIM,N,M,A,B,DET,IPIV,JPIV,BUF)
       use definitions, only: iwp, wp
       use constants, only: One
@@ -22,18 +22,18 @@
 
       real(kind=wp) AM,AMAX,C,DIAG,SUMMA
       integer(kind=iwp) I,IDUM,IP,J,JP,K,KP,L,LP
-C
-C     SOLVES THE MATRIX EQUATION AX=B BY DOOLITTLE''S METHOD
-C     ACTUAL DIMENSIONS ARE N*N AND N*M
-C     ALLOCATED DIMENSIONS ARE NDIMEN*NDIMEN AND NDIMEN*MDIM
-C     A AND B ARE DESTROYED, AND X IS RETURNED AS MATRIX B
-C                                       (MALMQUIST 82-11-12)
-C                                        (UPDATE 83-09-28)
-C
-C  EQUATION IS SOLVED BY FACTORIZING A=L*R IN SAME SPACE AS A.
-C  PIVOTING IS ACHIEVED BY INDIRECT INDEXING.
-C  FIRST PIVOTING INDICES ARE ASSIGNED START VALUES.
-C
+!
+!     SOLVES THE MATRIX EQUATION AX=B BY DOOLITTLE''S METHOD
+!     ACTUAL DIMENSIONS ARE N*N AND N*M
+!     ALLOCATED DIMENSIONS ARE NDIMEN*NDIMEN AND NDIMEN*MDIM
+!     A AND B ARE DESTROYED, AND X IS RETURNED AS MATRIX B
+!                                       (MALMQUIST 82-11-12)
+!                                        (UPDATE 83-09-28)
+!
+!  EQUATION IS SOLVED BY FACTORIZING A=L*R IN SAME SPACE AS A.
+!  PIVOTING IS ACHIEVED BY INDIRECT INDEXING.
+!  FIRST PIVOTING INDICES ARE ASSIGNED START VALUES.
+!
       IP=0 ! dummy initialize
       JP=0 ! dummy initialize
       DO I=1,N
@@ -42,7 +42,7 @@ C
       END DO
       DET=One
       DO I=1,N
-C  NOW FIND BETTER PIVOT ELEMENT:
+!  NOW FIND BETTER PIVOT ELEMENT:
        AMAX=-One
        DO K=I,N
         DO L=I,N
@@ -81,9 +81,9 @@ C  NOW FIND BETTER PIVOT ELEMENT:
         END DO
        END DO
       END DO
-C
-C  FIRST RESUBSTITUTION STEP:
-C
+!
+!  FIRST RESUBSTITUTION STEP:
+!
       DO J=1,M
        DO I=2,N
         IP=IPIV(I)
@@ -94,9 +94,9 @@ C
         B(IP,J)=SUMMA
        END DO
       END DO
-C
-C  SECOND RESUBSTITUTION STEP:
-C
+!
+!  SECOND RESUBSTITUTION STEP:
+!
       DO J=1,M
        DO I=N,1,-1
         IP=IPIV(I)
@@ -107,9 +107,9 @@ C
         B(IP,J)=SUMMA/BUF(I)
        END DO
       END DO
-C
-C  REORGANIZATION PART:
-C
+!
+!  REORGANIZATION PART:
+!
       DO J=1,M
        DO I=1,N
         BUF(I)=B(IPIV(I),J)

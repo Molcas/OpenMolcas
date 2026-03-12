@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine frenkelexc(Frenkeltri, dim, nst1, nst2)
 
       use Constants, only: Zero, One, Two, Three, auToEV
       use Definitions, only: wp, iwp, u6
-      use frenkel_global_vars, only: iTyp, jTyp, nestla, nestlb,
+      use frenkel_global_vars, only: iTyp, jTyp, nestla, nestlb,        &
      &                               valst, excl
       use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -20,19 +20,19 @@
       integer(kind=iwp) :: dim, nst1, nst2
       real(kind=wp), intent(inout) :: Frenkeltri(dim*(dim+1)/2)
 
-      integer(kind=iwp) :: d1lines, d2lines, a, b, ntrans, tri, iPL,
+      integer(kind=iwp) :: d1lines, d2lines, a, b, ntrans, tri, iPL,    &
      &                     run, LUT3, LUT1, I, J, IO, K, L, iPrintLevel
       real(kind=wp) :: GS, DIPNORM
-      real(kind=wp), allocatable :: Frenkelsq(:), Frenkelquad(:,:),
+      real(kind=wp), allocatable :: Frenkelsq(:), Frenkelquad(:,:),     &
      &                              Freninterm(:,:), Freninterm2(:,:)
-      real(kind=wp), allocatable :: D1X(:), D1Y(:), D1Z(:), D2X(:),
-     &               D2Z(:), Dip1(:,:,:), Dip2(:,:,:),
-     &               EigEn(:),EDIFF(:), OSCSTR(:),Rassi1(:),
-     &               Rassi2(:),Frenkeldia(:,:),D2Y(:),
-     &               DipFrx(:,:), DipFry(:,:), DipFrz(:,:),
-     &               DipFrintermx(:,:), DipFrintermy(:,:),
-     &               DipFrintermz(:,:),DipFrintermx2(:,:),
-     &               DipFrintermy2(:,:),DipFrintermz2(:,:),
+      real(kind=wp), allocatable :: D1X(:), D1Y(:), D1Z(:), D2X(:),     &
+     &               D2Z(:), Dip1(:,:,:), Dip2(:,:,:),                  &
+     &               EigEn(:),EDIFF(:), OSCSTR(:),Rassi1(:),            &
+     &               Rassi2(:),Frenkeldia(:,:),D2Y(:),                  &
+     &               DipFrx(:,:), DipFry(:,:), DipFrz(:,:),             &
+     &               DipFrintermx(:,:), DipFrintermy(:,:),              &
+     &               DipFrintermz(:,:),DipFrintermx2(:,:),              &
+     &               DipFrintermy2(:,:),DipFrintermz2(:,:),             &
      &               EigEnHa(:), E_FRENKEL(:)
       integer(kind=iwp), allocatable :: I1(:), F1(:), I2(:), F2(:)
       integer(kind=iwp), external :: isFreeUnit
@@ -46,7 +46,7 @@
 
 
 222   FORMAT (5X,2(1X,I4),5X,3(1X,ES18.8))
-2     FORMAT(5X,(1x,I4,3x,I4,3x,F18.8,3x,F18.8,3x,
+2     FORMAT(5X,(1x,I4,3x,I4,3x,F18.8,3x,F18.8,3x,                      &
      &       F18.8,3x,F18.8,3x,F18.8))
 3     FORMAT(6X,A,5x,A,6x,A,6x,A,19x,A,19x,A,19x,A)
 443   FORMAT(3x,I4,3x,I4,3x,F18.8,3x,F18.8,3x,F18.8)
@@ -85,9 +85,9 @@
       LuT1 = isFreeUnit(LuT3)
 
       call molcas_open(LuT1,filnam2)
-      write(u6,'(A,1X,I1,A,I3.3)') 'Number of states of system'
+      write(u6,'(A,1X,I1,A,I3.3)') 'Number of states of system'         &
      &      ,iTyp,'=',nst1
-      write(u6,'(A,1X,I1,A,I3.3)') 'Number of states of system'
+      write(u6,'(A,1X,I1,A,I3.3)') 'Number of states of system'         &
      &      ,jTyp,'=',nst2
       do i=1,nst1
         read(LuT1,*)Rassi1(i)
@@ -126,7 +126,7 @@
             end if
           end if
           tri = tri + 1
-          Frenkeltri((tri*(tri+1))/2) = Frenkeltri((tri*(tri+1))/2)
+          Frenkeltri((tri*(tri+1))/2) = Frenkeltri((tri*(tri+1))/2)     &
      &          + Rassi1(a) + Rassi2(b)
           if (debug_rassi_code) then
             write(u6,*)'tri counter', tri
@@ -187,7 +187,7 @@
       write(u6,'(100(A,8X))',advance='YES') (Hamelemket(i),i=1,dim)
 
       do i=1,dim
-        write(u6,'(A,1X,100(ES16.8))') Hamelembra(i),
+        write(u6,'(A,1X,100(ES16.8))') Hamelembra(i),                   &
      &        (Frenkelquad(i,j),j=1,dim)
       end do
 
@@ -198,7 +198,7 @@
       call NIdiag_New(Frenkeltri, Frenkeldia, dim, dim)
 
       do i=1,dim
-        write(u6,'(A,1X,100(ES16.8))') Hamelembra(i),
+        write(u6,'(A,1X,100(ES16.8))') Hamelembra(i),                   &
      &  (Frenkeldia(i,j),j=1,dim)
       end do
 
@@ -216,14 +216,14 @@
 
 
       if (debug_rassi_code) then
-        call dgemm_('N','N',dim,dim,dim,One,Frenkelquad,dim,
+        call dgemm_('N','N',dim,dim,dim,One,Frenkelquad,dim,            &
      &              Frenkeldia,dim,Zero,Freninterm,dim)
 
         write(u6,*) 'first trafo H*U'
         do i=1,dim
           write(u6,'(1000ES18.8)') (Freninterm(i,j),j=1,dim)
         end do
-        call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,
+        call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,             &
      &              Freninterm,dim,Zero,Freninterm2,dim)
         write(u6,*) 'second trafo U^(t)HU (should be diagonal)'
         do i=1,dim
@@ -326,7 +326,7 @@
       write(u6, *) 'Transition dipole vectors of system 1:'
       write(u6, 551) 'from','to','x','y','z'
       do i=1,d1lines
-        write(u6,443)  I1(i), F1(i),
+        write(u6,443)  I1(i), F1(i),                                    &
      &        (Dip1(I1(i),F1(i),j),j=1,3)
       end do
 
@@ -343,7 +343,7 @@
       write(u6, *) 'Transition dipole vectors of system 2:'
       write(u6, 551) 'from','to','x','y','z'
       do i=1,d2lines
-        write(u6,443)  I2(i), F2(i),
+        write(u6,443)  I2(i), F2(i),                                    &
      &        (Dip2(I2(i),F2(i),j),j=1,3)
       end do
 
@@ -354,7 +354,7 @@
       end do
 
       if (iPL >= 3) then
-        write(u6,*) 'relative excitonic state '//
+        write(u6,*) 'relative excitonic state '//                       &
      &              'eigenenergies in hartree:'
         do i=1,dim
           EigEnHa(i) = (Frenkeltri((i*(i+1))/2)-Frenkeltri(1))/auToEV
@@ -411,10 +411,10 @@
         end do
       end if
       ! transform dipole matrix in dipole basis
-      call dgemm_('N','N',dim,dim,dim,One,DipFrx,dim,
+      call dgemm_('N','N',dim,dim,dim,One,DipFrx,dim,                   &
      &            Frenkeldia,dim,Zero,DipFrintermx,dim)
 
-      call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,
+      call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,               &
      &            DipFrintermx,dim,Zero,DipFrintermx2,dim)
 
       if (iPL >= 3) then
@@ -473,10 +473,10 @@
       end if
 
       ! transform dipole matrix in dipole basis
-      call dgemm_('N','N',dim,dim,dim,One,DipFry,dim,
+      call dgemm_('N','N',dim,dim,dim,One,DipFry,dim,                   &
      &            Frenkeldia,dim,Zero,DipFrintermy,dim)
 
-      call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,
+      call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,               &
      &            DipFrintermy,dim,Zero,DipFrintermy2,dim)
       if (iPL >= 3) then
         write(u6,*) 'trafo U^(t)DU, dipole mtx in exc. basis, Y'
@@ -535,10 +535,10 @@
       end if
 
       ! transform dipole matrix in dipole basis
-      call dgemm_('N','N',dim,dim,dim,One,DipFrz,dim,
+      call dgemm_('N','N',dim,dim,dim,One,DipFrz,dim,                   &
      &            Frenkeldia,dim,Zero,DipFrintermz,dim)
 
-      call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,
+      call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,               &
      &            DipFrintermz,dim,Zero,DipFrintermz2,dim)
       if (iPL >= 3) then
         write(u6,*) 'trafo U^(t)DU, dipole mtx in exc. basis, Z'
@@ -550,18 +550,18 @@
       ! calc and print spectrum
       run = 0
       write(u6,*) 'Excitonic absorption spectrum'
-      write(u6,3) 'from','to','excitation energy [eV]',
+      write(u6,3) 'from','to','excitation energy [eV]',                 &
      &       'Dx','Dy','Dz','osc.str.'
       do i=1,dim
         do j=i+1,dim
           run = run + 1
           EDIFF(run) = EigEn(j) - EigEn(i)
-          dipnorm = DipFrintermx2(i,j)*DipFrintermx2(i,j) +
-     &          DipFrintermy2(i,j)*DipFrintermy2(i,j) +
+          dipnorm = DipFrintermx2(i,j)*DipFrintermx2(i,j) +             &
+     &          DipFrintermy2(i,j)*DipFrintermy2(i,j) +                 &
      &          DipFrintermz2(i,j)*DipFrintermz2(i,j)
           OSCSTR(run) = (Two/Three)*EDIFF(run)*dipnorm
           OSCSTR(run) = OSCSTR(run)/auToEV
-          write(u6,2) i,j, EDIFF(run), DipFrintermx2(i,j),
+          write(u6,2) i,j, EDIFF(run), DipFrintermx2(i,j),              &
      &      DipFrintermy2(i,j), DipFrintermz2(i,j), OSCSTR(run)
         end do
       end do
@@ -571,17 +571,17 @@
       if (iPL >= 3) then
         run = 0
         write(u6,*) 'Excitonic absorption spectrum'
-        write(u6,3) 'from','to','excitation energy [Ha]',
+        write(u6,3) 'from','to','excitation energy [Ha]',               &
      &       'Dx','Dy','Dz','osc.str.'
         do i=1,dim
           do j=i+1,dim
             run = run + 1
             EDIFF(run) = (EigEn(j) - EigEn(i))/auToEV
-            dipnorm = DipFrintermx2(i,j)*DipFrintermx2(i,j) +
-     &          DipFrintermy2(i,j)*DipFrintermy2(i,j) +
+            dipnorm = DipFrintermx2(i,j)*DipFrintermx2(i,j) +           &
+     &          DipFrintermy2(i,j)*DipFrintermy2(i,j) +                 &
      &          DipFrintermz2(i,j)*DipFrintermz2(i,j)
             OSCSTR(run) = (Two/Three)*EDIFF(run)*dipnorm
-            write(u6,2) i,j, EDIFF(run), DipFrintermx2(i,j),
+            write(u6,2) i,j, EDIFF(run), DipFrintermx2(i,j),            &
      &        DipFrintermy2(i,j), DipFrintermz2(i,j), OSCSTR(run)
           end do
         end do

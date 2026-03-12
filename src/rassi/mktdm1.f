@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 #include "macros.fh"
-      SUBROUTINE MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
-     &    LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,
-     &    DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1,ISTATE,JSTATE,
+      SUBROUTINE MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,                  &
+     &    LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,                  &
+     &    DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1,ISTATE,JSTATE,           &
      &    job1,job2,ist,jst,OrbTab)
 
       ! module dependencies
 #ifdef _DMRG_
       use rasscf_global, only: doDMRG
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_utility_routines, only:
+      use qcmaquis_interface_utility_routines, only:                    &
      &    pretty_print_util
       use qcmaquis_info
       use qcmaquis_interface_mpssi
@@ -44,17 +44,17 @@
 
       Real*8, Allocatable:: SPD1(:)
 
-C Given two CI expansions, using a biorthonormal set of SD''s,
-C calculate the following quantities:
-C (1) The overlap
-C (2) The spin-summed 1-particle transition density matrix
-C (3) The WE-reduced transition spin density matrix
-C in the biorthonormal active orbital basis.
+! Given two CI expansions, using a biorthonormal set of SD''s,
+! calculate the following quantities:
+! (1) The overlap
+! (2) The spin-summed 1-particle transition density matrix
+! (3) The WE-reduced transition spin density matrix
+! in the biorthonormal active orbital basis.
 
-C Pick out nr of active orbitals from orbital table:
+! Pick out nr of active orbitals from orbital table:
       NASORB=ORBTAB(4)
 
-C Overlap:
+! Overlap:
 
       SIJ=0.0D00
 
@@ -68,11 +68,11 @@ C Overlap:
 
 #ifdef _DMRG_
         else
-            sij = qcmaquis_mpssi_overlap(
-     &         qcm_prefixes(job1),
-     &         istate,
-     &         qcm_prefixes(job2),
-     &         jstate,
+            sij = qcmaquis_mpssi_overlap(                               &
+     &         qcm_prefixes(job1),                                      &
+     &         istate,                                                  &
+     &         qcm_prefixes(job2),                                      &
+     &         jstate,                                                  &
      &         .true.)
 
         end if ! DMRG or not
@@ -81,7 +81,7 @@ C Overlap:
 #endif
       END IF ! mmplet and msproj check
 
-C General 1-particle transition density matrix:
+! General 1-particle transition density matrix:
       NSPD1=NASORB**2
 #ifdef _DMRG_
       if (.not.doDMRG) then
@@ -110,45 +110,45 @@ C General 1-particle transition density matrix:
           !> spind constructs the 1-particle transition density matrix
           !> output in SPD1
           !> main input: DET1 and DET2
-          CALL SPIND(ISYOP,MS2OP,ORBTAB,ISSTAB,
+          CALL SPIND(ISYOP,MS2OP,ORBTAB,ISSTAB,                         &
      &               IFSBTAB1,IFSBTAB2,DET1,DET2,SPD1)
 
 #ifdef _DMRG_
         else
-          if(isyop /= 1)
+          if(isyop /= 1)                                                &
      & stop 'MPS property density with spatial symm irrep > 1: FIXME!'
           ! calculate 1-TDMs: Must always be calculated with the higher multiplicity as <T|o|S>
           ! where T always has a higher multiplicity than S
 
           if (MPLET1.lt.MPLET2) then
-            call qcmaquis_mpssi_get_onetdm_spin(
-     &             qcm_prefixes(job2),
-     &             LROOT(JSTATE),
-     &             qcm_prefixes(job1),
-     &             LROOT(ISTATE),
-     &             TDMAA,
-     &             TDMBB,
+            call qcmaquis_mpssi_get_onetdm_spin(                        &
+     &             qcm_prefixes(job2),                                  &
+     &             LROOT(JSTATE),                                       &
+     &             qcm_prefixes(job1),                                  &
+     &             LROOT(ISTATE),                                       &
+     &             TDMAA,                                               &
+     &             TDMBB,                                               &
      &             NSPD1)
           else
-            call qcmaquis_mpssi_get_onetdm_spin(
-     &             qcm_prefixes(job1),
-     &             LROOT(ISTATE),
-     &             qcm_prefixes(job2),
-     &             LROOT(JSTATE),
-     &             TDMAA,
-     &             TDMBB,
+            call qcmaquis_mpssi_get_onetdm_spin(                        &
+     &             qcm_prefixes(job1),                                  &
+     &             LROOT(ISTATE),                                       &
+     &             qcm_prefixes(job2),                                  &
+     &             LROOT(JSTATE),                                       &
+     &             TDMAA,                                               &
+     &             TDMBB,                                               &
      &             NSPD1)
           end if
         end if
 #endif
       END IF
-C Create a scalar, and an WE-reduced spin, transition density matrix.
-C The scalar matrix is simply the usual spin-summed density matrix.
-C The WE-reduced matrix is the one defined through Wigner-Eckarts thm:
-C  <A S1 M1 | T[K]_Q |B S2 M2>
-C                   = FACT*CG(S2 M2 K Q;S1 M1)*<A S1 || T[K] ||B S2>
-C i.e. with the usual Clebsch-Gordan factor, and a prefactor
-C   FACT=(-1)**(MAX(S1,S2)-S1)/SQRT(2*S1+1)
+! Create a scalar, and an WE-reduced spin, transition density matrix.
+! The scalar matrix is simply the usual spin-summed density matrix.
+! The WE-reduced matrix is the one defined through Wigner-Eckarts thm:
+!  <A S1 M1 | T[K]_Q |B S2 M2>
+!                   = FACT*CG(S2 M2 K Q;S1 M1)*<A S1 || T[K] ||B S2>
+! i.e. with the usual Clebsch-Gordan factor, and a prefactor
+!   FACT=(-1)**(MAX(S1,S2)-S1)/SQRT(2*S1+1)
       S1=DBLE(MPLET1-1)*0.5D0
       S2=DBLE(MPLET2-1)*0.5D0
       SM1=DBLE(MSPROJ1)*0.5D0
@@ -175,7 +175,7 @@ C   FACT=(-1)**(MAX(S1,S2)-S1)/SQRT(2*S1+1)
         end if
 #endif
 
-C Position determined by active orbital index in external order:
+! Position determined by active orbital index in external order:
         ITABS=MAPORB(ISORB)
         IUABS=MAPORB(JSORB)
 
@@ -185,12 +185,12 @@ C Position determined by active orbital index in external order:
         !> spin TDM
         TSDM1(ITABS,IUABS)=GAA-GBB
 
-C Clebsch-Gordan coefficient:
+! Clebsch-Gordan coefficient:
         SM=SM1-SM2
         FACT=1.0D0/SQRT(DBLE(MPLET1))
         IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
         CGCOEF=FACT*DCLEBS(S2,1.0D0,S1,SM2,SM,SM1)
-C Spin tensor component matrix element
+! Spin tensor component matrix element
         IF(MSPROJ2.EQ.MSPROJ1+2) THEN
           TMATEL=SQRT(2.0D0)*GBA
         ELSE IF (MSPROJ2.EQ.MSPROJ1-2) THEN
@@ -198,7 +198,7 @@ C Spin tensor component matrix element
         ELSE IF (MSPROJ2.EQ.MSPROJ1) THEN
           TMATEL=0.5D0*(GBB-GAA)
         END IF
-C Thus obtain reduced matrix element from Wigner-Eckart theorem:
+! Thus obtain reduced matrix element from Wigner-Eckart theorem:
         RED=0.0D0
         IF(CGCOEF.NE.0.0D0) THEN
           RED=TMATEL/CGCOEF
@@ -221,7 +221,7 @@ C Thus obtain reduced matrix element from Wigner-Eckart theorem:
        END DO
       END DO
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       unused_var(ISTATE)
       unused_var(JSTATE)
       unused_var(job1)

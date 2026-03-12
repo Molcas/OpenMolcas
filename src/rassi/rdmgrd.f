@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE RDMGRD(JOB,IDISP,LABEL,STYPE,ISYMP,NARRAY,ARRAY)
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -17,16 +17,16 @@
       use rassi_data, only: NBASF
 
       IMPLICIT None
-C Purpose: Read in the derivatives of 1-electron integrals
-C of some operator, with respect to some displacement IDISP.
-C ISYMP is the symmetry irrep label of the derivatives.
+! Purpose: Read in the derivatives of 1-electron integrals
+! of some operator, with respect to some displacement IDISP.
+! ISYMP is the symmetry irrep label of the derivatives.
       Integer JOB,IDISP,ISYMP,NARRAY
       Real*8 ARRAY(NARRAY)
       CHARACTER(LEN=8) LABEL,STYPE
 
       Integer ITOFF(8),IAOFF(8)
       Real*8, Allocatable:: TEMP(:)
-      INTEGER IRC, IOPT, ISUM, IS, JS, NBI, NBJ, NBIJ, NTEMP, ISCODE,
+      INTEGER IRC, IOPT, ISUM, IS, JS, NBI, NBJ, NBIJ, NTEMP, ISCODE,   &
      &        LT, IA1, J, I, IA2
       REAL*8 F
 
@@ -46,7 +46,7 @@ C ISYMP is the symmetry irrep label of the derivatives.
         WRITE(6,*)' Length NARRAY=',NARRAY
       END IF
 
-C Open MCKINT file:
+! Open MCKINT file:
       IRC=-1
       IOPT=0
       CALL OPNMCK(IRC,IOPT,MINAME(JOB),LUMCK)
@@ -58,7 +58,7 @@ C Open MCKINT file:
         CALL ABEND()
       END IF
 
-C Addressing integral blocks in the buffer:
+! Addressing integral blocks in the buffer:
       ISUM=0
       DO IS=1,NSYM
        JS=MUL(IS,ISYMP)
@@ -73,12 +73,12 @@ C Addressing integral blocks in the buffer:
        END IF
       END DO
       NTEMP=ISUM
-C Read MCKINT file:
+! Read MCKINT file:
       IOPT=0
       ISCODE=2**(ISYMP-1)
-C Get temporary buffer to read data by RDMCK calls
+! Get temporary buffer to read data by RDMCK calls
       CALL mma_allocate(TEMP,NTEMP,Label='TEMP')
-C Read 1-electron integral derivatives:
+! Read 1-electron integral derivatives:
       IRC=NTEMP
       CALL dRDMCK(IRC,IOPT,LABEL,IDISP,TEMP,ISCODE)
       IF(IRC.NE.0) THEN
@@ -91,7 +91,7 @@ C Read 1-electron integral derivatives:
         CALL ABEND()
       END IF
 
-C Addressing integral blocks in ARRAY:
+! Addressing integral blocks in ARRAY:
       ISUM=0
       DO IS=1,NSYM
        JS=MUL(IS,ISYMP)
@@ -107,7 +107,7 @@ C Addressing integral blocks in ARRAY:
         WRITE(6,*)' Needed size       ISUM=',ISUM
         CALL ABEND()
       END IF
-C Move buffer integrals into ARRAY in proper format:
+! Move buffer integrals into ARRAY in proper format:
       DO IS=1,NSYM
         NBI=NBASF(IS)
         IF(NBI.LE.0) GOTO 11
@@ -141,10 +141,10 @@ C Move buffer integrals into ARRAY in proper format:
         END IF
   11    CONTINUE
       END DO
-C Get rid of temporary buffer
+! Get rid of temporary buffer
       CALL mma_deallocate(TEMP)
 
-C Close MCKINT file:
+! Close MCKINT file:
       IRC=-1
       IOPT=0
       CALL CLSMCK(IRC,IOPT)

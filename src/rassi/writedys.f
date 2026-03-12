@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2018, Jesper Norell                                    *
-*               2018, Joel Creutzberg                                  *
-*               2023, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2018, Jesper Norell                                    *
+!               2018, Joel Creutzberg                                  *
+!               2023, Ignacio Fdez. Galvan                             *
+!***********************************************************************
 
 !     Subroutine to correctly bunch together spin-free Dyson orbitals
 !     and pass them to the molden_dysorb interface for .molden export
@@ -80,9 +80,9 @@
 
          Write(filename,'(A,I0)') 'DYSORB.SF.',JSTATE
          LUNIT=IsFreeUnit(50)
-         Write(TITLE,'(A,I0)') '* Spin-free Dyson orbitals for state ',
+         Write(TITLE,'(A,I0)') '* Spin-free Dyson orbitals for state ', &
      &                         JSTATE
-         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,CMO,AMPS,
+         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,CMO,AMPS,    &
      &                    DYSEN,Trim(TITLE),NZ)
          Close(LUNIT)
         END IF

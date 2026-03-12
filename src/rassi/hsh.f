@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE HSHGET(KEY,KEYDIM,NCOMP,ITEM,NSIZE,ITAB,ITEMID)
       use definitions, only: iwp, u6
       IMPLICIT NONE
@@ -15,7 +15,7 @@
       INTEGER(kind=iwp), intent(in):: KEY(KEYDIM),ITEM(NCOMP,*)
       INTEGER(kind=iwp), intent(in):: ITAB(NSIZE,2)
       INTEGER(kind=iwp), intent(out):: ITEMID
-C These parameters determine the hash function:
+! These parameters determine the hash function:
       INTEGER(kind=iwp), PARAMETER :: MULT=37, NHASH=997
       INTEGER(kind=iwp) NULL, IND, I, LOOKAT
       LOGICAL(kind=iwp) FAILED_ID
@@ -26,27 +26,27 @@ C These parameters determine the hash function:
         CALL ABEND()
       END IF
       NULL=ITAB(NSIZE,1)
-C Evaluate hash index:
+! Evaluate hash index:
       IND=MOD(KEY(1),NHASH)
       DO I=2,KEYDIM
         IND=MOD(KEY(I)+MULT*IND,NHASH)
       END DO
       IND=IND+1
-C IND is a hashed index in interval 1..NHASH < NSIZE
-C Find the item with this key:
+! IND is a hashed index in interval 1..NHASH < NSIZE
+! Find the item with this key:
 
       LOOKAT=IND
 
       Outer: DO
 
-C Are there (more) items with that hash signature?
+! Are there (more) items with that hash signature?
       IF(ITAB(LOOKAT,1)==NULL) THEN
-C Here, if we have failed to find such an item.
+! Here, if we have failed to find such an item.
          ITEMID=0
          RETURN
        END IF
 
-C Try to identify an item which has the given key:
+! Try to identify an item which has the given key:
       ITEMID=ITAB(LOOKAT,2)
       FAILED_ID=.FALSE.
       DO I=1,KEYDIM
@@ -57,10 +57,10 @@ C Try to identify an item which has the given key:
       END DO
 
       IF (FAILED_ID) THEN
-C Here, if we have not yet identified the item.
+! Here, if we have not yet identified the item.
          LOOKAT=ITAB(LOOKAT,1)
       ELSE
-C Here, if we have identified the item.
+! Here, if we have identified the item.
          RETURN
       END IF
 
@@ -76,7 +76,7 @@ C Here, if we have identified the item.
       integer(kind=iwp), intent(inout):: ITAB(NSIZE,2)
       integer(kind=iwp), intent(in):: ITEM(NCOMP,*)
 
-C These parameters determine the hash function:
+! These parameters determine the hash function:
       integer(kind=iwp), parameter:: MULT=37,NHASH=997
       integer(kind=iwp) IND,I,IFREE,LOOKAT,NULL,NEXT
 
@@ -92,24 +92,24 @@ C These parameters determine the hash function:
         WRITE(6,*)' Size NSIZE is too small, NSIZE =', NSIZE
         CALL ABEND()
       END IF
-C Evaluate hash index:
+! Evaluate hash index:
       IND=MOD(ITEM(1,ITEMID),NHASH)
       DO I=2,KEYDIM
         IND=MOD(ITEM(I,ITEMID)+MULT*IND,NHASH)
       END DO
       IND=IND+1
-C IND is a hashed index in interval 1..NHASH < NSIZE
-C Find the last item with this key:
+! IND is a hashed index in interval 1..NHASH < NSIZE
+! Find the last item with this key:
 
       LOOKAT=IND
       DO
-C Are there already items with that hash signature?
+! Are there already items with that hash signature?
       IF(ITAB(LOOKAT,1).EQ.NULL) EXIT
       LOOKAT=ITAB(LOOKAT,1)
       END DO
 
-C No more items with the same signature.
-C Put the new item in the table at a free location.
+! No more items with the same signature.
+! Put the new item in the table at a free location.
       ITAB(LOOKAT,1)=IFREE
       ITAB(LOOKAT,2)=ITEMID
       NEXT=ITAB(IFREE,1)
@@ -123,7 +123,7 @@ C Put the new item in the table at a free location.
       IMPLICIT NONE
       integer(kind=iwp), intent(In):: NSIZE, NULL
       integer(kind=iwp), intent(out):: ITAB(NSIZE,2)
-C These parameters determine the hash function
+! These parameters determine the hash function
       integer(kind=iwp), PARAMETER:: NHASH=997
       integer(kind=iwp) I, IFREE
 

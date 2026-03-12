@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE PrOrbTab(ORBTAB)
       IMPLICIT NONE
       INTEGER ORBTAB(*)
@@ -43,7 +43,7 @@
       KOINFO=19
       NSPART=ORBTAB(7)
       KSPART=ORBTAB(10)
-      WRITE(6,*)'         IEXTNUM ISMLAB ISOIND ISPLAB  IPART INPART'
+      WRITE(6,*)'         IEXTNUM ISMLAB ISOIND ISPLAB  IPART INPART'   &
      &           //' ISPART  INSBP ORBNAM'
       DO ISORB=1,NSPORB
         IEXTNUM= ORBTAB(KOINFO+ 0+(ISORB-1)*8)
@@ -55,7 +55,7 @@
         ISPART = ORBTAB(KOINFO+ 6+(ISORB-1)*8)
         INSBP  = ORBTAB(KOINFO+ 7+(ISORB-1)*8)
         STRING8= ORBNAM(ISORB,ORBTAB)
-        WRITE(6,'(1x,9I7,2X,A8)') ISORB,IEXTNUM,ISMLAB,ISOIND,ISPLAB,
+        WRITE(6,'(1x,9I7,2X,A8)') ISORB,IEXTNUM,ISMLAB,ISOIND,ISPLAB,   &
      &                           IPART,INPART,ISPART,INSBP,STRING8
       END DO
       WRITE(6,*)

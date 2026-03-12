@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1989, Per Ake Malmqvist                                *
-************************************************************************
-*****************************************************************
-*  PROGRAM RASSI        PER-AAKE MALMQVIST
-*  SUBROUTINE MKTDAB    IBM-3090 RELEASE 89 01 31
-*  PURPOSE: CALCULATE TRANSITION DENSITY MATRIX FOR CI EXPANSIONS IN
-*  BIORTHONORMAL ORBITAL BASES A AND B.
-*****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1989, Per Ake Malmqvist                                *
+!***********************************************************************
+!****************************************************************
+!  PROGRAM RASSI        PER-AAKE MALMQVIST
+!  SUBROUTINE MKTDAB    IBM-3090 RELEASE 89 01 31
+!  PURPOSE: CALCULATE TRANSITION DENSITY MATRIX FOR CI EXPANSIONS IN
+!  BIORTHONORMAL ORBITAL BASES A AND B.
+!****************************************************************
       SUBROUTINE MKTDAB(OVER,GAMMA1,TDMAB,iRC)
       use Constants, only: Zero, Two
       use Cntrl, only: LSYM1, LSYM2
@@ -28,17 +28,17 @@
       INTEGER iRC
 
       INTEGER IOFFA(8)
-      INTEGER I, IOFFTD, ISY, II, IPOS, ISY12, ISY1, NO1, ISY2, NO2,
+      INTEGER I, IOFFTD, ISY, II, IPOS, ISY12, ISY1, NO1, ISY2, NO2,    &
      &        NA1, NA2, NI1, NI2, IA, J, JA, JJ
       REAL*8, External:: DDot_
-C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
+! IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
       DO I=1,NSYM-1
         IOFFA(I+1)=IOFFA(I)+NASH(I)
       end do
-C  INITIALIZE TRANSITION DENSITY MATRIX:
+!  INITIALIZE TRANSITION DENSITY MATRIX:
       TDMAB(:)=Zero
-C CONTRIBUTION FROM INACTIVE ORBITALS:
+! CONTRIBUTION FROM INACTIVE ORBITALS:
       IF (LSYM1.EQ.LSYM2) THEN
          IF (OVER.NE.Zero) THEN
             IOFFTD=0
@@ -53,7 +53,7 @@ C CONTRIBUTION FROM INACTIVE ORBITALS:
             end do
          END IF
       END IF
-C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
+! THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
       ISY12=MUL(LSYM1,LSYM2)
       IOFFTD=0
       DO ISY1=1,NSYM
@@ -82,7 +82,7 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
          end if
       IOFFTD=IOFFTD+NO1*NO2
       end do
-*
+!
       iRC=1
       If (DDot_(nTDMAB,TDMAB,1,TDMAB,1).le.Zero) iRC=0
 

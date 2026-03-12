@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2023, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2023, Ignacio Fdez. Galvan                             *
+!***********************************************************************
 
       ! Sort Dyson orbitals according to symmetry so that they can be
       ! written with WrVec
 
-      SUBROUTINE WRVEC_DYSON(filename,LUNIT,NSYM,NBAS,ORBNUM,CMO,AMPS,
+      SUBROUTINE WRVEC_DYSON(filename,LUNIT,NSYM,NBAS,ORBNUM,CMO,AMPS,  &
      &                       DYSEN,TITLE,NZ)
 
       USE stdalloc, ONLY: mma_allocate, mma_deallocate
@@ -24,7 +24,7 @@
       CHARACTER(LEN=*) :: filename, TITLE
       INTEGER :: LUNIT, NSYM, NBAS(NSYM), ORBNUM, NZ
       REAL*8 :: CMO(NZ,ORBNUM), AMPS(ORBNUM), DYSEN(ORBNUM)
-      INTEGER :: DUMMY(7,8), I, J, NB(0:NSYM), NBAS_(NSYM), NBT,
+      INTEGER :: DUMMY(7,8), I, J, NB(0:NSYM), NBAS_(NSYM), NBT,        &
      &           NORB(NSYM), NSYM_, OFF, ORBSYM(ORBNUM)
       REAL*8 :: RSUM
       LOGICAL :: DODESYM
@@ -73,7 +73,7 @@
         NBT = NBAS_(1)
         CALL mma_allocate(DESYM,NBT,NBT,Label='DESYM')
         CALL get_dArray('SM',DESYM,NBT**2)
-        CALL DGEMM_('N','N',NBT,NORB(1),NBT,One,DESYM,NBT,CMO,NBT,Zero,
+        CALL DGEMM_('N','N',NBT,NORB(1),NBT,One,DESYM,NBT,CMO,NBT,Zero, &
      &              REORD,NBT)
         CALL mma_deallocate(DESYM)
       ELSE
@@ -89,7 +89,7 @@
       END IF
 
       ! And call WrVec with the reordered data
-      CALL WRVEC(filename,LUNIT,'COE',NSYM_,NBAS_,NORB,REORD,AMPS,
+      CALL WRVEC(filename,LUNIT,'COE',NSYM_,NBAS_,NORB,REORD,AMPS,      &
      &           DYSEN,DUMMY,TITLE)
 
       CALL mma_deallocate(REORD)

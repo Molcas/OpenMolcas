@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 #include "macros.fh"
-      SUBROUTINE MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,
-     &                  LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,
-     &                  MAPORB,DET1,DET2,NTDM2,TDM2,
+      SUBROUTINE MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,                  &
+     &                  LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,           &
+     &                  MAPORB,DET1,DET2,NTDM2,TDM2,                    &
      &                  ISTATE,JSTATE,OrbTab)
 
       ! module dependencies
@@ -44,11 +44,11 @@
       INTEGER NASGEM,NSPD2
       Real*8, Allocatable:: SPD2(:)
 
-C Given two CI expansions, using a biorthonormal set of SD''s,
-C calculate the spin-summed 2-particle transition density matrix
-C in the biorthonormal active orbital basis.
+! Given two CI expansions, using a biorthonormal set of SD''s,
+! calculate the spin-summed 2-particle transition density matrix
+! in the biorthonormal active orbital basis.
 
-C Pick out nr of active orbitals from orbital table:
+! Pick out nr of active orbitals from orbital table:
       NASORB=ORBTAB(4)
       NASHT=NASORB/2
       NASGEM=(NASORB*(NASORB-1))/2
@@ -61,12 +61,12 @@ C Pick out nr of active orbitals from orbital table:
 #ifdef _DMRG_
       if(.not.doDMRG)then
 #endif
-        CALL SPIND2(ISYOP,MS2OP,ORBTAB,ISSTAB,
+        CALL SPIND2(ISYOP,MS2OP,ORBTAB,ISSTAB,                          &
      &              IFSBTAB1,IFSBTAB2,DET1,DET2,SPD2)
 #ifdef _DMRG_
       else
 
-        write(6,*) "2-TDM import with QCMaquis in MPSSI "//
+        write(6,*) "2-TDM import with QCMaquis in MPSSI "//             &
      &    "not implemented yet"
         call Quit_OnUserError()
       endif
@@ -212,7 +212,7 @@ C Pick out nr of active orbitals from orbital table:
         GVAL=2.0D0*GBAAB
        END IF
       END IF
-C Position determined by active orbital index in external order:
+! Position determined by active orbital index in external order:
           ITUVX=(ITU*(ITU-1))/2+IVX
           TDM2(ITUVX)=GVAL
          END DO
@@ -232,7 +232,7 @@ C Position determined by active orbital index in external order:
 #endif
 
       CALL mma_deallocate(SPD2)
-C DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
+! DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
       IJIJ=0
       DO IJ=1,NASHT**2
         IJIJ=IJIJ+IJ

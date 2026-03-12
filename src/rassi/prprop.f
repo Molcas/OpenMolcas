@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 #include "macros.fh"
-      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,
+      SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,     &
      &                  EigVec)
 
       use rassi_aux, only: ipglob
@@ -17,33 +17,33 @@
       USE kVectors
 #ifdef _HDF5_
       USE mh5, ONLY: mh5_put_dset
-      use RASSIWfn, only: wfn_sfs_angmom, wfn_sos_angmomr,
-     &                    wfn_sos_angmomi, wfn_sos_spinr, wfn_sos_spini,
-     &                    wfn_sfs_edipmom, wfn_sfs_amfi,
-     &                    wfn_sos_edipmomr, wfn_sos_edipmomi,
+      use RASSIWfn, only: wfn_sfs_angmom, wfn_sos_angmomr,              &
+     &                    wfn_sos_angmomi, wfn_sos_spinr, wfn_sos_spini,&
+     &                    wfn_sfs_edipmom, wfn_sfs_amfi,                &
+     &                    wfn_sos_edipmomr, wfn_sos_edipmomi,           &
      &                    wfn_sos_dys
       use Cntrl, only: RhoDyn
 #endif
-      use Constants, only: Pi, auTocm, auToeV, auTofs, auTokJ, auToT,
-     &                     c_in_au, Debye, gElectron, kBoltzmann, mBohr,
-     &                     rNAVO, Half, Two, Three, Zero, One, Six, Ten,
+      use Constants, only: Pi, auTocm, auToeV, auTofs, auTokJ, auToT,   &
+     &                     c_in_au, Debye, gElectron, kBoltzmann, mBohr,&
+     &                     rNAVO, Half, Two, Three, Zero, One, Six, Ten,&
      &                     Nine
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NPROP, NTS, PRXVE, PRMEE, LPRPR,
-     &                 PRMES, IFSO, NSOPR, DIPR, OSThr_DIPR, QIPR,
-     &                 OSthr_QIPR, QIALL, RSPR, RSThr, ReduceLoop,
-     &                 LoopDivide, LoopMax, Do_SK, PRDIPCOM, Tolerance,
-     &                 DoCD, DYSO, Do_TMom, IfGCAL, EPrThr,
-     &                 IfvanVleck, TMins, TMaxs, IfGTCALSA, IfGTSHSA,
-     &                 MULTIP, IfACAL, IfXCal, BStart, NBSTep, BIncre,
-     &                 TStart, nTStep, TIncre, IfMCal, BAngRes, iComp,
-     &                 IPUSED, ISOCMP, MLTPLT, PNAME, PNUC, PORIG,
+      use Cntrl, only: NSTATE, NPROP, NTS, PRXVE, PRMEE, LPRPR,         &
+     &                 PRMES, IFSO, NSOPR, DIPR, OSThr_DIPR, QIPR,      &
+     &                 OSthr_QIPR, QIALL, RSPR, RSThr, ReduceLoop,      &
+     &                 LoopDivide, LoopMax, Do_SK, PRDIPCOM, Tolerance, &
+     &                 DoCD, DYSO, Do_TMom, IfGCAL, EPrThr,             &
+     &                 IfvanVleck, TMins, TMaxs, IfGTCALSA, IfGTSHSA,   &
+     &                 MULTIP, IfACAL, IfXCal, BStart, NBSTep, BIncre,  &
+     &                 TStart, nTStep, TIncre, IfMCal, BAngRes, iComp,  &
+     &                 IPUSED, ISOCMP, MLTPLT, PNAME, PNUC, PORIG,      &
      &                 PTYPE, SOPRNM, SOPRTP
 
       IMPLICIT NONE
       Integer NSS, JBNUM(NSTATE)
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS),ENSOR(NSS)
-      Real*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+      Real*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),             &
      &       ENERGY(NSTATE), EigVec(NSTATE,NSTATE)
 
       Real*8, parameter:: THRSH=1.0D-10
@@ -74,44 +74,44 @@
 #endif
       Integer, allocatable:: PMAP(:)
 ! Dipole
-      Real*8, allocatable:: DXR(:,:), DXI(:,:),
-     &                      DYR(:,:), DYI(:,:),
+      Real*8, allocatable:: DXR(:,:), DXI(:,:),                         &
+     &                      DYR(:,:), DYI(:,:),                         &
      &                      DZR(:,:), DZI(:,:)
 ! Magnetic-Dipole
-      Real*8, allocatable:: MDXR(:,:), MDXI(:,:),
-     &                      MDYR(:,:), MDYI(:,:),
+      Real*8, allocatable:: MDXR(:,:), MDXI(:,:),                       &
+     &                      MDYR(:,:), MDYI(:,:),                       &
      &                      MDZR(:,:), MDZI(:,:)
 ! Electric-Quadrupole
-      Real*8, allocatable:: QXXR(:,:), QXXI(:,:),
-     &                      QXYR(:,:), QXYI(:,:),
-     &                      QXZR(:,:), QXZI(:,:),
-     &                      QYYR(:,:), QYYI(:,:),
-     &                      QYZR(:,:), QYZI(:,:),
+      Real*8, allocatable:: QXXR(:,:), QXXI(:,:),                       &
+     &                      QXYR(:,:), QXYI(:,:),                       &
+     &                      QXZR(:,:), QXZI(:,:),                       &
+     &                      QYYR(:,:), QYYI(:,:),                       &
+     &                      QYZR(:,:), QYZI(:,:),                       &
      &                      QZZR(:,:), QZZI(:,:)
 ! Magnetic-Quadrupole
-      Real*8, allocatable:: MQZXR(:,:), MQZXI(:,:),
-     &                      MQXZR(:,:), MQXZI(:,:),
-     &                      MQXYR(:,:), MQXYI(:,:),
-     &                      MQYXR(:,:), MQYXI(:,:),
-     &                      MQYZR(:,:), MQYZI(:,:),
+      Real*8, allocatable:: MQZXR(:,:), MQZXI(:,:),                     &
+     &                      MQXZR(:,:), MQXZI(:,:),                     &
+     &                      MQXYR(:,:), MQXYI(:,:),                     &
+     &                      MQYXR(:,:), MQYXI(:,:),                     &
+     &                      MQYZR(:,:), MQYZI(:,:),                     &
      &                      MQZYR(:,:), MQZYI(:,:)
 ! Octupole
-      Real*8, allocatable:: DXXXR(:,:),DXXXI(:,:),
-     &                      DXXYR(:,:),DXXYI(:,:),
-     &                      DXXZR(:,:),DXXZI(:,:),
-     &                      DYYXR(:,:),DYYXI(:,:),
-     &                      DYYYR(:,:),DYYYI(:,:),
-     &                      DYYZR(:,:),DYYZI(:,:),
-     &                      DZZXR(:,:),DZZXI(:,:),
-     &                      DZZYR(:,:),DZZYI(:,:),
+      Real*8, allocatable:: DXXXR(:,:),DXXXI(:,:),                      &
+     &                      DXXYR(:,:),DXXYI(:,:),                      &
+     &                      DXXZR(:,:),DXXZI(:,:),                      &
+     &                      DYYXR(:,:),DYYXI(:,:),                      &
+     &                      DYYYR(:,:),DYYYI(:,:),                      &
+     &                      DYYZR(:,:),DYYZI(:,:),                      &
+     &                      DZZXR(:,:),DZZXI(:,:),                      &
+     &                      DZZYR(:,:),DZZYI(:,:),                      &
      &                      DZZZR(:,:),DZZZI(:,:)
 ! Spin-Magnetic-Dipole
-      Real*8, allocatable:: SXR(:,:), SXI(:,:),
-     &                      SYR(:,:), SYI(:,:),
+      Real*8, allocatable:: SXR(:,:), SXI(:,:),                         &
+     &                      SYR(:,:), SYI(:,:),                         &
      &                      SZR(:,:), SZI(:,:)
 ! Spin-Magnetic-Quadrupole
-      Real*8, allocatable:: SXYR(:,:), SXYI(:,:), SYXR(:,:), SYXI(:,:),
-     &                      SYZR(:,:), SYZI(:,:), SZYR(:,:), SZYI(:,:),
+      Real*8, allocatable:: SXYR(:,:), SXYI(:,:), SYXR(:,:), SYXI(:,:), &
+     &                      SYZR(:,:), SYZI(:,:), SZYR(:,:), SZYI(:,:), &
      &                      SZXR(:,:), SZXI(:,:), SXZR(:,:), SXZI(:,:)
 
       Real*8, allocatable:: DV(:,:), DL(:,:), TOT2K(:,:)
@@ -149,37 +149,37 @@
       Real*8, Parameter:: TWOOVERM45C=-Two/(45.0D0*c_in_au**2)
       REAL*8, Parameter:: ONEOVER9C2=One/(Nine*c_in_au**2)
 
-      Integer nCol, iProp,               I, ISTA, IEND, J, ICMP, NPMSIZ,
-     &        nMiss, iSOPr, JSTART, JEND, I_Have_DL, I_Have_DV, nVec,
-     &      i_print,ISS, JSS, K, I_Print_Header, IfAnyM, IfAnyS, IfAnyQ,
-     &        IfAnyO, I2Tot, iAMFIx, iAMFIy, iAMFIz, iXYZ, jXYZ, iState,
-     &        MPLET1, jState, MPLET2, iAMx, iAMy, iAMz, MPLET, kXYZ,
-     &        iERR, iMLTPL, iStart, iFinal, ijXYZ, IT, IC, JC, KDGN,
-     &        ISO, JSO, LMStep, IBStep, ITStep, nPhiStep, nTheStep,
-     &        NORIENT, ITHE, iPhiStep, iPhi, IfAnyD, iPrDXY, iPrDXZ,
+      Integer nCol, iProp,               I, ISTA, IEND, J, ICMP, NPMSIZ,&
+     &        nMiss, iSOPr, JSTART, JEND, I_Have_DL, I_Have_DV, nVec,   &
+     &      i_print,ISS, JSS, K, I_Print_Header, IfAnyM, IfAnyS, IfAnyQ,&
+     &        IfAnyO, I2Tot, iAMFIx, iAMFIy, iAMFIz, iXYZ, jXYZ, iState,&
+     &        MPLET1, jState, MPLET2, iAMx, iAMy, iAMz, MPLET, kXYZ,    &
+     &        iERR, iMLTPL, iStart, iFinal, ijXYZ, IT, IC, JC, KDGN,    &
+     &        ISO, JSO, LMStep, IBStep, ITStep, nPhiStep, nTheStep,     &
+     &        NORIENT, ITHE, iPhiStep, iPhi, IfAnyD, iPrDXY, iPrDXZ,    &
      &        iPrDYZ, iVec
-      Real*8 AFactor, OSthr, OSThr2, EDiff, DX2, DY2, DZ2, FX, FY, FZ,
-     &       A, DLT, EDIFF3, DXX2, DYY2, DZZ2, FXX, FYY, FYZ, DXXDYY,
-     &       DXXDZZ, DYYDZZ, FXXFYY, FXXFZZ, FYYFZZ, G, DXXXDX, DYYXDX,
-     &       DZZXDX, FXXX, FYYY, FZZZ, DXXYDY, DYYYDY, DZZYDY, FXXY,
-     &       FZZY, DXXZDZ, DYYZDZ, DZZZDZ, EDIFF2, DXYDZ, DYXDZ,
-     &       FYX, DZXDY, DXZDY, FZX, DYZDX, DZYDX, FZY, D_XR, D_YR,
-     &       D_ZR, D_XI, D_YI, D_ZI, D_MXR, D_MYR, D_MZR, D_MXI, D_MYI,
-     &       D_MZI, RXX, RYY, RZZ, R, PLIMIT, PMAX,
-     &       Q_XXR, Q_XYR, Q_XZR, Q_YYR, Q_YZR, Q_ZZR,
-     &       Q_XXI, Q_XYI, Q_XZI, Q_YYI, Q_YZI, Q_ZZI,
-     &       RXY, RXZ, RYX, RYZ, RZX, RZY,
-     &       RXXY, RXXZ, RXYX, RXYZ, RXZX, RXZY, RXYY, RYYX, RYYZ,
-     &       RYZX, RYZY, RXZZ, RZZX, RZZY, DysThr, S1, FACT0, FACTP,
-     &       FACTM, DTIJ, S2, DELTA, CONTRIB, S, Factor, GTij, GSEnergy,
-     &       DLT_E, BFinal, TFinal, B, HZer, T, RKT, RPart, Fact,
-     &       rMagm2, rMagMO, GTR, bPhiRes, Phi, Bx, By, Bz, DIPSOM_SA,
-     &       EEX, EEY, EEZ, ThreEJ, AX, AY, AZ, F, FZZ, DXY2, DXZ2,
+      Real*8 AFactor, OSthr, OSThr2, EDiff, DX2, DY2, DZ2, FX, FY, FZ,  &
+     &       A, DLT, EDIFF3, DXX2, DYY2, DZZ2, FXX, FYY, FYZ, DXXDYY,   &
+     &       DXXDZZ, DYYDZZ, FXXFYY, FXXFZZ, FYYFZZ, G, DXXXDX, DYYXDX, &
+     &       DZZXDX, FXXX, FYYY, FZZZ, DXXYDY, DYYYDY, DZZYDY, FXXY,    &
+     &       FZZY, DXXZDZ, DYYZDZ, DZZZDZ, EDIFF2, DXYDZ, DYXDZ,        &
+     &       FYX, DZXDY, DXZDY, FZX, DYZDX, DZYDX, FZY, D_XR, D_YR,     &
+     &       D_ZR, D_XI, D_YI, D_ZI, D_MXR, D_MYR, D_MZR, D_MXI, D_MYI, &
+     &       D_MZI, RXX, RYY, RZZ, R, PLIMIT, PMAX,                     &
+     &       Q_XXR, Q_XYR, Q_XZR, Q_YYR, Q_YZR, Q_ZZR,                  &
+     &       Q_XXI, Q_XYI, Q_XZI, Q_YYI, Q_YZI, Q_ZZI,                  &
+     &       RXY, RXZ, RYX, RYZ, RZX, RZY,                              &
+     &       RXXY, RXXZ, RXYX, RXYZ, RXZX, RXZY, RXYY, RYYX, RYYZ,      &
+     &       RYZX, RYZY, RXZZ, RZZX, RZZY, DysThr, S1, FACT0, FACTP,    &
+     &       FACTM, DTIJ, S2, DELTA, CONTRIB, S, Factor, GTij, GSEnergy,&
+     &       DLT_E, BFinal, TFinal, B, HZer, T, RKT, RPart, Fact,       &
+     &       rMagm2, rMagMO, GTR, bPhiRes, Phi, Bx, By, Bz, DIPSOM_SA,  &
+     &       EEX, EEY, EEZ, ThreEJ, AX, AY, AZ, F, FZZ, DXY2, DXZ2,     &
      &       FXY, FXZ, FYYX, FZZX, FXXZ, FYYZ, DYZ2, RYZZ, THE
 
-******************************************************
-* printout of properties over the spin-free states
-******************************************************
+!*****************************************************
+! printout of properties over the spin-free states
+!*****************************************************
 
       IF(IPGLOB.LE.0) GOTO 400
 
@@ -188,7 +188,7 @@
       WRITE(6,*)
       WRITE(6,'(6X,A)') repeat('*',100)
       WRITE(6,'(6X,A,98X,A)') '*','*'
-      WRITE(6,'(6X,A,34X,A,34X,A)')
+      WRITE(6,'(6X,A,34X,A,34X,A)')                                     &
      &     '*',' Spin-free properties section ','*'
       WRITE(6,'(6X,A,98X,A)') '*','*'
       WRITE(6,'(6X,A)') repeat('*',100)
@@ -196,7 +196,7 @@
       WRITE(6,*)
       END IF
 
-* Did the user want printed expectation values?
+! Did the user want printed expectation values?
       IF( PRXVE ) THEN
        Call CollapseOutput(1,'Expectation values')
        WRITE(6,*)
@@ -210,8 +210,8 @@
        DO IPROP=1,NPROP
         IF(IPUSED(IPROP).EQ.0) GOTO 100
 
-* Skip printing if all the diagonal values are very small
-*  (presumed zero for reasons of selection rules)
+! Skip printing if all the diagonal values are very small
+!  (presumed zero for reasons of selection rules)
         PLIMIT=1.0D-10
         PMAX=ZERO
 
@@ -224,19 +224,19 @@
         DO ISTA=1,NSTATE,NCOL
           IEND=MIN(NSTATE,ISTA+NCOL-1)
           WRITE(6,*)
-          WRITE(6,'(1X,A,A8,A,I4)')
-     *  'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
-          WRITE(6,'(1X,A,3(1X,ES16.9))')
-     *'ORIGIN    :',(PORIG(I,IPROP),I=1,3)
-          WRITE(6,'(1X,A,I8,4I17)')
-     *'STATE     :',(I,I=ISTA,IEND)
+          WRITE(6,'(1X,A,A8,A,I4)')                                     &
+     &  'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
+          WRITE(6,'(1X,A,3(1X,ES16.9))')                                &
+     &'ORIGIN    :',(PORIG(I,IPROP),I=1,3)
+          WRITE(6,'(1X,A,I8,4I17)')                                     &
+     &'STATE     :',(I,I=ISTA,IEND)
           WRITE(6,*)
-          WRITE(6,'(1X,A,4(1X,ES16.9))')
-     *'ELECTRONIC:',(PROP(I,I,IPROP),I=ISTA,IEND)
-          WRITE(6,'(1X,A,4(1X,ES16.9))')
-     *'NUCLEAR   :',(PNUC(IPROP),I=ISTA,IEND)
-          WRITE(6,'(1X,A,4(1X,ES16.9))')
-     *'TOTAL     :',(PROP(I,I,IPROP)+PNUC(IPROP),I=ISTA,IEND)
+          WRITE(6,'(1X,A,4(1X,ES16.9))')                                &
+     &'ELECTRONIC:',(PROP(I,I,IPROP),I=ISTA,IEND)
+          WRITE(6,'(1X,A,4(1X,ES16.9))')                                &
+     &'NUCLEAR   :',(PNUC(IPROP),I=ISTA,IEND)
+          WRITE(6,'(1X,A,4(1X,ES16.9))')                                &
+     &'TOTAL     :',(PROP(I,I,IPROP)+PNUC(IPROP),I=ISTA,IEND)
           WRITE(6,*)
         END DO
  100    CONTINUE
@@ -245,14 +245,14 @@
        WRITE(6,*)
       END IF
 
-* include nuclear contribution
+! include nuclear contribution
       DO IPROP=1,NPROP
         DO I=1,NSTATE
           PROP(I,I,IPROP)=PROP(I,I,IPROP)+PNUC(IPROP)
         END DO
       END DO
 
-* Did the user want printed matrix elements?
+! Did the user want printed matrix elements?
       IF( PRMEE ) THEN
        Call CollapseOutput(1,'Matrix elements')
        WRITE(6,*)
@@ -264,7 +264,7 @@
        WRITE(6,*)
        WRITE(6,*)' SELECTED PROPERTIES:'
        DO I=1,NPROP,5
-         WRITE(6,'(1X,5(A8,1X,I2,4X))')
+         WRITE(6,'(1X,5(A8,1X,I2,4X))')                                 &
      &          (PNAME(IPROP),ICOMP(IPROP),IPROP=I,MIN(NPROP,I+4))
        END DO
 
@@ -272,19 +272,19 @@
        DO IPROP=1,NPROP
          IF(IPUSED(IPROP).EQ.0) GOTO 200
          WRITE(6,*)
-         WRITE(6,'(1X,A,A8,A,I4)')
-     *   'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
-         WRITE(6,'(1X,A,3(1X,ES16.9))')
-     *   'ORIGIN: ',(PORIG(I,IPROP),I=1,3)
+         WRITE(6,'(1X,A,A8,A,I4)')                                      &
+     &   'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
+         WRITE(6,'(1X,A,3(1X,ES16.9))')                                 &
+     &   'ORIGIN: ',(PORIG(I,IPROP),I=1,3)
          DO ISTA=1,NSTATE,NCOL
            IEND=MIN(NSTATE,ISTA+NCOL-1)
            WRITE(6,*)
-           WRITE(6,'(1X,A,I8,3I17)')
-     *     ' STATE   ',(I,I=ISTA,IEND)
+           WRITE(6,'(1X,A,I8,3I17)')                                    &
+     &     ' STATE   ',(I,I=ISTA,IEND)
            WRITE(6,*)
            DO J=1,NSTATE
-            WRITE(6,'(1X,I4,6X,4(1X,ES16.9))')
-     *      J,(PROP(J,I,IPROP),I=ISTA,IEND)
+            WRITE(6,'(1X,I4,6X,4(1X,ES16.9))')                          &
+     &      J,(PROP(J,I,IPROP),I=ISTA,IEND)
            END DO
          END DO
  200     CONTINUE
@@ -293,8 +293,8 @@
        Call CollapseOutput(0,'Matrix elements')
        WRITE(6,*)
       END IF
-C Added by Ungur Liviu on 04.11.2009.
-C Addition of ANGMOM to Runfile.
+! Added by Ungur Liviu on 04.11.2009.
+! Addition of ANGMOM to Runfile.
 
       IFANGM=.FALSE.
       IFDIP1=.FALSE.
@@ -311,8 +311,8 @@ C Addition of ANGMOM to Runfile.
                ENDDO
             ENDDO
          ENDIF
-c add dipole moment integrals:
-         IF(PNAME(IPROP).EQ.'MLTPL  1'.AND.
+! add dipole moment integrals:
+         IF(PNAME(IPROP).EQ.'MLTPL  1'.AND.                             &
      &      PTYPE(IPROP).EQ.'HERMSING') THEN
             IFDIP1=.TRUE.
             DO I=1,NSTATE
@@ -321,7 +321,7 @@ c add dipole moment integrals:
                ENDDO
             ENDDO
          ENDIF
-c add spin-orbit AMFI integrals:
+! add spin-orbit AMFI integrals:
          IF(PNAME(IPROP)(1:8).EQ.'AMFI    ') THEN
             IFAMFI=.TRUE.
             DO I=1,NSTATE
@@ -356,10 +356,10 @@ c add spin-orbit AMFI integrals:
       end if
       call mma_deallocate(TMP)
 #endif
-*******************************************************
-* printout of properties over the spin-orbit states
-*******************************************************
-c If PRPR requested, print the spin matrices
+!******************************************************
+! printout of properties over the spin-orbit states
+!******************************************************
+! If PRPR requested, print the spin matrices
 #ifdef _HDF5_
       IF (LPRPR.OR.PRMES) THEN
 #else
@@ -377,9 +377,9 @@ c If PRPR requested, print the spin matrices
             END IF
             CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
 #ifdef _HDF5_
-            Call mh5_put_dset(wfn_sos_spinr,
+            Call mh5_put_dset(wfn_sos_spinr,                            &
      &                        SOPRR,[NSS,NSS,1],[0,0,ICMP-1])
-            Call mh5_put_dset(wfn_sos_spini,
+            Call mh5_put_dset(wfn_sos_spini,                            &
      &                        SOPRI,[NSS,NSS,1],[0,0,ICMP-1])
 #endif
             IF (LPRPR) CALL PRCMAT3(NSS,SOPRR,SOPRI,ICMP)
@@ -393,13 +393,13 @@ c If PRPR requested, print the spin matrices
       IF(NSOPR.EQ.0) GOTO 300
 
       IF( PRMES ) THEN
-* match the SO property list to the SF property list
+! match the SO property list to the SF property list
        CALL mma_allocate(PMAP,NPMSIZ,Label='PMap')
        NMISS=0
        DO ISOPR=1,NSOPR
         PMAP(ISOPR)=0
         DO IPROP=1,NPROP
-         IF(PNAME(IPROP).EQ.SOPRNM(ISOPR).AND.
+         IF(PNAME(IPROP).EQ.SOPRNM(ISOPR).AND.                          &
      &     ICOMP(IPROP).EQ.ISOCMP(ISOPR)) THEN
           PMAP(ISOPR)=IPROP
           GOTO 10
@@ -409,7 +409,7 @@ c If PRPR requested, print the spin matrices
  10     CONTINUE
        END DO
 
-c check for inconsistencies
+! check for inconsistencies
        IF(NMISS.GT.0) THEN
          Call WarningMessage(1,'Missing data integrals.')
          WRITE(6,*)'WARNING: You have requested matrix elements'
@@ -421,8 +421,8 @@ c check for inconsistencies
          WRITE(6,*)'   (If you need these properties, change the'
          WRITE(6,*)'    input to SEWARD and recompute.)'
          DO ISOPR=1,NSOPR
-          IF(PMAP(ISOPR).EQ.0)
-     &       WRITE(6,*)'Property:',SOPRNM(ISOPR),
+          IF(PMAP(ISOPR).EQ.0)                                          &
+     &       WRITE(6,*)'Property:',SOPRNM(ISOPR),                       &
      &                 '      Component:',ISOCMP(ISOPR)
          END DO
         WRITE(6,*)
@@ -431,7 +431,7 @@ c check for inconsistencies
        WRITE(6,*)
        WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,'(6X,A,98X,A)') '*','*'
-       WRITE(6,'(6X,A,34X,A,34X,A)')
+       WRITE(6,'(6X,A,34X,A,34X,A)')                                    &
      &     '*','Spin-orbit properties section ','*'
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,A)') repeat('*',100)
@@ -447,11 +447,11 @@ c check for inconsistencies
        WRITE(6,*)
        WRITE(6,*)' SELECTED PROPERTIES:'
        DO I=1,NPROP,5
-         WRITE(6,'(1X,5(A8,1X,I2,4X))')
+         WRITE(6,'(1X,5(A8,1X,I2,4X))')                                 &
      &          (SOPRNM(ISOPR),ISOCMP(ISOPR),ISOPR=I,MIN(NSOPR,I+4))
        END DO
 
-C Remove zeroes to make SOPRNM and ISOCMP lists contiguous. New NSOPR.
+! Remove zeroes to make SOPRNM and ISOCMP lists contiguous. New NSOPR.
        ISOPR=0
        DO I=1,NSOPR
         IPROP=PMAP(I)
@@ -466,20 +466,20 @@ C Remove zeroes to make SOPRNM and ISOCMP lists contiguous. New NSOPR.
 
        Call mma_Allocate(SOPRR,NSS,NSS,Label='SOPRR')
        Call mma_Allocate(SOPRI,NSS,NSS,Label='SOPRI')
-C Print out the matrix elements:
+! Print out the matrix elements:
        NCOL=4
        DO ISOPR=1,NSOPR
         WRITE(6,*)
-        WRITE(6,'(1X,A,A8,A,I4)')
+        WRITE(6,'(1X,A,A8,A,I4)')                                       &
      &  'PROPERTY: ',SOPRNM(ISOPR),'   COMPONENT:',ISOCMP(ISOPR)
-CIFG  should print the origin, but where is it stored (for SO properties)?
+!IFG  should print the origin, but where is it stored (for SO properties)?
         SOPRR(:,:)=0.0D0
         SOPRI(:,:)=0.0D0
 
         CALL SMMAT(PROP,SOPRR,NSS,ISOPR,0)
         CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
         CALL PRCMAT(NSS,SOPRR,SOPRI)
-C prpr keyword: Print selected spin-orbit properties to ext. data files
+! prpr keyword: Print selected spin-orbit properties to ext. data files
         IF((LPRPR).AND.(SOPRNM(ISOPR)(1:5).EQ.'MLTPL')) THEN
           IF(SOPRTP(ISOPR).EQ.'HERMSING') THEN
             CALL PRCMAT2(ISOPR,NSS,SOPRR,SOPRI)
@@ -501,18 +501,18 @@ C prpr keyword: Print selected spin-orbit properties to ext. data files
 
 #ifdef _HDF5_
         IF( SOPRNM(ISOPR)(1:6) .EQ.'ANGMOM') THEN
-           Call mh5_put_dset(wfn_sos_angmomr,
-     $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-           Call mh5_put_dset(wfn_sos_angmomi,
-     $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+           Call mh5_put_dset(wfn_sos_angmomr,                           &
+     &                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+           Call mh5_put_dset(wfn_sos_angmomi,                           &
+     &                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
         ENDIF
 
-        IF( (SOPRNM(ISOPR)(1:8) .EQ.'MLTPL  1').AND.
+        IF( (SOPRNM(ISOPR)(1:8) .EQ.'MLTPL  1').AND.                    &
      &      (SOPRTP(ISOPR).EQ.'HERMSING') ) THEN
-           Call mh5_put_dset(wfn_sos_edipmomr,
-     $                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
-           Call mh5_put_dset(wfn_sos_edipmomi,
-     $                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+           Call mh5_put_dset(wfn_sos_edipmomr,                          &
+     &                SOPRR,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
+           Call mh5_put_dset(wfn_sos_edipmomi,                          &
+     &                SOPRI,[NSS,NSS,1],[0,0,ISOCMP(ISOPR)-1])
         ENDIF
 #endif
 
@@ -528,9 +528,9 @@ C prpr keyword: Print selected spin-orbit properties to ext. data files
 
  400  CONTINUE
 
-******************************************************
-* printout of special properties
-******************************************************
+!*****************************************************
+! printout of special properties
+!*****************************************************
 
        ! AFACTOR = 2*pi*e^2*E_h^2 / eps_0*m_e*c^3*h^2
        ! numerically: 2/c^3 (in a.u. of time ^ -1)
@@ -541,7 +541,7 @@ C prpr keyword: Print selected spin-orbit properties to ext. data files
         WRITE(6,*)
         WRITE(6,'(6X,A)') repeat('*',100)
         WRITE(6,'(6X,A,98X,A)') '*','*'
-        WRITE(6,'(6X,A,34X,A,34X,A)')
+        WRITE(6,'(6X,A,34X,A,34X,A)')                                   &
      &       '*','  Special properties section  ','*'
         WRITE(6,'(6X,A,98X,A)') '*','*'
         WRITE(6,'(6X,A)') repeat('*',100)
@@ -549,12 +549,12 @@ C prpr keyword: Print selected spin-orbit properties to ext. data files
         WRITE(6,*)
       END IF
 
-C Compute transition strengths for spin-orbit states:
+! Compute transition strengths for spin-orbit states:
       IF(.not.IFSO) GOTO 500
-*
-* Initial setup for both dipole, quadrupole etc. and exact operator
-*
-C printing threshold
+!
+! Initial setup for both dipole, quadrupole etc. and exact operator
+!
+! printing threshold
 !     IF(IPGLOB.eq.2) OSTHR=1.0D-8 ! first order
 !     IF(IPGLOB.eq.2) OSTHR2=1.0D-12 ! second order (weaker)
 !     IF(IPGLOB.gt.2) OSTHR=0.0D0
@@ -566,7 +566,7 @@ C printing threshold
 ! Again to avoid total negative transition strengths
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
-        WRITE(6,49)  'Printing threshold changed to ',OSTHR,
+        WRITE(6,49)  'Printing threshold changed to ',OSTHR,            &
      &              'since quadrupole threshold is given '
       END IF
       IF(QIPR) OSTHR2 = OSTHR_QIPR
@@ -577,7 +577,7 @@ C printing threshold
 
 ! Rotatory strength threshold
       IF(RSPR) THEN
-        WRITE(6,30) 'Rotatory strength printing threshold changed '//
+        WRITE(6,30) 'Rotatory strength printing threshold changed '//   &
      &             'to ',RSTHR
       ELSE
         RSTHR = 1.0D-07 !Default
@@ -609,7 +609,7 @@ C printing threshold
       I_HAVE_DL = 0
       I_HAVE_DV = 0
 
-*Electric-Dipole Electric-Dipole transitions
+!Electric-Dipole Electric-Dipole transitions
 
 
         If (Do_SK) Then
@@ -617,13 +617,13 @@ C printing threshold
         Else
            nVec = 1
         End If
-*
+!
         Call Allocate_and_Load_electric_dipoles(IFANYD)
 
         IF(IFANYD.NE.0) THEN
-*
+!
            Do iVec = 1, nVec
-*
+!
          i_Print=0
 
          DO ISS=1,IEND
@@ -635,8 +635,8 @@ C printing threshold
             T0(2)=CMPLX(DYR(JSS,ISS),DYI(JSS,ISS),kind=8)
             T0(3)=CMPLX(DZR(JSS,ISS),DZI(JSS,ISS),kind=8)
             If (Do_SK) Then
-               TM1=k_vector(1,iVec)*T0(1)+
-     &             k_vector(2,iVec)*T0(2)+
+               TM1=k_vector(1,iVec)*T0(1)+                              &
+     &             k_vector(2,iVec)*T0(2)+                              &
      &             k_vector(3,iVec)*T0(3)
                T0(1) = T0(1) - TM1 * k_vector(1,iVec)
                T0(2) = T0(2) - TM1 * k_vector(2,iVec)
@@ -663,23 +663,23 @@ C printing threshold
 ! J. Norell 7/5 2020
          IF(PRDIPCOM) THEN
 
-          Call CollapseOutput(1,
+          Call CollapseOutput(1,                                        &
      & 'Complex transition dipole vectors (SO states):')
           WRITE(6,'(3X,A)') '----------------------------------------'
           IF(OSTHR.GT.0.0D0) THEN
            WRITE(6,30)'   for osc. strength at least ',OSTHR
            WRITE(6,*)
           END IF
-          WRITE(6,*) '     From   To',
-     &'       Re(Dx)       Im(Dx)',
-     &'       Re(Dy)       Im(Dy)',
+          WRITE(6,*) '     From   To',                                  &
+     &'       Re(Dx)       Im(Dx)',                                     &
+     &'       Re(Dy)       Im(Dy)',                                     &
      &'       Re(Dz)       Im(Dz)'
           WRITE(6,32)
           GOTO 137 ! Skip past "regular" print
          END IF
 ! END print COMPLEX vectors
 
-         Call CollapseOutput(1,
+         Call CollapseOutput(1,                                         &
      &                     'Dipole transition strengths (SO states):')
          WRITE(6,'(3X,A)') '----------------------------------------'
          IF(OSTHR.GT.0.0D0) THEN
@@ -688,26 +688,26 @@ C printing threshold
          END IF
          If (Do_SK) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F10.6,a)')
-     &            'Direction of the k-vector: ',
+            WRITE(6,'(4x,a,3F10.6,a)')                                  &
+     &            'Direction of the k-vector: ',                        &
      &             (k_vector(k,iVec),k=1,3),' (a.u.)'
-            WRITE(6,'(4x,a)')
+            WRITE(6,'(4x,a)')                                           &
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
          End If
-         WRITE(6,31) 'From','To','Osc. strength',
-     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
+         WRITE(6,31) 'From','To','Osc. strength',                       &
+     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',     &
      &               'Total A (sec-1)'
          WRITE(6,32)
                End If
 
 ! Print full COMPLEX transition dipole moment vectors?
 137      IF(PRDIPCOM) THEN
-             WRITE(6,'(5X,I5,I5,A,A,ES12.3,A,ES12.3,A,ES12.3,A,ES12.3,A,
-     &       ES12.3,A,ES12.3)')
-     &       ISS,JSS,'   ',
-     &       ' ',REAL(T0(1)),' ',AIMAG(T0(1)),
-     &       ' ',REAL(T0(2)),' ',AIMAG(T0(2)),
+             WRITE(6,'(5X,I5,I5,A,A,ES12.3,A,ES12.3,A,ES12.3,A,ES12.3,A,&
+     &       ES12.3,A,ES12.3)')                                         &
+     &       ISS,JSS,'   ',                                             &
+     &       ' ',REAL(T0(1)),' ',AIMAG(T0(1)),                          &
+     &       ' ',REAL(T0(2)),' ',AIMAG(T0(2)),                          &
      &       ' ',REAL(T0(3)),' ',AIMAG(T0(3))
         ELSE
              WRITE(6,33) ISS,JSS,F,AX,AY,AZ,A ! "Regular" print instead
@@ -724,33 +724,33 @@ C printing threshold
 
          If (i_Print.eq.1) THEN
            WRITE(6,32)
-           Call CollapseOutput(0,
+           Call CollapseOutput(0,                                       &
      &                     'Dipole transition strengths (SO states):')
            WRITE(6,*)
          END IF
-*
+!
          End Do ! iVec
-*
+!
          I_HAVE_DL = 1
         END IF
 
         Call Deallocate_electric_dipoles()
 
-*       Now the same in velocity representation
+!       Now the same in velocity representation
 
-*
+!
         If (Do_SK) Then
            nVec = nk_Vector
         Else
            nVec = 1
         End If
-*
+!
         Call Allocate_and_Load_velocities(IFANYD)
 
         IF(IFANYD.NE.0) THEN
-*
+!
         Do iVec = 1, nVec
-*
+!
          i_Print=0
 
          DO ISS=1,IEND
@@ -762,8 +762,8 @@ C printing threshold
             T0(2)=CMPLX(DYR(JSS,ISS),DYI(JSS,ISS),kind=8)
             T0(3)=CMPLX(DZR(JSS,ISS),DZI(JSS,ISS),kind=8)
             If (Do_SK) Then
-               TM1=k_vector(1,iVec)*T0(1)+
-     &             k_vector(2,iVec)*T0(2)+
+               TM1=k_vector(1,iVec)*T0(1)+                              &
+     &             k_vector(2,iVec)*T0(2)+                              &
      &             k_vector(3,iVec)*T0(3)
                T0(1) = T0(1) - TM1 * k_vector(1,iVec)
                T0(2) = T0(2) - TM1 * k_vector(2,iVec)
@@ -785,7 +785,7 @@ C printing threshold
             IF(ABS(F).GE.OSTHR) THEN
               If (i_Print.eq.0) Then
                  i_Print=1
-         Call CollapseOutput(1,
+         Call CollapseOutput(1,                                         &
      &                     'Velocity transition strengths (SO states):')
          WRITE(6,'(3X,A)') '------------------------------------------'
          IF(OSTHR.GT.0.0D0) THEN
@@ -794,15 +794,15 @@ C printing threshold
          END IF
          If (Do_SK) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F10.6,a)')
-     &            'Direction of the k-vector: ',
+            WRITE(6,'(4x,a,3F10.6,a)')                                  &
+     &            'Direction of the k-vector: ',                        &
      &             (k_vector(k,iVec),k=1,3),' (a.u.)'
-            WRITE(6,'(4x,a)')
+            WRITE(6,'(4x,a)')                                           &
      &            'The light is assumed to be unpolarized.'
             WRITE(6,*)
          End If
-         WRITE(6,31) 'From','To','Osc. strength',
-     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',
+         WRITE(6,31) 'From','To','Osc. strength',                       &
+     &               'Einstein coefficients Ax, Ay, Az (sec-1)   ',     &
      &               'Total A (sec-1)'
          WRITE(6,32)
                END IF
@@ -815,13 +815,13 @@ C printing threshold
 
          If (i_Print.eq.1) THEN
            WRITE(6,32)
-           Call CollapseOutput(0,
+           Call CollapseOutput(0,                                       &
      &                     'Velocity transition strengths (SO states):')
            WRITE(6,*)
          END IF
-*
+!
          End Do ! iVec
-*
+!
          I_HAVE_DV = 1
         END IF
 
@@ -833,22 +833,22 @@ C printing threshold
 !      of 0.1 (10 percent) will be printed.
 !
        IF(I_HAVE_DL.EQ.1.AND.I_HAVE_DV.EQ.1) THEN
-         CALL CollapseOutput(1,'Length and velocity gauge comparison '//
+         CALL CollapseOutput(1,'Length and velocity gauge comparison '//&
      &                         '(SO states):')
 !
 ! I guess that I have to explain it when I print a warning
 !
          WRITE(6,*)
          WRITE(6,*) "--------------------------------------------------"
-         WRITE(6,*) "A comparison between the dipole oscillator "//
+         WRITE(6,*) "A comparison between the dipole oscillator "//     &
      &              "strengths in "
-         WRITE(6,*) "length and velocity gauge "//
+         WRITE(6,*) "length and velocity gauge "//                      &
      &              "will be performed"
          WRITE(6,*)
-         WRITE(6,49) "All dipole oscillator differences above the "//
+         WRITE(6,49) "All dipole oscillator differences above the "//   &
      &              "tolerance of ",TOLERANCE," will be printed "
          WRITE(6,*)
-         WRITE(6,*) "Due to basis set deficiency these oscillator "//
+         WRITE(6,*) "Due to basis set deficiency these oscillator "//   &
      &              "may be problematic "
          WRITE(6,*)
          WRITE(6,*) "The tolerance is defined as ABS(1-O_l/O_v) "
@@ -863,13 +863,13 @@ C printing threshold
                IF(EDIFF.LT.0.0D0) CYCLE
              COMPARE=0.0D0
              dlt=1.0D-18 ! Add small value to avoid zero divide.
-             IF(DL(J,I).GE.OSTHR+dlt .AND.
+             IF(DL(J,I).GE.OSTHR+dlt .AND.                              &
      &          DV(J,I).GE.OSTHR+dlt) THEN
                COMPARE = ABS(1-DL(J,I)/DV(J,I))
-             ELSE IF((DL(J,I).GE.OSTHR+dlt).AND.
+             ELSE IF((DL(J,I).GE.OSTHR+dlt).AND.                        &
      &               (DL(J,I).GT.0.0D0)) THEN
                COMPARE = -1.5D0
-             ELSE IF((DV(J,I).GE.OSTHR+dlt).AND.
+             ELSE IF((DV(J,I).GE.OSTHR+dlt).AND.                        &
      &               (DV(J,I).GT.0.0D0)) THEN
                COMPARE = -2.5D0
              END IF
@@ -879,12 +879,12 @@ C printing threshold
                  WRITE(6,*)
                  WRITE(6,*) " Problematic transitions have been found"
                  WRITE(6,*)
-                 WRITE(6,39) "From","To","Difference (%)",
+                 WRITE(6,39) "From","To","Difference (%)",              &
      &                       "Osc. st. (len.)","Osc. st. (vel.)"
                  WRITE(6,40)
                END IF
                IF (COMPARE.GE.0.0D0) THEN
-                 WRITE(6,38) I,J,COMPARE*100D0,
+                 WRITE(6,38) I,J,COMPARE*100D0,                         &
      &                    DL(J,I),DV(J,I)
                ELSE IF (COMPARE.GE.-2.0D0) THEN
                  WRITE(6,36) I,J,DL(J,I),"below threshold"
@@ -896,23 +896,23 @@ C printing threshold
           END DO
           IF(I_PRINT_HEADER.EQ.0) THEN
             WRITE(6,*)
-            WRITE(6,*) "No problematic oscillator strengths above "//
+            WRITE(6,*) "No problematic oscillator strengths above "//   &
      &                 "the tolerance ", TOLERANCE," have been found"
             WRITE(6,*)
           ELSE
             WRITE(6,40)
             WRITE(6,*)
-            WRITE(6,*) "Number of problematic transitions = ",
+            WRITE(6,*) "Number of problematic transitions = ",          &
      &                  I_PRINT_HEADER
             WRITE(6,*)
           END IF
-         CALL CollapseOutput(0,'Length and velocity gauge comparison '//
+         CALL CollapseOutput(0,'Length and velocity gauge comparison '//&
      &                         '(SO states):')
          WRITE(6,*)
         END IF
-*
-* Free the memory
-*
+!
+! Free the memory
+!
       CALL mma_deallocate(DL)
       CALL mma_deallocate(DV)
 !
@@ -924,8 +924,8 @@ C printing threshold
 ! Checking if all are in
         SECORD = 0
 
-* Magnetic-Dipole - Magnetic-Dipole transitions and
-* Spin-Magnetic-Dipole - Spin-Magnetic-Dipole transitions
+! Magnetic-Dipole - Magnetic-Dipole transitions and
+! Spin-Magnetic-Dipole - Spin-Magnetic-Dipole transitions
 !
 ! I will not separate these for SO states since there would then be
 ! M^2 + Ms^2 + 2*MMs (three terms to be programmed)
@@ -942,27 +942,27 @@ C printing threshold
 !
          IF(QIALL) THEN
          IF(IFANYM.NE.0.AND.IFANYS.NE.0) THEN
-          Call CollapseOutput(1,
-     &                  'Magnetic-dipole - magnetic-dipole and '//
-     &                  'spin-magnetic-dipole - spin-magnetic-dipole '//
+          Call CollapseOutput(1,                                        &
+     &                  'Magnetic-dipole - magnetic-dipole and '//      &
+     &                  'spin-magnetic-dipole - spin-magnetic-dipole '//&
      &                  'transition strengths (SO states):')
-          WRITE(6,'(3X,A)')
-     &                  '--------------------------------------'//
-     &                  '--------------------------------------------'//
+          WRITE(6,'(3X,A)')                                             &
+     &                  '--------------------------------------'//      &
+     &                  '--------------------------------------------'//&
      &                  '---------------------------------'
          ELSE IF(IFANYM.NE.0.AND.IFANYS.EQ.0) THEN
-          Call CollapseOutput(1,
-     &                  'Magnetic-dipole - magnetic-dipole '//
+          Call CollapseOutput(1,                                        &
+     &                  'Magnetic-dipole - magnetic-dipole '//          &
      &                  'transition strengths (SO states):')
-          WRITE(6,'(3X,A)')
-     &                  '----------------------------------'//
+          WRITE(6,'(3X,A)')                                             &
+     &                  '----------------------------------'//          &
      &                  '---------------------------------'
          ELSE IF(IFANYM.EQ.0.AND.IFANYS.NE.0) THEN
-          Call CollapseOutput(1,
-     &                  'Spin-magnetic-dipole - spin-magnetic-dipole '//
+          Call CollapseOutput(1,                                        &
+     &                  'Spin-magnetic-dipole - spin-magnetic-dipole '//&
      &                  'transition strengths (SO states):')
-          WRITE(6,'(3X,A)')
-     &                  '--------------------------------------------'//
+          WRITE(6,'(3X,A)')                                             &
+     &                  '--------------------------------------------'//&
      &                  '---------------------------------'
          END IF
          IF(OSTHR2.GT.0.0D0) THEN
@@ -985,11 +985,11 @@ C printing threshold
            IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
 
-            DX2=(MDXI(JSS,ISS)+g*SXR(JSS,ISS))**2
+            DX2=(MDXI(JSS,ISS)+g*SXR(JSS,ISS))**2                       &
      &         +(MDXR(JSS,ISS)-g*SXI(JSS,ISS))**2
-            DY2=(MDYI(JSS,ISS)+g*SYR(JSS,ISS))**2
+            DY2=(MDYI(JSS,ISS)+g*SYR(JSS,ISS))**2                       &
      &         +(MDYR(JSS,ISS)-g*SYI(JSS,ISS))**2
-            DZ2=(MDZI(JSS,ISS)+g*SZR(JSS,ISS))**2
+            DZ2=(MDZI(JSS,ISS)+g*SZR(JSS,ISS))**2                       &
      &         +(MDZR(JSS,ISS)-g*SZI(JSS,ISS))**2
 
             F = (DX2 + DY2 + DZ2)*EDIFF*ONEOVER6C2
@@ -1005,19 +1005,19 @@ C printing threshold
        IF(QIALL) THEN
          WRITE(6,35)
          IF(IFANYM.NE.0.AND.IFANYS.NE.0) THEN
-          Call CollapseOutput(0,
-     &                  'Magnetic-dipole - magnetic-dipole and '//
-     &                  'spin-magnetic-dipole - spin-magnetic-dipole '//
+          Call CollapseOutput(0,                                        &
+     &                  'Magnetic-dipole - magnetic-dipole and '//      &
+     &                  'spin-magnetic-dipole - spin-magnetic-dipole '//&
      &                  'transition strengths (SO states):')
           WRITE(6,*)
          ELSE IF(IFANYM.NE.0.AND.IFANYS.EQ.0) THEN
-          Call CollapseOutput(0,
-     &                  'Magnetic-dipole - magnetic-dipole '//
+          Call CollapseOutput(0,                                        &
+     &                  'Magnetic-dipole - magnetic-dipole '//          &
      &                  'transition strengths (SO states):')
           WRITE(6,*)
          ELSE IF(IFANYM.EQ.0.AND.IFANYS.NE.0) THEN
-          Call CollapseOutput(0,
-     &                  'Spin-magnetic-dipole - Spin-magnetic-dipole '//
+          Call CollapseOutput(0,                                        &
+     &                  'Spin-magnetic-dipole - Spin-magnetic-dipole '//&
      &                  'transition strengths (SO states):')
           WRITE(6,*)
          END IF
@@ -1031,15 +1031,15 @@ C printing threshold
 ! Spin-Magnetic-Dipole
         Call Deallocate_Spin_Magnetic_dipoles()
 
-*Electric-Quadrupole Electric-Quadrupole transitions
+!Electric-Quadrupole Electric-Quadrupole transitions
 
         Call Allocate_and_Load_Electric_Quadrupoles(IFANYQ)
 
         IF(IFANYQ.NE.0) THEN
         IF(QIALL) THEN
-         Call CollapseOutput(1,
+         Call CollapseOutput(1,                                         &
      &                 'Quadrupole transition strengths (SO states):')
-         WRITE(6,'(3X,A)')
+         WRITE(6,'(3X,A)')                                              &
      &                 '--------------------------------------------'
          IF(OSTHR2.GT.0.0D0) THEN
           WRITE(6,30)'   for osc. strength at least ',OSTHR2
@@ -1074,11 +1074,11 @@ C printing threshold
             FXZ=ONEOVER10C*EDIFF3*(DXZ2)
             FYZ=ONEOVER10C*EDIFF3*(DYZ2)
 
-            DXXDYY=QXXR(JSS,ISS)*QYYR(JSS,ISS)
+            DXXDYY=QXXR(JSS,ISS)*QYYR(JSS,ISS)                          &
      &            +QXXI(JSS,ISS)*QYYI(JSS,ISS)
-            DXXDZZ=QXXR(JSS,ISS)*QZZR(JSS,ISS)
+            DXXDZZ=QXXR(JSS,ISS)*QZZR(JSS,ISS)                          &
      &            +QXXI(JSS,ISS)*QZZI(JSS,ISS)
-            DYYDZZ=QYYR(JSS,ISS)*QZZR(JSS,ISS)
+            DYYDZZ=QYYR(JSS,ISS)*QZZR(JSS,ISS)                          &
      &            +QYYI(JSS,ISS)*QZZI(JSS,ISS)
             FXXFYY=-ONEOVER30C*EDIFF3*(DXXDYY)
             FXXFZZ=-ONEOVER30C*EDIFF3*(DXXDZZ)
@@ -1097,7 +1097,7 @@ C printing threshold
 
         IF(QIALL) THEN
          WRITE(6,35)
-         Call CollapseOutput(0,
+         Call CollapseOutput(0,                                         &
      &                 'Quadrupole transition strengths (SO states):')
          WRITE(6,*)
         END IF
@@ -1106,7 +1106,7 @@ C printing threshold
 
         Call Deallocate_Electric_Quadrupoles()
 
-*Electric-Dipole Electric-Octupole transitions
+!Electric-Dipole Electric-Octupole transitions
 
 ! Octupole
          Call Allocate_and_Load_Octupoles(IFANYO)
@@ -1115,10 +1115,10 @@ C printing threshold
 
         IF(IFANYD.NE.0.AND.IFANYO.NE.0) THEN
         IF(QIALL) THEN
-         Call CollapseOutput(1,
-     &                     'Electric-dipole - electric-octupole '//
+         Call CollapseOutput(1,                                         &
+     &                     'Electric-dipole - electric-octupole '//     &
      &                     'transition strengths (SO states):')
-         WRITE(6,'(3X,A)') '------------------------------------'//
+         WRITE(6,'(3X,A)') '------------------------------------'//     &
      &                     '---------------------------------'
          IF(OSTHR2.GT.0.0D0) THEN
           WRITE(6,30)'   for osc. strength at least ',OSTHR2
@@ -1136,31 +1136,31 @@ C printing threshold
 !
             EDIFF3=EDIFF**3
 
-            DXXXDX=DXXXR(JSS,ISS)*DXR(JSS,ISS)
+            DXXXDX=DXXXR(JSS,ISS)*DXR(JSS,ISS)                          &
      &            +DXXXI(JSS,ISS)*DXI(JSS,ISS)
-            DYYXDX=DYYXR(JSS,ISS)*DXR(JSS,ISS)
+            DYYXDX=DYYXR(JSS,ISS)*DXR(JSS,ISS)                          &
      &            +DYYXI(JSS,ISS)*DXI(JSS,ISS)
-            DZZXDX=DZZXR(JSS,ISS)*DXR(JSS,ISS)
+            DZZXDX=DZZXR(JSS,ISS)*DXR(JSS,ISS)                          &
      &            +DZZXI(JSS,ISS)*DXI(JSS,ISS)
             FXXX=TWOOVERM45C*EDIFF3*(DXXXDX)
             FYYX=TWOOVERM45C*EDIFF3*(DYYXDX)
             FZZX=TWOOVERM45C*EDIFF3*(DZZXDX)
 
-            DXXYDY=DXXYR(JSS,ISS)*DYR(JSS,ISS)
+            DXXYDY=DXXYR(JSS,ISS)*DYR(JSS,ISS)                          &
      &            +DXXYI(JSS,ISS)*DYI(JSS,ISS)
-            DYYYDY=DYYYR(JSS,ISS)*DYR(JSS,ISS)
+            DYYYDY=DYYYR(JSS,ISS)*DYR(JSS,ISS)                          &
      &            +DYYYI(JSS,ISS)*DYI(JSS,ISS)
-            DZZYDY=DZZYR(JSS,ISS)*DYR(JSS,ISS)
+            DZZYDY=DZZYR(JSS,ISS)*DYR(JSS,ISS)                          &
      &            +DZZYI(JSS,ISS)*DYI(JSS,ISS)
             FXXY=TWOOVERM45C*EDIFF3*(DXXYDY)
             FYYY=TWOOVERM45C*EDIFF3*(DYYYDY)
             FZZY=TWOOVERM45C*EDIFF3*(DZZYDY)
 
-            DXXZDZ=DXXZR(JSS,ISS)*DZR(JSS,ISS)
+            DXXZDZ=DXXZR(JSS,ISS)*DZR(JSS,ISS)                          &
      &            +DXXZI(JSS,ISS)*DZI(JSS,ISS)
-            DYYZDZ=DYYZR(JSS,ISS)*DZR(JSS,ISS)
+            DYYZDZ=DYYZR(JSS,ISS)*DZR(JSS,ISS)                          &
      &            +DYYZI(JSS,ISS)*DZI(JSS,ISS)
-            DZZZDZ=DZZZR(JSS,ISS)*DZR(JSS,ISS)
+            DZZZDZ=DZZZR(JSS,ISS)*DZR(JSS,ISS)                          &
      &            +DZZZI(JSS,ISS)*DZI(JSS,ISS)
             FXXZ=TWOOVERM45C*EDIFF3*(DXXZDZ)
             FYYZ=TWOOVERM45C*EDIFF3*(DYYZDZ)
@@ -1179,8 +1179,8 @@ C printing threshold
 
         IF(QIALL) THEN
          WRITE(6,35)
-         Call CollapseOutput(0,
-     &                     'Electric-dipole - electric-octupole '//
+         Call CollapseOutput(0,                                         &
+     &                     'Electric-dipole - electric-octupole '//     &
      &                     'transition strengths (SO states):')
          WRITE(6,*)
         END IF
@@ -1191,8 +1191,8 @@ C printing threshold
 
         Call Deallocate_electric_dipoles()
 
-*Electric-Dipole - Magnetic-Quadrupole transitions and
-*Electric-Dipole - Spin-Magnetic-Quadrupole transitions
+!Electric-Dipole - Magnetic-Quadrupole transitions and
+!Electric-Dipole - Spin-Magnetic-Quadrupole transitions
 !
 ! Again I will just include the spin-term so both terms are calculated
 ! (Can also be done separately)
@@ -1213,27 +1213,27 @@ C printing threshold
         IF(IFANYD.NE.0.OR.IFANYS.NE.0) THEN
         IF(QIALL) THEN
          IF(IFANYD.NE.0.AND.IFANYS.NE.0) THEN
-          Call CollapseOutput(1,
-     &                  'Electric-dipole - magnetic-quadrupole and '//
-     &                  'electric-dipole - spin-magnetic-quadrupole '//
+          Call CollapseOutput(1,                                        &
+     &                  'Electric-dipole - magnetic-quadrupole and '//  &
+     &                  'electric-dipole - spin-magnetic-quadrupole '// &
      &                  'transition strengths (SO states):')
-          WRITE(6,'(3X,A)')
-     &                  '------------------------------------------'//
-     &                  '-------------------------------------------'//
+          WRITE(6,'(3X,A)')                                             &
+     &                  '------------------------------------------'//  &
+     &                  '-------------------------------------------'// &
      &                  '---------------------------------'
          ELSE IF(IFANYD.NE.0.AND.IFANYS.EQ.0) THEN
-          Call CollapseOutput(1,
-     &                  'Electric-dipole - magnetic-quadrupole '//
+          Call CollapseOutput(1,                                        &
+     &                  'Electric-dipole - magnetic-quadrupole '//      &
      &                  'transition strengths (SO states):')
-          WRITE(6,'(3X,A)')
-     &                  '--------------------------------------'//
+          WRITE(6,'(3X,A)')                                             &
+     &                  '--------------------------------------'//      &
      &                  '---------------------------------'
          ELSE IF(IFANYD.EQ.0.AND.IFANYS.NE.0) THEN
-          Call CollapseOutput(1,
-     &                  'Electric-dipole - spin-magnetic-quadrupole '//
+          Call CollapseOutput(1,                                        &
+     &                  'Electric-dipole - spin-magnetic-quadrupole '// &
      &                  'transition strengths (SO states):')
-          WRITE(6,'(3X,A)')
-     &                  '-------------------------------------------'//
+          WRITE(6,'(3X,A)')                                             &
+     &                  '-------------------------------------------'// &
      &                  '---------------------------------'
          END IF
 
@@ -1264,23 +1264,23 @@ C printing threshold
 !
 !                  Magnetic-Quadrupole   Spin-Magnetic-Quadrupole
 !                  Electric-Dipole
-            DXYDZ=-((MQXYI(JSS,ISS) + g*SXYI(JSS,ISS)) * DZI(JSS,ISS))
+            DXYDZ=-((MQXYI(JSS,ISS) + g*SXYI(JSS,ISS)) * DZI(JSS,ISS))  &
      &           +(( MQXYR(JSS,ISS) + g*SXYR(JSS,ISS)) * DZR(JSS,ISS))
-            DYXDZ=-((MQYXI(JSS,ISS) + g*SYXR(JSS,ISS)) * DZI(JSS,ISS))
+            DYXDZ=-((MQYXI(JSS,ISS) + g*SYXR(JSS,ISS)) * DZI(JSS,ISS))  &
      &           +(( MQYXR(JSS,ISS) + g*SYXI(JSS,ISS)) * DZR(JSS,ISS))
             FXY=ONEOVER9C2*EDIFF2*(DXYDZ)
             FYX=-ONEOVER9C2*EDIFF2*(DYXDZ)
 
-            DZXDY=-((MQZXI(JSS,ISS) + g*SZXR(JSS,ISS)) * DYI(JSS,ISS))
+            DZXDY=-((MQZXI(JSS,ISS) + g*SZXR(JSS,ISS)) * DYI(JSS,ISS))  &
      &            +((MQZXR(JSS,ISS) + g*SZXI(JSS,ISS)) * DYR(JSS,ISS))
-            DXZDY=-((MQXZI(JSS,ISS) + g*SXZR(JSS,ISS)) * DYI(JSS,ISS))
+            DXZDY=-((MQXZI(JSS,ISS) + g*SXZR(JSS,ISS)) * DYI(JSS,ISS))  &
      &            +((MQXZR(JSS,ISS) + g*SXZI(JSS,ISS)) * DYR(JSS,ISS))
             FZX=ONEOVER9C2*EDIFF2*(DZXDY)
             FXZ=-ONEOVER9C2*EDIFF2*(DXZDY)
 
-            DYZDX=-((MQYZI(JSS,ISS) + g*SYZR(JSS,ISS)) * DXI(JSS,ISS))
+            DYZDX=-((MQYZI(JSS,ISS) + g*SYZR(JSS,ISS)) * DXI(JSS,ISS))  &
      &            +((MQYZR(JSS,ISS) + g*SYZI(JSS,ISS)) * DXR(JSS,ISS))
-            DZYDX=-((MQZYI(JSS,ISS) + g*SZYI(JSS,ISS)) * DXI(JSS,ISS))
+            DZYDX=-((MQZYI(JSS,ISS) + g*SZYI(JSS,ISS)) * DXI(JSS,ISS))  &
      &           + ((MQZYR(JSS,ISS) + g*SZYR(JSS,ISS)) * DXR(JSS,ISS))
             FYZ=ONEOVER9C2*EDIFF2*(DYZDX)
             FZY=-ONEOVER9C2*EDIFF2*(DZYDX)
@@ -1299,19 +1299,19 @@ C printing threshold
         IF(QIALL) THEN
          WRITE(6,35)
          IF(IFANYD.NE.0.AND.IFANYS.NE.0) THEN
-          Call CollapseOutput(0,
-     &                  'Electric-dipole - magnetic-quadrupole and '//
-     &                  'electric-dipole - spin-magnetic-quadrupole '//
+          Call CollapseOutput(0,                                        &
+     &                  'Electric-dipole - magnetic-quadrupole and '//  &
+     &                  'electric-dipole - spin-magnetic-quadrupole '// &
      &                  'transition strengths (SO states):')
          WRITE(6,*)
          ELSE IF(IFANYD.NE.0.AND.IFANYS.EQ.0) THEN
-          Call CollapseOutput(0,
-     &                  'Electric-dipole - magnetic-quadrupole '//
+          Call CollapseOutput(0,                                        &
+     &                  'Electric-dipole - magnetic-quadrupole '//      &
      &                  'transition strengths (SO states):')
          WRITE(6,*)
          ELSE IF(IFANYD.EQ.0.AND.IFANYS.NE.0) THEN
-          Call CollapseOutput(0,
-     &                  'Electric-dipole - spin-magnetic-quadrupole '//
+          Call CollapseOutput(0,                                        &
+     &                  'Electric-dipole - spin-magnetic-quadrupole '// &
      &                  'transition strengths (SO states):')
          WRITE(6,*)
          END IF
@@ -1338,14 +1338,14 @@ C printing threshold
         END IF
       END DO
        IF(I2TOT.GE.1) THEN
-         IF(SECORD(1).EQ.0)
+         IF(SECORD(1).EQ.0)                                             &
      &   WRITE(6,*) 'Magnetic-dipole - magnetic-dipole not included'
-         IF(SECORD(2).EQ.0)
-     &   WRITE(6,*) 'Electric-quadrupole - electric-quadrupole not '//
+         IF(SECORD(2).EQ.0)                                             &
+     &   WRITE(6,*) 'Electric-quadrupole - electric-quadrupole not '//  &
      &              'included'
-         IF(SECORD(3).EQ.0)
+         IF(SECORD(3).EQ.0)                                             &
      &   WRITE(6,*) 'Electric-dipole - electric-octupole not included'
-         IF(SECORD(4).EQ.0)
+         IF(SECORD(4).EQ.0)                                             &
      &   WRITE(6,*) 'Electric-dipole - magnetic-quadrupole not included'
          i_Print=0
          DO ISS=1,IEND
@@ -1358,11 +1358,11 @@ C printing threshold
             IF(ABS(F).GE.OSTHR2) THEN
              IF(i_Print.eq.0) THEN
               i_Print=1
-              Call CollapseOutput(1,
-     &                  'Second-order contribution to the '//
+              Call CollapseOutput(1,                                    &
+     &                  'Second-order contribution to the '//           &
      &                  'transition strengths (SO states):')
-              WRITE(6,'(3X,A)')
-     &                  '---------------------------------'//
+              WRITE(6,'(3X,A)')                                         &
+     &                  '---------------------------------'//           &
      &                  '---------------------------------'
 !
               IF(OSTHR2.GT.0.0D0) THEN
@@ -1380,8 +1380,8 @@ C printing threshold
          END DO
          If (i_Print.eq.1) THEN
            WRITE(6,35)
-           Call CollapseOutput(0,
-     &                  'Second-order contribution to the '//
+           Call CollapseOutput(0,                                       &
+     &                  'Second-order contribution to the '//           &
      &                  'transition strengths (SO states):')
            WRITE(6,*)
          END IF
@@ -1393,8 +1393,8 @@ C printing threshold
 !
 !
       IF(DOCD) THEN
-* Lasse 2019
-* New CD here with electric dipole and magnetic-dipole - velocity gauge
+! Lasse 2019
+! New CD here with electric dipole and magnetic-dipole - velocity gauge
 
 
 ! Electric dipole (linear momentum, p)
@@ -1415,13 +1415,13 @@ C printing threshold
 ! Only print the part calculated
 !
          WRITE(6,*)
-         Call CollapseOutput(1,
-     &                 'Circular Dichroism - velocity gauge '//
-     &                 'Electric-Dipole - Magnetic-Dipole '//
+         Call CollapseOutput(1,                                         &
+     &                 'Circular Dichroism - velocity gauge '//         &
+     &                 'Electric-Dipole - Magnetic-Dipole '//           &
      &                 'rotatory strengths (SO states):')
-         WRITE(6,'(3X,A)')
-     &                 '------------------------------------'//
-     &                 '----------------------------------'//
+         WRITE(6,'(3X,A)')                                              &
+     &                 '------------------------------------'//         &
+     &                 '----------------------------------'//           &
      &                 '-------------------------------'
          IF (DO_SK) THEN
            WRITE(6,30) 'For red. rot. strength at least',RSTHR
@@ -1429,25 +1429,25 @@ C printing threshold
            WRITE(6,30) 'For isotropic red. rot. strength at least',RSTHR
          END IF
          WRITE(6,*)
-*
+!
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             nVec = nk_Vector
          Else
             nVec = 1
          End If
-*
+!
          Do iVec = 1, nVec
-*
+!
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F10.6)')
-     &         'Direction of the k-vector: ',
+            WRITE(6,'(4x,a,3F10.6)')                                    &
+     &         'Direction of the k-vector: ',                           &
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
             WRITE(6,31) 'From','To','Red. rot. str.'
          Else
             WRITE(6,31) 'From','To','Red. rot. str.'
-            IF (IFANYQ.NE.0)
+            IF (IFANYQ.NE.0)                                            &
      &         WRITE(6,44) 'Rxx','Rxy','Rxz','Ryy','Ryz','Rzz'
          End If
          WRITE(6,35)
@@ -1481,7 +1481,7 @@ C printing threshold
             D_MYI=-MDYR(JSS,ISS)+g*SYI(JSS,ISS)
             D_MZI=-MDZR(JSS,ISS)+g*SZI(JSS,ISS)
 
-*           R = 1/3 tr(Rtensor)
+!           R = 1/3 tr(Rtensor)
             RXX=D_XR*D_MXR+D_XI*D_MXI
             RYY=D_YR*D_MYR+D_YI*D_MYI
             RZZ=D_ZR*D_MZR+D_ZI*D_MZI
@@ -1491,10 +1491,10 @@ C printing threshold
                R = ZERO
             END IF
             WRITE(6,43) '1/3 Tr(RTensor): ',R
-*
-* Compute full rotatory strength tensor
-* (see Hansen and Bak, 10.1021/jp001899+)
-*
+!
+! Compute full rotatory strength tensor
+! (see Hansen and Bak, 10.1021/jp001899+)
+!
             IF (IFANYQ.NE.0) THEN
 !            Note r:p+p:r = -i*hbar * (r:nabla+nabla:r)
              Q_XXR= QXXI(JSS,ISS)
@@ -1544,17 +1544,17 @@ C printing threshold
              END IF
              IF (Do_SK) THEN
               ! k^T R k
-              R = k_vector(1,iVec)**2*Rtensor(1)+
-     &            k_vector(2,iVec)**2*Rtensor(4)+
-     &            k_vector(3,iVec)**2*Rtensor(6)+
-     &            2.0D0*k_vector(1,iVec)*k_vector(2,iVec)*Rtensor(2)+
-     &            2.0D0*k_vector(1,iVec)*k_vector(3,iVec)*Rtensor(3)+
+              R = k_vector(1,iVec)**2*Rtensor(1)+                       &
+     &            k_vector(2,iVec)**2*Rtensor(4)+                       &
+     &            k_vector(3,iVec)**2*Rtensor(6)+                       &
+     &            2.0D0*k_vector(1,iVec)*k_vector(2,iVec)*Rtensor(2)+   &
+     &            2.0D0*k_vector(1,iVec)*k_vector(3,iVec)*Rtensor(3)+   &
      &            2.0D0*k_vector(2,iVec)*k_vector(3,iVec)*Rtensor(5)
              ELSE
                 WRITE(6,43) 'tensor: ',Rtensor(:)
              END IF
             END IF
-*
+!
             IF (ABS(R).GT.RSTHR) THEN
               WRITE(6,33) ISS,JSS,R
             END IF
@@ -1571,9 +1571,9 @@ C printing threshold
 
          Call Deallocate_Electric_Quadrupoles()
 
-         Call CollapseOutput(0,
-     &                  'Circular Dichroism - velocity gauge '//
-     &                  'Electric-Dipole - Magnetic-Dipole '//
+         Call CollapseOutput(0,                                         &
+     &                  'Circular Dichroism - velocity gauge '//        &
+     &                  'Electric-Dipole - Magnetic-Dipole '//          &
      &                  'rotatory strengths (SO states):')
         END IF
 
@@ -1581,8 +1581,8 @@ C printing threshold
 
         Call Deallocate_magnetic_dipoles()
 
-* Lasse 2019
-* New CD here with electric dipole and magnetic-dipole - mixed gauge
+! Lasse 2019
+! New CD here with electric dipole and magnetic-dipole - mixed gauge
 
 ! Electric dipole (r)
         Call Allocate_and_Load_electric_dipoles(IFANYD)
@@ -1600,13 +1600,13 @@ C printing threshold
 ! Only print the part calculated
 !
          WRITE(6,*)
-         Call CollapseOutput(1,
-     &                 'Circular Dichroism - mixed gauge '//
-     &                 'Electric-Dipole - Magnetic-Dipole '//
+         Call CollapseOutput(1,                                         &
+     &                 'Circular Dichroism - mixed gauge '//            &
+     &                 'Electric-Dipole - Magnetic-Dipole '//           &
      &                 'rotatory strengths (SO states):')
-         WRITE(6,'(3X,A)')
-     &                 '---------------------------------'//
-     &                 '----------------------------------'//
+         WRITE(6,'(3X,A)')                                              &
+     &                 '---------------------------------'//            &
+     &                 '----------------------------------'//           &
      &                 '-------------------------------'
          WRITE(6,*)
          WRITE(6,*) ' WARNING WARNING WARNING !!! '
@@ -1619,25 +1619,25 @@ C printing threshold
            WRITE(6,30) 'For isotropic red. rot. strength at least',RSTHR
          END IF
          WRITE(6,*)
-*
+!
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             nVec = nk_Vector
          Else
             nVec = 1
          End If
-*
+!
          Do iVec = 1, nVec
-*
+!
          If (Do_SK.AND.(IFANYQ.NE.0)) Then
             WRITE(6,*)
-            WRITE(6,'(4x,a,3F10.6)')
-     &         'Direction of the k-vector: ',
+            WRITE(6,'(4x,a,3F10.6)')                                    &
+     &         'Direction of the k-vector: ',                           &
      &          (k_vector(k,iVec),k=1,3)
             WRITE(6,*)
             WRITE(6,31) 'From','To','Red. rot. str.'
          Else
             WRITE(6,31) 'From','To','Red. rot. str.'
-            IF (IFANYQ.NE.0)
+            IF (IFANYQ.NE.0)                                            &
      &         WRITE(6,44) 'Rxx','Rxy','Rxz','Ryy','Ryz','Rzz'
          End If
          WRITE(6,35)
@@ -1671,15 +1671,15 @@ C printing threshold
             D_MYR=MDYR(JSS,ISS)+g*SYI(JSS,ISS)
             D_MZR=MDZR(JSS,ISS)+g*SZI(JSS,ISS)
 
-*           R = 1/3 tr(Rtensor)
+!           R = 1/3 tr(Rtensor)
             RXX=D_XR*D_MXR+D_XI*D_MXI
             RYY=D_YR*D_MYR+D_YI*D_MYI
             RZZ=D_ZR*D_MZR+D_ZI*D_MZI
             R = Half*AU2REDR*(RXX+RYY+RZZ)
-*
-* Compute full rotatory strength tensor
-* (see Hansen and Bak, 10.1021/jp001899+)
-*
+!
+! Compute full rotatory strength tensor
+! (see Hansen and Bak, 10.1021/jp001899+)
+!
             IF (IFANYQ.NE.0) THEN
              Q_XXR=QXXR(JSS,ISS)
              Q_XYR=QXYR(JSS,ISS)
@@ -1724,17 +1724,17 @@ C printing threshold
              CALL DSCAL_(6,AU2REDR,Rtensor,1)
              IF (Do_SK) THEN
               ! k^T R k
-              R = k_vector(1,iVec)**2*Rtensor(1)+
-     &            k_vector(2,iVec)**2*Rtensor(4)+
-     &            k_vector(3,iVec)**2*Rtensor(6)+
-     &            2.0D0*k_vector(1,iVec)*k_vector(2,iVec)*Rtensor(2)+
-     &            2.0D0*k_vector(1,iVec)*k_vector(3,iVec)*Rtensor(3)+
+              R = k_vector(1,iVec)**2*Rtensor(1)+                       &
+     &            k_vector(2,iVec)**2*Rtensor(4)+                       &
+     &            k_vector(3,iVec)**2*Rtensor(6)+                       &
+     &            2.0D0*k_vector(1,iVec)*k_vector(2,iVec)*Rtensor(2)+   &
+     &            2.0D0*k_vector(1,iVec)*k_vector(3,iVec)*Rtensor(3)+   &
      &            2.0D0*k_vector(2,iVec)*k_vector(3,iVec)*Rtensor(5)
              ELSE
                 WRITE(6,43) 'tensor: ',Rtensor(:)
              END IF
             END IF
-*
+!
             IF (ABS(R).GT.RSTHR) THEN
               WRITE(6,33) ISS,JSS,R
             END IF
@@ -1750,16 +1750,16 @@ C printing threshold
 
          Call Deallocate_Electric_Quadrupoles()
 
-         Call CollapseOutput(0,
-     &                  'Circular Dichroism - mixed gauge '//
-     &                  'Electric-Dipole - Magnetic-Dipole '//
+         Call CollapseOutput(0,                                         &
+     &                  'Circular Dichroism - mixed gauge '//           &
+     &                  'Electric-Dipole - Magnetic-Dipole '//          &
      &                  'rotatory strengths (SO states):')
         END IF
 
         Call Deallocate_electric_dipoles()
         Call Deallocate_Magnetic_Dipoles()
       END IF
-* CD end
+! CD end
 
 ! +++ J. Norell 19/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
@@ -1767,19 +1767,19 @@ C printing threshold
         Call Add_Info('SODYSAMPS',SODYSAMPS,NSS*NSS,4)
         DYSTHR=1.0D-5
         WRITE(6,*)
-        CALL CollapseOutput(1,'Dyson amplitudes '//
+        CALL CollapseOutput(1,'Dyson amplitudes '//                     &
      &                        '(SO states):')
-        WRITE(6,'(3X,A)')     '----------------------------'//
+        WRITE(6,'(3X,A)')     '----------------------------'//          &
      &                        '-------------------'
         IF (DYSTHR.GT.0.0D0) THEN
            WRITE(6,*) 'for Dyson intensities at least',DYSTHR
            WRITE(6,*)
         END IF
-        WRITE(6,*) '       From      To        '//
+        WRITE(6,*) '       From      To        '//                      &
      &   'BE (eV)       Dyson intensity'
-              WRITE(6,'(3X,A)')
-     &                  '---------------------------' //
-     &                  '-------------------------------------------'//
+              WRITE(6,'(3X,A)')                                         &
+     &                  '---------------------------' //                &
+     &                  '-------------------------------------------'// &
      &                  '-------------------'
         DO I=1,NSS
          DO J=1,NSS
@@ -1795,7 +1795,7 @@ C printing threshold
         END DO ! I
         WRITE(6,*)
         WRITE(6,*)
-        CALL CollapseOutput(0,'Dyson amplitudes '//
+        CALL CollapseOutput(0,'Dyson amplitudes '//                     &
      &                        '(SO states):')
         WRITE(6,*)
 ! VKochetov 2021 put SO Dyson amplitudes to hdf5
@@ -1807,24 +1807,24 @@ C printing threshold
        END IF
 ! +++ J. Norell
 
-*
-************************************************************************
-*                                                                      *
-*     Start of section for transition moments using the exact operator *
-*     for the vector potential.                                        *
-*                                                                      *
-************************************************************************
-*
-      If (Do_TMOM)
+!
+!***********************************************************************
+!                                                                      *
+!     Start of section for transition moments using the exact operator *
+!     for the vector potential.                                        *
+!                                                                      *
+!***********************************************************************
+!
+      If (Do_TMOM)                                                      &
      &   Call PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
-*
+!
  500  CONTINUE
 
 
-C CALCULATION OF THE D-TENSOR (experimental)
-C IFDCAL to implement keyword that will activate computation
-C of d-tensor
-*     IF(.NOT.IFDCAL) GOTO 600
+! CALCULATION OF THE D-TENSOR (experimental)
+! IFDCAL to implement keyword that will activate computation
+! of d-tensor
+!     IF(.NOT.IFDCAL) GOTO 600
       GOTO 600
 
       WRITE(6,*)
@@ -1835,8 +1835,8 @@ C of d-tensor
       WRITE(6,*) '  > weak spin-orbit coupling'
       WRITE(6,*)
 
-* SVC 2006: Compute D-tensor through second order perturbation theory.
-* no orbitally-degenerate groundstates!
+! SVC 2006: Compute D-tensor through second order perturbation theory.
+! no orbitally-degenerate groundstates!
       IAMFIX=0
       IAMFIY=0
       IAMFIZ=0
@@ -1850,33 +1850,33 @@ C of d-tensor
       IPAMFI(1)=IAMFIX
       IPAMFI(2)=IAMFIY
       IPAMFI(3)=IAMFIZ
-* initialisations
+! initialisations
       DO IXYZ=1,3
        DO JXYZ=1,3
         DTENS(IXYZ,JXYZ)=0.0D0
        END DO
       END DO
 
-* loop over all excited states, different factors will arise depending
-* on the difference in spin between ground and excited states.
+! loop over all excited states, different factors will arise depending
+! on the difference in spin between ground and excited states.
       ISTATE=1
       MPLET1=MLTPLT(JBNUM(ISTATE))
       S1=0.5D0*DBLE(MPLET1-1)
-      FACT0=THREEJ(S1,1.0D0,S1,S1,0.0D0,-S1)*
-     &       THREEJ(S1,1.0D0,S1,S1,0.0D0,-S1)/
+      FACT0=THREEJ(S1,1.0D0,S1,S1,0.0D0,-S1)*                           &
+     &       THREEJ(S1,1.0D0,S1,S1,0.0D0,-S1)/                          &
      &       (S1*S1)
-      FACTP=THREEJ(S1+1.0D0,1.0D0,S1,S1+1.0D0,-1.0D0,-S1)*
-     &       THREEJ(S1,1.0D0,S1+1.0D0,S1,1.0D0,-(S1+1.0D0))/
+      FACTP=THREEJ(S1+1.0D0,1.0D0,S1,S1+1.0D0,-1.0D0,-S1)*              &
+     &       THREEJ(S1,1.0D0,S1+1.0D0,S1,1.0D0,-(S1+1.0D0))/            &
      &       ((S1+1.0D0)*(2.0D0*S1+1.0D0))
-      FACTM=THREEJ(S1-1.0D0,1.0D0,S1,S1-1.0D0,1.0D0,-S1)*
-     &       THREEJ(S1,1.0D0,S1-1.0D0,S1,-1.0D0,-(S1-1.0D0))/
+      FACTM=THREEJ(S1-1.0D0,1.0D0,S1,S1-1.0D0,1.0D0,-S1)*               &
+     &       THREEJ(S1,1.0D0,S1-1.0D0,S1,-1.0D0,-(S1-1.0D0))/           &
      &       (S1*(2.0D0*S1-1.0D0))
-C     WRITE(6,*)
-C     WRITE(6,*)'S1 ', S1
-C     WRITE(6,*)'FACT0 ', FACT0
-C     WRITE(6,*)'FACTP ', FACTP
-C     WRITE(6,*)'FACTM ', FACTM
-C     WRITE(6,*)
+!     WRITE(6,*)
+!     WRITE(6,*)'S1 ', S1
+!     WRITE(6,*)'FACT0 ', FACT0
+!     WRITE(6,*)'FACTP ', FACTP
+!     WRITE(6,*)'FACTM ', FACTM
+!     WRITE(6,*)
       DO IXYZ=1,3
        DO JXYZ=1,3
         DTIJ=0.0D0
@@ -1886,15 +1886,15 @@ C     WRITE(6,*)
           DELTA=ENERGY(JSTATE)-ENERGY(ISTATE)
           IF(DELTA.LT.1.0D-05) GOTO 600
           CONTRIB=0.0D0
-          CONTRIB=PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*
+          CONTRIB=PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*                     &
      &         PROP(JSTATE,ISTATE,IPAMFI(JXYZ))/DELTA
-C         WRITE(6,*) 'ISTATE, JSTATE, IXYZ, JXYZ, DELTA ',
-C    &                 ISTATE, JSTATE, IXYZ, JXYZ, DELTA
-C         WRITE(6,*) 'CONTRIB ', CONTRIB
-C         WRITE(6,*) 'PROP(ISTATE,JSTATE,IXYZ) ',
-C    &                 PROP(ISTATE,JSTATE,IPAMFI(IXYZ))
-C         WRITE(6,*) 'PROP(JSTATE,ISTATE,JXYZ) ',
-C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
+!         WRITE(6,*) 'ISTATE, JSTATE, IXYZ, JXYZ, DELTA ',
+!    &                 ISTATE, JSTATE, IXYZ, JXYZ, DELTA
+!         WRITE(6,*) 'CONTRIB ', CONTRIB
+!         WRITE(6,*) 'PROP(ISTATE,JSTATE,IXYZ) ',
+!    &                 PROP(ISTATE,JSTATE,IPAMFI(IXYZ))
+!         WRITE(6,*) 'PROP(JSTATE,ISTATE,JXYZ) ',
+!    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
           IF(S2.EQ.S1) THEN
            DTIJ=DTIJ+FACT0*CONTRIB
           ELSE IF(S2.EQ.S1+1.0D0) THEN
@@ -1907,7 +1907,7 @@ C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
        END DO
       END DO
 
-* diagonalisation of the D-tensor matrix
+! diagonalisation of the D-tensor matrix
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
@@ -1924,39 +1924,39 @@ C    &                 PROP(JSTATE,ISTATE,IPAMFI(JXYZ))
       END DO
       CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
-* D-factor printout
-* D = D_zz - 1/2 * (D_xx + D_yy)
-* E = 1/2 * (D_xx - D_yy)
+! D-factor printout
+! D = D_zz - 1/2 * (D_xx + D_yy)
+! E = 1/2 * (D_xx - D_yy)
       WRITE(6,*)
       WRITE(6,*) 'The D matrix and eigenvalues:'
       WRITE(6,*)
-      WRITE(6,'(2x,2x,2x,3(5x,a2,5x),'//
-     & '4x,4x,2x,10x,'//
-     & '2x,2x,2x,3(4x,a2,i1,3x))')
-     & (xyzchr(IXYZ),IXYZ=1,3),
+      WRITE(6,'(2x,2x,2x,3(5x,a2,5x),'//                                &
+     & '4x,4x,2x,10x,'//                                                &
+     & '2x,2x,2x,3(4x,a2,i1,3x))')                                      &
+     & (xyzchr(IXYZ),IXYZ=1,3),                                         &
      & ('D_',IXYZ,IXYZ=1,3)
       WRITE(6,*)
       DO IXYZ=1,3
-      WRITE(6,'(2x,a2,2x,3(1x,f10.8,1x),'//
-     & '4x,a2,i1,a1,2x,f10.8,'//
-     & '2x,a2,2x,3(1x,f8.4,1x),'//
-     & '3x,a2,i1,a1,2x,f8.3,2x,a5)')
-     & xyzchr(IXYZ), (DTENS(IXYZ,JXYZ),JXYZ=1,3),
-     & 'D_',IXYZ,':',EVR(IXYZ),
-     & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3),
+      WRITE(6,'(2x,a2,2x,3(1x,f10.8,1x),'//                             &
+     & '4x,a2,i1,a1,2x,f10.8,'//                                        &
+     & '2x,a2,2x,3(1x,f8.4,1x),'//                                      &
+     & '3x,a2,i1,a1,2x,f8.3,2x,a5)')                                    &
+     & xyzchr(IXYZ), (DTENS(IXYZ,JXYZ),JXYZ=1,3),                       &
+     & 'D_',IXYZ,':',EVR(IXYZ),                                         &
+     & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3),                      &
      & 'D_',IXYZ,':',EVR(IXYZ)*auTocm,'cm^-1'
       ENDDO
 
 
  600  CONTINUE
 
-C CALCULATION OF THE G-TENSOR
-C IFGCAL is set by keyword EPRG
+! CALCULATION OF THE G-TENSOR
+! IFGCAL is set by keyword EPRG
       IF(.NOT.IFGCAL) GOTO 800
-* PAM 2005 Experimental: Compute g-tensor through 2-nd order
-* perturbation approach, mixed ang mom / spin orbit terms
-* Declarations for gtensor(3,3) and some other odds and ends
-* for nice output have been added to declaration head above.
+! PAM 2005 Experimental: Compute g-tensor through 2-nd order
+! perturbation approach, mixed ang mom / spin orbit terms
+! Declarations for gtensor(3,3) and some other odds and ends
+! for nice output have been added to declaration head above.
 
       IF(.not.IFSO) THEN
           WRITE(6,*) 'keyword SPIN needed together with EPRG'
@@ -1996,11 +1996,11 @@ C IFGCAL is set by keyword EPRG
       IPAM(2)=IAMY
       IPAM(3)=IAMZ
 
-C start loop over the states ISTATE:
+! start loop over the states ISTATE:
       ISTATE=1
-      DO WHILE (
-     &          ((ENERGY(MIN(ISTATE,NSTATE))-ENERGY(1)).LE.EPRTHR)
-     &  .AND. (ISTATE.LE.NSTATE)
+      DO WHILE (                                                        &
+     &          ((ENERGY(MIN(ISTATE,NSTATE))-ENERGY(1)).LE.EPRTHR)      &
+     &  .AND. (ISTATE.LE.NSTATE)                                        &
      &          )
 
       DO IXYZ=1,3
@@ -2013,9 +2013,9 @@ C start loop over the states ISTATE:
       S=0.5D0*DBLE(MPLET-1)
 
       WRITE(6,*)
-      WRITE(6,'(3x,A6,I4,3x,A4,F4.1,3x,A4,F18.8)')
+      WRITE(6,'(3x,A6,I4,3x,A4,F4.1,3x,A4,F18.8)')                      &
      & 'STATE ',ISTATE,'S = ',S,'E = ',ENERGY(ISTATE)
-      WRITE(6,'(3x,A46)')
+      WRITE(6,'(3x,A46)')                                               &
      & '----------------------------------------------'
 
       IF(MPLET.NE.1) THEN
@@ -2024,40 +2024,40 @@ C start loop over the states ISTATE:
               GOTO 690
       END IF
 
-C print separate contributions if verbose
+! print separate contributions if verbose
       IF (IPGLOB.GE.3) THEN
        WRITE(6,*)
-       WRITE(6,*) 'contributions from the SOS expansion'//
+       WRITE(6,*) 'contributions from the SOS expansion'//              &
      &            ' to delta(g_pq) in *ppt* (p,q=x,y,z)'
        WRITE(6,*)
-       WRITE(6,'(2x,a8,2x,9(4x,a2,3x))')
+       WRITE(6,'(2x,a8,2x,9(4x,a2,3x))')                                &
      &  ' states ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
        WRITE(6,*)
        DO JSTATE=1,NSTATE
        IF (JSTATE.NE.ISTATE) THEN
        DELTA=ENERGY(JSTATE)-ENERGY(ISTATE)
         IF(ABS(DELTA).LT.1.0D-04) THEN
-            WRITE(6,'(1x,i3,2x,i3,3x,A20,1x,A20,F18.8)')
-     &       ISTATE,JSTATE,'possible degeneracy,',
+            WRITE(6,'(1x,i3,2x,i3,3x,A20,1x,A20,F18.8)')                &
+     &       ISTATE,JSTATE,'possible degeneracy,',                      &
      &       'energy difference = ',DELTA
              GOTO 610
         ENDIF
         DO IXYZ=1,3
          DO JXYZ=1,3
-          CONTRIB=PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*
+          CONTRIB=PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*                     &
      &             PROP(ISTATE,JSTATE,IPAM(JXYZ))
           CONTRIB=CONTRIB/DELTA
           SOSTERM(3*(IXYZ-1)+JXYZ)=-2.0D0*FACTOR*CONTRIB
          ENDDO
         ENDDO
-        WRITE(6,'(1x,i3,2x,i3,3x,9(f8.3,1x))')
+        WRITE(6,'(1x,i3,2x,i3,3x,9(f8.3,1x))')                          &
      &   ISTATE,JSTATE,(SOSTERM(I)*1.0D3,I=1,9)
        ENDIF
  610   CONTINUE
        ENDDO
       END IF
 
-C calculate sum-over-states for each g_pq (p,q = x,y,z)
+! calculate sum-over-states for each g_pq (p,q = x,y,z)
       DO IXYZ=1,3
        DO JXYZ=1,3
          GTIJ=0.0D0
@@ -2066,18 +2066,18 @@ C calculate sum-over-states for each g_pq (p,q = x,y,z)
          DO JSTATE=1,NSTATE
          IF (JSTATE.NE.ISTATE) THEN
           DELTA=ENERGY(JSTATE)-ENERGY(ISTATE)
-C SVC 2008: no good criterium for spatial degeneracy, use rasscf
-C energies ?
+! SVC 2008: no good criterium for spatial degeneracy, use rasscf
+! energies ?
           IF(ABS(DELTA).LT.1.0D-04) THEN
               WRITE(6,*)
-              WRITE(6,*) 'SPATIALLY DEGENERATE STATE: '//
+              WRITE(6,*) 'SPATIALLY DEGENERATE STATE: '//               &
      &                   'sum-over-states not applicable'
-*             WRITE(6,*) '> lower the degeneracy treshold if this '//
-*    &                   'is not a spatially degenerate state'
+!             WRITE(6,*) '> lower the degeneracy treshold if this '//
+!    &                   'is not a spatially degenerate state'
               WRITE(6,*)
               GOTO 690
           ENDIF
-          CONTRIB=PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*
+          CONTRIB=PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*                     &
      &             PROP(ISTATE,JSTATE,IPAM(JXYZ))
           CONTRIB=CONTRIB/DELTA
           GTIJ=GTIJ+CONTRIB
@@ -2087,31 +2087,31 @@ C energies ?
        END DO
       END DO
 
-C put g_e on the diagonal
+! put g_e on the diagonal
       DO IXYZ=1,3
        DO JXYZ=IXYZ,3
        IF (IXYZ.EQ.JXYZ) GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+FEGVAL
        END DO
       END DO
 
-C determine symmetric G = gg+ tensor, this is what can be measured
-C experimentally, and store as GSTENS
+! determine symmetric G = gg+ tensor, this is what can be measured
+! experimentally, and store as GSTENS
       DO IXYZ=1,3
        DO JXYZ=1,3
         GSTENS(IXYZ,JXYZ)=0.0D0
         DO KXYZ=1,3
-        GSTENS(IXYZ,JXYZ)=GSTENS(IXYZ,JXYZ)+
+        GSTENS(IXYZ,JXYZ)=GSTENS(IXYZ,JXYZ)+                            &
      &                     GTENS(IXYZ,KXYZ)*GTENS(JXYZ,KXYZ)
         END DO
        END DO
       END DO
 
-C determine the eigenvalues of the g matrix
+! determine the eigenvalues of the g matrix
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
       END DO
-C XEIGEN alters the input matrix! copy GTENS to TMPMAT
+! XEIGEN alters the input matrix! copy GTENS to TMPMAT
       DO IXYZ=1,3
        DO JXYZ=1,3
        TMPMAT(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)
@@ -2133,20 +2133,20 @@ C XEIGEN alters the input matrix! copy GTENS to TMPMAT
       WRITE(6,*)
       WRITE(6,*) 'The g matrix and eigenvalues:'
       WRITE(6,*)
-      WRITE(6,'(6x,3(5x,a2,5x))')
+      WRITE(6,'(6x,3(5x,a2,5x))')                                       &
      & (xyzchr(IXYZ),IXYZ=1,3)
       WRITE(6,*)
       DO IXYZ=1,3
-      WRITE(6,'(2x,a2,2x,3(1x,f10.8,1x),'//
-     & '4x,a2,i1,a1,2x,f8.4,3x,a8,i1,a2,2x,f10.3,2x,a3)')
-     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),
-     & 'g_',IXYZ,':',EVR(IXYZ),
+      WRITE(6,'(2x,a2,2x,3(1x,f10.8,1x),'//                             &
+     & '4x,a2,i1,a1,2x,f8.4,3x,a8,i1,a2,2x,f10.3,2x,a3)')               &
+     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),                       &
+     & 'g_',IXYZ,':',EVR(IXYZ),                                         &
      & 'delta(g_',IXYZ,'):',(EVR(IXYZ)-FEGVAL)*1.0D3,'ppt'
       ENDDO
 
-*     WRITE(6,'(6x,3(5x,i1,4x))') (IXYZ,IXYZ=1,3)
+!     WRITE(6,'(6x,3(5x,i1,4x))') (IXYZ,IXYZ=1,3)
 
-C determine the eigenvalues of the G = gg* matrix
+! determine the eigenvalues of the G = gg* matrix
       DO I=1,3
       EVR(I)=0.0D0
       EVI(I)=0.0D0
@@ -2169,38 +2169,38 @@ C determine the eigenvalues of the G = gg* matrix
           RETURN
       END IF
 
-C reconstruct g_s from the square root of the eigenvalues
-C and the eigenvectors of G = gg+ by back transformation
+! reconstruct g_s from the square root of the eigenvalues
+! and the eigenvectors of G = gg+ by back transformation
       DO IXYZ=1,3
        DO JXYZ=1,3
        GSTENS(IXYZ,JXYZ)=0.0D0
         DO KXYZ=1,3
-        GSTENS(IXYZ,JXYZ)=GSTENS(IXYZ,JXYZ)+
+        GSTENS(IXYZ,JXYZ)=GSTENS(IXYZ,JXYZ)+                            &
      &   TMPVEC(IXYZ,KXYZ)*SQRT(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
         END DO
        END DO
       ENDDO
 
       WRITE(6,*)
-      WRITE(6,*) 'The symmetric g matrix is the '//
+      WRITE(6,*) 'The symmetric g matrix is the '//                     &
      &           'actual experimentally determined g matrix.'
-      WRITE(6,*) 'The sign of the eigenvalues is undetermined '//
+      WRITE(6,*) 'The sign of the eigenvalues is undetermined '//       &
      &           '(assumed positive).'
       WRITE(6,*)
-      WRITE(6,'(2x,2x,2x,3(5x,a2,5x),'//
-     & '4x,4x,2x,10x,'//
-     & '2x,2x,2x,3(4x,a2,i1,3x))')
-     & (xyzchr(IXYZ),IXYZ=1,3),
+      WRITE(6,'(2x,2x,2x,3(5x,a2,5x),'//                                &
+     & '4x,4x,2x,10x,'//                                                &
+     & '2x,2x,2x,3(4x,a2,i1,3x))')                                      &
+     & (xyzchr(IXYZ),IXYZ=1,3),                                         &
      & ('g_',IXYZ,IXYZ=1,3)
       WRITE(6,*)
       DO IXYZ=1,3
-      WRITE(6,'(2x,a2,2x,3(1x,f10.8,1x),'//
-     & '4x,a2,i1,a1,2x,f10.6,'//
-     & '2x,a2,2x,3(1x,f8.4,1x),'//
-     & '3x,a8,i1,a2,2x,f8.3,2x,a3)')
-     & xyzchr(IXYZ), (GSTENS(IXYZ,JXYZ),JXYZ=1,3),
-     & 'g_',IXYZ,':',SQRT(EVR(IXYZ)),
-     & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3),
+      WRITE(6,'(2x,a2,2x,3(1x,f10.8,1x),'//                             &
+     & '4x,a2,i1,a1,2x,f10.6,'//                                        &
+     & '2x,a2,2x,3(1x,f8.4,1x),'//                                      &
+     & '3x,a8,i1,a2,2x,f8.3,2x,a3)')                                    &
+     & xyzchr(IXYZ), (GSTENS(IXYZ,JXYZ),JXYZ=1,3),                      &
+     & 'g_',IXYZ,':',SQRT(EVR(IXYZ)),                                   &
+     & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3),                      &
      & 'delta(g_',IXYZ,'):',(SQRT(EVR(IXYZ))-FEGVAL)*1.0D3,'ppt'
       ENDDO
       DO I=1,3
@@ -2212,11 +2212,11 @@ C and the eigenvectors of G = gg+ by back transformation
 
       ISTATE=ISTATE+1
 
-* end long loop over states ISTATE
+! end long loop over states ISTATE
       ENDDO
 
-* SVC alternative approach for the g-tensor:
-* using first order degenerate perturbation theory
+! SVC alternative approach for the g-tensor:
+! using first order degenerate perturbation theory
 
       IF(IFVANVLECK) THEN
       WRITE(6,*)
@@ -2297,10 +2297,10 @@ C and the eigenvectors of G = gg+ by back transformation
       Call mma_deallocate(LYI)
       Call mma_deallocate(LZI)
 
-*     SVC 20090926 Experimental
-*     Add analysis of different contributions
+!     SVC 20090926 Experimental
+!     Add analysis of different contributions
 
-*     Establish which spin components of SFS belong to the ground state
+!     Establish which spin components of SFS belong to the ground state
       DO I=1,NSS
        ISGS(I)=.FALSE.
       ENDDO
@@ -2326,18 +2326,18 @@ C and the eigenvectors of G = gg+ by back transformation
        IMLTPL=IMLTPL+MLTPLT(JBNUM(ISTATE))
       ENDDO
 
-*     Analyze the different contributions to the GS Kramers doublet
-*     Zeeman matrix elements.  There are 4 different ME's: <1|Ze|1>,
-*     <1|Ze|2>, <2|Ze|1>, and <2|Ze|2>, stored in ZEKL.  Contributions
-*     of SFS i,j to SOS k,l (k,l=1,2): <k|Ze|l> = Sum(i,j) U(i,k)*
-*     <i|Ze|j> U(j,l).  This sum is decomposed into parts belonging to
-*     each SFS state i as follows:
-*     -> GS's contain only MEs with themselves and other GS's
-*     -> ES's contain MEs with themselves, the GS's (2x) and other ES's
-*        The ME's with the GS's are counted twice as they do not belong to
-*        any GS's (they contain only ME's within their own GS group)
-*        The contributions with other ES's are split between the ES's,
-*        counting them double (<i|Ze|j> and <j|Ze|i>) and divide by two later.
+!     Analyze the different contributions to the GS Kramers doublet
+!     Zeeman matrix elements.  There are 4 different ME's: <1|Ze|1>,
+!     <1|Ze|2>, <2|Ze|1>, and <2|Ze|2>, stored in ZEKL.  Contributions
+!     of SFS i,j to SOS k,l (k,l=1,2): <k|Ze|l> = Sum(i,j) U(i,k)*
+!     <i|Ze|j> U(j,l).  This sum is decomposed into parts belonging to
+!     each SFS state i as follows:
+!     -> GS's contain only MEs with themselves and other GS's
+!     -> ES's contain MEs with themselves, the GS's (2x) and other ES's
+!        The ME's with the GS's are counted twice as they do not belong to
+!        any GS's (they contain only ME's within their own GS group)
+!        The contributions with other ES's are split between the ES's,
+!        counting them double (<i|Ze|j> and <j|Ze|i>) and divide by two later.
 
       IMLTPL=1
       ZEKL(:,:,:,:)=CMPLX(0.0d0,0.0d0,kind=8)
@@ -2349,19 +2349,19 @@ C and the eigenvectors of G = gg+ by back transformation
 
        IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contribution of the GS spin components
+! Contribution of the GS spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                    ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                    ZEKL(:,:,IXYZ,ISTATE)
            ENDIF
           ENDDO
          ENDDO
@@ -2369,58 +2369,58 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
 
        ELSE
 
-* Contributions of the ES spin components
+! Contributions of the ES spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                 ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                 ZEKL(:,:,IXYZ,ISTATE)
           ENDDO
          ENDDO
         ENDDO
 
        ENDIF
 
-C       DO IXYZ=1,3
-C        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
-C     &      ZEKL(:,:,IXYZ,ISTATE)
-C       ENDDO
+!       DO IXYZ=1,3
+!        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
+!     &      ZEKL(:,:,IXYZ,ISTATE)
+!       ENDDO
 
-C 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
-C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
+! 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
+! 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
        IMLTPL=IMLTPL+MLTPLT(JBNUM(ISTATE))
       ENDDO
 
-*     We now have decomposed the <k|Ze|l> into terms belonging to either
-*     a GS or an ES for each k,l=1,2 and p=x,y,z stored in ZEKL(k,l,p,SFS)
-*     Now, these new decomposed terms of the ZEKL ME's are combined to
-*     form the G tensor.  Consider e.g. that <k|Ze|l> is decomposed into
-*     <k|GS|l> + <k|ES1|l> + <k|ES2|l>, then the contributions to G are given as:
-*     -> G_pq/2 = <k|Ze_p|l> <l|Ze_q|k>
-*             = (<k|GS_p|l> + <k|ES1_p|l> + <k|ES2_p|l>)
-*             * (<l|GS_q|k> + <l|ES1_q|k> + <l|ES2_q|k>)
-*
-*     from GS: (<k|GS_p|l>/2 * <l|GS_q|k>/2)/2 + (<k|GS_p|l>/2 * <l|GS_q|k>/2)/2
-*     from ES1: 2*((<k|ES1_p|l>/2 * <l|GS_q|k>/2)/2 + (<k|GS_q|l>/2 * <l|ES1_p|k>/2)/2)
-*               + (<k|ES1_p|l>/2 * <l|ES1_q|k>/2)/2 + (<k|ES1_q|l>/2 * <l|ES2_p|k>/2)/2
-*               + (<k|ES1_p|l>/2 * <l|ES2_q|k>/2)/2 + (<k|ES2_q|l>/2 * <l|ES1_p|k>/2)/2
-*     In the end, the outer division by 2 cancels on both sides, and the
-*     inner divisions by two combine to a division by 4.
+!     We now have decomposed the <k|Ze|l> into terms belonging to either
+!     a GS or an ES for each k,l=1,2 and p=x,y,z stored in ZEKL(k,l,p,SFS)
+!     Now, these new decomposed terms of the ZEKL ME's are combined to
+!     form the G tensor.  Consider e.g. that <k|Ze|l> is decomposed into
+!     <k|GS|l> + <k|ES1|l> + <k|ES2|l>, then the contributions to G are given as:
+!     -> G_pq/2 = <k|Ze_p|l> <l|Ze_q|k>
+!             = (<k|GS_p|l> + <k|ES1_p|l> + <k|ES2_p|l>)
+!             * (<l|GS_q|k> + <l|ES1_q|k> + <l|ES2_q|k>)
+!
+!     from GS: (<k|GS_p|l>/2 * <l|GS_q|k>/2)/2 + (<k|GS_p|l>/2 * <l|GS_q|k>/2)/2
+!     from ES1: 2*((<k|ES1_p|l>/2 * <l|GS_q|k>/2)/2 + (<k|GS_q|l>/2 * <l|ES1_p|k>/2)/2)
+!               + (<k|ES1_p|l>/2 * <l|ES1_q|k>/2)/2 + (<k|ES1_q|l>/2 * <l|ES2_p|k>/2)/2
+!               + (<k|ES1_p|l>/2 * <l|ES2_q|k>/2)/2 + (<k|ES2_q|l>/2 * <l|ES1_p|k>/2)/2
+!     In the end, the outer division by 2 cancels on both sides, and the
+!     inner divisions by two combine to a division by 4.
 
       GCONT(:,:)=CMPLX(0.0d0,0.0d0,kind=8)
       GTOTAL(:)=0.0d0
@@ -2432,15 +2432,15 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contributions for the GS's
+! Contributions for the GS's
           DO JSTATE=1,NSTATE
            IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
             DO I=1,2
              DO J=1,2
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDDO
             ENDDO
@@ -2449,20 +2449,20 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          ELSE
 
-* Contributions for the ES's
+! Contributions for the ES's
           DO JSTATE=1,NSTATE
            DO I=1,2
             DO J=1,2
-             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &            +(ZEKL(I,J,IXYZ,ISTATE)*
-     &            ZEKL(J,I,JXYZ,JSTATE))/4
-     &            +(ZEKL(I,J,IXYZ,JSTATE)*
+             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                    &
+     &            +(ZEKL(I,J,IXYZ,ISTATE)*                              &
+     &            ZEKL(J,I,JXYZ,JSTATE))/4                              &
+     &            +(ZEKL(I,J,IXYZ,JSTATE)*                              &
      &            ZEKL(J,I,JXYZ,ISTATE))/4
              IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDIF
             ENDDO
@@ -2483,7 +2483,7 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
        DIPSOn(:,:,:)=(0.0d0,0.0d0)
 
 
-*     Continue original calculation of G tensor (=gg^*)
+!     Continue original calculation of G tensor (=gg^*)
       CALL get_dArray( 'ESO_SINGLE',ESO,NSS)
       CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
       CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
@@ -2558,9 +2558,9 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
       paramt(ic,jc)=paramt(ic,jc)+  0.d0*c_1(ic,jc)
       else
       c_2(ic,jc)= c_2(ic,jc)-2.d0*Boltz_k*TMPm(iT)* c_1(ic,jc)/dlt_E
-      curit(ic,jc)= curit(ic,jc)-0.d0*(2.d0*Boltz_k*TMPm(iT)*
+      curit(ic,jc)= curit(ic,jc)-0.d0*(2.d0*Boltz_k*TMPm(iT)*           &
      &c_1(ic,jc)/dlt_E)
-      paramt(ic,jc)= paramt(ic,jc)-2.d0*Boltz_k*TMPm(iT)*
+      paramt(ic,jc)= paramt(ic,jc)-2.d0*Boltz_k*TMPm(iT)*               &
      &c_1(ic,jc)/dlt_E
       endif
       enddo
@@ -2568,11 +2568,11 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
       enddo !Jss
       do ic=1,3
       do jc=1,3
-      chiT_tens(iT,ic,jc)=    chiT_tens(iT,ic,jc)+p_Boltz*
+      chiT_tens(iT,ic,jc)=    chiT_tens(iT,ic,jc)+p_Boltz*              &
      & c_2(ic,jc)
-      chicuriT_tens(iT,ic,jc)= chicuriT_tens(iT,ic,jc) +
+      chicuriT_tens(iT,ic,jc)= chicuriT_tens(iT,ic,jc) +                &
      & p_Boltz*curit(ic,jc)
-      chiparamT_tens(iT,ic,jc)= chiparamT_tens(iT,ic,jc) +
+      chiparamT_tens(iT,ic,jc)= chiparamT_tens(iT,ic,jc) +              &
      & p_Boltz*paramt(ic,jc)
       enddo
       enddo
@@ -2581,9 +2581,9 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
       do ic=1,3
       do jc=1,3
       chiT_tens(iT,ic,jc)= coeff_chi*(chiT_tens(iT,ic,jc)/Zstat)
-      chicuriT_tens(iT,ic,jc)=coeff_chi*(chicuriT_tens(iT,ic,jc)/
+      chicuriT_tens(iT,ic,jc)=coeff_chi*(chicuriT_tens(iT,ic,jc)/       &
      & Zstat)
-      chiparamT_tens(iT,ic,jc)=coeff_chi*(chiparamT_tens(iT,ic,jc)/
+      chiparamT_tens(iT,ic,jc)=coeff_chi*(chiparamT_tens(iT,ic,jc)/     &
      & Zstat)
       enddo
       enddo
@@ -2592,48 +2592,48 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
       write(6,'(/)')
       write(6,'(10A)') (('------------'), K=1,10)
-      write(6,'(30X,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR'//
+      write(6,'(30X,A)') 'VAN VLECK SUSCEPTIBILITY TENSOR'//            &
      & '  (cm3*K/mol)'
       write(6,'(10A)') (('------------'), K=1,10)
       write(6,*)
-C      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
-C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
-      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',
+!      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
+!     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
+      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',     &
      & 'yz','zx','zy','zz'
       write(6,*)
       do iT=1,NTS
-      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPm(iT),
+      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPm(iT),                &
      & ((chiT_tens(iT,ic,jc),jc=1,3),ic=1,3)
       enddo
 
       write(6,'(/)')
       write(6,'(10A)') (('------------'), K=1,10)
-      write(6,'(30X,A)') 'Curie contrib. to VAN VLECK TENSOR'//
+      write(6,'(30X,A)') 'Curie contrib. to VAN VLECK TENSOR'//         &
      & '  (cm3*K/mol)'
       write(6,'(10A)') (('------------'), K=1,10)
       write(6,*)
-C      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
-C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
-      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',
+!      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
+!     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
+      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',     &
      & 'yz','zx','zy','zz'
       write(6,*)
       do iT=1,NTS
-      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPm(iT),
+      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPm(iT),                &
      & ((chicuriT_tens(iT,ic,jc),jc=1,3),ic=1,3)
       enddo
       write(6,'(/)')
       write(6,'(10A)') (('------------'), K=1,10)
-      write(6,'(30X,A)') 'Parama. contrib. to VAN VLECK TENSOR'//
+      write(6,'(30X,A)') 'Parama. contrib. to VAN VLECK TENSOR'//       &
      & '  (cm3*K/mol)'
       write(6,'(10A)') (('------------'), K=1,10)
       write(6,*)
-C      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
-C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
-      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',
+!      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
+!     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
+      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',     &
      & 'yz','zx','zy','zz'
       write(6,*)
       do iT=1,NTS
-      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPm(iT),
+      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPm(iT),                &
      & ((chiparamT_tens(iT,ic,jc),jc=1,3),ic=1,3)
       enddo
       WRITE(6,*)
@@ -2650,7 +2650,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       !enddo
 
       ISS=1
-      DO WHILE ((ISS.LE.NSS).AND.
+      DO WHILE ((ISS.LE.NSS).AND.                                       &
      &          (ENSOR(MIN(ISS,NSS))-ENSOR(1).LE.EPRTHR))
 
       DO IXYZ=1,3
@@ -2672,10 +2672,10 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
 
       WRITE(6,*)
       DO I=1,KDGN
-      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')
+      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')                                 &
      & 'SO-STATE ',ISS-1+I,'E = ',ENSOR(ISS-1+I)
       ENDDO
-      WRITE(6,'(3x,A46)')
+      WRITE(6,'(3x,A46)')                                               &
      &'----------------------------------------------'
 
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2694,16 +2694,16 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
-       WRITE(6,'(a6,9(5x,a2,5x))')
+       WRITE(6,'(a6,9(5x,a2,5x))')                                      &
      &      'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
        WRITE(6,*)
        DO ISTATE=1,NSTATE
-        WRITE(6,'(2x,I2,2x,9(F12.6))')
+        WRITE(6,'(2x,I2,2x,9(F12.6))')                                  &
      &       ISTATE, (DBLE(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
        ENDDO
 
        WRITE(6,*)
-       WRITE(6,'(A6,9(F12.6))')
+       WRITE(6,'(A6,9(F12.6))')                                         &
      &      'total ', (GTOTAL(IJXYZ),IJXYZ=1,9)
       ENDIF
 
@@ -2716,7 +2716,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)          &
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
@@ -2728,10 +2728,10 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
-       WRITE(6,'(6x,3(6x,a2,4x))')
+       WRITE(6,'(6x,3(6x,a2,4x))')                                      &
      &  (xyzchr(IXYZ),IXYZ=1,3)
        DO IXYZ=1,3
-       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')
+       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')                             &
      &  xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3)
        ENDDO
        END IF
@@ -2753,29 +2753,29 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
 
       CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
-C construct g_s matrix from G by back-transormation of the
-C square root of the G eigenvalues
+! construct g_s matrix from G by back-transormation of the
+! square root of the G eigenvalues
       DO IXYZ=1,3
        DO JXYZ=1,3
        GTENS(IXYZ,JXYZ)=0.0D0
         DO KXYZ=1,3
-        GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+
+        GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+                              &
      &   TMPVEC(IXYZ,KXYZ)*SQRT(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
         END DO
        END DO
       ENDDO
 
-      WRITE(6,'(6x,3(5x,a2,5x),'//
-     & '4x,4x,2x,8x,'//
-     & '2x,2x,2x,3(4x,a2,i1,3x))')
+      WRITE(6,'(6x,3(5x,a2,5x),'//                                      &
+     & '4x,4x,2x,8x,'//                                                 &
+     & '2x,2x,2x,3(4x,a2,i1,3x))')                                      &
      & (xyzchr(IXYZ),IXYZ=1,3), ('g_',IXYZ,IXYZ=1,3)
       WRITE(6,*)
       DO IXYZ=1,3
-      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//
-     & '4x,a2,i1,a1,2x,f8.4,'//
-     & '2x,a2,2x,3(1x,f8.4,1x))')
-     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),
-     & 'g_',IXYZ,':',SQRT(EVR(IXYZ)),
+      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//                             &
+     & '4x,a2,i1,a1,2x,f8.4,'//                                         &
+     & '2x,a2,2x,3(1x,f8.4,1x))')                                       &
+     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),                       &
+     & 'g_',IXYZ,':',SQRT(EVR(IXYZ)),                                   &
      & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3)
       ENDDO
 
@@ -2791,37 +2791,37 @@ C square root of the G eigenvalues
       Call mma_deallocate(ZYI)
       Call mma_deallocate(ZZR)
       Call mma_deallocate(ZZI)
-      nullify(pZMR(1)%A2,pZMI(1)%A2,pZMR(2)%A2,pZMI(2)%A2,pZMR(3)%A2,
+      nullify(pZMR(1)%A2,pZMI(1)%A2,pZMR(2)%A2,pZMI(2)%A2,pZMR(3)%A2,   &
      &        pZMI(3)%A2)
 
  800  CONTINUE
 
 
-******************************************************
-******************************************************
-******************************************************
-** Experimental hyperfine tensor stuff starts here
-******************************************************
-******************************************************
-******************************************************
+!*****************************************************
+!*****************************************************
+!*****************************************************
+!* Experimental hyperfine tensor stuff starts here
+!*****************************************************
+!*****************************************************
+!*****************************************************
 
-* Skip if not a hyperfine calculation
+! Skip if not a hyperfine calculation
       IF(.NOT.IFACAL) GOTO 1801
-        CALL HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,
+        CALL HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,               &
      &             DIPSOM,ESO,XYZCHR,BOLTZ_K)
 
 1801  CONTINUE
-******************************************************
-******************************************************
-******************************************************
-** Experimental hyperfine tensor stuff ends here
-******************************************************
-******************************************************
-******************************************************
+!*****************************************************
+!*****************************************************
+!*****************************************************
+!* Experimental hyperfine tensor stuff ends here
+!*****************************************************
+!*****************************************************
+!*****************************************************
 
 
 
-C SVC20080312 calculation of magnetization
+! SVC20080312 calculation of magnetization
 
       IF(.NOT.IFXCAL) GOTO 900
 
@@ -2837,7 +2837,7 @@ C SVC20080312 calculation of magnetization
       WRITE(6,*) '  ========================================='
       WRITE(6,*)
 
-C initialization same as G-tensor, construct L+gS matrix elements
+! initialization same as G-tensor, construct L+gS matrix elements
       IAMX=0
       IAMY=0
       IAMZ=0
@@ -2929,11 +2929,11 @@ C initialization same as G-tensor, construct L+gS matrix elements
       TFINAL=TSTART+(NTSTEP-1)*TINCRE
 
       WRITE(6,*) "Magnetic flux density range (T): "
-      WRITE(6,'(2x,f6.2,a3,f6.2,a4,i4,a6)')
+      WRITE(6,'(2x,f6.2,a3,f6.2,a4,i4,a6)')                             &
      & BSTART," - ",BFINAL," in ",NBSTEP," steps"
       WRITE(6,*)
       WRITE(6,*) "Temperature range (K): "
-      WRITE(6,'(2x,f6.2,a3,f6.2,a4,i4,a6)')
+      WRITE(6,'(2x,f6.2,a3,f6.2,a4,i4,a6)')                             &
      & TSTART," - ",TFINAL," in ",NTSTEP," steps"
 
       CALL mma_allocate(MAGM,9*NBSTEP*NTSTEP,Label='MAGM')
@@ -2943,11 +2943,11 @@ C initialization same as G-tensor, construct L+gS matrix elements
       DO IXYZ=1,3
 
       WRITE(6,*)
-      WRITE(6,'(3x,a1,3x,8(1x,a12,1x))') "T",
-     & "    B"//xyzchr(IXYZ)//" (T)  ","   M (J/T)  ",
-     & "  Mx (J/T)  ","  My (J/T)  ","  Mz (J/T)  ",
-     & "Xx"//xyzchr(IXYZ)//" (m3/mol)",
-     & "Xy"//xyzchr(IXYZ)//" (m3/mol)",
+      WRITE(6,'(3x,a1,3x,8(1x,a12,1x))') "T",                           &
+     & "    B"//xyzchr(IXYZ)//" (T)  ","   M (J/T)  ",                  &
+     & "  Mx (J/T)  ","  My (J/T)  ","  Mz (J/T)  ",                    &
+     & "Xx"//xyzchr(IXYZ)//" (m3/mol)",                                 &
+     & "Xy"//xyzchr(IXYZ)//" (m3/mol)",                                 &
      & "Xz"//xyzchr(IXYZ)//" (m3/mol)"
       WRITE(6,*)
 
@@ -2981,7 +2981,7 @@ C initialization same as G-tensor, construct L+gS matrix elements
          RPART=0.0D0
          IF(IPGLOB.GT.2) THEN
           WRITE(6,*)
-          WRITE(6,'(2x,a14,3(4x,a4,4x),2x,a6)') "Energy (cm^-1)",
+          WRITE(6,'(2x,a14,3(4x,a4,4x),2x,a6)') "Energy (cm^-1)",       &
      &     "mu_x", "mu_y", "mu_z","weight"
           WRITE(6,*)
          ENDIF
@@ -2993,10 +2993,10 @@ C initialization same as G-tensor, construct L+gS matrix elements
           RMAGM(3)=RMAGM(3)+pZMR(3)%A2(ISS,ISS)*FACT
           RPART=RPART+FACT
           IF(IPGLOB.GT.2) THEN
-           WRITE(6,'(2x,f14.3,3(1x,f10.6,1x),2x,f6.3)')
-     &      (ZR(ISS,ISS)-ZR(1,1))*auTocm,
-     &      pZMR(1)%A2(ISS,ISS),
-     &      pZMR(2)%A2(ISS,ISS),
+           WRITE(6,'(2x,f14.3,3(1x,f10.6,1x),2x,f6.3)')                 &
+     &      (ZR(ISS,ISS)-ZR(1,1))*auTocm,                               &
+     &      pZMR(1)%A2(ISS,ISS),                                        &
+     &      pZMR(2)%A2(ISS,ISS),                                        &
      &      pZMR(3)%A2(ISS,ISS),FACT
           ENDIF
          ENDDO
@@ -3017,10 +3017,10 @@ C initialization same as G-tensor, construct L+gS matrix elements
           ENDIF
          ENDDO
           IF(IBSTEP.EQ.1) THEN
-         WRITE(6,'(1x,f6.2,5(1x,es12.5,1x))')
+         WRITE(6,'(1x,f6.2,5(1x,es12.5,1x))')                           &
      &    T,B,RMAGMO,RMAGM(1),RMAGM(2),RMAGM(3)
           ELSE
-         WRITE(6,'(1x,f6.2,8(1x,es12.5,1x))')
+         WRITE(6,'(1x,f6.2,8(1x,es12.5,1x))')                           &
      &    T,B,RMAGMO,RMAGM(1),RMAGM(2),RMAGM(3),Chi(1),Chi(2),Chi(3)
           ENDIF
         ENDDO
@@ -3031,15 +3031,15 @@ C initialization same as G-tensor, construct L+gS matrix elements
 
       WRITE(6,*)
 
-C powder magnetization, useful in nonlinear cases
+! powder magnetization, useful in nonlinear cases
 
       IF(.NOT.IFMCAL) GOTO 810
 
       WRITE(6,*)
       WRITE(6,*) "Powder Magnetization"
       WRITE(6,*)
-      WRITE(6,'(3x,a1,3x,5(1x,a12,1x))') "T",
-     & "    B  (T)  ","   M (J/T)  ",
+      WRITE(6,'(3x,a1,3x,5(1x,a12,1x))') "T",                           &
+     & "    B  (T)  ","   M (J/T)  ",                                   &
      & "  Mx (J/T)  ","  My (J/T)  ","  Mz (J/T)  "
 
       CALL mma_allocate(MAGM,3*NBSTEP*NTSTEP,Label='MAGM')
@@ -3050,7 +3050,7 @@ C powder magnetization, useful in nonlinear cases
 
       GTR=ACOS(-1.0D0)/180
 
-C scale number of points on phi via sin(theta)
+! scale number of points on phi via sin(theta)
       NORIENT=0
       DO ITHE=1,NTHESTEP+1
        THE=BANGRES*(ITHE-1)*GTR
@@ -3062,10 +3062,10 @@ C scale number of points on phi via sin(theta)
        NORIENT=NORIENT+1
 
        LMSTEP=0
-*      WRITE(6,*)
-*      WRITE(6,'(1x,2(A6,I4))') ' ITHE ',ITHE,' IPHI',IPHI
-*      WRITE(6,'(6(5x,A4,5x))')
-*    &  ' B  ','THE ','PHI ',' Mx ',' My ',' Mz '
+!      WRITE(6,*)
+!      WRITE(6,'(1x,2(A6,I4))') ' ITHE ',ITHE,' IPHI',IPHI
+!      WRITE(6,'(6(5x,A4,5x))')
+!    &  ' B  ','THE ','PHI ',' Mx ',' My ',' Mz '
        DO IBSTEP=1,NBSTEP
         B=BSTART+BINCRE*(IBSTEP-1)
         BX=B*SIN(THE)*COS(PHI)
@@ -3112,9 +3112,9 @@ C scale number of points on phi via sin(theta)
          RMAGM(1)=(RMAGM(1)/RPART)*AU2JTM
          RMAGM(2)=(RMAGM(2)/RPART)*AU2JTM
          RMAGM(3)=(RMAGM(3)/RPART)*AU2JTM
-*        WRITE(6,'(6(1x,es12.5,1x))')
-*    &    B,THE,PHI,RMAGM(1),RMAGM(2),RMAGM(3)
-C backtransformation in two steps, -phi and -theta
+!        WRITE(6,'(6(1x,es12.5,1x))')
+!    &    B,THE,PHI,RMAGM(1),RMAGM(2),RMAGM(3)
+! backtransformation in two steps, -phi and -theta
          A=RMAGM(1)
          B=RMAGM(2)
          RMAGM(1)=A*COS(PHI)+B*SIN(PHI)
@@ -3145,7 +3145,7 @@ C backtransformation in two steps, -phi and -theta
         ENDDO
         RMAGM2=RMAGM(1)*RMAGM(1)+RMAGM(2)*RMAGM(2)+RMAGM(3)*RMAGM(3)
         RMAGMO=SQRT(RMAGM2)
-        WRITE(6,'(1x,f6.2,5(1x,es12.5,1x))')
+        WRITE(6,'(1x,f6.2,5(1x,es12.5,1x))')                            &
      &   T,B,RMAGMO,RMAGM(1),RMAGM(2),RMAGM(3)
        ENDDO
       ENDDO
@@ -3174,7 +3174,7 @@ C backtransformation in two steps, -phi and -theta
       Call mma_deallocate(MYI)
       Call mma_deallocate(MZR)
       Call mma_deallocate(MZI)
-      nullify(pMR(1)%A2,pMI(1)%A2,pMR(2)%A2,pMI(2)%A2,pMR(3)%A2,
+      nullify(pMR(1)%A2,pMI(1)%A2,pMR(2)%A2,pMI(2)%A2,pMR(3)%A2,        &
      &        pMI(3)%A2)
 
  900  CONTINUE
@@ -3203,7 +3203,7 @@ C backtransformation in two steps, -phi and -theta
          IPRDZ=0
          IFANY=0
          DO ISOPR=1,NSOPR
-           IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+           IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.                          &
      &        SOPRTP(ISOPR).EQ.'HERMSING') THEN
             IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRDX=ISOPR
@@ -3347,7 +3347,7 @@ C backtransformation in two steps, -phi and -theta
 
          IFANY=0
          DO ISOPR=1,NSOPR
-            IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.
+            IF(SOPRNM(ISOPR).EQ.'MLTPL  0'.AND.                         &
      &         SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
             IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRSX=ISOPR
@@ -3403,7 +3403,7 @@ C backtransformation in two steps, -phi and -theta
          IPRSZY=0
          IFANY=0
          DO ISOPR=1,NSOPR
-           IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.
+           IF(SOPRNM(ISOPR).EQ.'MLTPL  1'.AND.                          &
      &             SOPRTP(ISOPR).EQ.'ANTITRIP') THEN
             IFANY=1
             IF(ISOCMP(ISOPR).EQ.1) IPRSXY=ISOPR
@@ -3669,7 +3669,7 @@ C backtransformation in two steps, -phi and -theta
 
       Subroutine Allocate_and_Load_Octupoles(IFANY)
       Integer ISOPR
-      Integer IPRDZZX, IPRDZZY, IPRDZZZ, IPRDXXX, IPRDXXY, IPRDXXZ,
+      Integer IPRDZZX, IPRDZZY, IPRDZZZ, IPRDXXX, IPRDXXY, IPRDXXZ,     &
      &        IPRDYYX, IPRDYYY, IPRDYYZ, IFANY
 ! This is a real symmetric rank 3 tensor so only 10 and not 27 is needed
 ! The order which comes in
@@ -3844,7 +3844,7 @@ C backtransformation in two steps, -phi and -theta
       if(.FALSE.) then
       write(u6,'(/)')
       write(u6,'(10A)') (('############'),J=1,10)
-      write(u6,'(25X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT IN '//
+      write(u6,'(25X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT IN '//&
      &'THE BASIS OF SPIN ORBIT STATES'
       write(u6,'(10A)') (('############'),J=1,10)
 
@@ -3887,7 +3887,7 @@ C backtransformation in two steps, -phi and -theta
 
          if(.False.) then
       write(u6,*)
-      write(u6,'(10X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT '//
+      write(u6,'(10X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT '//   &
      & 'IN THE BASIS OF SPIN-ORBIT FUNCTIONS'
       do l=1,3
       write(u6,'(/)')
@@ -3955,7 +3955,7 @@ C backtransformation in two steps, -phi and -theta
 
       write(u6,'(/)')
       write(u6,'(10A)') (('############'),J=1,10)
-      write(u6,'(30X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT IN '//
+      write(u6,'(30X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT IN '//    &
      & 'THE BASIS OF SPIN ORBIT STATES'
       write(u6,'(10A)') (('############'),J=1,10)
       write(u6,'(/)')
@@ -3990,7 +3990,7 @@ C backtransformation in two steps, -phi and -theta
         enddo
 
       write(u6,*)
-      write(u6,'(10X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT '//
+      write(u6,'(10X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT '//       &
      & 'IN THE BASIS OF SPIN-ORBIT FUNCTIONS'
       do l=1,3
       write(u6,'(/)')
@@ -4016,7 +4016,7 @@ C backtransformation in two steps, -phi and -theta
        !!enddo
       !!enddo
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       unused_var(DIPSOm_SA)
       END SUBROUTINE SINANI
 
@@ -4032,7 +4032,7 @@ c Avoid unused argument warnings
       INTEGER(kind=iwp) I, J
       COMPLEX(kind=wp)  TEMP(N,N)
 
-C initialization
+! initialization
       do I=1,N
        do J=1,N
       DROT(I,J)=(Zero,Zero)
@@ -4040,10 +4040,10 @@ C initialization
        enddo
       enddo
 
-C actual multiplication
-      call ZGEMM('C','N',N,N,N,(One,Zero),A,N,D,N,(Zero,Zero),
+! actual multiplication
+      call ZGEMM('C','N',N,N,N,(One,Zero),A,N,D,N,(Zero,Zero),          &
      &TEMP,N)
-      call ZGEMM('N','N',N,N,N,(One,Zero),TEMP,N,A,N,(Zero,Zero),
+      call ZGEMM('N','N',N,N,N,(One,Zero),TEMP,N,A,N,(Zero,Zero),       &
      &DROT,N)
 
       END SUBROUTINE ADARASSI
@@ -4063,17 +4063,17 @@ C actual multiplication
       TMPI1=AI(ISS,JSS)*UR(JSS,1)+AR(ISS,JSS)*UI(JSS,1)
       TMPI2=AI(ISS,JSS)*UR(JSS,2)+AR(ISS,JSS)*UI(JSS,2)
 
-      ZEKL(1,1,IXYZ,ISTATE)=ZEKL(1,1,IXYZ,ISTATE)+
-     $     CMPLX(UR(ISS,1)*TMPR1+UI(ISS,1)*TMPI1,
-     $     UR(ISS,1)*TMPI1-UI(ISS,1)*TMPR1,kind=8)
-      ZEKL(1,2,IXYZ,ISTATE)=ZEKL(1,2,IXYZ,ISTATE)+
-     $     CMPLX(UR(ISS,1)*TMPR2+UI(ISS,1)*TMPI2,
-     $     UR(ISS,1)*TMPI2-UI(ISS,1)*TMPR2,kind=8)
-      ZEKL(2,1,IXYZ,ISTATE)=ZEKL(2,1,IXYZ,ISTATE)+
-     $     CMPLX(UR(ISS,2)*TMPR1+UI(ISS,2)*TMPI1,
-     $     UR(ISS,2)*TMPI1-UI(ISS,2)*TMPR1,kind=8)
-      ZEKL(2,2,IXYZ,ISTATE)=ZEKL(2,2,IXYZ,ISTATE)+
-     $     CMPLX(UR(ISS,2)*TMPR2+UI(ISS,2)*TMPI2,
-     $     UR(ISS,2)*TMPI2-UI(ISS,2)*TMPR2,kind=8)
+      ZEKL(1,1,IXYZ,ISTATE)=ZEKL(1,1,IXYZ,ISTATE)+                      &
+     &     CMPLX(UR(ISS,1)*TMPR1+UI(ISS,1)*TMPI1,                       &
+     &     UR(ISS,1)*TMPI1-UI(ISS,1)*TMPR1,kind=8)
+      ZEKL(1,2,IXYZ,ISTATE)=ZEKL(1,2,IXYZ,ISTATE)+                      &
+     &     CMPLX(UR(ISS,1)*TMPR2+UI(ISS,1)*TMPI2,                       &
+     &     UR(ISS,1)*TMPI2-UI(ISS,1)*TMPR2,kind=8)
+      ZEKL(2,1,IXYZ,ISTATE)=ZEKL(2,1,IXYZ,ISTATE)+                      &
+     &     CMPLX(UR(ISS,2)*TMPR1+UI(ISS,2)*TMPI1,                       &
+     &     UR(ISS,2)*TMPI1-UI(ISS,2)*TMPR1,kind=8)
+      ZEKL(2,2,IXYZ,ISTATE)=ZEKL(2,2,IXYZ,ISTATE)+                      &
+     &     CMPLX(UR(ISS,2)*TMPR2+UI(ISS,2)*TMPI2,                       &
+     &     UR(ISS,2)*TMPI2-UI(ISS,2)*TMPR2,kind=8)
 
       END SUBROUTINE ZECON

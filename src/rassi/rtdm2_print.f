@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2020, Bruno Tenorio                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Bruno Tenorio                                    *
+!***********************************************************************
 
-C Print the reduced 2-e TDM in ASCII format.
-C Code adapted from trd_print.f written by P. A. Malmqvist.
-      SUBROUTINE RTDM2_PRINT(ISTATE, JSTATE, EIJ, NDYSAB, DYSAB,
+! Print the reduced 2-e TDM in ASCII format.
+! Code adapted from trd_print.f written by P. A. Malmqvist.
+      SUBROUTINE RTDM2_PRINT(ISTATE, JSTATE, EIJ, NDYSAB, DYSAB,        &
      &                 NRT2MAB , RT2M , CMO1, CMO2, AUGSPIN)
 
       use Cntrl, only: OCAN, LSYM1, LSYM2, OCAA
@@ -25,54 +25,54 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
       INTEGER NDYSAB,NRT2MAB,AUGSPIN
       Real*8  EIJ
       Real*8  DYSAB(*), RT2M(*), CMO1(*), CMO2(*)
-C -------------------------------------------------------------
-C The spin coupling matrix elements have the following index-code:
-C             SPIN=1 means  K2V (AAB+BBB)
-C             SPIN=-1 means SDA (AAA+BBA)
-C Notice, SPIN here has nothing to do with the spin quantum number. It
-C is just a printing code.
-C ------------------------------------------------------------
-C Other variables
+! -------------------------------------------------------------
+! The spin coupling matrix elements have the following index-code:
+!             SPIN=1 means  K2V (AAB+BBB)
+!             SPIN=-1 means SDA (AAA+BBA)
+! Notice, SPIN here has nothing to do with the spin quantum number. It
+! is just a printing code.
+! ------------------------------------------------------------
+! Other variables
       CHARACTER(LEN=3) NUM1,NUM2
       CHARACTER(LEN=16) FNM
       INTEGER IOFFA(8), IOFFO(8)
-      INTEGER I, J, LU, ISYM, LPOS, NO, NB, IO, IOFFTD, ISYI, NOI, NII,
-     &        IA, NORBSYM, NAI, ISYJ, NOJ, NAJ, ISYL, NOL, NAL, NIL, JA,
+      INTEGER I, J, LU, ISYM, LPOS, NO, NB, IO, IOFFTD, ISYI, NOI, NII, &
+     &        IA, NORBSYM, NAI, ISYJ, NOJ, NAJ, ISYL, NOL, NAL, NIL, JA,&
      &        JO, L, LA, LO, KPOS, NIJ
       INTEGER, External:: IsFreeUnit
-C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
+! IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
       DO I=1,NSYM-1
         IOFFA(I+1)=IOFFA(I)+NASH(I)
       END DO
-C IOFFO=NR OF OCC ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
+! IOFFO=NR OF OCC ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFO(1)=0
       DO J=1,NSYM-1
         IOFFO(J+1)=IOFFO(J)+NOSH(J)
       END DO
-C Subroutine starts
+! Subroutine starts
       LU=51
       LU=IsFreeUnit(LU)
       WRITE(NUM1,'(I3.3)') ISTATE
       WRITE(NUM2,'(I3.3)') JSTATE
-C AUGSPIN
+! AUGSPIN
       IF(AUGSPIN.EQ.1) THEN
        FNM='r2TM_K2V_'//NUM1//'_'//NUM2
       ELSE IF(AUGSPIN.EQ.-1) THEN
        FNM='r2TM_SDA_'//NUM1//'_'//NUM2
-C if AAB (all spin) true
-C      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
-C       FNM='r2TM_BBB_'//NUM1//'_'//NUM2
-C      ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
-C       FNM='r2TM_AAA_'//NUM1//'_'//NUM2
-C      ELSE IF(aab.and.AUGSPIN.EQ.4) THEN
-C       FNM='r2TM_AAB_'//NUM1//'_'//NUM2
-C      ELSE IF(aab.and.AUGSPIN.EQ.5) THEN
-C       FNM='r2TM_BBA_'//NUM1//'_'//NUM2
-C      ELSE IF(aab.and.AUGSPIN.EQ.6) THEN
-C       FNM='r2TM_ABA_'//NUM1//'_'//NUM2
-C      ELSE IF(aab.and.AUGSPIN.EQ.7) THEN
-C       FNM='r2TM_BAB_'//NUM1//'_'//NUM2
+! if AAB (all spin) true
+!      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
+!       FNM='r2TM_BBB_'//NUM1//'_'//NUM2
+!      ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
+!       FNM='r2TM_AAA_'//NUM1//'_'//NUM2
+!      ELSE IF(aab.and.AUGSPIN.EQ.4) THEN
+!       FNM='r2TM_AAB_'//NUM1//'_'//NUM2
+!      ELSE IF(aab.and.AUGSPIN.EQ.5) THEN
+!       FNM='r2TM_BBA_'//NUM1//'_'//NUM2
+!      ELSE IF(aab.and.AUGSPIN.EQ.6) THEN
+!       FNM='r2TM_ABA_'//NUM1//'_'//NUM2
+!      ELSE IF(aab.and.AUGSPIN.EQ.7) THEN
+!       FNM='r2TM_BAB_'//NUM1//'_'//NUM2
       END IF
       CALL Molcas_Open(LU,FNM)
       WRITE(LU,*)'# Auger Densities: CMO1, CMO2, 1-e Dyson, 2-e Dyson'
@@ -80,19 +80,19 @@ C       FNM='r2TM_BAB_'//NUM1//'_'//NUM2
       WRITE(LU,*)'# Spin Matrix (K-2V) for RAES and NAES'
       ELSE IF(AUGSPIN.EQ.-1) THEN
       WRITE(LU,*)'# Spin matrix SDA for NAES.'
-C     if AAB (all spin) true
-C      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
-C      WRITE(LU,*)'# Spin BBB 2-el rTDM density matrix.'
-C      ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
-C      WRITE(LU,*)'# Spin AAA 2-el rTDM density matrix.'
-C      ELSE IF(aab.and.AUGSPIN.EQ.4) THEN
-C      WRITE(LU,*)'# Spin AAB 2-el rTDM density matrix.'
-C      ELSE IF(aab.and.AUGSPIN.EQ.5) THEN
-C      WRITE(LU,*)'# Spin BBA 2-el rTDM density matrix.'
-C      ELSE IF(aab.and.AUGSPIN.EQ.6) THEN
-C      WRITE(LU,*)'# Spin ABA 2-el rTDM density matrix.'
-C      ELSE IF(aab.and.AUGSPIN.EQ.7) THEN
-C      WRITE(LU,*)'# Spin BAB 2-el rTDM density matrix.'
+!     if AAB (all spin) true
+!      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
+!      WRITE(LU,*)'# Spin BBB 2-el rTDM density matrix.'
+!      ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
+!      WRITE(LU,*)'# Spin AAA 2-el rTDM density matrix.'
+!      ELSE IF(aab.and.AUGSPIN.EQ.4) THEN
+!      WRITE(LU,*)'# Spin AAB 2-el rTDM density matrix.'
+!      ELSE IF(aab.and.AUGSPIN.EQ.5) THEN
+!      WRITE(LU,*)'# Spin BBA 2-el rTDM density matrix.'
+!      ELSE IF(aab.and.AUGSPIN.EQ.6) THEN
+!      WRITE(LU,*)'# Spin ABA 2-el rTDM density matrix.'
+!      ELSE IF(aab.and.AUGSPIN.EQ.7) THEN
+!      WRITE(LU,*)'# Spin BAB 2-el rTDM density matrix.'
       END IF
 
       WRITE(LU,*)'# OCA for scattering atom:'
@@ -143,7 +143,7 @@ C      WRITE(LU,*)'# Spin BAB 2-el rTDM density matrix.'
         END DO
         LPOS=LPOS+NB*NO
       END DO
-C Write Dyson orbitals in CI basis
+! Write Dyson orbitals in CI basis
       WRITE(LU,*)'# 1-e Dyson orbital for CI coeff. in MO biorth. basis'
       WRITE(LU,*)'# Symmetry Block elements:',NDYSAB
       WRITE(LU,*)'# sub-Block info:Sym(I), NumOrb in SymmBlock'
@@ -155,7 +155,7 @@ C Write Dyson orbitals in CI basis
        WRITE(LU,'(A10,8I7)')' # sub-Block:',ISYI,NOI
        DO I=1,NOI
          IA=I+IOFFTD
-C        eliminate small numbers
+!        eliminate small numbers
          IF(ABS(DYSAB(IA)).LT.1.0D-29) THEN
             DYSAB(IA)=0.0D0
          END IF
@@ -165,7 +165,7 @@ C        eliminate small numbers
        NORBSYM=NOI
        IOFFTD=IOFFTD+NORBSYM
       END DO
-C Write reduced 2-e TDM in CI basis.
+! Write reduced 2-e TDM in CI basis.
       IOFFTD=0
       WRITE(LU,*)'# 2-e reduced TDM for CI coeff. in MO biorth. basis'
       WRITE(LU,*)'# Symmetry Block elements:',NRT2MAB
@@ -190,7 +190,7 @@ C Write reduced 2-e TDM in CI basis.
             IF(NAI.EQ.0) GOTO 670
             IF(NAJ.EQ.0) GOTO 670
             IF(NAL.EQ.0) GOTO 670
-            WRITE(LU,'(A10,8I7,8I7,8I7,8I7)')' # sub-Block:',ISYI,ISYJ,
+            WRITE(LU,'(A10,8I7,8I7,8I7,8I7)')' # sub-Block:',ISYI,ISYJ, &
      &       ISYL,NOI*NOJ*NOL
             DO I=1,NOI
              IA=IOFFA(ISYI)+I-NII
@@ -208,7 +208,7 @@ C Write reduced 2-e TDM in CI basis.
                 IF(ABS(RT2M(KPOS)).LT.1.0D-39) THEN
                  RT2M(KPOS) = 0.0D0
                 END IF
-                write(LU,'(I7,I7,I7,ES26.12)') IO,JO,LO,
+                write(LU,'(I7,I7,I7,ES26.12)') IO,JO,LO,                &
      &           RT2M(KPOS)
                END IF
               END DO

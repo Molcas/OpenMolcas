@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       SUBROUTINE ZTRNSF_MASKED(N,UR,UI,AR,AI,IJ,IST,INUM,JST,JNUM)
       USE Constants, only: Zero, One
       USE stdalloc, only: mma_allocate, mma_deallocate
@@ -45,13 +45,13 @@
 
       CALL mma_allocate(TR,INUM,NJ,LABEL='TR')
       CALL mma_allocate(TI,INUM,NJ,LABEL='TI')
-      CALL DGEMM_('N','N',INUM,NJ,JNUM, One,MR,INUM,VR,JNUM,
+      CALL DGEMM_('N','N',INUM,NJ,JNUM, One,MR,INUM,VR,JNUM,            &
      &                                 Zero,TR,INUM)
-      CALL DGEMM_('N','N',INUM,NJ,JNUM,-One,MI,INUM,VI,JNUM,
+      CALL DGEMM_('N','N',INUM,NJ,JNUM,-One,MI,INUM,VI,JNUM,            &
      &                                  One,TR,INUM)
-      CALL DGEMM_('N','N',INUM,NJ,JNUM, One,MR,INUM,VI,JNUM,
+      CALL DGEMM_('N','N',INUM,NJ,JNUM, One,MR,INUM,VI,JNUM,            &
      &                                 Zero,TI,INUM)
-      CALL DGEMM_('N','N',INUM,NJ,JNUM, One,MI,INUM,VR,JNUM,
+      CALL DGEMM_('N','N',INUM,NJ,JNUM, One,MI,INUM,VR,JNUM,            &
      &                                  One,TI,INUM)
 
       CALL mma_deallocate(VR)

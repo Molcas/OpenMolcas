@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE SONATORBM_INT(DENS, CHARPROP, IC_,CHARTYPE,ASS,BSS,
-     &                         iOpt,ROTMAT,
-     &                         PROPVALXR,PROPVALYR,PROPVALZR,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE SONATORBM_INT(DENS, CHARPROP, IC_,CHARTYPE,ASS,BSS,    &
+     &                         iOpt,ROTMAT,                             &
+     &                         PROPVALXR,PROPVALYR,PROPVALZR,           &
      &                         PROPVALXI,PROPVALYI,PROPVALZI)
       use OneDat, only: sOpSiz
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,18 +22,18 @@
       INTEGER IC_
       CHARACTER(LEN=8) CHARTYPE
       INTEGER ASS, BSS, iOpt
-      Real*8 ROTMAT(3,3),
-     &       PROPVALXR,PROPVALYR,PROPVALZR,
+      Real*8 ROTMAT(3,3),                                               &
+     &       PROPVALXR,PROPVALYR,PROPVALZR,                             &
      &       PROPVALXI,PROPVALYI,PROPVALZI
 
       Integer IDUM(1)
       Real*8, allocatable:: IP(:), IPX(:), IPY(:), IPZ(:)
       Integer ITYPE, NIP, IC_End, IC_Str, IC, JOPT, ICMP, IRC, I, ISCHK
 
-C NOW DO INTEGRATION WITH AO MATRICES
-C FOR THE EXPECTATION VALUE
+! NOW DO INTEGRATION WITH AO MATRICES
+! FOR THE EXPECTATION VALUE
 
-C Get the proper type of the property
+! Get the proper type of the property
       ITYPE=0
       IF(CHARTYPE.EQ.'HERMSING') ITYPE=1
       IF(CHARTYPE.EQ.'ANTISING') ITYPE=2
@@ -45,9 +45,9 @@ C Get the proper type of the property
         CALL ABEND()
       END IF
 
-C ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
-c The extra 4 elements correspond to the nuclear contribution
-c and the origin of the operator
+! ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
+! The extra 4 elements correspond to the nuclear contribution
+! and the origin of the operator
       NIP=4+NBTRI
       CALL mma_allocate(IP,NIP,Label='IP')
       If (iOpt.eq.1) Then
@@ -68,17 +68,17 @@ c and the origin of the operator
       End If
       DO IC=IC_Str,IC_End ! loop over reading X,Y, and Z AO Integrals
 
-C Get info from the stored integrals
-c JOPT controls what is read.
-c JOPT=1 Read the size information
-c JOPT=0 Read the property
-c JOPT=6 Read the property, skipping the nuclear contribution and the origin
-c (see OneDat module)
+! Get info from the stored integrals
+! JOPT controls what is read.
+! JOPT=1 Read the size information
+! JOPT=0 Read the property
+! JOPT=6 Read the property, skipping the nuclear contribution and the origin
+! (see OneDat module)
       JOPT=ibset(0,sOpSiz)
       ICMP=IC
       CALL iRDONE(IRC,JOPT,CHARPROP,ICMP,IDUM,ISCHK)
 
-c Actually read the integral
+! Actually read the integral
       JOPT=0
       CALL RDONE(IRC,JOPT,CHARPROP,ICMP,IP,ISCHK)
 
@@ -93,7 +93,7 @@ c Actually read the integral
       END IF
 
       If (iOpt.eq.1) Then
-c        note reordering
+!        note reordering
              CALL DAXPY_(NIP,ROTMAT(IC,1),IP,1,IPX,1)
              CALL DAXPY_(NIP,ROTMAT(IC,2),IP,1,IPY,1)
              CALL DAXPY_(NIP,ROTMAT(IC,3),IP,1,IPZ,1)
@@ -108,11 +108,11 @@ c        note reordering
       PROPVALYI=0.0d0
       PROPVALZI=0.0d0
 
-C The integral is NBTRI matrix
-C The property is NBTRI matrix
-c We only work with half the matrix. Therefore, this would
-c have a factor of 2. However, the factor of 1/2 was missing
-c in SONATORB.F from the symmetric/antisymmetric equations
+! The integral is NBTRI matrix
+! The property is NBTRI matrix
+! We only work with half the matrix. Therefore, this would
+! have a factor of 2. However, the factor of 1/2 was missing
+! in SONATORB.F from the symmetric/antisymmetric equations
       IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
         If (iOpt.eq.1) Then
         DO I=1,NBTRI
@@ -174,7 +174,7 @@ c in SONATORB.F from the symmetric/antisymmetric equations
       WRITE(6,*) "Property: Im(Z): ",PROPVALZI
       WRITE(6,*) "************************************"
 
-c Free up un-needed space
+! Free up un-needed space
       call mma_deallocate(IP)
       If (iOpt.eq.1) Then
          call mma_deallocate(IPX)

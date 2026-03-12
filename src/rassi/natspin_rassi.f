@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
       use OneDat, only: sNoNuc, sNoOri
       use rassi_aux, only : iDisk_TDM
@@ -31,13 +31,13 @@
       Integer iDummy(7,8)
       Real*8, allocatable:: SZZ(:), VEC(:), VEC2(:), SCR(:), EIG(:)
 
-      Integer NSZZ, NVEC, NVEC2, NSCR, NEIG, IRC, IOPT, ICMP, ISYLAB,
-     &        LS, LV, LE, ISYM, NB, LS1, LV1, LE1, I, KEIG, J, IEMPTY,
-     &        IDISK, IGO, ID, INV, IOCC, ID1, ID2, ISCR, IJ, JI, I1,
+      Integer NSZZ, NVEC, NVEC2, NSCR, NEIG, IRC, IOPT, ICMP, ISYLAB,   &
+     &        LS, LV, LE, ISYM, NB, LS1, LV1, LE1, I, KEIG, J, IEMPTY,  &
+     &        IDISK, IGO, ID, INV, IOCC, ID1, ID2, ISCR, IJ, JI, I1,    &
      &        I2, ISTOCC, LUXXVEC, II
       REAL*8 X, SumOcc
 
-C ALLOCATE WORKSPACE AREAS.
+! ALLOCATE WORKSPACE AREAS.
       NSZZ=NBTRI
       NVEC=NBSQ
       NVEC2=NBMX**2
@@ -48,7 +48,7 @@ C ALLOCATE WORKSPACE AREAS.
       CALL mma_allocate(VEC2,NVEC2,Label='VEC2')
       CALL mma_allocate(SCR,NSCR,Label='SCR')
       CALL mma_allocate(EIG,NEIG,Label='EIG')
-C READ ORBITAL OVERLAP MATRIX.
+! READ ORBITAL OVERLAP MATRIX.
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
@@ -62,7 +62,7 @@ C READ ORBITAL OVERLAP MATRIX.
         WRITE(6,*)
         CALL ABEND()
       ENDIF
-C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
+! DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
       LV=1
       LE=1
@@ -73,7 +73,7 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
           VEC(LV-1+I)=1.0D00
 20      CONTINUE
         CALL JACOB(SZZ(LS),VEC(LV),NB,NB)
-C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
+! SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
@@ -91,16 +91,16 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
 100   CONTINUE
       Call mma_deallocate(SZZ)
 
-C VERY LONG LOOP OVER EIGENSTATES KEIG.
+! VERY LONG LOOP OVER EIGENSTATES KEIG.
       DO KEIG=1,NRNATO
 
         CALL DCOPY_(NBSQ,[0.0D0],0,DMAT,1)
-C DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS, TRIANGULAR.
+! DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS, TRIANGULAR.
         DO I=1,NSTATE
           DO J=1,I
-C WEIGHT WITH WHICH THIS TDM CONTRIBUTES IS EIGVEC(I,KEIG)*EIGVEC(J,KEIG).
-C HOWEVER, WE ARE LOOPING TRIANGULARLY AND WILL RESTORE SYMMETRY BY
-C ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
+! WEIGHT WITH WHICH THIS TDM CONTRIBUTES IS EIGVEC(I,KEIG)*EIGVEC(J,KEIG).
+! HOWEVER, WE ARE LOOPING TRIANGULARLY AND WILL RESTORE SYMMETRY BY
+! ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
             X=EIGVEC(I,KEIG)*EIGVEC(J,KEIG)
             IF(ABS(X).GT.1.0D-12) THEN
               iDisk=iDisk_TDM(J,I,1)
@@ -109,8 +109,8 @@ C ADDING TRANSPOSE AFTER DMAT HAS BEEN FINISHED, SO I=J IS SPECIAL CASE:
                  iDisk=iDisk_TDM(J,I,1)
                  iOpt=2
                  iGo=2
-C PICK UP TRANSITION SPIN DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
-                 CALL dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,
+! PICK UP TRANSITION SPIN DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
+                 CALL dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,               &
      &                          LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
                  IF(I.EQ.J) X=0.5D00*X
                  CALL DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
@@ -118,7 +118,7 @@ C PICK UP TRANSITION SPIN DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
             END IF
           END DO
         END DO
-C LOOP OVER SYMMETRY BLOCKS OF DMAT.
+! LOOP OVER SYMMETRY BLOCKS OF DMAT.
         ID=1
         INV=1
         IOCC=0
@@ -126,14 +126,14 @@ C LOOP OVER SYMMETRY BLOCKS OF DMAT.
         LE=1
         DO ISYM=1,NSYM
           NB=NBASF(ISYM)
-C TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
-C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
-C SCALING WITH THE EIGENVECTORS OF THE OVERLAP MATRIX:
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 DMAT(ID),NB,VEC(LV),NB,
+! TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
+! BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
+! SCALING WITH THE EIGENVECTORS OF THE OVERLAP MATRIX:
+          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,                           &
+     &                 DMAT(ID),NB,VEC(LV),NB,                          &
      &           0.0D0,SCR,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,1.0D0,
-     &                 VEC(LV),NB,SCR,NB,
+          CALL DGEMM_('T','N',NB,NB,NB,1.0D0,                           &
+     &                 VEC(LV),NB,SCR,NB,                               &
      &           0.0D0,DMAT(ID),NB)
           ID1=ID
           ID2=ID
@@ -143,7 +143,7 @@ C SCALING WITH THE EIGENVECTORS OF THE OVERLAP MATRIX:
             ID1=ID1+1
             ID2=ID2+NB
           END DO
-C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
+! SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
           ISCR=1
           DO I=1,NB
             DO J=1,I
@@ -153,21 +153,21 @@ C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
               ISCR=ISCR+1
             END DO
           END DO
-C DIAGONALIZE THE DENSITY MATRIX BLOCK:
+! DIAGONALIZE THE DENSITY MATRIX BLOCK:
           VEC2(:)=0.0D0
           CALL DCOPY_(NB,[1.0D0],0,VEC2,NB+1)
           CALL JACOB(SCR,VEC2,NB,NB)
           CALL JACORD(SCR,VEC2,NB,NB)
-C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
+! JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           II=0
           DO I=1,NB
             II=II+I
             OCC(IOCC+NB+1-I)=SCR(II)
           END DO
           IOCC=IOCC+NB
-C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
-          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,
-     &                 VEC(LV),NB,VEC2,NB,
+! REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
+          CALL DGEMM_('N','N',NB,NB,NB,1.0D0,                           &
+     &                 VEC(LV),NB,VEC2,NB,                              &
      &           0.0D0,SCR,NB)
           I1=1
           I2=INV+NB**2
@@ -182,8 +182,8 @@ C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           LE=LE+NB
         END DO
 
-C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS. THE FILES WILL BE NAMED
-C SSORB.1, SSORB.2, ...
+! WRITE OUT THIS SET OF NATURAL SPIN ORBITALS. THE FILES WILL BE NAMED
+! SSORB.1, SSORB.2, ...
 
        WRITE(KNUM,'(I8)') KEIG
        KNUM=ADJUSTL(KNUM)
@@ -202,14 +202,14 @@ C SSORB.1, SSORB.2, ...
         END DO
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
-        CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &             VNAT, OCC, Dummy, iDummy,
-     &     '* NATURAL SPIN ORBITALS FROM RASSI EIGENSTATE NR '//
+        CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,                 &
+     &             VNAT, OCC, Dummy, iDummy,                            &
+     &     '* NATURAL SPIN ORBITALS FROM RASSI EIGENSTATE NR '//        &
      &     TRIM(KNUM))
         SUMOCC=DDOT_(SUM(NBASF),OCC,1,OCC,1)
         CALL ADD_INFO("NATSPIN",[SUMOCC],1,5)
 
-C End of very long loop over eigenstates KEIG.
+! End of very long loop over eigenstates KEIG.
       END DO
 
       WRITE(6,*) repeat('*',80)

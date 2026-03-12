@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1987, Per Ake Malmqvist                                *
-*               2018, Jesper Norell                                    *
-*               2018, Joel Creutzberg                                  *
-*               2023, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1987, Per Ake Malmqvist                                *
+!               2018, Jesper Norell                                    *
+!               2018, Joel Creutzberg                                  *
+!               2023, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       SUBROUTINE SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
-      use rassi_global_arrays, only: SFDYS, SODYSAMPS,
+      use rassi_global_arrays, only: SFDYS, SODYSAMPS,                  &
      &                               SODYSAMPSR, SODYSAMPSI, JBNUM
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -31,13 +31,13 @@
       Real*8 SOENE(NSS)
 
       ! Arrays, bounds, and indices
-      REAL*8    MSPROJI,MSPROJJ, CJR, CJI, CIR, CII, CREAL, CIMAG,
+      REAL*8    MSPROJI,MSPROJJ, CJR, CJI, CIR, CII, CREAL, CIMAG,      &
      &          AMPLITUDE, AMPR, AMPI
       INTEGER   SOTOT,SFTOT
       INTEGER   ORBNUM
       INTEGER   SODYSCIND
       INTEGER   SFI,SFJ,ZI,ZJ,NSZZ,NDUM
-      INTEGER   ISTATE, JOB1, MPLET1, MSPROJ, JSTATE, NSSQ, NPROD, ISY,
+      INTEGER   ISTATE, JOB1, MPLET1, MSPROJ, JSTATE, NSSQ, NPROD, ISY, &
      &          NO, NB, IRC, IOPT, ICMP, ISYLAB, NOFF, JEIG, IEIG, LUNIT
       INTEGER, EXTERNAL:: IsFreeUnit
 
@@ -60,24 +60,24 @@
 
 ! +++ J.Norell 2018
 
-C Calculates spin-orbit Dyson orbitals
-C The routine was in some part adapted from DO_SONATORB
+! Calculates spin-orbit Dyson orbitals
+! The routine was in some part adapted from DO_SONATORB
 
-C Computes SO Dyson amplitudes by expanding the SF results with
-C the SO eigenvectors (of the complex Hamiltonian)
-C 1. (Fast): Compute the SO amplitudes directly from the SF amplitudes
-C    (approximation) for all states
-C 2. (Slower): Compute the full SO Dyson orbitals for the requested
-C    initial states and export them to .molden format. SO amplitudes
-C    are correctly calculated for these states.
+! Computes SO Dyson amplitudes by expanding the SF results with
+! the SO eigenvectors (of the complex Hamiltonian)
+! 1. (Fast): Compute the SO amplitudes directly from the SF amplitudes
+!    (approximation) for all states
+! 2. (Slower): Compute the full SO Dyson orbitals for the requested
+!    initial states and export them to .molden format. SO amplitudes
+!    are correctly calculated for these states.
 
 ! IFG: Added DysOrb export, not sure it's correct
 
 ! ****************************************************************
 
-C Setup SO2SF list which contains the original SF state numbers
-C as a function of the SO state number
-C And MSPROJS which saves their ms projections for later use
+! Setup SO2SF list which contains the original SF state numbers
+! as a function of the SO state number
+! And MSPROJS which saves their ms projections for later use
 
       CALL mma_allocate(SO2SF,NSS,Label='SO2SF')
       CALL mma_allocate(MSPROJS,NSS,Label='MSPROJS')
@@ -98,8 +98,8 @@ C And MSPROJS which saves their ms projections for later use
 
       IF(.NOT.DYSEXPORT) THEN ! Approximative amplitude calculation
 
-C Now construct the SF dysamps in the multiplicity expanded basis
-C (initially all real, therefore put into SODYSAMPSR)
+! Now construct the SF dysamps in the multiplicity expanded basis
+! (initially all real, therefore put into SODYSAMPSR)
       SODYSAMPSR(:,:)=0.0D0
       SODYSAMPSI(:,:)=0.0D0
       DO JSTATE=1,NSS
@@ -111,12 +111,12 @@ C (initially all real, therefore put into SODYSAMPSR)
          END DO
       END DO
 
-C Now perform the transformation from SF dysamps to SO dysamps
-C by combining the multiplicity expanded SF dysamps with the
-C SO eigenvector in the ZTRNSF routine.
+! Now perform the transformation from SF dysamps to SO dysamps
+! by combining the multiplicity expanded SF dysamps with the
+! SO eigenvector in the ZTRNSF routine.
       CALL ZTRNSF(NSS,USOR,USOI,SODYSAMPSR,SODYSAMPSI)
 
-C Compute the magnitude of the complex amplitudes as an approximation
+! Compute the magnitude of the complex amplitudes as an approximation
       SODYSAMPSR(:,:)=SODYSAMPSR*SODYSAMPSR
       SODYSAMPSI(:,:)=SODYSAMPSI*SODYSAMPSI
       SODYSAMPS(:,:)=SQRT(SODYSAMPSR+SODYSAMPSI)
@@ -179,13 +179,13 @@ C Compute the magnitude of the complex amplitudes as an approximation
 
 ! ****************************************************************
 
-C Multiply together with the SO eigenvector coefficients with the SF
-C Dyson orbital coefficients in the atomic basis to obtain the full
-C SO Dyson orbitals
+! Multiply together with the SO eigenvector coefficients with the SF
+! Dyson orbital coefficients in the atomic basis to obtain the full
+! SO Dyson orbitals
 
-C Multiply together with the SO eigenvector coefficients with the SF
-C Dyson orbital coefficients in the atomic basis to obtain
-C SO Dyson orbitals
+! Multiply together with the SO eigenvector coefficients with the SF
+! Dyson orbital coefficients in the atomic basis to obtain
+! SO Dyson orbitals
 
       SODYSAMPS(:,:)=0.0D0
       ! For all requested initial states J and all final states I
@@ -251,9 +251,9 @@ C SO Dyson orbitals
 
           DO ZJ=1,NZ
            DO ZI=1,NZ
-            AMPR=SODYSCOFSR(ZJ)*SODYSCOFSR(ZI)
+            AMPR=SODYSCOFSR(ZJ)*SODYSCOFSR(ZI)                          &
      &            +SODYSCOFSI(ZJ)*SODYSCOFSI(ZI)
-            AMPI=SODYSCOFSI(ZJ)*SODYSCOFSR(ZI)
+            AMPI=SODYSCOFSI(ZJ)*SODYSCOFSR(ZI)                          &
      &            -SODYSCOFSR(ZJ)*SODYSCOFSI(ZI)
             AMPLITUDE=AMPLITUDE+(AMPR+AMPI)*SZZFULL(ZJ,ZI)
            END DO ! ZI
@@ -290,14 +290,14 @@ C SO Dyson orbitals
          ! format is not adequate for these orbitals.
          Write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Re'
          LUNIT=IsFreeUnit(50)
-         Write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for '//
+         Write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for '//   &
      &                           'state ',JSTATE,' (real part)'
-         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOR,
+         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOR,   &
      &                    AMPS,DYSEN,Trim(TITLE),NZ)
          Write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Im'
-         Write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for '//
+         Write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for '//   &
      &                           'state ',JSTATE,' (imaginary part)'
-         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOI,
+         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOI,   &
      &                    AMPS,DYSEN,Trim(TITLE),NZ)
          Close(LUNIT)
         END IF
@@ -308,7 +308,7 @@ C SO Dyson orbitals
 
 ! ****************************************************************
 
-C Free all the allocated memory
+! Free all the allocated memory
 
       Call mma_deallocate(SO2SF)
       Call mma_deallocate(MSPROJS)

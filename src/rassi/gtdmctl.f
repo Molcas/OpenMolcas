@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 
-      use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3,
+      use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3,   &
      &                  NRS3T, NRSPRT
-      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB,
-     &                               REST1, REST2,
-     &                               CnfTab1, CnfTab2,
-     &                               FSBTAB1, FSBTAB2,
-     &                               SPNTAB1, SPNTAB2,
+      use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB,   &
+     &                               REST1, REST2,                      &
+     &                               CnfTab1, CnfTab2,                  &
+     &                               FSBTAB1, FSBTAB2,                  &
+     &                               SPNTAB1, SPNTAB2,                  &
      &                               TRANS1, TRANS2
 #ifdef _DMRG_
       use rassi_global_arrays, only: LROOT
@@ -24,7 +24,7 @@
       !> module dependencies
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
-      use qcmaquis_interface_utility_routines, only:
+      use qcmaquis_interface_utility_routines, only:                    &
      &    pretty_print_util
       use qcmaquis_info
       use qcmaquis_interface_mpssi
@@ -35,27 +35,27 @@
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
-C      use para_info, only: nProcs, is_real_par, king
+!      use para_info, only: nProcs, is_real_par, king
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
       use Cntrl, only: CIH5
-      use RASSIWfn, only: wfn_CMO, wfn_CMO_OR, wfn_DetCoeff,
-     &                    wfn_DetCoeff_OR, wfn_DetOcc,
+      use RASSIWfn, only: wfn_CMO, wfn_CMO_OR, wfn_DetCoeff,            &
+     &                    wfn_DetCoeff_OR, wfn_DetOcc,                  &
      &                    wfn_DetOcc_OR
 #endif
       use frenkel_global_vars, only: DoCoul
       use Constants, only: auToEV, Half, One, Zero
       use cntrl, only: sonatnstate
-      use Cntrl, only: NSTATE, NPROP, LSYM1, LSYM2, IFHEXT,
-     &                 IFEJOB, TDYS, DYSO, DCHS, NATO, DOGSOR,
-     &                 QDPT2EV, ERFNUC, NCONF1, NCONF2, PRCI, DCHO,
-     &                 IFNTO, SAVEDENS, QDPT2SC, IFTRD1, IFTRD2, NDET,
-     &                 IFHAM, IFHEFF, SECOND_TIME, CITHR, IRREP, ISTAT,
-     &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,
+      use Cntrl, only: NSTATE, NPROP, LSYM1, LSYM2, IFHEXT,             &
+     &                 IFEJOB, TDYS, DYSO, DCHS, NATO, DOGSOR,          &
+     &                 QDPT2EV, ERFNUC, NCONF1, NCONF2, PRCI, DCHO,     &
+     &                 IFNTO, SAVEDENS, QDPT2SC, IFTRD1, IFTRD2, NDET,  &
+     &                 IFHAM, IFHEFF, SECOND_TIME, CITHR, IRREP, ISTAT, &
+     &                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT,     &
      &                 RASTYP
       use cntrl, only: iToc15, LuIph, LuTDM
       use Symmetry_Info, only: nSym=>nIrrep, MUL
-      use rassi_data, only: NASHT,NISHT,NCMO,ENUC,NASH,NDEL,NFRO,NISH,
+      use rassi_data, only: NASHT,NISHT,NCMO,ENUC,NASH,NDEL,NFRO,NISH,  &
      &                      NOSH,NSSH,NTDMAB,NTDMZZ,NTRA
 
       IMPLICIT NONE
@@ -74,19 +74,19 @@ C      use para_info, only: nProcs, is_real_par, king
       Real*8 Energies(1:20)
       Integer IAD,LUIPHn,LUCITH
       Real*8 Norm_fac
-CC prepare the parallel infrastructure for (istate,jstate loop)
-C      integer :: itask, ltask, ltaski, ltaskj, ntasks
-C#ifdef _MOLCAS_MPP_
-C      integer :: ID
-C#endif
-CC
-C     transformed CI expansion in determinant basis
+!C prepare the parallel infrastructure for (istate,jstate loop)
+!      integer :: itask, ltask, ltaski, ltaskj, ntasks
+!#ifdef _MOLCAS_MPP_
+!      integer :: ID
+!#endif
+!C
+!     transformed CI expansion in determinant basis
       real(kind=wp), allocatable :: detcoeff1(:), detcoeff2(:)
       character(len=(NASHT+1)), allocatable :: detocc(:)
-CC CC
-CC    NTO section
+!C CC
+!C    NTO section
       Logical DoNTO
-CC    NTO section
+!C    NTO section
 
       type mixed_1pdensities
         real*8              :: overlap
@@ -116,16 +116,16 @@ CC    NTO section
       real*8, allocatable, target:: DETTOT1(:,:), DETTOT2(:,:)
       real*8, allocatable:: Theta1(:), ThetaN(:), ThetaM(:)
 
-      Integer nActE1, JOB1, MPLET1, NHOL11, NELE31, NACTE2, JOB2,
-     &        MPLET2, NHOL12, NASORB, NTDM1, NTDM2, ISY12, NDYSAB,
-     &        NDYSZZ, NZ, NTRAD, I, J, MSPROJ1, MSPROJ2, NASPRT, KSPART,
-     &        KOINFO, ISUM, ISYM, ISORB, NO, IO, ISOIND, IT, ITABS,
-     &        NPART, NGAS, IE1MN, IE1MX, IE3MN, IE3MX, IE2MN, IE2MX,
-     &        NGL11, NGL21, NGL12, NGL22, NGL13, NGL23, MAXOP, IE1,
-     &        IOP1, IE3, IOP3, IE2, IOP2, IFORM, MINOP, NDET1, NDET2,
-     &        IST, ISTATE, JST, JSTATE, IRC, IJ, IDISK, IOPT, IGO, IERR,
+      Integer nActE1, JOB1, MPLET1, NHOL11, NELE31, NACTE2, JOB2,       &
+     &        MPLET2, NHOL12, NASORB, NTDM1, NTDM2, ISY12, NDYSAB,      &
+     &        NDYSZZ, NZ, NTRAD, I, J, MSPROJ1, MSPROJ2, NASPRT, KSPART,&
+     &        KOINFO, ISUM, ISYM, ISORB, NO, IO, ISOIND, IT, ITABS,     &
+     &        NPART, NGAS, IE1MN, IE1MX, IE3MN, IE3MX, IE2MN, IE2MX,    &
+     &        NGL11, NGL21, NGL12, NGL22, NGL13, NGL23, MAXOP, IE1,     &
+     &        IOP1, IE3, IOP3, IE2, IOP2, IFORM, MINOP, NDET1, NDET2,   &
+     &        IST, ISTATE, JST, JSTATE, IRC, IJ, IDISK, IOPT, IGO, IERR,&
      &        NELE32, ISPART, IEMPTY
-      REAL*8 ECORE, Dot_Prod, HZERO, HONE, HTWO, SIJ, DYSAMP, DYNORM,
+      REAL*8 ECORE, Dot_Prod, HZERO, HONE, HTWO, SIJ, DYSAMP, DYNORM,   &
      &       HII, HJJ, HIJ, OVERLAP_RASSI
       REAL*8, External:: DDot_
       Integer, External:: IsFreeUnit
@@ -145,13 +145,13 @@ CC    NTO section
       Call CWTime(TCpu1,TWall1)
 #endif
 #ifdef _WARNING_WORKAROUND_
-* Avoid compiler warnings about possibly unitialised mstate_1pdens
-* The below can be removed if the file is compiled with
-* -Wno-error=maybe-uninitialized
+! Avoid compiler warnings about possibly unitialised mstate_1pdens
+! The below can be removed if the file is compiled with
+! -Wno-error=maybe-uninitialized
       allocate(mstate_1pdens(0,0))
       deallocate(mstate_1pdens)
 #endif
-C WF parameters for ISTATE and JSTATE
+! WF parameters for ISTATE and JSTATE
 
       NACTE1=NACTE(JOB1)
       MPLET1=MLTPLT(JOB1)
@@ -178,7 +178,7 @@ C WF parameters for ISTATE and JSTATE
       END IF
 
       if(doDMRG .and. (nacte1 /= nacte2 ))then
-        call WarningMessage(2,'Problem in gtdmctl for MPS-SI: no '//
+        call WarningMessage(2,'Problem in gtdmctl for MPS-SI: no '//    &
      &   ' match for #e- in bra/ket')
         call abend()
       end if
@@ -232,21 +232,21 @@ C WF parameters for ISTATE and JSTATE
         IF(IF22) WRITE(6,*)' Density 2-matrix will be computed.'
       END IF
 
-C Pick up orbitals of ket and bra states.
+! Pick up orbitals of ket and bra states.
       Call mma_allocate(CMO1,nCMO,Label='CMO1')
       Call mma_allocate(CMO2,nCMO,Label='CMO2')
       CALL RDCMO_RASSI(JOB1,CMO1)
       CALL RDCMO_RASSI(JOB2,CMO2)
 
-C Nr of active spin-orbitals
+! Nr of active spin-orbitals
       NASORB=2*NASHT
       NTDM1=NASHT**2
       NTDM2=(NTDM1*(NTDM1+1))/2
 
-C Size of some data sets of reduced-2TDM in terms of active
-C orbitals NASHT (For Auger matrix elements):
+! Size of some data sets of reduced-2TDM in terms of active
+! orbitals NASHT (For Auger matrix elements):
       NRT2M=NASHT**3
-C Size of Symmetry blocks
+! Size of Symmetry blocks
       ISY12=MUL(LSYM1,LSYM2)
       NRT2MAB=0
       DO ISY=1,NSYM
@@ -273,16 +273,16 @@ C Size of Symmetry blocks
        Write(6,*) 'Make sure to activate Dyson in your RASSI input.'
        Write(6,*) 'For now, Auger computation will be skipped.'
       END IF
-C evaluation of DCH
+! evaluation of DCH
       IF(DCHS) THEN
        NDCHSM=NASHT**2
       END IF
 
 ! +++ J. Norell 13/7 - 2018
-C 1D arrays for Dyson orbital coefficients
-C COF = active biorthonormal orbital base
-C AB  = inactive+active biorthonormal orbital base
-C ZZ  = atomic (basis function) base
+! 1D arrays for Dyson orbital coefficients
+! COF = active biorthonormal orbital base
+! AB  = inactive+active biorthonormal orbital base
+! ZZ  = atomic (basis function) base
       IF ((IF10.or.IF01).and.DYSO) THEN
         Call mma_allocate(DYSCOF,NASORB,Label='DYSCOF')
         ! Number of inactive+active orbitals
@@ -295,9 +295,9 @@ C ZZ  = atomic (basis function) base
       END IF
 ! +++
 
-C Transition density matrices, TDMAB is for active biorthonormal
-C orbitals only, while TDMZZ is in the fixed AO basis.
-C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
+! Transition density matrices, TDMAB is for active biorthonormal
+! orbitals only, while TDMZZ is in the fixed AO basis.
+! WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
       IF(IF11.AND.(NATO.OR.NPROP.GT.0)) THEN
         Call mma_allocate(TDMAB,nTDMAB,Label='TDMAB')
         Call mma_allocate(TSDMAB,nTDMAB,Label='TSDMAB')
@@ -321,7 +321,7 @@ C WDMAB, WDMZZ similar, but WE-reduced 'triplet' densities.
       END IF
 
       IF(JOB1.NE.JOB2) THEN
-C Transform to biorthonormal orbital system
+! Transform to biorthonormal orbital system
         IF (DoGSOR) Then
           Call FCopy(Trim(JBNAME(JOB2)),'JOBGS',ierr)
           Call DANAME(LUIPH,'JOBGS')
@@ -337,7 +337,7 @@ C Transform to biorthonormal orbital system
         Call mma_allocate(TRA2,nTRA,Label='TRA2')
         CALL FINDT(CMO1,CMO2,TRA1,TRA2)
 #ifdef _HDF5_
-C       put the pair of transformed orbitals to h5
+!       put the pair of transformed orbitals to h5
         if (CIH5) then
           call mh5_put_dset(wfn_cmo,CMO1,[nCMO,1],[0,JOB1-1])
           call mh5_put_dset(wfn_cmo,CMO2,[nCMO,1],[0,JOB2-1])
@@ -346,8 +346,8 @@ C       put the pair of transformed orbitals to h5
         TRORB = .true.
       else
 #ifdef _HDF5_
-C       put original orbitals to hdf5 file
-        if (CIH5) call mh5_put_dset(wfn_cmo_or,CMO1,
+!       put original orbitals to hdf5 file
+        if (CIH5) call mh5_put_dset(wfn_cmo_or,CMO1,                    &
      &                               [nCMO,1],[0,JOB1-1])
 #endif
         TRORB = .false.
@@ -357,8 +357,8 @@ C       put original orbitals to hdf5 file
 !     > whose eigenvectors are stored in Heff_evc
 !     > i.e., we do not use mixed CI coefficients / MPS wave functions but rather mix the TDMs
 
-      mstate_dens = job1.eq.job2.and.
-     &              (allocated(Heff_evc(job1)%pc).or.
+      mstate_dens = job1.eq.job2.and.                                   &
+     &              (allocated(Heff_evc(job1)%pc).or.                   &
      &               allocated(Heff_evc(job1)%sc))
       mstate_dens = mstate_dens.and.if11
       mstate_dens = mstate_dens.and.qdpt2ev
@@ -380,25 +380,25 @@ C       put original orbitals to hdf5 file
       dmrg_external%MPSrotated = trorb
 #endif
 
-C OBTAIN CORE ENERGY, FOCK MATRIX, AND TWO-ELECTRON INTEGRALS
-C IN THE MIXED ACTIVE MO BASIS:
+! OBTAIN CORE ENERGY, FOCK MATRIX, AND TWO-ELECTRON INTEGRALS
+! IN THE MIXED ACTIVE MO BASIS:
       ECORE = Zero
       IF (IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
        Call mma_allocate(FMO,nTDM1,Label='FMO')
        Call mma_allocate(TUVX,nTDM2,Label='TUVX')
        TUVX(:) = Zero
-CTEST       write(*,*)'GTDMCTL calling TRINT.'
+!TEST       write(*,*)'GTDMCTL calling TRINT.'
        CALL TRINT(CMO1,CMO2,ECORE,nTDM1,FMO,nTDM2,TUVX)
        ECORE=ENUC+ERFNUC+ECORE
-CTEST       write(*,*)'GTDMCTL back from TRINT.'
-CTEST       write(*,*)'ENUC  =',ENUC
-CTEST       write(*,*)'ERFNUC=',ERFNUC
-CTEST       write(*,*)'ECORE =',ECORE
+!TEST       write(*,*)'GTDMCTL back from TRINT.'
+!TEST       write(*,*)'ENUC  =',ENUC
+!TEST       write(*,*)'ERFNUC=',ERFNUC
+!TEST       write(*,*)'ECORE =',ECORE
       END IF
 
-C In the calculation of matrix elements ( S1, S2 ), we will use
-C the same Ms quantum numbers, if S1 and S2 differ by 0 or an int,
-C else we will use Ms quantum numbers that differ by 1/2:
+! In the calculation of matrix elements ( S1, S2 ), we will use
+! the same Ms quantum numbers, if S1 and S2 differ by 0 or an int,
+! else we will use Ms quantum numbers that differ by 1/2:
       IF( MOD(ABS(MPLET1-MPLET2),2).EQ.0 ) THEN
         MSPROJ1=MIN(MPLET1,MPLET2)-1
         MSPROJ2=MSPROJ1
@@ -420,13 +420,13 @@ C else we will use Ms quantum numbers that differ by 1/2:
       end if
 #endif
 
-C---------------  For all wave functions: ---------------------
-C Define structures ('tables') pertinent all jobs.
-C (Later, move this up before the GTDMCTL calls).
-C These are at:
-C PART
-C ORBTAB
-C SSTAB
+!---------------  For all wave functions: ---------------------
+! Define structures ('tables') pertinent all jobs.
+! (Later, move this up before the GTDMCTL calls).
+! These are at:
+! PART
+! ORBTAB
+! SSTAB
       Call NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
       IF(IPGLOB.GE.4) CALL PRPRTTAB(PART)
 
@@ -436,11 +436,11 @@ C SSTAB
       Call NEWSSTAB(ORBTAB)
       IF(IPGLOB.GE.4) CALL PRSSTAB(SSTAB)
 
-C Mapping from active spin-orbital to active orbital in external order.
-C Note that these differ, not just because of the existence of two
-C spin-orbitals for each orbital, but also because the active orbitals
-C (external order) are grouped by symmetry and then RAS space, but the
-C spin orbitals are grouped by subpartition.
+! Mapping from active spin-orbital to active orbital in external order.
+! Note that these differ, not just because of the existence of two
+! spin-orbitals for each orbital, but also because the active orbitals
+! (external order) are grouped by symmetry and then RAS space, but the
+! spin orbitals are grouped by subpartition.
       CALL mma_allocate(OMAP,NASORB,Label='OMAP')
       NASPRT=ORBTAB(9)
       KSPART=ORBTAB(10)
@@ -455,25 +455,25 @@ C spin orbitals are grouped by subpartition.
         NO=OrbTab(KSPART-1+ISPART)
         DO IO=1,NO
           ISORB=ISORB+1
-C Orbital symmetry:
+! Orbital symmetry:
           ISYM=OrbTab(KOINFO+1+(ISORB-1)*8)
-C In-Symmetry orbital index:
+! In-Symmetry orbital index:
           ISOIND=OrbTab(KOINFO+2+(ISORB-1)*8)
-C Subtract nr of inactive orbitals in that symmetry:
+! Subtract nr of inactive orbitals in that symmetry:
           IT=ISOIND-NISH(ISYM)
-C Add nr of actives in earlier symmetries:
+! Add nr of actives in earlier symmetries:
           ITABS=NASHES(ISYM)+IT
           OMAP(ISORB)=ITABS
         END DO
       END DO
 
-C---------------    JOB1 wave functions: ---------------------
-C Initialize SGUGA tables for JOB1 functions.
-C These are structures stored in user defined types:
-C SGS(1),CIS(1) and EXS(1).
+!---------------    JOB1 wave functions: ---------------------
+! Initialize SGUGA tables for JOB1 functions.
+! These are structures stored in user defined types:
+! SGS(1),CIS(1) and EXS(1).
 
-C Set variables in /RASDEF/, used by SGUGA codes, which define
-C the SGUGA space of JOB1. General RAS:
+! Set variables in /RASDEF/, used by SGUGA codes, which define
+! the SGUGA space of JOB1. General RAS:
       IF(WFTP1.EQ.'GENERAL ') THEN
         NRSPRT=3
         DO I=1,8
@@ -492,24 +492,24 @@ C the SGUGA space of JOB1. General RAS:
             CALL SGPRINT(SGS(1))
           END IF
           CALL CXINIT(SGS(1),CIS(1),EXS(1))
-C CI sizes, as function of symmetry, are now known.
+! CI sizes, as function of symmetry, are now known.
           NCONF1=CIS(1)%NCSF(LSYM1)
         else
           NCONF1=1
         end if
       ELSE
-C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
-* Note: the HISPIN case may be buggy and is not used presently.
+! Presently, the only other cases are HISPIN, CLOSED or EMPTY.
+! Note: the HISPIN case may be buggy and is not used presently.
         NCONF1=1
       END IF
       CALL mma_allocate(CI1,NCONF1,Label='CI1')
 
-C Still JOB1, define structures ('tables') pertinent to JOB1
-C These are at:
-C REST1
-C CNFTAB1
-C FSBTAB1
-C SPNTAB1
+! Still JOB1, define structures ('tables') pertinent to JOB1
+! These are at:
+! REST1
+! CNFTAB1
+! FSBTAB1
+! SPNTAB1
 
       NPART=3
       NGAS=NPART
@@ -519,26 +519,26 @@ C SPNTAB1
         NGASORB(ISYM+2*NSYM)=NRS3(ISYM)
       END DO
 
-*PAM2008: The old MAXOP was far too generous:
-*      MAXOP=NASHT
-*PAM2008: MAXOP is determined by RAS restrictions:
-* Preliminary ranges of nr of electrons:
+!PAM2008: The old MAXOP was far too generous:
+!      MAXOP=NASHT
+!PAM2008: MAXOP is determined by RAS restrictions:
+! Preliminary ranges of nr of electrons:
       IE1MN=MAX(0,2*NRS1T-NHOL11)
       IE1MX=2*NRS1T
       IE3MN=MAX(0,NACTE1-IE1MX-2*NRS2T)
       IE3MX=MIN(2*NRS3T,NELE31)
       IE2MN=MAX(0,NACTE1-IE1MX-IE3MX)
       IE2MX=MIN(2*NRS2T,NACTE1-IE1MN-IE3MN)
-* Preliminary NGASLIM:
+! Preliminary NGASLIM:
       NGL11=IE1MX
       NGL21=IE1MN
       NGL12=IE2MX
       NGL22=IE2MN
       NGL13=IE3MX
       NGL23=IE3MN
-* Start with MAXOP=0, then increase:
+! Start with MAXOP=0, then increase:
       MAXOP=0
-* Loop over possible ranges:
+! Loop over possible ranges:
       DO IE1=IE1MN,IE1MX
        IOP1=MIN(IE1,(2*NRS1T-IE1))
        IF(IOP1.GE.0) THEN
@@ -548,7 +548,7 @@ C SPNTAB1
           IE2=NACTE1-IE1-IE3
           IOP2=MIN(IE2,(2*NRS2T-IE2))
           IF(IOP2.GE.0) THEN
-* Actually possible combination:
+! Actually possible combination:
            MAXOP=MAX(MAXOP,IOP1+IOP2+IOP3)
            NGL11=MIN(NGL11,IE1)
            NGL21=MAX(NGL21,IE1)
@@ -574,10 +574,10 @@ C SPNTAB1
         Call NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM,1)
         IF(IPGLOB.GE.4) CALL PRGASTAB(REST1)
 
-C At present, we will only annihilate, at most 2 electrons will
-C be removed. This limits the possible MAXOP:
+! At present, we will only annihilate, at most 2 electrons will
+! be removed. This limits the possible MAXOP:
         MAXOP=MIN(MAXOP+1,NACTE1,NASHT)
-        Call NEWCNFTAB(NACTE1,NASHT,MINOP,MAXOP,LSYM1,NGAS,
+        Call NEWCNFTAB(NACTE1,NASHT,MINOP,MAXOP,LSYM1,NGAS,             &
      &                     NGASORB,NGASLIM,IFORM,1)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(CNFTAB1,100)
 
@@ -587,20 +587,20 @@ C be removed. This limits the possible MAXOP:
         if (ndet1 /= ndet(job1)) ndet(job1) = ndet1
         Call NEWSCTAB(MINOP,MAXOP,MPLET1,MSPROJ1,1)
         IF (IPGLOB.GT.4) THEN
-*PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
-* do not get their knickers into a twist.
+!PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
+! do not get their knickers into a twist.
           CALL PRSCTAB(SPNTAB1,TRANS1)
         END IF
       else
         NDET1 = 1 ! minimum to avoid runtime error
       end if
-C---------------    JOB2 wave functions: ---------------------
-C Initialize SGUGA tables for JOB2 functions.
-C These are structures stored in arrays:
-C SGS(2),CIS(2) and EXS(2).
+!---------------    JOB2 wave functions: ---------------------
+! Initialize SGUGA tables for JOB2 functions.
+! These are structures stored in arrays:
+! SGS(2),CIS(2) and EXS(2).
 
-C Set variables in /RASDEF/, used by SGUGA codes, which define
-C the SGUGA space of JOB1. General RAS:
+! Set variables in /RASDEF/, used by SGUGA codes, which define
+! the SGUGA space of JOB1. General RAS:
       IF(WFTP2.EQ.'GENERAL ') THEN
         NRSPRT=3
         DO I=1,8
@@ -619,14 +619,14 @@ C the SGUGA space of JOB1. General RAS:
             CALL SGPRINT(SGS(2))
           END IF
           CALL CXINIT(SGS(2),CIS(2),EXS(2))
-C CI sizes, as function of symmetry, are now known.
+! CI sizes, as function of symmetry, are now known.
           NCONF2=CIS(2)%NCSF(LSYM2)
         else
           NCONF2=1
         end if
       ELSE
-C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
-* Note: the HISPIN case may be buggy and is not used presently.
+! Presently, the only other cases are HISPIN, CLOSED or EMPTY.
+! Note: the HISPIN case may be buggy and is not used presently.
         NCONF2=1
       END IF
       CALL mma_allocate(CI2,NCONF2,Label='CI2')
@@ -641,26 +641,26 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
         NGASORB(ISYM+NSYM)=NRS2(ISYM)
         NGASORB(ISYM+2*NSYM)=NRS3(ISYM)
       END DO
-*PAM2008: The old MAXOP was far too generous:
-*      MAXOP=NASHT
-*PAM2008: MAXOP is determined by RAS restrictions:
-* Preliminary ranges of nr of electrons:
+!PAM2008: The old MAXOP was far too generous:
+!      MAXOP=NASHT
+!PAM2008: MAXOP is determined by RAS restrictions:
+! Preliminary ranges of nr of electrons:
       IE1MN=MAX(0,2*NRS1T-NHOL12)
       IE1MX=2*NRS1T
       IE3MN=MAX(0,NACTE2-IE1MX-2*NRS2T)
       IE3MX=MIN(2*NRS3T,NELE32)
       IE2MN=MAX(0,NACTE2-IE1MX-IE3MX)
       IE2MX=MIN(2*NRS2T,NACTE2-IE1MN-IE3MN)
-* Preliminary NGASLIM:
+! Preliminary NGASLIM:
       NGL11=IE1MX
       NGL21=IE1MN
       NGL12=IE2MX
       NGL22=IE2MN
       NGL13=IE3MX
       NGL23=IE3MN
-* Start with MAXOP=0, then increase:
+! Start with MAXOP=0, then increase:
       MAXOP=0
-* Loop over possible ranges:
+! Loop over possible ranges:
       DO IE1=IE1MN,IE1MX
        IOP1=MIN(IE1,(2*NRS1T-IE1))
        IF(IOP1.GE.0) THEN
@@ -670,7 +670,7 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
           IE2=NACTE2-IE1-IE3
           IOP2=MIN(IE2,(2*NRS2T-IE2))
           IF(IOP2.GE.0) THEN
-* Actually possible combination:
+! Actually possible combination:
            MAXOP=MAX(MAXOP,IOP1+IOP2+IOP3)
            NGL11=MIN(NGL11,IE1)
            NGL21=MAX(NGL21,IE1)
@@ -696,9 +696,9 @@ C Presently, the only other cases are HISPIN, CLOSED or EMPTY.
 
         IFORM=1
         MINOP=0
-C At present, we will only annihilate. This limits the possible MAXOP:
+! At present, we will only annihilate. This limits the possible MAXOP:
         MAXOP=MIN(MAXOP+1,NACTE2,NASHT)
-        Call NEWCNFTAB(NACTE2,NASHT,MINOP,MAXOP,LSYM2,NGAS,
+        Call NEWCNFTAB(NACTE2,NASHT,MINOP,MAXOP,LSYM2,NGAS,             &
      &                     NGASORB,NGASLIM,IFORM,2)
         IF(IPGLOB.GE.4) CALL PRCNFTAB(CNFTAB2,100)
 
@@ -708,63 +708,63 @@ C At present, we will only annihilate. This limits the possible MAXOP:
         if (ndet2 /= ndet(job2)) ndet(job2) = ndet2
         Call NEWSCTAB(MINOP,MAXOP,MPLET2,MSPROJ2,2)
         IF (IPGLOB.GT.4) THEN
-*PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
-* do not get their knickers into a twist.
+!PAM2009: Put in impossible call to PRSCTAB, just so code analyzers
+! do not get their knickers into a twist.
           CALL PRSCTAB(SPNTAB2,TRANS2)
         END IF
       else
         NDET2 = 1 ! minimum to avoid runtime error
       end if
-C-------------------------------------------------------------
+!-------------------------------------------------------------
       call mma_allocate(DETTOT1,NDET1,NSTAT(JOB1),Label='DETTOT1')
       call mma_allocate(DETTOT2,NDET2,NSTAT(JOB2),Label='DETTOT2')
       call mma_allocate(detocc,max(nDet1,nDet2),label='detocc')
 
-C Loop over the states of JOBIPH nr JOB1
+! Loop over the states of JOBIPH nr JOB1
       DO IST=1,NSTAT(JOB1)
         DET1=>DETTOT1(1:NDET1,IST)
         ISTATE=ISTAT(JOB1)-1+IST
 
         if(.not.doDMRG)then
-C Read ISTATE wave function
+! Read ISTATE wave function
           IF(WFTP1.EQ.'GENERAL ') THEN
             CALL READCI(ISTATE,SGS(1),CIS(1),NCONF1,CI1)
           ELSE
             CI1(1) = One
           END IF
           DET1(:)=0.0D0
-C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP1,SGS(1),CIS(1),EXS(1),
+!         Transform to bion basis, Split-Guga format
+          If (TrOrb) CALL CITRA (WFTP1,SGS(1),CIS(1),EXS(1),            &
      &                           LSYM1,TRA1,NCONF1,CI1)
           call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
-          CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,
-     &                CNFTAB1,SPNTAB1,
-     &                SSTAB,FSBTAB1,NCONF1,CI1,
-     &                DET1,detocc,detcoeff1,
+          CALL PREPSD(WFTP1,SGS(1),CIS(1),LSYM1,                        &
+     &                CNFTAB1,SPNTAB1,                                  &
+     &                SSTAB,FSBTAB1,NCONF1,CI1,                         &
+     &                DET1,detocc,detcoeff1,                            &
      &                TRANS1)
 
-C       print transformed ci expansion
+!       print transformed ci expansion
         if (JOB1 /= JOB2) then
           if (PRCI) then
-            call prwf_biorth(istate, job1, nconf1, ndet1, nasht,
+            call prwf_biorth(istate, job1, nconf1, ndet1, nasht,        &
      &                       detocc, detcoeff1, cithr)
           end if
 #ifdef _HDF5_
-C         put transformed ci coefficients for JOB1 to h5
+!         put transformed ci coefficients for JOB1 to h5
           if (CIH5) then
-            call mh5_put_dset(wfn_detcoeff,detcoeff1,
+            call mh5_put_dset(wfn_detcoeff,detcoeff1,                   &
      &                        [nDet1,1],[0,istate-1])
-            call mh5_put_dset(wfn_detocc, detocc(:nDet1),
+            call mh5_put_dset(wfn_detocc, detocc(:nDet1),               &
      &                        [nDet1,1], [0,(JOB1-1)])
           end if
 #endif
         else
 #ifdef _HDF5_
-C         JOB1=JOB2, put original ci coefficients for JOB1 to h5
+!         JOB1=JOB2, put original ci coefficients for JOB1 to h5
           if (CIH5) then
-            call mh5_put_dset(wfn_detcoeff_or,detcoeff1,
+            call mh5_put_dset(wfn_detcoeff_or,detcoeff1,                &
      &                        [nDet1,1],[0,istate-1])
-            call mh5_put_dset(wfn_detocc_or, detocc(:nDet1),
+            call mh5_put_dset(wfn_detocc_or, detocc(:nDet1),            &
      &                        [nDet1,1], [0,(JOB1-1)])
           end if
 #endif
@@ -774,23 +774,23 @@ C         JOB1=JOB2, put original ci coefficients for JOB1 to h5
 
         else ! doDMRG
 #ifdef _DMRG_
-          call prepMPS(
-     &                 TRORB,
-     &                 LROOT(ISTATE),
-     &                 LSYM1,
-     &                 MPLET1,
-     &                 MSPROJ1,
-     &                 NACTE1,
-     &                 TRA1,
-     &                 NTRA,
-     &                 NISH,
-     &                 NASH,
-     &                 NOSH,
-     &                 NSYM,
-     &                 6,
-     &                 ISTATE,
-     &                 job1,
-     &                 ist
+          call prepMPS(                                                 &
+     &                 TRORB,                                           &
+     &                 LROOT(ISTATE),                                   &
+     &                 LSYM1,                                           &
+     &                 MPLET1,                                          &
+     &                 MSPROJ1,                                         &
+     &                 NACTE1,                                          &
+     &                 TRA1,                                            &
+     &                 NTRA,                                            &
+     &                 NISH,                                            &
+     &                 NASH,                                            &
+     &                 NOSH,                                            &
+     &                 NSYM,                                            &
+     &                 6,                                               &
+     &                 ISTATE,                                          &
+     &                 job1,                                            &
+     &                 ist                                              &
      &                )
 #endif
         end if
@@ -801,13 +801,13 @@ C         JOB1=JOB2, put original ci coefficients for JOB1 to h5
         Theta1(:)=0.0D0
       End If
 
-C-------------------------------------------------------------
+!-------------------------------------------------------------
 
       DO JST=1,NSTAT(JOB2)
         DET2=>DETTOT2(1:NDET2,JST)
         JSTATE=ISTAT(JOB2)-1+JST
         if(.not.doDMRG)then
-C Read JSTATE wave function
+! Read JSTATE wave function
           IF(WFTP2.EQ.'GENERAL ') THEN
             CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
           ELSE
@@ -817,28 +817,28 @@ C Read JSTATE wave function
             CALL DCOPY_(NCONF2,CI2,1,CI2_o,1)
           End If
           DET2(:)=0.0D0
-C         Transform to bion basis, Split-Guga format
-          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
+!         Transform to bion basis, Split-Guga format
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),            &
      &                           LSYM2,TRA2,NCONF2,CI2)
           call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
-          CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
-     &                CNFTAB2,SPNTAB2,
-     &                SSTAB,FSBTAB2,NCONF2,CI2,
-     &                DET2,detocc,detcoeff2,
+          CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,                        &
+     &                CNFTAB2,SPNTAB2,                                  &
+     &                SSTAB,FSBTAB2,NCONF2,CI2,                         &
+     &                DET2,detocc,detcoeff2,                            &
      &                TRANS2)
 
-C         print transformed ci expansion
+!         print transformed ci expansion
           if (JOB1 /= JOB2) then
             if (PRCI) then
-              call prwf_biorth(jstate, job2, nconf2, ndet2, nasht,
+              call prwf_biorth(jstate, job2, nconf2, ndet2, nasht,      &
      &                         detocc, detcoeff2, cithr)
             end if
 #ifdef _HDF5_
-C           put ci coefficients for JOB2 to h5
+!           put ci coefficients for JOB2 to h5
             if (CIH5) then
-              call mh5_put_dset(wfn_detcoeff,detcoeff2,
+              call mh5_put_dset(wfn_detcoeff,detcoeff2,                 &
      &                          [nDet2,1],[0,jstate-1])
-              call mh5_put_dset(wfn_detocc, detocc(:nDet2),
+              call mh5_put_dset(wfn_detocc, detocc(:nDet2),             &
      &                          [nDet2,1], [0,(JOB2-1)])
             end if
 #endif
@@ -847,43 +847,43 @@ C           put ci coefficients for JOB2 to h5
 
         else
 #ifdef _DMRG_
-          call prepMPS(
-     &                 TRORB,
-     &                 lroot(JSTATE),
-     &                 LSYM2,
-     &                 MPLET2,
-     &                 MSPROJ2,
-     &                 NACTE2,
-     &                 TRA2,
-     &                 NTRA,
-     &                 NISH,
-     &                 NASH,
-     &                 NOSH,
-     &                 NSYM,
-     &                 6,
-     &                 JSTATE,
-     &                 job2,
-     &                 jst
+          call prepMPS(                                                 &
+     &                 TRORB,                                           &
+     &                 lroot(JSTATE),                                   &
+     &                 LSYM2,                                           &
+     &                 MPLET2,                                          &
+     &                 MSPROJ2,                                         &
+     &                 NACTE2,                                          &
+     &                 TRA2,                                            &
+     &                 NTRA,                                            &
+     &                 NISH,                                            &
+     &                 NASH,                                            &
+     &                 NOSH,                                            &
+     &                 NSYM,                                            &
+     &                 6,                                               &
+     &                 JSTATE,                                          &
+     &                 job2,                                            &
+     &                 jst                                              &
      &                )
 #endif
         end if
       end do
 
-C Loop over the states of JOBIPH nr JOB2
+! Loop over the states of JOBIPH nr JOB2
       job2_loop: DO JST=1,NSTAT(JOB2)
         JSTATE=ISTAT(JOB2)-1+JST
-C Loop over the states of JOBIPH nr JOB1
+! Loop over the states of JOBIPH nr JOB1
         job1_loop: DO IST=1,NSTAT(JOB1)
           ISTATE=ISTAT(JOB1)-1+IST
         IF(ISTATE.LT.JSTATE) cycle
-CC-----------------------------------------------------------------------
+!C-----------------------------------------------------------------------
 
-C Entry into monitor: Status line
-        WRITE(STLNE2,'(A33,I5,A5,I5)')
+! Entry into monitor: Status line
+        WRITE(STLNE2,'(A33,I5,A5,I5)')                                  &
      &      'Trans. dens. matrices for states ',ISTATE,' and ',JSTATE
         Call StatusLine('RASSI: ',STLNE2)
 
-C Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
+! Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
 #ifdef _DMRG_
       if(.not.doDMRG)then
 #endif
@@ -901,8 +901,8 @@ C Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
          end if
        end if
 
-C Calculate whatever type of GTDM that was requested, unless
-C it is known to be zero.
+! Calculate whatever type of GTDM that was requested, unless
+! it is known to be zero.
       HZERO = Zero
       HONE = Zero
       HTWO = Zero
@@ -910,114 +910,114 @@ C it is known to be zero.
       SIJ = Zero
       DYSAMP = Zero
 ! +++ J. Norell 12/7 - 2018
-C +++ Modified by Bruno Tenorio, 2020
-C Dyson amplitudes:
-C DYSAMP = D_ij for states i and j
-C DYSCOF = Active orbital coefficents of the DO
+! +++ Modified by Bruno Tenorio, 2020
+! Dyson amplitudes:
+! DYSAMP = D_ij for states i and j
+! DYSCOF = Active orbital coefficents of the DO
       IF ((IF10.or.IF01).and.DYSO) THEN
-        CALL DYSON(FSBTAB1,FSBTAB2,SSTAB,
-     &            DET1,DET2,
-     &            IF10,IF01,
+        CALL DYSON(FSBTAB1,FSBTAB2,SSTAB,                               &
+     &            DET1,DET2,                                            &
+     &            IF10,IF01,                                            &
      &            DYSAMP,DYSCOF,OrbTab)
 
-C Write Dyson orbital coefficients in AO basis to disk.
-C In full biorthonormal basis:
+! Write Dyson orbital coefficients in AO basis to disk.
+! In full biorthonormal basis:
          CALL MKDYSAB(DYSCOF,DYSAB)
-C Correct Dyson norms, for a biorth. basis. Add by Bruno
+! Correct Dyson norms, for a biorth. basis. Add by Bruno
          DYNORM = Zero
          CALL DYSNORM(CMO2,DYSAB,DYNORM) !do not change CMO2
        IF (DYNORM.GT.1.0D-5) THEN
-C In AO basis:
+! In AO basis:
          CALL MKDYSZZ(CMO2,DYSAB,DYSZZ)  !do not change CMO2
         IF (DYSO) THEN
           SFDYS(:,JSTATE,ISTATE)=DYSZZ(:)
           SFDYS(:,ISTATE,JSTATE)=DYSZZ(:)
         END IF
         DYSZZ(:) = Zero
-C DYSAMPS corresponds to the Dyson norms corrected
-C for a MO biorth. basis
+! DYSAMPS corresponds to the Dyson norms corrected
+! for a MO biorth. basis
          DYSAMPS(ISTATE,JSTATE)=SQRT(DYNORM)
          DYSAMPS(JSTATE,ISTATE)=SQRT(DYNORM)
        END IF ! AMP THRS
       END IF ! IF01 IF10
 
-C ------------------------------------------------------------
-C This part computes the needed densities for Auger.
-C (DOI:10.1021/acs.jctc.2c00252)
+! ------------------------------------------------------------
+! This part computes the needed densities for Auger.
+! (DOI:10.1021/acs.jctc.2c00252)
       IF ((IF21.or.IF12).and.TDYS.and.DYSO) THEN
        Call mma_allocate(RT2M,nRT2M,Label='RT2M')
        RT2M(:) = Zero
        Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
        RT2MAB(:) = Zero
-C     Defining the Binding energy Ei-Ej
+!     Defining the Binding energy Ei-Ej
        BEi=HAM(ISTATE,ISTATE)
        BEj=HAM(JSTATE,JSTATE)
        BEij=ABS(BEi-BEj)*auToEV
 
        IF((MPLET1-MPLET2).eq.INT(1)) THEN
-C evaluate K-2V spin+1 density
+! evaluate K-2V spin+1 density
         AUGSPIN=1
-        CALL MKRTDM2(FSBTAB1,FSBTAB2,
-     &               SSTAB,OMAP,DET1,DET2,
+        CALL MKRTDM2(FSBTAB1,FSBTAB2,                                   &
+     &               SSTAB,OMAP,DET1,DET2,                              &
      &               IF21,IF12,NRT2M,RT2M,AUGSPIN,OrbTab)
-        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,       &
      &                  RT2M,CMO1,CMO2,AUGSPIN)
 
         ELSE IF ((MPLET1-MPLET2).eq.INT(-1)) THEN
-C evaluate K-2V spin-1 density
+! evaluate K-2V spin-1 density
         AUGSPIN=-1
-        CALL MKRTDM2(FSBTAB1,FSBTAB2,
-     &               SSTAB,OMAP,DET1,DET2,
+        CALL MKRTDM2(FSBTAB1,FSBTAB2,                                   &
+     &               SSTAB,OMAP,DET1,DET2,                              &
      &               IF21,IF12,NRT2M,RT2M,AUGSPIN,OrbTab)
-        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,       &
      &                  RT2M,CMO1,CMO2,AUGSPIN)
         ELSE ! write then both
         AUGSPIN=1
-        CALL MKRTDM2(FSBTAB1,FSBTAB2,
-     &               SSTAB,OMAP,DET1,DET2,
+        CALL MKRTDM2(FSBTAB1,FSBTAB2,                                   &
+     &               SSTAB,OMAP,DET1,DET2,                              &
      &               IF21,IF12,NRT2M,RT2M,AUGSPIN,OrbTab)
-        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,       &
      &                  RT2M,CMO1,CMO2,AUGSPIN)
 
         AUGSPIN=-1
-        CALL MKRTDM2(FSBTAB1,FSBTAB2,
-     &               SSTAB,OMAP,DET1,DET2,
+        CALL MKRTDM2(FSBTAB1,FSBTAB2,                                   &
+     &               SSTAB,OMAP,DET1,DET2,                              &
      &               IF21,IF12,NRT2M,RT2M,AUGSPIN,OrbTab)
-        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,       &
      &                  RT2M,CMO1,CMO2,AUGSPIN)
        END IF
        Call mma_deallocate(RT2M)
        Call mma_deallocate(RT2MAB)
       END IF
-C ------------------------------------------------------------
+! ------------------------------------------------------------
 
-C evaluation of DCH shake-up intensities (DOI:10.1063/5.0062130)
+! evaluation of DCH shake-up intensities (DOI:10.1063/5.0062130)
       IF ((IF20.or.IF02).and.DCHS) THEN
       DCHIJ=DCHO+NASHT*(DCHO-1)
-C     Defining the Binding energy Ei-Ej
+!     Defining the Binding energy Ei-Ej
       BEi=HAM(ISTATE,ISTATE)
       BEj=HAM(JSTATE,JSTATE)
       BEij=ABS(BEi-BEj)*auToEV
       Call mma_allocate(DCHSM,nDCHSM,Label='DCHSM')
       DCHSM(:) = Zero
-      CALL MKDCHS(FSBTAB1,FSBTAB2,
-     &            SSTAB,OMAP,DET1,DET2,
+      CALL MKDCHS(FSBTAB1,FSBTAB2,                                      &
+     &            SSTAB,OMAP,DET1,DET2,                                 &
      &            IF20,IF02,NDCHSM,DCHSM,OrbTab)
-      Write(6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',
-     &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,
+      Write(6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',      &
+     &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,            &
      &      DCHSM(DCHIJ)
       Call mma_deallocate(DCHSM)
       END IF
-* ------------------------------------------------------------
+! ------------------------------------------------------------
 
-C General 1-particle transition density matrix:
+! General 1-particle transition density matrix:
       IF (IF11) THEN
-        CALL MKTDM1(LSYM1,MPLET1,MSPROJ1,FSBTAB1,
-     &              LSYM2,MPLET2,MSPROJ2,FSBTAB2,SSTAB,
-     &            OMAP,DET1,DET2,SIJ,NASHT,
-     &            TRAD,TRASD,WERD,ISTATE,
+        CALL MKTDM1(LSYM1,MPLET1,MSPROJ1,FSBTAB1,                       &
+     &              LSYM2,MPLET2,MSPROJ2,FSBTAB2,SSTAB,                 &
+     &            OMAP,DET1,DET2,SIJ,NASHT,                             &
+     &            TRAD,TRASD,WERD,ISTATE,                               &
      &            JSTATE,job1,job2,ist,jst,OrbTab)
-C Calculate Natural Transition Orbital (NTO):
+! Calculate Natural Transition Orbital (NTO):
         IF (IFNTO) THEN
          IF (job1.ne.job2) THEN
            DoNTO=.true.
@@ -1029,23 +1029,23 @@ C Calculate Natural Transition Orbital (NTO):
           write(6,*) 'ntocalculation finished'
          End If
         End If
-C End of Calculating NTO
+! End of Calculating NTO
 
         IF(IFTWO.AND.(MPLET1.EQ.MPLET2)) THEN
-C Compute 1-electron contribution to Hamiltonian matrix element:
+! Compute 1-electron contribution to Hamiltonian matrix element:
         HONE=DDOT_(NTRAD,TRAD,1,FMO,1)
         END IF
 
-C BEGIN MODIFIED by Aquilante, Segatta and Kaiser (2022)
+! BEGIN MODIFIED by Aquilante, Segatta and Kaiser (2022)
         if (DoCoul) then
-          call EXCTDM(SIJ, TRAD, TDMAB, iRC, CMO1, CMO2, TDMZZ,
+          call EXCTDM(SIJ, TRAD, TDMAB, iRC, CMO1, CMO2, TDMZZ,         &
      &                TRASD, TSDMAB, TSDMZZ, ISTATE, JSTATE)
         end if
-C END MODIFIED by Aquilante, Segatta and Kaiser(2022)
+! END MODIFIED by Aquilante, Segatta and Kaiser(2022)
 
 
 
-C             Write density 1-matrices in AO basis to disk.
+!             Write density 1-matrices in AO basis to disk.
             IF(NATO.OR.(NPROP.GT.0))THEN
 
               iEmpty=0
@@ -1070,15 +1070,15 @@ C             Write density 1-matrices in AO basis to disk.
               if(.not.mstate_dens)then
 
                 IF(SaveDens) THEN
-*C Transition density matrices, TDMZZ, in AO or MO basis.
-*C WDMZZ similar, but WE-reduced 'triplet' densities.
+!C Transition density matrices, TDMZZ, in AO or MO basis.
+!C WDMZZ similar, but WE-reduced 'triplet' densities.
                   ij=ISTATE*(iSTATE-1)/2 + JSTATE
                   jDisk_TDM(1,ij)=IDISK
                   jDisk_TDM(2,ij)=iEmpty
                   iOpt=1
                   iGo=7
                   If (AO_Mode) Then
-                     CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,
+                     CALL dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,    &
      &                              IDISK,iEmpty,iOpt,iGo,IState,jState)
                   Else
                      iEmpty=0
@@ -1086,18 +1086,18 @@ C             Write density 1-matrices in AO basis to disk.
                      iRC=0
                      If(DDot_(nTRAD+1,TRAD,1,TRAD,1) > Zero) iRC=1
                      If (iRC.eq.1) iEmpty=1
-*
+!
                      TRASD(nTrad+1) = Zero
                      iRC=0
                      If(DDot_(nTRAD+1,TRASD,1,TRASD,1) > Zero) iRC=1
                      If (iRC.eq.1) iEmpty=iEmpty+2
-*
+!
                      WERD(nTrad+1) = Zero
                      iRC=0
                      If(DDot_(nTRAD+1,WERD,1,WERD,1) > Zero) iRC=1
                      If (iRC.eq.1) iEmpty=iEmpty+4
-*
-                     CALL dens2file(TRAD,TRASD,WERD,nTRAD+1,LUTDM,
+!
+                     CALL dens2file(TRAD,TRASD,WERD,nTRAD+1,LUTDM,      &
      &                              IDISK,iEmpty,iOpt,iGo,ISTATE,JSTATE)
                   End If
                 END IF
@@ -1121,25 +1121,25 @@ C             Write density 1-matrices in AO basis to disk.
                     end if
 
                     !> regular-TDM
-                    call daxpy_(ntdmzz,
-     &                          fac1*fac2,
-     &                          tdmzz,1,
-     &                          mstate_1pdens(i,j)%rtdm,1
+                    call daxpy_(ntdmzz,                                 &
+     &                          fac1*fac2,                              &
+     &                          tdmzz,1,                                &
+     &                          mstate_1pdens(i,j)%rtdm,1               &
      &                         )
                     !> spin-TDM
-                    call daxpy_(ntdmzz,
-     &                          fac1*fac2,
-     &                          tsdmzz,1,
-     &                          mstate_1pdens(i,j)%stdm,1
+                    call daxpy_(ntdmzz,                                 &
+     &                          fac1*fac2,                              &
+     &                          tsdmzz,1,                               &
+     &                          mstate_1pdens(i,j)%stdm,1               &
      &                         )
                     !> WE-reduced TDM''s of triplet type:
-                    call daxpy_(ntdmzz,
-     &                          fac1*fac2,
-     &                          wdmzz,1,
-     &                          mstate_1pdens(i,j)%wtdm,1
+                    call daxpy_(ntdmzz,                                 &
+     &                          fac1*fac2,                              &
+     &                          wdmzz,1,                                &
+     &                          mstate_1pdens(i,j)%wtdm,1               &
      &                         )
                     !> overlap
-                    mstate_1pdens(i,j)%overlap=
+                    mstate_1pdens(i,j)%overlap=                         &
      &                mstate_1pdens(i,j)%overlap+fac1*fac2*sij
                   end do
                 end do
@@ -1156,11 +1156,11 @@ C             Write density 1-matrices in AO basis to disk.
                 SIJ=OVERLAP_RASSI(FSBTAB1,FSBTAB2,DET1,DET2)
 #ifdef _DMRG_
               else
-                sij = qcmaquis_mpssi_overlap(
-     &            qcm_prefixes(job1),
-     &            ist,
-     &            qcm_prefixes(job2),
-     &            jst,
+                sij = qcmaquis_mpssi_overlap(                           &
+     &            qcm_prefixes(job1),                                   &
+     &            ist,                                                  &
+     &            qcm_prefixes(job2),                                   &
+     &            jst,                                                  &
      &            .true.)
               end if !doDMRG
 #endif
@@ -1174,21 +1174,21 @@ C             Write density 1-matrices in AO basis to disk.
 
           !> General 2-particle transition density matrix:
           IF (IF22) THEN
-            CALL MKTDM2(LSYM1,MPLET1,MSPROJ1,FSBTAB1,
-     &                  LSYM2,MPLET2,MSPROJ2,FSBTAB2,
-     &                  SSTAB,OMAP,
-     &                  DET1,DET2,NTDM2,TDM2,
+            CALL MKTDM2(LSYM1,MPLET1,MSPROJ1,FSBTAB1,                   &
+     &                  LSYM2,MPLET2,MSPROJ2,FSBTAB2,                   &
+     &                  SSTAB,OMAP,                                     &
+     &                  DET1,DET2,NTDM2,TDM2,                           &
      &                  ISTATE,JSTATE,OrbTab)
 
 !           > Compute 2-electron contribution to Hamiltonian matrix element:
-            IF(IFTWO.AND.(MPLET1.EQ.MPLET2))
+            IF(IFTWO.AND.(MPLET1.EQ.MPLET2))                            &
      &      HTWO=DDOT_(NTDM2,TDM2,1,TUVX,1)
 
           END IF ! IF22
 
           !> PAM 2011 Nov 3, writing transition matrices if requested
           IF ((IFTRD1.or.IFTRD2).and..not.mstate_dens) THEN
-            call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22,
+            call trd_print(ISTATE, JSTATE, IFTRD2.AND.IF22,             &
      &                    TDMAB,TDM2,CMO1,CMO2,SIJ)
           END IF
 
@@ -1228,9 +1228,9 @@ C             Write density 1-matrices in AO basis to disk.
         END DO job1_loop
 
       END DO job2_loop
-*
-** For ejob, create an approximate off-diagonal based on the overlap (temporarily stored in HIJ)
-*
+!
+!* For ejob, create an approximate off-diagonal based on the overlap (temporarily stored in HIJ)
+!
       IF (IFEJOB) THEN
         DO JST=1,NSTAT(JOB2)
           JSTATE=ISTAT(JOB2)-1+JST
@@ -1270,12 +1270,12 @@ C             Write density 1-matrices in AO basis to disk.
           CALL READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
           Call DCOPY_(NCONF2,CI2,1,CI2_o,1)
           CALL DCOPY_(NDET2,[Zero],0,DET2,1)
-          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),
+          If (TrOrb) CALL CITRA (WFTP2,SGS(2),CIS(2),EXS(2),            &
      &                           LSYM2,TRA2,NCONF2,CI2)
-          CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,
-     &                CNFTAB2,SPNTAB2,
-     &                SSTAB,FSBTAB2,NCONF2,CI2,
-     &                DET2,detocc,detcoeff2,
+          CALL PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,                        &
+     &                CNFTAB2,SPNTAB2,                                  &
+     &                SSTAB,FSBTAB2,NCONF2,CI2,                         &
+     &                DET2,detocc,detcoeff2,                            &
      &                TRANS2)
 
           CALL mma_allocate(ThetaN,NCONF2,Label='ThetaN')
@@ -1360,7 +1360,7 @@ C             Write density 1-matrices in AO basis to disk.
       IF(IPGLOB.GE.4) THEN
          write(6,*) 'full SF-HAMILTONIAN '
          write(6,*) 'dimension: ',nstate**2
-         call pretty_print_util(HAM,1,nstate,1,nstate,
+         call pretty_print_util(HAM,1,nstate,1,nstate,                  &
      &                          nstate,nstate,1,6)
       END IF
 #endif
@@ -1376,21 +1376,21 @@ C             Write density 1-matrices in AO basis to disk.
             ovlp(istate,jstate) = mstate_1pdens(ist,jst)%overlap
             ovlp(jstate,istate) = mstate_1pdens(ist,jst)%overlap
 
-            call prpdata_mspt2_eigenvectors(
-     &                                      mstate_1pdens(ist,jst)%rtdm,
-     &                                      mstate_1pdens(ist,jst)%stdm,
-     &                                      mstate_1pdens(ist,jst)%wtdm,
-     &                                      prop,
-     &                                      nprop,
-     &                                      nstate,
-     &                                      istate,
-     &                                      jstate,
-     &                                      ntdmzz,
-     &                                      iDisk_TDM(JSTATE,ISTATE,1),
-     &                                      iDisk_TDM(JSTATE,ISTATE,2),
-     &                                      lutdm,
-     &                                      (sonatnstate.gt.0),
-     &                                      if11.and.(lsym1.eq.lsym2)
+            call prpdata_mspt2_eigenvectors(                            &
+     &                                      mstate_1pdens(ist,jst)%rtdm,&
+     &                                      mstate_1pdens(ist,jst)%stdm,&
+     &                                      mstate_1pdens(ist,jst)%wtdm,&
+     &                                      prop,                       &
+     &                                      nprop,                      &
+     &                                      nstate,                     &
+     &                                      istate,                     &
+     &                                      jstate,                     &
+     &                                      ntdmzz,                     &
+     &                                      iDisk_TDM(JSTATE,ISTATE,1), &
+     &                                      iDisk_TDM(JSTATE,ISTATE,2), &
+     &                                      lutdm,                      &
+     &                                      (sonatnstate.gt.0),         &
+     &                                      if11.and.(lsym1.eq.lsym2)   &
      &                                     )
           end do
         end do

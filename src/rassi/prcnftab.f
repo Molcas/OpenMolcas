@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE PRCNFTAB(CnfTab,MXPRT)
       use definitions, only: iwp, u6
       IMPLICIT none
       Integer(kind=iwp), intent(in):: CnfTab(*), MxPrt
       CHARACTER(LEN=144) TEXT
 
-      Integer(kind=iwp) NPRT, NTAB, ITYPE, NEL, NORB, MINOP, MAXOP,
-     &                  NSYM, LSYM, NGAS, IFORM, ICNF, IERR, IGAS,
-     &                  ISUM, ISYM, KCNFSTA, KSTA, LENCNF, LENGTH,
-     &                  LGASLIM, LGASORB, LIM1, LIM2, LINFO, NCLS,
+      Integer(kind=iwp) NPRT, NTAB, ITYPE, NEL, NORB, MINOP, MAXOP,     &
+     &                  NSYM, LSYM, NGAS, IFORM, ICNF, IERR, IGAS,      &
+     &                  ISUM, ISYM, KCNFSTA, KSTA, LENCNF, LENGTH,      &
+     &                  LGASLIM, LGASORB, LIM1, LIM2, LINFO, NCLS,      &
      &                  NCNF, NOPN
-C Sanity test:
+! Sanity test:
       NPRT=MIN(MXPRT,10000)
-C header:
+! header:
       NTAB =CnfTab( 1)
       ITYPE=CnfTab( 2)
       NEL  =CnfTab( 3)
@@ -73,11 +73,11 @@ C header:
         WRITE(u6,*)
         WRITE(u6,*)' Orbitals by symmetry in GAS partitions:'
         WRITE(u6,'(A,8I5)')' Space       Tot     ',(ISYM,ISYM=1,NSYM)
-        WRITE(u6,'(1X,A,5X,I5,5X,8I5)')'Active',
+        WRITE(u6,'(1X,A,5X,I5,5X,8I5)')'Active',                        &
      &          CnfTab(LGASORB),(CnfTab(LGASORB+ISYM),ISYM=1,NSYM)
         DO IGAS=1,NGAS
-         WRITE(u6,'(1X,A,I2,5X,I5,5X,8I5)')'GAS',IGAS,
-     &          CnfTab(LGASORB+(NSYM+1)*IGAS),
+         WRITE(u6,'(1X,A,I2,5X,I5,5X,8I5)')'GAS',IGAS,                  &
+     &          CnfTab(LGASORB+(NSYM+1)*IGAS),                          &
      &         (CnfTab(LGASORB+ISYM+(NSYM+1)*IGAS),ISYM=1,NSYM)
         END DO
         WRITE(u6,*)' GAS orbital partitions, min and max population:'
@@ -99,11 +99,11 @@ C header:
         LENCNF =CnfTab(LINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))
         IF(NCNF.NE.0) THEN
          WRITE(u6,*)
-         WRITE(u6,*)'  NOPN ISYM       Nr of conf Start point'//
+         WRITE(u6,*)'  NOPN ISYM       Nr of conf Start point'//        &
      &             '  Words/config'
          WRITE(u6,'(1X,2I4,5X,3I12)') NOPN,ISYM,NCNF,KCNFSTA,LENCNF
          IF(NCNF.GT.NPRT) THEN
-           WRITE(u6,'(1X,A,I5)')
+           WRITE(u6,'(1X,A,I5)')                                        &
      &             ' The first NPRT configurations. NPRT=',NPRT
          ELSE
            WRITE(u6,*)' Configurations:'

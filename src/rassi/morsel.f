@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       INTEGER FUNCTION MorsPop(IMORS)
       IMPLICIT NONE
       Integer:: NUM(0:15)=[0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4]
@@ -116,18 +116,18 @@
       WRITE(6,*)' MorsWrite: Bad IMORS=',IMORS
       CALL ABEND()
       END
-*      SUBROUTINE MorsRead(IMORS,STRING)
-*      IMPLICIT NONE
-*      CHARACTER*(*) STRING
-*      INTEGER I,POW2,IMORS
-*      IMORS=0
-*      POW2=1
-*      DO I=1,LEN(STRING)
-*        IF(STRING(I:I).EQ.'1') IMORS=IMORS+POW2
-*        POW2=2*POW2
-*      END DO
-*      RETURN
-*      END
+!      SUBROUTINE MorsRead(IMORS,STRING)
+!      IMPLICIT NONE
+!      CHARACTER*(*) STRING
+!      INTEGER I,POW2,IMORS
+!      IMORS=0
+!      POW2=1
+!      DO I=1,LEN(STRING)
+!        IF(STRING(I:I).EQ.'1') IMORS=IMORS+POW2
+!        POW2=2*POW2
+!      END DO
+!      RETURN
+!      END
       INTEGER FUNCTION Occ2Mrs(NO,IARRAY)
       IMPLICIT NONE
       INTEGER NO

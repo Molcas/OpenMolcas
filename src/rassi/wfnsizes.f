@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine wfnsizes_rassi()
       use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
       use rassi_aux, only : nasht_save
       use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NISHT,NASHT,NOSHT,NSSHT,NBST,
+      use rassi_data, only: NISHT,NASHT,NOSHT,NSSHT,NBST,               &
      &                      NAES,NASH,NBASF,NISH,NOSH,NSSH
       implicit none
       integer :: isym
-C The structure of the orbital space:
+! The structure of the orbital space:
       NISHT=0
       NASHT=0
       NRS1T=0

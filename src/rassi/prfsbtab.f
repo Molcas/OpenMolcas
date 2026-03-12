@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE PRFSBTAB(IFSBTAB)
       IMPLICIT NONE
       INTEGER IFSBTAB(*)
-C     INTEGER NFSB,NASPRT,LPOS,ISPART,IFSB
+!     INTEGER NFSB,NASPRT,LPOS,ISPART,IFSB
       INTEGER NFSB,NASPRT,     ISPART,IFSB
       INTEGER NDET,ISTA,NHEAD,KPOS
       IF(IFSBTAB(2).NE.73) THEN
@@ -38,7 +38,7 @@ C     INTEGER NFSB,NASPRT,LPOS,ISPART,IFSB
       DO IFSB=1,NFSB
         NDET=IFSBTAB(KPOS+NASPRT)
         ISTA=IFSBTAB(KPOS+NASPRT+1)
-        WRITE(6,'(1X,I6,3X,I7,3x,I10,5X,10I4)')
+        WRITE(6,'(1X,I6,3X,I7,3x,I10,5X,10I4)')                         &
      &   IFSB,NDET,ISTA,(IFSBTAB(KPOS-1+ISPART),ISPART=1,NASPRT)
         KPOS=KPOS+NASPRT+2
       END DO

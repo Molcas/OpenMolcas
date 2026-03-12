@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE SMMAT_MASKED(PROP,PRMAT,NSS,ISONUM,ISPINCMP,ISS_INDEX,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE SMMAT_MASKED(PROP,PRMAT,NSS,ISONUM,ISPINCMP,ISS_INDEX, &
      &                        IST,INUM,JST,JNUM)
-      use Cntrl, only: NSTATE, NPROP, ICOMP, ISOCMP, PNAME,
+      use Cntrl, only: NSTATE, NPROP, ICOMP, ISOCMP, PNAME,             &
      &                 PTYPE, SOPRNM, SOPRTP
 
       IMPLICIT None
@@ -21,18 +21,18 @@
       Real*8 PROP(NSTATE,NSTATE,NPROP)
 
       REAL*8, EXTERNAL :: DCLEBS
-      INTEGER IPRNUM, IPRCMP, IPROP, I, ISTATE, ISS, MPLET1, MSPROJ1,
+      INTEGER IPRNUM, IPRCMP, IPROP, I, ISTATE, ISS, MPLET1, MSPROJ1,   &
      &        IFSPIN,                J, JSTATE, JSS, MPLET2, MSPROJ2
-      REAL*8 S1, S2, SM1, SM2, SXMER, SYMEI, SZMER, SMINUS, SPLUS, FACT,
+      REAL*8 S1, S2, SM1, SM2, SXMER, SYMEI, SZMER, SMINUS, SPLUS, FACT,&
      &       CGM, CG0, CGP, CGX, CGY, EXPKR
-*
+!
       IPRNUM=-1
       IPRCMP=0
       PRMAT(:,:)=0.0D0
-C IFSPIN takes values the values 0,1,2
-C 0 = spin free property
-C 1 = spin operator (S)
-C 2 = spin dependent property, triplet operator
+! IFSPIN takes values the values 0,1,2
+! 0 = spin free property
+! 1 = spin operator (S)
+! 2 = spin dependent property, triplet operator
       IFSPIN=0
 
       IF (ISONUM.EQ.0) THEN
@@ -41,8 +41,8 @@ C 2 = spin dependent property, triplet operator
          IPRCMP=ISPINCMP
       ELSE
          DO IPROP=1,NPROP
-            IF ((PNAME(IPROP).EQ.SOPRNM(ISONUM)).AND.
-     &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.
+            IF ((PNAME(IPROP).EQ.SOPRNM(ISONUM)).AND.                   &
+     &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.                   &
      &          (ICOMP(IPROP).EQ.ISOCMP(ISONUM))) THEN
                IPRNUM=IPROP
                IF (PNAME(IPRNUM)(1:5).EQ.'TMOM0') THEN
@@ -59,7 +59,7 @@ C 2 = spin dependent property, triplet operator
          Call Abend()
       ENDIF
 
-C Mapping from spin states to spin-free state and to spin:
+! Mapping from spin states to spin-free state and to spin:
       DO I=1,INUM
          ISTATE=IST(I)
          ISS=ISS_INDEX(ISTATE)
@@ -113,10 +113,10 @@ C Mapping from spin states to spin-free state and to spin:
                         PRMAT(ISS,JSS)=0.0D0
                      END IF
                   ELSE IF (IFSPIN.EQ.2) THEN
-C
-C                 The code here is a replica from smmat.f. Look in
-C                 that source for comments.
-C
+!
+!                 The code here is a replica from smmat.f. Look in
+!                 that source for comments.
+!
                      FACT=1.0D0/SQRT(DBLE(MPLET1))
                      IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
                      CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
@@ -124,9 +124,9 @@ C
                      CGP=FACT*DCLEBS(S2,1.0D0,S1,SM2,+1.0D0,SM1)
                      CGX= SQRT(0.5D0)*(CGM-CGP)
                      CGY=-SQRT(0.5D0)*(CGM+CGP)
-*
+!
                      EXPKR=PROP(ISTATE,JSTATE,IPRNUM)
-*
+!
                      IF (IPRCMP.EQ.1) THEN
                         EXPKR=EXPKR*CGX
                      ELSE IF (IPRCMP.EQ.2) THEN

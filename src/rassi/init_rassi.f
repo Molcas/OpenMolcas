@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE INIT_RASSI()
 
       use symmetry_Info, only: symmetry_info_get
@@ -16,26 +16,26 @@
       use rasscf_global, only: doDMRG
 #endif
       use cntrl, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
-      use Cntrl, only: NJOB, NSTATE, NPROP, NSOPR, CITHR,
-     &                 NSOThr_Prt, SOThr_Prt, MXPROP, PRSXY, PRDIPVEC,
-     &                 PRORB, PRTRA, PRCI, CIH5, IFHAM, IFEJOB, IFSHFT,
-     &                 IFHDIA, IFHEXT, IFHEFF, IFHCOM, HAVE_HEFF,
-     &                 HAVE_DIAG, NOHAM, IFSO, IFNTO, NATO, BINA,
-     &                 IFTRD1, IFTRD2, IFTDM, RFPert, ToFile, PRXVR,
-     &                 PRXVS, PRMER, PRMEE, PRMES, IFGCAL, EPRThr,
-     &                 EPRAThr, IFXCAL, IFMCAL, HOP, TRACK,
-     &                 ONLY_OVERLAPS, DIPR, OSThr_DipR, QIPR,
-     &                 OSThr_QIPR, QIALL, DYSO, DYSEXPORT, TDYS, OCAN,
-     &                 DCHS, DCHO, DO_TMOM, PRRAW, PRWEIGHT, TOLERANCE,
-     &                 REDUCELOOP, LOOPDIVIDE, LOOPMAX, TMGR_Thrs,
-     &                 Do_SK, Do_Pol,
-     &                 L_Eff, DoCD, RSThr, RSPR, FORCE_NON_AO_TDM,
-     &                 IFDCPL, LPRPR, LHAMI, IFATCALSA, IFGTCALSA,
-     &                 IFGTSHSA, IFACAL, IFACALFC, IFACALSD, NOSO,
-     &                 IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME,
+      use Cntrl, only: NJOB, NSTATE, NPROP, NSOPR, CITHR,               &
+     &                 NSOThr_Prt, SOThr_Prt, MXPROP, PRSXY, PRDIPVEC,  &
+     &                 PRORB, PRTRA, PRCI, CIH5, IFHAM, IFEJOB, IFSHFT, &
+     &                 IFHDIA, IFHEXT, IFHEFF, IFHCOM, HAVE_HEFF,       &
+     &                 HAVE_DIAG, NOHAM, IFSO, IFNTO, NATO, BINA,       &
+     &                 IFTRD1, IFTRD2, IFTDM, RFPert, ToFile, PRXVR,    &
+     &                 PRXVS, PRMER, PRMEE, PRMES, IFGCAL, EPRThr,      &
+     &                 EPRAThr, IFXCAL, IFMCAL, HOP, TRACK,             &
+     &                 ONLY_OVERLAPS, DIPR, OSThr_DipR, QIPR,           &
+     &                 OSThr_QIPR, QIALL, DYSO, DYSEXPORT, TDYS, OCAN,  &
+     &                 DCHS, DCHO, DO_TMOM, PRRAW, PRWEIGHT, TOLERANCE, &
+     &                 REDUCELOOP, LOOPDIVIDE, LOOPMAX, TMGR_Thrs,      &
+     &                 Do_SK, Do_Pol,                                   &
+     &                 L_Eff, DoCD, RSThr, RSPR, FORCE_NON_AO_TDM,      &
+     &                 IFDCPL, LPRPR, LHAMI, IFATCALSA, IFGTCALSA,      &
+     &                 IFGTSHSA, IFACAL, IFACALFC, IFACALSD, NOSO,      &
+     &                 IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME,  &
      &                 PNAME, PTYPE, SOPRNM, SOPRTP, PRXVE, MINAME
-      use cntrl, only: LuOne, FnOne, LuOrd, FnOrd, LuIph,
-     &                 LuExc, FnExc, LuMck, LuTOM, FnTOM,
+      use cntrl, only: LuOne, FnOne, LuOrd, FnOrd, LuIph,               &
+     &                 LuExc, FnExc, LuMck, LuTOM, FnTOM,               &
      &                 LuEig, FnEig
       use rassi_data, only: WFTYPE
       use hfc_logical, only: MAG_X2C
@@ -47,14 +47,14 @@
       Integer I, IPROP
 
 
-* Initialise doDMRG if compiled without QCMaquis
+! Initialise doDMRG if compiled without QCMaquis
 #ifndef _DMRG_
       DoDMRG = .false.
 #endif
 
       Call symmetry_info_get()
 
-C UNIT NUMBERS AND NAMES
+! UNIT NUMBERS AND NAMES
       LUONE=2
       FNONE='ONEINT'
       LUORD=30
@@ -82,7 +82,7 @@ C UNIT NUMBERS AND NAMES
       CALL DANAME(LUEXC,FNEXC)
 
 
-C NR OF JOBIPHS AND STATES:
+! NR OF JOBIPHS AND STATES:
       NJOB=0
       NSTATE=0
       IF(IPGLOB.GT.3) THEN
@@ -90,26 +90,26 @@ C NR OF JOBIPHS AND STATES:
        WRITE(6,'(1X,A,I4)')'  NJOB:',NJOB
        WRITE(6,'(1X,A,I4)')'NSTATE:',NSTATE
       END IF
-C
-C NR OF OPERATORS FOR WHICH MATRIX ELEMENTS ARE TO BE CALCULATED:
+!
+! NR OF OPERATORS FOR WHICH MATRIX ELEMENTS ARE TO BE CALCULATED:
       NPROP=0
 
-C OPERATORS FOR WHICH MATRIX ELEMENTS OVER SPIN-ORBIT EIGENSTATES
-C ARE TO BE COMPUTED.
+! OPERATORS FOR WHICH MATRIX ELEMENTS OVER SPIN-ORBIT EIGENSTATES
+! ARE TO BE COMPUTED.
       NSOPR=0
 
-C DEFAULT THRESHOLD FOR PRINTING CI COEFFICIENTS:
+! DEFAULT THRESHOLD FOR PRINTING CI COEFFICIENTS:
       CITHR=0.05d0
 
-C DEFAULT THRESHOLD FOR PRINTING TRANSITION DIPOLE VECTORS
+! DEFAULT THRESHOLD FOR PRINTING TRANSITION DIPOLE VECTORS
       TDIPMIN=1.0D-4
 
-C DEFAULT THRESHOLD AND MAX NUMBER OF SO-HAMILTONIAN
-C MATRIX ELEMENTS TO PRINT:
+! DEFAULT THRESHOLD AND MAX NUMBER OF SO-HAMILTONIAN
+! MATRIX ELEMENTS TO PRINT:
       NSOTHR_PRT=0
       SOTHR_PRT=-1.0D0
 
-C SET LABELS TO UNDEFINED
+! SET LABELS TO UNDEFINED
       DO IPROP = 1, MXPROP
          PNAME(IPROP) ='UNDEF.  '
          PTYPE(IPROP) ='UNDEF.  '
@@ -117,7 +117,7 @@ C SET LABELS TO UNDEFINED
          SOPRTP(IPROP)='UNDEF.  '
       END DO
 
-C DEFAULT FLAGS:
+! DEFAULT FLAGS:
       PRSXY=.FALSE.
       PRDIPVEC=.FALSE.
       PRORB=.FALSE.
@@ -157,7 +157,7 @@ C DEFAULT FLAGS:
       HOP=.FALSE.
       TRACK=.FALSE.
       ONLY_OVERLAPS=.FALSE.
-* Intensities
+! Intensities
       DIPR=.FALSE.
       OSTHR_DIPR = 0.0D0
       QIPR=.FALSE.
@@ -169,7 +169,7 @@ C DEFAULT FLAGS:
       OCAN=1
       DCHS=.FALSE.
       DCHO=1
-* Exact operator
+! Exact operator
       Do_TMOM=.FALSE.
       PRRAW=.FALSE.
       PRWEIGHT=.FALSE.
@@ -181,32 +181,32 @@ C DEFAULT FLAGS:
       Do_SK  =.FALSE.
       Do_Pol  =.FALSE.
       L_Eff=5
-C CD - velocity and mixed gauge
+! CD - velocity and mixed gauge
       DOCD = .FALSE.
       RSTHR = 0.0D0
       RSPR=.FALSE.
-C Force that TDMs are not stored in the AO basis.
+! Force that TDMs are not stored in the AO basis.
       Force_NON_AO_TDM=.False.
       CALL GETENVF('MOLCAS_FORCE_NON_AO_TDM',STRING)
       If (STRING.eq.'ON') Force_NON_AO_TDM=.True.
-cnf
+!nf
       IfDCpl = .False.
-cnf
+!nf
 
-C tjd- BMII: Print out spin-orbit properties to files
+! tjd- BMII: Print out spin-orbit properties to files
       LPRPR=.FALSE.
       LHAMI=.FALSE.
-c Feng: test control
+! Feng: test control
       MAG_X2C=.FALSE.
 
-C K. Sharkas  BEG
+! K. Sharkas  BEG
       IFATCALSA=.FALSE.
       IFGTCALSA=.FALSE.
       IFGTSHSA=.FALSE.
-C K. Sharkas  END
+! K. Sharkas  END
 
-c BP - Hyperfine tensor and SONATORB initialization
-c RF - SO-NTO initialization
+! BP - Hyperfine tensor and SONATORB initialization
+! RF - SO-NTO initialization
       IFACAL=.FALSE.
       IFACALFC=.TRUE.
       IFACALSD=.TRUE.
@@ -221,12 +221,12 @@ c RF - SO-NTO initialization
       IFARGU=.FALSE.
 
 
-* Nr of states for which natural orbitals will be computed:
+! Nr of states for which natural orbitals will be computed:
       NRNATO=0
-* Nr of state pairs for computing bi-natural orbitals:
+! Nr of state pairs for computing bi-natural orbitals:
       NBINA=0
 
-* Check if two-electron integrals are available:
+! Check if two-electron integrals are available:
       Call f_Inquire('ORDINT',FoundTwoEls)
       Call DecideOnCholesky(DoCholesky)
       If (FoundTwoEls .or. DoCholesky) IFHAM=.True.
@@ -272,7 +272,7 @@ c RF - SO-NTO initialization
         WRITE(6,*)'     Force_NON_AO_TDM:',Force_NON_AO_TDM
       END IF
 
-C DEFAULT WAVE FUNCTION TYPE:
+! DEFAULT WAVE FUNCTION TYPE:
       WFTYPE='GENERAL '
       IF(IPGLOB.GT.3) WRITE(6,*)' ***** INIT ENDS **********'
 

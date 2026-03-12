@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Rulin Feng                                       *
-************************************************************************
-*       ****************************************************
-*                 Desymmetrize a given array(matrix)
-*       ****************************************************
-*        This routine is made to expand a given symmetry-adapted array
-*        into a C1 symmetry. SYMLAB is a bit flag,
-*        e.g., for symmetry 3, symlab=4=2^(3-1). A is input array with
-*        size SIZA, B is output array with size of NBST**2.
-*        Not tested for general cases, so for use of SO-NTOs only.
-*
-*                                                      -RF 8/24,2021
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Rulin Feng                                       *
+!***********************************************************************
+!       ****************************************************
+!                 Desymmetrize a given array(matrix)
+!       ****************************************************
+!        This routine is made to expand a given symmetry-adapted array
+!        into a C1 symmetry. SYMLAB is a bit flag,
+!        e.g., for symmetry 3, symlab=4=2^(3-1). A is input array with
+!        size SIZA, B is output array with size of NBST**2.
+!        Not tested for general cases, so for use of SO-NTOs only.
+!
+!                                                      -RF 8/24,2021
       SUBROUTINE DESYM_SONTO(A,SIZA,B,SYMLAB)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep, MUL
@@ -31,22 +31,22 @@
 
       REAL*8 ME
       REAL*8, Allocatable:: SCR(:)
-      INTEGER ITD, IOF, ISY1, NB1, ISY2, NB2, ISY12_MA, I, J, IJ,
+      INTEGER ITD, IOF, ISY1, NB1, ISY2, NB2, ISY12_MA, I, J, IJ,       &
      &        ISY12_MA_BI, NB1_I, NB1_F, NB2_I, NB2_F, JI
       REAL*8 TDM
 
-c Initialize
+! Initialize
       B(:)=0.0D0
 
       Call mma_allocate(SCR,SIZA,Label='SCR')
       SCR(:)=0.0D0
 
-c Diagonal symmetry blocks.
-c Dont need to do anything, just leave it be
+! Diagonal symmetry blocks.
+! Dont need to do anything, just leave it be
       IF(SYMLAB.EQ.1) THEN
         Call DCOPY_(SIZA,A(:),1,SCR,1)
-c Non-diagonal symmetry blocks
-c note that only half of the total matrix has been stored
+! Non-diagonal symmetry blocks
+! note that only half of the total matrix has been stored
       ELSE
         ITD=0
         IOF=0
@@ -72,7 +72,7 @@ c note that only half of the total matrix has been stored
           Enddo
         Enddo
       Endif
-c Expand into C1
+! Expand into C1
 
       ITD=0
       NB1_i=0

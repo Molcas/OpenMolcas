@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE MECTL(PROP,OVLP,HAM,ESHFT)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: HDIAG
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NPROP, PRXVR, IFHAM, ToFile,
-     &                 IfHDia, IfShft, PrMER, IfDCPL, iComp, IPUSED,
+      use Cntrl, only: NSTATE, NPROP, PRXVR, IFHAM, ToFile,             &
+     &                 IfHDia, IfShft, PrMER, IfDCPL, iComp, IPUSED,    &
      &                 PNAME, PNUC, PORIG
       use cntrl, only: FnEig, LuEig
 
       IMPLICIT None
-      REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
+      REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),             &
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
 
       Real*8, Allocatable:: DerCpl(:), NucChg(:)
-      Integer nCol, iProp, i, ISTA, IFON, j, iState, iDisk, jState,
+      Integer nCol, iProp, i, ISTA, IFON, j, iState, iDisk, jState,     &
      &        NST, nAtom, IEND, IfHD
       REAL*8 X, PLIMIT, PMAX
-*
+!
 
-C Print results:
+! Print results:
       NCOL=4
       IF(PRXVR.and.IPGLOB.ge.0) THEN
       WRITE(6,*)
@@ -40,8 +40,8 @@ C Print results:
       DO IPROP=1,NPROP
        IF(IPUSED(IPROP).NE.0) THEN
 
-* Skip printing if all the diagonal values are very small
-*  (presumed zero for reasons of selection rules)
+! Skip printing if all the diagonal values are very small
+!  (presumed zero for reasons of selection rules)
         PLIMIT=1.0D-10
         PMAX=0.0D0
         DO I=1,NSTATE
@@ -52,18 +52,18 @@ C Print results:
         DO ISTA=1,NSTATE,NCOL
           IEND=MIN(NSTATE,ISTA+NCOL-1)
           WRITE(6,*)
-          WRITE(6,'(1X,A,A8,A,I4)')
+          WRITE(6,'(1X,A,A8,A,I4)')                                     &
      &  'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
-          WRITE(6,'(1X,A,3ES17.8)')
+          WRITE(6,'(1X,A,3ES17.8)')                                     &
      &'ORIGIN    :',(PORIG(I,IPROP),I=1,3)
-          WRITE(6,'(1X,A,I8,3I17)')
+          WRITE(6,'(1X,A,I8,3I17)')                                     &
      &'STATE     :',(I,I=ISTA,IEND)
           WRITE(6,*)
-          WRITE(6,'(1X,A,4(1x,G16.9))')
+          WRITE(6,'(1X,A,4(1x,G16.9))')                                 &
      &'ELECTRONIC:',(PROP(I,I,IPROP),I=ISTA,IEND)
-          WRITE(6,'(1X,A,4(1x,G16.9))')
+          WRITE(6,'(1X,A,4(1x,G16.9))')                                 &
      &'NUCLEAR   :',(PNUC(IPROP)*OVLP(I,I),I=ISTA,IEND)
-          WRITE(6,'(1X,A,4(1x,G16.9))')
+          WRITE(6,'(1X,A,4(1x,G16.9))')                                 &
      &'TOTAL     :',(PROP(I,I,IPROP)+PNUC(IPROP)*OVLP(I,I),I=ISTA,IEND)
           WRITE(6,*)
         END DO
@@ -106,10 +106,10 @@ C Print results:
          ELSE
           DO ISTA=1,NSTATE,5
             IEND=MIN(ISTA+4,NSTATE)
-            WRITE(6,'(10X,5(8X,A3,I4,A3))')
+            WRITE(6,'(10X,5(8X,A3,I4,A3))')                             &
      &         (' | ', I, ' > ',I=ISTA,IEND)
             DO J=1,NSTATE
-              WRITE(6,'(A3,I4,A3,5(2X,F16.8))')
+              WRITE(6,'(A3,I4,A3,5(2X,F16.8))')                         &
      &           ' < ',J,' | ', (HAM(I,J),I=ISTA,IEND)
             END DO
           ENDDO
@@ -131,12 +131,12 @@ C Print results:
         END IF
       END IF
 
-* Addition by A.Ohrn. If ToFile keyword has been specified, we put
-* numbers on the auxiliary rassi-to-qmstat file.
+! Addition by A.Ohrn. If ToFile keyword has been specified, we put
+! numbers on the auxiliary rassi-to-qmstat file.
       If(ToFile) then
         If(.not.IfHam) then
           Write(6,*)
-          Write(6,*)'You ask me to print hamiltonian, but there is '
+          Write(6,*)'You ask me to print hamiltonian, but there is '    &
      &//'none to print!'
           Call Abend()
         Endif
@@ -152,20 +152,20 @@ C Print results:
             Call dDaFile(LuEig,1,OvLp(iState,jState),1,iDisk)
           Enddo
         Enddo
-*-- File is closed in eigctl.
+!-- File is closed in eigctl.
         Call DaClos(LuEig)
       Endif
-* End of addition by A.Ohrn.
+! End of addition by A.Ohrn.
 
       IF(IFHAM .AND. (IFHDIA.OR.IFSHFT)) THEN
         DO ISTATE=1,NSTATE
           IF(.NOT.IFSHFT) ESHFT(ISTATE)=0.0D0
-          IF(IFHDIA) ESHFT(ISTATE)=ESHFT(ISTATE)+
+          IF(IFHDIA) ESHFT(ISTATE)=ESHFT(ISTATE)+                       &
      &              (HDIAG(ISTATE)-HAM(ISTATE,ISTATE))
         END DO
         DO ISTATE=1,NSTATE
          DO JSTATE=1,NSTATE
-          HAM(ISTATE,JSTATE)=HAM(ISTATE,JSTATE)+
+          HAM(ISTATE,JSTATE)=HAM(ISTATE,JSTATE)+                        &
      &      0.5D0*(ESHFT(ISTATE)+ESHFT(JSTATE))*OVLP(ISTATE,JSTATE)
          END DO
         END DO
@@ -194,7 +194,7 @@ C Print results:
          END IF
         END IF
       END IF
-CPAM00 End of updated HDIA/SHIFT section.
+!PAM00 End of updated HDIA/SHIFT section.
 
       IF(IPGLOB.GT.0 .and. PRMER) THEN
       WRITE(6,*)
@@ -209,15 +209,15 @@ CPAM00 End of updated HDIA/SHIFT section.
         DO ISTA=1,NSTATE,NCOL
           IEND=MIN(NSTATE,ISTA+NCOL-1)
           WRITE(6,*)
-          WRITE(6,'(1X,A,A8,A,I4)')
+          WRITE(6,'(1X,A,A8,A,I4)')                                     &
      &  'PROPERTY: ',PNAME(IPROP),'   COMPONENT:',ICOMP(IPROP)
-          WRITE(6,'(1X,A,3ES17.8)')
+          WRITE(6,'(1X,A,3ES17.8)')                                     &
      &'ORIGIN    :',(PORIG(I,IPROP),I=1,3)
-          WRITE(6,'(1X,A,I8,3I17)')
+          WRITE(6,'(1X,A,I8,3I17)')                                     &
      &'STATE     :',(I,I=ISTA,IEND)
           WRITE(6,*)
           DO J=1,NSTATE
-            WRITE(6,'(1X,I5,6X,4(1x,G16.9))')
+            WRITE(6,'(1X,I5,6X,4(1x,G16.9))')                           &
      & J,(PROP(J,I,IPROP)+PNUC(IPROP)*OVLP(J,I),I=ISTA,IEND)
           END DO
           WRITE(6,*)
@@ -226,7 +226,7 @@ CPAM00 End of updated HDIA/SHIFT section.
       END DO
       Call CollapseOutput(0,'Matrix elements for input states')
       END IF
-cnf
+!nf
       If (IfDCpl) Then
          Call Get_iScalar('Unique atoms',natom)
          Call mma_allocate(NucChg,natom,Label='NucChg')
@@ -237,7 +237,7 @@ cnf
          Call mma_deallocate(DerCpl)
          Call mma_deallocate(NucChg)
       End If
-cnf
+!nf
       CALL Put_dArray('SFS_HAM' ,HAM,NSTATE**2)
       CALL Put_dArray('SFS_OVLP',OVLP,NSTATE**2)
 

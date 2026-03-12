@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE RASSI(IRETURN)
 
       !> module dependencies
-      use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS, EIGVEC,
-     &                               SODYSAMPSR, SODYSAMPSI,
+      use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS, EIGVEC,     &
+     &                               SODYSAMPSR, SODYSAMPSI,            &
      &                               PROP, ESHFT, HDIAG, JBNUM, LROOT
-      use rassi_aux, only: CMO1, CMO2, DMAB, ipglob, jDisk_TDM,
+      use rassi_aux, only: CMO1, CMO2, DMAB, ipglob, jDisk_TDM,         &
      &                     Job_Index, TocM
       use kVectors
-      use frenkel_global_vars, only: doCoul, eNucB, vNucB, nh1, aux2,
+      use frenkel_global_vars, only: doCoul, eNucB, vNucB, nh1, aux2,   &
      &                               doExcitonics
       use Symmetry_Info, only: nSym=>nIrrep, Symmetry_Info_Free
       use Basis_Info, only: nBas
@@ -37,8 +37,8 @@
       use Data_Structures
       use cntrl, only: SONTOSTATES, SONATNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, DYSO, NJOB, TRACK, ONLY_OVERLAPS,
-     &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
+      use Cntrl, only: NSTATE, DYSO, NJOB, TRACK, ONLY_OVERLAPS,        &
+     &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,   &
      &                 Do_SK, SaveDens, MLTPLT, NPROP
       use cntrl, only: LuExc, LuOne, LuTDM
       use rassi_data, only: NBASF,NBSQ,NBST,NTDMZZ
@@ -46,22 +46,22 @@
 
 
       IMPLICIT None
-C Matrix elements over RAS wave functions.
-C RAS state interaction.
+! Matrix elements over RAS wave functions.
+! RAS state interaction.
 ! pick up MxRoot
       Logical CLOSEONE
-      INTEGER IRC, IRETURN, IOPT, NZ, ISY, NZCOUL, IDISK, JOB1, JOB2,
+      INTEGER IRC, IRETURN, IOPT, NZ, ISY, NZCOUL, IDISK, JOB1, JOB2,   &
      &        ISTATE, J, NSS, JOB, MPLET, I
       INTEGER, External :: IPRINTLEVEL
-      Real*8, Allocatable:: USOR(:,:),
-     &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
-     &                      ENERGY(:), DMAT(:), TDMZZ(:),
+      Real*8, Allocatable:: USOR(:,:),                                  &
+     &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),         &
+     &                      ENERGY(:), DMAT(:), TDMZZ(:),               &
      &                      VNAT(:),OCC(:), SOENE(:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Prologue
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Prologue
+!
       IRETURN=20
 
       Call StatusLine('RASSI: ','Starting calculation')
@@ -69,7 +69,7 @@ C RAS state interaction.
       CALL GETPRINTLEVEL()
 
 
-C Greetings. Default settings. Initialize data sets.
+! Greetings. Default settings. Initialize data sets.
       CALL INIT_RASSI()
 
       CLOSEONE=.FALSE.
@@ -82,18 +82,18 @@ C Greetings. Default settings. Initialize data sets.
       END IF
       CLOSEONE=.TRUE.
 
-C Read and check keywords etc. from stdin. Print out.
+! Read and check keywords etc. from stdin. Print out.
       CALL INPCTL_RASSI()
 
-CSVC: prepare HDF5 wavefunction file
+!SVC: prepare HDF5 wavefunction file
       CALL CRE_RASSIWFN()
 
-C--------  RAS wave function section --------------------------
-C First, in a double loop over the states, compute any matrix
-C elements required for the input RASSCF state pairs.
-C Needed generalized transition density matrices are computed by
-C GTDMCTL. They are written on unit LUTDM.
-C Needed matrix elements are computed by PROPER.
+!--------  RAS wave function section --------------------------
+! First, in a double loop over the states, compute any matrix
+! elements required for the input RASSCF state pairs.
+! Needed generalized transition density matrices are computed by
+! GTDMCTL. They are written on unit LUTDM.
+! Needed matrix elements are computed by PROPER.
       Call mma_allocate(OVLP,NSTATE,NSTATE,Label='OVLP')
       Call mma_allocate(DYSAMPS,NSTATE,NSTATE,Label='DYSAMPS')
       Call mma_allocate(EigVec,nState,nState,Label='EigVec')
@@ -102,10 +102,10 @@ C Needed matrix elements are computed by PROPER.
       Call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
       Prop(:,:,:)=0.0D0
       DYSAMPS(:,:)=0.0D0
-*                                                                      *
-************************************************************************
-*                                                                      *
-C Number of basis functions
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Number of basis functions
       NZ=0                      ! (NBAS is already used...)
       DO ISY=1,NSYM
          NZ=NZ+NBASF(ISY)
@@ -131,14 +131,14 @@ C Number of basis functions
         call NameRun('#Pop')    ! switch back to old RUNFILE
       end if
 
-C Loop over jobiphs:
+! Loop over jobiphs:
       IDISK=0  ! Initialize disk address for TDMs.
       DO JOB1=1,NJOB
         DO JOB2=1,JOB1
 
         Fake_CMO2 = JOB1.eq.JOB2  ! MOs1 = MOs2  ==> Fake_CMO2=.true.
 
-C Compute generalized transition density matrices, as needed:
+! Compute generalized transition density matrices, as needed:
           CALL GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
         END DO
       END DO
@@ -151,7 +151,7 @@ C Compute generalized transition density matrices, as needed:
       IF(TRACK) CALL TRACK_STATE(OVLP)
       IF(TRACK.OR.ONLY_OVERLAPS) THEN
 
-C       Print the overlap matrix here, since MECTL is skipped
+!       Print the overlap matrix here, since MECTL is skipped
         IF(IPGLOB.GE.2) THEN
           WRITE(6,*)
           WRITE(6,*)'     OVERLAP MATRIX FOR THE ORIGINAL STATES:'
@@ -163,24 +163,24 @@ C       Print the overlap matrix here, since MECTL is skipped
         GOTO 100
       END IF
 
-C Property matrix elements:
+! Property matrix elements:
       Call StatusLine('RASSI: ','Computing matrix elements.')
       CALL MECTL(PROP,OVLP,HAM,ESHFT)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Spin-free section
-*
-C--------  SI wave function section --------------------------
-C In a second section, if Hamiltonian elements were requested,
-C then also a set of secular equations are solved. This gives
-C a set of non-interacting, orthonormal wave functions expressed
-C as linear combinations of the input wave functions. These
-C results are written out, as well as the matrix elements  of
-C the eigenstates, and if requested, their density matrices
-C and perhaps GTDMs.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Spin-free section
+!
+!--------  SI wave function section --------------------------
+! In a second section, if Hamiltonian elements were requested,
+! then also a set of secular equations are solved. This gives
+! a set of non-interacting, orthonormal wave functions expressed
+! as linear combinations of the input wave functions. These
+! results are written out, as well as the matrix elements  of
+! the eigenstates, and if requested, their density matrices
+! and perhaps GTDMs.
 
-C Hamiltonian matrix elements, eigenvectors:
+! Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
         Call StatusLine('RASSI: ','Computing Hamiltonian.')
         CALL EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
@@ -189,55 +189,55 @@ C Hamiltonian matrix elements, eigenvectors:
 ! +++ J. Creutzberg, J. Norell - 2018
 ! Write the spin-free Dyson orbitals to .DysOrb and .molden
 ! files if requested
-*----------------------------------------------------------------
+!----------------------------------------------------------------
 
       IF (DYSEXPORT) THEN
 
-C Bruno Tenorio, 2020. It writes now the new Dyson norms
-C See e.g. DYSNORM.f subroutine.
+! Bruno Tenorio, 2020. It writes now the new Dyson norms
+! See e.g. DYSNORM.f subroutine.
        CALL WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
       END IF
 ! +++
 
-C Loop over states to compute Excitonic Couplings
+! Loop over states to compute Excitonic Couplings
 
       if (DoExcitonics) then
         call EXCCOUPL()
       end if
 
-*---------------------------------------------------------------------*
-C Natural orbitals, if requested:
+!---------------------------------------------------------------------*
+! Natural orbitals, if requested:
       IF(NATO) THEN
-C CALCULATE AND WRITE OUT NATURAL ORBITALS.
+! CALCULATE AND WRITE OUT NATURAL ORBITALS.
         Call mma_allocate(DMAT,nBSQ,Label='DMAT')
         Call mma_allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
         Call mma_allocate(VNAT,nBSQ,Label='VNAT')
         Call mma_allocate(OCC,nBST,Label='OCC')
-*
+!
         CALL NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
         CALL NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
-*
+!
         Call mma_deallocate(DMAT)
         Call mma_deallocate(TDMZZ)
         Call mma_deallocate(VNAT)
         Call mma_deallocate(OCC)
       END IF
-C Bi-natural orbitals, if requested:
+! Bi-natural orbitals, if requested:
       IF (BINA) CALL BINAT()
-*
+!
       IF(.NOT.IFHAM) GOTO 100
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      Spin_Orbit section
-*
-C-------- Spin-Orbit calculations   --------------------------
-C In this third section, if spin-orbit coupling parameters were
-C computed by the previous sections, then additionally the
-C spin-orbit eigenfunctions and levels are computed.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!      Spin_Orbit section
+!
+!-------- Spin-Orbit calculations   --------------------------
+! In this third section, if spin-orbit coupling parameters were
+! computed by the previous sections, then additionally the
+! spin-orbit eigenfunctions and levels are computed.
 
-C Nr of spin states and division of loops:
+! Nr of spin states and division of loops:
       NSS=0
       DO ISTATE=1,NSTATE
          JOB=JBNUM(ISTATE)
@@ -247,7 +247,7 @@ C Nr of spin states and division of loops:
 
       Call mma_allocate(USOR,NSS,NSS,Label='USOR')
       USOR(:,:)=0.0D0
-      For All (i=1:NSS) USOR(i,i)=1.0D0
+      ForAll (i=1:NSS) USOR(i,i)=1.0D0
       Call mma_allocate(USOI,NSS,NSS,Label='USOI')
       USOI(:,:)=0.0D0
       Call mma_allocate(SOENE,nSS,Label='SOENE')
@@ -258,13 +258,13 @@ C Nr of spin states and division of loops:
         CALL SOEIG(PROP,USOR,USOI,SOENE,NSS,ENERGY)
       END IF
 
-C Store TDMs in HDF5
+! Store TDMs in HDF5
 #ifdef _HDF5_
       Call StoreDens(EigVec)
 #endif
 
 ! +++ J. Norell - 2018
-C Make the SO Dyson orbitals and amplitudes from the SF ones
+! Make the SO Dyson orbitals and amplitudes from the SF ones
 
       IF (DYSO.AND.IFSO) THEN
          Call mma_allocate(SODYSAMPS,NSS,NSS,Label='SODYSAMPS')
@@ -277,14 +277,14 @@ C Make the SO Dyson orbitals and amplitudes from the SF ones
       Call mma_deallocate(SFDYS,safe='*')
 ! +++
 
-      CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,
+      CALL PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,                        &
      &            ENERGY,JBNUM,EigVec)
 
 
-C Plot SO-Natural Orbitals if requested
-C Will also handle mixing of states (sodiag.f)
+! Plot SO-Natural Orbitals if requested
+! Will also handle mixing of states (sodiag.f)
       IF(SONATNSTATE.GT.0) CALL DO_SONATORB(NSS,USOR,USOI)
-C Plot SO-Natural Transition Orbitals if requested
+! Plot SO-Natural Transition Orbitals if requested
       IF(SONTOSTATES.GT.0) CALL DO_SONTO(NSS,USOR,USOI)
 
       Call mma_deallocate(USOR)
@@ -295,38 +295,38 @@ C Plot SO-Natural Transition Orbitals if requested
          Call mma_deallocate(SODYSAMPSR)
          Call mma_deallocate(SODYSAMPSI)
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
-*   Trajectory Surface Hopping                                         *
-*                                                                      *
-*   Turns on the procedure if the Keyword HOP was specified.           *
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!   Trajectory Surface Hopping                                         *
+!                                                                      *
+!   Turns on the procedure if the Keyword HOP was specified.           *
+!                                                                      *
       IF (HOP) then
         Call StatusLine('RASSI: ','Trajectory Surface Hopping')
         CALL TSHinit(ENERGY(:))
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
-* CEH April 2015 DQV diabatization scheme
-* This passes the PROP matrix into the DQV diabatization subroutine
-* The subroutine will compute a transformation matrix, which is used
-* to compute diabats.
-*
-* The user has to compute x, y, z, xx, yy, zz, 1/r in this order.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! CEH April 2015 DQV diabatization scheme
+! This passes the PROP matrix into the DQV diabatization subroutine
+! The subroutine will compute a transformation matrix, which is used
+! to compute diabats.
+!
+! The user has to compute x, y, z, xx, yy, zz, 1/r in this order.
 
       IF (DQVD) then
         Call StatusLine('RASSI: ', 'DQV Diabatization')
         CALL DQVDiabat(PROP,HAM)
       END IF
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     EPILOGUE                                                         *
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     EPILOGUE                                                         *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
  100  CONTINUE
 
       if (DoCoul) then
@@ -379,11 +379,11 @@ C Plot SO-Natural Transition Orbitals if requested
 #endif
 !     > free memory (if allocated at all - currently only for QD-NEVPT2 as ref wfn)
       call deinit_mspt2_eigenvectors()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Close dafiles.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Close dafiles.
+!
       IF (SaveDens) Then
          Call DaClos(LuTDM)
          Call mma_deallocate(JOB_INDEX,safe='*')
@@ -393,10 +393,10 @@ C Plot SO-Natural Transition Orbitals if requested
       End If
       Call DaClos(LuExc)
       Call Symmetry_Info_Free()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     PRINT I/O STATISTICS:
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     PRINT I/O STATISTICS:
       i=iPrintLevel(3)
       CALL FASTIO('STATUS')
 

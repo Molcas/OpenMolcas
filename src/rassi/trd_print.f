@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2011, Per Ake Malmqvist                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2011, Per Ake Malmqvist                                *
+!***********************************************************************
 
 ! Print the transition density matrices in ASCII format.
 !   Code written by P. A. Malmqvist.
 ! This code was moved from the main gtdmctl.f file for clarity.
 ! - F. Plasser
-      SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,
+      SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,           &
      &                     CMO1, CMO2, SIJ)
       use Cntrl, only: LSYM1, LSYM2
       use Symmetry_Info, only: nSym=>nIrrep, MUL
@@ -31,9 +31,9 @@
       CHARACTER(LEN=3) NUM1,NUM2
       CHARACTER(LEN=12) FNM
       REAL*8 WBUF(5)
-      Integer LU, LPOS, ISYM, NO, NB, IO, I, LSYM12, ISYM1, NO1, ISYM2,
-     &        NO2, NA1, NA2, NI1, NI2, II, JJ, ISYT, ISYU, ISYV, LIMX,
-     &        ISYX, IWBUF, IT, ITABS, IU, IUABS, ITU, IV, IVABS, IX,
+      Integer LU, LPOS, ISYM, NO, NB, IO, I, LSYM12, ISYM1, NO1, ISYM2, &
+     &        NO2, NA1, NA2, NI1, NI2, II, JJ, ISYT, ISYU, ISYV, LIMX,  &
+     &        ISYX, IWBUF, IT, ITABS, IU, IUABS, ITU, IV, IVABS, IX,    &
      &        IXABS, IVX, ITUVX
       Integer, External:: IsFreeUnit
 
@@ -95,7 +95,7 @@
             NI1=NISH(ISYM1)
             NI2=NISH(ISYM2)
             WRITE(LU,*)'#  Symmetries ',ISYM1,ISYM2
-            WRITE(LU,'(5ES19.12)')((TDMAB(LPOS-1+II+NO1*(JJ-1)),
+            WRITE(LU,'(5ES19.12)')((TDMAB(LPOS-1+II+NO1*(JJ-1)),        &
      &                                  JJ=NI2+1,NO2),II=NI1+1,NO1)
           END IF
           LPOS=LPOS+NO1*NO2
@@ -145,7 +145,7 @@
                   WRITE(LU,'(5ES19.12)')(WBUF(I),I=1,IWBUF)
                   IWBUF=0
                 END IF
-* End of writing a symmetry block.
+! End of writing a symmetry block.
               END DO
             END DO
           END DO

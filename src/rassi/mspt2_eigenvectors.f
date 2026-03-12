@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2017, Stefan Knecht                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2017, Stefan Knecht                                    *
+!***********************************************************************
       module mspt2_eigenvectors
 
 #ifdef _HDF5_
@@ -54,21 +54,21 @@
           deallocate(Heff_evc)
         end subroutine deinit_mspt2_eigenvectors
 
-        subroutine prpdata_mspt2_eigenvectors(
-     &                                         rtdm,
-     &                                         stdm,
-     &                                         wetdm,
-     &                                         prop,
-     &                                         nprop,
-     &                                         nstate,
-     &                                         istate,
-     &                                         jstate,
-     &                                         ntdmzz,
-     &                                         addr,
-     &                                         iempty,
-     &                                         lu,
-     &                                         put_so_data,
-     &                                         put_h5_data
+        subroutine prpdata_mspt2_eigenvectors(                          &
+     &                                         rtdm,                    &
+     &                                         stdm,                    &
+     &                                         wetdm,                   &
+     &                                         prop,                    &
+     &                                         nprop,                   &
+     &                                         nstate,                  &
+     &                                         istate,                  &
+     &                                         jstate,                  &
+     &                                         ntdmzz,                  &
+     &                                         addr,                    &
+     &                                         iempty,                  &
+     &                                         lu,                      &
+     &                                         put_so_data,             &
+     &                                         put_h5_data              &
      &                                       )
 #ifdef _HDF5_
       use RASSIWfn, only: wfn_SFS_TDM, wfn_SFS_TSDM, wfn_SFS_WETDM
@@ -101,32 +101,32 @@
             iOpt=1
             iGo=7
             iaddr=addr
-            call dens2file(
-     &                     rtdm,
-     &                     stdm,
-     &                     wetdm,
-     &                     ntdmzz,
-     &                     lu,
-     &                     iaddr,
-     &                     iempty,
-     &                     iOpt,
-     &                     iGo,
-     &                     iState,
-     &                     jState
+            call dens2file(                                             &
+     &                     rtdm,                                        &
+     &                     stdm,                                        &
+     &                     wetdm,                                       &
+     &                     ntdmzz,                                      &
+     &                     lu,                                          &
+     &                     iaddr,                                       &
+     &                     iempty,                                      &
+     &                     iOpt,                                        &
+     &                     iGo,                                         &
+     &                     iState,                                      &
+     &                     jState                                       &
      &                     )
           end if
 
           if(put_h5_data.or.put_so_data)then
 #ifdef _HDF5_
-            call mh5_put_dset(wfn_sfs_tdm,
-     &                        rtdm, [NTDMZZ,1,1],
+            call mh5_put_dset(wfn_sfs_tdm,                              &
+     &                        rtdm, [NTDMZZ,1,1],                       &
      &                        [0,ISTATE-1,JSTATE-1])
-            call mh5_put_dset(wfn_sfs_tsdm,
-     &                        stdm, [NTDMZZ,1,1],
+            call mh5_put_dset(wfn_sfs_tsdm,                             &
+     &                        stdm, [NTDMZZ,1,1],                       &
      &                        [0,ISTATE-1,JSTATE-1])
             if(put_so_data)then
-              call mh5_put_dset(wfn_sfs_wetdm,
-     &                          wetdm, [NTDMZZ,1,1],
+              call mh5_put_dset(wfn_sfs_wetdm,                          &
+     &                          wetdm, [NTDMZZ,1,1],                    &
      &                          [0,ISTATE-1,JSTATE-1])
             end if
 #endif

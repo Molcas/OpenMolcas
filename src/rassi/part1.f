@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1984,1989, Per Ake Malmqvist                           *
-************************************************************************
-C---------------------------------------------------------------
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1984,1989, Per Ake Malmqvist                           *
+!***********************************************************************
+!---------------------------------------------------------------
       SUBROUTINE PART1(NDIMEN,NBLOCK,NSIZE,SXY,B,A,SCR,IPIV,BUF)
       use definitions, only: iwp, wp
       use constants, only: zero, one
@@ -25,14 +25,14 @@ C---------------------------------------------------------------
 
       integer(kind=iwp) I,J,LIM1,K,NSZ,LIM3,LIM2,KK,L,M
       real(kind=wp) DET,T
-C
-C  PURPOSE: SEE SUBROUTINE PART.
-C  SUBDIVISION INTO TWO LEVELS OF ROUTINE CALLS IS MERELY TO
-C  FACILITATE HANDLING OF SYMMETRY AND INDEXING.
-C  ORIGINAL VERSION, MALMQUIST 84-04-04
-C  RASSCF VERSION,   MALMQUIST 89-11-15
-C---------------------------------------------------------------
-C INITIALIZE A = INVERSE OF SXY, AND B = UNIT MATRIX:
+!
+!  PURPOSE: SEE SUBROUTINE PART.
+!  SUBDIVISION INTO TWO LEVELS OF ROUTINE CALLS IS MERELY TO
+!  FACILITATE HANDLING OF SYMMETRY AND INDEXING.
+!  ORIGINAL VERSION, MALMQUIST 84-04-04
+!  RASSCF VERSION,   MALMQUIST 89-11-15
+!---------------------------------------------------------------
+! INITIALIZE A = INVERSE OF SXY, AND B = UNIT MATRIX:
       DO I=1,NDIMEN
         DO J=1,NDIMEN
           A(I,J)=zero
@@ -42,21 +42,21 @@ C INITIALIZE A = INVERSE OF SXY, AND B = UNIT MATRIX:
         A(I,I)=One
         B(I,I)=one
       END DO
-      CALL DOOL (NDIMEN,NDIMEN,NDIMEN,NDIMEN,SCR,A,DET,
-     *           IPIV(1,1),IPIV(1,2),BUF)
-C---------------------------------------------------------------
-C LOOP BACKWARDS OVER THE BLOCKS. KEEP THREE LIMITS UPDATED:
-C LIM1= POS IMMEDIATELY BEFORE CURRENT BLOCK, LIM2= BEGINNING
-C OF CURRENT BLOCK, AND LIM3=END OF CURRENT BLOCK.
+      CALL DOOL (NDIMEN,NDIMEN,NDIMEN,NDIMEN,SCR,A,DET,                 &
+     &           IPIV(1,1),IPIV(1,2),BUF)
+!---------------------------------------------------------------
+! LOOP BACKWARDS OVER THE BLOCKS. KEEP THREE LIMITS UPDATED:
+! LIM1= POS IMMEDIATELY BEFORE CURRENT BLOCK, LIM2= BEGINNING
+! OF CURRENT BLOCK, AND LIM3=END OF CURRENT BLOCK.
       LIM1=NDIMEN
       DO K=NBLOCK,2,-1
         NSZ=NSIZE(K)
         LIM3=LIM1
         LIM1=LIM1-NSZ
         LIM2=LIM1+1
-C---------------------------------------------------------------
-C CALCULATE (INVERSE OF CURRENT A-BLOCK)*(ALL TO THE LEFT OF IT)
-C AND PUT IT INTO B-MATRIX. THEN CLEAR ALL TO THE LEFT OF THE A-BLOCK.
+!---------------------------------------------------------------
+! CALCULATE (INVERSE OF CURRENT A-BLOCK)*(ALL TO THE LEFT OF IT)
+! AND PUT IT INTO B-MATRIX. THEN CLEAR ALL TO THE LEFT OF THE A-BLOCK.
         DO I=LIM2,LIM3
           DO J=LIM2,LIM3
             SCR(I,J)=A(I,J)
@@ -66,10 +66,10 @@ C AND PUT IT INTO B-MATRIX. THEN CLEAR ALL TO THE LEFT OF THE A-BLOCK.
             A(I,J)=zero
           END DO
         END DO
-        CALL DOOL(NDIMEN,NDIMEN,NSZ,LIM1,SCR(LIM2,LIM2),B(LIM2,1),DET,
-     *            IPIV(1,1),IPIV(1,2),BUF)
-C---------------------------------------------------------------
-C THEN UPDATE THE COLUMNS OF A TO THE LEFT OF THE CURRENT BLOCK:
+        CALL DOOL(NDIMEN,NDIMEN,NSZ,LIM1,SCR(LIM2,LIM2),B(LIM2,1),DET,  &
+     &            IPIV(1,1),IPIV(1,2),BUF)
+!---------------------------------------------------------------
+! THEN UPDATE THE COLUMNS OF A TO THE LEFT OF THE CURRENT BLOCK:
         DO J=1,LIM1
           DO I=1,LIM1
             T=A(I,J)
@@ -80,7 +80,7 @@ C THEN UPDATE THE COLUMNS OF A TO THE LEFT OF THE CURRENT BLOCK:
           END DO
         END DO
       END DO
-C TRANSPOSE MATRIX B:
+! TRANSPOSE MATRIX B:
       DO I=1,NDIMEN-1
         DO J=I,NDIMEN
           T=B(I,J)
@@ -88,14 +88,14 @@ C TRANSPOSE MATRIX B:
           B(J,I)=T
         END DO
       END DO
-C---------------------------------------------------------------
-C COMBINED LU-PARTITIONING AND UNITARY TRANSFORMATION OF A AND B:
+!---------------------------------------------------------------
+! COMBINED LU-PARTITIONING AND UNITARY TRANSFORMATION OF A AND B:
       CALL LU2(NDIMEN,NBLOCK,NSIZE,B,A,BUF)
-C
-C     LU PARTITIONING OF THE MATRICES WAS DONE IN-PLACE.
-C     NOW CHANGE SIGN OF LOWER-TRIANGULAR PARTS AND
-C     INVERT UPPER-TRIANGULAR PARTS, AS INDICATED IN (VI.6):
-C
+!
+!     LU PARTITIONING OF THE MATRICES WAS DONE IN-PLACE.
+!     NOW CHANGE SIGN OF LOWER-TRIANGULAR PARTS AND
+!     INVERT UPPER-TRIANGULAR PARTS, AS INDICATED IN (VI.6):
+!
       DO I=2,NDIMEN
         DO J=1,I-1
           A(I,J)=-A(I,J)

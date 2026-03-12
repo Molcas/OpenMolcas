@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero, One, Two
@@ -29,20 +29,20 @@
       CHARACTER CDIR
       Real(kind=wp) Dummy(1)
       Integer(kind=iwp) iDummy(7,8)
-      Real(kind=wp), allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:),
+      Real(kind=wp), allocatable:: SZZ(:), VEC(:), VEC2(:), DMAT(:),    &
      &                             SCR(:)
       Real(kind=wp), allocatable:: VNAT(:), EIG(:), OCC(:)
-      Integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV,
-     &                  LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND,
-     &                  IDIR, INV, II2, IOCC, J, IJ, JI, ID1, ID2, ISCR,
+      Integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV,  &
+     &                  LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND,   &
+     &                  IDIR, INV, II2, IOCC, J, IJ, JI, ID1, ID2, ISCR,&
      &                  II, I1, I2, LuXXVEC
       Integer(kind=iwp), External:: IsFreeUnit
       REAL(kind=wp) X
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C PLOTTING SECTION
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C Get the proper type of the property
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! PLOTTING SECTION
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! Get the proper type of the property
       ITYPE=0
       IF(CHARTYPE.EQ.'HERMSING') ITYPE=1
       IF(CHARTYPE.EQ.'ANTISING') ITYPE=2
@@ -56,14 +56,14 @@ C Get the proper type of the property
 
       NBMX2=NBMX**2
 
-c SZZ  - AO Overlap integral
-c VEC  - AO Overlap eigenvectors
-c EIG  - AO Overlap eigenvalues
-c VEC2 - Eigenvectors of density matrix
-c SCR  - Temporary for matrix multiplication
-C NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
-C       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
-C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
+! SZZ  - AO Overlap integral
+! VEC  - AO Overlap eigenvectors
+! EIG  - AO Overlap eigenvalues
+! VEC2 - Eigenvectors of density matrix
+! SCR  - Temporary for matrix multiplication
+! NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
+!       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
+!       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(SZZ,NBTRI,Label='SZZ')
       CALL mma_allocate(VEC,NBSQ,Label='VEC')
       CALL mma_allocate(VEC2,NBMX2,Label='VEC2')
@@ -80,10 +80,10 @@ C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(OCC,NBST,Label='OCC')
       OCC(:)=Zero
 
-C READ ORBITAL OVERLAP MATRIX.
+! READ ORBITAL OVERLAP MATRIX.
       IRC=-1
 
-c IOPT=6, origin and nuclear contrib not read
+! IOPT=6, origin and nuclear contrib not read
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
@@ -98,7 +98,7 @@ c IOPT=6, origin and nuclear contrib not read
       ENDIF
 
 
-C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
+! DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
       LV=1
       LE=1
@@ -109,7 +109,7 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
           VEC(LV-1+I)=One
         END DO
         CALL JACOB(SZZ(LS),VEC,NB,NB)
-C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
+! SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
@@ -154,11 +154,11 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
           NB=NBASF(ISYM)
           IF(NB.EQ.0) CYCLE
 
-C TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
-C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
-C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
+! TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
+! BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
+! SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 
-C expand the triangular matrix for this symmetry to a square matrix
+! expand the triangular matrix for this symmetry to a square matrix
           DMAT(:)=Zero
           CALL DCOPY_(NBMX2,[Zero],0,SCR,1)
           DO J=1,NB
@@ -176,11 +176,11 @@ C expand the triangular matrix for this symmetry to a square matrix
           END DO
           END DO
 
-          CALL DGEMM_('N','N',NB,NB,NB,One,
-     &                 DMAT,NB,VEC(LV),NB,
+          CALL DGEMM_('N','N',NB,NB,NB,One,                             &
+     &                 DMAT,NB,VEC(LV),NB,                              &
      &                 Zero,SCR,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,One,
-     &                 VEC(LV),NB,SCR,NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,                             &
+     &                 VEC(LV),NB,SCR,NB,                               &
      &                 Zero,DMAT,NB)
 
           ID1=1
@@ -193,30 +193,30 @@ C expand the triangular matrix for this symmetry to a square matrix
           END DO
 
 
-C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
+! SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
           SCR(:)=Zero
           ISCR=1
           DO I=1,NB
             DO J=1,I
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
-c simple averaging
+! simple averaging
               SCR(ISCR)=(DMAT(IJ)+DMAT(JI))/Two
 
-c add a factor of two to convert spin -> sigma
+! add a factor of two to convert spin -> sigma
               IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*Two
               ISCR=ISCR+1
             END DO
           END DO
 
-C DIAGONALIZE THE DENSITY MATRIX BLOCK:
+! DIAGONALIZE THE DENSITY MATRIX BLOCK:
           CALL DCOPY_(NBMX2,[Zero],0,VEC2,1)
           CALL DCOPY_(NB,[One],0,VEC2,NB+1)
 
           CALL JACOB(SCR,VEC2,NB,NB)
           CALL JACORD(SCR,VEC2,NB,NB)
 
-C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
+! JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           II=0
           DO I=1,NB
             II=II+I
@@ -224,9 +224,9 @@ C JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           END DO
           IOCC=IOCC+NB
 
-C REEXPRESS THE EIGENVALUES IN AO BASIS FUNCTIONS. REVERSE ORDER.
-          CALL DGEMM_('N','N',NB,NB,NB,One,
-     &                 VEC(LV),NB,VEC2,NB,
+! REEXPRESS THE EIGENVALUES IN AO BASIS FUNCTIONS. REVERSE ORDER.
+          CALL DGEMM_('N','N',NB,NB,NB,One,                             &
+     &                 VEC(LV),NB,VEC2,NB,                              &
      &                 Zero,SCR,NB)
           I1=1
           I2=INV+NB**2
@@ -241,7 +241,7 @@ C REEXPRESS THE EIGENVALUES IN AO BASIS FUNCTIONS. REVERSE ORDER.
 
         END DO
 
-C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
+! WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
        IF(ITYPE.LE.2) THEN
          WRITE(KNUM,'(I2.2,A,I2.2)') ASS,".",BSS
        ELSE
@@ -256,13 +256,13 @@ C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
        IF (ITYPE.GT.2) FNUM=CDIR//TRIM(FNUM)
 
        FNAME=FILEBASE//'.'//TRIM(FNUM)
-       IF(ITYPE.EQ.1)
+       IF(ITYPE.EQ.1)                                                   &
      &        WRITE(u6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
-       IF(ITYPE.EQ.2)
+       IF(ITYPE.EQ.2)                                                   &
      &        WRITE(u6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
-       IF(ITYPE.EQ.3)
+       IF(ITYPE.EQ.3)                                                   &
      &        WRITE(u6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
-       IF(ITYPE.EQ.4)
+       IF(ITYPE.EQ.4)                                                   &
      &        WRITE(u6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
 
        WRITE(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
@@ -270,15 +270,15 @@ C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
 
-        CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &             VNAT, OCC, Dummy, iDummy,
+        CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,                 &
+     &             VNAT, OCC, Dummy, iDummy,                            &
      &     '* DENSITY FOR PROPERTY TYPE ' // CHARTYPE // KNUM )
 
-c       Test a few values
-C        CALL ADD_INFO("SONATORB_PLOT", VNAT, 1, 4)
+!       Test a few values
+!        CALL ADD_INFO("SONATORB_PLOT", VNAT, 1, 4)
 
-c    ONLYFOR NATURAL ORBITALS
-      if(ITYPE.EQ.1)
+!    ONLYFOR NATURAL ORBITALS
+      if(ITYPE.EQ.1)                                                    &
      &       CALL ADD_INFO("SONATORB_NO_OCC", OCC, SUM(NBASF), 4)
 
       END DO
@@ -314,7 +314,7 @@ c    ONLYFOR NATURAL ORBITALS
       CHARACTER CDIR
       Real(kind=wp) Dummy(1)
       Integer(kind=iwp) IDUM(1),iDummy(7,8)
-      Real(kind=wp), Allocatable:: SZZ(:), VEC(:), VEC2(:), VEC2I(:),
+      Real(kind=wp), Allocatable:: SZZ(:), VEC(:), VEC2(:), VEC2I(:),   &
      &                             SCR(:)
       Real(kind=wp), Allocatable:: SCRI(:), EIG(:)
       Real(kind=wp), Allocatable:: VNAT(:), VNATI(:), OCC(:)
@@ -323,18 +323,18 @@ c    ONLYFOR NATURAL ORBITALS
       Real(kind=wp), Allocatable:: SANGF(:), SANGTR(:), SANGTI(:)
       Real(kind=wp), Allocatable:: SANGTR2(:), SANGTI2(:)
 
-      Integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV,
-     &                  LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND,
-     &                  IDIR, INV, II2, IOCC, J, IJ, JI, ID1, ID2, ISCR,
+      Integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV,  &
+     &                  LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND,   &
+     &                  IDIR, INV, II2, IOCC, J, IJ, JI, ID1, ID2, ISCR,&
      &                  II, I1, I2, LuXXVEC, JOPT, I1I, INV2, ISCRI
       Integer(kind=iwp), External:: IsFreeUnit
       REAL(kind=wp) X, SUM, SUMI
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C PLOTTING SECTION
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C Get the proper type of the property
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! PLOTTING SECTION
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! Get the proper type of the property
       ITYPE=0
       IF(CHARTYPE.EQ.'HERMSING') ITYPE=1
       IF(CHARTYPE.EQ.'ANTISING') ITYPE=2
@@ -348,14 +348,14 @@ C Get the proper type of the property
 
       NBMX2=NBMX**2
 
-c SZZ  - AO Overlap integral
-c VEC  - AO Overlap eigenvectors
-c EIG  - AO Overlap eigenvalues
-c VEC2 - Eigenvectors of density matrix
-c SCR  - Temporary for matrix multiplication
-C NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
-C       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
-C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
+! SZZ  - AO Overlap integral
+! VEC  - AO Overlap eigenvectors
+! EIG  - AO Overlap eigenvalues
+! VEC2 - Eigenvectors of density matrix
+! SCR  - Temporary for matrix multiplication
+! NOTE: SCR COULD PROBABLY BE SOMETHING LIKE NBMX*(NBMX+1)/2
+!       ALTHOUGH IT PROBABLY DOESN'T SAVE MUCH
+!       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(SZZ,NBTRI,Label='SZZ')
       SZZ(:)=Zero
       CALL mma_allocate(VEC,NBSQ,Label='VEC')
@@ -378,10 +378,10 @@ C       (JACOB TAKES A TRIANGULAR MATRIX LIKE ZHPEV DOES?)
       CALL mma_allocate(OCC,NBST,Label='OCC')
       OCC(:)=Zero
 
-C READ ORBITAL OVERLAP MATRIX.
+! READ ORBITAL OVERLAP MATRIX.
       IRC=-1
 
-c IOPT=6, origin and nuclear contrib not read
+! IOPT=6, origin and nuclear contrib not read
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
@@ -396,7 +396,7 @@ c IOPT=6, origin and nuclear contrib not read
       ENDIF
 
 
-C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
+! DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
       LS=1
       LV=1
       LE=1
@@ -407,7 +407,7 @@ C DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
           VEC(LV-1+I)=One
         END DO
         CALL JACOB(SZZ(LS),VEC(LV),NB,NB)
-C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
+! SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
         LS1=LS
         LV1=LV
         LE1=LE
@@ -445,11 +445,11 @@ C SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
           IF(IDIR.EQ.3) CDIR='Z'
 
 
-cccccccccccccccccccccccc
-cccccccccccccccccccccccc
-cccccccccccccccccccccccc
-cccccccccccccccccccccccc
-C read in ao matrix for angmom or mltpl
+!ccccccccccccccccccccccc
+!ccccccccccccccccccccccc
+!ccccccccccccccccccccccc
+!ccccccccccccccccccccccc
+! read in ao matrix for angmom or mltpl
       CALL mma_allocate(SANG,NBTRI,Label='SANG')
       SANG(:)=Zero
 
@@ -489,10 +489,10 @@ C read in ao matrix for angmom or mltpl
 
       END IF
 
-cccccccccccccccccccccccc
-cccccccccccccccccccccccc
-cccccccccccccccccccccccc
-cccccccccccccccccccccccc
+!ccccccccccccccccccccccc
+!ccccccccccccccccccccccc
+!ccccccccccccccccccccccc
+!ccccccccccccccccccccccc
         INV=1
         II2=0
         IOCC=0
@@ -502,11 +502,11 @@ cccccccccccccccccccccccc
           NB=NBASF(ISYM)
           IF(NB.EQ.0) cycle
 
-C TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
-C BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
-C SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
+! TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
+! BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
+! SCALING WITH THE EIGENVALUES OF THE OVERLAP MATRIX:
 
-C expand the triangular matrix for this symmetry to a square matrix
+! expand the triangular matrix for this symmetry to a square matrix
           DMAT(:)=Zero
           DMATI(:)=Zero
           SCR(:)=Zero
@@ -529,20 +529,20 @@ C expand the triangular matrix for this symmetry to a square matrix
           END DO
           END DO
 
-          CALL DGEMM_('N','N',NB,NB,NB,One,
-     &                 DMAT,NB,VEC(LV),NB,
+          CALL DGEMM_('N','N',NB,NB,NB,One,                             &
+     &                 DMAT,NB,VEC(LV),NB,                              &
      &                 Zero,SCR,NB)
-          CALL DGEMM_('N','N',NB,NB,NB,One,
-     &                 DMATI,NB,VEC(LV),NB,
+          CALL DGEMM_('N','N',NB,NB,NB,One,                             &
+     &                 DMATI,NB,VEC(LV),NB,                             &
      &                 Zero,SCRI,NB)
 
 
 
-          CALL DGEMM_('T','N',NB,NB,NB,One,
-     &                 VEC(LV),NB,SCR,NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,                             &
+     &                 VEC(LV),NB,SCR,NB,                               &
      &                 Zero,DMAT,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,One,
-     &                 VEC(LV),NB,SCRI,NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,                             &
+     &                 VEC(LV),NB,SCRI,NB,                              &
      &                 Zero,DMATI,NB)
 
           ID1=1
@@ -557,7 +557,7 @@ C expand the triangular matrix for this symmetry to a square matrix
           END DO
 
 
-C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
+! SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
           SCR(:)=Zero
           SCRI(:)=Zero
 
@@ -567,10 +567,10 @@ C SYMMETRIZE THIS BLOCK INTO SCRATCH AREA, TRIANGULAR STORAGE:
             DO J=1,I
               IJ=I+NB*(J-1)
               JI=J+NB*(I-1)
-c simple averaging
+! simple averaging
               SCR(ISCR)=(DMAT(JI)+DMAT(IJ))/Two
               SCRI(ISCRI)=(DMATI(JI)-DMATI(IJ))/Two
-c add a factor of two to convert spin -> sigma
+! add a factor of two to convert spin -> sigma
               IF(ITYPE.GE.3) SCR(ISCR)=SCR(ISCR)*Two
               IF(ITYPE.GE.3) SCRI(ISCRI)=SCRI(ISCRI)*Two
               ISCR=ISCR+1
@@ -578,13 +578,13 @@ c add a factor of two to convert spin -> sigma
             END DO
           END DO
 
-C DIAGONALIZE THE DENSITY MATRIX BLOCK:
+! DIAGONALIZE THE DENSITY MATRIX BLOCK:
           VEC2(:)=Zero
           VEC2I(:)=Zero
 
           CALL CPLOT_DIAG(SCR,SCRI, NB,VEC2,VEC2I)
 
-C LAPACK ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
+! LAPACK ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           II=0
           DO I=1,NB
             II=II+I
@@ -592,12 +592,12 @@ C LAPACK ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
           END DO
           IOCC=IOCC+NB
 
-C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
-          CALL DGEMM_('N','N',NB,NB,NB,One,
-     &                 VEC(LV),NB,VEC2,NB,
+! REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
+          CALL DGEMM_('N','N',NB,NB,NB,One,                             &
+     &                 VEC(LV),NB,VEC2,NB,                              &
      &                 Zero,SCR,NB)
-          CALL DGEMM_('N','N',NB,NB,NB,One,
-     &                 VEC(LV),NB,VEC2I,NB,
+          CALL DGEMM_('N','N',NB,NB,NB,One,                             &
+     &                 VEC(LV),NB,VEC2I,NB,                             &
      &                 Zero,SCRI,NB)
 
           I1=1
@@ -615,9 +615,9 @@ C REEXPRESS THE EIGENVECTORS IN AO BASIS FUNCTIONS. REVERSE ORDER.
           LE=LE+NB
         END DO
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-CCCCCCCC TESTING
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!CCCCCCC TESTING
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCC
       IF(IPGLOB.GE.4) THEN
 
       CALL mma_allocate(SANGF,NBMX**2,Label='SANGF')
@@ -641,7 +641,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         NB=NBASF(ISYM)
         IF (NB/=0) THEN
 
-c       Expand integrals for this symmetry to full storage
+!       Expand integrals for this symmetry to full storage
         SANGF(:)=Zero
 
         DO J=1,NB
@@ -665,41 +665,41 @@ c       Expand integrals for this symmetry to full storage
         END DO
 
         IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
-          CALL DGEMM_('T','N',NB,NB,NB,One,SANGF,NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,SANGF,NB,                    &
      &             VNAT(1+INV),NB,Zero,SANGTR,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,One,SANGF,NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,SANGF,NB,                    &
      &              VNATI(1+INV),NB,Zero,SANGTI,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,              &
      &             SANGTR,NB,Zero,SANGTR2,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,One,VNATI(1+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNATI(1+INV),NB,             &
      &             SANGTI,NB,One,SANGTR2,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,-One,VNATI(1+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,-One,VNATI(1+INV),NB,            &
      &             SANGTR,NB,Zero,SANGTI2,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,              &
      &             SANGTI,NB,One,SANGTI,NB)
 
         ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
 
-          CALL DGEMM_('T','N',NB,NB,NB,One,SANGF,NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,SANGF,NB,                    &
      &             VNAT(1+INV),NB,Zero,SANGTI,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,-One,SANGF,NB,
+          CALL DGEMM_('T','N',NB,NB,NB,-One,SANGF,NB,                   &
      &             VNATI(1+INV),NB,Zero,SANGTR,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,              &
      &             SANGTR,NB,Zero,SANGTR2,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,One,VNATI(1+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNATI(1+INV),NB,             &
      &             SANGTI,NB,One,SANGTR2,NB)
 
-          CALL DGEMM_('T','N',NB,NB,NB,-One,VNATI(1+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,-One,VNATI(1+INV),NB,            &
      &             SANGTR,NB,Zero,SANGTI2,NB)
-          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,
+          CALL DGEMM_('T','N',NB,NB,NB,One,VNAT(1+INV),NB,              &
      &             SANGTI,NB,One,SANGTI2,NB)
 
         END IF
 
-c Sum over the trace
+! Sum over the trace
         DO I = 1,NB
           IJ = I+(I-1)*NB-1
           SUM  = SUM  + OCC(I+INV2) * SANGTR2(1+IJ)
@@ -726,8 +726,8 @@ c Sum over the trace
 
       CALL mma_deallocate(SANG)
 
-C WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
-C REAL PART
+! WRITE OUT THIS SET OF NATURAL SPIN ORBITALS
+! REAL PART
        IF(ITYPE.LE.2) THEN
          WRITE(KNUM,'(I2.2,A,I2.2,A,A)') ASS,".",BSS,".","R"
        ELSE
@@ -742,13 +742,13 @@ C REAL PART
        IF (ITYPE.GT.2) FNUM=CDIR//TRIM(FNUM)
 
        FNAME=FILEBASE//'.'//TRIM(FNUM)//'.R'
-       IF(ITYPE.EQ.1)
+       IF(ITYPE.EQ.1)                                                   &
      &        WRITE(u6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
-       IF(ITYPE.EQ.2)
+       IF(ITYPE.EQ.2)                                                   &
      &        WRITE(u6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
-       IF(ITYPE.EQ.3)
+       IF(ITYPE.EQ.3)                                                   &
      &        WRITE(u6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
-       IF(ITYPE.EQ.4)
+       IF(ITYPE.EQ.4)                                                   &
      &        WRITE(u6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
 
        WRITE(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
@@ -756,11 +756,11 @@ C REAL PART
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
 
-        CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &             VNAT, OCC, Dummy, iDummy,
+        CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,                 &
+     &             VNAT, OCC, Dummy, iDummy,                            &
      &     '* DENSITY FOR PROPERTY TYPE ' // CHARTYPE // KNUM )
 
-C IMAGINARY PART
+! IMAGINARY PART
        IF(ITYPE.LE.2) THEN
          WRITE(KNUM,'(I2.2,A,I2.2,A,A)') ASS,".",BSS,".","I"
        ELSE
@@ -768,13 +768,13 @@ C IMAGINARY PART
        END IF
 
        FNAME=FILEBASE//'.'//TRIM(FNUM)//'.I'
-       IF(ITYPE.EQ.1)
+       IF(ITYPE.EQ.1)                                                   &
      &        WRITE(u6,'(A,A)')' NATURAL ORBITALS FOR ',KNUM
-       IF(ITYPE.EQ.2)
+       IF(ITYPE.EQ.2)                                                   &
      &        WRITE(u6,'(A,A)')' ANTISING NATURAL ORBITALS FOR  ',KNUM
-       IF(ITYPE.EQ.3)
+       IF(ITYPE.EQ.3)                                                   &
      &        WRITE(u6,'(A,A)')' NATURAL SPIN ORBITALS FOR  ',KNUM
-       IF(ITYPE.EQ.4)
+       IF(ITYPE.EQ.4)                                                   &
      &        WRITE(u6,'(A,A)')' ANTITRIP NATURAL ORBITALS FOR  ',KNUM
 
        WRITE(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ',FNAME
@@ -782,14 +782,14 @@ C IMAGINARY PART
         LuxxVec=50
         LuxxVec=isfreeunit(LuxxVec)
 
-        CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,
-     &             VNATI, OCC, Dummy, iDummy,
+        CALL WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,                 &
+     &             VNATI, OCC, Dummy, iDummy,                           &
      &     '* DENSITY FOR PROPERTY TYPE ' // CHARTYPE // KNUM )
 
-c       Test a few values
-C        CALL ADD_INFO("SONATORB_CPLOTR", VNAT, 1, 4)
-C        CALL ADD_INFO("SONATORB_CPLOTI", VNATI, 1, 4)
-C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
+!       Test a few values
+!        CALL ADD_INFO("SONATORB_CPLOTR", VNAT, 1, 4)
+!        CALL ADD_INFO("SONATORB_CPLOTI", VNATI, 1, 4)
+!        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
 
       END DO
 
@@ -814,7 +814,7 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
       use constants, only: Zero
       IMPLICIT NONE
       INTEGER(KIND=IWP), INTENT(IN):: DIM
-      REAL(KIND=WP), INTENT(INOUT):: MATR(DIM*(DIM+1)/2),
+      REAL(KIND=WP), INTENT(INOUT):: MATR(DIM*(DIM+1)/2),               &
      &                               MATI(DIM*(DIM+1)/2)
       REAL(KIND=WP), INTENT(OUT):: EIGVECR(DIM,DIM),EIGVECI(DIM,DIM)
 
@@ -830,7 +830,7 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", OCC, 1, 4)
       END DO
 
 
-      call zhpev_('V','U',DIM,MATFULL,CEIGVAL,
+      call zhpev_('V','U',DIM,MATFULL,CEIGVAL,                          &
      &           CEIGVEC,DIM,ZWORK,RWORK,INFO)
 
 

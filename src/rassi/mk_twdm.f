@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE MK_TWDM(mSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE MK_TWDM(mSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,   &
      &                   ISY12)
       use definitions, only: iwp, wp
       use constants, only: Zero
@@ -21,10 +21,10 @@
 
       INTEGER(KIND=IWP) IOF,ITD,ISY,NB,J,I,IJ,ISY1,NB1,ISY2,NB2
       REAL(KIND=WP) TDM,WDM
-C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
-C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
+! CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
+! AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 
-C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
+! SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
       SCR(:,:)=Zero
       IF(ISY12.EQ.1) THEN
         IOF=0
@@ -55,8 +55,8 @@ C SPECIAL CASE: DIAGONAL SYMMETRY BLOCKS.
           IOF=IOF+(NB*(NB+1))/2
         END DO
       ELSE
-C GENERAL CASE, NON-DIAGONAL SYMMETRY BLOCKS
-C THEN LOOP OVER ELEMENTS OF TDMZZ
+! GENERAL CASE, NON-DIAGONAL SYMMETRY BLOCKS
+! THEN LOOP OVER ELEMENTS OF TDMZZ
         ITD=0
         DO ISY1=1,mSym
           NB1=NBASF(ISY1)
@@ -93,5 +93,5 @@ C THEN LOOP OVER ELEMENTS OF TDMZZ
           END IF
         END DO
       END IF
-*
+!
       END SUBROUTINE MK_TWDM

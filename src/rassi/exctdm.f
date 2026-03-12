@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      subroutine exctdm(SIJ, TRAD, TDMAB, iRC, CMO1, CMO2, TDMZZ,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      subroutine exctdm(SIJ, TRAD, TDMAB, iRC, CMO1, CMO2, TDMZZ,       &
      &                  TRASD, TSDMAB, TSDMZZ, istate, jstate)
 
       use Basis_Info, only: nBas
@@ -23,8 +23,8 @@
 
       IMPLICIT None
       type(DSBA_Type) :: DLT(1), SDLT(1), Salpha(1), Sbeta(1)
-      integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),
-     &        iRC, NNLTD, istate, jstate, run,
+      integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),           &
+     &        iRC, NNLTD, istate, jstate, run,                          &
      &        m(1), n(1), a
       integer(kind=iwp), external :: isFreeUnit
       real(kind=wp) TDMAB(NTDMAB)
@@ -37,7 +37,7 @@
       real(kind=wp) CMO2(NCMO)
       character(len=13) :: filnam
       real(kind=wp)  :: SIJ
-      real(kind=wp), Allocatable:: TDMZZ_mtx(:,:), TDMZZ_new(:),
+      real(kind=wp), Allocatable:: TDMZZ_mtx(:,:), TDMZZ_new(:),        &
      &                            STDMZZ_mtx(:,:), STDMZZ_new(:)
       integer(kind=iwp) LuT, LuT_, I, J, K, INTEG, IPNB
       real(kind=wp), External :: DDot_
@@ -153,8 +153,8 @@
 ! fill DLT (=TDM in common basis in packed, lower trangular storage)
         do i=1,nbas_tot(1)
           do j=1,i-1
-            DLT(1)%A00(max(i,j)*(max(i,j)-3)/2 + i + j) =
-     &        TDMZZ_new(nbas_tot(1)*(j-1)+i)
+            DLT(1)%A00(max(i,j)*(max(i,j)-3)/2 + i + j) =               &
+     &        TDMZZ_new(nbas_tot(1)*(j-1)+i)                            &
      &        + TDMZZ_new(nbas_tot(1)*(i-1)+j)
           end do
           DLT(1)%A00(j*(j-3)/2 + 2*j) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
@@ -244,7 +244,7 @@
           do i=1,nbas_tot(1)
             do j=1,nbas_tot(1)
               run = run + 1
-              Salpha(1)%SB(1)%A1(run) =
+              Salpha(1)%SB(1)%A1(run) =                                 &
      &        Salpha(1)%SB(1)%A1(run) + SDLT(1)%SB(1)%A1(run)
             end do
           end do
@@ -256,7 +256,7 @@
           do i=1,nbas_tot(1)
             do j=1,nbas_tot(1)
               run = run + 1
-              Sbeta(1)%SB(1)%A1(run) = TDMZZ_new(run)-
+              Sbeta(1)%SB(1)%A1(run) = TDMZZ_new(run)-                  &
      &                                 Salpha(1)%SB(1)%A1(run)
             end do
           end do
@@ -299,7 +299,7 @@
 ! fill DLT in packed lower triangular storage
         do i=1,nbas_tot(1)
           do j=1,i-1
-            DLT(1)%A00(max(i,j)*(max(i,j)-3)/2 + i + j) =
+            DLT(1)%A00(max(i,j)*(max(i,j)-3)/2 + i + j) =               &
      & TDMZZ_new(nbas_tot(1)*(j-1)+i) + TDMZZ_new(nbas_tot(1)*(i-1)+j)
           end do
           DLT(1)%A00(j*(j-3)/2 + 2*j) = TDMZZ_new(nbas_tot(1)*(j-1)+j)
@@ -386,7 +386,7 @@
             do i=1,nbas_tot(1)
               do j=1,nbas_tot(1)
                 run = run + 1
-                Salpha(1)%SB(1)%A1(run) =
+                Salpha(1)%SB(1)%A1(run) =                               &
      &            Salpha(1)%SB(1)%A1(run)+SDLT(1)%SB(1)%A1(run)
               end do
             end do
@@ -398,7 +398,7 @@
             do i=1,nbas_tot(1)
               do j=1,nbas_tot(1)
                 run = run + 1
-                Sbeta(1)%SB(1)%A1(run) = TDMZZ_new(run)-
+                Sbeta(1)%SB(1)%A1(run) = TDMZZ_new(run)-                &
      &                                   Salpha(1)%SB(1)%A1(run)
               end do
             end do
@@ -423,7 +423,7 @@
 ! from bsse calculation to get the cholesky vectors
       call NameRun('AUXRFIL1')
       call CHO_X_INIT(irc,ChFracMem)
-      call CHO_TRDENS(irc,DLT,Salpha(1),istate,jstate,
+      call CHO_TRDENS(irc,DLT,Salpha(1),istate,jstate,                  &
      &                iTyp,DoExch,LABB)
       call NameRun('#Pop')    ! switch back to old RUNFILE
       call deallocate_DT(DLT(1))

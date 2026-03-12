@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Roland Lindh                                     *
+!***********************************************************************
       Subroutine USOTRANS(USOR,USOI,NSS,EigVec,MSTATE,VSOR,VSOI)
       use rassi_global_arrays, only: JBNUM
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,16 +22,16 @@
       Integer, Allocatable:: MAPST(:,:)
       REAL*8 tmp_R, tmp_I
       Integer ISTATE, JOB, MPLET, MSPROJ, ISS, JSS, JSS_, KSS, KSS_
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Before we start we need to backtransform the coefficients of the
-*     SO states from the basis of the SF states which diagonalize the
-*     SF Hamiltonian to the basis of the original SF states. This since
-*     all transition moments, whether or retrived from disk or
-*     recomputed, are in the basis of the original SF states.
-*
-C Mapping from spin states to spin-free state:
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Before we start we need to backtransform the coefficients of the
+!     SO states from the basis of the SF states which diagonalize the
+!     SF Hamiltonian to the basis of the original SF states. This since
+!     all transition moments, whether or retrived from disk or
+!     recomputed, are in the basis of the original SF states.
+!
+! Mapping from spin states to spin-free state:
       Call mma_allocate(MAPST,nSS,3,Label='MAPST')
       ISS=0
       DO ISTATE=1,MSTATE
@@ -44,9 +44,9 @@ C Mapping from spin states to spin-free state:
             MAPST(ISS,3)=MSPROJ
        END DO
       END DO
-*
-*     Let us transform the coefficients in USOR and USOI
-*
+!
+!     Let us transform the coefficients in USOR and USOI
+!
       Do iSS = 1, nSS
          Do JSS = 1, nSS
             tmp_R=0.0D0
@@ -64,7 +64,7 @@ C Mapping from spin states to spin-free state:
          End Do
       End Do
       Call mma_deallocate(MAPST)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End Subroutine USOTRANS

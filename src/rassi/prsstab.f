@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE PrSSTab(SSTAB)
       use cntrl, only: MORSBITS
       IMPLICIT NONE
@@ -67,7 +67,7 @@
         WRITE(6,*)
         WRITE(6,'(1x,a,3x,15I5)')'MRS:',(IMRS,IMRS=IMRSSTA,IMRSEND)
         DO ISPART=1,NASPRT
-        WRITE(6,'(1x,a,i3,15I5)')'SBS:',ISPART,(SSTAB(KMRSSBS
+        WRITE(6,'(1x,a,i3,15I5)')'SBS:',ISPART,(SSTAB(KMRSSBS           &
      &        +2*(IMRS+NMORS*(ISPART-1))),IMRS=IMRSSTA,IMRSEND)
         END DO
       END DO
@@ -78,7 +78,7 @@
         ISBSEND=MIN(NRSBST,ISBSSTA+14)
         WRITE(6,*)
         WRITE(6,'(1x,a,15I5)')'SBS:',(ISBS,ISBS=ISBSSTA,ISBSEND)
-        WRITE(6,'(1x,a,15I5)')'MRS:',(SSTAB(KSBSMRS
+        WRITE(6,'(1x,a,15I5)')'MRS:',(SSTAB(KSBSMRS                     &
      &                +2*(ISBS-1)),ISBS=ISBSSTA,ISBSEND)
       END DO
       WRITE(6,*)'---------------------------------------------'
@@ -87,13 +87,13 @@
       KSSTCRE=SSTAB(10)
       DO ISSTP=1,NSSTP
        LPOS=KSSTANN+MORSBITS*(ISSTP-1)
-       WRITE(6,'(1x,I8,5X,8I8)')
+       WRITE(6,'(1x,I8,5X,8I8)')                                        &
      &                      ISSTP,(SSTAB(LPOS-1+I),I=1,MORSBITS)
       END DO
       WRITE(6,*)' (D2) Substring Type Creation Table:'
       DO ISSTP=1,NSSTP
        LPOS=KSSTCRE+MORSBITS*(ISSTP-1)
-       WRITE(6,'(1x,I8,5X,8I8)')
+       WRITE(6,'(1x,I8,5X,8I8)')                                        &
      &                      ISSTP,(SSTAB(LPOS-1+I),I=1,MORSBITS)
       END DO
       WRITE(6,*)'---------------------------------------------'
@@ -102,14 +102,14 @@
       KSBSCRE=SSTAB(14)
       DO ISBS=1,NSBSTOT
        LPOS=KSBSANN+MORSBITS*(ISBS-1)
-       WRITE(6,'(1x,I8,5X,8I8)')
+       WRITE(6,'(1x,I8,5X,8I8)')                                        &
      &                      ISBS,(SSTAB(LPOS-1+I),I=1,MORSBITS)
       END DO
       WRITE(6,*)'---------------------------------------------'
       WRITE(6,*)' (E2) Substring Creation Table:'
       DO ISBS=1,NSBSTOT
        LPOS=KSBSCRE+MORSBITS*(ISBS-1)
-       WRITE(6,'(1x,I8,5X,8I8)')
+       WRITE(6,'(1x,I8,5X,8I8)')                                        &
      &                      ISBS,(SSTAB(LPOS-1+I),I=1,MORSBITS)
       END DO
       WRITE(6,*)'============================================='

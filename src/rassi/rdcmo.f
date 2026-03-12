@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE RDCMO_RASSI(JOB,CMO)
 #ifdef _HDF5_
-      USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,
+      USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset,      &
      &               mh5_close_file
 #endif
       use rassi_aux, only: ipglob
@@ -40,8 +40,8 @@
       IF(IPGLOB.GE.4) THEN
         WRITE(6,*)' RDCMO_RASSI called for file '//TRIM(JBNAME(JOB))
       END IF
-C READ ORBITAL COEFFICIENTS FROM INTERFACE. ORIGINALLY ALL
-C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
+! READ ORBITAL COEFFICIENTS FROM INTERFACE. ORIGINALLY ALL
+! CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
       NBUF=0
       DO I=1,NSYM
         NBUF=NBUF+NBASF(I)**2
@@ -49,29 +49,29 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
       CALL mma_allocate(BUF,NBUF,Label='BUF')
 
 #ifdef _HDF5_
-************************************************************************
-*
-* For HDF5 formatted job files
-*
-************************************************************************
+!***********************************************************************
+!
+! For HDF5 formatted job files
+!
+!***********************************************************************
       If (mh5_is_hdf5(jbname(job))) Then
         refwfn_id = mh5_open_file_r(jbname(job))
         call mh5_fetch_dset(refwfn_id,'MO_VECTORS',BUF)
         call mh5_close_file(refwfn_id)
       Else
 #endif
-************************************************************************
-*
-* For JOBIPH/JOBMIX formatted job files
-*
-************************************************************************
+!***********************************************************************
+!
+! For JOBIPH/JOBMIX formatted job files
+!
+!***********************************************************************
         CALL DANAME(LUIPH,JBNAME(JOB))
         IAD=0
         CALL IDAFILE(LUIPH,2,ITOC15,30,IAD)
         IDISK=IDCMO(JOB)
         CALL DDAFILE(LUIPH,2,BUF,NBUF,IDISK)
         CALL DACLOS(LUIPH)
-************************************************************************
+!***********************************************************************
 #ifdef _HDF5_
       End If
 #endif
@@ -100,8 +100,8 @@ C CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
 
       IF (IPGLOB.gt.0 .and. PRORB) THEN
         WRITE(6,*)
-        CALL WRMAT('MO ORBITAL COEFFICIENTS:',
-     *               1,NBASF,NOSH,NCMO,CMO)
+        CALL WRMAT('MO ORBITAL COEFFICIENTS:',                          &
+     &               1,NBASF,NOSH,NCMO,CMO)
       END IF
 
       END SUBROUTINE RDCMO_RASSI

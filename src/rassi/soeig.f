@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE SOEIG(PROP,USOR,USOI,ENSOR,NSS,ENERGY)
       !> module dependencies
       use rassi_aux, only: ipglob
@@ -17,8 +17,8 @@
 #ifdef _HDF5_
       use Dens2HDF5
       use mh5, only: mh5_put_dset
-      use RASSIWfn, only: wfn_SOS_CoefI, wfn_SOS_CoefR, wfn_SOS_Energy,
-     &                    wfn_SOS_HSOI, wfn_SOS_HSOR,
+      use RASSIWfn, only: wfn_SOS_CoefI, wfn_SOS_CoefR, wfn_SOS_Energy, &
+     &                    wfn_SOS_HSOI, wfn_SOS_HSOR,                   &
      &                    wfn_SOS_VSOI, wfn_SOS_VSOR
       use Cntrl, only: IFTDM, IFTRD1, RHODYN
 #endif
@@ -28,8 +28,8 @@
 #endif
       use Constants, only: auTocm, auToeV
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NPROP, NSOThr_PRT,
-     &                 SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP,
+      use Cntrl, only: NSTATE, NPROP, NSOThr_PRT,                       &
+     &                 SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP,         &
      &                 LOOPDIVIDE, ICOMP, MLTPLT, PNAME
 
       IMPLICIT NONE
@@ -79,11 +79,11 @@
       Real*8, allocatable:: J2R(:,:), J2I(:,:)
 
 
-C CONSTANTS:
+! CONSTANTS:
       lOMG=.False.
       lJ2 =.False.
 
-C Identify AMFI and ANGMOM matrix elements:
+! Identify AMFI and ANGMOM matrix elements:
       IAMFIX=0
       IAMFIY=0
       IAMFIZ=0
@@ -99,7 +99,7 @@ C Identify AMFI and ANGMOM matrix elements:
        END IF
       END DO
 
-C Mapping from spin states to spin-free state and to spin:
+! Mapping from spin states to spin-free state and to spin:
       CALL mma_allocate(MAPST,NSS,Label='MAPST')
       CALL mma_allocate(MAPSP,NSS,Label='MAPSP')
       CALL mma_allocate(MAPMS,NSS,Label='MAPMS')
@@ -114,7 +114,7 @@ C Mapping from spin states to spin-free state and to spin:
         MAPMS(ISS)=MSPROJ
        END DO
       END DO
-C Complex hamiltonian matrix elements over spin states:
+! Complex hamiltonian matrix elements over spin states:
       CALL mma_allocate(HTOTR,NSS,NSS,Label='HTOTR')
       CALL mma_allocate(HTOTI,NSS,NSS,Label='HTOTI')
       HTOTR(:,:)=0.0D0
@@ -126,7 +126,7 @@ C Complex hamiltonian matrix elements over spin states:
        WRITE(6,*)
        WRITE(6,'(6X,A)') repeat('*',100)
        WRITE(6,'(6X,A,98X,A)') '*','*'
-       WRITE(6,'(6X,A,34X,A,34X,A)')
+       WRITE(6,'(6X,A,34X,A,34X,A)')                                    &
      &      '*','       Spin-orbit section     ','*'
        WRITE(6,'(6X,A,98X,A)') '*','*'
        WRITE(6,'(6X,A)') repeat('*',100)
@@ -138,8 +138,8 @@ C Complex hamiltonian matrix elements over spin states:
         do istate = 1, nstate
         do jstate = 1, nstate
         DO IPROP=1,NPROP
-          if(abs(prop(istate,jstate,iprop)) > 1.0d-14)
-     &    write(6,*) 'prop(',istate,',',jstate,',',iprop,') = ',
+          if(abs(prop(istate,jstate,iprop)) > 1.0d-14)                  &
+     &    write(6,*) 'prop(',istate,',',jstate,',',iprop,') = ',        &
      &                prop(istate,jstate,iprop)
         end do
         end do
@@ -164,9 +164,9 @@ C Complex hamiltonian matrix elements over spin states:
           IF(IAMFIY.NE.0) AMFIY=PROP(ISTATE,JSTATE,IAMFIY)
           AMFIZ=0.0D0
           IF(IAMFIZ.NE.0) AMFIZ=PROP(ISTATE,JSTATE,IAMFIZ)
-* PAM07          HSCAL=0.0D0
-* PAM07          IF(ISS.EQ.JSS) HSCAL=ENERGY(ISTATE)
-C WIGNER-ECKART THEOREM:
+! PAM07          HSCAL=0.0D0
+! PAM07          IF(ISS.EQ.JSS) HSCAL=ENERGY(ISTATE)
+! WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
           CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
@@ -174,21 +174,21 @@ C WIGNER-ECKART THEOREM:
           CGP=FACT*DCLEBS(S2,1.0D0,S1,SM2,+1.0D0,SM1)
           CGX= SQRT(0.5D0)*(CGM-CGP)
           CGY=-SQRT(0.5D0)*(CGM+CGP)
-C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
-C  according to expressions between eqs. (5) and (6)
-C  in Malmqvist et all CPL 357 (2002) 230-240, but real and
-C  imaginary parts are swapped here!!! more precisely the Hamiltonian
-C  is multiplied by imaginary unit to keep its hermicity
+! SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
+!  according to expressions between eqs. (5) and (6)
+!  in Malmqvist et all CPL 357 (2002) 230-240, but real and
+!  imaginary parts are swapped here!!! more precisely the Hamiltonian
+!  is multiplied by imaginary unit to keep its hermicity
           HSOR=CGY*AMFIY
           HSOI=CGX*AMFIX+CG0*AMFIZ
-* PAM07: Delay addition of diagonal scalar part until later, see below:
+! PAM07: Delay addition of diagonal scalar part until later, see below:
           HTOTR(ISS,JSS)=HSOR
           HTOTI(ISS,JSS)=HSOI
 
         END DO
       END DO
 
-* VKochetov 2021 put SOC matrix elements to hdf5:
+! VKochetov 2021 put SOC matrix elements to hdf5:
 #ifdef _HDF5_
       if (rhodyn) then
         call mh5_put_dset(wfn_sos_vsor, HTOTR)
@@ -196,11 +196,11 @@ C  is multiplied by imaginary unit to keep its hermicity
       endif
 #endif
 
-* Perhaps write out large spin-orbit coupling elements:
+! Perhaps write out large spin-orbit coupling elements:
       IF(NSOTHR_PRT.GT.0) THEN
-* Prevent infinite loop below:
+! Prevent infinite loop below:
        SOTHR_MIN=MAX(SOTHR_PRT,1.0D-6)
-* And work with quantities larger than 1:
+! And work with quantities larger than 1:
        X_THR=SOTHR_PRT/SOTHR_MIN
   13   CONTINUE
        N=0
@@ -226,11 +226,11 @@ C  is multiplied by imaginary unit to keep its hermicity
        WRITE(6,*)
        WRITE(6,*)'Complex SO-Hamiltonian matrix elements over'
        WRITE(6,*)'spin components of spin-free eigenstates (SFS):'
-       WRITE(6,'(1x,A,F10.3,A)')
+       WRITE(6,'(1x,A,F10.3,A)')                                        &
      &              '(In cm-1. Print threshold: ',SOTHR_PRT,' cm-1)'
        WRITE(6,'(1X,10A7)')('-------',I=1,10)
        WRITE(6,*)
-         WRITE(6,'(A)')'  I1  S1  MS1    I2  S2  MS2 '//
+         WRITE(6,'(A)')'  I1  S1  MS1    I2  S2  MS2 '//                &
      &            '   Real part    Imag part      Absolute'
        DO  ISS=1,NSS
         ISTATE=MAPST(ISS)
@@ -248,7 +248,7 @@ C  is multiplied by imaginary unit to keep its hermicity
           MSPROJ2=MAPMS(JSS)
           S2=0.5D0*DBLE(MPLET2-1)
           SM2=0.5D0*DBLE(MSPROJ2)
-         WRITE(6,'(1X,I5,F5.1,F5.1,I5,F5.1,F5.1,3F14.3)') ISS,S1,SM1,
+         WRITE(6,'(1X,I5,F5.1,F5.1,I5,F5.1,F5.1,3F14.3)') ISS,S1,SM1,   &
      &         JSS,S2,SM2,HSOR*auTocm,HSOI*auTocm,HSOTOT*auTocm
          END IF
         END DO
@@ -258,7 +258,7 @@ C  is multiplied by imaginary unit to keep its hermicity
        END IF
       ENDIF
 
-* PAM07: Addition of scalar diagonal part was delayed until here, see above.
+! PAM07: Addition of scalar diagonal part was delayed until here, see above.
       DO ISS=1,NSS
         ISTATE=MAPST(ISS)
         HSOR=HTOTR(ISS,ISS)
@@ -303,15 +303,15 @@ C  is multiplied by imaginary unit to keep its hermicity
 
         DO jss = 1, nss
           DO iss = 1, nss
-            hso_tmp(iss,jss) = cmplx(HTOTR(ISS,JSS),
-     &                               HTOTI(ISS,JSS),
+            hso_tmp(iss,jss) = cmplx(HTOTR(ISS,JSS),                    &
+     &                               HTOTI(ISS,JSS),                    &
      &                               kind=8)
 !         write(6,*) ' hso_tmp(',iss,',',jss,') = ',hso_tmp(iss,jss)
           END DO
         END DO
 
         lcwork = (2*nss-1); info = 0
-        call zheev_('V','U',nss,hso_tmp,nss,ensor,ccwork,lcwork,
+        call zheev_('V','U',nss,hso_tmp,nss,ensor,ccwork,lcwork,        &
      &             rwork,info)
 
         if(info /= 0)then
@@ -373,10 +373,10 @@ C  is multiplied by imaginary unit to keep its hermicity
       !> eigenvalues are stored in ENSOR!
       CALL mma_deallocate(HTOTR)
       CALL mma_deallocate(HTOTI)
-C
-C     BOR in Krapperup 070227
-C     Compute J-values and Omega here instead of in subroutine PRPROP
-C
+!
+!     BOR in Krapperup 070227
+!     Compute J-values and Omega here instead of in subroutine PRPROP
+!
       IAMFIX=0
       IAMFIY=0
       IAMFIZ=0
@@ -395,9 +395,9 @@ C
        END IF
       END DO
 
-* The following matrix elements  require angular moment integrals:
-C     IF(IAMX.eq.0 .or. IAMY.eq.0 .or. IAMZ.eq.0) GOTO 910
-C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
+! The following matrix elements  require angular moment integrals:
+!     IF(IAMX.eq.0 .or. IAMY.eq.0 .or. IAMZ.eq.0) GOTO 910
+! Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       CALL mma_allocate(LXI,NSS**2,Label='LXI')
       LXI(:)=0.0D0
       CALL mma_allocate(LYI,NSS**2,Label='LYI')
@@ -440,13 +440,13 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       OMGR(:,:)=0.0D0
       OMGI(:,:)=0.0D0
 
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZR,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZR,NSS,               &
      &     JZR,NSS,0.0D0,OMGR,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JZI,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JZI,NSS,               &
      &     JZI,NSS,1.0D0,OMGR,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZR,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZR,NSS,               &
      &     JZI,NSS,0.0D0,OMGI,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZI,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JZI,NSS,               &
      &     JZR,NSS,1.0D0,OMGI,NSS)
 
       CALL mma_deallocate(JZR)
@@ -458,21 +458,21 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       J2R(:,:)=0.0D0
       J2I(:,:)=0.0D0
 
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXR,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXR,NSS,               &
      &     JXR,NSS,1.0D0,J2R,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JXI,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JXI,NSS,               &
      &     JXI,NSS,1.0D0,J2R,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYR,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYR,NSS,               &
      &     JYR,NSS,1.0D0,J2R,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JYI,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS,-1.0D0,JYI,NSS,               &
      &     JYI,NSS,1.0D0,J2R,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXR,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXR,NSS,               &
      &     JXI,NSS,1.0D0,J2I,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXI,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JXI,NSS,               &
      &     JXR,NSS,1.0D0,J2I,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYR,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYR,NSS,               &
      &     JYI,NSS,1.0D0,J2I,NSS)
-      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYI,NSS,
+      CALL DGEMM_('NSS','NSS',NSS,NSS,NSS, 1.0D0,JYI,NSS,               &
      &     JYR,NSS,1.0D0,J2I,NSS)
 
       CALL mma_deallocate(JXR)
@@ -482,20 +482,20 @@ C Complex matrix elements of Jx, Jy, and/or Jz over spin states:
       CALL ZTRNSF(NSS,USOR,USOI,OMGR,OMGI)
       CALL ZTRNSF(NSS,USOR,USOI,J2R,J2I)
 
-* Jump here to skip computing omega and/or J:
-C910  CONTINUE
+! Jump here to skip computing omega and/or J:
+!910  CONTINUE
 
       IF(IPGLOB.GE.1) THEN
        WRITE(6,*)
        WRITE(6,'(6X,A)')' Total energies including SO-coupling:'
        DO ISS=1,NSS
        E_tmp=ENSOR(ISS)+EMIN
-       Call PrintResult(6, '(6x,A,I5,5X,A,F23.14)',
+       Call PrintResult(6, '(6x,A,I5,5X,A,F23.14)',                     &
      &  'SO-RASSI State',ISS,'Total energy:',[E_tmp],1)
        END DO
       END IF
 
-* Find E0=lowest energy, to use for printing table:
+! Find E0=lowest energy, to use for printing table:
       IF(IPGLOB.GE.1) THEN
        E0=ENSOR(1)
        DO ISS=2,NSS
@@ -508,20 +508,20 @@ C910  CONTINUE
        WRITE(6,*)
        WRITE(6,*)'  Eigenvalues of complex Hamiltonian:'
        WRITE(6,*)'  -----------------------------------'
-       IF(EMIN.NE.0.0D0)
+       IF(EMIN.NE.0.0D0)                                                &
      &  WRITE(6,'(1X,A,F22.10,A1)')' (Shifted by EMIN (a.u.) =',EMIN,')'
        WRITE(6,*)
        if(ifj2.ne.0.and.ifjz.ne.0) then
-        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//
+        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//     &
      &          ' level(eV)    D:o, cm**(-1)     J-value  Omega'
        else if(ifj2.ne.0.and.ifjz.eq.0) then
-        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//
+        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//     &
      &          ' level(eV)    D:o, cm**(-1)     J-value'
        else if(ifj2.eq.0.and.ifjz.ne.0) then
-        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//
+        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//     &
      &          ' level(eV)    D:o, cm**(-1)      Omega'
        else if(ifj2.eq.0.and.ifjz.eq.0) then
-        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//
+        WRITE(6,*)'SO State       Relative EMIN(au)   Rel lowest'//     &
      &          ' level(eV)    D:o, cm**(-1)'
        endif
        WRITE(6,*)
@@ -542,26 +542,26 @@ C910  CONTINUE
         OMEGA=SQRT(1.0D-12+OMGR(ISS,ISS))
         END IF
 
-C Added by Ungur Liviu on 04.11.2009
-C Saving the SO energies in ESO array.
+! Added by Ungur Liviu on 04.11.2009
+! Saving the SO energies in ESO array.
         ESO(ISS)=E3
         if(ifj2.ne.0.and.ifjz.ne.0) then
-          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4,4X,2(2X,F6.1))')
+          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4,4X,2(2X,F6.1))')        &
      &        ISS,E1,E2,E3,XJEFF,OMEGA
         else if(ifj2.ne.0.and.ifjz.eq.0) then
-          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4,6X,F6.1)')
+          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4,6X,F6.1)')              &
      &        ISS,E1,E2,E3,XJEFF
         else if(ifj2.eq.0.and.ifjz.ne.0) then
-          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4,6X,F6.1)')
+          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4,6X,F6.1)')              &
      &        ISS,E1,E2,E3,OMEGA
         else if(ifj2.eq.0.and.ifjz.eq.0) then
-          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4)')
+          WRITE(6,'(1X,I5,7X,2(F18.10,2X),F18.4)')                      &
      &      ISS,E1,E2,E3
         endif
        ENDDO
 
-C Added by Ungur Liviu on 04.11.2009
-C Saving the ESO array in the RunFile.
+! Added by Ungur Liviu on 04.11.2009
+! Saving the ESO array in the RunFile.
        CALL Put_iscalar('NSS_SINGLE',NSS)
        CALL Put_dArray( 'ESO_SINGLE',ESO,NSS)
        CALL Put_dArray( 'ESO_LOW'   ,ENSOR(:)+EMIN,NSS)
@@ -577,7 +577,7 @@ C Saving the ESO array in the RunFile.
        CALL mma_deallocate(J2I)
       END IF
 
-C Put energy onto info file for automatic verification runs:
+! Put energy onto info file for automatic verification runs:
       EPSS=5.0D-11
       EPSH=MAX(5.0D-10,ABS(ENSOR(1)+EMIN)*EPSS)
       IDX=100
@@ -607,8 +607,8 @@ C Put energy onto info file for automatic verification runs:
       END IF
        CALL PRCEVC(NSS,FRAC,ENSOR,MAPST,MAPSP,MAPMS,USOR,USOI)
 
-C Update LoopDivide (SUBSets keyword)
-C Assume the SO "ground states" are mostly formed by the SF "ground states"
+! Update LoopDivide (SUBSets keyword)
+! Assume the SO "ground states" are mostly formed by the SF "ground states"
       If (ReduceLoop) Then
         Call mma_Allocate(IndexE,nState,Label='IndexE')
         IndexE(:)=ArgSort(Energy, leq_r)
@@ -619,7 +619,7 @@ C Assume the SO "ground states" are mostly formed by the SF "ground states"
         End Do
         LoopDivide=n
 #ifdef _HDF5_
-        If (IFTRD1.or.IFTDM)
+        If (IFTRD1.or.IFTDM)                                            &
      &    Call UpdateIdx(IndexE,nSS,USOR,USOI,MapSt)
 #endif
         Call mma_deAllocate(IndexE)

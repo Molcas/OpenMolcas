@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine AppDerCpl(natom,nST,ChgNuc,Prop,DerCpl,HAM)
       use rassi_aux, only: ipglob
       use Constants, only: Zero
       use Cntrl, only: NSTATE, NPROP, ICOMP, PNAME
 
       Implicit None
-*
-*     Approximate derivative couplings:         <\Psi_I|\nabla H|\Psi_J>
-*                                        f_IJ =  ----------------------
-*                                                     E_J - E_I
-*
-*     If the wfn are real-valued: f_II = 0 ; f_JI = - f_IJ -> lower triangular storage
-*
+!
+!     Approximate derivative couplings:         <\Psi_I|\nabla H|\Psi_J>
+!                                        f_IJ =  ----------------------
+!                                                     E_J - E_I
+!
+!     If the wfn are real-valued: f_II = 0 ; f_JI = - f_IJ -> lower triangular storage
+!
 
       Integer natom,nST
-      Real*8 ChgNuc(natom),Prop(nState,nState,NProp),
+      Real*8 ChgNuc(natom),Prop(nState,nState,NProp),                   &
      &          DerCpl(nST,3,natom),Ham(Nstate,Nstate)
 
       Character(LEN=3), Save :: Label='EF1'
       Real*8 EI, EJ, SumX, SumY, SumZ
       Integer ISTA, JSTA, IST, KPROP, LAT, KXYZ
-*
-*
+!
+!
       nST = nState*(nState+1)/2
       Call FZero(DerCpl,3*natom*nST)
       Do iSta = 1, nState-1
@@ -42,7 +42,7 @@
             Do kProp = 1, nProp
                If (PName(kProp)(1:3) .eq. Label) Then
                   Read(PName(kProp)(5:8),'(i4)') lAt
-                  DerCpl(iST,IComp(kProp),lAt) =
+                  DerCpl(iST,IComp(kProp),lAt) =                        &
      &                         Prop(iSta,jSta,kProp)*ChgNuc(lAt)/(Ej-Ei)
                End If
             End Do
@@ -58,11 +58,11 @@
             If(IPGLOB .ge. 4) Write(6,1200) SumX,SumY,SumZ
          End Do
       End Do
-1000  Format(/,' Approximate derivative couplings for states ',2i3,/,
-     &       ' Energy difference = ',F15.8,/,
+1000  Format(/,' Approximate derivative couplings for states ',2i3,/,   &
+     &       ' Energy difference = ',F15.8,/,                           &
      &       '   Atom          X              Y              Z')
 1100  Format(i7,3f15.8)
 1200  Format('   Sum:',3f15.8)
-*
+!
 
       End Subroutine AppDerCpl

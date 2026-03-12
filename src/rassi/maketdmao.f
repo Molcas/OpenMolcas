@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Rulin Feng                                       *
-************************************************************************
-*       ***************************************************
-*                Get TDM in AO basis from SO states
-*       ****************************************************
-*        This routine is modified from sonatorbm.f to give the
-*        full transition density matrix (TDM) in atomic orbital
-*        basis, which is not a nbtri sized matrix as in sonatorbm
-*        but a full nbst**2 sized matrix.
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Rulin Feng                                       *
+!***********************************************************************
+!       ***************************************************
+!                Get TDM in AO basis from SO states
+!       ****************************************************
+!        This routine is modified from sonatorbm.f to give the
+!        full transition density matrix (TDM) in atomic orbital
+!        basis, which is not a nbtri sized matrix as in sonatorbm
+!        but a full nbst**2 sized matrix.
+!
 
-      SUBROUTINE MAKETDMAO(CHARTYPE,
-     &                     USOR,USOI,ASS,BSS,NSS,
+      SUBROUTINE MAKETDMAO(CHARTYPE,                                    &
+     &                     USOR,USOI,ASS,BSS,NSS,                       &
      &                     iOpt,ROTMAT,DENSOUT)
       use rassi_aux, only : idisk_TDM
       use rassi_global_arrays, only: JBNUM
@@ -40,11 +40,11 @@
 
       Integer IOFF(8)
       Integer, Allocatable:: MAPST(:), MAPSP(:), MAPMS(:)
-      Real*8, allocatable, target:: SDMXR(:), SDMXI(:),
-     &                              SDMYR(:), SDMYI(:),
+      Real*8, allocatable, target:: SDMXR(:), SDMXI(:),                 &
+     &                              SDMYR(:), SDMYI(:),                 &
      &                              SDMZR(:), SDMZI(:)
-      Real*8, allocatable, target:: SDMXR2(:), SDMXI2(:),
-     &                              SDMYR2(:), SDMYI2(:),
+      Real*8, allocatable, target:: SDMXR2(:), SDMXI2(:),               &
+     &                              SDMYR2(:), SDMYI2(:),               &
      &                              SDMZR2(:), SDMZI2(:)
       Type A2_array
          Real*8, Pointer:: A2(:)
@@ -53,22 +53,22 @@
       Type (A2_array)  :: pZMR2(3), pZMI2(3)
       Real*8, allocatable:: TMPR(:), TMPI(:), SCR(:), TDMZZ(:)
 
-      REAL*8 CGY, CGX, CG0, TDM, S1, S2, SM1, SM2, FACT, CGM, CGP,
+      REAL*8 CGY, CGX, CG0, TDM, S1, S2, SM1, SM2, FACT, CGM, CGP,      &
      &       URR, UIR, URL, UIL, DCLEBS
-      Integer NBSTS, ITYPE, ISS, ISF, JOB, MPLET, MSPROJ, KSS, KSF,
-     &        MPLETK, MSPROJK, LSS, LSF, MPLETL, MSPROJL, JOB1, JOB2,
-     &        ISY12, IEMPTY, IDISK, IGO, ITD, NB1_I, NB1_F, ISY1,
+      Integer NBSTS, ITYPE, ISS, ISF, JOB, MPLET, MSPROJ, KSS, KSF,     &
+     &        MPLETK, MSPROJK, LSS, LSF, MPLETL, MSPROJL, JOB1, JOB2,   &
+     &        ISY12, IEMPTY, IDISK, IGO, ITD, NB1_I, NB1_F, ISY1,       &
      &        NB2_I, NB2_F, NB1, ISY2, ISY12_MA, NB2, J, I, IJ, IDIR
 
       nbsts=nbst**2
 
-c VV: dummy initialization
+! VV: dummy initialization
       CGY=-1
       CGX=-1
       CG0=-1
-c Initialize
+! Initialize
       DENSOUT(:,:) = 0.0D00
-C Get the proper type of the property
+! Get the proper type of the property
       ITYPE=0
       IF(CHARTYPE.EQ.'HERMSING') ITYPE=1
       IF(CHARTYPE.EQ.'ANTISING') ITYPE=2
@@ -80,10 +80,10 @@ C Get the proper type of the property
         CALL ABEND()
       END IF
 
-C The following creates an array that is used to
-C map a specific spin state to the corresponding
-C spin-free state and to its spin
-C (see prprop.f and others)
+! The following creates an array that is used to
+! map a specific spin state to the corresponding
+! spin-free state and to its spin
+! (see prprop.f and others)
 
       CALL mma_allocate(MAPST,NSS,Label='MAPST')
       CALL mma_allocate(MAPSP,NSS,Label='MAPSP')
@@ -103,12 +103,12 @@ C (see prprop.f and others)
       END DO
 
 
-c Allocate some arrays
-c SDMXR, etc      DM/TDM for this iteration
-c SDMXR2, etc     Accumulated DM/TDM
-c TMPR,I          Temporary array for U*AU multiplication
-c TDMZZ           DM/TDM as read from file
-c SCR             Scratch for expansion of TDMZZ
+! Allocate some arrays
+! SDMXR, etc      DM/TDM for this iteration
+! SDMXR2, etc     Accumulated DM/TDM
+! TMPR,I          Temporary array for U*AU multiplication
+! TDMZZ           DM/TDM as read from file
+! SCR             Scratch for expansion of TDMZZ
       CALL mma_allocate(SDMXR,nbsts,Label='SDMXR')
       CALL mma_allocate(SDMXI,nbsts,Label='SDMXI')
       CALL mma_allocate(SDMYR,nbsts,Label='SDMYR')
@@ -153,19 +153,19 @@ c SCR             Scratch for expansion of TDMZZ
       TMPI(:)=0.0D0
 
       CALL mma_allocate(SCR,nbsts,Label='SCR')
-c zeroed inside the loop
+! zeroed inside the loop
 
       CALL mma_allocate(TDMZZ,NTDMZZ,Label='TDMZZ')
       TDMZZ(:)=0.0D0
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C MAIN LOOP OVER KSF/LSF
-C WRITTEN AS IN PRPROP
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C CORRESPONDING SPIN-FREE STATES OF THE
-C REQUESTED SPIN STATES
-c      ASF=MAPST(ASS)
-c      BSF=MAPST(BSS)
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! MAIN LOOP OVER KSF/LSF
+! WRITTEN AS IN PRPROP
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+! CORRESPONDING SPIN-FREE STATES OF THE
+! REQUESTED SPIN STATES
+!      ASF=MAPST(ASS)
+!      BSF=MAPST(BSS)
 
       DO KSS=1,NSS
        KSF=MAPST(KSS)
@@ -183,58 +183,58 @@ c      BSF=MAPST(BSS)
         LSYM2=IRREP(JOB2)
         ISY12=MUL(LSYM1,LSYM2)
 
-C SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS
+! SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS
         Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 
-c These are going to be zero, so head them off at the pass
-        IF(ITYPE.LE.2
+! These are going to be zero, so head them off at the pass
+        IF(ITYPE.LE.2                                                   &
      &     .AND.(MPLETK.NE.MPLETL.OR.MSPROJK.NE.MSPROJL)) GOTO 2200
 
 
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc
-C Transition density matrices, TDMZZ, in AO basis.
-C WDMZZ similar, but WE-reduced 'triplet' densities.
-C TDMZZ will store either, depending on the type
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc
+! Transition density matrices, TDMZZ, in AO basis.
+! WDMZZ similar, but WE-reduced 'triplet' densities.
+! TDMZZ will store either, depending on the type
         TDMZZ(:)=0.0D0
 
 
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-C IDTDM: TOC array for transition 1-matrices
-c TDMZZ is stored on disk from i = 1, NSTATE j=1, i
-c so swap if needed
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+! IDTDM: TOC array for transition 1-matrices
+! TDMZZ is stored on disk from i = 1, NSTATE j=1, i
+! so swap if needed
         iEmpty=iDisk_TDM(KSF,LSF,2)
         IDISK=iDisk_TDM(KSF,LSF,1)
         iOpt=2
         IF (ITYPE.GE.3) Then
            iGo=4
-           CALL dens2file(TDMZZ,TDMZZ,TDMZZ,
+           CALL dens2file(TDMZZ,TDMZZ,TDMZZ,                            &
      &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
-C NOTE-the TD matrix as read in has an incorrect sign
+! NOTE-the TD matrix as read in has an incorrect sign
            CALL DSCAL_(NTDMZZ,-1.0d0,TDMZZ,1)
         Else
            iGo=1
-           CALL dens2file(TDMZZ,TDMZZ,TDMZZ,
+           CALL dens2file(TDMZZ,TDMZZ,TDMZZ,                            &
      &                    nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
         END IF
 
 
-c Anti-hermitian properties need a little fixing
-        IF((ITYPE.EQ.2.OR.ITYPE.EQ.4).AND.(KSF.LE.LSF))
+! Anti-hermitian properties need a little fixing
+        IF((ITYPE.EQ.2.OR.ITYPE.EQ.4).AND.(KSF.LE.LSF))                 &
      &          CALL DSCAL_(NTDMZZ,-1.0d0,TDMZZ,1)
 
 
-C CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
-C AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
+! CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
+! AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
         SCR(:)=0.0D0
-cccccccccccccc
-c nbsq and NTDMZZ are the same, but they are the
-c sizes of the symmetry-adapted matrices
-c what we need is a NBST**2-sized matrix without symmetry
-c Thus we expand the final TDM in C1 symmetry
-c Leave the zero matrix elements as they are
-ccccccccccccccc
+!ccccccccccccc
+! nbsq and NTDMZZ are the same, but they are the
+! sizes of the symmetry-adapted matrices
+! what we need is a NBST**2-sized matrix without symmetry
+! Thus we expand the final TDM in C1 symmetry
+! Leave the zero matrix elements as they are
+!cccccccccccccc
 
-cc Expand into C1
+!c Expand into C1
         ITD=0
         NB1_i=0
         NB1_f=0
@@ -262,7 +262,7 @@ cc Expand into C1
           NB1_i=NB1_i+NB1
         Enddo
 
-c ie, see how AMFI is processed in soeig.f
+! ie, see how AMFI is processed in soeig.f
         SDMXR(:)=0.0D0
         SDMXI(:)=0.0D0
         SDMYR(:)=0.0D0
@@ -285,8 +285,8 @@ c ie, see how AMFI is processed in soeig.f
           CGY=SQRT(0.5D0)*(CGM+CGP)
         END IF
 
-        IF((ITYPE.EQ.1.OR.ITYPE.EQ.2)
-     &          .AND.MPLETK.EQ.MPLETL
+        IF((ITYPE.EQ.1.OR.ITYPE.EQ.2)                                   &
+     &          .AND.MPLETK.EQ.MPLETL                                   &
      &          .AND.MSPROJK.EQ.MSPROJL) THEN
           CALL DAXPY_(nbsts,1.0d0,SCR,1,SDMZR,1)
         ELSE IF(ITYPE.EQ.3.OR.ITYPE.EQ.4) THEN
@@ -309,11 +309,11 @@ c ie, see how AMFI is processed in soeig.f
           End If
         END IF
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c SPINORBIT
-cccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c Sign of the left-hand imaginary part is handled
-c when doing DAXPY
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+! SPINORBIT
+!ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+! Sign of the left-hand imaginary part is handled
+! when doing DAXPY
         URR=USOR(LSS,BSS)
         UIR=USOI(LSS,BSS)
         URL=USOR(KSS,ASS)
@@ -323,30 +323,30 @@ c when doing DAXPY
           TMPR(:)=0.0D0
           TMPI(:)=0.0D0
 
-C right side
+! right side
           CALL DAXPY_(nbsts,       URR,pZMR(IDIR)%A2,1,TMPR,1)
           CALL DAXPY_(nbsts,-1.0d0*UIR,pZMI(IDIR)%A2,1,TMPR,1)
           CALL DAXPY_(nbsts,       UIR,pZMR(IDIR)%A2,1,TMPI,1)
           CALL DAXPY_(nbsts,       URR,pZMI(IDIR)%A2,1,TMPI,1)
 
-C left side
+! left side
          CALL DAXPY_(nbsts,       URL,TMPR,1,pZMR2(IDIR)%A2,1)
          CALL DAXPY_(nbsts,       UIL,TMPI,1,pZMR2(IDIR)%A2,1)
          CALL DAXPY_(nbsts,       URL,TMPI,1,pZMI2(IDIR)%A2,1)
          CALL DAXPY_(nbsts,-1.0d0*UIL,TMPR,1,pZMI2(IDIR)%A2,1)
         END DO
-cccccccccccccccccccccc
-c END SPINORBIT STUFF
-cccccccccccccccccccccc
+!ccccccccccccccccccccc
+! END SPINORBIT STUFF
+!ccccccccccccccccccccc
 
-C END MAIN LOOP OVER STATES (KSS,LSS)
+! END MAIN LOOP OVER STATES (KSS,LSS)
  2200   CONTINUE
 
        END DO
       END DO
 
 
-C Store this density to DENSOUT
+! Store this density to DENSOUT
       IF(ITYPE.EQ.3.OR.ITYPE.EQ.4) THEN
         DO I=1,nbsts
           DENSOUT(1,I)=SDMXR2(I)
@@ -367,11 +367,11 @@ C Store this density to DENSOUT
         END DO
       END IF
 
-c Free memory
+! Free memory
       CALL mma_deallocate(SCR)
       CALL mma_deallocate(TDMZZ)
 
-      nullify(pZMI(3)%A2,pZMI(2)%A2,pZMI(1)%A2,pZMR(3)%A2,pZMR(2)%A2,
+      nullify(pZMI(3)%A2,pZMI(2)%A2,pZMI(1)%A2,pZMR(3)%A2,pZMR(2)%A2,   &
      &        pZMR(1)%A2)
       Call mma_deallocate(SDMZI)
       Call mma_deallocate(SDMZR)
@@ -383,7 +383,7 @@ c Free memory
       Call mma_deallocate(TMPI)
       Call mma_deallocate(TMPR)
 
-      nullify(pZMI2(3)%A2,pZMI2(2)%A2,pZMI2(1)%A2,pZMR2(3)%A2,
+      nullify(pZMI2(3)%A2,pZMI2(2)%A2,pZMI2(1)%A2,pZMR2(3)%A2,          &
      &        pZMR2(2)%A2,pZMR2(1)%A2)
       Call mma_deallocate(SDMZI2)
       Call mma_deallocate(SDMZR2)

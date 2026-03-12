@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE MKTDZZ(CMOA,CMOB,TDMAB,TDMZZ,iRC)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: LSYM1, LSYM2
@@ -20,16 +20,16 @@
 
       Integer ISTCMO(8)
       Real*8, Allocatable:: SCR(:)
-      Integer ISY12, NSCR, IST, ISY1, NO1, ISY2, ISTTA, ISTCA, ISTTZ,
+      Integer ISY12, NSCR, IST, ISY1, NO1, ISY2, ISTTA, ISTCA, ISTTZ,   &
      &        ISTCB, NO2, NB1, NB2
 
       If (iRC.eq.0) Then
          TDMZZ(:)=0.0D0
          Return
       End If
-C ISTCMO()=START INDEX FOR CMO ARRAY SYMMETRY BLOCKS.
+! ISTCMO()=START INDEX FOR CMO ARRAY SYMMETRY BLOCKS.
       ISY12=MUL(LSYM1,LSYM2)
-C NSCR=SIZE NEEDED FOR TEMPORARY MATRIX PRODUCT.
+! NSCR=SIZE NEEDED FOR TEMPORARY MATRIX PRODUCT.
       NSCR=0
       IST=1
       DO ISY1=1,NSYM
@@ -54,11 +54,11 @@ C NSCR=SIZE NEEDED FOR TEMPORARY MATRIX PRODUCT.
         IF(NO1*NO2.EQ.0) THEN
           CALL FZERO(TDMZZ(ISTTZ),NB1*NB2)
         ELSE
-          CALL DGEMM_('N','T',NO1,NB2,NO2,1.0D0,
-     &                TDMAB(ISTTA),NO1,CMOB(ISTCB),NB2,
+          CALL DGEMM_('N','T',NO1,NB2,NO2,1.0D0,                        &
+     &                TDMAB(ISTTA),NO1,CMOB(ISTCB),NB2,                 &
      &         0.0D0,  SCR,NO1)
-          CALL DGEMM_('N','N',NB1,NB2,NO1,1.0D0,
-     &                 CMOA(ISTCA),NB1,SCR,NO1,
+          CALL DGEMM_('N','N',NB1,NB2,NO1,1.0D0,                        &
+     &                 CMOA(ISTCA),NB1,SCR,NO1,                         &
      &         0.0D0,  TDMZZ(ISTTZ),NB1)
           ISTTA=ISTTA+NO1*NO2
         END IF

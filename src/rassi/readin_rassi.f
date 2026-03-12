@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE READIN_RASSI()
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
-      use frenkel_global_vars, only: excl, iTyp, valst, corest, nesta,
-     &                               nestb, nestla, nestlb, doexch,
-     &                               DoExcitonics, DoCoul, labA, labB,
+      use frenkel_global_vars, only: excl, iTyp, valst, corest, nesta,  &
+     &                               nestb, nestla, nestlb, doexch,     &
+     &                               DoExcitonics, DoCoul, labA, labB,  &
      &                               rixs
       use kVectors
       use Lebedev_quadrature, only: available_table, rule_max
@@ -24,33 +24,33 @@
       use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       use Cholesky, only: timings
       use stdalloc, only: mma_allocate
-      use cntrl, only: SONTO, SONTOSTATES,
-     &                      SONAT, SONATNSTATE,
+      use cntrl, only: SONTO, SONTOSTATES,                              &
+     &                      SONAT, SONATNSTATE,                         &
      &                      SODIAG,SODIAGNSTATE
       use spool, only: Spoolinp, Close_LuSpool
-      use Cntrl, only: QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRSXY,
-     &                 PRORB, PRTRA, PRCI, BINA, NATO, NBINA, NRNATO,
-     &                 RFPERT, IFTRD1, NSOPR, NPROP, PRDIPVEC, TDIPMIN,
-     &                 NJOB, CIH5, CIThr, IFHAM, IFSO, IFNTO, SOThr_Prt,
-     &                 nSOThr_Prt, nState, IfHEXT, IfHEff, IfHCOM,
-     &                 IFEJOB, IfHDia, IfShft, ToFile, IfJ2, IfJZ,
-     &                 IFGCAL, EPraThr, IFACALSD, IFACALFC, IFACALSDON,
-     &                 IFACALPSO, IFATCALSA, IFGTSHSA, MULTIP,
-     &                 IFVANVLECK, TMINS, TMAXS, NTS, IFSONCINI, TMINP,
-     &                 TMAXP, NTP, IFSONCIFC, TMINF, TMAXF, NTF, NOSO,
-     &                 IFCURD, IFARGU, IFXCAL, NBSTEP, BSTART, BINCRE,
-     &                 BANGRES, NTSTEP, TSTART, TINCRE, IFMCAL, PRXVR,
-     &                 PRXVE, PRXVS, PRMER, PRMEE, PRMES, HOP, TRACK,
-     &                 NOHAM, ONLY_OVERLAPS, IFDCPL, IFTRD2, IFTDM,
-     &                 DQVD, ALPHZ, BETAE, DIPR, OSTHR_DIPR, QIPR,
-     &                 OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO,
-     &                 DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, DCHO,
-     &                 DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE,
-     &                 REDUCELOOP, LOOPDIVIDE, LOOPMAX,
-     &                 l_Eff, Do_SK, Do_Pol,
-     &                 RHODYN, MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM,
-     &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,
-     &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
+      use Cntrl, only: QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRSXY,    &
+     &                 PRORB, PRTRA, PRCI, BINA, NATO, NBINA, NRNATO,   &
+     &                 RFPERT, IFTRD1, NSOPR, NPROP, PRDIPVEC, TDIPMIN, &
+     &                 NJOB, CIH5, CIThr, IFHAM, IFSO, IFNTO, SOThr_Prt,&
+     &                 nSOThr_Prt, nState, IfHEXT, IfHEff, IfHCOM,      &
+     &                 IFEJOB, IfHDia, IfShft, ToFile, IfJ2, IfJZ,      &
+     &                 IFGCAL, EPraThr, IFACALSD, IFACALFC, IFACALSDON, &
+     &                 IFACALPSO, IFATCALSA, IFGTSHSA, MULTIP,          &
+     &                 IFVANVLECK, TMINS, TMAXS, NTS, IFSONCINI, TMINP, &
+     &                 TMAXP, NTP, IFSONCIFC, TMINF, TMAXF, NTF, NOSO,  &
+     &                 IFCURD, IFARGU, IFXCAL, NBSTEP, BSTART, BINCRE,  &
+     &                 BANGRES, NTSTEP, TSTART, TINCRE, IFMCAL, PRXVR,  &
+     &                 PRXVE, PRXVS, PRMER, PRMEE, PRMES, HOP, TRACK,   &
+     &                 NOHAM, ONLY_OVERLAPS, IFDCPL, IFTRD2, IFTDM,     &
+     &                 DQVD, ALPHZ, BETAE, DIPR, OSTHR_DIPR, QIPR,      &
+     &                 OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO,      &
+     &                 DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, DCHO,     &
+     &                 DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE,  &
+     &                 REDUCELOOP, LOOPDIVIDE, LOOPMAX,                 &
+     &                 l_Eff, Do_SK, Do_Pol,                            &
+     &                 RHODYN, MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM,  &
+     &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,        &
+     &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,        &
      &                 MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
       use cntrl, only: ALGO, Nscreen, dmpk
       use rassi_data, only: CHFRACMEM
@@ -69,7 +69,7 @@
 
       Call SpoolInp(LuIn)
 
-C --- Default settings for Cholesky
+! --- Default settings for Cholesky
       Algo = 2
       Nscreen = 10
       dmpk = 1.0d-1
@@ -99,7 +99,7 @@ C --- Default settings for Cholesky
       Second_time = .false.
       DoGSOR = .false.
 
-C Find beginning of input:
+! Find beginning of input:
  50   Read(LuIn,'(A72)',END=998) LINE
       CALL NORMAL(LINE)
       IF(LINE(1:7).NE.input_id) GOTO 50
@@ -110,7 +110,7 @@ C Find beginning of input:
       IF(LINE(1:1).EQ.'*') GOTO 100
       IF(LINE.EQ.' ') GOTO 100
       IF (LINE(1:4).EQ.'END ') GOTO 200
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'TEST') THEN
         PRSXY=.TRUE.
         PRORB=.TRUE.
@@ -118,17 +118,17 @@ C ------------------------------------------
         PRCI=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'SECO') THEN
         SECOND_TIME = .true.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'GSOR') THEN
         DoGSOR = .true.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'BINA') THEN
         BINA=.TRUE.
         NATO=.TRUE.
@@ -137,7 +137,7 @@ C ------------------------------------------
         Read(LuIn,*,ERR=997) (IBINA(1,I),IBINA(2,I),I=1,NBINA)
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'EXTR') THEN
         IF(IPGLOB.GT.0) THEN
          Call WarningMessage(1,'Obsolete EXTRACT keyword used.')
@@ -145,31 +145,31 @@ C ------------------------------------------
         END IF
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'NATO') THEN
         NATO=.TRUE.
         Read(LuIn,*,ERR=997) NRNATO
         LINENR=LINENR+1
         GOTO 100
       END IF
-C-------------------------------------------
+!-------------------------------------------
       IF(LINE(1:4).EQ.'RFPE') THEN
         RFPERT=.TRUE.
         GOTO 100
       END IF
-C -- FA 2005 start--------------------------
-C-------------------------------------------
-C --- Cholesky with default settings
+! -- FA 2005 start--------------------------
+!-------------------------------------------
+! --- Cholesky with default settings
       IF(LINE(1:4).EQ.'CHOL') THEN
         Call Cho_rassi_rdInp(.true.,LuIn)
         GOTO 100
       END IF
-C --- Cholesky with customized settings
+! --- Cholesky with customized settings
       IF(LINE(1:4).EQ.'CHOI') THEN
         Call Cho_rassi_rdInp(.False.,LuIn)
         GOTO 100
       END IF
-C -- FA 2005 end----------------------------
+! -- FA 2005 end----------------------------
        IF(LINE(1:4).EQ.'EXAL') THEN
         EXCL =.true.
         NESTA=0
@@ -238,9 +238,9 @@ C -- FA 2005 end----------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C --- FA 2016 end---------------------------
+! --- FA 2016 end---------------------------
       IF(LINE(1:4).EQ.'SOPR') THEN
-        Read(LuIn,*,ERR=997) NSOPR,(SOPRNM(I),ISOCMP(I),
+        Read(LuIn,*,ERR=997) NSOPR,(SOPRNM(I),ISOCMP(I),                &
      &                            I=1,MIN(MXPROP,NSOPR))
         LINENR=LINENR+1
         DO I=1,MIN(MXPROP,NSOPR)
@@ -255,9 +255,9 @@ C --- FA 2016 end---------------------------
         END DO
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'PROP') THEN
-        Read(LuIn,*,ERR=997) NPROP,(PNAME(I),ICOMP(I),
+        Read(LuIn,*,ERR=997) NPROP,(PNAME(I),ICOMP(I),                  &
      &                            I=1,MIN(MXPROP,NPROP))
         LINENR=LINENR+1
         DO I=1,MIN(MXPROP,NPROP)
@@ -272,41 +272,41 @@ C ------------------------------------------
         END DO
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'OVER') THEN
         PRSXY=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'TRDI') THEN
-* Print transition dipole vectors
+! Print transition dipole vectors
         PRDIPVEC=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'TDMN') THEN
-* Print transition dipole vectors
+! Print transition dipole vectors
         PRDIPVEC=.TRUE.
         Read(LuIn,*,ERR=997) TDIPMIN
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'TRDC') THEN
-* Print COMPLEX transition dipole vectors
+! Print COMPLEX transition dipole vectors
         PRDIPCOM=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'ORBI') THEN
         PRORB=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'CIPR') THEN
         PRCI=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF (LINE(1:4).EQ.'CIH5') THEN
         if (NJOB <= 2) then
           CIH5 = .True.
@@ -316,35 +316,35 @@ C ------------------------------------------
         end if
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'THRS')THEN
         Read(LuIn,*,ERR=997) CITHR
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'ONEL') THEN
         IFHAM=.FALSE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'ONEE') THEN
         IFHAM=.FALSE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'SPIN') THEN
         IFSO=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'NTOC') THEN
         IFNTO=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
-* PAM07 Added: Keyword for printing spin-orbit coupling matrix elements
-* A threshold in reciprocal cm is entered.
+! ------------------------------------------
+! PAM07 Added: Keyword for printing spin-orbit coupling matrix elements
+! A threshold in reciprocal cm is entered.
       IF(LINE(1:4).EQ.'SOCO') THEN
         Read(LuIn,*,ERR=997) SOTHR_PRT
         LINENR=LINENR+1
@@ -352,7 +352,7 @@ C ------------------------------------------
         NSOTHR_PRT=10000
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'NROF'.or.LINE(1:4).EQ.'NR O') THEN
         NSTATE=0
         Read(LuIn,*,ERR=997) NJOB,TRYNAME
@@ -381,10 +381,10 @@ C ------------------------------------------
         END IF
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'IPHN') THEN
-*        Read(LuIn,'(9(A7,1X))',ERR=997)(JBNAME(I),I=1,NJOB)
-*        LINENR=LINENR+1
+!        Read(LuIn,'(9(A7,1X))',ERR=997)(JBNAME(I),I=1,NJOB)
+!        LINENR=LINENR+1
         DO I=1,NJOB
          READ(LuIn,*,ERR=997) JBNAME(I)
          LINENR=LINENR+1
@@ -392,7 +392,7 @@ C ------------------------------------------
         END DO
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'FILE') THEN
         READ(LuIn,*,ERR=997) NJOB
         LINENR=LINENR+1
@@ -403,7 +403,7 @@ C ------------------------------------------
         END DO
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'HEXT') THEN
         if (nState == 0) then
           call WarningMessage(2,'HEXT needs an explicit NROFJOB')
@@ -411,8 +411,8 @@ C ------------------------------------------
         end if
         IFHEXT=.TRUE.
         Call mma_allocate(HAM,nState,nState,Label='HAM')
-        Read(LuIn,*,ERR=997)((HAM(ISTATE,JSTATE),
-     &                                           JSTATE=1,ISTATE),
+        Read(LuIn,*,ERR=997)((HAM(ISTATE,JSTATE),                       &
+     &                                           JSTATE=1,ISTATE),      &
      &                                           ISTATE=1,NSTATE)
         DO ISTATE=1,NSTATE-1
          DO JSTATE=ISTATE+1,NSTATE
@@ -422,24 +422,24 @@ C ------------------------------------------
         LINENR=LINENR+NSTATE
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'HEFF') THEN
         IFHEFF=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'HCOM') THEN
         IFHCOM=.TRUE.
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'EJOB') THEN
         IFEJOB=.TRUE.
 !   Leon: Is it really needed?
 !        LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'HDIA') THEN
         if (nState == 0) then
           call WarningMessage(2,'HDIA needs an explicit NROFJOB')
@@ -451,7 +451,7 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'SHIF') THEN
         if (nState == 0) then
           call WarningMessage(2,'SHIFT needs an explicit NROFJOB')
@@ -463,25 +463,25 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'TOFI') then
         ToFile=.true.
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'J-VA') then
         IFJ2=1
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'OMEG') then
         IFJZ=1
         Linenr=Linenr+1
         GoTo 100
       Endif
-C-SVC 2007-----------------------------------
+!-SVC 2007-----------------------------------
       If(Line(1:4).eq.'EPRG') then
         IFGCAL=.TRUE.
         Read(LuIn,*,ERR=997) EPRTHR
@@ -490,7 +490,7 @@ C-SVC 2007-----------------------------------
         GoTo 100
       Endif
 
-C tjd- BMII: Print out spin-orbit properties to files
+! tjd- BMII: Print out spin-orbit properties to files
       IF(Line(1:4).eq.'PRPR') then
         WRITE(6,*) "SPIN-ORBIT PROPERTY PRINT ON"
         LPRPR=.TRUE.
@@ -498,7 +498,7 @@ C tjd- BMII: Print out spin-orbit properties to files
         GoTo 100
       Endif
 
-C tjd- Yoni: Force an identity SO hamiltonian
+! tjd- Yoni: Force an identity SO hamiltonian
       IF (LINE(1:4).eq.'HAMI') then
         WRITE(6,*) "Identity Hamiltonian turned on"
         LHAMI=.TRUE.
@@ -506,7 +506,7 @@ C tjd- Yoni: Force an identity SO hamiltonian
         GoTo 100
       Endif
 
-c BP - Hyperfine calculations
+! BP - Hyperfine calculations
       If(Line(1:4).eq.'EPRA') then
       !write(6,*)"EPRA read"
         IFACAL=.TRUE.
@@ -527,7 +527,7 @@ c BP - Hyperfine calculations
         Linenr=Linenr+1
         GoTo 100
       Endif
-c Kamal Sharkas beg - PSO Hyperfine calculations
+! Kamal Sharkas beg - PSO Hyperfine calculations
       If(Line(1:4).eq.'AFCC') then
         IFACALFCON=.TRUE.
         Linenr=Linenr+1
@@ -592,9 +592,9 @@ c Kamal Sharkas beg - PSO Hyperfine calculations
         GoTo 100
       Endif
 
-c Kamal Sharkas end - PSO Hyperfine calculations
+! Kamal Sharkas end - PSO Hyperfine calculations
 
-c BP Natural orbitals options
+! BP Natural orbitals options
       If(Line(1:4).eq.'SONO') then
         Read(LuIn,*,ERR=997) SONATNSTATE
         CALL mma_allocate(SONAT,SONATNSTATE,Label='SONAT')
@@ -621,8 +621,8 @@ c BP Natural orbitals options
         Linenr=Linenr+1
         GoTo 100
       Endif
-c END BP OPTIONS
-c RF SO-NTO
+! END BP OPTIONS
+! RF SO-NTO
       If(line(1:4).eq.'SONT') then
         read(LuIn,*,ERR=997) SONTOSTATES
         CALL mma_allocate(SONTO,2,SONTOSTATES,Label='SONTO')
@@ -636,8 +636,8 @@ c RF SO-NTO
         Linenr=Linenr+1
         goto 100
       Endif
-c END RF
-C-SVC 2007 2008------------------------------
+! END RF
+!-SVC 2007 2008------------------------------
       If(Line(1:4).eq.'MAGN') then
         IFXCAL=.TRUE.
         READ(LuIn,*,err=997) NBSTEP,BSTART,BINCRE,BANGRES
@@ -648,110 +648,110 @@ C-SVC 2007 2008------------------------------
         Linenr=Linenr+2
         GoTo 100
       EndIf
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'XVIN') then
         PRXVR=.true.
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'XVES') then
         PRXVE=.true.
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'XVSO') then
         PRXVS=.true.
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'MEIN') then
         PRMER=.true.
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'MEES') then
         PRMEE=.true.
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'MESO') then
         PRMES=.true.
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
-C*****IS 30-09/2007**************************
+!--------------------------------------------
+!*****IS 30-09/2007**************************
       IF(Line(1:4).eq.'HOP ') THEN
         HOP=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF
-C--------------------------------------------
+!--------------------------------------------
       IF(Line(1:4).eq.'TRAC') THEN
         TRACK=.TRUE.
         NOHAM=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF
-C--------------------------------------------
+!--------------------------------------------
       IF(Line(1:4).eq.'STOV') THEN
         ONLY_OVERLAPS=.TRUE.
         NOHAM=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'DCOU') then
         IfDCpl=.True.
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
-C*PAM Nov 2011
+!--------------------------------------------
+!*PAM Nov 2011
       IF(Line(1:4).eq.'TRD1') THEN
         IFTRD1=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF
-C--------------------------------------------
+!--------------------------------------------
       IF(Line(1:4).eq.'TRD2') THEN
         IFTRD1=.TRUE.
         IFTRD2=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF
-C--------------------------------------------
+!--------------------------------------------
       IF(Line(1:3).eq.'TDM') THEN
         IFTDM=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF
-C--------------------------------------------
-*CEH April 2015
+!--------------------------------------------
+!CEH April 2015
       IF(Line(1:4).eq.'DQVD') THEN
         DQVD=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       ENDIF
-C--------------------------------------------
+!--------------------------------------------
       IF(LINE(1:4).EQ.'ALPH')THEN
         Read(LuIn,*,ERR=997) ALPHZ
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'BETA')THEN
         Read(LuIn,*,ERR=997) BETAE
         LINENR=LINENR+1
         GOTO 100
       END IF
-C--------------------------------------------
-*LKS Sep 2015
+!--------------------------------------------
+!LKS Sep 2015
       IF(Line(1:4).eq.'DIPR') THEN
 ! Printing threshold for dipole intensities. Current default 1.0D-5
         DIPR=.TRUE.
@@ -759,7 +759,7 @@ C--------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       ENDIF
-C--------------------------------------------
+!--------------------------------------------
       IF(LINE(1:4).EQ.'QIPR')THEN
 ! Printing threshold for quadrupole intensities. Current default 1.0D-5
         QIPR=.TRUE.
@@ -767,14 +767,14 @@ C--------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'QIAL')THEN
 ! Print all contributions for quadrupole intensities.
         QIALL=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       END IF
-C--------------------------------------------
+!--------------------------------------------
       IF(LINE(1:4).EQ.'RSPR') THEN
 ! Printing threshold for rotatory strength. Current default 1.0D-7
         RSPR=.TRUE.
@@ -782,21 +782,21 @@ C--------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'CD  ') THEN
 ! Perform regular circular dichroism - velocity and mixed gauge
         DOCD = .TRUE.
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'DYSO')THEN
 ! Enable Dyson orbital calculations
         DYSO=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'DYSE')THEN
 ! Enable Dyson orbital calculations
         DYSEXPORT=.TRUE.
@@ -804,7 +804,7 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'TDYS')THEN
 ! Enable 2particle Dyson matrix calculations
         TDYS=.TRUE.
@@ -815,7 +815,7 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'DCHS')THEN
 ! Enable computation of DCH intensities
         DCHS=.TRUE.
@@ -823,7 +823,7 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       If(Line(1:4).eq.'TINT') then
 ! Calculate exact isotropically averaged semi-classical intensities
 ! Activate integration of transition intensities
@@ -833,7 +833,7 @@ C ------------------------------------------
         Linenr=Linenr+1
         GoTo 100
       Endif
-C ------------------------------------------
+! ------------------------------------------
       If(Line(1:4).eq.'TIGR') then
 ! Group exact TINT to reduce computational cost
 ! TMGr_thrs is the tolerance in the relative energy (unitless)
@@ -842,21 +842,21 @@ C ------------------------------------------
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       IF(LINE(1:4).EQ.'PRRA')THEN
 ! Print the raw directions for exact semi-classical intensities
         PRRAW=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'PRWE')THEN
 ! Print the weighted directions for exact semi-classical intensities
         PRWEIGHT=.TRUE.
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'TOLE')THEN
 ! Set tolerance for different gauges - currently 10 percent (0.1D0)
 ! Defined as Tolerance = ABS(1-O_r/O_p)
@@ -864,7 +864,7 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'SUBS')THEN
 ! Reduce looping in intensities. Set limit for the inner and outer loop
         REDUCELOOP=.TRUE.
@@ -872,14 +872,14 @@ C ------------------------------------------
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       IF(LINE(1:4).EQ.'NFIN')THEN
 ! Reduce looping in intensities. Set number of final states
         Read(LuIn,*,ERR=997) LOOPMAX
         LINENR=LINENR+1
         GOTO 100
       END IF
-C ------------------------------------------
+! ------------------------------------------
       If(Line(1:4).eq.'IIOR') then
 ! Set the order of the Lebedev polynomials used for the numerical
 ! isotropic integration. Current default 5.
@@ -898,7 +898,7 @@ C ------------------------------------------
         Linenr=Linenr+1
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'DIRE') then
 ! Set a specific direction of the incident light when computing
 ! the transition intensities in the use of
@@ -918,60 +918,60 @@ C--------------------------------------------
         End Do
         GoTo 100
       Endif
-C--------------------------------------------
+!--------------------------------------------
       If(Line(1:4).eq.'POLA') then
         Do_Pol=.TRUE.
         Linenr=Linenr+1
         Read(LuIn,*,ERR=997) (e_Vector(i),i=1,3)
         GoTo 100
       Endif
-C--------------------------------------------
-C VKochetov 2021 enable saving more data to hdf5
+!--------------------------------------------
+! VKochetov 2021 enable saving more data to hdf5
       if (Line(1:4).eq.'RHOD') then
         rhodyn=.true.
         Linenr=Linenr+1
         GoTo 100
       endif
-C--------------------------------------------
+!--------------------------------------------
 #ifdef _DMRG_
       if (Line(1:4).eq.'QDSC') then
         QDPT2SC = .true.
         goto 100
       end if
-C--------------------------------------------
+!--------------------------------------------
       if (Line(1:4).eq.'QDPC') then
         QDPT2SC = .false.
         goto 100
       end if
 #endif
-C These errors could eventually be removed
-C--------------------------------------------
+! These errors could eventually be removed
+!--------------------------------------------
       if (Line(1:4).eq.'TMOS') then
         write(6,*)' Keyword TMOS is deprecated, use TINT instead.'
         goto 999
       end if
-C--------------------------------------------
+!--------------------------------------------
       if (Line(1:4).eq.'KVEC') then
         write(6,*)' Keyword KVEC is deprecated, use DIRE instead.'
         goto 999
       end if
-C--------------------------------------------
+!--------------------------------------------
       if (Line(1:4).eq.'L-EF') then
         write(6,*)' Keyword L-EF is deprecated, use IIOR instead.'
         goto 999
       end if
-C--------------------------------------------
+!--------------------------------------------
       if (Line(1:4).eq.'REDL') then
         write(6,*)' Keyword REDL is deprecated, use SUBS instead.'
         goto 999
       end if
-C--------------------------------------------
+!--------------------------------------------
       if (Line(1:4).eq.'TMGR') then
         write(6,*)' Keyword TMGR is deprecated, use TIGR instead.'
         goto 999
       end if
-C--------------------------------------------
-*
+!--------------------------------------------
+!
       WRITE(6,*)' The following input line was not understood:'
       WRITE(6,'(A)') LINE
       GOTO 999
@@ -990,15 +990,15 @@ C--------------------------------------------
       CALL ABEND()
 
 200   CONTINUE
-cnf
+!nf
       If (IfDCpl .and. .not.IfHam) Then
          Call WarningMessage(1,'Input request was ignored.')
-         Write(6,*) ' Cannot compute the approximate derivative',
+         Write(6,*) ' Cannot compute the approximate derivative',       &
      &              ' coupling terms without the energies.'
          Write(6,*) ' Ignore them.'
          IfDCpl = .False.
       End If
-cnf
+!nf
       If (Do_Pol.and..not.Do_SK) Then
          Call WarningMessage(1,'Input request was ignored.')
          Write(6,*) ' Polarization direction can only be used with'
@@ -1009,15 +1009,15 @@ cnf
       If(RSPR) Then
         If (.NOT.DOCD .AND. .NOT.Do_TMOM) Then
           Call WarningMessage(1,'Input request was ignored.')
-          WRITE(6,*)
-     &     'Warning: Rotatory strength threshold specified (RSPR) '//
+          WRITE(6,*)                                                    &
+     &     'Warning: Rotatory strength threshold specified (RSPR) '//   &
      &     'without calculating rotatory strength'
         End if
       End if
-* Determine file names, if undefined.
+! Determine file names, if undefined.
       IF(JBNAME(1).EQ.'UNDEFINE') THEN
-* The first (perhaps only) jobiph file is named 'JOB001', or maybe 'JOBIPH'
-* when no name has been issued by the user:
+! The first (perhaps only) jobiph file is named 'JOB001', or maybe 'JOBIPH'
+! when no name has been issued by the user:
         NFLS=0
         TRYNAME='JOB001'
         CALL F_INQUIRE(TRYNAME,LEXISTS)
@@ -1036,9 +1036,9 @@ cnf
             CALL ABEND()
           END IF
         END IF
-* Subsequent (if any) jobfiles can be named according to old
-* or new naming convention.
-* Using new standard scheme for default jobiph names?
+! Subsequent (if any) jobfiles can be named according to old
+! or new naming convention.
+! Using new standard scheme for default jobiph names?
         DO I=1,MXJOB-1
           IF (NJOB.GT.0.AND.I.GT.NJOB) GOTO 211
           WRITE(TRYNAME,'(A6,I2.2)') 'JOBIPH',I
@@ -1055,7 +1055,7 @@ cnf
         CALL ABEND()
  211    CONTINUE
         IF(NFLS.EQ.1) THEN
-* We may be using old standard scheme for default jobiph names?
+! We may be using old standard scheme for default jobiph names?
           DO I=1,MXJOB-1
             IF (NJOB.GT.0.AND.I.GT.NJOB) GOTO 212
             WRITE(TRYNAME,'(A3,I3.3)') 'JOB',I+1
@@ -1067,23 +1067,23 @@ cnf
               GOTO 212
             END IF
            END DO
-           Call WarningMessage(1,
+           Call WarningMessage(1,                                       &
      &       'RASSI fails to identify JobIph files.')
            WRITE(6,*)' Too many jobiph files in this directory.'
            CALL ABEND()
  212       CONTINUE
            IF(NFLS.GT.1) THEN
-* Then we are definitely using the old default file name convention.
+! Then we are definitely using the old default file name convention.
            END IF
         END IF
         IF(NJOB.GT.0) THEN
-* Input has been given for NJOB, etc., and will be used.
+! Input has been given for NJOB, etc., and will be used.
           IF(NFLS.LT.NJOB) THEN
             Call WarningMessage(1,'RASSI found too few JobIph files.')
             CALL ABEND()
           END IF
         ELSE
-* Use defaults.
+! Use defaults.
           NJOB=NFLS
         END IF
       END IF

@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE ZJAC(NDIMEN,ARRRE,ARRIM,LDV,VECRE,VECIM)
       IMPLICIT NONE
       INTEGER NDIMEN,LDV
@@ -26,9 +26,9 @@
 
       IFTEST=0
 
-C von Neumanns sum should be ever decreasing. Check this:
+! von Neumanns sum should be ever decreasing. Check this:
       VNSUM=1.0D99
-C Max sub-diagonal element:
+! Max sub-diagonal element:
       NROT=0
       NSWEEP=0
   10  CONTINUE
@@ -60,8 +60,8 @@ C Max sub-diagonal element:
         TN=2.0D0*SGN*AAIJ/DUM
         CS=1.0D0/SQRT(1.0D0+TN**2)
         SN=CS*TN
-C TN,CS,SN=TAN,COS AND SIN OF ROTATION ANGLE.
-C Rotate vectors:
+! TN,CS,SN=TAN,COS AND SIN OF ROTATION ANGLE.
+! Rotate vectors:
         DO K=1,LDV
          VRKJ=CS*VECRE(K,J)-SN*( ERE*VECRE(K,I)-EIM*VECIM(K,I))
          VIKJ=CS*VECIM(K,J)-SN*( EIM*VECRE(K,I)+ERE*VECIM(K,I))
@@ -72,7 +72,7 @@ C Rotate vectors:
          VECRE(K,I)=VRKI
          VECIM(K,I)=VIKI
         END DO
-C Rotate matrix columns:
+! Rotate matrix columns:
         DO K=1,NDIMEN
          ARKJ=CS*ARRRE(K,J)-SN*( ERE*ARRRE(K,I)-EIM*ARRIM(K,I))
          AIKJ=CS*ARRIM(K,J)-SN*( EIM*ARRRE(K,I)+ERE*ARRIM(K,I))
@@ -83,7 +83,7 @@ C Rotate matrix columns:
          ARRRE(K,I)=ARKI
          ARRIM(K,I)=AIKI
         END DO
-C Rotate matrix rows:
+! Rotate matrix rows:
         DO K=1,NDIMEN
          ARJK=CS*ARRRE(J,K)-SN*( ERE*ARRRE(I,K)+EIM*ARRIM(I,K))
          AIJK=CS*ARRIM(J,K)-SN*(-EIM*ARRRE(I,K)+ERE*ARRIM(I,K))
@@ -100,13 +100,13 @@ C Rotate matrix rows:
       NROT=NROT+NR
 
       IF(IFTEST.GT.0) THEN
-C --- CHECK IF DIVERGING (This should never happen):
+! --- CHECK IF DIVERGING (This should never happen):
        IF(VNSUM.GE.VNOLD) THEN
         Call WarningMessage(2,'ZJAC got increasing von-Neumann-sum.')
         WRITE(6,*)' Panic exit from Jacobi iteration loop.'
         GOTO 999
        END IF
-C --- CHECK IF IDLE LOOPS (This should never happen):
+! --- CHECK IF IDLE LOOPS (This should never happen):
        IF(NR.EQ.0 .AND. SBDMAX.GT.EPS) THEN
         Call WarningMessage(2,'ZJAC detected infinite idle loops.')
         WRITE(6,*)' Panic exit from Jacobi iteration loop.'
@@ -114,7 +114,7 @@ C --- CHECK IF IDLE LOOPS (This should never happen):
        END IF
       END IF
 
-* PAM 2008 If unchecked, then idle loop just generates warning and return:
+! PAM 2008 If unchecked, then idle loop just generates warning and return:
       IFERR=0
       IF(IFTEST.EQ.0) THEN
        IF(VNSUM.GE.VNOLD) THEN
@@ -136,7 +136,7 @@ C --- CHECK IF IDLE LOOPS (This should never happen):
        END IF
       END IF
 
-C --- CHECK IF CONVERGED:
+! --- CHECK IF CONVERGED:
       IF(IFERR.EQ.0 .AND. SBDMAX.GT.EPS) GOTO 10
 
       !> order the eigenvalues in increasing sequence
@@ -144,7 +144,7 @@ C --- CHECK IF CONVERGED:
 
       RETURN
  999  CONTINUE
-C Jump here on error.
+! Jump here on error.
       Call WarningMessage(2,'ZJAC abend diagnostics:')
       WRITE(6,*)' Nr of sweeps      NSWEEP=',NSWEEP
       WRITE(6,*)' Nr of 2-rotations   NROT=',NROT
@@ -175,14 +175,14 @@ C Jump here on error.
 
       subroutine zorder(ndimen,ldv,vecre,vecim,arrre,switch)
 
-C Order the eigenvalues in increasing sequence:
-C
-C Note that special care is taken to define some order in case
-C of degeneracy.
-C
+! Order the eigenvalues in increasing sequence:
+!
+! Note that special care is taken to define some order in case
+! of degeneracy.
+!
 
-C switch controls whether we assume an array or vector
-C of eigenvalues
+! switch controls whether we assume an array or vector
+! of eigenvalues
 
       IMPLICIT NONE
       INTEGER NDIMEN,LDV, switch
@@ -196,17 +196,17 @@ C of eigenvalues
       DO I=1,NDIMEN-1
          ESEL=ARRRE(I,I**(switch))
          ISEL=I
-*
+!
          O_i=0.0D0
          Do K=1,LDV
             O_i = O_i + DBLE(K) * (VECRE(K,I)**2+VECIM(K,I)**2)
          End Do
-*
-*        Check against other eigenvalues
-*
+!
+!        Check against other eigenvalues
+!
          DO J=I+1,NDIMEN
             EVAL=ARRRE(J,J**switch)
-*
+!
             EDIFF=ABS(EVAL-ESEL)
             IF (EVAL.LT.ESEL.and.EDIFF.gt.Thr_EDiff) THEN
                ISEL=J
@@ -222,9 +222,9 @@ C of eigenvalues
                End If
             END IF
          END DO
-*
-*        Swap here!
-*
+!
+!        Swap here!
+!
          IF (ISEL.NE.I) THEN
             DO K=1,LDV
                VRKI=VECRE(K,I)

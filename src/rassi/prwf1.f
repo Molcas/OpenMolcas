@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE PRWF1(SGS,CIS,NLEV,NMIDV,ISM,ICS,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE PRWF1(SGS,CIS,NLEV,NMIDV,ISM,ICS,                      &
      &                 NOCSF,IOCSF,NOW,IOW,ISYCI,CI,CITHR)
       use definitions, only: iwp, wp, u6
       use gugx, only: SGStruct, CIStruct
@@ -19,9 +19,9 @@
       Integer(kind=iwp), intent(in):: NLEV,NMIDV
       Integer(kind=iwp), intent(in):: ISM(NLEV)
       Integer(kind=iwp), intent(out):: ICS(NLEV)
-      Integer(kind=iwp), intent(in)::NOCSF(NSYM,NMIDV,NSYM),
+      Integer(kind=iwp), intent(in)::NOCSF(NSYM,NMIDV,NSYM),            &
      &                               IOCSF(NSYM,NMIDV,NSYM)
-      Integer(kind=iwp), intent(in):: NOW(2,NSYM,NMIDV),
+      Integer(kind=iwp), intent(in):: NOW(2,NSYM,NMIDV),                &
      &                                IOW(2,NSYM,NMIDV)
       Integer(kind=iwp), intent(in):: ISYCI
       REAL(kind=wp), intent(in):: CI(*),CITHR
@@ -29,22 +29,22 @@
       LOGICAL(kind=iwp), PARAMETER :: SGINFO=.TRUE.
       CHARACTER(LEN=80) LINE
       CHARACTER(LEN=1) :: CODE(0:3)=['0','u','d','2']
-      Integer(kind=iwp) I,IC1,ICDPOS,ICDWN,ICONF,ICUP,ICUPOS,IDW0,IDWN,
-     &                  IDWNSV,ISY,ISYDWN,ISYUP,IUP,IUW0,K,KNXT,KOCLAB,
-     &                  KOCSZ,KPAD1,KPAD2,LEV,MIDLEV,MV,NCI,NDWN,NIPWLK,
+      Integer(kind=iwp) I,IC1,ICDPOS,ICDWN,ICONF,ICUP,ICUPOS,IDW0,IDWN, &
+     &                  IDWNSV,ISY,ISYDWN,ISYUP,IUP,IUW0,K,KNXT,KOCLAB, &
+     &                  KOCSZ,KPAD1,KPAD2,LEV,MIDLEV,MV,NCI,NDWN,NIPWLK,&
      &                  NNN,NUP
       REAL(kind=wp) COEF
 
-C -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
-C -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
-C -- THE   U P P E R   PART OF THE WALK.
-C -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
-C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
+! -- NOTE: THIS PRWF ROUTINE USES THE CONVENTION THAT CI BLOCKS
+! -- ARE MATRICES CI(I,J), WHERE THE   F I R S T   INDEX I REFERS TO
+! -- THE   U P P E R   PART OF THE WALK.
+! -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
+!    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
 
       MIDLEV=SGS%MidLev
       NIPWLK=CIS%nIpWlk
 
-C Size of occup/spin coupling part of line:
+! Size of occup/spin coupling part of line:
       WRITE(u6,*)' Occupation of active orbitals, and spin coupling'
       WRITE(u6,*)' of open shells. (u,d: Spin up or down).'
       WRITE(LINE,'(20A4)')('    ',I=1,20)
@@ -76,8 +76,8 @@ C Size of occup/spin coupling part of line:
       WRITE(u6,*) LINE
       WRITE(LINE,'(20A4)')('    ',I=1,20)
 
-C -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
-C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
+! -- THE MAIN LOOP IS OVER BLOCKS OF THE ARRAY CI
+!    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
       DO MV=1,NMIDV
         DO ISYUP=1,NSYM
           NCI=NOCSF(ISYUP,MV,ISYCI)
@@ -93,12 +93,12 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
             DO IUP=1,NUP
               ICONF=ICONF+1
               COEF=CI(ICONF)
-C -- SKIP OR PRINT IT OUT?
+! -- SKIP OR PRINT IT OUT?
               IF(ABS(COEF).LT.CITHR) cycle
               IF(IDWNSV.NE.IDWN) THEN
                 ICDPOS=IDW0+IDWN*NIPWLK
                 ICDWN=CIS%ICase(ICDPOS)
-C -- UNPACK LOWER WALK.
+! -- UNPACK LOWER WALK.
                 NNN=0
                 DO LEV=1,MIDLEV
                   NNN=NNN+1
@@ -115,7 +115,7 @@ C -- UNPACK LOWER WALK.
               END IF
               ICUPOS=IUW0+NIPWLK*IUP
               ICUP=CIS%ICase(ICUPOS)
-C -- UNPACK UPPER WALK:
+! -- UNPACK UPPER WALK:
               NNN=0
               DO LEV=MIDLEV+1,NLEV
                 NNN=NNN+1
@@ -128,7 +128,7 @@ C -- UNPACK UPPER WALK:
                 ICS(LEV)=ICUP-4*IC1
                 ICUP=IC1
               END DO
-C -- PRINT IT!
+! -- PRINT IT!
               WRITE(LINE(1:7),'(I6,1X)') ICONF
               K=7
               IF(SGINFO) THEN

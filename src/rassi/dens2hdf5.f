@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2019, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2019, Ignacio Fdez. Galvan                             *
+!***********************************************************************
       Module Dens2HDF5
 
       Integer, Allocatable :: IdxState(:,:)
@@ -17,26 +17,26 @@
 
       Contains
 
-************************************************************************
-*  UpdateIdx
-*
-*> @brief
-*>   Update index of TDMs to save to HDF5
-*> @author Ignacio Fdez. Galv&aacute;n
-*>
-*> @details
-*> Update the table of indices of states for the TDMs that will be saved
-*> on the HDF5 file. If SUBSets keyword is not used, all TDMs are saved,
-*> otherwise only those for the selected transitions. Since the TDMs are
-*> saved in SF basis, for a SO calculation we need to figure out which
-*> SF TDMs contribute to the desired transitions.
-*>
-*> @param[in] IndexE  SF states sorted by energy
-*> @param[in] nSS     number of SO states
-*> @param[in] USOR    SO coefficients in SF basis (real part)
-*> @param[in] USOI    SO coefficients in SF basis (imaginary part)
-*> @param[in] MapSt   map of SF states expanded by multiplicity
-************************************************************************
+!***********************************************************************
+!  UpdateIdx
+!
+!> @brief
+!>   Update index of TDMs to save to HDF5
+!> @author Ignacio Fdez. Galv&aacute;n
+!>
+!> @details
+!> Update the table of indices of states for the TDMs that will be saved
+!> on the HDF5 file. If SUBSets keyword is not used, all TDMs are saved,
+!> otherwise only those for the selected transitions. Since the TDMs are
+!> saved in SF basis, for a SO calculation we need to figure out which
+!> SF TDMs contribute to the desired transitions.
+!>
+!> @param[in] IndexE  SF states sorted by energy
+!> @param[in] nSS     number of SO states
+!> @param[in] USOR    SO coefficients in SF basis (real part)
+!> @param[in] USOI    SO coefficients in SF basis (imaginary part)
+!> @param[in] MapSt   map of SF states expanded by multiplicity
+!***********************************************************************
       Subroutine UpdateIdx(IndexE, nSS, USOR, USOI, MapSt)
       Use stdalloc, Only: mma_allocate
       use Cntrl, only: NSTATE, REDUCELOOP, LOOPDIVIDE, LOOPMAX
@@ -78,9 +78,9 @@
                 i_=Max(jState,iState)
                 j_=Min(jState,iState)
                 If (IdxState(i_,j_).gt.0) Cycle
-                f1=(USOR(i,iSS)*USOR(j,jSS)+USOI(i,iSS)*USOI(j,jSS))**2
+                f1=(USOR(i,iSS)*USOR(j,jSS)+USOI(i,iSS)*USOI(j,jSS))**2 &
      &            +(USOR(i,iSS)*USOI(j,jSS)-USOI(i,iSS)*USOR(j,jSS))**2
-                f2=(USOR(j,iSS)*USOR(i,jSS)+USOI(j,iSS)*USOI(i,jSS))**2
+                f2=(USOR(j,iSS)*USOR(i,jSS)+USOI(j,iSS)*USOI(i,jSS))**2 &
      &            +(USOR(j,iSS)*USOI(i,jSS)-USOI(j,iSS)*USOR(i,jSS))**2
 !               this should be Thrs**2, but let's be looser with SO states
                 If (Max(f1,f2).ge.Thrs) IdxState(i_,j_)=2
@@ -104,20 +104,20 @@
       End If
       End Subroutine UpdateIdx
 
-************************************************************************
-*  StoreDens
-*
-*> @brief
-*>   Store the density matrices to HDF5
-*> @author Ignacio Fdez. Galv&aacute;n
-*>
-*> @details
-*> Save the selected state and transition density matrices to the HDF5
-*> file. The TDMs were computed in input state basis, but will be stored
-*> in SF eigen states, so a transformation is needed.
-*>
-*> @param[in] EigVec  coefficients of the SF eigen states in the input state basis
-************************************************************************
+!***********************************************************************
+!  StoreDens
+!
+!> @brief
+!>   Store the density matrices to HDF5
+!> @author Ignacio Fdez. Galv&aacute;n
+!>
+!> @details
+!> Save the selected state and transition density matrices to the HDF5
+!> file. The TDMs were computed in input state basis, but will be stored
+!> in SF eigen states, so a transformation is needed.
+!>
+!> @param[in] EigVec  coefficients of the SF eigen states in the input state basis
+!***********************************************************************
 #ifdef _HDF5_
       Subroutine StoreDens(EigVec)
       Use rassi_aux, Only : iDisk_TDM
@@ -135,11 +135,11 @@
       Integer :: iState,jState,k,l,nThisTDMZZ
       Integer :: Job1,Job2,iSym1,iSym2,iSy12,iDisk,iEmpty,iOpt,iGo
       Logical isZero(3)
-      Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),
+      Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),               &
      &                       TDMIJ(:),TSDMIJ(:),WDMIJ(:)
       Real*8 :: f1,f2
       If (.not.Allocated(IdxState)) Return
-C Transform TDMs to SF eigenstates
+! Transform TDMs to SF eigenstates
       Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
       Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
       Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
@@ -168,11 +168,11 @@ C Transform TDMs to SF eigenstates
               iOpt=2
               iGo=3
               If (IfSO) iGo=iGo+4
-              Call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,
+              Call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,                 &
      &                       LuTDM,iDisk,iEmpty,iOpt,iGo,k,l)
               If (IAnd(iEmpty,1).ne.0) Then
                 isZero(1)=.False.
-                If (Abs(f1).ge.Thrs)
+                If (Abs(f1).ge.Thrs)                                    &
      &            Call daXpY_(nTDMZZ,f1,TDMZZ,1,TDMIJ,1)
                 If ((k.ne.l).and.(Abs(f2).ge.Thrs)) Then
                   Call Transpose_TDM(TDMZZ,iSy12)
@@ -181,7 +181,7 @@ C Transform TDMs to SF eigenstates
               End If
               If (IAnd(iEmpty,2).ne.0) Then
                 isZero(2)=.False.
-                If (Abs(f1).ge.Thrs)
+                If (Abs(f1).ge.Thrs)                                    &
      &            Call daXpY_(nTDMZZ,f1,TSDMZZ,1,TSDMIJ,1)
                 If ((k.ne.l).and.(Abs(f2).ge.Thrs)) Then
                   Call Transpose_TDM(TSDMZZ,iSy12)
@@ -190,7 +190,7 @@ C Transform TDMs to SF eigenstates
               End If
               If (IFSO.and.(IAnd(iEmpty,4).ne.0)) Then
                 isZero(3)=.False.
-                If (Abs(f1).ge.Thrs)
+                If (Abs(f1).ge.Thrs)                                    &
      &            Call daXpY_(nTDMZZ,f1,WDMZZ,1,WDMIJ,1)
                 If ((k.ne.l).and.(Abs(f2).ge.Thrs)) Then
                   Call Transpose_TDM(WDMZZ,iSy12)
@@ -206,15 +206,15 @@ C Transform TDMs to SF eigenstates
             nThisTDMZZ=nThisTDMZZ+NBASF(iSym1)*NBASF(iSym2)
           End Do
           If (.not.isZero(1)) Then
-            call mh5_put_dset(wfn_sfs_tdm,
+            call mh5_put_dset(wfn_sfs_tdm,                              &
      &        TDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
           End If
           If (.not.isZero(2)) Then
-          call mh5_put_dset(wfn_sfs_tsdm,
+          call mh5_put_dset(wfn_sfs_tsdm,                               &
      &      TSDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
           End If
           If (IFSO.and.(.not.isZero(3))) Then
-            call mh5_put_dset(wfn_sfs_wetdm,
+            call mh5_put_dset(wfn_sfs_wetdm,                            &
      &        WDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
           End If
         End Do
@@ -229,21 +229,21 @@ C Transform TDMs to SF eigenstates
       End Subroutine StoreDens
 #endif
 
-************************************************************************
-*  Transpose_TDM
-*
-*> @brief
-*>   Transpose a transition density matrix in place.
-*> @author Ignacio Fdez. Galv&aacute;n
-*>
-*> @details
-*> Transpose a transition density matrix, stored in symmetry blocks,
-*> replacing the original matrix. The matrices contain only the symmetry
-*> blocks that match the total symmetry of the transition.
-*>
-*> @param[in,out] TDM       Transition density matrix
-*> @param[in]     Symmetry  Symmetry of the transition
-************************************************************************
+!***********************************************************************
+!  Transpose_TDM
+!
+!> @brief
+!>   Transpose a transition density matrix in place.
+!> @author Ignacio Fdez. Galv&aacute;n
+!>
+!> @details
+!> Transpose a transition density matrix, stored in symmetry blocks,
+!> replacing the original matrix. The matrices contain only the symmetry
+!> blocks that match the total symmetry of the transition.
+!>
+!> @param[in,out] TDM       Transition density matrix
+!> @param[in]     Symmetry  Symmetry of the transition
+!***********************************************************************
       Subroutine Transpose_TDM(TDM,Symmetry)
       Use stdalloc, Only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep, MUL
@@ -254,7 +254,7 @@ C Transform TDMs to SF eigenstates
       Integer :: iSym1,iSym2,nTot,i,j
       Integer :: iBlock(0:8)
       Real*8, Allocatable :: Tmp(:)
-* Compute the location of all the stored symmetry blocks
+! Compute the location of all the stored symmetry blocks
       nTot=0
       iBlock(0)=0
       Do iSym1=1,nSym
@@ -262,15 +262,15 @@ C Transform TDMs to SF eigenstates
         nTot=nTot+nBasF(iSym1)*nBasF(iSym2)
         iBlock(iSym1)=nTot
       End Do
-* Make a copy so we can transpose in place
+! Make a copy so we can transpose in place
       Call mma_Allocate(Tmp,nTot,Label='Tmp')
       Call dCopy_(nTot,TDM,1,Tmp,1)
-* Transpose symmetry block (a,b) onto symmetry block (b,a)
+! Transpose symmetry block (a,b) onto symmetry block (b,a)
       Do iSym1=1,nSym
         iSym2=Mul(Symmetry,iSym1)
         Do i=1,nBasF(iSym2)
           Do j=1,nBasF(iSym1)
-            TDM(iBlock(iSym2-1)+(j-1)*nBasF(iSym2)+i) =
+            TDM(iBlock(iSym2-1)+(j-1)*nBasF(iSym2)+i) =                 &
      &      Tmp(iBlock(iSym1-1)+(i-1)*nBasF(iSym1)+j)
           End Do
         End Do

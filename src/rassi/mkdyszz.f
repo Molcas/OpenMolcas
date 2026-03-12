@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2018, Jesper Norell                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2018, Jesper Norell                                    *
+!***********************************************************************
 
-*****************************************************************
-*  SUBROUTINE MKDYSZZ
-*  PURPOSE: CALCULATE DYSON ORBITAL COEFFICIENTS FOR CI EXPANSIONS IN
-*  BASIS FUNCTION BASE BASE Z,
-*  IN ANALOGUE TO MKTDZZ FOR TRANSITION DENSITY MATRIX.
-*****************************************************************
-*  MODIFIED BY BRUNO TENORIO TO ADDRESS SYMMETRY
-*  SEPTEMBER 2020
-*****************************************************************
+!****************************************************************
+!  SUBROUTINE MKDYSZZ
+!  PURPOSE: CALCULATE DYSON ORBITAL COEFFICIENTS FOR CI EXPANSIONS IN
+!  BASIS FUNCTION BASE BASE Z,
+!  IN ANALOGUE TO MKTDZZ FOR TRANSITION DENSITY MATRIX.
+!****************************************************************
+!  MODIFIED BY BRUNO TENORIO TO ADDRESS SYMMETRY
+!  SEPTEMBER 2020
+!****************************************************************
       SUBROUTINE MKDYSZZ(CMOA,DYSAB,DYSZZ)
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: NCMO,NASH,NBASF,NOSH
@@ -30,9 +30,9 @@
       INTEGER IBIO,IZZ,SYMOFF,BIOOFF,IBIOFF,IZZOFF,ISY1,NO1,NA1,NB1
       REAL*8 COEFF
 
-C *** Re-express the DO coefficients in biorth basis DYSAB
-C *** into atomic basis DYSZZ with help of CMOA that contains
-C *** biorth orbitals in ZZ basis
+! *** Re-express the DO coefficients in biorth basis DYSAB
+! *** into atomic basis DYSZZ with help of CMOA that contains
+! *** biorth orbitals in ZZ basis
 
       SYMOFF=0
       IBIOFF=0

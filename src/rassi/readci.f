@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE READCI(ISTATE,SGS,CIS,NCI,CI)
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
       use gugx, only: SGStruct, CIStruct
 #ifdef _HDF5_
-      USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
+      USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,     &
      &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
       use Cntrl, only: NROOTS
 #endif
@@ -45,11 +45,11 @@
       LROOT1=LROOT(ISTATE)
 
 #ifdef _HDF5_
-************************************************************************
-*
-* For HDF5 formatted job files
-*
-************************************************************************
+!***********************************************************************
+!
+! For HDF5 formatted job files
+!
+!***********************************************************************
       If (mh5_is_hdf5(jbname(job))) Then
         refwfn_id = mh5_open_file_r(jbname(job))
         if (mh5_exists_attr(refwfn_id, 'ROOT2STATE')) then
@@ -62,16 +62,16 @@
           call WarningMessage(2,'Invalid CI array index, abort!')
           call AbEnd
         END IF
-        call mh5_fetch_dset(refwfn_id,
+        call mh5_fetch_dset(refwfn_id,                                  &
      &         'CI_VECTORS',CI,[NCI,1],[0,IDXCI-1])
         call mh5_close_file(refwfn_id)
       Else
 #endif
-************************************************************************
-*
-* For JOBIPH/JOBMIX formatted job files
-*
-************************************************************************
+!***********************************************************************
+!
+! For JOBIPH/JOBMIX formatted job files
+!
+!***********************************************************************
         CALL DANAME(LUIPH,JBNAME(JOB))
         IAD=0
         CALL IDAFILE(LUIPH,2,ITOC15,30,IAD)
@@ -81,7 +81,7 @@
         END DO
         CALL DDAFILE(LUIPH,2,CI,NCI,IDISK)
         CALL DACLOS(LUIPH)
-************************************************************************
+!***********************************************************************
 #ifdef _HDF5_
       End If
 #endif

@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE Track_State(OVLP)
       use rassi_aux, only: ipglob
       use Constants, only: Zero
@@ -16,28 +16,28 @@
       REAL*8 ovlp(nstate,nstate)
 
       INTEGER iState,initState,newState
-*define _DEBUGPRINT_
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       INTEGER j
 #endif
       REAL*8 MaxOv,ThisOv
 
 
-*     Check that there are 2 JOB files, with the same number of states
+!     Check that there are 2 JOB files, with the same number of states
       IF (nJob.ne.2) THEN
-        Call SysAbendMsg('Track_State',
+        Call SysAbendMsg('Track_State',                                 &
      &  'The number of JOB files should be 2.','')
       END IF
       IF (nStat(2).ne.nStat(1)) THEN
-        Call SysAbendMsg('Track_State',
+        Call SysAbendMsg('Track_State',                                 &
      &  'The number of states in the JOB files should be the same.','')
       END IF
 
-*     Get the root to track
+!     Get the root to track
       CALL Get_iScalar('Relax CASSCF root',initState)
 
-*     Find the root in the first JOB (current states) that has maximum
-*     overlap with the tracked root in the second JOB (previous states)
+!     Find the root in the first JOB (current states) that has maximum
+!     overlap with the tracked root in the second JOB (previous states)
 #ifdef _DEBUGPRINT_
       WRITE(6,*)
       WRITE(6,*)'OVERLAP MATRIX FOR THE ORIGINAL STATES:'
@@ -67,12 +67,12 @@
         WRITE(6,*) 'New root: ',newState
       END IF
 
-*     If no state is found, something wrong has happened
+!     If no state is found, something wrong has happened
       IF (newState.eq.0) THEN
         Call SysAbendMsg('Track_State','No overlaps!','')
       END IF
 
-*     Store the new state for geometry optimization
+!     Store the new state for geometry optimization
       IF (newState.ne.initState) THEN
         CALL Put_iScalar('Relax CASSCF root',newState)
         CALL Put_iScalar('Relax Original root',newState)

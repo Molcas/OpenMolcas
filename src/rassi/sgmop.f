@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE SGMOP(IMODE,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE SGMOP(IMODE,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,          &
      &                   COEFF,SGM,PSI)
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
@@ -32,15 +32,15 @@
       INTEGER NDETS1,NDETS2,IERR
       Integer, allocatable:: SBSET(:)
 
-C Purpose: Add to the wave function SGM the result of applying
-C an operator to PSI. The operator is a sum of creators (IMODE=1)
-C or annihilators (IMODE=-1) multiplied by coefficients. Only the
-C sector of SGM described by IFSBTAB1 will be updated.
-C The orbital table:
+! Purpose: Add to the wave function SGM the result of applying
+! an operator to PSI. The operator is a sum of creators (IMODE=1)
+! or annihilators (IMODE=-1) multiplied by coefficients. Only the
+! sector of SGM described by IFSBTAB1 will be updated.
+! The orbital table:
       NASPRT= IORBTAB(9)
       NASORB= IORBTAB(4)
       KOINFO=19
-C The substring table:
+! The substring table:
       MORSBITS=ISSTAB(6)
       NSSTP   =ISSTAB(7)
       KSSTTB=15
@@ -55,17 +55,17 @@ C The substring table:
         KSSTOP=KSSTCR
         KSBSOP=KSBSCR
       END IF
-C The FS blocks of the SGM wave function:
+! The FS blocks of the SGM wave function:
       NFSB1=IFSBTAB1(3)
       NDETS1=IFSBTAB1(5)
       KSTARR1=8
-C The FS blocks of the PSI wave function:
+! The FS blocks of the PSI wave function:
       NDETS2=IFSBTAB2(5)
       NHSH2=IFSBTAB2(6)
       KHSH2=IFSBTAB2(7)
       KSTARR2=8
-C Make an array with nr of earlier substrings for each
-C substring type:
+! Make an array with nr of earlier substrings for each
+! substring type:
       CALL mma_allocate(SBSET,NSSTP,Label='SBSET')
       ISUM=0
       DO ISST=1,NSSTP
@@ -74,17 +74,17 @@ C substring type:
         ISUM=ISUM+NSBS
       END DO
 
-C Loop over FS blocks of the SGM wave function
+! Loop over FS blocks of the SGM wave function
       DO IFSB1=1,NFSB1
         KPOS=KSTARR1+(NASPRT+2)*(IFSB1-1)
         DO ISPART=1,NASPRT
           ISSTARR(ISPART)=IFSBTAB1(KPOS-1+ISPART)
         END DO
         IBLKPOS1 =IFSBTAB1(KPOS+NASPRT+1)
-CTEST      write(*,'(1x,a,8I8)')'SGM FSB1,IBLKPOS1=',IBLKPOS1
-CTEST      write(*,'(1x,a,8I8)')'SGM FSB1=',(ISSTARR(I),I=1,NASPRT)
-C Initial values for lower and higher dimensions.
-C Also, extra phase factor due to spin orbitals in higher substrings.
+!TEST      write(*,'(1x,a,8I8)')'SGM FSB1,IBLKPOS1=',IBLKPOS1
+!TEST      write(*,'(1x,a,8I8)')'SGM FSB1=',(ISSTARR(I),I=1,NASPRT)
+! Initial values for lower and higher dimensions.
+! Also, extra phase factor due to spin orbitals in higher substrings.
         NDI=1
         DO ISPART=1,NASPRT
           NDIARR(ISPART)=NDI
@@ -103,41 +103,41 @@ C Also, extra phase factor due to spin orbitals in higher substrings.
           NDJ=NDJ*NSBS1
           IF(NPOP1.NE.2*(NPOP1/2)) IPH=-IPH
         END DO
-C Loop over active orbitals:
+! Loop over active orbitals:
         DO ISORB=1,NASORB
           IF(COEFF(ISORB).EQ.0.0D0) GOTO 200
           ISPART=IORBTAB(KOINFO+6+8*(ISORB-1))
           CFFPHS=DBLE(IPHARR(ISPART))*COEFF(ISORB)
           KSORB =IORBTAB(KOINFO+7+8*(ISORB-1))
-CTEST      write(*,'(1x,a,8I8)')'ISORB,ISPART,KSORB:',
-CTEST     &                      ISORB,ISPART,KSORB
+!TEST      write(*,'(1x,a,8I8)')'ISORB,ISPART,KSORB:',
+!TEST     &                      ISORB,ISPART,KSORB
           ISST1=ISSTARR(ISPART)
           NSBS1=ISSTAB(KSSTTB+5*(ISST1-1))
 
-C Modify the bra substring type by annih or creating ISORB
+! Modify the bra substring type by annih or creating ISORB
           ISST2=ISSTAB(KSSTOP-1+KSORB+MORSBITS*(ISST1-1))
           IF(ISST2.EQ.0) GOTO 200
 
-CTEST      write(*,'(1x,a,8I8)')'ISST1,ISST2:',ISST1,ISST2
-C Determine dimensions for multiple daxpy:
-C Dimension for earlier subpartitions is NDI
-C Dimension for later   subpartitions is NDJ
-C Dimensions for present subpartition are NSBS1,NSBS2
+!TEST      write(*,'(1x,a,8I8)')'ISST1,ISST2:',ISST1,ISST2
+! Determine dimensions for multiple daxpy:
+! Dimension for earlier subpartitions is NDI
+! Dimension for later   subpartitions is NDJ
+! Dimensions for present subpartition are NSBS1,NSBS2
           NDI=NDIARR(ISPART)
           NDJ=NDJARR(ISPART)
 
           NSBS2=ISSTAB(KSSTTB+5*(ISST2-1))
           ISSTARR(ISPART)=ISST2
-C Get the corresponding FS block number
-CTEST      write(*,'(1x,a,8I8)')'PSI FSB2=',(ISSTARR(I),I=1,NASPRT)
-          CALL HSHGET(ISSTARR,NASPRT,NASPRT+2,IFSBTAB2(KSTARR2),
+! Get the corresponding FS block number
+!TEST      write(*,'(1x,a,8I8)')'PSI FSB2=',(ISSTARR(I),I=1,NASPRT)
+          CALL HSHGET(ISSTARR,NASPRT,NASPRT+2,IFSBTAB2(KSTARR2),        &
      &                NHSH2,IFSBTAB2(KHSH2),IFSB2)
-CTEST      write(*,'(1x,a,8I8)')'IFSB1,IFSB2:',IFSB1,IFSB2
+!TEST      write(*,'(1x,a,8I8)')'IFSB1,IFSB2:',IFSB1,IFSB2
           ISSTARR(ISPART)=ISST1
           IF(IFSB2.EQ.0) GOTO 200
           KPOS=KSTARR2+(NASPRT+2)*(IFSB2-1)
           IBLKPOS2 =IFSBTAB2(KPOS+NASPRT+1)
-C Now loop over ket substrings in this subpartition
+! Now loop over ket substrings in this subpartition
           DO KSBS1=1,NSBS1
             ISBS1=KSBS1+SBSET(ISST1)
             ISBS2=ISSTAB(KSBSOP-1+KSORB+MORSBITS*(ISBS1-1))
@@ -151,7 +151,7 @@ C Now loop over ket substrings in this subpartition
             END IF
             KSBS2=ISBS2-SBSET(ISST2)
 
-C CALL some multiple daxpy...
+! CALL some multiple daxpy...
             DO I=0,NDI-1
              DO J=0,NDJ-1
               IPOS1=IBLKPOS1+I+NDI*(KSBS1-1+NSBS1*J)
@@ -168,18 +168,18 @@ C CALL some multiple daxpy...
                 WRITE(6,'(1x,a,8I8)')' Position IPOS2=',IPOS2
                 CALL ABEND()
               END IF
-C Temporary test print:
-CTEST              if(PSI(IPOS2).ne.0.0d0) then
-CTEST                WRITE(*,'(1x,f16.8,2i8)')SCALE,IPOS1,IPOS2
-CTEST                write(*,'(1x,a,8I8)')'IFSB1,IFSB2:',IFSB1,IFSB2
-CTEST                write(*,'(1x,a,8I8)')'IBLKPOS1,NDI,NSBS1:',
-CTEST     &                                IBLKPOS1,NDI,NSBS1
-CTEST                write(*,'(1x,a,8I8)')'IBLKPOS2,NDI,NSBS2:',
-CTEST     &                                IBLKPOS2,NDI,NSBS2
-CTEST                write(*,'(1x,a,8I8)')'I,KSBS1,J:',I,KSBS1,J
-CTEST                write(*,'(1x,a,8I8)')'I,KSBS2,J:',I,KSBS2,J
-CTEST              end if
-C End of test prints
+! Temporary test print:
+!TEST              if(PSI(IPOS2).ne.0.0d0) then
+!TEST                WRITE(*,'(1x,f16.8,2i8)')SCALE,IPOS1,IPOS2
+!TEST                write(*,'(1x,a,8I8)')'IFSB1,IFSB2:',IFSB1,IFSB2
+!TEST                write(*,'(1x,a,8I8)')'IBLKPOS1,NDI,NSBS1:',
+!TEST     &                                IBLKPOS1,NDI,NSBS1
+!TEST                write(*,'(1x,a,8I8)')'IBLKPOS2,NDI,NSBS2:',
+!TEST     &                                IBLKPOS2,NDI,NSBS2
+!TEST                write(*,'(1x,a,8I8)')'I,KSBS1,J:',I,KSBS1,J
+!TEST                write(*,'(1x,a,8I8)')'I,KSBS2,J:',I,KSBS2,J
+!TEST              end if
+! End of test prints
              END DO
             END DO
 
@@ -187,9 +187,9 @@ C End of test prints
           END DO
 
  200      CONTINUE
-C End of loop over orbitals
+! End of loop over orbitals
         END DO
-C End of loop over FS blocks
+! End of loop over FS blocks
       END DO
       CALL mma_deallocate(SBSET)
       END SUBROUTINE SGMOP

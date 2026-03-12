@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE SMMAT(PROP,PRMAT,NSS,ISONUM,ISPINCMP)
       use rassi_global_arrays, only: JBNUM
-      use Cntrl, only: NSTATE, NPROP, PNAME, ICOMP, ISOCMP,
+      use Cntrl, only: NSTATE, NPROP, PNAME, ICOMP, ISOCMP,             &
      &                 MLTPLT, PTYPE, SOPRNM, SOPRTP
 
       IMPLICIT NONE
@@ -18,18 +18,18 @@
       REAL*8 PRMAT(NSS,NSS)
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8, EXTERNAL :: DCLEBS
-      INTEGER IPRNUM, IPRCMP, IFSPIN, IPROP,
-     &        ISS, ISTATE, JOB1, MPLET1, MSPROJ1,
+      INTEGER IPRNUM, IPRCMP, IFSPIN, IPROP,                            &
+     &        ISS, ISTATE, JOB1, MPLET1, MSPROJ1,                       &
      &        JSS, JSTATE, JOB2, MPLET2, MSPROJ2
-      REAL*8 SXMER, SYMEI, SZMER, SMINUS, SPLUS, CGM, CG0, CGP, CGX,
+      REAL*8 SXMER, SYMEI, SZMER, SMINUS, SPLUS, CGM, CG0, CGP, CGX,    &
      &       CGY, EXPKR, FACT, SM1, SM2, S1, S2
-*
+!
       IPRNUM=-1
       IPRCMP=0
-C IFSPIN takes values the values 0,1,2
-C 0 = spin free property
-C 1 = spin operator (S)
-C 2 = spin dependent property, triplet operator
+! IFSPIN takes values the values 0,1,2
+! 0 = spin free property
+! 1 = spin operator (S)
+! 2 = spin dependent property, triplet operator
       IFSPIN=0
 
       IF (ISONUM.EQ.0) THEN
@@ -38,8 +38,8 @@ C 2 = spin dependent property, triplet operator
          IPRCMP=ISPINCMP
       ELSE
          DO IPROP=1,NPROP
-            IF ((PNAME(IPROP).EQ.SOPRNM(ISONUM)).AND.
-     &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.
+            IF ((PNAME(IPROP).EQ.SOPRNM(ISONUM)).AND.                   &
+     &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.                   &
      &          (ICOMP(IPROP).EQ.ISOCMP(ISONUM))) THEN
                IPRNUM=IPROP
                IF (PNAME(IPRNUM)(1:3).EQ.'PSO') THEN
@@ -50,12 +50,12 @@ C 2 = spin dependent property, triplet operator
                   IFSPIN=2
                   IPRCMP=ISPINCMP
                END IF
-               IF (PNAME(IPRNUM).EQ.'MLTPL  0'.AND.
+               IF (PNAME(IPRNUM).EQ.'MLTPL  0'.AND.                     &
      &             PTYPE(IPRNUM).EQ.'ANTITRIP') THEN
                   IFSPIN=2
                   IPRCMP=ISPINCMP
                END IF
-               IF (PNAME(IPRNUM).EQ.'MLTPL  1'.AND.
+               IF (PNAME(IPRNUM).EQ.'MLTPL  1'.AND.                     &
      &             PTYPE(IPRNUM).EQ.'ANTITRIP') THEN
                   IFSPIN=2
                   IPRCMP=ISPINCMP
@@ -70,7 +70,7 @@ C 2 = spin dependent property, triplet operator
          Call Abend()
       ENDIF
 
-C Mapping from spin states to spin-free state and to spin:
+! Mapping from spin states to spin-free state and to spin:
       ISS=0
       DO ISTATE=1,NSTATE
          JOB1=JBNUM(ISTATE)
@@ -123,35 +123,35 @@ C Mapping from spin states to spin-free state and to spin:
                         END IF
                      END IF
                   ELSE IF (IFSPIN.EQ.2) THEN
-C 1-electron triplet operator so only Delta S =0,+-1 and Delta MS =0,+-1
-C Notice S1,S2 and SM1,SM2 need not to be integers
-C Hence MPLET1,MPLET2 and MSPROJ1,MSPROJ2 are used
-C Notice SMINUS and SPLUS is interchanged compared to above
-C Notice that the Y part is imaginary
-C
-C see section 3 (Spin_orbit coupling in RASSI) in
-C P A Malmqvist, et. al CPL, 357 (2002) 230-240
-C for details
-C
-C Note that we work on the x, y, and z components at this time.
-C
-C What follows applies only to the exact operator for the
-C transition moment.
-C
-C On page 234 we have the notation V^{AB}(x), that is the
-C potential has Cartesian components. Here, however, this is
-C partitioned in a slightly different way since we have that
-C V^{AB}(x)=(k x e_l)_x V^{AB}. We will only handle the
-C V^{AB} part.
-C
-C Hence, we will compute the contributions to T(i), i=x,y,z
-C here and form the inner product
-C (k x e_l)_i V^{AB} . T(i)
-C outside the code.
-C
-C Note that this code strictly follows the code of soeig.f where
-C the term L.S is added to the Hamiltonian.
-C
+! 1-electron triplet operator so only Delta S =0,+-1 and Delta MS =0,+-1
+! Notice S1,S2 and SM1,SM2 need not to be integers
+! Hence MPLET1,MPLET2 and MSPROJ1,MSPROJ2 are used
+! Notice SMINUS and SPLUS is interchanged compared to above
+! Notice that the Y part is imaginary
+!
+! see section 3 (Spin_orbit coupling in RASSI) in
+! P A Malmqvist, et. al CPL, 357 (2002) 230-240
+! for details
+!
+! Note that we work on the x, y, and z components at this time.
+!
+! What follows applies only to the exact operator for the
+! transition moment.
+!
+! On page 234 we have the notation V^{AB}(x), that is the
+! potential has Cartesian components. Here, however, this is
+! partitioned in a slightly different way since we have that
+! V^{AB}(x)=(k x e_l)_x V^{AB}. We will only handle the
+! V^{AB} part.
+!
+! Hence, we will compute the contributions to T(i), i=x,y,z
+! here and form the inner product
+! (k x e_l)_i V^{AB} . T(i)
+! outside the code.
+!
+! Note that this code strictly follows the code of soeig.f where
+! the term L.S is added to the Hamiltonian.
+!
                      FACT=1.0D0/SQRT(DBLE(MPLET1))
                      IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
                      CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
@@ -159,9 +159,9 @@ C
                      CGP=FACT*DCLEBS(S2,1.0D0,S1,SM2,+1.0D0,SM1)
                      CGX= SQRT(0.5D0)*(CGM-CGP)
                      CGY=-SQRT(0.5D0)*(CGM+CGP)
-*
+!
                      EXPKR=PROP(ISTATE,JSTATE,IPRNUM)
-*
+!
                      IF (IPRCMP.EQ.1) THEN
                         EXPKR=EXPKR*CGX
                      ELSE IF (IPRCMP.EQ.2) THEN

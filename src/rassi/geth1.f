@@ -1,23 +1,23 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1989, Per Ake Malmqvist                                *
-************************************************************************
-*****************************************************************
-*  PROGRAM RASSI        PER-AAKE MALMQVIST
-*  SUBROUTINE GETH1     IBM-3090 RELEASE 89 01 30
-*  READ THE ONE-ELECTRON HAMILTONIAN MATRIX ELEMENTS AND RETURN
-*  IT AS HONEAO IN SYMMETRY-BLOCKED SQUARED FORMAT.
-*  Also reads and adds reaction field contribution.
-*  Also ERFNUC, reaction field contribution to nuclear repulsion.
-*****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1989, Per Ake Malmqvist                                *
+!***********************************************************************
+!****************************************************************
+!  PROGRAM RASSI        PER-AAKE MALMQVIST
+!  SUBROUTINE GETH1     IBM-3090 RELEASE 89 01 30
+!  READ THE ONE-ELECTRON HAMILTONIAN MATRIX ELEMENTS AND RETURN
+!  IT AS HONEAO IN SYMMETRY-BLOCKED SQUARED FORMAT.
+!  Also reads and adds reaction field contribution.
+!  Also ERFNUC, reaction field contribution to nuclear repulsion.
+!****************************************************************
       SUBROUTINE GETH1_RASSI(HONEAO)
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -29,9 +29,9 @@
       Character(LEN=8) OneLbl
       Logical Found
       Real*8, Allocatable:: H1(:), Tmp(:)
-      Integer IRC, IOPT, ICMP, iSyLab, iBuf, ISTQ, ISYM, NB, IP, IQ,
+      Integer IRC, IOPT, ICMP, iSyLab, iBuf, ISTQ, ISYM, NB, IP, IQ,    &
      &        IPQ, IQP
-*
+!
       CALL mma_allocate(H1,NBTRI,Label='H1')
       iRc=-1
       iOpt=ibset(ibset(0,sNoOri),sNoNuc)

@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE PRSCTAB(SCTAB,TRANS)
       use definitions, only: iwp, wp, u6
       IMPLICIT NONE
       INTEGER(kind=iwp), intent(in):: SCTAB(*)
       REAL(kind=wp), intent(in):: TRANS(*)
 
-      INTEGER(kind=iwp) NSIZE,ITYPE,MLTPL,MS2,MINOP,MAXOP,LTRANS,NTRANS,
+      INTEGER(kind=iwp) NSIZE,ITYPE,MLTPL,MS2,MINOP,MAXOP,LTRANS,NTRANS,&
      &                  N,IOPEN,NCP,NBLK,IBLK,NCPL,ND,KSPCPL,KSPDET
       INTEGER(kind=iwp), External:: ngene
 
@@ -38,7 +38,7 @@
       WRITE(u6,'(1x,A,I16)')' Open shells; max :',MAXOP
       WRITE(u6,'(1x,A,I16)')' Transf data; addr:',LTRANS
       WRITE(u6,'(1x,A,I16)')' Transf data; wrds:',NTRANS
-C Number of (non-trivial) values of IOPEN:
+! Number of (non-trivial) values of IOPEN:
       N=0
       DO IOPEN=MINOP,MAXOP
         NCP=NGENE(IOPEN,MLTPL)

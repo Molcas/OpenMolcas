@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2020, Bruno Tenorio                                    *
-************************************************************************
-*  SUBROUTINE DYSNORM
-*  PURPOSE: CALCULATE CORRECTED DYSON NORMS FOR CI EXPANSIONS IN A
-*  BIORTH. BASIS
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2020, Bruno Tenorio                                    *
+!***********************************************************************
+!  SUBROUTINE DYSNORM
+!  PURPOSE: CALCULATE CORRECTED DYSON NORMS FOR CI EXPANSIONS IN A
+!  BIORTH. BASIS
+!***********************************************************************
       SUBROUTINE DYSNORM(CMOA,DYSCMO,NORM)
 
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -37,7 +37,7 @@
       Integer no1,nb1,nscr,isy1
       Real*8, EXTERNAL :: DDOT_
 
-C============================================================
+!============================================================
       nbast=0
       nbast1=0
       nbast2=0
@@ -77,7 +77,7 @@ C============================================================
       end do
       call mma_deallocate(SAO)
 
-C============================================================
+!============================================================
 
       IST=1
       ISTA=1
@@ -107,12 +107,12 @@ C============================================================
         Scr=Zero
         Scr2=Zero
 
-        CALL DGEMM_('N','N', NB1, NO1, NB1, One,
-     &                 IAO(ISTCA),NB1, CMOA(ISTCB), NB1,
+        CALL DGEMM_('N','N', NB1, NO1, NB1, One,                        &
+     &                 IAO(ISTCA),NB1, CMOA(ISTCB), NB1,                &
      &         Zero, Scr(ISTCB), NB1)
 
-        CALL DGEMM_('T','N', NO1, NO1, NB1, One,
-     &                 CMOA(ISTCB),NB1, Scr(ISTCB), NB1,
+        CALL DGEMM_('T','N', NO1, NO1, NB1, One,                        &
+     &                 CMOA(ISTCB),NB1, Scr(ISTCB), NB1,                &
      &         Zero, Scr2(ISTC), NO1)
 
 ! Src2 is the M matrix
@@ -121,7 +121,7 @@ C============================================================
 
         call mma_allocate(DYSAB2,NO1)
         DYSAB2=Zero
-        CALL DGEMV_('N', NO1, NO1, One, Scr2(ISTC), NO1,
+        CALL DGEMV_('N', NO1, NO1, One, Scr2(ISTC), NO1,                &
      &              DYSAB(NDYS),1, Zero, DYSAB2, 1)
 
         normscr= DDOT_(NO1, DYSAB(NDYS), 1, DYSAB2, 1)

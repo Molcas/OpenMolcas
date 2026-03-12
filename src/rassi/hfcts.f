@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2015, Kamal Sharkas                                    *
-*               2019, Thomas J. Duignan                                *
-*               2021, Rulin Feng                                       *
-************************************************************************
-*
-* Note: The hyperfine code is based on the analogous
-* pre-existing G-tensor functionality
-*
-      SUBROUTINE HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2015, Kamal Sharkas                                    *
+!               2019, Thomas J. Duignan                                *
+!               2021, Rulin Feng                                       *
+!***********************************************************************
+!
+! Note: The hyperfine code is based on the analogous
+! pre-existing G-tensor functionality
+!
+      SUBROUTINE HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,    &
      &                 ESO,XYZCHR,BOLTZ_K)
       use rassi_aux, only: ipglob
       use Constants, only: Zero, One, auTocm, c_in_au, gElectron
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NPROP, NTP, IFSONCINI, IFACALFC,
-     &                 IFACALSD, TMINP, TMAXP, EPRATHR, IFATCALSA,
-     &                 IFGTSHSA, MULTIP, IFACALFCON, IFACALFCSDON,
+      use Cntrl, only: NSTATE, NPROP, NTP, IFSONCINI, IFACALFC,         &
+     &                 IFACALSD, TMINP, TMAXP, EPRATHR, IFATCALSA,      &
+     &                 IFGTSHSA, MULTIP, IFACALFCON, IFACALFCSDON,      &
      &                 ICOMP, IFACALPSO, MLTPLT, PNAME, IFACALSDON
       use hfc_logical, only: MAG_X2C
 
@@ -62,21 +62,21 @@
            Real*8, Pointer:: A2(:,:)
       End Type A2_array
       Type (A2_array):: pZMR(3), pZMI(3)
-      Real*8, Allocatable, Target:: ZXR(:,:), ZXI(:,:),
-     &                              ZYR(:,:), ZYI(:,:),
+      Real*8, Allocatable, Target:: ZXR(:,:), ZXI(:,:),                 &
+     &                              ZYR(:,:), ZYI(:,:),                 &
      &                              ZZR(:,:), ZZI(:,:)
-      Real*8, Allocatable, Target:: MXR(:,:), MXI(:,:),
-     &                              MYR(:,:), MYI(:,:),
+      Real*8, Allocatable, Target:: MXR(:,:), MXI(:,:),                 &
+     &                              MYR(:,:), MYI(:,:),                 &
      &                              MZR(:,:), MZI(:,:)
 
-      REAL*8 Alpha, Alpha2, FEGVAL, S1, S2, SM1, SM2,
-     &       AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, ACNT, FACT,
-     &       CGM, CG0, CGP, CGX, CGY, GSENERGY, DLT_E, EDIFF, GTIJ,
+      REAL*8 Alpha, Alpha2, FEGVAL, S1, S2, SM1, SM2,                   &
+     &       AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, ACNT, FACT,      &
+     &       CGM, CG0, CGP, CGX, CGY, GSENERGY, DLT_E, EDIFF, GTIJ,     &
      &       CONTRIB, DIPSOM_SA, EEX, EEY, EEZ, DCLEBS
-      Integer ISS, ISTATE, JOB, MPLET, MSPROJ, IPROP, ICEN,
-     &        IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6,
-     &        KPROP, MPLET1, MSPROJ1, JSS, JSTATE, MPLET2,
-     &        MSPROJ2, I, IMLTPL, J, IStart, iFinal, IJXYZ, L, IC, JC,
+      Integer ISS, ISTATE, JOB, MPLET, MSPROJ, IPROP, ICEN,             &
+     &        IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6,           &
+     &        KPROP, MPLET1, MSPROJ1, JSS, JSTATE, MPLET2,              &
+     &        MSPROJ2, I, IMLTPL, J, IStart, iFinal, IJXYZ, L, IC, JC,  &
      &        IT, K, KDGN, ISO, JSO, KXYZ, ICOUNT, IERR, IXYZ, JXYZ
 
 !     AU2J=auTokJ*1.0D3
@@ -112,7 +112,7 @@
          WRITE(6,*)
       ENDIF
 
-C Mapping from spin states to spin-free state and to spin:
+! Mapping from spin states to spin-free state and to spin:
       CALL mma_allocate(MAPST,NSS,Label='MAPST')
       CALL mma_allocate(MAPSP,NSS,Label='MAPSP')
       CALL mma_allocate(MAPMS,NSS,Label='MAPMS')
@@ -131,7 +131,7 @@ C Mapping from spin states to spin-free state and to spin:
       DO IPROP=1,NPROP
         IF(PNAME(IPROP)(1:3).EQ.'ASD'.AND.ICOMP(IPROP).EQ.1) THEN
 
-* Get the center number
+! Get the center number
          Read (PNAME(IPROP),'(4x,i4)') ICEN
 
       WRITE(6,*) '  ========================================='
@@ -143,38 +143,38 @@ C Mapping from spin states to spin-free state and to spin:
       WRITE(PSOPROP,'(a4,i4)') 'PSOP',ICEN
       WRITE(6,*) "Looking for ",PSOPROP
 
-C Identify which properties are ASD matrix elements:
+! Identify which properties are ASD matrix elements:
 
 
-cccccccccccccccccccccccccccccccccccccccc
-c Testing - use overlap matrix
-cccccccccccccccccccccccccccccccccccccccc
-c      SDPROP = 'MLTPL  0'
-c      WRITE(6,*) "Looking for overlap matrix ",SDPROP
-c      DO KPROP=1,NPROP
-c       IF(PNAME(KPROP).EQ.SDPROP) THEN
-c         IAMFI1=KPROP
-c         IAMFI2=0
-c         IAMFI3=0
-c         IAMFI4=0
-c         IAMFI5=0
-c         IAMFI6=0
-c       END IF
-c      END DO
-cccccccccccccccccccccccccccccccccccccccc
-c End testing - use overlap matrix
-cccccccccccccccccccccccccccccccccccccccc
+!ccccccccccccccccccccccccccccccccccccccc
+! Testing - use overlap matrix
+!ccccccccccccccccccccccccccccccccccccccc
+!      SDPROP = 'MLTPL  0'
+!      WRITE(6,*) "Looking for overlap matrix ",SDPROP
+!      DO KPROP=1,NPROP
+!       IF(PNAME(KPROP).EQ.SDPROP) THEN
+!         IAMFI1=KPROP
+!         IAMFI2=0
+!         IAMFI3=0
+!         IAMFI4=0
+!         IAMFI5=0
+!         IAMFI6=0
+!       END IF
+!      END DO
+!ccccccccccccccccccccccccccccccccccccccc
+! End testing - use overlap matrix
+!ccccccccccccccccccccccccccccccccccccccc
 
 
-* These will hold the entire expression
-* For g: L+2S
-* For A: ?
+! These will hold the entire expression
+! For g: L+2S
+! For A: ?
 
-C Identify which properties are Orbital Paramagnetic (PSOP) matrix elements:
+! Identify which properties are Orbital Paramagnetic (PSOP) matrix elements:
       Call Allocate_and_Load_PSOP()
 
-c Labeled AMFI for now
-c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
+! Labeled AMFI for now
+! 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
       IAMFI1=0
       IAMFI2=0
       IAMFI3=0
@@ -182,7 +182,7 @@ c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
       IAMFI5=0
       IAMFI6=0
       DO KPROP=1,NPROP
-       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)                              &
      &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
          IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
          IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
@@ -214,7 +214,7 @@ c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
           AMFI5=0.0D0
           AMFI6=0.0D0
 
-* SD
+! SD
           IF(IAMFI1.NE.0) AMFI1=PROP(ISTATE,JSTATE,IAMFI1)
           IF(IAMFI2.NE.0) AMFI2=PROP(ISTATE,JSTATE,IAMFI2)
           IF(IAMFI3.NE.0) AMFI3=PROP(ISTATE,JSTATE,IAMFI3)
@@ -223,10 +223,10 @@ c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
           IF(IAMFI6.NE.0) AMFI6=PROP(ISTATE,JSTATE,IAMFI6)
 
 
-* Note that the 6th element contains r*r
-* This is 4*pi * the contact term we want
-* We need 8*pi/3 * < delta > so we just want
-* a factor of 2/3
+! Note that the 6th element contains r*r
+! This is 4*pi * the contact term we want
+! We need 8*pi/3 * < delta > so we just want
+! a factor of 2/3
           ACNT = 0d0
 
           IF(IFACALFC) THEN
@@ -238,8 +238,8 @@ c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
              WRITE(6,*) "********************"
           END IF
 
-* Since this is a traceless tensor, generate the 6th
-* element (3z^2-r^2)
+! Since this is a traceless tensor, generate the 6th
+! element (3z^2-r^2)
           AMFI6=-AMFI1-AMFI4
 
           IF(IFACALSD) THEN
@@ -276,20 +276,20 @@ c 1,2,3,4,5,6 -> xx,xy,xz,yy,yz,zz
             CALL ADD_INFO("ASDFC6",[AMFI6],1,5)
           End If
 
-cccccccccccccccccccccccccccccccccccccccc
-c Testing - use overlap matrix
-cccccccccccccccccccccccccccccccccccccccc
-c          AMFI1=PROP(ISTATE,JSTATE,IAMFI1)
-c          AMFI2=0.0d0
-c          AMFI3=0.0d0
-c          AMFI4=AMFI1
-c          AMFI5=0.0d0
-c          AMFI6=AMFI1
-cccccccccccccccccccccccccccccccccccccccc
-c END Testing - use overlap matrix
-cccccccccccccccccccccccccccccccccccccccc
+!ccccccccccccccccccccccccccccccccccccccc
+! Testing - use overlap matrix
+!ccccccccccccccccccccccccccccccccccccccc
+!          AMFI1=PROP(ISTATE,JSTATE,IAMFI1)
+!          AMFI2=0.0d0
+!          AMFI3=0.0d0
+!          AMFI4=AMFI1
+!          AMFI5=0.0d0
+!          AMFI6=AMFI1
+!ccccccccccccccccccccccccccccccccccccccc
+! END Testing - use overlap matrix
+!ccccccccccccccccccccccccccccccccccccccc
 
-C WIGNER-ECKART THEOREM:
+! WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
           CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
@@ -314,10 +314,10 @@ C WIGNER-ECKART THEOREM:
 
       Call Deallocate_PSOP()
 
-*     SVC 20090926 Experimental
-*     Add analysis of different contributions
+!     SVC 20090926 Experimental
+!     Add analysis of different contributions
 
-*     Establish which spin components of SFS belong to the ground state
+!     Establish which spin components of SFS belong to the ground state
       DO I=1,NSS
        ISGS(I)=.FALSE.
       ENDDO
@@ -343,18 +343,18 @@ C WIGNER-ECKART THEOREM:
        IMLTPL=IMLTPL+MLTPLT(JBNUM(ISTATE))
       ENDDO
 
-*     Analyze the different contributions to the GS Kramers doublet
-*     Zeeman matrix elements.  There are 4 different ME's: <1|Ze|1>,
-*     <1|Ze|2>, <2|Ze|1>, and <2|Ze|2>, stored in ZEKL.  Contributions
-*     of SFS i,j to SOS k,l (k,l=1,2): <k|Ze|l> = Sum(i,j) U(i,k)*
-*     <i|Ze|j> U(j,l).  This sum is decomposed into parts belonging to
-*     each SFS state i as follows:
-*     -> GS's contain only MEs with themselves and other GS's
-*     -> ES's contain MEs with themselves, the GS's (2x) and other ES's
-*        The ME's with the GS's are counted twice as they do not belong to
-*        any GS's (they contain only ME's within their own GS group)
-*        The contributions with other ES's are split between the ES's,
-*        counting them double (<i|Ze|j> and <j|Ze|i>) and divide by two later.
+!     Analyze the different contributions to the GS Kramers doublet
+!     Zeeman matrix elements.  There are 4 different ME's: <1|Ze|1>,
+!     <1|Ze|2>, <2|Ze|1>, and <2|Ze|2>, stored in ZEKL.  Contributions
+!     of SFS i,j to SOS k,l (k,l=1,2): <k|Ze|l> = Sum(i,j) U(i,k)*
+!     <i|Ze|j> U(j,l).  This sum is decomposed into parts belonging to
+!     each SFS state i as follows:
+!     -> GS's contain only MEs with themselves and other GS's
+!     -> ES's contain MEs with themselves, the GS's (2x) and other ES's
+!        The ME's with the GS's are counted twice as they do not belong to
+!        any GS's (they contain only ME's within their own GS group)
+!        The contributions with other ES's are split between the ES's,
+!        counting them double (<i|Ze|j> and <j|Ze|i>) and divide by two later.
 
       IMLTPL=1
       DO ISTATE=1,NSTATE
@@ -374,19 +374,19 @@ C WIGNER-ECKART THEOREM:
 
        IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contribution of the GS spin components
+! Contribution of the GS spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                    ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                    ZEKL(:,:,IXYZ,ISTATE)
            ENDIF
           ENDDO
          ENDDO
@@ -394,58 +394,58 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
 
        ELSE
 
-* Contributions of the ES spin components
+! Contributions of the ES spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                 ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                 ZEKL(:,:,IXYZ,ISTATE)
           ENDDO
          ENDDO
         ENDDO
 
        ENDIF
 
-C       DO IXYZ=1,3
-C        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
-C     &      ZEKL(:,:,IXYZ,ISTATE)
-C       ENDDO
+!       DO IXYZ=1,3
+!        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
+!     &      ZEKL(:,:,IXYZ,ISTATE)
+!       ENDDO
 
-C 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
-C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
+! 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
+! 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
        IMLTPL=IMLTPL+MLTPLT(JBNUM(ISTATE))
       ENDDO
 
-*     We now have decomposed the <k|Ze|l> into terms belonging to either
-*     a GS or an ES for each k,l=1,2 and p=x,y,z stored in ZEKL(k,l,p,SFS)
-*     Now, these new decomposed terms of the ZEKL ME's are combined to
-*     form the G tensor.  Consider e.g. that <k|Ze|l> is decomposed into
-*     <k|GS|l> + <k|ES1|l> + <k|ES2|l>, then the contributions to G are given as:
-*     -> G_pq/2 = <k|Ze_p|l> <l|Ze_q|k>
-*             = (<k|GS_p|l> + <k|ES1_p|l> + <k|ES2_p|l>)
-*             * (<l|GS_q|k> + <l|ES1_q|k> + <l|ES2_q|k>)
-*
-*     from GS: (<k|GS_p|l>/2 * <l|GS_q|k>/2)/2 + (<k|GS_p|l>/2 * <l|GS_q|k>/2)/2
-*     from ES1: 2*((<k|ES1_p|l>/2 * <l|GS_q|k>/2)/2 + (<k|GS_q|l>/2 * <l|ES1_p|k>/2)/2)
-*               + (<k|ES1_p|l>/2 * <l|ES1_q|k>/2)/2 + (<k|ES1_q|l>/2 * <l|ES2_p|k>/2)/2
-*               + (<k|ES1_p|l>/2 * <l|ES2_q|k>/2)/2 + (<k|ES2_q|l>/2 * <l|ES1_p|k>/2)/2
-*     In the end, the outer division by 2 cancels on both sides, and the
-*     inner divisions by two combine to a division by 4.
+!     We now have decomposed the <k|Ze|l> into terms belonging to either
+!     a GS or an ES for each k,l=1,2 and p=x,y,z stored in ZEKL(k,l,p,SFS)
+!     Now, these new decomposed terms of the ZEKL ME's are combined to
+!     form the G tensor.  Consider e.g. that <k|Ze|l> is decomposed into
+!     <k|GS|l> + <k|ES1|l> + <k|ES2|l>, then the contributions to G are given as:
+!     -> G_pq/2 = <k|Ze_p|l> <l|Ze_q|k>
+!             = (<k|GS_p|l> + <k|ES1_p|l> + <k|ES2_p|l>)
+!             * (<l|GS_q|k> + <l|ES1_q|k> + <l|ES2_q|k>)
+!
+!     from GS: (<k|GS_p|l>/2 * <l|GS_q|k>/2)/2 + (<k|GS_p|l>/2 * <l|GS_q|k>/2)/2
+!     from ES1: 2*((<k|ES1_p|l>/2 * <l|GS_q|k>/2)/2 + (<k|GS_q|l>/2 * <l|ES1_p|k>/2)/2)
+!               + (<k|ES1_p|l>/2 * <l|ES1_q|k>/2)/2 + (<k|ES1_q|l>/2 * <l|ES2_p|k>/2)/2
+!               + (<k|ES1_p|l>/2 * <l|ES2_q|k>/2)/2 + (<k|ES2_q|l>/2 * <l|ES1_p|k>/2)/2
+!     In the end, the outer division by 2 cancels on both sides, and the
+!     inner divisions by two combine to a division by 4.
 
       DO ISTATE=1,NSTATE
        DO IJXYZ=1,9
@@ -463,15 +463,15 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contributions for the GS's
+! Contributions for the GS's
           DO JSTATE=1,NSTATE
            IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
             DO I=1,2
              DO J=1,2
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDDO
             ENDDO
@@ -480,20 +480,20 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          ELSE
 
-* Contributions for the ES's
+! Contributions for the ES's
           DO JSTATE=1,NSTATE
            DO I=1,2
             DO J=1,2
-             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &            +(ZEKL(I,J,IXYZ,ISTATE)*
-     &            ZEKL(J,I,JXYZ,JSTATE))/4
-     &            +(ZEKL(I,J,IXYZ,JSTATE)*
+             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                    &
+     &            +(ZEKL(I,J,IXYZ,ISTATE)*                              &
+     &            ZEKL(J,I,JXYZ,JSTATE))/4                              &
+     &            +(ZEKL(I,J,IXYZ,JSTATE)*                              &
      &            ZEKL(J,I,JXYZ,ISTATE))/4
              IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDIF
             ENDDO
@@ -518,9 +518,9 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
          enddo
        enddo
 
-c
-c*     Continue original calculation of G tensor (=gg^*)
-c
+!
+!*     Continue original calculation of G tensor (=gg^*)
+!
 
       CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
       CALL PRCMAT(NSS,ZXR,ZXI)
@@ -681,7 +681,7 @@ c
       do ic=1,3
       do jc=1,3
 
-      HFC_1(ic,jc)=DBLE(DIPSOm(ic,Iss,Jss)*
+      HFC_1(ic,jc)=DBLE(DIPSOm(ic,Iss,Jss)*                             &
      & CONJG(DIPSOf(jc,Iss,Jss)))/(Boltz_k*TMPf(iT))
 
 !!      HFC_1(ic,jc)=DBLE(DIPSOf(ic,Iss,Jss)*
@@ -698,50 +698,50 @@ c
       DiamT(ic,jc)=    DiamT(ic,jc)+ 0.d0*HFC_1(ic,jc)
       else
 
-      HFC_2(ic,jc)= HFC_2(ic,jc)-(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
-     & DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*
+      HFC_2(ic,jc)= HFC_2(ic,jc)-(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*       &
+     & DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*                   &
      & CONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
 !      HFC_2(ic,jc)= HFC_2(ic,jc)-2.d0*(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
 !     & DIPSOf(jc,Iss,Jss)))/dlt_E
 
-      HFC_3(ic,jc)= HFC_3(ic,jc)-(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
-     & DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*
+      HFC_3(ic,jc)= HFC_3(ic,jc)-(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*       &
+     & DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*                   &
      & CONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
 
-      CurieT(ic,jc)= CurieT(ic,jc)-0.d0*
-     &(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
-     &DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*
+      CurieT(ic,jc)= CurieT(ic,jc)-0.d0*                                &
+     &(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*                                  &
+     &DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*                    &
      & CONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
 
-      DiamT(ic,jc)=DiamT(ic,jc)-0.d0*
-     &(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
-     &DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*
+      DiamT(ic,jc)=DiamT(ic,jc)-0.d0*                                   &
+     &(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*                                  &
+     &DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*                    &
      & CONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
 
       endif
 
-      HFC_2(ic,jc)= HFC_2(ic,jc) + (1.D-6*DBLE(DIMSO(ic,jc,Iss,Jss))
+      HFC_2(ic,jc)= HFC_2(ic,jc) + (1.D-6*DBLE(DIMSO(ic,jc,Iss,Jss))    &
      & /(ALPHA2*auTocm))
-      DiamT(ic,jc)=DiamT(ic,jc)+ (1.D-6*DBLE(DIMSO(ic,jc,Iss,Jss))
+      DiamT(ic,jc)=DiamT(ic,jc)+ (1.D-6*DBLE(DIMSO(ic,jc,Iss,Jss))      &
      & /(ALPHA2*auTocm))
       enddo
       enddo
       enddo !Jss
       do ic=1,3
       do jc=1,3
-      PNMRT(iT,ic,jc)=    PNMRT(iT,ic,jc)+ p_Boltz*
+      PNMRT(iT,ic,jc)=    PNMRT(iT,ic,jc)+ p_Boltz*                     &
      & HFC_2(ic,jc)
 
-      PNMR(iT,ic,jc)=    PNMR(iT,ic,jc)+ p_Boltz*
+      PNMR(iT,ic,jc)=    PNMR(iT,ic,jc)+ p_Boltz*                       &
      & HFC_3(ic,jc)
 
-      PNMRC(iT,ic,jc)=    PNMRC(iT,ic,jc)+ p_Boltz*
+      PNMRC(iT,ic,jc)=    PNMRC(iT,ic,jc)+ p_Boltz*                     &
      & CurieT(ic,jc)
 
       PNMRCPS(iT,Iss,ic,jc)= PNMRCPS(iT,Iss,ic,jc)+CurieT(ic,jc)
       PNMRCPS(iT,Iss,ic,jc)=1.D6*auTocm*ALPHA2*PNMRCPS(iT,Iss,ic,jc)
 
-      PNMRD(iT,ic,jc)=    PNMRD(iT,ic,jc)+ p_Boltz*
+      PNMRD(iT,ic,jc)=    PNMRD(iT,ic,jc)+ p_Boltz*                     &
      & DiamT(ic,jc)
 
       enddo
@@ -773,17 +773,17 @@ c
 
       write(6,'(/)')
       write(6,'(10A)') (('------------'), K=1,10)
-      write(6,'(30X,A)') ' TOTAL SONCINI PNMR TENSOR'//
+      write(6,'(30X,A)') ' TOTAL SONCINI PNMR TENSOR'//                 &
      & ' in (ppm)'
       write(6,'(10A)') (('------------'), K=1,10)
       write(6,*)
-C      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
-C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
-      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',
+!      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
+!     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
+      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',     &
      & 'yz','zx','zy','zz'
       write(6,*)
       do iT=1,NTP
-      write(6,'(4X,F6.1,3X,11(F15.4,2X),F8.4)') TMPf(iT),
+      write(6,'(4X,F6.1,3X,11(F15.4,2X),F8.4)') TMPf(iT),               &
      & ((PNMRT(iT,ic,jc),jc=1,3),ic=1,3)
       enddo
       !write(6,*)'*******'
@@ -798,49 +798,49 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
 
       write(6,'(/)')
       write(6,'(10A)') (('------------'), K=1,10)
-      write(6,'(30X,A)') 'paramagnetic SONCINI PNMR TENSOR'//
+      write(6,'(30X,A)') 'paramagnetic SONCINI PNMR TENSOR'//           &
      & ' in (ppm)'
       write(6,'(10A)') (('------------'), K=1,10)
       write(6,*)
-C      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
-C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
-      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',
+!      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
+!     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
+      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',     &
      & 'yz','zx','zy','zz'
       write(6,*)
       do iT=1,NTP
-      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPf(iT),
+      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPf(iT),                &
      & ((PNMR(iT,ic,jc),jc=1,3),ic=1,3)
       enddo
 
       write(6,'(/)')
       write(6,'(10A)') (('------------'), K=1,10)
-      write(6,'(30X,A)') 'Diamagnetic  SONCINI PNMR TENSOR'//
+      write(6,'(30X,A)') 'Diamagnetic  SONCINI PNMR TENSOR'//           &
      & ' in (ppm)'
       write(6,'(10A)') (('------------'), K=1,10)
       write(6,*)
-C      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
-C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
-      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',
+!      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
+!     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
+      write(6,'(6X,A,8X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',     &
      & 'yz','zx','zy','zz'
       write(6,*)
       do iT=1,NTP
-      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPf(iT),
+      write(6,'(4X,F6.1,3X,11(F9.4,2X),F8.4)') TMPf(iT),                &
      & ((PNMRD(iT,ic,jc),jc=1,3),ic=1,3)
       enddo
 
       write(6,'(/)')
       write(6,'(10A)') (('------------'), K=1,10)
-      write(6,'(30X,A)') 'Curie term contrib. to SONCINI PNMR TENSOR'//
+      write(6,'(30X,A)') 'Curie term contrib. to SONCINI PNMR TENSOR'// &
      & ' in (ppm)'
       write(6,'(10A)') (('------------'), K=1,10)
       write(6,*)
-C      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
-C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
-      write(6,'(6X,A,9X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',
+!      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
+!     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
+      write(6,'(6X,A,9X,9(A,9X))') 'T(K)','xx','xy','xz','yx','yy',     &
      & 'yz','zx','zy','zz'
       write(6,*)
       do iT=1,NTP
-      write(6,'(4X,F6.1,3X,11(F15.4,2X),F8.4)') TMPf(iT),
+      write(6,'(4X,F6.1,3X,11(F15.4,2X),F8.4)') TMPf(iT),               &
      & ((PNMRC(iT,ic,jc),jc=1,3),ic=1,3)
 !       IF (.EQV..TRUE.) THEN
       write(6,'(/)')
@@ -848,16 +848,16 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       write(6,'(30X,A)') 'Curie per state in (ppm)'
       write(6,'(10A)') (('------------'), K=1,10)
       write(6,*)
-C      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
-C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
-      write(6,'(6X,A,8X,9(A,9X))') 'NSS','xx','xy','xz','yx','yy',
+!      write(6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)',
+!     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
+      write(6,'(6X,A,8X,9(A,9X))') 'NSS','xx','xy','xz','yx','yy',      &
      & 'yz','zx','zy','zz'
       write(6,*)
       !write(6,*)""
       !write(6,*) PNMRC(iT,3,3)
       !write(6,*)""
       do Iss=1,NSS
-      write(6,'(4X,I5,3X,11(F10.4,2X),F8.4)') Iss,
+      write(6,'(4X,I5,3X,11(F10.4,2X),F8.4)') Iss,                      &
      & ((PNMRCPS(iT,Iss,ic,jc),jc=1,3),ic=1,3)
        enddo
 
@@ -875,7 +875,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
 ! 1111 Continue
 
       ISS=1
-      DO WHILE ( (ISS.LE.NSS) .AND.
+      DO WHILE ( (ISS.LE.NSS) .AND.                                     &
      &          ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR) )
 
       DO IXYZ=1,3
@@ -897,10 +897,10 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
 
       WRITE(6,*)
       DO I=1,KDGN
-      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')
+      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')                                 &
      & 'SO-STATE ',ISS-1+I,'E = ',ENSOR(ISS-1+I)
       ENDDO
-      WRITE(6,'(3x,A46)')
+      WRITE(6,'(3x,A46)')                                               &
      &'----------------------------------------------'
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       IF(.NOT.IFATCALSA) GOTO 451
@@ -918,16 +918,16 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
-       WRITE(6,'(a6,9(5x,a2,5x))')
+       WRITE(6,'(a6,9(5x,a2,5x))')                                      &
      &      'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
        WRITE(6,*)
        DO ISTATE=1,NSTATE
-        WRITE(6,'(2x,I2,2x,9(F12.6))')
+        WRITE(6,'(2x,I2,2x,9(F12.6))')                                  &
      &       ISTATE, (DBLE(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
        ENDDO
 
        WRITE(6,*)
-       WRITE(6,'(A6,9(F12.6))')
+       WRITE(6,'(A6,9(F12.6))')                                         &
      &      'total ', (GTOTAL(IJXYZ),IJXYZ=1,9)
       ENDIF
 
@@ -940,7 +940,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)          &
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
@@ -952,10 +952,10 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
       !IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
-       WRITE(6,'(6x,3(6x,a2,4x))')
+       WRITE(6,'(6x,3(6x,a2,4x))')                                      &
      &  (xyzchr(IXYZ),IXYZ=1,3)
        DO IXYZ=1,3
-       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')
+       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')                             &
      &  xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3)
        ENDDO
       !END IF
@@ -977,29 +977,29 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
 
       CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
-C construct g_s matrix from G by back-transormation of the
-C square root of the G eigenvalues
+! construct g_s matrix from G by back-transormation of the
+! square root of the G eigenvalues
       DO IXYZ=1,3
        DO JXYZ=1,3
        GTENS(IXYZ,JXYZ)=0.0D0
         DO KXYZ=1,3
-        GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+
+        GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+                              &
      &   TMPVEC(IXYZ,KXYZ)*SQRT(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
         END DO
        END DO
       ENDDO
 
-      WRITE(6,'(6x,3(5x,a2,5x),'//
-     & '4x,4x,2x,8x,'//
-     & '2x,2x,2x,3(4x,a2,i1,3x))')
+      WRITE(6,'(6x,3(5x,a2,5x),'//                                      &
+     & '4x,4x,2x,8x,'//                                                 &
+     & '2x,2x,2x,3(4x,a2,i1,3x))')                                      &
      & (xyzchr(IXYZ),IXYZ=1,3), ('a_',IXYZ,IXYZ=1,3)
       WRITE(6,*)
       DO IXYZ=1,3
-      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//
-     & '4x,a2,i1,a1,2x,f12.9,'//
-     & '2x,a2,2x,3(1x,f8.4,1x))')
-     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),
-     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),
+      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//                             &
+     & '4x,a2,i1,a1,2x,f12.9,'//                                        &
+     & '2x,a2,2x,3(1x,f8.4,1x))')                                       &
+     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),                       &
+     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),                                   &
      & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3)
       ENDDO
 
@@ -1071,7 +1071,7 @@ C square root of the G eigenvalues
       WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
       WRITE(6,*) "Looking for ",SDPROP
       DO KPROP=1,NPROP
-       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)                              &
      &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
          IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
          IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
@@ -1102,7 +1102,7 @@ C square root of the G eigenvalues
           AMFI4=0.0D0
           AMFI5=0.0D0
           AMFI6=0.0D0
-* SD
+! SD
           IF(IAMFI1.NE.0) AMFI1=PROP(ISTATE,JSTATE,IAMFI1)
           IF(IAMFI2.NE.0) AMFI2=PROP(ISTATE,JSTATE,IAMFI2)
           IF(IAMFI3.NE.0) AMFI3=PROP(ISTATE,JSTATE,IAMFI3)
@@ -1146,7 +1146,7 @@ C square root of the G eigenvalues
           AMFI4=AMFI4+ACNT
           AMFI6=AMFI6+ACNT
 
-C WIGNER-ECKART THEOREM:
+! WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
           CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
@@ -1206,19 +1206,19 @@ C WIGNER-ECKART THEOREM:
 
        IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contribution of the GS spin components
+! Contribution of the GS spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                    ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                    ZEKL(:,:,IXYZ,ISTATE)
            ENDIF
           ENDDO
          ENDDO
@@ -1226,40 +1226,40 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
 
        ELSE
 
-* Contributions of the ES spin components
+! Contributions of the ES spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
 
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                 ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                 ZEKL(:,:,IXYZ,ISTATE)
           ENDDO
          ENDDO
         ENDDO
 
        ENDIF
 
-C       DO IXYZ=1,3
-C        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
-C     &      ZEKL(:,:,IXYZ,ISTATE)
-C       ENDDO
+!       DO IXYZ=1,3
+!        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
+!     &      ZEKL(:,:,IXYZ,ISTATE)
+!       ENDDO
 
-C 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
-C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
+! 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
+! 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
        IMLTPL=IMLTPL+MLTPLT(JBNUM(ISTATE))
       ENDDO
@@ -1280,15 +1280,15 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contributions for the GS's
+! Contributions for the GS's
           DO JSTATE=1,NSTATE
            IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
             DO I=1,2
              DO J=1,2
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDDO
             ENDDO
@@ -1297,20 +1297,20 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          ELSE
 
-* Contributions for the ES's
+! Contributions for the ES's
           DO JSTATE=1,NSTATE
            DO I=1,2
             DO J=1,2
-             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &            +(ZEKL(I,J,IXYZ,ISTATE)*
-     &            ZEKL(J,I,JXYZ,JSTATE))/4
-     &            +(ZEKL(I,J,IXYZ,JSTATE)*
+             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                    &
+     &            +(ZEKL(I,J,IXYZ,ISTATE)*                              &
+     &            ZEKL(J,I,JXYZ,JSTATE))/4                              &
+     &            +(ZEKL(I,J,IXYZ,JSTATE)*                              &
      &            ZEKL(J,I,JXYZ,ISTATE))/4
              IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDIF
             ENDDO
@@ -1334,9 +1334,9 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
           enddo
          enddo
        enddo
-c
-c*     Continue original calculation of G tensor (=gg^*)
-c
+!
+!*     Continue original calculation of G tensor (=gg^*)
+!
       CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
       CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
       DO ISS=1,NSS
@@ -1360,7 +1360,7 @@ c
       enddo
 
       ISS=1
-      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR
+      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR               &
      &  .AND.(ISS.LE.NSS))
 
       DO IXYZ=1,3
@@ -1382,10 +1382,10 @@ c
 
       WRITE(6,*)
       DO I=1,KDGN
-      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')
+      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')                                 &
      & 'SO-STATE ',ISS-1+I,'E = ',ENSOR(ISS-1+I)
       ENDDO
-      WRITE(6,'(3x,A46)')
+      WRITE(6,'(3x,A46)')                                               &
      &'----------------------------------------------'
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       IF(.NOT.IFATCALSA) GOTO 452
@@ -1404,16 +1404,16 @@ c
       IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
-       WRITE(6,'(a6,9(5x,a2,5x))')
+       WRITE(6,'(a6,9(5x,a2,5x))')                                      &
      &      'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
        WRITE(6,*)
        DO ISTATE=1,NSTATE
-        WRITE(6,'(2x,I2,2x,9(F12.6))')
+        WRITE(6,'(2x,I2,2x,9(F12.6))')                                  &
      &       ISTATE, (DBLE(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
        ENDDO
 
        WRITE(6,*)
-       WRITE(6,'(A6,9(F12.6))')
+       WRITE(6,'(A6,9(F12.6))')                                         &
      &      'total ', (GTOTAL(IJXYZ),IJXYZ=1,9)
       ENDIF
 
@@ -1426,7 +1426,7 @@ c
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)          &
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
@@ -1438,10 +1438,10 @@ c
       !IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
-       WRITE(6,'(6x,3(6x,a2,4x))')
+       WRITE(6,'(6x,3(6x,a2,4x))')                                      &
      &  (xyzchr(IXYZ),IXYZ=1,3)
        DO IXYZ=1,3
-       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')
+       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')                             &
      &  xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3)
        ENDDO
       !END IF
@@ -1467,23 +1467,23 @@ c
        DO JXYZ=1,3
        GTENS(IXYZ,JXYZ)=0.0D0
         DO KXYZ=1,3
-       GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+
+       GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+                               &
      &  TMPVEC(IXYZ,KXYZ)*SQRT(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
         END DO
        END DO
       ENDDO
 
-      WRITE(6,'(6x,3(5x,a2,5x),'//
-     & '4x,4x,2x,8x,'//
-     & '2x,2x,2x,3(4x,a2,i1,3x))')
+      WRITE(6,'(6x,3(5x,a2,5x),'//                                      &
+     & '4x,4x,2x,8x,'//                                                 &
+     & '2x,2x,2x,3(4x,a2,i1,3x))')                                      &
      & (xyzchr(IXYZ),IXYZ=1,3), ('a_',IXYZ,IXYZ=1,3)
       WRITE(6,*)
       DO IXYZ=1,3
-      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//
-     & '4x,a2,i1,a1,2x,f12.9,'//
-     & '2x,a2,2x,3(1x,f8.4,1x))')
-     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),
-     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),
+      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//                             &
+     & '4x,a2,i1,a1,2x,f12.9,'//                                        &
+     & '2x,a2,2x,3(1x,f8.4,1x))')                                       &
+     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),                       &
+     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),                                   &
      & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3)
       ENDDO
 
@@ -1513,7 +1513,7 @@ c
       WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
       WRITE(6,*) "Looking for ",SDPROP
       DO KPROP=1,NPROP
-       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)                              &
      &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
          IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
          IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
@@ -1545,7 +1545,7 @@ c
           AMFI5=0.0D0
           AMFI6=0.0D0
 
-* SD
+! SD
           IF(IAMFI1.NE.0) AMFI1=PROP(ISTATE,JSTATE,IAMFI1)
           IF(IAMFI2.NE.0) AMFI2=PROP(ISTATE,JSTATE,IAMFI2)
           IF(IAMFI3.NE.0) AMFI3=PROP(ISTATE,JSTATE,IAMFI3)
@@ -1589,7 +1589,7 @@ c
           AMFI4=AMFI4+ACNT
           AMFI6=AMFI6+ACNT
 
-C WIGNER-ECKART THEOREM:
+! WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
           CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
@@ -1650,19 +1650,19 @@ C WIGNER-ECKART THEOREM:
 
        IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contribution of the GS spin components
+! Contribution of the GS spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                    ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                    ZEKL(:,:,IXYZ,ISTATE)
            ENDIF
           ENDDO
          ENDDO
@@ -1670,40 +1670,40 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
 
        ELSE
 
-* Contributions of the ES spin components
+! Contributions of the ES spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
 
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                 ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                 ZEKL(:,:,IXYZ,ISTATE)
           ENDDO
          ENDDO
         ENDDO
 
        ENDIF
 
-C       DO IXYZ=1,3
-C        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
-C     &      ZEKL(:,:,IXYZ,ISTATE)
-C       ENDDO
+!       DO IXYZ=1,3
+!        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
+!     &      ZEKL(:,:,IXYZ,ISTATE)
+!       ENDDO
 
-C 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
-C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
+! 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
+! 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
         IMLTPL=IMLTPL+MLTPLT(JBNUM(ISTATE))
       ENDDO
@@ -1724,15 +1724,15 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contributions for the GS's
+! Contributions for the GS's
           DO JSTATE=1,NSTATE
            IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
             DO I=1,2
              DO J=1,2
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDDO
             ENDDO
@@ -1741,20 +1741,20 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          ELSE
 
-* Contributions for the ES's
+! Contributions for the ES's
           DO JSTATE=1,NSTATE
            DO I=1,2
             DO J=1,2
-             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &            +(ZEKL(I,J,IXYZ,ISTATE)*
-     &            ZEKL(J,I,JXYZ,JSTATE))/4
-     &            +(ZEKL(I,J,IXYZ,JSTATE)*
+             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                    &
+     &            +(ZEKL(I,J,IXYZ,ISTATE)*                              &
+     &            ZEKL(J,I,JXYZ,JSTATE))/4                              &
+     &            +(ZEKL(I,J,IXYZ,JSTATE)*                              &
      &            ZEKL(J,I,JXYZ,ISTATE))/4
              IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDIF
             ENDDO
@@ -1778,9 +1778,9 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
           enddo
          enddo
        enddo
-c
-c*     Continue original calculation of G tensor (=gg^*)
-c
+!
+!*     Continue original calculation of G tensor (=gg^*)
+!
       CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
       CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
       DO ISS=1,NSS
@@ -1804,7 +1804,7 @@ c
       enddo
 
       ISS=1
-      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR
+      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR               &
      &  .AND.(ISS.LE.NSS))
 
       DO IXYZ=1,3
@@ -1825,10 +1825,10 @@ c
 
       WRITE(6,*)
       DO I=1,KDGN
-      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')
+      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')                                 &
      & 'SO-STATE ',ISS-1+I,'E = ',ENSOR(ISS-1+I)
       ENDDO
-      WRITE(6,'(3x,A46)')
+      WRITE(6,'(3x,A46)')                                               &
      &'----------------------------------------------'
 
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1848,16 +1848,16 @@ c
       IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
-       WRITE(6,'(a6,9(5x,a2,5x))')
+       WRITE(6,'(a6,9(5x,a2,5x))')                                      &
      &      'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
        WRITE(6,*)
        DO ISTATE=1,NSTATE
-        WRITE(6,'(2x,I2,2x,9(F12.6))')
+        WRITE(6,'(2x,I2,2x,9(F12.6))')                                  &
      &       ISTATE, (DBLE(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
        ENDDO
 
        WRITE(6,*)
-       WRITE(6,'(A6,9(F12.6))')
+       WRITE(6,'(A6,9(F12.6))')                                         &
      &      'total ', (GTOTAL(IJXYZ),IJXYZ=1,9)
       ENDIF
 
@@ -1870,7 +1870,7 @@ c
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)          &
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
@@ -1882,10 +1882,10 @@ c
       !IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
-       WRITE(6,'(6x,3(6x,a2,4x))')
+       WRITE(6,'(6x,3(6x,a2,4x))')                                      &
      &  (xyzchr(IXYZ),IXYZ=1,3)
        DO IXYZ=1,3
-       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')
+       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')                             &
      &  xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3)
        ENDDO
       !END IF
@@ -1911,7 +1911,7 @@ c
        DO JXYZ=1,3
        GTENS(IXYZ,JXYZ)=0.0D0
         DO KXYZ=1,3
-       GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+
+       GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+                               &
      &   TMPVEC(IXYZ,KXYZ)*SQRT(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
         END DO
        END DO
@@ -1943,17 +1943,17 @@ c
       ! END DO
       !ENDDO
 
-      WRITE(6,'(6x,3(5x,a2,5x),'//
-     & '4x,4x,2x,8x,'//
-     & '2x,2x,2x,3(4x,a2,i1,3x))')
+      WRITE(6,'(6x,3(5x,a2,5x),'//                                      &
+     & '4x,4x,2x,8x,'//                                                 &
+     & '2x,2x,2x,3(4x,a2,i1,3x))')                                      &
      & (xyzchr(IXYZ),IXYZ=1,3), ('a_',IXYZ,IXYZ=1,3)
       WRITE(6,*)
       DO IXYZ=1,3
-      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//
-     & '4x,a2,i1,a1,2x,f12.9,'//
-     & '2x,a2,2x,3(1x,f8.4,1x))')
-     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),
-     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),
+      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//                             &
+     & '4x,a2,i1,a1,2x,f12.9,'//                                        &
+     & '2x,a2,2x,3(1x,f8.4,1x))')                                       &
+     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),                       &
+     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),                                   &
      & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3)
       ENDDO
 
@@ -1966,7 +1966,7 @@ c
       Call Deallocate_Z()
  1902  CONTINUE
 
-* Skip if not a hyperfine calculation
+! Skip if not a hyperfine calculation
       IF(.NOT.IFACALFCSDON) GOTO 1903
 
 
@@ -1984,7 +1984,7 @@ c
       WRITE(SDPROP,'(a4,i4)') 'ASD ',ICEN
       WRITE(6,*) "Looking for ",SDPROP
       DO KPROP=1,NPROP
-       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)
+       IF(PNAME(KPROP)(1:3).EQ.SDPROP(1:3)                              &
      &   .AND.PNAME(KPROP)(5:8).EQ.SDPROP(5:8)) THEN
          IF(ICOMP(KPROP).EQ.1) IAMFI1=KPROP
          IF(ICOMP(KPROP).EQ.2) IAMFI2=KPROP
@@ -2016,7 +2016,7 @@ c
           AMFI5=0.0D0
           AMFI6=0.0D0
 
-* SD
+! SD
           IF(IAMFI1.NE.0) AMFI1=PROP(ISTATE,JSTATE,IAMFI1)
           IF(IAMFI2.NE.0) AMFI2=PROP(ISTATE,JSTATE,IAMFI2)
           IF(IAMFI3.NE.0) AMFI3=PROP(ISTATE,JSTATE,IAMFI3)
@@ -2061,7 +2061,7 @@ c
           AMFI4=AMFI4+ACNT
           AMFI6=AMFI6+ACNT
 
-C WIGNER-ECKART THEOREM:
+! WIGNER-ECKART THEOREM:
           FACT=1.0D0/SQRT(DBLE(MPLET1))
           IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
           CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
@@ -2124,19 +2124,19 @@ C WIGNER-ECKART THEOREM:
 
        IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contribution of the GS spin components
+! Contribution of the GS spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                    ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                    ZEKL(:,:,IXYZ,ISTATE)
            ENDIF
           ENDDO
          ENDDO
@@ -2144,26 +2144,26 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
 
        ELSE
 
-* Contributions of the ES spin components
+! Contributions of the ES spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                 ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                 ZEKL(:,:,IXYZ,ISTATE)
           ENDDO
          ENDDO
         ENDDO
@@ -2188,15 +2188,15 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
 
          IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contributions for the GS's
+! Contributions for the GS's
           DO JSTATE=1,NSTATE
            IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
             DO I=1,2
              DO J=1,2
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDDO
             ENDDO
@@ -2204,20 +2204,20 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
           ENDDO
 
          ELSE
-* Contributions for the ES's
+! Contributions for the ES's
           DO JSTATE=1,NSTATE
            DO I=1,2
             DO J=1,2
-             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &            +(ZEKL(I,J,IXYZ,ISTATE)*
-     &            ZEKL(J,I,JXYZ,JSTATE))/4
-     &            +(ZEKL(I,J,IXYZ,JSTATE)*
+             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                    &
+     &            +(ZEKL(I,J,IXYZ,ISTATE)*                              &
+     &            ZEKL(J,I,JXYZ,JSTATE))/4                              &
+     &            +(ZEKL(I,J,IXYZ,JSTATE)*                              &
      &            ZEKL(J,I,JXYZ,ISTATE))/4
              IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDIF
             ENDDO
@@ -2267,7 +2267,7 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
 
 
       ISS=1
-      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR
+      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR               &
      &  .AND.(ISS.LE.NSS))
 
       DO IXYZ=1,3
@@ -2289,10 +2289,10 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
 
       WRITE(6,*)
       DO I=1,KDGN
-      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')
+      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')                                 &
      & 'SO-STATE ',ISS-1+I,'E = ',ENSOR(ISS-1+I)
       ENDDO
-      WRITE(6,'(3x,A46)')
+      WRITE(6,'(3x,A46)')                                               &
      &'----------------------------------------------'
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       IF(.NOT.IFATCALSA) GOTO 454
@@ -2310,16 +2310,16 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
       IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
-       WRITE(6,'(a6,9(5x,a2,5x))')
+       WRITE(6,'(a6,9(5x,a2,5x))')                                      &
      &      'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
        WRITE(6,*)
        DO ISTATE=1,NSTATE
-        WRITE(6,'(2x,I2,2x,9(F12.6))')
+        WRITE(6,'(2x,I2,2x,9(F12.6))')                                  &
      &       ISTATE, (DBLE(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
        ENDDO
 
        WRITE(6,*)
-       WRITE(6,'(A6,9(F12.6))')
+       WRITE(6,'(A6,9(F12.6))')                                         &
      &      'total ', (GTOTAL(IJXYZ),IJXYZ=1,9)
       ENDIF
       JSS=ISS+1
@@ -2330,7 +2330,7 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)          &
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
         GTIJ=GTIJ+CONTRIB
         END DO
@@ -2342,10 +2342,10 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
       !IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
-       WRITE(6,'(6x,3(6x,a2,4x))')
+       WRITE(6,'(6x,3(6x,a2,4x))')                                      &
      &  (xyzchr(IXYZ),IXYZ=1,3)
        DO IXYZ=1,3
-       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')
+       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')                             &
      &  xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3)
        ENDDO
       !END IF
@@ -2366,29 +2366,29 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
       ENDDO
       CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
-C construct g_s matrix from G by back-transormation of the
-C square root of the G eigenvalues
+! construct g_s matrix from G by back-transormation of the
+! square root of the G eigenvalues
       DO IXYZ=1,3
        DO JXYZ=1,3
        GTENS(IXYZ,JXYZ)=0.0D0
         DO KXYZ=1,3
-        GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+
+        GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+                              &
      &   TMPVEC(IXYZ,KXYZ)*SQRT(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
         END DO
        END DO
       ENDDO
 
-      WRITE(6,'(6x,3(5x,a2,5x),'//
-     & '4x,4x,2x,8x,'//
-     & '2x,2x,2x,3(4x,a2,i1,3x))')
+      WRITE(6,'(6x,3(5x,a2,5x),'//                                      &
+     & '4x,4x,2x,8x,'//                                                 &
+     & '2x,2x,2x,3(4x,a2,i1,3x))')                                      &
      & (xyzchr(IXYZ),IXYZ=1,3), ('a_',IXYZ,IXYZ=1,3)
       WRITE(6,*)
       DO IXYZ=1,3
-      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//
-     & '4x,a2,i1,a1,2x,f12.9,'//
-     & '2x,a2,2x,3(1x,f8.4,1x))')
-     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),
-     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),
+      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//                             &
+     & '4x,a2,i1,a1,2x,f12.9,'//                                        &
+     & '2x,a2,2x,3(1x,f8.4,1x))')                                       &
+     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),                       &
+     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),                                   &
      & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3)
       ENDDO
 
@@ -2402,7 +2402,7 @@ C square root of the G eigenvalues
 
  1903  CONTINUE
 
-* Skip if not a hyperfine calculation
+! Skip if not a hyperfine calculation
       IF(.NOT.IFACALPSO) GOTO 1904
 
 
@@ -2449,7 +2449,7 @@ C square root of the G eigenvalues
        ENDIF
        IMLTPL=IMLTPL+MLTPLT(JBNUM(ISTATE))
       ENDDO
-******************************************************
+!*****************************************************
       IMLTPL=1
       DO ISTATE=1,NSTATE
        DO IXYZ=1,3
@@ -2468,19 +2468,19 @@ C square root of the G eigenvalues
 
        IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contribution of the GS spin components
+! Contribution of the GS spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                    ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                    ZEKL(:,:,IXYZ,ISTATE)
            ENDIF
           ENDDO
          ENDDO
@@ -2488,39 +2488,39 @@ C     &                    ZEKL(:,:,IXYZ,ISTATE)
 
        ELSE
 
-* Contributions of the ES spin components
+! Contributions of the ES spin components
         DO IXYZ=1,3
          DO ISS=ISTART,IFINAL
           DO JSS=1,NSS
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,ISS,JSS)
-           CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+           CALL ZECON(NSTATE,NSS,USOR,USOI,                             &
+     &          pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                            &
      &          ZEKL,IXYZ,ISTATE,JSS,ISS)
            IF (ISGS(JSS)) THEN
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,ISS,JSS)
-            CALL ZECON(NSTATE,NSS,USOR,USOI,
-     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,
+            CALL ZECON(NSTATE,NSS,USOR,USOI,                            &
+     &           pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,                           &
      &           ZEKL,IXYZ,ISTATE,JSS,ISS)
            ENDIF
-C     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
-C     &                 ZEKL(:,:,IXYZ,ISTATE)
+!     WRITE(6,FMT=710) 'ZEKL', ISTATE, IXYZ, ISS, JSS,
+!     &                 ZEKL(:,:,IXYZ,ISTATE)
           ENDDO
          ENDDO
         ENDDO
 
        ENDIF
 
-C       DO IXYZ=1,3
-C        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
-C     &      ZEKL(:,:,IXYZ,ISTATE)
-C       ENDDO
+!       DO IXYZ=1,3
+!        WRITE(6,FMT=720) 'ZEKL', IXYZ, ISTATE,
+!     &      ZEKL(:,:,IXYZ,ISTATE)
+!       ENDDO
 
-C 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
-C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
+! 710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
+! 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
        IMLTPL=IMLTPL+MLTPLT(JBNUM(ISTATE))
       ENDDO
@@ -2542,15 +2542,15 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          IF (ABS(ENERGY(ISTATE)-GSENERGY).LT.1.0d-6) THEN
 
-* Contributions for the GS's
+! Contributions for the GS's
           DO JSTATE=1,NSTATE
            IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
             DO I=1,2
              DO J=1,2
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDDO
             ENDDO
@@ -2559,20 +2559,20 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
          ELSE
 
-* Contributions for the ES's
+! Contributions for the ES's
           DO JSTATE=1,NSTATE
            DO I=1,2
             DO J=1,2
-             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &            +(ZEKL(I,J,IXYZ,ISTATE)*
-     &            ZEKL(J,I,JXYZ,JSTATE))/4
-     &            +(ZEKL(I,J,IXYZ,JSTATE)*
+             GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                    &
+     &            +(ZEKL(I,J,IXYZ,ISTATE)*                              &
+     &            ZEKL(J,I,JXYZ,JSTATE))/4                              &
+     &            +(ZEKL(I,J,IXYZ,JSTATE)*                              &
      &            ZEKL(J,I,JXYZ,ISTATE))/4
              IF (ABS(ENERGY(JSTATE)-GSENERGY).LT.1.0d-6) THEN
-              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)
-     &             +(ZEKL(I,J,IXYZ,ISTATE)*
-     &             ZEKL(J,I,JXYZ,JSTATE))/4
-     &             +(ZEKL(I,J,IXYZ,JSTATE)*
+              GCONT(IJXYZ,ISTATE)=GCONT(IJXYZ,ISTATE)                   &
+     &             +(ZEKL(I,J,IXYZ,ISTATE)*                             &
+     &             ZEKL(J,I,JXYZ,JSTATE))/4                             &
+     &             +(ZEKL(I,J,IXYZ,JSTATE)*                             &
      &             ZEKL(J,I,JXYZ,ISTATE))/4
              ENDIF
             ENDDO
@@ -2596,9 +2596,9 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
           enddo
          enddo
        enddo
-c
-c*     Continue original calculation of G tensor (=gg^*)
-c
+!
+!*     Continue original calculation of G tensor (=gg^*)
+!
       CALL ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
       CALL MULMAT(NSS,ZXR,ZXI,eex,Z)
       DO ISS=1,NSS
@@ -2623,7 +2623,7 @@ c
 
 
       ISS=1
-      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR
+      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR               &
      &  .AND.(ISS.LE.NSS))
 
       DO IXYZ=1,3
@@ -2645,10 +2645,10 @@ c
 
       WRITE(6,*)
       DO I=1,KDGN
-      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')
+      WRITE(6,'(3x,A9,I4,3x,A4,F18.8)')                                 &
      & 'SO-STATE ',ISS-1+I,'E = ',ENSOR(ISS-1+I)
       ENDDO
-      WRITE(6,'(3x,A46)')
+      WRITE(6,'(3x,A46)')                                               &
      &'----------------------------------------------'
 !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       IF(.NOT.IFATCALSA) GOTO 455
@@ -2667,16 +2667,16 @@ c
       IF ((ISS.EQ.1).AND.(KDGN.EQ.2).AND.(IPGLOB.GE.3)) THEN
        WRITE(6,*) 'Experimental: SFS contributions to G=gg+'
        WRITE(6,*)
-       WRITE(6,'(a6,9(5x,a2,5x))')
+       WRITE(6,'(a6,9(5x,a2,5x))')                                      &
      &      'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
        WRITE(6,*)
        DO ISTATE=1,NSTATE
-        WRITE(6,'(2x,I2,2x,9(F12.6))')
+        WRITE(6,'(2x,I2,2x,9(F12.6))')                                  &
      &       ISTATE, (DBLE(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
        ENDDO
 
        WRITE(6,*)
-       WRITE(6,'(A6,9(F12.6))')
+       WRITE(6,'(A6,9(F12.6))')                                         &
      &      'total ', (GTOTAL(IJXYZ),IJXYZ=1,9)
       ENDIF
 
@@ -2689,7 +2689,7 @@ c
        CONTRIB=0.0D0
        DO ISO=ISS,JSS
         DO JSO=ISS,JSS
-        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)
+        CONTRIB= pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)          &
      &          -pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
 
 
@@ -2705,10 +2705,10 @@ c
 !      IF(IPGLOB.GT.3) THEN
        WRITE(6,*) 'G tensor = gg+'
        WRITE(6,*)
-       WRITE(6,'(6x,3(6x,a2,4x))')
+       WRITE(6,'(6x,3(6x,a2,4x))')                                      &
      &  (xyzchr(IXYZ),IXYZ=1,3)
        DO IXYZ=1,3
-       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')
+       WRITE(6,'(2x,a2,2x,3(1x,f18.8,1x))')                             &
      &  xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3)
        ENDDO
 !      END IF
@@ -2730,8 +2730,8 @@ c
 
       CALL XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
-C construct g_s matrix from G by back-transormation of the
-C square root of the G eigenvalues
+! construct g_s matrix from G by back-transormation of the
+! square root of the G eigenvalues
 
       WRITE(6,*)
 
@@ -2755,23 +2755,23 @@ C square root of the G eigenvalues
            ICOUNT=1
           ENDIF
         ENDIF
-        GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+
+        GTENS(IXYZ,JXYZ)=GTENS(IXYZ,JXYZ)+                              &
      &   TMPVEC(IXYZ,KXYZ)*SQRT(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
         END DO
        END DO
       ENDDO
       WRITE(6,*)
-      WRITE(6,'(6x,3(5x,a2,5x),'//
-     & '4x,4x,2x,8x,'//
-     & '2x,2x,2x,3(4x,a2,i1,3x))')
+      WRITE(6,'(6x,3(5x,a2,5x),'//                                      &
+     & '4x,4x,2x,8x,'//                                                 &
+     & '2x,2x,2x,3(4x,a2,i1,3x))')                                      &
      & (xyzchr(IXYZ),IXYZ=1,3), ('a_',IXYZ,IXYZ=1,3)
       WRITE(6,*)
       DO IXYZ=1,3
-      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//
-     & '4x,a2,i1,a1,2x,f12.9,'//
-     & '2x,a2,2x,3(1x,f8.4,1x))')
-     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),
-     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),
+      WRITE(6,'(2x,a2,2x,3(1x,f10.6,1x),'//                             &
+     & '4x,a2,i1,a1,2x,f12.9,'//                                        &
+     & '2x,a2,2x,3(1x,f8.4,1x))')                                       &
+     & xyzchr(IXYZ), (GTENS(IXYZ,JXYZ),JXYZ=1,3),                       &
+     & 'a_',IXYZ,':',SQRT(EVR(IXYZ)),                                   &
      & xyzchr(IXYZ), (TMPVEC(IXYZ,JXYZ),JXYZ=1,3)
       ENDDO
 
@@ -2789,7 +2789,7 @@ C square root of the G eigenvalues
 
  1904  CONTINUE
 
-* End loop over CNT properties
+! End loop over CNT properties
       END IF
       END DO
 
@@ -2856,7 +2856,7 @@ C square root of the G eigenvalues
       Call mma_deallocate(ZYI)
       Call mma_deallocate(ZZR)
       Call mma_deallocate(ZZI)
-      nullify(pZMR(1)%A2,pZMR(2)%A2,pZMR(3)%A2,pZMI(1)%A2,pZMI(2)%A2,
+      nullify(pZMR(1)%A2,pZMR(2)%A2,pZMR(3)%A2,pZMI(1)%A2,pZMI(2)%A2,   &
      &        pZMI(3)%A2)
       End Subroutine Deallocate_Z
 

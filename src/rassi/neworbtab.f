@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine NEWORBTAB(IPRTTAB)
       use rassi_global_arrays, only: OrbTab
       use stdalloc, only: mma_allocate
@@ -16,7 +16,7 @@
       INTEGER IPRTTAB(*)
       INTEGER I,N,IEXTNUM,INPART,INSBP,ISORB,IPART,ISMLAB,ISOIND
       INTEGER ISPART,ISUM,KSPART
-C     INTEGER IPFR,IPIN,IPAC,IPSE,IPDE,IP
+!     INTEGER IPFR,IPIN,IPAC,IPSE,IPDE,IP
       INTEGER IPFR,IPIN,IPAC,IPSE
       INTEGER ISYM
       INTEGER NPART,NSPART,NORBT,NSORBT,NSYM
@@ -24,38 +24,38 @@ C     INTEGER IPFR,IPIN,IPAC,IPSE,IPDE,IP
       INTEGER NOES(8),INSYM(8)
 
       ISOIND = 0 ! dummy initialize
-C Executable statements
+! Executable statements
       NPART= IPRTTAB(3)
       NSYM = IPRTTAB(4)
-C NAPART: Nr of partitions of active orbitals.
+! NAPART: Nr of partitions of active orbitals.
       NAPART=NPART-4
-C Partitions for inactive, secondary,frozen, and deleted orbitals:
+! Partitions for inactive, secondary,frozen, and deleted orbitals:
       IPIN=NAPART+1
       IPSE=NAPART+2
       IPFR=NAPART+3
-C Total nr of orbitals:
+! Total nr of orbitals:
       NORBT=IPRTTAB(5)
       NSORBT=2*NORBT
-C Table words 1--10 contain some header info.
-C Table words 11--18 contain start index of each CMO symmetry block
-C Table words 19-- contain info for each separate spin orbital
-C Presently 8 table entries for each spin orbital.
+! Table words 1--10 contain some header info.
+! Table words 11--18 contain start index of each CMO symmetry block
+! Table words 19-- contain info for each separate spin orbital
+! Presently 8 table entries for each spin orbital.
       KOINFO=19
-C Table words 19+8*NSORBT-- contain nr of sp-orbs for each subpartition
+! Table words 19+8*NSORBT-- contain nr of sp-orbs for each subpartition
       KSPART=19+8*NSORBT
-C Nr of sub-partitions:
+! Nr of sub-partitions:
       NSPART=0
       DO IPART=1,NPART
        N=2*IPRTTAB(5+(NSYM+1)*IPART)
        IF(N.GT.0) NSPART=NSPART+(N+MORSBITS-1)/MORSBITS
       END DO
       NTAB= KSPART+NSPART-1
-C Allocate the orbital table.
+! Allocate the orbital table.
       CALL mma_allocate(ORBTAB,NTAB,Label='OrbTab')
       OrbTab(1)=NTAB
       OrbTab(2)= 1
       OrbTab(3)=NSORBT
-C Nr of active spin-orbitals:
+! Nr of active spin-orbitals:
       ISUM=0
       DO IPART=1,NAPART
         ISUM=ISUM+IPRTTAB(5+(NSYM+1)*IPART)
@@ -64,27 +64,27 @@ C Nr of active spin-orbitals:
       OrbTab(4)=NASPO
       OrbTab(5)=NSYM
       OrbTab(6)=NAPART+4
-C Accumulated nr of orbital functions/symm:
+! Accumulated nr of orbital functions/symm:
       ISUM=0
       DO ISYM=1,NSYM
         NOES(ISYM)=ISUM
         ISUM=ISUM+ IPRTTAB(5+ISYM)
       END DO
-C Relative pointers to CMO symmetry blocks:
+! Relative pointers to CMO symmetry blocks:
       ISUM=0
       DO ISYM=1,NSYM
         OrbTab(9+ISYM)=ISUM+1
         ISUM=ISUM+ IPRTTAB(5+ISYM)**2
       END DO
-C Spin orbital number:
+! Spin orbital number:
       ISORB=0
-C First, active orbitals by partition, and by symmetry
-C Previous MO indices within each symmetry.
+! First, active orbitals by partition, and by symmetry
+! Previous MO indices within each symmetry.
       DO ISYM=1,NSYM
-        INSYM(ISYM)=IPRTTAB(5+ISYM+(NSYM+1)*IPFR)+
+        INSYM(ISYM)=IPRTTAB(5+ISYM+(NSYM+1)*IPFR)+                      &
      &              IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
       END DO
-C Increase subpartition index as needed.
+! Increase subpartition index as needed.
       ISPART=0
       DO IPART=1,NAPART
        N= IPRTTAB(5+(NSYM+1)*IPART)
@@ -99,7 +99,7 @@ C Increase subpartition index as needed.
          ISOIND=1+INSYM(ISYM)
          INSYM(ISYM)=ISOIND
          IEXTNUM=NOES(ISYM)+ISOIND
-C Next spin orbital, with alpha spin:
+! Next spin orbital, with alpha spin:
          ISORB=ISORB+1
          INPART=INPART+1
          INSBP=INSBP+1
@@ -107,7 +107,7 @@ C Next spin orbital, with alpha spin:
            ISPART=ISPART+1
            INSBP=INSBP-MORSBITS
          END IF
-C Fill in table:
+! Fill in table:
           OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
           OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
           OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
@@ -116,7 +116,7 @@ C Fill in table:
           OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
           OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
           OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-C Next spin orbital, same, but beta spin:
+! Next spin orbital, same, but beta spin:
          ISORB=ISORB+1
          INPART=INPART+1
          INSBP=INSBP+1
@@ -124,7 +124,7 @@ C Next spin orbital, same, but beta spin:
            ISPART=ISPART+1
            INSBP=INSBP-MORSBITS
          END IF
-C Fill in table:
+! Fill in table:
           OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
           OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
           OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
@@ -138,8 +138,8 @@ C Fill in table:
  100   CONTINUE
       END DO
       NASPRT=ISPART
-C Inactive:
-C Must set up start index within each symmetry.
+! Inactive:
+! Must set up start index within each symmetry.
       DO ISYM=1,NSYM
         INSYM(ISYM)=IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
       END DO
@@ -151,7 +151,7 @@ C Must set up start index within each symmetry.
       INSBP=0
       DO ISYM=1,NSYM
        ISMLAB=ISYM
-C       N=NISH(ISYM)
+!       N=NISH(ISYM)
        N= IPRTTAB(5+ISYM+(NSYM+1)*IPART)
        DO I=1,N
         ISOIND=ISOIND+1
@@ -189,14 +189,14 @@ C       N=NISH(ISYM)
        END DO
       END DO
  200  CONTINUE
-C Secondary:
+! Secondary:
       IPART=NAPART+2
       N= IPRTTAB(5+(NSYM+1)*IPART)
       IF(N.EQ.0) GOTO 300
       ISPART=ISPART+1
       INPART=0
       INSBP=0
-C Must set up start index within each symmetry.
+! Must set up start index within each symmetry.
       DO ISYM=1,NSYM
         N=IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
         N=N+IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
@@ -209,7 +209,7 @@ C Must set up start index within each symmetry.
       DO ISYM=1,NSYM
        ISMLAB=ISYM
        ISOIND=INSYM(ISYM)
-C       N=NSSH(ISYM)
+!       N=NSSH(ISYM)
        N= IPRTTAB(5+ISYM+(NSYM+1)*IPART)
        DO I=1,N
         ISOIND=ISOIND+1
@@ -247,7 +247,7 @@ C       N=NSSH(ISYM)
        END DO
       END DO
  300  CONTINUE
-C Frozen:
+! Frozen:
       IPART=NAPART+3
       N= IPRTTAB(5+(NSYM+1)*IPART)
       IF(N.EQ.0) GOTO 400
@@ -256,7 +256,7 @@ C Frozen:
       INSBP=0
       DO ISYM=1,NSYM
        ISMLAB=ISYM
-C        N=NFRO(ISYM)
+!        N=NFRO(ISYM)
        N= IPRTTAB(5+ISYM+(NSYM+1)*IPART)
        ISOIND=0
        DO I=1,N
@@ -295,14 +295,14 @@ C        N=NFRO(ISYM)
        END DO
       END DO
  400  CONTINUE
-C Deleted:
+! Deleted:
       IPART=NAPART+4
       N= IPRTTAB(5+(NSYM+1)*IPART)
       IF(N.EQ.0) GOTO 500
       ISPART=ISPART+1
       INPART=0
       INSBP=0
-C Must set up start index within each symmetry.
+! Must set up start index within each symmetry.
       DO ISYM=1,NSYM
         N=IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
         N=N+IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
@@ -315,7 +315,7 @@ C Must set up start index within each symmetry.
       DO ISYM=1,NSYM
        ISMLAB=ISYM
        ISOIND= INSYM(ISYM)
-C        N=NDEL(ISYM)
+!        N=NDEL(ISYM)
        N= IPRTTAB(5+ISYM+(NSYM+1)*IPART)
        DO I=1,N
         ISOIND=ISOIND+1

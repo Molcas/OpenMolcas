@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1987, Per Ake Malmqvist                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1987, Per Ake Malmqvist                                *
+!***********************************************************************
       SUBROUTINE MKSXY(CMO1,CMO2,SXY)
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -19,15 +19,15 @@
       Real*8 SXY(NSXY),CMO1(NCMO),CMO2(NCMO)
 
       character(len=8) :: LABEL
-C  PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
-C  CODED 1987-02-18, P-AA M.
+!  PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
+!  CODED 1987-02-18, P-AA M.
       Real*8, Allocatable:: SZZ(:), SSQ(:), PROD(:)
-      INTEGER NSZZ,NSSQ,NPROD,ISY,NO,NB,IRC,IOPT,ICMP,ISYLAB,LSZZ1,
+      INTEGER NSZZ,NSSQ,NPROD,ISY,NO,NB,IRC,IOPT,ICMP,ISYLAB,LSZZ1,     &
      &        ISXY,ICMO
-C  CALCULATE SIZE AND ALLOCATE A FIELD SZZ FOR OVERLAP MATRIX
-C  IN COMMON BASIS SET (TRIANGULAR), SSQ TEMPORARY STORAGE
-C  FOR EACH OF ITS SYMMETRY BLOCKS (SQUARE), AND PROD FOR
-C  INTERMEDIATE MATRIX PRODUCTS.
+!  CALCULATE SIZE AND ALLOCATE A FIELD SZZ FOR OVERLAP MATRIX
+!  IN COMMON BASIS SET (TRIANGULAR), SSQ TEMPORARY STORAGE
+!  FOR EACH OF ITS SYMMETRY BLOCKS (SQUARE), AND PROD FOR
+!  INTERMEDIATE MATRIX PRODUCTS.
       NSZZ=0
       NSSQ=0
       NPROD=0
@@ -41,7 +41,7 @@ C  INTERMEDIATE MATRIX PRODUCTS.
       CALL mma_allocate(SZZ,NSZZ,Label='SZZ')
       CALL mma_allocate(SSQ,NSSQ,Label='SSQ')
       CALL mma_allocate(PROD,NPROD,Label='PROD')
-C  READ OVERLAP MATRIX SZZ:
+!  READ OVERLAP MATRIX SZZ:
       IRC=-1
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
@@ -55,7 +55,7 @@ C  READ OVERLAP MATRIX SZZ:
         WRITE(6,*)
         CALL ABEND()
       ENDIF
-C  LOOP OVER SYMMETRIES:
+!  LOOP OVER SYMMETRIES:
       LSZZ1=1
       ISXY=1
       ICMO=1
@@ -65,11 +65,11 @@ C  LOOP OVER SYMMETRIES:
         NO=NOSH(ISY)
         if (NO /= 0) then
         CALL SQUARE(SZZ(LSZZ1),SSQ,1,NB,NB)
-C  PROD:=SSQ*CMO2
-        CALL DGEMM_('N','N',NB,NO,NB,1.0D0,SSQ,NB,CMO2(ICMO),NB,
+!  PROD:=SSQ*CMO2
+        CALL DGEMM_('N','N',NB,NO,NB,1.0D0,SSQ,NB,CMO2(ICMO),NB,        &
      &             0.0D0,PROD,NB)
-C  SXY:=(CMO1(TRANSP))*PROD
-        CALL DGEMM_('T','N',NO,NO,NB,1.0D0,CMO1(ICMO),NB,PROD,NB,
+!  SXY:=(CMO1(TRANSP))*PROD
+        CALL DGEMM_('T','N',NO,NO,NB,1.0D0,CMO1(ICMO),NB,PROD,NB,       &
      &             0.0D0,SXY(ISXY),NO)
         ISXY=ISXY+NO**2
         ICMO=ICMO+NO*NB

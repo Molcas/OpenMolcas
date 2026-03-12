@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine NEWPRTTAB(NSYM,NFRO,NISH,NRAS1,NRAS2,NRAS3,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine NEWPRTTAB(NSYM,NFRO,NISH,NRAS1,NRAS2,NRAS3,            &
      &                     NSSH,NDEL)
       use rassi_global_arrays, only: PART
       use stdalloc, only: mma_allocate
@@ -18,7 +18,7 @@
       DIMENSION NFRO(NSYM),NISH(NSYM),NRAS1(NSYM),NRAS2(NSYM)
       DIMENSION NRAS3(NSYM),NSSH(NSYM),NDEL(NSYM)
 
-C Executable statements
+! Executable statements
       NPART=7
       NSIZE=4+(NSYM+1)*(NPART+1)
       ITYPE=93
@@ -41,12 +41,12 @@ C Executable statements
           ISUM=ISUM+PART(5+ISYM+(NSYM+1)*IPART)
          IPART=IPART+1
          IF(IPART.le.7) GO TO 10
-c
-c VV: original code was unrolled uncorrectly by GCC 3.0.4
-c        DO IPART=1,7
-c          ISUM=ISUM+PART(5+ISYM+(NSYM+1)*IPART)
-c        END DO
-c
+!
+! VV: original code was unrolled uncorrectly by GCC 3.0.4
+!        DO IPART=1,7
+!          ISUM=ISUM+PART(5+ISYM+(NSYM+1)*IPART)
+!        END DO
+!
         PART(5+ISYM+(NSYM+1)*0)=ISUM
       END DO
       DO IPART=0,7

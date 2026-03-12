@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE INPPRC()
       use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
-      use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
+      use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,  &
      &                      DMAB, mTRA, ipglob
       use kVectors
       use Lebedev_quadrature, only: order_table
       use OneDat, only: sOpSiz, sRdFst, sRdNxt
       use cntrl, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
       use stdalloc, only: mma_allocate
-      use Cntrl, only: IPUSED, ISOCMP, ICOMP, PTYPE, SOPRTP, SOPRNM,
-     &                 PNAME, MXPROP, nState, SOThr_PRT,
-     &                 nSOThr_PRT, SAVEDENS, IFTRD1, IFTDM, NATO,
-     &                 DO_TMOM, FORCE_NON_AO_TDM, NPROP, NSOPR, IFSO,
-     &                 DQVD, IFJ2, IFJZ, IFGCAL, IFXCAL, IFDCPL, IFHAM,
-     &                 IFSHFT, IFHDIA, IFMCAL, NJOB, IFHEFF, HAVE_HEFF,
-     &                 IFEJOB, HAVE_DIAG, IFHEXT, IFHCOM, NOHAM, TRACK,
-     &                 ONLY_OVERLAPS, PRSXY, PRORB, PRTRA, PRCI,
-     &                 RFPert, ToFile, PRXVR, PRXVE, PRXVS, PRMER,
-     &                 PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, NQUAD,
+      use Cntrl, only: IPUSED, ISOCMP, ICOMP, PTYPE, SOPRTP, SOPRNM,    &
+     &                 PNAME, MXPROP, nState, SOThr_PRT,                &
+     &                 nSOThr_PRT, SAVEDENS, IFTRD1, IFTDM, NATO,       &
+     &                 DO_TMOM, FORCE_NON_AO_TDM, NPROP, NSOPR, IFSO,   &
+     &                 DQVD, IFJ2, IFJZ, IFGCAL, IFXCAL, IFDCPL, IFHAM, &
+     &                 IFSHFT, IFHDIA, IFMCAL, NJOB, IFHEFF, HAVE_HEFF, &
+     &                 IFEJOB, HAVE_DIAG, IFHEXT, IFHCOM, NOHAM, TRACK, &
+     &                 ONLY_OVERLAPS, PRSXY, PRORB, PRTRA, PRCI,        &
+     &                 RFPert, ToFile, PRXVR, PRXVE, PRXVS, PRMER,      &
+     &                 PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, NQUAD, &
      &                 L_Eff, IBINA, IRREP, MLTPLT
       use cntrl, only: nAtoms, Coor
       use cntrl, only: LuTDM, FnTDM
       use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NBSQ,NBMX,NBTRI,NBST,NCMO,NTRA,NTDMZZ,
-     &                      NTDMAB,NASHT,NISHT,NSSHT,NASH,NBASF,
+      use rassi_data, only: NBSQ,NBMX,NBTRI,NBST,NCMO,NTRA,NTDMZZ,      &
+     &                      NTDMAB,NASHT,NISHT,NSSHT,NASH,NBASF,        &
      &                      NBSQPR,NISH,NOSH,NSSH
 
       IMPLICIT None
@@ -43,24 +43,24 @@
       Character(LEN=3) lIrrep(8)
       INTEGER ICMPLST(MXPROP)
       LOGICAL JOBMATCH,IsAvail(MXPROP),IsAvailSO(MXPROP)
-      Integer IDUM(1), IPRP, I, NBI, NLEV, IS, IBYTE, IPROP, ISOPR, IRC,
-     &        IOPT, ICMP, NPRPLST, IATOM, MISSAMX, MISSAMY, MISSAMZ,
-     &        IMISS, IERR, NATOM, IADD, MPROP, N, JPROP, MSOPR, JSOPR,
+      Integer IDUM(1), IPRP, I, NBI, NLEV, IS, IBYTE, IPROP, ISOPR, IRC,&
+     &        IOPT, ICMP, NPRPLST, IATOM, MISSAMX, MISSAMY, MISSAMZ,    &
+     &        IMISS, IERR, NATOM, IADD, MPROP, N, JPROP, MSOPR, JSOPR,  &
      &        ISYM, JOB1, JOB2, J, I1, I2, II, III, ISYLAB
       Integer, External:: IsFreeUnit
       REAL*8 XAXIS, ZAXIS
-* Analysing and post-processing the input that was read in readin_rassi.
+! Analysing and post-processing the input that was read in readin_rassi.
 
 
-      Call mma_allocate(jDisk_TDM,2,nState*(nState+1)/2,
+      Call mma_allocate(jDisk_TDM,2,nState*(nState+1)/2,                &
      &                  Label='jDisk_TDM')
       jDisk_TDM(1,:)=-1
       jDisk_TDM(2,:)=0
-* PAM07: The printing of spin-orbit Hamiltonian matrix elements:
-* If no value for SOTHR_PRT was given in the input, it has a
-* negative value that was set in init_rassi:
+! PAM07: The printing of spin-orbit Hamiltonian matrix elements:
+! If no value for SOTHR_PRT was given in the input, it has a
+! negative value that was set in init_rassi:
       IF(SOTHR_PRT.lt.0.0D0) THEN
-* Assign default settings. SOTHR_PRT is in cm-1:
+! Assign default settings. SOTHR_PRT is in cm-1:
        IF(IPGLOB.ge.4) THEN
         NSOTHR_PRT=10000
         SOTHR_PRT=0.0001D0
@@ -75,7 +75,7 @@
        END IF
       END IF
 
-C Some sizes:
+! Some sizes:
       NBSQ=0
       NBMX=0
       IPRP=0
@@ -90,9 +90,9 @@ C Some sizes:
       DO I=1,NSYM
         NLEV=NLEV+NRS1(I)+NRS2(I)+NRS3(I)
       END DO
-C Sizes of some data sets:
-C ACTUAL SIZES OF TDMAB AND TDMZZ DEPENDS ON BOTH LSYM1 AND LSYM2.
-C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
+! Sizes of some data sets:
+! ACTUAL SIZES OF TDMAB AND TDMZZ DEPENDS ON BOTH LSYM1 AND LSYM2.
+! HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
       NCMO=NOSH(1)*NBASF(1)
       NTRA=NOSH(1)**2
       NTDMZZ=NBASF(1)**2
@@ -102,8 +102,8 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         NTDMZZ=NTDMZZ+NBASF(IS)**2
       END DO
       NTDMAB=NTRA
-      SaveDens=(IFTRD1.OR.IFTDM).OR.
-     &         (SONATNSTATE.GT.0).OR.(SONTOSTATES.GT.0)
+      SaveDens=(IFTRD1.OR.IFTDM).OR.                                    &
+     &         (SONATNSTATE.GT.0).OR.(SONTOSTATES.GT.0)                 &
      &         .OR.NATO.OR.Do_TMOM
       IF(SaveDens) THEN
         WRITE(6,*)
@@ -114,25 +114,25 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         CALL DANAME_MF(LUTDM,FNTDM)
         AO_Mode=.True.
         iByte=8*3*nstate*(nstate-1)/2*nTDMZZ
-*
-*       For the time we will move over to compact mode if the required
-*       estimate of disk space if more than 1 Gb.
-*
+!
+!       For the time we will move over to compact mode if the required
+!       estimate of disk space if more than 1 Gb.
+!
         If (iByte.gt.1024**3) AO_Mode=.False.
-*       Force for debugging purpose.
+!       Force for debugging purpose.
         If (Force_NON_AO_TDM)  AO_Mode=.False.
         WRITE(6,*) '       estimated file size ', iByte/1024, 'kB'
-*
-*       For small basis set with symmetry we might not benefit from
-*       doing this.
-*
+!
+!       For small basis set with symmetry we might not benefit from
+!       doing this.
+!
         If (NASHT**2+1.gt.nTDMAB) AO_Mode=.True.
-*
+!
         If (.NOT.AO_Mode) Then
            WRITE(6,*) '       TDMs in reduced format'
            Call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
            Call ICopy(nState,JBNUM,1,JOB_INDEX,1)
-*          Write (6,*) 'Job_Index=',Job_Index
+!          Write (6,*) 'Job_Index=',Job_Index
            Call mma_allocate(CMO1,nCMO,Label='CMO1')
            Call mma_allocate(CMO2,nCMO,Label='CMO2')
            Call mma_allocate(DMAB,nTDMAB,Label='DMAB')
@@ -143,7 +143,7 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         WRITE(6,*)
       END IF
 
-C Upcase property names in lists of requests:
+! Upcase property names in lists of requests:
       DO IPROP=1,NPROP
         CALL UPCASE(PNAME(IPROP))
       END DO
@@ -151,8 +151,8 @@ C Upcase property names in lists of requests:
         CALL UPCASE(SOPRNM(ISOPR))
       END DO
 
-C Which properties are available in the ONEINT file?
-C (IPUSED will be set later, set it to zero now.)
+! Which properties are available in the ONEINT file?
+! (IPUSED will be set later, set it to zero now.)
       !write(6,*)"Which properties are available in the ONEINT file?"
       IPRP=0
       IRC=-1
@@ -165,7 +165,7 @@ C (IPUSED will be set later, set it to zero now.)
       PRPLST(1)=LABEL
       ICMPLST(1)=ICMP
       IPUSED(1)=0
-*
+!
       DO I=1,MXPROP
         IF(IPRP.GE.MXPROP) GOTO 110
         IRC=-1
@@ -178,7 +178,7 @@ C (IPUSED will be set later, set it to zero now.)
         ICMPLST(IPRP)=ICMP
         IPUSED(IPRP)=0
 
-c Copy the EF2 integral label for non-rel hyperfine calculations
+! Copy the EF2 integral label for non-rel hyperfine calculations
         IF(LABEL(1:3).EQ.'EF2') THEN
           IF(IPRP.GE.MXPROP) GOTO 110
           IPRP=IPRP+1
@@ -189,8 +189,8 @@ c Copy the EF2 integral label for non-rel hyperfine calculations
           IPUSED(IPRP)=0
         END IF
 
-c Now the ASD are calculated from X2C
-c magnetic integrals
+! Now the ASD are calculated from X2C
+! magnetic integrals
         IF(LABEL(1:5).EQ.'MAGXP'.AND.ICMP.LE.6) THEN
           IF(IPRP.GE.MXPROP) GOTO 110
           IPRP=IPRP+1
@@ -222,13 +222,13 @@ c magnetic integrals
       END DO
 110   CONTINUE
       NPRPLST=IPRP
-*
-*     Add empty slots for on-the-fly TM integrals.
-*
-*     If the RASSI code is run several instances on the same job some
-*     of these labels will already be available on the file and need
-*     not to be added to the list.
-*
+!
+!     Add empty slots for on-the-fly TM integrals.
+!
+!     If the RASSI code is run several instances on the same job some
+!     of these labels will already be available on the file and need
+!     not to be added to the list.
+!
       IF (Do_TMOM.AND.PRPLST(IPRP)(1:4).NE.'TMOM') THEN
          PRPLST(IPRP+ 1)='TMOM0  R'
          ICMPLST(IPRP+ 1)=1
@@ -237,7 +237,7 @@ c magnetic integrals
          ICMPLST(IPRP+ 2)=1
          IPUSED(IPRP+ 2)=0
          IPRP=IPRP+2
-*
+!
          PRPLST(IPRP+ 1)='TMOM  RS'
          ICMPLST(IPRP+ 1)=1
          IPUSED(IPRP+ 1)=0
@@ -275,82 +275,82 @@ c magnetic integrals
          ICMPLST(IPRP+12)=3
          IPUSED(IPRP+12)=0
          IPRP=IPRP+12
-*
-C Not currently in use.
-C        PRPLST(IPRP+ 1)='TMOM2  R'
-C        ICMPLST(IPRP+ 1)=1
-C        IPUSED(IPRP+ 1)=0
-C        CALL MKTDAB(0.0D0,WERD,WDMAB,iRC)PRPLST(IPRP+ 2)='TMOM2  R'
-C        ICMPLST(IPRP+ 2)=2
-C        IPUSED(IPRP+ 2)=0
-C        PRPLST(IPRP+ 3)='TMOM2  R'
-C        ICMPLST(IPRP+ 3)=3
-C        IPUSED(IPRP+ 3)=0
-C        PRPLST(IPRP+ 4)='TMOM2  I'
-C        ICMPLST(IPRP+ 4)=1
-C        IPUSED(IPRP+ 4)=0
-C        PRPLST(IPRP+ 5)='TMOM2  I'
-C        ICMPLST(IPRP+ 5)=2
-C        IPUSED(IPRP+ 5)=0
-C        PRPLST(IPRP+ 6)='TMOM2  I'
-C        ICMPLST(IPRP+ 6)=3
-C        IPUSED(IPRP+ 6)=0
-C        IPRP=IPRP+6
-C     Else IF (Do_TMOM) Then
-C        PRPLST(IPRP+ 1)='TMOM0  R'
-C        ICMPLST(IPRP+ 1)=1
-C        IPUSED(IPRP+ 1)=0
-C        PRPLST(IPRP+ 2)='TMOM0  I'
-C        ICMPLST(IPRP+ 2)=1
-C        IPUSED(IPRP+ 2)=0
-C        IPRP=IPRP+2
-*
-C Not currently in use.
-C        PRPLST(IPRP+ 1)='TMOM2  R'
-C        ICMPLST(IPRP+ 1)=2
-C        IPUSED(IPRP+ 1)=0
-C        PRPLST(IPRP+ 2)='TMOM2  R'
-C        ICMPLST(IPRP+ 2)=3
-C        IPUSED(IPRP+ 2)=0
-C        PRPLST(IPRP+ 3)='TMOM2  I'
-C        ICMPLST(IPRP+ 3)=2
-C        IPUSED(IPRP+ 3)=0
-C        PRPLST(IPRP+ 4)='TMOM2  I'
-C        ICMPLST(IPRP+ 4)=3
-C        IPUSED(IPRP+ 4)=0
-C        IPRP=IPRP+4
+!
+! Not currently in use.
+!        PRPLST(IPRP+ 1)='TMOM2  R'
+!        ICMPLST(IPRP+ 1)=1
+!        IPUSED(IPRP+ 1)=0
+!        CALL MKTDAB(0.0D0,WERD,WDMAB,iRC)PRPLST(IPRP+ 2)='TMOM2  R'
+!        ICMPLST(IPRP+ 2)=2
+!        IPUSED(IPRP+ 2)=0
+!        PRPLST(IPRP+ 3)='TMOM2  R'
+!        ICMPLST(IPRP+ 3)=3
+!        IPUSED(IPRP+ 3)=0
+!        PRPLST(IPRP+ 4)='TMOM2  I'
+!        ICMPLST(IPRP+ 4)=1
+!        IPUSED(IPRP+ 4)=0
+!        PRPLST(IPRP+ 5)='TMOM2  I'
+!        ICMPLST(IPRP+ 5)=2
+!        IPUSED(IPRP+ 5)=0
+!        PRPLST(IPRP+ 6)='TMOM2  I'
+!        ICMPLST(IPRP+ 6)=3
+!        IPUSED(IPRP+ 6)=0
+!        IPRP=IPRP+6
+!     Else IF (Do_TMOM) Then
+!        PRPLST(IPRP+ 1)='TMOM0  R'
+!        ICMPLST(IPRP+ 1)=1
+!        IPUSED(IPRP+ 1)=0
+!        PRPLST(IPRP+ 2)='TMOM0  I'
+!        ICMPLST(IPRP+ 2)=1
+!        IPUSED(IPRP+ 2)=0
+!        IPRP=IPRP+2
+!
+! Not currently in use.
+!        PRPLST(IPRP+ 1)='TMOM2  R'
+!        ICMPLST(IPRP+ 1)=2
+!        IPUSED(IPRP+ 1)=0
+!        PRPLST(IPRP+ 2)='TMOM2  R'
+!        ICMPLST(IPRP+ 2)=3
+!        IPUSED(IPRP+ 2)=0
+!        PRPLST(IPRP+ 3)='TMOM2  I'
+!        ICMPLST(IPRP+ 3)=2
+!        IPUSED(IPRP+ 3)=0
+!        PRPLST(IPRP+ 4)='TMOM2  I'
+!        ICMPLST(IPRP+ 4)=3
+!        IPUSED(IPRP+ 4)=0
+!        IPRP=IPRP+4
       END IF
-*
+!
       NPRPLST=IPRP
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C                                                                     C
-C Add some property names by defaults, if no input:                   C
-C                                                                     C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!                                                                     C
+! Add some property names by defaults, if no input:                   C
+!                                                                     C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!
       IF (NPROP.EQ.0) THEN
-C
+!
          IF (NSOPR.EQ.0) THEN
-C If no input at all, use this selection:
+! If no input at all, use this selection:
             DO IPRP=1,NPRPLST
-C
-               IF (PRPLST(IPRP).eq.'MLTPL  0' .or.
-     &             PRPLST(IPRP).eq.'MLTPL  1' .or.
-     &             PRPLST(IPRP).eq.'MLTPL  2' .or.
-     &             PRPLST(IPRP).eq.'MLTPL  3' .or.
-     &             PRPLST(IPRP).eq.'OMQ     ' .or.
-     &             PRPLST(IPRP).eq.'ANGMOM' .or.
-     &             PRPLST(IPRP)(1:4).eq.'TMOM' .or.
-     &             PRPLST(IPRP).eq.'VELOCITY' .or.
-     &             PRPLST(IPRP).eq.'MLTPV  2' .or.
+!
+               IF (PRPLST(IPRP).eq.'MLTPL  0' .or.                      &
+     &             PRPLST(IPRP).eq.'MLTPL  1' .or.                      &
+     &             PRPLST(IPRP).eq.'MLTPL  2' .or.                      &
+     &             PRPLST(IPRP).eq.'MLTPL  3' .or.                      &
+     &             PRPLST(IPRP).eq.'OMQ     ' .or.                      &
+     &             PRPLST(IPRP).eq.'ANGMOM' .or.                        &
+     &             PRPLST(IPRP)(1:4).eq.'TMOM' .or.                     &
+     &             PRPLST(IPRP).eq.'VELOCITY' .or.                      &
+     &             PRPLST(IPRP).eq.'MLTPV  2' .or.                      &
      &             PRPLST(IPRP)(1:4).eq.'EMFR') THEN
-C
+!
                   NSOPR=NSOPR+1
                   SOPRNM(NSOPR)=PRPLST(IPRP)
-C
-C SET the proper default type label. That is, which WE-reduced density
-C should the integral be contracted with. If not set here it will
-C default to a Hermitian singlet reduced density.
+!
+! SET the proper default type label. That is, which WE-reduced density
+! should the integral be contracted with. If not set here it will
+! default to a Hermitian singlet reduced density.
                   IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
                      SOPRTP(NSOPR)='ANTISING'
                   ELSE IF (PRPLST(IPRP).EQ.'VELOCITY'  ) THEN
@@ -374,13 +374,13 @@ C default to a Hermitian singlet reduced density.
                   ELSE
                      SOPRTP(NSOPR)='HERMSING'
                   END IF
-C
-C Set the number of elements of the property
+!
+! Set the number of elements of the property
                   ISOCMP(NSOPR)=ICMPLST(IPRP)
-C
-C Add properties for the explicit spin part of the transition moments
-C in the case of spin-orbit coupled wave functrions.
-C
+!
+! Add properties for the explicit spin part of the transition moments
+! in the case of spin-orbit coupled wave functrions.
+!
                   IF (IFSO) THEN
                      IF (PRPLST(IPRP).EQ.'MLTPL  0') THEN
                         NSOPR=NSOPR+1
@@ -392,49 +392,49 @@ C
                         SOPRNM(NSOPR)=PRPLST(IPRP)
                         ISOCMP(NSOPR)=ICMPLST(IPRP)
                         SOPRTP(NSOPR)='ANTITRIP'
-C Uncomment to activate more options!!!
-C                    ELSE IF (PRPLST(IPRP).EQ.'MLTPL  2') THEN
-C                       NSOPR=NSOPR+1
-C                       SOPRNM(NSOPR)=PRPLST(IPRP)
-C                       ISOCMP(NSOPR)=ICMPLST(IPRP)
-C                       SOPRTP(NSOPR)='HERMTRIP'
-C                    ELSE IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
-C                       NSOPR=NSOPR+1
-C                       SOPRNM(NSOPR)=PRPLST(IPRP)
-C                       ISOCMP(NSOPR)=ICMPLST(IPRP)
-C                       SOPRTP(NSOPR)='ANTITRIP'
+! Uncomment to activate more options!!!
+!                    ELSE IF (PRPLST(IPRP).EQ.'MLTPL  2') THEN
+!                       NSOPR=NSOPR+1
+!                       SOPRNM(NSOPR)=PRPLST(IPRP)
+!                       ISOCMP(NSOPR)=ICMPLST(IPRP)
+!                       SOPRTP(NSOPR)='HERMTRIP'
+!                    ELSE IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
+!                       NSOPR=NSOPR+1
+!                       SOPRNM(NSOPR)=PRPLST(IPRP)
+!                       ISOCMP(NSOPR)=ICMPLST(IPRP)
+!                       SOPRTP(NSOPR)='ANTITRIP'
                      END IF
                   END IF
-C
+!
                END IF
-C
-C Add some properties if DQVD is requested
+!
+! Add some properties if DQVD is requested
                IF (DQVD) THEN
-C                 'MLTPL  2' already there by default
+!                 'MLTPL  2' already there by default
                   IF (PRPLST(IPRP).eq.'EF0    1') THEN
                      NSOPR=NSOPR+1
                      SOPRNM(NSOPR)=PRPLST(IPRP)
                      ISOCMP(NSOPR)=ICMPLST(IPRP)
                   END IF
                END IF
-C
+!
             END DO
          END IF
-C If no PROP input, copy the SOPR selection:
+! If no PROP input, copy the SOPR selection:
          NPROP=NSOPR
          DO IPROP=1,NPROP
             PNAME(IPROP)=SOPRNM(IPROP)
             PTYPE(IPROP)=SOPRTP(IPROP)
             ICOMP(IPROP)=ISOCMP(IPROP)
          END DO
-C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C                                                                     C
+!
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!                                                                     C
       ELSE
-C                                                                     C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C
-C If no SOPR input, copy the PROP selection:
+!                                                                     C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!
+! If no SOPR input, copy the PROP selection:
          IF (NSOPR.EQ.0) THEN
             NSOPR=NPROP
             DO ISOPR=1,NSOPR
@@ -443,18 +443,18 @@ C If no SOPR input, copy the PROP selection:
                ISOCMP(ISOPR)=ICOMP(ISOPR)
             END DO
          END IF
-C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C                                                                     C
+!
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!                                                                     C
       END IF
-C                                                                     C
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C
-* Lists (above) now contain either a default choice, or
-* a selection by the user. Check that integrals are
-* available on the oneint file.
+!                                                                     C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!
+! Lists (above) now contain either a default choice, or
+! a selection by the user. Check that integrals are
+! available on the oneint file.
 
-* Check if we need to activate IFJ2/IFJZ automatically
+! Check if we need to activate IFJ2/IFJZ automatically
       if(natoms.eq.1) then
        ifj2=1
       endif
@@ -466,7 +466,7 @@ C
       Enddo
       if(xaxis.lt.1.d-10.and.zaxis.gt.0.1d0) ifjz=1
 
-* Check if angular momentum integrals have been computed
+! Check if angular momentum integrals have been computed
       MISSAMX=1
       MISSAMY=1
       MISSAMZ=1
@@ -497,14 +497,14 @@ C
        END IF
       END IF
 
-C Make sure we don't check SO properties if no SO requested
+! Make sure we don't check SO properties if no SO requested
       IF (.NOT. IFSO) NSOPR=0
-C Is everything available that we may need?
+! Is everything available that we may need?
       IMiss=0
       IsAvail(:)=.FALSE.
       DO IPROP=1,NPROP
        DO IPRP=1,NPRPLST
-        IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.
+        IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.                            &
      &        ICOMP(IPROP).EQ.ICMPLST(IPRP)) THEN
          IsAvail(IPROP)=.TRUE.
          IPUSED(IPRP)=1
@@ -516,7 +516,7 @@ C Is everything available that we may need?
        IF(IMiss.eq.1) THEN
          Write(6,*)
          Call WarningMessage(1,'Requested integrals are missing.')
-         Write(6,*)' Property name, and component:',
+         Write(6,*)' Property name, and component:',                    &
      &           PNAME(IPROP),ICOMP(IPROP)
          Write(6,*)' This record cannot be found. Some of the requested'
          Write(6,*)' properties cannot be computed. Suggested fix: Try'
@@ -533,7 +533,7 @@ C Is everything available that we may need?
       IsAvailSO(:)=.FALSE.
       DO ISOPR=1,NSOPR
         DO IPRP=1,NPRPLST
-         IF(SOPRNM(ISOPR).EQ.PRPLST(IPRP).AND.
+         IF(SOPRNM(ISOPR).EQ.PRPLST(IPRP).AND.                          &
      &        ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) THEN
          IPUSED(IPRP)=1
          IsAvailSO(ISOPR)=.TRUE.
@@ -545,7 +545,7 @@ C Is everything available that we may need?
        IF(IMiss.eq.1) THEN
          Write(6,*)
          Call WarningMessage(1,'Requested integrals are missing.')
-         Write(6,*)' SO-Property name, and component:',
+         Write(6,*)' SO-Property name, and component:',                 &
      &           SOPRNM(ISOPR),ISOCMP(ISOPR)
          Write(6,*)' This record cannot be found. Some of the requested'
          Write(6,*)' properties cannot be computed. Suggested fix: Try'
@@ -558,7 +558,7 @@ C Is everything available that we may need?
 
  130   CONTINUE
       END DO
-cnf
+!nf
       If (IfDCpl) Then
          Call Get_iScalar('Unique atoms',natom)
          IErr = 3*natom
@@ -570,20 +570,20 @@ cnf
          End Do
          If (IErr.ne.0) Then
             Write(6,*)
-            Write(6,'(A,i5,A)') '  Approx derivative couplings require',
+            Write(6,'(A,i5,A)') '  Approx derivative couplings require',&
      &                 3*natom,' field integrals.'
-            Write(6,*)' Add the keywords EFLD=0 and ONEONLY to'//
+            Write(6,*)' Add the keywords EFLD=0 and ONEONLY to'//       &
      &                ' the SEWARD input and recompute ONEINT.'
-            Write(6,*)' Program will continue, but DerCpl calculations'
+            Write(6,*)' Program will continue, but DerCpl calculations' &
      &                //' are disabled.'
             IfDCpl = .False.
          End If
       End If
-cnf
-C Temporarily use IPUSED to mark operators that may be needed:
+!nf
+! Temporarily use IPUSED to mark operators that may be needed:
       DO IPRP=1,NPRPLST
        DO IPROP=1,NPROP
-        IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.
+        IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.                            &
      &        ICOMP(IPROP).EQ.ICMPLST(IPRP)) THEN
           IPUSED(IPRP)=1
           exit
@@ -595,7 +595,7 @@ C Temporarily use IPUSED to mark operators that may be needed:
         IF(IFSHFT) THEN
           Call WarningMessage(1,'Ignored user request.')
           WRITE(6,*)' INPCTL Warning: Both keywords ONEL and SHIFT.'
-          WRITE(6,*)' User-supplied diagonal energy shifts are'//
+          WRITE(6,*)' User-supplied diagonal energy shifts are'//       &
      &              ' meaningless since no Hamiltonian will be'
           WRITE(6,*)' used/computed anyway. Ignored.'
           IFSHFT=.FALSE.
@@ -603,14 +603,14 @@ C Temporarily use IPUSED to mark operators that may be needed:
         IF(IFHDIA) THEN
           Call WarningMessage(1,'Ignored user request.')
           WRITE(6,*)' INPCTL Warning: Both keywords ONEL and HDIAG.'
-          WRITE(6,*)' User-supplied diagonal H elements are'//
+          WRITE(6,*)' User-supplied diagonal H elements are'//          &
      &              ' meaningless since no Hamiltonian will be'
           WRITE(6,*)' used/computed anyway. Ignored.'
           IFHDIA=.FALSE.
         END IF
       END IF
-C In any Spin-Orbit calculation, we need SO integrals as well.
-C Right now, only AMFI is available. Check that first.
+! In any Spin-Orbit calculation, we need SO integrals as well.
+! Right now, only AMFI is available. Check that first.
       IF(IFSO.OR.IFGCAL.OR.IFXCAL.OR.IFMCAL) THEN
         IERR=3
         DO IPRP=1,NPRPLST
@@ -640,8 +640,8 @@ C Right now, only AMFI is available. Check that first.
           IFMCAL=.FALSE.
         END IF
       END IF
-C SVC2009 Check for the presence of the ANGMOM integrals needed for G factor
-C or Magnetic Moment calculations.
+! SVC2009 Check for the presence of the ANGMOM integrals needed for G factor
+! or Magnetic Moment calculations.
       IF(IFGCAL.OR.IFXCAL.OR.IFMCAL) THEN
         IERR=3
         DO IPRP=1,NPRPLST
@@ -670,20 +670,20 @@ C or Magnetic Moment calculations.
           IFMCAL=.FALSE.
         END IF
       END IF
-C Similarly, check integrals for which we want matrix elements over
-C SO eigenstates.
+! Similarly, check integrals for which we want matrix elements over
+! SO eigenstates.
       DO IPRP=1,NPRPLST
        DO ISOPR=1,NSOPR
-        IF(SOPRNM(ISOPR).EQ.PRPLST(IPRP).AND.
+        IF(SOPRNM(ISOPR).EQ.PRPLST(IPRP).AND.                           &
      &        ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) THEN
           IPUSED(IPRP)=1
           exit
         END IF
        END DO
       END DO
-C
-C Reassemble the PNAME, ICOMP arrays.
-C
+!
+! Reassemble the PNAME, ICOMP arrays.
+!
       DO IPRP=1,NPRPLST
          IF (IPUSED(IPRP).EQ.0) THEN
             DO IPROP = 1, NPROP
@@ -692,7 +692,7 @@ C
          ELSE
             IADD=1
             DO IPROP = 1, NPROP
-               IF (PNAME(IPROP).EQ.PRPLST(IPRP) .AND.
+               IF (PNAME(IPROP).EQ.PRPLST(IPRP) .AND.                   &
      &             ICOMP(IPROP).EQ.ICMPLST(IPRP)) IADD=0
             END DO
             IF (IADD.EQ.1) THEN
@@ -727,9 +727,9 @@ C
          END IF
       END DO
       NPROP=MPROP
-C
-C Reassemble the SOPRNM, ISOCMP arrays:
-C
+!
+! Reassemble the SOPRNM, ISOCMP arrays:
+!
       DO IPRP=1,NPRPLST
          IF (IPUSED(IPRP).EQ.0) THEN
             DO ISOPR = 1, NSOPR
@@ -738,7 +738,7 @@ C
          ELSE
             IADD=1
             DO ISOPR = 1, NSOPR
-               IF (SOPRNM(ISOPR).EQ.PRPLST(IPRP) .AND.
+               IF (SOPRNM(ISOPR).EQ.PRPLST(IPRP) .AND.                  &
      &             ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) IADD=0
             END DO
             IF (IADD.EQ.1) THEN
@@ -775,17 +775,17 @@ C
       NSOPR=MSOPR
       IF (.NOT. IFSO) NSOPR=0
 
-C IPUSED is used later for other purposes, and should be initialized
-C to zero.
+! IPUSED is used later for other purposes, and should be initialized
+! to zero.
       DO IPRP=1,NPRPLST
        IPUSED(IPRP)=0
       END DO
-C
-C PTYPE and SOPRTP is set here if not already set above. Note that this
-C is a fallback procedure that should not be used actively. This
-C fallback typically assigns the type of WE-reduced density to be
-C used for user-specified lists of properties.
-C
+!
+! PTYPE and SOPRTP is set here if not already set above. Note that this
+! is a fallback procedure that should not be used actively. This
+! fallback typically assigns the type of WE-reduced density to be
+! used for user-specified lists of properties.
+!
       DO IPROP=1,NPROP
        IF (PTYPE(IPROP).NE.'UNDEF.  ') CYCLE
        PTYPE(IPROP)='HERMSING'
@@ -828,24 +828,24 @@ C
        IF(SOPRNM(ISOPR).EQ.'TMOM2  I')SOPRTP(ISOPR)='ANTISING'
       END DO
 
-C Write out various input data:
-*
+! Write out various input data:
+!
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
          lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
-*
-* determine if there are any matching wavefunctions
+!
+! determine if there are any matching wavefunctions
       JOBMATCH=.FALSE.
       do job1=1,njob
         do job2=1,job1-1
-          if ((MLTPLT(JOB1).EQ.MLTPLT(JOB2)) .AND.
+          if ((MLTPLT(JOB1).EQ.MLTPLT(JOB2)) .AND.                      &
      &        (IRREP(JOB1).EQ.IRREP(JOB2))) then
             JOBMATCH=.TRUE.
           end if
         end do
       end do
-* make decision regarding the use of input hamiltonian/diagonal values
+! make decision regarding the use of input hamiltonian/diagonal values
       if (ifheff) then
         if (have_heff) then
           DO J=1,NSTATE
@@ -854,7 +854,7 @@ C Write out various input data:
             END DO
           END DO
           if (jobmatch) then
-            call WarningMessage(1,'HEFF used for a situation where '//
+            call WarningMessage(1,'HEFF used for a situation where '//  &
      &        'possible extra interaction between states is ignored!')
           end if
         else
@@ -863,7 +863,7 @@ C Write out various input data:
         end if
       else if (ifejob) then
         if (have_heff) then
-          call WarningMessage(1,'EJOB used when HEFF is available, '//
+          call WarningMessage(1,'EJOB used when HEFF is available, '//  &
      &      'possible extra interaction between states is ignored!')
         end if
         if (have_diag) then
@@ -879,11 +879,11 @@ C Write out various input data:
           call Quit_OnUserError
         end if
         if (jobmatch) then
-          call WarningMessage(1,'EJOB used for a situation where '//
+          call WarningMessage(1,'EJOB used for a situation where '//    &
      &      'possible extra interaction between states is ignored!')
         end if
       else if (.not.(ifhext.or.ifhdia.or.ifshft.or.ifhcom)) then
-* the user has selected no procedure...
+! the user has selected no procedure...
         if (have_heff.and. (.not.jobmatch)) then
           ifheff=.true.
           DO J=1,NSTATE
@@ -898,82 +898,82 @@ C Write out various input data:
           END DO
         end if
       end if
-*
-* Enable Hamiltonian if available/requested and not explicitly disabled
-      if ((.not.NOHAM).and.(IFHEXT.or.IFHEFF.or.IFHCOM.or.IFEJOB))
+!
+! Enable Hamiltonian if available/requested and not explicitly disabled
+      if ((.not.NOHAM).and.(IFHEXT.or.IFHEFF.or.IFHCOM.or.IFEJOB))      &
      &  IFHAM=.TRUE.
-*
+!
       IF (IPGLOB.GE.2) THEN
         WRITE(6,*)
         WRITE(6,*)'  The following data are common to all the states:'
         WRITE(6,*)'  ------------------------------------------------'
-        WRITE(6,*)
+        WRITE(6,*)                                                      &
      &    '  (note: frozen counts as inactive, deleted as secondary)'
         WRITE(6,*)
         WRITE(6,'(6X,A,I2)')'Nr of irreps:',NSYM
         WRITE(6,*)
-        WRITE(6,'(6X,A)')
+        WRITE(6,'(6X,A)')                                               &
      &       '           Total     No./Irrep '
-        WRITE(6,'(6X,A,8X,8I4)')
+        WRITE(6,'(6X,A,8X,8I4)')                                        &
      &       'Irrep       ',(I,I=1,NSYM)
-        WRITE(6,'(6X,A,8X,8(1X,A))')
+        WRITE(6,'(6X,A,8X,8(1X,A))')                                    &
      &       '            ',(lIrrep(I),I=1,NSYM)
         WRITE(6,*)
-        WRITE(6,'(6X,A,I4,4X,8I4)')
+        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
      &       'INACTIVE    ',NISHT, (NISH(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')
+        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
      &       'ACTIVE      ',NASHT, (NASH(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')
+        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
      &       'SECONDARY   ',NSSHT, (NSSH(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')
+        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
      &       'BASIS       ',NBST, (NBASF(I),I=1,NSYM)
         WRITE(6,*)
-        WRITE(6,'(6X,A,I4,4X,8I4)')
+        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
      &    'RAS1        ',NRS1T, (NRS1(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')
+        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
      &    'RAS2        ',NRS2T, (NRS2(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')
+        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
      &    'RAS3        ',NRS3T, (NRS3(I),I=1,NSYM)
         WRITE(6,*)
         IF(.NOT.(TRACK.OR.ONLY_OVERLAPS)) THEN
-          WRITE(6,*) '      '
-     &           //' MATRIX ELEMENTS WILL BE COMPUTED FOR THE FOLLOWING'
+          WRITE(6,*) '      '                                           &
+     &           //' MATRIX ELEMENTS WILL BE COMPUTED FOR THE FOLLOWING'&
      &           //' ONE-ELECTRON OPERATORS, UNLESS ZERO BY SYMMETRY.'
-          WRITE(6,*) '  (Herm=Hermitian, Anti=Antihermitian,'//
+          WRITE(6,*) '  (Herm=Hermitian, Anti=Antihermitian,'//         &
      &                 ' Sing=Singlet operator, Trip=Triplet operator)'
           Do i1=1,nProp,3
             i2=Min(i1+2,nProp)
-            WRITE(6,'(3(5X,A8,1X,I3,1X,A1,A8,A1))')
+            WRITE(6,'(3(5X,A8,1X,I3,1X,A1,A8,A1))')                     &
      &           (PNAME(i),ICOMP(i),'(',PTYPE(i),')',i=i1,i2)
           End Do
         END IF
         IF(IFHAM) THEN
           WRITE(6,*)
-          WRITE(6,*)'      EIGENSTATES OF A SPIN-FREE HAMILTONIAN'//
+          WRITE(6,*)'      EIGENSTATES OF A SPIN-FREE HAMILTONIAN'//    &
      &            ' WILL BE COMPUTED BASED ON:'
           WRITE(6,*)
-* which kind of base hamiltonian is taken?
+! which kind of base hamiltonian is taken?
           IF(IFHEXT) THEN
-            WRITE(6,*)' a Hamiltonian matrix that '//
+            WRITE(6,*)' a Hamiltonian matrix that '//                   &
      &                'was supplied in the input.'
           ELSE IF(IFHEFF) THEN
-            WRITE(6,*)' a (effective) Hamiltonian matrix that '//
+            WRITE(6,*)' a (effective) Hamiltonian matrix that '//       &
      &                'was read from the wavefunction file(s).'
           ELSE IF(IFEJOB) THEN
-            WRITE(6,*)' a Hamiltonian matrix assumed to be diagonal '//
+            WRITE(6,*)' a Hamiltonian matrix assumed to be diagonal '// &
      &          'with energies read from the wavefunction file(s).'
           ELSE
             WRITE(6,*)' A Hamiltonian matrix computed by RASSI.'
           END IF
-* which kind of corrections are applied?
+! which kind of corrections are applied?
           IF(IFHDIA) THEN
-            WRITE(6,*)' In addition, the diagonal energies of the '//
-     &    'hamiltonian matrix will be replaced by either the user '//
+            WRITE(6,*)' In addition, the diagonal energies of the '//   &
+     &    'hamiltonian matrix will be replaced by either the user '//   &
      &    '(HDIAG keyword) or read from the wavefunction file(s).'
           END IF
           IF(IFSHFT) THEN
-            WRITE(6,*)' In addition, the diagonal energies of the '//
-     &    'hamiltonian matrix will be shifted by the user '//
+            WRITE(6,*)' In addition, the diagonal energies of the '//   &
+     &    'hamiltonian matrix will be shifted by the user '//           &
      &    '(SHIFT keyword).'
           END IF
           IF(NSOPR.GT.0) THEN
@@ -988,13 +988,13 @@ C Write out various input data:
           WRITE(6,*) '       MATRIX ELEMENTS OVER SPIN EIGENSTATES FOR:'
           Do i1=1,NSOPR,3
             i2=Min(i1+2,NSOPR)
-            WRITE(6,'(3(5X,A8,1X,I3,1X,A1,A8,A1))')
+            WRITE(6,'(3(5X,A8,1X,I3,1X,A1,A8,A1))')                     &
      &           (SOPRNM(i),ISOCMP(i),'(',SOPRTP(i),')',i=i1,i2)
           End Do
         END IF
         IF(IFHAM) THEN
           WRITE(6,*)
-          WRITE(6,*)'      EIGENSTATES OF SPIN-ORBIT HAMILTONIAN'//
+          WRITE(6,*)'      EIGENSTATES OF SPIN-ORBIT HAMILTONIAN'//     &
      &            ' WILL BE COMPUTED'
         END IF
       END IF
@@ -1024,13 +1024,13 @@ C Write out various input data:
       END IF
       IF(IPGLOB.GE.2) THEN
        IF(NATO.AND.(NRNATO.GT.0)) THEN
-        WRITE(6,*)' Natural orbitals will be computed for the'//
+        WRITE(6,*)' Natural orbitals will be computed for the'//        &
      &            ' lowest eigenstates. NRNATO=',NRNATO
        END IF
        IF(BINA) THEN
-        WRITE(6,*)' Bi-natural orbitals will be computed for the'//
+        WRITE(6,*)' Bi-natural orbitals will be computed for the'//     &
      &            ' following pairs of states:'
-        WRITE(6,'(5X,8(2X,A1,I2,A1,I2,A1))')
+        WRITE(6,'(5X,8(2X,A1,I2,A1,I2,A1))')                            &
      &             ('(',IBINA(1,I),',',IBINA(2,I),')',I=1,NBINA)
        END IF
        WRITE(6,*)
@@ -1039,9 +1039,9 @@ C Write out various input data:
         III=MIN(II+19,NSTATE)
         WRITE(6,*)
         WRITE(6,'(1X,A8,5x,20I4)')'  State:',(I,I=II,III)
-        WRITE(6,'(1X,A8,5x,20I4)')' JobIph:',
+        WRITE(6,'(1X,A8,5x,20I4)')' JobIph:',                           &
      &                             (JBNUM(I),I=II,III)
-        WRITE(6,'(1X,A8,5x,20I4)')'Root nr:',
+        WRITE(6,'(1X,A8,5x,20I4)')'Root nr:',                           &
      &                             (LROOT(I),I=II,III)
        END DO
        IF(IFSHFT) THEN
@@ -1052,15 +1052,15 @@ C Write out various input data:
        END IF
       END IF
 
-C Added by Ungur Liviu on 04.11.2009
-C Addition of NSTATE, JBNUM, and LROOT to RunFile.
+! Added by Ungur Liviu on 04.11.2009
+! Addition of NSTATE, JBNUM, and LROOT to RunFile.
 
        CALL Put_iscalar('NSTATE_SINGLE',NSTATE)
        CALL Put_iArray('JBNUM_SINGLE',JBNUM,NSTATE)
        CALL Put_iArray('LROOT_SINGLE',LROOT,NSTATE)
-*
-* Generate the quadrature points for isotropic integration of the exponential operator
-*
+!
+! Generate the quadrature points for isotropic integration of the exponential operator
+!
       If (Do_TMOM) Then
         If (Do_SK) Then
           nQuad=1
@@ -1072,7 +1072,7 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
         nk_Vector = 0
         nQuad = 0
       End If
-*
+!
       CALL XFLUSH(6)
 
       END SUBROUTINE INPPRC

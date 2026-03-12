@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,8 +22,8 @@
       INTEGER NI,IL,IP,IK,IKLEV,IPLEV
       REAL*8 CPK,X,CKK
 
-C ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
-C OF SYMMETRY ISYM.
+! ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
+! OF SYMMETRY ISYM.
       CALL mma_allocate(ILEV,NA,Label='ILEV')
       NI=NO-NA
       IL=0
@@ -32,8 +32,8 @@ C OF SYMMETRY ISYM.
         IF(SGS%ISM(IL).NE.ISYM) GOTO 5
         ILEV(IP)=IL
       END DO
-CTEST      write(*,*)' Check prints in SSOTRA.'
-CTEST      write(*,*)' ISYM:',ISYM
+!TEST      write(*,*)' Check prints in SSOTRA.'
+!TEST      write(*,*)' ISYM:',ISYM
       DO IK=1,NA
         IKLEV=ILEV(IK)
         CALL DCOPY_(NCO,[0.0D0],0,TMP,1)
@@ -42,7 +42,7 @@ CTEST      write(*,*)' ISYM:',ISYM
           CPK=TRA(NI+IP,NI+IK)
           IF(IP.EQ.IK) CPK=CPK-1.0D00
           X=0.5D0*CPK
-CTEST          write(*,*)' IP,IK,X:',IP,IK,X
+!TEST          write(*,*)' IP,IK,X:',IP,IK,X
           IF(ABS(X).LT.1.0D-14) cycle
           CALL SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,X,LSM,CI,TMP)
         END DO

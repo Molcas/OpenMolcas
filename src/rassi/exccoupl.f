@@ -1,18 +1,18 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       subroutine exccoupl()
 
       use constants, only: Zero, Half
       use definitions, only: wp, iwp, u6
-      use frenkel_global_vars, only: iTyp, jTyp, valst, nestla,
+      use frenkel_global_vars, only: iTyp, jTyp, valst, nestla,         &
      &                               nestlb, doexch, excl, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
@@ -20,15 +20,15 @@
 
       implicit none
 ! pick up MxRoot
-      integer(kind=iwp) :: nstat1, nstat2,
+      integer(kind=iwp) :: nstat1, nstat2,                              &
      &                     run, lWKX, dimn, a, b
       integer(kind=iwp), external :: isFreeUnit
-      character(len=13) :: filnam1, filnam2, filnam3, filnam4,
+      character(len=13) :: filnam1, filnam2, filnam3, filnam4,          &
      &            filnam5, filnam6,  filnam9
       logical :: WK_C_exists, WK_X_exists, states1, states2
       character(len=1) :: labi, labj
-      real(kind=wp), allocatable:: rBvA(:), Charge(:),
-     &                         WKX1(:),WKX2(:), WK1(:),
+      real(kind=wp), allocatable:: rBvA(:), Charge(:),                  &
+     &                         WKX1(:),WKX2(:), WK1(:),                 &
      &                  Frenkeltri(:), Frenkelunknwn(:)
       real(kind=wp) :: exCoupl, rlWKX(1)
 #ifdef _DEBUGPRINT_RASSI_
@@ -36,8 +36,8 @@
 #else
       logical :: debug_rassi_code = .false.
 #endif
-      integer LuT_, LuT, LuTX4, iAddr, nijkl, iState, jState, LuT1,
-     &        LWK1, I, LuTX1, lState, LuT2, LWK2, LuTX2, N, nAtoms,
+      integer LuT_, LuT, LuTX4, iAddr, nijkl, iState, jState, LuT1,     &
+     &        LWK1, I, LuTX1, lState, LuT2, LWK2, LuTX2, N, nAtoms,     &
      &        kState
       Real*8, External:: DDot_
       Real*8 Vnn_AB, AB_Nuc, EBNucA, EANucB, Discrim, EECoupl
@@ -130,7 +130,7 @@
         do kstate=1,nstat2
           if ((istate /= 1) .or. (kstate /= 1)) then
             if (EXCL) then
-              if ((ALL(nestla /= istate)) .or.
+              if ((ALL(nestla /= istate)) .or.                          &
      &           (ALL(nestlb /= kstate))) then
                 cycle
               end if
@@ -145,10 +145,10 @@
          do jstate=1,nstat1
            ! * Start Coulomb term
            if (istate > jstate ) then
-           write(filnam1,'(A,I1,A,I3.3,A,I3.3)') 'WK_C',iTyp,'_',
+           write(filnam1,'(A,I1,A,I3.3,A,I3.3)') 'WK_C',iTyp,'_',       &
      &            istate,'_',jstate
            else
-             write(filnam1,'(A,I1,A,I3.3,A,I3.3)') 'WK_C',iTyp,'_',
+             write(filnam1,'(A,I1,A,I3.3,A,I3.3)') 'WK_C',iTyp,'_',     &
      &            jstate,'_',istate
            end if
            inquire(file=filnam1, exist=WK_C_exists)
@@ -161,10 +161,10 @@
            ! Start-Exchange-term
            if (DoExch) then
              if (istate > jstate) then
-               write(filnam3,'(A,I1,I2.2,I2.2)') 'X',iTyp,
+               write(filnam3,'(A,I1,I2.2,I2.2)') 'X',iTyp,              &
      &             istate,jstate
              else
-               write(filnam3,'(A,I1,I2.2,I2.2)') 'X',iTyp,
+               write(filnam3,'(A,I1,I2.2,I2.2)') 'X',iTyp,              &
      &             jstate,istate
              end if
              inquire(file=filnam3, exist=WK_X_exists)
@@ -182,7 +182,7 @@
            do lstate=1,nstat2
               if ((jstate /= 1) .or. (lstate /= 1)) then
                 if (EXCL) then
-                  if ((ALL(nestla /= jstate)) .or.
+                  if ((ALL(nestla /= jstate)) .or.                      &
      &               (ALL(nestlb /= lstate))) then
                     cycle
                   end if
@@ -194,10 +194,10 @@
               a = a + 1
               if (a <= b) then
                 if (kstate > lstate) then
-                  write(filnam2,'(A,I1,A,I3.3,A,I3.3)') 'WK_C',jTyp,
+                  write(filnam2,'(A,I1,A,I3.3,A,I3.3)') 'WK_C',jTyp,    &
      &                     '_',KSTATE,'_',LSTATE
                 else
-                  write(filnam2,'(A,I1,A,I3.3,A,I3.3)') 'WK_C',jTyp,
+                  write(filnam2,'(A,I1,A,I3.3,A,I3.3)') 'WK_C',jTyp,    &
      &                     '_',LSTATE,'_',KSTATE
                 end if
                inquire(file=filnam2, exist=WK_C_exists)
@@ -225,10 +225,10 @@
       !           Start-Exchange-term
                   if (DoExch) then
                     if (kstate > lstate) then
-                      write (filnam4,'(A,I1,I2.2,I2.2)') 'X',jTyp,
+                      write (filnam4,'(A,I1,I2.2,I2.2)') 'X',jTyp,      &
      &                       kstate,lstate
                     else
-                      write(filnam4,'(A,I1,I2.2,I2.2)')'X',jTyp,
+                      write(filnam4,'(A,I1,I2.2,I2.2)')'X',jTyp,        &
      &                       lstate,kstate
                     end if
                     inquire(file=filnam4, exist=WK_X_exists)
@@ -249,19 +249,19 @@
                     eeCoupl = eeCoupl + exCoupl
                   end if
                 ! End-Exchange-term
-                  write(u6,'(3X,A,I3.3,A,A,A,I3.3,A,A,A,
-     &                                  I3.3,A,A,A,I3.3,A,A,A,
-     &                                  ES18.8)')
-     &                         '<(',istate,')',labi,'(',kstate,')',labj,
-     &                       '|v|(',jstate,')',labi,
-     &                          '(',lstate,')',labj,'> = ', eeCoupl
-     &                                                     +eAnucB
-     &                                                     +eBnucA
+                  write(u6,'(3X,A,I3.3,A,A,A,I3.3,A,A,A,                &
+     &                                  I3.3,A,A,A,I3.3,A,A,A,          &
+     &                                  ES18.8)')                       &
+     &                         '<(',istate,')',labi,'(',kstate,')',labj,&
+     &                       '|v|(',jstate,')',labi,                    &
+     &                          '(',lstate,')',labj,'> = ', eeCoupl     &
+     &                                                     +eAnucB      &
+     &                                                     +eBnucA      &
      &                                                     +AB_nuc
 
                   run = run + 1
                   if (debug_rassi_code) then
-                    write(u6,*) 'eeCoupl', eeCoupl, 'eAnucB', eAnucB,
+                    write(u6,*) 'eeCoupl', eeCoupl, 'eAnucB', eAnucB,   &
      &                          'eBnucA', eBnucA, 'AB_nuc', AB_nuc
                   end if
                   ! write into the Frenkel basis matrix (triangular)
@@ -298,7 +298,7 @@
       !determine dimensions of Hamiltonian
       discrim = 1+4*2*nijkl
       dimn = int((-1+sqrt(discrim))/2, kind=iwp)
-      write(u6,'(A,I3.3,A,I3.3)') 'determined Hamiltonian dimensions:',
+      write(u6,'(A,I3.3,A,I3.3)') 'determined Hamiltonian dimensions:', &
      &                            dimn,"x",dimn
 
       call mma_allocate(Frenkeltri,dimn*(dimn+1)/2,label='frenkeltri')
