@@ -198,8 +198,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call RecPrt('-g/hdiag (NR step) as vector',' ',displacements(:,nIter+1),fsdim,1)
             end if
 
-            displacements(:,nIter+1) = displacements(:,nIter+1) + displacements(:,nIter)
-
             if (SGEKdebug) then
                 write(u6,"(A,I3,A)") "kappa'_",nIter,"="
                 call RecPrt('-g/hdiag (NR step) as vector ABSOLUTE',' ',displacements(:,nIter+1),fsdim,1)
@@ -218,7 +216,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 case (4) ! Full space GEK
 
-                    call S_GEK_localisation(nIter,Functionallist(:),GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,&
+                    call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                                             dqdq,displacements(:,nIter+1),UpMeth,'fullspace',SORange)
 
                 case (5) ! subspace GEK

@@ -12,7 +12,7 @@
 !               2025, Lila Zapp                                        *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 
 subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias,maximize)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -135,7 +135,10 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 
     ! Compute the surrogate Hessian
     call Hessian_Kriging_Layer(q_diis(:,Iteration),H_surr,mDiis)
-    !call Hessian_Kriging(q_diis(:,Iteration),H_diis,mDiis)
+    if (maximize) H_surr(:,:) = - H_surr(:,:)
+#   ifdef _DEBUGPRINT_
+    call RecPrt('H_surr(from HKL)',' ',H_surr,mDIIS,mDIIS)
+#   endif
 
     call mma_allocate(Val,nTri_Elem(mDIIS),Label='Val')
     call mma_allocate(Vec,mDIIS,mDIIS,Label='Vec')
@@ -157,15 +160,30 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'Eigenvalue:',Val(ii)
 #     endif
+      if (.not. maximize) then
 
-      if (Val(ii) < Zero) then
-        Terminate = .true.
-        do j=1,mDIIS
-          do k=1,mDIIS
-            H_surr(j,k) = H_surr(j,k)+Two*abs(Val(ii))*Vec(j,i)*Vec(k,i)
+        if (Val(ii) < Zero) then
+          Terminate = .true.
+          do j=1,mDIIS
+            do k=1,mDIIS
+              H_surr(j,k) = H_surr(j,k)+Two*abs(Val(ii))*Vec(j,i)*Vec(k,i)
+            end do
           end do
-        end do
+        end if
+
+      else if (maximize) then
+
+        if (Val(ii) > Zero) then
+          Terminate = .true.
+          do j=1,mDIIS
+            do k=1,mDIIS
+              H_surr(j,k) = H_surr(j,k)+Two*abs(Val(ii))*Vec(j,i)*Vec(k,i)
+            end do
+          end do
+        end if
+
       end if
+
     end do
 
     call mma_deallocate(Vec)

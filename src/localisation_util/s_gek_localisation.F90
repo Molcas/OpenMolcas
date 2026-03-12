@@ -43,7 +43,7 @@ logical, intent(in) :: SORange
 character :: Step_Trunc
 
 
-!Functionallist(:) =-Functionallist(:)
+Functionallist(:) =-Functionallist(:)
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
@@ -264,7 +264,7 @@ end if
 
 
 Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Functionallist(iFirst:),H_diis(:,:),dqdq,&
-                   Step_Trunc,UpMeth,SOFact,10000.0_wp,.true.)
+                   Step_Trunc,UpMeth,SOFact,10000.0_wp,.false.)
 
 
 ! project the resulting displacement dq_diis back into the fullspace
@@ -284,7 +284,7 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 #endif
 
-!Functionallist(:) =-Functionallist(:)
+Functionallist(:) =-Functionallist(:)
 
 ! deallocations
 ! -------------
