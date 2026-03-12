@@ -22,7 +22,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
-use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType
+use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
@@ -32,10 +32,11 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr,ang
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),dq(:),&
-                              kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:)
+                              kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
+                              Prev(:),Disp(:)
 logical(kind=iwp), parameter :: debug_lowdin = .false.
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
@@ -226,9 +227,41 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                                         dqdq,displacements(:,nIter+1),UpMeth,'subspace ',SORange)
                 end select !(s)-GEK
 
+
+                ! undershoot mitigation
+                if (Loosen%Step > One) then
+                    call mma_allocate(Prev,fsdim,Label='Prev')
+                    call mma_allocate(Disp,fsdim,Label='Disp')
+
+                    Prev(:) = displacements(:,nIter)
+                    Disp(:) = displacements(:,nIter+1)
+
+                    dqdq = DDot_(fsdim,Disp,1,Disp,1)*DDot_(fsdim,Prev,1,Prev,1)
+                    ang = DDot_(fsdim,Prev,1,Disp,1)/sqrt(dqdq)
+                    if (ang < Loosen%Thrs2) then
+                        Loosen%Factor = One
+                    else if (ang > Loosen%Thrs) then
+                        Loosen%Factor = Loosen%Factor*Loosen%Step
+                    end if
+
+                    if (SGEKdebug) then
+                        call RecPrt('Disp',' ',Disp,fsdim,1)
+                        call RecPrt('Prev',' ',Prev,fsdim,1)
+                        write(u6,*) "angle(Disp,Prev) = cos^-1(",ang,")"
+                        write(u6,*) "Loosen%Factor    =", Loosen%Factor
+                        write(u6,*) "Loosen%Step    =", Loosen%Step
+                    end if
+
+                    call mma_Deallocate(Prev)
+                    call mma_Deallocate(Disp)
+
+                end if
+
                 ! transform GEK disp vec to matrix
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
                 if (SGEKdebug) call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
+
+
 
             end if
         end select ! different NxN rotations

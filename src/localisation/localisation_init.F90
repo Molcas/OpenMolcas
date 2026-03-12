@@ -18,9 +18,9 @@ use Localisation_globals, only: nSym, nOrb2Loc, nFro, nConstr, Skip, LocOrb, Thr
                                 Maximisation, ChoStart, LocModel, OptMeth, ChargeType, LocModel_UsrDef,Test_Localisation, &
                                 NMxIter, Thrs, ThrRot, ThrGrad, Analysis, AnaAtom, AnaNrm, PrintMOs, Timing, EvalER, Order,&
                                 LocPAO, AnaPAO, AnaPAO_Save, DoDomain, AnaDomain, ThrDomain, ThrPairDomain, LocNatOrb, &
-                                LocCanOrb, Wave, iWave, DoCNOs
-use definitions, only: iwp, wp
-use constants, only: Ten
+                                LocCanOrb, Wave, iWave, DoCNOs, Loosen
+use Definitions, only: iwp, wp
+use Constants, only: Ten,Five,Half,One,Deg2Rad
 
 implicit none
 integer(kind=iwp) :: iSym
@@ -72,5 +72,12 @@ LocCanOrb = .false.
 Wave = .false.
 iWave = 0
 DoCNOs = .false.
+
+! Default undershoot avoidance settings (for GEK)
+Loosen%Thrs = cos(Five*Deg2Rad)
+Loosen%Thrs2 = cos(20.0_wp*Deg2Rad)
+Loosen%Step = Half*(One+sqrt(Five))
+Loosen%Factor = One
+
 end subroutine localisation_init
 

@@ -13,18 +13,18 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 
 
 subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework,SORange)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
-use Definitions, only: iwp,wp
+use Definitions, only: iwp,wp, u6
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Localisation_globals, only: nMxIter
+use Localisation_globals, only: nMxIter,Loosen
 
 implicit none
 
@@ -34,14 +34,14 @@ real(kind=wp),intent(inout) :: FunctionalList(nMxIter)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
-real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:)
+real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
+                              w(:,:),D(:,:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 character(len=9),intent(in) :: framework
 logical, intent(in) :: SORange
 character :: Step_Trunc
-
 
 Functionallist(:) =-Functionallist(:)
 
@@ -251,6 +251,41 @@ dq_diis(:) = Zero
     call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
     call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 #endif
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Undershoot avoidance: Scale along dq !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+if (Loosen%Factor /= One) then
+  ! Components of dq in the subspace
+  call mma_allocate(w,mDIIS,mDIIS,Label='w')
+  gg = sqrt(DDot_(fsdim,dq,1,dq,1))
+  do i=1,mDIIS
+    w(i,1) = DDot_(fsdim,dq,1,e_diis(:,i),1)/gg
+  end do
+  ! D = I + (f-1) * w w^T
+  ! H' = D^T H D
+  call mma_allocate(D,mDIIS,mDIIS,Label='D')
+  do i=1,mDIIS
+    D(:,i) = (One/Loosen%Factor-One)*w(i,1)*w(:,1)
+    D(i,i) = D(i,i)+One
+  end do
+  call dgemm_('N','N',mDIIS,mDIIS,mDIIS,One,H_diis,mDIIS,D,mDIIS,Zero,w,mDIIS)
+  call dgemm_('N','N',mDIIS,mDIIS,mDIIS,One,D,mDIIS,w,mDIIS,Zero,H_diis,mDIIS)
+  call mma_deallocate(D)
+  call mma_deallocate(w)
+
+# ifdef _DEBUGPRINT_
+  write(u6,*) "Undershoot mitigation, scale along dq"
+  call RecPrt('H_diis(after scaling)',' ',H_diis,mDIIS,mDIIS)
+# endif
+
+end if
+
+
+
+
+
 
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
