@@ -1213,6 +1213,10 @@ else ()
         -D DISABLE_LXC=ON
         -D BUILD_TESTING=NO
   )
+  # Workaround for newer CMake
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "4")
+    list (APPEND LibxcCMakeArgs "-D CMAKE_POLICY_VERSION_MINIMUM=3.5")
+  endif()
   # "Hidden" option to pass extra arguments to Libxc CMake
   list (APPEND LibxcCMakeArgs ${Libxc_EXTRA_CMakeArgs})
 
