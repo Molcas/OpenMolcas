@@ -302,6 +302,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 #       ifdef _DEBUGPRINT_
             write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
+            write(u6,*) "Functional:",Functional
             call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
             call RecPrt('Hdiag',' ',Hdiagvec(:),fsdim,1)
 #       endif

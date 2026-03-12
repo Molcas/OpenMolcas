@@ -131,12 +131,12 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 
   do ! Restricted variance step
     cnt = cnt +1
-    !write(u6,*) 'inside RVO step loop, iter = ',cnt
 
     ! Compute the surrogate Hessian
     call Hessian_Kriging_Layer(q_diis(:,Iteration),H_surr,mDiis)
     if (maximize) H_surr(:,:) = - H_surr(:,:)
 #   ifdef _DEBUGPRINT_
+    write(u6,*) 'inside RVO step loop, iter = ',cnt
     call RecPrt('H_surr(from HKL)',' ',H_surr,mDIIS,mDIIS)
 #   endif
 
@@ -191,7 +191,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 
 #   ifdef _DEBUGPRINT_
     call RecPrt('q_diis(:,Iteration)',' ',q_diis(:,Iteration),mDIIS,1)
-    call RecPrt('H_surr(updated)',' ',H_surr,mDIIS,mDIIS)
+    if (Terminate) call RecPrt('H_surr(updated)',' ',H_surr,mDIIS,mDIIS)
     write(u6,*) 'Step_Trunc:',Step_Trunc
 #   endif
 
@@ -231,17 +231,23 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 #   endif
 
     if (Fact < 1.0e-5_wp) then
-        !write(u6,'(A,I2)') 'Fact < 1.0e-5_wp     Exitting sub-iterations after ',cnt
+#       ifdef _DEBUGPRINT_
+        write(u6,'(/A,/A,I2)') 'Fact < 1.0e-5_wp','Exitting sub-iterations after ',cnt
+#       endif
         exit
     end if
 
     if (Variance(1) < Beta_Disp) then
-        !write(u6,'(A,I2)') 'Var < Beta_Disp;     Exitting sub-iterations after', cnt
+#       ifdef _DEBUGPRINT_
+        write(u6,'(/A,/A,I2)') 'Var < Beta_Disp','Exitting sub-iterations after ', cnt
+#       endif
         exit
     end if
 
     if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) then
-        !write(u6,'(A,I2)') 'One-Variance(1)/Beta_Disp > 1.0e-3_wp      Exitting sub-iterations after',cnt
+#       ifdef _DEBUGPRINT_
+        write(u6,'(/A,/A,I2)') 'One-Variance(1)/Beta_Disp > 1.0e-3_wp','Exitting sub-iterations after ',cnt
+#       endif
         exit
     end if
 
@@ -324,7 +330,7 @@ if (Converged) then
 else
   write(u6,*) 'Not converged!'
 end if
-write(u6,*) 'Energy(Iteration_Total+1):',Energy(Iteration_Total+1)
+write(u6,*) 'Energy(Iteration_Total+1) :',Energy(Iteration_Total+1)
 #endif
 
 write(UpMeth(5:6),'(I2)') Iteration_Micro

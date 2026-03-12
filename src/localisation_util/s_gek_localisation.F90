@@ -82,7 +82,7 @@ end do
     call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
     call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
-    call RecPrt("dq(:) before projecting in",' ',dq,fsdim, 1)
+    call RecPrt("dq(:) = NR suggestion",' ',dq,fsdim, 1)
 #endif
 
 ! select subspace basis vectors; construct normalized e_diis
