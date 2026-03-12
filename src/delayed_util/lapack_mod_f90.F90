@@ -9,6 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+#include "la_constants.f90"
+#include "la_xisnan.F90"
+
 module LAPACK_MOD_F90
 
 implicit none

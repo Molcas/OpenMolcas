@@ -21,11 +21,11 @@ subroutine chemps2_load3pdm(NAC,idxG3,NG3,storage,doG3,EPSA,F2,chemroot)
 use mh5, only: mh5_open_file_r, mh5_open_group, mh5_fetch_dset, mh5_close_group, mh5_close_file
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, i1, u6
+use Definitions, only: wp, iwp, byte, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NAC, NG3, chemroot
-integer(kind=i1), intent(in) :: idxG3(6,NG3)
+integer(kind=byte), intent(in) :: idxG3(6,NG3)
 real(kind=wp), intent(_OUT_) :: storage(*)
 real(kind=wp), intent(out) :: F2(NAC,NAC,NAC,NAC)
 logical(kind=iwp), intent(in) :: doG3

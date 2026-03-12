@@ -10,1489 +10,897 @@
 !***********************************************************************
 ! File generated with delayed.py
 
-!
-!     BLAS procedures
-!
-      funptr=link_func('caxpy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_caxpy)
-      end if
-!
-      funptr=link_func('cgemm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_cgemm)
-      end if
-!
-      funptr=link_func('dasum')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dasum)
-      end if
-!
-      funptr=link_func('daxpy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_daxpy)
-      end if
-!
-      funptr=link_func('dcabs1')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dcabs1)
-      end if
-!
-      funptr=link_func('dcopy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dcopy)
-      end if
-!
-      funptr=link_func('ddot')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_ddot)
-      end if
-!
-      funptr=link_func('dgemm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgemm)
-      end if
-!
-      funptr=link_func('dgemv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgemv)
-      end if
-!
-      funptr=link_func('dger')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dger)
-      end if
-!
-      funptr=link_func('dnrm2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dnrm2)
-      end if
-!
-      funptr=link_func('drot')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_drot)
-      end if
-!
-      funptr=link_func('dscal')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dscal)
-      end if
-!
-      funptr=link_func('dspmv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dspmv)
-      end if
-!
-      funptr=link_func('dspr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dspr)
-      end if
-!
-      funptr=link_func('dspr2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dspr2)
-      end if
-!
-      funptr=link_func('dswap')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dswap)
-      end if
-!
-      funptr=link_func('dsymm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsymm)
-      end if
-!
-      funptr=link_func('dsymv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsymv)
-      end if
-!
-      funptr=link_func('dsyr2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsyr2)
-      end if
-!
-      funptr=link_func('dsyr2k')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsyr2k)
-      end if
-!
-      funptr=link_func('dsyrk')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsyrk)
-      end if
-!
-      funptr=link_func('dtpmv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtpmv)
-      end if
-!
-      funptr=link_func('dtpsv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtpsv)
-      end if
-!
-      funptr=link_func('dtrmm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrmm)
-      end if
-!
-      funptr=link_func('dtrmv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrmv)
-      end if
-!
-      funptr=link_func('dtrsm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrsm)
-      end if
-!
-      funptr=link_func('dtrsv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrsv)
-      end if
-!
-      funptr=link_func('dznrm2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dznrm2)
-      end if
-!
-      funptr=link_func('idamax')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_idamax)
-      end if
-!
-      funptr=link_func('lsame')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_lsame)
-      end if
-!
-      funptr=link_func('saxpy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_saxpy)
-      end if
-!
-      funptr=link_func('scabs1')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_scabs1)
-      end if
-!
-      funptr=link_func('scopy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_scopy)
-      end if
-!
-      funptr=link_func('sgemm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_sgemm)
-      end if
-!
-      funptr=link_func('xerbla')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_xerbla)
-      end if
-!
-      funptr=link_func('zaxpy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zaxpy)
-      end if
-!
-      funptr=link_func('zcopy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zcopy)
-      end if
-!
-      funptr=link_func('zdotc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zdotc)
-      end if
-!
-      funptr=link_func('zdscal')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zdscal)
-      end if
-!
-      funptr=link_func('zgemm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgemm)
-      end if
-!
-      funptr=link_func('zgemv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgemv)
-      end if
-!
-      funptr=link_func('zgerc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgerc)
-      end if
-!
-      funptr=link_func('zhemv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zhemv)
-      end if
-!
-      funptr=link_func('zher2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zher2)
-      end if
-!
-      funptr=link_func('zher2k')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zher2k)
-      end if
-!
-      funptr=link_func('zhpmv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zhpmv)
-      end if
-!
-      funptr=link_func('zhpr2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zhpr2)
-      end if
-!
-      funptr=link_func('zscal')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zscal)
-      end if
-!
-      funptr=link_func('zswap')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zswap)
-      end if
-!
-      funptr=link_func('ztrmm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_ztrmm)
-      end if
-!
-      funptr=link_func('ztrmv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_ztrmv)
-      end if
-!
-      funptr=link_func('ztrsm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_ztrsm)
-      end if
-!
-!     LAPACK procedures
-!
-      funptr=link_func('dbdsdc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dbdsdc)
-      end if
-!
-      funptr=link_func('dbdsqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dbdsqr)
-      end if
-!
-      funptr=link_func('dgebak')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgebak)
-      end if
-!
-      funptr=link_func('dgebal')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgebal)
-      end if
-!
-      funptr=link_func('dgebd2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgebd2)
-      end if
-!
-      funptr=link_func('dgebrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgebrd)
-      end if
-!
-      funptr=link_func('dgecon')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgecon)
-      end if
-!
-      funptr=link_func('dgees')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgees)
-      end if
-!
-      funptr=link_func('dgeev')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgeev)
-      end if
-!
-      funptr=link_func('dgehd2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgehd2)
-      end if
-!
-      funptr=link_func('dgehrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgehrd)
-      end if
-!
-      funptr=link_func('dgelq2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgelq2)
-      end if
-!
-      funptr=link_func('dgelqf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgelqf)
-      end if
-!
-      funptr=link_func('dgels')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgels)
-      end if
-!
-      funptr=link_func('dgeqr2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgeqr2)
-      end if
-!
-      funptr=link_func('dgeqrf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgeqrf)
-      end if
-!
-      funptr=link_func('dgesdd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgesdd)
-      end if
-!
-      funptr=link_func('dgesv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgesv)
-      end if
-!
-      funptr=link_func('dgesvd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgesvd)
-      end if
-!
-      funptr=link_func('dgetrf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgetrf)
-      end if
-!
-      funptr=link_func('dgetrf2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgetrf2)
-      end if
-!
-      funptr=link_func('dgetri')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgetri)
-      end if
-!
-      funptr=link_func('dgetrs')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgetrs)
-      end if
-!
-      funptr=link_func('dhseqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dhseqr)
-      end if
-!
-      funptr=link_func('disnan')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_disnan)
-      end if
-!
-      funptr=link_func('dlabad')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlabad)
-      end if
-!
-      funptr=link_func('dlabrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlabrd)
-      end if
-!
-      funptr=link_func('dlacn2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlacn2)
-      end if
-!
-      funptr=link_func('dlacpy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlacpy)
-      end if
-!
-      funptr=link_func('dladiv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dladiv)
-      end if
-!
-      funptr=link_func('dladiv1')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dladiv1)
-      end if
-!
-      funptr=link_func('dladiv2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dladiv2)
-      end if
-!
-      funptr=link_func('dlae2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlae2)
-      end if
-!
-      funptr=link_func('dlaebz')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaebz)
-      end if
-!
-      funptr=link_func('dlaed0')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed0)
-      end if
-!
-      funptr=link_func('dlaed1')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed1)
-      end if
-!
-      funptr=link_func('dlaed2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed2)
-      end if
-!
-      funptr=link_func('dlaed3')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed3)
-      end if
-!
-      funptr=link_func('dlaed4')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed4)
-      end if
-!
-      funptr=link_func('dlaed5')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed5)
-      end if
-!
-      funptr=link_func('dlaed6')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed6)
-      end if
-!
-      funptr=link_func('dlaed7')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed7)
-      end if
-!
-      funptr=link_func('dlaed8')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed8)
-      end if
-!
-      funptr=link_func('dlaed9')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaed9)
-      end if
-!
-      funptr=link_func('dlaeda')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaeda)
-      end if
-!
-      funptr=link_func('dlaev2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaev2)
-      end if
-!
-      funptr=link_func('dlaexc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaexc)
-      end if
-!
-      funptr=link_func('dlagtf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlagtf)
-      end if
-!
-      funptr=link_func('dlagts')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlagts)
-      end if
-!
-      funptr=link_func('dlahqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlahqr)
-      end if
-!
-      funptr=link_func('dlahr2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlahr2)
-      end if
-!
-      funptr=link_func('dlaisnan')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaisnan)
-      end if
-!
-      funptr=link_func('dlaln2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaln2)
-      end if
-!
-      funptr=link_func('dlamc3')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlamc3)
-      end if
-!
-      funptr=link_func('dlamch')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlamch)
-      end if
-!
-      funptr=link_func('dlamrg')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlamrg)
-      end if
-!
-      funptr=link_func('dlaneg')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaneg)
-      end if
-!
-      funptr=link_func('dlange')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlange)
-      end if
-!
-      funptr=link_func('dlansp')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlansp)
-      end if
-!
-      funptr=link_func('dlanst')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlanst)
-      end if
-!
-      funptr=link_func('dlansy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlansy)
-      end if
-!
-      funptr=link_func('dlanv2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlanv2)
-      end if
-!
-      funptr=link_func('dlapy2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlapy2)
-      end if
-!
-      funptr=link_func('dlapy3')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlapy3)
-      end if
-!
-      funptr=link_func('dlaqr0')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaqr0)
-      end if
-!
-      funptr=link_func('dlaqr1')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaqr1)
-      end if
-!
-      funptr=link_func('dlaqr2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaqr2)
-      end if
-!
-      funptr=link_func('dlaqr3')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaqr3)
-      end if
-!
-      funptr=link_func('dlaqr4')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaqr4)
-      end if
-!
-      funptr=link_func('dlaqr5')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaqr5)
-      end if
-!
-      funptr=link_func('dlar1v')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlar1v)
-      end if
-!
-      funptr=link_func('dlarf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarf)
-      end if
-!
-      funptr=link_func('dlarfb')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarfb)
-      end if
-!
-      funptr=link_func('dlarfg')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarfg)
-      end if
-!
-      funptr=link_func('dlarft')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarft)
-      end if
-!
-      funptr=link_func('dlarfx')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarfx)
-      end if
-!
-      funptr=link_func('dlarnv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarnv)
-      end if
-!
-      funptr=link_func('dlarra')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarra)
-      end if
-!
-      funptr=link_func('dlarrb')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarrb)
-      end if
-!
-      funptr=link_func('dlarrc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarrc)
-      end if
-!
-      funptr=link_func('dlarrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarrd)
-      end if
-!
-      funptr=link_func('dlarre')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarre)
-      end if
-!
-      funptr=link_func('dlarrf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarrf)
-      end if
-!
-      funptr=link_func('dlarrj')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarrj)
-      end if
-!
-      funptr=link_func('dlarrk')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarrk)
-      end if
-!
-      funptr=link_func('dlarrr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarrr)
-      end if
-!
-      funptr=link_func('dlarrv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlarrv)
-      end if
-!
-      funptr=link_func('dlartg')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlartg)
-      end if
-!
-      funptr=link_func('dlaruv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaruv)
-      end if
-!
-      funptr=link_func('dlas2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlas2)
-      end if
-!
-      funptr=link_func('dlascl')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlascl)
-      end if
-!
-      funptr=link_func('dlasd0')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasd0)
-      end if
-!
-      funptr=link_func('dlasd1')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasd1)
-      end if
-!
-      funptr=link_func('dlasd2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasd2)
-      end if
-!
-      funptr=link_func('dlasd3')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasd3)
-      end if
-!
-      funptr=link_func('dlasd4')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasd4)
-      end if
-!
-      funptr=link_func('dlasd5')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasd5)
-      end if
-!
-      funptr=link_func('dlasd6')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasd6)
-      end if
-!
-      funptr=link_func('dlasd7')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasd7)
-      end if
-!
-      funptr=link_func('dlasd8')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasd8)
-      end if
-!
-      funptr=link_func('dlasda')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasda)
-      end if
-!
-      funptr=link_func('dlasdq')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasdq)
-      end if
-!
-      funptr=link_func('dlasdt')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasdt)
-      end if
-!
-      funptr=link_func('dlaset')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaset)
-      end if
-!
-      funptr=link_func('dlasq1')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasq1)
-      end if
-!
-      funptr=link_func('dlasq2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasq2)
-      end if
-!
-      funptr=link_func('dlasq3')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasq3)
-      end if
-!
-      funptr=link_func('dlasq4')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasq4)
-      end if
-!
-      funptr=link_func('dlasq5')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasq5)
-      end if
-!
-      funptr=link_func('dlasq6')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasq6)
-      end if
-!
-      funptr=link_func('dlasr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasr)
-      end if
-!
-      funptr=link_func('dlasrt')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasrt)
-      end if
-!
-      funptr=link_func('dlassq')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlassq)
-      end if
-!
-      funptr=link_func('dlasv2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasv2)
-      end if
-!
-      funptr=link_func('dlaswp')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlaswp)
-      end if
-!
-      funptr=link_func('dlasy2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlasy2)
-      end if
-!
-      funptr=link_func('dlatrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlatrd)
-      end if
-!
-      funptr=link_func('dlatrs')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dlatrs)
-      end if
-!
-      funptr=link_func('dopgtr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dopgtr)
-      end if
-!
-      funptr=link_func('dopmtr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dopmtr)
-      end if
-!
-      funptr=link_func('dorg2l')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorg2l)
-      end if
-!
-      funptr=link_func('dorg2r')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorg2r)
-      end if
-!
-      funptr=link_func('dorgbr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorgbr)
-      end if
-!
-      funptr=link_func('dorghr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorghr)
-      end if
-!
-      funptr=link_func('dorgl2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorgl2)
-      end if
-!
-      funptr=link_func('dorglq')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorglq)
-      end if
-!
-      funptr=link_func('dorgql')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorgql)
-      end if
-!
-      funptr=link_func('dorgqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorgqr)
-      end if
-!
-      funptr=link_func('dorgtr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorgtr)
-      end if
-!
-      funptr=link_func('dorm2l')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorm2l)
-      end if
-!
-      funptr=link_func('dorm2r')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorm2r)
-      end if
-!
-      funptr=link_func('dormbr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dormbr)
-      end if
-!
-      funptr=link_func('dormhr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dormhr)
-      end if
-!
-      funptr=link_func('dorml2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dorml2)
-      end if
-!
-      funptr=link_func('dormlq')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dormlq)
-      end if
-!
-      funptr=link_func('dormql')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dormql)
-      end if
-!
-      funptr=link_func('dormqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dormqr)
-      end if
-!
-      funptr=link_func('dormtr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dormtr)
-      end if
-!
-      funptr=link_func('dposv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dposv)
-      end if
-!
-      funptr=link_func('dpotrf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dpotrf)
-      end if
-!
-      funptr=link_func('dpotrf2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dpotrf2)
-      end if
-!
-      funptr=link_func('dpotrs')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dpotrs)
-      end if
-!
-      funptr=link_func('dpptrf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dpptrf)
-      end if
-!
-      funptr=link_func('dpstf2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dpstf2)
-      end if
-!
-      funptr=link_func('dpstrf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dpstrf)
-      end if
-!
-      funptr=link_func('droundup_lwork')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_droundup_lwork)
-      end if
-!
-      funptr=link_func('drscl')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_drscl)
-      end if
-!
-      funptr=link_func('dspev')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dspev)
-      end if
-!
-      funptr=link_func('dspgst')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dspgst)
-      end if
-!
-      funptr=link_func('dspgv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dspgv)
-      end if
-!
-      funptr=link_func('dsptrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsptrd)
-      end if
-!
-      funptr=link_func('dstebz')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dstebz)
-      end if
-!
-      funptr=link_func('dstedc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dstedc)
-      end if
-!
-      funptr=link_func('dstein')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dstein)
-      end if
-!
-      funptr=link_func('dstemr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dstemr)
-      end if
-!
-      funptr=link_func('dsteqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsteqr)
-      end if
-!
-      funptr=link_func('dsterf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsterf)
-      end if
-!
-      funptr=link_func('dstev')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dstev)
-      end if
-!
-      funptr=link_func('dstevr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dstevr)
-      end if
-!
-      funptr=link_func('dsyev')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsyev)
-      end if
-!
-      funptr=link_func('dsyevd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsyevd)
-      end if
-!
-      funptr=link_func('dsyevr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsyevr)
-      end if
-!
-      funptr=link_func('dsyevx')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsyevx)
-      end if
-!
-      funptr=link_func('dsygs2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsygs2)
-      end if
-!
-      funptr=link_func('dsygst')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsygst)
-      end if
-!
-      funptr=link_func('dsygv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsygv)
-      end if
-!
-      funptr=link_func('dsytd2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsytd2)
-      end if
-!
-      funptr=link_func('dsytrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dsytrd)
-      end if
-!
-      funptr=link_func('dtrevc3')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrevc3)
-      end if
-!
-      funptr=link_func('dtrexc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrexc)
-      end if
-!
-      funptr=link_func('dtrsen')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrsen)
-      end if
-!
-      funptr=link_func('dtrsyl')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrsyl)
-      end if
-!
-      funptr=link_func('dtrti2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrti2)
-      end if
-!
-      funptr=link_func('dtrtri')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrtri)
-      end if
-!
-      funptr=link_func('dtrtrs')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dtrtrs)
-      end if
-!
-      funptr=link_func('ieeeck')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_ieeeck)
-      end if
-!
-      funptr=link_func('iladlc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_iladlc)
-      end if
-!
-      funptr=link_func('iladlr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_iladlr)
-      end if
-!
-      funptr=link_func('ilaenv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_ilaenv)
-      end if
-!
-      funptr=link_func('ilazlc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_ilazlc)
-      end if
-!
-      funptr=link_func('ilazlr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_ilazlr)
-      end if
-!
-      funptr=link_func('iparam2stage')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_iparam2stage)
-      end if
-!
-      funptr=link_func('iparmq')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_iparmq)
-      end if
-!
-      funptr=link_func('zbdsqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zbdsqr)
-      end if
-!
-      funptr=link_func('zdrot')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zdrot)
-      end if
-!
-      funptr=link_func('zgebd2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgebd2)
-      end if
-!
-      funptr=link_func('zgebrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgebrd)
-      end if
-!
-      funptr=link_func('zgelq2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgelq2)
-      end if
-!
-      funptr=link_func('zgelqf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgelqf)
-      end if
-!
-      funptr=link_func('zgels')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgels)
-      end if
-!
-      funptr=link_func('zgeqr2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgeqr2)
-      end if
-!
-      funptr=link_func('zgeqrf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgeqrf)
-      end if
-!
-      funptr=link_func('zgesvd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zgesvd)
-      end if
-!
-      funptr=link_func('zheev')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zheev)
-      end if
-!
-      funptr=link_func('zheevd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zheevd)
-      end if
-!
-      funptr=link_func('zheevx')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zheevx)
-      end if
-!
-      funptr=link_func('zhetd2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zhetd2)
-      end if
-!
-      funptr=link_func('zhetrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zhetrd)
-      end if
-!
-      funptr=link_func('zhpev')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zhpev)
-      end if
-!
-      funptr=link_func('zhptrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zhptrd)
-      end if
-!
-      funptr=link_func('zlabrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlabrd)
-      end if
-!
-      funptr=link_func('zlacgv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlacgv)
-      end if
-!
-      funptr=link_func('zlacpy')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlacpy)
-      end if
-!
-      funptr=link_func('zlacrm')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlacrm)
-      end if
-!
-      funptr=link_func('zladiv')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zladiv)
-      end if
-!
-      funptr=link_func('zlaed0')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlaed0)
-      end if
-!
-      funptr=link_func('zlaed7')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlaed7)
-      end if
-!
-      funptr=link_func('zlaed8')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlaed8)
-      end if
-!
-      funptr=link_func('zlange')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlange)
-      end if
-!
-      funptr=link_func('zlanhe')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlanhe)
-      end if
-!
-      funptr=link_func('zlanhp')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlanhp)
-      end if
-!
-      funptr=link_func('zlarf')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlarf)
-      end if
-!
-      funptr=link_func('zlarfb')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlarfb)
-      end if
-!
-      funptr=link_func('zlarfg')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlarfg)
-      end if
-!
-      funptr=link_func('zlarft')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlarft)
-      end if
-!
-      funptr=link_func('zlascl')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlascl)
-      end if
-!
-      funptr=link_func('zlaset')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlaset)
-      end if
-!
-      funptr=link_func('zlasr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlasr)
-      end if
-!
-      funptr=link_func('zlassq')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlassq)
-      end if
-!
-      funptr=link_func('zlatrd')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zlatrd)
-      end if
-!
-      funptr=link_func('zstedc')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zstedc)
-      end if
-!
-      funptr=link_func('zstein')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zstein)
-      end if
-!
-      funptr=link_func('zsteqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zsteqr)
-      end if
-!
-      funptr=link_func('ztrtrs')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_ztrtrs)
-      end if
-!
-      funptr=link_func('zung2l')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zung2l)
-      end if
-!
-      funptr=link_func('zung2r')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zung2r)
-      end if
-!
-      funptr=link_func('zungbr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zungbr)
-      end if
-!
-      funptr=link_func('zungl2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zungl2)
-      end if
-!
-      funptr=link_func('zunglq')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zunglq)
-      end if
-!
-      funptr=link_func('zungql')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zungql)
-      end if
-!
-      funptr=link_func('zungqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zungqr)
-      end if
-!
-      funptr=link_func('zungtr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zungtr)
-      end if
-!
-      funptr=link_func('zunm2l')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zunm2l)
-      end if
-!
-      funptr=link_func('zunm2r')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zunm2r)
-      end if
-!
-      funptr=link_func('zunmbr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zunmbr)
-      end if
-!
-      funptr=link_func('zunml2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zunml2)
-      end if
-!
-      funptr=link_func('zunmlq')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zunmlq)
-      end if
-!
-      funptr=link_func('zunmql')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zunmql)
-      end if
-!
-      funptr=link_func('zunmqr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zunmqr)
-      end if
-!
-      funptr=link_func('zunmtr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zunmtr)
-      end if
-!
-      funptr=link_func('zupgtr')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_zupgtr)
-      end if
-!
-!     Legacy procedures
-!
-      funptr=link_func('dgetf2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dgetf2)
-      end if
-!
-      funptr=link_func('dpotf2')
-      if (c_associated(funptr)) then
-        call c_f_procpointer(funptr, lb_dpotf2)
-      end if
+
+    ! BLAS procedures
+
+    funptr = link_func('caxpy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_caxpy)
+
+    funptr = link_func('cgemm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_cgemm)
+
+    funptr = link_func('dasum')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dasum)
+
+    funptr = link_func('daxpy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_daxpy)
+
+    funptr = link_func('dcabs1')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dcabs1)
+
+    funptr = link_func('dcopy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dcopy)
+
+    funptr = link_func('ddot')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_ddot)
+
+    funptr = link_func('dgemm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgemm)
+
+    funptr = link_func('dgemv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgemv)
+
+    funptr = link_func('dger')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dger)
+
+    funptr = link_func('dnrm2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dnrm2)
+
+    funptr = link_func('drot')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_drot)
+
+    funptr = link_func('dscal')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dscal)
+
+    funptr = link_func('dspmv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dspmv)
+
+    funptr = link_func('dspr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dspr)
+
+    funptr = link_func('dspr2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dspr2)
+
+    funptr = link_func('dswap')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dswap)
+
+    funptr = link_func('dsymm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsymm)
+
+    funptr = link_func('dsymv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsymv)
+
+    funptr = link_func('dsyr2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsyr2)
+
+    funptr = link_func('dsyr2k')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsyr2k)
+
+    funptr = link_func('dsyrk')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsyrk)
+
+    funptr = link_func('dtpmv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtpmv)
+
+    funptr = link_func('dtpsv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtpsv)
+
+    funptr = link_func('dtrmm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrmm)
+
+    funptr = link_func('dtrmv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrmv)
+
+    funptr = link_func('dtrsm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrsm)
+
+    funptr = link_func('dtrsv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrsv)
+
+    funptr = link_func('dznrm2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dznrm2)
+
+    funptr = link_func('idamax')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_idamax)
+
+    funptr = link_func('lsame')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_lsame)
+
+    funptr = link_func('saxpy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_saxpy)
+
+    funptr = link_func('scabs1')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_scabs1)
+
+    funptr = link_func('scopy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_scopy)
+
+    funptr = link_func('sgemm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_sgemm)
+
+    funptr = link_func('xerbla')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_xerbla)
+
+    funptr = link_func('zaxpy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zaxpy)
+
+    funptr = link_func('zcopy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zcopy)
+
+    funptr = link_func('zdotc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zdotc)
+
+    funptr = link_func('zdscal')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zdscal)
+
+    funptr = link_func('zgemm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgemm)
+
+    funptr = link_func('zgemv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgemv)
+
+    funptr = link_func('zgerc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgerc)
+
+    funptr = link_func('zhemv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zhemv)
+
+    funptr = link_func('zher2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zher2)
+
+    funptr = link_func('zher2k')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zher2k)
+
+    funptr = link_func('zhpmv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zhpmv)
+
+    funptr = link_func('zhpr2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zhpr2)
+
+    funptr = link_func('zscal')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zscal)
+
+    funptr = link_func('zswap')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zswap)
+
+    funptr = link_func('ztrmm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_ztrmm)
+
+    funptr = link_func('ztrmv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_ztrmv)
+
+    funptr = link_func('ztrsm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_ztrsm)
+
+    ! LAPACK procedures
+
+    funptr = link_func('dbdsdc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dbdsdc)
+
+    funptr = link_func('dbdsqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dbdsqr)
+
+    funptr = link_func('dgebak')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgebak)
+
+    funptr = link_func('dgebal')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgebal)
+
+    funptr = link_func('dgebd2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgebd2)
+
+    funptr = link_func('dgebrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgebrd)
+
+    funptr = link_func('dgecon')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgecon)
+
+    funptr = link_func('dgees')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgees)
+
+    funptr = link_func('dgeev')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgeev)
+
+    funptr = link_func('dgehd2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgehd2)
+
+    funptr = link_func('dgehrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgehrd)
+
+    funptr = link_func('dgelq2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgelq2)
+
+    funptr = link_func('dgelqf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgelqf)
+
+    funptr = link_func('dgels')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgels)
+
+    funptr = link_func('dgeqr2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgeqr2)
+
+    funptr = link_func('dgeqrf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgeqrf)
+
+    funptr = link_func('dgesdd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgesdd)
+
+    funptr = link_func('dgesv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgesv)
+
+    funptr = link_func('dgesvd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgesvd)
+
+    funptr = link_func('dgetrf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgetrf)
+
+    funptr = link_func('dgetrf2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgetrf2)
+
+    funptr = link_func('dgetri')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgetri)
+
+    funptr = link_func('dgetrs')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgetrs)
+
+    funptr = link_func('dhseqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dhseqr)
+
+    funptr = link_func('disnan')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_disnan)
+
+    funptr = link_func('dlabad')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlabad)
+
+    funptr = link_func('dlabrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlabrd)
+
+    funptr = link_func('dlacn2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlacn2)
+
+    funptr = link_func('dlacpy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlacpy)
+
+    funptr = link_func('dladiv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dladiv)
+
+    funptr = link_func('dladiv1')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dladiv1)
+
+    funptr = link_func('dladiv2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dladiv2)
+
+    funptr = link_func('dlae2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlae2)
+
+    funptr = link_func('dlaebz')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaebz)
+
+    funptr = link_func('dlaed0')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed0)
+
+    funptr = link_func('dlaed1')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed1)
+
+    funptr = link_func('dlaed2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed2)
+
+    funptr = link_func('dlaed3')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed3)
+
+    funptr = link_func('dlaed4')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed4)
+
+    funptr = link_func('dlaed5')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed5)
+
+    funptr = link_func('dlaed6')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed6)
+
+    funptr = link_func('dlaed7')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed7)
+
+    funptr = link_func('dlaed8')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed8)
+
+    funptr = link_func('dlaed9')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaed9)
+
+    funptr = link_func('dlaeda')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaeda)
+
+    funptr = link_func('dlaev2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaev2)
+
+    funptr = link_func('dlaexc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaexc)
+
+    funptr = link_func('dlagtf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlagtf)
+
+    funptr = link_func('dlagts')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlagts)
+
+    funptr = link_func('dlahqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlahqr)
+
+    funptr = link_func('dlahr2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlahr2)
+
+    funptr = link_func('dlaisnan')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaisnan)
+
+    funptr = link_func('dlaln2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaln2)
+
+    funptr = link_func('dlamc3')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlamc3)
+
+    funptr = link_func('dlamch')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlamch)
+
+    funptr = link_func('dlamrg')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlamrg)
+
+    funptr = link_func('dlaneg')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaneg)
+
+    funptr = link_func('dlange')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlange)
+
+    funptr = link_func('dlansp')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlansp)
+
+    funptr = link_func('dlanst')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlanst)
+
+    funptr = link_func('dlansy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlansy)
+
+    funptr = link_func('dlanv2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlanv2)
+
+    funptr = link_func('dlapy2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlapy2)
+
+    funptr = link_func('dlapy3')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlapy3)
+
+    funptr = link_func('dlaqr0')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaqr0)
+
+    funptr = link_func('dlaqr1')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaqr1)
+
+    funptr = link_func('dlaqr2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaqr2)
+
+    funptr = link_func('dlaqr3')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaqr3)
+
+    funptr = link_func('dlaqr4')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaqr4)
+
+    funptr = link_func('dlaqr5')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaqr5)
+
+    funptr = link_func('dlar1v')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlar1v)
+
+    funptr = link_func('dlarf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarf)
+
+    funptr = link_func('dlarfb')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarfb)
+
+    funptr = link_func('dlarfg')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarfg)
+
+    funptr = link_func('dlarft')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarft)
+
+    funptr = link_func('dlarfx')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarfx)
+
+    funptr = link_func('dlarnv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarnv)
+
+    funptr = link_func('dlarra')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarra)
+
+    funptr = link_func('dlarrb')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarrb)
+
+    funptr = link_func('dlarrc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarrc)
+
+    funptr = link_func('dlarrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarrd)
+
+    funptr = link_func('dlarre')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarre)
+
+    funptr = link_func('dlarrf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarrf)
+
+    funptr = link_func('dlarrj')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarrj)
+
+    funptr = link_func('dlarrk')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarrk)
+
+    funptr = link_func('dlarrr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarrr)
+
+    funptr = link_func('dlarrv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlarrv)
+
+    funptr = link_func('dlartg')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlartg)
+
+    funptr = link_func('dlaruv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaruv)
+
+    funptr = link_func('dlas2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlas2)
+
+    funptr = link_func('dlascl')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlascl)
+
+    funptr = link_func('dlasd0')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasd0)
+
+    funptr = link_func('dlasd1')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasd1)
+
+    funptr = link_func('dlasd2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasd2)
+
+    funptr = link_func('dlasd3')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasd3)
+
+    funptr = link_func('dlasd4')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasd4)
+
+    funptr = link_func('dlasd5')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasd5)
+
+    funptr = link_func('dlasd6')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasd6)
+
+    funptr = link_func('dlasd7')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasd7)
+
+    funptr = link_func('dlasd8')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasd8)
+
+    funptr = link_func('dlasda')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasda)
+
+    funptr = link_func('dlasdq')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasdq)
+
+    funptr = link_func('dlasdt')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasdt)
+
+    funptr = link_func('dlaset')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaset)
+
+    funptr = link_func('dlasq1')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasq1)
+
+    funptr = link_func('dlasq2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasq2)
+
+    funptr = link_func('dlasq3')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasq3)
+
+    funptr = link_func('dlasq4')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasq4)
+
+    funptr = link_func('dlasq5')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasq5)
+
+    funptr = link_func('dlasq6')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasq6)
+
+    funptr = link_func('dlasr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasr)
+
+    funptr = link_func('dlasrt')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasrt)
+
+    funptr = link_func('dlassq')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlassq)
+
+    funptr = link_func('dlasv2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasv2)
+
+    funptr = link_func('dlaswp')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlaswp)
+
+    funptr = link_func('dlasy2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlasy2)
+
+    funptr = link_func('dlatrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlatrd)
+
+    funptr = link_func('dlatrs')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dlatrs)
+
+    funptr = link_func('dopgtr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dopgtr)
+
+    funptr = link_func('dopmtr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dopmtr)
+
+    funptr = link_func('dorg2l')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorg2l)
+
+    funptr = link_func('dorg2r')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorg2r)
+
+    funptr = link_func('dorgbr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorgbr)
+
+    funptr = link_func('dorghr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorghr)
+
+    funptr = link_func('dorgl2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorgl2)
+
+    funptr = link_func('dorglq')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorglq)
+
+    funptr = link_func('dorgql')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorgql)
+
+    funptr = link_func('dorgqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorgqr)
+
+    funptr = link_func('dorgtr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorgtr)
+
+    funptr = link_func('dorm2l')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorm2l)
+
+    funptr = link_func('dorm2r')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorm2r)
+
+    funptr = link_func('dormbr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dormbr)
+
+    funptr = link_func('dormhr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dormhr)
+
+    funptr = link_func('dorml2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dorml2)
+
+    funptr = link_func('dormlq')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dormlq)
+
+    funptr = link_func('dormql')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dormql)
+
+    funptr = link_func('dormqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dormqr)
+
+    funptr = link_func('dormtr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dormtr)
+
+    funptr = link_func('dposv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dposv)
+
+    funptr = link_func('dpotrf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dpotrf)
+
+    funptr = link_func('dpotrf2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dpotrf2)
+
+    funptr = link_func('dpotrs')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dpotrs)
+
+    funptr = link_func('dpptrf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dpptrf)
+
+    funptr = link_func('dpstf2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dpstf2)
+
+    funptr = link_func('dpstrf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dpstrf)
+
+    funptr = link_func('droundup_lwork')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_droundup_lwork)
+
+    funptr = link_func('drscl')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_drscl)
+
+    funptr = link_func('dspev')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dspev)
+
+    funptr = link_func('dspgst')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dspgst)
+
+    funptr = link_func('dspgv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dspgv)
+
+    funptr = link_func('dsptrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsptrd)
+
+    funptr = link_func('dstebz')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dstebz)
+
+    funptr = link_func('dstedc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dstedc)
+
+    funptr = link_func('dstein')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dstein)
+
+    funptr = link_func('dstemr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dstemr)
+
+    funptr = link_func('dsteqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsteqr)
+
+    funptr = link_func('dsterf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsterf)
+
+    funptr = link_func('dstev')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dstev)
+
+    funptr = link_func('dstevr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dstevr)
+
+    funptr = link_func('dsyev')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsyev)
+
+    funptr = link_func('dsyevd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsyevd)
+
+    funptr = link_func('dsyevr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsyevr)
+
+    funptr = link_func('dsyevx')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsyevx)
+
+    funptr = link_func('dsygs2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsygs2)
+
+    funptr = link_func('dsygst')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsygst)
+
+    funptr = link_func('dsygv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsygv)
+
+    funptr = link_func('dsytd2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsytd2)
+
+    funptr = link_func('dsytrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dsytrd)
+
+    funptr = link_func('dtrevc3')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrevc3)
+
+    funptr = link_func('dtrexc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrexc)
+
+    funptr = link_func('dtrsen')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrsen)
+
+    funptr = link_func('dtrsyl')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrsyl)
+
+    funptr = link_func('dtrti2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrti2)
+
+    funptr = link_func('dtrtri')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrtri)
+
+    funptr = link_func('dtrtrs')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dtrtrs)
+
+    funptr = link_func('ieeeck')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_ieeeck)
+
+    funptr = link_func('iladlc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_iladlc)
+
+    funptr = link_func('iladlr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_iladlr)
+
+    funptr = link_func('ilaenv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_ilaenv)
+
+    funptr = link_func('ilazlc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_ilazlc)
+
+    funptr = link_func('ilazlr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_ilazlr)
+
+    funptr = link_func('iparam2stage')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_iparam2stage)
+
+    funptr = link_func('iparmq')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_iparmq)
+
+    funptr = link_func('zbdsqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zbdsqr)
+
+    funptr = link_func('zdrot')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zdrot)
+
+    funptr = link_func('zgebd2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgebd2)
+
+    funptr = link_func('zgebrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgebrd)
+
+    funptr = link_func('zgelq2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgelq2)
+
+    funptr = link_func('zgelqf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgelqf)
+
+    funptr = link_func('zgels')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgels)
+
+    funptr = link_func('zgeqr2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgeqr2)
+
+    funptr = link_func('zgeqrf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgeqrf)
+
+    funptr = link_func('zgesvd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zgesvd)
+
+    funptr = link_func('zheev')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zheev)
+
+    funptr = link_func('zheevd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zheevd)
+
+    funptr = link_func('zheevx')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zheevx)
+
+    funptr = link_func('zhetd2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zhetd2)
+
+    funptr = link_func('zhetrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zhetrd)
+
+    funptr = link_func('zhpev')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zhpev)
+
+    funptr = link_func('zhptrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zhptrd)
+
+    funptr = link_func('zlabrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlabrd)
+
+    funptr = link_func('zlacgv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlacgv)
+
+    funptr = link_func('zlacpy')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlacpy)
+
+    funptr = link_func('zlacrm')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlacrm)
+
+    funptr = link_func('zladiv')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zladiv)
+
+    funptr = link_func('zlaed0')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlaed0)
+
+    funptr = link_func('zlaed7')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlaed7)
+
+    funptr = link_func('zlaed8')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlaed8)
+
+    funptr = link_func('zlange')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlange)
+
+    funptr = link_func('zlanhe')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlanhe)
+
+    funptr = link_func('zlanhp')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlanhp)
+
+    funptr = link_func('zlarf')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlarf)
+
+    funptr = link_func('zlarfb')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlarfb)
+
+    funptr = link_func('zlarfg')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlarfg)
+
+    funptr = link_func('zlarft')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlarft)
+
+    funptr = link_func('zlascl')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlascl)
+
+    funptr = link_func('zlaset')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlaset)
+
+    funptr = link_func('zlasr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlasr)
+
+    funptr = link_func('zlassq')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlassq)
+
+    funptr = link_func('zlatrd')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zlatrd)
+
+    funptr = link_func('zstedc')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zstedc)
+
+    funptr = link_func('zstein')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zstein)
+
+    funptr = link_func('zsteqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zsteqr)
+
+    funptr = link_func('ztrtrs')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_ztrtrs)
+
+    funptr = link_func('zung2l')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zung2l)
+
+    funptr = link_func('zung2r')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zung2r)
+
+    funptr = link_func('zungbr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zungbr)
+
+    funptr = link_func('zungl2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zungl2)
+
+    funptr = link_func('zunglq')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zunglq)
+
+    funptr = link_func('zungql')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zungql)
+
+    funptr = link_func('zungqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zungqr)
+
+    funptr = link_func('zungtr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zungtr)
+
+    funptr = link_func('zunm2l')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zunm2l)
+
+    funptr = link_func('zunm2r')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zunm2r)
+
+    funptr = link_func('zunmbr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zunmbr)
+
+    funptr = link_func('zunml2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zunml2)
+
+    funptr = link_func('zunmlq')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zunmlq)
+
+    funptr = link_func('zunmql')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zunmql)
+
+    funptr = link_func('zunmqr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zunmqr)
+
+    funptr = link_func('zunmtr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zunmtr)
+
+    funptr = link_func('zupgtr')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_zupgtr)
+
+    ! Legacy procedures
+
+    funptr = link_func('dgetf2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dgetf2)
+
+    funptr = link_func('dpotf2')
+    if (c_associated(funptr)) call c_f_procpointer(funptr, lb_dpotf2)

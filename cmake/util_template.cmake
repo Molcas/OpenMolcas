@@ -8,7 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2020, Ignacio Fdez. Galván                             *
+# Copyright (C) 2020,2026, Ignacio Fdez. Galván                        *
 #***********************************************************************
 
 # Template for building an OpenMolcas utility library,
@@ -20,6 +20,7 @@
 #   - ${util}_defs with utility-specific compile definitions
 #   - ${util}_incs with utility-specific include directories
 #   - ${util}_deps with utility-specific dependencies
+#   - ${util}_flags with utility-specific compile flags
 # * Defines:
 #   - ${util}_src with the path for the source directory
 #   - ${util}_sources with all the non-module source files
@@ -74,6 +75,10 @@ endif ()
 # utility-specific include directories
 list (APPEND ${util}_incs ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (${util}_obj PRIVATE "${${util}_incs}")
+# utility-specific compile flags
+if (DEFINED ${util}_flags)
+  set_property (SOURCE ${sources} APPEND_STRING PROPERTY COMPILE_FLAGS ${${util}_flags})
+endif ()
 # add a dummy source if there are none left,
 # (CMake does not like empty targets)
 if (NOT sources)

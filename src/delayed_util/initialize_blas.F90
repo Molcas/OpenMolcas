@@ -9,9 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#if (0)
-! Temporary workaround to have util_template.cmake detect this file as a module.
-module la_xisnan
-#endif
+subroutine Initialize_BLAS(lib,prlev)
 
-#include "la_xisnan.F90"
+use link_blas, only: lb_initialize
+use Definitions, only: iwp
+
+implicit none
+character(len=*), intent(in) :: lib
+integer(kind=iwp), intent(in) :: prlev
+
+call lb_initialize(lib,prlev)
+
+end subroutine Initialize_BLAS

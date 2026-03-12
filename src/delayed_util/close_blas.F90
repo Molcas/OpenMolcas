@@ -9,16 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine initialize_blas(lib,prlev)
-  use link_blas
-  implicit none
-  character(len=*), intent(in) :: lib
-  integer, intent(in) :: prlev
-  call lb_initialize(lib,prlev)
-end subroutine initialize_blas
+subroutine Close_BLAS()
 
-subroutine close_blas()
-  use link_blas
-  implicit none
-  call lb_close()
-end subroutine close_blas
+use link_blas, only: lb_close
+
+implicit none
+
+call lb_close()
+
+end subroutine Close_BLAS

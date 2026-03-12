@@ -9,7 +9,7 @@
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
 # Copyright (C) 2014-2016, Steven Vancoillie                           *
-#               2014-2023, Ignacio Fdez. Galván                        *
+#               2014-2023,2026, Ignacio Fdez. Galván                   *
 #               2015, Stefan Knecht                                    *
 #               2020, Gerardo Raggi                                    *
 #***********************************************************************
@@ -1045,7 +1045,7 @@ if (LINALG STREQUAL "Internal")
   endif ()
   set (linalgmod "${${util}_src}/la_constants_.F90" "${${util}_src}/la_xisnan_.F90")
   foreach (lib ${LINALG_LIBRARIES})
-    set (source ${${util}_src}/${lib}.F ${${util}_src}/${lib}_f90.F90 ${linalgmod})
+    set (source ${${util}_src}/${lib}.f ${${util}_src}/${lib}_f90.F90 ${linalgmod})
     add_library (${lib} ${source})
     list (APPEND ALL_SOURCES ${source})
     list (APPEND ${util}_incs ${internal_linalg})
@@ -2543,8 +2543,9 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
   set (netlib_nowarn_flags " -w -dcfuns")
 endif ()
 if (netlib_nowarn_flags)
-  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90 ${delayed_util_src}/*.F ${delayed_util_src}/*.F90)
+  file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90)
   set_property (SOURCE ${source} APPEND_STRING PROPERTY COMPILE_FLAGS ${netlib_nowarn_flags})
+  set (delayed_util_flags ${netlib_nowarn_flags})
 endif ()
 
 ################################################################################

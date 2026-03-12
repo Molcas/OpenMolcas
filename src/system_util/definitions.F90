@@ -30,7 +30,6 @@ public :: wp, iwp, byte, DefInt, MPIInt, HDF5Int
 public :: BLASInt, BLASR4, BLASR8, CUDAInt
 public :: LibxcInt, LibxcReal, LibxcSize
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
-public :: i1, i4, i8, r4, r8
 public :: ItoB, RtoB, RtoI, CtoB
 public :: u0, u5, u6
 
@@ -68,6 +67,8 @@ integer(kind=iwp), parameter :: LibxcInt = c_int, &
 !       we can support 32bit and 64bit versions.
 !       Which will require appropiate compile flags here.
 #ifdef _MOLCAS_MPP_
+! Note the value of MPI_ADDRESS_KIND does not matter, only its kind
+! Luckily, it is defined as an "MPI default" integer
 integer(kind=iwp), parameter :: MPIInt = kind(MPI_ADDRESS_KIND)
 #else
 integer(kind=iwp), parameter :: MPIInt = int32
@@ -98,24 +99,5 @@ integer(kind=iwp), parameter :: &
 integer(kind=iwp), parameter :: u0 = error_unit, &
                                 u5 = input_unit, &
                                 u6 = output_unit
-
-! Although the constants from `iso_fortran_env` or `selected_real_kind`
-! are preferred over non-standard `real` etc.
-! We define some kinds to refer to the non-standard notation.
-! **DON'T USE THESE UNLESS YOU EXPLICILTY WANT TO REFER TO `real*8` etc.**
-! `wp` etc. are always preferred.
-
-real*4 :: r4_example
-real*8 :: r8_example
-
-integer*1 :: i1_example
-integer*4 :: i4_example
-integer*8 :: i8_example
-
-integer(kind=iwp), parameter :: r4 = kind(r4_example), &
-                                r8 = kind(r8_example), &
-                                i1 = kind(i1_example), &
-                                i4 = kind(i4_example), &
-                                i8 = kind(i8_example)
 
 end module Definitions

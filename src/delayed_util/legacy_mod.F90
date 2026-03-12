@@ -16,20 +16,27 @@
 
 module LEGACY_MOD
 
+use Definitions, only: BLASInt, BLASR8
+
+implicit none
+private
+
+public :: dgetf2, dpotf2
+
 contains
 
-subroutine dgetf2( m, n, a, lda, ipiv, info )
+subroutine dgetf2(m,n,a,lda,ipiv,info)
   implicit none
-  integer :: info, lda, m, n
-  integer :: ipiv( * )
-  real*8 :: a( lda, * )
+  integer(kind=BLASInt) :: info, lda, m, n
+  integer(kind=BLASInt) :: ipiv(*)
+  real(kind=BLASR8) :: a(lda,*)
 end subroutine dgetf2
 
-subroutine dpotf2( uplo, n, a, lda, info )
+subroutine dpotf2(uplo,n,a,lda,info)
   implicit none
   character :: uplo
-  integer :: info, lda, n
-  real*8 :: a( lda, * )
+  integer(kind=BLASInt) :: info, lda, n
+  real(kind=BLASR8) :: a(lda,*)
 end subroutine dpotf2
 
 end module LEGACY_MOD
