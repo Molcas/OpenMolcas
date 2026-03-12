@@ -8,12 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+
       module LAPACK_MOD
 
       use LAPACK_MOD_F90
 
+      implicit none
+
       contains
 
-#include "lapack.fh"
+#     include "lapack.fh"
 
       end module LAPACK_MOD

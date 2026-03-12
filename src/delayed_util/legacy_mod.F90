@@ -9,13 +9,27 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module LAPACK_MOD_F90
+! Legacy code that is not used by current LAPACK but could be "needed"
+! by other libraries. Define here just as dummy procedures
+!
+! If you modify this, the files f[1-5].fh should be updated too, use delayed.py
 
-implicit none
+module LEGACY_MOD
 
 contains
 
-#define _F90_
-#include "lapack.fh"
+subroutine dgetf2( m, n, a, lda, ipiv, info )
+  implicit none
+  integer :: info, lda, m, n
+  integer :: ipiv( * )
+  real*8 :: a( lda, * )
+end subroutine dgetf2
 
-end module LAPACK_MOD_F90
+subroutine dpotf2( uplo, n, a, lda, info )
+  implicit none
+  character :: uplo
+  integer :: info, lda, n
+  real*8 :: a( lda, * )
+end subroutine dpotf2
+
+end module LEGACY_MOD
