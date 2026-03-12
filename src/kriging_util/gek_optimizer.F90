@@ -14,7 +14,7 @@
 
 !#define _DEBUGPRINT_
 
-subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias)
+subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias,maximize)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! mDiis             subspace dimensionality (<=2*ndiis); number of linear independent e_diis column vectors
 ! nDiis             number of iterations used to span the subspace; nDIIS = min(IterGEK,nWindow)
@@ -44,6 +44,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
+logical(kind=iwp),intent(in) :: maximize
 real(kind=wp), intent(in) :: bias, SOFact
 integer(kind=iwp), intent(in) :: mDiis, nDiis, Max_Iter
 real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter), g_diis(mDiis,nDiis+Max_Iter), Energy(nDiis+Max_Iter)
@@ -127,6 +128,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   ! Loop to enforce restricted variance. Note, if the step restriction kicks in no problem since we will still microiterate.
   ! Normally a full step will be allowed -- no step restriction -- and the loop will be exited after the first iteration.
   cnt = 0
+
   do ! Restricted variance step
     cnt = cnt +1
     !write(u6,*) 'inside RVO step loop, iter = ',cnt
@@ -177,9 +179,11 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 
     Step_Trunc_ = Step_Trunc
     dqHdq = Zero
-    call RS_RFO(H_surr,g_Diis(:,Iteration),mDiis,dq_diis,UpMeth_,dqHdq,StepMax,Step_Trunc_,Thr_RS)
+    call RS_RFO(H_surr(:,:),g_Diis(:,Iteration),mDiis,dq_diis(:),UpMeth_,dqHdq,StepMax,Step_Trunc_,Thr_RS)
+
     dq_diis(:) = -dq_diis(:)
     q_diis(:,Iteration+1) = q_diis(:,Iteration)+dq_diis(:)
+
     dqdq = sqrt(DDot_(size(dq_diis),dq_diis(:),1,dq_diis(:),1))
 
 #   ifdef _DEBUGPRINT_

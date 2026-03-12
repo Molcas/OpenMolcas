@@ -135,7 +135,6 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     FunctionalList(1) = Functional
 end if
 
-
 ! Print iteration table header.
 ! ---------------------------------------------------------------------------------------------------
 OldFunctional = Functional
@@ -211,12 +210,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             !end if
 
             ! start GEK only from iteration x
-            if (nIter < 10) then
-
-                ! skip GEK and perform normal NR step
-                if (SGEKdebug) write(u6,*) 'Exit S-GEK Optimizer'
-
-            else
+            if (nIter > 1) then
 
                 SORange = .true.
 
@@ -224,7 +218,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 case (4) ! Full space GEK
 
-                    call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+                    call S_GEK_localisation(nIter,Functionallist(:),GradientList(:,:),displacements(:,:),hdiagvec(:),fsdim,&
                                             dqdq,displacements(:,nIter+1),UpMeth,'fullspace',SORange)
 
                 case (5) ! subspace GEK
@@ -265,7 +259,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiagvec(:)) ! gets the new gradient
-
 
         if (SGEKDebug) then
             write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "

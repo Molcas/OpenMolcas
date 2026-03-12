@@ -26,10 +26,7 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 use InfSCF, only: Energy, HDiag, iter, IterGEK, Loosen, TimFld
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero,Ten
-#ifndef _FULL_SPACE_
-use Constants, only: One
-#endif
+use Constants, only: Zero,Ten,One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -293,7 +290,7 @@ else
 end if
 
 !=======================================================================
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SOFact,Ten)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SOFact,Ten,.false.)
 !=======================================================================
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
