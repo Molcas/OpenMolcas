@@ -12,6 +12,7 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
+#define _DEBUGPRINT_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
@@ -45,7 +46,6 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 !S-GEK
 real(kind=wp) :: dqdq
 logical(kind=iwp) :: SORange
-logical(kind=iwp), parameter :: SGEKdebug = .false.
 character(len=6):: UpMeth
 
 ! Initialization (iteration 0).
@@ -53,13 +53,13 @@ character(len=6):: UpMeth
 
 if (.not. Silent) call CWTime(C1,W1)
 
-if (SGEKdebug) then
+#ifdef _DEBUGPRINT_
 write(u6,'(/A)') 'Check the orthonormality of the orbitals'
 write(u6,*) '========================================'
 call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
 call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
 call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
-end if
+#endif
 
 ! to allow property printing later
 call Put_cArray('Relax Method','LOCALIS ',8)
@@ -132,7 +132,9 @@ end if
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiagvec(:))
     call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
-    if (SGEKdebug) call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
+#   ifdef _DEBUGPRINT_
+    call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
+#   endif
     FunctionalList(1) = Functional
 end if
 
@@ -193,16 +195,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
             call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
 
-            if (SGEKdebug) then
+#           ifdef _DEBUGPRINT_
                 write(u6,"(A,I3,A)") "kappa_",nIter,"="
                 call RecPrt('-g/hdiag (NR step) as matrix',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
                 call RecPrt('-g/hdiag (NR step) as vector',' ',displacements(:,nIter+1),fsdim,1)
-            end if
-
-            if (SGEKdebug) then
-                write(u6,"(A,I3,A)") "kappa'_",nIter,"="
-                call RecPrt('-g/hdiag (NR step) as vector ABSOLUTE',' ',displacements(:,nIter+1),fsdim,1)
-            end if
+#           endif
 
             !if (nIter == 250) then
             !    call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
@@ -244,13 +241,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                         Loosen%Factor = Loosen%Factor*Loosen%Step
                     end if
 
-                    if (SGEKdebug) then
+#                   ifdef _DEBUGPRINT_
                         call RecPrt('Disp',' ',Disp,fsdim,1)
                         call RecPrt('Prev',' ',Prev,fsdim,1)
                         write(u6,*) "angle(Disp,Prev) = cos^-1(",ang,")"
                         write(u6,*) "Loosen%Factor    =", Loosen%Factor
                         write(u6,*) "Loosen%Step    =", Loosen%Step
-                    end if
+#                   endif
 
                     call mma_Deallocate(Prev)
                     call mma_Deallocate(Disp)
@@ -259,8 +256,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 ! transform GEK disp vec to matrix
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
-                if (SGEKdebug) call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
-
+#               ifdef _DEBUGPRINT_
+                call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
+#               endif
 
 
             end if
@@ -271,31 +269,33 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         !Thr= 0.5E0_wp * Pi
         Thr= Pi
         If (DD>=Thr)Then
-            if (SGEKdebug) Write(6,*) 'Rescale Kappa(:,:)'
+#           ifdef _DEBUGPRINT_
+            Write(6,*) 'Rescale Kappa(:,:)'
+#           endif
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
         End If
 
 
-        if (SGEKdebug) then
+#       ifdef _DEBUGPRINT_
             call RecPrt('displacement taken (kappa mat)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
-        end if
+#       endif
 
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
 
-        if (SGEKDebug) then
+#       ifdef _DEBUGPRINT_
             write(u6,*) "=================================================================="
             write(u6,*) "               ORBITALS HAVE BEEN ROTATED"
             write(u6,*) "=================================================================="
-        end if
+#       endif
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiagvec(:)) ! gets the new gradient
 
-        if (SGEKDebug) then
+#       ifdef _DEBUGPRINT_
             write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
             call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
             call RecPrt('Hdiag',' ',Hdiag(:,:),nOrb2Loc,nOrb2Loc)
-        end if
+#       endif
 
         call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,nIter+1),fsdim)
 
@@ -347,13 +347,13 @@ if (.not. Silent) then
 end if
 
 !call Prpt()
-if (SGEKDebug) then
+#ifdef _DEBUGPRINT_
 write(u6,'(/A)') 'Check the orthonormality of the orbitals'
 write(u6,*) '========================================'
 call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
 call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
 call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
-end if
+#endif
 
 
 ! deallocate matrices used for NxN optimizations
