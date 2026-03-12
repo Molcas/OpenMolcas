@@ -215,7 +215,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             !end if
 
             ! start GEK only from iteration x
-            if (nIter > 1) then
+            if (nIter > 0) then
 
                 SORange = .true.
 
