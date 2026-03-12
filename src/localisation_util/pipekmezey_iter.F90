@@ -13,6 +13,9 @@
 !***********************************************************************
 
 #define _DEBUGPRINT_
+#define _DEBUG2_
+#define _DEBUGLOWD_
+
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
@@ -38,7 +41,6 @@ real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), 
                               SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),dq(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Prev(:),Disp(:)
-logical(kind=iwp), parameter :: debug_lowdin = .false.
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
@@ -53,7 +55,7 @@ character(len=6):: UpMeth
 
 if (.not. Silent) call CWTime(C1,W1)
 
-#ifdef _DEBUGPRINT_
+#ifdef _DEBUG2_
 write(u6,'(/A)') 'Check the orthonormality of the orbitals'
 write(u6,*) '========================================'
 call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
@@ -100,18 +102,24 @@ call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
 if (ChargeType ==2) then
     call mma_allocate(Ovlp_aux, nBasis, nBasis,Label = "S^{-1/2}")
     lSCR = 2*nBasis**2+nBasis*(nBasis+1)/2
-    if (debug_lowdin) then; call RecPrt("S before taking the sqrt",' ',Ovlp,nBasis,nBasis); end if
+
+#   ifdef _DEBUGLOWD_
+        call RecPrt("S before taking the sqrt",' ',Ovlp,nBasis,nBasis)
+#   endif
+
     call mma_allocate(SCR,lSCR, Label = "SCR")
     call SQRTMT(Ovlp,nBasis,1,Ovlp_sqrt,Ovlp_aux,SCR)
     call mma_Deallocate(SCR)
-    if (debug_lowdin) then
+
+#   ifdef _DEBUGLOWD_
         call RecPrt("S^{1/2}",' ',Ovlp_sqrt,nBasis, nBasis)
         call RecPrt("S after taking the sqrt",' ',Ovlp,nBasis, nBasis)
         Ovlp_aux(:,:) = Zero ! i want to reuse it
         call dgemm_('N','N',nBasis,nBasis,nBasis,One,Ovlp_sqrt,nBasis,Ovlp_sqrt,nBasis,Zero,&
                     Ovlp_aux,nBasis)
         call RecPrt("S^{1/2}*S^{1/2}",' ',Ovlp_aux,nBasis,nBasis) ! should be same as S
-    end if
+#   endif
+
     call mma_deallocate(Ovlp_aux)
 end if
 ! ---------------------------------------------------------------------------------------------------

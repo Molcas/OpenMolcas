@@ -12,7 +12,7 @@
 !               2025, Lila Zapp                                        *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 
 subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias,maximize)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
