@@ -70,6 +70,7 @@ CSVC: determine outer loop properties
           V=VAL1(L4)
           IX=INCX1*(L1-1)+1
           IF=INCF1*(L2-1)+1
+          If (IF<1 .or. IF>nF) Cycle
           IY=INCY1*(L3-1)+1
 C    X(L1,i) := Add V*F(L2,a)*Y(L3,i,a), i=1..LEN1, a=1..LEN2
           DO I=1,LEN1
@@ -87,6 +88,7 @@ C    X(L1,i) := Add V*F(L2,a)*Y(L3,i,a), i=1..LEN1, a=1..LEN2
           V=VAL1(L4)
           IX=INCX1*(L1-1)+1
           IF=INCF1*(L2-1)+1
+          If (IF<1 .or. IF>nF) Cycle
           IY=INCY1*(L3-1)+1
 C or Y(L3,i,a):= Add V*F(L2,a)*X(L1,i), i=1..LEN1, a=1..LEN2
           DO I=1,LEN2
@@ -105,6 +107,7 @@ C or Y(L3,i,a):= Add V*F(L2,a)*X(L1,i), i=1..LEN1, a=1..LEN2
           V=VAL1(L4)
           IX=INCX1*(L1-1)+1
           IF=INCF1*(L2-1)+1
+          If (IF<1 .or. IF>nF) Cycle
           IY=INCY1*(L3-1)+1
 C     F(L2,a) := Add V*X(L1,i)*Y(L3,i,a)
           DO I=1,LEN1

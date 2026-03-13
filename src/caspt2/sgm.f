@@ -268,8 +268,7 @@ C  A&D  Two-el
           CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
      &               X2(IX),SIZE(X2(IX:)),
      &               FAT(ISYM12)%A,SIZE(FAT(ISYM12)%A),
-     &               GA_Arrays(lg_Y)%A(IY),
-     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
+     &               GA_Arrays(lg_Y)%A(IY),SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (4)
@@ -929,8 +928,7 @@ C  FP&GP Two-el
           CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
      &               X2(IX),SIZE(X2(IX:)),
      &               FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
-     &               GA_Arrays(lg_Y)%A(IY),
-     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
+     &               GA_Arrays(lg_Y)%A(IY),SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (20)
@@ -958,8 +956,7 @@ C  FM&GM Two-el
           CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
      &               X2(IX),SIZE(X2(IX:)),
      &               FIT(ISYM12)%A,SIZE(FIT(ISYM12)%A),
-     &               GA_Arrays(lg_Y)%A(IY),
-     &               SIZE(GA_Arrays(lg_Y)%A(IY:)))
+     &               GA_Arrays(lg_Y)%A(IY),SIZE(GA_Arrays(lg_Y)%A(IY:)))
         END IF
 C  -----------------------------------------------
       CASE (21)
