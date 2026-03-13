@@ -20,7 +20,7 @@ subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,h
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
-use Definitions, only: iwp,wp, u6
+use Definitions, only: iwp,wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -32,7 +32,7 @@ integer(kind=iwp), intent(in) :: nIter,fsdim
 real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
 real(kind=wp),intent(inout) :: FunctionalList(nMxIter)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
-integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
+integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit=0,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:)
