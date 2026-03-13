@@ -138,7 +138,7 @@ for filename in sorted(files):
   if (args['report']):
     names = set([])
     for item in copyright:
-      if (re.search('[\d,]', item[1])):
+      if (re.search(r'[\d,]', item[1])):
         print('{0}*** {1}: Name error? ***{2}'.format(Back.RED, relfile, Style.RESET_ALL))
         print(item[1])
         rc = 1

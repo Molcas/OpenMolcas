@@ -402,7 +402,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       integer(kind=iwp), ALLOCATABLE :: IBUF(:)
       integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
      &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP
-      integer(kind=iwp) MYRANK,NG3MAX,NPROCS,
+      integer(kind=iwp) NG3MAX,NPROCS,
      &                  MAXMEM,iscal,MAXBUF,NG3B,NBUF,NAS,NQOT,NREM,
      &                  NBLOCKS,IBLOCK,IG3STA,IG3END,IROW,IP,
      &                  IOFFSET,I,ICOL,NRECV
@@ -419,7 +419,6 @@ C  - G(xvzyut) -> SA(yvx,zut)
 
       ! basic information
       NPROCS=GA_NNODES()
-      MYRANK=GA_NODEID()
 
       ALLOCATE(SCOUNTS(NPROCS))
       ALLOCATE(RCOUNTS(NPROCS))
@@ -1254,7 +1253,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
       INTEGER(kind=iwp), ALLOCATABLE :: IBUF(:)
       integer(kind=iwp) iG3,iT,iU,iV,iX,iY,iZ,iST,iSU,iSV,iSX,iSY,iSZ,
      &                  ituvs,ixyzs,iTU,iVX,iYZ,JSYM,ISUP,JSUP
-      integer(kind=iwp) NG3MAX,NPROCS,MYRANK,MAXMEM,ISCAL,MAXBUF,NG3B,
+      integer(kind=iwp) NG3MAX,NPROCS,MAXMEM,ISCAL,MAXBUF,NG3B,
      &                  NBUF,NAS,NQOT,NREM,NBLOCKS,IBLOCK,IG3STA,IG3END,
      &                  IROW,IP,IOFFSET,I,ICOL,NRECV
       real(kind=wp) G3VAL
@@ -1270,7 +1269,6 @@ C  - G(xvzyut) -> SC(zvx,yut)
 
       ! basic information
       NPROCS=GA_NNODES()
-      MYRANK=GA_NODEID()
 
       ALLOCATE(SCOUNTS(NPROCS))
       ALLOCATE(RCOUNTS(NPROCS))

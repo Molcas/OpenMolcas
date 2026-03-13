@@ -103,7 +103,7 @@ do JBATS=1,NBATS
 
 end do
 
-call GADSUM(SB,NSB)
+call GADGOP(SB,NSB,'+')
 !SVC: Write sigma array to disk here, after sum reduction.
 !     The writing is done in consecutive blocks, but since I don't know
 !     if this block structure is used internally, I didn't optimize this.

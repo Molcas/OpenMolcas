@@ -216,7 +216,7 @@ C (p,q)=(t,i), (a,t), and (a,i), resp.
 
       End Do
 
-      CALL GADSUM(DPT2,NDPT2)
+      CALL GADGOP(DPT2,NDPT2,'+')
 
       IF(IVEC.NE.JVEC) THEN
 C Transpose the density matrix.

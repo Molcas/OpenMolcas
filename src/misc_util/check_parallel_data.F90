@@ -43,7 +43,7 @@ x_prll(:,:) = Zero
 
 this = MyRank+1
 x_prll(:,this) = x
-call GADsum(x_prll,n*nProcs)
+call GADgop(x_prll,n*nProcs,'+')
 
 if (act == 'C') then
   do irank=1,nProcs
@@ -65,7 +65,7 @@ else
   write(u6,*) 'check_parallel_data(), illegal value:'
   write(u6,*) 'act=',act
   write(u6,*) 'correct function call!!'
-  call abort()
+  call abend()
 end if
 
 call mma_deallocate(x_prll)

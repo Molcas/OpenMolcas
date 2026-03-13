@@ -20,6 +20,7 @@
       use constants, only: Zero, One, Two
       use gugx, only: SGS, LEVEL
       use caspt2_module, only: iSCF, nActel
+      use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use pt2_guga, only: NG3, ETA
       use definitions, only: iwp, wp, byte
       IMPLICIT None
@@ -36,7 +37,6 @@
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
       INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
-      LOGICAL(kind=iwp) RSV_TSK
       Integer(kind=iwp) :: nLev
       real(kind=wp) ESUM, Occ, Val
       Integer(kind=iwp) :: I, ID, IG3, IND1, IND2, IND3, IT, IT1, IT2,

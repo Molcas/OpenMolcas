@@ -81,7 +81,7 @@
       use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
       use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array
-      USE Para_Info, ONLY: Is_Real_Par, King
+      USE Para_Info, ONLY: Is_Real_Par
 #endif
       use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH,
      &                         NAES, NSSH, NSES, NORBT, NINABX,
@@ -459,7 +459,7 @@
 
 #ifdef _MOLCAS_MPP_
       If (is_real_par()) then
-        CALL GADSUM (A_PT2,MaxVec_PT2**2)
+        CALL GADGOP (A_PT2,MaxVec_PT2**2,'+')
       end if
 #endif
 
@@ -2380,6 +2380,8 @@
      &              One,A_PT2(IOFFCV,JOFFCV),MaxVec_PT2)
 #ifdef _MOLCAS_MPP_
       end if
+#include "macros.fh"
+      unused_var(bStat)
 #endif
 
       End Subroutine Cnst_A_PT2

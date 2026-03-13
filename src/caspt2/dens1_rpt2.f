@@ -30,6 +30,7 @@
       use PrintLevel, only: DEBUG
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,
      &                         mState
       use pt2_guga, only: nG1
@@ -37,7 +38,6 @@
       use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 
-      LOGICAL(kind=iwp) RSV_TSK
 
       Integer(kind=iwp), Intent(In):: nCI, nSGM1, nLev
       REAL(kind=wp), Intent(in):: CI(nCI)
@@ -130,22 +130,22 @@
 
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
-        LT=TASK(iTask,1)
+      LT=TASK(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
         LU=Task(iTask,2)
-        ISU=SGS%ISM(LU)
-        IU=L2ACT(LU)
-        ISTU=Mul(IST,ISU)
-        IF (ISTU/=1) CYCLE
-        ISSG=Mul(ISTU,STSYM)
-        NSGM=CIS%NCSF(ISSG)
-        IF(NSGM.EQ.0) Cycle
+          ISU=SGS%ISM(LU)
+          IU=L2ACT(LU)
+          ISTU=Mul(IST,ISU)
+          IF (ISTU/=1) CYCLE
+          ISSG=Mul(ISTU,STSYM)
+          NSGM=CIS%NCSF(ISSG)
+          IF(NSGM.EQ.0) Cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
-        CALL GETSGM2(LU,LT,STSYM,CI,nCI,SGM1,NSGM)
-        GTU=DDOT_(NSGM,CI,1,SGM1,1)
-        G1(IT,IU)=GTU
-        G1(IU,IT)=GTU
+          CALL GETSGM2(LU,LT,STSYM,CI,nCI,SGM1,NSGM)
+          GTU=DDOT_(NSGM,CI,1,SGM1,1)
+          G1(IT,IU)=GTU
+          G1(IU,IT)=GTU
 
 * SVC: The master node now continues to only handle task scheduling,
 *      needed to achieve better load balancing. So it exits from the task
@@ -157,7 +157,7 @@
       CALL Free_Tsk(ID)
       CALL mma_deallocate(Task)
 
-      CALL GAdSUM (G1,NG1)
+      CALL GAdGOP (G1,NG1,'+')
 
       Call End_Stuff()
 
@@ -171,7 +171,7 @@
         Call chemps2_load2pdm( nlev, G2, MSTATE(1) )
         Call two2onerdm( nlev, NACTEL, G2, G1 )
       Else
-        write(u6,*) "FATAL ERROR: DMRG-CASPT2 with
+        write(6,*) "FATAL ERROR: DMRG-CASPT2 with
      & CHEMPS2 does not work with NACTEL=1"
       End If
       End If

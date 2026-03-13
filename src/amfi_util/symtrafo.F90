@@ -334,7 +334,7 @@ do iComp=1,nComp
   iOpt = 0
   iRC = -1
   iSmLbl = lOper(iComp)
-  call GADSum(SOInt(ip(iComp)),n2Tri(iSmLbl))
+  call GADGOp(SOInt(ip(iComp)),n2Tri(iSmLbl),'+')
   call WrOne(iRC,iOpt,Label,iComp,SOInt(ip(iComp)),iSmLbl)
   if (iRC /= 0) call SysAbendMsg('symtrafo','     Error in subroutine ONEEL ','     Abend in subroutine WrOne')
 

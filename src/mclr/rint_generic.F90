@@ -251,8 +251,8 @@ else  ! Cho-Fock
   call Deallocate_DT(KI)
   call Deallocate_DT(JI(1))
   call Deallocate_DT(Kappa)
-  call GADSum(FockI,nDens)
-  call GADSum(FockA,nDens)
+  call GADGOp(FockI,nDens,'+')
+  call GADGOp(FockA,nDens,'+')
 # ifdef _DEBUGPRINT_
   do iSym=1,nSym
     write(u6,*) 'iSym=',iSym
@@ -297,8 +297,8 @@ else  ! Cho-Fock
   call deallocate_DT(DLT(1))
   call deallocate_DT(DI)
 
-  call GADSum(Q,nDens)
-  call GADSum(rMOs,nAtri)
+  call GADGOp(Q,nDens,'+')
+  call GADGOp(rMOs,nAtri,'+')
 
 # ifdef _DEBUGPRINT_
   do iSym=1,nSym

@@ -240,7 +240,7 @@ if (.not. Test) then
 
     !-- Accumulate contribution to the gradient
 
-    call GR_DArray(Grad,lDisp(0))
+    call GADGop(Grad,lDisp(0),'+')
     call DaXpY_(lDisp(0),One,Temp,1,Grad,1)
     !                                                                  *
     !*******************************************************************

@@ -302,7 +302,7 @@
         Call CLagX(1,CLag,DEPSA,VECROT)
 !       call test3_dens(clag)
 #ifdef _MOLCAS_MPP_
-        If (Is_Real_Par()) CALL GADSUM (DEPSA,nAshT**2)
+        If (Is_Real_Par()) CALL GADGOP (DEPSA,nAshT**2,'+')
 #endif
 !       write(u6,*) 'original depsa'
 !       call sqprt(depsa,nasht)
@@ -728,7 +728,7 @@
         !! Now, compute the configuration Lagrangian
         Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
 #ifdef _MOLCAS_MPP_
-        If (Is_Real_Par()) CALL GADSUM (CLag,nCLag)
+        If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
 #endif
 
         !! Now, here is the best place to compute the true off-diagonal
@@ -792,7 +792,7 @@
           !! Now, compute the configuration Lagrangian
           Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
 #ifdef _MOLCAS_MPP_
-          If (Is_Real_Par()) CALL GADSUM (CLag,nCLag)
+          If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
 #endif
           !! Now, compute the state Lagrangian and do some projections
 !         Call CLagFinal(CLag,SLag)
@@ -1074,7 +1074,7 @@
         IF (.NOT.KING()) THEN
           DMAT(1:NDMAT) = Zero
         END IF
-        CALL GADSUM(DMAT,NDMAT)
+        CALL GADGOP(DMAT,NDMAT,'+')
       END IF
 #endif
 
@@ -2133,13 +2133,15 @@
             JV1=JV1+JNUM
           End Do
         End Do
-        CALL GADSUM (A_PT2,MaxVec_PT2**2)
+        CALL GADGOP (A_PT2,MaxVec_PT2**2,'+')
         bStat = GA_Destroy(lg_V1)
 
-        CALL GADSUM (V1,MaxVec_PT2)
-        CALL GADSUM (V2,MaxVec_PT2)
+        CALL GADGOP (V1,MaxVec_PT2,'+')
+        CALL GADGOP (V2,MaxVec_PT2,'+')
         call mma_deallocate(MAP2)
       end if
+#include "macros.fh"
+      unused_var(bStat)
 #endif
 
       !! Coulomb for A_PT2

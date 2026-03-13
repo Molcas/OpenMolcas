@@ -537,6 +537,9 @@ C batch mode.  However, unlike in the replicate routine, this amount is
 C divided over processors.
 #ifdef _MOLCAS_MPP_
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
+#ifdef _SCALAPACK_
+      use scalapack_mod, only: GA_PDSYEVX_
+#endif
       use definitions, only: iwp, wp
       use Constants, only: Zero, One
       use caspt2_global, only:iPrGlb
@@ -558,16 +561,17 @@ C-SVC20100902: global arrays header files
 #include "mafdecls.fh"
 #ifndef _SCALAPACK_
       real(kind=wp) WGRONK(2)
+      real(kind=wp), allocatable:: VEC(:), SCRATCH(:)
+      integer(kind=iwp) Info, NSCRATCH
 #endif
       LOGICAL(kind=iwp) bSTAT
       CHARACTER(LEN=2) cSYM,cCASE
       real(kind=wp), allocatable:: COL(:), TMP(:), SD(:), SCA(:),
-     &                             EIG(:), VEC(:), SCRATCH(:), COND(:),
-     &                             TRANS(:), BD(:)
+     &                             EIG(:), COND(:), TRANS(:), BD(:)
       integer(kind=iwp) NAS, NIS, NCOEF, lg_S, NCOL, NTMP, IOFF, J, IDS,
      &                  MyRank, iLo, iHi, jLo, jHi, ISTA, IEND, MS, LDS,
      &                  I, lg_V, NIN, mV, LDV, lg_T, IDT, lg_B, mB, lDB,
-     &                  IDB, IDB2, lg_X, lg_ST, Info, NSCRATCH
+     &                  IDB, IDB2, lg_X, lg_ST
       real(kind=wp) FP, SDiag, SZMIN, SZMAX, SZ, dTrans
       real(kind=wp) CPU1, CPUE, TIO, TIOE, CPU2
       real(kind=wp), External:: PSBMAT_FPRINT, DNRM2_
@@ -648,7 +652,7 @@ C FIXME: nicer way to do this?
         END DO
         call GA_Release (lg_S, iLo, iHi, jLo, jHi)
       END IF
-      CALL GADSUM (SD,NAS)
+      CALL GADGOP (SD,NAS,'+')
 
 C Calculate the scaling factors and store them in array SCA.
       CALL mma_allocate(SCA,NAS,Label='SCA')
@@ -714,7 +718,7 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
         CALL GA_Put (lg_V, 1, NAS, 1, NAS, VEC, NAS)
         CALL mma_deallocate(VEC)
       END IF
-      CALL GADSUM(EIG,NAS)
+      CALL GADGOP(EIG,NAS,'+')
 #endif
 
       IF (IPRGLB.GE.INSANE) THEN
@@ -762,7 +766,7 @@ C Form orthonormal transformation vectors by scaling the eigenvectors.
 C The condition number, after scaling, disregarding linear dep.
 C FIXME: adapt to local subroutine for global array lg_V
       IF(NIN.GE.2) THEN
-        CALL GADSUM (COND,NIN)
+        CALL GADGOP (COND,NIN,'+')
         SZMIN=1.0D99
         SZMAX=Zero
         DO I=1,NIN
@@ -819,7 +823,7 @@ C eigenvalues would go in ordinary CASPT2.
           END DO
           call GA_Release (lg_B, iLo, iHi, jLo, jHi)
         END IF
-        CALL GADSUM (BD,NAS)
+        CALL GADGOP (BD,NAS,'+')
         bStat = GA_Destroy (lg_B)
         DO I=1,NAS
           SDiag=SD(I)+1.0d-15
@@ -933,7 +937,7 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
           CALL GA_Put (lg_V, 1, NIN, 1, NIN, VEC, NIN)
           CALL mma_deallocate(VEC)
         END IF
-        CALL GADSUM(EIG,NIN)
+        CALL GADGOP(EIG,NIN,'+')
 #endif
       END IF
 
@@ -995,6 +999,9 @@ C replicate array.  FIXME: Should be removed later.
 
       call ga_sync()
       bStat = GA_Destroy (lg_T)
+
+#include "macros.fh"
+      unused_var(bStat)
 
       END SUBROUTINE SBDIAG_MPP
 

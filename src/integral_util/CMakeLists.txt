@@ -50,7 +50,6 @@ set (sources
      crtcmp.F90
      dcr.F90
      dcr_mod.F90
-     deaf.F90
      def_shells.F90
      define_af.F90
      dens_info.F90

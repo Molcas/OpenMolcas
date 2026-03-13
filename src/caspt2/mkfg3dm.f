@@ -36,6 +36,7 @@ C
 
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined _DMRG_
       SUBROUTINE MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG, VERBOSE
@@ -61,7 +62,6 @@ C
       REAL(kind=wp), INTENT(OUT) :: G3(*), F3(*)
       INTEGER(kind=Byte), INTENT(OUT) :: idxG3(6,*)
 
-      LOGICAL(kind=iwp) RSV_TSK
 
       INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
 
@@ -499,11 +499,11 @@ C-SVC20100831: set correct number of elements in new G3
 
 C-SVC20100302: Synchronized add into the densitry matrices
 C  only for the G1 and G2 replicate arrays
-      CALL GADSUM(G1,NG1)
-      CALL GADSUM(G2,NG2)
+      CALL GADGOP(G1,NG1,'+')
+      CALL GADGOP(G2,NG2,'+')
 
-      CALL GADSUM(F1,NG1)
-      CALL GADSUM(F2,NG2)
+      CALL GADGOP(F1,NG1,'+')
+      CALL GADGOP(F2,NG2,'+')
 
 #ifdef _ENABLE_BLOCK_DMRG_
       NLEV4=NLEV2**2

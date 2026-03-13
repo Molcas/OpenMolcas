@@ -204,7 +204,7 @@ if (ISP > ISR) then
 
         ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-        call GADSum(X2,IX2)
+        call GADGOp(X2,IX2,'+')
         call dDAFILE(LUINTM,1,X2,IX2,IAD13)
         ! End of Loop over t,u pair
       end do

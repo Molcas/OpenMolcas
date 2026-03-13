@@ -170,10 +170,12 @@ subroutine procinp_caspt2
   ! global arrays, and needs to be switched off (using rhsall instead)
   RHSDIRECT = (Is_Real_Par() .and. (Input%RHSD .or. Input%PRHS == 'DIRECT'))
   if (Is_Real_Par() .and. (Input%PRHS == 'DEFAULT' .or. Input%PRHS == 'NEW') .and. .not.RHSDIRECT) iParRHS = 2
-  MAXBUF = (huge(1_MPIInt)-mod(huge(1_MPIInt),RtoB))/RtoB ! maximum number of real values handled by a single GADSUM call
+  ! maximum number of real values handled by a single GADGOP call
+  ! compilers complain about huge(xxx)/RtoB with -Werror=integer-division
+  MAXBUF = (huge(1_MPIInt)-mod(int(huge(1_MPIInt),kind=iwp),RtoB))/RtoB
 #else
   RHSDIRECT = .False.
-  MAXBUF = (huge(1_iwp)-mod(huge(1_iwp),RtoB))/RtoB ! compilers complaint huge(1_iwp)/RtoB with -Werror=integer-division
+  MAXBUF = (huge(RtoB)-mod(huge(RtoB),RtoB))/RtoB
 #endif
 
   ! Cholesky: set defaults if it was not called during input

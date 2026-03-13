@@ -1103,7 +1103,7 @@
 
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
-          call GADSUM(CLag,nConf*nState)
+          call GADGOP(CLag,nConf*nState,'+')
         end if
 #endif
 
@@ -1200,7 +1200,7 @@
           !! Inactive terms
 #ifdef _MOLCAS_MPP_
           !! The inactive contributions are computed in all processes,
-          !! whereas GADSUM will be done later, so divide
+          !! whereas GADGOP will be done later, so divide
           if (is_real_par()) Scal = Scal/real(nProcs,kind=wp)
 #endif
           CLag(1:nconf,jStat) = CLag(1:nconf,jStat)
@@ -1268,9 +1268,7 @@
 !
       SUBROUTINE DENS1T_RPT2_CLag(CI1,CI2,SGM1,CLag1,CLag2,RDMEIG,SCAL,
      &                            nLev)
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -1288,7 +1286,6 @@
 
       integer(kind=iwp),allocatable :: TASK(:,:)
 
-      logical(kind=iwp), external :: RSV_TSK
       integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK,
      &                     NTASKS, ISSG, NSGM
 
@@ -1515,7 +1512,7 @@
       End If
 
 #ifdef _MOLCAS_MPP_
-      if (is_real_par()) CALL GADSUM (INT2,nAshT**4)
+      if (is_real_par()) CALL GADGOP (INT2,nAshT**4,'+')
 #endif
 
       Return
@@ -1649,6 +1646,7 @@
 !
       SUBROUTINE DENS1T_RPT2 (CI1,CI2,SGM1,G1,NLEV)
 
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use gugx, only: SGS, L2ACT, CIS
@@ -1671,7 +1669,6 @@
      &  NTASKS, ISSG, NSGM
       real(kind=wp) :: GTU
 
-      logical(kind=iwp), external :: RSV_TSK
       real(kind=wp), external :: ddot_, dnrm2_
 
 ! Purpose: Compute the 1- and 2-electron density matrix
@@ -1746,7 +1743,7 @@
         end do
         CALL Free_Tsk(ID)
         CALL mma_deallocate(Task)
-        CALL GAdSUM (G1,NG1)
+        CALL GAdGOP (G1,NG1,'+')
       end if
 
       IF(iPrGlb >= DEBUG) THEN

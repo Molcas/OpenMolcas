@@ -21,7 +21,7 @@
       USE CHOVEC_IO, ONLY: NVLOC_CHOBATCH
       USE stdalloc, ONLY: mma_allocate, mma_deallocate
       USE Constants, ONLY: Zero, One, Half
-      use caspt2_module, only: nSym, nIsh, nAsh, nSsh,
+      use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT,
      &                         nOrb, nBtch, nBtches
       use definitions, only: iwp, wp
 
@@ -158,7 +158,7 @@
         END DO
       END DO
 
-      CALL GADSum(XMAT,nXMAT)
+      CALL GADGOp(XMAT,NOSQT,'+')
 
       CALL Deallocate_DT(HDSQ)
       CALL mma_deallocate(IXMAT)
