@@ -17,15 +17,19 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRIMUL(N,M,ALPHA,ASYM,X,LDX,Y,LDY)
+      use constants, only: One
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER N,M,LDX,LDY
-      REAL*8 ALPHA,ASYM((N*(N+1))/2),X(LDX,M),Y(LDY,M)
-      INTEGER I
+      INTEGER(kind=iwp), intent(in):: N,M,LDX,LDY
+      REAL(kind=wp), intent(in):: ALPHA,ASYM((N*(N+1))/2),X(LDX,M)
+      REAL(kind=wp), intent(inout):: Y(LDY,M)
+
+      INTEGER(kind=iwp) I
 C Multiply symmetric matrix ASYM with matrix X.
 C Scale result with ALPHA and add it to matrix Y.
-      DO 10 I=1,M
-*        CALL DSLMX(N,ALPHA,ASYM,X(1,I),1,Y(1,I),1)
-        CALL DSPMV_('U',N,ALPHA,ASYM,X(1,I),1,1.0D0,Y(1,I),1)
-  10  CONTINUE
-      RETURN
-      END
+      DO I=1,M
+!       CALL DSLMX(N,ALPHA,ASYM,X(1,I),1,Y(1,I),1)
+        CALL DSPMV_('U',N,ALPHA,ASYM,X(1,I),1,One,Y(1,I),1)
+      End Do
+
+      END SUBROUTINE TRIMUL

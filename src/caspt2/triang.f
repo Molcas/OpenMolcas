@@ -17,26 +17,28 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       subroutine triang(nrow,a)
+      use constants, only: Half
+      use definitions, only: iwp, wp
 
       IMPLICIT NONE
 
-      integer nrow
-      real*8 a(nrow**2)
+      integer(kind=iwp), intent(in):: nrow
+      real(kind=wp), intent(inout):: a(nrow**2)
 
-      integer i,j,ij,ji
-      real*8 symm
+      integer(kind=iwp) i,j,ij,ji
+      real(kind=wp) symm
 
 c Convert a square matrix to triangular in-place.
 
-      do 10 i=2,nrow
-        do 11 j=1,i-1
+      do i=2,nrow
+        do j=1,i-1
           ij=i+(j-1)*nrow
           ji=j+(i-1)*nrow
-          symm=0.5D0*(a(ij)+a(ji))
+          symm=Half*(a(ij)+a(ji))
           a(ji)=symm
           a(ij)=symm
-  11    continue
-  10  continue
+        End Do
+      End Do
       ij=0
       do i=1,nrow
        do j=1,i
@@ -44,5 +46,5 @@ c Convert a square matrix to triangular in-place.
         a(ij)=a(j+nrow*(i-1))
        end do
       end do
-      return
-      end
+
+      end subroutine triang
