@@ -48,10 +48,10 @@ C FIND DISK ADDRESS:
           IAD=IADR10(I,1)
           CALL DDAFILE(LUDMAT,2,VEC,NSZ,IAD)
 #ifdef _DEBUGPRINT_
-          WRITE(6,*) LAB1,' SUCCESSFULLY READ FROM LUDMAT.'
-          WRITE(6,*)'         SIZE:',NSZ,' *8 BYTES'
-          WRITE(6,*)' DISK ADDRESS:',IADR10(I,1)
-          WRITE(6,'(10F12.8)') (VEC(J),J=1,MIN(10,NSZ))
+          WRITE(u6,*) LAB1,' SUCCESSFULLY READ FROM LUDMAT.'
+          WRITE(u6,*)'         SIZE:',NSZ,' *8 BYTES'
+          WRITE(u6,*)' DISK ADDRESS:',IADR10(I,1)
+          WRITE(u6,'(10F12.8)') (VEC(J),J=1,MIN(10,NSZ))
 #endif
           RETURN
         END IF

@@ -212,8 +212,6 @@ module InputData
 
   public :: Input, readin_CASPT2, CleanUp_Input
 
-  save
-
 contains
 
   subroutine readin_CASPT2(LuIn,nSym)

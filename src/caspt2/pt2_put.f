@@ -23,7 +23,7 @@
       IMPLICIT None
       integer(kind=iwp), intent(in):: NSIZE
       CHARACTER(len=*), intent(in):: LAB
-      real(kind=wp):: VEC(NSIZE)
+      real(kind=wp), intent(in):: VEC(NSIZE)
 
       CHARACTER(len=8) LAB1
       integer(kind=iwp) I, IAD
@@ -61,6 +61,5 @@ C FIND DISK ADDRESS:
       WRITE(u6,*)' NO MORE AVAILABLE FIELDS ON FILE DENS.'
       WRITE(u6,*)' SUBROUTINE PUT FAILS.'
       CALL ABEND()
-
 
       END SUBROUTINE PT2_PUT

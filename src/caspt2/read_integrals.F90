@@ -42,13 +42,13 @@ integer(kind=iwp) :: tSym, t_nFro, t_nIsh, t_nAsh, t_nOsh, t_nOrb, &
 
 ! Arrays that get passed to QCMaquis
 integer(c_int), dimension(:), allocatable :: indices
-real*8, dimension(:), allocatable :: values
+real(kind=wp), dimension(:), allocatable :: values
 ! calculate the size of the arrays
 integer :: arr_size = 0
 integer :: max_index2
 ! Offset for values and indices array
 integer :: offset
-real*8 , parameter                :: threshold = 1.0d-16
+real(kind=wp) , parameter                :: threshold = 1.0e-16_wp
 integer NACPAR
 
 write(u6,*) "=== QCM: Rotating Orbitals to SS === "
@@ -64,12 +64,12 @@ NACPAR = (nAshT*(nAshT + 1))/2
 max_index2 = NACPAR*(NACPAR+1)/2
 
 arr_size = 1 & ! core energy
-             + max_index2 & ! one-electron integrals
-             + max_index2*(max_index2+1)/2 ! two-electron integrals
+         + max_index2 & ! one-electron integrals
+         + max_index2*(max_index2+1)/2 ! two-electron integrals
 call mma_allocate(indices, 4*arr_size)
 indices(:) = 0
 call mma_allocate(values, arr_size)
-values(:) = 0.0d0
+values(:) = Zero
 
 ! Two Body
 offset = 1
@@ -189,7 +189,5 @@ end do
 
 call mma_deallocate(indices)
 call mma_deallocate(values)
-
-return
 
 end subroutine read_integrals

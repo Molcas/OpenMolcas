@@ -31,12 +31,13 @@
       use caspt2_module, only: nSym, Header, ifChol, jState,
      &                         bName, nAsh, nBas, nIsh,
      &                         nOTri, nBasT, nBSqT, nSsh, nState
+      use definitions, only: iwp
       IMPLICIT NONE
 #include "compiler_features.h"
 
-      INTEGER LuSpool
+      INTEGER(kind=iwp) LuSpool
 C     Cholesky
-      Integer iSym, iRC
+      Integer(kind=iwp) iSym, iRC
 
       CALL SETTIM()
 
@@ -190,11 +191,12 @@ C Initialize sizes, offsets etc used in equation solver.
 #endif
       use ChoCASPT2, only: NASplit,NISplit,NumCho_PT2
       use caspt2_module, only: IfChol, nAsh, nIsh, nSsh, nSym
+      use definitions, only: iwp
       IMPLICIT NONE
 
-      Integer iSym
+      Integer(kind=iwp) iSym
 C     Cholesky return code
-      INTEGER irc
+      INTEGER(kind=iwp) irc
 C     size of idsct array
 
       If (IfChol) then

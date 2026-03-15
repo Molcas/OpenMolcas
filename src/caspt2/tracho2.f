@@ -27,7 +27,7 @@
       use definitions, only: u6
 #endif
       use constants, only: Zero, Half, One, Two
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "warnings.h"
@@ -83,7 +83,7 @@
 * Compute natural orbitals for the reference wave function:
       Call mma_allocate(OCC,NBasT,Label='OCC')
       Call mma_allocate(CNAT,NBSQT,Label='CNAT')
-*      write(6,*)' Active/Active density matrix, triangular'
+*      write(u6,*)' Active/Active density matrix, triangular'
 *      IF( NASHT.GT.0 ) THEN
 *        call TRIPRT(' ',' ',DREF,NASHT)
 *      ENDIF
@@ -170,13 +170,13 @@ c Initialize Fock matrices in AO basis to zero:
       DO JSYM=1,NSYM
       IBATCH_TOT=NBTCHES(JSYM)
 
-*     write(6,*)' Tracho2 JSYM=',JSYM
-*     write(6,*)'    NUMCHO_PT2(JSYM)=',NUMCHO_PT2(JSYM)
+*     write(u6,*)' Tracho2 JSYM=',JSYM
+*     write(u6,*)'    NUMCHO_PT2(JSYM)=',NUMCHO_PT2(JSYM)
       IF(NUMCHO_PT2(JSYM).EQ.0) Cycle
 
       JRED1=InfVec(1,2,jSym)
       JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
-*     write(6,*)'tracho2:  JRED1,JRED2:',JRED1,JRED2
+*     write(u6,*)'tracho2:  JRED1,JRED2:',JRED1,JRED2
 
       IF(JSYM.EQ.1) THEN
 * Allocate space for temporary vector 'Vec' used for Coulomb contrib to
@@ -206,7 +206,7 @@ c Initialize Fock matrices in AO basis to zero:
 * The reduced set is divided into suitable batches.
 * First vector is JSTART. Nr of vectors in r.s. is NVECS_RED.
 *      JEND=JSTART+NVECS_RED-1
-*      write(6,*)'  JRED:  JSTART,JEND:',JRED,JSTART,JEND
+*      write(u6,*)'  JRED:  JSTART,JEND:',JRED,JSTART,JEND
 
       IF (JSYM==1) THEN
          NRS=NDIMRS(JSYM,JRED)
@@ -235,19 +235,19 @@ c Initialize Fock matrices in AO basis to zero:
 * Read a batch of reduced vectors
       CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,JSYM,NUMV,JREDC,MUSED)
       IF(NUMV.ne.JNUM) THEN
-        write(6,*)' Rats! CHO_VECRD was called, assuming it to'
-        write(6,*)' read JNUM vectors. Instead it returned NUMV'
-        write(6,*)' vectors: JNUM, NUMV=',JNUM,NUMV
-        write(6,*)' Back to the drawing board?'
+        write(u6,*)' Rats! CHO_VECRD was called, assuming it to'
+        write(u6,*)' read JNUM vectors. Instead it returned NUMV'
+        write(u6,*)' vectors: JNUM, NUMV=',JNUM,NUMV
+        write(u6,*)' Back to the drawing board?'
         CALL QUIT(_RC_INTERNAL_ERROR_)
       END IF
       IF(JREDC.NE.JRED) THEN
-        write(6,*)' Rats! It was assumed that the Cholesky vectors'
-        write(6,*)' in HALFTRNSF all belonged to a given reduced'
-        write(6,*)' set, but they don''t!'
-        write(6,*)' JRED, JREDC:',JRED,JREDC
-        write(6,*)' Back to the drawing board?'
-        write(6,*)' Let the program continue and see what happens.'
+        write(u6,*)' Rats! It was assumed that the Cholesky vectors'
+        write(u6,*)' in HALFTRNSF all belonged to a given reduced'
+        write(u6,*)' set, but they don''t!'
+        write(u6,*)' JRED, JREDC:',JRED,JREDC
+        write(u6,*)' Back to the drawing board?'
+        write(u6,*)' Let the program continue and see what happens.'
       END IF
 
       IF (JSYM.EQ.1) THEN
