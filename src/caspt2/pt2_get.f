@@ -28,9 +28,9 @@
 
       CHARACTER(LEN=8) LAB1
 
-      INTEGER I,IAD,NSZ
+      INTEGER(kind=iwp) I,IAD,NSZ
 #ifdef _DEBUGPRINT_
-      INTEGER J
+      INTEGER(kind=iwp) J
 #endif
 
       I=9-LEN(LAB)

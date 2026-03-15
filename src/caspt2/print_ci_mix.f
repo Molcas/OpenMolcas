@@ -21,13 +21,14 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nState, nConf, STSym
       use pt2_guga, only: CIThr
+      use definitions, only: iwp, wp, u6
       Implicit None
-      Real*8 :: EigVec(nState,nState)
-      Integer :: iState, iiState, iDisk
-      Real*8, Allocatable, Dimension(:) :: cCI, mCI
-      Logical :: Close_refwfn
+      Real(kind=wp), intent(in):: EigVec(nState,nState)
+      Integer(kind=iwp) :: iState, iiState, iDisk
+      Real(kind=wp), Allocatable, Dimension(:) :: cCI, mCI
+      Logical(kind=iwp) :: Close_refwfn
 #ifdef _HDF5_
-      Integer :: jSNum
+      Integer(kind=iwp) :: jSNum
 #endif
 
 
@@ -53,10 +54,10 @@
 
       Call CollapseOutput(1,'Mixed CI coefficients:')
 
-      Write(6,*)
-      Write(6,*)' The original CI arrays are now mixed as linear'
-      Write(6,*)' combinations, given by the eigenvectors.'
-      Write(6,*)
+      Write(u6,*)
+      Write(u6,*)' The original CI arrays are now mixed as linear'
+      Write(u6,*)' combinations, given by the eigenvectors.'
+      Write(u6,*)
 
       Do iState=1,nState
         Call FZero(mCI, nConf)
@@ -76,13 +77,13 @@
           End If
           Call daXpY_(nConf,EigVec(iiState,iState),cCI,1,mCI,1)
         End Do
-        Write(6,'(1X,A,I3)')
+        Write(u6,'(1X,A,I3)')
      &     ' The CI coefficients for the MIXED state nr. ',iState
         Call PrWf_CP2(stSym,nConf,mCI,CITHR)
       End Do
 
       Call CollapseOutput(0,'Mixed CI coefficients:')
-      Write(6,*)
+      Write(u6,*)
 
       If (Close_refwfn) Call refwfn_close()
 

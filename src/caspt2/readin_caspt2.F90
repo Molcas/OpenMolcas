@@ -178,29 +178,29 @@ module InputData
     Integer(kind=iwp) :: CompressMPS = 0
     ! SADREF    use state-averaged density even for SS-CASPT2 with
     !           SA-CASSCF reference and MS-CASPT2 (not XMS)
-    Logical :: SADREF = .False.
+    Logical(kind=iwp) :: SADREF = .False.
     ! DORT      use the conventional (canonical) orthonormalization for generating
     !           internally contracted basis, rather than scaled (?)
     !           procedure by the diagonal element. This option is
     !           'sometimes' needed for analytic gradient.
-    Logical :: DORTHO = .False.
+    Logical(kind=iwp) :: DORTHO = .False.
     ! INVAR     specify the CASPT2 energy is invariant wrt active
     !           orbital rotations. This is automatically set for
     !           the case with IPEA shift. Otherwise, just for debug
     !           purpose
-    Logical :: INVAR  = .True.
+    Logical(kind=iwp) :: INVAR  = .True.
     ! CVIN      Convergence threshold for non-invariant CASPT2 equation
     Real(kind=wp) :: ThrConvInvar = 1.0e-07_wp
     ! GRDT      used for single-point gradient calculation
-    Logical :: GRDT = .False.
+    Logical(kind=iwp) :: GRDT = .False.
     ! NAC       compute NAC or interstate coupling vectors
-    Logical :: NAC = .False.
-    Integer :: iNACRoot1=0, iNACRoot2=0
+    Logical(kind=iwp) :: NAC = .False.
+    Integer(kind=iwp) :: iNACRoot1=0, iNACRoot2=0
     ! CSF       compute CSF contributions in derivative coupling
-    Logical :: CSF = .True.
+    Logical(kind=iwp) :: CSF = .True.
     ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
     !           and secondary orbital rotations. Development purpose
-    Logical :: IAINVAR = .True.
+    Logical(kind=iwp) :: IAINVAR = .True.
     ! PRHS      Parallel strategy for RHS construction
     !           '0' = 'DEFAULT', '1' = 'OLD', '2' = 'NEW', '3' = 'DIRECT'
     Character(len=7) :: PRHS = 'DEFAULT'

@@ -44,12 +44,12 @@ integer(kind=iwp) :: tSym, t_nFro, t_nIsh, t_nAsh, t_nOsh, t_nOrb, &
 integer(c_int), dimension(:), allocatable :: indices
 real(kind=wp), dimension(:), allocatable :: values
 ! calculate the size of the arrays
-integer :: arr_size = 0
-integer :: max_index2
+integer(kind=iwp) :: arr_size = 0
+integer(kind=iwp) :: max_index2
 ! Offset for values and indices array
-integer :: offset
+integer(kind=iwp) :: offset
 real(kind=wp) , parameter                :: threshold = 1.0e-16_wp
-integer NACPAR
+integer(kind=iwp) NACPAR
 
 write(u6,*) "=== QCM: Rotating Orbitals to SS === "
 
