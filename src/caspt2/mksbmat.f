@@ -32,8 +32,8 @@ C Set up S and B matrices for cases 1..13.
       END IF
 
 
-!     Single_set_of_PCO=.TRUE.
-      Single_set_of_PCO=.FALSE.
+      Single_set_of_PCO=.TRUE.
+!     Single_set_of_PCO=.FALSE.
       If (Single_set_of_PCO) THEN
          CALL MKSMAT()
          CALL MKBMAT()
