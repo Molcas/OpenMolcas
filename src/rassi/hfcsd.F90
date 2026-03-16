@@ -10,145 +10,160 @@
 !                                                                      *
 ! Copyright (C) 2021, Rulin Feng                                       *
 !***********************************************************************
-      SUBROUTINE HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
-      use definitions, only: iwp, wp, u6
-      use constants, only: Zero, Two, Three, Four
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use hfc_logical, only: MAG_X2C
-      IMPLICIT NONE
+
+subroutine HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
 !***********************************************************************
 !     Objective: to compute the 'spin-dependent' part of the hyperfine *
 !                from the magnetic integrals contributions             *
 !     Output: BUFF                                                     *
 !***********************************************************************
-      CHARACTER(LEN=8), intent(inout):: LABEL
-      INTEGER(KIND=IWP), INTENT(IN):: IC,NBUFF,NSIZ
-      INTEGER(KIND=IWP), INTENT(INOUT):: ISCHK
-      REAL(KIND=WP), INTENT(INOUT):: BUFF(NBUFF)
 
-      INTEGER(KIND=IWP) ICM,INBUFF,IOPT,IRC
-      real(kind=wp) DA
-      real(kind=wp), allocatable:: TA(:)
+use definitions, only: iwp, wp, u6
+use constants, only: Zero, Two, Three, Four
+use stdalloc, only: mma_allocate, mma_deallocate
+use hfc_logical, only: MAG_X2C
+
+implicit none
+character(len=8), intent(inout) :: LABEL
+integer(kind=IWP), intent(in) :: IC, NBUFF, NSIZ
+integer(kind=IWP), intent(inout) :: ISCHK
+real(kind=WP), intent(inout) :: BUFF(NBUFF)
+
+integer(kind=IWP) ICM, INBUFF, IOPT, IRC
+real(kind=wp) DA
+real(kind=wp), allocatable :: TA(:)
 
 ! Set MAG_X2C to avoid add_info in hfcts
-      MAG_X2C=.True.
-      IOPT=0
-      CALL mma_allocate(TA,NBUFF,Label='TA')
+MAG_X2C = .true.
+IOPT = 0
+call mma_allocate(TA,NBUFF,Label='TA')
 ! BUFF needs to be initialized
-      do iNBUFF = 1, NBUFF
-         BUFF(iNBUFF) = Zero
-      enddo
+do iNBUFF=1,NBUFF
+  BUFF(iNBUFF) = Zero
+end do
 ! end of initialization
-      DA = Two
+DA = Two
 
-      Select Case (IC)
-      Case(1)
-! EF2(1) = (2*MAG(1)-MAG(5)-MAG(9))*(2/3)
-         ICM = 1
-         DA = Four/Three
-         CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-         do iNBUFF = NSIZ, NBUFF-1
-             BUFF(iNBUFF+1) = TA(1+iNBUFF)
-         enddo
+select case (IC)
 
-         ICM = 5
-         DA = -Two/Three
-         Call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+  case (1)
+    ! EF2(1) = (2*MAG(1)-MAG(5)-MAG(9))*(2/3)
+    ICM = 1
+    DA = Four/Three
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    do iNBUFF=NSIZ,NBUFF-1
+      BUFF(iNBUFF+1) = TA(1+iNBUFF)
+    end do
 
-         ICM = 9
-         DA = -Two/Three
-         CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-      Case(2)
-! EF2(2) = MAG(2)*2
-         ICM = 2
-         CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-         do iNBUFF = NSIZ, NBUFF-1
-             BUFF(iNBUFF+1) = TA(1+iNBUFF)
-         enddo
-      Case(3)
-! EF2(3) = MAG(3)*2
-         ICM = 3
-         CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-         do iNBUFF = NSIZ, NBUFF-1
-             BUFF(iNBUFF+1) = TA(1+iNBUFF)
-         enddo
-      Case(4)
-! EF2(4) = (2*MAG(5)-MAG(1)-MAG(9))*(2/3)
-         ICM = 5
-         DA = Four/Three
-         CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-         do iNBUFF = NSIZ, NBUFF-1
-             BUFF(iNBUFF+1) = TA(1+iNBUFF)
-         enddo
+    ICM = 5
+    DA = -Two/Three
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
 
-         ICM = 1
-         DA = -Two/Three
-         Call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    ICM = 9
+    DA = -Two/Three
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
 
-         ICM = 9
-         DA = -Two/Three
-         CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-      Case(5)
-! EF2(5) = MAG(6)*2
-         ICM = 6
-         CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-         do iNBUFF = NSIZ, NBUFF-1
-             BUFF(iNBUFF+1) = TA(1+iNBUFF)
-         enddo
-      Case(6)
-! EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
-         ICM = 1
-         CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-         do iNBUFF = NSIZ, NBUFF-1
-             BUFF(iNBUFF+1) = TA(1+iNBUFF)
-         enddo
+  case (2)
+    ! EF2(2) = MAG(2)*2
+    ICM = 2
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    do iNBUFF=NSIZ,NBUFF-1
+      BUFF(iNBUFF+1) = TA(1+iNBUFF)
+    end do
 
-         ICM = 5
-         Call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+  case (3)
+    ! EF2(3) = MAG(3)*2
+    ICM = 3
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    do iNBUFF=NSIZ,NBUFF-1
+      BUFF(iNBUFF+1) = TA(1+iNBUFF)
+    end do
 
-         ICM = 9
-         CALL RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
-         IF (IRC.NE.0) CALL ErrStop()
-         CALL DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-      Case Default
-         WRITE(u6,'(6X,A)')'*** ERROR IN SUBROUTINE HFCSD ***'
-         Call ABend()
-      End Select
-      CALL mma_deallocate(TA)
+  case (4)
+    ! EF2(4) = (2*MAG(5)-MAG(1)-MAG(9))*(2/3)
+    ICM = 5
+    DA = Four/Three
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    do iNBUFF=NSIZ,NBUFF-1
+      BUFF(iNBUFF+1) = TA(1+iNBUFF)
+    end do
 
-      Contains
-      Subroutine ErrStop()
-        WRITE(u6,*)
-        WRITE(u6,'(6X,A)')'*** ERROR IN SUBROUTINE HFCSD ***'
-        WRITE(u6,'(6X,A)')'  FAILED IN READING FROM  ONEINT'
-        WRITE(u6,'(6X,A)')' PLEASE MAKE SURE THE MAGNETIC'
-        WRITE(u6,'(6X,A)')' HYPERFINE INTEGRALS ARE AVAILABLE'
-        WRITE(u6,'(6X,A,A)')'  LABEL     = ',LABEL
-        WRITE(u6,'(6X,A,I2)')'  COMPONENT = ',ICM
-        WRITE(u6,*)
-        CALL ABEND()
-      END Subroutine ErrSTop
+    ICM = 1
+    DA = -Two/Three
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
 
-      END SUBROUTINE HFCSD
+    ICM = 9
+    DA = -Two/Three
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+
+  case (5)
+    ! EF2(5) = MAG(6)*2
+    ICM = 6
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    do iNBUFF=NSIZ,NBUFF-1
+      BUFF(iNBUFF+1) = TA(1+iNBUFF)
+    end do
+
+  case (6)
+    ! EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
+    ICM = 1
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    do iNBUFF=NSIZ,NBUFF-1
+      BUFF(iNBUFF+1) = TA(1+iNBUFF)
+    end do
+
+    ICM = 5
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+
+    ICM = 9
+    call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
+    if (IRC /= 0) call ErrStop()
+    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+
+  case default
+    write(u6,'(6X,A)') '*** ERROR IN SUBROUTINE HFCSD ***'
+    call Abend()
+
+end select
+
+call mma_deallocate(TA)
+
+contains
+
+subroutine ErrStop()
+
+  write(u6,*)
+  write(u6,'(6X,A)') '*** ERROR IN SUBROUTINE HFCSD ***'
+  write(u6,'(6X,A)') '  FAILED IN READING FROM  ONEINT'
+  write(u6,'(6X,A)') ' PLEASE MAKE SURE THE MAGNETIC'
+  write(u6,'(6X,A)') ' HYPERFINE INTEGRALS ARE AVAILABLE'
+  write(u6,'(6X,A,A)') '  LABEL     = ',LABEL
+  write(u6,'(6X,A,I2)') '  COMPONENT = ',ICM
+  write(u6,*)
+  call ABEND()
+
+end subroutine ErrSTop
+
+end subroutine HFCSD

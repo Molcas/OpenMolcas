@@ -10,27 +10,30 @@
 !                                                                      *
 ! Copyright (C) 2019, Roland Lindh                                     *
 !***********************************************************************
-      Module RASSI_GLOBAL_ARRAYS
-      Real*8, Allocatable:: HAM(:,:), SFDYS(:,:,:), &
-                            SODYSAMPS(:,:), SODYSAMPSR(:,:), &
-                            SODYSAMPSI(:,:), EIGVEC(:,:), &
-                            PROP(:,:,:), ESHFT(:), HDIAG(:)
-      Integer, Allocatable:: JBNUM(:), LROOT(:)
-      Integer, Allocatable:: PART(:)
-      Integer, Allocatable:: OrbTab(:)
-      Integer, Allocatable:: SSTAB(:)
-      Integer, Allocatable, Target:: REST1(:), REST2(:)
-      Integer, Pointer:: REST(:)
-      Integer, Allocatable, Target:: CNFTAB1(:), CNFTAB2(:)
-      Integer, Pointer:: CNFTAB(:)
-      Integer, Allocatable, Target:: FSBTAB1(:), FSBTAB2(:)
-      Integer, Pointer:: FSBTAB(:)
-      Integer, Allocatable:: FSBARR(:)
-      Integer, Allocatable, Target:: SPNTAB1(:), SPNTAB2(:)
-      Integer, Pointer:: SPNTAB(:)
-      Real*8, Allocatable, Target:: TRANS1(:), TRANS2(:)
-      Real*8, Pointer:: TRANS(:)
-      Integer, Allocatable, Target:: FSBANN1(:), FSBANN2(:)
-      Integer, Allocatable, Target:: FSBANN3(:), FSBANN4(:)
-      Integer, Pointer:: FSBANN(:)
-      End Module RASSI_GLOBAL_ARRAYS
+
+module RASSI_GLOBAL_ARRAYS
+
+implicit none
+
+real*8, allocatable :: HAM(:,:), SFDYS(:,:,:), SODYSAMPS(:,:), SODYSAMPSR(:,:), SODYSAMPSI(:,:), EIGVEC(:,:), PROP(:,:,:), &
+                       ESHFT(:), HDIAG(:)
+integer, allocatable :: JBNUM(:), LROOT(:)
+integer, allocatable :: PART(:)
+integer, allocatable :: OrbTab(:)
+integer, allocatable :: SSTAB(:)
+integer, allocatable, target :: REST1(:), REST2(:)
+integer, pointer :: REST(:)
+integer, allocatable, target :: CNFTAB1(:), CNFTAB2(:)
+integer, pointer :: CNFTAB(:)
+integer, allocatable, target :: FSBTAB1(:), FSBTAB2(:)
+integer, pointer :: FSBTAB(:)
+integer, allocatable :: FSBARR(:)
+integer, allocatable, target :: SPNTAB1(:), SPNTAB2(:)
+integer, pointer :: SPNTAB(:)
+real*8, allocatable, target :: TRANS1(:), TRANS2(:)
+real*8, pointer :: TRANS(:)
+integer, allocatable, target :: FSBANN1(:), FSBANN2(:)
+integer, allocatable, target :: FSBANN3(:), FSBANN4(:)
+integer, pointer :: FSBANN(:)
+
+end module RASSI_GLOBAL_ARRAYS

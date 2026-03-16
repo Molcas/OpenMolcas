@@ -20,39 +20,41 @@
 !  MODIFIED BY BRUNO TENORIO TO ADDRESS SYMMETRY
 !  SEPTEMBER 2020
 !****************************************************************
-      SUBROUTINE MKDYSZZ(CMOA,DYSAB,DYSZZ)
-      use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NCMO,NASH,NBASF,NOSH
-      IMPLICIT None
-      Real*8 CMOA(NCMO)
-      REAL*8 DYSAB(*),DYSZZ(*)
 
-      INTEGER IBIO,IZZ,SYMOFF,BIOOFF,IBIOFF,IZZOFF,ISY1,NO1,NA1,NB1
-      REAL*8 COEFF
+subroutine MKDYSZZ(CMOA,DYSAB,DYSZZ)
 
-! *** Re-express the DO coefficients in biorth basis DYSAB
-! *** into atomic basis DYSZZ with help of CMOA that contains
-! *** biorth orbitals in ZZ basis
+use Symmetry_Info, only: nSym => nIrrep
+use rassi_data, only: NCMO, NASH, NBASF, NOSH
 
-      SYMOFF=0
-      IBIOFF=0
-      IZZOFF=0
-      DO ISY1=1,NSYM
-        NO1=NOSH(ISY1)
-        NA1=NASH(ISY1)
-        NB1=NBASF(ISY1)
-        IF(NA1.GT.0) THEN
-        DO IBIO=1,NO1
-         DO IZZ=1,NB1
-          BIOOFF=(IBIO-1)*NB1
-          COEFF=DYSAB(IBIO+IBIOFF)*CMOA(SYMOFF+BIOOFF+IZZ)
-          DYSZZ(IZZ+IZZOFF)=DYSZZ(IZZ+IZZOFF)+COEFF
-         END DO
-        END DO
-        END IF
-        IZZOFF=NB1+IZZOFF
-        IBIOFF=NO1+IBIOFF
-        SYMOFF=(NO1*NB1)+SYMOFF
-      END DO
+implicit none
+real*8 CMOA(NCMO)
+real*8 DYSAB(*), DYSZZ(*)
+integer IBIO, IZZ, SYMOFF, BIOOFF, IBIOFF, IZZOFF, ISY1, NO1, NA1, NB1
+real*8 COEFF
 
-      END SUBROUTINE MKDYSZZ
+! Re-express the DO coefficients in biorth basis DYSAB
+! into atomic basis DYSZZ with help of CMOA that contains
+! biorth orbitals in ZZ basis
+
+SYMOFF = 0
+IBIOFF = 0
+IZZOFF = 0
+do ISY1=1,NSYM
+  NO1 = NOSH(ISY1)
+  NA1 = NASH(ISY1)
+  NB1 = NBASF(ISY1)
+  if (NA1 > 0) then
+    do IBIO=1,NO1
+      do IZZ=1,NB1
+        BIOOFF = (IBIO-1)*NB1
+        COEFF = DYSAB(IBIO+IBIOFF)*CMOA(SYMOFF+BIOOFF+IZZ)
+        DYSZZ(IZZ+IZZOFF) = DYSZZ(IZZ+IZZOFF)+COEFF
+      end do
+    end do
+  end if
+  IZZOFF = NB1+IZZOFF
+  IBIOFF = NO1+IBIOFF
+  SYMOFF = (NO1*NB1)+SYMOFF
+end do
+
+end subroutine MKDYSZZ

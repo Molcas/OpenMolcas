@@ -14,126 +14,121 @@
 !  PURPOSE: CALCULATE CORRECTED DYSON NORMS FOR CI EXPANSIONS IN A
 !  BIORTH. BASIS
 !***********************************************************************
-      SUBROUTINE DYSNORM(CMOA,DYSCMO,NORM)
 
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: One, Zero
-      use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NCMO,NBASF,NOSH,NOSHT
+subroutine DYSNORM(CMOA,DYSCMO,NORM)
 
-      Implicit None
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Zero
+use Symmetry_Info, only: nSym => nIrrep
+use rassi_data, only: NCMO, NBASF, NOSH, NOSHT
 
-      integer :: isym
-      real*8 NORM,NORMSCR
-      integer :: nb, nbast, nbast1, nbast2
-      real*8, allocatable :: SAO(:),IAO(:),Scr(:),Scr2(:)
-      real*8, allocatable :: Dysab(:),Dysab2(:)
-      character(len=8) :: Label
-      integer :: iOff1, iOff2
-      integer :: iOpt,iSyLbl,iRc
-      integer :: IC,istca,istcb,ist,ista,istcc,istc,ndys
-      REAL*8 DYSCMO(*),CMOA(*)
-      integer :: istcmo(8), istao(8), istacc(8)
-      Integer no1,nb1,nscr,isy1
-      Real*8, EXTERNAL :: DDOT_
-
-!============================================================
-      nbast=0
-      nbast1=0
-      nbast2=0
-      do isym=1,nsym
-        nb=NBASF(isym)
-        nbast=nbast+nb
-        nbast1=nbast1+(nb*(nb+1))/2
-        nbast2=nbast2+nb**2
-      end do
-
-      call mma_allocate(DYSAB,NOSHT)
-      CALL DCOPY_(NOSHT,DYSCMO,1,DYSAB,1)
-
-      call mma_allocate(SAO,NBAST1)
-      call mma_allocate(IAO,NBAST2)
-      IAO=Zero
-
-      iRc=-1
-      iOpt=6
-      IC=1
-      iSyLbl=1
-      Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,IC,SAO,iSyLbl)
-      iOff1 = 0
-      iOff2 = 0
-      Do iSym = 1,nSym
-        nb = nBasf(iSym)
-        If ( nb.gt.0 ) then
-          call mma_allocate(Scr,nb*nb)
-          scr=Zero
-          Call Square(SAO(1+iOff1),Scr,1,nb,nb)
-          CALL DCOPY_(nb*nb,Scr,1,IAO(iOff2+1),1)
-          call mma_deallocate(Scr)
-        end if
-        iOff1 = iOff1 + (nb*nb+nb)/2
-        iOff2 = iOff2 + (nb*nb)
-      end do
-      call mma_deallocate(SAO)
+implicit none
+integer :: isym
+real*8 NORM, NORMSCR
+integer :: nb, nbast, nbast1, nbast2
+real*8, allocatable :: SAO(:), IAO(:), Scr(:), Scr2(:)
+real*8, allocatable :: Dysab(:), Dysab2(:)
+character(len=8) :: Label
+integer :: iOff1, iOff2
+integer :: iOpt, iSyLbl, iRc
+integer :: IC, istca, istcb, ist, ista, istcc, istc, ndys
+real*8 DYSCMO(*), CMOA(*)
+integer :: istcmo(8), istao(8), istacc(8)
+integer no1, nb1, nscr, isy1
+real*8, external :: DDOT_
 
 !============================================================
+nbast = 0
+nbast1 = 0
+nbast2 = 0
+do isym=1,nsym
+  nb = NBASF(isym)
+  nbast = nbast+nb
+  nbast1 = nbast1+(nb*(nb+1))/2
+  nbast2 = nbast2+nb**2
+end do
 
-      IST=1
-      ISTA=1
-      ISTCC=1
-      DO ISY1=1,NSYM
-        ISTCMO(ISY1)=IST
-        ISTAO(ISY1)=ISTA
-        ISTACC(ISY1)=ISTCC
-        NO1=NOSH(ISY1)
-        IST=IST+NO1*NBASF(ISY1)
-        ISTA=ISTA+(NBASF(ISY1)*NBASF(ISY1) )
-        ISTCC=ISTCC+NO1*NO1
-      END DO
+call mma_allocate(DYSAB,NOSHT)
+call DCOPY_(NOSHT,DYSCMO,1,DYSAB,1)
 
-      NSCR=NCMO
-      NDYS=1
-      DO ISY1=1,NSYM
-        ISTCB=ISTCMO(ISY1)
-        ISTCA=ISTAO(ISY1)
-        ISTC=ISTACC(ISY1)
-        NO1=NOSH(ISY1)
-        NB1=NBASF(ISY1)
-        if (NB1*NO1 == 0) cycle
+call mma_allocate(SAO,NBAST1)
+call mma_allocate(IAO,NBAST2)
+IAO = Zero
 
-        call mma_allocate(scr,nscr)
-        call mma_allocate(scr2,nscr)
-        Scr=Zero
-        Scr2=Zero
+iRc = -1
+iOpt = 6
+IC = 1
+iSyLbl = 1
+Label = 'Mltpl  0'
+call RdOne(iRc,iOpt,Label,IC,SAO,iSyLbl)
+iOff1 = 0
+iOff2 = 0
+do iSym=1,nSym
+  nb = nBasf(iSym)
+  if (nb > 0) then
+    call mma_allocate(Scr,nb*nb)
+    scr = Zero
+    call Square(SAO(1+iOff1),Scr,1,nb,nb)
+    call DCOPY_(nb*nb,Scr,1,IAO(iOff2+1),1)
+    call mma_deallocate(Scr)
+  end if
+  iOff1 = iOff1+(nb*nb+nb)/2
+  iOff2 = iOff2+(nb*nb)
+end do
+call mma_deallocate(SAO)
 
-        CALL DGEMM_('N','N', NB1, NO1, NB1, One,                        &
-     &                 IAO(ISTCA),NB1, CMOA(ISTCB), NB1,                &
-     &         Zero, Scr(ISTCB), NB1)
+!============================================================
 
-        CALL DGEMM_('T','N', NO1, NO1, NB1, One,                        &
-     &                 CMOA(ISTCB),NB1, Scr(ISTCB), NB1,                &
-     &         Zero, Scr2(ISTC), NO1)
+IST = 1
+ISTA = 1
+ISTCC = 1
+do ISY1=1,NSYM
+  ISTCMO(ISY1) = IST
+  ISTAO(ISY1) = ISTA
+  ISTACC(ISY1) = ISTCC
+  NO1 = NOSH(ISY1)
+  IST = IST+NO1*NBASF(ISY1)
+  ISTA = ISTA+(NBASF(ISY1)*NBASF(ISY1))
+  ISTCC = ISTCC+NO1*NO1
+end do
 
-! Src2 is the M matrix
-! Proceed to compute norm=Dab*(Dab*M)
-! Where Dab*M=Dysab2
+NSCR = NCMO
+NDYS = 1
+do ISY1=1,NSYM
+  ISTCB = ISTCMO(ISY1)
+  ISTCA = ISTAO(ISY1)
+  ISTC = ISTACC(ISY1)
+  NO1 = NOSH(ISY1)
+  NB1 = NBASF(ISY1)
+  if (NB1*NO1 == 0) cycle
 
-        call mma_allocate(DYSAB2,NO1)
-        DYSAB2=Zero
-        CALL DGEMV_('N', NO1, NO1, One, Scr2(ISTC), NO1,                &
-     &              DYSAB(NDYS),1, Zero, DYSAB2, 1)
+  call mma_allocate(scr,nscr)
+  call mma_allocate(scr2,nscr)
+  Scr = Zero
+  Scr2 = Zero
 
-        normscr= DDOT_(NO1, DYSAB(NDYS), 1, DYSAB2, 1)
-        norm=norm+normscr
-        call mma_deallocate(DYSAB2)
+  call DGEMM_('N','N',NB1,NO1,NB1,One,IAO(ISTCA),NB1,CMOA(ISTCB),NB1,Zero,Scr(ISTCB),NB1)
 
-        NDYS=NDYS+NO1
-        Call mma_deallocate(Scr)
-        Call mma_deallocate(Scr2)
-      END DO
+  call DGEMM_('T','N',NO1,NO1,NB1,One,CMOA(ISTCB),NB1,Scr(ISTCB),NB1,Zero,Scr2(ISTC),NO1)
 
-      Call mma_deallocate(IAO)
-      call mma_deallocate(DYSAB)
+  ! Src2 is the M matrix
+  ! Proceed to compute norm=Dab*(Dab*M)
+  ! Where Dab*M=Dysab2
 
-      END
+  call mma_allocate(DYSAB2,NO1)
+  DYSAB2 = Zero
+  call DGEMV_('N',NO1,NO1,One,Scr2(ISTC),NO1,DYSAB(NDYS),1,Zero,DYSAB2,1)
+
+  normscr = DDOT_(NO1,DYSAB(NDYS),1,DYSAB2,1)
+  norm = norm+normscr
+  call mma_deallocate(DYSAB2)
+
+  NDYS = NDYS+NO1
+  call mma_deallocate(Scr)
+  call mma_deallocate(Scr2)
+end do
+
+call mma_deallocate(IAO)
+call mma_deallocate(DYSAB)
+
+end subroutine DYSNORM

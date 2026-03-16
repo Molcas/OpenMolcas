@@ -10,45 +10,41 @@
 !                                                                      *
 ! Copyright (C) 2021, Bruno Tenorio                                    *
 !***********************************************************************
-      SUBROUTINE MKDCHS(IFSBTAB1,IFSBTAB2,ISSTAB,                       &
-     &                  MAPORB,DET1,DET2,                               &
-     &                  IF20,IF02,NDCHSM,DCHSM,OrbTab)
 
-      use Constants, only: Zero
-      use stdalloc, only: mma_allocate, mma_deallocate
-
-      IMPLICIT NONE
-      INTEGER IFSBTAB1(*),IFSBTAB2(*)
-      INTEGER ISSTAB(*),MAPORB(*),NDCHSM
-      REAL*8 DET1(*),DET2(*)
-      REAL*8 DCHSM(NDCHSM)
-      Integer OrbTab(*)
-      INTEGER NASHT,NASORB
-      REAL*8 GVAL,GAB,GBA
-      INTEGER IAJB,IBJA
-      INTEGER JORB,IORB
-      INTEGER JORBA,JORBB,IORBA,IORBB
-      INTEGER ITABS,JTABS,IJTABS
-      INTEGER NSDCHSM
-      LOGICAL IF20,IF02
-      Real*8, Allocatable:: SDCHSM(:)
-
-! Given two CI expansions, using a biorthonormal set of SD''s,
+subroutine MKDCHS(IFSBTAB1,IFSBTAB2,ISSTAB,MAPORB,DET1,DET2,IF20,IF02,NDCHSM,DCHSM,OrbTab)
+! Given two CI expansions, using a biorthonormal set of SD's,
 ! calculate the matrix elements relevant to DCH state intensities
 ! in the biorthonormal active orbital basis.
 !
 !  'I,J,|< N-2 | anni_right anni_right | N >|**2'
 
-! Pick out nr of active orbitals from orbital table:
-      NASORB=ORBTAB(4)
-      NASHT=NASORB/2
-      NSDCHSM= NASORB*(NASORB-1)/2
-      Call mma_allocate(SDCHSM,nSDCHSM,Label='SDCHSM')
-      SDCHSM(:)=Zero
+use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
 
-        CALL SDCHS(ORBTAB,ISSTAB,                                       &
-     &              IFSBTAB1,IFSBTAB2,DET1,DET2,                        &
-     &              IF20,IF02,SDCHSM)
+implicit none
+integer IFSBTAB1(*), IFSBTAB2(*)
+integer ISSTAB(*), MAPORB(*), NDCHSM
+real*8 DET1(*), DET2(*)
+real*8 DCHSM(NDCHSM)
+integer OrbTab(*)
+integer NASHT, NASORB
+real*8 GVAL, GAB, GBA
+integer IAJB, IBJA
+integer JORB, IORB
+integer JORBA, JORBB, IORBA, IORBB
+integer ITABS, JTABS, IJTABS
+integer NSDCHSM
+logical IF20, IF02
+real*8, allocatable :: SDCHSM(:)
+
+! Pick out nr of active orbitals from orbital table:
+NASORB = ORBTAB(4)
+NASHT = NASORB/2
+NSDCHSM = NASORB*(NASORB-1)/2
+call mma_allocate(SDCHSM,nSDCHSM,Label='SDCHSM')
+SDCHSM(:) = Zero
+
+call SDCHS(ORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,DET1,DET2,IF20,IF02,SDCHSM)
 
 ! Mapping from active spin-orbital to active orbital in external order.
 ! Note that these differ, not just because of the existence of two
@@ -56,36 +52,36 @@
 ! (external order) are grouped by symmetry and then RAS space, but the
 ! spin orbitals are grouped by subpartition.
 
-      IAJB=0      ! dummy initialize
-      IBJA=0      ! dummy initialize
+IAJB = 0 ! dummy initialize
+IBJA = 0 ! dummy initialize
 
-      DO IORB=1,NASHT
-       IORBA=2*IORB-1
-       IORBB=2*IORB
-       ITABS=MAPORB(IORBA)
-       DO JORB=1,NASHT
-        JORBA=2*JORB-1
-        JORBB=2*JORB
-        JTABS=MAPORB(JORBA)
-        GVAL=Zero
-        IF(IORB.GT.JORB) THEN
-         IAJB=((IORBA-1)*(IORBA-2)/2)+JORBB
-         IBJA=((IORBB-1)*(IORBB-2)/2)+JORBA
-        ELSE IF(JORB.EQ.IORB) THEN
-         IAJB=((IORBA-1)*(IORBA-2)/2)+JORBB
-         IBJA=((IORBB-1)*(IORBB-2)/2)+JORBA
-         GAB=SDCHSM(IAJB)
-         GBA=SDCHSM(IBJA)
-         GVAL=GAB+GBA
-        ELSE IF(IORB.LT.JORB) THEN
-         IBJA=((JORBA-1)*(JORBA-2)/2)+IORBB
-         IAJB=((JORBB-1)*(JORBB-2)/2)+IORBA
-        END IF
-        IJTABS=JTABS+NASHT*(ITABS-1)
-        DCHSM(IJTABS)=GVAL**2
-       END DO
-      END DO
+do IORB=1,NASHT
+  IORBA = 2*IORB-1
+  IORBB = 2*IORB
+  ITABS = MAPORB(IORBA)
+  do JORB=1,NASHT
+    JORBA = 2*JORB-1
+    JORBB = 2*JORB
+    JTABS = MAPORB(JORBA)
+    GVAL = Zero
+    if (IORB > JORB) then
+      IAJB = ((IORBA-1)*(IORBA-2)/2)+JORBB
+      IBJA = ((IORBB-1)*(IORBB-2)/2)+JORBA
+    else if (JORB == IORB) then
+      IAJB = ((IORBA-1)*(IORBA-2)/2)+JORBB
+      IBJA = ((IORBB-1)*(IORBB-2)/2)+JORBA
+      GAB = SDCHSM(IAJB)
+      GBA = SDCHSM(IBJA)
+      GVAL = GAB+GBA
+    else if (IORB < JORB) then
+      IBJA = ((JORBA-1)*(JORBA-2)/2)+IORBB
+      IAJB = ((JORBB-1)*(JORBB-2)/2)+IORBA
+    end if
+    IJTABS = JTABS+NASHT*(ITABS-1)
+    DCHSM(IJTABS) = GVAL**2
+  end do
+end do
 
-      CALL mma_deallocate(SDCHSM)
+call mma_deallocate(SDCHSM)
 
-      END SUBROUTINE MKDCHS
+end subroutine MKDCHS

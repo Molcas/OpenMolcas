@@ -8,756 +8,193 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE NEWCNFTAB(NEL,NORB,MINOP,MAXOP,LSYM,NGAS,              &
-     &                     NGASORB,NGASLIM,IFORM,ICASE)
-      use definitions, only: iwp
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use rassi_global_arrays, only: CnfTab1, CnfTab2, CnfTab
-      use Symmetry_Info, only: nSym=>nIrrep
-      IMPLICIT NONE
-      Integer(kind=iwp), intent(in):: NEL, NORB, MINOP, MAXOP, LSYM,    &
-     &                                NGAS
-      Integer(kind=iwp), intent(in):: NGASORB(NSYM,NGAS)
-      Integer(kind=iwp), intent(in):: NGASLIM(2,NGAS)
-      Integer(kind=iwp), intent(in):: IFORM, ICASE
 
-      Integer(kind=iwp), allocatable:: NCNF1(:), NCNF2(:)
-      Integer(kind=iwp) NNCNF1,MXO,IGAS,ISUM,ISYM,NNCNF2,NTAB,KINFO,    &
-     &                  KCNFSTA,NOPN,NOCC,NCNF,NCLS,LENCNF,L,KCNFEND,   &
-     &                  IPOS,IFPOSS,I
+subroutine NEWCNFTAB(NEL,NORB,MINOP,MAXOP,LSYM,NGAS,NGASORB,NGASLIM,IFORM,ICASE)
+
+use definitions, only: iwp
+use stdalloc, only: mma_allocate, mma_deallocate
+use rassi_global_arrays, only: CnfTab1, CnfTab2, CnfTab
+use Symmetry_Info, only: nSym => nIrrep
+
+implicit none
+integer(kind=iwp), intent(in) :: NEL, NORB, MINOP, MAXOP, LSYM, NGAS
+integer(kind=iwp), intent(in) :: NGASORB(NSYM,NGAS)
+integer(kind=iwp), intent(in) :: NGASLIM(2,NGAS)
+integer(kind=iwp), intent(in) :: IFORM, ICASE
+integer(kind=iwp), allocatable :: NCNF1(:), NCNF2(:)
+integer(kind=iwp) NNCNF1, MXO, IGAS, ISUM, ISYM, NNCNF2, NTAB, KINFO, KCNFSTA, NOPN, NOCC, NCNF, NCLS, LENCNF, L, KCNFEND, IPOS, &
+                  IFPOSS, I
 
 ! Note how input parameter LSYM is used: If non-zero, only those configurations
 ! with symmetry label LSYM are selected. But if LSYM=0, they are all selected.
 ! We must figure out sizes before allocating the new configuration table.
 ! Set up a table NCNF1(NSYM,NPOS) with NPOS=((NEL+1)*(NEL+2))/2
-      NNCNF1=NSYM*((NEL+1)*(NEL+2))/2
-      CALL mma_allocate(NCNF1,NNCNF1,Label='NCNF1')
+NNCNF1 = NSYM*((NEL+1)*(NEL+2))/2
+call mma_allocate(NCNF1,NNCNF1,Label='NCNF1')
 ! We need also a table NCNF2, temporarily. Need to know mx nr of active orbitals
 ! in any GAS subspace:
-      MXO=0
-       DO IGAS=1,NGAS
-        ISUM=0
-        DO ISYM=1,NSYM
-         ISUM=ISUM+NGASORB(ISYM,IGAS)
-        END DO
-        MXO=MAX(MXO,ISUM)
-      END DO
-      NNCNF2=NSYM*((MXO+1)*(MXO+2))/2
-      CALL mma_allocate(NCNF2,NNCNF2,Label='NCNF2')
-      CALL NRCNF1(NEL,NORB,NGAS,NGASLIM,NGASORB,NCNF1,MXO,NCNF2)
-      CALL mma_deallocate(NCNF2)
+MXO = 0
+do IGAS=1,NGAS
+  ISUM = 0
+  do ISYM=1,NSYM
+    ISUM = ISUM+NGASORB(ISYM,IGAS)
+  end do
+  MXO = max(MXO,ISUM)
+end do
+NNCNF2 = NSYM*((MXO+1)*(MXO+2))/2
+call mma_allocate(NCNF2,NNCNF2,Label='NCNF2')
+call NRCNF1(NEL,NORB,NGAS,NGASLIM,NGASORB,NCNF1,MXO,NCNF2)
+call mma_deallocate(NCNF2)
 
 ! NCNF1(ISYM,IPOS) contains the number of possible configurations for symmetry
 ! label ISYM, nr of closed shells NCLS, and nr of open shells NOPN. The latter
 ! are combined as pair index IPOS=1+NOPN+(NOCC*(NOCC+1))/2 with NOCC=NCLS+NOPN
 
 ! Header (See below for contents):
-      NTAB=10
+NTAB = 10
 ! NGASORB array:
-      NTAB=NTAB+(NSYM+1)*(NGAS+1)
+NTAB = NTAB+(NSYM+1)*(NGAS+1)
 ! NGASLIM array:
-      NTAB=NTAB+2*NGAS
+NTAB = NTAB+2*NGAS
 ! Save offset to INFO table for later use:
-      KINFO=NTAB+1
+KINFO = NTAB+1
 ! INFO array:
-      NTAB=NTAB+3*NSYM*(MAXOP-MINOP+1)
+NTAB = NTAB+3*NSYM*(MAXOP-MINOP+1)
 ! Save offset to configuration arrays for later use:
-      KCNFSTA=NTAB+1
+KCNFSTA = NTAB+1
 ! Configuration arrays:
-      DO NOPN=MINOP,MIN(2*NORB-NEL,NEL,MAXOP)
-       NCLS=(NEL-NOPN)/2
-       IF(NCLS.LT.0) CYCLE
-       IF(2*NCLS+NOPN.NE.NEL) CYCLE
-       NOCC=NCLS+NOPN
-       IF(NOCC.GT.NORB) CYCLE
-       DO ISYM=1,NSYM
-        NCNF=0
-        IF(LSYM.GE.1 .AND. LSYM.LE.NSYM) THEN
-          IPOS=1+NOPN+(NOCC*(NOCC+1))/2
-          NCNF=NCNF1(ISYM+NSYM*(IPOS-1))
-        END IF
-        LENCNF=NOCC
-        IF(IFORM.EQ.2) LENCNF=NORB
-        IF(IFORM.EQ.3) LENCNF=(NOCC+3)/4
-        IF(IFORM.EQ.4) LENCNF=(NORB+14)/15
-        NTAB=NTAB+NCNF*LENCNF
-       END DO
-      END DO
+do NOPN=MINOP,min(2*NORB-NEL,NEL,MAXOP)
+  NCLS = (NEL-NOPN)/2
+  if (NCLS < 0) cycle
+  if (2*NCLS+NOPN /= NEL) cycle
+  NOCC = NCLS+NOPN
+  if (NOCC > NORB) cycle
+  do ISYM=1,NSYM
+    NCNF = 0
+    if ((LSYM >= 1) .and. (LSYM <= NSYM)) then
+      IPOS = 1+NOPN+(NOCC*(NOCC+1))/2
+      NCNF = NCNF1(ISYM+NSYM*(IPOS-1))
+    end if
+    LENCNF = NOCC
+    if (IFORM == 2) LENCNF = NORB
+    if (IFORM == 3) LENCNF = (NOCC+3)/4
+    if (IFORM == 4) LENCNF = (NORB+14)/15
+    NTAB = NTAB+NCNF*LENCNF
+  end do
+end do
 
 ! Sizes and offsets are known. Now, we can allocate the table:
-      Select CASE (ICASE)
-      CASE(1)
-         CALL mma_allocate(CnfTab1,NTAB,Label='CnfTab1')
-         CnfTab=>CnfTab1(:)
-      CASE(2)
-         CALL mma_allocate(CnfTab2,NTAB,Label='CnfTab2')
-         CnfTab=>CnfTab2(:)
-      CASE DEFAULT
-         Call ABEND()
-      END SELECT
+select case (ICASE)
+  case (1)
+    call mma_allocate(CnfTab1,NTAB,Label='CnfTab1')
+    CnfTab => CnfTab1(:)
+  case (2)
+    call mma_allocate(CnfTab2,NTAB,Label='CnfTab2')
+    CnfTab => CnfTab2(:)
+  case DEFAULT
+    call ABEND()
+end select
 
 ! Enter header:
-      CnfTab( 1)=NTAB
-      CnfTab( 2)=37
-      CnfTab( 3)=NEL
-      CnfTab( 4)=NORB
-      CnfTab( 5)=MINOP
-      CnfTab( 6)=MAXOP
-      CnfTab( 7)=NSYM
-      CnfTab( 8)=LSYM
-      CnfTab( 9)=NGAS
-      CnfTab(10)=IFORM
+CnfTab(1) = NTAB
+CnfTab(2) = 37
+CnfTab(3) = NEL
+CnfTab(4) = NORB
+CnfTab(5) = MINOP
+CnfTab(6) = MAXOP
+CnfTab(7) = NSYM
+CnfTab(8) = LSYM
+CnfTab(9) = NGAS
+CnfTab(10) = IFORM
 ! Enter copy of NGASORB array:
-      DO IGAS=1,NGAS
-       ISUM=0
-       DO ISYM=1,NSYM
-        L=11+ISYM+(NSYM+1)*IGAS
-        CnfTab(L)=NGASORB(ISYM,IGAS)
-        ISUM=ISUM+NGASORB(ISYM,IGAS)
-       END DO
-       CnfTab(11+(NSYM+1)*IGAS)=ISUM
-      END DO
-      DO ISYM=0,NSYM
-       ISUM=0
-       DO IGAS=1,NGAS
-        L=11+ISYM+(NSYM+1)*IGAS
-        ISUM=ISUM+CnfTab(L)
-       END DO
-       CnfTab(11+ISYM)=ISUM
-      END DO
-      L=10+(NSYM+1)*(NGAS+1)
+do IGAS=1,NGAS
+  ISUM = 0
+  do ISYM=1,NSYM
+    L = 11+ISYM+(NSYM+1)*IGAS
+    CnfTab(L) = NGASORB(ISYM,IGAS)
+    ISUM = ISUM+NGASORB(ISYM,IGAS)
+  end do
+  CnfTab(11+(NSYM+1)*IGAS) = ISUM
+end do
+do ISYM=0,NSYM
+  ISUM = 0
+  do IGAS=1,NGAS
+    L = 11+ISYM+(NSYM+1)*IGAS
+    ISUM = ISUM+CnfTab(L)
+  end do
+  CnfTab(11+ISYM) = ISUM
+end do
+L = 10+(NSYM+1)*(NGAS+1)
 ! Enter copy of NGASLIM array:
-      DO IGAS=1,NGAS
-       L=L+1
-       CnfTab(L)=NGASLIM(1,IGAS)
-       L=L+1
-       CnfTab(L)=NGASLIM(2,IGAS)
-      END DO
+do IGAS=1,NGAS
+  L = L+1
+  CnfTab(L) = NGASLIM(1,IGAS)
+  L = L+1
+  CnfTab(L) = NGASLIM(2,IGAS)
+end do
 ! Construct and enter INFO table.
 ! The INFO table has a relative pointer to configuration arrays:
-      KCNFEND=KCNFSTA-1
-      DO NOPN=MINOP,MAXOP
-       NCLS=(NEL-NOPN)/2
-       IFPOSS=1
-       IF(NCLS.LT.0) IFPOSS=0
-       IF(2*NCLS+NOPN.NE.NEL) IFPOSS=0
-       IF(NCLS+NOPN.GT.NORB) IFPOSS=0
-       IF(IFPOSS.EQ.0) THEN
-        DO ISYM=1,NSYM
-! No such configuration is possible.
-! INFO(1,ISYM,NOPN)=NCNF
-         CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
-! INFO(2,ISYM,NOPN)=NTAB+1
-         CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
-! INFO(3,ISYM,NOPN)=LENCNF
-         CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
-        END DO
-       ELSE
-        NOCC=NCLS+NOPN
-        DO ISYM=1,NSYM
-         NCNF=0
-! If LSYM=0, all symmetry labels will be accepted. Else, only
-! those with ISYM=LSYM.
-         IF(LSYM.EQ.0 .OR. ISYM.EQ.LSYM) THEN
-           IPOS=1+NOPN+(NOCC*(NOCC+1))/2
-           NCNF=NCNF1(ISYM+NSYM*(IPOS-1))
-         END IF
-         IF(NCNF.EQ.0) THEN
-! INFO(1,ISYM,NOPN)=NCNF
-           CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
-! INFO(2,ISYM,NOPN)=NTAB+1
-           CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=-1
-! INFO(3,ISYM,NOPN)=LENCNF
-           CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=0
-         ELSE
-           LENCNF=NOCC
-           IF(IFORM.EQ.2) LENCNF=NORB
-           IF(IFORM.EQ.3) LENCNF=(NOCC+3)/4
-           IF(IFORM.EQ.4) LENCNF=(NORB+14)/15
-! The relative pointer into this configuration array:
-           KCNFSTA=KCNFEND+1
-           KCNFEND=KCNFEND+NCNF*LENCNF
-! INFO(1,ISYM,NOPN)=NCNF
-           CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))=NCNF
-! INFO(2,ISYM,NOPN)=NTAB+1
-           CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))=KCNFSTA
-! INFO(3,ISYM,NOPN)=LENCNF
-           CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))=LENCNF
-           DO I=1,NCNF*LENCNF
-             CnfTab(KCNFSTA-1+I)=0
-           END DO
-         END IF
-        END DO
-       END IF
-      END DO
+KCNFEND = KCNFSTA-1
+do NOPN=MINOP,MAXOP
+  NCLS = (NEL-NOPN)/2
+  IFPOSS = 1
+  if (NCLS < 0) IFPOSS = 0
+  if (2*NCLS+NOPN /= NEL) IFPOSS = 0
+  if (NCLS+NOPN > NORB) IFPOSS = 0
+  if (IFPOSS == 0) then
+    do ISYM=1,NSYM
+      ! No such configuration is possible.
+      !INFO(1,ISYM,NOPN) = NCNF
+      CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP))) = 0
+      !INFO(2,ISYM,NOPN) = NTAB+1
+      CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP))) = -1
+      !INFO(3,ISYM,NOPN) = LENCNF
+      CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP))) = 0
+    end do
+  else
+    NOCC = NCLS+NOPN
+    do ISYM=1,NSYM
+      NCNF = 0
+      ! If LSYM=0, all symmetry labels will be accepted. Else, only
+      ! those with ISYM=LSYM.
+      if ((LSYM == 0) .or. (ISYM == LSYM)) then
+        IPOS = 1+NOPN+(NOCC*(NOCC+1))/2
+        NCNF = NCNF1(ISYM+NSYM*(IPOS-1))
+      end if
+      if (NCNF == 0) then
+        ! INFO(1,ISYM,NOPN) = NCNF
+        CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP))) = 0
+        ! INFO(2,ISYM,NOPN) = NTAB+1
+        CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP))) = -1
+        ! INFO(3,ISYM,NOPN) = LENCNF
+        CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP))) = 0
+      else
+        LENCNF = NOCC
+        if (IFORM == 2) LENCNF = NORB
+        if (IFORM == 3) LENCNF = (NOCC+3)/4
+        if (IFORM == 4) LENCNF = (NORB+14)/15
+        ! The relative pointer into this configuration array:
+        KCNFSTA = KCNFEND+1
+        KCNFEND = KCNFEND+NCNF*LENCNF
+        ! INFO(1,ISYM,NOPN) = NCNF
+        CnfTab(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP))) = NCNF
+        ! INFO(2,ISYM,NOPN) = NTAB+1
+        CnfTab(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP))) = KCNFSTA
+        ! INFO(3,ISYM,NOPN) = LENCNF
+        CnfTab(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP))) = LENCNF
+        do I=1,NCNF*LENCNF
+          CnfTab(KCNFSTA-1+I) = 0
+        end do
+      end if
+    end do
+  end if
+end do
 ! The NCNF1 array is no longer needed.
-      CALL mma_deallocate(NCNF1)
+call mma_deallocate(NCNF1)
 
 ! Finally, only now when we know where to store each (ISYM,NOPN) block of
 ! configurations, can we compute the actual configuration arrays:
-      CALL MKCONF(CnfTab)
-      nullify(CnfTab)
+call MKCONF(CnfTab)
+nullify(CnfTab)
 
-      END SUBROUTINE NEWCNFTAB
-
-      SUBROUTINE NRCNF1(MAXEL,NORB,NGAS,NGASLIM,                        &
-     &                  NGASORB,NCNF1,MXTMP,NCNF2)
-      use definitions, only: iwp
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nSym=>nIrrep, MUL
-      IMPLICIT NONE
-      Integer(kind=iwp), intent(in):: MXTMP
-      Integer(kind=iwp), intent(in):: MaxEl, NORB, NGAS
-      Integer(kind=iwp), intent(in):: NGASLIM(2,NGAS),NGASORB(NSYM,NGAS)
-      Integer(kind=iwp), intent(out)::                                  &
-     &                    NCNF1(NSYM, ((MAXEL+1)*(MAXEL+2))/2)
-      Integer(kind=iwp), intent(out)::                                  &
-     &                    NCNF2(NSYM, ((MXTMP+1)*(MXTMP+2))/2)
-
-      Integer(kind=iwp), allocatable:: ISM(:)
-      Integer(kind=iwp) MAXOCC,NOCCMX,IGAS,MXOCCOLD,NO,II,ISYM,NG,I,    &
-     &                  NELMN,NELMX,NOCCNW,NOPNNW,IPOSNW,ISYMNW,NEW,    &
-     &                  NOCC,NOPN,IPOS,IPOSOLD,ISYMOLD,NCLS,NCLSNW,     &
-     &                  NCLSOLD,NOCCOLD,NOPNOLD,NX,NY
-! Returns the array NCNF1, which contains the number of
-! configurations with the following criteria:
-!    Orbital indices range from 1..NORB
-!    GAS restrictions described by NGASLIM, NGASORB
-!    Total number of electrons is at most MAXEL
-!    NCLS closed-shell and NOPN open-shell orbitals
-!    Symmetry label LSYM
-! for all possible values of NCLS,NOPN and LSYM, stored as
-!          NCNF1(LSYM,IPOS)
-! with IPOS=(NOCC*(NOCC+1))/2+NOPN+1, NOCC=NCLS+NOPN,
-! provided that 0<=NCLS, 0<=NOPN, and NOCC<=MIN(NORB,MAXEL).
-! MXTMP=Max nr of orbitals in one GAS partition.
-! Prerequisite: The orbital symmetry labels stored in ISM.
-!               The GAS restriction arrays
-! Method: Induction over GAS partitions.
-
-      MAXOCC=MIN(MAXEL,NORB)
-! Initialize:
-      NCNF1(:,:)=0
-      NCNF1(1,1)=1
-      CALL mma_allocate(ISM,NORB,Label='ISM')
-! Max nr of occupied orbitals so far:
-      NOCCMX=0
-      DO IGAS=1,NGAS
-        MXOCCOLD=NOCCMX
-! Nr of orbitals in this partition
-        NO=0
-        II=0
-        DO ISYM=1,NSYM
-          NG=NGASORB(ISYM,IGAS)
-          NO=NO+NG
-          DO I=1,NG
-           II=II+1
-           ISM(II)=ISYM
-          END DO
-        END DO
-        NELMN=MAX(0,NGASLIM(1,IGAS))
-        NELMX=MIN(2*NO,NGASLIM(2,IGAS))
-        CALL NRCNF2(NO,ISM,NCNF2)
-        DO NOCCNW=MIN(MAXOCC,MXOCCOLD+NELMX),0,-1
-        DO NOPNNW=0,NOCCNW
-         NCLSNW=NOCCNW-NOPNNW
-         IPOSNW=(NOCCNW*(NOCCNW+1))/2+NOPNNW+1
-         DO ISYMNW=1,NSYM
-          NEW=0
-          DO NOCC=NELMN/2,MIN(NELMX,NO)
-          DO NOPN=MAX(0,2*NOCC-NELMX),                                  &
-     &                    MIN(2*NOCC-NELMN,NOCC,NELMX)
-           NCLS=NOCC-NOPN
-           IPOS=(NOCC*(NOCC+1))/2+NOPN+1
-           DO ISYM=1,NSYM
-            NY=NCNF2(ISYM,IPOS)
-            IF(NY.EQ.0) CYCLE
-            NCLSOLD=NCLSNW-NCLS
-            IF(NCLSOLD.LT.0) CYCLE
-            NOPNOLD=NOPNNW-NOPN
-            IF(NOPNOLD.LT.0) CYCLE
-            NOCCOLD=NCLSOLD+NOPNOLD
-            IF(NOCCOLD.GT.MXOCCOLD) CYCLE
-            ISYMOLD=MUL(ISYM,ISYMNW)
-            IPOSOLD=(NOCCOLD*(NOCCOLD+1))/2+NOPNOLD+1
-            NX=NCNF1(ISYMOLD,IPOSOLD)
-            IF(NX.EQ.0) CYCLE
-            NEW=NEW+NCNF1(ISYMOLD,IPOSOLD)*NCNF2(ISYM,IPOS)
-            NOCCMX=MAX(NOCCNW,NOCCMX)
-           END DO
-          END DO
-          END DO
-          NCNF1(ISYMNW,IPOSNW)=NEW
-         END DO
-        END DO
-        END DO
-
-
-      END DO
-      CALL mma_deallocate(ISM)
-
-      END SUBROUTINE NRCNF1
-
-      SUBROUTINE NRCNF2(NORB,ISM,NCNF2)
-      use definitions, only: iwp
-      use Symmetry_Info, only: nSym=>nIrrep, MUL
-      IMPLICIT NONE
-      INTEGER(kind=iwp), intent(in)::  NORB
-      INTEGER(kind=iwp), intent(out):: NCNF2(NSYM,((NORB+1)*(NORB+2))/2)
-      INTEGER(kind=iwp), intent(in):: ISM(NORB)
-
-
-      INTEGER(kind=iwp) L,NOCC,NOPN,NCLS,IPOS1,IPOS2,IPOS3,ISYM,NEW,JSYM
-! Returns the array NCNF2, which contains the number of
-! (sub-)configurations with NCLS closed-shell and NOPN open-shell
-! orbitals and having symmetry label LSYM, stored as
-!          NCNF2(LSYM,IPOS)
-! with IPOS=(NOCC*(NOCC+1))/2+NOPN+1, NOCC=NCLS+NOPN,
-! provided that 0<=NCLS, 0<=NOPN, and NOCC<=NORB.
-! Prerequisite: The orbital symmetry labels stored in ISM.
-! Method: Induction
-
-      NCNF2(:,:)=0
-      NCNF2(1,1)=1
-      DO L=1,NORB
-        DO NOCC=L,1,-1
-          DO NOPN=0,NOCC
-            NCLS=NOCC-NOPN
-            IPOS1=(NOCC*(NOCC+1))/2+NOPN+1
-            IPOS2=IPOS1-NOCC
-            IPOS3=IPOS2-1
-            DO ISYM=1,NSYM
-              NEW=NCNF2(ISYM,IPOS1)
-              IF(NCLS.GT.0) NEW=NEW+NCNF2(ISYM,IPOS2)
-              JSYM=MUL(ISM(L),ISYM)
-              IF(NOPN.GT.0) NEW=NEW+NCNF2(JSYM,IPOS3)
-              NCNF2(ISYM,IPOS1)=NEW
-            END DO
-          END DO
-        END DO
-      END DO
-      END SUBROUTINE NRCNF2
-
-      SUBROUTINE MKCONF(ICNFTAB)
-      use definitions, only: iwp, u6
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nSym=>nIrrep, MUL
-      IMPLICIT NONE
-
-      INTEGER(kind=iwp), intent(inout):: ICNFTAB(*)
-
-      INTEGER(kind=iwp) NEL,MINOP,MAXOP,LSYM
-      INTEGER(kind=iwp) MXPRT
-      PARAMETER (MXPRT=150)
-      INTEGER(kind=iwp) LIMPOP(2,MXPRT),LIMOP(2,MXPRT),LIMCL(2,MXPRT)
-      INTEGER(kind=iwp) IOPDST(MXPRT),ICLDST(MXPRT),IOC(MXPRT),         &
-     &                  ICNF(MXPRT)
-      INTEGER(kind=iwp) LIM1,LIM2,LIM1SUM,LIM2SUM,IGAS,NOR,IERR
-      INTEGER(kind=iwp) MNOP,MXOP,MNCL,MXCL,NOPN,NCLS
-      INTEGER(kind=iwp) INIT1,INIT2,M,MORE,NOP1,NCL2
-      INTEGER(kind=iwp) ISYM,NORB,ICONF
-      INTEGER(kind=iwp) IFORM,IR,ITYPE,IW,KCNFSTA,KGASLIM
-      INTEGER(kind=iwp) KGASORB,KINFO,KPOS,LCLS,LENCNF,LOPN,NCNF
-      INTEGER(kind=iwp) NCNFSYM(8),NGAS,NOCC,NTAB
-      INTEGER(kind=iwp) I,J,K,IOFF,IO,IORB,N,NCL,NOP
-      INTEGER(kind=iwp), ALLOCATABLE:: ISM(:)
-      INTRINSIC MIN,MAX
-      INTEGER(kind=iwp) :: IPOW4(0:15)=[1,4,16,64,256,1024,4096,16384,  &
-     &                                  65536,262144,1048576,4194304,   &
-     &                                  16777216,67108864,268435456,    &
-     &                                  1073741824]
-      INTEGER(kind=iwp) :: IPOW256(0:3)=[1,256,65536,16777216]
-
-      ITYPE=ICNFTAB(2)
-      IF(ITYPE.NE.37) THEN
-        WRITE(u6,*)'MKCONF error: This is not a configuration table!'
-        CALL ABEND()
-      END IF
-! Unbutton the CNF table.
-      NTAB =ICNFTAB(1)
-      NEL  =ICNFTAB(3)
-      NORB =ICNFTAB(4)
-      MINOP=ICNFTAB(5)
-      MAXOP=ICNFTAB(6)
-      NSYM =ICNFTAB(7)
-      LSYM =ICNFTAB(8)
-      NGAS =ICNFTAB(9)
-      IFORM=ICNFTAB(10)
-      KGASORB=11
-      KGASLIM=KGASORB+(NSYM+1)*(NGAS+1)
-! Check and refine the GAS limits:
-      IF(NGAS.LE.0 .OR. NGAS.GT.MXPRT) THEN
-         WRITE(u6,*)' MKCONF ERROR: Nr of GAS partitions is out of'
-         WRITE(u6,*)' bounds. NGAS must be .GT.0 and .LT. MXPRT=',MXPRT
-         WRITE(u6,*)' Input argument NGAS is ',NGAS
-         CALL ABEND()
-      END IF
-
-      LIM1SUM=0
-      LIM2SUM=0
-      NORB=0
-      DO IGAS=1,NGAS
-       NOR=ICNFTAB(KGASORB+(NSYM+1)*IGAS)
-       IF(NOR.LT.0) IERR=1
-       LIM1=MAX(0,ICNFTAB(KGASLIM+2*(IGAS-1)))
-       LIM2=MIN(NEL,ICNFTAB(KGASLIM+1+2*(IGAS-1)),2*NOR)
-       LIM1SUM=LIM1SUM+LIM1
-       LIM2SUM=LIM2SUM+LIM2
-       LIMPOP(1,IGAS)=LIM1
-       LIMPOP(2,IGAS)=LIM2
-       NORB=NORB+NOR
-      END DO
-
-      IERR=0
-      DO IGAS=1,NGAS
-       LIM1=MAX(LIMPOP(1,IGAS),NEL-(LIM2SUM-LIMPOP(2,IGAS)))
-       LIM2=MIN(LIMPOP(2,IGAS),NEL-(LIM1SUM-LIMPOP(1,IGAS)))
-       LIMPOP(1,IGAS)=LIM1
-       LIMPOP(2,IGAS)=LIM2
-       IF(LIM1.GT.LIM2) IERR=1
-      END DO
-
-      IF(IERR.GT.0) THEN
-         WRITE(u6,*)' MKCONF ERROR: The input GAS restrictions are'
-         WRITE(u6,*)' impossible to meet. No configurations are'
-         WRITE(u6,*)' generated. The program stops here.'
-         WRITE(u6,'(1X,A,I2)')' Number of GAS partitions:',NGAS
-         WRITE(u6,'(1X,A,50I3)')' Partition:',(IGAS,IGAS=1,NGAS)
-         WRITE(u6,'(1X,A,50I3)')' NGASORB:  ',                          &
-     &             (ICNFTAB(KGASORB+(NSYM+1)*IGAS),IGAS=1,NGAS)
-         WRITE(u6,'(1X,A,50I3)')'NGASLIM(1):',                          &
-     &              (ICNFTAB(KGASLIM  +2*(IGAS-1)),IGAS=1,NGAS)
-         WRITE(u6,'(1X,A,50I3)')'NGASLIM(2):',                          &
-     &              (ICNFTAB(KGASLIM+1+2*(IGAS-1)),IGAS=1,NGAS)
-         WRITE(u6,'(1X,A,I2)')' Number of electrons:',NEL
-         CALL ABEND()
-      END IF
-
-      IF(NEL.LT.0 .OR. NEL.GT.2*NORB) THEN
-         WRITE(u6,*)' MKCONF ERROR: Nr of electrons is out of bounds.'
-         WRITE(u6,*)' NEL must be .GT.0 and .LT. 2*NORB=',2*NORB
-         WRITE(u6,*)' Input argument NEL is ',NEL
-         CALL ABEND()
-      END IF
-
-! Array for orbital symmetry:
-      CALL mma_allocate(ISM,NORB,Label='ISM')
-! Initialize table with orbital symmetry.
-      IORB=0
-      DO IGAS=1,NGAS
-       DO ISYM=1,NSYM
-        N=ICNFTAB(KGASORB+ISYM+(NSYM+1)*IGAS)
-        DO K=1,N
-         IORB=IORB+1
-         ISM(IORB)=ISYM
-        END DO
-       END DO
-      END DO
-
-! INFO table inside ICNFTAB:
-      KINFO=KGASLIM+2*NGAS
-! Note: Nr of conf, their position and length can now be accessed as:
-!      NCNF   =ICNFTAB(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-!      KCNFSTA=ICNFTAB(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-!      LENCNF =ICNFTAB(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-! Make a list of possible number of open shells in each partition:
-      DO IGAS=1,NGAS
-       NOR=ICNFTAB(KGASORB+(NSYM+1)*IGAS)
-       MNOP=1
-       MXOP=0
-       DO I=LIMPOP(1,IGAS),LIMPOP(2,IGAS)
-        MNOP=MIN(MNOP,MOD(I,2))
-        MXOP=MAX(MXOP,MIN(I,2*NOR-I))
-       END DO
-       LIMOP(1,IGAS)=MNOP
-       LIMOP(2,IGAS)=MXOP
-      END DO
-
-! Counter of configurations:
-      ICONF=0
-! Loop over the requested range of open shells:
-      OUTER: DO NOPN=MINOP,MAXOP
-       NCLS=(NEL-NOPN)/2
-       IF(NCLS.LT.0) CYCLE OUTER
-       IF(2*NCLS+NOPN.NE.NEL) CYCLE OUTER
-! Size of each entry in the configuration table:
-       NOCC=NCLS+NOPN
-       LENCNF=NOCC
-       IF(IFORM.EQ.2) LENCNF=NORB
-       IF(IFORM.EQ.3) LENCNF=(NOCC+3)/4
-       IF(IFORM.EQ.4) LENCNF=(NORB+14)/15
-! Counter of configurations/symmetry for this nr of open shells:
-       DO ISYM=1,NSYM
-        NCNFSYM(ISYM)=0
-       END DO
-! Loop over all ways of distributing NOPN open shells among
-! the partitions. First make a start distribution:
-       INIT1=NGAS
-       NOP1=NOPN
-
-  10   CONTINUE
-! Create the lexically lowest distribution with NOP1 open
-! shells among the INIT1 lowest partitions, and
-! increment the next higher partition (if any).
-! Let M=Max tot nr of open shells in lower partitions.
-       IF(INIT1.LT.NGAS) IOPDST(INIT1+1)=IOPDST(INIT1+1)+1
-       M=NOP1
-       DO IGAS=INIT1,1,-1
-        M=M-LIMOP(1,IGAS)
-       END DO
-       IF(M.LT.0) CYCLE OUTER
-
-! But actually, we start with zero. So M open shells must be
-! distributed in excess of the allowed minimum, among the INIT1
-! partitions.
-       DO IGAS=1,INIT1
-        MORE=MIN(LIMOP(2,IGAS)-LIMOP(1,IGAS),M)
-        IOPDST(IGAS)=LIMOP(1,IGAS)+MORE
-        M=M-MORE
-       END DO
-       IF(M.GT.0) CYCLE OUTER
-! At this point of the code, all possible distributions of
-! open shells will be generated. Use them.
-! First, use it to generate a table of limits for the distribution
-! of closed shells:
-      DO IGAS=1,NGAS
-       NOP=IOPDST(IGAS)
-       NOR=ICNFTAB(KGASORB+(NSYM+1)*IGAS)-NOP
-       LIM1=MAX(0,(LIMPOP(1,IGAS)-NOP)/2)
-       LIM2=MIN(NOR,(LIMPOP(2,IGAS)-NOP)/2)
-       IF(LIM1.GT.LIM2) GOTO 110
-       MNCL=LIM2
-       MXCL=LIM1
-       DO I=LIM1,LIM2
-        N=2*I+NOP
-        IF(N.GE.LIMPOP(1,IGAS) .AND. N.LE.LIMPOP(2,IGAS)) THEN
-         MNCL=MIN(MNCL,I)
-         MXCL=MAX(MXCL,I)
-        END IF
-       END DO
-       IF(MNCL.GT.MXCL) GOTO 110
-       LIMCL(1,IGAS)=MNCL
-       LIMCL(2,IGAS)=MXCL
-      END DO
-
-! Loop over all possible ways of distributing NCLS closed shells
-! among  the partitions, subject to restrictions.
-! In order to create the start distribution:
-      INIT2=NGAS
-      NCL2=(NEL-NOPN)/2
-
-  20  CONTINUE
-! Create the lexically lowest distribution with NCL2 closed shells
-! among the INIT2 lowest partitions, and increment the next higher
-! partition (if any).
-      IF(INIT2.LT.NGAS) ICLDST(INIT2+1)=ICLDST(INIT2+1)+1
-      M=NCL2
-      DO IGAS=INIT2,1,-1
-       M=M-LIMCL(1,IGAS)
-      END DO
-      IF(M.LT.0) GOTO 110
-      DO IGAS=1,INIT2
-       MORE=MIN(LIMCL(2,IGAS)-LIMCL(1,IGAS),M)
-       ICLDST(IGAS)=LIMCL(1,IGAS)+MORE
-       M=M-MORE
-      END DO
-      IF(M.GT.0) GOTO 110
-! Here follows code to use this population distribution.
-! Initialize the configuration subarrays of partitions nr
-! 1..NGAS, within this population distribution:
-      IORB=0
-      DO IGAS=1,NGAS
-       NCL=ICLDST(IGAS)
-       DO I=1,NCL
-        IORB=IORB+1
-        IOC(IORB)=2
-       END DO
-       NOP=IOPDST(IGAS)
-       DO I=1,NOP
-        IORB=IORB+1
-        IOC(IORB)=1
-       END DO
-       NOR=ICNFTAB(KGASORB+(NSYM+1)*IGAS)
-       DO I=1,NOR-NCL-NOP
-        IORB=IORB+1
-        IOC(IORB)=0
-       END DO
-      END DO
-  30  CONTINUE
-! Here finally we will get all possible configurations, restricted
-! by the population arrays. Screening by combined symmetry:
-      ISYM=1
-      DO IO=1,NORB
-       IF(IOC(IO).EQ.1) ISYM=MUL(ISM(IO),ISYM)
-      END DO
-! Skip if wrong symmetry:
-      IF (.NOT.(LSYM.GT.0 .AND. ISYM.NE.LSYM)) THEN
-      ICONF=ICONF+1
-! Put this configuration into the ICNFTAB table.
-! First, determine where it should go:
-      N=NCNFSYM(ISYM)
-      NCNFSYM(ISYM)=N+1
-      KCNFSTA=ICNFTAB(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-      KPOS=KCNFSTA+N*LENCNF
-      IF(KPOS+LENCNF-1.GT.NTAB) THEN
-        WRITE(u6,*)' MKCONF error: Table overflow.'
-        WRITE(u6,*)'KCNFSTA:',KCNFSTA
-        WRITE(u6,*)' LENCNF:',LENCNF
-        WRITE(u6,*)'   KPOS:',KPOS
-        WRITE(u6,*)'   NTAB:',NTAB
-        CALL ABEND()
-      END IF
-! Put together configuration array in standard format:
-        LCLS=1
-        LOPN=NCLS+1
-        DO IO=1,NORB
-         N=IOC(IO)
-         IF(N.EQ.1) THEN
-           ICNF(LOPN)=IO
-           LOPN=LOPN+1
-         ELSE IF(N.EQ.2) THEN
-           ICNF(LCLS)=IO
-           LCLS=LCLS+1
-         END IF
-        END DO
-! Add this configuration to the configuration table:
-        IF(IFORM.EQ.1) THEN
-          DO I=1,NOCC
-            ICNFTAB(KPOS-1+I)=ICNF(I)
-          END DO
-        ELSE IF(IFORM.EQ.3) THEN
-          DO I=1,NOCC
-           IW=(3+I)/4
-           IR=(3+I)-4*IW
-           IF(IR.EQ.0) THEN
-            ICNFTAB(KPOS-1+IW)=ICNF(I)
-           ELSE
-            ICNFTAB(KPOS-1+IW)=ICNFTAB(KPOS-1+IW)+                      &
-     &                   IPOW256(IR)*ICNF(I)
-           END IF
-          END DO
-        ELSE
-          IF(IFORM.EQ.2) THEN
-            DO I=1,NORB
-              ICNFTAB(KPOS-1+I)=IOC(I)
-            END DO
-          ELSE IF(IFORM.EQ.4) THEN
-            DO I=1,NORB
-             IW=(14+I)/15
-             IR=(14+I)-15*IW
-             IF(IR.EQ.0) THEN
-              ICNFTAB(KPOS-1+IW)=IOC(I)
-             ELSE
-              ICNFTAB(KPOS-1+IW)=ICNFTAB(KPOS-1+IW)+                    &
-     &                     IPOW4(IR)*IOC(I)
-
-             END IF
-            END DO
-          END IF
-        END IF
-
-      END IF
-! Get next configuration.
-      IOFF=0
-      DO IGAS=1,NGAS
-       NOR=ICNFTAB(KGASORB+(NSYM+1)*IGAS)
-! Try to find next permutation within this partition:
-       DO K=2,NOR
-        IF(IOC(IOFF+K-1).GT.IOC(IOFF+K)) THEN
-         DO I=1,(K-1)/2
-          J=IOC(IOFF+I)
-          IOC(IOFF+I)=IOC(IOFF+K-I)
-          IOC(IOFF+K-I)=J
-         END DO
-         DO I=K-1,1,-1
-          IF(IOC(IOFF+I).GT.IOC(IOFF+K)) THEN
-           J=IOC(IOFF+I)
-           IOC(IOFF+I)=IOC(IOFF+K)
-           IOC(IOFF+K)=J
-! OK, the next permutation has been obtained.
-           GOTO 30
-          END IF
-         END DO
-        END IF
-       END DO
-! Not possible. Reset permutation in this partition, and
-! then try the next one:
-       N=ICLDST(IGAS)
-       M=IOPDST(IGAS)
-       DO IO=1,N
-        IOC(IOFF+IO)=2
-       END DO
-       DO IO=N+1,N+M
-        IOC(IOFF+IO)=1
-       END DO
-       DO IO=N+M+1,NOR
-        IOC(IOFF+IO)=0
-       END DO
-       IOFF=IOFF+NOR
-      END DO
-! All failed. No more configurations with this distribution of
-! closed and open shells.
-! Next ICLDST distribution. First find the first increasable index:
-      M=0
-      NCL2=-1
-      DO IGAS=1,NGAS
-       INIT2=IGAS-1
-       IF(M.GT.0 .AND. ICLDST(IGAS).LT.LIMCL(2,IGAS)) GOTO 20
-       M=M+ICLDST(IGAS)-LIMCL(1,IGAS)
-       NCL2=NCL2+ICLDST(IGAS)
-      END DO
-
-! No more ICLDST distribution is possible.
- 110  CONTINUE
-
-! Next IOPDST distribution. First find the first increasable index:
-! That is the first partition with less than LIMOP(2,IGAS) open
-! shells, above partitions with nonzero excess number M.
-      M=0
-      NOP1=-1
-      DO IGAS=1,NGAS
-       INIT1=IGAS-1
-       IF(M.GT.0 .AND. IOPDST(IGAS).LT.LIMOP(2,IGAS)) GOTO 10
-       M=M+IOPDST(IGAS)-LIMOP(1,IGAS)
-       NOP1=NOP1+IOPDST(IGAS)
-      END DO
-! Temporary check: Has everything worked perfectly??
-      IERR=0
-      DO ISYM=1,NSYM
-        N=ICNFTAB(KINFO  +3*(ISYM-1+NSYM*(NOPN-MINOP)))
-        IF(NCNFSYM(ISYM).NE.N) IERR=1
-      END DO
-      IF(IERR.NE.0) Call ErrorTrap()
-! No more IOPDST distribution is possible. Next NOPN value:
-
-      END DO OUTER
-
-      CALL mma_deallocate(ISM)
-
-      Contains
-
-      Subroutine ErrorTrap()
-      use definitions, only: iwp
-      integer(kind=iwp) NOPN,ISYM
-      WRITE(u6,*)' MKCNF ERROR: Unforeseen calamity.'
-      WRITE(u6,*)' At end of loop over NOPN, the number of'
-      WRITE(u6,*)' configurations generated does not match'
-      WRITE(u6,*)' that which was allocated.'
-      WRITE(u6,*)' INFO table in ICNFTAB says:'
-      WRITE(u6,*)
-      WRITE(u6,*)'  NOPN ISYM       Nr of conf Start point'//           &
-     &             '  Words/config'
-      DO NOPN=MINOP,MAXOP
-       NCLS=(NEL-NOPN)/2
-       NOCC=NCLS+NOPN
-       DO ISYM=1,NSYM
-        NCNF=ICNFTAB(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-        KCNFSTA=ICNFTAB(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-        LENCNF=ICNFTAB(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-        WRITE(u6,'(1X,2I4,5X,3I12)') NOPN,ISYM,NCNF,KCNFSTA,LENCNF
-       END DO
-      END DO
-      CALL ABEND()
-      End Subroutine ErrorTrap
-
-      END SUBROUTINE MKCONF
+end subroutine NEWCNFTAB

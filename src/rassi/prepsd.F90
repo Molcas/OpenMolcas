@@ -8,40 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PREPSD(WFTP,SGS,CIS,LSYM,                              &
-     &                  ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,                 &
-     &                  NCONF,CI,DET,detocc,detcoeff,SPTRA)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use gugx, only: SGStruct, CIStruct
-      IMPLICIT NONE
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-      INTEGER ICNFTAB(*),ISPNTAB(*),ISSTAB(*),IFSBTAB(*)
-      INTEGER LSYM,NCONF
-      REAL*8 CI(*),DET(*)
-      INTEGER IMODE
-      CHARACTER(LEN=8) WFTP
-      character(len=*), intent(out) :: detocc(NCONF)
-      real(8), intent(out) :: detcoeff(NCONF)
-      real(8), intent(in) :: SPTRA(*)
-      Real*8, Allocatable:: CTMP(:)
 
+subroutine PREPSD(WFTP,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,NCONF,CI,DET,detocc,detcoeff,SPTRA)
 ! Purpose: Given a RASSCF wave function in Split-GUGA format
 ! and an orbital transformation matrix for the purpose of
 ! getting biorthonormal orbitals, prepare a wave function
 ! in the general SD format, using transformed orbitals.
 
-      IF(WFTP.EQ.'GENERAL ') THEN
-! Transform SGUGA to SymmG:
-        CALL mma_allocate(CTMP,NCONF,Label='CTMP')
-        IMODE=1
-        CALL SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CI,CTMP)
-! Transform SymmG to Slater Dets:
-        CALL SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CTMP,DET,           &
-     &               detocc,detcoeff,SPTRA)
-        CALL mma_deallocate(CTMP)
-      ELSE
-        DET(1)=CI(1)
-      END IF
+use stdalloc, only: mma_allocate, mma_deallocate
+use gugx, only: SGStruct, CIStruct
 
-      END SUBROUTINE PREPSD
+implicit none
+type(SGStruct) SGS
+type(CIStruct) CIS
+integer ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*)
+integer LSYM, NCONF
+real*8 CI(*), DET(*)
+integer IMODE
+character(len=8) WFTP
+character(len=*), intent(out) :: detocc(NCONF)
+real(8), intent(out) :: detcoeff(NCONF)
+real(8), intent(in) :: SPTRA(*)
+real*8, allocatable :: CTMP(:)
+
+if (WFTP == 'GENERAL') then
+  ! Transform SGUGA to SymmG:
+  call mma_allocate(CTMP,NCONF,Label='CTMP')
+  IMODE = 1
+  call SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CI,CTMP)
+  ! Transform SymmG to Slater Dets:
+  call SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CTMP,DET,detocc,detcoeff,SPTRA)
+  call mma_deallocate(CTMP)
+else
+  DET(1) = CI(1)
+end if
+
+end subroutine PREPSD

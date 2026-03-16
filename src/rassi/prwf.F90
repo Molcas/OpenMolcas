@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PRWF(SGS,CIS,ISYCI,CI,CITHR)
-      use definitions, only: iwp, wp
-      use gugx, only: SGStruct, CIStruct
-      use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT NONE
-      Type (SGStruct), intent(in):: SGS
-      Type (CIStruct), intent(in):: CIS
-      integer(kind=iwp) ISYCI
-      real(kind=wp), intent(in):: CI(*), CITHR
 
-      Integer(kind=iwp), Allocatable:: ICS(:)
-      Integer(kind=iwp) NLEV,NMIDV
+subroutine PRWF(SGS,CIS,ISYCI,CI,CITHR)
 
-      NLEV  =SGS%nLev
-      NMIDV =CIS%nMidV
+use definitions, only: iwp, wp
+use gugx, only: SGStruct, CIStruct
+use stdalloc, only: mma_allocate, mma_deallocate
 
-      CALL mma_allocate(ICS,NLEV,Label='ICS')
-      CALL PRWF1(SGS,CIS,NLEV,NMIDV,SGS%ISM,ICS,CIS%NOCSF,              &
-     &           CIS%IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,CITHR)
-      CALL mma_deallocate(ICS)
+implicit none
+type(SGStruct), intent(in) :: SGS
+type(CIStruct), intent(in) :: CIS
+integer(kind=iwp) ISYCI
+real(kind=wp), intent(in) :: CI(*), CITHR
+integer(kind=iwp), allocatable :: ICS(:)
+integer(kind=iwp) NLEV, NMIDV
 
-      END SUBROUTINE PRWF
+NLEV = SGS%nLev
+NMIDV = CIS%nMidV
+
+call mma_allocate(ICS,NLEV,Label='ICS')
+call PRWF1(SGS,CIS,NLEV,NMIDV,SGS%ISM,ICS,CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,CITHR)
+call mma_deallocate(ICS)
+
+end subroutine PRWF

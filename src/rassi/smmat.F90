@@ -8,173 +8,167 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SMMAT(PROP,PRMAT,NSS,ISONUM,ISPINCMP)
-      use rassi_global_arrays, only: JBNUM
-      use Cntrl, only: NSTATE, NPROP, PNAME, ICOMP, ISOCMP,             &
-     &                 MLTPLT, PTYPE, SOPRNM, SOPRTP
 
-      IMPLICIT NONE
-      INTEGER NSS, ISONUM, ISPINCMP
-      REAL*8 PRMAT(NSS,NSS)
-      REAL*8 PROP(NSTATE,NSTATE,NPROP)
-      REAL*8, EXTERNAL :: DCLEBS
-      INTEGER IPRNUM, IPRCMP, IFSPIN, IPROP,                            &
-     &        ISS, ISTATE, JOB1, MPLET1, MSPROJ1,                       &
-     &        JSS, JSTATE, JOB2, MPLET2, MSPROJ2
-      REAL*8 SXMER, SYMEI, SZMER, SMINUS, SPLUS, CGM, CG0, CGP, CGX,    &
-     &       CGY, EXPKR, FACT, SM1, SM2, S1, S2
-!
-      IPRNUM=-1
-      IPRCMP=0
+subroutine SMMAT(PROP,PRMAT,NSS,ISONUM,ISPINCMP)
+
+use rassi_global_arrays, only: JBNUM
+use Cntrl, only: NSTATE, NPROP, PNAME, ICOMP, ISOCMP, MLTPLT, PTYPE, SOPRNM, SOPRTP
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u6
+
+implicit none
+integer NSS, ISONUM, ISPINCMP
+real*8 PRMAT(NSS,NSS)
+real*8 PROP(NSTATE,NSTATE,NPROP)
+real*8, external :: DCLEBS
+integer IPRNUM, IPRCMP, IFSPIN, IPROP, ISS, ISTATE, JOB1, MPLET1, MSPROJ1, JSS, JSTATE, JOB2, MPLET2, MSPROJ2
+real*8 SXMER, SYMEI, SZMER, SMINUS, SPLUS, CGM, CG0, CGP, CGX, CGY, EXPKR, FACT, SM1, SM2, S1, S2
+
+IPRNUM = -1
+IPRCMP = 0
 ! IFSPIN takes values the values 0,1,2
 ! 0 = spin free property
 ! 1 = spin operator (S)
 ! 2 = spin dependent property, triplet operator
-      IFSPIN=0
+IFSPIN = 0
 
-      IF (ISONUM.EQ.0) THEN
-         IPRNUM=0
-         IFSPIN=1
-         IPRCMP=ISPINCMP
-      ELSE
-         DO IPROP=1,NPROP
-            IF ((PNAME(IPROP).EQ.SOPRNM(ISONUM)).AND.                   &
-     &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.                   &
-     &          (ICOMP(IPROP).EQ.ISOCMP(ISONUM))) THEN
-               IPRNUM=IPROP
-               IF (PNAME(IPRNUM)(1:3).EQ.'PSO') THEN
-                  IFSPIN=0
-                  IPRCMP=ISPINCMP
-               END IF
-               IF (PNAME(IPRNUM)(1:5).EQ.'TMOM0') THEN
-                  IFSPIN=2
-                  IPRCMP=ISPINCMP
-               END IF
-               IF (PNAME(IPRNUM).EQ.'MLTPL  0'.AND.                     &
-     &             PTYPE(IPRNUM).EQ.'ANTITRIP') THEN
-                  IFSPIN=2
-                  IPRCMP=ISPINCMP
-               END IF
-               IF (PNAME(IPRNUM).EQ.'MLTPL  1'.AND.                     &
-     &             PTYPE(IPRNUM).EQ.'ANTITRIP') THEN
-                  IFSPIN=2
-                  IPRCMP=ISPINCMP
-               END IF
-               EXIT
-            END IF
-         END DO
-      END IF
-      IF (IPRNUM.EQ.-1) THEN
-         Write (6,*) 'SMMAT, Abend IPRNUM.EQ.-1'
-         Write (6,*) 'SMMAT, PRLBL=','>',PNAME(ISONUM),'<'
-         Call Abend()
-      ENDIF
+if (ISONUM == 0) then
+  IPRNUM = 0
+  IFSPIN = 1
+  IPRCMP = ISPINCMP
+else
+  do IPROP=1,NPROP
+    if ((PNAME(IPROP) == SOPRNM(ISONUM)) .and. (PTYPE(IPROP) == SOPRTP(ISONUM)) .and. (ICOMP(IPROP) == ISOCMP(ISONUM))) then
+      IPRNUM = IPROP
+      if (PNAME(IPRNUM)(1:3) == 'PSO') then
+        IFSPIN = 0
+        IPRCMP = ISPINCMP
+      end if
+      if (PNAME(IPRNUM)(1:5) == 'TMOM0') then
+        IFSPIN = 2
+        IPRCMP = ISPINCMP
+      end if
+      if ((PNAME(IPRNUM) == 'MLTPL  0') .and. (PTYPE(IPRNUM) == 'ANTITRIP')) then
+        IFSPIN = 2
+        IPRCMP = ISPINCMP
+      end if
+      if ((PNAME(IPRNUM) == 'MLTPL  1') .and. (PTYPE(IPRNUM) == 'ANTITRIP')) then
+        IFSPIN = 2
+        IPRCMP = ISPINCMP
+      end if
+      exit
+    end if
+  end do
+end if
+if (IPRNUM == -1) then
+  write(u6,*) 'SMMAT, Abend IPRNUM == -1'
+  write(u6,*) 'SMMAT, PRLBL=','>',PNAME(ISONUM),'<'
+  call Abend()
+end if
 
 ! Mapping from spin states to spin-free state and to spin:
-      ISS=0
-      DO ISTATE=1,NSTATE
-         JOB1=JBNUM(ISTATE)
-         MPLET1=MLTPLT(JOB1)
-         S1=0.5D0*DBLE(MPLET1-1)
+ISS = 0
+do ISTATE=1,NSTATE
+  JOB1 = JBNUM(ISTATE)
+  MPLET1 = MLTPLT(JOB1)
+  S1 = Half*real(MPLET1-1,kind=wp)
 
-         DO MSPROJ1=-MPLET1+1,MPLET1-1,2
-            SM1=0.5D0*DBLE(MSPROJ1)
-            ISS=ISS+1
+  do MSPROJ1=-MPLET1+1,MPLET1-1,2
+    SM1 = Half*real(MSPROJ1,kind=wp)
+    ISS = ISS+1
 
-            JSS=0
+    JSS = 0
 
-            DO JSTATE=1,NSTATE
-               JOB2=JBNUM(JSTATE)
-               MPLET2=MLTPLT(JOB2)
-               S2=0.5D0*DBLE(MPLET2-1)
+    do JSTATE=1,NSTATE
+      JOB2 = JBNUM(JSTATE)
+      MPLET2 = MLTPLT(JOB2)
+      S2 = Half*real(MPLET2-1,kind=wp)
 
-               DO MSPROJ2=-MPLET2+1,MPLET2-1,2
-                  SM2=0.5D0*DBLE(MSPROJ2)
-                  JSS=JSS+1
+      do MSPROJ2=-MPLET2+1,MPLET2-1,2
+        SM2 = Half*real(MSPROJ2,kind=wp)
+        JSS = JSS+1
 
-                  IF (IFSPIN.EQ.0 .AND. IPRNUM.NE.0) THEN
-                     IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
-                        PRMAT(ISS,JSS)=PROP(ISTATE,JSTATE,IPRNUM)
-                     END IF
-                  ELSE IF (IFSPIN.EQ.1 .AND. IPRNUM.EQ.0) THEN
-                     SXMER=0.0D0
-                     SYMEI=0.0D0
-                     SZMER=0.0D0
-                     SMINUS=0.0D0
-                     SPLUS=0.0D0
-                     IF((ISTATE.EQ.JSTATE).AND.(MPLET1.eq.MPLET2)) THEN
-                        IF (MSPROJ1.eq.MSPROJ2-2) THEN
-                           SMINUS=SQRT((S1+SM2)*(S1-SM1))
-                           SXMER= 0.5D0*SMINUS
-                           SYMEI= 0.5D0*SMINUS
-                        ELSE IF (MSPROJ1.eq.MSPROJ2) THEN
-                           SZMER=SM1
-                        ELSE IF (MSPROJ1.eq.MSPROJ2+2) THEN
-                           SPLUS=SQRT((S1+SM1)*(S1-SM2))
-                           SXMER= 0.5D0*SPLUS
-                           SYMEI=-0.5D0*SPLUS
-                        END IF
-                        IF (IPRCMP.EQ.1) THEN
-                           PRMAT(ISS,JSS)=SXMER
-                        ELSE IF (IPRCMP.EQ.2) THEN
-                           PRMAT(ISS,JSS)=SYMEI
-                        ELSE IF (IPRCMP.EQ.3) THEN
-                           PRMAT(ISS,JSS)=SZMER
-                        END IF
-                     END IF
-                  ELSE IF (IFSPIN.EQ.2) THEN
-! 1-electron triplet operator so only Delta S =0,+-1 and Delta MS =0,+-1
-! Notice S1,S2 and SM1,SM2 need not to be integers
-! Hence MPLET1,MPLET2 and MSPROJ1,MSPROJ2 are used
-! Notice SMINUS and SPLUS is interchanged compared to above
-! Notice that the Y part is imaginary
-!
-! see section 3 (Spin_orbit coupling in RASSI) in
-! P A Malmqvist, et. al CPL, 357 (2002) 230-240
-! for details
-!
-! Note that we work on the x, y, and z components at this time.
-!
-! What follows applies only to the exact operator for the
-! transition moment.
-!
-! On page 234 we have the notation V^{AB}(x), that is the
-! potential has Cartesian components. Here, however, this is
-! partitioned in a slightly different way since we have that
-! V^{AB}(x)=(k x e_l)_x V^{AB}. We will only handle the
-! V^{AB} part.
-!
-! Hence, we will compute the contributions to T(i), i=x,y,z
-! here and form the inner product
-! (k x e_l)_i V^{AB} . T(i)
-! outside the code.
-!
-! Note that this code strictly follows the code of soeig.f where
-! the term L.S is added to the Hamiltonian.
-!
-                     FACT=1.0D0/SQRT(DBLE(MPLET1))
-                     IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
-                     CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
-                     CG0=FACT*DCLEBS(S2,1.0D0,S1,SM2, 0.0D0,SM1)
-                     CGP=FACT*DCLEBS(S2,1.0D0,S1,SM2,+1.0D0,SM1)
-                     CGX= SQRT(0.5D0)*(CGM-CGP)
-                     CGY=-SQRT(0.5D0)*(CGM+CGP)
-!
-                     EXPKR=PROP(ISTATE,JSTATE,IPRNUM)
-!
-                     IF (IPRCMP.EQ.1) THEN
-                        EXPKR=EXPKR*CGX
-                     ELSE IF (IPRCMP.EQ.2) THEN
-                        EXPKR=EXPKR*CGY
-                     ELSE IF (IPRCMP.EQ.3) THEN
-                        EXPKR=EXPKR*CG0
-                     END IF
-                     PRMAT(ISS,JSS)= EXPKR
-                  END IF
+        if ((IFSPIN == 0) .and. (IPRNUM /= 0)) then
+          if ((MPLET1 == MPLET2) .and. (MSPROJ1 == MSPROJ2)) PRMAT(ISS,JSS) = PROP(ISTATE,JSTATE,IPRNUM)
+        else if ((IFSPIN == 1) .and. (IPRNUM == 0)) then
+          SXMER = Zero
+          SYMEI = Zero
+          SZMER = Zero
+          SMINUS = Zero
+          SPLUS = Zero
+          if ((ISTATE == JSTATE) .and. (MPLET1 == MPLET2)) then
+            if (MSPROJ1 == MSPROJ2-2) then
+              SMINUS = sqrt((S1+SM2)*(S1-SM1))
+              SXMER = Half*SMINUS
+              SYMEI = Half*SMINUS
+            else if (MSPROJ1 == MSPROJ2) then
+              SZMER = SM1
+            else if (MSPROJ1 == MSPROJ2+2) then
+              SPLUS = sqrt((S1+SM1)*(S1-SM2))
+              SXMER = Half*SPLUS
+              SYMEI = -Half*SPLUS
+            end if
+            if (IPRCMP == 1) then
+              PRMAT(ISS,JSS) = SXMER
+            else if (IPRCMP == 2) then
+              PRMAT(ISS,JSS) = SYMEI
+            else if (IPRCMP == 3) then
+              PRMAT(ISS,JSS) = SZMER
+            end if
+          end if
+        else if (IFSPIN == 2) then
+          ! 1-electron triplet operator so only Delta S =0,+-1 and Delta MS =0,+-1
+          ! Notice S1,S2 and SM1,SM2 need not to be integers
+          ! Hence MPLET1,MPLET2 and MSPROJ1,MSPROJ2 are used
+          ! Notice SMINUS and SPLUS is interchanged compared to above
+          ! Notice that the Y part is imaginary
 
-               END DO !MSPROJ2
-            END DO !JSTATE
-         END DO !MSPROJ1
-      END DO !ISTATE
+          ! see section 3 (Spin_orbit coupling in RASSI) in
+          ! P A Malmqvist, et. al CPL, 357 (2002) 230-240
+          ! for details
 
-      END SUBROUTINE SMMAT
+          ! Note that we work on the x, y, and z components at this time.
+
+          ! What follows applies only to the exact operator for the
+          ! transition moment.
+
+          ! On page 234 we have the notation V^{AB}(x), that is the
+          ! potential has Cartesian components. Here, however, this is
+          ! partitioned in a slightly different way since we have that
+          ! V^{AB}(x)=(k x e_l)_x V^{AB}. We will only handle the
+          ! V^{AB} part.
+
+          ! Hence, we will compute the contributions to T(i), i=x,y,z
+          ! here and form the inner product
+          ! (k x e_l)_i V^{AB} . T(i)
+          ! outside the code.
+
+          ! Note that this code strictly follows the code of soeig where
+          ! the term L.S is added to the Hamiltonian.
+
+          FACT = One/sqrt(real(MPLET1,kind=wp))
+          if (MPLET1 == MPLET2-2) FACT = -FACT
+          CGM = FACT*DCLEBS(S2,One,S1,SM2,-One,SM1)
+          CG0 = FACT*DCLEBS(S2,One,S1,SM2,Zero,SM1)
+          CGP = FACT*DCLEBS(S2,One,S1,SM2,One,SM1)
+          CGX = sqrt(Half)*(CGM-CGP)
+          CGY = -sqrt(Half)*(CGM+CGP)
+
+          EXPKR = PROP(ISTATE,JSTATE,IPRNUM)
+
+          if (IPRCMP == 1) then
+            EXPKR = EXPKR*CGX
+          else if (IPRCMP == 2) then
+            EXPKR = EXPKR*CGY
+          else if (IPRCMP == 3) then
+            EXPKR = EXPKR*CG0
+          end if
+          PRMAT(ISS,JSS) = EXPKR
+        end if
+
+      end do !MSPROJ2
+    end do !JSTATE
+  end do !MSPROJ1
+end do !ISTATE
+
+end subroutine SMMAT

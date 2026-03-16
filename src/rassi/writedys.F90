@@ -13,35 +13,34 @@
 !               2023, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-!     Subroutine to correctly bunch together spin-free Dyson orbitals
-!     and pass them to the molden_dysorb interface for .molden export
+! Subroutine to correctly bunch together spin-free Dyson orbitals
+! and pass them to the molden_dysorb interface for .molden export
 
-!     IFG: Added DysOrb export, not sure it's correct
+! IFG: Added DysOrb export, not sure it's correct
 
-      SUBROUTINE WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
-      use Cntrl, only: NSTATE, DYSEXPSF
-      use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NBASF
+subroutine WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
 
-      IMPLICIT None
+use Cntrl, only: NSTATE, DYSEXPSF
+use Symmetry_Info, only: nSym => nIrrep
+use rassi_data, only: NBASF
+use Constants, only: Zero
+use Definitions, only: wp
 
-      INTEGER   NZ
-      REAL*8 DYSAMPS(NSTATE,NSTATE)
-      REAL*8 SFDYS(NZ,NSTATE,NSTATE)
-      REAL*8 ENERGY(NSTATE)
-
-      INTEGER   DYSCIND
-      INTEGER   NDUM
-      INTEGER   ORBNUM
-
-      REAL*8 DYSEN(NSTATE)
-      REAL*8 AMPS(NSTATE)
-      REAL*8 CMO(NZ*NSTATE)
-
-      Character(LEN=30) Filename
-      Character(LEN=80) TITLE
-      INTEGER ISTATE, JSTATE, LUNIT
-      INTEGER, EXTERNAL:: IsFreeUnit
+implicit none
+integer NZ
+real*8 DYSAMPS(NSTATE,NSTATE)
+real*8 SFDYS(NZ,NSTATE,NSTATE)
+real*8 ENERGY(NSTATE)
+integer DYSCIND
+integer NDUM
+integer ORBNUM
+real*8 DYSEN(NSTATE)
+real*8 AMPS(NSTATE)
+real*8 CMO(NZ*NSTATE)
+character(len=30) Filename
+character(len=80) TITLE
+integer ISTATE, JSTATE, LUNIT
+integer, external :: IsFreeUnit
 
 !+++  J. Creutzberg, J. Norell  - 2018 (.molden export )
 
@@ -49,44 +48,42 @@
 ! matrix from RASSCF. This will only rarely be needed for regular
 ! Dyson calculations so we will leave it out for now.
 
-      DO JSTATE=1,DYSEXPSF
+do JSTATE=1,DYSEXPSF
 
-!     For each initial state JSTATE up to DYSEXPSF we will gather all the obtained Dysorbs
-!     and export to a shared .molden file
-         DYSCIND=0 ! Orbital coeff. index
-         ORBNUM=0 ! Dysorb index for given JSTATE
-         CMO=0.0D0 ! Orbital coefficients
-         DYSEN=0.0D0 ! Orbital energies
-         AMPS=0.0D0 ! Transition amplitudes (shown as occupations)
+  ! For each initial state JSTATE up to DYSEXPSF we will gather all the obtained Dysorbs
+  ! and export to a shared .molden file
+  DYSCIND = 0 ! Orbital coeff. index
+  ORBNUM = 0 ! Dysorb index for given JSTATE
+  CMO = Zero ! Orbital coefficients
+  DYSEN = Zero ! Orbital energies
+  AMPS = Zero ! Transition amplitudes (shown as occupations)
 
-         DO ISTATE=JSTATE+1,NSTATE
+  do ISTATE=JSTATE+1,NSTATE
 
-         IF (DYSAMPS(JSTATE,ISTATE).GT.1.0D-5) THEN
-          DO NDUM=1,NZ
-             DYSCIND=DYSCIND+1
-             CMO(DYSCIND)=SFDYS(NDUM,ISTATE,JSTATE)
-          END DO
-          ORBNUM=ORBNUM+1
-          DYSEN(ORBNUM)=ENERGY(ISTATE)-ENERGY(JSTATE)
-          AMPS(ORBNUM)=DYSAMPS(JSTATE,ISTATE)*DYSAMPS(JSTATE,ISTATE)
-         END IF
+    if (DYSAMPS(JSTATE,ISTATE) > 1.0e-5_wp) then
+      do NDUM=1,NZ
+        DYSCIND = DYSCIND+1
+        CMO(DYSCIND) = SFDYS(NDUM,ISTATE,JSTATE)
+      end do
+      ORBNUM = ORBNUM+1
+      DYSEN(ORBNUM) = ENERGY(ISTATE)-ENERGY(JSTATE)
+      AMPS(ORBNUM) = DYSAMPS(JSTATE,ISTATE)*DYSAMPS(JSTATE,ISTATE)
+    end if
 
-       END DO ! ISTATE
+  end do ! ISTATE
 
-! If at least one orbital was found, export it/them
-        IF(ORBNUM.GT.0) THEN
-         Write(filename,'(A,I0)') 'MD_DYS.SF.',JSTATE
-         Call Molden_DysOrb(filename,DYSEN,AMPS,CMO,ORBNUM,NZ)
+  ! If at least one orbital was found, export it/them
+  if (ORBNUM > 0) then
+    write(filename,'(A,I0)') 'MD_DYS.SF.',JSTATE
+    call Molden_DysOrb(filename,DYSEN,AMPS,CMO,ORBNUM,NZ)
 
-         Write(filename,'(A,I0)') 'DYSORB.SF.',JSTATE
-         LUNIT=IsFreeUnit(50)
-         Write(TITLE,'(A,I0)') '* Spin-free Dyson orbitals for state ', &
-     &                         JSTATE
-         Call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,CMO,AMPS,    &
-     &                    DYSEN,Trim(TITLE),NZ)
-         Close(LUNIT)
-        END IF
+    write(filename,'(A,I0)') 'DYSORB.SF.',JSTATE
+    LUNIT = IsFreeUnit(50)
+    write(TITLE,'(A,I0)') '* Spin-free Dyson orbitals for state ',JSTATE
+    call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,CMO,AMPS,DYSEN,trim(TITLE),NZ)
+    close(LUNIT)
+  end if
 
-      END DO ! JSTATE
+end do ! JSTATE
 
-      END SUBROUTINE WRITEDYS
+end subroutine WRITEDYS

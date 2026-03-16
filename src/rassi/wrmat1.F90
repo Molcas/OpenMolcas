@@ -8,23 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE WRMAT1(ND1,ND2,XMAT)
-      use definitions, only: iwp, wp, u6
-      IMPLICIT None
-      integer(kind=iwp), intent(in):: ND1,ND2
-      real(kind=wp), intent(in):: XMAT(ND1,ND2)
 
-!     NCOL=NR OF PRINTING COLUMNS.
-      integer(kind=iwp), parameter:: NCOL=5
-      integer(kind=iwp) NBL,IBL,JSTA,JEND,I,J
+subroutine WRMAT1(ND1,ND2,XMAT)
 
-      NBL=(ND2+NCOL-1)/NCOL
-      DO IBL=1,NBL
-        JSTA=1+NCOL*(IBL-1)
-        JEND=MIN(NCOL*IBL,ND2)
-        WRITE(u6,'(//,5(8X,I8),/)')(J,J=JSTA,JEND)
-        DO I=1,ND1
-          WRITE(u6,'(1X,I3,5(1X,G16.9))')I,(XMAT(I,J),J=JSTA,JEND)
-        END DO
-      END DO
-      END SUBROUTINE WRMAT1
+use definitions, only: iwp, wp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: ND1, ND2
+real(kind=wp), intent(in) :: XMAT(ND1,ND2)
+integer(kind=iwp), parameter :: NCOL = 5
+integer(kind=iwp) NBL, IBL, JSTA, JEND, I, J
+
+! NCOL=NR OF PRINTING COLUMNS.
+NBL = (ND2+NCOL-1)/NCOL
+do IBL=1,NBL
+  JSTA = 1+NCOL*(IBL-1)
+  JEND = min(NCOL*IBL,ND2)
+  write(u6,'(//,5(8X,I8),/)') (J,J=JSTA,JEND)
+  do I=1,ND1
+    write(u6,'(1X,I3,5(1X,G16.9))') I,(XMAT(I,J),J=JSTA,JEND)
+  end do
+end do
+
+end subroutine WRMAT1

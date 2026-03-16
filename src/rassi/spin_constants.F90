@@ -1,4 +1,4 @@
-!***********************************************************************
+!***************************a*******************************************
 ! This file is part of OpenMolcas.                                     *
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -8,828 +8,789 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Spin_Constants
-!  ********************************************************************
-!  *             Constants used in the program                        *
-!  ********************************************************************
-!
-Implicit None
-COMPLEX*16 SPIN(3,17,-8:8,-8:8)
 
-!       g_e, mu_Bohr,coeff_chi,
-!     & Boltz_k, Avogadro_mu_Bohr, Pi
+module Spin_Constants
+!***********************************************************************
+!*                Constants used in the program                        *
+!***********************************************************************
 
-REAL*8, Parameter::f2=1.41421356237310d0,   & ! sqrt(2)
-                   f3=1.73205080756888d0,   & ! sqrt(3)
-                   f5=2.23606797749979d0,   & ! sqrt(5)
-                   f7=2.64575131106459d0,   & ! sqrt(7)
-                   f11= 3.3166247903554d0,  & ! sqrt(11)
-                   f13= 3.60555127546399d0    ! sqrt(13)
+use Constants, only: Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, Twelve, Half, OneHalf, cZero, cOne, &
+                     Onei
+use Definitions, only: wp
 
-!
-!                     Magnetic susceptibility
-!
-!      g_e=2.0023193043718d0
-!      mu_Bohr=0.466864374d0
-!      coeff_chi=0.125048612d0*3
-!      Boltz_k=0.6950356d0
-!      conv=8.0655444569d0
-!      Avogadro_mu_Bohr=0.5584939756d0
-!      Pi=3.14159265358979d0
-!
-!  mu_Bohr=     ! * in cm-1*T-1
-!  coeff_chi=   ! = N_A*mu_Bohr^2/(k_Boltz) in cm^3*K/mol
-!  Boltz_k=     !   in cm^-1*K-1
-!  conv=        !   1 meV in cm-1
-!  Avogadro_mu_Bohr  !   in cm^3*mol^-1*T
-!  Pi=          !   3.1415926535897932384626433832795028841971693993
+implicit none
+complex*16 SPIN(3,17,-8:8,-8:8)
+real*8, parameter :: Thirteen = 13.0_wp, Fifteen = 15.0_wp
 
-Contains
-Subroutine Setup_Spin_Moment_Matrix()
-INTEGER  L9, I9, J9, IMULT9, IPAR9
-!
-!   *************************************************
-!   *          SPIN moment matrix elements          *
-!   *************************************************
-!
-!
-!    Multiplicity 1 (singlet)
-!
-      DO L9=1,3
-       DO IMULT9=1,17
-       IPAR9=MOD(IMULT9,2)
-        DO I9=-(IMULT9-IPAR9)/2,(IMULT9-IPAR9)/2
-         DO J9=-(IMULT9-IPAR9)/2,(IMULT9-IPAR9)/2
-            SPIN(L9,IMULT9,I9,J9)=(0.0d0,0.0d0)
-         ENDDO
-        ENDDO
-       ENDDO
-      ENDDO
+contains
 
-      SPIN(1,1,0,0)=(0.0d0,0.0d0)
-      SPIN(2,1,0,0)=(0.0d0,0.0d0)
-      SPIN(3,1,0,0)=(0.0d0,0.0d0)
-!
-!    Multiplicity 2 (doublet)   S=1/2
-!
-      SPIN(1,2,-1,1)  = ( 0.5d0, 0.0d0)
-      SPIN(1,2,1,-1)  = ( 0.5d0, 0.0d0)
-      SPIN(2,2,-1,1)  = ( 0.0d0, 0.5d0)
-      SPIN(2,2,1,-1)  = ( 0.0d0,-0.5d0)
-      SPIN(3,2,-1,-1) = (-0.5d0, 0.0d0)
-      SPIN(3,2,1,1)   = ( 0.5d0, 0.0d0)
-!
-!    Multiplicity 3 (triplet)   S=1
-!
-      SPIN(1,3,-1,0)  = CMPLX(0.5d0*f2,0.0d0,kind=8)
-      SPIN(1,3,0,-1)  = CMPLX(0.5d0*f2,0.0d0,kind=8)
-      SPIN(1,3,0,1)   = CMPLX(0.5d0*f2,0.0d0,kind=8)
-      SPIN(1,3,1,0)   = CMPLX(0.5d0*f2,0.0d0,kind=8)
-      SPIN(2,3,-1,0)  = CMPLX(0.0d0, 0.5d0*f2,kind=8)
-      SPIN(2,3,0,-1)  = CMPLX(0.0d0,-0.5d0*f2,kind=8)
-      SPIN(2,3,0,1)   = CMPLX(0.0d0, 0.5d0*f2,kind=8)
-      SPIN(2,3,1,0)   = CMPLX(0.0d0,-0.5d0*f2,kind=8)
-      SPIN(3,3,-1,-1) = (-1.0d0,0.0d0)
-      SPIN(3,3,1,1)   = ( 1.0d0,0.0d0)
-!
-!    Multiplicity 4 (quartet)    S=3/2
-!
-      SPIN(1,4,-2,-1) = CMPLX(0.5d0*f3,0.0d0,kind=8)
-      SPIN(1,4,-1,-2) = CMPLX(0.5d0*f3,0.0d0,kind=8)
-      SPIN(1,4,-1,1)  = (1.0d0,0.0d0)
-      SPIN(1,4,1,-1)  = (1.0d0,0.0d0)
-      SPIN(1,4,1,2)   = CMPLX(0.5d0*f3,0.0d0,kind=8)
-      SPIN(1,4,2,1)   = CMPLX(0.5d0*f3,0.0d0,kind=8)
-      SPIN(2,4,-2,-1) = CMPLX(0.0d0, 0.5d0*f3,kind=8)
-      SPIN(2,4,-1,-2) = CMPLX(0.0d0,-0.5d0*f3,kind=8)
-      SPIN(2,4,-1,1)  = (0.0d0, 1.0d0)
-      SPIN(2,4,1,-1)  = (0.0d0,-1.0d0)
-      SPIN(2,4,1,2)   = CMPLX(0.0d0, 0.5d0*f3,kind=8)
-      SPIN(2,4,2,1)   = CMPLX(0.0d0,-0.5d0*f3,kind=8)
-      SPIN(3,4,-2,-2) = (-1.5d0,0.0d0)
-      SPIN(3,4,-1,-1) = (-0.5d0,0.0d0)
-      SPIN(3,4,1,1)   = ( 0.5d0,0.0d0)
-      SPIN(3,4,2,2)   = ( 1.5d0,0.0d0)
-!
-!    Multiplicity 5 (quintet)   S=2
-!
-      SPIN(1,5,-2,-1) = (1.d0,0.0d0)
-      SPIN(1,5,-1,-2) = (1.d0,0.0d0)
-      SPIN(1,5,-1,0)  = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
-      SPIN(1,5,0,-1)  = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
-      SPIN(1,5,0,1)   = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
-      SPIN(1,5,1,0)   = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
-      SPIN(1,5,1,2)   = (1.0d0, 0.0d0)
-      SPIN(1,5,2,1)   = (1.0d0, 0.0d0)
-      SPIN(2,5,-2,-1) = (0.0d0, 1.0d0)
-      SPIN(2,5,-1,-2) = (0.0d0,-1.0d0)
-      SPIN(2,5,-1,0)  = CMPLX(0.0d0, 0.5d0*f2*f3,kind=8)
-      SPIN(2,5,0,-1)  = CMPLX(0.0d0,-0.5d0*f2*f3,kind=8)
-      SPIN(2,5,0,1)   = CMPLX(0.0d0, 0.5d0*f2*f3,kind=8)
-      SPIN(2,5,1,0)   = CMPLX(0.0d0,-0.5d0*f2*f3,kind=8)
-      SPIN(2,5,1,2)   = ( 0.0d0, 1.0d0)
-      SPIN(2,5,2,1)   = ( 0.0d0,-1.0d0)
-      SPIN(3,5,-2,-2) = (-2.0d0, 0.0d0)
-      SPIN(3,5,-1,-1) = (-1.0d0, 0.0d0)
-      SPIN(3,5,1,1)   = ( 1.0d0, 0.0d0)
-      SPIN(3,5,2,2)   = ( 2.0d0, 0.0d0)
-!
-!    Multiplicity 6 (sextet)   S=5/2
-!
-      SPIN(1,6,-3,-2) = CMPLX(0.5d0*f5,0.0d0,kind=8)
-      SPIN(1,6,-2,-3) = CMPLX(0.5d0*f5,0.0d0,kind=8)
-      SPIN(1,6,-2,-1) = CMPLX(f2,0.0d0,kind=8)
-      SPIN(1,6,-1,-2) = CMPLX(f2,0.0d0,kind=8)
-      SPIN(1,6,-1,1)  = (1.5d0,0.0d0)
-      SPIN(1,6,1,-1)  = (1.5d0,0.0d0)
-      SPIN(1,6,1,2)   = CMPLX(f2,0.0d0,kind=8)
-      SPIN(1,6,2,1)   = CMPLX(f2,0.0d0,kind=8)
-      SPIN(1,6,2,3)   = CMPLX(0.5d0*f5,0.0d0,kind=8)
-      SPIN(1,6,3,2)   = CMPLX(0.5d0*f5,0.0d0,kind=8)
-      SPIN(2,6,-3,-2) = CMPLX(0.0d0, 0.5d0*f5,kind=8)
-      SPIN(2,6,-2,-3) = CMPLX(0.0d0,-0.5d0*f5,kind=8)
-      SPIN(2,6,-2,-1) = CMPLX(0.0d0, f2,kind=8)
-      SPIN(2,6,-1,-2) = CMPLX(0.0d0,-f2,kind=8)
-      SPIN(2,6,-1,1)  = (0.0d0, 1.5d0)
-      SPIN(2,6,1,-1)  = (0.0d0,-1.5d0)
-      SPIN(2,6,1,2)   = CMPLX(0.0d0, f2,kind=8)
-      SPIN(2,6,2,1)   = CMPLX(0.0d0,-f2,kind=8)
-      SPIN(2,6,2,3)   = CMPLX(0.0d0, 0.5d0*f5,kind=8)
-      SPIN(2,6,3,2)   = CMPLX(0.0d0,-0.5d0*f5,kind=8)
-      SPIN(3,6,-3,-3) = (-2.5d0,0.0d0)
-      SPIN(3,6,-2,-2) = (-1.5d0,0.0d0)
-      SPIN(3,6,-1,-1) = (-0.5d0,0.0d0)
-      SPIN(3,6,1,1)   = (0.5d0,0.0d0)
-      SPIN(3,6,2,2)   = (1.5d0,0.0d0)
-      SPIN(3,6,3,3)   = (2.5d0,0.0d0)
-!
-!   Multiplicity 7 (septet)   S=3
-!
-      SPIN(1,7,-3,-2) = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
-      SPIN(1,7,-2,-3) = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
-      SPIN(1,7,-2,-1) = CMPLX(0.5d0*f2*f5,0.0d0,kind=8)
-      SPIN(1,7,-1,-2) = CMPLX(0.5d0*f2*f5,0.0d0,kind=8)
-      SPIN(1,7,-1,0)  = CMPLX(f3,0.0d0,kind=8)
-      SPIN(1,7,0,-1)  = CMPLX(f3,0.0d0,kind=8)
-      SPIN(1,7,1,0)   = CMPLX(f3,0.0d0,kind=8)
-      SPIN(1,7,0,1)   = CMPLX(f3,0.0d0,kind=8)
-      SPIN(1,7,1,2)   = CMPLX(0.5d0*f2*f5,0.0d0,kind=8)
-      SPIN(1,7,2,1)   = CMPLX(0.5d0*f2*f5,0.0d0,kind=8)
-      SPIN(1,7,2,3)   = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
-      SPIN(1,7,3,2)   = CMPLX(0.5d0*f2*f3,0.0d0,kind=8)
-      SPIN(2,7,-3,-2) = CMPLX(0.0d0, 0.5d0*f2*f3,kind=8)
-      SPIN(2,7,-2,-3) = CMPLX(0.0d0,-0.5d0*f2*f3,kind=8)
-      SPIN(2,7,-2,-1) = CMPLX(0.0d0, 0.5d0*f2*f5,kind=8)
-      SPIN(2,7,-1,-2) = CMPLX(0.0d0,-0.5d0*f2*f5,kind=8)
-      SPIN(2,7,-1,0)  = CMPLX(0.0d0, f3,kind=8)
-      SPIN(2,7,0,-1)  = CMPLX(0.0d0,-f3,kind=8)
-      SPIN(2,7,0,1)   = CMPLX(0.0d0, f3,kind=8)
-      SPIN(2,7,1,0)   = CMPLX(0.0d0,-f3,kind=8)
-      SPIN(2,7,1,2)   = CMPLX(0.0d0, 0.5d0*f2*f5,kind=8)
-      SPIN(2,7,2,1)   = CMPLX(0.0d0,-0.5d0*f2*f5,kind=8)
-      SPIN(2,7,2,3)   = CMPLX(0.0d0, 0.5d0*f2*f3,kind=8)
-      SPIN(2,7,3,2)   = CMPLX(0.0d0,-0.5d0*f2*f3,kind=8)
-      SPIN(3,7,-3,-3) = (-3.0d0,0.0d0)
-      SPIN(3,7,-2,-2) = (-2.0d0,0.0d0)
-      SPIN(3,7,-1,-1) = (-1.0d0,0.0d0)
-      SPIN(3,7,0,0)   = (0.0d0,0.0d0)
-      SPIN(3,7,1,1)   = (1.0d0,0.0d0)
-      SPIN(3,7,2,2)   = (2.0d0,0.0d0)
-      SPIN(3,7,3,3)   = (3.0d0,0.0d0)
-!
-!   Multiplicity 8 (octet)   S=7/2
-!
-      SPIN(1,8,-4,-3) = CMPLX(0.5d0*f7,0.0d0,kind=8)
-      SPIN(1,8,-3,-4) = CMPLX(0.5d0*f7,0.0d0,kind=8)
-      SPIN(1,8,-3,-2) = CMPLX(f3,0.0d0,kind=8)
-      SPIN(1,8,-2,-3) = CMPLX(f3,0.0d0,kind=8)
-      SPIN(1,8,-2,-1) = CMPLX(0.5d0*f3*f5,0.0d0,kind=8)
-      SPIN(1,8,-1,-2) = CMPLX(0.5d0*f3*f5,0.0d0,kind=8)
-      SPIN(1,8,-1,1)  =  (2.0d0,0.0d0)
-      SPIN(1,8,1,-1)  =  (2.0d0,0.0d0)
-      SPIN(1,8,1,2)   = CMPLX(0.5d0*f3*f5,0.0d0,kind=8)
-      SPIN(1,8,2,1)   = CMPLX(0.5d0*f3*f5,0.0d0,kind=8)
-      SPIN(1,8,2,3)   = CMPLX(f3,0.0d0,kind=8)
-      SPIN(1,8,3,2)   = CMPLX(f3,0.0d0,kind=8)
-      SPIN(1,8,4,3)   = CMPLX(0.5d0*f7,0.0d0,kind=8)
-      SPIN(1,8,3,4)   = CMPLX(0.5d0*f7,0.0d0,kind=8)
-      SPIN(2,8,-4,-3) = CMPLX(0.0d0, 0.5d0*f7,kind=8)
-      SPIN(2,8,-3,-4) = CMPLX(0.0d0,-0.5d0*f7,kind=8)
-      SPIN(2,8,-3,-2) = CMPLX(0.0d0, f3,kind=8)
-      SPIN(2,8,-2,-3) = CMPLX(0.0d0,-f3,kind=8)
-      SPIN(2,8,-2,-1) = CMPLX(0.0d0, 0.5d0*f3*f5,kind=8)
-      SPIN(2,8,-1,-2) = CMPLX(0.0d0,-0.5d0*f3*f5,kind=8)
-      SPIN(2,8,-1,1)  =  (0.0d0, 2.0d0)
-      SPIN(2,8,1,-1)  =  (0.0d0,-2.0d0)
-      SPIN(2,8,1,2)   = CMPLX(0.0d0, 0.5d0*f3*f5,kind=8)
-      SPIN(2,8,2,1)   = CMPLX(0.0d0,-0.5d0*f3*f5,kind=8)
-      SPIN(2,8,2,3)   = CMPLX(0.0d0, f3,kind=8)
-      SPIN(2,8,3,2)   = CMPLX(0.0d0,-f3,kind=8)
-      SPIN(2,8,3,4)   = CMPLX(0.0d0, 0.5d0*f7,kind=8)
-      SPIN(2,8,4,3)   = CMPLX(0.0d0,-0.5d0*f7,kind=8)
-      SPIN(3,8,-4,-4) = (-3.5d0,0.0d0)
-      SPIN(3,8,-3,-3) = (-2.5d0,0.0d0)
-      SPIN(3,8,-2,-2) = (-1.5d0,0.0d0)
-      SPIN(3,8,-1,-1) = (-0.5d0,0.0d0)
-      SPIN(3,8,1,1)   = ( 0.5d0,0.0d0)
-      SPIN(3,8,2,2)   = ( 1.5d0,0.0d0)
-      SPIN(3,8,3,3)   = ( 2.5d0,0.0d0)
-      SPIN(3,8,4,4)   = ( 3.5d0,0.0d0)
+subroutine Setup_Spin_Moment_Matrix()
 
+  integer L9, I9, J9, IMULT9, IPAR9
 
-!
-!   Multiplicity 9 (???)   S=4
-!
+  ! *************************************************
+  ! *          SPIN moment matrix elements          *
+  ! *************************************************
 
-      SPIN(1,9,-4,-3) = CMPLX(f2,0.d0,kind=8)
-      SPIN(1,9,-3,-4) = CMPLX(f2,0.d0,kind=8)
-      SPIN(1,9,-3,-2) = CMPLX(0.5d0*f7*f2,0.d0,kind=8)
-      SPIN(1,9,-2,-3) = CMPLX(0.5d0*f7*f2,0.d0,kind=8)
-      SPIN(1,9,-2,-1) = CMPLX(1.5d0*f2,0.d0,kind=8)
-      SPIN(1,9,-1,-2) = CMPLX(1.5d0*f2,0.d0,kind=8)
-      SPIN(1,9,-1,0)  = CMPLX(f5,0.d0,kind=8)
-      SPIN(1,9,0,-1)  = CMPLX(f5,0.d0,kind=8)
-      SPIN(1,9,0,1)  =  CMPLX(f5,0.d0,kind=8)
-      SPIN(1,9,1,0)  =  CMPLX(f5,0.d0,kind=8)
-      SPIN(1,9,1,2)  =  CMPLX(1.5d0*f2,0.d0,kind=8)
-      SPIN(1,9,2,1)  =  CMPLX(1.5d0*f2,0.d0,kind=8)
-      SPIN(1,9,2,3)  =  CMPLX(0.5d0*f7*f2,0.d0,kind=8)
-      SPIN(1,9,3,2)  =  CMPLX(0.5d0*f7*f2,0.d0,kind=8)
-      SPIN(1,9,3,4)  =  CMPLX(f2,0.d0,kind=8)
-      SPIN(1,9,4,3)  =  CMPLX(f2,0.d0,kind=8)
-      SPIN(2,9,-4,-3) = CMPLX(0.d0, f2,kind=8)
-      SPIN(2,9,-3,-4) = CMPLX(0.d0,-f2,kind=8)
-      SPIN(2,9,-3,-2) = CMPLX(0.d0, 0.5d0*f7*f2,kind=8)
-      SPIN(2,9,-2,-3) = CMPLX(0.d0,-0.5d0*f7*f2,kind=8)
-      SPIN(2,9,-2,-1) = CMPLX(0.d0, 1.5d0*f2,kind=8)
-      SPIN(2,9,-1,-2) = CMPLX(0.d0,-1.5d0*f2,kind=8)
-      SPIN(2,9,-1,0)  = CMPLX(0.d0, f5,kind=8)
-      SPIN(2,9,0,-1)  = CMPLX(0.d0,-f5,kind=8)
-      SPIN(2,9,0,1)   = CMPLX(0.d0, f5,kind=8)
-      SPIN(2,9,1,0)   = CMPLX(0.d0,-f5,kind=8)
-      SPIN(2,9,1,2)   = CMPLX(0.d0, 1.5d0*f2,kind=8)
-      SPIN(2,9,2,1)   = CMPLX(0.d0,-1.5d0*f2,kind=8)
-      SPIN(2,9,2,3)   = CMPLX(0.d0, 0.5d0*f7*f2,kind=8)
-      SPIN(2,9,3,2)   = CMPLX(0.d0,-0.5d0*f7*f2,kind=8)
-      SPIN(2,9,3,4)   = CMPLX(0.d0, f2,kind=8)
-      SPIN(2,9,4,3)   = CMPLX(0.d0,-f2,kind=8)
-      SPIN(3,9,-4,-4) = (-4.0d0,0.d0)
-      SPIN(3,9,-3,-3) = (-3.0d0,0.d0)
-      SPIN(3,9,-2,-2) = (-2.0d0,0.d0)
-      SPIN(3,9,-1,-1) = (-1.0d0,0.d0)
-      SPIN(3,9,0,0)   = (0.0d0,0.d0)
-      SPIN(3,9,1,1)   = (1.0d0,0.d0)
-      SPIN(3,9,2,2)   = (2.0d0,0.d0)
-      SPIN(3,9,3,3)   = (3.0d0,0.d0)
-      SPIN(3,9,4,4)   = (4.0d0,0.d0)
+  do L9=1,3
+    do IMULT9=1,17
+      IPAR9 = mod(IMULT9,2)
+      do I9=-(IMULT9-IPAR9)/2,(IMULT9-IPAR9)/2
+        do J9=-(IMULT9-IPAR9)/2,(IMULT9-IPAR9)/2
+          SPIN(L9,IMULT9,I9,J9) = cZero
+        end do
+      end do
+    end do
+  end do
 
+  ! Multiplicity 1 (singlet)
 
-!
-!   Multiplicity 10 (???)   S=9/2
-!
+  SPIN(1,1,0,0) = cZero
+  SPIN(2,1,0,0) = cZero
+  SPIN(3,1,0,0) = cZero
 
-      SPIN(1,10,-5,-4) = (1.5d0,0.d0)
-      SPIN(1,10,-4,-5) = (1.5d0,0.d0)
-      SPIN(1,10,-4,-3) = (2.0d0,0.d0)
-      SPIN(1,10,-3,-4) = (2.0d0,0.d0)
-      SPIN(1,10,-3,-2) = CMPLX(0.5d0*f3*f7,0.d0,kind=8)
-      SPIN(1,10,-2,-3) = CMPLX(0.5d0*f3*f7,0.d0,kind=8)
-      SPIN(1,10,-2,-1) = CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,10,-1,-2) = CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,10,-1,1)  =  (2.5d0,0.d0)
-      SPIN(1,10,1,-1)  =  (2.5d0,0.d0)
-      SPIN(1,10,1,2)   = CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,10,2,1)   = CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,10,2,3)   = CMPLX(0.5d0*f3*f7,0.d0,kind=8)
-      SPIN(1,10,3,2)   = CMPLX(0.5d0*f3*f7,0.d0,kind=8)
-      SPIN(1,10,3,4)   = (2.0d0,0.d0)
-      SPIN(1,10,4,3)   = (2.0d0,0.d0)
-      SPIN(1,10,4,5)   = (1.5d0,0.d0)
-      SPIN(1,10,5,4)   = (1.5d0,0.d0)
-      SPIN(2,10,-5,-4) = (0.d0, 1.5d0)
-      SPIN(2,10,-4,-5) = (0.d0,-1.5d0)
-      SPIN(2,10,-4,-3) = (0.d0, 2.0d0)
-      SPIN(2,10,-3,-4) = (0.d0,-2.0d0)
-      SPIN(2,10,-3,-2) = CMPLX(0.d0, 0.5d0*f3*f7,kind=8)
-      SPIN(2,10,-2,-3) = CMPLX(0.d0,-0.5d0*f3*f7,kind=8)
-      SPIN(2,10,-2,-1) = CMPLX(0.d0, f2*f3,kind=8)
-      SPIN(2,10,-1,-2) = CMPLX(0.d0,-f2*f3,kind=8)
-      SPIN(2,10,-1,1)  =  (0.d0, 2.5d0)
-      SPIN(2,10,1,-1)  =  (0.d0,-2.5d0)
-      SPIN(2,10,1,2)   = CMPLX(0.d0, f2*f3,kind=8)
-      SPIN(2,10,2,1)   = CMPLX(0.d0,-f2*f3,kind=8)
-      SPIN(2,10,2,3)   = CMPLX(0.d0, 0.5d0*f3*f7,kind=8)
-      SPIN(2,10,3,2)   = CMPLX(0.d0,-0.5d0*f3*f7,kind=8)
-      SPIN(2,10,3,4)   = (0.d0, 2.0d0)
-      SPIN(2,10,4,3)   = (0.d0,-2.0d0)
-      SPIN(2,10,4,5)   = (0.d0, 1.5d0)
-      SPIN(2,10,5,4)   = (0.d0,-1.5d0)
-      SPIN(3,10,-5,-5) = (-4.5d0,0.d0)
-      SPIN(3,10,-4,-4) = (-3.5d0,0.d0)
-      SPIN(3,10,-3,-3) = (-2.5d0,0.d0)
-      SPIN(3,10,-2,-2) = (-1.5d0,0.d0)
-      SPIN(3,10,-1,-1) = (-0.5d0,0.d0)
-      SPIN(3,10,1,1)   = (0.5d0,0.d0)
-      SPIN(3,10,2,2)   = (1.5d0,0.d0)
-      SPIN(3,10,3,3)   = (2.5d0,0.d0)
-      SPIN(3,10,4,4)   = (3.5d0,0.d0)
-      SPIN(3,10,5,5)   = (4.5d0,0.d0)
-!
-!   Multiplicity 11 (???)   S=5
-!
-      SPIN(1,11,-5,-4) =  CMPLX(0.5d0*f2*f5,0.d0,kind=8)
-      SPIN(1,11,-4,-5) =  CMPLX(0.5d0*f2*f5,0.d0,kind=8)
-      SPIN(1,11,-4,-3) =  CMPLX(1.5d0*f2,0.d0,kind=8)
-      SPIN(1,11,-3,-4) =  CMPLX(1.5d0*f2,0.d0,kind=8)
-      SPIN(1,11,-3,-2) =  CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,11,-2,-3) =  CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,11,-2,-1) =  CMPLX(f7,0.d0,kind=8)
-      SPIN(1,11,-1,-2) =  CMPLX(f7,0.d0,kind=8)
-      SPIN(1,11,-1,0)  =  CMPLX(0.5d0*f3*f2*f5,0.d0,kind=8)
-      SPIN(1,11,0,-1)  =  CMPLX(0.5d0*f3*f2*f5,0.d0,kind=8)
-      SPIN(1,11,0,1)   =  CMPLX(0.5d0*f3*f2*f5,0.d0,kind=8)
-      SPIN(1,11,1,0)   =  CMPLX(0.5d0*f3*f2*f5,0.d0,kind=8)
-      SPIN(1,11,1,2)   =  CMPLX(f7,0.d0,kind=8)
-      SPIN(1,11,2,1)   =  CMPLX(f7,0.d0,kind=8)
-      SPIN(1,11,2,3)   =  CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,11,3,2)   =  CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,11,3,4)   =  CMPLX(1.5d0*f2,0.d0,kind=8)
-      SPIN(1,11,4,3)   =  CMPLX(1.5d0*f2,0.d0,kind=8)
-      SPIN(1,11,4,5)   =  CMPLX(0.5d0*f2*f5,0.d0,kind=8)
-      SPIN(1,11,5,4)   =  CMPLX(0.5d0*f2*f5,0.d0,kind=8)
-      SPIN(2,11,-5,-4) =  CMPLX(0.d0, 0.5d0*f2*f5,kind=8)
-      SPIN(2,11,-4,-5) =  CMPLX(0.d0,-0.5d0*f2*f5,kind=8)
-      SPIN(2,11,-4,-3) =  CMPLX(0.d0, 1.5d0*f2,kind=8)
-      SPIN(2,11,-3,-4) =  CMPLX(0.d0,-1.5d0*f2,kind=8)
-      SPIN(2,11,-3,-2) =  CMPLX(0.d0, f2*f3,kind=8)
-      SPIN(2,11,-2,-3) =  CMPLX(0.d0,-f2*f3,kind=8)
-      SPIN(2,11,-2,-1) =  CMPLX(0.d0, f7,kind=8)
-      SPIN(2,11,-1,-2) =  CMPLX(0.d0,-f7,kind=8)
-      SPIN(2,11,-1,0)  =  CMPLX(0.d0, 0.5d0*f3*f2*f5,kind=8)
-      SPIN(2,11,0,-1)  =  CMPLX(0.d0,-0.5d0*f3*f2*f5,kind=8)
-      SPIN(2,11,0,1)   =  CMPLX(0.d0, 0.5d0*f3*f2*f5,kind=8)
-      SPIN(2,11,1,0)   =  CMPLX(0.d0,-0.5d0*f3*f2*f5,kind=8)
-      SPIN(2,11,1,2)   =  CMPLX(0.d0, f7,kind=8)
-      SPIN(2,11,2,1)   =  CMPLX(0.d0,-f7,kind=8)
-      SPIN(2,11,2,3)   =  CMPLX(0.d0, f2*f3,kind=8)
-      SPIN(2,11,3,2)   =  CMPLX(0.d0,-f2*f3,kind=8)
-      SPIN(2,11,3,4)   =  CMPLX(0.d0, 1.5d0*f2,kind=8)
-      SPIN(2,11,4,3)   =  CMPLX(0.d0,-1.5d0*f2,kind=8)
-      SPIN(2,11,4,5)   =  CMPLX(0.d0, 0.5d0*f2*f5,kind=8)
-      SPIN(2,11,5,4)   =  CMPLX(0.d0,-0.5d0*f2*f5,kind=8)
-      SPIN(3,11,-5,-5) = (-5.0d0,0.d0)
-      SPIN(3,11,-4,-4) = (-4.0d0,0.d0)
-      SPIN(3,11,-3,-3) = (-3.0d0,0.d0)
-      SPIN(3,11,-2,-2) = (-2.0d0,0.d0)
-      SPIN(3,11,-1,-1) = (-1.0d0,0.d0)
-      SPIN(3,11,0,0)   = (0.0d0,0.d0)
-      SPIN(3,11,1,1)   = (1.0d0,0.d0)
-      SPIN(3,11,2,2)   = (2.0d0,0.d0)
-      SPIN(3,11,3,3)   = (3.0d0,0.d0)
-      SPIN(3,11,4,4)   = (4.0d0,0.d0)
-      SPIN(3,11,5,5)   = (5.0d0,0.d0)
+  ! Multiplicity 2 (doublet)   S=1/2
 
-!
-!   Multiplicity 12 (???)   S=11/2
-!
+  SPIN(1,2,-1,1) = Half*cOne
+  SPIN(1,2,1,-1) = Half*cOne
+  SPIN(2,2,-1,1) = Half*Onei
+  SPIN(2,2,1,-1) = -Half*Onei
+  SPIN(3,2,-1,-1) = -Half*cOne
+  SPIN(3,2,1,1) = Half*cOne
 
-      SPIN(1,12,-6,-5) = CMPLX(0.5d0*f11,0.d0,kind=8)
-      SPIN(1,12,-5,-6) = CMPLX(0.5d0*f11,0.d0,kind=8)
-      SPIN(1,12,-5,-4) = CMPLX(f5,0.d0,kind=8)
-      SPIN(1,12,-4,-5) = CMPLX(f5,0.d0,kind=8)
-      SPIN(1,12,-4,-3) = CMPLX(1.5d0*f3,0.d0,kind=8)
-      SPIN(1,12,-3,-4) = CMPLX(1.5d0*f3,0.d0,kind=8)
-      SPIN(1,12,-3,-2) = CMPLX(2.0d0*f2,0.d0,kind=8)
-      SPIN(1,12,-2,-3) = CMPLX(2.0d0*f2,0.d0,kind=8)
-      SPIN(1,12,-2,-1) = CMPLX(0.5d0*f7*f5,0.d0,kind=8)
-      SPIN(1,12,-1,-2) = CMPLX(0.5d0*f7*f5,0.d0,kind=8)
-      SPIN(1,12,-1,1)  =  (3.0d0,0.d0)
-      SPIN(1,12,1,-1)  =  (3.0d0,0.d0)
-      SPIN(1,12,1,2)   = CMPLX(0.5d0*f7*f5,0.d0,kind=8)
-      SPIN(1,12,2,1)   = CMPLX(0.5d0*f7*f5,0.d0,kind=8)
-      SPIN(1,12,2,3)   = CMPLX(2.0d0*f2,0.d0,kind=8)
-      SPIN(1,12,3,2)   = CMPLX(2.0d0*f2,0.d0,kind=8)
-      SPIN(1,12,3,4)   = CMPLX(1.5d0*f3,0.d0,kind=8)
-      SPIN(1,12,4,3)   = CMPLX(1.5d0*f3,0.d0,kind=8)
-      SPIN(1,12,4,5)   = CMPLX(f5,0.d0,kind=8)
-      SPIN(1,12,5,4)   = CMPLX(f5,0.d0,kind=8)
-      SPIN(1,12,5,6)   = CMPLX(0.5d0*f11,0.d0,kind=8)
-      SPIN(1,12,6,5)   = CMPLX(0.5d0*f11,0.d0,kind=8)
-      SPIN(2,12,-6,-5) = CMPLX(0.d0, 0.5d0*f11,kind=8)
-      SPIN(2,12,-5,-6) = CMPLX(0.d0,-0.5d0*f11,kind=8)
-      SPIN(2,12,-5,-4) = CMPLX(0.d0, f5,kind=8)
-      SPIN(2,12,-4,-5) = CMPLX(0.d0,-f5,kind=8)
-      SPIN(2,12,-4,-3) = CMPLX(0.d0, 1.5d0*f3,kind=8)
-      SPIN(2,12,-3,-4) = CMPLX(0.d0,-1.5d0*f3,kind=8)
-      SPIN(2,12,-3,-2) = CMPLX(0.d0, 2.0d0*f2,kind=8)
-      SPIN(2,12,-2,-3) = CMPLX(0.d0,-2.0d0*f2,kind=8)
-      SPIN(2,12,-2,-1) = CMPLX(0.d0, 0.5d0*f7*f5,kind=8)
-      SPIN(2,12,-1,-2) = CMPLX(0.d0,-0.5d0*f7*f5,kind=8)
-      SPIN(2,12,-1,1)  =  (0.d0, 3.0d0)
-      SPIN(2,12,1,-1)  =  (0.d0,-3.0d0)
-      SPIN(2,12,1,2)   = CMPLX(0.d0, 0.5d0*f7*f5,kind=8)
-      SPIN(2,12,2,1)   = CMPLX(0.d0,-0.5d0*f7*f5,kind=8)
-      SPIN(2,12,2,3)   = CMPLX(0.d0, 2.0d0*f2,kind=8)
-      SPIN(2,12,3,2)   = CMPLX(0.d0,-2.0d0*f2,kind=8)
-      SPIN(2,12,3,4)   = CMPLX(0.d0, 1.5d0*f3,kind=8)
-      SPIN(2,12,4,3)   = CMPLX(0.d0,-1.5d0*f3,kind=8)
-      SPIN(2,12,4,5)   = CMPLX(0.d0, f5,kind=8)
-      SPIN(2,12,5,4)   = CMPLX(0.d0,-f5,kind=8)
-      SPIN(2,12,5,6)   = CMPLX(0.d0, 0.5d0*f11,kind=8)
-      SPIN(2,12,6,5)   = CMPLX(0.d0,-0.5d0*f11,kind=8)
-      SPIN(3,12,-6,-6) = (-5.5d0,0.d0)
-      SPIN(3,12,-5,-5) = (-4.5d0,0.d0)
-      SPIN(3,12,-4,-4) = (-3.5d0,0.d0)
-      SPIN(3,12,-3,-3) = (-2.5d0,0.d0)
-      SPIN(3,12,-2,-2) = (-1.5d0,0.d0)
-      SPIN(3,12,-1,-1) = (-0.5d0,0.d0)
-      SPIN(3,12,1,1)   = (0.5d0,0.d0)
-      SPIN(3,12,2,2)   = (1.5d0,0.d0)
-      SPIN(3,12,3,3)   = (2.5d0,0.d0)
-      SPIN(3,12,4,4)   = (3.5d0,0.d0)
-      SPIN(3,12,5,5)   = (4.5d0,0.d0)
-      SPIN(3,12,6,6)   = (5.5d0,0.d0)
+  ! Multiplicity 3 (triplet)   S=1
 
+  SPIN(1,3,-1,0) = sqrt(Half)*cOne
+  SPIN(1,3,0,-1) = sqrt(Half)*cOne
+  SPIN(1,3,0,1) = sqrt(Half)*cOne
+  SPIN(1,3,1,0) = sqrt(Half)*cOne
+  SPIN(2,3,-1,0) = sqrt(Half)*Onei
+  SPIN(2,3,0,-1) = -sqrt(Half)*Onei
+  SPIN(2,3,0,1) = sqrt(Half)*Onei
+  SPIN(2,3,1,0) = -sqrt(Half)*Onei
+  SPIN(3,3,-1,-1) = -cOne
+  SPIN(3,3,1,1) = cOne
 
-!
-!   Multiplicity 13 (???)   S=6
-!
+  ! Multiplicity 4 (quartet)    S=3/2
 
-      SPIN(1,13,-6,-5) =  CMPLX(f3,0.d0,kind=8)
-      SPIN(1,13,-5,-6) =  CMPLX(f3,0.d0,kind=8)
-      SPIN(1,13,-5,-4) =  CMPLX(0.5d0*f2*f11,0.d0,kind=8)
-      SPIN(1,13,-4,-5) =  CMPLX(0.5d0*f2*f11,0.d0,kind=8)
-      SPIN(1,13,-4,-3) =  CMPLX(0.5d0*f3*f2*f5,0.d0,kind=8)
-      SPIN(1,13,-3,-4) =  CMPLX(0.5d0*f3*f2*f5,0.d0,kind=8)
-      SPIN(1,13,-3,-2) =  (3.0d0,0.d0)
-      SPIN(1,13,-2,-3) =  (3.0d0,0.d0)
-      SPIN(1,13,-2,-1) =  CMPLX(f2*f5,0.d0,kind=8)
-      SPIN(1,13,-1,-2) =  CMPLX(f2*f5,0.d0,kind=8)
-      SPIN(1,13,-1,0)  =  CMPLX(0.5d0*f2*f3*f7,0.d0,kind=8)
-      SPIN(1,13,0,-1)  =  CMPLX(0.5d0*f2*f3*f7,0.d0,kind=8)
-      SPIN(1,13,0,1)   =  CMPLX(0.5d0*f2*f3*f7,0.d0,kind=8)
-      SPIN(1,13,1,0)   =  CMPLX(0.5d0*f2*f3*f7,0.d0,kind=8)
-      SPIN(1,13,1,2)   =  CMPLX(f2*f5,0.d0,kind=8)
-      SPIN(1,13,2,1)   =  CMPLX(f2*f5,0.d0,kind=8)
-      SPIN(1,13,2,3)   =  (3.0d0,0.d0)
-      SPIN(1,13,3,2)   =  (3.0d0,0.d0)
-      SPIN(1,13,3,4)   =  CMPLX(0.5d0*f3*f2*f5,0.d0,kind=8)
-      SPIN(1,13,4,3)   =  CMPLX(0.5d0*f3*f2*f5,0.d0,kind=8)
-      SPIN(1,13,4,5)   =  CMPLX(0.5d0*f2*f11,0.d0,kind=8)
-      SPIN(1,13,5,4)   =  CMPLX(0.5d0*f2*f11,0.d0,kind=8)
-      SPIN(1,13,5,6)   =  CMPLX(f3,0.d0,kind=8)
-      SPIN(1,13,6,5)   =  CMPLX(f3,0.d0,kind=8)
-      SPIN(2,13,-6,-5) =  CMPLX(0.d0, f3,kind=8)
-      SPIN(2,13,-5,-6) =  CMPLX(0.d0,-f3,kind=8)
-      SPIN(2,13,-5,-4) =  CMPLX(0.d0, 0.5d0*f2*f11,kind=8)
-      SPIN(2,13,-4,-5) =  CMPLX(0.d0,-0.5d0*f2*f11,kind=8)
-      SPIN(2,13,-4,-3) =  CMPLX(0.d0, 0.5d0*f3*f2*f5,kind=8)
-      SPIN(2,13,-3,-4) =  CMPLX(0.d0,-0.5d0*f3*f2*f5,kind=8)
-      SPIN(2,13,-3,-2) =  (0.d0, 3.0d0)
-      SPIN(2,13,-2,-3) =  (0.d0,-3.0d0)
-      SPIN(2,13,-2,-1) =  CMPLX(0.d0, f2*f5,kind=8)
-      SPIN(2,13,-1,-2) =  CMPLX(0.d0,-f2*f5,kind=8)
-      SPIN(2,13,-1,0)  =  CMPLX(0.d0, 0.5d0*f2*f3*f7,kind=8)
-      SPIN(2,13,0,-1)  =  CMPLX(0.d0,-0.5d0*f2*f3*f7,kind=8)
-      SPIN(2,13,0,1)   =  CMPLX(0.d0, 0.5d0*f2*f3*f7,kind=8)
-      SPIN(2,13,1,0)   =  CMPLX(0.d0,-0.5d0*f2*f3*f7,kind=8)
-      SPIN(2,13,1,2)   =  CMPLX(0.d0, f2*f5,kind=8)
-      SPIN(2,13,2,1)   =  CMPLX(0.d0,-f2*f5,kind=8)
-      SPIN(2,13,2,3)   =  (0.d0, 3.0d0)
-      SPIN(2,13,3,2)   =  (0.d0,-3.0d0)
-      SPIN(2,13,3,4)   =  CMPLX(0.d0, 0.5d0*f3*f2*f5,kind=8)
-      SPIN(2,13,4,3)   =  CMPLX(0.d0,-0.5d0*f3*f2*f5,kind=8)
-      SPIN(2,13,4,5)   =  CMPLX(0.d0, 0.5d0*f2*f11,kind=8)
-      SPIN(2,13,5,4)   =  CMPLX(0.d0,-0.5d0*f2*f11,kind=8)
-      SPIN(2,13,5,6)   =  CMPLX(0.d0, f3,kind=8)
-      SPIN(2,13,6,5)   =  CMPLX(0.d0,-f3,kind=8)
-      SPIN(3,13,-6,-6) = (-6.0d0,0.d0)
-      SPIN(3,13,-5,-5) = (-5.0d0,0.d0)
-      SPIN(3,13,-4,-4) = (-4.0d0,0.d0)
-      SPIN(3,13,-3,-3) = (-3.0d0,0.d0)
-      SPIN(3,13,-2,-2) = (-2.0d0,0.d0)
-      SPIN(3,13,-1,-1) = (-1.0d0,0.d0)
-      SPIN(3,13,0,0)   = (0.0d0,0.d0)
-      SPIN(3,13,1,1)   = (1.0d0,0.d0)
-      SPIN(3,13,2,2)   = (2.0d0,0.d0)
-      SPIN(3,13,3,3)   = (3.0d0,0.d0)
-      SPIN(3,13,4,4)   = (4.0d0,0.d0)
-      SPIN(3,13,5,5)   = (5.0d0,0.d0)
-      SPIN(3,13,6,6)   = (6.0d0,0.d0)
+  SPIN(1,4,-2,-1) = Half*sqrt(Three)*cOne
+  SPIN(1,4,-1,-2) = Half*sqrt(Three)*cOne
+  SPIN(1,4,-1,1) = cOne
+  SPIN(1,4,1,-1) = cOne
+  SPIN(1,4,1,2) = Half*sqrt(Three)*cOne
+  SPIN(1,4,2,1) = Half*sqrt(Three)*cOne
+  SPIN(2,4,-2,-1) = Half*sqrt(Three)*Onei
+  SPIN(2,4,-1,-2) = -Half*sqrt(Three)*Onei
+  SPIN(2,4,-1,1) = Onei
+  SPIN(2,4,1,-1) = -Onei
+  SPIN(2,4,1,2) = Half*sqrt(Three)*Onei
+  SPIN(2,4,2,1) = -Half*sqrt(Three)*Onei
+  SPIN(3,4,-2,-2) = -OneHalf*cOne
+  SPIN(3,4,-1,-1) = -Half*cOne
+  SPIN(3,4,1,1) = Half*cOne
+  SPIN(3,4,2,2) = OneHalf*cOne
 
+  ! Multiplicity 5 (quintet)   S=2
 
-!
-!   Multiplicity 14 (???)   S=13/2
-!
+  SPIN(1,5,-2,-1) = cOne
+  SPIN(1,5,-1,-2) = cOne
+  SPIN(1,5,-1,0) = sqrt(OneHalf)*cOne
+  SPIN(1,5,0,-1) = sqrt(OneHalf)*cOne
+  SPIN(1,5,0,1) = sqrt(OneHalf)*cOne
+  SPIN(1,5,1,0) = sqrt(OneHalf)*cOne
+  SPIN(1,5,1,2) = cOne
+  SPIN(1,5,2,1) = cOne
+  SPIN(2,5,-2,-1) = Onei
+  SPIN(2,5,-1,-2) = -Onei
+  SPIN(2,5,-1,0) = sqrt(OneHalf)*Onei
+  SPIN(2,5,0,-1) = -sqrt(OneHalf)*Onei
+  SPIN(2,5,0,1) = sqrt(OneHalf)*Onei
+  SPIN(2,5,1,0) = -sqrt(OneHalf)*Onei
+  SPIN(2,5,1,2) = Onei
+  SPIN(2,5,2,1) = -Onei
+  SPIN(3,5,-2,-2) = -Two*cOne
+  SPIN(3,5,-1,-1) = -cOne
+  SPIN(3,5,1,1) = cOne
+  SPIN(3,5,2,2) = Two*cOne
 
-      SPIN(1,14,-7,-6) =  CMPLX(0.5d0*f13,0.d0,kind=8)
-      SPIN(1,14,-6,-7) =  CMPLX(0.5d0*f13,0.d0,kind=8)
-      SPIN(1,14,-6,-5) =  CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,14,-5,-6) =  CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,14,-5,-4) =  CMPLX(0.5d0*f3*f11,0.d0,kind=8)
-      SPIN(1,14,-4,-5) =  CMPLX(0.5d0*f3*f11,0.d0,kind=8)
-      SPIN(1,14,-4,-3) =  CMPLX(f2*f5,0.d0,kind=8)
-      SPIN(1,14,-3,-4) =  CMPLX(f2*f5,0.d0,kind=8)
-      SPIN(1,14,-3,-2) =  CMPLX(1.5d0*f5,0.d0,kind=8)
-      SPIN(1,14,-2,-3) =  CMPLX(1.5d0*f5,0.d0,kind=8)
-      SPIN(1,14,-2,-1)  =  CMPLX(2.0d0*f3,0.d0,kind=8)
-      SPIN(1,14,-1,-2)  =  CMPLX(2.0d0*f3,0.d0,kind=8)
-      SPIN(1,14,-1,1)   =  (3.5d0,0.d0)
-      SPIN(1,14,1,-1)   =  (3.5d0,0.d0)
-      SPIN(1,14,1,2)   =  CMPLX(2.0d0*f3,0.d0,kind=8)
-      SPIN(1,14,2,1)   =  CMPLX(2.0d0*f3,0.d0,kind=8)
-      SPIN(1,14,2,3)   =  CMPLX(1.5d0*f5,0.d0,kind=8)
-      SPIN(1,14,3,2)   =  CMPLX(1.5d0*f5,0.d0,kind=8)
-      SPIN(1,14,3,4)   =  CMPLX(f2*f5,0.d0,kind=8)
-      SPIN(1,14,4,3)   =  CMPLX(f2*f5,0.d0,kind=8)
-      SPIN(1,14,4,5)   =  CMPLX(0.5d0*f3*f11,0.d0,kind=8)
-      SPIN(1,14,5,4)   =  CMPLX(0.5d0*f3*f11,0.d0,kind=8)
-      SPIN(1,14,5,6)   =  CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,14,6,5)   =  CMPLX(f2*f3,0.d0,kind=8)
-      SPIN(1,14,6,7)   =  CMPLX(0.5d0*f13,0.d0,kind=8)
-      SPIN(1,14,7,6)   =  CMPLX(0.5d0*f13,0.d0,kind=8)
-      SPIN(2,14,-7,-6) =  CMPLX(0.d0, 0.5d0*f13,kind=8)
-      SPIN(2,14,-6,-7) =  CMPLX(0.d0,-0.5d0*f13,kind=8)
-      SPIN(2,14,-6,-5) =  CMPLX(0.d0, f2*f3,kind=8)
-      SPIN(2,14,-5,-6) =  CMPLX(0.d0,-f2*f3,kind=8)
-      SPIN(2,14,-5,-4) =  CMPLX(0.d0, 0.5d0*f3*f11,kind=8)
-      SPIN(2,14,-4,-5) =  CMPLX(0.d0,-0.5d0*f3*f11,kind=8)
-      SPIN(2,14,-4,-3) =  CMPLX(0.d0, f2*f5,kind=8)
-      SPIN(2,14,-3,-4) =  CMPLX(0.d0,-f2*f5,kind=8)
-      SPIN(2,14,-3,-2) =  CMPLX(0.d0, 1.5d0*f5,kind=8)
-      SPIN(2,14,-2,-3) =  CMPLX(0.d0,-1.5d0*f5,kind=8)
-      SPIN(2,14,-2,-1) =  CMPLX(0.d0, 2.0d0*f3,kind=8)
-      SPIN(2,14,-1,-2) =  CMPLX(0.d0,-2.0d0*f3,kind=8)
-      SPIN(2,14,-1,1)  =  (0.d0, 3.5d0)
-      SPIN(2,14,1,-1)  =  (0.d0,-3.5d0)
-      SPIN(2,14,1,2)   =  CMPLX(0.d0, 2.0d0*f3,kind=8)
-      SPIN(2,14,2,1)   =  CMPLX(0.d0,-2.0d0*f3,kind=8)
-      SPIN(2,14,2,3)   =  CMPLX(0.d0, 1.5d0*f5,kind=8)
-      SPIN(2,14,3,2)   =  CMPLX(0.d0,-1.5d0*f5,kind=8)
-      SPIN(2,14,3,4)   =  CMPLX(0.d0, f2*f5,kind=8)
-      SPIN(2,14,4,3)   =  CMPLX(0.d0,-f2*f5,kind=8)
-      SPIN(2,14,4,5)   =  CMPLX(0.d0, 0.5d0*f3*f11,kind=8)
-      SPIN(2,14,5,4)   =  CMPLX(0.d0,-0.5d0*f3*f11,kind=8)
-      SPIN(2,14,5,6)   =  CMPLX(0.d0, f2*f3,kind=8)
-      SPIN(2,14,6,5)   =  CMPLX(0.d0,-f2*f3,kind=8)
-      SPIN(2,14,6,7)   =  CMPLX(0.d0, 0.5d0*f13,kind=8)
-      SPIN(2,14,7,6)   =  CMPLX(0.d0,-0.5d0*f13,kind=8)
-      SPIN(3,14,-7,-7) = (-6.5d0,0.d0)
-      SPIN(3,14,-6,-6) = (-5.5d0,0.d0)
-      SPIN(3,14,-5,-5) = (-4.5d0,0.d0)
-      SPIN(3,14,-4,-4) = (-3.5d0,0.d0)
-      SPIN(3,14,-3,-3) = (-2.5d0,0.d0)
-      SPIN(3,14,-2,-2) = (-1.5d0,0.d0)
-      SPIN(3,14,-1,-1) = (-0.5d0,0.d0)
-      SPIN(3,14,1,1)   = (0.5d0,0.d0)
-      SPIN(3,14,2,2)   = (1.5d0,0.d0)
-      SPIN(3,14,3,3)   = (2.5d0,0.d0)
-      SPIN(3,14,4,4)   = (3.5d0,0.d0)
-      SPIN(3,14,5,5)   = (4.5d0,0.d0)
-      SPIN(3,14,6,6)   = (5.5d0,0.d0)
-      SPIN(3,14,7,7)   = (6.5d0,0.d0)
+  ! Multiplicity 6 (sextet)   S=5/2
 
-!
-!   Multiplicity 15 (???)   S=7
-!
+  SPIN(1,6,-3,-2) = Half*sqrt(Five)*cOne
+  SPIN(1,6,-2,-3) = Half*sqrt(Five)*cOne
+  SPIN(1,6,-2,-1) = sqrt(Two)*cOne
+  SPIN(1,6,-1,-2) = sqrt(Two)*cOne
+  SPIN(1,6,-1,1) = OneHalf*cOne
+  SPIN(1,6,1,-1) = OneHalf*cOne
+  SPIN(1,6,1,2) = sqrt(Two)*cOne
+  SPIN(1,6,2,1) = sqrt(Two)*cOne
+  SPIN(1,6,2,3) = Half*sqrt(Five)*cOne
+  SPIN(1,6,3,2) = Half*sqrt(Five)*cOne
+  SPIN(2,6,-3,-2) = Half*sqrt(Five)*Onei
+  SPIN(2,6,-2,-3) = -Half*sqrt(Five)*Onei
+  SPIN(2,6,-2,-1) = sqrt(Two)*Onei
+  SPIN(2,6,-1,-2) = -sqrt(Two)*Onei
+  SPIN(2,6,-1,1) = OneHalf*Onei
+  SPIN(2,6,1,-1) = -OneHalf*Onei
+  SPIN(2,6,1,2) = sqrt(Two)*Onei
+  SPIN(2,6,2,1) = -sqrt(Two)*Onei
+  SPIN(2,6,2,3) = Half*sqrt(Five)*Onei
+  SPIN(2,6,3,2) = -Half*sqrt(Five)*Onei
+  SPIN(3,6,-3,-3) = -Half*Five*cOne
+  SPIN(3,6,-2,-2) = -OneHalf*cOne
+  SPIN(3,6,-1,-1) = -Half*cOne
+  SPIN(3,6,1,1) = Half*cOne
+  SPIN(3,6,2,2) = OneHalf*cOne
+  SPIN(3,6,3,3) = Half*Five*cOne
 
-      SPIN(1,15,-7,-6) =  CMPLX(0.5d0*f2*f7,0.d0,kind=8)
-      SPIN(1,15,-6,-7) =  CMPLX(0.5d0*f2*f7,0.d0,kind=8)
-      SPIN(1,15,-6,-5) =  CMPLX(0.5d0*f2*f13,0.d0,kind=8)
-      SPIN(1,15,-5,-6) =  CMPLX(0.5d0*f2*f13,0.d0,kind=8)
-      SPIN(1,15,-5,-4) =  (3.0d0,0.d0)
-      SPIN(1,15,-4,-5) =  (3.0d0,0.d0)
-      SPIN(1,15,-4,-3) =  CMPLX(f11,0.d0,kind=8)
-      SPIN(1,15,-3,-4) =  CMPLX(f11,0.d0,kind=8)
-      SPIN(1,15,-3,-2) =  CMPLX(2.5d0*f2,0.d0,kind=8)
-      SPIN(1,15,-2,-3) =  CMPLX(2.5d0*f2,0.d0,kind=8)
-      SPIN(1,15,-2,-1) =  CMPLX(1.5d0*f2*f3,0.d0,kind=8)
-      SPIN(1,15,-1,-2) =  CMPLX(1.5d0*f2*f3,0.d0,kind=8)
-      SPIN(1,15,-1,0)  =  CMPLX(f2*f7,0.d0,kind=8)
-      SPIN(1,15,0,-1)  =  CMPLX(f2*f7,0.d0,kind=8)
-      SPIN(1,15,0,1)   =  CMPLX(f2*f7,0.d0,kind=8)
-      SPIN(1,15,1,0)   =  CMPLX(f2*f7,0.d0,kind=8)
-      SPIN(1,15,1,2)   =  CMPLX(1.5d0*f2*f3,0.d0,kind=8)
-      SPIN(1,15,2,1)   =  CMPLX(1.5d0*f2*f3,0.d0,kind=8)
-      SPIN(1,15,2,3)   =  CMPLX(2.5d0*f2,0.d0,kind=8)
-      SPIN(1,15,3,2)   =  CMPLX(2.5d0*f2,0.d0,kind=8)
-      SPIN(1,15,3,4)   =  CMPLX(f11,0.d0,kind=8)
-      SPIN(1,15,4,3)   =  CMPLX(f11,0.d0,kind=8)
-      SPIN(1,15,4,5)   =  (3.0d0,0.d0)
-      SPIN(1,15,5,4)   =  (3.0d0,0.d0)
-      SPIN(1,15,5,6)   =  CMPLX(0.5d0*f2*f13,0.d0,kind=8)
-      SPIN(1,15,6,5)   =  CMPLX(0.5d0*f2*f13,0.d0,kind=8)
-      SPIN(1,15,6,7)   =  CMPLX(0.5d0*f2*f7,0.d0,kind=8)
-      SPIN(1,15,7,6)   =  CMPLX(0.5d0*f2*f7,0.d0,kind=8)
-      SPIN(2,15,-7,-6) =  CMPLX(0.d0, 0.5d0*f2*f7,kind=8)
-      SPIN(2,15,-6,-7) =  CMPLX(0.d0,-0.5d0*f2*f7,kind=8)
-      SPIN(2,15,-6,-5) =  CMPLX(0.d0, 0.5d0*f2*f13,kind=8)
-      SPIN(2,15,-5,-6) =  CMPLX(0.d0,-0.5d0*f2*f13,kind=8)
-      SPIN(2,15,-5,-4) =  (0.d0, 3.0d0)
-      SPIN(2,15,-4,-5) =  (0.d0,-3.0d0)
-      SPIN(2,15,-4,-3) =  CMPLX(0.d0, f11,kind=8)
-      SPIN(2,15,-3,-4) =  CMPLX(0.d0,-f11,kind=8)
-      SPIN(2,15,-3,-2) =  CMPLX(0.d0, 2.5d0*f2,kind=8)
-      SPIN(2,15,-2,-3) =  CMPLX(0.d0,-2.5d0*f2,kind=8)
-      SPIN(2,15,-2,-1) =  CMPLX(0.d0, 1.5d0*f2*f3,kind=8)
-      SPIN(2,15,-1,-2) =  CMPLX(0.d0,-1.5d0*f2*f3,kind=8)
-      SPIN(2,15,-1,0)  =  CMPLX(0.d0, f2*f7,kind=8)
-      SPIN(2,15,0,-1)  =  CMPLX(0.d0,-f2*f7,kind=8)
-      SPIN(2,15,0,1)   =  CMPLX(0.d0, f2*f7,kind=8)
-      SPIN(2,15,1,0)   =  CMPLX(0.d0,-f2*f7,kind=8)
-      SPIN(2,15,1,2)   =  CMPLX(0.d0, 1.5d0*f2*f3,kind=8)
-      SPIN(2,15,2,1)   =  CMPLX(0.d0,-1.5d0*f2*f3,kind=8)
-      SPIN(2,15,2,3)   =  CMPLX(0.d0, 2.5d0*f2,kind=8)
-      SPIN(2,15,3,2)   =  CMPLX(0.d0,-2.5d0*f2,kind=8)
-      SPIN(2,15,3,4)   =  CMPLX(0.d0, f11,kind=8)
-      SPIN(2,15,4,3)   =  CMPLX(0.d0,-f11,kind=8)
-      SPIN(2,15,4,5)   =  (0.d0, 3.0d0)
-      SPIN(2,15,5,4)   =  (0.d0,-3.0d0)
-      SPIN(2,15,5,6)   =  CMPLX(0.d0, 0.5d0*f2*f13,kind=8)
-      SPIN(2,15,6,5)   =  CMPLX(0.d0,-0.5d0*f2*f13,kind=8)
-      SPIN(2,15,6,7)   =  CMPLX(0.d0, 0.5d0*f2*f7,kind=8)
-      SPIN(2,15,7,6)   =  CMPLX(0.d0,-0.5d0*f2*f7,kind=8)
-      SPIN(3,15,-7,-7) = (-7.0d0,0.0d0)
-      SPIN(3,15,-6,-6) = (-6.0d0,0.0d0)
-      SPIN(3,15,-5,-5) = (-5.0d0,0.0d0)
-      SPIN(3,15,-4,-4) = (-4.0d0,0.0d0)
-      SPIN(3,15,-3,-3) = (-3.0d0,0.0d0)
-      SPIN(3,15,-2,-2) = (-2.0d0,0.0d0)
-      SPIN(3,15,-1,-1) = (-1.0d0,0.0d0)
-      SPIN(3,15,0,0)   = ( 0.0d0,0.0d0)
-      SPIN(3,15,1,1)   = ( 1.0d0,0.0d0)
-      SPIN(3,15,2,2)   = ( 2.0d0,0.0d0)
-      SPIN(3,15,3,3)   = ( 3.0d0,0.0d0)
-      SPIN(3,15,4,4)   = ( 4.0d0,0.0d0)
-      SPIN(3,15,5,5)   = ( 5.0d0,0.0d0)
-      SPIN(3,15,6,6)   = ( 6.0d0,0.0d0)
-      SPIN(3,15,7,7)   = ( 7.0d0,0.0d0)
+  ! Multiplicity 7 (septet)   S=3
 
-!
-!   Multiplicity 16 (???)   S=15/2
-!
+  SPIN(1,7,-3,-2) = sqrt(OneHalf)*cOne
+  SPIN(1,7,-2,-3) = sqrt(OneHalf)*cOne
+  SPIN(1,7,-2,-1) = sqrt(Half*Five)*cOne
+  SPIN(1,7,-1,-2) = sqrt(Half*Five)*cOne
+  SPIN(1,7,-1,0) = sqrt(Three)*cOne
+  SPIN(1,7,0,-1) = sqrt(Three)*cOne
+  SPIN(1,7,1,0) = sqrt(Three)*cOne
+  SPIN(1,7,0,1) = sqrt(Three)*cOne
+  SPIN(1,7,1,2) = sqrt(Half*Five)*cOne
+  SPIN(1,7,2,1) = sqrt(Half*Five)*cOne
+  SPIN(1,7,2,3) = sqrt(OneHalf)*cOne
+  SPIN(1,7,3,2) = sqrt(OneHalf)*cOne
+  SPIN(2,7,-3,-2) = sqrt(OneHalf)*Onei
+  SPIN(2,7,-2,-3) = -sqrt(OneHalf)*Onei
+  SPIN(2,7,-2,-1) = sqrt(Half*Five)*Onei
+  SPIN(2,7,-1,-2) = -sqrt(Half*Five)*Onei
+  SPIN(2,7,-1,0) = sqrt(Three)*Onei
+  SPIN(2,7,0,-1) = -sqrt(Three)*Onei
+  SPIN(2,7,0,1) = sqrt(Three)*Onei
+  SPIN(2,7,1,0) = -sqrt(Three)*Onei
+  SPIN(2,7,1,2) = sqrt(Half*Five)*Onei
+  SPIN(2,7,2,1) = -sqrt(Half*Five)*Onei
+  SPIN(2,7,2,3) = sqrt(OneHalf)*Onei
+  SPIN(2,7,3,2) = -sqrt(OneHalf)*Onei
+  SPIN(3,7,-3,-3) = -Three*cOne
+  SPIN(3,7,-2,-2) = -Two*cOne
+  SPIN(3,7,-1,-1) = -cOne
+  SPIN(3,7,0,0) = cZero
+  SPIN(3,7,1,1) = cOne
+  SPIN(3,7,2,2) = Two*cOne
+  SPIN(3,7,3,3) = Three*cOne
 
-      SPIN(1,16,-8,-7) =  CMPLX(0.5d0*f3*f5,0.d0,kind=8)
-      SPIN(1,16,-7,-8) =  CMPLX(0.5d0*f3*f5,0.d0,kind=8)
-      SPIN(1,16,-7,-6) =  CMPLX(f7,0.d0,kind=8)
-      SPIN(1,16,-6,-7) =  CMPLX(f7,0.d0,kind=8)
-      SPIN(1,16,-6,-5) =  CMPLX(0.5d0*f3*f13,0.d0,kind=8)
-      SPIN(1,16,-5,-6) =  CMPLX(0.5d0*f3*f13,0.d0,kind=8)
-      SPIN(1,16,-5,-4) =  CMPLX(2.0d0*f3,0.d0,kind=8)
-      SPIN(1,16,-4,-5) =  CMPLX(2.0d0*f3,0.d0,kind=8)
-      SPIN(1,16,-4,-3) =  CMPLX(0.5d0*f5*f11,0.d0,kind=8)
-      SPIN(1,16,-3,-4) =  CMPLX(0.5d0*f5*f11,0.d0,kind=8)
-      SPIN(1,16,-3,-2) =  CMPLX(f3*f5,0.d0,kind=8)
-      SPIN(1,16,-2,-3) =  CMPLX(f3*f5,0.d0,kind=8)
-      SPIN(1,16,-2,-1) =  CMPLX(1.5d0*f7,0.d0,kind=8)
-      SPIN(1,16,-1,-2) =  CMPLX(1.5d0*f7,0.d0,kind=8)
-      SPIN(1,16,-1,1)  =  CMPLX(4.0d0,0.d0,kind=8)
-      SPIN(1,16,1,-1)  =  CMPLX(4.0d0,0.d0,kind=8)
-      SPIN(1,16,1,2)   =  CMPLX(1.5d0*f7,0.d0,kind=8)
-      SPIN(1,16,2,1)   =  CMPLX(1.5d0*f7,0.d0,kind=8)
-      SPIN(1,16,2,3)   =  CMPLX(f3*f5,0.d0,kind=8)
-      SPIN(1,16,3,2)   =  CMPLX(f3*f5,0.d0,kind=8)
-      SPIN(1,16,3,4)   =  CMPLX(0.5d0*f5*f11,0.d0,kind=8)
-      SPIN(1,16,4,3)   =  CMPLX(0.5d0*f5*f11,0.d0,kind=8)
-      SPIN(1,16,4,5)   =  CMPLX(2.0d0*f3,0.d0,kind=8)
-      SPIN(1,16,5,4)   =  CMPLX(2.0d0*f3,0.d0,kind=8)
-      SPIN(1,16,5,6)   =  CMPLX(0.5d0*f3*f13,0.d0,kind=8)
-      SPIN(1,16,6,5)   =  CMPLX(0.5d0*f3*f13,0.d0,kind=8)
-      SPIN(1,16,6,7)   =  CMPLX(f7,0.d0,kind=8)
-      SPIN(1,16,7,6)   =  CMPLX(f7,0.d0,kind=8)
-      SPIN(1,16,7,8)   =  CMPLX(0.5d0*f3*f5,0.d0,kind=8)
-      SPIN(1,16,8,7)   =  CMPLX(0.5d0*f3*f5,0.d0,kind=8)
-      SPIN(2,16,-8,-7) =  CMPLX(0.d0, 0.5d0*f3*f5,kind=8)
-      SPIN(2,16,-7,-8) =  CMPLX(0.d0,-0.5d0*f3*f5,kind=8)
-      SPIN(2,16,-7,-6) =  CMPLX(0.d0, f7,kind=8)
-      SPIN(2,16,-6,-7) =  CMPLX(0.d0,-f7,kind=8)
-      SPIN(2,16,-6,-5) =  CMPLX(0.d0, 0.5d0*f3*f13,kind=8)
-      SPIN(2,16,-5,-6) =  CMPLX(0.d0,-0.5d0*f3*f13,kind=8)
-      SPIN(2,16,-5,-4) =  CMPLX(0.d0, 2.0d0*f3,kind=8)
-      SPIN(2,16,-4,-5) =  CMPLX(0.d0,-2.0d0*f3,kind=8)
-      SPIN(2,16,-4,-3) =  CMPLX(0.d0, 0.5d0*f5*f11,kind=8)
-      SPIN(2,16,-3,-4) =  CMPLX(0.d0,-0.5d0*f5*f11,kind=8)
-      SPIN(2,16,-3,-2) =  CMPLX(0.d0, f3*f5,kind=8)
-      SPIN(2,16,-2,-3) =  CMPLX(0.d0,-f3*f5,kind=8)
-      SPIN(2,16,-2,-1) =  CMPLX(0.d0, 1.5d0*f7,kind=8)
-      SPIN(2,16,-1,-2) =  CMPLX(0.d0,-1.5d0*f7,kind=8)
-      SPIN(2,16,-1,1)  =  CMPLX(0.d0, 4.0d0,kind=8)
-      SPIN(2,16,1,-1)  =  CMPLX(0.d0,-4.0d0,kind=8)
-      SPIN(2,16,1,2)   =  CMPLX(0.d0, 1.5d0*f7,kind=8)
-      SPIN(2,16,2,1)   =  CMPLX(0.d0,-1.5d0*f7,kind=8)
-      SPIN(2,16,2,3)   =  CMPLX(0.d0, f3*f5,kind=8)
-      SPIN(2,16,3,2)   =  CMPLX(0.d0,-f3*f5,kind=8)
-      SPIN(2,16,3,4)   =  CMPLX(0.d0, 0.5d0*f5*f11,kind=8)
-      SPIN(2,16,4,3)   =  CMPLX(0.d0,-0.5d0*f5*f11,kind=8)
-      SPIN(2,16,4,5)   =  CMPLX(0.d0, 2.0d0*f3,kind=8)
-      SPIN(2,16,5,4)   =  CMPLX(0.d0,-2.0d0*f3,kind=8)
-      SPIN(2,16,5,6)   =  CMPLX(0.d0, 0.5d0*f3*f13,kind=8)
-      SPIN(2,16,6,5)   =  CMPLX(0.d0,-0.5d0*f3*f13,kind=8)
-      SPIN(2,16,6,7)   =  CMPLX(0.d0, f7,kind=8)
-      SPIN(2,16,7,6)   =  CMPLX(0.d0,-f7,kind=8)
-      SPIN(2,16,7,8)   =  CMPLX(0.d0, 0.5d0*f3*f5,kind=8)
-      SPIN(2,16,8,7)   =  CMPLX(0.d0,-0.5d0*f3*f5,kind=8)
-      SPIN(3,16,-8,-8) = (-7.5d0,0.d0)
-      SPIN(3,16,-7,-7) = (-6.5d0,0.d0)
-      SPIN(3,16,-6,-6) = (-5.5d0,0.d0)
-      SPIN(3,16,-5,-5) = (-4.5d0,0.d0)
-      SPIN(3,16,-4,-4) = (-3.5d0,0.d0)
-      SPIN(3,16,-3,-3) = (-2.5d0,0.d0)
-      SPIN(3,16,-2,-2) = (-1.5d0,0.d0)
-      SPIN(3,16,-1,-1) = (-0.5d0,0.d0)
-      SPIN(3,16,1,1)   = (0.5d0,0.d0)
-      SPIN(3,16,2,2)   = (1.5d0,0.d0)
-      SPIN(3,16,3,3)   = (2.5d0,0.d0)
-      SPIN(3,16,4,4)   = (3.5d0,0.d0)
-      SPIN(3,16,5,5)   = (4.5d0,0.d0)
-      SPIN(3,16,6,6)   = (5.5d0,0.d0)
-      SPIN(3,16,7,7)   = (6.5d0,0.d0)
-      SPIN(3,16,8,8)   = (7.5d0,0.d0)
+  ! Multiplicity 8 (octet)   S=7/2
 
-!
-!   Multiplicity 17 (???)   S=8
-!
+  SPIN(1,8,-4,-3) = Half*sqrt(Seven)*cOne
+  SPIN(1,8,-3,-4) = Half*sqrt(Seven)*cOne
+  SPIN(1,8,-3,-2) = sqrt(Three)*cOne
+  SPIN(1,8,-2,-3) = sqrt(Three)*cOne
+  SPIN(1,8,-2,-1) = Half*sqrt(Three*Five)*cOne
+  SPIN(1,8,-1,-2) = Half*sqrt(Three*Five)*cOne
+  SPIN(1,8,-1,1) = Two*cOne
+  SPIN(1,8,1,-1) = Two*cOne
+  SPIN(1,8,1,2) = Half*sqrt(Three*Five)*cOne
+  SPIN(1,8,2,1) = Half*sqrt(Three*Five)*cOne
+  SPIN(1,8,2,3) = sqrt(Three)*cOne
+  SPIN(1,8,3,2) = sqrt(Three)*cOne
+  SPIN(1,8,4,3) = Half*sqrt(Seven)*cOne
+  SPIN(1,8,3,4) = Half*sqrt(Seven)*cOne
+  SPIN(2,8,-4,-3) = Half*sqrt(Seven)*Onei
+  SPIN(2,8,-3,-4) = -Half*sqrt(Seven)*Onei
+  SPIN(2,8,-3,-2) = sqrt(Three)*Onei
+  SPIN(2,8,-2,-3) = -sqrt(Three)*Onei
+  SPIN(2,8,-2,-1) = Half*sqrt(Three*Five)*Onei
+  SPIN(2,8,-1,-2) = -Half*sqrt(Three*Five)*Onei
+  SPIN(2,8,-1,1) = Two*Onei
+  SPIN(2,8,1,-1) = -Two*Onei
+  SPIN(2,8,1,2) = Half*sqrt(Three*Five)*Onei
+  SPIN(2,8,2,1) = -Half*sqrt(Three*Five)*Onei
+  SPIN(2,8,2,3) = sqrt(Three)*Onei
+  SPIN(2,8,3,2) = -sqrt(Three)*Onei
+  SPIN(2,8,3,4) = Half*sqrt(Seven)*Onei
+  SPIN(2,8,4,3) = -Half*sqrt(Seven)*Onei
+  SPIN(3,8,-4,-4) = -Half*Seven*cOne
+  SPIN(3,8,-3,-3) = -Half*Five*cOne
+  SPIN(3,8,-2,-2) = -OneHalf*cOne
+  SPIN(3,8,-1,-1) = -Half*cOne
+  SPIN(3,8,1,1) = Half*cOne
+  SPIN(3,8,2,2) = OneHalf*cOne
+  SPIN(3,8,3,3) = Half*Five*cOne
+  SPIN(3,8,4,4) = Half*Seven*cOne
 
-      SPIN(1,17,-8,-7) =  (2.0d0,0.d0)
-      SPIN(1,17,-7,-8) =  (2.0d0,0.d0)
-      SPIN(1,17,-7,-6) =  CMPLX(0.5d0*f2*f3*f5,0.d0,kind=8)
-      SPIN(1,17,-6,-7) =  CMPLX(0.5d0*f2*f3*f5,0.d0,kind=8)
-      SPIN(1,17,-6,-5) =  CMPLX(0.5d0*f2*f3*f7,0.d0,kind=8)
-      SPIN(1,17,-5,-6) =  CMPLX(0.5d0*f2*f3*f7,0.d0,kind=8)
-      SPIN(1,17,-5,-4) =  CMPLX(f13,0.d0,kind=8)
-      SPIN(1,17,-4,-5) =  CMPLX(f13,0.d0,kind=8)
-      SPIN(1,17,-4,-3) =  CMPLX(f3*f5,0.d0,kind=8)
-      SPIN(1,17,-3,-4) =  CMPLX(f3*f5,0.d0,kind=8)
-      SPIN(1,17,-3,-2) =  CMPLX(0.5d0*f2*f3*f11,0.d0,kind=8)
-      SPIN(1,17,-2,-3) =  CMPLX(0.5d0*f2*f3*f11,0.d0,kind=8)
-      SPIN(1,17,-2,-1) =  CMPLX(0.5d0*f2*f5*f7,0.d0,kind=8)
-      SPIN(1,17,-1,-2) =  CMPLX(0.5d0*f2*f5*f7,0.d0,kind=8)
-      SPIN(1,17,-1,0)  =  CMPLX(3.0d0*f2,0.d0,kind=8)
-      SPIN(1,17,0,-1)  =  CMPLX(3.0d0*f2,0.d0,kind=8)
-      SPIN(1,17,0,1)   =  CMPLX(3.0d0*f2,0.d0,kind=8)
-      SPIN(1,17,1,0)   =  CMPLX(3.0d0*f2,0.d0,kind=8)
-      SPIN(1,17,1,2)   =  CMPLX(0.5d0*f2*f5*f7,0.d0,kind=8)
-      SPIN(1,17,2,1)   =  CMPLX(0.5d0*f2*f5*f7,0.d0,kind=8)
-      SPIN(1,17,2,3)   =  CMPLX(0.5d0*f2*f3*f11,0.d0,kind=8)
-      SPIN(1,17,3,2)   =  CMPLX(0.5d0*f2*f3*f11,0.d0,kind=8)
-      SPIN(1,17,3,4)   =  CMPLX(f3*f5,0.d0,kind=8)
-      SPIN(1,17,4,3)   =  CMPLX(f3*f5,0.d0,kind=8)
-      SPIN(1,17,4,5)   =  CMPLX(f13,0.d0,kind=8)
-      SPIN(1,17,5,4)   =  CMPLX(f13,0.d0,kind=8)
-      SPIN(1,17,5,6)   =  CMPLX(0.5d0*f2*f3*f7,0.d0,kind=8)
-      SPIN(1,17,6,5)   =  CMPLX(0.5d0*f2*f3*f7,0.d0,kind=8)
-      SPIN(1,17,6,7)   =  CMPLX(0.5d0*f2*f3*f5,0.d0,kind=8)
-      SPIN(1,17,7,6)   =  CMPLX(0.5d0*f2*f3*f5,0.d0,kind=8)
-      SPIN(1,17,7,8)   =  (2.0d0,0.d0)
-      SPIN(1,17,8,7)   =  (2.0d0,0.d0)
-      SPIN(2,17,-8,-7) =  (0.d0, 2.0d0)
-      SPIN(2,17,-7,-8) =  (0.d0,-2.0d0)
-      SPIN(2,17,-7,-6) =  CMPLX(0.d0, 0.5d0*f2*f3*f5,kind=8)
-      SPIN(2,17,-6,-7) =  CMPLX(0.d0,-0.5d0*f2*f3*f5,kind=8)
-      SPIN(2,17,-6,-5) =  CMPLX(0.d0, 0.5d0*f2*f3*f7,kind=8)
-      SPIN(2,17,-5,-6) =  CMPLX(0.d0,-0.5d0*f2*f3*f7,kind=8)
-      SPIN(2,17,-5,-4) =  CMPLX(0.d0, f13,kind=8)
-      SPIN(2,17,-4,-5) =  CMPLX(0.d0,-f13,kind=8)
-      SPIN(2,17,-4,-3) =  CMPLX(0.d0, f3*f5,kind=8)
-      SPIN(2,17,-3,-4) =  CMPLX(0.d0,-f3*f5,kind=8)
-      SPIN(2,17,-3,-2) =  CMPLX(0.d0, 0.5d0*f2*f3*f11,kind=8)
-      SPIN(2,17,-2,-3) =  CMPLX(0.d0,-0.5d0*f2*f3*f11,kind=8)
-      SPIN(2,17,-2,-1) =  CMPLX(0.d0, 0.5d0*f2*f5*f7,kind=8)
-      SPIN(2,17,-1,-2) =  CMPLX(0.d0,-0.5d0*f2*f5*f7,kind=8)
-      SPIN(2,17,-1,0)  =  CMPLX(0.d0, 3.0d0*f2,kind=8)
-      SPIN(2,17,0,-1)  =  CMPLX(0.d0,-3.0d0*f2,kind=8)
-      SPIN(2,17,0,1)   =  CMPLX(0.d0, 3.0d0*f2,kind=8)
-      SPIN(2,17,1,0)   =  CMPLX(0.d0,-3.0d0*f2,kind=8)
-      SPIN(2,17,1,2)   =  CMPLX(0.d0, 0.5d0*f2*f5*f7,kind=8)
-      SPIN(2,17,2,1)   =  CMPLX(0.d0,-0.5d0*f2*f5*f7,kind=8)
-      SPIN(2,17,2,3)   =  CMPLX(0.d0, 0.5d0*f2*f3*f11,kind=8)
-      SPIN(2,17,3,2)   =  CMPLX(0.d0,-0.5d0*f2*f3*f11,kind=8)
-      SPIN(2,17,3,4)   =  CMPLX(0.d0, f3*f5,kind=8)
-      SPIN(2,17,4,3)   =  CMPLX(0.d0,-f3*f5,kind=8)
-      SPIN(2,17,4,5)   =  CMPLX(0.d0, f13,kind=8)
-      SPIN(2,17,5,4)   =  CMPLX(0.d0,-f13,kind=8)
-      SPIN(2,17,5,6)   =  CMPLX(0.d0, 0.5d0*f2*f3*f7,kind=8)
-      SPIN(2,17,6,5)   =  CMPLX(0.d0,-0.5d0*f2*f3*f7,kind=8)
-      SPIN(2,17,6,7)   =  CMPLX(0.d0, 0.5d0*f2*f3*f5,kind=8)
-      SPIN(2,17,7,6)   =  CMPLX(0.d0,-0.5d0*f2*f3*f5,kind=8)
-      SPIN(2,17,7,8)   =  (0.d0, 2.0d0)
-      SPIN(2,17,8,7)   =  (0.d0,-2.0d0)
-      SPIN(3,17,-8,-8) = (-8.0d0,0.d0)
-      SPIN(3,17,-7,-7) = (-7.0d0,0.d0)
-      SPIN(3,17,-6,-6) = (-6.0d0,0.d0)
-      SPIN(3,17,-5,-5) = (-5.0d0,0.d0)
-      SPIN(3,17,-4,-4) = (-4.0d0,0.d0)
-      SPIN(3,17,-3,-3) = (-3.0d0,0.d0)
-      SPIN(3,17,-2,-2) = (-2.0d0,0.d0)
-      SPIN(3,17,-1,-1) = (-1.0d0,0.d0)
-      SPIN(3,17,0,0)   = (0.0d0,0.d0)
-      SPIN(3,17,1,1)   = (1.0d0,0.d0)
-      SPIN(3,17,2,2)   = (2.0d0,0.d0)
-      SPIN(3,17,3,3)   = (3.0d0,0.d0)
-      SPIN(3,17,4,4)   = (4.0d0,0.d0)
-      SPIN(3,17,5,5)   = (5.0d0,0.d0)
-      SPIN(3,17,6,6)   = (6.0d0,0.d0)
-      SPIN(3,17,7,7)   = (7.0d0,0.d0)
-      SPIN(3,17,8,8)   = (8.0d0,0.d0)
-End Subroutine Setup_Spin_Moment_Matrix
-End Module Spin_Constants
+  ! Multiplicity 9 (nonet)   S=4
+
+  SPIN(1,9,-4,-3) = sqrt(Two)*cOne
+  SPIN(1,9,-3,-4) = sqrt(Two)*cOne
+  SPIN(1,9,-3,-2) = sqrt(Half*Seven)*cOne
+  SPIN(1,9,-2,-3) = sqrt(Half*Seven)*cOne
+  SPIN(1,9,-2,-1) = Three*sqrt(Half)*cOne
+  SPIN(1,9,-1,-2) = Three*sqrt(Half)*cOne
+  SPIN(1,9,-1,0) = sqrt(Five)*cOne
+  SPIN(1,9,0,-1) = sqrt(Five)*cOne
+  SPIN(1,9,0,1) = sqrt(Five)*cOne
+  SPIN(1,9,1,0) = sqrt(Five)*cOne
+  SPIN(1,9,1,2) = Three*sqrt(Half)*cOne
+  SPIN(1,9,2,1) = Three*sqrt(Half)*cOne
+  SPIN(1,9,2,3) = sqrt(Half*Seven)*cOne
+  SPIN(1,9,3,2) = sqrt(Half*Seven)*cOne
+  SPIN(1,9,3,4) = sqrt(Two)*cOne
+  SPIN(1,9,4,3) = sqrt(Two)*cOne
+  SPIN(2,9,-4,-3) = sqrt(Two)*Onei
+  SPIN(2,9,-3,-4) = -sqrt(Two)*Onei
+  SPIN(2,9,-3,-2) = sqrt(Half*Seven)*Onei
+  SPIN(2,9,-2,-3) = -sqrt(Half*Seven)*Onei
+  SPIN(2,9,-2,-1) = Three*sqrt(Half)*Onei
+  SPIN(2,9,-1,-2) = -Three*sqrt(Half)*Onei
+  SPIN(2,9,-1,0) = sqrt(Five)*Onei
+  SPIN(2,9,0,-1) = -sqrt(Five)*Onei
+  SPIN(2,9,0,1) = sqrt(Five)*Onei
+  SPIN(2,9,1,0) = -sqrt(Five)*Onei
+  SPIN(2,9,1,2) = Three*sqrt(Half)*Onei
+  SPIN(2,9,2,1) = -Three*sqrt(Half)*Onei
+  SPIN(2,9,2,3) = sqrt(Half*Seven)*Onei
+  SPIN(2,9,3,2) = -sqrt(Half*Seven)*Onei
+  SPIN(2,9,3,4) = sqrt(Two)*Onei
+  SPIN(2,9,4,3) = -sqrt(Two)*Onei
+  SPIN(3,9,-4,-4) = -Four*cOne
+  SPIN(3,9,-3,-3) = -Three*cOne
+  SPIN(3,9,-2,-2) = -Two*cOne
+  SPIN(3,9,-1,-1) = -cOne
+  SPIN(3,9,0,0) = cZero
+  SPIN(3,9,1,1) = cOne
+  SPIN(3,9,2,2) = Two*cOne
+  SPIN(3,9,3,3) = Three*cOne
+  SPIN(3,9,4,4) = Four*cOne
+
+  ! Multiplicity 10 (decet)   S=9/2
+
+  SPIN(1,10,-5,-4) = OneHalf*cOne
+  SPIN(1,10,-4,-5) = OneHalf*cOne
+  SPIN(1,10,-4,-3) = Two*cOne
+  SPIN(1,10,-3,-4) = Two*cOne
+  SPIN(1,10,-3,-2) = Half*sqrt(Three*Seven)*cOne
+  SPIN(1,10,-2,-3) = Half*sqrt(Three*Seven)*cOne
+  SPIN(1,10,-2,-1) = sqrt(Six)*cOne
+  SPIN(1,10,-1,-2) = sqrt(Six)*cOne
+  SPIN(1,10,-1,1) = OneHalf*cOne
+  SPIN(1,10,1,-1) = OneHalf*cOne
+  SPIN(1,10,1,2) = sqrt(Six)*cOne
+  SPIN(1,10,2,1) = sqrt(Six)*cOne
+  SPIN(1,10,2,3) = Half*sqrt(Three*Seven)*cOne
+  SPIN(1,10,3,2) = Half*sqrt(Three*Seven)*cOne
+  SPIN(1,10,3,4) = Two*cOne
+  SPIN(1,10,4,3) = Two*cOne
+  SPIN(1,10,4,5) = OneHalf*cOne
+  SPIN(1,10,5,4) = OneHalf*cOne
+  SPIN(2,10,-5,-4) = OneHalf*Onei
+  SPIN(2,10,-4,-5) = -OneHalf*Onei
+  SPIN(2,10,-4,-3) = Two*Onei
+  SPIN(2,10,-3,-4) = -Two*Onei
+  SPIN(2,10,-3,-2) = Half*sqrt(Three*Seven)*Onei
+  SPIN(2,10,-2,-3) = -Half*sqrt(Three*Seven)*Onei
+  SPIN(2,10,-2,-1) = sqrt(Six)*Onei
+  SPIN(2,10,-1,-2) = -sqrt(Six)*Onei
+  SPIN(2,10,-1,1) = OneHalf*Onei
+  SPIN(2,10,1,-1) = -OneHalf*Onei
+  SPIN(2,10,1,2) = sqrt(Six)*Onei
+  SPIN(2,10,2,1) = -sqrt(Six)*Onei
+  SPIN(2,10,2,3) = Half*sqrt(Three*Seven)*Onei
+  SPIN(2,10,3,2) = -Half*sqrt(Three*Seven)*Onei
+  SPIN(2,10,3,4) = Two*Onei
+  SPIN(2,10,4,3) = -Two*Onei
+  SPIN(2,10,4,5) = OneHalf*Onei
+  SPIN(2,10,5,4) = -OneHalf*Onei
+  SPIN(3,10,-5,-5) = -Half*Nine*cOne
+  SPIN(3,10,-4,-4) = -Half*Seven*cOne
+  SPIN(3,10,-3,-3) = -Half*Five*cOne
+  SPIN(3,10,-2,-2) = -OneHalf*cOne
+  SPIN(3,10,-1,-1) = -Half*cOne
+  SPIN(3,10,1,1) = Half*cOne
+  SPIN(3,10,2,2) = OneHalf*cOne
+  SPIN(3,10,3,3) = Half*Five*cOne
+  SPIN(3,10,4,4) = Half*Seven*cOne
+  SPIN(3,10,5,5) = Half*Nine*cOne
+
+  ! Multiplicity 11 (undecet)   S=5
+
+  SPIN(1,11,-5,-4) = sqrt(Half*Five)*cOne
+  SPIN(1,11,-4,-5) = sqrt(Half*Five)*cOne
+  SPIN(1,11,-4,-3) = Three*sqrt(Half)*cOne
+  SPIN(1,11,-3,-4) = Three*sqrt(Half)*cOne
+  SPIN(1,11,-3,-2) = sqrt(Six)*cOne
+  SPIN(1,11,-2,-3) = sqrt(Six)*cOne
+  SPIN(1,11,-2,-1) = sqrt(Seven)*cOne
+  SPIN(1,11,-1,-2) = sqrt(Seven)*cOne
+  SPIN(1,11,-1,0) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,11,0,-1) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,11,0,1) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,11,1,0) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,11,1,2) = sqrt(Seven)*cOne
+  SPIN(1,11,2,1) = sqrt(Seven)*cOne
+  SPIN(1,11,2,3) = sqrt(Six)*cOne
+  SPIN(1,11,3,2) = sqrt(Six)*cOne
+  SPIN(1,11,3,4) = Three*sqrt(Half)*cOne
+  SPIN(1,11,4,3) = Three*sqrt(Half)*cOne
+  SPIN(1,11,4,5) = sqrt(Half*Five)*cOne
+  SPIN(1,11,5,4) = sqrt(Half*Five)*cOne
+  SPIN(2,11,-5,-4) = sqrt(Half*Five)*Onei
+  SPIN(2,11,-4,-5) = -sqrt(Half*Five)*Onei
+  SPIN(2,11,-4,-3) = Three*sqrt(Half)*Onei
+  SPIN(2,11,-3,-4) = -Three*sqrt(Half)*Onei
+  SPIN(2,11,-3,-2) = sqrt(Six)*Onei
+  SPIN(2,11,-2,-3) = -sqrt(Six)*Onei
+  SPIN(2,11,-2,-1) = sqrt(Seven)*Onei
+  SPIN(2,11,-1,-2) = -sqrt(Seven)*Onei
+  SPIN(2,11,-1,0) = sqrt(Half*Three*Five)*Onei
+  SPIN(2,11,0,-1) = -sqrt(Half*Three*Five)*Onei
+  SPIN(2,11,0,1) = sqrt(Half*Three*Five)*Onei
+  SPIN(2,11,1,0) = -sqrt(Half*Three*Five)*Onei
+  SPIN(2,11,1,2) = sqrt(Seven)*Onei
+  SPIN(2,11,2,1) = -sqrt(Seven)*Onei
+  SPIN(2,11,2,3) = sqrt(Six)*Onei
+  SPIN(2,11,3,2) = -sqrt(Six)*Onei
+  SPIN(2,11,3,4) = Three*sqrt(Half)*Onei
+  SPIN(2,11,4,3) = -Three*sqrt(Half)*Onei
+  SPIN(2,11,4,5) = sqrt(Half*Five)*Onei
+  SPIN(2,11,5,4) = -sqrt(Half*Five)*Onei
+  SPIN(3,11,-5,-5) = -Five*cOne
+  SPIN(3,11,-4,-4) = -Four*cOne
+  SPIN(3,11,-3,-3) = -Three*cOne
+  SPIN(3,11,-2,-2) = -Two*cOne
+  SPIN(3,11,-1,-1) = -cOne
+  SPIN(3,11,0,0) = cZero
+  SPIN(3,11,1,1) = cOne
+  SPIN(3,11,2,2) = Two*cOne
+  SPIN(3,11,3,3) = Three*cOne
+  SPIN(3,11,4,4) = Four*cOne
+  SPIN(3,11,5,5) = Five*cOne
+
+  ! Multiplicity 12 (duodecet)   S=11/2
+
+  SPIN(1,12,-6,-5) = Half*sqrt(Eleven)*cOne
+  SPIN(1,12,-5,-6) = Half*sqrt(Eleven)*cOne
+  SPIN(1,12,-5,-4) = sqrt(Five)*cOne
+  SPIN(1,12,-4,-5) = sqrt(Five)*cOne
+  SPIN(1,12,-4,-3) = OneHalf*sqrt(Three)*cOne
+  SPIN(1,12,-3,-4) = OneHalf*sqrt(Three)*cOne
+  SPIN(1,12,-3,-2) = sqrt(Eight)*cOne
+  SPIN(1,12,-2,-3) = sqrt(Eight)*cOne
+  SPIN(1,12,-2,-1) = Half*sqrt(Five*Seven)*cOne
+  SPIN(1,12,-1,-2) = Half*sqrt(Five*Seven)*cOne
+  SPIN(1,12,-1,1) = Three*cOne
+  SPIN(1,12,1,-1) = Three*cOne
+  SPIN(1,12,1,2) = Half*sqrt(Five*Seven)*cOne
+  SPIN(1,12,2,1) = Half*sqrt(Five*Seven)*cOne
+  SPIN(1,12,2,3) = sqrt(Eight)*cOne
+  SPIN(1,12,3,2) = sqrt(Eight)*cOne
+  SPIN(1,12,3,4) = OneHalf*sqrt(Three)*cOne
+  SPIN(1,12,4,3) = OneHalf*sqrt(Three)*cOne
+  SPIN(1,12,4,5) = sqrt(Five)*cOne
+  SPIN(1,12,5,4) = sqrt(Five)*cOne
+  SPIN(1,12,5,6) = Half*sqrt(Eleven)*cOne
+  SPIN(1,12,6,5) = Half*sqrt(Eleven)*cOne
+  SPIN(2,12,-6,-5) = Half*sqrt(Eleven)*Onei
+  SPIN(2,12,-5,-6) = -Half*sqrt(Eleven)*Onei
+  SPIN(2,12,-5,-4) = sqrt(Five)*Onei
+  SPIN(2,12,-4,-5) = -sqrt(Five)*Onei
+  SPIN(2,12,-4,-3) = OneHalf*sqrt(Three)*Onei
+  SPIN(2,12,-3,-4) = -OneHalf*sqrt(Three)*Onei
+  SPIN(2,12,-3,-2) = sqrt(Eight)*Onei
+  SPIN(2,12,-2,-3) = -sqrt(Eight)*Onei
+  SPIN(2,12,-2,-1) = Half*sqrt(Five*Seven)*Onei
+  SPIN(2,12,-1,-2) = -Half*sqrt(Five*Seven)*Onei
+  SPIN(2,12,-1,1) = Three*Onei
+  SPIN(2,12,1,-1) = -Three*Onei
+  SPIN(2,12,1,2) = Half*sqrt(Five*Seven)*Onei
+  SPIN(2,12,2,1) = -Half*sqrt(Five*Seven)*Onei
+  SPIN(2,12,2,3) = sqrt(Eight)*Onei
+  SPIN(2,12,3,2) = -sqrt(Eight)*Onei
+  SPIN(2,12,3,4) = OneHalf*sqrt(Three)*Onei
+  SPIN(2,12,4,3) = -OneHalf*sqrt(Three)*Onei
+  SPIN(2,12,4,5) = sqrt(Five)*Onei
+  SPIN(2,12,5,4) = -sqrt(Five)*Onei
+  SPIN(2,12,5,6) = Half*sqrt(Eleven)*Onei
+  SPIN(2,12,6,5) = -Half*sqrt(Eleven)*Onei
+  SPIN(3,12,-6,-6) = -Half*Eleven*cOne
+  SPIN(3,12,-5,-5) = -Half*Nine*cOne
+  SPIN(3,12,-4,-4) = -Half*Seven*cOne
+  SPIN(3,12,-3,-3) = -Half*Five*cOne
+  SPIN(3,12,-2,-2) = -OneHalf*cOne
+  SPIN(3,12,-1,-1) = -Half*cOne
+  SPIN(3,12,1,1) = Half*cOne
+  SPIN(3,12,2,2) = OneHalf*cOne
+  SPIN(3,12,3,3) = Half*Five*cOne
+  SPIN(3,12,4,4) = Half*Seven*cOne
+  SPIN(3,12,5,5) = Half*Nine*cOne
+  SPIN(3,12,6,6) = Half*Eleven*cOne
+
+  ! Multiplicity 13 (tredecet)   S=6
+
+  SPIN(1,13,-6,-5) = sqrt(Three)*cOne
+  SPIN(1,13,-5,-6) = sqrt(Three)*cOne
+  SPIN(1,13,-5,-4) = sqrt(Half*Eleven)*cOne
+  SPIN(1,13,-4,-5) = sqrt(Half*Eleven)*cOne
+  SPIN(1,13,-4,-3) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,13,-3,-4) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,13,-3,-2) = Three*cOne
+  SPIN(1,13,-2,-3) = Three*cOne
+  SPIN(1,13,-2,-1) = sqrt(Ten)*cOne
+  SPIN(1,13,-1,-2) = sqrt(Ten)*cOne
+  SPIN(1,13,-1,0) = sqrt(Half*Three*Seven)*cOne
+  SPIN(1,13,0,-1) = sqrt(Half*Three*Seven)*cOne
+  SPIN(1,13,0,1) = sqrt(Half*Three*Seven)*cOne
+  SPIN(1,13,1,0) = sqrt(Half*Three*Seven)*cOne
+  SPIN(1,13,1,2) = sqrt(Ten)*cOne
+  SPIN(1,13,2,1) = sqrt(Ten)*cOne
+  SPIN(1,13,2,3) = Three*cOne
+  SPIN(1,13,3,2) = Three*cOne
+  SPIN(1,13,3,4) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,13,4,3) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,13,4,5) = sqrt(Half*Eleven)*cOne
+  SPIN(1,13,5,4) = sqrt(Half*Eleven)*cOne
+  SPIN(1,13,5,6) = sqrt(Three)*cOne
+  SPIN(1,13,6,5) = sqrt(Three)*cOne
+  SPIN(2,13,-6,-5) = sqrt(Three)*Onei
+  SPIN(2,13,-5,-6) = -sqrt(Three)*Onei
+  SPIN(2,13,-5,-4) = sqrt(Half*Eleven)*Onei
+  SPIN(2,13,-4,-5) = -sqrt(Half*Eleven)*Onei
+  SPIN(2,13,-4,-3) = sqrt(Half*Three*Five)*Onei
+  SPIN(2,13,-3,-4) = -sqrt(Half*Three*Five)*Onei
+  SPIN(2,13,-3,-2) = Three*Onei
+  SPIN(2,13,-2,-3) = -Three*Onei
+  SPIN(2,13,-2,-1) = sqrt(Ten)*Onei
+  SPIN(2,13,-1,-2) = -sqrt(Ten)*Onei
+  SPIN(2,13,-1,0) = sqrt(Half*Three*Seven)*Onei
+  SPIN(2,13,0,-1) = -sqrt(Half*Three*Seven)*Onei
+  SPIN(2,13,0,1) = sqrt(Half*Three*Seven)*Onei
+  SPIN(2,13,1,0) = -sqrt(Half*Three*Seven)*Onei
+  SPIN(2,13,1,2) = sqrt(Ten)*Onei
+  SPIN(2,13,2,1) = -sqrt(Ten)*Onei
+  SPIN(2,13,2,3) = Three*Onei
+  SPIN(2,13,3,2) = -Three*Onei
+  SPIN(2,13,3,4) = sqrt(Half*Three*Five)*Onei
+  SPIN(2,13,4,3) = -sqrt(Half*Three*Five)*Onei
+  SPIN(2,13,4,5) = sqrt(Half*Eleven)*Onei
+  SPIN(2,13,5,4) = -sqrt(Half*Eleven)*Onei
+  SPIN(2,13,5,6) = sqrt(Three)*Onei
+  SPIN(2,13,6,5) = -sqrt(Three)*Onei
+  SPIN(3,13,-6,-6) = -Six*cOne
+  SPIN(3,13,-5,-5) = -Five*cOne
+  SPIN(3,13,-4,-4) = -Four*cOne
+  SPIN(3,13,-3,-3) = -Three*cOne
+  SPIN(3,13,-2,-2) = -Two*cOne
+  SPIN(3,13,-1,-1) = -cOne
+  SPIN(3,13,0,0) = cZero
+  SPIN(3,13,1,1) = cOne
+  SPIN(3,13,2,2) = Two*cOne
+  SPIN(3,13,3,3) = Three*cOne
+  SPIN(3,13,4,4) = Four*cOne
+  SPIN(3,13,5,5) = Five*cOne
+  SPIN(3,13,6,6) = Six*cOne
+
+  ! Multiplicity 14 (quattuordecet)   S=13/2
+
+  SPIN(1,14,-7,-6) = Half*sqrt(Thirteen)*cOne
+  SPIN(1,14,-6,-7) = Half*sqrt(Thirteen)*cOne
+  SPIN(1,14,-6,-5) = sqrt(Six)*cOne
+  SPIN(1,14,-5,-6) = sqrt(Six)*cOne
+  SPIN(1,14,-5,-4) = Half*sqrt(Three*Eleven)*cOne
+  SPIN(1,14,-4,-5) = Half*sqrt(Three*Eleven)*cOne
+  SPIN(1,14,-4,-3) = sqrt(Ten)*cOne
+  SPIN(1,14,-3,-4) = sqrt(Ten)*cOne
+  SPIN(1,14,-3,-2) = OneHalf*sqrt(Five)*cOne
+  SPIN(1,14,-2,-3) = OneHalf*sqrt(Five)*cOne
+  SPIN(1,14,-2,-1) = sqrt(Twelve)*cOne
+  SPIN(1,14,-1,-2) = sqrt(Twelve)*cOne
+  SPIN(1,14,-1,1) = Half*Seven*cOne
+  SPIN(1,14,1,-1) = Half*Seven*cOne
+  SPIN(1,14,1,2) = sqrt(Twelve)*cOne
+  SPIN(1,14,2,1) = sqrt(Twelve)*cOne
+  SPIN(1,14,2,3) = OneHalf*sqrt(Five)*cOne
+  SPIN(1,14,3,2) = OneHalf*sqrt(Five)*cOne
+  SPIN(1,14,3,4) = sqrt(Ten)*cOne
+  SPIN(1,14,4,3) = sqrt(Ten)*cOne
+  SPIN(1,14,4,5) = Half*sqrt(Three*Eleven)*cOne
+  SPIN(1,14,5,4) = Half*sqrt(Three*Eleven)*cOne
+  SPIN(1,14,5,6) = sqrt(Six)*cOne
+  SPIN(1,14,6,5) = sqrt(Six)*cOne
+  SPIN(1,14,6,7) = Half*sqrt(Thirteen)*cOne
+  SPIN(1,14,7,6) = Half*sqrt(Thirteen)*cOne
+  SPIN(2,14,-7,-6) = Half*sqrt(Thirteen)*Onei
+  SPIN(2,14,-6,-7) = -Half*sqrt(Thirteen)*Onei
+  SPIN(2,14,-6,-5) = sqrt(Six)*Onei
+  SPIN(2,14,-5,-6) = -sqrt(Six)*Onei
+  SPIN(2,14,-5,-4) = Half*sqrt(Three*Eleven)*Onei
+  SPIN(2,14,-4,-5) = -Half*sqrt(Three*Eleven)*Onei
+  SPIN(2,14,-4,-3) = sqrt(Ten)*Onei
+  SPIN(2,14,-3,-4) = -sqrt(Ten)*Onei
+  SPIN(2,14,-3,-2) = OneHalf*sqrt(Five)*Onei
+  SPIN(2,14,-2,-3) = -OneHalf*sqrt(Five)*Onei
+  SPIN(2,14,-2,-1) = sqrt(Twelve)*Onei
+  SPIN(2,14,-1,-2) = -sqrt(Twelve)*Onei
+  SPIN(2,14,-1,1) = Half*Seven*Onei
+  SPIN(2,14,1,-1) = -Half*Seven*Onei
+  SPIN(2,14,1,2) = sqrt(Twelve)*Onei
+  SPIN(2,14,2,1) = -sqrt(Twelve)*Onei
+  SPIN(2,14,2,3) = OneHalf*sqrt(Five)*Onei
+  SPIN(2,14,3,2) = -OneHalf*sqrt(Five)*Onei
+  SPIN(2,14,3,4) = sqrt(Ten)*Onei
+  SPIN(2,14,4,3) = -sqrt(Ten)*Onei
+  SPIN(2,14,4,5) = Half*sqrt(Three*Eleven)*Onei
+  SPIN(2,14,5,4) = -Half*sqrt(Three*Eleven)*Onei
+  SPIN(2,14,5,6) = sqrt(Six)*Onei
+  SPIN(2,14,6,5) = -sqrt(Six)*Onei
+  SPIN(2,14,6,7) = Half*sqrt(Thirteen)*Onei
+  SPIN(2,14,7,6) = -Half*sqrt(Thirteen)*Onei
+  SPIN(3,14,-7,-7) = -Half*Thirteen*cOne
+  SPIN(3,14,-6,-6) = -Half*Eleven*cOne
+  SPIN(3,14,-5,-5) = -Half*Nine*cOne
+  SPIN(3,14,-4,-4) = -Half*Seven*cOne
+  SPIN(3,14,-3,-3) = -Half*Five*cOne
+  SPIN(3,14,-2,-2) = -OneHalf*cOne
+  SPIN(3,14,-1,-1) = -Half*cOne
+  SPIN(3,14,1,1) = Half*cOne
+  SPIN(3,14,2,2) = OneHalf*cOne
+  SPIN(3,14,3,3) = Half*Five*cOne
+  SPIN(3,14,4,4) = Half*Seven*cOne
+  SPIN(3,14,5,5) = Half*Nine*cOne
+  SPIN(3,14,6,6) = Half*Eleven*cOne
+  SPIN(3,14,7,7) = Half*Thirteen*cOne
+
+  ! Multiplicity 15 (quindecet)   S=7
+
+  SPIN(1,15,-7,-6) = sqrt(Half*Seven)*cOne
+  SPIN(1,15,-6,-7) = sqrt(Half*Seven)*cOne
+  SPIN(1,15,-6,-5) = sqrt(Half*Thirteen)*cOne
+  SPIN(1,15,-5,-6) = sqrt(Half*Thirteen)*cOne
+  SPIN(1,15,-5,-4) = Three*cOne
+  SPIN(1,15,-4,-5) = Three*cOne
+  SPIN(1,15,-4,-3) = sqrt(Eleven)*cOne
+  SPIN(1,15,-3,-4) = sqrt(Eleven)*cOne
+  SPIN(1,15,-3,-2) = Five*sqrt(Half)*cOne
+  SPIN(1,15,-2,-3) = Five*sqrt(Half)*cOne
+  SPIN(1,15,-2,-1) = Three*sqrt(OneHalf)*cOne
+  SPIN(1,15,-1,-2) = Three*sqrt(OneHalf)*cOne
+  SPIN(1,15,-1,0) = sqrt(Two*Seven)*cOne
+  SPIN(1,15,0,-1) = sqrt(Two*Seven)*cOne
+  SPIN(1,15,0,1) = sqrt(Two*Seven)*cOne
+  SPIN(1,15,1,0) = sqrt(Two*Seven)*cOne
+  SPIN(1,15,1,2) = Three*sqrt(OneHalf)*cOne
+  SPIN(1,15,2,1) = Three*sqrt(OneHalf)*cOne
+  SPIN(1,15,2,3) = Five*sqrt(Half)*cOne
+  SPIN(1,15,3,2) = Five*sqrt(Half)*cOne
+  SPIN(1,15,3,4) = sqrt(Eleven)*cOne
+  SPIN(1,15,4,3) = sqrt(Eleven)*cOne
+  SPIN(1,15,4,5) = Three*cOne
+  SPIN(1,15,5,4) = Three*cOne
+  SPIN(1,15,5,6) = sqrt(Half*Thirteen)*cOne
+  SPIN(1,15,6,5) = sqrt(Half*Thirteen)*cOne
+  SPIN(1,15,6,7) = sqrt(Half*Seven)*cOne
+  SPIN(1,15,7,6) = sqrt(Half*Seven)*cOne
+  SPIN(2,15,-7,-6) = sqrt(Half*Seven)*Onei
+  SPIN(2,15,-6,-7) = -sqrt(Half*Seven)*Onei
+  SPIN(2,15,-6,-5) = sqrt(Half*Thirteen)*Onei
+  SPIN(2,15,-5,-6) = -sqrt(Half*Thirteen)*Onei
+  SPIN(2,15,-5,-4) = Three*Onei
+  SPIN(2,15,-4,-5) = -Three*Onei
+  SPIN(2,15,-4,-3) = sqrt(Eleven)*Onei
+  SPIN(2,15,-3,-4) = -sqrt(Eleven)*Onei
+  SPIN(2,15,-3,-2) = Five*sqrt(Half)*Onei
+  SPIN(2,15,-2,-3) = -Five*sqrt(Half)*Onei
+  SPIN(2,15,-2,-1) = Three*sqrt(OneHalf)*Onei
+  SPIN(2,15,-1,-2) = -Three*sqrt(OneHalf)*Onei
+  SPIN(2,15,-1,0) = sqrt(Two*Seven)*Onei
+  SPIN(2,15,0,-1) = -sqrt(Two*Seven)*Onei
+  SPIN(2,15,0,1) = sqrt(Two*Seven)*Onei
+  SPIN(2,15,1,0) = -sqrt(Two*Seven)*Onei
+  SPIN(2,15,1,2) = Three*sqrt(OneHalf)*Onei
+  SPIN(2,15,2,1) = -Three*sqrt(OneHalf)*Onei
+  SPIN(2,15,2,3) = Five*sqrt(Half)*Onei
+  SPIN(2,15,3,2) = -Five*sqrt(Half)*Onei
+  SPIN(2,15,3,4) = sqrt(Eleven)*Onei
+  SPIN(2,15,4,3) = -sqrt(Eleven)*Onei
+  SPIN(2,15,4,5) = Three*Onei
+  SPIN(2,15,5,4) = -Three*Onei
+  SPIN(2,15,5,6) = sqrt(Half*Thirteen)*Onei
+  SPIN(2,15,6,5) = -sqrt(Half*Thirteen)*Onei
+  SPIN(2,15,6,7) = sqrt(Half*Seven)*Onei
+  SPIN(2,15,7,6) = -sqrt(Half*Seven)*Onei
+  SPIN(3,15,-7,-7) = -Seven*cOne
+  SPIN(3,15,-6,-6) = -Six*cOne
+  SPIN(3,15,-5,-5) = -Five*cOne
+  SPIN(3,15,-4,-4) = -Four*cOne
+  SPIN(3,15,-3,-3) = -Three*cOne
+  SPIN(3,15,-2,-2) = -Two*cOne
+  SPIN(3,15,-1,-1) = -cOne
+  SPIN(3,15,0,0) = cZero
+  SPIN(3,15,1,1) = cOne
+  SPIN(3,15,2,2) = Two*cOne
+  SPIN(3,15,3,3) = Three*cOne
+  SPIN(3,15,4,4) = Four*cOne
+  SPIN(3,15,5,5) = Five*cOne
+  SPIN(3,15,6,6) = Six*cOne
+  SPIN(3,15,7,7) = Seven*cOne
+
+  ! Multiplicity 16 (sedecet)   S=15/2
+
+  SPIN(1,16,-8,-7) = Half*sqrt(Three*Five)*cOne
+  SPIN(1,16,-7,-8) = Half*sqrt(Three*Five)*cOne
+  SPIN(1,16,-7,-6) = sqrt(Seven)*cOne
+  SPIN(1,16,-6,-7) = sqrt(Seven)*cOne
+  SPIN(1,16,-6,-5) = Half*sqrt(Three*Thirteen)*cOne
+  SPIN(1,16,-5,-6) = Half*sqrt(Three*Thirteen)*cOne
+  SPIN(1,16,-5,-4) = sqrt(Twelve)*cOne
+  SPIN(1,16,-4,-5) = sqrt(Twelve)*cOne
+  SPIN(1,16,-4,-3) = Half*sqrt(Five*Eleven)*cOne
+  SPIN(1,16,-3,-4) = Half*sqrt(Five*Eleven)*cOne
+  SPIN(1,16,-3,-2) = sqrt(Three*Five)*cOne
+  SPIN(1,16,-2,-3) = sqrt(Three*Five)*cOne
+  SPIN(1,16,-2,-1) = OneHalf*sqrt(Seven)*cOne
+  SPIN(1,16,-1,-2) = OneHalf*sqrt(Seven)*cOne
+  SPIN(1,16,-1,1) = Four*cOne
+  SPIN(1,16,1,-1) = Four*cOne
+  SPIN(1,16,1,2) = OneHalf*sqrt(Seven)*cOne
+  SPIN(1,16,2,1) = OneHalf*sqrt(Seven)*cOne
+  SPIN(1,16,2,3) = sqrt(Three*Five)*cOne
+  SPIN(1,16,3,2) = sqrt(Three*Five)*cOne
+  SPIN(1,16,3,4) = Half*sqrt(Five*Eleven)*cOne
+  SPIN(1,16,4,3) = Half*sqrt(Five*Eleven)*cOne
+  SPIN(1,16,4,5) = sqrt(Twelve)*cOne
+  SPIN(1,16,5,4) = sqrt(Twelve)*cOne
+  SPIN(1,16,5,6) = Half*sqrt(Three*Thirteen)*cOne
+  SPIN(1,16,6,5) = Half*sqrt(Three*Thirteen)*cOne
+  SPIN(1,16,6,7) = sqrt(Seven)*cOne
+  SPIN(1,16,7,6) = sqrt(Seven)*cOne
+  SPIN(1,16,7,8) = Half*sqrt(Three*Five)*cOne
+  SPIN(1,16,8,7) = Half*sqrt(Three*Five)*cOne
+  SPIN(2,16,-8,-7) = Half*sqrt(Three*Five)*Onei
+  SPIN(2,16,-7,-8) = -Half*sqrt(Three*Five)*Onei
+  SPIN(2,16,-7,-6) = sqrt(Seven)*Onei
+  SPIN(2,16,-6,-7) = -sqrt(Seven)*Onei
+  SPIN(2,16,-6,-5) = Half*sqrt(Three*Thirteen)*Onei
+  SPIN(2,16,-5,-6) = -Half*sqrt(Three*Thirteen)*Onei
+  SPIN(2,16,-5,-4) = sqrt(Twelve)*Onei
+  SPIN(2,16,-4,-5) = -sqrt(Twelve)*Onei
+  SPIN(2,16,-4,-3) = Half*sqrt(Five*Eleven)*Onei
+  SPIN(2,16,-3,-4) = -Half*sqrt(Five*Eleven)*Onei
+  SPIN(2,16,-3,-2) = sqrt(Three*Five)*Onei
+  SPIN(2,16,-2,-3) = -sqrt(Three*Five)*Onei
+  SPIN(2,16,-2,-1) = OneHalf*sqrt(Seven)*Onei
+  SPIN(2,16,-1,-2) = -OneHalf*sqrt(Seven)*Onei
+  SPIN(2,16,-1,1) = Four*Onei
+  SPIN(2,16,1,-1) = -Four*Onei
+  SPIN(2,16,1,2) = OneHalf*sqrt(Seven)*Onei
+  SPIN(2,16,2,1) = -OneHalf*sqrt(Seven)*Onei
+  SPIN(2,16,2,3) = sqrt(Three*Five)*Onei
+  SPIN(2,16,3,2) = -sqrt(Three*Five)*Onei
+  SPIN(2,16,3,4) = Half*sqrt(Five*Eleven)*Onei
+  SPIN(2,16,4,3) = -Half*sqrt(Five*Eleven)*Onei
+  SPIN(2,16,4,5) = sqrt(Twelve)*Onei
+  SPIN(2,16,5,4) = -sqrt(Twelve)*Onei
+  SPIN(2,16,5,6) = Half*sqrt(Three*Thirteen)*Onei
+  SPIN(2,16,6,5) = -Half*sqrt(Three*Thirteen)*Onei
+  SPIN(2,16,6,7) = sqrt(Seven)*Onei
+  SPIN(2,16,7,6) = -sqrt(Seven)*Onei
+  SPIN(2,16,7,8) = Half*sqrt(Three*Five)*Onei
+  SPIN(2,16,8,7) = -Half*sqrt(Three*Five)*Onei
+  SPIN(3,16,-8,-8) = -Half*Fifteen*cOne
+  SPIN(3,16,-7,-7) = -Half*Thirteen*cOne
+  SPIN(3,16,-6,-6) = -Half*Eleven*cOne
+  SPIN(3,16,-5,-5) = -Half*Nine*cOne
+  SPIN(3,16,-4,-4) = -Half*Seven*cOne
+  SPIN(3,16,-3,-3) = -Half*Five*cOne
+  SPIN(3,16,-2,-2) = -OneHalf*cOne
+  SPIN(3,16,-1,-1) = -Half*cOne
+  SPIN(3,16,1,1) = Half*cOne
+  SPIN(3,16,2,2) = OneHalf*cOne
+  SPIN(3,16,3,3) = Half*Five*cOne
+  SPIN(3,16,4,4) = Half*Seven*cOne
+  SPIN(3,16,5,5) = Half*Nine*cOne
+  SPIN(3,16,6,6) = Half*Eleven*cOne
+  SPIN(3,16,7,7) = Half*Thirteen*cOne
+  SPIN(3,16,8,8) = Half*Fifteen*cOne
+
+  ! Multiplicity 17 (septendecet)   S=8
+
+  SPIN(1,17,-8,-7) = Two*cOne
+  SPIN(1,17,-7,-8) = Two*cOne
+  SPIN(1,17,-7,-6) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,17,-6,-7) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,17,-6,-5) = sqrt(Half*Three*Seven)*cOne
+  SPIN(1,17,-5,-6) = sqrt(Half*Three*Seven)*cOne
+  SPIN(1,17,-5,-4) = sqrt(Thirteen)*cOne
+  SPIN(1,17,-4,-5) = sqrt(Thirteen)*cOne
+  SPIN(1,17,-4,-3) = sqrt(Three*Five)*cOne
+  SPIN(1,17,-3,-4) = sqrt(Three*Five)*cOne
+  SPIN(1,17,-3,-2) = sqrt(Half*Three*Eleven)*cOne
+  SPIN(1,17,-2,-3) = sqrt(Half*Three*Eleven)*cOne
+  SPIN(1,17,-2,-1) = sqrt(Half*Five*Seven)*cOne
+  SPIN(1,17,-1,-2) = sqrt(Half*Five*Seven)*cOne
+  SPIN(1,17,-1,0) = sqrt(Nine*Two)*cOne
+  SPIN(1,17,0,-1) = sqrt(Nine*Two)*cOne
+  SPIN(1,17,0,1) = sqrt(Nine*Two)*cOne
+  SPIN(1,17,1,0) = sqrt(Nine*Two)*cOne
+  SPIN(1,17,1,2) = sqrt(Half*Five*Seven)*cOne
+  SPIN(1,17,2,1) = sqrt(Half*Five*Seven)*cOne
+  SPIN(1,17,2,3) = sqrt(Half*Three*Eleven)*cOne
+  SPIN(1,17,3,2) = sqrt(Half*Three*Eleven)*cOne
+  SPIN(1,17,3,4) = sqrt(Three*Five)*cOne
+  SPIN(1,17,4,3) = sqrt(Three*Five)*cOne
+  SPIN(1,17,4,5) = sqrt(Thirteen)*cOne
+  SPIN(1,17,5,4) = sqrt(Thirteen)*cOne
+  SPIN(1,17,5,6) = sqrt(Half*Three*Seven)*cOne
+  SPIN(1,17,6,5) = sqrt(Half*Three*Seven)*cOne
+  SPIN(1,17,6,7) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,17,7,6) = sqrt(Half*Three*Five)*cOne
+  SPIN(1,17,7,8) = Two*cOne
+  SPIN(1,17,8,7) = Two*cOne
+  SPIN(2,17,-8,-7) = Two*Onei
+  SPIN(2,17,-7,-8) = -Two*Onei
+  SPIN(2,17,-7,-6) = sqrt(Half*Three*Five)*Onei
+  SPIN(2,17,-6,-7) = -sqrt(Half*Three*Five)*Onei
+  SPIN(2,17,-6,-5) = sqrt(Half*Three*Seven)*Onei
+  SPIN(2,17,-5,-6) = -sqrt(Half*Three*Seven)*Onei
+  SPIN(2,17,-5,-4) = sqrt(Thirteen)*Onei
+  SPIN(2,17,-4,-5) = -sqrt(Thirteen)*Onei
+  SPIN(2,17,-4,-3) = sqrt(Three*Five)*Onei
+  SPIN(2,17,-3,-4) = -sqrt(Three*Five)*Onei
+  SPIN(2,17,-3,-2) = sqrt(Half*Three*Eleven)*Onei
+  SPIN(2,17,-2,-3) = -sqrt(Half*Three*Eleven)*Onei
+  SPIN(2,17,-2,-1) = sqrt(Half*Five*Seven)*Onei
+  SPIN(2,17,-1,-2) = -sqrt(Half*Five*Seven)*Onei
+  SPIN(2,17,-1,0) = sqrt(Nine*Two)*Onei
+  SPIN(2,17,0,-1) = -sqrt(Nine*Two)*Onei
+  SPIN(2,17,0,1) = sqrt(Nine*Two)*Onei
+  SPIN(2,17,1,0) = -sqrt(Nine*Two)*Onei
+  SPIN(2,17,1,2) = sqrt(Half*Five*Seven)*Onei
+  SPIN(2,17,2,1) = -sqrt(Half*Five*Seven)*Onei
+  SPIN(2,17,2,3) = sqrt(Half*Three*Eleven)*Onei
+  SPIN(2,17,3,2) = -sqrt(Half*Three*Eleven)*Onei
+  SPIN(2,17,3,4) = sqrt(Three*Five)*Onei
+  SPIN(2,17,4,3) = -sqrt(Three*Five)*Onei
+  SPIN(2,17,4,5) = sqrt(Thirteen)*Onei
+  SPIN(2,17,5,4) = -sqrt(Thirteen)*Onei
+  SPIN(2,17,5,6) = sqrt(Half*Three*Seven)*Onei
+  SPIN(2,17,6,5) = -sqrt(Half*Three*Seven)*Onei
+  SPIN(2,17,6,7) = sqrt(Half*Three*Five)*Onei
+  SPIN(2,17,7,6) = -sqrt(Half*Three*Five)*Onei
+  SPIN(2,17,7,8) = Two*Onei
+  SPIN(2,17,8,7) = -Two*Onei
+  SPIN(3,17,-8,-8) = -Eight*cOne
+  SPIN(3,17,-7,-7) = -Seven*cOne
+  SPIN(3,17,-6,-6) = -Six*cOne
+  SPIN(3,17,-5,-5) = -Five*cOne
+  SPIN(3,17,-4,-4) = -Four*cOne
+  SPIN(3,17,-3,-3) = -Three*cOne
+  SPIN(3,17,-2,-2) = -Two*cOne
+  SPIN(3,17,-1,-1) = -cOne
+  SPIN(3,17,0,0) = cZero
+  SPIN(3,17,1,1) = cOne
+  SPIN(3,17,2,2) = Two*cOne
+  SPIN(3,17,3,3) = Three*cOne
+  SPIN(3,17,4,4) = Four*cOne
+  SPIN(3,17,5,5) = Five*cOne
+  SPIN(3,17,6,6) = Six*cOne
+  SPIN(3,17,7,7) = Seven*cOne
+  SPIN(3,17,8,8) = Eight*cOne
+
+end subroutine Setup_Spin_Moment_Matrix
+
+end module Spin_Constants

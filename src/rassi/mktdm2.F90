@@ -8,239 +8,239 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 #include "macros.fh"
-      SUBROUTINE MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,                  &
-     &                  LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,           &
-     &                  MAPORB,DET1,DET2,NTDM2,TDM2,                    &
-     &                  ISTATE,JSTATE,OrbTab)
 
-      ! module dependencies
+subroutine MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,DET1,DET2,NTDM2,TDM2,ISTATE,JSTATE, &
+                  OrbTab)
+
 #ifdef _DMRG_
-      use rasscf_global, only: doDMRG
-      use qcmaquis_info
+use rasscf_global, only: doDMRG
+use qcmaquis_info
 #endif
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: MUL
-      IMPLICIT NONE
-      INTEGER LSYM1,MPLET1,MSPROJ1
-      INTEGER IFSBTAB1(*)
-      INTEGER LSYM2,MPLET2,MSPROJ2
-      INTEGER IFSBTAB2(*)
-      INTEGER ISSTAB(*),MAPORB(*),NTDM2
-      REAL*8 DET1(*),DET2(*)
-      REAL*8 TDM2(NTDM2)
-      INTEGER ISTATE,JSTATE
-      INTEGER OrbTab(*)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Symmetry_Info, only: MUL
+use Constants, only: Zero, One, Two, Half
+#if defined (_DEBUGPRINT_) || defined (_DMRG_)
+use Definitions, only: u6
+#endif
 
-      INTEGER IORB,ITABS,IUABS,JORB
-      INTEGER NASHT,NASORB
-      REAL*8 SGNJL,SGNIK
-      REAL*8 GVAL,GAAAA,GABBA,GBAAB,GBBBB,GABAB,GBABA
-      INTEGER ISYOP,MS2OP
-      INTEGER IAAAA,IABAB,IABBA,IAKA,IAKB,IBAAB,IBABA,IBBBB,IBIA
-      INTEGER IBKA,IBKB,IJ,IJIJ,IORBA,IORBB,ITU,ITUVX
-      INTEGER IVABS,IVX,IXABS,JALA,JALB,JBJA,JBLA,JBLB
-      INTEGER JORBA,JORBB,KORB,KORBA,KORBB,LORB,LORBA,LORBB
-      INTEGER NASGEM,NSPD2
-      Real*8, Allocatable:: SPD2(:)
+implicit none
+integer LSYM1, MPLET1, MSPROJ1
+integer IFSBTAB1(*)
+integer LSYM2, MPLET2, MSPROJ2
+integer IFSBTAB2(*)
+integer ISSTAB(*), MAPORB(*), NTDM2
+real*8 DET1(*), DET2(*)
+real*8 TDM2(NTDM2)
+integer ISTATE, JSTATE
+integer OrbTab(*)
+integer IORB, ITABS, IUABS, JORB
+integer NASHT, NASORB
+real*8 SGNJL, SGNIK
+real*8 GVAL, GAAAA, GABBA, GBAAB, GBBBB, GABAB, GBABA
+integer ISYOP, MS2OP
+integer IAAAA, IABAB, IABBA, IAKA, IAKB, IBAAB, IBABA, IBBBB, IBIA
+integer IBKA, IBKB, IJ, IJIJ, IORBA, IORBB, ITU, ITUVX
+integer IVABS, IVX, IXABS, JALA, JALB, JBJA, JBLA, JBLB
+integer JORBA, JORBB, KORB, KORBA, KORBB, LORB, LORBA, LORBB
+integer NASGEM, NSPD2
+real*8, allocatable :: SPD2(:)
 
 ! Given two CI expansions, using a biorthonormal set of SD''s,
 ! calculate the spin-summed 2-particle transition density matrix
 ! in the biorthonormal active orbital basis.
 
 ! Pick out nr of active orbitals from orbital table:
-      NASORB=ORBTAB(4)
-      NASHT=NASORB/2
-      NASGEM=(NASORB*(NASORB-1))/2
-      NSPD2=NASGEM**2
-      Call mma_allocate(SPD2,nSPD2,Label='SPD2')
-      SPD2(:)=0.0D0
-      ISYOP   = MUL(LSYM1,LSYM2)
-      MS2OP   = MSPROJ1-MSPROJ2
+NASORB = ORBTAB(4)
+NASHT = NASORB/2
+NASGEM = (NASORB*(NASORB-1))/2
+NSPD2 = NASGEM**2
+call mma_allocate(SPD2,nSPD2,Label='SPD2')
+SPD2(:) = Zero
+ISYOP = MUL(LSYM1,LSYM2)
+MS2OP = MSPROJ1-MSPROJ2
 
 #ifdef _DMRG_
-      if(.not.doDMRG)then
+if (.not. doDMRG) then
 #endif
-        CALL SPIND2(ISYOP,MS2OP,ORBTAB,ISSTAB,                          &
-     &              IFSBTAB1,IFSBTAB2,DET1,DET2,SPD2)
+  call SPIND2(ISYOP,MS2OP,ORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,DET1,DET2,SPD2)
 #ifdef _DMRG_
-      else
+else
 
-        write(6,*) "2-TDM import with QCMaquis in MPSSI "//             &
-     &    "not implemented yet"
-        call Quit_OnUserError()
-      endif
+  write(u6,*) '2-TDM import with QCMaquis in MPSSI not implemented yet'
+  call Quit_OnUserError()
+end if
 ! Old interface import
-!!#define BLUBB
-!        if (doMPSSICheckpoints) then
-!          call dmrg_interface_ctl(
-!     &                          task       = 'imp rdmY',
-!#ifndef BLUBB
-!     &                          x2         = spd2,
-!     &                          mdim       = nasgem,
-!#else
-!     &                          x2         = tdm2,
-!     &                          mdim       = ntdm2,
-!#endif
-!     &                          checkpoint1=
-!     &                          qcm_group_names(job1)%states(ist),
-!     &                          checkpoint2=
-!     &                          qcm_group_names(job2)%states(jst),
-!     &                          msproj     = msproj1,
-!     &                          msprojL    = msproj2,
-!     &                          multiplet  = MPLET1-1, ! (we need 2*S)
-!     &                          multipletL = MPLET2-1, ! (we need 2*S)
-!     &                          rdm1       = .false.,
-!     &                          rdm2       = .true.
-!     &                          )
-!        else
-!          call dmrg_interface_ctl(
-!     &                          task       = 'imp rdmY',
-!#ifndef BLUBB
-!     &                          x2         = spd2,
-!     &                          mdim       = nasgem,
-!#else
-!     &                          x2         = tdm2,
-!     &                          mdim       = ntdm2,
-!#endif
-!     &                          state      = iWork(lLROOT+ISTATE-1),
-!     &                          stateL     = iWork(lLROOT+JSTATE-1),
-!     &                          msproj     = msproj1,
-!     &                          msprojL    = msproj2,
-!     &                          multiplet  = MPLET1-1, ! (we need 2*S)
-!     &                          multipletL = MPLET2-1, ! (we need 2*S)
-!     &                          rdm1       = .false.,
-!     &                          rdm2       = .true.
-!     &                          )
-!        end if
+!#define BLUBB
+!if (doMPSSICheckpoints) then
+!  call dmrg_interface_ctl( &
+!    task='imp rdmY', &
+!#   ifndef BLUBB
+!    x2=spd2, &
+!    mdim=nasgem, &
+!#   else
+!    x2=tdm2, &
+!    mdim=ntdm2, &
+!#   endif
+!    checkpoint1=qcm_group_names(job1)%states(ist), &
+!    checkpoint2=qcm_group_names(job2)%states(jst), &
+!    msproj=msproj1, &
+!    msprojL=msproj2, &
+!    multiplet=MPLET1-1, & ! (we need 2*S)
+!    multipletL=MPLET2-1, & ! (we need 2*S)
+!    rdm1=.false., &
+!    rdm2=.true. &
+!  )
+!else
+!  call dmrg_interface_ctl( &
+!    task='imp rdmY', &
+!#   ifndef BLUBB
+!    x2=spd2, &
+!    mdim=nasgem, &
+!#   else
+!    x2=tdm2, &
+!    mdim=ntdm2, &
+!#   endif
+!    state=iWork(lLROOT+ISTATE-1), &
+!    stateL=iWork(lLROOT+JSTATE-1), &
+!    msproj=msproj1, &
+!    msprojL=msproj2, &
+!    multiplet=MPLET1-1, & ! (we need 2*S)
+!    multipletL=MPLET2-1, & ! (we need 2*S)
+!    rdm1=.false., &
+!    rdm2=.true. &
+!  )
+!end if
 !#ifdef BLUBB
-!        goto 124
+!goto 124
 !#endif
-!      end if
 #endif
 
-
-      SGNJL=1.0D0 ! dummy initialize
-      SGNIK=1.0D0 ! dummy initialize
-      IAKA=0      ! dummy initialize
-      IAKB=0      ! dummy initialize
-      IBIA=0      ! dummy initialize
-      IBKA=0      ! dummy initialize
-      IBKB=0      ! dummy initialize
-      JALA=0      ! dummy initialize
-      JALB=0      ! dummy initialize
-      JBLA=0      ! dummy initialize
-      JBLB=0      ! dummy initialize
-      JBJA=0      ! dummy initialize
-      DO JORB=1,NASHT
-       JORBA=2*JORB-1
-       JORBB=2*JORB
-       IUABS=MAPORB(JORBA)
-       DO IORB=1,NASHT
-        IORBA=2*IORB-1
-        IORBB=2*IORB
-        ITABS=MAPORB(IORBA)
-        ITU=ITABS+NASHT*(IUABS-1)
-        DO LORB=1,NASHT
-         LORBA=2*LORB-1
-         LORBB=2*LORB
-         IXABS=MAPORB(LORBA)
-      IF(JORB.GT.LORB) THEN
-        SGNJL=1.0D0
-        JALA=((JORBA-1)*(JORBA-2))/2+LORBA
-        JALB=((JORBA-1)*(JORBA-2))/2+LORBB
-        JBLA=((JORBB-1)*(JORBB-2))/2+LORBA
-        JBLB=((JORBB-1)*(JORBB-2))/2+LORBB
-      ELSE IF(JORB.EQ.LORB) THEN
-        JBJA=((JORBB-1)*(JORBB-2))/2+JORBA
-      ELSE
-        SGNJL=-1.0D0
-        JALA=((LORBA-1)*(LORBA-2))/2+JORBA
-        JALB=((LORBB-1)*(LORBB-2))/2+JORBA
-        JBLA=((LORBA-1)*(LORBA-2))/2+JORBB
-        JBLB=((LORBB-1)*(LORBB-2))/2+JORBB
-      END IF
-         DO KORB=1,NASHT
-          KORBA=2*KORB-1
-          KORBB=2*KORB
-          IVABS=MAPORB(KORBA)
-          IVX=IVABS+NASHT*(IXABS-1)
-          IF(ITU.LT.IVX) cycle
-      IF(IORB.GT.KORB) THEN
-        SGNIK=1.0D0
-        IAKA=((IORBA-1)*(IORBA-2))/2+KORBA
-        IAKB=((IORBA-1)*(IORBA-2))/2+KORBB
-        IBKA=((IORBB-1)*(IORBB-2))/2+KORBA
-        IBKB=((IORBB-1)*(IORBB-2))/2+KORBB
-      ELSE IF(IORB.EQ.KORB) THEN
-        IBIA=((IORBB-1)*(IORBB-2))/2+IORBA
-      ELSE
-        SGNIK=-1.0D0
-        IAKA=((KORBA-1)*(KORBA-2))/2+IORBA
-        IAKB=((KORBB-1)*(KORBB-2))/2+IORBA
-        IBKA=((KORBA-1)*(KORBA-2))/2+IORBB
-        IBKB=((KORBB-1)*(KORBB-2))/2+IORBB
-      END IF
-      IF(IORB.NE.KORB) THEN
-       IF(JORB.NE.LORB) THEN
-        IAAAA=IAKA+NASGEM*(JALA-1)
-        IABBA=IAKB+NASGEM*(JALB-1)
-        IBAAB=IBKA+NASGEM*(JBLA-1)
-        IBBBB=IBKB+NASGEM*(JBLB-1)
-        GAAAA=SPD2(IAAAA)
-        GABBA=SPD2(IABBA)
-        GBAAB=SPD2(IBAAB)
-        GBBBB=SPD2(IBBBB)
-        GVAL=SGNIK*SGNJL*(GAAAA+GABBA+GBAAB+GBBBB)
-       ELSE
-        IABAB=IAKB+NASGEM*(JBJA-1)
-        IBAAB=IBKA+NASGEM*(JBJA-1)
-        GABAB=SPD2(IABAB)
-        GBAAB=SPD2(IBAAB)
-        GVAL=SGNIK*(-GABAB+GBAAB)
-       END IF
-      ELSE
-       IF(JORB.NE.LORB) THEN
-        IBABA=IBIA+NASGEM*(JALB-1)
-        IBAAB=IBIA+NASGEM*(JBLA-1)
-        GBABA=SPD2(IBABA)
-        GBAAB=SPD2(IBAAB)
-        GVAL=SGNJL*(-GBABA+GBAAB)
-       ELSE
-        IBAAB=IBIA+NASGEM*(JBJA-1)
-        GBAAB=SPD2(IBAAB)
-        GVAL=2.0D0*GBAAB
-       END IF
-      END IF
-! Position determined by active orbital index in external order:
-          ITUVX=(ITU*(ITU-1))/2+IVX
-          TDM2(ITUVX)=GVAL
-         END DO
-        END DO
-       END DO
-      END DO
-
-!#ifdef BLUBB
-! 124  CONTINUE
-!#endif
-
-#ifdef _DMRG_DEBUGPRINT_
-      write(6,*)' final 2-TDM'
-      DO IJ=1,ntdm2
-        write(6,*)' IJ, value = ',IJ,TDM2(IJ)
+SGNJL = One ! dummy initialize
+SGNIK = One ! dummy initialize
+IAKA = 0    ! dummy initialize
+IAKB = 0    ! dummy initialize
+IBIA = 0    ! dummy initialize
+IBKA = 0    ! dummy initialize
+IBKB = 0    ! dummy initialize
+JALA = 0    ! dummy initialize
+JALB = 0    ! dummy initialize
+JBLA = 0    ! dummy initialize
+JBLB = 0    ! dummy initialize
+JBJA = 0    ! dummy initialize
+do JORB=1,NASHT
+  JORBA = 2*JORB-1
+  JORBB = 2*JORB
+  IUABS = MAPORB(JORBA)
+  do IORB=1,NASHT
+    IORBA = 2*IORB-1
+    IORBB = 2*IORB
+    ITABS = MAPORB(IORBA)
+    ITU = ITABS+NASHT*(IUABS-1)
+    do LORB=1,NASHT
+      LORBA = 2*LORB-1
+      LORBB = 2*LORB
+      IXABS = MAPORB(LORBA)
+      if (JORB > LORB) then
+        SGNJL = One
+        JALA = ((JORBA-1)*(JORBA-2))/2+LORBA
+        JALB = ((JORBA-1)*(JORBA-2))/2+LORBB
+        JBLA = ((JORBB-1)*(JORBB-2))/2+LORBA
+        JBLB = ((JORBB-1)*(JORBB-2))/2+LORBB
+      else if (JORB == LORB) then
+        JBJA = ((JORBB-1)*(JORBB-2))/2+JORBA
+      else
+        SGNJL = -One
+        JALA = ((LORBA-1)*(LORBA-2))/2+JORBA
+        JALB = ((LORBB-1)*(LORBB-2))/2+JORBA
+        JBLA = ((LORBA-1)*(LORBA-2))/2+JORBB
+        JBLB = ((LORBB-1)*(LORBB-2))/2+JORBB
+      end if
+      do KORB=1,NASHT
+        KORBA = 2*KORB-1
+        KORBB = 2*KORB
+        IVABS = MAPORB(KORBA)
+        IVX = IVABS+NASHT*(IXABS-1)
+        if (ITU < IVX) cycle
+        if (IORB > KORB) then
+          SGNIK = One
+          IAKA = ((IORBA-1)*(IORBA-2))/2+KORBA
+          IAKB = ((IORBA-1)*(IORBA-2))/2+KORBB
+          IBKA = ((IORBB-1)*(IORBB-2))/2+KORBA
+          IBKB = ((IORBB-1)*(IORBB-2))/2+KORBB
+        else if (IORB == KORB) then
+          IBIA = ((IORBB-1)*(IORBB-2))/2+IORBA
+        else
+          SGNIK = -One
+          IAKA = ((KORBA-1)*(KORBA-2))/2+IORBA
+          IAKB = ((KORBB-1)*(KORBB-2))/2+IORBA
+          IBKA = ((KORBA-1)*(KORBA-2))/2+IORBB
+          IBKB = ((KORBB-1)*(KORBB-2))/2+IORBB
+        end if
+        if (IORB /= KORB) then
+          if (JORB /= LORB) then
+            IAAAA = IAKA+NASGEM*(JALA-1)
+            IABBA = IAKB+NASGEM*(JALB-1)
+            IBAAB = IBKA+NASGEM*(JBLA-1)
+            IBBBB = IBKB+NASGEM*(JBLB-1)
+            GAAAA = SPD2(IAAAA)
+            GABBA = SPD2(IABBA)
+            GBAAB = SPD2(IBAAB)
+            GBBBB = SPD2(IBBBB)
+            GVAL = SGNIK*SGNJL*(GAAAA+GABBA+GBAAB+GBBBB)
+          else
+            IABAB = IAKB+NASGEM*(JBJA-1)
+            IBAAB = IBKA+NASGEM*(JBJA-1)
+            GABAB = SPD2(IABAB)
+            GBAAB = SPD2(IBAAB)
+            GVAL = SGNIK*(-GABAB+GBAAB)
+          end if
+        else
+          if (JORB /= LORB) then
+            IBABA = IBIA+NASGEM*(JALB-1)
+            IBAAB = IBIA+NASGEM*(JBLA-1)
+            GBABA = SPD2(IBABA)
+            GBAAB = SPD2(IBAAB)
+            GVAL = SGNJL*(-GBABA+GBAAB)
+          else
+            IBAAB = IBIA+NASGEM*(JBJA-1)
+            GBAAB = SPD2(IBAAB)
+            GVAL = Two*GBAAB
+          end if
+        end if
+        ! Position determined by active orbital index in external order:
+        ITUVX = (ITU*(ITU-1))/2+IVX
+        TDM2(ITUVX) = GVAL
       end do
+    end do
+  end do
+end do
+
+!#ifdef BLUBB
+!124  CONTINUE
+!#endif
+
+#ifdef _DEBUGPRINT_
+write(u6,*) ' final 2-TDM'
+do IJ=1,ntdm2
+  write(u6,*) ' IJ, value = ',IJ,TDM2(IJ)
+end do
 #endif
 
-      CALL mma_deallocate(SPD2)
+call mma_deallocate(SPD2)
 ! DIAGONAL ELEMENTS HALF-SIZED (This is for proper contraction with TUVX):
-      IJIJ=0
-      DO IJ=1,NASHT**2
-        IJIJ=IJIJ+IJ
-        TDM2(IJIJ)=0.5D0*TDM2(IJIJ)
-      END DO
-      RETURN
-      unused_var(MPLET1)
-      unused_var(MPLET2)
-      unused_var(ISTATE)
-      unused_var(JSTATE)
-      END
+IJIJ = 0
+do IJ=1,NASHT**2
+  IJIJ = IJIJ+IJ
+  TDM2(IJIJ) = Half*TDM2(IJIJ)
+end do
+
+return
+
+unused_var(MPLET1)
+unused_var(MPLET2)
+unused_var(ISTATE)
+unused_var(JSTATE)
+
+end subroutine MKTDM2

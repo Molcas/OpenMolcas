@@ -8,1071 +8,996 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE INPPRC()
-      use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
-      use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
-      use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,  &
-     &                      DMAB, mTRA, ipglob
-      use kVectors
-      use Lebedev_quadrature, only: order_table
-      use OneDat, only: sOpSiz, sRdFst, sRdNxt
-      use cntrl, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
-      use stdalloc, only: mma_allocate
-      use Cntrl, only: IPUSED, ISOCMP, ICOMP, PTYPE, SOPRTP, SOPRNM,    &
-     &                 PNAME, MXPROP, nState, SOThr_PRT,                &
-     &                 nSOThr_PRT, SAVEDENS, IFTRD1, IFTDM, NATO,       &
-     &                 DO_TMOM, FORCE_NON_AO_TDM, NPROP, NSOPR, IFSO,   &
-     &                 DQVD, IFJ2, IFJZ, IFGCAL, IFXCAL, IFDCPL, IFHAM, &
-     &                 IFSHFT, IFHDIA, IFMCAL, NJOB, IFHEFF, HAVE_HEFF, &
-     &                 IFEJOB, HAVE_DIAG, IFHEXT, IFHCOM, NOHAM, TRACK, &
-     &                 ONLY_OVERLAPS, PRSXY, PRORB, PRTRA, PRCI,        &
-     &                 RFPert, ToFile, PRXVR, PRXVE, PRXVS, PRMER,      &
-     &                 PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, NQUAD, &
-     &                 L_Eff, IBINA, IRREP, MLTPLT
-      use cntrl, only: nAtoms, Coor
-      use cntrl, only: LuTDM, FnTDM
-      use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NBSQ,NBMX,NBTRI,NBST,NCMO,NTRA,NTDMZZ,      &
-     &                      NTDMAB,NASHT,NISHT,NSSHT,NASH,NBASF,        &
-     &                      NBSQPR,NISH,NOSH,NSSH
 
-      IMPLICIT None
-      CHARACTER(LEN=8) LABEL
-      CHARACTER(LEN=8) LABEL2
-      CHARACTER(LEN=8) PRPLST(MXPROP)
-      Character(LEN=3) lIrrep(8)
-      INTEGER ICMPLST(MXPROP)
-      LOGICAL JOBMATCH,IsAvail(MXPROP),IsAvailSO(MXPROP)
-      Integer IDUM(1), IPRP, I, NBI, NLEV, IS, IBYTE, IPROP, ISOPR, IRC,&
-     &        IOPT, ICMP, NPRPLST, IATOM, MISSAMX, MISSAMY, MISSAMZ,    &
-     &        IMISS, IERR, NATOM, IADD, MPROP, N, JPROP, MSOPR, JSOPR,  &
-     &        ISYM, JOB1, JOB2, J, I1, I2, II, III, ISYLAB
-      Integer, External:: IsFreeUnit
-      REAL*8 XAXIS, ZAXIS
+subroutine INPPRC()
+
+use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
+use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
+use rassi_aux, only: jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2, DMAB, mTRA, ipglob
+use kVectors
+use Lebedev_quadrature, only: order_table
+use OneDat, only: sOpSiz, sRdFst, sRdNxt
+use cntrl, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
+use stdalloc, only: mma_allocate
+use Cntrl, only: IPUSED, ISOCMP, ICOMP, PTYPE, SOPRTP, SOPRNM, PNAME, MXPROP, nState, SOThr_PRT, nSOThr_PRT, SAVEDENS, IFTRD1, &
+                 IFTDM, NATO, DO_TMOM, FORCE_NON_AO_TDM, NPROP, NSOPR, IFSO, DQVD, IFJ2, IFJZ, IFGCAL, IFXCAL, IFDCPL, IFHAM, &
+                 IFSHFT, IFHDIA, IFMCAL, NJOB, IFHEFF, HAVE_HEFF, IFEJOB, HAVE_DIAG, IFHEXT, IFHCOM, NOHAM, TRACK, ONLY_OVERLAPS, &
+                 PRSXY, PRORB, PRTRA, PRCI, RFPert, ToFile, PRXVR, PRXVE, PRXVS, PRMER, PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, &
+                 NQUAD, L_Eff, IBINA, IRREP, MLTPLT
+use cntrl, only: nAtoms, Coor
+use cntrl, only: LuTDM, FnTDM
+use Symmetry_Info, only: nSym => nIrrep
+use rassi_data, only: NBSQ, NBMX, NBTRI, NBST, NCMO, NTRA, NTDMZZ, NTDMAB, NASHT, NISHT, NSSHT, NASH, NBASF, NBSQPR, NISH, NOSH, &
+                      NSSH
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u6
+
+implicit none
+character(len=8) LABEL
+character(len=8) LABEL2
+character(len=8) PRPLST(MXPROP)
+character(len=3) lIrrep(8)
+integer ICMPLST(MXPROP)
+logical JOBMATCH, IsAvail(MXPROP), IsAvailSO(MXPROP)
+integer IDUM(1), IPRP, I, NBI, NLEV, IS, IBYTE, IPROP, ISOPR, IRC, IOPT, ICMP, NPRPLST, IATOM, MISSAMX, MISSAMY, MISSAMZ, IMISS, &
+        IERR, NATOM, IADD, MPROP, N, JPROP, MSOPR, JSOPR, ISYM, JOB1, JOB2, J, I1, I2, II, III, ISYLAB
+integer, external :: IsFreeUnit
+real*8 XAXIS, ZAXIS
+
 ! Analysing and post-processing the input that was read in readin_rassi.
 
-
-      Call mma_allocate(jDisk_TDM,2,nState*(nState+1)/2,                &
-     &                  Label='jDisk_TDM')
-      jDisk_TDM(1,:)=-1
-      jDisk_TDM(2,:)=0
+call mma_allocate(jDisk_TDM,2,nState*(nState+1)/2,Label='jDisk_TDM')
+jDisk_TDM(1,:) = -1
+jDisk_TDM(2,:) = 0
 ! PAM07: The printing of spin-orbit Hamiltonian matrix elements:
 ! If no value for SOTHR_PRT was given in the input, it has a
 ! negative value that was set in init_rassi:
-      IF(SOTHR_PRT.lt.0.0D0) THEN
-! Assign default settings. SOTHR_PRT is in cm-1:
-       IF(IPGLOB.ge.4) THEN
-        NSOTHR_PRT=10000
-        SOTHR_PRT=0.0001D0
-      ELSE IF (IPGLOB.ge.3) THEN
-        NSOTHR_PRT=100
-        SOTHR_PRT=0.01D0
-      ELSE IF(IPGLOB.ge.2) THEN
-        NSOTHR_PRT=20
-        SOTHR_PRT=1.00D0
-       ELSE
-        NSOTHR_PRT=0
-       END IF
-      END IF
+if (SOTHR_PRT < Zero) then
+  ! Assign default settings. SOTHR_PRT is in cm-1:
+  if (IPGLOB >= 4) then
+    NSOTHR_PRT = 10000
+    SOTHR_PRT = 1.0e-4_wp
+  else if (IPGLOB >= 3) then
+    NSOTHR_PRT = 100
+    SOTHR_PRT = 0.01_wp
+  else if (IPGLOB >= 2) then
+    NSOTHR_PRT = 20
+    SOTHR_PRT = One
+  else
+    NSOTHR_PRT = 0
+  end if
+end if
 
 ! Some sizes:
-      NBSQ=0
-      NBMX=0
-      IPRP=0
-      DO I=1,NSYM
-        NBI=NBASF(I)
-        NBMX=MAX(NBMX,NBI)
-        NBSQPR(I)=NBSQ
-        NBSQ=NBSQ+NBI**2
-      END DO
-      NBTRI=(NBSQ+NBST)/2
-      NLEV=0
-      DO I=1,NSYM
-        NLEV=NLEV+NRS1(I)+NRS2(I)+NRS3(I)
-      END DO
+NBSQ = 0
+NBMX = 0
+IPRP = 0
+do I=1,NSYM
+  NBI = NBASF(I)
+  NBMX = max(NBMX,NBI)
+  NBSQPR(I) = NBSQ
+  NBSQ = NBSQ+NBI**2
+end do
+NBTRI = (NBSQ+NBST)/2
+NLEV = 0
+do I=1,NSYM
+  NLEV = NLEV+NRS1(I)+NRS2(I)+NRS3(I)
+end do
 ! Sizes of some data sets:
 ! ACTUAL SIZES OF TDMAB AND TDMZZ DEPENDS ON BOTH LSYM1 AND LSYM2.
 ! HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
-      NCMO=NOSH(1)*NBASF(1)
-      NTRA=NOSH(1)**2
-      NTDMZZ=NBASF(1)**2
-      DO IS=2,NSYM
-        NCMO=NCMO+NOSH(IS)*NBASF(IS)
-        NTRA=NTRA+NOSH(IS)**2
-        NTDMZZ=NTDMZZ+NBASF(IS)**2
-      END DO
-      NTDMAB=NTRA
-      SaveDens=(IFTRD1.OR.IFTDM).OR.                                    &
-     &         (SONATNSTATE.GT.0).OR.(SONTOSTATES.GT.0)                 &
-     &         .OR.NATO.OR.Do_TMOM
-      IF(SaveDens) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' Info: creating TDMFILE'
-        LUTDM=21
-        LUTDM=IsFreeUnit(LUTDM)
-        FNTDM='TDMFILE'
-        CALL DANAME_MF(LUTDM,FNTDM)
-        AO_Mode=.True.
-        iByte=8*3*nstate*(nstate-1)/2*nTDMZZ
-!
-!       For the time we will move over to compact mode if the required
-!       estimate of disk space if more than 1 Gb.
-!
-        If (iByte.gt.1024**3) AO_Mode=.False.
-!       Force for debugging purpose.
-        If (Force_NON_AO_TDM)  AO_Mode=.False.
-        WRITE(6,*) '       estimated file size ', iByte/1024, 'kB'
-!
-!       For small basis set with symmetry we might not benefit from
-!       doing this.
-!
-        If (NASHT**2+1.gt.nTDMAB) AO_Mode=.True.
-!
-        If (.NOT.AO_Mode) Then
-           WRITE(6,*) '       TDMs in reduced format'
-           Call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
-           Call ICopy(nState,JBNUM,1,JOB_INDEX,1)
-!          Write (6,*) 'Job_Index=',Job_Index
-           Call mma_allocate(CMO1,nCMO,Label='CMO1')
-           Call mma_allocate(CMO2,nCMO,Label='CMO2')
-           Call mma_allocate(DMAB,nTDMAB,Label='DMAB')
-           mTRA=nTRA
-        Else
-           WRITE(6,*) '       TDMs in AO format'
-        End If
-        WRITE(6,*)
-      END IF
+NCMO = NOSH(1)*NBASF(1)
+NTRA = NOSH(1)**2
+NTDMZZ = NBASF(1)**2
+do IS=2,NSYM
+  NCMO = NCMO+NOSH(IS)*NBASF(IS)
+  NTRA = NTRA+NOSH(IS)**2
+  NTDMZZ = NTDMZZ+NBASF(IS)**2
+end do
+NTDMAB = NTRA
+SaveDens = (IFTRD1 .or. IFTDM) .or. (SONATNSTATE > 0) .or. (SONTOSTATES > 0) .or. NATO .or. Do_TMOM
+if (SaveDens) then
+  write(u6,*)
+  write(u6,*) ' Info: creating TDMFILE'
+  LUTDM = 21
+  LUTDM = IsFreeUnit(LUTDM)
+  FNTDM = 'TDMFILE'
+  call DANAME_MF(LUTDM,FNTDM)
+  AO_Mode = .true.
+  iByte = 8*3*nstate*(nstate-1)/2*nTDMZZ
+
+  ! For the time we will move over to compact mode if the required
+  ! estimate of disk space if more than 1 Gb.
+
+  if (iByte > 1024**3) AO_Mode = .false.
+  ! Force for debugging purpose.
+  if (Force_NON_AO_TDM) AO_Mode = .false.
+  write(u6,*) '       estimated file size ',iByte/1024,'kB'
+
+  ! For small basis set with symmetry we might not benefit from
+  ! doing this.
+
+  if (NASHT**2+1 > nTDMAB) AO_Mode = .true.
+
+  if (.not. AO_Mode) then
+    write(u6,*) '       TDMs in reduced format'
+    call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
+    call ICopy(nState,JBNUM,1,JOB_INDEX,1)
+    !write(u6,*) 'Job_Index=',Job_Index
+    call mma_allocate(CMO1,nCMO,Label='CMO1')
+    call mma_allocate(CMO2,nCMO,Label='CMO2')
+    call mma_allocate(DMAB,nTDMAB,Label='DMAB')
+    mTRA = nTRA
+  else
+    write(u6,*) '       TDMs in AO format'
+  end if
+  write(u6,*)
+end if
 
 ! Upcase property names in lists of requests:
-      DO IPROP=1,NPROP
-        CALL UPCASE(PNAME(IPROP))
-      END DO
-      DO ISOPR=1,NSOPR
-        CALL UPCASE(SOPRNM(ISOPR))
-      END DO
+do IPROP=1,NPROP
+  call UPCASE(PNAME(IPROP))
+end do
+do ISOPR=1,NSOPR
+  call UPCASE(SOPRNM(ISOPR))
+end do
 
 ! Which properties are available in the ONEINT file?
 ! (IPUSED will be set later, set it to zero now.)
-      !write(6,*)"Which properties are available in the ONEINT file?"
-      IPRP=0
-      IRC=-1
-      IOPT=ibset(ibset(0,sOpSiz),sRdFst)
-      LABEL='UNDEF'
-      CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-      IF(IRC.NE.0) GOTO 110
-      IPRP=1
-      CALL UPCASE(LABEL)
-      PRPLST(1)=LABEL
-      ICMPLST(1)=ICMP
-      IPUSED(1)=0
-!
-      DO I=1,MXPROP
-        IF(IPRP.GE.MXPROP) GOTO 110
-        IRC=-1
-        IOPT=ibset(ibset(0,sOpSiz),sRdNxt)
-        CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-        IF(IRC.NE.0) GOTO 110
-        IPRP=IPRP+1
-        CALL UPCASE(LABEL)
-        PRPLST(IPRP)=LABEL
-        ICMPLST(IPRP)=ICMP
-        IPUSED(IPRP)=0
+!write(u6,*) 'Which properties are available in the ONEINT file?'
+IPRP = 0
+IRC = -1
+IOPT = ibset(ibset(0,sOpSiz),sRdFst)
+LABEL = 'UNDEF'
+call iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
+if (IRC /= 0) goto 110
+IPRP = 1
+call UPCASE(LABEL)
+PRPLST(1) = LABEL
+ICMPLST(1) = ICMP
+IPUSED(1) = 0
 
-! Copy the EF2 integral label for non-rel hyperfine calculations
-        IF(LABEL(1:3).EQ.'EF2') THEN
-          IF(IPRP.GE.MXPROP) GOTO 110
-          IPRP=IPRP+1
-          LABEL2=LABEL
-          LABEL2(1:4)='ASDO'
-          PRPLST(IPRP)=LABEL2
-          ICMPLST(IPRP)=ICMP
-          IPUSED(IPRP)=0
-        END IF
+do I=1,MXPROP
+  if (IPRP >= MXPROP) goto 110
+  IRC = -1
+  IOPT = ibset(ibset(0,sOpSiz),sRdNxt)
+  call iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
+  if (IRC /= 0) goto 110
+  IPRP = IPRP+1
+  call UPCASE(LABEL)
+  PRPLST(IPRP) = LABEL
+  ICMPLST(IPRP) = ICMP
+  IPUSED(IPRP) = 0
 
-! Now the ASD are calculated from X2C
-! magnetic integrals
-        IF(LABEL(1:5).EQ.'MAGXP'.AND.ICMP.LE.6) THEN
-          IF(IPRP.GE.MXPROP) GOTO 110
-          IPRP=IPRP+1
-          LABEL2=LABEL
-          LABEL2(1:5)='ASD  '
-          PRPLST(IPRP)=LABEL2
-          ICMPLST(IPRP)=ICMP
-          IPUSED(IPRP)=0
-        END IF
+  ! Copy the EF2 integral label for non-rel hyperfine calculations
+  if (LABEL(1:3) == 'EF2') then
+    if (IPRP >= MXPROP) goto 110
+    IPRP = IPRP+1
+    LABEL2 = LABEL
+    LABEL2(1:4) = 'ASDO'
+    PRPLST(IPRP) = LABEL2
+    ICMPLST(IPRP) = ICMP
+    IPUSED(IPRP) = 0
+  end if
 
-        IF(LABEL(1:4).EQ.'PSOI') THEN
-          IF(IPRP.GE.MXPROP) GOTO 110
-          IPRP=IPRP+1
-          LABEL2=LABEL
-          LABEL2(1:4)='PSOP'
-          PRPLST(IPRP)=LABEL2
-          ICMPLST(IPRP)=ICMP
-          IPUSED(IPRP)=0
-        END IF
-        IF(LABEL(1:6).EQ.'DMS  1') THEN
-          IF(IPRP.GE.MXPROP) GOTO 110
-          IPRP=IPRP+1
-          LABEL2=LABEL
-          LABEL2(1:6)='DMP   '
-          PRPLST(IPRP)=LABEL2
-          ICMPLST(IPRP)=ICMP
-          IPUSED(IPRP)=0
-        END IF
-      END DO
-110   CONTINUE
-      NPRPLST=IPRP
+  ! Now the ASD are calculated from X2C magnetic integrals
+  if ((LABEL(1:5) == 'MAGXP') .and. (ICMP <= 6)) then
+    if (IPRP >= MXPROP) goto 110
+    IPRP = IPRP+1
+    LABEL2 = LABEL
+    LABEL2(1:5) = 'ASD  '
+    PRPLST(IPRP) = LABEL2
+    ICMPLST(IPRP) = ICMP
+    IPUSED(IPRP) = 0
+  end if
+
+  if (LABEL(1:4) == 'PSOI') then
+    if (IPRP >= MXPROP) goto 110
+    IPRP = IPRP+1
+    LABEL2 = LABEL
+    LABEL2(1:4) = 'PSOP'
+    PRPLST(IPRP) = LABEL2
+    ICMPLST(IPRP) = ICMP
+    IPUSED(IPRP) = 0
+  end if
+  if (LABEL(1:6) == 'DMS  1') then
+    if (IPRP >= MXPROP) goto 110
+    IPRP = IPRP+1
+    LABEL2 = LABEL
+    LABEL2(1:6) = 'DMP   '
+    PRPLST(IPRP) = LABEL2
+    ICMPLST(IPRP) = ICMP
+    IPUSED(IPRP) = 0
+  end if
+end do
+110 continue
+NPRPLST = IPRP
+
+! Add empty slots for on-the-fly TM integrals.
+
+! If the RASSI code is run several instances on the same job some
+! of these labels will already be available on the file and need
+! not to be added to the list.
+
+if (Do_TMOM .and. (PRPLST(IPRP)(1:4) /= 'TMOM')) then
+  PRPLST(IPRP+1) = 'TMOM0  R'
+  ICMPLST(IPRP+1) = 1
+  IPUSED(IPRP+1) = 0
+  PRPLST(IPRP+2) = 'TMOM0  I'
+  ICMPLST(IPRP+2) = 1
+  IPUSED(IPRP+2) = 0
+  IPRP = IPRP+2
+
+  PRPLST(IPRP+1) = 'TMOM  RS'
+  ICMPLST(IPRP+1) = 1
+  IPUSED(IPRP+1) = 0
+  PRPLST(IPRP+2) = 'TMOM  RS'
+  ICMPLST(IPRP+2) = 2
+  IPUSED(IPRP+2) = 0
+  PRPLST(IPRP+3) = 'TMOM  RS'
+  ICMPLST(IPRP+3) = 3
+  IPUSED(IPRP+3) = 0
+  PRPLST(IPRP+4) = 'TMOM  RA'
+  ICMPLST(IPRP+4) = 1
+  IPUSED(IPRP+4) = 0
+  PRPLST(IPRP+5) = 'TMOM  RA'
+  ICMPLST(IPRP+5) = 2
+  IPUSED(IPRP+5) = 0
+  PRPLST(IPRP+6) = 'TMOM  RA'
+  ICMPLST(IPRP+6) = 3
+  IPUSED(IPRP+6) = 0
+  PRPLST(IPRP+7) = 'TMOM  IS'
+  ICMPLST(IPRP+7) = 1
+  IPUSED(IPRP+7) = 0
+  PRPLST(IPRP+8) = 'TMOM  IS'
+  ICMPLST(IPRP+8) = 2
+  IPUSED(IPRP+8) = 0
+  PRPLST(IPRP+9) = 'TMOM  IS'
+  ICMPLST(IPRP+9) = 3
+  IPUSED(IPRP+9) = 0
+  PRPLST(IPRP+10) = 'TMOM  IA'
+  ICMPLST(IPRP+10) = 1
+  IPUSED(IPRP+10) = 0
+  PRPLST(IPRP+11) = 'TMOM  IA'
+  ICMPLST(IPRP+11) = 2
+  IPUSED(IPRP+11) = 0
+  PRPLST(IPRP+12) = 'TMOM  IA'
+  ICMPLST(IPRP+12) = 3
+  IPUSED(IPRP+12) = 0
+  IPRP = IPRP+12
+
+  ! Not currently in use.
+  !PRPLST(IPRP+1) = 'TMOM2  R'
+  !ICMPLST(IPRP+1) = 1
+  !IPUSED(IPRP+1) = 0
+  !PRPLST(IPRP+ 2) = 'TMOM2  R'
+  !ICMPLST(IPRP+2) = 2
+  !IPUSED(IPRP+2) = 0
+  !PRPLST(IPRP+3) = 'TMOM2  R'
+  !ICMPLST(IPRP+3) = 3
+  !IPUSED(IPRP+3) = 0
+  !PRPLST(IPRP+4) = 'TMOM2  I'
+  !ICMPLST(IPRP+4) = 1
+  !IPUSED(IPRP+4) = 0
+  !PRPLST(IPRP+5) = 'TMOM2  I'
+  !ICMPLST(IPRP+5) = 2
+  !IPUSED(IPRP+5) = 0
+  !PRPLST(IPRP+6) = 'TMOM2  I'
+  !ICMPLST(IPRP+6) = 3
+  !IPUSED(IPRP+6) = 0
+  !IPRP = IPRP+6
+!else if (Do_TMOM) then
+!  PRPLST(IPRP+1) = 'TMOM0  R'
+!  ICMPLST(IPRP+1) = 1
+!  IPUSED(IPRP+1) = 0
+!  PRPLST(IPRP+2) = 'TMOM0  I'
+!  ICMPLST(IPRP+2) = 1
+!  IPUSED(IPRP+2) = 0
+!  IPRP = IPRP+2
 !
-!     Add empty slots for on-the-fly TM integrals.
-!
-!     If the RASSI code is run several instances on the same job some
-!     of these labels will already be available on the file and need
-!     not to be added to the list.
-!
-      IF (Do_TMOM.AND.PRPLST(IPRP)(1:4).NE.'TMOM') THEN
-         PRPLST(IPRP+ 1)='TMOM0  R'
-         ICMPLST(IPRP+ 1)=1
-         IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOM0  I'
-         ICMPLST(IPRP+ 2)=1
-         IPUSED(IPRP+ 2)=0
-         IPRP=IPRP+2
-!
-         PRPLST(IPRP+ 1)='TMOM  RS'
-         ICMPLST(IPRP+ 1)=1
-         IPUSED(IPRP+ 1)=0
-         PRPLST(IPRP+ 2)='TMOM  RS'
-         ICMPLST(IPRP+ 2)=2
-         IPUSED(IPRP+ 2)=0
-         PRPLST(IPRP+ 3)='TMOM  RS'
-         ICMPLST(IPRP+ 3)=3
-         IPUSED(IPRP+ 3)=0
-         PRPLST(IPRP+ 4)='TMOM  RA'
-         ICMPLST(IPRP+ 4)=1
-         IPUSED(IPRP+ 4)=0
-         PRPLST(IPRP+ 5)='TMOM  RA'
-         ICMPLST(IPRP+ 5)=2
-         IPUSED(IPRP+ 5)=0
-         PRPLST(IPRP+ 6)='TMOM  RA'
-         ICMPLST(IPRP+ 6)=3
-         IPUSED(IPRP+ 6)=0
-         PRPLST(IPRP+ 7)='TMOM  IS'
-         ICMPLST(IPRP+ 7)=1
-         IPUSED(IPRP+ 7)=0
-         PRPLST(IPRP+ 8)='TMOM  IS'
-         ICMPLST(IPRP+ 8)=2
-         IPUSED(IPRP+ 8)=0
-         PRPLST(IPRP+ 9)='TMOM  IS'
-         ICMPLST(IPRP+ 9)=3
-         IPUSED(IPRP+ 9)=0
-         PRPLST(IPRP+10)='TMOM  IA'
-         ICMPLST(IPRP+10)=1
-         IPUSED(IPRP+10)=0
-         PRPLST(IPRP+11)='TMOM  IA'
-         ICMPLST(IPRP+11)=2
-         IPUSED(IPRP+11)=0
-         PRPLST(IPRP+12)='TMOM  IA'
-         ICMPLST(IPRP+12)=3
-         IPUSED(IPRP+12)=0
-         IPRP=IPRP+12
-!
-! Not currently in use.
-!        PRPLST(IPRP+ 1)='TMOM2  R'
-!        ICMPLST(IPRP+ 1)=1
-!        IPUSED(IPRP+ 1)=0
-!        CALL MKTDAB(0.0D0,WERD,WDMAB,iRC)PRPLST(IPRP+ 2)='TMOM2  R'
-!        ICMPLST(IPRP+ 2)=2
-!        IPUSED(IPRP+ 2)=0
-!        PRPLST(IPRP+ 3)='TMOM2  R'
-!        ICMPLST(IPRP+ 3)=3
-!        IPUSED(IPRP+ 3)=0
-!        PRPLST(IPRP+ 4)='TMOM2  I'
-!        ICMPLST(IPRP+ 4)=1
-!        IPUSED(IPRP+ 4)=0
-!        PRPLST(IPRP+ 5)='TMOM2  I'
-!        ICMPLST(IPRP+ 5)=2
-!        IPUSED(IPRP+ 5)=0
-!        PRPLST(IPRP+ 6)='TMOM2  I'
-!        ICMPLST(IPRP+ 6)=3
-!        IPUSED(IPRP+ 6)=0
-!        IPRP=IPRP+6
-!     Else IF (Do_TMOM) Then
-!        PRPLST(IPRP+ 1)='TMOM0  R'
-!        ICMPLST(IPRP+ 1)=1
-!        IPUSED(IPRP+ 1)=0
-!        PRPLST(IPRP+ 2)='TMOM0  I'
-!        ICMPLST(IPRP+ 2)=1
-!        IPUSED(IPRP+ 2)=0
-!        IPRP=IPRP+2
-!
-! Not currently in use.
-!        PRPLST(IPRP+ 1)='TMOM2  R'
-!        ICMPLST(IPRP+ 1)=2
-!        IPUSED(IPRP+ 1)=0
-!        PRPLST(IPRP+ 2)='TMOM2  R'
-!        ICMPLST(IPRP+ 2)=3
-!        IPUSED(IPRP+ 2)=0
-!        PRPLST(IPRP+ 3)='TMOM2  I'
-!        ICMPLST(IPRP+ 3)=2
-!        IPUSED(IPRP+ 3)=0
-!        PRPLST(IPRP+ 4)='TMOM2  I'
-!        ICMPLST(IPRP+ 4)=3
-!        IPUSED(IPRP+ 4)=0
-!        IPRP=IPRP+4
-      END IF
-!
-      NPRPLST=IPRP
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!                                                                     C
-! Add some property names by defaults, if no input:                   C
-!                                                                     C
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!
-      IF (NPROP.EQ.0) THEN
-!
-         IF (NSOPR.EQ.0) THEN
-! If no input at all, use this selection:
-            DO IPRP=1,NPRPLST
-!
-               IF (PRPLST(IPRP).eq.'MLTPL  0' .or.                      &
-     &             PRPLST(IPRP).eq.'MLTPL  1' .or.                      &
-     &             PRPLST(IPRP).eq.'MLTPL  2' .or.                      &
-     &             PRPLST(IPRP).eq.'MLTPL  3' .or.                      &
-     &             PRPLST(IPRP).eq.'OMQ     ' .or.                      &
-     &             PRPLST(IPRP).eq.'ANGMOM' .or.                        &
-     &             PRPLST(IPRP)(1:4).eq.'TMOM' .or.                     &
-     &             PRPLST(IPRP).eq.'VELOCITY' .or.                      &
-     &             PRPLST(IPRP).eq.'MLTPV  2' .or.                      &
-     &             PRPLST(IPRP)(1:4).eq.'EMFR') THEN
-!
-                  NSOPR=NSOPR+1
-                  SOPRNM(NSOPR)=PRPLST(IPRP)
-!
-! SET the proper default type label. That is, which WE-reduced density
-! should the integral be contracted with. If not set here it will
-! default to a Hermitian singlet reduced density.
-                  IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
-                     SOPRTP(NSOPR)='ANTISING'
-                  ELSE IF (PRPLST(IPRP).EQ.'VELOCITY'  ) THEN
-                     SOPRTP(NSOPR)='ANTISING'
-                  ELSE IF (PRPLST(IPRP).EQ.'OMQ     '  ) THEN
-                     SOPRTP(NSOPR)='ANTISING'
-                  ELSE IF (PRPLST(IPRP).EQ.'MLTPV  2'  ) THEN
-                     SOPRTP(NSOPR)='ANTISING'
-                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  RS'  ) THEN
-                     SOPRTP(NSOPR)='HERMSING'
-                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  RA'  ) THEN
-                     SOPRTP(NSOPR)='ANTISING'
-                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  IS'  ) THEN
-                     SOPRTP(NSOPR)='HERMSING'
-                  ELSE IF (PRPLST(IPRP).EQ.'TMOM  IA'  ) THEN
-                     SOPRTP(NSOPR)='ANTISING'
-                  ELSE IF (PRPLST(IPRP).EQ.'TMOM0  R'  ) THEN
-                     SOPRTP(NSOPR)='HERMTRIP'
-                  ELSE IF (PRPLST(IPRP).EQ.'TMOM0  I'  ) THEN
-                     SOPRTP(NSOPR)='HERMTRIP'
-                  ELSE
-                     SOPRTP(NSOPR)='HERMSING'
-                  END IF
-!
-! Set the number of elements of the property
-                  ISOCMP(NSOPR)=ICMPLST(IPRP)
-!
-! Add properties for the explicit spin part of the transition moments
-! in the case of spin-orbit coupled wave functrions.
-!
-                  IF (IFSO) THEN
-                     IF (PRPLST(IPRP).EQ.'MLTPL  0') THEN
-                        NSOPR=NSOPR+1
-                        SOPRNM(NSOPR)=PRPLST(IPRP)
-                        ISOCMP(NSOPR)=ICMPLST(IPRP)
-                        SOPRTP(NSOPR)='ANTITRIP'
-                     ELSE IF (PRPLST(IPRP).EQ.'MLTPL  1') THEN
-                        NSOPR=NSOPR+1
-                        SOPRNM(NSOPR)=PRPLST(IPRP)
-                        ISOCMP(NSOPR)=ICMPLST(IPRP)
-                        SOPRTP(NSOPR)='ANTITRIP'
-! Uncomment to activate more options!!!
-!                    ELSE IF (PRPLST(IPRP).EQ.'MLTPL  2') THEN
-!                       NSOPR=NSOPR+1
-!                       SOPRNM(NSOPR)=PRPLST(IPRP)
-!                       ISOCMP(NSOPR)=ICMPLST(IPRP)
-!                       SOPRTP(NSOPR)='HERMTRIP'
-!                    ELSE IF (PRPLST(IPRP).EQ.'ANGMOM'  ) THEN
-!                       NSOPR=NSOPR+1
-!                       SOPRNM(NSOPR)=PRPLST(IPRP)
-!                       ISOCMP(NSOPR)=ICMPLST(IPRP)
-!                       SOPRTP(NSOPR)='ANTITRIP'
-                     END IF
-                  END IF
-!
-               END IF
-!
-! Add some properties if DQVD is requested
-               IF (DQVD) THEN
-!                 'MLTPL  2' already there by default
-                  IF (PRPLST(IPRP).eq.'EF0    1') THEN
-                     NSOPR=NSOPR+1
-                     SOPRNM(NSOPR)=PRPLST(IPRP)
-                     ISOCMP(NSOPR)=ICMPLST(IPRP)
-                  END IF
-               END IF
-!
-            END DO
-         END IF
-! If no PROP input, copy the SOPR selection:
-         NPROP=NSOPR
-         DO IPROP=1,NPROP
-            PNAME(IPROP)=SOPRNM(IPROP)
-            PTYPE(IPROP)=SOPRTP(IPROP)
-            ICOMP(IPROP)=ISOCMP(IPROP)
-         END DO
-!
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!                                                                     C
-      ELSE
-!                                                                     C
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!
-! If no SOPR input, copy the PROP selection:
-         IF (NSOPR.EQ.0) THEN
-            NSOPR=NPROP
-            DO ISOPR=1,NSOPR
-               SOPRNM(ISOPR)=PNAME(ISOPR)
-               SOPRTP(ISOPR)=PTYPE(ISOPR)
-               ISOCMP(ISOPR)=ICOMP(ISOPR)
-            END DO
-         END IF
-!
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!                                                                     C
-      END IF
-!                                                                     C
-!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-!
+!  ! Not currently in use.
+!  PRPLST(IPRP+1) = 'TMOM2  R'
+!  ICMPLST(IPRP+1) = 2
+!  IPUSED(IPRP+1) = 0
+!  PRPLST(IPRP+2) = 'TMOM2  R'
+!  ICMPLST(IPRP+2) = 3
+!  IPUSED(IPRP+2) = 0
+!  PRPLST(IPRP+3) = 'TMOM2  I'
+!  ICMPLST(IPRP+3) = 2
+!  IPUSED(IPRP+3) = 0
+!  PRPLST(IPRP+4) = 'TMOM2  I'
+!  ICMPLST(IPRP+4) = 3
+!  IPUSED(IPRP+4) = 0
+!  IPRP = IPRP+4
+end if
+
+NPRPLST = IPRP
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+!                                                                      C
+! Add some property names by defaults, if no input:                    C
+!                                                                      C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+if (NPROP == 0) then
+
+  if (NSOPR == 0) then
+    ! If no input at all, use this selection:
+    do IPRP=1,NPRPLST
+
+      if ((PRPLST(IPRP) == 'MLTPL  0') .or. (PRPLST(IPRP) == 'MLTPL  1') .or. (PRPLST(IPRP) == 'MLTPL  2') .or. &
+          (PRPLST(IPRP) == 'MLTPL  3') .or. (PRPLST(IPRP) == 'OMQ') .or. (PRPLST(IPRP) == 'ANGMOM') .or. &
+          (PRPLST(IPRP)(1:4) == 'TMOM') .or. (PRPLST(IPRP) == 'VELOCITY') .or. (PRPLST(IPRP) == 'MLTPV  2') .or. &
+          (PRPLST(IPRP)(1:4) == 'EMFR')) then
+
+        NSOPR = NSOPR+1
+        SOPRNM(NSOPR) = PRPLST(IPRP)
+
+        ! SET the proper default type label. That is, which WE-reduced density
+        ! should the integral be contracted with. If not set here it will
+        ! default to a Hermitian singlet reduced density.
+        if (PRPLST(IPRP) == 'ANGMOM') then
+          SOPRTP(NSOPR) = 'ANTISING'
+        else if (PRPLST(IPRP) == 'VELOCITY') then
+          SOPRTP(NSOPR) = 'ANTISING'
+        else if (PRPLST(IPRP) == 'OMQ') then
+          SOPRTP(NSOPR) = 'ANTISING'
+        else if (PRPLST(IPRP) == 'MLTPV  2') then
+          SOPRTP(NSOPR) = 'ANTISING'
+        else if (PRPLST(IPRP) == 'TMOM  RS') then
+          SOPRTP(NSOPR) = 'HERMSING'
+        else if (PRPLST(IPRP) == 'TMOM  RA') then
+          SOPRTP(NSOPR) = 'ANTISING'
+        else if (PRPLST(IPRP) == 'TMOM  IS') then
+          SOPRTP(NSOPR) = 'HERMSING'
+        else if (PRPLST(IPRP) == 'TMOM  IA') then
+          SOPRTP(NSOPR) = 'ANTISING'
+        else if (PRPLST(IPRP) == 'TMOM0  R') then
+          SOPRTP(NSOPR) = 'HERMTRIP'
+        else if (PRPLST(IPRP) == 'TMOM0  I') then
+          SOPRTP(NSOPR) = 'HERMTRIP'
+        else
+          SOPRTP(NSOPR) = 'HERMSING'
+        end if
+
+        ! Set the number of elements of the property
+        ISOCMP(NSOPR) = ICMPLST(IPRP)
+
+        ! Add properties for the explicit spin part of the transition moments
+        ! in the case of spin-orbit coupled wave functrions.
+
+        if (IFSO) then
+          if (PRPLST(IPRP) == 'MLTPL  0') then
+            NSOPR = NSOPR+1
+            SOPRNM(NSOPR) = PRPLST(IPRP)
+            ISOCMP(NSOPR) = ICMPLST(IPRP)
+            SOPRTP(NSOPR) = 'ANTITRIP'
+          else if (PRPLST(IPRP) == 'MLTPL  1') then
+            NSOPR = NSOPR+1
+            SOPRNM(NSOPR) = PRPLST(IPRP)
+            ISOCMP(NSOPR) = ICMPLST(IPRP)
+            SOPRTP(NSOPR) = 'ANTITRIP'
+          ! Uncomment to activate more options!!!
+          !else if (PRPLST(IPRP) == 'MLTPL  2') then
+          !  NSOPR = NSOPR+1
+          !  SOPRNM(NSOPR) = PRPLST(IPRP)
+          !  ISOCMP(NSOPR) = ICMPLST(IPRP)
+          !  SOPRTP(NSOPR) = 'HERMTRIP'
+          !else if (PRPLST(IPRP) == 'ANGMOM') then
+          !  NSOPR = NSOPR+1
+          !  SOPRNM(NSOPR) = PRPLST(IPRP)
+          !  ISOCMP(NSOPR) = ICMPLST(IPRP)
+          !  SOPRTP(NSOPR) = 'ANTITRIP'
+          end if
+        end if
+
+      end if
+
+      ! Add some properties if DQVD is requested
+      if (DQVD) then
+        ! 'MLTPL  2' already there by default
+        if (PRPLST(IPRP) == 'EF0    1') then
+          NSOPR = NSOPR+1
+          SOPRNM(NSOPR) = PRPLST(IPRP)
+          ISOCMP(NSOPR) = ICMPLST(IPRP)
+        end if
+      end if
+
+    end do
+  end if
+  ! If no PROP input, copy the SOPR selection:
+  NPROP = NSOPR
+  do IPROP=1,NPROP
+    PNAME(IPROP) = SOPRNM(IPROP)
+    PTYPE(IPROP) = SOPRTP(IPROP)
+    ICOMP(IPROP) = ISOCMP(IPROP)
+  end do
+
+  !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+  !                                                                    C
+else
+  !                                                                    C
+  !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+  ! If no SOPR input, copy the PROP selection:
+  if (NSOPR == 0) then
+    NSOPR = NPROP
+    do ISOPR=1,NSOPR
+      SOPRNM(ISOPR) = PNAME(ISOPR)
+      SOPRTP(ISOPR) = PTYPE(ISOPR)
+      ISOCMP(ISOPR) = ICOMP(ISOPR)
+    end do
+  end if
+
+  !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+  !                                                                    C
+end if
+!                                                                      C
+!CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
 ! Lists (above) now contain either a default choice, or
 ! a selection by the user. Check that integrals are
 ! available on the oneint file.
 
 ! Check if we need to activate IFJ2/IFJZ automatically
-      if(natoms.eq.1) then
-       ifj2=1
-      endif
-      xaxis=0.d0
-      zaxis=0.d0
-      Do iatom=1,natoms
-       xaxis=xaxis+abs(coor(1,iatom))+abs(coor(2,iatom))
-       zaxis=zaxis+abs(coor(3,iatom))
-      Enddo
-      if(xaxis.lt.1.d-10.and.zaxis.gt.0.1d0) ifjz=1
+if (natoms == 1) ifj2 = 1
+xaxis = Zero
+zaxis = Zero
+do iatom=1,natoms
+  xaxis = xaxis+abs(coor(1,iatom))+abs(coor(2,iatom))
+  zaxis = zaxis+abs(coor(3,iatom))
+end do
+if ((xaxis < 1.0e-10_wp) .and. (zaxis > 0.1_wp)) ifjz = 1
 
 ! Check if angular momentum integrals have been computed
-      MISSAMX=1
-      MISSAMY=1
-      MISSAMZ=1
-      DO IPRP=1,NPRPLST
-         IF (PRPLST(IPRP).eq.'ANGMOM  ') THEN
-            IF (ICMPLST(IPRP).eq.1) MISSAMX=0
-            IF (ICMPLST(IPRP).eq.2) MISSAMY=0
-            IF (ICMPLST(IPRP).eq.3) MISSAMZ=0
-         END IF
-      END DO
-      IF (MISSAMX+MISSAMY+MISSAMZ.gt.0) THEN
-       IF(IFJ2.eq.1) THEN
-        write(6,*)' J2 values cannot be computed.'
-        write(6,*)' Reason: Angular momentum integrals are missing.'
-        IFJ2=0
-       END IF
-       IF(IFGCAL .OR. IFXCAL) THEN
-        write(6,*)' Neither GCAL or XCAL can be computed.'
-        write(6,*)' Reason: Angular momentum integrals are missing.'
-        IFJ2=0
-       END IF
-      END IF
-      IF (MISSAMZ.gt.0) THEN
-       IF(IFJZ.eq.1) THEN
-        write(6,*)' Omega values will not be computed.'
-        write(6,*)' Reason: Angular momentum integrals are missing.'
-        IFJZ=0
-       END IF
-      END IF
+MISSAMX = 1
+MISSAMY = 1
+MISSAMZ = 1
+do IPRP=1,NPRPLST
+  if (PRPLST(IPRP) == 'ANGMOM') then
+    if (ICMPLST(IPRP) == 1) MISSAMX = 0
+    if (ICMPLST(IPRP) == 2) MISSAMY = 0
+    if (ICMPLST(IPRP) == 3) MISSAMZ = 0
+  end if
+end do
+if (MISSAMX+MISSAMY+MISSAMZ > 0) then
+  if (IFJ2 == 1) then
+    write(u6,*) ' J2 values cannot be computed.'
+    write(u6,*) ' Reason: Angular momentum integrals are missing.'
+    IFJ2 = 0
+  end if
+  if (IFGCAL .or. IFXCAL) then
+    write(u6,*) ' Neither GCAL or XCAL can be computed.'
+    write(u6,*) ' Reason: Angular momentum integrals are missing.'
+    IFJ2 = 0
+  end if
+end if
+if (MISSAMZ > 0) then
+  if (IFJZ == 1) then
+    write(u6,*) ' Omega values will not be computed.'
+    write(u6,*) ' Reason: Angular momentum integrals are missing.'
+    IFJZ = 0
+  end if
+end if
 
 ! Make sure we don't check SO properties if no SO requested
-      IF (.NOT. IFSO) NSOPR=0
+if (.not. IFSO) NSOPR = 0
 ! Is everything available that we may need?
-      IMiss=0
-      IsAvail(:)=.FALSE.
-      DO IPROP=1,NPROP
-       DO IPRP=1,NPRPLST
-        IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.                            &
-     &        ICOMP(IPROP).EQ.ICMPLST(IPRP)) THEN
-         IsAvail(IPROP)=.TRUE.
-         IPUSED(IPRP)=1
-         GOTO 120
-        END IF
-       END DO
+IMiss = 0
+IsAvail(:) = .false.
+do IPROP=1,NPROP
+  do IPRP=1,NPRPLST
+    if ((PNAME(IPROP) == PRPLST(IPRP)) .and. (ICOMP(IPROP) == ICMPLST(IPRP))) then
+      IsAvail(IPROP) = .true.
+      IPUSED(IPRP) = 1
+      goto 120
+    end if
+  end do
 
-       IMiss=IMiss+1
-       IF(IMiss.eq.1) THEN
-         Write(6,*)
-         Call WarningMessage(1,'Requested integrals are missing.')
-         Write(6,*)' Property name, and component:',                    &
-     &           PNAME(IPROP),ICOMP(IPROP)
-         Write(6,*)' This record cannot be found. Some of the requested'
-         Write(6,*)' properties cannot be computed. Suggested fix: Try'
-         Write(6,*)' recomputing one-electron integrals with keyword'
-         Write(6,*)' ''OneOnly'', and additional keywords for the'
-         Write(6,*)' properties needed.'
-       ELSE
-         Write(6,*)' Also missing:',PNAME(IPROP),ICOMP(IPROP)
-       END IF
+  IMiss = IMiss+1
+  if (IMiss == 1) then
+    write(u6,*)
+    call WarningMessage(1,'Requested integrals are missing.')
+    write(u6,*) ' Property name, and component:',PNAME(IPROP),ICOMP(IPROP)
+    write(u6,*) ' This record cannot be found. Some of the requested'
+    write(u6,*) ' properties cannot be computed. Suggested fix: Try'
+    write(u6,*) ' recomputing one-electron integrals with keyword'
+    write(u6,*) ' ''OneOnly'', and additional keywords for the'
+    write(u6,*) ' properties needed.'
+  else
+    write(u6,*) ' Also missing:',PNAME(IPROP),ICOMP(IPROP)
+  end if
 
- 120   CONTINUE
-      END DO
-      IMiss=0
-      IsAvailSO(:)=.FALSE.
-      DO ISOPR=1,NSOPR
-        DO IPRP=1,NPRPLST
-         IF(SOPRNM(ISOPR).EQ.PRPLST(IPRP).AND.                          &
-     &        ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) THEN
-         IPUSED(IPRP)=1
-         IsAvailSO(ISOPR)=.TRUE.
-         GOTO 130
-        END IF
-       END DO
+120 continue
+end do
+IMiss = 0
+IsAvailSO(:) = .false.
+do ISOPR=1,NSOPR
+  do IPRP=1,NPRPLST
+    if ((SOPRNM(ISOPR) == PRPLST(IPRP)) .and. (ISOCMP(ISOPR) == ICMPLST(IPRP))) then
+      IPUSED(IPRP) = 1
+      IsAvailSO(ISOPR) = .true.
+      goto 130
+    end if
+  end do
 
-       IMiss=IMiss+1
-       IF(IMiss.eq.1) THEN
-         Write(6,*)
-         Call WarningMessage(1,'Requested integrals are missing.')
-         Write(6,*)' SO-Property name, and component:',                 &
-     &           SOPRNM(ISOPR),ISOCMP(ISOPR)
-         Write(6,*)' This record cannot be found. Some of the requested'
-         Write(6,*)' properties cannot be computed. Suggested fix: Try'
-         Write(6,*)' recomputing one-electron integrals with keyword'
-         Write(6,*)' ''OneOnly'', and additional keywords for the'
-         Write(6,*)' properties needed.'
-       ELSE
-         Write(6,*)' Also missing:',SOPRNM(ISOPR),ISOCMP(ISOPR)
-       END IF
+  IMiss = IMiss+1
+  if (IMiss == 1) then
+    write(u6,*)
+    call WarningMessage(1,'Requested integrals are missing.')
+    write(u6,*) ' SO-Property name, and component:',SOPRNM(ISOPR),ISOCMP(ISOPR)
+    write(u6,*) ' This record cannot be found. Some of the requested'
+    write(u6,*) ' properties cannot be computed. Suggested fix: Try'
+    write(u6,*) ' recomputing one-electron integrals with keyword'
+    write(u6,*) ' ''OneOnly'', and additional keywords for the'
+    write(u6,*) ' properties needed.'
+  else
+    write(u6,*) ' Also missing:',SOPRNM(ISOPR),ISOCMP(ISOPR)
+  end if
 
- 130   CONTINUE
-      END DO
+130 continue
+end do
 !nf
-      If (IfDCpl) Then
-         Call Get_iScalar('Unique atoms',natom)
-         IErr = 3*natom
-         Do IPrp = 1, NPrpLst
-            If(PrpLst(IPrp)(1:3).eq.'EF1') Then
-               IErr=IErr -1
-               IPUsed(IPrp)=1
-            End If
-         End Do
-         If (IErr.ne.0) Then
-            Write(6,*)
-            Write(6,'(A,i5,A)') '  Approx derivative couplings require',&
-     &                 3*natom,' field integrals.'
-            Write(6,*)' Add the keywords EFLD=0 and ONEONLY to'//       &
-     &                ' the SEWARD input and recompute ONEINT.'
-            Write(6,*)' Program will continue, but DerCpl calculations' &
-     &                //' are disabled.'
-            IfDCpl = .False.
-         End If
-      End If
+if (IfDCpl) then
+  call Get_iScalar('Unique atoms',natom)
+  IErr = 3*natom
+  do IPrp=1,NPrpLst
+    if (PrpLst(IPrp)(1:3) == 'EF1') then
+      IErr = IErr-1
+      IPUsed(IPrp) = 1
+    end if
+  end do
+  if (IErr /= 0) then
+    write(u6,*)
+    write(u6,'(A,i5,A)') '  Approx derivative couplings require',3*natom,' field integrals.'
+    write(u6,*) ' Add the keywords EFLD=0 and ONEONLY to the SEWARD input and recompute ONEINT.'
+    write(u6,*) ' Program will continue, but DerCpl calculations are disabled.'
+    IfDCpl = .false.
+  end if
+end if
 !nf
 ! Temporarily use IPUSED to mark operators that may be needed:
-      DO IPRP=1,NPRPLST
-       DO IPROP=1,NPROP
-        IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.                            &
-     &        ICOMP(IPROP).EQ.ICMPLST(IPRP)) THEN
-          IPUSED(IPRP)=1
-          exit
-        END IF
-       END DO
-      END DO
+do IPRP=1,NPRPLST
+  do IPROP=1,NPROP
+    if ((PNAME(IPROP) == PRPLST(IPRP)) .and. (ICOMP(IPROP) == ICMPLST(IPRP))) then
+      IPUSED(IPRP) = 1
+      exit
+    end if
+  end do
+end do
 
-      IF(.not.IFHAM) THEN
-        IF(IFSHFT) THEN
-          Call WarningMessage(1,'Ignored user request.')
-          WRITE(6,*)' INPCTL Warning: Both keywords ONEL and SHIFT.'
-          WRITE(6,*)' User-supplied diagonal energy shifts are'//       &
-     &              ' meaningless since no Hamiltonian will be'
-          WRITE(6,*)' used/computed anyway. Ignored.'
-          IFSHFT=.FALSE.
-        END IF
-        IF(IFHDIA) THEN
-          Call WarningMessage(1,'Ignored user request.')
-          WRITE(6,*)' INPCTL Warning: Both keywords ONEL and HDIAG.'
-          WRITE(6,*)' User-supplied diagonal H elements are'//          &
-     &              ' meaningless since no Hamiltonian will be'
-          WRITE(6,*)' used/computed anyway. Ignored.'
-          IFHDIA=.FALSE.
-        END IF
-      END IF
+if (.not. IFHAM) then
+  if (IFSHFT) then
+    call WarningMessage(1,'Ignored user request.')
+    write(u6,*) ' INPCTL Warning: Both keywords ONEL and SHIFT.'
+    write(u6,*) ' User-supplied diagonal energy shifts are meaningless since no Hamiltonian will be'
+    write(u6,*) ' used/computed anyway. Ignored.'
+    IFSHFT = .false.
+  end if
+  if (IFHDIA) then
+    call WarningMessage(1,'Ignored user request.')
+    write(u6,*) ' INPCTL Warning: Both keywords ONEL and HDIAG.'
+    write(u6,*) ' User-supplied diagonal H elements are meaningless since no Hamiltonian will be'
+    write(u6,*) ' used/computed anyway. Ignored.'
+    IFHDIA = .false.
+  end if
+end if
 ! In any Spin-Orbit calculation, we need SO integrals as well.
 ! Right now, only AMFI is available. Check that first.
-      IF(IFSO.OR.IFGCAL.OR.IFXCAL.OR.IFMCAL) THEN
-        IERR=3
-        DO IPRP=1,NPRPLST
-          IF(PRPLST(IPRP).EQ.'AMFI    ') THEN
-           IERR=IERR-1
-           IPUSED(IPRP)=1
+if (IFSO .or. IFGCAL .or. IFXCAL .or. IFMCAL) then
+  IERR = 3
+  do IPRP=1,NPRPLST
+    if (PRPLST(IPRP) == 'AMFI') then
+      IERR = IERR-1
+      IPUSED(IPRP) = 1
 
-          END IF
-          !IF(PRPLST(IPRP).EQ.'PSOI    ') THEN
-          ! IERR=IERR-1
-          ! IPUSED(IPRP)=1
-          !END IF
+    end if
+    !if (PRPLST(IPRP) == 'PSOI') then
+    !  IERR = IERR-1
+    !  IPUSED(IPRP) = 1
+    !end if
 
-        END DO
-        IF(IERR.NE.0) THEN
-          Call WarningMessage(1,'Incomplete integrals.')
-          WRITE(6,*)' Spin-Orbit interaction calculation was requested'
-          WRITE(6,*)' but this requires three components of AMFI'
-          WRITE(6,*)' integrals. Add the keywords AMFI and ONEONLY to'
-          WRITE(6,*)' the SEWARD input and recompute ONEINT.'
-          WRITE(6,*)' Program will continue, but SO/EPRG/MAGN'
-          WRITE(6,*)' calculations are disabled.'
-          IFSO=.FALSE.
-          NSOPR=0
-          IFGCAL=.FALSE.
-          IFXCAL=.FALSE.
-          IFMCAL=.FALSE.
-        END IF
-      END IF
+  end do
+  if (IERR /= 0) then
+    call WarningMessage(1,'Incomplete integrals.')
+    write(u6,*) ' Spin-Orbit interaction calculation was requested'
+    write(u6,*) ' but this requires three components of AMFI'
+    write(u6,*) ' integrals. Add the keywords AMFI and ONEONLY to'
+    write(u6,*) ' the SEWARD input and recompute ONEINT.'
+    write(u6,*) ' Program will continue, but SO/EPRG/MAGN'
+    write(u6,*) ' calculations are disabled.'
+    IFSO = .false.
+    NSOPR = 0
+    IFGCAL = .false.
+    IFXCAL = .false.
+    IFMCAL = .false.
+  end if
+end if
 ! SVC2009 Check for the presence of the ANGMOM integrals needed for G factor
 ! or Magnetic Moment calculations.
-      IF(IFGCAL.OR.IFXCAL.OR.IFMCAL) THEN
-        IERR=3
-        DO IPRP=1,NPRPLST
-          IF(PRPLST(IPRP).EQ.'ANGMOM  ') THEN
-           IERR=IERR-1
-           IPUSED(IPRP)=1
-          END IF
+if (IFGCAL .or. IFXCAL .or. IFMCAL) then
+  IERR = 3
+  do IPRP=1,NPRPLST
+    if (PRPLST(IPRP) == 'ANGMOM') then
+      IERR = IERR-1
+      IPUSED(IPRP) = 1
+    end if
 
-          !IF(PRPLST(IPRP).EQ.'PSOI    ') THEN
-          ! write(6,*)"5*****rassi/inpprc ANGMOM"
-          ! IERR=IERR-1
-          ! IPUSED(IPRP)=1
-          !END IF
+    !if (PRPLST(IPRP) == 'PSOI') then
+    !  write(u6,*) '5*****rassi/inpprc ANGMOM'
+    !  IERR = IERR-1
+    !  IPUSED(IPRP) = 1
+    !end if
 
-        END DO
-        IF(IERR.NE.0) THEN
-          Call WarningMessage(1,'Incomplete integrals.')
-          WRITE(6,*)' EPRG or MAGN keyword was requested'
-          WRITE(6,*)' but this requires three components of ANGMOM'
-          WRITE(6,*)' integrals. Add the keywords ANGMOM and ONEONLY to'
-          WRITE(6,*)' the SEWARD input and recompute ONEINT.'
-          WRITE(6,*)' Program will continue, but EPRG/MAGN calculations'
-          WRITE(6,*)' are disabled.'
-          IFGCAL=.FALSE.
-          IFXCAL=.FALSE.
-          IFMCAL=.FALSE.
-        END IF
-      END IF
+  end do
+  if (IERR /= 0) then
+    call WarningMessage(1,'Incomplete integrals.')
+    write(u6,*) ' EPRG or MAGN keyword was requested'
+    write(u6,*) ' but this requires three components of ANGMOM'
+    write(u6,*) ' integrals. Add the keywords ANGMOM and ONEONLY to'
+    write(u6,*) ' the SEWARD input and recompute ONEINT.'
+    write(u6,*) ' Program will continue, but EPRG/MAGN calculations'
+    write(u6,*) ' are disabled.'
+    IFGCAL = .false.
+    IFXCAL = .false.
+    IFMCAL = .false.
+  end if
+end if
 ! Similarly, check integrals for which we want matrix elements over
 ! SO eigenstates.
-      DO IPRP=1,NPRPLST
-       DO ISOPR=1,NSOPR
-        IF(SOPRNM(ISOPR).EQ.PRPLST(IPRP).AND.                           &
-     &        ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) THEN
-          IPUSED(IPRP)=1
-          exit
-        END IF
-       END DO
-      END DO
-!
+do IPRP=1,NPRPLST
+  do ISOPR=1,NSOPR
+    if ((SOPRNM(ISOPR) == PRPLST(IPRP)) .and. (ISOCMP(ISOPR) == ICMPLST(IPRP))) then
+      IPUSED(IPRP) = 1
+      exit
+    end if
+  end do
+end do
+
 ! Reassemble the PNAME, ICOMP arrays.
-!
-      DO IPRP=1,NPRPLST
-         IF (IPUSED(IPRP).EQ.0) THEN
-            DO IPROP = 1, NPROP
-               IF (PNAME(IPROP).EQ.PRPLST(IPRP)) PNAME(IPROP)='REMOVE'
-            END DO
-         ELSE
-            IADD=1
-            DO IPROP = 1, NPROP
-               IF (PNAME(IPROP).EQ.PRPLST(IPRP) .AND.                   &
-     &             ICOMP(IPROP).EQ.ICMPLST(IPRP)) IADD=0
-            END DO
-            IF (IADD.EQ.1) THEN
-               NPROP=NPROP+1
-               PNAME(NPROP)=PRPLST(IPRP)
-               PTYPE(NPROP)='UNDEF.  '
-               ICOMP(NPROP)=ICMPLST(IPRP)
-               IsAvail(NPROP)=.TRUE.
-            END IF
-         END IF
-      END DO
-      DO IPROP=1,NPROP
-        IF (.NOT.IsAvail(IPROP)) PNAME(IPROP)='REMOVE'
-      END DO
-      MPROP=NPROP
-      DO IPROP = 1, NPROP
-         IF (PNAME(IPROP).EQ.'DONE') EXIT
-         IF (PNAME(IPROP).EQ.'REMOVE') THEN
-            DO N = 1, MPROP-IPROP
-              IF (PNAME(IPROP+N).EQ.'DONE') EXIT
-              IF (PNAME(IPROP+N).NE.'REMOVE') EXIT
-            END DO
-            DO JPROP = IPROP, MPROP-N
-               PNAME(JPROP)=PNAME(JPROP+N)
-               PTYPE(JPROP)=PTYPE(JPROP+N)
-               ICOMP(JPROP)=ICOMP(JPROP+N)
-            END DO
-            DO JPROP = MPROP-N+1,MPROP
-              PNAME(JPROP)='DONE'
-            END DO
-            MPROP=MPROP-N
-         END IF
-      END DO
-      NPROP=MPROP
-!
+
+do IPRP=1,NPRPLST
+  if (IPUSED(IPRP) == 0) then
+    do IPROP=1,NPROP
+      if (PNAME(IPROP) == PRPLST(IPRP)) PNAME(IPROP) = 'REMOVE'
+    end do
+  else
+    IADD = 1
+    do IPROP=1,NPROP
+      if ((PNAME(IPROP) == PRPLST(IPRP)) .and. (ICOMP(IPROP) == ICMPLST(IPRP))) IADD = 0
+    end do
+    if (IADD == 1) then
+      NPROP = NPROP+1
+      PNAME(NPROP) = PRPLST(IPRP)
+      PTYPE(NPROP) = 'UNDEF.'
+      ICOMP(NPROP) = ICMPLST(IPRP)
+      IsAvail(NPROP) = .true.
+    end if
+  end if
+end do
+do IPROP=1,NPROP
+  if (.not. IsAvail(IPROP)) PNAME(IPROP) = 'REMOVE'
+end do
+MPROP = NPROP
+do IPROP=1,NPROP
+  if (PNAME(IPROP) == 'DONE') exit
+  if (PNAME(IPROP) == 'REMOVE') then
+    do N=1,MPROP-IPROP
+      if (PNAME(IPROP+N) == 'DONE') exit
+      if (PNAME(IPROP+N) /= 'REMOVE') exit
+    end do
+    do JPROP=IPROP,MPROP-N
+      PNAME(JPROP) = PNAME(JPROP+N)
+      PTYPE(JPROP) = PTYPE(JPROP+N)
+      ICOMP(JPROP) = ICOMP(JPROP+N)
+    end do
+    do JPROP=MPROP-N+1,MPROP
+      PNAME(JPROP) = 'DONE'
+    end do
+    MPROP = MPROP-N
+  end if
+end do
+NPROP = MPROP
+
 ! Reassemble the SOPRNM, ISOCMP arrays:
-!
-      DO IPRP=1,NPRPLST
-         IF (IPUSED(IPRP).EQ.0) THEN
-            DO ISOPR = 1, NSOPR
-               IF (SOPRNM(ISOPR).EQ.PRPLST(IPRP)) SOPRNM(ISOPR)='REMOVE'
-            END DO
-         ELSE
-            IADD=1
-            DO ISOPR = 1, NSOPR
-               IF (SOPRNM(ISOPR).EQ.PRPLST(IPRP) .AND.                  &
-     &             ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) IADD=0
-            END DO
-            IF (IADD.EQ.1) THEN
-               NSOPR=NSOPR+1
-               SOPRNM(NSOPR)=PRPLST(IPRP)
-               SOPRTP(NSOPR)='UNDEF.  '
-               ISOCMP(NSOPR)=ICMPLST(IPRP)
-               IsAvailSO(NSOPR)=.TRUE.
-            END IF
-         END IF
-      END DO
-      DO ISOPR=1,NSOPR
-        IF (.NOT.IsAvailSO(ISOPR)) SOPRNM(ISOPR)='REMOVE'
-      END DO
-      MSOPR=NSOPR
-      DO ISOPR = 1, NSOPR
-         IF (SOPRNM(ISOPR).EQ.'DONE') EXIT
-         IF (SOPRNM(ISOPR).EQ.'REMOVE') THEN
-            DO N = 1, MSOPR-ISOPR
-              IF (SOPRNM(ISOPR+N).EQ.'DONE') EXIT
-              IF (SOPRNM(ISOPR+N).NE.'REMOVE') EXIT
-            END DO
-            DO JSOPR = ISOPR, MSOPR-N
-               SOPRNM(JSOPR)=SOPRNM(JSOPR+N)
-               SOPRTP(JSOPR)=SOPRTP(JSOPR+N)
-               ISOCMP(JSOPR)=ISOCMP(JSOPR+N)
-            END DO
-            DO JSOPR = MSOPR-N+1,MSOPR
-              SOPRNM(JSOPR)='DONE'
-            END DO
-            MSOPR=MSOPR-N
-         END IF
-      END DO
-      NSOPR=MSOPR
-      IF (.NOT. IFSO) NSOPR=0
+
+do IPRP=1,NPRPLST
+  if (IPUSED(IPRP) == 0) then
+    do ISOPR=1,NSOPR
+      if (SOPRNM(ISOPR) == PRPLST(IPRP)) SOPRNM(ISOPR) = 'REMOVE'
+    end do
+  else
+    IADD = 1
+    do ISOPR=1,NSOPR
+      if ((SOPRNM(ISOPR) == PRPLST(IPRP)) .and. (ISOCMP(ISOPR) == ICMPLST(IPRP))) IADD = 0
+    end do
+    if (IADD == 1) then
+      NSOPR = NSOPR+1
+      SOPRNM(NSOPR) = PRPLST(IPRP)
+      SOPRTP(NSOPR) = 'UNDEF.'
+      ISOCMP(NSOPR) = ICMPLST(IPRP)
+      IsAvailSO(NSOPR) = .true.
+    end if
+  end if
+end do
+do ISOPR=1,NSOPR
+  if (.not. IsAvailSO(ISOPR)) SOPRNM(ISOPR) = 'REMOVE'
+end do
+MSOPR = NSOPR
+do ISOPR=1,NSOPR
+  if (SOPRNM(ISOPR) == 'DONE') exit
+  if (SOPRNM(ISOPR) == 'REMOVE') then
+    do N=1,MSOPR-ISOPR
+      if (SOPRNM(ISOPR+N) == 'DONE') exit
+      if (SOPRNM(ISOPR+N) /= 'REMOVE') exit
+    end do
+    do JSOPR=ISOPR,MSOPR-N
+      SOPRNM(JSOPR) = SOPRNM(JSOPR+N)
+      SOPRTP(JSOPR) = SOPRTP(JSOPR+N)
+      ISOCMP(JSOPR) = ISOCMP(JSOPR+N)
+    end do
+    do JSOPR=MSOPR-N+1,MSOPR
+      SOPRNM(JSOPR) = 'DONE'
+    end do
+    MSOPR = MSOPR-N
+  end if
+end do
+NSOPR = MSOPR
+if (.not. IFSO) NSOPR = 0
 
 ! IPUSED is used later for other purposes, and should be initialized
 ! to zero.
-      DO IPRP=1,NPRPLST
-       IPUSED(IPRP)=0
-      END DO
-!
+do IPRP=1,NPRPLST
+  IPUSED(IPRP) = 0
+end do
+
 ! PTYPE and SOPRTP is set here if not already set above. Note that this
 ! is a fallback procedure that should not be used actively. This
 ! fallback typically assigns the type of WE-reduced density to be
 ! used for user-specified lists of properties.
-!
-      DO IPROP=1,NPROP
-       IF (PTYPE(IPROP).NE.'UNDEF.  ') CYCLE
-       PTYPE(IPROP)='HERMSING'
-       IF(PNAME(IPROP).EQ.'VELOCITY') PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'ANGMOM  ') PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'MLTPV  2') PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP)(1:4).EQ.'PSOP') PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'OMQ     ') PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'AMFI    ') PTYPE(IPROP)='ANTITRIP'
-       IF(PNAME(IPROP)(1:3).EQ.'ASD') PTYPE(IPROP)='HERMTRIP'
-       IF(PNAME(IPROP)(1:6).EQ.'DMP   ') PTYPE(IPROP)='HERMSING'
-       IF(PNAME(IPROP).EQ.'EMFR  RA')PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'EMFR  IA')PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'TMOM  RA')PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'TMOM  IA')PTYPE(IPROP)='ANTISING'
-       IF(PNAME(IPROP).EQ.'EMFR0  I')PTYPE(IPROP)='ANTITRIP'
-       IF(PNAME(IPROP).EQ.'TMOM0  R')PTYPE(IPROP)='HERMTRIP'
-       IF(PNAME(IPROP).EQ.'TMOM0  I')PTYPE(IPROP)='HERMTRIP'
-       IF(PNAME(IPROP).EQ.'TMOM2  I')PTYPE(IPROP)='ANTISING'
-       END DO
 
-      DO ISOPR=1,NSOPR
-       IF (SOPRTP(ISOPR).NE.'UNDEF.  ') CYCLE
-       SOPRTP(ISOPR)='HERMSING'
-       IF(SOPRNM(ISOPR).EQ.'VELOCITY') SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'ANGMOM  ') SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'MLTPV  2') SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR)(1:4).EQ.'PSOP') SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(IPROP).EQ.'OMQ     ') SOPRTP(IPROP)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'AMFI    ') SOPRTP(ISOPR)='ANTITRIP'
-       IF(SOPRNM(ISOPR)(1:3).EQ.'ASD') SOPRTP(ISOPR)='HERMTRIP'
-       IF(SOPRNM(ISOPR)(1:6).EQ.'DMP   ') SOPRTP(ISOPR)='HERMSING'
-       IF(SOPRNM(ISOPR).EQ.'EMFR  RA')SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'EMFR  IA')SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'TMOM  RA')SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'TMOM  IA')SOPRTP(ISOPR)='ANTISING'
-       IF(SOPRNM(ISOPR).EQ.'EMFR0  I')SOPRTP(ISOPR)='ANTITRIP'
-       IF(SOPRNM(ISOPR).EQ.'TMOM0  R')SOPRTP(ISOPR)='HERMTRIP'
-       IF(SOPRNM(ISOPR).EQ.'TMOM0  I')SOPRTP(ISOPR)='HERMTRIP'
-       IF(SOPRNM(ISOPR).EQ.'TMOM2  I')SOPRTP(ISOPR)='ANTISING'
-      END DO
+do IPROP=1,NPROP
+  if (PTYPE(IPROP) /= 'UNDEF.') cycle
+  select case (PNAME(IPROP))
+    case ('ANGMOM','MLTPV  2','OMQ','EMFR  RA','EMFR  IA','TMOM  RA','TMOM  IA','TMOM2  I')
+      PTYPE(IPROP) = 'ANTISING'
+    case ('AMFI','EMFR0  I')
+      PTYPE(IPROP) = 'ANTITRIP'
+    case ('TMOM0  R','TMOM0  I')
+      PTYPE(IPROP) = 'HERMTRIP'
+    case default
+      ! check partial labels
+      if (PNAME(IPROP)(1:4) == 'PSOP') then
+        PTYPE(IPROP) = 'ANTISING'
+      else if (PNAME(IPROP)(1:3) == 'ASD') then
+        PTYPE(IPROP) = 'HERMTRIP'
+      else
+        ! default value
+        PTYPE(IPROP) = 'HERMSING'
+      end if
+  end select
+end do
+
+do ISOPR=1,NSOPR
+  if (SOPRTP(ISOPR) /= 'UNDEF.') cycle
+  select case (SOPRNM(ISOPR))
+    case ('VELOCITY','ANGMOM','MLTPV  2','OMQ','EMFR  RA','EMFR  IA','TMOM  RA','TMOM  IA','TMOM2  I')
+      SOPRTP(ISOPR) = 'ANTISING'
+    case ('AMFI','EMFR0  I')
+      SOPRTP(ISOPR) = 'ANTITRIP'
+    case ('TMOM0  R','TMOM0  I')
+      SOPRTP(ISOPR) = 'HERMTRIP'
+    case default
+      ! check partial labels
+      if (SOPRNM(ISOPR)(1:4) == 'PSOP') then
+        SOPRTP(ISOPR) = 'ANTISING'
+      else if (SOPRNM(ISOPR)(1:3) == 'ASD') then
+        SOPRTP(ISOPR) = 'HERMTRIP'
+      else
+        ! default value
+        SOPRTP(ISOPR) = 'HERMSING'
+      end if
+  end select
+end do
 
 ! Write out various input data:
-!
-      Call Get_cArray('Irreps',lIrrep,24)
-      Do iSym = 1, nSym
-         lIrrep(iSym) = adjustr(lIrrep(iSym))
-      End Do
-!
+
+call Get_cArray('Irreps',lIrrep,24)
+do iSym=1,nSym
+  lIrrep(iSym) = adjustr(lIrrep(iSym))
+end do
+
 ! determine if there are any matching wavefunctions
-      JOBMATCH=.FALSE.
-      do job1=1,njob
-        do job2=1,job1-1
-          if ((MLTPLT(JOB1).EQ.MLTPLT(JOB2)) .AND.                      &
-     &        (IRREP(JOB1).EQ.IRREP(JOB2))) then
-            JOBMATCH=.TRUE.
-          end if
-        end do
-      end do
+JOBMATCH = .false.
+do job1=1,njob
+  do job2=1,job1-1
+    if ((MLTPLT(JOB1) == MLTPLT(JOB2)) .and. (IRREP(JOB1) == IRREP(JOB2))) JOBMATCH = .true.
+  end do
+end do
 ! make decision regarding the use of input hamiltonian/diagonal values
-      if (ifheff) then
-        if (have_heff) then
-          DO J=1,NSTATE
-            DO I=1,NSTATE
-              HAM(i,j)=0.5D0*(HEFF(i,j)+HEFF(j,i))
-            END DO
-          END DO
-          if (jobmatch) then
-            call WarningMessage(1,'HEFF used for a situation where '//  &
-     &        'possible extra interaction between states is ignored!')
-          end if
-        else
-          call WarningMessage(2,'HEFF used but none is available!')
-          call Quit_OnUserError
-        end if
-      else if (ifejob) then
-        if (have_heff) then
-          call WarningMessage(1,'EJOB used when HEFF is available, '//  &
-     &      'possible extra interaction between states is ignored!')
-        end if
-        if (have_diag) then
-          DO I=1,NSTATE
-           HAM(i,i)=REFENE(i)
-          END DO
-        else if (have_heff) then
-          DO I=1,NSTATE
-            HAM(i,i)=HEFF(i,i)
-          END DO
-        else
-          call WarningMessage(2,'EJOB used but no energies available!')
-          call Quit_OnUserError
-        end if
-        if (jobmatch) then
-          call WarningMessage(1,'EJOB used for a situation where '//    &
-     &      'possible extra interaction between states is ignored!')
-        end if
-      else if (.not.(ifhext.or.ifhdia.or.ifshft.or.ifhcom)) then
-! the user has selected no procedure...
-        if (have_heff.and. (.not.jobmatch)) then
-          ifheff=.true.
-          DO J=1,NSTATE
-            DO I=1,NSTATE
-              HAM(i,j)=0.5D0*(HEff(i,j)+HEff(j,i))
-            END DO
-          END DO
-        else if (have_diag) then
-          ifhdia=.true.
-          DO I=1,NSTATE
-            HDIAG(I)=REFENE(i)
-          END DO
-        end if
-      end if
-!
+if (ifheff) then
+  if (have_heff) then
+    do J=1,NSTATE
+      do I=1,NSTATE
+        HAM(i,j) = Half*(HEFF(i,j)+HEFF(j,i))
+      end do
+    end do
+    if (jobmatch) call WarningMessage(1,'HEFF used for a situation where possible extra interaction between states is ignored!')
+  else
+    call WarningMessage(2,'HEFF used but none is available!')
+    call Quit_OnUserError()
+  end if
+else if (ifejob) then
+  if (have_heff) call WarningMessage(1,'EJOB used when HEFF is available, possible extra interaction between states is ignored!')
+  if (have_diag) then
+    do I=1,NSTATE
+      HAM(i,i) = REFENE(i)
+    end do
+  else if (have_heff) then
+    do I=1,NSTATE
+      HAM(i,i) = HEFF(i,i)
+    end do
+  else
+    call WarningMessage(2,'EJOB used but no energies available!')
+    call Quit_OnUserError()
+  end if
+  if (jobmatch) call WarningMessage(1,'EJOB used for a situation where possible extra interaction between states is ignored!')
+else if (.not. (ifhext .or. ifhdia .or. ifshft .or. ifhcom)) then
+  ! the user has selected no procedure...
+  if (have_heff .and. (.not. jobmatch)) then
+    ifheff = .true.
+    do J=1,NSTATE
+      do I=1,NSTATE
+        HAM(i,j) = Half*(HEff(i,j)+HEff(j,i))
+      end do
+    end do
+  else if (have_diag) then
+    ifhdia = .true.
+    do I=1,NSTATE
+      HDIAG(I) = REFENE(i)
+    end do
+  end if
+end if
+
 ! Enable Hamiltonian if available/requested and not explicitly disabled
-      if ((.not.NOHAM).and.(IFHEXT.or.IFHEFF.or.IFHCOM.or.IFEJOB))      &
-     &  IFHAM=.TRUE.
-!
-      IF (IPGLOB.GE.2) THEN
-        WRITE(6,*)
-        WRITE(6,*)'  The following data are common to all the states:'
-        WRITE(6,*)'  ------------------------------------------------'
-        WRITE(6,*)                                                      &
-     &    '  (note: frozen counts as inactive, deleted as secondary)'
-        WRITE(6,*)
-        WRITE(6,'(6X,A,I2)')'Nr of irreps:',NSYM
-        WRITE(6,*)
-        WRITE(6,'(6X,A)')                                               &
-     &       '           Total     No./Irrep '
-        WRITE(6,'(6X,A,8X,8I4)')                                        &
-     &       'Irrep       ',(I,I=1,NSYM)
-        WRITE(6,'(6X,A,8X,8(1X,A))')                                    &
-     &       '            ',(lIrrep(I),I=1,NSYM)
-        WRITE(6,*)
-        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
-     &       'INACTIVE    ',NISHT, (NISH(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
-     &       'ACTIVE      ',NASHT, (NASH(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
-     &       'SECONDARY   ',NSSHT, (NSSH(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
-     &       'BASIS       ',NBST, (NBASF(I),I=1,NSYM)
-        WRITE(6,*)
-        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
-     &    'RAS1        ',NRS1T, (NRS1(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
-     &    'RAS2        ',NRS2T, (NRS2(I),I=1,NSYM)
-        WRITE(6,'(6X,A,I4,4X,8I4)')                                     &
-     &    'RAS3        ',NRS3T, (NRS3(I),I=1,NSYM)
-        WRITE(6,*)
-        IF(.NOT.(TRACK.OR.ONLY_OVERLAPS)) THEN
-          WRITE(6,*) '      '                                           &
-     &           //' MATRIX ELEMENTS WILL BE COMPUTED FOR THE FOLLOWING'&
-     &           //' ONE-ELECTRON OPERATORS, UNLESS ZERO BY SYMMETRY.'
-          WRITE(6,*) '  (Herm=Hermitian, Anti=Antihermitian,'//         &
-     &                 ' Sing=Singlet operator, Trip=Triplet operator)'
-          Do i1=1,nProp,3
-            i2=Min(i1+2,nProp)
-            WRITE(6,'(3(5X,A8,1X,I3,1X,A1,A8,A1))')                     &
-     &           (PNAME(i),ICOMP(i),'(',PTYPE(i),')',i=i1,i2)
-          End Do
-        END IF
-        IF(IFHAM) THEN
-          WRITE(6,*)
-          WRITE(6,*)'      EIGENSTATES OF A SPIN-FREE HAMILTONIAN'//    &
-     &            ' WILL BE COMPUTED BASED ON:'
-          WRITE(6,*)
-! which kind of base hamiltonian is taken?
-          IF(IFHEXT) THEN
-            WRITE(6,*)' a Hamiltonian matrix that '//                   &
-     &                'was supplied in the input.'
-          ELSE IF(IFHEFF) THEN
-            WRITE(6,*)' a (effective) Hamiltonian matrix that '//       &
-     &                'was read from the wavefunction file(s).'
-          ELSE IF(IFEJOB) THEN
-            WRITE(6,*)' a Hamiltonian matrix assumed to be diagonal '// &
-     &          'with energies read from the wavefunction file(s).'
-          ELSE
-            WRITE(6,*)' A Hamiltonian matrix computed by RASSI.'
-          END IF
-! which kind of corrections are applied?
-          IF(IFHDIA) THEN
-            WRITE(6,*)' In addition, the diagonal energies of the '//   &
-     &    'hamiltonian matrix will be replaced by either the user '//   &
-     &    '(HDIAG keyword) or read from the wavefunction file(s).'
-          END IF
-          IF(IFSHFT) THEN
-            WRITE(6,*)' In addition, the diagonal energies of the '//   &
-     &    'hamiltonian matrix will be shifted by the user '//           &
-     &    '(SHIFT keyword).'
-          END IF
-          IF(NSOPR.GT.0) THEN
-            WRITE(6,*)
-            WRITE(6,*)' SO coupling elements will be added.'
-          END IF
-        END IF
-      END IF
-      IF(NSOPR.GT.0) THEN
-        IF(.NOT.(TRACK.OR.ONLY_OVERLAPS)) THEN
-          WRITE(6,*)
-          WRITE(6,*) '       MATRIX ELEMENTS OVER SPIN EIGENSTATES FOR:'
-          Do i1=1,NSOPR,3
-            i2=Min(i1+2,NSOPR)
-            WRITE(6,'(3(5X,A8,1X,I3,1X,A1,A8,A1))')                     &
-     &           (SOPRNM(i),ISOCMP(i),'(',SOPRTP(i),')',i=i1,i2)
-          End Do
-        END IF
-        IF(IFHAM) THEN
-          WRITE(6,*)
-          WRITE(6,*)'      EIGENSTATES OF SPIN-ORBIT HAMILTONIAN'//     &
-     &            ' WILL BE COMPUTED'
-        END IF
-      END IF
-      IF(IPGLOB.GE.4) THEN
-        WRITE(6,*)'Initial default flags are:'
-        WRITE(6,*)'     PRSXY :',PRSXY
-        WRITE(6,*)'     PRORB :',PRORB
-        WRITE(6,*)'     PRTRA :',PRTRA
-        WRITE(6,*)'     PRCI  :',PRCI
-        WRITE(6,*)'     IFHAM :',IFHAM
-        WRITE(6,*)'     IFHEXT:',IFHEXT
-        WRITE(6,*)'     IFHEFF:',IFHEFF
-        WRITE(6,*)'     IFEJOB:',IFEJOB
-        WRITE(6,*)'     IFHCOM:',IFHCOM
-        WRITE(6,*)'     IFSHFT:',IFSHFT
-        WRITE(6,*)'     IFHDIA:',IFHDIA
-        WRITE(6,*)'     IFSO  :',IFSO
-        WRITE(6,*)'     NATO  :',NATO
-        WRITE(6,*)'     RFPERT:',RFPERT
-        WRITE(6,*)'     TOFILE:',ToFile
-        WRITE(6,*)'     PRXVR :',PRXVR
-        WRITE(6,*)'     PRXVE :',PRXVE
-        WRITE(6,*)'     PRXVS :',PRXVS
-        WRITE(6,*)'     PRMER :',PRMER
-        WRITE(6,*)'     PRMEE :',PRMEE
-        WRITE(6,*)'     PRMES :',PRMES
-      END IF
-      IF(IPGLOB.GE.2) THEN
-       IF(NATO.AND.(NRNATO.GT.0)) THEN
-        WRITE(6,*)' Natural orbitals will be computed for the'//        &
-     &            ' lowest eigenstates. NRNATO=',NRNATO
-       END IF
-       IF(BINA) THEN
-        WRITE(6,*)' Bi-natural orbitals will be computed for the'//     &
-     &            ' following pairs of states:'
-        WRITE(6,'(5X,8(2X,A1,I2,A1,I2,A1))')                            &
-     &             ('(',IBINA(1,I),',',IBINA(2,I),')',I=1,NBINA)
-       END IF
-       WRITE(6,*)
-       WRITE(6,*)' Nr of states:',NSTATE
-       DO II=1,NSTATE,20
-        III=MIN(II+19,NSTATE)
-        WRITE(6,*)
-        WRITE(6,'(1X,A8,5x,20I4)')'  State:',(I,I=II,III)
-        WRITE(6,'(1X,A8,5x,20I4)')' JobIph:',                           &
-     &                             (JBNUM(I),I=II,III)
-        WRITE(6,'(1X,A8,5x,20I4)')'Root nr:',                           &
-     &                             (LROOT(I),I=II,III)
-       END DO
-       IF(IFSHFT) THEN
-         WRITE(6,*)
-         WRITE(6,*)'Each input state will be shifted with an individual'
-         WRITE(6,*)'amount of energy. These energy shifts are (a.u.):'
-         WRITE(6,'(1X,5F16.8)')(ESHFT(I),I=1,NSTATE)
-       END IF
-      END IF
+if ((.not. NOHAM) .and. (IFHEXT .or. IFHEFF .or. IFHCOM .or. IFEJOB)) IFHAM = .true.
+
+if (IPGLOB >= 2) then
+  write(u6,*)
+  write(u6,*) '  The following data are common to all the states:'
+  write(u6,*) '  ------------------------------------------------'
+  write(u6,*) '  (note: frozen counts as inactive, deleted as secondary)'
+  write(u6,*)
+  write(u6,'(6X,A,I2)') 'Nr of irreps:',NSYM
+  write(u6,*)
+  write(u6,'(6X,A)') '           Total     No./Irrep'
+  write(u6,'(6X,A,8X,8I4)') 'Irrep       ',(I,I=1,NSYM)
+  write(u6,'(6X,A,8X,8(1X,A))') '            ',(lIrrep(I),I=1,NSYM)
+  write(u6,*)
+  write(u6,'(6X,A,I4,4X,8I4)') 'INACTIVE    ',NISHT,(NISH(I),I=1,NSYM)
+  write(u6,'(6X,A,I4,4X,8I4)') 'ACTIVE      ',NASHT,(NASH(I),I=1,NSYM)
+  write(u6,'(6X,A,I4,4X,8I4)') 'SECONDARY   ',NSSHT,(NSSH(I),I=1,NSYM)
+  write(u6,'(6X,A,I4,4X,8I4)') 'BASIS       ',NBST,(NBASF(I),I=1,NSYM)
+  write(u6,*)
+  write(u6,'(6X,A,I4,4X,8I4)') 'RAS1        ',NRS1T,(NRS1(I),I=1,NSYM)
+  write(u6,'(6X,A,I4,4X,8I4)') 'RAS2        ',NRS2T,(NRS2(I),I=1,NSYM)
+  write(u6,'(6X,A,I4,4X,8I4)') 'RAS3        ',NRS3T,(NRS3(I),I=1,NSYM)
+  write(u6,*)
+  if (.not. (TRACK .or. ONLY_OVERLAPS)) then
+    write(u6,*) '       MATRIX ELEMENTS WILL BE COMPUTED FOR THE FOLLOWING ONE-ELECTRON OPERATORS, UNLESS ZERO BY SYMMETRY.'
+    write(u6,*) '  (Herm=Hermitian, Anti=Antihermitian, Sing=Singlet operator, Trip=Triplet operator)'
+    do i1=1,nProp,3
+      i2 = min(i1+2,nProp)
+      write(u6,'(3(5X,A8,1X,I3,1X,A1,A8,A1))') (PNAME(i),ICOMP(i),'(',PTYPE(i),')',i=i1,i2)
+    end do
+  end if
+  if (IFHAM) then
+    write(u6,*)
+    write(u6,*) '      EIGENSTATES OF A SPIN-FREE HAMILTONIAN WILL BE COMPUTED BASED ON:'
+    write(u6,*)
+    ! which kind of base hamiltonian is taken?
+    if (IFHEXT) then
+      write(u6,*) ' a Hamiltonian matrix that was supplied in the input.'
+    else if (IFHEFF) then
+      write(u6,*) ' a (effective) Hamiltonian matrix that was read from the wavefunction file(s).'
+    else if (IFEJOB) then
+      write(u6,*) ' a Hamiltonian matrix assumed to be diagonal with energies read from the wavefunction file(s).'
+    else
+      write(u6,*) ' A Hamiltonian matrix computed by RASSI.'
+    end if
+    ! which kind of corrections are applied?
+    if (IFHDIA) &
+      write(u6,*) ' In addition, the diagonal energies of the hamiltonian matrix will be replaced by either the user (HDIAG '// &
+                  'keyword) or read from the wavefunction file(s).'
+    if (IFSHFT) &
+      write(u6,*) ' In addition, the diagonal energies of the hamiltonian matrix will be shifted by the user (SHIFT keyword).'
+    if (NSOPR > 0) then
+      write(u6,*)
+      write(u6,*) ' SO coupling elements will be added.'
+    end if
+  end if
+end if
+if (NSOPR > 0) then
+  if (.not. (TRACK .or. ONLY_OVERLAPS)) then
+    write(u6,*)
+    write(u6,*) '       MATRIX ELEMENTS OVER SPIN EIGENSTATES FOR:'
+    do i1=1,NSOPR,3
+      i2 = min(i1+2,NSOPR)
+      write(u6,'(3(5X,A8,1X,I3,1X,A1,A8,A1))') (SOPRNM(i),ISOCMP(i),'(',SOPRTP(i),')',i=i1,i2)
+    end do
+  end if
+  if (IFHAM) then
+    write(u6,*)
+    write(u6,*) '      EIGENSTATES OF SPIN-ORBIT HAMILTONIAN WILL BE COMPUTED'
+  end if
+end if
+if (IPGLOB >= 4) then
+  write(u6,*) 'Initial default flags are:'
+  write(u6,*) '     PRSXY :',PRSXY
+  write(u6,*) '     PRORB :',PRORB
+  write(u6,*) '     PRTRA :',PRTRA
+  write(u6,*) '     PRCI  :',PRCI
+  write(u6,*) '     IFHAM :',IFHAM
+  write(u6,*) '     IFHEXT:',IFHEXT
+  write(u6,*) '     IFHEFF:',IFHEFF
+  write(u6,*) '     IFEJOB:',IFEJOB
+  write(u6,*) '     IFHCOM:',IFHCOM
+  write(u6,*) '     IFSHFT:',IFSHFT
+  write(u6,*) '     IFHDIA:',IFHDIA
+  write(u6,*) '     IFSO  :',IFSO
+  write(u6,*) '     NATO  :',NATO
+  write(u6,*) '     RFPERT:',RFPERT
+  write(u6,*) '     TOFILE:',ToFile
+  write(u6,*) '     PRXVR :',PRXVR
+  write(u6,*) '     PRXVE :',PRXVE
+  write(u6,*) '     PRXVS :',PRXVS
+  write(u6,*) '     PRMER :',PRMER
+  write(u6,*) '     PRMEE :',PRMEE
+  write(u6,*) '     PRMES :',PRMES
+end if
+if (IPGLOB >= 2) then
+  if (NATO .and. (NRNATO > 0)) write(u6,*) ' Natural orbitals will be computed for the lowest eigenstates. NRNATO=',NRNATO
+  if (BINA) then
+    write(u6,*) ' Bi-natural orbitals will be computed for the following pairs of states:'
+    write(u6,'(5X,8(2X,A1,I2,A1,I2,A1))') ('(',IBINA(1,I),',',IBINA(2,I),')',I=1,NBINA)
+  end if
+  write(u6,*)
+  write(u6,*) ' Nr of states:',NSTATE
+  do II=1,NSTATE,20
+    III = min(II+19,NSTATE)
+    write(u6,*)
+    write(u6,'(1X,A8,5x,20I4)') '  State:',(I,I=II,III)
+    write(u6,'(1X,A8,5x,20I4)') ' JobIph:',(JBNUM(I),I=II,III)
+    write(u6,'(1X,A8,5x,20I4)') 'Root nr:',(LROOT(I),I=II,III)
+  end do
+  if (IFSHFT) then
+    write(u6,*)
+    write(u6,*) 'Each input state will be shifted with an individual'
+    write(u6,*) 'amount of energy. These energy shifts are (a.u.):'
+    write(u6,'(1X,5F16.8)') (ESHFT(I),I=1,NSTATE)
+  end if
+end if
 
 ! Added by Ungur Liviu on 04.11.2009
 ! Addition of NSTATE, JBNUM, and LROOT to RunFile.
 
-       CALL Put_iscalar('NSTATE_SINGLE',NSTATE)
-       CALL Put_iArray('JBNUM_SINGLE',JBNUM,NSTATE)
-       CALL Put_iArray('LROOT_SINGLE',LROOT,NSTATE)
-!
-! Generate the quadrature points for isotropic integration of the exponential operator
-!
-      If (Do_TMOM) Then
-        If (Do_SK) Then
-          nQuad=1
-        Else
-          nk_Vector = 1
-          nQuad = order_table(4,(L_Eff-1)/2)
-        End If
-      Else
-        nk_Vector = 0
-        nQuad = 0
-      End If
-!
-      CALL XFLUSH(6)
+call Put_iscalar('NSTATE_SINGLE',NSTATE)
+call Put_iArray('JBNUM_SINGLE',JBNUM,NSTATE)
+call Put_iArray('LROOT_SINGLE',LROOT,NSTATE)
 
-      END SUBROUTINE INPPRC
+! Generate the quadrature points for isotropic integration of the exponential operator
+
+if (Do_TMOM) then
+  if (Do_SK) then
+    nQuad = 1
+  else
+    nk_Vector = 1
+    nQuad = order_table(4,(L_Eff-1)/2)
+  end if
+else
+  nk_Vector = 0
+  nQuad = 0
+end if
+
+call XFLUSH(u6)
+
+end subroutine INPPRC

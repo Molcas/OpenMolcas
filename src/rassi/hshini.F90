@@ -8,18 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Setup_O()
-      use nq_Grid, only: Pax
-      use stdalloc, only: mma_allocate
-      Call mma_allocate(Pax,3,3,Label='Pax')
-      Pax(:,:)=0.0D0
-      Call DCOPY_(3,[1.0D0],0,Pax,4)
-      Return
-      End
-!
-      Subroutine Free_O()
-      use nq_Grid, only: Pax
-      use stdalloc, only: mma_deallocate
-      Call mma_deallocate(Pax)
-      Return
-      End
+
+subroutine HSHINI(NSIZE,ITAB,NULL)
+
+use definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: NSIZE, NULL
+integer(kind=iwp), intent(out) :: ITAB(NSIZE,2)
+! These parameters determine the hash function
+integer(kind=iwp), parameter :: NHASH = 997
+integer(kind=iwp) I, IFREE
+
+if (NSIZE < NHASH) then
+  write(u6,*) ' HSHINI: Table size must be at least as'
+  write(u6,*) '         big as NHASH, presently =',NHASH
+  call ABEND()
+end if
+do I=1,NHASH
+  ITAB(I,1) = NULL
+  ITAB(I,2) = NULL
+end do
+IFREE = NHASH+1
+do I=IFREE,NSIZE-1
+  ITAB(I,1) = I+1
+  ITAB(I,2) = NULL
+end do
+ITAB(NSIZE,1) = NULL
+ITAB(NSIZE,2) = IFREE
+
+end subroutine HSHINI

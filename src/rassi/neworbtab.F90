@@ -8,367 +8,369 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine NEWORBTAB(IPRTTAB)
-      use rassi_global_arrays, only: OrbTab
-      use stdalloc, only: mma_allocate
-      use cntrl, only: MORSBITS
-      IMPLICIT NONE
-      INTEGER IPRTTAB(*)
-      INTEGER I,N,IEXTNUM,INPART,INSBP,ISORB,IPART,ISMLAB,ISOIND
-      INTEGER ISPART,ISUM,KSPART
-!     INTEGER IPFR,IPIN,IPAC,IPSE,IPDE,IP
-      INTEGER IPFR,IPIN,IPAC,IPSE
-      INTEGER ISYM
-      INTEGER NPART,NSPART,NORBT,NSORBT,NSYM
-      INTEGER NAPART,NASPRT,NASPO,KOINFO,NTAB
-      INTEGER NOES(8),INSYM(8)
 
-      ISOIND = 0 ! dummy initialize
+subroutine NEWORBTAB(IPRTTAB)
+
+use rassi_global_arrays, only: OrbTab
+use stdalloc, only: mma_allocate
+use cntrl, only: MORSBITS
+use Definitions, only: u6
+
+implicit none
+integer IPRTTAB(*)
+integer I, N, IEXTNUM, INPART, INSBP, ISORB, IPART, ISMLAB, ISOIND
+integer ISPART, ISUM, KSPART
+integer IPFR, IPIN, IPAC, IPSE
+integer ISYM
+integer NPART, NSPART, NORBT, NSORBT, NSYM
+integer NAPART, NASPRT, NASPO, KOINFO, NTAB
+integer NOES(8), INSYM(8)
+
+ISOIND = 0 ! dummy initialize
 ! Executable statements
-      NPART= IPRTTAB(3)
-      NSYM = IPRTTAB(4)
+NPART = IPRTTAB(3)
+NSYM = IPRTTAB(4)
 ! NAPART: Nr of partitions of active orbitals.
-      NAPART=NPART-4
+NAPART = NPART-4
 ! Partitions for inactive, secondary,frozen, and deleted orbitals:
-      IPIN=NAPART+1
-      IPSE=NAPART+2
-      IPFR=NAPART+3
+IPIN = NAPART+1
+IPSE = NAPART+2
+IPFR = NAPART+3
 ! Total nr of orbitals:
-      NORBT=IPRTTAB(5)
-      NSORBT=2*NORBT
+NORBT = IPRTTAB(5)
+NSORBT = 2*NORBT
 ! Table words 1--10 contain some header info.
 ! Table words 11--18 contain start index of each CMO symmetry block
 ! Table words 19-- contain info for each separate spin orbital
 ! Presently 8 table entries for each spin orbital.
-      KOINFO=19
+KOINFO = 19
 ! Table words 19+8*NSORBT-- contain nr of sp-orbs for each subpartition
-      KSPART=19+8*NSORBT
+KSPART = 19+8*NSORBT
 ! Nr of sub-partitions:
-      NSPART=0
-      DO IPART=1,NPART
-       N=2*IPRTTAB(5+(NSYM+1)*IPART)
-       IF(N.GT.0) NSPART=NSPART+(N+MORSBITS-1)/MORSBITS
-      END DO
-      NTAB= KSPART+NSPART-1
+NSPART = 0
+do IPART=1,NPART
+  N = 2*IPRTTAB(5+(NSYM+1)*IPART)
+  if (N > 0) NSPART = NSPART+(N+MORSBITS-1)/MORSBITS
+end do
+NTAB = KSPART+NSPART-1
 ! Allocate the orbital table.
-      CALL mma_allocate(ORBTAB,NTAB,Label='OrbTab')
-      OrbTab(1)=NTAB
-      OrbTab(2)= 1
-      OrbTab(3)=NSORBT
+call mma_allocate(ORBTAB,NTAB,Label='OrbTab')
+OrbTab(1) = NTAB
+OrbTab(2) = 1
+OrbTab(3) = NSORBT
 ! Nr of active spin-orbitals:
-      ISUM=0
-      DO IPART=1,NAPART
-        ISUM=ISUM+IPRTTAB(5+(NSYM+1)*IPART)
-      END DO
-      NASPO=2*ISUM
-      OrbTab(4)=NASPO
-      OrbTab(5)=NSYM
-      OrbTab(6)=NAPART+4
+ISUM = 0
+do IPART=1,NAPART
+  ISUM = ISUM+IPRTTAB(5+(NSYM+1)*IPART)
+end do
+NASPO = 2*ISUM
+OrbTab(4) = NASPO
+OrbTab(5) = NSYM
+OrbTab(6) = NAPART+4
 ! Accumulated nr of orbital functions/symm:
-      ISUM=0
-      DO ISYM=1,NSYM
-        NOES(ISYM)=ISUM
-        ISUM=ISUM+ IPRTTAB(5+ISYM)
-      END DO
+ISUM = 0
+do ISYM=1,NSYM
+  NOES(ISYM) = ISUM
+  ISUM = ISUM+IPRTTAB(5+ISYM)
+end do
 ! Relative pointers to CMO symmetry blocks:
-      ISUM=0
-      DO ISYM=1,NSYM
-        OrbTab(9+ISYM)=ISUM+1
-        ISUM=ISUM+ IPRTTAB(5+ISYM)**2
-      END DO
+ISUM = 0
+do ISYM=1,NSYM
+  OrbTab(9+ISYM) = ISUM+1
+  ISUM = ISUM+IPRTTAB(5+ISYM)**2
+end do
 ! Spin orbital number:
-      ISORB=0
+ISORB = 0
 ! First, active orbitals by partition, and by symmetry
 ! Previous MO indices within each symmetry.
-      DO ISYM=1,NSYM
-        INSYM(ISYM)=IPRTTAB(5+ISYM+(NSYM+1)*IPFR)+                      &
-     &              IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
-      END DO
+do ISYM=1,NSYM
+  INSYM(ISYM) = IPRTTAB(5+ISYM+(NSYM+1)*IPFR)+IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
+end do
 ! Increase subpartition index as needed.
-      ISPART=0
-      DO IPART=1,NAPART
-       N= IPRTTAB(5+(NSYM+1)*IPART)
-       IF(N.EQ.0) GOTO 100
-       ISPART=ISPART+1
-       INSBP=0
-       INPART=0
-       DO ISYM=1,NSYM
-        ISMLAB=ISYM
-        N= IPRTTAB(5+ISYM+(NSYM+1)*IPART)
-        DO I=1,N
-         ISOIND=1+INSYM(ISYM)
-         INSYM(ISYM)=ISOIND
-         IEXTNUM=NOES(ISYM)+ISOIND
-! Next spin orbital, with alpha spin:
-         ISORB=ISORB+1
-         INPART=INPART+1
-         INSBP=INSBP+1
-         IF(INSBP.GT.MORSBITS) THEN
-           ISPART=ISPART+1
-           INSBP=INSBP-MORSBITS
-         END IF
-! Fill in table:
-          OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-          OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-          OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-          OrbTab(KOINFO+ 3+(ISORB-1)*8)=1
-          OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-          OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-          OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-          OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-! Next spin orbital, same, but beta spin:
-         ISORB=ISORB+1
-         INPART=INPART+1
-         INSBP=INSBP+1
-         IF(INSBP.GT.MORSBITS) THEN
-           ISPART=ISPART+1
-           INSBP=INSBP-MORSBITS
-         END IF
-! Fill in table:
-          OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-          OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-          OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-          OrbTab(KOINFO+ 3+(ISORB-1)*8)=-1
-          OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-          OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-          OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-          OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-        END DO
-       END DO
- 100   CONTINUE
-      END DO
-      NASPRT=ISPART
+ISPART = 0
+do IPART=1,NAPART
+  N = IPRTTAB(5+(NSYM+1)*IPART)
+  if (N == 0) goto 100
+  ISPART = ISPART+1
+  INSBP = 0
+  INPART = 0
+  do ISYM=1,NSYM
+    ISMLAB = ISYM
+    N = IPRTTAB(5+ISYM+(NSYM+1)*IPART)
+    do I=1,N
+      ISOIND = 1+INSYM(ISYM)
+      INSYM(ISYM) = ISOIND
+      IEXTNUM = NOES(ISYM)+ISOIND
+      ! Next spin orbital, with alpha spin:
+      ISORB = ISORB+1
+      INPART = INPART+1
+      INSBP = INSBP+1
+      if (INSBP > MORSBITS) then
+        ISPART = ISPART+1
+        INSBP = INSBP-MORSBITS
+      end if
+      ! Fill in table:
+      OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+      OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+      OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+      OrbTab(KOINFO+3+(ISORB-1)*8) = 1
+      OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+      OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+      OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+      OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+      ! Next spin orbital, same, but beta spin:
+      ISORB = ISORB+1
+      INPART = INPART+1
+      INSBP = INSBP+1
+      if (INSBP > MORSBITS) then
+        ISPART = ISPART+1
+        INSBP = INSBP-MORSBITS
+      end if
+      ! Fill in table:
+      OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+      OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+      OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+      OrbTab(KOINFO+3+(ISORB-1)*8) = -1
+      OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+      OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+      OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+      OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+    end do
+  end do
+100 continue
+end do
+NASPRT = ISPART
 ! Inactive:
 ! Must set up start index within each symmetry.
-      DO ISYM=1,NSYM
-        INSYM(ISYM)=IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
-      END DO
-      IPART=NAPART+1
-      N= IPRTTAB(5+(NSYM+1)*IPART)
-      IF(N.EQ.0) GOTO 200
-      ISPART=ISPART+1
-      INPART=0
-      INSBP=0
-      DO ISYM=1,NSYM
-       ISMLAB=ISYM
-!       N=NISH(ISYM)
-       N= IPRTTAB(5+ISYM+(NSYM+1)*IPART)
-       DO I=1,N
-        ISOIND=ISOIND+1
-        IEXTNUM=NOES(ISYM)+ISOIND
-        ISORB=ISORB+1
-        INPART=INPART+1
-        INSBP=INSBP+1
-        IF(INSBP.GT.MORSBITS) THEN
-          ISPART=ISPART+1
-          INSBP=INSBP-MORSBITS
-        END IF
-         OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-         OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-         OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-         OrbTab(KOINFO+ 3+(ISORB-1)*8)=1
-         OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-         OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-         OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-         OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-        ISORB=ISORB+1
-        INPART=INPART+1
-        INSBP=INSBP+1
-        IF(INSBP.GT.MORSBITS) THEN
-          ISPART=ISPART+1
-          INSBP=INSBP-MORSBITS
-        END IF
-         OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-         OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-         OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-         OrbTab(KOINFO+ 3+(ISORB-1)*8)=-1
-         OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-         OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-         OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-         OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-       END DO
-      END DO
- 200  CONTINUE
+do ISYM=1,NSYM
+  INSYM(ISYM) = IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
+end do
+IPART = NAPART+1
+N = IPRTTAB(5+(NSYM+1)*IPART)
+if (N == 0) goto 200
+ISPART = ISPART+1
+INPART = 0
+INSBP = 0
+do ISYM=1,NSYM
+  ISMLAB = ISYM
+  !N = NISH(ISYM)
+  N = IPRTTAB(5+ISYM+(NSYM+1)*IPART)
+  do I=1,N
+    ISOIND = ISOIND+1
+    IEXTNUM = NOES(ISYM)+ISOIND
+    ISORB = ISORB+1
+    INPART = INPART+1
+    INSBP = INSBP+1
+    if (INSBP > MORSBITS) then
+      ISPART = ISPART+1
+      INSBP = INSBP-MORSBITS
+    end if
+    OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+    OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+    OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+    OrbTab(KOINFO+3+(ISORB-1)*8) = 1
+    OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+    OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+    OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+    OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+    ISORB = ISORB+1
+    INPART = INPART+1
+    INSBP = INSBP+1
+    if (INSBP > MORSBITS) then
+      ISPART = ISPART+1
+      INSBP = INSBP-MORSBITS
+    end if
+    OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+    OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+    OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+    OrbTab(KOINFO+3+(ISORB-1)*8) = -1
+    OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+    OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+    OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+    OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+  end do
+end do
+200 continue
 ! Secondary:
-      IPART=NAPART+2
-      N= IPRTTAB(5+(NSYM+1)*IPART)
-      IF(N.EQ.0) GOTO 300
-      ISPART=ISPART+1
-      INPART=0
-      INSBP=0
+IPART = NAPART+2
+N = IPRTTAB(5+(NSYM+1)*IPART)
+if (N == 0) goto 300
+ISPART = ISPART+1
+INPART = 0
+INSBP = 0
 ! Must set up start index within each symmetry.
-      DO ISYM=1,NSYM
-        N=IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
-        N=N+IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
-        DO IPAC=1,NAPART
-         N=N+IPRTTAB(5+ISYM+(NSYM+1)*IPAC)
-        END DO
-        INSYM(ISYM)=N
-      END DO
+do ISYM=1,NSYM
+  N = IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
+  N = N+IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
+  do IPAC=1,NAPART
+    N = N+IPRTTAB(5+ISYM+(NSYM+1)*IPAC)
+  end do
+  INSYM(ISYM) = N
+end do
 
-      DO ISYM=1,NSYM
-       ISMLAB=ISYM
-       ISOIND=INSYM(ISYM)
-!       N=NSSH(ISYM)
-       N= IPRTTAB(5+ISYM+(NSYM+1)*IPART)
-       DO I=1,N
-        ISOIND=ISOIND+1
-        IEXTNUM=NOES(ISYM)+ISOIND
-        ISORB=ISORB+1
-        INPART=INPART+1
-        INSBP=INSBP+1
-        IF(INSBP.GT.MORSBITS) THEN
-          ISPART=ISPART+1
-          INSBP=INSBP-MORSBITS
-        END IF
-         OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-         OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-         OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-         OrbTab(KOINFO+ 3+(ISORB-1)*8)=1
-         OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-         OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-         OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-         OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-        ISORB=ISORB+1
-        INPART=INPART+1
-        INSBP=INSBP+1
-        IF(INSBP.GT.MORSBITS) THEN
-          ISPART=ISPART+1
-          INSBP=INSBP-MORSBITS
-        END IF
-         OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-         OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-         OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-         OrbTab(KOINFO+ 3+(ISORB-1)*8)=-1
-         OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-         OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-         OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-         OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-       END DO
-      END DO
- 300  CONTINUE
+do ISYM=1,NSYM
+  ISMLAB = ISYM
+  ISOIND = INSYM(ISYM)
+  !N = NSSH(ISYM)
+  N = IPRTTAB(5+ISYM+(NSYM+1)*IPART)
+  do I=1,N
+    ISOIND = ISOIND+1
+    IEXTNUM = NOES(ISYM)+ISOIND
+    ISORB = ISORB+1
+    INPART = INPART+1
+    INSBP = INSBP+1
+    if (INSBP > MORSBITS) then
+      ISPART = ISPART+1
+      INSBP = INSBP-MORSBITS
+    end if
+    OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+    OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+    OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+    OrbTab(KOINFO+3+(ISORB-1)*8) = 1
+    OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+    OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+    OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+    OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+    ISORB = ISORB+1
+    INPART = INPART+1
+    INSBP = INSBP+1
+    if (INSBP > MORSBITS) then
+      ISPART = ISPART+1
+      INSBP = INSBP-MORSBITS
+    end if
+    OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+    OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+    OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+    OrbTab(KOINFO+3+(ISORB-1)*8) = -1
+    OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+    OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+    OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+    OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+  end do
+end do
+300 continue
 ! Frozen:
-      IPART=NAPART+3
-      N= IPRTTAB(5+(NSYM+1)*IPART)
-      IF(N.EQ.0) GOTO 400
-      ISPART=ISPART+1
-      INPART=0
-      INSBP=0
-      DO ISYM=1,NSYM
-       ISMLAB=ISYM
-!        N=NFRO(ISYM)
-       N= IPRTTAB(5+ISYM+(NSYM+1)*IPART)
-       ISOIND=0
-       DO I=1,N
-        ISOIND=ISOIND+1
-        IEXTNUM=NOES(ISYM)+ISOIND
-        ISORB=ISORB+1
-        INPART=INPART+1
-        INSBP=INSBP+1
-        IF(INSBP.GT.MORSBITS) THEN
-          ISPART=ISPART+1
-          INSBP=INSBP-MORSBITS
-        END IF
-         OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-         OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-         OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-         OrbTab(KOINFO+ 3+(ISORB-1)*8)=1
-         OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-         OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-         OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-         OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-        ISORB=ISORB+1
-        INPART=INPART+1
-        INSBP=INSBP+1
-        IF(INSBP.GT.MORSBITS) THEN
-          ISPART=ISPART+1
-          INSBP=INSBP-MORSBITS
-        END IF
-         OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-         OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-         OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-         OrbTab(KOINFO+ 3+(ISORB-1)*8)=-1
-         OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-         OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-         OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-         OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-       END DO
-      END DO
- 400  CONTINUE
+IPART = NAPART+3
+N = IPRTTAB(5+(NSYM+1)*IPART)
+if (N == 0) goto 400
+ISPART = ISPART+1
+INPART = 0
+INSBP = 0
+do ISYM=1,NSYM
+  ISMLAB = ISYM
+  !N = NFRO(ISYM)
+  N = IPRTTAB(5+ISYM+(NSYM+1)*IPART)
+  ISOIND = 0
+  do I=1,N
+    ISOIND = ISOIND+1
+    IEXTNUM = NOES(ISYM)+ISOIND
+    ISORB = ISORB+1
+    INPART = INPART+1
+    INSBP = INSBP+1
+    if (INSBP > MORSBITS) then
+      ISPART = ISPART+1
+      INSBP = INSBP-MORSBITS
+    end if
+    OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+    OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+    OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+    OrbTab(KOINFO+3+(ISORB-1)*8) = 1
+    OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+    OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+    OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+    OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+    ISORB = ISORB+1
+    INPART = INPART+1
+    INSBP = INSBP+1
+    if (INSBP > MORSBITS) then
+      ISPART = ISPART+1
+      INSBP = INSBP-MORSBITS
+    end if
+    OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+    OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+    OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+    OrbTab(KOINFO+3+(ISORB-1)*8) = -1
+    OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+    OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+    OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+    OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+  end do
+end do
+400 continue
 ! Deleted:
-      IPART=NAPART+4
-      N= IPRTTAB(5+(NSYM+1)*IPART)
-      IF(N.EQ.0) GOTO 500
-      ISPART=ISPART+1
-      INPART=0
-      INSBP=0
+IPART = NAPART+4
+N = IPRTTAB(5+(NSYM+1)*IPART)
+if (N == 0) goto 500
+ISPART = ISPART+1
+INPART = 0
+INSBP = 0
 ! Must set up start index within each symmetry.
-      DO ISYM=1,NSYM
-        N=IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
-        N=N+IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
-        DO IPAC=1,NAPART
-         N=N+IPRTTAB(5+ISYM+(NSYM+1)*IPAC)
-        END DO
-        N=N+IPRTTAB(5+ISYM+(NSYM+1)*IPSE)
-        INSYM(ISYM)=N
-      END DO
-      DO ISYM=1,NSYM
-       ISMLAB=ISYM
-       ISOIND= INSYM(ISYM)
-!        N=NDEL(ISYM)
-       N= IPRTTAB(5+ISYM+(NSYM+1)*IPART)
-       DO I=1,N
-        ISOIND=ISOIND+1
-        IEXTNUM=NOES(ISYM)+ISOIND
-        ISORB=ISORB+1
-        INPART=INPART+1
-        INSBP=INSBP+1
-        IF(INSBP.GT.MORSBITS) THEN
-          ISPART=ISPART+1
-          INSBP=INSBP-MORSBITS
-        END IF
-         OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-         OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-         OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-         OrbTab(KOINFO+ 3+(ISORB-1)*8)=1
-         OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-         OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-         OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-         OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-        ISORB=ISORB+1
-        INPART=INPART+1
-        INSBP=INSBP+1
-        IF(INSBP.GT.MORSBITS) THEN
-          ISPART=ISPART+1
-          INSBP=INSBP-MORSBITS
-        END IF
-         OrbTab(KOINFO+ 0+(ISORB-1)*8)=IEXTNUM
-         OrbTab(KOINFO+ 1+(ISORB-1)*8)=ISMLAB
-         OrbTab(KOINFO+ 2+(ISORB-1)*8)=ISOIND
-         OrbTab(KOINFO+ 3+(ISORB-1)*8)=-1
-         OrbTab(KOINFO+ 4+(ISORB-1)*8)=IPART
-         OrbTab(KOINFO+ 5+(ISORB-1)*8)=INPART
-         OrbTab(KOINFO+ 6+(ISORB-1)*8)=ISPART
-         OrbTab(KOINFO+ 7+(ISORB-1)*8)=INSBP
-       END DO
-      END DO
- 500  CONTINUE
-      IF(ISPART.NE.NSPART) THEN
-        WRITE(6,*)'NEWORBTAB Error: Nr of subpartitions'
-        WRITE(6,*)'generated does not match number of'
-        WRITE(6,*)'subpartitions computed!'
-        WRITE(6,*)'Generated ISPART=',ISPART
-        WRITE(6,*)'Computed  NSPART=',NSPART
-      END IF
-      OrbTab(7)=NSPART
-      OrbTab(8)=NAPART
-      OrbTab(9)=NASPRT
-      OrbTab(10)=KSPART
-      CALL ICOPY(NSPART,[0],0,OrbTab(KSPART:),1)
-      DO ISORB=1,NSORBT
-        ISPART=OrbTab(KOINFO+ 6+(ISORB-1)*8)
-        N=1+OrbTab(KSPART-1+ISPART)
-        OrbTab(KSPART-1+ISPART)=N
-      END DO
+do ISYM=1,NSYM
+  N = IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
+  N = N+IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
+  do IPAC=1,NAPART
+    N = N+IPRTTAB(5+ISYM+(NSYM+1)*IPAC)
+  end do
+  N = N+IPRTTAB(5+ISYM+(NSYM+1)*IPSE)
+  INSYM(ISYM) = N
+end do
+do ISYM=1,NSYM
+  ISMLAB = ISYM
+  ISOIND = INSYM(ISYM)
+  !N = NDEL(ISYM)
+  N = IPRTTAB(5+ISYM+(NSYM+1)*IPART)
+  do I=1,N
+    ISOIND = ISOIND+1
+    IEXTNUM = NOES(ISYM)+ISOIND
+    ISORB = ISORB+1
+    INPART = INPART+1
+    INSBP = INSBP+1
+    if (INSBP > MORSBITS) then
+      ISPART = ISPART+1
+      INSBP = INSBP-MORSBITS
+    end if
+    OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+    OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+    OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+    OrbTab(KOINFO+3+(ISORB-1)*8) = 1
+    OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+    OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+    OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+    OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+    ISORB = ISORB+1
+    INPART = INPART+1
+    INSBP = INSBP+1
+    if (INSBP > MORSBITS) then
+      ISPART = ISPART+1
+      INSBP = INSBP-MORSBITS
+    end if
+    OrbTab(KOINFO+0+(ISORB-1)*8) = IEXTNUM
+    OrbTab(KOINFO+1+(ISORB-1)*8) = ISMLAB
+    OrbTab(KOINFO+2+(ISORB-1)*8) = ISOIND
+    OrbTab(KOINFO+3+(ISORB-1)*8) = -1
+    OrbTab(KOINFO+4+(ISORB-1)*8) = IPART
+    OrbTab(KOINFO+5+(ISORB-1)*8) = INPART
+    OrbTab(KOINFO+6+(ISORB-1)*8) = ISPART
+    OrbTab(KOINFO+7+(ISORB-1)*8) = INSBP
+  end do
+end do
+500 continue
+if (ISPART /= NSPART) then
+  write(u6,*) 'NEWORBTAB Error: Nr of subpartitions'
+  write(u6,*) 'generated does not match number of'
+  write(u6,*) 'subpartitions computed!'
+  write(u6,*) 'Generated ISPART=',ISPART
+  write(u6,*) 'Computed  NSPART=',NSPART
+end if
+OrbTab(7) = NSPART
+OrbTab(8) = NAPART
+OrbTab(9) = NASPRT
+OrbTab(10) = KSPART
+call ICOPY(NSPART,[0],0,OrbTab(KSPART:),1)
+do ISORB=1,NSORBT
+  ISPART = OrbTab(KOINFO+6+(ISORB-1)*8)
+  N = 1+OrbTab(KSPART-1+ISPART)
+  OrbTab(KSPART-1+ISPART) = N
+end do
 
-      END Subroutine NEWORBTAB
+end subroutine NEWORBTAB

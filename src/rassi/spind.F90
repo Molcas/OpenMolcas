@@ -8,79 +8,80 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SPIND(ISYOP,MS2OP,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,    &
-     &                 PSI1,PSI2,SPD12)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use rassi_global_arrays, only: FSBANN1, FSBANN2
-      use Symmetry_Info, only: MUL
-      IMPLICIT NONE
-      REAL*8 PSI1(*),PSI2(*),SPD12(*)
-      REAL*8 COEFF,OVERLAP_RASSI,OVLP
-      INTEGER IORBTAB(*),NASORB
-      INTEGER ISSTAB(*)
-      INTEGER IFSBTAB1(*),IFSBTAB2(*)
-      INTEGER IJSORB,IMODE,ISORB
-      INTEGER NDETS1,NDETS2
-      INTEGER JSORB
-      INTEGER ISYOP,MS2OP,KOINFO
-      INTEGER ISMLAB,ISPLAB,JSYM,JMS2,JSMLAB,JSPLAB
-      EXTERNAL OVERLAP_RASSI
-      Real*8, Allocatable:: ANN1(:), ANN2(:)
 
-!TEST      write(*,*)' Test prints in SPIND.'
+subroutine SPIND(ISYOP,MS2OP,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,PSI1,PSI2,SPD12)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use rassi_global_arrays, only: FSBANN1, FSBANN2
+use Symmetry_Info, only: MUL
+use Constants, only: Zero, One
+
+implicit none
+real*8 PSI1(*), PSI2(*), SPD12(*)
+real*8 COEFF, OVERLAP_RASSI, OVLP
+integer IORBTAB(*), NASORB
+integer ISSTAB(*)
+integer IFSBTAB1(*), IFSBTAB2(*)
+integer IJSORB, IMODE, ISORB
+integer NDETS1, NDETS2
+integer JSORB
+integer ISYOP, MS2OP, KOINFO
+integer ISMLAB, ISPLAB, JSYM, JMS2, JSMLAB, JSPLAB
+external OVERLAP_RASSI
+real*8, allocatable :: ANN1(:), ANN2(:)
+
+!TEST write(u6,*) ' Test prints in SPIND.'
 ! Nr of active spin-orbitals
-      NASORB= IORBTAB(4)
+NASORB = IORBTAB(4)
 ! Loop over pairs of spin orbitals ISORB,JSORB:
-      KOINFO=19
-      DO ISORB=1,NASORB
-       ISMLAB=IORBTAB(KOINFO+1+8*(ISORB-1))
-!UNUSED       ISOIND=IORBTAB(KOINFO+2+8*(ISORB-1))
-       ISPLAB=IORBTAB(KOINFO+3+8*(ISORB-1))
-! Annihilate a single orbital:
-       COEFF=1.0D0
-       IMODE=-1
-       Call FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1,1)
-       NDETS1=FSBANN1(5)
-       CALL mma_allocate(ANN1,NDETS1,Label='ANN1')
-       ANN1(:)=0.0D0
-       CALL PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,FSBANN1,                 &
-     &                   IFSBTAB1,COEFF,ANN1,PSI1)
-!TEST       write(*,*)' Prior to call to PRIMSGM.'
-!TEST       write(*,*)' FS block structure at FSBANN1:'
-!TEST       CALL PRFSBTAB(FSBANN1)
-!TEST       write(*,*)' Wave function ANN1 after PRIMSGM:'
-!TEST       PRTHR=0.01D0
-!TEST       CALL PRWVF(IORBTAB,ISSTAB,FSBANN1,PRTHR,ANN1)
-! Compute those ANN2 wave functions, which have the correct properties:
-       JSYM=MUL(ISMLAB,ISYOP)
-       JMS2= MS2OP+ISPLAB
-       DO JSORB=1,NASORB
-        OVLP=0.0D0
-        JSMLAB=IORBTAB(KOINFO+1+8*(JSORB-1))
-        IF(JSMLAB.NE.JSYM) GOTO 100
-!UNUSED        JSOIND=IORBTAB(KOINFO+2+8*(JSORB-1))
-        JSPLAB=IORBTAB(KOINFO+3+8*(JSORB-1))
-        IF(JSPLAB.NE.JMS2) GOTO 100
-        COEFF=1.0D0
-        IMODE=-1
-        Call FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2,2)
-        NDETS2=FSBANN2(5)
-        CALL mma_allocate(ANN2,NDETS2,Label='ANN2')
-        ANN2(:)=0.0D0
-        CALL PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,FSBANN2,                &
-     &                   IFSBTAB2,COEFF,ANN2,PSI2)
+KOINFO = 19
+do ISORB=1,NASORB
+  ISMLAB = IORBTAB(KOINFO+1+8*(ISORB-1))
+  !UNUSED ISOIND = IORBTAB(KOINFO+2+8*(ISORB-1))
+  ISPLAB = IORBTAB(KOINFO+3+8*(ISORB-1))
+  ! Annihilate a single orbital:
+  COEFF = One
+  IMODE = -1
+  call FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1,1)
+  NDETS1 = FSBANN1(5)
+  call mma_allocate(ANN1,NDETS1,Label='ANN1')
+  ANN1(:) = Zero
+  call PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,FSBANN1,IFSBTAB1,COEFF,ANN1,PSI1)
+  !TEST write(u6,*) ' Prior to call to PRIMSGM.'
+  !TEST write(u6,*) ' FS block structure at FSBANN1:'
+  !TEST call PRFSBTAB(FSBANN1)
+  !TEST write(u6,*) ' Wave function ANN1 after PRIMSGM:'
+  !TEST PRTHR = 0.01_wp
+  !TEST call PRWVF(IORBTAB,ISSTAB,FSBANN1,PRTHR,ANN1)
+  ! Compute those ANN2 wave functions, which have the correct properties:
+  JSYM = MUL(ISMLAB,ISYOP)
+  JMS2 = MS2OP+ISPLAB
+  do JSORB=1,NASORB
+    OVLP = Zero
+    JSMLAB = IORBTAB(KOINFO+1+8*(JSORB-1))
+    if (JSMLAB /= JSYM) goto 100
+    !UNUSED JSOIND = IORBTAB(KOINFO+2+8*(JSORB-1))
+    JSPLAB = IORBTAB(KOINFO+3+8*(JSORB-1))
+    if (JSPLAB /= JMS2) goto 100
+    COEFF = One
+    IMODE = -1
+    call FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2,2)
+    NDETS2 = FSBANN2(5)
+    call mma_allocate(ANN2,NDETS2,Label='ANN2')
+    ANN2(:) = Zero
+    call PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,FSBANN2,IFSBTAB2,COEFF,ANN2,PSI2)
 
-! Compute the spin transition density matrix element:
-        OVLP=OVERLAP_RASSI(FSBANN1,FSBANN2,ANN1,ANN2)
-!TEST       write(*,*)' Their overlap:',OVLP
-        CALL mma_deallocate(ANN2)
-        CALL mma_deallocate(FSBANN2)
- 100    CONTINUE
-        IJSORB=ISORB+NASORB*(JSORB-1)
-        SPD12(IJSORB)=OVLP
-       END DO
-       CALL mma_deallocate(ANN1)
-       CALL mma_deallocate(FSBANN1)
-      END DO
+    ! Compute the spin transition density matrix element:
+    OVLP = OVERLAP_RASSI(FSBANN1,FSBANN2,ANN1,ANN2)
+    !TEST write(u6,*) ' Their overlap:',OVLP
+    call mma_deallocate(ANN2)
+    call mma_deallocate(FSBANN2)
+100 continue
+    IJSORB = ISORB+NASORB*(JSORB-1)
+    SPD12(IJSORB) = OVLP
+  end do
+  call mma_deallocate(ANN1)
+  call mma_deallocate(FSBANN1)
+end do
 
-      END SUBROUTINE SPIND
+end subroutine SPIND

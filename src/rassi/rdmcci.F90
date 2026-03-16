@@ -8,88 +8,90 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE RDMCCI(JOB,IDISP,LABEL,ISYMP,NARRAY,ARRAY)
-      use rassi_aux, only: ipglob
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NJOB, NCONF1, MINAME
-      use cntrl, only: LuMck
 
-      IMPLICIT None
+subroutine RDMCCI(JOB,IDISP,LABEL,ISYMP,NARRAY,ARRAY)
 ! Purpose: Read in the derivatives of CI array derivatives
 ! from MCKINT file, with respect to some displacement IDISP.
 ! ISYMP is the symmetry irrep label of the derivatives.
-      Integer JOB, IDISP, ISYMP, nArray
-      CHARACTER(LEN=8) LABEL
-      Real*8 ARRAY(NARRAY)
 
-      Real*8, Allocatable:: TEMP(:)
-      Integer IRC, IOPT, NTEMP, ISCODE
+use rassi_aux, only: ipglob
+use stdalloc, only: mma_allocate, mma_deallocate
+use Cntrl, only: NJOB, NCONF1, MINAME
+use cntrl, only: LuMck
+use Definitions, only: u6
 
-      IF(JOB.LT.1 .OR. JOB.GT.NJOB) THEN
-        WRITE(6,*)' RDMCI: Invalid JOB parameter.'
-        WRITE(6,*)' JOB:',JOB
-        CALL ABEND()
-      END IF
+implicit none
+integer JOB, IDISP, ISYMP, nArray
+character(len=8) LABEL
+real*8 ARRAY(NARRAY)
+real*8, allocatable :: TEMP(:)
+integer IRC, IOPT, NTEMP, ISCODE
 
-      IF(IPGLOB.GE.3) THEN
-        WRITE(6,*)' RDMCCI called for JOB=',JOB
-        WRITE(6,*)' perturbed by displacement nr.',IDISP
-        WRITE(6,*)' MckInt file name:',MINAME(JOB)
-        WRITE(6,*)' Irrep label   ISYMP=',ISYMP
-        WRITE(6,*)' Length NARRAY=',NARRAY
-      END IF
+if ((JOB < 1) .or. (JOB > NJOB)) then
+  write(u6,*) ' RDMCI: Invalid JOB parameter.'
+  write(u6,*) ' JOB:',JOB
+  call ABEND()
+end if
+
+if (IPGLOB >= 3) then
+  write(u6,*) ' RDMCCI called for JOB=',JOB
+  write(u6,*) ' perturbed by displacement nr.',IDISP
+  write(u6,*) ' MckInt file name:',MINAME(JOB)
+  write(u6,*) ' Irrep label   ISYMP=',ISYMP
+  write(u6,*) ' Length NARRAY=',NARRAY
+end if
 
 ! Open MCKINT file:
-      IRC=-1
-      IOPT=0
-      CALL OPNMCK(IRC,IOPT,MINAME(JOB),LUMCK)
-      IF(IRC.NE.0) THEN
-        WRITE(6,*)'RDMCCI: Failed to open '//MINAME(JOB)
-        WRITE(6,*)'Unit nr LUMCK=',LUMCK
-        WRITE(6,*)'Option code IOPT=',IOPT
-        WRITE(6,*)'Return code IRC =',IRC
-        CALL ABEND()
-      END IF
+IRC = -1
+IOPT = 0
+call OPNMCK(IRC,IOPT,MINAME(JOB),LUMCK)
+if (IRC /= 0) then
+  write(u6,*) 'RDMCCI: Failed to open '//MINAME(JOB)
+  write(u6,*) 'Unit nr LUMCK=',LUMCK
+  write(u6,*) 'Option code IOPT=',IOPT
+  write(u6,*) 'Return code IRC =',IRC
+  call ABEND()
+end if
 
 ! Read MCKINT file:
-      NTEMP=NCONF1
-      IOPT=0
-      ISCODE=2**(ISYMP-1)
+NTEMP = NCONF1
+IOPT = 0
+ISCODE = 2**(ISYMP-1)
 ! Get temporary buffer to read data by RDMCK calls
-      CALL mma_allocate(TEMP,NTEMP,Label='TEMP')
+call mma_allocate(TEMP,NTEMP,Label='TEMP')
 ! Read 1-electron integral derivatives:
-      IRC=NTEMP
-      CALL dRDMCK(IRC,IOPT,LABEL,IDISP,TEMP,ISCODE)
-      IF(IRC.NE.0) THEN
-        WRITE(6,*)'RDMCCI: RDMCCI failed to read '//MINAME(JOB)
-        WRITE(6,*)'  Displacement IDISP=',IDISP
-        WRITE(6,*)'    Option code IOPT=',IOPT
-        WRITE(6,*)'Symmetry code ISCODE=',ISCODE
-        WRITE(6,*)'    Return code IRC =',IRC
-        CALL ABEND()
-      END IF
+IRC = NTEMP
+call dRDMCK(IRC,IOPT,LABEL,IDISP,TEMP,ISCODE)
+if (IRC /= 0) then
+  write(u6,*) 'RDMCCI: RDMCCI failed to read '//MINAME(JOB)
+  write(u6,*) '  Displacement IDISP=',IDISP
+  write(u6,*) '    Option code IOPT=',IOPT
+  write(u6,*) 'Symmetry code ISCODE=',ISCODE
+  write(u6,*) '    Return code IRC =',IRC
+  call ABEND()
+end if
 
-      IF(NTEMP.GT.NARRAY) THEN
-        WRITE(6,*)'RDMCCI: Output ARRAY has insufficient length.'
-        WRITE(6,*)' Input parameter NARRAY=',NARRAY
-        WRITE(6,*)' Needed size       NTEMP=',NTEMP
-        CALL ABEND()
-      END IF
+if (NTEMP > NARRAY) then
+  write(u6,*) 'RDMCCI: Output ARRAY has insufficient length.'
+  write(u6,*) ' Input parameter NARRAY=',NARRAY
+  write(u6,*) ' Needed size       NTEMP=',NTEMP
+  call ABEND()
+end if
 ! Move buffer integrals into ARRAY in proper format:
-      CALL DCOPY_(NTEMP,TEMP,1,ARRAY,1)
+call DCOPY_(NTEMP,TEMP,1,ARRAY,1)
 ! Get rid of temporary buffer
-      CALL mma_deallocate(TEMP)
+call mma_deallocate(TEMP)
 
 ! Close MCKINT file:
-      IRC=-1
-      IOPT=0
-      CALL CLSMCK(IRC,IOPT)
-      IF(IRC.NE.0) THEN
-        WRITE(6,*)'RDMCCI: Failed to close '//MINAME(JOB)
-        WRITE(6,*)'Unit nr LUMCK=',LUMCK
-        WRITE(6,*)'Option code IOPT=',IOPT
-        WRITE(6,*)'Return code IRC =',IRC
-        CALL ABEND()
-      END IF
+IRC = -1
+IOPT = 0
+call CLSMCK(IRC,IOPT)
+if (IRC /= 0) then
+  write(u6,*) 'RDMCCI: Failed to close '//MINAME(JOB)
+  write(u6,*) 'Unit nr LUMCK=',LUMCK
+  write(u6,*) 'Option code IOPT=',IOPT
+  write(u6,*) 'Return code IRC =',IRC
+  call ABEND()
+end if
 
-      END SUBROUTINE RDMCCI
+end subroutine RDMCCI

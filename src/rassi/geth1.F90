@@ -18,61 +18,65 @@
 !  Also reads and adds reaction field contribution.
 !  Also ERFNUC, reaction field contribution to nuclear repulsion.
 !****************************************************************
-      SUBROUTINE GETH1_RASSI(HONEAO)
-      use OneDat, only: sNoNuc, sNoOri
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: ERFNuc, RFPert
-      use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NBSQ,NBASF,NBTRI
-      IMPLICIT None
-      Real*8 HONEAO(NBSQ)
-      Character(LEN=8) OneLbl
-      Logical Found
-      Real*8, Allocatable:: H1(:), Tmp(:)
-      Integer IRC, IOPT, ICMP, iSyLab, iBuf, ISTQ, ISYM, NB, IP, IQ,    &
-     &        IPQ, IQP
-!
-      CALL mma_allocate(H1,NBTRI,Label='H1')
-      iRc=-1
-      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
-      iCmp=1
-      iSyLab=1
-      OneLbl='OneHam  '
-      Call RdOne(iRc,iOpt,OneLbl,iCmp,H1,iSyLab)
-      IF ( IRC.NE.0 ) THEN
-        WRITE(6,*)
-        WRITE(6,*)'      *** ERROR IN SUBROUTINE  GETH1 ***'
-        WRITE(6,*)'   BARE NUCLEI HAMILTONIAN IS NOT AVAILABLE'
-        WRITE(6,*)
-        CALL ABEND()
-      ENDIF
-      ERFNuc=0.0D0
-      If ( RFpert ) then
-         Call f_Inquire('RUNOLD',Found)
-         If (Found) Call NameRun('RUNOLD')
-         Call mma_allocate(Tmp,nBtri,Label='Tmp')
-         Call Get_dScalar('RF Self Energy',ERFNuc)
-         Call Get_dArray('Reaction field',Tmp,nBtri)
-         If (Found) Call NameRun('#Pop')
-         Call Daxpy_(nBtri,1.0D0,Tmp,1,H1,1)
-         Call mma_deallocate(Tmp)
-      End If
-      IBUF=1
-      ISTQ=0
-      DO ISYM=1,NSYM
-        NB=NBASF(ISYM)
-        if (NB == 0) cycle
-        DO IP=1,NB
-          DO IQ=1,IP
-            IPQ=NB*(IP-1)+IQ+ISTQ
-            IQP=NB*(IQ-1)+IP+ISTQ
-            HONEAO(IPQ)=H1(IBUF)
-            HONEAO(IQP)=H1(IBUF)
-            IBUF=IBUF+1
-          END DO
-        END DO
-       ISTQ=ISTQ+NB**2
-      END DO
-      Call mma_deallocate(H1)
 
-      END SUBROUTINE GETH1_RASSI
+subroutine GETH1_RASSI(HONEAO)
+
+use OneDat, only: sNoNuc, sNoOri
+use stdalloc, only: mma_allocate, mma_deallocate
+use Cntrl, only: ERFNuc, RFPert
+use Symmetry_Info, only: nSym => nIrrep
+use rassi_data, only: NBSQ, NBASF, NBTRI
+use Constants, only: Zero, One
+use Definitions, only: u6
+
+implicit none
+real*8 HONEAO(NBSQ)
+character(len=8) OneLbl
+logical Found
+real*8, allocatable :: H1(:), Tmp(:)
+integer IRC, IOPT, ICMP, iSyLab, iBuf, ISTQ, ISYM, NB, IP, IQ, IPQ, IQP
+
+call mma_allocate(H1,NBTRI,Label='H1')
+iRc = -1
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+iCmp = 1
+iSyLab = 1
+OneLbl = 'OneHam'
+call RdOne(iRc,iOpt,OneLbl,iCmp,H1,iSyLab)
+if (IRC /= 0) then
+  write(u6,*)
+  write(u6,*) '      *** ERROR IN SUBROUTINE  GETH1 ***'
+  write(u6,*) '   BARE NUCLEI HAMILTONIAN IS NOT AVAILABLE'
+  write(u6,*)
+  call ABEND()
+end if
+ERFNuc = Zero
+if (RFpert) then
+  call f_Inquire('RUNOLD',Found)
+  if (Found) call NameRun('RUNOLD')
+  call mma_allocate(Tmp,nBtri,Label='Tmp')
+  call Get_dScalar('RF Self Energy',ERFNuc)
+  call Get_dArray('Reaction field',Tmp,nBtri)
+  if (Found) call NameRun('#Pop')
+  call Daxpy_(nBtri,One,Tmp,1,H1,1)
+  call mma_deallocate(Tmp)
+end if
+IBUF = 1
+ISTQ = 0
+do ISYM=1,NSYM
+  NB = NBASF(ISYM)
+  if (NB == 0) cycle
+  do IP=1,NB
+    do IQ=1,IP
+      IPQ = NB*(IP-1)+IQ+ISTQ
+      IQP = NB*(IQ-1)+IP+ISTQ
+      HONEAO(IPQ) = H1(IBUF)
+      HONEAO(IQP) = H1(IBUF)
+      IBUF = IBUF+1
+    end do
+  end do
+  ISTQ = ISTQ+NB**2
+end do
+call mma_deallocate(H1)
+
+end subroutine GETH1_RASSI

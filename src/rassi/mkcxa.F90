@@ -8,23 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-SUBROUTINE MKCXA(NSYM,NOSH,NCXA,TRA,CXA)
+
+subroutine MKCXA(NSYM,NOSH,NCXA,TRA,CXA)
+
 use definitions, only: iwp, wp
-IMPLICIT NONE
-INTEGER(kind=iwp), intent(in):: NSYM,NCXA
-REAL(kind=wp), intent(in):: TRA(NCXA)
-REAL(kind=wp), intent(out):: CXA(NCXA)
-INTEGER(kind=iwp), intent(in):: NOSH(NSYM)
 
-INTEGER ISTA,I,NDIMEN
+implicit none
+integer(kind=iwp), intent(in) :: NSYM, NCXA
+real(kind=wp), intent(in) :: TRA(NCXA)
+real(kind=wp), intent(out) :: CXA(NCXA)
+integer(kind=iwp), intent(in) :: NOSH(NSYM)
+integer ISTA, I, NDIMEN
 
-ISTA=1
-DO I=1,NSYM
-  NDIMEN=NOSH(I)
-  IF(NDIMEN.GT.0) THEN
-    CALL MKCXAL(NDIMEN,TRA(ISTA),CXA(ISTA))
-    ISTA=ISTA+NDIMEN**2
-  END IF
-END DO
+ISTA = 1
+do I=1,NSYM
+  NDIMEN = NOSH(I)
+  if (NDIMEN > 0) then
+    call MKCXAL(NDIMEN,TRA(ISTA),CXA(ISTA))
+    ISTA = ISTA+NDIMEN**2
+  end if
+end do
 
-END SUBROUTINE MKCXA
+end subroutine MKCXA

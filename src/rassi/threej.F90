@@ -12,15 +12,15 @@
 !***********************************************************************
 
 function threej(XJ1,XJ2,XJ3,XM1,XM2,XM3)
-!  ThreeJ: real Wigner 3-j coefficients. From a modification
-!          of Racah's formula for Clebsch-Gordan coeffs.
+! ThreeJ: real Wigner 3-j coefficients. From a modification
+!         of Racah's formula for Clebsch-Gordan coeffs.
 
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: threej
-real(kind=wp), intent(in) :: XJ1,XJ2,XJ3,XM1,XM2,XM3
+real(kind=wp), intent(in) :: XJ1, XJ2, XJ3, XM1, XM2, XM3
 real(kind=wp), external :: DCLEBS
 integer(kind=iwp) :: i
 

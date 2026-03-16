@@ -8,94 +8,92 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE READCI(ISTATE,SGS,CIS,NCI,CI)
-      use rassi_aux, only: ipglob
-      use rassi_global_arrays, only: JBNUM, LROOT
-      use gugx, only: SGStruct, CIStruct
+
+subroutine READCI(ISTATE,SGS,CIS,NCI,CI)
+
+use rassi_aux, only: ipglob
+use rassi_global_arrays, only: JBNUM, LROOT
+use gugx, only: SGStruct, CIStruct
 #ifdef _HDF5_
-      USE mh5, ONLY: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,     &
-     &               mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
-      use Cntrl, only: NROOTS
+use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr, mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
+use Cntrl, only: NROOTS
 #endif
-      use Cntrl, only: NSTATE, PRCI, CITHR, IRREP, JBNAME, MLTPLT
-      use cntrl, only: iTOC15, LuIph
-      use Molcas, only: MxRoot
+use Cntrl, only: NSTATE, PRCI, CITHR, IRREP, JBNAME, MLTPLT
+use cntrl, only: iTOC15, LuIph
+use Molcas, only: MxRoot
+use Definitions, only: u6
 
-      IMPLICIT NONE
+implicit none
 #ifdef _HDF5_
-      integer :: refwfn_id
-      integer :: root2state(mxroot), IDXCI
+integer :: refwfn_id
+integer :: root2state(mxroot), IDXCI
 #endif
+integer ISTATE
+type(SGStruct) SGS
+type(CIStruct) CIS
+integer NCI
+real*8 CI(NCI)
+integer I, IAD, IDISK, JOB, LROOT1, LSYM
 
-      INTEGER ISTATE
-      Type (SGStruct) SGS
-      Type (CIStruct) CIS
-      INTEGER NCI
-      REAL*8 CI(NCI)
-
-      INTEGER I, IAD, IDISK, JOB, LROOT1, LSYM
-
-
-      IF(ISTATE.LT.1 .OR. ISTATE.GT.NSTATE) THEN
-        WRITE(6,*)'RASSI/READCI: Invalid ISTATE parameter.'
-        WRITE(6,*)' ISTATE, NSTATE:',ISTATE,NSTATE
-        CALL ABEND()
-      END IF
-      JOB=JBNUM(ISTATE)
-      LROOT1=LROOT(ISTATE)
+if ((ISTATE < 1) .or. (ISTATE > NSTATE)) then
+  write(u6,*) 'RASSI/READCI: Invalid ISTATE parameter.'
+  write(u6,*) ' ISTATE, NSTATE:',ISTATE,NSTATE
+  call ABEND()
+end if
+JOB = JBNUM(ISTATE)
+LROOT1 = LROOT(ISTATE)
 
 #ifdef _HDF5_
-!***********************************************************************
-!
-! For HDF5 formatted job files
-!
-!***********************************************************************
-      If (mh5_is_hdf5(jbname(job))) Then
-        refwfn_id = mh5_open_file_r(jbname(job))
-        if (mh5_exists_attr(refwfn_id, 'ROOT2STATE')) then
-          call mh5_fetch_attr(refwfn_id,'ROOT2STATE',root2state)
-          IDXCI = root2state(lroot1)
-        else
-          IDXCI = lroot1
-        end if
-        IF (IDXCI.LE.0.OR.IDXCI.GT.NROOTS(JOB)) THEN
-          call WarningMessage(2,'Invalid CI array index, abort!')
-          call AbEnd
-        END IF
-        call mh5_fetch_dset(refwfn_id,                                  &
-     &         'CI_VECTORS',CI,[NCI,1],[0,IDXCI-1])
-        call mh5_close_file(refwfn_id)
-      Else
+if (mh5_is_hdf5(jbname(job))) then
+  !*********************************************************************
+  !
+  ! For HDF5 formatted job files
+  !
+  !*********************************************************************
+  refwfn_id = mh5_open_file_r(jbname(job))
+  if (mh5_exists_attr(refwfn_id,'ROOT2STATE')) then
+    call mh5_fetch_attr(refwfn_id,'ROOT2STATE',root2state)
+    IDXCI = root2state(lroot1)
+  else
+    IDXCI = lroot1
+  end if
+  if ((IDXCI <= 0) .or. (IDXCI > NROOTS(JOB))) then
+    call WarningMessage(2,'Invalid CI array index, abort!')
+    call AbEnd()
+  end if
+  call mh5_fetch_dset(refwfn_id,'CI_VECTORS',CI,[NCI,1],[0,IDXCI-1])
+  call mh5_close_file(refwfn_id)
+else
 #endif
-!***********************************************************************
-!
-! For JOBIPH/JOBMIX formatted job files
-!
-!***********************************************************************
-        CALL DANAME(LUIPH,JBNAME(JOB))
-        IAD=0
-        CALL IDAFILE(LUIPH,2,ITOC15,30,IAD)
-        IDISK=ITOC15(4)
-        DO I=1,LROOT1-1
-          CALL DDAFILE(LUIPH,0,CI,NCI,IDISK)
-        END DO
-        CALL DDAFILE(LUIPH,2,CI,NCI,IDISK)
-        CALL DACLOS(LUIPH)
-!***********************************************************************
+  !*********************************************************************
+  !
+  ! For JOBIPH/JOBMIX formatted job files
+  !
+  !*********************************************************************
+  call DANAME(LUIPH,JBNAME(JOB))
+  IAD = 0
+  call IDAFILE(LUIPH,2,ITOC15,30,IAD)
+  IDISK = ITOC15(4)
+  do I=1,LROOT1-1
+    call DDAFILE(LUIPH,0,CI,NCI,IDISK)
+  end do
+  call DDAFILE(LUIPH,2,CI,NCI,IDISK)
+  call DACLOS(LUIPH)
 #ifdef _HDF5_
-      End If
+end if
+!***********************************************************************
 #endif
 
-      IF(IPGLOB.gt.0 .and. PRCI) THEN
-        WRITE(6,*)' READCI called for state ',ISTATE
-        WRITE(6,*)' This is on JobIph nr.',JOB
-        WRITE(6,*)' JobIph file name:',JBNAME(JOB)
-        WRITE(6,*)' It is root nr.',LROOT(ISTATE)
-        WRITE(6,*)' Its length NCI=',NCI
-        WRITE(6,*)' Its symmetry  =',IRREP(JOB)
-        WRITE(6,*)' Spin multiplic=',MLTPLT(JOB)
-        LSYM=IRREP(JOB)
-        CALL PRWF(SGS,CIS,LSYM,CI,CITHR)
-      END IF
+if ((IPGLOB > 0) .and. PRCI) then
+  write(u6,*) ' READCI called for state ',ISTATE
+  write(u6,*) ' This is on JobIph nr.',JOB
+  write(u6,*) ' JobIph file name:',JBNAME(JOB)
+  write(u6,*) ' It is root nr.',LROOT(ISTATE)
+  write(u6,*) ' Its length NCI=',NCI
+  write(u6,*) ' Its symmetry  =',IRREP(JOB)
+  write(u6,*) ' Spin multiplic=',MLTPLT(JOB)
+  LSYM = IRREP(JOB)
+  call PRWF(SGS,CIS,LSYM,CI,CITHR)
+end if
 
-      END SUBROUTINE READCI
+end subroutine READCI

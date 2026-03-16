@@ -8,26 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PRCHAM(NSS,CHAMR,CHAMI)
-      use definitions, only: iwp, wp, u6
 
-      IMPLICIT NONE
-
-      integer(kind=iwp), intent(in):: NSS
-      REAL(kind=wp), intent(in):: CHAMR(NSS,NSS),CHAMI(NSS,NSS)
-
-      integer(kind=iwp) JSTA,JEND,ISS,JSS
+subroutine PRCHAM(NSS,CHAMR,CHAMI)
 ! Write out a complex Hamiltonian (or other hermitian matrix)
 ! in a triangular format.
-      DO JSTA=1,NSS,2
-       JEND=MIN(NSS,JSTA+1)
-       WRITE(u6,*)
-       WRITE(u6,'(1X,A8,11X,I4,33X,I4)')'SO-STATE',(JSS,JSS=JSTA,JEND)
-       DO ISS=JSTA,NSS
-       WRITE(u6,'(1X,I4,2x,2(A1,F15.11,A1,F15.11,A1,3x))')              &
-     &           ISS,('(',CHAMR(ISS,JSS),',',CHAMI(ISS,JSS),            &
-     &           ')',JSS=JSTA,MIN(ISS,JEND))
-       END DO
-      END DO
 
-      END SUBROUTINE PRCHAM
+use definitions, only: iwp, wp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: NSS
+real(kind=wp), intent(in) :: CHAMR(NSS,NSS), CHAMI(NSS,NSS)
+integer(kind=iwp) JSTA, JEND, ISS, JSS
+
+do JSTA=1,NSS,2
+  JEND = min(NSS,JSTA+1)
+  write(u6,*)
+  write(u6,'(1X,A8,11X,I4,33X,I4)') 'SO-STATE',(JSS,JSS=JSTA,JEND)
+  do ISS=JSTA,NSS
+    write(u6,'(1X,I4,2x,2(A1,F15.11,A1,F15.11,A1,3x))') ISS,('(',CHAMR(ISS,JSS),',',CHAMI(ISS,JSS),')',JSS=JSTA,min(ISS,JEND))
+  end do
+end do
+
+end subroutine PRCHAM

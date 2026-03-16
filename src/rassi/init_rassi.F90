@@ -8,272 +8,258 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE INIT_RASSI()
 
-      use symmetry_Info, only: symmetry_info_get
-      use rassi_aux, only: ipglob
+subroutine INIT_RASSI()
+
+use symmetry_Info, only: symmetry_info_get
+use rassi_aux, only: ipglob
 #ifndef _DMRG_
-      use rasscf_global, only: doDMRG
+use rasscf_global, only: doDMRG
 #endif
-      use cntrl, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
-      use Cntrl, only: NJOB, NSTATE, NPROP, NSOPR, CITHR,               &
-     &                 NSOThr_Prt, SOThr_Prt, MXPROP, PRSXY, PRDIPVEC,  &
-     &                 PRORB, PRTRA, PRCI, CIH5, IFHAM, IFEJOB, IFSHFT, &
-     &                 IFHDIA, IFHEXT, IFHEFF, IFHCOM, HAVE_HEFF,       &
-     &                 HAVE_DIAG, NOHAM, IFSO, IFNTO, NATO, BINA,       &
-     &                 IFTRD1, IFTRD2, IFTDM, RFPert, ToFile, PRXVR,    &
-     &                 PRXVS, PRMER, PRMEE, PRMES, IFGCAL, EPRThr,      &
-     &                 EPRAThr, IFXCAL, IFMCAL, HOP, TRACK,             &
-     &                 ONLY_OVERLAPS, DIPR, OSThr_DipR, QIPR,           &
-     &                 OSThr_QIPR, QIALL, DYSO, DYSEXPORT, TDYS, OCAN,  &
-     &                 DCHS, DCHO, DO_TMOM, PRRAW, PRWEIGHT, TOLERANCE, &
-     &                 REDUCELOOP, LOOPDIVIDE, LOOPMAX, TMGR_Thrs,      &
-     &                 Do_SK, Do_Pol,                                   &
-     &                 L_Eff, DoCD, RSThr, RSPR, FORCE_NON_AO_TDM,      &
-     &                 IFDCPL, LPRPR, LHAMI, IFATCALSA, IFGTCALSA,      &
-     &                 IFGTSHSA, IFACAL, IFACALFC, IFACALSD, NOSO,      &
-     &                 IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME,  &
-     &                 PNAME, PTYPE, SOPRNM, SOPRTP, PRXVE, MINAME
-      use cntrl, only: LuOne, FnOne, LuOrd, FnOrd, LuIph,               &
-     &                 LuExc, FnExc, LuMck, LuTOM, FnTOM,               &
-     &                 LuEig, FnEig
-      use rassi_data, only: WFTYPE
-      use hfc_logical, only: MAG_X2C
+use cntrl, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
+use Cntrl, only: NJOB, NSTATE, NPROP, NSOPR, CITHR, NSOThr_Prt, SOThr_Prt, MXPROP, PRSXY, PRDIPVEC, PRORB, PRTRA, PRCI, CIH5, &
+                 IFHAM, IFEJOB, IFSHFT, IFHDIA, IFHEXT, IFHEFF, IFHCOM, HAVE_HEFF, HAVE_DIAG, NOHAM, IFSO, IFNTO, NATO, BINA, &
+                 IFTRD1, IFTRD2, IFTDM, RFPert, ToFile, PRXVR, PRXVS, PRMER, PRMEE, PRMES, IFGCAL, EPRThr, EPRAThr, IFXCAL, &
+                 IFMCAL, HOP, TRACK, ONLY_OVERLAPS, DIPR, OSThr_DipR, QIPR, OSThr_QIPR, QIALL, DYSO, DYSEXPORT, TDYS, OCAN, DCHS, &
+                 DCHO, DO_TMOM, PRRAW, PRWEIGHT, TOLERANCE, REDUCELOOP, LOOPDIVIDE, LOOPMAX, TMGR_Thrs, Do_SK, Do_Pol, L_Eff, &
+                 DoCD, RSThr, RSPR, FORCE_NON_AO_TDM, IFDCPL, LPRPR, LHAMI, IFATCALSA, IFGTCALSA, IFGTSHSA, IFACAL, IFACALFC, &
+                 IFACALSD, NOSO, IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME, PNAME, PTYPE, SOPRNM, SOPRTP, PRXVE, MINAME
+use cntrl, only: LuOne, FnOne, LuOrd, FnOrd, LuIph, LuExc, FnExc, LuMck, LuTOM, FnTOM, LuEig, FnEig
+use rassi_data, only: WFTYPE
+use hfc_logical, only: MAG_X2C
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
 
-
-      IMPLICIT None
-      Character(LEN=256) STRING
-      Logical FoundTwoEls,DoCholesky
-      Integer I, IPROP
-
+implicit none
+character(len=256) STRING
+logical FoundTwoEls, DoCholesky
+integer I, IPROP
 
 ! Initialise doDMRG if compiled without QCMaquis
 #ifndef _DMRG_
-      DoDMRG = .false.
+DoDMRG = .false.
 #endif
 
-      Call symmetry_info_get()
+call symmetry_info_get()
 
 ! UNIT NUMBERS AND NAMES
-      LUONE=2
-      FNONE='ONEINT'
-      LUORD=30
-      FNORD='ORDINT'
-      LUIPH=15
-      LUEXC=22
-      FNEXC='ANNI'
-      LUMCK=33
-      LuToM=26
-      FnToM='TOFILE'
-      LuEig=27
-      FnEig='EIGV'
-      JBNAME(:)='UNDEFINE'
-      DO  I=1,SIZE(JBNAME)
-        WRITE(MINAME(I),'(''MCK'',I3.3)') I
-      END DO
-      IF(IPGLOB.GT.3) THEN
-        WRITE(6,*)' Unit numbers and names:'
-        WRITE(6,'(1x,I8,5x,A8)')LUONE,FNONE
-        WRITE(6,'(1x,I8,5x,A8)')LUORD,FNORD
-        WRITE(6,'(1x,I8,5x,A8)')LUEXC,FNEXC
-      END IF
+LUONE = 2
+FNONE = 'ONEINT'
+LUORD = 30
+FNORD = 'ORDINT'
+LUIPH = 15
+LUEXC = 22
+FNEXC = 'ANNI'
+LUMCK = 33
+LuToM = 26
+FnToM = 'TOFILE'
+LuEig = 27
+FnEig = 'EIGV'
+JBNAME(:) = 'UNDEFINE'
+do I=1,size(JBNAME)
+  write(MINAME(I),'(''MCK'',I3.3)') I
+end do
+if (IPGLOB > 3) then
+  write(u6,*) ' Unit numbers and names:'
+  write(u6,'(1x,I8,5x,A8)') LUONE,FNONE
+  write(u6,'(1x,I8,5x,A8)') LUORD,FNORD
+  write(u6,'(1x,I8,5x,A8)') LUEXC,FNEXC
+end if
 
-      IF(IPGLOB.GT.3) WRITE(6,*)' OPENING ',FNEXC
-      CALL DANAME(LUEXC,FNEXC)
-
+if (IPGLOB > 3) write(u6,*) ' OPENING ',FNEXC
+call DANAME(LUEXC,FNEXC)
 
 ! NR OF JOBIPHS AND STATES:
-      NJOB=0
-      NSTATE=0
-      IF(IPGLOB.GT.3) THEN
-       WRITE(6,*)' INITIAL DEFAULT VALUES:'
-       WRITE(6,'(1X,A,I4)')'  NJOB:',NJOB
-       WRITE(6,'(1X,A,I4)')'NSTATE:',NSTATE
-      END IF
-!
+NJOB = 0
+NSTATE = 0
+if (IPGLOB > 3) then
+  write(u6,*) ' INITIAL DEFAULT VALUES:'
+  write(u6,'(1X,A,I4)') '  NJOB:',NJOB
+  write(u6,'(1X,A,I4)') 'NSTATE:',NSTATE
+end if
+
 ! NR OF OPERATORS FOR WHICH MATRIX ELEMENTS ARE TO BE CALCULATED:
-      NPROP=0
+NPROP = 0
 
 ! OPERATORS FOR WHICH MATRIX ELEMENTS OVER SPIN-ORBIT EIGENSTATES
 ! ARE TO BE COMPUTED.
-      NSOPR=0
+NSOPR = 0
 
 ! DEFAULT THRESHOLD FOR PRINTING CI COEFFICIENTS:
-      CITHR=0.05d0
+CITHR = 0.05_wp
 
 ! DEFAULT THRESHOLD FOR PRINTING TRANSITION DIPOLE VECTORS
-      TDIPMIN=1.0D-4
+TDIPMIN = 1.0e-4_wp
 
 ! DEFAULT THRESHOLD AND MAX NUMBER OF SO-HAMILTONIAN
 ! MATRIX ELEMENTS TO PRINT:
-      NSOTHR_PRT=0
-      SOTHR_PRT=-1.0D0
+NSOTHR_PRT = 0
+SOTHR_PRT = -One
 
 ! SET LABELS TO UNDEFINED
-      DO IPROP = 1, MXPROP
-         PNAME(IPROP) ='UNDEF.  '
-         PTYPE(IPROP) ='UNDEF.  '
-         SOPRNM(IPROP)='UNDEF.  '
-         SOPRTP(IPROP)='UNDEF.  '
-      END DO
+do IPROP=1,MXPROP
+  PNAME(IPROP) = 'UNDEF.'
+  PTYPE(IPROP) = 'UNDEF.'
+  SOPRNM(IPROP) = 'UNDEF.'
+  SOPRTP(IPROP) = 'UNDEF.'
+end do
 
 ! DEFAULT FLAGS:
-      PRSXY=.FALSE.
-      PRDIPVEC=.FALSE.
-      PRORB=.FALSE.
-      PRTRA=.FALSE.
-      PRCI=.FALSE.
-      CIH5=.FALSE.
-      IFHAM=.FALSE.
-      IFEJOB=.FALSE.
-      IFSHFT=.FALSE.
-      IFHDIA=.FALSE.
-      IFHEXT=.FALSE.
-      IFHEFF=.FALSE.
-      IFHCOM=.FALSE.
-      HAVE_HEFF=.FALSE.
-      HAVE_DIAG=.FALSE.
-      NOHAM=.FALSE.
-      IFSO=.FALSE.
-      IFNTO=.FALSE.
-      NATO=.FALSE.
-      BINA=.FALSE.
-      IFTRD1=.FALSE.
-      IFTRD2=.FALSE.
-      IFTDM=.FALSE.
-      RFPERT=.FALSE.
-      ToFile=.false.
-      PRXVR=.FALSE.
-      PRXVE=.FALSE.
-      PRXVS=.FALSE.
-      PRMER=.FALSE.
-      PRMEE=.FALSE.
-      PRMES=.FALSE.
-      IFGCAL=.FALSE.
-      EPRTHR=0.0D0
-      EPRATHR=0.0D0
-      IFXCAL=.FALSE.
-      IFMCAL=.FALSE.
-      HOP=.FALSE.
-      TRACK=.FALSE.
-      ONLY_OVERLAPS=.FALSE.
+PRSXY = .false.
+PRDIPVEC = .false.
+PRORB = .false.
+PRTRA = .false.
+PRCI = .false.
+CIH5 = .false.
+IFHAM = .false.
+IFEJOB = .false.
+IFSHFT = .false.
+IFHDIA = .false.
+IFHEXT = .false.
+IFHEFF = .false.
+IFHCOM = .false.
+HAVE_HEFF = .false.
+HAVE_DIAG = .false.
+NOHAM = .false.
+IFSO = .false.
+IFNTO = .false.
+NATO = .false.
+BINA = .false.
+IFTRD1 = .false.
+IFTRD2 = .false.
+IFTDM = .false.
+RFPERT = .false.
+ToFile = .false.
+PRXVR = .false.
+PRXVE = .false.
+PRXVS = .false.
+PRMER = .false.
+PRMEE = .false.
+PRMES = .false.
+IFGCAL = .false.
+EPRTHR = Zero
+EPRATHR = Zero
+IFXCAL = .false.
+IFMCAL = .false.
+HOP = .false.
+TRACK = .false.
+ONLY_OVERLAPS = .false.
 ! Intensities
-      DIPR=.FALSE.
-      OSTHR_DIPR = 0.0D0
-      QIPR=.FALSE.
-      OSTHR_QIPR = 0.0D0
-      QIALL=.FALSE.
-      DYSO=.FALSE.
-      DYSEXPORT=.FALSE.
-      TDYS=.FALSE.
-      OCAN=1
-      DCHS=.FALSE.
-      DCHO=1
+DIPR = .false.
+OSTHR_DIPR = Zero
+QIPR = .false.
+OSTHR_QIPR = Zero
+QIALL = .false.
+DYSO = .false.
+DYSEXPORT = .false.
+TDYS = .false.
+OCAN = 1
+DCHS = .false.
+DCHO = 1
 ! Exact operator
-      Do_TMOM=.FALSE.
-      PRRAW=.FALSE.
-      PRWEIGHT=.FALSE.
-      TOLERANCE=0.1D0
-      REDUCELOOP=.FALSE.
-      LOOPDIVIDE=0
-      LOOPMAX=-1
-      TMGr_thrs=-1.0d0
-      Do_SK  =.FALSE.
-      Do_Pol  =.FALSE.
-      L_Eff=5
+Do_TMOM = .false.
+PRRAW = .false.
+PRWEIGHT = .false.
+TOLERANCE = 0.1_wp
+REDUCELOOP = .false.
+LOOPDIVIDE = 0
+LOOPMAX = -1
+TMGr_thrs = -One
+Do_SK = .false.
+Do_Pol = .false.
+L_Eff = 5
 ! CD - velocity and mixed gauge
-      DOCD = .FALSE.
-      RSTHR = 0.0D0
-      RSPR=.FALSE.
+DOCD = .false.
+RSTHR = Zero
+RSPR = .false.
 ! Force that TDMs are not stored in the AO basis.
-      Force_NON_AO_TDM=.False.
-      CALL GETENVF('MOLCAS_FORCE_NON_AO_TDM',STRING)
-      If (STRING.eq.'ON') Force_NON_AO_TDM=.True.
+Force_NON_AO_TDM = .false.
+call GETENVF('MOLCAS_FORCE_NON_AO_TDM',STRING)
+if (STRING == 'ON') Force_NON_AO_TDM = .true.
 !nf
-      IfDCpl = .False.
+IfDCpl = .false.
 !nf
 
 ! tjd- BMII: Print out spin-orbit properties to files
-      LPRPR=.FALSE.
-      LHAMI=.FALSE.
+LPRPR = .false.
+LHAMI = .false.
 ! Feng: test control
-      MAG_X2C=.FALSE.
+MAG_X2C = .false.
 
 ! K. Sharkas  BEG
-      IFATCALSA=.FALSE.
-      IFGTCALSA=.FALSE.
-      IFGTSHSA=.FALSE.
+IFATCALSA = .false.
+IFGTCALSA = .false.
+IFGTSHSA = .false.
 ! K. Sharkas  END
 
 ! BP - Hyperfine tensor and SONATORB initialization
 ! RF - SO-NTO initialization
-      IFACAL=.FALSE.
-      IFACALFC=.TRUE.
-      IFACALSD=.TRUE.
+IFACAL = .false.
+IFACALFC = .true.
+IFACALSD = .true.
 
-      NOSO=.FALSE.
-      SONATNSTATE=0
-      SODIAGNSTATE=0
+NOSO = .false.
+SONATNSTATE = 0
+SODIAGNSTATE = 0
 
-      SONTOSTATES=0
+SONTOSTATES = 0
 
-      IFCURD=.FALSE.
-      IFARGU=.FALSE.
-
+IFCURD = .false.
+IFARGU = .false.
 
 ! Nr of states for which natural orbitals will be computed:
-      NRNATO=0
+NRNATO = 0
 ! Nr of state pairs for computing bi-natural orbitals:
-      NBINA=0
+NBINA = 0
 
 ! Check if two-electron integrals are available:
-      Call f_Inquire('ORDINT',FoundTwoEls)
-      Call DecideOnCholesky(DoCholesky)
-      If (FoundTwoEls .or. DoCholesky) IFHAM=.True.
+call f_Inquire('ORDINT',FoundTwoEls)
+call DecideOnCholesky(DoCholesky)
+if (FoundTwoEls .or. DoCholesky) IFHAM = .true.
 
-      IF(IPGLOB.GE.4) THEN
-        WRITE(6,*)'Initial default flags are:'
-        WRITE(6,*)'     PRSXY :',PRSXY
-        WRITE(6,*)'     PRORB :',PRORB
-        WRITE(6,*)'     PRTRA :',PRTRA
-        WRITE(6,*)'     PRCI  :',PRCI
-        WRITE(6,*)'     IFHAM :',IFHAM
-        WRITE(6,*)'     IFHEXT:',IFHEXT
-        WRITE(6,*)'     IFHEFF:',IFHEFF
-        WRITE(6,*)'     IFEJOB:',IFEJOB
-        WRITE(6,*)'     IFSHFT:',IFSHFT
-        WRITE(6,*)'     IFHDIA:',IFHDIA
-        WRITE(6,*)'     IFHCOM:',IFHCOM
-        WRITE(6,*)'     IFSO  :',IFSO
-        WRITE(6,*)'     NATO  :',NATO
-        WRITE(6,*)'     IFTRD1:',IFTRD1
-        WRITE(6,*)'     IFTRD2:',IFTRD2
-        WRITE(6,*)'     IFTDM :',IFTDM
-        WRITE(6,*)'     RFPERT:',RFPERT
-        WRITE(6,*)'     TOFILE:',ToFile
-        WRITE(6,*)'     PRXVR :',PRXVR
-        WRITE(6,*)'     PRXVE :',PRXVE
-        WRITE(6,*)'     PRXVS :',PRXVS
-        WRITE(6,*)'     PRMER :',PRMER
-        WRITE(6,*)'     PRMEE :',PRMEE
-        WRITE(6,*)'     PRMES :',PRMES
-        WRITE(6,*)'     IFGCAL:',IFGCAL
-        WRITE(6,*)'     IFXCAL:',IFXCAL
-        WRITE(6,*)'     IFMCAL:',IFMCAL
-        WRITE(6,*)'     HOP:',HOP
-        WRITE(6,*)'     TRACK:',TRACK
-        WRITE(6,*)'     ONLY_OVERLAPS:',ONLY_OVERLAPS
-        WRITE(6,*)'     IfDCpl:',IfDCpl
-        WRITE(6,*)'     IFCURD:',IFCURD
-        WRITE(6,*)'     Do_TMOM:',Do_TMOM
-        WRITE(6,*)'     Do_SK:',Do_SK
-        WRITE(6,*)'     L_Eff:',L_Eff
-        WRITE(6,*)'     CD:',DOCD
-        WRITE(6,*)'     Force_NON_AO_TDM:',Force_NON_AO_TDM
-      END IF
+if (IPGLOB >= 4) then
+  write(u6,*) 'Initial default flags are:'
+  write(u6,*) '     PRSXY :',PRSXY
+  write(u6,*) '     PRORB :',PRORB
+  write(u6,*) '     PRTRA :',PRTRA
+  write(u6,*) '     PRCI  :',PRCI
+  write(u6,*) '     IFHAM :',IFHAM
+  write(u6,*) '     IFHEXT:',IFHEXT
+  write(u6,*) '     IFHEFF:',IFHEFF
+  write(u6,*) '     IFEJOB:',IFEJOB
+  write(u6,*) '     IFSHFT:',IFSHFT
+  write(u6,*) '     IFHDIA:',IFHDIA
+  write(u6,*) '     IFHCOM:',IFHCOM
+  write(u6,*) '     IFSO  :',IFSO
+  write(u6,*) '     NATO  :',NATO
+  write(u6,*) '     IFTRD1:',IFTRD1
+  write(u6,*) '     IFTRD2:',IFTRD2
+  write(u6,*) '     IFTDM :',IFTDM
+  write(u6,*) '     RFPERT:',RFPERT
+  write(u6,*) '     TOFILE:',ToFile
+  write(u6,*) '     PRXVR :',PRXVR
+  write(u6,*) '     PRXVE :',PRXVE
+  write(u6,*) '     PRXVS :',PRXVS
+  write(u6,*) '     PRMER :',PRMER
+  write(u6,*) '     PRMEE :',PRMEE
+  write(u6,*) '     PRMES :',PRMES
+  write(u6,*) '     IFGCAL:',IFGCAL
+  write(u6,*) '     IFXCAL:',IFXCAL
+  write(u6,*) '     IFMCAL:',IFMCAL
+  write(u6,*) '     HOP:',HOP
+  write(u6,*) '     TRACK:',TRACK
+  write(u6,*) '     ONLY_OVERLAPS:',ONLY_OVERLAPS
+  write(u6,*) '     IfDCpl:',IfDCpl
+  write(u6,*) '     IFCURD:',IFCURD
+  write(u6,*) '     Do_TMOM:',Do_TMOM
+  write(u6,*) '     Do_SK:',Do_SK
+  write(u6,*) '     L_Eff:',L_Eff
+  write(u6,*) '     CD:',DOCD
+  write(u6,*) '     Force_NON_AO_TDM:',Force_NON_AO_TDM
+end if
 
 ! DEFAULT WAVE FUNCTION TYPE:
-      WFTYPE='GENERAL '
-      IF(IPGLOB.GT.3) WRITE(6,*)' ***** INIT ENDS **********'
+WFTYPE = 'GENERAL'
+if (IPGLOB > 3) write(u6,*) ' ***** INIT ENDS **********'
 
-      END SUBROUTINE INIT_RASSI
+end subroutine INIT_RASSI

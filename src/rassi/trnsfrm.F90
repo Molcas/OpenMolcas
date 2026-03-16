@@ -8,7 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Trnsfrm
-Integer NPQ,NBPQ,NBRS,LADX,NAVX,NAP,NAQ,NAR,NAS,NBP,NBQ,NBR,NBS,ISP,ISQ,ISR,ISS,IAPR(8), &
-        LMOP1,LMOQ1,LMOR1,LMOS1,NX1MX,NX2MX,NX3MX,NVXPQ
-End Module Trnsfrm
+
+module Trnsfrm
+
+implicit none
+integer NPQ, NBPQ, NBRS, LADX, NAVX, NAP, NAQ, NAR, NAS, NBP, NBQ, NBR, NBS, ISP, ISQ, ISR, ISS, IAPR(8), LMOP1, LMOQ1, LMOR1, &
+        LMOS1, NX1MX, NX2MX, NX3MX, NVXPQ
+
+end module Trnsfrm

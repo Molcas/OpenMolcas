@@ -8,35 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PRGASTAB(REST)
-      IMPLICIT NONE
-      INTEGER REST(*)
 
-      INTEGER IGAS,NGAS
-      INTEGER NSYM,ISYM,KORB,KREST
+subroutine PRGASTAB(REST)
 
-! Executable statements
-      WRITE(6,*)
-      WRITE(6,*)' GAS restriction table printout'
-      WRITE(6,'(A,I5)')'Table size        NSIZE=',REST(1)
-      WRITE(6,'(A,I5)')'Table type ID     ITYPE=',REST(2)
-      WRITE(6,'(A,I5)')'Nr of partitions  NGAS=',REST(3)
-      WRITE(6,'(A,I5)')'Nr of symm labels NSYM =',REST(4)
-      WRITE(6,*)' Orbital partitions:'
-      NGAS=REST(3)
-      NSYM =REST(4)
-      KORB=5
-      WRITE(6,'(8X,I5,5X,8I5)')                                         &
-     &      (REST(KORB+ISYM),ISYM=0,NSYM-1)
-      DO IGAS=1,NGAS
-       WRITE(6,'(I3,5X,I5,5X,8I5)')IGAS,                                &
-     &      (REST(KORB+ISYM+(NSYM+1)*IGAS),ISYM=0,NSYM-1)
-      END DO
-      WRITE(6,*)' Electron population restrictions:'
-      KREST=KORB+(NGAS+1)*(NSYM+1)
-      WRITE(6,'(5X,A7,5X,30I3)')'Minimum',                              &
-     &      (REST(KREST+0+2*(IGAS-1)),IGAS=1,NGAS)
-      WRITE(6,'(5X,A7,5X,30I3)')'Maximum',                              &
-     &      (REST(KREST+1+2*(IGAS-1)),IGAS=1,NGAS)
+use Definitions, only: u6
 
-      END SUBROUTINE PRGASTAB
+implicit none
+integer REST(*)
+integer IGAS, NGAS
+integer NSYM, ISYM, KORB, KREST
+
+write(u6,*)
+write(u6,*) ' GAS restriction table printout'
+write(u6,'(A,I5)') 'Table size        NSIZE=',REST(1)
+write(u6,'(A,I5)') 'Table type ID     ITYPE=',REST(2)
+write(u6,'(A,I5)') 'Nr of partitions  NGAS=',REST(3)
+write(u6,'(A,I5)') 'Nr of symm labels NSYM =',REST(4)
+write(u6,*) ' Orbital partitions:'
+NGAS = REST(3)
+NSYM = REST(4)
+KORB = 5
+write(u6,'(8X,I5,5X,8I5)') (REST(KORB+ISYM),ISYM=0,NSYM-1)
+do IGAS=1,NGAS
+  write(u6,'(I3,5X,I5,5X,8I5)') IGAS,(REST(KORB+ISYM+(NSYM+1)*IGAS),ISYM=0,NSYM-1)
+end do
+write(u6,*) ' Electron population restrictions:'
+KREST = KORB+(NGAS+1)*(NSYM+1)
+write(u6,'(5X,A7,5X,30I3)') 'Minimum',(REST(KREST+0+2*(IGAS-1)),IGAS=1,NGAS)
+write(u6,'(5X,A7,5X,30I3)') 'Maximum',(REST(KREST+1+2*(IGAS-1)),IGAS=1,NGAS)
+
+end subroutine PRGASTAB

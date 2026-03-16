@@ -8,56 +8,60 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
-      use gugx, only: SGStruct, CIStruct, EXStruct
-      use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT NONE
-      Type (SGSTruct) SGS
-      Type (CISTruct) CIS
-      Type (EXSTruct) ExS
-      Integer ISYM, LSM, NA, NO, NCO
-      Real*8 TRA(NO,NO),CI(NCO),TMP(NCO)
 
-      Integer, allocatable:: ILEV(:)
-      INTEGER NI,IL,IP,IK,IKLEV,IPLEV
-      REAL*8 CPK,X,CKK
+subroutine SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
+
+use gugx, only: SGStruct, CIStruct, EXStruct
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, Half
+use Definitions, only: wp
+
+implicit none
+type(SGSTruct) SGS
+type(CISTruct) CIS
+type(EXSTruct) ExS
+integer ISYM, LSM, NA, NO, NCO
+real*8 TRA(NO,NO), CI(NCO), TMP(NCO)
+integer, allocatable :: ILEV(:)
+integer NI, IL, IP, IK, IKLEV, IPLEV
+real*8 CPK, X, CKK
 
 ! ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
 ! OF SYMMETRY ISYM.
-      CALL mma_allocate(ILEV,NA,Label='ILEV')
-      NI=NO-NA
-      IL=0
-      DO IP=1,NA
-5       IL=IL+1
-        IF(SGS%ISM(IL).NE.ISYM) GOTO 5
-        ILEV(IP)=IL
-      END DO
-!TEST      write(*,*)' Check prints in SSOTRA.'
-!TEST      write(*,*)' ISYM:',ISYM
-      DO IK=1,NA
-        IKLEV=ILEV(IK)
-        CALL DCOPY_(NCO,[0.0D0],0,TMP,1)
-        DO IP=1,NA
-          IPLEV=ILEV(IP)
-          CPK=TRA(NI+IP,NI+IK)
-          IF(IP.EQ.IK) CPK=CPK-1.0D00
-          X=0.5D0*CPK
-!TEST          write(*,*)' IP,IK,X:',IP,IK,X
-          IF(ABS(X).LT.1.0D-14) cycle
-          CALL SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,X,LSM,CI,TMP)
-        END DO
-        CKK=TRA(NI+IK,NI+IK)
-        X= 3.0D00-CKK
-        CALL DAXPY_(NCO,X,TMP,1,CI,1)
-        DO IP=1,NA
-          IPLEV=ILEV(IP)
-          CPK=TRA(NI+IP,NI+IK)
-          IF(IP.EQ.IK) CPK=CPK-1.0D00
-          IF(ABS(CPK).LT.1.0D-14) cycle
-          CALL SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
+call mma_allocate(ILEV,NA,Label='ILEV')
+NI = NO-NA
+IL = 0
+do IP=1,NA
+5 IL = IL+1
+  if (SGS%ISM(IL) /= ISYM) goto 5
+  ILEV(IP) = IL
+end do
+!TEST write(u6,*)' Check prints in SSOTRA.'
+!TEST write(u6,*)' ISYM:',ISYM
+do IK=1,NA
+  IKLEV = ILEV(IK)
+  call DCOPY_(NCO,[Zero],0,TMP,1)
+  do IP=1,NA
+    IPLEV = ILEV(IP)
+    CPK = TRA(NI+IP,NI+IK)
+    if (IP == IK) CPK = CPK-One
+    X = Half*CPK
+    !TEST write(u6,*)' IP,IK,X:',IP,IK,X
+    if (abs(X) < 1.0e-14_wp) cycle
+    call SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,X,LSM,CI,TMP)
+  end do
+  CKK = TRA(NI+IK,NI+IK)
+  X = Three-CKK
+  call DAXPY_(NCO,X,TMP,1,CI,1)
+  do IP=1,NA
+    IPLEV = ILEV(IP)
+    CPK = TRA(NI+IP,NI+IK)
+    if (IP == IK) CPK = CPK-One
+    if (abs(CPK) < 1.0e-14_wp) cycle
+    call SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
 
-        END DO
-      END DO
-      CALL mma_deallocate(ILEV)
+  end do
+end do
+call mma_deallocate(ILEV)
 
-      END SUBROUTINE SSOTRA
+end subroutine SSOTRA

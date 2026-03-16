@@ -8,68 +8,71 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM,ICASE)
-      use stdalloc, only: mma_allocate
-      use rassi_global_arrays, only: REST1, REST2, REST
-      IMPLICIT NONE
-      INTEGER NSYM,NGAS,NGASORB(NSYM,NGAS),NGASLIM(2,NGAS), ICASE
 
-      INTEGER NSIZE,ITYPE
-      INTEGER IGAS,ISUM,ISYM,KORB,KREST,LPOS
+subroutine NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM,ICASE)
 
-! Executable statements
-      NSIZE=4+(NGAS+1)*(NSYM+1)+2*NGAS
-      ITYPE=91
-      SELECT CASE (ICASE)
-      CASE (1)
-         CALL mma_allocate(REST1,NSIZE,Label='REST1')
-         REST=>REST1(:)
-      CASE (2)
-         CALL mma_allocate(REST2,NSIZE,Label='REST2')
-         REST=>REST2(:)
-      CASE DEFAULT
-         Write(6,*) 'NEWGASTAB: Illegal ICASE value'
-         Write(6,*) 'ICASE=',ICASE
-      END SELECT
-      REST(1)=NSIZE
-      REST(2)=ITYPE
-      REST(3)=NGAS
-      REST(4)=NSYM
-      KORB=5
-!TEST      write(*,*)' In NEWGASTAB. NGASORB array is:'
-!TEST      do igas=1,ngas
-!TEST        write(*,'(1x,8i5)')(ngasorb(isym,igas),isym=1,nsym)
-!TEST      end do
-!TEST      write(*,*)' In NEWGASTAB. NGASLIM array is:'
-!TEST      write(*,'(1x,20i3)')(ngaslim(1,igas),igas=1,ngas)
-!TEST      write(*,'(1x,20i3)')(ngaslim(2,igas),igas=1,ngas)
+use stdalloc, only: mma_allocate
+use rassi_global_arrays, only: REST1, REST2, REST
+use Definitions, only: u6
 
-      DO IGAS=1,NGAS
-       ISUM=0
-       DO ISYM=1,NSYM
-        LPOS=KORB+ISYM+(NSYM+1)*IGAS
-        REST(LPOS)=2*NGASORB(ISYM,IGAS)
-        ISUM=ISUM+2*NGASORB(ISYM,IGAS)
-       END DO
-       LPOS=KORB+0+(NSYM+1)*IGAS
-       REST(LPOS)=ISUM
-      END DO
-      DO ISYM=0,NSYM
-       ISUM=0
-       DO IGAS=1,NGAS
-        LPOS=KORB+ISYM+(NSYM+1)*IGAS
-        ISUM=ISUM+REST(LPOS)
-       END DO
-       LPOS=KORB+ISYM
-       REST(LPOS)=ISUM
-      END DO
-      KREST=KORB+(NGAS+1)*(NSYM+1)
-      LPOS=KREST
-      DO IGAS=1,NGAS
-       REST(LPOS  )=NGASLIM(1,IGAS)
-       REST(LPOS+1)=NGASLIM(2,IGAS)
-       LPOS=LPOS+2
-      END DO
+implicit none
+integer NSYM, NGAS, NGASORB(NSYM,NGAS), NGASLIM(2,NGAS), ICASE
+integer NSIZE, ITYPE
+integer IGAS, ISUM, ISYM, KORB, KREST, LPOS
 
-      nullify(REST)
-      END SUBROUTINE NEWGASTAB
+NSIZE = 4+(NGAS+1)*(NSYM+1)+2*NGAS
+ITYPE = 91
+select case (ICASE)
+  case (1)
+    call mma_allocate(REST1,NSIZE,Label='REST1')
+    REST => REST1(:)
+  case (2)
+    call mma_allocate(REST2,NSIZE,Label='REST2')
+    REST => REST2(:)
+  case DEFAULT
+    write(u6,*) 'NEWGASTAB: Illegal ICASE value'
+    write(u6,*) 'ICASE=',ICASE
+end select
+REST(1) = NSIZE
+REST(2) = ITYPE
+REST(3) = NGAS
+REST(4) = NSYM
+KORB = 5
+!TEST write(u6,*) ' In NEWGASTAB. NGASORB array is:'
+!TEST do igas=1,ngas
+!TEST   write(u6,'(1x,8i5)') (ngasorb(isym,igas),isym=1,nsym)
+!TEST end do
+!TEST write(u6,*) ' In NEWGASTAB. NGASLIM array is:'
+!TEST write(u6,'(1x,20i3)') (ngaslim(1,igas),igas=1,ngas)
+!TEST write(u6,'(1x,20i3)') (ngaslim(2,igas),igas=1,ngas)
+
+do IGAS=1,NGAS
+  ISUM = 0
+  do ISYM=1,NSYM
+    LPOS = KORB+ISYM+(NSYM+1)*IGAS
+    REST(LPOS) = 2*NGASORB(ISYM,IGAS)
+    ISUM = ISUM+2*NGASORB(ISYM,IGAS)
+  end do
+  LPOS = KORB+0+(NSYM+1)*IGAS
+  REST(LPOS) = ISUM
+end do
+do ISYM=0,NSYM
+  ISUM = 0
+  do IGAS=1,NGAS
+    LPOS = KORB+ISYM+(NSYM+1)*IGAS
+    ISUM = ISUM+REST(LPOS)
+  end do
+  LPOS = KORB+ISYM
+  REST(LPOS) = ISUM
+end do
+KREST = KORB+(NGAS+1)*(NSYM+1)
+LPOS = KREST
+do IGAS=1,NGAS
+  REST(LPOS) = NGASLIM(1,IGAS)
+  REST(LPOS+1) = NGASLIM(2,IGAS)
+  LPOS = LPOS+2
+end do
+
+nullify(REST)
+
+end subroutine NEWGASTAB

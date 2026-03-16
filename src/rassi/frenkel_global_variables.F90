@@ -10,22 +10,20 @@
 !                                                                      *
 ! Copyright (C) 2022, Andy Kaiser                                      *
 !***********************************************************************
-      module frenkel_global_vars
 
-        use Definitions, only: iwp, wp
+module frenkel_global_vars
 
-        implicit none
-        private
+use Definitions, only: iwp, wp
 
-        integer(kind=iwp) :: ityp, jtyp, valst, corest, nesta, nestb, &
-                             nh1
-        integer(kind=iwp), allocatable :: nestla(:), nestlb(:)
-        logical :: docoul, doexcitonics, doexch, labb, &
-        rixs, laba, excl, aux2
-        real(kind=wp), allocatable :: vnucb(:), enucb(:)
+implicit none
+private
 
-        public :: ityp, jtyp, valst, corest, nesta, nestb, nh1, &
-                  nestla, nestlb, docoul, doexcitonics, doexch, labb, &
-                  rixs, laba, excl, aux2, vnucb, enucb
+integer(kind=iwp) :: ityp, jtyp, valst, corest, nesta, nestb, nh1
+integer(kind=iwp), allocatable :: nestla(:), nestlb(:)
+logical :: docoul, doexcitonics, doexch, labb, rixs, laba, excl, aux2
+real(kind=wp), allocatable :: vnucb(:), enucb(:)
 
-      end module frenkel_global_vars
+public :: ityp, jtyp, valst, corest, nesta, nestb, nh1, nestla, nestlb, docoul, doexcitonics, doexch, labb, rixs, laba, excl, &
+          aux2, vnucb, enucb
+
+end module frenkel_global_vars

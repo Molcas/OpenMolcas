@@ -8,17 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GETPRINTLEVEL
-      use rassi_aux, only: ipglob
-      IMPLICIT NONE
-      Integer, External :: iPrintLevel
-      Logical, External :: Reduce_Prt
+
+subroutine GETPRINTLEVEL()
+
+use rassi_aux, only: ipglob
+
+implicit none
+integer, external :: iPrintLevel
+logical, external :: Reduce_Prt
 
 ! Global print level
-      IPGLOB=iPrintLevel(-1)
+IPGLOB = iPrintLevel(-1)
 ! Change print level when in an optimization loop
-      IF (Reduce_Prt()) THEN
-        IPGLOB=MAX(IPGLOB-2,0)
-      END IF
+if (Reduce_Prt()) IPGLOB = max(IPGLOB-2,0)
 
-      END SUBROUTINE GETPRINTLEVEL
+end subroutine GETPRINTLEVEL

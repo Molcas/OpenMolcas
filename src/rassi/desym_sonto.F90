@@ -10,101 +10,103 @@
 !                                                                      *
 ! Copyright (C) 2021, Rulin Feng                                       *
 !***********************************************************************
-!       ****************************************************
-!                 Desymmetrize a given array(matrix)
-!       ****************************************************
-!        This routine is made to expand a given symmetry-adapted array
-!        into a C1 symmetry. SYMLAB is a bit flag,
-!        e.g., for symmetry 3, symlab=4=2^(3-1). A is input array with
-!        size SIZA, B is output array with size of NBST**2.
-!        Not tested for general cases, so for use of SO-NTOs only.
-!
-!                                                      -RF 8/24,2021
-      SUBROUTINE DESYM_SONTO(A,SIZA,B,SYMLAB)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nSym=>nIrrep, MUL
-      use rassi_data, only: NBST,NBASF
-      IMPLICIT None
-      INTEGER SIZA,SYMLAB
-      REAL*8 A(SIZA)
-      REAL*8 B(NBST**2)
 
-      REAL*8 ME
-      REAL*8, Allocatable:: SCR(:)
-      INTEGER ITD, IOF, ISY1, NB1, ISY2, NB2, ISY12_MA, I, J, IJ,       &
-     &        ISY12_MA_BI, NB1_I, NB1_F, NB2_I, NB2_F, JI
-      REAL*8 TDM
+!****************************************************
+!          Desymmetrize a given array(matrix)
+!****************************************************
+! This routine is made to expand a given symmetry-adapted array
+! into a C1 symmetry. SYMLAB is a bit flag,
+! e.g., for symmetry 3, symlab=4=2^(3-1). A is input array with
+! size SIZA, B is output array with size of NBST**2.
+! Not tested for general cases, so for use of SO-NTOs only.
+!
+!                                               -RF 8/24,2021
+subroutine DESYM_SONTO(A,SIZA,B,SYMLAB)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Symmetry_Info, only: nSym => nIrrep, MUL
+use rassi_data, only: NBST, NBASF
+use Constants, only: Zero
+
+implicit none
+integer SIZA, SYMLAB
+real*8 A(SIZA)
+real*8 B(NBST**2)
+real*8 ME
+real*8, allocatable :: SCR(:)
+integer ITD, IOF, ISY1, NB1, ISY2, NB2, ISY12_MA, I, J, IJ, ISY12_MA_BI, NB1_I, NB1_F, NB2_I, NB2_F, JI
+real*8 TDM
 
 ! Initialize
-      B(:)=0.0D0
+B(:) = Zero
 
-      Call mma_allocate(SCR,SIZA,Label='SCR')
-      SCR(:)=0.0D0
+call mma_allocate(SCR,SIZA,Label='SCR')
+SCR(:) = Zero
 
-! Diagonal symmetry blocks.
-! Dont need to do anything, just leave it be
-      IF(SYMLAB.EQ.1) THEN
-        Call DCOPY_(SIZA,A(:),1,SCR,1)
-! Non-diagonal symmetry blocks
-! note that only half of the total matrix has been stored
-      ELSE
-        ITD=0
-        IOF=0
-        Do ISY1=1,NSYM
-          NB1=NBASF(ISY1)
-          Do ISY2=1,NSYM
-            NB2=NBASF(ISY2)
-            ISY12_ma=MUL(ISY1,ISY2)
-            ISY12_ma_bi=2**(ISY12_ma-1)
-            If(ISY12_ma_bi.EQ.SYMLAB) then
-              IF(ISY1.GT.ISY2) THEN
-                Do J=1,NB2
-                  Do I=1,NB1
-                    ITD=ITD+1
-                    TDM=A(ITD)
-                    IJ=IOF+J+NB2*(I-1)
-                    SCR(IJ)=TDM
-                  Enddo
-                Enddo
-                IOF=IOF+NB1*NB2
-              Endif
-            Endif
-          Enddo
-        Enddo
-      Endif
+if (SYMLAB == 1) then
+  ! Diagonal symmetry blocks.
+  ! Dont need to do anything, just leave it be
+  call DCOPY_(SIZA,A(:),1,SCR,1)
+else
+  ! Non-diagonal symmetry blocks
+  ! note that only half of the total matrix has been stored
+  ITD = 0
+  IOF = 0
+  do ISY1=1,NSYM
+    NB1 = NBASF(ISY1)
+    do ISY2=1,NSYM
+      NB2 = NBASF(ISY2)
+      ISY12_ma = MUL(ISY1,ISY2)
+      ISY12_ma_bi = 2**(ISY12_ma-1)
+      if (ISY12_ma_bi == SYMLAB) then
+        if (ISY1 > ISY2) then
+          do J=1,NB2
+            do I=1,NB1
+              ITD = ITD+1
+              TDM = A(ITD)
+              IJ = IOF+J+NB2*(I-1)
+              SCR(IJ) = TDM
+            end do
+          end do
+          IOF = IOF+NB1*NB2
+        end if
+      end if
+    end do
+  end do
+end if
 ! Expand into C1
 
-      ITD=0
-      NB1_i=0
-      NB1_f=0
-      Do ISY1=1,NSYM
-        NB1=NBASF(ISY1)
-        NB1_f=NB1_i+NB1
-        NB2_i=0
-        NB2_f=0
-        Do ISY2=1,NSYM
-          ISY12_ma=MUL(ISY1,ISY2)
-          ISY12_ma_bi=2**(ISY12_ma-1)
-          NB2=NBASF(ISY2)
-          NB2_f=NB2_i+NB2
-          If(ISY12_ma_bi.EQ.SYMLAB) then
-            Do J=NB2_i+1,NB2_f
-              Do I=NB1_i+1,NB1_f
-                If(I.LE.J) then
-                  ITD=ITD+1
-                  ME=SCR(ITD)
-                  IJ=I+NBST*(J-1)
-                  JI=J+NBST*(I-1)
-                  B(IJ)=ME
-                  B(JI)=ME
-                Endif
-              Enddo
-            Enddo
-          Endif
-          NB2_i=NB2_i+NB2
-        Enddo
-        NB1_i=NB1_i+NB1
-      Enddo
-      Call mma_deallocate(SCR)
+ITD = 0
+NB1_i = 0
+NB1_f = 0
+do ISY1=1,NSYM
+  NB1 = NBASF(ISY1)
+  NB1_f = NB1_i+NB1
+  NB2_i = 0
+  NB2_f = 0
+  do ISY2=1,NSYM
+    ISY12_ma = MUL(ISY1,ISY2)
+    ISY12_ma_bi = 2**(ISY12_ma-1)
+    NB2 = NBASF(ISY2)
+    NB2_f = NB2_i+NB2
+    if (ISY12_ma_bi == SYMLAB) then
+      do J=NB2_i+1,NB2_f
+        do I=NB1_i+1,NB1_f
+          if (I <= J) then
+            ITD = ITD+1
+            ME = SCR(ITD)
+            IJ = I+NBST*(J-1)
+            JI = J+NBST*(I-1)
+            B(IJ) = ME
+            B(JI) = ME
+          end if
+        end do
+      end do
+    end if
+    NB2_i = NB2_i+NB2
+  end do
+  NB1_i = NB1_i+NB1
+end do
+call mma_deallocate(SCR)
 
-      END SUBROUTINE DESYM_SONTO
+end subroutine DESYM_SONTO

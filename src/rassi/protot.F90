@@ -10,19 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1999, Per Ake Malmqvist                                *
 !***********************************************************************
-      SUBROUTINE PROTOT(NPORB,NPSDSZ,IPSDMS,NPCSFSZ,IPCSFCP,PCSFTOSD)
-      use definitions, only: iwp, wp, u6
-      use constants, only: One
-      use rassi_aux, only: ipglob
-      IMPLICIT NONE
-      integer(kind=iwp), intent(in):: NPORB,NPCSFSZ,NPSDSZ
-      Integer(kind=iwp), intent(in):: IPSDMS(NPORB,NPSDSZ),             &
-     &                                IPCSFCP(NPORB,NPCSFSZ)
-      real(kind=wp), intent(inout):: PCSFTOSD(NPSDSZ,NPCSFSZ)
 
-      INTEGER(kind=iwp), PARAMETER ::UPCPL=1, DWNCPL=0,ASPIN=1,BSPIN=0
-      real(kind=wp) COEF1, COEF2
-      INTEGER(kind=iwp) IC,IM,INDSMM,INDSPM,IOPEN,JCSF,JDET
+subroutine PROTOT(NPORB,NPSDSZ,IPSDMS,NPCSFSZ,IPCSFCP,PCSFTOSD)
 ! Expand csf's in terms of determinants by the Grabenstetter method
 !  (I.J.Q.C. 10, P142 (1976))
 ! Recoded by PAM 1999, after Jeppe Olsen.
@@ -37,48 +26,59 @@
 !         PCSFTOSD :  NPSDSZ X NPCSFSZ MATRIX
 !                GIVING EXPANSION FROM P-SD'S TO P-CSF'S
 
+use definitions, only: iwp, wp, u6
+use constants, only: One
+use rassi_aux, only: ipglob
 
-      DO JCSF = 1, NPCSFSZ
-       IF( IPGLOB .GE. 5 ) WRITE(u6,*) ' ....Output for P-CSF ',JCSF
-       DO JDET = 1, NPSDSZ
-! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR P-CSF JCSF
-        COEF1=One
-        COEF2=One
-        INDSMM=0
-        INDSPM=0
-        DO IOPEN = 1, NPORB
-         IC=0
-         IF(IPCSFCP(IOPEN,JCSF).EQ.UPCPL) IC=1
-         IM=0
-         IF(IPSDMS(IOPEN,JDET).EQ.ASPIN) IM=1
-         IF(IC.EQ.0) THEN
-          IF(IM.EQ.0) THEN
-            INDSPM=INDSPM-1
-            COEF1=COEF1*SQRT(DBLE(INDSPM+1))
-! If COEF1 has gone down to 0 exactly.
-            IF (INDSPM+1.eq.0) exit
-          ELSE
-            INDSMM=INDSMM-1
-            COEF1=-COEF1*SQRT(DBLE(INDSMM+1))
-! If COEF1 has gone down to 0 exactly.
-            IF (INDSMM+1.eq.0) exit
-          END IF
-          COEF2=COEF2*SQRT(DBLE(INDSPM+INDSMM+2))
-         ELSE
-          IF(IM.EQ.0) THEN
-            INDSMM=INDSMM+1
-            COEF1=COEF1*SQRT(DBLE(INDSMM))
-          ELSE
-            INDSPM=INDSPM+1
-            COEF1=COEF1*SQRT(DBLE(INDSPM))
-          END IF
-          COEF2=COEF2*SQRT(DBLE(INDSPM+INDSMM))
-         END IF
-        END DO
+implicit none
+integer(kind=iwp), intent(in) :: NPORB, NPCSFSZ, NPSDSZ
+integer(kind=iwp), intent(in) :: IPSDMS(NPORB,NPSDSZ), IPCSFCP(NPORB,NPCSFSZ)
+real(kind=wp), intent(inout) :: PCSFTOSD(NPSDSZ,NPCSFSZ)
+integer(kind=iwp), parameter :: UPCPL = 1, DWNCPL = 0, ASPIN = 1, BSPIN = 0
+real(kind=wp) COEF1, COEF2
+integer(kind=iwp) IC, IM, INDSMM, INDSPM, IOPEN, JCSF, JDET
 
-        PCSFTOSD(JDET,JCSF)=COEF1/COEF2
+do JCSF=1,NPCSFSZ
+  if (IPGLOB >= 5) write(u6,*) ' ....Output for P-CSF ',JCSF
+  do JDET=1,NPSDSZ
+    ! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR P-CSF JCSF
+    COEF1 = One
+    COEF2 = One
+    INDSMM = 0
+    INDSPM = 0
+    do IOPEN=1,NPORB
+      IC = 0
+      if (IPCSFCP(IOPEN,JCSF) == UPCPL) IC = 1
+      IM = 0
+      if (IPSDMS(IOPEN,JDET) == ASPIN) IM = 1
+      if (IC == 0) then
+        if (IM == 0) then
+          INDSPM = INDSPM-1
+          COEF1 = COEF1*sqrt(real(INDSPM+1,kind=wp))
+          ! If COEF1 has gone down to 0 exactly.
+          if (INDSPM+1 == 0) exit
+        else
+          INDSMM = INDSMM-1
+          COEF1 = -COEF1*sqrt(real(INDSMM+1,kind=wp))
+          ! If COEF1 has gone down to 0 exactly.
+          if (INDSMM+1 == 0) exit
+        end if
+        COEF2 = COEF2*sqrt(real(INDSPM+INDSMM+2,kind=wp))
+      else
+        if (IM == 0) then
+          INDSMM = INDSMM+1
+          COEF1 = COEF1*sqrt(real(INDSMM,kind=wp))
+        else
+          INDSPM = INDSPM+1
+          COEF1 = COEF1*sqrt(real(INDSPM,kind=wp))
+        end if
+        COEF2 = COEF2*sqrt(real(INDSPM+INDSMM,kind=wp))
+      end if
+    end do
 
-       END DO
-      END DO
+    PCSFTOSD(JDET,JCSF) = COEF1/COEF2
 
-      END SUBROUTINE PROTOT
+  end do
+end do
+
+end subroutine PROTOT

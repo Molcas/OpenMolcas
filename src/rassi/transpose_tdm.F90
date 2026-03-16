@@ -24,36 +24,40 @@
 !> @param[in,out] TDM       Transition density matrix
 !> @param[in]     Symmetry  Symmetry of the transition
 !***********************************************************************
-      Subroutine Transpose_TDM(TDM,Symmetry)
-      Use stdalloc, Only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nSym=>nIrrep, Mul
-      use rassi_data, only: NBASF
-      Implicit None
-      Real*8, Intent(InOut) :: TDM(*)
-      Integer, Intent(In) :: Symmetry
-      Integer :: iSym1,iSym2,nTot,i,j
-      Integer :: iBlock(0:8)
-      Real*8, Allocatable :: Tmp(:)
+
+subroutine Transpose_TDM(TDM,Symmetry)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Symmetry_Info, only: nSym => nIrrep, Mul
+use rassi_data, only: NBASF
+
+implicit none
+real*8, intent(inout) :: TDM(*)
+integer, intent(in) :: Symmetry
+integer :: iSym1, iSym2, nTot, i, j
+integer :: iBlock(0:8)
+real*8, allocatable :: Tmp(:)
+
 ! Compute the location of all the stored symmetry blocks
-      nTot=0
-      iBlock(0)=0
-      Do iSym1=1,nSym
-        iSym2=Mul(Symmetry,iSym1)
-        nTot=nTot+nBasF(iSym1)*nBasF(iSym2)
-        iBlock(iSym1)=nTot
-      End Do
+nTot = 0
+iBlock(0) = 0
+do iSym1=1,nSym
+  iSym2 = Mul(Symmetry,iSym1)
+  nTot = nTot+nBasF(iSym1)*nBasF(iSym2)
+  iBlock(iSym1) = nTot
+end do
 ! Make a copy so we can transpose in place
-      Call mma_Allocate(Tmp,nTot,Label='Tmp')
-      Call dCopy_(nTot,TDM,1,Tmp,1)
+call mma_Allocate(Tmp,nTot,Label='Tmp')
+call dCopy_(nTot,TDM,1,Tmp,1)
 ! Transpose symmetry block (a,b) onto symmetry block (b,a)
-      Do iSym1=1,nSym
-        iSym2=Mul(Symmetry,iSym1)
-        Do i=1,nBasF(iSym2)
-          Do j=1,nBasF(iSym1)
-            TDM(iBlock(iSym2-1)+(j-1)*nBasF(iSym2)+i) =                 &
-     &      Tmp(iBlock(iSym1-1)+(i-1)*nBasF(iSym1)+j)
-          End Do
-        End Do
-      End Do
-      Call mma_deAllocate(Tmp)
-      End Subroutine Transpose_TDM
+do iSym1=1,nSym
+  iSym2 = Mul(Symmetry,iSym1)
+  do i=1,nBasF(iSym2)
+    do j=1,nBasF(iSym1)
+      TDM(iBlock(iSym2-1)+(j-1)*nBasF(iSym2)+i) = Tmp(iBlock(iSym1-1)+(i-1)*nBasF(iSym1)+j)
+    end do
+  end do
+end do
+call mma_deAllocate(Tmp)
+
+end subroutine Transpose_TDM

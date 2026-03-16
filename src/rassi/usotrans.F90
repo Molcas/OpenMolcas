@@ -10,61 +10,66 @@
 !                                                                      *
 ! Copyright (C) 2019, Roland Lindh                                     *
 !***********************************************************************
-      Subroutine USOTRANS(USOR,USOI,NSS,EigVec,MSTATE,VSOR,VSOI)
-      use rassi_global_arrays, only: JBNUM
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: MLTPLT
-      IMPLICIT NONE
-      Integer NSS, MSTATE
-      Real*8 USOR(NSS,NSS), USOI(NSS,NSS), EigVec(MSTATE,MSTATE)
-      Real*8 VSOR(NSS,NSS), VSOI(NSS,NSS)
 
-      Integer, Allocatable:: MAPST(:,:)
-      REAL*8 tmp_R, tmp_I
-      Integer ISTATE, JOB, MPLET, MSPROJ, ISS, JSS, JSS_, KSS, KSS_
+subroutine USOTRANS(USOR,USOI,NSS,EigVec,MSTATE,VSOR,VSOI)
+
+use rassi_global_arrays, only: JBNUM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Cntrl, only: MLTPLT
+use Constants, only: Zero
+
+implicit none
+integer NSS, MSTATE
+real*8 USOR(NSS,NSS), USOI(NSS,NSS), EigVec(MSTATE,MSTATE)
+real*8 VSOR(NSS,NSS), VSOI(NSS,NSS)
+integer, allocatable :: MAPST(:,:)
+real*8 tmp_R, tmp_I
+integer ISTATE, JOB, MPLET, MSPROJ, ISS, JSS, JSS_, KSS, KSS_
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Before we start we need to backtransform the coefficients of the
-!     SO states from the basis of the SF states which diagonalize the
-!     SF Hamiltonian to the basis of the original SF states. This since
-!     all transition moments, whether or retrived from disk or
-!     recomputed, are in the basis of the original SF states.
-!
+! Before we start we need to backtransform the coefficients of the
+! SO states from the basis of the SF states which diagonalize the
+! SF Hamiltonian to the basis of the original SF states. This since
+! all transition moments, whether or retrived from disk or
+! recomputed, are in the basis of the original SF states.
+
 ! Mapping from spin states to spin-free state:
-      Call mma_allocate(MAPST,nSS,3,Label='MAPST')
-      ISS=0
-      DO ISTATE=1,MSTATE
-         JOB=JBNUM(ISTATE)
-         MPLET=MLTPLT(JOB)
-         DO MSPROJ=-MPLET+1,MPLET-1,2
-            ISS=ISS+1
-            MAPST(ISS,1)=ISTATE
-            MAPST(ISS,2)=MPLET
-            MAPST(ISS,3)=MSPROJ
-       END DO
-      END DO
-!
-!     Let us transform the coefficients in USOR and USOI
-!
-      Do iSS = 1, nSS
-         Do JSS = 1, nSS
-            tmp_R=0.0D0
-            tmp_I=0.0D0
-            jSS_=MAPST(JSS,1)
-            Do kSS = 1, nSS
-               If (MAPST(kss,2).ne.MAPST(jss,2)) Cycle
-               If (MAPST(kss,3).ne.MAPST(jss,3)) Cycle
-               kSS_=MAPST(kSS,1)
-               tmp_R=tmp_R + USOR(kSS,iSS)*EigVec(jss_,kSS_)
-               tmp_I=tmp_I + USOI(kSS,iSS)*EigVec(jss_,kSS_)
-            End Do
-            VSOR(JSS,ISS)=tmp_R
-            VSOI(JSS,ISS)=tmp_I
-         End Do
-      End Do
-      Call mma_deallocate(MAPST)
+call mma_allocate(MAPST,nSS,3,Label='MAPST')
+ISS = 0
+do ISTATE=1,MSTATE
+  JOB = JBNUM(ISTATE)
+  MPLET = MLTPLT(JOB)
+  do MSPROJ=-MPLET+1,MPLET-1,2
+    ISS = ISS+1
+    MAPST(ISS,1) = ISTATE
+    MAPST(ISS,2) = MPLET
+    MAPST(ISS,3) = MSPROJ
+  end do
+end do
+
+! Let us transform the coefficients in USOR and USOI
+
+do iSS=1,nSS
+  do JSS=1,nSS
+    tmp_R = Zero
+    tmp_I = Zero
+    jSS_ = MAPST(JSS,1)
+    do kSS=1,nSS
+      if (MAPST(kss,2) /= MAPST(jss,2)) cycle
+      if (MAPST(kss,3) /= MAPST(jss,3)) cycle
+      kSS_ = MAPST(kSS,1)
+      tmp_R = tmp_R+USOR(kSS,iSS)*EigVec(jss_,kSS_)
+      tmp_I = tmp_I+USOI(kSS,iSS)*EigVec(jss_,kSS_)
+    end do
+    VSOR(JSS,ISS) = tmp_R
+    VSOI(JSS,ISS) = tmp_I
+  end do
+end do
+call mma_deallocate(MAPST)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      End Subroutine USOTRANS
+
+end subroutine USOTRANS

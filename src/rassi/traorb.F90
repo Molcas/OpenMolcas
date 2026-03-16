@@ -8,37 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE TRAORB(NSYM,NOSH,NBASF,NCXA,CXA,NCMO,CMO)
-      use definitions, only: iwp, wp
-      use constants, only: Zero, One
-      use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT NONE
-      Integer(kind=iwp), intent(in):: NSYM, NCXA, NCMO
-      Integer(kind=iwp), intent(in):: NOSH(NSYM),NBASF(NSYM)
-      Real(kind=wp), intent(in):: CXA(NCXA)
-      Real(kind=wp), intent(inout):: CMO(NCMO)
 
-      Real(kind=wp), Allocatable:: CNew(:)
-      Integer(kind=iwp) ISTA1,ISTA2,IS,NO,NB
-
+subroutine TRAORB(NSYM,NOSH,NBASF,NCXA,CXA,NCMO,CMO)
 ! TRANSFORM ORBITAL COEFFICIENTS CMO BY MULTIPLYING WITH
 ! TRANSFORMATION MATRIX CXA.
-      CALL mma_allocate(CNEW,NCMO,Label='CNEW')
-      ISTA1=1
-      ISTA2=1
-      DO IS=1,NSYM
-        NO=NOSH(IS)
-        IF(NO.EQ.0) CYCLE
-        NB=NBASF(IS)
-        IF(NB/=0) THEN
-        CALL DGEMM_('N','N',NB,NO,NO,                                   &
-     &              One,CMO(ISTA1),NB,                                  &
-     &                    CXA(ISTA2),NO,                                &
-     &              Zero,CNEW(ISTA1),NB)
-        ISTA1=ISTA1+NO*NB
-        END IF
-        ISTA2=ISTA2+NO**2
-      END DO
-      CALL DCOPY_(NCMO,CNEW,1,CMO,1)
-      CALL mma_deallocate(CNEW)
-      END SUBROUTINE TRAORB
+
+use definitions, only: iwp, wp
+use constants, only: Zero, One
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit none
+integer(kind=iwp), intent(in) :: NSYM, NCXA, NCMO
+integer(kind=iwp), intent(in) :: NOSH(NSYM), NBASF(NSYM)
+real(kind=wp), intent(in) :: CXA(NCXA)
+real(kind=wp), intent(inout) :: CMO(NCMO)
+real(kind=wp), allocatable :: CNew(:)
+integer(kind=iwp) ISTA1, ISTA2, IS, NO, NB
+
+call mma_allocate(CNEW,NCMO,Label='CNEW')
+ISTA1 = 1
+ISTA2 = 1
+do IS=1,NSYM
+  NO = NOSH(IS)
+  if (NO == 0) cycle
+  NB = NBASF(IS)
+  if (NB /= 0) then
+    call DGEMM_('N','N',NB,NO,NO,One,CMO(ISTA1),NB,CXA(ISTA2),NO,Zero,CNEW(ISTA1),NB)
+    ISTA1 = ISTA1+NO*NB
+  end if
+  ISTA2 = ISTA2+NO**2
+end do
+call DCOPY_(NCMO,CNEW,1,CMO,1)
+call mma_deallocate(CNEW)
+
+end subroutine TRAORB

@@ -8,139 +8,137 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SMMAT_MASKED(PROP,PRMAT,NSS,ISONUM,ISPINCMP,ISS_INDEX, &
-     &                        IST,INUM,JST,JNUM)
-      use Cntrl, only: NSTATE, NPROP, ICOMP, ISOCMP, PNAME,             &
-     &                 PTYPE, SOPRNM, SOPRTP
 
-      IMPLICIT None
-      Integer NSS, ISONUM, ISPINCMP
-      Real*8 PRMAT(NSS,NSS)
-      Integer INUM, JNUM
-      Integer ISS_INDEX(NSTATE+1), IST(INUM), JST(JNUM)
-      Real*8 PROP(NSTATE,NSTATE,NPROP)
+subroutine SMMAT_MASKED(PROP,PRMAT,NSS,ISONUM,ISPINCMP,ISS_INDEX,IST,INUM,JST,JNUM)
 
-      REAL*8, EXTERNAL :: DCLEBS
-      INTEGER IPRNUM, IPRCMP, IPROP, I, ISTATE, ISS, MPLET1, MSPROJ1,   &
-     &        IFSPIN,                J, JSTATE, JSS, MPLET2, MSPROJ2
-      REAL*8 S1, S2, SM1, SM2, SXMER, SYMEI, SZMER, SMINUS, SPLUS, FACT,&
-     &       CGM, CG0, CGP, CGX, CGY, EXPKR
-!
-      IPRNUM=-1
-      IPRCMP=0
-      PRMAT(:,:)=0.0D0
+use Cntrl, only: NSTATE, NPROP, ICOMP, ISOCMP, PNAME, PTYPE, SOPRNM, SOPRTP
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u6
+
+implicit none
+integer NSS, ISONUM, ISPINCMP
+real*8 PRMAT(NSS,NSS)
+integer INUM, JNUM
+integer ISS_INDEX(NSTATE+1), IST(INUM), JST(JNUM)
+real*8 PROP(NSTATE,NSTATE,NPROP)
+real*8, external :: DCLEBS
+integer IPRNUM, IPRCMP, IPROP, I, ISTATE, ISS, MPLET1, MSPROJ1, IFSPIN, J, JSTATE, JSS, MPLET2, MSPROJ2
+real*8 S1, S2, SM1, SM2, SXMER, SYMEI, SZMER, SMINUS, SPLUS, FACT, CGM, CG0, CGP, CGX, CGY, EXPKR
+
+IPRNUM = -1
+IPRCMP = 0
+PRMAT(:,:) = Zero
 ! IFSPIN takes values the values 0,1,2
 ! 0 = spin free property
 ! 1 = spin operator (S)
 ! 2 = spin dependent property, triplet operator
-      IFSPIN=0
+IFSPIN = 0
 
-      IF (ISONUM.EQ.0) THEN
-         IPRNUM=0
-         IFSPIN=1
-         IPRCMP=ISPINCMP
-      ELSE
-         DO IPROP=1,NPROP
-            IF ((PNAME(IPROP).EQ.SOPRNM(ISONUM)).AND.                   &
-     &          (PTYPE(IPROP).EQ.SOPRTP(ISONUM)).AND.                   &
-     &          (ICOMP(IPROP).EQ.ISOCMP(ISONUM))) THEN
-               IPRNUM=IPROP
-               IF (PNAME(IPRNUM)(1:5).EQ.'TMOM0') THEN
-                  IFSPIN=2
-                  IPRCMP=ISPINCMP
-               END IF
-               EXIT
-            END IF
-         END DO
-      END IF
-      IF (IPRNUM.EQ.-1) THEN
-         Write (6,*) 'SMMAT_MASKED, Abend IPRNUM.EQ.-1'
-         Write (6,*) 'SMMAT_MASKED, PRLBL=','>',PNAME(ISONUM),'<'
-         Call Abend()
-      ENDIF
+if (ISONUM == 0) then
+  IPRNUM = 0
+  IFSPIN = 1
+  IPRCMP = ISPINCMP
+else
+  do IPROP=1,NPROP
+    if ((PNAME(IPROP) == SOPRNM(ISONUM)) .and. (PTYPE(IPROP) == SOPRTP(ISONUM)) .and. (ICOMP(IPROP) == ISOCMP(ISONUM))) then
+      IPRNUM = IPROP
+      if (PNAME(IPRNUM)(1:5) == 'TMOM0') then
+        IFSPIN = 2
+        IPRCMP = ISPINCMP
+      end if
+      exit
+    end if
+  end do
+end if
+if (IPRNUM == -1) then
+  write(u6,*) 'SMMAT_MASKED, Abend IPRNUM == -1'
+  write(u6,*) 'SMMAT_MASKED, PRLBL=','>',PNAME(ISONUM),'<'
+  call Abend()
+end if
 
 ! Mapping from spin states to spin-free state and to spin:
-      DO I=1,INUM
-         ISTATE=IST(I)
-         ISS=ISS_INDEX(ISTATE)
-         MPLET1=ISS_INDEX(ISTATE+1)-ISS_INDEX(ISTATE)
-         S1=0.5D0*(MPLET1-1)
-         DO MSPROJ1=-MPLET1+1,MPLET1-1,2
-            SM1=0.5D0*MSPROJ1
-            ISS=ISS+1
+do I=1,INUM
+  ISTATE = IST(I)
+  ISS = ISS_INDEX(ISTATE)
+  MPLET1 = ISS_INDEX(ISTATE+1)-ISS_INDEX(ISTATE)
+  S1 = Half*real(MPLET1-1,kind=wp)
+  do MSPROJ1=-MPLET1+1,MPLET1-1,2
+    SM1 = Half*real(MSPROJ1,kind=wp)
+    ISS = ISS+1
 
-            DO J=1,JNUM
-               JSTATE=JST(J)
-               JSS=ISS_INDEX(JSTATE)
-               MPLET2=ISS_INDEX(JSTATE+1)-ISS_INDEX(JSTATE)
-               S2=0.5D0*(MPLET2-1)
-               DO MSPROJ2=-MPLET2+1,MPLET2-1,2
-                  SM2=0.5D0*MSPROJ2
-                  JSS=JSS+1
+    do J=1,JNUM
+      JSTATE = JST(J)
+      JSS = ISS_INDEX(JSTATE)
+      MPLET2 = ISS_INDEX(JSTATE+1)-ISS_INDEX(JSTATE)
+      S2 = Half*real(MPLET2-1,kind=wp)
+      do MSPROJ2=-MPLET2+1,MPLET2-1,2
+        SM2 = Half*real(MSPROJ2,kind=wp)
+        JSS = JSS+1
 
-                  IF (IFSPIN.EQ.0 .AND. IPRNUM.NE.0) THEN
-                     IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
-                        PRMAT(ISS,JSS)=PROP(ISTATE,JSTATE,IPRNUM)
-                     ELSE
-                        PRMAT(ISS,JSS)=0.0D0
-                     END IF
-                  ELSE IF (IFSPIN.EQ.1 .AND. IPRNUM.EQ.0) THEN
-                     SXMER=0.0D0
-                     SYMEI=0.0D0
-                     SZMER=0.0D0
-                     SMINUS=0.0D0
-                     SPLUS=0.0D0
-                     IF((ISTATE.EQ.JSTATE).AND.(MPLET1.eq.MPLET2)) THEN
-                        IF (MSPROJ1.eq.MSPROJ2-2) THEN
-                           SMINUS=SQRT((S1+SM2)*(S1-SM1))
-                           SXMER= 0.5D0*SMINUS
-                           SYMEI= 0.5D0*SMINUS
-                        ELSE IF (MSPROJ1.eq.MSPROJ2) THEN
-                           SZMER=SM1
-                        ELSE IF (MSPROJ1.eq.MSPROJ2+2) THEN
-                           SPLUS=SQRT((S1+SM1)*(S1-SM2))
-                           SXMER= 0.5D0*SPLUS
-                           SYMEI=-0.5D0*SPLUS
-                        END IF
-                        IF (IPRCMP.EQ.1) THEN
-                           PRMAT(ISS,JSS)=SXMER
-                        ELSE IF (IPRCMP.EQ.2) THEN
-                           PRMAT(ISS,JSS)=SYMEI
-                        ELSE IF (IPRCMP.EQ.3) THEN
-                           PRMAT(ISS,JSS)=SZMER
-                        END IF
-                     ELSE
-                        PRMAT(ISS,JSS)=0.0D0
-                     END IF
-                  ELSE IF (IFSPIN.EQ.2) THEN
-!
-!                 The code here is a replica from smmat.f. Look in
-!                 that source for comments.
-!
-                     FACT=1.0D0/SQRT(DBLE(MPLET1))
-                     IF(MPLET1.EQ.MPLET2-2) FACT=-FACT
-                     CGM=FACT*DCLEBS(S2,1.0D0,S1,SM2,-1.0D0,SM1)
-                     CG0=FACT*DCLEBS(S2,1.0D0,S1,SM2, 0.0D0,SM1)
-                     CGP=FACT*DCLEBS(S2,1.0D0,S1,SM2,+1.0D0,SM1)
-                     CGX= SQRT(0.5D0)*(CGM-CGP)
-                     CGY=-SQRT(0.5D0)*(CGM+CGP)
-!
-                     EXPKR=PROP(ISTATE,JSTATE,IPRNUM)
-!
-                     IF (IPRCMP.EQ.1) THEN
-                        EXPKR=EXPKR*CGX
-                     ELSE IF (IPRCMP.EQ.2) THEN
-                        EXPKR=EXPKR*CGY
-                     ELSE IF (IPRCMP.EQ.3) THEN
-                        EXPKR=EXPKR*CG0
-                     END IF
-                     PRMAT(ISS,JSS)= EXPKR
-                  END IF
+        if ((IFSPIN == 0) .and. (IPRNUM /= 0)) then
+          if ((MPLET1 == MPLET2) .and. (MSPROJ1 == MSPROJ2)) then
+            PRMAT(ISS,JSS) = PROP(ISTATE,JSTATE,IPRNUM)
+          else
+            PRMAT(ISS,JSS) = Zero
+          end if
+        else if ((IFSPIN == 1) .and. (IPRNUM == 0)) then
+          SXMER = Zero
+          SYMEI = Zero
+          SZMER = Zero
+          SMINUS = Zero
+          SPLUS = Zero
+          if ((ISTATE == JSTATE) .and. (MPLET1 == MPLET2)) then
+            if (MSPROJ1 == MSPROJ2-2) then
+              SMINUS = sqrt((S1+SM2)*(S1-SM1))
+              SXMER = Half*SMINUS
+              SYMEI = Half*SMINUS
+            else if (MSPROJ1 == MSPROJ2) then
+              SZMER = SM1
+            else if (MSPROJ1 == MSPROJ2+2) then
+              SPLUS = sqrt((S1+SM1)*(S1-SM2))
+              SXMER = Half*SPLUS
+              SYMEI = -Half*SPLUS
+            end if
+            if (IPRCMP == 1) then
+              PRMAT(ISS,JSS) = SXMER
+            else if (IPRCMP == 2) then
+              PRMAT(ISS,JSS) = SYMEI
+            else if (IPRCMP == 3) then
+              PRMAT(ISS,JSS) = SZMER
+            end if
+          else
+            PRMAT(ISS,JSS) = Zero
+          end if
+        else if (IFSPIN == 2) then
 
-               END DO !MSPROJ2
-            END DO !JSTATE
-         END DO !MSPROJ1
-      END DO !ISTATE
+          ! The code here is a replica from smmat.
+          ! Look in that source for comments.
 
-      RETURN
-      END
+          FACT = One/sqrt(real(MPLET1,kind=wp))
+          if (MPLET1 == MPLET2-2) FACT = -FACT
+          CGM = FACT*DCLEBS(S2,One,S1,SM2,-One,SM1)
+          CG0 = FACT*DCLEBS(S2,One,S1,SM2,Zero,SM1)
+          CGP = FACT*DCLEBS(S2,One,S1,SM2,One,SM1)
+          CGX = sqrt(Half)*(CGM-CGP)
+          CGY = -sqrt(Half)*(CGM+CGP)
+
+          EXPKR = PROP(ISTATE,JSTATE,IPRNUM)
+
+          if (IPRCMP == 1) then
+            EXPKR = EXPKR*CGX
+          else if (IPRCMP == 2) then
+            EXPKR = EXPKR*CGY
+          else if (IPRCMP == 3) then
+            EXPKR = EXPKR*CG0
+          end if
+          PRMAT(ISS,JSS) = EXPKR
+        end if
+
+      end do !MSPROJ2
+    end do !JSTATE
+  end do !MSPROJ1
+end do !ISTATE
+
+return
+
+end subroutine SMMAT_MASKED

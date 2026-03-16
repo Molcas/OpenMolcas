@@ -16,30 +16,28 @@
 !  CONSTRUCT A DENSITY MATRIX DINAO FOR THE INACTIVE ORBITALS.
 !  IT IS RETURNED IN SYMMETRY-BLOCKED SQUARED FORMAT.
 !****************************************************************
-      SUBROUTINE DIMAT(CMO1,CMO2,DINAO)
-      use Symmetry_Info, only: nSym=>nIrrep
-      use Constants, only: Zero,One,Two
-      use rassi_data, only: NCMO,NBSQ,NBASF,NISH,NOSH
-      IMPLICIT None
-      REAL*8 CMO1(NCMO),CMO2(NCMO),DINAO(NBSQ)
 
-      INTEGER ISTC,ISTD,ISYM,NI,NO,NB
-      DINAO(:)=Zero
-      ISTC=1
-      ISTD=1
-      DO ISYM=1,NSYM
-       NI=NISH(ISYM)
-       NO=NOSH(ISYM)
-       NB=NBASF(ISYM)
-       IF(NI.NE.0) THEN
-        CALL  DGEMM_('N','T',NB,NB,NI,One,                              &
-     &               CMO1(ISTC),NB,                                     &
-     &               CMO2(ISTC),NB,Zero,                                &
-     &               DINAO(ISTD),NB)
-       END IF
-       ISTC=ISTC+NO*NB
-       ISTD=ISTD+NB**2
-      END DO
-      DINAO(:)=Two*DINAO(:)
+subroutine DIMAT(CMO1,CMO2,DINAO)
 
-      END SUBROUTINE DIMAT
+use Symmetry_Info, only: nSym => nIrrep
+use Constants, only: Zero, One, Two
+use rassi_data, only: NCMO, NBSQ, NBASF, NISH, NOSH
+
+implicit none
+real*8 CMO1(NCMO), CMO2(NCMO), DINAO(NBSQ)
+integer ISTC, ISTD, ISYM, NI, NO, NB
+
+DINAO(:) = Zero
+ISTC = 1
+ISTD = 1
+do ISYM=1,NSYM
+  NI = NISH(ISYM)
+  NO = NOSH(ISYM)
+  NB = NBASF(ISYM)
+  if (NI /= 0) call DGEMM_('N','T',NB,NB,NI,One,CMO1(ISTC),NB,CMO2(ISTC),NB,Zero,DINAO(ISTD),NB)
+  ISTC = ISTC+NO*NB
+  ISTD = ISTD+NB**2
+end do
+DINAO(:) = Two*DINAO(:)
+
+end subroutine DIMAT

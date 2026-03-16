@@ -24,8 +24,8 @@ integer(kind=iwp) :: rc
 call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
 #endif
 
-call start('rassi')
+call Start('rassi')
 call rassi(rc)
-call finish(rc)
+call Finish(rc)
 
 end program Main

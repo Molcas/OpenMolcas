@@ -10,12 +10,15 @@
 !                                                                      *
 ! Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Module Dens2HDF5
 
-      Integer, Allocatable :: IdxState(:,:)
-      Real*8, Parameter, Private :: Thrs=1.0D-14
+module Dens2HDF5
 
-      Contains
+use Definitions, only: wp
+
+integer, allocatable :: IdxState(:,:)
+real*8, parameter, private :: Thrs = 1.0e-14_wp
+
+contains
 
 !***********************************************************************
 !  UpdateIdx
@@ -37,72 +40,74 @@
 !> @param[in] USOI    SO coefficients in SF basis (imaginary part)
 !> @param[in] MapSt   map of SF states expanded by multiplicity
 !***********************************************************************
-      Subroutine UpdateIdx(IndexE, nSS, USOR, USOI, MapSt)
-      Use stdalloc, Only: mma_allocate
-      use Cntrl, only: NSTATE, REDUCELOOP, LOOPDIVIDE, LOOPMAX
-      Implicit None
-      Integer, Dimension(nState), Intent(In) :: IndexE
-      Integer, Intent(In) :: nSS
-      Real*8, Intent(In), Optional :: USOR(nSS,nSS),USOI(nSS,nSS)
-      Integer, Intent(In), Optional :: MapSt(nSS)
-      Integer :: i,j,i_,j_,iState,jState,iSS,jSS,iEnd,jStart,jEnd
-      Real*8 :: f1,f2
-      If (.not.Allocated(IdxState)) Then
-        Call mma_Allocate(IdxState,nState,nState,Label='IdxState')
-        Call iCopy(nState**2,[0],0,IdxState,1)
-      End If
-      jEnd=nState
-      If (nSS.gt.0) jEnd=nSS
-      If (ReduceLoop) Then
-        iEnd=LoopDivide
-        jStart=LoopDivide+1
-        If (LoopMax.gt.0) jEnd=Min(jEnd, LoopDivide + LoopMax)
-      Else
-        iEnd=nState
-        If (nSS.gt.0) iEnd=nSS
-        jStart=1
-      End If
-!     list states for/between which we want to store the density matrices
-      If (nSS.gt.0) Then
-        Do iSS=1,nSS
-          Do jSS=1,nSS
-            If (jSS.ne.iSS) Then
-              If (jSS.lt.jStart) Cycle
-              If (iSS.gt.iEnd)   Cycle
-              If (jSS.gt.jEnd)   Cycle
-            End If
-            Do i=1,nSS
-              iState=MapSt(i)
-              Do j=1,i
-                jState=MapSt(j)
-                i_=Max(jState,iState)
-                j_=Min(jState,iState)
-                If (IdxState(i_,j_).gt.0) Cycle
-                f1=(USOR(i,iSS)*USOR(j,jSS)+USOI(i,iSS)*USOI(j,jSS))**2 &
-     &            +(USOR(i,iSS)*USOI(j,jSS)-USOI(i,iSS)*USOR(j,jSS))**2
-                f2=(USOR(j,iSS)*USOR(i,jSS)+USOI(j,iSS)*USOI(i,jSS))**2 &
-     &            +(USOR(j,iSS)*USOI(i,jSS)-USOI(j,iSS)*USOR(i,jSS))**2
-!               this should be Thrs**2, but let's be looser with SO states
-                If (Max(f1,f2).ge.Thrs) IdxState(i_,j_)=2
-            End Do
-            End Do
-          End Do
-        End Do
-      Else
-        Do i=1,nState
-          iState=IndexE(i)
-          IdxState(iState,iState)=1
-          If (i.gt.iEnd) Cycle
-          Do j=Max(i+1,jStart),nState
-            If (j.gt.jEnd) Cycle
-            jState=IndexE(j)
-            i_=Max(jState,iState)
-            j_=Min(jState,iState)
-            IdxState(i_,j_)=1
-          End Do
-        End Do
-      End If
-      End Subroutine UpdateIdx
+subroutine UpdateIdx(IndexE,nSS,USOR,USOI,MapSt)
+
+  use stdalloc, only: mma_allocate
+  use Cntrl, only: NSTATE, REDUCELOOP, LOOPDIVIDE, LOOPMAX
+
+  implicit none
+  integer, dimension(nState), intent(in) :: IndexE
+  integer, intent(in) :: nSS
+  real*8, intent(in), optional :: USOR(nSS,nSS), USOI(nSS,nSS)
+  integer, intent(in), optional :: MapSt(nSS)
+  integer :: i, j, i_, j_, iState, jState, iSS, jSS, iEnd, jStart, jEnd
+  real*8 :: f1, f2
+
+  if (.not. allocated(IdxState)) then
+    call mma_Allocate(IdxState,nState,nState,Label='IdxState')
+    call iCopy(nState**2,[0],0,IdxState,1)
+  end if
+  jEnd = nState
+  if (nSS > 0) jEnd = nSS
+  if (ReduceLoop) then
+    iEnd = LoopDivide
+    jStart = LoopDivide+1
+    if (LoopMax > 0) jEnd = min(jEnd,LoopDivide+LoopMax)
+  else
+    iEnd = nState
+    if (nSS > 0) iEnd = nSS
+    jStart = 1
+  end if
+  ! list states for/between which we want to store the density matrices
+  if (nSS > 0) then
+    do iSS=1,nSS
+      do jSS=1,nSS
+        if (jSS /= iSS) then
+          if (jSS < jStart) cycle
+          if (iSS > iEnd) cycle
+          if (jSS > jEnd) cycle
+        end if
+        do i=1,nSS
+          iState = MapSt(i)
+          do j=1,i
+            jState = MapSt(j)
+            i_ = max(jState,iState)
+            j_ = min(jState,iState)
+            if (IdxState(i_,j_) > 0) cycle
+            f1 = (USOR(i,iSS)*USOR(j,jSS)+USOI(i,iSS)*USOI(j,jSS))**2+(USOR(i,iSS)*USOI(j,jSS)-USOI(i,iSS)*USOR(j,jSS))**2
+            f2 = (USOR(j,iSS)*USOR(i,jSS)+USOI(j,iSS)*USOI(i,jSS))**2+(USOR(j,iSS)*USOI(i,jSS)-USOI(j,iSS)*USOR(i,jSS))**2
+            ! this should be Thrs**2, but let's be looser with SO states
+            if (max(f1,f2) >= Thrs) IdxState(i_,j_) = 2
+          end do
+        end do
+      end do
+    end do
+  else
+    do i=1,nState
+      iState = IndexE(i)
+      IdxState(iState,iState) = 1
+      if (i > iEnd) cycle
+      do j=max(i+1,jStart),nState
+        if (j > jEnd) cycle
+        jState = IndexE(j)
+        i_ = max(jState,iState)
+        j_ = min(jState,iState)
+        IdxState(i_,j_) = 1
+      end do
+    end do
+  end if
+
+end subroutine UpdateIdx
 
 !***********************************************************************
 !  StoreDens
@@ -119,114 +124,104 @@
 !> @param[in] EigVec  coefficients of the SF eigen states in the input state basis
 !***********************************************************************
 #ifdef _HDF5_
-      Subroutine StoreDens(EigVec)
-      Use rassi_aux, Only : iDisk_TDM
-      Use rassi_global_arrays, Only : JbNum
-      Use mh5, Only: mh5_put_dset
-      Use stdalloc, Only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, IFSO, IRREP
-      use cntrl, only: LuTDM
-      use RASSIWfn, only: wfn_SFS_TDM, wfn_SFS_TSDM, wfn_SFS_WETDM
-      use Symmetry_Info, only: nSym=>nIrrep, MUL
-      use rassi_data, only: NBASF,NTDMZZ
+subroutine StoreDens(EigVec)
 
-      Implicit None
-      Real*8, Intent(In) :: EigVec(nState,nState)
-      Integer :: iState,jState,k,l,nThisTDMZZ
-      Integer :: Job1,Job2,iSym1,iSym2,iSy12,iDisk,iEmpty,iOpt,iGo
-      Logical isZero(3)
-      Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),               &
-     &                       TDMIJ(:),TSDMIJ(:),WDMIJ(:)
-      Real*8 :: f1,f2
-      If (.not.Allocated(IdxState)) Return
-! Transform TDMs to SF eigenstates
-      Call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
-      Call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
-      Call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
-      Call mma_Allocate(TDMIJ,nTDMZZ,Label='TDMIJ')
-      Call mma_Allocate(TSDMIJ,nTDMZZ,Label='TSDMIJ')
-      Call mma_Allocate(WDMIJ,nTDMZZ,Label='WDMIJ')
-      Do iState=1,nState
-        Do jState=1,iState
-          If (IdxState(iState,jState).eq.0) Cycle
-          Call dCopy_(nTDMZZ,[0.0D0],0,TDMIJ,1)
-          Call dCopy_(nTDMZZ,[0.0D0],0,TSDMIJ,1)
-          Call dCopy_(nTDMZZ,[0.0D0],0,WDMIJ,1)
-          isZero=[.True.,.True.,.True.]
-          Do k=1,nState
-            Job1=JbNum(k)
-            iSym1=Irrep(Job1)
-            Do l=1,k
-              f1=EigVec(k,iState)*EigVec(l,jState)
-              f2=EigVec(l,iState)*EigVec(k,jState)
-              If (Max(Abs(f1),Abs(f2)).lt.Thrs) Cycle
-              Job2=JbNum(l)
-              iSym2=Irrep(Job2)
-              iSy12=Mul(iSym1,iSym2)
-              iDisk=iDisk_TDM(k,l,1)
-              iEmpty=iDisk_TDM(k,l,2)
-              iOpt=2
-              iGo=3
-              If (IfSO) iGo=iGo+4
-              Call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,                 &
-     &                       LuTDM,iDisk,iEmpty,iOpt,iGo,k,l)
-              If (IAnd(iEmpty,1).ne.0) Then
-                isZero(1)=.False.
-                If (Abs(f1).ge.Thrs)                                    &
-     &            Call daXpY_(nTDMZZ,f1,TDMZZ,1,TDMIJ,1)
-                If ((k.ne.l).and.(Abs(f2).ge.Thrs)) Then
-                  Call Transpose_TDM(TDMZZ,iSy12)
-                  Call daXpY_(nTDMZZ,f2,TDMZZ,1,TDMIJ,1)
-                End If
-              End If
-              If (IAnd(iEmpty,2).ne.0) Then
-                isZero(2)=.False.
-                If (Abs(f1).ge.Thrs)                                    &
-     &            Call daXpY_(nTDMZZ,f1,TSDMZZ,1,TSDMIJ,1)
-                If ((k.ne.l).and.(Abs(f2).ge.Thrs)) Then
-                  Call Transpose_TDM(TSDMZZ,iSy12)
-                  Call daXpY_(nTDMZZ,f2,TSDMZZ,1,TSDMIJ,1)
-                End If
-              End If
-              If (IFSO.and.(IAnd(iEmpty,4).ne.0)) Then
-                isZero(3)=.False.
-                If (Abs(f1).ge.Thrs)                                    &
-     &            Call daXpY_(nTDMZZ,f1,WDMZZ,1,WDMIJ,1)
-                If ((k.ne.l).and.(Abs(f2).ge.Thrs)) Then
-                  Call Transpose_TDM(WDMZZ,iSy12)
-                  Call daXpY_(nTDMZZ,f2,WDMZZ,1,WDMIJ,1)
-                End If
-              End If
-            End Do
-          End Do
-          If (All(isZero)) Cycle
-          nThisTDMZZ=0
-          Do iSym1=1,nSym
-            iSym2=Mul(iSy12,iSym1)
-            nThisTDMZZ=nThisTDMZZ+NBASF(iSym1)*NBASF(iSym2)
-          End Do
-          If (.not.isZero(1)) Then
-            call mh5_put_dset(wfn_sfs_tdm,                              &
-     &        TDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
-          End If
-          If (.not.isZero(2)) Then
-          call mh5_put_dset(wfn_sfs_tsdm,                               &
-     &      TSDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
-          End If
-          If (IFSO.and.(.not.isZero(3))) Then
-            call mh5_put_dset(wfn_sfs_wetdm,                            &
-     &        WDMIJ,[nThisTDMZZ,1,1], [0,iState-1,jState-1])
-          End If
-        End Do
-      End Do
-      Call mma_deAllocate(IdxState)
-      Call mma_deAllocate(TDMZZ)
-      Call mma_deAllocate(TSDMZZ)
-      Call mma_deAllocate(WDMZZ)
-      Call mma_deAllocate(TDMIJ)
-      Call mma_deAllocate(TSDMIJ)
-      Call mma_deAllocate(WDMIJ)
-      End Subroutine StoreDens
+  use rassi_aux, only: iDisk_TDM
+  use rassi_global_arrays, only: JbNum
+  use mh5, only: mh5_put_dset
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Cntrl, only: NSTATE, IFSO, IRREP
+  use cntrl, only: LuTDM
+  use RASSIWfn, only: wfn_SFS_TDM, wfn_SFS_TSDM, wfn_SFS_WETDM
+  use Symmetry_Info, only: nSym => nIrrep, MUL
+  use rassi_data, only: NBASF, NTDMZZ
+  use Constants, only: Zero
+
+  implicit none
+  real*8, intent(In) :: EigVec(nState,nState)
+  integer :: iState, jState, k, l, nThisTDMZZ
+  integer :: Job1, Job2, iSym1, iSym2, iSy12, iDisk, iEmpty, iOpt, iGo
+  logical isZero(3)
+  real*8, allocatable :: TDMZZ(:), TSDMZZ(:), WDMZZ(:), TDMIJ(:), TSDMIJ(:), WDMIJ(:)
+  real*8 :: f1, f2
+
+  if (.not. allocated(IdxState)) return
+  ! Transform TDMs to SF eigenstates
+  call mma_Allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
+  call mma_Allocate(TSDMZZ,nTDMZZ,Label='TSDMZZ')
+  call mma_Allocate(WDMZZ,nTDMZZ,Label='WDMZZ')
+  call mma_Allocate(TDMIJ,nTDMZZ,Label='TDMIJ')
+  call mma_Allocate(TSDMIJ,nTDMZZ,Label='TSDMIJ')
+  call mma_Allocate(WDMIJ,nTDMZZ,Label='WDMIJ')
+  do iState=1,nState
+    do jState=1,iState
+      if (IdxState(iState,jState) == 0) cycle
+      call dCopy_(nTDMZZ,[Zero],0,TDMIJ,1)
+      call dCopy_(nTDMZZ,[Zero],0,TSDMIJ,1)
+      call dCopy_(nTDMZZ,[Zero],0,WDMIJ,1)
+      isZero = [.true.,.true.,.true.]
+      do k=1,nState
+        Job1 = JbNum(k)
+        iSym1 = Irrep(Job1)
+        do l=1,k
+          f1 = EigVec(k,iState)*EigVec(l,jState)
+          f2 = EigVec(l,iState)*EigVec(k,jState)
+          if (max(abs(f1),abs(f2)) < Thrs) cycle
+          Job2 = JbNum(l)
+          iSym2 = Irrep(Job2)
+          iSy12 = Mul(iSym1,iSym2)
+          iDisk = iDisk_TDM(k,l,1)
+          iEmpty = iDisk_TDM(k,l,2)
+          iOpt = 2
+          iGo = 3
+          if (IfSO) iGo = iGo+4
+          call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LuTDM,iDisk,iEmpty,iOpt,iGo,k,l)
+          if (iand(iEmpty,1) /= 0) then
+            isZero(1) = .false.
+            if (abs(f1) >= Thrs) call daXpY_(nTDMZZ,f1,TDMZZ,1,TDMIJ,1)
+            if ((k /= l) .and. (abs(f2) >= Thrs)) then
+              call Transpose_TDM(TDMZZ,iSy12)
+              call daXpY_(nTDMZZ,f2,TDMZZ,1,TDMIJ,1)
+            end if
+          end if
+          if (iand(iEmpty,2) /= 0) then
+            isZero(2) = .false.
+            if (abs(f1) >= Thrs) call daXpY_(nTDMZZ,f1,TSDMZZ,1,TSDMIJ,1)
+            if ((k /= l) .and. (abs(f2) >= Thrs)) then
+              call Transpose_TDM(TSDMZZ,iSy12)
+              call daXpY_(nTDMZZ,f2,TSDMZZ,1,TSDMIJ,1)
+            end if
+          end if
+          if (IFSO .and. (iand(iEmpty,4) /= 0)) then
+            isZero(3) = .false.
+            if (abs(f1) >= Thrs) call daXpY_(nTDMZZ,f1,WDMZZ,1,WDMIJ,1)
+            if ((k /= l) .and. (abs(f2) >= Thrs)) then
+              call Transpose_TDM(WDMZZ,iSy12)
+              call daXpY_(nTDMZZ,f2,WDMZZ,1,WDMIJ,1)
+            end if
+          end if
+        end do
+      end do
+      if (all(isZero)) cycle
+      nThisTDMZZ = 0
+      do iSym1=1,nSym
+        iSym2 = Mul(iSy12,iSym1)
+        nThisTDMZZ = nThisTDMZZ+NBASF(iSym1)*NBASF(iSym2)
+      end do
+      if (.not. isZero(1)) call mh5_put_dset(wfn_sfs_tdm,TDMIJ,[nThisTDMZZ,1,1],[0,iState-1,jState-1])
+      if (.not. isZero(2)) call mh5_put_dset(wfn_sfs_tsdm,TSDMIJ,[nThisTDMZZ,1,1],[0,iState-1,jState-1])
+      if (IFSO .and. (.not. isZero(3))) call mh5_put_dset(wfn_sfs_wetdm,WDMIJ,[nThisTDMZZ,1,1],[0,iState-1,jState-1])
+    end do
+  end do
+  call mma_deAllocate(IdxState)
+  call mma_deAllocate(TDMZZ)
+  call mma_deAllocate(TSDMZZ)
+  call mma_deAllocate(WDMZZ)
+  call mma_deAllocate(TDMIJ)
+  call mma_deAllocate(TSDMIJ)
+  call mma_deAllocate(WDMIJ)
+
+end subroutine StoreDens
 #endif
 
 !***********************************************************************
@@ -244,38 +239,41 @@
 !> @param[in,out] TDM       Transition density matrix
 !> @param[in]     Symmetry  Symmetry of the transition
 !***********************************************************************
-      Subroutine Transpose_TDM(TDM,Symmetry)
-      Use stdalloc, Only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nSym=>nIrrep, MUL
-      use rassi_data, only: NBASF
-      Implicit None
-      Real*8, Intent(InOut) :: TDM(*)
-      Integer, Intent(In) :: Symmetry
-      Integer :: iSym1,iSym2,nTot,i,j
-      Integer :: iBlock(0:8)
-      Real*8, Allocatable :: Tmp(:)
-! Compute the location of all the stored symmetry blocks
-      nTot=0
-      iBlock(0)=0
-      Do iSym1=1,nSym
-        iSym2=Mul(Symmetry,iSym1)
-        nTot=nTot+nBasF(iSym1)*nBasF(iSym2)
-        iBlock(iSym1)=nTot
-      End Do
-! Make a copy so we can transpose in place
-      Call mma_Allocate(Tmp,nTot,Label='Tmp')
-      Call dCopy_(nTot,TDM,1,Tmp,1)
-! Transpose symmetry block (a,b) onto symmetry block (b,a)
-      Do iSym1=1,nSym
-        iSym2=Mul(Symmetry,iSym1)
-        Do i=1,nBasF(iSym2)
-          Do j=1,nBasF(iSym1)
-            TDM(iBlock(iSym2-1)+(j-1)*nBasF(iSym2)+i) =                 &
-     &      Tmp(iBlock(iSym1-1)+(i-1)*nBasF(iSym1)+j)
-          End Do
-        End Do
-      End Do
-      Call mma_deAllocate(Tmp)
-      End Subroutine Transpose_TDM
+subroutine Transpose_TDM(TDM,Symmetry)
 
-      End Module Dens2HDF5
+  use stdalloc, only: mma_allocate, mma_deallocate
+  use Symmetry_Info, only: nSym => nIrrep, MUL
+  use rassi_data, only: NBASF
+
+  implicit none
+  real*8, intent(inout) :: TDM(*)
+  integer, intent(in) :: Symmetry
+  integer :: iSym1, iSym2, nTot, i, j
+  integer :: iBlock(0:8)
+  real*8, allocatable :: Tmp(:)
+
+  ! Compute the location of all the stored symmetry blocks
+  nTot = 0
+  iBlock(0) = 0
+  do iSym1=1,nSym
+    iSym2 = Mul(Symmetry,iSym1)
+    nTot = nTot+nBasF(iSym1)*nBasF(iSym2)
+    iBlock(iSym1) = nTot
+  end do
+  ! Make a copy so we can transpose in place
+  call mma_Allocate(Tmp,nTot,Label='Tmp')
+  call dCopy_(nTot,TDM,1,Tmp,1)
+  ! Transpose symmetry block (a,b) onto symmetry block (b,a)
+  do iSym1=1,nSym
+    iSym2 = Mul(Symmetry,iSym1)
+    do i=1,nBasF(iSym2)
+      do j=1,nBasF(iSym1)
+        TDM(iBlock(iSym2-1)+(j-1)*nBasF(iSym2)+i) = Tmp(iBlock(iSym1-1)+(i-1)*nBasF(iSym1)+j)
+      end do
+    end do
+  end do
+  call mma_deAllocate(Tmp)
+
+end subroutine Transpose_TDM
+
+end module Dens2HDF5

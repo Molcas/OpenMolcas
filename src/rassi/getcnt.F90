@@ -8,26 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine GetCnt(NGROUP,IGROUP,NATOMS,ATLBL)
-      use Molcas, only: LenIn
-      Implicit None
-      Integer NGROUP,IGROUP(8),NATOMS
-      Character(LEN=LENIN) ATLBL(*)
+
+subroutine GetCnt(NGROUP,IGROUP,NATOMS,ATLBL)
 ! Purpose: Read data from ONEINT
 
+use Molcas, only: LenIn
+
+implicit none
+integer NGROUP, IGROUP(8), NATOMS
+character(len=LenIn) ATLBL(*)
+
 ! Read NGROUP
-      Call Get_iScalar('nSym',NGROUP)
+call Get_iScalar('nSym',NGROUP)
 
 ! Read SYMMETRY GROUP ELEMENTS (Symmetry operations)
-      Call Get_iArray('Symmetry operations',IGROUP,NGROUP)
+call Get_iArray('Symmetry operations',IGROUP,NGROUP)
 
 ! Read NATOMS, nr of symmetry-unique atoms
-      Call Get_iScalar('Unique atoms',NATOMS)
+call Get_iScalar('Unique atoms',NATOMS)
 
 ! Read ATLBL, an array of atom labels
-      Call Get_cArray('Unique Atom Names',ATLBL,LENIN*NATOMS)
+call Get_cArray('Unique Atom Names',ATLBL,LenIn*NATOMS)
 
 ! Read COOR, cartesian coordinates of each atom
-!     Call Get_dArray('Unique Coordinates',COOR,3*nAtoms)
+!call Get_dArray('Unique Coordinates',COOR,3*nAtoms)
 
-      End Subroutine GetCnt
+end subroutine GetCnt

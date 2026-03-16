@@ -8,150 +8,152 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE INPCTL_RASSI()
-      use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
+
+subroutine INPCTL_RASSI()
+
+use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
 #ifdef _DMRG_
-      use rasscf_global, only: doDMRG
-      use qcmaquis_interface_cfg
-      use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
-      use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
-      use cntrl, only: NACTE
-      use rassi_data, only: NASH
+use rasscf_global, only: doDMRG
+use qcmaquis_interface_cfg
+use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
+use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
+use cntrl, only: NACTE
+use rassi_data, only: NASH
+use Definitions, only: u6
 #endif
-      use mspt2_eigenvectors
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use cntrl, only: RefEne, HEff
-      use Cntrl, only:  NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT,    &
-     &                  MLTPLT, NSTAT, MXJOB, NATO, BINA, NRNATO, NBINA,&
-     &                  IBINA
-      use cntrl, only: ATLBL, IGROUP, nAtoms, nGroup
-      use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: ENUC,NBASF
-      IMPLICIT NONE
+use mspt2_eigenvectors
+use stdalloc, only: mma_allocate, mma_deallocate
+use cntrl, only: RefEne, HEff
+use Cntrl, only: NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT, MLTPLT, NSTAT, MXJOB, NATO, BINA, NRNATO, NBINA, IBINA
+use cntrl, only: ATLBL, IGROUP, nAtoms, nGroup
+use Symmetry_Info, only: nSym => nIrrep
+use rassi_data, only: ENUC, NBASF
+use Constants, only: Zero
 
-      LOGICAL READ_STATES
-      INTEGER JOB, i
-
+implicit none
+logical READ_STATES
+integer JOB, i
 
 ! get basic info from runfile
-      Call Get_iArray('nBas',nBasF,nSym)
-      Call Get_dscalar('PotNuc',ENUC)
+call Get_iArray('nBas',nBasF,nSym)
+call Get_dscalar('PotNuc',ENUC)
 
 ! Read data from the ONEINT file:
-      CALL GETCNT(NGROUP,IGROUP,NATOMS,ATLBL)
+call GETCNT(NGROUP,IGROUP,NATOMS,ATLBL)
 
-      NSTATE=0
+NSTATE = 0
 ! Read (and do some checking) the standard input.
-      CALL READIN_RASSI()
+call READIN_RASSI()
 ! if there have been no states selected at this point, we need to read
 ! the states later from the job files.
-      IF(NSTATE.EQ.0) THEN
-        READ_STATES=.TRUE.
-        DO JOB=1,NJOB
-          call rdjob_nstates(JOB)
-        END DO
-! store the root IDs of each state
-        Call mma_allocate(JBNUM,nState,Label='JBNUM')
-        Call mma_allocate(LROOT,nState,Label='LROOT')
-        LROOT(:)=0
-        Do JOB=1,NJOB
-          DO I=0,NSTAT(JOB)-1
-            JBNUM(ISTAT(JOB)+I)=JOB
-          End Do
-        End Do
-      ELSE
-        READ_STATES=.FALSE.
-      END IF
+if (NSTATE == 0) then
+  READ_STATES = .true.
+  do JOB=1,NJOB
+    call rdjob_nstates(JOB)
+  end do
+  ! store the root IDs of each state
+  call mma_allocate(JBNUM,nState,Label='JBNUM')
+  call mma_allocate(LROOT,nState,Label='LROOT')
+  LROOT(:) = 0
+  do JOB=1,NJOB
+    do I=0,NSTAT(JOB)-1
+      JBNUM(ISTAT(JOB)+I) = JOB
+    end do
+  end do
+else
+  READ_STATES = .false.
+end if
 
-      IF (NATO) THEN
-        IF (NRNATO > NSTATE) NRNATO=NSTATE
-      END IF
-      IF (BINA) THEN
-        DO I=1,NBINA
-          IF (MAXVAL(IBINA(:,I)) > NSTATE) THEN
-            CALL WarningMessage(2,'State number too high in NBINA')
-            CALL Quit_OnUserError()
-          END IF
-        END DO
-      END IF
+if (NATO) then
+  if (NRNATO > NSTATE) NRNATO = NSTATE
+end if
+if (BINA) then
+  do I=1,NBINA
+    if (maxval(IBINA(:,I)) > NSTATE) then
+      call WarningMessage(2,'State number too high in NBINA')
+      call Quit_OnUserError()
+    end if
+  end do
+end if
 
 #ifdef _DMRG_
-      !> initialize DMRG interface
-      if (doDMRG) then
-        !> initialize only the qcm file name array (one for each job) and initialize the DMRG interface later
-        call qcmaquis_info_init(njob,-1,0)
-      endif
+!> initialize DMRG interface
+if (doDMRG) then
+  !> initialize only the qcm file name array (one for each job) and initialize the DMRG interface later
+  call qcmaquis_info_init(njob,-1,0)
+end if
 #endif
 
-      !> initialize eigenvector array for mspt2 hamiltonians
-      call init_mspt2_eigenvectors(njob,-1,0)
+!> initialize eigenvector array for mspt2 hamiltonians
+call init_mspt2_eigenvectors(njob,-1,0)
 ! Allocate a bunch of stuff
-      Call mma_allocate(REFENE,NSTATE,Label='RefEne')
-      Call mma_allocate(HEFF,NSTATE,NSTATE,Label='HEff')
-      HEff(:,:)=0.0D0
-      If (.not.IFHEXT) Then
-        Call mma_allocate(HAM,nState,nState,Label='HAM')
-        HAM(:,:)=0.0D0
-      EndIf
-      If (.not.IFSHFT) Then
-        Call mma_allocate(ESHFT,nSTATE,Label='ESHFT')
-        ESHFT(:)=0.0D0
-      EndIf
-      If (.not.IFHDIA) Call mma_Allocate(HDIAG,nState,Label='HDIAG')
+call mma_allocate(REFENE,NSTATE,Label='RefEne')
+call mma_allocate(HEFF,NSTATE,NSTATE,Label='HEff')
+HEff(:,:) = Zero
+if (.not. IFHEXT) then
+  call mma_allocate(HAM,nState,nState,Label='HAM')
+  HAM(:,:) = Zero
+end if
+if (.not. IFSHFT) then
+  call mma_allocate(ESHFT,nSTATE,Label='ESHFT')
+  ESHFT(:) = Zero
+end if
+if (.not. IFHDIA) call mma_Allocate(HDIAG,nState,Label='HDIAG')
 
 ! Read information on the job files and check for consistency
-      DO JOB=1,NJOB
-        CALL RDJOB(JOB,READ_STATES)
-      END DO
+do JOB=1,NJOB
+  call RDJOB(JOB,READ_STATES)
+end do
 
 ! Number of active orbitals is taken from the first JobIph. MPS-SI cannot
 ! handle different active spaces per JobIph, but this is checked elsewhere
 #ifdef _DMRG_
-      if (doDMRG)then
-        !> stupid info.h defines "sum", so I cannot use the intrinsic sum function here...
-        qcmaquis_param%L = 0; do i = 1, nsym; qcmaquis_param%L =        &
-     &  qcmaquis_param%L + nash(i); end do
+if (doDMRG) then
+  !> stupid info.h defines "sum", so I cannot use the intrinsic sum function here...
+  qcmaquis_param%L = 0
+  do i=1,nsym
+    qcmaquis_param%L = qcmaquis_param%L+nash(i)
+  end do
 
-        ! Initialise the new MPSSI interface
-        call qcmaquis_mpssi_init(qcm_prefixes,                          &
-     &                           LROOT,NSTAT(1),NJOB)
+  ! Initialise the new MPSSI interface
+  call qcmaquis_mpssi_init(qcm_prefixes,LROOT,NSTAT(1),NJOB)
 
-      ! Check if number of active electrons is the same for all job files
-      ! Otherwise, quit on error, as Dyson orbitals are not supported yet with DMRG
-      if (NJOB.gt.1) then
-        JOB=NACTE(1)
-        do i=2,NJOB
-          if (NACTE(i).ne.JOB) then
-            Call WarningMessage(2,'Number of active electrons')
-            Write(6,*)' is not the same in different JOBIPH files'
-            Write(6,*)' Dyson orbitals are not yet supported in MPSSI.'
-            Call Quit_OnUserError()
-          end if
-        end do
+  ! Check if number of active electrons is the same for all job files
+  ! Otherwise, quit on error, as Dyson orbitals are not supported yet with DMRG
+  if (NJOB > 1) then
+    JOB = NACTE(1)
+    do i=2,NJOB
+      if (NACTE(i) /= JOB) then
+        call WarningMessage(2,'Number of active electrons')
+        write(u6,*) ' is not the same in different JOBIPH files'
+        write(u6,*) ' Dyson orbitals are not yet supported in MPSSI.'
+        call Quit_OnUserError()
       end if
+    end do
+  end if
 
-      end if
+end if
 #endif
 
 ! set orbital partitioning data
-      CALL WFNSIZES_RASSI()
+call WFNSIZES_RASSI()
 
 ! Added by Ungur Liviu on 04.11.2009
 ! Addition of NJOB,MSJOB and MLTPLT on RunFile.
 
-      CALL Put_iscalar('NJOB_SINGLE',NJOB)
-      CALL Put_iscalar('MXJOB_SINGLE',MXJOB)
-      CALL Put_iArray('MLTP_SINGLE',MLTPLT,MXJOB)
+call Put_iscalar('NJOB_SINGLE',NJOB)
+call Put_iscalar('MXJOB_SINGLE',MXJOB)
+call Put_iArray('MLTP_SINGLE',MLTPLT,MXJOB)
 
-      CALL Put_iArray('NSTAT_SINGLE',NSTAT,MXJOB)
-!     CALL Put_iArray('ISTAT_SINGLE',ISTAT,MXJOB)
-!
+call Put_iArray('NSTAT_SINGLE',NSTAT,MXJOB)
+!call Put_iArray('ISTAT_SINGLE',ISTAT,MXJOB)
+
 ! .. and print it out
 
 ! Additional input processing. Start writing report.
-      CALL INPPRC()
-!
-      Call mma_deallocate(REFENE)
-      Call mma_deallocate(HEff)
-!
-      END
+call INPPRC()
+
+call mma_deallocate(REFENE)
+call mma_deallocate(HEff)
+
+end subroutine INPCTL_RASSI

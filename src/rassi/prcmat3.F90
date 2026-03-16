@@ -1,0 +1,38 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine PRCMAT3(NSS,SMATR,SMATI,DIR)
+! Write out spin matrix elements in parsable format
+
+use Definitions, only: iwp, wp
+
+implicit none
+integer(kind=iwp), intent(in) :: NSS
+real(kind=wp), intent(in) :: SMATR(NSS,NSS), SMATI(NSS,NSS)
+integer(kind=iwp), intent(in) :: DIR
+character(len=1) DIRECTION
+character(len=200) FILENAME
+integer(kind=iwp) LU, JSTA, ISS
+integer(kind=iwp), external :: IsFreeUnit
+
+write(DIRECTION,'(I1)') DIR
+FILENAME = 'spin-'//DIRECTION//'.txt'
+Lu = IsFreeUnit(88)
+open(unit=Lu,file=FILENAME,status='REPLACE')
+write(Lu,*) '#NROW NCOL REAL IMAG'
+do JSTA=1,NSS
+  do ISS=1,NSS
+    write(Lu,'(I6,1X,I6,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',SMATR(ISS,JSTA),' ',SMATI(ISS,JSTA)
+  end do
+end do
+close(Lu)
+
+end subroutine PRCMAT3

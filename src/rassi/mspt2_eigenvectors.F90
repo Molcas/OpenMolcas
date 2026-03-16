@@ -10,128 +10,101 @@
 !                                                                      *
 ! Copyright (C) 2017, Stefan Knecht                                    *
 !***********************************************************************
-      module mspt2_eigenvectors
+
+module mspt2_eigenvectors
 
 #ifdef _HDF5_
-        use mh5, only: mh5_put_dset
+use mh5, only: mh5_put_dset
 #endif
 
-        implicit none
+implicit none
+type mspt2evc
+  real*8, allocatable :: pc(:,:)
+  real*8, allocatable :: sc(:,:)
+end type
+type(mspt2evc), public, allocatable :: Heff_evc(:)
 
-        type mspt2evc
-          real*8, allocatable :: pc(:,:)
-          real*8, allocatable :: sc(:,:)
-        end Type
+contains
 
-        type(mspt2evc), public, allocatable :: Heff_evc(:)
+subroutine init_mspt2_eigenvectors(ijob,nstates,tag)
 
-        save
+  use Definitions, only: u6
 
-        contains
+  integer, intent(in) :: ijob, nstates, tag
 
-        subroutine init_mspt2_eigenvectors(ijob,nstates,tag)
-          integer, intent(in) :: ijob, nstates, tag
-          if(tag == 0)then
-            allocate(Heff_evc(ijob))
-          else if(tag == 1)then
-            allocate(Heff_evc(ijob)%pc(nstates,nstates))
-            Heff_evc(ijob)%pc = 0
-          else if(tag == 2)then
-            allocate(Heff_evc(ijob)%sc(nstates,nstates))
-            Heff_evc(ijob)%sc = 0
-          else
-            write(6,*) 'unknown tag in init_mspt2_eigenvectors'
-            call Abend()
-          end if
-        end subroutine init_mspt2_eigenvectors
+  if (tag == 0) then
+    allocate(Heff_evc(ijob))
+  else if (tag == 1) then
+    allocate(Heff_evc(ijob)%pc(nstates,nstates))
+    Heff_evc(ijob)%pc = 0
+  else if (tag == 2) then
+    allocate(Heff_evc(ijob)%sc(nstates,nstates))
+    Heff_evc(ijob)%sc = 0
+  else
+    write(u6,*) 'unknown tag in init_mspt2_eigenvectors'
+    call Abend()
+  end if
 
-        subroutine deinit_mspt2_eigenvectors()
-          integer             :: i
-          do i = 1, size(Heff_evc)
-            if(allocated(Heff_evc(i)%pc)) deallocate(Heff_evc(i)%pc)
-            if(allocated(Heff_evc(i)%sc)) deallocate(Heff_evc(i)%sc)
-          end do
-          deallocate(Heff_evc)
-        end subroutine deinit_mspt2_eigenvectors
+end subroutine init_mspt2_eigenvectors
 
-        subroutine prpdata_mspt2_eigenvectors(                          &
-     &                                         rtdm,                    &
-     &                                         stdm,                    &
-     &                                         wetdm,                   &
-     &                                         prop,                    &
-     &                                         nprop,                   &
-     &                                         nstate,                  &
-     &                                         istate,                  &
-     &                                         jstate,                  &
-     &                                         ntdmzz,                  &
-     &                                         addr,                    &
-     &                                         iempty,                  &
-     &                                         lu,                      &
-     &                                         put_so_data,             &
-     &                                         put_h5_data              &
-     &                                       )
-#ifdef _HDF5_
-      use RASSIWfn, only: wfn_SFS_TDM, wfn_SFS_TSDM, wfn_SFS_WETDM
-#endif
+subroutine deinit_mspt2_eigenvectors()
 
-        integer, intent(in)    :: nprop
-        integer, intent(in)    :: nstate
-        integer, intent(in)    :: istate
-        integer, intent(in)    :: jstate
-        integer, intent(in)    :: ntdmzz
-        integer, intent(in)    :: addr
-        integer, intent(in)    :: iempty
-        integer, intent(in)    :: lu
-        logical, intent(in)    :: put_so_data
-        logical, intent(in)    :: put_h5_data
-        real*8,  intent(inout) :: rtdm(ntdmzz)
-        real*8,  intent(inout) :: stdm(ntdmzz)
-        real*8,  intent(inout) :: wetdm(ntdmzz)
-        real*8,  intent(inout) :: prop(nstate,nstate,nprop)
-        integer                   iOpt
-        integer                   iGo
-        integer                   iaddr
+  integer :: i
 
+  do i=1,size(Heff_evc)
+    if (allocated(Heff_evc(i)%pc)) deallocate(Heff_evc(i)%pc)
+    if (allocated(Heff_evc(i)%sc)) deallocate(Heff_evc(i)%sc)
+  end do
+  deallocate(Heff_evc)
 
-          !> calculate property matrix elements
-          call proper(prop,istate,jstate,rtdm,wetdm)
+end subroutine deinit_mspt2_eigenvectors
 
-          !> put data to file
-          if(put_so_data)then
-            iOpt=1
-            iGo=7
-            iaddr=addr
-            call dens2file(                                             &
-     &                     rtdm,                                        &
-     &                     stdm,                                        &
-     &                     wetdm,                                       &
-     &                     ntdmzz,                                      &
-     &                     lu,                                          &
-     &                     iaddr,                                       &
-     &                     iempty,                                      &
-     &                     iOpt,                                        &
-     &                     iGo,                                         &
-     &                     iState,                                      &
-     &                     jState                                       &
-     &                     )
-          end if
+subroutine prpdata_mspt2_eigenvectors(rtdm,stdm,wetdm,prop,nprop,nstate,istate,jstate,ntdmzz,addr,iempty,lu,put_so_data,put_h5_data)
 
-          if(put_h5_data.or.put_so_data)then
-#ifdef _HDF5_
-            call mh5_put_dset(wfn_sfs_tdm,                              &
-     &                        rtdm, [NTDMZZ,1,1],                       &
-     &                        [0,ISTATE-1,JSTATE-1])
-            call mh5_put_dset(wfn_sfs_tsdm,                             &
-     &                        stdm, [NTDMZZ,1,1],                       &
-     &                        [0,ISTATE-1,JSTATE-1])
-            if(put_so_data)then
-              call mh5_put_dset(wfn_sfs_wetdm,                          &
-     &                          wetdm, [NTDMZZ,1,1],                    &
-     &                          [0,ISTATE-1,JSTATE-1])
-            end if
-#endif
+# ifdef _HDF5_
+  use RASSIWfn, only: wfn_SFS_TDM, wfn_SFS_TSDM, wfn_SFS_WETDM
+# endif
 
-          end if
-        end subroutine prpdata_mspt2_eigenvectors
+  integer, intent(in) :: nprop
+  integer, intent(in) :: nstate
+  integer, intent(in) :: istate
+  integer, intent(in) :: jstate
+  integer, intent(in) :: ntdmzz
+  integer, intent(in) :: addr
+  integer, intent(in) :: iempty
+  integer, intent(in) :: lu
+  logical, intent(in) :: put_so_data
+  logical, intent(in) :: put_h5_data
+  real*8, intent(inout) :: rtdm(ntdmzz)
+  real*8, intent(inout) :: stdm(ntdmzz)
+  real*8, intent(inout) :: wetdm(ntdmzz)
+  real*8, intent(inout) :: prop(nstate,nstate,nprop)
+  integer iOpt
+  integer iGo
+  integer iaddr
 
-      end module mspt2_eigenvectors
+  !> calculate property matrix elements
+  call proper(prop,istate,jstate,rtdm,wetdm)
+
+  !> put data to file
+  if (put_so_data) then
+    iOpt = 1
+    iGo = 7
+    iaddr = addr
+    call dens2file(rtdm,stdm,wetdm,ntdmzz,lu,iaddr,iempty,iOpt,iGo,iState,jState)
+  end if
+
+# ifdef _HDF5_
+  if (put_h5_data .or. put_so_data) then
+    call mh5_put_dset(wfn_sfs_tdm,rtdm,[NTDMZZ,1,1],[0,ISTATE-1,JSTATE-1])
+    call mh5_put_dset(wfn_sfs_tsdm,stdm,[NTDMZZ,1,1],[0,ISTATE-1,JSTATE-1])
+    if (put_so_data) call mh5_put_dset(wfn_sfs_wetdm,wetdm,[NTDMZZ,1,1],[0,ISTATE-1,JSTATE-1])
+  end if
+# else
+# include "macros.fh"
+  unused_var(put_h5_data)
+# endif
+
+end subroutine prpdata_mspt2_eigenvectors
+
+end module mspt2_eigenvectors

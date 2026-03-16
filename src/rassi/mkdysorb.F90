@@ -10,28 +10,28 @@
 !                                                                      *
 ! Copyright (C) 2018, Jesper Norell                                    *
 !***********************************************************************
-      SUBROUTINE MKDYSORB(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,             &
-     &                 PSI1,PSI2,IF10,IF01,DYSAMP,DYSCOF)
 
-      use Constants, only: One, Zero
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use rassi_global_arrays, only: FSBANN1, FSBANN2
+subroutine MKDYSORB(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,PSI1,PSI2,IF10,IF01,DYSAMP,DYSCOF)
 
-      IMPLICIT NONE
-      INTEGER IORBTAB(*)
-      INTEGER ISSTAB(*)
-      INTEGER IFSBTAB1(*),IFSBTAB2(*)
-      REAL*8 PSI1(*),PSI2(*)
-      LOGICAL IF10,IF01
-      REAL*8 DYSAMP, DYSCOF(*)
+use Constants, only: One, Zero
+use stdalloc, only: mma_allocate, mma_deallocate
+use rassi_global_arrays, only: FSBANN1, FSBANN2
+use Definitions, only: u6
 
-      REAL*8 COEFF,OVLP
-      Real*8, EXTERNAL :: OVERLAP_RASSI
-      INTEGER NASORB
-      INTEGER IMODE,ISORB
-      INTEGER NDETS1,NDETS2
-      INTEGER JSORB
-      Real*8, Allocatable:: ANN1(:), ANN2(:)
+implicit none
+integer IORBTAB(*)
+integer ISSTAB(*)
+integer IFSBTAB1(*), IFSBTAB2(*)
+real*8 PSI1(*), PSI2(*)
+logical IF10, IF01
+real*8 DYSAMP, DYSCOF(*)
+real*8 COEFF, OVLP
+real*8, external :: OVERLAP_RASSI
+integer NASORB
+integer IMODE, ISORB
+integer NDETS1, NDETS2
+integer JSORB
+real*8, allocatable :: ANN1(:), ANN2(:)
 
 ! +++ J. Norell 12/7 - 2018
 ! Calculates the Dyson orbital between two states with
@@ -40,80 +40,76 @@
 ! D = < N | anni_left | N-1 >
 
 ! Nr of active spin-orbitals
-      NASORB= IORBTAB(4)
-      DYSAMP=Zero
-      DO ISORB=1,NASORB
-       DYSCOF(ISORB)=Zero
-      END DO
+NASORB = IORBTAB(4)
+DYSAMP = Zero
+do ISORB=1,NASORB
+  DYSCOF(ISORB) = Zero
+end do
 
-! IF10 = Eliminate to the left (state 1)
-      IF(IF10) THEN
+if (IF10) then
+  ! IF10 = Eliminate to the left (state 1)
 
-! Loop over all spin orbitals ISORB:
-       DO ISORB=1,NASORB
-        OVLP=Zero
+  ! Loop over all spin orbitals ISORB:
+  do ISORB=1,NASORB
+    OVLP = Zero
 
-! Annihilate a single orbital:
-        COEFF=One
-        IMODE=-1
-        Call FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1,1)
-        NDETS1=FSBANN1(5)
-        CALL mma_allocate(ANN1,NDETS1,Label='ANN1')
-        ANN1(:)=0.0D0
-        CALL PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,FSBANN1,                &
-     &                   IFSBTAB1,COEFF,ANN1,PSI1)
+    ! Annihilate a single orbital:
+    COEFF = One
+    IMODE = -1
+    call FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1,1)
+    NDETS1 = FSBANN1(5)
+    call mma_allocate(ANN1,NDETS1,Label='ANN1')
+    ANN1(:) = Zero
+    call PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,FSBANN1,IFSBTAB1,COEFF,ANN1,PSI1)
 
-! Compute the coefficient as the overlap between the N-1 electron w.f.s
-        OVLP=OVERLAP_RASSI(FSBANN1,                                     &
-     &                  IFSBTAB2,ANN1,PSI2)
-        Call mma_deallocate(ANN1)
-        Call mma_deallocate(FSBANN1)
-        DYSCOF(ISORB)=OVLP
+    ! Compute the coefficient as the overlap between the N-1 electron w.f.s
+    OVLP = OVERLAP_RASSI(FSBANN1,IFSBTAB2,ANN1,PSI2)
+    call mma_deallocate(ANN1)
+    call mma_deallocate(FSBANN1)
+    DYSCOF(ISORB) = OVLP
 
-! Collect the squared norm of the Dyson orbital
-        DYSAMP=DYSAMP+OVLP*OVLP
+    ! Collect the squared norm of the Dyson orbital
+    DYSAMP = DYSAMP+OVLP*OVLP
 
-       END DO ! ISORB LOOP
+  end do ! ISORB LOOP
 
-! IF01 = Eliminate to the right (state 2)
-      ELSE IF(IF01) THEN
+else if (IF01) then
+  ! IF01 = Eliminate to the right (state 2)
 
-! Loop over all spin orbitals JSORB:
-       DO JSORB=1,NASORB
-         OVLP=Zero
+  ! Loop over all spin orbitals JSORB:
+  do JSORB=1,NASORB
+    OVLP = Zero
 
-! Annihilate a single orbital:
-         COEFF=One
-         IMODE=-1
-         Call FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2,2)
-         NDETS2=FSBANN2(5)
-! BRN
-         CALL mma_allocate(ANN2,NDETS2,Label='ANN2')
-         ANN2(:)=0.0D0
-         CALL PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,FSBANN2,               &
-     &                   IFSBTAB2,COEFF,ANN2,PSI2)
+    ! Annihilate a single orbital:
+    COEFF = One
+    IMODE = -1
+    call FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2,2)
+    NDETS2 = FSBANN2(5)
+    ! BRN
+    call mma_allocate(ANN2,NDETS2,Label='ANN2')
+    ANN2(:) = Zero
+    call PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,FSBANN2,IFSBTAB2,COEFF,ANN2,PSI2)
 
-! Compute the coefficient as the overlap between the N-1 electron w.f.s
-         OVLP=OVERLAP_RASSI(IFSBTAB1,                                   &
-     &                  FSBANN2,PSI1,ANN2)
-         Call mma_deallocate(ANN2)
-         Call mma_deallocate(FSBANN2)
-         DYSCOF(JSORB)=OVLP
+    ! Compute the coefficient as the overlap between the N-1 electron w.f.s
+    OVLP = OVERLAP_RASSI(IFSBTAB1,FSBANN2,PSI1,ANN2)
+    call mma_deallocate(ANN2)
+    call mma_deallocate(FSBANN2)
+    DYSCOF(JSORB) = OVLP
 
-! Collect the squared norm of the Dyson orbital
-         DYSAMP=DYSAMP+OVLP*OVLP
+    ! Collect the squared norm of the Dyson orbital
+    DYSAMP = DYSAMP+OVLP*OVLP
 
-       END DO ! JSORB LOOP
+  end do ! JSORB LOOP
 
-      ELSE
-       WRITE(6,*)'Invalid state combination in MKDYSORB'
-       WRITE(6,*)'(No such Dyson orbital can exist!)'
+else
+  write(u6,*) 'Invalid state combination in MKDYSORB'
+  write(u6,*) '(No such Dyson orbital can exist!)'
 
-      END IF ! IF10 or IF01
+end if ! IF10 or IF01
 
 ! The eventual PES amplitude is given by the squared norm,
 ! but for transformation of the D_ij elements we need to remove the
 ! square for now
-      DYSAMP = SQRT(DYSAMP)
+DYSAMP = sqrt(DYSAMP)
 
-      END SUBROUTINE MKDYSORB
+end subroutine MKDYSORB

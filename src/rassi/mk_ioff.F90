@@ -8,24 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE mk_IOFF(IOFF,mSYM,NBASF,ISY12)
-      use Symmetry_Info, only: MUL
-      INTEGER mSYM, ISY12
-      INTEGER IOFF(mSYM), NBASF(mSym)
+
+subroutine mk_IOFF(IOFF,mSYM,NBASF,ISY12)
+
+use Symmetry_Info, only: MUL
+
+integer mSYM, ISY12
+integer IOFF(mSYM), NBASF(mSym)
 
 ! FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
-      IOF=0
-      Call IZERO(IOFF,8)
-      DO ISY1=1,mSYM
-        ISY2=MUL(ISY1,ISY12)
-        IF(ISY1.LT.ISY2) cycle
-        IOFF(ISY1)=IOF
-        IOFF(ISY2)=IOF
-        NB1=NBASF(ISY1)
-        NB2=NBASF(ISY2)
-        NB12=NB1*NB2
-        IF(ISY1.EQ.ISY2) NB12=(NB12+NB1)/2
-        IOF=IOF+NB12
-      END DO
-!
-      END SUBROUTINE mk_IOFF
+IOF = 0
+call IZERO(IOFF,8)
+do ISY1=1,mSYM
+  ISY2 = MUL(ISY1,ISY12)
+  if (ISY1 < ISY2) cycle
+  IOFF(ISY1) = IOF
+  IOFF(ISY2) = IOF
+  NB1 = NBASF(ISY1)
+  NB2 = NBASF(ISY2)
+  NB12 = NB1*NB2
+  if (ISY1 == ISY2) NB12 = (NB12+NB1)/2
+  IOF = IOF+NB12
+end do
+
+end subroutine mk_IOFF

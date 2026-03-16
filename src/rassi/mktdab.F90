@@ -16,74 +16,76 @@
 !  PURPOSE: CALCULATE TRANSITION DENSITY MATRIX FOR CI EXPANSIONS IN
 !  BIORTHONORMAL ORBITAL BASES A AND B.
 !****************************************************************
-      SUBROUTINE MKTDAB(OVER,GAMMA1,TDMAB,iRC)
-      use Constants, only: Zero, Two
-      use Cntrl, only: LSYM1, LSYM2
-      use Symmetry_Info, only: nSym=>nIrrep, MUL
-      use rassi_data, only: NASHT,NTDMAB,NASH,NISH,NOSH
-      IMPLICIT NONE
-      REAL*8 OVER
-      REAL*8 GAMMA1(NASHT,NASHT)
-      REAL*8 TDMAB(NTDMAB)
-      INTEGER iRC
 
-      INTEGER IOFFA(8)
-      INTEGER I, IOFFTD, ISY, II, IPOS, ISY12, ISY1, NO1, ISY2, NO2,    &
-     &        NA1, NA2, NI1, NI2, IA, J, JA, JJ
-      REAL*8, External:: DDot_
+subroutine MKTDAB(OVER,GAMMA1,TDMAB,iRC)
+
+use Constants, only: Zero, Two
+use Cntrl, only: LSYM1, LSYM2
+use Symmetry_Info, only: nSym => nIrrep, MUL
+use rassi_data, only: NASHT, NTDMAB, NASH, NISH, NOSH
+
+implicit none
+real*8 OVER
+real*8 GAMMA1(NASHT,NASHT)
+real*8 TDMAB(NTDMAB)
+integer iRC
+integer IOFFA(8)
+integer I, IOFFTD, ISY, II, IPOS, ISY12, ISY1, NO1, ISY2, NO2, NA1, NA2, NI1, NI2, IA, J, JA, JJ
+real*8, external :: DDot_
+
 ! IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
-      IOFFA(1)=0
-      DO I=1,NSYM-1
-        IOFFA(I+1)=IOFFA(I)+NASH(I)
-      end do
-!  INITIALIZE TRANSITION DENSITY MATRIX:
-      TDMAB(:)=Zero
+IOFFA(1) = 0
+do I=1,NSYM-1
+  IOFFA(I+1) = IOFFA(I)+NASH(I)
+end do
+! INITIALIZE TRANSITION DENSITY MATRIX:
+TDMAB(:) = Zero
 ! CONTRIBUTION FROM INACTIVE ORBITALS:
-      IF (LSYM1.EQ.LSYM2) THEN
-         IF (OVER.NE.Zero) THEN
-            IOFFTD=0
-            DO ISY=1,NSYM
-               II=0
-               DO I=1,NISH(ISY)
-                  II=II+1
-                  IPOS=IOFFTD+(II-1)*NOSH(ISY)+II
-                  TDMAB(IPOS)=Two*OVER
-               end do
-               IOFFTD=IOFFTD+NOSH(ISY)**2
-            end do
-         END IF
-      END IF
-! THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
-      ISY12=MUL(LSYM1,LSYM2)
-      IOFFTD=0
-      DO ISY1=1,NSYM
-         NO1=NOSH(ISY1)
-         IF(NO1.EQ.0) cycle
-         ISY2=MUL(ISY1,ISY12)
-         NO2=NOSH(ISY2)
-         IF(NO2.EQ.0) cycle
-         NA1=NASH(ISY1)
-         if (NA1 /= 0) then
-           NA2=NASH(ISY2)
-           if (NA2 /= 0) then
-             NI1=NISH(ISY1)
-             NI2=NISH(ISY2)
-             do I=1,NA1
-               IA=IOFFA(ISY1)+I
-               II=NI1+I
-               do J=1,NA2
-                 JA=IOFFA(ISY2)+J
-                 JJ=NI2+J
-                 IPOS=IOFFTD+II+(JJ-1)*NO1
-                 TDMAB(IPOS)=GAMMA1(IA,JA)
-               end do
-             end do
-           end if
-         end if
-      IOFFTD=IOFFTD+NO1*NO2
+if (LSYM1 == LSYM2) then
+  if (OVER /= Zero) then
+    IOFFTD = 0
+    do ISY=1,NSYM
+      II = 0
+      do I=1,NISH(ISY)
+        II = II+1
+        IPOS = IOFFTD+(II-1)*NOSH(ISY)+II
+        TDMAB(IPOS) = Two*OVER
       end do
-!
-      iRC=1
-      If (DDot_(nTDMAB,TDMAB,1,TDMAB,1).le.Zero) iRC=0
+      IOFFTD = IOFFTD+NOSH(ISY)**2
+    end do
+  end if
+end if
+! THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
+ISY12 = MUL(LSYM1,LSYM2)
+IOFFTD = 0
+do ISY1=1,NSYM
+  NO1 = NOSH(ISY1)
+  if (NO1 == 0) cycle
+  ISY2 = MUL(ISY1,ISY12)
+  NO2 = NOSH(ISY2)
+  if (NO2 == 0) cycle
+  NA1 = NASH(ISY1)
+  if (NA1 /= 0) then
+    NA2 = NASH(ISY2)
+    if (NA2 /= 0) then
+      NI1 = NISH(ISY1)
+      NI2 = NISH(ISY2)
+      do I=1,NA1
+        IA = IOFFA(ISY1)+I
+        II = NI1+I
+        do J=1,NA2
+          JA = IOFFA(ISY2)+J
+          JJ = NI2+J
+          IPOS = IOFFTD+II+(JJ-1)*NO1
+          TDMAB(IPOS) = GAMMA1(IA,JA)
+        end do
+      end do
+    end if
+  end if
+  IOFFTD = IOFFTD+NO1*NO2
+end do
 
-      END SUBROUTINE MKTDAB
+iRC = 1
+if (DDot_(nTDMAB,TDMAB,1,TDMAB,1) <= Zero) iRC = 0
+
+end subroutine MKTDAB

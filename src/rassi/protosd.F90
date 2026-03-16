@@ -10,11 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1998, Per Ake Malmqvist                                *
 !***********************************************************************
-      SUBROUTINE ProtoSD(NPELA,NPELB,NPSDSZ,IPSDMS)
-      DIMENSION IPSDMS(NPELA+NPELB,NPSDSZ)
-      DIMENSION ITMP(50)
-      INTEGER ASPIN, BSPIN
-      PARAMETER (ASPIN=1,BSPIN=0)
+
+subroutine ProtoSD(NPELA,NPELB,NPSDSZ,IPSDMS)
 ! Given NPELA and NPELB, returns a table of all possible
 ! Slater determinants with NPELA alpha electrons and NPELB
 ! beta electrons in NPELA+NPELB orbitals.
@@ -23,62 +20,69 @@
 ! is over only the alpha spins, enumerated j=1..NPELA,
 ! while k is the orbital with the j-th alpha electron.
 
-      IF(NPELA.LT.0) GOTO 999
-      IF(NPELB.LT.0) GOTO 999
-      NPORB=NPELA+NPELB
-      IF(NPORB.EQ.0) RETURN
-      DO K=1,NPELA
-        ITMP(K)=K
-        IPSDMS(K,1)=ASPIN
-      END DO
-      IF(NPELA.EQ.NPORB) RETURN
-      DO K=NPELA+1,NPORB
-        IPSDMS(K,1)=BSPIN
-      END DO
-      IF(NPELA.EQ.0) RETURN
+use Definitions, only: u6
 
-      NDET=NOVERM(NPORB,NPELA)
-      IF(NDET.GT.NPSDSZ) GOTO 998
-!PAM      write(*,*)'PROTOSD. Nr of orbitals:',NPORB
-!PAM      write(*,*)'         Nr of determin:',NDET
-!PAM      write(*,*)'         Need array siz:',NPORB*NDET
+dimension IPSDMS(NPELA+NPELB,NPSDSZ)
+dimension ITMP(50)
+integer ASPIN, BSPIN
+parameter(ASPIN=1,BSPIN=0)
 
-      ITMP(NPELA+1)=NPORB+1
-      NDET=1
+if (NPELA < 0) goto 999
+if (NPELB < 0) goto 999
+NPORB = NPELA+NPELB
+if (NPORB == 0) return
+do K=1,NPELA
+  ITMP(K) = K
+  IPSDMS(K,1) = ASPIN
+end do
+if (NPELA == NPORB) return
+do K=NPELA+1,NPORB
+  IPSDMS(K,1) = BSPIN
+end do
+if (NPELA == 0) return
 
-  10  CONTINUE
-      K=0
-  20  CONTINUE
-      K=K+1
-      IF(K.GT.NPELA) GOTO 30
-      IF(ITMP(K+1).EQ.1+ITMP(K)) GOTO 20
-      ITMP(K)=ITMP(K)+1
-      DO L=1,K-1
-       ITMP(L)=L
-      END DO
-      NDET=NDET+1
-      IF(NDET.GT.NPSDSZ) GOTO 997
-      DO J=1,NPORB
-        IPSDMS(J,NDET)=BSPIN
-      END DO
-      DO L=1,NPELA
-        IPSDMS(ITMP(L),NDET)=ASPIN
-      END DO
-      GOTO 10
+NDET = NOVERM(NPORB,NPELA)
+if (NDET > NPSDSZ) goto 998
+!PAM write(u6,*) 'PROTOSD. Nr of orbitals:',NPORB
+!PAM write(u6,*) '         Nr of determin:',NDET
+!PAM write(u6,*) '         Need array siz:',NPORB*NDET
 
-  30  CONTINUE
-      RETURN
- 997  CONTINUE
-      WRITE(6,*)' Serious error in PROTOSD. '//                         &
-     &            'Too many SD''s are produced.'
-      CALL ABEND()
- 998  CONTINUE
-      WRITE(6,*)' Too small space allocated in PROTOSD. Input:'
-      WRITE(6,'(1x,a,3i6)')' NPELA,NPELB,NPSDSZ:',NPELA,NPELB,NPSDSZ
-      WRITE(6,'(1x,a,i12)')' Required NPSDSZ is',NDET
-      CALL ABEND()
- 999  CONTINUE
-      WRITE(6,*)' Invalid input to ProtoSD.'
-      WRITE(6,*)'  NPELA,NPELB:',NPELA,NPELB
-      CALL ABEND()
-      END
+ITMP(NPELA+1) = NPORB+1
+NDET = 1
+
+10 continue
+K = 0
+20 continue
+K = K+1
+if (K > NPELA) goto 30
+if (ITMP(K+1) == 1+ITMP(K)) goto 20
+ITMP(K) = ITMP(K)+1
+do L=1,K-1
+  ITMP(L) = L
+end do
+NDET = NDET+1
+if (NDET > NPSDSZ) goto 997
+do J=1,NPORB
+  IPSDMS(J,NDET) = BSPIN
+end do
+do L=1,NPELA
+  IPSDMS(ITMP(L),NDET) = ASPIN
+end do
+goto 10
+
+30 continue
+return
+997 continue
+write(u6,*) " Serious error in PROTOSD. Too many SD's are produced."
+call ABEND()
+998 continue
+write(u6,*) ' Too small space allocated in PROTOSD. Input:'
+write(u6,'(1x,a,3i6)') ' NPELA,NPELB,NPSDSZ:',NPELA,NPELB,NPSDSZ
+write(u6,'(1x,a,i12)') ' Required NPSDSZ is',NDET
+call ABEND()
+999 continue
+write(u6,*) ' Invalid input to ProtoSD.'
+write(u6,*) '  NPELA,NPELB:',NPELA,NPELB
+call ABEND()
+
+end subroutine ProtoSD

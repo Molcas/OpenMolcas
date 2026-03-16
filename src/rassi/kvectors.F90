@@ -8,9 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Module kVectors
-      Real*8, Dimension(:,:), Allocatable :: k_Vector
-      Real*8 :: e_Vector(3)
-      Integer :: nk_Vector
-      Save
-      End Module kVectors
+
+module kVectors
+
+implicit none
+
+real*8, dimension(:,:), allocatable :: k_Vector
+real*8 :: e_Vector(3)
+integer :: nk_Vector
+
+end module kVectors

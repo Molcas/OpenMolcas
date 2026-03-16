@@ -8,223 +8,178 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DO_SONATORB(NSS, USOR, USOI)
-      use rassi_aux, only: ipglob
-      use rassi_global_arrays, only: JBNUM, EIGVEC
-      use cntrl, only: SONAT, SONATNSTATE,                              &
-     &                      SODIAG, SODIAGNSTATE
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NOSO, IfCurd, MLTPLT
-      use rassi_data, only: NBTRI
-      IMPLICIT None
-      INTEGER NSS
-      Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
-      Real*8 IDENTMAT(3,3)
-      Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)
-      Real*8, Allocatable:: DMATTMP(:)
-      Integer ISS, ISTATE, JOB1, MPLET1, MSPROJ1,                       &
-     &        JSS, JSTATE, JOB2, MPLET2, MSPROJ2,                       &
-     &        I, INATSTATE, IOPT, IC
-      REAL*8 DUM1, DUM2, DUM3, DUM4, DUM5, DUM6
+
+subroutine DO_SONATORB(NSS,USOR,USOI)
+
+use rassi_aux, only: ipglob
+use rassi_global_arrays, only: JBNUM, EIGVEC
+use cntrl, only: SONAT, SONATNSTATE, SODIAG, SODIAGNSTATE
+use Cntrl, only: NSTATE, NOSO, IfCurd, MLTPLT
+use rassi_data, only: NBTRI
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: u6
+
+implicit none
+integer NSS
+real*8 USOR(NSS,NSS), USOI(NSS,NSS)
+real*8 IDENTMAT(3,3)
+real*8, allocatable :: UMATR(:), UMATI(:), VMAT(:,:)
+real*8, allocatable :: DMATTMP(:)
+integer ISS, ISTATE, JOB1, MPLET1, MSPROJ1, JSS, JSTATE, JOB2, MPLET2, MSPROJ2, I, INATSTATE, IOPT, IC
+real*8 DUM1, DUM2, DUM3, DUM4, DUM5, DUM6
 
 ! Calculates natural orbitals, including spinorbit effects
-      WRITE(6,*)
-      WRITE(6,*)
-      WRITE(6,*) '*****************************************'
-      WRITE(6,*) '* RUNNING SONATORB CODE *****************'
-      WRITE(6,*) '*****************************************'
-      WRITE(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*) '*****************************************'
+write(u6,*) '* RUNNING SONATORB CODE *****************'
+write(u6,*) '*****************************************'
+write(u6,*)
 
-      IDENTMAT(:,:)=0.0D0
-      IDENTMAT(1,1)=1.0D0
-      IDENTMAT(2,2)=1.0D0
-      IDENTMAT(3,3)=1.0D0
+call unitmat(IDENTMAT,3)
 
-      CALL mma_allocate(UMATR,NSS**2,Label='UMATR')
-      CALL mma_allocate(UMATI,NSS**2,Label='UMATI')
-      CALL mma_allocate(VMAT,NSS,NSS,Label='VMAT')
+call mma_allocate(UMATR,NSS**2,Label='UMATR')
+call mma_allocate(UMATI,NSS**2,Label='UMATI')
+call mma_allocate(VMAT,NSS,NSS,Label='VMAT')
 
-      VMAT(:,:)=0.0D0
+VMAT(:,:) = Zero
 
 ! transform V matrix in SF basis to spin basis
-! This was taken from smmat.f and modified slightly
-      ISS=0
-      DO ISTATE=1,NSTATE
-       JOB1=JBNUM(ISTATE)
-       MPLET1=MLTPLT(JOB1)
+! This was taken from smmat and modified slightly
+ISS = 0
+do ISTATE=1,NSTATE
+  JOB1 = JBNUM(ISTATE)
+  MPLET1 = MLTPLT(JOB1)
 
-       DO MSPROJ1=-MPLET1+1,MPLET1-1,2
-        ISS=ISS+1
-        JSS=0
+  do MSPROJ1=-MPLET1+1,MPLET1-1,2
+    ISS = ISS+1
+    JSS = 0
 
-        DO JSTATE=1,NSTATE
-         JOB2=JBNUM(JSTATE)
-         MPLET2=MLTPLT(JOB2)
+    do JSTATE=1,NSTATE
+      JOB2 = JBNUM(JSTATE)
+      MPLET2 = MLTPLT(JOB2)
 
-         DO MSPROJ2=-MPLET2+1,MPLET2-1,2
-          JSS=JSS+1
+      do MSPROJ2=-MPLET2+1,MPLET2-1,2
+        JSS = JSS+1
 
-          IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
-           VMAT(ISS,JSS)=EIGVEC(JSTATE,ISTATE)
-          END IF ! IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2)
-         END DO ! DO MSPROJ2=-MPLET2+1,MPLET2-1,2
-        END DO ! end DO JSTATE=1,NSTATE
-       END DO ! DO MSPROJ1=-MPLET1+1,MPLET1-1,2
-      END DO ! DO ISTATE=1,NSTATE
+        if ((MPLET1 == MPLET2) .and. (MSPROJ1 == MSPROJ2)) VMAT(ISS,JSS) = EIGVEC(JSTATE,ISTATE)
+      end do
+    end do
+  end do
+end do
 
-
-
-! combine this matrix with the SO eigenvector matrices
-      IF(.not.NOSO) THEN
-        CALL DGEMM_('N','N',NSS,NSS,NSS,                                &
-     &      1.0d0,VMAT,NSS,USOR,NSS,0.0d0,                              &
-     &      UMATR,NSS)
-        CALL DGEMM_('N','N',NSS,NSS,NSS,                                &
-     &      1.0d0,VMAT,NSS,USOI,NSS,0.0d0,                              &
-     &      UMATI,NSS)
-      ELSE
-! Spinorbit contributions to this are disabled
-        CALL DCOPY_(NSS,VMAT,1,UMATR,1)
-        CALL DCOPY_(NSS,[0.0d0],0,UMATI,1)
-      END IF
+if (.not. NOSO) then
+  ! combine this matrix with the SO eigenvector matrices
+  call DGEMM_('N','N',NSS,NSS,NSS,One,VMAT,NSS,USOR,NSS,Zero,UMATR,NSS)
+  call DGEMM_('N','N',NSS,NSS,NSS,One,VMAT,NSS,USOI,NSS,Zero,UMATI,NSS)
+else
+  ! Spinorbit contributions to this are disabled
+  call DCOPY_(NSS,VMAT,1,UMATR,1)
+  call DCOPY_(NSS,[Zero],0,UMATI,1)
+end if
 
 ! Holds the density matrices for all three directions
-      CALL mma_allocate(DMATTMP,6*NBTRI,Label='DMATTMP')
+call mma_allocate(DMATTMP,6*NBTRI,Label='DMATTMP')
 
 ! SONATNSTATE = number of states to calculate.
 ! These states are stored beginning in SONAT
-      DO I=1,SONATNSTATE
-        INATSTATE=SONAT(I)
+do I=1,SONATNSTATE
+  INATSTATE = SONAT(I)
 
-        WRITE(6,*)
-        WRITE(6,*) "CALCULATING NAT ORBITALS FOR SSTATE: ",INATSTATE
-        IF(INATSTATE.GT.NSS.OR.INATSTATE.LE.0) THEN
-          WRITE(6,*) "...WHICH DOES NOT EXIST!"
-          CALL ABEND()
-        END IF
-        WRITE(6,*)
+  write(u6,*)
+  write(u6,*) 'CALCULATING NAT ORBITALS FOR SSTATE: ',INATSTATE
+  if ((INATSTATE > NSS) .or. (INATSTATE <= 0)) then
+    write(u6,*) '...WHICH DOES NOT EXIST!'
+    call ABEND()
+  end if
+  write(u6,*)
 
-! Calculate overall density, store in DMATTMP
-        iOpt=0
-        CALL SONATORBM('HERMSING',UMATR,UMATI,                          &
-     &                 INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,           &
-     &                 DMATTMP)
+  ! Calculate overall density, store in DMATTMP
+  iOpt = 0
+  call SONATORBM('HERMSING',UMATR,UMATI,INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,DMATTMP)
 
+  ! Integrate for the expectation value
+  if (IPGLOB >= 3) then
+    IC = 1
+    iOpt = 0
+    call SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMSING',INATSTATE,INATSTATE,iOpt,IDENTMAT,DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 
-! Integrate for the expectation value
-        IF(IPGLOB.ge.3) THEN
-          IC=1
-          iOpt=0
-          CALL SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMSING',          &
-     &                      INATSTATE,INATSTATE,iOpt,IDENTMAT,          &
-     &                      DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
+    !call ADD_INFO('MLTPL0SING_INT3',DUM3,1,6)
+    !call ADD_INFO('MLTPL0SING_INT6',DUM6,1,6)
+  end if
 
-!          CALL ADD_INFO('MLTPL0SING_INT3',DUM3,1,6)
-!          CALL ADD_INFO('MLTPL0SING_INT6',DUM6,1,6)
-        END IF
+  ! Create SONATTDENS total density orbital file for this (I,I) state
+  call SONATORB_PLOT(DMATTMP,'SONATTDENS','HERMSING',INATSTATE,INATSTATE)
 
-! Create SONATTDENS total density orbital file for this (I,I) state
-        CALL SONATORB_PLOT(DMATTMP,'SONATTDENS','HERMSING',             &
-     &                     INATSTATE,INATSTATE)
+  if (IPGLOB >= 4) call SONATORB_CPLOT(DMATTMP,'TDENSTESTX','HERMSING',INATSTATE,INATSTATE)
 
-        IF(IPGLOB.ge.4) THEN
-          CALL SONATORB_CPLOT(DMATTMP,'TDENSTESTX','HERMSING',          &
-     &                       INATSTATE,INATSTATE)
-        END IF
+  ! Calculate spin density, store in LDMATTMP
+  iOpt = 0
+  call SONATORBM('HERMTRIP',UMATR,UMATI,INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,DMATTMP)
 
+  ! Integrate for the expectation value
+  if (IPGLOB >= 3) then
+    IC = 1
+    iOpt = 0
+    call SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMTRIP',INATSTATE,INATSTATE,iOpt,IDENTMAT,DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
+    !call ADD_INFO('MLTPL0TRIP_INT3',DUM3,1,6)
+    !call ADD_INFO('MLTPL0TRIP_INT6',DUM6,1,6)
+  end if
 
+  ! Create SONATSDENS spin density orbital file for this (I,I) state
+  call SONATORB_PLOT(DMATTMP,'SONATSDENS','HERMTRIP',INATSTATE,INATSTATE)
 
+  if (IPGLOB >= 4) call SONATORB_CPLOT(DMATTMP,'SDENSTESTX','HERMTRIP',INATSTATE,INATSTATE)
 
-! Calculate spin density, store in LDMATTMP
-        iOpt=0
-        CALL SONATORBM('HERMTRIP',UMATR,UMATI,                          &
-     &                 INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,           &
-     &                 DMATTMP)
+  ! Type 2 - current density
+  if (IFCURD) then
+    iOpt = 0
+    call SONATORBM('ANTISING',UMATR,UMATI,INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,DMATTMP)
 
+    if (IPGLOB >= 3) then
+      IC = 1
+      iOpt = 0
+      call SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',INATSTATE,INATSTATE,iOpt,IDENTMAT,DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
+      !call ADD_INFO('CURD1_INT3',DUM3,1,6)
+      !call ADD_INFO('CURD1_INT6',DUM6,1,6)
 
-! Integrate for the expectation value
-        IF(IPGLOB.ge.3) THEN
-          IC=1
-          iOpt=0
-          CALL SONATORBM_INT(DMATTMP,'MLTPL  0',IC,'HERMTRIP',          &
-     &                      INATSTATE,INATSTATE,iOpt,IDENTMAT,          &
-     &                      DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
-!          CALL ADD_INFO('MLTPL0TRIP_INT3',DUM3,1,6)
-!          CALL ADD_INFO('MLTPL0TRIP_INT6',DUM6,1,6)
-        END IF
+      IC = 2
+      iOpt = 0
+      call SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',INATSTATE,INATSTATE,iOpt,IDENTMAT,DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
 
+      !call ADD_INFO('CURD2_INT3',DUM3,1,6)
+      !call ADD_INFO('CURD2_INT6',DUM6,1,6)
 
-! Create SONATSDENS spin density orbital file for this (I,I) state
-        CALL SONATORB_PLOT(DMATTMP,'SONATSDENS','HERMTRIP',             &
-     &                     INATSTATE,INATSTATE)
+      IC = 3
+      iOpt = 0
+      call SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',INATSTATE,INATSTATE,iOpt,IDENTMAT,DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
+      !call ADD_INFO('CURD3_INT3',DUM3,1,6)
+      !call ADD_INFO('CURD3_INT6',DUM6,1,6)
 
-        IF(IPGLOB.ge.4) THEN
-          CALL SONATORB_CPLOT(DMATTMP,'SDENSTESTX','HERMTRIP',          &
-     &                       INATSTATE,INATSTATE)
-        END IF
+    end if
 
+    call SONATORB_CPLOT(DMATTMP,'SONATLDENS','ANTISING',INATSTATE,INATSTATE)
+  end if
 
-! Type 2 - current density
-        IF(IFCURD) THEN
-          iOpt=0
-          CALL SONATORBM('ANTISING',UMATR,UMATI,                        &
-     &                   INATSTATE,INATSTATE,NSS,iOpt,IDENTMAT,         &
-     &                   DMATTMP)
+end do
 
-
-          IF(IPGLOB.ge.3) THEN
-            IC=1
-            iOpt=0
-            CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',        &
-     &                        INATSTATE,INATSTATE,iOpt,IDENTMAT,        &
-     &                        DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
-!            CALL ADD_INFO('CURD1_INT3',DUM3,1,6)
-!            CALL ADD_INFO('CURD1_INT6',DUM6,1,6)
-
-            IC=2
-            iOpt=0
-            CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',        &
-     &                        INATSTATE,INATSTATE,iOpt,IDENTMAT,        &
-     &                        DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
-
-!            CALL ADD_INFO('CURD2_INT3',DUM3,1,6)
-!            CALL ADD_INFO('CURD2_INT6',DUM6,1,6)
-
-            IC=3
-            iOpt=0
-            CALL SONATORBM_INT(DMATTMP,'ANGMOM  ',IC,'ANTISING',        &
-     &                        INATSTATE,INATSTATE,iOpt,IDENTMAT,        &
-     &                        DUM1,DUM2,DUM3,DUM4,DUM5,DUM6)
-!            CALL ADD_INFO('CURD3_INT3',DUM3,1,6)
-!            CALL ADD_INFO('CURD3_INT6',DUM6,1,6)
-
-          END IF
-
-
-          CALL SONATORB_CPLOT(DMATTMP,'SONATLDENS','ANTISING',          &
-     &                        INATSTATE,INATSTATE)
-        END IF
-
-
-      END DO
-
-      CALL mma_deallocate(DMATTMP)
-      CALL mma_deallocate(SONAT)
-
+call mma_deallocate(DMATTMP)
+call mma_deallocate(SONAT)
 
 ! perform the state diagonalization similar to
 ! what is done in single_aniso
-      IF(SODIAGNSTATE.GT.0) THEN
+if (SODIAGNSTATE > 0) then
 
-! This actually does all the work
-        CALL mkSODIAG(UMATR, UMATI, NSS)
+  ! This actually does all the work
+  call mkSODIAG(UMATR,UMATI,NSS)
 
-! This is only allocated if SODIAGNSTATE.GT.0
-        CALL mma_deallocate(SODIAG)
-      END IF
+  ! This is only allocated if SODIAGNSTATE > 0
+  call mma_deallocate(SODIAG)
+end if
 
-      CALL mma_deallocate(UMATR)
-      CALL mma_deallocate(UMATI)
-      CALL mma_deallocate(VMAT)
+call mma_deallocate(UMATR)
+call mma_deallocate(UMATI)
+call mma_deallocate(VMAT)
 
-      END SUBROUTINE DO_SONATORB
+end subroutine DO_SONATORB

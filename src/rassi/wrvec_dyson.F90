@@ -11,89 +11,84 @@
 ! Copyright (C) 2023, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-      ! Sort Dyson orbitals according to symmetry so that they can be
-      ! written with WrVec
+subroutine WRVEC_DYSON(filename,LUNIT,NSYM,NBAS,ORBNUM,CMO,AMPS,DYSEN,TITLE,NZ)
+! Sort Dyson orbitals according to symmetry so that they can be
+! written with WrVec
 
-      SUBROUTINE WRVEC_DYSON(filename,LUNIT,NSYM,NBAS,ORBNUM,CMO,AMPS,  &
-     &                       DYSEN,TITLE,NZ)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 
-      USE stdalloc, ONLY: mma_allocate, mma_deallocate
-      USE Constants, ONLY: Zero, One
+implicit none
+character(len=*) :: filename, TITLE
+integer :: LUNIT, NSYM, NBAS(NSYM), ORBNUM, NZ
+real*8 :: CMO(NZ,ORBNUM), AMPS(ORBNUM), DYSEN(ORBNUM)
+integer :: DUMMY(7,8), I, J, NB(0:NSYM), NBAS_(NSYM), NBT, NORB(NSYM), NSYM_, OFF, ORBSYM(ORBNUM)
+real*8 :: RSUM
+logical :: DODESYM
+real*8, allocatable :: DESYM(:,:), REORD(:)
 
-      IMPLICIT NONE
-      CHARACTER(LEN=*) :: filename, TITLE
-      INTEGER :: LUNIT, NSYM, NBAS(NSYM), ORBNUM, NZ
-      REAL*8 :: CMO(NZ,ORBNUM), AMPS(ORBNUM), DYSEN(ORBNUM)
-      INTEGER :: DUMMY(7,8), I, J, NB(0:NSYM), NBAS_(NSYM), NBT,        &
-     &           NORB(NSYM), NSYM_, OFF, ORBSYM(ORBNUM)
-      REAL*8 :: RSUM
-      LOGICAL :: DODESYM
-      REAL*8, ALLOCATABLE :: DESYM(:,:), REORD(:)
+! First count how many orbitals in each symmetry
+NB(0) = 1
+do I=1,NSYM
+  NB(I) = NB(I-1)+NBAS(I)
+end do
+DODESYM = .false.
+NORB(:) = 0
+ORBSYM(:) = 0
+outer: do I=1,ORBNUM
+  do J=1,NSYM
+    RSUM = sum(abs(CMO(NB(J-1):NB(J)-1,I)))
+    if (RSUM > Zero) then
+      ! If there is any orbital with mixture of symmetries,
+      ! we have to desymmetrize the whole thing
+      if (ORBSYM(I) /= 0) then
+        DODESYM = .true.
+        exit outer
+      end if
+      ORBSYM(I) = J
+      NORB(J) = NORB(J)+1
+    end if
+  end do
+end do outer
+if (DODESYM) then
+  NSYM_ = 1
+  NBAS_(1) = sum(NBAS(1:NSYM))
+  NB(1) = NBAS_(1)
+  NORB(1) = ORBNUM
+  ORBSYM(:) = 1
+else
+  NSYM_ = NSYM
+  NBAS_(:) = NBAS(:)
+end if
+NBT = 0
+do I=1,NSYM_
+  NBT = NBT+NORB(I)*NBAS_(I)
+end do
+call mma_allocate(REORD,NBT,Label='REORD')
+if (DODESYM) then
+  ! Here do a plain desymmetrization
+  NBT = NBAS_(1)
+  call mma_allocate(DESYM,NBT,NBT,Label='DESYM')
+  call get_dArray('SM',DESYM,NBT**2)
+  call DGEMM_('N','N',NBT,NORB(1),NBT,One,DESYM,NBT,CMO,NBT,Zero,REORD,NBT)
+  call mma_deallocate(DESYM)
+else
+  ! Here distribute the coefficients
+  OFF = 0
+  do I=1,NSYM_
+    do J=1,ORBNUM
+      if (ORBSYM(J) /= I) cycle
+      REORD(OFF+1:OFF+NBAS_(I)) = CMO(NB(I-1):NB(I)-1,J)
+      OFF = OFF+NBAS_(I)
+    end do
+  end do
+end if
 
-      ! First count how many orbitals in each symmetry
-      NB(0) = 1
-      DO I=1,NSYM
-        NB(I) = NB(I-1)+NBAS(I)
-      END DO
-      DODESYM = .FALSE.
-      NORB(:) = 0
-      ORBSYM(:) = 0
-      outer: DO I=1,ORBNUM
-        DO J=1,NSYM
-          RSUM = SUM(ABS(CMO(NB(J-1):NB(J)-1,I)))
-          IF (RSUM > Zero) THEN
-            ! If there is any orbital with mixture of symmetries,
-            ! we have to desymmetrize the whole thing
-            IF (ORBSYM(I) /= 0) THEN
-              DODESYM = .TRUE.
-              EXIT outer
-            END IF
-            ORBSYM(I) = J
-            NORB(J) = NORB(J)+1
-          END IF
-        END DO
-      END DO outer
-      IF (DODESYM) THEN
-        NSYM_ = 1
-        NBAS_(1) = SUM(NBAS(1:NSYM))
-        NB(1) = NBAS_(1)
-        NORB(1) = ORBNUM
-        ORBSYM(:) = 1
-      ELSE
-        NSYM_ = NSYM
-        NBAS_(:) = NBAS(:)
-      END IF
-      NBT = 0
-      DO I=1,NSYM_
-        NBT = NBT+NORB(I)*NBAS_(I)
-      END DO
-      CALL mma_allocate(REORD,NBT,Label='REORD')
-      IF (DODESYM) THEN
-        ! Here do a plain desymmetrization
-        NBT = NBAS_(1)
-        CALL mma_allocate(DESYM,NBT,NBT,Label='DESYM')
-        CALL get_dArray('SM',DESYM,NBT**2)
-        CALL DGEMM_('N','N',NBT,NORB(1),NBT,One,DESYM,NBT,CMO,NBT,Zero, &
-     &              REORD,NBT)
-        CALL mma_deallocate(DESYM)
-      ELSE
-        ! Here distribute the coefficients
-        OFF = 0
-        DO I=1,NSYM_
-          DO J=1,ORBNUM
-            IF (ORBSYM(J) /= I) CYCLE
-            REORD(OFF+1:OFF+NBAS_(I)) = CMO(NB(I-1):NB(I)-1,J)
-            OFF = OFF+NBAS_(I)
-          END DO
-        END DO
-      END IF
+! And call WrVec with the reordered data
+call WRVEC(filename,LUNIT,'COE',NSYM_,NBAS_,NORB,REORD,AMPS,DYSEN,DUMMY,TITLE)
 
-      ! And call WrVec with the reordered data
-      CALL WRVEC(filename,LUNIT,'COE',NSYM_,NBAS_,NORB,REORD,AMPS,      &
-     &           DYSEN,DUMMY,TITLE)
+call mma_deallocate(REORD)
 
-      CALL mma_deallocate(REORD)
+return
 
-      RETURN
-
-      END
+end subroutine WRVEC_DYSON

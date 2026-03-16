@@ -10,52 +10,54 @@
 !                                                                      *
 ! Copyright (C) 1998, Per Ake Malmqvist                                *
 !***********************************************************************
-      FUNCTION NOVERM(N,M)
-      use definitions, only: iwp, wp
-      IMPLICIT NONE
-      INTEGER(KIND=IWP) NOVERM
-      INTEGER(KIND=IWP), INTENT(IN):: N,M
 
-      INTEGER(KIND=IWP), SAVE:: NOMTAB(225)
-      INTEGER(KIND=IWP), SAVE:: INIT=0
-      REAL(KIND=WP) X
-      INTEGER(KIND=IWP) MM,IPOS,I,J,K
+function NOVERM(N,M)
 
-      NOVERM=0
-      IF(N.LT.0) RETURN
-      MM=M
-      IF(2*MM.GT.N) MM=N-M
-      IF(MM.LT.0) RETURN
-      NOVERM=1
-      IF(MM.EQ.0) RETURN
-      NOVERM=N
-      IF(MM.EQ.1) RETURN
-      IF(INIT.EQ.0) THEN
-        IPOS=0
-        DO I=4,32
-         X=DBLE(I)
-         DO J=2,I/2
-          IPOS=IPOS+1
-          X=(X*DBLE(I+1-J))/DBLE(J)
-          NOMTAB(IPOS)=NINT(X)
-         END DO
-        END DO
-        INIT=1
-      END IF
-      IF(N.LE.32) THEN
-        NOVERM=NOMTAB(((N-3)**2)/4+MM-1)
-      ELSE
-        X=DBLE(NOVERM)
-        DO K=2,MM
-         X=(X*DBLE(N+1-K))/DBLE(K)
-        END DO
-        NOVERM=NINT(X)
-        IF(X.NE.DBLE(NOVERM)) THEN
-          WRITE(6,*)' NOVERM: Unable to compute N over M'
-          WRITE(6,*)' N=',N
-          WRITE(6,*)' M=',M
-          CALL ABEND()
-        END IF
-      END IF
+use Definitions, only: iwp, wp, u6
 
-      END FUNCTION NOVERM
+implicit none
+integer(kind=iwp) NOVERM
+integer(kind=iwp), intent(in) :: N, M
+integer(kind=iwp), save :: NOMTAB(225)
+integer(kind=iwp), save :: INIT = 0
+real(kind=wp) X
+integer(kind=iwp) MM, IPOS, I, J, K
+
+NOVERM = 0
+if (N < 0) return
+MM = M
+if (2*MM > N) MM = N-M
+if (MM < 0) return
+NOVERM = 1
+if (MM == 0) return
+NOVERM = N
+if (MM == 1) return
+if (INIT == 0) then
+  IPOS = 0
+  do I=4,32
+    X = real(I,kind=wp)
+    do J=2,I/2
+      IPOS = IPOS+1
+      X = X*real(I+1-J,kind=wp)/real(J,kind=wp)
+      NOMTAB(IPOS) = nint(X)
+    end do
+  end do
+  INIT = 1
+end if
+if (N <= 32) then
+  NOVERM = NOMTAB(((N-3)**2)/4+MM-1)
+else
+  X = real(NOVERM,kind=wp)
+  do K=2,MM
+    X = X*real(N+1-K,kind=wp)/real(K,kind=wp)
+  end do
+  NOVERM = nint(X)
+  if (X /= real(NOVERM,kind=wp)) then
+    write(u6,*) ' NOVERM: Unable to compute N over M'
+    write(u6,*) ' N=',N
+    write(u6,*) ' M=',M
+    call ABEND()
+  end if
+end if
+
+end function NOVERM

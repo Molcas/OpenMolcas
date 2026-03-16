@@ -8,188 +8,188 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SGMOP(IMODE,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,          &
-     &                   COEFF,SGM,PSI)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT NONE
-      INTEGER IMODE
-      INTEGER IORBTAB(*)
-      INTEGER ISSTAB(*)
-      INTEGER IFSBTAB1(*),IFSBTAB2(*)
-      REAL*8 COEFF(*),PSI(*),SGM(*)
 
-      REAL*8 CFFPHS,SCALE
-      INTEGER NASPRT,NASORB
-      INTEGER IFSB1,IBLKPOS1,ISST1,KSTARR1,NSBS1
-      INTEGER IFSB2,IBLKPOS2,ISST2,KSTARR2,NSBS2
-      INTEGER NSSTP,NHSH2,KHSH2,NFSB1,ISST,NSBS
-      INTEGER IPH,NPOP1,KSSTOP,KSBSOP
-      INTEGER NDI,NDJ,KPOS,ISPART,KSSTTB
-      INTEGER I,J,IPOS1,IPOS2,ISUM
-      INTEGER ISSTARR(50),NDIARR(50),NDJARR(50),IPHARR(50)
-      INTEGER ISBS1,ISBS2,ISORB,KOINFO,KSBSCR,KSBSAN
-      INTEGER KSBS1,KSBS2,KSORB,KSSTCR,KSSTAN,MORSBITS
-      INTEGER NDETS1,NDETS2,IERR
-      Integer, allocatable:: SBSET(:)
-
+subroutine SGMOP(IMODE,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,COEFF,SGM,PSI)
 ! Purpose: Add to the wave function SGM the result of applying
 ! an operator to PSI. The operator is a sum of creators (IMODE=1)
 ! or annihilators (IMODE=-1) multiplied by coefficients. Only the
 ! sector of SGM described by IFSBTAB1 will be updated.
 ! The orbital table:
-      NASPRT= IORBTAB(9)
-      NASORB= IORBTAB(4)
-      KOINFO=19
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, u6
+
+implicit none
+integer IMODE
+integer IORBTAB(*)
+integer ISSTAB(*)
+integer IFSBTAB1(*), IFSBTAB2(*)
+real*8 COEFF(*), PSI(*), SGM(*)
+real*8 CFFPHS, SCALE
+integer NASPRT, NASORB
+integer IFSB1, IBLKPOS1, ISST1, KSTARR1, NSBS1
+integer IFSB2, IBLKPOS2, ISST2, KSTARR2, NSBS2
+integer NSSTP, NHSH2, KHSH2, NFSB1, ISST, NSBS
+integer IPH, NPOP1, KSSTOP, KSBSOP
+integer NDI, NDJ, KPOS, ISPART, KSSTTB
+integer I, J, IPOS1, IPOS2, ISUM
+integer ISSTARR(50), NDIARR(50), NDJARR(50), IPHARR(50)
+integer ISBS1, ISBS2, ISORB, KOINFO, KSBSCR, KSBSAN
+integer KSBS1, KSBS2, KSORB, KSSTCR, KSSTAN, MORSBITS
+integer NDETS1, NDETS2, IERR
+integer, allocatable :: SBSET(:)
+
+NASPRT = IORBTAB(9)
+NASORB = IORBTAB(4)
+KOINFO = 19
 ! The substring table:
-      MORSBITS=ISSTAB(6)
-      NSSTP   =ISSTAB(7)
-      KSSTTB=15
-      KSSTAN=ISSTAB( 9)
-      KSSTCR=ISSTAB(10)
-      KSBSAN=ISSTAB(13)
-      KSBSCR=ISSTAB(14)
-      IF(IMODE.EQ.1) THEN
-        KSSTOP=KSSTAN
-        KSBSOP=KSBSAN
-      ELSE
-        KSSTOP=KSSTCR
-        KSBSOP=KSBSCR
-      END IF
+MORSBITS = ISSTAB(6)
+NSSTP = ISSTAB(7)
+KSSTTB = 15
+KSSTAN = ISSTAB(9)
+KSSTCR = ISSTAB(10)
+KSBSAN = ISSTAB(13)
+KSBSCR = ISSTAB(14)
+if (IMODE == 1) then
+  KSSTOP = KSSTAN
+  KSBSOP = KSBSAN
+else
+  KSSTOP = KSSTCR
+  KSBSOP = KSBSCR
+end if
 ! The FS blocks of the SGM wave function:
-      NFSB1=IFSBTAB1(3)
-      NDETS1=IFSBTAB1(5)
-      KSTARR1=8
+NFSB1 = IFSBTAB1(3)
+NDETS1 = IFSBTAB1(5)
+KSTARR1 = 8
 ! The FS blocks of the PSI wave function:
-      NDETS2=IFSBTAB2(5)
-      NHSH2=IFSBTAB2(6)
-      KHSH2=IFSBTAB2(7)
-      KSTARR2=8
+NDETS2 = IFSBTAB2(5)
+NHSH2 = IFSBTAB2(6)
+KHSH2 = IFSBTAB2(7)
+KSTARR2 = 8
 ! Make an array with nr of earlier substrings for each
 ! substring type:
-      CALL mma_allocate(SBSET,NSSTP,Label='SBSET')
-      ISUM=0
-      DO ISST=1,NSSTP
-        SBSET(ISST)=ISUM
-        NSBS=ISSTAB(KSSTTB+5*(ISST-1))
-        ISUM=ISUM+NSBS
-      END DO
+call mma_allocate(SBSET,NSSTP,Label='SBSET')
+ISUM = 0
+do ISST=1,NSSTP
+  SBSET(ISST) = ISUM
+  NSBS = ISSTAB(KSSTTB+5*(ISST-1))
+  ISUM = ISUM+NSBS
+end do
 
 ! Loop over FS blocks of the SGM wave function
-      DO IFSB1=1,NFSB1
-        KPOS=KSTARR1+(NASPRT+2)*(IFSB1-1)
-        DO ISPART=1,NASPRT
-          ISSTARR(ISPART)=IFSBTAB1(KPOS-1+ISPART)
-        END DO
-        IBLKPOS1 =IFSBTAB1(KPOS+NASPRT+1)
-!TEST      write(*,'(1x,a,8I8)')'SGM FSB1,IBLKPOS1=',IBLKPOS1
-!TEST      write(*,'(1x,a,8I8)')'SGM FSB1=',(ISSTARR(I),I=1,NASPRT)
-! Initial values for lower and higher dimensions.
-! Also, extra phase factor due to spin orbitals in higher substrings.
-        NDI=1
-        DO ISPART=1,NASPRT
-          NDIARR(ISPART)=NDI
-          ISST1=ISSTARR(ISPART)
-          NSBS1=ISSTAB(KSSTTB+5*(ISST1-1))
-          NDI=NDI*NSBS1
-        END DO
-        NDJ=1
-        IPH=1
-        DO ISPART=NASPRT,1,-1
-          NDJARR(ISPART)=NDJ
-          IPHARR(ISPART)=IPH
-          ISST1=ISSTARR(ISPART)
-          NSBS1=ISSTAB(KSSTTB+0+5*(ISST1-1))
-          NPOP1=ISSTAB(KSSTTB+1+5*(ISST1-1))
-          NDJ=NDJ*NSBS1
-          IF(NPOP1.NE.2*(NPOP1/2)) IPH=-IPH
-        END DO
-! Loop over active orbitals:
-        DO ISORB=1,NASORB
-          IF(COEFF(ISORB).EQ.0.0D0) GOTO 200
-          ISPART=IORBTAB(KOINFO+6+8*(ISORB-1))
-          CFFPHS=DBLE(IPHARR(ISPART))*COEFF(ISORB)
-          KSORB =IORBTAB(KOINFO+7+8*(ISORB-1))
-!TEST      write(*,'(1x,a,8I8)')'ISORB,ISPART,KSORB:',
-!TEST     &                      ISORB,ISPART,KSORB
-          ISST1=ISSTARR(ISPART)
-          NSBS1=ISSTAB(KSSTTB+5*(ISST1-1))
+do IFSB1=1,NFSB1
+  KPOS = KSTARR1+(NASPRT+2)*(IFSB1-1)
+  do ISPART=1,NASPRT
+    ISSTARR(ISPART) = IFSBTAB1(KPOS-1+ISPART)
+  end do
+  IBLKPOS1 = IFSBTAB1(KPOS+NASPRT+1)
+  !TEST write(u6,'(1x,a,8I8)') 'SGM FSB1,IBLKPOS1=',IBLKPOS1
+  !TEST write(u6,'(1x,a,8I8)') 'SGM FSB1=',(ISSTARR(I),I=1,NASPRT)
+  ! Initial values for lower and higher dimensions.
+  ! Also, extra phase factor due to spin orbitals in higher substrings.
+  NDI = 1
+  do ISPART=1,NASPRT
+    NDIARR(ISPART) = NDI
+    ISST1 = ISSTARR(ISPART)
+    NSBS1 = ISSTAB(KSSTTB+5*(ISST1-1))
+    NDI = NDI*NSBS1
+  end do
+  NDJ = 1
+  IPH = 1
+  do ISPART=NASPRT,1,-1
+    NDJARR(ISPART) = NDJ
+    IPHARR(ISPART) = IPH
+    ISST1 = ISSTARR(ISPART)
+    NSBS1 = ISSTAB(KSSTTB+0+5*(ISST1-1))
+    NPOP1 = ISSTAB(KSSTTB+1+5*(ISST1-1))
+    NDJ = NDJ*NSBS1
+    if (NPOP1 /= 2*(NPOP1/2)) IPH = -IPH
+  end do
+  ! Loop over active orbitals:
+  do ISORB=1,NASORB
+    if (COEFF(ISORB) == Zero) goto 200
+    ISPART = IORBTAB(KOINFO+6+8*(ISORB-1))
+    CFFPHS = real(IPHARR(ISPART),kind=wp)*COEFF(ISORB)
+    KSORB = IORBTAB(KOINFO+7+8*(ISORB-1))
+    !TEST write(u6,'(1x,a,8I8)') 'ISORB,ISPART,KSORB:',ISORB,ISPART,KSORB
+    ISST1 = ISSTARR(ISPART)
+    NSBS1 = ISSTAB(KSSTTB+5*(ISST1-1))
 
-! Modify the bra substring type by annih or creating ISORB
-          ISST2=ISSTAB(KSSTOP-1+KSORB+MORSBITS*(ISST1-1))
-          IF(ISST2.EQ.0) GOTO 200
+    ! Modify the bra substring type by annih or creating ISORB
+    ISST2 = ISSTAB(KSSTOP-1+KSORB+MORSBITS*(ISST1-1))
+    if (ISST2 == 0) goto 200
 
-!TEST      write(*,'(1x,a,8I8)')'ISST1,ISST2:',ISST1,ISST2
-! Determine dimensions for multiple daxpy:
-! Dimension for earlier subpartitions is NDI
-! Dimension for later   subpartitions is NDJ
-! Dimensions for present subpartition are NSBS1,NSBS2
-          NDI=NDIARR(ISPART)
-          NDJ=NDJARR(ISPART)
+    !TEST write(u6,'(1x,a,8I8)') 'ISST1,ISST2:',ISST1,ISST2
+    ! Determine dimensions for multiple daxpy:
+    ! Dimension for earlier subpartitions is NDI
+    ! Dimension for later   subpartitions is NDJ
+    ! Dimensions for present subpartition are NSBS1,NSBS2
+    NDI = NDIARR(ISPART)
+    NDJ = NDJARR(ISPART)
 
-          NSBS2=ISSTAB(KSSTTB+5*(ISST2-1))
-          ISSTARR(ISPART)=ISST2
-! Get the corresponding FS block number
-!TEST      write(*,'(1x,a,8I8)')'PSI FSB2=',(ISSTARR(I),I=1,NASPRT)
-          CALL HSHGET(ISSTARR,NASPRT,NASPRT+2,IFSBTAB2(KSTARR2),        &
-     &                NHSH2,IFSBTAB2(KHSH2),IFSB2)
-!TEST      write(*,'(1x,a,8I8)')'IFSB1,IFSB2:',IFSB1,IFSB2
-          ISSTARR(ISPART)=ISST1
-          IF(IFSB2.EQ.0) GOTO 200
-          KPOS=KSTARR2+(NASPRT+2)*(IFSB2-1)
-          IBLKPOS2 =IFSBTAB2(KPOS+NASPRT+1)
-! Now loop over ket substrings in this subpartition
-          DO KSBS1=1,NSBS1
-            ISBS1=KSBS1+SBSET(ISST1)
-            ISBS2=ISSTAB(KSBSOP-1+KSORB+MORSBITS*(ISBS1-1))
-            IF(ISBS2.EQ.0) GOTO 100
-            IF(ISBS2.GT.0) THEN
-              SCALE= CFFPHS
-              ISBS2= ISBS2
-            ELSE
-              SCALE=-CFFPHS
-              ISBS2=-ISBS2
-            END IF
-            KSBS2=ISBS2-SBSET(ISST2)
+    NSBS2 = ISSTAB(KSSTTB+5*(ISST2-1))
+    ISSTARR(ISPART) = ISST2
+    ! Get the corresponding FS block number
+    !TEST write(u6,'(1x,a,8I8)') 'PSI FSB2=',(ISSTARR(I),I=1,NASPRT)
+    call HSHGET(ISSTARR,NASPRT,NASPRT+2,IFSBTAB2(KSTARR2),NHSH2,IFSBTAB2(KHSH2),IFSB2)
+    !TEST write(u6,'(1x,a,8I8)') 'IFSB1,IFSB2:',IFSB1,IFSB2
+    ISSTARR(ISPART) = ISST1
+    if (IFSB2 == 0) goto 200
+    KPOS = KSTARR2+(NASPRT+2)*(IFSB2-1)
+    IBLKPOS2 = IFSBTAB2(KPOS+NASPRT+1)
+    ! Now loop over ket substrings in this subpartition
+    do KSBS1=1,NSBS1
+      ISBS1 = KSBS1+SBSET(ISST1)
+      ISBS2 = ISSTAB(KSBSOP-1+KSORB+MORSBITS*(ISBS1-1))
+      if (ISBS2 == 0) goto 100
+      if (ISBS2 > 0) then
+        SCALE = CFFPHS
+        ISBS2 = ISBS2
+      else
+        SCALE = -CFFPHS
+        ISBS2 = -ISBS2
+      end if
+      KSBS2 = ISBS2-SBSET(ISST2)
 
-! CALL some multiple daxpy...
-            DO I=0,NDI-1
-             DO J=0,NDJ-1
-              IPOS1=IBLKPOS1+I+NDI*(KSBS1-1+NSBS1*J)
-              IPOS2=IBLKPOS2+I+NDI*(KSBS2-1+NSBS2*J)
-              SGM(IPOS1)=SGM(IPOS1)+SCALE*PSI(IPOS2)
-              IERR=0
-              IF(IPOS1.LT.1 .OR. IPOS1.GT.NDETS1) IERR=1
-              IF(IPOS2.LT.1 .OR. IPOS2.GT.NDETS2) IERR=1
-              IF(IERR.NE.0) THEN
-                WRITE(6,*)' SGMOP addressing error.'
-                WRITE(6,'(1x,a,8I8)')' SGM dimension NDETS1=',NDETS1
-                WRITE(6,'(1x,a,8I8)')' Position IPOS1=',IPOS1
-                WRITE(6,'(1x,a,8I8)')' PSI dimension NDETS2=',NDETS2
-                WRITE(6,'(1x,a,8I8)')' Position IPOS2=',IPOS2
-                CALL ABEND()
-              END IF
-! Temporary test print:
-!TEST              if(PSI(IPOS2).ne.0.0d0) then
-!TEST                WRITE(*,'(1x,f16.8,2i8)')SCALE,IPOS1,IPOS2
-!TEST                write(*,'(1x,a,8I8)')'IFSB1,IFSB2:',IFSB1,IFSB2
-!TEST                write(*,'(1x,a,8I8)')'IBLKPOS1,NDI,NSBS1:',
-!TEST     &                                IBLKPOS1,NDI,NSBS1
-!TEST                write(*,'(1x,a,8I8)')'IBLKPOS2,NDI,NSBS2:',
-!TEST     &                                IBLKPOS2,NDI,NSBS2
-!TEST                write(*,'(1x,a,8I8)')'I,KSBS1,J:',I,KSBS1,J
-!TEST                write(*,'(1x,a,8I8)')'I,KSBS2,J:',I,KSBS2,J
-!TEST              end if
-! End of test prints
-             END DO
-            END DO
+      ! CALL some multiple daxpy...
+      do I=0,NDI-1
+        do J=0,NDJ-1
+          IPOS1 = IBLKPOS1+I+NDI*(KSBS1-1+NSBS1*J)
+          IPOS2 = IBLKPOS2+I+NDI*(KSBS2-1+NSBS2*J)
+          SGM(IPOS1) = SGM(IPOS1)+SCALE*PSI(IPOS2)
+          IERR = 0
+          if ((IPOS1 < 1) .or. (IPOS1 > NDETS1)) IERR = 1
+          if ((IPOS2 < 1) .or. (IPOS2 > NDETS2)) IERR = 1
+          if (IERR /= 0) then
+            write(u6,*) ' SGMOP addressing error.'
+            write(u6,'(1x,a,8I8)') ' SGM dimension NDETS1=',NDETS1
+            write(u6,'(1x,a,8I8)') ' Position IPOS1=',IPOS1
+            write(u6,'(1x,a,8I8)') ' PSI dimension NDETS2=',NDETS2
+            write(u6,'(1x,a,8I8)') ' Position IPOS2=',IPOS2
+            call ABEND()
+          end if
+          ! Temporary test print:
+          !TEST if (PSI(IPOS2) /= Zero) then
+          !TEST   write(u6,'(1x,f16.8,2i8)') SCALE,IPOS1,IPOS2
+          !TEST   write(u6,'(1x,a,8I8)') 'IFSB1,IFSB2:',IFSB1,IFSB2
+          !TEST   write(u6,'(1x,a,8I8)') 'IBLKPOS1,NDI,NSBS1:',IBLKPOS1,NDI,NSBS1
+          !TEST   write(u6,'(1x,a,8I8)') 'IBLKPOS2,NDI,NSBS2:',IBLKPOS2,NDI,NSBS2
+          !TEST   write(u6,'(1x,a,8I8)') 'I,KSBS1,J:',I,KSBS1,J
+          !TEST   write(u6,'(1x,a,8I8)') 'I,KSBS2,J:',I,KSBS2,J
+          !TEST end if
+          ! End of test prints
+        end do
+      end do
 
- 100        CONTINUE
-          END DO
+100   continue
+    end do
 
- 200      CONTINUE
-! End of loop over orbitals
-        END DO
-! End of loop over FS blocks
-      END DO
-      CALL mma_deallocate(SBSET)
-      END SUBROUTINE SGMOP
+200 continue
+    ! End of loop over orbitals
+  end do
+  ! End of loop over FS blocks
+end do
+call mma_deallocate(SBSET)
+
+end subroutine SGMOP

@@ -10,88 +10,88 @@
 !                                                                      *
 ! Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      SUBROUTINE ZTRNSF_MASKED(N,UR,UI,AR,AI,IJ,IST,INUM,JST,JNUM)
-      USE Constants, only: Zero, One
-      USE stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT NONE
-      INTEGER :: N,INUM,JNUM
-      REAL*8 :: UR(N,N),UI(N,N)
-      REAL*8 :: AR(N,N),AI(N,N)
-      INTEGER :: IJ(4),IST(INUM),JST(JNUM)
-      REAL*8, ALLOCATABLE, DIMENSION(:,:) :: MR,MI,VR,VI,TR,TI
-      INTEGER :: I,J,II,JJ,NI,NJ
 
-      NI=IJ(2)-IJ(1)+1
-      NJ=IJ(4)-IJ(3)+1
+subroutine ZTRNSF_MASKED(N,UR,UI,AR,AI,IJ,IST,INUM,JST,JNUM)
 
-      CALL mma_allocate(MR,INUM,JNUM,LABEL='MR')
-      CALL mma_allocate(MI,INUM,JNUM,LABEL='MI')
-      DO J=1,JNUM
-        DO I=1,INUM
-          MR(I,J)=AR(IST(I),JST(J))
-          MI(I,J)=AI(IST(I),JST(J))
-        END DO
-      END DO
+use Constants, only: Zero, One
+use stdalloc, only: mma_allocate, mma_deallocate
 
-      CALL mma_allocate(VR,JNUM,NJ,LABEL='VR')
-      CALL mma_allocate(VI,JNUM,NJ,LABEL='VI')
-      DO J=1,NJ
-        JJ=IJ(3)+J-1
-        DO I=1,JNUM
-          VR(I,J)=UR(JST(I),JJ)
-          VI(I,J)=UI(JST(I),JJ)
-        END DO
-      END DO
+implicit none
+integer :: N, INUM, JNUM
+real*8 :: UR(N,N), UI(N,N)
+real*8 :: AR(N,N), AI(N,N)
+integer :: IJ(4), IST(INUM), JST(JNUM)
+real*8, allocatable, dimension(:,:) :: MR, MI, VR, VI, TR, TI
+integer :: I, J, II, JJ, NI, NJ
 
-      CALL mma_allocate(TR,INUM,NJ,LABEL='TR')
-      CALL mma_allocate(TI,INUM,NJ,LABEL='TI')
-      CALL DGEMM_('N','N',INUM,NJ,JNUM, One,MR,INUM,VR,JNUM,            &
-     &                                 Zero,TR,INUM)
-      CALL DGEMM_('N','N',INUM,NJ,JNUM,-One,MI,INUM,VI,JNUM,            &
-     &                                  One,TR,INUM)
-      CALL DGEMM_('N','N',INUM,NJ,JNUM, One,MR,INUM,VI,JNUM,            &
-     &                                 Zero,TI,INUM)
-      CALL DGEMM_('N','N',INUM,NJ,JNUM, One,MI,INUM,VR,JNUM,            &
-     &                                  One,TI,INUM)
+NI = IJ(2)-IJ(1)+1
+NJ = IJ(4)-IJ(3)+1
 
-      CALL mma_deallocate(VR)
-      CALL mma_deallocate(VI)
-      CALL mma_allocate(VR,INUM,NI,LABEL='VR')
-      CALL mma_allocate(VI,INUM,NI,LABEL='VI')
-      DO J=1,NI
-        JJ=IJ(1)+J-1
-        DO I=1,INUM
-          VR(I,J)=UR(IST(I),JJ)
-          VI(I,J)=UI(IST(I),JJ)
-        END DO
-      END DO
+call mma_allocate(MR,INUM,JNUM,LABEL='MR')
+call mma_allocate(MI,INUM,JNUM,LABEL='MI')
+do J=1,JNUM
+  do I=1,INUM
+    MR(I,J) = AR(IST(I),JST(J))
+    MI(I,J) = AI(IST(I),JST(J))
+  end do
+end do
 
-      CALL mma_deallocate(MR)
-      CALL mma_deallocate(MI)
-      CALL mma_allocate(MR,NI,NJ,LABEL='MR')
-      CALL mma_allocate(MI,NI,NJ,LABEL='MI')
-      CALL DGEMM_('T','N',NI,NJ,INUM, One,VR,INUM,TR,INUM,Zero,MR,NI)
-      CALL DGEMM_('T','N',NI,NJ,INUM, One,VI,INUM,TI,INUM, One,MR,NI)
-      CALL DGEMM_('T','N',NI,NJ,INUM, One,VR,INUM,TI,INUM,Zero,MI,NI)
-      CALL DGEMM_('T','N',NI,NJ,INUM,-One,VI,INUM,TR,INUM, One,MI,NI)
+call mma_allocate(VR,JNUM,NJ,LABEL='VR')
+call mma_allocate(VI,JNUM,NJ,LABEL='VI')
+do J=1,NJ
+  JJ = IJ(3)+J-1
+  do I=1,JNUM
+    VR(I,J) = UR(JST(I),JJ)
+    VI(I,J) = UI(JST(I),JJ)
+  end do
+end do
 
-      CALL DCOPY_(N*N,[Zero],0,AR,1)
-      CALL DCOPY_(N*N,[Zero],0,AI,1)
-      DO J=1,NJ
-        JJ=IJ(3)+J-1
-        DO I=1,NI
-          II=IJ(1)+I-1
-          AR(II,JJ)=MR(I,J)
-          AI(II,JJ)=MI(I,J)
-        END DO
-      END DO
+call mma_allocate(TR,INUM,NJ,LABEL='TR')
+call mma_allocate(TI,INUM,NJ,LABEL='TI')
+call DGEMM_('N','N',INUM,NJ,JNUM,One,MR,INUM,VR,JNUM,Zero,TR,INUM)
+call DGEMM_('N','N',INUM,NJ,JNUM,-One,MI,INUM,VI,JNUM,One,TR,INUM)
+call DGEMM_('N','N',INUM,NJ,JNUM,One,MR,INUM,VI,JNUM,Zero,TI,INUM)
+call DGEMM_('N','N',INUM,NJ,JNUM,One,MI,INUM,VR,JNUM,One,TI,INUM)
 
-      CALL mma_deallocate(TR)
-      CALL mma_deallocate(TI)
-      CALL mma_deallocate(VR)
-      CALL mma_deallocate(VI)
-      CALL mma_deallocate(MR)
-      CALL mma_deallocate(MI)
+call mma_deallocate(VR)
+call mma_deallocate(VI)
+call mma_allocate(VR,INUM,NI,LABEL='VR')
+call mma_allocate(VI,INUM,NI,LABEL='VI')
+do J=1,NI
+  JJ = IJ(1)+J-1
+  do I=1,INUM
+    VR(I,J) = UR(IST(I),JJ)
+    VI(I,J) = UI(IST(I),JJ)
+  end do
+end do
 
-      RETURN
-      END
+call mma_deallocate(MR)
+call mma_deallocate(MI)
+call mma_allocate(MR,NI,NJ,LABEL='MR')
+call mma_allocate(MI,NI,NJ,LABEL='MI')
+call DGEMM_('T','N',NI,NJ,INUM,One,VR,INUM,TR,INUM,Zero,MR,NI)
+call DGEMM_('T','N',NI,NJ,INUM,One,VI,INUM,TI,INUM,One,MR,NI)
+call DGEMM_('T','N',NI,NJ,INUM,One,VR,INUM,TI,INUM,Zero,MI,NI)
+call DGEMM_('T','N',NI,NJ,INUM,-One,VI,INUM,TR,INUM,One,MI,NI)
+
+call DCOPY_(N*N,[Zero],0,AR,1)
+call DCOPY_(N*N,[Zero],0,AI,1)
+do J=1,NJ
+  JJ = IJ(3)+J-1
+  do I=1,NI
+    II = IJ(1)+I-1
+    AR(II,JJ) = MR(I,J)
+    AI(II,JJ) = MI(I,J)
+  end do
+end do
+
+call mma_deallocate(TR)
+call mma_deallocate(TI)
+call mma_deallocate(VR)
+call mma_deallocate(VI)
+call mma_deallocate(MR)
+call mma_deallocate(MI)
+
+return
+
+end subroutine ZTRNSF_MASKED

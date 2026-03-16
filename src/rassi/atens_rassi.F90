@@ -1,0 +1,248 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine ATENS_RASSI(moment,dim,gtens,maxes,IPGLOB)
+!------------------------------------------------
+!  dim    -- size of the matrices
+!  moment -- matrix of size (3,dim,dim) of the moment (magnetic, spin or angular)
+!  gtens  -- array of size (3) keeping the main values of the A tensor ( dsqrt(main_values) )
+!  maxes  -- array of size (3,3) keeping the main axes of the A tensor writen in
+!            the right coordinate system (Determinant = +1)
+!  IPGLOB -- the print level of the subroutine
+!----------------------------------------------
+
+use Constants, only: Zero, Twelve, Half, cZero
+use Definitions, only: wp, u6
+
+implicit none
+integer dim, ic1, ic2, i, j, k, l, IPGLOB, info
+real*8 A_TENS_TERM(3,3), W(3), MAIN(3), Z(3,3), maxes(3,3), gtens(3)
+real*8 Det_gtens, diff12, diff23, ZR(3,3)
+complex*16 moment(3,dim,dim), AC_TENS(3,3), A_TEMP(3,3,dim,dim)
+
+! initialization:
+
+do I=1,3
+  do J=1,3
+    AC_TENS(I,J) = cZero
+    A_TENS_TERM(I,J) = Zero
+    do K=1,dim
+      do L=1,dim
+        A_TEMP(I,J,K,L) = cZero
+      end do
+    end do
+  end do
+end do
+
+do ic1=1,3
+  do ic2=1,3
+    do i=1,dim
+      do j=1,dim
+        do k=1,dim
+          A_temp(ic1,ic2,i,j) = A_temp(ic1,ic2,i,j)+moment(ic1,i,k)*moment(ic2,k,j)
+        end do
+      end do
+    end do
+  end do
+end do
+
+if (IPGLOB >= 4) then
+  write(u6,'(/)')
+  write(u6,'(5X,A)') 'BPMOMENT(ic1,ic2):'
+  write(u6,*)
+  do ic1=1,3
+    do i=1,dim
+      do j=1,dim
+        write(u6,*) moment(ic1,i,j)
+      end do
+    end do
+  end do
+
+  write(u6,'(/)')
+  write(u6,'(5X,A)') 'A_TEMP(ic1,ic2):'
+  write(u6,*)
+  do ic1=1,3
+    do ic2=1,3
+      do i=1,dim
+        do j=1,dim
+          write(u6,*) A_temp(ic1,ic2,i,j)
+        end do
+      end do
+    end do
+  end do
+end if
+
+do ic1=1,3
+  do ic2=1,3
+    do k=1,dim
+      Ac_tens(ic1,ic2) = Ac_tens(ic1,ic2)+A_temp(ic1,ic2,k,k)
+    end do
+  end do
+end do
+do ic1=1,3
+  do ic2=1,3
+    A_TENS_TERM(ic1,ic2) = Half*real(Ac_tens(ic1,ic2)+Ac_tens(ic2,ic1))
+  end do
+end do
+do ic1=1,3
+  do ic2=1,3
+    A_TENS_TERM(ic1,ic2) = Twelve*A_TENS_TERM(ic1,ic2)/real(dim**3-dim,kind=wp)
+  end do
+end do
+
+!if (IPGLOB > 2) then
+write(u6,'(/)')
+write(u6,'(5X,A)') 'A_TENS_TERM(ic1,ic2):'
+write(u6,*)
+do ic1=1,3
+  !write(u6,'(5X,3(2F14.7,3x))') (A_TENS_TERM(ic1,ic2),ic2=1,3)
+  write(u6,'(5X,3(2F21.14,3x))') (A_TENS_TERM(ic1,ic2),ic2=1,3)
+end do
+!endif
+
+! Diagonalization of A_tens - g tensors
+
+do I=1,3
+  main(I) = Zero
+  w(I) = Zero
+  do J=1,3
+    z(I,J) = Zero
+  end do
+end do
+info = 0
+
+call DIAG_R2_RASSI(A_TENS_TERM,3,info,w,z)
+if (INFO /= 0) goto 199
+if ((w(1) < Zero) .and. (w(2) < Zero) .and. (w(3) < Zero)) then
+  write(u6,'(2x,A)') 'ALL EIGENVALUES OF THE A-TENSOR ARE NEGATIVE'
+  write(u6,'(2X,A)') 'THIS IS A VERY UNUSUAL SITUATION. PLEASE CHECK MANUALLY'
+  write(u6,'(2x,A)') 'THE FOLLOWING PART OF THE PSEUDOSPIN SECTION'
+  write(u6,'(2x,A)') 'MUST BE DISREGARDED. THE RESULTS ARE NOT TRUSTABLE.'
+  goto 199
+end if
+
+if (IPGLOB >= 4) then
+  write(u6,*)
+  write(u6,'(4x,A)') 'A_TENS_TERM TENSOR:'
+  write(u6,'(2a)') repeat('-',56),'|'
+  write(u6,'(4x,A,4x,A,13x,A,5x,a,3x,a)') 'MAIN VALUES','|','MAIN MAGNETIC AXES','|','x , y , z  -- initial Cartesian axes'
+  write(u6,'(4a,3x,a)') repeat('-',19),'|',repeat('-',36),'|','Xm, Ym, Zm -- main magnetic axes'
+  write(u6,'(19x,a,4x,a,5x,a,9x,a,9x,a,5x,a)') '|','|','x','y','z','|'
+  write(u6,'(6a)') repeat('-',19),'|',repeat('-',4),'|',repeat('-',31),'|'
+  write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gX = ',w(1),' | Xm |',(z(j,1),j=1,3),'|'
+  write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gY = ',w(2),' | Ym |',(z(j,2),j=1,3),'|'
+  write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gZ = ',w(3),' | Zm |',(z(j,3),j=1,3),'|'
+  write(u6,'(2a)') repeat('-',56),'|'
+end if
+
+do I=1,3
+  if (W(I) < Zero) W(I) = 0.1e-14_wp
+  MAIN(i) = sqrt(W(i))
+end do
+
+if (IPGLOB >= 4) write(u6,'(5x,a,3F9.5)') 'EIGenValues after DSPEV:',(W(I),I=1,3)
+
+! Check the sign of the coordinate system. if CS is Left-handed,
+! then change it to RIGHT-handed
+Det_gtens = Zero
+do I=1,3
+  do J=1,3
+    ZR(I,J) = Z(I,J)
+  end do
+end do
+Det_gtens = ZR(1,1)*(ZR(2,2)*ZR(3,3)-ZR(2,3)*ZR(3,2))-ZR(1,2)*(ZR(2,1)*ZR(3,3)-ZR(2,3)*ZR(3,1))+ &
+            ZR(1,3)*(ZR(2,1)*ZR(3,2)-ZR(2,2)*ZR(3,1))
+if (Det_gtens < Zero) then
+  do i=1,3
+    Z(i,1) = -Z(i,1)
+  end do
+  if (IPGLOB > 2) write(u6,'(a)') 'The original coordinate system was LEFT-handed. It has been changed to the RIGHT-handed'
+end if
+diff12 = MAIN(2)-MAIN(1)
+diff23 = MAIN(3)-MAIN(2)
+if (IPGLOB >= 4) then
+  write(u6,'(5x,a,3F19.15)') 'diff12 = ',diff12
+  write(u6,'(5x,a,3F19.15)') 'diff23 = ',diff23
+end if
+
+do i=1,3
+  gtens(i) = Zero
+  do j=1,3
+    maxes(i,j) = Zero
+  end do
+end do
+! set the main Z axis:
+if (diff12 > diff23) then
+  gtens(3) = MAIN(1)
+  gtens(2) = MAIN(2)
+  gtens(1) = MAIN(3)
+  if (Z(3,1) >= Zero) then
+    do i=1,3
+      maxes(i,3) = Z(i,1)
+      maxes(i,1) = Z(i,3)
+    end do
+  else if (Z(3,1) < Zero) then
+    do i=1,3
+      maxes(i,3) = -Z(i,1)
+      maxes(i,1) = Z(i,3)
+    end do
+  end if
+  maxes(1,2) = maxes(2,3)*maxes(3,1)-maxes(2,1)*maxes(3,3)
+  maxes(2,2) = maxes(1,1)*maxes(3,3)-maxes(1,3)*maxes(3,1)
+  maxes(3,2) = maxes(1,3)*maxes(2,1)-maxes(1,1)*maxes(2,3)
+
+else if (diff23 > diff12) then
+  gtens(3) = MAIN(3)
+  gtens(2) = MAIN(2)
+  gtens(1) = MAIN(1)
+  if (Z(3,3) >= Zero) then
+    do i=1,3
+      maxes(i,3) = Z(i,3)
+      maxes(i,1) = Z(i,1)
+    end do
+  else if (Z(3,3) < Zero) then
+    do i=1,3
+      maxes(i,3) = -Z(i,3)
+      maxes(i,1) = Z(i,1)
+    end do
+  end if
+  maxes(1,2) = maxes(2,3)*maxes(3,1)-maxes(2,1)*maxes(3,3)
+  maxes(2,2) = maxes(1,1)*maxes(3,3)-maxes(1,3)*maxes(3,1)
+  maxes(3,2) = maxes(1,3)*maxes(2,1)-maxes(1,1)*maxes(2,3)
+end if
+
+if (IPGLOB > 2) then
+  write(u6,*)
+  write(u6,'(20X,A)') 'A-TENSOR:'
+  write(u6,*)
+  write(u6,'(10X,A,10X,3(F11.5,2X))') '|  xx    xy    xz  |',(A_TENS_TERM(1,ic2),ic2=1,3)
+  write(u6,'(10X,A,10X,3(F11.5,2X))') '|  yx    yy    yz  |',(A_TENS_TERM(2,ic2),ic2=1,3)
+  write(u6,'(10X,A,10X,3(F11.5,2X))') '|  zx    zy    zz  |',(A_TENS_TERM(3,ic2),ic2=1,3)
+end if
+
+if (IPGLOB > 2) then
+  write(u6,*)
+  write(u6,'(4x,A)') 'g TENSOR:'
+  write(u6,'(2a)') repeat('-',56),'|'
+  write(u6,'(4x,A,4x,A,13x,A,5x,a,3x,a)') 'MAIN VALUES','|','MAIN MAGNETIC AXES','|','x , y , z  -- initial Cartesian axes'
+  write(u6,'(4a,3x,a)') repeat('-',19),'|',repeat('-',36),'|','Xm, Ym, Zm -- main magnetic axes'
+  write(u6,'(19x,a,4x,a,5x,a,9x,a,9x,a,5x,a)') '|','|','x','y','z','|'
+  write(u6,'(6a)') repeat('-',19),'|',repeat('-',4),'|',repeat('-',31),'|'
+  write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gX = ',gtens(1),' | Xm |',(maxes(j,1),j=1,3),'|'
+  write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gY = ',gtens(2),' | Ym |',(maxes(j,2),j=1,3),'|'
+  write(u6,'(A,F12.9,A,3F10.6,1x,A)') ' gZ = ',gtens(3),' | Zm |',(maxes(j,3),j=1,3),'|'
+  write(u6,'(2a)') repeat('-',56),'|'
+  !call Add_Info('GTENS_MAIN',gtens,3,5)
+end if
+
+199 continue
+
+end subroutine ATENS_RASSI

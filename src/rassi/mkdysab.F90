@@ -24,72 +24,71 @@
 !  SEPTEMBER 2020
 !*********************************************************************
 
-      SUBROUTINE MKDYSAB(DYSCOF,DYSAB)
+subroutine MKDYSAB(DYSCOF,DYSAB)
 
-      use Constants, only: Zero
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NASHT,NASH,NISH,NOSH
+use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
+use Symmetry_Info, only: nSym => nIrrep
+use rassi_data, only: NASHT, NASH, NISH, NOSH
 
-      IMPLICIT None
-      REAL*8 DYSCOF(*),DYSAB(*)
+implicit none
+real*8 DYSCOF(*), DYSAB(*)
+integer :: IOFFA(8)
+real*8 GAA, GBB, OVLP
+integer IORB, ISORB, I, IOFFTD, ISY, II, IPOS, ICOFF, ISY1, NO1, NA1, NI1
+real*8, allocatable :: DYSCOF2(:)
 
-      INTEGER :: IOFFA(8)
-      REAL*8 GAA,GBB,OVLP
-      INTEGER IORB,ISORB, I, IOFFTD, ISY, II, IPOS, ICOFF, ISY1, NO1,   &
-     &        NA1, NI1
-      real*8, Allocatable:: DYSCOF2(:)
 !+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2
 !Alpha and beta contributions are added up here
-      Call mma_allocate(DYSCOF2,NASHT,Label='DYSCOF2')
-      DO IORB=1,NASHT
-       ISORB=2*IORB-1
-       GAA=DYSCOF(ISORB)
-       GBB=DYSCOF(ISORB+1)
-       OVLP=GBB+GAA
-       !normally GAA gives just zeros...
-       DYSCOF2(IORB)=OVLP
-      END DO
+call mma_allocate(DYSCOF2,NASHT,Label='DYSCOF2')
+do IORB=1,NASHT
+  ISORB = 2*IORB-1
+  GAA = DYSCOF(ISORB)
+  GBB = DYSCOF(ISORB+1)
+  OVLP = GBB+GAA
+  !normally GAA gives just zeros...
+  DYSCOF2(IORB) = OVLP
+end do
 ! IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
-      IOFFA(1)=0
-      DO I=1,NSYM-1
-        IOFFA(I+1)=IOFFA(I)+NASH(I)
-      END DO
+IOFFA(1) = 0
+do I=1,NSYM-1
+  IOFFA(I+1) = IOFFA(I)+NASH(I)
+end do
 
 ! CONTRIBUTION FROM INACTIVE ORBITALS:
 ! (By definition 0 for Dyson orbitals,
 ! but we need to fill out the full vector for easier
 ! transformation.)
-        IOFFTD=0
-        DO ISY=1,NSYM
-         IF(NISH(ISY).NE.0) THEN
-          II=0
-          DO I=1,NISH(ISY)
-            II=II+1
-            IPOS=IOFFTD+II
-            DYSAB(IPOS)=Zero
-          END DO
-          IOFFTD=IOFFTD+NOSH(ISY)
-         END IF
-      END DO
+IOFFTD = 0
+do ISY=1,NSYM
+  if (NISH(ISY) /= 0) then
+    II = 0
+    do I=1,NISH(ISY)
+      II = II+1
+      IPOS = IOFFTD+II
+      DYSAB(IPOS) = Zero
+    end do
+    IOFFTD = IOFFTD+NOSH(ISY)
+  end if
+end do
 ! THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
-      IOFFTD=0
-      ICOFF=1
-      DO ISY1=1,NSYM
-        NO1=NOSH(ISY1)
-        IF(NO1.EQ.0) cycle
-        NA1=NASH(ISY1)
-        IF(NA1 /= 0) THEN
-          NI1=NISH(ISY1)
-          DO I=1,NA1
-            II=NI1+I
-            IPOS=IOFFTD+II
-            DYSAB(IPOS)=DYSCOF2(ICOFF)
-            ICOFF=ICOFF+1
-          END DO
-        END IF
-        IOFFTD=IOFFTD+NO1
-      END DO
-      Call mma_deallocate(DYSCOF2)
+IOFFTD = 0
+ICOFF = 1
+do ISY1=1,NSYM
+  NO1 = NOSH(ISY1)
+  if (NO1 == 0) cycle
+  NA1 = NASH(ISY1)
+  if (NA1 /= 0) then
+    NI1 = NISH(ISY1)
+    do I=1,NA1
+      II = NI1+I
+      IPOS = IOFFTD+II
+      DYSAB(IPOS) = DYSCOF2(ICOFF)
+      ICOFF = ICOFF+1
+    end do
+  end if
+  IOFFTD = IOFFTD+NO1
+end do
+call mma_deallocate(DYSCOF2)
 
-      END SUBROUTINE MKDYSAB
+end subroutine MKDYSAB

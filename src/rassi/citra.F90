@@ -40,94 +40,93 @@
 !> @param[in]     NCO  Number of Configuration Functions
 !> @param[in,out] CI   CI Array
 !***********************************************************************
-      SUBROUTINE CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
-      use definitions, only: iwp, wp
-#ifdef DEBUG_MPSSI
-      use definitions, only: u6
+
+!ifdef _DEBUGPRINT_
+subroutine CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
+
+use definitions, only: iwp, wp
+#ifdef _DEBUGPRINT_
+use definitions, only: u6
 #endif
-      use constants, only: One
-      use gugx, only: SGStruct, CIStruct, EXStruct
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NTRA,NOSH,NISH,NASH
-      IMPLICIT NONE
-      CHARACTER(LEN=8), Intent(in):: WFTP
-      Type (SGStruct), intent(in):: SGS
-      Type (CIStruct), intent(in):: CIS
-      Type (EXStruct), intent(in):: EXS
-      integer(kind=iwp), intent(in):: LSM, NCO
-      Real(kind=wp), intent(in)::TRA(NTRA)
-      Real(kind=wp), intent(inout)::CI(NCO)
+use constants, only: One
+use gugx, only: SGStruct, CIStruct, EXStruct
+use stdalloc, only: mma_allocate, mma_deallocate
+use Symmetry_Info, only: nSym => nIrrep
+use rassi_data, only: NTRA, NOSH, NISH, NASH
 
-      real(kind=wp), Allocatable:: TMP(:)
-      real(kind=wp) FAC,CKK
-      integer(kind=iwp) ISTA,ISYM,NO,I,II,NA,NI
+implicit none
+character(len=8), intent(in) :: WFTP
+type(SGStruct), intent(in) :: SGS
+type(CIStruct), intent(in) :: CIS
+type(EXStruct), intent(in) :: EXS
+integer(kind=iwp), intent(in) :: LSM, NCO
+real(kind=wp), intent(in) :: TRA(NTRA)
+real(kind=wp), intent(inout) :: CI(NCO)
+real(kind=wp), allocatable :: TMP(:)
+real(kind=wp) FAC, CKK
+integer(kind=iwp) ISTA, ISYM, NO, I, II, NA, NI
 
-
-#ifdef DEBUG_MPSSI
-      write(6,*)' Entering CITRA. norm=',ddot_(NCO,CI,1,CI,1)
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Entering CITRA. norm=',ddot_(NCO,CI,1,CI,1)
 #endif
-!     write(6,*)' Entering CITRA. TRA='
-!     write(6,'(1x,5f16.8)')(TRA(I),I=1,NTRA)
-!     write(6,*)' Entering CITRA. CI='
-!     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
+!write(u6,*) ' Entering CITRA. TRA='
+!write(u6,'(1x,5f16.8)') (TRA(I),I=1,NTRA)
+!write(u6,*) ' Entering CITRA. CI='
+!write(u6,'(1x,5f16.8)') (CI(I),I=1,NCO)
 ! TRA contains square matrices, one per symmetry
 !  FIRST TRANSFORM THE INACTIVE ORBITALS:
-      FAC=One
-      ISTA=1
-      DO ISYM=1,NSYM
-        NO=NOSH(ISYM)
-        DO I=1,NISH(ISYM)
-          II=ISTA+(NO+1)*(I-1)
-          CKK=TRA(II)
-          FAC=FAC*CKK
-        END DO
-        ISTA=ISTA+NO**2
-      END DO
-!     write(6,*) 'FAC, FAC**2 ... ',FAC,FAC**2
-      FAC=FAC**2
-      CALL DSCAL_(NCO,FAC,CI,1)
-!     write(6,*)' CITRA. inactive done CI='
-!     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
-!  THEN THE ACTIVE ONES:
-      if (WFTP /= 'EMPTY   ') then
-! The HISPIN case may be buggy and is not presently used.
-      IF(WFTP.EQ.'HISPIN  '.or.WFTP.EQ.'CLOSED  ') THEN
-        ISTA=1
-        DO ISYM=1,NSYM
-          NI=NISH(ISYM)
-          NA=NASH(ISYM)
-          NO=NOSH(ISYM)
-          DO I=NI+1,NI+NA
-            II=ISTA+(NO+1)*(I-1)
-            CKK=TRA(II)
-            FAC=FAC*CKK
-          END DO
-          ISTA=ISTA+NO**2
-        END DO
-        IF(WFTP.EQ.'CLOSED  ') FAC=FAC**2
-        CALL DSCAL_(NCO,FAC,CI,1)
-      ELSE
-! The general case:
-        CALL mma_allocate(TMP,NCO,Label='TMP')
-        ISTA=1
-        DO ISYM=1,NSYM
-          NA=NASH(ISYM)
-          NO=NOSH(ISYM)
-          IF(NA.NE.0) THEN
-            CALL SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,                     &
-     &                TRA(ISTA),NCO,CI,TMP)
-          END IF
-          ISTA=ISTA+NO**2
-        END DO
-        CALL mma_deallocate(TMP)
-      END IF
-#ifdef DEBUG_MPSSI
-      write(6,*)' DONE in  CITRA. norm=',ddot_(NCO,CI,1,CI,1)
-#endif
-!     write(6,*)' CITRA completely done. CI='
-!     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
+FAC = One
+ISTA = 1
+do ISYM=1,NSYM
+  NO = NOSH(ISYM)
+  do I=1,NISH(ISYM)
+    II = ISTA+(NO+1)*(I-1)
+    CKK = TRA(II)
+    FAC = FAC*CKK
+  end do
+  ISTA = ISTA+NO**2
+end do
+!write(u6,*) 'FAC, FAC**2 ... ',FAC,FAC**2
+FAC = FAC**2
+call DSCAL_(NCO,FAC,CI,1)
+!write(u6,*) ' CITRA. inactive done CI='
+!write(u6,'(1x,5f16.8)') (CI(I),I=1,NCO)
+! THEN THE ACTIVE ONES:
+if (WFTP /= 'EMPTY') then
+  if ((WFTP == 'HISPIN') .or. (WFTP == 'CLOSED')) then
+    ! The HISPIN case may be buggy and is not presently used.
+    ISTA = 1
+    do ISYM=1,NSYM
+      NI = NISH(ISYM)
+      NA = NASH(ISYM)
+      NO = NOSH(ISYM)
+      do I=NI+1,NI+NA
+        II = ISTA+(NO+1)*(I-1)
+        CKK = TRA(II)
+        FAC = FAC*CKK
+      end do
+      ISTA = ISTA+NO**2
+    end do
+    if (WFTP == 'CLOSED') FAC = FAC**2
+    call DSCAL_(NCO,FAC,CI,1)
+  else
+    ! The general case:
+    call mma_allocate(TMP,NCO,Label='TMP')
+    ISTA = 1
+    do ISYM=1,NSYM
+      NA = NASH(ISYM)
+      NO = NOSH(ISYM)
+      if (NA /= 0) call SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA(ISTA),NCO,CI,TMP)
+      ISTA = ISTA+NO**2
+    end do
+    call mma_deallocate(TMP)
+  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' DONE in  CITRA. norm=',ddot_(NCO,CI,1,CI,1)
+# endif
+  !write(u6,*) ' CITRA completely done. CI='
+  !write(u6,'(1x,5f16.8)') (CI(I),I=1,NCO)
 
-      end if
+end if
 
-      END SUBROUTINE CITRA
+end subroutine CITRA

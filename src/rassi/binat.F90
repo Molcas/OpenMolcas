@@ -8,128 +8,129 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE BINAT()
-      use rassi_global_arrays, only : JBNUM, EIGVEC
-      use rassi_aux, only : iDisk_TDM
-      use OneDat, only: sNoNuc, sNoOri
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NBINA, NSTATE, IRREP, IBINA
-      use cntrl, only: LuTDM
-      use Symmetry_Info, only: nSym=>nIrrep, MUL
-      use rassi_data, only: NBSQ,NBMX,NBASF,NBST,NBTRI,NTDMZZ
-      IMPLICIT NONE
 
-      INTEGER IOFF_SEV, IOFF_VEC, IOFF_TDM, IOFF_ISV
-      INTEGER IOPT, ICMP, ISYLAB, LS, LV, LV1
-      INTEGER LE, I, LS1, ISEL, LS2, J, K, L, LE1
-      INTEGER IJPAIR, KEIG_BRA, KEIG_KET, LSYM_BRA
-      INTEGER LSYM_KET, LSYM12, IDISK, IV, IE, ITD, IRC, ISYM
-      INTEGER ISYM1, ISYM2, NB, NB1, NB2, LV2, LE2, ITD1, ITD2
-      INTEGER ISV, LB, LK, NBMIN, iEmpty, iGo
-      INTEGER LUNIT, IDUMMY
-      REAL*8  SSEL, SWAP, S_EV, X, DUMMY, SUMSNG
-      CHARACTER(LEN=16) KNUM
-      CHARACTER(LEN=8)  BNUM, LABEL
-      CHARACTER(LEN=21) TXT
-      CHARACTER(LEN=24) FNAME
+subroutine BINAT()
 
+use rassi_global_arrays, only: JBNUM, EIGVEC
+use rassi_aux, only: iDisk_TDM
+use OneDat, only: sNoNuc, sNoOri
+use stdalloc, only: mma_allocate, mma_deallocate
+use Cntrl, only: NBINA, NSTATE, IRREP, IBINA
+use cntrl, only: LuTDM
+use Symmetry_Info, only: nSym => nIrrep, MUL
+use rassi_data, only: NBSQ, NBMX, NBASF, NBST, NBTRI, NTDMZZ
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
+
+implicit none
+integer IOFF_SEV, IOFF_VEC, IOFF_TDM, IOFF_ISV
+integer IOPT, ICMP, ISYLAB, LS, LV, LV1
+integer LE, I, LS1, ISEL, LS2, J, K, L, LE1
+integer IJPAIR, KEIG_BRA, KEIG_KET, LSYM_BRA
+integer LSYM_KET, LSYM12, IDISK, IV, IE, ITD, IRC, ISYM
+integer ISYM1, ISYM2, NB, NB1, NB2, LV2, LE2, ITD1, ITD2
+integer ISV, LB, LK, NBMIN, iEmpty, iGo
+integer LUNIT, IDUMMY
+real*8 SSEL, SWAP, S_EV, X, DUMMY, SUMSNG
+character(len=16) KNUM
+character(len=8) BNUM, LABEL
+character(len=21) TXT
+character(len=24) FNAME
 ! Tables of starting locations, created and used later
-      DIMENSION IOFF_VEC(8),IOFF_SEV(8),IOFF_TDM(8),IOFF_ISV(8)
-      DIMENSION IDUMMY(2),DUMMY(2)
-
-      Integer, EXTERNAL :: ISFREEUNIT
-      Real*8, EXTERNAL :: DDOT_
-
-      Real*8, Allocatable:: ONBAS(:), SCR(:), SEV(:), SAO(:)
-      Real*8, Allocatable:: UMAT(:), VTMAT(:), SVAL(:)
-      Real*8, Allocatable:: SNGV1(:), SNGV2(:)
-      Real*8, Allocatable:: TDMAT(:), TDMAO(:)
-      Real*8, Allocatable:: BRABNO(:), KETBNO(:)
+dimension IOFF_VEC(8), IOFF_SEV(8), IOFF_TDM(8), IOFF_ISV(8)
+dimension IDUMMY(2), DUMMY(2)
+integer, external :: ISFREEUNIT
+real*8, external :: DDOT_
+real*8, allocatable :: ONBAS(:), SCR(:), SEV(:), SAO(:)
+real*8, allocatable :: UMAT(:), VTMAT(:), SVAL(:)
+real*8, allocatable :: SNGV1(:), SNGV2(:)
+real*8, allocatable :: TDMAT(:), TDMAO(:)
+real*8, allocatable :: BRABNO(:), KETBNO(:)
 
 ! Nr of basis functions, total
-      NBSQ=0
-      DO ISYM=1,NSYM
-       NBSQ=NBSQ+NBASF(ISYM)**2
-      END DO
+NBSQ = 0
+do ISYM=1,NSYM
+  NBSQ = NBSQ+NBASF(ISYM)**2
+end do
 !============================================================
 ! START BY CREATING A SET OF ORTHONORMAL VECTORS:
-      CALL mma_allocate(ONBAS,NBSQ,Label='ONBAS')
+call mma_allocate(ONBAS,NBSQ,Label='ONBAS')
 ! EIGENVALUES OF OVERLAP MATRIX:
-      CALL mma_allocate(SEV,NBST,Label='SEV')
+call mma_allocate(SEV,NBST,Label='SEV')
 ! READ ORBITAL OVERLAP MATRIX.
-      CALL mma_allocate(SAO,NBTRI,Label='SAO')
-      IRC=-1
-      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
-      ICMP=1
-      ISYLAB=1
-      LABEL = 'MLTPL  0'
-      CALL RDONE(IRC,IOPT,LABEL,ICMP,SAO,ISYLAB)
-      IF ( IRC.NE.0 ) THEN
-        WRITE(6,*)
-        WRITE(6,*)'      *** ERROR IN SUBROUTINE  BINAT ***'
-        WRITE(6,*)'      OVERLAP INTEGRALS ARE NOT AVAILABLE'
-        WRITE(6,*)
-        CALL ABEND()
-      ENDIF
+call mma_allocate(SAO,NBTRI,Label='SAO')
+IRC = -1
+IOPT = ibset(ibset(0,sNoOri),sNoNuc)
+ICMP = 1
+ISYLAB = 1
+LABEL = 'MLTPL  0'
+call RDONE(IRC,IOPT,LABEL,ICMP,SAO,ISYLAB)
+if (IRC /= 0) then
+  write(u6,*)
+  write(u6,*) '      *** ERROR IN SUBROUTINE  BINAT ***'
+  write(u6,*) '      OVERLAP INTEGRALS ARE NOT AVAILABLE'
+  write(u6,*)
+  call ABEND()
+end if
 
 ! LOOP OVER SYMMETRY BLOCKS
 ! DIAGONALIZE EACH SYMMETRY BLOCK OF THE OVERLAP MATRIX.
-      LS=1
-      LV=1
-      LE=1
-      DO ISYM=1,NSYM
-        NB=NBASF(ISYM)
-        CALL DCOPY_(NB**2,[0.0D0],0,ONBAS(LV),1)
-        CALL DCOPY_(NB,[1.0D0],0,ONBAS(LV),NB+1)
-        CALL JACOB(SAO(LS),ONBAS(LV),NB,NB)
-! SORT IN ORDER OF DECREASING EIGENVALUES.
-        LS1=LS
-        DO I=1,NB-1
-         ISEL=I
-         SSEL=SAO(LS1)
-         LS2=LS1
-         DO J=I+1,NB
-          LS2=LS2+J
-          IF(SAO(LS2).GT.SSEL) THEN
-            ISEL=J
-            SSEL=SAO(LS2)
-          END IF
-         END DO
-         IF (ISEL.GT.I) THEN
-          LS2=LS-1+(ISEL*(ISEL+1))/2
-          SWAP=SAO(LS2)
-          SAO(LS2)=SAO(LS1)
-          SAO(LS1)=SWAP
-          DO K=1,NB
-           SWAP=ONBAS(LV-1+K+NB*(ISEL-1))
-           ONBAS(LV-1+K+NB*(ISEL-1))=ONBAS(LV-1+K+NB*(I-1))
-           ONBAS(LV-1+K+NB*(I-1))=SWAP
-          END DO
-         END IF
-         LS1=LS1+I+1
-        END DO
-! SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
-        LS1=LS
-        LV1=LV
-        LE1=LE
-        DO I=1,NB
-          S_EV=SAO(LS1)
-          SEV(LE1)=S_EV
-          IF (S_EV.GT.1.0D-14) THEN
-           X=1.0D00/SQRT(S_EV)
-           CALL DSCAL_(NB,X,ONBAS(LV1),1)
-          ELSE
-           CALL DCOPY_(NB,[0.0D0],0,ONBAS(LV1),1)
-          END IF
-          LS1=LS1+I+1
-          LV1=LV1+NB
-          LE1=LE1+1
-        END DO
-        LS=LS+(NB*(NB+1))/2
-        LV=LV+NB**2
-        LE=LE+NB
-      END DO
-      CALL mma_deallocate(SAO)
+LS = 1
+LV = 1
+LE = 1
+do ISYM=1,NSYM
+  NB = NBASF(ISYM)
+  call DCOPY_(NB**2,[Zero],0,ONBAS(LV),1)
+  call DCOPY_(NB,[One],0,ONBAS(LV),NB+1)
+  call JACOB(SAO(LS),ONBAS(LV),NB,NB)
+  ! SORT IN ORDER OF DECREASING EIGENVALUES.
+  LS1 = LS
+  do I=1,NB-1
+    ISEL = I
+    SSEL = SAO(LS1)
+    LS2 = LS1
+    do J=I+1,NB
+      LS2 = LS2+J
+      if (SAO(LS2) > SSEL) then
+        ISEL = J
+        SSEL = SAO(LS2)
+      end if
+    end do
+    if (ISEL > I) then
+      LS2 = LS-1+(ISEL*(ISEL+1))/2
+      SWAP = SAO(LS2)
+      SAO(LS2) = SAO(LS1)
+      SAO(LS1) = SWAP
+      do K=1,NB
+        SWAP = ONBAS(LV-1+K+NB*(ISEL-1))
+        ONBAS(LV-1+K+NB*(ISEL-1)) = ONBAS(LV-1+K+NB*(I-1))
+        ONBAS(LV-1+K+NB*(I-1)) = SWAP
+      end do
+    end if
+    LS1 = LS1+I+1
+  end do
+  ! SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
+  LS1 = LS
+  LV1 = LV
+  LE1 = LE
+  do I=1,NB
+    S_EV = SAO(LS1)
+    SEV(LE1) = S_EV
+    if (S_EV > 1.0e-14_wp) then
+      X = One/sqrt(S_EV)
+      call DSCAL_(NB,X,ONBAS(LV1),1)
+    else
+      call DCOPY_(NB,[Zero],0,ONBAS(LV1),1)
+    end if
+    LS1 = LS1+I+1
+    LV1 = LV1+NB
+    LE1 = LE1+1
+  end do
+  LS = LS+(NB*(NB+1))/2
+  LV = LV+NB**2
+  LE = LE+NB
+end do
+call mma_deallocate(SAO)
 ! Starting at ONBAS there is now symmetry blocks of CMO arrays
 ! describing orthonormal vectors. In case the AO overlap matrix is
 ! (almost) singular, one or more vectors at the end of each symmetry
@@ -138,205 +139,191 @@
 
 ! Left and right singular vectors, used temporarily
 ! in calls to SVD routine. Also temporary, singular values.
-      CALL mma_allocate(UMAT,NBMX**2,Label='UMAT')
-      CALL mma_allocate(VTMAT,NBMX**2,Label='VTMAT')
-      CALL mma_allocate(SVAL,NBMX,Label='SVAL')
+call mma_allocate(UMAT,NBMX**2,Label='UMAT')
+call mma_allocate(VTMAT,NBMX**2,Label='VTMAT')
+call mma_allocate(SVAL,NBMX,Label='SVAL')
 ! Final bra and ket singular value array:
-      CALL mma_allocate(SNGV1,NBST,Label='SNGV1')
+call mma_allocate(SNGV1,NBST,Label='SNGV1')
 ! An extra copy for singular values in a different order
 ! used until proper GV support for binatural orbitals.
-      CALL mma_allocate(SNGV2,NBST,Label='SNGV2')
+call mma_allocate(SNGV2,NBST,Label='SNGV2')
 ! The transition density matrix, symmetry-blocked
 ! Symmetry blocks may combine different symmetries, but the size
 ! is certainly less than or equal to NBSQ.
-      CALL mma_allocate(TDMAT,NBSQ,Label='TDMAT')
+call mma_allocate(TDMAT,NBSQ,Label='TDMAT')
 ! Same, read buffer
-      CALL mma_allocate(TDMAO,NBSQ,Label='TDMAO')
+call mma_allocate(TDMAO,NBSQ,Label='TDMAO')
 ! Temporary intermediate in matrix multiplies
 ! (Also used as temporary when transposing some TDMAO matrices)
-      CALL mma_allocate(SCR,NBSQ,Label='SCR')
+call mma_allocate(SCR,NBSQ,Label='SCR')
 ! The BRA and KET binatural orbitals:
-      CALL mma_allocate(BRABNO,NBSQ,Label='BRABNO')
-      CALL mma_allocate(KETBNO,NBSQ,Label='KETBNO')
+call mma_allocate(BRABNO,NBSQ,Label='BRABNO')
+call mma_allocate(KETBNO,NBSQ,Label='KETBNO')
 
 ! A long loop over eigenstate pairs:
-      DO IJPAIR=1,NBINA
-! Requested state pairs for computation: (OBSOLETE)
-       KEIG_BRA=IBINA(1,IJPAIR)
-       KEIG_KET=IBINA(2,IJPAIR)
-! Get symmetries, via jobiph number for the states:
-       LSYM_BRA=IRREP(JBNUM(KEIG_BRA))
-       LSYM_KET=IRREP(JBNUM(KEIG_KET))
-! Combined symmetry:
-       LSYM12=MUL(LSYM_BRA,LSYM_KET)
-! For relating left and right symmetry blocks, offset tables are
-! needed for the singular values and for the TDM.
-       ITD=0
-       ISV=0
-       DO ISYM1=1,NSYM
-        IOFF_TDM(ISYM1)=ITD
-        IOFF_ISV(ISYM1)=ISV
-        ISYM2=MUL(ISYM1,LSYM12)
-        ITD=ITD+NBASF(ISYM1)*NBASF(ISYM2)
-        ISV=ISV+NBASF(ISYM1)
-       END DO
-       TDMAT(:)=0.0D0
-! DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS
-       DO I=1,NSTATE
-        IF (IRREP(JBNUM(I)).NE.LSYM_BRA) cycle
-        DO J=1,NSTATE
-         IF (IRREP(JBNUM(J)).NE.LSYM_KET) cycle
-! PICK UP TRANSITION DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
-! WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
-         X=EIGVEC(KEIG_BRA,i)*EIGVEC(KEIG_KET,j)
-         IDISK=iDisk_TDM(J,I,1)
-         IEMPTY=iDisk_TDM(J,I,2)
-         iOpt=2
-         iGo=1
-         If (IAND(iEMPTY,1).ne.0) Then
-         IF (I.GT.J) THEN
-            CALL dens2file(TDMAO,TDMAO,TDMAO,                           &
-     &                     nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
-         ELSE
-! Pick up conjugate TDM array, and transpose it into TDMAO.
-            CALL dens2file(SCR,SCR,SCR,                                 &
-     &                     nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
-! Loop over the receiving side:
-           DO ISYM1=1,NSYM
-            ISYM2=MUL(ISYM1,LSYM12)
-            NB1=NBASF(ISYM1)
-            NB2=NBASF(ISYM2)
-            DO K=1,NB1
-             DO L=1,NB2
-              TDMAO(IOFF_TDM(ISYM1)+K+NB1*(L-1))=                       &
-     &              SCR(IOFF_TDM(ISYM2)+L+NB2*(K-1))
-             END DO
-            END DO
-           END DO
-         END IF
-         CALL DAXPY_(NBSQ,X,TDMAO,1,TDMAT,1)
-         END IF
-        END DO
-       END DO
-! TDMAT() now contains the transition density matrix in AO basis for
-! the eigenstates.
-! ------------------------------------------------------------------
+do IJPAIR=1,NBINA
+  ! Requested state pairs for computation: (OBSOLETE)
+  KEIG_BRA = IBINA(1,IJPAIR)
+  KEIG_KET = IBINA(2,IJPAIR)
+  ! Get symmetries, via jobiph number for the states:
+  LSYM_BRA = IRREP(JBNUM(KEIG_BRA))
+  LSYM_KET = IRREP(JBNUM(KEIG_KET))
+  ! Combined symmetry:
+  LSYM12 = MUL(LSYM_BRA,LSYM_KET)
+  ! For relating left and right symmetry blocks, offset tables are
+  ! needed for the singular values and for the TDM.
+  ITD = 0
+  ISV = 0
+  do ISYM1=1,NSYM
+    IOFF_TDM(ISYM1) = ITD
+    IOFF_ISV(ISYM1) = ISV
+    ISYM2 = MUL(ISYM1,LSYM12)
+    ITD = ITD+NBASF(ISYM1)*NBASF(ISYM2)
+    ISV = ISV+NBASF(ISYM1)
+  end do
+  TDMAT(:) = Zero
+  ! DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS
+  do I=1,NSTATE
+    if (IRREP(JBNUM(I)) /= LSYM_BRA) cycle
+    do J=1,NSTATE
+      if (IRREP(JBNUM(J)) /= LSYM_KET) cycle
+      ! PICK UP TRANSITION DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
+      ! WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
+      X = EIGVEC(KEIG_BRA,i)*EIGVEC(KEIG_KET,j)
+      IDISK = iDisk_TDM(J,I,1)
+      IEMPTY = iDisk_TDM(J,I,2)
+      iOpt = 2
+      iGo = 1
+      if (iand(iEMPTY,1) /= 0) then
+        if (I > J) then
+          call dens2file(TDMAO,TDMAO,TDMAO,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+        else
+          ! Pick up conjugate TDM array, and transpose it into TDMAO.
+          call dens2file(SCR,SCR,SCR,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
+          ! Loop over the receiving side:
+          do ISYM1=1,NSYM
+            ISYM2 = MUL(ISYM1,LSYM12)
+            NB1 = NBASF(ISYM1)
+            NB2 = NBASF(ISYM2)
+            do K=1,NB1
+              do L=1,NB2
+                TDMAO(IOFF_TDM(ISYM1)+K+NB1*(L-1)) = SCR(IOFF_TDM(ISYM2)+L+NB2*(K-1))
+              end do
+            end do
+          end do
+        end if
+        call DAXPY_(NBSQ,X,TDMAO,1,TDMAT,1)
+      end if
+    end do
+  end do
+  ! TDMAT() now contains the transition density matrix in AO basis for
+  ! the eigenstates.
+  ! ------------------------------------------------------------------
 
-! LOOP OVER SYMMETRY BLOCKS OF TDMAT.
-! On the ket side, ISYM2 is not looping sequentially so we need
-! tables of offsets:
-       IV=0
-       IE=0
-       DO ISYM=1,NSYM
-        IOFF_VEC(ISYM)=IV
-        IOFF_SEV(ISYM)=IE
-        IV=IV+NBASF(ISYM)**2
-        IE=IE+NBASF(ISYM)
-       END DO
-       SNGV1(:)=0.0D0
-       SNGV2(:)=0.0D0
-       ITD=0
-       DO ISYM1=1,NSYM
-        ISYM2=MUL(ISYM1,LSYM12)
-        NB1=NBASF(ISYM1)
-        NB2=NBASF(ISYM2)
-        LV1=1+IOFF_VEC(ISYM1)
-        LV2=1+IOFF_VEC(ISYM2)
-        LE1=1+IOFF_SEV(ISYM1)
-        LE2=1+IOFF_SEV(ISYM2)
-! TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
-! BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
-! SCALING WITH THE EIGENVECTORS OF THE OVERLAP MATRIX:
-        CALL DGEMM_('N','N',NB1,NB2,NB2,1.0D0,                          &
-     &              TDMAT(1+ITD),NB1,ONBAS(LV2),NB2,                    &
-     &         0.0D0, SCR,NB1)
-        CALL DGEMM_('T','N',NB1,NB2,NB1,1.0D0,                          &
-     &                ONBAS(LV1),NB1,SCR,NB1,                           &
-     &         0.0D0, TDMAT(1+ITD),NB1)
-        ITD1=ITD
-        DO I=1,NB1
-         CALL DSCAL_(NB2,SEV(LE1-1+I),TDMAT(1+ITD1),NB1)
-         ITD1=ITD1+1
-        END DO
-        ITD2=ITD
-        DO I=1,NB2
-         CALL DSCAL_(NB1,SEV(LE2-1+I),TDMAT(1+ITD2),1)
-         ITD2=ITD2+NB1
-        END DO
+  ! LOOP OVER SYMMETRY BLOCKS OF TDMAT.
+  ! On the ket side, ISYM2 is not looping sequentially so we need
+  ! tables of offsets:
+  IV = 0
+  IE = 0
+  do ISYM=1,NSYM
+    IOFF_VEC(ISYM) = IV
+    IOFF_SEV(ISYM) = IE
+    IV = IV+NBASF(ISYM)**2
+    IE = IE+NBASF(ISYM)
+  end do
+  SNGV1(:) = Zero
+  SNGV2(:) = Zero
+  ITD = 0
+  do ISYM1=1,NSYM
+    ISYM2 = MUL(ISYM1,LSYM12)
+    NB1 = NBASF(ISYM1)
+    NB2 = NBASF(ISYM2)
+    LV1 = 1+IOFF_VEC(ISYM1)
+    LV2 = 1+IOFF_VEC(ISYM2)
+    LE1 = 1+IOFF_SEV(ISYM1)
+    LE2 = 1+IOFF_SEV(ISYM2)
+    ! TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
+    ! BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
+    ! SCALING WITH THE EIGENVECTORS OF THE OVERLAP MATRIX:
+    call DGEMM_('N','N',NB1,NB2,NB2,One,TDMAT(1+ITD),NB1,ONBAS(LV2),NB2,Zero,SCR,NB1)
+    call DGEMM_('T','N',NB1,NB2,NB1,One,ONBAS(LV1),NB1,SCR,NB1,Zero,TDMAT(1+ITD),NB1)
+    ITD1 = ITD
+    do I=1,NB1
+      call DSCAL_(NB2,SEV(LE1-1+I),TDMAT(1+ITD1),NB1)
+      ITD1 = ITD1+1
+    end do
+    ITD2 = ITD
+    do I=1,NB2
+      call DSCAL_(NB1,SEV(LE2-1+I),TDMAT(1+ITD2),1)
+      ITD2 = ITD2+NB1
+    end do
 
-! SVD DECOMPOSITION OF THIS MATRIX BLOCK:
-        CALL FULL_SVD(NB1,NB2,TDMAT(1+ITD),                             &
-     &                UMAT,VTMAT,SVAL)
-! On return, UMAT has dimension (NB1,NB1),
-! On return, VTMAT has dimension (NB2,NB2), transpose storage
-        NBMIN=MIN(NB1,NB2)
-! REEXPRESS THE SINGULAR VECTORS USING AO BASIS:
-        LB=1+IOFF_VEC(ISYM1)
-        LK=1+IOFF_VEC(ISYM2)
-        CALL DGEMM_('N','N',NB1,NB1,NB1,1.0D0,                          &
-     &                ONBAS(LV1),NB1,UMAT,NB1,                          &
-     &          0.0D0,BRABNO(LB),NB1)
-        CALL DGEMM_('N','T',NB2,NB2,NB2,1.0D0,                          &
-     &                ONBAS(LV2),NB2,VTMAT,NB2,                         &
-     &          0.0D0,KETBNO(LK),NB2)
+    ! SVD DECOMPOSITION OF THIS MATRIX BLOCK:
+    call FULL_SVD(NB1,NB2,TDMAT(1+ITD),UMAT,VTMAT,SVAL)
+    ! On return, UMAT has dimension (NB1,NB1),
+    ! On return, VTMAT has dimension (NB2,NB2), transpose storage
+    NBMIN = min(NB1,NB2)
+    ! REEXPRESS THE SINGULAR VECTORS USING AO BASIS:
+    LB = 1+IOFF_VEC(ISYM1)
+    LK = 1+IOFF_VEC(ISYM2)
+    call DGEMM_('N','N',NB1,NB1,NB1,One,ONBAS(LV1),NB1,UMAT,NB1,Zero,BRABNO(LB),NB1)
+    call DGEMM_('N','T',NB2,NB2,NB2,One,ONBAS(LV2),NB2,VTMAT,NB2,Zero,KETBNO(LK),NB2)
 
-! Move the singular values into their proper places:
-        CALL DCOPY_(NBMIN,SVAL,1,SNGV1(1+IOFF_ISV(ISYM1)),1)
-        CALL DCOPY_(NBMIN,SVAL,1,SNGV2(1+IOFF_ISV(ISYM2)),1)
-        ITD=ITD+NB1*NB2
-       END DO
+    ! Move the singular values into their proper places:
+    call DCOPY_(NBMIN,SVAL,1,SNGV1(1+IOFF_ISV(ISYM1)),1)
+    call DCOPY_(NBMIN,SVAL,1,SNGV2(1+IOFF_ISV(ISYM2)),1)
+    ITD = ITD+NB1*NB2
+  end do
 
-! WRITE OUT THIS SET OF BI-NATURAL ORBITALS. THE FILES WILL BE NAMED
-! BIORB.x_y, where x,y are KEIG_BRA and KEIG_KET.
-! The BRA and KET orbitals will be written as alpha and beta, respectively,
-! and the singular values will be written as "occupation numbers".
+  ! WRITE OUT THIS SET OF BI-NATURAL ORBITALS. THE FILES WILL BE NAMED
+  ! BIORB.x_y, where x,y are KEIG_BRA and KEIG_KET.
+  ! The BRA and KET orbitals will be written as alpha and beta, respectively,
+  ! and the singular values will be written as "occupation numbers".
 
-        WRITE(6,*)' Binatural singular values for the transition from'
-        WRITE(6,*)' ket eigenstate KEIG_KET to bra eigenstate KEIG_BRA'
-        WRITE(6,'(1x,I2,a,i2)') KEIG_BRA,' <-- ',KEIG_KET
-        DO I=1,NSYM
-          NB=NBASF(I)
-          IF( NB.NE.0 ) THEN
-            WRITE(6,'(A,I2)')' SYMMETRY SPECIES:',I
-            LS=1+IOFF_SEV(I)
-            WRITE(6,'(1X,10F8.5)')(SNGV1(LS-1+J),J=1,NB)
-          ENDIF
-        END DO
+  write(u6,*) ' Binatural singular values for the transition from'
+  write(u6,*) ' ket eigenstate KEIG_KET to bra eigenstate KEIG_BRA'
+  write(u6,'(1x,I2,a,i2)') KEIG_BRA,' <-- ',KEIG_KET
+  do I=1,NSYM
+    NB = NBASF(I)
+    if (NB /= 0) then
+      write(u6,'(A,I2)') ' SYMMETRY SPECIES:',I
+      LS = 1+IOFF_SEV(I)
+      write(u6,'(1X,10F8.5)') (SNGV1(LS-1+J),J=1,NB)
+    end if
+  end do
 
-        WRITE(BNUM,'(I8)') KEIG_BRA
-        BNUM=ADJUSTL(BNUM)
-        WRITE(KNUM,'(I8)') KEIG_KET
-        KNUM=ADJUSTL(KNUM)
-        TXT=TRIM(BNUM)//' <-- '//TRIM(KNUM)
-        KNUM=TRIM(BNUM)//'_'//TRIM(KNUM)
+  write(BNUM,'(I8)') KEIG_BRA
+  BNUM = adjustl(BNUM)
+  write(KNUM,'(I8)') KEIG_KET
+  KNUM = adjustl(KNUM)
+  TXT = trim(BNUM)//' <-- '//trim(KNUM)
+  KNUM = trim(BNUM)//'_'//trim(KNUM)
 
-        FNAME='BIORB.'//KNUM
-        WRITE(6,'(A,A)')' Orbitals are written onto file id = ',FNAME
-        LUNIT=50
-        LUNIT=ISFREEUNIT(LUNIT)
-        CALL WRVEC_(FNAME,LUNIT,'CO',1,NSYM,NBASF,NBASF,                &
-     &              BRABNO,KETBNO,SNGV1,SNGV2,                          &
-     &     DUMMY, DUMMY, IDUMMY,                                        &
-     &     '* Binatural orbitals from transition '//TRIM(TXT), 0 )
-        CLOSE(LUNIT)
-        SUMSNG=DDOT_(SUM(NBASF),SNGV1,1,SNGV2,1)
-        CALL ADD_INFO("BINAT",[SUMSNG],1,5)
+  FNAME = 'BIORB.'//KNUM
+  write(u6,'(A,A)') ' Orbitals are written onto file id = ',FNAME
+  LUNIT = 50
+  LUNIT = ISFREEUNIT(LUNIT)
+  call WRVEC_(FNAME,LUNIT,'CO',1,NSYM,NBASF,NBASF,BRABNO,KETBNO,SNGV1,SNGV2,DUMMY,DUMMY,IDUMMY, &
+              '* Binatural orbitals from transition '//trim(TXT),0)
+  close(LUNIT)
+  SUMSNG = DDOT_(sum(NBASF),SNGV1,1,SNGV2,1)
+  call ADD_INFO('BINAT',[SUMSNG],1,5)
 
-! End of very long loop over eigenstate pairs.
-      END DO
+  ! End of very long loop over eigenstate pairs.
+end do
 
-      WRITE(6,*) repeat('*',80)
-      CALL mma_deallocate(ONBAS)
-      CALL mma_deallocate(SEV)
-      CALL mma_deallocate(SCR)
-      CALL mma_deallocate(UMAT)
-      CALL mma_deallocate(VTMAT)
-      CALL mma_deallocate(SVAL)
-      CALL mma_deallocate(SNGV1)
-      CALL mma_deallocate(SNGV2)
-      CALL mma_deallocate(TDMAT)
-      CALL mma_deallocate(TDMAO)
-      CALL mma_deallocate(BRABNO)
-      CALL mma_deallocate(KETBNO)
+write(u6,*) repeat('*',80)
+call mma_deallocate(ONBAS)
+call mma_deallocate(SEV)
+call mma_deallocate(SCR)
+call mma_deallocate(UMAT)
+call mma_deallocate(VTMAT)
+call mma_deallocate(SVAL)
+call mma_deallocate(SNGV1)
+call mma_deallocate(SNGV2)
+call mma_deallocate(TDMAT)
+call mma_deallocate(TDMAO)
+call mma_deallocate(BRABNO)
+call mma_deallocate(KETBNO)
 
-      END SUBROUTINE BINAT
+end subroutine BINAT

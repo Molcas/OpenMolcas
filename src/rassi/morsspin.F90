@@ -1,0 +1,36 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+integer function MorsSpin(IMORS,MS2ARR)
+
+use Definitions, only: u6
+
+implicit none
+integer MORSBITS
+parameter(MORSBITS=8)
+dimension MS2ARR(*)
+integer I, IB, IBIT, IMORS, MS2ARR
+
+MorsSpin = 0
+if (IMORS < 0) goto 99
+IB = IMORS
+do I=1,MORSBITS
+  IBIT = mod(IB,2)
+  IB = IB/2
+  if (IBIT == 1) MorsSpin = MorsSpin+MS2ARR(I)
+end do
+
+return
+99 continue
+write(u6,*) ' MorsSpin: Bad IMORS=',IMORS
+call ABEND()
+
+end function MorsSpin

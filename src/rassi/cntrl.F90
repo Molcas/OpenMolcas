@@ -8,33 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Cntrl
+
+module Cntrl
+
 use Molcas, only: LenIn, MxAtom, MxOrb, MxRoot
 use RASDim, only: mxTit
-! The parameters defined in module RASDim should be private
-Private mxTit
-! The parameters defined in module Molcas should be private
-Private LenIn, MxAtom, MxOrb, MxRoot
+use Constants, only: Zero
 
-  INTEGER, PARAMETER :: MXJOB=100,MXPROP=30000
-  INTEGER, PARAMETER :: MXDISP=500
-  REAL*8  :: PNUC(MXPROP)=0.0D0,PORIG(3,MXPROP)=0.0D0,CITHR
-  REAL*8  EMIN,ERFNUC,EPRTHR, EPRATHR,ALPHZ, BETAE
-  REAL*8  TSTART,TINCRE,BSTART,BINCRE,BANGRES
-  REAL*8  OSTHR_DIPR,OSTHR_QIPR
-  REAL*8  RSTHR, TOLERANCE
-  INTEGER, DIMENSION(MXPROP) :: ICOMP,ISOCMP,IPUSED,IPCODE
-  INTEGER, DIMENSION(MXJOB) :: NSTAT,ISTAT,NROOTS,NACTE,MLTPLT
-  INTEGER, DIMENSION(MXJOB) :: IRREP,NHOLE1,NELE3,NCONF,ISPACE
-  INTEGER, DIMENSION(MXJOB) :: NDET
-  INTEGER NJOB,NSTATE,NPROP,NSOPR
-  INTEGER NRNATO,NBINA,IBINA(2,MxRoot)
-  INTEGER LSYM1,LSYM2,NCONF1,NCONF2
-  INTEGER LCI1,LCI2,LCI3,LGAM1,LGAM2,LGAM3,LIPAIR
-  INTEGER NTSTEP,NBSTEP,LOOPDIVIDE,LOOPMAX
-  INTEGER DYSEXPSF,DYSEXPSO
-  INTEGER OCAN,DCHO
-  CHARACTER(LEN=16) :: OCAA(20)
+! The parameters defined in module RASDim should be private
+private mxTit
+! The parameters defined in module Molcas should be private
+private LenIn, MxAtom, MxOrb, MxRoot
+
+integer, parameter :: MXJOB = 100, MXPROP = 30000
+integer, parameter :: MXDISP = 500
+real*8 :: PNUC(MXPROP) = Zero, PORIG(3,MXPROP) = Zero, CITHR
+real*8 EMIN, ERFNUC, EPRTHR, EPRATHR, ALPHZ, BETAE
+real*8 TSTART, TINCRE, BSTART, BINCRE, BANGRES
+real*8 OSTHR_DIPR, OSTHR_QIPR
+real*8 RSTHR, TOLERANCE
+integer, dimension(MXPROP) :: ICOMP, ISOCMP, IPUSED, IPCODE
+integer, dimension(MXJOB) :: NSTAT, ISTAT, NROOTS, NACTE, MLTPLT
+integer, dimension(MXJOB) :: IRREP, NHOLE1, NELE3, NCONF, ISPACE
+integer, dimension(MXJOB) :: NDET
+integer NJOB, NSTATE, NPROP, NSOPR
+integer NRNATO, NBINA, IBINA(2,MxRoot)
+integer LSYM1, LSYM2, NCONF1, NCONF2
+integer LCI1, LCI2, LCI3, LGAM1, LGAM2, LGAM3, LIPAIR
+integer NTSTEP, NBSTEP, LOOPDIVIDE, LOOPMAX
+integer DYSEXPSF, DYSEXPSO
+integer OCAN, DCHO
+character(len=16) :: OCAA(20)
 ! BP - SO Natural orbital information
 ! RF - SO Natural transition orbital information
 ! IFARGU           Do phase factor for SO-NTOs
@@ -47,11 +51,11 @@ Private LenIn, MxAtom, MxOrb, MxRoot
 ! Do_Pol           Specify a polarization vector direction
 ! DOCD             Regular circular dichroism - velocity and mixed gauge
 ! SaveDens         Save input-state transition densities in temp. file
-  LOGICAL IFCURD, Do_TMOM, Do_SK, Do_Pol, DOCD, Force_NON_AO_TDM, SaveDens, IFARGU
-  REAL*8 TDIPMIN,SOTHR_PRT,TMGr_thrs
-  INTEGER NSOTHR_PRT, ISMGRD(MXDISP), LDISP(8), NDISP, NTDISP(MXDISP)
-  INTEGER IFJ2, IFJZ
-  INTEGER L_Eff,nQuad
+logical IFCURD, Do_TMOM, Do_SK, Do_Pol, DOCD, Force_NON_AO_TDM, SaveDens, IFARGU
+real*8 TDIPMIN, SOTHR_PRT, TMGr_thrs
+integer NSOTHR_PRT, ISMGRD(MXDISP), LDISP(8), NDISP, NTDISP(MXDISP)
+integer IFJ2, IFJZ
+integer L_Eff, nQuad
 
 ! CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.
 ! ESHFT  - OPTIONAL ENERGY SHIFT OF EACH INPUT STATE.
@@ -82,8 +86,8 @@ Private LenIn, MxAtom, MxOrb, MxRoot
 ! iToc25 - Table-of-contents for the optional file TOFILE.
 ! ALPHZ - Value for alpha in DQV diabatization.
 ! BETAE - Value for beta in DQV diabatization.
-      CHARACTER(LEN=8) PNAME(MXPROP),PTYPE(MXPROP),SOPRNM(MXPROP),SOPRTP(MXPROP),RASTYP(MXJOB)
-      CHARACTER(LEN=128) JBNAME(MXJOB),MINAME(MXJOB)
+character(len=8) PNAME(MXPROP), PTYPE(MXPROP), SOPRNM(MXPROP), SOPRTP(MXPROP), RASTYP(MXJOB)
+character(len=128) JBNAME(MXJOB), MINAME(MXJOB)
 ! JBNAME - LOGICAL NAME OF EACH JOBIPH FILE.
 ! PNAME  - NAME OF EACH PROPERTY FOR WHICH MATRIX ELEMENTS ARE COMPUTED
 ! PTYPE  - TYPE NAME, ex. 'AntiSing' for an antihermitian, spin-singlet op.
@@ -91,22 +95,22 @@ Private LenIn, MxAtom, MxOrb, MxRoot
 !          SPIN-ORBIT STATES.
 ! SOPRTP - TYPE NAME, similar to PTYPE
 ! RassiT - Title of the Rassi-calculation.
-  LOGICAL PRDIPVEC,PRDIPCOM,PRSXY,PRORB,PRTRA
-  LOGICAL PRCI,CIH5,IFHAM,IFHEXT,IFHEFF,IFEJOB,IFHCOM
-  LOGICAL HAVE_HEFF,HAVE_DIAG,NOHAM
-  LOGICAL IFTRD1,IFTRD2,IFTDM,HOP,TRACK,ONLY_OVERLAPS
-  LOGICAL IFSHFT,IFHDIA,IFSO,IFTD2,NATO,RFpert,ToFile
-  LOGICAL BINA
-  LOGICAL PRXVR,PRXVE,PRXVS,PRMER,PRMEE,PRMES
-  LOGICAL IFGCAL,IFXCAL,IFMCAL,DQVD
-  LOGICAL DIPR,QIPR,QIALL
-  LOGICAL RSPR
-  LOGICAL DYSO,DYSEXPORT,TDYS,DCHS
-  LOGICAL QDPT2SC, QDPT2EV
-  LOGICAL PRRAW,PRWEIGHT
-  LOGICAL REDUCELOOP
-  LOGICAL SECOND_TIME,DoGSOR
-  LOGICAL RHODyn
+logical PRDIPVEC, PRDIPCOM, PRSXY, PRORB, PRTRA
+logical PRCI, CIH5, IFHAM, IFHEXT, IFHEFF, IFEJOB, IFHCOM
+logical HAVE_HEFF, HAVE_DIAG, NOHAM
+logical IFTRD1, IFTRD2, IFTDM, HOP, TRACK, ONLY_OVERLAPS
+logical IFSHFT, IFHDIA, IFSO, IFTD2, NATO, RFpert, ToFile
+logical BINA
+logical PRXVR, PRXVE, PRXVS, PRMER, PRMEE, PRMES
+logical IFGCAL, IFXCAL, IFMCAL, DQVD
+logical DIPR, QIPR, QIALL
+logical RSPR
+logical DYSO, DYSEXPORT, TDYS, DCHS
+logical QDPT2SC, QDPT2EV
+logical PRRAW, PRWEIGHT
+logical REDUCELOOP
+logical SECOND_TIME, DoGSOR
+logical RHODyn
 
 ! BP - Hyperfine tensor Flags
 ! IFACAL        TRUE to calculate hyperfine tensors
@@ -119,23 +123,23 @@ Private LenIn, MxAtom, MxOrb, MxRoot
 ! IFACALFCSDON  TRUE to calculate FC +SD terms
 ! IFGTCALSA     TRUE to calculate single_aniso g-tensor in RASSI
 ! K.Sharkas end
-  LOGICAL IFACAL,IFACALFC,IFACALSD
-  LOGICAL IFACALFCON,IFACALSDON,IFACALPSO
-  LOGICAL IFACALFCSDON,IFVANVLECK,IFSONCINI
-  LOGICAL IFSONCIFC,IFGTCALSA,IFGTSHSA,IFATCALSA
-  INTEGER NTS,NTP,NTF,MULTIP
-  REAL*8  TMINS,TMAXS,TMINP,TMAXP
+logical IFACAL, IFACALFC, IFACALSD
+logical IFACALFCON, IFACALSDON, IFACALPSO
+logical IFACALFCSDON, IFVANVLECK, IFSONCINI
+logical IFSONCIFC, IFGTCALSA, IFGTSHSA, IFATCALSA
+integer NTS, NTP, NTF, MULTIP
+real*8 TMINS, TMAXS, TMINP, TMAXP
 ! tjd- BMII: LPRPR set to .T. for easier parsable matrix output
 ! tjd- Yoni: LHAMI
-  LOGICAL LPRPR,LHAMI
-  REAL*8  TMINF,TMAXF
+logical LPRPR, LHAMI
+real*8 TMINF, TMAXF
 
 ! BP - Testing flags
 ! NOSO      Disable SO contributions in the SONATORB and SODIAG code
-  LOGICAL NOSO
+logical NOSO
 
 !nf
-  Logical IfDCpl
+logical IfDCpl
 !nf
 ! PRSXY  - PRINT MO OVERLAP MATRICES FOR INPUT JOBIPHS.
 ! PRORB  - PRINT INPUT ORBITALS.
@@ -165,51 +169,48 @@ Private LenIn, MxAtom, MxOrb, MxRoot
 ! QDPT2SC - use SC effective Hamiltonian (rather than the PC one) from QD-NEVPT2
 ! QDPT2EV - use eigenvectors of effective Hamiltonian from QD-NEVPT2 to mix TDMs (in MPS-SI we do not use 'mixed MPS'
 !           instead we mix the TDMs)
-!      NTO Calculation Section /// Jie Bao
-  Logical IfNTO
+! NTO Calculation Section /// Jie Bao
+logical IfNTO
 
-!    SONTO            Array of SO state pairs
-Integer, Allocatable, Public:: SONTO(:,:)
-!    SONTOSTATES      Number of state pairs to calculate
-Integer, Public:: SONTOSTATES=0
+! SONTO            Array of SO state pairs
+integer, allocatable, public :: SONTO(:,:)
+! SONTOSTATES      Number of state pairs to calculate
+integer, public :: SONTOSTATES = 0
 
-!    SONAT            Array of SO state to compute
-Integer, Allocatable, Public:: SONAT(:)
-!    SONATNSTATE      Number of states to calculate
-Integer, Public:: SONATNSTATE=0
+! SONAT            Array of SO state to compute
+integer, allocatable, public :: SONAT(:)
+! SONATNSTATE      Number of states to calculate
+integer, public :: SONATNSTATE = 0
 
-Integer, Allocatable, Public:: SODIAG(:)
-!    SODIAGNSTATE     Number of states to diagonalize
-INTEGER, Public::  SODIAGNSTATE=0
+integer, allocatable, public :: SODIAG(:)
+! SODIAGNSTATE     Number of states to diagonalize
+integer, public :: SODIAGNSTATE = 0
 
-Real*8, Allocatable, Public:: RefEne(:), HEff(:,:)
+real*8, allocatable, public :: RefEne(:), HEff(:,:)
 
-
-INTEGER, Parameter:: MORSBITS=8
+integer, parameter :: MORSBITS = 8
 
 ! Note: MXATOM to be taken from module Molcas
-INTEGER               NGROUP,IGROUP(8),NATOMS,COOR(3,MXATOM)
+integer NGROUP, IGROUP(8), NATOMS, COOR(3,MXATOM)
 ! Atom labels, 4 bytes each.
-CHARACTER(LEN=LENIN) ATLBL(MXATOM)
-
+character(len=LenIn) ATLBL(MXATOM)
 
 ! TEMPORARY DATA FROM JOBIPHS
-REAL*8 POTNU1
-Integer NACTE1,MPLET1,NSYM1,NFRO1(8),NISH1(8),NASH1(8),NDEL1(8),NBAS1(8),NRS11(8),NRS21(8), &
-        NRS31(8),LROT1,NROOT1,IROOT1(mxRoot),NHOL11,NELE31
-CHARACTER(LEN=LenIn+8) NAME(mxOrb)
-CHARACTER(LEN=2) HEAD1(72)
-CHARACTER(LEN=4) TITLE1(18,mxTit)
+real*8 POTNU1
+integer NACTE1, MPLET1, NSYM1, NFRO1(8), NISH1(8), NASH1(8), NDEL1(8), NBAS1(8), NRS11(8), NRS21(8), &
+  NRS31(8), LROT1, NROOT1, IROOT1(mxRoot), NHOL11, NELE31
+character(len=LenIn+8) NAME(mxOrb)
+character(len=2) HEAD1(72)
+character(len=4) TITLE1(18,mxTit)
 
 ! Cholesky/RI stuff
-Integer ALGO,Nscreen
-Real*8 dmpk
-
+integer ALGO, Nscreen
+real*8 dmpk
 
 ! This preserves the values of the variables for the
 ! trajectory surface hopping algorithm.
-INTEGER  ISTATE1,ISTATE2,NCI1,NCI2,nHop
-LOGICAL  ChkHop,lHop
+integer ISTATE1, ISTATE2, NCI1, NCI2, nHop
+logical ChkHop, lHop
 ! ISTATE1 - Number of the current relaxed state
 ! ISTATE2 - Number of the state that interacts with the current state
 ! NCI1    - Configuration's number of state 1
@@ -217,20 +218,18 @@ LOGICAL  ChkHop,lHop
 ! lHop    - Is .TRUE. if nHop is set in the RunFile
 ! nHop    - Number of transitions (Hops) already occured
 
-
 !----------------------------------------------------------------------*
 !     Define files ( file names and unit numbers )                     *
 !----------------------------------------------------------------------*
-!
+
 ! LUIPH  - UNIT NUMBER OF JOBIPHS
 ! LUMCK  - UNIT NUMBER OF MCKINT FILES
 ! LUONE  - D:O, ONE-ELECTRON INTEGRAL FILE
 ! LUORD  - D:O, ORDERED TWO-ELECTRON INTEGRAL FILE
 ! IADR15 - TABLE OF CONTENTS, DISK ADDRESSES ON LUIPH.
 ! IDCMO  - Addresses to the CMO arrays on each JOBIPH
-Character(LEN=8) FnOne,FnIph,FnMck,FnOrd,FnTDM,FnExc,FnToM,FnEig
-INTEGER LUIPH, LUMCK, LUONE, LUORD, LUEIG
-INTEGER LUEXC, LUTDM, LUTOM, IDCMO(MXJOB), ITOC15(30)
+character(len=8) FnOne, FnIph, FnMck, FnOrd, FnTDM, FnExc, FnToM, FnEig
+integer LUIPH, LUMCK, LUONE, LUORD, LUEIG
+integer LUEXC, LUTDM, LUTOM, IDCMO(MXJOB), ITOC15(30)
 
-End Module Cntrl
-!
+end module Cntrl

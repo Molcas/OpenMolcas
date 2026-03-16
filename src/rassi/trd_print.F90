@@ -13,143 +13,138 @@
 
 ! Print the transition density matrices in ASCII format.
 !   Code written by P. A. Malmqvist.
-! This code was moved from the main gtdmctl.f file for clarity.
+! This code was moved from the main gtdmctl file for clarity.
 ! - F. Plasser
-      SUBROUTINE TRD_PRINT(ISTATE, JSTATE, DO22, TDMAB, TDM2,           &
-     &                     CMO1, CMO2, SIJ)
-      use Cntrl, only: LSYM1, LSYM2
-      use Symmetry_Info, only: nSym=>nIrrep, MUL
-      use rassi_data, only: NASHT,NAES,NASH,NBASF,NFRO,NISH,NOSH
+subroutine TRD_PRINT(ISTATE,JSTATE,DO22,TDMAB,TDM2,CMO1,CMO2,SIJ)
 
-      IMPLICIT None
+use Cntrl, only: LSYM1, LSYM2
+use Symmetry_Info, only: nSym => nIrrep, MUL
+use rassi_data, only: NASHT, NAES, NASH, NBASF, NFRO, NISH, NOSH
+
+implicit none
 ! Variables passed
-      INTEGER ISTATE, JSTATE
-      REAL*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ
-      LOGICAL DO22
-
+integer ISTATE, JSTATE
+real*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ
+logical DO22
 ! Other variables
-      CHARACTER(LEN=3) NUM1,NUM2
-      CHARACTER(LEN=12) FNM
-      REAL*8 WBUF(5)
-      Integer LU, LPOS, ISYM, NO, NB, IO, I, LSYM12, ISYM1, NO1, ISYM2, &
-     &        NO2, NA1, NA2, NI1, NI2, II, JJ, ISYT, ISYU, ISYV, LIMX,  &
-     &        ISYX, IWBUF, IT, ITABS, IU, IUABS, ITU, IV, IVABS, IX,    &
-     &        IXABS, IVX, ITUVX
-      Integer, External:: IsFreeUnit
+character(len=3) NUM1, NUM2
+character(len=12) FNM
+real*8 WBUF(5)
+integer LU, LPOS, ISYM, NO, NB, IO, I, LSYM12, ISYM1, NO1, ISYM2, NO2, NA1, NA2, NI1, NI2, II, JJ, ISYT, ISYU, ISYV, LIMX, ISYX, &
+        IWBUF, IT, ITABS, IU, IUABS, ITU, IV, IVABS, IX, IXABS, IVX, ITUVX
+integer, external :: IsFreeUnit
 
-! Subroutine starts
-      LU=50
-      LU=IsFreeUnit(LU)
-      WRITE(NUM1,'(I3.3)') ISTATE
-      WRITE(NUM2,'(I3.3)') JSTATE
-      FNM='TRD2_'//NUM1//'_'//NUM2
-      CALL Molcas_Open(LU,FNM)
-      WRITE(LU,*)'#Transition density file from RASSI.'
-      WRITE(LU,*)'#  States:'
-      WRITE(LU,*) ISTATE, JSTATE
-      WRITE(LU,*)'#  Nr of irreps:'
-      WRITE(LU,*) NSYM
-      WRITE(LU,*)'#  Basis functions:'
-      WRITE(LU,'(8I5)') (NBASF(ISYM),ISYM=1,NSYM)
-      WRITE(LU,*)'#  Frozen orbitals:'
-      WRITE(LU,'(8I5)') (NFRO(ISYM),ISYM=1,NSYM)
-      WRITE(LU,*)'#  Inactive orbitals:'
-      WRITE(LU,'(8I5)') (NISH(ISYM),ISYM=1,NSYM)
-      WRITE(LU,*)'#  Active orbitals:'
-      WRITE(LU,'(8I5)') (NASH(ISYM),ISYM=1,NSYM)
-      WRITE(LU,*)'#  State ',ISTATE,'    CMO coefficients:'
-      LPOS=1
-      DO ISYM=1,NSYM
-        NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        NB=NBASF(ISYM)
-        DO IO=1,NO
-          WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-          WRITE(LU,'(5ES19.12)')(CMO1(LPOS+NB*(IO-1)+i),i=0,NB-1)
-        END DO
-        LPOS=LPOS+NB*NO
-      END DO
-      WRITE(LU,*)'#  State ',JSTATE,'    CMO coefficients:'
-      LPOS=1
-      DO ISYM=1,NSYM
-        NO=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        NB=NBASF(ISYM)
-        DO IO=1,NO
-          WRITE(LU,*)'#  Symm ',ISYM,'   Orbital ',IO
-          WRITE(LU,'(5ES19.12)')(CMO2(LPOS+NB*(IO-1)+i),i=0,NB-1)
-        END DO
-        LPOS=LPOS+NB*NO
-      END DO
-      WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Overlap:'
-      WRITE(LU,'(5ES19.12)') SIJ
-      WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD1:'
-      LSYM12=MUL(LSYM1,LSYM2)
-      LPOS=1
-      DO ISYM1=1,NSYM
-        NO1=NOSH(ISYM1)
-        ISYM2=MUL(ISYM1,LSYM12)
-        NO2=NOSH(ISYM2)
-        IF (NO1*NO2 .gt. 0) THEN
-          NA1=NASH(ISYM1)
-          NA2=NASH(ISYM2)
-          IF (NA1*NA2 .gt. 0) THEN
-            NI1=NISH(ISYM1)
-            NI2=NISH(ISYM2)
-            WRITE(LU,*)'#  Symmetries ',ISYM1,ISYM2
-            WRITE(LU,'(5ES19.12)')((TDMAB(LPOS-1+II+NO1*(JJ-1)),        &
-     &                                  JJ=NI2+1,NO2),II=NI1+1,NO1)
-          END IF
-          LPOS=LPOS+NO1*NO2
-        END IF
-      END DO
+LU = IsFreeUnit(50)
+write(NUM1,'(I3.3)') ISTATE
+write(NUM2,'(I3.3)') JSTATE
+FNM = 'TRD2_'//NUM1//'_'//NUM2
+call Molcas_Open(LU,FNM)
+write(LU,*) '#Transition density file from RASSI.'
+write(LU,*) '#  States:'
+write(LU,*) ISTATE,JSTATE
+write(LU,*) '#  Nr of irreps:'
+write(LU,*) NSYM
+write(LU,*) '#  Basis functions:'
+write(LU,'(8I5)') (NBASF(ISYM),ISYM=1,NSYM)
+write(LU,*) '#  Frozen orbitals:'
+write(LU,'(8I5)') (NFRO(ISYM),ISYM=1,NSYM)
+write(LU,*) '#  Inactive orbitals:'
+write(LU,'(8I5)') (NISH(ISYM),ISYM=1,NSYM)
+write(LU,*) '#  Active orbitals:'
+write(LU,'(8I5)') (NASH(ISYM),ISYM=1,NSYM)
+write(LU,*) '#  State ',ISTATE,'    CMO coefficients:'
+LPOS = 1
+do ISYM=1,NSYM
+  NO = NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+  NB = NBASF(ISYM)
+  do IO=1,NO
+    write(LU,*) '#  Symm ',ISYM,'   Orbital ',IO
+    write(LU,'(5ES19.12)') (CMO1(LPOS+NB*(IO-1)+i),i=0,NB-1)
+  end do
+  LPOS = LPOS+NB*NO
+end do
+write(LU,*) '#  State ',JSTATE,'    CMO coefficients:'
+LPOS = 1
+do ISYM=1,NSYM
+  NO = NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+  NB = NBASF(ISYM)
+  do IO=1,NO
+    write(LU,*) '#  Symm ',ISYM,'   Orbital ',IO
+    write(LU,'(5ES19.12)') (CMO2(LPOS+NB*(IO-1)+i),i=0,NB-1)
+  end do
+  LPOS = LPOS+NB*NO
+end do
+write(LU,*) '#  States ',ISTATE,JSTATE,' Overlap:'
+write(LU,'(5ES19.12)') SIJ
+write(LU,*) '#  States ',ISTATE,JSTATE,' Active TRD1:'
+LSYM12 = MUL(LSYM1,LSYM2)
+LPOS = 1
+do ISYM1=1,NSYM
+  NO1 = NOSH(ISYM1)
+  ISYM2 = MUL(ISYM1,LSYM12)
+  NO2 = NOSH(ISYM2)
+  if (NO1*NO2 > 0) then
+    NA1 = NASH(ISYM1)
+    NA2 = NASH(ISYM2)
+    if (NA1*NA2 > 0) then
+      NI1 = NISH(ISYM1)
+      NI2 = NISH(ISYM2)
+      write(LU,*) '#  Symmetries ',ISYM1,ISYM2
+      write(LU,'(5ES19.12)') ((TDMAB(LPOS-1+II+NO1*(JJ-1)),JJ=NI2+1,NO2),II=NI1+1,NO1)
+    end if
+    LPOS = LPOS+NO1*NO2
+  end if
+end do
 
-      IF (DO22) THEN
-        WRITE(LU,*)'#  States ',ISTATE,JSTATE,' Active TRD2:'
-        DO ISYT=1,NSYM
-          DO ISYU=1,NSYM
-            DO ISYV=1,ISYT
-              LIMX=ISYV
-              IF(ISYV.EQ.ISYT) LIMX=ISYU
-              DO ISYX=1,LIMX
-!               > Write out one symmetry block (4 indices!) of two-electron
-!               > transition density matrix elements.
-!               > Write a full 'rectangular' array, even if it could be made
-!               > smaller by permutation symmetry.
-                WRITE(LU,*)'#  Orbital symm:',ISYT,ISYU,ISYV,ISYX
-                IWBUF=0
-                DO IT=1,NASH(ISYT)
-                  ITABS=NAES(ISYT)+IT
-                  DO IU=1,NASH(ISYU)
-                    IUABS=NAES(ISYU)+IU
-                    ITU=ITABS+NASHT*(IUABS-1)
-                    DO IV=1,NASH(ISYV)
-                      IVABS=NAES(ISYV)+IV
-                      DO IX=1,NASH(ISYX)
-                        IXABS=NAES(ISYX)+IX
-                        IVX=IVABS+NASHT*(IXABS-1)
-                        IF(ITU.GE.IVX) THEN
-                          ITUVX=(ITU*(ITU-1))/2+IVX
-                        ELSE
-                          ITUVX=(IVX*(IVX-1))/2+ITU
-                        END IF
-                        IWBUF=IWBUF+1
-                        WBUF(IWBUF)=TDM2(ITUVX)
-                        IF(IWBUF.EQ.5) THEN
-                          WRITE(LU,'(5ES19.12)')(WBUF(I),I=1,IWBUF)
-                          IWBUF=0
-                        END IF
-                      END DO
-                    END DO
-                  END DO
-                END DO
-                IF(IWBUF.GT.0) THEN
-                  WRITE(LU,'(5ES19.12)')(WBUF(I),I=1,IWBUF)
-                  IWBUF=0
-                END IF
-! End of writing a symmetry block.
-              END DO
-            END DO
-          END DO
-        END DO
-      END IF
-      CLOSE (LU)
-      END SUBROUTINE TRD_PRINT
+if (DO22) then
+  write(LU,*) '#  States ',ISTATE,JSTATE,' Active TRD2:'
+  do ISYT=1,NSYM
+    do ISYU=1,NSYM
+      do ISYV=1,ISYT
+        LIMX = ISYV
+        if (ISYV == ISYT) LIMX = ISYU
+        do ISYX=1,LIMX
+          !> Write out one symmetry block (4 indices!) of two-electron
+          !> transition density matrix elements.
+          !> Write a full 'rectangular' array, even if it could be made
+          !> smaller by permutation symmetry.
+          write(LU,*) '#  Orbital symm:',ISYT,ISYU,ISYV,ISYX
+          IWBUF = 0
+          do IT=1,NASH(ISYT)
+            ITABS = NAES(ISYT)+IT
+            do IU=1,NASH(ISYU)
+              IUABS = NAES(ISYU)+IU
+              ITU = ITABS+NASHT*(IUABS-1)
+              do IV=1,NASH(ISYV)
+                IVABS = NAES(ISYV)+IV
+                do IX=1,NASH(ISYX)
+                  IXABS = NAES(ISYX)+IX
+                  IVX = IVABS+NASHT*(IXABS-1)
+                  if (ITU >= IVX) then
+                    ITUVX = (ITU*(ITU-1))/2+IVX
+                  else
+                    ITUVX = (IVX*(IVX-1))/2+ITU
+                  end if
+                  IWBUF = IWBUF+1
+                  WBUF(IWBUF) = TDM2(ITUVX)
+                  if (IWBUF == 5) then
+                    write(LU,'(5ES19.12)') (WBUF(I),I=1,IWBUF)
+                    IWBUF = 0
+                  end if
+                end do
+              end do
+            end do
+          end do
+          if (IWBUF > 0) then
+            write(LU,'(5ES19.12)') (WBUF(I),I=1,IWBUF)
+            IWBUF = 0
+          end if
+          ! End of writing a symmetry block.
+        end do
+      end do
+    end do
+  end do
+end if
+close(LU)
+
+end subroutine TRD_PRINT

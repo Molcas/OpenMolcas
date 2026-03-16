@@ -10,21 +10,9 @@
 !                                                                      *
 ! Copyright (C) 2019, Roland Lindh                                     *
 !***********************************************************************
-  subroutine dens2file(array1,array2,array3,adim,lu,adr,iEmpty,iOpt,iGo, &
-                       iState,jState)
-  use rassi_aux, only : AO_Mode, Job_Index, nasht_save, CMO1, CMO2,      &
-                        DMAB, mTRA, Job1_Old, Job2_Old
-  use stdalloc, only: mma_Allocate, mma_deallocate
-  implicit none
-! External DDot_
-! Real*8 DDot_
-  integer, intent(in) :: adim, lu, iEmpty, iOpt, iGo, iState, jState
-  integer, intent(inout) :: adr
-  real*8 , intent(inout) :: array1(adim),array2(adim),array3(adim)
-  Integer JOB1, JOB2, bdim, IRC, J1, J2
-  Real*8, Allocatable:: TRA1(:), TRA2(:)
 
-!**********************************************************************
+subroutine dens2file(array1,array2,array3,adim,lu,adr,iEmpty,iOpt,iGo,iState,jState)
+!***********************************************************************
 !   This is the generalized disk interface for TDMs.
 !   Some of the parameters and variables are explained here.
 !
@@ -40,87 +28,95 @@
 !        requested. For example, iGo=2, means that only spin-densities
 !        are requested.
 !
-!**********************************************************************
-    bdim=adim
-    If (.NOT.AO_Mode .AND. iOpt.eq.2) bdim=nasht_save**2+1
-    If (bdim.gt.adim) Then
-       Write (6,*) 'Dens2file: bdim.gt.adim'
-       Call Abend()
-    End If
+!***********************************************************************
 
-!   Write (*,*) 'iState,jState=',iState,jState
-    If (IAND(iGo,1).ne.0) Then
-       If (IAND(iEmpty,1).ne.0) Then
-!         If (iOpt.eq.1) Write (6,*) 'array1=',DDot_(bdim-1,Array1,1,Array1,1), Array1(bdim)
-          call ddafile(lu,iOpt,array1,bdim,adr)
-       Else
-          If (iOpt.eq.2) array1(:)=0.0D0
-       End If
-    Else
-       If (IAND(iEmpty,1).ne.0) Then
-          call ddafile(lu,0,array1,bdim,adr)
-       End If
-    End If
-    If (IAND(iGo,2).ne.0) Then
-       If (IAND(iEmpty,2).ne.0) Then
-!         If (iOpt.eq.1) Write (6,*) 'array2=',DDot_(bdim-1,Array2,1,Array2,1), Array2(bdim)
-          call ddafile(lu,iOpt,array2,bdim,adr)
-       Else
-          If (iOpt.eq.2) array2(:)=0.0D0
-       End If
-    Else
-       If (IAND(iEmpty,2).ne.0) Then
-          call ddafile(lu,0,array2,bdim,adr)
-       End If
-    End If
-    If (IAND(iGo,4).ne.0) Then
-       If (IAND(iEmpty,4).ne.0) Then
-!         If (iOpt.eq.1) Write (6,*) 'array3=',DDot_(bdim-1,Array3,1,Array3,1), Array3(bdim)
-          call ddafile(lu,iOpt,array3,bdim,adr)
-       Else
-          If (iOpt.eq.2) array3(:)=0.0D0
-       End If
-    End If
-!
-    If (.Not.AO_Mode.AND.iOpt.eq.2) Then
-!
-!      Expand the TDMs to AO basis.
-!
-       JOB1=JOB_Index(iState)
-       JOB2=JOB_Index(jState)
-       J1=Max(JOB1,JOB2)
-       J2=Min(JOB1,JOB2)
-       If (J1.ne.JOB1_Old.or.J2.ne.JOB2_Old) Then
-          CALL RDCMO_RASSI(J1,CMO1)
-          CALL RDCMO_RASSI(J2,CMO2)
-          JOB1_OLD=J1
-          JOB2_OLD=J2
-          Call mma_Allocate(TRA1,mTra,Label='TRA1')
-          Call mma_Allocate(TRA2,mTra,Label='TRA2')
-          CALL FINDT(CMO1,CMO2,TRA1,TRA2)
-          Call mma_deallocate(TRA2)
-          Call mma_deallocate(TRA1)
-       End If
+use rassi_aux, only: AO_Mode, Job_Index, nasht_save, CMO1, CMO2, DMAB, mTRA, Job1_Old, Job2_Old
+use stdalloc, only: mma_Allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: u6
 
-!
-       If (IAND(iGo,1).ne.0.AND.iAND(iEmpty,1).ne.0) Then
-!         Write (*,*) 'array1=',DDot_(nasht_save**2,Array1,1,Array1,1),Array1(bdim)
-          CALL MKTDAB(array1(bdim),array1,DMAB,iRC)
-          CALL MKTDZZ(CMO1,CMO2,DMAB,array1,iRC)
-       End If
-!
-       If (IAND(iGo,2).ne.0.AND.iAND(iEmpty,2).ne.0) Then
-!         Write (*,*) 'array2=',DDot_(nasht_save**2,Array2,1,Array2,1),Array2(bdim)
-          CALL MKTDAB(array2(bdim),array2,DMAB,iRC)
-          CALL MKTDZZ(CMO1,CMO2,DMAB,array2,iRC)
-       End If
-!
-       If (IAND(iGo,4).ne.0.AND.iAND(iEmpty,4).ne.0) Then
-!         Write (*,*) 'array3=',DDot_(nasht_save**2,Array3,1,Array3,1),Array3(bdim)
-          CALL MKTDAB(array3(bdim),array3,DMAB,iRC)
-          CALL MKTDZZ(CMO1,CMO2,DMAB,array3,iRC)
-       End If
-!
-    End If
-!
-  end subroutine dens2file
+implicit none
+integer, intent(in) :: adim, lu, iEmpty, iOpt, iGo, iState, jState
+integer, intent(inout) :: adr
+real*8, intent(inout) :: array1(adim), array2(adim), array3(adim)
+integer JOB1, JOB2, bdim, IRC, J1, J2
+real*8, allocatable :: TRA1(:), TRA2(:)
+
+bdim = adim
+if ((.not. AO_Mode) .and. (iOpt == 2)) bdim = nasht_save**2+1
+if (bdim > adim) then
+  write(u6,*) 'Dens2file: bdim > adim'
+  call Abend()
+end if
+
+!write(u6,*) 'iState,jState=',iState,jState
+if (iand(iGo,1) /= 0) then
+  if (iand(iEmpty,1) /= 0) then
+    !if (iOpt == 1) write(u6,*) 'array1=',DDot_(bdim-1,Array1,1,Array1,1),Array1(bdim)
+    call ddafile(lu,iOpt,array1,bdim,adr)
+  else if (iOpt == 2) then
+    array1(:) = Zero
+  end if
+else if (iand(iEmpty,1) /= 0) then
+  call ddafile(lu,0,array1,bdim,adr)
+end if
+if (iand(iGo,2) /= 0) then
+  if (iand(iEmpty,2) /= 0) then
+    !if (iOpt == 1) write(u6,*) 'array2=',DDot_(bdim-1,Array2,1,Array2,1),Array2(bdim)
+    call ddafile(lu,iOpt,array2,bdim,adr)
+  else if (iOpt == 2) then
+    array2(:) = Zero
+  end if
+else if (iand(iEmpty,2) /= 0) then
+  call ddafile(lu,0,array2,bdim,adr)
+end if
+if (iand(iGo,4) /= 0) then
+  if (iand(iEmpty,4) /= 0) then
+    !if (iOpt == 1) write(u6,*) 'array3=',DDot_(bdim-1,Array3,1,Array3,1),Array3(bdim)
+    call ddafile(lu,iOpt,array3,bdim,adr)
+  else if (iOpt == 2) then
+    array3(:) = Zero
+  end if
+end if
+
+if ((.not. AO_Mode) .and. (iOpt == 2)) then
+
+  ! Expand the TDMs to AO basis.
+
+  JOB1 = JOB_Index(iState)
+  JOB2 = JOB_Index(jState)
+  J1 = max(JOB1,JOB2)
+  J2 = min(JOB1,JOB2)
+  if ((J1 /= JOB1_Old) .or. (J2 /= JOB2_Old)) then
+    call RDCMO_RASSI(J1,CMO1)
+    call RDCMO_RASSI(J2,CMO2)
+    JOB1_OLD = J1
+    JOB2_OLD = J2
+    call mma_Allocate(TRA1,mTra,Label='TRA1')
+    call mma_Allocate(TRA2,mTra,Label='TRA2')
+    call FINDT(CMO1,CMO2,TRA1,TRA2)
+    call mma_deallocate(TRA2)
+    call mma_deallocate(TRA1)
+  end if
+
+  if ((iand(iGo,1) /= 0) .and. (iand(iEmpty,1) /= 0)) then
+    !write(u6,*) 'array1=',DDot_(nasht_save**2,Array1,1,Array1,1),Array1(bdim)
+    call MKTDAB(array1(bdim),array1,DMAB,iRC)
+    call MKTDZZ(CMO1,CMO2,DMAB,array1,iRC)
+  end if
+
+  if ((iand(iGo,2) /= 0) .and. (iand(iEmpty,2) /= 0)) then
+    !write(u6,*) 'array2=',DDot_(nasht_save**2,Array2,1,Array2,1),Array2(bdim)
+    call MKTDAB(array2(bdim),array2,DMAB,iRC)
+    call MKTDZZ(CMO1,CMO2,DMAB,array2,iRC)
+  end if
+
+  if ((iand(iGo,4) /= 0) .and. (iand(iEmpty,4) /= 0)) then
+    !write(u6,*) 'array3=',DDot_(nasht_save**2,Array3,1,Array3,1),Array3(bdim)
+    call MKTDAB(array3(bdim),array3,DMAB,iRC)
+    call MKTDZZ(CMO1,CMO2,DMAB,array3,iRC)
+  end if
+
+end if
+
+end subroutine dens2file

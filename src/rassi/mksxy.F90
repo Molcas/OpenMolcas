@@ -10,74 +10,76 @@
 !                                                                      *
 ! Copyright (C) 1987, Per Ake Malmqvist                                *
 !***********************************************************************
-      SUBROUTINE MKSXY(CMO1,CMO2,SXY)
-      use OneDat, only: sNoNuc, sNoOri
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NSXY,NCMO,NBASF,NOSH
-      IMPLICIT None
-      Real*8 SXY(NSXY),CMO1(NCMO),CMO2(NCMO)
 
-      character(len=8) :: LABEL
+subroutine MKSXY(CMO1,CMO2,SXY)
 !  PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
 !  CODED 1987-02-18, P-AA M.
-      Real*8, Allocatable:: SZZ(:), SSQ(:), PROD(:)
-      INTEGER NSZZ,NSSQ,NPROD,ISY,NO,NB,IRC,IOPT,ICMP,ISYLAB,LSZZ1,     &
-     &        ISXY,ICMO
-!  CALCULATE SIZE AND ALLOCATE A FIELD SZZ FOR OVERLAP MATRIX
-!  IN COMMON BASIS SET (TRIANGULAR), SSQ TEMPORARY STORAGE
-!  FOR EACH OF ITS SYMMETRY BLOCKS (SQUARE), AND PROD FOR
-!  INTERMEDIATE MATRIX PRODUCTS.
-      NSZZ=0
-      NSSQ=0
-      NPROD=0
-      DO ISY=1,NSYM
-        NO=NOSH(ISY)
-        NB=NBASF(ISY)
-        NSZZ=NSZZ+(NB*(NB+1))/2
-        NSSQ=MAX(NSSQ,NB**2)
-        NPROD=MAX(NPROD,NO*NB)
-      end do
-      CALL mma_allocate(SZZ,NSZZ,Label='SZZ')
-      CALL mma_allocate(SSQ,NSSQ,Label='SSQ')
-      CALL mma_allocate(PROD,NPROD,Label='PROD')
-!  READ OVERLAP MATRIX SZZ:
-      IRC=-1
-      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
-      ICMP=1
-      ISYLAB=1
-      LABEL='MLTPL  0'
-      CALL RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
-      IF ( IRC.NE.0 ) THEN
-        WRITE(6,*)
-        WRITE(6,*)'      *** ERROR IN SUBROUTINE MKSXY ***'
-        WRITE(6,*)'     OVERLAP INTEGRALS ARE NOT AVAILABLE'
-        WRITE(6,*)
-        CALL ABEND()
-      ENDIF
-!  LOOP OVER SYMMETRIES:
-      LSZZ1=1
-      ISXY=1
-      ICMO=1
-      DO ISY=1,NSYM
-        NB=NBASF(ISY)
-        IF(NB.EQ.0) cycle
-        NO=NOSH(ISY)
-        if (NO /= 0) then
-        CALL SQUARE(SZZ(LSZZ1),SSQ,1,NB,NB)
-!  PROD:=SSQ*CMO2
-        CALL DGEMM_('N','N',NB,NO,NB,1.0D0,SSQ,NB,CMO2(ICMO),NB,        &
-     &             0.0D0,PROD,NB)
-!  SXY:=(CMO1(TRANSP))*PROD
-        CALL DGEMM_('T','N',NO,NO,NB,1.0D0,CMO1(ICMO),NB,PROD,NB,       &
-     &             0.0D0,SXY(ISXY),NO)
-        ISXY=ISXY+NO**2
-        ICMO=ICMO+NO*NB
-        end if
-        LSZZ1=LSZZ1+(NB*(NB+1))/2
-      end do
-      CALL mma_deallocate(SZZ)
-      CALL mma_deallocate(SSQ)
-      CALL mma_deallocate(PROD)
 
-      END SUBROUTINE MKSXY
+use OneDat, only: sNoNuc, sNoOri
+use stdalloc, only: mma_allocate, mma_deallocate
+use Symmetry_Info, only: nSym => nIrrep
+use rassi_data, only: NSXY, NCMO, NBASF, NOSH
+use Constants, only: Zero, One
+use Definitions, only: u6
+
+implicit none
+real*8 SXY(NSXY), CMO1(NCMO), CMO2(NCMO)
+character(len=8) :: LABEL
+real*8, allocatable :: SZZ(:), SSQ(:), PROD(:)
+integer NSZZ, NSSQ, NPROD, ISY, NO, NB, IRC, IOPT, ICMP, ISYLAB, LSZZ1, ISXY, ICMO
+
+! CALCULATE SIZE AND ALLOCATE A FIELD SZZ FOR OVERLAP MATRIX
+! IN COMMON BASIS SET (TRIANGULAR), SSQ TEMPORARY STORAGE
+! FOR EACH OF ITS SYMMETRY BLOCKS (SQUARE), AND PROD FOR
+! INTERMEDIATE MATRIX PRODUCTS.
+NSZZ = 0
+NSSQ = 0
+NPROD = 0
+do ISY=1,NSYM
+  NO = NOSH(ISY)
+  NB = NBASF(ISY)
+  NSZZ = NSZZ+(NB*(NB+1))/2
+  NSSQ = max(NSSQ,NB**2)
+  NPROD = max(NPROD,NO*NB)
+end do
+call mma_allocate(SZZ,NSZZ,Label='SZZ')
+call mma_allocate(SSQ,NSSQ,Label='SSQ')
+call mma_allocate(PROD,NPROD,Label='PROD')
+! READ OVERLAP MATRIX SZZ:
+IRC = -1
+IOPT = ibset(ibset(0,sNoOri),sNoNuc)
+ICMP = 1
+ISYLAB = 1
+LABEL = 'MLTPL  0'
+call RDONE(IRC,IOPT,LABEL,ICMP,SZZ,ISYLAB)
+if (IRC /= 0) then
+  write(u6,*)
+  write(u6,*) '      *** ERROR IN SUBROUTINE MKSXY ***'
+  write(u6,*) '     OVERLAP INTEGRALS ARE NOT AVAILABLE'
+  write(u6,*)
+  call ABEND()
+end if
+!  LOOP OVER SYMMETRIES:
+LSZZ1 = 1
+ISXY = 1
+ICMO = 1
+do ISY=1,NSYM
+  NB = NBASF(ISY)
+  if (NB == 0) cycle
+  NO = NOSH(ISY)
+  if (NO /= 0) then
+    call SQUARE(SZZ(LSZZ1),SSQ,1,NB,NB)
+    ! PROD:=SSQ*CMO2
+    call DGEMM_('N','N',NB,NO,NB,One,SSQ,NB,CMO2(ICMO),NB,Zero,PROD,NB)
+    ! SXY:=(CMO1(TRANSP))*PROD
+    call DGEMM_('T','N',NO,NO,NB,One,CMO1(ICMO),NB,PROD,NB,Zero,SXY(ISXY),NO)
+    ISXY = ISXY+NO**2
+    ICMO = ICMO+NO*NB
+  end if
+  LSZZ1 = LSZZ1+(NB*(NB+1))/2
+end do
+call mma_deallocate(SZZ)
+call mma_deallocate(SSQ)
+call mma_deallocate(PROD)
+
+end subroutine MKSXY

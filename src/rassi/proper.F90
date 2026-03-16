@@ -8,133 +8,131 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PROPER (PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
-      use rassi_global_arrays, only : JBNUM
-      use RASSI_AUX
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Cntrl, only: NSTATE, NPROP, lSym1, lSym2, ToFile,             &
-     &                 IRREP, PNAME, PTYPE
-      use cntrl, only: FnTOM, LuTOM
-      use Symmetry_Info, only: Mul, nSym=>nIrrep
-      use rassi_data, only: NTDMZZ,NBST,NBASF
 
-      IMPLICIT None
-      REAL*8 PROP(NSTATE,NSTATE,NPROP)
-      Real*8 TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
-      Integer ISTATE, JSTATE
-      Integer IOFF(8)
-      CHARACTER(LEN=8) LABEL
-      Save iDiskSav !(For ToFile)
-      Integer, SAVE:: ICALL=0
-      Real*8, Allocatable:: SCR(:,:)
-      Real*8, Allocatable:: IP(:)
-      Integer JOB1, JOB2, iSy12, Mask, NIP, nScr, iDisk, iDIskSav, I, J,&
-     &        IndCall, iProp, iType
+subroutine PROPER(PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
+
+use rassi_global_arrays, only: JBNUM
+use RASSI_AUX
+use stdalloc, only: mma_allocate, mma_deallocate
+use Cntrl, only: NSTATE, NPROP, lSym1, lSym2, ToFile, IRREP, PNAME, PTYPE
+use cntrl, only: FnTOM, LuTOM
+use Symmetry_Info, only: Mul, nSym => nIrrep
+use rassi_data, only: NTDMZZ, NBST, NBASF
+use Constants, only: Zero
+use Definitions, only: u6
+
+implicit none
+real*8 PROP(NSTATE,NSTATE,NPROP)
+real*8 TDMZZ(NTDMZZ), WDMZZ(NTDMZZ)
+integer ISTATE, JSTATE
+integer IOFF(8)
+character(len=8) LABEL
+save iDiskSav !(For ToFile)
+integer, save :: ICALL = 0
+real*8, allocatable :: SCR(:,:)
+real*8, allocatable :: IP(:)
+integer JOB1, JOB2, iSy12, Mask, NIP, nScr, iDisk, iDIskSav, I, J, IndCall, iProp, iType
 
 ! COMBINED SYMMETRY OF STATES:
-      JOB1=JBNUM(ISTATE)
-      JOB2=JBNUM(JSTATE)
-      LSYM1=IRREP(JOB1)
-      LSYM2=IRREP(JOB2)
-      ISY12=MUL(LSYM1,LSYM2)
+JOB1 = JBNUM(ISTATE)
+JOB2 = JBNUM(JSTATE)
+LSYM1 = IRREP(JOB1)
+LSYM2 = IRREP(JOB2)
+ISY12 = MUL(LSYM1,LSYM2)
 ! THE SYMMETRY CHECK MASK:
-      MASK=2**(ISY12-1)
+MASK = 2**(ISY12-1)
 ! ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
-      NIP=4+(NBST*(NBST+1))/2
-      CALL mma_allocate(IP,NIP,Label='IP')
+NIP = 4+(NBST*(NBST+1))/2
+call mma_allocate(IP,NIP,Label='IP')
 ! FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
-      Call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
+call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 ! CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 ! AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
-      NSCR=(NBST*(NBST+1))/2
-      Call mma_allocate(SCR,nSCR,4,LABEL='SCR')
-      SCR(:,:)=0.0D0
-      Call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,ISY12)
-!
+NSCR = (NBST*(NBST+1))/2
+call mma_allocate(SCR,nSCR,4,LABEL='SCR')
+SCR(:,:) = Zero
+call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,ISY12)
+
 ! AT THIS POINT, THE SYMMETRICALLY AND ANTISYMMETRICALLY FOLDED
 ! DENSITY MATRICES, AND WE-REDUCED SPIN DENSITY MATRICES, HAVE BEEN
 ! CALCULATED BEGINNING IN SCR.
 ! LOOP OVER ALL REQUIRED ONE-ELECTRON OPERATORS:
-!
+
 !-------------------------------------------
 !If requested by user, put SCR in an unformatted file for later
 !use by another program. (A.Ohrn)
-      If(ToFile) then
-        Call DaName(LuToM,FnToM)
-        If(iCall.eq.0) then  !Make room for table-of-contents
-          iDisk=0
-          Call ICOPY(nState*(nState+1)/2,[-1],0,TocM,1)
-          Call iDaFile(LuToM,1,TocM,nState*(nstate+1)/2,iDisk)
-          TocM(1)=iDisk
-          iDiskSav=iDisk
-          iCall=1
-        Endif
-        If (iState.lt.jState) Then
-!
-!          For the rest of the code to work this cannot be violated.
-!
-           Write (6,*) 'Proper: iState.lt.jState'
-           Call Abend()
-        End If
-        i=iState
-        j=jState
-        indCall=i*(i-1)/2+j  !Which call this is
-        ToCM(indCall)=iDiskSav
-        iDisk=iDiskSav
-!       Write (*,*) 'IndCall,iDisk=',IndCall,iDisk
-        Call dDaFile(LuToM,1,SCR,4*nSCR,iDisk) !The THING.
-        iDiskSav=iDisk  !Save diskaddress.
-        iDisk=0
-        Call iDaFile(LuToM,1,TocM,nState*(nState+1)/2,iDisk)
-                            !Put table of contents.
-        Call DaClos(LuToM)
-      Endif
+if (ToFile) then
+  call DaName(LuToM,FnToM)
+  if (iCall == 0) then  !Make room for table-of-contents
+    iDisk = 0
+    call ICOPY(nState*(nState+1)/2,[-1],0,TocM,1)
+    call iDaFile(LuToM,1,TocM,nState*(nstate+1)/2,iDisk)
+    TocM(1) = iDisk
+    iDiskSav = iDisk
+    iCall = 1
+  end if
+  if (iState < jState) then
+
+    ! For the rest of the code to work this cannot be violated.
+
+    write(u6,*) 'Proper: iState < jState'
+    call Abend()
+  end if
+  i = iState
+  j = jState
+  indCall = i*(i-1)/2+j  !Which call this is
+  ToCM(indCall) = iDiskSav
+  iDisk = iDiskSav
+  !write(u6,*) 'IndCall,iDisk=',IndCall,iDisk
+  call dDaFile(LuToM,1,SCR,4*nSCR,iDisk) !The THING.
+  iDiskSav = iDisk  !Save diskaddress.
+  iDisk = 0
+  call iDaFile(LuToM,1,TocM,nState*(nState+1)/2,iDisk)
+  !Put table of contents.
+  call DaClos(LuToM)
+end if
 !End of ToFile
-!     Write (*,*) 'ISTATE,JSTATE=',ISTATE,JSTATE
-      DO IPROP=1,NPROP
-        PROP(ISTATE,JSTATE,IPROP)=0.0D00
-        LABEL=PNAME(IPROP)
+!write(u6,*) 'ISTATE,JSTATE=',ISTATE,JSTATE
+do IPROP=1,NPROP
+  PROP(ISTATE,JSTATE,IPROP) = Zero
+  LABEL = PNAME(IPROP)
 
-        CALL UPCASE(LABEL)
+  call UPCASE(LABEL)
 
-! If the user wants the ASD term, it is the same as
-! the EF2 term without the nuclear contribution
-! the new magnetic integrals are calculated from X2C
-! the old spin-dependent part is thus denoted as ASDO
-! O for old
-        IF(LABEL(1:4).EQ.'ASDO') THEN
-          LABEL(1:4) = 'EF2 '
-          !write(6,*)"EF2---->ASD Here"
-        END IF
-        IF(LABEL(1:4).EQ.'TMOM') CYCLE
+  ! If the user wants the ASD term, it is the same as
+  ! the EF2 term without the nuclear contribution
+  ! the new magnetic integrals are calculated from X2C
+  ! the old spin-dependent part is thus denoted as ASDO
+  ! O for old
+  if (LABEL(1:4) == 'ASDO') then
+    LABEL(1:4) = 'EF2 '
+    !write(u6,*) 'EF2---->ASD Here'
+  end if
+  if (LABEL(1:4) == 'TMOM') cycle
 
-        IF(LABEL(1:4).EQ.'PSOP') THEN
-          LABEL(1:4) = 'PSOI'
-        !write(6,*)"PSOI---->PSOP Here"
-        END IF
+  if (LABEL(1:4) == 'PSOP') then
+    LABEL(1:4) = 'PSOI'
+    !write(u6,*) 'PSOI---->PSOP Here'
+  end if
 
-        IF(LABEL(1:6).EQ.'DMP   ') THEN
-          LABEL(1:6) = 'DMS  1'
+  if (LABEL(1:6) == 'DMP   ') LABEL(1:6) = 'DMS  1'
 
-        END IF
+  ITYPE = 0
+  if (PTYPE(IPROP) == 'HERMSING') ITYPE = 1
+  if (PTYPE(IPROP) == 'ANTISING') ITYPE = 2
+  if (PTYPE(IPROP) == 'HERMTRIP') ITYPE = 3
+  if (PTYPE(IPROP) == 'ANTITRIP') ITYPE = 4
+  if (ITYPE == 0) then
+    write(u6,*) 'RASSI/PROPER internal error.'
+    write(u6,*) 'Erroneous property type.'
+    write(u6,*) 'PTYPE(IPROP)=',PTYPE(IPROP)
+    call ABEND()
+  end if
 
-        ITYPE=0
-        IF(PTYPE(IPROP).EQ.'HERMSING') ITYPE=1
-        IF(PTYPE(IPROP).EQ.'ANTISING') ITYPE=2
-        IF(PTYPE(IPROP).EQ.'HERMTRIP') ITYPE=3
-        IF(PTYPE(IPROP).EQ.'ANTITRIP') ITYPE=4
-        IF(ITYPE.EQ.0) THEN
-          WRITE(6,*)'RASSI/PROPER internal error.'
-          WRITE(6,*)'Erroneous property type.'
-          WRITE(6,*)'PTYPE(IPROP)=',PTYPE(IPROP)
-          CALL ABEND()
-        END IF
-!
-        Call MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,              &
-     &               IP,NIP,SCR,NSCR,MASK,ISY12,IOFF)
-!
-      END DO
-      Call mma_deallocate(SCR)
-      Call mma_deallocate(IP)
+  call MK_PROP(PROP,IPROP,ISTATE,JSTATE,LABEL,ITYPE,IP,NIP,SCR,NSCR,MASK,ISY12,IOFF)
 
-      END SUBROUTINE PROPER
+end do
+call mma_deallocate(SCR)
+call mma_deallocate(IP)
+
+end subroutine PROPER

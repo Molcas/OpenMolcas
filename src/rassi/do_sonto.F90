@@ -10,144 +10,127 @@
 !                                                                      *
 ! Copyright (C) 2021, Rulin Feng                                       *
 !***********************************************************************
-!       ****************************************************
-!                           Do SO-NTO
-!       ****************************************************
-!        This routine is made to prepare the transition density
-!        This routine is modified from do_sonatorb.f.
-!        matrices, transition spin density matrices.
-!        In the future, this may include antisymmetric, transition
-!        densities. Namely the keyword antisin or antitrip
+
+!****************************************************
+!                    Do SO-NTO
+!****************************************************
+! This routine is made to prepare the transition density
+! This routine is modified from do_sonatorb.
+! matrices, transition spin density matrices.
+! In the future, this may include antisymmetric, transition
+! densities. Namely the keyword antisin or antitrip
 !
-!                                                      -RF 8/18,2021
-      SUBROUTINE DO_SONTO(NSS, USOR, USOI)
-      use rassi_global_arrays, only: JBNUM, EIGVEC
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use cntrl, only: SONTOSTATES, SONTO
-      use Cntrl, only: NSTATE, NOSO, MLTPLT
-      use rassi_data, only: NBST
-      IMPLICIT None
-      Integer NSS
-      Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
-      Real*8 IDENTMAT(3,3)
-      Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)
-      Real*8, Allocatable:: TDMAO(:), TSDMAO(:)
-      Real*8, Allocatable:: ANTSIN(:)
-      Integer I, ISS, ISTATE, JOB1, MPLET1, MSPROJ1,                    &
-     &           JSS, JSTATE, JOB2, MPLET2, MSPROJ2,                    &
-     &        INTOSTATE, JNTOSTATE, IOPT
+!                                               -RF 8/18,2021
+subroutine DO_SONTO(NSS,USOR,USOI)
+
+use rassi_global_arrays, only: JBNUM, EIGVEC
+use cntrl, only: SONTOSTATES, SONTO
+use Cntrl, only: NSTATE, NOSO, MLTPLT
+use rassi_data, only: NBST
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: u6
+
+implicit none
+integer NSS
+real*8 USOR(NSS,NSS), USOI(NSS,NSS)
+real*8 IDENTMAT(3,3)
+real*8, allocatable :: UMATR(:), UMATI(:), VMAT(:,:)
+real*8, allocatable :: TDMAO(:), TSDMAO(:)
+real*8, allocatable :: ANTSIN(:)
+integer I, ISS, ISTATE, JOB1, MPLET1, MSPROJ1, JSS, JSTATE, JOB2, MPLET2, MSPROJ2, INTOSTATE, JNTOSTATE, IOPT
 
 ! Calculates natural orbitals, including spinorbit effects
-      WRITE(6,*)
-      WRITE(6,*)
-      WRITE(6,*) '*****************************************'
-      WRITE(6,*) '* RUNNING SONTO CODE ********************'
-      WRITE(6,*) '*****************************************'
-      WRITE(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*) '*****************************************'
+write(u6,*) '* RUNNING SONTO CODE ********************'
+write(u6,*) '*****************************************'
+write(u6,*)
 
-      IDENTMAT(:,:)=0.0D0
-      FORALL (I=1:3) IDENTMAT(I,I)=1.0D0
+call unitmat(IDENTMAT,3)
 
-      CALL mma_allocate(UMATR,NSS**2,Label='UMATR')
-      CALL mma_allocate(UMATI,NSS**2,Label='UMATI')
-      CALL mma_allocate(VMAT,NSS,NSS,Label='VMAT')
+call mma_allocate(UMATR,NSS**2,Label='UMATR')
+call mma_allocate(UMATI,NSS**2,Label='UMATI')
+call mma_allocate(VMAT,NSS,NSS,Label='VMAT')
 
-      VMAT(:,:)=0.0D0
+VMAT(:,:) = Zero
 
 ! transform V matrix in SF basis to spin basis
-! This was taken from smmat.f and modified slightly
-      ISS=0
-      DO ISTATE=1,NSTATE
-       JOB1=JBNUM(ISTATE)
-       MPLET1=MLTPLT(JOB1)
-!       S1=0.5D0*DBLE(MPLET1-1)
+! This was taken from smmat and modified slightly
+ISS = 0
+do ISTATE=1,NSTATE
+  JOB1 = JBNUM(ISTATE)
+  MPLET1 = MLTPLT(JOB1)
+  !S1 = Half*real(MPLET1-1,kind=wp)
 
-       DO MSPROJ1=-MPLET1+1,MPLET1-1,2
-!        SM1=0.5D0*DBLE(MSPROJ1)
-        ISS=ISS+1
-        JSS=0
+  do MSPROJ1=-MPLET1+1,MPLET1-1,2
+    !SM1 = Half*real(MSPROJ1,kind=wp)
+    ISS = ISS+1
+    JSS = 0
 
-        DO JSTATE=1,NSTATE
-         JOB2=JBNUM(JSTATE)
-         MPLET2=MLTPLT(JOB2)
-!         S2=0.5D0*DBLE(MPLET2-1)
+    do JSTATE=1,NSTATE
+      JOB2 = JBNUM(JSTATE)
+      MPLET2 = MLTPLT(JOB2)
+      !S2 = Half*real(MPLET2-1,kind=wp)
 
-         DO MSPROJ2=-MPLET2+1,MPLET2-1,2
-!          SM2=0.5D0*DBLE(MSPROJ2)
-          JSS=JSS+1
+      do MSPROJ2=-MPLET2+1,MPLET2-1,2
+        !SM2 = Half*real(MSPROJ2,kind=wp)
+        JSS = JSS+1
 
-          IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2) THEN
-           VMAT(ISS,JSS)=EIGVEC(JSTATE,ISTATE)
-          END IF ! IF (MPLET1.EQ.MPLET2 .AND. MSPROJ1.EQ.MSPROJ2)
-         END DO ! DO MSPROJ2=-MPLET2+1,MPLET2-1,2
-        END DO ! end DO JSTATE=1,NSTATE
-       END DO ! DO MSPROJ1=-MPLET1+1,MPLET1-1,2
-      END DO ! DO ISTATE=1,NSTATE
+        if ((MPLET1 == MPLET2) .and. (MSPROJ1 == MSPROJ2)) VMAT(ISS,JSS) = EIGVEC(JSTATE,ISTATE)
+      end do
+    end do
+  end do
+end do
 
-! combine this matrix with the SO eigenvector matrices
-      IF(.not.NOSO) THEN
-        CALL DGEMM_('N','N',NSS,NSS,NSS,                                &
-     &      1.0d0,VMAT,NSS,USOR,NSS,0.0d0,                              &
-     &      UMATR,NSS)
-        CALL DGEMM_('N','N',NSS,NSS,NSS,                                &
-     &      1.0d0,VMAT,NSS,USOI,NSS,0.0d0,                              &
-     &      UMATI,NSS)
-      ELSE
-! Spinorbit contributions to this are disabled
-        CALL DCOPY_(NSS,VMAT,1,UMATR,1)
-        CALL DCOPY_(NSS,[0.0d0],0,UMATI,1)
-      END IF
+if (.not. NOSO) then
+  ! combine this matrix with the SO eigenvector matrices
+  call DGEMM_('N','N',NSS,NSS,NSS,One,VMAT,NSS,USOR,NSS,Zero,UMATR,NSS)
+  call DGEMM_('N','N',NSS,NSS,NSS,One,VMAT,NSS,USOI,NSS,Zero,UMATI,NSS)
+else
+  ! Spinorbit contributions to this are disabled
+  call DCOPY_(NSS,VMAT,1,UMATR,1)
+  call DCOPY_(NSS,[Zero],0,UMATI,1)
+end if
 
 ! SONTONSTATE = number of state pairs to calculate.
 ! These states are stored as pairs beginning in SONTO
-      DO I=1,SONTOSTATES
-        INTOSTATE=SONTO(1,I)
-        JNTOSTATE=SONTO(2,I)
-        WRITE(6,*)
-        WRITE(6,*) "CALCULATING SO-NTOs BETWEEN SO STATES: ",           &
-     &              INTOSTATE,JNTOSTATE
-        IF((INTOSTATE.GT.NSS.OR.INTOSTATE.LE.0)                         &
-     & .or.(JNTOSTATE.GT.NSS.OR.JNTOSTATE.LE.0)) THEN
-          WRITE(6,*) "...WHICH DOES NOT EXIST!"
-          CALL ABEND()
-        END IF
-        WRITE(6,*)
-        iOpt=0
-! Currently only HERMISING TDMs are dealt with here
-        call mma_allocate(TDMAO,6*NBST**2,Label='TDMAO')
-        call mma_allocate(TSDMAO,6*NBST**2,Label='TSDMAO')
-        call mma_allocate(ANTSIN,6*NBST**2,Label='ANTSIN')
-! Initialization is important
-        TDMAO(:)=0.0D0
-        TSDMAO(:)=0.0D0
-        ANTSIN(:)=0.0D0
-!
-        Call MAKETDMAO('HERMSING',UMATR,UMATI,                          &
-     &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,    &
-     &                        TDMAO)
-! Following codes are left for other types of SO-TDMs
-!        Call print_matrixt('TDM after MAKETDMAO 1',nbst,nbst**2,1,
-!     &                    TDMAO)
-!        CALL MAKETDMAO('HERMTRIP',UMATR,UMATI,
-!     &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,
-!     &                        TSDMAO,NBST)
-!        Call print_matrixt('TSDM after MAKETDMAO 1',nbst,nbst**2,1,
-!     &                    TSDMAO)
-!        CALL MAKETDMAO('ANTISING',UMATR,UMATI,
-!     &                        INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,
-!     &                        ANTSIN,NBST)
-!        Call print_matrixt('ANTITDM after MAKETDMAO 1',nbst,nbst**2,1,
-!     &                    ANTSIN)
-        Call DO_AOTDMNTO(TDMAO,TSDMAO,ANTSIN,                           &
-     &                     INTOSTATE,JNTOSTATE,NBST,NBST**2)
-        Call mma_deallocate(TDMAO)
-        Call mma_deallocate(TSDMAO)
-        Call mma_deallocate(ANTSIN)
-      END DO
-      Call mma_deallocate(UMATR)
-      Call mma_deallocate(UMATI)
-      Call mma_deallocate(VMAT)
-      Call mma_deallocate(SONTO)
+do I=1,SONTOSTATES
+  INTOSTATE = SONTO(1,I)
+  JNTOSTATE = SONTO(2,I)
+  write(u6,*)
+  write(u6,*) 'CALCULATING SO-NTOs BETWEEN SO STATES: ',INTOSTATE,JNTOSTATE
+  if ((INTOSTATE > NSS) .or. (INTOSTATE <= 0) .or. (JNTOSTATE > NSS) .or. (JNTOSTATE <= 0)) then
+    write(u6,*) '...WHICH DOES NOT EXIST!'
+    call ABEND()
+  end if
+  write(u6,*)
+  iOpt = 0
+  ! Currently only HERMISING TDMs are dealt with here
+  call mma_allocate(TDMAO,6*NBST**2,Label='TDMAO')
+  call mma_allocate(TSDMAO,6*NBST**2,Label='TSDMAO')
+  call mma_allocate(ANTSIN,6*NBST**2,Label='ANTSIN')
+  ! Initialization is important
+  TDMAO(:) = Zero
+  TSDMAO(:) = Zero
+  ANTSIN(:) = Zero
 
-      END SUBROUTINE DO_SONTO
+  call MAKETDMAO('HERMSING',UMATR,UMATI,INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,TDMAO)
+  ! Following codes are left for other types of SO-TDMs
+  !call print_matrixt('TDM after MAKETDMAO 1',nbst,nbst**2,1,TDMAO)
+  !call MAKETDMAO('HERMTRIP',UMATR,UMATI,INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,TSDMAO,NBST)
+  !call print_matrixt('TSDM after MAKETDMAO 1',nbst,nbst**2,1,TSDMAO)
+  !call MAKETDMAO('ANTISING',UMATR,UMATI,INTOSTATE,JNTOSTATE,NSS,iOpt,IDENTMAT,ANTSIN,NBST)
+  !call print_matrixt('ANTITDM after MAKETDMAO 1',nbst,nbst**2,1,ANTSIN)
+  call DO_AOTDMNTO(TDMAO,TSDMAO,ANTSIN,INTOSTATE,JNTOSTATE,NBST,NBST**2)
+  call mma_deallocate(TDMAO)
+  call mma_deallocate(TSDMAO)
+  call mma_deallocate(ANTSIN)
+end do
+call mma_deallocate(UMATR)
+call mma_deallocate(UMATI)
+call mma_deallocate(VMAT)
+call mma_deallocate(SONTO)
 
+end subroutine DO_SONTO
