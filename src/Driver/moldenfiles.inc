@@ -12,7 +12,7 @@
  (file)  MD_GSS    "$WorkDir/$Project$SubProject."guessorb.molden rwstg
  (file)  MD_LPR    "$WorkDir/$Project$SubProject."LoProp.molden   rwstg*
  (file)  MD_LOC    "$WorkDir/$Project$SubProject."local.molden    rwstg*
- (file)  MD_LOIM   "$WorkDir/$Project$SubProject."imlocal.molden  rwstg*
+ (file)  MD_LOIM   "$WorkDir/"imloc                               rwstg*
  (file)  MD_MP2    "$WorkDir/$Project$SubProject."mp2.molden      rwstg*
  (file)  MD_SCF    "$WorkDir/$Project$SubProject."scf.molden      rwstg*
  (file)  MD_CAS    "$WorkDir/$Project$SubProject."rasscf.molden   rwstg*

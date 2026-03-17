@@ -57,7 +57,7 @@ end do
 call WrVec_Localisation(Namefile,LU_,'COEI',nSym,nBas,nBas,CMO,Occ,EOrb,IndT,Title)
 if (.not. Silent) then
   write(u6,'(1X,A)') 'The LOCOIM file has been written.'
-  write(u6,*) "Namefile = ",Namefile,"Title=",Title,"LU_=",LU_
+  write(u6,'(5(A),I5)') "Namefile = ",trim(Namefile)," Title=",trim(Title)," LU_=",LU_
 end if
 
 ! Write MOLDEN file.

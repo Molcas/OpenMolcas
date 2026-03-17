@@ -14,7 +14,7 @@
 
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
-
+#define _GETMOLDEN_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
@@ -26,6 +26,10 @@ use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen
+
+#ifdef _GETMOLDEN_
+use filesystem, only: getcwd_, mkdir_
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nBas_per_Atom(nAtoms), nBas_Start(nAtoms), nBasis, nOrb2Loc
@@ -49,6 +53,22 @@ real(kind=wp) :: dqdq
 logical(kind=iwp) :: SORange
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
+
+# ifdef _GETMOLDEN_
+character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile,move_molden_file
+integer(kind=iwp) :: rc
+character(len=8) :: fmt ! format descriptor
+character(len=4) :: number,x1
+
+fmt = '(I4.4)' ! an integer of width 4 with zeros at the left
+Sub = "intermediate_molden"
+call getcwd_(WorkDir) !scratch directory
+write(u6,*) "WorkDir = ", trim(WorkDir)
+call getenvf('MOLCAS_SUBMIT_DIR',SubmitDir)
+NewDir = trim(SubmitDir)//'/'//Sub
+! Create intermediate_molden directory that contains molden files of every iteration
+call mkdir_(NewDir)
+# endif
 
 ! Initialization (iteration 0).
 ! -----------------------------
@@ -160,7 +180,7 @@ if (.not. Silent) then
     TimW = W2-W1
     write(u6,'(//,1X,A,/,1X,A)') '                                                                   CPU       Wall', &
                                  'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) %Screen'
-    write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,UpMeth,&
+    write(u6,'(1X,I5,1X,F18.8,1X,A11,1X,ES12.4,3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,"-",GradNorm,UpMeth,&
                                                     TimC,TimW,Zero
 end if
 
@@ -212,7 +232,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             ! start GEK only from iteration x
             if (nIter > 0) then
-
                 SORange = .false. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 select case(OptMeth)
@@ -293,16 +312,22 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
 
 #       ifdef _DEBUGPRINT_
-            call RecPrt('CMO after rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
-            write(u6,*) "=================================================================="
-            write(u6,*) "               ORBITALS HAVE BEEN ROTATED"
+        call RecPrt('CMO after rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
+        write(u6,*) "=================================================================="
+        write(u6,*) "               ORBITALS HAVE BEEN ROTATED"
 
+        write(u6,*) "=================================================================="
+#       endif
+
+#       ifdef _GETMOLDEN_
             ! choose the iteration of interest, this creates a $project.imlocal.molden file
-            if (nIter == 3) then
-                call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
-            end if
+            write (x1,fmt) nIter ! converting integer to string using a 'internal file'
+            imfile = trim(NewDir)//'/imloc.'//x1//'.molden'
 
-write(u6,*) "=================================================================="
+            call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+
+            call systemf("mv "//trim(WorkDir)//'/imloc '//trim(imfile),rc)
+            call systemf("rm "//trim(WorkDir)//'/LocOrbIM',rc)
 #       endif
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
