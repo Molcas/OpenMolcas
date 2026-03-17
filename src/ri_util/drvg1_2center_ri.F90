@@ -34,6 +34,7 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !             Modified for 2-center RI gradients, January '07          *
 !***********************************************************************
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use setup, only: mSkal, MxPrm
 use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD
@@ -58,7 +59,6 @@ real(kind=wp) :: A_int, ThrAO, TMax_all
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: TMax1(:), TMax2(:,:)
-logical(kind=iwp), external :: Rsv_Tsk
 
 !                                                                      *
 !***********************************************************************

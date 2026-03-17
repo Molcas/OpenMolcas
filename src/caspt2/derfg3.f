@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE DERFG3(CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
      &                  DEPSA,G1,G2,nLev)
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -31,8 +32,6 @@
       use Constants, only: Zero, One, Half
 
       IMPLICIT NONE
-
-      logical(kind=iwp), external :: RSV_TSK
 
       integer(kind=iwp), intent(in) :: nLev
       real(kind=wp), intent(in) :: CI(MXCI), DG3(*), DF3(*),
@@ -146,7 +145,7 @@
       end do
 !-SVC20100310: took some spurious mirroring of F2 values out
 !-of the loops and put them here, after the parallel section has
-!-finished, so that GAdSUM works correctly.
+!-finished, so that GAdGOP works correctly.
       do ip1=ntri2+1,nlev2
        itlev=idx2ij(1,ip1)
        iulev=idx2ij(2,ip1)
@@ -225,7 +224,7 @@
       end do
 !-SVC20100310: took some spurious mirroring of G2 values out
 !-of the loops and put them here, after the parallel section has
-!-finished, so that GAdSUM works correctly.
+!-finished, so that GAdGOP works correctly.
       do ip1=ntri2+1,nlev2
        itlev=idx2ij(1,ip1)
        iulev=idx2ij(2,ip1)
@@ -804,9 +803,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use gugx, only: SGS, LEVEL
       use caspt2_module, only: NACTEL, NASHT, ISCF
       use pt2_guga, only: ETA, NG3
@@ -825,7 +822,6 @@
 ! SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 ! OR CLOSED-SHELL SCF CASE.
 
-      logical(kind=iwp), external ::  RSV_TSK
       integer(kind=iwp) :: nLev, I, NLEV2, NLEV4, iG3, nTask, ID, iTask,
      &  IND1, IND2, IT1, IU1, LU1, IT2, IU2, LU2, IT3, IU3, IND3, LU3,
      &  LT, IT, IU, LU, IV, LV

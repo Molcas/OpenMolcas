@@ -24,6 +24,7 @@ subroutine ClsBuf()
 !             University of Lund, Sweden. October '98                  *
 !***********************************************************************
 
+use EAFmod, only: EAFClose
 use IOBUF, only: Buffer, LuTmp, OnDisk
 use stdalloc, only: mma_deallocate
 

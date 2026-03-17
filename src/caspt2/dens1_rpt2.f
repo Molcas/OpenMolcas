@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE DENS1_RPT2 (CI,SGM1,G1,nLev)
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
@@ -35,8 +36,6 @@
       use pt2_guga, only: MxCI, nG1
       IMPLICIT NONE
 
-
-      LOGICAL RSV_TSK
 
       Integer, Intent(In):: nLev
       REAL*8 CI(MXCI),SGM1(MXCI)
@@ -153,7 +152,7 @@
 
       CALL mma_deallocate(Task)
 
-      CALL GAdSUM (G1,NG1)
+      CALL GAdGOP (G1,NG1,'+')
 
   99  CONTINUE
 

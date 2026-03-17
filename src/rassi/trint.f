@@ -207,7 +207,7 @@ C which is the RF contribution to the nuclear repulsion
 #ifdef _MOLCAS_MPP_
          If (nProcs.gt.1) Then
              scx=1.0/dble(nProcs)
-C --- to avoid double counting when using gadsum
+C --- to avoid double counting when using gadgop
              FLT(1)%A0(:) = scx * FLT(1)%A0(:)
          EndIf
 #endif
@@ -344,8 +344,8 @@ c ---     and compute the (tu|vx) integrals
          Call Deallocate_DT(FLT(1))
          Call Deallocate_DT(DLT(1))
 
-         Call GADSUM(FAO%A0,NBSQ)
-         Call GADSUM(TUVX,NGAM2)
+         Call GADGOP(FAO%A0,NBSQ,'+')
+         Call GADGOP(TUVX,NGAM2,'+')
 
          ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO%A0,1)
 

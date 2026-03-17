@@ -31,6 +31,7 @@ subroutine Drvg1(Grad,Temp,nGrad)
 !             Modified for SetUp_Ints. January '00                     *
 !***********************************************************************
 
+use TList_Mod, only: Free_GTList, Free_PPList, Free_TList, Init_GTList, Init_PPList, Init_TList, Rsv_GTList
 use setup, only: mSkal, MxPrm
 use k2_arrays, only: Sew_Scr
 use Sizes_of_Seward, only: S
@@ -50,7 +51,6 @@ logical(kind=iwp) :: DoFock, DoGrad, Indexation, lDummy, Triangular
 character(len=8) :: Method_chk
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: TMax(:,:)
-logical(kind=iwp), external :: Rsv_GTList
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus
 !                                                                      *

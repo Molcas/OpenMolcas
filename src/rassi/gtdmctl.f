@@ -77,7 +77,6 @@ C      use para_info, only: nProcs, is_real_par, king
 CC prepare the parallel infrastructure for (istate,jstate loop)
 C      integer :: itask, ltask, ltaski, ltaskj, ntasks
 C#ifdef _MOLCAS_MPP_
-C      logical :: Rsv_Tsk
 C      integer :: ID
 C#endif
 CC

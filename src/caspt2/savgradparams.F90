@@ -32,7 +32,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   use EQSOLV, only: IDSMAT, IDBMAT, IDSTMAT, IVECX, IDTMAT
   use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
-  USE Para_Info, ONLY: Is_Real_Par, King, myRank
+  USE Para_Info, ONLY: Is_Real_Par, myRank
       use pt2_guga, only: iAdr10, cLab10
 #endif
 
@@ -359,6 +359,8 @@ logical(kind=iwp) bStat
           end if
 #ifdef _MOLCAS_MPP_
         end if
+#include "macros.fh"
+        unused_var(bStat)
 #endif
         !! Eigenvalue
         if (NIN > 0) then

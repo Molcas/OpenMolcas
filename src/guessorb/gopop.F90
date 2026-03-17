@@ -79,7 +79,7 @@ if (PrtEor) then
   write(u6,'(a,i5,a,i5)') 'Printing',m,' out of',n
   write(u6,'(a,f6.1)') 'Filled orbitals:',Half*TotNucChg
   write(u6,*)
-  write(u6,'(i5,1h-,i5,2x,10f12.4)') (i,min(i+9,m),(Scr(j),j=i,min(i+9,m)),i=1,m,10)
+  write(u6,'(i5,"-",i5,2x,10f12.4)') (i,min(i+9,m),(Scr(j),j=i,min(i+9,m)),i=1,m,10)
   write(u6,*)
 end if
 !----------------------------------------------------------------------*

@@ -184,7 +184,7 @@ if ((ISR /= ISS) .and. (icxc3 /= 0)) then
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOP*NOS)
+      call GADGOp(X2,NOP*NOS,'+')
       call dDAFILE(LUINTM,1,X2,NOP*NOS,IAD13)
     end do
   end do
@@ -300,7 +300,7 @@ if (((ISS <= ISQ) .or. (ISP /= ISR)) .and. (ISP /= ISQ) .and. (ISR /= ISS) .and.
 
       ! WRITE THESE BLOCK OF INTEGRALS ON LUINTM
 
-      call GADSum(X2,NOQ*NOS)
+      call GADGOp(X2,NOQ*NOS,'+')
       call dDAFILE(LUINTM,1,X2,NOQ*NOS,IAD13)
     end do
   end do

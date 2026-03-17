@@ -11,6 +11,7 @@
 
 function Rsv_Tsk2(id,kls)
 
+use Task_Manager, only: Rsv_Tsk
 use RI_glob, only: iOpt, iRsv, nTask, TskList
 use Definitions, only: iwp, u6
 
@@ -18,7 +19,6 @@ implicit none
 logical(kind=iwp) :: Rsv_Tsk2
 integer(kind=iwp), intent(in) :: id
 integer(kind=iwp), intent(out) :: kls
-logical(kind=iwp), external :: Rsv_Tsk
 
 if (iOpt == 0) then
   Rsv_Tsk2 = Rsv_Tsk(id,kls)

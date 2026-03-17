@@ -17,6 +17,7 @@
 
 subroutine Free_TLists()
 
+use TList_Mod, only: Free_GTList, Free_PPList, Free_TList
 use InfSCF, only: DSCF
 
 implicit none

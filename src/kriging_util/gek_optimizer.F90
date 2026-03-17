@@ -11,7 +11,6 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !               2025, Lila Zapp                                        *
 !***********************************************************************
-
 !#define _DEBUGPRINT_
 
 subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias,maximize)
@@ -37,7 +36,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use Kriging_mod, only: blavAI
 use Kriging_procedures, only: Setup_Kriging
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Four, Six, Ten, Half
+use Constants, only: Zero, One, Two, Four, Six, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

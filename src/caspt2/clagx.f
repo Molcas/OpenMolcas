@@ -10,6 +10,9 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
+
+#include "macros.fh"
+
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
       use PrintLevel, only: VERBOSE
@@ -89,13 +92,13 @@
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(u6,'(a,2f10.2)')' CLagD   : CPU/WALL TIME=', cput,wallt
-#ifdef _MOLCAS_MPP_
-!       if (is_real_par()) CALL GADSUM ([deasum],1)
-#endif
+!#ifdef _MOLCAS_MPP_
+!       if (is_real_par()) CALL GADGOP_SCAL (deasum,'+')
+!#endif
 !       write(u6,*) 'Deasum = ', deasum
-#ifdef _MOLCAS_MPP_
+!#ifdef _MOLCAS_MPP_
 !       if (is_real_par()) DEASUM = DEASUM/GA_NNODES()
-#endif
+!#endif
       END IF
 
       !! Some symmetrizations are likely required
@@ -120,10 +123,10 @@
       !! the master node does the job, so distribute to slave nodes
       !! only for the G1 and G2 replicate arrays
       if (is_real_par()) then
-        CALL GADSUM (DG1,NG1)
-        CALL GADSUM (DG2,NG2)
-        CALL GADSUM (DF1,NG1)
-        CALL GADSUM (DF2,NG2)
+        CALL GADGOP (DG1,NG1,'+')
+        CALL GADGOP (DG2,NG2,'+')
+        CALL GADGOP (DF1,NG1,'+')
+        CALL GADGOP (DF2,NG2,'+')
       end if
 #endif
 
@@ -1138,7 +1141,7 @@
       real(kind=wp),allocatable :: EIG(:),WRK(:,:)
 
       logical(kind=iwp) :: bStat
-      integer(kind=iwp) :: myrank, nprocs, lg_T, lg_WRK, lg_WRK2,
+      integer(kind=iwp) :: myrank, lg_T, lg_WRK, lg_WRK2,
      &                     lg_BDER, iLoV1, iHiV1, jLoV1, jHiV1, NROW,
      &                     NCOL, idB, mV1, LDV1, i, j, iICB, jICB,
      &                     lg_SDER, idSD, mBDER, mSDER
@@ -1151,7 +1154,6 @@
       SCAL = One
       IF (IFMSCOUP) SCAL = VECROT(jState)
       MYRANK=GA_NODEID()
-      NPROCS=GA_NNODES()
 
       !! First, distribute the transformation matrix
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TRANS',lg_T)
@@ -1530,6 +1532,8 @@
 
       bStat = GA_destroy(lg_BDER)
       bStat = GA_destroy(lg_SDER)
+
+      unused_var(bStat)
 
       End Subroutine CLagDX_MPP
 #endif
@@ -2088,6 +2092,7 @@
 !-----------------------------------------------------------------------
 !
       SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG,nLev)
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -2104,7 +2109,6 @@
       real(kind=wp), intent(in) :: CI(MXCI), RDMEIG(NLEV,NLEV)
       real(kind=wp), intent(inout) :: SGM1(MXCI), CLag(nConf)
 
-      logical(kind=iwp), external :: RSV_TSK
       integer(kind=iwp), allocatable :: TASK(:,:)
 
       integer(kind=iwp) :: ID, IST, ISU, ISTU, IT, IU, LT, LU, ITASK,
@@ -2611,7 +2615,7 @@
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
-      USE Para_Info, ONLY: Is_Real_Par, nProcs
+      USE Para_Info, ONLY: nProcs
       use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
       use pt2_guga, only: NG3
       use Constants, only: Zero
@@ -2941,8 +2945,6 @@
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
-#else
-#include "macros.fh"
 #endif
 
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
@@ -3413,7 +3415,7 @@
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
-      USE Para_Info, ONLY: Is_Real_Par, nProcs
+      USE Para_Info, ONLY: nProcs
       use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
       use pt2_guga, only: NG3
       use Constants, only: Zero
@@ -3752,8 +3754,6 @@
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
-#else
-#include "macros.fh"
 #endif
 
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
@@ -4054,9 +4054,6 @@
      &                         NISH, NASH, NASHT, NORB, NBAS,
      &                         NBAST, ISCF, NSTATE, NBTCH, NBTCHES
 !     use caspt2_module, only: NSSH
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
 
       implicit none
 
@@ -4558,7 +4555,7 @@
         End Do
       End If
 #ifdef _MOLCAS_MPP_
-      call GADSUM(INT2,nAshT**4)
+      call GADGOP(INT2,nAshT**4,'+')
 #endif
 !     write(u6,*) 'int2'
 !     call sqprt(int2,25)
@@ -4600,6 +4597,7 @@
       !! dens2_rpt2.f
       Subroutine TimesE2(Mode,CIin,CIout,INT1,INT2)
 
+      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use gugx, only: SGS, L2ACT, CIS
       use Constants, only: Two
 
@@ -4610,7 +4608,6 @@
      &  INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT)
       real(kind=wp), intent(out) :: CIout(nConf,nState)
 
-      logical(kind=iwp), external :: RSV_TSK
       real(kind=wp), allocatable :: SGM1(:), SGM2(:)
       integer(kind=iwp), allocatable :: TASK(:,:)
 
@@ -4698,7 +4695,7 @@
       call mma_deallocate(Task)
 
 #ifdef _MOLCAS_MPP_
-      CALL GAdSUM(CIout,nConf*nState)
+      CALL GAdGOP(CIout,nConf*nState,'+')
 #endif
 !
 !     --- -E_{S}*CJ + zL_{KL}
@@ -4752,8 +4749,6 @@
       real(kind=wp) :: Wgt, vSLag, rd, EigI, EigJ, OLagIJ, Tmp
 
       nLev=SGS%nLev
-!
-!     LOGICAL   RSV_TSK
 !
 !     This subroutine computes the second term in Eq. (70) or the RHS of
 !     Eq. (72) in the CASPT2-IPEA gradient paper
@@ -5370,14 +5365,14 @@
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
       Subroutine LinDepLag_MPP(lg_BDER,lg_SDER,nAS,nIN,iSym,iCase)
 
+#ifdef _SCALAPACK_
+      use scalapack_mod, only: GA_PDSYEVX_
+#endif
       use caspt2_global, only: LUSTD, idBoriMat
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: THRSHS
       use Constants, only: Zero, One, Two
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
 
       implicit none
 
@@ -5389,12 +5384,14 @@
 
 #if ! defined (_SCALAPACK_)
       real(kind=wp) :: WGRONK(2)
+      integer(kind=iwp) :: NSCRATCH, info
+      real(kind=wp), allocatable :: VEC(:),SCRATCH(:)
 #endif
       logical(kind=iwp) :: bStat
-      integer(kind=iwp) :: lg_S, myRank, lg_Vec, NSCRATCH, iLo, iHi,
-     &  jLo, jHi, mV, LDV, I, lg_Lag, lg_B, IDB, mB, LDB, J, info
+      integer(kind=iwp) :: lg_S, myRank, lg_Vec, iLo, iHi,
+     &  jLo, jHi, mV, LDV, I, lg_Lag, lg_B, IDB, mB, LDB, J
       real(kind=wp) :: EVAL, FACT
-      real(kind=wp), allocatable :: EIG(:),VEC(:),SCRATCH(:)
+      real(kind=wp), allocatable :: EIG(:)
 !
 !     Parallel LinDepLag
 !     We always use the canonical orthonormalization.
@@ -5433,7 +5430,7 @@
         CALL GA_Put (lg_Vec, 1, NAS, 1, NAS, VEC, NAS)
         call mma_deallocate(VEC)
       END IF
-      CALL GADSUM(EIG,NAS)
+      CALL GADGOP(EIG,NAS,'+')
 #endif
 
       !! Scale only the independent vectors to avoid
@@ -5522,6 +5519,8 @@
       CALL PSBMAT_FREEMEM(lg_Vec)
       bSTAT = GA_Destroy (lg_Lag)
       CALL PSBMAT_FREEMEM (lg_B)
+
+      unused_var(bStat)
 
       Return
 

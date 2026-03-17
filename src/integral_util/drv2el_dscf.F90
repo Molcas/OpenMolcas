@@ -47,6 +47,7 @@ subroutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
 !             total repacking of code September '96                    *
 !***********************************************************************
 
+use TList_Mod, only: Init_GTList, Init_PPList, Init_TList, Pos_QLast, Put_QLast, ReInit_GTList, ReInit_PPList, Rsv_GTList
 use IOBUF, only: lBuf
 use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt, ThrInt
@@ -70,7 +71,6 @@ character(len=72) :: SLine
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: DMax(:,:), TMax(:,:)
 procedure(int_wrout) :: No_Routine
-logical(kind=iwp), external :: Rsv_GTList
 
 !                                                                      *
 !***********************************************************************

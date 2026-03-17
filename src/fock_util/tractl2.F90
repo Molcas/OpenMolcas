@@ -61,10 +61,10 @@ else if (ALGO == 1) then
   ! --------------------------------------------------
   ! Synchronize Fock matrices if running parallel:
   if ((nProcs > 1) .and. Is_Real_Par()) then
-    call GADsum(FI,nTot1)
-    call GADsum(FA,nTot1)
+    call GADgop(FI,nTot1,'+')
+    call GADgop(FA,nTot1,'+')
     ! Synchronize PUVX if running parallel:
-    call GADsum(PUVX,nPWXY)
+    call GADgop(PUVX,nPWXY,'+')
   end if
 # endif
   ! --------------------------------------------------

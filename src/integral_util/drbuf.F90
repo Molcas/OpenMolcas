@@ -11,7 +11,7 @@
 
 subroutine dRBuf(Array,nArray,Copy)
 
-use dEAF, only: dEAFARead
+use EAFmod, only: dEAFARead, EAFWait
 use IOBUF, only: Buffer, Disk, Disk_1, Disk_2, DiskMX_Byte, iBuf, iD, InCore, iPos, lBuf, LuTmp, OnDisk
 use Definitions, only: wp, iwp, RtoB, RtoI
 

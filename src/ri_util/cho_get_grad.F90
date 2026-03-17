@@ -1367,7 +1367,7 @@ do jSym=1,nSym
     if (DoExchange) then
 #     ifdef _MOLCAS_MPP_
       if (Is_Real_Par() .and. Update .and. DoScreen) then
-        call GaDsum(DiagJ,nnBSTR(JSYM,1))
+        call GADgop(DiagJ,nnBSTR(JSYM,1),'+')
         Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+nnBstR(JSYM,1)) = Diag(iiBstR(JSYM,1)+1:iiBstR(JSYM,1)+nnBstR(JSYM,1))- &
                                                                DiagJ(1:nnBSTR(JSYM,1))
         DiagJ(1:nnBSTR(JSYM,1)) = Zero

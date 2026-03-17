@@ -26,6 +26,7 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 !     based on Drvg1                                                   *
 !***********************************************************************
 
+use TList_Mod, only: Free_GTList, Free_PPList, Free_TList, Init_GTList, Init_PPList, Init_TList, Rsv_GTList
 use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, MxPrm
 use k2_arrays, only: Sew_Scr
@@ -49,7 +50,6 @@ real(kind=wp) :: A_int, Cnt, P_Eff, ThrAO, TMax_all, TskHi, TskLw
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, lDummy, lNoSkip, Triangular
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: TMax(:,:)
-logical(kind=iwp), external :: Rsv_GTList
 
 !                                                                      *
 !***********************************************************************

@@ -46,7 +46,9 @@ real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), 
                               Prev(:),Disp(:)
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
+#ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
+#endif
 
 !S-GEK
 real(kind=wp) :: dqdq

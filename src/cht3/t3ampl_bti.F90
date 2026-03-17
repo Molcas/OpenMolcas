@@ -35,6 +35,8 @@ subroutine T3AMPL_BTI(OEH,OEP)
 
 use ChT3_global, only: gen_files, ICH, IOPT, IT, NOAB, NUAB, printkey, run_triples, t3_starta, t3_startb, t3_stopa, t3_stopb, &
                        TCpu, TCpu_l, TCpu0, TWall, TWall_l, TWall0
+
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Para_Info, only: MyRank, nProcs
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
@@ -53,7 +55,6 @@ character(len=6) :: FN
 integer(kind=iwp), allocatable :: my_tsk(:,:)
 real(kind=wp), allocatable :: la(:), t1a(:), t1b(:), tmp(:)
 real(kind=wp), external :: ddot_
-logical(kind=iwp), external :: rsv_tsk
 
 !? nprocs0 = nprocs
 ! Uncomment the following to force sequential mode

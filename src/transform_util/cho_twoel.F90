@@ -133,7 +133,7 @@ if (nN_IJ*(nN_AB+nN_Ex1+nN_Ex2) > 0) then
           AddCou(:) = Zero
         end if
         call Cho_GenC(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddCou,nN_AB,nN_Ex1)
-        call GAdSum(AddCou,nN_AB)
+        call GADGOp(AddCou,nN_AB,'+')
         call dDaFile(LUINTM,1,AddCou,nN_AB,iAddrIAD2Mij)
         call mma_deallocate(AddCou)
       end do
@@ -195,7 +195,7 @@ if (nN_IJ*(nN_AB+nN_Ex1+nN_Ex2) > 0) then
           AddEx1(:) = Zero
         end if
         call Cho_GenE(iSymI,iSymJ,iSymA,iSymB,iI,iJ,numV,AddEx1,nN_Ex1)
-        call GAdSum(AddEx1,nN_Ex1)
+        call GADGOp(AddEx1,nN_Ex1,'+')
         call dDaFile(LUINTM,1,AddEx1,nN_Ex1,iAddrIAD2Mij)
         call mma_deallocate(AddEx1)
       end do
@@ -275,7 +275,7 @@ if (nN_IJ*(nN_AB+nN_Ex1+nN_Ex2) > 0) then
         !  call XFlush(u6)
         !end if
         !---------------------------------------------------------------
-        call GAdSum(AddEx2,nN_Ex2)
+        call GADGOp(AddEx2,nN_Ex2,'+')
         call dDaFile(LUINTM,1,AddEx2,nN_Ex2,iAddrIAD2Mij)
         call mma_deallocate(AddEx2t)
         call mma_deallocate(AddEx2)

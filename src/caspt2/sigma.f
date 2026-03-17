@@ -255,11 +255,11 @@ C-SVC: sum the replicate arrays:
           MAX_MESG_SIZE = 2**27
           DO LSGM2_STA=1,NSGM2,MAX_MESG_SIZE
             NSGM2_BLK=MIN(MAX_MESG_SIZE,NSGM2-LSGM2_STA+1)
-            CALL GADSUM(SGM2(LSGM2_STA:),NSGM2_BLK)
+            CALL GADGOP(SGM2(LSGM2_STA:),NSGM2_BLK,'+')
           END DO
 
           IF (NSGM1.GT.0) THEN
-            CALL GADSUM(SGM1,NSGM1)
+            CALL GADGOP(SGM1,NSGM1,'+')
           END IF
 
 C       XTST2=DDOT_(NSGM2,SGM2,1,SGM2,1)
@@ -465,8 +465,8 @@ C Compute contribution SGMX <- D2, and SGMX <- D1  if any
                 MAX_MESG_SIZE = 2**27
                 DO LSGMX_STA=1,NSGMX,MAX_MESG_SIZE
                   NSGMX_BLK=MIN(MAX_MESG_SIZE,NSGMX-LSGMX_STA+1)
-                  CALL GADSUM(GA_Arrays(LSGMX)%A(LSGMX_STA),
-     &                        NSGMX_BLK)
+                  CALL GADGOP(GA_Arrays(LSGMX)%A(LSGMX_STA),
+     &                        NSGMX_BLK,'+')
                 END DO
                 CALL RHS_ALLO(NAS2,NIS2,lg_SGMX)
                 CALL RHS_READ(NAS2,NIS2,lg_SGMX,ICASE2,ISYM2,JVEC)

@@ -42,6 +42,7 @@ subroutine OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CoorO,nOrdOp,rHrmt,iCh
 !             Modified loop structure April 99                         *
 !***********************************************************************
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use Index_Functions, only: nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
@@ -73,7 +74,6 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:)
 real(kind=wp), allocatable :: Kappa(:), PCoor(:), ScrSph(:), Scrtch(:), SOInt(:), Zeta(:), ZI(:)
 real(kind=wp), allocatable, target :: FArray(:), Kern(:)
 integer(kind=iwp), external :: MemSO1, n2Tri
-logical(kind=iwp), external :: Rsv_Tsk
 
 !                                                                      *
 !***********************************************************************
@@ -254,7 +254,7 @@ end do
 call Free_Tsk(id_Tsk)
 do iComp=1,nComp
   iSmLbl = lOper(iComp)
-  call GADSum(Array(ip(iComp)),n2Tri(iSmLbl))
+  call GADGOp(Array(ip(iComp)),n2Tri(iSmLbl),'+')
 end do
 
 call mma_deallocate(Kern)

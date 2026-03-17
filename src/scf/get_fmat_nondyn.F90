@@ -110,7 +110,7 @@ if (Do_SpinAV) then
 end if
 
 E2act(1) = Half*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
-call GADSum(E2act(1),1)
+call GADGOp(E2act(1),1,'+')
 
 if (DFTX) then
   Erest_xc = Erest_xc-E2act(1)

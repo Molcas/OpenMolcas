@@ -234,7 +234,7 @@ if (.not. Onenly) then
   call CloseP()
 
   if (lHss) then
-    call GADSum(Temp,nHess)
+    call GADGOp(Temp,nHess,'+')
     Temp(:) = Half*Temp
     if (Show) call HssPrt(Temp,nHess)
 
