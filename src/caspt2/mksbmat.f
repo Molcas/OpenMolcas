@@ -43,27 +43,16 @@ C Set up S and B matrices for cases 1..13.
       IF(NASHT/=0) THEN
 CSVC: print header for debug info
         IF(IPRGLB.GE.DEBUG) THEN
-          WRITE(u6,'("DEBUG> ",A)') 'CASE SYM S-MATRIX NORM'
-          WRITE(u6,'("DEBUG> ",A)') '==== === ============='
+          WRITE(u6,'("DEBUG> ",A)') 'CASE SYM S/B-MATRIX NORM'
+          WRITE(u6,'("DEBUG> ",A)') '==== === ==============='
         END IF
 C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
         CALL mma_allocate(G3,NG3,Label='G3')
         CALL PT2_GET(NG3,'GAMMA3',G3)
 
-        CALL mma_allocate(idxG3,6,NG3,label='idxG3')
-        iLUID=0
-        CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
-
-        CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
-        CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
-
-        CALL mma_deallocate(G3)
-        CALL mma_deallocate(idxG3)
-
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
 
-!****
         CALL mma_allocate(F1,NG1,Label='F1')
         CALL PT2_GET(NG1,'DELTA1',F1)
 
@@ -83,20 +72,21 @@ C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
         CALL mma_allocate(F3,NG3,Label='F3')
         CALL PT2_GET(NG3,'DELTA3',F3)
 
-        IF(IPRGLB.GE.DEBUG) THEN
-          WRITE(u6,'("DEBUG> ",A)') 'CASE SYM B-MATRIX NORM'
-          WRITE(u6,'("DEBUG> ",A)') '==== === ============='
-        END IF
-
         CALL mma_allocate(idxG3,6,NG3,label='idxG3')
         iLUID=0
         CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
+        CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
         CALL MKBA(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
+
+        CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
         CALL MKBC(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
 
         CALL mma_deallocate(F3)
+        CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
+
+
 
         CALL MKSB(DREF,SIZE(DREF),PREF,SIZE(PREF))
         CALL MKBB(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
