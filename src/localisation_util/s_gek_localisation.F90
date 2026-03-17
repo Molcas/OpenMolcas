@@ -13,10 +13,11 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 
 
-subroutine S_GEK_localisation(nIter, Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework,SORange)
+subroutine S_GEK_localisation(nIter,Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework,SORange,&
+                              usmitigation)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -36,11 +37,11 @@ integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:)
-integer(kind=iwp), parameter :: nWindow = 20, Max_Iter_GEK = 50
+integer(kind=iwp), parameter :: nWindow =2, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 character(len=9),intent(in) :: framework
-logical, intent(in) :: SORange
+logical, intent(in) :: SORange,usmitigation
 character :: Step_Trunc
 
 Functionallist(:) =-Functionallist(:)
@@ -79,14 +80,18 @@ end do
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
     write(u6,*) '  nIter =',nIter
-    call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
     call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
+    call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
     call RecPrt("dq(:) = NR suggestion",' ',dq,fsdim, 1)
 #endif
 
 ! select subspace basis vectors; construct normalized e_diis
 ! -----------------------------------------------------------
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! FULL SPACE
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 if (framework == 'fullspace') then
 
 ! Set up the full space
@@ -97,6 +102,10 @@ do k = 1,nExplicit
     e_diis(k,k) = One
 end do
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! SUBSPACE VERSION
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 else if (framework == 'subspace') then
 
 !number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
@@ -156,8 +165,9 @@ call mma_deallocate(Aux_a)
 #ifdef _DEBUGPRINT_
     if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
 #endif
-
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 end if !framework: fullspace/subspace
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 ! orthogonalize e_diis; remove redundancies from linear dependences
 ! -----------------------------------------------------------------
@@ -213,6 +223,7 @@ q_diis(:,:) = Zero
 do i=1,nDiis ! we project only those q vectors that were used to build the subspace, so that they are fully expressed within it
     do k=1,mDiis
         q_diis(k,i) = sum( (q(:,i)-q(:,nDIIS)) * e_diis(:,k))
+        !q_diis(k,i) = sum( (q(:,i)) * e_diis(:,k))
     end do
 end do
 
@@ -249,10 +260,16 @@ dq_diis(:) = Zero
 #ifdef _DEBUGPRINT_
     call RecPrt('q_diis',' ',q_diis,mDIIS,nDIIS)
     call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
-    call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
+    !call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
+    write(u6,'(/A)') "H_diis diagonal elements:"
+    do i=1,mDiis
+        write(u6,'(F26.16)') H_diis(i,i)
+    end do
+    write(u6,*) ''
 #endif
 
 
+if (usmitigation) then
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Undershoot avoidance: Scale along dq !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -281,7 +298,7 @@ if (Loosen%Factor /= One) then
 # endif
 
 end if
-
+end if
 
 
 
@@ -294,13 +311,12 @@ end if
 if (SORange) then
   SOFact = One
 else
-  SOFact = 10000.0_wp
+  SOFact = 10000000.0_wp
 end if
 
 
 Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Functionallist(iFirst:),H_diis(:,:),dqdq,&
                    Step_Trunc,UpMeth,SOFact,10000.0_wp,.false.)
-
 
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------

@@ -11,7 +11,7 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 !#define _FULL_SPACE_
 subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
@@ -267,6 +267,11 @@ end if
 !end do
 #ifdef _DEBUGPRINT_
 call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
+    write(u6,*) "H_diis diagonal elements:"
+    do i=1,mDiis
+        write(u6,'(F26.16)') H_diis(i,i)
+    end do
+    write(u6,*) ''
 #endif
 
 
