@@ -1811,7 +1811,7 @@ c Avoid unused argument warnings
 #endif
 
       SUBROUTINE MKBB(DREF,NDREF,PREF,NPREF,FD,FP)
-      use definitions, only: iwp, wp, u6
+      use definitions, only: iwp, wp
       use constants, only: Half, Two, Four, Eight
       USE SUPERINDEX, only: MTU, MTGEU, KTU, KTGTU
       use caspt2_global, only:ipea_shift

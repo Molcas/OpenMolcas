@@ -224,8 +224,10 @@ logical(kind=iwp) bStat
 #endif
           if (NAS > 0) then
             ID = IDSMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,2,WRK1,NAS*(NAS+1)/2,ID)
-            CALL DDAFILE(LUGRAD,1,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
+            If (ID>=0) THEN
+               CALL DDAFILE(LUSBT,2,WRK1,NAS*(NAS+1)/2,ID)
+               CALL DDAFILE(LUGRAD,1,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
+            End If
           end if
 #ifdef _MOLCAS_MPP_
         end if
@@ -307,9 +309,11 @@ logical(kind=iwp) bStat
         else
 #endif
           if (NAS > 0) then
-            CALL DDAFILE(LUGRAD,2,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
             ID = IDSMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,1,WRK1,NAS*(NAS+1)/2,ID)
+            If (ID>=0) THEN
+               CALL DDAFILE(LUGRAD,2,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
+               CALL DDAFILE(LUSBT,1,WRK1,NAS*(NAS+1)/2,ID)
+            END IF
           end if
 #ifdef _MOLCAS_MPP_
         end if
