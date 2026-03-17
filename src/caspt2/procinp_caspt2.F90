@@ -12,7 +12,6 @@ subroutine procinp_caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
   use inputData, only: input
-  use definitions, only: iwp,wp,RtoB
   use caspt2_global, only: iPrGlb, cmpThr, cntThr, dnmThr
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
@@ -47,7 +46,9 @@ subroutine procinp_caspt2
                            IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, HZero, G1SECIN, FockType,     &
                            DWType, DoCumulant, BTrans, BSpect, BMatrix, DMRG
 
-      use caspt2_module, only: CIThr
+  use caspt2_module, only: CIThr
+  use constants, only: Zero
+  use definitions, only: iwp,wp,RtoB
   implicit none
 
 
@@ -550,8 +551,8 @@ subroutine procinp_caspt2
   THRSHS = Input%THRSHS
   THRCONV = Input%THRCONV
   CITHR = Input%PrWF
-  THRENE = 5.0d+01
-  THROCC = 5.0d-04
+  THRENE = 5.0e+01_wp
+  THROCC = 5.0e-04_wp
   MAXIT = Input%MaxIter
   DNMTHR = Input%DNMTHR
   CMPTHR = Input%CMPTHR
@@ -609,7 +610,7 @@ subroutine procinp_caspt2
       call quit_onUserError()
     end if
 
-    if (ipea_shift.ne.0.0D+00) do_lindep = .True.
+    if (ipea_shift.ne.Zero) do_lindep = .True.
 
     ! only allow analytic gradients either with nstate = nroots or with sadref
     if ((nState /= nRoots) .and. (.not. ifsadref)) then

@@ -17,8 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRPCTL(MODE,UEFF,U0,nState)
-      use definitions, only: iwp, wp, u6
-      use constants, only: Zero, Half, One, Five
+      use constants, only: Zero, Half, One, Two,Five
       USE PT2WFN, only: PT2WFN_DENSSTORE
       use caspt2_global, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
@@ -39,6 +38,7 @@
      &                         NORB, NBAS, NISH, NASH, IAD1M, NFRO,
      &                         NRAS1, NRAS2, NRAS3, MSTATE, NDEL,
      &                         Energy, MSTATE
+      use definitions, only: iwp, wp, u6
 
       IMPLICIT None
 
@@ -151,11 +151,11 @@ C This density matrix may be approximated in several ways, see DENS.
             DO IJ = 1, II
               !! second-order (DPT2) and first-order (DPT2C)
               DMAT(1+IDMAT) = DPT2_TOT(IDMOFF+II+NO*(IJ-1))
-     *                      + DPT2C_TOT(IDMOFF+II+NO*(IJ-1))*0.25d+00
+     *                      + DPT2C_TOT(IDMOFF+II+NO*(IJ-1))*0.25e+00_wp
               IF (.NOT.DO_NAC) THEN
                 !! Add the reference density matrix (inactive)
                 IF (II.EQ.IJ .and. II.LE.NFRO(ISYM)+NISH(ISYM))
-     *            DMAT(1+IDMAT) = DMAT(1+IDMAT) + 2.0D+00
+     *            DMAT(1+IDMAT) = DMAT(1+IDMAT) + Two
               END IF
               IDMAT = IDMAT + 1
             END DO
@@ -179,7 +179,7 @@ C This density matrix may be approximated in several ways, see DENS.
               IF (ISTATE.EQ.IROOT1.AND.KSTATE.EQ.IROOT2)
      *          SCAL = SCAL + One
             END IF
-            IF (ABS(SCAL).LE.1.0D-09) CYCLE
+            IF (ABS(SCAL).LE.1.0e-09_wp) CYCLE
             IF (ISCF.NE.0) THEN
               CI2(1)=One
             ELSE
@@ -318,11 +318,11 @@ C Write natural orbitals to standard output.
        WRITE(u6,'(A)')' A new RasOrb file named PT2ORB is prepared.'
        IF (PRORB) THEN
          IF ( OUTFMT.EQ.'LONG    ' ) THEN
-           THRENE=2.0d0**31
-           THROCC=-2.0d0**31
+           THRENE=Two**31
+           THROCC=-Two**31
          ELSE IF ( OUTFMT.EQ.'DEFAULT ' ) THEN
            THRENE=Five
-           THROCC=5.0d-04
+           THROCC=5.0e-04_wp
          END IF
          CALL PRIMO('Output orbitals from CASPT2',
      &           .TRUE.,.FALSE.,THROCC,THRENE,NSYM,NBAS,

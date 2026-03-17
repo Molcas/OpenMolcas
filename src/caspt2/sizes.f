@@ -18,7 +18,6 @@
 *--------------------------------------------*
       SUBROUTINE SIZES()
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: USUAL
       USE SUPERINDEX, only: SUPINI
@@ -38,6 +37,8 @@
       use caspt2_module, only: NAMX
 #endif
       use caspt2_module, only: MxCI, nG1, nG2, nG3Tot
+      use constants, only: Zero
+      use definitions, only: iwp, wp
 
       IMPLICIT none
 
@@ -323,7 +324,7 @@ C In DIADNS alone, NDD words are needed:
         ngrad1 = NBSQT*4 + nCLag*2 + nOLag*2 + nSLag*2 + nWLag
      *         + NBSQT*2 + nAshT**2
         if (IFXMS .or. IFRMS) ngrad1 = ngrad1 + NBSQT
-        if (IFDW .and. zeta >= 0.0d+00) ngrad1 = ngrad1 + nState
+        if (IFDW .and. zeta >= Zero) ngrad1 = ngrad1 + nState
         if (do_nac) ngrad1 = ngrad1 + NBSQT
         if (nFroT /= 0) ngrad1 = ngrad1 + nFroT**2
 
@@ -430,17 +431,17 @@ C In DIADNS alone, NDD words are needed:
               M = M + NAS*(NAS+1)/2 + NG3TOT
             ELSE IF (ICASE.EQ.2 .OR. ICASE.EQ.3) THEN
               M = M + 2*NASHT**4
-              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+              IF (IPEA_SHIFT /= Zero) M = M + NAS*(NAS+1)/2
             ELSE IF (ICASE.EQ.4) THEN
               M = M + NAS*(NAS+1)/2 + NG3TOT
             ELSE IF (ICASE.EQ.5) THEN
-              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+              IF (IPEA_SHIFT /= Zero) M = M + NAS*(NAS+1)/2
             ELSE IF (ICASE.EQ.6 .OR. ICASE.EQ.7) THEN
-              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+              IF (IPEA_SHIFT /= Zero) M = M + NAS*(NAS+1)/2
             ELSE IF (ICASE.EQ.8 .OR. ICASE.EQ.9) THEN
-              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+              IF (IPEA_SHIFT /= Zero) M = M + NAS*(NAS+1)/2
             ELSE IF (ICASE.EQ.10 .OR. ICASE.EQ.11) THEN
-              IF (IPEA_SHIFT /= 0.0D+00) M = M + NAS*(NAS+1)/2
+              IF (IPEA_SHIFT /= Zero) M = M + NAS*(NAS+1)/2
             END IF
             MMX = MAX(M,MMX)
           END DO

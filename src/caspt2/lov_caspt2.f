@@ -26,11 +26,11 @@
 * Author:   F. Aquilante  (Geneva, Feb. 2008)                          *
 *                                                                      *
 ************************************************************************
-      use definitions, only: iwp, wp, u6
       use OneDat, only: sNoNuc, sNoOri
       use Molcas, only: LenIn, MxAtom, MxBas
-      use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, One
+      use definitions, only: iwp, wp, u6
       Implicit None
       integer(kind=iwp), intent(out):: irc
       integer(kind=iwp), intent(in)::  nSym
@@ -265,7 +265,7 @@ C     -----------------------------------------------------------
 *        2) virtual orbitals ---> lin. indep. PAOs (non-orthonormal)   *
 *                                                                      *
 *----------------------------------------------------------------------*
-      Thrd=1.d-06
+      Thrd=1.e-06_wp
       Call mma_allocate(D_vir,nBasT,Label='D_Vir')
       Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nIsh,
      &                    nAsh,nSsh,CMOX(ipCMO),SQ,

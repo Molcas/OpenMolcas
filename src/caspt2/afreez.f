@@ -39,7 +39,7 @@
       use definitions, only: iwp, wp, u6
       use Molcas, only: LenIn, MxBas
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero
+      use Constants, only: Zero, One
       IMPLICIT None
 *
       integer(kind=iwp), intent(in):: NSYM
@@ -60,7 +60,7 @@
       integer(kind=iwp):: LABFRO(mxbas)
       real(kind=wp), ALLOCATABLE :: SMAT(:)
       character(len=8) :: Label
-      real(kind=wp), parameter:: Thrs=1.d-06
+      real(kind=wp), parameter:: Thrs=1.e-06_wp
       real(kind=wp) chksum,selch,Swap
       integer(kind=iwp):: I,ib,iComp,imo,imo0,iname,iopt,ipp,ipq,ipq0,
      &                    iqq,irc,ist1,ist2,isym,isymlbl,nb2,NBAST,nbi,
@@ -192,7 +192,7 @@
            ipp=ipp+np
            chksum=chksum+DPQ(ipp)
           Enddo
-          If(abs(chksum-1.d0).gt.1.d-08) then
+          If(abs(chksum-One).gt.1.e-08_wp) then
            Write(u6,*) 'Error on Checksum in Afreez.',
      &     'Value is not equal to 1:', isym, ni, chksum
            Write(u6,*) 'Freezing extra orbitals in CASPT2 stops.'
@@ -295,7 +295,7 @@
            ipp=ipp+np
            chksum=chksum+DPQ(ipp)
           Enddo
-          If(abs(chksum-1.d0).gt.1.d-08) then
+          If(abs(chksum-One).gt.1.e-08_wp) then
            Write(u6,*) 'Error on Checksum in Afreez.',
      &     'Value is not equal to 1:', isym, ni, chksum
            Write(u6,*) 'Deleting extra orbitals in CASPT2 stops.'

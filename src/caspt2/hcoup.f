@@ -11,8 +11,6 @@
 * Copyright (C) 2014, Steven Vancoillie                                *
 ************************************************************************
       SUBROUTINE HCOUP(IVEC,JVEC,OVL,TG1,TG2,NASHT,TG3,NTG3,HEL)
-      use definitions, only: iwp, wp, u6
-      use constants, only: Zero
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG
 #ifdef _MOLCAS_MPP_
@@ -20,6 +18,8 @@
 #endif
       use fake_GA, only: GA_Arrays
       use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP, CASES
+      use constants, only: Zero
+      use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -165,10 +165,10 @@ C Sum-reduce the per-process contributions
 
       SUBROUTINE HCOUP_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,nV1,V2,nV2,
      &                     OVL,HEBLK,TG1,TG2,NASHT,TG3,NTG3)
-      use definitions, only: iwp, wp
       use constants, only: Zero, Two, Four, Eight
       USE SUPERINDEX, only: MTUV, MTGEU, MTGTU, MTU
       use caspt2_module, only: NTUVES, NTGEUES, NTUES, NAES, NTGTUES
+      use definitions, only: iwp, wp
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -597,14 +597,12 @@ C Formula used: SG(t,x)= Gtx
         END DO
 ************************************************************************
       CASE(12)
-        IF(ABS(OVL).GE.1.0D-12) THEN
-          HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
-        END IF
+        IF (ABS(OVL).GE.1.0E-12_wp)
+     &     HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
 ************************************************************************
       CASE(13)
-        IF(ABS(OVL).GE.1.0D-12) THEN
-          HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
-        END IF
+        IF (ABS(OVL).GE.1.0E-12_wp)
+     &     HEBLK=HEBLK+OVL*DDOT_(NAS*NISBLK,V2,1,V1,1)
 ************************************************************************
       END SELECT
 

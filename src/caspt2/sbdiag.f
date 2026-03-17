@@ -17,7 +17,6 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SBDIAG()
-      use definitions, only: iwp, wp
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
@@ -25,6 +24,7 @@
 #endif
       use caspt2_module, only: nSym, ThrShn, ThrShs, Cases, nASup,
      &  nISup, nInDep
+      use definitions, only: iwp, wp
       IMPLICIT None
 
       real(kind=wp) CondNr, CPU
@@ -213,7 +213,7 @@ C Extremely small values give scale factor exactly zero.
         Else
           IF(SDiag.GT.THRSHN) THEN
 * Small variations of the scale factor were beneficial
-            SCA(I)=(One+DBLE(I)*3.0D-6)/SQRT(SDiag)
+            SCA(I)=(One+DBLE(I)*3.0E-6_wp)/SQRT(SDiag)
           ELSE
             SCA(I)=Zero
           END IF
@@ -334,7 +334,7 @@ C Now, the transformation matrix can be written out.
         CALL DDAFILE(LUSBT,1,VEC,NAS*NIN,IDT)
         CALL mma_deallocate(VEC)
         DO I=1,NAS
-          SDiag=SD(I)+1.0d-15
+          SDiag=SD(I)+1.0e-15_wp
           BD(I)=BD(I)/SDiag
         END DO
         IDB=IDBMAT(ISYM,ICASE)
@@ -662,7 +662,7 @@ C Calculate the scaling factors and store them in array SCA.
           SCA(I)=One
         ELSE
           IF(SDiag.GT.THRSHN) THEN
-            SCA(I)=(One+DBLE(I)*3.0D-6)/SQRT(SDiag)
+            SCA(I)=(One+DBLE(I)*3.0E-6_wp)/SQRT(SDiag)
           ELSE
             SCA(I)=Zero
           END IF
@@ -826,7 +826,7 @@ C eigenvalues would go in ordinary CASPT2.
         CALL GADGOP (BD,NAS,'+')
         bStat = GA_Destroy (lg_B)
         DO I=1,NAS
-          SDiag=SD(I)+1.0d-15
+          SDiag=SD(I)+1.0E-15_wp
           BD(I)=BD(I)/SDiag
         END DO
         IDB=IDBMAT(ISYM,ICASE)
