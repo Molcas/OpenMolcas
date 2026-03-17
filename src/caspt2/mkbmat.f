@@ -1811,7 +1811,7 @@ c Avoid unused argument warnings
 #endif
 
       SUBROUTINE MKBB(DREF,NDREF,PREF,NPREF,FD,FP)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       use constants, only: Half, Two, Four, Eight
       USE SUPERINDEX, only: MTU, MTGEU, KTU, KTGTU
       use caspt2_global, only:ipea_shift
@@ -1940,24 +1940,28 @@ CGG.Nov03  Load in SDP the diagonal elements of SBP matrix:
           CALL mma_deallocate(SP)
 CGG End
         END IF
+
         NASM=NTGTU(ISYM)
         NBBM=(NASM*(NASM+1))/2
         IF(NBBM.GT.0) THEN
           CALL mma_allocate(BBM,NBBM,Label='BBM')
 CGG.Nov03  Load in SDM the diagonal elements of SBM matrix:
           NSM=(NASM*(NASM+1))/2
-          CALL mma_allocate(SM,NSM,Label='SM')
           CALL mma_allocate(SDM,NASM,Label='SDM')
-          IDSM=IDSMAT(ISYM,3)
-          CALL DDAFILE(LUSBT,2,SM,NSM,IDSM)
-          IDIAG=0
-          DO I=1,NASM
-            IDIAG=IDIAG+I
-            SDM(I)=SM(IDIAG)
-          END DO
-          CALL mma_deallocate(SM)
+          IF (NINDEP(ISYM,3)>0) THEN
+             CALL mma_allocate(SM,NSM,Label='SM')
+             IDSM=IDSMAT(ISYM,3)
+             CALL DDAFILE(LUSBT,2,SM,NSM,IDSM)
+             IDIAG=0
+             DO I=1,NASM
+               IDIAG=IDIAG+I
+               SDM(I)=SM(IDIAG)
+             END DO
+             CALL mma_deallocate(SM)
+          END IF
 CGG End
         END IF
+
         INSM=1
         DO ITGEU=1,NASP
           ITGEUABS=ITGEU+NTGEUES(ISYM)
@@ -1992,6 +1996,7 @@ CGG.Nov03
      &                          (DREF(IDT)+DREF(IDU))*SDP(ITGEU)
             ENDIF
 CGG End
+            IF (NINDEP(ISYM,3)<1) CYCLE
             IF(ITABS.EQ.IUABS) CYCLE
             IF(IXABS.EQ.IYABS) CYCLE
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)

@@ -32,82 +32,93 @@ C Set up S and B matrices for cases 1..13.
       END IF
 
 
-      Single_set_of_PCO=.TRUE.
-!     Single_set_of_PCO=.FALSE.
+!     Single_set_of_PCO=.TRUE.
+      Single_set_of_PCO=.FALSE.
       If (Single_set_of_PCO) THEN
          CALL MKSMAT()
          CALL MKBMAT()
          RETURN
       END IF
 
-      IF (NASHT/=0) THEN
-
-         CALL mma_allocate(F1,NG1,Label='F1')
-         CALL PT2_GET(NG1,'DELTA1',F1)
-
-         CALL mma_allocate(FD,SIZE(DREF),Label='FD')
-         CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
-
-         CALL mma_deallocate(F1)
-
-         CALL mma_allocate(F2,NG2,Label='F2')
-         CALL PT2_GET(NG2,'DELTA2',F2)
-
-         CALL mma_allocate(FP,SIZE(PREF),Label='FP')
-         CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
-
-         CALL mma_deallocate(F2)
-
-         CALL mma_allocate(F3,NG3,Label='F3')
-         CALL PT2_GET(NG3,'DELTA3',F3)
-
+      IF(NASHT/=0) THEN
+CSVC: print header for debug info
+        IF(IPRGLB.GE.DEBUG) THEN
+          WRITE(u6,'("DEBUG> ",A)') 'CASE SYM S-MATRIX NORM'
+          WRITE(u6,'("DEBUG> ",A)') '==== === ============='
+        END IF
 C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
-         CALL mma_allocate(G3,NG3,Label='G3')
-         CALL PT2_GET(NG3,'GAMMA3',G3)
+        CALL mma_allocate(G3,NG3,Label='G3')
+        CALL PT2_GET(NG3,'GAMMA3',G3)
 
+        CALL mma_allocate(idxG3,6,NG3,label='idxG3')
+        iLUID=0
+        CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-         IF (IPRGLB.GE.DEBUG) THEN
-           WRITE(u6,'("DEBUG> ",A)') 'CASE SYM S/B-MATRIX NORM'
-           WRITE(u6,'("DEBUG> ",A)') '==== === ==============='
-         END IF
+        CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
+        CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
 
-         CALL mma_allocate(idxG3,6,NG3,label='idxG3')
-         iLUID=0
-         CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
+        CALL mma_deallocate(G3)
+        CALL mma_deallocate(idxG3)
 
-*
-         CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
-         CALL MKBA(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
+C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
 
-         CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
-         CALL MKBC(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
+!****
+        CALL mma_allocate(F1,NG1,Label='F1')
+        CALL PT2_GET(NG1,'DELTA1',F1)
 
-         CALL mma_deallocate(G3)
-         CALL mma_deallocate(F3)
-         CALL mma_deallocate(idxG3)
+        CALL mma_allocate(FD,SIZE(DREF),Label='FD')
+        CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
 
-         CALL MKSB(DREF,SIZE(DREF),PREF,SIZE(PREF))
-         CALL MKBB(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
+        CALL mma_deallocate(F1)
 
-         CALL MKSD(DREF,SIZE(DREF),PREF,SIZE(PREF))
-         CALL MKBD(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
+        CALL mma_allocate(F2,NG2,Label='F2')
+        CALL PT2_GET(NG2,'DELTA2',F2)
 
-         CALL MKSE(DREF,SIZE(DREF))
-         CALL MKBE(DREF,SIZE(DREF),FD)
+        CALL mma_allocate(FP,SIZE(PREF),Label='FP')
+        CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
 
-         CALL MKSF(PREF,SIZE(PREF))
-         CALL MKBF(DREF,SIZE(DREF),PREF,SIZE(PREF),FP)
+        CALL mma_deallocate(F2)
 
-         CALL MKSG(DREF,SIZE(DREF))
-         CALL MKBG(DREF,SIZE(DREF),FD)
+        CALL mma_allocate(F3,NG3,Label='F3')
+        CALL PT2_GET(NG3,'DELTA3',F3)
 
-         CALL mma_deallocate(FP)
-         CALL mma_deallocate(FD)
+        IF(IPRGLB.GE.DEBUG) THEN
+          WRITE(u6,'("DEBUG> ",A)') 'CASE SYM B-MATRIX NORM'
+          WRITE(u6,'("DEBUG> ",A)') '==== === ============='
+        END IF
+
+        CALL mma_allocate(idxG3,6,NG3,label='idxG3')
+        iLUID=0
+        CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
+
+        CALL MKBA(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
+        CALL MKBC(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP,NG3,F3,idxG3)
+
+        CALL mma_deallocate(F3)
+        CALL mma_deallocate(idxG3)
+
+        CALL MKSB(DREF,SIZE(DREF),PREF,SIZE(PREF))
+        CALL MKBB(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
+
+        CALL MKSD(DREF,SIZE(DREF),PREF,SIZE(PREF))
+        CALL MKBD(DREF,SIZE(DREF),PREF,SIZE(PREF),FD,FP)
+
+        CALL MKSE(DREF,SIZE(DREF))
+        CALL MKBE(DREF,SIZE(DREF),FD)
+
+        CALL MKSF(PREF,SIZE(PREF))
+        CALL MKBF(DREF,SIZE(DREF),PREF,SIZE(PREF),FP)
+
+        CALL MKSG(DREF,SIZE(DREF))
+        CALL MKBG(DREF,SIZE(DREF),FD)
+
+        CALL mma_deallocate(FP)
+        CALL mma_deallocate(FD)
 
       END IF
 
-      CALL MKSH()
+      Call MKSH()
       CALL MKBH()
 
       END SUBROUTINE MKSBMAT

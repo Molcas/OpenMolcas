@@ -1776,7 +1776,7 @@ C Add  dtu Gvxyz + dtu dyx Gvz
 * Case B (ICASE=2,3)
 ********************************************************************************
       SUBROUTINE MKSB(DREF,NDREF,PREF,NPREF)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       use constants, only: Two, Four, Eight
       USE SUPERINDEX, only: MTU,MTGEU,KTU,KTGTU
       use caspt2_global, only: LUSBT
