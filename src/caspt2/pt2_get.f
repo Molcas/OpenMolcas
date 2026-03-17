@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PT2_GET(NSIZE,LAB,VEC)
       use caspt2_global, only: LUDMAT
-      use pt2_guga, only: CLab10, iAdr10
+      use caspt2_module, only: CLab10, iAdr10
       use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 

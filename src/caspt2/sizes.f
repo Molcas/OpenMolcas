@@ -37,7 +37,7 @@
 #ifdef _DEBUGPRINT_
       use caspt2_module, only: NAMX
 #endif
-      use pt2_guga, only: MxCI, nG1, nG2, nG3Tot
+      use caspt2_module, only: MxCI, nG1, nG2, nG3Tot
 
       IMPLICIT none
 

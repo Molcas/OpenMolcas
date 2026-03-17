@@ -115,7 +115,7 @@ C usually print info on the total number of parameters
      &                         ThrShn, ThrShs, nASup, nISup, Cases,
      &                         nInDep
 
-      use pt2_guga, only: nG3
+      use caspt2_module, only: nG3
       IMPLICIT None
 
       integer(kind=iwp), Intent(in):: iSym, iCase

@@ -24,7 +24,7 @@
       use caspt2_global, only: DREF, PREF
       use caspt2_global, only: LUSOLV
       use caspt2_module, only: NASHT
-      use pt2_guga, only: NG1, NG2, NG3
+      use caspt2_module, only: NG1, NG2, NG3
       IMPLICIT NONE
 C Set up B matrices for cases 1..13.
 

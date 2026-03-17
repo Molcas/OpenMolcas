@@ -69,7 +69,7 @@ C>                   to active indices
       use Definitions, only: RtoB
       use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, EPSA
       use gugx, only: MxLev
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use constants, only: Zero, One
       use definitions, only: iwp, wp, u6, Byte

@@ -26,7 +26,7 @@
      &                         nRas1, nRas2, nRas3, nBas, OrbNam,
      &                         IINAIS, iExtIS,
      &                         iiSym, iaSym, ISNAM
-      use pt2_guga, only: nG1, nG2, nG3Tot
+      use caspt2_module, only: nG1, nG2, nG3Tot
       use definitions, only: iwp, u6
       implicit none
 

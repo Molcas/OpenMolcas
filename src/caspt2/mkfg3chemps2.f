@@ -19,7 +19,7 @@
       use Symmetry_Info, only: Mul
       use gugx, only: SGS
       use caspt2_module, only: jState, nActel, EPSA, mState
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
       IMPLICIT NONE
 
       LOGICAL, INTENT(IN) :: mkF

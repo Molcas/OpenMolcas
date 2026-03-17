@@ -20,7 +20,7 @@
       use definitions, only: iwp, wp
       use constants, only: Zero
       use gugx, only: SGS, CIS
-      use pt2_guga, only: ETA
+      use caspt2_module, only: ETA
       IMPLICIT NONE
 
       integer(kind=iwp), intent(in):: nICASE,nJCASE,NUP,NDWN

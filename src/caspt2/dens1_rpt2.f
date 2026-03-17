@@ -33,7 +33,7 @@
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use caspt2_module, only: iSCF, jState, nActEl, nAshT, STSym,
      &                         mState
-      use pt2_guga, only: nG1
+      use caspt2_module, only: nG1
       use constants, only: Zero, One, Two
       use definitions, only: iwp, wp, u6
       IMPLICIT NONE
@@ -105,7 +105,7 @@
 * have to take account of orbital order.
 * We will use level indices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.F90
+* Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM

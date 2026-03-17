@@ -23,7 +23,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, nAshT, nConf, NoTri,
      &                         STSym, iAd1m, mState
-      use pt2_guga, only: CIThr
+      use caspt2_module, only: CIThr
 
       implicit none
 

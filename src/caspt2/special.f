@@ -21,7 +21,7 @@
       use gugx, only: SGS, LEVEL
       use caspt2_module, only: iSCF, nActel
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
-      use pt2_guga, only: NG3, ETA
+      use caspt2_module, only: NG3, ETA
       use definitions, only: iwp, wp, byte
       IMPLICIT None
       integer(kind=iwp), intent(in):: nAshT, mG3

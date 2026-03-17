@@ -22,7 +22,7 @@
       use caspt2_module, only: CPUFG3, ERef, nAshT, EASUM,
      &                         TIOFG3, EPSA, mState, RefEne,
      &                         CPUSIN, TIOSIN
-      use pt2_guga, only: iAdr10, CLab10
+      use caspt2_module, only: iAdr10, CLab10
       use constants, only: Zero
       use definitions, only: iwp, wp, u6
       IMPLICIT NONE
@@ -50,7 +50,7 @@ C     indices
       END IF
 
 * Reinitialize labels for saving density matrices on disk.
-* The fields IADR10 and CLAB10 are kept in the module pt2_guga.F90
+* The fields IADR10 and CLAB10 are kept in the module caspt2_module.F90
       IADR10(:,1)=-1
       IADR10(:,2)=0
       CLAB10(:)='   EMPTY'

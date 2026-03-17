@@ -16,7 +16,7 @@
       use gugx, only: SGS, CIS, EXS
       use caspt2_module, only: NSYM,NASHT,ISCF,NACTEL,NCONF,IASYM
       use gugx, only: MxLev
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
       IMPLICIT NONE
 
       integer(kind=iwp), intent(in):: NOP2,NOP3,ISYCI,NCI

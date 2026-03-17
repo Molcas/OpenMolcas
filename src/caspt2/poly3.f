@@ -28,7 +28,7 @@
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
       use caspt2_module, only: DMRG
 #endif
-      use pt2_guga, only: CIThr, nG1, nG2, nG3, nG3Tot, Eta
+      use caspt2_module, only: CIThr, nG1, nG2, nG3, nG3Tot, Eta
       use constants, only: Zero, One
       use definitions, only: iwp, wp, u6, Byte
       IMPLICIT NONE

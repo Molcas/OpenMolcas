@@ -20,7 +20,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nState, nConf, STSym
-      use pt2_guga, only: CIThr
+      use caspt2_module, only: CIThr
       use definitions, only: iwp, wp, u6
       Implicit None
       Real(kind=wp), intent(in):: EigVec(nState,nState)

@@ -19,7 +19,7 @@
       SUBROUTINE POLY1(CI,NCI)
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use pt2_guga, only: nG1, iAdr10, cLab10
+      use caspt2_module, only: nG1, iAdr10, cLab10
       use definitions, only: iwp, wp
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
@@ -41,7 +41,7 @@
       END IF
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in pt2_guga.F90
+* The fields IADR10 and CLAB10 are kept in caspt2_module.F90
 * CLAB10 replaces older field called LABEL.
       IADR10(:,1)=-1
       IADR10(:,2)=0

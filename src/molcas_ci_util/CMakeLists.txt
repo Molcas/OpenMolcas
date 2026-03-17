@@ -99,7 +99,6 @@ set (sources
      phpcsf.F90
      pmat_rasscf.F90
      prttim.F90
-     pt2_guga.F90
      rasdef.F90
      rasdim.F90
      rasscf_global.F90

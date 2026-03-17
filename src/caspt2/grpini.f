@@ -26,7 +26,7 @@
      &                         IEOF1M, IfDW, IfsadRef, IfXMS, jState,
      &                         nConf, STSym, TIOFMB, TIOINT, mState,
      &                         iAd1m, IfChol, CPUGIN, TIOGIN, NoTri
-      use pt2_guga, only: CIThr
+      use caspt2_module, only: CIThr
       use Constants, only: Zero, One
       use definitions, only: iwp, wp, u6
       IMPLICIT None

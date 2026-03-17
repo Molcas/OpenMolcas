@@ -23,7 +23,7 @@
       use gugx, only: SGS
       use caspt2_module, only: NCONF, NASHT, NASH, ISCF, NSTATE, JSTATE,
      &                         EPSA
-      use pt2_guga, only: NG1, NG2, NG3, NG3TOT
+      use caspt2_module, only: NG1, NG2, NG3, NG3TOT
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -57,7 +57,7 @@
 
       !! their derivative contributions
       NG3tot = NG3
-      !! Use NG3tot (in pt2_guga.F90) for the moment
+      !! Use NG3tot (in caspt2_module.F90) for the moment
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) call gaigop_scal(ng3tot,'+')
 #endif
@@ -165,7 +165,7 @@
       use caspt2_module, only: IFMSCOUP, NSYM, NASH, NAES, NASHT,
      &                         NASUP, NISUP, NINDEP, EPSA, EASUM, NTUES,
      &                         NTGEUES, NTGTUES
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
 #ifdef _MOLCAS_MPP_
       use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
       use definitions, only: u6
@@ -1768,7 +1768,7 @@
       use caspt2_module, only: STSYM, NCONF, NSTATE, MSTATE, JSTATE,
      &                         ISCF, EPSA
       use Constants, only: One
-      use pt2_guga, only: ETA, CITHR, NG2, NG3, NG3TOT
+      use caspt2_module, only: ETA, CITHR, NG2, NG3, NG3TOT
 
       implicit none
 
@@ -2048,7 +2048,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: nConf
-      use pt2_guga, only: MxCI, iAdr10, cLab10
+      use caspt2_module, only: MxCI, iAdr10, cLab10
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -2067,7 +2067,7 @@
 !     return !! for test purpose
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in pt2_guga.F90
+* The fields IADR10 and CLAB10 are kept in caspt2_module.F90
 * CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
@@ -2116,7 +2116,7 @@
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.F90
+* Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -2586,7 +2586,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
       use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
       use Constants, only: Zero
 
       implicit none
@@ -3388,7 +3388,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
       use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
       use Constants, only: Zero
 
       implicit none
@@ -3940,7 +3940,7 @@
       use definitions, only: wp, iwp, byte
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NASHT, IASYM, NTUVES
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
 
       implicit none
 
@@ -4706,7 +4706,7 @@
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 
       use gugx, only: SGS
-      use pt2_guga, only: NG1, NG2
+      use caspt2_module, only: NG1, NG2
 
       implicit none
 

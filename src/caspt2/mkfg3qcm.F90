@@ -22,7 +22,7 @@ subroutine mkfg3qcm(mkF, G1, F1, G2, F2, G3, F3, idxG3)
    use gugx, only: SGS
    use caspt2_global, only: iPrGlb
    use caspt2_module, only: nAshT, jState, EPSA
-      use pt2_guga, only: nG3
+      use caspt2_module, only: nG3
 
    implicit none
 

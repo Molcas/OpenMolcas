@@ -16,7 +16,7 @@
       use EQSOLV, only: IVECC, IVECC2, IVECW
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: STSYM, NCONF, NASHT, ISCF, NSTATE
-      use pt2_guga, only: MXCI
+      use caspt2_module, only: MXCI
       use Constants, only: Zero
       use definitions, only: wp, iwp
 !
@@ -1224,7 +1224,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: nConf
-      use pt2_guga, only: MxCI, iAdr10, cLab10
+      use caspt2_module, only: MxCI, iAdr10, cLab10
 
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
@@ -1247,7 +1247,7 @@
       END IF
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in pt2_guga.F90
+* The fields IADR10 and CLAB10 are kept in caspt2_module.F90
 * CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
@@ -1274,7 +1274,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: nConf, STSym
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
 
       IMPLICIT NONE
 
@@ -1295,7 +1295,7 @@
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.F90
+* Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -1654,7 +1654,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: iSCF, nActEl, nAshT, STSym
-      use pt2_guga, only: MxCI, nG1
+      use caspt2_module, only: MxCI, nG1
       use Constants, only: Zero, One, Two
 
       IMPLICIT NONE
@@ -1692,7 +1692,7 @@
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.F90
+* Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 !-SVC20100311: set up a task table with LT,LU
         nTasks=(nLev**2+nLev)/2

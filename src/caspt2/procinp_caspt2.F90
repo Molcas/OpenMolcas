@@ -47,7 +47,7 @@ subroutine procinp_caspt2
                            IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, HZero, G1SECIN, FockType,     &
                            DWType, DoCumulant, BTrans, BSpect, BMatrix, DMRG
 
-      use pt2_guga, only: CIThr
+      use caspt2_module, only: CIThr
   implicit none
 
 

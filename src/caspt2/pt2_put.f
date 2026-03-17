@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE PT2_PUT(NSIZE,LAB,VEC)
       use caspt2_global, only: LUDMAT
-      use pt2_guga, only: IADR10, cLab10
+      use caspt2_module, only: IADR10, cLab10
       use definitions, only: iwp, wp, u6
       IMPLICIT None
       integer(kind=iwp), intent(in):: NSIZE

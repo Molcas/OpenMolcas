@@ -25,7 +25,7 @@
      &                         nAshT, nEle3, nHole1, nRas1T, nRas2T,
      &                         nRas3T, nSym, STSym, nAsh
 
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
       use definitions, only: iwp
       IMPLICIT NONE
 

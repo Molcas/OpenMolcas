@@ -17,7 +17,7 @@
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: STSYM, NCONF, NASHT, ISCF, NSTATE, JSTATE
-      use pt2_guga, only: MXCI
+      use caspt2_module, only: MXCI
       use Constants, only: Zero
 
       implicit none
@@ -631,7 +631,7 @@
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp,u6
       use caspt2_module, only: NACTEL, NASHT, ISCF, IASYM
-      use pt2_guga, only: MXCI
+      use caspt2_module, only: MXCI
       use Constants, only: Zero, One
 
       implicit none

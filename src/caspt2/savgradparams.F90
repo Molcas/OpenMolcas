@@ -33,13 +33,13 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
   USE Para_Info, ONLY: Is_Real_Par, myRank
-      use pt2_guga, only: iAdr10, cLab10
+      use caspt2_module, only: iAdr10, cLab10
 #endif
 
   use caspt2_module, only: E2Tot, EASum, ERef, jState, MxCase, nAshT, nBTri, nState, nSym, RFPert, nCases, &
                            nInDep, nISup, nASup, RefEne
 
-      use pt2_guga, only: nG1, nG2, nG3, nG3Tot
+      use caspt2_module, only: nG1, nG2, nG3, nG3Tot
   Implicit None
 
 #ifdef _MOLCAS_MPP_

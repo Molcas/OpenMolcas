@@ -27,7 +27,7 @@
       use definitions, only: iwp,wp,u6,RtoB
       use caspt2_module, only: nActEl, nSym, STSym, EPSA
       use gugx, only: MxLev
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use Constants, only: Zero, One, Half
 
@@ -806,7 +806,7 @@
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use gugx, only: SGS, LEVEL
       use caspt2_module, only: NACTEL, NASHT, ISCF
-      use pt2_guga, only: ETA, NG3
+      use caspt2_module, only: ETA, NG3
       use Constants, only: Zero, One, Two
       use definitions, only: wp, iwp, byte, u6
 

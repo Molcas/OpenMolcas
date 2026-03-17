@@ -18,7 +18,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs, MyRank
 #endif
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: LSYM1, LSYM2

@@ -48,7 +48,7 @@ C
       use caspt2_module, only: DMRG
 #endif
       use gugx, only: MxLev
-      use pt2_guga, only: MxCI, nG1, nG2, nG3
+      use caspt2_module, only: MxCI, nG1, nG2, nG3
       use constants, only: Zero
       use definitions, only: iwp, wp, Byte, u6
       IMPLICIT NONE

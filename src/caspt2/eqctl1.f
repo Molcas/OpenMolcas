@@ -25,7 +25,7 @@
      &                  IDTMat, IDSTMat
       use caspt2_module, only: MxCase, nCases, nSym, nASup, nISup,
      &                         nInDep
-      use pt2_guga, only: nG2, nG3Tot
+      use caspt2_module, only: nG2, nG3Tot
       use definitions, only: wp, iwp, ItoB, RtoI, u6
       IMPLICIT None
 C On return, the following data sets will be defined and stored

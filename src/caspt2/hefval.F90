@@ -19,7 +19,7 @@ subroutine hefval(ist, jst, dvalue)
 #if defined _DMRG_
   use caspt2_module, only: DMRG
 #endif
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
   implicit none
   ! Apart from input call parameters, we need two vectors stored on
   ! LUSOLV. Vector nr IVECC (presently=2) contains the contravariant

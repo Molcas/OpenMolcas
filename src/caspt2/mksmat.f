@@ -23,7 +23,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: DREF, PREF, LUSOLV
       use caspt2_module, only: NASHT
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
       IMPLICIT None
 C     Set up S matrices for cases 1..13.
       INTEGER(kind=byte), ALLOCATABLE :: idxG3(:,:)
