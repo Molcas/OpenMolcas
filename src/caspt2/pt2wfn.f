@@ -225,14 +225,14 @@
 #endif
       end subroutine pt2wfn_data
 
-      subroutine pt2wfn_estore(Heff)
+      subroutine pt2wfn_estore(Heff,nState)
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
       use caspt2_module, only: Energy, IfMSCOUP, RefEne
 #endif
-      use caspt2_module, only: nState
       implicit none
-      real(kind=wp) :: Heff(nstate,nstate)
+      integer(kind=iwp), intent(in):: nstate
+      real(kind=wp), intent(in):: Heff(nstate,nstate)
 #ifdef _HDF5_
       If (pt2wfn_is_h5) Then
         call mh5_put_dset(pt2wfn_energy, ENERGY)
@@ -253,8 +253,8 @@ c Avoid unused argument warnings
       use caspt2_module, only: jState
 #endif
       implicit none
-      integer(kind=iwp) :: nDmat
-      real(kind=wp) :: Dmat(nDmat)
+      integer(kind=iwp), intent(in) :: nDmat
+      real(kind=wp), intent(in):: Dmat(nDmat)
 #ifdef _HDF5_
       If (pt2wfn_is_h5) Then
         call mh5_put_dset(pt2wfn_dens, Dmat,

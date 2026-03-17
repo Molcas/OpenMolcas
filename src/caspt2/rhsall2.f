@@ -451,6 +451,9 @@ C      the case, symmetry, and rhs vector respectively.
       use caspt2_global, only: iPrGlb, PIQK, BUFF, idxb
       use PrintLevel, only: DEBUG
       use caspt2_module, only: NSYM
+      use AddRHS, only: ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2,
+     &                  ADDRHSE, ADDRHSF, ADDRHSG, ADDRHSH
+
       IMPLICIT None
       integer(kind=iwp), Intent(in):: ITI,ITP,ITK,ITQ
       Character(LEN=2), intent(in)::  Case

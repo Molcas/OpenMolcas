@@ -15,14 +15,14 @@
       use RunFile_procedures, only: Get_dExcdRa
       use OFembed, only: Do_OFemb, FMAux, OFE_First
 #endif
-      use definitions, only: iwp, wp
-#ifdef _DEBUGPRINT_
-      use definitions, only: u6
-#endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_module, only: ERFSelf, NBTRI, nSym, PotNuc, RFpert,
      &                         nBas
+      use definitions, only: iwp, wp
+#ifdef _DEBUGPRINT_
+      use definitions, only: u6
+#endif
 
       Implicit None
 

@@ -491,19 +491,19 @@ C     transition density matrices.
 * Back-transform the effective Hamiltonian and the transformation matrix
 * to the basis of original CASSCF states
         If (nStpGrd == 2) Then
-          CALL Backtransform(Heff,UeffSav,U0sav)
+          CALL Backtransform(Heff,UeffSav,U0sav,nState)
           Call DCopy_(nState*nState,UeffSav,1,Ueff,1)
           Call DCopy_(nState,ESav,1,ENERGY,1)
         Else
-          CALL Backtransform(Heff,Ueff,U0)
+          CALL Backtransform(Heff,Ueff,U0,nState)
         End If
 
 * create a JobMix file
 * (note that when using HDF5 for the PT2 wavefunction, IFMIX is false)
-        CALL CREIPH_CASPT2(Heff,Ueff,U0)
+        CALL CREIPH_CASPT2(Heff,Ueff,U0,nState)
 
 * Store the PT2 energy and effective Hamiltonian on the wavefunction file
-        CALL PT2WFN_ESTORE(HEFF)
+        CALL PT2WFN_ESTORE(HEFF,nState)
 
 * Store rotated states if XMUL + NOMUL
         IF ((IFXMS .or. IFRMS) .AND. (.NOT.IFMSCOUP)) CALL PT2WFN_DATA()
