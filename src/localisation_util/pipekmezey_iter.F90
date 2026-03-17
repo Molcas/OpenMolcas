@@ -57,10 +57,10 @@ character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
 
 # ifdef _GETMOLDEN_
-character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile,move_molden_file
+character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
 integer(kind=iwp) :: rc
 character(len=8) :: fmt ! format descriptor
-character(len=4) :: number,x1
+character(len=4) :: x1
 
 fmt = '(I4.4)' ! an integer of width 4 with zeros at the left
 Sub = "intermediate_molden"
