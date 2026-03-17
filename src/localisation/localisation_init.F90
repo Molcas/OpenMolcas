@@ -25,7 +25,9 @@ use Constants, only: Ten,Five,Half,One,Deg2Rad
 implicit none
 integer(kind=iwp) :: iSym
 integer(kind=iwp), parameter :: Occupied = 0
-real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, ThrRotDef=1.0e-10_wp, ThrGradDef=1.0e-4_wp
+real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, & !functional change
+                            ThrRotDef=1.0e-10_wp, & !rotation angle in jacobi sweeps
+                            ThrGradDef=1.0e-4_wp !gradient norm
 
 do iSym=1,nSym
   nOrb2Loc(iSym) = 0

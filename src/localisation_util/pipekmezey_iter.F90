@@ -13,7 +13,6 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-!#define _DEBUG2_
 !#define _DEBUGLOWD_
 
 
@@ -49,13 +48,14 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 real(kind=wp) :: dqdq
 logical(kind=iwp) :: SORange
 character(len=6):: UpMeth
+logical(kind=iwp),parameter :: usmitigation = .false.
 
 ! Initialization (iteration 0).
 ! -----------------------------
 
 if (.not. Silent) call CWTime(C1,W1)
 
-#ifdef _DEBUG2_
+#ifdef _DEBUGPRINT_
 write(u6,'(/A)') 'Check the orthonormality of the orbitals'
 write(u6,*) '========================================'
 call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
@@ -210,30 +210,26 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call RecPrt('-g/hdiag (NR step) as vector',' ',displacements(:,nIter+1),fsdim,1)
 #           endif
 
-            !if (nIter == 250) then
-            !    call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
-            !end if
-
             ! start GEK only from iteration x
             if (nIter > 0) then
 
-                SORange = .true.
+                SORange = .true. ! 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 select case(OptMeth)
 
                 case (4) ! Full space GEK
 
                     call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                            dqdq,displacements(:,nIter+1),UpMeth,'fullspace',SORange)
+                                            dqdq,displacements(:,nIter+1),UpMeth,'fullspace',SORange,usmitigation)
 
                 case (5) ! subspace GEK
 
                     write(u6,*) "building the subspace"
                     call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,displacements(:,nIter+1),UpMeth,'subspace ',SORange)
+                                        dqdq,displacements(:,nIter+1),UpMeth,'subspace ',SORange,usmitigation)
                 end select !(s)-GEK
 
-
+                if (usmitigation) then
                 ! undershoot mitigation
                 if (Loosen%Step > One) then
                     call mma_allocate(Prev,fsdim,Label='Prev')
@@ -262,6 +258,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                     call mma_Deallocate(Disp)
 
                 end if
+                end if ! undershoot mitigation
 
                 ! transform GEK disp vec to matrix
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
@@ -284,17 +281,28 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
         End If
 
+        ! update also kappa stored in displacements
+        call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
 
 #       ifdef _DEBUGPRINT_
             call RecPrt('displacement taken (kappa mat)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('(scaled GEK step)',' ',displacements(:,nIter+1),fsdim,1)
+            call RecPrt('CMO before rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
 #       endif
 
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
 
 #       ifdef _DEBUGPRINT_
+            call RecPrt('CMO after rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
             write(u6,*) "=================================================================="
             write(u6,*) "               ORBITALS HAVE BEEN ROTATED"
-            write(u6,*) "=================================================================="
+
+            ! choose the iteration of interest, this creates a $project.imlocal.molden file
+            if (nIter == 3) then
+                call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+            end if
+
+write(u6,*) "=================================================================="
 #       endif
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)

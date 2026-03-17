@@ -59,7 +59,6 @@ logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
 real(kind=wp), allocatable :: Val(:), Vec(:,:)
-integer(kind=iwp), parameter :: nWindow = 20
 
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
@@ -158,7 +157,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
       ii = nTri_Elem(i)
 
 #     ifdef _DEBUGPRINT_
-      write(u6,*) 'Eigenvalue:',Val(ii)
+      write(u6,'(A,F26.16)') 'Eigenvalue:',Val(ii)
 #     endif
       if (.not. maximize) then
 
@@ -326,7 +325,7 @@ end do  ! While not converged
 
 #ifdef _DEBUGPRINT_
 if (Converged) then
-  write(u6,*) 'Converged'
+  write(u6,'(A,I4,A)') 'Converged in ',Iteration_Micro," micro iterations"
 else
   write(u6,*) 'Not converged!'
 end if
