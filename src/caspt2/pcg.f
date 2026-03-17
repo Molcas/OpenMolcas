@@ -75,9 +75,8 @@ C Current solution vector X, Current residual vector R
         WRITE(u6,*)
         WRITE(u6,'(23A5)')('-----',i=1,23)
         WRITE(u6,*)' DIAGONAL CASPT2 APPROXIMATION:'
-        GOTO 900
        END IF
-      END IF
+      ELSE
 
       RNORM=Zero
 C Pre-conditioned conjugate gradient:
@@ -138,8 +137,8 @@ C---------------------
 
          IF(ITER>=MAXIT) THEN
             IF(IPRGLB.GE.TERSE) THEN
-             WRITE(6,*)
-             WRITE(6,*)' NOT CONVERGED AFTER MAX ITERATIONS.'
+             WRITE(u6,*)
+             WRITE(u6,*)' NOT CONVERGED AFTER MAX ITERATIONS.'
             END IF
             ICONV = 16
             EXIT
@@ -153,7 +152,7 @@ C---------------------
 C---------------------
       END IF
 
- 900  CONTINUE
+      END IF
 
       CALL POVLVEC(IRHS,IVECX,ECORR)
       EVJTU=ECORR(0,1)
@@ -207,7 +206,7 @@ CPAM End of insert.
          If (.not.Input % LovCASPT2) Then
             WRITE(u6,'(6x,a,f18.10)')'Reference energy:     ',EREF
             WRITE(u6,'(6x,a,f18.10)')'E2 (Non-variational): ',E2NONV
-            IF(real_shift.NE.0.0d0.or.imag_shift.ne.0.0d0
+            IF(real_shift.NE.Zero.or.imag_shift.ne.Zero
      &       .or.sigma_p_epsilon.ne.0.0d0) THEN
               WRITE(u6,'(6x,a,f18.10)')'Shift correction:     ',ESHIFT
             END IF
@@ -229,7 +228,7 @@ CPAM End of insert.
      &              'Reference energy:                 ',EREF
             WRITE(u6,'(6x,a,f18.10)')
      &              'Active-Site E2 (Non-variational): ',E2NONV
-            IF(real_shift.NE.0.0d0.or.imag_shift.ne.0.0d0) THEN
+            IF(real_shift.NE.Zero.or.imag_shift.ne.Zero) THEN
               WRITE(u6,'(6x,a,f18.10)')
      &              'Shift correction:                 ',ESHIFT
             END IF
