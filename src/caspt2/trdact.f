@@ -22,8 +22,8 @@
       use caspt2_global, only: LUCIEX, IDTCEX
       use caspt2_module, only: nAshT, iSCF, jState, nConf, nSym, STSym,
      &                         iASym, nAes, nAshT, nAsh
-      use gugx, only: MxLev
       use caspt2_module, only: MxCI
+      use molcas, only: MxLev
       use constants, only: Zero, One, Two
       use definitions, only: iwp, wp
       IMPLICIT NONE

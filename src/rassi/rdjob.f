@@ -12,7 +12,7 @@
       use rasdef, only: NRS1, NRS2, NRS3
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: JBNUM, LROOT
-      use gugx, only: LEVEL, mxlev
+      use gugx, only: LEVEL
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names,
@@ -39,7 +39,7 @@
       use Symmetry_Info, only: nSym=>nIrrep
       use rassi_data, only: WFTYPE,NASH,NSSH,NDEL,NOSH,NASH,NISH,NFRO,
      &                      NBASF,NDEL,NFRO,NISH
-      use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
+      use Molcas, only: LenIn, MxOrb, MxRoot, MxSym, MxLev
       use RASDim, only: MxIter, MxTit
 
       IMPLICIT NONE

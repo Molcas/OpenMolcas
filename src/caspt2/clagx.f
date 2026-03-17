@@ -4882,7 +4882,8 @@
 !
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(ISYCI,PRE,CI,INT1,INT2,Fancy,nLev,nMidV)
-      use gugx, only: SGS, CIS, MXLEV
+      use molcas, only: MXLEV
+      use gugx, only: SGS, CIS
       use Constants, only: Two, Four
       use caspt2_module, only: NROOTS
 

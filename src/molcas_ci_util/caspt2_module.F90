@@ -11,9 +11,8 @@
 
 module CASPT2_Module
 
-use Molcas, only: LenIn, MxAct, MxBas, MxIna, MxOrb, MxRoot
+use Molcas, only: LenIn, MxAct, MxBas, MxIna, MxOrb, MxRoot, MxLev
 use RASDim, only: MxTit
-use gugx, only: MXLEV
 use Definitions, only: wp, iwp
 
 implicit none
