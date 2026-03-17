@@ -213,7 +213,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! start GEK only from iteration x
             if (nIter > 0) then
 
-                SORange = .true. ! 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
+                SORange = .false. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 select case(OptMeth)
 
