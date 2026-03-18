@@ -1016,8 +1016,10 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
             CALL GA_ACCESS (LG_SC,ILO,IHI,JLO,JHI,MC,LDC)
             CALL MKSC_G3_MPP(ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC,
      &                       NG3,G3,IDXG3)
+            MSC=LDC*(jHi.jLo+1)
             CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &                   ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC)
+     &                   ISYM,DBL_MB(MC),MSC,
+     &                   ILO,IHI,JLO,JHI,LDC)
             CALL GA_RELEASE_UPDATE (LG_SC,ILO,IHI,JLO,JHI)
           ELSE
             CALL MKSC_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDC,
@@ -1033,7 +1035,8 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           MSC=NAS*(NAS+1)/2
           CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),MSC,NG3,G3,IDXG3)
           CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SC)%A(:),ILO,IHI,JLO,JHI,LDC)
+     &                 ISYM,GA_Arrays(lg_SC)%A(:),MSC,
+     &                 ILO,IHI,JLO,JHI,LDC)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -1694,7 +1697,7 @@ c Avoid unused argument warnings
 #endif
 
       SUBROUTINE MKSC_DP (DREF,NDREF,PREF,NPREF,
-     &                    iSYM,SC,iLo,iHi,jLo,jHi,LDC)
+     &                    iSYM,SC,NSC,iLo,iHi,jLo,jHi,LDC)
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDC is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDC passed is zero.
@@ -1703,10 +1706,10 @@ C storage uses a triangular scheme, and the LDC passed is zero.
       USE SUPERINDEX, only: MTUV
       use caspt2_module, only: NASHT, nTUVES
       IMPLICIT None
-      integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,
+      integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,NSC,
      &                                 iLo,iHi,jLo,jHi,LDC
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
-      real(kind=wp), intent(out):: SC(*)
+      real(kind=wp), intent(out):: SC(NSC)
 
       integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
      &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,
