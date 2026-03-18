@@ -53,10 +53,10 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 
 !S-GEK
 real(kind=wp) :: dqdq
-logical(kind=iwp) :: SORange,start_gek
+logical(kind=iwp) :: SORange
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,Iter_GEK
+integer(kind=iwp) :: i,j,Iter_GEK,start_gek
 
 # ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -229,20 +229,24 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 #           ifdef _DEBUGPRINT_
                 write(u6,"(A,I3,A)") "kappa_",nIter,"="
+                call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
                 call RecPrt('-g/hdiag (NR step) as matrix',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
-                call RecPrt('-g/hdiag (NR step) as vector',' ',displacements(:,nIter+1),fsdim,1)
 #           endif
 
-            ! start GEK only in the infinitesimal limit for kappa
-            do i=1,fsdim
-                if (abs(displacements(i,nIter+1)) < 0.01) then
-                    start_gek = .true.
-                else
-                    start_gek = .false.
-                end if
-            end do
+            call RecPrt('kappa',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
 
-            if (start_gek) then
+            ! start GEK only in the infinitesimal limit for kappa
+            start_gek = 0
+            do i=1,nOrb2Loc
+                do j=1,nOrb2Loc
+                    if (abs(kappa(i,j)) > 0.01) then
+                        start_gek = start_gek + 1
+                    end if
+                end do
+            end do
+            write(u6,*) "start_gek =",start_gek
+
+            if (start_gek == 0) then
                 write(u6,*) "turning on GEK in iteration",nIter
 
                 Iter_GEK = Iter_GEK+1
@@ -259,13 +263,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 case (4) ! Full space GEK
 
                     call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                            dqdq,displacements(:,nIter+1),UpMeth,'fullspace',SORange,usmitigation)
+                                            dqdq,displacements(:,Iter_GEK),UpMeth,'fullspace',SORange,usmitigation)
 
                 case (5) ! subspace GEK
 
                     write(u6,*) "building the subspace"
                     call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,displacements(:,nIter+1),UpMeth,'subspace ',SORange,usmitigation)
+                                        dqdq,displacements(:,Iter_GEK),UpMeth,'subspace ',SORange,usmitigation)
                 end select !(s)-GEK
 
                 if (usmitigation) then
@@ -302,7 +306,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! transform GEK disp vec to matrix
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim,.true.)
 #               ifdef _DEBUGPRINT_
-                call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
+                call RecPrt('(GEK step)',' ',displacements(:,Iter_GEK),fsdim,1)
 #               endif
 
 
@@ -320,8 +324,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
         End If
 
-        ! update also kappa stored in displacements
-        call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
 
 #       ifdef _DEBUGPRINT_
             call RecPrt('displacement taken (kappa mat)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
