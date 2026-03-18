@@ -42,7 +42,6 @@
 
 * REINITIALIZE USE OF DMAT.
 * The fields IADR10 and CLAB10 are kept in caspt2_module.F90
-* CLAB10 replaces older field called LABEL.
       IADR10(:,1)=-1
       IADR10(:,2)=0
       CLAB10(:)='   EMPTY'
