@@ -258,7 +258,9 @@ C     -----------------------------------------------------------
 *---  MP2 calculation on the whole system (incompatible with DoMP2)
       If (DoEnv) Then
          Call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                           CMOX(ipCMO:),OrbE(ipOrbE:),E2_ab)
+     &                      CMOX(ipCMO:),SIZE(CMOX(ipCMO:)),
+     &                      OrbE(ipOrbE:),SIZE(OrbE(ipOrbE:)),
+     &                      E2_ab)
       EndIf
 *----------------------------------------------------------------------*
 *     Localize the inactive and virtual orbitals                       *
@@ -270,7 +272,7 @@ C     -----------------------------------------------------------
       Thrd=1.e-06_wp
       Call mma_allocate(D_vir,nBasT,Label='D_Vir')
       Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nFro,nIsh,
-     &                    nAsh,nSsh,CMOX(ipCMO),SQ,
+     &                    nAsh,nSsh,CMOX(ipCMO:),SQ,
      &                    D_vir)
 
       If(irc.ne.0) then
@@ -377,7 +379,8 @@ C     -----------------------------------------------------------
          mOff=mOff+nSsh(iSym)
       End Do
       ortho=.false.
-      Call get_Saa(nSym,nBas,nSsh,SQ,XMO,Saa)
+      Call get_Saa(nSym,nBas,nSsh,SQ,SIZE(SQ),XMO,SIZE(XMO),
+     &             Saa,SIZE(Saa))
 *
       Call get_Vir_select(irc,XMO(iCMO),XMO,OrbE(ipEorb),
      &                        SQ,Name,NamAct,D_vir,
@@ -529,7 +532,9 @@ C     -----------------------------------------------------------
 *
       If (DoEnv) Then
          Call energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                           CMOX,OrbE(ipOrbE),E2_Aonly)
+     &                      CMOX,SIZE(CMOX),
+     &                      OrbE(ipOrbE:),SIZE(OrbE(ipOrbE:)),
+     &                      E2_Aonly)
          EMP2 = E2_ab - E2_Aonly
 c         Write(6,'(A,F18.10)')' MP2 correction (environment): ',EMP2
 c         Write(6,*)
@@ -563,13 +568,14 @@ c         Write(6,*)
 ************************************************************************
 *                                                                      *
 ************************************************************************
-      Subroutine get_Saa(nSym,nBas,nOrb,Smn,Xmo,Saa)
+      Subroutine get_Saa(nSym,nBas,nOrb,Smn,nSmn,Xmo,nXmo,Saa,nSaa)
       use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       integer(kind=iwp), intent(in)::  nSym, nBas(nSym), nOrb(nSym)
-      real(kind=wp), intent(in)::  Smn(*), Xmo(*)
-      real(kind=wp), intent(out)::  Saa(*)
+      integer(kind=iwp), intent(in)::  nXmo, nSmn, nSaa
+      real(kind=wp), intent(in)::  Smn(nSmn), Xmo(nXmo)
+      real(kind=wp), intent(out)::  Saa(nSaa)
 
       real(kind=wp), Allocatable:: Z(:)
       integer(kind=iwp) mOb, iSym, iX, kX, lX, nBX, j, jK, jX, jZ, lk
@@ -662,7 +668,7 @@ C
       End SubRoutine LovCASPT2_putInf
 
       Subroutine Energy_AplusB(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &                         CMO,OrbE,E2_ab)
+     &                         CMO,nCMO,OrbE,nOrbE,E2_ab)
 
       use definitions, only: iwp, wp, u6
       use constants, only: Zero
@@ -671,7 +677,8 @@ C
       integer(kind=iwp), intent(in):: nSym
       integer(kind=iwp), intent(in):: nBas(nSym), nFro(nSym), nIsh(nSym)
       integer(kind=iwp), intent(in):: nAsh(nSym), nSsh(nSym), nDel(nSym)
-      real(kind=wp), intent(in)::  CMO(*), OrbE(*)
+      integer(kind=iwp), intent(in):: nCMO, nOrbE
+      real(kind=wp), intent(in)::  CMO(nCMO), OrbE(nOrbE)
       real(kind=wp), intent(out)::  E2_ab
 
       integer(kind=iwp) nAct(8), lnOrb(8), lnOcc(8), lnFro(8), lnDel(8),
