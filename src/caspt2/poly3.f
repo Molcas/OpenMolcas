@@ -135,9 +135,9 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
         END IF
       end if
 
-      IF (ISCF.NE.0.AND.NACTEL.NE.0) THEN
+      IF (ISCF/=0.AND.NACTEL/=0) THEN
         CALL SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nAshT,nG3)
-      ELSE IF (ISCF.EQ.0) THEN
+      ELSE IF (ISCF==0) THEN
 C-SVC20100903: during mkfg3, NG3 is set to the actual value
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
         IF (.NOT. DoCumulant .AND. .NOT. DMRG) THEN

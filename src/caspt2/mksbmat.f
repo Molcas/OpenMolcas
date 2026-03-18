@@ -48,8 +48,6 @@ CSVC: print header for debug info
         END IF
 C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
-        CALL mma_allocate(G3,NG3,Label='G3')
-        CALL PT2_GET(NG3,'GAMMA3',G3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
 
@@ -68,6 +66,10 @@ C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
         CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
 
         CALL mma_deallocate(F2)
+
+
+        CALL mma_allocate(G3,NG3,Label='G3')
+        CALL PT2_GET(NG3,'GAMMA3',G3)
 
         CALL mma_allocate(F3,NG3,Label='F3')
         CALL PT2_GET(NG3,'DELTA3',F3)

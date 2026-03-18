@@ -66,10 +66,14 @@ C ISCF=1 for closed-shell, =2 for hispin
         F1(IT,IT)=(ESUM*OCC-ETA(LT))*G1(IT,IT)
       END DO
 
-      IF(NACTEL.EQ.1) THEN
-        NG3=0
-        Return
-      END IF
+!     This code can be activated once the subsequent code can handle it.
+!     As it is now the code process G3 regardless of the setting here.
+!     If nG3=0 this results in NAN processing. Until this is explicitly
+!     taken case of this code should remain commented out.
+!     IF(NACTEL.EQ.1) THEN
+!       NG3=0
+!       Return
+!     END IF
 
       DO IT=1,NASHT
        LT=LEVEL(IT)
@@ -86,10 +90,10 @@ C ISCF=1 for closed-shell, =2 for hispin
        END DO
       END DO
 
-      IF(NACTEL.EQ.2) THEN
-        NG3=0
-        Return
-      END IF
+!     IF(NACTEL.EQ.2) THEN
+!       NG3=0
+!       Return
+!     END IF
 
       NLEV2=NLEV**2
       NLEV4=NLEV**4

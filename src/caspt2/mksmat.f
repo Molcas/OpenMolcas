@@ -170,7 +170,7 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           jLo=1
           jHi=NAS
           LDA=0
-          MSA=NAS*(NSA+1)/2
+          MSA=NAS*(NAS+1)/2
           CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),MSA,NG3,G3,IDXG3)
           CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
      &                 ISYM,GA_Arrays(lg_SA)%A(:),MSA,
@@ -868,7 +868,7 @@ C storage uses a triangular scheme, and the LDA passed is zero.
       integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,NSA,
      &                                iLo,iHi,jLo,jHi,LDA
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
-      real(kind=wp), intent(out):: SA(NSA)
+      real(kind=wp), intent(inout):: SA(NSA)
 
       integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
      &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,
@@ -1709,7 +1709,7 @@ C storage uses a triangular scheme, and the LDC passed is zero.
       integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,NSC,
      &                                 iLo,iHi,jLo,jHi,LDC
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
-      real(kind=wp), intent(out):: SC(NSC)
+      real(kind=wp), intent(inout):: SC(NSC)
 
       integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
      &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,
