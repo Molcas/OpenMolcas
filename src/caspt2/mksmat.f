@@ -982,7 +982,7 @@ C Add -dyu Gvzxt
       INTEGER(kind=iwp) MYRANK,MC
 #endif
       INTEGER(kind=iwp) ILO,IHI,JLO,JHI,LDC
-      INTEGER(kind=iwp) ICASE,ISYM,lg_SC,NAS,NIN,NSC
+      INTEGER(kind=iwp) ICASE,ISYM,lg_SC,NAS,NIN,NSC,MSC
       real(kind=wp) DSC
       real(kind=wp), EXTERNAL:: PSBMAT_FPRINT
 
@@ -1025,12 +1025,13 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           END IF
         ELSE
 #endif
-          CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),NG3,G3,IDXG3)
           iLo=1
           iHi=NAS
           jLo=1
           jHi=NAS
           LDC=0
+          MSC=NAS*(NAS+1)/2
+          CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),MSC,NG3,G3,IDXG3)
           CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
      &                 ISYM,GA_Arrays(lg_SC)%A(:),ILO,IHI,JLO,JHI,LDC)
 #ifdef _MOLCAS_MPP_
@@ -1049,15 +1050,15 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
 
       END SUBROUTINE MKSC
 
-      SUBROUTINE MKSC_G3(ISYM,SC,NG3,G3,idxG3)
+      SUBROUTINE MKSC_G3(ISYM,SC,NSC,NG3,G3,idxG3)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, Byte
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NASHT, IASYM, NTUVES
       IMPLICIT None
 
-      integer(kind=iwp), intent(in):: ISYM,NG3
-      real(kind=wp), intent(out):: SC(*)
+      integer(kind=iwp), intent(in):: ISYM,NSC,NG3
+      real(kind=wp), intent(out):: SC(NSC)
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 

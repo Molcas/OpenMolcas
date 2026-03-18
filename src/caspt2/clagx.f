@@ -488,7 +488,7 @@
       CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 !     idS = idSMAT(iSym,4)
 !     CALL DDAFILE(LUSBT,2,SMat,NS,idS)
-      CALL MKSC_G3(iSym,SMat,nG3,G3,idxG3)
+      CALL MKSC_G3(iSym,SMat,NS,nG3,G3,idxG3)
       call CLagDXA_FG3(iSym,nAS,NG3,BDER,SDER,
      &                 DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      &                 SMat,idxG3)
@@ -763,7 +763,7 @@
       CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 !     idS = idSMAT(iSym,4)
 !     CALL DDAFILE(LUSBT,2,SMat,NS,idS)
-      CALL MKSC_G3(iSym,SMat,nG3,G3,idxG3)
+      CALL MKSC_G3(iSym,SMat,NS,nG3,G3,idxG3)
       call CLagDXC_FG3(iSym,nAS,NG3,BDER,SDER,
      &                 DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      &                 SMat,idxG3)
