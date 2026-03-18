@@ -13,7 +13,7 @@
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
 
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 
 
 subroutine S_GEK_localisation(nIter,Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework,SORange,&
@@ -26,6 +26,7 @@ use Definitions, only: iwp,wp
 use Definitions, only: u6
 #endif
 use Localisation_globals, only: nMxIter,Loosen
+use Definitions, only: u6
 
 implicit none
 
@@ -37,7 +38,7 @@ integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit=0,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:)
-integer(kind=iwp), parameter :: nWindow =2, Max_Iter_GEK = 50
+integer(kind=iwp), parameter :: nWindow =20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 character(len=9),intent(in) :: framework
@@ -314,6 +315,8 @@ else
   SOFact = 10000000.0_wp
 end if
 
+call recprt("q_diis","",q_diis,mDiis,nDiis+Max_iter_GEK)
+call recprt("g_diis","",q_diis,mDiis,nDiis+Max_iter_GEK)
 
 Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Functionallist(iFirst:),H_diis(:,:),dqdq,&
                    Step_Trunc,UpMeth,SOFact,10000.0_wp,.false.)

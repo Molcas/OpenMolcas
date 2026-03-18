@@ -56,7 +56,7 @@ real(kind=wp) :: dqdq
 logical(kind=iwp) :: SORange,start_gek
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i
+integer(kind=iwp) :: i,Iter_GEK
 
 # ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -117,6 +117,7 @@ end if
 ! ---------------------------------------------------------------------------------------------------
 
 nIter = 0
+Iter_GEK = 0
 
 call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
 
@@ -163,7 +164,6 @@ end if
 ! ---------------------------------------------------------------------------------------------------
 if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiagvec(:))
-    call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,1),fsdim)
 #   ifdef _DEBUGPRINT_
     call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
     call RecPrt("initial hessian"," ",Hdiagvec(:),fsdim,1)
@@ -226,7 +226,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! compute standard newton raphson step
             call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
-            call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
 
 #           ifdef _DEBUGPRINT_
                 write(u6,"(A,I3,A)") "kappa_",nIter,"="
@@ -245,6 +244,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             if (start_gek) then
                 write(u6,*) "turning on GEK in iteration",nIter
+
+                Iter_GEK = Iter_GEK+1
+                ! add only the data to GEK that is in the intifesimal limit
+                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
+                call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
+                FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
+
+
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 select case(OptMeth)
@@ -293,7 +300,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end if ! undershoot mitigation
 
                 ! transform GEK disp vec to matrix
-                call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim,.true.)
+                call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim,.true.)
 #               ifdef _DEBUGPRINT_
                 call RecPrt('(GEK step)',' ',displacements(:,nIter+1),fsdim,1)
 #               endif
@@ -314,11 +321,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         End If
 
         ! update also kappa stored in displacements
-        call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,nIter+1),fsdim)
+        call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
 
 #       ifdef _DEBUGPRINT_
             call RecPrt('displacement taken (kappa mat)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
-            call RecPrt('(scaled GEK step)',' ',displacements(:,nIter+1),fsdim,1)
             call RecPrt('CMO before rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
 #       endif
 
@@ -353,10 +359,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call RecPrt('Hdiag',' ',Hdiagvec(:),fsdim,1)
 #       endif
 
-        call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,nIter+1),fsdim)
 
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-        FunctionalList(nIter+1)=Functional !first entry is from before first iteration
 
     end select ! 2x2 or NxN rotations
 

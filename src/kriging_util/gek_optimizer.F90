@@ -41,7 +41,7 @@ use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-
+use Definitions, only: u6
 implicit none
 logical(kind=iwp),intent(in) :: maximize
 real(kind=wp), intent(in) :: bias, SOFact
@@ -62,6 +62,9 @@ real(kind=wp), allocatable :: Val(:), Vec(:,:)
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
 real(kind=wp), external :: DDot_
+
+call recprt("q_diis","",q_diis,mDiis,nDiis+Max_iter)
+call recprt("g_diis","",q_diis,mDiis,nDiis+Max_iter)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
