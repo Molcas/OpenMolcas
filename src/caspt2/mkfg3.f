@@ -335,6 +335,8 @@ C-have not been computed yet, else just get the number of
 C-sigma vectors in the buffer.
       IF (myBuffer.NE.iTask) THEN
         ibuf1=0
+
+        if (.not. DoFCIQMC) then
         do ip1i=ip1sta,ip1end
          itlev=idx2ij(1,ip1i)
          iulev=idx2ij(2,ip1i)
@@ -344,13 +346,25 @@ C-sigma vectors in the buffer.
          if(istu.eq.isp1) then
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
-          if (.not. DoFCIQMC) then
               BUF1(1:nSgm1,iBuf1)=Zero
               CALL SIGMA1(SGS,CIS,EXS,
      &                    IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
-          end if
          end if
         end do
+        else
+        do ip1i=ip1sta,ip1end
+         itlev=idx2ij(1,ip1i)
+         iulev=idx2ij(2,ip1i)
+         istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
+         it=L2ACT(itlev)
+         iu=L2ACT(iulev)
+         if(istu.eq.isp1) then
+          ibuf1=ibuf1+1
+          ip1_buf(ibuf1)=ip1i
+         end if
+        end do
+        end if
+
         myBuffer=iTask
       ELSE
         ibuf1=TaskList(iTask,3)
