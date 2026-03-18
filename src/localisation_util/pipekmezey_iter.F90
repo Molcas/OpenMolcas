@@ -248,10 +248,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             end do
             write(u6,*) "large_elements =",large_elements
 
-            if (large_elements == 0) then
-                if (.not. start_gek) write(u6,*) "turning on GEK in iteration",nIter
+            if (large_elements == 0 .and. (.not. start_gek)) then
                 start_gek = .true.
+                write(u6,*) "turning on GEK in iteration",nIter+1,"starting sampling for GEK in iteration",nIter
+                Iter_GEK = Iter_GEK+1
+                ! add only the data to GEK that is in the intifesimal limit
+                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
+                call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
+                FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
 
+            else if (large_elements == 0 .and. start_gek) then
                 Iter_GEK = Iter_GEK+1
                 ! add only the data to GEK that is in the intifesimal limit
                 call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
