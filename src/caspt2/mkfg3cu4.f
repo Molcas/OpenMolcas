@@ -14,7 +14,7 @@
 #include "compiler_features.h"
 
 #ifdef _ENABLE_BLOCK_DMRG_
-      Subroutine MKFG3CU4(mkF,G1,F1,G2,F2,G3,F3,idxG3,W3)
+      Subroutine MKFG3CU4(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,W3)
 *
 * Load 1-el, 2-el, and 3-el density matrices to resp. G1, G2, and G3
 * and compute 1-el to 4-el contractions of Fock operator F1, F2, and F3.
@@ -23,23 +23,26 @@
 * Written by N. Nakatani, Oct. 2014
 *
       use Symmetry_Info, only: Mul
+      use constants, only: Half
+      use definitions, only: iwp, wp, Byte
       IMPLICIT NONE
 *
 *
-      LOGICAL, INTENT(IN) :: mkF
-      REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: G3(*), F3(*)
-      INTEGER*1, INTENT(IN) :: idxG3(6,*)
-      REAL*8, INTENT(IN) :: W3(NLEV,NLEV,NLEV,NLEV)
+      LOGICAL(KIND=IWP), INTENT(IN) :: mkF,
+      INTEGER(KIND=IWP), INTENT(IN):: NLEV, nG3
+      REAL(KIND=WP), INTENT(OUT) ::G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
+      REAL(KIND=WP), INTENT(OUT) ::F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
+      REAL(KIND=WP), INTENT(OUT) :: G3(nG3), F3(nG3)
+      INTEGER(Kind=Byte), INTENT(IN) :: idxG3(6,nG3)
+      REAL(KIND=WP), INTENT(IN) :: W3(NLEV,NLEV,NLEV,NLEV)
 *
-      REAL*8  G1SUM
-      INTEGER IT,IU,IV,IX,IY,IZ,IW
-      INTEGER JT,JU,JV,JX,JY,JZ
-      INTEGER IZSYM,IYZSYM,IXYZSYM,IVXYZSYM
-      INTEGER IG3
+      REAL(KIND=WP)  G1SUM
+      INTEGER(KIND=IWP) IT,IU,IV,IX,IY,IZ,IW
+      INTEGER(KIND=IWP) JT,JU,JV,JX,JY,JZ
+      INTEGER(KIND=IWP) IZSYM,IYZSYM,IXYZSYM,IVXYZSYM
+      INTEGER(KIND=IWP) IG3
 
-      REAL*8, EXTERNAL :: CU4F3H
+      REAL(KIND=WP), EXTERNAL :: CU4F3H
 *
 *
       If(NACTEL.GT.1) Then
@@ -48,7 +51,7 @@
 * compute 1-el density matrix from 2-el density matrix
         Do iu=1,nlev
           Do it=1,nlev
-            G1sum=0.0D0
+            G1sum=Zero
             If(ism(it).EQ.ism(iu)) Then
               Do iw=1,nlev
                 G1sum=G1sum+G2(iw,iw,it,iu)
@@ -75,7 +78,7 @@
       End Do
 
 * skip 3RDM part if NACTEL <= 2
-      If(NACTEL.LE.2) GoTo 999
+      If(NACTEL.LE.2) RETURN
 
       Do iz=1,nlev
         izSym=ism(iz)
@@ -113,9 +116,9 @@
                 Do iw=1,nlev
                   F3(iG3)=F3(iG3)
 * CU4F3 Contrib. :: - 0.5D0*G1(iP,lT)*G3(lT,iQ,jP,jQ,kP,kQ)
-     &                   -0.5D0*G1(jt,iw)*W3(iw,ju,jv,jx)*EPSA(iw)
+     &                   -Half*G1(jt,iw)*W3(iw,ju,jv,jx)*EPSA(iw)
 * CU4F3 Contrib. :: - 0.5D0*G1(lT,iQ)*G3(iP,lT,jP,jQ,kP,kQ)
-     &                   -0.5D0*G1(iw,ju)*W3(jt,iw,jv,jx)*EPSA(iw)
+     &                   -Half*G1(iw,ju)*W3(jt,iw,jv,jx)*EPSA(iw)
                 End Do
               End If
             End If
@@ -124,9 +127,9 @@
               Do iw=1,nlev
                 F3(iG3)=F3(iG3)
 * CU4F3 Contrib. :: - 0.5D0*G1(jP,lT)*G3(lT,jQ,iP,iQ,kP,kQ)
-     &                 -0.5D0*G1(jv,iw)*W3(iw,jx,jt,ju)*EPSA(iw)
+     &                 -Half*G1(jv,iw)*W3(iw,jx,jt,ju)*EPSA(iw)
 * CU4F3 Contrib. :: - 0.5D0*G1(lT,jQ)*G3(jP,lT,iP,iQ,kP,kQ)
-     &                 -0.5D0*G1(iw,jx)*W3(jv,iw,jt,ju)*EPSA(iw)
+     &                 -Half*G1(iw,jx)*W3(jv,iw,jt,ju)*EPSA(iw)
               End Do
             End If
 
@@ -134,9 +137,9 @@
               Do iw=1,nlev
                 F3(iG3)=F3(iG3)
 * CU4F3 Contrib. :: - 0.5D0*G1(kP,lT)*G3(lT,kQ,iP,iQ,jP,jQ)
-     &                 -0.5D0*G1(jy,iw)*W3(iw,jz,jt,ju)*EPSA(iw)
+     &                 -Half*G1(jy,iw)*W3(iw,jz,jt,ju)*EPSA(iw)
 * CU4F3 Contrib. :: - 0.5D0*G1(lT,kQ)*G3(kP,lT,iP,iQ,jP,jQ)
-     &                 -0.5D0*G1(iw,jz)*W3(jy,iw,jt,ju)*EPSA(iw)
+     &                 -Half*G1(iw,jz)*W3(jy,iw,jt,ju)*EPSA(iw)
               End Do
             End If
           End Do
@@ -156,8 +159,7 @@
         End Do
       End If
 
- 999  Return
-      End
+      End Subroutine MKFG3CU4
 
 #elif ! defined (EMPTY_FILES)
 

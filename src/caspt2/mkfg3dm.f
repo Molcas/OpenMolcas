@@ -35,7 +35,7 @@ C
 #include "compiler_features.h"
 
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined _DMRG_
-      SUBROUTINE MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
+      SUBROUTINE MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,NLEV,mG3)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
@@ -54,13 +54,13 @@ C
       IMPLICIT NONE
 
       LOGICAL(kind=iwp), INTENT(IN) :: mkF
-      INTEGER(kind=iwp), INTENT(IN) :: NLEV
+      INTEGER(kind=iwp), INTENT(IN) :: NLEV, mG3
       REAL(kind=wp), INTENT(OUT) :: G1(NLEV,NLEV),
      &                              G2(NLEV,NLEV,NLEV,NLEV)
       REAL(kind=wp), INTENT(OUT) :: F1(NLEV,NLEV),
      &                              F2(NLEV,NLEV,NLEV,NLEV)
-      REAL(kind=wp), INTENT(OUT) :: G3(*), F3(*)
-      INTEGER(kind=Byte), INTENT(OUT) :: idxG3(6,*)
+      REAL(kind=wp), INTENT(OUT) :: G3(mG3), F3(mG3)
+      INTEGER(kind=Byte), INTENT(OUT) :: idxG3(6,mG3)
 
 
       INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
@@ -159,7 +159,7 @@ C Special pair index idx2ij allows true RAS cases to be handled:
       call mma_MaxDBLE(memmax)
 
 * Use *almost* all remaining memory:
-      memmax_safe=int(dble(memmax)*0.95D0)
+      memmax_safe=int(dble(memmax)*0.95E0_wp)
 
 * Buffers to compute CI expansion vectors into:
 *
@@ -182,9 +182,9 @@ C-SVC20100301: calculate maximum number of tasks possible
         WRITE(u6,*)
         WRITE(u6,'(2X,A)') 'Constructing G3/F3'
         WRITE(u6,'(2X,A,F16.9,A)') ' memory avail: ',
-     &    (memmax*RtoB)/1.0D9, ' GB'
+     &    (memmax*RtoB)/1.0E9_wp, ' GB'
         WRITE(u6,'(2X,A,F16.9,A)') ' memory used:  ',
-     &    (((nbuf1+3)*MXCI)*RtoB)/1.0D9, ' GB'
+     &    (((nbuf1+3)*MXCI)*RtoB)/1.0E9_wp, ' GB'
       ENDIF
 
       iG3OFF=0
@@ -259,7 +259,6 @@ C-position 12345678901234567890
      &    "------------",
      &    "----",
      &    "---------"
-          call xFlush(6)
         END IF
       END IF
 
@@ -516,19 +515,19 @@ C Currently implemented only cu4, but cu34 and F3 from DMRG-sweep
 C will be possible. They should be implemented at this section.
 C
 C MKFG3CU4 is located under block_dmrg_util/
-      Call MKFG3CU4(mkF,G1,F1,G2,F2,G3,F3,idxG3,G3TMP)
+      Call MKFG3CU4(mkF,nLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,G3TMP)
 C
       Call mma_deallocate(G3TMP)
 #endif
 
 ! TODO: @kszenes: this should be wrapped in an if statement
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Call mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
+      Call mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3)
 #endif
 
 #ifdef _DMRG_
       if (DMRG) then
-        call mkfg3qcm(mkF,G1,F1,G2,F2,G3,F3,idxG3)
+        call mkfg3qcm(mkF,nLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3)
       endif
 #endif
 

@@ -16,35 +16,31 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nAshT,mG3)
+      SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nLev,mG3)
       use constants, only: Zero, One, Two
-      use gugx, only: SGS, LEVEL
-      use caspt2_module, only: iSCF, nActel
+      use gugx, only: LEVEL
+!     use caspt2_module, only: iSCF, nActel
+      use caspt2_module, only: iSCF
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use caspt2_module, only: NG3, ETA
       use definitions, only: iwp, wp, byte
       IMPLICIT None
-      integer(kind=iwp), intent(in):: nAshT, mG3
-      real(kind=wp), intent(out) ::
-     &                             G1(NASHT,NASHT),
-     &                             G2(NASHT,NASHT,NASHT,NASHT),
+      integer(kind=iwp), intent(in):: nLev, mG3
+      real(kind=wp), intent(out) ::G1(nLev,nLev),
+     &                             G2(nLev,nLev,nLev,nLev),
      &                             G3(mG3)
-      real(kind=wp), intent(out) ::
-     &                             F1(NASHT,NASHT),
-     &                             F2(NASHT,NASHT,NASHT,NASHT),
+      real(kind=wp), intent(out) ::F1(nLev,nLev),
+     &                             F2(nLev,nLev,nLev,nLev),
      &                             F3(mG3)
       INTEGER(kind=byte), intent(Out) ::  idxG3(6,mG3)
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
       INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
-      Integer(kind=iwp) :: nLev
       real(kind=wp) ESUM, Occ, Val
       Integer(kind=iwp) :: I, ID, IG3, IND1, IND2, IND3, IT, IT1, IT2,
      &                     IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1,
      &                     LU2, LU3, NLEV2, NLEV4, NTASK
 
-
-      nLev = SGS%nLev
 
       G1(:,:)=Zero
       G2(:,:,:,:)=Zero
@@ -60,7 +56,7 @@ C OR CLOSED-SHELL SCF CASE.
 C ISCF=1 for closed-shell, =2 for hispin
       OCC=Two
       IF(ISCF==2) OCC=One
-      DO IT=1,NASHT
+      DO IT=1,nLev
         G1(IT,IT)=OCC
         LT=LEVEL(IT)
         F1(IT,IT)=(ESUM*OCC-ETA(LT))*G1(IT,IT)
@@ -75,9 +71,9 @@ C ISCF=1 for closed-shell, =2 for hispin
 !       Return
 !     END IF
 
-      DO IT=1,NASHT
+      DO IT=1,nLev
        LT=LEVEL(IT)
-       DO IU=1,NASHT
+       DO IU=1,nLev
         LU=LEVEL(IU)
         G2(IT,IT,IU,IU)=G1(IT,IT)*G1(IU,IU)
         IF(IU.EQ.IT) THEN
@@ -115,16 +111,16 @@ C SVC20100908 initialize the series of tasks
          IF(IND2<=IND1) Exit Inner
       End Do Inner
 
-      IT1=MOD(IND1-1,NASHT)+1
-      IU1=(IND1-IT1)/NASHT+1
+      IT1=MOD(IND1-1,nLev)+1
+      IU1=(IND1-IT1)/nLev+1
       LU1=LEVEL(IU1)
-      IT2=MOD(IND2-1,NASHT)+1
-      IU2=(IND2-IT2)/NASHT+1
+      IT2=MOD(IND2-1,nLev)+1
+      IU2=(IND2-IT2)/nLev+1
       LU2=LEVEL(IU2)
 
       DO IT3=1,NLEV
        DO IU3=1,NLEV
-        IND3=IT3+NASHT*(IU3-1)
+        IND3=IT3+nLev*(IU3-1)
         IF(IND3.GT.IND2) Cycle
         LU3=LEVEL(IU3)
         VAL=G1(IT1,IU1)*G1(IT2,IU2)*G1(IT3,IU3)
