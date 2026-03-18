@@ -12,10 +12,10 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _DEBUG2_
-#define _GETMOLDEN_
+!#define _GETMOLDEN_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
@@ -53,9 +53,10 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 
 !S-GEK
 real(kind=wp) :: dqdq
-logical(kind=iwp) :: SORange
+logical(kind=iwp) :: SORange,start_gek
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
+integer(kind=iwp) :: i
 
 # ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -233,8 +234,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call RecPrt('-g/hdiag (NR step) as vector',' ',displacements(:,nIter+1),fsdim,1)
 #           endif
 
-            ! start GEK only from iteration x
-            if (nIter > 2) then
+            ! start GEK only in the infinitesimal limit for kappa
+            do i=1,fsdim
+                if (abs(displacements(i,nIter+1)) < 0.01) then
+                    start_gek = .true.
+                else
+                    start_gek = .false.
+                end if
+            end do
+
+            if (start_gek) then
+                write(u6,*) "turning on GEK in iteration",nIter
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 select case(OptMeth)
