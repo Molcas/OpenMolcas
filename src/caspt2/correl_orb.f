@@ -112,8 +112,9 @@
 
         EMP2=Zero
         Call Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &    BNAME,nUniqAt,Input%thr_atm,IFQCAN,
-     &    Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO_X,NCMO)
+     &                  BNAME,SIZE(BNAME),nUniqAt,Input%thr_atm,IFQCAN,
+     &                  Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO_X,
+     &                  NCMO)
 
         If (irc.ne.0) Then
           write(6,*) 'LovCASPT2 returned rc= ',irc

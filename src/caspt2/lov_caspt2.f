@@ -11,7 +11,8 @@
 * Copyright (C) 2008, Francesco Aquilante                              *
 ************************************************************************
       SUBROUTINE Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,NAME,
-     &       nUniqAt,Thrs,IFQCAN,DoMP2,DoEnv,all_Vir,EMP2,CMO,NCMO)
+     &                      nName,nUniqAt,Thrs,IFQCAN,DoMP2,DoEnv,
+     &                      all_Vir,EMP2,CMO,NCMO)
 ************************************************************************
 *                                                                      *
 * Purpose:  setup of Localized occupied-virtual CASPT2 (LovCASPT2).    *
@@ -37,7 +38,8 @@
       integer(kind=iwp), intent(inout):: nFro(nSym),nIsh(nSym),
      &                                   nSsh(nSym),nDel(nSym)
       integer(kind=iwp), intent(in):: nBas(nSym), nAsh(nSym)
-      Character(Len=LenIn+8), intent(in):: NAME(*)
+      integer(kind=iwp), intent(in)::  nNAME
+      Character(Len=LenIn+8), intent(in):: NAME(nNAME)
       integer(kind=iwp), intent(in):: nUniqAt
       real(kind=wp), intent(in)::  Thrs
       integer(kind=iwp), intent(inout):: IFQCAN
