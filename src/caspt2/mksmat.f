@@ -121,7 +121,7 @@ C looping, etc in the rest  of the routines.
       integer(kind=iwp) MYRANK,MA
 #endif
       integer(kind=iwp) ILO,IHI,JLO,JHI,LDA
-      integer(kind=iwp) ICASE, ISYM, lg_SA, NAS, NIN, NSA
+      integer(kind=iwp) ICASE, ISYM, lg_SA, NAS, NIN, NSA, MSA
       real(kind=wp), external:: PSBMAT_FPRINT
       real(kind=wp) DSA
 
@@ -163,12 +163,13 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           END IF
         ELSE
 #endif
-          CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),NG3,G3,IDXG3)
           iLo=1
           iHi=NAS
           jLo=1
           jHi=NAS
           LDA=0
+          MSA=NAS*(NSA+1)/2
+          CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),MSA,NG3,G3,IDXG3)
           CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
      &                 ISYM,GA_Arrays(lg_SA)%A(:),ILO,IHI,JLO,JHI,LDA)
 #ifdef _MOLCAS_MPP_
@@ -187,15 +188,15 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
 
       END SUBROUTINE MKSA
 
-      SUBROUTINE MKSA_G3(ISYM,SA,NG3,G3,idxG3)
+      SUBROUTINE MKSA_G3(ISYM,SA,NSA,NG3,G3,idxG3)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, Byte
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NASHT, IASYM, NTUVES
       IMPLICIT None
 
-      INTEGER(kind=iwp), intent(in):: ISYM,NG3
-      real(kind=wp), intent(out):: SA(*)
+      INTEGER(kind=iwp), intent(in):: ISYM,NSA,NG3
+      real(kind=wp), intent(out):: SA(NSA)
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
@@ -438,7 +439,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       ! we need two real and four integer values per element
       iscal = (MPIInt*4 + wp*2)/RtoB ! RtoB from module Definitions
       !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
+      MAXBUF=MIN(NINT(0.95E0_wp*MAXMEM)/iscal,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
       ! This guarantees that e.g. if all processes send all their data
