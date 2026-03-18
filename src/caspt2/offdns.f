@@ -823,7 +823,10 @@ C  EP&HP Two-el
         INCY2=NAS2
         LEN1=NAS1
         LEN2=NIGEJ(ISYM2)
-        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
+        CALL MLTR1(IMLTOP,LIST(LLST1),
+     &             X2(IX:),SIZE(X2(IX:)),
+     &             DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+     &             Y(IY:),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(18)
@@ -847,7 +850,10 @@ C  EM&HM Two-el
         INCY2=NAS2
         LEN1=NAS1
         LEN2=NIGTJ(ISYM2)
-        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
+        CALL MLTR1(IMLTOP,LIST(LLST1),
+     &             X2(IX:),SIZE(X2(IX:)),
+     &             DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+     &             Y(IY:),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(19)
@@ -924,7 +930,10 @@ C  GP&HP Two-el
         INCY2=1
         LEN1=NAS1
         LEN2=NAS2
-        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+        CALL MLTR1(IMLTOP,LIST(LLST1),
+     &             X2(IX:),SIZE(X2(IX:)),
+     &             DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+     &             Y(IY:),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(22)
@@ -947,7 +956,10 @@ C  GM&HM Two-el
         INCY2=1
         LEN1=NAS1
         LEN2=NAS2
-        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+        CALL MLTR1(IMLTOP,LIST(LLST1),
+     &             X2(IX:),SIZE(X2(IX:)),
+     &             DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+     &             Y(IY:),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(23)

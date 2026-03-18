@@ -881,8 +881,8 @@ C  EP&HP Two-el
           NFT=NASH(ISYM1)
           NFA=NSSH(ISYM1)
           CALL PMLTR1(KOD,IMLTOP,LIST(LLST1),
-     &                X2,NAS1,NIS1,JXOFF,
-     &                FTA(ISYM1)%A,NFT,NFA,
+     &                X2(:),SIZE(X2(:)),NAS1,NIS1,JXOFF,
+     &                FTA(ISYM1)%A(:),NFT,NFA,
      &                lg_Y,NAS2,NIS2)
         END IF
 C  -----------------------------------------------
@@ -902,8 +902,8 @@ C  EM&HM Two-el
           NFT=NASH(ISYM1)
           NFA=NSSH(ISYM1)
           CALL PMLTR1(KOD,IMLTOP,LIST(LLST1),
-     &                X2,NAS1,NIS1,JXOFF,
-     &                FTA(ISYM1)%A,NFT,NFA,
+     &                X2(:),SIZE(X2(:)),NAS1,NIS1,JXOFF,
+     &                FTA(ISYM1)%A(:),NFT,NFA,
      &                lg_Y,NAS2,NIS2)
         END IF
 C  -----------------------------------------------
@@ -978,8 +978,8 @@ C  GP&HP Two-el
           NFT=NASH(ISYM1)
           NFI=NISH(ISYM1)
           CALL PMLTR1(KOD,IMLTOP,LIST(LLST1),
-     &                X2,NAS1,NIS1,JXOFF,
-     &                FTI(ISYM1)%A,NFT,NFI,
+     &                X2(:),SIZE(X2(:)),NAS1,NIS1,JXOFF,
+     &                FTI(ISYM1)%A(:),NFT,NFI,
      &                lg_Y,NAS2,NIS2)
         END IF
 C  -----------------------------------------------
@@ -998,8 +998,8 @@ C  GM&HM Two-el
           NFT=NASH(ISYM1)
           NFI=NISH(ISYM1)
           CALL PMLTR1(KOD,IMLTOP,LIST(LLST1),
-     &                X2,NAS1,NIS1,JXOFF,
-     &                FTI(ISYM1)%A,NFT,NFI,
+     &                X2(:),SIZE(X2(:)),NAS1,NIS1,JXOFF,
+     &                FTI(ISYM1)%A(:),NFT,NFI,
      &                lg_Y,NAS2,NIS2)
         END IF
 C  -----------------------------------------------
