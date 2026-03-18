@@ -461,6 +461,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           end if
 
       end if
+
       nbtot=0
       do ip2=ip3,ntri2
         ivlev=idx2ij(1,ip2)
@@ -541,7 +542,6 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         end if
         end if
       end do
-*     end do
 
       IF(iPrGlb.GE.DEBUG) THEN
         WRITE(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
