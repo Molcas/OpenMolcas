@@ -109,7 +109,7 @@
 *----------------------------------------------------------------------*
 *     Localize the inactive and virtual orbitals                       *
 *----------------------------------------------------------------------*
-      Call Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO)
+      Call Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO,nCMO)
       If(irc.ne.0) then
        write(u6,*) 'Localization failed. The AFRE option cannot be used'
        Call Abend
