@@ -19,7 +19,6 @@
       use Symmetry_Info, only: Mul
       use gugx, only: SGS
       use caspt2_module, only: jState, nActel, EPSA, mState
-      use caspt2_module, only: NG3
       use definitions, only: iwp, wp, Byte, u6
       IMPLICIT NONE
 
