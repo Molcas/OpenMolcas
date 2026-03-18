@@ -213,7 +213,6 @@ C-SVC20100301: calculate maximum number of tasks possible
      &    (memmax*RtoB)/1.0D9, ' GB'
         WRITE(u6,'(2X,A,F16.9,A)') ' memory used:  ',
      &    (((nbuf1+3)*MXCI)*RtoB)/1.0D9, ' GB'
-        call xFlush(6)
       ENDIF
 
 ************************************************************************
@@ -275,7 +274,6 @@ C       iOffSet=iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
 
       IF(iPrGlb.GE.VERBOSE) THEN
         WRITE(u6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
-        call xFlush(6)
       ENDIF
 
       IF(iPrGlb.GE.DEBUG) THEN
@@ -298,7 +296,6 @@ C-position 12345678901234567890
      &    "------------",
      &    "----",
      &    "---------"
-          call xFlush(6)
         END IF
       END IF
 
@@ -348,9 +345,9 @@ C-sigma vectors in the buffer.
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
           if (.not. DoFCIQMC) then
-              call dcopy_(nsgm1,[0.0D0],0,BUF1(:,ibuf1),1)
+              BUF1(1:nSgm1,iBuf1)=Zero
               CALL SIGMA1(SGS,CIS,EXS,
-     &                    IULEV,ITLEV,1.0D00,STSYM,CI,BUF1(:,ibuf1))
+     &                    IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
           end if
          end if
         end do
@@ -373,7 +370,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
               iu=L2ACT(iulev)
               G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
               IF(mkF) then
-                F1sum=0.0D0
+                F1sum=Zero
                 do i=1,nsgm1
                   F1sum=F1sum+CI(i)*BUF1(i,ib)*bufd(i)
                 end do
@@ -410,7 +407,10 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
           BUF2(1:nSgm2)=Zero
           CALL SIGMA1(SGS,CIS,EXS,
      &                IYLEV,IZLEV,One,STSYM,CI,BUF2)
+
           if(issg2.eq.issg1) then
+
+            IF (mkF) THEN
             do ib=1,ibuf1
               idx=ip1_buf(ib)
               itlev=idx2ij(1,idx)
@@ -418,15 +418,25 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
               it=L2ACT(itlev)
               iu=L2ACT(iulev)
               G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
-              IF(mkF) THEN
-                F2sum=Zero
-                do i=1,nsgm1
-                  F2sum=F2sum+BUF2(i)*bufd(i)*buf1(i,ib)
-                end do
-                F2(it,iu,iy,iz)=F2sum
-              END IF
+              F2sum=Zero
+              do i=1,nsgm1
+                F2sum=F2sum+BUF2(i)*bufd(i)*buf1(i,ib)
+              end do
+              F2(it,iu,iy,iz)=F2sum
             end do
+            ELSE
+            do ib=1,ibuf1
+              idx=ip1_buf(ib)
+              itlev=idx2ij(1,idx)
+              iulev=idx2ij(2,idx)
+              it=L2ACT(itlev)
+              iu=L2ACT(iulev)
+              G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
+            end do
+            END IF
+
           end if
+
       end if
       nbtot=0
       do ip2=ip3,ntri2
@@ -487,6 +497,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
          idxG3(5,iG3)=int(iY,I1)
          idxG3(6,iG3)=int(iZ,I1)
         end do
+
         if (.not. DoFCIQMC) then
             IF(mkF) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
@@ -501,6 +512,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
                 F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
             END IF
         end if
+
         iG3OFF=iG3OFF+nb
         nbtot=nbtot+nb
         end if
@@ -509,9 +521,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 *     end do
 
       IF(iPrGlb.GE.DEBUG) THEN
-        WRITE(6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
+        WRITE(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
      &    iSubTask, ip1sta, ip1end, ip3, nbtot
-        call xFlush(6)
       END IF
       !! consistent tasks must be executed here and in derfg3.f for grad
       if (do_grad .or. nStpGrd==2) then
@@ -533,7 +544,7 @@ C with next symmetry
 
       IF(iPrGlb.GE.DEBUG) THEN
         IF (nSubTasks .GT. 0) THEN
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "--------",
      &    "------------",
@@ -661,6 +672,7 @@ C  only for the G1 and G2 replicate arrays
 
       ! Correction to G3: It is now <0| E_tu E_vx E_yz |0>
       ! Similar for F3 values.
+          IF (mkF) THEN
           DO iG3=1,NG3
            iT=idxG3(1,iG3)
            iU=idxG3(2,iG3)
@@ -671,25 +683,45 @@ C  only for the G1 and G2 replicate arrays
       ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
            if(iY.eq.iX) then
             G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
-            IF(mkF) F3(iG3)=
-     &               F3(iG3)-(F2(iT,iU,iV,iZ)+EPSA(iu)*G2(iT,iU,iV,iZ))
+            F3(iG3)=F3(iG3)-(F2(iT,iU,iV,iZ)+EPSA(iu)*G2(iT,iU,iV,iZ))
             if(iv.eq.iu) then
              G3(iG3)=G3(iG3)-G1(iT,iZ)
-             IF(mkF) F3(iG3)=F3(iG3)-F1(iT,iZ)
+             F3(iG3)=F3(iG3)-F1(iT,iZ)
             end if
            end if
            if(iV.eq.iU) then
              G3(iG3)=G3(iG3)-G2(iT,iX,iY,iZ)
-             IF(mkF) F3(iG3)=F3(iG3)-
-     &                (F2(iT,iX,iY,iZ)+EPSA(iY)*G2(iT,iX,iY,iZ))
+             F3(iG3)=F3(iG3)-(F2(iT,iX,iY,iZ)+EPSA(iY)*G2(iT,iX,iY,iZ))
            end if
            if(iY.eq.iU) then
              G3(iG3)=G3(iG3)-G2(iV,iX,iT,iZ)
-             IF(mkF) F3(iG3)=
-     &                F3(iG3)-(F2(iV,iX,iT,iZ)+EPSA(iU)*G2(iV,iX,iT,iZ))
+             F3(iG3)=F3(iG3)-(F2(iV,iX,iT,iZ)+EPSA(iU)*G2(iV,iX,iT,iZ))
            end if
-           IF(mkF) F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
+           F3(iG3)=F3(iG3)-(EPSA(iU)+EPSA(iY))*G3(iG3)
           END DO
+          ELSE
+          DO iG3=1,NG3
+           iT=idxG3(1,iG3)
+           iU=idxG3(2,iG3)
+           iV=idxG3(3,iG3)
+           iX=idxG3(4,iG3)
+           iY=idxG3(5,iG3)
+           iZ=idxG3(6,iG3)
+      ! Correction: From <0| E_tu E_vx E_yz |0>, form <0| E_tuvxyz |0>
+           if(iY.eq.iX) then
+            G3(iG3)=G3(iG3)-G2(iT,iU,iV,iZ)
+            if(iv.eq.iu) then
+             G3(iG3)=G3(iG3)-G1(iT,iZ)
+            end if
+           end if
+           if(iV.eq.iU) then
+             G3(iG3)=G3(iG3)-G2(iT,iX,iY,iZ)
+           end if
+           if(iY.eq.iU) then
+             G3(iG3)=G3(iG3)-G2(iV,iX,iT,iZ)
+           end if
+          END DO
+          END IF
       end if
 
       IF(iPrGlb.GE.DEBUG) THEN
@@ -706,13 +738,13 @@ C     so make sure that the _total_ fingerprint is computed
         CALL GADGOP_SCAL(dF3,'+')
         dF3=SQRT(dF3)
 
-        WRITE(6,'("DEBUG> ",A)') "MKFG3: norms of the density matrices:"
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:", dG1
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G2:", dG2
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G3:", dG3
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F1:", dF1
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F2:", dF2
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F3:", dF3
+        WRITE(u6,'("DEBUG> ",A)')"MKFG3: norms of the density matrices:"
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G1:", dG1
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G2:", dG2
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G3:", dG3
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "F1:", dF1
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "F2:", dF2
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "F3:", dF3
       ENDIF
 
       END SUBROUTINE MKFG3
