@@ -376,6 +376,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
           ! so only compute the G1 contribution when ip3 is 1, as
           ! this will only be one task per buffer.
           if (issg1.eq.stsym.AND.ip3.eq.1) then
+            IF (mkF) THEN
             do ib=1,ibuf1
               idx=ip1_buf(ib)
               itlev=idx2ij(1,idx)
@@ -383,14 +384,22 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
               it=L2ACT(itlev)
               iu=L2ACT(iulev)
               G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
-              IF(mkF) then
-                F1sum=Zero
-                do i=1,nsgm1
-                  F1sum=F1sum+CI(i)*BUF1(i,ib)*bufd(i)
-                end do
-                F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
-              end if
+              F1sum=Zero
+              do i=1,nsgm1
+                 F1sum=F1sum+CI(i)*BUF1(i,ib)*bufd(i)
+              end do
+              F1(it,iu)=F1sum-EPSA(iu)*G1(it,iu)
             end do
+            ELSE
+            do ib=1,ibuf1
+              idx=ip1_buf(ib)
+              itlev=idx2ij(1,idx)
+              iulev=idx2ij(2,idx)
+              it=L2ACT(itlev)
+              iu=L2ACT(iulev)
+              G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
+            end do
+            END IF
           end if
       end if
 

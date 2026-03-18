@@ -147,7 +147,7 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
      &               G1,F1,G2,F2,G3,F3,idxG3,nLev,nG1,nG2,nG3)
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _DMRG_
         ELSE
-          CALL MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev)
+          CALL MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,nLev,nG3)
         END IF
 #endif
       END IF
