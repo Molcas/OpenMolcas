@@ -53,10 +53,10 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 
 !S-GEK
 real(kind=wp) :: dqdq
-logical(kind=iwp) :: SORange
+logical(kind=iwp) :: SORange,start_gek
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,j,Iter_GEK,start_gek
+integer(kind=iwp) :: i,j,Iter_GEK,large_elements
 
 # ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -76,6 +76,8 @@ call mkdir_(NewDir)
 
 ! Initialization (iteration 0).
 ! -----------------------------
+
+start_gek = .false.
 
 if (.not. Silent) call CWTime(C1,W1)
 
@@ -236,18 +238,19 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call RecPrt('kappa',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
 
             ! start GEK only in the infinitesimal limit for kappa
-            start_gek = 0
+            large_elements = 0
             do i=1,nOrb2Loc
                 do j=1,nOrb2Loc
                     if (abs(kappa(i,j)) > 0.01) then
-                        start_gek = start_gek + 1
+                        large_elements = large_elements + 1
                     end if
                 end do
             end do
-            write(u6,*) "start_gek =",start_gek
+            write(u6,*) "large_elements =",large_elements
 
-            if (start_gek == 0) then
-                write(u6,*) "turning on GEK in iteration",nIter
+            if (large_elements == 0) then
+                if (.not. start_gek) write(u6,*) "turning on GEK in iteration",nIter
+                start_gek = .true.
 
                 Iter_GEK = Iter_GEK+1
                 ! add only the data to GEK that is in the intifesimal limit
