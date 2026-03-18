@@ -154,8 +154,10 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
             CALL GA_ACCESS (LG_SA,ILO,IHI,JLO,JHI,MA,LDA)
             CALL MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
      &                       NG3,G3,IDXG3)
+            MSA=LDA*(jHi-jLo+1)
             CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &                   ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
+     &                   ISYM,DBL_MB(MA),MSA,
+     &                   ILO,IHI,JLO,JHI,LDA)
             CALL GA_RELEASE_UPDATE (LG_SA,ILO,IHI,JLO,JHI)
           ELSE
             CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
@@ -171,7 +173,8 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           MSA=NAS*(NSA+1)/2
           CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),MSA,NG3,G3,IDXG3)
           CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SA)%A(:),ILO,IHI,JLO,JHI,LDA)
+     &                 ISYM,GA_Arrays(lg_SA)%A(:),MSA,
+     &                 ILO,IHI,JLO,JHI,LDA)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -853,7 +856,7 @@ c Avoid unused argument warnings
 #endif
 
       SUBROUTINE MKSA_DP (DREF,NDREF,PREF,NPREF,
-     &                    iSYM,SA,iLo,iHi,jLo,jHi,LDA)
+     &                    iSYM,SA,NSA,iLo,iHi,jLo,jHi,LDA)
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDA is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDA passed is zero.
@@ -862,10 +865,10 @@ C storage uses a triangular scheme, and the LDA passed is zero.
       USE SUPERINDEX, only: MTUV
       use caspt2_module, only: NASHT, nTUVES
       IMPLICIT None
-      integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,
+      integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,NSA,
      &                                iLo,iHi,jLo,jHi,LDA
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
-      real(kind=wp), intent(out):: SA(*)
+      real(kind=wp), intent(out):: SA(NSA)
 
       integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
      &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,
