@@ -645,7 +645,9 @@ C  D&EP Two-el
           INCY3=NU
           LEN1=NA
           CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),DPT2(IDIT),Y(IY))
+     &                X2(IX:),SIZE(X2(IX:)),
+     &                DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+     &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
@@ -716,7 +718,9 @@ C  D&EM Two-el
           INCY3=NU
           LEN1=NA
           CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),DPT2(IDIT),Y(IY))
+     &                X2(IX:),SIZE(X2(IX:)),
+     &                DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+     &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
@@ -752,7 +756,9 @@ C  D&GP Two-el
           INCY3=NU
           LEN1=NI
           CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),DPT2(IDTA),Y(IY))
+     &                X2(IX:),SIZE(X2(IX:)),
+     &                DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+     &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
@@ -789,7 +795,9 @@ C  D&GM Two-el
           INCY3=NU
           LEN1=NI
           CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),DPT2(IDTA),Y(IY))
+     &                X2(IX:),SIZE(X2(IX:)),
+     &                DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+     &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF

@@ -704,9 +704,10 @@ C  D&EP Two-el
             INCY3=NU
             LEN1=NA
             CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                  X2(IX),
-     &                  FIT(ISYM12)%A,
-     &                  GA_Arrays(lg_Y)%A(IY))
+     &                  X2(IX:),SIZE(X2(IX:)),
+     &                  FIT(ISYM12)%A(:),SIZE(FIT(ISYM12)%A(:)),
+     &                  GA_Arrays(lg_Y)%A(IY:),
+     &                  SIZE(GA_Arrays(lg_Y)%A(IY:)))
           END IF
           END DO
         END IF
@@ -776,9 +777,10 @@ C  D&EM Two-el
               INCY3=NU
               LEN1=NA
               CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                          X2(IX),
-     &                          FIT(ISYM12)%A,
-     &                          GA_Arrays(lg_Y)%A(IY))
+     &                          X2(IX:),SIZE(X2(IX:)),
+     &                          FIT(ISYM12)%A(:),SIZE(FIT(ISYM12)%A(:)),
+     &                          GA_Arrays(lg_Y)%A(IY:),
+     &                          SIZE(GA_Arrays(lg_Y)%A(IY:)))
             END IF
             END DO
         END IF
@@ -815,9 +817,10 @@ C  D&GP Two-el
               INCY3=NU
               LEN1=NI
               CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                    X2(IX),
-     &                    FTA(ISYM12)%A,
-     &                    GA_Arrays(lg_Y)%A(IY))
+     &                    X2(IX:),SIZE(X2(IX:)),
+     &                    FTA(ISYM12)%A(:),SIZE(FTA(ISYM12)%A(:)),
+     &                    GA_Arrays(lg_Y)%A(IY:),
+     &                    SIZE(GA_Arrays(lg_Y)%A(IY:)))
             END IF
             END DO
         END IF
@@ -854,9 +857,10 @@ C  D&GM Two-el
               INCY3=NU
               LEN1=NI
               CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                    X2(IX),
-     &                    FTA(ISYM12)%A,
-     &                    GA_Arrays(lg_Y)%A(IY))
+     &                    X2(IX:),SIZE(X2(IX:)),
+     &                    FTA(ISYM12)%A(:),SIZE(FTA(ISYM12)%A(:)),
+     &                    GA_Arrays(lg_Y)%A(IY:),
+     &                    SIZE(GA_Arrays(lg_Y)%A(IY:)))
             END IF
             END DO
         END IF
