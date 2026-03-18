@@ -1016,7 +1016,7 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
             CALL GA_ACCESS (LG_SC,ILO,IHI,JLO,JHI,MC,LDC)
             CALL MKSC_G3_MPP(ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC,
      &                       NG3,G3,IDXG3)
-            MSC=LDC*(jHi.jLo+1)
+            MSC=LDC*(jHi-jLo+1)
             CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
      &                   ISYM,DBL_MB(MC),MSC,
      &                   ILO,IHI,JLO,JHI,LDC)
