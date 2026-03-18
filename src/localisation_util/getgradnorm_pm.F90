@@ -55,8 +55,6 @@ do i=1,nOrb2Loc-1
 end do
 GradNorm = Four*sqrt(GradNorm) !sqrt to complement previous **2
 
-call mma_Deallocate(RMat)
-
 if (Debug) then
     write(u6,*) ' '
     write(u6,*) 'In GetGrad_PM'
@@ -72,6 +70,6 @@ if (Debug) then
     write(u6,*) 'PM_functional = Tr(R) = ',Fun
 end if
 
-
+call mma_Deallocate(RMat)
 
 end subroutine GetGradNorm_PM

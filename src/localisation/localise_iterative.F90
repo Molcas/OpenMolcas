@@ -10,6 +10,8 @@
 !                                                                      *
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
+!#define _DEBUGPRINT_
+
 
 subroutine Localise_Iterative(irc,Model,Functional)
 ! Author: T.B. Pedersen
@@ -55,6 +57,9 @@ end if
 
 ! Localise.
 ! ---------
+#ifdef _DEBUGPRINT_
+call recprt("CMO before localisation"," ",CMO,nBas,nOrb2Loc)
+#endif
 
 myModel = Model
 call UpCase(myModel)
@@ -111,6 +116,11 @@ else
   write(Txt,'(A,A4)') 'Model = ',Model
   call SysAbendMsg(SecNam,'Unknown model',Txt)
 end if
+
+#ifdef _DEBUGPRINT_
+call recprt("CMO after localisation"," ",CMO,nBas,nOrb2Loc)
+#endif
+
 
 if (.not. Converged) then
   irc = 1

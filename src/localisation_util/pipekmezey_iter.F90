@@ -14,6 +14,7 @@
 
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
+!#define _DEBUG2_
 #define _GETMOLDEN_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
@@ -182,7 +183,7 @@ if (.not. Silent) then
     TimW = W2-W1
     write(u6,'(//,1X,A,/,1X,A)') '                                                                   CPU       Wall', &
                                  'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) %Screen'
-    write(u6,'(1X,I5,1X,F18.8,1X,A11,1X,ES12.4,3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,"-",GradNorm,UpMeth,&
+    write(u6,'(1X,I5,1X,F18.8,1X,A12,1X,ES12.4,3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,"-",GradNorm,UpMeth,&
                                                     TimC,TimW,Zero
 end if
 
@@ -233,8 +234,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #           endif
 
             ! start GEK only from iteration x
-            if (nIter > 0) then
-                SORange = .false. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
+            if (nIter > 2) then
+                SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 select case(OptMeth)
 
