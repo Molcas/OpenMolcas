@@ -13,7 +13,7 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
 
-subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias,maximize)
+subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! mDiis             subspace dimensionality (<=2*ndiis); number of linear independent e_diis column vectors
 ! nDiis             number of iterations used to span the subspace; nDIIS = min(IterGEK,nWindow)
@@ -42,7 +42,6 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 implicit none
-logical(kind=iwp),intent(in) :: maximize
 real(kind=wp), intent(in) :: bias, SOFact
 integer(kind=iwp), intent(in) :: mDiis, nDiis, Max_Iter
 real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter), g_diis(mDiis,nDiis+Max_Iter), Energy(nDiis+Max_Iter)
@@ -132,7 +131,6 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 
     ! Compute the surrogate Hessian
     call Hessian_Kriging_Layer(q_diis(:,Iteration),H_surr,mDiis)
-    if (maximize) H_surr(:,:) = - H_surr(:,:)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'inside RVO step loop, iter = ',cnt
     call RecPrt('H_surr(from HKL)',' ',H_surr,mDIIS,mDIIS)
@@ -158,7 +156,6 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 #     ifdef _DEBUGPRINT_
       write(u6,'(A,F26.16)') 'Eigenvalue:',Val(ii)
 #     endif
-      if (.not. maximize) then
 
         if (Val(ii) < Zero) then
           Terminate = .true.
@@ -168,20 +165,6 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
             end do
           end do
         end if
-
-      else if (maximize) then
-
-        if (Val(ii) > Zero) then
-          Terminate = .true.
-          do j=1,mDIIS
-            do k=1,mDIIS
-              H_surr(j,k) = H_surr(j,k)+Two*abs(Val(ii))*Vec(j,i)*Vec(k,i)
-            end do
-          end do
-        end if
-
-      end if
-
     end do
 
     call mma_deallocate(Vec)

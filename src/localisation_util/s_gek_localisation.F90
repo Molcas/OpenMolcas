@@ -316,7 +316,7 @@ else
 end if
 
 Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Functionallist(iFirst:),H_diis(:,:),dqdq,&
-                   Step_Trunc,UpMeth,SOFact,1000.0_wp,.false.)
+                   Step_Trunc,UpMeth,SOFact,1000.0_wp)
 
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
