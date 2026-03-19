@@ -12,10 +12,11 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
+!#define _DEBUG2_
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
-!#define _DEBUG2_
 !#define _GETMOLDEN_
+!#define _RESKAPPA_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
@@ -164,7 +165,9 @@ end if
 
 ! get initial gradient, hessian diagonal, add initial functional value to list
 ! ---------------------------------------------------------------------------------------------------
-if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
+if (OptMeth == 1) then
+    call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
+else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiagvec(:))
 #   ifdef _DEBUGPRINT_
     call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
@@ -226,20 +229,23 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         case (4,5) ! (S)-GEK
 
             ! compute standard newton raphson step
+            ! ------------------------------------
             call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
             kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
 
-#           ifdef _DEBUGPRINT_
-                write(u6,"(A,I3,A)") "kappa_",nIter,"="
-                call RecPrt('kappa',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+#           ifdef _DEBUG2_
+                call RecPrt('NR suggestion',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
 #           endif
 
 
             ! start GEK only in the infinitesimal limit for kappa
+            ! ---------------------------------------------------
+
+            ! check if matrix elements are > 0.01
             large_elements = 0
-            do i=1,nOrb2Loc
-                do j=1,nOrb2Loc
-                    if (abs(kappa(i,j)) > 0.01) then
+            do i=1,nOrb2Loc-1
+                do j=i+1,nOrb2Loc
+                    if (abs(kappa(i,j)) > 0.01_wp) then
                         large_elements = large_elements + 1
                     end if
                 end do
@@ -253,10 +259,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #           endif
 
             if (large_elements /= 0 .and. start_gek) then
+                ! leave GEK and go back to NR if steps are too large, while resetting the GEK sampling
 #               ifdef _DEBUGPRINT_
                 write(u6,*) "resetting GEK sampling in iteration",nIter
 #               endif
-                ! we leave GEK and go back to NR if steps are too large, while resetting the GEK sampling
                 Iter_GEK = 0
                 displacements(:,:) = Zero
                 GradientList(:,:) = Zero
@@ -299,8 +305,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                                         dqdq,displacements(:,Iter_GEK),UpMeth,'subspace ',SORange,usmitigation)
                 end select !(s)-GEK
 
-                if (usmitigation) then
+
                 ! undershoot mitigation
+                ! -------------------------------------------------------------------------------
+                if (usmitigation) then
                 if (Loosen%Step > One) then
                     call mma_allocate(Prev,fsdim,Label='Prev')
                     call mma_allocate(Disp,fsdim,Label='Disp')
@@ -329,6 +337,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 end if
                 end if ! undershoot mitigation
+                ! -------------------------------------------------------------------------------
 
                 ! transform GEK disp vec to matrix
                 call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim,.true.)
@@ -341,16 +350,40 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end select ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! Rescale Kappa if rotation too large
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        ! limits rotations to less than pi/2 per orbital pair
+        Thr= 0.5E0_wp * Pi
+        do i=1,nOrb2Loc-1
+            do j=i+1,nOrb2Loc
+                if (abs(kappa(i,j)) > Thr) then
+#                   ifdef _DEBUGPRINT_
+                    Write(u6,*) 'Rescale Kappa(:,:)'
+                    write(u6,*) 'kappa(i,j) =',kappa(i,j), 'mod(kappa(i,j),Thr) = ', mod(kappa(i,j),Thr)
+#                   endif
+                    kappa(i,j) = mod(kappa(i,j),Thr) * kappa(i,j) / abs(kappa(i,j))
+                    kappa(j,i) = - kappa(i,j)
+                    !write(u6,*) 'kappa(i,j) after scaling =',kappa(i,j)
+                end if
+            end do
+        end do
+
+#       ifdef _RESKAPPA_
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
-        !Thr= 0.5E0_wp * Pi
-        Thr= Pi
+        Thr= 0.5E0_wp * Pi
+        !Thr= Pi
         If (DD>=Thr)Then
 #           ifdef _DEBUGPRINT_
-            Write(6,*) 'Rescale Kappa(:,:)'
+            Write(u6,*) 'Rescale Kappa(:,:)'
 #           endif
             Kappa(:,:) = (Thr/DD)*Kappa(:,:)
         End If
+#       endif
 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #       ifdef _DEBUGPRINT_
             call RecPrt('displacement taken (kappa mat)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
@@ -363,7 +396,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call RecPrt('CMO after rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
         write(u6,*) "=================================================================="
         write(u6,*) "               ORBITALS HAVE BEEN ROTATED"
-
         write(u6,*) "=================================================================="
 #       endif
 
@@ -405,13 +437,19 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,UpMeth,&
                                                                                 TimC,TimW,PctSkp
     end if
+
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-    !this is just to see the orbitals (REMOVE LATER)
-    if (nIter == nMxIter-2) then
-        Converged = .true.
-    end if
+
 end do !Iterations
 
+
+#ifdef _DEBUGPRINT_
+write(u6,'(/A)') 'Check the orthonormality of the orbitals'
+write(u6,*) '========================================'
+call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
+call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
+call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
+#endif
 
 ! print info about each localized MO
 ! ---------------------------------------------------------------------------------------------------
@@ -419,7 +457,6 @@ if (.not. Silent) then
     write(u6,"(/A)") "MO extension after localisation:"
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
 end if
-
 
 ! Print convergence message.
 ! ---------------------------------------------------------------------------------------------------
@@ -436,13 +473,6 @@ if (.not. Silent) then
 end if
 
 !call Prpt()
-#ifdef _DEBUGPRINT_
-write(u6,'(/A)') 'Check the orthonormality of the orbitals'
-write(u6,*) '========================================'
-call dgemm_('T','N',nOrb2Loc, nBasis, nBasis,One, CMO, nBasis,Ovlp, nBasis,Zero, CtS, nOrb2Loc)
-call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zero,CtSC, nOrb2Loc)
-call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
-#endif
 
 
 ! deallocate matrices used for NxN optimizations
