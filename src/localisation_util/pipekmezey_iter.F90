@@ -56,7 +56,7 @@ real(kind=wp) :: dqdq
 logical(kind=iwp) :: SORange,start_gek
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,j,Iter_GEK,large_elements
+integer(kind=iwp) :: i,j,Iter_GEK,large_elements,maxel(2)
 
 # ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -246,7 +246,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             end do
 
 #           ifdef _DEBUGPRINT_
-            write(u6,*) "large_elements =",large_elements
+            write(u6,*) "kappa elements > 0.01 =",large_elements
+            maxel(:) = maxloc(kappa)
+            write(u6,*) "largest element =", kappa(maxel(1),maxel(2))
 #           endif
 
             if (large_elements == 0 .and. (.not. start_gek)) then
@@ -350,17 +352,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         write(u6,*) "=================================================================="
 #       endif
 
-#       ifdef _GETMOLDEN_
-            ! choose the iteration of interest, this creates a $project.imlocal.molden file
-            write (x1,fmt) nIter ! converting integer to string using a 'internal file'
-            imfile = trim(NewDir)//'/imloc.'//x1//'.molden'
-
-            call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
-
-            call systemf("mv "//trim(WorkDir)//'/imloc '//trim(imfile),rc)
-            call systemf("rm "//trim(WorkDir)//'/LocOrbIM',rc)
-#       endif
-
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiagvec(:)) ! gets the new gradient
 
@@ -375,6 +366,18 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
     end select ! 2x2 or NxN rotations
+
+#   ifdef _GETMOLDEN_
+            ! choose the iteration of interest, this creates a $project.imlocal.molden file
+            write (x1,fmt) nIter ! converting integer to string using a 'internal file'
+            imfile = trim(NewDir)//'/imloc.'//x1//'.molden'
+
+            call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+
+            call systemf("mv "//trim(WorkDir)//'/imloc '//trim(imfile),rc)
+            call systemf("mv "//trim(WorkDir)//'/LocOrbIM '//trim(NewDir)//'/LocOrbIM.'//x1,rc)
+#   endif
+
 
     !check if converged
     ! ---------------------------------------------------------------------------------------------------
