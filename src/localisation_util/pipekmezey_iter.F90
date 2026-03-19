@@ -12,7 +12,7 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _DEBUG2_
 !#define _GETMOLDEN_
@@ -231,11 +231,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 #           ifdef _DEBUGPRINT_
                 write(u6,"(A,I3,A)") "kappa_",nIter,"="
-                call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
-                call RecPrt('-g/hdiag (NR step) as matrix',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+                call RecPrt('kappa',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
 #           endif
 
-            call RecPrt('kappa',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
 
             ! start GEK only in the infinitesimal limit for kappa
             large_elements = 0
@@ -246,7 +244,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                     end if
                 end do
             end do
+
+#           ifdef _DEBUGPRINT_
             write(u6,*) "large_elements =",large_elements
+#           endif
 
             if (large_elements == 0 .and. (.not. start_gek)) then
                 start_gek = .true.
@@ -387,7 +388,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                                                                                 TimC,TimW,PctSkp
     end if
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-
     !this is just to see the orbitals (REMOVE LATER)
     if (nIter == nMxIter-2) then
         Converged = .true.

@@ -315,11 +315,8 @@ else
   SOFact = 10000000.0_wp
 end if
 
-call recprt("in s_gek_localisation: q_diis","",q_diis,mDiis,nDiis)
-call recprt("in s_gek_localisation: g_diis","",q_diis,mDiis,nDiis)
-
 Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Functionallist(iFirst:),H_diis(:,:),dqdq,&
-                   Step_Trunc,UpMeth,SOFact,10000.0_wp,.false.)
+                   Step_Trunc,UpMeth,SOFact,1000.0_wp,.false.)
 
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
