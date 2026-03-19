@@ -11,6 +11,7 @@
 
 module GUGX
 
+use molcas, only: MxLev
 use Definitions, only: wp, iwp
 
 implicit none
@@ -43,9 +44,8 @@ type(SGStruct), target :: SGS
 type(CIStruct), target :: CIS
 type(EXStruct), target :: EXS
 
-integer(kind=iwp), parameter :: MXLEV = 100
 integer(kind=iwp) :: L2ACT(MXLEV), LEVEL(MXLEV)
 
-public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, MXLEV, SGS, SGStruct
+public :: CIS, CIStruct, EXS, EXStruct, L2ACT, LEVEL, SGS, SGStruct
 
 end module GUGX

@@ -18,18 +18,19 @@
 *--------------------------------------------*
       SUBROUTINE PT2_GET(NSIZE,LAB,VEC)
       use caspt2_global, only: LUDMAT
-      use pt2_guga, only: CLab10, iAdr10
+      use caspt2_module, only: CLab10, iAdr10
+      use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 
-      INTEGER NSIZE
-      CHARACTER(len=*) LAB
-      REAL*8 VEC(*)
+      INTEGER(kind=iwp), intent(in):: NSIZE
+      CHARACTER(len=*), intent(in):: LAB
+      REAL(kind=wp), intent(out):: VEC(NSIZE)
 
       CHARACTER(LEN=8) LAB1
 
-      INTEGER I,IAD,NSZ
+      INTEGER(kind=iwp) I,IAD,NSZ
 #ifdef _DEBUGPRINT_
-      INTEGER J
+      INTEGER(kind=iwp) J
 #endif
 
       I=9-LEN(LAB)
@@ -41,20 +42,20 @@
       END IF
 
 C FIND DISK ADDRESS:
-      DO I=1,64
+      DO I=1,SIZE(CLAB10)
         IF (CLAB10(I).EQ.LAB1) THEN
           NSZ=MIN(IADR10(I,2),NSIZE)
           IAD=IADR10(I,1)
           CALL DDAFILE(LUDMAT,2,VEC,NSZ,IAD)
 #ifdef _DEBUGPRINT_
-          WRITE(6,*) LAB1,' SUCCESSFULLY READ FROM LUDMAT.'
-          WRITE(6,*)'         SIZE:',NSZ,' *8 BYTES'
-          WRITE(6,*)' DISK ADDRESS:',IADR10(I,1)
-          WRITE(6,'(10F12.8)') (VEC(J),J=1,MIN(10,NSZ))
+          WRITE(u6,*) LAB1,' SUCCESSFULLY READ FROM LUDMAT.'
+          WRITE(u6,*)'         SIZE:',NSZ,' *8 BYTES'
+          WRITE(u6,*)' DISK ADDRESS:',IADR10(I,1)
+          WRITE(u6,'(10F12.8)') (VEC(J),J=1,MIN(10,NSZ))
 #endif
           RETURN
         END IF
       END DO
-      WRITE(6,*)' LABEL ',LAB1,' NOT FOUND ON LUDMAT.'
+      WRITE(u6,*)' LABEL ',LAB1,' NOT FOUND ON LUDMAT.'
       CALL ABEND()
       END SUBROUTINE PT2_GET

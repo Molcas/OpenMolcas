@@ -17,13 +17,13 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PT2_PUT(NSIZE,LAB,VEC)
-      use definitions, only: iwp, wp, u6
       use caspt2_global, only: LUDMAT
-      use pt2_guga, only: IADR10, cLab10
+      use caspt2_module, only: IADR10, cLab10
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
       integer(kind=iwp), intent(in):: NSIZE
       CHARACTER(len=*), intent(in):: LAB
-      real(kind=wp):: VEC(*)
+      real(kind=wp), intent(inout):: VEC(NSIZE)
 
       CHARACTER(len=8) LAB1
       integer(kind=iwp) I, IAD
@@ -37,13 +37,13 @@
       END IF
 
 C FIND DISK ADDRESS:
-      DO I=1,64
+      DO I=1,SIZE(CLAB10)
         IF(CLAB10(I)=='   EMPTY') THEN
           CLAB10(I)=LAB1
           IAD=IADR10(I,1)
           IADR10(I,2)=NSIZE
           CALL DDAFILE(LUDMAT,1,VEC,NSIZE,IAD)
-          IF(I<64) IADR10(I+1,1)=IAD
+          IF(I<SIZE(CLAB10)) IADR10(I+1,1)=IAD
           RETURN
         ELSE IF (CLAB10(I)==LAB1) THEN
           IF(NSIZE.GT.IADR10(I,2)) THEN
@@ -61,6 +61,5 @@ C FIND DISK ADDRESS:
       WRITE(u6,*)' NO MORE AVAILABLE FIELDS ON FILE DENS.'
       WRITE(u6,*)' SUBROUTINE PUT FAILS.'
       CALL ABEND()
-
 
       END SUBROUTINE PT2_PUT

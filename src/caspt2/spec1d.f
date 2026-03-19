@@ -16,30 +16,34 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE SPEC1D(IFC,FACT,X,Y)
+      SUBROUTINE SPEC1D(IFC,FACT,X,nX,Y,nY)
       USE SUPERINDEX, only: KTU
       USE caspt2_module, only: nAshT, nASup, nISup
+      use constants, only: Zero
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER IFC
-      REAL*8 FACT,X(*),Y(*)
-      INTEGER NAS,NIS,ITQ,ITT
+      INTEGER(kind=iwp), intent(in):: IFC, nX, nY
+      REAL(kind=wp), intent(in):: FACT
+      REAL(kind=wp), intent(inout):: X(nX),Y(nY)
+
+      INTEGER(kind=iwp) NAS,NIS,ITQ,ITT
 C If IFC=0, compute
 C X(tt1,ia) <- X(tt1,ia)+FACT*Y(ia), else
 C the conjugate expression (summing into Y, values from X).
 
-      NAS=NASUP(1,5)
       NIS=NISUP(1,5)
-      IF(NIS*NAS.EQ.0) RETURN
-      IF(IFC.EQ.0) THEN
-        DO 20 ITQ=1,NASHT
+      IF(NIS==0) RETURN
+      NAS=NASUP(1,5)
+      IF(IFC==0) THEN
+        DO ITQ=1,NASHT
           ITT=KTU(ITQ,ITQ)
           CALL DAXPY_(NIS,FACT,Y,1,X(ITT),NAS)
-  20    CONTINUE
+        END DO
       ELSE
-        CALL DCOPY_(NIS,[0.0D0],0,Y,1)
-        DO 30 ITQ=1,NASHT
+        Y(1:NIS)=Zero
+        DO ITQ=1,NASHT
           ITT=KTU(ITQ,ITQ)
           CALL DAXPY_(NIS,FACT,X(ITT),NAS,Y,1)
-  30    CONTINUE
+        END DO
       END IF
-      END
+      END SUBROUTINE SPEC1D

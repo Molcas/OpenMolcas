@@ -16,36 +16,35 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO,NCMO)
+      SUBROUTINE NEWFOCK(FIFA,NFIFA,CMO,NCMO,DREF,nDREF)
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: USUAL
-      use caspt2_global, only: DREF
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: EASUM, FockType, IfChol, nAMx, nAshT,
+      use caspt2_module, only: FockType, IfChol, nAMx, nAshT,
      &                         nIMx, nOMx, nOSqT, nSMx, nSym, nIsh,
-     &                         nAsh, nSsh, nAES, nOrb, EPS, EPSA,
-     &                         EPSE, EPSI
+     &                         nAsh, nSsh, nAES, nOrb
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER NFIFA, NCMO
-      REAL*8 FIFA(NFIFA),CMO(NCMO)
+      INTEGER(kind=iwp), intent(in):: NFIFA, NCMO, nDREF
+      REAL(kind=wp), intent(in):: CMO(NCMO), DREF(nDREF)
+      REAL(kind=wp), intent(inout):: FIFA(NFIFA)
 
-      REAL*8 D,DDVX,E,EIGVAL
-      INTEGER LINT,LSC,LSC1,LSC2,LSCR,
-     &        LEV1,LEV2,LEIG,LXAI,LXPQ,LXQP
-      INTEGER IFGFOCK
-      INTEGER I,J
-      INTEGER II,IP,IQ,IR,IS,IV,IX
-      INTEGER ITOT,IA,IATOT,IT,ITTOT,ITABS,IU,IUTOT,IUABS,ITU
-      INTEGER NA,NA2,NA3,MA,MI,MTRES,N3,NI,NIA,NINT,NO,
-     &        NAS,NASQES,NASQT,NATR,NATRES,NOSQES,NOTRES,
-     &        NS,NSCR,NSCR1,NSCR2,NSCR3,NSQES,NTRES
-      INTEGER ISC,ISTLT,KFIFA
-      INTEGER ID,IDDVX,IDREF,IDTT,IDTU,IDUT
-      INTEGER IEPS,IEPSA,IEPSI,IEPSE
-      INTEGER ISYM,ISYMPQ,ISYMRS
-      REAL*8 VAL,VALTU,VALUT,X
+      REAL(kind=wp) D,DDVX,EIGVAL
+      INTEGER(kind=iwp) LINT,LSC,LSC1,LSC2,LSCR,
+     &                  LEV1,LEV2,LEIG,LXAI,LXPQ,LXQP
+      INTEGER(kind=iwp) IFGFOCK
+      INTEGER(kind=iwp) I,J
+      INTEGER(kind=iwp) II,IP,IQ,IR,IS,IV,IX
+      INTEGER(kind=iwp) IA,IATOT,IT,ITTOT,ITABS,IU,IUTOT,IUABS,ITU
+      INTEGER(kind=iwp) NA,NA2,NA3,MA,MI,MTRES,N3,NI,NIA,NINT,NO,
+     &                  NAS,NASQES,NASQT,NATR,NATRES,NOSQES,NOTRES,
+     &                  NS,NSCR,NSCR1,NSCR2,NSCR3,NSQES,NTRES
+      INTEGER(kind=iwp) ISC,KFIFA
+      INTEGER(kind=iwp) IDDVX,IDREF,IDTT,IDTU,IDUT
+      INTEGER(kind=iwp) ISYM,ISYMPQ,ISYMRS
+      REAL(kind=wp) VAL,VALTU,VALUT,X
 
-      Real*8, allocatable:: INT(:), DSQ(:), DD(:), DDTR(:),
+      Real(kind=wp), allocatable:: INT(:), DSQ(:), DD(:), DDTR(:),
      &                      TWOMDSQ(:), XMAT(:), SC(:)
 c Purpose: Modify the standard fock matrix for experimental
 c purposes. The string variable FOCKTYPE (character*8) has a
@@ -181,7 +180,7 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
 C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
         XMAT(:)=0.0D0
         IF (IfChol) THEN
-          CALL Cho_Amatrix(XMAT,CMO,NCMO,DDTR,NATR)
+          CALL Cho_Amatrix(XMAT,NOSQT,CMO,NCMO,DDTR,NATR)
         ELSE
           NOSQES=0
           DO ISYMPQ=1,NSYM
@@ -224,7 +223,9 @@ C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
         END IF
 c
 c Determine the correction to the Fock matrix
-        IF(FOCKTYPE.EQ.'G1      ') THEN
+        SELECT CASE (FOCKTYPE)
+
+        CASE('G1      ')
 C Focktype=g1 case. A very long IF block.
           NOSQES=0
           NOTRES=0
@@ -316,7 +317,7 @@ c
             NASQES=NASQES+NA**2
    30     CONTINUE
 C Focktype=g1 case ends.
-        ELSE
+        CASE('G2      ','G3      ')
 C Focktype=g2 or g3
           NOSQES=0
           NOTRES=0
@@ -404,7 +405,8 @@ c
             NASQES=NASQES+NA**2
             NATRES=NATRES+(NA*(NA+1))/2
   130     CONTINUE
-        ENDIF
+        CASE DEFAULT
+        END SELECT
 c
 c
         CALL mma_deallocate(SC)
@@ -415,50 +417,5 @@ c
         CALL mma_deallocate(DDTR)
         CALL mma_deallocate(XMAT)
  300  CONTINUE
-c
-c     Orbital energies, EPS, EPSI,EPSA,EPSE:
-      IEPS=0
-      IEPSI=0
-      IEPSA=0
-      IEPSE=0
-      ISTLT=0
-      DO 400 ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NA=NASH(ISYM)
-        NO=NORB(ISYM)
-        DO 401 I=1,NI
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSI=IEPSI+1
-          EPSI(IEPSI)=E
-  401   CONTINUE
-        DO 402 I=NI+1,NI+NA
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSA=IEPSA+1
-          EPSA(IEPSA)=E
-  402   CONTINUE
-        DO 403 I=NI+NA+1,NO
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSE=IEPSE+1
-          EPSE(IEPSE)=E
-  403   CONTINUE
-        ISTLT=ISTLT+(NO*(NO+1))/2
-  400 CONTINUE
-c
-c     EASUM = contract EPSA with diagonal of active dens.
-      EASUM=0.0D+00
-      DO 410 ISYM=1,NSYM
-        NA=NASH(ISYM)
-        DO 411 I=1,NA
-          ITOT=NAES(ISYM)+I
-          ID=(ITOT*(ITOT+1))/2
-          EASUM=EASUM+EPSA(ITOT)*DREF(ID)
-  411   CONTINUE
-  410 CONTINUE
-c
+
       END SUBROUTINE NEWFOCK

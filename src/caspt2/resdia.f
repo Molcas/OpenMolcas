@@ -24,15 +24,15 @@
 ************************************************************************
       subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)
 
-      use definitions, only: wp, iwp
       use caspt2_global, only: imag_shift, real_shift,
      &                         sigma_p_epsilon, sigma_p_exponent
+      use definitions, only: wp, iwp
 
       implicit none
 
       integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W(LDW,*), dOvl
-      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
+      real(kind=wp),     intent(inout) :: W(LDW,nCol), dOvl
+      real(kind=wp),     intent(in)    :: dIn(nRow), dIs(nCol)
 
       integer(kind=iwp)                :: i, j, p
       real(kind=wp)                    :: delta, delta_inv, tmp,
@@ -63,15 +63,15 @@
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs)
 
-      use definitions, only: wp, iwp
       use caspt2_global, only: imag_shift, real_shift,
      &                         sigma_p_epsilon, sigma_p_exponent
+      use definitions, only: wp, iwp
 
       implicit none
 
       integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W(LDW,*)
-      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
+      real(kind=wp),     intent(inout) :: W(LDW,nCol)
+      real(kind=wp),     intent(in)    :: dIn(nRow), dIs(nCol)
 
       integer(kind=iwp)                :: i, j, p
       real(kind=wp)                    :: delta, sigma, epsilon

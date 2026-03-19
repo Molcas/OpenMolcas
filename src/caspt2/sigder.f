@@ -262,7 +262,8 @@ C    &                         GA_Arrays(LCX)%A,1)
 #endif
 C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 SGM1,SGM2,LCX,LISTS)
+     &                 SGM1,SIZE(SGM1),SGM2,SIZE(SGM2),LCX,
+     &                 LISTS,SIZE(LISTS))
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(lg_CX)
@@ -288,11 +289,14 @@ C part (This requires a non-empty active space.)
           IF(NSGM1.GT.0) THEN
             FACT=One/(DBLE(MAX(1,NACTEL)))
             IF (ICASE1.EQ.1) THEN
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,SGM2,SGM1)
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),
+     &                                      SGM1,SIZE(SGM1))
             ELSE IF(ICASE1.EQ.4) THEN
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,SGM2,SGM1)
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),
+     &                                      SGM1,SIZE(SGM1))
             ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-              CALL SPEC1D(IMLTOP,FACT,SGM2,SGM1)
+              CALL SPEC1D(IMLTOP,FACT,SGM2,SIZE(SGM2),
+     &                                SGM1,SIZE(SGM1))
             END IF
           END IF
           call mma_deallocate(SGM1)
@@ -321,7 +325,7 @@ C         CALL RHS_READ(NAS1,NIS1,lg_SGMX,ICASE1,ISYM1,JVEC)
             idSDer = idSDMat(iSym1,iCase1)
             CALL DDAFILE(LuSTD,2,SDER1,nAS1*nAS1,idSDer)
 
-            Call C1S1DER(SDER1)
+            Call C1S1DER(SDER1,NAS1*NAS1)
 
             idSDer = idSDMat(iSym1,iCase1)
             CALL DDAFILE(LuSTD,1,SDER1,nAS1*nAS1,idSDer)
@@ -393,21 +397,21 @@ C         LD1=1
             IF(ND1.GT.0) THEN
               call mma_allocate(D1,ND1,Label='D1')
               D1(:) = Zero
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,D2,D1)
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           ELSE IF(ICASE1.EQ.4) THEN
             ND1=NASH(ISYM1)*NSSH(ISYM1)
             IF(ND1.GT.0) THEN
               call mma_allocate(D1,ND1,Label='D1')
               D1(:) = Zero
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,D2,D1)
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
             ND1=NIS1
             IF(ND1.GT.0) THEN
               call mma_allocate(D1,ND1,Label='D1')
               D1(:) = Zero
-              CALL SPEC1D(IMLTOP,FACT,D2,D1)
+              CALL SPEC1D(IMLTOP,FACT,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           END IF
           If (.NOT.ALLOCATED(D1)) CALL mma_allocate(D1,1,Label='D1')
@@ -438,7 +442,8 @@ C         LD1=1
 #endif
 C Compute contribution SGMX <- D2, and SGMX <- D1  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 D1,D2,LSGMX,LISTS)
+     &                 D1,SIZE(D1),D2,SIZE(D2),LSGMX,
+     &                 LISTS,SIZE(LISTS))
 C             If (iCase2.LE.11) Then
 C             End If
 
@@ -457,7 +462,7 @@ C               CALL RHS_ADD(NAS2,NIS2,lg_SGMX,GA_Array(LSGMX)%A)
                 idSDer = idSDMat(iSym2,iCase2)
                 CALL DDAFILE(LuSTD,2,SDER2,nAS2*nAS2,idSDer)
 
-                Call C2DER(SDER2)
+                Call C2DER(SDER2,NAS2*NAS2)
 
                 idSDer = idSDMat(iSym2,iCase2)
                 CALL DDAFILE(LuSTD,1,SDER2,nAS2*nAS2,idSDer)
@@ -508,11 +513,12 @@ C Transform contrav C  to ei%Agenbasis of H0(diag):
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine C1S1DER(SDER)
+      Subroutine C1S1DER(SDER,nSDER)
 C
       Implicit None
 C
-      real(kind=wp), intent(inout):: SDER(*)
+      integer(kind=iwp), intent(in):: nSDER
+      real(kind=wp), intent(inout):: SDER(nSDER)
 
       integer(kind=iwp) iType
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
@@ -540,7 +546,7 @@ C
       end if
 #endif
 C     do i = 1, nas1*nis1
-C       write (*,'(i4,2f20.10)') ,i,GA_Arrays(lg_cx)%A(i),
+C       write (u6,'(i4,2f20.10)') ,i,GA_Arrays(lg_cx)%A(i),
 C    &                              GA_Arrays(lg_sgm2)%A(i)
 C     end do
 C
@@ -580,11 +586,12 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine C2DER(SDER)
+      Subroutine C2DER(SDER,nSDER)
 C
       Implicit None
 C
-      real(kind=wp), intent(inout):: SDER(*)
+      integer(kind=iwp), intent(in):: nSDER
+      real(kind=wp), intent(inout):: SDER(nSDER)
 
       integer(kind=iwp) iType, lg_Sgm, lg_v2
 #if defined(_MOLCAS_MPP_) && defined(_GA_)

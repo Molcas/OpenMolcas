@@ -8,40 +8,37 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FMAT_CHO(CMO,NCMO,FFAO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
-     &                                                       FAMO,NFAMO)
+      SUBROUTINE FMAT_CHO(CMO,NCMO,FIAO,FAAO,HONE,NHONE,FIMO,NFIMO,
+     &                                                       FIFA,NFIFA)
+      use constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: NBTRI, notri, NSYM, NBAS,
+     &                         NORB, NFRO
       use definitions, only: iwp, wp
 #ifdef _DEBUGPRINT_
       use definitions, only: u6
 #endif
-      use constants, only: Zero, One
-      use caspt2_global, only: FIFA, DREF
-      use caspt2_global, only: LUONEM
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NBTRI, EASUM, IEOF1M, notri, NSYM, NBAS,
-     &                         NORB, NFRO, IAD1M, NISH, NASH, EPS, EPSI,
-     &                         EPSA, EPSE, NAES
-#ifdef _DEBUGPRINT_
-      use caspt2_module, only: NASHT, NISHT, NORBT, NSSHT
-#endif
       IMPLICIT None
-      integer(kind=iwp), intent(in):: NCMO, NHONE, NFIMO, NFAMO
+      integer(kind=iwp), intent(in):: NCMO, NHONE, NFIMO, NFIFA
       real(kind=wp), intent(in):: CMO(NCMO)
-      real(kind=wp), intent(in):: FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)
-      real(kind=wp), intent(out):: HONE(NHONE),FIMO(NFIMO),FAMO(NFAMO)
+      real(kind=wp), intent(in):: FIAO(NBTRI),FAAO(NBTRI)
+      real(kind=wp), intent(in):: HONE(NHONE)
+      real(kind=wp), intent(out):: FIMO(NFIMO),FIFA(NFIFA)
 
       real(kind=wp), allocatable:: SCR1(:), SCR2(:), SCR3(:)
-      real(kind=wp) E
-      integer(kind=iwp) I, ID, IDISK, IEPS, IEPSA, IEPSE, IEPSI, IFAO,
-     &                  IJ, IOFMO, ISTLT, ISYM, ITOT, J, LSC, LSCI,
-     &                  NA, NB, NBBMX, NBBT, NBOMX, NF, NI, NO, NO_X,
-     &                  NOOMX
+      integer(kind=iwp) I, IFAO, IJ, IOFMO, ISYM, J, LSC, LSCI,
+     &                  NB, NBBMX, NBBT, NBOMX, NF, NO, NO_X, NOOMX
+#ifdef _DEBUGPRINT_
+      integer(kind=iwp) ISTLT
+      real(kind=wp), allocatable:: FAMO(:)
+#endif
 
+      FIMO(:)=Zero
+      FIFA(:)=Zero ! initially used as FAMO
 C THIS ROUTINE IS USED IF THE TWO-ELECTRON INTEGRALS ARE
 C REPRESENTED BY CHOLESKY VECTORS:
 C TRANSFORM FOCK MATRICES COMPUTED BY TRACHO
 C TO MO BASIS FOR USE IN CASPT2.
-
 
 
       NBBT=0
@@ -71,19 +68,6 @@ C TO MO BASIS FOR USE IN CASPT2.
        NO_X = Max(1,NO)
        NF=NFRO(ISYM)
        LSCI=LSC+NF*NB
-* The frozen Fock matrix:
-       CALL SQUARE(FFAO(IFAO),SCR1,NB,1,NB)
-       CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,
-     &            CMO(LSCI),NB,Zero,SCR2,NB)
-       CALL DGEMM_('T','N',NO,NO,NB, One,CMO(LSCI),NB,
-     &            SCR2,NB,Zero,SCR3,NO_X)
-       IJ=0
-       DO I=1,NO
-        DO J=1,I
-         IJ=IJ+1
-         HONE(IOFMO+IJ)=SCR3(I+NO*(J-1))
-        END DO
-       END DO
 * The inactive Fock matrix:
        CALL SQUARE(FIAO(IFAO),SCR1,NB,1,NB)
        CALL DGEMM_('N','N',NB,NO,NB, One,SCR1,NB,
@@ -107,7 +91,7 @@ C TO MO BASIS FOR USE IN CASPT2.
        DO I=1,NO
         DO J=1,I
          IJ=IJ+1
-         FAMO(IOFMO+IJ)=SCR3(I+NO*(J-1))
+         FIFA(IOFMO+IJ)=SCR3(I+NO*(J-1))
         END DO
        END DO
        IFAO=IFAO+(NB*(NB+1))/2
@@ -119,64 +103,8 @@ C TO MO BASIS FOR USE IN CASPT2.
       CALL mma_deallocate(SCR2)
       CALL mma_deallocate(SCR3)
 
-c Transformed frozen Fock matrix = Effective one-electron
-* Hamiltonian HONE at IAD1M(3)
-      IDISK=IEOF1M
-      IAD1M(3)=IDISK
-      CALL DDAFILE(LUONEM,1,HONE,notri,IDISK)
-      IEOF1M=IDISK
-
-      CALL DAXPY_(notri,One,HONE,1,FIMO,1)
-      CALL DCOPY_(NOTRI,FIMO,1,FIFA,1)
-      CALL DAXPY_(notri,One,FAMO,1,FIFA,1)
-
-c   Orbital energies, EPS, EPSI,EPSA,EPSE:
-      IEPS=0
-      IEPSI=0
-      IEPSA=0
-      IEPSE=0
-      ISTLT=0
-      DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NA=NASH(ISYM)
-        NO=NORB(ISYM)
-        DO I=1,NI
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSI=IEPSI+1
-          EPSI(IEPSI)=E
-        END DO
-        DO I=NI+1,NI+NA
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSA=IEPSA+1
-          EPSA(IEPSA)=E
-        END DO
-        DO I=NI+NA+1,NO
-          E=FIFA(ISTLT+(I*(I+1))/2)
-          IEPS=IEPS+1
-          EPS(IEPS)=E
-          IEPSE=IEPSE+1
-          EPSE(IEPSE)=E
-        END DO
-        ISTLT=ISTLT+(NO*(NO+1))/2
-      END DO
-
-C EASUM=CONTRACT EPSA WITH DIAGONAL OF ACTIVE DENS
-C This is never used anywhere, and it is actually
-C wrong in XMS, since the DREF used is not the average
-C density.
-      EASUM=Zero
-      DO ISYM=1,NSYM
-        NA=NASH(ISYM)
-        DO I=1,NA
-          ITOT=NAES(ISYM)+I
-          ID=(ITOT*(ITOT+1))/2
-          EASUM=EASUM+EPSA(ITOT)*DREF(ID)
-        END DO
-      END DO
+      FIMO(1:NoTri)=FIMO(:) + HONE(:)
+      FIFA(1:NoTri)=FIMO(:) + FIFA(:)
 
 #ifdef _DEBUGPRINT_
         WRITE(6,*)'      INACTIVE FOCK MATRIX IN MO BASIS'
@@ -190,6 +118,8 @@ C density.
           END IF
         END DO
 
+        Call mma_allocate(FAMO,nFIMO,Label='FAMO')
+        FAMO(:)=FIFA(:)-FIMO(:)
         WRITE(6,*)'        ACTIVE FOCK MATRIX IN MO BASIS'
         ISTLT=1
         DO ISYM=1,NSYM
@@ -200,6 +130,7 @@ C density.
             ISTLT=ISTLT+(NO*(NO+1))/2
           END IF
         END DO
+        Call mma_deallocate(FAMO)
 
         WRITE(6,*)'      TOTAL FOCK MATRIX IN MO BASIS'
         ISTLT=1
@@ -211,15 +142,6 @@ C density.
           END IF
         END DO
 
-        WRITE(u6,*)
-        WRITE(u6,*)'      ORBITAL ENERGIES, EPS:'
-        WRITE(u6,'(1X,5F12.6)')(EPS(I),I=1,NORBT)
-        WRITE(u6,*)'      INACTIVE ORBITAL ENERGIES, EPSI:'
-        WRITE(u6,'(1X,5F12.6)')(EPSI(I),I=1,NISHT)
-        WRITE(u6,*)'        ACTIVE ORBITAL ENERGIES, EPSA:'
-        WRITE(u6,'(1X,5F12.6)')(EPSA(I),I=1,NASHT)
-        WRITE(u6,*)'      EXTERNAL ORBITAL ENERGIES, EPSE:'
-        WRITE(u6,'(1X,5F12.6)')(EPSE(I),I=1,NSSHT)
 #endif
 
       END SUBROUTINE FMAT_CHO

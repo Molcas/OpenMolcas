@@ -16,26 +16,25 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE ORBCTL(CMO_X,NCMO)
+      SUBROUTINE ORBCTL(CMO,NCMO,TORB,NTORB,FIFA,nFIFA,FIMO,nFIMO)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_global, only: CMO, FIMO, FIFA, HONE, DREF, TORB
-      use caspt2_global, only: LUONEM
-      use ChoCASPT2
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: iEOF1M, bName, nBas, nSym, OutFmt, PrOrb,
-     &                         ThrEne, ThrOcc, iAd1M, nFro, nOrb, nBasT,
-     &                         EPS, nDel
+      use caspt2_module, only: bName, nBas, nSym, OutFmt, PrOrb, ThrEne,
+     &                         ThrOcc, nFro, nOrb, nBasT, EPS, nDel
+      use constants, only: Zero, Two, Five
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER NCMO
-      REAL*8 CMO_X(NCMO)
+      INTEGER(kind=iwp), intent(in):: NCMO, NTORB, nFIFA, nFIMO
+      REAL(kind=wp), intent(inout):: CMO(NCMO)
+      REAL(kind=wp), intent(out):: TORB(NTORB)
+      REAL(kind=wp), intent(inout):: FIFA(nFIFA), FIMO(nFIMO)
 
-      INTEGER ISYM
-      INTEGER I1,I2
-      INTEGER IDISK
-      REAL*8  OCC_DUM(1)
-      REAL*8, ALLOCATABLE:: OrbE(:)
+      INTEGER(kind=iwp) ISYM
+      INTEGER(kind=iwp) I1,I2
+      REAL(kind=wp)  OCC_DUM(1)
+      REAL(kind=wp), ALLOCATABLE:: OrbE(:)
 
 C Calculate transformation matrix to PT2 orbitals, defined as those
 C that have standard Fock matrix FIFA diagonal within inactive,
@@ -56,57 +55,32 @@ c Determine PT2 orbitals, and transform CI coeffs.
 
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE
 * CI arrays, stored sequentially. The original set starts at disk address
-* IDCIEX, the transformed ones are written after IDTCEX.
-      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO_X,NCMO)
+* IDCIEX(1), the transformed ones are written after IDTCEX(1).
+
+      CALL MKRPTORB(FIFA,nFIFA,TORB,nTORB,CMO,NCMO)
+
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
       END IF
 
-* Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
+* Use the transformation matrices to change the FIMO and FIFA arrays:
       if (.not. DoFCIQMC) then
-          CALL TRANSFOCK(TORB,SIZE(TORB),HONE,SIZE(HONE),1)
-          CALL TRANSFOCK(TORB,SIZE(TORB),FIMO,SIZE(FIMO),1)
+          CALL TRANSFOCK(TORB,nTORB,FIMO,SIZE(FIMO),1)
+          CALL TRANSFOCK(TORB,nTORB,FIFA,nFIFA,1)
 
-* When doing XMS, FAMO refers only to the last state, therefore it's wrong!
-* However, we never use it anywhere else...
-          ! CALL TRANSFOCK(TORB,FAMO,1)
-*****
-
-          CALL TRANSFOCK(TORB,SIZE(TORB),FIFA,SIZE(FIFA),1)
-
-* When doing XMS, DREF refers to the last state considered and it is not the
-* state average density, therefore it's wrong to transform it!
-* However, it is never used again in this part, and next time it is used, it
-* is actually recomputed for the right place.
-          CALL TRANSDREF(TORB,SIZE(TORB),DREF,SIZE(DREF))
-*****
+          IF(IPRGLB.GE.DEBUG) THEN
+           WRITE(6,*)' ORBCTL back from TRANSFOCK.'
+          END IF
       end if
 
-* DREF is not really used for anything important in MKEPS, this is why we don't
-* care that we pass the wrong one in...
-      CALL MKEPS(FIFA,DREF)
-
-      IF(IPRGLB.GE.DEBUG) THEN
-       WRITE(6,*)' ORBCTL back from TRANSFOCK.'
-      END IF
-
-      if (.not. DoFCIQMC) then
-C Save new MO coeffs, and the transformation matrices:
-      IDISK=IAD1M(2)
-      CALL DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
-      IAD1M(4)=IEOF1M
-      IDISK=IAD1M(4)
-      CALL DDAFILE(LUONEM,1,TORB,SIZE(TORB),IDISK)
-      IEOF1M=IDISK
-      end if
-
+      IF ( IPRGLB.GE.VERBOSE ) THEN
 c Print new orbitals. First, form array of orbital energies.
       CALL mma_allocate(ORBE,NBAST,Label='ORBE')
       I1=1
       I2=1
       DO ISYM=1,NSYM
         IF(NFRO(ISYM).GT.0) THEN
-          CALL DCOPY_(NFRO(ISYM),[0.0D0],0,ORBE(I2),1)
+          CALL DCOPY_(NFRO(ISYM),[Zero],0,ORBE(I2),1)
           I2=I2+NFRO(ISYM)
         END IF
         IF(NORB(ISYM).GT.0) THEN
@@ -115,12 +89,11 @@ c Print new orbitals. First, form array of orbital energies.
           I2=I2+NORB(ISYM)
         END IF
         IF(NDEL(ISYM).GT.0) THEN
-          CALL DCOPY_(NDEL(ISYM),[0.0D0],0,ORBE(I2),1)
+          CALL DCOPY_(NDEL(ISYM),[Zero],0,ORBE(I2),1)
           I2=I2+NDEL(ISYM)
         END IF
       END DO
 c Then call utility routine PRIMO.
-      IF ( IPRGLB.GE.VERBOSE ) THEN
         WRITE(6,*) ' The internal wave function representation has'//
      &             ' been changed to use quasi-canonical orbitals:'
         WRITE(6,*) ' those which diagonalize the Fock matrix within'//
@@ -135,17 +108,16 @@ c Then call utility routine PRIMO.
 
 C Print orbitals. Different options:
         IF ( OUTFMT.EQ.'LONG    ' ) THEN
-          THRENE=2.0d0**31
-          THROCC=-2.0d0**31
+          THRENE=Two**31
+          THROCC=-Two**31
         ELSE IF ( OUTFMT.EQ.'DEFAULT ' ) THEN
-          THRENE=5.0d+00
-          THROCC=5.0d-04
+          THRENE=Five
+          THROCC=5.0e-04_wp
         END IF
         CALL PRIMO(' Quasi-canonical orbitals',.FALSE.,.TRUE.,
      &              THROCC,THRENE,NSYM,NBAS,NBAS,BNAME,
-     &              ORBE,OCC_DUM,CMO_X,-1)
+     &              ORBE,OCC_DUM,CMO,-1)
+        CALL mma_deallocate(ORBE)
       END IF
-
-      CALL mma_deallocate(ORBE)
 
       END SUBROUTINE ORBCTL

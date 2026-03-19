@@ -16,14 +16,15 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE NATORB_CASPT2(DMAT,CMO,OCC,CNAT)
-      use definitions, only: iwp, wp
+      SUBROUTINE NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM, NFRO, NORB, NDEL, NBAS
+      use definitions, only: iwp, wp
       IMPLICIT None
 
-      real(kind=wp), intent(in):: DMAT(*),CMO(*)
-      real(kind=wp), intent(out):: OCC(*),CNAT(*)
+      integer(kind=iwp), intent(in):: nDMAT,nCMO,nOcc,nCNAT
+      real(kind=wp), intent(in):: DMAT(nDMAT),CMO(nCMO)
+      real(kind=wp), intent(out):: OCC(nOcc),CNAT(nCNAT)
 
       real(kind=wp), allocatable:: TMP(:)
       integer(kind=iwp) IDMAT, IOCC, ICMO, ISYM, NF, NO, ND, NB, NTMP

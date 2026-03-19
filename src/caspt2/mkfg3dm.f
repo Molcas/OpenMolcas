@@ -35,7 +35,7 @@ C
 #include "compiler_features.h"
 
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined _DMRG_
-      SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
+      SUBROUTINE MKFG3DM(mkF,G1,F1,G2,F2,G3,F3,idxG3,NLEV,mG3)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
@@ -47,50 +47,58 @@ C
 #ifdef _DMRG_
       use caspt2_module, only: DMRG
 #endif
-      use gugx, only: MxLev
-      use pt2_guga, only: MxCI, nG1, nG2, nG3
+      use molcas, only: MxLev
+      use caspt2_module, only: MxCI, nG1, nG2, nG3
+      use constants, only: Zero
+      use definitions, only: iwp, wp, Byte, u6
       IMPLICIT NONE
 
-      INTEGER, INTENT(IN) :: IFF, NLEV
-      REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: G3(*), F3(*)
-      INTEGER*1, INTENT(OUT) :: idxG3(6,*)
+      LOGICAL(kind=iwp), INTENT(IN) :: mkF
+      INTEGER(kind=iwp), INTENT(IN) :: NLEV, mG3
+      REAL(kind=wp), INTENT(OUT) :: G1(NLEV,NLEV),
+     &                              G2(NLEV,NLEV,NLEV,NLEV)
+      REAL(kind=wp), INTENT(OUT) :: F1(NLEV,NLEV),
+     &                              F2(NLEV,NLEV,NLEV,NLEV)
+      REAL(kind=wp), INTENT(OUT) :: G3(mG3), F3(mG3)
+      INTEGER(kind=Byte), INTENT(OUT) :: idxG3(6,mG3)
 
-      INTEGER, PARAMETER :: I1=KIND(idxG3)
 
-      REAL*8 DG1,DG2,DG3,DF1,DF2,DF3
+      INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
 
-      INTEGER I,J,IDX,JDX
-      INTEGER IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
-      INTEGER IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,IP3MX,IQ1
-      INTEGER IG3,IG3OFF
-      INTEGER ISTU,ISVX,ISYZ
-      INTEGER IT,IU,IV,IX,IY,IZ
-      INTEGER ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
-      INTEGER NBUF1
-      INTEGER IOFFSET
-      INTEGER ISSG1,ISSG2,ISP1
-      INTEGER ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,MXTASK,MYTASK,MYBUFFER
-      INTEGER NTRI1,NTRI2
-      INTEGER MEMMAX, MEMMAX_SAFE
-      INTEGER NLEV2
+      REAL(kind=wp) DG1,DG2,DG3,DF1,DF2,DF3
+
+      INTEGER(kind=iwp) I,J,IDX,JDX
+      INTEGER(kind=iwp) IB,IBMN,IBMX,IBUF,NB,NBTOT,IBUF1
+      INTEGER(kind=iwp) IP1,IP2,IP3,IP1MN,IP1MX,IP1I,IP1STA,IP1END,
+     &                  IP3MX,IQ1
+      INTEGER(kind=iwp) IG3,IG3OFF
+      INTEGER(kind=iwp) ISTU,ISVX,ISYZ
+      INTEGER(kind=iwp) IT,IU,IV,IX,IY,IZ
+      INTEGER(kind=iwp) ITLEV,IULEV,IVLEV,IXLEV,IYLEV,IZLEV
+      INTEGER(kind=iwp) NBUF1
+      INTEGER(kind=iwp) IOFFSET
+      INTEGER(kind=iwp) ISSG1,ISSG2,ISP1
+      INTEGER(kind=iwp) ITASK,ISUBTASK,ID,NTASKS,NSUBTASKS,MXTASK,
+     &                  MYTASK,MYBUFFER
+      INTEGER(kind=iwp) NTRI1,NTRI2
+      INTEGER(kind=iwp) MEMMAX, MEMMAX_SAFE
+      INTEGER(kind=iwp) NLEV2
 #ifdef _ENABLE_BLOCK_DMRG_
-      INTEGER NLEV4
-      REAL*8, ALLOCATABLE:: G3Tmp(:)
+      INTEGER(kind=iwp) NLEV4
+      REAL(kind=wp), ALLOCATABLE:: G3Tmp(:)
 #endif
-      INTEGER NCI
+      INTEGER(kind=iwp) NCI
 
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
+      REAL(kind=wp), EXTERNAL :: DDOT_,DNRM2_
 
       ! translation tables for levels i,j to and from pair indices idx
-      INTEGER IJ2IDX(MXLEV,MXLEV)
-      INTEGER IDX2IJ(2,MXLEV**2)
-      INTEGER ICNJ(MXLEV**2)
-      INTEGER IP1_BUF(MXLEV**2)
+      INTEGER(kind=iwp) IJ2IDX(MXLEV,MXLEV)
+      INTEGER(kind=iwp) IDX2IJ(2,MXLEV**2)
+      INTEGER(kind=iwp) ICNJ(MXLEV**2)
+      INTEGER(kind=iwp) IP1_BUF(MXLEV**2)
 
-      REAL*8, ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
-      INTEGER, ALLOCATABLE:: TaskList(:,:)
+      REAL(kind=wp), ALLOCATABLE:: BUF1(:,:), BUF2(:), BUFT(:), BUFD(:)
+      INTEGER(kind=iwp), ALLOCATABLE:: TaskList(:,:)
 
 
       ! result buffer, maximum size is the largest possible ip1 range,
@@ -99,22 +107,22 @@ C
 
 
 C Put in zeroes. Recognize special cases:
-      IF(nlev.EQ.0) GOTO 999
+      IF(nlev.EQ.0) RETURN
 
-      CALL DCOPY_(NG1,[0.0D0],0,G1,1)
-      CALL DCOPY_(NG2,[0.0D0],0,G2,1)
-      CALL DCOPY_(NG3,[0.0D0],0,G3,1)
-      IF(IFF.ne.0) THEN
-        CALL DCOPY_(NG1,[0.0D0],0,F1,1)
-        CALL DCOPY_(NG2,[0.0D0],0,F2,1)
-        CALL DCOPY_(NG3,[0.0D0],0,F3,1)
+      G1(:,:)=Zero
+      G2(:,:,:,:)=Zero
+      CALL DCOPY_(NG3,[Zero],0,G3,1)
+      IF(mkF) THEN
+        F1(:,:)=Zero
+        F2(:,:,:,:)=Zero
+        CALL DCOPY_(NG3,[Zero],0,F3,1)
       END IF
 
-      IF(NACTEL.EQ.0) GOTO 999
+      IF(NACTEL.EQ.0) RETURN
 
       NCI=CIS%NCSF(STSYM)
 * This should not happen, but...
-      IF(NCI.EQ.0) GOTO 999
+      IF(NCI.EQ.0) RETURN
 
 C Here, for regular CAS or RAS cases.
 
@@ -151,7 +159,7 @@ C Special pair index idx2ij allows true RAS cases to be handled:
       call mma_MaxDBLE(memmax)
 
 * Use *almost* all remaining memory:
-      memmax_safe=int(dble(memmax)*0.95D0)
+      memmax_safe=int(dble(memmax)*0.95E0_wp)
 
 * Buffers to compute CI expansion vectors into:
 *
@@ -171,13 +179,12 @@ C-SVC20100301: calculate maximum number of tasks possible
       CALL mma_allocate (TaskList,mxTask,4,LABEL='TaskList')
 
       IF(iPrGlb.GE.VERBOSE) THEN
-        WRITE(6,*)
-        WRITE(6,'(2X,A)') 'Constructing G3/F3'
-        WRITE(6,'(2X,A,F16.9,A)') ' memory avail: ',
-     &    (memmax*RtoB)/1.0D9, ' GB'
-        WRITE(6,'(2X,A,F16.9,A)') ' memory used:  ',
-     &    (((nbuf1+3)*MXCI)*RtoB)/1.0D9, ' GB'
-        call xFlush(6)
+        WRITE(u6,*)
+        WRITE(u6,'(2X,A)') 'Constructing G3/F3'
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory avail: ',
+     &    (memmax*RtoB)/1.0E9_wp, ' GB'
+        WRITE(u6,'(2X,A,F16.9,A)') ' memory used:  ',
+     &    (((nbuf1+3)*MXCI)*RtoB)/1.0E9_wp, ' GB'
       ENDIF
 
       iG3OFF=0
@@ -186,7 +193,7 @@ C-SVC20100301: calculate maximum number of tasks possible
       DO issg1=1,nsym
        isp1=Mul(issg1,stsym)
 *      nsgm1=CIS%ncsf(issg1)
-*      CALL H0DIAG_CASPT2(ISSG1,BUFD,NOW1,IOW1,NMIDV)
+*      CALL H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,NOW1,IOW1,NMIDV)
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
 C-is basically the number of buffers we fill with sigma1 vectors.
@@ -229,31 +236,29 @@ C       iOffSet=iOffSet+ip3mx*ntri2-((ip3mx**2-ip3mx)/2)
       nSubTasks=iOffSet
 
       IF(iPrGlb.GE.VERBOSE) THEN
-        WRITE(6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
-        call xFlush(6)
+        WRITE(u6,'(2X,A,I3,A,I6)') 'Sym: ',issg1,', #Tasks: ',nSubTasks
       ENDIF
 
       IF(iPrGlb.GE.DEBUG) THEN
         IF (nSubTasks .GT. 0) THEN
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "--------",
      &    "------------",
      &    "----",
      &    "---------"
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "task ID ",
      &    " ip1 range  ",
      &    "ip3 ",
      &    "#elements"
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "--------",
      &    "------------",
      &    "----",
      &    "---------"
-          call xFlush(6)
         END IF
       END IF
 
@@ -262,22 +267,21 @@ C-SVC20100301: initialize the series of subtasks
 
       myBuffer=0
 
- 500  CONTINUE
+      DO
 C-SVC20100908: first check: can I actually do any task?
-      IF ((NG3-iG3OFF).LT.nbuf1*ntri2) GOTO 501
+      IF ((NG3-iG3OFF).LT.nbuf1*ntri2) EXIT
 C-SVC20100831: initialize counter for offset into G3
 C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
-      If (.NOT.Rsv_Tsk(ID,iSubTask)) GOTO 501
+      If (.NOT.Rsv_Tsk(ID,iSubTask)) EXIT
 
       myTask=nTasks
       DO iTask=1,nTasks
         iBuf=iSubTask-TaskList(iTask,4)
         IF (iBuf.LE.0) THEN
           myTask=iTask-1
-          goto 666
+          EXIT
         ENDIF
       ENDDO
-666   continue
       iTask=myTask
 
       iOffSet=TaskList(iTask,4)
@@ -324,7 +328,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
 *         it=L2ACT(itlev)
 *         iu=L2ACT(iulev)
 *         G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
-*         IF(IFF.ne.0) then
+*         IF(mkF) then
 *           F1sum=0.0D0
 *           do i=1,nsgm1
 *             F1sum=F1sum+CI(i)*BUF1(i,ib)*bufd(i)
@@ -371,7 +375,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *         it=L2ACT(itlev)
 *         iu=L2ACT(iulev)
 *         G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
-*         IF(IFF.ne.0) THEN
+*         IF(mkF) THEN
 *           F2sum=0.0D0
 *           do i=1,nlev
 *             F2sum=F2sum+BUF2(i)*bufd(i)*BUF1(i,ib)
@@ -387,7 +391,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
         isvx=Mul(SGS%ism(ivlev),SGS%ism(ixlev))
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
-        if(isvx.ne.Mul(issg1,issg2)) goto 99
+        if(isvx==Mul(issg1,issg2)) THEN
 *       call dcopy_(nsgm1,[0.0D0],0,BUFT,1)
 *       CALL SIGMA1(IVLEV,IXLEV,1.0D00,ISSG2,BUF2,BUFT)
 *-----------
@@ -411,7 +415,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
           if(ip1.le.ip1mx)ibmx=ib
         end do
         nb=ibmx-ibmn+1
-        if(nb.le.0) goto 99
+        if (nb>0) THEN
 
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
@@ -434,7 +438,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
          idxG3(5,iG3)=int(iY,I1)
          idxG3(6,iG3)=int(iZ,I1)
         end do
-*       IF(IFF.ne.0) THEN
+*       IF(mkF) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
 *         do icsf=1,nsgm1
 *           buft(icsf)=
@@ -447,14 +451,14 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *       END IF
         iG3OFF=iG3OFF+nb
         nbtot=nbtot+nb
- 99     continue
+        End If
+        End If
       end do
 *     end do
 
       IF(iPrGlb.GE.DEBUG) THEN
-        WRITE(6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
+        WRITE(u6,'("DEBUG> ",I8,1X,"[",I4,"..",I4,"]",1X,I4,1X,I9)')
      &    iSubTask, ip1sta, ip1end, ip3, nbtot
-        call xFlush(6)
       END IF
 
 CSVC: The master node now continues to only handle task scheduling,
@@ -463,9 +467,7 @@ C     list.  It has to do it here since each process gets at least one
 C     task.
 
 C-SVC20100301: end of the task
-      GOTO 500
-
- 501  CONTINUE
+      END DO
 
 C-SVC20100302: no more tasks, wait here for the others, then proceed
 C with next symmetry
@@ -473,7 +475,7 @@ C with next symmetry
 
       IF(iPrGlb.GE.DEBUG) THEN
         IF (nSubTasks .GT. 0) THEN
-          WRITE(6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
+          WRITE(u6,'("DEBUG> ",A8,1X,A12,1X,A4,1X,A9)')
 C-position 12345678901234567890
      &    "--------",
      &    "------------",
@@ -513,19 +515,19 @@ C Currently implemented only cu4, but cu34 and F3 from DMRG-sweep
 C will be possible. They should be implemented at this section.
 C
 C MKFG3CU4 is located under block_dmrg_util/
-      Call MKFG3CU4(IFF,G1,F1,G2,F2,G3,F3,idxG3,G3TMP)
+      Call MKFG3CU4(mkF,nLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3,G3TMP)
 C
       Call mma_deallocate(G3TMP)
 #endif
 
 ! TODO: @kszenes: this should be wrapped in an if statement
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Call mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
+      Call mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3)
 #endif
 
 #ifdef _DMRG_
       if (DMRG) then
-        call mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+        call mkfg3qcm(mkF,nLEV,G1,F1,G2,F2,G3,F3,idxG3,nG3)
       endif
 #endif
 
@@ -543,18 +545,16 @@ C     so make sure that the _total_ fingerprint is computed
         CALL GADGOP_SCAL(dF3,'+')
         dF3=SQRT(dF3)
 
-        WRITE(6,'("DEBUG> ",A)') "norms of the density matrices:"
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:", dG1
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G2:", dG2
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G3:", dG3
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F1:", dF1
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F2:", dF2
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "F3:", dF3
+        WRITE(u6,'("DEBUG> ",A)') "norms of the density matrices:"
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G1:", dG1
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G2:", dG2
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G3:", dG3
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "F1:", dF1
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "F2:", dF2
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "F3:", dF3
       ENDIF
 
- 999  continue
-      RETURN
-      END
+      END SUBROUTINE MKFG3DM
 
 #elif ! defined (EMPTY_FILES)
 

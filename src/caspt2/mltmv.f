@@ -16,16 +16,16 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MLTMV (IMLTOP,LST1,X,F,Y)
-      use definitions, only: iwp, wp
+      SUBROUTINE MLTMV (IMLTOP,LST1,nLST1,X,nX,F,nF,Y,nY)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
-      use Sigma_data, only: NLST1, INCF1, INCF2, INCX1, INCY2, INCY3,
+      use Sigma_data, only: INCF1, INCF2, INCX1, INCY2, INCY3,
      &                      LEN1, LEN2, NFMV, VAL1, INCY1, INCX2
+      use definitions, only: iwp, wp
       IMPLICIT None
-      integer(kind=iwp), intent(in):: IMLTOP
-      real(kind=wp), intent(inout):: X(*),F(*),Y(*)
+      integer(kind=iwp), intent(in):: IMLTOP,nLST1,nX,nF,nY
+      real(kind=wp), intent(inout):: X(nX),F(nF),Y(nY)
       integer(kind=iwp), intent(in):: LST1(4,NLST1)
 
       integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST1, L1, L2, L3, L4,
@@ -70,6 +70,7 @@ CSVC: determine outer loop properties
           V=VAL1(L4)
           IX=INCX1*(L1-1)+1
           IF=INCF1*(L2-1)+1
+          If (IF<1 .or. IF>nF) Cycle
           IY=INCY1*(L3-1)+1
 C    X(L1,i) := Add V*F(L2,a)*Y(L3,i,a), i=1..LEN1, a=1..LEN2
           DO I=1,LEN1
@@ -87,6 +88,7 @@ C    X(L1,i) := Add V*F(L2,a)*Y(L3,i,a), i=1..LEN1, a=1..LEN2
           V=VAL1(L4)
           IX=INCX1*(L1-1)+1
           IF=INCF1*(L2-1)+1
+          If (IF<1 .or. IF>nF) Cycle
           IY=INCY1*(L3-1)+1
 C or Y(L3,i,a):= Add V*F(L2,a)*X(L1,i), i=1..LEN1, a=1..LEN2
           DO I=1,LEN2
@@ -105,6 +107,7 @@ C or Y(L3,i,a):= Add V*F(L2,a)*X(L1,i), i=1..LEN1, a=1..LEN2
           V=VAL1(L4)
           IX=INCX1*(L1-1)+1
           IF=INCF1*(L2-1)+1
+          If (IF<1 .or. IF>nF) Cycle
           IY=INCY1*(L3-1)+1
 C     F(L2,a) := Add V*X(L1,i)*Y(L3,i,a)
           DO I=1,LEN1

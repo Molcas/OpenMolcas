@@ -10,9 +10,16 @@
 *                                                                      *
 * Copyright (C) 1994, Per Ake Malmqvist                                *
 ************************************************************************
+*--------------------------------------------*
+* 1994  PER-AAKE MALMQUIST                   *
+* DEPARTMENT OF THEORETICAL CHEMISTRY        *
+* UNIVERSITY OF LUND                         *
+* SWEDEN                                     *
+*--------------------------------------------*
       MODULE SUPERINDEX
+      use definitions, only: iwp
       IMPLICIT NONE
-      INTEGER, ALLOCATABLE, SAVE ::
+      INTEGER(kind=iwp), ALLOCATABLE, SAVE ::
      &  KTU(:,:),    MTU(:,:),
      &  KTUV(:,:,:), MTUV(:,:),
      &  KTGEU(:,:),  MTGEU(:,:),
@@ -23,13 +30,8 @@
      &  KIGTJ(:,:),  MIGTJ(:,:),
      &  KIA(:,:),    MIA(:,:),
      &  MIREL(:,:), MTREL(:,:), MAREL(:,:)
+
       CONTAINS
-*--------------------------------------------*
-* 1994  PER-AAKE MALMQUIST                   *
-* DEPARTMENT OF THEORETICAL CHEMISTRY        *
-* UNIVERSITY OF LUND                         *
-* SWEDEN                                     *
-*--------------------------------------------*
       SUBROUTINE SUPINI
       use stdalloc, only: mma_allocate
       use Symmetry_Info, only: Mul
@@ -42,61 +44,61 @@
      &                         nAGTBES, nSsh, nSES, nAGEB, nIAES,
      &                         nSES, nSsh, nAGTB, Cases, nASUP, nISUP
       IMPLICIT NONE
-      CHARACTER(LEN=8) CSNAME(MXCASE)
-      DATA CSNAME / 'VJTU    ','VJTIP   ','VJTIM   ',
+      CHARACTER(LEN=8), Parameter :: CSNAME(MXCASE)=[
+     &              'VJTU    ','VJTIP   ','VJTIM   ',
      &     'ATVX    ','AIVX    ','VJAIP   ','VJAIM   ','BVATP   ',
-     &     'BVATM   ','BJATP   ','BJATM   ','BJAIP   ','BJAIM   '/
-      INTEGER ISYM,ICASE
-      INTEGER NSUM,NCOUNT
-      INTEGER IA,IB,II,IJ,IT,IU,IV
-      INTEGER IAQ,IBQ,IIQ,IJQ,ITQ,IUQ,IVQ
-      INTEGER ISA,ISB,ISI,ISJ,IST,ISU,ISV
-      INTEGER IAGEB,IAGTB,NMAGEB,NMAGTB
-      INTEGER IIGEJ,IIGTJ,NMIGEJ,NMIGTJ
-      INTEGER ITGEU,ITGTU,NMTGEU,NMTGTU,ITUV
-      INTEGER IIA,ITU,NMIA
-      INTEGER IS1,IS2,ISYA,ISYI,ISUV
-      INTEGER JC0,JCM,JCP
-      INTEGER NC0,NCM,NCP
-      INTEGER JCOUNT
-      INTEGER N,N5,N6,N7,N10,N11
-      INTEGER NAT,NAU,NAV,NII,NIJ,NSA,NSB
+     &     'BVATM   ','BJATP   ','BJATM   ','BJAIP   ','BJAIM   ']
+      INTEGER(kind=iwp) ISYM,ICASE
+      INTEGER(kind=iwp) NSUM,NCOUNT
+      INTEGER(kind=iwp) IA,IB,II,IJ,IT,IU,IV
+      INTEGER(kind=iwp) IAQ,IBQ,IIQ,IJQ,ITQ,IUQ,IVQ
+      INTEGER(kind=iwp) ISA,ISB,ISI,ISJ,IST,ISU,ISV
+      INTEGER(kind=iwp) IAGEB,IAGTB,NMAGEB,NMAGTB
+      INTEGER(kind=iwp) IIGEJ,IIGTJ,NMIGEJ,NMIGTJ
+      INTEGER(kind=iwp) ITGEU,ITGTU,NMTGEU,NMTGTU,ITUV
+      INTEGER(kind=iwp) IIA,ITU,NMIA
+      INTEGER(kind=iwp) IS1,IS2,ISYA,ISYI,ISUV
+      INTEGER(kind=iwp) JC0,JCM,JCP
+      INTEGER(kind=iwp) NC0,NCM,NCP
+      INTEGER(kind=iwp) JCOUNT
+      INTEGER(kind=iwp) N,N5,N6,N7,N10,N11
+      INTEGER(kind=iwp) NAT,NAU,NAV,NII,NIJ,NSA,NSB
 
 
       CALL MMA_ALLOCATE(KTUV,NASHT,NASHT,NASHT,Label='KTUV')
       CALL MMA_ALLOCATE(MTUV,3,NASHT**3,Label='MTUV')
       ITUV=0
-      DO 20 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NCOUNT=0
         NTUVES(ISYM)=ITUV
-        DO 10 ISV=1,NSYM
+        DO ISV=1,NSYM
           NAV=NASH(ISV)
-          DO 11 ISU=1,NSYM
+          DO ISU=1,NSYM
             NAU=NASH(ISU)
             ISUV=Mul(ISU,ISV)
             IST=Mul(ISUV,ISYM)
             NAT=NASH(IST)
             JCOUNT=NAV*NAU*NAT
-            IF (JCOUNT.EQ.0) GOTO 11
+            IF (JCOUNT.EQ.0) CYCLE
             NCOUNT=NCOUNT+JCOUNT
-            DO 5 IV=1,NAV
+            DO IV=1,NAV
               IVQ=NAES(ISV)+IV
-              DO 6 IU=1,NAU
+              DO IU=1,NAU
                 IUQ=NAES(ISU)+IU
-                DO 7 IT=1,NAT
+                DO IT=1,NAT
                   ITQ=NAES(IST)+IT
                   ITUV=ITUV+1
                   KTUV(ITQ,IUQ,IVQ)=ITUV
                   MTUV(1,ITUV)=ITQ
                   MTUV(2,ITUV)=IUQ
                   MTUV(3,ITUV)=IVQ
-   7            CONTINUE
-   6          CONTINUE
-   5        CONTINUE
-  11      CONTINUE
-  10    CONTINUE
+                END DO
+              END DO
+            END DO
+          END DO
+        END DO
         NTUV(ISYM)=NCOUNT
-  20  CONTINUE
+      END DO
 
       CALL MMA_ALLOCATE(KTU,NASHT,NASHT,Label='KTU')
       CALL MMA_ALLOCATE(MTU,3,NASHT**2,Label='MTU')
@@ -111,51 +113,51 @@
       ITU=0
       ITGEU=0
       ITGTU=0
-      DO 40 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NC0=0
         NCP=0
         NCM=0
         NTUES(ISYM)=ITU
         NTGEUES(ISYM)=ITGEU
         NTGTUES(ISYM)=ITGTU
-        DO 30 ISU=1,NSYM
+        DO ISU=1,NSYM
           NAU=NASH(ISU)
           IST=Mul(ISU,ISYM)
           NAT=NASH(IST)
           JC0=0
           JCP=0
           JCM=0
-          DO 25 IU=1,NAU
+          DO IU=1,NAU
             IUQ=IU+NAES(ISU)
-            DO 24 IT=1,NAT
+            DO IT=1,NAT
               ITQ=IT+NAES(IST)
               JC0=JC0+1
               ITU=ITU+1
               KTU(ITQ,IUQ)=ITU
               MTU(1,ITU)=ITQ
               MTU(2,ITU)=IUQ
-              IF(ITQ.LT.IUQ) GOTO 24
+              IF(ITQ.LT.IUQ) CYCLE
               JCP=JCP+1
               ITGEU=ITGEU+1
               KTGEU(ITQ,IUQ)=ITGEU
               MTGEU(1,ITGEU)=ITQ
               MTGEU(2,ITGEU)=IUQ
-              IF(ITQ.LE.IUQ) GOTO 24
+              IF(ITQ.LE.IUQ) CYCLE
               JCM=JCM+1
               ITGTU=ITGTU+1
               KTGTU(ITQ,IUQ)=ITGTU
               MTGTU(1,ITGTU)=ITQ
               MTGTU(2,ITGTU)=IUQ
-  24        CONTINUE
-  25      CONTINUE
+            END DO
+          END DO
           NC0=NC0+JC0
           NCP=NCP+JCP
           NCM=NCM+JCM
-  30    CONTINUE
+        END DO
         NTU(ISYM)=NC0
         NTGEU(ISYM)=NCP
         NTGTU(ISYM)=NCM
-  40  CONTINUE
+      END DO
 
 CPAM99 Use allocated workspace instead of MAGEB, MAGTB:
       NMAGEB=(NSSHT*(NSSHT+1))/2
@@ -184,35 +186,35 @@ C Construct tables for inactive and secondary pair indices:
       IAGEB=0
       IAGTB=0
       IIA=0
-      DO 110 ISYM=1,NSYM
+      DO ISYM=1,NSYM
 C Inactive pair indices:
         NIGEJES(ISYM)=IIGEJ
         NIGTJES(ISYM)=IIGTJ
         NCM=0
         NCP=0
-        DO 70 ISI=1,NSYM
+        DO ISI=1,NSYM
           ISJ=Mul(ISI,ISYM)
-          IF(ISI.LT.ISJ) GOTO 70
+          IF(ISI.LT.ISJ) CYCLE
           NII=NISH(ISI)
           NIJ=NISH(ISJ)
-          DO 60 II=1,NII
+          DO II=1,NII
             IIQ=NIES(ISI)+II
-            DO 50 IJ=1,NIJ
+            DO IJ=1,NIJ
               IJQ=NIES(ISJ)+IJ
               NCP=NCP+1
               IIGEJ=IIGEJ+1
               KIGEJ(IIQ,IJQ)=IIGEJ
               MIGEJ(1,IIGEJ)=IIQ
               MIGEJ(2,IIGEJ)=IJQ
-              IF(IIQ.LE.IJQ) GOTO 60
+              IF(IIQ.LE.IJQ) EXIT
               NCM=NCM+1
               IIGTJ=IIGTJ+1
               KIGTJ(IIQ,IJQ)=IIGTJ
               MIGTJ(1,IIGTJ)=IIQ
               MIGTJ(2,IIGTJ)=IJQ
-  50        CONTINUE
-  60      CONTINUE
-  70    CONTINUE
+            END DO
+          END DO
+        END DO
 
         NIGEJ(ISYM)=NCP
         NIGTJ(ISYM)=NCM
@@ -222,29 +224,29 @@ C Secondary pair indices:
         NAGTBES(ISYM)=IAGTB
         NCM=0
         NCP=0
-        DO 100 ISA=1,NSYM
+        DO ISA=1,NSYM
           ISB=Mul(ISA,ISYM)
-          IF(ISA.LT.ISB) GOTO 100
+          IF(ISA.LT.ISB) CYCLE
           NSA=NSSH(ISA)
           NSB=NSSH(ISB)
-          DO 90 IA=1,NSA
+          DO IA=1,NSA
             IAQ=NSES(ISA)+IA
-            DO 80 IB=1,NSB
+            DO IB=1,NSB
               IBQ=NSES(ISB)+IB
               NCP=NCP+1
               IAGEB=IAGEB+1
               KAGEB(IAQ,IBQ)=IAGEB
               MAGEB(1,IAGEB)=IAQ
               MAGEB(2,IAGEB)=IBQ
-              IF(IAQ.LE.IBQ) GOTO 90
+              IF(IAQ.LE.IBQ) EXIT
               NCM=NCM+1
               IAGTB=IAGTB+1
               KAGTB(IAQ,IBQ)=IAGTB
               MAGTB(1,IAGTB)=IAQ
               MAGTB(2,IAGTB)=IBQ
-  80        CONTINUE
-  90      CONTINUE
- 100    CONTINUE
+            END DO
+          END DO
+        END DO
         NAGEB(ISYM)=NCP
         NAGTB(ISYM)=NCM
 
@@ -264,15 +266,15 @@ C Inactive-Secondary pair indices:
           END DO
         END DO
 
- 110  CONTINUE
+      END DO
 * End of loop over symmetries.
 
 
-      DO 120 ICASE=1,NCASES
+      DO ICASE=1,NCASES
         CASES(ICASE)=CSNAME(ICASE)
- 120  CONTINUE
+      END DO
 
-      DO 140 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NASUP(ISYM,1 )= NTUV(ISYM)
         NASUP(ISYM,2 )= NTGEU(ISYM)
         NASUP(ISYM,3 )= NTGTU(ISYM)
@@ -291,14 +293,14 @@ C Inactive-Secondary pair indices:
         N7 =0
         N10=0
         N11=0
-        DO 130 IS1=1,NSYM
+        DO IS1=1,NSYM
           IS2=Mul(IS1,ISYM)
           N5 =N5 +NSSH(IS1)*NISH(IS2)
           N6 =N6 +NSSH(IS1)*NIGEJ(IS2)
           N7 =N7 +NSSH(IS1)*NIGTJ(IS2)
           N10=N10+NAGEB(IS1)*NISH(IS2)
           N11=N11+NAGTB(IS1)*NISH(IS2)
- 130    CONTINUE
+        END DO
         NISUP(ISYM,1 )= NISH(ISYM)
         NISUP(ISYM,2 )= NIGEJ(ISYM)
         NISUP(ISYM,3 )= NIGTJ(ISYM)
@@ -312,17 +314,17 @@ C Inactive-Secondary pair indices:
         NISUP(ISYM,11)= N11
         NISUP(ISYM,12)= NIGEJ(ISYM)
         NISUP(ISYM,13)= NIGTJ(ISYM)
- 140  CONTINUE
-      DO 150 ICASE=1,NCASES
+      END DO
+      DO ICASE=1,NCASES
         NSUM=0
-        DO 151 ISYM=1,NSYM
+        DO ISYM=1,NSYM
           N=NASUP(ISYM,ICASE)*NISUP(ISYM,ICASE)
 C Preliminary value for NINDEP: Nr of independent active params:
           NINDEP(ISYM,ICASE)=NASUP(ISYM,ICASE)
           IF(N.EQ.0) NINDEP(ISYM,ICASE)=0
           NSUM=NSUM+N
- 151    CONTINUE
- 150  CONTINUE
+        END DO
+      END DO
 
 CSVC: prepare tables to translate from absolute indices to
 C(index,symmetry) pairs.
@@ -350,9 +352,9 @@ C(index,symmetry) pairs.
       END DO
 
 
-      RETURN
-      END SUBROUTINE
-      SUBROUTINE SUPFREE
+      END SUBROUTINE SUPINI
+
+      SUBROUTINE SUPFREE()
       use stdalloc, only: mma_deallocate
       IMPLICIT NONE
       ! deallocate the superindex tables
@@ -377,5 +379,6 @@ C(index,symmetry) pairs.
       CALL MMA_DEALLOCATE(MIREL)
       CALL MMA_DEALLOCATE(MTREL)
       CALL MMA_DEALLOCATE(MAREL)
-      END SUBROUTINE
-      END MODULE
+      END SUBROUTINE SUPFREE
+
+      END MODULE SUPERINDEX

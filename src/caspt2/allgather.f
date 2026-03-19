@@ -14,6 +14,7 @@
 #ifdef _MOLCAS_MPP_
 
       module allgather_wrapper
+      use definitions, only: iwp, wp, u6
       private
       public :: allgather
       public :: allgather_R, allgather_I
@@ -39,24 +40,23 @@
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer, intent(in) :: nSend
-      real*8, intent(in) :: SEND(nSend)
-      integer, intent(in) :: nRecv
-      real*8, intent(out) :: RECV(nRecv)
+      integer(kind=iwp), intent(in) :: nSend
+      real(kind=wp), intent(in) :: SEND(nSend)
+      integer(kind=iwp), intent(in) :: nRecv
+      real(kind=wp), intent(out) :: RECV(nRecv)
 
       integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
       integer(kind=MPIInt), ALLOCATABLE :: NRECV4(:),IDISP4(:)
       integer(kind=MPIInt), PARAMETER :: ONE4 = 1
-      integer :: nBytes, nProcs, i
+      integer(kind=iwp) :: nBytes, nProcs, i
 
       ITYPE4 = MPI_REAL8
       NBYTES = 8 * NRECV
 
       IF (NBYTES.GT.2147483647) THEN
-        WRITE(6,'(1X,A)') 'WARNING: ALLGATHER: receive buffer > 2GB'
-        WRITE(6,'(1X,A)') 'some MPI implementations cannot handle this'
-        WRITE(6,'(1X,A)') 'I will continue, but it might crash...'
-        CALL XFLUSH(6)
+        WRITE(u6,'(1X,A)') 'WARNING: ALLGATHER: receive buffer > 2GB'
+        WRITE(u6,'(1X,A)') 'some MPI implementations cannot handle this'
+        WRITE(u6,'(1X,A)') 'I will continue, but it might crash...'
       END IF
 
       NPROCS = GA_NNODES()
@@ -70,7 +70,7 @@
      &                   NRECV4,ONE4,MPI_INTEGER,
      &                   MPI_COMM_WORLD, IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
         CALL ABEND()
       END IF
 
@@ -80,7 +80,7 @@
         NRECV4TOT=NRECV4TOT+NRECV4(I)
       END DO
       IF (NRECV4TOT.NE.NRECV) THEN
-        WRITE(6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
+        WRITE(u6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
         CALL ABEND()
       END IF
 
@@ -95,7 +95,8 @@
      &                    RECV,NRECV4,IDISP4,ITYPE4,
      &                    MPI_COMM_WORLD,IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',IERROR4
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',
+     &                        IERROR4
         CALL ABEND()
       END IF
       end subroutine  allgather_R
@@ -114,15 +115,15 @@
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer, intent(in) :: nSend
-      integer, intent(in) :: SEND(nSend)
-      integer, intent(in) :: nRecv
-      integer, intent(out) :: RECV(nRecv)
+      integer(kind=iwp), intent(in) :: nSend
+      integer(kind=iwp), intent(in) :: SEND(nSend)
+      integer(kind=iwp), intent(in) :: nRecv
+      integer(kind=iwp), intent(out) :: RECV(nRecv)
 
       integer(kind=MPIInt) :: NSEND4(1), ITYPE4, IERROR4, nRecv4Tot
       integer(kind=MPIInt), ALLOCATABLE :: NRECV4(:),IDISP4(:)
       integer(kind=MPIInt), PARAMETER :: ONE4 = 1
-      integer :: nBytes, nProcs, i
+      integer(kind=iwp) :: nBytes, nProcs, i
 
 #ifdef _I8_
         ITYPE4=MPI_INTEGER8
@@ -133,10 +134,9 @@
 #endif
 
       IF (NBYTES.GT.2147483647) THEN
-        WRITE(6,'(1X,A)') 'WARNING: ALLGATHER: receive buffer > 2GB'
-        WRITE(6,'(1X,A)') 'some MPI implementations cannot handle this'
-        WRITE(6,'(1X,A)') 'I will continue, but it might crash...'
-        CALL XFLUSH(6)
+        WRITE(u6,'(1X,A)') 'WARNING: ALLGATHER: receive buffer > 2GB'
+        WRITE(u6,'(1X,A)') 'some MPI implementations cannot handle this'
+        WRITE(u6,'(1X,A)') 'I will continue, but it might crash...'
       END IF
 
       NPROCS = GA_NNODES()
@@ -150,7 +150,7 @@
      &                   NRECV4,ONE4,MPI_INTEGER,
      &                   MPI_COMM_WORLD, IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgather ',IERROR4
         CALL ABEND()
       END IF
 
@@ -160,7 +160,7 @@
         NRECV4TOT=NRECV4TOT+NRECV4(I)
       END DO
       IF (NRECV4TOT.NE.NRECV) THEN
-        WRITE(6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
+        WRITE(u6,'(1X,A)') 'ERROR: ALLGATHER: buffer sizes do not match'
         CALL ABEND()
       END IF
 
@@ -175,7 +175,8 @@
      &                    RECV,NRECV4,IDISP4,ITYPE4,
      &                    MPI_COMM_WORLD,IERROR4)
       IF (IERROR4.NE.0) THEN
-        WRITE(6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',IERROR4
+        WRITE(u6,'(1X,A,I4)') 'ERROR: ALLGATHER: MPI_Allgatherv ',
+     &                        IERROR4
         CALL ABEND()
       END IF
       end subroutine allgather_I

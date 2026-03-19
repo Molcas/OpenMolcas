@@ -51,7 +51,7 @@
       real(kind=wp), intent(inout) :: DMAT(*)
       real(kind=wp), intent(in) :: UEFF(nState,nState),U0(nState,nState)
 
-      real(kind=wp) :: VECROT(nState)
+      real(kind=wp), allocatable :: VECROT(:)
 
       real(kind=wp),allocatable :: DPT(:),DSUM(:),DPT2(:),DPT2_AO(:),
      &  DPT2C_AO(:),FPT2(:),FPT2C(:),FPT2_AO(:),FPT2C_AO(:),Trf(:),
@@ -64,14 +64,16 @@
       integer(kind=iwp) :: NDMAT, NDPT, nDPTAO, ISYM, NO, nAO, IDMOFF,
      &  NI, NA, II, IDM, IT, ITABS, ITTOT, IU, IUTOT, IDRF, IUABS, I, J,
      &  nch, iState, JJ, iStLag, ibk, NumChoTot, nOcc, lT2AO, iSQ, iTR,
-     &  nOrbI, ISAV, iBasTr, iBasSq, liBasTr, liBasSq, jBasI, IDSOFF,
+     &  nOrbI, iBasTr, iBasSq, liBasTr, liBasSq, jBasI, IDSOFF,
      &  IP, IQ, IDSUM, nBasI, iBasI
+      integer(kind=iwp), allocatable:: ISAV(:)
       real(kind=wp) :: wgt, val, Scal, X
       real(kind=wp) :: CPTF0, CPE, TIOTF0, TIOE, CPTF10, TIOTF10, CPUT,
      &  WALLT
 
       IF (do_grad) THEN
         !! Set indices for densities and partial derivatives
+        Call mma_allocate(VECROT,nState,Label='VECROT')
         Call GradPrep(UEFF,VECROT)
 !
 ! Compute total density matrix as symmetry-blocked array of
@@ -136,7 +138,7 @@
         !! After this subroutine, iVecR has multi-state weighted (?)
         !! contributions.
         CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-        Call CASPT2_Res(VECROT)
+        Call CASPT2_Res(VECROT,nState)
         CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
         IF (IPRGLB >= VERBOSE) THEN
           CPUT =CPTF10-CPTF0
@@ -164,7 +166,7 @@
         IF (MAXIT /= 0) THEN
           !! off-diagonal are ignored for CASPT2-D
           DPT(:) = Zero
-          CALL TRDNS2O(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
+          CALL TRDNS2O(iVecX,iVecR,DPT,SIZE(DPT),NDPT,VECROT(JSTATE))
           DSUM(:) = DSUM(:) + DPT(:)
         END IF
 *       write(u6,*)' DPT after TRDNS2O.'
@@ -720,8 +722,9 @@
           end if
         End If
         !! Use canonical CSFs rather than natural CSFs in CLagEig
-        ISAV = IDCIEX
-        IDCIEX = IDTCEX
+        call mma_allocate(ISAV,SIZE(IDCIEX),Label='ISAV')
+        ISAV(:) = IDCIEX(:)
+        IDCIEX(:) = IDTCEX(:)
         !! Now, compute the configuration Lagrangian
         Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
 #ifdef _MOLCAS_MPP_
@@ -800,7 +803,8 @@
         If ((nFroT /= 0 .or. .not.if_invaria) .and. .not.IfChol)
      &    Call TRAFRO(2)
 
-        IDCIEX = ISAV
+        IDCIEX(:) = ISAV(:)
+        Call mma_deallocate(ISAV)
         !! Canonical -> natural transformation
         IF(ORBIN == 'TRANSFOR') Then
           Do iState = 1, nState
@@ -971,6 +975,7 @@
         call mma_deallocate(WRK2)
         call mma_deallocate(RDMSA)
         call mma_deallocate(RDMEIG)
+        call mma_deallocate(VECROT)
         DENORM = One
         !! end of with gradient
       ELSE
@@ -1035,7 +1040,7 @@
 *       WRITE(u6,*)' DPT after TRDNS2D.'
 *       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
         DPT(1:NDPT) = Zero
-        CALL TRDNS2O(IVEC,IVEC,DPT,NDPT,One)
+        CALL TRDNS2O(IVEC,IVEC,DPT,SIZE(DPT),NDPT,One)
         DSUM(1:NDPT) = DSUM(1:NDPT) + DPT(1:NDPT)
         ! WRITE(u6,*)' DPT after TRDNS2O.'
         ! WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
@@ -1350,7 +1355,7 @@
       if (IfChol) then
         call TRACHO3(CMO,NCMO)
       else
-        call TRACTL(0)
+        call TRACTL(nCMO,CMO,0)
       end if
       Call mma_deallocate(CMO_Internal)
       nullify(CMO)

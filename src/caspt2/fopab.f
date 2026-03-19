@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE FOPAB(FIFA,NFIFA,IBRA,IKET,FOPEL)
-      use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
       use gugx, only: SGS, L2ACT, EXS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM,NORB,NISH,ISCF,NCONF,STSYM,NASH,
      &                         NAES
+      use definitions, only: iwp, wp
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: NFIFA, IBRA, IKET
@@ -108,10 +108,7 @@
       CALL mma_allocate(SGM,NCONF,LABEL='SGM')
 
 * Load ket wave function
-      ID=IDCIEX
-      DO I=1,IKET-1
-        CALL DDAFILE(LUCIEX,0,KET,NCONF,ID)
-      END DO
+      ID=IDCIEX(IKET)
       CALL DDAFILE(LUCIEX,2,KET,NCONF,ID)
 
       IF (IFTEST.GT.0) THEN
@@ -131,7 +128,7 @@
         NI=NISH(ISU)
         IUTOT=NI+IU
         DO LEVT= 1,LEVU
-          IF(SGS%ISM(LEVT).NE.ISU) GOTO 10
+          IF(SGS%ISM(LEVT).NE.ISU) CYCLE
           ITABS=L2ACT(LEVT)
           IST=ISU
           IT=ITABS-NAES(IST)
@@ -139,10 +136,9 @@
           ITUTOT=(IUTOT*(IUTOT-1))/2+ITTOT
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
-          IF(ABS(FTU).LT.1.0D-16) GOTO 10
+          IF(ABS(FTU).LT.1.0e-16_wp) CYCLE
           CALL SIGMA1(SGS,CIS,EXS,
      &                LEVT,LEVU,FTU,STSYM,KET,SGM)
-  10      CONTINUE
         END DO
       END DO
 * Add contribution from inactive part:
@@ -154,10 +150,7 @@
       END IF
 
 * Load bra wave function
-      ID=IDCIEX
-      DO I=1,IBRA-1
-        CALL DDAFILE(LUCIEX,0,BRA,NCONF,ID)
-      END DO
+      ID=IDCIEX(IBRA)
       CALL DDAFILE(LUCIEX,2,BRA,NCONF,ID)
 
 * Put matrix element into FOPEL:
@@ -180,7 +173,7 @@
         NI=NISH(ISU)
         IUTOT=NI+IU
         DO LEVT= 1,LEVU-1
-          IF(SGS%ISM(LEVT).NE.ISU) GOTO 20
+          IF(SGS%ISM(LEVT).NE.ISU) CYCLE
           ITABS=L2ACT(LEVT)
           IST=ISU
           IT=ITABS-NAES(IST)
@@ -188,10 +181,9 @@
           ITUTOT=(IUTOT*(IUTOT-1))/2+ITTOT
           IF (ITTOT.GT.IUTOT) ITUTOT=(ITTOT*(ITTOT-1))/2+IUTOT
           FTU=FIFA(IOFF(ISU)+ITUTOT)
-          IF(ABS(FTU).LT.1.0D-16) GOTO 20
+          IF(ABS(FTU).LT.1.0E-16_wp) CYCLE
           CALL SIGMA1(SGS,CIS,EXS,
      &                LEVT,LEVU,FTU,STSYM,BRA,SGM)
-  20      CONTINUE
         END DO
       END DO
 
@@ -201,10 +193,7 @@
       END IF
 
 * Load ket wave function
-      ID=IDCIEX
-      DO I=1,IKET-1
-        CALL DDAFILE(LUCIEX,0,KET,NCONF,ID)
-      END DO
+      ID=IDCIEX(IKET)
       CALL DDAFILE(LUCIEX,2,KET,NCONF,ID)
 
 * Add contribution to matrix element FOPEL

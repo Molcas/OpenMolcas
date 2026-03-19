@@ -16,18 +16,19 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKPREF_RPT2(N,G2,PREF)
+      SUBROUTINE MKPREF_RPT2(N,G2,PREF,NPREF)
+      use definitions, only: iwp, wp
       IMPLICIT NONE
 
-      INTEGER, INTENT(IN) :: N
-      REAL*8, INTENT(IN) ::  G2(N,N,N,N)
-      REAL*8, INTENT(OUT) :: PREF(*)
+      INTEGER(kind=iwp), INTENT(IN) :: N, NPREF
+      REAL(kind=wp), INTENT(IN) ::  G2(N,N,N,N)
+      REAL(kind=wp), INTENT(OUT) :: PREF(NPREF)
 
-      INTEGER I,J,K,L,IJ,JI,KL,LK
-      INTEGER IJKL,IJLK,JIKL,JILK
-      INTEGER IJT,KLT,IJKLT
+      INTEGER(kind=iwp) I,J,K,L,IJ,JI,KL,LK
+      INTEGER(kind=iwp) IJKL,IJLK,JIKL,JILK
+      INTEGER(kind=iwp) IJT,KLT,IJKLT
 
-      REAL*8 P1,P2
+      REAL(kind=wp) P1,P2
 
 C Compute PREF(PQRS) = <0| 0.5*Epqrs |0>
 C from G2(P,Q,R,S) = <0| Epqrs |0>
@@ -74,5 +75,4 @@ C in the Fortran-like indices PQ, RS.
         END DO
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE MKPREF_RPT2

@@ -11,7 +11,7 @@
 * Copyright (C) 2023, Ignacio Fdez. Galvan                             *
 ************************************************************************
 
-      SUBROUTINE Cho_Amatrix(XMAT,CMO,NCMO,DDTR,NATR)
+      SUBROUTINE Cho_Amatrix(XMAT,nXMAT,CMO,NCMO,DDTR,NATR)
 ! Calculation of the "exchange" matrix for the G1,G2,G3 Fock operators
 ! from Cholesky vectors
 
@@ -23,19 +23,22 @@
       USE Constants, ONLY: Zero, One, Half
       use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT,
      &                         nOrb, nBtch, nBtches
+      use definitions, only: iwp, wp
 
       IMPLICIT NONE
-      INTEGER :: NCMO, NATR
-      REAL*8 :: XMAT(NOSQT), CMO(NCMO), DDTR(NATR)
-      INTEGER :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP, MXCHOBUF,
-     &           MXINT, MXPIQK, NADDBUFF, NBUF, NCHOBUF, NINTS, NLB,
-     &           NLK, NV
-      INTEGER, ALLOCATABLE :: BGRP(:,:,:), ICA(:), ICI(:), ICV(:),
-     &                        IXMAT(:), NBGRP(:), NVEC(:,:)
-      REAL*8, ALLOCATABLE :: BRABUF(:), KETBUF(:)
-      REAL*8, ALLOCATABLE, TARGET :: INTBUF(:)
+      INTEGER(kind=iwp), intent(in) :: nXMAT, nCMO, NATR
+      REAL(kind=wp), intent(inout) :: XMAT(nXMAT)
+      REAL(kind=wp), intent(in) :: CMO(nCMO), DDTR(NATR)
+      INTEGER(kind=iwp) :: I, IB1, IB2, IBGRP, ISYM, J, JSYM, MXBGRP,
+     &                     MXCHOBUF, MXINT, MXPIQK, NADDBUFF, NBUF,
+     &                     NCHOBUF, NINTS, NLB, NLK, NV
+      INTEGER(kind=iwp), ALLOCATABLE :: BGRP(:,:,:), ICA(:), ICI(:),
+     &                                  ICV(:), IXMAT(:), NBGRP(:),
+     &                                  NVEC(:,:)
+      REAL(kind=wp), ALLOCATABLE :: BRABUF(:), KETBUF(:)
+      REAL(kind=wp), ALLOCATABLE, TARGET :: INTBUF(:)
       TYPE(DSBA_Type) :: HDSQ
-      INTEGER, PARAMETER :: Inac=1, Acti=2, Virt=3
+      INTEGER(kind=iwp), PARAMETER :: Inac=1, Acti=2, Virt=3
 
       ! Transform Cholesky vectors, this will have to be redone after
       ! the modified Fock matrix is diagonalized
@@ -125,23 +128,33 @@
           NV = NVEC(IBGRP,ISYM)
           IF (NV == 0) EXIT
           ! Inactive-Inactive
-          CALL Get_Cholesky_Vectors(Inac,Acti,ISYM,BRABUF,NBUF,IB1,IB2)
-          CALL Accum(Inac,Inac,BRABUF,BRABUF,ICI,ICI)
+          CALL Get_Cholesky_Vectors(Inac,Acti,ISYM,BRABUF,SIZE(BRABUF),
+     &                              NBUF,IB1,IB2)
+          CALL Accum(Inac,Inac,BRABUF,SIZE(BRABUF),
+     &                         BRABUF,SIZE(BRABUF),ICI,ICI)
           ! Inactive-Active
-          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,KETBUF,NBUF,IB1,IB2)
-          CALL Accum(Inac,Acti,BRABUF,KETBUF,ICI,ICA)
+          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,KETBUF,SIZE(KETBUF),
+     &                              NBUF,IB1,IB2)
+          CALL Accum(Inac,Acti,BRABUF,SIZE(BRABUF),
+     &                         KETBUF,SIZE(KETBUF),ICI,ICA)
           ! Active-Active
-          CALL Accum(Acti,Acti,KETBUF,KETBUF,ICA,ICA)
+          CALL Accum(Acti,Acti,KETBUF,SIZE(KETBUF),
+     &                         KETBUF,SIZE(KETBUF),ICA,ICA)
           ! Inactive-Virtual
-          CALL Get_Cholesky_Vectors(Virt,Acti,ISYM,KETBUF,NBUF,IB1,IB2)
-          CALL Accum(Inac,Virt,BRABUF,KETBUF,ICI,ICV)
+          CALL Get_Cholesky_Vectors(Virt,Acti,ISYM,KETBUF,SIZE(KETBUF),
+     &                              NBUF,IB1,IB2)
+          CALL Accum(Inac,Virt,BRABUF,SIZE(BRABUF),
+     &                         KETBUF,SIZE(KETBUF),ICI,ICV)
           ! Virtual-Virtual
-          CALL Accum(Virt,Virt,KETBUF,KETBUF,ICV,ICV)
+          CALL Accum(Virt,Virt,KETBUF,SIZE(KETBUF),
+     &                         KETBUF,SIZE(KETBUF),ICV,ICV)
           ! Active-Virtual
           ! We could have saved these Cholesky vectors,
           ! but there's joy in repetition
-          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,BRABUF,NBUF,IB1,IB2)
-          CALL Accum(Acti,Virt,BRABUF,KETBUF,ICA,ICV)
+          CALL Get_Cholesky_Vectors(Acti,Acti,ISYM,BRABUF,SIZE(BRABUF),
+     &                              NBUF,IB1,IB2)
+          CALL Accum(Acti,Virt,BRABUF,SIZE(BRABUF),
+     &                         KETBUF,SIZE(KETBUF),ICA,ICV)
         END DO
       END DO
 
@@ -159,20 +172,21 @@
       CALL mma_deallocate(ICA)
       CALL mma_deallocate(ICV)
 
-      RETURN
 
       CONTAINS
 
-      SUBROUTINE Accum(bBlock,kBlock,bBuf,kBuf,IB,IK)
+      SUBROUTINE Accum(bBlock,kBlock,bBuf,nbBuf,kBuf,nkBuf,IB,IK)
+      implicit none
 
-      INTEGER :: bBlock, kBlock, IB(NSYM), IK(NSYM)
-      REAL*8 :: bBuf(*), kBuf(*)
-      INTEGER :: B1, BS, BSWCH, bOff(NSYM), I, II, IJ, IJT, J, JA, JJ,
-     &           K1, KS, KSWCH, kOff(NSYM), NA, NB(NSYM), NK(NSYM),
-     &           PQSYM, TUSYM
-      LOGICAL :: diag
-      REAL*8, POINTER, CONTIGUOUS :: INT2(:,:)
-      REAL*8, EXTERNAL :: dDot_
+      integer(kind=iwp), Intent(in):: nbBuf, nkBuf
+      INTEGER(kind=iwp) :: bBlock, kBlock, IB(NSYM), IK(NSYM)
+      REAL(kind=wp) :: bBuf(nbBuf), kBuf(nkBuf)
+      INTEGER(kind=iwp) :: B1, BS, BSWCH, bOff(NSYM), I, II, IJ, IJT, J,
+     &                     JA, JJ, K1, KS, KSWCH, kOff(NSYM), NA,
+     &                     NB(NSYM), NK(NSYM), PQSYM, TUSYM
+      LOGICAL(kind=iwp) :: diag
+      REAL(kind=wp), POINTER, CONTIGUOUS :: INT2(:,:)
+      REAL(kind=wp), EXTERNAL :: dDot_
 
       ! NB,NK = number of orbitals in bra/ket (not including NA factor)
       ! bOff,kOff = offset or starting orbital in bra/ket

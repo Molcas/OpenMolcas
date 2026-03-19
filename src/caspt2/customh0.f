@@ -13,7 +13,7 @@
 ************************************************************************
 * This file contains boiler-plate code to allow developers to experiment
 * with modifications to the zero-order hamiltonian. To enable them,
-* remove the #if 0/#endif blocks, and use 'HZero = Custom' in the input.
+* add appropriate code, and use 'HZero = Custom' in the input.
 ************************************************************************
 *--------------------------------------------*
 * 1994  PER-AAKE MALMQUIST                   *
@@ -22,16 +22,16 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE NEWB()
-#if 0
       use caspt2_global, only: LUSBT
       use EQSOLV, only: iDSMat, iDBMat
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nSym, nASup, nISup
+      use definitions, only: iwp, wp
       IMPLICIT NONE
 
-      INTEGER ICASE,ISYM,NAS,NIS,NCOEF
-      INTEGER IDS,NS,IDB,NB
-      REAL*8, ALLOCATABLE:: S(:), B(:)
+      INTEGER(kind=iwp) ICASE,ISYM,NAS,NIS,NCOEF
+      INTEGER(kind=iwp) IDS,NS,IDB,NB
+      REAL(kind=wp), ALLOCATABLE:: S(:), B(:)
 
 C Modify B matrices, if requested.
 
@@ -56,27 +56,29 @@ C Modify B matrix, using S matrix and some other data.
         END DO
       END DO
 
-#endif
       END SUBROUTINE NEWB
 
       SUBROUTINE NEWDIA()
-#if 0
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nSym, nInDep, nASup, nISup
+      use constants, only: Zero
+      use definitions, only: iwp, wp
       IMPLICIT NONE
 
-      INTEGER ICASE,ISYM,NIN,NAS,NIS,I
-      INTEGER JD
-      REAL*8, ALLOCATABLE:: BD(:), ID(:), C1(:), C2(:)
+      INTEGER(kind=iwp) ICASE,ISYM,NIN,NAS,NIS,I
+      INTEGER(kind=iwp) JD
+      REAL(kind=wp), ALLOCATABLE:: BD(:), ID(:), C1(:), C2(:)
 
 C Post-diagonalization modification of diagonal energy
 C denominator terms for active and for non-active superindex.
 
 
       DO ICASE=1,13
+        Write (6,*) 'iCASE=',iCASE
         DO ISYM=1,NSYM
+           Write (6,*) 'iSym=',iSym
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.EQ.0) CYCLE
           NAS=NASUP(ISYM,ICASE)
@@ -94,8 +96,8 @@ C Active, and non-active, energy denominators:
           CALL DDAFILE(LUSBT,2,ID,NIS,JD)
 C Active, and non-active, corrections:
 C (Replace this strange example with something sensible)
-          C1(:)=0.0D0
-          C2(:)=0.0D0
+          C1(:)=Zero
+          C2(:)=Zero
 C Modifications are added to the usual diagonal energies:
           DO I=1,NAS
             BD(I)=BD(I)+C1(I)
@@ -103,7 +105,7 @@ C Modifications are added to the usual diagonal energies:
           DO I=1,NIS
             ID(I)=ID(I)+C2(I)
           END DO
-          ID=IDBMAT(ISYM,ICASE)
+          JD=IDBMAT(ISYM,ICASE)
           CALL DDAFILE(LUSBT,1,BD,NAS,JD)
           CALL DDAFILE(LUSBT,1,ID,NIS,JD)
 C Added modifications are saved on LUSBT.
@@ -114,8 +116,7 @@ C Added modifications are saved on LUSBT.
           CALL mma_deallocate(ID)
           CALL mma_deallocate(C1)
           CALL mma_deallocate(C2)
-          ID=IDBMAT(ISYM,ICASE)
+          JD=IDBMAT(ISYM,ICASE)
         END DO
       END DO
-#endif
       END SUBROUTINE NEWDIA

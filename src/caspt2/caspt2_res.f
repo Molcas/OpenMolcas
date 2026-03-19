@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      Subroutine CASPT2_Res(VECROT)
+      Subroutine CASPT2_Res(VECROT,nVECROT)
 
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_global, only: jStLag,iVecL
@@ -21,7 +21,8 @@
 
       implicit none
 
-      real(kind=wp), intent(in) :: VECROT(*)
+      integer(kind=iwp), intent(in) :: nVECROT
+      real(kind=wp), intent(in) :: VECROT(nVECROT)
 
       real(kind=wp) :: SAV, SAVI, savreg, Scal
       integer(kind=iwp) :: iVecXbk, iVecRbk, iRHSbk, iStLag, ICONV

@@ -16,14 +16,15 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DIELMV(ICASE,JCASE,NUP,NDWN,EMU)
+      SUBROUTINE DIELMV(ICASE,nICASE,JCASE,nJCASE,NUP,NDWN,EMU)
       use definitions, only: iwp, wp
       use constants, only: Zero
       use gugx, only: SGS, CIS
-      use pt2_guga, only: ETA
+      use caspt2_module, only: ETA
       IMPLICIT NONE
-      integer(kind=iwp), intent(in):: ICASE(*),JCASE(*)
-      integer(kind=iwp), intent(in):: NUP,NDWN
+
+      integer(kind=iwp), intent(in):: nICASE,nJCASE,NUP,NDWN
+      integer(kind=iwp), intent(in):: ICASE(nICASE),JCASE(nJCASE)
       real(kind=wp), intent(inout):: EMU(NUP,NDWN)
 
       Integer(kind=iwp) nLev, nIpWlk

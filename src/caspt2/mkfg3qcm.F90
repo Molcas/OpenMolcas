@@ -12,35 +12,35 @@
 !***********************************************************************
 #ifdef _DMRG_
 
-subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
+subroutine mkfg3qcm(mkF, nLev, G1, F1, G2, F2, G3, F3, idxG3, nG3)
 
    use Symmetry_Info, only: Mul
    use stdalloc, only: mma_allocate, mma_deallocate
    use qcmaquis_interface
-   use definitions, only: wp, iwp, i1, u6
    use printLevel, only: verbose
    use gugx, only: SGS
    use caspt2_global, only: iPrGlb
-   use caspt2_module, only: nAshT, jState, EPSA
-      use pt2_guga, only: nG3
+   use caspt2_module, only: jState, EPSA
+   use definitions, only: wp, iwp, i1, u6
 
    implicit none
 
 
-   Integer(kind=iwp), intent(in)  :: IFF
-   Real(kind=wp), intent(out) :: G1(nasht, nasht), G2(nasht, nasht, nasht, nasht)
-   Real(kind=wp), intent(out) :: F1(nasht, nasht), F2(nasht, nasht, nasht, nasht)
-   Real(kind=wp), intent(out) :: G3(*), F3(*)
-   Integer(kind=i1), intent(in) :: idxG3(6, *)
+   Logical(kind=iwp), intent(in)  :: mkF
+   Integer(kind=iwp), intent(in)  :: nLev, nG3
+   Real(kind=wp), intent(out) :: G1(nLev, nLev), G2(nLev, nLev, nLev, nLev)
+   Real(kind=wp), intent(out) :: F1(nLev, nLev), F2(nLev, nLev, nLev, nLev)
+   Real(kind=wp), intent(out) :: G3(nG3), F3(nG3)
+   Integer(kind=i1), intent(in) :: idxG3(6, nG3)
    Real(kind=wp), allocatable :: G3tmp(:, :, :, :, :, :), TG3tmp(:, :, :, :, :, :)
    ! Real(kind=wp), allocatable :: G4(:,:,:,:,:)
    Integer(kind=iwp) :: t, u, v, w, x, y, z
    Integer(kind=iwp) :: i
 
    ! This might be memory hungry
-   call mma_allocate(G3tmp,nasht,nasht,nasht,nasht,nasht,nasht)
-   call mma_allocate(TG3tmp,nasht,nasht,nasht,nasht,nasht,nasht)
-   ! call mma_allocate(G4,n4,nasht,nasht,nasht,nasht,Label='G4')
+   call mma_allocate(G3tmp,nLev,nLev,nLev,nLev,nLev,nLev,Label='G3Tmp')
+   call mma_allocate(TG3tmp,nLev,nLev,nLev,nLev,nLev,nLev,Label='TG3Tmp')
+   ! call mma_allocate(G4,n4,nLev,nLev,nLev,nLev,Label='G4')
 
    if (iPrGlb >= verbose) then
       write(u6,*) ">QCMaquis: Computing RDMs for STATE: ", JSTATE-1
@@ -67,15 +67,15 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    ! call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp, epsa, CompressMPS)
 
    ! number of elements in the contracted 4-index of the 4-RDM
-   ! n4 = (nasht*(nasht+1)*(nasht+2)*(nasht+3)/24)
-   ! call mma_allocate(G4,n4,nasht,nasht,nasht,nasht,Label='G4')
+   ! n4 = (nLev*(nLev+1)*(nLev+2)*(nLev+3)/24)
+   ! call mma_allocate(G4,n4,nLev,nLev,nLev,nLev,Label='G4')
    ! call qcmaquis_interface_get_4rdm_full(G4)
 
-   if (iff > 0) then
-      do t = 1, nasht
+   if (mkF) then
+      do t = 1, nLev
          do u = 1, t
             if (Mul(SGS%ism(t), SGS%ism(u)) == 1) then
-               do w = 1, nasht
+               do w = 1, nLev
                   F1(t, u) = F1(t, u) + G2(t, u, w, w)*epsa(w)
                end do
                F1(u, t) = F1(t, u)
@@ -84,13 +84,13 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
       end do
    end if
 
-   if (iff > 0) then
-      do t = 1, nasht
-         do u = 1, nasht
-            do v = 1, nasht
-               do x = 1, nasht
+   if (mkF) then
+      do t = 1, nLev
+         do u = 1, nLev
+            do v = 1, nLev
+               do x = 1, nLev
                   if (Mul(SGS%ism(x), Mul(SGS%ism(v), Mul(SGS%ism(u), SGS%ism(t)))) == 1) then
-                     do w = 1, nasht
+                     do w = 1, nLev
                         F2(t, u, v, x) = F2(t, u, v, x) + G3tmp(t, v, w, u, x, w)*epsa(w)
                      end do
                   end if
@@ -111,10 +111,10 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
       G3(i) = G3tmp(t, v, y, u, x, z)
       ! F_tvyuxz = <| e_{tv,yu,xz} E_ww f_ww |> - <| e_{tv,yu,xz} |> (f_uu + f_xx + f_zz)
       ! Compute first term using transition RDM between <| and |'> = E_ww f_ww |>: <| e_{tv,yu,xz} |'>
-      F3(i) = TG3tmp(t, v, y, u, x, z) - G3(i)*(epsa(u) + epsa(x) + epsa(z))
+      If (mkF) F3(i) = TG3tmp(t, v, y, u, x, z) - G3(i)*(epsa(u) + epsa(x) + epsa(z))
 
-      ! do w = 1,nasht
-      !   val = get_p4_element(G4,w,t,v,y,w,u,x,z,nasht)
+      ! do w = 1,nLev
+      !   val = get_p4_element(G4,w,t,v,y,w,u,x,z,nLev)
       !   F3(i) = F3(i) + val * epsa(w)
       ! end do
    end do

@@ -10,19 +10,20 @@
 *                                                                      *
 * Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
-      SUBROUTINE Backtransform(Heff,Ueff,U0)
-      use definitions, only: wp
+      SUBROUTINE Backtransform(Heff,Ueff,U0,nState)
+      use definitions, only: wp, iwp
       use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: Nstate, IFXMS, IFRMS
+      use caspt2_module, only: IFXMS, IFRMS
       IMPLICIT None
 C Back-transform Heff and Ueff to the basis of the original
 C CASSCF states.
+      integer(kind=iwp), intent(in):: Nstate
       real(kind=wp), intent(inout) :: Heff(Nstate,Nstate),
      &                                Ueff(Nstate,Nstate)
       real(kind=wp), intent(in) :: U0(Nstate,Nstate)
 
-      real(8),allocatable :: U0transpose(:,:),Utmp(:,:)
+      real(kind=wp),allocatable :: U0transpose(:,:),Utmp(:,:)
 
 
       if (IFXMS.or.IFRMS) then

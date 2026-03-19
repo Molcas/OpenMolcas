@@ -15,6 +15,9 @@ use Fock_util_global, only: ALGO, Deco, Lunit, REORD
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, Integer_Pointer
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
+#ifdef _MOLCAS_MPP_
+Use Para_Info, Only: nProcs
+#endif
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -155,6 +158,11 @@ end if
 
 call CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
+#ifdef _MOLCAS_MPP_
+If (nProcs>1) Call gadgop(FLT(1)%A0,SIZE(FLT(1)%A0),'+')
+#endif
+
+
 if (rc /= 0) call Error(rc)
 
 nullify(pNocc(1)%I1)
@@ -166,8 +174,6 @@ end if
 call Deallocate_DT(DSQ(1))
 call Deallocate_DT(DLT(1))
 call Deallocate_DT(FLT(1))
-
-return
 
 contains
 
