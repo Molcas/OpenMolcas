@@ -245,15 +245,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end do
             end do
 
-!#           ifdef _DEBUGPRINT_
+#           ifdef _DEBUGPRINT_
             write(u6,*) "kappa elements > 0.01 =",large_elements
             maxel(:) = maxloc(kappa)
             write(u6,*) "largest element =", kappa(maxel(1),maxel(2))
-!#           endif
-
             write(u6,*) "Iter_GEK",Iter_GEK
+#           endif
+
             if (large_elements /= 0 .and. start_gek) then
+#               ifdef _DEBUGPRINT_
                 write(u6,*) "resetting GEK sampling in iteration",nIter
+#               endif
                 ! we leave GEK and go back to NR if steps are too large, while resetting the GEK sampling
                 Iter_GEK = 0
                 displacements(:,:) = Zero
@@ -266,7 +268,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             if (large_elements == 0 .and. (.not. start_gek)) then
                 ! infinitesimal limit of kappa reached -> start sampling for GEK
                 start_gek = .true.
+#               ifdef _DEBUGPRINT_
                 write(u6,*) "turning on GEK in iteration",nIter+1,"starting sampling for GEK in iteration",nIter
+#               endif
                 Iter_GEK = Iter_GEK+1
                 call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
                 call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
@@ -285,7 +289,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 select case(OptMeth)
 
                 case (4) ! Full space GEK
-                    write(u6,*) "calling S_GEK_localisation now"
                     call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                                             dqdq,displacements(:,Iter_GEK),UpMeth,'fullspace',SORange,usmitigation)
 
