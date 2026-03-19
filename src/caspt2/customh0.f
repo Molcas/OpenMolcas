@@ -76,9 +76,7 @@ C denominator terms for active and for non-active superindex.
 
 
       DO ICASE=1,13
-        Write (6,*) 'iCASE=',iCASE
         DO ISYM=1,NSYM
-           Write (6,*) 'iSym=',iSym
           NIN=NINDEP(ISYM,ICASE)
           IF(NIN.EQ.0) CYCLE
           NAS=NASUP(ISYM,ICASE)
