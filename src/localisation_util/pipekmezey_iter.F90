@@ -469,6 +469,9 @@ if (.not. Silent) then
         write(u6,'(A,I8)') 'Number of localised orbitals  : ',nOrb2loc
         write(u6,'(A,ES20.10)') 'Value of P before localisation: ',FirstFunctional
         write(u6,'(A,ES20.10)') 'Value of P after localisation : ',Functional
+        write(u6,*) "Localisation converged in ",nIter
+        write(u6,*) "Last deltaP",Delta
+        write(u6,*) "Last GradNorm",GradNorm
     end if
 end if
 
