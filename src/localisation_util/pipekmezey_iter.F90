@@ -277,15 +277,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #               ifdef _DEBUGPRINT_
                 write(u6,*) "turning on GEK in iteration",nIter+1,"starting sampling for GEK in iteration",nIter
 #               endif
-                Iter_GEK = Iter_GEK+1
-                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
-                call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
-                FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
+                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,1),fsdim)
 
             else if (large_elements == 0 .and. start_gek) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 Iter_GEK = Iter_GEK+1
-                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
+                ! when Iter_GEK = 1:
+                ! displacements has NR kappa_1
+                ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot)
+                ! new NR suggestion is added to displacements as kappa_2
+
+                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK+1),fsdim)
                 call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
                 FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
 
@@ -296,13 +298,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 case (4) ! Full space GEK
                     call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                            dqdq,displacements(:,Iter_GEK),UpMeth,'fullspace',SORange,usmitigation)
+                                            dqdq,displacements(:,Iter_GEK+1),UpMeth,'fullspace',SORange,usmitigation)
 
                 case (5) ! subspace GEK
 
                     write(u6,*) "building the subspace"
                     call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,displacements(:,Iter_GEK),UpMeth,'subspace ',SORange,usmitigation)
+                                        dqdq,displacements(:,Iter_GEK+1),UpMeth,'subspace ',SORange,usmitigation)
                 end select !(s)-GEK
 
 
@@ -340,9 +342,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! -------------------------------------------------------------------------------
 
                 ! transform GEK disp vec to matrix
-                call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim,.true.)
+                call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK+1),fsdim,.true.)
 #               ifdef _DEBUGPRINT_
-                call RecPrt('(GEK step)',' ',displacements(:,Iter_GEK),fsdim,1)
+                call RecPrt('(GEK step)',' ',displacements(:,Iter_GEK+1),fsdim,1)
 #               endif
 
 
@@ -400,7 +402,17 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       endif
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+
+        !save previous:
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiagvec(:)) ! gets the new gradient
+
+#       ifdef _DEBUG2_
+            write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
+            write(u6,*) "Functional:",Functional
+            call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('Hdiag',' ',Hdiagvec(:),fsdim,1)
+#       endif
+
 
 #       ifdef _DEBUGPRINT_
             write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "

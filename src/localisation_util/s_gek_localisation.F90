@@ -224,7 +224,6 @@ q_diis(:,:) = Zero
 do i=1,nDiis ! we project only those q vectors that were used to build the subspace, so that they are fully expressed within it
     do k=1,mDiis
         q_diis(k,i) = sum( (q(:,i)-q(:,nDIIS)) * e_diis(:,k))
-        !q_diis(k,i) = sum( (q(:,i)) * e_diis(:,k))
     end do
 end do
 

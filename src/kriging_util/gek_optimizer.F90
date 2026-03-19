@@ -12,6 +12,7 @@
 !               2025, Lila Zapp                                        *
 !***********************************************************************
 !#define _DEBUGPRINT_
+!#define _DEBUG2_
 
 subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_diis,dqdq,Step_Trunc,UpMeth,SOFAct,bias)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -41,6 +42,10 @@ use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
+#ifdef _DEBUG2_
+use Definitions, only: u6
+#endif
+
 implicit none
 real(kind=wp), intent(in) :: bias, SOFact
 integer(kind=iwp), intent(in) :: mDiis, nDiis, Max_Iter
@@ -61,6 +66,10 @@ real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp,
                             ThrGrd = 1.0e-7_wp
 real(kind=wp), external :: DDot_
 
+
+#ifdef _DEBUGPRINT_
+write(u6,*) "Enter GEK_Optimizer"
+#endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -314,10 +323,27 @@ end if
 write(u6,*) 'Energy(Iteration_Total+1) :',Energy(Iteration_Total+1)
 #endif
 
+#ifdef _DEBUG2_
+if (Converged) then
+  write(u6,'(A,I4,A)') 'Converged in ',Iteration_Micro," micro iterations"
+else
+  write(u6,*) 'Not converged!'
+end if
+write(u6,*) 'Energy(Iteration_Total+1) :',Energy(Iteration_Total+1)
+#endif
+
+
 write(UpMeth(5:6),'(I2)') Iteration_Micro
 
 ! Compute the displacement in the reduced space relative to the last structure of the full space
 dq_diis(:) = q_diis(:,Iteration+1)-q_diis(:,nDIIS)
+
+
+
+#ifdef _DEBUG2_
+call RecPrt('dq_diis',' ',dq_diis(:),size(dq_diis),1)
+call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),size(g_diis,1),1)
+#endif
 
 #ifdef _DEBUGPRINT_
 call RecPrt('dq_diis',' ',dq_diis(:),size(dq_diis),1)
