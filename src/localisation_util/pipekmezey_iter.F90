@@ -41,7 +41,10 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, DD, Thr,ang
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, Thr,ang
+#       ifdef _RESKAPPA_
+real(kind=wp) :: DD
+#endif
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),dq(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
@@ -50,6 +53,7 @@ real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
+integer(kind=iwp) :: maxel(2)
 #endif
 
 !S-GEK
@@ -57,7 +61,7 @@ real(kind=wp) :: dqdq
 logical(kind=iwp) :: SORange,start_gek
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,j,Iter_GEK,large_elements,maxel(2)
+integer(kind=iwp) :: i,j,Iter_GEK,large_elements
 
 # ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile

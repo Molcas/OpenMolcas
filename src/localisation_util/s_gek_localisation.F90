@@ -26,7 +26,6 @@ use Definitions, only: iwp,wp
 use Definitions, only: u6
 #endif
 use Localisation_globals, only: nMxIter,Loosen
-use Definitions, only: u6
 
 implicit none
 
