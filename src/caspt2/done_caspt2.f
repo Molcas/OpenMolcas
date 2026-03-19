@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine Done_CASPT2(CMO,OCC,D)
+      Subroutine Done_CASPT2(CMO,nCMO,OCC,nOCC,D,nD)
 ************************************************************************
 *                                                                      *
 *     purpose:                                                         *
@@ -36,12 +36,13 @@
 *                                                                      *
 ************************************************************************
 
-      use definitions, only: iwp, wp
-      use Constants, only: Zero, Two
       use caspt2_module, only: nSym, nBas
+      use Constants, only: Zero, Two
+      use definitions, only: iwp, wp
       Implicit None
-      real(kind=wp), intent(in):: CMO(*) , OCC(*)
-      real(kind=wp), intent(out):: D(*)
+      integer(kind=iwp), intent(in):: nCMO, nOcc, nD
+      real(kind=wp), intent(in):: CMO(nCMO) , OCC(nOCC)
+      real(kind=wp), intent(out):: D(nD)
 
       integer(kind=iwp) iOff1, iOff2, iOff3, iSym, iBas, i, ii, j, k
       real(kind=wp) :: Sum
@@ -51,21 +52,20 @@
       iOff3 = 0
       Do iSym = 1,nSym
         iBas = nBas(iSym)
-        If ( iBas.ne.0 ) then
-          Do i = 1,iBas
-            ii = (i*i-i)/2
-            Do j = 1,i
-              Sum = Zero
-              Do k = 1,iBas
-                Sum = Sum + OCC(iOff3+k)
-     &                    * CMO(iOff1+(k-1)*iBas+i)
-     &                    * CMO(iOff1+(k-1)*iBas+j)
-              End Do
-              D(iOff2+ii+j) = Two*Sum
-              If (j.eq.i) D(iOff2+ii+j) = Sum
+        If (iBas==0) Cycle
+        Do i = 1,iBas
+          ii = (i*i-i)/2
+          Do j = 1,i
+            Sum = Zero
+            Do k = 1,iBas
+              Sum = Sum + OCC(iOff3+k)
+     &                  * CMO(iOff1+(k-1)*iBas+i)
+     &                  * CMO(iOff1+(k-1)*iBas+j)
             End Do
+            D(iOff2+ii+j) = Two*Sum
+            If (j.eq.i) D(iOff2+ii+j) = Sum
           End Do
-        End If
+        End Do
         iOff1 = iOff1 + iBas*iBas
         iOff2 = iOff2 + (iBas*iBas+iBas)/2
         iOff3 = iOff3 + iBas

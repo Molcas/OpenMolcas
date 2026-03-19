@@ -10,9 +10,8 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      SUBROUTINE DERFG3(CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
+      SUBROUTINE DERFG3(CI,NCONF,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
      &                  DEPSA,G1,G2,nLev)
-      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -26,15 +25,17 @@
       use gugx, only: CIS, L2ACT, SGS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp,u6,RtoB
-      use caspt2_module, only: nConf, nActEl, nSym, STSym, EPSA
-      use gugx, only: MxLev
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: nActEl, nSym, STSym, EPSA
+      use molcas, only: MxLev
+      use caspt2_module, only: MxCI
+      use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use Constants, only: Zero, One, Half
 
       IMPLICIT NONE
 
-      integer(kind=iwp), intent(in) :: nLev
-      real(kind=wp), intent(in) :: CI(MXCI), DG3(*), DF3(*),
+
+      integer(kind=iwp), intent(in) :: nCONF, nLev
+      real(kind=wp), intent(in) :: CI(nCONF), DG3(*), DF3(*),
      &  G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
       real(kind=wp), intent(inout) :: CLAG(NCONF), DG1(NLEV,NLEV),
      &  DG2(NLEV,NLEV,NLEV,NLEV), DF1(NLEV,NLEV),
@@ -57,7 +58,7 @@
       integer(kind=iwp) :: NTRI1,NTRI2
       integer(kind=iwp) :: MEMMAX !, MEMMAX_SAFE
       integer(kind=iwp) :: NLEV2
-      integer(kind=iwp) :: NCI,ICSF
+      integer(kind=iwp) :: ICSF
 
       real(kind=wp), external :: DDOT_
 
@@ -87,9 +88,8 @@
       IF(nlev == 0) return
       IF(NACTEL == 0) return
 
-      NCI=CIS%NCSF(STSYM)
 * This should not happen, but...
-      IF(NCI == 0) return
+      IF(NCONF == 0) return
 
 ! Here, for regular CAS or RAS cases.
 
@@ -224,7 +224,7 @@
       end do
 !-SVC20100310: took some spurious mirroring of G2 values out
 !-of the loops and put them here, after the parallel section has
-!-finished, so that GAdGOP works correctly.
+!-finished, so that GAdSUM works correctly.
       do ip1=ntri2+1,nlev2
        itlev=idx2ij(1,ip1)
        iulev=idx2ij(2,ip1)
@@ -330,8 +330,8 @@
       DO issg1=1,nsym
        isp1=Mul(issg1,STSYM)
        nsgm1=CIS%ncsf(issg1)
-       !! Work(LBufD) = \sum_t <I|E_{tt}|I>*f_{tt}
-       CALL H0DIAG_CASPT2(ISSG1,BUFD,CIS%NOW,CIS%IOW,nMidV)
+       !!BufD_I = \sum_t <I|E_{tt}|I>*f_{tt}
+       CALL H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,nMidV)
 
 !-SVC20100301: calculate number of larger tasks for this symmetry, this
 !-is basically the number of buffers we fill with sigma1 vectors.
@@ -806,7 +806,7 @@
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use gugx, only: SGS, LEVEL
       use caspt2_module, only: NACTEL, NASHT, ISCF
-      use pt2_guga, only: ETA, NG3
+      use caspt2_module, only: ETA, NG3
       use Constants, only: Zero, One, Two
       use definitions, only: wp, iwp, byte, u6
 
@@ -968,5 +968,4 @@
         End Do
       END DO
 
-      RETURN
       END subroutine DERSPE

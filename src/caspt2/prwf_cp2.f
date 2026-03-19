@@ -17,19 +17,17 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF_CP2(ISYCI,NCO,CI,THR)
-      use definitions, only: wp, iwp
+      use definitions, only: wp, iwp, u6
       use gugx, only: CIS
       IMPLICIT NONE
       INTEGER(KIND=IWP), INTENT(IN) :: ISYCI, NCO
       REAL(KIND=WP), INTENT(IN) :: CI(NCO), THR
 
-      INTEGER I, nMidV
+      INTEGER I
 
-      nMidV = CIS%nMidV
-
-      WRITE(6,'(20A4)')('----',I=1,20)
-      WRITE(6,'(a,es9.2)')' CI COEFFICIENTS LARGER THAN ',THR
-      CALL PRWF1_CP2(CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,THR,
-     &               NMIDV)
+      WRITE(u6,'(20A4)')('----',I=1,20)
+      WRITE(u6,'(a,es9.2)')' CI COEFFICIENTS LARGER THAN ',THR
+      CALL PRWF1_CP2(CIS%NOCSF,CIS%IOCSF,CIS%NOW,CIS%IOW,ISYCI,CI,nCO,
+     &               THR,CIS%nMidV)
 
       END SUBROUTINE PRWF_CP2

@@ -12,7 +12,8 @@
       use definitions, only: iwp, wp, u6
       use constants, only: One
       use rassi_aux, only: ipglob
-      use gugx, only: SGStruct, CIStruct, mxlev
+      use gugx, only: SGStruct, CIStruct
+      use molcas, only: MxLev
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
       Integer(kind=iwp), intent(in):: IMODE

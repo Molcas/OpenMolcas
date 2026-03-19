@@ -10,17 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2019, Stefano Battaglia                                *
 !***********************************************************************
-subroutine wgtinit(H)
+subroutine wgtinit(H,nState)
 
   use definitions,only:wp,iwp,u6
   use caspt2_global,only:iPrGlb
   use PrintLevel, only: DEBUG, VERBOSE
   use caspt2_global, only: DWGT
-  use caspt2_module, only: nState, DWType, IfDW, IfXMS, Zeta
+  use caspt2_module, only: DWType, IfDW, IfXMS, Zeta
 
   implicit none
 
-
+  Integer(kind=iwp),intent(in) :: nState
   Real(kind=wp),intent(in) :: H(nState,nState)
 
   Real(kind=wp) :: Ealpha,Ebeta,Egamma,Dab,Dag,xi_ag,xi_ab,Wtot
@@ -109,5 +109,4 @@ subroutine wgtinit(H)
     call prettyprint(DWGT,nState,nState)
   end if
 
-  return
-end
+end subroutine wgtinit

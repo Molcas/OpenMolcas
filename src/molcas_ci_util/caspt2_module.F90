@@ -11,7 +11,7 @@
 
 module CASPT2_Module
 
-use Molcas, only: LenIn, MxAct, MxBas, MxIna, MxOrb, MxRoot
+use Molcas, only: LenIn, MxAct, MxBas, MxIna, MxOrb, MxRoot, MxLev
 use RASDim, only: MxTit
 use Definitions, only: wp, iwp
 
@@ -54,5 +54,12 @@ public :: BMATRIX, BNAME, BSPECT, BTRANS, CASES, CPUEIG, CPUFG3, CPUFMB, CPUGIN,
           NTUVES, ORBIN, ORBNAM, OUTFMT, POTNUC, PRORB, PRSD, REFENE, RFPERT, RHSDIRECT, RNORM, ROOT2STATE, SDECOM, SMATRIX, &
           STSYM, THRCONV, THRENE, THROCC, THRSHN, THRSHS, TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, TIONAD, TIOOVL, &
           TIOPCG, TIOPRP, TIOPT2, TIORHS, TIOSBM, TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC, TITLE, ZETA
+
+
+integer(kind=iwp) :: IADR10(64,2), MXCI, NG1, NG2, NG3, NG3TOT
+real(kind=wp) :: CITHR, ETA(MXLEV)
+character(len=8) :: CLAB10(64)
+
+public :: CITHR, CLAB10, ETA, IADR10, MXCI, NG1, NG2, NG3, NG3TOT
 
 end module CASPT2_Module

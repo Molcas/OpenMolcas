@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1997, Per Ake Malmqvist                                *
 ************************************************************************
-      SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
+      SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0,nState)
       use definitions, only: iwp, wp, u6
       use constants, only: Zero
       use fciqmc_interface, only: DoFCIQMC
@@ -23,14 +23,14 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Molcas, only: LenIn, MxAct, MxOrb, MxRoot
       use RASDim, only: MxIter, MxTit
-      use caspt2_module, only: Nstate,DOCUMULANT,HEADER,IFMIX,IFMSCOUP,
+      use caspt2_module, only: DOCUMULANT,HEADER,IFMIX,IFMSCOUP,
      &                         IFQCAN,IFRMS,IFXMS,IROOT,ISCF,ISPIN,
      &                         LROOTS,
      &                         NACTEL,BNAME,NASH,NBAS,NBSQT,NCONF,
      &                         NDEL,NELE3,NFRO,NHOLE1,NISH,NRAS1,NRAS2,
      &                         NRAS3,NROOTS,NSYM,POTNUC,STSYM,TITLE,
      &                         MSTATE,ENERGY,MSTATE
-      use pt2_guga, only: CITHR,MXCI
+      use caspt2_module, only: CITHR,MXCI
       IMPLICIT None
 C Normal operation: A new file, 'JOBMIX', will be created, with the
 C CMO's and CI arrays of the JOBIPH, except that the CI arrays have
@@ -39,6 +39,7 @@ C using coefficients taken from the eigenvectors of the effective
 C Hamiltonian.
 C Also, replace the original CASSCF energies with CASPT2 or MS-CASPT2
 C energies.
+      integer(kind=iwp), intent(in):: Nstate
       real(kind=wp), intent(in):: Heff(Nstate,Nstate),
      &                            Ueff(Nstate,Nstate),
      &                            U0(Nstate,Nstate)

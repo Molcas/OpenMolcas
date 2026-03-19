@@ -16,7 +16,8 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,X2,DPT2,Y,LIST)
+      SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,nX1,X2,nX2,
+     &                  DPT2,nDPT2,Y,nY,LIST,MLIST)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Half, One, Two, Three, Six
@@ -30,9 +31,10 @@
       IMPLICIT None
 
       integer(kind=iwp), intent(in)::  ISYM1,ICASE1,ISYM2,ICASE2
-      real(kind=wp), intent(inout):: X1(*),X2(*),Y(*)
-      real(kind=wp), intent(inout):: DPT2(*)
-      integer(kind=iwp), intent(in):: LIST(*)
+      integer(kind=iwp), intent(in)::  nX1,nX2,nY,nDPT2,mLIST
+      real(kind=wp), intent(inout):: X1(nX1),X2(nX2),Y(nY)
+      real(kind=wp), intent(inout):: DPT2(nDPT2)
+      integer(kind=iwp), intent(in):: LIST(mList)
 
       integer(kind=iwp) IOFDIT(8),IOFDIA(8),IOFDTA(8)
       integer(kind=iwp) IOFCD(8,8),IOFCEP(8,8),IOFCEM(8,8),IOFCGP(8,8),
@@ -115,8 +117,10 @@ C  A&BP One-el
         IY=1
         INCY1=1
         INCY2=NTGEU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X1(IXTI),DPT2(IDIT),Y(IY))
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &              X1(IXTI),SIZE(X1(IXTI:)),
+     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &              Y(IY),SIZE(Y(IY:)))
       END IF
 
 C  A&BP Two-el
@@ -138,8 +142,10 @@ C  A&BP Two-el
         IY=1
         INCY1=1
         INCY2=NTGEU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X2(IX),DPT2(IDIT),Y(IY))
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &              X2(IX),SIZE(X2(IX:)),
+     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &              Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(2)
@@ -166,8 +172,10 @@ C A&BM One-el
         IY=1
         INCY1=1
         INCY2=NTGTU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X1(IXTI),DPT2(IDIT),Y(IY))
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &              X1(IXTI),SIZE(X1(IXTI:)),
+     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &              Y(IY),SIZE(Y(IY:)))
       END IF
 
 C A&BM Two-el
@@ -193,8 +201,10 @@ C A&BM Two-el
         IY=1
         INCY1=1
         INCY2=NTGTU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X2(IX),DPT2(IDIT),Y(IY))
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &              X2(IX),SIZE(X2(IX:)),
+     &              DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &              Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(3)
@@ -217,7 +227,10 @@ C  A&D  Two-el
         INCY3=NAS2*NISH(ISYM1)
         LEN1=NISH(ISYM1)
         LEN2=NSSH(ISYM12)
-        CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &             X2(IX),SIZE(X2(IX:)),
+     &             DPT2(IDTA),SIZE(DPT2(IDTA:)),
+     &             Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(4)
@@ -245,7 +258,10 @@ C  A&EP One-el
           INCY3=NT
           LEN1=NT
           LEN2=NA
-          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXTI),DPT2(IDIA),Y(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X1(IXTI),SIZE(X1(IXTI:)),
+     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),
+     &               Y(IY),SIZE(Y(IY:)))
         END IF
        END DO
       END IF
@@ -275,7 +291,10 @@ C  A&EM One-el
           INCY3=NT
           LEN1=NT
           LEN2=NA
-          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXTI),DPT2(IDIA),Y(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X1(IXTI),SIZE(X1(IXTI:)),
+     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),
+     &               Y(IY),SIZE(Y(IY:)))
         END IF
        END DO
       END IF
@@ -301,7 +320,10 @@ C  BP&EP Two-el
         INCY3=NAS2
         LEN1=NIS1
         LEN2=NA
-        CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &             X2(IX),SIZE(X2(IX:)),
+     &             DPT2(IDTA),SIZE(DPT2(IDTA:)),
+     &             Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(7)
@@ -329,7 +351,10 @@ C  BM&EM Two-el
         INCY3=NAS2
         LEN1=NIS1
         LEN2=NA
-        CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &             X2(IX),SIZE(X2(IX:)),
+     &             DPT2(IDTA),SIZE(DPT2(IDTA:)),
+     &             Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(8)
@@ -353,7 +378,10 @@ C  C&D  One-el
         INCY3=NAS2
         LEN1=NSSH(ISYM1)
         LEN2=NI
-        CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXTA),DPT2(IDIT),Y(IY))
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &             X1(IXTA),SIZE(X1(IXTA:)),
+     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &             Y(IY),SIZE(Y(IY:)))
       END IF
 
 C  C&D  Two-el
@@ -375,7 +403,10 @@ C  C&D  Two-el
         INCY3=NAS2
         LEN1=NSSH(ISYM1)
         LEN2=NI
-        CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &             X2(IX),SIZE(X2(IX:)),
+     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &             Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(9)
@@ -399,8 +430,10 @@ C  C&FP One-el
         IY=1
         INCY1=1
         INCY2=NTGEU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X1(IXTA),DPT2(IDTA),Y(IY))
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &              X1(IXTA),SIZE(X1(IXTA:)),
+     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),
+     &              Y(IY),SIZE(Y(IY:)))
       END IF
 
 C  C&FP Two-el
@@ -422,8 +455,10 @@ C  C&FP Two-el
         IY=1
         INCY1=1
         INCY2=NTGEU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X2(IX),DPT2(IDTA),Y(IY))
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &              X2(IX),SIZE(X2(IX:)),
+     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),
+     &              Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(10)
@@ -447,8 +482,10 @@ C  C&FM One-el
         IY=1
         INCY1=1
         INCY2=NTGTU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X1(IXTA),DPT2(IDTA),Y(IY))
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &              X1(IXTA),SIZE(X1(IXTA:)),
+     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),
+     &              Y(IY),SIZE(Y(IY:)))
       END IF
 
 C  C&FM Two-el
@@ -470,8 +507,10 @@ C  C&FM Two-el
         IY=1
         INCY1=1
         INCY2=NTGTU(ISYM2)
-        CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X2(IX),DPT2(IDTA),Y(IY))
+        CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &              X2(IX),SIZE(X2(IX:)),
+     &              DPT2(IDTA),SIZE(DPT2(IDTA:)),
+     &              Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(11)
@@ -499,7 +538,10 @@ C  C&GP One-el
           INCY3=NT
           LEN1=NT
           LEN2=NI
-          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXTA),DPT2(IDIA),Y(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X1(IXTA),SIZE(X1(IXTA:)),
+     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),
+     &               Y(IY),SIZE(Y(IY:)))
         END IF
        END DO
       END IF
@@ -529,7 +571,10 @@ C  C&GM One-el
           INCY3=NT
           LEN1=NT
           LEN2=NI
-          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXTA),DPT2(IDIA),Y(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X1(IXTA),SIZE(X1(IXTA:)),
+     &               DPT2(IDIA),SIZE(DPT2(IDIA:)),
+     &               Y(IY),SIZE(Y(IY:)))
         END IF
        END DO
       END IF
@@ -561,7 +606,10 @@ C  D&EP One-el
           INCY3=1
           LEN1=NA
           LEN2=NT
-          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXIA),DPT2(IDIT),Y(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X1(IXIA),SIZE(X1(IXIA:)),
+     &               DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &               Y(IY),SIZE(Y(IY:)))
         END IF
         IOXIA=IOXIA+NI*NA
        END DO
@@ -597,7 +645,9 @@ C  D&EP Two-el
           INCY3=NU
           LEN1=NA
           CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),DPT2(IDIT),Y(IY))
+     &                X2(IX:),SIZE(X2(IX:)),
+     &                DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+     &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
@@ -629,7 +679,10 @@ C  D&EM One-el
           INCY3=1
           LEN1=NA
           LEN2=NT
-          CALL MLTMV(IMLTOP,LIST(LLST1),X1(IXIA),DPT2(IDIT),Y(IY))
+          CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &               X1(IXIA),SIZE(X1(IXIA:)),
+     &               DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &               Y(IY),SIZE(Y(IY:)))
         END IF
         IOXIA=IOXIA+NI*NA
        END DO
@@ -665,7 +718,9 @@ C  D&EM Two-el
           INCY3=NU
           LEN1=NA
           CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),DPT2(IDIT),Y(IY))
+     &                X2(IX:),SIZE(X2(IX:)),
+     &                DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+     &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
@@ -701,7 +756,9 @@ C  D&GP Two-el
           INCY3=NU
           LEN1=NI
           CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),DPT2(IDTA),Y(IY))
+     &                X2(IX:),SIZE(X2(IX:)),
+     &                DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+     &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
@@ -738,7 +795,9 @@ C  D&GM Two-el
           INCY3=NU
           LEN1=NI
           CALL MLTDXP(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X2(IX),DPT2(IDTA),Y(IY))
+     &                X2(IX:),SIZE(X2(IX:)),
+     &                DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+     &                Y(IY:),SIZE(Y(IY:)))
         END IF
       END DO
       END IF
@@ -764,7 +823,10 @@ C  EP&HP Two-el
         INCY2=NAS2
         LEN1=NAS1
         LEN2=NIGEJ(ISYM2)
-        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
+        CALL MLTR1(IMLTOP,LIST(LLST1),
+     &             X2(IX:),SIZE(X2(IX:)),
+     &             DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+     &             Y(IY:),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(18)
@@ -788,7 +850,10 @@ C  EM&HM Two-el
         INCY2=NAS2
         LEN1=NAS1
         LEN2=NIGTJ(ISYM2)
-        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDTA),Y(IY))
+        CALL MLTR1(IMLTOP,LIST(LLST1),
+     &             X2(IX:),SIZE(X2(IX:)),
+     &             DPT2(IDTA:),SIZE(DPT2(IDTA:)),
+     &             Y(IY:),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(19)
@@ -812,7 +877,10 @@ C  FP&GP Two-el
         INCY3=NAS2
         LEN1=NIS1
         LEN2=NI
-        CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &             X2(IX),SIZE(X2(IX:)),
+     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &             Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(20)
@@ -836,7 +904,10 @@ C  FM&GM Two-el
         INCY3=NAS2
         LEN1=NIS1
         LEN2=NI
-        CALL MLTMV(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+        CALL MLTMV(IMLTOP,LIST(LLST1),NLST1,
+     &             X2(IX),SIZE(X2(IX:)),
+     &             DPT2(IDIT),SIZE(DPT2(IDIT:)),
+     &             Y(IY),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(21)
@@ -859,7 +930,10 @@ C  GP&HP Two-el
         INCY2=1
         LEN1=NAS1
         LEN2=NAS2
-        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+        CALL MLTR1(IMLTOP,LIST(LLST1),
+     &             X2(IX:),SIZE(X2(IX:)),
+     &             DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+     &             Y(IY:),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(22)
@@ -882,7 +956,10 @@ C  GM&HM Two-el
         INCY2=1
         LEN1=NAS1
         LEN2=NAS2
-        CALL MLTR1(IMLTOP,LIST(LLST1),X2(IX),DPT2(IDIT),Y(IY))
+        CALL MLTR1(IMLTOP,LIST(LLST1),
+     &             X2(IX:),SIZE(X2(IX:)),
+     &             DPT2(IDIT:),SIZE(DPT2(IDIT:)),
+     &             Y(IY:),SIZE(Y(IY:)))
       END IF
 C  -----------------------------------------------
       Case(23)
@@ -916,8 +993,10 @@ C  D&HP One-el
          IY=1
          INCY1=NAGEB(ISYM2)
          INCY2=1
-         CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &                X1(IXIA),DPT2(IDJB),Y(IY))
+         CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &               X1(IXIA),SIZE(X1(IXIA:)),
+     &               DPT2(IDJB),SIZE(DPT2(IDJB:)),
+     &               Y(IY),SIZE(Y(IY:)))
        END IF
        IOXIA=IOXIA+NI*NA
       END DO
@@ -955,8 +1034,10 @@ C  D&HM One-el
          IY=1
          INCY1=NAGTB(ISYM2)
          INCY2=1
-         CALL MLTSCA(IMLTOP,LIST(LLST1),LIST(LLST2),
-     &              X1(IXIA),DPT2(IDJB),Y(IY))
+         CALL MLTSCA(IMLTOP,LIST(LLST1),NLST1,LIST(LLST2),NLST2,
+     &               X1(IXIA),SIZE(X1(IXIA:)),
+     &               DPT2(IDJB),SIZE(DPT2(IDJB:)),
+     &               Y(IY),SIZE(Y(IY:)))
        END IF
        IOXIA=IOXIA+NI*NA
       END DO

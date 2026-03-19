@@ -228,7 +228,8 @@
 *                                                                      *
 *     Read kets (Cholesky vectors) in the form L(VX), all symmetries:
 *
-      Call Get_Cholesky_Vectors(Active,Active,JSYM,KET,nKet,
+      Call Get_Cholesky_Vectors(Active,Active,JSYM,
+     &                          KET,SIZE(KET),nKet,
      &                          IBSTA,IBEND)
       KETD(1:nKet) = Zero
 *                                                                      *
@@ -236,7 +237,8 @@
 *                                                                      *
 *       Read bra (Cholesky vectors) in the form L(TJ): All symmetries
 *
-      Call Get_Cholesky_Vectors(Inactive,Active,JSYM,BRA,nBra,
+      Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
+     &                          BRA,SIZE(BRA),nBra,
      &                          IBSTA,IBEND)
       BRAD(1:nBra) = Zero
 *                                                                      *
@@ -264,7 +266,8 @@
 *
       Call Cholesky_Vectors(1,Inactive,Active,JSYM,BRAD,nBra,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,BRA,nBra,
+      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
+     &                          BRA,SIZE(BRA),nBra,
      &                          IBSTA,IBEND)
       BRAD(1:nBra) = Zero
 *                                                                      *
@@ -291,7 +294,8 @@
 *
       Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,BRAD,nBra,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Active,Virtual,JSYM,BRA,nBra,
+      Call Get_Cholesky_Vectors(Active,Virtual,JSYM,
+     &                          BRA,SIZE(BRA),nBra,
      &                          IBSTA,IBEND)
       BRAD(1:nBra) = Zero
 !                                                                      *
@@ -318,7 +322,8 @@
 *
       Call Cholesky_Vectors(1,Active,Active,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Inactive,Active,JSYM,KET,nKet,
+      Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
+     &                          KET,SIZE(KET),nKet,
      &                          IBSTA,IBEND)
       Call Cholesky_Vectors(2,Inactive,Active,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
@@ -337,7 +342,8 @@
 *
       Call Cholesky_Vectors(1,Inactive,Active,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,KET,nKet,
+      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
+     &                          KET,SIZE(KET),nKet,
      &                          IBSTA,IBEND)
       Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
@@ -356,7 +362,8 @@
 *
       Call Cholesky_Vectors(1,Active,Virtual,JSYM,BRAD,nBra,
      &                      IBSTA,IBEND)
-      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,BRA,nBra,
+      Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
+     &                          BRA,SIZE(BRA),nBra,
      &                          IBSTA,IBEND)
       BRAD(1:nBra) = KETD(1:nBra)
 *                                                                      *
@@ -365,7 +372,7 @@
 * Read kets in the form L(VL)
 *
       Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
-     &                          KET,nKet,
+     &                          KET,SIZE(KET),nKet,
      &                          IBSTA,IBEND)
       Call Cholesky_Vectors(2,Inactive,Active,JSYM,KETD,nKet,
      &                      IBSTA,IBEND)
@@ -2349,7 +2356,8 @@
         CALL GA_SYNC()
 
         !! ket is ndim1*NVJ dimension
-        Call Get_Cholesky_Vectors(block1,block2,JSYM,KET,nKet,
+        Call Get_Cholesky_Vectors(block1,block2,JSYM,
+     &                            KET,SIZE(KET),nKet,
      &                            JBSTA,JBEND)
 
         do iRank = 0, NPROCS-1
@@ -2364,7 +2372,8 @@
 #endif
         Call Cholesky_Vectors(2,block1,block2,JSYM,BRA,nBra,
      &                        IBSTA,IBEND)
-        Call Get_Cholesky_Vectors(block1,block2,JSYM,KET,nKet,
+        Call Get_Cholesky_Vectors(block1,block2,JSYM,
+     &                            KET,SIZE(KET),nKet,
      &                            JBSTA,JBEND)
         Call DGEMM_('T','N',NVI,NVJ,ndim1,
      &              One,BRA,ndim1,KET,ndim1,

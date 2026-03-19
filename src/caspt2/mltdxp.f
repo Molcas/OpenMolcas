@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MLTDXP(IMLTOP,LST1,LST2,X,F,Y)
+      SUBROUTINE MLTDXP(IMLTOP,LST1,LST2,X,nX,F,nF,Y,nY)
       use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
@@ -25,8 +25,8 @@
      &                      INCX3, INCY1, INCY2, INCY3, LEN1, NFDXP,
      &                      VAL1, VAL2
       IMPLICIT None
-      integer(kind=iwp), intent(in):: IMLTOP
-      real(kind=wp), intent(inout):: X(*),F(*),Y(*)
+      integer(kind=iwp), intent(in):: IMLTOP, nX, nF, nY
+      real(kind=wp), intent(inout):: X(nX),F(nF),Y(nY)
       integer(kind=iwp), intent(in):: LST1(4,NLST1), LST2(4,NLST2)
 
       integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST1, ILST2,

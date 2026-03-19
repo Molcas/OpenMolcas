@@ -55,15 +55,15 @@ C INTEGRAL BUFFERS:
 
       IF(NASHT.GT.0) THEN
         NFIMO=SIZE(FIMO)
-        CALL MKRHSA(IVEC,FIMO,NFIMO,ERI0,SCR)
-        CALL MKRHSB(IVEC,ERI0,SCR)
-        CALL MKRHSC(IVEC,FIMO,NFIMO,ERI0,SCR)
-        CALL MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
-        CALL MKRHSE(IVEC,ERI1,ERI2,SCR)
-        CALL MKRHSF(IVEC,ERI1,ERI2,SCR)
-        CALL MKRHSG(IVEC,ERI1,ERI2,SCR)
+        CALL MKRHSA(IVEC,FIMO,NFIMO,ERI0,2*NERI,SCR,NERI)
+        CALL MKRHSB(IVEC,ERI0,2*NERI,SCR,NERI)
+        CALL MKRHSC(IVEC,FIMO,NFIMO,ERI0,2*NERI,SCR,NERI)
+        CALL MKRHSD(IVEC,FIMO,NFIMO,ERI1,NERI,ERI2,NERI,SCR,NERI)
+        CALL MKRHSE(IVEC,ERI1,NERI,ERI2,NERI,SCR,NERI)
+        CALL MKRHSF(IVEC,ERI1,NERI,ERI2,NERI,SCR,NERI)
+        CALL MKRHSG(IVEC,ERI1,NERI,ERI2,NERI,SCR,NERI)
       END IF
-      CALL MKRHSH(IVEC,ERI1,ERI2,SCR)
+      CALL MKRHSH(IVEC,ERI1,NERI,ERI2,NERI,SCR,NERI)
 
       ERI0=>Null()
       ERI1=>Null()
@@ -73,7 +73,7 @@ C INTEGRAL BUFFERS:
 
       END SUBROUTINE MKRHS
 
-      SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,SCR)
+      SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,nERI,SCR,nSCR)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero
@@ -85,8 +85,8 @@ C INTEGRAL BUFFERS:
 
       IMPLICIT None
 
-      integer(kind=iwp), intent(in)::IVEC, NFIMO
-      real(kind=wp), intent(inout):: FIMO(NFIMO), ERI(*), SCR(*)
+      integer(kind=iwp), intent(in)::IVEC, NFIMO, nERI, nSCR
+      real(kind=wp), intent(inout):: FIMO(NFIMO), ERI(nERI), SCR(nSCR)
 
       integer(kind=iwp) NFNXT,ISYM,NFIMOES,NAS,NIS,NV,NI,LW,ISYMT,
      &                  ISYMUV,ISYMU,ISYMV,IT,ITTOT,ITABS,II,IU,IUTOT,
@@ -150,7 +150,7 @@ C Put W on disk:
 
       END SUBROUTINE MKRHSA
 
-      SUBROUTINE MKRHSB(IVEC,ERI,SCR)
+      SUBROUTINE MKRHSB(IVEC,ERI,nERI,SCR,nSCR)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Quart, Half, Two
@@ -161,8 +161,8 @@ C Put W on disk:
      &                         NASH,NISH,NAES,NTGEUES,NTGTUES,NIGEJES,
      &                         NIES,NORB,NIGTJES
       IMPLICIT None
-      integer(kind=iwp), intent(in):: IVEC
-      real(kind=wp), Intent(inout):: ERI(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC, nERI, nSCR
+      real(kind=wp), Intent(inout):: ERI(nERI), SCR(nSCR)
 
       real(kind=wp), parameter:: SQ2=SQRT(Two)
       integer(kind=iwp) ISYM,NINP,NINM,NASP,NISP,NVP,NASM,NISM,NVM,LWP,
@@ -288,7 +288,7 @@ C  Put WM on disk
 
       END SUBROUTINE MKRHSB
 
-      SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,SCR)
+      SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,nERI,SCR,nSCR)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       USE SUPERINDEX, only: KTUV
@@ -297,8 +297,8 @@ C  Put WM on disk
       use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NSSH,NASH,NISH,
      &                         NAES,NSSH,NTUVES,NASHT,NACTEL
       IMPLICIT None
-      integer(kind=iwp), intent(in):: IVEC, NFIMO
-      real(kind=wp), intent(inout):: FIMO(NFIMO),ERI(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC, NFIMO, nERI, nSCR
+      real(kind=wp), intent(inout):: FIMO(NFIMO),ERI(nERI), SCR(nSCR)
 
       integer(kind=iwp) NFNXT,ISYM,NFIMOES,NAS,NIS,NV,LW,ISYMT,
      &                  ISYMUV,ISYMU,ISYMV,IU,IUTOT,IUABS,IV,IVTOT,
@@ -386,7 +386,7 @@ C   Put W on disk
 
       END SUBROUTINE MKRHSC
 
-      SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
+      SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero
@@ -396,9 +396,9 @@ C   Put W on disk
       use caspt2_module, only: NSYM,NINDEP,NSSH,NISH,NTU,NISUP,
      &                         NACTEL,NORB,NAES,NASH,NTUES
       IMPLICIT None
-      integer(kind=iwp), intent(in):: IVEC, NFIMO
+      integer(kind=iwp), intent(in):: IVEC, NFIMO,nERI1,nERI2,nSCR
       real(kind=wp), intent(inout):: FIMO(NFIMO)
-      real(kind=wp), intent(inout):: ERI1(*),ERI2(*), SCR(*)
+      real(kind=wp), intent(inout):: ERI1(nERI1),ERI2(nERI2), SCR(nSCR)
 
       integer(kind=iwp) IOFF(8)
       integer(kind=iwp) ISYM,IO,ISYMI,NAS1,NAS,NIS,NV,LW,NFSUM,
@@ -476,7 +476,7 @@ C   Put W on disk.
 
       END SUBROUTINE MKRHSD
 
-      SUBROUTINE MKRHSE(IVEC,ERI1,ERI2,SCR)
+      SUBROUTINE MKRHSE(IVEC,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: half, One, two, three
@@ -486,8 +486,8 @@ C   Put W on disk.
       use caspt2_module, only: NSYM,NINDEP,NISUP,NASH,NISH,NSSH,
      &                         NORB,NIGEJ,NIES,NIGEJES,NIGTJES,NIGTJ
       IMPLICIT NONE
-      integer(kind=iwp), intent(in):: IVEC
-      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC, nERI1, nERI2, nSCR
+      real(kind=wp), Intent(inout):: ERI1(nERI1),ERI2(nERI2), SCR(nSCR)
 
       integer(kind=iwp) IOFF1(8),IOFF2(8)
       real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2,
@@ -582,7 +582,7 @@ C   Put WP and WM on disk.
 
       END SUBROUTINE MKRHSE
 
-      SUBROUTINE MKRHSF(IVEC,ERI1,ERI2,SCR)
+      SUBROUTINE MKRHSF(IVEC,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only:  half, One, two
@@ -593,8 +593,8 @@ C   Put WP and WM on disk.
      &                         NISH,NSSH,NSES,NORB,NTGEUES,NAGEBES,
      &                         NTGTUES,NAGTBES
       IMPLICIT NONE
-      integer(kind=iwp), intent(in):: IVEC
-      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC, nERI1, nERI2, nSCR
+      real(kind=wp), Intent(inout):: ERI1(nERI1),ERI2(nERI2), SCR(nSCR)
 
       real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2
       integer(kind=iwp) ISYM,NINP,NINM,NASP,NISP,NASM,NISM,NVP,NVM,LWP,
@@ -685,7 +685,7 @@ C   Put WM on disk
 
       END SUBROUTINE MKRHSF
 
-      SUBROUTINE MKRHSG(IVEC,ERI1,ERI2,SCR)
+      SUBROUTINE MKRHSG(IVEC,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: half, One, two, three
@@ -696,8 +696,8 @@ C   Put WM on disk
      &                         NISUP,NISUP,NSSH,NSES,NORB,NAGEBES,
      &                         NAGTBES
       IMPLICIT NONE
-      integer(kind=iwp), intent(in):: IVEC
-      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC, nERI1, nERI2, nSCR
+      real(kind=wp), Intent(inout):: ERI1(nERI1),ERI2(nERI2), SCR(nSCR)
 
       integer(kind=iwp) IOFF1(8),IOFF2(8)
       real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2,
@@ -791,7 +791,7 @@ C   Put WP and WM on disk.
 
       END SUBROUTINE MKRHSG
 
-      SUBROUTINE MKRHSH(IVEC,ERI1,ERI2,SCR)
+      SUBROUTINE MKRHSH(IVEC,ERI1,nERI1,ERI2,nERI2,SCR,nSCR)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: half, One, two, three
@@ -802,8 +802,8 @@ C   Put WP and WM on disk.
      &                         NIES,NSES,NSSH,NORB,NASH,NAGEBES,NIGEJES,
      &                         NAGTBES,NIGTJES
       IMPLICIT None
-      integer(kind=iwp), intent(in):: IVEC
-      real(kind=wp), Intent(inout):: ERI1(*),ERI2(*), SCR(*)
+      integer(kind=iwp), intent(in):: IVEC, nERI1, nERI2, nSCR
+      real(kind=wp), Intent(inout):: ERI1(nERI1),ERI2(nERI2), SCR(nSCR)
 
       real(kind=wp), parameter:: SQ2=SQRT(Two), SQI2=One/SQ2,
      &                           SQ3=SQRT(Three)

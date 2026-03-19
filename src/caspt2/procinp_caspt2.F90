@@ -12,7 +12,6 @@ subroutine procinp_caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
   use inputData, only: input
-  use definitions, only: iwp,wp,RtoB
   use caspt2_global, only: iPrGlb, cmpThr, cntThr, dnmThr
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
@@ -20,7 +19,6 @@ subroutine procinp_caspt2
                            if_invar, iParRHS, iRoot1, iRoot2, &
                            if_invaria, ConvInvar, if_equalW, if_SSDM, &
                            MAXBUF, Weight
-  use caspt2_global, only: IDCIEX
   use PrintLevel, only: TERSE
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
@@ -41,14 +39,16 @@ subroutine procinp_caspt2
   use OFembed, only:Do_OFemb
 #endif
   use Molcas, only: MxRoot, MxSym
-  use caspt2_module, only: nGroupState, mState, nDel, nSsh, nFro, nIsh, iAd1m, Zeta, ThrSHS, ThrSHN, ThrOCC, &
+  use caspt2_module, only: nGroupState, mState, nDel, nSsh, nFro, nIsh, Zeta, ThrSHS, ThrSHN, ThrOCC, &
                            ThrEne, ThrConv, SMatrix, SDECOM, Root2State, RHSDirect, RFPERT, PRSD, OutFmt, OrbIn,  &
                            PrOrb, nSym, nState, nRas3T, nRas1T, nRoots, nLYRoot, nLYGroup, nGroup, nCases,  &
                            MaxIt, nRoots, iRoot, iRlxRoot, IfXMS, IfsadRef, IfRMS, IfProp, JMS,    &
-                           IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, ieoF1m, HZero, G1SECIN, FockType,     &
+                           IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, HZero, G1SECIN, FockType,     &
                            DWType, DoCumulant, BTrans, BSpect, BMatrix, DMRG
 
-      use pt2_guga, only: CIThr
+  use caspt2_module, only: CIThr
+  use constants, only: Zero
+  use definitions, only: iwp,wp,RtoB
   implicit none
 
 
@@ -185,11 +185,6 @@ subroutine procinp_caspt2
   end if
 
   !---  Initialize
-  IDCIEX = 0
-  IEOF1M = 0
-  do I = 1,64
-    IAD1M(I) = -1
-  end do
   RFpert = Input%RFPert
 
   OUTFMT = 'DEFAULT'
@@ -556,8 +551,8 @@ subroutine procinp_caspt2
   THRSHS = Input%THRSHS
   THRCONV = Input%THRCONV
   CITHR = Input%PrWF
-  THRENE = 5.0d+01
-  THROCC = 5.0d-04
+  THRENE = 5.0e+01_wp
+  THROCC = 5.0e-04_wp
   MAXIT = Input%MaxIter
   DNMTHR = Input%DNMTHR
   CMPTHR = Input%CMPTHR
@@ -615,7 +610,7 @@ subroutine procinp_caspt2
       call quit_onUserError()
     end if
 
-    if (ipea_shift.ne.0.0D+00) do_lindep = .True.
+    if (ipea_shift.ne.Zero) do_lindep = .True.
 
     ! only allow analytic gradients either with nstate = nroots or with sadref
     if ((nState /= nRoots) .and. (.not. ifsadref)) then
@@ -691,12 +686,12 @@ subroutine procinp_caspt2
     call Qpg_cArray('MCLR Root',Found,I)
     if (Found) then
       call Get_cArray('MCLR Root',mstate1,16)
-!     write (*,*) "mstate1"
-!     write (*,'(a)') mstate1
+!     write (u6 "mstate1"
+!     write (u6a)') mstate1
       if (mstate1 /= '****************') then
         if (index(mstate1,'@') /= 0) then
           read(mstate1,'(1X,I7,1X,I7)') iRoot1,iRoot2
-!         write (*,*) "MCLR Root read:", iRoot1,iRoot2
+!         write (u6 "MCLR Root read:", iRoot1,iRoot2
           if (iRoot1 /= 0) do_nac = .true.
           if (iRoot1 == 0) then
             iRoot1 = iRoot2
@@ -707,7 +702,7 @@ subroutine procinp_caspt2
       end if
     end if
 
-!   write (*,*) "roots after MCLR Root:",iRoot1,iRoot2
+!   write (u6 "roots after MCLR Root:",iRoot1,iRoot2
 
     !! If nothing is specified by ALASKA, use the states in &CASPT2
     if ((iRoot1 == 0) .and. (iRoot2 == 0)) then

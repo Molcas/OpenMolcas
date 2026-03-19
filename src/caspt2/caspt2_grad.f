@@ -120,8 +120,8 @@
       OLagFull(:)   = Zero
       SLag(:,:)     = Zero
       WLag(:)       = Zero
-!     write(6,*) 'nclag,nolag'
-!     write(6,*)  nclag, nolag
+!     write(u6,*) 'nclag,nolag'
+!     write(u6,*)  nclag, nolag
 
       call mma_allocate(FIMO_all,NBSQT,Label='FIMO_all')
       call mma_allocate(FIFA_all,NBSQT,Label='FIFA_all')
@@ -160,7 +160,7 @@
       WRK(:) = Zero
 
       idSD = 1
-!     write (*,*) 'iflindep = ', iflindeplag
+!     write (u6,*) 'iflindep = ', iflindeplag
       If (do_lindep) Then
         Do iCase = 1, 11
           DO iSym = 1, nSym
@@ -386,7 +386,7 @@
         End If
 
         !! Compute true unrelaxed properties for MS-CASPT2
-        if (.not.do_nac .and. ifmscoup) CALL PRPCTL(1,UEFF,U0)
+        if (.not.do_nac .and. ifmscoup) CALL PRPCTL(1,UEFF,U0,nState)
 
         LuPT2 = isFreeUnit(LuPT2)
         Call Molcas_Open(LuPT2,'PT2_Lag')
@@ -529,8 +529,8 @@
       ! overwrites whatever was set in CASSCF with the relax
       ! root that was chosen in CASPT2
       if (do_nac) then
-!       write (*,*) 'NAC'
-!       write (*,*) 'CASSCF/Original = ', iRoot1,iRoot2
+!       write (u6 'NAC'
+!       write (u6 'CASSCF/Original = ', iRoot1,iRoot2
         Call Put_iScalar('Relax CASSCF root',iRoot1)
         Call Put_iScalar('Relax Original root',iRoot2)
         call Qpg_cArray('MCLR Root',Found,I)
@@ -546,8 +546,8 @@
           Call Put_cArray('MCLR Root',mstate1,16)
         end if
       else
-!       write (*,*) 'GRD'
-!       write (*,*) 'CASSCF/Original = ', irlxroot,irlxroot
+!       write (u6 'GRD'
+!       write (u6 'CASSCF/Original = ', irlxroot,irlxroot
         Call Put_iScalar('Relax CASSCF root',irlxroot)
         Call Put_iScalar('Relax Original root',irlxroot)
         mstate1 = '****************'
@@ -623,7 +623,7 @@
           VECROT(iState) = TMP*Half
         End Do
       Else
-!       write(6,*) 'jState in gradprep: ',jstate
+!       write(u6,*) 'jState in gradprep: ',jstate
         VECROT(jState) = One
       End If
       jStLag = jState
@@ -655,7 +655,7 @@
       call mma_allocate(WLagLoc,NBSQT,Label='WLagLoc')
 
       WLagLoc(1:NBSQT) = Half*OLagLoc(1:NBSQT)
-!     write(6,*) 'Wlag square'
+!     write(u6,*) 'Wlag square'
 !     call sqprt(wlag,nbast)
 
       !! W(MO) -> W(AO) using the quasi-canonical orbitals
@@ -762,24 +762,24 @@
               Call SQUARE(FIFA(1+iTr),FIFASA_all(1+iSQ),1,nBasI,nBasI)
             Else If (MODE == 1) Then
               Call SQUARE(FIFA(1+iTr),FIFA_all(1+iSQ),1,nBasI,nBasI)
-!             write (*,*) 'fifa in MO'
+!             write (u6 'fifa in MO'
 !             call sqprt(fifa_all(1+isq),nbasi)
             End If
           Else
             Call SQUARE(FIFA_all(1+iTr),WRK1,1,nBasI,nBasI)
-!             write (*,*) 'fifasa in AO'
+!             write (u6 'fifasa in AO'
 !             call sqprt(wrk1,nbasi)
             If (MODE == 0 .and. (IFDW .or. IFRMS)) Then
               !! with the state-average
               !! FIFASA_all will be natural basis
               Call OLagTrf(2,iSym,CMOPT2,FIFASA_all(1+iSQ),WRK1,WRK2)
-!             write (*,*) 'fifasa in MO'
+!             write (u6 'fifasa in MO'
 !             call sqprt(fifasa_all(1+isq),nbasi)
             Else If (MODE == 1) Then
               !! with the state-specific or dynamically weighted
               !! FIFA will be quasi-canonical basis
               Call OLagTrf(2,iSym,CMOPT2,FIFA_all(1+iSQ),WRK1,WRK2)
-!             write (*,*) 'fifa in MO'
+!             write (u6 'fifa in MO'
 !             call sqprt(fifa_all(1+isq),nbasi)
               !! canonicalize frozen orbitals
               !! still under investigation, but this is something we
@@ -805,7 +805,7 @@
             Else
               Call SQUARE(FIMO_all(1+iTr),WRK1,1,nBasI,nBasI)
               Call OLagTrf(2,iSym,CMOPT2,FIMO_all(1+iSQ),WRK1,OLag)
-!             write (*,*) 'fimo in MO'
+!             write (u6 'fimo in MO'
 !             call sqprt(fimo_all(1+isq),nbasi)
             End If
 !         End If

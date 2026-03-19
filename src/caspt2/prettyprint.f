@@ -13,22 +13,23 @@
       subroutine prettyprint(A,N,M)
 * This subroutine pretty prints the NxM matrix A
       use caspt2_module, only: mState
+      use definitions, only: iwp, wp, u6
       implicit none
 
 
 * Input arguments
-      integer N,M
-      real*8 A(N,M)
+      integer(kind=iwp), intent(in):: N,M
+      real(kind=wp), intent(in):: A(N,M)
 
-      integer i,j,jStart,jEnd
+      integer(kind=iwp) i,j,jStart,jEnd
 
       do jStart=1,N,5
         jEnd = min(jStart+4, N)
-        write(6,'(1x,5i16)')(mstate(j),j=jStart,jEnd)
+        write(u6,'(1x,5i16)')(mstate(j),j=jStart,jEnd)
         do i=1,N
-          write(6,'(1x,i3,2x,5f16.8)')mstate(i),(A(i,j),j=jStart,jEnd)
+          write(u6,'(1x,i3,2x,5f16.8)')mstate(i),(A(i,j),j=jStart,jEnd)
         end do
-        write(6,*)
+        write(u6,*)
       end do
 
-      end
+      end subroutine prettyprint

@@ -23,7 +23,7 @@
       use gugx, only: SGS
       use caspt2_module, only: NCONF, NASHT, NASH, ISCF, NSTATE, JSTATE,
      &                         EPSA
-      use pt2_guga, only: NG1, NG2, NG3, NG3TOT
+      use caspt2_module, only: NG1, NG2, NG3, NG3TOT
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -57,7 +57,7 @@
 
       !! their derivative contributions
       NG3tot = NG3
-      !! Use NG3tot (in pt2_guga.F90) for the moment
+      !! Use NG3tot (in caspt2_module.F90) for the moment
 #ifdef _MOLCAS_MPP_
       if (is_real_par()) call gaigop_scal(ng3tot,'+')
 #endif
@@ -165,7 +165,7 @@
       use caspt2_module, only: IFMSCOUP, NSYM, NASH, NAES, NASHT,
      &                         NASUP, NISUP, NINDEP, EPSA, EASUM, NTUES,
      &                         NTGEUES, NTGTUES
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
 #ifdef _MOLCAS_MPP_
       use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
       use definitions, only: u6
@@ -488,7 +488,7 @@
       CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 !     idS = idSMAT(iSym,4)
 !     CALL DDAFILE(LUSBT,2,SMat,NS,idS)
-      CALL MKSC_G3(iSym,SMat,nG3,G3,idxG3)
+      CALL MKSC_G3(iSym,SMat,NS,nG3,G3,idxG3)
       call CLagDXA_FG3(iSym,nAS,NG3,BDER,SDER,
      &                 DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      &                 SMat,idxG3)
@@ -763,7 +763,7 @@
       CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 !     idS = idSMAT(iSym,4)
 !     CALL DDAFILE(LUSBT,2,SMat,NS,idS)
-      CALL MKSC_G3(iSym,SMat,nG3,G3,idxG3)
+      CALL MKSC_G3(iSym,SMat,NS,nG3,G3,idxG3)
       call CLagDXC_FG3(iSym,nAS,NG3,BDER,SDER,
      &                 DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      &                 SMat,idxG3)
@@ -1750,7 +1750,6 @@
       call mma_deallocate(TRANS)
       call mma_deallocate(EIG)
 
-      Return
 
       End Subroutine CLagDX
 !
@@ -1769,7 +1768,7 @@
       use caspt2_module, only: STSYM, NCONF, NSTATE, MSTATE, JSTATE,
      &                         ISCF, EPSA
       use Constants, only: One
-      use pt2_guga, only: ETA, CITHR, NG2, NG3, NG3TOT
+      use caspt2_module, only: ETA, CITHR, NG2, NG3, NG3TOT
 
       implicit none
 
@@ -1778,7 +1777,7 @@
       real(kind=wp), intent(inout) :: CLag(nConf), DG1(*), DG2(*),
      &  DG3(*), DF1(*), DF2(*), DF3(*), DEPSA(*)
 
-      integer(kind=iwp) :: ILEV, NG3MAX, ILUID, IDCI, J
+      integer(kind=iwp) :: ILEV, NG3MAX, ILUID, IDCI
       integer(kind=iwp), external :: iPARDIV
       integer(kind=byte), allocatable :: idxG3(:,:)
       real(kind=wp), allocatable :: CI1(:)
@@ -1809,10 +1808,7 @@
       call mma_allocate(CI1,NCONF,LABEL='CI')
       If (ISCF == 0) Then
         if (iff == 1) then
-          IDCI=IDTCEX
-          DO J=1,JSTATE-1
-            CALL DDAFILE(LUCIEX,0,CI1,NCONF,IDCI)
-          END DO
+          IDCI=IDTCEX(JSTATE)
           CALL DDAFILE(LUCIEX,2,CI1,NCONF,IDCI)
         else
 !         Call LoadCI_XMS('C',1,CI1,JSTATE,U0)
@@ -1833,7 +1829,7 @@
 
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       If (ISCF == 0) Then
-        CALL DERFG3(CI1,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
+        CALL DERFG3(CI1,NCONF,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
      &              DEPSA,G1,G2,nLev)
       Else
         CALL DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
@@ -2052,7 +2048,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: nConf
-      use pt2_guga, only: MxCI, iAdr10, cLab10
+      use caspt2_module, only: MxCI, iAdr10, cLab10
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
@@ -2066,12 +2062,12 @@
 
       IF(NLEV > 0) THEN
         CALL MMA_ALLOCATE(SGM1,MXCI,LABEL='SGM1')
-        CALL DENS1_RPT2_CLag(CI,SGM1,CLag,RDMEIG,nLev)
+        CALL DENS1_RPT2_CLag(CI,NCONF,SGM1,MXCI,CLag,RDMEIG,nLev)
       END IF
 !     return !! for test purpose
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in pt2_guga.F90
+* The fields IADR10 and CLAB10 are kept in caspt2_module.F90
 * CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
@@ -2091,23 +2087,22 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG,nLev)
-      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
+      SUBROUTINE DENS1_RPT2_CLag (CI,NCI,SGM1,NSGM1,CLag,RDMEIG,nLev)
       use Symmetry_Info, only: Mul
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: nConf, STSym
+      use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King, nProcs
 #endif
-      use pt2_guga, only: MxCI
 
       IMPLICIT NONE
 
-      integer(kind=iwp), intent(in) :: nLev
-      real(kind=wp), intent(in) :: CI(MXCI), RDMEIG(NLEV,NLEV)
-      real(kind=wp), intent(inout) :: SGM1(MXCI), CLag(nConf)
+      integer(kind=iwp), intent(in) :: NCI, NSGM1, nLev
+      real(kind=wp), intent(in) :: CI(NCI), RDMEIG(NLEV,NLEV)
+      real(kind=wp), intent(inout) :: SGM1(NSGM1), CLag(nConf)
 
       integer(kind=iwp), allocatable :: TASK(:,:)
 
@@ -2121,7 +2116,7 @@
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.F90
+* Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -2171,7 +2166,7 @@
         NSGM=CIS%NCSF(ISSG)
         IF(NSGM == 0) cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
-        CALL GETSGM2(LU,LT,STSYM,CI,SGM1)
+        CALL GETSGM2(LU,LT,STSYM,CI,NCI,SGM1,NSGM)
         IF(ISTU == 1) THEN
           ! Symmetry not yet
 !          write(u6,*) 'it,iu = ', it,iu
@@ -2199,7 +2194,7 @@
       SUBROUTINE CLagX_TrfCI(CI)
 
       use caspt2_global, only: TAT, TORB
-      use caspt2_module, only: NSYM, STSYM, NCONF, NISH, NAES, NRAS1,
+      use caspt2_module, only: NSYM, STSYM, NCONF, NISH, NRAS1,
      &                         NRAS2, NRAS3, NSSH
       use Constants, only: Zero
       use definitions, only: wp, iwp
@@ -2209,8 +2204,7 @@
       real(kind=wp), intent(inout) :: CI(*)
 
       integer(kind=iwp) :: IOFF1, IOFF2, ISYM, NI, NR1, NR2, NR3, NS,
-     &                     I, J, IJ, JI, ITOEND, NSG, ITOSTA, ITO,
-     &                     ISTART
+     &                     I, J, IJ, JI, NISH_SAVE(8)
 
       TAT(:) = Zero
 
@@ -2258,39 +2252,14 @@
         IOFF1=IOFF1+NS**2
       END DO
 ! Transform SGM to use original MO:
-      ITOEND=0
-      NSG=NCONF
-      DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NR1=NRAS1(ISYM)
-        NR2=NRAS2(ISYM)
-        NR3=NRAS3(ISYM)
-        NS=NSSH(ISYM)
-        ITOSTA=ITOEND+1
-        ITOEND=ITOEND+NR1**2+NR2**2+NR3**2
-*        ITO=ITOSTA+NI**2
-        ITO=ITOSTA
-        IF(NR1 > 0) THEN
-          ISTART=NAES(ISYM)+1
-          CALL TRACI_RPT2(ISTART,NR1,TAT(ITO),STSYM,
-     &                                         NSG,CI)
-        END IF
-        ITO=ITO+NR1**2
-        IF(NR2 > 0) THEN
-          ISTART=NAES(ISYM)+NR1+1
-          CALL TRACI_RPT2(ISTART,NR2,TAT(ITO),STSYM,
-     &                                         NSG,CI)
-        END IF
-        ITO=ITO+NR2**2
-        IF(NR3 > 0) THEN
-          ISTART=NAES(ISYM)+NR1+NR2+1
-         !! NR1 should be NR3?
-          CALL TRACI_RPT2(ISTART,NR3,TAT(ITO),STSYM,
-     &                                         NSG,CI)
-        END IF
-      END DO
 
-      RETURN
+!     In difference to TORB TAT only includes the active orbitals. We trick
+!     MkTraCI to work with this by temporarily setting the number of inactive
+!     orbitals to zero.
+      NISH_SAVE(:)=NISH(:)
+      NISH(:)=0
+      Call mkTraCI(SIZE(TAT),TAT,STSYM,nConf,CI)
+      NISH(:)=NISH_SAVE(:)
 
       END SUBROUTINE CLagX_TrfCI
 !
@@ -2615,9 +2584,9 @@
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
-      USE Para_Info, ONLY: nProcs
+      USE Para_Info, ONLY: Is_Real_Par, nProcs
       use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
       use Constants, only: Zero
 
       implicit none
@@ -2945,6 +2914,8 @@
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
+#else
+#include "macros.fh"
 #endif
 
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
@@ -3415,9 +3386,9 @@
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
-      USE Para_Info, ONLY: nProcs
+      USE Para_Info, ONLY: Is_Real_Par, nProcs
       use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
       use Constants, only: Zero
 
       implicit none
@@ -3754,6 +3725,8 @@
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
+#else
+#include "macros.fh"
 #endif
 
       integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
@@ -3967,7 +3940,7 @@
       use definitions, only: wp, iwp, byte
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NASHT, IASYM, NTUVES
-      use pt2_guga, only: NG3
+      use caspt2_module, only: NG3
 
       implicit none
 
@@ -4054,6 +4027,9 @@
      &                         NISH, NASH, NASHT, NORB, NBAS,
      &                         NBAST, ISCF, NSTATE, NBTCH, NBTCHES
 !     use caspt2_module, only: NSSH
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
 
       implicit none
 
@@ -4128,8 +4104,8 @@
       !! It can be computed with TimesE2
       iSym = 1
       Call CnstInt(0,INT1,INT2)
-      ID = IDTCEX !! IDCIEX !! this parameter is hacked
       Do iState = 1, nState
+        ID = IDTCEX(iState)
         If (ISCF == 0) Then
           !! quasi-canonical, XMS
           Call DDaFile(LUCIEX,2,VecCIT(1,iState),nConf,ID)
@@ -4272,8 +4248,8 @@
 !     Compute the second term in Eq. (70) = Eq. (72)
 !     The SCF, not XMS, basis is used
 !
-      ID = IDCIEX !! idtcex?
       Do iState = 1, nState
+        ID = IDCIEX(iState) !! idtcex?
         If (ISCF == 0) Then
           If (IFXMS .OR. IFRMS) THen
             !! Use unrotated (SCF) CI vector
@@ -4382,8 +4358,6 @@
       call mma_deallocate(CI1)
       call mma_deallocate(CI2)
       call mma_deallocate(VecST)
-
-      Return
 
       End Subroutine CLagFinalOffC
 !
@@ -4514,7 +4488,7 @@
             !! int2(tuvx) = (tu|vx)/2
             !! This can be computed without frozen orbitals
             Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                                KET,nKet,
+     &                                KET,SIZE(KET),nKet,
      &                                IBSTA,IBEND)
 
             Call DGEMM_('N','T',NASH(JSYM)**2,NASH(JSYM)**2,NV,
@@ -4597,8 +4571,8 @@
       !! dens2_rpt2.f
       Subroutine TimesE2(Mode,CIin,CIout,INT1,INT2)
 
-      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use gugx, only: SGS, L2ACT, CIS
+      use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
       use Constants, only: Two
 
       implicit none
@@ -4661,7 +4635,7 @@
           NSGM=CIS%NCSF(ISSG)
           IF(NSGM == 0) cycle
           !! <CIin|Etu
-          CALL GETSGM2(LU,LT,STSYM,CIin(1,kState),SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CIin(1,kState),nConf,SGM1,NSGM)
           IF(ISTU == 1) THEN
             !! <CIin|Etu|CIout>*I1tu
             CIout(1:NSGM,kState) = CIout(1:NSGM,kState)
@@ -4682,7 +4656,7 @@
 !             if (vras.and.xras) cycle
               IF (ISVX /= ISTU) cycle
               IX=L2ACT(LX)
-              CALL GETSGM2(LX,LV,ISSG,SGM1,SGM2)
+              CALL GETSGM2(LX,LV,ISSG,SGM1,NSGM,SGM2,NSGM)
               CIout(1:NSGM,kState) = CIout(1:NSGM,kState)
      &          + INT2(IT,IU,IV,IX)*SGM2(1:NSGM)
             END DO
@@ -4732,7 +4706,7 @@
       Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
 
       use gugx, only: SGS
-      use pt2_guga, only: NG1, NG2
+      use caspt2_module, only: NG1, NG2
 
       implicit none
 
@@ -4908,7 +4882,8 @@
 !
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(ISYCI,PRE,CI,INT1,INT2,Fancy,nLev,nMidV)
-      use gugx, only: SGS, CIS, MXLEV
+      use molcas, only: MXLEV
+      use gugx, only: SGS, CIS
       use Constants, only: Two, Four
       use caspt2_module, only: NROOTS
 
@@ -5521,8 +5496,6 @@
       CALL PSBMAT_FREEMEM (lg_B)
 
       unused_var(bStat)
-
-      Return
 
       End Subroutine LinDepLag_MPP
 #endif

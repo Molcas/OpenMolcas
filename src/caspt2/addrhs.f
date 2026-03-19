@@ -8,15 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+      Module ADDRHS
+      Private
+      Public ADDRHSA, ADDRHSB, ADDRHSC, ADDRHSD1, ADDRHSD2, ADDRHSE,
+     &       ADDRHSF, ADDRHSG, ADDRHSH
+
+      Contains
       SUBROUTINE ADDRHSA(IVEC,JSYM,ISYJ,ISYX,NT,NJ,NV,NX,TJVX,
      &                   nBuff,Buff,idxBuf,
      &                   Cho_Bra,Cho_Ket,NCHO)
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp
       use constants, only: Zero, One
       use caspt2_global, only: iParRHS
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NINDEP, NTUV, NISH, NAES, NTUVES
+      use definitions, only: iwp, wp
       IMPLICIT None
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -2326,6 +2332,7 @@ C      NBXSZJ=NINABX
 *                                                                      *
       END SUBROUTINE ADDRHSH
 
+#ifdef _MOLCAS_MPP_
       subroutine GADSUM_ADDRHS(buff,nbuff)
       use definitions, only: iwp, wp
       use caspt2_global, only: MAXBUF
@@ -2339,3 +2346,6 @@ C      NBXSZJ=NINABX
        CALL GADGOP(buff(istart),MIN(nbuff-istart+1,MAXBUF),'+')
       end do
       end subroutine GADSUM_ADDRHS
+#endif
+
+      End Module ADDRHS

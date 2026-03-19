@@ -21,11 +21,12 @@
       use stdalloc, only: mma_deallocate
       use gugx, only: SGStruct, CIStruct, EXStruct
       use MkGUGA_mod, only: MKGUGA
+      use definitions, only: iwp
       IMPLICIT None
-      Integer nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T
-      Type(SGStruct) SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
+      Integer(kind=iwp), intent(in):: nSym,iSpin,nActEl,nHole1,nEle3,nRas1T,nRas2T,nRas3T
+      Type(SGStruct), intent(inout):: SGS
+      Type(CIStruct), intent(inout):: CIS
+      Type(EXStruct), intent(inout):: EXS
 
       SGS%nSym=nSym
       SGS%iSpin=iSpin

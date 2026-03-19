@@ -8,8 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,
-     &                                        nAsh,nSsh,CMO)
+      Subroutine Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,
+     &                     CMO,nCMO)
 
       use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -17,7 +17,8 @@
       integer(kind=iwp), intent(in):: nSym, nBas(nSym), nFro(nSym),
      &                                nAsh(nSym), nIsh(nSym), nSsh(nSym)
       real(kind=wp), intent(in)::  Thrs
-      real(kind=wp), intent(inout)::  CMO(*)
+      integer(kind=iwp), intent(in):: nCMO
+      real(kind=wp), intent(inout)::  CMO(nCMO)
 
       real(kind=wp), allocatable:: Dens(:)
       integer(kind=iwp) irc, iSym, kOff1, kOffC, l_Dens

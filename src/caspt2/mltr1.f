@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE MLTR1 (IMLTOP,LST1,X,F,Y)
+      SUBROUTINE MLTR1 (IMLTOP,LST1,X,nX,F,nF,Y,nY)
       use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
@@ -16,8 +16,8 @@
       use Sigma_data, only: NLST1, INCF1, INCF2, INCX1, INCX2, INCX3,
      &                      INCY1, INCY2, LEN1, LEN2, NFR1, VAL1
       IMPLICIT None
-      integer(kind=iwp), intent(in):: IMLTOP
-      real(kind=wp), intent(inout):: X(*),F(*),Y(*)
+      integer(kind=iwp), intent(in):: IMLTOP, nX, nF, nY
+      real(kind=wp), intent(inout):: X(nX),F(nF),Y(nY)
       integer(kind=iwp), intent(in):: LST1(4,NLST1)
 
       integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST, L1, L2, L3, L4,
@@ -264,7 +264,7 @@ C F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
       END SUBROUTINE MLTR1_GH
 
       SUBROUTINE PMLTR1 (KOD,IMLTOP,LST1,
-     &                   X,NAS1,NIS1,JXOFF,
+     &                   X,nX,NAS1,NIS1,JXOFF,
      &                   F,NFI,NFJ,
      &                   lg_Y,NAS2,NIS2)
       use definitions, only: iwp, wp
@@ -282,7 +282,8 @@ C F(L2,p) := Add V*X(L1,p,q)*Y(L3,q)
 #endif
       integer(kind=iwp), intent(in):: KOD, IMLTOP
       integer(kind=iwp), intent(in):: LST1(4,NLST1)
-      real(kind=wp), intent(inout):: X(*)
+      integer(kind=iwp), intent(in):: nX
+      real(kind=wp), intent(inout):: X(nX)
       integer(kind=iwp), intent(in):: NAS1,NIS1,JXOFF, NFI,NFJ, lg_Y,
      &                                NAS2, NIS2
       real(kind=wp), intent(inout):: F(NFI,NFJ)

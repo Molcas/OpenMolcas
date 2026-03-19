@@ -228,7 +228,7 @@ subroutine refwfn_data()
   use gugx, only: L2ACT, LEVEL
   use Molcas, only: MxAct, MxRoot
   use RASDim, only: MxIter
-  use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO
+  use caspt2_global, only: IDCIEX, IDTCEX, LUCIEX, LUONEM, NCMO, CMO, CMO_Internal
   use caspt2_module, only: DMRG, DoCumulant, iAd1m, IEOF1M, IFQCAN, ISCF, mState, nBSqt, nConf, nRoots, nState, OrbIn, RefEne
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_fetch_dset
@@ -246,27 +246,34 @@ subroutine refwfn_data()
 
   !---  Read the MO coefficients from HDF5/JOBIPH and store on LUONEM
   NCMO = NBSQT
-  call mma_allocate(tmp,NCMO,label='LCMORAS')
+  call mma_allocate(CMO_internal,NCMO,label='LCMORAS')
+  CMO=>CMO_Internal
 # ifdef _HDF5_
   if (refwfn_is_h5) then
-    call mh5_fetch_dset(refwfn_id,'MO_VECTORS',tmp)
+    call mh5_fetch_dset(refwfn_id,'MO_VECTORS',CMO)
   else
 # endif
     IAD15 = IADR15(9)
     if (IFQCAN == 0) IAD15 = IADR15(2)
-    call DDAFILE(refwfn_id,2,tmp,NCMO,IAD15)
+    call DDAFILE(refwfn_id,2,CMO,NCMO,IAD15)
 # ifdef _HDF5_
   end if
 # endif
+  IAD1M(:) = -1
   IEOF1M = 0
   IDISK = IEOF1M
   IAD1M(1) = IDISK
-  call DDAFILE(LUONEM,1,tmp,NCMO,IDISK)
-  call mma_deallocate(tmp)
+  call DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
   IEOF1M = IDISK
 
+  CMO=>Null()
+  call mma_deallocate(CMO_Internal)
+
   ! IDCIEX: Present EOF on LUCIEX.
-  ID = IDCIEX
+  Call mma_allocate(IDCIEX,nState,Label='IDCIEX')
+  Call mma_allocate(IDTCEX,nState,Label='IDTCEX')
+  IDCIEX(1) = 0
+  ID = IDCIEX(1)
   ! Skip when using cumulant reconstruction of (3-,) 4-RDM
   !     Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
   !     because for now we only support DMRG-NEVPT2
@@ -275,6 +282,7 @@ subroutine refwfn_data()
       call mma_allocate(tmp,NCONF,label='LCI')
       do I=1,NSTATE
         ISNUM = MSTATE(I)
+        IDCIEX(I)=ID
 #       ifdef _HDF5_
         if (refwfn_is_h5) then
           !---  Read the CI coefficients from the HDF5 file
@@ -304,13 +312,13 @@ subroutine refwfn_data()
       ! Disk address = present EOF on LUCIEX.
       ! IDTCEX = Disk address to transformed CI.
       if (ORBIN == 'TRANSFOR') then
-        IDTCEX = ID
         ! Dummy writes:
         do II=1,NSTATE
+           IDTCEX(II) = ID
           call DDAFILE(LUCIEX,0,tmp,NCONF,ID)
         end do
       else
-        IDTCEX = IDCIEX
+        IDTCEX(:) = IDCIEX(:)
       end if
       call mma_deallocate(tmp)
     else

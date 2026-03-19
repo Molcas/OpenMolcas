@@ -15,29 +15,30 @@
 #include "compiler_features.h"
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      Subroutine mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
+      Subroutine mkfg3chemps2(mkF,NLEV,G1,F1,G2,F2,G3,F3,idxG3,NG3)
       use Symmetry_Info, only: Mul
       use gugx, only: SGS
       use caspt2_module, only: jState, nActel, EPSA, mState
-      use pt2_guga, only: NG3
+      use definitions, only: iwp, wp, Byte, u6
       IMPLICIT NONE
 
-      INTEGER, INTENT(IN) :: IFF, NLEV
-      REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
-      REAL*8, INTENT(OUT) :: G3(*), F3(*)
-      INTEGER*1, INTENT(IN) :: idxG3(6,*)
+      LOGICAL(KIND=IWP), INTENT(IN) :: mkF
+      INTEGER(KIND=IWP), INTENT(IN) :: NLEV, NG3
+      REAL(KIND=WP), INTENT(OUT) ::G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
+      REAL(KIND=WP), INTENT(OUT) ::F1(NLEV,NLEV),F2(NLEV,NLEV,NLEV,NLEV)
+      REAL(KIND=WP), INTENT(OUT) :: G3(NG3), F3(nG3)
+      INTEGER(KIND=BYTE), INTENT(IN) :: idxG3(6,nG3)
 
-      INTEGER IY,IZ,IW
-      INTEGER IYSYM,IXYSYM
-      INTEGER NAC4
+      INTEGER(KIND=IWP) IY,IZ,IW
+      INTEGER(KIND=IWP) IYSYM,IXYSYM
+      INTEGER(KIND=IWP) NAC4
 
       If(NACTEL.GT.1) Then
         NAC4 = NLEV * NLEV * NLEV * NLEV
         Call chemps2_load2pdm( nlev, G2, MSTATE(JSTATE) )
         Call two2onerdm( nlev, NACTEL, G2, G1 )
       Else
-        write(6,*) "FATAL ERROR: DMRG-CASPT2 with
+        write(u6,*) "FATAL ERROR: DMRG-CASPT2 with
      & CHEMPS2 does not work with NACTEL=1"
       End If
 
@@ -46,7 +47,7 @@
         iySym=SGS%ism(iz)
         Do iy=1,nlev
           ixySym=Mul(SGS%ism(iy),iySym)
-          If(IFF.NE.0.AND.ixySym.EQ.1) Then
+          If(mkF.AND.ixySym.EQ.1) Then
             F1(iy,iz) = 0.0
             Do iw=1,nlev
               F1(iy,iz)=F1(iy,iz)+G2(iw,iw,iy,iz)*EPSA(iw)
@@ -57,9 +58,10 @@
 
       If(NACTEL.GE.3) THEN
 
-        call chemps2_load3pdm( nlev, idxG3, NG3, F3, .false., EPSA,
-     &                         F2, MSTATE(JSTATE) )
-        call chemps2_load3pdm( nlev, idxG3, NG3, G3, .true. , EPSA,
+        If (mkF) call chemps2_load3pdm( nlev, idxG3, NG3, F3, .false.,
+     &                                  EPSA, F2, MSTATE(JSTATE) )
+
+        call chemps2_load3pdm( nlev, idxG3, NG3, G3, mkF , EPSA,
      &                         F2, MSTATE(JSTATE) )
 
       End If

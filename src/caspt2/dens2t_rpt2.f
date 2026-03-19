@@ -24,7 +24,7 @@
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, nActEl, nAshT, nConf, STSym
-      use pt2_guga, only: MxCI, nG1, nG2
+      use caspt2_module, only: MxCI, nG1, nG2
       IMPLICIT NONE
 
 
@@ -86,7 +86,7 @@ c Special code for closed-shell:
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.F90
+* Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 C-SVC20100311: set up a task table with LT,LU
       nTasks=(nLev**2+nLev)/2
@@ -127,12 +127,12 @@ C         LTU=LTU+1
           NSGM=CIS%NCSF(ISSG)
 C         IF(NSGM.EQ.0) GOTO 130
           IF(NSGM.EQ.0) GOTO 500
-C         CALL GETSGM2(LT,LU,STSYM,CI1,SGM1)
+C         CALL GETSGM2(LT,LU,STSYM,CI1,MXCI,SGM1,NSGM)
 C         write(6,*) "LT,LU=",lt,lu
 C         do ix = 1, nsgm
 C         write(6,'(i3,f20.10)') ix,sgm1(ix)
 C         end do
-          CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
           IF(ISTU.EQ.1) THEN
             GTU=DDOT_(NSGM,CI2,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU
@@ -153,7 +153,7 @@ C             IF(LX.EQ.LT) THEN
 C then actually T=U=V=X.
 C               GTUVX=DDOT_(NSGM,SGM1,1,SGM1,1)
 C             ELSE
-                CALL GETSGM2(LX,LV,ISSG,SGM1,SGM2)
+                CALL GETSGM2(LX,LV,ISSG,SGM1,NSGM,SGM2,NCONF)
                 GTUVX=DDOT_(NCONF,CI2,1,SGM2,1)
 C             END IF
 
@@ -163,7 +163,7 @@ C             ELSE
 C               IF(LVX.EQ.LTU) THEN
 C                 GTUXV=DDOT_(NSGM,SGM1,1,SGM1,1)
 C               ELSE
-C                 CALL GETSGM2(LX,LV,STSYM,CI,SGM2)
+C                 CALL GETSGM2(LX,LV,STSYM,CI,MXCI,SGM2,NSGM)
 C                 GTUXV=DDOT_(NSGM,SGM1,1,SGM2,1)
 C               END IF
 C             END IF
@@ -173,7 +173,7 @@ C             G2(IT,IU,IX,IV)=GTUXV
             END DO
           END DO
 
-          CALL GETSGM2(LU,LT,STSYM,CI2,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI2,MXCI,SGM1,NSGM)
           IF(ISTU.EQ.1) THEN
             GTU=DDOT_(NSGM,CI1,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU
@@ -189,7 +189,7 @@ C             IF(LVX.GT.LTU) GOTO 500
               ISVX=Mul(ISV,ISX)
 C             IF(ISVX.NE.ISTU) GOTO 110
               IX=L2ACT(LX)
-              CALL GETSGM2(LX,LV,ISSG,SGM1,SGM2)
+              CALL GETSGM2(LX,LV,ISSG,SGM1,NSGM,SGM2,NCONF)
               GTUVX=DDOT_(NCONF,CI1,1,SGM2,1)
               G2(IT,IU,IV,IX)=G2(IT,IU,IV,IX)+GTUVX
 C110        CONTINUE
