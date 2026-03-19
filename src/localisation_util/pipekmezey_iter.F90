@@ -105,6 +105,7 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
     call mma_Allocate(displacements,fsdim,nMxIter,Label='displacements')  ! kappa matrices
+    call mma_allocate(Disp,fsdim,Label='Disp')
     call mma_Allocate(dq,fsdim,Label='dq')  ! GEK suggestion for kappa
     call mma_Allocate(GradientList,fsdim,nMxIter,Label='GradientList')
     call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
@@ -287,7 +288,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot)
                 ! new NR suggestion is added to displacements as kappa_2
 
-                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK+1),fsdim)
+                call upper_triag2vec(kappa(:,:),nOrb2Loc,Disp(:),fsdim)
                 call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
                 FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
 
@@ -298,13 +299,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 case (4) ! Full space GEK
                     call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                            dqdq,displacements(:,Iter_GEK+1),UpMeth,'fullspace',SORange,usmitigation)
+                                            dqdq,Disp(:),UpMeth,'fullspace',SORange,usmitigation)
 
                 case (5) ! subspace GEK
 
                     write(u6,*) "building the subspace"
                     call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,displacements(:,Iter_GEK+1),UpMeth,'subspace ',SORange,usmitigation)
+                                        dqdq,Disp(:),UpMeth,'subspace ',SORange,usmitigation)
                 end select !(s)-GEK
 
 
@@ -313,7 +314,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 if (usmitigation) then
                 if (Loosen%Step > One) then
                     call mma_allocate(Prev,fsdim,Label='Prev')
-                    call mma_allocate(Disp,fsdim,Label='Disp')
 
                     Prev(:) = displacements(:,nIter)
                     Disp(:) = displacements(:,nIter+1)
@@ -335,16 +335,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #                   endif
 
                     call mma_Deallocate(Prev)
-                    call mma_Deallocate(Disp)
+
 
                 end if
                 end if ! undershoot mitigation
                 ! -------------------------------------------------------------------------------
 
                 ! transform GEK disp vec to matrix
-                call vec2upper_triag(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK+1),fsdim,.true.)
+                call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 #               ifdef _DEBUGPRINT_
-                call RecPrt('(GEK step)',' ',displacements(:,Iter_GEK+1),fsdim,1)
+                call RecPrt('(GEK step)',' ',Disp(:),fsdim,1)
 #               endif
 
 
@@ -505,6 +505,7 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
     call mma_Deallocate(FunctionalList)
     call mma_Deallocate(GradientList)
     call mma_Deallocate(displacements)
+    call mma_Deallocate(disp)
     call mma_Deallocate(Hdiagvec)
     call mma_Deallocate(dq)
 end if
