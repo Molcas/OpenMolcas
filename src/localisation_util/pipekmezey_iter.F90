@@ -245,24 +245,36 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end do
             end do
 
-#           ifdef _DEBUGPRINT_
+!#           ifdef _DEBUGPRINT_
             write(u6,*) "kappa elements > 0.01 =",large_elements
             maxel(:) = maxloc(kappa)
             write(u6,*) "largest element =", kappa(maxel(1),maxel(2))
-#           endif
+!#           endif
+
+            write(u6,*) "Iter_GEK",Iter_GEK
+            if (large_elements /= 0 .and. start_gek) then
+                write(u6,*) "resetting GEK sampling in iteration",nIter
+                ! we leave GEK and go back to NR if steps are too large, while resetting the GEK sampling
+                Iter_GEK = 0
+                displacements(:,:) = Zero
+                GradientList(:,:) = Zero
+                FunctionalList(:) = Zero
+                start_gek = .false.
+                UpMeth=" -  - "
+            end if
 
             if (large_elements == 0 .and. (.not. start_gek)) then
+                ! infinitesimal limit of kappa reached -> start sampling for GEK
                 start_gek = .true.
                 write(u6,*) "turning on GEK in iteration",nIter+1,"starting sampling for GEK in iteration",nIter
                 Iter_GEK = Iter_GEK+1
-                ! add only the data to GEK that is in the intifesimal limit
                 call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
                 call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
                 FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
 
             else if (large_elements == 0 .and. start_gek) then
+                ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 Iter_GEK = Iter_GEK+1
-                ! add only the data to GEK that is in the intifesimal limit
                 call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK),fsdim)
                 call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
                 FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
@@ -273,14 +285,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 select case(OptMeth)
 
                 case (4) ! Full space GEK
-
-                    call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+                    write(u6,*) "calling S_GEK_localisation now"
+                    call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                                             dqdq,displacements(:,Iter_GEK),UpMeth,'fullspace',SORange,usmitigation)
 
                 case (5) ! subspace GEK
 
                     write(u6,*) "building the subspace"
-                    call S_GEK_localisation(nIter,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+                    call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                                         dqdq,displacements(:,Iter_GEK),UpMeth,'subspace ',SORange,usmitigation)
                 end select !(s)-GEK
 
