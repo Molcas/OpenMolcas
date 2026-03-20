@@ -303,7 +303,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 case (5) ! subspace GEK
 
+# ifdef             _DEBUGPRINT_
                     write(u6,*) "building the subspace"
+#                   endif
                     call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                                         dqdq,Disp(:),UpMeth,'subspace ',SORange,usmitigation)
                 end select !(s)-GEK
@@ -492,7 +494,7 @@ end if
 
 ! deallocate matrices used for NxN optimizations
 ! ---------------------------------------------------------------------------------------------------
-if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4) then
+if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call mma_Deallocate(Gradient)
     call mma_Deallocate(Hdiag)
     call mma_Deallocate(kappa)

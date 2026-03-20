@@ -25,7 +25,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
 real(kind=wp), intent(out) :: GradNorm,Gradient(nOrb2Loc*(nOrb2Loc-1)/2),H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
-integer(kind=iwp) :: iAtom, i,j,k,l,kl
+integer(kind=iwp) :: iAtom, k,l,kl
 real(kind=wp) :: Q_ll, Q_kk, Q_kl
 
 !gradient and Hessian - needed only for new optimizer
