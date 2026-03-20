@@ -60,7 +60,7 @@
       !! Add the partial derivative contribution for MS-CASPT2
       !! (off-diagonal elements). The derivative is taken with IVECW
       !! and put in IVECC.
-!     write (*,*) 'Ifmscoup = ', ifmscoup, nstate
+!     write (u6,*) 'Ifmscoup = ', ifmscoup, nstate
       IF (IFMSCOUP) Then
         Call RHS_ZERO(IVECC)
         Call PSCAVEC(VECROT(jStLag),iVecL,iVecL)
@@ -135,7 +135,7 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: Mode, NIN, NIS, lg_W1, lg_W2
-      real(kind=wp), intent(in) :: DIN(*), DIS(*)
+      real(kind=wp), intent(in) :: DIN(NIN), DIS(NIS)
 
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank, iLo1, iHi1, jLo1, jHi1, iLo2, iHi2,
@@ -171,8 +171,7 @@
       ELSE
 #endif
         CALL CASPT2_ResD2(MODE,NIN,NIS,GA_Arrays(lg_W1)%A,
-     &                                 GA_Arrays(lg_W2)%A,
-     &                                 NIN,DIN,DIS)
+     &                    GA_Arrays(lg_W2)%A,NIN,DIN,DIS)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -182,7 +181,7 @@
 !-----------------------------------------------------------------------
 !
       !! RESDIA
-      subroutine CASPT2_ResD2(Mode,nRow,nCol,W1,W2,LDW,dIn,dIs)
+      subroutine CASPT2_ResD2(Mode,nRow,nCol,W1,W2,LDW,DIN,DIS)
 
       use Constants, only: Zero, One
       use definitions, only: wp, iwp
@@ -192,13 +191,12 @@
       implicit none
 
       integer(kind=iwp), intent(in)    :: Mode, nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W1(LDW,*), W2(LDW,*)
-      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
+      real(kind=wp),     intent(inout) :: W1(LDW,nCol), W2(LDW,nCol)
+      real(kind=wp),     intent(in)    :: dIn(nRow), dIs(nCol)
 
-      integer(kind=iwp)                :: i, j, p
-      real(kind=wp)                    :: scal, delta, delta_inv,
-     &                                    sigma, epsilon, expscal,
-     &                                    delta_ps
+      integer(kind=iwp) :: i, j, p
+      real(kind=wp) :: scal, delta, delta_inv, sigma, epsilon, expscal,
+     &                 delta_ps
 
       epsilon = Zero
       if (sigma_p_epsilon /= Zero) then
