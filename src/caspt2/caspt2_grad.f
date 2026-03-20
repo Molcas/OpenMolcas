@@ -319,7 +319,7 @@
         !! Now, compute the state Lagrangian and do some projections
         !! If PCM, we have to obtain internal state rotation parameters
         !! self-consistently, so we should not call this subroutine
-        If (.not.RF_On()) Call CLagFinal(CLagFull,SLag)
+        If (.not.RF_On()) Call CLagFinal(nConf,nState,CLagFull,SLag)
 
         !! Add MS-CASPT2 contributions
         If (IFMSCOUP) Then
@@ -651,7 +651,7 @@
 
       real(kind=wp), allocatable :: WRK(:), WLagLoc(:)
       integer(kind=iwp) :: iBasTr, iBasSq, iSym, nBasI, liBasTr,
-     &                     liBasSq, iBasI, jBasI, liBasSq2, nWLag
+     &                     liBasSq, iBasI, jBasI, liBasSq2
 
       call mma_allocate(WRK,NBSQT,Label='WRK')
       call mma_allocate(WLagLoc,NBSQT,Label='WLagLoc')

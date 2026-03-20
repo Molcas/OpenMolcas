@@ -44,6 +44,7 @@
      &                         NBAS, NBAST, NOSQT, NBSQT, iRlxRoot,
      &                         JSTATE, DENORM, ZETA, ORBIN
       use Constants, only: Zero, One, Two, Half
+      use gugx, only: SGS
 
       implicit none
 
@@ -65,7 +66,7 @@
      &  NI, NA, II, IDM, IT, ITABS, ITTOT, IU, IUTOT, IDRF, IUABS, I, J,
      &  nch, iState, JJ, iStLag, ibk, NumChoTot, nOcc, lT2AO, iSQ, iTR,
      &  nOrbI, iBasTr, iBasSq, liBasTr, liBasSq, jBasI, IDSOFF,
-     &  IP, IQ, IDSUM, nBasI, iBasI
+     &  IP, IQ, IDSUM, nBasI, iBasI, NLEV
       integer(kind=iwp), allocatable:: ISAV(:)
       real(kind=wp) :: wgt, val, Scal, X
       real(kind=wp) :: CPTF0, CPE, TIOTF0, TIOE, CPTF10, TIOTF10, CPUT,
@@ -205,6 +206,12 @@
         call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
         !! Derivative of state-averaged density
         call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
+        NLEV = SGS%NLEV
+        if (nAshT /= SGS%NLEV) then
+          write (u6,'(x,"Analytical gradients for nAshT /= SGS%NLEV ",
+     *                  "(GASPT2?) does not work")')
+          call abend()
+        end if
 !       write(u6,*) 'olag before'
 !       call sqprt(olag,nbast)
 
@@ -297,7 +304,7 @@
      &        ' SIGDER  : CPU/WALL TIME=', cput,wallt
           END IF
         end if
-        Call CLagX(1,CLag,DEPSA,VECROT)
+        Call CLagX(1,nConf,nState,nAshT,CLag,DEPSA,VECROT)
 !       call test3_dens(clag)
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADGOP (DEPSA,nAshT**2,'+')
@@ -724,7 +731,7 @@
         ISAV(:) = IDCIEX(:)
         IDCIEX(:) = IDTCEX(:)
         !! Now, compute the configuration Lagrangian
-        Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
+        Call CLagEig(if_SSDM,.false.,nConf,nState,NLEV,CLag,RDMEIG)
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
 #endif
@@ -734,10 +741,10 @@
         If (.not.if_invar) Then
           SLag(:,:) = Zero
           !! Add the density that comes from CI Lagrangian
-          Call DEPSAOffC(CLag,DEPSA,FIFA_all,FIMO_all,
-     &                   WRK1,WRK2,U0)
+          Call DEPSAOffC(nConf,nState,nAshT,nBasT,CLag,DEPSA,FIFA_all,
+     &                   FIMO_all,WRK1,WRK2,U0)
           !! Add the density that comes from orbital Lagrangian
-          Call DEPSAOffO(OLag,DEPSA,FIFA_all)
+          Call DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA_all)
           !! Restore the diagonal elements
           Call DCopy_(nAshT,DEPSA_diag,1,DEPSA,nAshT+1)
           call mma_deallocate(DEPSA_diag)
@@ -788,12 +795,12 @@
           !! RDMEIG contributions
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
-          Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
+          Call CLagEig(if_SSDM,.false.,nConf,nState,NLEV,CLag,RDMEIG)
 #ifdef _MOLCAS_MPP_
           If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
 #endif
           !! Now, compute the state Lagrangian and do some projections
-!         Call CLagFinal(CLag,SLag)
+!         Call CLagFinal(nConf,nState,CLag,SLag)
         End If
 
         !! Restore integrals without frozen orbitals, although not sure
@@ -806,8 +813,7 @@
         !! Canonical -> natural transformation
         IF(ORBIN == 'TRANSFOR') Then
           Do iState = 1, nState
-!           Call CLagX_TrfCI(CLag(1+nConf*(iState-1)))
-            Call CLagX_TrfCI(CLag(1,iState))
+            Call CLagX_TrfCI(nConf,CLag(1,iState))
           End Do
         End If
         ! accumulate configuration Lagrangian only for MS,XMS,XDW,RMS,
@@ -816,7 +822,7 @@
           CLagFull(1:nConf,1:nState) = CLagFull(1:nConf,1:nState)
      &      + CLag(1:nConf,1:nState)
         end if
-!       Call CLagFinal(CLag,SLag)
+!       Call CLagFinal(nConf,nState,CLag,SLag)
 
         !! Transformations of DPT2 in quasi-canonical to natural orbital
         !! basis and store the transformed density so that the MCLR

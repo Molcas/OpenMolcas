@@ -877,7 +877,7 @@
       !! to natural basis is required.
         IF(ORBIN == 'TRANSFOR') Then
           Do iState = 1, nState
-            Call CLagX_TrfCI(CLag(1,iState))
+            Call CLagX_TrfCI(nConf,CLag(1,iState))
           End Do
         End If
         CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
@@ -1099,7 +1099,7 @@
         Call CLagEigT(CLag,G1,SLag,EINACT)
 
         !! 2) Implicit CI derivative
-        Call CLagEig(.False.,.True.,CLag,RDMEIG,nLev)
+        Call CLagEig(.False.,.True.,nConf,nState,nLev,CLag,RDMEIG)
 
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then

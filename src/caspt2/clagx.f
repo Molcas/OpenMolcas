@@ -13,7 +13,7 @@
 
 #include "macros.fh"
 
-      Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
+      Subroutine CLagX(IFF,nConf,nState,nAshT,CLag,DEPSA,VECROT)
 
       use PrintLevel, only: VERBOSE
       use caspt2_global, only:iPrGlb
@@ -21,8 +21,7 @@
       use definitions, only: wp, iwp, u6
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS
-      use caspt2_module, only: NCONF, NASHT, NASH, ISCF, NSTATE, JSTATE,
-     &                         EPSA
+      use caspt2_module, only: NASH, ISCF, JSTATE, EPSA
       use caspt2_module, only: NG1, NG2, NG3, NG3TOT
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -34,10 +33,10 @@
 #include "global.fh"
 #endif
 
-      integer(kind=iwp), intent(in) :: IFF
+      integer(kind=iwp), intent(in) :: IFF, nConf, nState, nAshT
       real(kind=wp), intent(inout) :: CLag(nConf,nState),
      &                                DEPSA(nAshT,nAshT)
-      real(kind=wp), intent(in) :: VECROT(*)
+      real(kind=wp), intent(in) :: VECROT(nState)
 
       real(kind=wp), allocatable :: G1(:), G2(:), G3(:)
       real(kind=wp), allocatable :: DG1(:), DG2(:), DG3(:), DF1(:),
@@ -83,7 +82,7 @@
       DEASUM = Zero
 
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-      Call CLagD(G1,G2,G3,
+      Call CLagD(NASHT,NG3,NSTATE,G1,G2,G3,
      &           DG1,DG2,DG3,
      &           DF1,DF2,DF3,DEASUM,
      &           DEPSA,VECROT)
@@ -130,11 +129,11 @@
       end if
 #endif
 
-      Call CnstCLag(IFF,CLag(1,jState),
+      Call CnstCLag(IFF,nLev,NG3,NCONF,CLag(1,jState),
      &              DG1,DG2,DG3,
      &              DF1,DF2,DF3,
      &              DEPSA,
-     &              G1,G2,G3,nLev)
+     &              G1,G2,G3)
 
       Call mma_deallocate(G1)
       Call mma_deallocate(G2)
@@ -151,8 +150,8 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE CLagD(G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     &                 VECROT)
+      SUBROUTINE CLagD(NASHT,NG3,NSTATE,G1,G2,G3,DG1,DG2,DG3,DF1,DF2,
+     &                 DF3,DEASUM,DEPSA,VECROT)
 
       use caspt2_global, only: imag_shift, iVecL,
      &                         sigma_p_epsilon, LUSBT,
@@ -162,10 +161,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, byte
       use fake_GA, only: GA_Arrays
-      use caspt2_module, only: IFMSCOUP, NSYM, NASH, NAES, NASHT,
-     &                         NASUP, NISUP, NINDEP, EPSA, EASUM, NTUES,
-     &                         NTGEUES, NTGTUES
-      use caspt2_module, only: NG3
+      use caspt2_module, only: IFMSCOUP, NSYM, NASH, NAES, NASUP, NISUP,
+     &                         NINDEP, EPSA, EASUM, NTUES, NTGEUES,
+     &                         NTGTUES
 #ifdef _MOLCAS_MPP_
       use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
       use definitions, only: u6
@@ -179,11 +177,12 @@
 #include "mafdecls.fh"
 #endif
 
+      integer(kind=iwp), intent(in) :: NASHT, NG3, NSTATE
       real(kind=wp), intent(inout) :: G1(NASHT,NASHT),
-     & G2(NASHT,NASHT,NASHT,NASHT),G3(*),DG1(NASHT,NASHT),
-     & DG2(NASHT,NASHT,NASHT,NASHT),DG3(*),DF1(NASHT,NASHT),
-     & DF2(NASHT,NASHT,NASHT,NASHT),DF3(*),DEASUM,DEPSA(NASHT,NASHT)
-      real(kind=wp), intent(in) :: VECROT(*)
+     & G2(NASHT,NASHT,NASHT,NASHT),G3(NG3),DG1(NASHT,NASHT),
+     & DG2(NASHT,NASHT,NASHT,NASHT),DG3(NG3),DF1(NASHT,NASHT),
+     & DF2(NASHT,NASHT,NASHT,NASHT),DF3(NG3),DEASUM,DEPSA(NASHT,NASHT)
+      real(kind=wp), intent(in) :: VECROT(NSTATE)
 
       real(kind=wp), allocatable :: LBD(:),LID(:) !!,VEC1(:),VEC2(:)
       real(kind=wp), allocatable :: SMat(:),BDER(:),SDER(:)
@@ -310,7 +309,7 @@
 
               CALL CLagDX(0,ISYM,ICASE,VEC1,VEC2,
      &                    VEC3,VEC4,
-     &                    nIN,nIS,nAS,
+     &                    nIN,nIS,nAS,nState,
      &                    VECROT,VEC5,lg_V2,BDER,SDER)
 
               ! free local buffer
@@ -329,7 +328,7 @@
      &                               GA_Arrays(lg_V2)%A,
      &                               GA_Arrays(lg_V3)%A,
      &                               GA_Arrays(lg_V4)%A,
-     &                  nIN,nIS,nAS,
+     &                  nIN,nIS,nAS,nState,
      &                  VECROT,GA_Arrays(lg_V5)%A,lg_V2,BDER,SDER)
 #ifdef _MOLCAS_MPP_
           END IF
@@ -365,7 +364,7 @@
                 call mma_allocate(VEC5,1,Label='VEC5')
                 CALL CLagDX(1,ISYM,ICASE,VEC1,VEC2,
      &                      VEC3,VEC4,
-     &                      nIN,nIS,nAS,
+     &                      nIN,nIS,nAS,nState,
      &                      VECROT,VEC5,lg_V2,BDER,SDER)
 
                 ! free local buffer
@@ -382,7 +381,7 @@
      &                                 GA_Arrays(lg_V2)%A,
      &                                 GA_Arrays(lg_V3)%A,
      &                                 GA_Arrays(lg_V4)%A,
-     &                    nIN,nIS,nAS,
+     &                    nIN,nIS,nAS,nState,
      &                    VECROT,GA_Arrays(lg_V5)%A,lg_V2,BDER,SDER)
 #ifdef _MOLCAS_MPP_
             end if
@@ -396,17 +395,17 @@
           end if
 #endif
 
-          if (iCase ==  1) call CLagDXA(BDER,SDER)
-          if (iCase ==  2) call CLagDXB(BDER,SDER)
-          if (iCase ==  3) call CLagDXB(BDER,SDER)
-          if (iCase ==  4) call CLagDXC(BDER,SDER)
-          if (iCase ==  5) call CLagDXD(BDER,SDER)
-          if (iCase ==  6) call CLagDXE(BDER,SDER)
-          if (iCase ==  7) call CLagDXE(BDER,SDER)
-          if (iCase ==  8) call CLagDXF(BDER,SDER)
-          if (iCase ==  9) call CLagDXF(BDER,SDER)
-          if (iCase == 10) call CLagDXG(BDER,SDER)
-          if (iCase == 11) call CLagDXG(BDER,SDER)
+          if (iCase ==  1) call CLagDXA(NAS,BDER,SDER)
+          if (iCase ==  2) call CLagDXB(NAS,BDER,SDER)
+          if (iCase ==  3) call CLagDXB(NAS,BDER,SDER)
+          if (iCase ==  4) call CLagDXC(NAS,BDER,SDER)
+          if (iCase ==  5) call CLagDXD(NAS,BDER,SDER)
+          if (iCase ==  6) call CLagDXE(NAS,BDER,SDER)
+          if (iCase ==  7) call CLagDXE(NAS,BDER,SDER)
+          if (iCase ==  8) call CLagDXF(NAS,BDER,SDER)
+          if (iCase ==  9) call CLagDXF(NAS,BDER,SDER)
+          if (iCase == 10) call CLagDXG(NAS,BDER,SDER)
+          if (iCase == 11) call CLagDXG(NAS,BDER,SDER)
 
           CALL RHS_FREE(lg_V1)
           CALL RHS_FREE(lg_V2)
@@ -448,7 +447,7 @@
           CALL MKSC_G3_MPP(ISYM,DBL_MB(mS),ILO,IHI,JLO,JHI,LDV,
      &                     NG3,G3,IDXG3)
           Call GA_Release_Update(lg_S,ILO,IHI,JLO,JHI)
-          call DF3_DEPSA_MPP(DF3,DEPSA,lg_S,idxG3)
+          call DF3_DEPSA_MPP(NG3,NASHT,DF3,DEPSA,lg_S,idxG3)
 
           Call GA_Release(lg_S   ,ILO,IHI,JLO,JHI)
           CALL mma_deallocate(idxG3)
@@ -463,10 +462,11 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXA(BDER,SDER)
+      Subroutine CLagDXA(NAS,BDER,SDER)
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: NAS
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
@@ -478,7 +478,7 @@
       CALL DDAFILE(LUSBT,2,SMat,NS,idS)
 
       idum=0
-      Call CLagDXA_DP (iSym,nAS,BDER,SDER,
+      Call CLagDXA_DP (iSym,nAS,nAshT,BDER,SDER,
      &                 DG1,DG2,DF1,DF2,DEPSA,DEASUM,
      &                 1,nAS,1,nAS,0,G1,G2,SMat,SMat,idum)
 
@@ -489,7 +489,7 @@
 !     idS = idSMAT(iSym,4)
 !     CALL DDAFILE(LUSBT,2,SMat,NS,idS)
       CALL MKSC_G3(iSym,SMat,NS,nG3,G3,idxG3)
-      call CLagDXA_FG3(iSym,nAS,NG3,BDER,SDER,
+      call CLagDXA_FG3(iSym,nAS,nAshT,NG3,BDER,SDER,
      &                 DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      &                 SMat,idxG3)
       call mma_deallocate(idxG3)
@@ -502,12 +502,13 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXB(BDER,SDER)
+      Subroutine CLagDXB(NAS,BDER,SDER)
 
       USE SUPERINDEX, only: MTGEU, MTGTU
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: NAS
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
@@ -738,10 +739,11 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXC(BDER,SDER)
+      Subroutine CLagDXC(NAS,BDER,SDER)
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: NAS
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
@@ -753,7 +755,7 @@
       CALL DDAFILE(LUSBT,2,SMat,NS,idS)
 
       idum = 0
-      Call CLagDXC_DP (iSym,nAS,BDER,SDER,
+      Call CLagDXC_DP (iSym,nAS,nAshT,BDER,SDER,
      &                 DG1,DG2,DF1,DF2,DEPSA,DEASUM,
      &                 1,nAS,1,nAS,0,G1,G2,SMat,SMat,idum)
 
@@ -764,7 +766,7 @@
 !     idS = idSMAT(iSym,4)
 !     CALL DDAFILE(LUSBT,2,SMat,NS,idS)
       CALL MKSC_G3(iSym,SMat,NS,nG3,G3,idxG3)
-      call CLagDXC_FG3(iSym,nAS,NG3,BDER,SDER,
+      call CLagDXC_FG3(iSym,nAS,nAshT,NG3,BDER,SDER,
      &                 DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      &                 SMat,idxG3)
       call mma_deallocate(idxG3)
@@ -777,12 +779,13 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXD(BDER,SDER)
+      Subroutine CLagDXD(NAS,BDER,SDER)
 
       USE SUPERINDEX, only: MTU
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: NAS
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
@@ -901,10 +904,11 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXE(BDER,SDER)
+      Subroutine CLagDXE(NAS,BDER,SDER)
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: NAS
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
@@ -957,12 +961,13 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXF(BDER,SDER)
+      Subroutine CLagDXF(NAS,BDER,SDER)
 
       USE SUPERINDEX, only: MTGTU, MTGEU
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: NAS
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
@@ -1080,10 +1085,11 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXG(BDER,SDER)
+      Subroutine CLagDXG(NAS,BDER,SDER)
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: NAS
       real(kind=wp), intent(in) :: BDER(NAS,NAS)
       real(kind=wp), intent(inout) :: SDER(NAS,NAS)
 
@@ -1551,12 +1557,12 @@
       NCOL = jHi-jLo+1 + 1 !! for all procs
       call mma_allocate(WRK,NROW,NCOL,Label='WRK')
       if (iCase == 1) then
-        Call CLagDXA_DP(iSym,nAS,DBL_MB(mBDER),DBL_MB(mSDER),
+        Call CLagDXA_DP(iSym,nAS,nAshT,DBL_MB(mBDER),DBL_MB(mSDER),
      &                  DG1,DG2,DF1,DF2,DEPSA,DEASUM,
      &                  ILO,IHI,JLO,JHI,LDV,G1,G2,DBL_MB(mS),WRK,
      &                  lg_S)
       else if (iCase == 4) then
-        Call CLagDXC_DP(iSym,nAS,DBL_MB(mBDER),DBL_MB(mSDER),
+        Call CLagDXC_DP(iSym,nAS,nAshT,DBL_MB(mBDER),DBL_MB(mSDER),
      &                  DG1,DG2,DF1,DF2,DEPSA,DEASUM,
      &                  ILO,IHI,JLO,JHI,LDV,G1,G2,DBL_MB(mS),WRK,
      &                  lg_S)
@@ -1575,10 +1581,10 @@
       CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
       if (iCase == 1) then
-        Call CLagDXA_FG3_MPP(iSym,lg_BDER,lg_SDER,
+        Call CLagDXA_FG3_MPP(iSym,NASHT,NG3,lg_BDER,lg_SDER,
      &                  DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G2,idxG3)
       else if (iCase == 4) then
-        Call CLagDXC_FG3_MPP(iSym,lg_BDER,lg_SDER,
+        Call CLagDXC_FG3_MPP(iSym,NASHT,NG3,lg_BDER,lg_SDER,
      &                  DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,G2,idxG3)
 
         !! DF3 is done after icase=4
@@ -1608,7 +1614,7 @@
 !-----------------------------------------------------------------------
 !
       Subroutine CLagDX(Mode,iSym,iCase,VEC1,VEC2,VEC3,VEC4,nIN,nIS,nAS,
-     &                  VECROT,VEC5,lg_V2,BDERmat,SDERmat)
+     &                  nState,VECROT,VEC5,lg_V2,BDERmat,SDERmat)
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only:real_shift, imag_shift,
@@ -1626,10 +1632,12 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: mode, iSym, iCase, nIN, nIS, nAS,
-     &                                 lg_V2
-      real(kind=wp), intent(in) :: VEC1(*), VEC3(*), VEC4(*), VEC5(*),
-     &                             VECROT(*)
-      real(kind=wp), intent(inout) :: VEC2(*), BDERmat(*), SDERmat(*)
+     &                                 nState, lg_V2
+      real(kind=wp), intent(in) :: VEC1(NIN*NIS), VEC3(NIN*NIS),
+     &                             VEC4(NAS*NIS), VEC5(NIN*NIS),
+     &                             VECROT(nState)
+      real(kind=wp), intent(inout) :: VEC2(NIN*NIS), BDERmat(NAS*NAS),
+     &                                SDERmat(NAS*NAS)
 
       real(kind=wp),allocatable :: WRK1(:),WRK2(:),WRK3(:),TRANS(:),
      &                             EIG(:)
@@ -1872,8 +1880,8 @@
 !-----------------------------------------------------------------------
 !
       !! From poly3
-      SUBROUTINE CnstCLag(IFF,CLag,DG1,DG2,DG3,DF1,DF2,DF3,DEPSA,
-     &                    G1,G2,G3,nLev)
+      SUBROUTINE CnstCLag(IFF,nLev,NG3,NCONF,CLag,DG1,DG2,DG3,DF1,DF2,
+     &                    DF3,DEPSA,G1,G2,G3)
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: iPrGlb
@@ -1881,17 +1889,18 @@
       use gugx, only: L2ACT
       use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
       use definitions, only: wp, iwp, byte, u6
-      use caspt2_module, only: STSYM, NCONF, NSTATE, MSTATE, JSTATE,
+      use caspt2_module, only: STSYM, NSTATE, MSTATE, JSTATE,
      &                         ISCF, EPSA
       use Constants, only: One
-      use caspt2_module, only: ETA, CITHR, NG2, NG3, NG3TOT
+      use caspt2_module, only: ETA, CITHR, NG2, NG3TOT
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: IFF, nLev
-      real(kind=wp), intent(in) :: G1(*), G2(*), G3(*)
-      real(kind=wp), intent(inout) :: CLag(nConf), DG1(*), DG2(*),
-     &  DG3(*), DF1(*), DF2(*), DF3(*), DEPSA(*)
+      integer(kind=iwp), intent(in) :: IFF, nLev, NG3, NCONF
+      real(kind=wp), intent(in) :: G1(nLev**2), G2(nLev**4), G3(NG3)
+      real(kind=wp), intent(inout) :: CLag(nConf), DG1(nLev**2),
+     &  DG2(nLev**4), DG3(NG3), DF1(nLev**2), DF2(nLev**4), DF3(NG3),
+     &  DEPSA(nLev**2)
 
       integer(kind=iwp) :: ILEV, NG3MAX, ILUID, IDCI
       integer(kind=iwp), external :: iPARDIV
@@ -1915,11 +1924,6 @@
       CALL mma_allocate(idxG3,6,NG3,label='idxG3')
       iLUID=0
       CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
-* NG3 will change inside subroutine MKFG3 to the actual
-* number of nonzero elements, that is why here we allocate
-* with NG3MAX, but we only store (PT2_PUT) the first NG3
-* elements of the G3 and F3
-      IF (ISCF == 0) NG3=NG3MAX
 
       call mma_allocate(CI1,NCONF,LABEL='CI')
       If (ISCF == 0) Then
@@ -1968,22 +1972,23 @@
 !-----------------------------------------------------------------------
 !
       !! From poly3
-      SUBROUTINE CLagEig(if_SSDMloc,force_equal,CLag,RDMEIG,nLev)
+      SUBROUTINE CLagEig(if_SSDMloc,force_equal,nConf,nState,nLev,CLag,
+     &                   RDMEIG)
 
       use caspt2_global, only: DREF, DWGT
       use caspt2_global, only: OMGDER, Weight
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: IFSADREF, IFDW, NCONF, NASHT, ISCF,
-     &                         NSTATE, JSTATE, ZETA
+      use caspt2_module, only: IFSADREF, IFDW, NASHT, ISCF,
+     &                         JSTATE, ZETA
       use Constants, only: Zero, One, Half
 
       implicit none
 
       logical(kind=iwp), intent(in) :: if_SSDMloc, force_equal
+      integer(kind=iwp), intent(in) :: nConf, nState, nLev
       real(kind=wp), intent(inout) :: CLag(nConf,nState)
-      real(kind=wp), intent(in) :: RDMEIG(*)
-      integer(kind=iwp), intent(in) :: nLev
+      real(kind=wp), intent(in) :: RDMEIG(nLev**2)
 
       real(kind=wp),allocatable :: CI1(:),WRK(:)
 
@@ -2014,7 +2019,7 @@
             CI1(1) = One
           End If
           WRK(1:NLEV**2) = RDMEIG(1:NLEV**2)*WGT
-          Call Poly1_CLag(CI1,CLag(1,iState),WRK,nLev)
+          Call Poly1_CLag(NCONF,NLEV,CI1,CLag(1,iState),WRK)
         Else
           Wgt = DWgt(iState,jState)
           If (abs(wgt) > 1.0e-09_wp) Then
@@ -2024,7 +2029,7 @@
               CI1(1) = One
             End If
             WRK(1:NLEV**2) = RDMEIG(1:NLEV**2)*WGT
-            Call Poly1_CLag(CI1,CLag(1,iState),WRK,nLev)
+            Call Poly1_CLag(NCONF,NLEV,CI1,CLag(1,iState),WRK)
           End If
 
           !! Derivative of omega for dynamically weighted density
@@ -2055,7 +2060,7 @@
 !       end do
 !     end do
 !     write(u6,*) 'debug'
-!     IF(ORBIN == 'TRANSFOR') Call CLagX_TrfCI(CLAG)
+!     IF(ORBIN == 'TRANSFOR') Call CLagX_TrfCI(NCONF,CLAG)
 !     if (proj) then
 !     ovl = ddot_(nconf*nstate,ci1,1,clag,1)
 !     write(u6,*) 'projection coeff = ',ovl
@@ -2077,18 +2082,21 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagFinal(CLag,SLag)
+      Subroutine CLagFinal(nConf,nState,CLag,SLag)
 
       use caspt2_global, only: iPrGlb
       use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: REFENE, NCONF, ISCF, NSTATE
+      use caspt2_module, only: REFENE, ISCF
       use Constants, only: One
 
       implicit none
 
-      real(kind=wp), intent(inout) :: CLag(nConf,nState), SLag(*)
+      integer(kind=iwp), intent(in) :: nConf, nState
+      real(kind=wp), intent(inout) :: CLag(nConf,nState),
+     &                                SLag(nState**2)
+
       real(kind=wp),allocatable :: CI1(:), CI2(:)
 
       integer(kind=iwp) :: ijst, ilStat, jlStat
@@ -2160,25 +2168,24 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE POLY1_CLag(CI,CLag,RDMEIG,nLev)
+      SUBROUTINE POLY1_CLag(NCONF,NLEV,CI,CLag,RDMEIG)
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: nConf
       use caspt2_module, only: MxCI, iAdr10, cLab10
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-      real(kind=wp), intent(in) :: CI(NCONF), RDMEIG(*)
+      integer(kind=iwp), intent(in) :: NCONF, NLEV
+      real(kind=wp), intent(in) :: CI(NCONF), RDMEIG(NLEV**2)
       real(kind=wp), intent(inout) :: CLag(NCONF)
-      integer(kind=iwp), intent(in) :: nLev
 
       real(kind=wp), allocatable :: SGM1(:)
       integer(kind=iwp) :: I
 
       IF(NLEV > 0) THEN
         CALL MMA_ALLOCATE(SGM1,MXCI,LABEL='SGM1')
-        CALL DENS1_RPT2_CLag(CI,NCONF,SGM1,MXCI,CLag,RDMEIG,nLev)
+        CALL DENS1_RPT2_CLag(CI,NCONF,SGM1,MXCI,CLag,NCONF,RDMEIG,nLev)
       END IF
 !     return !! for test purpose
 
@@ -2203,12 +2210,13 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DENS1_RPT2_CLag (CI,NCI,SGM1,NSGM1,CLag,RDMEIG,nLev)
+      SUBROUTINE DENS1_RPT2_CLag (CI,NCI,SGM1,NSGM1,CLag,nConf,RDMEIG,
+     &                            nLev)
       use Symmetry_Info, only: Mul
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: nConf, STSym
+      use caspt2_module, only: STSym
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King, nProcs
@@ -2216,7 +2224,7 @@
 
       IMPLICIT NONE
 
-      integer(kind=iwp), intent(in) :: NCI, NSGM1, nLev
+      integer(kind=iwp), intent(in) :: NCI, NSGM1, nLev, nConf
       real(kind=wp), intent(in) :: CI(NCI), RDMEIG(NLEV,NLEV)
       real(kind=wp), intent(inout) :: SGM1(NSGM1), CLag(nConf)
 
@@ -2307,17 +2315,18 @@
 !-----------------------------------------------------------------------
 !
       !! Taken from grdctl.f
-      SUBROUTINE CLagX_TrfCI(CI)
+      SUBROUTINE CLagX_TrfCI(NCONF,CI)
 
       use caspt2_global, only: TAT, TORB
-      use caspt2_module, only: NSYM, STSYM, NCONF, NISH, NRAS1,
+      use caspt2_module, only: NSYM, STSYM, NISH, NRAS1,
      &                         NRAS2, NRAS3, NSSH
       use Constants, only: Zero
       use definitions, only: wp, iwp
 
       implicit none
 
-      real(kind=wp), intent(inout) :: CI(*)
+      integer(kind=iwp), intent(in) :: NCONF
+      real(kind=wp), intent(inout) :: CI(NCONF)
 
       integer(kind=iwp) :: IOFF1, IOFF2, ISYM, NI, NR1, NR2, NR3, NS,
      &                     I, J, IJ, JI, NISH_SAVE(8)
@@ -2476,24 +2485,24 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXA_FG3(iSym,nAS,NG3,BDER,SDER,
+      Subroutine CLagDXA_FG3(iSym,nAS,nAshT,NG3,BDER,SDER,
      &                       DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,
      &                       G2,SC,idxG3)
 
       use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
-      use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
+      use caspt2_module, only: IASYM, EPSA, NTUVES
       use Constants, only: Zero
       use definitions, only: wp, iwp, byte
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: iSym, nAS, NG3
+      integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, NG3
       real(kind=wp), intent(in) :: BDER(nAS,nAS), SDER(nAS,nAS),
-     &  G2(nAshT,nAshT,nAshT,nAshT), SC(*)
+     &  G2(nAshT,nAshT,nAshT,nAshT), SC(NG3)
       real(kind=wp), intent(inout) :: DF1(nAshT,nAshT),
-     &  DF2(nAshT,nAshT,nAshT,nAshT), DF3(*), DG1(nAshT,nAshT),
-     &  DG2(nAshT,nAshT,nAshT,nAshT), DG3(*), DEPSA(nAshT,nAshT)
+     &  DF2(nAshT,nAshT,nAshT,nAshT), DF3(NG3), DG1(nAshT,nAshT),
+     &  DG2(nAshT,nAshT,nAshT,nAshT), DG3(NG3), DEPSA(nAshT,nAshT)
       integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
       integer(kind=iwp) :: iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV,
@@ -2693,16 +2702,15 @@
 !-----------------------------------------------------------------------
 !
 #ifdef _MOLCAS_MPP_
-      SUBROUTINE CLagDXA_FG3_MPP(ISYM,lg_BDER,lg_SDER,DG1,DG2,DG3,
-     &                           DF1,DF2,DF3,DEPSA,G2,idxG3)
+      SUBROUTINE CLagDXA_FG3_MPP(ISYM,NASHT,NG3,lg_BDER,lg_SDER,DG1,DG2,
+     &                           DG3,DF1,DF2,DF3,DEPSA,G2,idxG3)
 
       use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
-      use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
-      use caspt2_module, only: NG3
+      use caspt2_module, only: IASYM, EPSA, NTUVES
       use Constants, only: Zero
 
       implicit none
@@ -2710,10 +2718,10 @@
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer(kind=iwp), intent(in) :: ISYM, lg_BDER, lg_SDER
+      integer(kind=iwp), intent(in) :: ISYM, NASHT, NG3, lg_BDER,lg_SDER
       real(kind=wp), intent(inout) :: DG1(NASHT,NASHT),
-     &  DG2(NASHT,NASHT,NASHT,NASHT), DG3(*), DF1(NASHT,NASHT),
-     &  DF2(NASHT,NASHT,NASHT,NASHT), DF3(*), DEPSA(NASHT,NASHT)
+     &  DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3), DF1(NASHT,NASHT),
+     &  DF2(NASHT,NASHT,NASHT,NASHT), DF3(NG3), DEPSA(NASHT,NASHT)
       real(kind=wp), intent(in) :: G2(NASHT,NASHT,NASHT,NASHT)
       integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
@@ -3013,13 +3021,13 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXA_DP(iSym,nAS,BDER,SDER,DG1,DG2,DF1,DF2,
+      Subroutine CLagDXA_DP(iSym,nAS,nAshT,BDER,SDER,DG1,DG2,DF1,DF2,
      &                      DEPSA,DEASUM,iLo,iHi,jLo,jHi,LDA,
      &                      G1,G2,SA,SA2,lg_S)
 
       USE SUPERINDEX, only: MTUV
       use caspt2_global, only:ipea_shift
-      use caspt2_module, only: NASHT, EASUM, EPSA, NTUVES
+      use caspt2_module, only: EASUM, EPSA, NTUVES
       use Constants, only: Zero, Half, Two
       use definitions, only: wp, iwp
 #ifdef _MOLCAS_MPP_
@@ -3034,10 +3042,11 @@
 #include "macros.fh"
 #endif
 
-      integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
-     &                                 LDA, lg_S
-      real(kind=wp), intent(in) :: BDER(*), SA(*), SA2(*)
-      real(kind=wp), intent(inout) :: SDER(*),
+      integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, iLo, iHi, jLo,
+     &                                 jHi, LDA, lg_S
+      real(kind=wp), intent(in) :: BDER((iHi-iLo+1)*(jHi-jLo+1)),
+     &  SA((iHi-iLo+1)*(jHi-jLo+1)), SA2((iHi-iLo+1)*(jHi-jLo+1))
+      real(kind=wp), intent(inout) :: SDER((iHi-iLo+1)*(jHi-jLo+1)),
      &  DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT),
      &  DF1(nAshT,nAshT), DF2(nAshT,nAshT,nAshT,nAshT),
      &  DEPSA(nAshT,nAshT), DEASUM, G1(nAshT,nAshT),
@@ -3281,24 +3290,24 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXC_FG3(iSym,nAS,NG3,BDER,SDER,
+      Subroutine CLagDXC_FG3(iSym,nAS,nAshT,NG3,BDER,SDER,
      &                       DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,
      &                       G2,SC,idxG3)
 
       use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
-      use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
+      use caspt2_module, only: IASYM, EPSA, NTUVES
       use Constants, only: Zero
       use definitions, only: wp, iwp, byte
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: iSym, nAS, NG3
+      integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, NG3
       real(kind=wp), intent(in) :: BDER(nAS,nAS), SDER(nAS,nAS),
-     &  G2(nAshT,nAshT,nAshT,nAshT), SC(*)
+     &  G2(nAshT,nAshT,nAshT,nAshT), SC(NG3)
       real(kind=wp), intent(inout) :: DF1(nAshT,nAshT),
-     &  DF2(nAshT,nAshT,nAshT,nAshT), DF3(*), DG1(nAshT,nAshT),
-     &  DG2(nAshT,nAshT,nAshT,nAshT), DG3(*), DEPSA(nAshT,nAshT)
+     &  DF2(nAshT,nAshT,nAshT,nAshT), DF3(NG3), DG1(nAshT,nAshT),
+     &  DG2(nAshT,nAshT,nAshT,nAshT), DG3(NG3), DEPSA(nAshT,nAshT)
       integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
       integer(kind=iwp) :: iG3, iT, iU, iV, iX, iY, iZ, iST, iSU, iSV,
@@ -3495,16 +3504,15 @@
 !-----------------------------------------------------------------------
 !
 #ifdef _MOLCAS_MPP_
-      SUBROUTINE CLagDXC_FG3_MPP(ISYM,lg_BDER,lg_SDER,DG1,DG2,DG3,
-     &                           DF1,DF2,DF3,DEPSA,G2,idxG3)
+      SUBROUTINE CLagDXC_FG3_MPP(ISYM,NASHT,NG3,lg_BDER,lg_SDER,DG1,DG2,
+     &                           DG3,DF1,DF2,DF3,DEPSA,G2,idxG3)
 
       use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
-      use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
-      use caspt2_module, only: NG3
+      use caspt2_module, only: IASYM, EPSA, NTUVES
       use Constants, only: Zero
 
       implicit none
@@ -3512,10 +3520,10 @@
 #include "global.fh"
 #include "mafdecls.fh"
 
-      integer(kind=iwp), intent(in) :: ISYM, lg_BDER, lg_SDER
+      integer(kind=iwp), intent(in) :: ISYM, NASHT, NG3, lg_BDER,lg_SDER
       real(kind=wp), intent(inout) :: DG1(NASHT,NASHT),
-     &  DG2(NASHT,NASHT,NASHT,NASHT), DG3(*), DF1(NASHT,NASHT),
-     &  DF2(NASHT,NASHT,NASHT,NASHT), DF3(*), DEPSA(NASHT,NASHT)
+     &  DG2(NASHT,NASHT,NASHT,NASHT), DG3(NG3), DF1(NASHT,NASHT),
+     &  DF2(NASHT,NASHT,NASHT,NASHT), DF3(NG3), DEPSA(NASHT,NASHT)
       real(kind=wp), intent(in) :: G2(NASHT,NASHT,NASHT,NASHT)
       integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
@@ -3824,13 +3832,13 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXC_DP(iSym,nAS,BDER,SDER,DG1,DG2,DF1,DF2,
+      Subroutine CLagDXC_DP(iSym,nAS,nAshT,BDER,SDER,DG1,DG2,DF1,DF2,
      &                      DEPSA,DEASUM,iLo,iHi,jLo,jHi,LDC,
      &                      G1,G2,SC,SC2,lg_S)
 
       USE SUPERINDEX, only: MTUV
       use caspt2_global, only:ipea_shift
-      use caspt2_module, only: NASHT, EASUM, EPSA, NTUVES
+      use caspt2_module, only: EASUM, EPSA, NTUVES
       use Constants, only: Zero, Half, Four
       use definitions, only: wp, iwp
 #ifdef _MOLCAS_MPP_
@@ -3845,10 +3853,11 @@
 #include "macros.fh"
 #endif
 
-      integer(kind=iwp), intent(in) :: iSym, nAS, iLo, iHi, jLo, jHi,
-     &                                 LDC, lg_S
-      real(kind=wp), intent(in) :: BDER(*), SC(*), SC2(*)
-      real(kind=wp), intent(inout) :: SDER(*),
+      integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, iLo, iHi, jLo,
+     &                                 jHi, LDC, lg_S
+      real(kind=wp), intent(in) :: BDER((iHi-iLo+1)*(jHi-jLo+1)),
+     &  SC((iHi-iLo+1)*(jHi-jLo+1)), SC2((iHi-iLo+1)*(jHi-jLo+1))
+      real(kind=wp), intent(inout) :: SDER((iHi-iLo+1)*(jHi-jLo+1)),
      &  DG1(nAshT,nAshT), DG2(nAshT,nAshT,nAshT,nAshT),
      &  DF1(nAshT,nAshT), DF2(nAshT,nAshT,nAshT,nAshT),
      &  DEPSA(nAshT,nAshT), DEASUM, G1(nAshT,nAshT),
@@ -4048,24 +4057,23 @@
 !-----------------------------------------------------------------------
 !
 #ifdef _MOLCAS_MPP_
-      Subroutine DF3_DEPSA_MPP(DF3,DEPSA,lg_S,idxG3)
+      Subroutine DF3_DEPSA_MPP(NG3,NASHT,DF3,DEPSA,lg_S,idxG3)
 
       use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
       USE Para_Info, only: nProcs
       use definitions, only: wp, iwp, byte
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NASHT, IASYM, NTUVES
-      use caspt2_module, only: NG3
+      use caspt2_module, only: IASYM, NTUVES
 
       implicit none
 
 #include "global.fh"
 #include "mafdecls.fh"
 
-      real(kind=wp), intent(in) :: DF3(*)
+      integer(kind=iwp), intent(in) :: NG3, NASHT, lg_S
+      real(kind=wp), intent(in) :: DF3(NG3)
       real(kind=wp), intent(inout) :: DEPSA(NASHT,NASHT)
-      integer(kind=iwp), intent(in) :: lg_S
       integer(kind=byte), intent(in) :: idxG3(6,NG3)
 
       real(kind=wp), allocatable :: WRK(:)
@@ -4128,7 +4136,8 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
+      Subroutine DEPSAOffC(NCONF,NSTATE,NASHT,NBAST,CLag,DEPSA,FIFA,
+     &                     FIMO,WRK1,WRK2,U0)
 
       use Symmetry_Info, only: Mul
       use caspt2_global, only:IPrGlb
@@ -4139,9 +4148,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp, wp, u6
       use Constants, only: Zero, One, Half
-      use caspt2_module, only: IFXMS, IFRMS, NSYM, STSYM, NCONF, NFRO,
-     &                         NISH, NASH, NASHT, NORB, NBAS,
-     &                         NBAST, ISCF, NSTATE, NBTCH, NBTCHES
+      use caspt2_module, only: IFXMS, IFRMS, NSYM, STSYM, NFRO, NISH,
+     &                         NASH, NORB, NBAS, ISCF, NBTCH, NBTCHES,
+     &                         NROOTS
 !     use caspt2_module, only: NSSH
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -4149,9 +4158,11 @@
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: NCONF, NSTATE, NASHT, NBAST
       real(kind=wp), intent(inout) :: CLag(nConf,nState),
-     &  DEPSA(nAshT,nAshT),WRK1(nBasT,nBasT),WRK2(*)
-      real(kind=wp), intent(in) :: FIFA(*), FIMO(*), U0(nState,nState)
+     &  DEPSA(nAshT,nAshT),WRK1(nBasT,nBasT),WRK2(nBasT**2)
+      real(kind=wp), intent(in) :: FIFA(nBasT**2), FIMO(nBasT**2),
+     &  U0(nState,nState)
       real(kind=wp),allocatable :: VecST(:,:),VecS1(:,:),VecS2(:,:),
      &                             VecCID(:,:),VecPre(:),VecFancy(:),
      &                             VecCIT(:,:),INT1(:),INT2(:),G2(:)
@@ -4195,7 +4206,7 @@
 !
       !! Some post-processing of CI derivative
       !! Somehow, this has to be done in the XMS basis
-      Call CLagFinalOffC(SLag)
+      Call CLagFinalOffC(nState,SLag)
 !
 !     ----- Solve the linear equation -----
 !     A_{IS,JR}*X_{JR} = CLag_{IS}, where A_{IS,JR} is the CI-CI Hessian
@@ -4219,7 +4230,7 @@
       !! so may be it is not possible to get inactive energies?
       !! It can be computed with TimesE2
       iSym = 1
-      Call CnstInt(0,INT1,INT2)
+      Call CnstInt(0,nAshT,INT1,INT2)
       Do iState = 1, nState
         ID = IDTCEX(iState)
         If (ISCF == 0) Then
@@ -4243,7 +4254,7 @@
      &              Zero,VecST,nConf)
         VecCIT(1:nConf,1:nState) = VecST(1:nConf,1:nState)
       end if
-      Call TimesE2(0,VecCIT,VecS1,INT1,INT2)
+      Call TimesE2(0,nConf,nState,nAshT,VecCIT,VecS1,INT1,INT2)
       Do iState = 1, nState
         !! scaling with nState is due to the division in TimesE2
         Eact(iState) = -Half*nState*
@@ -4252,18 +4263,17 @@
       isyci = 1
 
       !! Precondition
-      Call CnstInt(2,INT1,INT2)
-      Call CnstPrec(ISYCI,VecPre,VecCIT,
-     &              INT1,INT2,VecFancy,nLev,
-     &              nMidV)
-      Call CnstInt(0,INT1,INT2)
+      Call CnstInt(2,nAshT,INT1,INT2)
+      Call CnstPrec(ISYCI,nRoots,nConf,NLEV,nMidV,VecPre,VecCIT,
+     &              INT1,INT2,VecFancy)
+      Call CnstInt(0,nAshT,INT1,INT2)
 
       !! Begin!
       VecST(1:nConf,1:nState) = CLag(1:nConf,1:nState)
 
       !! z0 = M^{-1}*r0
       VecS2(1:nConf,1:nState) = VecST(1:nConf,1:nState)
-      Call DoPrec(VecST,VecS2,VecS1,VecPre,VecFancy)
+      Call DoPrec(nConf,nRoots,VecST,VecS2,VecS1,VecPre,VecFancy)
       !! p0 = z0
       VecCId(1:nConf,1:nState) = VecS2(1:nConf,1:nState)
       MaxIter = 100
@@ -4295,7 +4305,7 @@
           End If
           !! Compute Ap
           !! ipS2 is used as a workind array
-          Call TimesE2(1,VecCId,VecS1,INT1,INT2)
+          Call TimesE2(1,nConf,nState,nAshT,VecCId,VecS1,INT1,INT2)
 
           !! AlphaC = p^T*A*p
           AlphaC= DDot_(nConf*nState,VecS1,1,VecCId,1)
@@ -4310,7 +4320,7 @@
           ResCI = sqrt(DDot_(nConf*nState,VecST,1,VecST,1))
           !! z = M^{-1}*r
           VecS2(1:nConf,1:nState) = VecST(1:nConf,1:nState)
-          Call DoPrec(VecST,VecS2,VecS1,VecPre,VecFancy)
+          Call DoPrec(nConf,nRoots,VecST,VecS2,VecS1,VecPre,VecFancy)
 
           !! Append new vectors
           DeltaC= Ddot_(nConf*nState,VecST,1,VecS2,1)
@@ -4378,8 +4388,8 @@
         End If
       End Do
       call mma_allocate(G2,nAshT**4,Label='G2')
-      Call CnstInt(1,INT1,INT2)
-      Call CnstDEPSA(VecST,VecCIT,INT1,G2,INT2)
+      Call CnstInt(1,nAshT,INT1,INT2)
+      Call CnstDEPSA(nConf,nState,nAshT,VecST,VecCIT,INT1,G2,INT2)
       call mma_deallocate(G2)
 
       If (IPRGLB >= VERBOSE) Then
@@ -4401,13 +4411,14 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagFinalOffC(SLag)
+      Subroutine CLagFinalOffC(nState,SLag)
 
       use caspt2_module, only: REFENE
 
       implicit none
 
-      real(kind=wp), intent(inout) :: SLag(*)
+      integer(kind=iwp), intent(in) :: nState
+      real(kind=wp), intent(inout) :: SLag(nState**2)
       real(kind=wp), allocatable :: CI1(:), CI2(:)
 
       integer(kind=iwp) :: ijst, ilStat, jlStat
@@ -4479,14 +4490,14 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CnstInt(Mode,INT1,INT2)
+      Subroutine CnstInt(Mode,nAshT,INT1,INT2)
 
       Use CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_module, only: IfChol, NFRO, NBAS
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: Mode
+      integer(kind=iwp), intent(in) :: Mode, nAshT
       real(kind=wp), intent(inout) :: INT1(nAshT,nAshT),
      &                                INT2(nAshT,nAshT,nAshT,nAshT)
 
@@ -4685,7 +4696,7 @@
 !-----------------------------------------------------------------------
 !
       !! dens2_rpt2.f
-      Subroutine TimesE2(Mode,CIin,CIout,INT1,INT2)
+      Subroutine TimesE2(Mode,nConf,nState,nAshT,CIin,CIout,INT1,INT2)
 
       use gugx, only: SGS, L2ACT, CIS
       use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
@@ -4693,7 +4704,7 @@
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: Mode
+      integer(kind=iwp), intent(in) :: Mode, nConf, nState, nAshT
       real(kind=wp), intent(in) :: CIin(nConf,nState),
      &  INT1(nAshT,nAshT), INT2(nAshT,nAshT,nAshT,nAshT)
       real(kind=wp), intent(out) :: CIout(nConf,nState)
@@ -4819,13 +4830,14 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CnstDEPSA(CI,CIT,G1,G2,INT2)
+      Subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
 
       use gugx, only: SGS
       use caspt2_module, only: NG1, NG2
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: nConf, nState, nAshT
       real(kind=wp), intent(in) :: CI(nConf,nState), CIT(nConf,nState),
      &  INT2(nAshT,nAshT,nAshT,nAshT)
       real(kind=wp), intent(out) :: G1(nAshT,nAshT),
@@ -4997,21 +5009,20 @@
 !-----------------------------------------------------------------------
 !
       !! PRWF1_CP2
-      SUBROUTINE CnstPrec(ISYCI,PRE,CI,INT1,INT2,Fancy,nLev,nMidV)
+      SUBROUTINE CnstPrec(ISYCI,NROOTS,NCONF,NLEV,nMidV,PRE,CI,INT1,
+     &                    INT2,Fancy)
       use molcas, only: MXLEV
       use gugx, only: SGS, CIS
       use Constants, only: Two, Four
-      use caspt2_module, only: NROOTS
 
       implicit none
 
 #include "intent.fh"
 
-      integer(kind=iwp), INTENT(IN) :: nLev, nMidV
-      real(kind=wp), intent(in) ::  CI(*), INT1(NLEV,NLEV),
+      integer(kind=iwp), INTENT(IN) :: ISYCI, NROOTS, NCONF, nLev, nMidV
+      real(kind=wp), intent(in) ::  CI(nConf), INT1(NLEV,NLEV),
      &  INT2(NLEV,NLEV,NLEV,NLEV)
-      integer(kind=iwp), intent(in) :: ISYCI
-      real(kind=wp), intent(_OUT_) :: PRE(*)
+      real(kind=wp), intent(_OUT_) :: PRE(nConf)
       real(kind=wp), intent(out) :: Fancy(nRoots,nRoots,nRoots)
 
       real(kind=wp) ::  ICS(MXLEV), val, val2, Ene, dnum
@@ -5183,14 +5194,13 @@
 !-----------------------------------------------------------------------
 !
       !! mclr/dminvci_sa.f
-      Subroutine DoPrec(VecIN,VecOUT,CI,Pre,Fancy)
-
-      use caspt2_module, only: NROOTS
+      Subroutine DoPrec(nConf,nRoots,VecIN,VecOUT,CI,Pre,Fancy)
 !
 !     Apply precondition to CI vectors, taken from the MCLR module
 !
       implicit none
 
+      integer(kind=iwp), intent(in) :: nConf, nRoots
       real(kind=wp), intent(in) :: VecIN(1:nConf,1:nRoots),
      &  Pre(1:nConf), Fancy(nRoots,nRoots,nRoots)
       real(kind=wp), intent(out) :: VecOUT(1:nConf,1:nRoots),
@@ -5240,15 +5250,16 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine DEPSAOffO(OLag,DEPSA,FIFA)
+      Subroutine DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA)
 
-      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NASHT, NDEL, NBAS
+      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NDEL, NBAS
       use Constants, only: Half
       use definitions, only: wp, iwp
 
       implicit none
 
-      real(kind=wp), intent(in) :: OLag(*), FIFA(*)
+      integer(kind=iwp), intent(in) :: nOLag, nAshT, NBSQT
+      real(kind=wp), intent(in) :: OLag(nOLag), FIFA(NBSQT)
       real(kind=wp), intent(inout) :: DEPSA(nAshT,nAshT)
 
       integer(kind=iwp) :: iMO, iSym, nAshI, nOrbI, nFroI, nIshI, nBasI,
@@ -5302,7 +5313,7 @@
 
       implicit none
 
-      real(kind=wp), intent(inout) :: BDer(*), SDer(*)
+      real(kind=wp), intent(inout) :: BDer(nAS,nAs), SDer(nAS,nAs)
       integer(kind=iwp), intent(in) :: nAS, nIN, iSym, iCase
 
       real(kind=wp) :: WGRONK(2)
