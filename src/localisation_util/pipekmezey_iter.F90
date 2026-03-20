@@ -46,14 +46,14 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp
 real(kind=wp) :: DD
 #endif
 real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
-                              SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:,:),dq(:),&
+                              SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:),dq(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Prev(:),Disp(:)
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
-integer(kind=iwp) :: maxel(2)
+integer(kind=iwp) :: maxel(1)
 #endif
 
 !S-GEK
@@ -104,7 +104,7 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     fsdim = nOrb2Loc*(nOrb2Loc-1)/2
 
     call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
-    call mma_Allocate(Gradient,nOrb2Loc,nOrb2Loc,Label='Gradient')
+    call mma_Allocate(Gradient,fsdim,Label='Gradient')
     call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
@@ -173,9 +173,9 @@ end if
 if (OptMeth == 1) then
     call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
 else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:,:), Hdiagvec(:))
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:), Hdiagvec(:))
 #   ifdef _DEBUGPRINT_
-    call RecPrt("initial gradient"," ",Gradient,nOrb2Loc,nOrb2Loc)
+    call RecPrt("initial gradient"," ",Gradient(:),fsdim,1)
     call RecPrt("initial hessian"," ",Hdiagvec(:),fsdim,1)
 #   endif
     FunctionalList(1) = Functional
@@ -220,26 +220,24 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     case (2,3,4,5) ! Employing NxN rotations
 
-        kappa(:,:) = Zero
+        Disp(:) = Zero
 
         select case(OptMeth) !different NxN rot based methods
 
         case (2) ! Newton Raphson
-            call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
-            kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
+            Disp(:) = -Gradient(:)/Hdiagvec(:)
 
         case (3) ! Gradient Ascent (no line search yet)
-            kappa(:,:) = alpha*Gradient(:,:)
+            Disp(:) = alpha*Gradient(:)
 
         case (4,5) ! (S)-GEK
 
             ! compute standard newton raphson step
             ! ------------------------------------
-            call vec2upper_triag(Hdiag(:,:),nOrb2Loc,Hdiagvec(:),fsdim,.false.)
-            kappa(:,:) = -Gradient(:,:)/Hdiag(:,:)
+            Disp(:) = -Gradient(:)/Hdiagvec(:)
 
 #           ifdef _DEBUG2_
-                call RecPrt('NR suggestion',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
+                call RecPrt('NR suggestion',' ',Disp(:),fsdim,1)
 #           endif
 
 
@@ -248,18 +246,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             ! check if matrix elements are > 0.01
             large_elements = 0
-            do i=1,nOrb2Loc-1
-                do j=i+1,nOrb2Loc
-                    if (abs(kappa(i,j)) > 0.01_wp) then
-                        large_elements = large_elements + 1
-                    end if
-                end do
+            do i=1,fsdim
+                if (abs(Disp(i)) > 0.01_wp) then
+                    large_elements = large_elements + 1
+                end if
             end do
 
 #           ifdef _DEBUGPRINT_
             write(u6,*) "kappa elements > 0.01 =",large_elements
-            maxel(:) = maxloc(kappa)
-            write(u6,*) "largest element =", kappa(maxel(1),maxel(2))
+            maxel(:) = maxloc(Disp)
+            write(u6,*) "largest element =", Disp(maxel(1))
             write(u6,*) "Iter_GEK",Iter_GEK
 #           endif
 
@@ -282,7 +278,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #               ifdef _DEBUGPRINT_
                 write(u6,*) "turning on GEK in iteration",nIter+1,"starting sampling for GEK in iteration",nIter
 #               endif
-                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,1),fsdim)
+                displacements(:,1) = Disp(:)
+                !call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,1),fsdim)
 
             else if (large_elements == 0 .and. start_gek) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
@@ -290,14 +287,15 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! when Iter_GEK = 1:
                 ! displacements(:,:) has NR kappa_1 (most recent step)
                 ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot):
-                call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
+                GradientList(:,Iter_GEK) = Gradient(:)
+                !call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
                 FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
 
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 ! NR step as Disp guess
-                call upper_triag2vec(kappa(:,:),nOrb2Loc,Disp(:),fsdim)
+                !call upper_triag2vec(kappa(:,:),nOrb2Loc,Disp(:),fsdim)
 
                 select case(OptMeth)
 
@@ -345,20 +343,23 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end if ! undershoot mitigation
                 ! -------------------------------------------------------------------------------
 
+                ! when Iter_GEK = 1:
+                ! displacements(:,:) has NR kappa_1 (most recent step)
+                ! after GEK/RVO, add kappa_i+1 to the displacement list for next iteration:
+                displacements(:,Iter_GEK+1) = Disp(:)
+
+
                 ! transform GEK disp vec to matrix
-                call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 #               ifdef _DEBUGPRINT_
                 call RecPrt('(GEK step)',' ',Disp(:),fsdim,1)
 #               endif
 
-                ! when Iter_GEK = 1:
-                ! displacements(:,:) has NR kappa_1 (most recent step)
-                ! after GEK/RVO, add kappa_i+1 to the displacement list for next iteration:
-                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK+1),fsdim)
+                !call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK+1),fsdim)
             end if
         end select ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
+        call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! Rescale Kappa if rotation too large
@@ -411,12 +412,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 
         !save previous:
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:,:), Hdiagvec(:)) ! gets the new gradient
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
 
 #       ifdef _DEBUG2_
             write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
             write(u6,*) "Functional:",Functional
-            call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('Gradient',' ',Gradient(:),fsdim,1)
             call RecPrt('Hdiag',' ',Hdiagvec(:),fsdim,1)
 #       endif
 
@@ -424,7 +425,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       ifdef _DEBUGPRINT_
             write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
             write(u6,*) "Functional:",Functional
-            call RecPrt('Gradient',' ',Gradient(:,:),nOrb2Loc,nOrb2Loc)
+            call RecPrt('Gradient',' ',Gradient(:),fsdim,1)
             call RecPrt('Hdiag',' ',Hdiagvec(:),fsdim,1)
 #       endif
 

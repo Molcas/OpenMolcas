@@ -24,7 +24,7 @@ implicit none
 
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
-real(kind=wp), intent(out) :: GradNorm,Gradient(nOrb2Loc,nOrb2Loc),H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
+real(kind=wp), intent(out) :: GradNorm,Gradient(nOrb2Loc*(nOrb2Loc-1)/2),H_diag(nOrb2Loc*(nOrb2Loc-1)/2)
 integer(kind=iwp) :: iAtom, i,j,k,l,kl
 real(kind=wp) :: Q_ll, Q_kk, Q_kl
 
@@ -35,18 +35,21 @@ Q_kl = Zero
 
 !gradient calculation according to DOI: 10.1002/jcc.23281 equation (15)
 !the Gradient matrix is antisymmetric
-Gradient(:,:) = Zero
-do iAtom=1,nAtoms
-    do k=1,nOrb2Loc
-        Q_kk=PA(k,k,iAtom)
-        do l=1,nOrb2Loc
+kl = 0
+Gradient(:) = Zero
+do k=1,nOrb2Loc-1
+    do l=k+1,nOrb2Loc
+        kl = kl + 1
+        do iAtom=1,nAtoms
+            Q_kk=PA(k,k,iAtom)
             Q_ll=PA(l,l,iAtom)
             Q_kl=PA(k,l,iAtom)
-            Gradient(k,l)=Gradient(k,l)+(Q_kk-Q_ll)*Q_kl
+            Gradient(kl)=Gradient(kl)+(Q_kk-Q_ll)*Q_kl
+            !write(u6,*) "k,l,kl, Gradient(kl) = ",k,l,kl,Gradient(kl)
         end do
     end do
 end do
-Gradient(:,:)=Four*Gradient(:,:)
+Gradient(:)=Four*Gradient(:)
 
 !Second derivative for GEK optimization: Later put this into an "if GEK=true" environment
 !Hessian diagonal according to DOI: 10.1002/jcc.23281 equation (17)
@@ -78,10 +81,12 @@ end do
 
 !GradientNorm - needed for all optimization schemes,
 ! here calculated as the vector norm
+kl=0
 GradNorm = Zero
-do i = 1, nOrb2Loc-1
-    do j = i+1, nOrb2Loc
-        GradNorm = GradNorm + Gradient(i,j)**2
+do k = 1, nOrb2Loc-1
+    do l = k+1, nOrb2Loc
+        kl = kl+1
+        GradNorm = GradNorm + Gradient(kl)**2
     end do
 end do
 GradNorm = sqrt(GradNorm)
@@ -90,7 +95,7 @@ if (Debug) then
     write(u6,*) ' '
     write(u6,*) 'In GetGrad_PM'
     write(u6,*) '-------------'
-    call RecPrt('Gradient',' ',Gradient(:,:), nOrb2Loc, nOrb2Loc)  !this is also printed in the Gradientlist
+    call RecPrt('Gradient',' ',Gradient(:), nOrb2Loc*(nOrb2Loc-1)/2,1)  !this is also printed in the Gradientlist
     call RecPrt('H_diag',' ',H_diag(:), nOrb2Loc*(nOrb2Loc-1)/2,1)
     write(u6,*) "gradnorm =",GradNorm
     write(u6,*) ' '
