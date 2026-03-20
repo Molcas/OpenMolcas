@@ -600,7 +600,7 @@
      &                  One,OLAG,nBasT)
             !! Restore the second-order correlated density
             DPT2(1:nDPTAO) = DPT2(1:nDPTAO) + WRK1(1:nDPTAO)
-            DPT2(1:nDPTAO) = WRK1(1:nDPTAO)
+            WRK1(1:nDPTAO) = DPT2(1:nDPTAO)
           end if
           !! Now, compute pseudo-density using orbital Lagrangian
           !! DSUM does not contain frozen orbitals,
