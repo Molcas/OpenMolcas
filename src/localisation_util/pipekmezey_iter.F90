@@ -288,16 +288,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
                 Iter_GEK = Iter_GEK+1
                 ! when Iter_GEK = 1:
-                ! displacements has NR kappa_1
-                ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot)
-                ! new NR suggestion is added to displacements as kappa_2
-
-                call upper_triag2vec(kappa(:,:),nOrb2Loc,Disp(:),fsdim)
+                ! displacements(:,:) has NR kappa_1 (most recent step)
+                ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot):
                 call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
                 FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
 
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
+
+                ! NR step as Disp guess
+                call upper_triag2vec(kappa(:,:),nOrb2Loc,Disp(:),fsdim)
 
                 select case(OptMeth)
 
@@ -351,7 +351,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call RecPrt('(GEK step)',' ',Disp(:),fsdim,1)
 #               endif
 
-
+                ! when Iter_GEK = 1:
+                ! displacements(:,:) has NR kappa_1 (most recent step)
+                ! after GEK/RVO, add kappa_i+1 to the displacement list for next iteration:
+                call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK+1),fsdim)
             end if
         end select ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
