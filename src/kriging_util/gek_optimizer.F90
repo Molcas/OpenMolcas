@@ -26,10 +26,10 @@ subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,H_dii
 ! Energy            y vector
 ! H_diis            projected Hessian diagonal
 ! H_surr            surrogate Hessian
-! dqdq              some output, (real) that has to do with the full space displacement
-! Step_Tru     1         4.03686608   2.6222E-01  nc        some output (character)
-! UpMeth            some output (string), e.g. "RVO"
-! SORange           some input (logical)
+! dqdq              output: (real) norm of displacement
+! Step_Trunc        output: (character) denotes step truncation
+! UpMeth            output: (string), giving "RVO  x" with x = number of microiterations
+! SOFact            input: scales the tolerance used in the RVO step. Usually set to one, when quadratic region is reached
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
