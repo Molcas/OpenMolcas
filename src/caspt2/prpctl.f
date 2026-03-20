@@ -126,7 +126,7 @@ C This density matrix may be approximated in several ways, see DENS.
         CALL DCOPY_(NDMAT,[Zero],0,DMAT,1)
         CALL mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
         CALL MKLIST(LISTS,NLSTOT)
-        CALL DENS(IVECX,DMAT,UEFF,U0)
+        CALL DENS(IVECX,NDMAT,NSTATE,DMAT,UEFF,U0)
         CALL mma_deallocate(LISTS)
       ELSE
         !! Density matrix for the target adiabatic state

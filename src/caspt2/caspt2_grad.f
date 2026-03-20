@@ -198,7 +198,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine GrdCls(IRETURN,UEFF,U0,H0)
+      Subroutine GrdCls(IRETURN,nState,UEFF,U0,H0)
 
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: LuPT2,LuAPT2,
@@ -215,7 +215,7 @@
       use Constants, only: Zero, One, Half, Two
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: REFENE, RFPERT, IfChol, IFMSCOUP, IFXMS,
-     &                         IFRMS, IFDW, NCONF, nState, nFroT, NBAST,
+     &                         IFRMS, IFDW, NCONF, nFroT, NBAST,
      &                         NBTRI, NBSQT, iRlxRoot, DWTYPE, Zeta
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
@@ -223,7 +223,7 @@
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: IRETURN
+      integer(kind=iwp), intent(in) :: IRETURN, nState
       real(kind=wp), intent(in) :: H0(nState,nState)
       real(kind=wp), intent(inout) :: UEFF(nState,nState),
      &                                U0(nState,nState)
@@ -466,7 +466,7 @@
         !! D^PT2 in AO (not used?)
         if (RFpert .and. IFMSCOUP) then
           !! Recompute DPT2AO and DPT2AO for PCM
-          Call Recompute_DPT2AO(DPT2_tot,DPT2C_tot,
+          Call Recompute_DPT2AO(NBSQT,DPT2_tot,DPT2C_tot,
      &                          DPT2_AO_tot,DPT2C_AO_tot)
         end if
         If (DEB) call TriPrt('DPT2_AO_tot', '', DPT2_AO_tot, nBast)
@@ -597,15 +597,16 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine GradPrep(UEFF,VECROT)
+      Subroutine GradPrep(nState,UEFF,VECROT)
 
       use caspt2_global, only: iRoot1, iRoot2, jStLag
-      use caspt2_module, only: IFMSCOUP, NSTATE, JSTATE
+      use caspt2_module, only: IFMSCOUP, JSTATE
       use Constants, only: One, Half
       use definitions, only: wp, iwp
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: nState
       real(kind=wp), intent(in) :: UEFF(nState,nState)
       real(kind=wp), intent(inout) :: VECROT(nState)
 
@@ -632,29 +633,35 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine OLagFinal(OLagLoc,Trf)
+      Subroutine OLagFinal(nOLag,nTrf,OLagLoc,Trf)
 
       use caspt2_global, only: CMOPT2
-      use caspt2_global, only: OLagFull,WLag,nOLag
+      use caspt2_global, only: OLagFull,WLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use Constants, only: Zero, One, Half
-      use definitions, only: wp, iwp
+      use definitions, only: wp, iwp, u6
       use caspt2_module, only: IFMSCOUP, NSYM, NBAS, NBAST, NBTRI,
      &                         NBSQT, JSTATE, iRlxRoot
 
       implicit none
 
-      real(kind=wp), intent(inout) :: OLagLoc(1:nOLag)
-      real(kind=wp), intent(in) :: Trf(1:NBSQT)
+      integer(kind=iwp), intent(in) :: nOLag, nTrf
+      real(kind=wp), intent(inout) :: OLagLoc(nOLag)
+      real(kind=wp), intent(in) :: Trf(nTrf)
 
       real(kind=wp), allocatable :: WRK(:), WLagLoc(:)
       integer(kind=iwp) :: iBasTr, iBasSq, iSym, nBasI, liBasTr,
-     &                     liBasSq, iBasI, jBasI, liBasSq2
+     &                     liBasSq, iBasI, jBasI, liBasSq2, nWLag
 
       call mma_allocate(WRK,NBSQT,Label='WRK')
       call mma_allocate(WLagLoc,NBSQT,Label='WLagLoc')
 
-      WLagLoc(1:NBSQT) = Half*OLagLoc(1:NBSQT)
+      if (NBSQT /= nOLag) then
+        write (u6,'(x,"NBSQT /= nOLag in OLagFinal")')
+        call abend()
+      end if
+
+      WLagLoc(1:NBSQT) = Half*OLagLoc(1:nOLag)
 !     write(u6,*) 'Wlag square'
 !     call sqprt(wlag,nbast)
 
@@ -856,18 +863,19 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine Recompute_DPT2AO(DPT2,DPT2C,DPT2AO,DPT2CAO)
+      Subroutine Recompute_DPT2AO(NDIM,DPT2,DPT2C,DPT2AO,DPT2CAO)
 
       use definitions, only: wp, iwp
       use stdalloc, only: mma_allocate,mma_deallocate
       use caspt2_global, only: LUONEM
-      use caspt2_module, only: NSYM, NBAS, NBSQT, IAD1M
+      use caspt2_module, only: NSYM, NBAS, IAD1M
       use Constants, only: Zero
 
       implicit none
 
-      real(kind=wp), intent(inout) :: DPT2(NBSQT), DPT2C(NBSQT),
-     &  DPT2AO(NBSQT), DPT2CAO(NBSQT)
+      integer(kind=iwp), intent(in) :: NDIM ! = NBSQT
+      real(kind=wp), intent(inout) :: DPT2(NDIM), DPT2C(NDIM),
+     &  DPT2AO(NDIM), DPT2CAO(NDIM)
 
       real(kind=wp), allocatable :: WRK1(:), WRK2(:), WRK3(:), WRK4(:)
 
@@ -875,15 +883,15 @@
       integer(kind=iwp) :: IDISK, iBasTr, iBasSq, iSym, nBasI, liBasTr,
      &                     liBasSq, ljBasSq, iBasI, jBasI
 
-      call mma_allocate(WRK1,NBSQT,Label='WRK1')
-      call mma_allocate(WRK2,NBSQT,Label='WRK2')
-      call mma_allocate(WRK3,NBSQT,Label='WRK3')
-      call mma_allocate(WRK4,NBSQT,Label='WRK4')
+      call mma_allocate(WRK1,NDIM,Label='WRK1')
+      call mma_allocate(WRK2,NDIM,Label='WRK2')
+      call mma_allocate(WRK3,NDIM,Label='WRK3')
+      call mma_allocate(WRK4,NDIM,Label='WRK4')
       IDISK=IAD1M(1)
-      CALL DDAFILE(LUONEM,2,WRK1,NBSQT,IDISK)
+      CALL DDAFILE(LUONEM,2,WRK1,NDIM,IDISK)
 
-      DPT2AO(1:NBSQT) = Zero
-      DPT2CAO(1:NBSQT) = Zero
+      DPT2AO(1:NDIM) = Zero
+      DPT2CAO(1:NDIM) = Zero
 
       iBasTr = 1
       iBasSq = 1

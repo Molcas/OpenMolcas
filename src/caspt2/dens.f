@@ -16,16 +16,16 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS(IVEC,DMAT,UEFF,U0)
+      SUBROUTINE DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF,U0)
       USE CHOVEC_IO, only: nvloc_chobatch
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_global, only: do_grad, do_csf, if_invar, iRoot1,
-     &                           iRoot2, if_invaria, if_SSDM,
-     &                           CLag,CLagFull,OLag,SLag,
-     &                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
-     &                           DPT2C_AO_tot,DPT2Canti_tot,FIMO_all,
-     &                           FIFA_all,OMGDER,jStLag,Weight
+     &                         iRoot2, nOLag, if_invaria, if_SSDM,
+     &                         CLag,CLagFull,OLag,SLag,
+     &                         DPT2_tot,DPT2C_tot,DPT2_AO_tot,
+     &                         DPT2C_AO_tot,DPT2Canti_tot,FIMO_all,
+     &                         FIFA_all,OMGDER,jStLag,Weight
       use caspt2_global, only: FIMO, FIFA
       use caspt2_global, only: DREF, DMIX, CMOPT2, TORB, NDREF
       use caspt2_global, only: IDCIEX, IDTCEX
@@ -42,13 +42,13 @@
      &                         MAXIT, NSYM, NCONF, NFROT, NISH, NRAS1T,
      &                         NRAS2T, NRAS3T, NASH, NAES, NASHT, NORB,
      &                         NBAS, NBAST, NOSQT, NBSQT, iRlxRoot,
-     &                         NSTATE, JSTATE, DENORM, ZETA, ORBIN
+     &                         JSTATE, DENORM, ZETA, ORBIN
       use Constants, only: Zero, One, Two, Half
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: IVEC
-      real(kind=wp), intent(inout) :: DMAT(*)
+      integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
+      real(kind=wp), intent(inout) :: DMAT(NDMAT)
       real(kind=wp), intent(in) :: UEFF(nState,nState),U0(nState,nState)
 
       real(kind=wp), allocatable :: VECROT(:)
@@ -61,7 +61,7 @@
       real(kind=wp),allocatable,target :: DPT2Canti_(:),DPT2C(:)
       real(kind=wp),pointer :: DPT2Canti(:)
 
-      integer(kind=iwp) :: NDMAT, NDPT, nDPTAO, ISYM, NO, nAO, IDMOFF,
+      integer(kind=iwp) :: NDPT, nDPTAO, ISYM, NO, nAO, IDMOFF,
      &  NI, NA, II, IDM, IT, ITABS, ITTOT, IU, IUTOT, IDRF, IUABS, I, J,
      &  nch, iState, JJ, iStLag, ibk, NumChoTot, nOcc, lT2AO, iSQ, iTR,
      &  nOrbI, iBasTr, iBasSq, liBasTr, liBasSq, jBasI, IDSOFF,
@@ -74,19 +74,17 @@
       IF (do_grad) THEN
         !! Set indices for densities and partial derivatives
         Call mma_allocate(VECROT,nState,Label='VECROT')
-        Call GradPrep(UEFF,VECROT)
+        Call GradPrep(nState,UEFF,VECROT)
 !
 ! Compute total density matrix as symmetry-blocked array of
 ! triangular matrices in DMAT. Size of a triangular submatrix is
 !  (NORB(ISYM)*(NORB(ISYM)+1))/2.
-        NDMAT=0
         NDPT=0
         nDPTAO=0
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
           nAO = nBas(iSym)
           NDPT=NDPT+NO**2
-          NDMAT=NDMAT+(NO*(NO+1))/2
           nDPTAO = nDPTAO + nAO**2
         END DO
         ! shouldn't be necessary, is already done outside
@@ -968,7 +966,7 @@
         DPT2Canti => null()
 
         !! Finalize OLag (anti-symmetrize) and construct WLag
-        Call OLagFinal(OLag,Trf)
+        Call OLagFinal(nOLag,NBSQT,OLag,Trf)
 
         call mma_deallocate(TRF)
         call mma_deallocate(WRK1)
@@ -983,12 +981,10 @@
 ! Compute total density matrix as symmetry-blocked array of
 ! triangular matrices in DMAT. Size of a triangular submatrix is
 !  (NORB(ISYM)*(NORB(ISYM)+1))/2.
-        NDMAT=0
         NDPT=0
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
           NDPT=NDPT+NO**2
-          NDMAT=NDMAT+(NO*(NO+1))/2
         END DO
         DMAT(1:NDMAT) = Zero
 ! First, put in the reference density matrix.

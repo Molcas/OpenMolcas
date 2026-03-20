@@ -762,8 +762,8 @@
       Subroutine XMS_Grad(H0,U0,UEFF,OMGDER)
 
       use caspt2_global, only: do_nac, do_csf, iRoot1, iRoot2,
-     &                           CLag,CLagFull,OLag,DPT2_tot,
-     &                           FIFA_all,FIFASA_all
+     &                         nOLag, CLag,CLagFull,OLag,DPT2_tot,
+     &                         FIFA_all,FIFASA_all
       use caspt2_global, only: FIFA, TORB, NDREF
       use caspt2_global, only: CMOPT2, if_equalW, weight
       use gugx, only: SGS
@@ -1004,7 +1004,7 @@
         Call DPT2_TrfStore(One,DPT2,DPT2_tot,Trf,WRK1)
 
         !! Finalize OLag (anti-symetrize) and construct WLag
-        Call OLagFinal(OLag,Trf)
+        Call OLagFinal(nOLag,NBSQT,OLag,Trf)
 
         If (.not.if_equalW) then
           call mma_allocate(DPT2_AO,NBSQT,Label='DPT2_AO')
