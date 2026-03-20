@@ -75,6 +75,16 @@ do i=iFirst,nIter
 
 end do
 
+if (nDIIS == 1) then
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Exit S-GEK Optimizer'
+# endif
+  call mma_deallocate(g)
+  call mma_deallocate(q)
+  return
+end if
+
+
 #ifdef _DEBUGPRINT_
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
