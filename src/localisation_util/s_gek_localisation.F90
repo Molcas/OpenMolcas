@@ -15,7 +15,6 @@
 
 !#define _DEBUGPRINT_
 
-
 subroutine S_GEK_localisation(nIter,Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework,SORange,&
                               usmitigation)
 
