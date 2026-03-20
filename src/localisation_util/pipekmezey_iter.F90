@@ -278,24 +278,22 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #               ifdef _DEBUGPRINT_
                 write(u6,*) "turning on GEK in iteration",nIter+1,"starting sampling for GEK in iteration",nIter
 #               endif
+                ! current coordinate = kappa_1 = q_1
                 displacements(:,1) = Disp(:)
-                !call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,1),fsdim)
 
             else if (large_elements == 0 .and. start_gek) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
-                Iter_GEK = Iter_GEK+1
-                ! when Iter_GEK = 1:
-                ! displacements(:,:) has NR kappa_1 (most recent step)
+
+                Iter_GEK = Iter_GEK+1 ! i >=1
+
+                ! when Iter_GEK = 1: displacements(:,:) contains NR kappa_1 = q_i (most recent step)
                 ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot):
-                GradientList(:,Iter_GEK) = Gradient(:)
-                !call upper_triag2vec(Gradient(:,:),nOrb2Loc,GradientList(:,Iter_GEK),fsdim)
-                FunctionalList(Iter_GEK)=Functional !first entry is from before first iteration
+                GradientList(:,Iter_GEK) = Gradient(:) ! g_i
+                FunctionalList(Iter_GEK)=Functional ! y_i
 
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
-                ! NR step as Disp guess
-                !call upper_triag2vec(kappa(:,:),nOrb2Loc,Disp(:),fsdim)
 
                 select case(OptMeth)
 
@@ -343,22 +341,18 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end if ! undershoot mitigation
                 ! -------------------------------------------------------------------------------
 
-                ! when Iter_GEK = 1:
-                ! displacements(:,:) has NR kappa_1 (most recent step)
                 ! after GEK/RVO, add kappa_i+1 to the displacement list for next iteration:
-                displacements(:,Iter_GEK+1) = Disp(:)
+                displacements(:,Iter_GEK+1) = Disp(:) ! q_i+1
 
-
-                ! transform GEK disp vec to matrix
 #               ifdef _DEBUGPRINT_
-                call RecPrt('(GEK step)',' ',Disp(:),fsdim,1)
+                call RecPrt('GEK step = q_i+1 =',' ',Disp(:),fsdim,1)
 #               endif
 
-                !call upper_triag2vec(kappa(:,:),nOrb2Loc,displacements(:,Iter_GEK+1),fsdim)
             end if
         end select ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
+        ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -410,8 +404,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       endif
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-
-        !save previous:
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
 
 #       ifdef _DEBUG2_
