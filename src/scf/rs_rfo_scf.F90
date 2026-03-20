@@ -251,7 +251,7 @@ do
     Iterate = .false.
   end if
 
-  !if (abs(StepMax-sqrt(dqdq)) <= Thr) write(6,*) 'Converged'
+  !if (abs(StepMax-sqrt(dqdq)) <= Thr) write(u6,*) 'Converged'
   if ((.not. Iterate) .or. (abs(StepMax-sqrt(dqdq)) <= Thr)) exit
   if (Iter_i > IterMx) exit
 

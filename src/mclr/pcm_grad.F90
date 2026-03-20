@@ -263,9 +263,9 @@ subroutine PrepPCM()
   call PCM_grad_dens2(1,DSCFMO,DSCFAO)
   call fold(nSym,nBas,DSCFAO,D1ao)
 
-  !write(6,*) 'DSCFAO'
+  !write(u6,*) 'DSCFAO'
   !do isym=1,leng
-  !  write(6,'(i3,f20.10)') isym,d1ao(isym)
+  !  write(u6,'(i3,f20.10)') isym,d1ao(isym)
   !end do
 
   NonEq = .false.
@@ -809,7 +809,7 @@ subroutine PCM_mod_ERASSCF(ERASSCF_)
   idSym = 1
 
   do iRoot=1,nRoots
-    !write(6,*) 'original erasscf = ',erasscf(iroot),erasscf_(iroot)
+    !write(u6,*) 'original erasscf = ',erasscf(iroot),erasscf_(iroot)
     ecorr = Zero
 
     do iS=1,nSym
@@ -837,7 +837,7 @@ subroutine PCM_mod_ERASSCF(ERASSCF_)
     end do
 
     ERASSCF_(iRoot) = ERASSCF_(iRoot)+ecorr
-    !write(6,*) 'modified erasscf = ',erasscf_(iroot)
+    !write(u6,*) 'modified erasscf = ',erasscf_(iroot)
   end do
 
 end subroutine PCM_mod_ERASSCF

@@ -277,7 +277,7 @@ if (yesa == 1) then
 
   do syma=1,nsym
 
-    if (fullprint >= 3) write(6,*) ' SymA alpha ',syma
+    if (fullprint >= 3) write(u6,*) ' SymA alpha ',syma
 
     ! storing of mediates:
     !

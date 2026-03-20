@@ -23,7 +23,6 @@ subroutine MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,LSYM2,MPLET2,MSPROJ2,IFSBTAB2,IS
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
 use qcmaquis_interface_cfg
-use qcmaquis_interface_utility_routines, only: pretty_print_util
 use qcmaquis_info
 use qcmaquis_interface_mpssi
 use rassi_global_arrays, only: LROOT
@@ -107,7 +106,7 @@ if (abs(MS2OP) <= 2) then
 # ifdef _DMRG_
   else
     if (isyop /= 1) then
-      write(6,*) 'MPS property density with spatial symm irrep > 1: FIXME!'
+      write(u6,*) 'MPS property density with spatial symm irrep > 1: FIXME!'
       call abend()
     end if
     ! calculate 1-TDMs: Must always be calculated with the higher multiplicity as <T|o|S>

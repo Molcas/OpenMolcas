@@ -47,26 +47,26 @@ end interface
 ! Print a banner
 
 if (IPGLOB >= 2) then
-  write(6,*)
-  write(6,*)
-  write(6,'(6X,A)') repeat('*',100)
-  write(6,'(6X,A,98X,A)') '*','*'
-  write(6,'(6X,A,36X,A,37X,A)') '*',' Surface hopping section ','*'
-  write(6,'(6X,A,98X,A)') '*','*'
-  write(6,'(6X,A)') repeat('*',100)
-  write(6,*)
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(6X,A)') repeat('*',100)
+  write(u6,'(6X,A,98X,A)') '*','*'
+  write(u6,'(6X,A,36X,A,37X,A)') '*',' Surface hopping section ','*'
+  write(u6,'(6X,A,98X,A)') '*','*'
+  write(u6,'(6X,A)') repeat('*',100)
+  write(u6,*)
+  write(u6,*)
 
-  write(6,'(6X,A)') 'Surface hopping section'
-  write(6,'(6X,A)') '-----------------------'
+  write(u6,'(6X,A)') 'Surface hopping section'
+  write(u6,'(6X,A)') '-----------------------'
 end if
 
 ! Get the current state and print it's energy
 
 call Get_iScalar('Relax CASSCF root',iRlxRoot)
 if (IPGLOB >= 2) then
-  write(6,'(6X,A,I14)') 'The current state is:',iRlxRoot
-  write(6,'(6X,A,6X,ES15.6,A,/)') 'Its energy is:',ENERGY(iRlxRoot),' a.u.'
+  write(u6,'(6X,A,I14)') 'The current state is:',iRlxRoot
+  write(u6,'(6X,A,6X,ES15.6,A,/)') 'Its energy is:',ENERGY(iRlxRoot),' a.u.'
 end if
 
 ! Get wave function parameters for current state

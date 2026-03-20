@@ -141,21 +141,21 @@ with open('f5.fh', 'w') as f:
   f.write('\n    ! BLAS\n\n')
   for i in blas_functions:
     f.write(f'''    if (DLAddr(c_funloc(lb_{i}),c_loc(info)) /= 0) then
-      write(6,*) '{i} from: ',c_f_string(info%dli_fname)
+      write(u6,*) '{i} from: ',c_f_string(info%dli_fname)
     else
-      write(6,*) 'no {i} found!'
+      write(u6,*) 'no {i} found!'
     end if\n''')
   f.write('\n    ! LAPACK\n\n')
   for i in lapack_functions:
     f.write(f'''    if (DLAddr(c_funloc(lb_{i}),c_loc(info)) /= 0) then
-      write(6,*) '{i} from: ',c_f_string(info%dli_fname)
+      write(u6,*) '{i} from: ',c_f_string(info%dli_fname)
     else
-      write(6,*) 'no {i} found!'
+      write(u6,*) 'no {i} found!'
     end if\n''')
   f.write('\n    ! Legacy\n\n')
   for i in legacy_functions:
     f.write(f'''    if (DLAddr(c_funloc(lb_{i}),c_loc(info)) /= 0) then
-      write(6,*) '{i} from: ',c_f_string(info%dli_fname)
+      write(u6,*) '{i} from: ',c_f_string(info%dli_fname)
     else
-      write(6,*) 'no {i} found!'
+      write(u6,*) 'no {i} found!'
     end if\n''')

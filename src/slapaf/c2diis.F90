@@ -49,7 +49,7 @@ A(:,:) = H(:,:)
 iRc = 0
 call dpotrf_('U',nInter,A,nInter,iRC)
 if (iRC /= 0) then
-  write(6,*) 'C2DIIS(DPOTRF): iRC=',iRC
+  write(u6,*) 'C2DIIS(DPOTRF): iRC=',iRC
   call Abend()
 end if
 
@@ -137,7 +137,7 @@ do i=max(1,nIter-11),nIter-1
   end if
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) ' iP=',iP
+write(u6,*) ' iP=',iP
 #endif
 
 !MaxWdw = max(3,3*(nInter-nFix)/4)
@@ -185,7 +185,7 @@ do iVec=1,mIter
   B(iTri(iVec,iVec)) = B(iTri(iVec,iVec))*Alpha**2
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) ' After normalization to C1-DIIS format'
+write(u6,*) ' After normalization to C1-DIIS format'
 call TriPrt(' The B Matrix after diagonalization','(9ES10.2)',B,mIter)
 call RecPrt(' Eigenvectors',' ',Scrt1,mIter,mIter)
 #endif
@@ -197,18 +197,18 @@ c2_old = 1.0D+72
 iVec_old = -99999999
 do iVec=1,mIter
 # ifdef _DEBUGPRINT_
-  write(6,*) ' Scanning vector',iVec
+  write(u6,*) ' Scanning vector',iVec
 # endif
   ee_new = B(iTri(iVec,iVec))
 # ifdef _DEBUGPRINT_
-  write(6,*) ' ee_old, ee_new=',ee_old,ee_new
+  write(u6,*) ' ee_old, ee_new=',ee_old,ee_new
 # endif
 
   ! Examine if <e|e> is too low (possible round-off) or linear dependency.
 
   if (ee_new < Thrhld) then
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' <e|e> is low in DIIS, iVec,<e|e>=',iVec,ee_new
+    write(u6,*) ' <e|e> is low in DIIS, iVec,<e|e>=',iVec,ee_new
 #   endif
 
     ! Reject if coefficients are too large (linear dep.).
@@ -216,7 +216,7 @@ do iVec=1,mIter
     c2_new = DDot_(mIter,Scrt1((iVec-1)*mIter+1),1,Scrt1((iVec-1)*mIter+1),1)
     if (c2_new > ThrCff) then
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
+      write(u6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
 #     endif
       cycle
     end if
@@ -227,7 +227,7 @@ do iVec=1,mIter
   c2_new = DDot_(mIter,Scrt1((iVec-1)*mIter+1),1,Scrt1((iVec-1)*mIter+1),1)
   if (c2_new > ThrLdp) then
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
+    write(u6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
 #   endif
     cycle
   end if
@@ -240,13 +240,13 @@ do iVec=1,mIter
     ee_old = ee_new
     iVec_old = iVec
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'New vector much lower eigenvalue',iVec_old
+    write(u6,*) 'New vector much lower eigenvalue',iVec_old
 #   endif
   else if (ee_new <= ee_old*Five) then
     ! New vector is close to the old vector.
     ! Selection based on relative weight of the last geometry.
 #   ifdef _DEBUGPRINT_
-    write(6,*) 'Eigenvalues are close',iVec_old,iVec
+    write(u6,*) 'Eigenvalues are close',iVec_old,iVec
 #   endif
     t1 = abs(Scrt1(iVec_old*mIter))/sqrt(c2_old)
     t2 = abs(Scrt1(iVec*mIter))/sqrt(c2_new)
@@ -256,20 +256,20 @@ do iVec=1,mIter
       ee_old = ee_new
       iVec_old = iVec
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'New vector much better relative weight',iVec_old
+      write(u6,*) 'New vector much better relative weight',iVec_old
 #     endif
     else if (t2*1.2d0 < t1) then
       ! Vectors are close in relative weight too!
       ! Select on eigenvalue only
 #     ifdef _DEBUGPRINT_
-      write(6,*) 'Relative weights are close',iVec_old,iVec
+      write(u6,*) 'Relative weights are close',iVec_old,iVec
 #     endif
       if (ee_new < ee_old) then
         c2_old = c2_new
         ee_old = ee_new
         iVec_old = iVec
 #       ifdef _DEBUGPRINT_
-        write(6,*) 'New vector has lower eigenvalue',iVec_old
+        write(u6,*) 'New vector has lower eigenvalue',iVec_old
 #       endif
       end if
     end if

@@ -140,13 +140,13 @@ WFTP2 = RASTYP(JOB2)
 SGS(1)%IFRAS = 1
 SGS(2)%IFRAS = 1
 if (IPGLOB >= 4) then
-  write(6,*) ' Entered GTDMCTL.'
-  write(6,'(1X,A,I3,A,I3)') '  JOB1:',JOB1,'        JOB2:',JOB2
-  write(6,'(1X,A,I3,A,I3)') 'NACTE1:',NACTE1,'      NACTE2:',NACTE2
-  write(6,'(1X,A,I3,A,I3)') 'MPLET1:',MPLET1,'      MPLET2:',MPLET2
-  write(6,'(1X,A,I3,A,I3)') ' LSYM1:',LSYM1,'       LSYM2:',LSYM2
-  write(6,'(1X,A,A8,A,A8)') ' WFTP1:',WFTP1,'       WFTP2:',WFTP2
-  write(6,'(1X,A,I3,A,I3)') ' NPROP:',NPROP
+  write(u6,*) ' Entered GTDMCTL.'
+  write(u6,'(1X,A,I3,A,I3)') '  JOB1:',JOB1,'        JOB2:',JOB2
+  write(u6,'(1X,A,I3,A,I3)') 'NACTE1:',NACTE1,'      NACTE2:',NACTE2
+  write(u6,'(1X,A,I3,A,I3)') 'MPLET1:',MPLET1,'      MPLET2:',MPLET2
+  write(u6,'(1X,A,I3,A,I3)') ' LSYM1:',LSYM1,'       LSYM2:',LSYM2
+  write(u6,'(1X,A,A8,A,A8)') ' WFTP1:',WFTP1,'       WFTP2:',WFTP2
+  write(u6,'(1X,A,I3,A,I3)') ' NPROP:',NPROP
 end if
 
 if (doDMRG .and. (nacte1 /= nacte2)) then
@@ -195,12 +195,12 @@ IFTWO = IFHAM .and. (.not. (IFHEXT .or. IFHEFF .or. IFEJOB))
 IF22 = IF22 .and. IFTWO .and. (MPLET1 == MPLET2) .and. (LSYM1 == LSYM2)
 
 if (IPGLOB >= 4) then
-  if (IF00) write(6,*) ' Overlap will be computed.'
-  if (IF10 .or. IF01) write(6,*) ' Dyson orbital will be computed.'
-  if (IF20 .or. IF02) write(6,*) ' Pair amplitudes will be computed.'
-  if (IF11) write(6,*) ' Density 1-matrix will be computed.'
-  if (IF21 .or. IF12) write(6,*) ' 2h1p amplitudes will be computed.'
-  if (IF22) write(6,*) ' Density 2-matrix will be computed.'
+  if (IF00) write(u6,*) ' Overlap will be computed.'
+  if (IF10 .or. IF01) write(u6,*) ' Dyson orbital will be computed.'
+  if (IF20 .or. IF02) write(u6,*) ' Pair amplitudes will be computed.'
+  if (IF11) write(u6,*) ' Density 1-matrix will be computed.'
+  if (IF21 .or. IF12) write(u6,*) ' 2h1p amplitudes will be computed.'
+  if (IF22) write(u6,*) ' Density 2-matrix will be computed.'
 end if
 
 ! Pick up orbitals of ket and bra states.
@@ -237,10 +237,10 @@ do ISY=1,NSYM
 200 continue
 end do
 if (TDYS .and. (.not. DYSO)) then
-  write(6,*)
-  write(6,*) 'Auger (TDYS) requires Dyson calculation.'
-  write(6,*) 'Make sure to activate Dyson in your RASSI input.'
-  write(6,*) 'For now, Auger computation will be skipped.'
+  write(u6,*)
+  write(u6,*) 'Auger (TDYS) requires Dyson calculation.'
+  write(u6,*) 'Make sure to activate Dyson in your RASSI input.'
+  write(u6,*) 'For now, Auger computation will be skipped.'
 end if
 ! evaluation of DCH
 if (DCHS) NDCHSM = NASHT**2
@@ -350,13 +350,13 @@ if (IFTWO .and. (MPLET1 == MPLET2)) then
   call mma_allocate(FMO,nTDM1,Label='FMO')
   call mma_allocate(TUVX,nTDM2,Label='TUVX')
   TUVX(:) = Zero
-  !TEST  write(6,*) 'GTDMCTL calling TRINT.'
+  !TEST  write(u6,*) 'GTDMCTL calling TRINT.'
   call TRINT(CMO1,CMO2,ECORE,nTDM1,FMO,nTDM2,TUVX)
   ECORE = ENUC+ERFNUC+ECORE
-  !TEST  write(6,*) 'GTDMCTL back from TRINT.'
-  !TEST  write(6,*) 'ENUC  =',ENUC
-  !TEST  write(6,*) 'ERFNUC=',ERFNUC
-  !TEST  write(6,*) 'ECORE =',ECORE
+  !TEST  write(u6,*) 'GTDMCTL back from TRINT.'
+  !TEST  write(u6,*) 'ENUC  =',ENUC
+  !TEST  write(u6,*) 'ERFNUC=',ERFNUC
+  !TEST  write(u6,*) 'ECORE =',ECORE
 end if
 
 ! In the calculation of matrix elements ( S1, S2 ), we will use
@@ -451,7 +451,7 @@ if (WFTP1 == 'GENERAL') then
   if (.not. doDMRG) then
     call SGINIT(NSYM,NACTE1,MPLET1,SGS(1),CIS(1))
     if (IPGLOB > 4) then
-      write(6,*) 'Split-graph structure for JOB1=',JOB1
+      write(u6,*) 'Split-graph structure for JOB1=',JOB1
       call SGPRINT(SGS(1))
     end if
     call CXINIT(SGS(1),CIS(1),EXS(1))
@@ -577,7 +577,7 @@ if (WFTP2 == 'GENERAL') then
   if (.not. doDMRG) then
     call SGINIT(NSYM,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
-      write(6,*) 'Split-graph structure for JOB2=',JOB2
+      write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SGPRINT(SGS(2))
     end if
     call CXINIT(SGS(2),CIS(2),EXS(2))
@@ -689,7 +689,7 @@ do IST=1,NSTAT(JOB1)
     else
       CI1(1) = One
     end if
-    DET1(:) = 0.0d0
+    DET1(:) = Zero
     ! Transform to bion basis, Split-Guga format
     if (TrOrb) call CITRA(WFTP1,SGS(1),CIS(1),EXS(1),LSYM1,TRA1,NCONF1,CI1)
     call mma_allocate(detcoeff1,nDet1,label='detcoeff1')
@@ -724,7 +724,7 @@ end do
 
 if (DoGSOR) then
   call mma_allocate(Theta1,NCONF2,Label='Theta1')
-  Theta1(:) = 0.0d0
+  Theta1(:) = Zero
 end if
 
 !-------------------------------------------------------------
@@ -740,7 +740,7 @@ do JST=1,NSTAT(JOB2)
       CI2(1) = One
     end if
     if (DoGSOR) call DCOPY_(NCONF2,CI2,1,CI2_o,1)
-    DET2(:) = 0.0d0
+    DET2(:) = Zero
     ! Transform to bion basis, Split-Guga format
     if (TrOrb) call CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,TRA2,NCONF2,CI2)
     call mma_allocate(detcoeff2,nDet2,label='detcoeff2')
@@ -819,7 +819,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
       ! Correct Dyson norms, for a biorth. basis. Add by Bruno
       DYNORM = Zero
       call DYSNORM(CMO2,DYSAB,DYNORM) !do not change CMO2
-      if (DYNORM > 1.0D-5) then
+      if (DYNORM > 1.0e-5_wp) then
         ! In AO basis:
         call MKDYSZZ(CMO2,DYSAB,DYSZZ)  !do not change CMO2
         if (DYSO) then
@@ -882,7 +882,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
       call mma_allocate(DCHSM,nDCHSM,Label='DCHSM')
       DCHSM(:) = Zero
       call MKDCHS(FSBTAB1,FSBTAB2,SSTAB,OMAP,DET1,DET2,IF20,IF02,NDCHSM,DCHSM,OrbTab)
-      write(6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,DCHSM(DCHIJ)
+      write(u6,'(A,I5,I5,A,F14.5,ES23.14)') '  RASSI Pair States:',JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,DCHSM(DCHIJ)
       call mma_deallocate(DCHSM)
     end if
     ! ------------------------------------------------------------
@@ -900,7 +900,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
         end if
         if (DoNTO) then
           call NTOCalc(job1,job2,ISTATE,JSTATE,TRAD,TRASD,MPLET1)
-          write(6,*) 'ntocalculation finished'
+          write(u6,*) 'ntocalculation finished'
         end if
       end if
       ! End of Calculating NTO
@@ -1191,7 +1191,7 @@ end if !DoGSOR
 if (IPGLOB >= 4) then
   write(u6,*) 'full SF-HAMILTONIAN'
   write(u6,*) 'dimension: ',nstate**2
-  call pretty_print_util(HAM,1,nstate,1,nstate,nstate,nstate,1,6)
+  call pretty_print_util(HAM,1,nstate,1,nstate,nstate,nstate,1,u6)
 end if
 #endif
 

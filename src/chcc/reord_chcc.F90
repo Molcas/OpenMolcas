@@ -559,7 +559,7 @@ do bGrp=1,NaGrpR
   addb = addb+dimb
 end do
 
-write(6,*)
+write(u6,*)
 write(u6,92) ' E2 MP2    :',e2
 write(u6,92) ' E2 ss     :',e2-e2os
 write(u6,92) ' E2 os     :',e2os

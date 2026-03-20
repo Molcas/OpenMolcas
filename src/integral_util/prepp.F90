@@ -123,7 +123,7 @@ select case (Method)
       write(u6,Frmt) 'Exchange scaling factor',CoefX
       write(u6,Frmt) 'Correlation scaling factor',CoefR
     end if
-    write(6,*)
+  write(u6,*)
 #   endif
 
     if (Method == 'MBPT2   ') then

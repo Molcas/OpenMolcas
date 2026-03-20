@@ -13,7 +13,7 @@ subroutine gugadrt(ireturn)
 
 use gugadrt_global, only: ja, jb, jj, jm, kk, max_node, nci_dim
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
@@ -55,7 +55,7 @@ call mma_deallocate(kk)
 
 sc1 = seconds()
 sc = sc1-sc0
-write(6,910) sc
+write(u6,910) sc
 
 return
 

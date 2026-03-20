@@ -97,7 +97,7 @@ do i=1,n
 end do
 
 !=======================================================================
-write(6,'(A,ES20.10)') 'recover from Bstev'
+write(u6,'(A,ES20.10)') 'recover from Bstev'
 HCF(:,:) = cZero
 do k=1,n-1
   do q=0,k

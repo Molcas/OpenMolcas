@@ -382,17 +382,16 @@ call mma_deallocate(Rlx)
 ! print full cartesian gradient in Columbus format
 
 if (Columbus == 1) then
-  ! real Cgrad(3,mxatom)
-  ! character(len=9) CNames(MxAtom)
-  ! integer lcartgrd, iatom,icen,j
+  ! real(kind=wp) :: Cgrad(3,mxatom)
+  ! character(len=9) :: CNames(MxAtom)
+  ! integer(kind=iwp) :: lcartgrd,iatom,icen,j
   call mma_allocate(CGrad,3,MxAtom,label='CGrad')
   call mma_allocate(CNames,MxAtom,label='CNames')
   call TrGrd_Alaska(CGrad,CNames,Grad,lDisp(0),iCen)
-  lcartgrd = 60
-  lcartgrd = isFreeUnit(lcartgrd)
+  lcartgrd = isFreeUnit(60)
   call Molcas_Open(lcartgrd,'cartgrd')
   do IATOM=1,iCen
-    write(60,1010) (CGrad(j,iatom),j=1,3)
+    write(lcartgrd,1010) (CGrad(j,iatom),j=1,3)
   end do
   close(lcartgrd)
   call mma_deallocate(CGrad)
