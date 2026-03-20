@@ -14,7 +14,6 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-#define _ndiis2_
 
 subroutine S_GEK_localisation(nIter,Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework,SORange,&
                               usmitigation)
@@ -76,7 +75,6 @@ do i=iFirst,nIter
 
 end do
 
-# ifdef _ndiis2_
 if (nDIIS == 1) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Exit S-GEK Optimizer'
@@ -85,7 +83,6 @@ if (nDIIS == 1) then
   call mma_deallocate(q)
   return
 end if
-#endif
 
 
 #ifdef _DEBUGPRINT_

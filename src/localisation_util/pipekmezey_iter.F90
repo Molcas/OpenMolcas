@@ -317,8 +317,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 if (Loosen%Step > One) then
                     call mma_allocate(Prev,fsdim,Label='Prev')
 
-                    Prev(:) = displacements(:,nIter)
-                    Disp(:) = displacements(:,nIter+1)
+                    Prev(:) = displacements(:,Iter_GEK)
 
                     dqdq = DDot_(fsdim,Disp,1,Disp,1)*DDot_(fsdim,Prev,1,Prev,1)
                     ang = DDot_(fsdim,Prev,1,Disp,1)/sqrt(dqdq)
