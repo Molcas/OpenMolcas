@@ -1140,12 +1140,12 @@
       integer(kind=byte), ALLOCATABLE :: idxG3(:,:)
       real(kind=wp),allocatable :: EIG(:),WRK(:,:)
 
-      logical(kind=iwp) :: bStat
+      logical(kind=iwp) :: bStat, invar_act
       integer(kind=iwp) :: myrank, lg_T, lg_WRK, lg_WRK2,
      &                     lg_BDER, iLoV1, iHiV1, jLoV1, jHiV1, NROW,
      &                     NCOL, idB, mV1, LDV1, i, j, iICB, jICB,
      &                     lg_SDER, idSD, mBDER, mSDER
-      real(kind=wp) :: SCAL, EigI, EigJ
+      real(kind=wp) :: SCAL, EigI, EigJ, tmp
 !
 !     Construct active density in NAS basis
 !     Although non-GA version is also implemented, I noticed that
@@ -1155,6 +1155,8 @@
       IF (IFMSCOUP) SCAL = VECROT(jState)
       MYRANK=GA_NODEID()
 
+      invar_act = .true.
+      if (sigma_p_epsilon /= Zero) invar_act = .false.
       !! First, distribute the transformation matrix
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'TRANS',lg_T)
       CALL PSBMAT_READ('T',iCase,iSym,lg_T,NAS*NIN)
@@ -1213,9 +1215,9 @@
         Call RHS_FREE(lg_V2)
       End If
 
-      if (sigma_p_epsilon /= Zero) then
+!     if (sigma_p_epsilon /= Zero) then
 !       CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
-      endif
+!     endif
 
       CALL GA_SYNC()
 !
@@ -1271,27 +1273,34 @@
 !
 !     B derivative in NIN completed
 !
-      CALL GA_CREATE_STRIPED ('H',NAS,NIN,'WRK2',lg_WRK2)
-      !! Use the same stripe as PSBMAT_GEMEM?
-      CALL GA_CREATE_STRIPED ('H',NAS,NAS,'BDER',lg_BDER)
+      if (invar_act) then
+        CALL GA_CREATE_STRIPED ('H',NAS,NIN,'WRK2',lg_WRK2)
+        !! Use the same stripe as PSBMAT_GEMEM?
+        CALL GA_CREATE_STRIPED ('H',NAS,NAS,'BDER',lg_BDER)
 
-      !! NIN -> NAS transformation of B derivative
-      !! Need 4 GAs; is it possible to reduce?
-      !! lg_WRK is used later, so probably not
-      CALL GA_DGEMM ('N','N',NAS,NIN,NIN,
-     &               One,lg_T,lg_WRK,Zero,lg_WRK2)
-      CALL GA_DGEMM ('N','T',NAS,NAS,NIN,
-     &               One,lg_WRK2,lg_T,Zero,lg_BDER)
-!     if (king()) then
-!       call mma_allocate(VEC1,NAS*NAS,Label='WRK1')
-!       CALL GA_GET(lg_bder,1,NAS,1,NAS,VEC1,NAS)
-!       WRITE (*,*) 'B DERIVATIVE IN NAS'
-!       CALL SQPRT(VEC1,NAS)
-!       call mma_deallocate(VEC1)
-!     end if
+        !! NIN -> NAS transformation of B derivative
+        !! Need 4 GAs; is it possible to reduce?
+        !! lg_WRK is used later, so probably not
+        CALL GA_DGEMM ('N','N',NAS,NIN,NIN,
+     &                 One,lg_T,lg_WRK,Zero,lg_WRK2)
+        CALL GA_DGEMM ('N','T',NAS,NAS,NIN,
+     &                 One,lg_WRK2,lg_T,Zero,lg_BDER)
+!       if (king()) then
+!         call mma_allocate(VEC1,NAS*NAS,Label='WRK1')
+!         CALL GA_GET(lg_bder,1,NAS,1,NAS,VEC1,NAS)
+!         WRITE (*,*) 'B DERIVATIVE IN NAS'
+!         CALL SQPRT(VEC1,NAS)
+!         call mma_deallocate(VEC1)
+!       end if
 
-      !! cannot destroy lg_WRK; it is used for overlap derivative
-      bStat = GA_destroy(lg_WRK2)
+        !! cannot destroy lg_WRK; it is used for overlap derivative
+        bStat = GA_destroy(lg_WRK2)
+      else
+        !! allocate BDER temporarily with the same dimension of WRK
+        CALL GA_CREATE_STRIPED ('V',NIN,NIN,'BDER',lg_BDER)
+        CALL GA_COPY(lg_WRK,lg_BDER)
+        CALL GA_ZERO(lg_WRK)
+      end if
 
       !! At present, lg_T, lg_WRK, and lg_BDER are in GA.
       !! It is possible to destroy lg_T here and can reduce the max
@@ -1318,28 +1327,30 @@
 !     mode = 0 operations for S derivative
 !
       !! Scale with the eigenvalue
-      CALL GA_Distribution (lg_WRK,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
-      NROW=iHiV1-iLoV1+1
-      NCOL=jHiV1-jLoV1+1
-      if (NROW > 0 .and. NCOL > 0) then
-        call mma_allocate(EIG,NIN,Label='EIG')
-        idB  = idBMAT(iSym,iCase)
-        CALL DDAFILE(LUSBT,2,EIG,NIN,IDB)
-        CALL GA_Access(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
+      if (invar_act) then
+        CALL GA_Distribution (lg_WRK,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
+        NROW=iHiV1-iLoV1+1
+        NCOL=jHiV1-jLoV1+1
+        if (NROW > 0 .and. NCOL > 0) then
+          call mma_allocate(EIG,NIN,Label='EIG')
+          idB  = idBMAT(iSym,iCase)
+          CALL DDAFILE(LUSBT,2,EIG,NIN,IDB)
+          CALL GA_Access(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
 
-        do j = 1, NCOL
-          jICB = j + jLoV1 - 1
-          EigJ = EIG(jICB)
-          do i = 1, NROW
-            iICB = i + iLoV1 - 1
-            EigI = EIG(iICB)
-            DBL_MB(mV1+i-1+NROW*(j-1))
-     &        = -DBL_MB(mV1+i-1+NROW*(j-1))*(EigI+EigJ)*Half
+          do j = 1, NCOL
+            jICB = j + jLoV1 - 1
+            EigJ = EIG(jICB)
+            do i = 1, NROW
+              iICB = i + iLoV1 - 1
+              EigI = EIG(iICB)
+              DBL_MB(mV1+i-1+NROW*(j-1))
+     &          = -DBL_MB(mV1+i-1+NROW*(j-1))*(EigI+EigJ)*Half
+            end do
           end do
-        end do
 
-        CALL GA_Release_Update(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1)
-        call mma_deallocate(EIG)
+          CALL GA_Release_Update(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1)
+          call mma_deallocate(EIG)
+        end if
       end if
 !     if (king()) then
 !       call mma_allocate(VEC1,NIN*NIN,Label='VEC1'))
@@ -1383,6 +1394,60 @@
 !
 !     S derivative in NIN completed (some NAS operations remain)
 !
+      !! For sigma_p, non-canonical condition
+      if (.not.invar_act) then
+        call mma_allocate(WRK,NIN,NIN,Label='WRK1')
+        CALL GA_GET(lg_WRK,1,NIN,1,NIN,WRK,NIN)
+        CALL GA_Distribution (lg_BDER,myRank,iLoV1,iHiV1,jLoV1,jHiV1)
+        NROW=iHiV1-iLoV1+1
+        NCOL=jHiV1-jLoV1+1
+        if (NROW > 0 .and. NCOL > 0) then
+          call mma_allocate(EIG,NIN,Label='EIG')
+          idB  = idBMAT(iSym,iCase)
+          CALL DDAFILE(LUSBT,2,EIG,NIN,IDB)
+          CALL GA_Access(lg_BDER,iLoV1,iHiV1,jLoV1,jHiV1,mBDER,LDV1)
+          !! construct the off-diagonal
+          do i = 1, NROW
+            iICB = i + iLoV1 - 1
+            EigI = EIG(iICB)
+            do j = 1, NCOL
+              jICB = j + jLoV1 - 1
+              EigJ = EIG(jICB)
+              if (iICB == jICB) cycle
+              tmp = WRK(iICB,jICB) - WRK(jICB,iICB)
+              tmp = tmp/(EigI-EigJ)
+              DBL_MB(mBDER+i-1+NROW*(j-1)) = tmp
+            end do
+          end do
+          !! -(e_o + e_p)*dS/da
+          CALL GA_Access(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1,mV1,LDV1)
+          do j = 1, NCOL
+            jICB = j + jLoV1 - 1
+            EigJ = EIG(jICB)
+            do i = 1, NROW
+              iICB = i + iLoV1 - 1
+              EigI = EIG(iICB)
+              DBL_MB(mV1+i-1+NROW*(j-1)) = DBL_MB(mV1+i-1+NROW*(j-1))
+     &          - DBL_MB(mBDER+i-1+NROW*(j-1))*(EigI+EigJ)*Half
+            end do
+          end do
+          CALL GA_Release_Update(lg_BDER,iLoV1,iHiV1,jLoV1,jHiV1)
+          CALL GA_Release_Update(lg_WRK,iLoV1,iHiV1,jLoV1,jHiV1)
+          call mma_deallocate(EIG)
+        end if
+        call mma_deallocate(WRK)
+
+        !! IC -> MO (B matrix)
+        CALL GA_CREATE_STRIPED ('H',NAS,NIN,'WRK2',lg_WRK2)
+        CALL GA_DGEMM ('N','N',NAS,NIN,NIN,
+     &                 One,lg_T,lg_BDER,Zero,lg_WRK2)
+        bStat = GA_destroy(lg_BDER)
+        CALL GA_CREATE_STRIPED ('H',NAS,NAS,'BDER',lg_BDER)
+        CALL GA_DGEMM ('N','T',NAS,NAS,NIN,
+     &                 One,lg_WRK2,lg_T,Zero,lg_BDER)
+        bStat = GA_destroy(lg_WRK2)
+      end if
+
       CALL GA_CREATE_STRIPED ('H',NAS,NIN,'WRK2',lg_WRK2)
       !! Use the same stripe as PSBMAT_GEMEM?
       CALL GA_CREATE_STRIPED ('H',NAS,NAS,'SDER',lg_SDER)
@@ -1570,7 +1635,15 @@
      &                             EIG(:)
 
       integer(kind=iwp) :: idT, idB, iICB, jICB, idSD
-      real(kind=wp) :: SCAL, EigI, EigJ
+      real(kind=wp) :: SCAL, EigI, EigJ, tmp
+      logical :: invar_act
+
+      !! sigma^P may not introduce non-invariance, so the name may be
+      !! simply confusing. I just do not know how to apply the
+      !! non-canonical approach for the derivative of the exponential
+      !! that appears in the denominator of the sigma^P regularization
+      invar_act = .true.
+      if (sigma_p_epsilon /= Zero) invar_act = .false.
 
       call mma_allocate(WRK1,nAS**2,Label='WRK1')
       call mma_allocate(WRK2,MAX(nAS**2,nAS*nIS),Label='WRK2')
@@ -1627,6 +1700,14 @@
         !! the remaining is the derivative of 2<1|H|0>, so the unscaled
         !! lambda is loaded
 #ifdef _MOLCAS_MPP_
+        !! --- To Do ---
+        !! Parallel sigma^P gradient does not work at the moment. I know
+        !! that the next part has to be fixed, but it is not possible to
+        !! load the unscaled lambda in the KING environment, so this
+        !! subroutine should be completely rewritten or an additional
+        !! (relatively large) array has to be allocated. The number of
+        !! allocated VEC arrays is already large (5?), so it is better
+        !! to rewrite this subroutine...
         IF (Is_Real_Par()) THEN
           IF (KING()) THEN
             CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
@@ -1639,33 +1720,38 @@
 #endif
       end if
 
-      !! Transform the internally contracted density to
-      !! active MO basis
-      !! WRK3(t,u) = ST(t,o)*WRK1(o,p)*ST(u,p)
-      !! WRK3 is the derivative contribution of the B matrix
-      !! in the MO basis
-      Call DGEMM_('N','N',nAS,nIN,nIN,
-     &            One,TRANS,nAS,WRK1,nIN,
-     &            Zero,WRK2,nAS)
-      Call DGEMM_('N','T',nAS,nAS,nIN,
-     &            One,WRK2,nAS,TRANS,nAS,
-     &            Zero,WRK3,nAS)
-!     write(u6,*) 'B derivative in MO'
-!     call sqprt(WRK3,nas)
+      if (invar_act) then
+        !! Transform the internally contracted density to
+        !! active MO basis
+        !! WRK3(t,u) = ST(t,o)*WRK1(o,p)*ST(u,p)
+        !! WRK3 is the derivative contribution of the B matrix
+        !! in the MO basis
+        Call DGEMM_('N','N',nAS,nIN,nIN,
+     &              One,TRANS,nAS,WRK1,nIN,
+     &              Zero,WRK2,nAS)
+        Call DGEMM_('N','T',nAS,nAS,nIN,
+     &              One,WRK2,nAS,TRANS,nAS,
+     &              Zero,WRK3,nAS)
+!       write(u6,*) 'B derivative in MO'
+!       call sqprt(WRK3,nas)
 
-      !! Implicit derivative of the IC vector. This derivative
-      !! comes from the derivative of the eigenvalue only. Other
-      !! contributions of the derivative of the IC vector is considered
-      !! later.
-      !! -(e_o + e_p)*dS/da
-      Do iICB = 1, nIN
-        EigI = EIG(iICB)
-        Do jICB = 1, nIN
-          EigJ = EIG(jICB)
-          WRK1(iICB+nIN*(jICB-1))
-     &      = -WRK1(iICB+nIN*(jICB-1))*(EigI+EigJ)*Half
+        !! Implicit derivative of the IC vector. This derivative
+        !! comes from the derivative of the eigenvalue only. Other
+        !! contributions of the derivative of the IC vector is considered
+        !! later.
+        !! -(e_o + e_p)*dS/da
+        Do iICB = 1, nIN
+          EigI = EIG(iICB)
+          Do jICB = 1, nIN
+            EigJ = EIG(jICB)
+            WRK1(iICB+nIN*(jICB-1))
+     &        = -WRK1(iICB+nIN*(jICB-1))*(EigI+EigJ)*Half
+          End Do
         End Do
-      End Do
+      else
+        WRK3(1:NIN**2) = WRK1(1:NIN**2)
+        WRK1(1:NIN**2) = Zero
+      end if
 
       !! Derivative of the overlap in the IC basis.
       !! WRK1(o,p) = WRK1(o,p) - T_{o,i}^{ab}*RHS(p,i,a,b)
@@ -1686,6 +1772,36 @@
         End If
       End If
 
+      if (.not.invar_act) then
+        !! it seems that only the diagonal elements are correct?
+        !! construct the off-diagonal
+        do iICB = 1, NIN
+          EigI = EIG(iICB)
+          do jICB = 1, iICB-1 !NIN
+            EigJ = EIG(jICB)
+            tmp = WRK1(iICB+NIN*(jICB-1)) - WRK1(jICB+NIN*(iICB-1))
+            tmp = tmp/(EigI-EigJ)
+            WRK3(iICB+NIN*(jICB-1)) = tmp
+            WRK3(jICB+NIN*(iICB-1)) = tmp
+          end do
+        end do
+        !! -(e_o + e_p)*dS/da
+        Do iICB = 1, nIN
+          EigI = EIG(iICB)
+          Do jICB = 1, nIN
+            EigJ = EIG(jICB)
+            WRK1(iICB+NIN*(jICB-1)) = WRK1(iICB+NIN*(jICB-1))
+     *        - WRK3(iICB+nIN*(jICB-1))*(EigI+EigJ)*Half
+          End Do
+        End Do
+        !! IC -> MO (B matrix)
+        Call DGEMM_('N','N',nAS,nIN,nIN,
+     *              One,TRANS,nAS,WRK3,nIN,
+     *              Zero,WRK2,nAS)
+        Call DGEMM_('N','T',nAS,nAS,nIN,
+     *              One,WRK2,nAS,TRANS,nAS,
+     *              Zero,WRK3,nAS)
+      end if
       !! Convert the IC basis to the MO basis
       Call DGEMM_('N','N',nAS,nIN,nIN,
      &            One,TRANS,nAS,WRK1,nIN,
