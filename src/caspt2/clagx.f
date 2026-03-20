@@ -1745,8 +1745,8 @@
 
         !! Implicit derivative of the IC vector. This derivative
         !! comes from the derivative of the eigenvalue only. Other
-        !! contributions of the derivative of the IC vector is considered
-        !! later.
+        !! contributions of the derivative of the IC vector is
+        !! considered later.
         !! -(e_o + e_p)*dS/da
         Do iICB = 1, nIN
           EigI = EIG(iICB)
