@@ -40,9 +40,9 @@
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: IfChol, IFDENS, IFMSCOUP, IFDW, IFSADREF,
      &                         MAXIT, NSYM, NCONF, NFROT, NISH, NRAS1T,
-     &                         NRAS2T, NRAS3T, NASH, NAES, NASHT, NORB,
-     &                         NBAS, NBAST, NOSQT, NBSQT, iRlxRoot,
-     &                         JSTATE, DENORM, ZETA, ORBIN
+     &                         NRAS2T, NRAS3T, NROOTS, NASH, NAES,
+     &                         NASHT, NORB, NBAS, NBAST, NOSQT, NBSQT,
+     &                         iRlxRoot, JSTATE, DENORM, ZETA, ORBIN
       use Constants, only: Zero, One, Two, Half
       use gugx, only: SGS
 
@@ -304,7 +304,7 @@
      &        ' SIGDER  : CPU/WALL TIME=', cput,wallt
           END IF
         end if
-        Call CLagX(1,nConf,nState,nAshT,CLag,DEPSA,VECROT)
+        Call CLagX(1,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
 !       call test3_dens(clag)
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADGOP (DEPSA,nAshT**2,'+')
@@ -355,7 +355,7 @@
         !! density matrices
         If (IFMSCOUP) Then
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          Call DerHEff(CLag,VECROT)
+          Call DerHEff(nConf,nRoots,nState,CLag,VECROT)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
           IF (IPRGLB >= VERBOSE) THEN
             CPUT =CPTF10-CPTF0
@@ -731,7 +731,8 @@
         ISAV(:) = IDCIEX(:)
         IDCIEX(:) = IDTCEX(:)
         !! Now, compute the configuration Lagrangian
-        Call CLagEig(if_SSDM,.false.,nConf,nState,NLEV,CLag,RDMEIG)
+        Call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,
+     &               RDMEIG)
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
 #endif
@@ -796,7 +797,8 @@
           !! RDMEIG contributions
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
-          Call CLagEig(if_SSDM,.false.,nConf,nState,NLEV,CLag,RDMEIG)
+          Call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,
+     &                 RDMEIG)
 #ifdef _MOLCAS_MPP_
           If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
 #endif

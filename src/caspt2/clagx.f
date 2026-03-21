@@ -13,7 +13,7 @@
 
 #include "macros.fh"
 
-      Subroutine CLagX(IFF,nConf,nState,nAshT,CLag,DEPSA,VECROT)
+      Subroutine CLagX(IFF,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
 
       use PrintLevel, only: VERBOSE
       use caspt2_global, only:iPrGlb
@@ -33,8 +33,8 @@
 #include "global.fh"
 #endif
 
-      integer(kind=iwp), intent(in) :: IFF, nConf, nState, nAshT
-      real(kind=wp), intent(inout) :: CLag(nConf,nState),
+      integer(kind=iwp), intent(in) :: IFF, nConf, nRoots, nState, nAshT
+      real(kind=wp), intent(inout) :: CLag(nConf,nRoots),
      &                                DEPSA(nAshT,nAshT)
       real(kind=wp), intent(in) :: VECROT(nState)
 
@@ -1972,8 +1972,8 @@
 !-----------------------------------------------------------------------
 !
       !! From poly3
-      SUBROUTINE CLagEig(if_SSDMloc,force_equal,nConf,nState,nLev,CLag,
-     &                   RDMEIG)
+      SUBROUTINE CLagEig(if_SSDMloc,force_equal,nConf,nRoots,nState,
+     &                   nLev,CLag,RDMEIG)
 
       use caspt2_global, only: DREF, DWGT
       use caspt2_global, only: OMGDER, Weight
@@ -1986,8 +1986,8 @@
       implicit none
 
       logical(kind=iwp), intent(in) :: if_SSDMloc, force_equal
-      integer(kind=iwp), intent(in) :: nConf, nState, nLev
-      real(kind=wp), intent(inout) :: CLag(nConf,nState)
+      integer(kind=iwp), intent(in) :: nConf, nRoots, nState, nLev
+      real(kind=wp), intent(inout) :: CLag(nConf,nRoots)
       real(kind=wp), intent(in) :: RDMEIG(nLev**2)
 
       real(kind=wp),allocatable :: CI1(:),WRK(:)
@@ -2082,7 +2082,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagFinal(nConf,nState,CLag,SLag)
+      Subroutine CLagFinal(nConf,nRoots,nState,CLag,SLag)
 
       use caspt2_global, only: iPrGlb
       use PrintLevel, only: VERBOSE
@@ -2093,8 +2093,8 @@
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: nConf, nState
-      real(kind=wp), intent(inout) :: CLag(nConf,nState),
+      integer(kind=iwp), intent(in) :: nConf, nRoots, nState
+      real(kind=wp), intent(inout) :: CLag(nConf,nRoots),
      &                                SLag(nState**2)
 
       real(kind=wp),allocatable :: CI1(:), CI2(:)

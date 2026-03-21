@@ -216,7 +216,8 @@
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: REFENE, RFPERT, IfChol, IFMSCOUP, IFXMS,
      &                         IFRMS, IFDW, NCONF, nFroT, NBAST,
-     &                         NBTRI, NBSQT, iRlxRoot, DWTYPE, Zeta
+     &                         NBTRI, NBSQT, iRlxRoot, NROOTS, DWTYPE,
+     &                         Zeta
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -319,7 +320,8 @@
         !! Now, compute the state Lagrangian and do some projections
         !! If PCM, we have to obtain internal state rotation parameters
         !! self-consistently, so we should not call this subroutine
-        If (.not.RF_On()) Call CLagFinal(nConf,nState,CLagFull,SLag)
+        If (.not.RF_On())
+     *    Call CLagFinal(nConf,nRoots,nState,CLagFull,SLag)
 
         !! Add MS-CASPT2 contributions
         If (IFMSCOUP) Then

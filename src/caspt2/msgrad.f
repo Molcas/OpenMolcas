@@ -771,7 +771,7 @@
       use definitions, only: wp, iwp
       use caspt2_module, only: ENERGY, IFXMS, IFRMS, IFDW, STSYM, NCONF,
      &                         NFRO, NISH, NASHT, NDEL, NBAS, NBAST,
-     &                         NBSQT, NSTATE, ZETA, ORBIN
+     &                         NBSQT, NROOTS, NSTATE, ZETA, ORBIN
       use Constants, only: Zero, One, Half, Two, Quart
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -855,7 +855,7 @@
             NTG1 = NASHT**2
             NTG3 = (NTG1*(NTG1+1)*(NTG1+2))/6
             OVL = Zero
-            CALL DERTG3(.False.,STSYM,STSYM,CI1,CI2,OVL,
+            CALL DERTG3(.False.,STSYM,STSYM,NCONF,NASHT,CI1,CI2,OVL,
      &                  DG1,DG2,NTG3,DG3,CLag(1,iStat),CLag(1,jStat))
             call mma_deallocate(DG3)
           End Do
@@ -1032,7 +1032,7 @@
           !! Subtract the inactive part
           Call DaXpY_(nBasT**2,-One,WRK2,1,WRK1,1)
           !! Save
-          Call CnstAB_SSDM(DPT2_AO,WRK1)
+          Call CnstAB_SSDM(NBSQT,DPT2_AO,WRK1)
           call mma_deallocate(DPT2_AO)
         End If
 
@@ -1099,7 +1099,8 @@
         Call CLagEigT(CLag,G1,SLag,EINACT)
 
         !! 2) Implicit CI derivative
-        Call CLagEig(.False.,.True.,nConf,nState,nLev,CLag,RDMEIG)
+        Call CLagEig(.False.,.True.,nConf,nRoots,nState,nLev,CLag,
+     &               RDMEIG)
 
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
