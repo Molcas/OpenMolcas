@@ -268,7 +268,7 @@
         !!   -> L(CAS) = X*L(PT2)*X^T
         !! inactive and virtual orbitals are not affected.
         Trf(:) = Zero
-        Call CnstTrf(TOrb,Trf)
+        Call CnstTrf(NBSQT,TOrb,Trf)
 !       call sqprt(trf,nbast)
 
         !! Construct the density matrix used in the Fock operator
@@ -433,9 +433,9 @@
 !    *                Zero,DEPSA,nAshT)
 !
 !       !! Just add DEPSA to DPT2
-        Call AddDEPSA(DPT2,DEPSA)
+        Call AddDEPSA(NBSQT,nAshT,DPT2,DEPSA)
         !! Just transform the density in MO to AO
-        CALL DPT2_Trf(DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
+        CALL DPT2_Trf(NBSQT,nAshT,DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
 !       call mma_deallocate(DEPSA)
         !! Save the AO density
         !! ... write
@@ -550,7 +550,7 @@
         call mma_deallocate(A_PT2)
         !! Add DPTC to DSUM for the correct unrelaxed density
         !! Also, symmetrize DSUM
-        Call AddDPTC(DPT2C,DSUM)
+        Call AddDPTC(NBSQT,NDPT,DPT2C,DSUM)
 !
 !       write(u6,*) 'fptao after olagns'
 !       call sqprt(fpt2_ao,nbast)
@@ -598,7 +598,7 @@
             !! FIFA contributions from the non-invariant density
             DPT2(1:nDPTAO) = DPT2(1:nDPTAO) - WRK1(1:nDPTAO)
             !! Add the non-invariant contribution to unrelaxed density
-            Call AddDPTC(DPT2,DSUM)
+            Call AddDPTC(NBSQT,NDPT,DPT2,DSUM)
             CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
      &                  One,FIFA_all,nBasT,DPT2,nBasT,
      &                  One,OLAG,nBasT)
@@ -694,8 +694,8 @@
 !       call sqprt(olag,nbast)
 !       write(u6,*) 'fpt2'
 !       call sqprt(fpt2,nbast)
-        CALL EigDer(DPT2,DPT2C,FPT2_AO,FPT2C_AO,RDMEIG,CMOPT2,
-     &              Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMSA)
+        CALL EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2_AO,FPT2C_AO,RDMEIG,
+     &              CMOPT2,Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMSA)
 !          call test2_dens(olag,depsa)
 !       write(u6,*) 'olag after eigder'
 !       call sqprt(olag,nbast)
@@ -771,16 +771,17 @@
 
           !! We have to do many things again...
           !! Just add DEPSA to DPT2
-          Call AddDEPSA(DPT2,DEPSA)
+          Call AddDEPSA(NBSQT,nAshT,DPT2,DEPSA)
           !! Just transform the density in MO to AO
-          CALL DPT2_Trf(DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
+          CALL DPT2_Trf(NBSQT,nAshT,DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
           !! For IPEA shift with state-dependent density
           If (if_SSDM .and. (jState == iRlxRoot .or. IFMSCOUP)) Then
             iSym = 1
             Call OLagTrf(1,iSym,CMOPT2,DPT2,DPT2_AO,WRK1)
           End If
           !! Some transformations similar to EigDer
-          Call EigDer2(RDMEIG,Trf,FIFA_all,RDMSA,DEPSA,WRK1,WRK2)
+          Call EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA_all,RDMSA,DEPSA,WRK1,
+     &                 WRK2)
 
           CLag(:,:) = CLagT(:,:) !test
          !test
@@ -830,11 +831,10 @@
         ! accumulate only if MS,XMS,XDW or RMS calculation
         ! call RecPrt('DPT2 before', '', DPT2_tot, nBast, nBast)
         if (jState == iRlxRoot .or. IFMSCOUP) then
-          Call DPT2_TrfStore(One,DPT2,DPT2_tot,Trf,WRK1)
-          Call DPT2_TrfStore(Two,DPT2C,DPT2C_tot,Trf,WRK1)
-          If (do_csf) Then
-            Call DPT2_TrfStore(One,DPT2Canti,DPT2Canti_tot,Trf,WRK1)
-          End If
+          Call DPT2_TrfStore(One,NBSQT,DPT2,DPT2_tot,Trf,WRK1)
+          Call DPT2_TrfStore(Two,NBSQT,DPT2C,DPT2C_tot,Trf,WRK1)
+          If (do_csf)
+     *    Call DPT2_TrfStore(One,NBSQT,DPT2Canti,DPT2Canti_tot,Trf,WRK1)
         end if
         ! call RecPrt('DPT2 after', '', DPT2_tot, nBast, nBast)
 !       !! Save MO densities for post MCLR
@@ -937,7 +937,7 @@
           !! Here we should use DPT2_AO??
           !! Save
           If (IfChol) Then
-            Call CnstAB_SSDM(DPT2_AO,WRK1)
+            Call CnstAB_SSDM(NBSQT,DPT2_AO,WRK1)
           Else
             !! Well, it is not working any more. I need to use
             !! Position='APPEND', but it is not possible if I need to
@@ -1084,7 +1084,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CnstTrf(Trf0,Trf)
+      Subroutine CnstTrf(nTrf,Trf0,Trf)
 
       use caspt2_global, only: TraFro
       use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NRAS1, NRAS2,
@@ -1096,8 +1096,9 @@
 
 #include "intent.fh"
 
-      real(kind=wp), intent(in) :: Trf0(*)
-      real(kind=wp), intent(_OUT_) :: Trf(*)
+      integer(kind=iwp), intent(in) :: nTrf
+      real(kind=wp), intent(in) :: Trf0(nTrf)
+      real(kind=wp), intent(_OUT_) :: Trf(nTrf)
 
       integer(kind=iwp) :: iSQ, iTOrb, ipTrfL, iSym, nBasI, nFroI,
      &  nIshI, nAshI, nSshI, nDelI, NR1, NR2, NR3, nCor, nVir, I, J,
@@ -1222,16 +1223,17 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE AddDEPSA(DPT2,DEPSA)
+      SUBROUTINE AddDEPSA(nDPT2,nAshT,DPT2,DEPSA)
 
-      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NASHT, NORB,
+      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NORB,
      &                         NDEL, NBAS
       use Constants, only: Half
       use definitions, only: wp, iwp
 
       implicit none
 
-      real(kind=wp), intent(inout) :: DPT2(*)
+      integer(kind=iwp), intent(in) :: nDPT2, nAshT
+      real(kind=wp), intent(inout) :: DPT2(nDPT2)
       real(kind=wp), intent(in) :: DEPSA(nAshT,nAshT)
 
       integer(kind=iwp) :: iMO1, iMO2, iSym, nOrbI1, nOrbI2, iOrb0,
@@ -1275,7 +1277,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE AddDPTC(DPTC,DSUM)
+      SUBROUTINE AddDPTC(nDPTC,nDSUM,DPTC,DSUM)
 
       use caspt2_module, only: NSYM, NFRO, NORB, NBAS
       use Constants, only: Half
@@ -1283,8 +1285,9 @@
 
       implicit none
 
-      real(kind=wp), intent(in) :: DPTC(*)
-      real(kind=wp), intent(inout) :: DSUM(*)
+      integer(kind=iwp), intent(in) :: nDPTC, nDSUM
+      real(kind=wp), intent(in) :: DPTC(nDPTC)
+      real(kind=wp), intent(inout) :: DSUM(nDSUM)
 
       integer(kind=iwp) :: iMO1, iMO2, iSym, nOrbI1, nOrbI2, iOrb0,
      &  iOrb1, jOrb0, jOrb1, iOrb, jOrb
@@ -1376,7 +1379,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine DPT2_TrfStore(Scal,DPT2q,DPT2n,Trf,WRK)
+      Subroutine DPT2_TrfStore(Scal,NBSQT,DPT2q,DPT2n,Trf,WRK)
 
       use caspt2_module, only: NSYM, NORB, NDEL, NBAS
       use Constants, only: Zero, One
@@ -1386,9 +1389,10 @@
 
 #include "intent.fh"
 
-      real(kind=wp), intent(in) :: Scal, DPT2q(*), Trf(*)
-      real(kind=wp), intent(inout) :: DPT2n(*)
-      real(kind=wp), intent(_OUT_) :: WRK(*)
+      integer(kind=iwp), intent(in) :: NBSQT
+      real(kind=wp), intent(in) :: Scal, DPT2q(NBSQT), Trf(NBSQT)
+      real(kind=wp), intent(inout) :: DPT2n(NBSQT)
+      real(kind=wp), intent(_OUT_) :: WRK(NBSQT)
 
       integer(kind=iwp) :: iMO, iSym, nOrbI
 
@@ -1413,18 +1417,20 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DPT2_Trf(DPT2,DPT2AO,CMO,DEPSA,DSUM)
+      SUBROUTINE DPT2_Trf(NBSQT,nAshT,DPT2,DPT2AO,CMO,DEPSA,DSUM)
 
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
       use Constants, only: Zero, One, Half
-      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NASHT, NORB,
-     &                         NDEL, NBAS, NBSQT
+      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NORB,
+     &                         NDEL, NBAS
 
       implicit none
 
-      real(kind=wp), intent(inout) :: DPT2(*), DPT2AO(*), DSUM(*)
-      real(kind=wp), intent(in) :: CMO(*), DEPSA(nAshT,nAshT)
+      integer(kind=iwp), intent(in) :: NBSQT, nAshT
+      real(kind=wp), intent(inout) :: DPT2(NBSQT), DPT2AO(NBSQT),
+     &                                DSUM(NBSQT)
+      real(kind=wp), intent(in) :: CMO(NBSQT), DEPSA(nAshT,nAshT)
 
       real(kind=wp), allocatable :: WRK(:)
       real(kind=wp) :: Val
@@ -1487,22 +1493,24 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE EigDer(DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,CMO,Trf,
-     &                  FPT2,FPT2C,FIFA,FIMO,RDMSA)
+      SUBROUTINE EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,
+     &                  CMO,Trf,FPT2,FPT2C,FIFA,FIMO,RDMSA)
 
       use caspt2_global, only: OLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: NSYM, NFRO, NFROT, NISH, NASH, NASHT,
-     &                         NORB, NDEL, NBAS, NBAST, NBSQT
+      use caspt2_module, only: NSYM, NFRO, NFROT, NISH, NASH,
+     &                         NORB, NDEL, NBAS, NBAST
       use Constants, only: Zero, One, Two
 
       implicit none
 
-      real(kind=wp), intent(in) :: DPT2(*), DPT2C(*), FPT2AO(*),
-     &  FPT2CAO(*), CMO(*), Trf(*), FPT2(*), FPT2C(*), FIFA(*), FIMO(*),
-     &  RDMSA(*)
-      real(kind=wp), intent(inout) :: RDMEIG(*)
+      integer(kind=iwp), intent(in) :: NBSQT, nAshT
+      real(kind=wp), intent(in) :: DPT2(NBSQT), DPT2C(NBSQT),
+     &  FPT2AO(NBSQT), FPT2CAO(NBSQT), CMO(NBSQT), Trf(NBSQT),
+     &  FPT2(NBSQT), FPT2C(NBSQT), FIFA(NBSQT), FIMO(NBSQT),
+     &  RDMSA(nAshT**2)
+      real(kind=wp), intent(inout) :: RDMEIG(nAshT**2)
 
       real(kind=wp),allocatable :: WRK1(:),FPT2_loc(:),FPT2C_loc(:),
      &                             RDMqc(:)
@@ -1659,21 +1667,24 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE EigDer2(RDMEIG,Trf,FIFA,RDMSA,DEPSA,WRK1,WRK2)
+      SUBROUTINE EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA,RDMSA,DEPSA,WRK1,
+     &                   WRK2)
 
       use caspt2_global, only: OLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NASHT,
-     &                         NDEL, NBAS, NBAST, NBSQT
+      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NDEL, NBAS, NBAST
       use Constants, only: Zero, One, Two
 
       implicit none
 
 #include "intent.fh"
 
-      real(kind=wp), intent(_OUT_) :: RDMEIG(*), WRK1(*), WRK2(*)
-      real(kind=wp), intent(in) :: Trf(*), FIFA(*), RDMSA(*), DEPSA(*)
+      integer(kind=iwp), intent(in) :: NBSQT, nAshT
+      real(kind=wp), intent(_OUT_) :: RDMEIG(NBSQT), WRK1(NBSQT),
+     &                                WRK2(NBSQT)
+      real(kind=wp), intent(in) :: Trf(NBSQT), FIFA(NBSQT),
+     &                             RDMSA(nAshT**2), DEPSA(nAshT**2)
 
       real(kind=wp),allocatable :: FPT2_loc(:),RDMqc(:)
       integer(kind=iwp) :: iSQ, iSym, nOrbI, nFroI, nIshI, nAshI, nCor,
@@ -1682,7 +1693,7 @@
       call mma_allocate(FPT2_loc,NBSQT,Label='FPT2_loc')
 
       !! Compute G(D), where D=DEPSA
-      Call DEPSATrf(DEPSA,FPT2_loc,WRK1,WRK2)
+      Call DEPSATrf(NBSQT,nAshT,DEPSA,FPT2_loc,WRK1,WRK2)
       FPT2_loc(:) = Two*FPT2_loc(:)
 
       iSQ = 1
@@ -1748,21 +1759,23 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine DEPSATrf(DEPSA,FPT2,WRK1,WRK2)
+      Subroutine DEPSATrf(NBSQT,nAshT,DEPSA,FPT2,WRK1,WRK2)
 
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NASHT,
-     &                         NBAS, NBAST, NBSQT
+      use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH,
+     &                         NBAS, NBAST
       use Constants, only: Zero, Half
 
       implicit none
 
 #include "intent.fh"
 
+      integer(kind=iwp), intent(in) :: NBSQT, nAshT
       real(kind=wp), intent(in) :: DEPSA(nAshT,nAshT)
-      real(kind=wp), intent(_OUT_) :: FPT2(*), WRK1(*), WRK2(*)
+      real(kind=wp), intent(_OUT_) :: FPT2(NBSQT), WRK1(NBSQT),
+     &                                WRK2(NBSQT)
 
       real(kind=wp),allocatable :: DAO(:),DMO(:)
       integer(kind=iwp) :: iSym, iSymA, iSymI, iSymB, iSymJ,
@@ -1830,7 +1843,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CnstAB_SSDM(DPT2AO,SSDM)
+      Subroutine CnstAB_SSDM(NBSQT,DPT2AO,SSDM)
 
       use ChoVec_io, only: NVLOC_CHOBATCH
       use Cholesky, only: InfVec, nDimRS
@@ -1838,7 +1851,7 @@
       use ChoCASPT2, only: NumCho_PT2, MaxVec_PT2, NCHSPC, MXNVC
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: NSYM, NBAS, NBAST, NBSQT, NBTCHES
+      use caspt2_module, only: NSYM, NBAS, NBAST, NBTCHES
       use Constants, only: Zero, One, Two
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs, myRank
@@ -1852,7 +1865,8 @@
 #include "mafdecls.fh"
 #endif
 
-      real(kind=wp), intent(in) :: DPT2AO(*),SSDM(*)
+      integer(kind=iwp), intent(in) :: NBSQT
+      real(kind=wp), intent(in) :: DPT2AO(NBSQT), SSDM(NBSQT)
 
       integer(kind=iwp) :: iSkip(8), ipWRK(8), nnbstr(8,3)
       character(len=4096) :: RealName

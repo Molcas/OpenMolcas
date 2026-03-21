@@ -977,7 +977,7 @@
 !       Call SQUARE(FIFA,FIFA_all,1,nOrbI,nOrbI)
         !! FIFASA_all is in natural orbital basis
         Trf(1:NBSQT) = Zero
-        Call CnstTrf(TOrb,Trf)
+        Call CnstTrf(NBSQT,TOrb,Trf)
 
         !! FIFA: natural -> quasi-canonical
         If (IFDW .or. IFRMS) Then
@@ -995,13 +995,13 @@
         !! Both explicit and implicit orbital derivatives are computed
         !! Also, compute G(D) and put the active contribution to RDMEIG
         OLag(:) = Zero
-        Call EigDer2(RDMEIG,Trf,FIFA_all,RDMSA,G1,WRK1,WRK2)
+        Call EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA_all,RDMSA,G1,WRK1,WRK2)
 
         !! Add to PT2 density
         !! No inactive contributions. Correct as long as CASSCF CI
         !! vector are orthogonal.
-        Call AddDEPSA(DPT2,G1)
-        Call DPT2_TrfStore(One,DPT2,DPT2_tot,Trf,WRK1)
+        Call AddDEPSA(NBSQT,nAshT,DPT2,G1)
+        Call DPT2_TrfStore(One,NBSQT,DPT2,DPT2_tot,Trf,WRK1)
 
         !! Finalize OLag (anti-symetrize) and construct WLag
         Call OLagFinal(nOLag,NBSQT,OLag,Trf)
@@ -1012,7 +1012,7 @@
           !! AddDEPSA considers the frozen orbital, whereas DPT2_Trf
           !! does not. In any case, construct DPT2 again.
           DPT2(:) = Zero
-          CALL DPT2_Trf(DPT2,DPT2_AO,CMOPT2,G1,WRK1)
+          CALL DPT2_Trf(NBSQT,nAshT,DPT2,DPT2_AO,CMOPT2,G1,WRK1)
           !! Construct the SCF density
           WRK1(1:nDRef) = Zero
           call mma_allocate(CI1,nConf,Label='CI1')
