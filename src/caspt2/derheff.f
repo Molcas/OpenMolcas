@@ -17,7 +17,7 @@
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: STSYM, NASHT, ISCF, JSTATE
-      use caspt2_module, only: MXCI, NG3
+      use caspt2_module, only: MXCI
       use Constants, only: Zero
 
       implicit none
@@ -53,7 +53,7 @@
       !! OVL will contain the derivative contribution?
       !! It should be ignored
       OVL = Zero
-      CALL DerHeffX(IVECW,IVECC,NASHT,NG3,OVL,DTG1,DTG2,DTG3)
+      CALL DerHeffX(IVECW,IVECC,NASHT,NTG3,OVL,DTG1,DTG2,DTG3)
 
       call mma_allocate(CI1,MXCI,Label='MCCI1')
       call mma_allocate(CI2,MXCI,Label='MCCI2')
@@ -104,7 +104,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DerHeffX(IVEC,JVEC,NASHT,NG3,OVL,DTG1,DTG2,DTG3)
+      SUBROUTINE DerHeffX(IVEC,JVEC,NASHT,NTG3,OVL,DTG1,DTG2,DTG3)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -126,10 +126,10 @@
 ! and irreps and gets access to the process-specific block of the RHS.
 ! The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-      integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NG3
+      integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
       real(kind=wp), intent(out) :: OVL
       real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT),
-     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NG3)
+     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3)
 
       integer(kind=iwp) :: ICASE, ISYM, NAS, NIN, NIS, lg_V1, lg_V2,
      &  iLo1, iHi1, jLo1, jHi1, MV1, iLo2, iHi2, jLo2, jHi2, MV2
@@ -180,12 +180,12 @@
 
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
-            CALL DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NG3,jLo1,jHi1,
+            CALL DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,jLo1,jHi1,
      &                      DBL_MB(MV1),DBL_MB(MV2),OVL,
      &                      DTG1,DTG2,DTG3)
           ELSE
 #endif
-            CALL DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NG3,jLo1,jHi1,
+            CALL DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,jLo1,jHi1,
      &                        GA_Arrays(MV1)%A,
      &                        GA_Arrays(MV2)%A,OVL,
      &                        DTG1,DTG2,DTG3)
@@ -204,7 +204,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NG3,IISTA,
+      SUBROUTINE DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,IISTA,
      &                        IIEND,V1,V2,OVL,DTG1,DTG2,DTG3)
 
       USE SUPERINDEX, only: MTU, MTUV, MTGEU, MTGTU
@@ -221,12 +221,12 @@
 ! calling subroutine.
       implicit none
 
-      integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NG3,
+      integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NTG3,
      &                                 NASHT, IISTA, IIEND
       real(kind=wp), intent(in) :: V1(nvlen), V2(nvlen)
       real(kind=wp), intent(out) :: OVL
       real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT),
-     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NG3)
+     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3)
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
       integer(kind=iwp) :: NISBLK, IAS, IASABS, ITABS, IUABS, IVABS,
