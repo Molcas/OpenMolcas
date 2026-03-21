@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      Subroutine OLagVVVO(iSym,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,T2AO,
-     &                    DIA,DI,FIFA,FIMO,A_PT2,MaxVec_PT2)
+      Subroutine OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2AO,DPT2CAO,
+     &                    FPT2AO,FPT2CAO,T2AO,DIA,DI,FIFA,FIMO,A_PT2)
       USE iSD_data, only: iSD
       use caspt2_global, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag
       use caspt2_global, only: CMOPT2
@@ -30,11 +30,11 @@
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: iSym, MaxVec_PT2
-      real(kind=wp), intent(in) :: DPT2AO(*), DPT2CAO(*), T2AO(*),
-     &  DIA(*), DI(*)
-      real(kind=wp), intent(inout) :: FPT2AO(*), FPT2CAO(*), A_PT2(*),
-     &  FIFA(*), FIMO(*)
+      integer(kind=iwp), intent(in) :: iSym, NBSQT, lT2AO, MaxVec_PT2
+      real(kind=wp), intent(in) :: DPT2AO(NBSQT), DPT2CAO(NBSQT),
+     &  T2AO(lT2AO), DIA(NBSQT), DI(NBSQT)
+      real(kind=wp), intent(inout) :: FPT2AO(NBSQT), FPT2CAO(NBSQT),
+     &  A_PT2(MaxVec_PT2**2), FIFA(NBSQT), FIMO(NBSQT)
 
       character(len=4096) :: RealName
       logical(kind=iwp) :: DoRys, DoCholesky, is_error, Square
@@ -114,7 +114,7 @@
       nocc = nish(1)+nash(1)
       Call VVVO_Drv(nSym,nBas,nIsh,nFro,KEEP,
      &              iSym,iSymI,iSymA,iSymJ,iSymB,
-     &              T2AO,vLag,
+     &              lT2AO,T2AO,vLag,
      &              nOcc,nBasT,nBMX,
      &              CMOPT2(1+nBasT*nFro(iSymA)),
      &              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
@@ -287,7 +287,7 @@
       !! focktwo_drv.f
       Subroutine VVVO_Drv(nSym,nBas,nAux,nFro,Keep,
      &                    iSym,iSymI,iSymJ,iSymK,iSymL,
-     &                    T2AO,vLag,nOcc,nBasT,
+     &                    lT2AO,T2AO,vLag,nOcc,nBasT,
      &                    nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      &                    DIA,DI,FIFA,FIMO)
 
@@ -297,11 +297,12 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: nSym, iSym, iSymI, iSymJ, iSymK,
-     &  iSymL, nBas(8), nAux(8), nFro(8), Keep(8), nOcc, nBasT, nBMX
-      real(kind=wp), intent(in) :: CMO(*), T2AO(*), DPT2AO(*),
-     &  DPT2CAO(*), DIA(*), DI(*)
-      real(kind=wp), intent(inout) :: vLag(*), FPT2AO(*), FPT2CAO(*),
-     &  FIFA(*), FIMO(*)
+     &  iSymL, lT2AO, nBas(8), nAux(8), nFro(8), Keep(8), nOcc, nBasT,
+     &  nBMX
+      real(kind=wp), intent(in) :: CMO(nBasT**2), T2AO(lT2AO),
+     &  DPT2AO(nBasT**2), DPT2CAO(nBasT**2), DIA(nBasT**2), DI(nBasT**2)
+      real(kind=wp), intent(inout) :: vLag(nBasT**2), FPT2AO(nBasT**2),
+     &  FPT2CAO(nBasT**2), FIFA(nBasT**2), FIMO(nBasT**2)
 
       logical(kind=iwp) :: DoCholesky
       real(kind=wp), allocatable :: W1(:), W2(:), WRK(:)
@@ -338,13 +339,13 @@
       End If
 *
       IF (DoCholesky) Then
-        Call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,
+        Call VVVOX2(nAux,Keep,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,
      &              vLag,CMO,WRK,
      &              DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      &              FIFA,FIMO)
       Else
         Call VVVOX(nSym,nBas,nFro,Keep,
-     &             iSymI,iSymJ,iSymK,iSymL,
+     &             iSymI,iSymJ,iSymK,iSymL,NBMX,
      &             T2AO,vLag,CMO,nOcc,nBasT,
      &             LBUF,W1,W2,WRK,
      &             DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
@@ -368,7 +369,7 @@
 !
       !! focktwo.f
       SUBROUTINE VVVOX(NSYM,NBAS,NFRO,KEEP,
-     &                 iSymI,iSymJ,iSymK,iSymL,
+     &                 iSymI,iSymJ,iSymK,iSymL,NBMX,
      &                 T2AO,vLag,CMO,nOcc,nBasT,LBUF,X1,X2,WRK,
      &                 DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      &                 DIA,DI,FIFA,FIMO)
@@ -379,11 +380,13 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: NSYM, NBAS(8), NFRO(8), KEEP(8),
-     &  iSymI, iSymJ, iSymK, iSymL, nOcc, nBasT, LBUF
+     &  iSymI, iSymJ, iSymK, iSymL, NBMX, nOcc, nBasT, LBUF
       real(kind=wp), intent(in) :: T2AO(nOcc,nBasT,nOcc,nBasT),
-     &  CMO(nBasT,*), DPT2AO(*), DPT2CAO(*), DIA(*), DI(*)
-      real(kind=wp), intent(inout) :: vLag(nBasT,*), X1(*), X2(*),
-     &  WRK(*), FPT2AO(*), FPT2CAO(*), FIFA(*), FIMO(*)
+     &  CMO(nBasT,nBasT), DPT2AO(nBasT**2), DPT2CAO(nBasT**2),
+     &  DIA(nBasT**2), DI(nBasT**2)
+      real(kind=wp), intent(inout) :: vLag(nBasT,nBasT), X1(LBUF),
+     &  X2(NBMX*NBMX), WRK(nBasT**2), FPT2AO(nBasT**2),
+     &  FPT2CAO(nBasT**2), FIFA(nBasT**2), FIMO(nBasT**2)
 
       integer(kind=iwp) ::ISTLT(8), ISTSQ(8), iSym, nB, nB2, nB3, nFroT,
      &  nBasI, KEEPI, nBasJ, KEEPJ, iSymIJ, nBasIJ, nBasK, KEEPK, iSMax,
@@ -606,8 +609,8 @@
 
       implicit none
 
-      real(kind=wp), intent(in) :: DD(*)
-      real(kind=wp), intent(inout) :: FF(*)
+      real(kind=wp), intent(in) :: DD(nBasT**2)
+      real(kind=wp), intent(inout) :: FF(nBasT**2)
 
       real(kind=wp) :: Val
       real(kind=wp), external :: ddot_
@@ -641,19 +644,19 @@
 !-----------------------------------------------------------------------
 !
       !! mabe taken from tracho3.f
-      SUBROUTINE VVVOX2(nAux,KEEP,iSym,iSymI,iSymJ,iSymK,iSymL,
+      SUBROUTINE VVVOX2(nAux,KEEP,iSym,iSymI,iSymJ,iSymK,iSymL,nBasT,
      &                  vLag,CMO,WRK,
      &                  DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      &                  FIFA,FIMO)
 
       use ChoVec_io, only: NVLOC_CHOBATCH
-      use Cholesky, only: InfVec, nDimRS
+      use Cholesky, only: InfVec
       use caspt2_global, only: LuGAMMA
       use ChoCASPT2, only: numcho_pt2, NCHSPC, MXNVC
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: IFMSCOUP, NSYM, NFROT, NISH, NASH, NSSH,
-     &                         NBAS, NBAST, JSTATE, iRlxRoot, NBTCHES
+     &                         NBAS, JSTATE, iRlxRoot, NBTCHES
       use Constants, only: Zero, One, Half, Two
 
       implicit none
@@ -661,10 +664,12 @@
 #include "warnings.h"
 
       integer(kind=iwp), intent(in) :: nAux(8), KEEP(8), iSym, iSymI,
-     &  iSymJ, iSymK, iSymL
-      real(kind=wp), intent(inout) :: vLag(nBasT,*), WRK(nBasT,nBasT),
-     &  FPT2AO(*), FPT2CAO(*), FIFA(*), FIMO(*)
-      real(kind=wp), intent(in) :: CMO(nBasT,*), DPT2AO(*), DPT2CAO(*)
+     &  iSymJ, iSymK, iSymL, nBasT
+      real(kind=wp), intent(inout) :: vLag(nBasT,nBasT),
+     &  WRK(nBasT,nBasT), FPT2AO(nBasT**2), FPT2CAO(nBasT**2),
+     &  FIFA(nBasT**2), FIMO(nBasT**2)
+      real(kind=wp), intent(in) :: CMO(nBasT,nBasT), DPT2AO(nBasT**2),
+     &  DPT2CAO(nBasT**2)
 
       real(kind=wp), allocatable :: CHSPC(:), HTSPC(:), HTVec(:)
       integer(kind=iwp) :: ISTLT(8), ISTSQ(8), iSkip(8), ipWRK(8), jSym,
@@ -820,9 +825,8 @@
           !! (strange) reduced form -> squared AO (mu nu|iVec)
           !! is it possible to avoid this transformation?
       ! choptr.fh
-          Call R2FIP(CHSPC,WRK,ipWRK(iSym),NUMV,
-     &               size(nDimRS),infVec,nDimRS,
-     &               nBasT,nSym,iSym,iSkip,irc,JREDC)
+          Call R2FIP(CHSPC,SIZE(CHSPC),WRK,ipWRK,NUMV,
+     &               nBasT,iSym,iSkip,irc,JREDC)
 !
 !           ----- Fock-like transformations (if needed) -----
 !
@@ -902,8 +906,8 @@
 
       implicit none
 
-      real(kind=wp), intent(in) :: ChoVec(*), DD(*)
-      real(kind=wp), intent(inout) :: FF(*)
+      real(kind=wp), intent(in) :: ChoVec(nBasI**2), DD(nBasI**2)
+      real(kind=wp), intent(inout) :: FF(nBasI**2)
 
       real(kind=wp) :: Scal
       real(kind=wp), external :: ddot_
@@ -931,7 +935,7 @@
       real(kind=wp), intent(in) :: CMO(nBasI,nOrbI)
       !! CHSPC is used as a temporary array
       real(kind=wp), intent(inout) :: CHSPC_(NCHSPC),
-     &                                HTSPC_(nOrbI,nBasT,*)
+     &                                HTSPC_(nOrbI,nBasT,NVEC)
 
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
       integer(kind=iwp) :: IPQ, jVec, nBra
@@ -1022,25 +1026,26 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine R2FIP(CHSPC,WRK,ipWRK,NUMV,l_NDIMRS,INFVEC,
-     &                 nDimRS,nBasT,nSym0,iSym,iSkip,irc,JREDC)
+      Subroutine R2FIP(CHSPC,NCHSPC,WRK,ipWRK,NUMV,nBasT,iSym,
+     &                iSkip,irc,JREDC)
 
-      Use Cholesky, only: INFVEC_N2, MaxVec, nnBstR
+      Use Cholesky, only: INFVEC, nDimRS, nnBstR
       use definitions, only: wp, iwp
       use Constants, only: Zero
 
       implicit none
 
-      real(kind=wp), intent(inout) :: CHSPC(*), WRK(*)
-      integer(kind=iwp), intent(in) :: ipWRK(*), NUMV, l_NDIMRS,
-     &  INFVEC(MAXVEC,INFVEC_N2,*), nSym0, nDimRS(nSym0,*), nBasT, iSym,
-     &  iSkip(8)
+      integer(kind=iwp), intent(in) :: NCHSPC, ipWRK(8), NUMV, nBasT,
+     &  iSym, iSkip(8)
+      real(kind=wp), intent(inout) :: CHSPC(NCHSPC), WRK(nBasT*nBasT)
       integer(kind=iwp), intent(inout) :: irc, JREDC
 
-      integer(kind=iwp) :: kloc, iVec, lscr, JREDL, ipVecL, jloc
+      integer(kind=iwp) :: kloc, iVec, lscr, JREDL, ipVecL, jloc,
+     &  l_NDIMRS
 !
 !     Transform the reduced form to the full form in place
 !
+      l_NDIMRS = size(nDIMRS)
       kloc = 0
       Do iVec = 1, NUMV
         If (l_NDIMRS < 1) Then

@@ -518,7 +518,7 @@
           !! is not yet correct. They are just two-electron after this
           !! subroutine.
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          CALL OLagVVVO(iSym,DPT2_AO,DPT2C_AO,
+          CALL OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2_AO,DPT2C_AO,
      &                  FPT2_AO,FPT2C_AO,T2AO,
      &                  DIA,DI,FIFA_all,FIMO_all,
      &                  A_PT2,MaxVec_PT2)
@@ -2076,9 +2076,8 @@
               JREDC=JRED
               CALL CHO_VECRD(CHSPC,NCHSPC,KV1,KV2,iSym,
      &                              NUMV,JREDC,MUSED)
-              Call R2FIP(CHSPC,WRK,ipWRK,NUMV,
-     &                   size(nDimRS),infVec,nDimRS,
-     &                   nBasT,nSym,iSym,iSkip,irc,JREDC)
+              Call R2FIP(CHSPC,size(CHSPC),WRK,ipWRK,NUMV,
+     &                   nBasT,iSym,iSkip,irc,JREDC)
 
               !! Exchange part of A_PT2
               NUMVJ = NUMV
@@ -2133,8 +2132,8 @@
             JREDC=JRED
 * Read a batch of reduced vectors
             CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,iSym,NUMV,JREDC,MUSED)
-            Call R2FIP(CHSPC,WRK,ipWRK,NUMV,size(nDimRS),infVec,nDimRS,
-     &                 nBasT,nSym,iSym,iSkip,irc,JREDC)
+            Call R2FIP(CHSPC,size(CHSPC),WRK,ipWRK,NUMV,
+     &                 nBasT,iSym,iSkip,irc,JREDC)
             NUMVJ = NUMV
 
             !! Exchange part of A_PT2
