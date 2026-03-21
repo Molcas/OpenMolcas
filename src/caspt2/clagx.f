@@ -489,7 +489,7 @@
 !     idS = idSMAT(iSym,4)
 !     CALL DDAFILE(LUSBT,2,SMat,NS,idS)
       CALL MKSC_G3(iSym,SMat,NS,nG3,G3,idxG3)
-      call CLagDXA_FG3(iSym,nAS,nAshT,NG3,BDER,SDER,
+      call CLagDXA_FG3(iSym,nAS,nAshT,NG3,NS,BDER,SDER,
      &                 DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      &                 SMat,idxG3)
       call mma_deallocate(idxG3)
@@ -766,7 +766,7 @@
 !     idS = idSMAT(iSym,4)
 !     CALL DDAFILE(LUSBT,2,SMat,NS,idS)
       CALL MKSC_G3(iSym,SMat,NS,nG3,G3,idxG3)
-      call CLagDXC_FG3(iSym,nAS,nAshT,NG3,BDER,SDER,
+      call CLagDXC_FG3(iSym,nAS,nAshT,NG3,NS,BDER,SDER,
      &                 DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,G2,
      &                 SMat,idxG3)
       call mma_deallocate(idxG3)
@@ -2485,7 +2485,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXA_FG3(iSym,nAS,nAshT,NG3,BDER,SDER,
+      Subroutine CLagDXA_FG3(iSym,nAS,nAshT,NG3,NS,BDER,SDER,
      &                       DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,
      &                       G2,SC,idxG3)
 
@@ -2497,9 +2497,9 @@
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, NG3
+      integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, NG3, NS
       real(kind=wp), intent(in) :: BDER(nAS,nAS), SDER(nAS,nAS),
-     &  G2(nAshT,nAshT,nAshT,nAshT), SC(NG3)
+     &  G2(nAshT,nAshT,nAshT,nAshT), SC(NS)
       real(kind=wp), intent(inout) :: DF1(nAshT,nAshT),
      &  DF2(nAshT,nAshT,nAshT,nAshT), DF3(NG3), DG1(nAshT,nAshT),
      &  DG2(nAshT,nAshT,nAshT,nAshT), DG3(NG3), DEPSA(nAshT,nAshT)
@@ -3290,7 +3290,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CLagDXC_FG3(iSym,nAS,nAshT,NG3,BDER,SDER,
+      Subroutine CLagDXC_FG3(iSym,nAS,nAshT,NG3,NS,BDER,SDER,
      &                       DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,
      &                       G2,SC,idxG3)
 
@@ -3302,9 +3302,9 @@
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, NG3
+      integer(kind=iwp), intent(in) :: iSym, nAS, nAshT, NG3, NS
       real(kind=wp), intent(in) :: BDER(nAS,nAS), SDER(nAS,nAS),
-     &  G2(nAshT,nAshT,nAshT,nAshT), SC(NG3)
+     &  G2(nAshT,nAshT,nAshT,nAshT), SC(NS)
       real(kind=wp), intent(inout) :: DF1(nAshT,nAshT),
      &  DF2(nAshT,nAshT,nAshT,nAshT), DF3(NG3), DG1(nAshT,nAshT),
      &  DG2(nAshT,nAshT,nAshT,nAshT), DG3(NG3), DEPSA(nAshT,nAshT)
