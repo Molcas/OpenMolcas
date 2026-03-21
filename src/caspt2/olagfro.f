@@ -290,7 +290,7 @@
         Call Square(WFLT(iAOtr),WRK2,1,nBasI,nBasI)
         WRK1(1:nBasI*nBasI) = WRK1(1:nBasI*nBasI) + WRK2(1:nBasI*nBasI)
         !! AO -> MO transformation of H+G(D)
-        Call OLagTrf(2,iSym,CMOPT2(iCMO),FIFA(iMO),WRK1,WRK2)
+        Call OLagTrf(2,iSym,NBSQT,CMOPT2(iCMO),FIFA(iMO),WRK1,WRK2)
 
         !! FIMO
         !! WRK1 = G(D)
@@ -299,7 +299,7 @@
         Call Square(WFLT(iAOtr),WRK2,1,nBasI,nBasI)
         WRK1(1:nBasI*nBasI) = WRK1(1:nBasI*nBasI) + WRK2(1:nBasI*nBasI)
         !! AO -> MO transformation of H+G(D)
-        Call OLagTrf(2,iSym,CMOPT2(iCMO),FIMO(iMO),WRK1,WRK2)
+        Call OLagTrf(2,iSym,NBSQT,CMOPT2(iCMO),FIMO(iMO),WRK1,WRK2)
 
         iAO   = iAO   + nBasI*nBasI
         iAOtr = iAOtr + nBasI*(nBasI+1)/2

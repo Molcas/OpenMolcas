@@ -10,17 +10,17 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      SUBROUTINE OLagNS2(iSym,DPT2C,T2AO)
+      SUBROUTINE OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: NSYM, NACTEL, NFRO, NISH, NASH, NSSH,
-     &                         NDEL, NBAS, NBSQT
+     &                         NDEL, NBAS
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: iSym
-      real(kind=wp), intent(inout) :: DPT2C(*), T2AO(*)
+      integer(kind=iwp), intent(in) :: iSym, NBSQT, lT2AO
+      real(kind=wp), intent(inout) :: DPT2C(NBSQT), T2AO(lT2AO)
 
       real(kind=wp), allocatable :: Int1(:), Scr1(:), Amp1(:)
       integer(kind=iwp) :: nMaxOrb, jSym, lInt, iSymI, iSymJ, iSymIJ,
@@ -55,8 +55,9 @@
               iSymIJAB = 1 + iEor(iSymIJ-1,iSymAB-1)
               If (iSym /= iSymIJAB) Cycle
               Do iCase = 1, 13
-                Call OLagNs_Hel2(iCase,iSym,iSymA,iSymB,iSymI,iSymJ,
-     &                           nMaxOrb,Int1,Amp1,Scr1,DPT2C,T2AO)
+                Call OLagNs_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,
+     &                           iSymI,iSymJ,nMaxOrb,Int1,Amp1,Scr1,
+     &                           DPT2C,T2AO)
               End Do
             End Do
           End Do
@@ -73,8 +74,8 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE OLagNS_Hel2(iCase,iSym,iSymA,iSymB,iSymI,iSymJ,nMaxOrb,
-     &                       ERI1,Amp1,Scr,DPT2C,T2AO)
+      SUBROUTINE OLagNS_Hel2(iCase,NBSQT,lT2AO,iSym,iSymA,iSymB,iSymI,
+     &                       iSymJ,nMaxOrb,ERI1,Amp1,Scr,DPT2C,T2AO)
 
       use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTU, KTUV, KTGEU, KTGTU, KAGEB, KAGTB,
@@ -95,12 +96,12 @@
 
 #include "intent.fh"
 
-      integer(kind=iwp), intent(in) :: iCase, iSym, iSymA, iSymB, iSymI,
-     &  iSymJ, nMaxOrb
-      real(kind=wp), intent(_OUT_) :: ERI1(*)
+      integer(kind=iwp), intent(in) :: iCase, NBSQT, lT2AO, iSym, iSymA,
+     &   iSymB, iSymI,iSymJ, nMaxOrb
+      real(kind=wp), intent(_OUT_) :: ERI1(NBSQT)
       real(kind=wp), intent(out) :: Amp1(nMaxOrb,nMaxOrb),
      &  Scr(nMaxOrb,nMaxOrb)
-      real(kind=wp), intent(inout) :: DPT2C(*), T2AO(*)
+      real(kind=wp), intent(inout) :: DPT2C(NBSQT), T2AO(lT2AO)
 
       real(kind=wp), allocatable :: WRK1(:), WRK2(:)
 
@@ -1031,7 +1032,7 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: iLeft, iRight
-      real(kind=wp), intent(in) :: ERI(*), AmpMO(*)
+      real(kind=wp), intent(in) :: ERI(NBSQT), AmpMO(NBSQT)
 
       integer(kind=iwp) :: nSkpA, nSkpB, nDimA, nDimB
 
@@ -1118,7 +1119,7 @@
 !-----------------------------------------------------------------------
 !
 ! MO->AO or AO->MO transformation of 1-RDM
-      Subroutine OLagTrf(mode,iSym,CMO,DPT2,DPT2AO,WRK)
+      Subroutine OLagTrf(mode,iSym,NBSQT,CMO,DPT2,DPT2AO,WRK)
 
       use caspt2_module, only: NFRO, NORB, NDEL, NBAS
       use Constants, only: Zero, One, Half
@@ -1128,10 +1129,10 @@
 
 #include "intent.fh"
 
-      integer(kind=iwp), intent(in) :: mode, iSym
-      real(kind=wp), intent(in) :: CMO(*)
-      real(kind=wp), intent(inout) :: DPT2(*), DPT2AO(*)
-      real(kind=wp), intent(_OUT_) :: WRK(*)
+      integer(kind=iwp), intent(in) :: mode, iSym, NBSQT
+      real(kind=wp), intent(in) :: CMO(NBSQT)
+      real(kind=wp), intent(inout) :: DPT2(NBSQT), DPT2AO(NBSQT)
+      real(kind=wp), intent(_OUT_) :: WRK(NBSQT)
 
       real(kind=wp) :: Val
       integer(kind=iwp) :: iCMO, iAO, iMO, jSym, nBasI, nOrbI, iBas,

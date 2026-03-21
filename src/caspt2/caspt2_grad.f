@@ -781,13 +781,15 @@
             If (MODE == 0 .and. (IFDW .or. IFRMS)) Then
               !! with the state-average
               !! FIFASA_all will be natural basis
-              Call OLagTrf(2,iSym,CMOPT2,FIFASA_all(1+iSQ),WRK1,WRK2)
+              Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIFASA_all(1+iSQ),WRK1,
+     &                     WRK2)
 !             write (u6 'fifasa in MO'
 !             call sqprt(fifasa_all(1+isq),nbasi)
             Else If (MODE == 1) Then
               !! with the state-specific or dynamically weighted
               !! FIFA will be quasi-canonical basis
-              Call OLagTrf(2,iSym,CMOPT2,FIFA_all(1+iSQ),WRK1,WRK2)
+              Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIFA_all(1+iSQ),WRK1,
+     &                     WRK2)
 !             write (u6 'fifa in MO'
 !             call sqprt(fifa_all(1+isq),nbasi)
               !! canonicalize frozen orbitals
@@ -802,7 +804,8 @@
      &                      TraFro,NBAS(ISYM),CMOPT2,WRK2)
                 CMOPT2(1:NBAS(ISYM)*NFRO(ISYM))
      &            = WRK2(1:NBAS(ISYM)*NFRO(ISYM))
-                Call OLagTrf(2,iSym,CMOPT2,FIFA_all(1+iSQ),WRK1,WRK2)
+                Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIFA_all(1+iSQ),WRK1,
+     &                       WRK2)
               End If
             End If
           End If
@@ -813,7 +816,8 @@
               Call SQUARE(FIMO(1+iTr),FIMO_all(1+iSQ),1,nBasI,nBasI)
             Else
               Call SQUARE(FIMO_all(1+iTr),WRK1,1,nBasI,nBasI)
-              Call OLagTrf(2,iSym,CMOPT2,FIMO_all(1+iSQ),WRK1,OLag)
+              Call OLagTrf(2,iSym,NBSQT,CMOPT2,FIMO_all(1+iSQ),WRK1,
+     &                     OLag)
 !             write (u6 'fimo in MO'
 !             call sqprt(fimo_all(1+isq),nbasi)
             End If
@@ -883,8 +887,9 @@
 
       real(kind=wp) :: val
       integer(kind=iwp) :: IDISK, iBasTr, iBasSq, iSym, nBasI, liBasTr,
-     &                     liBasSq, ljBasSq, iBasI, jBasI
+     &                     liBasSq, ljBasSq, iBasI, jBasI, NBSQT
 
+      NBSQT = NDIM
       call mma_allocate(WRK1,NDIM,Label='WRK1')
       call mma_allocate(WRK2,NDIM,Label='WRK2')
       call mma_allocate(WRK3,NDIM,Label='WRK3')
@@ -898,8 +903,8 @@
       iBasTr = 1
       iBasSq = 1
       Do iSym = 1, nSym
-        call OLagTrf(1,iSym,WRK1,DPT2 ,WRK3,WRK2)
-        call OLagTrf(1,iSym,WRK1,DPT2C,WRK4,WRK2)
+        call OLagTrf(1,iSym,NBSQT,WRK1,DPT2 ,WRK3,WRK2)
+        call OLagTrf(1,iSym,NBSQT,WRK1,DPT2C,WRK4,WRK2)
         nBasI = nBas(iSym)
         liBasTr = iBasTr
         liBasSq = iBasSq

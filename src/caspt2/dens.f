@@ -468,12 +468,13 @@
         End If
         Do iSym = 1, nSym
           nOcc = nIsh(iSym)+nAsh(iSym)
+          lT2AO = 1
           If (.not.IfChol .or. iALGO /= 1) Then
             lT2AO = nOcc*nOcc*nBasT*nBasT
             call mma_allocate(T2AO,lT2AO,Label='T2AO')
             T2AO(:) = Zero
           Else
-            CALL mma_allocate(T2AO,1,Label='T2AO')
+            CALL mma_allocate(T2AO,lT2AO,Label='T2AO')
           End If
 
           !! Orbital Lagrangian that comes from the derivative of ERIs.
@@ -483,7 +484,7 @@
           If (IfChol .and. iALGO == 1) Then
             CALL OLagNS_RI(iSym,DPT2C,DPT2Canti,A_PT2)
           Else
-            CALL OLagNS2(iSym,DPT2C,T2AO)
+            CALL OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
           End If
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
           IF (IPRGLB >= VERBOSE) THEN
@@ -498,8 +499,8 @@
           !! MO -> AO transformations for DPT2 and DPT2C
           If ((.not.IfChol .or. iALGO /= 1)
      &       .or.(nFroT == 0 .and. if_invaria)) Then
-            Call OLagTrf(1,iSym,CMOPT2,DPT2,DPT2_AO,WRK1)
-            Call OLagTrf(1,iSym,CMOPT2,DPT2C,DPT2C_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2C,DPT2C_AO,WRK1)
 !           write(u6,*) 'dpt2'
 !           call sqprt(dpt2,nbast)
 !           write(u6,*) 'dpt2ao'
@@ -541,8 +542,8 @@
           !! AO -> MO transformations for FPT2AO and FPT2CAO
           If ((.not.IfChol .or. iALGO /= 1)
      &        .or.(nFroT == 0 .and. if_invaria)) Then
-            Call OLagTrf(2,iSym,CMOPT2,FPT2,FPT2_AO,WRK1)
-            Call OLagTrf(2,iSym,CMOPT2,FPT2C,FPT2C_AO,WRK1)
+            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
+            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
           End If
 
           call mma_deallocate(T2AO)
@@ -635,8 +636,8 @@
           If (IfChol) Then
             iSym=1
             !! MO -> AO transformations for DPT2 and DPT2C
-            Call OLagTrf(1,iSym,CMOPT2,DPT2,DPT2_AO,WRK1)
-            Call OLagTrf(1,iSym,CMOPT2,DPT2C,DPT2C_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2C,DPT2C_AO,WRK1)
             !! For DF-CASPT2, Fock transformation of DPT2, DPT2C, DIA,
             !! DA is done here, but not OLagVVVO
             !! It seems that it is not possible to do this
@@ -647,8 +648,8 @@
             Call OLagFro4(NBSQT,1,1,1,1,1,
      &                    DPT2_AO,DPT2C_AO,FPT2_AO,FPT2C_AO,WRK1)
             !! AO -> MO transformations for FPT2AO and FPT2CAO
-            Call OLagTrf(2,iSym,CMOPT2,FPT2,FPT2_AO,WRK1)
-            Call OLagTrf(2,iSym,CMOPT2,FPT2C,FPT2C_AO,WRK1)
+            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
+            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
           Else
 !           write(u6,*) 'dpt'
 !           call sqprt(dpt2,nbast)
@@ -778,7 +779,7 @@
           !! For IPEA shift with state-dependent density
           If (if_SSDM .and. (jState == iRlxRoot .or. IFMSCOUP)) Then
             iSym = 1
-            Call OLagTrf(1,iSym,CMOPT2,DPT2,DPT2_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
           End If
           !! Some transformations similar to EigDer
           Call EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA_all,RDMSA,DEPSA,WRK1,
@@ -1807,7 +1808,7 @@
               DMO(nCorI+iAsh+nBasI*(nCorI+jAsh-1)) = DEPSA(iAsh,jAsh)
             End Do
           End Do
-          Call OLagTrf(1,iSym,CMOPT2,DMO,DAO,WRK1)
+          Call OLagTrf(1,iSym,NBSQT,CMOPT2,DMO,DAO,WRK1)
         End Do
         !! Compute G(D)
         WRK1(1:NBSQT) = Zero
@@ -1817,7 +1818,7 @@
      &                DAO,WRK1,DMO,WRK1,WRK2)
         !! G(D) in AO -> G(D) in MO
         Do iSym = 1, nSym
-          Call OLagTrf(2,iSym,CMOPT2,FPT2,DMO,WRK1)
+          Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,DMO,WRK1)
         End Do
         call mma_deallocate(DAO)
         call mma_deallocate(DMO)
