@@ -922,7 +922,7 @@
           WRK1(1:nDRef) = Zero
           call mma_allocate(CI1,nConf,Label='CI1')
           Do iState = 1, nState
-            Call LoadCI_XMS('N',1,CI1,iState,U0)
+            Call LoadCI_XMS('N',1,nConf,nState,CI1,iState,U0)
             call POLY1(CI1,nConf)
             call GETDREF(WRK2,nDRef)
             wgt = Weight(iState)

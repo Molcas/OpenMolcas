@@ -1931,7 +1931,7 @@
           IDCI=IDTCEX(JSTATE)
           CALL DDAFILE(LUCIEX,2,CI1,NCONF,IDCI)
         else
-!         Call LoadCI_XMS('C',1,CI1,JSTATE,U0)
+!         Call LoadCI_XMS('C',1,nConf,nState,CI1,JSTATE,U0)
         end if
         IF (IPRGLB >= VERBOSE) THEN
           WRITE(u6,*)
@@ -4379,7 +4379,7 @@
         If (ISCF == 0) Then
           If (IFXMS .OR. IFRMS) THen
             !! Use unrotated (SCF) CI vector
-            Call LoadCI_XMS('C',1,VecST(1,iState),iState,U0)
+           Call LoadCI_XMS('C',1,nConf,nState,VecST(1,iState),iState,U0)
           Else
             Call DDaFile(LUCIEX,2,VecST(1,iState),nConf,ID)
           End If
@@ -4440,7 +4440,7 @@
       ijst = 0
       do ilStat = 1, nState
         If (ISCF == 0) Then
-          Call LoadCI_XMS('C',1,CI1,ilStat,U0)
+          Call LoadCI_XMS('C',1,nConf,nState,CI1,ilStat,U0)
         Else
           CI1(1) = One
         End If
@@ -4448,7 +4448,7 @@
           ijst = ilStat + nState*(jlStat-1)
           If (ilStat == jlStat) Cycle
           If (ISCF == 0) Then
-            Call LoadCI_XMS('C',1,CI2,jlStat,U0)
+            Call LoadCI_XMS('C',1,nConf,nState,CI2,jlStat,U0)
           Else
             CI2(1) = One
           End If
@@ -4468,7 +4468,7 @@
         CI1(1:nConf) = CLag(1:nConf,ilStat)
         Do jlStat = 1, nState
           If (ISCF == 0) Then
-            Call LoadCI_XMS('C',1,CI2,jlStat,U0)
+            Call LoadCI_XMS('C',1,nConf,nState,CI2,jlStat,U0)
           Else
             CI2(1) = One
           End If
@@ -4811,7 +4811,7 @@
         Do ilStat = 1, nState
           SGM1(1:nConf) = CIout(1:nConf,ilStat)
           Do jlStat = 1, nState
-            Call LoadCI_XMS('C',1,SGM2,jlStat,U0)
+            Call LoadCI_XMS('C',1,nConf,nState,SGM2,jlStat,U0)
             Ovl = DDot_(nConf,SGM1,1,SGM2,1)
             CIout(1:nConf,ilStat)
      &        = CIout(1:nConf,ilStat) - Ovl*SGM2(1:nConf)
@@ -5020,7 +5020,7 @@
 #include "intent.fh"
 
       integer(kind=iwp), INTENT(IN) :: ISYCI, NROOTS, NCONF, nLev, nMidV
-      real(kind=wp), intent(in) ::  CI(nConf), INT1(NLEV,NLEV),
+      real(kind=wp), intent(in) ::  CI(nConf*nRoots), INT1(NLEV,NLEV),
      &  INT2(NLEV,NLEV,NLEV,NLEV)
       real(kind=wp), intent(_OUT_) :: PRE(nConf)
       real(kind=wp), intent(out) :: Fancy(nRoots,nRoots,nRoots)
@@ -5219,7 +5219,7 @@
 
       !! Construct reference CI vectors
       Do iRoots = 1, nRoots
-        Call LoadCI_XMS('C',1,CI(1,iRoots),iRoots,U0)
+        Call LoadCI_XMS('C',1,nConf,nState,CI(1,iRoots),iRoots,U0)
       End Do
 
       !! The so-called fancy precondioner
