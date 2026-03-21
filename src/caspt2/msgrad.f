@@ -1035,7 +1035,7 @@
           Call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
           Call DaXpY_(nAshT**2,-One,WRK2,1,RDMSA,1)
           !! Construct the SS minus SA density matrix in WRK1
-          Call OLagFroD(WRK1,WRK2,RDMSA,Trf)
+          Call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
           !! Subtract the inactive part
           Call DaXpY_(nBasT**2,-One,WRK2,1,WRK1,1)
           !! Save

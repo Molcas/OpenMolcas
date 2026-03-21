@@ -257,7 +257,7 @@
         If (nFroT == 0 .and. if_invaria) Then
           DPT2(1:nOsqT) = DSUM(1:nOsqT)
         Else
-          Call OLagFro0(DSUM,DPT2)
+          Call OLagFro0(NOSQT,NBSQT,DSUM,DPT2)
         End If
 
         !! Construct the transformation matrix
@@ -450,7 +450,7 @@
 
           !! Get density matrix (DIA) and inactive density
           !! matrix (DI) to compute FIFA and FIMO.
-          Call OLagFroD(DIA,DI,RDMSA,Trf)
+          Call OLagFroD(NBSQT,nAshT,DIA,DI,RDMSA,Trf)
         End If
 
         !! Construct orbital Lagrangian that comes from the derivative
@@ -569,7 +569,7 @@
 !         call sqprt(dpt2,nbast)
           if (.not.ifchol) then
             !! Construct FIFA and FIMO
-            Call OLagFro3(FIFA_all,FIMO_all,WRK1,WRK2)
+            Call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
             !! if possible, canonicalize frozen orbitals, and update
             !! FIMO and Trf
           end if
@@ -612,7 +612,7 @@
           !! Now, compute pseudo-density using orbital Lagrangian
           !! DSUM does not contain frozen orbitals,
           !! so the properties using this density may be inaccurate
-          If(nFroT /= 0) Call OLagFro1(DPT2,OLag)
+          If(nFroT /= 0) Call OLagFro1(NBSQT,nOLag,DPT2,OLag)
 
           !! Subtract the orbital Lagrangian added above.
           !! It is computed again in EigDer
@@ -644,7 +644,7 @@
             !! the DPT2 is obtained after OLagVVVO.
             FPT2_AO(:) = Zero
             FPT2C_AO(:) = Zero
-            Call OLagFro4(1,1,1,1,1,
+            Call OLagFro4(NBSQT,1,1,1,1,1,
      &                    DPT2_AO,DPT2C_AO,FPT2_AO,FPT2C_AO,WRK1)
             !! AO -> MO transformations for FPT2AO and FPT2CAO
             Call OLagTrf(2,iSym,CMOPT2,FPT2,FPT2_AO,WRK1)
@@ -652,7 +652,7 @@
           Else
 !           write(u6,*) 'dpt'
 !           call sqprt(dpt2,nbast)
-            Call OLagFro2(DPT2,FPT2,WRK1,WRK2)
+            Call OLagFro2(NBSQT,DPT2,FPT2,WRK1,WRK2)
 !         write(u6,*) 'fpt'
 !           call sqprt(dpt2,nbast)
           End If
@@ -661,7 +661,7 @@
 !         write(u6,*) 'fimo_all'
 !         call sqprt(fimo_all,12)
       !   !! Construct FIFA and FIMO
-      !   Call OLagFro3(FIFA_all,FIMO_all,WRK1,WRK2)
+      !   Call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
         Else ! there are no frozen orbitals
           iSQ = 0
           iTR = 0
@@ -933,7 +933,7 @@
           Call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
           Call DaXpY_(nAshT**2,-One,WRK2,1,RDMSA,1)
           !! Construct the SS minus SA density matrix in WRK1
-          Call OLagFroD(WRK1,WRK2,RDMSA,Trf)
+          Call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
           !! Subtract the inactive part
           WRK1(1:nBasT**2) = WRK1(1:nBasT**2) - WRK2(1:nBasT**2)
           !! Here we should use DPT2_AO??
@@ -1608,7 +1608,7 @@
 !       If (nFroI == 0) Then
 !         Call SQUARE(FIFA(iSQ),WRK1,1,nOrbI,nOrbI)
 !       Else
-!         Call OLagFroSq(iSym,FIFA(iSQ),WRK1)
+!         Call OLagFroSq(iSym,NBSQT,FIFA(iSQ),WRK1)
 !       End If
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
 !    *              Two,WRK1,nOrbI,DPT2(iSQ),nOrbI,
@@ -1813,7 +1813,7 @@
         WRK1(1:NBSQT) = Zero
         DMO(:) = Zero
         !! it's very inefficient
-        Call OLagFro4(1,1,1,1,1,
+        Call OLagFro4(NBSQT,1,1,1,1,1,
      &                DAO,WRK1,DMO,WRK1,WRK2)
         !! G(D) in AO -> G(D) in MO
         Do iSym = 1, nSym
