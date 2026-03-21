@@ -12,6 +12,10 @@
 subroutine caspt2_grad_invaria1(NDPT2,DPT2)
 !
 ! Put zero to wrong (incomplete) density matrix elements
+! If the MRPT2 energy is non-invariant with respect to rotations among the inactive and secondary orbital spaces,
+! we cannot determine the off-diagonal elements (in the iagonal block) as in TRDNS2D.
+! Therefore, remove the off-diagonal elements. They are computed in caspt2_grad_invaria2 using orbital derivatives.
+! The diagonal elements are correct.
 !
   use Constants, only: Zero
   use definitions, only: iwp,wp
@@ -63,10 +67,10 @@ end subroutine caspt2_grad_invaria1
 !
 subroutine caspt2_grad_invaria2(NDPT2,nOLag,DPT2,OLag)
 !
-! Compute pseudo-density in the inactive and secondary orbital blocks
-! for MRPT2 methods that are not invariant with respect to orbital
-! rotations among inactive and secondary orbitals using the canonical
-! condition of MOs
+! Compute pseudo-density in the inactive and secondary orbital blocks for MRPT2 methods that are not invariant with respect to
+! orbital rotations among inactive and secondary orbitals using the canonical condition of MOs
+! See the IPEA-shift implementation for the active block non-invariance, and the sigma^P implementation for the non-invariance
+! with respect to rotations in the internally contracted basis
 !
   use Constants, only: Half
   use definitions, only: iwp,wp
@@ -86,13 +90,10 @@ subroutine caspt2_grad_invaria2(NDPT2,nOLag,DPT2,OLag)
     nOrbI = nBas(iSym)-nDel(iSym)
     nFroI = nFro(iSym)
     nIshI = nIsh(iSym)
-    If (nOrbI > 0 .and. nIshI > 0) Then
+    If (nIshI > 0) Then
       Do iOrb = nFroI+1, nFroI+nIshI
         Do jOrb = iOrb+1, nFroI+nIshI
-          Tmp = -Half*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))  &
-                      -OLag(iMO+jOrb-1+nOrbI*(iOrb-1))) &
-              /(EPSI(iOrb-nFroI)-EPSI(jOrb-nFroI))
-!           write (*,*) epsi(iorb-nfroi),epsi(jorb-nfroi)
+          Tmp = -Half*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))-OLag(iMO+jOrb-1+nOrbI*(iOrb-1)))/(EPSI(iOrb-nFroI)-EPSI(jOrb-nFroI))
           DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) = Tmp
           DPT2(iMO+jOrb-1+nOrbI*(iOrb-1)) = Tmp
         End Do
@@ -100,11 +101,10 @@ subroutine caspt2_grad_invaria2(NDPT2,nOLag,DPT2,OLag)
     End If
     nSshI = nSsh(iSym)
     nAshI = nAsh(iSym)
-    If (nOrbI > 0 .and. nSshI > 0) Then
+    If (nSshI > 0) Then
       Do iOrb = nOrbI-nSshI+1, nOrbI
         Do jOrb = iOrb+1, nOrbI
-          Tmp = -Half*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))  &
-                      -OLag(iMO+jOrb-1+nOrbI*(iOrb-1))) &
+          Tmp = -Half*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))-OLag(iMO+jOrb-1+nOrbI*(iOrb-1))) &
               /(EPSE(iOrb-nFroI-nIshI-nAshI)-EPSE(jOrb-nFroI-nIshI-nAshI))
           DPT2(iMO+iOrb-1+nOrbI*(jOrb-1)) = Tmp
           DPT2(iMO+jOrb-1+nOrbI*(iOrb-1)) = Tmp

@@ -150,14 +150,8 @@
         CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         !! Diagonal part
         CALL TRDNS2D(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
-        if (.not.if_invaria) then
-          do i = 1, norb(1)
-            do j = i+1, norb(1)
-              dpt(i+norb(1)*(j-1)) = Zero
-              dpt(j+norb(1)*(i-1)) = Zero
-            end do
-          end do
-        end if
+        !! Remove the off-diagonal elements in inactive/secondary
+        if (.not.if_invaria) call caspt2_grad_invaria1(NDPT,DPT)
         DSUM(:) = DSUM(:) + DPT(:)
 *       write(u6,*)' DPT after TRDNS2D.'
 *       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
