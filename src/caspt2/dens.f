@@ -482,7 +482,7 @@
 !         write(u6,*) 'ialgo = ', ialgo
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           If (IfChol .and. iALGO == 1) Then
-            CALL OLagNS_RI(iSym,DPT2C,DPT2Canti,A_PT2)
+            CALL OLagNS_RI(iSym,NBSQT,MaxVec_PT2,DPT2C,DPT2Canti,A_PT2)
           Else
             CALL OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
           End If

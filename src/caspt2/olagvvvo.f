@@ -792,7 +792,7 @@
 
           !! 1) Half back-transformation of Bra and Ket density
           !! Read the 3c-2e pseudo-density (in MO), and half transform
-          CALL VVVOTRA_RI(CMO,CHSPC,HTSPC,
+          CALL VVVOTRA_RI(CMO,CHSPC,SIZE(CHSPC),HTSPC,
      &                    JNUM,IBATCH_TOT,IBATCH_TOT,nOrbI)
 
           !! 2) read AO Cholesky vectors,
@@ -922,21 +922,23 @@
 
       End Subroutine FDGTRF
 
-      Subroutine VVVOTRA_RI(CMO,CHSPC_,HTSPC_,NVEC,IBSTA,IBEND,nOrbI)
+      Subroutine VVVOTRA_RI(CMO,CHSPC_,NCHSPC,HTSPC_,NVEC,IBSTA,IBEND,
+     &                      nOrbI)
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: NVEC, IBSTA, IBEND, nOrbI
+      integer(kind=iwp), intent(in) :: NCHSPC, NVEC, IBSTA, IBEND, nOrbI
       real(kind=wp), intent(in) :: CMO(nBasI,nOrbI)
       !! CHSPC is used as a temporary array
-      real(kind=wp), intent(inout) :: CHSPC_(*), HTSPC_(nOrbI,nBasT,*)
+      real(kind=wp), intent(inout) :: CHSPC_(NCHSPC),
+     &                                HTSPC_(nOrbI,nBasT,*)
 
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
       integer(kind=iwp) :: IPQ, jVec, nBra
 
       !! BraAI
-      Call Cholesky_Vectors(2,Inactive,Active,JSYM,CHSPC_,nBra,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Inactive,Active,JSYM,CHSPC_,NCHSPC,
+     &                      nBra,IBSTA,IBEND)
       IPQ = nAshI*nIshI
       Do jVec = 1, NVEC
         ! a. AI -> mu I
@@ -952,8 +954,8 @@
       End Do
 
       !! BraSI
-      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,CHSPC_,nBra,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,CHSPC_,NCHSPC,
+     &                      nBra,IBSTA,IBEND)
       IPQ = nIshI*nSshI
       Do jVec = 1, NVEC
         ! b. SI -> mu I
@@ -969,8 +971,8 @@
       End Do
 
       !! BraSA
-      Call Cholesky_Vectors(2,Active,Virtual,JSYM,CHSPC_,nBra,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Active,Virtual,JSYM,CHSPC_,NCHSPC,
+     &                      nBra,IBSTA,IBEND)
       IPQ = nAshI*nSshI
       Do jVec = 1, NVEC
         ! d. SA -> mu A
@@ -986,8 +988,8 @@
       End Do
 
       !! BraAA
-      Call Cholesky_Vectors(2,Active,Active,JSYM,CHSPC_,nBra,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Active,Active,JSYM,CHSPC_,NCHSPC,
+     &                      nBra,IBSTA,IBEND)
       IPQ = nAshI*nAshI
       Do jVec = 1, NVEC
         ! b. AA -> mu A
