@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine caspt2_grad_invaria1(DPT2)
+subroutine caspt2_grad_invaria1(NDPT2,DPT2)
 !
 ! Put zero to wrong (incomplete) density matrix elements
 !
@@ -19,7 +19,8 @@ subroutine caspt2_grad_invaria1(DPT2)
 
   implicit none
 
-  real(kind=wp), intent(inout) :: DPT2(*)
+  integer(kind=iwp), intent(in) :: NDPT2
+  real(kind=wp), intent(inout) :: DPT2(NDPT2)
   integer(kind=iwp) :: IOFDIJ(8), IOFDAB(8)
 
   integer(kind=iwp) :: idij, is, ni, na, ns, no, idtu, idab, isym, ii, ij, ia, ib
@@ -60,7 +61,7 @@ end subroutine caspt2_grad_invaria1
 !
 !-----------------------------------------------------------------------
 !
-subroutine caspt2_grad_invaria2(DPT2,OLag)
+subroutine caspt2_grad_invaria2(NDPT2,nOLag,DPT2,OLag)
 !
 ! Compute pseudo-density in the inactive and secondary orbital blocks
 ! for MRPT2 methods that are not invariant with respect to orbital
@@ -73,8 +74,9 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
 
   implicit none
 
-  real(kind=wp), intent(inout) :: DPT2(*)
-  real(kind=wp), intent(in)    :: OLag(*)
+  integer(kind=iwp), intent(in) :: NDPT2, nOLag
+  real(kind=wp), intent(inout) :: DPT2(NDPT2)
+  real(kind=wp), intent(in)    :: OLag(nOLag)
 
   integer(kind=iwp) :: iMO, iSym, nOrbI, nFroI, nIshI, nAshI, nSshI, iOrb, jOrb
   real(kind=wp) :: Tmp

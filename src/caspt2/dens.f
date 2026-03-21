@@ -595,7 +595,7 @@
           !! non-invariant in inactive and secondary
           if(.not.if_invaria) then
             !! Construct the density from orbital Lagrangian
-            call caspt2_grad_invaria2(DPT2,OLag)
+            call caspt2_grad_invaria2(NBSQT,nOLag,DPT2,OLag)
             !! FIFA contributions from the non-invariant density
             DPT2(1:nDPTAO) = DPT2(1:nDPTAO) - WRK1(1:nDPTAO)
             !! Add the non-invariant contribution to unrelaxed density
