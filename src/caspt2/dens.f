@@ -520,8 +520,7 @@
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           CALL OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2_AO,DPT2C_AO,
      &                  FPT2_AO,FPT2C_AO,T2AO,
-     &                  DIA,DI,FIFA_all,FIMO_all,
-     &                  A_PT2,MaxVec_PT2)
+     &                  DIA,DI,FIFA_all,FIMO_all,A_PT2)
         !   write(u6,*) 'olag after vvvo'
         !   call sqprt(olag,nbast)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
