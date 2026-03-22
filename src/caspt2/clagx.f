@@ -4833,7 +4833,7 @@
       Subroutine CnstDEPSA(nConf,nState,nAshT,CI,CIT,G1,G2,INT2)
 
       use gugx, only: SGS
-      use caspt2_module, only: NG1, NG2
+      use caspt2_module, only: MXCI, NG1, NG2
 
       implicit none
 
@@ -4861,14 +4861,14 @@
 
       !! Construct transition(?) density matrix
       !! (<CI|Etu|CIT>+<CIT|Etu|CI>)/2, where CIT is the solution
-      call mma_allocate(SGM1,nConf,Label='SGM1')
-      call mma_allocate(SGM2,nConf,Label='SGM2')
+      call mma_allocate(SGM1,MXCI,Label='SGM1')
+      call mma_allocate(SGM2,MXCI,Label='SGM2')
       call mma_allocate(G1T,NG1,Label='GT1')
       call mma_allocate(G2T,NG2,Label='GT2')
 !
 !  !! This is for CASSCF orbital Lagrangian, but this may not contribute
-!     Call Dens2T_RPT2(CI(1,jState),CI(1,jState),
-!    *                 SGM1,SGM2,G1T,G2T,nLev)
+!     Call Dens2T_RPT2(NLEV,NCONF,MXCI,CI(1,jState),CI(1,jState),
+!    *                 SGM1,SGM2,G1T,G2T)
 !     Call DaXpY_(NG1,-Half,G1T,1,G1,1)
 !     Call DaXpY_(NG2,-Half,G2T,1,G2,1)
 !
@@ -4877,8 +4877,8 @@
         Wgt = One/nState
 
         !! <CI|Etu|CIT>+<CIT|Etu|CI> and the t+ u+ x v variant
-        Call Dens2T_RPT2(CI(1,kState),CIT(1,kState),
-     &                   SGM1,SGM2,G1T,G2T,nLev)
+        Call Dens2T_RPT2(NLEV,NCONF,MXCI,CI(1,kState),CIT(1,kState),
+     &                   SGM1,SGM2,G1T,G2T)
         Call DaXpY_(NG1,WGT,G1T,1,G1,1)
         Call DaXpY_(NG2,WGT,G2T,1,G2,1)
 
@@ -4888,8 +4888,8 @@
         Do jlState = 1, ilState-1
           vSLag = -Half*SLag(ilState,jlState)
           If (abs(vSLag) <= 1.0e-08_wp) Cycle
-          Call Dens2T_RPT2(CI(1,ilState),CI(1,jlState),
-     &                     SGM1,SGM2,G1T,G2T,nLev)
+          Call Dens2T_RPT2(NLEV,NCONF,MXCI,CI(1,ilState),CI(1,jlState),
+     &                     SGM1,SGM2,G1T,G2T)
           Call DaXpY_(NG1,vSLag,G1T,1,G1,1)
           Call DaXpY_(NG2,vSLag,G2T,1,G2,1)
         End Do

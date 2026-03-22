@@ -778,7 +778,7 @@
       use definitions, only: wp, iwp
       use caspt2_module, only: ENERGY, IFXMS, IFRMS, IFDW, STSYM, NCONF,
      &                         NFRO, NISH, NASHT, NDEL, NBAS, NBAST,
-     &                         NBSQT, NROOTS, NSTATE, ZETA, ORBIN
+     &                         NBSQT, NROOTS, NSTATE, ZETA, ORBIN, MXCI
       use Constants, only: Zero, One, Half, Two, Quart
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -809,8 +809,8 @@
       If (IFXMS .or. IFRMS) Then
         call mma_allocate(CI1,nConf,Label='CI1')
         call mma_allocate(CI2,nConf,Label='CI2')
-        call mma_allocate(SGM1,nConf,Label='SGM1')
-        call mma_allocate(SGM2,nConf,Label='SGM2')
+        call mma_allocate(SGM1,MXCI,Label='SGM1')
+        call mma_allocate(SGM2,MXCI,Label='SGM2')
         call mma_allocate(TG1,nAshT**2,Label='TG1')
         call mma_allocate(TG2,nAshT**4,Label='TG2')
 
@@ -836,8 +836,7 @@
           Do jStat = 1, nState
             Call LoadCI_XMS('C',0,nConf,nState,CI2,jStat,U0)
 
-            Call Dens2T_RPT2(CI1,CI2,SGM1,SGM2,
-     &                       TG1,TG2,nAshT)
+            Call Dens2T_RPT2(NLEV,NCONF,MXCI,CI1,CI2,SGM1,SGM2,TG1,TG2)
             TG1(:) = TG1(:)*Half
             TG2(:) = TG2(:)*Half
             DG1(:) = Zero
