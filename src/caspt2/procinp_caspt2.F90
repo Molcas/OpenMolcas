@@ -734,6 +734,7 @@ subroutine procinp_caspt2
                           ' must use the CORT or DORT option.')
     call quit_onUserError()
   end if
+
 #ifdef _MOLCAS_MPP_
   if (do_grad .and. sigma_p_epsilon /= 0.0_wp .and. nProcs > 1) then
     call warningMessage(2,'Analytic gradients without the sigma^P regularization not available'//  &

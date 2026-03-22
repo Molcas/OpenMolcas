@@ -4264,7 +4264,7 @@
 
       !! Precondition
       Call CnstInt(2,nAshT,INT1,INT2)
-      Call CnstPrec(ISYCI,nRoots,nConf,NLEV,nMidV,VecPre,VecCIT,
+      Call CnstPrec(ISYCI,nConf,nRoots,NLEV,nMidV,VecPre,VecCIT,
      &              INT1,INT2,VecFancy)
       Call CnstInt(0,nAshT,INT1,INT2)
 
@@ -4419,6 +4419,7 @@
 
       integer(kind=iwp), intent(in) :: nState
       real(kind=wp), intent(inout) :: SLag(nState**2)
+
       real(kind=wp), allocatable :: CI1(:), CI2(:)
 
       integer(kind=iwp) :: ijst, ilStat, jlStat
@@ -5009,7 +5010,7 @@
 !-----------------------------------------------------------------------
 !
       !! PRWF1_CP2
-      SUBROUTINE CnstPrec(ISYCI,NROOTS,NCONF,NLEV,nMidV,PRE,CI,INT1,
+      SUBROUTINE CnstPrec(ISYCI,NCONF,NROOTS,NLEV,nMidV,PRE,CI,INT1,
      &                    INT2,Fancy)
       use molcas, only: MXLEV
       use gugx, only: SGS, CIS
@@ -5019,7 +5020,7 @@
 
 #include "intent.fh"
 
-      integer(kind=iwp), INTENT(IN) :: ISYCI, NROOTS, NCONF, nLev, nMidV
+      integer(kind=iwp), INTENT(IN) :: ISYCI, NCONF, NROOTS, nLev, nMidV
       real(kind=wp), intent(in) ::  CI(nConf*nRoots), INT1(NLEV,NLEV),
      &  INT2(NLEV,NLEV,NLEV,NLEV)
       real(kind=wp), intent(_OUT_) :: PRE(nConf)
@@ -5201,10 +5202,10 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: nConf, nRoots
-      real(kind=wp), intent(in) :: VecIN(1:nConf,1:nRoots),
-     &  Pre(1:nConf), Fancy(nRoots,nRoots,nRoots)
-      real(kind=wp), intent(out) :: VecOUT(1:nConf,1:nRoots),
-     &  CI(1:nConf,1:nRoots)
+      real(kind=wp), intent(in) :: VecIN(nConf,nRoots),
+     &  Pre(nConf), Fancy(nRoots,nRoots,nRoots)
+      real(kind=wp), intent(out) :: VecOUT(nConf,nRoots),
+     &  CI(nConf,nRoots)
 
       integer(kind=iwp) :: iRoots, iConf, jRoots, kRoots
       real(kind=wp) :: rcoeff(nRoots), alpha(nRoots)
@@ -5313,7 +5314,7 @@
 
       implicit none
 
-      real(kind=wp), intent(inout) :: BDer(nAS,nAs), SDer(nAS,nAs)
+      real(kind=wp), intent(inout) :: BDer(nAS,nAS), SDer(nAS,nAS)
       integer(kind=iwp), intent(in) :: nAS, nIN, iSym, iCase
 
       real(kind=wp) :: WGRONK(2)
