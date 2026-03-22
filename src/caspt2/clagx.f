@@ -1903,7 +1903,6 @@
      &  DEPSA(nLev**2)
 
       integer(kind=iwp) :: ILEV, ILUID, IDCI
-      integer(kind=iwp), external :: iPARDIV
       integer(kind=byte), allocatable :: idxG3(:,:)
       real(kind=wp), allocatable :: CI1(:)
 
