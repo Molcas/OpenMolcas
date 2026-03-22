@@ -1902,7 +1902,7 @@
      &  DG2(nLev**4), DG3(NG3), DF1(nLev**2), DF2(nLev**4), DF3(NG3),
      &  DEPSA(nLev**2)
 
-      integer(kind=iwp) :: ILEV, NG3MAX, ILUID, IDCI
+      integer(kind=iwp) :: ILEV, ILUID, IDCI
       integer(kind=iwp), external :: iPARDIV
       integer(kind=byte), allocatable :: idxG3(:,:)
       real(kind=wp), allocatable :: CI1(:)
@@ -1916,9 +1916,6 @@
           ETA(ILEV)=EPSA(L2ACT(ILEV))
         END DO
       END IF
-
-!-SVC20100831: recompute approximate max NG3 size needed
-      NG3MAX=iPARDIV(NG3TOT,NG2)
 
 !-SVC20100831: allocate local G3 matrices
       CALL mma_allocate(idxG3,6,NG3,label='idxG3')
@@ -5314,8 +5311,8 @@
 
       implicit none
 
-      real(kind=wp), intent(inout) :: BDer(nAS,nAS), SDer(nAS,nAS)
       integer(kind=iwp), intent(in) :: nAS, nIN, iSym, iCase
+      real(kind=wp), intent(inout) :: BDer(nAS,nAS), SDer(nAS,nAS)
 
       real(kind=wp) :: WGRONK(2)
       real(kind=wp),allocatable :: S(:),SS(:,:),VEC(:,:),EIG(:),SCA(:),
