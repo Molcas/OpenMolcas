@@ -1892,7 +1892,7 @@
       use caspt2_module, only: STSYM, NSTATE, MSTATE, JSTATE,
      &                         ISCF, EPSA
       use Constants, only: One
-      use caspt2_module, only: ETA, CITHR, NG2, NG3TOT
+      use caspt2_module, only: ETA, CITHR
 
       implicit none
 
