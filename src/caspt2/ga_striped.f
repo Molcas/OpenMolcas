@@ -17,17 +17,18 @@
 
 #ifdef _MOLCAS_MPP_
       SUBROUTINE GA_CREATE_STRIPED (ORI,NROW,NCOL,LABEL,LG_M)
+      use definitions, only: iwp, u6
       IMPLICIT NONE
       CHARACTER :: ORI
       CHARACTER(LEN=*) :: LABEL
-      INTEGER :: NROW, NCOL, LG_M
+      INTEGER(kind=iwp) :: NROW, NCOL, LG_M
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL :: BSTAT
-      INTEGER :: NPROCS
-      INTEGER :: NBLOCK1, NBLOCK2
-      INTEGER, ALLOCATABLE :: MAP1(:), MAP2(:)
-      INTEGER :: NDIM, NBASE, NREST, IOFF, I
+      LOGICAL(kind=iwp) :: BSTAT
+      INTEGER(kind=iwp) :: NPROCS
+      INTEGER(kind=iwp) :: NBLOCK1, NBLOCK2
+      INTEGER(kind=iwp), ALLOCATABLE :: MAP1(:), MAP2(:)
+      INTEGER(kind=iwp) :: NDIM, NBASE, NREST, IOFF, I
 
       NPROCS=GA_NNODES()
 
@@ -67,10 +68,10 @@
       DEALLOCATE(MAP1,MAP2)
 
       IF (.NOT.bStat) THEN
-        WRITE(6,*) 'GA_CREATE_HS: could not create array, abort'
+        WRITE(u6,*) 'GA_CREATE_HS: could not create array, abort'
         CALL AbEnd()
       END IF
-      END
+      END SUBROUTINE GA_CREATE_STRIPED
 
 #elif ! defined (EMPTY_FILES)
 

@@ -10,23 +10,24 @@
 !***********************************************************************
 Module fake_ga
 use stdalloc, only: mma_allocate, mma_deallocate
+use definitions, only: iwp, wp, u6
 Private
 
-Real*8 DBL_MB(2)
+Real(kind=wp) DBL_MB(2)
 
 Type ga_type
-     Integer :: g_a           ! global array handler
-     Real*8, allocatable  :: A(:)      ! local array
-     Integer :: index         ! Array(1)=DBL_MB(index)
-     Integer :: iLow = 1
-     Integer :: iHi
-     Integer :: jLow = 1
-     Integer :: jHi
-     Integer :: Length
+     Integer(kind=iwp) :: g_a           ! global array handler
+     Real(kind=wp), allocatable  :: A(:)      ! local array
+     Integer(kind=iwp) :: index         ! Array(1)=DBL_MB(index)
+     Integer(kind=iwp) :: iLow = 1
+     Integer(kind=iwp) :: iHi
+     Integer(kind=iwp) :: jLow = 1
+     Integer(kind=iwp) :: jHi
+     Integer(kind=iwp) :: Length
 End Type ga_type
 
-Integer, parameter :: max_ga_arrays=10
-Integer :: iga_arrays=0
+Integer(kind=iwp), parameter :: max_ga_arrays=10
+Integer(kind=iwp) :: iga_arrays=0
 
 Type (ga_type) :: GA_arrays(max_ga_arrays)
 
@@ -35,10 +36,10 @@ Public :: GA_arrays, Allocate_GA_Array, Deallocate_GA_Array, DBL_MB
 Contains
 Integer Function Allocate_GA_Array(nSize,Label) result(lg_A)
 Implicit None
-Integer, Intent(In):: nSize
+Integer(kind=iwp), Intent(In):: nSize
 Character(LEN=*), Intent(In):: Label
 
-Integer i
+Integer(kind=iwp) i
 
 lg_A=0
 Do i = 1, max_ga_arrays
@@ -50,12 +51,12 @@ Do i = 1, max_ga_arrays
       Return
    End If
 End Do
-Write (6,*) 'To many GA_arrys, increase max_ga_arrays.'
+Write (u6,*) 'To many GA_arrys, increase max_ga_arrays.'
 Call abend()
 End Function Allocate_GA_Array
 
 Subroutine Deallocate_GA_Array(lg_A)
-Integer, Intent(InOut):: lg_A
+Integer(kind=iwp), Intent(InOut):: lg_A
 Call mma_deallocate(GA_Arrays(lg_A)%A)
 iga_arrays=iga_arrays-1
 lg_A=0
