@@ -202,8 +202,8 @@
         call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
         NLEV = SGS%NLEV
         if (nAshT /= SGS%NLEV) then
-          write (u6,'(x,"Analytical gradients for nAshT /= SGS%NLEV ",
-     *                  "(GASPT2?) does not work")')
+          write (u6,'(1x,"Analytical gradients for nAshT /= SGS%NLEV ",
+     *                   "(GASPT2?) does not work")')
           call abend()
         end if
 !       write(u6,*) 'olag before'
