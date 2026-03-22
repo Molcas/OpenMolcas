@@ -16,70 +16,70 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS2T_RPT2 (CI1,CI2,SGM1,SGM2,G1,G2,nLev)
+      SUBROUTINE DENS2T_RPT2 (NLEV,NCONF,MXCI,CI1,CI2,SGM1,SGM2,G1,G2)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
       use Symmetry_Info, only: Mul
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: iSCF, nActEl, nAshT, nConf, STSym
-      use caspt2_module, only: MxCI, nG1, nG2
+      use caspt2_module, only: iSCF, nActEl, nAshT, STSym
+      use caspt2_module, only: nG1, nG2
+      use constants, only: Zero, One, Two, Four
+      use definitions, only: wp, iwp, u6
+
       IMPLICIT NONE
 
+      integer(kind=iwp), intent(in):: NLEV, NCONF, MXCI
+      real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF)
+      real(kind=wp), intent(out) :: SGM1(MXCI), SGM2(MXCI),
+     &  G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
 
-      Integer, Intent(In):: nLev
-      REAL*8 CI1(MXCI),CI2(MXCI),SGM1(MXCI),SGM2(MXCI)
-      REAL*8 G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)
+      real(kind=wp) :: GTU,GTUVX !! ,GTUXV
 
-      REAL*8 GTU,GTUVX !! ,GTUXV
+      integer(kind=iwp) :: ID
+      integer(kind=iwp) :: IST,ISU,ISV,ISX,ISTU,ISVX
+      integer(kind=iwp) :: IT,IU,IV,IX,LT,LU,LV,LX,LVX
+      integer(kind=iwp) :: itu,ivx
+      integer(kind=iwp) :: ITASK,NTASKS
+      integer(kind=iwp) :: ISSG1,ISSG2,NSGM1,NSGM2
 
-      INTEGER ID
-      INTEGER IST,ISU,ISV,ISX,ISTU,ISVX
-      INTEGER IT,IU,IV,IX,LT,LU,LV,LX,LVX
-      integer itu,ivx
-
-      INTEGER ITASK,NTASKS
-
-      INTEGER ISSG,NSGM
-
-      REAL*8, EXTERNAL :: DDOT_,DNRM2_
-      INTEGER, ALLOCATABLE:: Task(:,:)
+      real(kind=wp), EXTERNAL :: DDOT_, DNRM2_
+      integer(kind=iwp), ALLOCATABLE :: Task(:,:)
 
 c Purpose: Compute the 1- and 2-electron density matrix
 c arrays G1 and G2.
 
-
-      CALL DCOPY_(NG1,[0.0D0],0,G1,1)
-      CALL DCOPY_(NG2,[0.0D0],0,G2,1)
+      G1(:,:) = Zero
+      G2(:,:,:,:) = Zero
 
 C For the special cases, there is no actual CI-routines involved:
 c Special code for hi-spin case:
-      IF(ISCF.EQ.2) THEN
-        DO IT=1,NASHT
-          G1(IT,IT)=1.0D00
-          DO IU=1,IT-1
-            G2(IT,IT,IU,IU)= 1.0D00
-            G2(IU,IU,IT,IT)= 1.0D00
-            G2(IT,IU,IU,IT)=-1.0D00
-            G2(IU,IT,IT,IU)=-1.0D00
+      IF (ISCF == 2) THEN
+        DO IT = 1, NASHT
+          G1(IT,IT) = One
+          DO IU = 1, IT-1
+            G2(IT,IT,IU,IU) =  One
+            G2(IU,IU,IT,IT) =  One
+            G2(IT,IU,IU,IT) = -One
+            G2(IU,IT,IT,IU) = -One
           END DO
         END DO
-        GOTO 99
+        return
       END IF
 c Special code for closed-shell:
-      IF(ISCF.EQ.1 .AND. NACTEL.GT.0) THEN
-        DO IT=1,NASHT
-          G1(IT,IT)=2.0D00
-          G2(IT,IT,IT,IT)= 2.0D00
-          DO IU=1,IT-1
-            G2(IT,IT,IU,IU)= 4.0D00
-            G2(IU,IU,IT,IT)= 4.0D00
-            G2(IT,IU,IU,IT)=-2.0D00
-            G2(IU,IT,IT,IU)=-2.0D00
+      IF (ISCF == 1 .AND. NACTEL > 0) THEN
+        DO IT = 1, NASHT
+          G1(IT,IT) = Two
+          G2(IT,IT,IT,IT) = Two
+          DO IU = 1, IT-1
+            G2(IT,IT,IU,IU) =  Four
+            G2(IU,IU,IT,IT) =  Four
+            G2(IT,IU,IU,IT) = -Two
+            G2(IU,IT,IT,IU) = -Two
           END DO
         END DO
-        GOTO 99
+        return
       END IF
 
 * For the general cases, we use actual CI routine calls, and
@@ -89,93 +89,86 @@ c Special code for closed-shell:
 * Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 C-SVC20100311: set up a task table with LT,LU
-      nTasks=(nLev**2+nLev)/2
-      nTasks= nLev**2
+      nTasks = (nLev**2+nLev)/2
+      nTasks =  nLev**2
 
       CALL mma_allocate (Task,nTasks,2,Label='Task')
 
-      iTask=0
-      DO LT=1,nLev
-        DO LU=1,nLev!LT
-          iTask=iTask+1
-          Task(iTask,1)=LT
-          Task(iTask,2)=LU
+      iTask = 0
+      DO LT = 1, nLev
+        DO LU = 1, nLev!LT
+          iTask = iTask+1
+          Task(iTask,1) = LT
+          Task(iTask,2) = LU
         ENDDO
       ENDDO
-      IF (iTask.NE.nTasks) WRITE(6,*) "ERROR nTasks"
+      IF (iTask /= nTasks) WRITE(u6,*) "ERROR nTasks"
 
       Call Init_Tsk(ID, nTasks)
 
 C-SVC20100311: BEGIN SEPARATE TASK EXECUTION
- 500  If (.NOT.Rsv_Tsk (ID,iTask)) GOTO 501
+      do while (Rsv_Tsk(ID,iTask))
 
 * Compute SGM1 = E_UT acting on CI, with T.ge.U,
 * i.e., lowering operations. These are allowed in RAS.
-C     LTU=0
-C     DO 140 LT=1,NLEV
-      LT=Task(iTask,1)
+        LT=Task(iTask,1)
         IST=SGS%ISM(LT)
         IT=L2ACT(LT)
-C       DO 130 LU=1,LT
         LU=Task(iTask,2)
-C         LTU=LTU+1
-          ! LTU=iTask
           ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
           ISTU=Mul(IST,ISU)
-          ISSG=Mul(ISTU,STSYM)
-          NSGM=CIS%NCSF(ISSG)
-C         IF(NSGM.EQ.0) GOTO 130
-          IF(NSGM.EQ.0) GOTO 500
-C         CALL GETSGM2(LT,LU,STSYM,CI1,MXCI,SGM1,NSGM)
-C         write(6,*) "LT,LU=",lt,lu
-C         do ix = 1, nsgm
-C         write(6,'(i3,f20.10)') ix,sgm1(ix)
-C         end do
-          CALL GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
-          IF(ISTU.EQ.1) THEN
-            GTU=DDOT_(NSGM,CI2,1,SGM1,1)
+          ISSG1=Mul(ISTU,STSYM)
+          NSGM1=CIS%NCSF(ISSG1)
+          IF (NSGM1 == 0) cycle
+          CALL GETSGM2(LU,LT,STSYM,CI1,NCONF,SGM1,NSGM1)
+          if (ISTU == STSYM) then
+            GTU=DDOT_(NSGM1,CI2,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU
 C           G1(IU,IT)=GTU
-          END IF
+          end if
           LVX=0
           DO LV=1,NLEV!LT
             ISV=SGS%ISM(LV)
             IV=L2ACT(LV)
             DO LX=1,NLEV!LV
               LVX=LVX+1
-C             IF(LVX.GT.LTU) GOTO 500
               ISX=SGS%ISM(LX)
               ISVX=Mul(ISV,ISX)
-              IF(ISVX.NE.ISTU) GOTO 110
+C             IF(ISVX /= ISTU) cycle
               IX=L2ACT(LX)
-C             IF(LX.EQ.LT) THEN
+              ISSG2=Mul(ISVX,ISSG1)
+              NSGM2=CIS%NCSF(ISSG2)
+              IF (NSGM2 == 0) cycle
+              if (ISSG2 == STSYM) then
+C               IF(LX.EQ.LT) THEN
 C then actually T=U=V=X.
-C               GTUVX=DDOT_(NSGM,SGM1,1,SGM1,1)
-C             ELSE
-                CALL GETSGM2(LX,LV,ISSG,SGM1,NSGM,SGM2,NCONF)
-                GTUVX=DDOT_(NCONF,CI2,1,SGM2,1)
-C             END IF
-
-C             IF(LV.EQ.LX) THEN
-C               GTUXV=GTUVX
-C             ELSE
-C               IF(LVX.EQ.LTU) THEN
-C                 GTUXV=DDOT_(NSGM,SGM1,1,SGM1,1)
+C                 GTUVX=DDOT_(NSGM,SGM1,1,SGM1,1)
 C               ELSE
-C                 CALL GETSGM2(LX,LV,STSYM,CI,MXCI,SGM2,NSGM)
-C                 GTUXV=DDOT_(NSGM,SGM1,1,SGM2,1)
+                  CALL GETSGM2(LX,LV,ISSG1,SGM1,NCONF,SGM2,NSGM2)
+                  GTUVX=DDOT_(NSGM2,CI2,1,SGM2,1)
 C               END IF
-C             END IF
-              G2(IT,IU,IV,IX)=G2(IT,IU,IV,IX)+GTUVX
-C             G2(IT,IU,IX,IV)=GTUXV
- 110        CONTINUE
+
+C               IF(LV.EQ.LX) THEN
+C                 GTUXV=GTUVX
+C               ELSE
+C                 IF(LVX.EQ.LTU) THEN
+C                   GTUXV=DDOT_(NSGM,SGM1,1,SGM1,1)
+C                 ELSE
+C                   CALL GETSGM2(LX,LV,STSYM,CI,MXCI,SGM2,NSGM)
+C                   GTUXV=DDOT_(NSGM,SGM1,1,SGM2,1)
+C                 END IF
+C               END IF
+                G2(IT,IU,IV,IX)=G2(IT,IU,IV,IX)+GTUVX
+C               G2(IT,IU,IX,IV)=GTUXV
+              end if
             END DO
           END DO
 
-          CALL GETSGM2(LU,LT,STSYM,CI2,MXCI,SGM1,NSGM)
-          IF(ISTU.EQ.1) THEN
-            GTU=DDOT_(NSGM,CI1,1,SGM1,1)
+          CALL GETSGM2(LU,LT,STSYM,CI2,NCONF,SGM1,NSGM1)
+C         IF(ISTU == 1) THEN
+          if (ISTU == STSYM) then
+            GTU=DDOT_(NSGM1,CI1,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU
           END IF
           LVX=0
@@ -184,15 +177,19 @@ C             G2(IT,IU,IX,IV)=GTUXV
             IV=L2ACT(LV)
             DO LX=1,NLEV
               LVX=LVX+1
-C             IF(LVX.GT.LTU) GOTO 500
+C             IF(LVX.GT.LTU) cycle
               ISX=SGS%ISM(LX)
-              ISVX=Mul(ISV,ISX)
-C             IF(ISVX.NE.ISTU) GOTO 110
               IX=L2ACT(LX)
-              CALL GETSGM2(LX,LV,ISSG,SGM1,NSGM,SGM2,NCONF)
-              GTUVX=DDOT_(NCONF,CI1,1,SGM2,1)
-              G2(IT,IU,IV,IX)=G2(IT,IU,IV,IX)+GTUVX
-C110        CONTINUE
+              ISVX=Mul(ISV,ISX)
+C             IF (ISVX /= ISTU) cycle
+              ISSG2=Mul(ISVX,ISSG1)
+              NSGM2=CIS%NCSF(ISSG2)
+              IF (NSGM2 == 0) cycle
+              if (ISSG2 == STSYM) then
+                CALL GETSGM2(LX,LV,ISSG1,SGM1,NCONF,SGM2,NSGM2)
+                GTUVX=DDOT_(NSGM2,CI1,1,SGM2,1)
+                G2(IT,IU,IV,IX)=G2(IT,IU,IV,IX)+GTUVX
+              end if
             END DO
           END DO
 
@@ -201,8 +198,8 @@ C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
 
-      GOTO 500
- 501  CONTINUE
+      end do
+
       CALL Free_Tsk(ID)
 
       CALL mma_deallocate(Task)
@@ -280,15 +277,13 @@ C       END DO
 C225    CONTINUE
 C      END DO
 C     END DO
-  99  CONTINUE
 
-      IF(iPrGlb.GE.DEBUG) THEN
-        WRITE(6,'("DEBUG> ",A)')
+      IF(iPrGlb >= DEBUG) THEN
+        WRITE(u6,'("DEBUG> ",A)')
      &   "DENS2_RPT2: norms of the density matrices:"
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
-        WRITE(6,'("DEBUG> ",A,1X,ES21.14)') "G2:", DNRM2_(NG2,G2,1)
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G1:", DNRM2_(NG1,G1,1)
+        WRITE(u6,'("DEBUG> ",A,1X,ES21.14)') "G2:", DNRM2_(NG2,G2,1)
       ENDIF
 
-
       RETURN
-      END
+      END subroutine DENS2T_RPT2

@@ -126,7 +126,7 @@ C This density matrix may be approximated in several ways, see DENS.
         CALL DCOPY_(NDMAT,[Zero],0,DMAT,1)
         CALL mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
         CALL MKLIST(LISTS,NLSTOT)
-        CALL DENS(IVECX,DMAT,UEFF,U0)
+        CALL DENS(IVECX,NDMAT,NSTATE,DMAT,UEFF,U0)
         CALL mma_deallocate(LISTS)
       ELSE
         !! Density matrix for the target adiabatic state
@@ -171,7 +171,7 @@ C This density matrix may be approximated in several ways, see DENS.
           IF (ISCF.NE.0) THEN
             CI1(1)=One
           ELSE
-            CALL LOADCI_XMS('N',1,CI1,ISTATE,U0)
+            CALL LOADCI_XMS('N',1,NCONF,NSTATE,CI1,ISTATE,U0)
           END IF
           DO KSTATE = 1, NSTATE
             SCAL = SLag(ISTATE,KSTATE)
@@ -183,7 +183,7 @@ C This density matrix may be approximated in several ways, see DENS.
             IF (ISCF.NE.0) THEN
               CI2(1)=One
             ELSE
-              CALL LOADCI_XMS('N',1,CI2,KSTATE,U0)
+              CALL LOADCI_XMS('N',1,NCONF,NSTATE,CI2,KSTATE,U0)
             END IF
             Call Dens1T_RPT2(CI1,CI2,
      *                       SGM,TG1,nAshT)

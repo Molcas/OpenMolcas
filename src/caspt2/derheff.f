@@ -10,23 +10,24 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      Subroutine DerHEff(CLag,VECROT)
+      Subroutine DerHEff(nConf,nRoots,nState,CLag,VECROT)
 
       use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV, only: IVECW, IVECC
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: STSYM, NCONF, NASHT, ISCF, NSTATE, JSTATE
+      use caspt2_module, only: STSYM, NASHT, ISCF, JSTATE
       use caspt2_module, only: MXCI
       use Constants, only: Zero
 
       implicit none
 
+      integer(kind=iwp), intent(in) :: nConf, nRoots, nState
+      real(kind=wp), intent(inout) :: CLag(nConf,nRoots)
+      real(kind=wp), intent(in) :: VECROT(nState)
+
       integer(kind=iwp) ::  IST, JST, I, NTG1, NTG2, NTG3, IDCI
       real(kind=wp) :: OVL, DUMMY(1)
-
-      real(kind=wp), intent(inout) :: CLag(nConf,nState)
-      real(kind=wp), intent(in) :: VECROT(*)
 
       real(kind=wp),allocatable :: DTG1(:),DTG2(:),DTG3(:),CI1(:),
      &  CI2(:),CI3(:)
@@ -52,7 +53,7 @@
       !! OVL will contain the derivative contribution?
       !! It should be ignored
       OVL = Zero
-      CALL DerHeffX(IVECW,IVECC,OVL,DTG1,DTG2,DTG3)
+      CALL DerHeffX(IVECW,IVECC,NASHT,NTG3,OVL,DTG1,DTG2,DTG3)
 
       call mma_allocate(CI1,MXCI,Label='MCCI1')
       call mma_allocate(CI2,MXCI,Label='MCCI2')
@@ -75,7 +76,7 @@
         END DO
 
         CI3(1:NCONF) = Zero
-        CALL DERTG3(.TRUE.,STSYM,STSYM,CI1,CI2,OVL,
+        CALL DERTG3(.TRUE.,STSYM,STSYM,NCONF,NASHT,CI1,CI2,OVL,
      &              DTG1,DTG2,NTG3,DTG3,CI3,CLag(1,JST))
 
         DO I=1,NSTATE
@@ -103,12 +104,12 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DerHeffX(IVEC,JVEC,OVL,DTG1,DTG2,DTG3)
+      SUBROUTINE DerHeffX(IVEC,JVEC,NASHT,NTG3,OVL,DTG1,DTG2,DTG3)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_GA, only: GA_Arrays
-      use caspt2_module, only: NSYM, NASHT, NASUP, NISUP, NINDEP
+      use caspt2_module, only: NSYM, NASUP, NISUP, NINDEP
       use definitions, only: wp, iwp, u6
 
       implicit none
@@ -125,13 +126,14 @@
 ! and irreps and gets access to the process-specific block of the RHS.
 ! The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-      integer(kind=iwp), intent(in) :: IVEC, JVEC
+      integer(kind=iwp), intent(in) :: IVEC, JVEC, NASHT, NTG3
       real(kind=wp), intent(out) :: OVL
       real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT),
-     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(*)
+     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3)
 
       integer(kind=iwp) :: ICASE, ISYM, NAS, NIN, NIS, lg_V1, lg_V2,
      &  iLo1, iHi1, jLo1, jHi1, MV1, iLo2, iHi2, jLo2, jHi2, MV2
+      integer(kind=iwp) :: nvlen
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
 #ifdef _MOLCAS_MPP_
@@ -174,14 +176,16 @@
             CALL ABEND()
           END IF
 
+          nvlen = (iHi1-jLo1+1)*(jHi1-jLo1+1)
+
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
-            CALL DerHEffX_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
+            CALL DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,jLo1,jHi1,
      &                      DBL_MB(MV1),DBL_MB(MV2),OVL,
      &                      DTG1,DTG2,DTG3)
           ELSE
 #endif
-            CALL DerHEffX_BLK(ICASE,ISYM,NAS,jLo1,jHi1,
+            CALL DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,jLo1,jHi1,
      &                        GA_Arrays(MV1)%A,
      &                        GA_Arrays(MV2)%A,OVL,
      &                        DTG1,DTG2,DTG3)
@@ -200,11 +204,11 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DerHEffX_BLK(ICASE,ISYM,NAS,IISTA,IIEND,V1,V2,OVL,
-     &                        DTG1,DTG2,DTG3)
+      SUBROUTINE DerHEffX_BLK(ICASE,ISYM,NAS,nvlen,NASHT,NTG3,IISTA,
+     &                        IIEND,V1,V2,OVL,DTG1,DTG2,DTG3)
 
       USE SUPERINDEX, only: MTU, MTUV, MTGEU, MTGTU
-      use caspt2_module, only: NAES, NASHT, NTUVES, NTUES, NTGEUES,
+      use caspt2_module, only: NAES, NTUVES, NTUES, NTGEUES,
      &                         NTGTUES
       use definitions, only: wp, iwp
       use Constants, only: Zero, Two, Four, Eight
@@ -217,11 +221,12 @@
 ! calling subroutine.
       implicit none
 
-      integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, IISTA, IIEND
-      real(kind=wp), intent(in) :: V1(*), V2(*)
+      integer(kind=iwp), intent(in) :: ICASE, ISYM, NAS, nvlen, NTG3,
+     &                                 NASHT, IISTA, IIEND
+      real(kind=wp), intent(in) :: V1(nvlen), V2(nvlen)
       real(kind=wp), intent(out) :: OVL
       real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT),
-     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(*)
+     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3)
 ! The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
       integer(kind=iwp) :: NISBLK, IAS, IASABS, ITABS, IUABS, IVABS,
@@ -624,24 +629,24 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DERTG3(DOG3,LSYM1,LSYM2,CI1,CI2,OVL,DTG1,DTG2,NTG3,
-     &                  DTG3,CLAG1,CLAG2)
+      SUBROUTINE DERTG3(DOG3,LSYM1,LSYM2,NCONF,NASHT,CI1,CI2,OVL,DTG1,
+     &                  DTG2,NTG3,DTG3,CLAG1,CLAG2)
       use Symmetry_Info, only: Mul
       use gugx, only: SGS, L2ACT, CIS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp,u6
-      use caspt2_module, only: NACTEL, NASHT, ISCF, IASYM
+      use caspt2_module, only: NACTEL, ISCF, IASYM
       use caspt2_module, only: MXCI
       use Constants, only: Zero, One
 
       implicit none
 
       logical(kind=iwp), intent(in) :: DOG3
-      integer(kind=iwp), intent(in) :: LSYM1, LSYM2, NTG3
-      real(kind=wp), intent(in) :: CI1(MXCI), CI2(MXCI), OVL
+      integer(kind=iwp), intent(in) :: LSYM1, LSYM2, NCONF, NASHT, NTG3
+      real(kind=wp), intent(in) :: CI1(NCONF), CI2(NCONF), OVL
       real(kind=wp), intent(inout) :: DTG1(NASHT,NASHT),
-     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3), CLAG1(MXCI),
-     &  CLAG2(MXCI)
+     &  DTG2(NASHT,NASHT,NASHT,NASHT), DTG3(NTG3), CLAG1(NCONF),
+     &  CLAG2(NCONF)
 
       real(kind=wp), allocatable :: TG3WRK(:),BUF1(:),DTU(:,:),DYZ(:,:)
       integer(kind=iwp), allocatable :: P2LEV(:)

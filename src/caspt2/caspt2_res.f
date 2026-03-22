@@ -60,7 +60,7 @@
       !! Add the partial derivative contribution for MS-CASPT2
       !! (off-diagonal elements). The derivative is taken with IVECW
       !! and put in IVECC.
-!     write (*,*) 'Ifmscoup = ', ifmscoup, nstate
+!     write (u6,*) 'Ifmscoup = ', ifmscoup, nstate
       IF (IFMSCOUP) Then
         Call RHS_ZERO(IVECC)
         Call PSCAVEC(VECROT(jStLag),iVecL,iVecL)
@@ -135,7 +135,7 @@
       implicit none
 
       integer(kind=iwp), intent(in) :: Mode, NIN, NIS, lg_W1, lg_W2
-      real(kind=wp), intent(in) :: DIN(*), DIS(*)
+      real(kind=wp), intent(in) :: DIN(NIN), DIS(NIS)
 
 #ifdef _MOLCAS_MPP_
       integer(kind=iwp) :: myRank, iLo1, iHi1, jLo1, jHi1, iLo2, iHi2,
@@ -171,8 +171,7 @@
       ELSE
 #endif
         CALL CASPT2_ResD2(MODE,NIN,NIS,GA_Arrays(lg_W1)%A,
-     &                                 GA_Arrays(lg_W2)%A,
-     &                                 NIN,DIN,DIS)
+     &                    GA_Arrays(lg_W2)%A,NIN,DIN,DIS)
 #ifdef _MOLCAS_MPP_
       END IF
 #endif
@@ -182,7 +181,7 @@
 !-----------------------------------------------------------------------
 !
       !! RESDIA
-      subroutine CASPT2_ResD2(Mode,nRow,nCol,W1,W2,LDW,dIn,dIs)
+      subroutine CASPT2_ResD2(Mode,nRow,nCol,W1,W2,LDW,DIN,DIS)
 
       use Constants, only: Zero, One
       use definitions, only: wp, iwp
@@ -192,14 +191,27 @@
       implicit none
 
       integer(kind=iwp), intent(in)    :: Mode, nRow, nCol, LDW
-      real(kind=wp),     intent(inout) :: W1(LDW,*), W2(LDW,*)
-      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
+      real(kind=wp),     intent(inout) :: W1(LDW,nCol), W2(LDW,nCol)
+      real(kind=wp),     intent(in)    :: dIn(nRow), dIs(nCol)
 
-      integer(kind=iwp)                :: i, j, p
-      real(kind=wp)                    :: scal, delta, delta_inv,
-     &                                    sigma, epsilon, expscal,
-     &                                    delta_ps
+      integer(kind=iwp) :: i, j, p
+      real(kind=wp) :: scal, delta, delta_inv, sigma, epsilon, expscal,
+     &                 delta_ps
 
+      ! See Eqs.(16), (17), and (22) in Stefano's sigma-regularization
+      ! Eshift is the inverse of f(Delta;epsilon)
+      ! real : Eshift = delta + epsilon
+      ! imag : Eshift = delta + epsilon(^2)/delta
+      ! sigma: Eshift = delta/(1-exp(-|delta/epsilon|^P))
+      ! For sigma^P
+      ! d(Eshift)/d(delta) = 1/(1-exp...) - delta/(1-...)
+      ! 1st and 2nd terms are the ders of numerator and denominator
+      ! The numerator   contribution is mode = 3
+      ! The denominator contribution is mode = 2
+      ! Note that Lagrangian is something like (scaling factors can be
+      ! case-dependent)
+      ! 2<1|V|0> + <1|H0-E0|1> + <lambda|V|0> + <lambda|H0-E0+Eshift|1>
+      ! The correlated density comes from the 2nd and 4th terms
       epsilon = Zero
       if (sigma_p_epsilon /= Zero) then
         epsilon = sigma_p_epsilon
@@ -220,7 +232,7 @@
             if (epsilon > Zero) then
               sigma = One/epsilon**p
               delta_inv
-     &          = delta_inv * (One - exp(-sigma*abs(delta)**p))
+     *          = delta_inv * (One - exp(-sigma*abs(delta)**p))
             end if
             !! The following SCAL is the actual residual
             scal = One - (dIn(i)+dIs(j))*delta_inv
@@ -244,16 +256,16 @@
               delta_ps= (delta**p)*sigma
               expscal = exp(-abs(delta_ps))
               delta_inv = One/(One - expscal)
-
-              W1(i,j) = delta_inv*p*(delta_ps)*expscal*W1(i,j)
-     &                  *(SIGN(One,delta)**p)
+              ! Correct only for diagonal elements
+              ! Use the canonical constraint for off-diagonal elements
+              W1(i,j) = delta_inv*W1(i,j)*expscal*delta/epsilon
+     *                 *abs(delta/epsilon)**real(p-1,kind=wp)
+     *                 *real(p,kind=wp)
               W2(i,j) = delta_inv*W2(i,j)
-!             W2(i,j) = delta_inv*p*(delta_ps)*expscal*W2(i,j)
-!    *                  *(SIGN(One,delta)**p)
-!             W1(i,j) = delta_inv*W1(i,j)
             end if
           case (3)
             ! derivative of the numerator of sigma-p CASPT2
+            ! called only for sigma-p CASPT2
             ! always real_shift = imag_shift = 0
             delta     = dIn(i)+dIs(j)
             ! multiply by (inverse) sigma-p regularizer
@@ -261,6 +273,10 @@
             sigma = One/epsilon**p
             expscal = exp(-sigma*abs(delta)**p)
             delta_inv = One/(One - expscal)
+            ! The relevant terms are:
+            ! <1|H0-E0|1> + <lambda|H0-E0+Eshift|1>
+            ! This subroutine modifies the lambda for <lambda|Eshift|1>
+            ! so scaling only the lambda is correct.
             W1(i,j) = delta_inv*W1(i,j)
           end select
         end do

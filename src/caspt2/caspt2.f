@@ -522,7 +522,7 @@ C     transition density matrices.
 
       !! Finishing for gradient calculation
       IF (IFGRDT0) Then
-        Call GrdCls(IRETURN,UEFFSav,U0Sav,H0)
+        Call GrdCls(IRETURN,nState,UEFFSav,U0Sav,H0)
         CALL MMA_DEALLOCATE(UeffSav)
         CALL MMA_DEALLOCATE(U0Sav)
         IF (IFMSCOUP) Then

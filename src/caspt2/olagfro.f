@@ -10,15 +10,16 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      Subroutine OLagFro0(DPT2_ori,DPT2)
+      Subroutine OLagFro0(NOSQT,NBSQT,DPT2_ori,DPT2)
 
       use caspt2_module, only: NSYM, NFRO, NORB, NDEL, NBAS
       use definitions, only: wp, iwp
 
       implicit none
 
-      real(kind=wp), intent(in) :: DPT2_ori(*)
-      real(kind=wp), intent(inout) :: DPT2(*)
+      integer(kind=iwp), intent(in) :: NOSQT, NBSQT
+      real(kind=wp), intent(in) :: DPT2_ori(NOSQT)
+      real(kind=wp), intent(inout) :: DPT2(NBSQT)
 
       integer(kind=iwp) :: iMO1, iMO2, iSym, nOrbI1, nOrbI2, nFroI,
      &  iOrb, iOrb1, iOrb2, jOrb, jOrb1, jOrb2
@@ -52,20 +53,21 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine OLagFroD(DIA,DI,RDMSA,Trf)
+      Subroutine OLagFroD(NBSQT,NASHT,DIA,DI,RDMSA,Trf)
 
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NBAS, NBSQT
+      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NBAS
       use Constants, only: Zero, One, Two
 
       implicit none
 
 #include "intent.fh"
 
-      real(kind=wp), intent(_OUT_) :: DIA(*), DI(*)
-      real(kind=wp), intent(in) :: RDMSA(*), Trf(*)
+      integer(kind=iwp), intent(in) :: NBSQT, nAshT
+      real(kind=wp), intent(_OUT_) :: DIA(NBSQT), DI(NBSQT)
+      real(kind=wp), intent(in) :: RDMSA(nAshT**2), Trf(NBSQT)
 
       real(kind=wp),allocatable :: WRK1(:),WRK2(:)
 
@@ -134,7 +136,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine OLagFro1(DPT2,OLag)
+      Subroutine OLagFro1(NBSQT,nOLag,DPT2,OLag)
 
       use caspt2_global, only: FIFA_all
       use caspt2_module, only: NSYM, NFRO, NISH, NBAS, NDEL
@@ -143,7 +145,8 @@
 
       implicit none
 
-      real(kind=wp), intent(inout) :: DPT2(*), OLag(*)
+      integer(kind=iwp), intent(in) :: NBSQT, nOLag
+      real(kind=wp), intent(inout) :: DPT2(NBSQT), OLag(nOLag)
 
       integer(kind=iwp) :: iMO, iSym, nOrbI, nFroI, nIshI, nBasI, iOrb,
      &  jOrb
@@ -181,7 +184,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine OLagFro2(DPT2,FPT2,ERI,Scr)
+      Subroutine OLagFro2(NBSQT,DPT2,FPT2,ERI,Scr)
 
       use caspt2_module, only: NSYM, NFRO, NISH, NDEL, NBAS
       use Constants, only: Half
@@ -191,9 +194,10 @@
 
 #include "intent.fh"
 
-      real(kind=wp), intent(in) :: DPT2(*)
-      real(kind=wp), intent(inout) :: FPT2(*)
-      real(kind=wp), intent(_OUT_) :: ERI(*), Scr(*)
+      integer(kind=iwp), intent(in) :: NBSQT
+      real(kind=wp), intent(in) :: DPT2(NBSQT)
+      real(kind=wp), intent(inout) :: FPT2(NBSQT)
+      real(kind=wp), intent(_OUT_) :: ERI(NBSQT), Scr(NBSQT)
 
       integer(kind=iwp) :: iMO, iSymI, iSymJ, iSymA, iSymB, iSym, nOrbI,
      &  nFroI, nIshI, iOrb, jOrb
@@ -241,7 +245,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine OLagFro3(FIFA,FIMO,WRK1,WRK2)
+      Subroutine OLagFro3(NBSQT,FIFA,FIMO,WRK1,WRK2)
 
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -252,8 +256,9 @@
 
 #include "intent.fh"
 
-      real(kind=wp), intent(inout) :: FIFA(*), FIMO(*)
-      real(kind=wp), intent(_OUT_) :: WRK1(*), WRK2(*)
+      integer(kind=iwp), intent(in) :: NBSQT
+      real(kind=wp), intent(inout) :: FIFA(NBSQT), FIMO(NBSQT)
+      real(kind=wp), intent(_OUT_) :: WRK1(NBSQT), WRK2(NBSQT)
 
       Character(Len=8) :: Label
       real(kind=wp), allocatable :: WFLT(:)
@@ -285,7 +290,7 @@
         Call Square(WFLT(iAOtr),WRK2,1,nBasI,nBasI)
         WRK1(1:nBasI*nBasI) = WRK1(1:nBasI*nBasI) + WRK2(1:nBasI*nBasI)
         !! AO -> MO transformation of H+G(D)
-        Call OLagTrf(2,iSym,CMOPT2(iCMO),FIFA(iMO),WRK1,WRK2)
+        Call OLagTrf(2,iSym,NBSQT,CMOPT2(iCMO),FIFA(iMO),WRK1,WRK2)
 
         !! FIMO
         !! WRK1 = G(D)
@@ -294,7 +299,7 @@
         Call Square(WFLT(iAOtr),WRK2,1,nBasI,nBasI)
         WRK1(1:nBasI*nBasI) = WRK1(1:nBasI*nBasI) + WRK2(1:nBasI*nBasI)
         !! AO -> MO transformation of H+G(D)
-        Call OLagTrf(2,iSym,CMOPT2(iCMO),FIMO(iMO),WRK1,WRK2)
+        Call OLagTrf(2,iSym,NBSQT,CMOPT2(iCMO),FIMO(iMO),WRK1,WRK2)
 
         iAO   = iAO   + nBasI*nBasI
         iAOtr = iAOtr + nBasI*(nBasI+1)/2
@@ -312,54 +317,8 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine OLagFroSq(iSym,Ftr,Fsq)
-
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp, iwp
-      use caspt2_module, only: NFRO, NDEL, NBAS, NBAST
-      use Constants, only: Zero
-
-      implicit none
-
-#include "intent.fh"
-
-      integer(kind=iwp), intent(in) :: iSym
-      real(kind=wp), intent(in) :: Ftr(*)
-      real(kind=wp), intent(_OUT_) :: Fsq(*)
-
-      real(kind=wp),allocatable :: EPS_loc(:)
-      integer(kind=iwp) :: nOrbI, nFroI, iOrb, NSEQ, jOrb
-
-      call mma_allocate(EPS_loc,nBasT,Label='EPS_loc')
-      Call Get_dArray('RASSCF OrbE',EPS_loc,nBasT)
-
-      nOrbI = nBas(iSym)-nDel(iSym)
-      nFroI = nFro(iSym)
-      Fsq(1:nOrbI**2) = Zero
-
-      !! Frozen orbital
-      Do iOrb = 1, nFroI
-        Fsq(iOrb+nOrbI*(iOrb-1)) = EPS_loc(iOrb)
-      End Do
-
-      !! Other orbitals
-      NSEQ = 0
-      Do iOrb = nFroI+1, nOrbI
-        Do jOrb = nFroI+1, iOrb
-          NSEQ = NSEQ + 1
-          Fsq(iOrb+nOrbI*(jOrb-1)) = Ftr(NSEQ)
-          Fsq(jOrb+nOrbI*(iOrb-1)) = Ftr(NSEQ)
-        End Do
-      End Do
-
-      call mma_deallocate(EPS_loc)
-
-      End Subroutine OLagFroSq
-!
-!-----------------------------------------------------------------------
-!
       !! focktwo.f
-      SUBROUTINE OLagFro4(iSym0,iSymI,iSymJ,iSymK,iSymL0,
+      SUBROUTINE OLagFro4(NBSQT,iSym0,iSymI,iSymJ,iSymK,iSymL0,
      &                    DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,WRK1)
 
       USE CHOVEC_IO, only: NVLOC_CHOBATCH
@@ -371,7 +330,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use caspt2_module, only: NSYM, NBAS, NBSQT, NBTCHES
+      use caspt2_module, only: NSYM, NBAS, NBTCHES
 
       implicit none
 
@@ -381,10 +340,11 @@
 #include "global.fh"
 #endif
 
-      integer(kind=iwp), intent(in) :: iSym0, iSymI, iSymJ, iSymK,
-     &  iSymL0
-      real(kind=wp), intent(inout) :: DPT2AO(*), DPT2CAO(*)
-      real(kind=wp), intent(_OUT_) :: FPT2AO(*), FPT2CAO(*), WRK1(*)
+      integer(kind=iwp), intent(in) :: NBSQT, iSym0, iSymI, iSymJ,
+     &                                 iSymK, iSymL0
+      real(kind=wp), intent(inout) :: DPT2AO(NBSQT), DPT2CAO(NBSQT)
+      real(kind=wp), intent(_OUT_) :: FPT2AO(NBSQT), FPT2CAO(NBSQT),
+     &                                WRK1(NBSQT)
 
       real(kind=wp), allocatable :: CHSPC(:), WRK2(:)
       integer(kind=iwp) :: ISTLT(8), ISTSQ(8), iSkip(8), ipWRK(8),
@@ -569,8 +529,8 @@
 
       implicit none
 
-      real(kind=wp), intent(in) :: ChoVec(*), DD(*)
-      real(kind=wp), intent(inout) :: FF(*)
+      real(kind=wp), intent(in) :: ChoVec(nBasI**2), DD(nBasI**2)
+      real(kind=wp), intent(inout) :: FF(nBasI**2)
 
       real(kind=wp) :: Scal
       real(kind=wp), external :: ddot_
