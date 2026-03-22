@@ -680,7 +680,7 @@
       call mma_allocate(WLagLoc,NBSQT,Label='WLagLoc')
 
       if (NBSQT /= nOLag) then
-        write (u6,'(x,"NBSQT /= nOLag in OLagFinal")')
+        write (u6,'(1x,"NBSQT /= nOLag in OLagFinal")')
         call abend()
       end if
 
