@@ -14,7 +14,7 @@
       module pt2wfn
       use definitions, only: iwp, wp
       integer(kind=iwp) :: pt2wfn_id
-      logical :: pt2wfn_is_h5 = .False.
+      logical(kind=iwp) :: pt2wfn_is_h5 = .False.
       integer(kind=iwp) :: pt2wfn_refene, pt2wfn_energy
       integer(kind=iwp) :: pt2wfn_mocoef, pt2wfn_occnum, pt2wfn_orbene
       integer(kind=iwp) :: pt2wfn_cicoef

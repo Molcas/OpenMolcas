@@ -313,13 +313,13 @@
 C
 C     Purpose: put info in MP2 common blocks.
 C
-      use definitions, only: iwp
-      use constants, only: Zero
       Use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2,
      &                  DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def,
      &                  MxQualMP2, OED_Thr, set_cd_thr, SOS_mp2,
      &                  Span_Def, SpanMP2, ThrMP2, Verbose
       use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
+      use constants, only: Zero
+      use definitions, only: iwp, wp
 
       Implicit None
       Integer(kind=iwp), intent(in):: mSym
@@ -340,7 +340,7 @@ C
 C
       ChoAlg=2
       DecoMP2=Decom_Def
-      ThrMP2=-9.9D9
+      ThrMP2=-9.9E9_wp
       SpanMP2=Span_Def
       MxQualMP2=MxQual_Def
       ChkDecoMP2=.false.
@@ -348,8 +348,8 @@ C
       Verbose=.false.
       SOS_mp2=.false.
       set_cd_thr=.true.
-      OED_Thr=1.0d-8
-      C_os=1.3d0
+      OED_Thr=1.0e-8_wp
+      C_os=1.3e0_wp
       EOSMP2=Zero
 C
       DoFNO=.true.

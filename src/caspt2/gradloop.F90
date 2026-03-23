@@ -54,8 +54,8 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav,nState)
   Integer(kind=iwp) :: ICONV
 
 ! For verification only
-  INTEGER LAXITY,Cho_X_GetTol
-  EXTERNAL Cho_X_GetTol
+  INTEGER(kind=iwp) LAXITY
+  INTEGER(kind=iwp), EXTERNAL :: Cho_X_GetTol
 
   IDSAVGRD = 0
 

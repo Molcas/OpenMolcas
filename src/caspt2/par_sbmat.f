@@ -24,7 +24,7 @@ C tridiagonal local array at Work(lg_M)
       Integer(kind=iwp) lg_M, nSize
       CHARACTER(len=*) cNAME
 
-      Integer nTri
+      Integer(kind=iwp) nTri
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
