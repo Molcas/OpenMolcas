@@ -15,7 +15,7 @@
 
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,displacements,hdiag,fsdim,dqdq,dq,UpMeth,SORange,usmitigation)
+subroutine S_GEK_localisation(nIter,hdiag,fsdim,dqdq,dq,UpMeth,SORange,usmitigation)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -23,12 +23,12 @@ use Definitions, only: iwp,wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Localisation_globals, only: nMxIter,Loosen,OptMeth,FuncList,GradList
+use Localisation_globals, only: nMxIter,Loosen,OptMeth,FuncList,GradList,DispList
 
 implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim
-real(kind=wp),intent(in) :: displacements(fsdim,nMxIter),Hdiag(fsdim)
+real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit=0,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
@@ -67,7 +67,7 @@ do i=iFirst,nIter
     !write(u6,*) 'i,j,iter=',i,j,nIter
 
     ! Coordinates
-    q(:,j) = displacements(:,i)
+    q(:,j) = DispList(:,i)
 
     ! Gradients
     g(:,j) = GradList(:,i)

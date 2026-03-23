@@ -298,7 +298,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 write(u6,*) "Iter_GEK=",Iter_GEK
-                call S_GEK_localisation(Iter_GEK,DispList(:,:),-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
+                call S_GEK_localisation(Iter_GEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
 
 
                 ! undershoot mitigation
