@@ -162,7 +162,7 @@
                 Write(u6,'(A3,I4,A3,F16.8)')
      &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
 * Then set it to zero because we are within the diagonal approximation
-                H0(Istate,Jstate) = 0.0d0
+                H0(Istate,Jstate) = Zero
               else
 * Just print out the already computed diagonal element
                 Write(u6,'(A3,I4,A3,F16.8)')

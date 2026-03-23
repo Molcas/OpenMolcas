@@ -22,6 +22,7 @@
       use ChoCASPT2, only: Stuff,lsplit,nisplit,nasplit,nksh,nkes,npsh,
      &                     npes
       use stdalloc, only: mma_allocate, mma_deallocate
+      use constants, only: Two
       use definitions, only: iwp, wp, u6
 
       Implicit None
@@ -162,10 +163,10 @@ C *********************************************************************
             Write(6,*)' used for the Cholesky vectors.'
             Write(6,*)' Too little memory is available at this point.'
             Write(6,*)' Details:'
-            xmb=xMemMx/1048576.0D0
+            xmb=xMemMx/1048576.0E0_wp
             Write(6,'(1x,a,1x,f10.3)')
      &              ' Largest contiguous allocatable memory (MB):',xmb
-            xmb=2.0D0*DBLE(NUMCHO(JSYM))/1048576.0D0
+            xmb=Two*DBLE(NUMCHO(JSYM))/1048576.0E0_wp
             Write(6,'(1x,a,1x,f10.3)')
      &              '                        2*NumCho(jSym) (MB):',xmb
             Write(6,*)' Divided up on jFrac pieces. jFrac=',jFrac

@@ -31,6 +31,7 @@
       use caspt2_module, only: nSym, Header, ifChol, jState,
      &                         bName, nAsh, nBas, nIsh,
      &                         nOTri, nBasT, nBSqT, nSsh, nState
+      use constants, only: Zero
       use definitions, only: iwp, u6
       IMPLICIT NONE
 #include "compiler_features.h"
@@ -140,7 +141,7 @@ C Initialize sizes, offsets etc used in equation solver.
 
       If (IfChol) then
 * initialize Cholesky information
-        Call Cho_X_init(irc,0.0d0)
+        Call Cho_X_init(irc,Zero)
         if (irc.ne.0) then
           Write(u6,*) 'CASPT2: Non-zero rc in Cho_X_init'
           CALL QUIT(irc)
@@ -159,7 +160,7 @@ C Initialize sizes, offsets etc used in equation solver.
 
 * Allocate global orbital arrays:
       CALL mma_allocate(CMOPT2,NCMO,Label='CMOPT2')
-      CMOPT2(:) = 0.0d0
+      CMOPT2(:) = Zero
 * Allocate global orbital transformation arrays:
       CALL mma_allocate(TORB,NTORB,Label='TORB')
       CALL mma_allocate(TAT,NTAT,Label='TAT')

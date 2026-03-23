@@ -57,7 +57,7 @@ C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
 
 
 C Sketch of procedure:
-C  HEL=0.0D0
+C  HEL=Zero
 C  Loop over every (case/symmetry)-block.
 C           If (No such vector block) Skip to end of loop
 C           Allocate two places for this block, VEC1 and VEC2

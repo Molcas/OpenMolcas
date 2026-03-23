@@ -902,7 +902,7 @@ C Diagonalize the transformed B matrix.
       EIG(:)=Zero
       IF(BSPECT.NE.'YES')  THEN
 C Use diagonal approxim., if allowed.
-C        call GA_Fill (lg_V, 0.0D0)
+C        call GA_Fill (lg_V, Zero)
         call GA_Zero (lg_V)
 C FIXME: this original code seemed wrong, using uninitialized SD?
 *       IDIAG=1

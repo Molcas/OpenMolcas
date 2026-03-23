@@ -821,7 +821,7 @@ CSVC: read in all the cholesky vectors (need all symmetries)
 ************************************************************************
 * Case H:
 C   WP(jl,ac)=((ajcl)+(alcj))/SQRT((1+Kron(jl))*(1+Kron(ac))
-C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(3.0D0)
+C   WM(jl,ac)=((ajcl)-(alcj))*SQRT(Three)
 ************************************************************************
 
 ************************************************************************

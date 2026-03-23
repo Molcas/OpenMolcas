@@ -43,6 +43,7 @@
      &                        TIOPT2,TIOSBM,TIOEIG,TIONAD,TIORHS,TIOSER,
      &                        TIOPCG,TIOSCA,TIOLCS,TIOOVL,TIOVEC,TIOSGM,
      &                         TIOPRP,TIOGRD
+      use constants, only: Zero, One
       use definitions, only: iwp, wp, u6
 
       IMPLICIT NONE
@@ -553,16 +554,16 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
 * Initialize effective Hamiltonian and eigenvectors
       CALL MMA_ALLOCATE(Heff,Nstate,Nstate,Label='Heff')
       CALL MMA_ALLOCATE(Ueff,Nstate,Nstate,Label='Ueff')
-      Heff(:,:)=0.0D0
-      Ueff(:,:)=0.0D0
+      Heff(:,:)=Zero
+      Ueff(:,:)=Zero
 * Initialize zeroth-order Hamiltonian and eigenvectors
       CALL MMA_ALLOCATE(H0,Nstate,Nstate,Label='H0')
       CALL MMA_ALLOCATE(U0,Nstate,Nstate,Label='U0')
-      H0(:,:)=0.0D0
+      H0(:,:)=Zero
 * U0 is initialized as the identity matrix, in the case of a
 * standard MS-CASPT2 calculation it will not be touched anymore
-      U0(:,:)=0.0D0
-      call dcopy_(Nstate,[1.0d0],0,U0,Nstate+1)
+      U0(:,:)=Zero
+      call dcopy_(Nstate,[One],0,U0,Nstate+1)
 *
 * Some preparations for gradient calculation
       IF (do_grad) Then
@@ -617,12 +618,12 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
            CPUTOT=CPUTOT+CPUGIN
            TIOTOT=TIOTOT+TIOGIN
          ELSE
-           CPUGIN=0.0D0
-           TIOGIN=0.0D0
-           CPUFMB=0.0D0
-           TIOFMB=0.0D0
-           CPUINT=0.0D0
-           TIOINT=0.0D0
+           CPUGIN=Zero
+           TIOGIN=Zero
+           CPUFMB=Zero
+           TIOFMB=Zero
+           CPUINT=Zero
+           TIOINT=Zero
          END IF
         end if
 

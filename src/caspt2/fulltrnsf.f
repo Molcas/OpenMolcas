@@ -20,8 +20,8 @@
 *      DO J=1,NJ
 ** Compute fully transformed Cholesky vector buffer:
 **  FULL(P,W,J)=Sum(CMO(B,P)*HALF(W,J,B),B=1,NB)
-*        CALL DGEMM_('T','T',NP,NW,NB,1.0D0,CMOBLK,NB,
-*     &       BUF_HT(1,J,1),NW*NJ,0.0D0,BUF_FT(1,1,J),NP)
+*        CALL DGEMM_('T','T',NP,NW,NB,One,CMOBLK,NB,
+*     &       BUF_HT(1,J,1),NW*NJ,Zero,BUF_FT(1,1,J),NP)
 *      END DO
         CALL DGEMM_('T','T',NP,NW*NJ,NB,One,CMOBLK,NB,
      &       BUF_HT,NW*NJ,Zero,BUF_FT,NP)

@@ -104,7 +104,7 @@
       Do iSym=1,nSym
          ipOrbE_=ipOrbE+iAoff+nFro(iSym)+nIsh(iSym)
          Do k=0,nAsh(iSym)-1
-            If (OrbE(ipOrbE_+k).lt.0.0d0) nAct(iSym)=nAct(iSym)+1
+            If (OrbE(ipOrbE_+k).lt.Zero) nAct(iSym)=nAct(iSym)+1
          End Do
          iAoff=iAoff+nBas(iSym)
       End Do

@@ -16,6 +16,7 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_ga, only: GA_arrays, Allocate_GA_Array
+      use constants, only: Zero
       use definitions, only: iwp
       IMPLICIT None
 CSVC2010: create square global array S/B for symmetry iSYM
@@ -34,7 +35,7 @@ C tridiagonal local array at Work(lg_M)
 #endif
         nTri=(nSize*(nSize+1))/2
         lg_M=Allocate_GA_Array(nTri,cName)
-        GA_Arrays(lg_M)%A(:)=0.0D0
+        GA_Arrays(lg_M)%A(:)=Zero
 #ifdef _MOLCAS_MPP_
       END IF
 #endif

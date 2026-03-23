@@ -514,7 +514,7 @@
             End Do
 !           G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
 !           IF(IFF /= 0) then
-!             F1sum=0.0D0
+!             F1sum=Zero
 !             do i=1,nsgm1
 !               F1sum=F1sum+CI(i)*work(lto-1+i)*bufd(i)
 !             end do

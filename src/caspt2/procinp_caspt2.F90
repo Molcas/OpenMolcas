@@ -94,8 +94,8 @@ subroutine procinp_caspt2
       call Quit_OnUserError()
     end if
     ! IPEA shift different from zero only for standard Focktype
-    if (ipea_shift .ne. 0.0d0) then
-      ipea_shift = 0.0d0
+    if (ipea_shift .ne. Zero) then
+      ipea_shift = Zero
       if (IPRGLB .ge. TERSE) then
         call WarningMessage(1,'IPEA shift reset to zero!')
       end if
@@ -109,7 +109,7 @@ subroutine procinp_caspt2
       call getenvf('MOLCAS_NEW_DEFAULTS',Env)
       call upcase(Env)
       if (Env .eq. 'YES') then
-        ipea_shift = 0.0d0
+        ipea_shift = Zero
       else
         ipea_shift = 0.25d0
       end if

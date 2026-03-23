@@ -445,7 +445,7 @@ C     -----------------------------------------------------------
          Call mma_allocate(Dmat,nVV+nOA,Label='DMat')
          ip_X=1
          ip_Y=ip_X+nVV
-         DMat(:)=0.0D0
+         DMat(:)=Zero
          Call FZero(XMO(iCMO),NCMO)
          iOff=0
          Do iSym=1,nSym
@@ -569,8 +569,9 @@ c         Write(6,*)
 *                                                                      *
 ************************************************************************
       Subroutine get_Saa(nSym,nBas,nOrb,Smn,nSmn,Xmo,nXmo,Saa,nSaa)
-      use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp
       Implicit None
       integer(kind=iwp), intent(in)::  nSym, nBas(nSym), nOrb(nSym)
       integer(kind=iwp), intent(in)::  nXmo, nSmn, nSaa
@@ -594,9 +595,9 @@ c         Write(6,*)
       Do iSym=1,nSym
          nBx=Max(1,nBas(iSym))
          Call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nBas(iSym),
-     &                      1.0d0,Smn(iX),nBx,
+     &                      One,Smn(iX),nBx,
      &                            Xmo(kX),nBx,
-     &                      0.0d0,Z,nBx)
+     &                      Zero,Z,nBx)
          Do j=0,nOrb(iSym)-1
             jK=nBas(iSym)*j
             lk=kX+jK
