@@ -124,9 +124,6 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
 end if
 ! ---------------------------------------------------------------------------------------------------
 
-nIter = 0
-Iter_GEK = 0
-
 call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
 
 
@@ -168,17 +165,20 @@ else
 end if
 
 
-! get initial gradient, hessian diagonal, add initial functional value to list
+! get initial gradient, hessian diagonal
 ! ---------------------------------------------------------------------------------------------------
 if (OptMeth == 1) then
+
+    ! no need to compute explicit gradient or hessian for the jacobi sweep method
     call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
+
 else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
+
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:), Hdiagvec(:))
 #   ifdef _DEBUGPRINT_
     call RecPrt("initial gradient"," ",Gradient(:),fsdim,1)
     call RecPrt("initial hessian"," ",Hdiagvec(:),fsdim,1)
 #   endif
-    FunctionalList(1) = Functional
 end if
 
 ! Print iteration table header.
@@ -186,8 +186,10 @@ end if
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
-
+nIter = 0
+Iter_GEK = 0
 UpMeth=" -  - "
+
 if (.not. Silent) then
     call CWTime(C2,W2)
     TimC = C2-C1
@@ -220,6 +222,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     case (2,3,4,5) ! Employing NxN rotations
 
+        ! initialize kappa matrix
         Disp(:) = Zero
 
         select case(OptMeth) !different NxN rot based methods
@@ -261,9 +264,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             if (large_elements /= 0 .and. start_gek) then
                 ! leave GEK and go back to NR if steps are too large, while resetting the GEK sampling
-#               ifdef _DEBUGPRINT_
+!#               ifdef _DEBUGPRINT_
                 write(u6,*) "resetting GEK sampling in iteration",nIter
-#               endif
+!#               endif
                 Iter_GEK = 0
                 displacements(:,:) = Zero
                 GradientList(:,:) = Zero
@@ -275,9 +278,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             if (large_elements == 0 .and. (.not. start_gek)) then
                 ! infinitesimal limit of kappa reached -> start sampling for GEK
                 start_gek = .true.
-#               ifdef _DEBUGPRINT_
-                write(u6,*) "turning on GEK in iteration",nIter+1,"starting sampling for GEK in iteration",nIter
-#               endif
+!#               ifdef _DEBUGPRINT_
+                write(u6,*) "turning on GEK in iteration",nIter+2,"starting sampling for GEK in iteration",nIter
+!#               endif
                 ! current coordinate = kappa_1 = q_1
                 displacements(:,1) = Disp(:)
 
@@ -297,6 +300,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 write(u6,*) "Iter_GEK=",Iter_GEK
 
                 if (iter_GEK>3) then
+                    ! when enough GEK step data collected: don't use initial two data points obtained without GEK
                     call S_GEK_localisation(Iter_GEK-2,Functionallist(3:),-GradientList(:,3:),displacements(:,3:),-hdiagvec(:),&
                                             fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
                 else
