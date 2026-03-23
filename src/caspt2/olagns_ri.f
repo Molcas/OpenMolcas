@@ -67,7 +67,7 @@
 !     D(tP,tQ) = tD_{pq} * C_{mu p} C_{nu q} * (mu nu|tP)
 !     then saved.
 !
-      Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2)
+      Subroutine OLagNS_RI(iSym0,NBSQT,MaxVec_PT2,DPT2C,DPT2Canti,A_PT2)
 
       use Symmetry_Info, only: Mul
       Use CHOVEC_IO, only: NVLOC_CHOBATCH
@@ -75,7 +75,6 @@
       use caspt2_global, only: do_csf, iStpGrd
       use PrintLevel, only: VERBOSE
       use EQSOLV, only: IVECC2
-      use ChoCASPT2, only: MaxVec_PT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp,u6
       use fake_GA, only: GA_Arrays
@@ -85,7 +84,7 @@
 #endif
       use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH,
      &                         NAES, NSSH, NSES, NORBT, NINABX,
-     &                         NSECBX, NBSQT
+     &                         NSECBX
       use caspt2_module, only: NTUV, NTU, NTGEU, NTGTU, NIGEJ, NIGTJ,
      &                         NAGEB, NAGTB, NTUVES, NTUES, NTGEUES,
      &                         NTGTUES, NIGEJES, NIGTJES, NAGEBES,
@@ -101,8 +100,8 @@
 #include "mafdecls.fh"
 #endif
 
-      integer(kind=iwp), intent(in) :: iSym0
-      real(kind=wp), intent(inout) :: DPT2C(*), DPT2Canti(*),
+      integer(kind=iwp), intent(in) :: iSym0, NBSQT, MaxVec_PT2
+      real(kind=wp), intent(inout) :: DPT2C(NBSQT), DPT2Canti(NBSQT),
      &  A_PT2(MaxVec_PT2,MaxVec_PT2)
 
       integer(kind=iwp), parameter :: Inactive=1, Active=2, Virtual=3
@@ -248,24 +247,24 @@
 *      Loop over the bras and kets, form <A|0>
 *
       Call OLagNS_RI2(Inactive,Active,Active,Active,
-     &                'A ',BRA,KET,BRAD,KETD)
+     &                'A ',SIZE(BRA),SIZE(KET),BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *      TJVL RHSB
 *      TJVL: Use TJ buffer as if it was VL, form <B|0>
 *
-      nKet = nBra
+*     nKet = nBra
       Call OLagNS_RI2(Inactive,Active,Inactive,Active,
-     &                'B ',BRA,BRA,BRAD,BRAD)
+     &                'B ',SIZE(BRA),SIZE(BRA),BRA,BRA,BRAD,BRAD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read bra (Cholesky vectors) in the form L(AJ), form <D1|0>
 * We still have L(VX) vectors in core, at KETS.
 *
-      Call Cholesky_Vectors(1,Inactive,Active,JSYM,BRAD,nBra,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(1,Inactive,Active,JSYM,BRAD,SIZE(BRAD),
+     &                      nBra,IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
      &                          BRA,SIZE(BRA),nBra,
      &                          IBSTA,IBEND)
@@ -277,23 +276,23 @@
 * Loop over the bra and ket vectors.
 *
       Call OLagNS_RI2(Inactive,Virtual,Active,Active,
-     &                'D1',BRA,KET,BRAD,KETD)
+     &                'D1',SIZE(BRA),SIZE(KET),BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * AJCL RHSH
 * AJCL: Use AJ buffer still in core as if it was CL, form <H|0>
 *
-      nKet = nBra
+*     nKet = nBra
       Call OLagNS_RI2(Inactive,Virtual,Inactive,Virtual,
-     &                'H ',BRA,BRA,BRAD,BRAD)
+     &                'H ',SIZE(BRA),SIZE(BRA),BRA,BRA,BRAD,BRAD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read Bra (Cholesky vectors)= L(AU)
 *
-      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,BRAD,nBra,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,BRAD,SIZE(BRAD),
+     &                      nBra,IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Active,Virtual,JSYM,
      &                          BRA,SIZE(BRA),nBra,
      &                          IBSTA,IBEND)
@@ -305,28 +304,28 @@
 * AUVX: Loop over the bras and kets
 *
       Call OLagNS_RI2(Active,Virtual,Active,Active,
-     &                'C ',BRA,KET,BRAD,KETD)
+     &                'C ',SIZE(BRA),SIZE(KET),BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * AUCX RHSF
 * AUCX: Use AU buffer still in core as if it was CX, form <F|0>
 *
-      nKet = nBra
+*     nKet = nBra
       Call OLagNS_RI2(Active,Virtual,Active,Virtual,
-     &                'F ',BRA,BRA,BRAD,BRAD)
+     &                'F ',SIZE(BRA),SIZE(BRA),BRA,BRA,BRAD,BRAD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read kets (Cholesky vectors) in the form L(VL), all symmetries:
 *
-      Call Cholesky_Vectors(1,Active,Active,JSYM,KETD,nKet,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(1,Active,Active,JSYM,KETD,SIZE(KETD),
+     &                      nKet,IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
      &                          KET,SIZE(KET),nKet,
      &                          IBSTA,IBEND)
-      Call Cholesky_Vectors(2,Inactive,Active,JSYM,KETD,nKet,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Inactive,Active,JSYM,KETD,SIZE(KETD),
+     &                      nKet,IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -334,19 +333,19 @@
 * Loop over bras and kets, form <D2|0>.
 *
       Call OLagNS_RI2(Active,Virtual,Inactive,Active,
-     &                'D2',BRA,KET,BRAD,KETD)
+     &                'D2',SIZE(BRA),SIZE(KET),BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read kets (Cholesky vectors) in the form L(CL), all symmetries:
 *
-      Call Cholesky_Vectors(1,Inactive,Active,JSYM,KETD,nKet,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(1,Inactive,Active,JSYM,KETD,SIZE(KETD),
+     &                      nKet,IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
      &                          KET,SIZE(KET),nKet,
      &                          IBSTA,IBEND)
-      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,KETD,nKet,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Inactive,Virtual,JSYM,KETD,SIZE(KETD),
+     &                      nKet,IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -354,14 +353,14 @@
 * Loop over bras and kets, form  <G|0>
 *
       Call OLagNS_RI2(Active,Virtual,Inactive,Virtual,
-     &                'G ',BRA,KET,BRAD,KETD)
+     &                'G ',SIZE(BRA),SIZE(KET),BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * Read bra vectors AJ
 *
-      Call Cholesky_Vectors(1,Active,Virtual,JSYM,BRAD,nBra,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(1,Active,Virtual,JSYM,BRAD,SIZE(BRAD),
+     &                      nBra,IBSTA,IBEND)
       Call Get_Cholesky_Vectors(Inactive,Virtual,JSYM,
      &                          BRA,SIZE(BRA),nBra,
      &                          IBSTA,IBEND)
@@ -374,8 +373,8 @@
       Call Get_Cholesky_Vectors(Inactive,Active,JSYM,
      &                          KET,SIZE(KET),nKet,
      &                          IBSTA,IBEND)
-      Call Cholesky_Vectors(2,Inactive,Active,JSYM,KETD,nKet,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(2,Inactive,Active,JSYM,KETD,SIZE(KETD),
+     &                      nKet,IBSTA,IBEND)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -383,15 +382,15 @@
 * AJVL: Loop over bras and kets. Form <E|0>
 *
       Call OLagNS_RI2(Inactive,Virtual,Inactive,Active,
-     &                'E ',BRA,KET,BRAD,KETD)
+     &                'E ',SIZE(BRA),SIZE(KET),BRA,KET,BRAD,KETD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 * End of loop over batches, IB
-      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,BRAD,nBra,
-     &                      IBSTA,IBEND)
-      Call Cholesky_Vectors(1,Inactive,Active,JSYM,KETD,nKet,
-     &                      IBSTA,IBEND)
+      Call Cholesky_Vectors(1,Inactive,Virtual,JSYM,BRAD,SIZE(BRAD),
+     &                      nBra,IBSTA,IBEND)
+      Call Cholesky_Vectors(1,Inactive,Active,JSYM,KETD,SIZE(KETD),
+     &                      nKet,IBSTA,IBEND)
       !! Construct A_PT2
       NVI = NV
       JOFFCV = 1
@@ -469,18 +468,18 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,Cho_Bra,Cho_Ket,
-     &                      Cho_BraD,Cho_KetD)
+      Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,nBra,nKet,
+     &                      Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD)
 
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: ITI, ITP, ITK, ITQ
+      integer(kind=iwp), intent(in) :: ITI, ITP, ITK, ITQ, nBra, nKet
       character(len=2), intent(in) :: Case
-      real(kind=wp), intent(in) :: Cho_Bra(*), Cho_Ket(*)
-      real(kind=wp), intent(inout) :: Cho_BraD(*), Cho_KetD(*)
+      real(kind=wp), intent(in) :: Cho_Bra(nBra), Cho_Ket(nKet)
+      real(kind=wp), intent(inout) :: Cho_BraD(nBra), Cho_KetD(nKet)
 
       integer(kind=iwp) :: LBRASM, ISYI, NI, ISYP, NP, NPI, NBRASM,
      &  LKETSM, ISYK, NK, ISYQ, NQ, NQK, NKETSM, NPIQK, KPI, KQK
@@ -1070,7 +1069,7 @@
 
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NX,
      &  NAJVX, NCHO
-      real(kind=wp), intent(_OUT_) :: AJVX(NV,NX,*)
+      real(kind=wp), intent(_OUT_) :: AJVX(NV,NX,NA*NJ)
       real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO),
      &  Cho_Ket(NV,NX,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO),
@@ -1344,7 +1343,7 @@
 
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NV, NL,
      &  NAJVL, NCHO
-      real(kind=wp), intent(_OUT_) :: AJVL(NV,NL,*)
+      real(kind=wp), intent(_OUT_) :: AJVL(NV,NL,NA*NJ)
       real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO),
      &  Cho_Ket(NV,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO),
@@ -1781,7 +1780,7 @@
 
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NU, NC, NL,
      &  NAUCL, NCHO
-      real(kind=wp), intent(_OUT_) :: AUCL(NA,NU,*)
+      real(kind=wp), intent(_OUT_) :: AUCL(NA,NU,NC*NL)
       real(kind=wp), intent(in) :: Cho_Bra(NA,NU,NCHO),
      &  Cho_Ket(NC,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NU,NCHO),
@@ -2038,7 +2037,7 @@
 
       integer(kind=iwp), intent(in) :: ISYI, ISYK, NA, NJ, NC, NL,
      &  NAJCL, NCHO
-      real(kind=wp), intent(_OUT_) :: AJCL(NC*NL,*)
+      real(kind=wp), intent(_OUT_) :: AJCL(NC*NL,NA*NJ)
       real(kind=wp), intent(in) :: Cho_Bra(NA,NJ,NCHO),
      &  Cho_Ket(NC,NL,NCHO)
       real(kind=wp), intent(inout) :: Cho_BraD(NA,NJ,NCHO),
@@ -2341,7 +2340,7 @@
         !! NVJ: number of local Cholesky vectors for KET(:)
         bStat = GA_CREATE_IRREG(MT_DBL,NDIM1,NDIM2,'BRAD',
      &                          1,1,MAP2,NPROCS,LG_V1)
-        Call Cholesky_Vectors(2,block1,block2,JSYM,BRA,
+        Call Cholesky_Vectors(2,block1,block2,JSYM,BRA,SIZE(BRA),
      &                        nBra,IBSTA,IBEND)
         !! finds out the range of the global array g_a that process
         !! iproc owns.
@@ -2370,8 +2369,8 @@
         bStat =  GA_DESTROY(LG_V1)
       else
 #endif
-        Call Cholesky_Vectors(2,block1,block2,JSYM,BRA,nBra,
-     &                        IBSTA,IBEND)
+        Call Cholesky_Vectors(2,block1,block2,JSYM,BRA,SIZE(BRA),
+     &                        nBra,IBSTA,IBEND)
         Call Get_Cholesky_Vectors(block1,block2,JSYM,
      &                            KET,SIZE(KET),nKet,
      &                            JBSTA,JBEND)
@@ -2390,7 +2389,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine Cholesky_Vectors(MODE,ITK,ITQ,JSYM,Array,nArray,
+      Subroutine Cholesky_Vectors(MODE,ITK,ITQ,JSYM,Array,mArray,nArray,
      &                            IBSTA,IBEND)
 
       USE CHOVEC_IO, only: NVLOC_CHOBATCH, IDLOC_CHOGROUP, NPQ_CHOTYPE
@@ -2401,10 +2400,10 @@
 
 #include "intent.fh"
 
-      integer(kind=iwp), intent(in) :: MODE, ITK, ITQ, JSYM, IBSTA,
-     &  IBEND
+      integer(kind=iwp), intent(in) :: MODE, ITK, ITQ, JSYM, mArray,
+     &  IBSTA, IBEND
       integer(kind=iwp), intent(out) :: nArray
-      real(kind=wp), intent(_OUT_) :: Array(*)
+      real(kind=wp), intent(_OUT_) :: Array(mArray)
 
       integer(kind=iwp) :: ICASE, LKETSM, LUCDER, ISYK, NQK, IB, NV,
      &  NKETSM, IDISK

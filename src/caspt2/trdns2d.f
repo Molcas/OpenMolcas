@@ -77,6 +77,7 @@ C       if (icase/=12 .and. icase.ne.13) cycle ! H
               CALL RHS_SCAL(NIN,NIS,lg_V1,SCAL)
               if (sigma_p_epsilon /= Zero) then
                 !! derivative of the numerator
+                !! multiply the lambda part (lg_V2) only
                 nAS = nASUP(iSym,iCase)
                 Call mma_allocate(BD,nAS,Label='BD')
                 Call mma_allocate(ID,nIS,Label='ID')

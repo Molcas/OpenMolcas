@@ -726,6 +726,7 @@ subroutine procinp_caspt2
   if_invar   = input%INVAR
   if (ipea_shift /= 0.0_wp) if_invar = .false.
   if_invaria = input%IAINVAR
+  if (sigma_p_epsilon /= 0.0_wp) if_invaria = .false. !! I'm not sure this is necessary, but it is needed for now
   ConvInvar  = input%ThrConvInvar
 
   if ((ipea_shift /= 0.0_wp) .and. do_grad .and. (.not.IFDORTHO)) then
@@ -734,9 +735,16 @@ subroutine procinp_caspt2
     call quit_onUserError()
   end if
 
+#ifdef _MOLCAS_MPP_
+  if (do_grad .and. sigma_p_epsilon /= 0.0_wp .and. nProcs > 1) then
+    call warningMessage(2,'Analytic gradients without the sigma^P regularization not available'//  &
+                          ' in parallel executions.')
+    call quit_onUserError
+  end if
+#endif
+
   if (do_grad .and. RF_On() .and. .not.if_invar) then
-    call warningMessage(1,'Analytic gradients with IPEA shift'//  &
-                          ' and PCM is not fully analytic.')
+    if (IPRGLB >= TERSE) call warningMessage(1,'Analytic gradients with IPEA shift and PCM is not fully analytic.')
   end if
 
   !! Whether the Fock matrix (eigenvalues) is constructed with

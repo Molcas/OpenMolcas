@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
-      SUBROUTINE DERFG3(CI,NCONF,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
-     &                  DEPSA,G1,G2,nLev)
+      SUBROUTINE DERFG3(CI,NCONF,NLEV,NG3,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
+     &                  DEPSA,G1,G2)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -34,8 +34,8 @@
       IMPLICIT NONE
 
 
-      integer(kind=iwp), intent(in) :: nCONF, nLev
-      real(kind=wp), intent(in) :: CI(nCONF), DG3(*), DF3(*),
+      integer(kind=iwp), intent(in) :: nCONF, NLEV, NG3
+      real(kind=wp), intent(in) :: CI(nCONF), DG3(NG3), DF3(NG3),
      &  G1(NLEV,NLEV), G2(NLEV,NLEV,NLEV,NLEV)
       real(kind=wp), intent(inout) :: CLAG(NCONF), DG1(NLEV,NLEV),
      &  DG2(NLEV,NLEV,NLEV,NLEV), DF1(NLEV,NLEV),
@@ -802,32 +802,31 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
+      SUBROUTINE DERSPE(NLEV,NG3,DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-      use gugx, only: SGS, LEVEL
-      use caspt2_module, only: NACTEL, NASHT, ISCF
-      use caspt2_module, only: ETA, NG3
+      use gugx, only: LEVEL
+      use caspt2_module, only: NACTEL, ISCF
+      use caspt2_module, only: ETA
       use Constants, only: Zero, One, Two
       use definitions, only: wp, iwp, byte, u6
 
       implicit none
 
-      real(kind=wp), intent(in) :: DF1(NASHT,NASHT),
-     &  DF2(NASHT,NASHT,NASHT,NASHT), DF3(*), G1(NASHT,NASHT),
-     &  G2(NASHT,NASHT,NASHT,NASHT), G3(*)
-      integer(kind=byte), intent(inout) :: idxG3(6,*)
-      real(kind=wp), intent(inout) :: DEPSA(NASHT,NASHT)
+      integer(kind=iwp), intent(in) :: NLEV, NG3
+      real(kind=wp), intent(in) :: DF1(NLEV,NLEV),
+     &  DF2(NLEV,NLEV,NLEV,NLEV), DF3(NG3), G1(NLEV,NLEV),
+     &  G2(NLEV,NLEV,NLEV,NLEV), G3(NG3)
+      integer(kind=byte), intent(inout) :: idxG3(6,NG3)
+      real(kind=wp), intent(inout) :: DEPSA(NLEV,NLEV)
 
       integer(kind=iwp), parameter :: I1=KIND(idxG3)
 ! SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 ! OR CLOSED-SHELL SCF CASE.
 
-      integer(kind=iwp) :: nLev, I, NLEV2, NLEV4, iG3, nTask, ID, iTask,
+      integer(kind=iwp) :: I, NLEV2, NLEV4, iG3, nTask, ID, iTask,
      &  IND1, IND2, IT1, IU1, LU1, IT2, IU2, LU2, IT3, IU3, IND3, LU3,
      &  LT, IT, IU, LU, IV, LV
       real(kind=wp) :: ESUM, DESUM, OCC
-
-      nLev = SGS%nLev
 
       ESUM=Zero
       DESUM=Zero
@@ -838,7 +837,7 @@
       OCC=Two
       IF(ISCF == 2) OCC=One
 
-      if (NACTEL == 1 .or. NACTEL == 2) NG3 = 0
+!     if (NACTEL == 1 .or. NACTEL == 2) NG3 = 0
       if (NACTEL /= 1) then
         if (NACTEL /= 2) then
           write(u6,*) 'I have not implemented for non-standard Psi0, ',
@@ -866,16 +865,16 @@
             IND2=((iTask-IND1)/(NLEV2))+1
             IF(IND2 > IND1) cycle
 
-            IT1=MOD(IND1-1,NASHT)+1
-            IU1=(IND1-IT1)/NASHT+1
+            IT1=MOD(IND1-1,NLEV)+1
+            IU1=(IND1-IT1)/NLEV+1
             LU1=LEVEL(IU1)
-            IT2=MOD(IND2-1,NASHT)+1
-            IU2=(IND2-IT2)/NASHT+1
+            IT2=MOD(IND2-1,NLEV)+1
+            IU2=(IND2-IT2)/NLEV+1
             LU2=LEVEL(IU2)
 
             DO IT3=1,NLEV
              DO IU3=1,NLEV
-              IND3=IT3+NASHT*(IU3-1)
+              IND3=IT3+NLEV*(IU3-1)
               IF(IND3 > IND2) cycle
               LU3=LEVEL(IU3)
 !             VAL=G1(IT1,IU1)*G1(IT2,IU2)*G1(IT3,IU3)
@@ -929,12 +928,10 @@
 
 ! SVC2010: no more tasks, wait here for the others.
           CALL Free_Tsk(ID)
-
-          NG3=iG3
         end if
-        DO IT=1,NASHT
+        DO IT=1,NLEV
          LT=LEVEL(IT)
-         DO IU=1,NASHT
+         DO IU=1,NLEV
           LU=LEVEL(IU)
 !         G2(IT,IT,IU,IU)=G1(IT,IT)*G1(IU,IU)
 !         IF(IU == IT) THEN
@@ -946,7 +943,7 @@
 !         F2(IT,IU,IU,IT)=(ESUM*OCC-ETA(LT)-ETA(LU))*G2(IT,IU,IU,IT)
           DESUM = DESUM + OCC*G2(IT,IT,IU,IU)*DF2(IT,IT,IU,IU)
           DESUM = DESUM + OCC*G2(IT,IU,IU,IT)*DF2(IT,IU,IU,IT)
-          DO IV=1,NASHT
+          DO IV=1,NLEV
           LV=LEVEL(IV)
           DEPSA(LT,LV)=DEPSA(LT,LV)-OCC*G2(IT,IT,IU,IU)*DF2(IT,IV,IU,IU)
           DEPSA(LU,LV)=DEPSA(LU,LV)-OCC*G2(IT,IT,IU,IU)*DF2(IT,IT,IU,IV)
@@ -957,12 +954,12 @@
         END DO
       end if
 
-      DO IT=1,NASHT
+      DO IT=1,NLEV
 !       G1(IT,IT)=OCC
         LT=LEVEL(IT)
 !       F1(IT,IT)=(ESUM*OCC-ETA(LT))*G1(IT,IT)
         DESUM = DESUM + OCC*G1(IT,IT)*DF1(IT,IT)
-        Do IU=1, NASHT
+        Do IU=1, NLEV
           LU=LEVEL(IU)
           DEPSA(LT,LU) = DEPSA(LT,LU) - OCC*G1(IT,IT)*DF1(IT,IU)
         End Do

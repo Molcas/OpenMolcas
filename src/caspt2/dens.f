@@ -16,16 +16,16 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE DENS(IVEC,DMAT,UEFF,U0)
+      SUBROUTINE DENS(IVEC,NDMAT,NSTATE,DMAT,UEFF,U0)
       USE CHOVEC_IO, only: nvloc_chobatch
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: real_shift, imag_shift, sigma_p_epsilon
       use caspt2_global, only: do_grad, do_csf, if_invar, iRoot1,
-     &                           iRoot2, if_invaria, if_SSDM,
-     &                           CLag,CLagFull,OLag,SLag,
-     &                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
-     &                           DPT2C_AO_tot,DPT2Canti_tot,FIMO_all,
-     &                           FIFA_all,OMGDER,jStLag,Weight
+     &                         iRoot2, nOLag, if_invaria, if_SSDM,
+     &                         CLag,CLagFull,OLag,SLag,
+     &                         DPT2_tot,DPT2C_tot,DPT2_AO_tot,
+     &                         DPT2C_AO_tot,DPT2Canti_tot,FIMO_all,
+     &                         FIFA_all,OMGDER,jStLag,Weight
       use caspt2_global, only: FIMO, FIFA
       use caspt2_global, only: DREF, DMIX, CMOPT2, TORB, NDREF
       use caspt2_global, only: IDCIEX, IDTCEX
@@ -40,15 +40,16 @@
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: IfChol, IFDENS, IFMSCOUP, IFDW, IFSADREF,
      &                         MAXIT, NSYM, NCONF, NFROT, NISH, NRAS1T,
-     &                         NRAS2T, NRAS3T, NASH, NAES, NASHT, NORB,
-     &                         NBAS, NBAST, NOSQT, NBSQT, iRlxRoot,
-     &                         NSTATE, JSTATE, DENORM, ZETA, ORBIN
+     &                         NRAS2T, NRAS3T, NROOTS, NASH, NAES,
+     &                         NASHT, NORB, NBAS, NBAST, NOSQT, NBSQT,
+     &                         iRlxRoot, JSTATE, DENORM, ZETA, ORBIN
       use Constants, only: Zero, One, Two, Half
+      use gugx, only: SGS
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: IVEC
-      real(kind=wp), intent(inout) :: DMAT(*)
+      integer(kind=iwp), intent(in) :: IVEC, NDMAT, NSTATE
+      real(kind=wp), intent(inout) :: DMAT(NDMAT)
       real(kind=wp), intent(in) :: UEFF(nState,nState),U0(nState,nState)
 
       real(kind=wp), allocatable :: VECROT(:)
@@ -61,11 +62,11 @@
       real(kind=wp),allocatable,target :: DPT2Canti_(:),DPT2C(:)
       real(kind=wp),pointer :: DPT2Canti(:)
 
-      integer(kind=iwp) :: NDMAT, NDPT, nDPTAO, ISYM, NO, nAO, IDMOFF,
+      integer(kind=iwp) :: NDPT, nDPTAO, ISYM, NO, nAO, IDMOFF,
      &  NI, NA, II, IDM, IT, ITABS, ITTOT, IU, IUTOT, IDRF, IUABS, I, J,
      &  nch, iState, JJ, iStLag, ibk, NumChoTot, nOcc, lT2AO, iSQ, iTR,
      &  nOrbI, iBasTr, iBasSq, liBasTr, liBasSq, jBasI, IDSOFF,
-     &  IP, IQ, IDSUM, nBasI, iBasI
+     &  IP, IQ, IDSUM, nBasI, iBasI, NLEV
       integer(kind=iwp), allocatable:: ISAV(:)
       real(kind=wp) :: wgt, val, Scal, X
       real(kind=wp) :: CPTF0, CPE, TIOTF0, TIOE, CPTF10, TIOTF10, CPUT,
@@ -74,19 +75,17 @@
       IF (do_grad) THEN
         !! Set indices for densities and partial derivatives
         Call mma_allocate(VECROT,nState,Label='VECROT')
-        Call GradPrep(UEFF,VECROT)
+        Call GradPrep(nState,UEFF,VECROT)
 !
 ! Compute total density matrix as symmetry-blocked array of
 ! triangular matrices in DMAT. Size of a triangular submatrix is
 !  (NORB(ISYM)*(NORB(ISYM)+1))/2.
-        NDMAT=0
         NDPT=0
         nDPTAO=0
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
           nAO = nBas(iSym)
           NDPT=NDPT+NO**2
-          NDMAT=NDMAT+(NO*(NO+1))/2
           nDPTAO = nDPTAO + nAO**2
         END DO
         ! shouldn't be necessary, is already done outside
@@ -151,14 +150,8 @@
         CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         !! Diagonal part
         CALL TRDNS2D(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
-        if (.not.if_invaria) then
-          do i = 1, norb(1)
-            do j = i+1, norb(1)
-              dpt(i+norb(1)*(j-1)) = Zero
-              dpt(j+norb(1)*(i-1)) = Zero
-            end do
-          end do
-        end if
+        !! Remove the off-diagonal elements in inactive/secondary
+        if (.not.if_invaria) call caspt2_grad_invaria1(NDPT,DPT)
         DSUM(:) = DSUM(:) + DPT(:)
 *       write(u6,*)' DPT after TRDNS2D.'
 *       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
@@ -207,6 +200,12 @@
         call mma_allocate(RDMSA,nAshT,nAshT,Label='RDMSA')
         !! Derivative of state-averaged density
         call mma_allocate(RDMEIG,nAshT,nAshT,Label='RDMEIG')
+        NLEV = SGS%NLEV
+        if (nAshT /= SGS%NLEV) then
+          write (u6,'(1x,"Analytical gradients for nAshT /= SGS%NLEV ",
+     *                   "(GASPT2?) does not work")')
+          call abend()
+        end if
 !       write(u6,*) 'olag before'
 !       call sqprt(olag,nbast)
 
@@ -252,7 +251,7 @@
         If (nFroT == 0 .and. if_invaria) Then
           DPT2(1:nOsqT) = DSUM(1:nOsqT)
         Else
-          Call OLagFro0(DSUM,DPT2)
+          Call OLagFro0(NOSQT,NBSQT,DSUM,DPT2)
         End If
 
         !! Construct the transformation matrix
@@ -263,7 +262,7 @@
         !!   -> L(CAS) = X*L(PT2)*X^T
         !! inactive and virtual orbitals are not affected.
         Trf(:) = Zero
-        Call CnstTrf(TOrb,Trf)
+        Call CnstTrf(NBSQT,TOrb,Trf)
 !       call sqprt(trf,nbast)
 
         !! Construct the density matrix used in the Fock operator
@@ -299,7 +298,7 @@
      &        ' SIGDER  : CPU/WALL TIME=', cput,wallt
           END IF
         end if
-        Call CLagX(1,CLag,DEPSA,VECROT)
+        Call CLagX(1,nConf,nRoots,nState,nAshT,CLag,DEPSA,VECROT)
 !       call test3_dens(clag)
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADGOP (DEPSA,nAshT**2,'+')
@@ -350,7 +349,7 @@
         !! density matrices
         If (IFMSCOUP) Then
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          Call DerHEff(CLag,VECROT)
+          Call DerHEff(nConf,nRoots,nState,CLag,VECROT)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
           IF (IPRGLB >= VERBOSE) THEN
             CPUT =CPTF10-CPTF0
@@ -428,9 +427,9 @@
 !    *                Zero,DEPSA,nAshT)
 !
 !       !! Just add DEPSA to DPT2
-        Call AddDEPSA(DPT2,DEPSA)
+        Call AddDEPSA(NBSQT,nAshT,DPT2,DEPSA)
         !! Just transform the density in MO to AO
-        CALL DPT2_Trf(DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
+        CALL DPT2_Trf(NBSQT,nAshT,DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
 !       call mma_deallocate(DEPSA)
         !! Save the AO density
         !! ... write
@@ -445,7 +444,7 @@
 
           !! Get density matrix (DIA) and inactive density
           !! matrix (DI) to compute FIFA and FIMO.
-          Call OLagFroD(DIA,DI,RDMSA,Trf)
+          Call OLagFroD(NBSQT,nAshT,DIA,DI,RDMSA,Trf)
         End If
 
         !! Construct orbital Lagrangian that comes from the derivative
@@ -463,12 +462,13 @@
         End If
         Do iSym = 1, nSym
           nOcc = nIsh(iSym)+nAsh(iSym)
+          lT2AO = 1
           If (.not.IfChol .or. iALGO /= 1) Then
             lT2AO = nOcc*nOcc*nBasT*nBasT
             call mma_allocate(T2AO,lT2AO,Label='T2AO')
             T2AO(:) = Zero
           Else
-            CALL mma_allocate(T2AO,1,Label='T2AO')
+            CALL mma_allocate(T2AO,lT2AO,Label='T2AO')
           End If
 
           !! Orbital Lagrangian that comes from the derivative of ERIs.
@@ -476,9 +476,9 @@
 !         write(u6,*) 'ialgo = ', ialgo
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           If (IfChol .and. iALGO == 1) Then
-            CALL OLagNS_RI(iSym,DPT2C,DPT2Canti,A_PT2)
+            CALL OLagNS_RI(iSym,NBSQT,MaxVec_PT2,DPT2C,DPT2Canti,A_PT2)
           Else
-            CALL OLagNS2(iSym,DPT2C,T2AO)
+            CALL OLagNS2(iSym,NBSQT,lT2AO,DPT2C,T2AO)
           End If
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
           IF (IPRGLB >= VERBOSE) THEN
@@ -493,8 +493,8 @@
           !! MO -> AO transformations for DPT2 and DPT2C
           If ((.not.IfChol .or. iALGO /= 1)
      &       .or.(nFroT == 0 .and. if_invaria)) Then
-            Call OLagTrf(1,iSym,CMOPT2,DPT2,DPT2_AO,WRK1)
-            Call OLagTrf(1,iSym,CMOPT2,DPT2C,DPT2C_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2C,DPT2C_AO,WRK1)
 !           write(u6,*) 'dpt2'
 !           call sqprt(dpt2,nbast)
 !           write(u6,*) 'dpt2ao'
@@ -512,10 +512,9 @@
           !! is not yet correct. They are just two-electron after this
           !! subroutine.
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-          CALL OLagVVVO(iSym,DPT2_AO,DPT2C_AO,
+          CALL OLagVVVO(iSym,NBSQT,lT2AO,MaxVec_PT2,DPT2_AO,DPT2C_AO,
      &                  FPT2_AO,FPT2C_AO,T2AO,
-     &                  DIA,DI,FIFA_all,FIMO_all,
-     &                  A_PT2,MaxVec_PT2)
+     &                  DIA,DI,FIFA_all,FIMO_all,A_PT2)
         !   write(u6,*) 'olag after vvvo'
         !   call sqprt(olag,nbast)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
@@ -536,8 +535,8 @@
           !! AO -> MO transformations for FPT2AO and FPT2CAO
           If ((.not.IfChol .or. iALGO /= 1)
      &        .or.(nFroT == 0 .and. if_invaria)) Then
-            Call OLagTrf(2,iSym,CMOPT2,FPT2,FPT2_AO,WRK1)
-            Call OLagTrf(2,iSym,CMOPT2,FPT2C,FPT2C_AO,WRK1)
+            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
+            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
           End If
 
           call mma_deallocate(T2AO)
@@ -545,7 +544,7 @@
         call mma_deallocate(A_PT2)
         !! Add DPTC to DSUM for the correct unrelaxed density
         !! Also, symmetrize DSUM
-        Call AddDPTC(DPT2C,DSUM)
+        Call AddDPTC(NBSQT,NDPT,DPT2C,DSUM)
 !
 !       write(u6,*) 'fptao after olagns'
 !       call sqprt(fpt2_ao,nbast)
@@ -564,7 +563,7 @@
 !         call sqprt(dpt2,nbast)
           if (.not.ifchol) then
             !! Construct FIFA and FIMO
-            Call OLagFro3(FIFA_all,FIMO_all,WRK1,WRK2)
+            Call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
             !! if possible, canonicalize frozen orbitals, and update
             !! FIMO and Trf
           end if
@@ -589,11 +588,11 @@
           !! non-invariant in inactive and secondary
           if(.not.if_invaria) then
             !! Construct the density from orbital Lagrangian
-            call caspt2_grad_invaria2(DPT2,OLag)
+            call caspt2_grad_invaria2(NBSQT,nOLag,DPT2,OLag)
             !! FIFA contributions from the non-invariant density
             DPT2(1:nDPTAO) = DPT2(1:nDPTAO) - WRK1(1:nDPTAO)
             !! Add the non-invariant contribution to unrelaxed density
-            Call AddDPTC(DPT2,DSUM)
+            Call AddDPTC(NBSQT,NDPT,DPT2,DSUM)
             CALL DGEMM_('N','T',nBasT,nBasT,nBasT,
      &                  One,FIFA_all,nBasT,DPT2,nBasT,
      &                  One,OLAG,nBasT)
@@ -602,12 +601,12 @@
      &                  One,OLAG,nBasT)
             !! Restore the second-order correlated density
             DPT2(1:nDPTAO) = DPT2(1:nDPTAO) + WRK1(1:nDPTAO)
-            DPT2(1:nDPTAO) = WRK1(1:nDPTAO)
+            WRK1(1:nDPTAO) = DPT2(1:nDPTAO)
           end if
           !! Now, compute pseudo-density using orbital Lagrangian
           !! DSUM does not contain frozen orbitals,
           !! so the properties using this density may be inaccurate
-          If(nFroT /= 0) Call OLagFro1(DPT2,OLag)
+          If(nFroT /= 0) Call OLagFro1(NBSQT,nOLag,DPT2,OLag)
 
           !! Subtract the orbital Lagrangian added above.
           !! It is computed again in EigDer
@@ -630,8 +629,8 @@
           If (IfChol) Then
             iSym=1
             !! MO -> AO transformations for DPT2 and DPT2C
-            Call OLagTrf(1,iSym,CMOPT2,DPT2,DPT2_AO,WRK1)
-            Call OLagTrf(1,iSym,CMOPT2,DPT2C,DPT2C_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2C,DPT2C_AO,WRK1)
             !! For DF-CASPT2, Fock transformation of DPT2, DPT2C, DIA,
             !! DA is done here, but not OLagVVVO
             !! It seems that it is not possible to do this
@@ -639,15 +638,15 @@
             !! the DPT2 is obtained after OLagVVVO.
             FPT2_AO(:) = Zero
             FPT2C_AO(:) = Zero
-            Call OLagFro4(1,1,1,1,1,
+            Call OLagFro4(NBSQT,1,1,1,1,1,
      &                    DPT2_AO,DPT2C_AO,FPT2_AO,FPT2C_AO,WRK1)
             !! AO -> MO transformations for FPT2AO and FPT2CAO
-            Call OLagTrf(2,iSym,CMOPT2,FPT2,FPT2_AO,WRK1)
-            Call OLagTrf(2,iSym,CMOPT2,FPT2C,FPT2C_AO,WRK1)
+            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,FPT2_AO,WRK1)
+            Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2C,FPT2C_AO,WRK1)
           Else
 !           write(u6,*) 'dpt'
 !           call sqprt(dpt2,nbast)
-            Call OLagFro2(DPT2,FPT2,WRK1,WRK2)
+            Call OLagFro2(NBSQT,DPT2,FPT2,WRK1,WRK2)
 !         write(u6,*) 'fpt'
 !           call sqprt(dpt2,nbast)
           End If
@@ -656,7 +655,7 @@
 !         write(u6,*) 'fimo_all'
 !         call sqprt(fimo_all,12)
       !   !! Construct FIFA and FIMO
-      !   Call OLagFro3(FIFA_all,FIMO_all,WRK1,WRK2)
+      !   Call OLagFro3(NBSQT,FIFA_all,FIMO_all,WRK1,WRK2)
         Else ! there are no frozen orbitals
           iSQ = 0
           iTR = 0
@@ -689,8 +688,8 @@
 !       call sqprt(olag,nbast)
 !       write(u6,*) 'fpt2'
 !       call sqprt(fpt2,nbast)
-        CALL EigDer(DPT2,DPT2C,FPT2_AO,FPT2C_AO,RDMEIG,CMOPT2,
-     &              Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMSA)
+        CALL EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2_AO,FPT2C_AO,RDMEIG,
+     &              CMOPT2,Trf,FPT2,FPT2C,FIFA_all,FIMO_all,RDMSA)
 !          call test2_dens(olag,depsa)
 !       write(u6,*) 'olag after eigder'
 !       call sqprt(olag,nbast)
@@ -726,7 +725,8 @@
         ISAV(:) = IDCIEX(:)
         IDCIEX(:) = IDTCEX(:)
         !! Now, compute the configuration Lagrangian
-        Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
+        Call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,
+     &               RDMEIG)
 #ifdef _MOLCAS_MPP_
         If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
 #endif
@@ -736,10 +736,10 @@
         If (.not.if_invar) Then
           SLag(:,:) = Zero
           !! Add the density that comes from CI Lagrangian
-          Call DEPSAOffC(CLag,DEPSA,FIFA_all,FIMO_all,
-     &                   WRK1,WRK2,U0)
+          Call DEPSAOffC(nConf,nState,nAshT,nBasT,CLag,DEPSA,FIFA_all,
+     &                   FIMO_all,WRK1,WRK2,U0)
           !! Add the density that comes from orbital Lagrangian
-          Call DEPSAOffO(OLag,DEPSA,FIFA_all)
+          Call DEPSAOffO(nOLag,nAshT,NBSQT,OLag,DEPSA,FIFA_all)
           !! Restore the diagonal elements
           Call DCopy_(nAshT,DEPSA_diag,1,DEPSA,nAshT+1)
           call mma_deallocate(DEPSA_diag)
@@ -766,16 +766,17 @@
 
           !! We have to do many things again...
           !! Just add DEPSA to DPT2
-          Call AddDEPSA(DPT2,DEPSA)
+          Call AddDEPSA(NBSQT,nAshT,DPT2,DEPSA)
           !! Just transform the density in MO to AO
-          CALL DPT2_Trf(DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
+          CALL DPT2_Trf(NBSQT,nAshT,DPT,DPT2_AO,CMOPT2,DEPSA,DSUM)
           !! For IPEA shift with state-dependent density
           If (if_SSDM .and. (jState == iRlxRoot .or. IFMSCOUP)) Then
             iSym = 1
-            Call OLagTrf(1,iSym,CMOPT2,DPT2,DPT2_AO,WRK1)
+            Call OLagTrf(1,iSym,NBSQT,CMOPT2,DPT2,DPT2_AO,WRK1)
           End If
           !! Some transformations similar to EigDer
-          Call EigDer2(RDMEIG,Trf,FIFA_all,RDMSA,DEPSA,WRK1,WRK2)
+          Call EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA_all,RDMSA,DEPSA,WRK1,
+     &                 WRK2)
 
           CLag(:,:) = CLagT(:,:) !test
          !test
@@ -790,12 +791,13 @@
           !! RDMEIG contributions
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
-          Call CLagEig(if_SSDM,.false.,CLag,RDMEIG,nAshT)
+          Call CLagEig(if_SSDM,.false.,nConf,nRoots,nState,NLEV,CLag,
+     &                 RDMEIG)
 #ifdef _MOLCAS_MPP_
           If (Is_Real_Par()) CALL GADGOP (CLag,nCLag,'+')
 #endif
           !! Now, compute the state Lagrangian and do some projections
-!         Call CLagFinal(CLag,SLag)
+!         Call CLagFinal(nConf,nState,CLag,SLag)
         End If
 
         !! Restore integrals without frozen orbitals, although not sure
@@ -808,8 +810,7 @@
         !! Canonical -> natural transformation
         IF(ORBIN == 'TRANSFOR') Then
           Do iState = 1, nState
-!           Call CLagX_TrfCI(CLag(1+nConf*(iState-1)))
-            Call CLagX_TrfCI(CLag(1,iState))
+            Call CLagX_TrfCI(nConf,CLag(1,iState))
           End Do
         End If
         ! accumulate configuration Lagrangian only for MS,XMS,XDW,RMS,
@@ -818,7 +819,7 @@
           CLagFull(1:nConf,1:nState) = CLagFull(1:nConf,1:nState)
      &      + CLag(1:nConf,1:nState)
         end if
-!       Call CLagFinal(CLag,SLag)
+!       Call CLagFinal(nConf,nState,CLag,SLag)
 
         !! Transformations of DPT2 in quasi-canonical to natural orbital
         !! basis and store the transformed density so that the MCLR
@@ -826,11 +827,10 @@
         ! accumulate only if MS,XMS,XDW or RMS calculation
         ! call RecPrt('DPT2 before', '', DPT2_tot, nBast, nBast)
         if (jState == iRlxRoot .or. IFMSCOUP) then
-          Call DPT2_TrfStore(One,DPT2,DPT2_tot,Trf,WRK1)
-          Call DPT2_TrfStore(Two,DPT2C,DPT2C_tot,Trf,WRK1)
-          If (do_csf) Then
-            Call DPT2_TrfStore(One,DPT2Canti,DPT2Canti_tot,Trf,WRK1)
-          End If
+          Call DPT2_TrfStore(One,NBSQT,DPT2,DPT2_tot,Trf,WRK1)
+          Call DPT2_TrfStore(Two,NBSQT,DPT2C,DPT2C_tot,Trf,WRK1)
+          If (do_csf)
+     *    Call DPT2_TrfStore(One,NBSQT,DPT2Canti,DPT2Canti_tot,Trf,WRK1)
         end if
         ! call RecPrt('DPT2 after', '', DPT2_tot, nBast, nBast)
 !       !! Save MO densities for post MCLR
@@ -916,7 +916,7 @@
           WRK1(1:nDRef) = Zero
           call mma_allocate(CI1,nConf,Label='CI1')
           Do iState = 1, nState
-            Call LoadCI_XMS('N',1,CI1,iState,U0)
+            Call LoadCI_XMS('N',1,nConf,nState,CI1,iState,U0)
             call POLY1(CI1,nConf)
             call GETDREF(WRK2,nDRef)
             wgt = Weight(iState)
@@ -927,13 +927,13 @@
           Call SQUARE(WRK1,WRK2,1,nAshT,nAshT)
           Call DaXpY_(nAshT**2,-One,WRK2,1,RDMSA,1)
           !! Construct the SS minus SA density matrix in WRK1
-          Call OLagFroD(WRK1,WRK2,RDMSA,Trf)
+          Call OLagFroD(NBSQT,nAshT,WRK1,WRK2,RDMSA,Trf)
           !! Subtract the inactive part
           WRK1(1:nBasT**2) = WRK1(1:nBasT**2) - WRK2(1:nBasT**2)
           !! Here we should use DPT2_AO??
           !! Save
           If (IfChol) Then
-            Call CnstAB_SSDM(DPT2_AO,WRK1)
+            Call CnstAB_SSDM(NBSQT,DPT2_AO,WRK1)
           Else
             !! Well, it is not working any more. I need to use
             !! Position='APPEND', but it is not possible if I need to
@@ -968,7 +968,7 @@
         DPT2Canti => null()
 
         !! Finalize OLag (anti-symmetrize) and construct WLag
-        Call OLagFinal(OLag,Trf)
+        Call OLagFinal(nOLag,NBSQT,OLag,Trf)
 
         call mma_deallocate(TRF)
         call mma_deallocate(WRK1)
@@ -983,12 +983,10 @@
 ! Compute total density matrix as symmetry-blocked array of
 ! triangular matrices in DMAT. Size of a triangular submatrix is
 !  (NORB(ISYM)*(NORB(ISYM)+1))/2.
-        NDMAT=0
         NDPT=0
         DO ISYM=1,NSYM
           NO=NORB(ISYM)
           NDPT=NDPT+NO**2
-          NDMAT=NDMAT+(NO*(NO+1))/2
         END DO
         DMAT(1:NDMAT) = Zero
 ! First, put in the reference density matrix.
@@ -1082,7 +1080,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CnstTrf(Trf0,Trf)
+      Subroutine CnstTrf(nTrf,Trf0,Trf)
 
       use caspt2_global, only: TraFro
       use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NRAS1, NRAS2,
@@ -1094,8 +1092,9 @@
 
 #include "intent.fh"
 
-      real(kind=wp), intent(in) :: Trf0(*)
-      real(kind=wp), intent(_OUT_) :: Trf(*)
+      integer(kind=iwp), intent(in) :: nTrf
+      real(kind=wp), intent(in) :: Trf0(nTrf)
+      real(kind=wp), intent(_OUT_) :: Trf(nTrf)
 
       integer(kind=iwp) :: iSQ, iTOrb, ipTrfL, iSym, nBasI, nFroI,
      &  nIshI, nAshI, nSshI, nDelI, NR1, NR2, NR3, nCor, nVir, I, J,
@@ -1220,16 +1219,17 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE AddDEPSA(DPT2,DEPSA)
+      SUBROUTINE AddDEPSA(nDPT2,nAshT,DPT2,DEPSA)
 
-      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NASHT, NORB,
+      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NORB,
      &                         NDEL, NBAS
       use Constants, only: Half
       use definitions, only: wp, iwp
 
       implicit none
 
-      real(kind=wp), intent(inout) :: DPT2(*)
+      integer(kind=iwp), intent(in) :: nDPT2, nAshT
+      real(kind=wp), intent(inout) :: DPT2(nDPT2)
       real(kind=wp), intent(in) :: DEPSA(nAshT,nAshT)
 
       integer(kind=iwp) :: iMO1, iMO2, iSym, nOrbI1, nOrbI2, iOrb0,
@@ -1273,7 +1273,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE AddDPTC(DPTC,DSUM)
+      SUBROUTINE AddDPTC(nDPTC,nDSUM,DPTC,DSUM)
 
       use caspt2_module, only: NSYM, NFRO, NORB, NBAS
       use Constants, only: Half
@@ -1281,8 +1281,9 @@
 
       implicit none
 
-      real(kind=wp), intent(in) :: DPTC(*)
-      real(kind=wp), intent(inout) :: DSUM(*)
+      integer(kind=iwp), intent(in) :: nDPTC, nDSUM
+      real(kind=wp), intent(in) :: DPTC(nDPTC)
+      real(kind=wp), intent(inout) :: DSUM(nDSUM)
 
       integer(kind=iwp) :: iMO1, iMO2, iSym, nOrbI1, nOrbI2, iOrb0,
      &  iOrb1, jOrb0, jOrb1, iOrb, jOrb
@@ -1374,7 +1375,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine DPT2_TrfStore(Scal,DPT2q,DPT2n,Trf,WRK)
+      Subroutine DPT2_TrfStore(Scal,NBSQT,DPT2q,DPT2n,Trf,WRK)
 
       use caspt2_module, only: NSYM, NORB, NDEL, NBAS
       use Constants, only: Zero, One
@@ -1384,9 +1385,10 @@
 
 #include "intent.fh"
 
-      real(kind=wp), intent(in) :: Scal, DPT2q(*), Trf(*)
-      real(kind=wp), intent(inout) :: DPT2n(*)
-      real(kind=wp), intent(_OUT_) :: WRK(*)
+      integer(kind=iwp), intent(in) :: NBSQT
+      real(kind=wp), intent(in) :: Scal, DPT2q(NBSQT), Trf(NBSQT)
+      real(kind=wp), intent(inout) :: DPT2n(NBSQT)
+      real(kind=wp), intent(_OUT_) :: WRK(NBSQT)
 
       integer(kind=iwp) :: iMO, iSym, nOrbI
 
@@ -1411,18 +1413,20 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE DPT2_Trf(DPT2,DPT2AO,CMO,DEPSA,DSUM)
+      SUBROUTINE DPT2_Trf(NBSQT,nAshT,DPT2,DPT2AO,CMO,DEPSA,DSUM)
 
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
       use Constants, only: Zero, One, Half
-      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NASHT, NORB,
-     &                         NDEL, NBAS, NBSQT
+      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NORB,
+     &                         NDEL, NBAS
 
       implicit none
 
-      real(kind=wp), intent(inout) :: DPT2(*), DPT2AO(*), DSUM(*)
-      real(kind=wp), intent(in) :: CMO(*), DEPSA(nAshT,nAshT)
+      integer(kind=iwp), intent(in) :: NBSQT, nAshT
+      real(kind=wp), intent(inout) :: DPT2(NBSQT), DPT2AO(NBSQT),
+     &                                DSUM(NBSQT)
+      real(kind=wp), intent(in) :: CMO(NBSQT), DEPSA(nAshT,nAshT)
 
       real(kind=wp), allocatable :: WRK(:)
       real(kind=wp) :: Val
@@ -1485,22 +1489,24 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE EigDer(DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,CMO,Trf,
-     &                  FPT2,FPT2C,FIFA,FIMO,RDMSA)
+      SUBROUTINE EigDer(NBSQT,nAshT,DPT2,DPT2C,FPT2AO,FPT2CAO,RDMEIG,
+     &                  CMO,Trf,FPT2,FPT2C,FIFA,FIMO,RDMSA)
 
       use caspt2_global, only: OLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: NSYM, NFRO, NFROT, NISH, NASH, NASHT,
-     &                         NORB, NDEL, NBAS, NBAST, NBSQT
+      use caspt2_module, only: NSYM, NFRO, NFROT, NISH, NASH,
+     &                         NORB, NDEL, NBAS, NBAST
       use Constants, only: Zero, One, Two
 
       implicit none
 
-      real(kind=wp), intent(in) :: DPT2(*), DPT2C(*), FPT2AO(*),
-     &  FPT2CAO(*), CMO(*), Trf(*), FPT2(*), FPT2C(*), FIFA(*), FIMO(*),
-     &  RDMSA(*)
-      real(kind=wp), intent(inout) :: RDMEIG(*)
+      integer(kind=iwp), intent(in) :: NBSQT, nAshT
+      real(kind=wp), intent(in) :: DPT2(NBSQT), DPT2C(NBSQT),
+     &  FPT2AO(NBSQT), FPT2CAO(NBSQT), CMO(NBSQT), Trf(NBSQT),
+     &  FPT2(NBSQT), FPT2C(NBSQT), FIFA(NBSQT), FIMO(NBSQT),
+     &  RDMSA(nAshT**2)
+      real(kind=wp), intent(inout) :: RDMEIG(nAshT**2)
 
       real(kind=wp),allocatable :: WRK1(:),FPT2_loc(:),FPT2C_loc(:),
      &                             RDMqc(:)
@@ -1596,7 +1602,7 @@
 !       If (nFroI == 0) Then
 !         Call SQUARE(FIFA(iSQ),WRK1,1,nOrbI,nOrbI)
 !       Else
-!         Call OLagFroSq(iSym,FIFA(iSQ),WRK1)
+!         Call OLagFroSq(iSym,NBSQT,FIFA(iSQ),WRK1)
 !       End If
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
 !    *              Two,WRK1,nOrbI,DPT2(iSQ),nOrbI,
@@ -1657,21 +1663,24 @@
 !
 !-----------------------------------------------------------------------
 !
-      SUBROUTINE EigDer2(RDMEIG,Trf,FIFA,RDMSA,DEPSA,WRK1,WRK2)
+      SUBROUTINE EigDer2(NBSQT,nAshT,RDMEIG,Trf,FIFA,RDMSA,DEPSA,WRK1,
+     &                   WRK2)
 
       use caspt2_global, only: OLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NASHT,
-     &                         NDEL, NBAS, NBAST, NBSQT
+      use caspt2_module, only: NSYM, NFRO, NISH, NASH, NDEL, NBAS, NBAST
       use Constants, only: Zero, One, Two
 
       implicit none
 
 #include "intent.fh"
 
-      real(kind=wp), intent(_OUT_) :: RDMEIG(*), WRK1(*), WRK2(*)
-      real(kind=wp), intent(in) :: Trf(*), FIFA(*), RDMSA(*), DEPSA(*)
+      integer(kind=iwp), intent(in) :: NBSQT, nAshT
+      real(kind=wp), intent(_OUT_) :: RDMEIG(NBSQT), WRK1(NBSQT),
+     &                                WRK2(NBSQT)
+      real(kind=wp), intent(in) :: Trf(NBSQT), FIFA(NBSQT),
+     &                             RDMSA(nAshT**2), DEPSA(nAshT**2)
 
       real(kind=wp),allocatable :: FPT2_loc(:),RDMqc(:)
       integer(kind=iwp) :: iSQ, iSym, nOrbI, nFroI, nIshI, nAshI, nCor,
@@ -1680,7 +1689,7 @@
       call mma_allocate(FPT2_loc,NBSQT,Label='FPT2_loc')
 
       !! Compute G(D), where D=DEPSA
-      Call DEPSATrf(DEPSA,FPT2_loc,WRK1,WRK2)
+      Call DEPSATrf(NBSQT,nAshT,DEPSA,FPT2_loc,WRK1,WRK2)
       FPT2_loc(:) = Two*FPT2_loc(:)
 
       iSQ = 1
@@ -1746,21 +1755,23 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine DEPSATrf(DEPSA,FPT2,WRK1,WRK2)
+      Subroutine DEPSATrf(NBSQT,nAshT,DEPSA,FPT2,WRK1,WRK2)
 
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp
-      use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH, NASHT,
-     &                         NBAS, NBAST, NBSQT
+      use caspt2_module, only: IfChol, NSYM, NFRO, NISH, NASH,
+     &                         NBAS, NBAST
       use Constants, only: Zero, Half
 
       implicit none
 
 #include "intent.fh"
 
+      integer(kind=iwp), intent(in) :: NBSQT, nAshT
       real(kind=wp), intent(in) :: DEPSA(nAshT,nAshT)
-      real(kind=wp), intent(_OUT_) :: FPT2(*), WRK1(*), WRK2(*)
+      real(kind=wp), intent(_OUT_) :: FPT2(NBSQT), WRK1(NBSQT),
+     &                                WRK2(NBSQT)
 
       real(kind=wp),allocatable :: DAO(:),DMO(:)
       integer(kind=iwp) :: iSym, iSymA, iSymI, iSymB, iSymJ,
@@ -1790,17 +1801,17 @@
               DMO(nCorI+iAsh+nBasI*(nCorI+jAsh-1)) = DEPSA(iAsh,jAsh)
             End Do
           End Do
-          Call OLagTrf(1,iSym,CMOPT2,DMO,DAO,WRK1)
+          Call OLagTrf(1,iSym,NBSQT,CMOPT2,DMO,DAO,WRK1)
         End Do
         !! Compute G(D)
         WRK1(1:NBSQT) = Zero
         DMO(:) = Zero
         !! it's very inefficient
-        Call OLagFro4(1,1,1,1,1,
+        Call OLagFro4(NBSQT,1,1,1,1,1,
      &                DAO,WRK1,DMO,WRK1,WRK2)
         !! G(D) in AO -> G(D) in MO
         Do iSym = 1, nSym
-          Call OLagTrf(2,iSym,CMOPT2,FPT2,DMO,WRK1)
+          Call OLagTrf(2,iSym,NBSQT,CMOPT2,FPT2,DMO,WRK1)
         End Do
         call mma_deallocate(DAO)
         call mma_deallocate(DMO)
@@ -1828,7 +1839,7 @@
 !
 !-----------------------------------------------------------------------
 !
-      Subroutine CnstAB_SSDM(DPT2AO,SSDM)
+      Subroutine CnstAB_SSDM(NBSQT,DPT2AO,SSDM)
 
       use ChoVec_io, only: NVLOC_CHOBATCH
       use Cholesky, only: InfVec, nDimRS
@@ -1836,7 +1847,7 @@
       use ChoCASPT2, only: NumCho_PT2, MaxVec_PT2, NCHSPC, MXNVC
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: NSYM, NBAS, NBAST, NBSQT, NBTCHES
+      use caspt2_module, only: NSYM, NBAS, NBAST, NBTCHES
       use Constants, only: Zero, One, Two
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs, myRank
@@ -1850,7 +1861,8 @@
 #include "mafdecls.fh"
 #endif
 
-      real(kind=wp), intent(in) :: DPT2AO(*),SSDM(*)
+      integer(kind=iwp), intent(in) :: NBSQT
+      real(kind=wp), intent(in) :: DPT2AO(NBSQT), SSDM(NBSQT)
 
       integer(kind=iwp) :: iSkip(8), ipWRK(8), nnbstr(8,3)
       character(len=4096) :: RealName
@@ -2057,9 +2069,8 @@
               JREDC=JRED
               CALL CHO_VECRD(CHSPC,NCHSPC,KV1,KV2,iSym,
      &                              NUMV,JREDC,MUSED)
-              Call R2FIP(CHSPC,WRK,ipWRK,NUMV,
-     &                   size(nDimRS),infVec,nDimRS,
-     &                   nBasT,nSym,iSym,iSkip,irc,JREDC)
+              Call R2FIP(CHSPC,size(CHSPC),WRK,ipWRK,NUMV,
+     &                   nBasT,iSym,iSkip,irc,JREDC)
 
               !! Exchange part of A_PT2
               NUMVJ = NUMV
@@ -2114,8 +2125,8 @@
             JREDC=JRED
 * Read a batch of reduced vectors
             CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,iSym,NUMV,JREDC,MUSED)
-            Call R2FIP(CHSPC,WRK,ipWRK,NUMV,size(nDimRS),infVec,nDimRS,
-     &                 nBasT,nSym,iSym,iSkip,irc,JREDC)
+            Call R2FIP(CHSPC,size(CHSPC),WRK,ipWRK,NUMV,
+     &                 nBasT,iSym,iSkip,irc,JREDC)
             NUMVJ = NUMV
 
             !! Exchange part of A_PT2
