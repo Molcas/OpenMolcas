@@ -96,14 +96,14 @@
      &                   DMAT(1:nVV),DMAT(ip_Y:))
          If(irc.ne.0) then
            Write(u6,*) 'MP2 pseudodensity calculation failed !'
-           Call Abend
+           Call Abend()
          Endif
       Else
          Write(u6,*)
          Write(u6,*)'There are ZERO amplitudes T(ai,bj) with the given '
          Write(u6,*)'combinations of inactive and virtual orbitals !! '
          Write(u6,*)'Check your input and rerun the calculation! Bye!!'
-         Call Abend
+         Call Abend()
       Endif
       Call mma_deallocate(CMON)
 *

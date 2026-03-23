@@ -53,7 +53,7 @@
       If (refwfn_active) Then
         Call WarningMessage(2,'Active reference wavefunction file, '//
      &    'cannot create new PT2 wavefunction file, aborting!')
-        Call AbEnd
+        Call AbEnd()
       End If
 
 #ifdef _HDF5_

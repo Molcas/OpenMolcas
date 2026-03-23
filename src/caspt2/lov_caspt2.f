@@ -112,7 +112,7 @@
       IF(nBasT.GT.mxBas) then
        Write(u6,'(/6X,A)')
      & 'The number of basis functions exceeds the present limit'
-       Call Abend
+       Call Abend()
       Endif
 *
 *     nUniqAt = # of symm. unique atoms. Initialize NamAct to blanks.
@@ -470,7 +470,7 @@ C     -----------------------------------------------------------
      &                      DMAT(ip_X),DMAT(ip_Y))
             If(irc.ne.0) then
               write(u6,*) 'Frozen region MP2 failed'
-              Call Abend
+              Call Abend()
             Endif
             iV=ip_X
             Do iSym=1,nSym
@@ -553,7 +553,7 @@ c         Write(6,*)
      &       ' This is presumably NOT what you want !!!          '
          Write(u6,*)' CASPT2 will Stop here. Bye Bye !! '
          Write(u6,*)
-         Call Abend
+         Call Abend()
       EndIf
 *
       IF (IFQCAN.NE.0) IFQCAN=0 ! MOs to be recanonicalized on exit
@@ -753,7 +753,7 @@ C
      &                   Dummy,Dummy)
          If(irc.ne.0) then
            write(u6,*) 'MP2 calculation failed in energy_AplusB !'
-           Call Abend
+           Call Abend()
          Endif
       Else
          write(u6,*)

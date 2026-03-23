@@ -112,7 +112,7 @@
       Call Cho_x_Loc(irc,Thrs,nSym,nBas,nFro,nIsh,nAsh,nSsh,CMO,nCMO)
       If(irc.ne.0) then
        write(u6,*) 'Localization failed. The AFRE option cannot be used'
-       Call Abend
+       Call Abend()
       Endif
 *      Write(u6,*)'molecular orbitals after localization'
 *      imo=0
@@ -196,7 +196,7 @@
            Write(u6,*) 'Error on Checksum in Afreez.',
      &     'Value is not equal to 1:', isym, ni, chksum
            Write(u6,*) 'Freezing extra orbitals in CASPT2 stops.'
-           Call Abend
+           Call Abend()
           Endif
 *         Add diagonal elements that belong to selected atoms
           selch=Zero
@@ -299,7 +299,7 @@
            Write(u6,*) 'Error on Checksum in Afreez.',
      &     'Value is not equal to 1:', isym, ni, chksum
            Write(u6,*) 'Deleting extra orbitals in CASPT2 stops.'
-           Call Abend
+           Call Abend()
           Endif
 *         Write(6,*) 'Checksum', isym, ni, chksum
 *         Add diagonal elements that belong to selected atoms

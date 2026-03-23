@@ -47,7 +47,7 @@
       If(Input % AFreeze) then
         If (.not.IfChol) Then
           Call WarningMessage(2,'AFreeze needs Cholesky/RI.')
-          Call Quit_OnUserError
+          Call Quit_OnUserError()
         End If
         Write(u6,'(A)') ' Additional orbitals will be frozen or deleted'
         Write(u6,'(A,18A4)') ' Selected atoms:  ',
@@ -86,15 +86,15 @@
       If (Input % LovCASPT2) then
         If (.not.IfChol) Then
           Call WarningMessage(2,'LOV-CASPT2 needs Cholesky/RI.')
-          Call Quit_OnUserError
+          Call Quit_OnUserError()
         End If
         IF (IFQCAN.EQ.0) Then
           Call WarningMessage(2,'LOV-CASPT2 needs Canonical Orbitals.')
-          Call Quit_OnUserError
+          Call Quit_OnUserError()
         EndIf
         If (Input%thr_atm.lt.Zero .or. Input%thr_atm.ge.One) Then
           write(u6,*)' Threshold out of range! Must be in [0,1[ '
-          Call Quit_OnUserError
+          Call Quit_OnUserError()
         End If
 
         Write(u6,'(A)')
@@ -143,13 +143,13 @@
       If (Input % FnoCASPT2) then
         If (.not.IfChol) Then
           Call WarningMessage(2,'FNO-CASPT2 needs Cholesky/RI.')
-          Call Quit_OnUserError
+          Call Quit_OnUserError()
         End If
         If (Input%vFrac.lt.-One .or. Input%vFrac.gt.One) Then
           Call WarningMessage(2,'FNO-CASPT2 fraction out of range.')
           Write(u6,*)' Requested fraction of DEcorr or NOs must be'
           Write(u6,*)' between -1.0 and 1.0.'
-          Call Quit_OnUserError
+          Call Quit_OnUserError()
         End If
 
         Write(u6,'(A)')

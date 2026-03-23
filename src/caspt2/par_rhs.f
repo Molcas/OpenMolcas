@@ -369,7 +369,7 @@ C GA_Get in batches smaller than 2**31-1 bytes (I took 2**30).
           IF (NIS_BATCH.EQ.0) THEN
             WRITE(u6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
             WRITE(u6,'(1X,I12,A,I12)') NAS, ' > ', MAX_MESG_SIZE
-            CALL AbEnd
+            CALL AbEnd()
           END IF
           DO NIS_STA=1,NIS,NIS_BATCH
             NIS_END=MIN(NIS_STA+NIS_BATCH-1,NIS)
@@ -417,7 +417,7 @@ C which is 2**30 bytes).
             IF (NIS_BATCH.EQ.0) THEN
               WRITE(u6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
               WRITE(u6,'(1X,I12,A,I12)') NAS, ' > ', MAX_MESG_SIZE
-              CALL AbEnd
+              CALL AbEnd()
             END IF
             DO NIS_STA=1,NIS,NIS_BATCH
               NIS_END=MIN(NIS_STA+NIS_BATCH-1,NIS)

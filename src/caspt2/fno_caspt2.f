@@ -80,7 +80,7 @@
       IF(nBasT.GT.mxBas) then
        Write(6,'(/6X,A)')
      & 'The number of basis functions exceeds the present limit'
-       Call Abend
+       Call Abend()
       Endif
 *
 *
@@ -296,7 +296,7 @@
      &                   DMAT(ip_X),DMAT(ip_Y))
          If(irc.ne.0) then
            Write(u6,*) 'MP2 in truncated virtual space failed !'
-           Call Abend
+           Call Abend()
          Endif
          EMP2 = -One*(EMP2-DeMP2)
       EndIf
