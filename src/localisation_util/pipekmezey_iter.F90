@@ -27,7 +27,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
-use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList
+use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList, DispList
 
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
@@ -46,7 +46,7 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp
 real(kind=wp) :: DD
 #endif
 real(kind=wp), allocatable :: PACol(:,:), Hdiag(:,:), Ovlp_aux(:,:), &
-                              SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:),dq(:),&
+                              SCR(:), Ovlp_sqrt(:,:),Gradient(:),dq(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Prev(:),Disp(:)
 real(kind=wp), parameter :: alpha = 0.3
@@ -108,12 +108,12 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
-    call mma_Allocate(displacements,fsdim,nMxIter,Label='displacements')  ! kappa matrices
+    call mma_Allocate(DispList,fsdim,nMxIter,Label='displacements')  ! kappa matrices
     call mma_allocate(Disp,fsdim,Label='Disp')
     call mma_Allocate(dq,fsdim,Label='dq')  ! GEK suggestion for kappa
     call mma_Allocate(GradList,fsdim,nMxIter,Label='GradientList')
     call mma_Allocate(FuncList,nMxIter,Label='FunctionalList')
-    displacements(:,:)=Zero
+    DispList(:,:)=Zero
     GradList(:,:)=Zero
     FuncList(:)=Zero
 
@@ -268,7 +268,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 write(u6,*) "resetting GEK sampling in iteration",nIter
 !#               endif
                 Iter_GEK = 0
-                displacements(:,:) = Zero
+                DispList(:,:) = Zero
                 GradList(:,:) = Zero
                 FuncList(:) = Zero
                 start_gek = .false.
@@ -282,14 +282,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 write(u6,*) "turning on GEK in iteration",nIter+2,"starting sampling for GEK in iteration",nIter
 !#               endif
                 ! current coordinate = kappa_1 = q_1
-                displacements(:,1) = Disp(:)
+                DispList(:,1) = Disp(:)
 
             else if (large_elements == 0 .and. start_gek) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
 
                 Iter_GEK = Iter_GEK+1 ! i >=1
 
-                ! when Iter_GEK = 1: displacements(:,:) contains NR kappa_1 = q_i (most recent step)
+                ! when Iter_GEK = 1: DispList(:,:) contains NR kappa_1 = q_i (most recent step)
                 ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot):
                 GradList(:,Iter_GEK) = -Gradient(:) ! g_i
                 FuncList(Iter_GEK)=-Functional ! y_i
@@ -298,17 +298,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 write(u6,*) "Iter_GEK=",Iter_GEK
-
-!                if (iter_GEK>3) then
-!                    ! when enough GEK step data collected: don't use initial two data points obtained without GEK
-!                    call S_GEK_localisation(Iter_GEK-2,FuncList(3:),-GradList(:,3:),displacements(:,3:),-hdiagvec(:),&
-!                                            fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
-!                else
-!                    call S_GEK_localisation(Iter_GEK,FuncList(:),-GradList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-!                                            dqdq,Disp(:),UpMeth,SORange,usmitigation)
-!                end if
-                    call S_GEK_localisation(Iter_GEK,displacements(:,:),-hdiagvec(:),fsdim,&
-                                            dqdq,Disp(:),UpMeth,SORange,usmitigation)
+                call S_GEK_localisation(Iter_GEK,DispList(:,:),-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
 
 
                 ! undershoot mitigation
@@ -317,7 +307,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 if (Loosen%Step > One) then
                     call mma_allocate(Prev,fsdim,Label='Prev')
 
-                    Prev(:) = displacements(:,Iter_GEK)
+                    Prev(:) = DispList(:,Iter_GEK)
 
                     dqdq = DDot_(fsdim,Disp,1,Disp,1)*DDot_(fsdim,Prev,1,Prev,1)
                     ang = DDot_(fsdim,Prev,1,Disp,1)/sqrt(dqdq)
@@ -343,7 +333,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! -------------------------------------------------------------------------------
 
                 ! after GEK/RVO, add kappa_i+1 to the displacement list for next iteration:
-                displacements(:,Iter_GEK+1) = Disp(:) ! q_i+1
+                DispList(:,Iter_GEK+1) = Disp(:) ! q_i+1
 
 #               ifdef _DEBUGPRINT_
                 call RecPrt('GEK step = q_i+1 =',' ',Disp(:),fsdim,1)
@@ -505,7 +495,7 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
 
     call mma_Deallocate(FuncList)
     call mma_Deallocate(GradList)
-    call mma_Deallocate(displacements)
+    call mma_Deallocate(DispList)
     call mma_Deallocate(disp)
     call mma_Deallocate(Hdiagvec)
     call mma_Deallocate(dq)
