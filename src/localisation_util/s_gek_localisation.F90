@@ -351,7 +351,6 @@ write(u6,'(A,F12.8,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq):", acos(DDot_(fsdim,dq
     write(u6,*) '||dq||=',dqdq
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 #endif
-call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 
 ! deallocations
 ! -------------
