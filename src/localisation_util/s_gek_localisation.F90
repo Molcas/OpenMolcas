@@ -24,6 +24,7 @@ use Definitions, only: iwp,wp
 use Definitions, only: u6
 #endif
 use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList
+use Definitions, only: u6
 
 implicit none
 
@@ -33,7 +34,7 @@ real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit=0,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
-                              w(:,:),D(:,:)
+                              w(:,:),D(:,:),dq_NR(:)
 integer(kind=iwp), parameter :: nWindow =20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
@@ -42,6 +43,10 @@ character :: Step_Trunc
 
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
+
+call mma_allocate(dq_NR,fsdim,Label='dq_NR')
+dq_NR(:) = dq(:)
+
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter S-GEK Optimizer'
@@ -168,7 +173,6 @@ j = j+1
 Aux_a(:) = dq(:)
 !normalize
 e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
-call mma_deallocate(Aux_a)
 
 
 #ifdef _DEBUGPRINT_
@@ -310,8 +314,6 @@ end if
 
 
 
-
-
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
 
@@ -321,7 +323,6 @@ if (SORange) then
 else
   SOFact = 10000000.0_wp
 end if
-
 Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),FuncList(iFirst:),H_diis(:,:),dqdq,&
                    Step_Trunc,UpMeth,SOFact,10.0_wp)
 
@@ -337,6 +338,14 @@ do i=1,mDIIS
 end do
 dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
+
+
+!compute angle
+norm = sqrt(DDot_(fsdim,dq_NR,1,dq_NR,1))
+write(u6,*) "Angle between NR suggestion and GEK step:", acos(DDot_(fsdim,dq_NR,1,dq,1)/(norm*dqdq)), "Iter_GEK=",nIter
+
+
+
 #ifdef _DEBUGPRINT_
     write(u6,*) '||dq||=',dqdq
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
@@ -347,6 +356,7 @@ call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 ! -------------
 call mma_Deallocate(q)
 call mma_Deallocate(g)
+call mma_Deallocate(dq_NR)
 
 call mma_Deallocate(e_diis,safe='*')
 call mma_Deallocate(q_diis)

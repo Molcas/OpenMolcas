@@ -16,7 +16,7 @@
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _GETMOLDEN_
-!#define _RESKAPPA_
+#define _RESKAPPA_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
