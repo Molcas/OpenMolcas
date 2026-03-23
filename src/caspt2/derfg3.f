@@ -320,7 +320,7 @@
 !     CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
 !     CPUT =CPTF10-CPTF0
 !     WALLT=TIOTF10-TIOTF0
-!     write(6,*) 'PREP    : CPU/WALL TIME=', cput,wallt
+!     Write(u6,*) 'PREP    : CPU/WALL TIME=', cput,wallt
 
       iG3OFF=0
       iTask_loc = 1

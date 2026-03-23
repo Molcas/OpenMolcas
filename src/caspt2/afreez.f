@@ -96,13 +96,13 @@
       Call RdOne(irc,iopt,Label,iComp,SMAT,isymlbl)
 *
 *----------------------------------------------------------------------*
-*      write(6,*)'molecular orbitals before localization'
+*      Write(u6,*)'molecular orbitals before localization'
 *      imo=0
 *      do isym=1,nsym
 *       nbi=nbas(isym)
 *       do ib=1,nbi
-*        write(6,*) 'orbital', isym, ib
-*        write(6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
+*        Write(u6,*) 'orbital', isym, ib
+*        Write(u6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
 *       imo=imo+nbi
 *       enddo
 *      enddo
@@ -114,13 +114,13 @@
        write(u6,*) 'Localization failed. The AFRE option cannot be used'
        Call Abend
       Endif
-*      write(6,*)'molecular orbitals after localization'
+*      Write(u6,*)'molecular orbitals after localization'
 *      imo=0
 *      do isym=1,nsym
 *       nbi=nbas(isym)
 *       do ib=1,nbi
-*        write(6,*) 'orbital', isym, ib
-*        write(6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
+*        Write(u6,*) 'orbital', isym, ib
+*        Write(u6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
 *       imo=imo+nbi
 *       enddo
 *      enddo
@@ -150,7 +150,7 @@
          labfro(i)=0
         Enddo
          Do ni=1,nin
-*         write(6,*) 'loop over sym and inactive orbitals',isym,ni
+*         Write(u6,*) 'loop over sym and inactive orbitals',isym,ni
           ipq=ipq0
           ipq1=0
           Do np=1,nbi
@@ -180,7 +180,7 @@
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
-*          write(6,*) 'diagonal element',ipp,DPQ(ipp)
+*          Write(u6,*) 'diagonal element',ipp,DPQ(ipp)
           Enddo
 
 *         The diagonal now contains the charges for each basis function
@@ -208,7 +208,7 @@
            Enddo
           Enddo
           If(abs(selch).lt.thrfr) labfro(ni)=1
-*         write(6,*) selch
+*         Write(u6,*) selch
           imo=imo+nbi
          Enddo
 *        Sort the inactive CMO's such that frozen orbitals are first.
@@ -218,7 +218,7 @@
 *          Exchange this orbital with the first inactive orbital
            ist1=nfro(isym)*nbi+imo0
            ist2=(nfro1+ni-1)*nbi+imo0
-*          write(6,*)'nfro,nish',nfro(isym),nish(isym),ist1,ist2
+*          Write(u6,*)'nfro,nish',nfro(isym),nish(isym),ist1,ist2
            Do np=1,nbi
             Swap=CMO(ist1+np)
             CMO(ist1+np)=CMO(ist2+np)
@@ -253,7 +253,7 @@
          labfro(i)=0
         Enddo
          Do ni=1,nsi
-*         write(6,*) 'loop over sym and secondary orbitals',isym,ni
+*         Write(u6,*) 'loop over sym and secondary orbitals',isym,ni
           ipq=ipq0
           ipq1=0
           Do np=1,nbi
@@ -283,7 +283,7 @@
           ipp=0
           Do np=1,nbi
            ipp=ipp+np
-*          write(6,*) 'diagonal element',ipp,DPQ(ipp)
+*          Write(u6,*) 'diagonal element',ipp,DPQ(ipp)
           Enddo
 
 *         The diagonal now contains the charges for each basis function
@@ -312,7 +312,7 @@
            Enddo
           Enddo
           If(abs(selch).gt.thrde) labfro(ni)=1
-*         write(6,*) selch
+*         Write(u6,*) selch
           imo=imo+nbi
          Enddo
 *        Sort the CMO's such that secondary orbitals are first.
@@ -326,9 +326,9 @@
             CMO(ist1+np)=CMO(ist2+np)
             CMO(ist2+np)=Swap
            Enddo
-*          write(6,*)'Orbital number',ni,ist1,ist2
-*           write(6,'(4ES19.12)') (CMO(ist1+np),np=1,nbi)
-*           write(6,'(4ES19.12)') (CMO(ist2+np),np=1,nbi)
+*          Write(u6,*)'Orbital number',ni,ist1,ist2
+*           Write(u6,'(4ES19.12)') (CMO(ist1+np),np=1,nbi)
+*           Write(u6,'(4ES19.12)') (CMO(ist2+np),np=1,nbi)
            ndel(isym)=ndel(isym)-1
            nssh(isym)=nssh(isym)+1
           Endif
@@ -343,8 +343,8 @@
 *      do isym=1,nsym
 *       nbi=nbas(isym)
 *       do ib=1,nbi
-*        write(6,*) 'orbital', isym, ib
-*        write(6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
+*        Write(u6,*) 'orbital', isym, ib
+*        Write(u6,'(4ES19.12)') (CMO(imo+i),i=1,nbi)
 *       imo=imo+nbi
 *       enddo
 *      enddo

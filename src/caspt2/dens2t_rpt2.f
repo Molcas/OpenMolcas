@@ -207,7 +207,7 @@ C     task.
       CALL GAdGOP (G1,NG1,'+')
       CALL GAdGOP (G2,NG2,'+')
 
-C     write(6,*) "before"
+C     Write(u6,*) "before"
 C     call sqprt(g2,nlev**2)
       Do LT = 1, NLEV
         IT = L2ACT(LT)

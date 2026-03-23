@@ -18,11 +18,11 @@
 * each with sizes lsplit(1:nsym), and
 * %ip(:), with teh sizes nsym*lsplit(1:nsym)
 * -------------------------
-      use definitions, only: iwp, wp
       use stdalloc, only: mma_MaxDBLE
       use ChoCASPT2, only: Stuff,lsplit,nisplit,nasplit,nksh,nkes,npsh,
      &                     npes
       use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: iwp, wp, u6
 
       Implicit None
 
@@ -330,18 +330,18 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
       End Do
 
       if (iftest.ne.0) then
-      write(6,*)
-      write(6,*)' setup_cho report:'
-      write(6,*)
-      write(6,'(1x,a,8i4)')' Inactive :',(nIsh(isym),isym=1,nSym)
-      write(6,'(1x,a,8i4)')' Active   :',(nAsh(isym),isym=1,nSym)
-      write(6,'(1x,a,8i4)')' Secondary:',(nSsh(isym),isym=1,nSym)
-      write(6,*)
-      write(6,'(1x,a,8i4)')' NumCho   :',(NumCho(isym),isym=1,nSym)
-      write(6,*)
-      write(6,*)' Partition  Fixed orbitals       nPorb space'
+      Write(u6,*)
+      Write(u6,*)' setup_cho report:'
+      Write(u6,*)
+      Write(u6,'(1x,a,8i4)')' Inactive :',(nIsh(isym),isym=1,nSym)
+      Write(u6,'(1x,a,8i4)')' Active   :',(nAsh(isym),isym=1,nSym)
+      Write(u6,'(1x,a,8i4)')' Secondary:',(nSsh(isym),isym=1,nSym)
+      Write(u6,*)
+      Write(u6,'(1x,a,8i4)')' NumCho   :',(NumCho(isym),isym=1,nSym)
+      Write(u6,*)
+      Write(u6,*)' Partition  Fixed orbitals       nPorb space'
       do jsym=1,nsym
-       write(6,*)' Symm:',jSym
+       Write(u6,*)' Symm:',jSym
        kend=0
        do isp=1,nisplit(jsym)
         ksta=kend+1
@@ -349,11 +349,11 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
         kstasym=cho_irange(ksta,iIorb,nSym,.false.)
         kendsym=cho_irange(kend,iIorb,nSym,.false.)
         nPorb=Stuff(jSym)%np(isp)
-        write(6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
+        Write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
      &        isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-        write(6,'(1x,a,8i8)')' iP Offsets:',(Stuff(jSym)%ip(
+        Write(u6,'(1x,a,8i8)')' iP Offsets:',(Stuff(jSym)%ip(
      &                 nSym*(isp-1)+MulD2h(jSym,iS)),iS=1,nSym)
-       write(6,*)
+       Write(u6,*)
        end do
        kend=0
        do isp=1,nasplit(jsym)
@@ -362,12 +362,12 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
         kstasym=cho_irange(ksta,iAorb,nSym,.false.)
         kendsym=cho_irange(kend,iAorb,nSym,.false.)
         nPorb=Stuff(jSym)%np(nisplit(jSym)+isp)
-        write(6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
+        Write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
      &        isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-        write(6,'(1x,a,8i8)')' iP Offsets:',
+        Write(u6,'(1x,a,8i8)')' iP Offsets:',
      &         (Stuff(jSym)%ip(nSym*(nisplit(jSym)+isp-1)+
      &                             MulD2h(jSym,iS)),iS=1,nSym)
-       write(6,*)
+       Write(u6,*)
        end do
       end do
       end if

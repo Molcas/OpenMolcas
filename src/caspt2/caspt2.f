@@ -43,7 +43,7 @@
      &                        TIOPT2,TIOSBM,TIOEIG,TIONAD,TIORHS,TIOSER,
      &                        TIOPCG,TIOSCA,TIOLCS,TIOOVL,TIOVEC,TIOSGM,
      &                         TIOPRP,TIOGRD
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
 
       IMPLICIT NONE
       INTEGER(kind=iwp), intent(out):: IRETURN
@@ -580,7 +580,7 @@ C     PRINT I/O AND SUBROUTINE CALL STATISTICS
         HEFF(I,I) = REFENE(I)
       END DO
       IF (IPRGLB.GE.VERBOSE) THEN
-        write(6,*)' Heff[1] in the original model space basis:'
+        Write(u6,*)' Heff[1] in the original model space basis:'
         call prettyprint(Heff,Nstate,Nstate)
       END IF
 * If the EFFE keyword has been used, we already have the multi state

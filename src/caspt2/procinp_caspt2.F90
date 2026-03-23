@@ -48,7 +48,7 @@ subroutine procinp_caspt2
 
   use caspt2_module, only: CIThr
   use constants, only: Zero
-  use definitions, only: iwp,wp,RtoB
+  use definitions, only: iwp,wp,RtoB, u6
   implicit none
 
 
@@ -518,7 +518,7 @@ subroutine procinp_caspt2
 
     ! initialize the interface using a checkpoint file
     if (iPrGlb >= VERBOSE) then
-      write(6,*) 'PROCINP initializing QCMaquis DMRG interface...'
+      Write(u6,*) 'PROCINP initializing QCMaquis DMRG interface...'
     end if
     call qcmaquis_interface_init_checkpoint(dmrg_file%qcmaquis_checkpoint_file(1))
 

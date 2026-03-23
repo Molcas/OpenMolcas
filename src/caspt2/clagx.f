@@ -4920,7 +4920,7 @@
           End Do
         End If
       End Do
-!     write(6,*) 'after 1'
+!     Write(u6,*) 'after 1'
 !     call sqprt(fock,nasht)
 
       !! 2) two-electron term (only CreQADD part)

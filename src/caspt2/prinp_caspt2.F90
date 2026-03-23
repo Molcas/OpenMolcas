@@ -30,7 +30,6 @@ subroutine prinp_caspt2()
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-  use definitions, only: iwp, wp
   use caspt2_global, only: iPrGlb
   use PrintLevel, only: TERSE, USUAL, VERBOSE
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
@@ -48,6 +47,7 @@ subroutine prinp_caspt2()
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
   use caspt2_module, only: DoCumulant
 #endif
+  use definitions, only: iwp, wp, u6
   implicit none
 
 
@@ -70,14 +70,14 @@ subroutine prinp_caspt2()
 !     Print the ONEINT file identifier                                 *
 !----------------------------------------------------------------------*
   if (iprglb >= VERBOSE) then
-    write(6,*)
-    write(6,fmt1) 'Header of the ONEINT file:'
-    write(6,fmt1) '--------------------------'
+    Write(u6,*)
+    Write(u6,fmt1) 'Header of the ONEINT file:'
+    Write(u6,fmt1) '--------------------------'
     write(Line,'(36A2)')(Header(i),i=1,36)
-    write(6,fmt1) trim(adjustl(Line))
+    Write(u6,fmt1) trim(adjustl(Line))
     write(Line,'(36A2)')(Header(i),i=37,72)
-    write(6,fmt1) trim(adjustl(Line))
-    write(6,*)
+    Write(u6,fmt1) trim(adjustl(Line))
+    Write(u6,*)
   end if
 !----------------------------------------------------------------------*
 !     Print cartesian coordinates of the system                        *
@@ -89,66 +89,66 @@ subroutine prinp_caspt2()
 !     Print orbital and wavefunction specifications                    *
 !----------------------------------------------------------------------*
   if (iprglb >= USUAL) then
-    write(6,*)
+    Write(u6,*)
     Line = ' '
     write(Line(left-2:),'(A)') 'Wave function specifications:'
     call CollapseOutput(1,Line)
-    write(6,fmt1) '-----------------------------'
-    write(6,*)
-    write(6,fmt2//'A,T45,I6)') 'Number of closed shell electrons', 2*NISHT
-    write(6,fmt2//'A,T45,I6)') 'Number of electrons in active shells', NACTEL
-    write(6,fmt2//'A,T45,I6)') 'Max number of holes in RAS1 space', NHOLE1
-    write(6,fmt2//'A,T45,I6)') 'Max number of electrons in RAS3 space', NELE3
-    write(6,fmt2//'A,T45,I6)') 'Number of inactive orbitals', NISHT
-    write(6,fmt2//'A,T45,I6)') 'Number of active orbitals', NASHT
-    write(6,fmt2//'A,T45,I6)') 'Number of secondary orbitals', NSSHT
-    write(6,fmt2//'A,T45,F6.1)') 'Spin quantum number', 0.5_wp * real(ISPIN-1, kind=wp)
-    write(6,fmt2//'A,T45,I6)') 'State symmetry', STSYM
-    write(6,fmt2//'A,T40,I11)') 'Number of CSFs', NCONF
-    write(6,fmt2//'A,T45,I6)') 'Number of CASSCF root(s) available', NROOTS
+    Write(u6,fmt1) '-----------------------------'
+    Write(u6,*)
+    Write(u6,fmt2//'A,T45,I6)') 'Number of closed shell electrons', 2*NISHT
+    Write(u6,fmt2//'A,T45,I6)') 'Number of electrons in active shells', NACTEL
+    Write(u6,fmt2//'A,T45,I6)') 'Max number of holes in RAS1 space', NHOLE1
+    Write(u6,fmt2//'A,T45,I6)') 'Max number of electrons in RAS3 space', NELE3
+    Write(u6,fmt2//'A,T45,I6)') 'Number of inactive orbitals', NISHT
+    Write(u6,fmt2//'A,T45,I6)') 'Number of active orbitals', NASHT
+    Write(u6,fmt2//'A,T45,I6)') 'Number of secondary orbitals', NSSHT
+    Write(u6,fmt2//'A,T45,F6.1)') 'Spin quantum number', 0.5_wp * real(ISPIN-1, kind=wp)
+    Write(u6,fmt2//'A,T45,I6)') 'State symmetry', STSYM
+    Write(u6,fmt2//'A,T40,I11)') 'Number of CSFs', NCONF
+    Write(u6,fmt2//'A,T45,I6)') 'Number of CASSCF root(s) available', NROOTS
     if (do_nac) then
-      write(6,fmt2//'A,T45,I6,1X,"/",1X,I6)') 'CASPT2 states for NAC', iRoot1,iRoot2
+      Write(u6,fmt2//'A,T45,I6,1X,"/",1X,I6)') 'CASPT2 states for NAC', iRoot1,iRoot2
     else
-      write(6,fmt2//'A,T45,I6)') 'CASPT2 state passed to geometry opt.', iRlxRoot
+      Write(u6,fmt2//'A,T45,I6)') 'CASPT2 state passed to geometry opt.', iRlxRoot
     end if
     if (ifmix) then
-      write(6,fmt2//'A,T45,10I3)') 'A file JOBMIX will be created'
+      Write(u6,fmt2//'A,T45,10I3)') 'A file JOBMIX will be created'
     end if
     if (nstate > 1) then
-      write(6,fmt1) 'This is a MULTI-STATE CASSCF reference'
-      write(6,fmt2//'A,T45,I6)') 'Number of CI roots used', NSTATE
-      write(6,fmt2//'A,(T47,10I4))') 'These are:', (MSTATE(I),I=1,NSTATE)
+      Write(u6,fmt1) 'This is a MULTI-STATE CASSCF reference'
+      Write(u6,fmt2//'A,T45,I6)') 'Number of CI roots used', NSTATE
+      Write(u6,fmt2//'A,(T47,10I4))') 'These are:', (MSTATE(I),I=1,NSTATE)
       if (ifmscoup) then
-        write(6,fmt1) 'Off-diagonal elements of Heff are computed'
+        Write(u6,fmt1) 'Off-diagonal elements of Heff are computed'
       else
-        write(6,fmt1) 'Heff is assumed diagonal'
+        Write(u6,fmt1) 'Heff is assumed diagonal'
       end if
     else
       if (iscf == 0) then
-        write(6,fmt1) 'This is a CASSCF or RASSCF reference function'
+        Write(u6,fmt1) 'This is a CASSCF or RASSCF reference function'
 #ifdef _ENABLE_BLOCK_DMRG_
         if (DoCumulant) then
-          write(6,fmt1) 'Using 4-RDM cumulant approximation,'// &
+          Write(u6,fmt1) 'Using 4-RDM cumulant approximation,'// &
                         ' activated by 3RDM keyword in RASSCF'
         end if
 #elif _ENABLE_CHEMPS2_DMRG_
         if (DoCumulant) then
-          write(6,fmt1) 'This is a DMRG reference with exact 4-RDM,'// &
+          Write(u6,fmt1) 'This is a DMRG reference with exact 4-RDM,'// &
                         ' activated by 3RDM keyword in RASSCF'
         end if
 #elif _DMRG_
         if (DMRG) then
-          write(6,fmt1) 'This is a DMRG reference wave function,'// &
+          Write(u6,fmt1) 'This is a DMRG reference wave function,'// &
                         ' from QCMaquis'
           if (compressMPS > 0_iwp) then
-            write(6,fmt1) 'Using compressed MPS for computing 4-RDM.'
+            Write(u6,fmt1) 'Using compressed MPS for computing 4-RDM.'
           end if
         end if
 #endif
       else if (iscf == 1) then
-        write(6,fmt1) 'This is a closed shell RHF reference function'
+        Write(u6,fmt1) 'This is a closed shell RHF reference function'
       else
-        write(6,fmt1) 'This is a high spin open shell RHF reference function'
+        Write(u6,fmt1) 'This is a high spin open shell RHF reference function'
       end if
     end if
     call CollapseOutput(0,'Wave function specifications:')
@@ -160,20 +160,20 @@ subroutine prinp_caspt2()
   end do
 
   if (iprglb >= USUAL) then
-    write(6,*)
+    Write(u6,*)
     Line = ' '
     write(Line(left-2:),'(A)') 'Orbital specifications:'
     call CollapseOutput(1,Line)
-    write(6,fmt1) '-----------------------'
-    write(6,*)
-    write(6,fmt2//'A,T47,8I4)') 'Symmetry species', (iSym,iSym=1,nSym)
-    write(6,fmt2//'A,T47,8(1X,A))') '                ', (lIrrep(iSym),iSym=1,nSym)
-    write(6,fmt2//'A,T47,8I4)') 'Frozen orbitals', (nFro(iSym),iSym=1,nSym)
-    write(6,fmt2//'A,T47,8I4)') 'Inactive orbitals', (nIsh(iSym),iSym=1,nSym)
-    write(6,fmt2//'A,T47,8I4)') 'Active orbitals', (nAsh(iSym),iSym=1,nSym)
-    write(6,fmt2//'A,T47,8I4)') 'Secondary orbitals', (nSsh(iSym),iSym=1,nSym)
-    write(6,fmt2//'A,T47,8I4)') 'Deleted orbitals', (nDel(iSym),iSym=1,nSym)
-    write(6,fmt2//'A,T47,8I4)') 'Number of basis functions', (nBas(iSym),iSym=1,nSym)
+    Write(u6,fmt1) '-----------------------'
+    Write(u6,*)
+    Write(u6,fmt2//'A,T47,8I4)') 'Symmetry species', (iSym,iSym=1,nSym)
+    Write(u6,fmt2//'A,T47,8(1X,A))') '                ', (lIrrep(iSym),iSym=1,nSym)
+    Write(u6,fmt2//'A,T47,8I4)') 'Frozen orbitals', (nFro(iSym),iSym=1,nSym)
+    Write(u6,fmt2//'A,T47,8I4)') 'Inactive orbitals', (nIsh(iSym),iSym=1,nSym)
+    Write(u6,fmt2//'A,T47,8I4)') 'Active orbitals', (nAsh(iSym),iSym=1,nSym)
+    Write(u6,fmt2//'A,T47,8I4)') 'Secondary orbitals', (nSsh(iSym),iSym=1,nSym)
+    Write(u6,fmt2//'A,T47,8I4)') 'Deleted orbitals', (nDel(iSym),iSym=1,nSym)
+    Write(u6,fmt2//'A,T47,8I4)') 'Number of basis functions', (nBas(iSym),iSym=1,nSym)
     call CollapseOutput(0,'Orbital specifications:')
   end if
 !----------------------------------------------------------------------*
@@ -181,23 +181,23 @@ subroutine prinp_caspt2()
 !----------------------------------------------------------------------*
   if (iprglb >= TERSE) then
     if (rfpert) then
-      write(6,*)
-      write(6,fmt1) 'Reaction field specifications:'
-      write(6,fmt1) '------------------------------'
-      write(6,*)
-      write(6,'(6X,A)') 'An external reaction field was determined'// &
+      Write(u6,*)
+      Write(u6,fmt1) 'Reaction field specifications:'
+      Write(u6,fmt1) '------------------------------'
+      Write(u6,*)
+      Write(u6,'(6X,A)') 'An external reaction field was determined'// &
             ' previously and added to the one-electron Hamiltonian'
-      write(6,'(6X,A)') 'It will not be reevaluated even though'//    &
+      Write(u6,'(6X,A)') 'It will not be reevaluated even though'//    &
                   ' dynamic correlation may change the density.'
-      write(6,*)
+      Write(u6,*)
     end if
 
-    write(6,*)
+    Write(u6,*)
     Line = ' '
     write(Line(left-2:),'(A)') 'CASPT2 specifications:'
     call CollapseOutput(1,Line)
-    write(6,fmt1) '----------------------'
-    write(6,*)
+    Write(u6,fmt1) '----------------------'
+    Write(u6,*)
 
     if (IFMSCOUP) then
       if (IFDW) then
@@ -226,61 +226,61 @@ subroutine prinp_caspt2()
       calctype = 'SS-CASPT2'
     end if
 
-    write(6,fmt2//'A,T50,A)') 'Type of calculation', trim(calctype)
+    Write(u6,fmt2//'A,T50,A)') 'Type of calculation', trim(calctype)
 
-    write(6,fmt2//'A,T50,A)') 'Fock operator', trim(FockOpType)
+    Write(u6,fmt2//'A,T50,A)') 'Fock operator', trim(FockOpType)
     if (IFDW) then
-      write(6,fmt2//'A,T45,I6)') 'DW Type', DWType
+      Write(u6,fmt2//'A,T45,I6)') 'DW Type', DWType
       if (zeta >= 0) then
-        write(6,fmt2//'A,T50,ES10.4)') 'DW exponent', zeta
+        Write(u6,fmt2//'A,T50,ES10.4)') 'DW exponent', zeta
       else
-        write(6,fmt2//'A,T50,A)') 'DW exponent','infinity'
+        Write(u6,fmt2//'A,T50,A)') 'DW exponent','infinity'
       end if
     end if
 
     if (Hzero /= 'STANDARD') then
-      write(6,fmt2//'A,T50,A)') '0th-order Hamiltonian', trim(Hzero)
+      Write(u6,fmt2//'A,T50,A)') '0th-order Hamiltonian', trim(Hzero)
     end if
 
-    write(6,fmt2//'A,T45,F9.2)') 'IPEA shift', ipea_shift
-    write(6,fmt2//'A,T45,F9.2)') 'Real shift', real_shift
-    write(6,fmt2//'A,T45,F9.2)') 'Imaginary shift', imag_shift
+    Write(u6,fmt2//'A,T45,F9.2)') 'IPEA shift', ipea_shift
+    Write(u6,fmt2//'A,T45,F9.2)') 'Real shift', real_shift
+    Write(u6,fmt2//'A,T45,F9.2)') 'Imaginary shift', imag_shift
     if (sigma_p_epsilon > 0.0_wp) then
       if (sigma_p_exponent == 1) then
-        write(6,fmt2//'A,T45,F9.2)') 'Sigma^1 regularizer', sigma_p_epsilon
+        Write(u6,fmt2//'A,T45,F9.2)') 'Sigma^1 regularizer', sigma_p_epsilon
       else
-        write(6,fmt2//'A,T45,F9.2)') 'Sigma^2 regularizer', sigma_p_epsilon
+        Write(u6,fmt2//'A,T45,F9.2)') 'Sigma^2 regularizer', sigma_p_epsilon
       end if
     end if
 
     if (ORBIN == 'TRANSFOR') then
-      write(6,fmt1) 'The input orbitals will be transformed to quasi-canonical'
+      Write(u6,fmt1) 'The input orbitals will be transformed to quasi-canonical'
     else
-      write(6,fmt1) 'The input orbitals will not be transformed to quasi-canonical'
+      Write(u6,fmt1) 'The input orbitals will not be transformed to quasi-canonical'
     end if
 
     if (IFXMS .or. IFRMS) then
-      write(6,fmt1) 'The input states will be rotated to diagonalize the Fock operator'
+      Write(u6,fmt1) 'The input states will be rotated to diagonalize the Fock operator'
     end if
 
     if (IFDORTHO) then
-      write(6,fmt1) 'Canonical orthornormalization will be used for the IC basis'
+      Write(u6,fmt1) 'Canonical orthornormalization will be used for the IC basis'
     end if
 
     if (do_grad) then
       if (do_nac) then
         if (do_csf) then
-          write(6,fmt1) 'Quantities for analytical NAC with CSF term will be calculated'
+          Write(u6,fmt1) 'Quantities for analytical NAC with CSF term will be calculated'
         else
-          write(6,fmt1) 'Quantities for analytical NAC without CSF term will be calculated'
+          Write(u6,fmt1) 'Quantities for analytical NAC without CSF term will be calculated'
         end if
       else
-        write(6,fmt1) 'Quantities for analytical gradients will be calculated'
+        Write(u6,fmt1) 'Quantities for analytical gradients will be calculated'
       end if
     end if
 
     call CollapseOutput(0,'CASPT2 specifications:')
-    write(6,*)
+    Write(u6,*)
   end if
 
 end subroutine prinp_caspt2

@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine Compute_Tr_Dab(nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
      &                          CMO,nCMO,OrbE,nOrbE,TrD)
-      use definitions, only: iwp, wp
       use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: iwp, wp, u6
       Implicit None
       integer(kind=iwp), intent(in):: nSym, nBas(nSym), nFro(nSym),
      &                                nIsh(nSym), nAsh(nSym),
@@ -95,14 +95,14 @@
          Call ChoMP2_Drv(irc,Dummy,CMON,EOrb(kEOcc),Eorb(kEVir),
      &                   DMAT(1:nVV),DMAT(ip_Y:))
          If(irc.ne.0) then
-           write(6,*) 'MP2 pseudodensity calculation failed !'
+           Write(u6,*) 'MP2 pseudodensity calculation failed !'
            Call Abend
          Endif
       Else
-         write(6,*)
-         write(6,*)'There are ZERO amplitudes T(ai,bj) with the given '
-         write(6,*)'combinations of inactive and virtual orbitals !! '
-         write(6,*)'Check your input and rerun the calculation! Bye!!'
+         Write(u6,*)
+         Write(u6,*)'There are ZERO amplitudes T(ai,bj) with the given '
+         Write(u6,*)'combinations of inactive and virtual orbitals !! '
+         Write(u6,*)'Check your input and rerun the calculation! Bye!!'
          Call Abend
       Endif
       Call mma_deallocate(CMON)
