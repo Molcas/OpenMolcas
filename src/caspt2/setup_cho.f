@@ -210,13 +210,13 @@ C *********************************************************************
             mRHS = Max( mRHS, Max(nAsh(jS),nSsh(jS)) )
          End Do
 
-C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
+C --- Conversion to real(kind=wp) to avoid integer overflow on 32-bit machines
 
 * PAM:Why would this be 'mem for right-hand side?'
 *         xRHS = dble(mRHS**2)           ! mem. for right hand side
 *         xLpk = dble(Mem1*nPmax*nKsp)   ! store Cholesky MO vectors
 *         xPIQK= dble((nPmax*nKsp)**2)   ! store integrals
-*         xmNeed= xO + xPIQK + Max(xLpk,2.0D0*xRHS) ! Fmat+integrals+rhs
+*         xmNeed= xO + xPIQK + Max(xLpk,Two*xRHS) ! Fmat+integrals+rhs
 
 * This also looks strange -- nIAc=all the inact+act orbitals no matter what.?
          nIAc =nOkrb

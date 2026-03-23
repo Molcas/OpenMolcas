@@ -74,7 +74,7 @@
 
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
-!     REAL*8 BUFR(MXLEV**2)
+!     REAL(kind=wp) BUFR(MXLEV**2)
 
 !     integer(kind=iwp) :: LFCDer1,LFCDer2
       integer(kind=iwp) :: iTask_loc
