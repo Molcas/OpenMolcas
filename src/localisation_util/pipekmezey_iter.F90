@@ -27,7 +27,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
-use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList, DispList
+use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList, DispList,&
+                                UmatList
 
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
@@ -46,7 +47,7 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp
 real(kind=wp) :: DD
 #endif
 real(kind=wp), allocatable :: PACol(:,:), Hdiag(:,:), Ovlp_aux(:,:), &
-                              SCR(:), Ovlp_sqrt(:,:),Gradient(:),dq(:),&
+                              SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Prev(:),Disp(:)
 real(kind=wp), parameter :: alpha = 0.3
@@ -108,12 +109,13 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
-    call mma_Allocate(DispList,fsdim,nMxIter,Label='displacements')  ! kappa matrices
+    call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
+    call mma_Allocate(UmatList,nOrb2Loc,nOrb2Loc,nMxIter,Label='UmatList')
     call mma_allocate(Disp,fsdim,Label='Disp')
-    call mma_Allocate(dq,fsdim,Label='dq')  ! GEK suggestion for kappa
-    call mma_Allocate(GradList,fsdim,nMxIter,Label='GradientList')
-    call mma_Allocate(FuncList,nMxIter,Label='FunctionalList')
+    call mma_Allocate(GradList,fsdim,nMxIter,Label='GradList')
+    call mma_Allocate(FuncList,nMxIter,Label='FuncList')
     DispList(:,:)=Zero
+    UmatList(:,:,:)=Zero
     GradList(:,:)=Zero
     FuncList(:)=Zero
 
@@ -278,6 +280,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             if (large_elements == 0 .and. (.not. start_gek)) then
                 ! infinitesimal limit of kappa reached -> start sampling for GEK
                 start_gek = .true.
+
 !#               ifdef _DEBUGPRINT_
                 write(u6,*) "turning on GEK in iteration",nIter+2,"starting sampling for GEK in iteration",nIter
 !#               endif
@@ -292,7 +295,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! when Iter_GEK = 1: DispList(:,:) contains NR kappa_1 = q_i (most recent step)
                 ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot):
                 GradList(:,Iter_GEK) = -Gradient(:) ! g_i
-                FuncList(Iter_GEK)=-Functional ! y_i
+                FuncList(Iter_GEK) = -Functional ! y_i
 
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
@@ -386,6 +389,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       endif
 
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+
+        if (start_gek) DispList(:,Iter_GEK+1) = Disp(:) ! q_i+1
 
 #       ifdef _DEBUGPRINT_
         call RecPrt('CMO after rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
@@ -494,11 +499,11 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call mma_Deallocate(rotated_CMO)
 
     call mma_Deallocate(FuncList)
+    call mma_Deallocate(UmatList)
     call mma_Deallocate(GradList)
     call mma_Deallocate(DispList)
     call mma_Deallocate(disp)
     call mma_Deallocate(Hdiagvec)
-    call mma_Deallocate(dq)
 end if
 
 ! deallocate other matrices

@@ -15,7 +15,7 @@
 
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,hdiag,fsdim,dqdq,dq,UpMeth,SORange,usmitigation)
+subroutine S_GEK_localisation(Iter_GEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,usmitigation)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -23,18 +23,18 @@ use Definitions, only: iwp,wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList
+use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,nOrb2Loc
 use Definitions, only: u6
 
 implicit none
 
-integer(kind=iwp), intent(in) :: nIter,fsdim
+integer(kind=iwp), intent(in) :: Iter_GEK,fsdim
 real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit=0,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
-                              w(:,:),D(:,:),dq_NR(:)
+                              w(:,:),D(:,:),dq_NR(:),aux_kap(:,:)
 integer(kind=iwp), parameter :: nWindow =20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
@@ -53,23 +53,24 @@ write(u6,*) 'Enter S-GEK Optimizer'
 #endif
 
 ! number of iterations used to build the subspace
-if (nIter > 3) then
-    nDIIS = min(nIter,nWindow)-2 !skip the pure NR data
+if (Iter_GEK > 3) then
+    nDIIS = min(Iter_GEK,nWindow)-2 !skip the pure NR data
 else
-    nDIIS = min(nIter,nWindow) !1 for first iteration; 2
+    nDIIS = min(Iter_GEK,nWindow) !1 for first iteration; 2
 end if
 
 ! index of the first iteration to consider for the subspace
-iFirst = nIter-nDIIS+1 !1 for first iteration; 1
+iFirst = Iter_GEK-nDIIS+1 !1 for first iteration; 1
 
 call mma_Allocate(q,fsdim, nDiis,Label="q")
 call mma_Allocate(g,fsdim, nDiis,Label="g")
 
+call mma_allocate(aux_kap,nOrb2Loc,nOrb2Loc,Label='aux_kap')
 
 j = 0
-do i=iFirst,nIter
+do i=iFirst,Iter_GEK
     j = i-iFirst+1
-    !write(u6,*) 'i,j,iter=',i,j,nIter
+    !write(u6,*) 'i,j,iter=',i,j,Iter_GEK
 
     ! Coordinates
     q(:,j) = DispList(:,i)
@@ -78,7 +79,9 @@ do i=iFirst,nIter
     g(:,j) = GradList(:,i)
 
 end do
+!call Log_SVD(nOrb2Loc,nOrb2Loc,aux_kap)
 
+call mma_Deallocate(aux_kap)
 
 if (nDIIS == 1) then
 # ifdef _DEBUGPRINT_
@@ -89,11 +92,10 @@ if (nDIIS == 1) then
   return
 end if
 
-
 #ifdef _DEBUGPRINT_
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
-    write(u6,*) '  nIter =',nIter
+    write(u6,*) '  Iter_GEK =',Iter_GEK
     call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
     call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
@@ -209,7 +211,7 @@ mDIIS = j
 #ifdef _DEBUGPRINT_
 write(u6,*) '    fsdim:',fsdim
 write(u6,*) 'nExplicit:',nExplicit
-write(u6,*) '    nIter:',nIter
+write(u6,*) '    Iter_GEK:',Iter_GEK
 write(u6,*) '    nDIIS:',nDIIS
 write(u6,*) '    mDIIS:',mDIIS
 
@@ -342,9 +344,8 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
 !compute angle
 norm = sqrt(DDot_(fsdim,dq_NR,1,dq_NR,1))
-write(u6,*) "Angle between NR suggestion and GEK step:", acos(DDot_(fsdim,dq_NR,1,dq,1)/(norm*dqdq)), "Iter_GEK=",nIter
-
-
+write(u6,'(A,F12.8,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq):", acos(DDot_(fsdim,dq_NR,1,dq,1)/(norm*dqdq)),&
+                                         "norm(dq)/norm(dq_NR)",dqdq/norm, "Iter_GEK=",Iter_GEK
 
 #ifdef _DEBUGPRINT_
     write(u6,*) '||dq||=',dqdq
