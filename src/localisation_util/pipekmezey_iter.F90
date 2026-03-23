@@ -291,22 +291,24 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 ! when Iter_GEK = 1: displacements(:,:) contains NR kappa_1 = q_i (most recent step)
                 ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot):
-                GradList(:,Iter_GEK) = Gradient(:) ! g_i
-                FuncList(Iter_GEK)=Functional ! y_i
+                GradList(:,Iter_GEK) = -Gradient(:) ! g_i
+                FuncList(Iter_GEK)=-Functional ! y_i
 
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 write(u6,*) "Iter_GEK=",Iter_GEK
 
-                if (iter_GEK>3) then
-                    ! when enough GEK step data collected: don't use initial two data points obtained without GEK
-                    call S_GEK_localisation(Iter_GEK-2,FuncList(3:),-GradList(:,3:),displacements(:,3:),-hdiagvec(:),&
-                                            fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
-                else
-                    call S_GEK_localisation(Iter_GEK,FuncList(:),-GradList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+!                if (iter_GEK>3) then
+!                    ! when enough GEK step data collected: don't use initial two data points obtained without GEK
+!                    call S_GEK_localisation(Iter_GEK-2,FuncList(3:),-GradList(:,3:),displacements(:,3:),-hdiagvec(:),&
+!                                            fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
+!                else
+!                    call S_GEK_localisation(Iter_GEK,FuncList(:),-GradList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+!                                            dqdq,Disp(:),UpMeth,SORange,usmitigation)
+!                end if
+                    call S_GEK_localisation(Iter_GEK,displacements(:,:),-hdiagvec(:),fsdim,&
                                             dqdq,Disp(:),UpMeth,SORange,usmitigation)
-                end if
 
 
                 ! undershoot mitigation

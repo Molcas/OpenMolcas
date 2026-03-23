@@ -15,8 +15,7 @@
 
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,SORange,&
-                              usmitigation)
+subroutine S_GEK_localisation(nIter,displacements,hdiag,fsdim,dqdq,dq,UpMeth,SORange,usmitigation)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -24,13 +23,12 @@ use Definitions, only: iwp,wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Localisation_globals, only: nMxIter,Loosen,OptMeth
+use Localisation_globals, only: nMxIter,Loosen,OptMeth,FuncList,GradList
 
 implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim
-real(kind=wp),intent(in) :: GradientList(fsdim,nMxIter),displacements(fsdim,nMxIter),Hdiag(fsdim)
-real(kind=wp),intent(inout) :: FunctionalList(nMxIter)
+real(kind=wp),intent(in) :: displacements(fsdim,nMxIter),Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit=0,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
@@ -42,7 +40,6 @@ character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
 character :: Step_Trunc
 
-Functionallist(:) =-Functionallist(:)
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
@@ -51,8 +48,11 @@ write(u6,*) 'Enter S-GEK Optimizer'
 #endif
 
 ! number of iterations used to build the subspace
-nDIIS = min(nIter,nWindow) !1 for first iteration; 2
-
+if (nIter > 3) then
+    nDIIS = min(nIter,nWindow)-2 !skip the pure NR data
+else
+    nDIIS = min(nIter,nWindow) !1 for first iteration; 2
+end if
 
 ! index of the first iteration to consider for the subspace
 iFirst = nIter-nDIIS+1 !1 for first iteration; 1
@@ -70,9 +70,10 @@ do i=iFirst,nIter
     q(:,j) = displacements(:,i)
 
     ! Gradients
-    g(:,j) = GradientList(:,i)
+    g(:,j) = GradList(:,i)
 
 end do
+
 
 if (nDIIS == 1) then
 # ifdef _DEBUGPRINT_
@@ -321,7 +322,7 @@ else
   SOFact = 10000000.0_wp
 end if
 
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Functionallist(iFirst:),H_diis(:,:),dqdq,&
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),FuncList(iFirst:),H_diis(:,:),dqdq,&
                    Step_Trunc,UpMeth,SOFact,10.0_wp)
 
 ! project the resulting displacement dq_diis back into the fullspace
@@ -341,8 +342,6 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 #endif
 call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
-
-Functionallist(:) =-Functionallist(:)
 
 ! deallocations
 ! -------------
