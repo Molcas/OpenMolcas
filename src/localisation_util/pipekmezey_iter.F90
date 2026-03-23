@@ -294,21 +294,15 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
+                write(u6,*) "Iter_GEK=",Iter_GEK
 
-                select case(OptMeth)
-
-                case (4) ! Full space GEK
+                if (iter_GEK>3) then
+                    call S_GEK_localisation(Iter_GEK-2,Functionallist(3:),-GradientList(:,3:),displacements(:,3:),-hdiagvec(:),&
+                                            fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
+                else
                     call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                            dqdq,Disp(:),UpMeth,'fullspace',SORange,usmitigation)
-
-                case (5) ! subspace GEK
-
-# ifdef             _DEBUGPRINT_
-                    write(u6,*) "building the subspace"
-#                   endif
-                    call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
-                                        dqdq,Disp(:),UpMeth,'subspace ',SORange,usmitigation)
-                end select !(s)-GEK
+                                            dqdq,Disp(:),UpMeth,SORange,usmitigation)
+                end if
 
 
                 ! undershoot mitigation

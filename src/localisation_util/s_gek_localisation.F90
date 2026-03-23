@@ -15,7 +15,7 @@
 
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,framework,SORange,&
+subroutine S_GEK_localisation(nIter,Functionallist,GradientList,displacements,hdiag,fsdim,dqdq,dq,UpMeth,SORange,&
                               usmitigation)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -24,7 +24,7 @@ use Definitions, only: iwp,wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Localisation_globals, only: nMxIter,Loosen
+use Localisation_globals, only: nMxIter,Loosen,OptMeth
 
 implicit none
 
@@ -39,7 +39,6 @@ real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis
 integer(kind=iwp), parameter :: nWindow =20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
-character(len=9),intent(in) :: framework
 logical, intent(in) :: SORange,usmitigation
 character :: Step_Trunc
 
@@ -101,7 +100,7 @@ end if
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! FULL SPACE
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-if (framework == 'fullspace') then
+if (OptMeth == 4) then
 
 ! Set up the full space
 nExplicit = fsdim
@@ -115,7 +114,7 @@ end do
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! SUBSPACE VERSION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-else if (framework == 'subspace') then
+else if (OptMeth == 5) then
 
 !number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
 nExplicit = 2*(nDIIS-1)+2
@@ -323,7 +322,7 @@ else
 end if
 
 Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),Functionallist(iFirst:),H_diis(:,:),dqdq,&
-                   Step_Trunc,UpMeth,SOFact,1000.0_wp)
+                   Step_Trunc,UpMeth,SOFact,10.0_wp)
 
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
@@ -341,6 +340,7 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
     write(u6,*) '||dq||=',dqdq
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 #endif
+call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 
 Functionallist(:) =-Functionallist(:)
 
