@@ -23,7 +23,7 @@ use Definitions, only: iwp,wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Localisation_globals, only: nMxIter,Loosen,OptMeth,FuncList,GradList,DispList
+use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList
 
 implicit none
 
