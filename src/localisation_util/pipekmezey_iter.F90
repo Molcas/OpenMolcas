@@ -27,7 +27,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
-use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen
+use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList
 
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
@@ -45,7 +45,7 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp
 #       ifdef _RESKAPPA_
 real(kind=wp) :: DD
 #endif
-real(kind=wp), allocatable :: PACol(:,:), GradientList(:,:), Functionallist(:), Hdiag(:,:), Ovlp_aux(:,:), &
+real(kind=wp), allocatable :: PACol(:,:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),displacements(:,:),Gradient(:),dq(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Prev(:),Disp(:)
@@ -111,11 +111,11 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call mma_Allocate(displacements,fsdim,nMxIter,Label='displacements')  ! kappa matrices
     call mma_allocate(Disp,fsdim,Label='Disp')
     call mma_Allocate(dq,fsdim,Label='dq')  ! GEK suggestion for kappa
-    call mma_Allocate(GradientList,fsdim,nMxIter,Label='GradientList')
-    call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
+    call mma_Allocate(GradList,fsdim,nMxIter,Label='GradientList')
+    call mma_Allocate(FuncList,nMxIter,Label='FunctionalList')
     displacements(:,:)=Zero
-    GradientList(:,:)=Zero
-    FunctionalList(:)=Zero
+    GradList(:,:)=Zero
+    FuncList(:)=Zero
 
     call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
     call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
@@ -269,8 +269,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 !#               endif
                 Iter_GEK = 0
                 displacements(:,:) = Zero
-                GradientList(:,:) = Zero
-                FunctionalList(:) = Zero
+                GradList(:,:) = Zero
+                FuncList(:) = Zero
                 start_gek = .false.
                 UpMeth=" -  - "
             end if
@@ -291,8 +291,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 ! when Iter_GEK = 1: displacements(:,:) contains NR kappa_1 = q_i (most recent step)
                 ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot):
-                GradientList(:,Iter_GEK) = Gradient(:) ! g_i
-                FunctionalList(Iter_GEK)=Functional ! y_i
+                GradList(:,Iter_GEK) = Gradient(:) ! g_i
+                FuncList(Iter_GEK)=Functional ! y_i
 
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
@@ -301,10 +301,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 if (iter_GEK>3) then
                     ! when enough GEK step data collected: don't use initial two data points obtained without GEK
-                    call S_GEK_localisation(Iter_GEK-2,Functionallist(3:),-GradientList(:,3:),displacements(:,3:),-hdiagvec(:),&
+                    call S_GEK_localisation(Iter_GEK-2,FuncList(3:),-GradList(:,3:),displacements(:,3:),-hdiagvec(:),&
                                             fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
                 else
-                    call S_GEK_localisation(Iter_GEK,Functionallist(:),-GradientList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
+                    call S_GEK_localisation(Iter_GEK,FuncList(:),-GradList(:,:),displacements(:,:),-hdiagvec(:),fsdim,&
                                             dqdq,Disp(:),UpMeth,SORange,usmitigation)
                 end if
 
@@ -501,8 +501,8 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call mma_Deallocate(unitary_mat)
     call mma_Deallocate(rotated_CMO)
 
-    call mma_Deallocate(FunctionalList)
-    call mma_Deallocate(GradientList)
+    call mma_Deallocate(FuncList)
+    call mma_Deallocate(GradList)
     call mma_Deallocate(displacements)
     call mma_Deallocate(disp)
     call mma_Deallocate(Hdiagvec)
