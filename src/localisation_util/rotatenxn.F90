@@ -28,9 +28,41 @@ integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
                              unitary_mat(nOrb2Loc,nOrb2Loc), rotated_CMO(nBasis,nOrb2Loc)
+integer(kind=iwp) :: i,k, iBas
+
+! get exp(-kappa)
+call getU(kappa,nOrb2Loc,kappa_cnt,xkappa_cnt,unitary_mat)
+
+
+! transform the orbitals
+rotated_CMO(:,:) = Zero
+do iBas = 1, nBasis
+    do k = 1,nOrb2Loc
+        do i = 1,nOrb2Loc
+            rotated_CMO(iBas,k) = rotated_CMO(iBas,k) + CMO(iBas,i) * unitary_mat(i,k)
+        end do
+    end do
+end do
+
+!reset CMO to be updated
+CMO(:,:) = rotated_CMO(:,:)
+
+end subroutine RotateNxN
+
+subroutine getU(kappa,nOrb2Loc,kappa_cnt,xkappa_cnt,unitary_mat)
+
+use definitions, only: wp,iwp,u6
+use constants, only: Zero,One
+use Localisation_globals, only: Debug
+
+implicit none
+
+integer(kind=iwp), intent(in) :: nOrb2Loc
+real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
+                             unitary_mat(nOrb2Loc,nOrb2Loc)
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
 real(kind=wp) :: factor, ithrsh
-integer(kind=iwp) :: cnt,i,k, iBas
+integer(kind=iwp) :: cnt
 logical(kind=iwp), parameter :: debug_exp = .false.
 
 kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
@@ -40,7 +72,7 @@ unitary_mat(:,:) = Zero
 call unitmat(unitary_mat,nOrb2Loc)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! analogous to exp_series in scf
+! analogous to exp_series in scf, only for the specified orbital subspace
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 cnt = 1
 factor = One
@@ -104,20 +136,5 @@ if (debug) then
     call RecPrt('unitary transformation matrix (exp(-kappa))',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
 end if
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! transform the orbitals
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-rotated_CMO(:,:) = Zero
 
-do iBas = 1, nBasis
-    do k = 1,nOrb2Loc
-        do i = 1,nOrb2Loc
-            rotated_CMO(iBas,k) = rotated_CMO(iBas,k) + CMO(iBas,i) * unitary_mat(i,k)
-        end do
-    end do
-end do
-
-!reset CMO to be updated
-CMO(:,:) = rotated_CMO(:,:)
-
-end subroutine RotateNxN
+end subroutine getU

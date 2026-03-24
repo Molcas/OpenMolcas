@@ -67,6 +67,12 @@ call mma_Allocate(g,fsdim, nDiis,Label="g")
 
 call mma_allocate(aux_kap,nOrb2Loc,nOrb2Loc,Label='aux_kap')
 
+! look later if this can be done in pipekmezey_iter, to save comp
+
+!call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
+!                kappa_cnt,norb2Loc)
+
+
 j = 0
 do i=iFirst,Iter_GEK
     j = i-iFirst+1
