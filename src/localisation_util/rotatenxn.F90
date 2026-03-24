@@ -18,7 +18,7 @@ subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,
 ! that calls this routine. However it would work perfectly fine if these are allocated and deallocated within this routine to reduce
 ! the number of arguments (not recommended for speed)
 
-use definitions, only: wp,iwp,u6
+use definitions, only: wp,iwp
 use constants, only: Zero,One
 
 implicit none
