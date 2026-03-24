@@ -35,13 +35,7 @@ call expkap_localisation(kappa,nOrb2Loc,kappa_cnt,xkappa_cnt,unitary_mat)
 
 ! transform the orbitals
 rotated_CMO(:,:) = Zero
-do iBas = 1, nBasis
-    do k = 1,nOrb2Loc
-        do i = 1,nOrb2Loc
-            rotated_CMO(iBas,k) = rotated_CMO(iBas,k) + CMO(iBas,i) * unitary_mat(i,k)
-        end do
-    end do
-end do
+call dgemm_('N','N',nBasis,nOrb2Loc,nOrb2Loc,One,CMO,nBasis,unitary_mat,nOrb2Loc,Zero,rotated_CMO,nBasis)
 
 !reset CMO to be updated
 CMO(:,:) = rotated_CMO(:,:)
