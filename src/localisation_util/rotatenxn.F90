@@ -20,7 +20,6 @@ subroutine RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,
 
 use definitions, only: wp,iwp,u6
 use constants, only: Zero,One
-use Localisation_globals, only: Debug
 
 implicit none
 

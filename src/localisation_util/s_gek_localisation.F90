@@ -15,7 +15,7 @@
 
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(Iter_GEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,usmitigation)
+subroutine S_GEK_localisation(Iter_GEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -23,24 +23,23 @@ use Definitions, only: iwp,wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,nOrb2Loc
+use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,UmatList
 use Definitions, only: u6
 
 implicit none
 
-integer(kind=iwp), intent(in) :: Iter_GEK,fsdim
+integer(kind=iwp), intent(in) :: Iter_GEK,fsdim,nOrb2Loc
 real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit=0,mDiis
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
-                              w(:,:),D(:,:),dq_NR(:),aux_kap(:,:)
+                              w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:)
 integer(kind=iwp), parameter :: nWindow =20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
 character :: Step_Trunc
-
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
@@ -65,14 +64,45 @@ iFirst = Iter_GEK-nDIIS+1 !1 for first iteration; 1
 call mma_Allocate(q,fsdim, nDiis,Label="q")
 call mma_Allocate(g,fsdim, nDiis,Label="g")
 
-call mma_allocate(aux_kap,nOrb2Loc,nOrb2Loc,Label='aux_kap')
-
+! compute product matrix U_1...n = U_1 * ... * U_n
+! -------------------------------------------------
 ! look later if this can be done in pipekmezey_iter, to save comp
+call mma_allocate(UmatProd,nOrb2Loc,nOrb2Loc,Label='UmatProd')
+call mma_allocate(xUmatProd,nOrb2Loc,nOrb2Loc,Label='xUmatProd')
+call mma_allocate(Umat_i,nOrb2Loc,nOrb2Loc,Label='Umat_i')
 
-!call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
-!                kappa_cnt,norb2Loc)
+xUmatProd(:,:) = Zero
+Umat_i(:,:) = Zero
+call unitmat(xUmatProd,nOrb2Loc)
+call RecPrt("Unitmat = ",' ',xUmatProd,nOrb2Loc,nOrb2Loc)
+
+do i=iFirst,Iter_GEK
+    write(u6,*) "i=",i
+    Umat_i(:,:) = UmatList(:,:,i)
+    !call RecPrt("UmatList(:,:,i) = ",' ',UmatList(:,:,i),nOrb2Loc,nOrb2Loc)
+
+    !call RecPrt("U_i = "," ",Umat_i,nOrb2Loc,nOrb2Loc)
+    call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,xUmatProd,nOrb2Loc,Umat_i,nOrb2Loc,Zero,UmatProd,norb2Loc)
+
+    !call RecPrt("U_1...i = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
+
+    xUmatProd = UmatProd
+end do
+call RecPrt("U_1...n = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
+
+!call Log_SVD_localisation(nOrb2Loc,nOrb2Loc,UmatProd)
+call RecPrt("kappa corresponding to U_1...n = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
 
 
+
+call mma_Deallocate(UmatProd)
+call mma_Deallocate(xUmatProd)
+call mma_Deallocate(Umat_i)
+
+
+
+
+! -------------------------------------------------
 j = 0
 do i=iFirst,Iter_GEK
     j = i-iFirst+1
@@ -85,9 +115,7 @@ do i=iFirst,Iter_GEK
     g(:,j) = GradList(:,i)
 
 end do
-!call Log_SVD(nOrb2Loc,nOrb2Loc,aux_kap)
 
-call mma_Deallocate(aux_kap)
 
 if (nDIIS == 1) then
 # ifdef _DEBUGPRINT_

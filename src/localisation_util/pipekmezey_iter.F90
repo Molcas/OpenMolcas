@@ -301,7 +301,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 write(u6,*) "Iter_GEK=",Iter_GEK
-                call S_GEK_localisation(Iter_GEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,usmitigation)
+                call S_GEK_localisation(Iter_GEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,usmitigation)
 
 
                 ! undershoot mitigation
@@ -393,8 +393,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         if (start_gek) UMatList(:,:,Iter_GEK+1) = unitary_mat(:,:) ! q_i+1
 
         ! this should be the same as printed by the rotatenxn subroutine when unitary_mat is computed
-        !call RecPrt("displacement","",DispList(:,Iter_Gek+1),fsdim,1)
-        !call RecPrt("disp Umat","",UmatList(:,:,Iter_Gek+1),nOrb2Loc,nOrb2Loc)
+        if (start_gek) then
+            call RecPrt("displacement","",DispList(:,Iter_Gek+1),fsdim,1)
+            call RecPrt("disp Umat","",UmatList(:,:,Iter_Gek+1),nOrb2Loc,nOrb2Loc)
+        end if
 
 #       ifdef _DEBUGPRINT_
         call RecPrt('CMO after rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
