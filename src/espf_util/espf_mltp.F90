@@ -24,7 +24,7 @@ integer(kind=iwp), intent(in) :: natom, MltOrd, nMult, nGrdPt, IsMM(natom), iPL
 real(kind=wp), intent(in) :: TTT(nGrdPt,nMult), Grid(3,nGrdPt), Ext(MxExtPotComp,natom), Cord(3,natom)
 real(kind=wp), intent(out) :: Mltp(nMult)
 integer(kind=iwp) :: iAddPot, iAtom, iMult, jMlt, kOrd, kPnt, ncmp
-real(kind=wp) :: molecular_dipole(3), opnuc(1), SumOfChg, TotElecInt
+real(kind=wp) :: molecular_dipole(3), opnuc(1), SumOfChg, TotElecInt, CoM(3)
 real(kind=wp), allocatable :: Charge(:), D2(:), EI(:)
 character(len=LenIn), allocatable :: CName(:)
 character(len=*), parameter :: Axis(3) = [' x ',' y ',' z ']
@@ -66,6 +66,7 @@ if (iPL >= 3) then
   SumOfChg = Zero
   jMlt = 1
   TotElecInt = Zero
+  Call Get_dArray('Center of Mass',CoM,3)
   do iAtom=1,natom
     EI(iAtom) = Zero
     if (IsMM(iAtom) == 1) cycle
@@ -73,7 +74,7 @@ if (iPL >= 3) then
       if (kOrd == 0) then
         write(u6,1000) CName(iAtom),Mltp(jMlt)
         SumOfChg = SumOfChg+Mltp(jMlt)
-        molecular_dipole(:) = molecular_dipole(:)+Mltp(jMlt)*Cord(:,iAtom)
+        molecular_dipole(:) = molecular_dipole(:)+Mltp(jMlt)*(Cord(:,iAtom)-CoM(:))
       else
         write(u6,1001) Axis(kOrd),Mltp(jMlt+kOrd)
         molecular_dipole(kOrd) = molecular_dipole(kOrd) + Mltp(jMlt+kOrd)
