@@ -86,7 +86,7 @@ do i=iFirst,Iter_GEK
 
     !call RecPrt("U_1...i = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
 
-    xUmatProd = UmatProd
+    xUmatProd(:,:) = UmatProd(:,:)
 end do
 call RecPrt("U_1...n = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
 
