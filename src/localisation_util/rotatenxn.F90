@@ -27,7 +27,6 @@ integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc
 real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
                              unitary_mat(nOrb2Loc,nOrb2Loc), rotated_CMO(nBasis,nOrb2Loc)
-integer(kind=iwp) :: i,k, iBas
 
 ! get exp(-kappa)
 call expkap_localisation(kappa,nOrb2Loc,kappa_cnt,xkappa_cnt,unitary_mat)
