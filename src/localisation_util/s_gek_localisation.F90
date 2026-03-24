@@ -120,9 +120,12 @@ call expkap_localisation(kappa_summed,nOrb2Loc,Umat_i,xUmatProd,UmatKsum)
 
 
 !call RecPrt("exp(-K_1-K_2-...-K_n) = "," ",UmatKsum,nOrb2Loc,nOrb2Loc)
-call RecPrt("U_1...n - exp(-K_1-K_2-...-K_n) = "," ",UmatProd-UmatKsum,nOrb2Loc,nOrb2Loc)
+!call RecPrt("U_1...n - exp(-K_1-K_2-...-K_n) = "," ",UmatProd-UmatKsum,nOrb2Loc,nOrb2Loc)
 
-
+norm = 0
+norm = sqrt(DDot_(nOrb2Loc*nOrb2Loc,UmatProd-UmatKsum,1,UmatProd-UmatKsum,1))
+write(u6,*) "norm of U_1...n - exp(-K_1-K_2-...-K_n):", norm
+norm = 0
 
 call mma_Deallocate(xUmatProd)
 call mma_Deallocate(Umat_i)
