@@ -35,6 +35,7 @@ set (sources
      edmistonruedenberg_iter.F90
      erchk_localisation.F90
      evalerfun.F90
+     expkap_localisation.F90
      fwt_haar.F90
      genbmp.F90
      genbmp_loc.F90
