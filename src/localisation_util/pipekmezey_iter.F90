@@ -393,10 +393,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         if (start_gek) UMatList(:,:,Iter_GEK+1) = unitary_mat(:,:) ! q_i+1
 
         ! this should be the same as printed by the rotatenxn subroutine when unitary_mat is computed
+#       ifdef _DEBUGPRINT_
         if (start_gek) then
             call RecPrt("displacement","",DispList(:,Iter_Gek+1),fsdim,1)
             call RecPrt("disp Umat","",UmatList(:,:,Iter_Gek+1),nOrb2Loc,nOrb2Loc)
         end if
+#       endif
 
 #       ifdef _DEBUGPRINT_
         call RecPrt('CMO after rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
