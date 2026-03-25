@@ -36,7 +36,7 @@ real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
-integer(kind=iwp), parameter :: nWindow =22, Max_Iter_GEK = 50
+integer(kind=iwp), parameter :: nWindow =20, Max_Iter_GEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
@@ -53,11 +53,12 @@ write(u6,*) 'Enter S-GEK Optimizer'
 #endif
 
 ! number of iterations used to build the subspace
-if (Iter_GEK > 3) then
-    nDIIS = min(Iter_GEK,nWindow)-2 !skip the pure NR data
-else
-    nDIIS = min(Iter_GEK,nWindow) !1 for first iteration; 2
-end if
+nDIIS = min(Iter_GEK,nWindow) !1 for first iteration; 2
+!if (Iter_GEK > 3) then
+!    nDIIS = min(Iter_GEK,nWindow)-2 !skip the pure NR data
+!else
+!    nDIIS = min(Iter_GEK,nWindow) !1 for first iteration; 2
+!end if
 
 ! index of the first iteration to consider for the subspace
 iFirst = Iter_GEK-nDIIS+1 !1 for first iteration; 1
@@ -109,7 +110,6 @@ do i=iFirst,Iter_GEK
     g(:,j) = GradList(:,i)
 
 end do
-write(u6,*) "n =",j
 
 
 call mma_allocate(kappa_summed,nOrb2Loc,nOrb2Loc,Label="kappa_summed")
@@ -124,7 +124,9 @@ call expkap_localisation(kappa_summed,nOrb2Loc,Umat_i,xUmatProd,UmatKsum)
 
 norm = 0
 norm = sqrt(DDot_(nOrb2Loc*nOrb2Loc,UmatProd-UmatKsum,1,UmatProd-UmatKsum,1))
-write(u6,*) "norm of U_1...n - exp(-K_1-K_2-...-K_n):", norm
+# ifdef _DEBUGPRINT_
+write(u6,*) "norm of U_1...n - exp(-K_1-K_2-...-K_n):", norm, "ndiis =",ndiis
+# endif
 norm = 0
 
 call mma_Deallocate(xUmatProd)
@@ -134,7 +136,7 @@ call mma_Deallocate(UmatKsum)
 call mma_Deallocate(disp_summed)
 call mma_Deallocate(kappa_summed)
 
-if (nDIIS < 3) then
+if (nDIIS == 1) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Exit S-GEK Optimizer'
 # endif
@@ -395,10 +397,10 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
 !compute angle
 norm = sqrt(DDot_(fsdim,dq_NR,1,dq_NR,1))
-write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg):", acos(DDot_(fsdim,dq_NR,1,dq,1)/(norm*dqdq))/Pi*180.0_wp,&
-                                         "norm(dq)/norm(dq_NR)",dqdq/norm, "Iter_GEK=",Iter_GEK
-
 #ifdef _DEBUGPRINT_
+write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(fsdim,dq_NR,1,dq,1)/(norm*dqdq))/Pi*180.0_wp,&
+                                         "norm(dq)/norm(dq_NR) = ",dqdq/norm, "Iter_GEK=",Iter_GEK
+
     write(u6,*) '||dq||=',dqdq
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 #endif
