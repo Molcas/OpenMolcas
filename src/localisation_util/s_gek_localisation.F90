@@ -15,7 +15,7 @@
 
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(Iter_GEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation)
+subroutine S_GEK_localisation(nIter,IterGEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One,Pi
@@ -28,7 +28,8 @@ use Definitions, only: u6
 
 implicit none
 
-integer(kind=iwp), intent(in) :: Iter_GEK,fsdim,nOrb2Loc
+integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc
+integer(kind=iwp), intent(inout) :: IterGEK
 real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit=0,mDiis
@@ -36,7 +37,7 @@ real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
-integer(kind=iwp), parameter :: nWindow =20, Max_Iter_GEK = 50
+integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
@@ -53,15 +54,16 @@ write(u6,*) 'Enter S-GEK Optimizer'
 #endif
 
 ! number of iterations used to build the subspace
-nDIIS = min(Iter_GEK,nWindow) !1 for first iteration; 2
-!if (Iter_GEK > 3) then
-!    nDIIS = min(Iter_GEK,nWindow)-2 !skip the pure NR data
+
+nDIIS = min(IterGEK,nWindow) !1 for first iteration; 2
+!if (IterGEK > 3) then
+!    nDIIS = min(IterGEK,nWindow)-2 !skip the pure NR data
 !else
-!    nDIIS = min(Iter_GEK,nWindow) !1 for first iteration; 2
+!    nDIIS = min(IterGEK,nWindow) !1 for first iteration; 2
 !end if
 
 ! index of the first iteration to consider for the subspace
-iFirst = Iter_GEK-nDIIS+1 !1 for first iteration; 1
+iFirst = nIter-nDIIS+1 !1 for first iteration; 1
 
 call mma_Allocate(q,fsdim, nDiis,Label="q")
 call mma_Allocate(g,fsdim, nDiis,Label="g")
@@ -77,7 +79,7 @@ xUmatProd(:,:) = Zero
 Umat_i(:,:) = Zero
 call unitmat(xUmatProd,nOrb2Loc)
 
-do i=iFirst,Iter_GEK
+do i=iFirst,nIter
     Umat_i(:,:) = UmatList(:,:,i)
     !call RecPrt("UmatList(:,:,i) = ",' ',UmatList(:,:,i),nOrb2Loc,nOrb2Loc)
 
@@ -98,9 +100,9 @@ disp_summed(:) = Zero
 UmatKsum(:,:) = Zero
 
 j = 0
-do i=iFirst,Iter_GEK
+do i=iFirst,nIter
     j = i-iFirst+1
-    !write(u6,*) 'i,j,iter=',i,j,Iter_GEK
+    !write(u6,*) 'i,j,iter=',i,j,IterGEK
 
     ! Coordinates
     q(:,j) = DispList(:,i)
@@ -146,9 +148,10 @@ if (nDIIS == 1) then
 end if
 
 #ifdef _DEBUGPRINT_
+write(u6,*) 'iFirst =',iFirst
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
-    write(u6,*) '  Iter_GEK =',Iter_GEK
+    write(u6,*) 'IterGEK =',IterGEK
     call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
     call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
@@ -264,7 +267,7 @@ mDIIS = j
 #ifdef _DEBUGPRINT_
 write(u6,*) '    fsdim:',fsdim
 write(u6,*) 'nExplicit:',nExplicit
-write(u6,*) '    Iter_GEK:',Iter_GEK
+write(u6,*) '  IterGEK:',IterGEK
 write(u6,*) '    nDIIS:',nDIIS
 write(u6,*) '    mDIIS:',mDIIS
 
@@ -286,7 +289,7 @@ if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,fsdim,nExplicit)
 !Note that the displacements are relative to the last coordinate, q(:,nDIIS).
 ! q_diis(u) = e_diis(Kxu)^T * q(KxK)
 ! where u is the subspace dimension mDiis; and K is the fullspace dimension fsdim
-call mma_Allocate(q_diis,mDiis,nDiis+Max_Iter_GEK,Label='q_diis')
+call mma_Allocate(q_diis,mDiis,nDiis+Max_IterGEK,Label='q_diis')
 q_diis(:,:) = Zero
 do i=1,nDiis ! we project only those q vectors that were used to build the subspace, so that they are fully expressed within it
     do k=1,mDiis
@@ -298,7 +301,7 @@ end do
 ! Compute projected gradients
 ! ---------------------------
 ! g_diis(u) = e_diis(Kxu)^T * g(K)
-call mma_Allocate(g_diis,mDiis,nDiis+Max_Iter_GEK,Label='g_diis')
+call mma_Allocate(g_diis,mDiis,nDiis+Max_IterGEK,Label='g_diis')
 g_diis(:,:) = Zero
 do i=1,nDIIS
     do k=1,mDIIS
@@ -378,7 +381,7 @@ if (SORange) then
 else
   SOFact = 10000000.0_wp
 end if
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter_GEK,q_diis(:,:),g_diis(:,:),dq_diis(:),FuncList(iFirst:),H_diis(:,:),dqdq,&
+Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),FuncList(iFirst:),H_diis(:,:),dqdq,&
                    Step_Trunc,UpMeth,SOFact,10.0_wp)
 
 ! project the resulting displacement dq_diis back into the fullspace
@@ -399,7 +402,7 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 norm = sqrt(DDot_(fsdim,dq_NR,1,dq_NR,1))
 #ifdef _DEBUGPRINT_
 write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(fsdim,dq_NR,1,dq,1)/(norm*dqdq))/Pi*180.0_wp,&
-                                         "norm(dq)/norm(dq_NR) = ",dqdq/norm, "Iter_GEK=",Iter_GEK
+                                         "norm(dq)/norm(dq_NR) = ",dqdq/norm, "IterGEK=",IterGEK
 
     write(u6,*) '||dq||=',dqdq
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)

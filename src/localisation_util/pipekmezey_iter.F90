@@ -63,7 +63,7 @@ real(kind=wp) :: dqdq
 logical(kind=iwp) :: SORange,build_gek
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,j,Iter_GEK,large_elements
+integer(kind=iwp) :: i,j,IterGEK,large_elements,GEKRange
 
 # ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -190,7 +190,7 @@ OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
 nIter = 0
-Iter_GEK = 0
+IterGEK = 0
 UpMeth=" -  - "
 
 if (.not. Silent) then
@@ -241,12 +241,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             GradList(:,nIter) = -Gradient(:) ! g_i
             FuncList(nIter) = -Functional ! y_i
 
-#           ifdef _DEBUGLISTS__
+!#           ifdef _DEBUGLISTS__
             write(u6,*) "nIter =",nIter
             call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
             call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter),fsdim,nIter)
             call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
-#           endif
+!#           endif
 
             ! compute standard newton raphson step
             ! ------------------------------------
@@ -256,6 +256,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call RecPrt('NR suggestion',' ',Disp(:),fsdim,1)
 #           endif
 
+            call RecPrt('In PM iter NR suggestion',' ',Disp(:),fsdim,1)
 
             ! start GEK only in the infinitesimal limit for kappa
             ! ---------------------------------------------------
@@ -263,46 +264,37 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! check if matrix elements are > 0.01
             large_elements = 0
             do i=1,fsdim
-                if (abs(Disp(i)) > 0.01_wp) then
+                if (abs(DispList(i,nIter)) > 0.01_wp) then
                     large_elements = large_elements + 1
                 end if
             end do
+
+            if (large_elements == 0) build_gek = .true.
 
 #           ifdef _DEBUGPRINT_
             write(u6,*) "kappa elements > 0.01 =",large_elements
             maxel(:) = maxloc(Disp)
             write(u6,*) "largest element =", Disp(maxel(1))
-            write(u6,*) "Iter_GEK",Iter_GEK
+            write(u6,*) "IterGEK",IterGEK
 #           endif
 
             if (large_elements /= 0 .and. build_gek) then
-                ! leave GEK and go back to NR if steps are too large, while resetting the GEK sampling
-!#               ifdef _DEBUGPRINT_
-                write(u6,*) "resetting GEK sampling in iteration",nIter
-!#               endif
-                Iter_GEK = 0
+                ! leave GEK and go back to NR if steps are too large
+                IterGEK = 0
                 build_gek = .false.
                 UpMeth=" -  - "
+                GEKRange = 0
             end if
 
-            if (large_elements == 0 .and. (.not. build_gek)) then
-                ! infinitesimal limit of kappa reached -> start sampling for GEK
-                build_gek = .true.
-
-!#               ifdef _DEBUGPRINT_
-                write(u6,*) "turning on GEK in iteration",nIter+2,"starting sampling for GEK in iteration",nIter
-!#               endif
-                ! current coordinate = kappa_1 = q_1
-
-            else if (large_elements == 0 .and. build_gek) then
+            if (large_elements == 0 .and. build_gek) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
 
-                Iter_GEK = Iter_GEK+1 ! i >=1
+                IterGEK = IterGEK + 1
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
-                write(u6,*) "Iter_GEK=",Iter_GEK
-                call S_GEK_localisation(Iter_GEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,usmitigation)
+                write(u6,*) "IterGEK=",IterGEK
+                call S_GEK_localisation(nIter,IterGEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,usmitigation)
 
 
                 ! undershoot mitigation
