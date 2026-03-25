@@ -12,6 +12,7 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
+#define _DEBUGLISTS_
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
@@ -59,7 +60,7 @@ integer(kind=iwp) :: maxel(1)
 
 !S-GEK
 real(kind=wp) :: dqdq
-logical(kind=iwp) :: SORange,start_gek
+logical(kind=iwp) :: SORange,build_gek
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
 integer(kind=iwp) :: i,j,Iter_GEK,large_elements
@@ -83,7 +84,7 @@ call mkdir_(NewDir)
 ! Initialization (iteration 0).
 ! -----------------------------
 
-start_gek = .false.
+build_gek = .false.
 
 if (.not. Silent) call CWTime(C1,W1)
 
@@ -177,10 +178,10 @@ if (OptMeth == 1) then
 else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
 
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:), Hdiagvec(:))
-#   ifdef _DEBUGPRINT_
+!#   ifdef _DEBUGPRINT_
     call RecPrt("initial gradient"," ",Gradient(:),fsdim,1)
     call RecPrt("initial hessian"," ",Hdiagvec(:),fsdim,1)
-#   endif
+!#   endif
 end if
 
 ! Print iteration table header.
@@ -237,6 +238,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         case (4,5) ! (S)-GEK
 
+            GradList(:,nIter) = -Gradient(:) ! g_i
+            FuncList(nIter) = -Functional ! y_i
+
+#           ifdef _DEBUGLISTS__
+            write(u6,*) "nIter =",nIter
+            call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
+            call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter),fsdim,nIter)
+            call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
+#           endif
+
             ! compute standard newton raphson step
             ! ------------------------------------
             Disp(:) = -Gradient(:)/Hdiagvec(:)
@@ -264,39 +275,29 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             write(u6,*) "Iter_GEK",Iter_GEK
 #           endif
 
-            if (large_elements /= 0 .and. start_gek) then
+            if (large_elements /= 0 .and. build_gek) then
                 ! leave GEK and go back to NR if steps are too large, while resetting the GEK sampling
 !#               ifdef _DEBUGPRINT_
                 write(u6,*) "resetting GEK sampling in iteration",nIter
 !#               endif
                 Iter_GEK = 0
-                DispList(:,:) = Zero
-                GradList(:,:) = Zero
-                FuncList(:) = Zero
-                start_gek = .false.
+                build_gek = .false.
                 UpMeth=" -  - "
             end if
 
-            if (large_elements == 0 .and. (.not. start_gek)) then
+            if (large_elements == 0 .and. (.not. build_gek)) then
                 ! infinitesimal limit of kappa reached -> start sampling for GEK
-                start_gek = .true.
+                build_gek = .true.
 
 !#               ifdef _DEBUGPRINT_
                 write(u6,*) "turning on GEK in iteration",nIter+2,"starting sampling for GEK in iteration",nIter
 !#               endif
                 ! current coordinate = kappa_1 = q_1
-                DispList(:,1) = Disp(:)
 
-            else if (large_elements == 0 .and. start_gek) then
+            else if (large_elements == 0 .and. build_gek) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
 
                 Iter_GEK = Iter_GEK+1 ! i >=1
-
-                ! when Iter_GEK = 1: DispList(:,:) contains NR kappa_1 = q_i (most recent step)
-                ! current func and gradient is func_1, grad_1 at pos kappa_1 (grad computed after rot):
-                GradList(:,Iter_GEK) = -Gradient(:) ! g_i
-                FuncList(Iter_GEK) = -Functional ! y_i
-
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
@@ -310,7 +311,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 if (Loosen%Step > One) then
                     call mma_allocate(Prev,fsdim,Label='Prev')
 
-                    Prev(:) = DispList(:,Iter_GEK)
+                    Prev(:) = DispList(:,nIter)
 
                     dqdq = DDot_(fsdim,Disp,1,Disp,1)*DDot_(fsdim,Prev,1,Prev,1)
                     ang = DDot_(fsdim,Prev,1,Disp,1)/sqrt(dqdq)
@@ -335,9 +336,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 end if ! undershoot mitigation
                 ! -------------------------------------------------------------------------------
 
-                ! after GEK/RVO, add kappa_i+1 to the displacement list for next iteration:
-                DispList(:,Iter_GEK+1) = Disp(:) ! q_i+1
-
 #               ifdef _DEBUGPRINT_
                 call RecPrt('GEK step = q_i+1 =',' ',Disp(:),fsdim,1)
 #               endif
@@ -346,6 +344,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end select ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
+        DispList(:,nIter+1) = Disp(:) ! q_i+1
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 
@@ -390,13 +389,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
 
-        if (start_gek) UMatList(:,:,Iter_GEK+1) = unitary_mat(:,:) ! q_i+1
+        if (build_gek) UMatList(:,:,nIter+1) = unitary_mat(:,:) ! q_i+1
 
         ! this should be the same as printed by the rotatenxn subroutine when unitary_mat is computed
 #       ifdef _DEBUGPRINT_
-        if (start_gek) then
-            call RecPrt("displacement","",DispList(:,Iter_Gek+1),fsdim,1)
-            call RecPrt("disp Umat","",UmatList(:,:,Iter_Gek+1),nOrb2Loc,nOrb2Loc)
+        if (build_gek) then
+            call RecPrt("displacement","",DispList(:,nIter+1),fsdim,1)
+            call RecPrt("disp Umat","",UmatList(:,:,nIter+1),nOrb2Loc,nOrb2Loc)
         end if
 #       endif
 
