@@ -12,7 +12,7 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
-#define _DEBUGLISTS_
+!#define _DEBUGLISTS_
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
@@ -101,39 +101,9 @@ call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
 ! to allow property printing later
 call Put_cArray('Relax Method','LOCALIS ',8)
 
-! allocating matrices for NxN optimizations
-! ---------------------------------------------------------------------------------------------------
-if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
-
-    fsdim = nOrb2Loc*(nOrb2Loc-1)/2
-
-    call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
-    call mma_Allocate(Gradient,fsdim,Label='Gradient')
-    call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
-
-    call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
-    call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
-    call mma_Allocate(UmatList,nOrb2Loc,nOrb2Loc,nMxIter,Label='UmatList')
-    call mma_allocate(Disp,fsdim,Label='Disp')
-    call mma_Allocate(GradList,fsdim,nMxIter,Label='GradList')
-    call mma_Allocate(FuncList,nMxIter,Label='FuncList')
-    DispList(:,:)=Zero
-    UmatList(:,:,:)=Zero
-    GradList(:,:)=Zero
-    FuncList(:)=Zero
-
-    call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
-    call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
-    call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
-    call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
-end if
-! ---------------------------------------------------------------------------------------------------
-
-call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
-
-
 ! if the Loewdin charge framework is requested instead of Mulliken
 ! ---------------------------------------------------------------------------------------------------
+call mma_allocate(Ovlp_sqrt, nBasis, nBasis,Label = "S^{1/2}")
 if (ChargeType ==2) then
     call mma_allocate(Ovlp_aux, nBasis, nBasis,Label = "S^{-1/2}")
     lSCR = 2*nBasis**2+nBasis*(nBasis+1)/2
@@ -159,8 +129,44 @@ if (ChargeType ==2) then
 end if
 ! ---------------------------------------------------------------------------------------------------
 
-call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 
+
+select case(OptMeth)
+
+case(2,3,4,5)
+
+    ! allocating matrices for NxN optimizations
+
+    fsdim = nOrb2Loc*(nOrb2Loc-1)/2
+
+    call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
+    call mma_Allocate(Gradient,fsdim,Label='Gradient')
+    call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
+
+    call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
+    call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
+    call mma_Allocate(UmatList,nOrb2Loc,nOrb2Loc,nMxIter,Label='UmatList')
+    call mma_allocate(Disp,fsdim,Label='Disp')
+    call mma_Allocate(GradList,fsdim,nMxIter,Label='GradList')
+    call mma_Allocate(FuncList,nMxIter,Label='FuncList')
+    DispList(:,:)=Zero
+    UmatList(:,:,:)=Zero
+    GradList(:,:)=Zero
+    FuncList(:)=Zero
+
+    call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
+    call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
+    call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
+    call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
+
+end select ! allocations
+
+
+
+! compute PA matrices
+
+
+call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 
 if (.not. Silent) write(u6,"(/A)") "MO extension before localisation:"
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
@@ -194,6 +200,7 @@ IterGEK = 0
 UpMeth=" -  - "
 nDIIS=0
 
+if (OptMeth == 1) then
 if (.not. Silent) then
     call CWTime(C2,W2)
     TimC = C2-C1
@@ -204,6 +211,7 @@ if (.not. Silent) then
     !                                                TimC,TimW,Zero
     write(u6,'(1X,I5,1X,F18.8,1X,A12,1X,ES12.4,3X,A6,1X,2(1X,F9.1),1X,F7.2,1X,I5,1X,A)')&
         nIter,Functional,"-",GradNorm,UpMeth,TimC,TimW,Zero,nDIIS,"-"
+end if
 end if
 
 
@@ -227,6 +235,22 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
 
     case (2,3,4,5) ! Employing NxN rotations
+
+        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
+        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+
+        GradList(:,nIter) = -Gradient(:) ! g_i
+        FuncList(nIter) = -Functional ! y_i
+
+#       ifdef _DEBUGLISTS_
+            write(u6,*) "nIter =",nIter
+            write(u6,*) "after taking the step:"
+            call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
+            call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter),fsdim,nIter)
+            call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
+#       endif
+
 
         ! initialize kappa matrix
         Disp(:) = Zero
@@ -336,6 +360,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
+        DispList(:,nIter) = Disp(:) ! q_i
+        UMatList(:,:,nIter) = unitary_mat(:,:) ! exp(-q_i) = U_i
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! Rescale Kappa if rotation too large
@@ -378,23 +404,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         write(u6,*) "=================================================================="
         write(u6,*) "               ORBITALS HAVE BEEN ROTATED"
         write(u6,*) "=================================================================="
-#       endif
-
-        call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
-        call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-
-        DispList(:,nIter+1) = Disp(:) ! q_i
-        UMatList(:,:,nIter+1) = unitary_mat(:,:) ! exp(-q_i) = U_i
-        GradList(:,nIter+1) = -Gradient(:) ! g_i
-        FuncList(nIter+1) = -Functional ! y_i
-
-#       ifdef _DEBUGLISTS_
-            write(u6,*) "nIter =",nIter
-            write(u6,*) "after taking the step:"
-            call RecPrt('DispList(:,:nIter+1)',' ',DispList(:,:nIter+1),fsdim,nIter+1)
-            call RecPrt('GradList(:,:nIter+1)',' ',GradList(:,:nIter+1),fsdim,nIter+1)
-            call RecPrt('FuncList(:nIter+1)',' ',FuncList(:nIter+1),nIter,1)
 #       endif
 
 
