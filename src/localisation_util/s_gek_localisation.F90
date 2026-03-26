@@ -12,10 +12,10 @@
 !                                                                      *
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
+#define _DEBUG2_
+#define _DEBUGPRINT_
 
-!#define _DEBUGPRINT_
-
-subroutine S_GEK_localisation(nIter,IterGEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation)
+subroutine S_GEK_localisation(nIter,IterGEK,mindp,nrdp,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation,nDIIS)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One,Pi
@@ -23,16 +23,20 @@ use Definitions, only: iwp,wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,UmatList
+
+#ifdef _DEBUG2_
 use Definitions, only: u6
+#endif
+use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,UmatList
 
 implicit none
 
-integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc
-integer(kind=iwp), intent(inout) :: IterGEK
+integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc,mindp
+integer(kind=iwp),intent(out) :: nDIIS
+integer(kind=iwp), intent(inout) :: IterGEK,nrdp
 real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
-integer(kind=iwp) :: nDiis,iFirst,i,j,k,l,nExplicit=0,mDiis
+integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit=0,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
@@ -56,14 +60,32 @@ write(u6,*) 'Enter S-GEK Optimizer'
 ! number of iterations used to build the subspace
 
 nDIIS = min(IterGEK,nWindow) !1 for first iteration; 2
-!if (IterGEK > 3) then
-!    nDIIS = min(IterGEK,nWindow)-2 !skip the pure NR data
-!else
-!    nDIIS = min(IterGEK,nWindow) !1 for first iteration; 2
-!end if
+if (nDIIS < mindp) then
+#   ifdef _DEBUG2_
+    write(u6,'(A,I4,A,I4,A)') "not enough data points for GEK yet (we have",ndiis,", we want min ",mindp,")"
+#   endif
+    return
+else
+#   ifdef _DEBUG2_
+    write(u6,'(A,I4,A,I4,A)') "enough data points to build GEK (we have",ndiis,", we want min ",mindp,")"
+#   endif
+end if
 
-! index of the first iteration to consider for the subspace
-iFirst = nIter-nDIIS+1 !1 for first iteration; 1
+if (IterGEK >= nWindow) NRdp = NRdp + nWindow-IterGEK
+if (NRdp < 0) NRdp = 0
+
+iFirst = nIter-nDIIS+2
+iLast = nIter+1
+
+# ifdef _DEBUG2_
+write(u6,'(A,6(I4))') "Iter,IterGEK,nDIIS,iFirst,iLast,NRdp =",nIter,IterGEK,nDIIS,iFirst,iLast,NRdp
+write(u6,*) "Iter    =",nIter
+write(u6,*) "IterGEK =",IterGEK
+write(u6,*) "nDIIS   =",nDIIS
+write(u6,*) "iFirst  =",iFirst
+write(u6,*) "iLast   =",iLast
+write(u6,*) "NRdp    =",nrdp
+# endif
 
 call mma_Allocate(q,fsdim, nDiis,Label="q")
 call mma_Allocate(g,fsdim, nDiis,Label="g")
@@ -79,7 +101,7 @@ xUmatProd(:,:) = Zero
 Umat_i(:,:) = Zero
 call unitmat(xUmatProd,nOrb2Loc)
 
-do i=iFirst,nIter
+do i=iFirst,iLast
     Umat_i(:,:) = UmatList(:,:,i)
     !call RecPrt("UmatList(:,:,i) = ",' ',UmatList(:,:,i),nOrb2Loc,nOrb2Loc)
 
@@ -91,7 +113,6 @@ do i=iFirst,nIter
     xUmatProd(:,:) = UmatProd(:,:)
 end do
 !call RecPrt("U_1...n = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
-write(u6,*) "ndiis=",ndiis
 
 ! -------------------------------------------------
 call mma_allocate(disp_summed,fsdim,Label="disp_summed")
@@ -100,7 +121,7 @@ disp_summed(:) = Zero
 UmatKsum(:,:) = Zero
 
 j = 0
-do i=iFirst,nIter
+do i=iFirst,iLast
     j = i-iFirst+1
     !write(u6,*) 'i,j,iter=',i,j,IterGEK
 
@@ -381,6 +402,7 @@ if (SORange) then
 else
   SOFact = 10000000.0_wp
 end if
+!write(u6,*) "call GEK_Optimizer"
 Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),FuncList(iFirst:),H_diis(:,:),dqdq,&
                    Step_Trunc,UpMeth,SOFact,10.0_wp)
 

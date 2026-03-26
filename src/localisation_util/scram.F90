@@ -26,7 +26,7 @@ subroutine Scram(CMO,nSym,nBas,nOrb,ScrFac)
 !***********************************************************************
 
 use Constants, only: One, Two
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp,u6
 
 implicit none
 real(kind=wp), intent(inout) :: CMO(*)
@@ -45,8 +45,10 @@ do iSym=1,nSym
   do iOrb=1,nOrb(iSym)-1
     jOrb = iOrb+1
     q = ScrFac*(Two*Random_Molcas(iSeed)-One)
+    !write(u6,*)'Random_Molcas(iSeed)', Random_Molcas(iSeed)
     p = sqrt(One-q*q)
     !write(u6,*) 'q=',q
+    !write(u6,*) 'p=',p
     do iBas=1,nBas(iSym)
       indx = iOff+(iOrb-1)*nBas(iSym)+iBas
       jndx = iOff+(jOrb-1)*nBas(iSym)+iBas

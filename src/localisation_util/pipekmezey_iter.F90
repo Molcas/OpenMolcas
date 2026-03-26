@@ -42,7 +42,7 @@ real(kind=wp), intent(inout) :: CMO(nBasis,nOrb2Loc)
 real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: nIter, lSCR, fsdim
+integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, Thr,ang
 #       ifdef _RESKAPPA_
 real(kind=wp) :: DD
@@ -55,15 +55,15 @@ real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
-integer(kind=iwp) :: maxel(1)
 #endif
 
 !S-GEK
-real(kind=wp) :: dqdq
+integer(kind=iwp) :: maxel(1)
+real(kind=wp) :: dqdq,largest
 logical(kind=iwp) :: SORange,build_gek
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,j,IterGEK,large_elements,GEKRange
+integer(kind=iwp) :: i,j,IterGEK,large_elements,GEKRange,NRdp,mindp
 
 # ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -85,6 +85,8 @@ call mkdir_(NewDir)
 ! -----------------------------
 
 build_gek = .false.
+mindp = 3
+NRdp = mindp
 
 if (.not. Silent) call CWTime(C1,W1)
 
@@ -168,6 +170,7 @@ else
 end if
 
 
+nIter = 0
 ! get initial gradient, hessian diagonal
 ! ---------------------------------------------------------------------------------------------------
 if (OptMeth == 1) then
@@ -178,10 +181,12 @@ if (OptMeth == 1) then
 else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
 
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:), Hdiagvec(:))
-!#   ifdef _DEBUGPRINT_
+    GradList(:,nIter+1) = -Gradient(:) ! g_0
+    FuncList(nIter+1) = -Functional ! y_0
+#   ifdef _DEBUGPRINT_
     call RecPrt("initial gradient"," ",Gradient(:),fsdim,1)
     call RecPrt("initial hessian"," ",Hdiagvec(:),fsdim,1)
-!#   endif
+#   endif
 end if
 
 ! Print iteration table header.
@@ -189,18 +194,20 @@ end if
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
-nIter = 0
 IterGEK = 0
 UpMeth=" -  - "
+nDIIS=0
 
 if (.not. Silent) then
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
     write(u6,'(//,1X,A,/,1X,A)') '                                                                   CPU       Wall', &
-                                 'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) %Screen'
-    write(u6,'(1X,I5,1X,F18.8,1X,A12,1X,ES12.4,3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,"-",GradNorm,UpMeth,&
-                                                    TimC,TimW,Zero
+    'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) %Screen, ndiis, largestkappa'
+    !write(u6,'(1X,I5,1X,F18.8,1X,A12,1X,ES12.4,3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,"-",GradNorm,UpMeth,&
+    !                                                TimC,TimW,Zero
+    write(u6,'(1X,I5,1X,F18.8,1X,A12,1X,ES12.4,3X,A6,1X,2(1X,F9.1),1X,F7.2,1X,I5,1X,A)')&
+        nIter,Functional,"-",GradNorm,UpMeth,TimC,TimW,Zero,nDIIS,"-"
 end if
 
 
@@ -237,17 +244,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             Disp(:) = alpha*Gradient(:)
 
         case (4,5) ! (S)-GEK
-
-            GradList(:,nIter) = -Gradient(:) ! g_i
-            FuncList(nIter) = -Functional ! y_i
-
-!#           ifdef _DEBUGLISTS__
-            write(u6,*) "nIter =",nIter
-            call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
-            call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter),fsdim,nIter)
-            call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
-!#           endif
-
             ! compute standard newton raphson step
             ! ------------------------------------
             Disp(:) = -Gradient(:)/Hdiagvec(:)
@@ -256,7 +252,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call RecPrt('NR suggestion',' ',Disp(:),fsdim,1)
 #           endif
 
-            call RecPrt('In PM iter NR suggestion',' ',Disp(:),fsdim,1)
 
             ! start GEK only in the infinitesimal limit for kappa
             ! ---------------------------------------------------
@@ -264,37 +259,47 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             ! check if matrix elements are > 0.01
             large_elements = 0
             do i=1,fsdim
-                if (abs(DispList(i,nIter)) > 0.01_wp) then
+                if (abs(Disp(i)) > 0.01_wp) then
                     large_elements = large_elements + 1
                 end if
             end do
-
-            if (large_elements == 0) build_gek = .true.
-
+            maxel(:) = maxloc(Disp)
+            largest = Disp(maxel(1))
 #           ifdef _DEBUGPRINT_
             write(u6,*) "kappa elements > 0.01 =",large_elements
-            maxel(:) = maxloc(Disp)
             write(u6,*) "largest element =", Disp(maxel(1))
             write(u6,*) "IterGEK",IterGEK
 #           endif
 
+            if (nIter == 1) large_elements = 1 ! kappa_1 is set to zero, where initial grad and func are evaluated
+
             if (large_elements /= 0 .and. build_gek) then
                 ! leave GEK and go back to NR if steps are too large
+                call RecPrt('In PM iter NR suggestion',' ',Disp(:),fsdim,1)
+                write(u6,*) "reset GEK"
                 IterGEK = 0
                 build_gek = .false.
                 UpMeth=" -  - "
                 GEKRange = 0
+                NRdp = mindp
             end if
 
-            if (large_elements == 0 .and. build_gek) then
+            if (large_elements == 0 .and. .not. build_gek) then
+                build_gek = .true.
+                call RecPrt('In PM iter NR suggestion',' ',Disp(:),fsdim,1)
+                IterGEK = IterGEK + 1
+                write(u6,'(A,1X,I4,1X,A)') "all elements of the NR step suggestion for iter ",niter,"are smaller than 0.01"
+            else if (large_elements == 0 .and. build_gek) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
+                call RecPrt('In PM iter NR suggestion',' ',Disp(:),fsdim,1)
 
                 IterGEK = IterGEK + 1
 
                 SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
                 write(u6,*) "IterGEK=",IterGEK
-                call S_GEK_localisation(nIter,IterGEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,usmitigation)
+                call S_GEK_localisation(nIter,IterGEK,mindp,nrdp,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,&
+                                        usmitigation,nDIIS)
 
 
                 ! undershoot mitigation
@@ -336,7 +341,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end select ! different NxN rotations
         ! ---------------------------------------------------------------------------------------------------
 
-        DispList(:,nIter+1) = Disp(:) ! q_i+1
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 
@@ -374,22 +378,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#       ifdef _DEBUGPRINT_
-            call RecPrt('displacement taken (kappa mat)',' ',kappa(:,:),nOrb2Loc,nOrb2Loc)
-            call RecPrt('CMO before rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
-#       endif
-
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
-
-        if (build_gek) UMatList(:,:,nIter+1) = unitary_mat(:,:) ! q_i+1
-
-        ! this should be the same as printed by the rotatenxn subroutine when unitary_mat is computed
-#       ifdef _DEBUGPRINT_
-        if (build_gek) then
-            call RecPrt("displacement","",DispList(:,nIter+1),fsdim,1)
-            call RecPrt("disp Umat","",UmatList(:,:,nIter+1),nOrb2Loc,nOrb2Loc)
-        end if
-#       endif
 
 #       ifdef _DEBUGPRINT_
         call RecPrt('CMO after rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
@@ -400,24 +389,22 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
-
-#       ifdef _DEBUG2_
-            write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
-            write(u6,*) "Functional:",Functional
-            call RecPrt('Gradient',' ',Gradient(:),fsdim,1)
-            call RecPrt('Hdiag',' ',Hdiagvec(:),fsdim,1)
-#       endif
-
-
-#       ifdef _DEBUGPRINT_
-            write(u6,*) "               NEW GRADIENT & NEW HESSIAN DIAGONAL:               "
-            write(u6,*) "Functional:",Functional
-            call RecPrt('Gradient',' ',Gradient(:),fsdim,1)
-            call RecPrt('Hdiag',' ',Hdiagvec(:),fsdim,1)
-#       endif
-
-
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+
+        DispList(:,nIter+1) = Disp(:) ! q_i
+        UMatList(:,:,nIter+1) = unitary_mat(:,:) ! exp(-q_i) = U_i
+        GradList(:,nIter+1) = -Gradient(:) ! g_i
+        FuncList(nIter+1) = -Functional ! y_i
+
+#       ifdef _DEBUGLISTS_
+            write(u6,*) "nIter =",nIter
+            write(u6,*) "after taking the step:"
+            call RecPrt('DispList(:,:nIter+1)',' ',DispList(:,:nIter+1),fsdim,nIter+1)
+            call RecPrt('GradList(:,:nIter+1)',' ',GradList(:,:nIter+1),fsdim,nIter+1)
+            call RecPrt('FuncList(:nIter+1)',' ',FuncList(:nIter+1),nIter,1)
+#       endif
+
+
 
     end select ! 2x2 or NxN rotations
 
@@ -441,8 +428,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call CWTime(C2,W2)
         TimC = C2-C1
         TimW = W2-W1
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,UpMeth,&
-                                                                                TimC,TimW,PctSkp
+        !write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,UpMeth,&
+        !                                                                        TimC,TimW,PctSkp
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2,1X,I2,1X,ES12.4)') &
+            nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,PctSkp,nDIIS,largest
     end if
 
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)

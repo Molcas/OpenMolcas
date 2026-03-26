@@ -68,7 +68,7 @@ if (myModel == 'PIPE') then
   write(u6,'(//,1X,A)') 'Pipek-Mezey localisation'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',Thrs,' (functional)'
   write(u6,'(1X,A,1X,ES12.4,A)') 'Convergence threshold:',ThrGrad,' (gradient)'
-  If (ScrFac/=Zero) write(u6,'(1X,A,1X,ES12.4)') 'Scrambling factor     ',ScrFac
+  If (ScrFac/=Zero) write(u6,'(1X,A,1X,ES12.4)')'Scrambling factor    :',ScrFac
   write(u6,'(1X,A,1X,ES12.4,A)') 'Screening threshold  :',ThrRot,' (orbital rotations)'
   write(u6,'(1X,A,8(1X,I6))') 'Frozen orbitals      :',(nFro(iSym),iSym=1,nSym)
   write(u6,'(1X,A,8(1X,I6))') 'Orbitals to localise :',(nOrb2Loc(iSym),iSym=1,nSym)
@@ -76,12 +76,15 @@ if (myModel == 'PIPE') then
     write(u6,'(1X,A)') 'Optimization Method  : Jacobi Sweeps'
   else if (OptMeth == 2) then
     write(u6,'(1X,A)') 'Optimization Method  : Newton Raphson'
+    If (ScrFac==Zero) write(u6,'(1X,A,1X,ES12.4)')'Scrambling factor    : 0.5 (default)'
   else if (OptMeth == 3) then
     write(u6,'(1X,A)') 'Optimization Method  : Gradient Ascent'
   else if (OptMeth == 4) then
     write(u6,'(1X,A)') 'Optimization Method  : GEK (fullspace)'
+    If (ScrFac==Zero) write(u6,'(1X,A,1X,ES12.4)')'Scrambling factor    : 0.5 (default)'
   else if (OptMeth == 5) then
     write(u6,'(1X,A)') 'Optimization Method  : S-GEK'
+    If (ScrFac==Zero) write(u6,'(1X,A,1X,ES12.4)')'Scrambling factor    : 0.5 (default)'
   end if
   If (ChargeType == 1) then
     write(u6,'(1X,A)') 'Framework for PMLoc  : Mulliken charges'
