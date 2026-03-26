@@ -162,12 +162,8 @@ end if
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 
 
-if (.not. Silent) then
-    write(u6,"(/A)") "MO extension before localisation:"
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
-else
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
-end if
+if (.not. Silent) write(u6,"(/A)") "MO extension before localisation:"
+call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
 
 
 nIter = 0
