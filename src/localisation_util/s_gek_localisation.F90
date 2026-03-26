@@ -50,7 +50,7 @@ character :: Step_Trunc
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
 call mma_allocate(dq_NR,fsdim,Label='dq_NR')
-dq_NR(:) = dq(:)
+dq_NR(:) = DispList(:,nIter-2)
 
 
 #ifdef _DEBUGPRINT_
@@ -74,8 +74,8 @@ end if
 if (IterGEK >= nWindow) NRdp = NRdp + nWindow-IterGEK
 if (NRdp < 0) NRdp = 0
 
-iFirst = nIter-nDIIS+2
-iLast = nIter+1
+iFirst = nIter-nDIIS+1
+iLast = nIter
 
 # ifdef _DEBUG2_
 write(u6,'(A,6(I4))') "Iter,IterGEK,nDIIS,iFirst,iLast,NRdp =",nIter,IterGEK,nDIIS,iFirst,iLast,NRdp
@@ -133,7 +133,7 @@ do i=iFirst,iLast
     g(:,j) = GradList(:,i)
 
 end do
-
+q(:,nDIIS) = Zero
 
 call mma_allocate(kappa_summed,nOrb2Loc,nOrb2Loc,Label="kappa_summed")
 

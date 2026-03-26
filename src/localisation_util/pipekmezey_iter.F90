@@ -85,7 +85,7 @@ call mkdir_(NewDir)
 ! -----------------------------
 
 build_gek = .false.
-mindp = 3
+mindp = 2
 NRdp = mindp
 
 if (.not. Silent) call CWTime(C1,W1)
@@ -252,7 +252,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 call RecPrt('NR suggestion',' ',Disp(:),fsdim,1)
 #           endif
 
-
             ! start GEK only in the infinitesimal limit for kappa
             ! ---------------------------------------------------
 
@@ -265,6 +264,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             end do
             maxel(:) = maxloc(Disp)
             largest = Disp(maxel(1))
+
 #           ifdef _DEBUGPRINT_
             write(u6,*) "kappa elements > 0.01 =",large_elements
             write(u6,*) "largest element =", Disp(maxel(1))
@@ -275,7 +275,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
             if (large_elements /= 0 .and. build_gek) then
                 ! leave GEK and go back to NR if steps are too large
-                call RecPrt('In PM iter NR suggestion',' ',Disp(:),fsdim,1)
                 write(u6,*) "reset GEK"
                 IterGEK = 0
                 build_gek = .false.
@@ -287,7 +286,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             if (large_elements == 0 .and. .not. build_gek) then
                 build_gek = .true.
                 call RecPrt('In PM iter NR suggestion',' ',Disp(:),fsdim,1)
-                IterGEK = IterGEK + 1
+                !IterGEK = IterGEK + 1
                 write(u6,'(A,1X,I4,1X,A)') "all elements of the NR step suggestion for iter ",niter,"are smaller than 0.01"
             else if (large_elements == 0 .and. build_gek) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
@@ -305,31 +304,29 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 ! undershoot mitigation
                 ! -------------------------------------------------------------------------------
                 if (usmitigation) then
-                if (Loosen%Step > One) then
-                    call mma_allocate(Prev,fsdim,Label='Prev')
+                    if (Loosen%Step > One) then
+                        call mma_allocate(Prev,fsdim,Label='Prev')
 
-                    Prev(:) = DispList(:,nIter)
+                        Prev(:) = DispList(:,nIter)
 
-                    dqdq = DDot_(fsdim,Disp,1,Disp,1)*DDot_(fsdim,Prev,1,Prev,1)
-                    ang = DDot_(fsdim,Prev,1,Disp,1)/sqrt(dqdq)
-                    if (ang < Loosen%Thrs2) then
-                        Loosen%Factor = One
-                    else if (ang > Loosen%Thrs) then
-                        Loosen%Factor = Loosen%Factor*Loosen%Step
-                    end if
+                        dqdq = DDot_(fsdim,Disp,1,Disp,1)*DDot_(fsdim,Prev,1,Prev,1)
+                        ang = DDot_(fsdim,Prev,1,Disp,1)/sqrt(dqdq)
+                        if (ang < Loosen%Thrs2) then
+                            Loosen%Factor = One
+                        else if (ang > Loosen%Thrs) then
+                            Loosen%Factor = Loosen%Factor*Loosen%Step
+                        end if
 
-#                   ifdef _DEBUGPRINT_
-                        call RecPrt('Disp',' ',Disp,fsdim,1)
-                        call RecPrt('Prev',' ',Prev,fsdim,1)
-                        write(u6,*) "angle(Disp,Prev) = cos^-1(",ang,")"
-                        write(u6,*) "Loosen%Factor    =", Loosen%Factor
-                        write(u6,*) "Loosen%Step    =", Loosen%Step
-#                   endif
+#                       ifdef _DEBUGPRINT_
+                            call RecPrt('Disp',' ',Disp,fsdim,1)
+                            call RecPrt('Prev',' ',Prev,fsdim,1)
+                            write(u6,*) "angle(Disp,Prev) = cos^-1(",ang,")"
+                            write(u6,*) "Loosen%Factor    =", Loosen%Factor
+                            write(u6,*) "Loosen%Step    =", Loosen%Step
+#                       endif
 
-                    call mma_Deallocate(Prev)
-
-
-                end if
+                        call mma_Deallocate(Prev)
+                    end if ! Loosen%Step > One
                 end if ! undershoot mitigation
                 ! -------------------------------------------------------------------------------
 
