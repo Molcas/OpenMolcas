@@ -60,10 +60,10 @@ real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 !S-GEK
 integer(kind=iwp) :: maxel(1)
 real(kind=wp) :: dqdq,largest
-logical(kind=iwp) :: SORange,build_gek
+logical(kind=iwp) :: SORange,build_gek,GEKRange
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,j,IterGEK,large_elements,GEKRange,NRdp,mindp
+integer(kind=iwp) :: i,j,IterGEK,large_elements,NRdp,mindp
 
 # ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -164,7 +164,8 @@ case(2,3,4,5)
 end select ! allocations
 
 
-! Initialization (iteration 0).
+! Initialization
+
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 if (.not. Silent) write(u6,"(/A)") "MO extension before localisation:"
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
@@ -172,19 +173,17 @@ call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
-
-
-
-! Set some default values for the start
-build_gek = .false.
-mindp = 2
-NRdp = mindp
-IterGEK = 0
 UpMeth=" -  - "
-nDIIS=0
 largest=0
+nDIIS=0
 
-nIter = 0
+build_gek = .false.
+mindp = 2  ! minimal number of data points for GEK construction
+NRdp = mindp
+SORange = .true.
+GEKRange = .false.
+
+IterGEK = 0
 
 ! Print iteration table header.
 ! ---------------------------------------------------------------------------------------------------
@@ -199,6 +198,8 @@ end if
 
 ! Iterations.
 ! ---------------------------------------------------------------------------------------------------
+
+nIter = 0
 Converged = .false.
 
 do while ((nIter < nMxIter) .and. (.not. Converged))
@@ -215,7 +216,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
 
-    case (2,3,4,5) ! Employing NxN rotations
+    case (2,4,5) ! Employing NxN rotations
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
@@ -232,46 +233,30 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
 #       endif
 
+        ! compute standard newton raphson step
+        Disp(:) = -Gradient(:)/Hdiagvec(:)
 
-        ! initialize kappa matrix
-        Disp(:) = Zero
+        ! check if matrix elements are > 0.01
+        large_elements = 0
+        do i=1,fsdim
+            if (abs(Disp(i)) > 0.01_wp) then
+                large_elements = large_elements + 1
+            end if
+        end do
+        maxel(:) = maxloc(Disp)
+        largest = Disp(maxel(1))
+        if (large_elements == 0) GEKRange = .true.
 
-        select case(OptMeth) !different NxN rot based methods
+        ! start GEK only in the infinitesimal limit for kappa
+        ! ---------------------------------------------------
 
-        case (2) ! Newton Raphson
-            Disp(:) = -Gradient(:)/Hdiagvec(:)
+#       ifdef _DEBUGPRINT_
+        write(u6,*) "kappa elements > 0.01 =",large_elements
+        write(u6,*) "largest element =", Disp(maxel(1))
+        write(u6,*) "IterGEK",IterGEK
+#       endif
 
-        case (3) ! Gradient Ascent (no line search yet)
-            Disp(:) = alpha*Gradient(:)
-
-        case (4,5) ! (S)-GEK
-            ! compute standard newton raphson step
-            ! ------------------------------------
-            Disp(:) = -Gradient(:)/Hdiagvec(:)
-
-#           ifdef _DEBUG2_
-                call RecPrt('NR suggestion',' ',Disp(:),fsdim,1)
-#           endif
-
-            ! start GEK only in the infinitesimal limit for kappa
-            ! ---------------------------------------------------
-
-            ! check if matrix elements are > 0.01
-            large_elements = 0
-            do i=1,fsdim
-                if (abs(Disp(i)) > 0.01_wp) then
-                    large_elements = large_elements + 1
-                end if
-            end do
-            maxel(:) = maxloc(Disp)
-            largest = Disp(maxel(1))
-
-#           ifdef _DEBUGPRINT_
-            write(u6,*) "kappa elements > 0.01 =",large_elements
-            write(u6,*) "largest element =", Disp(maxel(1))
-            write(u6,*) "IterGEK",IterGEK
-#           endif
-
+        if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
             if (nIter == 1) large_elements = 1 ! kappa_1 is set to zero, where initial grad and func are evaluated
 
             if (large_elements /= 0 .and. build_gek) then
@@ -280,7 +265,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                 IterGEK = 0
                 build_gek = .false.
                 UpMeth=" -  - "
-                GEKRange = 0
                 NRdp = mindp
             end if
 
@@ -295,15 +279,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 IterGEK = IterGEK + 1
 
-                SORange = .true. ! if true: 10^4 smaller trust region in RS-RFO; use NR to get into quadratic region
 
-                write(u6,*) "IterGEK=",IterGEK
                 call S_GEK_localisation(nIter,IterGEK,mindp,nrdp,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,&
                                         usmitigation,nDIIS)
 
-
                 ! undershoot mitigation
-                ! -------------------------------------------------------------------------------
                 if (usmitigation) then
                     if (Loosen%Step > One) then
                         call mma_allocate(Prev,fsdim,Label='Prev')
@@ -319,24 +299,20 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                         end if
 
 #                       ifdef _DEBUGPRINT_
-                            call RecPrt('Disp',' ',Disp,fsdim,1)
-                            call RecPrt('Prev',' ',Prev,fsdim,1)
-                            write(u6,*) "angle(Disp,Prev) = cos^-1(",ang,")"
-                            write(u6,*) "Loosen%Factor    =", Loosen%Factor
-                            write(u6,*) "Loosen%Step    =", Loosen%Step
+                        call RecPrt('Disp',' ',Disp,fsdim,1)
+                        call RecPrt('Prev',' ',Prev,fsdim,1)
+                        write(u6,*) "angle(Disp,Prev) = cos^-1(",ang,")"
+                        write(u6,*) "Loosen%Factor    =", Loosen%Factor
+                        write(u6,*) "Loosen%Step    =", Loosen%Step
 #                       endif
 
                         call mma_Deallocate(Prev)
                     end if ! Loosen%Step > One
                 end if ! undershoot mitigation
-                ! -------------------------------------------------------------------------------
 
-#               ifdef _DEBUGPRINT_
-                call RecPrt('GEK step = q_i+1 =',' ',Disp(:),fsdim,1)
-#               endif
+            end if ! different GEK stages
 
-            end if
-        end select ! different NxN rotations
+        end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
 
         ! transform disp vec to matrix
@@ -344,10 +320,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         DispList(:,nIter) = Disp(:) ! q_i
         UMatList(:,:,nIter) = unitary_mat(:,:) ! exp(-q_i) = U_i
 
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ! Rescale Kappa if rotation too large
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         ! limits rotations to less than pi/2 per orbital pair
         Thr= 0.5E0_wp * Pi
         do i=1,nOrb2Loc-1
@@ -411,8 +384,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call CWTime(C2,W2)
         TimC = C2-C1
         TimW = W2-W1
-        !write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,UpMeth,&
-        !                                                                        TimC,TimW,PctSkp
         write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2,1X,I5,1X,ES12.4)') &
             nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,PctSkp,nDIIS,largest
     end if
@@ -430,16 +401,13 @@ call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zer
 call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
 #endif
 
-! print info about each localized MO
-! ---------------------------------------------------------------------------------------------------
-if (.not. Silent) then
-    write(u6,"(/A)") "MO extension after localisation:"
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
-end if
-
 ! Print convergence message.
 ! ---------------------------------------------------------------------------------------------------
 if (.not. Silent) then
+
+    write(u6,"(/A)") "MO extension after localisation:"
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
+
     if (.not. Converged) then
         write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
     else
