@@ -79,14 +79,9 @@ call getenvf('MOLCAS_SUBMIT_DIR',SubmitDir)
 NewDir = trim(SubmitDir)//'/'//Sub
 ! Create intermediate_molden directory that contains molden files of every iteration
 call mkdir_(NewDir)
+
 # endif
 
-! Initialization (iteration 0).
-! -----------------------------
-
-build_gek = .false.
-mindp = 2
-NRdp = mindp
 
 if (.not. Silent) call CWTime(C1,W1)
 
@@ -98,8 +93,10 @@ call dgemm_('N','N',nOrb2Loc, nOrb2Loc, nBasis,One,CtS, nOrb2Loc,CMO, nBasis,Zer
 call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
 #endif
 
+
 ! to allow property printing later
 call Put_cArray('Relax Method','LOCALIS ',8)
+
 
 ! if the Loewdin charge framework is requested instead of Mulliken
 ! ---------------------------------------------------------------------------------------------------
@@ -130,8 +127,13 @@ end if
 ! ---------------------------------------------------------------------------------------------------
 
 
+! do allocations
 
 select case(OptMeth)
+
+case (1)
+
+    call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 
 case(2,3,4,5)
 
@@ -162,62 +164,41 @@ case(2,3,4,5)
 end select ! allocations
 
 
-
-! compute PA matrices
-
-
+! Initialization (iteration 0).
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-
 if (.not. Silent) write(u6,"(/A)") "MO extension before localisation:"
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
 
-
-nIter = 0
-! get initial gradient, hessian diagonal
-! ---------------------------------------------------------------------------------------------------
-if (OptMeth == 1) then
-
-    ! no need to compute explicit gradient or hessian for the jacobi sweep method
-    call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
-
-else if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
-
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm, Gradient(:), Hdiagvec(:))
-    GradList(:,nIter+1) = -Gradient(:) ! g_0
-    FuncList(nIter+1) = -Functional ! y_0
-#   ifdef _DEBUGPRINT_
-    call RecPrt("initial gradient"," ",Gradient(:),fsdim,1)
-    call RecPrt("initial hessian"," ",Hdiagvec(:),fsdim,1)
-#   endif
-end if
-
-! Print iteration table header.
-! ---------------------------------------------------------------------------------------------------
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
+
+
+
+! Set some default values for the start
+build_gek = .false.
+mindp = 2
+NRdp = mindp
 IterGEK = 0
 UpMeth=" -  - "
 nDIIS=0
+largest=0
 
-if (OptMeth == 1) then
+nIter = 0
+
+! Print iteration table header.
+! ---------------------------------------------------------------------------------------------------
 if (.not. Silent) then
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
     write(u6,'(//,1X,A,/,1X,A)') '                                                                   CPU       Wall', &
     'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) %Screen, ndiis, largestkappa'
-    !write(u6,'(1X,I5,1X,F18.8,1X,A12,1X,ES12.4,3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,"-",GradNorm,UpMeth,&
-    !                                                TimC,TimW,Zero
-    write(u6,'(1X,I5,1X,F18.8,1X,A12,1X,ES12.4,3X,A6,1X,2(1X,F9.1),1X,F7.2,1X,I5,1X,A)')&
-        nIter,Functional,"-",GradNorm,UpMeth,TimC,TimW,Zero,nDIIS,"-"
-end if
 end if
 
 
 ! Iterations.
 ! ---------------------------------------------------------------------------------------------------
-call mma_Allocate(PACol,nOrb2Loc,2,Label='PACol')
 Converged = .false.
 
 do while ((nIter < nMxIter) .and. (.not. Converged))
@@ -230,15 +211,15 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     case (1) ! Jacobi Sweeps (2x2 rotations)
 
-        call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
-        call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
+        call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
 
     case (2,3,4,5) ! Employing NxN rotations
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
-        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
+        call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
 
         GradList(:,nIter) = -Gradient(:) ! g_i
         FuncList(nIter) = -Functional ! y_i
@@ -432,7 +413,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         TimW = W2-W1
         !write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2)') nIter,Functional,Delta,GradNorm,UpMeth,&
         !                                                                        TimC,TimW,PctSkp
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2,1X,I2,1X,ES12.4)') &
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2,1X,I5,1X,ES12.4)') &
             nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,PctSkp,nDIIS,largest
     end if
 
@@ -478,7 +459,10 @@ end if
 
 ! deallocate matrices used for NxN optimizations
 ! ---------------------------------------------------------------------------------------------------
-if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
+select case(OptMeth)
+case(1)
+    call mma_Deallocate(PACol)
+case(2,3,4,5)
     call mma_Deallocate(Gradient)
     call mma_Deallocate(Hdiag)
     call mma_Deallocate(kappa)
@@ -494,10 +478,9 @@ if (OptMeth == 2 .or. OptMeth == 3 .or. OptMeth == 4 .or. OptMeth == 5) then
     call mma_Deallocate(DispList)
     call mma_Deallocate(disp)
     call mma_Deallocate(Hdiagvec)
-end if
+end select
 
 ! deallocate other matrices
-call mma_Deallocate(PACol)
 call mma_Deallocate(Ovlp_sqrt)
 
 end subroutine PipekMezey_Iter
