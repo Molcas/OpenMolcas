@@ -30,7 +30,6 @@ use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList, DispList,&
                                 UmatList
-
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
 #endif
@@ -44,20 +43,14 @@ character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, Thr,ang
-#       ifdef _RESKAPPA_
-real(kind=wp) :: DD
-#endif
 real(kind=wp), allocatable :: PACol(:,:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
                               Prev(:),Disp(:)
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
-#ifdef _DEBUGPRINT_
-real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
-#endif
 
-!S-GEK
+! for S-GEK
 integer(kind=iwp) :: maxel(1)
 real(kind=wp) :: dqdq,largest
 logical(kind=iwp) :: SORange,build_gek,GEKRange
@@ -65,19 +58,33 @@ character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
 integer(kind=iwp) :: i,j,IterGEK,large_elements,NRdp,mindp
 
-# ifdef _GETMOLDEN_
+#ifdef _RESKAPPA_
+real(kind=wp) :: DD
+#endif
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
+#endif
+#ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
 integer(kind=iwp) :: rc
-character(len=8) :: fmt ! format descriptor
+character(len=8) :: fmt
 character(len=4) :: x1
+#endif
 
-fmt = '(I4.4)' ! an integer of width 4 with zeros at the left
-Sub = "intermediate_molden"
-call getcwd_(WorkDir) !scratch directory
+
+# ifdef _GETMOLDEN_
+
+! preparations
+fmt = '(I4.4)'
+
+! locate scratch directory
+call getcwd_(WorkDir)
 write(u6,*) "WorkDir = ", trim(WorkDir)
+
+! Create intermediate_molden directory that contains molden files of every iteration
+Sub = "intermediate_molden"
 call getenvf('MOLCAS_SUBMIT_DIR',SubmitDir)
 NewDir = trim(SubmitDir)//'/'//Sub
-! Create intermediate_molden directory that contains molden files of every iteration
 call mkdir_(NewDir)
 
 # endif
@@ -127,7 +134,7 @@ end if
 ! ---------------------------------------------------------------------------------------------------
 
 
-! do allocations
+! allocations
 
 select case(OptMeth)
 
@@ -170,6 +177,9 @@ call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA
 if (.not. Silent) write(u6,"(/A)") "MO extension before localisation:"
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
 
+
+! set defaults
+
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
@@ -185,8 +195,9 @@ GEKRange = .false.
 
 IterGEK = 0
 
+
 ! Print iteration table header.
-! ---------------------------------------------------------------------------------------------------
+
 if (.not. Silent) then
     call CWTime(C2,W2)
     TimC = C2-C1
@@ -196,8 +207,9 @@ if (.not. Silent) then
 end if
 
 
-! Iterations.
-! ---------------------------------------------------------------------------------------------------
+! ----------------------------------------------------------------------
+!                           Iterations
+! ----------------------------------------------------------------------
 
 nIter = 0
 Converged = .false.
@@ -351,28 +363,23 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+        ! update CMO
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
-
-#       ifdef _DEBUGPRINT_
-        call RecPrt('CMO after rotation',' ',CMO(:,:),nBasis,nOrb2Loc)
-        write(u6,*) "=================================================================="
-        write(u6,*) "               ORBITALS HAVE BEEN ROTATED"
-        write(u6,*) "=================================================================="
-#       endif
-
-
 
     end select ! 2x2 or NxN rotations
 
 #   ifdef _GETMOLDEN_
-            ! choose the iteration of interest, this creates a $project.imlocal.molden file
-            write (x1,fmt) nIter ! converting integer to string using a 'internal file'
-            imfile = trim(NewDir)//'/imloc.'//x1//'.molden'
+    ! choose the iteration of interest, this creates a $project.imlocal.molden file
+    write (x1,fmt) nIter ! converting integer to string using a 'internal file'
+    imfile = trim(NewDir)//'/imloc.'//x1//'.molden'
 
-            call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
+    ! creating files in scratch directory
+    call get_intermediate_molden(CMO,nBasis,nOrb2Loc)
 
-            call systemf("mv "//trim(WorkDir)//'/imloc '//trim(imfile),rc)
-            call systemf("mv "//trim(WorkDir)//'/LocOrbIM '//trim(NewDir)//'/LocOrbIM.'//x1,rc)
+    ! move files from scratch dir to project dir
+    call systemf("mv "//trim(WorkDir)//'/imloc '//trim(imfile),rc)
+    call systemf("mv "//trim(WorkDir)//'/LocOrbIM '//trim(NewDir)//'/LocOrbIM.'//x1,rc)
+
 #   endif
 
 

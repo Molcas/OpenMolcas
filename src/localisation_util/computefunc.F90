@@ -25,6 +25,8 @@ real(kind=wp), intent(out) :: Functional
 logical(kind=iwp), intent(in) :: printMOext
 integer(kind=iwp) :: iAt, iMO_s
 real(kind=wp) :: d_s
+real(kind=wp),parameter :: thr = 0.1_wp
+character(len=30) :: MOtype
 
 if (Debug) then
     write(u6,*) "In ComputeFunc: "
@@ -48,18 +50,18 @@ do iMO_s=1,nOrb2Loc
         end if
         d_s = huge(d_s)
     end if
+
+    if (d_s < 1+thr) then
+        MOtype = "core orbital or lone pair"
+    else if (d_s > 2-thr .and. d_s <2+thr) then
+        MOtype = "bond orbital"
+    else if (d_s > 1.5+ thr) then
+        MOtype = "delocalized"
+    end if
+
     if (printMOext) then
-        write(u6,"(A,I4,A,F8.3,1X,A)") "MO ",iMO_s," extends over ",d_s, " atoms"
+        write(u6,"(A,I4,A,F8.3,1X,A,A)") "MO ",iMO_s," extends over ",d_s, " atom(s)  -> ",MOtype
     end if
 end do
-
-if (printMOext) then
-    !write(u6,"(A,F18.10)")  'Sum (d_s^-1)         = ',Functional
-    !write(u6,"(//A,F8.4,A,F6.2,A)") "Functional / nOrb2Loc = ", Functional/nOrb2Loc, ", so a mean localisation of ", &
-    !                Functional/nOrb2Loc*100, "% was reached"
-    write(u6,"(/A, F6.2,A,/)") "Mean localisation (Functional/nOrb2Loc) = ", Functional/nOrb2Loc*100, " %"
-end if
-
-return
 
 end subroutine ComputeFunc
