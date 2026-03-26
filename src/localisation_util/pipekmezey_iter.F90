@@ -377,7 +377,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 
     !check if converged
-    ! ---------------------------------------------------------------------------------------------------
+
     Delta = Functional-OldFunctional
     OldFunctional = Functional
     if (.not. Silent) then
@@ -402,7 +402,7 @@ call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
 #endif
 
 ! Print convergence message.
-! ---------------------------------------------------------------------------------------------------
+
 if (.not. Silent) then
 
     write(u6,"(/A)") "MO extension after localisation:"
@@ -425,8 +425,8 @@ end if
 !call Prpt()
 
 
-! deallocate matrices used for NxN optimizations
-! ---------------------------------------------------------------------------------------------------
+! deallocations
+
 select case(OptMeth)
 case(1)
     call mma_Deallocate(PACol)
@@ -448,7 +448,6 @@ case(2,3,4,5)
     call mma_Deallocate(Hdiagvec)
 end select
 
-! deallocate other matrices
 call mma_Deallocate(Ovlp_sqrt)
 
 end subroutine PipekMezey_Iter
