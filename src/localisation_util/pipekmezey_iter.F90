@@ -12,7 +12,7 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
-#define _DEBUGLISTS_
+!#define _DEBUGLISTS_
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_

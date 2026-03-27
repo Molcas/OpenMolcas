@@ -11,7 +11,7 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 !#define _FULL_SPACE_
 subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
@@ -110,7 +110,7 @@ call RecPrt('dq(:)',' ',dq,mOV,1)
 ! Select the subspace
 
 #ifdef _FULL_SPACE_
-
+write(u6,*) "FULL SPACE GEK FOR SCF"
 ! Set up the full space
 nExplicit = mOV
 call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
@@ -119,7 +119,7 @@ do k=1,nExplicit
   e_diis(k,k) = One
 end do
 
-#else
+#else ! subspace version:
 
 !nExplicit = 2 * (nDIIS - 1) + mOV + 2
 nExplicit = 2*(nDIIS-1)+2
@@ -152,7 +152,7 @@ Aux_a(:) = dq(:)
 e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
 call mma_deallocate(Aux_a)
 
-#endif
+#endif ! fullspace / subspace
 
 ! Now orthogonalize all unit vectors
 ! ----------------------------------
@@ -182,6 +182,7 @@ end do
 ! normally mDIIS=2*nDIIS, but it can happen that not all unit vectors are linear independent (mDIIS<=2*nDIIS).
 ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
 mDIIS = j
+
 
 #ifdef _DEBUGPRINT_
 write(u6,*) '      mOV:',mOV

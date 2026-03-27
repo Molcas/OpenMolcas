@@ -38,7 +38,7 @@ real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit=0,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
-real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
+real(kind=wp), allocatable :: coords(:,:),g(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
 !integer(kind=iwp), parameter :: nWindow =2, Max_IterGEK = 50
@@ -88,7 +88,7 @@ write(u6,*) "iLast   =",iLast
 write(u6,*) "NRdp    =",nrdp
 # endif
 
-call mma_Allocate(q,fsdim, nDiis,Label="q")
+call mma_Allocate(coords,fsdim, nDiis,Label="coords")
 call mma_Allocate(g,fsdim, nDiis,Label="g")
 
 ! compute product matrix U_1...n = U_1 * ... * U_n
@@ -127,14 +127,14 @@ do i=iFirst,iLast
     !write(u6,*) 'i,j,iter=',i,j,IterGEK
 
     ! Coordinates
-    q(:,j) = DispList(:,i)
+    coords(:,j) = DispList(:,i)
     disp_summed(:) = disp_summed(:) + DispList(:,i)
 
     ! Gradients
     g(:,j) = GradList(:,i)
 
 end do
-!q(:,nDIIS) = Zero
+!coords(:,nDIIS) = Zero
 
 call mma_allocate(kappa_summed,nOrb2Loc,nOrb2Loc,Label="kappa_summed")
 
@@ -163,7 +163,7 @@ write(u6,*) 'iFirst =',iFirst
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
     write(u6,*) 'IterGEK =',IterGEK
-    call RecPrt("q(:,:)",' ',q,fsdim, nDiis)
+    call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
     call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
     call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
     call RecPrt("dq(:) = NR suggestion",' ',dq,fsdim, 1)
@@ -196,7 +196,7 @@ if (nDIIS == 1) then
   write(u6,*) 'Exit S-GEK Optimizer'
 # endif
   call mma_deallocate(g)
-  call mma_deallocate(q)
+  call mma_deallocate(coords)
   return
 end if
 
@@ -204,8 +204,8 @@ end if
 nExplicit = 2*(nDIIS-1)+2
 
 call mma_allocate(e_diis,fsdim,nExplicit,Label='e_diis')
-call mma_allocate(Aux_a,fsdim,Label='Aux_a')
-call mma_allocate(Aux_b,fsdim,Label='Aux_b')
+call mma_allocate(Aux_1,fsdim,Label='Aux_1')
+call mma_allocate(Aux_2,fsdim,Label='Aux_2')
 
 j = 0
 thr = 1E-18_wp
@@ -213,45 +213,46 @@ do k=1,nDIIS-1
     !n-th column of e_diis
     j = j+1
     ! gradient difference vector
-    Aux_a(:) = g(:,k+1)-g(:,k)
+    Aux_1(:) = g(:,k+1)-g(:,k)
     !normalize
-    norm = sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
+    norm = sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
     if (norm < thr) then
         e_diis(:,j) = Zero
     else
-        e_diis(:,j) = Aux_a(:)/norm
+        e_diis(:,j) = Aux_1(:)/norm
     end if
 
     !(n+1)-th column of e_diis
     j = j+1
     ! displacement difference vector
-    Aux_a(:) = q(:,k+1)-q(:,k)
-    Aux_b(:) = Aux_a(:)
+    Aux_1(:) = coords(:,k+1)-coords(:,k)
+    Aux_2(:) = Aux_1(:)
     !normalize
-    norm = sqrt(DDot_(fsdim,Aux_b(:),1,Aux_b(:),1))
+    norm = sqrt(DDot_(fsdim,Aux_2(:),1,Aux_2(:),1))
     if (norm < thr) then
         e_diis(:,j) = Zero
     else
-        e_diis(:,j) = Aux_b(:)/norm
+        e_diis(:,j) = Aux_2(:)/norm
     end if
 
 
 end do
-call mma_deallocate(Aux_b)
+call mma_deallocate(Aux_2)
 
 ! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
 j = j+1
 !current gradient
-Aux_a(:) = g(:,nDIIS)
+Aux_1(:) = g(:,nDIIS)
 !normalize
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
+e_diis(:,j) = Aux_1(:)/sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
 
 j = j+1
 !second order method's displacement suggestion
-Aux_a(:) = dq(:)
+Aux_1(:) = dq(:)
 !normalize
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(fsdim,Aux_a(:),1,Aux_a(:),1))
+e_diis(:,j) = Aux_1(:)/sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
 
+call mma_deallocate(Aux_1)
 
 #ifdef _DEBUGPRINT_
     if (allocated(e_diis)) call RecPrt('e_diis(unorth)',' ',e_diis,fsdim,nExplicit)
@@ -306,14 +307,14 @@ if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,fsdim,nExplicit)
 
 ! Compute the projected displacement coordinates
 ! ----------------------------------------------
-!Note that the displacements are relative to the last coordinate, q(:,nDIIS).
-! q_diis(u) = e_diis(Kxu)^T * q(KxK)
+!Note that the displacements are relative to the last coordinate, coords(:,nDIIS).
+! coords_diis(u) = e_diis(Kxu)^T * coords(KxK)
 ! where u is the subspace dimension mDiis; and K is the fullspace dimension fsdim
 call mma_Allocate(q_diis,mDiis,nDiis+Max_IterGEK,Label='q_diis')
 q_diis(:,:) = Zero
 do i=1,nDiis ! we project only those q vectors that were used to build the subspace, so that they are fully expressed within it
     do k=1,mDiis
-        q_diis(k,i) = sum( (q(:,i)-q(:,nDIIS)) * e_diis(:,k))
+        q_diis(k,i) = sum( (coords(:,i)-coords(:,nDIIS)) * e_diis(:,k))
     end do
 end do
 
@@ -431,7 +432,7 @@ write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(f
 
 ! deallocations
 ! -------------
-call mma_Deallocate(q)
+call mma_Deallocate(coords)
 call mma_Deallocate(g)
 call mma_Deallocate(dq_NR)
 
