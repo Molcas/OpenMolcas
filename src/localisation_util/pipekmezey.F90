@@ -52,7 +52,6 @@ nFroT = nFro(1)
 kOffC = nBasT*nFroT+1
 
 
-if (ScrFac == Zero .and. OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 2) ScrFac = 0.5
 if (ScrFac/=Zero) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],ScrFac)
 
 

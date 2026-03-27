@@ -11,7 +11,7 @@
 ! Copyright (C) Thomas Bondo Pedersen                                  *
 !***********************************************************************
 !#define _DEBUGPRINT_
-
+!#define _SCR_
 
 subroutine Localise_Iterative(irc,Model,Functional)
 ! Author: T.B. Pedersen
@@ -24,7 +24,9 @@ subroutine Localise_Iterative(irc,Model,Functional)
 
 use Localisation_globals, only: ChoStart, CMO, nBas, nFro, nOrb2Loc, nSym, ThrGrad, ThrRot, Thrs, ScrFac,OptMeth, ChargeType
 use Definitions, only: wp, iwp, u6
+#ifdef _SCR_
 use Constants, only: Zero
+#endif
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -36,6 +38,10 @@ character(len=80) :: Txt
 character(len=4) :: myModel
 logical(kind=iwp) :: Converged
 character(len=*), parameter :: SecNam = 'Localise_Iterative'
+
+#ifdef _SCR_
+if (ScrFac == Zero .and. OptMeth == 4 .or. OptMeth == 5 .or. OptMeth == 2) ScrFac = 0.5
+#endif
 
 irc = 0
 Functional = -huge(Functional)
@@ -76,15 +82,12 @@ if (myModel == 'PIPE') then
     write(u6,'(1X,A)') 'Optimization Method  : Jacobi Sweeps'
   else if (OptMeth == 2) then
     write(u6,'(1X,A)') 'Optimization Method  : Newton Raphson'
-    If (ScrFac==Zero) write(u6,'(1X,A,1X,ES12.4)')'Scrambling factor    : 0.5 (default)'
   else if (OptMeth == 3) then
     write(u6,'(1X,A)') 'Optimization Method  : Gradient Ascent'
   else if (OptMeth == 4) then
     write(u6,'(1X,A)') 'Optimization Method  : GEK (fullspace)'
-    If (ScrFac==Zero) write(u6,'(1X,A,1X,ES12.4)')'Scrambling factor    : 0.5 (default)'
   else if (OptMeth == 5) then
     write(u6,'(1X,A)') 'Optimization Method  : S-GEK'
-    If (ScrFac==Zero) write(u6,'(1X,A,1X,ES12.4)')'Scrambling factor    : 0.5 (default)'
   end if
   If (ChargeType == 1) then
     write(u6,'(1X,A)') 'Framework for PMLoc  : Mulliken charges'

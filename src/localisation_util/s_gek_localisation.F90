@@ -50,7 +50,7 @@ character :: Step_Trunc
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
 call mma_allocate(dq_NR,fsdim,Label='dq_NR')
-dq_NR(:) = DispList(:,nIter-2)
+dq_NR(:) = dq(:)
 
 
 #ifdef _DEBUGPRINT_
@@ -133,7 +133,7 @@ do i=iFirst,iLast
     g(:,j) = GradList(:,i)
 
 end do
-q(:,nDIIS) = Zero
+!q(:,nDIIS) = Zero
 
 call mma_allocate(kappa_summed,nOrb2Loc,nOrb2Loc,Label="kappa_summed")
 

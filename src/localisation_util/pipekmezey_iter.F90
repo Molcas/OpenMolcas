@@ -52,8 +52,8 @@ real(kind=wp), External :: DDot_
 
 ! for S-GEK
 integer(kind=iwp) :: maxel(1)
-real(kind=wp) :: dqdq,largest
-logical(kind=iwp) :: SORange,build_gek,GEKRange
+real(kind=wp) :: dqdq,largest,largest_prev
+logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
 integer(kind=iwp) :: i,j,IterGEK,large_elements,NRdp,mindp
@@ -187,11 +187,11 @@ UpMeth=" -  - "
 largest=0
 nDIIS=0
 
-build_gek = .false.
+GEKRange = .false.
+ResetGEK = .false.
 mindp = 2  ! minimal number of data points for GEK construction
 NRdp = mindp
 SORange = .true.
-GEKRange = .false.
 
 IterGEK = 0
 
@@ -203,7 +203,7 @@ if (.not. Silent) then
     TimC = C2-C1
     TimW = W2-W1
     write(u6,'(//,1X,A,/,1X,A)') '                                                                   CPU       Wall', &
-    'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) %Screen, ndiis, largestkappa'
+    'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) %Screen, ndiis, largest'
 end if
 
 
@@ -247,18 +247,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         ! compute standard newton raphson step
         Disp(:) = -Gradient(:)/Hdiagvec(:)
-
-        ! check if matrix elements are > 0.01
-        large_elements = 0
-        do i=1,fsdim
-            if (abs(Disp(i)) > 0.01_wp) then
-                large_elements = large_elements + 1
-            end if
-        end do
-        maxel(:) = maxloc(Disp)
-        largest = Disp(maxel(1))
-        if (large_elements == 0) GEKRange = .true.
-
         ! start GEK only in the infinitesimal limit for kappa
         ! ---------------------------------------------------
 
@@ -269,28 +257,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       endif
 
         if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
-            if (nIter == 1) large_elements = 1 ! kappa_1 is set to zero, where initial grad and func are evaluated
 
-            if (large_elements /= 0 .and. build_gek) then
-                ! leave GEK and go back to NR if steps are too large
-                write(u6,*) "reset GEK"
-                IterGEK = 0
-                build_gek = .false.
-                UpMeth=" -  - "
-                NRdp = mindp
-            end if
-
-            if (large_elements == 0 .and. .not. build_gek) then
-                build_gek = .true.
-                call RecPrt('In PM iter NR suggestion',' ',Disp(:),fsdim,1)
-                !IterGEK = IterGEK + 1
-                write(u6,'(A,1X,I4,1X,A)') "all elements of the NR step suggestion for iter ",niter,"are smaller than 0.01"
-            else if (large_elements == 0 .and. build_gek) then
+            if (GEKRange) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
-                call RecPrt('In PM iter NR suggestion',' ',Disp(:),fsdim,1)
 
                 IterGEK = IterGEK + 1
-
 
                 call S_GEK_localisation(nIter,IterGEK,mindp,nrdp,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,&
                                         usmitigation,nDIIS)
@@ -327,11 +298,31 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
 
-        ! transform disp vec to matrix
-        call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
-        DispList(:,nIter) = Disp(:) ! q_i
-        UMatList(:,:,nIter) = unitary_mat(:,:) ! exp(-q_i) = U_i
+        ! check if matrix elements are > 0.01
+        large_elements = 0
+        do i=1,fsdim
+            if (abs(Disp(i)) > 0.01_wp) then
+                large_elements = large_elements + 1
+            end if
+        end do
+        maxel(:) = maxloc(Disp)
+        largest_prev = largest
+        largest = Disp(maxel(1))
 
+        ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
+        if (large_elements == 0) GEKRange = .true.
+
+        if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
+            ! leave GEK and go back to NR if steps are too large
+            write(u6,*) "reset GEK"
+            IterGEK = 0
+            ResetGEK = .true.
+            GEKRange = .false.
+            UpMeth=" -  - "
+            NRdp = mindp
+        end if
+
+#       ifdef _RESKAPPA_
         ! Rescale Kappa if rotation too large
         ! limits rotations to less than pi/2 per orbital pair
         Thr= 0.5E0_wp * Pi
@@ -349,7 +340,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             end do
         end do
 
-#       ifdef _RESKAPPA_
         DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
         Thr= 0.5E0_wp * Pi
         !Thr= Pi
@@ -362,6 +352,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       endif
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        ! transform disp vec to matrix
+        call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
+        DispList(:,nIter+1) = Disp(:) ! q_i
+        UMatList(:,:,nIter+1) = unitary_mat(:,:) ! exp(-q_i) = U_i
 
         ! update CMO
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
