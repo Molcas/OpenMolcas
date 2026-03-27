@@ -194,7 +194,7 @@ mindp = 2  ! minimal number of data points for GEK construction
 NRdp = mindp
 SORange = .true.
 
-IterGEK = 1
+IterGEK = 0
 
 
 ! Print iteration table header.
@@ -304,21 +304,24 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       ifdef _DEBUGPRINT_
         write(u6,*) "kappa elements > 0.01 =",large_elements
         write(u6,*) "largest element =", Disp(maxel(1))
-        write(u6,*) "IterGEK",IterGEK
 #       endif
 
+        if (ResetGEK) then
+            NRdp = mindp
+            UpMeth=" -  - "
+            IterGEK = 0
+            nDIIS = 0
+            ResetGEK = .false.
+        end if
 
         ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
         if (large_elements == 0) GEKRange = .true.
 
-        if (large_elements /= 0 .and. GEKRange .and. IterGEK > 1) then
+        if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
             ! leave GEK and go back to NR if steps are too large
             write(u6,*) "reset GEK"
-            IterGEK = 1
             ResetGEK = .true.
             GEKRange = .false.
-            UpMeth=" -  - "
-            NRdp = mindp
         end if
 
 #       ifdef _RESKAPPA_

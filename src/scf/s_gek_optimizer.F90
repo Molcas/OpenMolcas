@@ -11,7 +11,7 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 !#define _FULL_SPACE_
 subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************

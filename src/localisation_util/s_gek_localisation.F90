@@ -41,7 +41,6 @@ real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
-!integer(kind=iwp), parameter :: nWindow =2, Max_IterGEK = 50
 integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
