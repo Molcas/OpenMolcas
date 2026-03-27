@@ -12,8 +12,8 @@
 !                                                                      *
 ! Based on the S_GEK_Optimizer for SCF by R. Lindh.                    *
 !***********************************************************************
-#define _DEBUG2_
-#define _DEBUGPRINT_
+!#define _DEBUG2_
+!#define _DEBUGPRINT_
 
 subroutine S_GEK_localisation(nIter,IterGEK,mindp,nrdp,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation,nDIIS)
 
