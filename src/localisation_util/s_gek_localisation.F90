@@ -36,9 +36,9 @@ integer(kind=iwp),intent(out) :: nDIIS
 integer(kind=iwp), intent(inout) :: IterGEK,nrdp
 real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
-integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit=0,mDiis, iLast
+integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
-real(kind=wp), allocatable :: coords(:,:),g(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
+real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
 !integer(kind=iwp), parameter :: nWindow =2, Max_IterGEK = 50
@@ -89,7 +89,7 @@ write(u6,*) "NRdp    =",nrdp
 # endif
 
 call mma_Allocate(coords,fsdim, nDiis,Label="coords")
-call mma_Allocate(g,fsdim, nDiis,Label="g")
+call mma_Allocate(grads,fsdim, nDiis,Label="g")
 
 ! compute product matrix U_1...n = U_1 * ... * U_n
 ! -------------------------------------------------
@@ -131,7 +131,7 @@ do i=iFirst,iLast
     disp_summed(:) = disp_summed(:) + DispList(:,i)
 
     ! Gradients
-    g(:,j) = GradList(:,i)
+    grads(:,j) = GradList(:,i)
 
 end do
 !coords(:,nDIIS) = Zero
@@ -164,8 +164,8 @@ write(u6,*) 'iFirst =',iFirst
     write(u6,*) '  nDIIS =',nDIIS
     write(u6,*) 'IterGEK =',IterGEK
     call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
-    call RecPrt("g(:,:)",' ',g,fsdim, nDiis)
-    call RecPrt("g(:,nDiis)",' ',g(:,nDiis),fsdim, 1)
+    call RecPrt("grads(:,:)",' ',g,fsdim, nDiis)
+    call RecPrt("grads(:,nDiis)",' ',grads(:,nDiis),fsdim, 1)
     call RecPrt("dq(:) = NR suggestion",' ',dq,fsdim, 1)
 #endif
 
@@ -195,7 +195,7 @@ if (nDIIS == 1) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Exit S-GEK Optimizer'
 # endif
-  call mma_deallocate(g)
+  call mma_deallocate(grads)
   call mma_deallocate(coords)
   return
 end if
@@ -213,7 +213,7 @@ do k=1,nDIIS-1
     !n-th column of e_diis
     j = j+1
     ! gradient difference vector
-    Aux_1(:) = g(:,k+1)-g(:,k)
+    Aux_1(:) = grads(:,k+1)-grads(:,k)
     !normalize
     norm = sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
     if (norm < thr) then
@@ -242,7 +242,7 @@ call mma_deallocate(Aux_2)
 ! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
 j = j+1
 !current gradient
-Aux_1(:) = g(:,nDIIS)
+Aux_1(:) = grads(:,nDIIS)
 !normalize
 e_diis(:,j) = Aux_1(:)/sqrt(DDot_(fsdim,Aux_1(:),1,Aux_1(:),1))
 
@@ -326,7 +326,7 @@ call mma_Allocate(g_diis,mDiis,nDiis+Max_IterGEK,Label='g_diis')
 g_diis(:,:) = Zero
 do i=1,nDIIS
     do k=1,mDIIS
-        g_diis(k,i) = sum(g(:,i)*e_diis(:,k))
+        g_diis(k,i) = sum(grads(:,i)*e_diis(:,k))
     end do
 end do
 
@@ -433,7 +433,7 @@ write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(f
 ! deallocations
 ! -------------
 call mma_Deallocate(coords)
-call mma_Deallocate(g)
+call mma_Deallocate(grads)
 call mma_Deallocate(dq_NR)
 
 call mma_Deallocate(e_diis,safe='*')
