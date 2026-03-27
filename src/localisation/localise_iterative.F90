@@ -24,9 +24,7 @@ subroutine Localise_Iterative(irc,Model,Functional)
 
 use Localisation_globals, only: ChoStart, CMO, nBas, nFro, nOrb2Loc, nSym, ThrGrad, ThrRot, Thrs, ScrFac,OptMeth, ChargeType
 use Definitions, only: wp, iwp, u6
-#ifdef _SCR_
 use Constants, only: Zero
-#endif
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
