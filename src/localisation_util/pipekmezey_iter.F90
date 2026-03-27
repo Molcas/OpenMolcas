@@ -12,12 +12,12 @@
 !               2026, Lila Zapp (opt methods & loewdin framework)      *
 !***********************************************************************
 
-!#define _DEBUGLISTS_
+#define _DEBUGLISTS_
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _GETMOLDEN_
-#define _RESKAPPA_
+!#define _RESKAPPA_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
@@ -46,7 +46,7 @@ real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp
 real(kind=wp), allocatable :: PACol(:,:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
-                              Prev(:),Disp(:)
+                              Prev(:),Disp(:),CMO_Ref(:,:)
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
@@ -167,6 +167,7 @@ case(2,3,4,5)
     call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
     call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
+    call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
 
 end select ! allocations
 
@@ -193,7 +194,7 @@ mindp = 2  ! minimal number of data points for GEK construction
 NRdp = mindp
 SORange = .true.
 
-IterGEK = 0
+IterGEK = 1
 
 
 ! Print iteration table header.
@@ -239,7 +240,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 #       ifdef _DEBUGLISTS_
             write(u6,*) "nIter =",nIter
-            write(u6,*) "after taking the step:"
             call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
             call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter),fsdim,nIter)
             call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
@@ -247,14 +247,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         ! compute standard newton raphson step
         Disp(:) = -Gradient(:)/Hdiagvec(:)
-        ! start GEK only in the infinitesimal limit for kappa
-        ! ---------------------------------------------------
-
-#       ifdef _DEBUGPRINT_
-        write(u6,*) "kappa elements > 0.01 =",large_elements
-        write(u6,*) "largest element =", Disp(maxel(1))
-        write(u6,*) "IterGEK",IterGEK
-#       endif
 
         if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
 
@@ -309,13 +301,20 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         largest_prev = largest
         largest = Disp(maxel(1))
 
+#       ifdef _DEBUGPRINT_
+        write(u6,*) "kappa elements > 0.01 =",large_elements
+        write(u6,*) "largest element =", Disp(maxel(1))
+        write(u6,*) "IterGEK",IterGEK
+#       endif
+
+
         ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
         if (large_elements == 0) GEKRange = .true.
 
-        if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
+        if (large_elements /= 0 .and. GEKRange .and. IterGEK > 1) then
             ! leave GEK and go back to NR if steps are too large
             write(u6,*) "reset GEK"
-            IterGEK = 0
+            IterGEK = 1
             ResetGEK = .true.
             GEKRange = .false.
             UpMeth=" -  - "
@@ -355,11 +354,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
-        DispList(:,nIter+1) = Disp(:) ! q_i
-        UMatList(:,:,nIter+1) = unitary_mat(:,:) ! exp(-q_i) = U_i
+        DispList(:,nIter) = Disp(:) ! q_i
 
         ! update CMO
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
+        UMatList(:,:,nIter) = unitary_mat(:,:) ! exp(-q_i) = U_i
 
     end select ! 2x2 or NxN rotations
 
@@ -441,6 +440,7 @@ case(2,3,4,5)
     call mma_Deallocate(xkappa_cnt)
     call mma_Deallocate(unitary_mat)
     call mma_Deallocate(rotated_CMO)
+    call mma_Deallocate(CMO_Ref)
 
     call mma_Deallocate(FuncList)
     call mma_Deallocate(UmatList)

@@ -41,7 +41,8 @@ real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: q(:,:),g(:,:),Aux_a(:),Aux_b(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
-integer(kind=iwp), parameter :: nWindow =1, Max_IterGEK = 50
+!integer(kind=iwp), parameter :: nWindow =2, Max_IterGEK = 50
+integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
@@ -145,12 +146,10 @@ call expkap_localisation(kappa_summed,nOrb2Loc,Umat_i,xUmatProd,UmatKsum)
 !call RecPrt("exp(-K_1-K_2-...-K_n) = "," ",UmatKsum,nOrb2Loc,nOrb2Loc)
 !call RecPrt("U_1...n - exp(-K_1-K_2-...-K_n) = "," ",UmatProd-UmatKsum,nOrb2Loc,nOrb2Loc)
 
-norm = 0
 norm = sqrt(DDot_(nOrb2Loc*nOrb2Loc,UmatProd-UmatKsum,1,UmatProd-UmatKsum,1))
 # ifdef _DEBUGPRINT_
 write(u6,*) "norm of U_1...n - exp(-K_1-K_2-...-K_n):", norm, "ndiis =",ndiis
 # endif
-norm = 0
 
 call mma_Deallocate(xUmatProd)
 call mma_Deallocate(Umat_i)
@@ -158,15 +157,6 @@ call mma_Deallocate(UmatProd)
 call mma_Deallocate(UmatKsum)
 call mma_Deallocate(disp_summed)
 call mma_Deallocate(kappa_summed)
-
-if (nDIIS == 1) then
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'Exit S-GEK Optimizer'
-# endif
-  call mma_deallocate(g)
-  call mma_deallocate(q)
-  return
-end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'iFirst =',iFirst
@@ -200,6 +190,15 @@ end do
 ! SUBSPACE VERSION
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 else if (OptMeth == 5) then
+
+if (nDIIS == 1) then
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Exit S-GEK Optimizer'
+# endif
+  call mma_deallocate(g)
+  call mma_deallocate(q)
+  return
+end if
 
 !number of subspace basis vectors, potentially linear dependent => difference vecs of ndiis displacements and gradients +2 additional vecs (see below)
 nExplicit = 2*(nDIIS-1)+2
@@ -420,7 +419,7 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
 
 
-!compute angle
+!compute angle between GEK result and NR suggestion
 norm = sqrt(DDot_(fsdim,dq_NR,1,dq_NR,1))
 #ifdef _DEBUGPRINT_
 write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(fsdim,dq_NR,1,dq,1)/(norm*dqdq))/Pi*180.0_wp,&
