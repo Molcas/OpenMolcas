@@ -56,7 +56,7 @@ real(kind=wp) :: dqdq,largest,largest_prev
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,j,IterGEK,large_elements,NRdp,mindp
+integer(kind=iwp) :: i,j,IterGEK,large_elements,mindp
 
 #ifdef _RESKAPPA_
 real(kind=wp) :: DD
@@ -190,8 +190,7 @@ nDIIS=0
 
 GEKRange = .false.
 ResetGEK = .false.
-mindp = 2  ! minimal number of data points for GEK construction
-NRdp = mindp
+mindp = 1  ! minimal number of data points for GEK construction
 SORange = .true.
 
 IterGEK = 0
@@ -255,7 +254,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 IterGEK = IterGEK + 1
 
-                call S_GEK_localisation(nIter,IterGEK,mindp,nrdp,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,&
+                call S_GEK_localisation(nIter,IterGEK,mindp,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,&
                                         usmitigation,nDIIS)
 
                 ! undershoot mitigation
@@ -285,7 +284,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
                     end if ! Loosen%Step > One
                 end if ! undershoot mitigation
 
-            end if ! different GEK stages
+            end if ! if in GEKRange
 
         end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
@@ -307,7 +306,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #       endif
 
         if (ResetGEK) then
-            NRdp = mindp
             UpMeth=" -  - "
             IterGEK = 0
             nDIIS = 0

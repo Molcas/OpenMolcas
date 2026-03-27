@@ -15,7 +15,7 @@
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,IterGEK,mindp,nrdp,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation,nDIIS)
+subroutine S_GEK_localisation(nIter,IterGEK,mindp,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation,nDIIS)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One,Pi
@@ -33,7 +33,7 @@ implicit none
 
 integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc,mindp
 integer(kind=iwp),intent(out) :: nDIIS
-integer(kind=iwp), intent(inout) :: IterGEK,nrdp
+integer(kind=iwp), intent(inout) :: IterGEK
 real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
@@ -41,7 +41,8 @@ real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
-integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
+!integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
+integer(kind=iwp), parameter :: nWindow =2, Max_IterGEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
@@ -71,20 +72,16 @@ else
 #   endif
 end if
 
-if (IterGEK >= nWindow) NRdp = NRdp + nWindow-IterGEK
-if (NRdp < 0) NRdp = 0
-
 iFirst = nIter-nDIIS+1
 iLast = nIter
 
 # ifdef _DEBUG2_
-write(u6,'(A,6(I4))') "Iter,IterGEK,nDIIS,iFirst,iLast,NRdp =",nIter,IterGEK,nDIIS,iFirst,iLast,NRdp
+write(u6,'(A,6(I4))') "Iter,IterGEK,nDIIS,iFirst,iLast =",nIter,IterGEK,nDIIS,iFirst,iLast
 write(u6,*) "Iter    =",nIter
 write(u6,*) "IterGEK =",IterGEK
 write(u6,*) "nDIIS   =",nDIIS
 write(u6,*) "iFirst  =",iFirst
 write(u6,*) "iLast   =",iLast
-write(u6,*) "NRdp    =",nrdp
 # endif
 
 call mma_Allocate(coords,fsdim, nDiis,Label="coords")
