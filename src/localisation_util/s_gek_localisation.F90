@@ -18,10 +18,11 @@
 subroutine S_GEK_localisation(nIter,IterGEK,mindp,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation,nDIIS)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero,One,Pi
+use Constants, only: Zero,One
 use Definitions, only: iwp,wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
+use Constants, only: Pi
 #endif
 
 #ifdef _DEBUG2_
@@ -42,7 +43,7 @@ real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
 !integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
-integer(kind=iwp), parameter :: nWindow =2, Max_IterGEK = 50
+integer(kind=iwp), parameter :: nWindow =10, Max_IterGEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
@@ -85,7 +86,7 @@ write(u6,*) "iLast   =",iLast
 # endif
 
 call mma_Allocate(coords,fsdim, nDiis,Label="coords")
-call mma_Allocate(grads,fsdim, nDiis,Label="g")
+call mma_Allocate(grads,fsdim, nDiis,Label="grads")
 
 ! compute product matrix U_1...n = U_1 * ... * U_n
 ! -------------------------------------------------
@@ -160,7 +161,7 @@ write(u6,*) 'iFirst =',iFirst
     write(u6,*) '  nDIIS =',nDIIS
     write(u6,*) 'IterGEK =',IterGEK
     call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
-    call RecPrt("grads(:,:)",' ',g,fsdim, nDiis)
+    call RecPrt("grads(:,:)",' ',grads,fsdim, nDiis)
     call RecPrt("grads(:,nDiis)",' ',grads(:,nDiis),fsdim, 1)
     call RecPrt("dq(:) = NR suggestion",' ',dq,fsdim, 1)
 #endif

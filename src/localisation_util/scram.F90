@@ -26,7 +26,7 @@ subroutine Scram(CMO,nSym,nBas,nOrb,ScrFac)
 !***********************************************************************
 
 use Constants, only: One, Two
-use Definitions, only: wp, iwp,u6
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: CMO(*)

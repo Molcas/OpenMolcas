@@ -25,13 +25,16 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName
 ! Based on the original routines by Y. Carissan.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Pi
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList, DispList,&
                                 UmatList
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
+#endif
+#ifdef _RESKAPPA_
+use Constants, only: Pi
 #endif
 
 implicit none
@@ -42,7 +45,7 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, Thr,ang
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, ang
 real(kind=wp), allocatable :: PACol(:,:), Hdiag(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
@@ -52,14 +55,15 @@ real(kind=wp), External :: DDot_
 
 ! for S-GEK
 integer(kind=iwp) :: maxel(1)
-real(kind=wp) :: dqdq,largest,largest_prev
+real(kind=wp) :: dqdq,largest
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,j,IterGEK,large_elements,mindp
+integer(kind=iwp) :: i,IterGEK,large_elements,mindp
 
 #ifdef _RESKAPPA_
-real(kind=wp) :: DD
+real(kind=wp) :: DD,Thr
+integer(kind=iwp) :: j
 #endif
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
@@ -297,7 +301,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             end if
         end do
         maxel(:) = maxloc(Disp)
-        largest_prev = largest
         largest = Disp(maxel(1))
 
 #       ifdef _DEBUGPRINT_
