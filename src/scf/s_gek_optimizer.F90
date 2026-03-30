@@ -119,7 +119,7 @@ do k=1,nExplicit
   e_diis(k,k) = One
 end do
 
-#else ! subspace version:
+#else
 
 !nExplicit = 2 * (nDIIS - 1) + mOV + 2
 nExplicit = 2*(nDIIS-1)+2
@@ -152,7 +152,7 @@ Aux_a(:) = dq(:)
 e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
 call mma_deallocate(Aux_a)
 
-#endif ! fullspace / subspace
+#endif
 
 ! Now orthogonalize all unit vectors
 ! ----------------------------------
