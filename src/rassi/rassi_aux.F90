@@ -11,20 +11,26 @@
 
 module RASSI_AUX
 
-implicit none
+use Definitions, only: wp, iwp
 
-logical :: AO_Mode = .false.
-integer, allocatable :: TocM(:), jDisk_TDM(:,:), JOB_INDEX(:)
-real*8, allocatable :: CMO1(:), CMO2(:), DMAB(:)
-integer NASHT_Save, mTRA
-integer :: JOB1_old = -1, JOB2_old = -1
-integer :: ipglob
+implicit none
+private
+
+integer(kind=iwp) :: ipglob, mTRA, NASHT_Save
+logical(kind=iwp) :: AO_Mode = .false.
+integer(kind=iwp), allocatable :: jDisk_TDM(:,:), JOB_INDEX(:), TocM(:)
+real(kind=wp), allocatable :: CMO1(:), CMO2(:), DMAB(:)
+integer(kind=iwp), parameter :: MULT = 37, NHASH = 997
+
+public :: AO_Mode, CMO1, CMO2, DMAB, iDisk_TDM, ipglob, jDisk_TDM, JOB_INDEX, mTRA, MULT, NASHT_Save, NHASH, TocM
 
 contains
 
-integer function iDisk_TDM(I,J,K)
+function iDisk_TDM(I,J,K)
 
-  integer I, J, I_Max, J_Min, K
+  integer(kind=iwp) :: iDisk_TDM
+  integer(kind=iwp) :: I, J, K
+  integer(kind=iwp) :: I_Max, J_Min
 
   I_Max = max(I,J)
   J_Min = min(I,J)

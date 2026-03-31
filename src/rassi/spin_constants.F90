@@ -14,19 +14,24 @@ module Spin_Constants
 !*                Constants used in the program                        *
 !***********************************************************************
 
-use Constants, only: Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, Twelve, Half, OneHalf, cZero, cOne, &
-                     Onei
+use Constants, only: Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, Twelve, Half, OneHalf, cZero, cOne, Onei
 use Definitions, only: wp
 
 implicit none
-complex*16 SPIN(3,17,-8:8,-8:8)
-real*8, parameter :: Thirteen = 13.0_wp, Fifteen = 15.0_wp
+private
+
+complex(kind=wp) :: SPIN(3,17,-8:8,-8:8)
+real(kind=wp), parameter :: Thirteen = 13.0_wp, Fifteen = 15.0_wp
+
+public :: Setup_Spin_Moment_Matrix, Spin
 
 contains
 
 subroutine Setup_Spin_Moment_Matrix()
 
-  integer L9, I9, J9, IMULT9, IPAR9
+  use Definitions, only: iwp
+
+  integer(kind=iwp) :: I9, IMULT9, IPAR9, J9, L9
 
   ! *************************************************
   ! *          SPIN moment matrix elements          *
@@ -43,7 +48,7 @@ subroutine Setup_Spin_Moment_Matrix()
     end do
   end do
 
-  ! Multiplicity 1 (singlet)
+  ! Multiplicity 1 (singlet)   S=0
 
   SPIN(1,1,0,0) = cZero
   SPIN(2,1,0,0) = cZero

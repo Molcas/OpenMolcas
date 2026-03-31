@@ -11,10 +11,15 @@
 
 module kVectors
 
-implicit none
+use Definitions, only: wp, iwp
 
-real*8, dimension(:,:), allocatable :: k_Vector
-real*8 :: e_Vector(3)
-integer :: nk_Vector
+implicit none
+private
+
+integer(kind=iwp) :: nk_Vector
+real(kind=wp) :: e_Vector(3)
+real(kind=wp), dimension(:,:), allocatable :: k_Vector
+
+public :: e_Vector, k_Vector, nk_Vector
 
 end module kVectors

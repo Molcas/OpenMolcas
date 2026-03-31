@@ -12,43 +12,24 @@
 subroutine mkSODIAG(UMATR,UMATI,NSS)
 
 use rassi_aux, only: ipglob
-use Constants, only: cm_s, hPlanck, gElectron, mBohr, Zero, One, cZero, cOne
-use cntrl, only: SODIAG, SODIAGNSTATE
-use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: IFCURD
 use rassi_data, only: NBST
-use Definitions, only: wp, u6
+use Cntrl, only: IFCURD, SODIAG, SODIAGNSTATE
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, cZero, cOne, cm_s, hPlanck, gElectron, mBohr
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: NSS
+real(kind=wp) :: UMATR(NSS,NSS), UMATI(NSS,NSS)
 
-integer NSS
-real*8 UMATR(NSS,NSS), UMATI(NSS,NSS)
-complex*16 PROP(3,SODIAGNSTATE,SODIAGNSTATE)
-complex*16 PROP2(3,SODIAGNSTATE,SODIAGNSTATE)
-real*8 DEIGVAL(SODIAGNSTATE)
-complex*16 DEIGVEC(SODIAGNSTATE,SODIAGNSTATE)
-complex*16 BPTST(SODIAGNSTATE,SODIAGNSTATE)
-real*8 GTENS(3), MAXES(3,3), MAXES2(3,3)
-complex*16 H_ZEE(SODIAGNSTATE,SODIAGNSTATE)
-complex*16 ZOUT(SODIAGNSTATE,SODIAGNSTATE)
-real*8 RWORK(3*SODIAGNSTATE-2)
-complex*16 ZWORK(2*SODIAGNSTATE-1)
-real*8 IDENTMAT(3,3)
-real*8 LMATR(SODIAGNSTATE,SODIAGNSTATE,3,3)
-real*8 LMATI(SODIAGNSTATE,SODIAGNSTATE,3,3)
-real*8 SMATR(SODIAGNSTATE,SODIAGNSTATE,3,3)
-real*8 SMATI(SODIAGNSTATE,SODIAGNSTATE,3,3)
-real*8 MUMAT2R(SODIAGNSTATE,SODIAGNSTATE,3,3)
-real*8 MUMAT2I(SODIAGNSTATE,SODIAGNSTATE,3,3)
-real*8 MU_BOHR
-real*8, allocatable :: DMATTMP(:)
-real*8, allocatable :: EIGVECR(:,:), EIGVECI(:,:)
-real*8, allocatable :: UWR(:), UWI(:)
-character(len=11) FILEBASE
-character(len=11) FILEBASEL
-real*8 GE, AXR, SXR, AXI, SXI, AYR, SYR, AYI, SYI, AZR, SZR, AZI, SZI
-integer N, I, J, ISTATE, JSTATE, IOPT, IC, L, K, IDIR, LCWORK, INFO, I2, J2, IJ, LUMAXES
-integer, external :: IsFreeUnit
+integer(kind=iwp) :: I, I2, IC, IDIR, IJ, INFO, IOPT, ISTATE, J, J2, JSTATE, K, L, LCWORK, LUMAXES, N
+real(kind=wp) :: AXI, AXR, AYI, AYR, AZI, AZR, GE, GTENS(3), IDENTMAT(3,3), MAXES(3,3), MAXES2(3,3), MU_BOHR, SXI, SXR, SYI, SYR, &
+                 SZI, SZR
+character(len=11) :: FILEBASE, FILEBASEL
+complex(kind=wp), allocatable :: BPTST(:,:), DEIGVEC(:,:), H_ZEE(:,:), PROP(:,:,:), PROP2(:,:,:), ZOUT(:,:), ZWORK(:)
+real(kind=wp), allocatable :: DEIGVAL(:), DMATTMP(:), EIGVECI(:,:), EIGVECR(:,:), LMATI(:,:,:,:), LMATR(:,:,:,:), &
+                              MUMAT2I(:,:,:,:), MUMAT2R(:,:,:,:), RWORK(:), SMATI(:,:,:,:), SMATR(:,:,:,:), UWI(:), UWR(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! Matrices
@@ -78,6 +59,13 @@ do I=1,N
   write(u6,*) SODIAG(I)
 end do
 
+call mma_allocate(LMATR,SODIAGNSTATE,SODIAGNSTATE,3,3,Label='LMATR')
+call mma_allocate(LMATI,SODIAGNSTATE,SODIAGNSTATE,3,3,Label='LMATI')
+call mma_allocate(SMATR,SODIAGNSTATE,SODIAGNSTATE,3,3,Label='SMATR')
+call mma_allocate(SMATI,SODIAGNSTATE,SODIAGNSTATE,3,3,Label='SMATI')
+call mma_allocate(MUMAT2R,SODIAGNSTATE,SODIAGNSTATE,3,3,Label='MUMAT2R')
+call mma_allocate(MUMAT2I,SODIAGNSTATE,SODIAGNSTATE,3,3,Label='MUMAT2I')
+
 call DCOPY_(9*N**2,[Zero],0,LMATR,1)
 call DCOPY_(9*N**2,[Zero],0,LMATI,1)
 call DCOPY_(9*N**2,[Zero],0,SMATR,1)
@@ -89,6 +77,16 @@ call mma_allocate(DMATTMP,3*(NBST*(NBST+1)),Label='DMATTMP')
 
 !> identity mat
 call unitmat(IDENTMAT,3)
+
+call mma_allocate(DEIGVAL,SODIAGNSTATE,Label='DEIGVAL')
+call mma_allocate(RWORK,3*SODIAGNSTATE-2,Label='RWORK')
+call mma_allocate(BPTST,SODIAGNSTATE,SODIAGNSTATE,Label='BPTST')
+call mma_allocate(DEIGVEC,SODIAGNSTATE,SODIAGNSTATE,Label='DEIGVEC')
+call mma_allocate(H_ZEE,SODIAGNSTATE,SODIAGNSTATE,Label='H_ZEE')
+call mma_allocate(PROP,3,SODIAGNSTATE,SODIAGNSTATE,Label='PROP')
+call mma_allocate(PROP2,3,SODIAGNSTATE,SODIAGNSTATE,Label='PROP2')
+call mma_allocate(ZOUT,SODIAGNSTATE,SODIAGNSTATE,Label='ZOUT')
+call mma_allocate(ZWORK,2*SODIAGNSTATE-1,Label='ZWORK')
 
 ! First, we calculate the expectation values of
 !  (L+ge*S)x (L+ge*S)y (L+ge*S)z
@@ -404,5 +402,20 @@ write(u6,*) '* ENDING SODIAG *******************************'
 write(u6,*) '***********************************************'
 
 call mma_deallocate(DMATTMP)
+call mma_deallocate(DEIGVAL)
+call mma_deallocate(RWORK)
+call mma_deallocate(BPTST)
+call mma_deallocate(DEIGVEC)
+call mma_deallocate(H_ZEE)
+call mma_deallocate(PROP)
+call mma_deallocate(PROP2)
+call mma_deallocate(ZOUT)
+call mma_deallocate(ZWORK)
+call mma_deallocate(LMATR)
+call mma_deallocate(LMATI)
+call mma_deallocate(SMATR)
+call mma_deallocate(SMATI)
+call mma_deallocate(MUMAT2R)
+call mma_deallocate(MUMAT2I)
 
 end subroutine mkSODIAG

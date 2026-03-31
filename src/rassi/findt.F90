@@ -21,17 +21,16 @@
 
 subroutine FINDT(CMO1,CMO2,TRA1,TRA2)
 
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NBASF, NCMO, NOSH, NSXY, NTRA
+use Cntrl, only: PRORB, PRSXY, PRTRA
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: PRSXY, PRTRA, PRORB
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NCMO, NTRA, NSXY, NBASF, NOSH
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CMO1(NCMO), CMO2(NCMO)
-real*8 TRA1(NTRA), TRA2(NTRA)
-real*8, allocatable :: SXY(:), CXA(:), CYB(:)
-integer NCXA, NCYB
+real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), TRA1(NTRA), TRA2(NTRA)
+integer(kind=iwp) :: NCXA, NCYB
+real(kind=wp), allocatable :: CXA(:), CYB(:), SXY(:)
 
 ! BEGIN BY COMPUTING MO OVERLAPS, SXY.
 ! MO OVERLAP MATRIX HAS SAME STRUCTURE AS TRA1,TRA2:
@@ -57,13 +56,13 @@ end if
 ! USE THEM TO TRANSFORM THE ORBITALS.
 NCXA = NTRA
 call mma_allocate(CXA,NCXA,Label='CXA')
-call MKCXA(NSYM,NOSH,NCXA,TRA1,CXA)
-call TRAORB(NSYM,NOSH,NBASF,NCXA,CXA,NCMO,CMO1)
+call MKCXA(nIrrep,NOSH,NCXA,TRA1,CXA)
+call TRAORB(nIrrep,NOSH,NBASF,NCXA,CXA,NCMO,CMO1)
 call mma_deallocate(CXA)
 NCYB = NTRA
 call mma_allocate(CYB,NCYB,Label='CYB')
-call MKCXA(NSYM,NOSH,NCYB,TRA2,CYB)
-call TRAORB(NSYM,NOSH,NBASF,NCYB,CYB,NCMO,CMO2)
+call MKCXA(nIrrep,NOSH,NCYB,TRA2,CYB)
+call TRAORB(nIrrep,NOSH,NBASF,NCYB,CYB,NCMO,CMO2)
 call mma_deallocate(CYB)
 ! print transformed MOs
 if (PRORB) then

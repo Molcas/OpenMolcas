@@ -16,12 +16,10 @@ function NOVERM(N,M)
 use Definitions, only: iwp, wp, u6
 
 implicit none
-integer(kind=iwp) NOVERM
+integer(kind=iwp) :: NOVERM
 integer(kind=iwp), intent(in) :: N, M
-integer(kind=iwp), save :: NOMTAB(225)
-integer(kind=iwp), save :: INIT = 0
-real(kind=wp) X
-integer(kind=iwp) MM, IPOS, I, J, K
+integer(kind=iwp) :: I, INIT = 0, IPOS, J, K, MM, NOMTAB(225) = 0
+real(kind=wp) :: X
 
 NOVERM = 0
 if (N < 0) return

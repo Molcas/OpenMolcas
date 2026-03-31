@@ -14,20 +14,15 @@ function OVERLAP_RASSI(IFSBTAB1,IFSBTAB2,PSI1,PSI2)
 ! The FS blocks of the two wave functions:
 
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 OVERLAP_RASSI
-real*8 PSI1(*), PSI2(*)
-integer IFSBTAB1(*), IFSBTAB2(*)
-integer ISSTARR(50)
-integer NFSB1, NASPRT1, NDETS1, KSTARR1
-integer NFSB2, NASPRT2, NDETS2, NHSH2, KHSH2, KSTARR2
-integer IFSB1, KPOS1, ISPART
-integer IFSB2, KPOS2
-integer IBLKPOS1, NBLKSIZ1
-integer IBLKPOS2, NBLKSIZ2
-real*8 ddot_
+real(kind=wp) :: OVERLAP_RASSI
+integer(kind=iwp) :: IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp) :: PSI1(*), PSI2(*)
+integer(kind=iwp) :: IBLKPOS1, IBLKPOS2, IFSB1, IFSB2, ISPART, ISSTARR(50), KHSH2, KPOS1, KPOS2, KSTARR1, KSTARR2, NASPRT1, &
+                     NASPRT2, NBLKSIZ1, NBLKSIZ2, NDETS1, NDETS2, NFSB1, NFSB2, NHSH2
+real(kind=wp), external :: ddot_
 
 NFSB1 = IFSBTAB1(3)
 NASPRT1 = IFSBTAB1(4)

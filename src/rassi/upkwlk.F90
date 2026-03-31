@@ -11,13 +11,12 @@
 
 subroutine UPKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: N, IPWLK, NWALK
-integer(kind=iwp), intent(in) :: IWALK(*)
+integer(kind=iwp), intent(in) :: N, IPWLK, NWALK, IWALK(*)
 integer(kind=iwp), intent(out) :: ICASE(N,NWALK)
-integer(kind=iwp) IPOS, I, LEND, J, LSTA, IWORD, L, NEXT
+integer(kind=iwp) :: I, IPOS, IWORD, J, L, LEND, LSTA, NEXT
 
 ! See companion subroutine PKWLK.
 IPOS = 0

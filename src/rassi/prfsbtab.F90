@@ -11,12 +11,11 @@
 
 subroutine PRFSBTAB(IFSBTAB)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IFSBTAB(*)
-integer NFSB, NASPRT, ISPART, IFSB
-integer NDET, ISTA, NHEAD, KPOS
+integer(kind=iwp) :: IFSBTAB(*)
+integer(kind=iwp) :: IFSB, ISPART, ISTA, KPOS, NASPRT, NDET, NFSB, NHEAD
 
 if (IFSBTAB(2) /= 73) then
   write(u6,*) ' PRFSBTAB error: Not a Fock Sector Block Table.'

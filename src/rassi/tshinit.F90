@@ -11,34 +11,32 @@
 
 subroutine TSHinit(Energy)
 
-use rasdef, only: NRAS, NRASEL, NRSPRT, NRS1, NRS1T, NRS2, NRS3
+use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS3, NRSPRT
 use rassi_aux, only: ipglob
-use rassi_global_arrays, only: PART, JBNUM, LROOT
-use gugx, only: SGStruct, CIStruct, EXStruct
-use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT, NACTE, NELE3, NHOLE1, RASTYP
-use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop
-use Symmetry_Info, only: nSym => nIrrep
+use rassi_global_arrays, only: JBNUM, LROOT, PART
+use gugx, only: CIStruct, EXStruct, SGStruct
+use Cntrl, only: ChkHop, IRREP, ISTATE1, ISTATE2, LSYM1, LSYM2, MLTPLT, NACTE, nCI1, nCI2, NELE3, NHOLE1, NSTATE, RASTYP
+use Symmetry_Info, only: nIrrep
 use rassi_data, only: NDEL, NFRO, NISH, NSSH
-use Definitions, only: wp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 :: Energy(nState)
+real(kind=wp) :: Energy(nState)
+integer(kind=iwp) :: I, iRlxRoot, JOB1, JOB2, MPLET1, MPLET2, NACTE1, NACTE2, NELE31, NELE32, NHOL11, NHOL12
+real(kind=wp) :: EDIFF
+logical(kind=iwp) :: LOWROOT, UPROOT
 type(SGStruct), target :: SGS(2)
 type(CIStruct) :: CIS(2)
 type(EXStruct) :: EXS(2)
-integer I, JOB1, JOB2, iRlxRoot
-character(len=8) WFTYP1, WFTYP2
-logical LOWROOT, UPROOT
-real*8, allocatable :: CI1(:), CI2(:)
-integer NACTE1, MPLET1, NHOL11, NELE31, NACTE2, MPLET2, NHOL12, NELE32
-real*8 EDIFF
-real*8, parameter ::  Ethr = 0.03_wp
+character(len=8) :: WFTYP1, WFTYP2
+real(kind=wp), allocatable :: CI1(:), CI2(:)
+real(kind=wp), parameter ::  Ethr = 0.03_wp
 interface
   subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
-    use gugx, only: SGStruct, CIStruct
+    import :: iwp, CIStruct, SGStruct
     implicit none
-    integer nSym, nActEl, iSpin
+    integer(kind=iwp) :: nSym, nActEl, iSpin
     type(SGStruct), target :: SGS
     type(CIStruct) :: CIS
   end subroutine SGInit
@@ -94,7 +92,7 @@ if (WFTYP1 == 'GENERAL') then
   NRASEL(1) = 2*NRS1T-NHOL11
   NRASEL(2) = NACTE1-NELE31
   NRASEL(3) = NACTE1
-  call SGINIT(NSYM,NACTE1,MPLET1,SGS(1),CIS(1))
+  call SGINIT(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
   if (IPGLOB > 4) then
     write(u6,*) 'Split-graph structure for JOB1=',JOB1
     call SGPRINT(SGS(1))
@@ -149,7 +147,7 @@ if (LOWROOT) then
   NHOL12 = NHOLE1(JOB2)
   NELE32 = NELE3(JOB2)
   WFTYP2 = RASTYP(JOB2)
-  call NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
+  call NEWPRTTAB(nIrrep,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
   if (IPGLOB >= 4) call PRPRTTAB(PART)
   ! For the second wave function
   if (WFTYP2 == 'GENERAL') then
@@ -162,7 +160,7 @@ if (LOWROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SGINIT(NSYM,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SGINIT(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SGPRINT(SGS(2))
@@ -218,7 +216,7 @@ if (UPROOT) then
   NHOL12 = NHOLE1(JOB2)
   NELE32 = NELE3(JOB2)
   WFTYP2 = RASTYP(JOB2)
-  call NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
+  call NEWPRTTAB(nIrrep,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
   if (IPGLOB >= 4) call PRPRTTAB(PART)
   ! For the second wave function
   if (WFTYP2 == 'GENERAL') then
@@ -231,7 +229,7 @@ if (UPROOT) then
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
-    call SGINIT(NSYM,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SGINIT(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SGPRINT(SGS(2))

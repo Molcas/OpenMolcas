@@ -9,33 +9,39 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ATENS_RASSI(moment,dim,gtens,maxes,IPGLOB)
+subroutine ATENS_RASSI(moment,ndim,gtens,maxes,IPGLOB)
 !------------------------------------------------
-!  dim    -- size of the matrices
-!  moment -- matrix of size (3,dim,dim) of the moment (magnetic, spin or angular)
+!  ndim   -- size of the matrices
+!  moment -- matrix of size (3,ndim,ndim) of the moment (magnetic, spin or angular)
 !  gtens  -- array of size (3) keeping the main values of the A tensor ( dsqrt(main_values) )
 !  maxes  -- array of size (3,3) keeping the main axes of the A tensor writen in
 !            the right coordinate system (Determinant = +1)
 !  IPGLOB -- the print level of the subroutine
 !----------------------------------------------
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Twelve, Half, cZero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer dim, ic1, ic2, i, j, k, l, IPGLOB, info
-real*8 A_TENS_TERM(3,3), W(3), MAIN(3), Z(3,3), maxes(3,3), gtens(3)
-real*8 Det_gtens, diff12, diff23, ZR(3,3)
-complex*16 moment(3,dim,dim), AC_TENS(3,3), A_TEMP(3,3,dim,dim)
+integer(kind=iwp) :: ndim, IPGLOB
+complex(kind=wp) :: moment(3,ndim,ndim)
+real(kind=wp) :: gtens(3), maxes(3,3)
+integer(kind=iwp) :: i, ic1, ic2, info, j, k, l
+real(kind=wp) :: A_TENS_TERM(3,3), Det_gtens, diff12, diff23, MAIN(3), W(3), Z(3,3), ZR(3,3)
+complex(kind=wp) :: AC_TENS(3,3)
+complex(kind=wp), allocatable :: A_TEMP(:,:,:,:)
 
 ! initialization:
+
+call mma_allocate(A_TEMP,3,3,ndim,ndim,Label='A_TEMP')
 
 do I=1,3
   do J=1,3
     AC_TENS(I,J) = cZero
     A_TENS_TERM(I,J) = Zero
-    do K=1,dim
-      do L=1,dim
+    do K=1,ndim
+      do L=1,ndim
         A_TEMP(I,J,K,L) = cZero
       end do
     end do
@@ -44,9 +50,9 @@ end do
 
 do ic1=1,3
   do ic2=1,3
-    do i=1,dim
-      do j=1,dim
-        do k=1,dim
+    do i=1,ndim
+      do j=1,ndim
+        do k=1,ndim
           A_temp(ic1,ic2,i,j) = A_temp(ic1,ic2,i,j)+moment(ic1,i,k)*moment(ic2,k,j)
         end do
       end do
@@ -59,8 +65,8 @@ if (IPGLOB >= 4) then
   write(u6,'(5X,A)') 'BPMOMENT(ic1,ic2):'
   write(u6,*)
   do ic1=1,3
-    do i=1,dim
-      do j=1,dim
+    do i=1,ndim
+      do j=1,ndim
         write(u6,*) moment(ic1,i,j)
       end do
     end do
@@ -71,8 +77,8 @@ if (IPGLOB >= 4) then
   write(u6,*)
   do ic1=1,3
     do ic2=1,3
-      do i=1,dim
-        do j=1,dim
+      do i=1,ndim
+        do j=1,ndim
           write(u6,*) A_temp(ic1,ic2,i,j)
         end do
       end do
@@ -82,11 +88,12 @@ end if
 
 do ic1=1,3
   do ic2=1,3
-    do k=1,dim
+    do k=1,ndim
       Ac_tens(ic1,ic2) = Ac_tens(ic1,ic2)+A_temp(ic1,ic2,k,k)
     end do
   end do
 end do
+call mma_deallocate(A_TEMP)
 do ic1=1,3
   do ic2=1,3
     A_TENS_TERM(ic1,ic2) = Half*real(Ac_tens(ic1,ic2)+Ac_tens(ic2,ic1))
@@ -94,7 +101,7 @@ do ic1=1,3
 end do
 do ic1=1,3
   do ic2=1,3
-    A_TENS_TERM(ic1,ic2) = Twelve*A_TENS_TERM(ic1,ic2)/real(dim**3-dim,kind=wp)
+    A_TENS_TERM(ic1,ic2) = Twelve*A_TENS_TERM(ic1,ic2)/real(ndim**3-ndim,kind=wp)
   end do
 end do
 

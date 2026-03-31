@@ -23,22 +23,19 @@
 !                                               -RF 8/18,2021
 subroutine DO_SONTO(NSS,USOR,USOI)
 
-use rassi_global_arrays, only: JBNUM, EIGVEC
-use cntrl, only: SONTOSTATES, SONTO
-use Cntrl, only: NSTATE, NOSO, MLTPLT
+use rassi_global_arrays, only: EIGVEC, JBNUM
 use rassi_data, only: NBST
+use Cntrl, only: MLTPLT, NOSO, NSTATE, SONTO, SONTOSTATES
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSS
-real*8 USOR(NSS,NSS), USOI(NSS,NSS)
-real*8 IDENTMAT(3,3)
-real*8, allocatable :: UMATR(:), UMATI(:), VMAT(:,:)
-real*8, allocatable :: TDMAO(:), TSDMAO(:)
-real*8, allocatable :: ANTSIN(:)
-integer I, ISS, ISTATE, JOB1, MPLET1, MSPROJ1, JSS, JSTATE, JOB2, MPLET2, MSPROJ2, INTOSTATE, JNTOSTATE, IOPT
+integer(kind=iwp) :: NSS
+real(kind=wp) :: USOR(NSS,NSS), USOI(NSS,NSS)
+integer(kind=iwp) :: I, INTOSTATE, IOPT, ISS, ISTATE, JNTOSTATE, JOB1, JOB2, JSS, JSTATE, MPLET1, MPLET2, MSPROJ1, MSPROJ2
+real(kind=wp) :: IDENTMAT(3,3)
+real(kind=wp), allocatable :: ANTSIN(:), TDMAO(:), TSDMAO(:), UMATI(:), UMATR(:), VMAT(:,:)
 
 ! Calculates natural orbitals, including spinorbit effects
 write(u6,*)

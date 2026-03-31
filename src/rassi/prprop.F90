@@ -13,114 +13,77 @@ subroutine PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,EigVec)
 
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: SODYSAMPS
-use kVectors
+use kVectors, only: k_Vector, nk_Vector
+use Cntrl, only: BAngRes, BIncre, BStart, DIPR, Do_SK, Do_TMom, DoCD, DYSO, EPrThr, iComp, IfACAL, IfGCAL, IfGTCALSA, IfGTSHSA, &
+                 IfMCal, IFSO, IfvanVleck, IfXCal, IPUSED, ISOCMP, LoopDivide, LoopMax, LPRPR, MLTPLT, MULTIP, NBSTep, NPROP, &
+                 NSOPR, NSTATE, NTS, nTStep, OSThr_DIPR, OSthr_QIPR, PNAME, PNUC, PORIG, PRDIPCOM, PRMEE, PRMES, PRXVE, PTYPE, &
+                 QIALL, QIPR, ReduceLoop, RSPR, RSThr, SOPRNM, SOPRTP, TIncre, TMaxs, TMins, Tolerance, TStart
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
-use RASSIWfn, only: wfn_sfs_angmom, wfn_sos_angmomr, wfn_sos_angmomi, wfn_sos_spinr, wfn_sos_spini, wfn_sfs_edipmom, wfn_sfs_amfi, &
-                    wfn_sos_edipmomr, wfn_sos_edipmomi, wfn_sos_dys
+use RASSIWfn, only: wfn_sfs_amfi, wfn_sfs_angmom, wfn_sfs_edipmom, wfn_sos_angmomi, wfn_sos_angmomr, wfn_sos_dys, &
+                    wfn_sos_edipmomi, wfn_sos_edipmomr, wfn_sos_spini, wfn_sos_spinr
 use Cntrl, only: RhoDyn
 #endif
-use Constants, only: Pi, auTocm, auToeV, auTofs, auTokJ, auToT, c_in_au, Debye, gElectron, kBoltzmann, mBohr, rNAVO, Half, Two, &
-                     Three, Zero, One, Six, Ten, Nine, deg2rad, cZero, Quart, OneHalf
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, NPROP, NTS, PRXVE, PRMEE, LPRPR, PRMES, IFSO, NSOPR, DIPR, OSThr_DIPR, QIPR, OSthr_QIPR, QIALL, RSPR, &
-                 RSThr, ReduceLoop, LoopDivide, LoopMax, Do_SK, PRDIPCOM, Tolerance, DoCD, DYSO, Do_TMom, IfGCAL, EPrThr, &
-                 IfvanVleck, TMins, TMaxs, IfGTCALSA, IfGTSHSA, MULTIP, IfACAL, IfXCal, BStart, NBSTep, BIncre, TStart, nTStep, &
-                 TIncre, IfMCal, BAngRes, iComp, IPUSED, ISOCMP, MLTPLT, PNAME, PNUC, PORIG, PTYPE, SOPRNM, SOPRTP
-use Definitions, only: wp, u6
+use Constants, only: Zero, One, Two, Three, Six, Nine, Ten, Half, Quart, OneHalf, Pi, cZero, auTocm, auToeV, auTofs, auTokJ, &
+                     auToT, c_in_au, Debye, deg2rad, gElectron, kBoltzmann, mBohr, rNAVO
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSS, JBNUM(NSTATE)
-real*8 USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS)
-real*8 PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), ENERGY(NSTATE), EigVec(NSTATE,NSTATE)
-real*8, parameter :: THRSH = 1.0e-10_wp
-character(len=1), parameter :: xyzchr(3) = ['x','y','z']
-integer IPAMFI(3), IPAM(3)
-real*8 DTENS(3,3), GTENS(3,3), GSTENS(3,3), SOSTERM(9)
-real*8 TMPMAT(3,3), TMPVEC(3,3), EVR(3), EVI(3)
-complex*16 ZEKL(2,2,3,NSTATE), GCONT(9,NSTATE)
-complex*16 DIPSOm(3,NSS,NSS), Z(NSS,NSS), DIPSOn(3,NSS,NSS)
-complex*16 SPNSFS(3,NSS,NSS)
-real*8 GTOTAL(9), ANGMOME(3,NSTATE,NSTATE), ESO(NSS)
-real*8 EDIP1MOM(3,NSTATE,NSTATE), AMFIINT(3,NSTATE,NSTATE)
-real*8 TMPm(NTS)!,TMPf(NTP)
-real*8 c_1(3,3), c_2(3,3)!,Zstat1m(NTS),Zstat1f(NTP)
-real*8 curit(3,3), paramt(3,3)
-real*8 chiT_tens(NTS,3,3)!,PNMRT(NTP,3,3),PNMR(NTP,3,3)
-real*8 chicuriT_tens(NTS,3,3), chiparamT_tens(NTS,3,3)
-real*8 DLTT, Zstat, p_Boltz!,DLTTA
-logical ISGS(NSS), IFANGM, IFDIP1, IFAMFI
-real*8 RMAGM(3), Chi(3)
-integer IFUNCT, SECORD(4)
-complex*16 T0(3), TM1
-real*8 COMPARE
-real*8 Rtensor(6)
-real*8, allocatable :: SOPRR(:,:), SOPRI(:,:)
+integer(kind=iwp) :: NSS, JBNUM(NSTATE)
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), OVLP(NSTATE,NSTATE), ENERGY(NSTATE), &
+                 EigVec(NSTATE,NSTATE)
+integer(kind=iwp) :: I, I2Tot, I_Have_DL, I_Have_DV, i_print, I_Print_Header, iAMFIx, iAMFIy, iAMFIz, iAMx, iAMy, iAMz, IBStep, &
+                     IC, ICMP, IEND, iERR, IfAnyD, IfAnyM, IfAnyO, IfAnyQ, IfAnyS, iFinal, IFUNCT, ijXYZ, iMLTPL, IPAM(3), &
+                     IPAMFI(3), iPhi, iPhiStep, iPrDXY, iPrDXZ, iPrDYZ, iProp, ISO, iSOPr, ISS, ISTA, iStart, iState, IT, ITHE, &
+                     ITStep, iVec, iXYZ, J, JC, JEND, JSO, JSS, JSTART, jState, jXYZ, K, KDGN, kXYZ, LMStep, MPLET, MPLET1, &
+                     MPLET2, nCol, nMiss, NORIENT, nPhiStep, NPMSIZ, nTheStep, nVec, SECORD(4)
+real(kind=wp) :: A, AFactor, AX, AY, AZ, B, BFinal, bPhiRes, Bx, By, Bz, c_1(3,3), c_2(3,3), Chi(3), COMPARE, CONTRIB, curit(3,3), &
+                 D_MXI, D_MXR, D_MYI, D_MYR, D_MZI, D_MZR, D_XI, D_XR, D_YI, D_YR, D_ZI, D_ZR, DELTA, DIPSOM_SA, DLT, DLT_E, DLTT, &
+                 DTENS(3,3), DTIJ, DX2, DXX2, DXXDYY, DXXDZZ, DXXXDX, DXXYDY, DXXZDZ, DXY2, DXYDZ, DXZ2, DXZDY, DY2, DysThr, &
+                 DYXDZ, DYY2, DYYDZZ, DYYXDX, DYYYDY, DYYZDZ, DYZ2, DYZDX, DZ2, DZXDY, DZYDX, DZZ2, DZZXDX, DZZYDY, DZZZDZ, EDiff, &
+                 EDIFF2, EDIFF3, EEX, EEY, EEZ, EVI(3), EVR(3), F, Fact, FACT0, FACTM, Factor, FACTP, FX, FXX, FXXFYY, FXXFZZ, &
+                 FXXX, FXXY, FXXZ, FXY, FXZ, FY, FYX, FYY, FYYFZZ, FYYX, FYYY, FYYZ, FYZ, FZ, FZX, FZY, FZZ, FZZX, FZZY, FZZZ, G, &
+                 GSEnergy, GSTENS(3,3), GTENS(3,3), GTij, GTOTAL(9), HZer, OSthr, OSThr2, p_Boltz, paramt(3,3), Phi, PLIMIT, PMAX, &
+                 Q_XXI, Q_XXR, Q_XYI, Q_XYR, Q_XZI, Q_XZR, Q_YYI, Q_YYR, Q_YZI, Q_YZR, Q_ZZI, Q_ZZR, R, RKT, RMAGM(3), rMagm2, &
+                 rMagMO, RPart, Rtensor(6), RXX, RXXY, RXXZ, RXY, RXYX, RXYY, RXYZ, RXZ, RXZX, RXZY, RXZZ, RYX, RYY, RYYX, RYYZ, &
+                 RYZ, RYZX, RYZY, RYZZ, RZX, RZY, RZZ, RZZX, RZZY, S, S1, S2, SOSTERM(9), T, TFinal, THE, ThreEJ, TMPm(NTS), &
+                 TMPMAT(3,3), TMPVEC(3,3), Zstat
+complex(kind=wp) :: T0(3), TM1
+logical(kind=iwp) :: IFAMFI, IFANGM, IFDIP1
+integer(kind=iwp), allocatable :: PMAP(:)
+real(kind=wp), allocatable :: AMFIINT(:,:,:), ANGMOME(:,:,:), chicuriT_tens(:,:,:), chiparamT_tens(:,:,:), chiT_tens(:,:,:), &
+                              DL(:,:), DV(:,:), DXI(:,:), DXR(:,:), DXXXI(:,:), DXXXR(:,:), DXXYI(:,:), DXXYR(:,:), DXXZI(:,:), &
+                              DXXZR(:,:), DYI(:,:), DYR(:,:), DYYXI(:,:), DYYXR(:,:), DYYYI(:,:), DYYYR(:,:), DYYZI(:,:), &
+                              DYYZR(:,:), DZI(:,:), DZR(:,:), DZZXI(:,:), DZZXR(:,:), DZZYI(:,:), DZZYR(:,:), DZZZI(:,:), &
+                              DZZZR(:,:), EDIP1MOM(:,:,:), ESO(:), LXI(:,:), LYI(:,:), LZI(:,:), MAGM(:), MDXI(:,:), MDXR(:,:), &
+                              MDYI(:,:), MDYR(:,:), MDZI(:,:), MDZR(:,:), MQXYI(:,:), MQXYR(:,:), MQXZI(:,:), MQXZR(:,:), &
+                              MQYXI(:,:), MQYXR(:,:), MQYZI(:,:), MQYZR(:,:), MQZXI(:,:), MQZXR(:,:), MQZYI(:,:), MQZYR(:,:), &
+                              MXYZI(:,:,:), MXYZR(:,:,:), QXXI(:,:), QXXR(:,:), QXYI(:,:), QXYR(:,:), QXZI(:,:), QXZR(:,:), &
+                              QYYI(:,:), QYYR(:,:), QYZI(:,:), QYZR(:,:), QZZI(:,:), QZZR(:,:), SOPRI(:,:), SOPRR(:,:), SXI(:,:), &
+                              SXR(:,:), SXYI(:,:), SXYR(:,:), SXZI(:,:), SXZR(:,:), SYI(:,:), SYR(:,:), SYXI(:,:), SYXR(:,:), &
+                              SYZI(:,:), SYZR(:,:), SZI(:,:), SZR(:,:), SZXI(:,:), SZXR(:,:), SZYI(:,:), SZYR(:,:), TOT2K(:,:), &
+                              UZR(:,:), UZI(:,:), ZI(:,:), ZR(:,:), ZXYZI(:,:,:), ZXYZR(:,:,:)
 #ifdef _HDF5_
-real*8, allocatable :: TMP(:,:,:)
+real(kind=wp), allocatable :: TMP(:,:,:)
 #endif
-integer, allocatable :: PMAP(:)
-! Dipole
-real*8, allocatable :: DXR(:,:), DXI(:,:), DYR(:,:), DYI(:,:), DZR(:,:), DZI(:,:)
-! Magnetic-Dipole
-real*8, allocatable :: MDXR(:,:), MDXI(:,:), MDYR(:,:), MDYI(:,:), MDZR(:,:), MDZI(:,:)
-! Electric-Quadrupole
-real*8, allocatable :: QXXR(:,:), QXXI(:,:), QXYR(:,:), QXYI(:,:), QXZR(:,:), QXZI(:,:), QYYR(:,:), QYYI(:,:), QYZR(:,:), &
-                       QYZI(:,:), QZZR(:,:), QZZI(:,:)
-! Magnetic-Quadrupole
-real*8, allocatable :: MQZXR(:,:), MQZXI(:,:), MQXZR(:,:), MQXZI(:,:), MQXYR(:,:), MQXYI(:,:), MQYXR(:,:), MQYXI(:,:), MQYZR(:,:), &
-                       MQYZI(:,:), MQZYR(:,:), MQZYI(:,:)
-! Octupole
-real*8, allocatable :: DXXXR(:,:), DXXXI(:,:), DXXYR(:,:), DXXYI(:,:), DXXZR(:,:), DXXZI(:,:), DYYXR(:,:), DYYXI(:,:), DYYYR(:,:), &
-                       DYYYI(:,:), DYYZR(:,:), DYYZI(:,:), DZZXR(:,:), DZZXI(:,:), DZZYR(:,:), DZZYI(:,:), DZZZR(:,:), DZZZI(:,:)
-! Spin-Magnetic-Dipole
-real*8, allocatable :: SXR(:,:), SXI(:,:), SYR(:,:), SYI(:,:), SZR(:,:), SZI(:,:)
-! Spin-Magnetic-Quadrupole
-real*8, allocatable :: SXYR(:,:), SXYI(:,:), SYXR(:,:), SYXI(:,:), SYZR(:,:), SYZI(:,:), SZYR(:,:), SZYI(:,:), SZXR(:,:), &
-                       SZXI(:,:), SXZR(:,:), SXZI(:,:)
-real*8, allocatable :: DV(:,:), DL(:,:), TOT2K(:,:)
-real*8, allocatable :: LXI(:,:), LYI(:,:), LZI(:,:)
-real*8, allocatable :: ZR(:,:), ZI(:,:)
-type A2_Array
-  real*8, pointer :: A2(:,:)
-end type A2_Array
-type(A2_array) :: pZMR(3), pZMI(3)
-type(A2_array) :: pMR(3), pMI(3)
-real*8, allocatable, target :: ZXR(:,:), ZXI(:,:)
-real*8, allocatable, target :: ZYR(:,:), ZYI(:,:)
-real*8, allocatable, target :: ZZR(:,:), ZZI(:,:)
-real*8, allocatable, target :: MXR(:,:), MXI(:,:)
-real*8, allocatable, target :: MYR(:,:), MYI(:,:)
-real*8, allocatable, target :: MZR(:,:), MZI(:,:)
-real*8, allocatable, target :: UZR(:,:), UZI(:,:)
-real*8, allocatable :: MAGM(:)
-real*8, parameter :: AU2J = auTokJ*1.0e3_wp
-real*8, parameter :: J2CM = auTocm/AU2J
-real*8, parameter :: AU2JTM = (AU2J/auToT)*rNAVO
-real*8, parameter :: AU2REDR = 200.0_wp*Debye
-real*8, parameter :: BOLTZ_K = kBoltzmann*J2CM
-real*8, parameter :: coeff_chi = 0.1_wp*rNAVO/kBoltzmann*mBohr**2
-real*8, parameter :: FEGVAL = -gElectron
-real*8, parameter :: BOLTZ = kBoltzmann/AU2J
-real*8, parameter :: Rmu0 = 4.0e-7_wp*Pi
-real*8, parameter :: Two3rds = Two/Three
-real*8, parameter :: ONEOVER6C2 = One/(Six*c_in_au**2)
-real*8, parameter :: ONEOVER10C = One/(Ten*c_in_au**2)
-real*8, parameter :: ONEOVER30C = ONEOVER10C/Three
-real*8, parameter :: TWOOVERM45C = -Two/(45.0_wp*c_in_au**2)
-real*8, parameter :: ONEOVER9C2 = One/(Nine*c_in_au**2)
-integer nCol, iProp, I, ISTA, IEND, J, ICMP, NPMSIZ, nMiss, iSOPr, JSTART, JEND, I_Have_DL, I_Have_DV, nVec, i_print, ISS, JSS, K, &
-        I_Print_Header, IfAnyM, IfAnyS, IfAnyQ, IfAnyO, I2Tot, iAMFIx, iAMFIy, iAMFIz, iXYZ, jXYZ, iState, MPLET1, jState, MPLET2, &
-        iAMx, iAMy, iAMz, MPLET, kXYZ, iERR, iMLTPL, iStart, iFinal, ijXYZ, IT, IC, JC, KDGN, ISO, JSO, LMStep, IBStep, ITStep, &
-        nPhiStep, nTheStep, NORIENT, ITHE, iPhiStep, iPhi, IfAnyD, iPrDXY, iPrDXZ, iPrDYZ, iVec
-real*8 AFactor, OSthr, OSThr2, EDiff, DX2, DY2, DZ2, FX, FY, FZ, A, DLT, EDIFF3, DXX2, DYY2, DZZ2, FXX, FYY, FYZ, DXXDYY, DXXDZZ, &
-       DYYDZZ, FXXFYY, FXXFZZ, FYYFZZ, G, DXXXDX, DYYXDX, DZZXDX, FXXX, FYYY, FZZZ, DXXYDY, DYYYDY, DZZYDY, FXXY, FZZY, DXXZDZ, &
-       DYYZDZ, DZZZDZ, EDIFF2, DXYDZ, DYXDZ, FYX, DZXDY, DXZDY, FZX, DYZDX, DZYDX, FZY, D_XR, D_YR, D_ZR, D_XI, D_YI, D_ZI, D_MXR, &
-       D_MYR, D_MZR, D_MXI, D_MYI, D_MZI, RXX, RYY, RZZ, R, PLIMIT, PMAX, Q_XXR, Q_XYR, Q_XZR, Q_YYR, Q_YZR, Q_ZZR, Q_XXI, Q_XYI, &
-       Q_XZI, Q_YYI, Q_YZI, Q_ZZI, RXY, RXZ, RYX, RYZ, RZX, RZY, RXXY, RXXZ, RXYX, RXYZ, RXZX, RXZY, RXYY, RYYX, RYYZ, RYZX, RYZY, &
-       RXZZ, RZZX, RZZY, DysThr, S1, FACT0, FACTP, FACTM, DTIJ, S2, DELTA, CONTRIB, S, Factor, GTij, GSEnergy, DLT_E, BFinal, &
-       TFinal, B, HZer, T, RKT, RPart, Fact, rMagm2, rMagMO, bPhiRes, Phi, Bx, By, Bz, DIPSOM_SA, EEX, EEY, EEZ, ThreEJ, AX, AY, &
-       AZ, F, FZZ, DXY2, DXZ2, FXY, FXZ, FYYX, FZZX, FXXZ, FYYZ, DYZ2, RYZZ, THE
+complex(kind=wp), allocatable :: DIPSOm(:,:,:), DIPSOn(:,:,:), GCONT(:,:), SPNSFS(:,:,:), Z(:,:), ZEKL(:,:,:,:)
+logical(kind=iwp), allocatable :: ISGS(:)
+character, parameter :: xyzchr(3) = ['x','y','z']
+real(kind=wp), parameter :: AU2J = auTokJ*1.0e3_wp, AU2JTM = (AU2J/auToT)*rNAVO, AU2REDR = 200.0_wp*Debye, &
+                            BOLTZ = kBoltzmann/AU2J, BOLTZ_K = kBoltzmann*auTocm/AU2J, &
+                            coeff_chi = 0.1_wp*rNAVO/kBoltzmann*mBohr**2, FEGVAL = -gElectron, J2CM = auTocm/AU2J, &
+                            ONEOVER10C = One/(Ten*c_in_au**2), ONEOVER30C = ONEOVER10C/Three, ONEOVER6C2 = One/(Six*c_in_au**2), &
+                            ONEOVER9C2 = One/(Nine*c_in_au**2), Rmu0 = 4.0e-7_wp*Pi, THRSH = 1.0e-10_wp, Two3rds = Two/Three, &
+                            TWOOVERM45C = -Two/(45.0_wp*c_in_au**2)
+
+! D[XYZ][RI]           Dipole
+! MD[XYZ][RI]          Magnetic-Dipole
+! Q[XYZ][XYZ][RI]      Electric-Quadrupole
+! MQ[XYZ][XYZ][RI]     Magnetic-Quadrupole
+! D[XYZ][XYZ][XYZ][RI] Octupole
+! S[XYZ][RI]           Spin-Magnetic-Dipole
+! S[XYZ][XYZ][RI]      Spin-Magnetic-Quadrupole
 
 if (IPGLOB <= 0) goto 400
 
@@ -227,6 +190,10 @@ end if
 ! Added by Ungur Liviu on 04.11.2009.
 ! Addition of ANGMOM to Runfile.
 
+call mma_allocate(ANGMOME,3,NSTATE,NSTATE,Label='ANGMOME')
+call mma_allocate(EDIP1MOM,3,NSTATE,NSTATE,Label='EDIP1MOM')
+call mma_allocate(AMFIINT,3,NSTATE,NSTATE,Label='AMFIINT')
+
 IFANGM = .false.
 IFDIP1 = .false.
 IFAMFI = .false.
@@ -286,6 +253,9 @@ if (IFAMFI) then
 end if
 call mma_deallocate(TMP)
 #endif
+call mma_deallocate(ANGMOME)
+call mma_deallocate(EDIP1MOM)
+call mma_deallocate(AMFIINT)
 !******************************************************
 ! printout of properties over the spin-orbit states
 !******************************************************
@@ -1936,36 +1906,22 @@ if (IAMX > 0) call SMMAT(PROP,LXI,NSS,IAMX,0)
 if (IAMY > 0) call SMMAT(PROP,LYI,NSS,IAMY,0)
 if (IAMZ > 0) call SMMAT(PROP,LZI,NSS,IAMZ,0)
 
-call mma_allocate(ZXR,NSS,NSS,Label='ZXR')
-call mma_allocate(ZXI,NSS,NSS,Label='ZXI')
-ZXR(:,:) = Zero
-ZXI(:,:) = Zero
-pZMR(1)%A2 => ZXR(:,:)
-pZMI(1)%A2 => ZXI(:,:)
-call mma_allocate(ZYR,NSS,NSS,Label='ZYR')
-call mma_allocate(ZYI,NSS,NSS,Label='ZYI')
-ZYR(:,:) = Zero
-ZYI(:,:) = Zero
-pZMR(2)%A2 => ZYR(:,:)
-pZMI(2)%A2 => ZYI(:,:)
-call mma_allocate(ZZR,NSS,NSS,Label='ZZR')
-call mma_allocate(ZZI,NSS,NSS,Label='ZZI')
-ZZR(:,:) = Zero
-ZZI(:,:) = Zero
-pZMR(3)%A2 => ZZR(:,:)
-pZMI(3)%A2 => ZZI(:,:)
+call mma_allocate(ZXYZR,NSS,NSS,3,Label='ZXYZR')
+call mma_allocate(ZXYZI,NSS,NSS,3,Label='ZXYZI')
+ZXYZR(:,:,:) = Zero
+ZXYZI(:,:,:) = Zero
 
-call SMMAT(PROP,ZXR,NSS,0,1)
-call SMMAT(PROP,ZYI,NSS,0,2)
-call SMMAT(PROP,ZZR,NSS,0,3)
+call SMMAT(PROP,ZXYZR(:,:,1),NSS,0,1)
+call SMMAT(PROP,ZXYZI(:,:,2),NSS,0,2)
+call SMMAT(PROP,ZXYZR(:,:,3),NSS,0,3)
 
-call DSCAL_(NSS**2,FEGVAL,ZXR,1)
-call DSCAL_(NSS**2,FEGVAL,ZYI,1)
-call DSCAL_(NSS**2,FEGVAL,ZZR,1)
+call DSCAL_(NSS**2,FEGVAL,ZXYZR(:,:,1),1)
+call DSCAL_(NSS**2,FEGVAL,ZXYZI(:,:,2),1)
+call DSCAL_(NSS**2,FEGVAL,ZXYZR(:,:,3),1)
 
-call DAXPY_(NSS**2,One,LXI,1,ZXI,1)
-call DAXPY_(NSS**2,One,LYI,1,ZYI,1)
-call DAXPY_(NSS**2,One,LZI,1,ZZI,1)
+call DAXPY_(NSS**2,One,LXI,1,ZXYZI(:,:,1),1)
+call DAXPY_(NSS**2,One,LYI,1,ZXYZI(:,:,2),1)
+call DAXPY_(NSS**2,One,LZI,1,ZXYZI(:,:,3),1)
 
 call mma_deallocate(LXI)
 call mma_deallocate(LYI)
@@ -1975,6 +1931,7 @@ call mma_deallocate(LZI)
 ! Add analysis of different contributions
 
 ! Establish which spin components of SFS belong to the ground state
+call mma_allocate(ISGS,NSS,Label='ISGS')
 do I=1,NSS
   ISGS(I) = .false.
 end do
@@ -2011,6 +1968,8 @@ end do
 !    The contributions with other ES's are split between the ES's,
 !    counting them double (<i|Ze|j> and <j|Ze|i>) and divide by two later.
 
+call mma_allocate(ZEKL,2,2,3,NSTATE,Label='ZEKL')
+
 IMLTPL = 1
 ZEKL(:,:,:,:) = cZero
 
@@ -2026,8 +1985,8 @@ do ISTATE=1,NSTATE
       do ISS=ISTART,IFINAL
         do JSS=1,NSS
           if (ISGS(JSS)) then
-            call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-            call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+            call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+            call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
             !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
           end if
         end do
@@ -2040,11 +1999,11 @@ do ISTATE=1,NSTATE
     do IXYZ=1,3
       do ISS=ISTART,IFINAL
         do JSS=1,NSS
-          call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-          call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+          call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+          call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
           if (ISGS(JSS)) then
-            call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-            call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+            call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+            call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
           end if
           !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
         end do
@@ -2059,6 +2018,8 @@ do ISTATE=1,NSTATE
 
   IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
 end do
+
+call mma_deallocate(ISGS)
 
 ! We now have decomposed the <k|Ze|l> into terms belonging to either
 ! a GS or an ES for each k,l=1,2 and p=x,y,z stored in ZEKL(k,l,p,SFS)
@@ -2075,6 +2036,8 @@ end do
 !           + (<k|ES1_p|l>/2 * <l|ES2_q|k>/2)/2 + (<k|ES2_q|l>/2 * <l|ES1_p|k>/2)/2
 ! In the end, the outer division by 2 cancels on both sides, and the
 ! inner divisions by two combine to a division by 4.
+
+call mma_allocate(GCONT,9,NSTATE,Label='GCONT')
 
 GCONT(:,:) = cZero
 GTOTAL(:) = Zero
@@ -2123,29 +2086,36 @@ do ISTATE=1,NSTATE
   end do
 end do
 
+call mma_deallocate(ZEKL)
+
+call mma_allocate(DIPSOm,3,NSS,NSS,Label='DIPSOm')
+call mma_allocate(DIPSOn,3,NSS,NSS,Label='DIPSOn')
+call mma_allocate(ESO,NSS,Label='ESO')
+call mma_allocate(Z,NSS,NSS,Label='Z')
+
 DIPSOm(:,:,:) = cZero
 DIPSOn(:,:,:) = cZero
 
 ! Continue original calculation of G tensor (=gg^*)
 call get_dArray('ESO_SINGLE',ESO,NSS)
-call ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
-call MULMAT(NSS,ZXR,ZXI,eex,Z)
+call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
+call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
 do ISS=1,NSS
   do JSS=1,NSS
     DIPSOm(1,ISS,JSS) = Half*Z(ISS,JSS)
     DIPSOn(1,ISS,JSS) = -Z(ISS,JSS)
   end do
 end do
-call ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
-call MULMAT(NSS,ZYR,ZYI,eey,Z)
+call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
+call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
 do ISS=1,NSS
   do JSS=1,NSS
     DIPSOm(2,ISS,JSS) = Half*Z(ISS,JSS)
     DIPSOn(2,ISS,JSS) = -Z(ISS,JSS)
   end do
 end do
-call ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
-call MULMAT(NSS,ZZR,ZZI,eez,Z)
+call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
+call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI,eez,Z)
 do ISS=1,NSS
   do JSS=1,NSS
     DIPSOm(3,ISS,JSS) = Half*Z(ISS,JSS)
@@ -2154,7 +2124,13 @@ do ISS=1,NSS
 end do
 write(u6,*) ''
 
+call mma_deallocate(Z)
+
 if (IFVANVLECK) then
+
+  call mma_allocate(chiT_tens,NTS,3,3,Label='chiT_tens')
+  call mma_allocate(chicuriT_tens,NTS,3,3,Label='chicuriT_tens')
+  call mma_allocate(chiparamT_tens,NTS,3,3,Label='chiparamT_tens')
 
   iT = 0
   do iT=1,NTS
@@ -2263,14 +2239,20 @@ if (IFVANVLECK) then
   write(u6,*)
   write(u6,*) '  g-Matrix'
   write(u6,*) '  =========='
+
+  !do I=1,3
+  !  do J=1,3
+  !    do iT=1,NT
+  !      chiT_tens(iT,I,J) = Zero
+  !    end do
+  !  end do
+  !end do
+  call mma_deallocate(chiT_tens)
+  call mma_deallocate(chicuriT_tens)
+  call mma_deallocate(chiparamT_tens)
 end if ! IFVANVLECK
-!do I=1,3
-!  do J=1,3
-!    do iT=1,NT
-!      chiT_tens(iT,I,J) = Zero
-!    end do
-!  end do
-!end do
+
+call mma_allocate(SPNSFS,3,NSS,NSS,Label='SPNSFS')
 
 ISS = 1
 do while ((ISS <= NSS) .and. (ENSOR(min(ISS,NSS))-ENSOR(1) <= EPRTHR))
@@ -2332,7 +2314,7 @@ do while ((ISS <= NSS) .and. (ENSOR(min(ISS,NSS))-ENSOR(1) <= EPRTHR))
       CONTRIB = Zero
       do ISO=ISS,JSS
         do JSO=ISS,JSS
-          CONTRIB = pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)-pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
+          CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
           GTIJ = GTIJ+CONTRIB
         end do
       end do
@@ -2388,13 +2370,11 @@ do while ((ISS <= NSS) .and. (ENSOR(min(ISS,NSS))-ENSOR(1) <= EPRTHR))
 
 end do
 
-call mma_deallocate(ZXR)
-call mma_deallocate(ZXI)
-call mma_deallocate(ZYR)
-call mma_deallocate(ZYI)
-call mma_deallocate(ZZR)
-call mma_deallocate(ZZI)
-nullify(pZMR(1)%A2,pZMI(1)%A2,pZMR(2)%A2,pZMI(2)%A2,pZMR(3)%A2,pZMI(3)%A2)
+call mma_deallocate(ZXYZR)
+call mma_deallocate(ZXYZI)
+call mma_deallocate(DIPSOn)
+call mma_deallocate(GCONT)
+call mma_deallocate(SPNSFS)
 
 800 continue
 
@@ -2403,13 +2383,14 @@ nullify(pZMR(1)%A2,pZMI(1)%A2,pZMR(2)%A2,pZMI(2)%A2,pZMR(3)%A2,pZMI(3)%A2)
 !*****************************************************
 
 ! Skip if not a hyperfine calculation
-if (.not. IFACAL) goto 1801
-call HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,ESO,XYZCHR,BOLTZ_K)
+if (IFACAL) call HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,ESO,XYZCHR,BOLTZ_K)
 
-1801 continue
 !*****************************************************
 !* Experimental hyperfine tensor stuff ends here
 !*****************************************************
+
+call mma_deallocate(DIPSOm,safe='*')
+call mma_deallocate(ESO,safe='*')
 
 ! SVC20080312 calculation of magnetization
 
@@ -2451,64 +2432,35 @@ if (IAMX > 0) call SMMAT(PROP,LXI,NSS,IAMX,0)
 if (IAMY > 0) call SMMAT(PROP,LYI,NSS,IAMY,0)
 if (IAMZ > 0) call SMMAT(PROP,LZI,NSS,IAMZ,0)
 
-call mma_allocate(MXR,NSS,NSS,Label='MXR')
-call mma_allocate(MXI,NSS,NSS,Label='MXI')
-MXR(:,:) = Zero
-MXI(:,:) = Zero
-call mma_allocate(MYR,NSS,NSS,Label='MYR')
-call mma_allocate(MYI,NSS,NSS,Label='MYI')
-MYR(:,:) = Zero
-MYI(:,:) = Zero
-call mma_allocate(MZR,NSS,NSS,Label='MZR')
-call mma_allocate(MZI,NSS,NSS,Label='MZI')
-MZR(:,:) = Zero
-MZI(:,:) = Zero
+call mma_allocate(MXYZR,NSS,NSS,3,Label='MXYZR')
+call mma_allocate(MXYZI,NSS,NSS,3,Label='MXYZI')
+MXYZR(:,:,:) = Zero
+MXYZI(:,:,:) = Zero
 
-pMR(1)%A2 => MXR(:,:)
-pMI(1)%A2 => MXI(:,:)
-pMR(2)%A2 => MYR(:,:)
-pMI(2)%A2 => MYI(:,:)
-pMR(3)%A2 => MZR(:,:)
-pMI(3)%A2 => MZI(:,:)
+call SMMAT(PROP,MXYZR(:,:,1),NSS,0,1)
+call SMMAT(PROP,MXYZI(:,:,2),NSS,0,2)
+call SMMAT(PROP,MXYZR(:,:,3),NSS,0,3)
 
-call SMMAT(PROP,MXR,NSS,0,1)
-call SMMAT(PROP,MYI,NSS,0,2)
-call SMMAT(PROP,MZR,NSS,0,3)
+call DSCAL_(NSS**2,FEGVAL,MXYZR(:,:,1),1)
+call DSCAL_(NSS**2,FEGVAL,MXYZI(:,:,2),1)
+call DSCAL_(NSS**2,FEGVAL,MXYZR(:,:,3),1)
 
-call DSCAL_(NSS**2,FEGVAL,MXR,1)
-call DSCAL_(NSS**2,FEGVAL,MYI,1)
-call DSCAL_(NSS**2,FEGVAL,MZR,1)
-
-call DAXPY_(NSS**2,One,LXI,1,MXI,1)
-call DAXPY_(NSS**2,One,LYI,1,MYI,1)
-call DAXPY_(NSS**2,One,LZI,1,MZI,1)
+call DAXPY_(NSS**2,One,LXI,1,MXYZI(:,:,1),1)
+call DAXPY_(NSS**2,One,LYI,1,MXYZI(:,:,2),1)
+call DAXPY_(NSS**2,One,LZI,1,MXYZI(:,:,3),1)
 
 call mma_deallocate(LXI)
 call mma_deallocate(LYI)
 call mma_deallocate(LZI)
 
-call ZTRNSF(NSS,USOR,USOI,MXR,MXI)
-call ZTRNSF(NSS,USOR,USOI,MYR,MYI)
-call ZTRNSF(NSS,USOR,USOI,MZR,MZI)
+call ZTRNSF(NSS,USOR,USOI,MXYZR(:,:,1),MXYZI(:,:,1))
+call ZTRNSF(NSS,USOR,USOI,MXYZR(:,:,2),MXYZI(:,:,2))
+call ZTRNSF(NSS,USOR,USOI,MXYZR(:,:,3),MXYZI(:,:,3))
 
-call mma_allocate(ZXR,NSS,NSS,Label='ZXR')
-call mma_allocate(ZXI,NSS,NSS,Label='ZXI')
-ZXR(:,:) = Zero
-ZXR(:,:) = Zero
-pZMR(1)%A2 => ZXR(:,:)
-pZMI(1)%A2 => ZXI(:,:)
-call mma_allocate(ZYR,NSS,NSS,Label='ZYR')
-call mma_allocate(ZYI,NSS,NSS,Label='ZYI')
-ZYR(:,:) = Zero
-ZYR(:,:) = Zero
-pZMR(2)%A2 => ZYR(:,:)
-pZMI(2)%A2 => ZYI(:,:)
-call mma_allocate(ZZR,NSS,NSS,Label='ZZR')
-call mma_allocate(ZZI,NSS,NSS,Label='ZZI')
-ZZR(:,:) = Zero
-ZZR(:,:) = Zero
-pZMR(3)%A2 => ZZR(:,:)
-pZMI(3)%A2 => ZZI(:,:)
+call mma_allocate(ZXYZR,NSS,NSS,3,Label='ZXYZR')
+call mma_allocate(ZXYZI,NSS,NSS,3,Label='ZXYZI')
+ZXYZR(:,:,:) = Zero
+ZXYZR(:,:,:) = Zero
 
 call mma_allocate(ZR,NSS,NSS,Label='ZR')
 call mma_allocate(ZI,NSS,NSS,Label='ZI')
@@ -2540,8 +2492,8 @@ do IXYZ=1,3
     B = BSTART+BINCRE*(IBSTEP-1)
     ZR(:,:) = Zero
     ZI(:,:) = Zero
-    call DAXPY_(NSS**2,Half*B/auToT,pMR(IXYZ)%A2,1,ZR,1)
-    call DAXPY_(NSS**2,Half*B/auToT,pMI(IXYZ)%A2,1,ZI,1)
+    call DAXPY_(NSS**2,Half*B/auToT,MXYZR(:,:,IXYZ),1,ZR,1)
+    call DAXPY_(NSS**2,Half*B/auToT,MXYZI(:,:,IXYZ),1,ZI,1)
     do ISS=1,NSS
       HZER = ZR(ISS,ISS)
       ZR(ISS,ISS) = HZER+ENSOR(ISS)
@@ -2551,11 +2503,11 @@ do IXYZ=1,3
     call DCOPY_(NSS**2,[Zero],0,UZI,1)
     call ZJAC(NSS,ZR,ZI,NSS,UZR,UZI)
     do JXYZ=1,3
-      call DCOPY_(NSS**2,pMR(JXYZ)%A2,1,pZMR(JXYZ)%A2,1)
-      call DCOPY_(NSS**2,pMI(JXYZ)%A2,1,pZMI(JXYZ)%A2,1)
-      call DSCAL_(NSS**2,-Half,pZMR(JXYZ)%A2,1)
-      call DSCAL_(NSS**2,-Half,pZMI(JXYZ)%A2,1)
-      call ZTRNSF(NSS,UZR,UZI,pZMR(JXYZ)%A2,pZMI(JXYZ)%A2)
+      call DCOPY_(NSS**2,MXYZR(:,:,JXYZ),1,ZXYZR(:,:,JXYZ),1)
+      call DCOPY_(NSS**2,MXYZI(:,:,JXYZ),1,ZXYZI(:,:,JXYZ),1)
+      call DSCAL_(NSS**2,-Half,ZXYZR(:,:,JXYZ),1)
+      call DSCAL_(NSS**2,-Half,ZXYZI(:,:,JXYZ),1)
+      call ZTRNSF(NSS,UZR,UZI,ZXYZR(:,:,JXYZ),ZXYZI(:,:,JXYZ))
     end do
     do ITSTEP=1,NTSTEP
       T = TSTART+TINCRE*(ITSTEP-1)
@@ -2572,13 +2524,13 @@ do IXYZ=1,3
       do ISS=1,NSS
         DELTA = ZR(ISS,ISS)-ZR(1,1)
         FACT = exp(-DELTA/RkT)
-        RMAGM(1) = RMAGM(1)+pZMR(1)%A2(ISS,ISS)*FACT
-        RMAGM(2) = RMAGM(2)+pZMR(2)%A2(ISS,ISS)*FACT
-        RMAGM(3) = RMAGM(3)+pZMR(3)%A2(ISS,ISS)*FACT
+        RMAGM(1) = RMAGM(1)+ZXYZR(ISS,ISS,1)*FACT
+        RMAGM(2) = RMAGM(2)+ZXYZR(ISS,ISS,2)*FACT
+        RMAGM(3) = RMAGM(3)+ZXYZR(ISS,ISS,3)*FACT
         RPART = RPART+FACT
         if (IPGLOB > 2) &
-          write(u6,'(2x,f14.3,3(1x,f10.6,1x),2x,f6.3)') (ZR(ISS,ISS)-ZR(1,1))*auTocm,pZMR(1)%A2(ISS,ISS),pZMR(2)%A2(ISS,ISS), &
-                                                        pZMR(3)%A2(ISS,ISS),FACT
+          write(u6,'(2x,f14.3,3(1x,f10.6,1x),2x,f6.3)') (ZR(ISS,ISS)-ZR(1,1))*auTocm,ZXYZR(ISS,ISS,1),ZXYZR(ISS,ISS,2), &
+                                                        ZXYZR(ISS,ISS,3),FACT
       end do
       if (IPGLOB > 2) write(u6,*)
       RMAGM(1) = (RMAGM(1)/RPART)*AU2JTM
@@ -2643,13 +2595,13 @@ do ITHE=1,NTHESTEP+1
       BY = B*sin(THE)*sin(PHI)
       BZ = B*cos(THE)
       call DCOPY_(NSS**2,[Zero],0,ZR,1)
-      call DAXPY_(NSS**2,Half*BX/auToT,MXR,1,ZR,1)
-      call DAXPY_(NSS**2,Half*BY/auToT,MYR,1,ZR,1)
-      call DAXPY_(NSS**2,Half*BZ/auToT,MZR,1,ZR,1)
+      call DAXPY_(NSS**2,Half*BX/auToT,MXYZR(:,:,1),1,ZR,1)
+      call DAXPY_(NSS**2,Half*BY/auToT,MXYZR(:,:,2),1,ZR,1)
+      call DAXPY_(NSS**2,Half*BZ/auToT,MXYZR(:,:,3),1,ZR,1)
       call DCOPY_(NSS**2,[Zero],0,ZI,1)
-      call DAXPY_(NSS**2,Half*BX/auToT,MXI,1,ZI,1)
-      call DAXPY_(NSS**2,Half*BY/auToT,MYI,1,ZI,1)
-      call DAXPY_(NSS**2,Half*BZ/auToT,MZI,1,ZI,1)
+      call DAXPY_(NSS**2,Half*BX/auToT,MXYZI(:,:,1),1,ZI,1)
+      call DAXPY_(NSS**2,Half*BY/auToT,MXYZI(:,:,2),1,ZI,1)
+      call DAXPY_(NSS**2,Half*BZ/auToT,MXYZI(:,:,3),1,ZI,1)
       do ISS=1,NSS
         HZER = ZR(ISS,ISS)
         ZR(ISS,ISS) = HZER+ENSOR(ISS)
@@ -2659,11 +2611,11 @@ do ITHE=1,NTHESTEP+1
       call DCOPY_(NSS**2,[Zero],0,UZI,1)
       call ZJAC(NSS,ZR,ZI,NSS,UZR,UZI)
       do IXYZ=1,3
-        call DCOPY_(NSS**2,pMR(IXYZ)%A2,1,pZMR(IXYZ)%A2,1)
-        call DCOPY_(NSS**2,pMI(IXYZ)%A2,1,pZMI(IXYZ)%A2,1)
-        call DSCAL_(NSS**2,-Half,pZMR(IXYZ)%A2,1)
-        call DSCAL_(NSS**2,-Half,pZMI(IXYZ)%A2,1)
-        call ZTRNSF(NSS,UZR,UZI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2)
+        call DCOPY_(NSS**2,MXYZR(:,:,IXYZ),1,ZXYZR(:,:,IXYZ),1)
+        call DCOPY_(NSS**2,MXYZI(:,:,IXYZ),1,ZXYZI(:,:,IXYZ),1)
+        call DSCAL_(NSS**2,-Half,ZXYZR(:,:,IXYZ),1)
+        call DSCAL_(NSS**2,-Half,ZXYZI(:,:,IXYZ),1)
+        call ZTRNSF(NSS,UZR,UZI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ))
       end do
       do ITSTEP=1,NTSTEP
         T = TSTART+TINCRE*(ITSTEP-1)
@@ -2675,9 +2627,9 @@ do ITHE=1,NTHESTEP+1
         do ISS=1,NSS
           DELTA = ZR(ISS,ISS)-ZR(1,1)
           FACT = exp(-DELTA/RkT)
-          RMAGM(1) = RMAGM(1)+pZMR(1)%A2(ISS,ISS)*FACT
-          RMAGM(2) = RMAGM(2)+pZMR(2)%A2(ISS,ISS)*FACT
-          RMAGM(3) = RMAGM(3)+pZMR(3)%A2(ISS,ISS)*FACT
+          RMAGM(1) = RMAGM(1)+ZXYZR(ISS,ISS,1)*FACT
+          RMAGM(2) = RMAGM(2)+ZXYZR(ISS,ISS,2)*FACT
+          RMAGM(3) = RMAGM(3)+ZXYZR(ISS,ISS,3)*FACT
           RPART = RPART+FACT
         end do
         RMAGM(1) = (RMAGM(1)/RPART)*AU2JTM
@@ -2730,20 +2682,10 @@ call mma_deallocate(ZI)
 call mma_deallocate(UZR)
 call mma_deallocate(UZI)
 
-call mma_deallocate(ZXR)
-call mma_deallocate(ZXI)
-call mma_deallocate(ZYR)
-call mma_deallocate(ZYI)
-call mma_deallocate(ZZR)
-call mma_deallocate(ZZI)
-
-call mma_deallocate(MXR)
-call mma_deallocate(MXI)
-call mma_deallocate(MYR)
-call mma_deallocate(MYI)
-call mma_deallocate(MZR)
-call mma_deallocate(MZI)
-nullify(pMR(1)%A2,pMI(1)%A2,pMR(2)%A2,pMI(2)%A2,pMR(3)%A2,pMI(3)%A2)
+call mma_deallocate(MXYZR)
+call mma_deallocate(MXYZI)
+call mma_deallocate(ZXYZR)
+call mma_deallocate(ZXYZI)
 
 900 continue
 

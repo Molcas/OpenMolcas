@@ -30,25 +30,17 @@
 
 subroutine DQVDiabat(PROP,HAM)
 
-use Cntrl, only: NSTATE, NPROP, AlphZ, BetaE, PNAME, ICOMP
+use Cntrl, only: AlphZ, BetaE, ICOMP, NPROP, NSTATE, PNAME
 use Constants, only: Zero, One, Two, Half, Quart, Pi
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 PROP(NSTATE,NSTATE,NPROP)
-real*8 HAM(NSTATE,NSTATE)
-real*8 TROT(NSTATE,NSTATE)
-real*8 TRQ(NSTATE,NSTATE)
-real*8 TROTT(NSTATE,NSTATE)
-real*8 HDIA(NSTATE,NSTATE)
-real*8 HDIAI(NSTATE,NSTATE)
-real*8 HAMT(NSTATE,NSTATE)
-integer, parameter :: MAX = 50
-real*8, parameter :: MTE = 1.0e-8_wp, MTF = 1.0e-14_wp
-real*8, parameter :: THRS = 1.0e-8_wp
-integer :: PNUM(7)
-integer IPROP, ISTA, JSTA, K, I
-real*8 ThrSch, ATerm, BTerm, CTerm, RotAngF, RotAngO, CosO, SinO, T1, T2, TII, TJJ, TIJ, Chng
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), HAM(NSTATE,NSTATE)
+integer :: I, IPROP, ISTA, JSTA, K, PNUM(7)
+real(kind=wp) :: ATerm, BTerm, Chng, CosO, CTerm, HAMT(NSTATE,NSTATE), HDIA(NSTATE,NSTATE), HDIAI(NSTATE,NSTATE), RotAngF, &
+                 RotAngO, SinO, T1, T2, ThrSch, TII, TIJ, TJJ, TROT(NSTATE,NSTATE), TROTT(NSTATE,NSTATE), TRQ(NSTATE,NSTATE)
+integer(kind=iwp), parameter :: itMAX = 50
+real(kind=wp), parameter :: MTE = 1.0e-8_wp, MTF = 1.0e-14_wp, THRS = 1.0e-8_wp
 
 ! Printing some stuff
 
@@ -107,7 +99,7 @@ end do
 call RecPrt('The TRQ matrix in DQVDiabat','',TRQ,NSTATE,NSTATE)
 write(u6,*) ''
 
-do i=1,MAX
+do i=1,itMAX
   THRSCH = Zero
 
   do ISTA=1,NSTATE
@@ -268,8 +260,8 @@ do i=1,MAX
     exit
   end if
 
-  if (i == MAX) write(u6,*) 'Max iterations'
 end do
+if (i > itMAX) write(u6,*) 'Max iterations'
 
 call RecPrt('Diabatic Coefficients','',TROT,NSTATE,NSTATE)
 

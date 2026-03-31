@@ -22,34 +22,24 @@ subroutine MAKETDMAO(CHARTYPE,USOR,USOI,ASS,BSS,NSS,iOpt,ROTMAT,DENSOUT)
 
 use rassi_aux, only: idisk_TDM
 use rassi_global_arrays, only: JBNUM
+use rassi_data, only: NBASF, NBST, NTDMZZ
+use Cntrl, only: IRREP, LSYM1, LSYM2, LuTDM, MLTPLT, NSTATE
+use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
-use cntrl, only: LuTDM
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use rassi_data, only: NBST, NBASF, NTDMZZ
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=8) CHARTYPE!,LABEL
-integer NSS
-real*8 USOR(NSS,NSS), USOI(NSS,NSS)
-integer ASS, BSS, iOpt
-real*8 ROTMAT(3,3)
-real*8 DENSOUT(6,nbst**2)
-integer IOFF(8)
+character(len=8) :: CHARTYPE
+integer(kind=iwp) :: ASS, BSS, NSS, iOpt
+real(kind=wp) :: USOR(NSS,NSS), USOI(NSS,NSS), ROTMAT(3,3), DENSOUT(6,nbst**2)
+integer(kind=iwp) :: I, IDIR, IDISK, IEMPTY, IGO, IJ, IOFF(8), ISF, ISS, ISY1, ISY12, ISY12_MA, ISY2, ITD, ITYPE, J, JOB, JOB1, &
+                     JOB2, KSF, KSS, LSF, LSS, MPLET, MPLETK, MPLETL, MSPROJ, MSPROJK, MSPROJL, NB1, NB1_F, NB1_I, NB2, NB2_F, &
+                     NB2_I, NBSTS
+real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, FACT, S1, S2, SM1, SM2, TDM, UIL, UIR, URL, URR
 integer, allocatable :: MAPST(:), MAPSP(:), MAPMS(:)
-real*8, allocatable, target :: SDMXR(:), SDMXI(:), SDMYR(:), SDMYI(:), SDMZR(:), SDMZI(:)
-real*8, allocatable, target :: SDMXR2(:), SDMXI2(:), SDMYR2(:), SDMYI2(:), SDMZR2(:), SDMZI2(:)
-type A2_array
-  real*8, pointer :: A2(:)
-end type A2_Array
-type(A2_array) :: pZMR(3), pZMI(3)
-type(A2_array) :: pZMR2(3), pZMI2(3)
-real*8, allocatable :: TMPR(:), TMPI(:), SCR(:), TDMZZ(:)
-real*8 CGY, CGX, CG0, TDM, S1, S2, SM1, SM2, FACT, CGM, CGP, URR, UIR, URL, UIL, DCLEBS
-integer NBSTS, ITYPE, ISS, ISF, JOB, MPLET, MSPROJ, KSS, KSF, MPLETK, MSPROJK, LSS, LSF, MPLETL, MSPROJL, JOB1, JOB2, ISY12, &
-        IEMPTY, IDISK, IGO, ITD, NB1_I, NB1_F, ISY1, NB2_I, NB2_F, NB1, ISY2, ISY12_MA, NB2, J, I, IJ, IDIR
+real(kind=wp), allocatable :: SDMXYZR(:,:), SDMXYZI(:,:), SDMXYZR2(:,:), SDMXYZI2(:,:), TMPR(:), TMPI(:), SCR(:), TDMZZ(:)
+real(kind=wp), external :: DCLEBS
 
 nbsts = nbst**2
 
@@ -94,48 +84,20 @@ do ISF=1,NSTATE
 end do
 
 ! Allocate some arrays
-! SDMXR, etc      DM/TDM for this iteration
-! SDMXR2, etc     Accumulated DM/TDM
+! SDMXYZR, etc    DM/TDM for this iteration
+! SDMXYZR2, etc   Accumulated DM/TDM
 ! TMPR,I          Temporary array for U*AU multiplication
 ! TDMZZ           DM/TDM as read from file
 ! SCR             Scratch for expansion of TDMZZ
-call mma_allocate(SDMXR,nbsts,Label='SDMXR')
-call mma_allocate(SDMXI,nbsts,Label='SDMXI')
-call mma_allocate(SDMYR,nbsts,Label='SDMYR')
-call mma_allocate(SDMYI,nbsts,Label='SDMYI')
-call mma_allocate(SDMZR,nbsts,Label='SDMZR')
-call mma_allocate(SDMZI,nbsts,Label='SDMZI')
-SDMXR(:) = Zero
-SDMXI(:) = Zero
-SDMYR(:) = Zero
-SDMYI(:) = Zero
-SDMZR(:) = Zero
-SDMZI(:) = Zero
-pZMR(1)%A2 => SDMXR(:)
-pZMR(2)%A2 => SDMYR(:)
-pZMR(3)%A2 => SDMZR(:)
-pZMI(1)%A2 => SDMXI(:)
-pZMI(2)%A2 => SDMYI(:)
-pZMI(3)%A2 => SDMZI(:)
+call mma_allocate(SDMXYZR,nbsts,3,Label='SDMXYZR')
+call mma_allocate(SDMXYZI,nbsts,3,Label='SDMXYZI')
+SDMXYZR(:,:) = Zero
+SDMXYZI(:,:) = Zero
 
-call mma_allocate(SDMXR2,nbsts,Label='SDMXR2')
-call mma_allocate(SDMXI2,nbsts,Label='SDMXI2')
-call mma_allocate(SDMYR2,nbsts,Label='SDMYR2')
-call mma_allocate(SDMYI2,nbsts,Label='SDMYI2')
-call mma_allocate(SDMZR2,nbsts,Label='SDMZR2')
-call mma_allocate(SDMZI2,nbsts,Label='SDMZI2')
-SDMXR2(:) = Zero
-SDMXI2(:) = Zero
-SDMYR2(:) = Zero
-SDMYI2(:) = Zero
-SDMZR2(:) = Zero
-SDMZI2(:) = Zero
-pZMR2(1)%A2 => SDMXR2(:)
-pZMR2(2)%A2 => SDMYR2(:)
-pZMR2(3)%A2 => SDMZR2(:)
-pZMI2(1)%A2 => SDMXI2(:)
-pZMI2(2)%A2 => SDMYI2(:)
-pZMI2(3)%A2 => SDMZI2(:)
+call mma_allocate(SDMXYZR2,nbsts,3,Label='SDMXYZR2')
+call mma_allocate(SDMXYZI2,nbsts,3,Label='SDMXYZI2')
+SDMXYZR2(:,:) = Zero
+SDMXYZI2(:,:) = Zero
 
 call mma_allocate(TMPR,nbsts,Label='TMPR')
 call mma_allocate(TMPI,nbsts,Label='TMPI')
@@ -174,7 +136,7 @@ do KSS=1,NSS
     ISY12 = MUL(LSYM1,LSYM2)
 
     ! SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS
-    call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
+    call mk_IOFF(IOFF,nIrrep,NBASF,ISY12)
 
     ! These are going to be zero, so head them off at the pass
     if ((ITYPE <= 2) .and. ((MPLETK /= MPLETL) .or. (MSPROJK /= MSPROJL))) goto 2200
@@ -220,12 +182,12 @@ do KSS=1,NSS
     ITD = 0
     NB1_i = 0
     NB1_f = 0
-    do ISY1=1,NSYM
+    do ISY1=1,nIrrep
       NB2_i = 0
       NB2_f = 0
       NB1 = NBASF(ISY1)
       NB1_f = NB1_i+NB1
-      do ISY2=1,NSYM
+      do ISY2=1,nIrrep
         ISY12_ma = MUL(ISY1,ISY2)
         NB2 = NBASF(ISY2)
         NB2_f = NB2_i+NB2
@@ -245,12 +207,8 @@ do KSS=1,NSS
     end do
 
     ! ie, see how AMFI is processed in soeig
-    SDMXR(:) = Zero
-    SDMXI(:) = Zero
-    SDMYR(:) = Zero
-    SDMYI(:) = Zero
-    SDMZR(:) = Zero
-    SDMZI(:) = Zero
+    SDMXYZR(:,:) = Zero
+    SDMXYZI(:,:) = Zero
 
     if (ITYPE >= 3) then
       S1 = Half*real(MPLETK-1,kind=wp)
@@ -268,24 +226,24 @@ do KSS=1,NSS
     end if
 
     if (((ITYPE == 1) .or. (ITYPE == 2)) .and. (MPLETK == MPLETL) .and. (MSPROJK == MSPROJL)) then
-      call DAXPY_(nbsts,One,SCR,1,SDMZR,1)
+      call DAXPY_(nbsts,One,SCR,1,SDMXYZR(:,3),1)
     else if ((ITYPE == 3) .or. (ITYPE == 4)) then
       if (iOpt == 1) then
-        call DAXPY_(nbsts,CGX*ROTMAT(1,1),SCR,1,SDMXR,1)
-        call DAXPY_(nbsts,CGY*ROTMAT(2,1),SCR,1,SDMXI,1)
-        call DAXPY_(nbsts,CG0*ROTMAT(3,1),SCR,1,SDMXR,1)
+        call DAXPY_(nbsts,CGX*ROTMAT(1,1),SCR,1,SDMXYZR(:,1),1)
+        call DAXPY_(nbsts,CGY*ROTMAT(2,1),SCR,1,SDMXYZI(:,1),1)
+        call DAXPY_(nbsts,CG0*ROTMAT(3,1),SCR,1,SDMXYZR(:,1),1)
 
-        call DAXPY_(nbsts,CGX*ROTMAT(1,2),SCR,1,SDMYR,1)
-        call DAXPY_(nbsts,CGY*ROTMAT(2,2),SCR,1,SDMYI,1)
-        call DAXPY_(nbsts,CG0*ROTMAT(3,2),SCR,1,SDMYR,1)
+        call DAXPY_(nbsts,CGX*ROTMAT(1,2),SCR,1,SDMXYZR(:,2),1)
+        call DAXPY_(nbsts,CGY*ROTMAT(2,2),SCR,1,SDMXYZI(:,2),1)
+        call DAXPY_(nbsts,CG0*ROTMAT(3,2),SCR,1,SDMXYZR(:,2),1)
 
-        call DAXPY_(nbsts,CGX*ROTMAT(1,3),SCR,1,SDMZR,1)
-        call DAXPY_(nbsts,CGY*ROTMAT(2,3),SCR,1,SDMZI,1)
-        call DAXPY_(nbsts,CG0*ROTMAT(3,3),SCR,1,SDMZR,1)
+        call DAXPY_(nbsts,CGX*ROTMAT(1,3),SCR,1,SDMXYZR(:,3),1)
+        call DAXPY_(nbsts,CGY*ROTMAT(2,3),SCR,1,SDMXYZI(:,3),1)
+        call DAXPY_(nbsts,CG0*ROTMAT(3,3),SCR,1,SDMXYZR(:,3),1)
       else
-        call DAXPY_(nbsts,CGX,SCR,1,SDMXR,1)
-        call DAXPY_(nbsts,CGY,SCR,1,SDMYI,1)
-        call DAXPY_(nbsts,CG0,SCR,1,SDMZR,1)
+        call DAXPY_(nbsts,CGX,SCR,1,SDMXYZR(:,1),1)
+        call DAXPY_(nbsts,CGY,SCR,1,SDMXYZI(:,2),1)
+        call DAXPY_(nbsts,CG0,SCR,1,SDMXYZR(:,3),1)
       end if
     end if
 
@@ -304,16 +262,16 @@ do KSS=1,NSS
       TMPI(:) = Zero
 
       ! right side
-      call DAXPY_(nbsts,URR,pZMR(IDIR)%A2,1,TMPR,1)
-      call DAXPY_(nbsts,-UIR,pZMI(IDIR)%A2,1,TMPR,1)
-      call DAXPY_(nbsts,UIR,pZMR(IDIR)%A2,1,TMPI,1)
-      call DAXPY_(nbsts,URR,pZMI(IDIR)%A2,1,TMPI,1)
+      call DAXPY_(nbsts,URR,SDMXYZR(:,IDIR),1,TMPR,1)
+      call DAXPY_(nbsts,-UIR,SDMXYZI(:,IDIR),1,TMPR,1)
+      call DAXPY_(nbsts,UIR,SDMXYZR(:,IDIR),1,TMPI,1)
+      call DAXPY_(nbsts,URR,SDMXYZI(:,IDIR),1,TMPI,1)
 
       ! left side
-      call DAXPY_(nbsts,URL,TMPR,1,pZMR2(IDIR)%A2,1)
-      call DAXPY_(nbsts,UIL,TMPI,1,pZMR2(IDIR)%A2,1)
-      call DAXPY_(nbsts,URL,TMPI,1,pZMI2(IDIR)%A2,1)
-      call DAXPY_(nbsts,-UIL,TMPR,1,pZMI2(IDIR)%A2,1)
+      call DAXPY_(nbsts,URL,TMPR,1,SDMXYZR2(:,IDIR),1)
+      call DAXPY_(nbsts,UIL,TMPI,1,SDMXYZR2(:,IDIR),1)
+      call DAXPY_(nbsts,URL,TMPI,1,SDMXYZI2(:,IDIR),1)
+      call DAXPY_(nbsts,-UIL,TMPR,1,SDMXYZI2(:,IDIR),1)
     end do
     !ccccccccccccccccccccc
     ! END SPINORBIT STUFF
@@ -328,21 +286,21 @@ end do
 ! Store this density to DENSOUT
 if ((ITYPE == 3) .or. (ITYPE == 4)) then
   do I=1,nbsts
-    DENSOUT(1,I) = SDMXR2(I)
-    DENSOUT(2,I) = SDMYR2(I)
-    DENSOUT(3,I) = SDMZR2(I)
-    DENSOUT(4,I) = SDMXI2(I)
-    DENSOUT(5,I) = SDMYI2(I)
-    DENSOUT(6,I) = SDMZI2(I)
+    DENSOUT(1,I) = SDMXYZR2(I,1)
+    DENSOUT(2,I) = SDMXYZR2(I,2)
+    DENSOUT(3,I) = SDMXYZR2(I,3)
+    DENSOUT(4,I) = SDMXYZI2(I,1)
+    DENSOUT(5,I) = SDMXYZI2(I,2)
+    DENSOUT(6,I) = SDMXYZI2(I,3)
   end do
 else
   do I=1,nbsts
-    DENSOUT(1,I) = SDMZR2(I)
-    DENSOUT(2,I) = SDMZR2(I)
-    DENSOUT(3,I) = SDMZR2(I)
-    DENSOUT(4,I) = SDMZI2(I)
-    DENSOUT(5,I) = SDMZI2(I)
-    DENSOUT(6,I) = SDMZI2(I)
+    DENSOUT(1,I) = SDMXYZR2(I,3)
+    DENSOUT(2,I) = SDMXYZR2(I,3)
+    DENSOUT(3,I) = SDMXYZR2(I,3)
+    DENSOUT(4,I) = SDMXYZI2(I,3)
+    DENSOUT(5,I) = SDMXYZI2(I,3)
+    DENSOUT(6,I) = SDMXYZI2(I,3)
   end do
 end if
 
@@ -350,24 +308,14 @@ end if
 call mma_deallocate(SCR)
 call mma_deallocate(TDMZZ)
 
-nullify(pZMI(3)%A2,pZMI(2)%A2,pZMI(1)%A2,pZMR(3)%A2,pZMR(2)%A2,pZMR(1)%A2)
-call mma_deallocate(SDMZI)
-call mma_deallocate(SDMZR)
-call mma_deallocate(SDMYI)
-call mma_deallocate(SDMYR)
-call mma_deallocate(SDMXI)
-call mma_deallocate(SDMXR)
-
 call mma_deallocate(TMPI)
 call mma_deallocate(TMPR)
 
-nullify(pZMI2(3)%A2,pZMI2(2)%A2,pZMI2(1)%A2,pZMR2(3)%A2,pZMR2(2)%A2,pZMR2(1)%A2)
-call mma_deallocate(SDMZI2)
-call mma_deallocate(SDMZR2)
-call mma_deallocate(SDMYI2)
-call mma_deallocate(SDMYR2)
-call mma_deallocate(SDMXI2)
-call mma_deallocate(SDMXR2)
+call mma_deallocate(SDMXYZR)
+call mma_deallocate(SDMXYZI)
+
+call mma_deallocate(SDMXYZR2)
+call mma_deallocate(SDMXYZI2)
 
 call mma_deallocate(MAPST)
 call mma_deallocate(MAPSP)

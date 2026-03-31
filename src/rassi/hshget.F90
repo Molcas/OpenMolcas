@@ -11,24 +11,21 @@
 
 subroutine HSHGET(KEY,KEYDIM,NCOMP,ITEM,NSIZE,ITAB,ITEMID)
 
-use definitions, only: iwp, u6
+use rassi_aux, only: MULT, NHASH
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: KEYDIM, NCOMP, NSIZE
-integer(kind=iwp), intent(in) :: KEY(KEYDIM), ITEM(NCOMP,*)
-integer(kind=iwp), intent(in) :: ITAB(NSIZE,2)
+integer(kind=iwp), intent(in) :: KEYDIM, KEY(KEYDIM), NCOMP, ITEM(NCOMP,*), NSIZE, ITAB(NSIZE,2)
 integer(kind=iwp), intent(out) :: ITEMID
-! These parameters determine the hash function:
-integer(kind=iwp), parameter :: MULT = 37, NHASH = 997
-integer(kind=iwp) NULL, IND, I, LOOKAT
-logical(kind=iwp) FAILED_ID
+integer(kind=iwp) :: I, IND, INULL, LOOKAT
+logical(kind=iwp) :: FAILED_ID
 
 if (NSIZE < NHASH) then
   write(u6,*) ' HSHGET: Table size must be at least as'
   write(u6,*) '         big as NHASH, presently =',NHASH
   call ABEND()
 end if
-NULL = ITAB(NSIZE,1)
+INULL = ITAB(NSIZE,1)
 ! Evaluate hash index:
 IND = mod(KEY(1),NHASH)
 do I=2,KEYDIM
@@ -43,7 +40,7 @@ LOOKAT = IND
 Outer: do
 
   ! Are there (more) items with that hash signature?
-  if (ITAB(LOOKAT,1) == NULL) then
+  if (ITAB(LOOKAT,1) == INULL) then
     ! Here, if we have failed to find such an item.
     ITEMID = 0
     return

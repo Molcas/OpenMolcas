@@ -15,17 +15,16 @@ subroutine RDMCCI(JOB,IDISP,LABEL,ISYMP,NARRAY,ARRAY)
 ! ISYMP is the symmetry irrep label of the derivatives.
 
 use rassi_aux, only: ipglob
+use Cntrl, only: LuMck, MINAME, NCONF1, NJOB
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NJOB, NCONF1, MINAME
-use cntrl, only: LuMck
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer JOB, IDISP, ISYMP, nArray
-character(len=8) LABEL
-real*8 ARRAY(NARRAY)
-real*8, allocatable :: TEMP(:)
-integer IRC, IOPT, NTEMP, ISCODE
+integer(kind=iwp) :: JOB, IDISP, ISYMP, nArray
+character(len=8) :: LABEL
+real(kind=wp) :: ARRAY(NARRAY)
+integer(kind=iwp) :: IOPT, IRC, ISCODE, NTEMP
+real(kind=wp), allocatable :: TEMP(:)
 
 if ((JOB < 1) .or. (JOB > NJOB)) then
   write(u6,*) ' RDMCI: Invalid JOB parameter.'

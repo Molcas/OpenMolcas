@@ -11,26 +11,25 @@
 
 subroutine RDCMO_RASSI(JOB,CMO)
 
-#ifdef _HDF5_
-use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
-#endif
 use rassi_aux, only: ipglob
+use Cntrl, only: IDCMO, iTOC15, JBNAME, LuIph, NJOB, PRORB
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NBASF, NCMO, NOSH
+#ifdef _HDF5_
+use mh5, only: mh5_close_file, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NJOB, PRORB, JBNAME
-use cntrl, only: IDCMO, iTOC15, LuIph
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NCMO, NBASF, NOSH
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: JOB
+real(kind=wp) :: CMO(NCMO)
+integer(kind=iwp) :: I, IAD, IDISK, ISY, L1, L2, Length, NB, NBUF
 #ifdef _HDF5_
-integer :: refwfn_id
+integer(kind=iwp) :: refwfn_id
 #endif
-integer JOB
-real*8 CMO(NCMO)
-integer I, IAD, IDISK, ISY, L1, L2, LEN, NB, NBUF
-real*8, allocatable :: BUF(:)
+real(kind=wp), allocatable :: BUF(:)
 
 CMO(:) = Zero
 if ((JOB < 1) .or. (JOB > NJOB)) then
@@ -42,7 +41,7 @@ if (IPGLOB >= 4) write(u6,*) ' RDCMO_RASSI called for file '//trim(JBNAME(JOB))
 ! READ ORBITAL COEFFICIENTS FROM INTERFACE. ORIGINALLY ALL
 ! CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
 NBUF = 0
-do I=1,NSYM
+do I=1,nIrrep
   NBUF = NBUF+NBASF(I)**2
 end do
 call mma_allocate(BUF,NBUF,Label='BUF')
@@ -83,11 +82,11 @@ if (IPGLOB >= 5) then
 end if
 L1 = 1
 L2 = 1
-do ISY=1,NSYM
+do ISY=1,nIrrep
   NB = NBASF(ISY)
-  LEN = NOSH(ISY)*NB
-  if (LEN > 0) call DCOPY_(LEN,BUF(L1),1,CMO(L2),1)
-  L2 = L2+LEN
+  Length = NOSH(ISY)*NB
+  if (Length > 0) call DCOPY_(Length,BUF(L1),1,CMO(L2),1)
+  L2 = L2+Length
   L1 = L1+NB**2
 end do
 if (IPGLOB >= 5) then

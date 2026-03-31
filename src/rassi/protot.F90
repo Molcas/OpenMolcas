@@ -26,17 +26,16 @@ subroutine PROTOT(NPORB,NPSDSZ,IPSDMS,NPCSFSZ,IPCSFCP,PCSFTOSD)
 !         PCSFTOSD :  NPSDSZ X NPCSFSZ MATRIX
 !                GIVING EXPANSION FROM P-SD'S TO P-CSF'S
 
-use definitions, only: iwp, wp, u6
-use constants, only: One
 use rassi_aux, only: ipglob
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NPORB, NPCSFSZ, NPSDSZ
-integer(kind=iwp), intent(in) :: IPSDMS(NPORB,NPSDSZ), IPCSFCP(NPORB,NPCSFSZ)
+integer(kind=iwp), intent(in) :: NPORB, NPSDSZ, IPSDMS(NPORB,NPSDSZ), NPCSFSZ, IPCSFCP(NPORB,NPCSFSZ)
 real(kind=wp), intent(inout) :: PCSFTOSD(NPSDSZ,NPCSFSZ)
-integer(kind=iwp), parameter :: UPCPL = 1, DWNCPL = 0, ASPIN = 1, BSPIN = 0
-real(kind=wp) COEF1, COEF2
-integer(kind=iwp) IC, IM, INDSMM, INDSPM, IOPEN, JCSF, JDET
+integer(kind=iwp) :: IC, IM, INDSMM, INDSPM, IOPEN, JCSF, JDET
+real(kind=wp) :: COEF1, COEF2
+integer(kind=iwp), parameter :: ASPIN = 1, BSPIN = 0, DWNCPL = 0, UPCPL = 1
 
 do JCSF=1,NPCSFSZ
   if (IPGLOB >= 5) write(u6,*) ' ....Output for P-CSF ',JCSF

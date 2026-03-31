@@ -19,14 +19,13 @@ subroutine NRCNF2(NORB,ISM,NCNF2)
 ! Prerequisite: The orbital symmetry labels stored in ISM.
 ! Method: Induction
 
-use definitions, only: iwp
-use Symmetry_Info, only: nSym => nIrrep, MUL
+use Symmetry_Info, only: MUL, nIrrep
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NORB
-integer(kind=iwp), intent(out) :: NCNF2(NSYM,((NORB+1)*(NORB+2))/2)
-integer(kind=iwp), intent(in) :: ISM(NORB)
-integer(kind=iwp) L, NOCC, NOPN, NCLS, IPOS1, IPOS2, IPOS3, ISYM, NEW, JSYM
+integer(kind=iwp), intent(in) :: NORB, ISM(NORB)
+integer(kind=iwp), intent(out) :: NCNF2(nIrrep,(NORB+1)*(NORB+2)/2)
+integer(kind=iwp) :: IPOS1, IPOS2, IPOS3, ISYM, JSYM, L, NCLS, NEW, NOCC, NOPN
 
 NCNF2(:,:) = 0
 NCNF2(1,1) = 1
@@ -37,7 +36,7 @@ do L=1,NORB
       IPOS1 = (NOCC*(NOCC+1))/2+NOPN+1
       IPOS2 = IPOS1-NOCC
       IPOS3 = IPOS2-1
-      do ISYM=1,NSYM
+      do ISYM=1,nIrrep
         NEW = NCNF2(ISYM,IPOS1)
         if (NCLS > 0) NEW = NEW+NCNF2(ISYM,IPOS2)
         JSYM = MUL(ISM(L),ISYM)

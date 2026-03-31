@@ -11,11 +11,12 @@
 
 subroutine MorsWrite(IMORS,STRING)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) STRING
-integer I, IB, IBIT, IMORS
+integer(kind=iwp) :: IMORS
+character(len=*) :: STRING
+integer(kind=iwp) :: I, IB, IBIT
 
 if (IMORS < 0) goto 99
 IB = IMORS

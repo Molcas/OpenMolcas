@@ -11,17 +11,17 @@
 
 subroutine MSTOW(SGS,CIS,MWS2W,nSym)
 
-use definitions, only: iwp
-use gugx, only: SGStruct, CIStruct
+use gugx, only: CIStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
 integer(kind=iwp), intent(out) :: MWS2W(*)
 integer(kind=iwp), intent(in) :: nSym
+integer(kind=iwp) :: MIDLEV, NIPWLK, NLEV, NMIDV, NVERT, NWALK
 integer(kind=iwp), allocatable :: ICS(:)
-integer(kind=iwp) NLEV, NVERT, MIDLEV, NMIDV, NIPWLK, NWALK
 
 NLEV = SGS%nLev
 NVERT = SGS%nVert

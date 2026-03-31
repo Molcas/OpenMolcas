@@ -44,61 +44,35 @@
 subroutine NTOCalc(JOB1,JOB2,ISTATE,JSTATE,TRAD,TRASD,ISpin)
 
 use fortran_strings, only: str
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NASH, NASHT, NBASF, NBST, NCMO, NISH, NISHT, NOSH
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep
 use Constants, only: Zero, One, Two
-use rassi_data, only: NASHT, NBST, NISHT, NCMO, NASH, NBASF, NISH, NOSH
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer ISpin, JOB1, JOB2
-integer IState, jState
-real*8, dimension(NASHT**2) :: TRAD, TRASD
-character, dimension(2) :: Spin
-integer Iprint, Jprint, I, J, isym
-! Printing or looping control
-integer IUseSym, NUseSym, NSupBas, icactorb
-integer, dimension(NBST) :: OrbUsedSym
-integer, dimension(NASHT+NISHT) :: OrbAct
-! CMO Symmetry Contrl
-integer, dimension(NSym) :: NUsedBF, NUseBF, UsetoReal, RealtoUse
+integer(kind=iwp) :: JOB1, JOB2, IState, jState, ISpin
+real(kind=wp) :: TRAD(NASHT**2), TRASD(NASHT**2)
+integer(kind=iwp) :: I, I_NTO, icactorb, INFO, IOrb, Iprint, isym, IUseSym, J, Jprint, LU, N_NTO, NAISHT, NDge, NScrq, NSupBas, &
+                     NSUPCMO, NUseBF(nIrrep), NUsedBF(nIrrep), NUseSym, RealtoUse(nIrrep), UsetoReal(nIrrep)
+real(kind=wp) :: SumEigVal, WGRONK(2)
+logical(kind=iwp) :: DOTEST
+character(len=128) :: FILENAME
+character(len=9) :: STATENAME
+character(len=8) :: NTOType
+character(len=3) :: lIrrep(8)
+character :: Spin(2)
+integer(kind=iwp), allocatable :: Indfr(:), Indto(:), OrbAct(:), OrbBas(:), OrbSym(:), OrbUsedSym(:), Symfr(:), Symto(:)
+real(kind=wp), allocatable :: CMO1(:), CMO2(:), ONTO(:), Scrq(:), SUPCMO1(:), SUPCMO2(:), TDM(:), TDMT(:), UEig(:), UMAT(:), &
+                              UNTO(:), VEig(:), VMAT(:)
+real(kind=wp), parameter :: PrintThres = 1.0e-5_wp
+integer(kind=iwp), external :: ISFREEUNIT
+
 ! Nr. of basis functions used prior to this symmetry (NUsedBF)
-! and used in this symmetry (NUseBF) NSym >= NusedSym
-integer IOrb
+! and used in this symmetry (NUseBF) nIrrep >= NusedSym
 !IOrb is the index  of orbitals.
-integer NSUPCMO
-integer NDge
-integer NScrq
-real*8 WGRONK(2)
-integer N_NTO, INFO, I_NTO
-real*8 SumEigVal
-real*8, parameter :: PrintThres = 1.0e-5_wp
-! re-organizing orbitals
-! This is to convert active MO sets in any symmetry into a C1 symmetry
-integer NAISHT
-integer, dimension(NISHT+NASHT) :: OrbBas, OrbSym
 !OrbBas() is the number of basis function for IOrb
 !OrbSym() is the index of symmetry/irrep  for IOrb
-! The strings below should be converted to
-! character(len=:), allocatable format, but currently
-! gfortran has problems with this
-character(len=128) FILENAME
-character(len=8) NTOType
-character(len=9) STATENAME
-character*3 lIrrep(8)
-logical DOTEST
-integer LU
-integer, external :: ISFREEUNIT
-external Molden_interface
-real*8, allocatable :: SUPCMO1(:), SUPCMO2(:)
-real*8, allocatable :: ONTO(:), UNTO(:)
-real*8, allocatable :: CMO1(:), CMO2(:)
-real*8, allocatable :: UMAT(:), VMAT(:)
-real*8, allocatable :: UEig(:), VEig(:)
-real*8, allocatable :: TDM(:), TDMT(:)
-real*8, allocatable :: Scrq(:)
-integer, allocatable :: Symfr(:), Symto(:)
-integer, allocatable :: Indfr(:), Indto(:)
 
 statename = ''
 DoTest = .false.
@@ -118,11 +92,16 @@ if (dotest) then
   end do
 end if
 
+call mma_allocate(OrbUsedSym,NBST,Label='OrbUsedSym')
+call mma_allocate(OrbAct,NISHT+NASHT,Label='OrbAct')
+call mma_allocate(OrbBas,NISHT+NASHT,Label='OrbBas')
+call mma_allocate(OrbSym,NISHT+NASHT,Label='OrbSym')
+
 ! Analyzing the symmetry of the wave function
 IUseSym = 0
 NSupBas = 0
 IOrb = 0
-do ISym=1,NSym
+do ISym=1,nIrrep
   if (NASH(ISym) > 0) then
     IUseSym = IUseSym+1
     RealtoUse(ISym) = IUseSym
@@ -199,6 +178,10 @@ if (DoTest) then
     end do
   end do
 end if
+call mma_deallocate(OrbUsedSym)
+call mma_deallocate(OrbAct)
+call mma_deallocate(OrbBas)
+call mma_deallocate(OrbSym)
 ! end of building up the super-CMO matrix
 !     Start and initialize spaces
 statename = str(JSTATE)//'_'//str(ISTATE)
@@ -348,7 +331,7 @@ do I_NTO=1,N_NTO
   ! End of Printing NTOs
 
   call Get_cArray('Irreps',lIrrep,24)
-  do iSym=1,nSym
+  do iSym=1,nIrrep
     lIrrep(iSym) = adjustr(lIrrep(iSym))
   end do
 

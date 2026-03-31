@@ -13,27 +13,26 @@ subroutine READCI(ISTATE,SGS,CIS,NCI,CI)
 
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: JBNUM, LROOT
-use gugx, only: SGStruct, CIStruct
-#ifdef _HDF5_
-use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr, mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
-use Cntrl, only: NROOTS
-#endif
-use Cntrl, only: NSTATE, PRCI, CITHR, IRREP, JBNAME, MLTPLT
-use cntrl, only: iTOC15, LuIph
+use gugx, only: CIStruct, SGStruct
+use Cntrl, only: CITHR, IRREP, iTOC15, JBNAME, LuIph, MLTPLT, NSTATE, PRCI
 use Molcas, only: MxRoot
-use Definitions, only: u6
+#ifdef _HDF5_
+use mh5, only: mh5_close_file, mh5_exists_attr, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
+use Cntrl, only: NROOTS
+use stdalloc, only: mma_allocate, mma_deallocate
+#endif
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: ISTATE, NCI
+type(SGStruct) :: SGS
+type(CIStruct) :: CIS
+real(kind=wp) :: CI(NCI)
+integer(kind=iwp) :: I, IAD, IDISK, JOB, LROOT1, LSYM
 #ifdef _HDF5_
-integer :: refwfn_id
-integer :: root2state(mxroot), IDXCI
+integer(kind=iwp) :: refwfn_id, IDXCI
+integer(kind=iwp), allocatable :: root2state(:)
 #endif
-integer ISTATE
-type(SGStruct) SGS
-type(CIStruct) CIS
-integer NCI
-real*8 CI(NCI)
-integer I, IAD, IDISK, JOB, LROOT1, LSYM
 
 if ((ISTATE < 1) .or. (ISTATE > NSTATE)) then
   write(u6,*) 'RASSI/READCI: Invalid ISTATE parameter.'
@@ -52,8 +51,10 @@ if (mh5_is_hdf5(jbname(job))) then
   !*********************************************************************
   refwfn_id = mh5_open_file_r(jbname(job))
   if (mh5_exists_attr(refwfn_id,'ROOT2STATE')) then
+    call mma_allocate(root2state,MxRoot,Label='root2state')
     call mh5_fetch_attr(refwfn_id,'ROOT2STATE',root2state)
     IDXCI = root2state(lroot1)
+    call mma_deallocate(root2state)
   else
     IDXCI = lroot1
   end if

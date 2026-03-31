@@ -18,24 +18,17 @@ subroutine MKDCHS(IFSBTAB1,IFSBTAB2,ISSTAB,MAPORB,DET1,DET2,IF20,IF02,NDCHSM,DCH
 !
 !  'I,J,|< N-2 | anni_right anni_right | N >|**2'
 
-use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer IFSBTAB1(*), IFSBTAB2(*)
-integer ISSTAB(*), MAPORB(*), NDCHSM
-real*8 DET1(*), DET2(*)
-real*8 DCHSM(NDCHSM)
-integer OrbTab(*)
-integer NASHT, NASORB
-real*8 GVAL, GAB, GBA
-integer IAJB, IBJA
-integer JORB, IORB
-integer JORBA, JORBB, IORBA, IORBB
-integer ITABS, JTABS, IJTABS
-integer NSDCHSM
-logical IF20, IF02
-real*8, allocatable :: SDCHSM(:)
+integer(kind=iwp) :: IFSBTAB1(*), IFSBTAB2(*), ISSTAB(*), MAPORB(*), NDCHSM, OrbTab(*)
+real(kind=wp) :: DET1(*), DET2(*), DCHSM(NDCHSM)
+logical(kind=iwp) :: IF20, IF02
+integer(kind=iwp) :: IAJB, IBJA, IJTABS, IORB, IORBA, IORBB, ITABS, JORB, JORBA, JORBB, JTABS, NASHT, NASORB, NSDCHSM
+real(kind=wp) :: GAB, GBA, GVAL
+real(kind=wp), allocatable :: SDCHSM(:)
 
 ! Pick out nr of active orbitals from orbital table:
 NASORB = ORBTAB(4)

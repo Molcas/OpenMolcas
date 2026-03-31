@@ -18,23 +18,19 @@ subroutine SDCHS(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,PSI1,PSI2,IF20,IF02,SDCHSM)
 ! IF20 D = < N | anni_left anni_left  | N-2 >
 ! reduced 2-electron tdm in the space of active spin-orbitals
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use rassi_global_arrays, only: FSBANN1, FSBANN2
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IORBTAB(*), ISSTAB(*)
-integer IFSBTAB1(*), IFSBTAB2(*)
-real*8 PSI1(*), PSI2(*), SDCHSM(*)
-logical IF20, IF02
-real*8 COEFF, OVLP
-integer NASORB
-integer IMODE
-integer ISORB, JSORB, IJ
-integer ND1, ND2
-real*8, allocatable :: ANN1(:), ANN2(:)
-real*8, external :: OVERLAP_RASSI
+integer(kind=iwp) :: IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp) :: PSI1(*), PSI2(*), SDCHSM(*)
+logical(kind=iwp) :: IF20, IF02
+integer(kind=iwp) :: IJ, IMODE, ISORB, JSORB, NASORB, ND1, ND2
+real(kind=wp) :: COEFF, OVLP
+real(kind=wp), allocatable :: ANN1(:), ANN2(:)
+real(kind=wp), external :: OVERLAP_RASSI
 
 NASORB = IORBTAB(4)
 

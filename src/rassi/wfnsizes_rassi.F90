@@ -13,11 +13,12 @@ subroutine wfnsizes_rassi()
 
 use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
 use rassi_aux, only: nasht_save
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NISHT, NASHT, NOSHT, NSSHT, NBST, NAES, NASH, NBASF, NISH, NOSH, NSSH
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NAES, NASH, NASHT, NBASF, NBST, NISH, NISHT, NOSH, NOSHT, NSSH, NSSHT
+use Definitions, only: iwp
 
 implicit none
-integer :: isym
+integer(kind=iwp) :: isym
 
 ! The structure of the orbital space:
 NISHT = 0
@@ -28,7 +29,7 @@ NRS3T = 0
 NOSHT = 0
 NSSHT = 0
 NBST = 0
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NAES(ISYM) = NASHT
   NISHT = NISHT+NISH(ISYM)
   NASHT = NASHT+NASH(ISYM)

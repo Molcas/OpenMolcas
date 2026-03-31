@@ -11,24 +11,22 @@
 
 subroutine HSHPUT(KEYDIM,NCOMP,ITEM,NSIZE,ITAB,ITEMID)
 
-use definitions, only: iwp, u6
+use rassi_aux, only: MULT, NHASH
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: KEYDIM, NCOMP, NSIZE, ITEMID
+integer(kind=iwp), intent(in) :: KEYDIM, NCOMP, ITEM(NCOMP,*), NSIZE, ITEMID
 integer(kind=iwp), intent(inout) :: ITAB(NSIZE,2)
-integer(kind=iwp), intent(in) :: ITEM(NCOMP,*)
-! These parameters determine the hash function:
-integer(kind=iwp), parameter :: MULT = 37, NHASH = 997
-integer(kind=iwp) IND, I, IFREE, LOOKAT, NULL, NEXT
+integer(kind=iwp) :: I, IFREE, IND, INULL, LOOKAT, NEXT
 
 if (NSIZE < NHASH) then
   write(u6,*) ' HSHPUT: Table size must be at least as'
   write(u6,*) '         big as NHASH, presently =',NHASH
   call ABEND()
 end if
-NULL = ITAB(NSIZE,1)
+INULL = ITAB(NSIZE,1)
 IFREE = ITAB(NSIZE,2)
-if (ITAB(IFREE,1) == NULL) then
+if (ITAB(IFREE,1) == INULL) then
   write(u6,*) ' HSHPUT: Table is already full.'
   write(u6,*) ' Size NSIZE is too small, NSIZE =',NSIZE
   call ABEND()
@@ -45,7 +43,7 @@ IND = IND+1
 LOOKAT = IND
 do
   ! Are there already items with that hash signature?
-  if (ITAB(LOOKAT,1) == NULL) exit
+  if (ITAB(LOOKAT,1) == INULL) exit
   LOOKAT = ITAB(LOOKAT,1)
 end do
 
@@ -54,7 +52,7 @@ end do
 ITAB(LOOKAT,1) = IFREE
 ITAB(LOOKAT,2) = ITEMID
 NEXT = ITAB(IFREE,1)
-ITAB(IFREE,1) = NULL
+ITAB(IFREE,1) = INULL
 ITAB(NSIZE,2) = NEXT
 
 end subroutine HSHPUT

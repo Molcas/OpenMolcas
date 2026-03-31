@@ -13,21 +13,19 @@
 
 function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
 ! DCLEBS: real Clebsch-Gordan coefficients
-! From a modification of Racah''s formula. Coded: Malmqvist 1998
+! From a modification of Racah's formula. Coded: Malmqvist 1998
 ! Note carefully: The input values XJ1..XM3 are REAL, not integers. Half-integer spins are allowed
 ! Half-integers are assumed exactly represented
 
-use Definitions, only: wp, iwp
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: DCLEBS
 real(kind=wp), intent(in) :: XJ1, XJ2, XJ3, XM1, XM2, XM3
 integer, parameter :: MAXJ = 10, MAXF = 3*MAXJ+1
-integer(kind=iwp), save :: icall = 0
-real(kind=wp), save :: DFACT(0:MAXF)
-real(kind=wp) :: DF, den, PRE, PRE2, SUMMA, TERM, XJSUM
-integer(kind=iwp) :: i, IA1, IA2, IA3, IB1, IB2, IB3, IX, IX1, IX2, IY, IY0, JSUM
+integer(kind=iwp) :: i, IA1, IA2, IA3, IB1, IB2, IB3, icall = 0, IX, IX1, IX2, IY, IY0, JSUM
+real(kind=wp) :: den, DF, DFACT(0:MAXF) = Zero, PRE, PRE2, SUMMA, TERM, XJSUM
 
 if (icall == 0) then
   icall = icall+1

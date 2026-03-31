@@ -13,27 +13,19 @@
 
 module RASSI_GLOBAL_ARRAYS
 
-implicit none
+use Definitions, only: wp, iwp
 
-real*8, allocatable :: HAM(:,:), SFDYS(:,:,:), SODYSAMPS(:,:), SODYSAMPSR(:,:), SODYSAMPSI(:,:), EIGVEC(:,:), PROP(:,:,:), &
-                       ESHFT(:), HDIAG(:)
-integer, allocatable :: JBNUM(:), LROOT(:)
-integer, allocatable :: PART(:)
-integer, allocatable :: OrbTab(:)
-integer, allocatable :: SSTAB(:)
-integer, allocatable, target :: REST1(:), REST2(:)
-integer, pointer :: REST(:)
-integer, allocatable, target :: CNFTAB1(:), CNFTAB2(:)
-integer, pointer :: CNFTAB(:)
-integer, allocatable, target :: FSBTAB1(:), FSBTAB2(:)
-integer, pointer :: FSBTAB(:)
-integer, allocatable :: FSBARR(:)
-integer, allocatable, target :: SPNTAB1(:), SPNTAB2(:)
-integer, pointer :: SPNTAB(:)
-real*8, allocatable, target :: TRANS1(:), TRANS2(:)
-real*8, pointer :: TRANS(:)
-integer, allocatable, target :: FSBANN1(:), FSBANN2(:)
-integer, allocatable, target :: FSBANN3(:), FSBANN4(:)
-integer, pointer :: FSBANN(:)
+implicit none
+private
+
+integer(kind=iwp), allocatable :: FSBARR(:), JBNUM(:), LROOT(:), OrbTab(:), PART(:), SSTAB(:)
+integer(kind=iwp), allocatable, target :: CNFTAB1(:), CNFTAB2(:), FSBANN1(:), FSBANN2(:), FSBANN3(:), FSBANN4(:), FSBTAB1(:), &
+                                          FSBTAB2(:), REST1(:), REST2(:), SPNTAB1(:), SPNTAB2(:)
+real(kind=wp), allocatable :: EIGVEC(:,:), ESHFT(:), HAM(:,:), HDIAG(:), SFDYS(:,:,:), SODYSAMPS(:,:), SODYSAMPSI(:,:), &
+                              SODYSAMPSR(:,:)
+real(kind=wp), allocatable, target :: TRANS1(:), TRANS2(:)
+
+public :: CNFTAB1, CNFTAB2, EIGVEC, ESHFT, FSBANN1, FSBANN2, FSBANN3, FSBANN4, FSBARR, FSBTAB1, FSBTAB2, HAM, HDIAG, JBNUM, LROOT, &
+          OrbTab, PART, REST1, REST2, SFDYS, SODYSAMPS, SODYSAMPSI, SODYSAMPSR, SPNTAB1, SPNTAB2, SSTAB, TRANS1, TRANS2
 
 end module RASSI_GLOBAL_ARRAYS

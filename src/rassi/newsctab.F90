@@ -11,16 +11,16 @@
 
 subroutine NEWSCTAB(MINOP,MAXOP,MLTPL,MS2,ICASE)
 
-use definitions, only: iwp, u6
+use rassi_global_arrays, only: SPNTAB1, SPNTAB2, TRANS1, TRANS2
 use stdalloc, only: mma_allocate
-use rassi_global_arrays, only: TRANS1, TRANS2, TRANS
-use rassi_global_arrays, only: SPNTAB1, SPNTAB2, SPNTAB
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: MINOP, MAXOP, MLTPL, MS2, ICASE
-integer(kind=iwp), parameter :: ASPIN = 1, BSPIN = 0
-integer(kind=iwp), parameter :: UPCPL = 1, DWNCPL = 0, NULLPTR = -1
-integer(kind=iwp) IBLK, IOPEN, KSPCPL, KSPDET, LTRANS, LTRANS0, NA, NBLK, NCP, ND, NSPCPL, NSPDET, NTAB, NTRANS, NB
+integer(kind=iwp) :: IBLK, IOPEN, KSPCPL, KSPDET, LTRANS, LTRANS0, NA, NB, NBLK, NCP, ND, NSPCPL, NSPDET, NTAB, NTRANS
+integer(kind=iwp), pointer :: SPNTAB(:)
+real(kind=wp), pointer :: TRANS(:)
+integer(kind=iwp), parameter :: ASPIN = 1, BSPIN = 0, DWNCPL = 0, NULLPTR = -1, UPCPL = 1
 integer(kind=iwp), external :: NGENE, NOVERM
 
 if ((MLTPL-MS2 < 1) .or. (MLTPL+MS2 < 1)) then
@@ -70,7 +70,10 @@ select case (ICASE)
     SPNTAB => SPNTAB2(:)
     call mma_allocate(TRANS2,NTRANS,Label='TRANS2')
     TRANS => TRANS2(:)
-  case DEFAULT
+  case default
+    call Abend()
+    SPNTAB => SPNTAB1(:) !dummy
+    TRANS => TRANS1(:) !dummy
 end select
 KSPCPL = 9+6*NBLK
 KSPDET = KSPCPL+NSPCPL

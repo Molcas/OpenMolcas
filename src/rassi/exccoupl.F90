@@ -12,24 +12,23 @@
 !ifdef _DEBUGPRINT_
 subroutine exccoupl()
 
-use constants, only: Zero, Half
-use definitions, only: wp, iwp, u6
-use frenkel_global_vars, only: iTyp, jTyp, valst, nestla, nestlb, doexch, excl, eNucB
-use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep
+use frenkel_global_vars, only: doexch, eNucB, excl, iTyp, jTyp, nestla, nestlb, valst
+use Symmetry_Info, only: nIrrep
 use Molcas, only: MxRoot
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nstat1, nstat2, run, lWKX, dimn, a, b
-integer(kind=iwp), external :: isFreeUnit
+integer(kind=iwp) :: a, b, dimn, I, iAddr, iState, jState, kState, lState, LuT, LuT1, LuT2, LuT_, LuTX1, LuTX2, LuTX4, LWK1, LWK2, &
+                     lWKX, N, nAtoms, nijkl, nstat1, nstat2, run
+real(kind=wp) :: AB_Nuc, Discrim, EANucB, EBNucA, EECoupl, exCoupl, rlWKX(1), Vnn_AB
+logical(kind=iwp) :: states1, states2, WK_C_exists, WK_X_exists
 character(len=13) :: filnam1, filnam2, filnam3, filnam4, filnam5, filnam6, filnam9
-logical :: WK_C_exists, WK_X_exists, states1, states2
 character(len=1) :: labi, labj
-real(kind=wp), allocatable :: rBvA(:), Charge(:), WKX1(:), WKX2(:), WK1(:), Frenkeltri(:), Frenkelunknwn(:)
-real(kind=wp) :: exCoupl, rlWKX(1)
-integer LuT_, LuT, LuTX4, iAddr, nijkl, iState, jState, LuT1, LWK1, I, LuTX1, lState, LuT2, LWK2, LuTX2, N, nAtoms, kState
-real*8, external :: DDot_
-real*8 Vnn_AB, AB_Nuc, EBNucA, EANucB, Discrim, EECoupl
+real(kind=wp), allocatable :: Charge(:), Frenkeltri(:), Frenkelunknwn(:), rBvA(:), WK1(:), WKX1(:), WKX2(:)
+integer(kind=iwp), external :: isFreeUnit
+real(kind=wp), external :: DDot_
 
 call StatusLine('RASSI: ','Starting Excitonic Coupling Section')
 LuT_ = 10
@@ -63,7 +62,7 @@ call mma_allocate(Charge,nAtoms,Label='Zcharge')
 call Get_dArray('Effective nuclear Charge',Charge,nAtoms)
 VNN_AB = Zero
 call NameRun('AUXRFIL2')
-call PotNuc_nad(nSym,nAtoms,Charge,VNN_AB)
+call PotNuc_nad(nIrrep,nAtoms,Charge,VNN_AB)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'VNN_AB (nuc-nuc interaction)',VNN_AB
 #endif

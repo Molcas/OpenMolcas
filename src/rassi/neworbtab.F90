@@ -12,19 +12,14 @@
 subroutine NEWORBTAB(IPRTTAB)
 
 use rassi_global_arrays, only: OrbTab
+use Cntrl, only: MORSBITS
 use stdalloc, only: mma_allocate
-use cntrl, only: MORSBITS
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IPRTTAB(*)
-integer I, N, IEXTNUM, INPART, INSBP, ISORB, IPART, ISMLAB, ISOIND
-integer ISPART, ISUM, KSPART
-integer IPFR, IPIN, IPAC, IPSE
-integer ISYM
-integer NPART, NSPART, NORBT, NSORBT, NSYM
-integer NAPART, NASPRT, NASPO, KOINFO, NTAB
-integer NOES(8), INSYM(8)
+integer(kind=iwp) :: IPRTTAB(*)
+integer(kind=iwp) :: I, IEXTNUM, INPART, INSBP, INSYM(8), IPAC, IPART, IPFR, IPIN, IPSE, ISMLAB, ISOIND, ISORB, ISPART, ISUM, &
+                     ISYM, KOINFO, KSPART, N, NAPART, NASPO, NASPRT, NOES(8), NORBT, NPART, NSORBT, NSPART, NSYM, NTAB
 
 ISOIND = 0 ! dummy initialize
 ! Executable statements

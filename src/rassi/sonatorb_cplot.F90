@@ -11,37 +11,29 @@
 
 subroutine SONATORB_CPLOT(DENS,FILEBASE,CHARTYPE,ASS,BSS)
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, One, Two
 use OneDat, only: sNoNuc, sNoOri, sOpSiz
 use rassi_aux, only: ipglob
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NBASF, NBMX, NBSQ, NBST, NBTRI
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NBTRI, NBMX, NBASF, NBSQ, NBST
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) DENS(6,NBTRI)
-character(len=*) FILEBASE
-character(len=8) CHARTYPE
-integer(kind=iwp) ASS, BSS
-character(len=25) FNAME
-character(len=16) KNUM
-character(len=16) FNUM, XNUM
-character(len=8) LABEL
-character CDIR
-real(kind=wp) Dummy(1)
-integer(kind=iwp) IDUM(1), iDummy(7,8)
-real(kind=wp), allocatable :: SZZ(:), VEC(:), VEC2(:), VEC2I(:), SCR(:)
-real(kind=wp), allocatable :: SCRI(:), EIG(:)
-real(kind=wp), allocatable :: VNAT(:), VNATI(:), OCC(:)
-real(kind=wp), allocatable :: DMAT(:), DMATI(:)
-real(kind=wp), allocatable :: SANG(:)
-real(kind=wp), allocatable :: SANGF(:), SANGTR(:), SANGTI(:)
-real(kind=wp), allocatable :: SANGTR2(:), SANGTI2(:)
-integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV, LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND, IDIR, INV, II2, &
-                  IOCC, J, IJ, JI, ID1, ID2, ISCR, II, I1, I2, LuXXVEC, JOPT, I1I, INV2, ISCRI
+real(kind=wp) :: DENS(6,NBTRI)
+character(len=*) :: FILEBASE
+character(len=8) :: CHARTYPE
+integer(kind=iwp) :: ASS, BSS
+integer(kind=iwp) :: I, I1, I1I, I2, ICMP, ID1, ID2, IDIR, IDUM(1), iDummy(7,8), IEND, II, II2, IJ, INV, INV2, IOCC, IOPT, IRC, &
+                     ISCR, ISCRI, ISTART, ISYLAB, ISYM, ITYPE, J, JI, JOPT, LE, LE1, LS, LS1, LuXXVEC, LV, LV1, NB, NBMX2
+real(kind=wp) :: Dummy(1), SUMI, SUMR, X
+character(len=25) :: FNAME
+character(len=16) :: FNUM, KNUM, XNUM
+character(len=8) :: LABEL
+character :: CDIR
+real(kind=wp), allocatable :: DMAT(:), DMATI(:), EIG(:), OCC(:), SANG(:), SANGF(:), SANGTI(:), SANGTI2(:), SANGTR(:), SANGTR2(:), &
+                              SCR(:), SCRI(:), SZZ(:), VEC(:), VEC2(:), VEC2I(:), VNAT(:), VNATI(:)
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=wp) X, SUM, SUMI
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! PLOTTING SECTION
@@ -112,7 +104,7 @@ LS = 1
 LV = 1
 LE = 1
 VEC(:) = Zero
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NB = NBASF(ISYM)
   do I=1,NB**2,(NB+1)
     VEC(LV-1+I) = One
@@ -208,7 +200,7 @@ do IDIR=ISTART,IEND
   IOCC = 0
   LV = 1
   LE = 1
-  do ISYM=1,NSYM
+  do ISYM=1,nIrrep
     NB = NBASF(ISYM)
     if (NB == 0) cycle
 
@@ -329,10 +321,10 @@ do IDIR=ISTART,IEND
     INV = 0
     INV2 = 0
     II = 0
-    SUM = Zero
+    SUMR = Zero
     SUMI = Zero
 
-    do ISYM=1,NSYM
+    do ISYM=1,nIrrep
       NB = NBASF(ISYM)
       if (NB /= 0) then
 
@@ -385,7 +377,7 @@ do IDIR=ISTART,IEND
         ! Sum over the trace
         do I=1,NB
           IJ = I+(I-1)*NB-1
-          SUM = SUM+OCC(I+INV2)*SANGTR2(1+IJ)
+          SUMR = SUMR+OCC(I+INV2)*SANGTR2(1+IJ)
           SUMI = SUMI+OCC(I+INV2)*SANGTI2(1+IJ)
         end do
 
@@ -397,7 +389,7 @@ do IDIR=ISTART,IEND
     end do
 
     write(u6,*) 'Ben P TEST for JA:'
-    write(u6,*) 'REAL: ',SUM
+    write(u6,*) 'REAL: ',SUMR
     write(u6,*) 'IMAG: ',SUMI
 
     call mma_deallocate(SANGF)
@@ -435,7 +427,7 @@ do IDIR=ISTART,IEND
   LuxxVec = 50
   LuxxVec = isfreeunit(LuxxVec)
 
-  call WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,VNAT,OCC,Dummy,iDummy,'* DENSITY FOR PROPERTY TYPE '//CHARTYPE//KNUM)
+  call WRVEC(FNAME,LUXXVEC,'CO',nIrrep,NBASF,NBASF,VNAT,OCC,Dummy,iDummy,'* DENSITY FOR PROPERTY TYPE '//CHARTYPE//KNUM)
 
   ! IMAGINARY PART
   if (ITYPE <= 2) then
@@ -455,7 +447,7 @@ do IDIR=ISTART,IEND
   LuxxVec = 50
   LuxxVec = isfreeunit(LuxxVec)
 
-  call WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,VNATI,OCC,Dummy,iDummy,'* DENSITY FOR PROPERTY TYPE '//CHARTYPE//KNUM)
+  call WRVEC(FNAME,LUXXVEC,'CO',nIrrep,NBASF,NBASF,VNATI,OCC,Dummy,iDummy,'* DENSITY FOR PROPERTY TYPE '//CHARTYPE//KNUM)
 
   !Test a few values
   !call ADD_INFO('SONATORB_CPLOTR',VNAT,1,4)

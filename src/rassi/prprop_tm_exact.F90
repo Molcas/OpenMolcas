@@ -15,62 +15,45 @@
 
 subroutine PRPROP_TM_Exact(PROP,USOR,USOI,ENSOR,NSS,JBNUM,EigVec)
 
-use RASSI_AUX
-use kVectors
+use RASSI_AUX, only: iDisk_TDM
+use kVectors, only: e_Vector, k_Vector, nk_Vector
 use do_grid, only: Do_Lebedev
 use nq_Grid, only: Pax
-use stdalloc, only: mma_allocate, mma_deallocate
+use Cntrl, only: DIPR, Do_Pol, Do_SK, ICOMP, IRREP, L_Eff, LOOPDIVIDE, LOOPMAX, lSym1, lSym2, LUTDM, MLTPLT, NPROP, nQuad, NSTATE, &
+                 OSThr_Dipr, OSThr_QIPR, PNAME, PrRaw, PrWeight, PTYPE, QIPR, REDUCELOOP, RSPR, RSThr, TMGR_Thrs
+use Symmetry_Info, only: MUL, nIrrep
+use rassi_data, only: NBASF, NBST, NTDMZZ
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use RASSIWfn, only: wfn_SOS_TM
 #endif
-use Constants, only: Pi, auTofs, c_in_au, Debye, gElectron, Zero, Half, One, Two, Four
-use Cntrl, only: NSTATE, NPROP, DIPR, OSThr_Dipr, QIPR, OSThr_QIPR, RSPR, RSThr, REDUCELOOP, LOOPDIVIDE, LOOPMAX, Do_SK, nQuad, &
-                 PrRaw, PrWeight, Do_Pol, TMGR_Thrs, lSym1, lSym2, L_Eff, ICOMP, IRREP, MLTPLT, PNAME, PTYPE
-use cntrl, only: LuTDM
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use rassi_data, only: NBST, NBASF, NTDMZZ
-use Definitions, only: wp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Four, Half, Pi, auTofs, c_in_au, Debye, gElectron
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSS
-real*8 PROP(NSTATE,NSTATE,NPROP)
-real*8 USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS)
-integer JBNUM(NSTATE)
-real*8 EigVec(NSTATE,NSTATE)
-real*8, parameter :: THRSH = 1.0e-10_wp
-logical TMOgroup
-integer IOFF(8), IJSS(4), IPRTMOM(14)
-character(len=8) LABEL
-character(len=52) STLNE2
-integer, dimension(:), allocatable :: TMOgrp1, TMOgrp2, ISS_INDEX, iMask, jMask, iSSMask, jSSMask
-real*8 TM_R(3), TM_I(3), TM_C(3)
-real*8 wavevector(3), UK(3)
-real*8 kPhase(2)
-real*8, allocatable :: pol_Vector(:,:), Rquad(:,:)
+integer(kind=iwp) :: NSS, JBNUM(NSTATE)
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), EigVec(NSTATE,NSTATE)
+integer(kind=iwp) :: I, iCar, IDISK, IEMPTY, IEND, iEnd_, IGO, iGrp, IJ_, ijSO, IJSS(4), IMSS, IOFF(8), iOpt, iPrint, IPROP, iPrP, &
+                     IPRTMOM(14), iQuad, iQuad_, ISF, ISM, ISO, ISS, ISSM, iStart_, iState, iSy12, ITYPE, iVec, iVec_, J, JEnd, &
+                     jEnd_, jGrp, JMSS, Job, Job1, Job2, JSF, JSM, JSO, JSS, JSSM, JSTart, jStart_, K, KP, lRaw, lRaw_, MASK, &
+                     MaxGrp1, MaxGrp2, NDIFF, NGROUP1, NGROUP2, NIP, NMAX2, nQuad_, NSCR, nTmp, NVEC
+real(kind=wp) :: A, ANG, CST, EDiff, EDiff_, EnSOR1, EnSOR2, F, F_Check, F_temp, kPhase(2), OSThr, R, R_Check, R_temp, RefEne, &
+                 RKNorm, RNG, RNorm, Tau, TCPU1, TCPU2, TEMP, Thrs, ThrsParse, TM1, TM2, TM3, TM_2, TM_C(3), TM_I(3), TM_R(3), &
+                 TWALL1, TWALL2, UK(3), wavevector(3), Weight
+logical(kind=iwp) :: TMOgroup
+character(len=52) :: STLNE2
+character(len=8) :: LABEL
+integer(kind=iwp), allocatable :: iMask(:), ISS_INDEX(:), iSSMask(:), jMask(:), jSSMask(:), TMOgrp1(:), TMOgrp2(:)
+real(kind=wp), allocatable :: Aux(:,:), DXI(:,:,:), DXIM(:,:,:), DXR(:,:,:), DXRM(:,:,:), IP(:), OscStr(:,:), pol_Vector(:,:), &
+                              RAW(:), Rquad(:,:), SCR(:,:), TDMZZ(:), TMI(:,:,:), TMP(:), TMR(:,:,:), TSDMZZ(:), VSOI(:,:), &
+                              VSOR(:,:), WDMZZ(:)
 #ifdef _HDF5_
-real*8, allocatable, target :: Storage(:,:,:,:)
-real*8, pointer :: flatStorage(:)
+integer(kind=iwp) :: ijSO_, ip_kVector, ip_TMi, ip_TMr, ip_W, nData, nij
+real(kind=wp), allocatable :: Storage(:,:,:,:)
 #endif
-real*8, allocatable :: TDMZZ(:), TSDMZZ(:), WDMZZ(:), SCR(:,:)
-real*8, allocatable :: VSOR(:,:), VSOI(:,:), TMP(:)
-real*8, allocatable :: DXR(:,:,:), DXI(:,:,:)
-real*8, allocatable :: DXRM(:,:,:), DXIM(:,:,:)
-real*8, allocatable :: TMR(:,:,:), TMI(:,:,:)
-real*8, allocatable :: IP(:), OscStr(:,:), Aux(:,:)
-real*8, allocatable :: RAW(:)
-real*8, parameter :: AU2REDR = 200.0_wp*Debye
-real*8, parameter :: AFACTOR = Two/c_in_au**3/(auTofs*1.0e-15_wp)
-real*8 OSThr, Thrs, RefEne, Tau, EDiff, ThrsParse, EnSOR1, TEMP, EnSOR2, EDiff_, RKNorm, CST, Weight, RNorm, TM1, TM2, TM_2, TM3, &
-       RNG, ANG, F_temp, R_temp, F, R, F_Check, R_Check, A, TCPU1, TCPU2, TWALL1, TWALL2
-real*8, external :: DDot_
-integer IEND, JSTart, JEnd, IPROP, NDIFF, NVEC, NSCR, NIP, NGROUP1, NGROUP2, NMAX2, I, J, nTmp, MaxGrp1, MaxGrp2, lRaw, iVec, &
-        iPrint, ijSO, iState, Job, iGrp, iStart_, iEnd_, ISM, ISSM, ISF, ISS, ISO, IMSS, jGrp, jStart_, jEnd_, JSM, JSSM, JSF, &
-        JSS, JSO, JMSS, iQuad, iVec_, iOpt, iPrP, Job1, Job2, iSy12, MASK, IDISK, IEMPTY, IGO, ITYPE, iCar, KP, IJ_, nQuad_, &
-        iQuad_, lRaw_, K
-#ifdef _HDF5_
-integer ijSO_, ip_kVector, ip_TMr, ip_TMi, ip_W, nData, nij
-#endif
+real(kind=wp), parameter :: AFACTOR = Two/c_in_au**3/(auTofs*1.0e-15_wp), AU2REDR = 200.0_wp*Debye, THRSH = 1.0e-10_wp
+real(kind=wp), external :: DDot_
 
 #define _TIME_TMOM_
 #ifdef _TIME_TMOM_
@@ -522,7 +505,7 @@ do iVec=1,nVec
             MASK = 2**(ISY12-1)
             ! FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF
             ! TDMSCR
-            call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
+            call mk_IOFF(IOFF,nIrrep,NBASF,ISY12)
 
             ! Pick up the transition density between the two
             ! states from disc. Generated in GTDMCTL.
@@ -532,7 +515,7 @@ do iVec=1,nVec
             iOpt = 2
             iGO = 5
             call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
-            call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,IOFF,NBASF,ISY12)
+            call MK_TWDM(nIrrep,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,IOFF,NBASF,ISY12)
 
             ! Compute the transition property of the property
             ! integrals between the two states.
@@ -915,9 +898,7 @@ write(u6,*) 'Time for TMOM : ',TCpu2-TCpu1,TWall2-TWall1
 #endif
 
 #ifdef _HDF5_
-flatStorage(1:size(Storage)) => Storage
-call mh5_put_dset(wfn_sos_tm,flatStorage)
-nullify(flatStorage)
+call mh5_put_dset(wfn_sos_tm,pack(Storage,.true.))
 call mma_deallocate(Storage)
 #endif
 

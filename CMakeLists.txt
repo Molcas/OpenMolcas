@@ -1740,6 +1740,7 @@ if (DMRG)
     last_energy
     mclr
     mcpdft
+    molcas_ci_util
     mpssi
     nevpt2
     caspt2

@@ -26,17 +26,17 @@
 
 subroutine MKDYSAB(DYSCOF,DYSAB)
 
-use Constants, only: Zero
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NASH, NASHT, NISH, NOSH
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NASHT, NASH, NISH, NOSH
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 DYSCOF(*), DYSAB(*)
-integer :: IOFFA(8)
-real*8 GAA, GBB, OVLP
-integer IORB, ISORB, I, IOFFTD, ISY, II, IPOS, ICOFF, ISY1, NO1, NA1, NI1
-real*8, allocatable :: DYSCOF2(:)
+real(kind=wp) :: DYSCOF(*), DYSAB(*)
+integer(kind=iwp) :: I, ICOFF, II, IOFFA(8), IOFFTD, IORB, IPOS, ISORB, ISY, ISY1, NA1, NI1, NO1
+real(kind=wp) :: GAA, GBB, OVLP
+real(kind=wp), allocatable :: DYSCOF2(:)
 
 !+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2
 !Alpha and beta contributions are added up here
@@ -51,7 +51,7 @@ do IORB=1,NASHT
 end do
 ! IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
 IOFFA(1) = 0
-do I=1,NSYM-1
+do I=1,nIrrep-1
   IOFFA(I+1) = IOFFA(I)+NASH(I)
 end do
 
@@ -60,7 +60,7 @@ end do
 ! but we need to fill out the full vector for easier
 ! transformation.)
 IOFFTD = 0
-do ISY=1,NSYM
+do ISY=1,nIrrep
   if (NISH(ISY) /= 0) then
     II = 0
     do I=1,NISH(ISY)
@@ -74,7 +74,7 @@ end do
 ! THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
 IOFFTD = 0
 ICOFF = 1
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   NO1 = NOSH(ISY1)
   if (NO1 == 0) cycle
   NA1 = NASH(ISY1)

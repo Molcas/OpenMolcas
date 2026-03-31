@@ -11,13 +11,13 @@
 
 subroutine PRCNFTAB(CnfTab,MXPRT)
 
-use definitions, only: iwp, u6
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: CnfTab(*), MxPrt
-character(len=144) TEXT
-integer(kind=iwp) NPRT, NTAB, ITYPE, NEL, NORB, MINOP, MAXOP, NSYM, LSYM, NGAS, IFORM, ICNF, IERR, IGAS, ISUM, ISYM, KCNFSTA, &
-                  KSTA, LENCNF, LENGTH, LGASLIM, LGASORB, LIM1, LIM2, LINFO, NCLS, NCNF, NOPN
+integer(kind=iwp) :: ICNF, IERR, IFORM, IGAS, ISUM, ISYM, ITYPE, KCNFSTA, KSTA, LENCNF, LENGTH, LGASLIM, LGASORB, LIM1, LIM2, &
+                     LINFO, LSYM, MAXOP, MINOP, NCLS, NCNF, NEL, NGAS, NOPN, NORB, NPRT, NSYM, NTAB
+character(len=144) :: TEXT
 
 ! Sanity test:
 NPRT = min(MXPRT,10000)

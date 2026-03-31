@@ -22,26 +22,25 @@
 subroutine GETH1_RASSI(HONEAO)
 
 use OneDat, only: sNoNuc, sNoOri
-use stdalloc, only: mma_allocate, mma_deallocate
 use Cntrl, only: ERFNuc, RFPert
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NBSQ, NBASF, NBTRI
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NBASF, NBSQ, NBTRI
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 HONEAO(NBSQ)
-character(len=8) OneLbl
-logical Found
-real*8, allocatable :: H1(:), Tmp(:)
-integer IRC, IOPT, ICMP, iSyLab, iBuf, ISTQ, ISYM, NB, IP, IQ, IPQ, IQP
+real(kind=wp) :: HONEAO(NBSQ)
+integer(kind=iwp) :: iBuf, ICMP, IOPT, IP, IPQ, IQ, IQP, IRC, ISTQ, iSyLab, ISYM, NB
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: H1(:), Tmp(:)
+character(len=*), parameter :: OneLbl = 'OneHam'
 
 call mma_allocate(H1,NBTRI,Label='H1')
 iRc = -1
 iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 iCmp = 1
 iSyLab = 1
-OneLbl = 'OneHam'
 call RdOne(iRc,iOpt,OneLbl,iCmp,H1,iSyLab)
 if (IRC /= 0) then
   write(u6,*)
@@ -63,7 +62,7 @@ if (RFpert) then
 end if
 IBUF = 1
 ISTQ = 0
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NB = NBASF(ISYM)
   if (NB == 0) cycle
   do IP=1,NB

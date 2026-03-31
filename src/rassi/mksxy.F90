@@ -12,21 +12,21 @@
 !***********************************************************************
 
 subroutine MKSXY(CMO1,CMO2,SXY)
-!  PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
-!  CODED 1987-02-18, P-AA M.
+! PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
+! CODED 1987-02-18, P-AA M.
 
 use OneDat, only: sNoNuc, sNoOri
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NBASF, NCMO, NOSH, NSXY
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NSXY, NCMO, NBASF, NOSH
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 SXY(NSXY), CMO1(NCMO), CMO2(NCMO)
+real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), SXY(NSXY)
+integer(kind=iwp) :: ICMO, ICMP, IOPT, IRC, ISXY, ISY, ISYLAB, LSZZ1, NB, NO, NPROD, NSSQ, NSZZ
 character(len=8) :: LABEL
-real*8, allocatable :: SZZ(:), SSQ(:), PROD(:)
-integer NSZZ, NSSQ, NPROD, ISY, NO, NB, IRC, IOPT, ICMP, ISYLAB, LSZZ1, ISXY, ICMO
+real(kind=wp), allocatable :: PROD(:), SSQ(:), SZZ(:)
 
 ! CALCULATE SIZE AND ALLOCATE A FIELD SZZ FOR OVERLAP MATRIX
 ! IN COMMON BASIS SET (TRIANGULAR), SSQ TEMPORARY STORAGE
@@ -35,7 +35,7 @@ integer NSZZ, NSSQ, NPROD, ISY, NO, NB, IRC, IOPT, ICMP, ISYLAB, LSZZ1, ISXY, IC
 NSZZ = 0
 NSSQ = 0
 NPROD = 0
-do ISY=1,NSYM
+do ISY=1,nIrrep
   NO = NOSH(ISY)
   NB = NBASF(ISY)
   NSZZ = NSZZ+(NB*(NB+1))/2
@@ -63,7 +63,7 @@ end if
 LSZZ1 = 1
 ISXY = 1
 ICMO = 1
-do ISY=1,NSYM
+do ISY=1,nIrrep
   NB = NBASF(ISY)
   if (NB == 0) cycle
   NO = NOSH(ISY)

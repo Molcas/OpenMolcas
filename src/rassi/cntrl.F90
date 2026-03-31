@@ -14,31 +14,11 @@ module Cntrl
 use Molcas, only: LenIn, MxAtom, MxOrb, MxRoot
 use RASDim, only: mxTit
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-! The parameters defined in module RASDim should be private
-private mxTit
-! The parameters defined in module Molcas should be private
-private LenIn, MxAtom, MxOrb, MxRoot
+implicit none
+private
 
-integer, parameter :: MXJOB = 100, MXPROP = 30000
-integer, parameter :: MXDISP = 500
-real*8 :: PNUC(MXPROP) = Zero, PORIG(3,MXPROP) = Zero, CITHR
-real*8 EMIN, ERFNUC, EPRTHR, EPRATHR, ALPHZ, BETAE
-real*8 TSTART, TINCRE, BSTART, BINCRE, BANGRES
-real*8 OSTHR_DIPR, OSTHR_QIPR
-real*8 RSTHR, TOLERANCE
-integer, dimension(MXPROP) :: ICOMP, ISOCMP, IPUSED, IPCODE
-integer, dimension(MXJOB) :: NSTAT, ISTAT, NROOTS, NACTE, MLTPLT
-integer, dimension(MXJOB) :: IRREP, NHOLE1, NELE3, NCONF, ISPACE
-integer, dimension(MXJOB) :: NDET
-integer NJOB, NSTATE, NPROP, NSOPR
-integer NRNATO, NBINA, IBINA(2,MxRoot)
-integer LSYM1, LSYM2, NCONF1, NCONF2
-integer LCI1, LCI2, LCI3, LGAM1, LGAM2, LGAM3, LIPAIR
-integer NTSTEP, NBSTEP, LOOPDIVIDE, LOOPMAX
-integer DYSEXPSF, DYSEXPSO
-integer OCAN, DCHO
-character(len=16) :: OCAA(20)
 ! BP - SO Natural orbital information
 ! RF - SO Natural transition orbital information
 ! IFARGU           Do phase factor for SO-NTOs
@@ -51,66 +31,28 @@ character(len=16) :: OCAA(20)
 ! Do_Pol           Specify a polarization vector direction
 ! DOCD             Regular circular dichroism - velocity and mixed gauge
 ! SaveDens         Save input-state transition densities in temp. file
-logical IFCURD, Do_TMOM, Do_SK, Do_Pol, DOCD, Force_NON_AO_TDM, SaveDens, IFARGU
-real*8 TDIPMIN, SOTHR_PRT, TMGr_thrs
-integer NSOTHR_PRT, ISMGRD(MXDISP), LDISP(8), NDISP, NTDISP(MXDISP)
-integer IFJ2, IFJZ
-integer L_Eff, nQuad
 
 ! CITHR  - THRESHOLD FOR PRINTING CI COEFFICIENTS.
-! ESHFT  - OPTIONAL ENERGY SHIFT OF EACH INPUT STATE.
-! LROOT  - ORDERING NUMBER, ON ITS JOBIPH FILE, OF EACH INPUT STATE.
 ! NSTAT  - NR OF STATES TO BE PICKED UP FROM EACH JOBIPH.
 ! IRREP  - SYMMETRY OF THE WAVE FUNCTIONS ON EACH JOBIPH.
 ! NCONF  - SIZE OF CI ARRAYS ON EACH JOBIPH.
-! ISPACE - Which determinant-CI space to use with each JOBIPH
 ! NJOB   - NR OF JOBIPH FILES TO BE USED.
 ! NSTATE - TOTAL NUMBER OF STATES.
 ! NPROP  - NR OF PROPERTIES TO COMPUTE MATRIX ELEMENTS FOR.
 ! NRNATO - NR OF EIGENSTATE TO COMPUTE NATURAL ORBITALS FOR.
-! IPCODE - NUMERICAL CODE OF PROPERTY INTEGRALS TO USE.
-!         (=ENTRY NUMBER INTO TABLE OF CONTENTS OF ONEINT FILE).
 ! LSYM1  - SYMMETRY OF CURRENTLY PROCESSED BRA STATE.
 ! LSYM2  - SYMMETRY OF CURRENTLY PROCESSED KET STATE.
-! NCONF1, NCONF2, SIMILAR.
+! NCONF1, SIMILAR.
 ! THE REST ARE POINTERS TO DYNAMICALLY ALLOCATED ARRAYS:
-! LCI1   - POINTER TO CI ARRAY OF CURRENTLY PROCESSED BRA STATE.
-! LCMO1  - SIM., POINTER TO MO COEFFICIENT ARRAY.
-! LTRA1  - SIM., TRNSFORMATION COEFFICIENT ARRAY.
-! LCI2, LCMO2, LTRA2, AS ABOVE, BUT FOR KET STATE.
-! LTUVX  - SIM., TWO-ELECTRON INTEGRALS.
-! LGAM1  - POINTER TO ONE-ELECTRON TRANSITION DENSITY MATRIX.
-! LGAM2  - SIM., TWO-ELECTRON MATRIX.
-! LTDMAB - POINTER TO TRANSITION DENSITY MATRIX IN BION. BASIS.
-! LTDMZZ - SIM., IN AO BASIS.
-! iToc25 - Table-of-contents for the optional file TOFILE.
 ! ALPHZ - Value for alpha in DQV diabatization.
 ! BETAE - Value for beta in DQV diabatization.
-character(len=8) PNAME(MXPROP), PTYPE(MXPROP), SOPRNM(MXPROP), SOPRTP(MXPROP), RASTYP(MXJOB)
-character(len=128) JBNAME(MXJOB), MINAME(MXJOB)
+
 ! JBNAME - LOGICAL NAME OF EACH JOBIPH FILE.
 ! PNAME  - NAME OF EACH PROPERTY FOR WHICH MATRIX ELEMENTS ARE COMPUTED
 ! PTYPE  - TYPE NAME, ex. 'AntiSing' for an antihermitian, spin-singlet op.
 ! SOPRNM - LIST OF PROPERTY NAMES, LIKE PNAME, FOR MATRIX ELEMENTS OVER
 !          SPIN-ORBIT STATES.
 ! SOPRTP - TYPE NAME, similar to PTYPE
-! RassiT - Title of the Rassi-calculation.
-logical PRDIPVEC, PRDIPCOM, PRSXY, PRORB, PRTRA
-logical PRCI, CIH5, IFHAM, IFHEXT, IFHEFF, IFEJOB, IFHCOM
-logical HAVE_HEFF, HAVE_DIAG, NOHAM
-logical IFTRD1, IFTRD2, IFTDM, HOP, TRACK, ONLY_OVERLAPS
-logical IFSHFT, IFHDIA, IFSO, IFTD2, NATO, RFpert, ToFile
-logical BINA
-logical PRXVR, PRXVE, PRXVS, PRMER, PRMEE, PRMES
-logical IFGCAL, IFXCAL, IFMCAL, DQVD
-logical DIPR, QIPR, QIALL
-logical RSPR
-logical DYSO, DYSEXPORT, TDYS, DCHS
-logical QDPT2SC, QDPT2EV
-logical PRRAW, PRWEIGHT
-logical REDUCELOOP
-logical SECOND_TIME, DoGSOR
-logical RHODyn
 
 ! BP - Hyperfine tensor Flags
 ! IFACAL        TRUE to calculate hyperfine tensors
@@ -123,24 +65,13 @@ logical RHODyn
 ! IFACALFCSDON  TRUE to calculate FC +SD terms
 ! IFGTCALSA     TRUE to calculate single_aniso g-tensor in RASSI
 ! K.Sharkas end
-logical IFACAL, IFACALFC, IFACALSD
-logical IFACALFCON, IFACALSDON, IFACALPSO
-logical IFACALFCSDON, IFVANVLECK, IFSONCINI
-logical IFSONCIFC, IFGTCALSA, IFGTSHSA, IFATCALSA
-integer NTS, NTP, NTF, MULTIP
-real*8 TMINS, TMAXS, TMINP, TMAXP
+
 ! tjd- BMII: LPRPR set to .T. for easier parsable matrix output
 ! tjd- Yoni: LHAMI
-logical LPRPR, LHAMI
-real*8 TMINF, TMAXF
 
 ! BP - Testing flags
 ! NOSO      Disable SO contributions in the SONATORB and SODIAG code
-logical NOSO
 
-!nf
-logical IfDCpl
-!nf
 ! PRSXY  - PRINT MO OVERLAP MATRICES FOR INPUT JOBIPHS.
 ! PRORB  - PRINT INPUT ORBITALS.
 ! PRTRA  - PRINT TRANSFORMATION COEFFICIENTS.
@@ -150,8 +81,8 @@ logical IfDCpl
 ! IFSHFT - Energy shifts of input states will be applied.
 ! IFHDIA - Diagonal H-matrix elements are taken from input.
 ! IFSO   - DO SPIN-ORBIT INTERACTION CALCULATION.
-! IFTD2  - FLAG USED IN TRANS2 CALLS - CALCULATE 2-EL. TRANS.D.M.
-!                              Rassi input...
+
+! Rassi input...
 ! RFpert - This flag is used to signal a
 !          reaction field calculation (perturbation approach).
 ! ToFile - Denotes if H-matrix and various one-electron matrices
@@ -160,63 +91,32 @@ logical IfDCpl
 !          for (spin-free) eigenstates, and for SO states.
 ! PRMER, etc: Print matrix elements    for RasScf input states,
 !          for (spin-free) eigenstates, and for SO states.
-!nf
 ! IfDCpl - Flag for approximate derivative couplings
-!nf
 !IgorS 06-05-2009
 ! HOP    - Switch for Trajectory Surface Hopping Algorithm
 ! stknecht
 ! QDPT2SC - use SC effective Hamiltonian (rather than the PC one) from QD-NEVPT2
 ! QDPT2EV - use eigenvectors of effective Hamiltonian from QD-NEVPT2 to mix TDMs (in MPS-SI we do not use 'mixed MPS'
 !           instead we mix the TDMs)
+
 ! NTO Calculation Section /// Jie Bao
-logical IfNTO
-
 ! SONTO            Array of SO state pairs
-integer, allocatable, public :: SONTO(:,:)
 ! SONTOSTATES      Number of state pairs to calculate
-integer, public :: SONTOSTATES = 0
-
 ! SONAT            Array of SO state to compute
-integer, allocatable, public :: SONAT(:)
 ! SONATNSTATE      Number of states to calculate
-integer, public :: SONATNSTATE = 0
-
-integer, allocatable, public :: SODIAG(:)
 ! SODIAGNSTATE     Number of states to diagonalize
-integer, public :: SODIAGNSTATE = 0
-
-real*8, allocatable, public :: RefEne(:), HEff(:,:)
-
-integer, parameter :: MORSBITS = 8
-
-! Note: MXATOM to be taken from module Molcas
-integer NGROUP, IGROUP(8), NATOMS, COOR(3,MXATOM)
-! Atom labels, 4 bytes each.
-character(len=LenIn) ATLBL(MXATOM)
 
 ! TEMPORARY DATA FROM JOBIPHS
-real*8 POTNU1
-integer NACTE1, MPLET1, NSYM1, NFRO1(8), NISH1(8), NASH1(8), NDEL1(8), NBAS1(8), NRS11(8), NRS21(8), &
-  NRS31(8), LROT1, NROOT1, IROOT1(mxRoot), NHOL11, NELE31
-character(len=LenIn+8) NAME(mxOrb)
-character(len=2) HEAD1(72)
-character(len=4) TITLE1(18,mxTit)
+! POTNU1, NACTE1, MPLET1, NSYM1, NFRO1, NISH1, NASH1, NDEL1, NBAS1, NRS11, NRS21, NRS31, LROT1, NROOT1, IROOT1, NHOL11, NELE31,
+! bNAME, HEAD1, TITLE1
 
 ! Cholesky/RI stuff
-integer ALGO, Nscreen
-real*8 dmpk
+! ALGO, Nscreen, dmpk
 
-! This preserves the values of the variables for the
-! trajectory surface hopping algorithm.
-integer ISTATE1, ISTATE2, NCI1, NCI2, nHop
-logical ChkHop, lHop
 ! ISTATE1 - Number of the current relaxed state
 ! ISTATE2 - Number of the state that interacts with the current state
 ! NCI1    - Configuration's number of state 1
-! ChkHop  - If .TRUE. switches on the TSH algorithm
-! lHop    - Is .TRUE. if nHop is set in the RunFile
-! nHop    - Number of transitions (Hops) already occured
+! ChkHop  - If .true. switches on the TSH algorithm
 
 !----------------------------------------------------------------------*
 !     Define files ( file names and unit numbers )                     *
@@ -226,10 +126,50 @@ logical ChkHop, lHop
 ! LUMCK  - UNIT NUMBER OF MCKINT FILES
 ! LUONE  - D:O, ONE-ELECTRON INTEGRAL FILE
 ! LUORD  - D:O, ORDERED TWO-ELECTRON INTEGRAL FILE
-! IADR15 - TABLE OF CONTENTS, DISK ADDRESSES ON LUIPH.
 ! IDCMO  - Addresses to the CMO arrays on each JOBIPH
-character(len=8) FnOne, FnIph, FnMck, FnOrd, FnTDM, FnExc, FnToM, FnEig
-integer LUIPH, LUMCK, LUONE, LUORD, LUEIG
-integer LUEXC, LUTDM, LUTOM, IDCMO(MXJOB), ITOC15(30)
+
+integer(kind=iwp), parameter :: MORSBITS = 8, MXDISP = 500, MXJOB = 100, MXPROP = 30000
+
+integer(kind=iwp) :: ALGO, DCHO, DYSEXPSF, DYSEXPSO, IBINA(2,MxRoot), ICOMP(MXPROP), IDCMO(MXJOB), IFJ2, IFJZ, IPUSED(MXPROP), &
+                     IROOT1(mxRoot), IRREP(MXJOB), ISOCMP(MXPROP), ISTAT(MXJOB), ISTATE1, ISTATE2, ITOC15(30), L_Eff, LOOPDIVIDE, &
+                     LOOPMAX, LROT1, LSYM1, LSYM2, LUEIG, LUEXC, LUIPH, LUMCK, LUONE, LUORD, LUTDM, LUTOM, MLTPLT(MXJOB), MPLET1, &
+                     MULTIP, NACTE(MXJOB), NACTE1, NASH1(8), NATOMS, NBAS1(8), NBINA, NBSTEP, NCI1, NCI2, NCONF(MXJOB), NCONF1, &
+                     NDEL1(8), NDET(MXJOB), NELE3(MXJOB), NELE31, NFRO1(8), NHOL11, NHOLE1(MXJOB), NISH1(8), NJOB, NPROP, nQuad, &
+                     NRNATO, NROOT1, NROOTS(MXJOB), NRS11(8), NRS21(8), NRS31(8), Nscreen, NSOPR, NSOTHR_PRT, NSTAT(MXJOB), &
+                     NSTATE, NSYM1, NTP, NTS, NTSTEP, OCAN, SODIAGNSTATE = 0, SONATNSTATE = 0, SONTOSTATES = 0
+real(kind=wp) :: ALPHZ, BANGRES, BETAE, BINCRE, BSTART, CITHR, COOR(3,MXATOM), dmpk, EMIN, EPRATHR, EPRTHR, ERFNUC, OSTHR_DIPR, &
+                 OSTHR_QIPR, PNUC(MXPROP) = Zero, PORIG(3,MXPROP) = Zero, RSTHR, SOTHR_PRT, TDIPMIN, TINCRE, TMAXP, TMAXS, &
+                 TMGr_thrs, TMINP, TMINS, TOLERANCE, TSTART
+logical(kind=iwp) :: BINA, ChkHop, CIH5, DCHS, DIPR, Do_Pol, Do_SK, Do_TMOM, DOCD, DoGSOR, DQVD, DYSEXPORT, DYSO, &
+                     Force_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HOP, IFACAL, IFACALFC, IFACALFCON, IFACALFCSDON, IFACALPSO, IFACALSD, &
+                     IFACALSDON, IFARGU, IFATCALSA, IFCURD, IfDCpl, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, &
+                     IFHEFF, IFHEXT, IFMCAL, IfNTO, IFSHFT, IFSO, IFSONCINI, IFTDM, IFTRD1, IFTRD2, IFVANVLECK, IFXCAL, LHAMI, &
+                     LPRPR, NATO, NOHAM, NOSO, ONLY_OVERLAPS, PRCI, PRDIPCOM, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, &
+                     PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, QDPT2EV, QDPT2SC, QIALL, QIPR, REDUCELOOP, RFpert, RHODyn, RSPR, &
+                     SaveDens, SECOND_TIME, TDYS, ToFile, TRACK
+character(len=LenIn+8) :: bNAME(mxOrb)
+character(len=128) :: JBNAME(MXJOB), MINAME(MXJOB)
+character(len=16) :: OCAA(20)
+character(len=8) :: FnEig, FnToM, PNAME(MXPROP), PTYPE(MXPROP), RASTYP(MXJOB), SOPRNM(MXPROP), &
+                    SOPRTP(MXPROP)
+character(len=4) :: TITLE1(18,mxTit)
+character(len=2) :: HEAD1(72)
+integer(kind=iwp), allocatable :: SODIAG(:), SONAT(:), SONTO(:,:)
+real(kind=wp), allocatable :: HEff(:,:), RefEne(:)
+
+public :: ALGO, AlphZ, BAngRes, BetaE, BINA, BIncre, bNAME, BStart, ChkHop, CIH5, CITHR, Coor, DCHO, DCHS, DIPR, dmpk, Do_Pol, &
+          Do_SK, DO_TMOM, DoCD, DOGSOR, DQVD, DYSEXPORT, DYSEXPSF, DYSEXPSO, DYSO, EMin, EPRATHR, EPRThr, ERFNuc, FnEig, FnTOM, &
+          FORCE_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, HOP, IBINA, ICOMP, IDCMO, IFACAL, IFACALFC, IFACALFCON, &
+          IFACALFCSDON, IFACALPSO, IFACALSD, IFACALSDON, IfArgu, IFATCALSA, IfCurd, IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, &
+          IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IfJ2, IfJz, IFMCAL, IFNTO, IFSHFT, IFSO, IFSONCINI, IfTDM, IfTrD1, IFTRD2, &
+          IfvanVleck, IFXCAL, IPUSED, IROOT1, IRREP, ISOCMP, ISTAT, ISTATE1, ISTATE2, iToc15, JBNAME, L_Eff, LHAMI, LOOPDIVIDE, &
+          LOOPMAX, LPRPR, LROT1, lSym1, lSym2, LuEig, LuExc, LuIph, LuMck, LuOne, LuOrd, LuTDM, LUTOM, MINAME, MLTPLT, MORSBITS, &
+          MPLET1, MULTIP, MXJOB, MXPROP, NACTE, NACTE1, NASH1, NATO, nAtoms, NBAS1, NBINA, NBSTep, nCI1, nCI2, NCONF, NCONF1, &
+          NDEL1, NDET, NELE3, NELE31, NFRO1, NHOL11, NHOLE1, NISH1, NJOB, NOHAM, NOSO, NPROP, NQUAD, NrNATO, NROOT1, NROOTS, &
+          NRS11, NRS21, NRS31, Nscreen, NSOPR, NSOThr_Prt, NSTAT, NSTATE, NSYM1, NTP, NTS, nTStep, OCAA, OCAN, ONLY_OVERLAPS, &
+          OSThr_DiPr, OSThr_QIPR, PNAME, PNUC, PORIG, PRCI, PRDIPCOM, PrDipVec, PRMEE, PRMER, PRMES, PRORB, PrRaw, PRSXY, PRTRA, &
+          PrWeight, PRXVE, PRXVR, PRXVS, PTYPE, QDPT2EV, QDPT2SC, QIAll, QIPR, RASTYP, REDUCELOOP, RefEne, RFPert, RhoDyn, RSPR, &
+          RSThr, SAVEDENS, SECOND_TIME, SODIAG, SODIAGNSTATE, SONAT, SONATNSTATE, SONTO, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, &
+          TDipMin, TDYS, TIncre, TITLE1, TMAXP, TMaxs, TMGR_Thrs, TMINP, TMins, ToFile, Tolerance, TRACK, TStart
 
 end module Cntrl

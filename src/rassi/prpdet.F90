@@ -11,14 +11,13 @@
 
 subroutine PRPDET(IOPEN,ND,IDET)
 
-use definitions, only: iwp, u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: IOPEN, ND
-integer(kind=iwp), intent(in) :: IDET(IOPEN,ND)
-character(len=1) :: SPNSMB(0:1) = ['b','a']
-character(len=24) FORM
-integer(kind=iwp) N, I, J
+integer(kind=iwp), intent(in) :: IOPEN, ND, IDET(IOPEN,ND)
+integer(kind=iwp) :: I, J, N
+character(len=24) :: FRMT
+character, parameter :: SPNSMB(0:1) = ['b','a']
 
 if ((IOPEN < 0) .or. (ND < 0)) then
   call WarningMessage(2,'Program bug: Erroneous call to PRPDET.')
@@ -34,8 +33,8 @@ if ((IOPEN == 0) .or. (ND == 0)) then
   write(u6,*) 'PRPDET: ND =',ND
 else
   N = 80/(7+IOPEN)
-  write(FORM,'(A1,I2,A,I2,A4)') '(',N,'(1X,I5,1X,',IOPEN,'A1))'
-  write(u6,FORM) (I,(SPNSMB(IDET(J,I)),J=1,IOPEN),I=1,ND)
+  write(FRMT,'(A1,I2,A,I2,A4)') '(',N,'(1X,I5,1X,',IOPEN,'A1))'
+  write(u6,FRMT) (I,(SPNSMB(IDET(J,I)),J=1,IOPEN),I=1,ND)
 end if
 
 end subroutine PRPDET

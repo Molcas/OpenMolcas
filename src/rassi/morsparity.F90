@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function MorsParity(IMORS)
+function MorsParity(IMORS)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-dimension ISG(0:15)
-integer I1, I2, I3, IMORS
-integer J, ISG
-data ISG/1,-1,-1,1,-1,1,1,-1,-1,1,1,-1,1,-1,-1,1/
+integer(kind=iwp) :: MorsParity
+integer(kind=iwp) :: IMORS
+integer(kind=iwp) :: I1, I2, I3, J
+integer(kind=iwp), parameter :: ISG(0:15) = [1,-1,-1,1,-1,1,1,-1,-1,1,1,-1,1,-1,-1,1]
 
 MorsParity = 0 ! dummy initialize
 if (IMORS < 0) goto 99

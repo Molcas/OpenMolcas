@@ -44,15 +44,15 @@
 !ifdef _DEBUGPRINT_
 subroutine CITRA(WFTP,SGS,CIS,EXS,LSM,TRA,NCO,CI)
 
-use definitions, only: iwp, wp
-#ifdef _DEBUGPRINT_
-use definitions, only: u6
-#endif
-use constants, only: One
 use gugx, only: SGStruct, CIStruct, EXStruct
-use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep
+use Symmetry_Info, only: nIrrep
 use rassi_data, only: NTRA, NOSH, NISH, NASH
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 character(len=8), intent(in) :: WFTP
@@ -62,9 +62,12 @@ type(EXStruct), intent(in) :: EXS
 integer(kind=iwp), intent(in) :: LSM, NCO
 real(kind=wp), intent(in) :: TRA(NTRA)
 real(kind=wp), intent(inout) :: CI(NCO)
+integer(kind=iwp) :: I, II, ISTA, ISYM, NA, NI, NO
+real(kind=wp) :: CKK, FAC
 real(kind=wp), allocatable :: TMP(:)
-real(kind=wp) FAC, CKK
-integer(kind=iwp) ISTA, ISYM, NO, I, II, NA, NI
+#ifdef _DEBUGPRINT_
+real(kind=wp), external :: ddot_
+#endif
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Entering CITRA. norm=',ddot_(NCO,CI,1,CI,1)
@@ -77,7 +80,7 @@ write(u6,*) ' Entering CITRA. norm=',ddot_(NCO,CI,1,CI,1)
 !  FIRST TRANSFORM THE INACTIVE ORBITALS:
 FAC = One
 ISTA = 1
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NO = NOSH(ISYM)
   do I=1,NISH(ISYM)
     II = ISTA+(NO+1)*(I-1)
@@ -96,7 +99,7 @@ if (WFTP /= 'EMPTY') then
   if ((WFTP == 'HISPIN') .or. (WFTP == 'CLOSED')) then
     ! The HISPIN case may be buggy and is not presently used.
     ISTA = 1
-    do ISYM=1,NSYM
+    do ISYM=1,nIrrep
       NI = NISH(ISYM)
       NA = NASH(ISYM)
       NO = NOSH(ISYM)
@@ -113,7 +116,7 @@ if (WFTP /= 'EMPTY') then
     ! The general case:
     call mma_allocate(TMP,NCO,Label='TMP')
     ISTA = 1
-    do ISYM=1,NSYM
+    do ISYM=1,nIrrep
       NA = NASH(ISYM)
       NO = NOSH(ISYM)
       if (NA /= 0) call SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA(ISTA),NCO,CI,TMP)

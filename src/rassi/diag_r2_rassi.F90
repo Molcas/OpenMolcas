@@ -14,20 +14,22 @@ subroutine DIAG_R2_RASSI(MATRIX,NBTOT,INFO,W1,Z1)
 ! MATRIX WITH THE DIMENSION NBTOT. THE EIGENVALUES OF THE DIAGONALIZATION
 ! ARE DIRECTED INTO W1 AND THE REAL EIGENVECTORS ARE WRITTEN TO Z1.
 
-use Constants, only: Zero
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer INFO, I, J, NBTOT
-real*8 AP(Nbtot*(Nbtot+1)/2), WORK(3*Nbtot), W1(NBTOT), W(Nbtot), Z(Nbtot,Nbtot), Z1(NBTOT,NBTOT), MATRIX(NBTOT,NBTOT)
+integer(kind=iwp) :: NBTOT, INFO
+real(kind=wp) :: MATRIX(NBTOT,NBTOT), W1(NBTOT), Z1(NBTOT,NBTOT)
+integer(kind=iwp) :: I, J
+real(kind=wp), allocatable :: AP(:), WORK(:), W(:), Z(:,:)
+
+call mma_allocate(AP,Nbtot*(Nbtot+1)/2,Label='AP')
+call mma_allocate(WORK,3*Nbtot,Label='WORK')
+call mma_allocate(W,Nbtot,Label='W')
+call mma_allocate(Z,Nbtot,Nbtot,Label='Z')
 
 ! initializations
 INFO = 0
-AP(:) = Zero
-WORK(:) = Zero
-W1(:) = Zero
-W(:) = Zero
-Z1(:,:) = Zero
-Z(:,:) = Zero
 
 do j=1,Nbtot
   do i=1,j
@@ -42,5 +44,10 @@ do I=1,Nbtot
     Z1(J,I) = Z(J,I)
   end do
 end do
+
+call mma_deallocate(AP)
+call mma_deallocate(WORK)
+call mma_deallocate(W)
+call mma_deallocate(Z)
 
 end subroutine DIAG_R2_RASSI

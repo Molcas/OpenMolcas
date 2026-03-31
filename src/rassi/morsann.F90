@@ -9,12 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function MorsAnn(IMORS,IPOS)
+function MorsAnn(IMORS,IPOS)
+
+use Definitions, only: iwp
 
 implicit none
-integer MorsParity
-external MorsParity
-integer IMORS, IPOS, ISGN, MASK
+integer(kind=iwp) :: MorsAnn
+integer(kind=iwp) :: IMORS, IPOS
+integer(kind=iwp) :: ISGN, MASK
+integer(kind=iwp), external :: MorsParity
 
 MorsAnn = 999999
 MASK = 2**(IPOS-1)

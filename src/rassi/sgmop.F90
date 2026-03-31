@@ -14,32 +14,22 @@ subroutine SGMOP(IMODE,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,COEFF,SGM,PSI)
 ! an operator to PSI. The operator is a sum of creators (IMODE=1)
 ! or annihilators (IMODE=-1) multiplied by coefficients. Only the
 ! sector of SGM described by IFSBTAB1 will be updated.
-! The orbital table:
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IMODE
-integer IORBTAB(*)
-integer ISSTAB(*)
-integer IFSBTAB1(*), IFSBTAB2(*)
-real*8 COEFF(*), PSI(*), SGM(*)
-real*8 CFFPHS, SCALE
-integer NASPRT, NASORB
-integer IFSB1, IBLKPOS1, ISST1, KSTARR1, NSBS1
-integer IFSB2, IBLKPOS2, ISST2, KSTARR2, NSBS2
-integer NSSTP, NHSH2, KHSH2, NFSB1, ISST, NSBS
-integer IPH, NPOP1, KSSTOP, KSBSOP
-integer NDI, NDJ, KPOS, ISPART, KSSTTB
-integer I, J, IPOS1, IPOS2, ISUM
-integer ISSTARR(50), NDIARR(50), NDJARR(50), IPHARR(50)
-integer ISBS1, ISBS2, ISORB, KOINFO, KSBSCR, KSBSAN
-integer KSBS1, KSBS2, KSORB, KSSTCR, KSSTAN, MORSBITS
-integer NDETS1, NDETS2, IERR
-integer, allocatable :: SBSET(:)
+integer(kind=iwp) :: IMODE, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp) :: COEFF(*), SGM(*), PSI(*)
+integer(kind=iwp) :: I, IBLKPOS1, IBLKPOS2, IERR, IFSB1, IFSB2, IPH, IPHARR(50), IPOS1, IPOS2, ISBS1, ISBS2, ISORB, ISPART, ISST, &
+                     ISST1, ISST2, ISSTARR(50), ISUM, J, KHSH2, KOINFO, KPOS, KSBS1, KSBS2, KSBSAN, KSBSCR, KSBSOP, KSORB, KSSTAN, &
+                     KSSTCR, KSSTOP, KSSTTB, KSTARR1, KSTARR2, MORSBITS, NASORB, NASPRT, NDETS1, NDETS2, NDI, NDIARR(50), NDJ, &
+                     NDJARR(50), NFSB1, NHSH2, NPOP1, NSBS, NSBS1, NSBS2, NSSTP
+real(kind=wp) :: CFFPHS, SCL
+integer(kind=iwp), allocatable :: SBSET(:)
 
+! The orbital table:
 NASPRT = IORBTAB(9)
 NASORB = IORBTAB(4)
 KOINFO = 19
@@ -144,10 +134,10 @@ do IFSB1=1,NFSB1
       ISBS2 = ISSTAB(KSBSOP-1+KSORB+MORSBITS*(ISBS1-1))
       if (ISBS2 == 0) goto 100
       if (ISBS2 > 0) then
-        SCALE = CFFPHS
+        SCL = CFFPHS
         ISBS2 = ISBS2
       else
-        SCALE = -CFFPHS
+        SCL = -CFFPHS
         ISBS2 = -ISBS2
       end if
       KSBS2 = ISBS2-SBSET(ISST2)
@@ -157,7 +147,7 @@ do IFSB1=1,NFSB1
         do J=0,NDJ-1
           IPOS1 = IBLKPOS1+I+NDI*(KSBS1-1+NSBS1*J)
           IPOS2 = IBLKPOS2+I+NDI*(KSBS2-1+NSBS2*J)
-          SGM(IPOS1) = SGM(IPOS1)+SCALE*PSI(IPOS2)
+          SGM(IPOS1) = SGM(IPOS1)+SCL*PSI(IPOS2)
           IERR = 0
           if ((IPOS1 < 1) .or. (IPOS1 > NDETS1)) IERR = 1
           if ((IPOS2 < 1) .or. (IPOS2 > NDETS2)) IERR = 1
@@ -171,7 +161,7 @@ do IFSB1=1,NFSB1
           end if
           ! Temporary test print:
           !TEST if (PSI(IPOS2) /= Zero) then
-          !TEST   write(u6,'(1x,f16.8,2i8)') SCALE,IPOS1,IPOS2
+          !TEST   write(u6,'(1x,f16.8,2i8)') SCL,IPOS1,IPOS2
           !TEST   write(u6,'(1x,a,8I8)') 'IFSB1,IFSB2:',IFSB1,IFSB2
           !TEST   write(u6,'(1x,a,8I8)') 'IBLKPOS1,NDI,NSBS1:',IBLKPOS1,NDI,NSBS1
           !TEST   write(u6,'(1x,a,8I8)') 'IBLKPOS2,NDI,NSBS2:',IBLKPOS2,NDI,NSBS2

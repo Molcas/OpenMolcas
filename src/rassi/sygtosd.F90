@@ -13,35 +13,23 @@ subroutine SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CISYG,CISD,detocc,detcoeff,SPT
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
-integer ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*)
-real*8 CISYG(*), CISD(*)
+integer(kind=iwp) :: ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*)
+real(kind=wp) :: CISYG(*), CISD(*), detcoeff(*), SPTRA(*)
 character(len=*), intent(_OUT_) :: detocc(*)
-real(8) :: detcoeff(*), SPTRA(*)
-integer NASPRT
-integer MINOP, MAXOP, NACTEL, NOPEN, NCLSD
-integer NCNF, NSPD, NCPL, ISPART, ISST
-integer KFSB, IBLK, ISPD, I, IPOS, IORB
-integer ISPN, NO, IOSTA, IOEND, IMORS, ISBSTR
-integer ICNF, IEL, IEL1, IEL2, IFORM, IFSB, IOCC
-integer IPART, IREST
-integer ISORB, ISPEND, ISPSTA, ISUM, ISYGEND, ISYGSTA, NWRD
-integer IWORD, IWRD, JSST, KCNF, KCNFINF, KGSLIM, KGSORB, KHSHMAP
-integer KMRSSBS, KSPNINF, KSSTARR, KSSTTB, KSPN, LSPTRA
-integer LSYM, MORSBITS, MXBLK, NAPART, NBLK, NHEAD
-integer NHSHMAP, NOCC, NOP, NORB, NSP, NSSTP, NSYM
-integer IERR, NFSB
-integer OCC2MRS
-external OCC2MRS
-!C add an occupation array in the usual 0,u,d,2 format
-character(len=1), allocatable :: occ(:)
-integer :: idet
-real*8, allocatable :: BLK(:)
-integer, allocatable :: OrbArr(:), OccArr(:), STArr(:), dim(:), SSArr(:), SBSET(:)
+integer(kind=iwp) :: I, IBLK, ICNF, idet, IEL, IEL1, IEL2, IERR, IFORM, IFSB, IMORS, IOCC, IOEND, IORB, IOSTA, IPART, IPOS, IREST, &
+                     ISBSTR, ISORB, ISPART, ISPD, ISPEND, ISPN, ISPSTA, ISST, ISUM, ISYGEND, ISYGSTA, IWORD, IWRD, JSST, KCNF, &
+                     KCNFINF, KFSB, KGSLIM, KGSORB, KHSHMAP, KMRSSBS, KSPN, KSPNINF, KSSTARR, KSSTTB, LSPTRA, LSYM, MAXOP, MINOP, &
+                     MORSBITS, MXBLK, NACTEL, NAPART, NASPRT, NBLK, NCLSD, NCNF, NCPL, NFSB, NHEAD, NHSHMAP, NO, NOCC, NOP, NOPEN, &
+                     NORB, NSP, NSPD, NSSTP, NSYM, NWRD
+integer(kind=iwp), allocatable :: ndim(:), OccArr(:), OrbArr(:), SBSET(:), SSArr(:), STArr(:)
+real(kind=wp), allocatable :: BLK(:)
+character, allocatable :: occ(:)
+integer(kind=iwp), external :: OCC2MRS
 
 ! Unbutton the configuration table:
 NACTEL = ICNFTAB(3)
@@ -92,7 +80,7 @@ call mma_allocate(BLK,MXBLK,Label='BLK')
 call mma_allocate(ORBARR,NACTEL,Label='OrbArr')
 call mma_allocate(OCCARR,2*NORB,Label='OccArr')
 call mma_allocate(STARR,NASPRT,Label='STArr')
-call mma_allocate(DIM,NASPRT,Label='Dim')
+call mma_allocate(NDIM,NASPRT,Label='nDim')
 call mma_allocate(SSARR,NASPRT,Label='SSArr')
 call mma_allocate(SBSET,NSSTP,Label='SBSet')
 call mma_allocate(occ,norb,label='occ')
@@ -262,18 +250,18 @@ do NOPEN=MINOP,MAXOP
           ISST = ISSTAB(IPOS+1)
           !TEST write(u6,'(1x,a,10i5)') 'ISST  :',ISST
           STARR(+ISPART) = ISST
-          dim(ISPART) = ISSTAB(KSSTTB+5*(ISST-1))
+          ndim(ISPART) = ISSTAB(KSSTTB+5*(ISST-1))
           SSARR(ISPART) = ISBSTR-SBSET(ISST)
         end do
       end do
       !TEST write(u6,*) ' Finally, substring types and substrings:'
       !TEST write(u6,'(1x,a,10i5)') 'Substr types:',(STARR(+ISPART),ISPART=1,NASPRT)
       !TEST write(u6,'(1x,a,10i5)') 'Substrings  :',(SSARR(ISPART),ISPART=1,NASPRT)
-      !TEST write(u6,'(1x,a,10i5)') 'Dimensions  :',(DIM(ISPART),ISPART=1,NASPRT)
+      !TEST write(u6,'(1x,a,10i5)') 'Dimensions  :',(NDIM(ISPART),ISPART=1,NASPRT)
       ! Position within FS block:
       IPOS = (SSARR(NASPRT)-1)
       do ISPART=NASPRT-1,1,-1
-        IPOS = dim(ISPART)*IPOS+(SSARR(ISPART)-1)
+        IPOS = ndim(ISPART)*IPOS+(SSARR(ISPART)-1)
       end do
       IPOS = IPOS+1
       ! Identify Fock Sector Block:
@@ -328,7 +316,7 @@ call mma_deallocate(BLK)
 call mma_deallocate(ORBARR)
 call mma_deallocate(OCCARR)
 call mma_deallocate(STARR)
-call mma_deallocate(DIM)
+call mma_deallocate(NDIM)
 call mma_deallocate(SSARR)
 call mma_deallocate(SBSET)
 call mma_deallocate(occ)

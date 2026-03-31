@@ -13,27 +13,23 @@ subroutine NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
 
 use rassi_aux, only: iDisk_TDM
 use OneDat, only: sNoNuc, sNoOri
+use Cntrl, only: LuTDM, NrNATO, nState
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NBASF, NBMX, NBSQ, NBST, NBTRI, NTDMZZ
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: nState, NrNATO
-use cntrl, only: LuTDM
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NBSQ, NTDMZZ, NBST, NBTRI, NBMX, NBASF
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 DMAT(NBSQ), TDMZZ(NTDMZZ), VNAT(NBSQ), OCC(NBST)
-real*8 EIGVEC(NSTATE,NSTATE)
-character(len=14) FNAME
-character(len=8) KNUM, LABEL
-integer, external :: ISFREEUNIT
-real*8, external :: DDOT_
-real*8 Dummy(1)
-integer iDummy(7,8)
-real*8, allocatable :: SZZ(:), VEC(:), VEC2(:), SCR(:), EIG(:)
-integer NSZZ, NVEC, NVEC2, NSCR, NEIG, IRC, IOPT, ICMP, ISYLAB, LS, LV, LE, ISYM, NB, LS1, LV1, LE1, I, KEIG, J, IEMPTY, IDISK, &
-        IGO, ID, INV, IOCC, ID1, ID2, ISCR, IJ, JI, I1, I2, ISTOCC, LUXXVEC, II
-real*8 X, SumOcc
+real(kind=wp) :: DMAT(NBSQ), TDMZZ(NTDMZZ), VNAT(NBSQ), OCC(NBST), EIGVEC(NSTATE,NSTATE)
+integer(kind=iwp) :: I, I1, I2, ICMP, ID, ID1, ID2, IDISK, iDummy(7,8), IEMPTY, IGO, II, IJ, INV, IOCC, IOPT, IRC, ISCR, ISTOCC, &
+                     ISYLAB, ISYM, J, JI, KEIG, LE, LE1, LS, LS1, LUXXVEC, LV, LV1, NB, NEIG, NSCR, NSZZ, NVEC, NVEC2
+real(kind=wp) :: Dummy(1), SumOcc, X
+character(len=14) :: FNAME
+character(len=8) :: KNUM, LABEL
+real(kind=wp), allocatable :: EIG(:), SCR(:), SZZ(:), VEC(:), VEC2(:)
+integer(kind=iwp), external :: ISFREEUNIT
+real(kind=wp), external :: DDOT_
 
 ! ALLOCATE WORKSPACE AREAS.
 NSZZ = NBTRI
@@ -64,7 +60,7 @@ end if
 LS = 1
 LV = 1
 LE = 1
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NB = NBASF(ISYM)
   call DCOPY_(NB**2,[Zero],0,VEC(LV),1)
   call DCOPY_(NB,[One],0,VEC(LV),NB+1)
@@ -118,7 +114,7 @@ do KEIG=1,NRNATO
   IOCC = 0
   LV = 1
   LE = 1
-  do ISYM=1,NSYM
+  do ISYM=1,nIrrep
     NB = NBASF(ISYM)
     ! TRANSFORM TO ORTHONORMAL BASIS. THIS REQUIRES THE CONJUGATE
     ! BASIS, BUT SINCE WE USE CANONICAL ON BASIS THIS AMOUNTS TO A
@@ -178,7 +174,7 @@ do KEIG=1,NRNATO
   write(u6,'(A,A)') ' ORBITALS ARE WRITTEN ONTO FILE ID = ',FNAME
   write(u6,'(A)') ' OCCUPATION NUMBERS:'
   ISTOCC = 0
-  do I=1,NSYM
+  do I=1,nIrrep
     NB = NBASF(I)
     if (NB /= 0) then
       write(u6,'(A,I2)') ' SYMMETRY SPECIES:',I
@@ -188,7 +184,7 @@ do KEIG=1,NRNATO
   end do
   LuxxVec = 50
   LuxxVec = isfreeunit(LuxxVec)
-  call WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,VNAT,OCC,Dummy,iDummy,'* NATURAL ORBITALS FROM RASSI EIGENSTATE NR '//trim(KNUM))
+  call WRVEC(FNAME,LUXXVEC,'CO',nIrrep,NBASF,NBASF,VNAT,OCC,Dummy,iDummy,'* NATURAL ORBITALS FROM RASSI EIGENSTATE NR '//trim(KNUM))
   SUMOCC = DDOT_(sum(NBASF),OCC,1,OCC,1)
   call ADD_INFO('NATORB',[SUMOCC],1,5)
 

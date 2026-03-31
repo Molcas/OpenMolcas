@@ -16,43 +16,28 @@
 
 subroutine SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
 
-use rassi_global_arrays, only: SFDYS, SODYSAMPS, SODYSAMPSR, SODYSAMPSI, JBNUM
+use rassi_global_arrays, only: JBNUM, SFDYS, SODYSAMPS, SODYSAMPSI, SODYSAMPSR
 use OneDat, only: sNoNuc, sNoOri
-use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, DYSEXPORT, DYSEXPSO, MLTPLT
-use Symmetry_Info, only: nSym => nIrrep
+use Cntrl, only: DYSEXPORT, DYSEXPSO, MLTPLT, NSTATE
+use Symmetry_Info, only: nIrrep
 use rassi_data, only: NBASF, NOSH
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSS, NZ
-real*8 USOR(NSS,NSS), USOI(NSS,NSS)
-! Array for calculation of amplitudes
-real*8 DYSAMPS(NSTATE,NSTATE)
-! Arrays for orbital export
-real*8 SOENE(NSS)
-! Arrays, bounds, and indices
-real*8 MSPROJI, MSPROJJ, CJR, CJI, CIR, CII, CREAL, CIMAG, AMPLITUDE, AMPR, AMPI
-integer SOTOT, SFTOT
-integer ORBNUM
-integer SODYSCIND
-integer SFI, SFJ, ZI, ZJ, NSZZ, NDUM
-integer ISTATE, JOB1, MPLET1, MSPROJ, JSTATE, NSSQ, NPROD, ISY, NO, NB, IRC, IOPT, ICMP, ISYLAB, NOFF, JEIG, IEIG, LUNIT
-integer, external :: IsFreeUnit
-! Arrays for calculation of amplitudes
-real*8 SODYSCOFSR(NZ), SODYSCOFSI(NZ)
-real*8 SZZFULL(NZ,NZ)
-! Arrays for orbital export
-real*8 SODYSCMOR(NZ*NSS)
-real*8 SODYSCMOI(NZ*NSS)
-real*8 DYSEN(NSS)
-real*8 AMPS(NSS)
-character(len=30) Filename
-character(len=80) TITLE
+integer(kind=iwp) :: NSS, NZ
+real(kind=wp) :: USOR(NSS,NSS), USOI(NSS,NSS), DYSAMPS(NSTATE,NSTATE), SOENE(NSS)
+integer(kind=iwp) :: ICMP, IEIG, IOPT, IRC, ISTATE, ISY, ISYLAB, JEIG, JOB1, JSTATE, LUNIT, MPLET1, MSPROJ, NB, NDUM, NO, NOFF, &
+                     NPROD, NSSQ, NSZZ, ORBNUM, SFI, SFJ, SFTOT, SODYSCIND, SOTOT, ZI, ZJ
+real(kind=wp) :: AMPI, AMPLITUDE, AMPR, CII, CIMAG, CIR, CJI, CJR, CREAL, MSPROJI, MSPROJJ
+character(len=80) :: TITLE
+character(len=30) :: Filename
 character(len=8) :: Label
-integer, allocatable :: SO2SF(:)
-real*8, allocatable :: MSPROJS(:), SZZ(:)
+integer(kind=iwp), allocatable :: SO2SF(:)
+real(kind=wp), allocatable :: AMPS(:), DYSEN(:), MSPROJS(:), SODYSCMOI(:), SODYSCMOR(:), SODYSCOFSI(:), SODYSCOFSR(:), SZZ(:), &
+                              SZZFULL(:,:)
+integer(kind=iwp), external :: IsFreeUnit
 
 ! +++ J.Norell 2018
 
@@ -131,7 +116,7 @@ if (.not. DYSEXPORT) goto 100
 NSZZ = 0
 NSSQ = 0
 NPROD = 0
-do ISY=1,NSYM
+do ISY=1,nIrrep
   NO = NOSH(ISY)
   NB = NBASF(ISY)
   NSZZ = NSZZ+(NB*(NB+1))/2
@@ -153,12 +138,14 @@ if (IRC /= 0) then
   call ABEND()
 end if
 
+call mma_allocate(SZZFULL,NZ,NZ,Label='SZZFULL')
+
 ! SZZ is originally given in symmetry-blocked triangular form,
 ! lets make it a full matrix for convenience
-SZZFULL = Zero
+SZZFULL(:,:) = Zero
 NDUM = 1
 NOFF = 0
-do ISY=1,NSYM
+do ISY=1,nIrrep
   NB = NBASF(ISY)
   do ZJ=1,NB
     do ZI=1,ZJ
@@ -181,6 +168,13 @@ call mma_deallocate(SZZ)
 ! Dyson orbital coefficients in the atomic basis to obtain
 ! SO Dyson orbitals
 
+call mma_allocate(SODYSCMOR,NZ*NSS,Label='SODYSCMOR')
+call mma_allocate(SODYSCMOI,NZ*NSS,Label='SODYSCMOI')
+call mma_allocate(AMPS,NSS,Label='AMPS')
+call mma_allocate(DYSEN,NSS,Label='DYSEN')
+call mma_allocate(SODYSCOFSR,NZ,Label='SODYSCOFSR')
+call mma_allocate(SODYSCOFSI,NZ,Label='SODYSCOFSI')
+
 SODYSAMPS(:,:) = Zero
 ! For all requested initial states J and all final states I
 do JSTATE=1,DYSEXPSO
@@ -190,16 +184,16 @@ do JSTATE=1,DYSEXPSO
   ! and export to a shared .molden file
   SODYSCIND = 0 ! Orbital coeff. index
   ORBNUM = 0 ! Dysorb index for given JSTATE
-  SODYSCMOR = Zero ! Real orbital coefficients
-  SODYSCMOI = Zero ! Imaginary orbital coefficients
-  DYSEN = Zero ! Orbital energies
-  AMPS = Zero ! Transition amplitudes (shown as occupations)
+  SODYSCMOR(:) = Zero ! Real orbital coefficients
+  SODYSCMOI(:) = Zero ! Imaginary orbital coefficients
+  DYSEN(:) = Zero ! Orbital energies
+  AMPS(:) = Zero ! Transition amplitudes (shown as occupations)
 
   do ISTATE=JSTATE+1,NSS
 
     ! Reset values for next state combination
-    SODYSCOFSR = Zero
-    SODYSCOFSI = Zero
+    SODYSCOFSR(:) = Zero
+    SODYSCOFSI(:) = Zero
 
     ! Iterate over the eigenvector components of both states
     do JEIG=1,NSS
@@ -229,8 +223,8 @@ do JSTATE=1,DYSEXPSO
           CREAL = CJR*CIR+CJI*CII
           CIMAG = CJR*CII-CJI*CIR
           ! Multiply with the corresponding SF Dyson orbital
-          SODYSCOFSR = SODYSCOFSR+CREAL*SFDYS(:,SFJ,SFI)
-          SODYSCOFSI = SODYSCOFSI+CIMAG*SFDYS(:,SFJ,SFI)
+          SODYSCOFSR(:) = SODYSCOFSR(:)+CREAL*SFDYS(:,SFJ,SFI)
+          SODYSCOFSI(:) = SODYSCOFSI(:)+CIMAG*SFDYS(:,SFJ,SFI)
         end if
 
       end do ! IEIG
@@ -281,16 +275,24 @@ do JSTATE=1,DYSEXPSO
     write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Re'
     LUNIT = IsFreeUnit(50)
     write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for state ',JSTATE,' (real part)'
-    call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOR,AMPS,DYSEN,trim(TITLE),NZ)
+    call WRVEC_DYSON(filename,LUNIT,nIrrep,NBASF,ORBNUM,SODYSCMOR,AMPS,DYSEN,trim(TITLE),NZ)
     write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Im'
     write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for state ',JSTATE,' (imaginary part)'
-    call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,SODYSCMOI,AMPS,DYSEN,trim(TITLE),NZ)
+    call WRVEC_DYSON(filename,LUNIT,nIrrep,NBASF,ORBNUM,SODYSCMOI,AMPS,DYSEN,trim(TITLE),NZ)
     close(LUNIT)
   end if
 
 end do ! JSTATE
 
 100 continue
+
+call mma_deallocate(SODYSCMOR)
+call mma_deallocate(SODYSCMOI)
+call mma_deallocate(AMPS)
+call mma_deallocate(DYSEN)
+call mma_deallocate(SODYSCOFSR)
+call mma_deallocate(SODYSCOFSI)
+call mma_deallocate(SZZFULL)
 
 ! ****************************************************************
 

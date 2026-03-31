@@ -22,31 +22,27 @@ subroutine MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,LSYM2,MPLET2,MSPROJ2,IFSBTAB2,IS
 
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
-use qcmaquis_interface_cfg
-use qcmaquis_info
-use qcmaquis_interface_mpssi
+use qcmaquis_info, only: qcm_prefixes
+use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_get_onetdm_spin, qcmaquis_mpssi_overlap
 use rassi_global_arrays, only: LROOT
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
 use Symmetry_Info, only: MUL
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer LSYM1, MPLET1, MSPROJ1, LSYM2, MPLET2, MSPROJ2
+integer(kind=iwp) :: LSYM1, MPLET1, MSPROJ1, IFSBTAB1(*), LSYM2, MPLET2, MSPROJ2, IFSBTAB2(*), ISSTAB(*), MAPORB(*), NASHT, &
+                     OrbTab(*)
+real(kind=wp) :: DET1(*), DET2(*), SIJ, TDM1(NASHT,NASHT), TSDM1(NASHT,NASHT), WTDM1(NASHT,NASHT)
+integer(kind=iwp), intent(in) :: ISTATE, JSTATE, job1, job2, ist, jst
+integer(kind=iwp) :: IORB, ISORB, ISYOP, ITABS, IUABS, JORB, JSORB, MS2OP, NASORB, NSPD1
+real(kind=wp) :: CGCOEF, DCLEBS, FACT, GAA, GAB, GBA, GBB, RED, S1, S2, SM, SM1, SM2, TMATEL
+real(kind=wp), allocatable :: SPD1(:)
 #ifdef _DMRG_
-real*8, allocatable :: TDMAA(:), TDMBB(:)
+real(kind=wp), allocatable :: TDMAA(:), TDMBB(:)
 #endif
-integer IFSBTAB1(*), IFSBTAB2(*), ISSTAB(*), MAPORB(*)
-integer IORB, ISORB, ISYOP, ITABS, IUABS, JORB, JSORB
-integer MS2OP, NASHT, NASORB, NSPD1
-integer, intent(in) :: ISTATE, JSTATE, job1, job2, ist, jst
-integer :: OrbTab(*)
-real*8 DET1(*), DET2(*)
-real*8 SIJ, TDM1(NASHT,NASHT), TSDM1(NASHT,NASHT), WTDM1(NASHT,NASHT)
-real*8 S1, S2, SM, SM1, SM2, GAA, GAB, GBA, GBB
-real*8 OVERLAP_RASSI, TMATEL, RED, FACT, CGCOEF, DCLEBS
-real*8, allocatable :: SPD1(:)
+real(kind=wp), external :: OVERLAP_RASSI
 
 ! Pick out nr of active orbitals from orbital table:
 NASORB = ORBTAB(4)

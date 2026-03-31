@@ -11,12 +11,13 @@
 
 subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
 
-use stdalloc, only: mma_deallocate
-use gugx, only: SGStruct, CIStruct
+use gugx, only: CIStruct, SGStruct
 use MkGUGA_mod, only: MKGUGA
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer nSym, nActEl, iSpin
+integer(kind=iwp) :: nSym, nActEl, iSpin
 type(SGStruct), target :: SGS
 type(CIStruct) :: CIS
 

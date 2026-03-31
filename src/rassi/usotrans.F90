@@ -14,17 +14,17 @@
 subroutine USOTRANS(USOR,USOI,NSS,EigVec,MSTATE,VSOR,VSOI)
 
 use rassi_global_arrays, only: JBNUM
-use stdalloc, only: mma_allocate, mma_deallocate
 use Cntrl, only: MLTPLT
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer NSS, MSTATE
-real*8 USOR(NSS,NSS), USOI(NSS,NSS), EigVec(MSTATE,MSTATE)
-real*8 VSOR(NSS,NSS), VSOI(NSS,NSS)
-integer, allocatable :: MAPST(:,:)
-real*8 tmp_R, tmp_I
-integer ISTATE, JOB, MPLET, MSPROJ, ISS, JSS, JSS_, KSS, KSS_
+integer(kind=iwp) :: NSS, MSTATE
+real(kind=wp) :: USOR(NSS,NSS), USOI(NSS,NSS), EigVec(MSTATE,MSTATE), VSOR(NSS,NSS), VSOI(NSS,NSS)
+integer(kind=iwp) :: ISS, ISTATE, JOB, JSS, JSS_, KSS, KSS_, MPLET, MSPROJ
+real(kind=wp) :: tmp_I, tmp_R
+integer(kind=iwp), allocatable :: MAPST(:,:)
 
 !                                                                      *
 !***********************************************************************

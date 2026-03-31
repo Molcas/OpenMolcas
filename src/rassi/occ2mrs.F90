@@ -9,12 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function Occ2Mrs(NO,IARRAY)
+function Occ2Mrs(NO,IARRAY)
+
+use Definitions, only: iwp
 
 implicit none
-integer NO
-integer IARRAY(NO)
-integer I, POW2
+integer(kind=iwp) :: Occ2Mrs
+integer(kind=iwp) :: NO, IARRAY(NO)
+integer(kind=iwp) :: I, POW2
 
 OCC2MRS = 0
 POW2 = 1

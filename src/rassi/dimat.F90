@@ -19,18 +19,19 @@
 
 subroutine DIMAT(CMO1,CMO2,DINAO)
 
-use Symmetry_Info, only: nSym => nIrrep
-use Constants, only: Zero, One, Two
 use rassi_data, only: NCMO, NBSQ, NBASF, NISH, NOSH
+use Symmetry_Info, only: nIrrep
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CMO1(NCMO), CMO2(NCMO), DINAO(NBSQ)
-integer ISTC, ISTD, ISYM, NI, NO, NB
+real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), DINAO(NBSQ)
+integer(kind=iwp) :: ISTC, ISTD, ISYM, NB, NI, NO
 
 DINAO(:) = Zero
 ISTC = 1
 ISTD = 1
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NI = NISH(ISYM)
   NO = NOSH(ISYM)
   NB = NBASF(ISYM)

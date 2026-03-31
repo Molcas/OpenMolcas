@@ -12,10 +12,11 @@
 subroutine GETPRINTLEVEL()
 
 use rassi_aux, only: ipglob
+use Definitions, only: iwp
 
 implicit none
-integer, external :: iPrintLevel
-logical, external :: Reduce_Prt
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 
 ! Global print level
 IPGLOB = iPrintLevel(-1)

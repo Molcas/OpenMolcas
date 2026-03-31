@@ -13,17 +13,17 @@
 subroutine Track_State(OVLP)
 
 use rassi_aux, only: ipglob
+use Cntrl, only: NJOB, NSTAT, NSTATE
 use Constants, only: Zero
-use Cntrl, only: NSTATE, NJOB, NSTAT
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 ovlp(nstate,nstate)
-integer iState, initState, newState
+real(kind=wp) :: ovlp(nstate,nstate)
+integer(kind=iwp) :: initState, iState, newState
 #ifdef _DEBUGPRINT_
-integer j
+integer(kind=iwp) :: j
 #endif
-real*8 MaxOv, ThisOv
+real(kind=wp) :: MaxOv, ThisOv
 
 ! Check that there are 2 JOB files, with the same number of states
 if (nJob /= 2) call SysAbendMsg('Track_State','The number of JOB files should be 2.','')

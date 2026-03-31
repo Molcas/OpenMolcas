@@ -13,12 +13,12 @@ subroutine PRCHAM(NSS,CHAMR,CHAMI)
 ! Write out a complex Hamiltonian (or other hermitian matrix)
 ! in a triangular format.
 
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSS
 real(kind=wp), intent(in) :: CHAMR(NSS,NSS), CHAMI(NSS,NSS)
-integer(kind=iwp) JSTA, JEND, ISS, JSS
+integer(kind=iwp) :: ISS, JEND, JSS, JSTA
 
 do JSTA=1,NSS,2
   JEND = min(NSS,JSTA+1)

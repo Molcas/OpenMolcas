@@ -12,17 +12,16 @@
 subroutine SMMAT(PROP,PRMAT,NSS,ISONUM,ISPINCMP)
 
 use rassi_global_arrays, only: JBNUM
-use Cntrl, only: NSTATE, NPROP, PNAME, ICOMP, ISOCMP, MLTPLT, PTYPE, SOPRNM, SOPRTP
+use Cntrl, only: ICOMP, ISOCMP, MLTPLT, NPROP, NSTATE, PNAME, PTYPE, SOPRNM, SOPRTP
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSS, ISONUM, ISPINCMP
-real*8 PRMAT(NSS,NSS)
-real*8 PROP(NSTATE,NSTATE,NPROP)
-real*8, external :: DCLEBS
-integer IPRNUM, IPRCMP, IFSPIN, IPROP, ISS, ISTATE, JOB1, MPLET1, MSPROJ1, JSS, JSTATE, JOB2, MPLET2, MSPROJ2
-real*8 SXMER, SYMEI, SZMER, SMINUS, SPLUS, CGM, CG0, CGP, CGX, CGY, EXPKR, FACT, SM1, SM2, S1, S2
+integer(kind=iwp) :: NSS, ISONUM, ISPINCMP
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), PRMAT(NSS,NSS)
+integer(kind=iwp) :: IFSPIN, IPRCMP, IPRNUM, IPROP, ISS, ISTATE, JOB1, JOB2, JSS, JSTATE, MPLET1, MPLET2, MSPROJ1, MSPROJ2
+real(kind=wp) :: CG0, CGM, CGP, CGX, CGY, EXPKR, FACT, s1, s2, SM1, SM2, SMINUS, SPLUS, SXMER, SYMEI, SZMER
+real(kind=wp), external :: DCLEBS
 
 IPRNUM = -1
 IPRCMP = 0

@@ -23,19 +23,18 @@
 !                                               -RF 8/24,2021
 subroutine DESYM_SONTO(A,SIZA,B,SYMLAB)
 
+use Symmetry_Info, only: MUL, nIrrep
+use rassi_data, only: NBASF, NBST
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use rassi_data, only: NBST, NBASF
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer SIZA, SYMLAB
-real*8 A(SIZA)
-real*8 B(NBST**2)
-real*8 ME
-real*8, allocatable :: SCR(:)
-integer ITD, IOF, ISY1, NB1, ISY2, NB2, ISY12_MA, I, J, IJ, ISY12_MA_BI, NB1_I, NB1_F, NB2_I, NB2_F, JI
-real*8 TDM
+integer(kind=iwp) :: SIZA, SYMLAB
+real(kind=wp) :: A(SIZA), B(NBST**2)
+integer(kind=iwp) :: I, IJ, IOF, ISY1, ISY12_MA, ISY12_MA_BI, ISY2, ITD, J, JI, NB1, NB1_F, NB1_I, NB2, NB2_F, NB2_I
+real(kind=wp) :: ME, TDM
+real(kind=wp), allocatable :: SCR(:)
 
 ! Initialize
 B(:) = Zero
@@ -52,9 +51,9 @@ else
   ! note that only half of the total matrix has been stored
   ITD = 0
   IOF = 0
-  do ISY1=1,NSYM
+  do ISY1=1,nIrrep
     NB1 = NBASF(ISY1)
-    do ISY2=1,NSYM
+    do ISY2=1,nIrrep
       NB2 = NBASF(ISY2)
       ISY12_ma = MUL(ISY1,ISY2)
       ISY12_ma_bi = 2**(ISY12_ma-1)
@@ -79,12 +78,12 @@ end if
 ITD = 0
 NB1_i = 0
 NB1_f = 0
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   NB1 = NBASF(ISY1)
   NB1_f = NB1_i+NB1
   NB2_i = 0
   NB2_f = 0
-  do ISY2=1,NSYM
+  do ISY2=1,nIrrep
     ISY12_ma = MUL(ISY1,ISY2)
     ISY12_ma_bi = 2**(ISY12_ma-1)
     NB2 = NBASF(ISY2)

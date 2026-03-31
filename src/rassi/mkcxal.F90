@@ -14,15 +14,15 @@
 
 subroutine MKCXAL(NDIMEN,TRAL,CXAL)
 
-use definitions, only: iwp, wp
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDIMEN
 real(kind=wp), intent(in) :: TRAL(NDIMEN,NDIMEN)
 real(kind=wp), intent(out) :: CXAL(NDIMEN,NDIMEN)
-real(kind=wp) SUMMA
-integer(kind=iwp) I, J, K
+integer(kind=iwp) :: I, J, K
+real(kind=wp) :: SUMMA
 
 do I=1,NDIMEN
   do J=I,NDIMEN

@@ -13,22 +13,15 @@ subroutine NEWFSBTAB(NACTEL,MSPIN2,LSYM,REST,SSTAB,ICASE)
 ! Purpose: Construct an FSB table and return its address in the
 ! FSBTAB1/FiSBTAB2 array.
 
+use rassi_global_arrays, only: FSBARR, FSBTAB1, FSBTAB2
 use stdalloc, only: mma_allocate, mma_deallocate
-use rassi_global_arrays, only: FSBARR
-use rassi_global_arrays, only: FSBTAB1, FSBTAB2, FSBTAB
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer NACTEL, MSPIN2, LSYM
-integer REST(*), SSTAB(*)
-integer ICASE
-integer LSSTARR, NSIZE, ITYPE
-integer NASPRT
-integer NSSTARR, NPART, NSYM
-integer NRDETS, NRDETS0, NFSB, NFSB0
-integer KORB, KREST, IFSB, IERR
-integer NHEAD, NHSHMAP, KHSHMAP, JFSB
-integer NLEN
+integer(kind=iwp) :: NACTEL, MSPIN2, LSYM, REST(*), SSTAB(*), ICASE
+integer(kind=iwp) :: IERR, IFSB, ITYPE, JFSB, KHSHMAP, KORB, KREST, LSSTARR, NASPRT, NFSB, NFSB0, NHEAD, NHSHMAP, NLEN, NPART, &
+                     NRDETS, NRDETS0, NSIZE, NSSTARR, NSYM
+integer(kind=iwp), pointer :: FSBTAB(:)
 
 ! ITYPE=73 is the check code for this table.
 ITYPE = 73
@@ -61,9 +54,11 @@ select case (iCase)
   case (2)
     call mma_allocate(FSBTAB2,NSIZE,Label='FSBTAB2')
     FSBTAB => FSBTAB2(:)
-  case DEFAULT
+  case default
     write(u6,*) 'NEWFSBTAB: Illegal ICASE value'
     write(u6,*) 'ICASE=',ICASE
+    call Abend()
+    FSBTAB => FSBTAB1(:) !dummy
 end select
 NLEN = (NASPRT+2)*NFSB
 call ICOPY(NLEN,FSBARR(1:NLEN),1,FSBTAB(1+NHEAD:NLEN+NHEAD),1)

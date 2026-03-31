@@ -11,14 +11,13 @@
 
 subroutine ZECON(NSTATE,N,UR,UI,AR,AI,ZEKL,IXYZ,ISTATE,ISS,JSS)
 
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NSTATE, N, IXYZ, ISTATE, ISS, JSS
-real(kind=wp), intent(in) :: UR(N,N), UI(N,N)
-real(kind=wp), intent(in) :: AR(N,N), AI(N,N)
+real(kind=wp), intent(in) :: UR(N,N), UI(N,N), AR(N,N), AI(N,N)
 complex(kind=wp), intent(inout) :: ZEKL(2,2,3,NSTATE)
-real(kind=wp) TMPR1, TMPR2, TMPI1, TMPI2
+real(kind=wp) :: TMPI1, TMPI2, TMPR1, TMPR2
 
 TMPR1 = AR(ISS,JSS)*UR(JSS,1)-AI(ISS,JSS)*UI(JSS,1)
 TMPR2 = AR(ISS,JSS)*UR(JSS,2)-AI(ISS,JSS)*UI(JSS,2)

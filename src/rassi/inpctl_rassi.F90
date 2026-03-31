@@ -11,35 +11,35 @@
 
 subroutine INPCTL_RASSI()
 
-use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
 #ifdef _DMRG_
-use rasscf_global, only: doDMRG
-use qcmaquis_interface_cfg
+use qcmaquis_interface_cfg, only: qcmaquis_param
 use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
 use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
-use cntrl, only: NACTE
+use rasscf_global, only: doDMRG
 use rassi_data, only: NASH
+use Cntrl, only: NACTE
 use Definitions, only: u6
 #endif
-use mspt2_eigenvectors
-use stdalloc, only: mma_allocate, mma_deallocate
-use cntrl, only: RefEne, HEff
-use Cntrl, only: NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT, MLTPLT, NSTAT, MXJOB, NATO, BINA, NRNATO, NBINA, IBINA
-use cntrl, only: ATLBL, IGROUP, nAtoms, nGroup
-use Symmetry_Info, only: nSym => nIrrep
+use mspt2_eigenvectors, only: init_mspt2_eigenvectors
+use Symmetry_Info, only: nIrrep
+use rassi_global_arrays, only: ESHFT, HAM, HDIAG, JBNUM, LROOT
 use rassi_data, only: ENUC, NBASF
+use Cntrl, only: BINA, HEff, IBINA, IfHDia, IFHEXT, IFShft, ISTAT, MLTPLT, MXJOB, NATO, nAtoms, NBINA, NJOB, NRNATO, NSTAT, &
+                 NSTATE, RefEne
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: iwp
 
 implicit none
-logical READ_STATES
-integer JOB, i
+logical(kind=iwp) :: READ_STATES
+integer(kind=iwp) :: i, JOB
 
 ! get basic info from runfile
-call Get_iArray('nBas',nBasF,nSym)
+call Get_iArray('nBas',nBasF,nIrrep)
 call Get_dscalar('PotNuc',ENUC)
 
 ! Read data from the ONEINT file:
-call GETCNT(NGROUP,IGROUP,NATOMS,ATLBL)
+call GETCNT(NATOMS)
 
 NSTATE = 0
 ! Read (and do some checking) the standard input.
@@ -111,7 +111,7 @@ end do
 if (doDMRG) then
   !> stupid info.h defines "sum", so I cannot use the intrinsic sum function here...
   qcmaquis_param%L = 0
-  do i=1,nsym
+  do i=1,nIrrep
     qcmaquis_param%L = qcmaquis_param%L+nash(i)
   end do
 

@@ -11,12 +11,12 @@
 
 subroutine PRPTRA(ND,NCPL,TRA)
 
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ND, NCPL
 real(kind=wp), intent(in) :: TRA(ND,NCPL)
-integer(kind=iwp) ISTA, IEND, ID, ICPL
+integer(kind=iwp) :: ICPL, ID, IEND, ISTA
 
 if ((ND < 0) .or. (NCPL < 0)) then
   call WarningMessage(2,'Program bug: Erroneous call to PRPTRA.')

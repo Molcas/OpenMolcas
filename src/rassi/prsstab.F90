@@ -11,16 +11,13 @@
 
 subroutine PrSSTab(SSTAB)
 
-use cntrl, only: MORSBITS
-use Definitions, only: u6
+use Cntrl, only: MORSBITS
+use Definitions, only: iwp, u6
 
 implicit none
-integer SSTAB(*)
-integer LPOS
-integer NSSTP, ISSTP, KSSTP, NSBS, NPOP, ISYM, MS2, ISPART
-integer KSSTANN, KSSTCRE, KSBSMRS, KMRSSBS, KSBSANN, KSBSCRE
-integer I, ISBS, NSBSTOT, NMORS, IMRS, NASPRT
-integer NRSBST, ISBSSTA, ISBSEND, IMRSSTA, IMRSEND
+integer(kind=iwp) :: SSTAB(*)
+integer(kind=iwp) :: I, IMRS, IMRSEND, IMRSSTA, ISBS, ISBSEND, ISBSSTA, ISPART, ISSTP, ISYM, KMRSSBS, KSBSANN, KSBSCRE, KSBSMRS, &
+                     KSSTANN, KSSTCRE, KSSTP, LPOS, MS2, NASPRT, NMORS, NPOP, NRSBST, NSBS, NSBSTOT, NSSTP
 
 write(u6,*)
 write(u6,*) '============================================='

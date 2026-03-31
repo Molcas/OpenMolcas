@@ -11,45 +11,36 @@
 
 subroutine BINAT()
 
-use rassi_global_arrays, only: JBNUM, EIGVEC
-use rassi_aux, only: iDisk_TDM
+use Symmetry_Info, only: MUL, nIrrep
 use OneDat, only: sNoNuc, sNoOri
+use rassi_aux, only: iDisk_TDM
+use rassi_data, only: NBASF, NBMX, NBSQ, NBST, NBTRI, NTDMZZ
+use rassi_global_arrays, only: EIGVEC, JBNUM
+use Cntrl, only: IBINA, IRREP, LuTDM, NBINA, NSTATE
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NBINA, NSTATE, IRREP, IBINA
-use cntrl, only: LuTDM
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use rassi_data, only: NBSQ, NBMX, NBASF, NBST, NBTRI, NTDMZZ
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IOFF_SEV, IOFF_VEC, IOFF_TDM, IOFF_ISV
-integer IOPT, ICMP, ISYLAB, LS, LV, LV1
-integer LE, I, LS1, ISEL, LS2, J, K, L, LE1
-integer IJPAIR, KEIG_BRA, KEIG_KET, LSYM_BRA
-integer LSYM_KET, LSYM12, IDISK, IV, IE, ITD, IRC, ISYM
-integer ISYM1, ISYM2, NB, NB1, NB2, LV2, LE2, ITD1, ITD2
-integer ISV, LB, LK, NBMIN, iEmpty, iGo
-integer LUNIT, IDUMMY
-real*8 SSEL, SWAP, S_EV, X, DUMMY, SUMSNG
-character(len=16) KNUM
-character(len=8) BNUM, LABEL
-character(len=21) TXT
-character(len=24) FNAME
+integer(kind=iwp) :: I, ICMP, IDISK, IDUMMY(2), IE, iEmpty, iGo, IJPAIR, IOFF_ISV(8), IOFF_SEV(8), IOFF_TDM(8), IOFF_VEC(8), IOPT, &
+                     IRC, ISEL, ISV, ISYLAB, ISYM, ISYM1, ISYM2, ITD, ITD1, ITD2, IV, J, K, KEIG_BRA, KEIG_KET, L, LB, LE, LE1, &
+                     LE2, LK, LS, LS1, LS2, LSYM12, LSYM_BRA, LSYM_KET, LUNIT, LV, LV1, LV2, NB, NB1, NB2, NBMIN
+real(kind=wp) :: DUMMY(2), S_EV, SSEL, SUMSNG, SWAP, X
+character(len=24) :: FNAME
+character(len=21) :: TXT
+character(len=16) :: KNUM
+character(len=8) :: BNUM, LABEL
+real(kind=wp), allocatable :: BRABNO(:), KETBNO(:), ONBAS(:), SAO(:), SCR(:), SEV(:), SNGV1(:), SNGV2(:), SVAL(:), TDMAO(:), &
+                              TDMAT(:), UMAT(:), VTMAT(:)
+integer(kind=iwp), external :: ISFREEUNIT
+real(kind=wp), external :: DDOT_
+
 ! Tables of starting locations, created and used later
-dimension IOFF_VEC(8), IOFF_SEV(8), IOFF_TDM(8), IOFF_ISV(8)
-dimension IDUMMY(2), DUMMY(2)
-integer, external :: ISFREEUNIT
-real*8, external :: DDOT_
-real*8, allocatable :: ONBAS(:), SCR(:), SEV(:), SAO(:)
-real*8, allocatable :: UMAT(:), VTMAT(:), SVAL(:)
-real*8, allocatable :: SNGV1(:), SNGV2(:)
-real*8, allocatable :: TDMAT(:), TDMAO(:)
-real*8, allocatable :: BRABNO(:), KETBNO(:)
+! IOFF_VEC, IOFF_SEV, IOFF_TDM, IOFF_ISV
 
 ! Nr of basis functions, total
 NBSQ = 0
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NBSQ = NBSQ+NBASF(ISYM)**2
 end do
 !============================================================
@@ -78,7 +69,7 @@ end if
 LS = 1
 LV = 1
 LE = 1
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NB = NBASF(ISYM)
   call DCOPY_(NB**2,[Zero],0,ONBAS(LV),1)
   call DCOPY_(NB,[One],0,ONBAS(LV),NB+1)
@@ -174,7 +165,7 @@ do IJPAIR=1,NBINA
   ! needed for the singular values and for the TDM.
   ITD = 0
   ISV = 0
-  do ISYM1=1,NSYM
+  do ISYM1=1,nIrrep
     IOFF_TDM(ISYM1) = ITD
     IOFF_ISV(ISYM1) = ISV
     ISYM2 = MUL(ISYM1,LSYM12)
@@ -201,7 +192,7 @@ do IJPAIR=1,NBINA
           ! Pick up conjugate TDM array, and transpose it into TDMAO.
           call dens2file(SCR,SCR,SCR,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
           ! Loop over the receiving side:
-          do ISYM1=1,NSYM
+          do ISYM1=1,nIrrep
             ISYM2 = MUL(ISYM1,LSYM12)
             NB1 = NBASF(ISYM1)
             NB2 = NBASF(ISYM2)
@@ -225,7 +216,7 @@ do IJPAIR=1,NBINA
   ! tables of offsets:
   IV = 0
   IE = 0
-  do ISYM=1,NSYM
+  do ISYM=1,nIrrep
     IOFF_VEC(ISYM) = IV
     IOFF_SEV(ISYM) = IE
     IV = IV+NBASF(ISYM)**2
@@ -234,7 +225,7 @@ do IJPAIR=1,NBINA
   SNGV1(:) = Zero
   SNGV2(:) = Zero
   ITD = 0
-  do ISYM1=1,NSYM
+  do ISYM1=1,nIrrep
     ISYM2 = MUL(ISYM1,LSYM12)
     NB1 = NBASF(ISYM1)
     NB2 = NBASF(ISYM2)
@@ -283,7 +274,7 @@ do IJPAIR=1,NBINA
   write(u6,*) ' Binatural singular values for the transition from'
   write(u6,*) ' ket eigenstate KEIG_KET to bra eigenstate KEIG_BRA'
   write(u6,'(1x,I2,a,i2)') KEIG_BRA,' <-- ',KEIG_KET
-  do I=1,NSYM
+  do I=1,nIrrep
     NB = NBASF(I)
     if (NB /= 0) then
       write(u6,'(A,I2)') ' SYMMETRY SPECIES:',I
@@ -301,9 +292,8 @@ do IJPAIR=1,NBINA
 
   FNAME = 'BIORB.'//KNUM
   write(u6,'(A,A)') ' Orbitals are written onto file id = ',FNAME
-  LUNIT = 50
-  LUNIT = ISFREEUNIT(LUNIT)
-  call WRVEC_(FNAME,LUNIT,'CO',1,NSYM,NBASF,NBASF,BRABNO,KETBNO,SNGV1,SNGV2,DUMMY,DUMMY,IDUMMY, &
+  LUNIT = ISFREEUNIT(50)
+  call WRVEC_(FNAME,LUNIT,'CO',1,nIrrep,NBASF,NBASF,BRABNO,KETBNO,SNGV1,SNGV2,DUMMY,DUMMY,IDUMMY, &
               '* Binatural orbitals from transition '//trim(TXT),0)
   close(LUNIT)
   SUMSNG = DDOT_(sum(NBASF),SNGV1,1,SNGV2,1)

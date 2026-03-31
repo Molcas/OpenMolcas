@@ -12,26 +12,20 @@
 subroutine PROPER(PROP,ISTATE,JSTATE,TDMZZ,WDMZZ)
 
 use rassi_global_arrays, only: JBNUM
-use RASSI_AUX
+use RASSI_AUX, only: TocM
+use Cntrl, only: FnTOM, IRREP, lSym1, lSym2, LuTOM, NPROP, NSTATE, PNAME, PTYPE, ToFile
+use Symmetry_Info, only: Mul, nIrrep
+use rassi_data, only: NBASF, NBST, NTDMZZ
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, NPROP, lSym1, lSym2, ToFile, IRREP, PNAME, PTYPE
-use cntrl, only: FnTOM, LuTOM
-use Symmetry_Info, only: Mul, nSym => nIrrep
-use rassi_data, only: NTDMZZ, NBST, NBASF
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 PROP(NSTATE,NSTATE,NPROP)
-real*8 TDMZZ(NTDMZZ), WDMZZ(NTDMZZ)
-integer ISTATE, JSTATE
-integer IOFF(8)
-character(len=8) LABEL
-save iDiskSav !(For ToFile)
-integer, save :: ICALL = 0
-real*8, allocatable :: SCR(:,:)
-real*8, allocatable :: IP(:)
-integer JOB1, JOB2, iSy12, Mask, NIP, nScr, iDisk, iDIskSav, I, J, IndCall, iProp, iType
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), TDMZZ(NTDMZZ), WDMZZ(NTDMZZ)
+integer(kind=iwp) :: ISTATE, JSTATE
+integer(kind=iwp) :: I, ICALL = 0, iDisk, iDIskSav = 0, IndCall, IOFF(8), iProp, iSy12, iType, J, JOB1, JOB2, Mask, NIP, nScr
+character(len=8) :: LABEL
+real(kind=wp), allocatable :: IP(:), SCR(:,:)
 
 ! COMBINED SYMMETRY OF STATES:
 JOB1 = JBNUM(ISTATE)
@@ -45,13 +39,13 @@ MASK = 2**(ISY12-1)
 NIP = 4+(NBST*(NBST+1))/2
 call mma_allocate(IP,NIP,Label='IP')
 ! FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
-call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
+call mk_IOFF(IOFF,nIrrep,NBASF,ISY12)
 ! CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 ! AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 NSCR = (NBST*(NBST+1))/2
 call mma_allocate(SCR,nSCR,4,LABEL='SCR')
 SCR(:,:) = Zero
-call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,ISY12)
+call MK_TWDM(nIrrep,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,ISY12)
 
 ! AT THIS POINT, THE SYMMETRICALLY AND ANTISYMMETRICALLY FOLDED
 ! DENSITY MATRICES, AND WE-REDUCED SPIN DENSITY MATRICES, HAVE BEEN

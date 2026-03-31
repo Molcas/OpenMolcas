@@ -13,12 +13,12 @@ subroutine PRCMAT(NSS,XMATR,XMATI)
 ! Write out matrix elements over states as a complex matrix
 ! in square format
 
-use Definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSS
 real(kind=wp), intent(in) :: XMATR(NSS,NSS), XMATI(NSS,NSS)
-integer(kind=iwp) JSTA, JEND, ISS, JSS
+integer(kind=iwp) :: ISS, JEND, JSS, JSTA
 
 do JSTA=1,NSS,2
   JEND = min(NSS,JSTA+1)

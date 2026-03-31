@@ -14,17 +14,13 @@ subroutine MSTOW1(NSYM,NLEV,NVERT,NMIDV,NIPWLK,NWALK,MIDLEV,ICS,NOW,IOW,IWALK,IU
 ! the table MWS2W, such that MAW sums can be translated to the
 ! corresponding walks of the Split-GUGA.
 
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NSYM, NLEV, NVERT, NMIDV, NIPWLK, NWALK, MIDLEV
-integer(kind=iwp), intent(out) :: ICS(NLEV)
-integer(kind=iwp), intent(in) :: NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV)
-integer(kind=iwp), intent(in) :: IWALK(NIPWLK*NWALK)
-integer(kind=iwp), intent(in) :: IDOWN(NVERT,0:3), IUP(NVERT,0:3)
-integer(kind=iwp), intent(in) :: MAW(NVERT,0:3)
-integer(kind=iwp), intent(out) :: MWS2W(NWALK)
-integer(kind=iwp) MV, ISYUP, NUP, IUOFF, IUW, IUWTOT, MS, IUV, LEV, IC, ISYDWN, NDWN, IDOFF, IDW, IDWTOT, IDV
+integer(kind=iwp), intent(in) :: NSYM, NLEV, NVERT, NMIDV, NIPWLK, NWALK, MIDLEV, NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), &
+                                 IWALK(NIPWLK*NWALK), IUP(NVERT,0:3), IDOWN(NVERT,0:3), MAW(NVERT,0:3)
+integer(kind=iwp), intent(out) :: ICS(NLEV), MWS2W(NWALK)
+integer(kind=iwp) :: IC, IDOFF, IDV, IDW, IDWTOT, ISYDWN, ISYUP, IUOFF, IUV, IUW, IUWTOT, LEV, MS, MV, NDWN, NUP
 
 do MV=1,NMIDV
   do ISYUP=1,NSYM

@@ -9,47 +9,43 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+#include "macros.fh"
+
 subroutine READIN_RASSI()
 
-use rassi_aux, only: ipglob
-use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
-use frenkel_global_vars, only: excl, iTyp, valst, corest, nesta, nestb, nestla, nestlb, doexch, DoExcitonics, DoCoul, labA, labB, &
-                               rixs
+use Cholesky, only: timings
+use Cntrl, only: ALGO, Nscreen, dmpk, QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRSXY, PRORB, PRTRA, PRCI, BINA, NATO, NBINA, NRNATO, &
+                 RFPERT, IFTRD1, NSOPR, NPROP, PRDIPVEC, TDIPMIN, NJOB, CIH5, CIThr, IFHAM, IFSO, IFNTO, SOThr_Prt, nSOThr_Prt, &
+                 nState, IfHEXT, IfHEff, IfHCOM, IFEJOB, IfHDia, IfShft, ToFile, IfJ2, IfJZ, IFGCAL, EPraThr, IFACALSD, IFACALFC, &
+                 IFACALSDON, IFACALPSO, IFATCALSA, IFGTSHSA, MULTIP, IFVANVLECK, TMINS, TMAXS, NTS, IFSONCINI, TMINP, TMAXP, NTP, &
+                 NOSO, IFCURD, IFARGU, IFXCAL, NBSTEP, BSTART, BINCRE, BANGRES, NTSTEP, TSTART, TINCRE, IFMCAL, PRXVR, PRXVE, &
+                 PRXVS, PRMER, PRMEE, PRMES, HOP, TRACK, NOHAM, ONLY_OVERLAPS, IFDCPL, IFTRD2, IFTDM, DQVD, ALPHZ, BETAE, DIPR, &
+                 OSTHR_DIPR, QIPR, OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO, DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, DCHO, &
+                 DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE, REDUCELOOP, LOOPDIVIDE, LOOPMAX, l_Eff, Do_SK, Do_Pol, RHODYN, &
+                 MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM, EPrThr, LPRPR, lHami, IfACAL, IFACALFCON, IFACALFCSDON, IFGTCALSA, &
+                 DYSEXPSF, ISTAT, MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA, SONTO, SONTOSTATES, SONAT, SONATNSTATE, SODIAG, &
+                 SODIAGNSTATE
+use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
+use frenkel_global_vars, only: DoCoul, doexch, DoExcitonics, excl, iTyp, labB, nestla, nestlb, valst
 use kVectors, only: e_Vector, k_Vector, nk_Vector
 use Lebedev_quadrature, only: available_table, rule_max
+use rassi_aux, only: ipglob
+use rassi_data, only: CHFRACMEM
+use rassi_global_arrays, only: ESHFT, HAM, HDIAG, JBNUM, LROOT
+use spool, only: Close_LuSpool, Spoolinp
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
-use qcmaquis_interface_cfg
 #endif
-use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
-use Cholesky, only: timings
 use stdalloc, only: mma_allocate
-use cntrl, only: SONTO, SONTOSTATES, SONAT, SONATNSTATE, SODIAG, SODIAGNSTATE
-use spool, only: Spoolinp, Close_LuSpool
-use Cntrl, only: QDPT2SC, QDPT2EV, SECOND_TIME, DOGSOR, PRSXY, PRORB, PRTRA, PRCI, BINA, NATO, NBINA, NRNATO, RFPERT, IFTRD1, &
-                 NSOPR, NPROP, PRDIPVEC, TDIPMIN, NJOB, CIH5, CIThr, IFHAM, IFSO, IFNTO, SOThr_Prt, nSOThr_Prt, nState, IfHEXT, &
-                 IfHEff, IfHCOM, IFEJOB, IfHDia, IfShft, ToFile, IfJ2, IfJZ, IFGCAL, EPraThr, IFACALSD, IFACALFC, IFACALSDON, &
-                 IFACALPSO, IFATCALSA, IFGTSHSA, MULTIP, IFVANVLECK, TMINS, TMAXS, NTS, IFSONCINI, TMINP, TMAXP, NTP, IFSONCIFC, &
-                 TMINF, TMAXF, NTF, NOSO, IFCURD, IFARGU, IFXCAL, NBSTEP, BSTART, BINCRE, BANGRES, NTSTEP, TSTART, TINCRE, IFMCAL, &
-                 PRXVR, PRXVE, PRXVS, PRMER, PRMEE, PRMES, HOP, TRACK, NOHAM, ONLY_OVERLAPS, IFDCPL, IFTRD2, IFTDM, DQVD, ALPHZ, &
-                 BETAE, DIPR, OSTHR_DIPR, QIPR, OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO, DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, &
-                 DCHO, DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE, REDUCELOOP, LOOPDIVIDE, LOOPMAX, l_Eff, Do_SK, Do_Pol, &
-                 RHODYN, MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM, EPrThr, LPRPR, lHami, IfACAL, IFACALFCON, IFACALFCSDON, &
-                 IFGTCALSA, DYSEXPSF, ISTAT, MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
-use cntrl, only: ALGO, Nscreen, dmpk
-use rassi_data, only: CHFRACMEM
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=80) LINE
-integer, parameter :: MXPLST = 50
-character(len=8) TRYNAME
-real*8 tmp
-logical lExists
-integer I, J, ISTATE, JSTATE, IJOB, LINENR
-integer LuIn
-integer NFLS
+integer(kind=iwp) :: corest, I, IJOB, ISTATE, J, JSTATE, LINENR, LuIn, nesta, nestb, NFLS
+real(kind=wp) :: tmp
+logical(kind=iwp) :: lExists
+character(len=80) ::LINE
+character(len=8) :: TRYNAME
 character(len=7) :: input_id
 
 call SpoolInp(LuIn)
@@ -192,7 +188,6 @@ if (LINE(1:4) == 'KCOU') then
 end if
 if (LINE(1:4) == 'MONA') then
   DoCoul = .true.
-  labA = .true.
   if (iTyp == 2) write(u6,*) ' Warning: switching to monomer-A.'
   iTyp = 1
   if (.not. IFTRD1) then
@@ -215,8 +210,8 @@ if (LINE(1:4) == 'MONB') then
   goto 100
 end if
 if (LINE(1:4) == 'RIXS') then
-  RIXS = .true.
   read(LuIn,*,err=997) valst,corest
+  unused_var(corest)
   LINENR = LINENR+1
   goto 100
 end if
@@ -559,13 +554,6 @@ end if
 if (Line(1:4) == 'NMRT') then
   IFSONCINI = .true.
   read(LuIn,*,err=997) TMINP,TMAXP,NTP
-  Linenr = Linenr+1
-  goto 100
-end if
-
-if (Line(1:4) == 'NMRF') then
-  IFSONCIFC = .true.
-  read(LuIn,*,err=997) TMINF,TMAXF,NTF
   Linenr = Linenr+1
   goto 100
 end if

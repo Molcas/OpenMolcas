@@ -12,15 +12,14 @@
 subroutine prwf_biorth(nstate,njob,nconf,ndet,nasht,detocc,detcoeff,cithr)
 ! print CI expansion in determinant biorthonormal basis
 
-use Definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nstate, njob, nconf, ndet, nasht
-real(kind=wp), dimension(ndet), intent(in) :: detcoeff
-character(len=(NASHT+1)), dimension(ndet), intent(in) :: detocc
+character(len=NASHT+1), intent(in) :: detocc(ndet)
+real(kind=wp), intent(in) :: detcoeff(ndet), cithr
 integer(kind=iwp) :: i, ocsp
 character(len=38) :: fomt
-real*8 cithr
 
 write(u6,*) ' ******* TRANSFORMED CI COEFFICIENTS *******'
 write(u6,*) ' CI for state ',nstate

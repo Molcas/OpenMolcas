@@ -16,60 +16,38 @@ use rassi_aux, only: ipglob
 use rassi_global_arrays, only: JBNUM
 use sorting, only: argsort
 use sorting_funcs, only: leq_r
+use Cntrl, only: EMIN, ICOMP, IFJ2, IFJZ, LOOPDIVIDE, MLTPLT, NPROP, NSOThr_PRT, NSTATE, PNAME, REDUCELOOP, SOThr_PRT
 #ifdef _HDF5_
-use Dens2HDF5
+use Dens2HDF5, only: UpdateIdx
 use mh5, only: mh5_put_dset
 use RASSIWfn, only: wfn_SOS_CoefI, wfn_SOS_CoefR, wfn_SOS_Energy, wfn_SOS_HSOI, wfn_SOS_HSOR, wfn_SOS_VSOI, wfn_SOS_VSOR
 use Cntrl, only: IFTDM, IFTRD1, RHODYN
 #endif
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
-use qcmaquis_interface_cfg
 #endif
-use Constants, only: Zero, One, Ten, Half, Quart, auTocm, auToeV
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, NPROP, NSOThr_PRT, SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP, LOOPDIVIDE, ICOMP, MLTPLT, PNAME
-use Definitions, only: wp, u6
+use Constants, only: Zero, One, Ten, Half, Quart, auTocm, auToeV
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSS
-real*8 PROP(NSTATE,NSTATE,NPROP)
-real*8 USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS)
-real*8 ENERGY(NSTATE)
-integer N
-integer ITOL, IDX
-integer JOB
-integer IPROP
-integer IAMFIX, IAMFIY, IAMFIZ, IAMX, IAMY, IAMZ
-integer ISS, JSS, ISTATE, JSTATE
-integer MAGN
-integer MPLET, MPLET1, MPLET2, MSPROJ, MSPROJ1, MSPROJ2
-real*8 AMFIX, AMFIY, AMFIZ
-real*8 CG0, CGM, CGP, CGX, CGY
-real*8 E, E0, E1, E2, E3, E_TMP, FACT, FRAC, EI, EPSH, EPSS, ERMS, V2SUM
-real*8 HSOI, HSOR, HSOTOT
-real*8 OMEGA
-real*8 S1, S2, SM1, SM2
-real*8 SOTHR_MIN
-real*8 X, X_THR, XJEFF
-real*8, allocatable :: ESO(:), HAMSOR(:,:), HAMSOI(:,:)
+integer(kind=iwp) :: NSS
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), ENERGY(NSTATE)
+integer(kind=iwp) :: IAMFIX, IAMFIY, IAMFIZ, IAMX, IAMY, IAMZ, IDX, IPROP, ISS, ISTATE, ITOL, JOB, JSS, JSTATE, MAGN, MPLET, &
+                     MPLET1, MPLET2, MSPROJ, MSPROJ1, MSPROJ2, N
+real(kind=wp) :: AMFIX, AMFIY, AMFIZ, CG0, CGM, CGP, CGX, CGY, E, E0, E1, E2, E3, E_TMP, EI, EPSH, EPSS, ERMS, FACT, FRAC, HSOI, &
+                 HSOR, HSOTOT, OMEGA, S1, S2, SM1, SM2, SOTHR_MIN, V2SUM, X, X_THR, XJEFF
+logical(kind=iwp) :: lJ2, lOMG
+integer(kind=iwp), allocatable :: IndexE(:), MAPMS(:), MAPSP(:), MAPST(:)
+real(kind=wp), allocatable :: ESO(:), HAMSOI(:,:), HAMSOR(:,:), HTOTI(:,:), HTOTR(:,:), J2I(:,:), J2R(:,:), JXI(:), JXR(:), &
+                              JYI(:), JYR(:), JZI(:), JZR(:), LXI(:), LYI(:), LZI(:), OMGI(:,:), OMGR(:,:)
 #ifdef _DMRG_
-complex*16, allocatable :: hso_tmp(:,:)
-complex*16, allocatable :: ccwork(:)
-real*8, allocatable :: rwork(:)
-integer :: lcwork, info
+integer(kind=iwp) :: info, lcwork
+real(kind=wp), allocatable :: rwork(:)
+complex(kind=wp), allocatable :: ccwork(:), hso_tmp(:,:)
 #endif
-integer, allocatable :: IndexE(:)
-real*8, external :: DCLEBS
-logical lOMG, lJ2
-integer, external :: cho_x_gettol
-integer, allocatable :: MAPST(:), MAPSP(:), MAPMS(:)
-real*8, allocatable :: HTOTR(:,:), HTOTI(:,:)
-real*8, allocatable :: LXI(:), LYI(:), LZI(:)
-real*8, allocatable :: JXR(:), JYR(:), JZR(:)
-real*8, allocatable :: JXI(:), JYI(:), JZI(:)
-real*8, allocatable :: OMGR(:,:), OMGI(:,:)
-real*8, allocatable :: J2R(:,:), J2I(:,:)
+integer(kind=iwp), external :: cho_x_gettol
+real(kind=wp), external :: DCLEBS
 
 ! CONSTANTS:
 lOMG = .false.

@@ -20,19 +20,19 @@ subroutine CHO_RASSI_RDINP(DFonly,LuSpool)
 
 use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
 use Cholesky, only: timings
-use cntrl, only: ALGO, Nscreen, dmpk
+use Cntrl, only: ALGO, dmpk, Nscreen
 use rassi_data, only: CHFRACMEM
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-logical DFonly
-integer LuSpool
-character(len=180) KWord, Key
+logical(kind=iwp) :: DFonly
+integer(kind=iwp) :: LuSpool
+integer(kind=iwp) :: iChrct, last
+real(kind=wp) :: dmpk_dfl
+character(len=180) :: Key, KWord
+integer(kind=iwp), external :: iCLast
 character(len=180), external :: Get_Ln
-integer iChrct, last
-integer, external :: iCLast
-real*8 dmpk_dfl
 
 !**** Algorithms for using Cholesky vectors in RASSI ******************
 !

@@ -32,6 +32,7 @@ public :: LibxcInt, LibxcReal, LibxcSize
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
 public :: ItoB, RtoB, RtoI, CtoB
 public :: u0, u5, u6
+public :: r4
 
 ! This is the working precision and should be preferably used
 ! (we assume logical kinds are the same as integer kinds).
@@ -99,5 +100,15 @@ integer(kind=iwp), parameter :: &
 integer(kind=iwp), parameter :: u0 = error_unit, &
                                 u5 = input_unit, &
                                 u6 = output_unit
+
+! Although the constants from `iso_fortran_env` or `selected_real_kind`
+! are preferred over non-standard `real` etc.
+! We define some kinds to refer to the non-standard notation.
+! **DON'T USE THESE UNLESS YOU EXPLICILTY WANT TO REFER TO `real*8` etc.**
+! `wp` etc. are always preferred.
+
+real*4 :: r4_example
+
+integer(kind=iwp), parameter :: r4 = kind(r4_example)
 
 end module Definitions

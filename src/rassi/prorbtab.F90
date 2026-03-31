@@ -11,15 +11,13 @@
 
 subroutine PrOrbTab(ORBTAB)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer ORBTAB(*)
-character(len=8) STRING8
+integer(kind=iwp) :: ORBTAB(*)
+integer(kind=iwp) :: IEXTNUM, INPART, INSBP, IPART, ISMLAB, ISOIND, ISORB, ISPART, ISPLAB, KOINFO, KSPART, NSPART, NSPORB
+character(len=8) :: STRING8
 character(len=8), external :: ORBNAM
-integer IEXTNUM, INPART, INSBP, ISORB, IPART, ISMLAB, ISOIND
-integer ISPART, ISPLAB, NSPORB, KOINFO, KSPART
-integer NSPART
 
 write(u6,*)
 write(u6,*) '============================================='

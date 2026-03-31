@@ -11,40 +11,33 @@
 
 subroutine SGPrint(SGS)
 
-use definitions, only: iwp, u6
 use gugx, only: SGStruct
+use Definitions, only: iwp, u6
 
 implicit none
 type(SGStruct), intent(in) :: SGS
-integer(kind=iwp) nLev, nVert, MidLev, MVSta, MVEnd, i, iv, ic
-
-! Unpack structure SGS:
-nLev = SGS%nLev
-nVert = SGS%nVert
-MidLev = SGS%MidLev
-MVSta = SGS%MVSta
-MVEnd = SGS%MVEnd
+integer(kind=iwp) :: i, ic, iv
 
 write(u6,*) ' Split-Graph UGA. Graph description:'
-write(u6,*) ' Nr of levels:',nLev
+write(u6,*) ' Nr of levels:',SGS%nLev
 write(u6,*) ' Orbital symmetry labels:'
-write(u6,'(1x,30i2)') (SGS%ISm(i),i=1,nLev)
-write(u6,*) ' Nr of vertices:',nVert
+write(u6,'(1x,30i2)') (SGS%ISm(i),i=1,SGS%nLev)
+write(u6,*) ' Nr of vertices:',SGS%nVert
 write(u6,*)
 write(u6,*) ' Vertex    L  N    A  B  C      Downchain table        Upchain table'
 write(u6,*)
-do iv=1,nVert
+do iv=1,SGS%nVert
   write(u6,'(1x,i4,5x,2i3,2x,3i3,5x,4i4,5x,4i4)') iv,(SGS%DRT(iv,i-1),i=1,5),(SGS%Down(iv,ic),ic=0,3),(SGS%Up(iv,ic),ic=0,3)
 end do
 write(u6,*)
-write(u6,*) ' Mid Level:',MidLev
-write(u6,*) ' Mid Vertices:',MVSta,'...',MVEnd
+write(u6,*) ' Mid Level:',SGS%MidLev
+write(u6,*) ' Mid Vertices:',SGS%MVSta,'...',SGS%MVEnd
 write(u6,*)
 write(u6,*) ' Modified Arc Weight table:'
 write(u6,*) '           Coupling case number'
 write(u6,*) ' Vertex      0    1    2    3'
 write(u6,*)
-do iv=1,nVert
+do iv=1,SGS%nVert
   write(u6,'(1x,i4,5x,4i5)') iv,(SGS%MAW(iv,ic),ic=0,3)
 end do
 

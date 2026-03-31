@@ -17,26 +17,16 @@ subroutine PRIMSGM(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,COEFF,SGM,PSI)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer IMODE, ISORB
-integer IORBTAB(*)
-integer ISSTAB(*)
-integer IFSBTAB1(*), IFSBTAB2(*)
-real*8 COEFF
-real*8 PSI(*), SGM(*)
-real*8 CFFPHS, SCALE
-integer NASPRT
-integer IFSB1, IBLKPOS1, ISST1, KSTARR1, NSBS1
-integer IFSB2, IBLKPOS2, ISST2, KSTARR2, NSBS2
-integer NSSTP, NHSH2, KHSH2, NFSB1, ISST, NSBS
-integer NPOP1, KSSTOP, KSBSOP
-integer NDI, NDJ, KPOS, ISPART, KSSTTB
-integer I, J, IPOS1, IPOS2, ISUM, ISP
-integer ISSTARR(50)
-integer ISBS1, ISBS2, KOINFO, KSBSCR, KSBSAN
-integer KSBS1, KSBS2, KSORB, KSSTCR, KSSTAN, MORSBITS
-integer, allocatable :: SBSET(:)
+integer(kind=iwp) :: IMODE, ISORB, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp) :: COEFF, SGM(*), PSI(*)
+integer(kind=iwp) :: I, IBLKPOS1, IBLKPOS2, IFSB1, IFSB2, IPOS1, IPOS2, ISBS1, ISBS2, ISP, ISPART, ISST, ISST1, ISST2, &
+                     ISSTARR(50), ISUM, J, KHSH2, KOINFO, KPOS, KSBS1, KSBS2, KSBSAN, KSBSCR, KSBSOP, KSORB, KSSTAN, KSSTCR, &
+                     KSSTOP, KSSTTB, KSTARR1, KSTARR2, MORSBITS, NASPRT, NDI, NDJ, NFSB1, NHSH2, NPOP1, NSBS, NSBS1, NSBS2, NSSTP
+real(kind=wp) :: CFFPHS, SCL
+integer(kind=iwp), allocatable :: SBSET(:)
 
 if (COEFF == Zero) return
 ! The orbital table:
@@ -126,10 +116,10 @@ do IFSB1=1,NFSB1
     ISBS2 = ISSTAB(KSBSOP-1+KSORB+MORSBITS*(ISBS1-1))
     if (ISBS2 == 0) goto 100
     if (ISBS2 > 0) then
-      SCALE = CFFPHS
+      SCL = CFFPHS
       ISBS2 = ISBS2
     else
-      SCALE = -CFFPHS
+      SCL = -CFFPHS
       ISBS2 = -ISBS2
     end if
     KSBS2 = ISBS2-SBSET(ISST2)
@@ -139,12 +129,12 @@ do IFSB1=1,NFSB1
       if (NDJ == 1) then
         IPOS1 = IBLKPOS1+(KSBS1-1)
         IPOS2 = IBLKPOS2+(KSBS2-1)
-        SGM(IPOS1) = SGM(IPOS1)+SCALE*PSI(IPOS2)
+        SGM(IPOS1) = SGM(IPOS1)+SCL*PSI(IPOS2)
       else
         do J=0,NDJ-1
           IPOS1 = IBLKPOS1+(KSBS1-1+NSBS1*J)
           IPOS2 = IBLKPOS2+(KSBS2-1+NSBS2*J)
-          SGM(IPOS1) = SGM(IPOS1)+SCALE*PSI(IPOS2)
+          SGM(IPOS1) = SGM(IPOS1)+SCL*PSI(IPOS2)
         end do
       end if
     else
@@ -152,14 +142,14 @@ do IFSB1=1,NFSB1
         do I=0,NDI-1
           IPOS1 = IBLKPOS1+I+NDI*(KSBS1-1)
           IPOS2 = IBLKPOS2+I+NDI*(KSBS2-1)
-          SGM(IPOS1) = SGM(IPOS1)+SCALE*PSI(IPOS2)
+          SGM(IPOS1) = SGM(IPOS1)+SCL*PSI(IPOS2)
         end do
       else
         do J=0,NDJ-1
           do I=0,NDI-1
             IPOS1 = IBLKPOS1+I+NDI*(KSBS1-1+NSBS1*J)
             IPOS2 = IBLKPOS2+I+NDI*(KSBS2-1+NSBS2*J)
-            SGM(IPOS1) = SGM(IPOS1)+SCALE*PSI(IPOS2)
+            SGM(IPOS1) = SGM(IPOS1)+SCL*PSI(IPOS2)
           end do
         end do
       end if

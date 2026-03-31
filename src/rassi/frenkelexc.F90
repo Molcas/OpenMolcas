@@ -10,39 +10,37 @@
 !***********************************************************************
 
 !ifdef _DEBUPRINT_
-subroutine frenkelexc(Frenkeltri,dim,nst1,nst2)
+subroutine frenkelexc(Frenkeltri,ndim,nst1,nst2)
 
+use frenkel_global_vars, only: excl, iTyp, jTyp, nestla, nestlb, valst
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, auToEV
 use Definitions, only: wp, iwp, u6
-use frenkel_global_vars, only: iTyp, jTyp, nestla, nestlb, valst, excl
-use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
-integer(kind=iwp) :: dim, nst1, nst2
-real(kind=wp), intent(inout) :: Frenkeltri(dim*(dim+1)/2)
-integer(kind=iwp) :: d1lines, d2lines, a, b, ntrans, tri, iPL, run, LUT3, LUT1, I, J, IO, K, L, iPrintLevel
-real(kind=wp) :: GS, DIPNORM
-real(kind=wp), allocatable :: Frenkelsq(:), Frenkelquad(:,:), Freninterm(:,:), Freninterm2(:,:)
-real(kind=wp), allocatable :: D1X(:), D1Y(:), D1Z(:), D2X(:), D2Z(:), Dip1(:,:,:), Dip2(:,:,:), EigEn(:), EDIFF(:), OSCSTR(:), &
-                              Rassi1(:), Rassi2(:), Frenkeldia(:,:), D2Y(:), DipFrx(:,:), DipFry(:,:), DipFrz(:,:), &
-                              DipFrintermx(:,:), DipFrintermy(:,:), DipFrintermz(:,:), DipFrintermx2(:,:), DipFrintermy2(:,:), &
-                              DipFrintermz2(:,:), EigEnHa(:), E_FRENKEL(:)
-integer(kind=iwp), allocatable :: I1(:), F1(:), I2(:), F2(:)
-integer(kind=iwp), external :: isFreeUnit
+integer(kind=iwp) :: ndim, nst1, nst2
+real(kind=wp), intent(inout) :: Frenkeltri(ndim*(ndim+1)/2)
+integer(kind=iwp) :: a, b, d1lines, d2lines, I, IO, iPL, J, K, L, LUT1, LUT3, ntrans, run, tri
+real(kind=wp) :: DIPNORM, GS
 character(len=13) :: filnam, filnam1, filnam2, filnam3
+integer(kind=iwp), allocatable :: I1(:), I2(:), F1(:), F2(:)
+real(kind=wp), allocatable :: D1X(:), D1Y(:), D1Z(:), D2X(:), D2Y(:), D2Z(:), Dip1(:,:,:), Dip2(:,:,:), DipFrintermx(:,:), &
+                              DipFrintermx2(:,:), DipFrintermy(:,:), DipFrintermy2(:,:), DipFrintermz(:,:), DipFrintermz2(:,:), &
+                              DipFrx(:,:), DipFry(:,:), DipFrz(:,:), E_FRENKEL(:), EDIFF(:), EigEn(:), EigEnHa(:), &
+                              Freninterm(:,:), Freninterm2(:,:), Frenkeldia(:,:), Frenkelquad(:,:), OSCSTR(:), Rassi1(:), Rassi2(:)
 character(len=8), allocatable :: Hamelembra(:), Hamelemket(:)
+integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 
 call GETPRINTLEVEL()
 iPL = iPrintLevel(-1)
 
-call mma_allocate(Frenkelsq,dim*dim)
-call mma_allocate(Frenkeldia,dim,dim)
-call mma_allocate(Freninterm,dim,dim)
-call mma_allocate(Freninterm2,dim,dim)
-call mma_allocate(Frenkelquad,dim,dim)
+call mma_allocate(Frenkeldia,ndim,ndim)
+call mma_allocate(Freninterm,ndim,ndim)
+call mma_allocate(Freninterm2,ndim,ndim)
+call mma_allocate(Frenkelquad,ndim,ndim)
 call mma_allocate(Rassi1,nst1)
 call mma_allocate(Rassi2,nst2)
-call mma_allocate(E_FRENKEL,dim)
+call mma_allocate(E_FRENKEL,ndim)
 
 ! read in rassi energies of both monomers to add them
 ! to the diagonal elements
@@ -112,31 +110,23 @@ end do
 
 ! subtract gs energy
 gs = Frenkeltri(1)
-do i=1,dim
+do i=1,ndim
   Frenkeltri((i*(i+1))/2) = Frenkeltri((i*(i+1))/2)-gs
 end do
 ! convert to eV
 Frenkeltri(:) = Frenkeltri(:)*auToEV
 
 ! make a full Hamilton matrix from the lower triangular
-call square(Frenkeltri,Frenkelsq,1,dim,dim)
+call square(Frenkeltri,Frenkelquad,1,ndim,ndim)
 #ifdef _DEBUGPRINT_
-write(u6,*) 'Frenkelsq:'
-do i=1,dim
-  write(u6,'(1000ES18.8)') (Frenkelsq(j+(i-1)*dim),j=1,dim)
+write(u6,*) 'Frenkelquad:'
+do i=1,ndim
+  write(u6,'(1000ES18.8)') (Frenkelquad(j,i),j=1,ndim)
 end do
 #endif
-! form a real quadratic matrix from Frenkelsq -> Frenkelquad
-run = 0
-do i=1,dim
-  do j=1,dim
-    run = run+1
-    Frenkelquad(i,j) = Frenkelsq(run)
-  end do
-end do
 
-call mma_allocate(Hamelembra,dim)
-call mma_allocate(Hamelemket,dim)
+call mma_allocate(Hamelembra,ndim)
+call mma_allocate(Hamelemket,ndim)
 tri = 0
 do a=1,nst1
   do b=1,nst2
@@ -156,50 +146,50 @@ end do
 
 write(u6,*) 'Frenkel Hamiltonian [eV]:'
 write(u6,'(11X)',advance='NO')
-write(u6,'(100(A,8X))',advance='YES') (Hamelemket(i),i=1,dim)
+write(u6,'(100(A,8X))',advance='YES') (Hamelemket(i),i=1,ndim)
 
-do i=1,dim
-  write(u6,'(A,1X,100(ES16.8))') Hamelembra(i),(Frenkelquad(i,j),j=1,dim)
+do i=1,ndim
+  write(u6,'(A,1X,100(ES16.8))') Hamelembra(i),(Frenkelquad(i,j),j=1,ndim)
 end do
 
 write(u6,*) 'Frenkel eigenvectors (column wise):'
 write(u6,'(11X)',advance='NO')
-write(u6,'(100(I3.3,13X))',advance='YES') (i,i=1,dim)
+write(u6,'(100(I3.3,13X))',advance='YES') (i,i=1,ndim)
 
-call NIdiag_New(Frenkeltri,Frenkeldia,dim,dim)
+call NIdiag_New(Frenkeltri,Frenkeldia,ndim,ndim)
 
-do i=1,dim
-  write(u6,'(A,1X,100(ES16.8))') Hamelembra(i),(Frenkeldia(i,j),j=1,dim)
+do i=1,ndim
+  write(u6,'(A,1X,100(ES16.8))') Hamelembra(i),(Frenkeldia(i,j),j=1,ndim)
 end do
 
 write(u6,*) 'Hamiltonian eigenvalues [eV]:'
-do i=1,dim
+do i=1,ndim
   E_FRENKEL(i) = Frenkeltri((i*(i+1))/2)
   write(u6,*) Frenkeltri((i*(i+1))/2)
 end do
 
-call Add_Info('E_FRENKEL',E_FRENKEL,dim,6)
+call Add_Info('E_FRENKEL',E_FRENKEL,ndim,6)
 
 call mma_deallocate(E_FRENKEL)
 call mma_deallocate(Hamelembra)
 call mma_deallocate(Hamelemket)
 
 #ifdef _DEBUGPRINT_
-call dgemm_('N','N',dim,dim,dim,One,Frenkelquad,dim,Frenkeldia,dim,Zero,Freninterm,dim)
+call dgemm_('N','N',ndim,ndim,ndim,One,Frenkelquad,ndim,Frenkeldia,ndim,Zero,Freninterm,ndim)
 
 write(u6,*) 'first trafo H*U'
-do i=1,dim
-  write(u6,'(1000ES18.8)') (Freninterm(i,j),j=1,dim)
+do i=1,ndim
+  write(u6,'(1000ES18.8)') (Freninterm(i,j),j=1,ndim)
 end do
-call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,Freninterm,dim,Zero,Freninterm2,dim)
+call dgemm_('T','N',ndim,ndim,ndim,One,Frenkeldia,ndim,Freninterm,ndim,Zero,Freninterm2,ndim)
 write(u6,*) 'second trafo U^(t)HU (should be diagonal)'
-do i=1,dim
-  write(u6,'(1000ES18.8)') (Freninterm2(i,j),j=1,dim)
+do i=1,ndim
+  write(u6,'(1000ES18.8)') (Freninterm2(i,j),j=1,ndim)
 end do
 #endif
 
 ntrans = 0
-do i=1,dim-1
+do i=1,ndim-1
   ntrans = ntrans+i
 end do
 
@@ -246,19 +236,19 @@ call mma_allocate(D2Y,d2lines)
 call mma_allocate(D2Z,d2lines)
 call mma_allocate(Dip1,nst1,nst1,3)
 call mma_allocate(Dip2,nst2,nst2,3)
-call mma_allocate(EigEn,dim)
-call mma_allocate(EigEnHa,dim)
+call mma_allocate(EigEn,ndim)
+call mma_allocate(EigEnHa,ndim)
 call mma_allocate(EDIFF,ntrans)
 call mma_allocate(OSCSTR,ntrans)
-call mma_allocate(DipFrx,dim,dim)
-call mma_allocate(DipFry,dim,dim)
-call mma_allocate(DipFrz,dim,dim)
-call mma_allocate(DipFrintermx,dim,dim)
-call mma_allocate(DipFrintermx2,dim,dim)
-call mma_allocate(DipFrintermy,dim,dim)
-call mma_allocate(DipFrintermy2,dim,dim)
-call mma_allocate(DipFrintermz,dim,dim)
-call mma_allocate(DipFrintermz2,dim,dim)
+call mma_allocate(DipFrx,ndim,ndim)
+call mma_allocate(DipFry,ndim,ndim)
+call mma_allocate(DipFrz,ndim,ndim)
+call mma_allocate(DipFrintermx,ndim,ndim)
+call mma_allocate(DipFrintermx2,ndim,ndim)
+call mma_allocate(DipFrintermy,ndim,ndim)
+call mma_allocate(DipFrintermy2,ndim,ndim)
+call mma_allocate(DipFrintermz,ndim,ndim)
+call mma_allocate(DipFrintermz2,ndim,ndim)
 
 write(filnam,'(A,I1)') 'dip_vec',iTyp
 LuT3 = 11
@@ -312,14 +302,14 @@ do i=1,d2lines
 end do
 
 write(u6,*) 'relative excitonic state eigenenergies [eV]:'
-do i=1,dim
+do i=1,ndim
   EigEn(i) = Frenkeltri((i*(i+1))/2)-Frenkeltri(1)
   write(u6,*) 'EigEn:',i,EigEn(i)
 end do
 
 if (iPL >= 3) then
   write(u6,*) 'relative excitonic state eigenenergies in hartree:'
-  do i=1,dim
+  do i=1,ndim
     EigEnHa(i) = (Frenkeltri((i*(i+1))/2)-Frenkeltri(1))/auToEV
     write(u6,*) 'EigEn:',i,EigEnHa(i)
   end do
@@ -361,19 +351,19 @@ end do
 
 if (iPL >= 3) then
   write(u6,*) 'DipFrx:'
-  do i=1,dim
-    write(u6,'(100ES18.8)') (DipFrx(i,j),j=1,dim)
+  do i=1,ndim
+    write(u6,'(100ES18.8)') (DipFrx(i,j),j=1,ndim)
   end do
 end if
 ! transform dipole matrix in dipole basis
-call dgemm_('N','N',dim,dim,dim,One,DipFrx,dim,Frenkeldia,dim,Zero,DipFrintermx,dim)
+call dgemm_('N','N',ndim,ndim,ndim,One,DipFrx,ndim,Frenkeldia,ndim,Zero,DipFrintermx,ndim)
 
-call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,DipFrintermx,dim,Zero,DipFrintermx2,dim)
+call dgemm_('T','N',ndim,ndim,ndim,One,Frenkeldia,ndim,DipFrintermx,ndim,Zero,DipFrintermx2,ndim)
 
 if (iPL >= 3) then
   write(u6,*) 'trafo U^(t)DU, dipole mtx in exc. basis, X'
-  do i=1,dim
-    write(u6,'(100ES18.8)') (DipFrintermx2(i,j),j=1,dim)
+  do i=1,ndim
+    write(u6,'(100ES18.8)') (DipFrintermx2(i,j),j=1,ndim)
   end do
 end if
 ! create y
@@ -412,19 +402,19 @@ end do
 
 if (iPL >= 3) then
   write(u6,*) 'DipFry:'
-  do i=1,dim
-    write(u6,'(100ES18.8)') (DipFry(i,j),j=1,dim)
+  do i=1,ndim
+    write(u6,'(100ES18.8)') (DipFry(i,j),j=1,ndim)
   end do
 end if
 
 ! transform dipole matrix in dipole basis
-call dgemm_('N','N',dim,dim,dim,One,DipFry,dim,Frenkeldia,dim,Zero,DipFrintermy,dim)
+call dgemm_('N','N',ndim,ndim,ndim,One,DipFry,ndim,Frenkeldia,ndim,Zero,DipFrintermy,ndim)
 
-call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,DipFrintermy,dim,Zero,DipFrintermy2,dim)
+call dgemm_('T','N',ndim,ndim,ndim,One,Frenkeldia,ndim,DipFrintermy,ndim,Zero,DipFrintermy2,ndim)
 if (iPL >= 3) then
   write(u6,*) 'trafo U^(t)DU, dipole mtx in exc. basis, Y'
-  do i=1,dim
-    write(u6,'(100ES18.8)') (DipFrintermy2(i,j),j=1,dim)
+  do i=1,ndim
+    write(u6,'(100ES18.8)') (DipFrintermy2(i,j),j=1,ndim)
   end do
 end if
 
@@ -466,19 +456,19 @@ do i=1,nst1
 end do
 if (iPL >= 3) then
   write(u6,*) 'DipFrz:'
-  do i=1,dim
-    write(u6,'(100ES18.8)') (DipFrz(i,j),j=1,dim)
+  do i=1,ndim
+    write(u6,'(100ES18.8)') (DipFrz(i,j),j=1,ndim)
   end do
 end if
 
 ! transform dipole matrix in dipole basis
-call dgemm_('N','N',dim,dim,dim,One,DipFrz,dim,Frenkeldia,dim,Zero,DipFrintermz,dim)
+call dgemm_('N','N',ndim,ndim,ndim,One,DipFrz,ndim,Frenkeldia,ndim,Zero,DipFrintermz,ndim)
 
-call dgemm_('T','N',dim,dim,dim,One,Frenkeldia,dim,DipFrintermz,dim,Zero,DipFrintermz2,dim)
+call dgemm_('T','N',ndim,ndim,ndim,One,Frenkeldia,ndim,DipFrintermz,ndim,Zero,DipFrintermz2,ndim)
 if (iPL >= 3) then
   write(u6,*) 'trafo U^(t)DU, dipole mtx in exc. basis, Z'
-  do i=1,dim
-    write(u6,'(100ES18.8)') (DipFrintermz2(i,j),j=1,dim)
+  do i=1,ndim
+    write(u6,'(100ES18.8)') (DipFrintermz2(i,j),j=1,ndim)
   end do
 end if
 
@@ -486,8 +476,8 @@ end if
 run = 0
 write(u6,*) 'Excitonic absorption spectrum'
 write(u6,3) 'from','to','excitation energy [eV]','Dx','Dy','Dz','osc.str.'
-do i=1,dim
-  do j=i+1,dim
+do i=1,ndim
+  do j=i+1,ndim
     run = run+1
     EDIFF(run) = EigEn(j)-EigEn(i)
     dipnorm = DipFrintermx2(i,j)*DipFrintermx2(i,j)+DipFrintermy2(i,j)*DipFrintermy2(i,j)+DipFrintermz2(i,j)*DipFrintermz2(i,j)
@@ -497,14 +487,14 @@ do i=1,dim
   end do
 end do
 
-call Add_Info('FRENKEL_OSCSTR',OSCSTR,dim*(dim-1)/2,6)
+call Add_Info('FRENKEL_OSCSTR',OSCSTR,ndim*(ndim-1)/2,6)
 
 if (iPL >= 3) then
   run = 0
   write(u6,*) 'Excitonic absorption spectrum'
   write(u6,3) 'from','to','excitation energy [Ha]','Dx','Dy','Dz','osc.str.'
-  do i=1,dim
-    do j=i+1,dim
+  do i=1,ndim
+    do j=i+1,ndim
       run = run+1
       EDIFF(run) = (EigEn(j)-EigEn(i))/auToEV
       dipnorm = DipFrintermx2(i,j)*DipFrintermx2(i,j)+DipFrintermy2(i,j)*DipFrintermy2(i,j)+DipFrintermz2(i,j)*DipFrintermz2(i,j)
@@ -530,7 +520,6 @@ call mma_deallocate(EigEn)
 call mma_deallocate(EigEnHa)
 call mma_deallocate(EDIFF)
 call mma_deallocate(OSCSTR)
-call mma_deallocate(Frenkelsq)
 call mma_deallocate(Frenkeldia)
 call mma_deallocate(Freninterm)
 call mma_deallocate(Freninterm2)

@@ -11,20 +11,20 @@
 
 subroutine SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
 
-use gugx, only: SGStruct, CIStruct, EXStruct
+use gugx, only: CIStruct, EXStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-type(SGSTruct) SGS
-type(CISTruct) CIS
-type(EXSTruct) ExS
-integer ISYM, LSM, NA, NO, NCO
-real*8 TRA(NO,NO), CI(NCO), TMP(NCO)
-integer, allocatable :: ILEV(:)
-integer NI, IL, IP, IK, IKLEV, IPLEV
-real*8 CPK, X, CKK
+type(SGSTruct) :: SGS
+type(CISTruct) :: CIS
+type(EXSTruct) :: ExS
+integer(kind=iwp) :: ISYM, LSM, NA, NO, NCO
+real(kind=wp) :: TRA(NO,NO), CI(NCO), TMP(NCO)
+integer(kind=iwp) :: IK, IKLEV, IL, IP, IPLEV, NI
+real(kind=wp) :: CKK, CPK, X
+integer(kind=iwp), allocatable :: ILEV(:)
 
 ! ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
 ! OF SYMMETRY ISYM.

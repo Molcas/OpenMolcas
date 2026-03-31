@@ -11,8 +11,15 @@
 
 module Trnsfrm
 
+use Definitions, only: iwp
+
 implicit none
-integer NPQ, NBPQ, NBRS, LADX, NAVX, NAP, NAQ, NAR, NAS, NBP, NBQ, NBR, NBS, ISP, ISQ, ISR, ISS, IAPR(8), LMOP1, LMOQ1, LMOR1, &
-        LMOS1, NX1MX, NX2MX, NX3MX, NVXPQ
+private
+
+integer(kind=iwp) :: IAPR(8), ISP, ISQ, ISR, ISS, LMOP1, LMOQ1, LMOR1, LMOS1, NAP, NAQ, NAR, NAS, NAVX, NBP, NBPQ, NBQ, NBR, NBRS, &
+                     NBS, NVXPQ, NX1MX, NX2MX, NX3MX
+
+public :: IAPR, ISP, ISQ, ISR, ISS, LMOP1, LMOQ1, LMOR1, LMOS1, NAP, NAQ, NAR, NAS, NAVX, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NVXPQ, &
+          NX1MX, NX2MX, NX3MX
 
 end module Trnsfrm

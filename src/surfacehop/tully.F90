@@ -16,7 +16,7 @@ use Tully_variables, only: decoherence, tullySubVerb, fixedrandL, iseedL, DECO, 
 #ifdef _HDF5_
 use Surfacehop_globals, only: lH5Restart
 #endif
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, One, Two, Half, cZero, cOne, Onei
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -98,8 +98,8 @@ end if
 call Qpg_zArray('AmatrixV',Found,nStateSq)
 write(u6,*) 'Did the density matrix exists? ',Found
 if (.not. Found) then
-  Amatrix(:,:) = (Zero,Zero)
-  Amatrix(iRlxRoot,iRlxRoot) = (One,Zero)
+  Amatrix(:,:) = cZero
+  Amatrix(iRlxRoot,iRlxRoot) = cOne
 
   call Put_zArray('AmatrixV',Amatrix,NSTATE*NSTATE)
 else
@@ -612,10 +612,10 @@ substeps: do ii=1,NSUBSTEPS
 
   do i=1,NSTATE
     do j=1,NSTATE
-      AmatrixDT(i,j) = (Zero,Zero)
+      AmatrixDT(i,j) = cZero
       do l=1,NSTATE
         AmatrixDT(i,j) = AmatrixDT(i,j)+Amatrix(i,l)*Dmatrix(l,j)-Amatrix(l,j)*Dmatrix(i,l)
-        AmatrixDT(i,j) = AmatrixDT(i,j)+(Zero,One)*Amatrix(i,l)*V(l,j)-(Zero,One)*Amatrix(l,j)*V(i,l)
+        AmatrixDT(i,j) = AmatrixDT(i,j)+Onei*(Amatrix(i,l)*V(l,j)-Amatrix(l,j)*V(i,l))
       end do
     end do
   end do

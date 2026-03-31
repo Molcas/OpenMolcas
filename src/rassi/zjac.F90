@@ -12,24 +12,16 @@
 subroutine ZJAC(NDIMEN,ARRRE,ARRIM,LDV,VECRE,VECIM)
 
 use Constants, only: Zero, One, Two, Four
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NDIMEN, LDV
-real*8 ARRRE(NDIMEN,NDIMEN), ARRIM(NDIMEN,NDIMEN)
-real*8 VECRE(LDV,*), VECIM(LDV,*)
-real*8 EPS
-parameter(EPS=1.0e-12_wp)
-real*8 SBDMAX, ARII, ARJJ, ARIJ, AIIJ, AAIJ, ERE, EIM
-real*8 DIFF, SGN, DUM, CS, SN, TN
-real*8 VRKJ, VIKJ, VRKI, VIKI, ARKJ, AIKJ, ARKI, AIKI
-real*8 ARJK, AIJK, ARIK, AIIK
-real*8 VNSUM, VNOLD
-integer I, J, K
-integer NR, NROT, NSWEEP, IFTEST, IFERR
-real*8 ERRRE, ERRIM
-
-IFTEST = 0
+integer(kind=iwp) :: NDIMEN, LDV
+real(kind=wp) :: ARRRE(NDIMEN,NDIMEN), ARRIM(NDIMEN,NDIMEN), VECRE(LDV,*), VECIM(LDV,*)
+integer(kind=iwp) :: I, IFERR, J, K, NR, NROT, NSWEEP
+real(kind=wp) :: AAIJ, AIIJ, AIIK, AIJK, AIKI, AIKJ, ARII, ARIJ, ARIK, ARJJ, ARJK, ARKI, ARKJ, CS, DIFF, DUM, EIM, ERE, ERRIM, &
+                 ERRRE, SBDMAX, SGN, SN, TN, VIKI, VIKJ, VNOLD, VNSUM, VRKI, VRKJ
+integer(kind=iwp), parameter :: IFTEST = 0
+real(kind=wp), parameter :: EPS = 1.0e-12_wp
 
 ! von Neumanns sum should be ever decreasing. Check this:
 VNSUM = 1.0e99_wp

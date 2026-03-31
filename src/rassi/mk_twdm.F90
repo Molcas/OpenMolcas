@@ -13,17 +13,16 @@ subroutine MK_TWDM(mSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,iOFF,NBASF,ISY12)
 ! CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
 ! AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 
-use definitions, only: iwp, wp
-use constants, only: Zero
 use Symmetry_Info, only: MUL
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mSYM, nTDMZZ, nSCR, ISY12
+integer(kind=iwp), intent(in) :: mSYM, nTDMZZ, nSCR, IOFF(mSYM), NBASF(mSym), ISY12
 real(kind=wp), intent(in) :: TDMZZ(NTDMZZ), WDMZZ(NTDMZZ)
 real(kind=wp), intent(out) :: SCR(nSCR,4)
-integer(kind=iwp), intent(in) :: IOFF(mSYM), NBASF(mSym)
-integer(kind=iwp) IOF, ITD, ISY, NB, J, I, IJ, ISY1, NB1, ISY2, NB2
-real(kind=wp) TDM, WDM
+integer(kind=iwp) :: I, IJ, IOF, ISY, ISY1, ISY2, ITD, J, NB, NB1, NB2
+real(kind=wp) :: TDM, WDM
 
 SCR(:,:) = Zero
 if (ISY12 == 1) then

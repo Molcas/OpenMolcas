@@ -10,23 +10,22 @@
 !***********************************************************************
 
 subroutine AppDerCpl(natom,nST,ChgNuc,Prop,DerCpl,HAM)
-!     Approximate derivative couplings:         <\Psi_I|\nabla H|\Psi_J>
-!                                        f_IJ =  ----------------------
-!                                                     E_J - E_I
+! Approximate derivative couplings:         <\Psi_I|\nabla H|\Psi_J>
+!                                    f_IJ =  ----------------------
+!                                                 E_J - E_I
 !
-!     If the wfn are real-valued: f_II = 0 ; f_JI = - f_IJ -> lower triangular storage
+! If the wfn are real-valued: f_II = 0 ; f_JI = - f_IJ -> lower triangular storage
 
 use rassi_aux, only: ipglob
+use Cntrl, only: ICOMP, NPROP, NSTATE, PNAME
 use Constants, only: Zero
-use Cntrl, only: NSTATE, NPROP, ICOMP, PNAME
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer natom, nST
-real*8 ChgNuc(natom), Prop(nState,nState,NProp), DerCpl(nST,3,natom), Ham(Nstate,Nstate)
-character(len=3), save :: Label = 'EF1'
-real*8 EI, EJ, SumX, SumY, SumZ
-integer ISTA, JSTA, IST, KPROP, LAT, KXYZ
+integer(kind=iwp) :: natom, nST
+real(kind=wp) :: ChgNuc(natom), Prop(nState,nState,NProp), DerCpl(nST,3,natom), Ham(Nstate,Nstate)
+integer(kind=iwp) :: IST, ISTA, JSTA, KPROP, KXYZ, LAT
+real(kind=wp) :: EI, EJ, SumX, SumY, SumZ
 
 nST = nState*(nState+1)/2
 call FZero(DerCpl,3*natom*nST)
@@ -37,7 +36,7 @@ do iSta=1,nState-1
     iST = iSta*(jSta-1)/2+jSta
     write(u6,1000) iSta,jSta,Ej-Ei
     do kProp=1,nProp
-      if (PName(kProp)(1:3) == Label) then
+      if (PName(kProp)(1:3) == 'EF1') then
         read(PName(kProp)(5:8),'(i4)') lAt
         DerCpl(iST,IComp(kProp),lAt) = Prop(iSta,jSta,kProp)*ChgNuc(lAt)/(Ej-Ei)
       end if

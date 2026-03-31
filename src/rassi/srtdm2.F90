@@ -18,24 +18,19 @@ subroutine SRTDM2(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,PSI1,PSI2,IF21,IF12,SRT2M)
 ! IF21 D = < N | anni_left anni_left anni_right | N-1 >
 ! reduced 2-electron tdm in the space of active spin-orbitals
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use rassi_global_arrays, only: FSBANN1, FSBANN2, FSBANN3
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IORBTAB(*), ISSTAB(*)
-integer IFSBTAB1(*), IFSBTAB2(*)
-real*8 PSI1(*), PSI2(*)
-logical IF21, IF12
-real*8 SRT2M(*)
-real*8 COEFF, OVLP
-integer NASORB
-integer IMODE
-integer ISORB, JSORB, LSORB, JLSORB, IJL
-integer ND1, ND2, ND3
-real*8, external :: OVERLAP_RASSI
-real*8, allocatable :: ANN1(:), ANN2(:), ANN3(:)
+integer(kind=iwp) :: IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp) :: PSI1(*), PSI2(*), SRT2M(*)
+logical(kind=iwp) :: IF21, IF12
+integer(kind=iwp) :: IJL, IMODE, ISORB, JLSORB, JSORB, LSORB, NASORB, ND1, ND2, ND3
+real(kind=wp) :: COEFF, OVLP
+real(kind=wp), allocatable :: ANN1(:), ANN2(:), ANN3(:)
+real(kind=wp), external :: OVERLAP_RASSI
 
 NASORB = IORBTAB(4)
 

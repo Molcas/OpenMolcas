@@ -22,20 +22,19 @@ subroutine MK_PROP(PROP,IPROP,ISTATE_,JSTATE_,LABEL,ITYPE,BUFF,NBUFF,DENS,NDENS,
 !***********************************************************************
 
 use OneDat, only: sOpSiz
-use Constants, only: Zero, Two
-use Cntrl, only: NSTATE, NPROP, PNUC, PORIG, ICOMP, IPUSED, PNAME
-use Symmetry_Info, only: nSym => nIrrep, MUL
+use Cntrl, only: ICOMP, IPUSED, NPROP, NSTATE, PNAME, PNUC, PORIG
+use Symmetry_Info, only: MUL, nIrrep
 use rassi_data, only: NBASF
-use Definitions, only: u6
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IPROP, ISTATE_, JSTATE_, ITYPE, NBUFF, NDENS, MASK, ISY12
-character(len=8) LABEL
-real*8 PROP(NSTATE,NSTATE,NPROP), BUFF(NBUFF), DENS(NDENS,4)
-integer IOFF(8)
-integer IDUM(1), ISTATE, JSTATE, IC, IOPT, NSIZ, IRC, ISCHK, IINT, ISY1, NB1, ISY2, NB2, I12, NB12, IPOS
-real*8 PSUM
-real*8, external :: DDot_
+integer(kind=iwp) :: IPROP, ISTATE_, JSTATE_, ITYPE, NBUFF, NDENS, MASK, ISY12, IOFF(8)
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), BUFF(NBUFF), DENS(NDENS,4)
+character(len=8) :: LABEL
+integer(kind=iwp) :: I12, IC, IDUM(1), IINT, IOPT, IPOS, IRC, ISCHK, ISTATE, ISY1, ISY2, JSTATE, NB1, NB12, NB2, NSIZ
+real(kind=wp) :: PSUM
+real(kind=wp), external :: DDot_
 
 ISTATE = max(ISTATE_,JSTATE_)
 JSTATE = min(ISTATE_,JSTATE_)
@@ -87,7 +86,7 @@ else
 end if
 IINT = 1
 PSUM = Zero
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   NB1 = NBASF(ISY1)
   if (NB1 == 0) cycle
   do ISY2=1,ISY1

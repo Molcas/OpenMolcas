@@ -11,102 +11,69 @@
 
 subroutine GTDMCTL(PROP,JOB1,JOB2,OVLP,DYSAMPS,NZ,IDISK)
 
+use Symmetry_Info, only: MUL, nIrrep
+use frenkel_global_vars, only: DoCoul
+use gugx, only: CIStruct, EXStruct, SGStruct
+use mspt2_eigenvectors, only: Heff_evc_pc, Heff_evc_sc, prpdata_mspt2_eigenvectors
 use rasdef, only: NRAS, NRASEL, NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T, NRSPRT
-use rassi_global_arrays, only: PART, OrbTab, HAM, SFDYS, SSTAB, REST1, REST2, CnfTab1, CnfTab2, FSBTAB1, FSBTAB2, SPNTAB1, &
-                               SPNTAB2, TRANS1, TRANS2
-#ifdef _DMRG_
-use rassi_global_arrays, only: LROOT
-#endif
-!> module dependencies
-#ifdef _DMRG_
-use qcmaquis_interface_cfg
-use qcmaquis_interface_utility_routines, only: pretty_print_util
-use qcmaquis_info
-use qcmaquis_interface_mpssi
-#endif
-use mspt2_eigenvectors
 use rasscf_global, only: DoDMRG
-use rassi_aux, only: AO_Mode, ipglob, iDisk_TDM, jDisk_TDM
-use gugx, only: SGStruct, CIStruct, EXStruct
-use stdalloc, only: mma_allocate, mma_deallocate
-use definitions, only: wp, u6
+use rassi_aux, only: AO_Mode, iDisk_TDM, ipglob, jDisk_TDM
+use rassi_data, only: ENUC, NASH, NASHT, NCMO, NDEL, NFRO, NISH, NISHT, NOSH, NSSH, NTDMAB, NTDMZZ, NTRA
+use rassi_global_arrays, only: CnfTab1, CnfTab2, FSBTAB1, FSBTAB2, HAM, OrbTab, PART, REST1, REST2, SFDYS, SPNTAB1, SPNTAB2, &
+                               SSTAB, TRANS1, TRANS2
+use Cntrl, only: CITHR, DCHO, DCHS, DOGSOR, DYSO, ERFNUC, IFEJOB, IFHAM, IFHEFF, IFHEXT, IFNTO, IFTRD1, IFTRD2, IRREP, ISTAT, &
+                 iToc15, JBNAME, LSYM1, LSYM2, LuIph, LuTDM, MLTPLT, NACTE, NATO, NCONF1, NDET, NELE3, NHOLE1, NPROP, NSTAT, &
+                 NSTATE, PRCI, QDPT2EV, QDPT2SC, RASTYP, SAVEDENS, SECOND_TIME, TDYS, sonatnstate
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use Cntrl, only: CIH5
 use RASSIWfn, only: wfn_CMO, wfn_CMO_OR, wfn_DetCoeff, wfn_DetCoeff_OR, wfn_DetOcc, wfn_DetOcc_OR
 #endif
-use frenkel_global_vars, only: DoCoul
-use Constants, only: auToEV, Half, One, Zero
-use cntrl, only: sonatnstate
-use Cntrl, only: NSTATE, NPROP, LSYM1, LSYM2, IFHEXT, IFEJOB, TDYS, DYSO, DCHS, NATO, DOGSOR, QDPT2EV, ERFNUC, NCONF1, NCONF2, &
-                 PRCI, DCHO, IFNTO, SAVEDENS, QDPT2SC, IFTRD1, IFTRD2, NDET, IFHAM, IFHEFF, SECOND_TIME, CITHR, IRREP, ISTAT, &
-                 JBNAME, MLTPLT, NACTE, NELE3, NHOLE1, NSTAT, RASTYP
-use cntrl, only: iToc15, LuIph, LuTDM
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use rassi_data, only: NASHT, NISHT, NCMO, ENUC, NASH, NDEL, NFRO, NISH, NOSH, NSSH, NTDMAB, NTDMZZ, NTRA
+#ifdef _DMRG_
+use qcmaquis_info, only: qcm_prefixes
+use qcmaquis_interface_cfg, only: dmrg_external
+use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_overlap
+use qcmaquis_interface_utility_routines, only: pretty_print_util
+use rassi_global_arrays, only: LROOT
+#endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half, auToEV
+use Definitions, only: wp, iwp, u6
 
 implicit none
-type(SGStruct), target :: SGS(2)
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), DYSAMPS(NSTATE,NSTATE)
+integer(kind=iwp) :: JOB1, JOB2, NZ, IDISK
+
+integer(kind=iwp) :: AUGSPIN, DCHIJ, I, IAD, IE1, IE1MN, IE1MX, IE2, IE2MN, IE2MX, IE3, IE3MN, IE3MX, IEMPTY, IERR, IFORM, IGO, &
+                     IJ, IO, IOP1, IOP2, IOP3, IOPT, IRC, ISOIND, ISORB, ISPART, IST, ISTATE, ISUM, ISY, ISY12, ISYM, IT, ITABS, &
+                     J, JST, JSTATE, JSY, KOINFO, KSPART, LSY, LUCITH, LUIPHn, MAXOP, MINOP, MPLET1, MPLET2, MSPROJ1, MSPROJ2, &
+                     nActE1, NACTE2, NASHES(8), NASORB, NASPRT, NCONF2, NDCHSM, NDET1, NDET2, NDYSAB, NDYSZZ, NELE31, NELE32, &
+                     NGAS, NGASLIM(2,10), NGASORB(100), NGL11, NGL12, NGL13, NGL21, NGL22, NGL23, NHOL11, NHOL12, NI, NJ, NL, NO, &
+                     NPART, NRT2M, NRT2MAB, NTDM1, NTDM2, NTRAD
+real(kind=wp) :: BEi, BEij, BEj, Dot_Prod, DYNORM, DYSAMP, ECORE, Energies(1:20), fac1, fac2, HII, HIJ, HJJ, HONE, HTWO, HZERO, &
+                 Norm_fac, OVERLAP_RASSI, SIJ
+real(kind=wp), pointer :: DET1(:), DET2(:)
+logical(kind=iwp) :: DoNTO, IF00, IF01, IF02, IF10, IF11, IF12, IF20, IF21, IF22, IFTWO, mstate_dens, TRORB
+character(len=48) :: STLNE2
+character(len=8) :: WFTP1, WFTP2
 type(CIStruct) :: CIS(2)
 type(EXStruct) :: EXS(2)
-real*8 PROP(NSTATE,NSTATE,NPROP)
-integer NGASORB(100), NGASLIM(2,10)
-integer NASHES(8)
-real*8 OVLP(NSTATE,NSTATE)
-real*8 DYSAMPS(NSTATE,NSTATE)
-logical IF00, IF10, IF01, IF20, IF11, IF02, IF21, IF12, IF22
-logical IFTWO, TRORB
-character(len=8) WFTP1, WFTP2
-character(len=48) STLNE2
-real*8 Energies(1:20)
-integer IAD, LUIPHn, LUCITH
-real*8 Norm_fac
-! prepare the parallel infrastructure for (istate,jstate loop)
-!integer :: itask, ltask, ltaski, ltaskj, ntasks
-!#ifdef _MOLCAS_MPP_
-!integer :: ID
-!#endif
-! transformed CI expansion in determinant basis
-real(kind=wp), allocatable :: detcoeff1(:), detcoeff2(:)
-character(len=(NASHT+1)), allocatable :: detocc(:)
-logical DoNTO
-type mixed_1pdensities
-  real*8 :: overlap
-  real*8, allocatable :: rtdm(:)
-  real*8, allocatable :: stdm(:)
-  real*8, allocatable :: wtdm(:)
-end type
-type(mixed_1pdensities), allocatable :: mstate_1pdens(:,:)
-logical :: mstate_dens
-real*8 :: fac1, fac2
-real*8, allocatable :: CMO1(:), CMO2(:)
-real*8, allocatable :: TRAD(:), TRASD(:), WERD(:)
-real*8, allocatable :: TDMAB(:), TSDMAB(:), WDMAB(:)
-real*8, allocatable :: TDMZZ(:), TSDMZZ(:), WDMZZ(:)
-real*8, allocatable :: TDM2(:), TRA1(:), TRA2(:), FMO(:), TUVX(:)
-real*8, allocatable :: DYSCOF(:), DYSAB(:), DYSZZ(:)
-integer NRT2M, NRT2MAB, AUGSPIN, NDCHSM, DCHIJ
-integer ISY, JSY, LSY, NI, NJ, NL
-real*8, allocatable :: RT2M(:), RT2MAB(:)
-real*8, allocatable :: DCHSM(:)
-real*8 BEi, BEj, BEij
+type(SGStruct), target :: SGS(2)
 integer, allocatable :: OMAP(:)
-real*8, allocatable :: CI1(:), CI2(:), CI2_o(:)
-real*8, pointer :: DET1(:), DET2(:)
-real*8, allocatable, target :: DETTOT1(:,:), DETTOT2(:,:)
-real*8, allocatable :: Theta1(:), ThetaN(:), ThetaM(:)
-integer nActE1, JOB1, MPLET1, NHOL11, NELE31, NACTE2, JOB2, MPLET2, NHOL12, NASORB, NTDM1, NTDM2, ISY12, NDYSAB, NDYSZZ, NZ, &
-        NTRAD, I, J, MSPROJ1, MSPROJ2, NASPRT, KSPART, KOINFO, ISUM, ISYM, ISORB, NO, IO, ISOIND, IT, ITABS, NPART, NGAS, IE1MN, &
-        IE1MX, IE3MN, IE3MX, IE2MN, IE2MX, NGL11, NGL21, NGL12, NGL22, NGL13, NGL23, MAXOP, IE1, IOP1, IE3, IOP3, IE2, IOP2, &
-        IFORM, MINOP, NDET1, NDET2, IST, ISTATE, JST, JSTATE, IRC, IJ, IDISK, IOPT, IGO, IERR, NELE32, ISPART, IEMPTY
-real*8 ECORE, Dot_Prod, HZERO, HONE, HTWO, SIJ, DYSAMP, DYNORM, HII, HJJ, HIJ, OVERLAP_RASSI
-real*8, external :: DDot_
-integer, external :: IsFreeUnit
+real(kind=wp), allocatable :: CI1(:), CI2(:), CI2_o(:), CMO1(:), CMO2(:), DCHSM(:), detcoeff1(:), detcoeff2(:), DYSAB(:), &
+                              DYSCOF(:), DYSZZ(:), FMO(:), mixed_1p_overlap(:,:), mixed_1p_rtdm(:,:,:), mixed_1p_stdm(:,:,:), &
+                              mixed_1p_wtdm(:,:,:), RT2M(:), RT2MAB(:), TDM2(:), TDMAB(:), TDMZZ(:), Theta1(:), ThetaM(:), &
+                              ThetaN(:), TRA1(:), TRA2(:), TRAD(:), TRASD(:), TSDMAB(:), TSDMZZ(:), TUVX(:), WDMAB(:), WDMZZ(:), &
+                              WERD(:)
+real(kind=wp), allocatable, target :: DETTOT1(:,:), DETTOT2(:,:)
+character(len=NASHT+1), allocatable :: detocc(:)
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=wp), external :: DDot_
 interface
   subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)
-    use gugx, only: SGStruct, CIStruct
+    import :: iwp, SGStruct, CIStruct
     implicit none
-    integer nSym, nActEl, iSpin
+    integer(kind=iwp) :: nSym, nActEl, iSpin
     type(SGStruct), target :: SGS
     type(CIStruct) :: CIS
   end subroutine SGInit
@@ -116,13 +83,7 @@ end interface
 #ifdef _TIME_GTDM_
 call CWTime(TCpu1,TWall1)
 #endif
-#ifdef _WARNING_WORKAROUND_
-! Avoid compiler warnings about possibly unitialised mstate_1pdens
-! The below can be removed if the file is compiled with
-! -Wno-error=maybe-uninitialized
-allocate(mstate_1pdens(0,0))
-deallocate(mstate_1pdens)
-#endif
+
 ! WF parameters for ISTATE and JSTATE
 
 NACTE1 = NACTE(JOB1)
@@ -220,13 +181,13 @@ NRT2M = NASHT**3
 ! Size of Symmetry blocks
 ISY12 = MUL(LSYM1,LSYM2)
 NRT2MAB = 0
-do ISY=1,NSYM
+do ISY=1,nIrrep
   NI = NOSH(ISY)
   if (NI == 0) goto 200
-  do JSY=1,NSYM
+  do JSY=1,nIrrep
     NJ = NOSH(JSY)
     if (NJ == 0) goto 300
-    do LSY=1,NSYM
+    do LSY=1,nIrrep
       NL = NOSH(LSY)
       if (NL == 0) goto 400
       if (MUL(ISY,MUL(JSY,LSY)) == ISY12) NRT2MAB = NRT2MAB+NI*NJ*NL
@@ -319,24 +280,22 @@ else
 end if
 
 !> check whether we do RASSI with an effective multi-state PT2 Hamiltonian
-!> whose eigenvectors are stored in Heff_evc
+!> whose eigenvectors are stored in Heff_evc_pc/Heff_evc_sc
 !> i.e., we do not use mixed CI coefficients / MPS wave functions but rather mix the TDMs
 
-mstate_dens = (job1 == job2) .and. (allocated(Heff_evc(job1)%pc) .or. allocated(Heff_evc(job1)%sc))
+mstate_dens = (job1 == job2) .and. (allocated(Heff_evc_pc) .or. allocated(Heff_evc_sc))
 mstate_dens = mstate_dens .and. if11
 mstate_dens = mstate_dens .and. qdpt2ev
 
 if (mstate_dens) then
-  allocate(mstate_1pdens(nstat(job1),nstat(job1)))
-  do i=1,nstat(job1)
-    do j=1,nstat(job1)
-      call mma_allocate(mstate_1pdens(i,j)%rtdm,NTDMZZ)
-      call mma_allocate(mstate_1pdens(i,j)%stdm,NTDMZZ)
-      call mma_allocate(mstate_1pdens(i,j)%wtdm,NTDMZZ)
-      mstate_1pdens(i,j)%rtdm = 0; mstate_1pdens(i,j)%stdm = 0
-      mstate_1pdens(i,j)%wtdm = 0; mstate_1pdens(i,j)%overlap = 0
-    end do
-  end do
+  call mma_allocate(mixed_1p_overlap,nstat(job1),nstat(job1),Label='mixed_1p_overlap')
+  call mma_allocate(mixed_1p_rtdm,NTDMZZ,nstat(job1),nstat(job1),Label='mixed_1p_rtdm')
+  call mma_allocate(mixed_1p_stdm,NTDMZZ,nstat(job1),nstat(job1),Label='mixed_1p_stdm')
+  call mma_allocate(mixed_1p_wtdm,NTDMZZ,nstat(job1),nstat(job1),Label='mixed_1p_wtdm')
+  mixed_1p_rtdm(:,:,:) = 0
+  mixed_1p_stdm(:,:,:) = 0
+  mixed_1p_wtdm(:,:,:) = 0
+  mixed_1p_overlap(:,:) = 0
 end if
 
 #ifdef _DMRG_
@@ -390,7 +349,7 @@ end if
 ! PART
 ! ORBTAB
 ! SSTAB
-call NEWPRTTAB(NSYM,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
+call NEWPRTTAB(nIrrep,NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NDEL)
 if (IPGLOB >= 4) call PRPRTTAB(PART)
 
 call NEWORBTAB(PART)
@@ -409,7 +368,7 @@ NASPRT = ORBTAB(9)
 KSPART = ORBTAB(10)
 KOINFO = 19
 ISUM = 0
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NASHES(ISYM) = ISUM
   ISUM = ISUM+NASH(ISYM)
 end do
@@ -449,7 +408,7 @@ if (WFTP1 == 'GENERAL') then
   NRASEL(3) = NACTE1
 
   if (.not. doDMRG) then
-    call SGINIT(NSYM,NACTE1,MPLET1,SGS(1),CIS(1))
+    call SGINIT(nIrrep,NACTE1,MPLET1,SGS(1),CIS(1))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB1=',JOB1
       call SGPRINT(SGS(1))
@@ -476,10 +435,10 @@ call mma_allocate(CI1,NCONF1,Label='CI1')
 
 NPART = 3
 NGAS = NPART
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NGASORB(ISYM) = NRS1(ISYM)
-  NGASORB(ISYM+NSYM) = NRS2(ISYM)
-  NGASORB(ISYM+2*NSYM) = NRS3(ISYM)
+  NGASORB(ISYM+nIrrep) = NRS2(ISYM)
+  NGASORB(ISYM+2*nIrrep) = NRS3(ISYM)
 end do
 
 !PAM2008: The old MAXOP was far too generous:
@@ -534,7 +493,7 @@ NGASLIM(2,3) = NGL23
 if (.not. doDMRG) then
   IFORM = 1
   MINOP = 0
-  call NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM,1)
+  call NEWGASTAB(nIrrep,NGAS,NGASORB,NGASLIM,1)
   if (IPGLOB >= 4) call PRGASTAB(REST1)
 
   ! At present, we will only annihilate, at most 2 electrons will
@@ -575,7 +534,7 @@ if (WFTP2 == 'GENERAL') then
   NRASEL(3) = NACTE2
 
   if (.not. doDMRG) then
-    call SGINIT(NSYM,NACTE2,MPLET2,SGS(2),CIS(2))
+    call SGINIT(nIrrep,NACTE2,MPLET2,SGS(2),CIS(2))
     if (IPGLOB > 4) then
       write(u6,*) 'Split-graph structure for JOB2=',JOB2
       call SGPRINT(SGS(2))
@@ -596,10 +555,10 @@ if (DoGSOR) call mma_allocate(CI2_o,NCONF2,Label='CI2_o')
 
 NPART = 3
 NGAS = NPART
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NGASORB(ISYM) = NRS1(ISYM)
-  NGASORB(ISYM+NSYM) = NRS2(ISYM)
-  NGASORB(ISYM+2*NSYM) = NRS3(ISYM)
+  NGASORB(ISYM+nIrrep) = NRS2(ISYM)
+  NGASORB(ISYM+2*nIrrep) = NRS3(ISYM)
 end do
 !PAM2008: The old MAXOP was far too generous:
 !MAXOP = NASHT
@@ -651,7 +610,7 @@ NGASLIM(1,3) = NGL13
 NGASLIM(2,3) = NGL23
 
 if (.not. dodmrg) then
-  call NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM,2)
+  call NEWGASTAB(nIrrep,NGAS,NGASORB,NGASLIM,2)
   if (IPGLOB >= 4) call PRGASTAB(REST2)
 
   IFORM = 1
@@ -717,7 +676,7 @@ do IST=1,NSTAT(JOB1)
 
 # ifdef _DMRG_
   else ! doDMRG
-    call prepMPS(TRORB,LROOT(ISTATE),LSYM1,MPLET1,MSPROJ1,NACTE1,TRA1,NTRA,NISH,NASH,NOSH,NSYM,6,ISTATE,job1,ist)
+    call prepMPS(TRORB,LROOT(ISTATE),LSYM1,MPLET1,MSPROJ1,NACTE1,TRA1,NTRA,NISH,NASH,NOSH,nIrrep,6,ISTATE,job1,ist)
 # endif
   end if
 end do
@@ -761,7 +720,7 @@ do JST=1,NSTAT(JOB2)
 
   else
 #   ifdef _DMRG_
-    call prepMPS(TRORB,lroot(JSTATE),LSYM2,MPLET2,MSPROJ2,NACTE2,TRA2,NTRA,NISH,NASH,NOSH,NSYM,6,JSTATE,job2,jst)
+    call prepMPS(TRORB,lroot(JSTATE),LSYM2,MPLET2,MSPROJ2,NACTE2,TRA2,NTRA,NISH,NASH,NOSH,nIrrep,6,JSTATE,job2,jst)
 #   endif
   end if
 end do
@@ -978,21 +937,21 @@ job2_loop: do JST=1,NSTAT(JOB2)
               if (i < j) cycle
 
               if (qdpt2sc) then
-                fac1 = Heff_evc(job1)%sc(ist,i)
-                fac2 = Heff_evc(job2)%sc(jst,j)
+                fac1 = Heff_evc_sc(ist,i,job1)
+                fac2 = Heff_evc_sc(jst,j,job2)
               else
-                fac1 = Heff_evc(job1)%pc(ist,i)
-                fac2 = Heff_evc(job2)%pc(jst,j)
+                fac1 = Heff_evc_pc(ist,i,job1)
+                fac2 = Heff_evc_pc(jst,j,job2)
               end if
 
               !> regular-TDM
-              call daxpy_(ntdmzz,fac1*fac2,tdmzz,1,mstate_1pdens(i,j)%rtdm,1)
+              call daxpy_(ntdmzz,fac1*fac2,tdmzz,1,mixed_1p_rtdm(:,i,j),1)
               !> spin-TDM
-              call daxpy_(ntdmzz,fac1*fac2,tsdmzz,1,mstate_1pdens(i,j)%stdm,1)
+              call daxpy_(ntdmzz,fac1*fac2,tsdmzz,1,mixed_1p_stdm(:,i,j),1)
               !> WE-reduced TDM''s of triplet type:
-              call daxpy_(ntdmzz,fac1*fac2,wdmzz,1,mstate_1pdens(i,j)%wtdm,1)
+              call daxpy_(ntdmzz,fac1*fac2,wdmzz,1,mixed_1p_wtdm(:,i,j),1)
               !> overlap
-              mstate_1pdens(i,j)%overlap = mstate_1pdens(i,j)%overlap+fac1*fac2*sij
+              mixed_1p_overlap(i,j) = mixed_1p_overlap(i,j)+fac1*fac2*sij
             end do
           end do
         end if
@@ -1204,12 +1163,12 @@ if (mstate_dens) then
       ISTATE = ISTAT(JOB1)-1+IST
       if (istate < jstate) cycle
 
-      ovlp(istate,jstate) = mstate_1pdens(ist,jst)%overlap
-      ovlp(jstate,istate) = mstate_1pdens(ist,jst)%overlap
+      ovlp(istate,jstate) = mixed_1p_overlap(ist,jst)
+      ovlp(jstate,istate) = mixed_1p_overlap(ist,jst)
 
-      call prpdata_mspt2_eigenvectors(mstate_1pdens(ist,jst)%rtdm,mstate_1pdens(ist,jst)%stdm,mstate_1pdens(ist,jst)%wtdm,prop, &
-                                      nprop,nstate,istate,jstate,ntdmzz,iDisk_TDM(JSTATE,ISTATE,1),iDisk_TDM(JSTATE,ISTATE,2), &
-                                      lutdm,(sonatnstate > 0),if11 .and. (lsym1 == lsym2))
+      call prpdata_mspt2_eigenvectors(mixed_1p_rtdm(:,ist,jst),mixed_1p_stdm(:,ist,jst),mixed_1p_wtdm(:,ist,jst),prop,nprop, &
+                                      nstate,istate,jstate,ntdmzz,iDisk_TDM(JSTATE,ISTATE,1),iDisk_TDM(JSTATE,ISTATE,2),lutdm, &
+                                      sonatnstate > 0,if11 .and. (lsym1 == lsym2))
     end do
   end do
 end if
@@ -1280,14 +1239,10 @@ call mma_deallocate(OMAP)
 
 !> release memory
 if (mstate_dens) then
-  do i=1,nstat(job1)
-    do j=1,nstat(job1)
-      call mma_deallocate(mstate_1pdens(i,j)%rtdm,safe='*')
-      call mma_deallocate(mstate_1pdens(i,j)%stdm,safe='*')
-      call mma_deallocate(mstate_1pdens(i,j)%wtdm,safe='*')
-    end do
-  end do
-  if (allocated(mstate_1pdens)) deallocate(mstate_1pdens)
+  call mma_deallocate(mixed_1p_overlap)
+  call mma_deallocate(mixed_1p_rtdm)
+  call mma_deallocate(mixed_1p_stdm)
+  call mma_deallocate(mixed_1p_wtdm)
 end if
 
 #ifdef _TIME_GTDM_

@@ -11,12 +11,12 @@
 
 subroutine PRSCTAB(SCTAB,TRANS)
 
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: SCTAB(*)
 real(kind=wp), intent(in) :: TRANS(*)
-integer(kind=iwp) NSIZE, ITYPE, MLTPL, MS2, MINOP, MAXOP, LTRANS, NTRANS, N, IOPEN, NCP, NBLK, IBLK, NCPL, ND, KSPCPL, KSPDET
+integer(kind=iwp) :: IBLK, IOPEN, ITYPE, KSPCPL, KSPDET, LTRANS, MAXOP, MINOP, MLTPL, MS2, N, NBLK, NCP, NCPL, ND, NSIZE, NTRANS
 integer(kind=iwp), external :: ngene
 
 write(u6,*)

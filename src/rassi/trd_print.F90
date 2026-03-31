@@ -18,21 +18,20 @@
 subroutine TRD_PRINT(ISTATE,JSTATE,DO22,TDMAB,TDM2,CMO1,CMO2,SIJ)
 
 use Cntrl, only: LSYM1, LSYM2
-use Symmetry_Info, only: nSym => nIrrep, MUL
+use Symmetry_Info, only: MUL, nIrrep
 use rassi_data, only: NASHT, NAES, NASH, NBASF, NFRO, NISH, NOSH
+use Definitions, only: wp, iwp
 
 implicit none
-! Variables passed
-integer ISTATE, JSTATE
-real*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ
-logical DO22
-! Other variables
-character(len=3) NUM1, NUM2
-character(len=12) FNM
-real*8 WBUF(5)
-integer LU, LPOS, ISYM, NO, NB, IO, I, LSYM12, ISYM1, NO1, ISYM2, NO2, NA1, NA2, NI1, NI2, II, JJ, ISYT, ISYU, ISYV, LIMX, ISYX, &
-        IWBUF, IT, ITABS, IU, IUABS, ITU, IV, IVABS, IX, IXABS, IVX, ITUVX
-integer, external :: IsFreeUnit
+integer(kind=iwp) :: ISTATE, JSTATE
+logical(kind=iwp) :: DO22
+real(kind=wp) :: TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ
+integer(kind=iwp) :: I, II, IO, ISYM, ISYM1, ISYM2, ISYT, ISYU, ISYV, ISYX, IT, ITABS, ITU, ITUVX, IU, IUABS, IV, IVABS, IVX, &
+                     IWBUF, IX, IXABS, JJ, LIMX, LPOS, LSYM12, LU, NA1, NA2, NB, NI1, NI2, NO, NO1, NO2
+real(kind=wp) :: WBUF(5)
+character(len=12) :: FNM
+character(len=3) :: NUM1, NUM2
+integer(kind=iwp), external :: IsFreeUnit
 
 LU = IsFreeUnit(50)
 write(NUM1,'(I3.3)') ISTATE
@@ -43,18 +42,18 @@ write(LU,*) '#Transition density file from RASSI.'
 write(LU,*) '#  States:'
 write(LU,*) ISTATE,JSTATE
 write(LU,*) '#  Nr of irreps:'
-write(LU,*) NSYM
+write(LU,*) nIrrep
 write(LU,*) '#  Basis functions:'
-write(LU,'(8I5)') (NBASF(ISYM),ISYM=1,NSYM)
+write(LU,'(8I5)') (NBASF(ISYM),ISYM=1,nIrrep)
 write(LU,*) '#  Frozen orbitals:'
-write(LU,'(8I5)') (NFRO(ISYM),ISYM=1,NSYM)
+write(LU,'(8I5)') (NFRO(ISYM),ISYM=1,nIrrep)
 write(LU,*) '#  Inactive orbitals:'
-write(LU,'(8I5)') (NISH(ISYM),ISYM=1,NSYM)
+write(LU,'(8I5)') (NISH(ISYM),ISYM=1,nIrrep)
 write(LU,*) '#  Active orbitals:'
-write(LU,'(8I5)') (NASH(ISYM),ISYM=1,NSYM)
+write(LU,'(8I5)') (NASH(ISYM),ISYM=1,nIrrep)
 write(LU,*) '#  State ',ISTATE,'    CMO coefficients:'
 LPOS = 1
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NO = NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
   NB = NBASF(ISYM)
   do IO=1,NO
@@ -65,7 +64,7 @@ do ISYM=1,NSYM
 end do
 write(LU,*) '#  State ',JSTATE,'    CMO coefficients:'
 LPOS = 1
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NO = NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
   NB = NBASF(ISYM)
   do IO=1,NO
@@ -79,7 +78,7 @@ write(LU,'(5ES19.12)') SIJ
 write(LU,*) '#  States ',ISTATE,JSTATE,' Active TRD1:'
 LSYM12 = MUL(LSYM1,LSYM2)
 LPOS = 1
-do ISYM1=1,NSYM
+do ISYM1=1,nIrrep
   NO1 = NOSH(ISYM1)
   ISYM2 = MUL(ISYM1,LSYM12)
   NO2 = NOSH(ISYM2)
@@ -98,8 +97,8 @@ end do
 
 if (DO22) then
   write(LU,*) '#  States ',ISTATE,JSTATE,' Active TRD2:'
-  do ISYT=1,NSYM
-    do ISYU=1,NSYM
+  do ISYT=1,nIrrep
+    do ISYU=1,nIrrep
       do ISYV=1,ISYT
         LIMX = ISYV
         if (ISYV == ISYT) LIMX = ISYU

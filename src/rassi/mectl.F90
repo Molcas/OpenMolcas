@@ -13,17 +13,16 @@ subroutine MECTL(PROP,OVLP,HAM,ESHFT)
 
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: HDIAG
+use Cntrl, only: FnEig, iComp, IfDCPL, IFHAM, IfHDia, IfShft, IPUSED, LuEig, NPROP, NSTATE, PNAME, PNUC, PORIG, PrMER, PRXVR, ToFile
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, NPROP, PRXVR, IFHAM, ToFile, IfHDia, IfShft, PrMER, IfDCPL, iComp, IPUSED, PNAME, PNUC, PORIG
-use cntrl, only: FnEig, LuEig
 use Constants, only: Zero, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), HAM(NSTATE,NSTATE), ESHFT(NSTATE)
-real*8, allocatable :: DerCpl(:), NucChg(:)
-integer nCol, iProp, i, ISTA, IFON, j, iState, iDisk, jState, NST, nAtom, IEND, IfHD
-real*8 X, PLIMIT, PMAX
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), HAM(NSTATE,NSTATE), ESHFT(NSTATE)
+integer(kind=iwp) :: i, iDisk, IEND, IfHD, IFON, iProp, ISTA, iState, j, jState, nAtom, nCol, NST
+real(kind=wp) :: PLIMIT, PMAX, X
+real(kind=wp), allocatable :: DerCpl(:), NucChg(:)
 
 ! Print results:
 NCOL = 4

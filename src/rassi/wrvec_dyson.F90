@@ -17,15 +17,16 @@ subroutine WRVEC_DYSON(filename,LUNIT,NSYM,NBAS,ORBNUM,CMO,AMPS,DYSEN,TITLE,NZ)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
 character(len=*) :: filename, TITLE
-integer :: LUNIT, NSYM, NBAS(NSYM), ORBNUM, NZ
-real*8 :: CMO(NZ,ORBNUM), AMPS(ORBNUM), DYSEN(ORBNUM)
-integer :: DUMMY(7,8), I, J, NB(0:NSYM), NBAS_(NSYM), NBT, NORB(NSYM), NSYM_, OFF, ORBSYM(ORBNUM)
-real*8 :: RSUM
-logical :: DODESYM
-real*8, allocatable :: DESYM(:,:), REORD(:)
+integer(kind=iwp) :: LUNIT, NSYM, NBAS(NSYM), ORBNUM, NZ
+real(kind=wp) :: CMO(NZ,ORBNUM), AMPS(ORBNUM), DYSEN(ORBNUM)
+integer(kind=iwp) :: DUMMY(7,8), I, J, NB(0:NSYM), NBAS_(NSYM), NBT, NORB(NSYM), NSYM_, OFF, ORBSYM(ORBNUM)
+real(kind=wp) :: RSUM
+logical(kind=iwp) :: DODESYM
+real(kind=wp), allocatable :: DESYM(:,:), REORD(:)
 
 ! First count how many orbitals in each symmetry
 NB(0) = 1

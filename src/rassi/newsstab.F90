@@ -11,35 +11,26 @@
 
 subroutine NEWSSTAB(ORBTAB)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use rassi_global_arrays, only: SSTAB
-use cntrl, only: MORSBITS
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use Definitions, only: u6
+use Cntrl, only: MORSBITS
+use Symmetry_Info, only: MUL, nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
 
 implicit none
-integer ORBTAB(*)
-integer NTAB, ITYPE, NSSTP, NSBSTOT, KSBSMRS, KMRSSBS
-integer KSBSANN, KSBSCRE
-integer I, IKMS2, IKSCR, IKSYM
-integer IMS2, IPOP, ISBS, ISCR
-integer ISGN, ISORB, ISPART, ISSTP
-integer ISYM, J, KMS2, KOINFO, KSSTANN
-integer KSSTCRE, KSSTP, KSYM
-integer LPOS
-integer MRS, MS2
-integer MXMS2, MXPOP, N
-integer NEWMRS, NEWSBS, NEWSST, NO
-integer NSBS, NSCR, NASPO, NASPRT
-integer IERR, ISBS1, ISBS2, ISBS3, ISBS4, ISBS5, ISBS6, ISBS7, ISBS8
+integer(kind=iwp) :: ORBTAB(*)
+integer(kind=iwp) :: I, IERR, IKMS2, IKSCR, IKSYM, IMS2, IPOP, ISBS, ISBS1, ISBS2, ISBS3, ISBS4, ISBS5, ISBS6, ISBS7, ISBS8, ISCR, &
+                     ISGN, ISORB, ISPART, ISSTP, ISYM, ITYPE, J, KMRSSBS, KMS2, KOINFO, KSBSANN, KSBSCRE, KSBSMRS, KSSTANN, &
+                     KSSTCRE, KSSTP, KSYM, LPOS, MRS, MS2, MXMS2, MXPOP, N, NASPO, NASPRT, NEWMRS, NEWSBS, NEWSST, NO, NSBS, &
+                     NSBSTOT, NSCR, NSSTP, NTAB
 integer, external :: MORSANN, MORSCRE, MORSPOP, MORSSPIN, MORSSYMM
-integer, allocatable :: OSPN(:), OSYM(:), NOSUB(:), SCR(:), SCR2(:)
+integer, allocatable :: NOSUB(:), OSPN(:), OSYM(:), SCR(:), SCR2(:)
 
 ! Table type ID:
 ITYPE = 19
 ! Pick up some data from the orbital table:
 NASPO = ORBTAB(4)
-NSYM = ORBTAB(5)
+nIrrep = ORBTAB(5)
 NASPRT = ORBTAB(9)
 KOINFO = 19
 ! Make temporary arrays for spin label and symmetry of each orbital
@@ -58,27 +49,27 @@ do ISORB=1,NASPO
   N = 1+NOSUB(ISPART)
   NOSUB(ISPART) = N
 end do
-! We need a temporary array, NSBSSCR(NSYM,0:NPOP,-MXMS2:MXMS2,NASPRT),
+! We need a temporary array, NSBSSCR(nIrrep,0:NPOP,-MXMS2:MXMS2,NASPRT),
 ! to keep the number of substrings of different kind:
 MXPOP = MORSBITS
 MXMS2 = MORSBITS
-NSCR = NSYM*(1+MXPOP)*(2*MXMS2+1)*NASPRT
+NSCR = nIrrep*(1+MXPOP)*(2*MXMS2+1)*NASPRT
 call mma_allocate(SCR,NSCR,Label='SCR')
 ! Addressing will be through the cumbersome formula
-! ISCR=ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+MS2+(2*MXMS2+1)*(ISPART-1)))
+! ISCR=ISYM+nIrrep*(IPOP+(1+MXPOP)*(MXMS2+MS2+(2*MXMS2+1)*(ISPART-1)))
 ! Initialize counter of substrings:
 do ISPART=1,NASPRT
   do IMS2=-MXMS2,MXMS2
     do IPOP=0,MXPOP
-      do ISYM=1,NSYM
+      do ISYM=1,nIrrep
         ! NSBSSCR(ISYM,IPOP,IMS2,ISPART)=0:
-        ISCR = ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
+        ISCR = ISYM+nIrrep*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
         SCR(ISCR) = 0
       end do
     end do
   end do
   ! NSBSSCR(ISYM=1,IPOP=0,IMS2=0,ISPART)=1:
-  ISCR = 1+NSYM*(0+(1+MXPOP)*(MXMS2+0+(2*MXMS2+1)*(ISPART-1)))
+  ISCR = 1+nIrrep*(0+(1+MXPOP)*(MXMS2+0+(2*MXMS2+1)*(ISPART-1)))
   SCR(ISCR) = 1
 end do
 ! Compute number of substrings:
@@ -93,11 +84,11 @@ do ISPART=1,NASPRT
       do IMS2=-IPOP,IPOP
         IKMS2 = IMS2-KMS2
         if (abs(IKMS2) <= IPOP-1) then
-          do ISYM=1,NSYM
+          do ISYM=1,nIrrep
             IKSYM = MUL(ISYM,KSYM)
-            ISCR = ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
+            ISCR = ISYM+nIrrep*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
             N = SCR(ISCR)
-            IKSCR = IKSYM+NSYM*(IPOP-1+(1+MXPOP)*(MXMS2+IKMS2+(2*MXMS2+1)*(ISPART-1)))
+            IKSCR = IKSYM+nIrrep*(IPOP-1+(1+MXPOP)*(MXMS2+IKMS2+(2*MXMS2+1)*(ISPART-1)))
             N = N+SCR(IKSCR)
             SCR(ISCR) = N
           end do
@@ -111,9 +102,9 @@ NSBSTOT = 0
 do ISPART=1,NASPRT
   NO = NOSUB(ISPART)
   do IPOP=0,NO
-    do ISYM=1,NSYM
+    do ISYM=1,nIrrep
       do IMS2=-NO,NO
-        ISCR = ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
+        ISCR = ISYM+nIrrep*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
         N = SCR(ISCR)
         if (N > 0) then
           NSSTP = NSSTP+1
@@ -141,7 +132,7 @@ SSTAB(:) = 0
 SSTAB(1) = NTAB
 SSTAB(2) = ITYPE
 SSTAB(3) = -1 ! Not used
-SSTAB(4) = NSYM
+SSTAB(4) = nIrrep
 SSTAB(5) = NASPRT
 SSTAB(6) = MORSBITS
 SSTAB(7) = NSSTP
@@ -161,9 +152,9 @@ ISBS = 0
 do ISPART=1,NASPRT
   NO = NOSUB(ISPART)
   do IPOP=0,NO
-    do ISYM=1,NSYM
+    do ISYM=1,nIrrep
       do IMS2=-NO,NO
-        ISCR = ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
+        ISCR = ISYM+nIrrep*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
         NSBS = SCR(ISCR)
         SCR(ISCR) = -1
         SCR2(ISCR) = -1
@@ -195,7 +186,7 @@ do ISPART=1,NASPRT
     ISYM = MorsSymm(MRS,OSYM(ISORB))
     IMS2 = MorsSpin(MRS,OSPN(ISORB))
     ! Which substring is this?
-    ISCR = ISYM+NSYM*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
+    ISCR = ISYM+nIrrep*(IPOP+(1+MXPOP)*(MXMS2+IMS2+(2*MXMS2+1)*(ISPART-1)))
     ISBS = 1+SCR(ISCR)
     !TEST write(u6,'(1x,a,8i5)') 'MRS,IPOP,IMS2,ISYM,ISBS:',MRS,IPOP,IMS2,ISYM,ISBS
     SCR(ISCR) = ISBS

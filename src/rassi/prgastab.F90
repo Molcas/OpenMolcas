@@ -11,12 +11,11 @@
 
 subroutine PRGASTAB(REST)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer REST(*)
-integer IGAS, NGAS
-integer NSYM, ISYM, KORB, KREST
+integer(kind=iwp) :: REST(*)
+integer(kind=iwp) :: IGAS, ISYM, KORB, KREST, NGAS, NSYM
 
 write(u6,*)
 write(u6,*) ' GAS restriction table printout'

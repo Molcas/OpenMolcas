@@ -20,20 +20,21 @@
 
 subroutine TRAINT(CMO1,CMO2,NGAM2,TUVX)
 
-use Constants, only: Zero
+use TRNSFRM, only: IAPR, ISP, ISQ, ISR, ISS, LMOP1, LMOQ1, LMOR1, LMOS1, NAP, NAQ, NAR, NAS, NAVX, NBP, NBPQ, NBQ, NBR, NBRS, NBS, &
+                   NVXPQ, NX1MX, NX2MX, NX3MX
+use Symmetry_Info, only: MUL, nIrrep
+use rassi_data, only: NASH, NBASF, NBMX, NCMO, NISH, NOSH
 use stdalloc, only: mma_allocate, mma_deallocate
-use TRNSFRM, only: NAP, NBP, ISP, LMOP1, NAQ, NBQ, ISQ, LMOQ1, NAR, NBR, LMOR1, ISR, NAS, NBS, LMOS1, ISS, NBPQ, NBRS, NAVX, &
-                   NX1MX, NX2MX, NX3MX, NVXPQ, IAPR
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use rassi_data, only: NCMO, NBMX, NASH, NBASF, NISH, NOSH
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer NGAM2
-real*8 CMO1(NCMO), CMO2(NCMO), TUVX(NGAM2)
-integer KEEP(8), NBSX(8)
-logical ISQARX
-real*8, allocatable :: X1(:), X2(:), X3(:), VXPQ(:)
-integer IRC, IA, IS, INTBUF, LMOP, NSP, LMOQ, NSQ, NSPQ, ISPQ, LMOR, NSRM, NSR, NSPQR, LMOS, NSSM, NSS, ISRS, NACT, NSYMX
+integer(kind=iwp) :: NGAM2
+real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), TUVX(NGAM2)
+integer(kind=iwp) :: IA, INTBUF, IRC, IS, ISPQ, ISRS, KEEP(8), LMOP, LMOQ, LMOR, LMOS, NACT, NBSX(8), NSP, NSPQ, NSPQR, NSQ, NSR, &
+                     NSRM, NSS, NSSM, NSYMX
+logical(kind=iwp) :: ISQARX
+real(kind=wp), allocatable :: VXPQ(:), X1(:), X2(:), X3(:)
 
 ! CLEAR THE ARRAY OF TRANSFORMED INTEGRALS.
 TUVX(:) = Zero
@@ -53,7 +54,7 @@ IRC = 0
 call GETORD(IRC,ISQARX,NSYMX,NBSX,KEEP)
 ! SET UP IAPR(IS)=NR OF ACTIVES WITH PREVIOUS SYMMETRY LABEL.
 IA = 0
-do IS=1,NSYM
+do IS=1,nIrrep
   IAPR(IS) = IA
   IA = IA+NASH(IS)
 end do
@@ -61,7 +62,7 @@ end do
 ! IN THE SAME ORDER AS IN THE INTORD PROGRAM.
 INTBUF = max(NBMX**2,256*256)
 LMOP = 1
-do NSP=1,NSYM
+do NSP=1,nIrrep
   if (NSP /= 1) LMOP = LMOP+NBASF(NSP-1)*NOSH(NSP-1)
   NAP = NASH(NSP)
   !KEEPP = KEEP(NSP)
@@ -79,7 +80,7 @@ do NSP=1,NSYM
     ISPQ = (ISP**2-ISP)/2+ISQ
     LMOQ1 = LMOQ+NISH(NSQ)*NBQ
     LMOR = 1
-    NSRM = NSYM
+    NSRM = nIrrep
     if (ISQARX) NSRM = NSP
     do NSR=1,NSRM
       if (NSR /= 1) LMOR = LMOR+NBASF(NSR-1)*NOSH(NSR-1)

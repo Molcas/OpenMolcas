@@ -12,16 +12,17 @@
 subroutine HRMCHK(NDIMEN,ARRRE,ARRIM,ERRRE,ERRIM)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer NDIMEN, I, J
-real*8 ARRRE(NDIMEN,NDIMEN), ARRIM(NDIMEN,NDIMEN)
-real*8 ERRRE, ERRIM
+integer(kind=iwp) :: NDIMEN
+real(kind=wp) :: ARRRE(NDIMEN,NDIMEN), ARRIM(NDIMEN,NDIMEN), ERRRE, ERRIM
+integer(kind=iwp) :: I, J
 
 ERRRE = Zero
 ERRIM = Zero
 do I=1,NDIMEN
-  do J=1,I
+  do J=1,I-1
     ERRRE = max(ERRRE,abs(ARRRE(I,J)-ARRRE(J,I)))
     ERRIM = max(ERRIM,abs(ARRIM(I,J)+ARRIM(J,I)))
   end do

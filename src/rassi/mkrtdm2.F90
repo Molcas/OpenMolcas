@@ -31,23 +31,16 @@ subroutine MKRTDM2(IFSBTAB1,IFSBTAB2,ISSTAB,MAPORB,DET1,DET2,IF21,IF12,NRT2M,RT2
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer IFSBTAB1(*), IFSBTAB2(*)
-integer ISSTAB(*), MAPORB(*), NRT2M
-real*8 DET1(*), DET2(*)
-logical IF21, IF12
-integer NSRT2M
-real*8 RT2M(NRT2M)
-integer SPIN, OrbTab(*)
-integer NASHT, NASORB
-real*8 GVAL, GAAA, GAAB, GABA, GBAB, GBBA, GBBB
-integer IAJBLA, IBJALB
-integer IAJALA, IAJALB, IBJBLA, IBJBLB
-integer LORB, JORB, IORB
-integer JORBA, JORBB, LORBA, LORBB, IORBA, IORBB
-integer ITABS, JTABS, LTABS, JLTABS, IJLTABS
-real*8, allocatable :: SRT2M(:)
+integer(kind=iwp) :: IFSBTAB1(*), IFSBTAB2(*), ISSTAB(*), MAPORB(*), NRT2M, SPIN, OrbTab(*)
+real(kind=wp) :: DET1(*), DET2(*), RT2M(NRT2M)
+logical(kind=iwp) :: IF21, IF12
+integer(kind=iwp) :: IAJALA, IAJALB, IAJBLA, IBJALB, IBJBLA, IBJBLB, IJLTABS, IORB, IORBA, IORBB, ITABS, JLTABS, JORB, JORBA, &
+                     JORBB, JTABS, LORB, LORBA, LORBB, LTABS, NASHT, NASORB, NSRT2M
+real(kind=wp) :: GAAA, GAAB, GABA, GBAB, GBBA, GBBB, GVAL
+real(kind=wp), allocatable :: SRT2M(:)
 
 ! Pick out nr of active orbitals from orbital table:
 

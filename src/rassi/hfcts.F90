@@ -18,53 +18,34 @@
 subroutine HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,ESO,XYZCHR,BOLTZ_K)
 
 use rassi_aux, only: ipglob
-use Constants, only: Zero, One, auTocm, c_in_au, gElectron, Two, OneHalf, cZero, Half, Quart
-use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, NPROP, NTP, IFSONCINI, IFACALFC, IFACALSD, TMINP, TMAXP, EPRATHR, IFATCALSA, IFGTSHSA, MULTIP, &
-                 IFACALFCON, IFACALFCSDON, ICOMP, IFACALPSO, MLTPLT, PNAME, IFACALSDON
+use Cntrl, only: EPRATHR, ICOMP, IFACALFC, IFACALFCON, IFACALFCSDON, IFACALPSO, IFACALSD, IFACALSDON, IFATCALSA, IFGTSHSA, &
+                 IFSONCINI, MLTPLT, MULTIP, NPROP, NSTATE, NTP, PNAME, TMAXP, TMINP
 use hfc_logical, only: MAG_X2C
-use Definitions, only: wp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, Quart, OneHalf, cZero, auTocm, c_in_au, gElectron
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSS
-real*8 PROP(NSTATE,NSTATE,NPROP), ENERGY(NSTATE)
-real*8 USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS)
-integer JBNUM(NSTATE)
-real*8, parameter :: THRSH = 1.0e-10_wp
-character(len=1) xyzchr(3)
-character(len=8) SDPROP
-character(len=8) PSOPROP
-character(len=8) DMPPROP
-real*8 GTENS(3,3)
-real*8 TMPMAT(3,3), TMPVEC(3,3), EVR(3), EVI(3)
-complex*16 ZEKL(2,2,3,NSTATE), GCONT(9,NSTATE)
-complex*16 DIPSOm(3,NSS,NSS), Z(NSS,NSS)
-complex*16 SPNSFS(3,NSS,NSS)
-complex*16 DIPSOf(3,NSS,NSS), DIMSO(3,3,NSS,NSS)
-complex*16 DIPSOfc(3,NSS,NSS), DIPSOfsd(3,NSS,NSS)
-complex*16 DIPSOfcsd(3,NSS,NSS), DIPSOfpso(3,NSS,NSS)
-real*8 GTOTAL(9), ESO(NSS)
-real*8 TMPf(NTP)
-real*8 HFC_1(3,3), HFC_2(3,3), HFC_3(3,3)
-real*8 CurieT(3,3), DiamT(3,3), PNMRCPS(NTP,NSS,3,3)
-real*8 PNMRT(NTP,3,3), PNMR(NTP,3,3)
-real*8 PNMRC(NTP,3,3), PNMRD(NTP,3,3)
-real*8 DLTTA, Zstat, p_Boltz, Boltz_k
-logical ISGS(NSS)
-integer IFUNCT
-real*8, allocatable :: SOPRR(:,:), SOPRI(:,:)
-integer, allocatable :: MAPST(:), MAPSP(:), MAPMS(:)
-real*8, allocatable :: LXI(:,:), LYI(:,:), LZI(:,:)
-type A2_array
-  real*8, pointer :: A2(:,:)
-end type A2_array
-type(A2_array) :: pZMR(3), pZMI(3)
-real*8, allocatable, target :: ZXR(:,:), ZXI(:,:), ZYR(:,:), ZYI(:,:), ZZR(:,:), ZZI(:,:)
-real*8, allocatable, target :: MXR(:,:), MXI(:,:), MYR(:,:), MYI(:,:), MZR(:,:), MZI(:,:)
-real*8 Alpha, Alpha2, FEGVAL, S1, S2, SM1, SM2, AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, ACNT, FACT, CGM, CG0, CGP, CGX, CGY, &
-       GSENERGY, DLT_E, EDIFF, GTIJ, CONTRIB, DIPSOM_SA, EEX, EEY, EEZ, DCLEBS
-integer ISS, ISTATE, JOB, MPLET, MSPROJ, IPROP, ICEN, IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6, KPROP, MPLET1, MSPROJ1, JSS, &
-        JSTATE, MPLET2, MSPROJ2, I, IMLTPL, J, IStart, iFinal, IJXYZ, L, IC, JC, IT, KDGN, ISO, JSO, KXYZ, ICOUNT, IERR, IXYZ, JXYZ
+integer(kind=iwp) :: NSS, JBNUM(NSTATE)
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), ENERGY(NSTATE), ESO(NSS), Boltz_k
+complex(kind=wp) :: DIPSOm(3,NSS,NSS)
+character :: xyzchr(3)
+integer(kind=iwp) :: I, IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6, IC, ICEN, ICOUNT, IERR, iFinal, IFUNCT, IJXYZ, IMLTPL, &
+                     IPROP, ISO, ISS, IStart, ISTATE, IT, IXYZ, J, JC, JOB, JSO, JSS, JSTATE, JXYZ, KDGN, KPROP, KXYZ, L, MPLET, &
+                     MPLET1, MPLET2, MSPROJ, MSPROJ1, MSPROJ2
+real(kind=wp) :: ACNT, Alpha, Alpha2, AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, CG0, CGM, CGP, CGX, CGY, CONTRIB, CurieT(3,3), &
+                 DCLEBS, DiamT(3,3), DIPSOM_SA, DLT_E, DLTTA, EDIFF, EEX, EEY, EEZ, EVI(3), EVR(3), FACT, FEGVAL, GSENERGY, &
+                 GTENS(3,3), GTIJ, GTOTAL(9), HFC_1(3,3), HFC_2(3,3), HFC_3(3,3), p_Boltz, S1, S2, SM1, SM2, TMPMAT(3,3), &
+                 TMPVEC(3,3), Zstat
+character(len=8) :: DMPPROP, PSOPROP, SDPROP
+integer(kind=iwp), allocatable :: MAPST(:), MAPSP(:), MAPMS(:)
+real(kind=wp), allocatable :: LXI(:,:), LYI(:,:), LZI(:,:), MXI(:,:), MXR(:,:), MYI(:,:), MYR(:,:), MZI(:,:), MZR(:,:), &
+                              PNMR(:,:,:), PNMRC(:,:,:), PNMRCPS(:,:,:,:), PNMRD(:,:,:), PNMRT(:,:,:), SOPRI(:,:), SOPRR(:,:), &
+                              TMPf(:), ZXYZI(:,:,:), ZXYZR(:,:,:)
+complex(kind=wp), allocatable :: DIMSO(:,:,:,:), DIPSOf(:,:,:), DIPSOfc(:,:,:), DIPSOfcsd(:,:,:), DIPSOfpso(:,:,:), &
+                                 DIPSOfsd(:,:,:), GCONT(:,:), SPNSFS(:,:,:), Z(:,:), ZEKL(:,:,:,:)
+logical(kind=iwp), allocatable :: ISGS(:)
+real(kind=wp), parameter :: THRSH = 1.0e-10_wp
 
 !AU2J = auTokJ*1.0e3_wp
 !J2CM = auTocm/AU2J
@@ -113,6 +94,24 @@ do ISTATE=1,NSTATE
     MAPMS(ISS) = MSPROJ
   end do
 end do
+
+call mma_allocate(ISGS,NSS,Label='ISGS')
+call mma_allocate(PNMRT,NTP,3,3,Label='PNMRT')
+call mma_allocate(PNMR,NTP,3,3,Label='PNMR')
+call mma_allocate(PNMRC,NTP,3,3,Label='PNMRC')
+call mma_allocate(PNMRD,NTP,3,3,Label='PNMRD')
+call mma_allocate(PNMRCPS,NTP,NSS,3,3,Label='PNMRCPS')
+call mma_allocate(TMPf,NTP,Label='TMPf')
+call mma_allocate(DIPSOf,3,NSS,NSS,Label='DIPSOf')
+call mma_allocate(DIPSOfc,3,NSS,NSS,Label='DIPSOfc')
+call mma_allocate(DIPSOfcsd,3,NSS,NSS,Label='DIPSOfcsd')
+call mma_allocate(DIPSOfsd,3,NSS,NSS,Label='DIPSOfsd')
+call mma_allocate(DIPSOfpso,3,NSS,NSS,Label='DIPSOfpso')
+call mma_allocate(DIMSO,3,3,NSS,NSS,Label='DIMSO')
+call mma_allocate(SPNSFS,3,NSS,NSS,Label='SPNSFS')
+call mma_allocate(Z,NSS,NSS,Label='Z')
+call mma_allocate(ZEKL,2,2,3,NSTATE,Label='ZEKL')
+call mma_allocate(GCONT,9,NSTATE,Label='GCONT')
 
 do IPROP=1,NPROP
   if ((PNAME(IPROP)(1:3) == 'ASD') .and. (ICOMP(IPROP) == 1)) then
@@ -280,18 +279,18 @@ do IPROP=1,NPROP
         CGX = sqrt(Half)*(CGM-CGP)
         CGY = sqrt(Half)*(CGM+CGP)
 
-        ZXR(ISS,JSS) = CGX*AMFI1+CG0*AMFI3
-        ZXI(ISS,JSS) = CGY*AMFI2
-        ZYR(ISS,JSS) = CGX*AMFI2+CG0*AMFI5
-        ZYI(ISS,JSS) = CGY*AMFI4
-        ZZR(ISS,JSS) = CGX*AMFI3+CG0*AMFI6
-        ZZI(ISS,JSS) = CGY*AMFI5
+        ZXYZR(ISS,JSS,1) = CGX*AMFI1+CG0*AMFI3
+        ZXYZI(ISS,JSS,1) = CGY*AMFI2
+        ZXYZR(ISS,JSS,2) = CGX*AMFI2+CG0*AMFI5
+        ZXYZI(ISS,JSS,2) = CGY*AMFI4
+        ZXYZR(ISS,JSS,3) = CGX*AMFI3+CG0*AMFI6
+        ZXYZI(ISS,JSS,3) = CGY*AMFI5
       end do
     end do
 
-    call DAXPY_(NSS**2,One,LXI,1,ZXI,1)
-    call DAXPY_(NSS**2,One,LYI,1,ZYI,1)
-    call DAXPY_(NSS**2,One,LZI,1,ZZI,1)
+    call DAXPY_(NSS**2,One,LXI,1,ZXYZI(:,:,1),1)
+    call DAXPY_(NSS**2,One,LYI,1,ZXYZI(:,:,2),1)
+    call DAXPY_(NSS**2,One,LZI,1,ZXYZI(:,:,3),1)
 
     call Deallocate_PSOP()
 
@@ -358,8 +357,8 @@ do IPROP=1,NPROP
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
                 !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
               end if
             end do
@@ -372,11 +371,11 @@ do IPROP=1,NPROP
         do IXYZ=1,3
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               end if
               !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
             end do
@@ -471,23 +470,23 @@ do IPROP=1,NPROP
 
     ! Continue original calculation of G tensor (=gg^*)
 
-    call ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
-    call PRCMAT(NSS,ZXR,ZXI)
-    call MULMAT(NSS,ZXR,ZXI,eex,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
+    call PRCMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1))
+    call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOf(1,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
-    call MULMAT(NSS,ZYR,ZYI,eey,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
+    call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOf(2,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
-    call MULMAT(NSS,ZZR,ZZI,eez,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
+    call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOf(3,ISS,JSS) = Z(ISS,JSS)
@@ -845,7 +844,7 @@ do IPROP=1,NPROP
           CONTRIB = Zero
           do ISO=ISS,JSS
             do JSO=ISS,JSS
-              CONTRIB = pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)-pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
+              CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
               GTIJ = GTIJ+CONTRIB
             end do
           end do
@@ -1044,12 +1043,12 @@ do IPROP=1,NPROP
         CGX = sqrt(Half)*(CGM-CGP)
         CGY = sqrt(Half)*(CGM+CGP)
 
-        ZXR(ISS,JSS) = CGX*AMFI1+CG0*AMFI3
-        ZXI(ISS,JSS) = CGY*AMFI2
-        ZYR(ISS,JSS) = CGX*AMFI2+CG0*AMFI5
-        ZYI(ISS,JSS) = CGY*AMFI4
-        ZZR(ISS,JSS) = CGX*AMFI3+CG0*AMFI6
-        ZZI(ISS,JSS) = CGY*AMFI5
+        ZXYZR(ISS,JSS,1) = CGX*AMFI1+CG0*AMFI3
+        ZXYZI(ISS,JSS,1) = CGY*AMFI2
+        ZXYZR(ISS,JSS,2) = CGX*AMFI2+CG0*AMFI5
+        ZXYZI(ISS,JSS,2) = CGY*AMFI4
+        ZXYZR(ISS,JSS,3) = CGX*AMFI3+CG0*AMFI6
+        ZXYZI(ISS,JSS,3) = CGY*AMFI5
       end do
     end do
 
@@ -1098,8 +1097,8 @@ do IPROP=1,NPROP
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
                 !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
               end if
             end do
@@ -1112,11 +1111,11 @@ do IPROP=1,NPROP
         do IXYZ=1,3
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               end if
 
               !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS, SS,ZEKL(:,:,IXYZ,ISTATE)
@@ -1196,22 +1195,22 @@ do IPROP=1,NPROP
 
     ! Continue original calculation of G tensor (=gg^*)
 
-    call ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
-    call MULMAT(NSS,ZXR,ZXI,eex,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
+    call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfc(1,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
-    call MULMAT(NSS,ZYR,ZYI,eey,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
+    call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfc(2,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
-    call MULMAT(NSS,ZZR,ZZI,eez,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
+    call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfc(3,ISS,JSS) = Z(ISS,JSS)
@@ -1277,7 +1276,7 @@ do IPROP=1,NPROP
           CONTRIB = Zero
           do ISO=ISS,JSS
             do JSO=ISS,JSS
-              CONTRIB = pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)-pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
+              CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
               GTIJ = GTIJ+CONTRIB
             end do
           end do
@@ -1434,12 +1433,12 @@ do IPROP=1,NPROP
         CGX = sqrt(Half)*(CGM-CGP)
         CGY = sqrt(Half)*(CGM+CGP)
 
-        ZXR(ISS,JSS) = CGX*AMFI1+CG0*AMFI3
-        ZXI(ISS,JSS) = CGY*AMFI2
-        ZYR(ISS,JSS) = CGX*AMFI2+CG0*AMFI5
-        ZYI(ISS,JSS) = CGY*AMFI4
-        ZZR(ISS,JSS) = CGX*AMFI3+CG0*AMFI6
-        ZZI(ISS,JSS) = CGY*AMFI5
+        ZXYZR(ISS,JSS,1) = CGX*AMFI1+CG0*AMFI3
+        ZXYZI(ISS,JSS,1) = CGY*AMFI2
+        ZXYZR(ISS,JSS,2) = CGX*AMFI2+CG0*AMFI5
+        ZXYZI(ISS,JSS,2) = CGY*AMFI4
+        ZXYZR(ISS,JSS,3) = CGX*AMFI3+CG0*AMFI6
+        ZXYZI(ISS,JSS,3) = CGY*AMFI5
       end do
     end do
 
@@ -1489,8 +1488,8 @@ do IPROP=1,NPROP
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
                 !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
               end if
             end do
@@ -1503,11 +1502,11 @@ do IPROP=1,NPROP
         do IXYZ=1,3
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               end if
 
               !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
@@ -1587,22 +1586,22 @@ do IPROP=1,NPROP
 
     ! Continue original calculation of G tensor (=gg^*)
 
-    call ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
-    call MULMAT(NSS,ZXR,ZXI,eex,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
+    call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfsd(1,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
-    call MULMAT(NSS,ZYR,ZYI,eey,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
+    call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfsd(2,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
-    call MULMAT(NSS,ZZR,ZZI,eez,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
+    call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfsd(3,ISS,JSS) = Z(ISS,JSS)
@@ -1668,7 +1667,7 @@ do IPROP=1,NPROP
           CONTRIB = Zero
           do ISO=ISS,JSS
             do JSO=ISS,JSS
-              CONTRIB = pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)-pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
+              CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
               GTIJ = GTIJ+CONTRIB
             end do
           end do
@@ -1852,12 +1851,12 @@ do IPROP=1,NPROP
         CGX = sqrt(Half)*(CGM-CGP)
         CGY = sqrt(Half)*(CGM+CGP)
 
-        ZXR(ISS,JSS) = CGX*AMFI1+CG0*AMFI3
-        ZXI(ISS,JSS) = CGY*AMFI2
-        ZYR(ISS,JSS) = CGX*AMFI2+CG0*AMFI5
-        ZYI(ISS,JSS) = CGY*AMFI4
-        ZZR(ISS,JSS) = CGX*AMFI3+CG0*AMFI6
-        ZZI(ISS,JSS) = CGY*AMFI5
+        ZXYZR(ISS,JSS,1) = CGX*AMFI1+CG0*AMFI3
+        ZXYZI(ISS,JSS,1) = CGY*AMFI2
+        ZXYZR(ISS,JSS,2) = CGX*AMFI2+CG0*AMFI5
+        ZXYZI(ISS,JSS,2) = CGY*AMFI4
+        ZXYZR(ISS,JSS,3) = CGX*AMFI3+CG0*AMFI6
+        ZXYZI(ISS,JSS,3) = CGY*AMFI5
 
       end do
     end do
@@ -1910,8 +1909,8 @@ do IPROP=1,NPROP
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
                 !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
               end if
             end do
@@ -1924,11 +1923,11 @@ do IPROP=1,NPROP
         do IXYZ=1,3
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               end if
               !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
             end do
@@ -1999,22 +1998,22 @@ do IPROP=1,NPROP
       end do
     end do
 
-    call ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
-    call MULMAT(NSS,ZXR,ZXI,eex,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
+    call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfcsd(1,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
-    call MULMAT(NSS,ZYR,ZYI,eey,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
+    call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfcsd(2,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
-    call MULMAT(NSS,ZZR,ZZI,eez,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
+    call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfcsd(3,ISS,JSS) = Z(ISS,JSS)
@@ -2079,7 +2078,7 @@ do IPROP=1,NPROP
           CONTRIB = Zero
           do ISO=ISS,JSS
             do JSO=ISS,JSS
-              CONTRIB = pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)-pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
+              CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
               GTIJ = GTIJ+CONTRIB
             end do
           end do
@@ -2154,9 +2153,9 @@ do IPROP=1,NPROP
 
     call Allocate_Z()
 
-    call DAXPY_(NSS**2,One,LXI,1,ZXI,1)
-    call DAXPY_(NSS**2,One,LYI,1,ZYI,1)
-    call DAXPY_(NSS**2,One,LZI,1,ZZI,1)
+    call DAXPY_(NSS**2,One,LXI,1,ZXYZI(:,:,1),1)
+    call DAXPY_(NSS**2,One,LYI,1,ZXYZI(:,:,2),1)
+    call DAXPY_(NSS**2,One,LZI,1,ZXYZI(:,:,3),1)
 
     call Deallocate_PSOP()
 
@@ -2206,8 +2205,8 @@ do IPROP=1,NPROP
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
                 !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
               end if
             end do
@@ -2220,11 +2219,11 @@ do IPROP=1,NPROP
         do IXYZ=1,3
           do ISS=ISTART,IFINAL
             do JSS=1,NSS
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-              call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+              call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               if (ISGS(JSS)) then
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,ISS,JSS)
-                call ZECON(NSTATE,NSS,USOR,USOI,pZMR(IXYZ)%A2,pZMI(IXYZ)%A2,ZEKL,IXYZ,ISTATE,JSS,ISS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,ISS,JSS)
+                call ZECON(NSTATE,NSS,USOR,USOI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ),ZEKL,IXYZ,ISTATE,JSS,ISS)
               end if
               !write(u6,710) 'ZEKL',ISTATE,IXYZ,ISS,JSS,ZEKL(:,:,IXYZ,ISTATE)
             end do
@@ -2303,22 +2302,22 @@ do IPROP=1,NPROP
 
     ! Continue original calculation of G tensor (=gg^*)
 
-    call ZTRNSF(NSS,USOR,USOI,ZXR,ZXI)
-    call MULMAT(NSS,ZXR,ZXI,eex,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
+    call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfpso(1,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZYR,ZYI)
-    call MULMAT(NSS,ZYR,ZYI,eey,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
+    call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfpso(2,ISS,JSS) = Z(ISS,JSS)
       end do
     end do
-    call ZTRNSF(NSS,USOR,USOI,ZZR,ZZI)
-    call MULMAT(NSS,ZZR,ZZI,eez,Z)
+    call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
+    call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
     do ISS=1,NSS
       do JSS=1,NSS
         DIPSOfpso(3,ISS,JSS) = Z(ISS,JSS)
@@ -2384,7 +2383,7 @@ do IPROP=1,NPROP
           CONTRIB = Zero
           do ISO=ISS,JSS
             do JSO=ISS,JSS
-              CONTRIB = pZMR(IXYZ)%A2(ISO,JSO)*pZMR(JXYZ)%A2(JSO,ISO)-pZMI(IXYZ)%A2(ISO,JSO)*pZMI(JXYZ)%A2(JSO,ISO)
+              CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
 
               GTIJ = GTIJ+CONTRIB
 
@@ -2476,6 +2475,22 @@ end do
 call mma_deallocate(MAPST)
 call mma_deallocate(MAPSP)
 call mma_deallocate(MAPMS)
+call mma_deallocate(ISGS)
+call mma_deallocate(PNMRT)
+call mma_deallocate(PNMR)
+call mma_deallocate(PNMRC)
+call mma_deallocate(PNMRD)
+call mma_deallocate(TMPf)
+call mma_deallocate(DIPSOf)
+call mma_deallocate(DIPSOfc)
+call mma_deallocate(DIPSOfcsd)
+call mma_deallocate(DIPSOfsd)
+call mma_deallocate(DIPSOfpso)
+call mma_deallocate(DIMSO)
+call mma_deallocate(SPNSFS)
+call mma_deallocate(Z)
+call mma_deallocate(ZEKL)
+call mma_deallocate(GCONT)
 
 !710  FORMAT(A4,4I4,4(2X,'('F12.8','F12.8')'))
 !720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
@@ -2519,36 +2534,17 @@ end subroutine Deallocate_PSOP
 
 subroutine Allocate_Z()
 
-  call mma_allocate(ZXR,NSS,NSS,Label='ZXR')
-  call mma_allocate(ZXI,NSS,NSS,Label='ZXI')
-  ZXR(:,:) = Zero
-  ZXI(:,:) = Zero
-  pZMR(1)%A2 => ZXR(:,:)
-  pZMI(1)%A2 => ZXI(:,:)
-  call mma_allocate(ZYR,NSS,NSS,Label='ZYR')
-  call mma_allocate(ZYI,NSS,NSS,Label='ZYI')
-  ZYR(:,:) = Zero
-  ZYI(:,:) = Zero
-  pZMR(2)%A2 => ZYR(:,:)
-  pZMI(2)%A2 => ZYI(:,:)
-  call mma_allocate(ZZR,NSS,NSS,Label='ZZR')
-  call mma_allocate(ZZI,NSS,NSS,Label='ZZI')
-  ZZR(:,:) = Zero
-  ZZI(:,:) = Zero
-  pZMR(3)%A2 => ZZR(:,:)
-  pZMI(3)%A2 => ZZI(:,:)
+  call mma_allocate(ZXYZR,NSS,NSS,3,Label='ZXYZR')
+  call mma_allocate(ZXYZI,NSS,NSS,3,Label='ZXYZI')
+  ZXYZR(:,:,:) = Zero
+  ZXYZI(:,:,:) = Zero
 
 end subroutine Allocate_Z
 
 subroutine Deallocate_Z()
 
-  call mma_deallocate(ZXR)
-  call mma_deallocate(ZXI)
-  call mma_deallocate(ZYR)
-  call mma_deallocate(ZYI)
-  call mma_deallocate(ZZR)
-  call mma_deallocate(ZZI)
-  nullify(pZMR(1)%A2,pZMR(2)%A2,pZMR(3)%A2,pZMI(1)%A2,pZMI(2)%A2,pZMI(3)%A2)
+  call mma_deallocate(ZXYZR)
+  call mma_deallocate(ZXYZI)
 
 end subroutine Deallocate_Z
 

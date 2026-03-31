@@ -12,19 +12,15 @@
 subroutine PRWVF(IORBTAB,ISSTAB,IFSBTAB,PRTHR,CI)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IORBTAB(*), ISSTAB(*), IFSBTAB(*)
-real*8 CI(*), PRTHR
-integer IBLKDET, NPRINTED
-integer NASPRT, KSPART, KSSTTB, KSBSMRS
-integer NFSB, KSTARR, NSSTP, ISUM, ISST, NSBS
-integer IFSB, KPOS, ISPART, NBLKDET
-integer ISSTARR(50), NDIMARR(50)
-integer ICREL, ICI, INDX, ISORB, N, I, ISBS, IMORS
-character(len=80) DETTXT
-integer, allocatable :: SBSET(:)
+integer(kind=iwp) :: IORBTAB(*), ISSTAB(*), IFSBTAB(*)
+real(kind=wp) :: PRTHR, CI(*)
+integer(kind=iwp) :: I, IBLKDET, ICI, ICREL, IFSB, IMORS, INDX, ISBS, ISORB, ISPART, ISST, ISSTARR(50), ISUM, KPOS, KSBSMRS, &
+                     KSPART, KSSTTB, KSTARR, N, NASPRT, NBLKDET, NDIMARR(50), NFSB, NPRINTED, NSBS, NSSTP
+character(len=80) :: DETTXT
+integer(kind=iwp), allocatable :: SBSET(:)
 
 ! The orbital table:
 NASPRT = IORBTAB(9)

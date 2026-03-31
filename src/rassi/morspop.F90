@@ -9,14 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function MorsPop(IMORS)
+function MorsPop(IMORS)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: NUM(0:15) = [0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4]
-integer I1, I2, I3, IMORS
-integer J
+integer(kind=iwp) :: MorsPop
+integer(kind=iwp) :: IMORS
+integer(kind=iwp) :: I1, I2, I3, J
+integer(kind=iwp), parameter :: NUM(0:15) = [0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4]
 
 MorsPop = 0 ! dummy initialize
 if (IMORS < 0) goto 99

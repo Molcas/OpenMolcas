@@ -17,32 +17,27 @@ subroutine SYG2SGU(IMODE,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,CIOLD,CINEW)
 ! ...Configuration and Spin Coupling tables, fill this in later.
 ! CIOLD and CINEW are obvious.
 
-use definitions, only: iwp, wp, u6
-use constants, only: One
 use rassi_aux, only: ipglob
-use gugx, only: SGStruct, CIStruct
+use gugx, only: CIStruct, SGStruct
 use Molcas, only: MxLev
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: IMODE
+integer(kind=iwp), intent(in) :: IMODE, ICNFTAB(*), ISPNTAB(*)
 type(SGStruct), intent(in) :: SGS
 type(CIStruct), intent(in) :: CIS
 integer(kind=iwp), intent(inout) :: LSYM
-integer(kind=iwp), intent(in) :: ICNFTAB(*), ISPNTAB(*)
 real(kind=wp), intent(in) :: CIOLD(*)
 real(kind=wp), intent(out) :: CINEW(*)
-integer(kind=iwp), parameter :: NBUFFER = 600, MXCPI = 15
-integer(kind=iwp) KWALK(NBUFFER)
-real(kind=wp) PHASE(NBUFFER)
-integer(kind=iwp) ICNUM(NBUFFER)
-integer(kind=iwp) ICASE(400)
-integer(kind=iwp) :: IFUP2CS(0:1) = [2,1]
+integer(kind=iwp), parameter :: IFUP2CS(0:1) = [2,1], MXCPI = 15, NBUFFER = 600
+integer(kind=iwp) :: I, ICASE(400), ICNF, ICNUM(NBUFFER), ICPL, ICSPLT, ICSYMG, IEL, IEL1, IEL2, IFORM, IFUP, IOCC, IORB, IREST, &
+                     IWLKPOS, IWORD, IWRD, KCNF, KCNFINF, KCPL, KGSLIM, KGSORB, KSPNINF, KWALK(NBUFFER), LEV, MAXOP, MINOP, &
+                     MIPWLK, MXWLK, NACTEL, NAPART, NCLSD, NCNF, NCONF, NCPL, NCSYMG, NHEAD, NLEV, NOCC, NODD, NOPEN, NSYM, NWALK, &
+                     NWLKLST, NWRD
+real(kind=wp) :: PHASE(NBUFFER), PHS
 integer(kind=iwp), allocatable :: MWS2W(:), OrbArr(:)
-integer(kind=iwp) NCONF, NWALK, NSYM, NLEV, NACTEL, NWRD, NWLKLST, NOPEN, NODD, NOCC, NHEAD, NCSYMG, NCPL, NCNF, NCLSD, NAPART, &
-                  MXWLK, MIPWLK, MINOP, MAXOP, LEV, KSPNINF, KGSORB, KGSLIM, KCPL, KCNFINF, KCNF, IWRD, IWORD, IWLKPOS, IREST, &
-                  IORB, IOCC, IFUP, IFORM, IEL2, IEL1, IEL, ICSYMG, ICSPLT, ICPL, ICNF, I
-real(kind=wp) PHS
 
 ! Dereference CIS and SGS       for some data:
 NCONF = CIS%NCSF(LSYM)

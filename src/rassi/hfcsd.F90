@@ -18,19 +18,18 @@ subroutine HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
 !     Output: BUFF                                                     *
 !***********************************************************************
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, Two, Three, Four
-use stdalloc, only: mma_allocate, mma_deallocate
 use hfc_logical, only: MAG_X2C
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two, Three, Four
+use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=8), intent(inout) :: LABEL
-integer(kind=IWP), intent(in) :: IC, NBUFF, NSIZ
-integer(kind=IWP), intent(inout) :: ISCHK
-real(kind=WP), intent(inout) :: BUFF(NBUFF)
-
-integer(kind=IWP) ICM, INBUFF, IOPT, IRC
-real(kind=wp) DA
+integer(kind=iwp), intent(in) :: IC, NBUFF, NSIZ
+real(kind=wp), intent(inout) :: BUFF(NBUFF)
+integer(kind=iwp), intent(inout) :: ISCHK
+integer(kind=iwp) :: ICM, INBUFF, IOPT, IRC
+real(kind=wp) :: DA
 real(kind=wp), allocatable :: TA(:)
 
 ! Set MAG_X2C to avoid add_info in hfcts

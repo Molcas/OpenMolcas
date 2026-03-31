@@ -20,19 +20,18 @@
 
 subroutine WRMAT(TEXT,ISY12,NDIM1,NDIM2,NMAT,XMAT)
 
-use Symmetry_Info, only: MUL, nSym => nIrrep
-use Definitions, only: u6
+use Symmetry_Info, only: MUL, nIrrep
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) TEXT
-integer ISY12, NMAT
-integer NDIM1(NSYM), NDIM2(NSYM)
-real*8 XMAT(NMAT)
-integer ISTA, ISY1, ISY2, NN
+character(len=*) :: TEXT
+integer(kind=iwp) :: ISY12, NDIM1(nIrrep), NDIM2(nIrrep), NMAT
+real(kind=wp) :: XMAT(NMAT)
+integer(kind=iwp) :: ISTA, ISY1, ISY2, NN
 
 ISTA = 1
 write(u6,'(/,1X,A,/)') TEXT
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   ISY2 = MUL(ISY1,ISY12)
   NN = NDIM1(ISY1)*NDIM2(ISY2)
   if (NN /= 0) then

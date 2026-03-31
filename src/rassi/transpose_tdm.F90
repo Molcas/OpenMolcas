@@ -27,21 +27,21 @@
 
 subroutine Transpose_TDM(TDM,Symmetry)
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep, Mul
+use Symmetry_Info, only: Mul, nIrrep
 use rassi_data, only: NBASF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-real*8, intent(inout) :: TDM(*)
-integer, intent(in) :: Symmetry
-integer :: iSym1, iSym2, nTot, i, j
-integer :: iBlock(0:8)
-real*8, allocatable :: Tmp(:)
+real(kind=wp), intent(inout) :: TDM(*)
+integer(kind=iwp), intent(in) :: Symmetry
+integer(kind=iwp) :: i, iBlock(0:8), iSym1, iSym2, j, nTot
+real(kind=wp), allocatable :: Tmp(:)
 
 ! Compute the location of all the stored symmetry blocks
 nTot = 0
 iBlock(0) = 0
-do iSym1=1,nSym
+do iSym1=1,nIrrep
   iSym2 = Mul(Symmetry,iSym1)
   nTot = nTot+nBasF(iSym1)*nBasF(iSym2)
   iBlock(iSym1) = nTot
@@ -50,7 +50,7 @@ end do
 call mma_Allocate(Tmp,nTot,Label='Tmp')
 call dCopy_(nTot,TDM,1,Tmp,1)
 ! Transpose symmetry block (a,b) onto symmetry block (b,a)
-do iSym1=1,nSym
+do iSym1=1,nIrrep
   iSym2 = Mul(Symmetry,iSym1)
   do i=1,nBasF(iSym2)
     do j=1,nBasF(iSym1)

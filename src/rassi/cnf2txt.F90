@@ -11,15 +11,14 @@
 
 subroutine CNF2TXT(IFORM,NORB,NCLS,NOPN,ICONF,LENGTH,TEXT)
 
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IFORM, NORB, NCLS, NOPN
-integer(kind=iwp), intent(in) :: ICONF(*)
+integer(kind=iwp), intent(in) :: IFORM, NORB, NCLS, NOPN, ICONF(*)
 integer(kind=iwp), intent(out) :: LENGTH
 character(len=*), intent(out) :: TEXT
-character(len=1) SEP
-integer(kind=iwp) MXWR, NWR, IWORD, NOCC, IORB, IOCC, IREST, IW
+integer(kind=iwp) :: IOCC, IORB, IREST, IW, IWORD, MXWR, NOCC, NWR
+character :: SEP
 
 MXWR = len(TEXT)
 NWR = 1

@@ -11,14 +11,13 @@
 
 subroutine MKCXA(NSYM,NOSH,NCXA,TRA,CXA)
 
-use definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NSYM, NCXA
+integer(kind=iwp), intent(in) :: NSYM, NOSH(NSYM), NCXA
 real(kind=wp), intent(in) :: TRA(NCXA)
 real(kind=wp), intent(out) :: CXA(NCXA)
-integer(kind=iwp), intent(in) :: NOSH(NSYM)
-integer ISTA, I, NDIMEN
+integer(kind=iwp) :: I, ISTA, NDIMEN
 
 ISTA = 1
 do I=1,NSYM

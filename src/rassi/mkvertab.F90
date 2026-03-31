@@ -11,50 +11,31 @@
 
 subroutine mkVERTAB(NACTEL,M2SPIN,LSYM,NPART,NGASORB,NGASLIM,ISSTAB,NFSB0,NRDETS0,NFSB,NRDETS)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use rassi_global_arrays, only: FSBARR
 use cntrl, only: MORSBITS
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use Definitions, only: u6
+use Symmetry_Info, only: MUL, nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
 
 implicit none
-integer ISSTAB(*)
-integer NASPRT, NACTEL, M2SPIN, LSYM
-integer NPART
-integer NGASORB(0:NSYM,0:NPART)
-integer NGASLIM(2,NPART)
-integer NFSB, NFSB0, NRDETS, NRDETS0
-integer NVERT, IVER1, IVER2
-integer IPOS, ISPART, NPC1, M2C1, ISC1
-integer ISST, KPOP, KMS2, KSYM
-integer MX1, MN1, MX2, MN2, IPART, NOREM, MINEL, MAXEL
-integer ISPEND, NGO, NSP, ISPSTA, MNL, MXL, MNR, MXR, NO
-integer NPC2, M2C2, ISC2
-integer NSSTP, KSSTP, KPOPMAX, KMS2MAX, NPOP, MS2, NSSTPTR
-integer N, IEND, ISTA, IADDR, ISAVE, NEXT
-integer MS2MIN, MS2MAX, MSFACT, NVIDX, IVIDX, IVERT
-integer LEVUP, LEVDWN, IADDR1, IADDR2, NARC
-integer NARCVRT, NVERTAB, NDWNTAB, NARCLEV
-integer NFSBARR, IVUP, LOWEST, ISW, NSW
-integer KPOPLIM
-integer IARC, IA, ISUM, KEEP
-integer NSBS
-integer NSDBLK
-integer LIMARR(2,0:50)
-integer ITRY(50)
-integer, allocatable :: SSTPTR(:), SSTARR(:), VIDX(:)
-integer, allocatable :: VERTAB(:), DWNTAB(:), LTDA(:)
-integer, allocatable :: WEIGHT(:), SWITCH(:)
+integer(kind=iwp) :: NACTEL, M2SPIN, LSYM, NPART, NGASORB(0:nIrrep,0:NPART), NGASLIM(2,NPART), ISSTAB(*), NFSB0, NRDETS0, NFSB, &
+                     NRDETS
+integer(kind=iwp) :: IA, IADDR, IADDR1, IADDR2, IARC, IEND, IPART, IPOS, ISAVE, ISC1, ISC2, ISPART, ISPEND, ISPSTA, ISST, ISTA, &
+                     ISUM, ISW, ITRY(50), IVER1, IVER2, IVERT, IVIDX, IVUP, KEEP, KMS2, KMS2MAX, KPOP, KPOPLIM, KPOPMAX, KSSTP, &
+                     KSYM, LEVDWN, LEVUP, LIMARR(2,0:50), LOWEST, M2C1, M2C2, MAXEL, MINEL, MN1, MN2, MNL, MNR, MS2, MS2MAX, &
+                     MS2MIN, MSFACT, MX1, MX2, MXL, MXR, N, NARC, NARCLEV, NARCVRT, NASPRT, NDWNTAB, NEXT, NFSBARR, NGO, NO, &
+                     NOREM, NPC1, NPC2, NPOP, NSBS, NSDBLK, NSP, NSSTP, NSSTPTR, NSW, NVERT, NVERTAB, NVIDX
+integer(kind=iwp), allocatable :: DWNTAB(:), LTDA(:), SSTARR(:), SSTPTR(:), SWITCH(:), VERTAB(:), VIDX(:), WEIGHT(:)
 
 !----------------------------------------------------------------
 ! Unbutton the substring table:
-NSYM = ISSTAB(4)
+nIrrep = ISSTAB(4)
 NASPRT = ISSTAB(5)
 NSSTP = ISSTAB(7)
 KSSTP = 15
 
 !TEST write(u6,*) ' Test print in VERTAB.'
-!TEST write(u6,*) ' NSYM  :',NSYM
+!TEST write(u6,*) ' nIrrep  :',nIrrep
 !TEST write(u6,*) ' NASPRT:',NASPRT
 !TEST write(u6,*) ' NSSTP :',NSSTP
 !TEST write(u6,*) ' Substrings:'
@@ -202,9 +183,9 @@ MS2MIN = (M2SPIN-KMS2MAX*NASPRT)/2
 MS2MAX = (M2SPIN+KMS2MAX*NASPRT)/2
 ! and it runs in steps of two units.
 MSFACT = 1+(MS2MAX-MS2MIN)/2
-! Intermediate symmetry label is in 1..NSYM
+! Intermediate symmetry label is in 1..nIrrep
 ! All in all, the index
-!  IND=ISCUM+NSYM*((M2CUM-MS2MIN)/2 + MSFACT*(NPCUM + (NACTEL+1)*ISPART))
+!  IND=ISCUM+nIrrep*((M2CUM-MS2MIN)/2 + MSFACT*(NPCUM + (NACTEL+1)*ISPART))
 ! should do the trick.
 ! Run through the generation procedure twice. First time, we will
 ! determine the sizes of the vertex and downchain tables, and
@@ -212,14 +193,14 @@ MSFACT = 1+(MS2MAX-MS2MIN)/2
 ! tables, and then the temporary counter table can be deallocated.
 !----------------------------------
 ! Allocate temporary counter array:
-NVIDX = NSYM*MSFACT*(NACTEL+1)*(NASPRT+1)
+NVIDX = nIrrep*MSFACT*(NACTEL+1)*(NASPRT+1)
 call mma_allocate(VIDX,NVIDX,Label='VIDX')
 do IVIDX=1,NVIDX
   VIDX(IVIDX) = 0
 end do
 !----------------------------------
 ! Initialize top vertex:
-IPOS = LSYM+NSYM*((M2SPIN-MS2MIN)/2+MSFACT*(NACTEL+(NACTEL+1)*NASPRT))
+IPOS = LSYM+nIrrep*((M2SPIN-MS2MIN)/2+MSFACT*(NACTEL+(NACTEL+1)*NASPRT))
 VIDX(IPOS) = 1
 IVERT = 1
 !----------------------------------
@@ -232,8 +213,8 @@ do LEVUP=NASPRT,1,-1
     do M2C1=-NPC1,NPC1,2
       if (M2C1 < MS2MIN) goto 130
       if (M2C1 > MS2MAX) goto 130
-      do ISC1=1,NSYM
-        IPOS = ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
+      do ISC1=1,nIrrep
+        IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
         IVER1 = VIDX(+IPOS)
         if (IVER1 == 0) goto 120
         ! This is a valid upper vertex on the upper level.
@@ -262,7 +243,7 @@ do LEVUP=NASPRT,1,-1
           if (abs(M2C2) > NPC2) goto 110
           if ((NPC2 == 0) .and. (ISC2 /= 1)) goto 110
           ! Inspect the lower vertex: Is it a new one?
-          IPOS = ISC2+NSYM*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
+          IPOS = ISC2+nIrrep*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
           IVER2 = VIDX(+IPOS)
           if (IVER2 > 0) goto 110
           ! This is a new vertex. Register its number
@@ -295,8 +276,8 @@ do LEVUP=1,NASPRT
     do M2C1=-NPC1,NPC1,2
       if (M2C1 < MS2MIN) goto 230
       if (M2C1 > MS2MAX) goto 230
-      do ISC1=1,NSYM
-        IPOS = ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
+      do ISC1=1,nIrrep
+        IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
         IVER1 = VIDX(+IPOS)
         if (IVER1 == 0) goto 220
         ! This is a valid upper vertex on the upper level.
@@ -326,7 +307,7 @@ do LEVUP=1,NASPRT
           if (abs(M2C2) > NPC2) goto 210
           if ((NPC2 == 0) .and. (ISC2 /= 1)) goto 210
           ! Inspect the lower vertex: Is it reachable?
-          IPOS = ISC2+NSYM*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
+          IPOS = ISC2+nIrrep*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
           IVER2 = VIDX(+IPOS)
           if (IVER2 > 0) NARCVRT = NARCVRT+1
 210       continue
@@ -334,7 +315,7 @@ do LEVUP=1,NASPRT
         ! Finished looping over possible arcs.
         ! Remove this vertex if it was unreachable.
         if (NARCVRT == 0) then
-          IPOS = ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
+          IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
           VIDX(+IPOS) = 0
         end if
         NARC = NARC+NARCVRT
@@ -356,8 +337,8 @@ do LEVUP=NASPRT,0,-1
     do M2C1=-NPC1,NPC1,2
       if (M2C1 < MS2MIN) goto 330
       if (M2C1 > MS2MAX) goto 330
-      do ISC1=1,NSYM
-        IPOS = ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
+      do ISC1=1,nIrrep
+        IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
         IVER1 = VIDX(+IPOS)
         if (IVER1 == 0) goto 320
         NVERT = NVERT+1
@@ -394,8 +375,8 @@ do LEVUP=NASPRT,1,-1
     do M2C1=-NPC1,NPC1,2
       if (M2C1 < MS2MIN) goto 430
       if (M2C1 > MS2MAX) goto 430
-      do ISC1=1,NSYM
-        IPOS = ISC1+NSYM*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
+      do ISC1=1,nIrrep
+        IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
         IVER1 = VIDX(+IPOS)
         if (IVER1 == 0) goto 420
         ! This is a valid upper vertex on the upper level.
@@ -431,7 +412,7 @@ do LEVUP=NASPRT,1,-1
           if (abs(M2C2) > NPC2) goto 410
           if ((NPC2 == 0) .and. (ISC2 /= 1)) goto 410
           ! Is it a valid arc? See if a lower vertex exists.
-          IPOS = ISC2+NSYM*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
+          IPOS = ISC2+nIrrep*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
           IVER2 = VIDX(+IPOS)
           if (IVER2 == 0) goto 410
           ! A valid arc has been found. The upper vertex IVER1 is

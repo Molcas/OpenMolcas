@@ -17,16 +17,14 @@ subroutine zorder(ndimen,ldv,vecre,vecim,arrre,switch)
 ! of eigenvalues
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer NDIMEN, LDV, switch
-real*8 ARRRE(NDIMEN,*)
-real*8 VECRE(LDV,*), VECIM(LDV,*)
-real*8 O_i, O_j, EDIFF, ESEL, EVAL
-real*8 VRKJ, VIKJ, VRKI, VIKI
-integer I, J, K, ISEL
-real*8, parameter :: Thr_EDiff = 1.0e-10_wp
+integer(kind=iwp) :: NDIMEN, LDV, switch
+real(kind=wp) :: VECRE(LDV,*), VECIM(LDV,*), ARRRE(NDIMEN,*)
+integer(kind=iwp) :: I, ISEL, J, K
+real(kind=wp) :: EDIFF, ESEL, EVAL, O_i, O_j, VIKI, VIKJ, VRKI, VRKJ
+real(kind=wp), parameter :: Thr_EDiff = 1.0e-10_wp
 
 do I=1,NDIMEN-1
   ESEL = ARRRE(I,I**(switch))

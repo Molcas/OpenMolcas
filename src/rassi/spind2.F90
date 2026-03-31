@@ -11,30 +11,20 @@
 
 subroutine SPIND2(ISYOP,MS2OP,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB4,PSI1,PSI4,SPD2)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use rassi_global_arrays, only: FSBANN1, FSBANN2, FSBANN3, FSBANN4
 use Symmetry_Info, only: MUL
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer ISYOP, MS2OP
-integer IORBTAB(*)
-integer ISSTAB(*)
-integer IFSBTAB1(*), IFSBTAB4(*)
-real*8 PSI1(*), PSI4(*), SPD2(*)
-real*8 COEFF, OVLP
-integer NASORB
-integer IMODE, ISORB
-integer ND1, ND2, ND3, ND4
-integer JSORB
-integer KOINFO
-integer ISMLAB, ISPLAB, JSMLAB, JSPLAB
-integer NASGEM, JISORB
-integer LSORB, KSORB
-integer KLSORB, KLSYM, KLMS2, LSMLAB, LSPLAB, KSMLAB
-integer KSPLAB, IJKL
-real*8, external :: OVERLAP_RASSI
-real*8, allocatable :: ANN1(:), ANN2(:), ANN3(:), ANN4(:)
+integer(kind=iwp) :: ISYOP, MS2OP, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB4(*)
+real(kind=wp) :: PSI1(*), PSI4(*), SPD2(*)
+integer(kind=iwp) :: IJKL, IMODE, ISMLAB, ISORB, ISPLAB, JISORB, JSMLAB, JSORB, JSPLAB, KLMS2, KLSORB, KLSYM, KOINFO, KSMLAB, &
+                     KSORB, KSPLAB, LSMLAB, LSORB, LSPLAB, NASGEM, NASORB, ND1, ND2, ND3, ND4
+real(kind=wp) :: COEFF, OVLP
+real(kind=wp), allocatable :: ANN1(:), ANN2(:), ANN3(:), ANN4(:)
+real(kind=wp), external :: OVERLAP_RASSI
 
 ! Nr of active spin-orbitals
 NASORB = IORBTAB(4)

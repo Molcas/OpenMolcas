@@ -13,12 +13,12 @@ subroutine ZTRNSF(N,UR,UI,AR,AI)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer N
-real*8 UR(N,N), UI(N,N)
-real*8 AR(N,N), AI(N,N)
-real*8, allocatable :: CR(:,:), CI(:,:)
+integer(kind=iwp) :: N
+real(kind=wp) :: UR(N,N), UI(N,N), AR(N,N), AI(N,N)
+real(kind=wp), allocatable :: CI(:,:), CR(:,:)
 
 call mma_allocate(CR,N,N,Label='CR')
 call mma_allocate(CI,N,N,Label='CI')

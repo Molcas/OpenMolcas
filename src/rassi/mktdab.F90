@@ -19,23 +19,21 @@
 
 subroutine MKTDAB(OVER,GAMMA1,TDMAB,iRC)
 
-use Constants, only: Zero, Two
 use Cntrl, only: LSYM1, LSYM2
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use rassi_data, only: NASHT, NTDMAB, NASH, NISH, NOSH
+use Symmetry_Info, only: MUL, nIrrep
+use rassi_data, only: NASH, NASHT, NISH, NOSH, NTDMAB
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 OVER
-real*8 GAMMA1(NASHT,NASHT)
-real*8 TDMAB(NTDMAB)
-integer iRC
-integer IOFFA(8)
-integer I, IOFFTD, ISY, II, IPOS, ISY12, ISY1, NO1, ISY2, NO2, NA1, NA2, NI1, NI2, IA, J, JA, JJ
-real*8, external :: DDot_
+real(kind=wp) :: OVER, GAMMA1(NASHT,NASHT), TDMAB(NTDMAB)
+integer(kind=iwp) :: iRC
+integer(kind=iwp) :: I, IA, II, IOFFA(8), IOFFTD, IPOS, ISY, ISY1, ISY12, ISY2, J, JA, JJ, NA1, NA2, NI1, NI2, NO1, NO2
+real(kind=wp), external :: DDot_
 
 ! IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
 IOFFA(1) = 0
-do I=1,NSYM-1
+do I=1,nIrrep-1
   IOFFA(I+1) = IOFFA(I)+NASH(I)
 end do
 ! INITIALIZE TRANSITION DENSITY MATRIX:
@@ -44,7 +42,7 @@ TDMAB(:) = Zero
 if (LSYM1 == LSYM2) then
   if (OVER /= Zero) then
     IOFFTD = 0
-    do ISY=1,NSYM
+    do ISY=1,nIrrep
       II = 0
       do I=1,NISH(ISY)
         II = II+1
@@ -58,7 +56,7 @@ end if
 ! THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
 ISY12 = MUL(LSYM1,LSYM2)
 IOFFTD = 0
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   NO1 = NOSH(ISY1)
   if (NO1 == 0) cycle
   ISY2 = MUL(ISY1,ISY12)

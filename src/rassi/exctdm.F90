@@ -13,37 +13,30 @@
 subroutine exctdm(SIJ,TRAD,TDMAB,iRC,CMO1,CMO2,TDMZZ,TRASD,TSDMAB,TSDMZZ,istate,jstate)
 
 use Basis_Info, only: nBas
+use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use frenkel_global_vars, only: doexch, eNucB, iTyp, labb, VNucB
+use Cntrl, only: MLTPLT, NSTATE
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: CHFRACMEM, NASHT, NBASF, NCMO, NTDMAB, NTDMZZ
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
-use Data_structures, only: DSBA_Type, Allocate_DT, Deallocate_DT
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use frenkel_global_vars, only: iTyp, labb, doexch, VNucB, eNucB
-use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, MLTPLT
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NTDMAB, NASHT, NTDMZZ, NCMO, CHFRACMEM, NBASF
 
 implicit none
-type(DSBA_Type) :: DLT(1), SDLT(1), Salpha(1), Sbeta(1)
-integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1), iRC, NNLTD, istate, jstate, run, m(1), n(1)
-integer(kind=iwp), external :: isFreeUnit
-real(kind=wp) TDMAB(NTDMAB)
-real(kind=wp) TRAD(NASHT,NASHT)
-real(kind=wp) TRASD(NASHT,NASHT)
-real(kind=wp) TSDMAB(NTDMAB)
-real(kind=wp) TDMZZ(NTDMZZ)
-real(kind=wp) TSDMZZ(NTDMZZ)
-real(kind=wp) CMO1(NCMO)
-real(kind=wp) CMO2(NCMO)
+real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), SIJ, TDMAB(NTDMAB), TDMZZ(NTDMZZ), TRAD(NASHT,NASHT), TRASD(NASHT,NASHT), &
+                 TSDMAB(NTDMAB), TSDMZZ(NTDMZZ)
+integer(kind=iwp) :: iRC, istate, jstate
+integer(kind=iwp) :: I, INTEG, IPNB, J, LuT, LuT_, m(1), n(1), nbas_A(1), nbas_B(1), nbas_tot(1), NNLTD, run
+type(DSBA_Type) :: DLT(1), Salpha(1), Sbeta(1), SDLT(1)
 character(len=13) :: filnam
-real(kind=wp) :: SIJ
-real(kind=wp), allocatable :: TDMZZ_mtx(:,:), TDMZZ_new(:), STDMZZ_mtx(:,:), STDMZZ_new(:)
-integer(kind=iwp) LuT, LuT_, I, J, INTEG, IPNB
+real(kind=wp), allocatable :: STDMZZ_mtx(:,:), STDMZZ_new(:), TDMZZ_mtx(:,:), TDMZZ_new(:)
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) a, K
+integer(kind=iwp) :: a, K
 #endif
+integer(kind=iwp), external :: isFreeUnit
 real(kind=wp), external :: DDot_
 
 !write(u6,*) 'MLTPL', MLTPLT(1)
@@ -63,7 +56,7 @@ if (LABB) then
   write(u6,*) 'basis functions of mon B',nbas_B
 # endif
   call NameRun('AUXRFIL1')
-  call get_iArray('nBas',nBas,nSym)
+  call get_iArray('nBas',nBas,nIrrep)
   nbas_tot = nBas(0)
   call NameRun('#Pop')    ! switch back to old RUNFILE
 # ifdef _DEBUGPRINT_
@@ -81,7 +74,7 @@ if (.not. LABB) then
   write(u6,*) 'basis functions of mon A',nbas_A
 # endif
   call NameRun('AUXRFIL1')
-  call get_iArray('nBas',nBas,nSym)
+  call get_iArray('nBas',nBas,nIrrep)
   nbas_tot = nBas(0)
   call NameRun('#Pop')    ! switch back to old RUNFILE
 # ifdef _DEBUGPRINT_
@@ -101,7 +94,7 @@ n = nbas_tot
 call MKTDAB(SIJ,TRAD,TDMAB,iRC)
 ! transform to AO basis
 call MKTDZZ(CMO1,CMO2,TDMAB,TDMZZ,iRC)
-call Allocate_DT(DLT(1),n,m,nSym,aCase='TRI')
+call Allocate_DT(DLT(1),n,m,nIrrep,aCase='TRI')
 
 if (doexch) then
   ! for the exchange part we need the spin density
@@ -111,12 +104,12 @@ if (doexch) then
   call MKTDZZ(CMO1,CMO2,TSDMAB,TSDMZZ,iRC)
   ! alpha part of the spin density
   if (MLTPLT(1) == 1) then
-    call Allocate_DT(Salpha(1),nbas_tot,nbas_tot,nSym)
+    call Allocate_DT(Salpha(1),nbas_tot,nbas_tot,nIrrep)
   else
-    call Allocate_DT(Salpha(1),nbas_tot,nbas_tot,nSym)
-    call Allocate_DT(Sbeta(1),nbas_tot,nbas_tot,nSym)
+    call Allocate_DT(Salpha(1),nbas_tot,nbas_tot,nIrrep)
+    call Allocate_DT(Sbeta(1),nbas_tot,nbas_tot,nIrrep)
     ! allocate matrix for the spin density difference
-    call Allocate_DT(SDLT(1),nbas_tot,nbas_tot,nSym)
+    call Allocate_DT(SDLT(1),nbas_tot,nbas_tot,nIrrep)
     SDLT(1)%A00(:) = Zero
   end if
 end if

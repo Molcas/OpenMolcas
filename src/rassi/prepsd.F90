@@ -15,21 +15,21 @@ subroutine PREPSD(WFTP,SGS,CIS,LSYM,ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,NCONF,CI,DET,
 ! getting biorthonormal orbitals, prepare a wave function
 ! in the general SD format, using transformed orbitals.
 
+use gugx, only: CIStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
-use gugx, only: SGStruct, CIStruct
+use Definitions, only: wp, iwp
 
 implicit none
-type(SGStruct) SGS
-type(CIStruct) CIS
-integer ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*)
-integer LSYM, NCONF
-real*8 CI(*), DET(*)
-integer IMODE
-character(len=8) WFTP
+character(len=8) :: WFTP
+type(SGStruct) :: SGS
+type(CIStruct) :: CIS
+integer(kind=iwp) :: LSYM, ICNFTAB(*), ISPNTAB(*), ISSTAB(*), IFSBTAB(*), NCONF
+real(kind=wp) :: CI(*), DET(*)
 character(len=*), intent(out) :: detocc(NCONF)
-real(8), intent(out) :: detcoeff(NCONF)
-real(8), intent(in) :: SPTRA(*)
-real*8, allocatable :: CTMP(:)
+real(kind=wp), intent(out) :: detcoeff(NCONF)
+real(kind=wp), intent(in) :: SPTRA(*)
+integer(kind=iwp) :: IMODE
+real(kind=wp), allocatable :: CTMP(:)
 
 if (WFTP == 'GENERAL') then
   ! Transform SGUGA to SymmG:

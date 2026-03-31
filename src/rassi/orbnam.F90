@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-character(len=8) function ORBNAM(ISORB,ORBTAB)
+function ORBNAM(ISORB,ORBTAB)
+
+use Definitions, only: iwp
 
 implicit none
-integer ISORB, ORBTAB(*)
-character(len=8) STRING8
-character(len=2) ORBTYP
-integer IPART, ISMLAB, ISOIND, NPART
-integer KOINFO
+character(len=8) :: ORBNAM
+integer(kind=iwp) :: ISORB, ORBTAB(*)
+integer(kind=iwp) :: IPART, ISMLAB, ISOIND, KOINFO, NPART
+character(len=8) :: STRING8
+character(len=2) :: ORBTYP
 
 NPART = ORBTAB(6)
 KOINFO = 19

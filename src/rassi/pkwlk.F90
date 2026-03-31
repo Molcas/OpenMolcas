@@ -18,13 +18,12 @@ subroutine PKWLK(N,IPWLK,NWALK,IWALK,ICASE)
 ! number of integers used for each walk (IPWLK) is given as
 ! call parameter.
 
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: N, IPWLK, NWALK
+integer(kind=iwp), intent(in) :: N, IPWLK, NWALK, ICASE(N,NWALK)
 integer(kind=iwp), intent(out) :: IWALK(*)
-integer(kind=iwp), intent(in) :: ICASE(N,NWALK)
-integer(kind=iwp) IPOS, I, LEND, J, LSTA, IWORD, L
+integer(kind=iwp) :: I, IPOS, IWORD, J, L, LEND, LSTA
 
 IPOS = 0
 do I=1,NWALK

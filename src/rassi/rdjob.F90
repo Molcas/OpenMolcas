@@ -11,63 +11,50 @@
 
 subroutine RDJOB(JOB,READ_STATES)
 
-use rasdef, only: NRS1, NRS2, NRS3
-use rassi_aux, only: ipglob
-use rassi_global_arrays, only: JBNUM, LROOT
+use Cntrl, only: bNAME, HAVE_DIAG, HAVE_HEFF, HEAD1, HEff, IDCMO, IFEJOB, IFHEFF, IROOT1, IRREP, ISTAT, iTOC15, JBNAME, LROT1, &
+                 LSYM1, LuIPH, MLTPLT, MPLET1, NACTE, NACTE1, NASH1, NBAS1, NCONF, NCONF1, NDEL1, NELE3, NELE31, NFRO1, NHOL11, &
+                 NHOLE1, NISH1, NROOT1, NRS11, NRS21, NRS31, NSTAT, NSTATE, NSYM1, RASTYP, RefEne, TITLE1
 use gugx, only: LEVEL
+use Molcas, only: LenIn, MxOrb, MxRoot, MxSym, MxLev
+use rasdef, only: NRS1, NRS2, NRS3
+use RASDim, only: MxIter, MxTit
+use rassi_aux, only: ipglob
+use rassi_data, only: WFTYPE, NASH, NSSH, NDEL, NOSH, NASH, NISH, NFRO, NBASF, NDEL, NFRO, NISH
+use rassi_global_arrays, only: JBNUM, LROOT
+use Symmetry_Info, only: nIrrep
+#ifdef _HDF5_
+use Cntrl, only: NDET, NROOTS, QDPT2SC
+use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
+#endif
 #ifdef _DMRG_
-use qcmaquis_interface_cfg
-use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names, qcm_prefixes
+use qcmaquis_info, only: qcm_group_names, qcm_prefixes, qcmaquis_info_init
 use rasscf_global, only: doDMRG
 #endif
-use mspt2_eigenvectors
-#ifdef _HDF5_
-use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_close_file
-use Cntrl, only: NDET, NROOTS, QDPT2SC
-#endif
-use cntrl, only: RefEne, HEff
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: HAVE_HEFF, IFEJOB, HAVE_DIAG, IFHEFF, LSYM1, NCONF1, NCONF, RASTYP, IRREP, NHOLE1, MLTPLT, NACTE, NELE3, ISTAT, &
-                 JBNAME, NSTATE, NSTAT
-use cntrl, only: NACTE1, MPLET1, NSYM1, NFRO1, NISH1, NASH1, NDEL1, NBAS1, NRS11, NRS21, NRS31, LROT1, NROOT1, IROOT1, NHOL11, &
-                 NELE31, NAME, HEAD1, TITLE1
-use cntrl, only: iTOC15, LuIPH, IDCMO
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: WFTYPE, NASH, NSSH, NDEL, NOSH, NASH, NISH, NFRO, NBASF, NDEL, NFRO, NISH
-use Molcas, only: LenIn, MxOrb, MxRoot, MxSym, MxLev
-use RASDim, only: MxIter, MxTit
 use Constants, only: Zero
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: JOB
+logical(kind=iwp) :: READ_STATES
+integer(kind=iwp) :: I, IAD, IAD15, IDISK, IDUM(1), IERR, IPT2, ISNUM, ISTATE, ISY, IT, J, JSNUM, JSTATE, NEJOB, NHEFF, NIS, NIS1, &
+                     NMAYBE, NROOT0, NTIT1
+real(kind=wp) :: AEMAX, E, ENUCDUMMY, HIJ
+logical(kind=iwp) :: ISZERO
+real(kind=wp), allocatable :: EJOB(:), EREAD(:), H_Eff(:), Weight(:)
 #ifdef _HDF5_
-integer :: refwfn_id
-integer :: ref_nSym, ref_stSym, ref_nBas(mxSym), ref_iSpin
-integer :: ref_nfro(mxSym), ref_nish(mxSym), ref_nrs1(mxSym), ref_nrs2(mxSym), ref_nrs3(mxSym), ref_nssh(mxSym), ref_ndel(mxSym), &
-           ref_nash(mxSym)
-integer :: ref_nactel, ref_nhole1, ref_nelec3, ref_nconf
-integer :: ref_nstates, ref_nroots, ref_ndet
-integer, allocatable :: ref_rootid(:)
-integer :: root2state(MxRoot)
-character(len=1), allocatable :: typestring(:)
-real*8, allocatable :: ref_Heff(:,:), ref_energies(:)
-#endif
-real*8 Weight(MxRoot), ENUCDUMMY, AEMAX, E, HIJ
-integer IAD, IAD15, IDISK, IERR, IDUM(1)
-integer IPT2
-integer ISY, IT
-integer I, J, ISTATE, JSTATE, ISNUM, JSNUM
-integer NEJOB, NHEFF, NIS, NIS1, NTIT1, NMAYBE
-integer JOB, NROOT0
-logical ISZERO, READ_STATES
-real*8, allocatable :: EJOB(:), EREAD(:), H_Eff(:)
-#ifdef _HDF5_
+integer(kind=iwp) :: ref_iSpin, ref_nactel, ref_nash(mxSym), ref_nBas(mxSym), ref_nconf, ref_ndel(mxSym), ref_ndet, ref_nelec3, &
+                     ref_nfro(mxSym), ref_nhole1, ref_nish(mxSym), ref_nroots, ref_nrs1(mxSym), ref_nrs2(mxSym), ref_nrs3(mxSym), &
+                     ref_nssh(mxSym), ref_nstates, ref_nSym, ref_stSym, refwfn_id
+character(len=21) :: pt2_e_string
 character(len=16) :: molcas_module
 character(len=8) :: heff_string
-character(len=21) :: pt2_e_string
+integer(kind=iwp), allocatable :: ref_rootid(:), root2state(:)
+real(kind=wp), allocatable :: ref_energies(:), ref_Heff(:,:)
+character, allocatable :: typestring(:)
 #endif
 #ifdef _DMRG_
-integer :: idx
+integer(kind=iwp) :: idx
 character(len=300) :: WorkDir
 #endif
 
@@ -122,7 +109,7 @@ if (mh5_is_hdf5(jbname(job))) then
   call mma_allocate(typestring,sum(ref_nbas(1:ref_nsym)))
   call mh5_fetch_dset(refwfn_id,'MO_TYPEINDICES',typestring)
   call tpstr2orb(ref_nsym,ref_nbas,typestring,ref_nfro,ref_nish,ref_nrs1,ref_nrs2,ref_nrs3,ref_nssh,ref_ndel)
-  ref_nash(1:NSYM) = ref_nrs1(1:NSYM)+ref_nrs2(1:NSYM)+ref_nrs3(1:NSYM)
+  ref_nash(1:nIrrep) = ref_nrs1(1:nIrrep)+ref_nrs2(1:nIrrep)+ref_nrs3(1:nIrrep)
   call mma_deallocate(typestring)
 
 # ifdef _DMRG_
@@ -147,6 +134,7 @@ if (mh5_is_hdf5(jbname(job))) then
 
   call mma_allocate(ref_rootid,ref_nstates)
   call mh5_fetch_attr(refwfn_id,'STATE_ROOTID',ref_rootid)
+  call mma_allocate(root2state,MxRoot,Label='root2state')
   call iCopy(MxRoot,[0],0,root2state,1)
   if (mh5_exists_attr(refwfn_id,'ROOT2STATE')) then
     call mh5_fetch_attr(refwfn_id,'ROOT2STATE',root2state)
@@ -236,6 +224,7 @@ if (mh5_is_hdf5(jbname(job))) then
     end do
     call mma_deallocate(ref_energies)
   end if
+  call mma_deallocate(root2state)
 
 # ifdef _DMRG_
   call getenvf('WorkDir',WorkDir)
@@ -275,11 +264,11 @@ if (mh5_is_hdf5(jbname(job))) then
     end if
   end if
 # endif
-  if (ref_nsym /= nsym) then
+  if (ref_nsym /= nIrrep) then
     call WarningMessage(2,'NSYM not consistent with RunFile')
     call Quit_OnUserError()
   end if
-  do i=1,nsym
+  do i=1,nIrrep
     if (ref_nbas(i) /= nbasf(i)) then
       call WarningMessage(2,'NBAS not consistent with RunFile')
       call Quit_OnUserError()
@@ -303,7 +292,7 @@ if (mh5_is_hdf5(jbname(job))) then
 
   if (job == 1) then
     ! first wavefunction file, set global variables
-    do I=1,NSYM
+    do I=1,nIrrep
       NFRO(I) = 0
       NISH(I) = ref_nfro(I)+ref_nish(I)
       NASH(I) = ref_nash(I)
@@ -320,7 +309,7 @@ if (mh5_is_hdf5(jbname(job))) then
       call WarningMessage(2,'inconsistent RAS holes/electrons')
       call Quit_OnUserError()
     end if
-    do i=1,nsym
+    do i=1,nIrrep
       if ((ref_nfro(i)+ref_nish(i) /= nish(i)) .or. (ref_nash(i) /= nash(i)) .or. (ref_nrs1(i) /= nrs1(i)) .or. &
           (ref_nrs2(i) /= nrs2(i)) .or. (ref_nrs3(i) /= nrs3(i))) then
         call WarningMessage(2,'inconsistent orbital partitioning')
@@ -330,7 +319,7 @@ if (mh5_is_hdf5(jbname(job))) then
   end if
 
   WFTYPE = 'GENERAL'
-  if (ref_nactel == 2*sum(NASH(1:NSYM))) WFTYPE = 'CLOSED'
+  if (ref_nactel == 2*sum(NASH(1:nIrrep))) WFTYPE = 'CLOSED'
   if (ref_nactel == 0) WFTYPE = 'EMPTY'
   RASTYP(JOB) = WFTYPE
 
@@ -388,8 +377,10 @@ else
   ! SCATTER-READ VARIOUS DATA:
   ! PAM Mar2014: Note that ENUC1 (=POTNUC) replaced by dummy placeholder
   IAD = ITOC15(1)
-  call WR_RASSCF_Info(LUIPH,2,IAD,NACTE1,MPLET1,NSYM1,LSYM1,NFRO1,NISH1,NASH1,NDEL1,NBAS1,mxSym,NAME,(LenIn+8)*mxOrb,NCONF1,HEAD1, &
-                      2*72,TITLE1,4*mxTit*18,ENUCDUMMY,LROT1,NROOT1,IROOT1,mxRoot,NRS11,NRS21,NRS31,NHOL11,NELE31,IPT2,Weight)
+  call mma_allocate(Weight,MxRoot,Label='Weight')
+  call WR_RASSCF_Info(LUIPH,2,IAD,NACTE1,MPLET1,NSYM1,LSYM1,NFRO1,NISH1,NASH1,NDEL1,NBAS1,mxSym,bNAME,(LenIn+8)*mxOrb,NCONF1, &
+                      HEAD1,2*72,TITLE1,4*mxTit*18,ENUCDUMMY,LROT1,NROOT1,IROOT1,mxRoot,NRS11,NRS21,NRS31,NHOL11,NELE31,IPT2,Weight)
+  call mma_deallocate(Weight)
   ! Response field contribution to zero-electron energies
   ! is added in GETH1.
   if (READ_STATES) then
@@ -545,8 +536,8 @@ else
 
   if (JOB == 1) then
     ! FIRST JOB FILE. TRANSFER DATA TO COMMON:
-    NSYM = NSYM1
-    do I=1,NSYM
+    nIrrep = NSYM1
+    do I=1,nIrrep
       NFRO(I) = 0
       NISH(I) = NFRO1(I)+NISH1(I)
       NASH(I) = NASH1(I)
@@ -561,7 +552,7 @@ else
   else
     ! THIS IS NOT THE FIRST JOBIPH.
     ! CHECK THAT DATA IS CONSISTENT WITH EARLIER:
-    if (NSYM1 /= NSYM) goto 9001
+    if (NSYM1 /= nIrrep) goto 9001
     if (NHOL11 /= NHOLE1(JOB-1)) goto 9003
     if (NELE31 /= NELE3(JOB-1)) goto 9003
     do ISY=1,NSYM1
@@ -596,15 +587,15 @@ else
     write(u6,'(A,I9)') '  NR OF CONFIG:       ',NCONF1
   end if
   WFTYPE = 'GENERAL'
-  !if (MPLET1 == (SUM(NASH(1:NSYM))+1)) WFTYPE = 'HISPIN'
+  !if (MPLET1 == (SUM(NASH(1:nIrrep))+1)) WFTYPE = 'HISPIN'
   ! Note: the HISPIN case may be buggy and is not used presently.
-  if (MPLET1 == (sum(NASH(1:NSYM))+1)) then
+  if (MPLET1 == (sum(NASH(1:nIrrep))+1)) then
     write(u6,*) ' This wave function is of HISPIN type.'
     write(u6,*) ' However, the special handling for that case'
     write(u6,*) ' is suspected to be buggy. So the variable'
     write(u6,*) ' WFTYPE is set to GENERAL.'
   end if
-  if (NACTE1 == 2*sum(NASH(1:NSYM))) WFTYPE = 'CLOSED'
+  if (NACTE1 == 2*sum(NASH(1:nIrrep))) WFTYPE = 'CLOSED'
   if (NACTE1 == 0) WFTYPE = 'EMPTY'
   RASTYP(JOB) = WFTYPE
   if (IPGLOB >= 3) write(u6,*) '  Wave function type WFTYPE=',WFTYPE
@@ -632,7 +623,7 @@ return
 !
 !***********************************************************************
 9001 write(u6,*) ' SYMMETRY GROUPS MUST BE EQUAL.'
-write(u6,*) ' NSYM1:',NSYM1,'NSYM :',NSYM
+write(u6,*) ' NSYM1:',NSYM1,'NSYM :',nIrrep
 goto 9010
 9002 write(u6,*) ' ROOT NOT AVAILABLE.'
 write(u6,*) '             REQUESTED ROOT:',NROOT0
@@ -646,21 +637,21 @@ write(u6,*) '             MAX NR OF RAS-3 ELECTRONS:',NELE3(JOB-1)
 goto 9010
 9004 write(u6,*) ' NR. OF (FROZEN+INACTIVE) ORBITALS DIFFER.'
 write(u6,'(A,8I4)') ' THIS STATE:',(NFRO1(I)+NISH1(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '   PREVIOUS:',(NISH(I),I=1,NSYM)
+write(u6,'(A,8I4)') '   PREVIOUS:',(NISH(I),I=1,nIrrep)
 goto 9010
 9005 write(u6,*) ' NR. OF ACTIVE ORBITALS DIFFER.'
 write(u6,'(A,8I4)') ' THIS STATE, ACTIVE:',(NASH1(I),I=1,NSYM1)
 write(u6,'(A,8I4)') '               RAS1:',(NRS11(I),I=1,NSYM1)
 write(u6,'(A,8I4)') '               RAS2:',(NRS21(I),I=1,NSYM1)
 write(u6,'(A,8I4)') '               RAS3:',(NRS31(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '   PREVIOUS, ACTIVE:',(NASH(I),I=1,NSYM)
+write(u6,'(A,8I4)') '   PREVIOUS, ACTIVE:',(NASH(I),I=1,nIrrep)
 write(u6,'(A,8I4)') '               RAS1:',(NRS1(I),I=1,NSYM1)
 write(u6,'(A,8I4)') '               RAS2:',(NRS2(I),I=1,NSYM1)
 write(u6,'(A,8I4)') '               RAS3:',(NRS3(I),I=1,NSYM1)
 goto 9010
 9006 write(u6,*) ' NR. OF BASIS FUNCTION DIFFER.'
 write(u6,'(A,8I4)') ' THIS JOBIPH:',(NBAS1(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '    PREVIOUS:',(NBASF(I),I=1,NSYM)
+write(u6,'(A,8I4)') '    PREVIOUS:',(NBASF(I),I=1,nIrrep)
 9010 continue
 write(u6,*) ' DATA IN JOBIPH FILE NAMED ',trim(JBNAME(JOB)),' WERE'
 write(u6,*) ' INCONSISTENT WITH EARLIER DATA. PROGRAM STOPS.'

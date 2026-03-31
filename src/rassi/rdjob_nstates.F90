@@ -16,23 +16,24 @@
 
 subroutine rdjob_nstates(JOB)
 
-#ifdef _HDF5_
-use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_attr, mh5_close_file
-#endif
-use Cntrl, only: NSTATE, ISTAT, NSTAT, JBNAME, LSYM1, NCONF1
-use cntrl, only: NACTE1, MPLET1, NSYM1, NFRO1, NISH1, NASH1, NDEL1, NBAS1, NRS11, NRS21, NRS31, LROT1, NROOT1, IROOT1, NHOL11, &
-                 NELE31, NAME, HEAD1, TITLE1
-use cntrl, only: iTOC15, LuIph
+use Cntrl, only: bNAME, HEAD1, IROOT1, ISTAT, iTOC15, JBNAME, LROT1, LSYM1, LuIph, MPLET1, NACTE1, NASH1, NBAS1, NCONF1, NDEL1, &
+                 NELE31, NFRO1, NHOL11, NISH1, NROOT1, NRS11, NRS21, NRS31, NSTAT, NSTATE, NSYM1, TITLE1
 use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
 use RASDim, only: MxTit
+#ifdef _HDF5_
+use mh5, only: mh5_close_file, mh5_fetch_attr, mh5_is_hdf5, mh5_open_file_r
+#endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
+integer(kind=iwp) :: job
+integer(kind=iwp) :: iad, ipt2
 #ifdef _HDF5_
-integer :: refwfn_id
-integer :: ref_nstates
+integer(kind=iwp) :: ref_nstates, refwfn_id
 #endif
-real*8 Weight(MxRoot), ENUCDUMMY
-integer job, iad, ipt2
+real(kind=wp) :: ENUCDUMMY
+real(kind=wp), allocatable :: Weight(:)
 
 #ifdef _HDF5_
 if (mh5_is_hdf5(jbname(job))) then
@@ -56,8 +57,10 @@ else
   call IDAFILE(LUIPH,2,ITOC15,30,IAD)
   ! SCATTER-READ VARIOUS DATA:
   IAD = ITOC15(1)
-  call WR_RASSCF_Info(LUIPH,2,IAD,NACTE1,MPLET1,NSYM1,LSYM1,NFRO1,NISH1,NASH1,NDEL1,NBAS1,mxSym,NAME,(LenIn+8)*mxOrb,NCONF1,HEAD1, &
-                      2*72,TITLE1,4*mxTit*18,ENUCDUMMY,LROT1,NROOT1,IROOT1,mxRoot,NRS11,NRS21,NRS31,NHOL11,NELE31,IPT2,Weight)
+  call mma_allocate(Weight,MxRoot,Label='Weight')
+  call WR_RASSCF_Info(LUIPH,2,IAD,NACTE1,MPLET1,NSYM1,LSYM1,NFRO1,NISH1,NASH1,NDEL1,NBAS1,mxSym,bNAME,(LenIn+8)*mxOrb,NCONF1, &
+                      HEAD1,2*72,TITLE1,4*mxTit*18,ENUCDUMMY,LROT1,NROOT1,IROOT1,mxRoot,NRS11,NRS21,NRS31,NHOL11,NELE31,IPT2,Weight)
+  call mma_deallocate(Weight)
   ! update the state offset, number of states, and total number of states
   ISTAT(JOB) = NSTATE+1
   NSTAT(JOB) = NROOT1

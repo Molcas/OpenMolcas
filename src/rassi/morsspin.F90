@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function MorsSpin(IMORS,MS2ARR)
+function MorsSpin(IMORS,MS2ARR)
 
-use Definitions, only: u6
+use Cntrl, only: MORSBITS
+use Definitions, only: iwp, u6
 
 implicit none
-integer MORSBITS
-parameter(MORSBITS=8)
-dimension MS2ARR(*)
-integer I, IB, IBIT, IMORS, MS2ARR
+integer(kind=iwp) :: MorsSpin
+integer(kind=iwp) :: IMORS, MS2ARR(*)
+integer(kind=iwp) :: I, IB, IBIT
 
 MorsSpin = 0
 if (IMORS < 0) goto 99

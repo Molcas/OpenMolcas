@@ -31,53 +31,33 @@
 subroutine DO_AOTDMNTO(TDMZZ,TSDMZZ,ANTSIN,ISTATE,JSTATE,nb,nb2)
 
 use OneDat, only: sNoNuc, sNoOri, sOpSiz
-use stdalloc, only: mma_allocate, mma_deallocate
 use Cntrl, only: IfArgu
 use rassi_data, only: NBTRI
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Half, Pi, cZero, cOne
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer ISTATE, JSTATE, nb, nb2
-real*8 TDMZZ(6,nb2)
-real*8 TSDMZZ(6,nb2)
-real*8 ANTSIN(6,nb2)
-real*8, allocatable :: TDMZZL(:,:), TSDMZZL(:,:)
-complex*16, allocatable :: YMAT(:,:)
-complex*16, allocatable :: TDMZZLC(:), TDMZZC(:), BUFF(:), DIPsC(:)
-complex*16, allocatable :: SVDU(:), SVDVH(:), RESI(:)
-real*8, allocatable :: SVDS(:)
-complex*16, allocatable :: BUFF1(:), BUFF2(:), SumofYdiag(:)
-complex*16 Transition_Dipole
-integer i, j, info, lwork, di, icmp, iopt, irc, isylab
-real*8 NumofEc, Sumofeigen
-real*8, parameter :: eigen_print_limit = 1.0e-8_wp
-real*8 SumofTDMZZLC
-real*8 Dummy(1)
-integer, dimension(1) :: SIZ
-complex*16, allocatable :: SIZC(:)
-integer LU, isfreeunit, iDummy(7,8)
-! start Phase factor stuff
+integer(kind=iwp) ISTATE, JSTATE, nb, nb2
+real(kind=wp) :: TDMZZ(6,nb2), TSDMZZ(6,nb2), ANTSIN(6,nb2)
+integer(kind=iwp) :: di, i, icmp, iDummy(7,8), info, iopt, irc, isylab, j, LU, lwork, SIZ(1)
+real(kind=wp) :: Dummy(1), NumofEc, phi, sd, Sumofeigen, SumofTDMZZLC, ttdi(3), ttdr(3)
+complex(kind=wp) :: Transition_Dipole
+integer(kind=iwp), allocatable :: PIV(:)
+real(kind=wp), allocatable :: BFF(:), Dip(:), Dips(:), EIG(:), EIGM(:), RESIR(:), RESIX(:), SM(:), SMI(:), SVDS(:), SVDUI(:), &
+                              SVDUR(:), SVDVHI(:), SVDVHR(:), SVDVI(:), SVDVR(:), SZZ(:), SZZs(:), TDMZZL(:,:), TMP(:), TMPI(:), &
+                              TMPR(:), TSDMZZL(:,:)
+complex(kind=wp), allocatable :: BUFF(:), BUFF1(:), BUFF2(:), DIPsC(:), RESI(:), SIZC(:), SumofYdiag(:), SVDU(:), SVDVH(:), &
+                                 TDMZZC(:), TDMZZLC(:), YMAT(:,:)
+character(len=128) :: FNAME
+character(len=72) :: NOTE
+character(len=8) :: LABEL
+character(len=7) :: STATENAME, STATENAMETMP
+real(kind=wp), parameter :: eigen_print_limit = 1.0e-8_wp
+integer(kind=iwp), external :: isfreeunit
+
 ! trace of transition dipole real and imaginary (x,y,and z)
-real*8 ttdr(3), ttdi(3)
-real*8 phi, sd
-! end
-character(len=8) LABEL
-character(len=7) STATENAME, STATENAMETMP
-character(len=128) FNAME
-character(len=72) NOTE
-real*8, allocatable :: Dips(:), Dip(:)
-real*8, allocatable :: TMPR(:), TMPI(:)
-real*8, allocatable :: SZZs(:), SZZ(:)
-real*8, allocatable :: EIG(:), EIGM(:)
-real*8, allocatable :: TMP(:)
-real*8, allocatable :: BFF(:)
-real*8, allocatable :: RESIX(:), RESIR(:)
-real*8, allocatable :: SM(:), SMI(:)
-real*8, allocatable :: SVDUR(:), SVDUI(:)
-integer, allocatable :: PIV(:)
-real*8, allocatable :: SVDVHR(:), SVDVHI(:)
-real*8, allocatable :: SVDVR(:), SVDVI(:)
+! ttdr, ttdi
 
 ! ANTISYMMETRIC matrix needs a little fixing
 do i=0,nb-1
@@ -85,7 +65,7 @@ do i=0,nb-1
     if (i < j-1) then
       ANTSIN(3,i*nb+j) = -ANTSIN(3,i*nb+j)
     else if (i == j-1) then
-      ANTSIN(3,i*nb+j) = zero
+      ANTSIN(3,i*nb+j) = Zero
     end if
   end do
 end do
@@ -260,7 +240,7 @@ do i=0,nb-1
     if (i == j) then
       EIGM(1+i*nb+j) = sqrt(EIG(1+i))
     else
-      EIGM(1+i*nb+j) = zero
+      EIGM(1+i*nb+j) = Zero
     end if
   end do
 end do
@@ -380,7 +360,7 @@ do di=1,3
   ! reconstruct TDMZZLC and DIPsC
   do i=1,nb2
     TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),kind=wp)
-    DIPsC(i) = cmplx(DIPs(i),zero,kind=wp)
+    DIPsC(i) = cmplx(DIPs(i),Zero,kind=wp)
   end do
   ! Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
   call ZGEMM_('N','N',nb,nb,nb,cOne,TDMZZLC(:),nb,DIPsC,nb,cZero,BUFF1(:),nb)
@@ -452,7 +432,7 @@ call mma_deallocate(SVDVHI)
 call ADD_INFO('LAMBDA',SVDS,5,4)
 
 ! singular values
-Sumofeigen = zero
+Sumofeigen = Zero
 do i=0,nb-1
   Sumofeigen = Sumofeigen+SVDS(i+1)**2
 end do

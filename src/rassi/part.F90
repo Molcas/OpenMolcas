@@ -20,26 +20,26 @@ subroutine PART(SXY,TRA1,TRA2)
 ! RASSCF VERSION,   MALMQUIST 89-11-15
 
 use rasdef, only: NRS1, NRS2, NRS3
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NISH, NOSH, NSXY, NTRA
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NSXY, NTRA, NOSH, NISH
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 SXY(NSXY), TRA1(NTRA), TRA2(NTRA)
-integer NSIZE(4)
-real*8, allocatable :: ScrMat(:), ScrBuf(:)
-integer, allocatable :: ScrPiv(:)
-integer II, ISY, N, NBLOCK, NDIMEN, NOMAX
+real(kind=wp) :: SXY(NSXY), TRA1(NTRA), TRA2(NTRA)
+integer(kind=iwp) :: II, ISY, N, NBLOCK, NDIMEN, NOMAX, NSIZE(4)
+integer(kind=iwp), allocatable :: ScrPiv(:)
+real(kind=wp), allocatable :: ScrBuf(:), ScrMat(:)
 
 NOMAX = 0
-do ISY=1,NSYM
+do ISY=1,nIrrep
   NOMAX = max(NOSH(ISY),NOMAX)
 end do
 call mma_allocate(SCRMAT,NOMAX*NOMAX,Label='ScrMat')
 call mma_allocate(SCRPIV,2*NOMAX,Label='ScrPiv')
 call mma_allocate(SCRBUF,NOMAX,Label='ScrBuf')
 II = 1
-do ISY=1,NSYM
+do ISY=1,nIrrep
   NDIMEN = NOSH(ISY)
   if (NDIMEN == 0) cycle
   NBLOCK = 0

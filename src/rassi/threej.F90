@@ -21,8 +21,8 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: threej
 real(kind=wp), intent(in) :: XJ1, XJ2, XJ3, XM1, XM2, XM3
-real(kind=wp), external :: DCLEBS
 integer(kind=iwp) :: i
+real(kind=wp), external :: DCLEBS
 
 threej = DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,-XM3)
 if (threej == Zero) return

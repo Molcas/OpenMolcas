@@ -19,8 +19,8 @@
 !                                    (UPDATE 83-09-28)
 subroutine DOOL(NDIMEN,MDIM,N,M,A,B,DET,IPIV,JPIV,BUF)
 
-use definitions, only: iwp, wp
-use constants, only: One
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDIMEN, MDIM, N, M
@@ -28,8 +28,8 @@ real(kind=wp), intent(inout) :: A(NDIMEN,NDIMEN), B(NDIMEN,MDIM)
 real(kind=wp), intent(out) :: DET
 integer(kind=iwp), intent(out) :: IPIV(NDIMEN), JPIV(NDIMEN)
 real(kind=wp), intent(out) :: BUF(NDIMEN)
-real(kind=wp) AM, AMAX, C, DIAG, SUMMA
-integer(kind=iwp) I, IDUM, IP, J, JP, K, KP, L, LP
+integer(kind=iwp) :: I, IDUM, IP, J, JP, K, KP, L, LP
+real(kind=wp) :: AM, AMAX, C, DIAG, SUMMA
 
 ! EQUATION IS SOLVED BY FACTORIZING A=L*R IN SAME SPACE AS A.
 ! PIVOTING IS ACHIEVED BY INDIRECT INDEXING.

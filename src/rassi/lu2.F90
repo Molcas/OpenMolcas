@@ -22,16 +22,14 @@ subroutine LU2(NDIMEN,NBLOCK,NSIZE,CXA,CYB,SCR)
 !  MATRICES.
 !                                         ( MALMQUIST 84-01-16 )
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, One, Two
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NDIMEN, NBLOCK
-integer(kind=iwp), intent(in) :: NSIZE(NBLOCK)
-real(kind=wp), intent(inout) :: CXA(NDIMEN,NDIMEN), CYB(NDIMEN,NDIMEN)
-real(kind=wp), intent(inout) :: SCR(NDIMEN)
-integer(kind=iwp) NTOT, IBLOCK, IEND, ISTA, II, J, I
-real(kind=wp) S1, S2, S3, X1, X2, S, X
+integer(kind=iwp), intent(in) :: NDIMEN, NBLOCK, NSIZE(NBLOCK)
+real(kind=wp), intent(inout) :: CXA(NDIMEN,NDIMEN), CYB(NDIMEN,NDIMEN), SCR(NDIMEN)
+integer(kind=iwp) :: I, IBLOCK, IEND, II, ISTA, J, NTOT
+real(kind=wp) :: S, S1, S2, S3, X, X1, X2
 real(kind=wp), parameter :: THR = 1.0e-6_wp
 
 NTOT = 0

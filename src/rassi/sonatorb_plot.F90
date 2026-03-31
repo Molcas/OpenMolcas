@@ -11,31 +11,27 @@
 
 subroutine SONATORB_PLOT(DENS,FILEBASE,CHARTYPE,ASS,BSS)
 
-use definitions, only: iwp, wp, u6
-use constants, only: Zero, One, Two
 use OneDat, only: sNoNuc, sNoOri
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NBASF, NBMX, NBSQ, NBST, NBTRI
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NBTRI, NBMX, NBASF, NBSQ, NBST
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: DENS(6,NBTRI)
 character(len=*), intent(in) :: FILEBASE
 character(len=8), intent(in) :: CHARTYPE
-integer(kind=IWP), intent(in) :: ASS, BSS
-character(len=25) FNAME
-character(len=16) KNUM
-character(len=16) FNUM, XNUM
-character(len=8) LABEL
-character CDIR
-real(kind=wp) Dummy(1)
-integer(kind=iwp) iDummy(7,8)
-real(kind=wp), allocatable :: SZZ(:), VEC(:), VEC2(:), DMAT(:), SCR(:)
-real(kind=wp), allocatable :: VNAT(:), EIG(:), OCC(:)
-integer(kind=iwp) ITYPE, NBMX2, IRC, IOPT, ICMP, ISYLAB, LS, LV, LE, ISYM, NB, I, LS1, LV1, LE1, ISTART, IEND, IDIR, INV, II2, &
-                  IOCC, J, IJ, JI, ID1, ID2, ISCR, II, I1, I2, LuXXVEC
+integer(kind=iwp), intent(in) :: ASS, BSS
+integer(kind=iwp) :: I, I1, I2, ICMP, ID1, ID2, IDIR, iDummy(7,8), IEND, II, II2, IJ, INV, IOCC, IOPT, IRC, ISCR, ISTART, ISYLAB, &
+                     ISYM, ITYPE, J, JI, LE, LE1, LS, LS1, LuXXVEC, LV, LV1, NB, NBMX2
+real(kind=wp) :: Dummy(1), X
+character(len=25) :: FNAME
+character(len=16) :: FNUM, KNUM, XNUM
+character(len=8) :: LABEL
+character :: CDIR
+real(kind=wp), allocatable :: DMAT(:), EIG(:), OCC(:), SCR(:), SZZ(:), VEC(:), VEC2(:), VNAT(:)
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=wp) X
 
 !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 ! PLOTTING SECTION
@@ -100,7 +96,7 @@ LS = 1
 LV = 1
 LE = 1
 VEC(:) = Zero
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NB = NBASF(ISYM)
   do I=1,NB**2,(NB+1)
     VEC(LV-1+I) = One
@@ -147,7 +143,7 @@ do IDIR=ISTART,IEND
   IOCC = 0
   LV = 1
   LE = 1
-  do ISYM=1,NSYM
+  do ISYM=1,nIrrep
     NB = NBASF(ISYM)
     if (NB == 0) cycle
 
@@ -256,7 +252,7 @@ do IDIR=ISTART,IEND
   LuxxVec = 50
   LuxxVec = isfreeunit(LuxxVec)
 
-  call WRVEC(FNAME,LUXXVEC,'CO',NSYM,NBASF,NBASF,VNAT,OCC,Dummy,iDummy,'* DENSITY FOR PROPERTY TYPE '//CHARTYPE//KNUM)
+  call WRVEC(FNAME,LUXXVEC,'CO',nIrrep,NBASF,NBASF,VNAT,OCC,Dummy,iDummy,'* DENSITY FOR PROPERTY TYPE '//CHARTYPE//KNUM)
 
   ! Test a few values
   !call ADD_INFO('SONATORB_PLOT',VNAT,1,4)

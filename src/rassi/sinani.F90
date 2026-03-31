@@ -11,21 +11,20 @@
 
 subroutine SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS,DIPSOm_SA)
 
-use Constants, only: cZero
-use Definitions, only: iwp, wp, u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: cZero, cOne
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: KDGN, IFUNCT, NSS
 complex(kind=wp), intent(in) :: DIPSOm(3,NSS,NSS)
 complex(kind=wp), intent(in) :: SPNSFS(3,NSS,NSS)
 real(kind=wp), intent(in) :: DIPSOm_SA
-complex(kind=wp) DIPSOmSA(3,KDGN,KDGN)
-integer(kind=iwp) l, Iso1, Jso2, Ico1, i, j, jCo1
-complex(kind=wp) SPNSOSA(3,KDGN,KDGN)
-complex(kind=wp) Z(NSS,NSS), MATL(NSS,NSS), FINL(NSS,NSS)
-complex(kind=wp) SPNSO(3,NSS,NSS)
-real(kind=wp) UMATR(NSS,NSS), UMATI(NSS,NSS), gtens(3), maxes(3,3)
-character(len=1) angm
+integer(kind=iwp) :: i, Ico1, Iso1, j, jCo1, Jso2, l
+real(kind=wp) :: gtens(3), maxes(3,3)
+character :: angm
+real(kind=wp), allocatable :: UMATI(:,:), UMATR(:,:)
+complex(kind=wp), allocatable :: DIPSOmSA(:,:,:), MATL(:,:), SPNSO(:,:,:), SPNSOSA(:,:,:), TEMP(:,:), Z(:,:)
 
 if (.false.) then
   write(u6,'(/)')
@@ -48,6 +47,7 @@ if (.false.) then
 
 end if !if (IPGLOB >= 4)
 
+call mma_allocate(DIPSOmSA,3,KDGN,KDGN,Label='DIPSOmSA')
 do l=1,3
   do Ico1=1,KDGN
     do Jco1=1,KDGN
@@ -84,9 +84,14 @@ if (.false.) then
 end if
 
 call ATENS_RASSI(DIPSOmSA,KDGN,gtens,maxes,3)
+call mma_deallocate(DIPSOmSA)
 
 if (.false.) then
 
+  call mma_allocate(UMATR,NSS,NSS,Label='UMATR')
+  call mma_allocate(UMATI,NSS,NSS,Label='UMATI')
+  call mma_allocate(SPNSO,3,NSS,NSS,Label='SPNSO')
+  call mma_allocate(Z,NSS,NSS,Label='Z')
   call get_dArray('UMATR_SINGLE',UMATR,NSS**2)
   call get_dArray('UMATI_SINGLE',UMATI,NSS**2)
   write(u6,'(/)')
@@ -110,7 +115,11 @@ if (.false.) then
       Z(i,j) = Z(i,j)+cmplx(UMATR(i,j),UMATI(i,j),kind=wp)
     end do
   end do
+  call mma_deallocate(UMATR)
+  call mma_deallocate(UMATI)
 
+  call mma_allocate(TEMP,NSS,NSS,Label='TEMP')
+  call mma_allocate(MATL,NSS,NSS,Label='MATL')
   do l=1,3
     do i=1,NSS
       do j=1,NSS
@@ -118,20 +127,17 @@ if (.false.) then
       end do
     end do
 
-    do i=1,NSS
-      do j=1,NSS
-        FINL(i,j) = cZero
-      end do
-    end do
-
-    call ADARASSI(NSS,Z,MATL,FINL)
+    call ZGEMM('C','N',NSS,NSS,NSS,cOne,Z,NSS,MATL,NSS,cZero,TEMP,NSS)
+    call ZGEMM('N','N',NSS,NSS,NSS,cOne,TEMP,NSS,Z,NSS,cZero,MATL,NSS)
 
     do i=1,NSS
       do j=1,NSS
-        SPNSO(L,i,j) = FINL(i,j)
+        SPNSO(L,i,j) = MATL(i,j)
       end do
     end do
   end do !l
+  call mma_deallocate(TEMP)
+  call mma_deallocate(MATL)
 
   write(u6,'(/)')
   write(u6,'(A)') repeat('#',120)
@@ -149,6 +155,9 @@ if (.false.) then
       write(u6,'(20(2F10.6,2X))') (SPNSO(l,Iso1,Jso2),Jso2=1,NSS)
     end do
   end do
+
+  call mma_deallocate(Z)
+  call mma_allocate(SPNSOSA,3,KDGN,KDGN,Label='SPNSOSA')
 
   do l=1,3
     do Ico1=1,KDGN
@@ -178,6 +187,8 @@ if (.false.) then
       write(u6,'(16(2F12.8,2x))') (SPNSOSA(l,Ico1,Jco1),Jco1=1,KDGN)
     end do
   end do
+  call mma_deallocate(SPNSOSA)
+  call mma_deallocate(SPNSO)
 
 end if
 

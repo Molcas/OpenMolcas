@@ -16,21 +16,20 @@ subroutine FOCK_RASSI(DINAO,FOCKAO)
 !  ONE-ELECTRON HAMILTONIAN MATRIX BEFORE THE CALL. THE MATRICES
 !  ARE STORED IN SYMMETRY-BLOCKED SQUARE FORMAT.
 
+use Symmetry_Info, only: MUL, nIrrep
+use rassi_data, only: NBASF, NBMX, NBSQ, NBSQPR, NBTRI, NISH
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use rassi_data, only: NBSQ, NBMX, NBASF, NBSQPR, NBTRI, NISH
 use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 FOCKAO(NBSQ), DINAO(NBSQ)
-integer KEEP(8), NBSX(8)
-integer NBTRPR(8)
-logical ISQARX
-real*8, allocatable :: PQRS(:), DTRI(:), SQBUF(:), FTRI(:)
-integer IRC, NSQBUF, INTBUF, NBTR, ISYM, NB, NFTRI, IDF, NPQ, NP, NQ, ISP, NBP, NIP, KEEPP, ISQ, NBQ, NIQ, NSPQ, KEEPQ, ISR, NBR, &
-        NIR, NSPQR, KEEPR, ISSMX, ISS, NBS, NIS, KEEPS, KEEPT, NBT, INUSE, NBPQ, NBRS, IOPT, IPQ, LPQ, IRSST, NQM, IFPQ, IDRS, &
-        NPQM, IFRS, IDPQ, II, NSYMX
-real*8 DF, FPQ
+real(kind=wp) :: DINAO(NBSQ), FOCKAO(NBSQ)
+integer(kind=iwp) :: IDF, IDPQ, IDRS, IFPQ, IFRS, II, INTBUF, INUSE, IOPT, IPQ, IRC, IRSST, ISP, ISQ, ISR, ISS, ISSMX, ISYM, &
+                     KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, LPQ, NB, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NBSX(8), NBT, NBTR, &
+                     NBTRPR(8), NFTRI, NIP, NIQ, NIR, NIS, NP, NPQ, NPQM, NQ, NQM, NSPQ, NSPQR, NSQBUF, NSYMX
+real(kind=wp) :: DF, FPQ
+logical(kind=iwp) :: ISQARX
+real(kind=wp), allocatable :: DTRI(:), FTRI(:), PQRS(:), SQBUF(:)
 
 ! RETRIEVE BASE DATA FROM UNIT LUORD:
 IRC = 0
@@ -46,7 +45,7 @@ call mma_allocate(DTRI,NBTRI,Label='DTRI')
 call mma_allocate(SQBUF,NSQBUF,Label='SQBUF')
 !PAM00 Nr of triangular matrices in previous symmetry blocks
 NBTR = 0
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NBTRPR(ISYM) = NBTR
   NB = NBASF(ISYM)
   NBTR = NBTR+(NB*(NB+1))/2
@@ -56,7 +55,7 @@ call mma_allocate(FTRI,NFTRI,Label='FTRI')
 FTRI(:) = Zero
 ! FOLD THE D MATRIX:
 IDF = 1
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NB = NBASF(ISYM)
   NPQ = NBSQPR(ISYM)
   do NP=1,NB
@@ -69,7 +68,7 @@ do ISYM=1,NSYM
   end do
 end do
 ! LOOP OVER ISP:
-do ISP=1,NSYM
+do ISP=1,nIrrep
   NBP = NBASF(ISP)
   NIP = NISH(ISP)
   KEEPP = KEEP(ISP)
@@ -176,7 +175,7 @@ end do ! isp
 ! ADD COULOMB CONTRIBUTIONS FROM TRIANGULAR STORAGE TO FOCKAO:
 !PAM00 OK -- Now add Coulomb contributions:
 IFPQ = 0
-do ISP=1,NSYM
+do ISP=1,nIrrep
   NBP = NBASF(ISP)
   do NP=1,NBP
     do NQ=1,NP

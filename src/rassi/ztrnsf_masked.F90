@@ -13,16 +13,15 @@
 
 subroutine ZTRNSF_MASKED(N,UR,UI,AR,AI,IJ,IST,INUM,JST,JNUM)
 
-use Constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: N, INUM, JNUM
-real*8 :: UR(N,N), UI(N,N)
-real*8 :: AR(N,N), AI(N,N)
-integer :: IJ(4), IST(INUM), JST(JNUM)
-real*8, allocatable, dimension(:,:) :: MR, MI, VR, VI, TR, TI
-integer :: I, J, II, JJ, NI, NJ
+integer(kind=iwp) :: N, IJ(4), INUM, IST(INUM), JNUM, JST(JNUM)
+real(kind=wp) :: UR(N,N), UI(N,N), AR(N,N), AI(N,N)
+integer(kind=iwp) :: I, II, J, JJ, NI, NJ
+real(kind=wp), allocatable :: MI(:,:), MR(:,:), TI(:,:), TR(:,:), VI(:,:), VR(:,:)
 
 NI = IJ(2)-IJ(1)+1
 NJ = IJ(4)-IJ(3)+1

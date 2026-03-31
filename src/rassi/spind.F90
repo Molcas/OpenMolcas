@@ -11,24 +11,19 @@
 
 subroutine SPIND(ISYOP,MS2OP,IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,PSI1,PSI2,SPD12)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use rassi_global_arrays, only: FSBANN1, FSBANN2
 use Symmetry_Info, only: MUL
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 PSI1(*), PSI2(*), SPD12(*)
-real*8 COEFF, OVERLAP_RASSI, OVLP
-integer IORBTAB(*), NASORB
-integer ISSTAB(*)
-integer IFSBTAB1(*), IFSBTAB2(*)
-integer IJSORB, IMODE, ISORB
-integer NDETS1, NDETS2
-integer JSORB
-integer ISYOP, MS2OP, KOINFO
-integer ISMLAB, ISPLAB, JSYM, JMS2, JSMLAB, JSPLAB
-external OVERLAP_RASSI
-real*8, allocatable :: ANN1(:), ANN2(:)
+integer(kind=iwp) :: ISYOP, MS2OP, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp) :: PSI1(*), PSI2(*), SPD12(*)
+integer(kind=iwp) :: IJSORB, IMODE, ISMLAB, ISORB, ISPLAB, JMS2, JSMLAB, JSORB, JSPLAB, JSYM, KOINFO, NASORB, NDETS1, NDETS2
+real(kind=wp) :: COEFF, OVLP
+real(kind=wp), allocatable :: ANN1(:), ANN2(:)
+real(kind=wp), external :: OVERLAP_RASSI
 
 !TEST write(u6,*) ' Test prints in SPIND.'
 ! Nr of active spin-orbitals

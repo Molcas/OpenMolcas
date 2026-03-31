@@ -13,10 +13,22 @@
 
 module Dens2HDF5
 
-use Definitions, only: wp
+use Symmetry_Info, only: nIrrep, MUL
+use rassi_data, only: NBASF
+use Cntrl, only: NSTATE
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
-integer, allocatable :: IdxState(:,:)
-real*8, parameter, private :: Thrs = 1.0e-14_wp
+implicit none
+private
+
+integer(kind=iwp), allocatable :: IdxState(:,:)
+real(kind=wp), parameter :: Thrs = 1.0e-14_wp
+
+public :: UpdateIdx
+#ifdef _HDF5_
+public :: StoreDens
+#endif
 
 contains
 
@@ -42,16 +54,13 @@ contains
 !***********************************************************************
 subroutine UpdateIdx(IndexE,nSS,USOR,USOI,MapSt)
 
-  use stdalloc, only: mma_allocate
-  use Cntrl, only: NSTATE, REDUCELOOP, LOOPDIVIDE, LOOPMAX
+  use Cntrl, only: LOOPDIVIDE, LOOPMAX, REDUCELOOP
 
-  implicit none
-  integer, dimension(nState), intent(in) :: IndexE
-  integer, intent(in) :: nSS
-  real*8, intent(in), optional :: USOR(nSS,nSS), USOI(nSS,nSS)
-  integer, intent(in), optional :: MapSt(nSS)
-  integer :: i, j, i_, j_, iState, jState, iSS, jSS, iEnd, jStart, jEnd
-  real*8 :: f1, f2
+  integer(kind=iwp), intent(in) :: IndexE(nState), nSS
+  real(kind=wp), intent(in), optional :: USOR(nSS,nSS), USOI(nSS,nSS)
+  integer(kind=iwp), intent(in), optional :: MapSt(nSS)
+  integer(kind=iwp) :: i, i_, iEnd, iSS, iState, j, j_, jEnd, jSS, jStart, jState
+  real(kind=wp) :: f1, f2
 
   if (.not. allocated(IdxState)) then
     call mma_Allocate(IdxState,nState,nState,Label='IdxState')
@@ -126,24 +135,19 @@ end subroutine UpdateIdx
 #ifdef _HDF5_
 subroutine StoreDens(EigVec)
 
+  use mh5, only: mh5_put_dset
   use rassi_aux, only: iDisk_TDM
   use rassi_global_arrays, only: JbNum
-  use mh5, only: mh5_put_dset
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use Cntrl, only: NSTATE, IFSO, IRREP
-  use cntrl, only: LuTDM
+  use rassi_data, only: NTDMZZ
+  use Cntrl, only: IFSO, IRREP, LuTDM
   use RASSIWfn, only: wfn_SFS_TDM, wfn_SFS_TSDM, wfn_SFS_WETDM
-  use Symmetry_Info, only: nSym => nIrrep, MUL
-  use rassi_data, only: NBASF, NTDMZZ
   use Constants, only: Zero
 
-  implicit none
-  real*8, intent(In) :: EigVec(nState,nState)
-  integer :: iState, jState, k, l, nThisTDMZZ
-  integer :: Job1, Job2, iSym1, iSym2, iSy12, iDisk, iEmpty, iOpt, iGo
-  logical isZero(3)
-  real*8, allocatable :: TDMZZ(:), TSDMZZ(:), WDMZZ(:), TDMIJ(:), TSDMIJ(:), WDMIJ(:)
-  real*8 :: f1, f2
+  real(kind=wp), intent(in) :: EigVec(nState,nState)
+  integer(kind=iwp) :: iDisk, iEmpty, iGo, iOpt, iState, iSy12, iSym1, iSym2, Job1, Job2, jState, k, l, nThisTDMZZ
+  logical(kind=iwp) :: isZero(3)
+  real(kind=wp) :: f1, f2
+  real(kind=wp), allocatable :: TDMIJ(:), TDMZZ(:), TSDMIJ(:), TSDMZZ(:), WDMIJ(:), WDMZZ(:)
 
   if (.not. allocated(IdxState)) return
   ! Transform TDMs to SF eigenstates
@@ -204,7 +208,7 @@ subroutine StoreDens(EigVec)
       end do
       if (all(isZero)) cycle
       nThisTDMZZ = 0
-      do iSym1=1,nSym
+      do iSym1=1,nIrrep
         iSym2 = Mul(iSy12,iSym1)
         nThisTDMZZ = nThisTDMZZ+NBASF(iSym1)*NBASF(iSym2)
       end do
@@ -222,7 +226,6 @@ subroutine StoreDens(EigVec)
   call mma_deAllocate(WDMIJ)
 
 end subroutine StoreDens
-#endif
 
 !***********************************************************************
 !  Transpose_TDM
@@ -241,21 +244,15 @@ end subroutine StoreDens
 !***********************************************************************
 subroutine Transpose_TDM(TDM,Symmetry)
 
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use Symmetry_Info, only: nSym => nIrrep, MUL
-  use rassi_data, only: NBASF
-
-  implicit none
-  real*8, intent(inout) :: TDM(*)
-  integer, intent(in) :: Symmetry
-  integer :: iSym1, iSym2, nTot, i, j
-  integer :: iBlock(0:8)
-  real*8, allocatable :: Tmp(:)
+  real(kind=wp), intent(inout) :: TDM(*)
+  integer(kind=iwp), intent(in) :: Symmetry
+  integer(kind=iwp) :: i, iBlock(0:8), iSym1, iSym2, j, nTot
+  real(kind=wp), allocatable :: Tmp(:)
 
   ! Compute the location of all the stored symmetry blocks
   nTot = 0
   iBlock(0) = 0
-  do iSym1=1,nSym
+  do iSym1=1,nIrrep
     iSym2 = Mul(Symmetry,iSym1)
     nTot = nTot+nBasF(iSym1)*nBasF(iSym2)
     iBlock(iSym1) = nTot
@@ -264,7 +261,7 @@ subroutine Transpose_TDM(TDM,Symmetry)
   call mma_Allocate(Tmp,nTot,Label='Tmp')
   call dCopy_(nTot,TDM,1,Tmp,1)
   ! Transpose symmetry block (a,b) onto symmetry block (b,a)
-  do iSym1=1,nSym
+  do iSym1=1,nIrrep
     iSym2 = Mul(Symmetry,iSym1)
     do i=1,nBasF(iSym2)
       do j=1,nBasF(iSym1)
@@ -275,5 +272,6 @@ subroutine Transpose_TDM(TDM,Symmetry)
   call mma_deAllocate(Tmp)
 
 end subroutine Transpose_TDM
+#endif
 
 end module Dens2HDF5

@@ -16,41 +16,37 @@ subroutine TMOMInt(wavevector,iOpt)
 !                                                                      *
 !***********************************************************************
 
-use definitions, only: iwp, wp
-use MpmC
-use Integral_interfaces, only: int_kernel, int_mem
 !#define _DEBUGPRINT_
+use Integral_interfaces, only: int_kernel, int_mem
+
 #ifdef _DEBUGPRINT_
-use definitions, only: u6
 use OneDat, only: sOpSiz
 use Sizes_of_Seward, only: S
 use Basis_Info, only: nBas
-use Symmetry_Info, only: nIrrep, MulTab => Mul
+use Symmetry_Info, only: Mul, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: u6
 #endif
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-procedure(int_kernel) :: EMFInt
-procedure(int_mem) :: EMFMem
 real(kind=wp), intent(in) :: wavevector(3)
 integer(kind=iwp), intent(in) :: iOpt
-integer(kind=iwp), allocatable :: ipList(:), OperI(:), OperC(:)
+integer(kind=iwp) :: nComp, nOrdOp
+real(kind=wp) :: dum(1), rHrmt
+character(len=8) :: Label
+integer(kind=iwp), allocatable :: ipList(:), OperC(:), OperI(:)
 real(kind=wp), allocatable :: CoorO(:), Nuc(:)
+procedure(int_kernel) :: EMFInt
+procedure(int_mem) :: EMFMem
 #ifdef _DEBUGPRINT_
-real(kind=wp), allocatable :: Int_R(:), Int_I(:), Temp_Int(:)
-real(kind=wp), allocatable :: Int_R_O(:), Int_I_O(:)
-integer(kind=iwp) IOFF(8,8)
+integer(kind=iwp) :: i, iCase, iComp, idum(1), ij, ilen, iMltpl, IOFF(8,8), iOpt0, iOpt1, iRc, iSyLbl, iSyLbl_TMOM, ix, iy, iz, j, &
+                     jOff, Len_, Length, nInts, nInts_TMOM, Phase
+real(kind=wp), allocatable :: Fact, Int_I(:), Int_I_O(:), Int_R(:), Int_R_O(:), Temp, Temp_Int(:), x, xy, xyz
 #endif
+
 #include "warnings.h"
-character(len=8) Label
-real(kind=wp) dum(1), rHrmt
-integer(kind=iwp) nComp, nOrdOp
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) idum(1), i, iCase, ij, ilen, iMltpl, iOpt0, iOpt1, iRc, iSyLbl, ix, iy, iz, j, jOff, Len, Len_, nInts, iComp, &
-                  iSyLbl_TMOM, nInts_TMOM
-real(kind=wp) Fact, Phase, Temp, x, xy, xyz
-#endif
 ! ipList: list of pointers to the integrals of each component
 !         of the operator
 ! OperI: list which irreps a particular component of the operator
@@ -124,19 +120,19 @@ if (iOpt == 2) then
   Label = 'TMOM0  I'
   iComp = 1
   call RdOne(iRc,iOpt0,Label,iComp,Int_I_O,iSyLbl_TMOM)
-  Len = 0
+  Length = 0
   IOFF(:,:) = -1
   do i=1,nIrrep
     do j=1,i
-      ij = MulTab(i,j)-1
+      ij = Mul(i,j)-1
       if (iand(2**ij,iSyLbl_TMOM) /= 0) then
-        IOFF(i,j) = Len+1
+        IOFF(i,j) = Length+1
         if (i == j) then
           Len_ = nBas(i-1)*(nBas(i-1)+1)/2
         else
           Len_ = nBas(i-1)*nBas(j-1)
         end if
-        Len = Len+Len_
+        Length = Length+Len_
       end if
     end do
   end do
@@ -173,12 +169,12 @@ if (iOpt == 2) then
         call mma_allocate(Temp_Int,nInts+4,Label='Temp_Int')
         call RdOne(iRc,iOpt0,Label,iComp,Temp_Int,iSyLbl)
 
-        Len = 0
+        Length = 0
         do i=1,nIrrep
           do j=1,i
-            ij = MulTab(i,j)-1
+            ij = Mul(i,j)-1
             if (iand(2**ij,iSyLbl) /= 0) then
-              jOff = Len+1
+              jOff = Length+1
               if (i == j) then
                 Len_ = nBas(i-1)*(nBas(i-1)+1)/2
               else
@@ -191,7 +187,7 @@ if (iOpt == 2) then
                 ! Contribution to the imaginary part
                 call DaXpY_(Len_,Fact,Temp_Int(jOff),1,Int_I(IOFF(i,j)),1)
               end if
-              Len = Len+Len_
+              Length = Length+Len_
             end if
           end do
         end do
@@ -211,10 +207,10 @@ if (iOpt == 2) then
 
 # define _COMPARE_
 # ifdef _COMPARE_
-  Len = 0
+  Length = 0
   do i=1,nIrrep
     do j=1,i
-      ij = MulTab(i,j)-1
+      ij = Mul(i,j)-1
       if (iand(2**ij,iSyLbl_TMOM) /= 0) then
         if (i == j) then
           Len_ = nBas(i-1)*(nBas(i-1)+1)/2
@@ -222,18 +218,18 @@ if (iOpt == 2) then
           Len_ = nBas(i-1)*nBas(j-1)
         end if
         do iLen=1,Len_
-          temp = abs(Int_R_O(Len+iLen)-Int_R(Len+iLen))/max(abs(Int_R_O(Len+iLen)),abs(Int_R(Len+iLen)),1.0e-8_wp)
+          temp = abs(Int_R_O(Length+iLen)-Int_R(Length+iLen))/max(abs(Int_R_O(Length+iLen)),abs(Int_R(Length+iLen)),1.0e-8_wp)
           if (temp > 1.0e-2_wp) then
             write(u6,*) 'isym,jsym,iLen=',i,j,iLen
-            write(u6,*) 'Int_R,Int_Q=',Int_R_O(Len+iLen),Int_R(Len+iLen)
+            write(u6,*) 'Int_R,Int_Q=',Int_R_O(Length+iLen),Int_R(Length+iLen)
           end if
-          temp = abs(Int_I_O(Len+iLen)-Int_I(Len+iLen))/max(abs(Int_I_O(Len+iLen)),abs(Int_I(Len+iLen)),1.0e-8_wp)
+          temp = abs(Int_I_O(Length+iLen)-Int_I(Length+iLen))/max(abs(Int_I_O(Length+iLen)),abs(Int_I(Length+iLen)),1.0e-8_wp)
           if (temp > 1.0e-2_wp) then
             write(u6,*) 'isym,jsym,iLen=',i,j,iLen
-            write(u6,*) 'Int_I,Int_J=',Int_I_O(Len+iLen),Int_I(Len+iLen)
+            write(u6,*) 'Int_I,Int_J=',Int_I_O(Length+iLen),Int_I(Length+iLen)
           end if
         end do
-        Len = Len+Len_
+        Length = Length+Len_
       end if
     end do
   end do

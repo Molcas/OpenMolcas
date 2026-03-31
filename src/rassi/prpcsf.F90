@@ -11,14 +11,13 @@
 
 subroutine PRPCSF(IOPEN,NCPL,ICOUP)
 
-use definitions, only: iwp, u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: IOPEN, NCPL
-integer(kind=iwp), intent(in) :: ICOUP(IOPEN,NCPL)
-character(len=1) :: CPLSMB(0:1) = ['d','u']
-character(len=24) FORM
-integer(kind=iwp) N, I, J
+integer(kind=iwp), intent(in) :: IOPEN, NCPL, ICOUP(IOPEN,NCPL)
+integer(kind=iwp) :: I, J, N
+character(len=24) :: FRMT
+character, parameter :: CPLSMB(0:1) = ['d','u']
 
 if ((IOPEN < 0) .or. (NCPL < 0)) then
   call WarningMessage(2,'Program bug: Erroneous call to PRPCSF.')
@@ -34,8 +33,8 @@ if ((IOPEN == 0) .or. (NCPL == 0)) then
   write(u6,*) 'PRPCSF: NCPL =',NCPL
 else
   N = 80/(7+IOPEN)
-  write(FORM,'(A1,I2,A,I2,A4)') '(',N,'(1X,I5,1X,',IOPEN,'A1))'
-  write(u6,FORM) (I,(CPLSMB(ICOUP(J,I)),J=1,IOPEN),I=1,NCPL)
+  write(FRMT,'(A1,I2,A,I2,A4)') '(',N,'(1X,I5,1X,',IOPEN,'A1))'
+  write(u6,FRMT) (I,(CPLSMB(ICOUP(J,I)),J=1,IOPEN),I=1,NCPL)
 end if
 
 end subroutine PRPCSF

@@ -24,39 +24,35 @@ subroutine TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
 !****************************************************************
 
 use Fock_util_global, only: Fake_CMO2
+use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use Cntrl, only: ALGO, dmpk, ERFNUC, LuOrd, Nscreen, RFPert
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: CHFRACMEM, NASH, NASHT, NBASF, NBSQ, NBTRI, NCMO, NISH, NOSH
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs
-use Definitions, only: wp
 #endif
-use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Cntrl, only: ERFNUC, RFPert
-use cntrl, only: ALGO, Nscreen, dmpk
-use cntrl, only: LuOrd
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NCMO, NBSQ, NISH, NASH, NASHT, CHFRACMEM, NBASF, NBTRI, NOSH
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NGAM1, NGAM2
-real*8 CMO1(NCMO), CMO2(NCMO), FOCKMO(NGAM1), TUVX(NGAM2)
-integer KEEP(8), NBSX(8), nAux(8)
-logical ISQARX
-type(DSBA_Type) Ash(2), MO1(2), MO2(2), DLT(1), FLT(1), KSQ, FAO, Temp_SQ, DInAO
-logical IfTest, FoundTwoEls, DoCholesky
-real*8, allocatable :: Prod(:)
-integer iOpt, IRC, nSymX, iSym, NB1, NB2, I, nDINAO, NFAO, IOFF, IKK, IOFF1, IOFF2, IOFF3, JKK, NPROD, ISTFMO, ISTC, NA, NI, NO, &
-        NB, ISTA, IERR
-real*8 ECORE1, ECORE2, ECORE
-real*8, external :: DDot_
+integer(kind=iwp) :: NGAM1, NGAM2
+real(kind=wp) :: CMO1(NCMO), CMO2(NCMO), ECORE, FOCKMO(NGAM1), TUVX(NGAM2)
+integer(kind=iwp) :: I, IERR, IKK, IOFF, IOFF1, IOFF2, IOFF3, iOpt, IRC, ISTA, ISTC, ISTFMO, iSym, JKK, KEEP(8), NA, nAux(8), NB, &
+                     NB1, NB2, NBSX(8), nDINAO, NFAO, NI, NO, NPROD, nSymX
+real(kind=wp) :: ECORE1, ECORE2
 #ifdef _MOLCAS_MPP_
-real*8 SCX
+real(kind=wp) :: SCX
 #endif
+logical(kind=iwp) :: DoCholesky, FoundTwoEls, IfTest, ISQARX
+type(DSBA_Type) :: Ash(2), DInAO, DLT(1), FAO, FLT(1), KSQ, MO1(2), MO2(2), Temp_SQ
+real(kind=wp), allocatable :: Prod(:)
+real(kind=wp), external :: DDot_
 
-IfTest = .false.
 #ifdef _DEBUGPRINT_
 IfTest = .true.
+#else
+IfTest = .false.
 #endif
 ! THE FOLLOWING PROGRAMS USE THE ORDERED INTEGRAL FILE FOR BOTH
 ! THE FOCKMO MATRIX AND THE TUVX ARRAY. THEREFORE, IT IS IMPERATIVE
@@ -87,14 +83,14 @@ if (.not. DoCholesky) then
     write(u6,*) ' RECEIVED WHEN CALLING GETORD.'
     call ABEND()
   end if
-  if (NSYMX /= NSYM) then
+  if (NSYMX /= nIrrep) then
     write(u6,*)
     write(u6,*) '     *** ERROR IN SUBROUTINE TRINT ***'
     write(u6,*) '     INCOMPATIBLE NUMBERS OF IRRED. REP.'
     write(u6,*)
     call ABEND()
   end if
-  do ISYM=1,NSYM
+  do ISYM=1,nIrrep
     NB1 = NBASF(ISYM)
     NB2 = NBSX(ISYM)
     if (NB1 /= NB2) then
@@ -105,7 +101,7 @@ if (.not. DoCholesky) then
       call ABEND()
     end if
   end do
-  do I=1,NSYM
+  do I=1,nIrrep
     if (KEEP(I) == 0) goto 10
     if (NOSH(I) > 0) goto 901
 10  continue
@@ -115,11 +111,11 @@ end if
 
 ! CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
 NDINAO = NBSQ
-call Allocate_DT(DInAO,nBasF,nBasF,nSym)
+call Allocate_DT(DInAO,nBasF,nBasF,nIrrep)
 call DIMAT(CMO1,CMO2,DINAO%A0)
 
 NFAO = NBSQ
-call Allocate_DT(FAO,nBasF,nBasF,nSym)
+call Allocate_DT(FAO,nBasF,nBasF,nIrrep)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -143,7 +139,7 @@ if (.not. DoCholesky) then     ! Conventional integrals
 
   ! ADD IN THE TWO-ELECTRON CONTRIBUTIONS TO THE FOCKAO MATRIX:
 
-  call Allocate_DT(Temp_SQ,nBasF,nBasF,nSym)
+  call Allocate_DT(Temp_SQ,nBasF,nBasF,nIrrep)
   Temp_SQ%A0(:) = Zero
   call FOCK_RASSI(DINAO%A0,Temp_SQ%A0)
 
@@ -152,7 +148,7 @@ if (.not. DoCholesky) then     ! Conventional integrals
   call Deallocate_DT(Temp_SQ)
 
 # ifdef _DEBUGPRINT_
-  do i=1,nSym
+  do i=1,nIrrep
     call CHO_OUTPUT(FAO%SB(i)%A2,1,nBasF(i),1,nBasF(i),nBasF(i),nBasF(i),1,u6)
   end do
 # endif
@@ -173,19 +169,19 @@ else       ! RI/CD integrals
     call AbEnd()
   end if
 
-  call Allocate_DT(DLT(1),nBasF,nBasF,nSym,aCase='TRI')
-  call Fold_Mat(nSym,nBasF,DINAO%A0,DLT(1)%A0)
+  call Allocate_DT(DLT(1),nBasF,nBasF,nIrrep,aCase='TRI')
+  call Fold_Mat(nIrrep,nBasF,DINAO%A0,DLT(1)%A0)
 
 # ifdef _DEBUGPRINT_
 
-  do i=1,nSym
+  do i=1,nIrrep
     call cho_output(DInAO%SB(i)%A2,1,nBasF(i),1,nBasF(i),nBasF(i),nBasF(i),1,u6)
     call triprt('DLT','',DLT(1)%SB(i)%A1,nBasF(i))
   end do
 
 # endif
 
-  call Allocate_DT(FLT(1),nBasF,nBasF,nSym,aCase='TRI')
+  call Allocate_DT(FLT(1),nBasF,nBasF,nIrrep,aCase='TRI')
 
   ! GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
   ! PUT IT INTO A FOCK MATRIX IN AO BASIS:
@@ -217,13 +213,13 @@ else       ! RI/CD integrals
     !                                                                  !
     ! reorder the MOs to fit Cholesky needs
 
-    call Allocate_DT(MO1(1),nIsh,nBasF,nSym)
-    call Allocate_DT(MO1(2),nIsh,nBasF,nSym)
-    call Allocate_DT(MO2(1),nAsh,nBasF,nSym)
-    call Allocate_DT(MO2(2),nAsh,nBasF,nSym)
+    call Allocate_DT(MO1(1),nIsh,nBasF,nIrrep)
+    call Allocate_DT(MO1(2),nIsh,nBasF,nIrrep)
+    call Allocate_DT(MO2(1),nAsh,nBasF,nIrrep)
+    call Allocate_DT(MO2(2),nAsh,nBasF,nIrrep)
 
     ioff = 0
-    do iSym=1,nSym
+    do iSym=1,nIrrep
 
       do ikk=1,nIsh(iSym)
 
@@ -271,14 +267,14 @@ else       ! RI/CD integrals
     !                                                                  !
 
     nAux(:) = nIsh(:)+nAsh(:)
-    call Allocate_DT(MO1(1),nBasF,nAux,nSym,Ref=CMO1)
-    call Allocate_DT(MO1(2),nBasF,nAux,nSym,Ref=CMO2)
+    call Allocate_DT(MO1(1),nBasF,nAux,nIrrep,Ref=CMO1)
+    call Allocate_DT(MO1(2),nBasF,nAux,nIrrep,Ref=CMO2)
 
     ! *** Only the active orbitals MO coeff need reordering
-    call Allocate_DT(Ash(1),nAsh,nBasF,nSym)
-    call Allocate_DT(Ash(2),nAsh,nBasF,nSym)
+    call Allocate_DT(Ash(1),nAsh,nBasF,nIrrep)
+    call Allocate_DT(Ash(2),nAsh,nBasF,nIrrep)
 
-    do iSym=1,nSym
+    do iSym=1,nIrrep
 
       do ikk=1,nAsh(iSym)
         jkk = nIsh(iSym)+ikk
@@ -299,7 +295,7 @@ else       ! RI/CD integrals
       call CHO_LK_RASSI(DLT,MO1,FLT,FAO,TUVX,nGAM2,Ash,nScreen,dmpk)
     else
 
-      call Allocate_DT(KSQ,nBasF,nBasF,nSym)
+      call Allocate_DT(KSQ,nBasF,nBasF,nIrrep)
       KSQ%A0(:) = Zero
 
       call CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,FAO,TUVX,nGAM2,Ash,nScreen,dmpk)
@@ -321,7 +317,7 @@ else       ! RI/CD integrals
   !                                                                    !
 
   if (Fake_CMO2) then
-    do i=1,nSym
+    do i=1,nIrrep
       call SQUARE(FLT(1)%SB(i)%A1,FAO%SB(i)%A2,1,nBasF(i),nBasF(i))
     end do
   end if
@@ -356,7 +352,7 @@ call Deallocate_DT(DInAO)
 
 ! TRANSFORM THE FOCK MATRIX TO MO BASIS:
 NPROD = 0
-do I=1,NSYM
+do I=1,nIrrep
   NPROD = max(NPROD,NASH(I)*NBASF(I))
 end do
 
@@ -365,7 +361,7 @@ call FZero(PROD,NPROD)
 ISTFMO = 1
 ISTC = 1
 call FZERO(FOCKMO,NGAM1)
-do ISYM=1,NSYM
+do ISYM=1,nIrrep
   NA = NASH(ISYM)
   NI = NISH(ISYM)
   NO = NI+NA
@@ -409,8 +405,8 @@ end if
 return
 901 continue
 write(u6,*) ' ERROR IN KEEP PARAMETERS ON ORDINT FILE.'
-write(u6,'(A,8I5)') ' KEEP ARRAY:',(KEEP(I),I=1,NSYM)
-write(u6,'(A,8I5)') ' NASH ARRAY:',(NASH(I),I=1,NSYM)
+write(u6,'(A,8I5)') ' KEEP ARRAY:',(KEEP(I),I=1,nIrrep)
+write(u6,'(A,8I5)') ' NASH ARRAY:',(NASH(I),I=1,nIrrep)
 write(u6,*) ' A NON-ZERO KEEP PARAMETER INDICATES THAT BASIS'
 write(u6,*) ' FUNCTIONS WITH A SPECIFIC SYMMETRY LABEL HAS'
 write(u6,*) ' BEEN SKIPPED. THIS IS POSSIBLE ONLY IF INACTIVE'

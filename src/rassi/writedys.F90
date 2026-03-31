@@ -20,27 +20,21 @@
 
 subroutine WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
 
-use Cntrl, only: NSTATE, DYSEXPSF
-use Symmetry_Info, only: nSym => nIrrep
+use Cntrl, only: DYSEXPSF, NSTATE
+use Symmetry_Info, only: nIrrep
 use rassi_data, only: NBASF
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer NZ
-real*8 DYSAMPS(NSTATE,NSTATE)
-real*8 SFDYS(NZ,NSTATE,NSTATE)
-real*8 ENERGY(NSTATE)
-integer DYSCIND
-integer NDUM
-integer ORBNUM
-real*8 DYSEN(NSTATE)
-real*8 AMPS(NSTATE)
-real*8 CMO(NZ*NSTATE)
-character(len=30) Filename
-character(len=80) TITLE
-integer ISTATE, JSTATE, LUNIT
-integer, external :: IsFreeUnit
+integer(kind=iwp) :: NZ
+real(kind=wp) :: DYSAMPS(NSTATE,NSTATE), SFDYS(NZ,NSTATE,NSTATE), ENERGY(NSTATE)
+integer(kind=iwp) :: DYSCIND, ISTATE, JSTATE, LUNIT, NDUM, ORBNUM
+character(len=80) :: TITLE
+character(len=30) :: Filename
+real(kind=wp), allocatable :: AMPS(:), CMO(:), DYSEN(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !+++  J. Creutzberg, J. Norell  - 2018 (.molden export )
 
@@ -48,15 +42,19 @@ integer, external :: IsFreeUnit
 ! matrix from RASSCF. This will only rarely be needed for regular
 ! Dyson calculations so we will leave it out for now.
 
+call mma_allocate(CMO,NZ*NSTATE,Label='CMO')
+call mma_allocate(DYSEN,NSTATE,Label='DYSEN')
+call mma_allocate(AMPS,NSTATE,Label='AMPS')
+
 do JSTATE=1,DYSEXPSF
 
   ! For each initial state JSTATE up to DYSEXPSF we will gather all the obtained Dysorbs
   ! and export to a shared .molden file
   DYSCIND = 0 ! Orbital coeff. index
   ORBNUM = 0 ! Dysorb index for given JSTATE
-  CMO = Zero ! Orbital coefficients
-  DYSEN = Zero ! Orbital energies
-  AMPS = Zero ! Transition amplitudes (shown as occupations)
+  CMO(:) = Zero ! Orbital coefficients
+  DYSEN(:) = Zero ! Orbital energies
+  AMPS(:) = Zero ! Transition amplitudes (shown as occupations)
 
   do ISTATE=JSTATE+1,NSTATE
 
@@ -80,10 +78,14 @@ do JSTATE=1,DYSEXPSF
     write(filename,'(A,I0)') 'DYSORB.SF.',JSTATE
     LUNIT = IsFreeUnit(50)
     write(TITLE,'(A,I0)') '* Spin-free Dyson orbitals for state ',JSTATE
-    call WRVEC_DYSON(filename,LUNIT,NSYM,NBASF,ORBNUM,CMO,AMPS,DYSEN,trim(TITLE),NZ)
+    call WRVEC_DYSON(filename,LUNIT,nIrrep,NBASF,ORBNUM,CMO,AMPS,DYSEN,trim(TITLE),NZ)
     close(LUNIT)
   end if
 
 end do ! JSTATE
+
+call mma_deallocate(CMO)
+call mma_deallocate(DYSEN)
+call mma_deallocate(AMPS)
 
 end subroutine WRITEDYS

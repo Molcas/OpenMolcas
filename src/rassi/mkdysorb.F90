@@ -13,25 +13,19 @@
 
 subroutine MKDYSORB(IORBTAB,ISSTAB,IFSBTAB1,IFSBTAB2,PSI1,PSI2,IF10,IF01,DYSAMP,DYSCOF)
 
-use Constants, only: One, Zero
-use stdalloc, only: mma_allocate, mma_deallocate
 use rassi_global_arrays, only: FSBANN1, FSBANN2
-use Definitions, only: u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IORBTAB(*)
-integer ISSTAB(*)
-integer IFSBTAB1(*), IFSBTAB2(*)
-real*8 PSI1(*), PSI2(*)
-logical IF10, IF01
-real*8 DYSAMP, DYSCOF(*)
-real*8 COEFF, OVLP
-real*8, external :: OVERLAP_RASSI
-integer NASORB
-integer IMODE, ISORB
-integer NDETS1, NDETS2
-integer JSORB
-real*8, allocatable :: ANN1(:), ANN2(:)
+integer(kind=iwp) :: IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
+real(kind=wp) :: PSI1(*), PSI2(*), DYSAMP, DYSCOF(*)
+logical(kind=iwp) :: IF10, IF01
+integer(kind=iwp) :: IMODE, ISORB, JSORB, NASORB, NDETS1, NDETS2
+real(kind=wp) :: COEFF, OVLP
+real(kind=wp), allocatable :: ANN1(:), ANN2(:)
+real(kind=wp), external :: OVERLAP_RASSI
 
 ! +++ J. Norell 12/7 - 2018
 ! Calculates the Dyson orbital between two states with

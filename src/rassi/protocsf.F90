@@ -22,11 +22,13 @@ subroutine PROTOCSF(NPEL,MLTPL,NPCSFSZ,IPCSFCP)
 ! and NGENE(N,2*S+1) is in general the number of genealogical
 ! couplings of N electrons to obtain spin S.
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-dimension IPCSFCP(NPEL,NPCSFSZ)
-integer UPCPL, DWNCPL
-parameter(UPCPL=1,DWNCPL=0)
+implicit none
+integer(kind=iwp) :: NPEL, MLTPL, NPCSFSZ, IPCSFCP(NPEL,NPCSFSZ)
+integer(kind=iwp) :: ISP2, L, N, ND, NPCSF, NPELD, NPELU, NU
+integer(kind=iwp), parameter :: DWNCPL = 0, UPCPL = 1
+integer(kind=iwp), external :: NGENE
 
 if (NPEL == 0) return
 ISP2 = MLTPL-1

@@ -20,12 +20,13 @@ subroutine ProtoSD(NPELA,NPELB,NPSDSZ,IPSDMS)
 ! is over only the alpha spins, enumerated j=1..NPELA,
 ! while k is the orbital with the j-th alpha electron.
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-dimension IPSDMS(NPELA+NPELB,NPSDSZ)
-dimension ITMP(50)
-integer ASPIN, BSPIN
-parameter(ASPIN=1,BSPIN=0)
+implicit none
+integer(kind=iwp) :: NPELA, NPELB, NPSDSZ, IPSDMS(NPELA+NPELB,NPSDSZ)
+integer(kind=iwp) :: ITMP(50), J, K, L, NDET, NPORB
+integer(kind=iwp), parameter :: ASPIN = 1, BSPIN = 0
+integer(kind=iwp), external :: NOVERM
 
 if (NPELA < 0) goto 999
 if (NPELB < 0) goto 999

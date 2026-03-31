@@ -11,14 +11,14 @@
 
 subroutine NEWGASTAB(NSYM,NGAS,NGASORB,NGASLIM,ICASE)
 
+use rassi_global_arrays, only: REST1, REST2
 use stdalloc, only: mma_allocate
-use rassi_global_arrays, only: REST1, REST2, REST
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer NSYM, NGAS, NGASORB(NSYM,NGAS), NGASLIM(2,NGAS), ICASE
-integer NSIZE, ITYPE
-integer IGAS, ISUM, ISYM, KORB, KREST, LPOS
+integer(kind=iwp) :: NSYM, NGAS, NGASORB(NSYM,NGAS), NGASLIM(2,NGAS), ICASE
+integer(kind=iwp) :: IGAS, ISUM, ISYM, ITYPE, KORB, KREST, LPOS, NSIZE
+integer(kind=iwp), pointer :: REST(:)
 
 NSIZE = 4+(NGAS+1)*(NSYM+1)+2*NGAS
 ITYPE = 91
@@ -29,9 +29,11 @@ select case (ICASE)
   case (2)
     call mma_allocate(REST2,NSIZE,Label='REST2')
     REST => REST2(:)
-  case DEFAULT
+  case default
     write(u6,*) 'NEWGASTAB: Illegal ICASE value'
     write(u6,*) 'ICASE=',ICASE
+    call Abend()
+    REST => REST1(:) !dummy
 end select
 REST(1) = NSIZE
 REST(2) = ITYPE

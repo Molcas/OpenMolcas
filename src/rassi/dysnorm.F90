@@ -17,31 +17,26 @@
 
 subroutine DYSNORM(CMOA,DYSCMO,NORM)
 
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NBASF, NCMO, NOSH, NOSHT
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One, Zero
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NCMO, NBASF, NOSH, NOSHT
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer :: isym
-real*8 NORM, NORMSCR
-integer :: nb, nbast, nbast1, nbast2
-real*8, allocatable :: SAO(:), IAO(:), Scr(:), Scr2(:)
-real*8, allocatable :: Dysab(:), Dysab2(:)
+real(kind=wp) :: CMOA(*), DYSCMO(*), NORM
+integer(kind=iwp) :: IC, iOff1, iOff2, iOpt, iRc, ist, ista, istacc(8), istao(8), istc, istca, istcb, istcc, istcmo(8), isy1, &
+                     iSyLbl, isym, nb, nb1, nbast, nbast1, nbast2, ndys, no1, nscr
+real(kind=wp) :: NORMSCR
 character(len=8) :: Label
-integer :: iOff1, iOff2
-integer :: iOpt, iSyLbl, iRc
-integer :: IC, istca, istcb, ist, ista, istcc, istc, ndys
-real*8 DYSCMO(*), CMOA(*)
-integer :: istcmo(8), istao(8), istacc(8)
-integer no1, nb1, nscr, isy1
-real*8, external :: DDOT_
+real(kind=wp), allocatable :: Dysab(:), Dysab2(:), IAO(:), SAO(:), Scr(:), Scr2(:)
+real(kind=wp), external :: DDOT_
 
 !============================================================
 nbast = 0
 nbast1 = 0
 nbast2 = 0
-do isym=1,nsym
+do isym=1,nIrrep
   nb = NBASF(isym)
   nbast = nbast+nb
   nbast1 = nbast1+(nb*(nb+1))/2
@@ -63,7 +58,7 @@ Label = 'Mltpl  0'
 call RdOne(iRc,iOpt,Label,IC,SAO,iSyLbl)
 iOff1 = 0
 iOff2 = 0
-do iSym=1,nSym
+do iSym=1,nIrrep
   nb = nBasf(iSym)
   if (nb > 0) then
     call mma_allocate(Scr,nb*nb)
@@ -82,7 +77,7 @@ call mma_deallocate(SAO)
 IST = 1
 ISTA = 1
 ISTCC = 1
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   ISTCMO(ISY1) = IST
   ISTAO(ISY1) = ISTA
   ISTACC(ISY1) = ISTCC
@@ -94,7 +89,7 @@ end do
 
 NSCR = NCMO
 NDYS = 1
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   ISTCB = ISTCMO(ISY1)
   ISTCA = ISTAO(ISY1)
   ISTC = ISTACC(ISY1)

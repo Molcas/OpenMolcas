@@ -16,24 +16,23 @@ use rassi_aux, only: ipglob
 #ifndef _DMRG_
 use rasscf_global, only: doDMRG
 #endif
-use cntrl, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
-use Cntrl, only: NJOB, NSTATE, NPROP, NSOPR, CITHR, NSOThr_Prt, SOThr_Prt, MXPROP, PRSXY, PRDIPVEC, PRORB, PRTRA, PRCI, CIH5, &
-                 IFHAM, IFEJOB, IFSHFT, IFHDIA, IFHEXT, IFHEFF, IFHCOM, HAVE_HEFF, HAVE_DIAG, NOHAM, IFSO, IFNTO, NATO, BINA, &
-                 IFTRD1, IFTRD2, IFTDM, RFPert, ToFile, PRXVR, PRXVS, PRMER, PRMEE, PRMES, IFGCAL, EPRThr, EPRAThr, IFXCAL, &
-                 IFMCAL, HOP, TRACK, ONLY_OVERLAPS, DIPR, OSThr_DipR, QIPR, OSThr_QIPR, QIALL, DYSO, DYSEXPORT, TDYS, OCAN, DCHS, &
-                 DCHO, DO_TMOM, PRRAW, PRWEIGHT, TOLERANCE, REDUCELOOP, LOOPDIVIDE, LOOPMAX, TMGR_Thrs, Do_SK, Do_Pol, L_Eff, &
-                 DoCD, RSThr, RSPR, FORCE_NON_AO_TDM, IFDCPL, LPRPR, LHAMI, IFATCALSA, IFGTCALSA, IFGTSHSA, IFACAL, IFACALFC, &
-                 IFACALSD, NOSO, IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME, PNAME, PTYPE, SOPRNM, SOPRTP, PRXVE, MINAME
-use cntrl, only: LuOne, FnOne, LuOrd, FnOrd, LuIph, LuExc, FnExc, LuMck, LuTOM, FnTOM, LuEig, FnEig
+use Cntrl, only: BINA, CIH5, CITHR, DCHO, DCHS, DIPR, Do_Pol, Do_SK, DO_TMOM, DoCD, DYSEXPORT, DYSO, EPRAThr, EPRThr, FnEig, &
+                 FnTOM, FORCE_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HOP, IFACAL, IFACALFC, IFACALSD, IFArgU, IFATCALSA, IFCURD, &
+                 IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFMCAL, IFNTO, IFSHFT, IFSO, &
+                 IFTDM, IFTRD1, IFTRD2, IFXCAL, JBNAME, L_Eff, LHAMI, LOOPDIVIDE, LOOPMAX, LPRPR, LuEig, LuExc, LuIph, LuMck, &
+                 LuOne, LuOrd, LuTOM, MINAME, MXPROP, NATO, NBINA, NJOB, NOHAM, NOSO, NPROP, NrNATO, NSOPR, NSOThr_Prt, NSTATE, &
+                 OCAN, ONLY_OVERLAPS, OSThr_DipR, OSThr_QIPR, PNAME, PRCI, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, &
+                 PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, PTYPE, QIALL, QIPR, REDUCELOOP, RFPert, RSPR, RSThr, SODIAGNSTATE, &
+                 SONATNSTATE, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDIPMIN, TDYS, TMGR_Thrs, ToFile, TOLERANCE, TRACK
 use rassi_data, only: WFTYPE
 use hfc_logical, only: MAG_X2C
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=256) STRING
-logical FoundTwoEls, DoCholesky
-integer I, IPROP
+integer(kind=iwp) :: I, IPROP
+logical(kind=iwp) :: DoCholesky, FoundTwoEls
+character(len=256) :: STRING
 
 ! Initialise doDMRG if compiled without QCMaquis
 #ifndef _DMRG_
@@ -44,12 +43,9 @@ call symmetry_info_get()
 
 ! UNIT NUMBERS AND NAMES
 LUONE = 2
-FNONE = 'ONEINT'
 LUORD = 30
-FNORD = 'ORDINT'
 LUIPH = 15
 LUEXC = 22
-FNEXC = 'ANNI'
 LUMCK = 33
 LuToM = 26
 FnToM = 'TOFILE'
@@ -59,15 +55,9 @@ JBNAME(:) = 'UNDEFINE'
 do I=1,size(JBNAME)
   write(MINAME(I),'(''MCK'',I3.3)') I
 end do
-if (IPGLOB > 3) then
-  write(u6,*) ' Unit numbers and names:'
-  write(u6,'(1x,I8,5x,A8)') LUONE,FNONE
-  write(u6,'(1x,I8,5x,A8)') LUORD,FNORD
-  write(u6,'(1x,I8,5x,A8)') LUEXC,FNEXC
-end if
 
-if (IPGLOB > 3) write(u6,*) ' OPENING ',FNEXC
-call DANAME(LUEXC,FNEXC)
+if (IPGLOB > 3) write(u6,*) ' OPENING ','ANNI'
+call DANAME(LUEXC,'ANNI')
 
 ! NR OF JOBIPHS AND STATES:
 NJOB = 0

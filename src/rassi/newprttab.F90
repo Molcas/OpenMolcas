@@ -13,12 +13,11 @@ subroutine NEWPRTTAB(NSYM,NFRO,NISH,NRAS1,NRAS2,NRAS3,NSSH,NDEL)
 
 use rassi_global_arrays, only: PART
 use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
-integer NSYM, NFRO, NISH, NRAS1, NRAS2, NRAS3, NSSH, NDEL
-integer NSIZE, ITYPE, NPART, ISYM, IPART, ISUM
-dimension NFRO(NSYM), NISH(NSYM), NRAS1(NSYM), NRAS2(NSYM)
-dimension NRAS3(NSYM), NSSH(NSYM), NDEL(NSYM)
+integer(kind=iwp) :: NSYM, NFRO(NSYM), NISH(NSYM), NRAS1(NSYM), NRAS2(NSYM), NRAS3(NSYM), NSSH(NSYM), NDEL(NSYM)
+integer(kind=iwp) :: IPART, ISUM, ISYM, ITYPE, NPART, NSIZE
 
 NPART = 7
 NSIZE = 4+(NSYM+1)*(NPART+1)

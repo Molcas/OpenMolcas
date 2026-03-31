@@ -12,37 +12,32 @@
 subroutine INPPRC()
 
 use rasdef, only: NRS1, NRS1T, NRS2, NRS2T, NRS3, NRS3T
-use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
-use rassi_aux, only: jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2, DMAB, mTRA, ipglob
-use kVectors
+use rassi_global_arrays, only: ESHFT, HAM, HDIAG, JBNUM, LROOT
+use rassi_aux, only: AO_Mode, CMO1, CMO2, DMAB, ipglob, jDisk_TDM, JOB_INDEX, mTRA
+use rassi_data, only: NASH, NASHT, NBASF, NBMX, NBSQ, NBSQPR, NBST, NBTRI, NCMO, NISH, NISHT, NOSH, NSSH, NSSHT, NTDMAB, NTDMZZ, &
+                      NTRA
+use kVectors, only: nk_Vector
 use Lebedev_quadrature, only: order_table
 use OneDat, only: sOpSiz, sRdFst, sRdNxt
-use cntrl, only: SONTOSTATES, SONATNSTATE, HEff, RefEne
+use Cntrl, only: BINA, Coor, Do_SK, DO_TMOM, DQVD, FORCE_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HEff, IBINA, ICOMP, IFDCPL, IFEJOB, &
+                 IFGCAL, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFJ2, IFJZ, IFMCAL, IFSHFT, IFSO, IFTDM, IFTRD1, IFXCAL, IPUSED, &
+                 IRREP, ISOCMP, L_Eff, LuTDM, MLTPLT, MXPROP, NATO, nAtoms, NBINA, NJOB, NOHAM, NPROP, NQUAD, NrNATO, NSOPR, &
+                 nSOThr_PRT, nState, ONLY_OVERLAPS, PNAME, PRCI, PRMEE, PRMER, PRMES, PRORB, PRSXY, PRTRA, PRXVE, PRXVR, PRXVS, &
+                 PTYPE, RefEne, RFPert, SAVEDENS, SONATNSTATE, SONTOSTATES, SOPRNM, SOPRTP, SOThr_PRT, ToFile, TRACK
+use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate
-use Cntrl, only: IPUSED, ISOCMP, ICOMP, PTYPE, SOPRTP, SOPRNM, PNAME, MXPROP, nState, SOThr_PRT, nSOThr_PRT, SAVEDENS, IFTRD1, &
-                 IFTDM, NATO, DO_TMOM, FORCE_NON_AO_TDM, NPROP, NSOPR, IFSO, DQVD, IFJ2, IFJZ, IFGCAL, IFXCAL, IFDCPL, IFHAM, &
-                 IFSHFT, IFHDIA, IFMCAL, NJOB, IFHEFF, HAVE_HEFF, IFEJOB, HAVE_DIAG, IFHEXT, IFHCOM, NOHAM, TRACK, ONLY_OVERLAPS, &
-                 PRSXY, PRORB, PRTRA, PRCI, RFPert, ToFile, PRXVR, PRXVE, PRXVS, PRMER, PRMEE, PRMES, NrNATO, BINA, NBINA, Do_SK, &
-                 NQUAD, L_Eff, IBINA, IRREP, MLTPLT
-use cntrl, only: nAtoms, Coor
-use cntrl, only: LuTDM, FnTDM
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NBSQ, NBMX, NBTRI, NBST, NCMO, NTRA, NTDMZZ, NTDMAB, NASHT, NISHT, NSSHT, NASH, NBASF, NBSQPR, NISH, NOSH, &
-                      NSSH
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=8) LABEL
-character(len=8) LABEL2
-character(len=8) PRPLST(MXPROP)
-character(len=3) lIrrep(8)
-integer ICMPLST(MXPROP)
-logical JOBMATCH, IsAvail(MXPROP), IsAvailSO(MXPROP)
-integer IDUM(1), IPRP, I, NBI, NLEV, IS, IBYTE, IPROP, ISOPR, IRC, IOPT, ICMP, NPRPLST, IATOM, MISSAMX, MISSAMY, MISSAMZ, IMISS, &
-        IERR, NATOM, IADD, MPROP, N, JPROP, MSOPR, JSOPR, ISYM, JOB1, JOB2, J, I1, I2, II, III, ISYLAB
-integer, external :: IsFreeUnit
-real*8 XAXIS, ZAXIS
+integer(kind=iwp) :: I, I1, I2, IADD, IATOM, IBYTE, ICMP, ICMPLST(MXPROP), IDUM(1), IERR, II, III, IMISS, IOPT, IPROP, IPRP, IRC, &
+                     IS, ISOPR, ISYLAB, ISYM, J, JOB1, JOB2, JPROP, JSOPR, MISSAMX, MISSAMY, MISSAMZ, MPROP, MSOPR, N, NATOM, NBI, &
+                     NLEV, NPRPLST
+real(kind=wp) :: XAXIS, ZAXIS
+logical(kind=iwp) :: IsAvail(MXPROP), IsAvailSO(MXPROP), JOBMATCH
+character(len=8) :: LABEL, LABEL2, PRPLST(MXPROP)
+character(len=3) :: lIrrep(8)
+integer(kind=iwp), external :: IsFreeUnit
 
 ! Analysing and post-processing the input that was read in readin_rassi.
 
@@ -72,7 +67,7 @@ end if
 NBSQ = 0
 NBMX = 0
 IPRP = 0
-do I=1,NSYM
+do I=1,nIrrep
   NBI = NBASF(I)
   NBMX = max(NBMX,NBI)
   NBSQPR(I) = NBSQ
@@ -80,7 +75,7 @@ do I=1,NSYM
 end do
 NBTRI = (NBSQ+NBST)/2
 NLEV = 0
-do I=1,NSYM
+do I=1,nIrrep
   NLEV = NLEV+NRS1(I)+NRS2(I)+NRS3(I)
 end do
 ! Sizes of some data sets:
@@ -89,7 +84,7 @@ end do
 NCMO = NOSH(1)*NBASF(1)
 NTRA = NOSH(1)**2
 NTDMZZ = NBASF(1)**2
-do IS=2,NSYM
+do IS=2,nIrrep
   NCMO = NCMO+NOSH(IS)*NBASF(IS)
   NTRA = NTRA+NOSH(IS)**2
   NTDMZZ = NTDMZZ+NBASF(IS)**2
@@ -99,10 +94,8 @@ SaveDens = (IFTRD1 .or. IFTDM) .or. (SONATNSTATE > 0) .or. (SONTOSTATES > 0) .or
 if (SaveDens) then
   write(u6,*)
   write(u6,*) ' Info: creating TDMFILE'
-  LUTDM = 21
-  LUTDM = IsFreeUnit(LUTDM)
-  FNTDM = 'TDMFILE'
-  call DANAME_MF(LUTDM,FNTDM)
+  LUTDM = IsFreeUnit(21)
+  call DANAME_MF(LUTDM,'TDMFILE')
   AO_Mode = .true.
   iByte = 8*3*nstate*(nstate-1)/2*nTDMZZ
 
@@ -802,7 +795,7 @@ end do
 ! Write out various input data:
 
 call Get_cArray('Irreps',lIrrep,24)
-do iSym=1,nSym
+do iSym=1,nIrrep
   lIrrep(iSym) = adjustr(lIrrep(iSym))
 end do
 
@@ -867,20 +860,20 @@ if (IPGLOB >= 2) then
   write(u6,*) '  ------------------------------------------------'
   write(u6,*) '  (note: frozen counts as inactive, deleted as secondary)'
   write(u6,*)
-  write(u6,'(6X,A,I2)') 'Nr of irreps:',NSYM
+  write(u6,'(6X,A,I2)') 'Nr of irreps:',nIrrep
   write(u6,*)
   write(u6,'(6X,A)') '           Total     No./Irrep'
-  write(u6,'(6X,A,8X,8I4)') 'Irrep       ',(I,I=1,NSYM)
-  write(u6,'(6X,A,8X,8(1X,A))') '            ',(lIrrep(I),I=1,NSYM)
+  write(u6,'(6X,A,8X,8I4)') 'Irrep       ',(I,I=1,nIrrep)
+  write(u6,'(6X,A,8X,8(1X,A))') '            ',(lIrrep(I),I=1,nIrrep)
   write(u6,*)
-  write(u6,'(6X,A,I4,4X,8I4)') 'INACTIVE    ',NISHT,(NISH(I),I=1,NSYM)
-  write(u6,'(6X,A,I4,4X,8I4)') 'ACTIVE      ',NASHT,(NASH(I),I=1,NSYM)
-  write(u6,'(6X,A,I4,4X,8I4)') 'SECONDARY   ',NSSHT,(NSSH(I),I=1,NSYM)
-  write(u6,'(6X,A,I4,4X,8I4)') 'BASIS       ',NBST,(NBASF(I),I=1,NSYM)
+  write(u6,'(6X,A,I4,4X,8I4)') 'INACTIVE    ',NISHT,(NISH(I),I=1,nIrrep)
+  write(u6,'(6X,A,I4,4X,8I4)') 'ACTIVE      ',NASHT,(NASH(I),I=1,nIrrep)
+  write(u6,'(6X,A,I4,4X,8I4)') 'SECONDARY   ',NSSHT,(NSSH(I),I=1,nIrrep)
+  write(u6,'(6X,A,I4,4X,8I4)') 'BASIS       ',NBST,(NBASF(I),I=1,nIrrep)
   write(u6,*)
-  write(u6,'(6X,A,I4,4X,8I4)') 'RAS1        ',NRS1T,(NRS1(I),I=1,NSYM)
-  write(u6,'(6X,A,I4,4X,8I4)') 'RAS2        ',NRS2T,(NRS2(I),I=1,NSYM)
-  write(u6,'(6X,A,I4,4X,8I4)') 'RAS3        ',NRS3T,(NRS3(I),I=1,NSYM)
+  write(u6,'(6X,A,I4,4X,8I4)') 'RAS1        ',NRS1T,(NRS1(I),I=1,nIrrep)
+  write(u6,'(6X,A,I4,4X,8I4)') 'RAS2        ',NRS2T,(NRS2(I),I=1,nIrrep)
+  write(u6,'(6X,A,I4,4X,8I4)') 'RAS3        ',NRS3T,(NRS3(I),I=1,nIrrep)
   write(u6,*)
   if (.not. (TRACK .or. ONLY_OVERLAPS)) then
     write(u6,*) '       MATRIX ELEMENTS WILL BE COMPUTED FOR THE FOLLOWING ONE-ELECTRON OPERATORS, UNLESS ZERO BY SYMMETRY.'

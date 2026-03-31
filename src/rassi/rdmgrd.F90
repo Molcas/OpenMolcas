@@ -15,22 +15,20 @@ subroutine RDMGRD(JOB,IDISP,LABEL,STYPE,ISYMP,NARRAY,ARRAY)
 ! ISYMP is the symmetry irrep label of the derivatives.
 
 use rassi_aux, only: ipglob
-use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NJOB, MINAME
-use cntrl, only: LuMck
-use Symmetry_Info, only: nSym => nIrrep, MUL
+use Cntrl, only: LuMck, MINAME, NJOB
+use Symmetry_Info, only: MUL, nIrrep
 use rassi_data, only: NBASF
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer JOB, IDISP, ISYMP, NARRAY
-real*8 ARRAY(NARRAY)
-character(len=8) LABEL, STYPE
-integer ITOFF(8), IAOFF(8)
-real*8, allocatable :: TEMP(:)
-integer IRC, IOPT, ISUM, IS, JS, NBI, NBJ, NBIJ, NTEMP, ISCODE, LT, IA1, J, I, IA2
-real*8 F
+integer(kind=iwp) :: JOB, IDISP, ISYMP, NARRAY
+character(len=8) :: LABEL, STYPE
+real(kind=wp) :: ARRAY(NARRAY)
+integer(kind=iwp) :: I, IA1, IA2, IAOFF(8), IOPT, IRC, IS, ISCODE, ISUM, ITOFF(8), J, JS, LT, NBI, NBIJ, NBJ, NTEMP
+real(kind=wp) :: F
+real(kind=wp), allocatable :: TEMP(:)
 
 if ((JOB < 1) .or. (JOB > NJOB)) then
   write(u6,*) ' RASSI/RDMGRD: Invalid JOB parameter.'
@@ -62,7 +60,7 @@ end if
 
 ! Addressing integral blocks in the buffer:
 ISUM = 0
-do IS=1,NSYM
+do IS=1,nIrrep
   JS = MUL(IS,ISYMP)
   if (IS >= JS) then
     ITOFF(IS) = ISUM
@@ -95,7 +93,7 @@ end if
 
 ! Addressing integral blocks in ARRAY:
 ISUM = 0
-do IS=1,NSYM
+do IS=1,nIrrep
   JS = MUL(IS,ISYMP)
   IAOFF(IS) = ISUM
   NBI = NBASF(IS)
@@ -110,7 +108,7 @@ if (ISUM > NARRAY) then
   call ABEND()
 end if
 ! Move buffer integrals into ARRAY in proper format:
-do IS=1,NSYM
+do IS=1,nIrrep
   NBI = NBASF(IS)
   if (NBI <= 0) goto 11
   if (ISYMP == 1) then

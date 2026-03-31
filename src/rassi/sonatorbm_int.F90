@@ -12,21 +12,17 @@
 subroutine SONATORBM_INT(DENS,CHARPROP,IC_,CHARTYPE,ASS,BSS,iOpt,ROTMAT,PROPVALXR,PROPVALYR,PROPVALZR,PROPVALXI,PROPVALYI,PROPVALZI)
 
 use OneDat, only: sOpSiz
-use stdalloc, only: mma_allocate, mma_deallocate
 use rassi_data, only: NBTRI
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 DENS(6,NBTRI)
-character(len=*) CHARPROP
-integer IC_
-character(len=*) CHARTYPE
-integer ASS, BSS, iOpt
-real*8 ROTMAT(3,3), PROPVALXR, PROPVALYR, PROPVALZR, PROPVALXI, PROPVALYI, PROPVALZI
-integer IDUM(1)
-real*8, allocatable :: IP(:), IPX(:), IPY(:), IPZ(:)
-integer ITYPE, NIP, IC_End, IC_Str, IC, JOPT, ICMP, IRC, I, ISCHK
+real(kind=wp) :: DENS(6,NBTRI), ROTMAT(3,3), PROPVALXR, PROPVALYR, PROPVALZR, PROPVALXI, PROPVALYI, PROPVALZI
+character(len=*) :: CHARPROP, CHARTYPE
+integer(kind=iwp) :: IC_, ASS, BSS, iOpt
+integer(kind=iwp) :: I, IC, IC_End, IC_Str, ICMP, IDUM(1), IRC, ISCHK, ITYPE, JOPT, NIP
+real(kind=wp), allocatable :: IP(:), IPX(:), IPY(:), IPZ(:)
 
 ! NOW DO INTEGRATION WITH AO MATRICES
 ! FOR THE EXPECTATION VALUE

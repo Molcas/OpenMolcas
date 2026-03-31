@@ -14,30 +14,28 @@ subroutine cre_rassiwfn()
 ! exists, it will be overwritten.
 
 #ifdef _HDF5_
-use kVectors
+use kVectors, only: nk_Vector
 use rassi_global_arrays, only: JBNUM, LROOT
-use RASSIWfn, only: wfn_fileid, wfn_sfs_energy, wfn_sos_energy, wfn_sfs_coef, wfn_sos_coefr, wfn_sos_coefi, wfn_sfs_angmom, &
-                    wfn_sos_angmomr, wfn_sos_angmomi, wfn_sos_spinr, wfn_sos_spini, wfn_sfs_tdm, wfn_sfs_tsdm, wfn_overlap, &
-                    wfn_sfs_tm, wfn_sos_tm, wfn_sfs_edipmom, wfn_sfs_amfi, wfn_sos_hsor, wfn_sos_hsoi, wfn_sfs_wetdm, &
-                    wfn_sos_edipmomr, wfn_sos_edipmomi, wfn_sos_vsor, wfn_sos_vsoi, wfn_sos_dys, wfn_detcoeff, wfn_detocc, &
-                    wfn_cmo, wfn_cmo_or, wfn_detcoeff_or, wfn_detocc_or
+use RASSIWfn, only: wfn_cmo, wfn_cmo_or, wfn_detcoeff, wfn_detcoeff_or, wfn_detocc, wfn_detocc_or, wfn_overlap, wfn_sfs_amfi, &
+                    wfn_sfs_angmom, wfn_sfs_coef, wfn_sfs_edipmom, wfn_sfs_energy, wfn_sfs_tdm, wfn_sfs_tm, wfn_sfs_tsdm, &
+                    wfn_sfs_wetdm, wfn_sos_angmomi, wfn_sos_angmomr, wfn_sos_coefi, wfn_sos_coefr, wfn_sos_dys, wfn_sos_edipmomi, &
+                    wfn_sos_edipmomr, wfn_sos_energy, wfn_sos_hsoi, wfn_sos_hsor, wfn_sos_spini, wfn_sos_spinr, wfn_sos_tm, &
+                    wfn_sos_vsoi, wfn_sos_vsor
+use mh5, only: mh5_create_dset_real, mh5_create_dset_str, mh5_create_file, mh5_init_attr
+use Cntrl, only: CIH5, DO_TMOM, DYSO, IFSO, IFSO, IRREP, MLTPLT, NDET, NJOB, NQUAD, NSTATE, RhoDyn
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NASHT, NBASF, NCMO
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
-use qcmaquis_interface_cfg
 #endif
-use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_real, mh5_create_dset_str
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, CIH5, NJOB, DO_TMOM, NQUAD, IFSO, RhoDyn, DYSO, IFSO, IRREP, MLTPLT, NDET
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NBASF, NASHT, NCMO
+use Definitions, only: iwp
 
 implicit none
-integer :: ISTATE, NSS
-integer :: nData, nIJ
-integer, allocatable :: state_irreps(:), state_mult(:)
-integer :: nbast, ndetmax
+integer(kind=iwp) :: ISTATE, nbast, nData, ndetmax, nIJ, NSS, wfn_fileid
+integer(kind=iwp), allocatable :: state_irreps(:), state_mult(:)
 
-nbast = sum(nbasf(1:nsym)**2)
+nbast = sum(nbasf(1:nIrrep)**2)
 ndetmax = maxval(ndet)
 
 ! create a new wavefunction file!
@@ -56,8 +54,8 @@ end if
 
 ! copy basic molecular information to the HDF5 file
 call run2h5_molinfo(wfn_fileid)
-call one2h5_ovlmat(wfn_fileid,nsym,nbasf)
-call one2h5_crtmom(wfn_fileid,nsym,nbasf)
+call one2h5_ovlmat(wfn_fileid,nIrrep,nbasf)
+call one2h5_crtmom(wfn_fileid,nIrrep,nbasf)
 
 ! general wavefunction attributes
 call mh5_init_attr(wfn_fileid,'NSTATE',NSTATE)

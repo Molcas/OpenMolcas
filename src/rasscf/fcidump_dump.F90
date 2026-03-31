@@ -118,7 +118,8 @@ subroutine dump_hdf5(path,EMY,orbital_table,fock_table,two_el_table,orbsym)
   use general_data, only: nSym, nActEl, multiplicity => iSpin, stSym, nAsh
   use gas_data, only: iDoGAS
   use gugx, only: SGS
-  use mh5
+  use mh5, only: mh5_close_dset, mh5_close_file, mh5_create_file, mh5_create_dset_int, mh5_create_dset_real, mh5_init_attr, &
+                 mh5_put_dset
 # endif
 
   character(len=*), intent(in) :: path

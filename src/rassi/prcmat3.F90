@@ -12,15 +12,15 @@
 subroutine PRCMAT3(NSS,SMATR,SMATI,DIR)
 ! Write out spin matrix elements in parsable format
 
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NSS
 real(kind=wp), intent(in) :: SMATR(NSS,NSS), SMATI(NSS,NSS)
 integer(kind=iwp), intent(in) :: DIR
-character(len=1) DIRECTION
-character(len=200) FILENAME
-integer(kind=iwp) LU, JSTA, ISS
+integer(kind=iwp) :: ISS, JSTA, LU
+character(len=200) :: FILENAME
+character :: DIRECTION
 integer(kind=iwp), external :: IsFreeUnit
 
 write(DIRECTION,'(I1)') DIR

@@ -11,30 +11,19 @@
 
 subroutine MKCONF(ICNFTAB)
 
-use definitions, only: iwp, u6
+use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep, MUL
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: ICNFTAB(*)
-integer(kind=iwp) NEL, MINOP, MAXOP, LSYM
-integer(kind=iwp) MXPRT
-parameter(MXPRT=150)
-integer(kind=iwp) LIMPOP(2,MXPRT), LIMOP(2,MXPRT), LIMCL(2,MXPRT)
-integer(kind=iwp) IOPDST(MXPRT), ICLDST(MXPRT), IOC(MXPRT), ICNF(MXPRT)
-integer(kind=iwp) LIM1, LIM2, LIM1SUM, LIM2SUM, IGAS, NOR, IERR
-integer(kind=iwp) MNOP, MXOP, MNCL, MXCL, NOPN, NCLS
-integer(kind=iwp) INIT1, INIT2, M, MORE, NOP1, NCL2
-integer(kind=iwp) ISYM, NORB, ICONF
-integer(kind=iwp) IFORM, IR, ITYPE, IW, KCNFSTA, KGASLIM
-integer(kind=iwp) KGASORB, KINFO, KPOS, LCLS, LENCNF, LOPN, NCNF
-integer(kind=iwp) NCNFSYM(8), NGAS, NOCC, NTAB
-integer(kind=iwp) I, J, K, IOFF, IO, IORB, N, NCL, NOP
+
+integer(kind=iwp), parameter :: MXPRT = 150
+integer(kind=iwp) :: I, ICLDST(MXPRT), ICNF(MXPRT), ICONF, IERR, IFORM, IGAS, INIT1, INIT2, IO, IOC(MXPRT), IOFF, IOPDST(MXPRT), &
+                     IORB, IR, ISYM, ITYPE, IW, J, K, KCNFSTA, KGASLIM, KGASORB, KINFO, KPOS, LCLS, LENCNF, LIM1, LIM1SUM, LIM2, &
+                     LIM2SUM, LIMCL(2,MXPRT), LIMOP(2,MXPRT), LIMPOP(2,MXPRT), LOPN, LSYM, M, MAXOP, MINOP, MNCL, MNOP, MORE, &
+                     MXCL, MXOP, N, NCL, NCL2, NCLS, NCNF, NCNFSYM(8), NEL, NGAS, NOCC, NOP, NOP1, NOPN, NOR, NORB, NTAB
 integer(kind=iwp), allocatable :: ISM(:)
-intrinsic MIN, MAX
-integer(kind=iwp) :: IPOW4(0:15) = [1,4,16,64,256,1024,4096,16384,65536,262144,1048576,4194304,16777216,67108864,268435456, &
-                                    1073741824]
-integer(kind=iwp) :: IPOW256(0:3) = [1,256,65536,16777216]
 
 ITYPE = ICNFTAB(2)
 if (ITYPE /= 37) then
@@ -47,12 +36,12 @@ NEL = ICNFTAB(3)
 NORB = ICNFTAB(4)
 MINOP = ICNFTAB(5)
 MAXOP = ICNFTAB(6)
-NSYM = ICNFTAB(7)
+nIrrep = ICNFTAB(7)
 LSYM = ICNFTAB(8)
 NGAS = ICNFTAB(9)
 IFORM = ICNFTAB(10)
 KGASORB = 11
-KGASLIM = KGASORB+(NSYM+1)*(NGAS+1)
+KGASLIM = KGASORB+(nIrrep+1)*(NGAS+1)
 ! Check and refine the GAS limits:
 if ((NGAS <= 0) .or. (NGAS > MXPRT)) then
   write(u6,*) ' MKCONF ERROR: Nr of GAS partitions is out of'
@@ -65,7 +54,7 @@ LIM1SUM = 0
 LIM2SUM = 0
 NORB = 0
 do IGAS=1,NGAS
-  NOR = ICNFTAB(KGASORB+(NSYM+1)*IGAS)
+  NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)
   if (NOR < 0) IERR = 1
   LIM1 = max(0,ICNFTAB(KGASLIM+2*(IGAS-1)))
   LIM2 = min(NEL,ICNFTAB(KGASLIM+1+2*(IGAS-1)),2*NOR)
@@ -91,7 +80,7 @@ if (IERR > 0) then
   write(u6,*) ' generated. The program stops here.'
   write(u6,'(1X,A,I2)') ' Number of GAS partitions:',NGAS
   write(u6,'(1X,A,50I3)') ' Partition:',(IGAS,IGAS=1,NGAS)
-  write(u6,'(1X,A,50I3)') ' NGASORB:  ',(ICNFTAB(KGASORB+(NSYM+1)*IGAS),IGAS=1,NGAS)
+  write(u6,'(1X,A,50I3)') ' NGASORB:  ',(ICNFTAB(KGASORB+(nIrrep+1)*IGAS),IGAS=1,NGAS)
   write(u6,'(1X,A,50I3)') 'NGASLIM(1):',(ICNFTAB(KGASLIM+2*(IGAS-1)),IGAS=1,NGAS)
   write(u6,'(1X,A,50I3)') 'NGASLIM(2):',(ICNFTAB(KGASLIM+1+2*(IGAS-1)),IGAS=1,NGAS)
   write(u6,'(1X,A,I2)') ' Number of electrons:',NEL
@@ -110,8 +99,8 @@ call mma_allocate(ISM,NORB,Label='ISM')
 ! Initialize table with orbital symmetry.
 IORB = 0
 do IGAS=1,NGAS
-  do ISYM=1,NSYM
-    N = ICNFTAB(KGASORB+ISYM+(NSYM+1)*IGAS)
+  do ISYM=1,nIrrep
+    N = ICNFTAB(KGASORB+ISYM+(nIrrep+1)*IGAS)
     do K=1,N
       IORB = IORB+1
       ISM(IORB) = ISYM
@@ -122,12 +111,12 @@ end do
 ! INFO table inside ICNFTAB:
 KINFO = KGASLIM+2*NGAS
 ! Note: Nr of conf, their position and length can now be accessed as:
-!      NCNF   =ICNFTAB(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-!      KCNFSTA=ICNFTAB(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-!      LENCNF =ICNFTAB(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))
+!      NCNF   =ICNFTAB(KINFO+0+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
+!      KCNFSTA=ICNFTAB(KINFO+1+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
+!      LENCNF =ICNFTAB(KINFO+2+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
 ! Make a list of possible number of open shells in each partition:
 do IGAS=1,NGAS
-  NOR = ICNFTAB(KGASORB+(NSYM+1)*IGAS)
+  NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)
   MNOP = 1
   MXOP = 0
   do I=LIMPOP(1,IGAS),LIMPOP(2,IGAS)
@@ -152,7 +141,7 @@ outer: do NOPN=MINOP,MAXOP
   if (IFORM == 3) LENCNF = (NOCC+3)/4
   if (IFORM == 4) LENCNF = (NORB+14)/15
   ! Counter of configurations/symmetry for this nr of open shells:
-  do ISYM=1,NSYM
+  do ISYM=1,nIrrep
     NCNFSYM(ISYM) = 0
   end do
   ! Loop over all ways of distributing NOPN open shells among
@@ -187,7 +176,7 @@ outer: do NOPN=MINOP,MAXOP
   ! of closed shells:
   do IGAS=1,NGAS
     NOP = IOPDST(IGAS)
-    NOR = ICNFTAB(KGASORB+(NSYM+1)*IGAS)-NOP
+    NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)-NOP
     LIM1 = max(0,(LIMPOP(1,IGAS)-NOP)/2)
     LIM2 = min(NOR,(LIMPOP(2,IGAS)-NOP)/2)
     if (LIM1 > LIM2) goto 110
@@ -242,7 +231,7 @@ outer: do NOPN=MINOP,MAXOP
       IORB = IORB+1
       IOC(IORB) = 1
     end do
-    NOR = ICNFTAB(KGASORB+(NSYM+1)*IGAS)
+    NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)
     do I=1,NOR-NCL-NOP
       IORB = IORB+1
       IOC(IORB) = 0
@@ -262,7 +251,7 @@ outer: do NOPN=MINOP,MAXOP
     ! First, determine where it should go:
     N = NCNFSYM(ISYM)
     NCNFSYM(ISYM) = N+1
-    KCNFSTA = ICNFTAB(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
+    KCNFSTA = ICNFTAB(KINFO+1+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
     KPOS = KCNFSTA+N*LENCNF
     if (KPOS+LENCNF-1 > NTAB) then
       write(u6,*) ' MKCONF error: Table overflow.'
@@ -297,7 +286,7 @@ outer: do NOPN=MINOP,MAXOP
         if (IR == 0) then
           ICNFTAB(KPOS-1+IW) = ICNF(I)
         else
-          ICNFTAB(KPOS-1+IW) = ICNFTAB(KPOS-1+IW)+IPOW256(IR)*ICNF(I)
+          ICNFTAB(KPOS-1+IW) = ICNFTAB(KPOS-1+IW)+256**IR*ICNF(I)
         end if
       end do
     else
@@ -312,7 +301,7 @@ outer: do NOPN=MINOP,MAXOP
           if (IR == 0) then
             ICNFTAB(KPOS-1+IW) = IOC(I)
           else
-            ICNFTAB(KPOS-1+IW) = ICNFTAB(KPOS-1+IW)+IPOW4(IR)*IOC(I)
+            ICNFTAB(KPOS-1+IW) = ICNFTAB(KPOS-1+IW)+4**IR*IOC(I)
 
           end if
         end do
@@ -323,7 +312,7 @@ outer: do NOPN=MINOP,MAXOP
   ! Get next configuration.
   IOFF = 0
   do IGAS=1,NGAS
-    NOR = ICNFTAB(KGASORB+(NSYM+1)*IGAS)
+    NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)
     ! Try to find next permutation within this partition:
     do K=2,NOR
       if (IOC(IOFF+K-1) > IOC(IOFF+K)) then
@@ -386,8 +375,8 @@ outer: do NOPN=MINOP,MAXOP
   end do
   ! Temporary check: Has everything worked perfectly??
   IERR = 0
-  do ISYM=1,NSYM
-    N = ICNFTAB(KINFO+3*(ISYM-1+NSYM*(NOPN-MINOP)))
+  do ISYM=1,nIrrep
+    N = ICNFTAB(KINFO+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
     if (NCNFSYM(ISYM) /= N) IERR = 1
   end do
   if (IERR /= 0) call ErrorTrap()
@@ -401,7 +390,7 @@ contains
 
 subroutine ErrorTrap()
 
-  integer(kind=iwp) NOPN, ISYM
+  integer(kind=iwp) :: ISYM, NOPN
 
   write(u6,*) ' MKCNF ERROR: Unforeseen calamity.'
   write(u6,*) ' At end of loop over NOPN, the number of'
@@ -413,10 +402,10 @@ subroutine ErrorTrap()
   do NOPN=MINOP,MAXOP
     NCLS = (NEL-NOPN)/2
     NOCC = NCLS+NOPN
-    do ISYM=1,NSYM
-      NCNF = ICNFTAB(KINFO+0+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-      KCNFSTA = ICNFTAB(KINFO+1+3*(ISYM-1+NSYM*(NOPN-MINOP)))
-      LENCNF = ICNFTAB(KINFO+2+3*(ISYM-1+NSYM*(NOPN-MINOP)))
+    do ISYM=1,nIrrep
+      NCNF = ICNFTAB(KINFO+0+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
+      KCNFSTA = ICNFTAB(KINFO+1+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
+      LENCNF = ICNFTAB(KINFO+2+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
       write(u6,'(1X,2I4,5X,3I12)') NOPN,ISYM,NCNF,KCNFSTA,LENCNF
     end do
   end do

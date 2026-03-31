@@ -13,17 +13,16 @@ subroutine TRAORB(NSYM,NOSH,NBASF,NCXA,CXA,NCMO,CMO)
 ! TRANSFORM ORBITAL COEFFICIENTS CMO BY MULTIPLYING WITH
 ! TRANSFORMATION MATRIX CXA.
 
-use definitions, only: iwp, wp
-use constants, only: Zero, One
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NSYM, NCXA, NCMO
-integer(kind=iwp), intent(in) :: NOSH(NSYM), NBASF(NSYM)
+integer(kind=iwp), intent(in) :: NSYM, NOSH(NSYM), NBASF(NSYM), NCXA, NCMO
 real(kind=wp), intent(in) :: CXA(NCXA)
 real(kind=wp), intent(inout) :: CMO(NCMO)
+integer(kind=iwp) :: IS, ISTA1, ISTA2, NB, NO
 real(kind=wp), allocatable :: CNew(:)
-integer(kind=iwp) ISTA1, ISTA2, IS, NO, NB
 
 call mma_allocate(CNEW,NCMO,Label='CNEW')
 ISTA1 = 1

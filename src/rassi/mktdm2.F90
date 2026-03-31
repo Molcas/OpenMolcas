@@ -16,36 +16,24 @@ subroutine MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,LSYM2,MPLET2,MSPROJ2,IFSBTAB2,IS
 
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
-use qcmaquis_info
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
 use Symmetry_Info, only: MUL
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 #if defined (_DEBUGPRINT_) || defined (_DMRG_)
 use Definitions, only: u6
 #endif
 
 implicit none
-integer LSYM1, MPLET1, MSPROJ1
-integer IFSBTAB1(*)
-integer LSYM2, MPLET2, MSPROJ2
-integer IFSBTAB2(*)
-integer ISSTAB(*), MAPORB(*), NTDM2
-real*8 DET1(*), DET2(*)
-real*8 TDM2(NTDM2)
-integer ISTATE, JSTATE
-integer OrbTab(*)
-integer IORB, ITABS, IUABS, JORB
-integer NASHT, NASORB
-real*8 SGNJL, SGNIK
-real*8 GVAL, GAAAA, GABBA, GBAAB, GBBBB, GABAB, GBABA
-integer ISYOP, MS2OP
-integer IAAAA, IABAB, IABBA, IAKA, IAKB, IBAAB, IBABA, IBBBB, IBIA
-integer IBKA, IBKB, IJ, IJIJ, IORBA, IORBB, ITU, ITUVX
-integer IVABS, IVX, IXABS, JALA, JALB, JBJA, JBLA, JBLB
-integer JORBA, JORBB, KORB, KORBA, KORBB, LORB, LORBA, LORBB
-integer NASGEM, NSPD2
-real*8, allocatable :: SPD2(:)
+integer(kind=iwp) :: LSYM1, MPLET1, MSPROJ1, IFSBTAB1(*), LSYM2, MPLET2, MSPROJ2, IFSBTAB2(*), ISSTAB(*), MAPORB(*), NTDM2, &
+                     ISTATE, JSTATE, OrbTab(*)
+real(kind=wp) :: DET1(*), DET2(*), TDM2(NTDM2)
+integer(kind=iwp) :: IAAAA, IABAB, IABBA, IAKA, IAKB, IBAAB, IBABA, IBBBB, IBIA, IBKA, IBKB, IJ, IJIJ, IORB, IORBA, IORBB, ISYOP, &
+                     ITABS, ITU, ITUVX, IUABS, IVABS, IVX, IXABS, JALA, JALB, JBJA, JBLA, JBLB, JORB, JORBA, JORBB, KORB, KORBA, &
+                     KORBB, LORB, LORBA, LORBB, MS2OP, NASGEM, NASHT, NASORB, NSPD2
+real(kind=wp) :: GAAAA, GABAB, GABBA, GBAAB, GBABA, GBBBB, GVAL, SGNIK, SGNJL
+real(kind=wp), allocatable :: SPD2(:)
 
 ! Given two CI expansions, using a biorthonormal set of SD''s,
 ! calculate the spin-summed 2-particle transition density matrix

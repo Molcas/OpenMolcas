@@ -24,35 +24,26 @@ subroutine prepMPS(trorb,istate,lsym,mplet,mspro,nacte,tra,ntra,nish,nash,nosh,n
 
 ! module dependencies
 #ifdef _DMRG_
-use qcmaquis_interface_cfg
-use qcmaquis_info
-use qcmaquis_interface_mpssi
+use qcmaquis_info, only: qcm_group_names, qcm_prefixes
+use qcmaquis_interface_cfg, only: dmrg_orbital_space, dmrg_state, dmrg_symmetry
+use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_rotate
 use fortran_strings, only: str
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: u6
 #endif
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: istate
-integer, intent(in) :: istatereal
-integer, intent(in) :: job
-integer, intent(in) :: ist
-integer, intent(in) :: lsym
-integer, intent(in) :: mplet
-integer, intent(in) :: mspro
-integer, intent(in) :: nacte
-integer, intent(in) :: nsym
-integer, intent(in) :: ntra
-integer, intent(in) :: lupri
-integer, intent(in) :: nish(nsym)
-integer, intent(in) :: nash(nsym)
-integer, intent(in) :: nosh(nsym)
-real*8, intent(inout) :: tra(ntra)
-logical, intent(in) :: trorb
+logical(kind=iwp), intent(in) :: trorb
+integer(kind=iwp), intent(in) :: istate, lsym, mplet, mspro, nacte, ntra, nsym, nish(nsym), nash(nsym), nosh(nsym), lupri, &
+                                 istatereal, job, ist
+real(kind=wp), intent(inout) :: tra(ntra)
 #ifdef _DMRG_
-integer :: i, isym, no, ii, ista, jorb, ni
-real*8 :: fac(1,1), ckk
-real*8, allocatable :: tmat(:,:) ! active-active rotation matrix
+integer(kind=iwp) :: i, ii, ista, isym, jorb, ni, no
+real(kind=wp) :: ckk, fac(1,1)
+real(kind=wp), allocatable :: tmat(:,:)
+
+! tmat: active-active rotation matrix
 ! Leon 8/12/2016 -- istatereal: "real" state index across all JobIphs, needed when we read checkpoint file names
 
 if (.not. trorb) then

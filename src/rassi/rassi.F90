@@ -11,40 +11,37 @@
 
 subroutine RASSI(IRETURN)
 
-use rassi_global_arrays, only: HAM, SFDYS, SODYSAMPS, EIGVEC, SODYSAMPSR, SODYSAMPSI, PROP, ESHFT, HDIAG, JBNUM, LROOT
-use rassi_aux, only: CMO1, CMO2, DMAB, ipglob, jDisk_TDM, Job_Index, TocM
-use kVectors, only: k_Vector
-use frenkel_global_vars, only: doCoul, eNucB, vNucB, nh1, aux2, doExcitonics
-use Symmetry_Info, only: nSym => nIrrep, Symmetry_Info_Free
 use Basis_Info, only: nBas
+use Cntrl, only: BINA, Do_SK, DQVD, DYSEXPORT, DYSO, HOP, IFHAM, IFSO, LuExc, LuOne, LuTDM, MLTPLT, NATO, NJOB, NPROP, NSTATE, &
+                 ONLY_OVERLAPS, SaveDens, SONATNSTATE, SONTOSTATES, TRACK
+use Fock_util_global, only: Fake_CMO2
+use frenkel_global_vars, only: doCoul, doExcitonics, eNucB, vNucB
+use kVectors, only: k_Vector
+use Molcas, only: MxRoot
+use mspt2_eigenvectors, only: deinit_mspt2_eigenvectors
+use rassi_aux, only: CMO1, CMO2, DMAB, ipglob, jDisk_TDM, Job_Index, TocM
+use rassi_data, only: NBASF, NBSQ, NBST, NTDMZZ
+use rassi_global_arrays, only: EIGVEC, ESHFT, HAM, HDIAG, JBNUM, LROOT, SFDYS, SODYSAMPS, SODYSAMPSI, SODYSAMPSR
+use Symmetry_Info, only: nIrrep, Symmetry_Info_Free
 #ifdef _HDF5_
-use Dens2HDF5
+use Dens2HDF5, only: StoreDens
 use mh5, only: mh5_put_dset
 use RASSIWfn, only: wfn_overlap
 #endif
 #ifdef _DMRG_
-use qcmaquis_interface_cfg
-use qcmaquis_interface, only: qcmaquis_interface_deinit
 use qcmaquis_info, only: qcmaquis_info_deinit
+use qcmaquis_interface, only: qcmaquis_interface_deinit
 use rasscf_global, only: doDMRG
 #endif
-use Fock_util_global, only: Fake_CMO2
-use mspt2_eigenvectors, only: deinit_mspt2_eigenvectors
-use Data_Structures
-use cntrl, only: SONTOSTATES, SONATNSTATE
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, DYSO, NJOB, TRACK, ONLY_OVERLAPS, IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD, Do_SK, SaveDens, MLTPLT, &
-                 NPROP
-use cntrl, only: LuExc, LuOne, LuTDM
-use rassi_data, only: NBASF, NBSQ, NBST, NTDMZZ
-use Molcas, only: MxRoot
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-logical CLOSEONE
-integer IRC, IRETURN, IOPT, NZ, ISY, NZCOUL, IDISK, JOB1, JOB2, ISTATE, J, NSS, JOB, MPLET
-real*8, allocatable :: USOR(:,:), USOI(:,:), OVLP(:,:), DYSAMPS(:,:), ENERGY(:), DMAT(:), TDMZZ(:), VNAT(:), OCC(:), SOENE(:)
+integer(kind=iwp) :: IDISK, IOPT, IRC, IRETURN, ISTATE, ISY, J, JOB, JOB1, JOB2, MPLET, nh1, NSS, NZ, NZCOUL
+logical(kind=iwp) :: aux2, CLOSEONE
+real(kind=wp), allocatable :: DMAT(:), DYSAMPS(:,:), ENERGY(:), OCC(:), OVLP(:,:), PROP(:,:,:), SOENE(:), TDMZZ(:), USOI(:,:), &
+                              USOR(:,:), VNAT(:)
 
 !                                                                      *
 !***********************************************************************
@@ -95,23 +92,23 @@ DYSAMPS(:,:) = Zero
 !                                                                      *
 ! Number of basis functions
 NZ = 0  ! (NBAS is already used...)
-do ISY=1,NSYM
+do ISY=1,nIrrep
   NZ = NZ+NBASF(ISY)
 end do
 if (DYSO) call mma_allocate(SFDYS,nZ,nState,nState,Label='SFDYS')
 
+aux2 = .false.
 if (doCoul) then
   call mma_allocate(eNucB,mxroot*(mxroot+1)/2,Label='eNuc')
   eNucB(:) = Zero
   NZcoul = 0  ! (NBAS is already used...)
-  nh1 = 0
   inquire(file='AUXRFIL2',exist=aux2)
   if (aux2) then
     call NameRun('AUXRFIL2')
   else
     call NameRun('AUXRFIL1')
   end if
-  call get_iArray('nBas',nBas,nSym)
+  call get_iArray('nBas',nBas,nIrrep)
   NZcoul = nBas(0)
   nh1 = NZcoul*(NZcoul+1)/2
   call mma_allocate(vNucB,nh1,Label='Attr PotB')
@@ -248,15 +245,19 @@ call StoreDens(EigVec)
 ! +++ J. Norell - 2018
 ! Make the SO Dyson orbitals and amplitudes from the SF ones
 
-if (DYSO .and. IFSO) then
-  call mma_allocate(SODYSAMPS,NSS,NSS,Label='SODYSAMPS')
-  call mma_allocate(SODYSAMPSR,NSS,NSS,Label='SODYSAMPSR')
-  call mma_allocate(SODYSAMPSI,NSS,NSS,Label='SODYSAMPSI')
+if (DYSO) then
 
-  call SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
+  if (IFSO) then
+    call mma_allocate(SODYSAMPS,NSS,NSS,Label='SODYSAMPS')
+    call mma_allocate(SODYSAMPSR,NSS,NSS,Label='SODYSAMPSR')
+    call mma_allocate(SODYSAMPSI,NSS,NSS,Label='SODYSAMPSI')
+
+    call SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
+  end if
+
+  call mma_deallocate(SFDYS)
 end if
 
-call mma_deallocate(SFDYS,safe='*')
 ! +++
 
 call PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,ENERGY,JBNUM,EigVec)

@@ -18,19 +18,17 @@ subroutine PART1(NDIMEN,NBLOCK,NSIZE,SXY,B,A,SCR,IPIV,BUF)
 !  ORIGINAL VERSION, MALMQUIST 84-04-04
 !  RASSCF VERSION,   MALMQUIST 89-11-15
 
-use definitions, only: iwp, wp
-use constants, only: zero, one
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: NDIMEN, NBLOCK
+integer(kind=iwp), intent(in) :: NDIMEN, NBLOCK, NSIZE(NBLOCK)
 real(kind=wp), intent(in) :: SXY(NDIMEN,NDIMEN)
-real(kind=wp), intent(out) :: A(NDIMEN,NDIMEN), B(NDIMEN,NDIMEN)
+real(kind=wp), intent(out) :: B(NDIMEN,NDIMEN), A(NDIMEN,NDIMEN), BUF(NDIMEN)
 real(kind=wp), intent(inout) :: SCR(NDIMEN,NDIMEN)
-real(kind=wp), intent(out) :: BUF(NDIMEN)
 integer(kind=iwp), intent(out) :: IPIV(NDIMEN,2)
-integer(kind=iwp), intent(in) :: NSIZE(NBLOCK)
-integer(kind=iwp) I, J, LIM1, K, NSZ, LIM3, LIM2, KK, L, M
-real(kind=wp) DET, T
+integer(kind=iwp) :: I, J, K, KK, L, LIM1, LIM2, LIM3, M, NSZ
+real(kind=wp) :: DET, T
 
 ! INITIALIZE A = INVERSE OF SXY, AND B = UNIT MATRIX:
 do I=1,NDIMEN

@@ -13,17 +13,16 @@
 
 module frenkel_global_vars
 
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
-integer(kind=iwp) :: ityp, jtyp, valst, corest, nesta, nestb, nh1
+integer(kind=iwp) :: ityp, jtyp, valst
+logical(kind=iwp) :: docoul, doexch, doexcitonics, excl, labb
 integer(kind=iwp), allocatable :: nestla(:), nestlb(:)
-logical :: docoul, doexcitonics, doexch, labb, rixs, laba, excl, aux2
-real(kind=wp), allocatable :: vnucb(:), enucb(:)
+real(kind=wp), allocatable :: enucb(:), vnucb(:)
 
-public :: ityp, jtyp, valst, corest, nesta, nestb, nh1, nestla, nestlb, docoul, doexcitonics, doexch, labb, rixs, laba, excl, &
-          aux2, vnucb, enucb
+public :: docoul, doexch, doexcitonics, enucb, excl, ityp, jtyp, labb, nestla, nestlb, valst, vnucb
 
 end module frenkel_global_vars

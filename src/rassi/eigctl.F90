@@ -12,85 +12,66 @@
 !ifdef _DEBUGPRINT_
 subroutine EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
 
-use RASSI_aux
-use kVectors
+use Symmetry_Info, only: MUL, nIrrep
+use RASSI_aux, only: iDisk_TDM, IPGLOB
+use kVectors, only: e_Vector, k_Vector, nk_Vector
 use rassi_global_arrays, only: JBNUM
 use do_grid, only: Do_Lebedev
 use nq_Grid, only: Pax
 use frenkel_global_vars, only: iTyp
+use rassi_data, only: NBASF, NBST, NTDMZZ
+use Cntrl, only: DIPR, Do_Pol, Do_SK, Do_TMom, DoCD, DySO, EMin, iComp, IfJ2, IfJz, IPUSED, IRREP, L_Eff, LoopDivide, lSym1, &
+                 lSym2, LuTDM, MLTPLT, NACTE, NPROP, nQUad, NSTATE, OSThr_DiPr, OSThr_QIPR, PNAME, PrDipVec, PrRaw, PrWeight, &
+                 PTYPE, QIAll, QIPR, ReduceLoop, RSPR, RSThr, TDipMin, TMGR_Thrs, Tolerance
 #ifdef _HDF5_
-use Dens2HDF5
+use Dens2HDF5, only: UpdateIdx
 use mh5, only: mh5_put_dset
 use Cntrl, only: IfTDM, IfTrD1
 use RASSIWfn, only: wfn_SFS_Coef, wfn_SFS_Energy, WFN_SFS_TM
 #endif
-use Constants, only: Pi, auTocm, auToeV, auTofs, c_in_au, Debye, Half, Zero, One, Two, Three, Six, Nine, Ten, Four, Quart, OneHalf
 use stdalloc, only: mma_allocate, mma_deallocate
-use Cntrl, only: NSTATE, NPROP, lSym1, lSym2, EMin, IfJ2, IfJz, DySO, DIPR, OSThr_DiPr, QIPR, OSThr_QIPR, QIAll, RSPR, RSThr, &
-                 ReduceLoop, LoopDivide, Do_SK, PrDipVec, TDipMin, Tolerance, DoCD, nQUad, Do_Pol, TMGR_Thrs, PrRaw, PrWeight, &
-                 iComp, IPUSED, IRREP, L_Eff, MLTPLT, NACTE, PNAME, PTYPE, Do_TMom
-use cntrl, only: LuTDM
-use Symmetry_Info, only: MUL, nSym => nIrrep
-use rassi_data, only: NBST, NBASF, NTDMZZ
-use Definitions, only: wp, u6
+use Constants, only: Zero, One, Two, Three, Four, Six, Nine, Ten, Half, Quart, OneHalf, Pi, auTocm, auToeV, auTofs, c_in_au, Debye
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), DYSAMPS(NSTATE,NSTATE), HAM(NSTATE,NSTATE), EIGVEC(NSTATE,NSTATE), &
-       ENERGY(NSTATE)
-real*8 DYSAMPS2(NSTATE,NSTATE)
-character(len=100) line
-real*8, allocatable :: ESFS(:)
-logical Diagonal
-integer, dimension(:), allocatable :: IndexE, TMOgrp1, TMOgrp2
+real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), OVLP(NSTATE,NSTATE), DYSAMPS(NSTATE,NSTATE), HAM(NSTATE,NSTATE), &
+                 EIGVEC(NSTATE,NSTATE), ENERGY(NSTATE)
+integer(kind=iwp) :: I, I2Tot, I_, I_Have_DL, I_Have_DV, I_Print_Header, iAMx, iAMxyz, iAMy, iAMz, iCar, iDiag, iDisk, idx, &
+                     iEmpty, iEnd, iEnd_, IfAnyD, IfAnyM, IfAnyQ, iGo, iGrp, ii, ij, ij_, ijSO, IOFF(8), iOpt, iPrDX, iPrDxD, &
+                     iPrDxM, iPrDxx, iPrDxxx, iPrDxxy, iPrDxxz, iPrDxy, iPrDxz, iPRDY, iPrDyD, iPrDyM, iPrDyx, iPrDyy, iPrDyyx, &
+                     iPrDyyy, iPrDyyz, iPrDyz, iPRDZ, iPrDzD, iPrDzM, iPrDzx, iPrDzy, iPrDzz, iPrDzzx, iPrDzzy, iPrDzzz, iPrint, &
+                     iProp, iPrp, iPrQxx, iPrQxy, iPrQxz, iPrQyy, iPrQyz, iPrQzz, IPRTMOM(12), iQuad, iSet, iStart_, iState, &
+                     iSy12, iSy34, iTol, iType, iVec, iVec_, J, J_, jEnd_, jGrp, jj, Job1, Job2, Job3, Job4, jSet, jSTart, &
+                     jStart_, jState, k, K_, kEnd, kSTA, kState, L, L_, LNCNT, lOsc_Strength, lPos, lState, lSym3, lSym4, LuT1, &
+                     LuT2, Mask, Mask34, MaxGrp1, MaxGrp2, MPLET1, MPLET2, mState, nActe1, nActe2, nDiff, nGroup1, nGroup2, nHH, &
+                     NIP, nLST, nMax2, nScr, nSets, nTmp, nVec, SECORD(4)
+real(kind=wp) :: A, AFactor, ANG, Ax, Ay, Az, COMPARE, Dlt, DMax, DSZ, Dx, Dx2, Dxx, Dxx2, DxxDyy, DxxDzz, DxxxDx, DxxyDy, DxxzDz, &
+                 Dxy, Dxy2, DxyDz, Dxz, Dxz2, DxzDy, Dy, Dy2, DYSAMPS2(NSTATE,NSTATE), DysThr, DyxDz, Dyy, Dyy2, DyyDzz, DyyxDx, &
+                 DyyyDy, DyyzDz, Dyz, Dyz2, DyzDx, Dz, Dz2, DzxDy, DzyDx, Dzz, Dzz2, DzzxDx, DzzyDy, DzzzDz, E0, E1, E2, E3, &
+                 EDiff, EDiff2, EDiff3, EDiff_, EffL, EffM, EI, epsH, epsS, eRMS, EV, EVLim, EVMax, Ex, F, F_Check, F_Temp, FMax, &
+                 Fx, Fxx, FxxFyy, FxxFzz, Fxxx, Fxxy, Fxxz, Fxy, Fxz, Fy, Fyx, Fyy, FyyFzz, Fyyx, Fyyy, Fyyz, Fyz, Fz, Fzx, FZY, &
+                 Fzz, Fzzx, Fzzy, Fzzz, OSthr, OSthr2, R, R_Check, R_Temp, RefEne, RKNorm, RNG, RNorm, Rtensor(6), Rxx, Rxxy, &
+                 Rxxz, Rxy, Rxyx, Rxyy, Rxyz, Rxz, Rxzx, Rxzy, Rxzz, Ryx, Ryy, Ryyx, Ryyz, Ryz, Ryzx, Ryzy, RYZZ, Rzx, Rzy, Rzz, &
+                 Rzzx, Rzzy, Tau, TCPU1, TCPU2, ThrS, TM1, TM2, TM3, TM_2, TM_C(3), TM_I(3), TM_R(3), Tmp, TWall1, TWall2, UK(3), &
+                 V2Sum, Wavevector(3), Weight, X
+logical(kind=iwp) :: Diagonal, TMOgroup
+character(len=100) :: line
+character(len=60) :: FMTLINE
 character(len=13) :: filnam
-integer cho_x_gettol
-external cho_x_gettol
-integer IOFF(8), SECORD(4), IPRTMOM(12)
-character(len=8) LABEL
-real*8 TM_R(3), TM_I(3), TM_C(3)
-character(len=60) FMTLINE
-real*8 Wavevector(3), UK(3)
-real*8, allocatable :: pol_Vector(:,:), Rquad(:,:)
-real*8, allocatable :: TDMZZ(:), TSDMZZ(:), WDMZZ(:), SCR(:,:)
+character(len=8) :: LABEL
+integer(kind=iwp), allocatable :: ILST(:), IndexE(:), LIST(:), STACK(:), TMOgrp1(:), TMOgrp2(:)
+real(kind=wp), allocatable :: Aux(:,:), DL(:), DV(:), ESFS(:), HH(:), HSQ(:), IP(:), L2(:), L2DIA(:), M2DIA(:), OscStr(:,:), &
+                              pol_Vector(:,:), RAW(:,:,:), Rquad(:,:), SCR(:,:), SCR1(:), SS(:), TDMZZ(:), TOT2K(:,:), TSDMZZ(:), &
+                              UU(:), VLST(:), WDMZZ(:)
 #ifdef _HDF5_
-real*8, allocatable, target :: Storage(:,:,:,:)
-real*8, pointer :: flatStorage(:)
+integer(kind=iwp) :: ijSF, ip_kVector, ip_TMI, ip_TMR, ip_W, nData, nIJ
+real(kind=wp), allocatable :: Storage(:,:,:,:)
 #endif
-logical TMOgroup
-real*8 COMPARE
-real*8 Rtensor(6)
-integer, allocatable :: LIST(:), STACK(:), ILST(:)
-real*8, allocatable :: HH(:), HSQ(:), SS(:), UU(:), SCR1(:)
-real*8, allocatable :: L2(:), M2DIA(:), L2DIA(:), VLST(:)
-real*8, allocatable :: DV(:), DL(:), Aux(:,:)
-real*8, allocatable :: TOT2K(:,:), IP(:), OscStr(:,:), RAW(:,:,:)
-real*8, parameter :: AU2REDR = 200.0_wp*Debye
-real*8, parameter :: Two3rds = Two/Three
-real*8, parameter :: ONEOVER6C2 = One/(Six*c_in_au**2)
-real*8, parameter :: ONEOVER10C = One/(Ten*c_in_au**2)
-real*8, parameter :: ONEOVER30C = ONEOVER10C/Three
-real*8, parameter :: TWOOVERM45C = -Two/(45.0_wp*c_in_au**2)
-real*8, parameter :: ONEOVER9C2 = One/(Nine*c_in_au**2)
-integer I, J, iSet, Job1, nActe1, MPLET1, Job2, MPLET2, nSets, nHH, mState, jSet, ij, ii, jj, k, lPos, iDiag, LuT2, LuT1, iState, &
-        idx, iTol, iAMx, iAMy, iAMz, iProp, iAMxyz, kState, jState, lState, L, nLST, kSTA, kEnd, iPrp, iEnd, jSTart, I_Have_DL, &
-        I_Have_DV, iPrDX, iPRDY, iPRDZ, IfAnyD, lOsc_Strength, nVec, iVec, K_, L_, nActe2, LNCNT, I_Print_Header, iPrDxx, iPrDxy, &
-        iPrDxz, iPrDyy, iPrDyz, iPrDzz, iPrDxxx, iPrDxxy, iPrDxxz, iPrDyyx, iPrDyyy, iPrDyyz, iPrDzzx, iPrDzzy, iPrDzzz, iPrDyx, &
-        iPrDzx, iPrDzy, I2Tot, iPrint, iPrDxD, iPrDyD, iPrDzD, iPrDxM, iPrDyM, iPrDzM, iPrQxx, iPrQxy, iPrQxz, iPrQyy, iPrQyz, &
-        iPrQzz, IfAnyM, IfAnyQ, I_, J_, nScr, nDiff, NIP, nGroup1, nGroup2, nMax2, nTmp, MaxGrp1, MaxGrp2, ijSO, iGrp, jGrp, &
-        iStart_, iEnd_, jStart_, jEnd_, iQuad, iVec_, iOpt, ij_, iSy12, Mask, iDisk, iEmpty, iGo, iType, Job3, lSym3, Job4, lSym4, &
-        iSy34, Mask34, iCar
-integer, external :: IsFreeUnit
-real*8 X, Tmp, Dlt, epsS, epsH, EI, V2Sum, eRMS, Ex, E0, E1, E2, E3, EffL, EffM, EVMax, EVLim, EV, OSthr, OSthr2, AFactor, FMax, &
-       EDiff, Dx, Dy, Dz, Dx2, Dy2, Dz2, Fx, Fy, Fz, F, Ax, Ay, Az, DMax, DSZ, EDiff3, Dxx, Dyy, Dzz, Dxy, Dxz, Dyz, Dxx2, Dyy2, &
-       Dzz2, Fxx, Fyy, Fzz, Dxy2, Dxz2, Dyz2, Fxy, Fxz, Fyz, DxxDyy, DxxDzz, FxxFyy, FxxFzz, FyyFzz, A, DyyDzz, DxxxDx, DyyxDx, &
-       DzzxDx, Fxxx, Fyyx, Fzzx, DxxyDy, DyyyDy, DzzyDy, Fxxy, Fyyy, Fzzy, DxxzDz, DyyzDz, DzzzDz, Fxxz, Fyyz, Fzzz, EDiff2, &
-       DxyDz, DyxDz, Fyx, DzxDy, DxzDy, Fzx, DyzDx, DzyDx, Rxx, Ryy, Rzz, R, Rxy, Rxz, Ryx, Ryz, Rzx, Rzy, Rxxy, Rxxz, Rxyx, Rxyz, &
-       Rxzx, Rxzy, Rxyy, Ryyx, Ryyz, Ryzx, Ryzy, Rxzz, Rzzx, Rzzy, DysThr, ThrS, RefEne, Tau, EDiff_, RKNorm, Weight, RNorm, TM1, &
-       TM2, TM_2, TM3, RNG, ANG, F_Temp, R_Temp, F_Check, R_Check, TCPU1, TCPU2, TWall1, TWall2, FZY, RYZZ
-#ifdef _HDF5_
-integer nIJ, ip_W, ip_kVector, ip_TMR, ip_TMI, nData, ijSF
-#endif
-real*8, external :: DDOt_
+real(kind=wp), parameter :: AU2REDR = 200.0_wp*Debye, ONEOVER10C = One/(Ten*c_in_au**2), ONEOVER30C = ONEOVER10C/Three, &
+                            ONEOVER6C2 = One/(Six*c_in_au**2), ONEOVER9C2 = One/(Nine*c_in_au**2), Two3rds = Two/Three, &
+                            TWOOVERM45C = -Two/(45.0_wp*c_in_au**2)
+integer(kind=iwp), external :: cho_x_gettol, IsFreeUnit
+real(kind=wp), external :: DDOt_
 
 ! Bruno, DYSAMPS2 is used for printing out the pure norm
 ! of the Dyson vectors.
@@ -2279,7 +2260,7 @@ do iVec=1,nVec
             MASK = 2**(ISY12-1)
             ! ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             ! FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
-            call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
+            call mk_IOFF(IOFF,nIrrep,NBASF,ISY12)
             ! CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
             ! AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
 
@@ -2295,7 +2276,7 @@ do iVec=1,nVec
               iOpt = 2
               iGo = 5
               call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
-              call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,IOFF,NBASF,ISY12)
+              call MK_TWDM(nIrrep,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,IOFF,NBASF,ISY12)
               do IPRP=1,12
                 IPROP = IPRTMOM(IPRP)
                 ITYPE = 0
@@ -2325,14 +2306,14 @@ do iVec=1,nVec
                   ISY34 = MUL(LSYM3,LSYM4)
 
                   MASK34 = 2**(ISY34-1)
-                  call mk_IOFF(IOFF,nSYM,NBASF,ISY34)
+                  call mk_IOFF(IOFF,nIrrep,NBASF,ISY34)
 
                   IDISK = iDisk_TDM(k,l,1)
                   iEmpty = iDisk_TDM(k,l,2)
                   iOpt = 2
                   iGo = 5
                   call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,k,l)
-                  call MK_TWDM(nSym,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,IOFF,NBASF,ISY34)
+                  call MK_TWDM(nIrrep,TDMZZ,WDMZZ,nTDMZZ,SCR,nSCR,IOFF,NBASF,ISY34)
 
                   do IPRP=1,12
                     IPROP = IPRTMOM(IPRP)
@@ -2595,9 +2576,7 @@ do iVec=1,nVec
 end do ! iVec
 
 #ifdef _HDF5_
-flatStorage(1:size(Storage)) => Storage
-call mh5_put_dset(wfn_sfs_tm,flatStorage)
-nullify(flatStorage)
+call mh5_put_dset(wfn_sfs_tm,pack(Storage,.true.))
 call mma_deallocate(Storage)
 #endif
 

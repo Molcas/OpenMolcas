@@ -13,16 +13,16 @@ subroutine PRCMAT2(INPUT,NSS,XMATR,XMATI)
 ! Write out matrix elements over states as a complex matrix
 ! in parsable format
 
-use Definitions, only: iwp, wp
 use Cntrl, only: ISOCMP, SOPRNM
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: INPUT, NSS
 real(kind=wp), intent(in) :: XMATR(NSS,NSS), XMATI(NSS,NSS)
-character(len=8) PROPERTY
-character(len=1) DIRECTION
-character(len=200) FILENAME
-integer(kind=iwp) LU, JSTA, ISS
+integer(kind=iwp) :: ISS, JSTA, LU
+character(len=200) :: FILENAME
+character(len=8) :: PROPERTY
+character :: DIRECTION
 integer(kind=iwp), external :: IsFreeUnit
 
 if (INPUT > 0) then

@@ -11,19 +11,18 @@
 
 subroutine MKTDZZ(CMOA,CMOB,TDMAB,TDMZZ,iRC)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use Cntrl, only: LSYM1, LSYM2
-use Symmetry_Info, only: nSym => nIrrep, MUL
-use rassi_data, only: NCMO, NTDMAB, NTDMZZ, NBASF, NOSH
+use Symmetry_Info, only: MUL, nIrrep
+use rassi_data, only: NBASF, NCMO, NOSH, NTDMAB, NTDMZZ
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CMOA(NCMO), CMOB(NCMO)
-real*8 TDMAB(NTDMAB), TDMZZ(NTDMZZ)
-integer iRC
-integer ISTCMO(8)
-real*8, allocatable :: SCR(:)
-integer ISY12, NSCR, IST, ISY1, NO1, ISY2, ISTTA, ISTCA, ISTTZ, ISTCB, NO2, NB1, NB2
+real(kind=wp) :: CMOA(NCMO), CMOB(NCMO), TDMAB(NTDMAB), TDMZZ(NTDMZZ)
+integer(kind=iwp) :: iRC
+integer(kind=iwp) :: IST, ISTCA, ISTCB, ISTCMO(8), ISTTA, ISTTZ, ISY1, ISY12, ISY2, NB1, NB2, NO1, NO2, NSCR
+real(kind=wp), allocatable :: SCR(:)
 
 if (iRC == 0) then
   TDMZZ(:) = Zero
@@ -34,7 +33,7 @@ ISY12 = MUL(LSYM1,LSYM2)
 ! NSCR=SIZE NEEDED FOR TEMPORARY MATRIX PRODUCT.
 NSCR = 0
 IST = 1
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   ISTCMO(ISY1) = IST
   NO1 = NOSH(ISY1)
   IST = IST+NO1*NBASF(ISY1)
@@ -45,7 +44,7 @@ call mma_allocate(SCR,NSCR,Label='SCR')
 ISTTA = 1
 ISTCA = 1
 ISTTZ = 1
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   ISY2 = MUL(ISY1,ISY12)
   ISTCB = ISTCMO(ISY2)
   NO1 = NOSH(ISY1)

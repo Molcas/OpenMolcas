@@ -11,13 +11,13 @@
 
 subroutine WRMAT1(ND1,ND2,XMAT)
 
-use definitions, only: iwp, wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ND1, ND2
 real(kind=wp), intent(in) :: XMAT(ND1,ND2)
+integer(kind=iwp) :: I, IBL, J, JEND, JSTA, NBL
 integer(kind=iwp), parameter :: NCOL = 5
-integer(kind=iwp) NBL, IBL, JSTA, JEND, I, J
 
 ! NCOL=NR OF PRINTING COLUMNS.
 NBL = (ND2+NCOL-1)/NCOL

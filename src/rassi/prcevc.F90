@@ -12,21 +12,17 @@
 subroutine PRCEVC(NSS,FRAC,SOENE,MAPST,MAPSP,MAPMS,UMATR,UMATI)
 
 use rassi_aux, only: ipglob
-use stdalloc, only: mma_allocate, mma_deallocate
 use Cntrl, only: NSTATE
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSS
-real*8 FRAC, SOENE(NSS), UMATR(NSS,NSS), UMATI(NSS,NSS)
-integer MAPST(NSS), MAPSP(NSS), MAPMS(NSS)
-real*8, allocatable :: weight(:), sstate(:)
-real*8 :: wmax(5), smax(5)
-integer :: nmax(5)
-integer I
-integer ISFS, IMAXSTATE, ISTATE, ISS, JSS, JSTA, JEND, NW
-real*8 CFFLIM, S, SSMAX, SZ, TST, WGTMAX, XMAX
+integer(kind=iwp) :: NSS, MAPST(NSS), MAPSP(NSS), MAPMS(NSS)
+real(kind=wp) :: FRAC, SOENE(NSS), UMATR(NSS,NSS), UMATI(NSS,NSS)
+integer(kind=iwp) :: I, IMAXSTATE, ISFS, ISS, ISTATE, JEND, JSS, JSTA, nmax(5), NW
+real(kind=wp) :: CFFLIM, S, smax(5), SSMAX, SZ, TST, WGTMAX, wmax(5), XMAX
+real(kind=wp), allocatable :: sstate(:), weight(:)
 
 call mma_allocate(weight,nss)
 call mma_allocate(sstate,nss)

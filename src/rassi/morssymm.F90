@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function MorsSymm(IMORS,ISMARR)
+function MorsSymm(IMORS,ISMARR)
 
 use Symmetry_Info, only: MUL
-use Definitions, only: u6
+use Cntrl, only: MORSBITS
+use Definitions, only: iwp, u6
 
 implicit none
-integer MORSBITS
-parameter(MORSBITS=8)
-dimension ISMARR(*)
-integer I, IB, IBIT, IMORS, ISMARR
+integer(kind=iwp) MorsSymm
+integer(kind=iwp) IMORS, ISMARR(*)
+integer(kind=iwp) I, IB, IBIT
 
 MorsSymm = 1
 if (IMORS < 0) goto 99

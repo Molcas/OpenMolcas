@@ -30,17 +30,17 @@ subroutine dens2file(array1,array2,array3,adim,lu,adr,iEmpty,iOpt,iGo,iState,jSt
 !
 !***********************************************************************
 
-use rassi_aux, only: AO_Mode, Job_Index, nasht_save, CMO1, CMO2, DMAB, mTRA, Job1_Old, Job2_Old
+use rassi_aux, only: AO_Mode, CMO1, CMO2, DMAB, Job_Index, mTRA, nasht_save
 use stdalloc, only: mma_Allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: adim, lu, iEmpty, iOpt, iGo, iState, jState
-integer, intent(inout) :: adr
-real*8, intent(inout) :: array1(adim), array2(adim), array3(adim)
-integer JOB1, JOB2, bdim, IRC, J1, J2
-real*8, allocatable :: TRA1(:), TRA2(:)
+integer(kind=iwp), intent(in) :: adim, lu, iEmpty, iOpt, iGo, iState, jState
+real(kind=wp), intent(inout) :: array1(adim), array2(adim), array3(adim)
+integer(kind=iwp), intent(inout) :: adr
+integer(kind=iwp) :: bdim, IRC, J1, J2, JOB1, JOB1_Old = -1, JOB2, JOB2_Old = -1
+real(kind=wp), allocatable :: TRA1(:), TRA2(:)
 
 bdim = adim
 if ((.not. AO_Mode) .and. (iOpt == 2)) bdim = nasht_save**2+1

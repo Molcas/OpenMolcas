@@ -11,12 +11,11 @@
 
 subroutine PRPRTTAB(IPRTTAB)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IPRTTAB(*)
-integer IPART, NPART
-integer NSYM, ISYM
+integer(kind=iwp) :: IPRTTAB(*)
+integer(kind=iwp) :: IPART, ISYM, NPART, NSYM
 
 write(u6,*)
 write(u6,*) ' Partition table printout'

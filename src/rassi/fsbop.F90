@@ -11,25 +11,16 @@
 
 subroutine FSBOP(IMODE,ISORB,IORBTAB,ISSTAB,IFSBTAB,ICASE)
 
-use rassi_global_arrays, only: FSBANN1, FSBANN2, FSBANN3, FSBANN4, FSBANN
+use rassi_global_arrays, only: FSBANN1, FSBANN2, FSBANN3, FSBANN4
 use stdalloc, only: mma_allocate
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IMODE, ISORB
-integer IORBTAB(*), NASPRT
-integer ISSTAB(*)
-integer IFSBTAB(*)
-integer ICASE
-integer KOINFO, ISPART, INSBPT, MORSBITS
-integer KSSTAN, KSSTCR
-integer KSSTOP, ITYPE, NFSB1, NASPRT1
-integer KSTARR1, NTAB2, NTAB2NEW, NASPRT2
-integer KSTARR2, IFSB2, IDET2, IFSB1, KPOS1
-integer ISST1, ISST2, KPOS2, NDETS2, NHEAD
-integer LSSTARR2, NSSTARR2, NFSB2, LHSH2, NHSH2
-integer KSSTTB, NSBS1, NSBS2, NDET1, NDET2
-integer NULL, KHSH2, IERR, LPOS
+integer(kind=iwp) :: IMODE, ISORB, IORBTAB(*), ISSTAB(*), IFSBTAB(*), ICASE
+integer(kind=iwp) :: IDET2, IERR, IFSB1, IFSB2, INSBPT, ISPART, ISST1, ISST2, ITYPE, KHSH2, KOINFO, KPOS1, KPOS2, KSSTAN, KSSTCR, &
+                     KSSTOP, KSSTTB, KSTARR1, KSTARR2, LHSH2, LPOS, LSSTARR2, MORSBITS, NASPRT, NASPRT1, NASPRT2, NDET1, NDET2, &
+                     NDETS2, NFSB1, NFSB2, NHEAD, NHSH2, NSBS1, NSBS2, NSSTARR2, NTAB2, NTAB2NEW, NULLV
+integer(kind=iwp), pointer :: FSBANN(:)
 
 ! The orbital table:
 NASPRT = IORBTAB(9)
@@ -101,6 +92,7 @@ select case (ICASE)
     write(u6,*) 'FSBOP: Illegal iCase value.'
     write(u6,*) 'ICASE=',ICASE
     call ABEND()
+    FSBANN => FSBANN1(:) !dummy
 end select
 
 FSBANN(1) = NTAB2
@@ -143,9 +135,9 @@ if (NTAB2 /= NTAB2NEW) then
   write(u6,*) ' Program RASSI is forced to stop, sorry!'
   call ABEND()
 end if
-! Make the hash map: NULL is a null marker. Suggested value=-1.
-NULL = -1
-call HSHINI(NHSH2,FSBANN(LHSH2:),NULL)
+! Make the hash map: NULLV is a null marker. Suggested value=-1.
+NULLV = -1
+call HSHINI(NHSH2,FSBANN(LHSH2:),NULLV)
 KHSH2 = 1+NHEAD+NSSTARR2
 ! Header data:
 FSBANN(1) = NTAB2
@@ -174,5 +166,7 @@ if (IERR > 0) then
   call PRFSBTAB(FSBANN(:))
   call ABEND()
 end if
+
+nullify(FSBANN)
 
 end subroutine FSBOP

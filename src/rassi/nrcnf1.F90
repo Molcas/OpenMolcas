@@ -26,19 +26,16 @@ subroutine NRCNF1(MAXEL,NORB,NGAS,NGASLIM,NGASORB,NCNF1,MXTMP,NCNF2)
 !               The GAS restriction arrays
 ! Method: Induction over GAS partitions.
 
-use definitions, only: iwp
+use Symmetry_Info, only: MUL, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Symmetry_Info, only: nSym => nIrrep, MUL
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: MXTMP
-integer(kind=iwp), intent(in) :: MaxEl, NORB, NGAS
-integer(kind=iwp), intent(in) :: NGASLIM(2,NGAS), NGASORB(NSYM,NGAS)
-integer(kind=iwp), intent(out) :: NCNF1(NSYM,((MAXEL+1)*(MAXEL+2))/2)
-integer(kind=iwp), intent(out) :: NCNF2(NSYM,((MXTMP+1)*(MXTMP+2))/2)
+integer(kind=iwp), intent(in) :: MaxEl, NORB, NGAS, NGASLIM(2,NGAS), NGASORB(nIrrep,NGAS), MXTMP
+integer(kind=iwp), intent(out) :: NCNF1(nIrrep,((MAXEL+1)*(MAXEL+2))/2), NCNF2(nIrrep,((MXTMP+1)*(MXTMP+2))/2)
+integer(kind=iwp) :: I, IGAS, II, IPOS, IPOSNW, IPOSOLD, ISYM, ISYMNW, ISYMOLD, MAXOCC, MXOCCOLD, NCLS, NCLSNW, NCLSOLD, NELMN, &
+                     NELMX, NEW, NG, NO, NOCC, NOCCMX, NOCCNW, NOCCOLD, NOPN, NOPNNW, NOPNOLD, NX, NY
 integer(kind=iwp), allocatable :: ISM(:)
-integer(kind=iwp) MAXOCC, NOCCMX, IGAS, MXOCCOLD, NO, II, ISYM, NG, I, NELMN, NELMX, NOCCNW, NOPNNW, IPOSNW, ISYMNW, NEW, NOCC, &
-                  NOPN, IPOS, IPOSOLD, ISYMOLD, NCLS, NCLSNW, NCLSOLD, NOCCOLD, NOPNOLD, NX, NY
 
 MAXOCC = min(MAXEL,NORB)
 ! Initialize:
@@ -52,7 +49,7 @@ do IGAS=1,NGAS
   ! Nr of orbitals in this partition
   NO = 0
   II = 0
-  do ISYM=1,NSYM
+  do ISYM=1,nIrrep
     NG = NGASORB(ISYM,IGAS)
     NO = NO+NG
     do I=1,NG
@@ -67,13 +64,13 @@ do IGAS=1,NGAS
     do NOPNNW=0,NOCCNW
       NCLSNW = NOCCNW-NOPNNW
       IPOSNW = (NOCCNW*(NOCCNW+1))/2+NOPNNW+1
-      do ISYMNW=1,NSYM
+      do ISYMNW=1,nIrrep
         NEW = 0
         do NOCC=NELMN/2,min(NELMX,NO)
           do NOPN=max(0,2*NOCC-NELMX),min(2*NOCC-NELMN,NOCC,NELMX)
             NCLS = NOCC-NOPN
             IPOS = (NOCC*(NOCC+1))/2+NOPN+1
-            do ISYM=1,NSYM
+            do ISYM=1,nIrrep
               NY = NCNF2(ISYM,IPOS)
               if (NY == 0) cycle
               NCLSOLD = NCLSNW-NCLS

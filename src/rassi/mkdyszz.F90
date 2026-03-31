@@ -23,14 +23,14 @@
 
 subroutine MKDYSZZ(CMOA,DYSAB,DYSZZ)
 
-use Symmetry_Info, only: nSym => nIrrep
-use rassi_data, only: NCMO, NASH, NBASF, NOSH
+use Symmetry_Info, only: nIrrep
+use rassi_data, only: NASH, NBASF, NCMO, NOSH
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CMOA(NCMO)
-real*8 DYSAB(*), DYSZZ(*)
-integer IBIO, IZZ, SYMOFF, BIOOFF, IBIOFF, IZZOFF, ISY1, NO1, NA1, NB1
-real*8 COEFF
+real(kind=wp) :: CMOA(NCMO), DYSAB(*), DYSZZ(*)
+integer(kind=iwp) :: BIOOFF, IBIO, IBIOFF, ISY1, IZZ, IZZOFF, NA1, NB1, NO1, SYMOFF
+real(kind=wp) :: COEFF
 
 ! Re-express the DO coefficients in biorth basis DYSAB
 ! into atomic basis DYSZZ with help of CMOA that contains
@@ -39,7 +39,7 @@ real*8 COEFF
 SYMOFF = 0
 IBIOFF = 0
 IZZOFF = 0
-do ISY1=1,NSYM
+do ISY1=1,nIrrep
   NO1 = NOSH(ISY1)
   NA1 = NASH(ISY1)
   NB1 = NBASF(ISY1)

@@ -14,12 +14,12 @@
 function NGENE(NEL,MLTPL)
 ! Nr of genealogical spin couplings
 
-use definitions, only: iwp
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) NGENE
+integer(kind=iwp) :: NGENE
 integer(kind=iwp), intent(in) :: NEL, MLTPL
-integer(kind=iwp) IS2, NU, ND
+integer(kind=iwp) :: IS2, ND, NU
 integer(kind=iwp), external :: NOVERM
 
 NGENE = 0

@@ -13,20 +13,18 @@ subroutine TSHop(CI1,CI2)
 
 use rassi_aux, only: ipglob
 use rassi_global_arrays, only: JBNUM, LROOT
-use Cntrl, only: JBNAME
-use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop, lHop, nHop
-use cntrl, only: iTOC15, LuIph
+use Cntrl, only: ChkHop, ISTATE1, ISTATE2, iTOC15, JBNAME, LuIph, nCI1, nCI2
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Quart
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 CI1(NCI1), CI2(NCI2)
-real*8 prdct(2,2)
-integer I, JOB1, JOB2, file, file2, maxHop, IAD3
-character filnam*80, filother*80
-real*8 CI1pr(NCI1), CI2pr(NCI2)
-integer IADR3(3), IAD, IDISK, LROOT1
-logical lMaxHop, lAllowHop, fexist, lHopped
+real(kind=wp) :: CI1(NCI1), CI2(NCI2)
+integer(kind=iwp) :: file1, file2, I, IAD, IAD3, IADR3(3), IDISK, JOB1, JOB2, LROOT1, maxHop, nHop
+real(kind=wp) :: prdct(2,2)
+logical(kind=iwp) :: fexist, lAllowHop, lHop, lHopped, lMaxHop
+character(len=80) :: filnam, filother
+real(kind=wp), allocatable :: CI1pr(:), CI2pr(:)
 
 ! Skip the test if a hop has occurred
 !  (this should happen when testing for state n+1
@@ -37,10 +35,13 @@ if (I /= ISTATE1) then
   return
 end if
 
+call mma_allocate(CI1pr,NCI1,Label='CI1pr')
+call mma_allocate(CI2pr,NCI2,Label='CI2pr')
+
 ! Initialization
 CI1pr(:) = Zero
 CI2pr(:) = Zero
-file = 83
+file1 = 83
 file2 = 83
 lHopped = .false.
 
@@ -99,26 +100,26 @@ end if
 
 call f_inquire(filnam,fexist)
 if (fexist) then
-  call DANAME(file,filnam)
+  call DANAME(file1,filnam)
   if (IPGLOB >= 3) write(u6,*) trim(filnam)//' file exists.'
 else
   ! If the file does not exist, create a new one with the current vectors
-  call DANAME(file,filnam)
+  call DANAME(file1,filnam)
   ! Dummy table of contents is written
   do I=1,3
     IADR3(I) = 0
   end do
   IAD3 = 0
-  call IDAFILE(file,1,IADR3,3,IAD3)
+  call IDAFILE(file1,1,IADR3,3,IAD3)
   IADR3(1) = IAD3
   ! Current CI coefficients are written
-  call DDAFILE(file,1,CI1,NCI1,IAD3)
+  call DDAFILE(file1,1,CI1,NCI1,IAD3)
   IADR3(2) = IAD3
-  call DDAFILE(file,1,CI2,NCI2,IAD3)
+  call DDAFILE(file1,1,CI2,NCI2,IAD3)
   IADR3(3) = IAD3
   ! Write the real table of contents
   IAD3 = 0
-  call IDAFILE(file,1,IADR3,3,IAD3)
+  call IDAFILE(file1,1,IADR3,3,IAD3)
   if (IPGLOB >= 3) write(u6,*) trim(filnam)//' file created.'
 end if
 
@@ -129,13 +130,13 @@ if (ChkHop) then
 
   ! Read table of contents on this file
   IAD3 = 0
-  call IDAFILE(file,2,IADR3,3,IAD3)
+  call IDAFILE(file1,2,IADR3,3,IAD3)
   ! Read the CI coefficients of ISTATE1 from previuos step
   IAD3 = IADR3(1)
-  call DDAFILE(file,2,CI1pr,NCI1,IAD3)
+  call DDAFILE(file1,2,CI1pr,NCI1,IAD3)
   ! Read the CI coefficients of ISTATE2 from previuos step
   IAD3 = IADR3(2)
-  call DDAFILE(file,2,CI2pr,NCI2,IAD3)
+  call DDAFILE(file1,2,CI2pr,NCI2,IAD3)
 
   ! Calculate the scalar product of the CI coefficient vectors.
   prdct(1,1) = Zero
@@ -209,13 +210,16 @@ if (IPGLOB >= 3) then
   end do
 end if
 
+call mma_deallocate(CI1pr)
+call mma_deallocate(CI2pr)
+
 ! Save the CI coefficients to the right file,
 ! dependending on whether or not a hop has occurred
 
 if (lHopped) then
 
   ! Delete the file with the CI-vectors
-  call DaEras(file)
+  call DaEras(file1)
 
   ! Note that, if a hop occurred, the vectors are written
   ! in the *other* file, and in reversed order
@@ -247,12 +251,12 @@ else
 
   ! Write the CI-vectors normally if no hop occurred
   IAD3 = 0
-  call IDAFILE(file,2,IADR3,3,IAD3)
+  call IDAFILE(file1,2,IADR3,3,IAD3)
   IAD3 = IADR3(1)
-  call DDAFILE(file,1,CI1,NCI1,IAD3)
+  call DDAFILE(file1,1,CI1,NCI1,IAD3)
   IAD3 = IADR3(2)
-  call DDAFILE(file,1,CI2,NCI2,IAD3)
-  call DACLOS(file)
+  call DDAFILE(file1,1,CI2,NCI2,IAD3)
+  call DACLOS(file1)
 end if
 
 return
