@@ -328,7 +328,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 #           endif
             Disp(:) = (Thr/DD)*Disp(:)
         End If
-#       endif
 
         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
