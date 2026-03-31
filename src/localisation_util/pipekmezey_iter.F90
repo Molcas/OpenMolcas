@@ -289,6 +289,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
 
+        call rescale_disp()
         ! see if inside region fit for GEK
         call StepSizeChecks()
 
@@ -408,48 +409,44 @@ End If
 end subroutine rescale_disp
 
 subroutine StepSizeChecks()
+        ! if previous step suggestion was out of GEKRange
+        if (ResetGEK) then
+            UpMeth=" -  - "
+            IterGEK = 0
+            nDIIS = 0
+            ResetGEK = .false.
+        end if
 
         ! check if matrix elements are > 0.01
         large_elements = 0
         do i=1,fsdim
-            if (abs(Disp(i)) > 0.01_wp) then
+            if (abs(Disp(i)) > 0.005_wp) then
                 large_elements = large_elements + 1
+            else
+                large_elements = large_elements
             end if
         end do
-        maxel = maxloc(Disp,1)
+        maxel = maxloc(abs(Disp),1)
         largest = Disp(maxel)
 
-        if (large_elements /= 0) then
-            write(u6,*) "maxel=",maxel
-            write(u6,*) "Disp(maxel)=",Disp(maxel)
-            write(u6,*) "large_elements",large_elements
+        ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
+        if (large_elements == 0) then
+            GEKRange = .true.
+        else if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
+            ! leave GEK and go back to NR if steps are too large
+            !write(u6,*) "resetting GEK due to large step:",largest
+
+            !Disp(:) = 0.1*Disp(:)
+            ResetGEK = .true.
+            GEKRange = .false.
+        else
+            GEKRange = .false.
         end if
 
 #       ifdef _DEBUGPRINT_
         write(u6,*) "kappa elements > 0.01 =",large_elements
         write(u6,*) "largest element =", Disp(maxel)
 #       endif
-
-        if (ResetGEK) then
-            UpMeth=" -  - "
-            IterGEK = 0
-            nDIIS = 0
-            ResetGEK = .false.
-            large_elements = 0
-        end if
-
-        ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
-        if (large_elements == 0) GEKRange = .true.
-
-        if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
-            ! leave GEK and go back to NR if steps are too large
-            write(u6,*) "reset GEK in iter",niter
-            write(u6,*) "large_elements",large_elements
-            write(u6,*) "largest element =", largest,abs(largest) > 0.01_wp
-            ResetGEK = .true.
-            GEKRange = .false.
-            large_elements = 0
-        end if
 end subroutine StepSizeChecks
 
 end subroutine PipekMezey_Iter
