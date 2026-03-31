@@ -32,6 +32,7 @@ real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
 real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt
 logical(kind=iwp), parameter :: debug_exp = .false.
+real(kind=wp),External :: DDot_
 
 kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
 xkappa_cnt(:,:) = kappa_cnt
@@ -85,11 +86,11 @@ do while (ithrsh > thrsh_taylor)
         end if
     end if
 
-    ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(unitary_mat)+thrsh_taylor))
+    ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))
 
     if (debug_exp) then
         write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
-            ', current ithrsh = ', ithrsh
+            ', new ithrsh = ', ithrsh
         call RecPrt('kappa^cnt',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
         call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
     end if
@@ -100,6 +101,4 @@ if (debug) then
     call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
     call RecPrt('unitary transformation matrix (exp(-kappa))',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
 end if
-
-
 end subroutine expkap_localisation
