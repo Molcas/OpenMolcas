@@ -50,7 +50,7 @@ real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
 ! for S-GEK
-integer(kind=iwp) :: maxel(1)
+integer(kind=iwp) :: maxel
 real(kind=wp) :: dqdq,largest
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
@@ -416,12 +416,18 @@ subroutine StepSizeChecks()
                 large_elements = large_elements + 1
             end if
         end do
-        maxel(:) = maxloc(Disp)
-        largest = Disp(maxel(1))
+        maxel = maxloc(Disp,1)
+        largest = Disp(maxel)
+
+        if (large_elements /= 0) then
+            write(u6,*) "maxel=",maxel
+            write(u6,*) "Disp(maxel)=",Disp(maxel)
+            write(u6,*) "large_elements",large_elements
+        end if
 
 #       ifdef _DEBUGPRINT_
         write(u6,*) "kappa elements > 0.01 =",large_elements
-        write(u6,*) "largest element =", Disp(maxel(1))
+        write(u6,*) "largest element =", Disp(maxel)
 #       endif
 
         if (ResetGEK) then
@@ -429,6 +435,7 @@ subroutine StepSizeChecks()
             IterGEK = 0
             nDIIS = 0
             ResetGEK = .false.
+            large_elements = 0
         end if
 
         ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
@@ -436,9 +443,12 @@ subroutine StepSizeChecks()
 
         if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
             ! leave GEK and go back to NR if steps are too large
-            write(u6,*) "reset GEK"
+            write(u6,*) "reset GEK in iter",niter
+            write(u6,*) "large_elements",large_elements
+            write(u6,*) "largest element =", largest,abs(largest) > 0.01_wp
             ResetGEK = .true.
             GEKRange = .false.
+            large_elements = 0
         end if
 end subroutine StepSizeChecks
 
