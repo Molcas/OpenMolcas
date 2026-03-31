@@ -238,6 +238,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! compute standard newton raphson step
         Disp(:) = -Gradient(:)/Hdiagvec(:)
 
+        call rescale_disp()
 
 #       ifdef _DEBUGLISTS_
             write(u6,*) "nIter =",nIter
@@ -288,48 +289,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
 
-        ! check if matrix elements are > 0.01
-        large_elements = 0
-        do i=1,fsdim
-            if (abs(Disp(i)) > 0.01_wp) then
-                large_elements = large_elements + 1
-            end if
-        end do
-        maxel(:) = maxloc(Disp)
-        largest = Disp(maxel(1))
-
-#       ifdef _DEBUGPRINT_
-        write(u6,*) "kappa elements > 0.01 =",large_elements
-        write(u6,*) "largest element =", Disp(maxel(1))
-#       endif
-
-        if (ResetGEK) then
-            UpMeth=" -  - "
-            IterGEK = 0
-            nDIIS = 0
-            ResetGEK = .false.
-        end if
-
-        ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
-        if (large_elements == 0) GEKRange = .true.
-
-        if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
-            ! leave GEK and go back to NR if steps are too large
-            write(u6,*) "reset GEK"
-            ResetGEK = .true.
-            GEKRange = .false.
-        end if
-
-        DD=Sqrt(dot_product(Disp(:),Disp(:)))
-        Thr= 0.5E0_wp * Pi
-        If (DD>=Thr)Then
-#           ifdef _DEBUGPRINT_
-            Write(u6,*) 'Rescale Kappa(:)'
-#           endif
-            Disp(:) = (Thr/DD)*Disp(:)
-        End If
-
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ! see if inside region fit for GEK
+        call StepSizeChecks()
 
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
@@ -430,5 +391,55 @@ case(2,3,4,5)
 end select
 
 call mma_Deallocate(Ovlp_sqrt)
+
+contains
+subroutine rescale_disp()
+
+DD=Sqrt(dot_product(Disp(:),Disp(:)))
+!Thr= 0.5E0_wp * Pi
+Thr= 0.25E0_wp * Pi
+If (DD>=Thr)Then
+#   ifdef _DEBUGPRINT_
+    Write(u6,*) 'Rescale Kappa(:)'
+#   endif
+Disp(:) = (Thr/DD)*Disp(:)
+End If
+
+end subroutine rescale_disp
+
+subroutine StepSizeChecks()
+
+        ! check if matrix elements are > 0.01
+        large_elements = 0
+        do i=1,fsdim
+            if (abs(Disp(i)) > 0.01_wp) then
+                large_elements = large_elements + 1
+            end if
+        end do
+        maxel(:) = maxloc(Disp)
+        largest = Disp(maxel(1))
+
+#       ifdef _DEBUGPRINT_
+        write(u6,*) "kappa elements > 0.01 =",large_elements
+        write(u6,*) "largest element =", Disp(maxel(1))
+#       endif
+
+        if (ResetGEK) then
+            UpMeth=" -  - "
+            IterGEK = 0
+            nDIIS = 0
+            ResetGEK = .false.
+        end if
+
+        ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
+        if (large_elements == 0) GEKRange = .true.
+
+        if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
+            ! leave GEK and go back to NR if steps are too large
+            write(u6,*) "reset GEK"
+            ResetGEK = .true.
+            GEKRange = .false.
+        end if
+end subroutine StepSizeChecks
 
 end subroutine PipekMezey_Iter

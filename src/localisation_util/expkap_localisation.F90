@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nOrb2Loc
 real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
                              unitary_mat(nOrb2Loc,nOrb2Loc)
-real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
+real(kind=wp), parameter :: thrsh_taylor = 1.0e-18_wp
 real(kind=wp) :: factor, ithrsh,ithrsh_prev
 integer(kind=iwp) :: cnt
 logical(kind=iwp), parameter :: debug_exp = .false.
@@ -76,13 +76,13 @@ do while (ithrsh > thrsh_taylor)
     if (mod(cnt,2) == 0) then
         unitary_mat(:,:) =  unitary_mat + kappa_cnt(:,:)
         if (debug_exp) then
-            write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
+            write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term: +',1/factor,' * kappa^',cnt, &
             ', current ithrsh = ', ithrsh
         end if
     else
         unitary_mat(:,:) =  unitary_mat - kappa_cnt(:,:)
         if (debug_exp) then
-            write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: - 1/',factor,' * kappa^',cnt, &
+            write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term: -',1/factor,' * kappa^',cnt, &
             ', current ithrsh = ', ithrsh
         end if
     end if
@@ -91,7 +91,7 @@ do while (ithrsh > thrsh_taylor)
     ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))
 
     ! sanity check for divergence
-    if (ithrsh > ithrsh_prev .and. cnt > 5) then
+    if (ithrsh/720 > One) then
         write(u6,*) "Bug: elements of the kappa matrix fed to expkap_localisation() are too large - the,&
                         Taylor expansion diverges"
         write(u6,*) "Stopping Taylor expansion at ",cnt,"-th term. Rescale kappa before feeding it this subroutine."
@@ -99,7 +99,7 @@ do while (ithrsh > thrsh_taylor)
     end if
 
     if (debug_exp) then
-        write(u6,'(A,F10.1,A,I2,A,ES12.4)') 'term: + 1/',factor,' * kappa^',cnt, &
+        write(u6,'(A,ES10.1,A,I2,A,ES12.4)') 'term:  ',1/factor,' * kappa^',cnt, &
             ', new ithrsh     = ', ithrsh
         call RecPrt('kappa^cnt',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
         call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
