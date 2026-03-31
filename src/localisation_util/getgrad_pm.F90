@@ -71,9 +71,9 @@ do k=1,nOrb2Loc-1
 !        Write (*,*) 'H_diag(k,l)=',H_diag(k,l)
          H_diag(kl)=-H_diag(kl)
       End If
-      If (Abs(H_diag(kl))<1.0e-2_wp) Then
+      If (Abs(H_diag(kl))<5.0e-1_wp) Then
 !        Write (*,*) 'H_diag(k,l)=',H_diag(k,l)
-         H_diag(kl)=-1.0e-2_wp
+         H_diag(kl)=-5.0e-1_wp
       End If
 
    end do
