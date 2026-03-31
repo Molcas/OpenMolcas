@@ -33,6 +33,8 @@ if (Debug) then
     write(u6,*) "-----------------"
 end if
 
+MOtype = "delocalized"
+
 Functional = Zero
 do iMO_s=1,nOrb2Loc
     ! calculating the Pipek measure of localization, that tells over how many atoms, MO s extends,
