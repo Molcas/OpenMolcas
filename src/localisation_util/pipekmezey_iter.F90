@@ -17,7 +17,6 @@
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _GETMOLDEN_
-!#define _RESKAPPA_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
@@ -25,16 +24,13 @@ subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName
 ! Based on the original routines by Y. Carissan.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList, DispList,&
                                 UmatList
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
-#endif
-#ifdef _RESKAPPA_
-use Constants, only: Pi
 #endif
 
 implicit none
@@ -61,10 +57,8 @@ character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
 integer(kind=iwp) :: i,IterGEK,large_elements,mindp
 
-#ifdef _RESKAPPA_
 real(kind=wp) :: DD,Thr
 integer(kind=iwp) :: j
-#endif
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 #endif
@@ -166,7 +160,7 @@ case(2,3,4,5)
     UmatList(:,:,:)=Zero
     GradList(:,:)=Zero
     FuncList(:)=Zero
-
+    Kappa(:,:)=Zero
     call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
     call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
     call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
@@ -241,15 +235,16 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         GradList(:,nIter) = -Gradient(:) ! g_i
         FuncList(nIter) = -Functional ! y_i
 
+        ! compute standard newton raphson step
+        Disp(:) = -Gradient(:)/Hdiagvec(:)
+
+
 #       ifdef _DEBUGLISTS_
             write(u6,*) "nIter =",nIter
             call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
             call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter),fsdim,nIter)
             call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
 #       endif
-
-        ! compute standard newton raphson step
-        Disp(:) = -Gradient(:)/Hdiagvec(:)
 
         if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
 
@@ -325,32 +320,13 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             GEKRange = .false.
         end if
 
-#       ifdef _RESKAPPA_
-        ! Rescale Kappa if rotation too large
-        ! limits rotations to less than pi/2 per orbital pair
+        DD=Sqrt(dot_product(Disp(:),Disp(:)))
         Thr= 0.5E0_wp * Pi
-        do i=1,nOrb2Loc-1
-            do j=i+1,nOrb2Loc
-                if (abs(kappa(i,j)) > Thr) then
-#                   ifdef _DEBUGPRINT_
-                    Write(u6,*) 'Rescale Kappa(:,:)'
-                    write(u6,*) 'kappa(i,j) =',kappa(i,j), 'mod(kappa(i,j),Thr) = ', mod(kappa(i,j),Thr)
-#                   endif
-                    kappa(i,j) = mod(kappa(i,j),Thr) * kappa(i,j) / abs(kappa(i,j))
-                    kappa(j,i) = - kappa(i,j)
-                    !write(u6,*) 'kappa(i,j) after scaling =',kappa(i,j)
-                end if
-            end do
-        end do
-
-        DD=Sqrt(DDot_(nOrb2Loc**2,Kappa,1,Kappa,1))
-        Thr= 0.5E0_wp * Pi
-        !Thr= Pi
         If (DD>=Thr)Then
 #           ifdef _DEBUGPRINT_
-            Write(u6,*) 'Rescale Kappa(:,:)'
+            Write(u6,*) 'Rescale Kappa(:)'
 #           endif
-            Kappa(:,:) = (Thr/DD)*Kappa(:,:)
+            Disp(:) = (Thr/DD)*Disp(:)
         End If
 #       endif
 
