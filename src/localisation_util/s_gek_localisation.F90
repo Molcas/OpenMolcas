@@ -43,7 +43,7 @@ real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
 !integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
-integer(kind=iwp), parameter :: nWindow =10, Max_IterGEK = 50
+integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
