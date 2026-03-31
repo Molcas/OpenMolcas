@@ -31,7 +31,7 @@ real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-16_wp
 real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt
-logical(kind=iwp), parameter :: debug_exp = .false.
+logical(kind=iwp), parameter :: debug_exp = .true.
 real(kind=wp),External :: DDot_
 
 kappa_cnt(:,:) = kappa !kappa^cnt = kappa since cnt=1
@@ -89,9 +89,8 @@ do while (ithrsh > thrsh_taylor)
     ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))
 
     ! sanity check for divergence
-    if (ithrsh > One .and. cnt > 5) then
-        write(u6,*) "Bug: elements of the kappa matrix fed to expkap_localisation() are too large - the,&
-                        Taylor expansion diverges"
+    if (ithrsh > One/cnt) then
+        write(u6,*) "elements of the kappa matrix fed to expkap_localisation() are too large - the taylor expansion diverges"
         call Abend()
     end if
 
