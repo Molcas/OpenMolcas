@@ -55,7 +55,7 @@ real(kind=wp) :: dqdq,largest
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: i,IterGEK,large_elements,mindp
+integer(kind=iwp) :: IterGEK,large_elements,mindp
 
 real(kind=wp) :: DD,Thr
 #ifdef _DEBUGPRINT_
