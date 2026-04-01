@@ -20,7 +20,7 @@ subroutine expkap_localisation(kappa,nOrb2Loc,kappa_cnt,xkappa_cnt,unitary_mat)
 ! they need to be allocated outside of this subroutine
 
 use definitions, only: wp,iwp,u6
-use constants, only: Zero,Half,One
+use constants, only: Zero,One
 use Localisation_globals, only: Debug
 
 implicit none
@@ -29,7 +29,7 @@ integer(kind=iwp), intent(in) :: nOrb2Loc
 real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb2Loc),xkappa_cnt(nOrb2Loc,nOrb2Loc),&
                              unitary_mat(nOrb2Loc,nOrb2Loc)
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-18_wp
-real(kind=wp) :: factor, ithrsh,ithrsh_prev
+real(kind=wp) :: factor, ithrsh
 integer(kind=iwp) :: cnt,maxel(2)
 logical(kind=iwp), parameter :: debug_exp = .false.
 real(kind=wp),External :: DDot_
@@ -43,7 +43,6 @@ call unitmat(unitary_mat,nOrb2Loc)
 cnt = 1
 factor = One
 ithrsh = One
-ithrsh_prev = One
 
 unitary_mat(:,:) =  unitary_mat(:,:) - kappa(:,:)
 
@@ -87,7 +86,6 @@ do while (ithrsh > thrsh_taylor)
         end if
     end if
 
-    ithrsh_prev = ithrsh
     ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))
 
     ! sanity check for divergence

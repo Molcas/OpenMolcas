@@ -408,6 +408,7 @@ End If
 end subroutine rescale_disp
 
 subroutine StepSizeChecks()
+integer(kind=iwp) :: i
         ! if previous step suggestion was out of GEKRange
         if (ResetGEK) then
             UpMeth=" -  - "
