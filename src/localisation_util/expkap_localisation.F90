@@ -67,8 +67,11 @@ do while (ithrsh > thrsh_taylor)
     ! initial kappa matrix (just kappa^1)
     ! C <= alpha*A*B + beta*C
     ! kappa_cnt <= 1*kappa_cnt*kappa + 0*kappa_cnt
-    call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,(One/DBLE(cnt)),xkappa_cnt,nOrb2Loc,kappa,nOrb2Loc,Zero,&
-                kappa_cnt,norb2Loc)
+    call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,&
+                        (One/DBLE(cnt)),xkappa_cnt,nOrb2Loc,&
+                                        kappa,nOrb2Loc,&
+                        Zero,kappa_cnt,norb2Loc)
+
     xkappa_cnt(:,:) = kappa_cnt(:,:)
 
     ! differentiation of odd and even cases, because this expands exp(-kappa)
@@ -88,11 +91,11 @@ do while (ithrsh > thrsh_taylor)
     end if
 
     ithrsh = sqrt(DDot_(nOrb2Loc**2,Kappa_Cnt(:,:),1,Kappa_Cnt(:,:),1))
+    !ithrsh = maxval(abs(Kappa_Cnt(:,:))/(abs(unitary_mat)+thrsh_taylor))
 
     ! sanity check for divergence
     if (ithrsh/720 > One) then
-        write(u6,*) "Bug: elements of the kappa matrix fed to expkap_localisation() are too large",&
-                    "- the Taylor expansion diverges"
+        write(u6,*) "Bug: the Taylor expansion of exp(-kappa) diverges - numerical error"
         write(u6,*) "Stopping Taylor expansion at ",cnt,"-th term. Rescale kappa before feeding it this subroutine."
         call Abend()
     end if
