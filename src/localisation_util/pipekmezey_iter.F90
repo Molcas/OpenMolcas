@@ -58,7 +58,6 @@ logical(kind=iwp),parameter :: usmitigation = .false.
 integer(kind=iwp) :: i,IterGEK,large_elements,mindp
 
 real(kind=wp) :: DD,Thr
-integer(kind=iwp) :: j
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 #endif

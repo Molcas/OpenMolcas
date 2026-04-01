@@ -30,7 +30,7 @@ real(kind=wp), intent(inout) :: kappa(nOrb2Loc,nOrb2Loc),kappa_cnt(nOrb2Loc,nOrb
                              unitary_mat(nOrb2Loc,nOrb2Loc)
 real(kind=wp), parameter :: thrsh_taylor = 1.0e-18_wp
 real(kind=wp) :: factor, ithrsh,ithrsh_prev
-integer(kind=iwp) :: cnt
+integer(kind=iwp) :: cnt,maxel(2)
 logical(kind=iwp), parameter :: debug_exp = .false.
 real(kind=wp),External :: DDot_
 
@@ -104,8 +104,14 @@ do while (ithrsh > thrsh_taylor)
         call RecPrt('kappa^cnt',' ',kappa_cnt(:,:), nOrb2Loc, nOrb2Loc)
         call RecPrt('unitary_mat',' ',unitary_mat(:,:), nOrb2Loc, nOrb2Loc)
     end if
-end do
 
+    maxel(:) = maxloc(abs(unitary_mat(:,:)),2)
+    if (unitary_mat(maxel(1),maxel(2)) > One) then
+        write(u6,*) "element of U bigger cannot be larger than 1, as U is supposed to be orthogonal/unitary:", &
+                     unitary_mat(maxel(1),maxel(2))
+        call Abend()
+    end if
+end do
 if (debug) then
     write(u6,"(//A)") "rotating the orbitals with:"
     call RecPrt('kappa',' ',kappa(:,:), nOrb2Loc, nOrb2Loc)
