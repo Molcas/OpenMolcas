@@ -17,11 +17,11 @@
 *     Compute the active one-body density                              *
 *                                                                      *
 *     calling arguments:                                               *
-*     CMO     : input, array of real*8                                 *
+*     CMO     : input, array of real(kind=wp)                          *
 *               MO-coefficients                                        *
-*     OCC     : input, array of real*8                                 *
+*     OCC     : input, array of real(kind=wp)                          *
 *               occupation numbers                                     *
-*     D       : output, array of real*8                                *
+*     D       : output, array of real(kind=wp)                         *
 *               total one-body density                                 *
 *                                                                      *
 *----------------------------------------------------------------------*

@@ -12,11 +12,12 @@
 !***********************************************************************
 subroutine wgtinit(H,nState)
 
-  use definitions,only:wp,iwp,u6
   use caspt2_global,only:iPrGlb
   use PrintLevel, only: DEBUG, VERBOSE
   use caspt2_global, only: DWGT
   use caspt2_module, only: DWType, IfDW, IfXMS, Zeta
+  use constants, only: One
+  use definitions,only:wp,iwp,u6
 
   implicit none
 
@@ -97,7 +98,7 @@ subroutine wgtinit(H,nState)
       ! If it is a normal MS-CASPT2, RMS-CASPT2 or a (X)DW-CASPT2 with zeta->infinity
       ! the weight vectors are the standard unit vectors e_1, e_2, ...
     else
-      DWGT(I,I) = 1.0d0
+      DWGT(I,I) = One
     end if
 
     ! End of loop over states

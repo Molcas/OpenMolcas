@@ -23,7 +23,7 @@
       REAL(kind=wp), INTENT(IN) :: G1(N,N)
       REAL(kind=wp), INTENT(OUT) :: DREF(NDREF)
 
-      INTEGER I,J,IJ
+      INTEGER(kind=iwp) I,J,IJ
 
 C Compute DREF(PQ) = <0| Epq |0>
 C from G1(P,Q) = <0| Epq |0>

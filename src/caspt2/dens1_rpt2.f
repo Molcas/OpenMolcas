@@ -171,7 +171,7 @@
         Call chemps2_load2pdm( nlev, G2, MSTATE(1) )
         Call two2onerdm( nlev, NACTEL, G2, G1 )
       Else
-        write(6,*) "FATAL ERROR: DMRG-CASPT2 with
+        Write(u6,*) "FATAL ERROR: DMRG-CASPT2 with
      & CHEMPS2 does not work with NACTEL=1"
       End If
       End If
@@ -182,7 +182,7 @@
       ! do i = 1,nLev
       !   write (6,'(1x,14f10.6)') (G1(i,j),j=1,nLev)
       ! end do
-      ! write(6,*)
+      ! Write(u6,*)
 
 
       IF(iPrGlb.GE.DEBUG) THEN

@@ -8,17 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Set_Print_Level
+      Subroutine Set_Print_Level()
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: SILENT, USUAL
+      use definitions, only: iwp
       Implicit None
-      Integer, External :: iPrintLevel
-      Logical, External :: Reduce_Prt
+      Integer(kind=iwp), External :: iPrintLevel
+      Logical(kind=iwp), External :: Reduce_Prt
 * Print levels request from molcas?
       IPRGLB=IPRINTLEVEL(-1)
 * If inside an optimization loop, minimize output
 * unless we *really* want a lot of output.
-      If (Reduce_Prt()) THEN
-       IPRGLB=MAX(IPRGLB-USUAL,SILENT)
-      END IF
-      END
+      If (Reduce_Prt()) IPRGLB=MAX(IPRGLB-USUAL,SILENT)
+      END Subroutine Set_Print_Level

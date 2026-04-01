@@ -12,8 +12,6 @@
 ************************************************************************
       subroutine rdminit()
 
-      use definitions, only: iwp, wp
-      use constants, only: Zero, One
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
       use caspt2_global, only: LUONEM
@@ -25,6 +23,8 @@
       use caspt2_module, only: DMRG, mState
 #endif
       use caspt2_module, only: ISCF, nConf, nState, iAd1m
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp, u6
       implicit None
 
 
@@ -33,7 +33,7 @@
       real(kind=wp) Wij
 
       if (IPRGLB>=DEBUG) then
-        write(6,*)' Entered rdminit.'
+        Write(u6,*)' Entered rdminit.'
       end if
 
 * Get CASSCF MO coefficients

@@ -31,7 +31,8 @@
       use caspt2_module, only: nSym, Header, ifChol, jState,
      &                         bName, nAsh, nBas, nIsh,
      &                         nOTri, nBasT, nBSqT, nSsh, nState
-      use definitions, only: iwp
+      use constants, only: Zero
+      use definitions, only: iwp, u6
       IMPLICIT NONE
 #include "compiler_features.h"
 
@@ -102,7 +103,7 @@ C     Cholesky
         ! set the lattice length (i.e. the active space size)
         qcmaquis_param%L = nasht
         if (iPrGlb >= DEBUG) then
-          write(6,*) 'PT2INI> qcmaquis_param%L = ', qcmaquis_param%L
+          Write(u6,*) 'PT2INI> qcmaquis_param%L = ', qcmaquis_param%L
         end if
       end if
 #endif
@@ -140,9 +141,9 @@ C Initialize sizes, offsets etc used in equation solver.
 
       If (IfChol) then
 * initialize Cholesky information
-        Call Cho_X_init(irc,0.0d0)
+        Call Cho_X_init(irc,Zero)
         if (irc.ne.0) then
-          write(6,*) 'CASPT2: Non-zero rc in Cho_X_init'
+          Write(u6,*) 'CASPT2: Non-zero rc in Cho_X_init'
           CALL QUIT(irc)
         endif
 * import_ch transfers some values from Cholesky module to chocaspt2.F90
@@ -159,7 +160,7 @@ C Initialize sizes, offsets etc used in equation solver.
 
 * Allocate global orbital arrays:
       CALL mma_allocate(CMOPT2,NCMO,Label='CMOPT2')
-      CMOPT2(:) = 0.0d0
+      CMOPT2(:) = Zero
 * Allocate global orbital transformation arrays:
       CALL mma_allocate(TORB,NTORB,Label='TORB')
       CALL mma_allocate(TAT,NTAT,Label='TAT')
@@ -191,7 +192,7 @@ C Initialize sizes, offsets etc used in equation solver.
 #endif
       use ChoCASPT2, only: NASplit,NISplit,NumCho_PT2
       use caspt2_module, only: IfChol, nAsh, nIsh, nSsh, nSym
-      use definitions, only: iwp
+      use definitions, only: iwp, u6
       IMPLICIT NONE
 
       Integer(kind=iwp) iSym
@@ -203,7 +204,7 @@ C     size of idsct array
 *---  Finalize Cholesky information
          Call Cho_X_Final(irc)
          if (irc.ne.0) then
-            write(6,*) 'CASPT2: Non-zero rc in Cho_X_Final'
+            Write(u6,*) 'CASPT2: Non-zero rc in Cho_X_Final'
             CALL QUIT(irc)
          endif
 *     Delete files of MO Cholesky vectors.

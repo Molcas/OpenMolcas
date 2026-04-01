@@ -19,6 +19,7 @@
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_module, only: ERFSelf, NBTRI, nSym, PotNuc, RFpert,
      &                         nBas
+      use constants, only: One
       use definitions, only: iwp, wp
 #ifdef _DEBUGPRINT_
       use definitions, only: u6
@@ -52,7 +53,7 @@ c Add naked one-el Hamiltonian in AO basis to H1EFF:
       ISYLBL=1
       Label='OneHam'
       CALL RDONE(IRC,IOPT,Label,ICOMP,ONEHAM,ISYLBL)
-      CALL DAXPY_(NBTRI,1.0D0,ONEHAM,1,H1EFF,1)
+      CALL DAXPY_(NBTRI,One,ONEHAM,1,H1EFF,1)
       CALL mma_deallocate(ONEHAM)
 
 c Read nuclear repulsion energy:
@@ -77,7 +78,7 @@ c the nuclear attraction by the cavity self-energy
          Call Get_dArray('Reaction field',Temp,nTemp)
          If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
-         Call Daxpy_(nTemp,1.0D0,Temp,1,H1EFF,1)
+         Call Daxpy_(nTemp,One,Temp,1,H1EFF,1)
          Call mma_deallocate(Temp)
       End If
 
@@ -103,22 +104,22 @@ c the nuclear attraction by the Rep_EN
             nTemp=nTemp+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
          Call mma_allocate(Coul,nTemp,Label='Coul')
-         Coul(:)=0.0D0
+         Coul(:)=Zero
          If (OFE_First) Then
             Call mma_allocate(FMaux,nTemp,Label='FMaux')
             Call Coul_DMB(.true.,1,Rep_EN,FMaux,Coul,Coul,nTemp)
          EndIf
-         Call DaXpY_(nTemp,1.0d0,FMaux,1,H1EFF,1)
+         Call DaXpY_(nTemp,One,FMaux,1,H1EFF,1)
          Call mma_deallocate(Coul)
          OFE_First=.false.
 *
          Call NameRun('AUXRFIL') ! switch the RUNFILE name
          Call Get_dExcdRa(Vxc,nVxc)
-         Call DaXpY_(nTemp,1.0d0,Vxc,1,H1EFF,1)
+         Call DaXpY_(nTemp,One,Vxc,1,H1EFF,1)
          If (nVxc.eq.2*nTemp) Then ! but fix for Nuc Attr added twice
-            Call DaXpY_(nTemp,1.0d0,Vxc(1+nTemp:2*nTemp),1,H1EFF,1)
+            Call DaXpY_(nTemp,One,Vxc(1+nTemp:2*nTemp),1,H1EFF,1)
             Call Get_dArray('Nuc Potential',Vxc,nTemp)
-            Call DaXpY_(nTemp,-1.0d0,Vxc,1,H1EFF,1)
+            Call DaXpY_(nTemp,-One,Vxc,1,H1EFF,1)
          EndIf
          Call mma_deallocate(Vxc)
          Call NameRun('#Pop')    ! switch back to old RUNFILE

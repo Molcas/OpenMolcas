@@ -112,9 +112,9 @@ C>                   to active indices
       real(kind=wp), EXTERNAL :: DDOT_,DNRM2_
 
       ! translation tables for levels i,j to and from pair indices idx
-      INTEGER(kind=iwp) IJ2IDX(MXLEV,MXLEV)
-      INTEGER(kind=iwp) IDX2IJ(2,MXLEV**2)
-      INTEGER(kind=iwp) ICNJ(MXLEV**2)
+      INTEGER(kind=iwp), allocatable:: IJ2IDX(:,:)
+      INTEGER(kind=iwp), allocatable:: IDX2IJ(:,:)
+      INTEGER(kind=iwp), allocatable:: ICNJ(:)
       INTEGER(kind=iwp) IP1_BUF(MXLEV**2)
 
       ! result buffer, maximum size is the largest possible ip1 range,
@@ -142,6 +142,13 @@ C Put in zeroes. Recognize special cases:
 
 C Here, for regular CAS or RAS cases.
 
+      Call mma_allocate(IJ2IDX,nLev,nLev,Label='IJ2IDX')
+      Call mma_allocate(IDX2IJ,2,nLev**2,Label='IDX2IJ')
+      Call mma_allocate(ICNJ,nLev**2,Label='ICNJ')
+      IJ2IDX(:,:)=-1
+      IDX2IJ(:,:)=-1
+      ICNJ(:)=-1
+
 C Special pair index idx2ij allows true RAS cases to be handled:
       nlev2=nlev**2
       ntri1=(nlev2-nlev)/2
@@ -149,28 +156,35 @@ C Special pair index idx2ij allows true RAS cases to be handled:
       idx=0
       do i=1,nlev-1
         do j=i+1,nlev
+C     i<j
           idx=idx+1
           ij2idx(i,j)=idx
           idx2ij(1,idx)=i
           idx2ij(2,idx)=j
-          jdx=nlev2+1-idx
+C     i>j
+          jdx=nlev2+1-idx ! note the reverse indexation, ...-idx!
           ij2idx(j,i)=jdx
           idx2ij(1,jdx)=j
           idx2ij(2,jdx)=i
         end do
       end do
+C     i=j
       do i=1,nlev
         idx=ntri1+i
         ij2idx(i,i)=idx
         idx2ij(1,idx)=i
         idx2ij(2,idx)=i
       end do
+C     Loop over the compond index, idx, corresponding to (i,j) and
+C     tabulate in icnj(idx) the compound index jdx that corresponds
+C     to the pair (j,i)
       do idx=1,nlev2
         i=idx2ij(1,idx)
         j=idx2ij(2,idx)
-        jdx=ij2idx(j,i)
-        icnj(idx)=jdx
+        icnj(idx)=ij2idx(j,i)
       end do
+
+      Call mma_deallocate(IJ2IDX)
 
       call mma_MaxDBLE(memmax)
 
@@ -221,40 +235,58 @@ C-SVC20100301: calculate maximum number of tasks possible
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
 *                                                                      *
       iG3OFF=0
-      Symmetry_Loop: DO issg1=1,nsym
+      Symmetry_Loop: DO issg1=1,nsym   ! Symmetry index of E_ut/0>
 *                                                                      *
 ************************************************************************
 
-        isp1=Mul(issg1,stsym)
+        isp1=Mul(issg1,stsym)       ! Symmetry index of E_ut
+
         if (.not. DoFCIQMC) then
-!         form: BufD_I = \sum_t <I|E_{tt}|I>*f_{tt}
+!
+!         form: H0_I = \sum_t e_{t}  |I><I|E_{tt}|I><I|
+!
+!         Note: this only works if the Fock matrix is presented in the
+!         block diagonal form. i.e. in the pseudo canonical basis.
+!
           nsgm1=CIS%ncsf(issg1)
           CALL H0DIAG_CASPT2(ISSG1,BUFD,nsgm1,CIS%NOW,CIS%IOW,CIS%nMidV)
+
         end if
 
 C-SVC20100301: calculate number of larger tasks for this symmetry, this
 C-is basically the number of buffers we fill with sigma1 vectors.
+
       iTask=1
       ibuf1=0
       DO ip1=1,nlev2
         itlev=idx2ij(1,ip1)
         iulev=idx2ij(2,ip1)
-        istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
+        istu=Mul(SGS%ism(itlev),SGS%ism(iulev)) ! Symmetry of E_tu
+
         IF (istu==isp1) THEN
+!         Add pair index to ip1_buf
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1
-          IF (ibuf1==1) TaskList(iTask,1)=ip1
+!         Add pair index to Tasklist(iTask,1) if it is the first entry in ip1_buf
+          IF (ibuf1==1) TaskList(iTask,1)=ip1  ! Start ip1 index
         ENDIF
-        IF (ibuf1.EQ.nbuf1.OR.(ibuf1.GT.0.AND.
+
+!       Terminate if buffer is full, or,
+!       if
+        IF (ibuf1==nbuf1 .OR.
+     &     (ibuf1>0.AND.
      &         (ip1.EQ.ntri2.OR.ip1.EQ.nlev2))) THEN
-            TaskList(iTask,2)=ip1_buf(ibuf1)
-            TaskList(iTask,3)=ibuf1
+            TaskList(iTask,2)=ip1_buf(ibuf1)  ! End ip1 index
+            TaskList(iTask,3)=ibuf1           ! End ibuf value
             iTask=iTask+1
             ibuf1=0
         ENDIF
+
       ENDDO
+
       nTasks=iTask
       IF (ibuf1==0) nTasks=nTasks-1
+
 C-SVC20100309: calculate number of inner loop iteration tasks.
       iOffSet=0
       DO iTask=1,nTasks
@@ -340,18 +372,24 @@ C-sigma vectors in the buffer.
         do ip1i=ip1sta,ip1end
          itlev=idx2ij(1,ip1i)
          iulev=idx2ij(2,ip1i)
+
          istu=Mul(SGS%ism(itlev),SGS%ism(iulev))
+
          it=L2ACT(itlev)
          iu=L2ACT(iulev)
+
          if(istu.eq.isp1) then
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
-              BUF1(1:nSgm1,iBuf1)=Zero
-              CALL SIGMA1(SGS,CIS,EXS,
-     &                    IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
+! form E_ut |0>
+          BUF1(1:nSgm1,iBuf1)=Zero
+          CALL SIGMA1(SGS,CIS,EXS,
+     &                IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
          end if
         end do
+
         else
+
         do ip1i=ip1sta,ip1end
          itlev=idx2ij(1,ip1i)
          iulev=idx2ij(2,ip1i)
@@ -375,6 +413,10 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
           ! The ip1 buffer could be the same on different processes
           ! so only compute the G1 contribution when ip3 is 1, as
           ! this will only be one task per buffer.
+
+C form <0| *  E_ut|0> = G_tu and
+C      <0| * H0 * E_ut|0> - e_t G_tu = F1_tu
+
           if (issg1.eq.stsym.AND.ip3.eq.1) then
             IF (mkF) THEN
             do ib=1,ibuf1
@@ -383,7 +425,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
               iulev=idx2ij(2,idx)
               it=L2ACT(itlev)
               iu=L2ACT(iulev)
-              G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
+              G1(it,iu)=DDOT_(nsgm1,CI,1,BUF1(:,ib),1)
               F1sum=Zero
               do i=1,nsgm1
                  F1sum=F1sum+CI(i)*BUF1(i,ib)*bufd(i)
@@ -423,11 +465,12 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       izlev=idx2ij(2,ip3)
       isyz=Mul(SGS%ism(iylev),SGS%ism(izlev))
       issg2=Mul(isyz,stsym)
-      if (.not. DoFCIQMC) nsgm2=CIS%ncsf(issg2)
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
       if (.not. DoFCIQMC) then
+          nsgm2=CIS%ncsf(issg2)
           BUF2(1:nSgm2)=Zero
+C form <0| E_zy|
           CALL SIGMA1(SGS,CIS,EXS,
      &                IYLEV,IZLEV,One,STSYM,CI,BUF2)
 
@@ -440,6 +483,8 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
               iulev=idx2ij(2,idx)
               it=L2ACT(itlev)
               iu=L2ACT(iulev)
+C form <0| E_zy E_ut |0> = G_tu,yz
+C      <0| E_zy * H0 * E_ut |0> = F_tu,yz
               G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
               F2sum=Zero
               do i=1,nsgm1
@@ -472,6 +517,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         if(.Not.(isvx.ne.Mul(issg1,issg2))) Then
         if (.not. DoFCIQMC) then
             BUFT(1:nSgm1)=Zero
+! form <0| E_zy E_xv
             CALL SIGMA1(SGS,CIS,EXS,
      &                  IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
         end if
@@ -501,6 +547,7 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
         if (.not. DoFCIQMC) then
+! form <0| E_zy E_xv * E_ut|0>
             call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
      &           buft,1,Zero,bufr,1)
 * and distribute this result into G3:
@@ -525,12 +572,14 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
         if (.not. DoFCIQMC) then
             IF(mkF) THEN
 * Elementwise multiplication of Tau with H0 diagonal - EPSA(IV):
-                BufT(1:nSgm1)=(BufD(1:nSgm1)-EpsA(iv))*BufT(1:nSgm1)
+! form <0| E_zy E_xv (H0 -e_v)
+                BufT(1:nSgm1)=(BufD(1:nSgm1)-EpsA(iV))*BufT(1:nSgm1)
 !               do icsf=1,nsgm1
 !                 buft(icsf)= (bufd(icsf)-epsa(iv))*buft(icsf)
 !               end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
 
+! form <0| E_zy E_xv (H0 -e_v) E_ut|0> = F3(iuv,xyz)
                 call DGEMV_ ('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
      &           buft,1,Zero,bufr,1)
                 F3(iG3OFF+1:iG3OFF+nb) = Bufr(1:nb)
@@ -746,6 +795,9 @@ C  only for the G1 and G2 replicate arrays
           END DO
           END IF
       end if
+
+      Call mma_deallocate(idx2ij)
+      Call mma_deallocate(icnj)
 
       IF(iPrGlb.GE.DEBUG) THEN
 CSVC: if running parallel, G3/F3 are spread over processes,

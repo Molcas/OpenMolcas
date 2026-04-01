@@ -23,6 +23,7 @@
       use caspt2_module, only: FockType, IfChol, nAMx, nAshT,
      &                         nIMx, nOMx, nOSqT, nSMx, nSym, nIsh,
      &                         nAsh, nSsh, nAES, nOrb
+      use constants, only: Zero, One, Two
       use definitions, only: iwp, wp
       IMPLICIT NONE
       INTEGER(kind=iwp), intent(in):: NFIFA, NCMO, nDREF
@@ -152,7 +153,7 @@ C The exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
           END DO
           DO I=1,NA*NA,(NA+1)
             IDTT=NSQES+I
-            TWOMDSQ(IDTT)=2.0D0-DSQ(IDTT)
+            TWOMDSQ(IDTT)=Two-DSQ(IDTT)
           END DO
           NSQES=NSQES+NA**2
         END DO
@@ -167,9 +168,9 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
             N3=(NA*(NA+1))/2
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,DSQ(NSQES),NA,
+     &                  One,DSQ(NSQES),NA,
      &                  TWOMDSQ(NSQES),NA,
-     &                  0.0d0,DD,NA)
+     &                  Zero,DD,NA)
             CALL TRIANG(NA,DD)
             CALL DCOPY_(N3,DD,1,DDTR(NTRES),1)
             NTRES=NTRES+N3
@@ -178,7 +179,7 @@ C Use also temporary DD, single symmetry blocks of D*(2I-D):
         END DO
 
 C Calculation of the exchange matrix, A(pq)=sum over rs of (ps,rq)*DD(rs)
-        XMAT(:)=0.0D0
+        XMAT(:)=Zero
         IF (IfChol) THEN
           CALL Cho_Amatrix(XMAT,NOSQT,CMO,NCMO,DDTR,NATR)
         ELSE
@@ -243,9 +244,9 @@ c the active-inactive block
             IF(NA*NI.GT.0) THEN
               CALL DGEMM_('N','N',
      &                    NA,NI,NA,
-     &                    1.0d0,TWOMDSQ(1+NASQES),NA,
+     &                    One,TWOMDSQ(1+NASQES),NA,
      &                    XMAT(1+NOSQES+NI),NO,
-     &                    0.0d0,SC,NA)
+     &                    Zero,SC,NA)
               DO IT=1,NA
                 ITTOT=NI+IT
                 DO II=1,NI
@@ -263,7 +264,7 @@ c the secondary-inactive block
                 DO II=1,NI
                   KFIFA=NOTRES+(IATOT*(IATOT-1))/2+II
                   LXAI=NOSQES+IATOT+NO*(II-1)
-                  FIFA(KFIFA)=FIFA(KFIFA)-2.0D0*XMAT(LXAI)
+                  FIFA(KFIFA)=FIFA(KFIFA)-Two*XMAT(LXAI)
                 END DO
               END DO
             ENDIF
@@ -273,14 +274,14 @@ c the active-active block
               IX=NOSQES+NI+1+NO*NI
               CALL DGEMM_('N','N',
      &                    NA,NA,NA,
-     &                    1.0d0,DSQ(1+NASQES),NA,
+     &                    One,DSQ(1+NASQES),NA,
      &                    XMAT(IX),NO,
-     &                    0.0d0,SC(LSC+NA*NA),NA)
+     &                    Zero,SC(LSC+NA*NA),NA)
               CALL DGEMM_('N','N',
      &                    NA,NA,NA,
-     &                    1.0d0,SC(LSC+NA*NA),NA,
+     &                    One,SC(LSC+NA*NA),NA,
      &                    TWOMDSQ(1+NASQES),NA,
-     &                    0.0d0,SC,NA)
+     &                    Zero,SC,NA)
               DO IT=1,NA
                 ITTOT=NI+IT
                 DO IU=1,IT
@@ -298,9 +299,9 @@ c the secondary-active block
               IX=NOSQES+NI+NA+1+NO*NI
               CALL DGEMM_('N','N',
      &                    NS,NA,NA,
-     &                    1.0d0,XMAT(IX),NO,
+     &                    One,XMAT(IX),NO,
      &                    DSQ(1+NASQES),NA,
-     &                    0.0d0,SC,NS)
+     &                    Zero,SC,NS)
               DO IA=1,NS
                 IATOT=NI+NA+IA
                 DO IT=1,NA
@@ -342,8 +343,8 @@ C and diagonalize it. The DDTR copy at LSC:
             CALL DCOPY_(NA3,DDTR(1+NATRES),1,SC,1)
 C A unit matrix at LEV1, to become eigenvectors:
             LEV1=LSC+NA2
-            CALL DCOPY_(NA2,[0.0D0],0,SC(LEV1),1)
-            CALL DCOPY_(NA, [1.0D0],0,SC(LEV1),NA+1)
+            CALL DCOPY_(NA2,[Zero],0,SC(LEV1),1)
+            CALL DCOPY_(NA, [One],0,SC(LEV1),NA+1)
 C A call to NIDiag diagonalizes the triangular matrix:
             CALL NIDiag(SC,SC(LEV1),NA,NA)
             CALL JACORD(SC,SC(LEV1),NA,NA)
@@ -358,7 +359,7 @@ C function of the eigenvalues:
             DO J=1,NA
               EIGVAL=SC(LEIG-1+J)
               IF(FOCKTYPE.EQ.'G2      ') THEN
-                X=SQRT(MAX(0.0D0,EIGVAL))
+                X=SQRT(MAX(Zero,EIGVAL))
               ELSE
                 X=EIGVAL
               END IF
@@ -369,9 +370,9 @@ C function of the eigenvalues:
 C Now the selection matrix can be formed, at LSC:
             CALL DGEMM_('N','T',
      &                  NA,NA,NA,
-     &                  1.0d0,SC(LEV1),NA,
+     &                  One,SC(LEV1),NA,
      &                  SC(LEV2),NA,
-     &                  0.0d0,SC(LSC),NA)
+     &                  Zero,SC(LSC),NA)
 C Obviously, the FOCKTYPE=G3 case can be obtained by just
 C squaring the DDTR block into SC.
 
@@ -381,14 +382,14 @@ C Focktype=g2 or g3
             LSC2=LSC1+NA2
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,SC(LSC),NA,
+     &                  One,SC(LSC),NA,
      &                  XMAT(IX),NO,
-     &                  0.0d0,SC(LSC1),NA)
+     &                  Zero,SC(LSC1),NA)
             CALL DGEMM_('N','N',
      &                  NA,NA,NA,
-     &                  1.0d0,SC(LSC1),NA,
+     &                  One,SC(LSC1),NA,
      &                  SC(LSC),NA,
-     &                  0.0d0,SC(LSC2),NA)
+     &                  Zero,SC(LSC2),NA)
             DO IT=1,NA
               ITTOT=NI+IT
               DO IU=1,IT

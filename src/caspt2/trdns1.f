@@ -17,7 +17,6 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDNS1(IVEC,DPT1,NDPT1)
-      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -25,6 +24,8 @@
       use fake_GA, only: GA_Arrays
       use caspt2_module, only: nActel, nSym, nIsh, nAsh, nSsh, nInDep,
      &                         nISup, nASup, nAsh, nOrb
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp
 #define RHS_ X_RHS_
       IMPLICIT none
 
@@ -71,7 +72,7 @@ C Transform to standard representation, covariant form.
       IMLTOP=1
       IF(NWTI.EQ.0) GOTO 110
       CALL mma_allocate(WTI,NWTI,LABEL='WTI')
-      WTI(:)=0.0D0
+      WTI(:)=Zero
       ICASE=1
       IWOFF=1
       DO 100 ISYM=1,NSYM
@@ -82,7 +83,7 @@ C Transform to standard representation, covariant form.
         IF(NVEC.EQ.0) GOTO 100
         CALL RHS_ALLO(NAS,NIS,LVEC)
         CALL RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
-        FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+        FACT=One/(DBLE(MAX(1,NACTEL)))
 #ifdef _MOLCAS_MPP_
         IF (IS_REAL_PAR()) THEN
           IF (KING()) THEN
@@ -107,7 +108,7 @@ C Transform to standard representation, covariant form.
 
       IF(NWAT.EQ.0) GOTO 210
       CALL mma_allocate(WAT,NWAT,Label='WAT')
-      WAT(:)=0.0D0
+      WAT(:)=Zero
       ICASE=4
       IWOFF=1
       DO 200 ISYM=1,NSYM
@@ -119,7 +120,7 @@ C Transform to standard representation, covariant form.
         IF(NSSH(ISYM)*NASH(ISYM).EQ.0) GOTO 200
         CALL RHS_ALLO(NAS,NIS,LVEC)
         CALL RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
-        FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+        FACT=One/(DBLE(MAX(1,NACTEL)))
 #ifdef _MOLCAS_MPP_
         IF (IS_REAL_PAR()) THEN
           IF (KING()) THEN
@@ -144,7 +145,7 @@ C Transform to standard representation, covariant form.
 
       IF(NWAI.EQ.0) GOTO 300
       CALL mma_allocate(WAI,NWAI,Label='WAI')
-      WAI(:)=0.0D0
+      WAI(:)=Zero
       ICASE=5
       ISYM=1
       IF(NINDEP(ISYM,ICASE).EQ.0) GOTO 300
@@ -154,7 +155,7 @@ C Transform to standard representation, covariant form.
       IF(NVEC.EQ.0) GOTO 300
       CALL RHS_ALLO(NAS,NIS,LVEC)
       CALL RHS_READ_C(LVEC,ICASE,ISYM,IVEC)
-      FACT=1.0D00/(DBLE(MAX(1,NACTEL)))
+      FACT=One/(DBLE(MAX(1,NACTEL)))
 #ifdef _MOLCAS_MPP_
       IF (IS_REAL_PAR()) THEN
         IF (KING()) THEN

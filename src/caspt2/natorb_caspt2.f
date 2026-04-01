@@ -19,6 +19,7 @@
       SUBROUTINE NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM, NFRO, NORB, NDEL, NBAS
+      use constants, only: Zero, One, Two
       use definitions, only: iwp, wp
       IMPLICIT None
 
@@ -45,7 +46,7 @@ C natural orbitals.
         NB=NBAS(ISYM)
 C  Frozen orbitals:
         IF(NF.GT.0) THEN
-          CALL DCOPY_(NF,[2.0D00],0,OCC(IOCC+1),1)
+          CALL DCOPY_(NF,[Two],0,OCC(IOCC+1),1)
           IOCC=IOCC+NF
           CALL DCOPY_(NB*NF,CMO(ICMO+1),1,CNAT(ICMO+1),1)
           ICMO=ICMO+NB*NF
@@ -56,12 +57,12 @@ C Inactive, active, and secondary orbitals:
           CALL mma_allocate(TMP,NTMP,Label='TMP')
           CALL DCOPY_(NB*NO,CMO(ICMO+1),1,CNAT(ICMO+1),1)
 C For correct order, change sign.
-          CALL DYAX(NTMP,-1.0D0,DMAT(IDMAT+1),1,TMP,1)
+          CALL DYAX(NTMP,-One,DMAT(IDMAT+1),1,TMP,1)
           CALL NIDiag(TMP,CNAT(ICMO+1),NO,NB)
           CALL JACORD(TMP,CNAT(ICMO+1),NO,NB)
           CALL VEIG(NO,TMP,OCC(IOCC+1))
 C Change back to positive sign.
-          CALL DSCAL_(NO,-1.0D0,OCC(IOCC+1),1)
+          CALL DSCAL_(NO,-One,OCC(IOCC+1),1)
           IDMAT=IDMAT+NTMP
           IOCC=IOCC+NO
           ICMO=ICMO+NB*NO
@@ -69,7 +70,7 @@ C Change back to positive sign.
         END IF
 C Deleted orbitals:
         IF(ND.GT.0) THEN
-          CALL DCOPY_(ND,[0.0D0],0,OCC(IOCC+1),1)
+          CALL DCOPY_(ND,[Zero],0,OCC(IOCC+1),1)
           IOCC=IOCC+ND
           CALL DCOPY_(NB*ND,CMO(ICMO+1),1,CNAT(ICMO+1),1)
           ICMO=ICMO+NB*ND
