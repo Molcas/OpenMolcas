@@ -92,8 +92,8 @@ do while (ithrsh > thrsh_taylor)
 
     ! sanity check for divergence
     if (ithrsh/720 > One) then
-        write(u6,*) "Bug: elements of the kappa matrix fed to expkap_localisation() are too large - the,&
-                        Taylor expansion diverges"
+        write(u6,*) "Bug: elements of the kappa matrix fed to expkap_localisation() are too large",&
+                    "- the Taylor expansion diverges"
         write(u6,*) "Stopping Taylor expansion at ",cnt,"-th term. Rescale kappa before feeding it this subroutine."
         call Abend()
     end if
