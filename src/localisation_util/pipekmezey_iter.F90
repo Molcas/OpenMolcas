@@ -187,7 +187,8 @@ nDIIS=0
 
 GEKRange = .false.
 ResetGEK = .false.
-mindp = 1  ! minimal number of data points for GEK construction
+mindp = 2  ! minimal number of data points for GEK construction
+
 SORange = .true.
 
 IterGEK = 0
@@ -210,7 +211,6 @@ end if
 
 nIter = 0
 Converged = .false.
-
 do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
 
@@ -420,7 +420,7 @@ integer(kind=iwp) :: i
         ! check if matrix elements are > 0.01
         large_elements = 0
         do i=1,fsdim
-            if (abs(Disp(i)) > 0.005_wp) then
+            if (abs(Disp(i)) > 0.01_wp) then
                 large_elements = large_elements + 1
             else
                 large_elements = large_elements

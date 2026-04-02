@@ -41,7 +41,7 @@ integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
-                              UmatKsum(:,:)
+                              UmatKsum(:,:),CoordsAbs(:,:)
 !integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
 integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
 real(kind=wp), External :: DDot_
@@ -86,6 +86,7 @@ write(u6,*) "iLast   =",iLast
 # endif
 
 call mma_Allocate(coords,fsdim, nDiis,Label="coords")
+call mma_Allocate(CoordsAbs,fsdim, nDiis,Label="CoordsAbs")
 call mma_Allocate(grads,fsdim, nDiis,Label="grads")
 
 ! compute product matrix U_1...n = U_1 * ... * U_n
@@ -117,12 +118,11 @@ call mma_allocate(disp_summed,fsdim,Label="disp_summed")
 call mma_allocate(UmatKsum,nOrb2Loc,nOrb2Loc,Label="UmatKsum")
 disp_summed(:) = Zero
 UmatKsum(:,:) = Zero
-
+CoordsAbs(:,:) = Zero
 j = 0
 do i=iFirst,iLast
     j = i-iFirst+1
-    !write(u6,*) 'i,j,iter=',i,j,IterGEK
-
+    !write(u6,*) 'i,j,iter,ifirst,ilast=',i,j,IterGEK,ifirst,ilast
     ! Coordinates
     coords(:,j) = DispList(:,i)
     disp_summed(:) = disp_summed(:) + DispList(:,i)
@@ -131,7 +131,21 @@ do i=iFirst,iLast
     grads(:,j) = GradList(:,i)
 
 end do
-!coords(:,nDIIS) = Zero
+
+!call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
+! DispList contains displacements relative to the CMO of each iteration
+! we have to switch from relative to absolute coords for the GEK model:
+CoordsAbs(:,:) = coords(:,:)
+do i = 1, ndiis-1
+    CoordsAbs(:,i+1) = CoordsAbs(:,i+1) + CoordsAbs(:,i)
+end do
+
+!call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
+coords(:,:ndiis) = CoordsAbs(:,:ndiis)
+
+!call RecPrt("CoordsAbs(:,:)",' ',coords,fsdim, nDiis)
+!call RecPrt("grads(:,:)",' ',grads,fsdim, nDiis)
+!write(*,*) "funclist",funclist(:ndiis)
 
 call mma_allocate(kappa_summed,nOrb2Loc,nOrb2Loc,Label="kappa_summed")
 
@@ -194,6 +208,7 @@ if (nDIIS == 1) then
 # endif
   call mma_deallocate(grads)
   call mma_deallocate(coords)
+  call mma_deallocate(CoordsAbs)
   return
 end if
 
@@ -257,7 +272,6 @@ call mma_deallocate(Aux_1)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 end if !framework: fullspace/subspace
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 ! orthogonalize e_diis; remove redundancies from linear dependences
 ! -----------------------------------------------------------------
 do l=1,2
@@ -311,7 +325,8 @@ call mma_Allocate(q_diis,mDiis,nDiis+Max_IterGEK,Label='q_diis')
 q_diis(:,:) = Zero
 do i=1,nDiis ! we project only those q vectors that were used to build the subspace, so that they are fully expressed within it
     do k=1,mDiis
-        q_diis(k,i) = sum( (coords(:,i)-coords(:,nDIIS)) * e_diis(:,k))
+        !q_diis(k,i) = sum( (coords(:,i)-coords(:,nDIIS)) * e_diis(:,k))
+        q_diis(k,i) = sum( (coords(:,nDIIS)-coords(:,i)) * e_diis(:,k))
     end do
 end do
 
@@ -400,9 +415,9 @@ else
   SOFact = 10000000.0_wp
 end if
 !write(u6,*) "call GEK_Optimizer"
+
 Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),FuncList(iFirst:),H_diis(:,:),dqdq,&
                    Step_Trunc,UpMeth,SOFact,10.0_wp)
-
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
 #ifdef _DEBUGPRINT_
@@ -430,6 +445,7 @@ write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(f
 ! deallocations
 ! -------------
 call mma_Deallocate(coords)
+call mma_Deallocate(CoordsAbs)
 call mma_Deallocate(grads)
 call mma_Deallocate(dq_NR)
 
