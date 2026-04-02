@@ -38,9 +38,9 @@ integer(kind=iwp), intent(inout) :: IterGEK
 real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
-real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact
+real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact,dq_NR(fsdim)
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
-                              w(:,:),D(:,:),dq_NR(:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
+                              w(:,:),D(:,:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:),CoordsAbs(:,:)
 !integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
 integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
@@ -51,7 +51,6 @@ character :: Step_Trunc
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
-call mma_allocate(dq_NR,fsdim,Label='dq_NR')
 dq_NR(:) = dq(:)
 
 
@@ -447,7 +446,6 @@ write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(f
 call mma_Deallocate(coords)
 call mma_Deallocate(CoordsAbs)
 call mma_Deallocate(grads)
-call mma_Deallocate(dq_NR)
 
 call mma_Deallocate(e_diis,safe='*')
 call mma_Deallocate(q_diis)
