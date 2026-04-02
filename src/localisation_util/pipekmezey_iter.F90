@@ -55,7 +55,7 @@ real(kind=wp) :: dqdq,largest
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
 logical(kind=iwp),parameter :: usmitigation = .false.
-integer(kind=iwp) :: IterGEK,large_elements,mindp
+integer(kind=iwp) :: IterGEK,large_elements
 
 real(kind=wp) :: DD,Thr
 #ifdef _DEBUGPRINT_
@@ -99,7 +99,7 @@ call RecPrt("C^T*S*C =",' ',CtSC,nOrb2Loc, nOrb2Loc)
 
 
 ! to allow property printing later
-call Put_cArray('Relax Method','LOCALIS ',8)
+!call Put_cArray('Relax Method','LOCALIS ',8)
 
 
 ! if the Loewdin charge framework is requested instead of Mulliken
@@ -187,7 +187,6 @@ nDIIS=0
 
 GEKRange = .false.
 ResetGEK = .false.
-mindp = 2  ! minimal number of data points for GEK construction
 
 SORange = .true.
 
@@ -253,7 +252,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
                 IterGEK = IterGEK + 1
 
-                call S_GEK_localisation(nIter,IterGEK,mindp,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,&
+                call S_GEK_localisation(nIter,IterGEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,&
                                         usmitigation,nDIIS)
 
                 ! undershoot mitigation
@@ -435,8 +434,6 @@ integer(kind=iwp) :: i
         else if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
             ! leave GEK and go back to NR if steps are too large
             !write(u6,*) "resetting GEK due to large step:",largest
-
-            !Disp(:) = 0.1*Disp(:)
             ResetGEK = .true.
             GEKRange = .false.
         else

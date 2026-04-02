@@ -15,7 +15,7 @@
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
 
-subroutine S_GEK_localisation(nIter,IterGEK,mindp,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation,nDIIS)
+subroutine S_GEK_localisation(nIter,IterGEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation,nDIIS)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -32,7 +32,7 @@ use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,UmatLi
 
 implicit none
 
-integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc,mindp
+integer(kind=iwp), intent(in) :: nIter,fsdim,nOrb2Loc
 integer(kind=iwp),intent(out) :: nDIIS
 integer(kind=iwp), intent(inout) :: IterGEK
 real(kind=wp),intent(in) :: Hdiag(fsdim)
@@ -42,8 +42,7 @@ real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact,dq_NR(fsdim)
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:),CoordsAbs(:,:)
-!integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
-integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50
+integer(kind=iwp), parameter :: nWindow =2, Max_IterGEK = 1, minDP = 1
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
@@ -139,8 +138,17 @@ do i = 1, ndiis-1
     CoordsAbs(:,i+1) = CoordsAbs(:,i+1) + CoordsAbs(:,i)
 end do
 
-!call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
-coords(:,:ndiis) = CoordsAbs(:,:ndiis)
+!coords(:,:ndiis) = CoordsAbs(:,:ndiis)
+!coords(:,nDiis) = Zero
+!call RecPrt("CoordsAbs(:,:)",' ',CoordsAbs,fsdim, nDiis)
+
+do i=1,fsdim
+    do j=1,ndiis
+        if (coords(i,j) > 0.01_wp) then
+            write(u6,*) "coords(i,j) too big i,j =",i,j,coords(i,j)
+        end if
+    end do
+end do
 
 !call RecPrt("CoordsAbs(:,:)",' ',coords,fsdim, nDiis)
 !call RecPrt("grads(:,:)",' ',grads,fsdim, nDiis)
