@@ -9,9 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MKWWOP(IVEC,JVEC,OP0,OP1,NOP2,OP2,NOP3,OP3)
-      use definitions, only: iwp, wp
-      use constants, only: Zero
       use caspt2_module, only: NASHT
+      use constants, only: Zero
+      use definitions, only: iwp, wp
       IMPLICIT None
 
 C Presently symmetry blocking is disregarded for OP2, OP3, but
@@ -44,12 +44,13 @@ C as operating on the CASSCF space.
       END SUBROUTINE MKWWOP
 
       SUBROUTINE MKWWOPA(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
-      use definitions, only: iwp, wp
       USE SUPERINDEX, only: MTUV
       use EQSOLV, only: MODVEC
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP,
      &                         NTUVES
+      use constants, only: Zero, One, Two
+      use definitions, only: iwp, wp
       IMPLICIT None
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -130,16 +131,16 @@ C Loop over sections of WW1 and WW2:
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
 *            CALL DGEMM_('N','T',
 *     &                  MWS1,MWS2,NIS,
-*     &                  1.0d0,W1(LW1A),NAS,
+*     &                  One,W1(LW1A),NAS,
 *     &                  W2(LW2A),NAS,
-*     &                  0.0d0,WPROD,NWSCT)
+*     &                  Zero,WPROD,NWSCT)
 * Replaced, due to sectioning over inactives:
-            WPROD(:)=0.0D0
+            WPROD(:)=Zero
             CALL DGEMM_('N','T',
      &                  MWS1,MWS2,NCOL,
-     &                  1.0d0,W1(LW1A),NAS,
+     &                  One,W1(LW1A),NAS,
      &                  W2(LW2A),NAS,
-     &                  1.0d0,WPROD,NWSCT)
+     &                  One,WPROD,NWSCT)
 * End of replacement
 
 C Loop over (TUV) in its section
@@ -243,10 +244,10 @@ C Contrib to 2-particle operator, from +2 dtx Evuyz:
               ELSE
                 JVUYZ=(IYZ*(IYZ-1))/2+IVU
               END IF
-              OP2(JVUYZ)=OP2(JVUYZ)+2.0D0*W_PROD
+              OP2(JVUYZ)=OP2(JVUYZ)+Two*W_PROD
 C Contrib to 1-particle operator, from +2 dtx dyu Evz:
               IF(IYABS.EQ.IUABS) THEN
-                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)+2.0D0*W_PROD
+                OP1(IVABS,IZABS)=OP1(IVABS,IZABS)+Two*W_PROD
               END IF
             END IF
            END DO
@@ -500,11 +501,12 @@ C Deallocate matrix product
       END SUBROUTINE MKWWOPB
 
       SUBROUTINE MKWWOPC(IVEC,JVEC,OP1,NOP2,OP2,NOP3,OP3)
-      use definitions, only: iwp, wp
       USE SUPERINDEX, only: MTUV
       use EQSOLV, only: MODVEC
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NASHT, NSYM, NASUP, NISUP, NINDEP, NTUVES
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp
       IMPLICIT None
 
 C Presently symmetry blocking is disregarded, but index pair
@@ -565,12 +567,12 @@ C Loop over sections of WW1 and WW2:
             LW2A=IXYZSTA
             MWS2=IXYZEND+1-IXYZSTA
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
-            WPROD(:)=0.0D0
+            WPROD(:)=Zero
             CALL DGEMM_('N','T',
      &                  MWS1,MWS2,NCOL,
-     &                  1.0d0,W1(LW1A),NAS,
+     &                  One,W1(LW1A),NAS,
      &                  W2(LW2A),NAS,
-     &                  1.0d0,WPROD,NWSCT)
+     &                  One,WPROD,NWSCT)
 
 C Loop over (TUV) in its section
           DO ITUV=ITUVSTA,ITUVEND

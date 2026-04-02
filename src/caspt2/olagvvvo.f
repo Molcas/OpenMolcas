@@ -777,7 +777,7 @@
 * Loop over IBATCH
         JV1=JSTART
         DO IBATCH=1,NBATCH
-!         write(6,*) 'ibatch,nbatch = ', ibatch,nbatch
+!         Write(u6,*) 'ibatch,nbatch = ', ibatch,nbatch
           IBATCH_TOT=IBATCH_TOT+1
 
           JNUM=NVLOC_CHOBATCH(IBATCH_TOT)

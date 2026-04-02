@@ -68,7 +68,7 @@
 
       JRED1=InfVec(1,2,jSym)
       JRED2=InfVec(NumCho_PT2(jSym),2,jSym)
-*     write(6,*)'tracho3:  JRED1,JRED2:',JRED1,JRED2
+*     Write(u6,*)'tracho3:  JRED1,JRED2:',JRED1,JRED2
 
 * Loop over JRED
       DO JRED=JRED1,JRED2

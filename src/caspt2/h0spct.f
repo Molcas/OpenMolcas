@@ -113,7 +113,7 @@ C positioning.
 * Get the superindex ranges of this process's block. If no elements are
 * owned by a process, then ilo=0 and ihi=-1 such that the loop further
 * down will just be skipped.
-            CALL GA_Sync
+            CALL GA_Sync()
             myRank = GA_NodeID()
             CALL GA_Distribution (lg_RHS,myRank,IASTA,IAEND,IISTA,IIEND)
             IF (IASTA.NE.0 .AND. IAEND-IASTA+1.NE.NIN) THEN

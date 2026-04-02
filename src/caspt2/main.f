@@ -12,10 +12,10 @@
 #ifdef _FPE_TRAP_
       Use, Intrinsic :: IEEE_Exceptions
 #endif
+      use definitions, only: iwp
       implicit none
-      Character(Len=20) Module_Name
-      Parameter (Module_Name = 'caspt2')
-      Integer ireturn
+      Character(Len=20), Parameter :: Module_Name = 'caspt2'
+      Integer(kind=iwp) :: ireturn
 #ifdef _FPE_TRAP_
       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
 #endif
@@ -23,4 +23,4 @@
       Call Start(Module_Name)
       Call caspt2(ireturn)
       Call Finish(ireturn)
-      end
+      end program main

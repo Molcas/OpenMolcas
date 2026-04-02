@@ -23,7 +23,7 @@
       INTEGER(KIND=IWP), INTENT(IN) :: ISYCI, NCO
       REAL(KIND=WP), INTENT(IN) :: CI(NCO), THR
 
-      INTEGER I
+      INTEGER(kind=iwp) I
 
       WRITE(u6,'(20A4)')('----',I=1,20)
       WRITE(u6,'(a,es9.2)')' CI COEFFICIENTS LARGER THAN ',THR

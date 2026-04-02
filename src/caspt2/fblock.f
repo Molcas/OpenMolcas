@@ -17,13 +17,14 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE FBLOCK(FIFA,NO,NI,NA,NS,FIT,FTI,FIA,FAI,FTA,FAT)
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER NO,NI,NA,NS
-      REAL*8 FIFA((NO*(NO+1))/2)
-      REAL*8 FIT(NI,NA),FIA(NI,NS),FTA(NA,NS)
-      REAL*8 FTI(NA,NI),FAI(NS,NI),FAT(NS,NA)
+      INTEGER(kind=iwp), intent(in):: NO,NI,NA,NS
+      REAL(kind=wp), intent(in):: FIFA((NO*(NO+1))/2)
+      REAL(kind=wp), intent(out):: FIT(NI,NA),FIA(NI,NS),FTA(NA,NS)
+      REAL(kind=wp), intent(out):: FTI(NA,NI),FAI(NS,NI),FAT(NS,NA)
 
-      INTEGER IT,II,IA,ITTOT,IATOT,ITI,IAI,IAT
+      INTEGER(kind=iwp) IT,II,IA,ITTOT,IATOT,ITI,IAI,IAT
 
 C Extract three rectangular submatrices FIT, FIA and FTA from the
 C triangular matrix FIFA.

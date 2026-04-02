@@ -207,7 +207,7 @@ CPAM End of insert.
             WRITE(u6,'(6x,a,f18.10)')'Reference energy:     ',EREF
             WRITE(u6,'(6x,a,f18.10)')'E2 (Non-variational): ',E2NONV
             IF(real_shift.NE.Zero.or.imag_shift.ne.Zero
-     &       .or.sigma_p_epsilon.ne.0.0d0) THEN
+     &       .or.sigma_p_epsilon.ne.Zero) THEN
               WRITE(u6,'(6x,a,f18.10)')'Shift correction:     ',ESHIFT
             END IF
             WRITE(u6,'(6x,a,f18.10)')'E2 (Variational):     ',E2CORR

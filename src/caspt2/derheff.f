@@ -682,7 +682,7 @@
 
 
 ! Put in zeroes. Recognize special cases:
-!     OVL=1.0D0
+!     OVL=One
       IF(NASHT == 0) return
       IF(NACTEL == 0) return
 !     IF(LSYM1 /= LSYM2) OVL=Zero

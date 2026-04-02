@@ -19,12 +19,12 @@
 *     Author:   F. Aquilante  (Geneva, May  2008)                           *
 *                                                                           *
 *****************************************************************************
-      use definitions, only: iwp, wp
       use InputData, only: Input
       use constants, only: Zero, One
       use ChoMP2, only: DeMP2, MP2_small, shf
       use Molcas, only: MxBas
       use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: iwp, wp, u6
 *
       Integer(kind=iwp), intent(out):: irc
       Integer(kind=iwp), intent(in):: nSym
@@ -80,7 +80,7 @@
       IF(nBasT.GT.mxBas) then
        Write(6,'(/6X,A)')
      & 'The number of basis functions exceeds the present limit'
-       Call Abend
+       Call Abend()
       Endif
 *
 *
@@ -104,7 +104,7 @@
       Do iSym=1,nSym
          ipOrbE_=ipOrbE+iAoff+nFro(iSym)+nIsh(iSym)
          Do k=0,nAsh(iSym)-1
-            If (OrbE(ipOrbE_+k).lt.0.0d0) nAct(iSym)=nAct(iSym)+1
+            If (OrbE(ipOrbE_+k).lt.Zero) nAct(iSym)=nAct(iSym)+1
          End Do
          iAoff=iAoff+nBas(iSym)
       End Do
@@ -160,14 +160,14 @@
          Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),OrbE(kEOcc),OrbE(kEVir),
      &                   DMAT(ip_X),DMAT(ip_Y))
          If(irc.ne.0) then
-           write(6,*) 'MP2 pseudodensity calculation failed !'
+           Write(u6,*) 'MP2 pseudodensity calculation failed !'
            Call Abend()
          Endif
       Else
-         write(6,*)
-         write(6,*)'There are ZERO amplitudes T(ai,bj) with the given '
-         write(6,*)'combinations of inactive and virtual orbitals !! '
-         write(6,*)'Check your input and rerun the calculation! Bye!!'
+         Write(u6,*)
+         Write(u6,*)'There are ZERO amplitudes T(ai,bj) with the given '
+         Write(u6,*)'combinations of inactive and virtual orbitals !! '
+         Write(u6,*)'Check your input and rerun the calculation! Bye!!'
          Call Abend()
       Endif
 *
@@ -220,19 +220,26 @@
          endif
          jOff=jOff+nBas(iSym)**2
       End Do
-      write(6,*)'------------------------------------------------------'
-      write(6,*)'   Symm.     Trace     (Full Dmat)     (Partial Dmat) '
-      write(6,*)'------------------------------------------------------'
+      Write(u6,*)
+     &     '------------------------------------------------------'
+      Write(u6,*)
+     &     '   Symm.     Trace     (Full Dmat)     (Partial Dmat) '
+      Write(u6,*)
+     &     '------------------------------------------------------'
       STrDF=Zero
       STrDP=Zero
       Do iSym=1,nSym
-        write(6,'(4X,I4,15X,G13.6,4X,G13.6)') iSym,TrDF(iSym),TrDP(iSym)
+        Write(u6,'(4X,I4,15X,G13.6,4X,G13.6)')
+     &      iSym,TrDF(iSym),TrDP(iSym)
         STrDF=STrDF+TrDF(iSym)
         STrDP=STrDP+TrDP(iSym)
       End Do
-      write(6,*)'------------------------------------------------------'
-      write(6,'(A,G13.6,4X,G13.6)')'   Sum :               ',STrDF,STrDP
-      write(6,*)'------------------------------------------------------'
+      Write(u6,*)
+     &     '------------------------------------------------------'
+      Write(u6,'(A,G13.6,4X,G13.6)')
+     &     '   Sum :               ',STrDF,STrDP
+      Write(u6,*)
+     &     '------------------------------------------------------'
 *
 *     Update the nSsh, nDel for FNO-CASPT2
       Do iSym=1,nSym
@@ -288,8 +295,8 @@
          Call ChoMP2_Drv(irc,Dummy,CMOX(iCMO),OrbE(kEOcc),OrbE(kEVir),
      &                   DMAT(ip_X),DMAT(ip_Y))
          If(irc.ne.0) then
-           write(6,*) 'MP2 in truncated virtual space failed !'
-           Call Abend
+           Write(u6,*) 'MP2 in truncated virtual space failed !'
+           Call Abend()
          Endif
          EMP2 = -One*(EMP2-DeMP2)
       EndIf
@@ -306,13 +313,13 @@
 C
 C     Purpose: put info in MP2 common blocks.
 C
-      use definitions, only: iwp
-      use constants, only: Zero
       Use ChoMP2, only: C_os, ChkDecoMP2, ChoAlg, Decom_Def, DecoMP2,
      &                  DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def,
      &                  MxQualMP2, OED_Thr, set_cd_thr, SOS_mp2,
      &                  Span_Def, SpanMP2, ThrMP2, Verbose
       use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
+      use constants, only: Zero
+      use definitions, only: iwp, wp
 
       Implicit None
       Integer(kind=iwp), intent(in):: mSym
@@ -333,7 +340,7 @@ C
 C
       ChoAlg=2
       DecoMP2=Decom_Def
-      ThrMP2=-9.9D9
+      ThrMP2=-9.9E9_wp
       SpanMP2=Span_Def
       MxQualMP2=MxQual_Def
       ChkDecoMP2=.false.
@@ -341,8 +348,8 @@ C
       Verbose=.false.
       SOS_mp2=.false.
       set_cd_thr=.true.
-      OED_Thr=1.0d-8
-      C_os=1.3d0
+      OED_Thr=1.0e-8_wp
+      C_os=1.3e0_wp
       EOSMP2=Zero
 C
       DoFNO=.true.

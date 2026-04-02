@@ -165,7 +165,8 @@ call mma_deallocate(MLTPL)
 call mma_deallocate(Scratch)
 
 dsetid = mh5_create_dset_real(fileid,'MLTPL_ORIG',2,[3,3])
-call mh5_init_attr(dsetid,'DESCRIPTION','Origin used for the multipole moment operators: arranged as overlap, dipole, quadrupole')
+call mh5_init_attr(dsetid,'DESCRIPTION', &
+                   'Origin used for the multipole moment operators (in Ang): arranged as overlap, dipole, quadrupole')
 call mh5_put_dset(dsetid,mp_orig,[3,3],[0,0])
 call mh5_close_dset(dsetid)
 
