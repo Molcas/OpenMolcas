@@ -25,9 +25,7 @@ use Definitions, only: u6
 use Constants, only: Pi
 #endif
 
-#ifdef _DEBUG2_
 use Definitions, only: u6
-#endif
 use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,UmatList
 
 implicit none
