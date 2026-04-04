@@ -20,17 +20,15 @@ integer(kind=iwp) :: IMORS, MS2ARR(*)
 integer(kind=iwp) :: I, IB, IBIT
 
 MorsSpin = 0
-if (IMORS < 0) goto 99
+if (IMORS < 0) then
+  write(u6,*) ' MorsSpin: Bad IMORS=',IMORS
+  call ABEND()
+end if
 IB = IMORS
 do I=1,MORSBITS
   IBIT = mod(IB,2)
   IB = IB/2
   if (IBIT == 1) MorsSpin = MorsSpin+MS2ARR(I)
 end do
-
-return
-99 continue
-write(u6,*) ' MorsSpin: Bad IMORS=',IMORS
-call ABEND()
 
 end function MorsSpin

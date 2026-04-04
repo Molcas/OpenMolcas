@@ -152,15 +152,15 @@ IOFFTD = 0
 do ISYI=1,nIrrep
   NOI = NOSH(ISYI)
   NII = NISH(ISYI)
-  if (NOI == 0) goto 400
-  write(LU,'(A10,8I7)') ' # sub-Block:',ISYI,NOI
-  do I=1,NOI
-    IA = I+IOFFTD
-    ! eliminate small numbers
-    if (abs(DYSAB(IA)) < 1.0e-29_wp) DYSAB(IA) = Zero
-    write(LU,'(I7,ES22.12)') IA,DYSAB(IA)
-  end do
-400 continue
+  if (NOI /= 0) then
+    write(LU,'(A10,8I7)') ' # sub-Block:',ISYI,NOI
+    do I=1,NOI
+      IA = I+IOFFTD
+      ! eliminate small numbers
+      if (abs(DYSAB(IA)) < 1.0e-29_wp) DYSAB(IA) = Zero
+      write(LU,'(I7,ES22.12)') IA,DYSAB(IA)
+    end do
+  end if
   NORBSYM = NOI
   IOFFTD = IOFFTD+NORBSYM
 end do
@@ -174,21 +174,21 @@ do ISYI=1,nIrrep
   NOI = NOSH(ISYI)
   NAI = NASH(ISYI)
   NII = NISH(ISYI)
-  if (NOI == 0) goto 270
+  if (NOI == 0) cycle
   do ISYJ=1,nIrrep
     NOJ = NOSH(ISYJ)
     NAJ = NASH(ISYJ)
     NIJ = NISH(ISYJ)
-    if (NOJ == 0) goto 370
+    if (NOJ == 0) cycle
     do ISYL=1,nIrrep
       NOL = NOSH(ISYL)
       NAL = NASH(ISYL)
       NIL = NISH(ISYL)
-      if (NOL == 0) goto 470
+      if (NOL == 0) cycle
       if (MUL(ISYI,MUL(ISYJ,ISYL)) == SYM12) then
-        if (NAI == 0) goto 670
-        if (NAJ == 0) goto 670
-        if (NAL == 0) goto 670
+        if (NAI == 0) cycle
+        if (NAJ == 0) cycle
+        if (NAL == 0) cycle
         write(LU,'(A10,8I7,8I7,8I7,8I7)') ' # sub-Block:',ISYI,ISYJ,ISYL,NOI*NOJ*NOL
         do I=1,NOI
           IA = IOFFA(ISYI)+I-NII
@@ -209,13 +209,9 @@ do ISYI=1,nIrrep
             end do
           end do
         end do
-670     continue
       end if
-470   continue
     end do
-370 continue
   end do
-270 continue
 end do
 close(LU)
 

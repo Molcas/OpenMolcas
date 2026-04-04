@@ -43,8 +43,8 @@ integer(kind=iwp) :: I, I2Tot, I_, I_Have_DL, I_Have_DV, I_Print_Header, iAMx, i
                      iProp, iPrp, iPrQxx, iPrQxy, iPrQxz, iPrQyy, iPrQyz, iPrQzz, IPRTMOM(12), iQuad, iSet, iStart_, iState, &
                      iSy12, iSy34, iTol, iType, iVec, iVec_, J, J_, jEnd_, jGrp, jj, Job1, Job2, Job3, Job4, jSet, jSTart, &
                      jStart_, jState, k, K_, kEnd, kSTA, kState, L, L_, LNCNT, lOsc_Strength, lPos, lState, lSym3, lSym4, LuT1, &
-                     LuT2, Mask, Mask34, MaxGrp1, MaxGrp2, MPLET1, MPLET2, mState, nActe1, nActe2, nDiff, nGroup1, nGroup2, nHH, &
-                     NIP, nLST, nMax2, nScr, nSets, nTmp, nVec, SECORD(4)
+                     Mask, Mask34, MaxGrp1, MaxGrp2, MPLET1, MPLET2, mState, nActe1, nActe2, nDiff, nGroup1, nGroup2, nHH, NIP, &
+                     nLST, nMax2, nScr, nSets, nTmp, nVec, SECORD(4)
 real(kind=wp) :: A, AFactor, ANG, Ax, Ay, Az, COMPARE, Dlt, DMax, DSZ, Dx, Dx2, Dxx, Dxx2, DxxDyy, DxxDzz, DxxxDx, DxxyDy, DxxzDz, &
                  Dxy, Dxy2, DxyDz, Dxz, Dxz2, DxzDy, Dy, Dy2, DYSAMPS2(NSTATE,NSTATE), DysThr, DyxDz, Dyy, Dyy2, DyyDzz, DyyxDx, &
                  DyyyDy, DyyzDz, Dyz, Dyz2, DyzDx, Dz, Dz2, DzxDy, DzyDx, Dzz, Dzz2, DzzxDx, DzzyDy, DzzzDz, E0, E1, E2, E3, &
@@ -281,8 +281,7 @@ call mh5_put_dset(wfn_sfs_coef,EIGVEC)
 
 if (IPGLOB >= 1) then
   write(filnam,'(A,I1)') 'stE',iTyp
-  LuT2 = 11
-  LuT1 = isFreeUnit(LuT2)
+  LuT1 = isFreeUnit(11)
   call molcas_open(LuT1,filnam)
   do istate=1,nstate
     write(LuT1,*) energy(istate)
@@ -602,7 +601,10 @@ end if
 ! numerically: 2/c^3 (in a.u. of time ^ -1)
 AFACTOR = Two/c_in_au**3/(auTofs*1.0e-15_wp)
 
-if (IPGLOB <= 0) goto 900
+if (IPGLOB <= 0) then
+  call FinishUp()
+  return
+end if
 
 ! CALCULATION OF THE DIPOLE TRANSITION STRENGTHS
 
@@ -736,8 +738,7 @@ if (IPGLOB >= 1) then
   ! PRDIPVEC TDIPMIN
   if (PRDIPVEC .and. (NSTATE > 1) .and. (IFANYD /= 0)) then
     write(filnam,'(A,I1)') 'dip_vec',iTyp
-    LuT2 = 11
-    LuT1 = isFreeUnit(LuT2)
+    LuT1 = isFreeUnit(11)
     call molcas_open(LuT1,filnam)
 
     write(u6,*)
@@ -1978,6 +1979,11 @@ if (DYSO) then
 end if
 ! +++ J. Norell
 
+if (.not. Do_TMOM) then
+  call FinishUp()
+  return
+end if
+
 !***********************************************************************
 !                                                                      *
 !     Start of section for transition moments                          *
@@ -1996,7 +2002,6 @@ end if
 !                                                                      *
 !***********************************************************************
 
-if (.not. Do_TMOM) Go To 900
 #define _TIME_TMOM_
 #ifdef _TIME_TMOM_
 call CWTime(TCpu1,TWall1)
@@ -2611,20 +2616,7 @@ call ClsSew()
 !                                                                      *
 !***********************************************************************
 
-900 continue
-
-#ifdef _DEBUGPRINT_
-write(u6,*) 'end of eigctl: BLUBB debug print of property matrix'
-do istate=1,nstate
-  do jstate=1,nstate
-    do IPROP=1,NPROP
-      if (abs(prop(istate,jstate,iprop)) > 1.0e-14_wp) &
-        write(u6,*) 'prop(',istate,',',jstate,',',iprop,') = ',prop(istate,jstate,iprop)
-    end do
-  end do
-end do
-#endif
-call mma_DeAllocate(IndexE)
+call FinishUp()
 
 222 format(5X,2(1X,I4),5X,3(1X,ES18.8))
 30 format(5X,A,1X,ES15.8)
@@ -2647,5 +2639,24 @@ call mma_DeAllocate(IndexE)
 47 format(5X,2(1X,I4),5X,(1X,ES15.8),(1X,A15),(1X,ES15.8))
 49 format(5X,A,1X,ES15.8,1X,A)
 50 format(10X,A7,3X,1(1X,ES15.8),5X,A27,3(1X,F7.4))
+
+contains
+
+subroutine FinishUp()
+
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'end of eigctl: BLUBB debug print of property matrix'
+  do istate=1,nstate
+    do jstate=1,nstate
+      do IPROP=1,NPROP
+        if (abs(prop(istate,jstate,iprop)) > 1.0e-14_wp) &
+          write(u6,*) 'prop(',istate,',',jstate,',',iprop,') = ',prop(istate,jstate,iprop)
+      end do
+    end do
+  end do
+# endif
+  call mma_DeAllocate(IndexE)
+
+end subroutine FinishUp
 
 end subroutine EigCtl

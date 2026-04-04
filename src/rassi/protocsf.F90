@@ -47,38 +47,36 @@ do N=NPELU+1,NPEL
 end do
 
 NPCSF = NGENE(NPEL,MLTPL)
-if (NPCSF > NPCSFSZ) goto 998
+if (NPCSF > NPCSFSZ) then
+  write(u6,*) ' Too small space allocated in PROTOCSF. Input:'
+  write(u6,'(1x,a,3i6)') ' NPEL,MLTPL,NPCSFSZ:',NPEL,MLTPL,NPCSFSZ
+  write(u6,'(1x,a,i12)') ' Required NPCSFSZ is',NPCSF
+  call ABEND()
+end if
 
 NPCSF = 1
 if (NPEL <= 2) return
-10 continue
-N = 0
-NU = 0
-20 continue
-N = N+1
-if (N > NPEL) goto 30
-if (IPCSFCP(N,NPCSF) == UPCPL) NU = NU+1
-ND = N-NU
-if ((IPCSFCP(N,NPCSF) == UPCPL) .or. (NU == ND)) goto 20
-do L=1,NU-1
-  IPCSFCP(L,NPCSF+1) = UPCPL
-end do
-do L=NU,N-1
-  IPCSFCP(L,NPCSF+1) = DWNCPL
-end do
-IPCSFCP(N,NPCSF+1) = UPCPL
-do L=N+1,NPEL
-  IPCSFCP(L,NPCSF+1) = IPCSFCP(L,NPCSF)
-end do
-NPCSF = NPCSF+1
-goto 10
-
-30 continue
-return
-998 continue
-write(u6,*) ' Too small space allocated in PROTOCSF. Input:'
-write(u6,'(1x,a,3i6)') ' NPEL,MLTPL,NPCSFSZ:',NPEL,MLTPL,NPCSFSZ
-write(u6,'(1x,a,i12)') ' Required NPCSFSZ is',NPCSF
-call ABEND()
+outer: do
+  N = 0
+  NU = 0
+  do
+    N = N+1
+    if (N > NPEL) exit outer
+    if (IPCSFCP(N,NPCSF) == UPCPL) NU = NU+1
+    ND = N-NU
+    if ((IPCSFCP(N,NPCSF) /= UPCPL) .and. (NU /= ND)) exit
+  end do
+  do L=1,NU-1
+    IPCSFCP(L,NPCSF+1) = UPCPL
+  end do
+  do L=NU,N-1
+    IPCSFCP(L,NPCSF+1) = DWNCPL
+  end do
+  IPCSFCP(N,NPCSF+1) = UPCPL
+  do L=N+1,NPEL
+    IPCSFCP(L,NPCSF+1) = IPCSFCP(L,NPCSF)
+  end do
+  NPCSF = NPCSF+1
+end do outer
 
 end subroutine PROTOCSF

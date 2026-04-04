@@ -127,13 +127,14 @@ end do
 info = 0
 
 call DIAG_R2_RASSI(A_TENS_TERM,3,info,w,z)
-if (INFO /= 0) goto 199
-if ((w(1) < Zero) .and. (w(2) < Zero) .and. (w(3) < Zero)) then
+if (INFO /= 0) return
+
+if (all(w(:) < Zero)) then
   write(u6,'(2x,A)') 'ALL EIGENVALUES OF THE A-TENSOR ARE NEGATIVE'
   write(u6,'(2X,A)') 'THIS IS A VERY UNUSUAL SITUATION. PLEASE CHECK MANUALLY'
   write(u6,'(2x,A)') 'THE FOLLOWING PART OF THE PSEUDOSPIN SECTION'
   write(u6,'(2x,A)') 'MUST BE DISREGARDED. THE RESULTS ARE NOT TRUSTABLE.'
-  goto 199
+  return
 end if
 
 if (IPGLOB >= 4) then
@@ -249,7 +250,5 @@ if (IPGLOB > 2) then
   write(u6,'(2a)') repeat('-',56),'|'
   !call Add_Info('GTENS_MAIN',gtens,3,5)
 end if
-
-199 continue
 
 end subroutine ATENS_RASSI

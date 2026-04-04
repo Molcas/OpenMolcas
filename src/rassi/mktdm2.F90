@@ -101,7 +101,7 @@ end if
 !  )
 !end if
 !#ifdef BLUBB
-!goto 124
+!if (.false.) then
 !#endif
 #endif
 
@@ -206,7 +206,7 @@ do JORB=1,NASHT
 end do
 
 !#ifdef BLUBB
-!124  CONTINUE
+!end if
 !#endif
 
 #ifdef _DEBUGPRINT_

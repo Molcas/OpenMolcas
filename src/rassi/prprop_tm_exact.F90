@@ -168,7 +168,10 @@ do IPROP=1,NPROP
     if (IPRTMOM(14) == -1) IPRTMOM(14) = IPROP
   end if
 end do
-if (any(IPRTMOM == -1)) Go To 666
+if (any(IPRTMOM == -1)) then
+  call mma_deallocate(VSOR)
+  call mma_deallocate(VSOI)
+end if
 
 ! Initiate the Seward environment
 
@@ -928,7 +931,6 @@ call mma_deAllocate(WDMZZ)
 call mma_deAllocate(Rquad)
 call ClsSew()
 
-666 continue
 call mma_deallocate(VSOR)
 call mma_deallocate(VSOI)
 

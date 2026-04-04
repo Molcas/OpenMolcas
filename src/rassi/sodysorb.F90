@@ -106,185 +106,185 @@ end if ! Approximative amplitude calculation
 
 ! ****************************************************************
 
-if (.not. DYSEXPORT) goto 100
+if (DYSEXPORT) then
 
-! Export part of the routine and exact calculation of amplitudes
+  ! Export part of the routine and exact calculation of amplitudes
 
-! Read in the atomic overlap matrix, that will be needed below for
-! for normalization of DOs
-! (Code from mksxy)
-NSZZ = 0
-NSSQ = 0
-NPROD = 0
-do ISY=1,nIrrep
-  NO = NOSH(ISY)
-  NB = NBASF(ISY)
-  NSZZ = NSZZ+(NB*(NB+1))/2
-  NSSQ = max(NSSQ,NB**2)
-  NPROD = max(NPROD,NO*NB)
-end do
-call mma_allocate(SZZ,NSZZ,Label='SZZ')
-IRC = -1
-IOPT = ibset(ibset(0,sNoOri),sNoNuc)
-ICMP = 1
-ISYLAB = 1
-Label = 'MLTPL  0'
-call RDONE(IRC,IOPT,Label,ICMP,SZZ,ISYLAB)
-if (IRC /= 0) then
-  write(u6,*)
-  write(u6,*) '      *** ERROR IN SUBROUTINE SODYSORB ***'
-  write(u6,*) '     OVERLAP INTEGRALS ARE NOT AVAILABLE'
-  write(u6,*)
-  call ABEND()
-end if
-
-call mma_allocate(SZZFULL,NZ,NZ,Label='SZZFULL')
-
-! SZZ is originally given in symmetry-blocked triangular form,
-! lets make it a full matrix for convenience
-SZZFULL(:,:) = Zero
-NDUM = 1
-NOFF = 0
-do ISY=1,nIrrep
-  NB = NBASF(ISY)
-  do ZJ=1,NB
-    do ZI=1,ZJ
-      SZZFULL(ZJ+NOFF,ZI+NOFF) = SZZ(NDUM)
-      SZZFULL(ZI+NOFF,ZJ+NOFF) = SZZ(NDUM)
-      NDUM = NDUM+1
-    end do
+  ! Read in the atomic overlap matrix, that will be needed below for
+  ! for normalization of DOs
+  ! (Code from mksxy)
+  NSZZ = 0
+  NSSQ = 0
+  NPROD = 0
+  do ISY=1,nIrrep
+    NO = NOSH(ISY)
+    NB = NBASF(ISY)
+    NSZZ = NSZZ+(NB*(NB+1))/2
+    NSSQ = max(NSSQ,NB**2)
+    NPROD = max(NPROD,NO*NB)
   end do
-  NOFF = NOFF+NB
-end do
-call mma_deallocate(SZZ)
-
-! ****************************************************************
-
-! Multiply together with the SO eigenvector coefficients with the SF
-! Dyson orbital coefficients in the atomic basis to obtain the full
-! SO Dyson orbitals
-
-! Multiply together with the SO eigenvector coefficients with the SF
-! Dyson orbital coefficients in the atomic basis to obtain
-! SO Dyson orbitals
-
-call mma_allocate(SODYSCMOR,NZ*NSS,Label='SODYSCMOR')
-call mma_allocate(SODYSCMOI,NZ*NSS,Label='SODYSCMOI')
-call mma_allocate(AMPS,NSS,Label='AMPS')
-call mma_allocate(DYSEN,NSS,Label='DYSEN')
-call mma_allocate(SODYSCOFSR,NZ,Label='SODYSCOFSR')
-call mma_allocate(SODYSCOFSI,NZ,Label='SODYSCOFSI')
-
-SODYSAMPS(:,:) = Zero
-! For all requested initial states J and all final states I
-do JSTATE=1,DYSEXPSO
-
-  ! For each initial state JSTATE up to DYSEXPSFSO we will
-  ! gather all the obtained Dysorbs
-  ! and export to a shared .molden file
-  SODYSCIND = 0 ! Orbital coeff. index
-  ORBNUM = 0 ! Dysorb index for given JSTATE
-  SODYSCMOR(:) = Zero ! Real orbital coefficients
-  SODYSCMOI(:) = Zero ! Imaginary orbital coefficients
-  DYSEN(:) = Zero ! Orbital energies
-  AMPS(:) = Zero ! Transition amplitudes (shown as occupations)
-
-  do ISTATE=JSTATE+1,NSS
-
-    ! Reset values for next state combination
-    SODYSCOFSR(:) = Zero
-    SODYSCOFSI(:) = Zero
-
-    ! Iterate over the eigenvector components of both states
-    do JEIG=1,NSS
-
-      ! Coefficient of first state
-      CJR = USOR(JEIG,JSTATE)
-      CJI = USOI(JEIG,JSTATE)
-      ! Find the corresponding SF states
-      SFJ = SO2SF(JEIG)
-
-      do IEIG=1,NSS
-
-        ! Coefficient of second state
-        CIR = USOR(IEIG,ISTATE)
-        CII = USOI(IEIG,ISTATE)
-        ! Find the corresponding SF states
-        SFI = SO2SF(IEIG)
-
-        ! Check change in ms projection
-        MSPROJJ = MSPROJS(JEIG)
-        MSPROJI = MSPROJS(IEIG)
-        ! Check |delta ms|=0.5 selection rule
-        if (abs(MSPROJJ-MSPROJI) /= 1) cycle
-
-        if (DYSAMPS(SFJ,SFI) > 1.0e-5_wp) then
-          ! Multiply together coefficients
-          CREAL = CJR*CIR+CJI*CII
-          CIMAG = CJR*CII-CJI*CIR
-          ! Multiply with the corresponding SF Dyson orbital
-          SODYSCOFSR(:) = SODYSCOFSR(:)+CREAL*SFDYS(:,SFJ,SFI)
-          SODYSCOFSI(:) = SODYSCOFSI(:)+CIMAG*SFDYS(:,SFJ,SFI)
-        end if
-
-      end do ! IEIG
-    end do ! JEIG
-
-    ! Normalize the overlap of SODYSCOFS expanded orbitals with the
-    ! atomic overlap matrix SZZ to obtain correct amplitudes
-
-    AMPLITUDE = Zero
-
-    do ZJ=1,NZ
-      do ZI=1,NZ
-        AMPR = SODYSCOFSR(ZJ)*SODYSCOFSR(ZI)+SODYSCOFSI(ZJ)*SODYSCOFSI(ZI)
-        AMPI = SODYSCOFSI(ZJ)*SODYSCOFSR(ZI)-SODYSCOFSR(ZJ)*SODYSCOFSI(ZI)
-        AMPLITUDE = AMPLITUDE+(AMPR+AMPI)*SZZFULL(ZJ,ZI)
-      end do ! ZI
-    end do ! ZJ
-
-    AMPLITUDE = sqrt(AMPLITUDE)
-    SODYSAMPS(JSTATE,ISTATE) = AMPLITUDE
-    SODYSAMPS(ISTATE,JSTATE) = AMPLITUDE
-
-    ! Export Re and Im part of the coefficients
-    if (AMPLITUDE > 1.0e-5_wp) then
-      do NDUM=1,NZ
-        SODYSCIND = SODYSCIND+1
-        SODYSCMOR(SODYSCIND) = SODYSCOFSR(NDUM)
-        SODYSCMOI(SODYSCIND) = SODYSCOFSI(NDUM)
-      end do
-      ORBNUM = ORBNUM+1
-      DYSEN(ORBNUM) = SOENE(ISTATE)-SOENE(JSTATE)
-      AMPS(ORBNUM) = AMPLITUDE*AMPLITUDE
-    end if
-
-  end do ! ISTATE
-
-  ! If at least one orbital was found, export it/them
-  if (ORBNUM > 0) then
-    write(filename,'(A,I0,A3)') 'MD_DYS.SO.',JSTATE,'.Re'
-    call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOR,ORBNUM,NZ)
-    write(filename,'(A,I0,A3)') 'MD_DYS.SO.',JSTATE,'.Im'
-    call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOI,ORBNUM,NZ)
-
-    ! This does not work for SO-Dyson orbitals, because they may
-    ! contain contributions from several irreps.
-    ! Either that's a bug elsewhere in the code, or the InpOrb
-    ! format is not adequate for these orbitals.
-    write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Re'
-    LUNIT = IsFreeUnit(50)
-    write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for state ',JSTATE,' (real part)'
-    call WRVEC_DYSON(filename,LUNIT,nIrrep,NBASF,ORBNUM,SODYSCMOR,AMPS,DYSEN,trim(TITLE),NZ)
-    write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Im'
-    write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for state ',JSTATE,' (imaginary part)'
-    call WRVEC_DYSON(filename,LUNIT,nIrrep,NBASF,ORBNUM,SODYSCMOI,AMPS,DYSEN,trim(TITLE),NZ)
-    close(LUNIT)
+  call mma_allocate(SZZ,NSZZ,Label='SZZ')
+  IRC = -1
+  IOPT = ibset(ibset(0,sNoOri),sNoNuc)
+  ICMP = 1
+  ISYLAB = 1
+  Label = 'MLTPL  0'
+  call RDONE(IRC,IOPT,Label,ICMP,SZZ,ISYLAB)
+  if (IRC /= 0) then
+    write(u6,*)
+    write(u6,*) '      *** ERROR IN SUBROUTINE SODYSORB ***'
+    write(u6,*) '     OVERLAP INTEGRALS ARE NOT AVAILABLE'
+    write(u6,*)
+    call ABEND()
   end if
 
-end do ! JSTATE
+  call mma_allocate(SZZFULL,NZ,NZ,Label='SZZFULL')
 
-100 continue
+  ! SZZ is originally given in symmetry-blocked triangular form,
+  ! lets make it a full matrix for convenience
+  SZZFULL(:,:) = Zero
+  NDUM = 1
+  NOFF = 0
+  do ISY=1,nIrrep
+    NB = NBASF(ISY)
+    do ZJ=1,NB
+      do ZI=1,ZJ
+        SZZFULL(ZJ+NOFF,ZI+NOFF) = SZZ(NDUM)
+        SZZFULL(ZI+NOFF,ZJ+NOFF) = SZZ(NDUM)
+        NDUM = NDUM+1
+      end do
+    end do
+    NOFF = NOFF+NB
+  end do
+  call mma_deallocate(SZZ)
+
+  ! ****************************************************************
+
+  ! Multiply together with the SO eigenvector coefficients with the SF
+  ! Dyson orbital coefficients in the atomic basis to obtain the full
+  ! SO Dyson orbitals
+
+  ! Multiply together with the SO eigenvector coefficients with the SF
+  ! Dyson orbital coefficients in the atomic basis to obtain
+  ! SO Dyson orbitals
+
+  call mma_allocate(SODYSCMOR,NZ*NSS,Label='SODYSCMOR')
+  call mma_allocate(SODYSCMOI,NZ*NSS,Label='SODYSCMOI')
+  call mma_allocate(AMPS,NSS,Label='AMPS')
+  call mma_allocate(DYSEN,NSS,Label='DYSEN')
+  call mma_allocate(SODYSCOFSR,NZ,Label='SODYSCOFSR')
+  call mma_allocate(SODYSCOFSI,NZ,Label='SODYSCOFSI')
+
+  SODYSAMPS(:,:) = Zero
+  ! For all requested initial states J and all final states I
+  do JSTATE=1,DYSEXPSO
+
+    ! For each initial state JSTATE up to DYSEXPSFSO we will
+    ! gather all the obtained Dysorbs
+    ! and export to a shared .molden file
+    SODYSCIND = 0 ! Orbital coeff. index
+    ORBNUM = 0 ! Dysorb index for given JSTATE
+    SODYSCMOR(:) = Zero ! Real orbital coefficients
+    SODYSCMOI(:) = Zero ! Imaginary orbital coefficients
+    DYSEN(:) = Zero ! Orbital energies
+    AMPS(:) = Zero ! Transition amplitudes (shown as occupations)
+
+    do ISTATE=JSTATE+1,NSS
+
+      ! Reset values for next state combination
+      SODYSCOFSR(:) = Zero
+      SODYSCOFSI(:) = Zero
+
+      ! Iterate over the eigenvector components of both states
+      do JEIG=1,NSS
+
+        ! Coefficient of first state
+        CJR = USOR(JEIG,JSTATE)
+        CJI = USOI(JEIG,JSTATE)
+        ! Find the corresponding SF states
+        SFJ = SO2SF(JEIG)
+
+        do IEIG=1,NSS
+
+          ! Coefficient of second state
+          CIR = USOR(IEIG,ISTATE)
+          CII = USOI(IEIG,ISTATE)
+          ! Find the corresponding SF states
+          SFI = SO2SF(IEIG)
+
+          ! Check change in ms projection
+          MSPROJJ = MSPROJS(JEIG)
+          MSPROJI = MSPROJS(IEIG)
+          ! Check |delta ms|=0.5 selection rule
+          if (abs(MSPROJJ-MSPROJI) /= 1) cycle
+
+          if (DYSAMPS(SFJ,SFI) > 1.0e-5_wp) then
+            ! Multiply together coefficients
+            CREAL = CJR*CIR+CJI*CII
+            CIMAG = CJR*CII-CJI*CIR
+            ! Multiply with the corresponding SF Dyson orbital
+            SODYSCOFSR(:) = SODYSCOFSR(:)+CREAL*SFDYS(:,SFJ,SFI)
+            SODYSCOFSI(:) = SODYSCOFSI(:)+CIMAG*SFDYS(:,SFJ,SFI)
+          end if
+
+        end do ! IEIG
+      end do ! JEIG
+
+      ! Normalize the overlap of SODYSCOFS expanded orbitals with the
+      ! atomic overlap matrix SZZ to obtain correct amplitudes
+
+      AMPLITUDE = Zero
+
+      do ZJ=1,NZ
+        do ZI=1,NZ
+          AMPR = SODYSCOFSR(ZJ)*SODYSCOFSR(ZI)+SODYSCOFSI(ZJ)*SODYSCOFSI(ZI)
+          AMPI = SODYSCOFSI(ZJ)*SODYSCOFSR(ZI)-SODYSCOFSR(ZJ)*SODYSCOFSI(ZI)
+          AMPLITUDE = AMPLITUDE+(AMPR+AMPI)*SZZFULL(ZJ,ZI)
+        end do ! ZI
+      end do ! ZJ
+
+      AMPLITUDE = sqrt(AMPLITUDE)
+      SODYSAMPS(JSTATE,ISTATE) = AMPLITUDE
+      SODYSAMPS(ISTATE,JSTATE) = AMPLITUDE
+
+      ! Export Re and Im part of the coefficients
+      if (AMPLITUDE > 1.0e-5_wp) then
+        do NDUM=1,NZ
+          SODYSCIND = SODYSCIND+1
+          SODYSCMOR(SODYSCIND) = SODYSCOFSR(NDUM)
+          SODYSCMOI(SODYSCIND) = SODYSCOFSI(NDUM)
+        end do
+        ORBNUM = ORBNUM+1
+        DYSEN(ORBNUM) = SOENE(ISTATE)-SOENE(JSTATE)
+        AMPS(ORBNUM) = AMPLITUDE*AMPLITUDE
+      end if
+
+    end do ! ISTATE
+
+    ! If at least one orbital was found, export it/them
+    if (ORBNUM > 0) then
+      write(filename,'(A,I0,A3)') 'MD_DYS.SO.',JSTATE,'.Re'
+      call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOR,ORBNUM,NZ)
+      write(filename,'(A,I0,A3)') 'MD_DYS.SO.',JSTATE,'.Im'
+      call Molden_DysOrb(filename,DYSEN,AMPS,SODYSCMOI,ORBNUM,NZ)
+
+      ! This does not work for SO-Dyson orbitals, because they may
+      ! contain contributions from several irreps.
+      ! Either that's a bug elsewhere in the code, or the InpOrb
+      ! format is not adequate for these orbitals.
+      write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Re'
+      LUNIT = IsFreeUnit(50)
+      write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for state ',JSTATE,' (real part)'
+      call WRVEC_DYSON(filename,LUNIT,nIrrep,NBASF,ORBNUM,SODYSCMOR,AMPS,DYSEN,trim(TITLE),NZ)
+      write(filename,'(A,I0,A3)') 'DYSORB.SO.',JSTATE,'.Im'
+      write(TITLE,'(A,I0,A)') '* Spin-orbit Dyson orbitals for state ',JSTATE,' (imaginary part)'
+      call WRVEC_DYSON(filename,LUNIT,nIrrep,NBASF,ORBNUM,SODYSCMOI,AMPS,DYSEN,trim(TITLE),NZ)
+      close(LUNIT)
+    end if
+
+  end do ! JSTATE
+
+end if
 
 call mma_deallocate(SODYSCMOR)
 call mma_deallocate(SODYSCMOI)

@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: ISYOP, MS2OP, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(*)
 real(kind=wp) :: PSI1(*), PSI2(*), SPD12(*)
-integer(kind=iwp) :: IJSORB, IMODE, ISMLAB, ISORB, ISPLAB, JMS2, JSMLAB, JSORB, JSPLAB, JSYM, KOINFO, NASORB, NDETS1, NDETS2
+integer(kind=iwp) :: IMODE, ISMLAB, ISORB, ISPLAB, JMS2, JSMLAB, JSORB, JSPLAB, JSYM, KOINFO, NASORB, NDETS1, NDETS2
 real(kind=wp) :: COEFF, OVLP
 real(kind=wp), allocatable :: ANN1(:), ANN2(:)
 real(kind=wp), external :: OVERLAP_RASSI
@@ -54,26 +54,24 @@ do ISORB=1,NASORB
   do JSORB=1,NASORB
     OVLP = Zero
     JSMLAB = IORBTAB(KOINFO+1+8*(JSORB-1))
-    if (JSMLAB /= JSYM) goto 100
     !UNUSED JSOIND = IORBTAB(KOINFO+2+8*(JSORB-1))
     JSPLAB = IORBTAB(KOINFO+3+8*(JSORB-1))
-    if (JSPLAB /= JMS2) goto 100
-    COEFF = One
-    IMODE = -1
-    call FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2,2)
-    NDETS2 = FSBANN2(5)
-    call mma_allocate(ANN2,NDETS2,Label='ANN2')
-    ANN2(:) = Zero
-    call PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,FSBANN2,IFSBTAB2,COEFF,ANN2,PSI2)
+    if ((JSMLAB == JSYM) .and. (JSPLAB == JMS2)) then
+      COEFF = One
+      IMODE = -1
+      call FSBOP(IMODE,JSORB,IORBTAB,ISSTAB,IFSBTAB2,2)
+      NDETS2 = FSBANN2(5)
+      call mma_allocate(ANN2,NDETS2,Label='ANN2')
+      ANN2(:) = Zero
+      call PRIMSGM(IMODE,JSORB,IORBTAB,ISSTAB,FSBANN2,IFSBTAB2,COEFF,ANN2,PSI2)
 
-    ! Compute the spin transition density matrix element:
-    OVLP = OVERLAP_RASSI(FSBANN1,FSBANN2,ANN1,ANN2)
-    !TEST write(u6,*) ' Their overlap:',OVLP
-    call mma_deallocate(ANN2)
-    call mma_deallocate(FSBANN2)
-100 continue
-    IJSORB = ISORB+NASORB*(JSORB-1)
-    SPD12(IJSORB) = OVLP
+      ! Compute the spin transition density matrix element:
+      OVLP = OVERLAP_RASSI(FSBANN1,FSBANN2,ANN1,ANN2)
+      !TEST write(u6,*) ' Their overlap:',OVLP
+      call mma_deallocate(ANN2)
+      call mma_deallocate(FSBANN2)
+    end if
+    SPD12(ISORB+NASORB*(JSORB-1)) = OVLP
   end do
   call mma_deallocate(ANN1)
   call mma_deallocate(FSBANN1)

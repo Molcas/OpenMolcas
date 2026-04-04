@@ -144,10 +144,10 @@ if (mh5_is_hdf5(jbname(job))) then
     end do
   end if
   if (read_states) then
-    !  Do not update the state number here, because it's already read in
-    !  rdjob_nstates()
-    !        NSTAT(JOB)=ref_nstates
-    !        NSTATE=NSTATE+ref_nstates
+    ! Do not update the state number here, because it's already read in
+    ! rdjob_nstates()
+    !NSTAT(JOB) = ref_nstates
+    !NSTATE = NSTATE+ref_nstates
     ! store the root IDs of each state
     do I=0,NSTAT(JOB)-1
       LROOT(ISTAT(JOB)+I) = ref_rootid(I+1)
@@ -157,7 +157,7 @@ if (mh5_is_hdf5(jbname(job))) then
   LROT1 = ref_nroots
   do I=0,NSTAT(JOB)-1
     NROOT0 = root2state(LROOT(ISTAT(JOB)+I))
-    if ((NROOT0 <= 0) .or. (NROOT0 > LROT1)) goto 9002
+    if ((NROOT0 <= 0) .or. (NROOT0 > LROT1)) call Error(2)
   end do
 
   if (qdpt2sc .and. (molcas_module(1:6) == 'NEVPT2')) then
@@ -401,7 +401,7 @@ else
   end if
   do I=0,NSTAT(JOB)-1
     NROOT0 = LROOT(ISTAT(JOB)+I)
-    if (NROOT0 > LROT1) goto 9002
+    if (NROOT0 > LROT1) call Error(2)
   end do
 
   ! First read energies, which may be used in any case
@@ -552,17 +552,14 @@ else
   else
     ! THIS IS NOT THE FIRST JOBIPH.
     ! CHECK THAT DATA IS CONSISTENT WITH EARLIER:
-    if (NSYM1 /= nIrrep) goto 9001
-    if (NHOL11 /= NHOLE1(JOB-1)) goto 9003
-    if (NELE31 /= NELE3(JOB-1)) goto 9003
+    if (NSYM1 /= nIrrep) call Error(1)
+    if ((NHOL11 /= NHOLE1(JOB-1)) .or. (NELE31 /= NELE3(JOB-1))) call Error(3)
     do ISY=1,NSYM1
       NIS1 = NISH1(ISY)+NFRO1(ISY)
       NIS = NISH(ISY)
-      if (NIS1 /= NIS) goto 9004
-      if (NRS11(ISY) /= NRS1(ISY)) goto 9005
-      if (NRS21(ISY) /= NRS2(ISY)) goto 9005
-      if (NRS31(ISY) /= NRS3(ISY)) goto 9005
-      if (NBAS1(ISY) /= NBASF(ISY)) goto 9006
+      if (NIS1 /= NIS) call Error(4)
+      if ((NRS11(ISY) /= NRS1(ISY)) .or. (NRS21(ISY) /= NRS2(ISY)) .or. (NRS31(ISY) /= NRS3(ISY))) call Error(5)
+      if (NBAS1(ISY) /= NBASF(ISY)) call Error(6)
     end do
   end if
 
@@ -615,48 +612,56 @@ end if
 
 call XFLUSH(u6)
 
-return
+contains
 
 !***********************************************************************
 !
 ! Error exits
 !
 !***********************************************************************
-9001 write(u6,*) ' SYMMETRY GROUPS MUST BE EQUAL.'
-write(u6,*) ' NSYM1:',NSYM1,'NSYM :',nIrrep
-goto 9010
-9002 write(u6,*) ' ROOT NOT AVAILABLE.'
-write(u6,*) '             REQUESTED ROOT:',NROOT0
-write(u6,*) '  MAXIMUM ROOT IN THIS FILE:',LROT1
-goto 9010
-9003 write(u6,*) ' RAS SPECIFICATIONS DIFFER.'
-write(u6,*) '     THIS STATE: MAX NR OF RAS-1 HOLES:',NHOL11
-write(u6,*) '             MAX NR OF RAS-3 ELECTRONS:',NELE31
-write(u6,*) ' PREVIOUS STATE: MAX NR OF RAS-1 HOLES:',NHOLE1(JOB-1)
-write(u6,*) '             MAX NR OF RAS-3 ELECTRONS:',NELE3(JOB-1)
-goto 9010
-9004 write(u6,*) ' NR. OF (FROZEN+INACTIVE) ORBITALS DIFFER.'
-write(u6,'(A,8I4)') ' THIS STATE:',(NFRO1(I)+NISH1(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '   PREVIOUS:',(NISH(I),I=1,nIrrep)
-goto 9010
-9005 write(u6,*) ' NR. OF ACTIVE ORBITALS DIFFER.'
-write(u6,'(A,8I4)') ' THIS STATE, ACTIVE:',(NASH1(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '               RAS1:',(NRS11(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '               RAS2:',(NRS21(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '               RAS3:',(NRS31(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '   PREVIOUS, ACTIVE:',(NASH(I),I=1,nIrrep)
-write(u6,'(A,8I4)') '               RAS1:',(NRS1(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '               RAS2:',(NRS2(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '               RAS3:',(NRS3(I),I=1,NSYM1)
-goto 9010
-9006 write(u6,*) ' NR. OF BASIS FUNCTION DIFFER.'
-write(u6,'(A,8I4)') ' THIS JOBIPH:',(NBAS1(I),I=1,NSYM1)
-write(u6,'(A,8I4)') '    PREVIOUS:',(NBASF(I),I=1,nIrrep)
-9010 continue
-write(u6,*) ' DATA IN JOBIPH FILE NAMED ',trim(JBNAME(JOB)),' WERE'
-write(u6,*) ' INCONSISTENT WITH EARLIER DATA. PROGRAM STOPS.'
-write(u6,*)
-write(u6,*) ' Errors occured in RASSI/RDJOB.'
-call ABEND()
+subroutine Error(code)
+
+  integer(kind=iwp), intent(in) :: code
+
+  select case (code)
+    case (1)
+      write(u6,*) ' SYMMETRY GROUPS MUST BE EQUAL.'
+      write(u6,*) ' NSYM1:',NSYM1,'NSYM :',nIrrep
+    case (2)
+      write(u6,*) ' ROOT NOT AVAILABLE.'
+      write(u6,*) '             REQUESTED ROOT:',NROOT0
+      write(u6,*) '  MAXIMUM ROOT IN THIS FILE:',LROT1
+    case (3)
+      write(u6,*) ' RAS SPECIFICATIONS DIFFER.'
+      write(u6,*) '     THIS STATE: MAX NR OF RAS-1 HOLES:',NHOL11
+      write(u6,*) '             MAX NR OF RAS-3 ELECTRONS:',NELE31
+      write(u6,*) ' PREVIOUS STATE: MAX NR OF RAS-1 HOLES:',NHOLE1(JOB-1)
+      write(u6,*) '             MAX NR OF RAS-3 ELECTRONS:',NELE3(JOB-1)
+    case (4)
+      write(u6,*) ' NR. OF (FROZEN+INACTIVE) ORBITALS DIFFER.'
+      write(u6,'(A,8I4)') ' THIS STATE:',NFRO1(1:NSYM1)+NISH1(1:NSYM1)
+      write(u6,'(A,8I4)') '   PREVIOUS:',NISH(1:nIrrep)
+    case (5)
+      write(u6,*) ' NR. OF ACTIVE ORBITALS DIFFER.'
+      write(u6,'(A,8I4)') ' THIS STATE, ACTIVE:',NASH1(1:NSYM1)
+      write(u6,'(A,8I4)') '               RAS1:',NRS11(1:NSYM1)
+      write(u6,'(A,8I4)') '               RAS2:',NRS21(1:NSYM1)
+      write(u6,'(A,8I4)') '               RAS3:',NRS31(1:NSYM1)
+      write(u6,'(A,8I4)') '   PREVIOUS, ACTIVE:',NASH(1:nIrrep)
+      write(u6,'(A,8I4)') '               RAS1:',NRS1(1:NSYM1)
+      write(u6,'(A,8I4)') '               RAS2:',NRS2(1:NSYM1)
+      write(u6,'(A,8I4)') '               RAS3:',NRS3(1:NSYM1)
+    case (6)
+      write(u6,*) ' NR. OF BASIS FUNCTION DIFFER.'
+      write(u6,'(A,8I4)') ' THIS JOBIPH:',NBAS1(1:NSYM1)
+      write(u6,'(A,8I4)') '    PREVIOUS:',NBASF(1:nIrrep)
+  end select
+  write(u6,*) ' DATA IN JOBIPH FILE NAMED ',trim(JBNAME(JOB)),' WERE'
+  write(u6,*) ' INCONSISTENT WITH EARLIER DATA. PROGRAM STOPS.'
+  write(u6,*)
+  write(u6,*) ' Errors occured in RASSI/RDJOB.'
+  call ABEND()
+
+end subroutine
 
 end subroutine RDJOB

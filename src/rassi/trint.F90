@@ -102,9 +102,16 @@ if (.not. DoCholesky) then
     end if
   end do
   do I=1,nIrrep
-    if (KEEP(I) == 0) goto 10
-    if (NOSH(I) > 0) goto 901
-10  continue
+    if ((KEEP(I) /= 0) .and. (NOSH(I) > 0)) then
+      write(u6,*) ' ERROR IN KEEP PARAMETERS ON ORDINT FILE.'
+      write(u6,'(A,8I5)') ' KEEP ARRAY:',KEEP(1:nIrrep)
+      write(u6,'(A,8I5)') ' NASH ARRAY:',NASH(1:nIrrep)
+      write(u6,*) ' A NON-ZERO KEEP PARAMETER INDICATES THAT BASIS'
+      write(u6,*) ' FUNCTIONS WITH A SPECIFIC SYMMETRY LABEL HAS'
+      write(u6,*) ' BEEN SKIPPED. THIS IS POSSIBLE ONLY IF INACTIVE'
+      write(u6,*) ' AND ACTIVE ORBITALS OF THAT SYMMETRY ARE MISSING.'
+      call ABEND()
+    end if
   end do
 
 end if
@@ -401,16 +408,5 @@ if (iErr /= 0) then
   call Abend()
 end if
 !call triprt('tuvx',' ',TUVX,nasht)
-
-return
-901 continue
-write(u6,*) ' ERROR IN KEEP PARAMETERS ON ORDINT FILE.'
-write(u6,'(A,8I5)') ' KEEP ARRAY:',(KEEP(I),I=1,nIrrep)
-write(u6,'(A,8I5)') ' NASH ARRAY:',(NASH(I),I=1,nIrrep)
-write(u6,*) ' A NON-ZERO KEEP PARAMETER INDICATES THAT BASIS'
-write(u6,*) ' FUNCTIONS WITH A SPECIFIC SYMMETRY LABEL HAS'
-write(u6,*) ' BEEN SKIPPED. THIS IS POSSIBLE ONLY IF INACTIVE'
-write(u6,*) ' AND ACTIVE ORBITALS OF THAT SYMMETRY ARE MISSING.'
-call ABEND()
 
 end subroutine TRINT

@@ -20,20 +20,20 @@ integer(kind=iwp) :: I1, I2, I3, J
 integer(kind=iwp), parameter :: ISG(0:15) = [1,-1,-1,1,-1,1,1,-1,-1,1,1,-1,1,-1,-1,1]
 
 MorsParity = 0 ! dummy initialize
-if (IMORS < 0) goto 99
-I1 = IMORS/16
-J = IMORS-16*I1
-MorsParity = ISG(J)
-if (I1 == 0) return
-I2 = I1/16
-J = I1-16*I2
-MorsParity = MorsParity*ISG(J)
-if (I2 == 0) return
-I3 = I2/16
-J = I2-16*I3
-MorsParity = MorsParity*ISG(J)
-if (I3 == 0) return
-99 continue
+if (IMORS >= 0) then
+  I1 = IMORS/16
+  J = IMORS-16*I1
+  MorsParity = ISG(J)
+  if (I1 == 0) return
+  I2 = I1/16
+  J = I1-16*I2
+  MorsParity = MorsParity*ISG(J)
+  if (I2 == 0) return
+  I3 = I2/16
+  J = I2-16*I3
+  MorsParity = MorsParity*ISG(J)
+  if (I3 == 0) return
+end if
 write(u6,*) ' MorsParity: Bad IMORS=',IMORS
 call ABEND()
 

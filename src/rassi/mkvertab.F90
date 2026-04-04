@@ -211,12 +211,12 @@ do LEVUP=NASPRT,1,-1
   ! A wasteful loop to pick out vertices on the upper level:
   do NPC1=LIMARR(1,LEVUP),LIMARR(2,LEVUP)
     do M2C1=-NPC1,NPC1,2
-      if (M2C1 < MS2MIN) goto 130
-      if (M2C1 > MS2MAX) goto 130
+      if (M2C1 < MS2MIN) cycle
+      if (M2C1 > MS2MAX) cycle
       do ISC1=1,nIrrep
         IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
         IVER1 = VIDX(+IPOS)
-        if (IVER1 == 0) goto 120
+        if (IVER1 == 0) cycle
         ! This is a valid upper vertex on the upper level.
         ! Loop over valid arcs:
         KPOPLIM = min(NPC1,KPOPMAX)
@@ -234,28 +234,25 @@ do LEVUP=NASPRT,1,-1
             call ABEND()
           end if
           NPC2 = NPC1-KPOP
-          if (NPC2 < LIMARR(1,LEVDWN)) goto 110
-          if (NPC2 > LIMARR(2,LEVDWN)) goto 110
+          if (NPC2 < LIMARR(1,LEVDWN)) cycle
+          if (NPC2 > LIMARR(2,LEVDWN)) cycle
           M2C2 = M2C1-KMS2
-          if (M2C2 < MS2MIN) goto 110
-          if (M2C2 > MS2MAX) goto 110
+          if (M2C2 < MS2MIN) cycle
+          if (M2C2 > MS2MAX) cycle
           ISC2 = MUL(KSYM,ISC1)
-          if (abs(M2C2) > NPC2) goto 110
-          if ((NPC2 == 0) .and. (ISC2 /= 1)) goto 110
+          if (abs(M2C2) > NPC2) cycle
+          if ((NPC2 == 0) .and. (ISC2 /= 1)) cycle
           ! Inspect the lower vertex: Is it a new one?
           IPOS = ISC2+nIrrep*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
           IVER2 = VIDX(+IPOS)
-          if (IVER2 > 0) goto 110
+          if (IVER2 > 0) cycle
           ! This is a new vertex. Register its number
           IVERT = IVERT+1
           IVER2 = IVERT
           VIDX(+IPOS) = IVER2
-110       continue
         end do
         ! Finished looping over possible arcs.
-120     continue
       end do
-130   continue
     end do
   end do
   ! Finished looping over possible upper vertices.
@@ -274,12 +271,12 @@ do LEVUP=1,NASPRT
   ! A wasteful loop to pick out vertices on the upper level:
   do NPC1=LIMARR(1,LEVUP),LIMARR(2,LEVUP)
     do M2C1=-NPC1,NPC1,2
-      if (M2C1 < MS2MIN) goto 230
-      if (M2C1 > MS2MAX) goto 230
+      if (M2C1 < MS2MIN) cycle
+      if (M2C1 > MS2MAX) cycle
       do ISC1=1,nIrrep
         IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
         IVER1 = VIDX(+IPOS)
-        if (IVER1 == 0) goto 220
+        if (IVER1 == 0) cycle
         ! This is a valid upper vertex on the upper level.
         ! Is it reachable from below?
         NARCVRT = 0
@@ -299,18 +296,17 @@ do LEVUP=1,NASPRT
             call ABEND()
           end if
           NPC2 = NPC1-KPOP
-          if ((LEVDWN == 0) .and. (NPC2 > 0)) goto 210
+          if ((LEVDWN == 0) .and. (NPC2 > 0)) cycle
           M2C2 = M2C1-KMS2
-          if (M2C2 < MS2MIN) goto 210
-          if (M2C2 > MS2MAX) goto 210
+          if (M2C2 < MS2MIN) cycle
+          if (M2C2 > MS2MAX) cycle
           ISC2 = MUL(KSYM,ISC1)
-          if (abs(M2C2) > NPC2) goto 210
-          if ((NPC2 == 0) .and. (ISC2 /= 1)) goto 210
+          if (abs(M2C2) > NPC2) cycle
+          if ((NPC2 == 0) .and. (ISC2 /= 1)) cycle
           ! Inspect the lower vertex: Is it reachable?
           IPOS = ISC2+nIrrep*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
           IVER2 = VIDX(+IPOS)
           if (IVER2 > 0) NARCVRT = NARCVRT+1
-210       continue
         end do
         ! Finished looping over possible arcs.
         ! Remove this vertex if it was unreachable.
@@ -319,9 +315,7 @@ do LEVUP=1,NASPRT
           VIDX(+IPOS) = 0
         end if
         NARC = NARC+NARCVRT
-220     continue
       end do
-230   continue
     end do
   end do
   ! Finished looping over possible upper vertices.
@@ -335,17 +329,15 @@ do LEVUP=NASPRT,0,-1
   ! A wasteful loop to pick out vertices on the upper level:
   do NPC1=LIMARR(1,LEVUP),LIMARR(2,LEVUP)
     do M2C1=-NPC1,NPC1,2
-      if (M2C1 < MS2MIN) goto 330
-      if (M2C1 > MS2MAX) goto 330
+      if (M2C1 < MS2MIN) cycle
+      if (M2C1 > MS2MAX) cycle
       do ISC1=1,nIrrep
         IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
         IVER1 = VIDX(+IPOS)
-        if (IVER1 == 0) goto 320
+        if (IVER1 == 0) cycle
         NVERT = NVERT+1
         VIDX(+IPOS) = NVERT
-320     continue
       end do
-330   continue
     end do
   end do
 end do
@@ -373,12 +365,12 @@ do LEVUP=NASPRT,1,-1
   ! A wasteful loop to pick out vertices on the upper level:
   do NPC1=LIMARR(1,LEVUP),LIMARR(2,LEVUP)
     do M2C1=-NPC1,NPC1,2
-      if (M2C1 < MS2MIN) goto 430
-      if (M2C1 > MS2MAX) goto 430
+      if (M2C1 < MS2MIN) cycle
+      if (M2C1 > MS2MAX) cycle
       do ISC1=1,nIrrep
         IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
         IVER1 = VIDX(+IPOS)
-        if (IVER1 == 0) goto 420
+        if (IVER1 == 0) cycle
         ! This is a valid upper vertex on the upper level.
         VERTAB(+1+6*(IVER1-1)) = LEVUP
         VERTAB(+2+6*(IVER1-1)) = NPC1
@@ -404,17 +396,17 @@ do LEVUP=NASPRT,1,-1
             call ABEND()
           end if
           NPC2 = NPC1-KPOP
-          if ((LEVDWN == 0) .and. (NPC2 > 0)) goto 410
+          if ((LEVDWN == 0) .and. (NPC2 > 0)) cycle
           M2C2 = M2C1-KMS2
-          if (M2C2 < MS2MIN) goto 410
-          if (M2C2 > MS2MAX) goto 410
+          if (M2C2 < MS2MIN) cycle
+          if (M2C2 > MS2MAX) cycle
           ISC2 = MUL(KSYM,ISC1)
-          if (abs(M2C2) > NPC2) goto 410
-          if ((NPC2 == 0) .and. (ISC2 /= 1)) goto 410
+          if (abs(M2C2) > NPC2) cycle
+          if ((NPC2 == 0) .and. (ISC2 /= 1)) cycle
           ! Is it a valid arc? See if a lower vertex exists.
           IPOS = ISC2+nIrrep*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
           IVER2 = VIDX(+IPOS)
-          if (IVER2 == 0) goto 410
+          if (IVER2 == 0) cycle
           ! A valid arc has been found. The upper vertex IVER1 is
           ! joined to the lower vertex IVER2 by an arc associated
           ! with the substring type ISST.
@@ -424,13 +416,10 @@ do LEVUP=NASPRT,1,-1
           DWNTAB(+1+3*(IARC-1)) = ISST
           DWNTAB(+2+3*(IARC-1)) = IVER1
           DWNTAB(+3+3*(IARC-1)) = IVER2
-410       continue
         end do
         ! Finished looping over possible arcs.
         VERTAB(+6+6*(IVER1-1)) = NARCVRT
-420     continue
       end do
-430   continue
     end do
   end do
   ! Finished looping over vertices on this level.
@@ -492,72 +481,71 @@ NRDETS0 = 0
 NFSB = 0
 NRDETS = 0
 !TEST write(u6,*) ' A list of all generated FS blocks:'
-500 continue
-! Construct this walk. While constructing it, also find out if
-! it has a successor.
-IVUP = 1
-LOWEST = NASPRT+1
-do LEVUP=NASPRT,1,-1
-  ISW = SWITCH(+LEVUP)
-  ! Select arc nr isw from those available to vertex ivup.
-  IARC = VERTAB(+5+6*(IVUP-1))-1+ISW
-  ! Could it be incremented?
-  NSW = VERTAB(+6+6*(IVUP-1))
-  !TEST write(u6,'(1x,a,8i8)') 'IVUP,ISW,NSW:',IVUP,ISW,NSW
-  if (NSW > ISW) LOWEST = LEVUP
-  ! Consult the downarc table:
-  ISST = DWNTAB(+1+3*(IARC-1))
-  IVER1 = DWNTAB(+2+3*(IARC-1))
-  IVER2 = DWNTAB(+3+3*(IARC-1))
-  !TEST write(u6,'(1x,a,8i8)') 'ISST,IVER1,IVER2:',ISST,IVER1,IVER2
-  if (IVER1 /= IVUP) then
-    write(u6,*) ' OOOOPS! THIS SHOULD NOT HAPPEN.'
-    call ABEND()
+do
+  ! Construct this walk. While constructing it, also find out if
+  ! it has a successor.
+  IVUP = 1
+  LOWEST = NASPRT+1
+  do LEVUP=NASPRT,1,-1
+    ISW = SWITCH(+LEVUP)
+    ! Select arc nr isw from those available to vertex ivup.
+    IARC = VERTAB(+5+6*(IVUP-1))-1+ISW
+    ! Could it be incremented?
+    NSW = VERTAB(+6+6*(IVUP-1))
+    !TEST write(u6,'(1x,a,8i8)') 'IVUP,ISW,NSW:',IVUP,ISW,NSW
+    if (NSW > ISW) LOWEST = LEVUP
+    ! Consult the downarc table:
+    ISST = DWNTAB(+1+3*(IARC-1))
+    IVER1 = DWNTAB(+2+3*(IARC-1))
+    IVER2 = DWNTAB(+3+3*(IARC-1))
+    !TEST write(u6,'(1x,a,8i8)') 'ISST,IVER1,IVER2:',ISST,IVER1,IVER2
+    if (IVER1 /= IVUP) then
+      write(u6,*) ' OOOOPS! THIS SHOULD NOT HAPPEN.'
+      call ABEND()
+    end if
+    ITRY(LEVUP) = ISST
+    IVUP = IVER2
+  end do
+  ! Check GAS restrictions:
+  NSDBLK = 1
+  ISPEND = 0
+  KEEP = 1
+  do IPART=1,NPART
+    NGO = NGASORB(0,IPART)
+    NSP = (NGO+MORSBITS-1)/MORSBITS
+    ISPSTA = ISPEND+1
+    ISPEND = ISPEND+NSP
+    NOREM = NGO
+    ISUM = 0
+    do ISPART=ISPSTA,ISPEND
+      ISST = ITRY(ISPART)
+      NSBS = ISSTAB(KSSTP+0+5*(ISST-1))
+      NPOP = ISSTAB(KSSTP+1+5*(ISST-1))
+      ISUM = ISUM+NPOP
+      NSDBLK = NSDBLK*NSBS
+    end do
+    if (ISUM < NGASLIM(1,IPART)) KEEP = 0
+    if (ISUM > NGASLIM(2,IPART)) KEEP = 0
+  end do
+  NRDETS0 = NRDETS0+NSDBLK
+  if (KEEP == 1) then
+    NFSB = NFSB+1
+    do ISPART=1,NASPRT
+      FSBARR(ISPART+(NASPRT+2)*(NFSB-1)) = ITRY(ISPART)
+    end do
+    FSBARR(1+NASPRT+(NASPRT+2)*(NFSB-1)) = NSDBLK
+    FSBARR(1+NASPRT+1+(NASPRT+2)*(NFSB-1)) = NRDETS+1
+    NRDETS = NRDETS+NSDBLK
+
   end if
-  ITRY(LEVUP) = ISST
-  IVUP = IVER2
-end do
-! Check GAS restrictions:
-NSDBLK = 1
-ISPEND = 0
-KEEP = 1
-do IPART=1,NPART
-  NGO = NGASORB(0,IPART)
-  NSP = (NGO+MORSBITS-1)/MORSBITS
-  ISPSTA = ISPEND+1
-  ISPEND = ISPEND+NSP
-  NOREM = NGO
-  ISUM = 0
-  do ISPART=ISPSTA,ISPEND
-    ISST = ITRY(ISPART)
-    NSBS = ISSTAB(KSSTP+0+5*(ISST-1))
-    NPOP = ISSTAB(KSSTP+1+5*(ISST-1))
-    ISUM = ISUM+NPOP
-    NSDBLK = NSDBLK*NSBS
+  ! Next walk: Lowest increasable switch value is at level lowest.
+  if (LOWEST > NASPRT) exit
+  do LEVUP=1,LOWEST-1
+    SWITCH(+LEVUP) = 1
   end do
-  if (ISUM < NGASLIM(1,IPART)) KEEP = 0
-  if (ISUM > NGASLIM(2,IPART)) KEEP = 0
+  SWITCH(+LOWEST) = 1+SWITCH(+LOWEST)
 end do
-NRDETS0 = NRDETS0+NSDBLK
-if (KEEP == 1) then
-  NFSB = NFSB+1
-  do ISPART=1,NASPRT
-    FSBARR(ISPART+(NASPRT+2)*(NFSB-1)) = ITRY(ISPART)
-  end do
-  FSBARR(1+NASPRT+(NASPRT+2)*(NFSB-1)) = NSDBLK
-  FSBARR(1+NASPRT+1+(NASPRT+2)*(NFSB-1)) = NRDETS+1
-  NRDETS = NRDETS+NSDBLK
 
-end if
-! Next walk: Lowest increasable switch value is at level lowest.
-if (LOWEST > NASPRT) goto 600
-do LEVUP=1,LOWEST-1
-  SWITCH(+LEVUP) = 1
-end do
-SWITCH(+LOWEST) = 1+SWITCH(+LOWEST)
-goto 500
-
-600 continue
 call mma_deallocate(SWITCH)
 call mma_deallocate(VERTAB)
 call mma_deallocate(DWNTAB)

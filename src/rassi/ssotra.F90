@@ -32,8 +32,10 @@ call mma_allocate(ILEV,NA,Label='ILEV')
 NI = NO-NA
 IL = 0
 do IP=1,NA
-5 IL = IL+1
-  if (SGS%ISM(IL) /= ISYM) goto 5
+  do
+    IL = IL+1
+    if (SGS%ISM(IL) == ISYM) exit
+  end do
   ILEV(IP) = IL
 end do
 !TEST write(u6,*)' Check prints in SSOTRA.'

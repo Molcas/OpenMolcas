@@ -145,161 +145,162 @@ if (TRACK .or. ONLY_OVERLAPS) then
       write(u6,'(5(1X,F15.8))') (Ovlp(j,iState),j=1,istate)
     end do
   end if
-  goto 100
-end if
+else
 
-! Property matrix elements:
-call StatusLine('RASSI: ','Computing matrix elements.')
-call MECTL(PROP,OVLP,HAM,ESHFT)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Spin-free section
+  ! Property matrix elements:
+  call StatusLine('RASSI: ','Computing matrix elements.')
+  call MECTL(PROP,OVLP,HAM,ESHFT)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Spin-free section
 
-!--------  SI wave function section --------------------------
-! In a second section, if Hamiltonian elements were requested,
-! then also a set of secular equations are solved. This gives
-! a set of non-interacting, orthonormal wave functions expressed
-! as linear combinations of the input wave functions. These
-! results are written out, as well as the matrix elements  of
-! the eigenstates, and if requested, their density matrices
-! and perhaps GTDMs.
+  !--------  SI wave function section --------------------------
+  ! In a second section, if Hamiltonian elements were requested,
+  ! then also a set of secular equations are solved. This gives
+  ! a set of non-interacting, orthonormal wave functions expressed
+  ! as linear combinations of the input wave functions. These
+  ! results are written out, as well as the matrix elements  of
+  ! the eigenstates, and if requested, their density matrices
+  ! and perhaps GTDMs.
 
-! Hamiltonian matrix elements, eigenvectors:
-if (IFHAM) then
-  call StatusLine('RASSI: ','Computing Hamiltonian.')
-  call EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
-end if
-
-! +++ J. Creutzberg, J. Norell - 2018
-! Write the spin-free Dyson orbitals to .DysOrb and .molden
-! files if requested
-!----------------------------------------------------------------
-
-! Bruno Tenorio, 2020. It writes now the new Dyson norms
-! See e.g. dysnorm subroutine.
-if (DYSEXPORT) call WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
-! +++
-
-! Loop over states to compute Excitonic Couplings
-
-if (DoExcitonics) call EXCCOUPL()
-
-!----------------------------------------------------------------------*
-! Natural orbitals, if requested:
-if (NATO) then
-  ! CALCULATE AND WRITE OUT NATURAL ORBITALS.
-  call mma_allocate(DMAT,nBSQ,Label='DMAT')
-  call mma_allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
-  call mma_allocate(VNAT,nBSQ,Label='VNAT')
-  call mma_allocate(OCC,nBST,Label='OCC')
-
-  call NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
-  call NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
-
-  call mma_deallocate(DMAT)
-  call mma_deallocate(TDMZZ)
-  call mma_deallocate(VNAT)
-  call mma_deallocate(OCC)
-end if
-! Bi-natural orbitals, if requested:
-if (BINA) call BINAT()
-
-if (.not. IFHAM) goto 100
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!  Spin_Orbit section
-
-!-------- Spin-Orbit calculations   --------------------------
-! In this third section, if spin-orbit coupling parameters were
-! computed by the previous sections, then additionally the
-! spin-orbit eigenfunctions and levels are computed.
-
-! Nr of spin states and division of loops:
-NSS = 0
-do ISTATE=1,NSTATE
-  JOB = JBNUM(ISTATE)
-  MPLET = MLTPLT(JOB)
-  NSS = NSS+MPLET
-end do
-
-call mma_allocate(USOR,NSS,NSS,Label='USOR')
-call unitmat(USOR,NSS)
-call mma_allocate(USOI,NSS,NSS,Label='USOI')
-USOI(:,:) = Zero
-call mma_allocate(SOENE,nSS,Label='SOENE')
-SOENE(:) = Zero
-
-if (IFSO) then
-  call StatusLine('RASSI: ','Computing SO Hamiltonian.')
-  call SOEIG(PROP,USOR,USOI,SOENE,NSS,ENERGY)
-end if
-
-#ifdef _HDF5_
-! Store TDMs in HDF5
-call StoreDens(EigVec)
-#endif
-
-! +++ J. Norell - 2018
-! Make the SO Dyson orbitals and amplitudes from the SF ones
-
-if (DYSO) then
-
-  if (IFSO) then
-    call mma_allocate(SODYSAMPS,NSS,NSS,Label='SODYSAMPS')
-    call mma_allocate(SODYSAMPSR,NSS,NSS,Label='SODYSAMPSR')
-    call mma_allocate(SODYSAMPSI,NSS,NSS,Label='SODYSAMPSI')
-
-    call SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
+  ! Hamiltonian matrix elements, eigenvectors:
+  if (IFHAM) then
+    call StatusLine('RASSI: ','Computing Hamiltonian.')
+    call EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
   end if
 
-  call mma_deallocate(SFDYS)
-end if
+  ! +++ J. Creutzberg, J. Norell - 2018
+  ! Write the spin-free Dyson orbitals to .DysOrb and .molden
+  ! files if requested
+  !----------------------------------------------------------------
 
-! +++
+  ! Bruno Tenorio, 2020. It writes now the new Dyson norms
+  ! See e.g. dysnorm subroutine.
+  if (DYSEXPORT) call WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
+  ! +++
 
-call PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,ENERGY,JBNUM,EigVec)
+  ! Loop over states to compute Excitonic Couplings
 
-! Plot SO-Natural Orbitals if requested
-! Will also handle mixing of states (sodiag)
-if (SONATNSTATE > 0) call DO_SONATORB(NSS,USOR,USOI)
-! Plot SO-Natural Transition Orbitals if requested
-if (SONTOSTATES > 0) call DO_SONTO(NSS,USOR,USOI)
+  if (DoExcitonics) call EXCCOUPL()
 
-call mma_deallocate(USOR)
-call mma_deallocate(USOI)
-call mma_deallocate(SOENE)
-if (DYSO .and. IFSO) then
-  call mma_deallocate(SODYSAMPS)
-  call mma_deallocate(SODYSAMPSR)
-  call mma_deallocate(SODYSAMPSI)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Trajectory Surface Hopping
+  !--------------------------------------------------------------------*
+  ! Natural orbitals, if requested:
+  if (NATO) then
+    ! CALCULATE AND WRITE OUT NATURAL ORBITALS.
+    call mma_allocate(DMAT,nBSQ,Label='DMAT')
+    call mma_allocate(TDMZZ,nTDMZZ,Label='TDMZZ')
+    call mma_allocate(VNAT,nBSQ,Label='VNAT')
+    call mma_allocate(OCC,nBST,Label='OCC')
 
-! Turns on the procedure if the Keyword HOP was specified.
+    call NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
+    call NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
 
-if (HOP) then
-  call StatusLine('RASSI: ','Trajectory Surface Hopping')
-  call TSHinit(ENERGY(:))
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! CEH April 2015 DQV diabatization scheme
-! This passes the PROP matrix into the DQV diabatization subroutine
-! The subroutine will compute a transformation matrix, which is used
-! to compute diabats.
+    call mma_deallocate(DMAT)
+    call mma_deallocate(TDMZZ)
+    call mma_deallocate(VNAT)
+    call mma_deallocate(OCC)
+  end if
+  ! Bi-natural orbitals, if requested:
+  if (BINA) call BINAT()
 
-! The user has to compute x, y, z, xx, yy, zz, 1/r in this order.
+  if (IFHAM) then
 
-if (DQVD) then
-  call StatusLine('RASSI: ','DQV Diabatization')
-  call DQVDiabat(PROP,HAM)
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    !  Spin_Orbit section
+
+    !-------- Spin-Orbit calculations   --------------------------
+    ! In this third section, if spin-orbit coupling parameters were
+    ! computed by the previous sections, then additionally the
+    ! spin-orbit eigenfunctions and levels are computed.
+
+    ! Nr of spin states and division of loops:
+    NSS = 0
+    do ISTATE=1,NSTATE
+      JOB = JBNUM(ISTATE)
+      MPLET = MLTPLT(JOB)
+      NSS = NSS+MPLET
+    end do
+
+    call mma_allocate(USOR,NSS,NSS,Label='USOR')
+    call unitmat(USOR,NSS)
+    call mma_allocate(USOI,NSS,NSS,Label='USOI')
+    USOI(:,:) = Zero
+    call mma_allocate(SOENE,nSS,Label='SOENE')
+    SOENE(:) = Zero
+
+    if (IFSO) then
+      call StatusLine('RASSI: ','Computing SO Hamiltonian.')
+      call SOEIG(PROP,USOR,USOI,SOENE,NSS,ENERGY)
+    end if
+
+#   ifdef _HDF5_
+    ! Store TDMs in HDF5
+    call StoreDens(EigVec)
+#   endif
+
+    ! +++ J. Norell - 2018
+    ! Make the SO Dyson orbitals and amplitudes from the SF ones
+
+    if (DYSO) then
+
+      if (IFSO) then
+        call mma_allocate(SODYSAMPS,NSS,NSS,Label='SODYSAMPS')
+        call mma_allocate(SODYSAMPSR,NSS,NSS,Label='SODYSAMPSR')
+        call mma_allocate(SODYSAMPSI,NSS,NSS,Label='SODYSAMPSI')
+
+        call SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
+      end if
+
+      call mma_deallocate(SFDYS)
+    end if
+
+    ! +++
+
+    call PRPROP(PROP,USOR,USOI,SOENE,NSS,OVLP,ENERGY,JBNUM,EigVec)
+
+    ! Plot SO-Natural Orbitals if requested
+    ! Will also handle mixing of states (sodiag)
+    if (SONATNSTATE > 0) call DO_SONATORB(NSS,USOR,USOI)
+    ! Plot SO-Natural Transition Orbitals if requested
+    if (SONTOSTATES > 0) call DO_SONTO(NSS,USOR,USOI)
+
+    call mma_deallocate(USOR)
+    call mma_deallocate(USOI)
+    call mma_deallocate(SOENE)
+    if (DYSO .and. IFSO) then
+      call mma_deallocate(SODYSAMPS)
+      call mma_deallocate(SODYSAMPSR)
+      call mma_deallocate(SODYSAMPSI)
+    end if
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! Trajectory Surface Hopping
+
+    ! Turns on the procedure if the Keyword HOP was specified.
+
+    if (HOP) then
+      call StatusLine('RASSI: ','Trajectory Surface Hopping')
+      call TSHinit(ENERGY(:))
+    end if
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    ! CEH April 2015 DQV diabatization scheme
+    ! This passes the PROP matrix into the DQV diabatization subroutine
+    ! The subroutine will compute a transformation matrix, which is used
+    ! to compute diabats.
+
+    ! The user has to compute x, y, z, xx, yy, zz, 1/r in this order.
+
+    if (DQVD) then
+      call StatusLine('RASSI: ','DQV Diabatization')
+      call DQVDiabat(PROP,HAM)
+    end if
+  end if
 end if
 !                                                                      *
 !***********************************************************************
@@ -308,7 +309,6 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-100 continue
 
 if (DoCoul) then
   if (.not. aux2) then

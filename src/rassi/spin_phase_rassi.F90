@@ -65,26 +65,23 @@ end do
 
 i = 0
 do ms1=(nDIM-NPAR)/2,-(nDIM-NPAR)/2,-1
-  if ((ms1 == 0) .and. (NPAR == 0)) goto 18
+  if ((ms1 == 0) .and. (NPAR == 0)) cycle
   i = i+1
   j = 0
   do ms2=(nDIM-NPAR)/2,-(nDIM-NPAR)/2,-1
-    if ((ms2 == 0) .and. (NPAR == 0)) goto 17
+    if ((ms2 == 0) .and. (NPAR == 0)) cycle
     j = j+1
     Spin2(1,i,j) = Spin(1,nDIM,ms1,ms2)
     Spin2(2,i,j) = Spin(2,nDIM,ms1,ms2)
     Spin2(3,i,j) = Spin(3,nDIM,ms1,ms2)
-17  continue
   end do
-18 continue
 end do
 
 do i=1,nDIM
   do j=1,nDIM
-    if (Spin2(1,i,j) == cZero) goto 20
+    if (Spin2(1,i,j) == cZero) cycle
     PHSA2(i,j) = PHS(1,i,j)/(GMAIN(1)*Spin2(1,i,j))
     PHSA(i,j) = -log(PHSA2(i,j))*Onei
-20  continue
   end do
 end do
 

@@ -98,7 +98,7 @@ do IFSB1=1,NFSB1
   end do
   ! Loop over active orbitals:
   do ISORB=1,NASORB
-    if (COEFF(ISORB) == Zero) goto 200
+    if (COEFF(ISORB) == Zero) cycle
     ISPART = IORBTAB(KOINFO+6+8*(ISORB-1))
     CFFPHS = real(IPHARR(ISPART),kind=wp)*COEFF(ISORB)
     KSORB = IORBTAB(KOINFO+7+8*(ISORB-1))
@@ -108,7 +108,7 @@ do IFSB1=1,NFSB1
 
     ! Modify the bra substring type by annih or creating ISORB
     ISST2 = ISSTAB(KSSTOP-1+KSORB+MORSBITS*(ISST1-1))
-    if (ISST2 == 0) goto 200
+    if (ISST2 == 0) cycle
 
     !TEST write(u6,'(1x,a,8I8)') 'ISST1,ISST2:',ISST1,ISST2
     ! Determine dimensions for multiple daxpy:
@@ -125,15 +125,16 @@ do IFSB1=1,NFSB1
     call HSHGET(ISSTARR,NASPRT,NASPRT+2,IFSBTAB2(KSTARR2),NHSH2,IFSBTAB2(KHSH2),IFSB2)
     !TEST write(u6,'(1x,a,8I8)') 'IFSB1,IFSB2:',IFSB1,IFSB2
     ISSTARR(ISPART) = ISST1
-    if (IFSB2 == 0) goto 200
+    if (IFSB2 == 0) cycle
     KPOS = KSTARR2+(NASPRT+2)*(IFSB2-1)
     IBLKPOS2 = IFSBTAB2(KPOS+NASPRT+1)
     ! Now loop over ket substrings in this subpartition
     do KSBS1=1,NSBS1
       ISBS1 = KSBS1+SBSET(ISST1)
       ISBS2 = ISSTAB(KSBSOP-1+KSORB+MORSBITS*(ISBS1-1))
-      if (ISBS2 == 0) goto 100
-      if (ISBS2 > 0) then
+      if (ISBS2 == 0) then
+        cycle
+      else if (ISBS2 > 0) then
         SCL = CFFPHS
         ISBS2 = ISBS2
       else
@@ -172,10 +173,8 @@ do IFSB1=1,NFSB1
         end do
       end do
 
-100   continue
     end do
 
-200 continue
     ! End of loop over orbitals
   end do
   ! End of loop over FS blocks

@@ -170,25 +170,23 @@ if (NSOTHR_PRT > 0) then
   SOTHR_MIN = max(SOTHR_PRT,1.0e-6_wp)
   ! And work with quantities larger than 1:
   X_THR = SOTHR_PRT/SOTHR_MIN
-13 continue
-  N = 0
-  do ISS=1,NSS
+  do
+    N = 0
+    do ISS=1,NSS
     do JSS=1,ISS
-      HSOR = HTOTR(ISS,JSS)
-      HSOI = HTOTI(ISS,JSS)
-      HSOTOT = sqrt(HSOR**2+HSOI**2)
-      if (HSOTOT*auTocm > SOTHR_PRT) N = N+1
+        HSOR = HTOTR(ISS,JSS)
+        HSOI = HTOTI(ISS,JSS)
+        HSOTOT = sqrt(HSOR**2+HSOI**2)
+        if (HSOTOT*auTocm > SOTHR_PRT) N = N+1
+      end do
     end do
+    if (N <= NSOTHR_PRT) exit
+    X_THR = X_THR*1.2_wp
+    MAGN = int(log10(X_THR))
+    X = X_THR/real(10**MAGN,kind=wp)
+    X_THR = 0.1_wp*real(nint(Ten*X),kind=wp)*real(10**MAGN,kind=wp)
+    SOTHR_PRT = X_THR*SOTHR_MIN
   end do
-  if (N <= NSOTHR_PRT) goto 17
-  X_THR = X_THR*1.2_wp
-  MAGN = int(log10(X_THR))
-  X = X_THR/real(10**MAGN,kind=wp)
-  X_THR = 0.1_wp*real(nint(Ten*X),kind=wp)*real(10**MAGN,kind=wp)
-  SOTHR_PRT = X_THR*SOTHR_MIN
-  goto 13
-
-17 continue
 
   if (N > 0) then
     write(u6,*)
@@ -357,7 +355,7 @@ do IPROP=1,NPROP
 end do
 
 ! The following matrix elements  require angular moment integrals:
-!if ((IAMX == 0) .or. (IAMY == 0) .or. (IAMZ == 0)) goto 910
+!if ((IAMX /= 0) .and. (IAMY /= 0) .and. (IAMZ /= 0)) then
 ! Complex matrix elements of Jx, Jy, and/or Jz over spin states:
 call mma_allocate(LXI,NSS**2,Label='LXI')
 LXI(:) = Zero
@@ -432,7 +430,7 @@ call ZTRNSF(NSS,USOR,USOI,OMGR,OMGI)
 call ZTRNSF(NSS,USOR,USOI,J2R,J2I)
 
 ! Jump here to skip computing omega and/or J:
-!910  CONTINUE
+!end if
 
 if (IPGLOB >= 1) then
   write(u6,*)

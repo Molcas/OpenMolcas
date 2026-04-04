@@ -183,19 +183,16 @@ ISY12 = MUL(LSYM1,LSYM2)
 NRT2MAB = 0
 do ISY=1,nIrrep
   NI = NOSH(ISY)
-  if (NI == 0) goto 200
+  if (NI == 0) cycle
   do JSY=1,nIrrep
     NJ = NOSH(JSY)
-    if (NJ == 0) goto 300
+    if (NJ == 0) cycle
     do LSY=1,nIrrep
       NL = NOSH(LSY)
-      if (NL == 0) goto 400
+      if (NL == 0) cycle
       if (MUL(ISY,MUL(JSY,LSY)) == ISY12) NRT2MAB = NRT2MAB+NI*NJ*NL
-400   continue
     end do
-300 continue
   end do
-200 continue
 end do
 if (TDYS .and. (.not. DYSO)) then
   write(u6,*)

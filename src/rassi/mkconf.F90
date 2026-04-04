@@ -23,6 +23,7 @@ integer(kind=iwp) :: I, ICLDST(MXPRT), ICNF(MXPRT), ICONF, IERR, IFORM, IGAS, IN
                      IORB, IR, ISYM, ITYPE, IW, J, K, KCNFSTA, KGASLIM, KGASORB, KINFO, KPOS, LCLS, LENCNF, LIM1, LIM1SUM, LIM2, &
                      LIM2SUM, LIMCL(2,MXPRT), LIMOP(2,MXPRT), LIMPOP(2,MXPRT), LOPN, LSYM, M, MAXOP, MINOP, MNCL, MNOP, MORE, &
                      MXCL, MXOP, N, NCL, NCL2, NCLS, NCNF, NCNFSYM(8), NEL, NGAS, NOCC, NOP, NOP1, NOPN, NOR, NORB, NTAB
+logical(kind=iwp) :: Skip30
 integer(kind=iwp), allocatable :: ISM(:)
 
 ITYPE = ICNFTAB(2)
@@ -149,229 +150,238 @@ outer: do NOPN=MINOP,MAXOP
   INIT1 = NGAS
   NOP1 = NOPN
 
-10 continue
-  ! Create the lexically lowest distribution with NOP1 open
-  ! shells among the INIT1 lowest partitions, and
-  ! increment the next higher partition (if any).
-  ! Let M=Max tot nr of open shells in lower partitions.
-  if (INIT1 < NGAS) IOPDST(INIT1+1) = IOPDST(INIT1+1)+1
-  M = NOP1
-  do IGAS=INIT1,1,-1
-    M = M-LIMOP(1,IGAS)
-  end do
-  if (M < 0) cycle OUTER
+  do
+    ! Create the lexically lowest distribution with NOP1 open
+    ! shells among the INIT1 lowest partitions, and
+    ! increment the next higher partition (if any).
+    ! Let M=Max tot nr of open shells in lower partitions.
+    if (INIT1 < NGAS) IOPDST(INIT1+1) = IOPDST(INIT1+1)+1
+    M = NOP1
+    do IGAS=INIT1,1,-1
+      M = M-LIMOP(1,IGAS)
+    end do
+    if (M < 0) cycle OUTER
 
-  ! But actually, we start with zero. So M open shells must be
-  ! distributed in excess of the allowed minimum, among the INIT1
-  ! partitions.
-  do IGAS=1,INIT1
-    MORE = min(LIMOP(2,IGAS)-LIMOP(1,IGAS),M)
-    IOPDST(IGAS) = LIMOP(1,IGAS)+MORE
-    M = M-MORE
-  end do
-  if (M > 0) cycle OUTER
-  ! At this point of the code, all possible distributions of
-  ! open shells will be generated. Use them.
-  ! First, use it to generate a table of limits for the distribution
-  ! of closed shells:
-  do IGAS=1,NGAS
-    NOP = IOPDST(IGAS)
-    NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)-NOP
-    LIM1 = max(0,(LIMPOP(1,IGAS)-NOP)/2)
-    LIM2 = min(NOR,(LIMPOP(2,IGAS)-NOP)/2)
-    if (LIM1 > LIM2) goto 110
-    MNCL = LIM2
-    MXCL = LIM1
-    do I=LIM1,LIM2
-      N = 2*I+NOP
-      if ((N >= LIMPOP(1,IGAS)) .and. (N <= LIMPOP(2,IGAS))) then
-        MNCL = min(MNCL,I)
-        MXCL = max(MXCL,I)
-      end if
+    ! But actually, we start with zero. So M open shells must be
+    ! distributed in excess of the allowed minimum, among the INIT1
+    ! partitions.
+    do IGAS=1,INIT1
+      MORE = min(LIMOP(2,IGAS)-LIMOP(1,IGAS),M)
+      IOPDST(IGAS) = LIMOP(1,IGAS)+MORE
+      M = M-MORE
     end do
-    if (MNCL > MXCL) goto 110
-    LIMCL(1,IGAS) = MNCL
-    LIMCL(2,IGAS) = MXCL
-  end do
-
-  ! Loop over all possible ways of distributing NCLS closed shells
-  ! among  the partitions, subject to restrictions.
-  ! In order to create the start distribution:
-  INIT2 = NGAS
-  NCL2 = (NEL-NOPN)/2
-
-20 continue
-  ! Create the lexically lowest distribution with NCL2 closed shells
-  ! among the INIT2 lowest partitions, and increment the next higher
-  ! partition (if any).
-  if (INIT2 < NGAS) ICLDST(INIT2+1) = ICLDST(INIT2+1)+1
-  M = NCL2
-  do IGAS=INIT2,1,-1
-    M = M-LIMCL(1,IGAS)
-  end do
-  if (M < 0) goto 110
-  do IGAS=1,INIT2
-    MORE = min(LIMCL(2,IGAS)-LIMCL(1,IGAS),M)
-    ICLDST(IGAS) = LIMCL(1,IGAS)+MORE
-    M = M-MORE
-  end do
-  if (M > 0) goto 110
-  ! Here follows code to use this population distribution.
-  ! Initialize the configuration subarrays of partitions nr
-  ! 1..NGAS, within this population distribution:
-  IORB = 0
-  do IGAS=1,NGAS
-    NCL = ICLDST(IGAS)
-    do I=1,NCL
-      IORB = IORB+1
-      IOC(IORB) = 2
-    end do
-    NOP = IOPDST(IGAS)
-    do I=1,NOP
-      IORB = IORB+1
-      IOC(IORB) = 1
-    end do
-    NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)
-    do I=1,NOR-NCL-NOP
-      IORB = IORB+1
-      IOC(IORB) = 0
-    end do
-  end do
-30 continue
-  ! Here finally we will get all possible configurations, restricted
-  ! by the population arrays. Screening by combined symmetry:
-  ISYM = 1
-  do IO=1,NORB
-    if (IOC(IO) == 1) ISYM = MUL(ISM(IO),ISYM)
-  end do
-  ! Skip if wrong symmetry:
-  if (.not. ((LSYM > 0) .and. (ISYM /= LSYM))) then
-    ICONF = ICONF+1
-    ! Put this configuration into the ICNFTAB table.
-    ! First, determine where it should go:
-    N = NCNFSYM(ISYM)
-    NCNFSYM(ISYM) = N+1
-    KCNFSTA = ICNFTAB(KINFO+1+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
-    KPOS = KCNFSTA+N*LENCNF
-    if (KPOS+LENCNF-1 > NTAB) then
-      write(u6,*) ' MKCONF error: Table overflow.'
-      write(u6,*) 'KCNFSTA:',KCNFSTA
-      write(u6,*) ' LENCNF:',LENCNF
-      write(u6,*) '   KPOS:',KPOS
-      write(u6,*) '   NTAB:',NTAB
-      call ABEND()
-    end if
-    ! Put together configuration array in standard format:
-    LCLS = 1
-    LOPN = NCLS+1
-    do IO=1,NORB
-      N = IOC(IO)
-      if (N == 1) then
-        ICNF(LOPN) = IO
-        LOPN = LOPN+1
-      else if (N == 2) then
-        ICNF(LCLS) = IO
-        LCLS = LCLS+1
-      end if
-    end do
-    ! Add this configuration to the configuration table:
-    if (IFORM == 1) then
-      do I=1,NOCC
-        ICNFTAB(KPOS-1+I) = ICNF(I)
-      end do
-    else if (IFORM == 3) then
-      do I=1,NOCC
-        IW = (3+I)/4
-        IR = (3+I)-4*IW
-        if (IR == 0) then
-          ICNFTAB(KPOS-1+IW) = ICNF(I)
-        else
-          ICNFTAB(KPOS-1+IW) = ICNFTAB(KPOS-1+IW)+256**IR*ICNF(I)
+    if (M > 0) cycle OUTER
+    ! At this point of the code, all possible distributions of
+    ! open shells will be generated. Use them.
+    ! First, use it to generate a table of limits for the distribution
+    ! of closed shells:
+    do IGAS=1,NGAS
+      NOP = IOPDST(IGAS)
+      NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)-NOP
+      LIM1 = max(0,(LIMPOP(1,IGAS)-NOP)/2)
+      LIM2 = min(NOR,(LIMPOP(2,IGAS)-NOP)/2)
+      if (LIM1 > LIM2) exit
+      MNCL = LIM2
+      MXCL = LIM1
+      do I=LIM1,LIM2
+        N = 2*I+NOP
+        if ((N >= LIMPOP(1,IGAS)) .and. (N <= LIMPOP(2,IGAS))) then
+          MNCL = min(MNCL,I)
+          MXCL = max(MXCL,I)
         end if
       end do
-    else
-      if (IFORM == 2) then
-        do I=1,NORB
-          ICNFTAB(KPOS-1+I) = IOC(I)
+      if (MNCL > MXCL) exit
+      LIMCL(1,IGAS) = MNCL
+      LIMCL(2,IGAS) = MXCL
+    end do
+
+    if (IGAS > NGAS) then
+
+      ! Loop over all possible ways of distributing NCLS closed shells
+      ! among  the partitions, subject to restrictions.
+      ! In order to create the start distribution:
+      INIT2 = NGAS
+      NCL2 = (NEL-NOPN)/2
+
+      do
+        ! Create the lexically lowest distribution with NCL2 closed shells
+        ! among the INIT2 lowest partitions, and increment the next higher
+        ! partition (if any).
+        if (INIT2 < NGAS) ICLDST(INIT2+1) = ICLDST(INIT2+1)+1
+        M = NCL2
+        do IGAS=INIT2,1,-1
+          M = M-LIMCL(1,IGAS)
         end do
-      else if (IFORM == 4) then
-        do I=1,NORB
-          IW = (14+I)/15
-          IR = (14+I)-15*IW
-          if (IR == 0) then
-            ICNFTAB(KPOS-1+IW) = IOC(I)
-          else
-            ICNFTAB(KPOS-1+IW) = ICNFTAB(KPOS-1+IW)+4**IR*IOC(I)
+        if (M < 0) exit
+        do IGAS=1,INIT2
+          MORE = min(LIMCL(2,IGAS)-LIMCL(1,IGAS),M)
+          ICLDST(IGAS) = LIMCL(1,IGAS)+MORE
+          M = M-MORE
+        end do
+        if (M > 0) exit
+        ! Here follows code to use this population distribution.
+        ! Initialize the configuration subarrays of partitions nr
+        ! 1..NGAS, within this population distribution:
+        IORB = 0
+        do IGAS=1,NGAS
+          NCL = ICLDST(IGAS)
+          do I=1,NCL
+            IORB = IORB+1
+            IOC(IORB) = 2
+          end do
+          NOP = IOPDST(IGAS)
+          do I=1,NOP
+            IORB = IORB+1
+            IOC(IORB) = 1
+          end do
+          NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)
+          do I=1,NOR-NCL-NOP
+            IORB = IORB+1
+            IOC(IORB) = 0
+          end do
+        end do
+        inner: do
+          ! Here finally we will get all possible configurations, restricted
+          ! by the population arrays. Screening by combined symmetry:
+          Skip30 = .true.
+          ISYM = 1
+          do IO=1,NORB
+            if (IOC(IO) == 1) ISYM = MUL(ISM(IO),ISYM)
+          end do
+          ! Skip if wrong symmetry:
+          if (.not. ((LSYM > 0) .and. (ISYM /= LSYM))) then
+            ICONF = ICONF+1
+            ! Put this configuration into the ICNFTAB table.
+            ! First, determine where it should go:
+            N = NCNFSYM(ISYM)
+            NCNFSYM(ISYM) = N+1
+            KCNFSTA = ICNFTAB(KINFO+1+3*(ISYM-1+nIrrep*(NOPN-MINOP)))
+            KPOS = KCNFSTA+N*LENCNF
+            if (KPOS+LENCNF-1 > NTAB) then
+              write(u6,*) ' MKCONF error: Table overflow.'
+              write(u6,*) 'KCNFSTA:',KCNFSTA
+              write(u6,*) ' LENCNF:',LENCNF
+              write(u6,*) '   KPOS:',KPOS
+              write(u6,*) '   NTAB:',NTAB
+              call ABEND()
+            end if
+            ! Put together configuration array in standard format:
+            LCLS = 1
+            LOPN = NCLS+1
+            do IO=1,NORB
+              N = IOC(IO)
+              if (N == 1) then
+                ICNF(LOPN) = IO
+                LOPN = LOPN+1
+              else if (N == 2) then
+                ICNF(LCLS) = IO
+                LCLS = LCLS+1
+              end if
+            end do
+            ! Add this configuration to the configuration table:
+            if (IFORM == 1) then
+              do I=1,NOCC
+                ICNFTAB(KPOS-1+I) = ICNF(I)
+              end do
+            else if (IFORM == 3) then
+              do I=1,NOCC
+                IW = (3+I)/4
+                IR = (3+I)-4*IW
+                if (IR == 0) then
+                  ICNFTAB(KPOS-1+IW) = ICNF(I)
+                else
+                  ICNFTAB(KPOS-1+IW) = ICNFTAB(KPOS-1+IW)+256**IR*ICNF(I)
+                end if
+              end do
+            else
+              if (IFORM == 2) then
+                do I=1,NORB
+                  ICNFTAB(KPOS-1+I) = IOC(I)
+                end do
+              else if (IFORM == 4) then
+                do I=1,NORB
+                  IW = (14+I)/15
+                  IR = (14+I)-15*IW
+                  if (IR == 0) then
+                    ICNFTAB(KPOS-1+IW) = IOC(I)
+                  else
+                    ICNFTAB(KPOS-1+IW) = ICNFTAB(KPOS-1+IW)+4**IR*IOC(I)
+                  end if
+                end do
+              end if
+            end if
 
           end if
+          ! Get next configuration.
+          IOFF = 0
+          do IGAS=1,NGAS
+            NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)
+            ! Try to find next permutation within this partition:
+            do K=2,NOR
+              if (IOC(IOFF+K-1) > IOC(IOFF+K)) then
+                do I=1,(K-1)/2
+                  J = IOC(IOFF+I)
+                  IOC(IOFF+I) = IOC(IOFF+K-I)
+                  IOC(IOFF+K-I) = J
+                end do
+                do I=K-1,1,-1
+                  if (IOC(IOFF+I) > IOC(IOFF+K)) then
+                    J = IOC(IOFF+I)
+                    IOC(IOFF+I) = IOC(IOFF+K)
+                    IOC(IOFF+K) = J
+                    ! OK, the next permutation has been obtained.
+                    Skip30 = .false.
+                    cycle inner
+                  end if
+                end do
+              end if
+            end do
+            ! Not possible. Reset permutation in this partition, and
+            ! then try the next one:
+            N = ICLDST(IGAS)
+            M = IOPDST(IGAS)
+            do IO=1,N
+              IOC(IOFF+IO) = 2
+            end do
+            do IO=N+1,N+M
+            IOC(IOFF+IO) = 1
+            end do
+            do IO=N+M+1,NOR
+              IOC(IOFF+IO) = 0
+            end do
+            IOFF = IOFF+NOR
+          end do
+          if (Skip30) exit
+        end do inner
+        ! All failed. No more configurations with this distribution of
+        ! closed and open shells.
+        ! Next ICLDST distribution. First find the first increasable index:
+        M = 0
+        NCL2 = -1
+        do IGAS=1,NGAS
+          INIT2 = IGAS-1
+          if ((M > 0) .and. (ICLDST(IGAS) < LIMCL(2,IGAS))) exit
+          M = M+ICLDST(IGAS)-LIMCL(1,IGAS)
+          NCL2 = NCL2+ICLDST(IGAS)
         end do
-      end if
+        if (IGAS > NGAS) exit
+      end do
+
     end if
+    ! No more ICLDST distribution is possible.
 
-  end if
-  ! Get next configuration.
-  IOFF = 0
-  do IGAS=1,NGAS
-    NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)
-    ! Try to find next permutation within this partition:
-    do K=2,NOR
-      if (IOC(IOFF+K-1) > IOC(IOFF+K)) then
-        do I=1,(K-1)/2
-          J = IOC(IOFF+I)
-          IOC(IOFF+I) = IOC(IOFF+K-I)
-          IOC(IOFF+K-I) = J
-        end do
-        do I=K-1,1,-1
-          if (IOC(IOFF+I) > IOC(IOFF+K)) then
-            J = IOC(IOFF+I)
-            IOC(IOFF+I) = IOC(IOFF+K)
-            IOC(IOFF+K) = J
-            ! OK, the next permutation has been obtained.
-            goto 30
-          end if
-        end do
-      end if
+    ! Next IOPDST distribution. First find the first increasable index:
+    ! That is the first partition with less than LIMOP(2,IGAS) open
+    ! shells, above partitions with nonzero excess number M.
+    M = 0
+    NOP1 = -1
+    do IGAS=1,NGAS
+      INIT1 = IGAS-1
+      if ((M > 0) .and. (IOPDST(IGAS) < LIMOP(2,IGAS))) exit
+      M = M+IOPDST(IGAS)-LIMOP(1,IGAS)
+      NOP1 = NOP1+IOPDST(IGAS)
     end do
-    ! Not possible. Reset permutation in this partition, and
-    ! then try the next one:
-    N = ICLDST(IGAS)
-    M = IOPDST(IGAS)
-    do IO=1,N
-      IOC(IOFF+IO) = 2
-    end do
-    do IO=N+1,N+M
-      IOC(IOFF+IO) = 1
-    end do
-    do IO=N+M+1,NOR
-      IOC(IOFF+IO) = 0
-    end do
-    IOFF = IOFF+NOR
-  end do
-  ! All failed. No more configurations with this distribution of
-  ! closed and open shells.
-  ! Next ICLDST distribution. First find the first increasable index:
-  M = 0
-  NCL2 = -1
-  do IGAS=1,NGAS
-    INIT2 = IGAS-1
-    if ((M > 0) .and. (ICLDST(IGAS) < LIMCL(2,IGAS))) goto 20
-    M = M+ICLDST(IGAS)-LIMCL(1,IGAS)
-    NCL2 = NCL2+ICLDST(IGAS)
-  end do
-
-  ! No more ICLDST distribution is possible.
-110 continue
-
-  ! Next IOPDST distribution. First find the first increasable index:
-  ! That is the first partition with less than LIMOP(2,IGAS) open
-  ! shells, above partitions with nonzero excess number M.
-  M = 0
-  NOP1 = -1
-  do IGAS=1,NGAS
-    INIT1 = IGAS-1
-    if ((M > 0) .and. (IOPDST(IGAS) < LIMOP(2,IGAS))) goto 10
-    M = M+IOPDST(IGAS)-LIMOP(1,IGAS)
-    NOP1 = NOP1+IOPDST(IGAS)
+    if (IGAS > NGAS) exit
   end do
   ! Temporary check: Has everything worked perfectly??
   IERR = 0

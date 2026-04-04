@@ -84,23 +84,24 @@ else if (IPGLOB >= 2) then
     end do
     ! Sort the weights
     imaxstate = 0
-100 continue
-    xmax = Zero
-    ssmax = Zero
-    nw = 0
-    do istate=1,nstate
-      if (weight(istate) >= xmax) then
-        nw = istate
-        xmax = weight(istate)
-        ssmax = sstate(istate)
-      end if
+    do
+      xmax = Zero
+      ssmax = Zero
+      nw = 0
+      do istate=1,nstate
+        if (weight(istate) >= xmax) then
+          nw = istate
+          xmax = weight(istate)
+          ssmax = sstate(istate)
+        end if
+      end do
+      weight(nw) = -One
+      imaxstate = imaxstate+1
+      nmax(imaxstate) = nw
+      wmax(imaxstate) = xmax
+      smax(imaxstate) = ssmax
+      if (imaxstate >= min(nstate,5)) exit
     end do
-    weight(nw) = -One
-    imaxstate = imaxstate+1
-    nmax(imaxstate) = nw
-    wmax(imaxstate) = xmax
-    smax(imaxstate) = ssmax
-    if (imaxstate < min(nstate,5)) go to 100
 
     write(u6,'(i5,1x,f16.6,3x,5(i5,f4.1,f8.4))') iss,soene(iss),(nmax(i),smax(i),wmax(i),i=1,(min(nstate,5)))
 

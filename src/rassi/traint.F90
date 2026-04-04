@@ -94,7 +94,7 @@ do NSP=1,nIrrep
       NSSM = NSR
       do NSS=1,NSSM
         if (NSS /= 1) LMOS = LMOS+NBASF(NSS-1)*NOSH(NSS-1)
-        if (NSPQR /= NSS) GO TO 101
+        if (NSPQR /= NSS) cycle
         NAS = NASH(NSS)
         !KEEPS = KEEP(NSS)
         NBS = NBASF(NSS)
@@ -105,8 +105,8 @@ do NSP=1,nIrrep
         !KEEPT = KEEPP+KEEPQ+KEEPR+KEEPS
         NACT = NAP*NAQ*NAR*NAS
         ! ...WELL, IT IS PRESENT ON THE FILE
-        if (ISPQ < ISRS) GO TO 101
-        if (NACT == 0) GO TO 101
+        if (ISPQ < ISRS) cycle
+        if (NACT == 0) cycle
         ! ALLOCATE WORK AREAS FOR IN-CORE TRANSFORMATION ROUTINE TRACR:
         if (ISR == ISS) then
           NBPQ = (NBP+NBP**2)/2
@@ -129,7 +129,6 @@ do NSP=1,nIrrep
         call mma_deallocate(X2)
         call mma_deallocate(X3)
         call mma_deallocate(VXPQ)
-101     continue
       end do
     end do
   end do

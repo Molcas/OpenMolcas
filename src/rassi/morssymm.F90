@@ -21,17 +21,15 @@ integer(kind=iwp) IMORS, ISMARR(*)
 integer(kind=iwp) I, IB, IBIT
 
 MorsSymm = 1
-if (IMORS < 0) goto 99
+if (IMORS < 0) then
+  write(u6,*) ' MorsSymm: Bad IMORS=',IMORS
+  call ABEND()
+end if
 IB = IMORS
 do I=1,MORSBITS
   IBIT = mod(IB,2)
   IB = IB/2
   if (IBIT == 1) MorsSymm = MUL(MorsSymm,ISMARR(I))
 end do
-
-return
-99 continue
-write(u6,*) ' MorsSymm: Bad IMORS=',IMORS
-call ABEND()
 
 end function MorsSymm

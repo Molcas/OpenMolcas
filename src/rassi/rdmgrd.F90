@@ -110,7 +110,7 @@ end if
 ! Move buffer integrals into ARRAY in proper format:
 do IS=1,nIrrep
   NBI = NBASF(IS)
-  if (NBI <= 0) goto 11
+  if (NBI <= 0) cycle
   if (ISYMP == 1) then
     LT = 1+ITOFF(IS)
     IA1 = 1+IAOFF(IS)
@@ -124,9 +124,9 @@ do IS=1,nIrrep
     end if
   else
     JS = MUL(IS,ISYMP)
-    if (IS < JS) goto 11
+    if (IS < JS) cycle
     NBJ = NBASF(JS)
-    if (NBJ <= 0) goto 11
+    if (NBJ <= 0) cycle
     LT = 1+ITOFF(IS)
     IA1 = 1+IAOFF(IS)
     IA2 = 1+IAOFF(JS)
@@ -139,7 +139,6 @@ do IS=1,nIrrep
       end do
     end do
   end if
-11 continue
 end do
 ! Get rid of temporary buffer
 call mma_deallocate(TEMP)

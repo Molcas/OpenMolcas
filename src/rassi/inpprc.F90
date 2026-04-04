@@ -143,67 +143,67 @@ IRC = -1
 IOPT = ibset(ibset(0,sOpSiz),sRdFst)
 LABEL = 'UNDEF'
 call iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-if (IRC /= 0) goto 110
-IPRP = 1
-call UPCASE(LABEL)
-PRPLST(1) = LABEL
-ICMPLST(1) = ICMP
-IPUSED(1) = 0
-
-do I=1,MXPROP
-  if (IPRP >= MXPROP) goto 110
-  IRC = -1
-  IOPT = ibset(ibset(0,sOpSiz),sRdNxt)
-  call iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
-  if (IRC /= 0) goto 110
-  IPRP = IPRP+1
+if (IRC == 0) then
+  IPRP = 1
   call UPCASE(LABEL)
-  PRPLST(IPRP) = LABEL
-  ICMPLST(IPRP) = ICMP
-  IPUSED(IPRP) = 0
+  PRPLST(1) = LABEL
+  ICMPLST(1) = ICMP
+  IPUSED(1) = 0
 
-  ! Copy the EF2 integral label for non-rel hyperfine calculations
-  if (LABEL(1:3) == 'EF2') then
-    if (IPRP >= MXPROP) goto 110
+  do I=1,MXPROP
+    if (IPRP >= MXPROP) exit
+    IRC = -1
+    IOPT = ibset(ibset(0,sOpSiz),sRdNxt)
+    call iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
+    if (IRC /= 0) exit
     IPRP = IPRP+1
-    LABEL2 = LABEL
-    LABEL2(1:4) = 'ASDO'
-    PRPLST(IPRP) = LABEL2
+    call UPCASE(LABEL)
+    PRPLST(IPRP) = LABEL
     ICMPLST(IPRP) = ICMP
     IPUSED(IPRP) = 0
-  end if
 
-  ! Now the ASD are calculated from X2C magnetic integrals
-  if ((LABEL(1:5) == 'MAGXP') .and. (ICMP <= 6)) then
-    if (IPRP >= MXPROP) goto 110
-    IPRP = IPRP+1
-    LABEL2 = LABEL
-    LABEL2(1:5) = 'ASD  '
-    PRPLST(IPRP) = LABEL2
-    ICMPLST(IPRP) = ICMP
-    IPUSED(IPRP) = 0
-  end if
+    ! Copy the EF2 integral label for non-rel hyperfine calculations
+    if (LABEL(1:3) == 'EF2') then
+      if (IPRP >= MXPROP) exit
+      IPRP = IPRP+1
+      LABEL2 = LABEL
+      LABEL2(1:4) = 'ASDO'
+      PRPLST(IPRP) = LABEL2
+      ICMPLST(IPRP) = ICMP
+      IPUSED(IPRP) = 0
+    end if
 
-  if (LABEL(1:4) == 'PSOI') then
-    if (IPRP >= MXPROP) goto 110
-    IPRP = IPRP+1
-    LABEL2 = LABEL
-    LABEL2(1:4) = 'PSOP'
-    PRPLST(IPRP) = LABEL2
-    ICMPLST(IPRP) = ICMP
-    IPUSED(IPRP) = 0
-  end if
-  if (LABEL(1:6) == 'DMS  1') then
-    if (IPRP >= MXPROP) goto 110
-    IPRP = IPRP+1
-    LABEL2 = LABEL
-    LABEL2(1:6) = 'DMP   '
-    PRPLST(IPRP) = LABEL2
-    ICMPLST(IPRP) = ICMP
-    IPUSED(IPRP) = 0
-  end if
-end do
-110 continue
+    ! Now the ASD are calculated from X2C magnetic integrals
+    if ((LABEL(1:5) == 'MAGXP') .and. (ICMP <= 6)) then
+      if (IPRP >= MXPROP) exit
+      IPRP = IPRP+1
+      LABEL2 = LABEL
+      LABEL2(1:5) = 'ASD  '
+      PRPLST(IPRP) = LABEL2
+      ICMPLST(IPRP) = ICMP
+      IPUSED(IPRP) = 0
+    end if
+
+    if (LABEL(1:4) == 'PSOI') then
+      if (IPRP >= MXPROP) exit
+      IPRP = IPRP+1
+      LABEL2 = LABEL
+      LABEL2(1:4) = 'PSOP'
+      PRPLST(IPRP) = LABEL2
+      ICMPLST(IPRP) = ICMP
+      IPUSED(IPRP) = 0
+    end if
+    if (LABEL(1:6) == 'DMS  1') then
+      if (IPRP >= MXPROP) exit
+      IPRP = IPRP+1
+      LABEL2 = LABEL
+      LABEL2(1:6) = 'DMP   '
+      PRPLST(IPRP) = LABEL2
+      ICMPLST(IPRP) = ICMP
+      IPUSED(IPRP) = 0
+    end if
+  end do
+end if
 NPRPLST = IPRP
 
 ! Add empty slots for on-the-fly TM integrals.
@@ -482,25 +482,25 @@ do IPROP=1,NPROP
     if ((PNAME(IPROP) == PRPLST(IPRP)) .and. (ICOMP(IPROP) == ICMPLST(IPRP))) then
       IsAvail(IPROP) = .true.
       IPUSED(IPRP) = 1
-      goto 120
+      exit
     end if
   end do
 
-  IMiss = IMiss+1
-  if (IMiss == 1) then
-    write(u6,*)
-    call WarningMessage(1,'Requested integrals are missing.')
-    write(u6,*) ' Property name, and component:',PNAME(IPROP),ICOMP(IPROP)
-    write(u6,*) ' This record cannot be found. Some of the requested'
-    write(u6,*) ' properties cannot be computed. Suggested fix: Try'
-    write(u6,*) ' recomputing one-electron integrals with keyword'
-    write(u6,*) ' ''OneOnly'', and additional keywords for the'
-    write(u6,*) ' properties needed.'
-  else
-    write(u6,*) ' Also missing:',PNAME(IPROP),ICOMP(IPROP)
+  if (IPRP > NPRPLST) then
+    IMiss = IMiss+1
+    if (IMiss == 1) then
+      write(u6,*)
+      call WarningMessage(1,'Requested integrals are missing.')
+      write(u6,*) ' Property name, and component:',PNAME(IPROP),ICOMP(IPROP)
+      write(u6,*) ' This record cannot be found. Some of the requested'
+      write(u6,*) ' properties cannot be computed. Suggested fix: Try'
+      write(u6,*) ' recomputing one-electron integrals with keyword'
+      write(u6,*) ' ''OneOnly'', and additional keywords for the'
+      write(u6,*) ' properties needed.'
+    else
+      write(u6,*) ' Also missing:',PNAME(IPROP),ICOMP(IPROP)
+    end if
   end if
-
-120 continue
 end do
 IMiss = 0
 IsAvailSO(:) = .false.
@@ -509,25 +509,25 @@ do ISOPR=1,NSOPR
     if ((SOPRNM(ISOPR) == PRPLST(IPRP)) .and. (ISOCMP(ISOPR) == ICMPLST(IPRP))) then
       IPUSED(IPRP) = 1
       IsAvailSO(ISOPR) = .true.
-      goto 130
+      exit
     end if
   end do
 
-  IMiss = IMiss+1
-  if (IMiss == 1) then
-    write(u6,*)
-    call WarningMessage(1,'Requested integrals are missing.')
-    write(u6,*) ' SO-Property name, and component:',SOPRNM(ISOPR),ISOCMP(ISOPR)
-    write(u6,*) ' This record cannot be found. Some of the requested'
-    write(u6,*) ' properties cannot be computed. Suggested fix: Try'
-    write(u6,*) ' recomputing one-electron integrals with keyword'
-    write(u6,*) ' ''OneOnly'', and additional keywords for the'
-    write(u6,*) ' properties needed.'
-  else
-    write(u6,*) ' Also missing:',SOPRNM(ISOPR),ISOCMP(ISOPR)
+  if (IPRP > NPRPLST) then
+    IMiss = IMiss+1
+    if (IMiss == 1) then
+      write(u6,*)
+      call WarningMessage(1,'Requested integrals are missing.')
+      write(u6,*) ' SO-Property name, and component:',SOPRNM(ISOPR),ISOCMP(ISOPR)
+      write(u6,*) ' This record cannot be found. Some of the requested'
+      write(u6,*) ' properties cannot be computed. Suggested fix: Try'
+      write(u6,*) ' recomputing one-electron integrals with keyword'
+      write(u6,*) ' ''OneOnly'', and additional keywords for the'
+      write(u6,*) ' properties needed.'
+    else
+      write(u6,*) ' Also missing:',SOPRNM(ISOPR),ISOCMP(ISOPR)
+    end if
   end if
-
-130 continue
 end do
 !nf
 if (IfDCpl) then

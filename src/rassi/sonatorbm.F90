@@ -121,7 +121,7 @@ do KSS=1,NSS
     call mk_IOFF(IOFF,nSYM,NBASF,ISY12)
 
     ! These are going to be zero, so head them off at the pass
-    if ((ITYPE <= 2) .and. ((MPLETK /= MPLETL) .or. (MSPROJK /= MSPROJL))) goto 2200
+    if ((ITYPE <= 2) .and. ((MPLETK /= MPLETL) .or. (MSPROJK /= MSPROJL))) cycle
 
     !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc
     ! Transition density matrices, TDMZZ, in AO basis.
@@ -296,8 +296,6 @@ do KSS=1,NSS
     !ccccccccccccccccccccc
 
     ! END MAIN LOOP OVER STATES (KSS,LSS)
-2200 continue
-
   end do
 end do
 

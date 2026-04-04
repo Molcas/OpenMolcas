@@ -36,11 +36,9 @@ do ISYM=1,NSYM
   PART(5+ISYM+(NSYM+1)*6) = NFRO(ISYM)
   PART(5+ISYM+(NSYM+1)*7) = NDEL(ISYM)
   ISUM = 0
-  IPART = 1
-10 continue
-  ISUM = ISUM+PART(5+ISYM+(NSYM+1)*IPART)
-  IPART = IPART+1
-  if (IPART <= 7) GO TO 10
+  do IPART=1,7
+    ISUM = ISUM+PART(5+ISYM+(NSYM+1)*IPART)
+  end do
 
   ! VV: original code was unrolled uncorrectly by GCC 3.0.4
   !do IPART=1,7

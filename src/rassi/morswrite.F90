@@ -18,7 +18,10 @@ integer(kind=iwp) :: IMORS
 character(len=*) :: STRING
 integer(kind=iwp) :: I, IB, IBIT
 
-if (IMORS < 0) goto 99
+if (IMORS < 0) then
+  write(u6,*) ' MorsWrite: Bad IMORS=',IMORS
+  call ABEND()
+end if
 IB = IMORS
 do I=1,len(STRING)
   STRING(I:I) = '0'
@@ -31,10 +34,5 @@ if (IB > 0) then
     STRING(I:I) = '*'
   end do
 end if
-
-return
-99 continue
-write(u6,*) ' MorsWrite: Bad IMORS=',IMORS
-call ABEND()
 
 end subroutine MorsWrite
