@@ -17,7 +17,7 @@
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _GETMOLDEN_
-#define _FORCEGEKRANGE_
+!#define _FORCEGEKRANGE_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
@@ -43,10 +43,10 @@ character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, ang
-real(kind=wp), allocatable :: PACol(:,:), Hdiag(:,:), Ovlp_aux(:,:), &
+real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
-                              Prev(:),Disp(:),CMO_Ref(:,:)
+                              Prev(:),Disp(:),CMO_Ref(:,:),Hdiaglist(:,:)
 real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
@@ -148,15 +148,16 @@ case(2,3,4,5)
 
     call mma_Allocate(kappa,nOrb2Loc,nOrb2Loc,Label='kappa')
     call mma_Allocate(Gradient,fsdim,Label='Gradient')
-    call mma_Allocate(Hdiag,nOrb2Loc,nOrb2Loc,Label='Hdiag')
 
     call mma_Allocate(Hdiagvec,fsdim,Label='Hdiagvec')
+    call mma_Allocate(HdiagList,fsdim,nMxIter,Label='HdiagList')
     call mma_Allocate(DispList,fsdim,nMxIter,Label='DispList')  ! kappa matrices
     call mma_Allocate(UmatList,nOrb2Loc,nOrb2Loc,nMxIter,Label='UmatList')
     call mma_allocate(Disp,fsdim,Label='Disp')
     call mma_Allocate(GradList,fsdim,nMxIter,Label='GradList')
     call mma_Allocate(FuncList,nMxIter,Label='FuncList')
     DispList(:,:)=Zero
+    HdiagList(:,:)=Zero
     UmatList(:,:,:)=Zero
     GradList(:,:)=Zero
     FuncList(:)=Zero
@@ -232,6 +233,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
 
         GradList(:,nIter) = -Gradient(:) ! g_i
+        HdiagList(:,nIter) = -Hdiagvec(:) ! H_i
         FuncList(nIter) = -Functional ! y_i
 
         ! compute standard newton raphson step
@@ -243,11 +245,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             write(u6,*) "nIter =",nIter
             call RecPrt('DispList(:,:nIter)',' ',DispList(:,:nIter),fsdim,nIter)
             call RecPrt('GradList(:,:nIter)',' ',GradList(:,:nIter),fsdim,nIter)
+            call RecPrt('HdiagList(:,:nIter)',' ',HdiagList(:,:nIter),fsdim,nIter)
             call RecPrt('FuncList(:nIter)',' ',FuncList(:nIter),nIter,1)
 #       endif
 
         if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
-
             if (GEKRange) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
 
@@ -288,6 +290,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         end if ! NR vs GEK
         ! ---------------------------------------------------------------------------------------------------
 
+#       ifdef _DEBUGLISTS_
+        write(u6,*) "Before GEK procedure and step scaling"
+        call RecPrt('Disp',' ',Disp,fsdim,1)
+#       endif
+
         call rescale_disp()
 
 #       ifdef _FORCEGEKRANGE_
@@ -298,17 +305,10 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! see if inside region fit for GEK
         call StepSizeChecks()
 
-#       ifdef _FORCEGEKRANGE_
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
-        if (nIter == 1) then
-            DispList(:,nIter) = Disp(:) ! q_i
-        else
-            DispList(:,nIter) = DispList(:,nIter-1)+Disp(:) ! q_i
-        end if
-#       else
+
         DispList(:,nIter) = Disp(:) ! q_i
-#       endif
 
 #       ifdef _DEBUGLISTS_
         write(u6,*) "After GEK procedure and step scaling"
@@ -393,7 +393,6 @@ case(1)
     call mma_Deallocate(PACol)
 case(2,3,4,5)
     call mma_Deallocate(Gradient)
-    call mma_Deallocate(Hdiag)
     call mma_Deallocate(kappa)
 
     call mma_Deallocate(kappa_cnt)
@@ -403,6 +402,7 @@ case(2,3,4,5)
     call mma_Deallocate(CMO_Ref)
 
     call mma_Deallocate(FuncList)
+    call mma_Deallocate(HdiagList)
     call mma_Deallocate(UmatList)
     call mma_Deallocate(GradList)
     call mma_Deallocate(DispList)
@@ -430,12 +430,13 @@ subroutine force_GEKRange()
     Thr= 0.001_wp
     maxel = maxloc(abs(Disp),1)
     largest = Disp(maxel)
-    if (largest > Thr) then
+    if (abs(largest) > Thr) then
 #      ifdef _DEBUGPRINT_
         Write(u6,*) 'Rescale Disp(:)'
-        write(u6,*) 'Disp(:) =',Disp(:), 'Thr/largest*Disp(:) = ', Thr/largest*Disp(:)
+        write(u6,*) "largest",largest
+        write(u6,*) 'Disp(:) =',Disp(:), 'Thr/abs(largest)*Disp(:) = ', Thr/abs(largest)*Disp(:)
 #      endif
-        Disp(:) = Thr/largest * Disp(:)
+        Disp(:) = Thr/abs(largest) * Disp(:)
     end if
 end subroutine force_GEKRange
 #endif
@@ -465,6 +466,7 @@ subroutine StepSizeChecks()
     ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
     if (large_elements == 0) then
         GEKRange = .true.
+        if (nIter == 1) iterGEK = 1
     else if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
         ! leave GEK and go back to NR if steps are too large
         !write(u6,*) "resetting GEK due to large step:",largest
