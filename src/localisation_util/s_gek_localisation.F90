@@ -14,6 +14,7 @@
 !***********************************************************************
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
+!#define _COORDSABS_
 
 subroutine S_GEK_localisation(nIter,IterGEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation,nDIIS)
 
@@ -39,8 +40,11 @@ integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
 real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact,dq_NR(fsdim)
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
-                              UmatKsum(:,:),CoordsAbs(:,:)
-integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50, minDP = 1
+                              UmatKsum(:,:)
+#ifdef _COORDSABS_
+real(kind=wp), allocatable :: CoordsAbs(:,:)
+#endif
+integer(kind=iwp), parameter :: nWindow =10, Max_IterGEK = 20, minDP = 1
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
@@ -82,7 +86,6 @@ write(u6,*) "iLast   =",iLast
 # endif
 
 call mma_Allocate(coords,fsdim, nDiis,Label="coords")
-call mma_Allocate(CoordsAbs,fsdim, nDiis,Label="CoordsAbs")
 call mma_Allocate(grads,fsdim, nDiis,Label="grads")
 
 ! compute product matrix U_1...n = U_1 * ... * U_n
@@ -114,7 +117,6 @@ call mma_allocate(disp_summed,fsdim,Label="disp_summed")
 call mma_allocate(UmatKsum,nOrb2Loc,nOrb2Loc,Label="UmatKsum")
 disp_summed(:) = Zero
 UmatKsum(:,:) = Zero
-CoordsAbs(:,:) = Zero
 j = 0
 do i=iFirst,iLast
     j = i-iFirst+1
@@ -128,15 +130,19 @@ do i=iFirst,iLast
 
 end do
 
-call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
+#ifdef _COORDSABS_
 ! DispList contains displacements relative to the CMO of each iteration
-! we have to switch from relative to absolute coords for the GEK model:
+!we have to switch from relative to absolute coords for the GEK model:
+call mma_Allocate(CoordsAbs,fsdim, nDiis,Label="CoordsAbs")
+CoordsAbs(:,:) = Zero
+
+call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
 CoordsAbs(:,:) = coords(:,:)
 do i = 1, ndiis-1
     CoordsAbs(:,i+1) = CoordsAbs(:,i+1) + CoordsAbs(:,i)
 end do
 
-!coords(:,:ndiis) = CoordsAbs(:,:ndiis)
+coords(:,:ndiis) = CoordsAbs(:,:ndiis)
 coords(:,nDiis) = Zero
 call RecPrt("abscoords(:,:)",' ',coords,fsdim, nDiis)
 
@@ -151,6 +157,8 @@ end do
 !call RecPrt("CoordsAbs(:,:)",' ',coords,fsdim, nDiis)
 !call RecPrt("grads(:,:)",' ',grads,fsdim, nDiis)
 !write(*,*) "funclist",funclist(:ndiis)
+call mma_Deallocate(CoordsAbs)
+#endif
 
 call mma_allocate(kappa_summed,nOrb2Loc,nOrb2Loc,Label="kappa_summed")
 
@@ -213,7 +221,9 @@ if (nDIIS == 1) then
 # endif
   call mma_deallocate(grads)
   call mma_deallocate(coords)
+# ifdef _COORDSABS_
   call mma_deallocate(CoordsAbs)
+# endif
   return
 end if
 
@@ -450,7 +460,6 @@ write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(f
 ! deallocations
 ! -------------
 call mma_Deallocate(coords)
-call mma_Deallocate(CoordsAbs)
 call mma_Deallocate(grads)
 
 call mma_Deallocate(e_diis,safe='*')
@@ -467,5 +476,4 @@ call Timing(Cpu2,Tim1,Tim2,Tim3)
 write(u6,*) 'CPU Time for GEK iteration',Cpu2-Cpu1
 write(u6,*) 'Exit S-GEK Optimizer'
 #endif
-
 end subroutine S_GEK_localisation
