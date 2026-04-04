@@ -17,6 +17,7 @@
 !#define _DEBUGPRINT_
 !#define _DEBUGLOWD_
 !#define _GETMOLDEN_
+#define _FORCEGEKRANGE_
 
 subroutine PipekMezey_Iter(Functional,CMO,Ovlp,PA,nBas_per_Atom,nBas_Start,BName,nBasis,nOrb2Loc,nAtoms,Converged)
 ! Author: T.B. Pedersen
@@ -288,12 +289,32 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! ---------------------------------------------------------------------------------------------------
 
         call rescale_disp()
+
+#       ifdef _FORCEGEKRANGE_
+        ! only for debug:
+        call force_GEKRange()
+#       endif
+
         ! see if inside region fit for GEK
         call StepSizeChecks()
 
+#       ifdef _FORCEGEKRANGE_
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
+        if (nIter == 1) then
+            DispList(:,nIter) = Disp(:) ! q_i
+        else
+            DispList(:,nIter) = DispList(:,nIter-1)+Disp(:) ! q_i
+        end if
+#       else
         DispList(:,nIter) = Disp(:) ! q_i
+#       endif
+
+#       ifdef _DEBUGLISTS_
+        write(u6,*) "After GEK procedure and step scaling"
+        call RecPrt('Disp',' ',Disp,fsdim,1)
+#       endif
+
 
         ! update CMO
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
@@ -393,57 +414,70 @@ call mma_Deallocate(Ovlp_sqrt)
 
 contains
 subroutine rescale_disp()
-
-DD=Sqrt(dot_product(Disp(:),Disp(:)))
-!Thr= 0.5E0_wp * Pi
-Thr= 0.25E0_wp * Pi
-If (DD>=Thr)Then
+    DD=Sqrt(dot_product(Disp(:),Disp(:)))
+    !Thr= 0.5E0_wp * Pi
+    Thr= 0.25E0_wp * Pi
+    If (DD>=Thr)Then
 #   ifdef _DEBUGPRINT_
-    Write(u6,*) 'Rescale Kappa(:)'
+        Write(u6,*) 'Rescale Kappa(:)'
 #   endif
-Disp(:) = (Thr/DD)*Disp(:)
-End If
-
+    Disp(:) = (Thr/DD)*Disp(:)
+    End If
 end subroutine rescale_disp
 
+#ifdef _FORCEGEKRANGE_
+subroutine force_GEKRange()
+    Thr= 0.001_wp
+    maxel = maxloc(abs(Disp),1)
+    largest = Disp(maxel)
+    if (largest > Thr) then
+#      ifdef _DEBUGPRINT_
+        Write(u6,*) 'Rescale Disp(:)'
+        write(u6,*) 'Disp(:) =',Disp(:), 'Thr/largest*Disp(:) = ', Thr/largest*Disp(:)
+#      endif
+        Disp(:) = Thr/largest * Disp(:)
+    end if
+end subroutine force_GEKRange
+#endif
+
 subroutine StepSizeChecks()
-integer(kind=iwp) :: i
-        ! if previous step suggestion was out of GEKRange
-        if (ResetGEK) then
-            UpMeth=" -  - "
-            IterGEK = 0
-            nDIIS = 0
-            ResetGEK = .false.
-        end if
+    integer(kind=iwp) :: i
+    ! if previous step suggestion was out of GEKRange
+    if (ResetGEK) then
+        UpMeth=" -  - "
+        IterGEK = 0
+        nDIIS = 0
+        ResetGEK = .false.
+    end if
 
-        ! check if matrix elements are > 0.01
-        large_elements = 0
-        do i=1,fsdim
-            if (abs(Disp(i)) > 0.01_wp) then
-                large_elements = large_elements + 1
-            else
-                large_elements = large_elements
-            end if
-        end do
-        maxel = maxloc(abs(Disp),1)
-        largest = Disp(maxel)
-
-        ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
-        if (large_elements == 0) then
-            GEKRange = .true.
-        else if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
-            ! leave GEK and go back to NR if steps are too large
-            !write(u6,*) "resetting GEK due to large step:",largest
-            ResetGEK = .true.
-            GEKRange = .false.
+    ! check if matrix elements are > 0.01
+    large_elements = 0
+    do i=1,fsdim
+        if (abs(Disp(i)) > 0.01_wp) then
+            large_elements = large_elements + 1
         else
-            GEKRange = .false.
+            large_elements = large_elements
         end if
+    end do
+    maxel = maxloc(abs(Disp),1)
+    largest = Disp(maxel)
 
-#       ifdef _DEBUGPRINT_
-        write(u6,*) "kappa elements > 0.01 =",large_elements
-        write(u6,*) "largest element =", Disp(maxel)
-#       endif
+    ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
+    if (large_elements == 0) then
+        GEKRange = .true.
+    else if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
+        ! leave GEK and go back to NR if steps are too large
+        !write(u6,*) "resetting GEK due to large step:",largest
+        ResetGEK = .true.
+        GEKRange = .false.
+    else
+        GEKRange = .false.
+    end if
+
+#   ifdef _DEBUGPRINT_
+    write(u6,*) "kappa elements > 0.01 =",large_elements
+    write(u6,*) "largest element =", Disp(maxel)
+#   endif
 end subroutine StepSizeChecks
 
 end subroutine PipekMezey_Iter

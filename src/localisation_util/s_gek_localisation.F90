@@ -40,7 +40,7 @@ real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact,dq_NR(fsdim)
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:),CoordsAbs(:,:)
-integer(kind=iwp), parameter :: nWindow =2, Max_IterGEK = 1, minDP = 1
+integer(kind=iwp), parameter :: nWindow =20, Max_IterGEK = 50, minDP = 1
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange,usmitigation
@@ -128,7 +128,7 @@ do i=iFirst,iLast
 
 end do
 
-!call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
+call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
 ! DispList contains displacements relative to the CMO of each iteration
 ! we have to switch from relative to absolute coords for the GEK model:
 CoordsAbs(:,:) = coords(:,:)
@@ -137,8 +137,8 @@ do i = 1, ndiis-1
 end do
 
 !coords(:,:ndiis) = CoordsAbs(:,:ndiis)
-!coords(:,nDiis) = Zero
-!call RecPrt("CoordsAbs(:,:)",' ',CoordsAbs,fsdim, nDiis)
+coords(:,nDiis) = Zero
+call RecPrt("abscoords(:,:)",' ',coords,fsdim, nDiis)
 
 do i=1,fsdim
     do j=1,ndiis
