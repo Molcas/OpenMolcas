@@ -61,16 +61,11 @@ end if
 ! the last nDIIS iterations, of which the first is iFirst
 nDIIS = min(IterGEK,nWindow)
 iFirst = Iter-nDIIS+1
-if (nDIIS == 1) then
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'Exit S-GEK Optimizer'
-# endif
-  return
-end if
 
 call mma_allocate(q,mOV,nDIIS,Label='q')
 call mma_allocate(g,mOV,nDIIS,Label='g')
 
+#ifndef _FULL_SPACE_
 if (nDIIS == 1) then
 # ifdef _DEBUGPRINT_
   write(u6,*) 'Exit S-GEK Optimizer'
@@ -79,6 +74,7 @@ if (nDIIS == 1) then
   call mma_deallocate(q)
   return
 end if
+#endif
 
 ! Pick up coordinates and gradients in full space
 j = 0
