@@ -43,7 +43,7 @@ call unitmat(unitary_mat,nOrb2Loc)
 cnt = 1
 factor = One
 ithrsh = One
-maxel(:) = Zero
+maxel(:) = 0
 
 unitary_mat(:,:) =  unitary_mat(:,:) - kappa(:,:)
 
