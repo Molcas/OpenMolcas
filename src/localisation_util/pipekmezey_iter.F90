@@ -29,7 +29,7 @@ use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, Loosen, FuncList, GradList, DispList,&
-                                UmatList
+                                UmatList,ThrStep
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
 #endif
@@ -42,7 +42,7 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*)
 character(len=LenIn+8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, lSCR, fsdim,nDIIS
-real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, ang
+real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm,StepNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2, ang
 real(kind=wp), allocatable :: PACol(:,:), Ovlp_aux(:,:), &
                               SCR(:), Ovlp_sqrt(:,:),Gradient(:),&
                               kappa(:,:),kappa_cnt(:,:),xkappa_cnt(:,:), unitary_mat(:,:), rotated_CMO(:,:),hdiagvec(:),&
@@ -51,14 +51,15 @@ real(kind=wp), parameter :: alpha = 0.3
 real(kind=wp), External :: DDot_
 
 ! for S-GEK
-integer(kind=iwp) :: maxel
+integer(kind=iwp) :: maxel,i
 real(kind=wp) :: dqdq,largest
 logical(kind=iwp) :: SORange,GEKRange,ResetGEK
 character(len=6):: UpMeth
-logical(kind=iwp),parameter :: usmitigation = .false.
 integer(kind=iwp) :: IterGEK,large_elements
 
 real(kind=wp) :: DD,Thr
+real(kind=wp),parameter :: gekthr_kappa=0.01_wp, gekthr_grad=0.01_wp
+
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
 #endif
@@ -156,18 +157,22 @@ case(2,3,4,5)
     call mma_allocate(Disp,fsdim,Label='Disp')
     call mma_Allocate(GradList,fsdim,nMxIter,Label='GradList')
     call mma_Allocate(FuncList,nMxIter,Label='FuncList')
-    DispList(:,:)=Zero
-    HdiagList(:,:)=Zero
-    UmatList(:,:,:)=Zero
-    GradList(:,:)=Zero
-    FuncList(:)=Zero
-    Kappa(:,:)=Zero
     call mma_Allocate(kappa_cnt,nOrb2Loc,nOrb2Loc,Label='kappa_cnt') != kappa^cnt
     call mma_Allocate(xkappa_cnt,nOrb2Loc,nOrb2Loc,Label='xkappa_cnt') !saves the previous kappa_cnt
     call mma_Allocate(unitary_mat,nOrb2Loc,nOrb2Loc,Label='unitary_mat')
     call mma_Allocate(rotated_cmo,nBasis,nOrb2Loc,Label='rotated_cmo')
     call mma_Allocate(CMO_Ref,nBasis,nOrb2Loc,Label='CMO_Ref')
 
+    DispList(:,:)=Zero
+    HdiagList(:,:)=Zero
+    UmatList(:,:,:)=Zero
+    do i=1, norb2loc
+        UmatList(i,i,:) = One
+    end do
+    GradList(:,:)=Zero
+    FuncList(:)=Zero
+    Kappa(:,:)=Zero
+    unitary_mat(:,:) = Zero
 end select ! allocations
 
 
@@ -176,7 +181,10 @@ end select ! allocations
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 if (.not. Silent) write(u6,"(/A)") "MO extension before localisation:"
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
-
+call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
+FuncList(1) = -Functional
+GradList(:,1) = -Gradient(:)
+HdiagList(:,1) = -Hdiagvec(:)
 
 ! set defaults
 
@@ -190,7 +198,7 @@ nDIIS=0
 GEKRange = .false.
 ResetGEK = .false.
 
-SORange = .true.
+SORange = .false.
 
 IterGEK = 0
 
@@ -252,38 +260,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         if (OptMeth == 4 .or. OptMeth == 5) then ! (S)-GEK
             if (GEKRange) then
                 ! still in infinitesimal limit of kappa, sampled previous point -> start GEK
-
                 IterGEK = IterGEK + 1
 
-                call S_GEK_localisation(nIter,IterGEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,&
-                                        usmitigation,nDIIS)
-
-                ! undershoot mitigation
-                if (usmitigation) then
-                    if (Loosen%Step > One) then
-                        call mma_allocate(Prev,fsdim,Label='Prev')
-
-                        Prev(:) = DispList(:,nIter)
-
-                        dqdq = DDot_(fsdim,Disp,1,Disp,1)*DDot_(fsdim,Prev,1,Prev,1)
-                        ang = DDot_(fsdim,Prev,1,Disp,1)/sqrt(dqdq)
-                        if (ang < Loosen%Thrs2) then
-                            Loosen%Factor = One
-                        else if (ang > Loosen%Thrs) then
-                            Loosen%Factor = Loosen%Factor*Loosen%Step
-                        end if
-
-#                       ifdef _DEBUGPRINT_
-                        call RecPrt('Disp',' ',Disp,fsdim,1)
-                        call RecPrt('Prev',' ',Prev,fsdim,1)
-                        write(u6,*) "angle(Disp,Prev) = cos^-1(",ang,")"
-                        write(u6,*) "Loosen%Factor    =", Loosen%Factor
-                        write(u6,*) "Loosen%Step    =", Loosen%Step
-#                       endif
-
-                        call mma_Deallocate(Prev)
-                    end if ! Loosen%Step > One
-                end if ! undershoot mitigation
+                call S_GEK_localisation(nIter,IterGEK,-hdiagvec(:),fsdim,dqdq,Disp(:),UpMeth,SORange,nOrb2Loc,nDIIS)
 
             end if ! if in GEKRange
 
@@ -305,20 +284,24 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! see if inside region fit for GEK
         call StepSizeChecks()
 
+        ! for HeH, we don't care, because 2D antisymmetric matrices commute
+        !GEKRange = .true.
+        !ResetGEK = .false.
+
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 
         DispList(:,nIter) = Disp(:) ! q_i
 
-#       ifdef _DEBUGLISTS_
-        write(u6,*) "After GEK procedure and step scaling"
-        call RecPrt('Disp',' ',Disp,fsdim,1)
-#       endif
-
-
         ! update CMO
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)
         UMatList(:,:,nIter) = unitary_mat(:,:) ! exp(-q_i) = U_i
+
+#       ifdef _DEBUGLISTS_
+        write(u6,*) "After GEK procedure and step scaling"
+        call RecPrt('Disp',' ',Disp,fsdim,1)
+        call RecPrt('Unitary Mat',' ',unitary_mat,norb2loc,norb2loc)
+#       endif
 
     end select ! 2x2 or NxN rotations
 
@@ -349,8 +332,14 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
             nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,PctSkp,nDIIS,largest
     end if
 
-    Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
-
+    StepNorm = sqrt(DDOT_(fsdim,Disp,1,Disp,1))
+    select case(OptMeth)
+    case(1)
+        Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
+    case(2,4,5)
+        !Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
+        Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs) .and. (StepNorm <=ThrStep)
+    end select
 end do !Iterations
 
 
@@ -427,7 +416,7 @@ end subroutine rescale_disp
 
 #ifdef _FORCEGEKRANGE_
 subroutine force_GEKRange()
-    Thr= 0.001_wp
+    Thr= 0.01_wp
     maxel = maxloc(abs(Disp),1)
     largest = Disp(maxel)
     if (abs(largest) > Thr) then
@@ -445,6 +434,7 @@ subroutine StepSizeChecks()
     integer(kind=iwp) :: i
     ! if previous step suggestion was out of GEKRange
     if (ResetGEK) then
+        write(u6,*) "Resetting GEK"
         UpMeth=" -  - "
         IterGEK = 0
         nDIIS = 0
@@ -454,7 +444,7 @@ subroutine StepSizeChecks()
     ! check if matrix elements are > 0.01
     large_elements = 0
     do i=1,fsdim
-        if (abs(Disp(i)) > 0.01_wp) then
+        if (abs(Disp(i)) > gekthr_kappa) then
             large_elements = large_elements + 1
         else
             large_elements = large_elements
@@ -464,17 +454,20 @@ subroutine StepSizeChecks()
     largest = Disp(maxel)
 
     ! all elements of kappa are small enough to use this disp as coordinate for building the GEK model
-    if (large_elements == 0) then
+    if (large_elements == 0 .and. GradNorm < gekthr_grad) then
         GEKRange = .true.
+        SORange = .true.
         if (nIter == 1) iterGEK = 1
-    else if (large_elements /= 0 .and. GEKRange .and. IterGEK > 0) then
-        ! leave GEK and go back to NR if steps are too large
-        !write(u6,*) "resetting GEK due to large step:",largest
-        ResetGEK = .true.
-        GEKRange = .false.
-    else
-        GEKRange = .false.
     end if
+
+    if (GEKRange) then
+        if (Gradnorm >= gekthr_grad .or. large_elements /= 0) then
+            ResetGEK = .true.
+            GEKRange = .false.
+            SORange = .false.
+        end if
+    end if
+
 
 #   ifdef _DEBUGPRINT_
     write(u6,*) "kappa elements > 0.01 =",large_elements

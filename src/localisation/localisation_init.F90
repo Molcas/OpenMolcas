@@ -18,7 +18,7 @@ use Localisation_globals, only: nSym, nOrb2Loc, nFro, nConstr, Skip, LocOrb, Thr
                                 Maximisation, ChoStart, LocModel, OptMeth, ChargeType, LocModel_UsrDef,Test_Localisation, &
                                 NMxIter, Thrs, ThrRot, ThrGrad, Analysis, AnaAtom, AnaNrm, PrintMOs, Timing, EvalER, Order,&
                                 LocPAO, AnaPAO, AnaPAO_Save, DoDomain, AnaDomain, ThrDomain, ThrPairDomain, LocNatOrb, &
-                                LocCanOrb, Wave, iWave, DoCNOs, Loosen
+                                LocCanOrb, Wave, iWave, DoCNOs, Loosen, ThrStep
 use Definitions, only: iwp, wp
 use Constants, only: Ten,Five,Half,One,Deg2Rad
 
@@ -27,7 +27,8 @@ integer(kind=iwp) :: iSym
 integer(kind=iwp), parameter :: Occupied = 0
 real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, & !functional change
                             ThrRotDef=1.0e-10_wp, & !rotation angle in jacobi sweeps
-                            ThrGradDef=1.0e-4_wp !gradient norm
+                            ThrGradDef=1.0e-4_wp,& !gradient norm
+                            ThrStepDef=1.0e-4_wp !kappa norm
 
 do iSym=1,nSym
   nOrb2Loc(iSym) = 0
@@ -52,6 +53,7 @@ NMxIter = 100
 Thrs = ThrsDef
 ThrRot = ThrRotDef
 ThrGrad = ThrGradDef
+ThrStep = ThrStepDef
 Analysis = .false.
 AnaAtom = nSym == 1
 AnaNrm = 'Fro'

@@ -46,7 +46,7 @@ integer(kind=iwp) :: fileorb_id, iWave, LocModel, LuSpool, MxConstr, nActa, nAto
 #ifdef _HDF5_
 integer(kind=iwp) :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 #endif
-real(kind=wp) :: Thrs, ThrRot, ThrGrad, ThrDomain(2), ThrPairDomain(3), ThrSel
+real(kind=wp) :: Thrs, ThrRot, ThrGrad, ThrDomain(2), ThrPairDomain(3), ThrSel, ThrStep
 logical(kind=iwp) :: AnaAtom, AnaDomain, Analysis, AnaPAO, AnaPAO_Save, ChoStart, DoCNOs, DoDomain, EvalER, isHDF5 = .false., &
                      LocCanOrb, LocNatOrb, LocPAO, Maximisation, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing,&
                      Wave,Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,Freeze, Debug = .false.
@@ -66,7 +66,7 @@ public :: AnaAtom, AnaDomain, Analysis, AnaNrm, AnaPAO, AnaPAO_Save, BName, ChoS
           MxConstr, nActa, NamAct, nAtoms, nBas, nCMO, nConstr, nFro, nMxIter, nOccInp, nOrb, nOrb2Loc, nSym, nVirInp, Occ, Order, &
           PrintMOs, Silent, Skip, Test_Localisation, ThrDomain, ThrGrad, ThrPairDomain, ThrRot, Thrs, ThrSel, Timing, Wave,&
           ScrFac,Debug, OptMeth, ChargeType, LocOrb, Thrs_UsrDef, LocModel_UsrDef, nFro_UsrDef, nOrb2Loc_UsrDef,&
-          Freeze,Loosen,FuncList,GradList,DispList,UmatList
+          Freeze,Loosen,FuncList,GradList,DispList,UmatList, ThrStep
 
 #ifdef _HDF5_
 public :: wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx

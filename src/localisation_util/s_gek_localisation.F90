@@ -16,7 +16,7 @@
 !#define _DEBUGPRINT_
 !#define _COORDSABS_
 
-subroutine S_GEK_localisation(nIter,IterGEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,usmitigation,nDIIS)
+subroutine S_GEK_localisation(nIter,IterGEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero,One
@@ -44,16 +44,16 @@ real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,
 #ifdef _COORDSABS_
 real(kind=wp), allocatable :: CoordsAbs(:,:)
 #endif
-integer(kind=iwp), parameter :: nWindow =10, Max_IterGEK = 20, minDP = 1
+integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
+real(kind=wp),parameter :: bias = 10.0_wp
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
-logical, intent(in) :: SORange,usmitigation
+logical, intent(in) :: SORange
 character :: Step_Trunc
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
 dq_NR(:) = dq(:)
-
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter S-GEK Optimizer'
@@ -66,6 +66,7 @@ if (nDIIS < mindp) then
 #   ifdef _DEBUG2_
     write(u6,'(A,I4,A,I4,A)') "not enough data points for GEK yet (we have",ndiis,", we want min ",mindp,")"
 #   endif
+    write(u6,*) 'Exit S-GEK Optimizer (not enough sampling points)', ndiis
     return
 else
 #   ifdef _DEBUG2_
@@ -167,11 +168,12 @@ call vec2upper_triag(kappa_summed,nOrb2Loc,disp_summed,fsdim,.true.)
 call expkap_localisation(kappa_summed,nOrb2Loc,Umat_i,xUmatProd,UmatKsum)
 
 
-!call RecPrt("exp(-K_1-K_2-...-K_n) = "," ",UmatKsum,nOrb2Loc,nOrb2Loc)
-!call RecPrt("U_1...n - exp(-K_1-K_2-...-K_n) = "," ",UmatProd-UmatKsum,nOrb2Loc,nOrb2Loc)
 
 norm = sqrt(DDot_(nOrb2Loc*nOrb2Loc,UmatProd-UmatKsum,1,UmatProd-UmatKsum,1))
 # ifdef _DEBUGPRINT_
+call RecPrt("-K_1-K_2-...-K_n = "," ",kappa_summed,nOrb2Loc,nOrb2Loc)
+call RecPrt("exp(-K_1-K_2-...-K_n) = "," ",UmatKsum,nOrb2Loc,nOrb2Loc)
+call RecPrt("U_1...n - exp(-K_1-K_2-...-K_n) = "," ",UmatProd-UmatKsum,nOrb2Loc,nOrb2Loc)
 write(u6,*) "norm of U_1...n - exp(-K_1-K_2-...-K_n):", norm, "ndiis =",ndiis
 # endif
 
@@ -183,7 +185,8 @@ call mma_Deallocate(disp_summed)
 call mma_Deallocate(kappa_summed)
 
 #ifdef _DEBUGPRINT_
-write(u6,*) 'iFirst =',iFirst
+    write(u6,*) 'iFirst =',iFirst
+    write(u6,*) 'iLast =',iLast
     write(u6,*) 'nWindow =',nWindow
     write(u6,*) '  nDIIS =',nDIIS
     write(u6,*) 'IterGEK =',IterGEK
@@ -221,9 +224,6 @@ if (nDIIS == 1) then
 # endif
   call mma_deallocate(grads)
   call mma_deallocate(coords)
-# ifdef _COORDSABS_
-  call mma_deallocate(CoordsAbs)
-# endif
   return
 end if
 
@@ -387,52 +387,17 @@ dq_diis(:) = Zero
 #endif
 
 
-if (usmitigation) then
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Undershoot avoidance: Scale along dq !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-if (Loosen%Factor /= One) then
-  ! Components of dq in the subspace
-  call mma_allocate(w,mDIIS,mDIIS,Label='w')
-  gg = sqrt(DDot_(fsdim,dq,1,dq,1))
-  do i=1,mDIIS
-    w(i,1) = DDot_(fsdim,dq,1,e_diis(:,i),1)/gg
-  end do
-  ! D = I + (f-1) * w w^T
-  ! H' = D^T H D
-  call mma_allocate(D,mDIIS,mDIIS,Label='D')
-  do i=1,mDIIS
-    D(:,i) = (One/Loosen%Factor-One)*w(i,1)*w(:,1)
-    D(i,i) = D(i,i)+One
-  end do
-  call dgemm_('N','N',mDIIS,mDIIS,mDIIS,One,H_diis,mDIIS,D,mDIIS,Zero,w,mDIIS)
-  call dgemm_('N','N',mDIIS,mDIIS,mDIIS,One,D,mDIIS,w,mDIIS,Zero,H_diis,mDIIS)
-  call mma_deallocate(D)
-  call mma_deallocate(w)
-
-# ifdef _DEBUGPRINT_
-  write(u6,*) "Undershoot mitigation, scale along dq"
-  call RecPrt('H_diis(after scaling)',' ',H_diis,mDIIS,mDIIS)
-# endif
-
-end if
-end if
-
-
-
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
-
-
 if (SORange) then
-  SOFact = One
+  SOFact = 1000.0_wp
 else
   SOFact = 10000000.0_wp
 end if
 !write(u6,*) "call GEK_Optimizer"
 
 Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),FuncList(iFirst:),H_diis(:,:),dqdq,&
-                   Step_Trunc,UpMeth,SOFact,10.0_wp)
+                   Step_Trunc,UpMeth,SOFact,bias)
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
 #ifdef _DEBUGPRINT_
