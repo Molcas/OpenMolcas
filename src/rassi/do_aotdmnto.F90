@@ -60,12 +60,12 @@ integer(kind=iwp), external :: isfreeunit
 ! ttdr, ttdi
 
 ! ANTISYMMETRIC matrix needs a little fixing
-do i=0,nb-1
+do i=1,nb
   do j=1,nb
-    if (i < j-1) then
-      ANTSIN(3,i*nb+j) = -ANTSIN(3,i*nb+j)
-    else if (i == j-1) then
-      ANTSIN(3,i*nb+j) = Zero
+    if (i < j) then
+      ANTSIN(3,(i-1)*nb+j) = -ANTSIN(3,(i-1)*nb+j)
+    else if (i == j) then
+      ANTSIN(3,(i-1)*nb+j) = Zero
     end if
   end do
 end do
@@ -107,10 +107,8 @@ do di=1,3
   write(u6,*) '  Component ',ICMP
   ! Get complex matrices
   call MMA_ALLOCATE(DIPsC,nb2,LABEL='DIPsC')
-  do i=1,nb2
-    TDMZZC(i) = cmplx(TDMZZ(di,i),TDMZZ(di+3,i),kind=wp)
-    DIPsC(i) = cmplx(DIPs(i),Zero,kind=wp)
-  end do
+  TDMZZC(:) = cmplx(TDMZZ(di,:),TDMZZ(di+3,:),kind=wp)
+  DIPsC(:) = DIPs(:)*cOne
   ! TDM
   call ZGEMM_('N','N',nb,nb,nb,cOne,DIPsC,nb,TDMZZC,nb,cZero,BUFF,nb)
   ! Trace the resulting matrix
@@ -152,16 +150,14 @@ if (IFARGU) then
   write(u6,'(2X,A,F6.2)') 'argument Phi: ',phi
   call mma_allocate(TMPR,nb2,Label='TMPR')
   call mma_allocate(TMPI,nb2,Label='TMPI')
-  do i=1,nb2
-    TMPR(i) = TDMZZ(3,i)*cos(phi)-TDMZZ(6,i)*sin(phi)
-    TMPI(i) = TDMZZ(6,i)*cos(phi)+TDMZZ(3,i)*sin(phi)
-  end do
-  TDMZZ(1,:) = TMPR(1:nb2)
-  TDMZZ(2,:) = TMPR(1:nb2)
-  TDMZZ(3,:) = TMPR(1:nb2)
-  TDMZZ(4,:) = TMPI(1:nb2)
-  TDMZZ(5,:) = TMPI(1:nb2)
-  TDMZZ(6,:) = TMPI(1:nb2)
+  TMPR(:) = TDMZZ(3,:)*cos(phi)-TDMZZ(6,:)*sin(phi)
+  TMPI(:) = TDMZZ(6,:)*cos(phi)+TDMZZ(3,:)*sin(phi)
+  TDMZZ(1,:) = TMPR(:)
+  TDMZZ(2,:) = TMPR(:)
+  TDMZZ(3,:) = TMPR(:)
+  TDMZZ(4,:) = TMPI(:)
+  TDMZZ(5,:) = TMPI(:)
+  TDMZZ(6,:) = TMPI(:)
   call mma_deallocate(TMPI)
   call mma_deallocate(TMPR)
 end if
@@ -205,15 +201,13 @@ call mma_deallocate(SZZ)
 ! For tests
 !*************
 call mma_allocate(TMP,nb2,Label='TMP')
-TMP(1:nb2) = TDMZZ(3,:)
+TMP(:) = TDMZZ(3,:)
 call mma_allocate(BFF,nb2,Label='BFF')
 call DGEMM_('N','N',nb,nb,nb,One,SZZs,nb,TMP,nb,Zero,BFF,nb)
 ! Trace the resulting matrix
 NumOfEc = Zero
-do i=0,nb-1
-  do j=0,nb-1
-    if (i == j) NumOfEc = NumOfEc+BFF(1+i*nb+j)
-  end do
+do i=1,nb
+  NumOfEc = NumOfEc+BFF((i-1)*nb+i)
 end do
 !write(u6,*) 'NumOfEc ',NumOfEc
 call mma_deallocate(BFF)
@@ -235,14 +229,9 @@ call mma_allocate(RESIX,LWORK,Label='RESIX')
 call DSYEV_('V','U',nb,SZZs,nb,EIG,RESIX,LWORK,INFO)
 ! Put EIG in sqrt and in diagonal in EIGM
 call mma_allocate(EIGM,nb2,Label='EIGM')
-do i=0,nb-1
-  do j=0,nb-1
-    if (i == j) then
-      EIGM(1+i*nb+j) = sqrt(EIG(1+i))
-    else
-      EIGM(1+i*nb+j) = Zero
-    end if
-  end do
+EIGM(:) = Zero
+do i=1,nb
+  EIGM((i-1)*nb+i) = sqrt(EIG(i))
 end do
 call mma_deallocate(EIG)
 call mma_deallocate(RESIX)
@@ -277,21 +266,21 @@ call MMA_ALLOCATE(TDMZZL,6,nb2,LABEL='LTDMZZL')
 call MMA_ALLOCATE(TSDMZZL,6,nb2,LABEL='LTSDMZZL')
 call mma_allocate(TMPR,nb2,Label='TMPR')
 ! Real part of TDMZZ
-TMPR(1:nb2) = TDMZZ(3,:)
+TMPR(:) = TDMZZ(3,:)
 call DGEMM_('N','N',nb,nb,nb,One,TMPR,nb,SM,nb,Zero,TMP,nb)
 call DGEMM_('N','N',nb,nb,nb,One,SM,nb,TMP,nb,Zero,TMPR,nb)
-TDMZZL(3,:) = TMPR(1:nb2)
+TDMZZL(3,:) = TMPR(:)
 ! Imaginary part of TDMZZ
-TMPR(1:nb2) = TDMZZ(6,:)
+TMPR(:) = TDMZZ(6,:)
 call DGEMM_('N','N',nb,nb,nb,One,TMPR,nb,SM,nb,Zero,TMP,nb)
 call DGEMM_('N','N',nb,nb,nb,One,SM,nb,TMP,nb,Zero,TMPR,nb)
-TDMZZL(6,:) = TMPR(1:nb2)
+TDMZZL(6,:) = TMPR(:)
 ! Do for all components of TSDMZZ
 do i=1,6
-  TMPR(1:nb2) = TSDMZZ(i,:)
+  TMPR(:) = TSDMZZ(i,:)
   call DGEMM_('N','N',nb,nb,nb,One,TMPR,nb,SM,nb,Zero,TMP,nb)
   call DGEMM_('N','N',nb,nb,nb,One,SM,nb,TMP,nb,Zero,TMPR,nb)
-  TSDMZZL(i,:) = TMPR(1:nb2)
+  TSDMZZL(i,:) = TMPR(:)
 end do
 call mma_deallocate(TMPR)
 ! End of the Lowdin Orthogonalization
@@ -303,10 +292,8 @@ call mma_deallocate(TMPR)
 ! and TDMZZL(6,:) as a complex matrix
 call MMA_ALLOCATE(TDMZZLC,nb2,LABEL='LTDMZZLC')
 SumofTDMZZLC = Zero
-do i=1,nb2
-  TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),kind=wp)
-  SumofTDMZZLC = SumofTDMZZLC+abs(TDMZZLC(i))
-end do
+TDMZZLC(:) = cmplx(TDMZZL(3,:),TDMZZL(6,:),kind=wp)
+SumofTDMZZLC = sum(abs(TDMZZLC(:)))
 ! Do SVD by using ZGESVD, see lapack for documentation
 ! A = U * SIGMA * V^dagger
 ! Get work space for U, SIGMA, and V^dagger, VH
@@ -362,6 +349,8 @@ do di=1,3
     TDMZZLC(i) = cmplx(TDMZZL(3,i),TDMZZL(6,i),kind=wp)
     DIPsC(i) = cmplx(DIPs(i),Zero,kind=wp)
   end do
+  TDMZZLC(:) = cmplx(TDMZZL(3,:),TDMZZL(6,:),kind=wp)
+  DIPsC(:) = DIPs(:)*cOne
   ! Do U^H TDMZZLC DIP U = Y, Diagonal of Y contains the partition
   call ZGEMM_('N','N',nb,nb,nb,cOne,TDMZZLC(:),nb,DIPsC,nb,cZero,BUFF1(:),nb)
   call ZGEMM_('N','N',nb,nb,nb,cOne,BUFF1(:),nb,SVDU(:),nb,cZero,BUFF2(:),nb)
@@ -417,13 +406,11 @@ SVDVHI(:) = TMP(:)
 ! V
 call mma_allocate(SVDVR,nb2,Label='SVDVR')
 call mma_allocate(SVDVI,nb2,Label='SVDVI')
-SVDVR(:) = Zero
-SVDVI(:) = Zero
-do i=0,nb-1
-  do j=0,nb-1
-    SVDVR(1+i*nb+j) = SVDVHR(1+j*nb+i)
+do i=1,nb
+  do j=1,nb
+    SVDVR((i-1)*nb+j) = SVDVHR((j-1)*nb+i)
     ! imaginary part takes a negative sign
-    SVDVI(1+i*nb+j) = -SVDVHI(1+j*nb+i)
+    SVDVI((i-1)*nb+j) = -SVDVHI((j-1)*nb+i)
   end do
 end do
 call mma_deallocate(SVDVHR)
@@ -432,10 +419,7 @@ call mma_deallocate(SVDVHI)
 call ADD_INFO('LAMBDA',SVDS,5,4)
 
 ! singular values
-Sumofeigen = Zero
-do i=0,nb-1
-  Sumofeigen = Sumofeigen+SVDS(i+1)**2
-end do
+Sumofeigen = sum(SVDS(:)**2)
 
 ! Head of the output
 write(u6,*)
@@ -452,10 +436,10 @@ write(u6,'(6X,A)') repeat('=',90)
 write(u6,'(5X,A12,A12,A16,A51)') 'EXCITATION','EIGENVALUE','EXCITATION','TRANSITION DIPOLE MOMENT'
 write(u6,'(5X,A12,12X,A16,3A17)') 'AMPLITUDE','CONTRIBUTION(%)','(1)','(2)','(3)'
 write(u6,'(6X,A)') repeat('-',90)
-do i=0,nb-1
-  if (SVDS(i+1)**2 < eigen_print_limit) exit
-  write(u6,'(4X,3X,F8.5,4X,F8.5,8X,F8.2,2X,3(F9.4,SP,F7.4,"i",SS))') SVDS(i+1),SVDS(i+1)**2,SVDS(i+1)**2/Sumofeigen*100.0_wp, &
-                                                                     YMAT(1,i*nb+i+1),YMAT(2,i*nb+i+1),YMAT(3,i*nb+i+1)
+do i=1,nb
+  if (SVDS(i)**2 < eigen_print_limit) exit
+  write(u6,'(4X,3X,F8.5,4X,F8.5,8X,F8.2,2X,3(F9.4,SP,F7.4,"i",SS))') SVDS(i),SVDS(i)**2,SVDS(i)**2/Sumofeigen*100.0_wp, &
+                                                                     YMAT(1,(i-1)*nb+i),YMAT(2,(i-1)*nb+i),YMAT(3,(i-1)*nb+i)
 end do
 write(u6,'(6X,A,F8.5)') 'SUM OF EIGENVALUES ',Sumofeigen
 write(u6,'(6X,A24,15X,3(F9.4,SP,F7.4,"i",SS))') 'SUM OF TRANSITION DIPOLE',SumofYdiag(1),SumofYdiag(2),SumofYdiag(3)
@@ -463,11 +447,8 @@ write(u6,'(6X,A)') repeat('=',90)
 write(u6,*)
 write(u6,*)
 ! Write NTOs to file in C1 symmetry
-do i=1,nb
-  SVDS(i) = SVDS(i)**2/Sumofeigen
-end do
-LU = 50
-LU = ISFREEUNIT(LU)
+SVDS(:) = SVDS(:)**2/Sumofeigen
+LU = ISFREEUNIT(50)
 Note = '*  Spin-orbit Natural Transition Orbitals'
 ! U real
 write(FNAME,'(6(a))') 'NTORB.SO.',trim(adjustl(STATENAME)),'.','PART','.','Re'

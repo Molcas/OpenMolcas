@@ -24,11 +24,11 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: natom, nST
 real(kind=wp) :: ChgNuc(natom), Prop(nState,nState,NProp), DerCpl(nST,3,natom), Ham(Nstate,Nstate)
-integer(kind=iwp) :: IST, ISTA, JSTA, KPROP, KXYZ, LAT
+integer(kind=iwp) :: IST, ISTA, JSTA, KPROP, lAT
 real(kind=wp) :: EI, EJ, SumX, SumY, SumZ
 
 nST = nState*(nState+1)/2
-call FZero(DerCpl,3*natom*nST)
+DerCpl(:,:,:) = Zero
 do iSta=1,nState-1
   Ei = Ham(iSta,iSta)
   do jSta=iSta+1,nState
@@ -41,16 +41,15 @@ do iSta=1,nState-1
         DerCpl(iST,IComp(kProp),lAt) = Prop(iSta,jSta,kProp)*ChgNuc(lAt)/(Ej-Ei)
       end if
     end do
-    SumX = Zero
-    SumY = Zero
-    SumZ = Zero
     do lAt=1,natom
-      write(u6,1100) lAt,(DerCpl(iST,kXYZ,lAt),kXYZ=1,3)
-      SumX = SumX+DerCpl(iST,1,lAt)
-      SumY = SumY+DerCpl(iST,2,lAt)
-      SumZ = SumZ+DerCpl(iST,3,lAt)
+      write(u6,1100) lAt,DerCpl(iST,:,lAt)
     end do
-    if (IPGLOB >= 4) write(u6,1200) SumX,SumY,SumZ
+    if (IPGLOB >= 4) then
+      SumX = sum(DerCpl(iST,1,:))
+      SumY = sum(DerCpl(iST,2,:))
+      SumZ = sum(DerCpl(iST,3,:))
+      write(u6,1200) SumX,SumY,SumZ
+    end if
   end do
 end do
 

@@ -304,14 +304,8 @@ if (REDUCELOOP .and. (TMGr_thrs >= Zero)) then
     end if
   end do
   TMOgrp1(1) = 1
-  maxgrp1 = 0
-  do i=1,ngroup1
-    maxgrp1 = max(maxgrp1,TMOgrp1(i+1)-TMOgrp1(i))
-  end do
-  maxgrp2 = 0
-  do i=1,ngroup2
-    maxgrp2 = max(maxgrp2,TMOgrp2(i+1)-TMOgrp2(i))
-  end do
+  maxgrp1 = maxval(TMOgrp1(2:ngroup1+1)-TMOgrp1(1:ngroup1))
+  maxgrp2 = maxval(TMOgrp2(2:ngroup2+1)-TMOgrp2(1:ngroup2))
   nmax2 = maxgrp1*maxgrp2
 end if
 
@@ -369,10 +363,8 @@ do iVec=1,nVec
           if (Temp > ThrSparse) then
             ISM = ISM+1
             iMask(ISM) = ISF
-            do IMSS=ISS_INDEX(ISF)+1,ISS_INDEX(ISF+1)
-              ISSM = ISSM+1
-              iSSMask(ISSM) = IMSS
-            end do
+            iSSMask(ISSM+1:ISSM+ISS_INDEX(ISF+1)-ISS_INDEX(ISF)) = [(IMSS,IMSS=ISS_INDEX(ISF)+1,ISS_INDEX(ISF+1))]
+            ISSM = ISSM+ISS_INDEX(ISF+1)-ISS_INDEX(ISF)
             cycle ISFLoop
           end if
         end do
@@ -403,10 +395,8 @@ do iVec=1,nVec
             if (Temp > ThrSparse) then
               JSM = JSM+1
               jMask(JSM) = JSF
-              do JMSS=ISS_INDEX(JSF)+1,ISS_INDEX(JSF+1)
-                JSSM = JSSM+1
-                jSSMask(JSSM) = JMSS
-              end do
+              jSSMask(JSSM+1:JSSM+ISS_INDEX(JSF+1)-ISS_INDEX(JSF)) = [(JMSS,JMSS=ISS_INDEX(JSF)+1,ISS_INDEX(JSF+1))]
+              JSSM = JSSM+ISS_INDEX(JSF+1)-ISS_INDEX(JSF)
               cycle JSFLoop
             end if
           end do
@@ -485,8 +475,7 @@ do iVec=1,nVec
         !***************************************************************
 
         do IPRP=1,14
-          IPROP = IPRTMOM(IPRP)
-          PROP(:,:,IPROP) = Zero
+          PROP(:,:,IPRTMOM(IPRP)) = Zero
         end do
 
         do ISS=1,ISM

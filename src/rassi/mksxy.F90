@@ -32,16 +32,9 @@ real(kind=wp), allocatable :: PROD(:), SSQ(:), SZZ(:)
 ! IN COMMON BASIS SET (TRIANGULAR), SSQ TEMPORARY STORAGE
 ! FOR EACH OF ITS SYMMETRY BLOCKS (SQUARE), AND PROD FOR
 ! INTERMEDIATE MATRIX PRODUCTS.
-NSZZ = 0
-NSSQ = 0
-NPROD = 0
-do ISY=1,nIrrep
-  NO = NOSH(ISY)
-  NB = NBASF(ISY)
-  NSZZ = NSZZ+(NB*(NB+1))/2
-  NSSQ = max(NSSQ,NB**2)
-  NPROD = max(NPROD,NO*NB)
-end do
+NSZZ = sum(NBASF(1:nIrrep)*(NBASF(1:nIrrep)+1)/2)
+NSSQ = maxval(NBASF(1:nIrrep)**2)
+NPROD = maxval(NOSH(1:nIrrep)*NBASF(1:nIrrep))
 call mma_allocate(SZZ,NSZZ,Label='SZZ')
 call mma_allocate(SSQ,NSSQ,Label='SSQ')
 call mma_allocate(PROD,NPROD,Label='PROD')

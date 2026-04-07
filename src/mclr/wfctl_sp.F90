@@ -128,7 +128,7 @@ if (lprint) write(u6,*) '       Iteration         Delta     Res(kappa) Res(CI)'
 iLen = nDensC
 iRHSDisp(iDisp) = iDis
 call Compress(Temp4,Sigma,1)
-Sigma(:) = -sqrt(OneHalf)*dble(ms2p)*Sigma(:)
+Sigma(:) = -sqrt(OneHalf)*real(ms2p,kind=wp)*Sigma(:)
 call UnCompress(Sigma,Temp4,1)
 call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 if (iMethod == 2) then

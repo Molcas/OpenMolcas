@@ -31,14 +31,15 @@
 subroutine DQVDiabat(PROP,HAM)
 
 use Cntrl, only: AlphZ, BetaE, ICOMP, NPROP, NSTATE, PNAME
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), HAM(NSTATE,NSTATE)
 integer :: I, IPROP, ISTA, JSTA, K, PNUM(7)
-real(kind=wp) :: ATerm, BTerm, Chng, CosO, CTerm, HAMT(NSTATE,NSTATE), HDIA(NSTATE,NSTATE), HDIAI(NSTATE,NSTATE), RotAngF, &
-                 RotAngO, SinO, T1, T2, ThrSch, TII, TIJ, TJJ, TROT(NSTATE,NSTATE), TROTT(NSTATE,NSTATE), TRQ(NSTATE,NSTATE)
+real(kind=wp) :: ATerm, BTerm, Chng, CosO, CTerm, RotAngF, RotAngO, SinO, ThrSch, TII, TIJ, TJJ
+real(kind=wp), allocatable :: HDIA(:,:), TI(:), TJ(:), TMP(:,:), TROT(:,:), TRQ(:,:)
 integer(kind=iwp), parameter :: itMAX = 50
 real(kind=wp), parameter :: MTE = 1.0e-8_wp, MTF = 1.0e-14_wp, THRS = 1.0e-8_wp
 
@@ -58,9 +59,7 @@ call CollapseOutput(1,'DQV Diabatization section')
 write(u6,'(3X,A)') '-------------------------'
 
 ! Find the properties we need
-do IPROP=1,7
-  PNUM(IPROP) = 0
-end do
+PNUM(:) = 0
 do IPROP=1,NPROP
   if (PNAME(IPROP) == 'MLTPL  1') then
     if (ICOMP(IPROP) == 1) PNUM(1) = IPROP
@@ -86,19 +85,19 @@ end do
 ! CEH Now we maximize f_DQV through a Jacobi sweep algorithm
 
 ! Initialize rotation matrix to unit matrix (theta=0)
+call mma_allocate(TROT,NSTATE,NSTATE,Label='TROT')
 call unitmat(TROT,NSTATE)
 
 !Now, we have to form the trace of the quadrupole
 !The user has to specify dipole then quadrupole
-do ISTA=1,NSTATE
-  do JSTA=1,NSTATE
-    TRQ(ISTA,JSTA) = PROP(ISTA,JSTA,PNUM(4))+PROP(ISTA,JSTA,PNUM(5))+PROP(ISTA,JSTA,PNUM(6))
-  end do
-end do
+call mma_allocate(TRQ,NSTATE,NSTATE,Label='TRQ')
+TRQ(:,:) = PROP(:,:,PNUM(4))+PROP(:,:,PNUM(5))+PROP(:,:,PNUM(6))
 
 call RecPrt('The TRQ matrix in DQVDiabat','',TRQ,NSTATE,NSTATE)
 write(u6,*) ''
 
+call mma_allocate(TI,NSTATE,Label='TI')
+call mma_allocate(TJ,NSTATE,Label='TJ')
 do i=1,itMAX
   THRSCH = Zero
 
@@ -155,98 +154,62 @@ do i=1,itMAX
         if (CHNG > MTE) then
 
           !Update T rotation matrix
-          do k=1,NSTATE
-            T1 = TROT(k,ISTA)
-            T2 = TROT(k,JSTA)
-            TROT(k,ISTA) = COSO*T1+SINO*T2
-            TROT(k,JSTA) = -SINO*T1+COSO*T2
-          end do
+          TI(:) = COSO*TROT(:,ISTA)+SINO*TROT(:,JSTA)
+          TJ(:) = COSO*TROT(:,JSTA)-SINO*TROT(:,ISTA)
+          TROT(:,ISTA) = TI(:)
+          TROT(:,JSTA) = TJ(:)
 
           ! Rotates transition dipole matrices
           ! These equations can be found in a book on Jacobi sweeps
 
-          TII = PROP(ISTA,ISTA,PNUM(1))
-          TJJ = PROP(JSTA,JSTA,PNUM(1))
-          TIJ = PROP(ISTA,JSTA,PNUM(1))
-          do k=1,NSTATE
-            T1 = PROP(ISTA,k,PNUM(1))
-            T2 = PROP(JSTA,k,PNUM(1))
-            PROP(ISTA,k,PNUM(1)) = COSO*T1+SINO*T2
-            PROP(k,ISTA,PNUM(1)) = PROP(ISTA,k,PNUM(1))
-            PROP(JSTA,k,PNUM(1)) = COSO*T2-SINO*T1
-            PROP(k,JSTA,PNUM(1)) = PROP(JSTA,k,PNUM(1))
+          do k=1,3
+            TII = PROP(ISTA,ISTA,PNUM(k))
+            TJJ = PROP(JSTA,JSTA,PNUM(k))
+            TIJ = PROP(ISTA,JSTA,PNUM(k))
+            TI(:) = COSO*PROP(:,ISTA,PNUM(k))+SINO*PROP(:,JSTA,PNUM(k))
+            TJ(:) = COSO*PROP(:,JSTA,PNUM(k))-SINO*PROP(:,ISTA,PNUM(k))
+            PROP(ISTA,:,PNUM(k)) = TI(:)
+            PROP(:,ISTA,PNUM(k)) = TI(:)
+            PROP(JSTA,:,PNUM(k)) = TJ(:)
+            PROP(:,JSTA,PNUM(k)) = TJ(:)
+            PROP(ISTA,JSTA,PNUM(k)) = (COSO**2-SINO**2)*TIJ+COSO*SINO*(TJJ-TII)
+            PROP(JSTA,ISTA,PNUM(k)) = PROP(ISTA,JSTA,PNUM(k))
+            PROP(ISTA,ISTA,PNUM(k)) = COSO**2*TII+SINO**2*TJJ+Two*COSO*SINO*TIJ
+            PROP(JSTA,JSTA,PNUM(k)) = SINO**2*TII+COSO**2*TJJ-Two*COSO*SINO*TIJ
           end do
-          PROP(ISTA,JSTA,PNUM(1)) = (COSO**2-SINO**2)*TIJ+COSO*SINO*(TJJ-TII)
-          PROP(JSTA,ISTA,PNUM(1)) = PROP(ISTA,JSTA,PNUM(1))
-          PROP(ISTA,ISTA,PNUM(1)) = COSO**2*TII+SINO**2*TJJ+Two*COSO*SINO*TIJ
-          PROP(JSTA,JSTA,PNUM(1)) = SINO**2*TII+COSO**2*TJJ-Two*COSO*SINO*TIJ
-
-          TII = PROP(ISTA,ISTA,PNUM(2))
-          TJJ = PROP(JSTA,JSTA,PNUM(2))
-          TIJ = PROP(ISTA,JSTA,PNUM(2))
-          do k=1,NSTATE
-            T1 = PROP(ISTA,k,PNUM(2))
-            T2 = PROP(JSTA,k,PNUM(2))
-            PROP(ISTA,k,PNUM(2)) = COSO*T1+SINO*T2
-            PROP(k,ISTA,PNUM(2)) = PROP(ISTA,k,PNUM(2))
-            PROP(JSTA,k,PNUM(2)) = COSO*T2-SINO*T1
-            PROP(k,JSTA,PNUM(2)) = PROP(JSTA,k,PNUM(2))
-          end do
-          PROP(ISTA,JSTA,PNUM(2)) = (COSO**2-SINO**2)*TIJ+COSO*SINO*(TJJ-TII)
-          PROP(JSTA,ISTA,PNUM(2)) = PROP(ISTA,JSTA,PNUM(2))
-          PROP(ISTA,ISTA,PNUM(2)) = COSO**2*TII+SINO**2*TJJ+Two*COSO*SINO*TIJ
-          PROP(JSTA,JSTA,PNUM(2)) = SINO**2*TII+COSO**2*TJJ-Two*COSO*SINO*TIJ
-
-          TII = PROP(ISTA,ISTA,PNUM(3))
-          TJJ = PROP(JSTA,JSTA,PNUM(3))
-          TIJ = PROP(ISTA,JSTA,PNUM(3))
-          do k=1,NSTATE
-            T1 = PROP(ISTA,k,PNUM(3))
-            T2 = PROP(JSTA,k,PNUM(3))
-            PROP(ISTA,k,PNUM(3)) = COSO*T1+SINO*T2
-            PROP(k,ISTA,PNUM(3)) = PROP(ISTA,k,PNUM(3))
-            PROP(JSTA,k,PNUM(3)) = COSO*T2-SINO*T1
-            PROP(k,JSTA,PNUM(3)) = PROP(JSTA,k,PNUM(3))
-          end do
-          PROP(ISTA,JSTA,PNUM(3)) = (COSO**2-SINO**2)*TIJ+COSO*SINO*(TJJ-TII)
-          PROP(JSTA,ISTA,PNUM(3)) = PROP(ISTA,JSTA,PNUM(3))
-          PROP(ISTA,ISTA,PNUM(3)) = COSO**2*TII+SINO**2*TJJ+Two*COSO*SINO*TIJ
-          PROP(JSTA,JSTA,PNUM(3)) = SINO**2*TII+COSO**2*TJJ-Two*COSO*SINO*TIJ
 
           ! Rotates trace of quadrupole matrix
 
           TII = TRQ(ISTA,ISTA)
           TJJ = TRQ(JSTA,JSTA)
           TIJ = TRQ(ISTA,JSTA)
-          do k=1,NSTATE
-            T1 = TRQ(ISTA,k)
-            T2 = TRQ(JSTA,k)
-            TRQ(ISTA,k) = COSO*T1+SINO*T2
-            TRQ(k,ISTA) = TRQ(ISTA,k)
-            TRQ(JSTA,k) = COSO*T2-SINO*T1
-            TRQ(k,JSTA) = TRQ(JSTA,k)
-          end do
+          TI(:) = COSO*TRQ(:,ISTA)+SINO*TRQ(:,JSTA)
+          TJ(:) = COSO*TRQ(:,JSTA)-SINO*TRQ(:,ISTA)
+          TRQ(ISTA,:) = TI(:)
+          TRQ(:,ISTA) = TI(:)
+          TRQ(JSTA,:) = TJ(:)
+          TRQ(:,JSTA) = TJ(:)
           TRQ(ISTA,JSTA) = (COSO**2-SINO**2)*TIJ+COSO*SINO*(TJJ-TII)
           TRQ(JSTA,ISTA) = TRQ(ISTA,JSTA)
-          TRQ(ISTA,ISTA) = COSO**2*TII+SINO**2*TJJ+2*COSO*SINO*TIJ
-          TRQ(JSTA,JSTA) = SINO**2*TII+COSO**2*TJJ-2*COSO*SINO*TIJ
+          TRQ(ISTA,ISTA) = COSO**2*TII+SINO**2*TJJ+Two*COSO*SINO*TIJ
+          TRQ(JSTA,JSTA) = SINO**2*TII+COSO**2*TJJ-Two*COSO*SINO*TIJ
 
           ! Rotates electric potential
-          TII = PROP(ISTA,ISTA,PNUM(7))
-          TJJ = PROP(JSTA,JSTA,PNUM(7))
-          TIJ = PROP(ISTA,JSTA,PNUM(7))
-          do k=1,NSTATE
-            T1 = PROP(ISTA,k,PNUM(7))
-            T2 = PROP(JSTA,k,PNUM(7))
-            PROP(ISTA,k,PNUM(7)) = COSO*T1+SINO*T2
-            PROP(k,ISTA,PNUM(7)) = PROP(ISTA,k,PNUM(7))
-            PROP(JSTA,k,PNUM(7)) = COSO*T2-SINO*T1
-            PROP(k,JSTA,PNUM(7)) = PROP(JSTA,k,PNUM(7))
-          end do
-          PROP(ISTA,JSTA,PNUM(7)) = (COSO**2-SINO**2)*TIJ+COSO*SINO*(TJJ-TII)
-          PROP(JSTA,ISTA,PNUM(7)) = PROP(ISTA,JSTA,PNUM(7))
-          PROP(ISTA,ISTA,PNUM(7)) = COSO**2*TII+SINO**2*TJJ+Two*COSO*SINO*TIJ
-          PROP(JSTA,JSTA,PNUM(7)) = SINO**2*TII+COSO**2*TJJ-Two*COSO*SINO*TIJ
+
+          k = 7
+          TII = PROP(ISTA,ISTA,PNUM(k))
+          TJJ = PROP(JSTA,JSTA,PNUM(k))
+          TIJ = PROP(ISTA,JSTA,PNUM(k))
+          TI(:) = COSO*PROP(:,ISTA,PNUM(k))+SINO*PROP(:,JSTA,PNUM(k))
+          TJ(:) = COSO*PROP(:,JSTA,PNUM(k))-SINO*PROP(:,ISTA,PNUM(k))
+          PROP(ISTA,:,PNUM(k)) = TI(:)
+          PROP(:,ISTA,PNUM(k)) = TI(:)
+          PROP(JSTA,:,PNUM(k)) = TJ(:)
+          PROP(:,JSTA,PNUM(k)) = TJ(:)
+          PROP(ISTA,JSTA,PNUM(k)) = (COSO**2-SINO**2)*TIJ+COSO*SINO*(TJJ-TII)
+          PROP(JSTA,ISTA,PNUM(k)) = PROP(ISTA,JSTA,PNUM(k))
+          PROP(ISTA,ISTA,PNUM(k)) = COSO**2*TII+SINO**2*TJJ+Two*COSO*SINO*TIJ
+          PROP(JSTA,JSTA,PNUM(k)) = SINO**2*TII+COSO**2*TJJ-Two*COSO*SINO*TIJ
 
         end if
       end if
@@ -262,27 +225,22 @@ do i=1,itMAX
 
 end do
 if (i > itMAX) write(u6,*) 'Max iterations'
+call mma_deallocate(TRQ)
+call mma_deallocate(TI)
+call mma_deallocate(TJ)
 
 call RecPrt('Diabatic Coefficients','',TROT,NSTATE,NSTATE)
 
-do ISTA=1,NSTATE
-  do JSTA=1,NSTATE
-    TROTT(JSTA,ISTA) = TROT(JSTA,ISTA)**2
-  end do
-end do
-call RecPrt('Weights of adiabatic states','',TROTT,NSTATE,NSTATE)
+call mma_allocate(TMP,NSTATE,NSTATE,Label='TMP')
+TMP(:,:) = TROT(:,:)**2
+call RecPrt('Weights of adiabatic states','',TMP,NSTATE,NSTATE)
 
-do ISTA=1,NSTATE
-  do JSTA=1,NSTATE
-    HAMT(ISTA,JSTA) = HAM(ISTA,JSTA)
-  end do
-end do
+call DGEMM_('T','N',NSTATE,NSTATE,NSTATE,One,TROT,NSTATE,HAM,NSTATE,Zero,TMP,NSTATE)
 
-TROTT = TROT
-
-call DGEMM_('T','N',NSTATE,NSTATE,NSTATE,One,TROTT,NSTATE,HAMT,NSTATE,Zero,HDIAI,NSTATE)
-
-call DGEMM_('N','N',NSTATE,NSTATE,NSTATE,One,HDIAI,NSTATE,TROTT,NSTATE,Zero,HDIA,NSTATE)
+call mma_allocate(HDIA,NSTATE,NSTATE,Label='HDIA')
+call DGEMM_('N','N',NSTATE,NSTATE,NSTATE,One,TMP,NSTATE,TROT,NSTATE,Zero,HDIA,NSTATE)
+call mma_deallocate(TMP)
+call mma_deallocate(TROT)
 
 write(u6,*) ''
 write(u6,*) 'The eigenvectors may no longer be in'
@@ -304,5 +262,7 @@ call Add_Info('DQVHam22',HDIA(2,2),1,4)
 call Add_Info('DQVHam23',HDIA(2,3),1,4)
 call Add_Info('DQVHam33',HDIA(3,3),1,4)
 ! End Molcas verify calls
+
+call mma_deallocate(HDIA)
 
 end subroutine DQVDiabat

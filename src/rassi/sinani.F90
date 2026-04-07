@@ -48,24 +48,14 @@ if (.false.) then
 end if !if (IPGLOB >= 4)
 
 call mma_allocate(DIPSOmSA,3,KDGN,KDGN,Label='DIPSOmSA')
-do l=1,3
-  do Ico1=1,KDGN
-    do Jco1=1,KDGN
-      DIPSOmSA(l,Ico1,Jco1) = cZero
-      !S_SOM(L,I,J) = cZero
-    end do
-  end do
-end do
 
 do Iso1=1,KDGN
   do Jso2=1,KDGN
     Ico1 = Iso1+IFUNCT
     Jco1 = Jso2+IFUNCT
-    do l=1,3
-      !write(u6,*) 'DIPSOm',DIPSOm(l,Ico1,Jco1)
-      DIPSOmSA(l,Iso1,Jso2) = -DIPSOm(l,Ico1,Jco1)
-      !S_SOM(l,i,j) = S_SO(l,ic1,ic2)
-    end do
+    !write(u6,*) 'DIPSOm',DIPSOm(:,Ico1,Jco1)
+    DIPSOmSA(:,Iso1,Jso2) = -DIPSOm(:,Ico1,Jco1)
+    !S_SOM(:,i,j) = S_SO(:,ic1,ic2)
   end do
 end do
 
@@ -101,40 +91,21 @@ if (.false.) then
     write(u6,'(5x,10(2f14.10,2x))') (UMATR(i,j),UMATI(i,j),j=1,NSS)
   end do
 
-  do I=1,NSS
-    do J=1,NSS
-      do L=1,3
-        SPNSO(L,I,J) = cZero
-      end do
-      Z(I,J) = cZero
-    end do
-  end do
+  SPNSO(:,:,:) = cZero
 
-  do i=1,NSS
-    do j=1,NSS
-      Z(i,j) = Z(i,j)+cmplx(UMATR(i,j),UMATI(i,j),kind=wp)
-    end do
-  end do
+  Z(:,:) = cmplx(UMATR(:,:),UMATI(:,:),kind=wp)
   call mma_deallocate(UMATR)
   call mma_deallocate(UMATI)
 
   call mma_allocate(TEMP,NSS,NSS,Label='TEMP')
   call mma_allocate(MATL,NSS,NSS,Label='MATL')
   do l=1,3
-    do i=1,NSS
-      do j=1,NSS
-        MATL(i,j) = SPNSFS(L,i,j)
-      end do
-    end do
+    MATL(:,:) = SPNSFS(L,:,:)
 
     call ZGEMM('C','N',NSS,NSS,NSS,cOne,Z,NSS,MATL,NSS,cZero,TEMP,NSS)
     call ZGEMM('N','N',NSS,NSS,NSS,cOne,TEMP,NSS,Z,NSS,cZero,MATL,NSS)
 
-    do i=1,NSS
-      do j=1,NSS
-        SPNSO(L,i,j) = MATL(i,j)
-      end do
-    end do
+    SPNSO(L,:,:) = MATL(:,:)
   end do !l
   call mma_deallocate(TEMP)
   call mma_deallocate(MATL)
@@ -159,21 +130,11 @@ if (.false.) then
   call mma_deallocate(Z)
   call mma_allocate(SPNSOSA,3,KDGN,KDGN,Label='SPNSOSA')
 
-  do l=1,3
-    do Ico1=1,KDGN
-      do Jco1=1,KDGN
-        SPNSOSA(l,Ico1,Jco1) = cZero
-      end do
-    end do
-  end do
-
   do Iso1=1,KDGN
     do Jso2=1,KDGN
       Ico1 = Iso1+IFUNCT
       Jco1 = Jso2+IFUNCT
-      do l=1,3
-        SPNSOSA(l,Iso1,Jso2) = SPNSO(l,Ico1,Jco1)
-      end do
+      SPNSOSA(:,Iso1,Jso2) = SPNSO(:,Ico1,Jco1)
     end do
   end do
 

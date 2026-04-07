@@ -56,9 +56,7 @@ if (NSTATE == 0) then
   call mma_allocate(LROOT,nState,Label='LROOT')
   LROOT(:) = 0
   do JOB=1,NJOB
-    do I=0,NSTAT(JOB)-1
-      JBNUM(ISTAT(JOB)+I) = JOB
-    end do
+    JBNUM(ISTAT(JOB):ISTAT(JOB)+NSTAT(JOB)-1) = JOB
   end do
 else
   READ_STATES = .false.

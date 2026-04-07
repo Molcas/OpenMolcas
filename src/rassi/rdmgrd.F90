@@ -94,12 +94,8 @@ end if
 ! Addressing integral blocks in ARRAY:
 ISUM = 0
 do IS=1,nIrrep
-  JS = MUL(IS,ISYMP)
   IAOFF(IS) = ISUM
-  NBI = NBASF(IS)
-  NBJ = NBASF(JS)
-  NBIJ = NBI*NBJ
-  ISUM = ISUM+NBIJ
+  ISUM = ISUM+NBASF(IS)*NBASF(MUL(IS,ISYMP))
 end do
 if (ISUM > NARRAY) then
   write(u6,*) 'RASSI/RDMGRD: Output ARRAY has insufficient length.'

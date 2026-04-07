@@ -61,10 +61,7 @@ else
   NSYM_ = NSYM
   NBAS_(:) = NBAS(:)
 end if
-NBT = 0
-do I=1,NSYM_
-  NBT = NBT+NORB(I)*NBAS_(I)
-end do
+NBT = sum(NORB(1:NSYM)*NBAS_(1:NSYM))
 call mma_allocate(REORD,NBT,Label='REORD')
 if (DODESYM) then
   ! Here do a plain desymmetrization

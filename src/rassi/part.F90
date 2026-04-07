@@ -31,10 +31,7 @@ integer(kind=iwp) :: II, ISY, N, NBLOCK, NDIMEN, NOMAX, NSIZE(4)
 integer(kind=iwp), allocatable :: ScrPiv(:)
 real(kind=wp), allocatable :: ScrBuf(:), ScrMat(:)
 
-NOMAX = 0
-do ISY=1,nIrrep
-  NOMAX = max(NOSH(ISY),NOMAX)
-end do
+NOMAX = maxval(NOSH(1:nIrrep))
 call mma_allocate(SCRMAT,NOMAX*NOMAX,Label='ScrMat')
 call mma_allocate(SCRPIV,2*NOMAX,Label='ScrPiv')
 call mma_allocate(SCRBUF,NOMAX,Label='ScrBuf')

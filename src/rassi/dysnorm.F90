@@ -18,6 +18,7 @@
 subroutine DYSNORM(CMOA,DYSCMO,NORM)
 
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: nTri_Elem
 use rassi_data, only: NBASF, NCMO, NOSH, NOSHT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -26,22 +27,15 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: CMOA(*), DYSCMO(*), NORM
 integer(kind=iwp) :: IC, iOff1, iOff2, iOpt, iRc, ist, ista, istacc(8), istao(8), istc, istca, istcb, istcc, istcmo(8), isy1, &
-                     iSyLbl, isym, nb, nb1, nbast, nbast1, nbast2, ndys, no1, nscr
+                     iSyLbl, isym, nb, nb1, nbast1, nbast2, ndys, no1, nscr
 real(kind=wp) :: NORMSCR
 character(len=8) :: Label
 real(kind=wp), allocatable :: Dysab(:), Dysab2(:), IAO(:), SAO(:), Scr(:), Scr2(:)
 real(kind=wp), external :: DDOT_
 
 !============================================================
-nbast = 0
-nbast1 = 0
-nbast2 = 0
-do isym=1,nIrrep
-  nb = NBASF(isym)
-  nbast = nbast+nb
-  nbast1 = nbast1+(nb*(nb+1))/2
-  nbast2 = nbast2+nb**2
-end do
+nbast1 = sum(nTri_Elem(NBASF(1:nIrrep)))
+nbast2 = sum(NBASF(1:nIrrep)**2)
 
 call mma_allocate(DYSAB,NOSHT)
 call DCOPY_(NOSHT,DYSCMO,1,DYSAB,1)
@@ -60,15 +54,9 @@ iOff1 = 0
 iOff2 = 0
 do iSym=1,nIrrep
   nb = nBasf(iSym)
-  if (nb > 0) then
-    call mma_allocate(Scr,nb*nb)
-    scr = Zero
-    call Square(SAO(1+iOff1),Scr,1,nb,nb)
-    call DCOPY_(nb*nb,Scr,1,IAO(iOff2+1),1)
-    call mma_deallocate(Scr)
-  end if
-  iOff1 = iOff1+(nb*nb+nb)/2
-  iOff2 = iOff2+(nb*nb)
+  if (nb > 0) call Square(SAO(1+iOff1),IAO(iOff2+1),1,nb,nb)
+  iOff1 = iOff1+(nb**2+nb)/2
+  iOff2 = iOff2+nb**2
 end do
 call mma_deallocate(SAO)
 
@@ -84,7 +72,7 @@ do ISY1=1,nIrrep
   NO1 = NOSH(ISY1)
   IST = IST+NO1*NBASF(ISY1)
   ISTA = ISTA+(NBASF(ISY1)*NBASF(ISY1))
-  ISTCC = ISTCC+NO1*NO1
+  ISTCC = ISTCC+NO1**2
 end do
 
 NSCR = NCMO
@@ -99,8 +87,6 @@ do ISY1=1,nIrrep
 
   call mma_allocate(scr,nscr)
   call mma_allocate(scr2,nscr)
-  Scr = Zero
-  Scr2 = Zero
 
   call DGEMM_('N','N',NB1,NO1,NB1,One,IAO(ISTCA),NB1,CMOA(ISTCB),NB1,Zero,Scr(ISTCB),NB1)
 
@@ -111,7 +97,6 @@ do ISY1=1,nIrrep
   ! Where Dab*M=Dysab2
 
   call mma_allocate(DYSAB2,NO1)
-  DYSAB2 = Zero
   call DGEMV_('N',NO1,NO1,One,Scr2(ISTC),NO1,DYSAB(NDYS),1,Zero,DYSAB2,1)
 
   normscr = DDOT_(NO1,DYSAB(NDYS),1,DYSAB2,1)

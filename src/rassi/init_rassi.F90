@@ -20,17 +20,17 @@ use Cntrl, only: BINA, CIH5, CITHR, DCHO, DCHS, DIPR, Do_Pol, Do_SK, DO_TMOM, Do
                  FnTOM, FORCE_NON_AO_TDM, HAVE_DIAG, HAVE_HEFF, HOP, IFACAL, IFACALFC, IFACALSD, IFArgU, IFATCALSA, IFCURD, &
                  IFDCPL, IFEJOB, IFGCAL, IFGTCALSA, IFGTSHSA, IFHAM, IFHCOM, IFHDIA, IFHEFF, IFHEXT, IFMCAL, IFNTO, IFSHFT, IFSO, &
                  IFTDM, IFTRD1, IFTRD2, IFXCAL, JBNAME, L_Eff, LHAMI, LOOPDIVIDE, LOOPMAX, LPRPR, LuEig, LuExc, LuIph, LuMck, &
-                 LuOne, LuOrd, LuTOM, MINAME, MXPROP, NATO, NBINA, NJOB, NOHAM, NOSO, NPROP, NrNATO, NSOPR, NSOThr_Prt, NSTATE, &
-                 OCAN, ONLY_OVERLAPS, OSThr_DipR, OSThr_QIPR, PNAME, PRCI, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, &
-                 PRTRA, PRWEIGHT, PRXVE, PRXVR, PRXVS, PTYPE, QIALL, QIPR, REDUCELOOP, RFPert, RSPR, RSThr, SODIAGNSTATE, &
-                 SONATNSTATE, SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDIPMIN, TDYS, TMGR_Thrs, ToFile, TOLERANCE, TRACK
+                 LuOne, LuOrd, LuTOM, MINAME, NATO, NBINA, NJOB, NOHAM, NOSO, NPROP, NrNATO, NSOPR, NSOThr_Prt, NSTATE, OCAN, &
+                 ONLY_OVERLAPS, OSThr_DipR, OSThr_QIPR, PNAME, PRCI, PRDIPVEC, PRMEE, PRMER, PRMES, PRORB, PRRAW, PRSXY, PRTRA, &
+                 PRWEIGHT, PRXVE, PRXVR, PRXVS, PTYPE, QIALL, QIPR, REDUCELOOP, RFPert, RSPR, RSThr, SODIAGNSTATE, SONATNSTATE, &
+                 SONTOSTATES, SOPRNM, SOPRTP, SOThr_Prt, TDIPMIN, TDYS, TMGR_Thrs, ToFile, TOLERANCE, TRACK
 use rassi_data, only: WFTYPE
 use hfc_logical, only: MAG_X2C
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: I, IPROP
+integer(kind=iwp) :: I
 logical(kind=iwp) :: DoCholesky, FoundTwoEls
 character(len=256) :: STRING
 
@@ -87,12 +87,10 @@ NSOTHR_PRT = 0
 SOTHR_PRT = -One
 
 ! SET LABELS TO UNDEFINED
-do IPROP=1,MXPROP
-  PNAME(IPROP) = 'UNDEF.'
-  PTYPE(IPROP) = 'UNDEF.'
-  SOPRNM(IPROP) = 'UNDEF.'
-  SOPRTP(IPROP) = 'UNDEF.'
-end do
+PNAME(:) = 'UNDEF.'
+PTYPE(:) = 'UNDEF.'
+SOPRNM(:) = 'UNDEF.'
+SOPRTP(:) = 'UNDEF.'
 
 ! DEFAULT FLAGS:
 PRSXY = .false.

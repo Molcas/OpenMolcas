@@ -35,8 +35,8 @@ integer(kind=iwp) :: NSS
 real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), ENERGY(NSTATE)
 integer(kind=iwp) :: IAMFIX, IAMFIY, IAMFIZ, IAMX, IAMY, IAMZ, IDX, IPROP, ISS, ISTATE, ITOL, JOB, JSS, JSTATE, MAGN, MPLET, &
                      MPLET1, MPLET2, MSPROJ, MSPROJ1, MSPROJ2, N
-real(kind=wp) :: AMFIX, AMFIY, AMFIZ, CG0, CGM, CGP, CGX, CGY, E, E0, E1, E2, E3, E_TMP, EI, EPSH, EPSS, ERMS, FACT, FRAC, HSOI, &
-                 HSOR, HSOTOT, OMEGA, S1, S2, SM1, SM2, SOTHR_MIN, V2SUM, X, X_THR, XJEFF
+real(kind=wp) :: AMFIX, AMFIY, AMFIZ, CG0, CGM, CGP, CGX, CGY, E0, E1, E2, E3, E_TMP, EI, EPSH, EPSS, ERMS, FACT, FRAC, HSOI, &
+                 HSOR, HSOTOT, OMEGA, S1, S2, SM1, SM2, SOTHR_MIN, X, X_THR, XJEFF
 logical(kind=iwp) :: lJ2, lOMG
 integer(kind=iwp), allocatable :: IndexE(:), MAPMS(:), MAPSP(:), MAPST(:)
 real(kind=wp), allocatable :: ESO(:), HAMSOI(:,:), HAMSOR(:,:), HTOTI(:,:), HTOTR(:,:), J2I(:,:), J2R(:,:), JXI(:), JXR(:), &
@@ -171,15 +171,7 @@ if (NSOTHR_PRT > 0) then
   ! And work with quantities larger than 1:
   X_THR = SOTHR_PRT/SOTHR_MIN
   do
-    N = 0
-    do ISS=1,NSS
-    do JSS=1,ISS
-        HSOR = HTOTR(ISS,JSS)
-        HSOI = HTOTI(ISS,JSS)
-        HSOTOT = sqrt(HSOR**2+HSOI**2)
-        if (HSOTOT*auTocm > SOTHR_PRT) N = N+1
-      end do
-    end do
+    N = count(sqrt(HTOTR(:,:)**2+HTOTI(:,:)**2)*auTocm > SOTHR_PRT)
     if (N <= NSOTHR_PRT) exit
     X_THR = X_THR*1.2_wp
     MAGN = int(log10(X_THR))
@@ -224,8 +216,7 @@ end if
 ! PAM07: Addition of scalar diagonal part was delayed until here, see above.
 do ISS=1,NSS
   ISTATE = MAPST(ISS)
-  HSOR = HTOTR(ISS,ISS)
-  HTOTR(ISS,ISS) = HSOR+ENERGY(ISTATE)
+  HTOTR(ISS,ISS) = HTOTR(ISS,ISS)+ENERGY(ISTATE)
 end do
 
 if (IPGLOB >= 3) then
@@ -263,12 +254,12 @@ if (doDMRG) then
   call mma_allocate(rwork,(3*nss-2))
   hso_tmp = 0; ccwork = 0; rwork = 0
 
-  do jss=1,nss
-    do iss=1,nss
-      hso_tmp(iss,jss) = cmplx(HTOTR(ISS,JSS),HTOTI(ISS,JSS),kind=wp)
-      !write(u6,*) ' hso_tmp(',iss,',',jss,') = ',hso_tmp(iss,jss)
-    end do
-  end do
+  hso_tmp(:,:) = cmplx(HTOTR(:,:),HTOTI(:,:),kind=wp)
+  !do jss=1,nss
+  !  do iss=1,nss
+  !    write(u6,*) ' hso_tmp(',iss,',',jss,') = ',hso_tmp(iss,jss)
+  !  end do
+  !end do
 
   lcwork = (2*nss-1); info = 0
   call zheev_('V','U',nss,hso_tmp,nss,ensor,ccwork,lcwork,rwork,info)
@@ -286,12 +277,8 @@ if (doDMRG) then
   !end do
 
   !> save eigenvectors
-  do jss=1,nss
-    do iss=1,nss
-      usor(iss,jss) = real(hso_tmp(iss,jss))
-      usoi(iss,jss) = aimag(hso_tmp(iss,jss))
-    end do
-  end do
+  usor(:,:) = real(hso_tmp(:,:))
+  usoi(:,:) = aimag(hso_tmp(:,:))
 
   !> sort eigenvalues in increasing sequence (using the same algorithm as zjac)
   call zorder(nss,nss,usor,usoi,ensor,0)
@@ -443,11 +430,7 @@ end if
 
 ! Find E0=lowest energy, to use for printing table:
 if (IPGLOB >= 1) then
-  E0 = ENSOR(1)
-  do ISS=2,NSS
-    E = ENSOR(ISS)
-    if (E < E0) E0 = E
-  end do
+  E0 = minval(ENSOR(:))
   write(u6,*)
   write(u6,*)
   write(u6,*) '  Eigenvalues of complex Hamiltonian:'
@@ -464,11 +447,7 @@ if (IPGLOB >= 1) then
     write(u6,*) 'SO State       Relative EMIN(au)   Rel lowest level(eV)    D:o, cm**(-1)'
   end if
   write(u6,*)
-  E0 = ENSOR(1)
-  do ISS=1,NSS
-    E1 = ENSOR(ISS)
-    if (E1 < E0) E0 = E1
-  end do
+  E0 = minval(ENSOR(:))
   call MMA_ALLOCATE(ESO,NSS)
   do ISS=1,NSS
     E1 = ENSOR(ISS)
@@ -514,11 +493,7 @@ EPSH = max(5.0e-10_wp,abs(ENSOR(1)+EMIN)*EPSS)
 IDX = 100
 do ISS=1,NSS
   EI = (ENSOR(ISS)+EMIN)*EPSS
-  V2SUM = Zero
-  do JSS=1,NSS
-    V2SUM = V2SUM+USOR(JSS,ISS)**2+USOI(JSS,ISS)**2
-  end do
-  ERMS = sqrt(EPSH**2+EI**2)*V2SUM
+  ERMS = sqrt(EPSH**2+EI**2)*sum(USOR(:,ISS)**2+USOI(:,ISS)**2)
   IDX = min(IDX,int(-log10(ERMS)))
 end do
 iTol = cho_x_gettol(IDX) ! reset thr iff Cholesky

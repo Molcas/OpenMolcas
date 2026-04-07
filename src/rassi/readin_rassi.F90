@@ -283,9 +283,7 @@ do
         LINENR = LINENR-1
         read(LuIn,*,iostat=istatus) NJOB,(NSTAT(I),I=1,NJOB)
         call LineCheck(istatus)
-        do IJOB=1,NJOB
-          NSTATE = NSTATE+NSTAT(IJOB)
-        end do
+        NSTATE = sum(NSTAT(1:NJOB))
         call mma_allocate(JBNUM,nState,Label='JBNUM')
         call mma_allocate(LROOT,nState,Label='LROOT')
         NSTATE = 0
@@ -293,9 +291,7 @@ do
           ISTAT(IJOB) = NSTATE+1
           read(LuIn,*,iostat=istatus) (LROOT(NSTATE+J),J=1,NSTAT(IJOB))
           call LineCheck(istatus)
-          do ISTATE=NSTATE+1,NSTATE+NSTAT(IJOB)
-            JBNUM(ISTATE) = IJOB
-          end do
+          JBNUM(NSTATE+1:NSTATE+NSTAT(IJOB)) = IJOB
           NSTATE = NSTATE+NSTAT(IJOB)
         end do
       end if

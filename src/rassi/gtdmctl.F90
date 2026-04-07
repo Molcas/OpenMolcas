@@ -395,11 +395,9 @@ end do
 ! the SGUGA space of JOB1. General RAS:
 if (WFTP1 == 'GENERAL') then
   NRSPRT = 3
-  do I=1,8
-    NRAS(I,1) = NRS1(I)
-    NRAS(I,2) = NRS2(I)
-    NRAS(I,3) = NRS3(I)
-  end do
+  NRAS(:,1) = NRS1(:)
+  NRAS(:,2) = NRS2(:)
+  NRAS(:,3) = NRS3(:)
   NRASEL(1) = 2*NRS1T-NHOL11
   NRASEL(2) = NACTE1-NELE31
   NRASEL(3) = NACTE1
@@ -433,9 +431,9 @@ call mma_allocate(CI1,NCONF1,Label='CI1')
 NPART = 3
 NGAS = NPART
 do ISYM=1,nIrrep
-  NGASORB(ISYM) = NRS1(ISYM)
-  NGASORB(ISYM+nIrrep) = NRS2(ISYM)
-  NGASORB(ISYM+2*nIrrep) = NRS3(ISYM)
+  NGASORB(1:nIrrep) = NRS1(1:nIrrep)
+  NGASORB(nIrrep+1:2*nIrrep) = NRS2(1:nIrrep)
+  NGASORB(2*nIrrep+1:3*nIrrep) = NRS3(1:nIrrep)
 end do
 
 !PAM2008: The old MAXOP was far too generous:
@@ -521,11 +519,9 @@ end if
 ! the SGUGA space of JOB1. General RAS:
 if (WFTP2 == 'GENERAL') then
   NRSPRT = 3
-  do I=1,8
-    NRAS(I,1) = NRS1(I)
-    NRAS(I,2) = NRS2(I)
-    NRAS(I,3) = NRS3(I)
-  end do
+  NRAS(:,1) = NRS1(:)
+  NRAS(:,2) = NRS2(:)
+  NRAS(:,3) = NRS3(:)
   NRASEL(1) = 2*NRS1T-NHOL12
   NRASEL(2) = NACTE2-NELE32
   NRASEL(3) = NACTE2
@@ -553,9 +549,9 @@ if (DoGSOR) call mma_allocate(CI2_o,NCONF2,Label='CI2_o')
 NPART = 3
 NGAS = NPART
 do ISYM=1,nIrrep
-  NGASORB(ISYM) = NRS1(ISYM)
-  NGASORB(ISYM+nIrrep) = NRS2(ISYM)
-  NGASORB(ISYM+2*nIrrep) = NRS3(ISYM)
+  NGASORB(1:nIrrep) = NRS1(1:nIrrep)
+  NGASORB(nIrrep+1:2*nIrrep) = NRS2(1:nIrrep)
+  NGASORB(2*nIrrep+1:3*nIrrep) = NRS3(1:nIrrep)
 end do
 !PAM2008: The old MAXOP was far too generous:
 !MAXOP = NASHT
@@ -747,7 +743,6 @@ job2_loop: do JST=1,NSTAT(JOB2)
 
     if (doGSOR) then
       if (JOB1 /= JOB2) then
-        Dot_prod = 0
         Dot_prod = DDOT_(NCONF2,CI1,1,CI2,1)
         call DAXPY_(NCONF2,Dot_prod,CI2_o,1,THETA1,1)
       end if
@@ -849,11 +844,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
                   JSTATE,job1,job2,ist,jst,OrbTab)
       ! Calculate Natural Transition Orbital (NTO):
       if (IFNTO) then
-        if (job1 /= job2) then
-          DoNTO = .true.
-        else
-          DoNTO = .false.
-        end if
+        DoNTO = job1 /= job2
         if (DoNTO) then
           call NTOCalc(job1,job2,ISTATE,JSTATE,TRAD,TRASD,MPLET1)
           write(u6,*) 'ntocalculation finished'
@@ -1043,14 +1034,12 @@ end if
 
 if (DoGSOR) then
   if (job1 /= job2) then
-    Norm_Fac = Zero
     dot_prod = DDOT_(NCONF2,THETA1,1,THETA1,1)
     Norm_Fac = One/sqrt(dot_prod)
     call DSCAL_(NCONF2,Norm_Fac,THETA1,1)
 
     !Write theta1 to file.
-    LUCITH = 87
-    LUCITH = IsFreeUnit(LUCITH)
+    LUCITH = IsFreeUnit(87)
     !Open(unit=87,file='CI_THETA', action='write',iostat=ios)
     call Molcas_Open(LUCITH,'CI_THETA')
     do i=1,NCONF2
@@ -1083,7 +1072,6 @@ if (DoGSOR) then
       end if
       call mma_allocate(ThetaM,NCONF2,Label='ThetaM')
       do IST=2,JST-1
-        ThetaM(:) = Zero
         ! Read in previous theta vectors
         do i=1,NCONF2
           read(LUCITH,*) ThetaM(i)
@@ -1124,7 +1112,6 @@ if (DoGSOR) then
     call IDAFILE(LUIPHn,2,ITOC15,30,IAD)
     IAD = ITOC15(4)
     do i=1,ISTAT(JOB1)-1
-      ThetaM(:) = Zero
       do j=1,nCONF2
         read(LUCITH,*) ThetaM(i)
       end do
@@ -1132,7 +1119,6 @@ if (DoGSOR) then
     end do
 
     IAD = ITOC15(4)
-    ThetaM(:) = Zero
     call DDAFILE(LUIPHn,2,ThetaM,nCONF2,IAD)
     call DDAFILE(LUIPHn,2,ThetaM,nCONF2,IAD)
 

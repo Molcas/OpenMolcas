@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: NSS, MAPST(NSS), MAPSP(NSS), MAPMS(NSS)
 real(kind=wp) :: FRAC, SOENE(NSS), UMATR(NSS,NSS), UMATI(NSS,NSS)
-integer(kind=iwp) :: I, IMAXSTATE, ISFS, ISS, ISTATE, JEND, JSS, JSTA, nmax(5), NW
+integer(kind=iwp) :: I, IMAXSTATE, ISS, ISTATE, JEND, JSS, JSTA, nmax(5), NW
 real(kind=wp) :: CFFLIM, S, smax(5), SSMAX, SZ, TST, WGTMAX, wmax(5), XMAX
 real(kind=wp), allocatable :: sstate(:), weight(:)
 
@@ -41,12 +41,7 @@ if (IPGLOB >= 3) then
     write(u6,'(1X,A16,F16.8,3(2X,F16.8))') '    Energy (au) ',(SOENE(JSS),JSS=JSTA,JEND)
     write(u6,'(1X,A16,6X,I4,3(14X,I4))') ' SFS  S     Ms  ',(JSS,JSS=JSTA,JEND)
     ! Scan coefficients to pick out the largest:
-    WGTMAX = Zero
-    do ISS=1,NSS
-      do JSS=JSTA,JEND
-        WGTMAX = max(WGTMAX,UMATR(ISS,JSS)**2+UMATI(ISS,JSS)**2)
-      end do
-    end do
+    WGTMAX = maxval(UMATR(:,JSTA:JEND)**2+UMATI(:,JSTA:JEND)**2)
 
     ! Scan coefficients, write if large enough:
     CFFLIM = FRAC*sqrt(WGTMAX)
@@ -54,10 +49,7 @@ if (IPGLOB >= 3) then
       ISTATE = MAPST(ISS)
       S = Half*real(MAPSP(ISS)-1,kind=wp)
       SZ = Half*real(MAPMS(ISS),kind=wp)
-      TST = Zero
-      do JSS=JSTA,JEND
-        TST = max(TST,UMATR(ISS,JSS)**2+UMATI(ISS,JSS)**2)
-      end do
+      TST = maxval(UMATR(ISS,JSTA:JEND)**2+UMATI(ISS,JSTA:JEND)**2)
       if (TST >= CFFLIM**2) &
         write(u6,'(I4,1X,F4.1,1X,F5.1,3X,4(A1,F7.4,A1,F7.4,A1,1x))') ISTATE,S,SZ, &
                                                                      ('(',UMATR(ISS,JSS),',',UMATI(ISS,JSS),')',JSS=JSTA,JEND)
@@ -74,9 +66,7 @@ else if (IPGLOB >= 2) then
   write(u6,*) 'SO State  Total energy (au)           Spin-free states, spin, and weights'
   write(u6,*) '-------------------------------------------------------------------------------------------------------'
   do iss=1,nss
-    do isfs=1,nstate
-      weight(isfs) = Zero
-    end do
+    weight(1:nstate) = Zero
     do jss=1,nss
       istate = mapst(jss)
       sstate(istate) = Half*real(mapsp(jss)-1,kind=wp)

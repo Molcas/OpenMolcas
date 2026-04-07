@@ -14,37 +14,30 @@
 
 subroutine MKCXAL(NDIMEN,TRAL,CXAL)
 
-use Constants, only: Zero, One
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NDIMEN
 real(kind=wp), intent(in) :: TRAL(NDIMEN,NDIMEN)
 real(kind=wp), intent(out) :: CXAL(NDIMEN,NDIMEN)
-integer(kind=iwp) :: I, J, K
+integer(kind=iwp) :: I, K
 real(kind=wp) :: SUMMA
 
-do I=1,NDIMEN
-  do J=I,NDIMEN
-    CXAL(I,J) = Zero
-  end do
-  CXAL(I,I) = One
-end do
+call unitmat(CXAL,NDIMEN)
 do K=1,NDIMEN
   do I=1,K-1
-    SUMMA = Zero
-    do J=1,K-1
-      SUMMA = SUMMA+CXAL(I,J)*TRAL(J,K)
-    end do
-    CXAL(I,K) = -(SUMMA/TRAL(K,K))
+    SUMMA = sum(CXAL(I,1:K-1)*TRAL(1:K-1,K))
+    CXAL(I,K) = -SUMMA/TRAL(K,K)
   end do
   do I=K,NDIMEN
-    SUMMA = TRAL(I,K)
-    if (I == K) SUMMA = -One
-    do J=1,K-1
-      SUMMA = SUMMA+CXAL(I,J)*TRAL(J,K)
-    end do
-    CXAL(I,K) = -(SUMMA/TRAL(K,K))
+    if (I == K) then
+      SUMMA = -One
+    else
+      SUMMA = TRAL(I,K)
+    end if
+    SUMMA = SUMMA+sum(CXAL(I,1:K-1)*TRAL(1:K-1,K))
+    CXAL(I,K) = -SUMMA/TRAL(K,K)
   end do
 end do
 

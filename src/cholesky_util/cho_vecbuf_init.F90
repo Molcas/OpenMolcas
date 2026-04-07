@@ -48,7 +48,7 @@ write(Lupri,*) '>>>>> Enter ',SecNam,' <<<<<'
 write(Lupri,*) 'Memory fraction requested for buffer: ',Frac
 call Cho_Word2Byte(l_Max,8,xMF,Unt)
 write(Lupri,*) 'Memory available: ',l_Max,' = ',xMF,Unt
-MF = int(Frac*dble(l_Max))
+MF = int(Frac*real(l_Max,kind=wp))
 call Cho_Word2Byte(MF,8,xMF,Unt)
 write(Lupri,*) 'Memory fraction : ',MF,' = ',xMF,Unt
 call XFlush(Lupri)

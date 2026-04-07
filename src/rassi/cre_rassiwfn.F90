@@ -60,11 +60,6 @@ call one2h5_crtmom(wfn_fileid,nIrrep,nbasf)
 ! general wavefunction attributes
 call mh5_init_attr(wfn_fileid,'NSTATE',NSTATE)
 
-NSS = 0
-do ISTATE=1,NSTATE
-  NSS = NSS+MLTPLT(JBNUM(ISTATE))
-end do
-
 ! irrep per state
 call mma_allocate(state_irreps,NSTATE)
 do istate=1,nstate
@@ -79,6 +74,8 @@ do istate=1,nstate
   state_mult(istate) = MLTPLT(JBNUM(ISTATE))
 end do
 call mh5_init_attr(wfn_fileid,'STATE_SPINMULT',1,[NSTATE],state_mult)
+
+NSS = sum(state_mult(:))
 call mma_deallocate(state_mult)
 
 ! root labels from JOBIPHs

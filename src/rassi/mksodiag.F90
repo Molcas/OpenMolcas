@@ -22,7 +22,7 @@ implicit none
 integer(kind=iwp) :: NSS
 real(kind=wp) :: UMATR(NSS,NSS), UMATI(NSS,NSS)
 
-integer(kind=iwp) :: I, I2, IC, IDIR, IJ, INFO, IOPT, ISTATE, J, J2, JSTATE, K, L, LCWORK, LUMAXES, N
+integer(kind=iwp) :: I, I2, IC, IDIR, IJ, INFO, IOPT, ISTATE, J, J2, JSTATE, L, LCWORK, LUMAXES, N
 real(kind=wp) :: AXI, AXR, AYI, AYR, AZI, AZR, GE, GTENS(3), IDENTMAT(3,3), MAXES(3,3), MAXES2(3,3), MU_BOHR, SXI, SXR, SYI, SYR, &
                  SZI, SZR
 character(len=11) :: FILEBASE, FILEBASEL
@@ -136,10 +136,7 @@ call ATENS_RASSI(PROP,N,GTENS,MAXES,IPGLOB)
 do l=1,3
   do i=1,N
     do j=1,N
-      PROP2(l,i,j) = cZero
-      do k=1,3
-        PROP2(l,i,j) = PROP2(l,i,j)+PROP(k,i,j)*maxes(k,l)
-      end do
+      PROP2(l,i,j) = sum(PROP(:,i,j)*maxes(:,l))
     end do
   end do
 end do
@@ -151,20 +148,11 @@ call atens_RASSI(PROP2,N,GTENS,MAXES2,2)
 do IDIR=1,3
 
   ! apply the magnetic field along the main iDir axis
-  do I=1,N
-    DEIGVAL(I) = Zero
+  DEIGVAL(:) = Zero
 
-    do J=1,N
-      H_ZEE(I,J) = cZero
-      DEIGVEC(I,J) = cZero
-    end do
-  end do
+  DEIGVEC(:,:) = cZero
 
-  do I=1,N
-    do J=1,N
-      H_ZEE(I,J) = H_ZEE(I,J)-MU_BOHR*PROP2(IDIR,I,J)
-    end do
-  end do
+  H_ZEE(:,:) = -MU_BOHR*PROP2(IDIR,:,:)
 
   if (IPGLOB >= 4) then
     write(u6,*) 'BP: H_ZEE:'
@@ -239,11 +227,7 @@ do IDIR=1,3
 
   ! CALL SPIN_PHASE FROM THE OTHER CODE
   !      SUBROUTINE SPIN_PHASE(IPGLOB,DIPSO2,GMAIN,DIM,ZIN,ZOUT)
-  do i=1,N
-    do j=1,N
-      ZOUT(i,j) = cZero
-    end do
-  end do
+  ZOUT(:,:) = cZero
 
   call SPIN_PHASE_RASSI(2,PROP2,GTENS,N,DEIGVEC,ZOUT)
 

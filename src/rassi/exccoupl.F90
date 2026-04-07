@@ -21,12 +21,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: a, b, dimn, I, iAddr, iState, jState, kState, lState, LuT, LuT1, LuT2, LuT_, LuTX1, LuTX2, LuTX4, LWK1, LWK2, &
-                     lWKX, N, nAtoms, nijkl, nstat1, nstat2, run
+                     lWKX, nAtoms, nijkl, nstat1, nstat2, run
 real(kind=wp) :: AB_Nuc, Discrim, EANucB, EBNucA, EECoupl, exCoupl, rlWKX(1), Vnn_AB
 logical(kind=iwp) :: states1, states2, WK_C_exists, WK_X_exists
 character(len=13) :: filnam1, filnam2, filnam3, filnam4, filnam5, filnam6, filnam9
 character(len=1) :: labi, labj
-real(kind=wp), allocatable :: Charge(:), Frenkeltri(:), Frenkelunknwn(:), rBvA(:), WK1(:), WKX1(:), WKX2(:)
+real(kind=wp), allocatable :: Charge(:), Frenkelunknwn(:), rBvA(:), WK1(:), WKX1(:), WKX2(:)
 integer(kind=iwp), external :: isFreeUnit
 real(kind=wp), external :: DDot_
 
@@ -91,9 +91,9 @@ if (EXCL) then
 else
   dimn = 1+(nstat1-1)+(nstat2-1)
 end if
-! allocate array with more entries then needed first
+! allocate array with more entries than needed first
 call mma_allocate(Frenkelunknwn,dimn*(dimn+1)/2)
-Frenkelunknwn(:) = zero
+Frenkelunknwn(:) = Zero
 
 if (DoExch) then
   LuTX4 = isFreeUnit(LuT_)
@@ -259,16 +259,8 @@ discrim = 1+4*2*nijkl
 dimn = int((-1+sqrt(discrim))/2,kind=iwp)
 write(u6,'(A,I3.3,A,I3.3)') 'determined Hamiltonian dimensions:',dimn,'x',dimn
 
-call mma_allocate(Frenkeltri,dimn*(dimn+1)/2,label='frenkeltri')
-Frenkeltri(:) = zero
-n = dimn*(dimn+1)/2
-do i=1,n
-  Frenkeltri(i) = Frenkelunknwn(i)
-end do
+call frenkelexc(Frenkelunknwn,dimn,nstat1,nstat2)
 
-call frenkelexc(Frenkeltri,dimn,nstat1,nstat2)
-
-call mma_deallocate(Frenkeltri)
 call mma_deallocate(Frenkelunknwn)
 call mma_deallocate(rBvA)
 if (excl) then

@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: Energy(nState)
-integer(kind=iwp) :: I, iRlxRoot, JOB1, JOB2, MPLET1, MPLET2, NACTE1, NACTE2, NELE31, NELE32, NHOL11, NHOL12
+integer(kind=iwp) :: iRlxRoot, JOB1, JOB2, MPLET1, MPLET2, NACTE1, NACTE2, NELE31, NELE32, NHOL11, NHOL12
 real(kind=wp) :: EDIFF
 logical(kind=iwp) :: LOWROOT, UPROOT
 type(SGStruct), target :: SGS(2)
@@ -84,11 +84,9 @@ SGS(2)%IFRAS = 1
 
 if (WFTYP1 == 'GENERAL') then
   NRSPRT = 3
-  do I=1,8
-    NRAS(I,1) = NRS1(I)
-    NRAS(I,2) = NRS2(I)
-    NRAS(I,3) = NRS3(I)
-  end do
+  NRAS(:,1) = NRS1(:)
+  NRAS(:,2) = NRS2(:)
+  NRAS(:,3) = NRS3(:)
   NRASEL(1) = 2*NRS1T-NHOL11
   NRASEL(2) = NACTE1-NELE31
   NRASEL(3) = NACTE1
@@ -152,11 +150,9 @@ if (LOWROOT) then
   ! For the second wave function
   if (WFTYP2 == 'GENERAL') then
     NRSPRT = 3
-    do I=1,8
-      NRAS(I,1) = NRS1(I)
-      NRAS(I,2) = NRS2(I)
-      NRAS(I,3) = NRS3(I)
-    end do
+    NRAS(:,1) = NRS1(:)
+    NRAS(:,2) = NRS2(:)
+    NRAS(:,3) = NRS3(:)
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2
@@ -221,11 +217,9 @@ if (UPROOT) then
   ! For the second wave function
   if (WFTYP2 == 'GENERAL') then
     NRSPRT = 3
-    do I=1,8
-      NRAS(I,1) = NRS1(I)
-      NRAS(I,2) = NRS2(I)
-      NRAS(I,3) = NRS3(I)
-    end do
+    NRAS(:,1) = NRS1(:)
+    NRAS(:,2) = NRS2(:)
+    NRAS(:,3) = NRS3(:)
     NRASEL(1) = 2*NRS1T-NHOL12
     NRASEL(2) = NACTE2-NELE32
     NRASEL(3) = NACTE2

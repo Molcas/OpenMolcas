@@ -42,8 +42,7 @@ real(kind=wp), allocatable :: Tmp(:)
 nTot = 0
 iBlock(0) = 0
 do iSym1=1,nIrrep
-  iSym2 = Mul(Symmetry,iSym1)
-  nTot = nTot+nBasF(iSym1)*nBasF(iSym2)
+  nTot = nTot+nBasF(iSym1)*nBasF(Mul(Symmetry,iSym1))
   iBlock(iSym1) = nTot
 end do
 ! Make a copy so we can transpose in place

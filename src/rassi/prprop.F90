@@ -34,20 +34,20 @@ integer(kind=iwp) :: NSS, JBNUM(NSTATE)
 real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), OVLP(NSTATE,NSTATE), ENERGY(NSTATE), &
                  EigVec(NSTATE,NSTATE)
 integer(kind=iwp) :: I, I2Tot, I_Have_DL, I_Have_DV, i_print, I_Print_Header, iAMFIx, iAMFIy, iAMFIz, iAMx, iAMy, iAMz, IBStep, &
-                     IC, ICMP, IEND, iERR, IfAnyD, IfAnyM, IfAnyO, IfAnyQ, IfAnyS, iFinal, IFUNCT, ijXYZ, iMLTPL, IPAM(3), &
-                     IPAMFI(3), iPhi, iPhiStep, iPrDXY, iPrDXZ, iPrDYZ, iProp, ISO, iSOPr, ISS, ISTA, iStart, iState, IT, ITHE, &
-                     ITStep, iVec, iXYZ, J, JC, JEND, JSO, JSS, JSTART, jState, jXYZ, K, KDGN, kXYZ, LMStep, MPLET, MPLET1, &
-                     MPLET2, nCol, nMiss, NORIENT, nPhiStep, nTheStep, nVec, SECORD(4)
+                     IC, ICMP, IEND, iERR, IfAnyD, IfAnyM, IfAnyO, IfAnyQ, IfAnyS, iFinal, IFUNCT, iMLTPL, IPAM(3), IPAMFI(3), &
+                     iPhi, iPhiStep, iPrDXY, iPrDXZ, iPrDYZ, iProp, ISO, iSOPr, ISS, ISTA, iStart, iState, IT, ITHE, ITStep, iVec, &
+                     iXYZ, J, JC, JEND, JSS, JSTART, jState, jXYZ, K, KDGN, LMStep, MPLET, MPLET1, MPLET2, nCol, nMiss, NORIENT, &
+                     nPhiStep, nTheStep, nVec, SECORD(4)
 real(kind=wp) :: A, AFactor, AX, AY, AZ, B, BFinal, bPhiRes, Bx, By, Bz, c_1(3,3), c_2(3,3), Chi(3), COMPARE, CONTRIB, curit(3,3), &
-                 D_MXI, D_MXR, D_MYI, D_MYR, D_MZI, D_MZR, D_XI, D_XR, D_YI, D_YR, D_ZI, D_ZR, DELTA, DIPSOM_SA, DLT, DLT_E, DLTT, &
+                 D_MXI, D_MXR, D_MYI, D_MYR, D_MZI, D_MZR, D_XI, D_XR, D_YI, D_YR, D_ZI, D_ZR, DELTA, DIPSOM_SA, DLT_E, DLTT, &
                  DTENS(3,3), DTIJ, DX2, DXX2, DXXDYY, DXXDZZ, DXXXDX, DXXYDY, DXXZDZ, DXY2, DXYDZ, DXZ2, DXZDY, DY2, DysThr, &
                  DYXDZ, DYY2, DYYDZZ, DYYXDX, DYYYDY, DYYZDZ, DYZ2, DYZDX, DZ2, DZXDY, DZYDX, DZZ2, DZZXDX, DZZYDY, DZZZDZ, EDiff, &
                  EDIFF2, EDIFF3, EEX, EEY, EEZ, EVI(3), EVR(3), F, Fact, FACT0, FACTM, Factor, FACTP, FX, FXX, FXXFYY, FXXFZZ, &
                  FXXX, FXXY, FXXZ, FXY, FXZ, FY, FYX, FYY, FYYFZZ, FYYX, FYYY, FYYZ, FYZ, FZ, FZX, FZY, FZZ, FZZX, FZZY, FZZZ, G, &
-                 GSEnergy, GSTENS(3,3), GTENS(3,3), GTij, GTOTAL(9), HZer, OSthr, OSThr2, p_Boltz, paramt(3,3), Phi, PLIMIT, PMAX, &
-                 Q_XXI, Q_XXR, Q_XYI, Q_XYR, Q_XZI, Q_XZR, Q_YYI, Q_YYR, Q_YZI, Q_YZR, Q_ZZI, Q_ZZR, R, RKT, RMAGM(3), rMagm2, &
-                 rMagMO, RPart, Rtensor(6), RXX, RXXY, RXXZ, RXY, RXYX, RXYY, RXYZ, RXZ, RXZX, RXZY, RXZZ, RYX, RYY, RYYX, RYYZ, &
-                 RYZ, RYZX, RYZY, RYZZ, RZX, RZY, RZZ, RZZX, RZZY, S, S1, S2, SOSTERM(9), T, TFinal, THE, ThreEJ, TMPm(NTS), &
+                 GSEnergy, GSTENS(3,3), GTENS(3,3), GTij, GTOTAL(3,3), OSthr, OSThr2, p_Boltz, paramt(3,3), Phi, PLIMIT, PMAX, &
+                 Q_XXI, Q_XXR, Q_XYI, Q_XYR, Q_XZI, Q_XZR, Q_YYI, Q_YYR, Q_YZI, Q_YZR, Q_ZZI, Q_ZZR, R, RKT, RMAGM(3), rMagMO, &
+                 RPart, Rtensor(6), RXX, RXXY, RXXZ, RXY, RXYX, RXYY, RXYZ, RXZ, RXZX, RXZY, RXZZ, RYX, RYY, RYYX, RYYZ, RYZ, &
+                 RYZX, RYZY, RYZZ, RZX, RZY, RZZ, RZZX, RZZY, S, S1, S2, SOSTERM(3,3), T, TFinal, THE, ThreEJ, TMPm(NTS), &
                  TMPMAT(3,3), TMPVEC(3,3), Zstat
 complex(kind=wp) :: T0(3), TM1
 logical(kind=iwp) :: IFAMFI, IFANGM, IFDIP1
@@ -67,15 +67,15 @@ real(kind=wp), allocatable :: AMFIINT(:,:,:), ANGMOME(:,:,:), chicuriT_tens(:,:,
 #ifdef _HDF5_
 real(kind=wp), allocatable :: TMP(:,:,:)
 #endif
-complex(kind=wp), allocatable :: DIPSOm(:,:,:), DIPSOn(:,:,:), GCONT(:,:), SPNSFS(:,:,:), Z(:,:), ZEKL(:,:,:,:)
+complex(kind=wp), allocatable :: DIPSOm(:,:,:), DIPSOn(:,:,:), GCONT(:,:,:), SPNSFS(:,:,:), Z(:,:), ZEKL(:,:,:,:)
 logical(kind=iwp), allocatable :: ISGS(:)
 character, parameter :: xyzchr(3) = ['x','y','z']
 real(kind=wp), parameter :: AU2J = auTokJ*1.0e3_wp, AU2JTM = (AU2J/auToT)*rNAVO, AU2REDR = 200.0_wp*Debye, &
                             BOLTZ = kBoltzmann/AU2J, BOLTZ_K = kBoltzmann*auTocm/AU2J, &
-                            coeff_chi = 0.1_wp*rNAVO/kBoltzmann*mBohr**2, FEGVAL = -gElectron, J2CM = auTocm/AU2J, &
-                            ONEOVER10C = One/(Ten*c_in_au**2), ONEOVER30C = ONEOVER10C/Three, ONEOVER6C2 = One/(Six*c_in_au**2), &
-                            ONEOVER9C2 = One/(Nine*c_in_au**2), Rmu0 = 4.0e-7_wp*Pi, THRSH = 1.0e-10_wp, Two3rds = Two/Three, &
-                            TWOOVERM45C = -Two/(45.0_wp*c_in_au**2)
+                            coeff_chi = 0.1_wp*rNAVO/kBoltzmann*mBohr**2, DLT = 1.0e-18_wp, FEGVAL = -gElectron, &
+                            J2CM = auTocm/AU2J, ONEOVER10C = One/(Ten*c_in_au**2), ONEOVER30C = ONEOVER10C/Three, &
+                            ONEOVER6C2 = One/(Six*c_in_au**2), ONEOVER9C2 = One/(Nine*c_in_au**2), Rmu0 = 4.0e-7_wp*Pi, &
+                            THRSH = 1.0e-10_wp, Two3rds = Two/Three, TWOOVERM45C = -Two/(45.0_wp*c_in_au**2)
 
 ! D[XYZ][RI]           Dipole
 ! MD[XYZ][RI]          Magnetic-Dipole
@@ -201,29 +201,17 @@ if (IPGLOB > 0) then
   do IPROP=1,NPROP
     if (PNAME(IPROP)(1:6) == 'ANGMOM') then
       IFANGM = .true.
-      do I=1,NSTATE
-        do J=1,NSTATE
-          ANGMOME(ICOMP(IPROP),I,J) = PROP(I,J,IPROP)
-        end do
-      end do
+      ANGMOME(ICOMP(IPROP),:,:) = PROP(:,:,IPROP)
     end if
     ! add dipole moment integrals:
     if ((PNAME(IPROP) == 'MLTPL  1') .and. (PTYPE(IPROP) == 'HERMSING')) then
       IFDIP1 = .true.
-      do I=1,NSTATE
-        do J=1,NSTATE
-          EDIP1MOM(ICOMP(IPROP),I,J) = PROP(I,J,IPROP)
-        end do
-      end do
+      EDIP1MOM(ICOMP(IPROP),:,:) = PROP(:,:,IPROP)
     end if
     ! add spin-orbit AMFI integrals:
     if (PNAME(IPROP)(1:8) == 'AMFI    ') then
       IFAMFI = .true.
-      do I=1,NSTATE
-        do J=1,NSTATE
-          AMFIINT(ICOMP(IPROP),I,J) = PROP(I,J,IPROP)
-        end do
-      end do
+      AMFIINT(ICOMP(IPROP),:,:) = PROP(:,:,IPROP)
     end if
   end do
   if (IFANGM) call Put_dArray('ANGM_SINGLE',ANGMOME,3*NSTATE*NSTATE)
@@ -702,7 +690,6 @@ if (IFSO) then
           EDIFF = ENSOR(J)-ENSOR(I)
           if (EDIFF < Zero) cycle
           COMPARE = Zero
-          dlt = 1.0e-18_wp ! Add small value to avoid zero divide.
           if ((DL(J,I) >= OSTHR+dlt) .and. (DV(J,I) >= OSTHR+dlt)) then
             COMPARE = abs(1-DL(J,I)/DV(J,I))
           else if ((DL(J,I) >= OSTHR+dlt) .and. (DL(J,I) > Zero)) then
@@ -1553,11 +1540,7 @@ if (.false.) then
   IPAMFI(2) = IAMFIY
   IPAMFI(3) = IAMFIZ
   ! initialisations
-  do IXYZ=1,3
-    do JXYZ=1,3
-      DTENS(IXYZ,JXYZ) = Zero
-    end do
-  end do
+  DTENS(:,:) = Zero
 
   ! loop over all excited states, different factors will arise depending
   ! on the difference in spin between ground and excited states.
@@ -1601,15 +1584,9 @@ if (.false.) then
 
   if (IXYZ > 3) then
     ! diagonalisation of the D-tensor matrix
-    do I=1,3
-      EVR(I) = Zero
-      EVI(I) = Zero
-    end do
-    do IXYZ=1,3
-      do JXYZ=1,3
-        TMPMAT(IXYZ,JXYZ) = DTENS(IXYZ,JXYZ)
-      end do
-    end do
+    EVR(:) = Zero
+    EVI(:) = Zero
+    TMPMAT(:,:) = DTENS(:,:)
     call unitmat(TMPVEC,3)
     call XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
@@ -1677,11 +1654,7 @@ else if (IFGCAL) then
   ISTATE = 1
   do while (((ENERGY(min(ISTATE,NSTATE))-ENERGY(1)) <= EPRTHR) .and. (ISTATE <= NSTATE))
 
-    do IXYZ=1,3
-      do JXYZ=1,3
-        GTENS(IXYZ,JXYZ) = Zero
-      end do
-    end do
+    GTENS(:,:) = Zero
 
     MPLET = MLTPLT(JBNUM(ISTATE))
     S = Half*real(MPLET-1,kind=wp)
@@ -1709,12 +1682,10 @@ else if (IFGCAL) then
             end if
             do IXYZ=1,3
               do JXYZ=1,3
-                CONTRIB = PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*PROP(ISTATE,JSTATE,IPAM(JXYZ))
-                CONTRIB = CONTRIB/DELTA
-                SOSTERM(3*(IXYZ-1)+JXYZ) = -Two*FACTOR*CONTRIB
+                SOSTERM(JXYZ,IXYZ) = -Two*FACTOR*PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*PROP(ISTATE,JSTATE,IPAM(JXYZ))/DELTA
               end do
             end do
-            write(u6,'(1x,i3,2x,i3,3x,9(f8.3,1x))') ISTATE,JSTATE,(SOSTERM(I)*1.0e3_wp,I=1,9)
+            write(u6,'(1x,i3,2x,i3,3x,9(f8.3,1x))') ISTATE,JSTATE,SOSTERM(:,:)*1.0e3_wp
           end if
         end do
       end if
@@ -1736,9 +1707,7 @@ else if (IFGCAL) then
                 write(u6,*)
                 exit loop2
               end if
-              CONTRIB = PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*PROP(ISTATE,JSTATE,IPAM(JXYZ))
-              CONTRIB = CONTRIB/DELTA
-              GTIJ = GTIJ+CONTRIB
+              GTIJ = GTIJ+PROP(ISTATE,JSTATE,IPAMFI(IXYZ))*PROP(ISTATE,JSTATE,IPAM(JXYZ))/DELTA
             end if
           end do
           GTENS(IXYZ,JXYZ) = -Two*FACTOR*GTIJ
@@ -1757,24 +1726,15 @@ else if (IFGCAL) then
         ! experimentally, and store as GSTENS
         do IXYZ=1,3
           do JXYZ=1,3
-            GSTENS(IXYZ,JXYZ) = Zero
-            do KXYZ=1,3
-              GSTENS(IXYZ,JXYZ) = GSTENS(IXYZ,JXYZ)+GTENS(IXYZ,KXYZ)*GTENS(JXYZ,KXYZ)
-            end do
+            GSTENS(IXYZ,JXYZ) = sum(GTENS(IXYZ,:)*GTENS(JXYZ,:))
           end do
         end do
 
         ! determine the eigenvalues of the g matrix
-        do I=1,3
-          EVR(I) = Zero
-          EVI(I) = Zero
-        end do
+        EVR(:) = Zero
+        EVI(:) = Zero
         ! XEIGEN alters the input matrix! copy GTENS to TMPMAT
-        do IXYZ=1,3
-          do JXYZ=1,3
-            TMPMAT(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)
-          end do
-        end do
+        TMPMAT(:,:) = GTENS(:,:)
         call unitmat(TMPVEC,3)
 
         IERR = 0
@@ -1799,15 +1759,9 @@ else if (IFGCAL) then
         !write(u6,'(6x,3(5x,i1,4x))') (IXYZ,IXYZ=1,3)
 
         ! determine the eigenvalues of the G = gg* matrix
-        do I=1,3
-          EVR(I) = Zero
-          EVI(I) = Zero
-        end do
-        do IXYZ=1,3
-          do JXYZ=1,3
-            TMPMAT(IXYZ,JXYZ) = GSTENS(IXYZ,JXYZ)
-          end do
-        end do
+        EVR(:) = Zero
+        EVI(:) = Zero
+        TMPMAT(:,:) = GSTENS(:,:)
         call unitmat(TMPVEC,3)
 
         IERR = 0
@@ -1821,10 +1775,7 @@ else if (IFGCAL) then
         ! and the eigenvectors of G = gg+ by back transformation
         do IXYZ=1,3
           do JXYZ=1,3
-            GSTENS(IXYZ,JXYZ) = Zero
-            do KXYZ=1,3
-              GSTENS(IXYZ,JXYZ) = GSTENS(IXYZ,JXYZ)+TMPVEC(IXYZ,KXYZ)*sqrt(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
-            end do
+            GSTENS(IXYZ,JXYZ) = sum(TMPVEC(IXYZ,:)*sqrt(EVR(:))*TMPVEC(JXYZ,:))
           end do
         end do
 
@@ -1839,9 +1790,7 @@ else if (IFGCAL) then
             xyzchr(IXYZ),(GSTENS(IXYZ,JXYZ),JXYZ=1,3),'g_',IXYZ,':',sqrt(EVR(IXYZ)),xyzchr(IXYZ),TMPVEC(IXYZ,:),'delta(g_',IXYZ, &
             '):',(sqrt(EVR(IXYZ))-FEGVAL)*1.0e3_wp,'ppt'
         end do
-        do I=1,3
-          EVR(I) = sqrt(EVR(I))-FEGVAL
-        end do
+        EVR(:) = sqrt(EVR(:))-FEGVAL
         call Add_Info('EPRGVAL',EVR,3,6)
       end if
 
@@ -1924,26 +1873,15 @@ else if (IFGCAL) then
 
   ! Establish which spin components of SFS belong to the ground state
   call mma_allocate(ISGS,NSS,Label='ISGS')
-  do I=1,NSS
-    ISGS(I) = .false.
-  end do
 
   GSENERGY = ENERGY(1)
   do ISTATE=2,NSTATE
     if (ENERGY(ISTATE) < GSENERGY) GSENERGY = ENERGY(ISTATE)
   end do
 
-  IMLTPL = 1
+  IMLTPL = 0
   do ISTATE=1,NSTATE
-    if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
-      do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-        ISGS(I) = .true.
-      end do
-    else
-      do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-        ISGS(I) = .false.
-      end do
-    end if
+    ISGS(IMLTPL+1:IMLTPL+MLTPLT(JBNUM(ISTATE))) = abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp
     IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
   end do
 
@@ -1962,13 +1900,13 @@ else if (IFGCAL) then
 
   call mma_allocate(ZEKL,2,2,3,NSTATE,Label='ZEKL')
 
-  IMLTPL = 1
+  IMLTPL = 0
   ZEKL(:,:,:,:) = cZero
 
   do ISTATE=1,NSTATE
 
-    ISTART = IMLTPL
-    IFINAL = IMLTPL-1+MLTPLT(JBNUM(ISTATE))
+    ISTART = IMLTPL+1
+    IFINAL = IMLTPL+MLTPLT(JBNUM(ISTATE))
 
     if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -2029,15 +1967,14 @@ else if (IFGCAL) then
   ! In the end, the outer division by 2 cancels on both sides, and the
   ! inner divisions by two combine to a division by 4.
 
-  call mma_allocate(GCONT,9,NSTATE,Label='GCONT')
+  call mma_allocate(GCONT,3,3,NSTATE,Label='GCONT')
 
-  GCONT(:,:) = cZero
-  GTOTAL(:) = Zero
+  GCONT(:,:,:) = cZero
+  GTOTAL(:,:) = Zero
 
   do ISTATE=1,NSTATE
     do IXYZ=1,3
       do JXYZ=1,3
-        IJXYZ = 3*(IXYZ-1)+JXYZ
 
         if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -2046,8 +1983,8 @@ else if (IFGCAL) then
             if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) then
               do I=1,2
                 do J=1,2
-                  GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                        (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                  GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                     ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                 end do
               end do
             end if
@@ -2059,11 +1996,11 @@ else if (IFGCAL) then
           do JSTATE=1,NSTATE
             do I=1,2
               do J=1,2
-                GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                      (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                   ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                 if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) &
-                  GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                        (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                  GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                     ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
               end do
             end do
           end do
@@ -2073,9 +2010,7 @@ else if (IFGCAL) then
       end do
     end do
 
-    do IJXYZ=1,9
-      GTOTAL(IJXYZ) = GTOTAL(IJXYZ)+real(GCONT(IJXYZ,ISTATE))
-    end do
+    GTOTAL(:,:) = GTOTAL(:,:)+real(GCONT(:,:,ISTATE))
   end do
 
   call mma_deallocate(ZEKL)
@@ -2092,29 +2027,17 @@ else if (IFGCAL) then
   call get_dArray('ESO_SINGLE',ESO,NSS)
   call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
   call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
-  do ISS=1,NSS
-    do JSS=1,NSS
-      DIPSOm(1,ISS,JSS) = Half*Z(ISS,JSS)
-      DIPSOn(1,ISS,JSS) = -Z(ISS,JSS)
-    end do
-  end do
+  DIPSOm(1,:,:) = Half*Z(:,:)
+  DIPSOn(1,:,:) = -Z(:,:)
   call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
   call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
-  do ISS=1,NSS
-    do JSS=1,NSS
-      DIPSOm(2,ISS,JSS) = Half*Z(ISS,JSS)
-      DIPSOn(2,ISS,JSS) = -Z(ISS,JSS)
-    end do
-  end do
+  DIPSOm(2,:,:) = Half*Z(:,:)
+  DIPSOn(2,:,:) = -Z(:,:)
   call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
   call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI,eez,Z)
-  do ISS=1,NSS
-    do JSS=1,NSS
-      DIPSOm(3,ISS,JSS) = Half*Z(ISS,JSS)
-      DIPSOn(3,ISS,JSS) = -Z(ISS,JSS)
-    end do
-  end do
-  write(u6,*) ''
+  DIPSOm(3,:,:) = Half*Z(:,:)
+  DIPSOn(3,:,:) = -Z(:,:)
+  write(u6,*)
 
   call mma_deallocate(Z)
 
@@ -2125,15 +2048,9 @@ else if (IFGCAL) then
     call mma_allocate(chiparamT_tens,NTS,3,3,Label='chiparamT_tens')
 
     iT = 0
-    do iT=1,NTS
-      do ic=1,3
-        do jc=1,3
-          chiT_tens(iT,ic,jc) = Zero
-          chicuriT_tens(iT,ic,jc) = Zero
-          chiparamT_tens(iT,ic,jc) = Zero
-        end do
-      end do
-    end do
+    chiT_tens(:,:,:) = Zero
+    chicuriT_tens(:,:,:) = Zero
+    chiparamT_tens(:,:,:) = Zero
     iT = 0
     do iT=1,NTS
       if (iT == 1) then
@@ -2146,51 +2063,32 @@ else if (IFGCAL) then
       do Iss=1,Nss
         p_Boltz = exp(-ESO(Iss)/Boltz_k/TMPm(iT))
         Zstat = Zstat+p_Boltz
-        do IC=1,3
-          do JC=1,3
-            c_2(IC,JC) = Zero
-            curit(IC,JC) = Zero
-            paramt(IC,JC) = Zero
-          end do
-        end do
+        c_2(:,:) = Zero
+        curit(:,:) = Zero
+        paramt(:,:) = Zero
         do Jss=1,Nss
           dlt_E = Eso(Iss)-Eso(Jss)
-          do IC=1,3
-            do JC=1,3
-              c_1(IC,JC) = Zero
-            end do
-          end do
-          do ic=1,3
-            do jc=1,3
-              c_1(ic,jc) = real(DIPSOn(ic,Iss,Jss)*conjg(DIPSOn(jc,Iss,Jss)))
-              if (abs(dlt_E) < 10.97_wp) then ! what is this number?
-                c_2(ic,jc) = c_2(ic,jc)+c_1(ic,jc)
-                curit(ic,jc) = curit(ic,jc)+c_1(ic,jc)
-                !paramt(ic,jc) = paramt(ic,jc)+Zero*c_1(ic,jc)
-              else
-                c_2(ic,jc) = c_2(ic,jc)-Two*Boltz_k*TMPm(iT)*c_1(ic,jc)/dlt_E
-                !curit(ic,jc) = curit(ic,jc)-Zero*(Two*Boltz_k*TMPm(iT)*c_1(ic,jc)/dlt_E)
-                paramt(ic,jc) = paramt(ic,jc)-Two*Boltz_k*TMPm(iT)*c_1(ic,jc)/dlt_E
-              end if
-            end do
-          end do
-        end do !Jss
-        do ic=1,3
           do jc=1,3
-            chiT_tens(iT,ic,jc) = chiT_tens(iT,ic,jc)+p_Boltz*c_2(ic,jc)
-            chicuriT_tens(iT,ic,jc) = chicuriT_tens(iT,ic,jc)+p_Boltz*curit(ic,jc)
-            chiparamT_tens(iT,ic,jc) = chiparamT_tens(iT,ic,jc)+p_Boltz*paramt(ic,jc)
+            c_1(:,jc) = real(DIPSOn(:,Iss,Jss)*conjg(DIPSOn(jc,Iss,Jss)))
           end do
-        end do
+          if (abs(dlt_E) < 10.97_wp) then ! what is this number?
+            c_2(:,:) = c_2(:,:)+c_1(:,:)
+            curit(:,:) = curit(:,:)+c_1(:,:)
+            !paramt(:,:) = paramt(:,:)+Zero*c_1(:,:)
+          else
+            c_2(:,:) = c_2(:,:)-Two*Boltz_k*TMPm(iT)*c_1(:,:)/dlt_E
+            !curit(:,:) = curit(:,:)-Zero*(Two*Boltz_k*TMPm(iT)*c_1(:,:)/dlt_E)
+            paramt(:,:) = paramt(:,:)-Two*Boltz_k*TMPm(iT)*c_1(:,:)/dlt_E
+          end if
+        end do !Jss
+        chiT_tens(iT,:,:) = chiT_tens(iT,:,:)+p_Boltz*c_2(:,:)
+        chicuriT_tens(iT,:,:) = chicuriT_tens(iT,:,:)+p_Boltz*curit(:,:)
+        chiparamT_tens(iT,:,:) = chiparamT_tens(iT,:,:)+p_Boltz*paramt(:,:)
       end do !Iss
       !Zstat1m(iT) = Zstat
-      do ic=1,3
-        do jc=1,3
-          chiT_tens(iT,ic,jc) = coeff_chi*(chiT_tens(iT,ic,jc)/Zstat)
-          chicuriT_tens(iT,ic,jc) = coeff_chi*(chicuriT_tens(iT,ic,jc)/Zstat)
-          chiparamT_tens(iT,ic,jc) = coeff_chi*(chiparamT_tens(iT,ic,jc)/Zstat)
-        end do
-      end do
+      chiT_tens(iT,:,:) = coeff_chi*(chiT_tens(iT,:,:)/Zstat)
+      chicuriT_tens(iT,:,:) = coeff_chi*(chicuriT_tens(iT,:,:)/Zstat)
+      chiparamT_tens(iT,:,:) = coeff_chi*(chiparamT_tens(iT,:,:)/Zstat)
     end do ! iT
 
     write(u6,'(/)')
@@ -2249,11 +2147,7 @@ else if (IFGCAL) then
   ISS = 1
   do while ((ISS <= NSS) .and. (ENSOR(min(ISS,NSS))-ENSOR(1) <= EPRTHR))
 
-    do IXYZ=1,3
-      do JXYZ=1,3
-        GTENS(IXYZ,JXYZ) = Zero
-      end do
-    end do
+    GTENS(:,:) = Zero
 
     KDGN = 1
     do JSS=ISS+1,NSS
@@ -2290,11 +2184,11 @@ else if (IFGCAL) then
         write(u6,'(a6,9(5x,a2,5x))') 'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
         write(u6,*)
         do ISTATE=1,NSTATE
-          write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,(real(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
+          write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,real(GCONT(:,:,ISTATE))
         end do
 
         write(u6,*)
-        write(u6,'(A6,9(F12.6))') 'total ',(GTOTAL(IJXYZ),IJXYZ=1,9)
+        write(u6,'(A6,9(F12.6))') 'total ',GTOTAL(:,:)
       end if
 
       JSS = ISS+1
@@ -2302,12 +2196,8 @@ else if (IFGCAL) then
       do IXYZ=1,3
         do JXYZ=1,3
           GTIJ = Zero
-          CONTRIB = Zero
           do ISO=ISS,JSS
-            do JSO=ISS,JSS
-              CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
-              GTIJ = GTIJ+CONTRIB
-            end do
+            GTIJ = GTIJ+sum(ZXYZR(ISO,ISS:JSS,IXYZ)*ZXYZR(ISS:JSS,ISO,JXYZ)-ZXYZI(ISO,ISS:JSS,IXYZ)*ZXYZI(ISS:JSS,ISO,JXYZ))
           end do
           GTENS(IXYZ,JXYZ) = Two*GTIJ
         end do
@@ -2322,15 +2212,9 @@ else if (IFGCAL) then
         end do
       end if
 
-      do I=1,3
-        EVR(I) = Zero
-        EVI(I) = Zero
-      end do
-      do IXYZ=1,3
-        do JXYZ=1,3
-          TMPMAT(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)
-        end do
-      end do
+      EVR(:) = Zero
+      EVI(:) = Zero
+      TMPMAT(:,:) = GTENS(:,:)
       call unitmat(TMPVEC,3)
 
       call XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
@@ -2339,10 +2223,7 @@ else if (IFGCAL) then
       ! square root of the G eigenvalues
       do IXYZ=1,3
         do JXYZ=1,3
-          GTENS(IXYZ,JXYZ) = Zero
-          do KXYZ=1,3
-            GTENS(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)+TMPVEC(IXYZ,KXYZ)*sqrt(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
-          end do
+          GTENS(IXYZ,JXYZ) = sum(TMPVEC(IXYZ,:)*sqrt(EVR(:))*TMPVEC(JXYZ,:))
         end do
       end do
 
@@ -2482,8 +2363,7 @@ else if (IFXCAL) then
       call DAXPY_(NSS**2,Half*B/auToT,MXYZR(:,:,IXYZ),1,ZR,1)
       call DAXPY_(NSS**2,Half*B/auToT,MXYZI(:,:,IXYZ),1,ZI,1)
       do ISS=1,NSS
-        HZER = ZR(ISS,ISS)
-        ZR(ISS,ISS) = HZER+ENSOR(ISS)
+        ZR(ISS,ISS) = ZR(ISS,ISS)+ENSOR(ISS)
       end do
       call DCOPY_(NSS**2,[Zero],0,UZR,1)
       call DCOPY_(NSS,[One],0,UZR,NSS+1)
@@ -2499,9 +2379,7 @@ else if (IFXCAL) then
       do ITSTEP=1,NTSTEP
         T = TSTART+TINCRE*(ITSTEP-1)
         RkT = T*BOLTZ
-        RMAGM(1) = Zero
-        RMAGM(2) = Zero
-        RMAGM(3) = Zero
+        RMAGM(:) = Zero
         RPART = Zero
         if (IPGLOB > 2) then
           write(u6,*)
@@ -2511,20 +2389,15 @@ else if (IFXCAL) then
         do ISS=1,NSS
           DELTA = ZR(ISS,ISS)-ZR(1,1)
           FACT = exp(-DELTA/RkT)
-          RMAGM(1) = RMAGM(1)+ZXYZR(ISS,ISS,1)*FACT
-          RMAGM(2) = RMAGM(2)+ZXYZR(ISS,ISS,2)*FACT
-          RMAGM(3) = RMAGM(3)+ZXYZR(ISS,ISS,3)*FACT
+          RMAGM(:) = RMAGM(:)+ZXYZR(ISS,ISS,:)*FACT
           RPART = RPART+FACT
           if (IPGLOB > 2) &
             write(u6,'(2x,f14.3,3(1x,f10.6,1x),2x,f6.3)') (ZR(ISS,ISS)-ZR(1,1))*auTocm,ZXYZR(ISS,ISS,1),ZXYZR(ISS,ISS,2), &
                                                           ZXYZR(ISS,ISS,3),FACT
         end do
         if (IPGLOB > 2) write(u6,*)
-        RMAGM(1) = (RMAGM(1)/RPART)*AU2JTM
-        RMAGM(2) = (RMAGM(2)/RPART)*AU2JTM
-        RMAGM(3) = (RMAGM(3)/RPART)*AU2JTM
-        RMAGM2 = RMAGM(1)*RMAGM(1)+RMAGM(2)*RMAGM(2)+RMAGM(3)*RMAGM(3)
-        RMAGMO = sqrt(RMAGM2)
+        RMAGM(:) = (RMAGM(:)/RPART)*AU2JTM
+        RMAGMO = sqrt(sum(RMAGM(:)**2))
         do JXYZ=1,3
           LMSTEP = LMSTEP+1
           MAGM(LMSTEP) = RMAGM(JXYZ)
@@ -2590,8 +2463,7 @@ else if (IFXCAL) then
           call DAXPY_(NSS**2,Half*BY/auToT,MXYZI(:,:,2),1,ZI,1)
           call DAXPY_(NSS**2,Half*BZ/auToT,MXYZI(:,:,3),1,ZI,1)
           do ISS=1,NSS
-            HZER = ZR(ISS,ISS)
-            ZR(ISS,ISS) = HZER+ENSOR(ISS)
+            ZR(ISS,ISS) = ZR(ISS,ISS)+ENSOR(ISS)
           end do
           call DCOPY_(NSS**2,[Zero],0,UZR,1)
           call DCOPY_(NSS,[One],0,UZR,NSS+1)
@@ -2607,21 +2479,15 @@ else if (IFXCAL) then
           do ITSTEP=1,NTSTEP
             T = TSTART+TINCRE*(ITSTEP-1)
             RkT = T*BOLTZ
-            RMAGM(1) = Zero
-            RMAGM(2) = Zero
-            RMAGM(3) = Zero
+            RMAGM(:) = Zero
             RPART = Zero
             do ISS=1,NSS
               DELTA = ZR(ISS,ISS)-ZR(1,1)
               FACT = exp(-DELTA/RkT)
-              RMAGM(1) = RMAGM(1)+ZXYZR(ISS,ISS,1)*FACT
-              RMAGM(2) = RMAGM(2)+ZXYZR(ISS,ISS,2)*FACT
-              RMAGM(3) = RMAGM(3)+ZXYZR(ISS,ISS,3)*FACT
+              RMAGM(:) = RMAGM(:)+ZXYZR(ISS,ISS,:)*FACT
               RPART = RPART+FACT
             end do
-            RMAGM(1) = (RMAGM(1)/RPART)*AU2JTM
-            RMAGM(2) = (RMAGM(2)/RPART)*AU2JTM
-            RMAGM(3) = (RMAGM(3)/RPART)*AU2JTM
+            RMAGM(:) = (RMAGM(:)/RPART)*AU2JTM
             !write(u6,'(6(1x,es12.5,1x))') B,THE,PHI,RMAGM(1),RMAGM(2),RMAGM(3)
             ! backtransformation in two steps, -phi and -theta
             A = RMAGM(1)
@@ -2648,12 +2514,9 @@ else if (IFXCAL) then
       B = BSTART+BINCRE*(IBSTEP-1)
       do ITSTEP=1,NTSTEP
         T = TSTART+TINCRE*(ITSTEP-1)
-        do IXYZ=1,3
-          LMSTEP = LMSTEP+1
-          RMAGM(IXYZ) = MAGM(LMSTEP)/NORIENT
-        end do
-        RMAGM2 = RMAGM(1)*RMAGM(1)+RMAGM(2)*RMAGM(2)+RMAGM(3)*RMAGM(3)
-        RMAGMO = sqrt(RMAGM2)
+        RMAGM(:) = MAGM(LMSTEP+1:LMSTEP+3)/NORIENT
+        LMSTEP = LMSTEP+3
+        RMAGMO = sqrt(sum(RMAGM(:)**2))
         write(u6,'(1x,f6.2,5(1x,es12.5,1x))') T,B,RMAGMO,RMAGM(1),RMAGM(2),RMAGM(3)
       end do
     end do
@@ -2930,7 +2793,6 @@ subroutine Allocate_and_Load_Spin_Magnetic_Quadrupoles(IFANY)
 
       if (ISOCMP(ISOPR) == 3) IPRSZX = ISOPR
       if (ISOCMP(ISOPR) == 3) IPRSZY = ISOPR
-
     end if
   end do
   call mma_allocate(SZXR,NSS,NSS,Label='SZXR')
@@ -3253,7 +3115,6 @@ subroutine Allocate_and_Load_Octupoles(IFANY)
       if (ISOCMP(ISOPR) == 8) IPRDYYZ = ISOPR
       if (ISOCMP(ISOPR) == 9) IPRDZZY = ISOPR ! Changed from YZZ
       if (ISOCMP(ISOPR) == 10) IPRDZZZ = ISOPR
-
     end if
   end do
   call mma_allocate(DXXXR,NSS,NSS,Label='DXXXR')

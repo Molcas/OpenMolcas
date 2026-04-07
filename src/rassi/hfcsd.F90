@@ -28,7 +28,7 @@ character(len=8), intent(inout) :: LABEL
 integer(kind=iwp), intent(in) :: IC, NBUFF, NSIZ
 real(kind=wp), intent(inout) :: BUFF(NBUFF)
 integer(kind=iwp), intent(inout) :: ISCHK
-integer(kind=iwp) :: ICM, INBUFF, IOPT, IRC
+integer(kind=iwp) :: ICM, IOPT, IRC
 real(kind=wp) :: DA
 real(kind=wp), allocatable :: TA(:)
 
@@ -37,9 +37,7 @@ MAG_X2C = .true.
 IOPT = 0
 call mma_allocate(TA,NBUFF,Label='TA')
 ! BUFF needs to be initialized
-do iNBUFF=1,NBUFF
-  BUFF(iNBUFF) = Zero
-end do
+BUFF(:) = Zero
 ! end of initialization
 DA = Two
 
@@ -52,9 +50,7 @@ select case (IC)
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
     call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-    do iNBUFF=NSIZ,NBUFF-1
-      BUFF(iNBUFF+1) = TA(1+iNBUFF)
-    end do
+    BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
     ICM = 5
     DA = -Two/Three
@@ -74,9 +70,7 @@ select case (IC)
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
     call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-    do iNBUFF=NSIZ,NBUFF-1
-      BUFF(iNBUFF+1) = TA(1+iNBUFF)
-    end do
+    BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
   case (3)
     ! EF2(3) = MAG(3)*2
@@ -84,9 +78,7 @@ select case (IC)
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
     call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-    do iNBUFF=NSIZ,NBUFF-1
-      BUFF(iNBUFF+1) = TA(1+iNBUFF)
-    end do
+    BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
   case (4)
     ! EF2(4) = (2*MAG(5)-MAG(1)-MAG(9))*(2/3)
@@ -95,9 +87,7 @@ select case (IC)
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
     call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-    do iNBUFF=NSIZ,NBUFF-1
-      BUFF(iNBUFF+1) = TA(1+iNBUFF)
-    end do
+    BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
     ICM = 1
     DA = -Two/Three
@@ -117,9 +107,7 @@ select case (IC)
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
     call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-    do iNBUFF=NSIZ,NBUFF-1
-      BUFF(iNBUFF+1) = TA(1+iNBUFF)
-    end do
+    BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
   case (6)
     ! EF2(6) = (MAG(1)+MAG(5)+MAG(9))*2
@@ -127,9 +115,7 @@ select case (IC)
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
     call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
-    do iNBUFF=NSIZ,NBUFF-1
-      BUFF(iNBUFF+1) = TA(1+iNBUFF)
-    end do
+    BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
     ICM = 5
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)

@@ -45,8 +45,8 @@ integer(kind=iwp) :: I, I2Tot, I_, I_Have_DL, I_Have_DV, I_Print_Header, iAMx, i
                      jStart_, jState, k, K_, kEnd, kSTA, kState, L, L_, LNCNT, lOsc_Strength, lPos, lState, lSym3, lSym4, LuT1, &
                      Mask, Mask34, MaxGrp1, MaxGrp2, MPLET1, MPLET2, mState, nActe1, nActe2, nDiff, nGroup1, nGroup2, nHH, NIP, &
                      nLST, nMax2, nScr, nSets, nTmp, nVec, SECORD(4)
-real(kind=wp) :: A, AFactor, ANG, Ax, Ay, Az, COMPARE, Dlt, DMax, DSZ, Dx, Dx2, Dxx, Dxx2, DxxDyy, DxxDzz, DxxxDx, DxxyDy, DxxzDz, &
-                 Dxy, Dxy2, DxyDz, Dxz, Dxz2, DxzDy, Dy, Dy2, DYSAMPS2(NSTATE,NSTATE), DysThr, DyxDz, Dyy, Dyy2, DyyDzz, DyyxDx, &
+real(kind=wp) :: A, AFactor, ANG, Ax, Ay, Az, COMPARE, DMax, DSZ, Dx, Dx2, Dxx, Dxx2, DxxDyy, DxxDzz, DxxxDx, DxxyDy, DxxzDz, Dxy, &
+                 Dxy2, DxyDz, Dxz, Dxz2, DxzDy, Dy, Dy2, DYSAMPS2(NSTATE,NSTATE), DysThr, DyxDz, Dyy, Dyy2, DyyDzz, DyyxDx, &
                  DyyyDy, DyyzDz, Dyz, Dyz2, DyzDx, Dz, Dz2, DzxDy, DzyDx, Dzz, Dzz2, DzzxDx, DzzyDy, DzzzDz, E0, E1, E2, E3, &
                  EDiff, EDiff2, EDiff3, EDiff_, EffL, EffM, EI, epsH, epsS, eRMS, EV, EVLim, EVMax, Ex, F, F_Check, F_Temp, FMax, &
                  Fx, Fxx, FxxFyy, FxxFzz, Fxxx, Fxxy, Fxxz, Fxy, Fxz, Fy, Fyx, Fyy, FyyFzz, Fyyx, Fyyy, Fyyz, Fyz, Fz, Fzx, FZY, &
@@ -67,9 +67,9 @@ real(kind=wp), allocatable :: Aux(:,:), DL(:), DV(:), ESFS(:), HH(:), HSQ(:), IP
 integer(kind=iwp) :: ijSF, ip_kVector, ip_TMI, ip_TMR, ip_W, nData, nIJ
 real(kind=wp), allocatable :: Storage(:,:,:,:)
 #endif
-real(kind=wp), parameter :: AU2REDR = 200.0_wp*Debye, ONEOVER10C = One/(Ten*c_in_au**2), ONEOVER30C = ONEOVER10C/Three, &
-                            ONEOVER6C2 = One/(Six*c_in_au**2), ONEOVER9C2 = One/(Nine*c_in_au**2), Two3rds = Two/Three, &
-                            TWOOVERM45C = -Two/(45.0_wp*c_in_au**2)
+real(kind=wp), parameter :: AU2REDR = 200.0_wp*Debye, DLT = 1.0e-18_wp, ONEOVER10C = One/(Ten*c_in_au**2), &
+                            ONEOVER30C = ONEOVER10C/Three, ONEOVER6C2 = One/(Six*c_in_au**2), ONEOVER9C2 = One/(Nine*c_in_au**2), &
+                            Two3rds = Two/Three, TWOOVERM45C = -Two/(45.0_wp*c_in_au**2)
 integer(kind=iwp), external :: cho_x_gettol, IsFreeUnit
 real(kind=wp), external :: DDOt_
 
@@ -237,7 +237,6 @@ do ISET=1,NSETS
   !   Convention: two energies are considered degenerate if their energy difference is
   !               lower than 1.0e-4 cm-1
   TMP = Zero
-  DLT = Zero
   IDIAG = 0
   do II=1,MSTATE
     I = STACK(II)
@@ -245,8 +244,7 @@ do ISET=1,NSETS
     do JJ=1,MSTATE
       J = STACK(JJ)
       if (I == J) cycle
-      DLT = abs(ENERGY(J)-TMP)*auTocm
-      if (DLT < 1.0e-4_wp) ENERGY(J) = TMP
+      if (abs(ENERGY(J)-TMP)*auTocm < 1.0e-4_wp) ENERGY(J) = TMP
     end do
   end do
 
@@ -300,10 +298,7 @@ EPSH = max(5.0e-10_wp,abs(ENERGY(1))*EPSS)
 IDX = 100
 do I=1,NSTATE
   EI = ENERGY(I)*EPSS
-  V2SUM = Zero
-  do J=1,NSTATE
-    V2SUM = V2SUM+EIGVEC(J,I)**2
-  end do
+  V2SUM = sum(EIGVEC(:,I)**2)
   ERMS = sqrt(EPSH**2+EI**2)*V2SUM
   IDX = min(IDX,int(-log10(ERMS)))
 end do
@@ -312,15 +307,8 @@ call Add_Info('E_RASSI',ENERGY,NSTATE,iTol)
 
 ! To handle extreme cases of large energies/small energy differences
 ! all TOTAL energies will undergo a universal constant shift:
-EMIN = ENERGY(1)
-do ISTATE=2,NSTATE
-  !vv NAG compiler overoptimize this!
-  !EMIN = MIN(EMIN,ENERGY(ISTATE))
-  if (ENERGY(ISTATE) < EMIN) EMIN = ENERGY(ISTATE)
-end do
-do ISTATE=1,NSTATE
-  ENERGY(ISTATE) = ENERGY(ISTATE)-EMIN
-end do
+EMIN = minval(ENERGY(:))
+ENERGY(:) = ENERGY(:)-EMIN
 
 ! Experimental addition: Effective L and/or M quantum numbers.
 
@@ -363,9 +351,7 @@ end if
 ! Sort the states energywise
 
 call mma_Allocate(IndexE,nState,Label='IndexE')
-do iState=1,nState
-  IndexE(iState) = iState
-end do
+IndexE(:) = [(iState,iState=1,nState)]
 do iState=1,nState-1
   EX = ENERGY(IndexE(iState))
 
@@ -479,10 +465,7 @@ if ((IPGLOB >= 3) .or. (.not. diagonal)) then
   do L=1,NSTATE
     I = IndexE(L)
     write(u6,'(5X,A,I5,A,F18.10)') 'Eigenstate No.',I,' energy=',ENERGY(I)+EMIN
-    EVMAX = Zero
-    do K=1,NSTATE
-      EVMAX = max(EVMAX,abs(EIGVEC(IndexE(K),I)))
-    end do
+    EVMAX = maxval(abs(EIGVEC(:,I)))
     EVLIM = 0.1_wp*EVMAX
     NLST = 0
     do K=1,NSTATE
@@ -941,7 +924,6 @@ if ((I_HAVE_DL == 1) .and. (I_HAVE_DV == 1)) then
       if ((JSTART == 1) .and. (EDIFF < Zero)) cycle
 
       COMPARE = Zero
-      dlt = 1.0e-18_wp ! Add small value to avoid zero divide.
       if ((DL(IJ) >= OSTHR+dlt) .and. (DV(IJ) >= OSTHR+dlt)) then
         COMPARE = abs(1-DL(IJ)/DV(IJ))
       else if ((DL(IJ) >= OSTHR+dlt) .and. (DL(IJ) > Zero)) then
@@ -1547,10 +1529,7 @@ end if
 
 ! Add it to the total
 
-I2TOT = 0
-do I=1,4
-  if (SECORD(I) == 1) I2TOT = I2TOT+1
-end do
+I2TOT = count(SECORD(:) == 1)
 if (I2TOT >= 1) then
   if (SECORD(1) == 0) write(u6,*) 'Magnetic-dipole - magnetic-dipole not included'
   if (SECORD(2) == 0) write(u6,*) 'Electric-quadrupole - electric-quadrupole not included'
@@ -2354,7 +2333,7 @@ do iVec=1,nVec
             ! so we multiply by -i
 
             do iCar=1,3
-              TM_R(iCar) = +PROP(I,J,IPRTMOM(3+iCar))+PROP(I,J,IPRTMOM(9+iCar))
+              TM_R(iCar) = PROP(I,J,IPRTMOM(3+iCar))+PROP(I,J,IPRTMOM(9+iCar))
               TM_I(iCar) = -PROP(I,J,IPRTMOM(0+iCar))-PROP(I,J,IPRTMOM(6+iCar))
             end do
 

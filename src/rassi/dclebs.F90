@@ -25,15 +25,13 @@ real(kind=wp) :: DCLEBS
 real(kind=wp), intent(in) :: XJ1, XJ2, XJ3, XM1, XM2, XM3
 integer, parameter :: MAXJ = 10, MAXF = 3*MAXJ+1
 integer(kind=iwp) :: i, IA1, IA2, IA3, IB1, IB2, IB3, icall = 0, IX, IX1, IX2, IY, IY0, JSUM
-real(kind=wp) :: den, DF, DFACT(0:MAXF) = Zero, PRE, PRE2, SUMMA, TERM, XJSUM
+real(kind=wp) :: den, DFACT(0:MAXF) = Zero, PRE, PRE2, SUMMA, TERM, XJSUM
 
 if (icall == 0) then
   icall = icall+1
-  DF = One
-  DFACT(0) = DF
+  DFACT(0) = One
   do i=1,MAXF
-    DF = real(i,kind=wp)*DF
-    DFACT(i) = DF
+    DFACT(i) = real(i,kind=wp)*DFACT(i-1)
   end do
 end if
 

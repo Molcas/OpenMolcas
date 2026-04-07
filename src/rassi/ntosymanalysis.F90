@@ -25,7 +25,7 @@ real(kind=wp) :: NTO(*), EigVal(*), SumEigVal
 character(len=8) :: NTOType
 character(len=5) :: STATENAME
 character :: Spin
-integer(kind=iwp) :: I, ICount, INTO, IOrb, IOrbinSym, IPCMO, iPrintSym, ISym, IUseSym, J, LU, NNTO, NPCMO, OrbNum, v2Dum(7,8)
+integer(kind=iwp) :: I, ICount, INTO, IOrb, IOrbinSym, IPCMO, iPrintSym, ISym, IUseSym, J, LU, NNTO, NPCMO, v2Dum(7,8)
 real(kind=wp) :: vDum(2)
 character(len=128) :: FILENAME, molden_name
 character(len=72) :: Note
@@ -43,14 +43,9 @@ integer(kind=iwp), external :: ISFREEUNIT
 
 call mma_allocate(NOrbinSym,NUseSym,Label='NOrbinSym')
 
-do IUseSym=1,NUseSym
-  NOrbinSym(IUseSym) = 0
-end do
+NOrbinSym(:) = 0
 
-NPCMO = 0
-do ISym=1,nIrrep
-  NPCMO = NPCMO+NBASF(ISym)**2
-end do
+NPCMO = sum(NBASF(1:nIrrep)**2)
 
 call mma_allocate(PCMO,NPCMO,Label='PCMO')
 call mma_allocate(SquareSum,NUseSym,Label='SquareSum')
@@ -58,8 +53,8 @@ call mma_allocate(OrbSymIndex,NUseSym,NASHT,Label='OrbSymIndex')
 
 do INTO=1,NASHT
   iPrintSym = 0
+  SquareSum(:) = Zero
   do IUseSym=1,NUseSym
-    SquareSum(IUseSym) = Zero
     do ICount=1,NUseBF(IUseSym)
       I = INTO
       J = ICount+NUsedBF(IUseSym)
@@ -98,19 +93,14 @@ do ISym=1,nIrrep
     ! If there are active orbitals in this symmetry
     NNTO = NOrbinSym(IUseSym)
     ! write inactive part
-    do OrbNum=1,NISH(ISym)
-      IOrb = IOrb+1
-      EigValArray(IOrb) = Zero
-    end do
+    EigValArray(IOrb+1:IOrb+NISH(ISym)) = Zero
+    IOrb = IOrb+NISH(ISym)
     ! Recording Printed NTO (PCMO)
-    do I=1,NISH(ISym)*NBASF(ISYM)
-      IPCMO = IPCMO+1
-      PCMO(IPCMO) = Zero
-    end do
+    PCMO(IPCMO+1:IPCMO+NISH(ISym)*NBASF(ISYM)) = Zero
+    IPCMO = IPCMO+NISH(ISym)*NBASF(ISYM)
     ! Recording Printed NTO (PCMO)
     ! write active part
     do IOrbinSym=1,NNTO
-      OrbNum = IOrbinSym+NISH(ISym)
       IOrb = IOrb+1
       I = OrbSymIndex(IUseSym,IOrbinSym)
       EigValArray(IOrb) = EigVal(I)
@@ -124,27 +114,19 @@ do ISym=1,nIrrep
       ! Recording Printed NTO (PCMO)
     end do
     ! write virtual part
-    do OrBNum=NISH(ISym)+NASH(ISym)+1,NBASF(ISym)
-      IOrb = IOrb+1
-      EigValArray(IOrb) = Zero
-    end do
+    EigValArray(IOrb+1:IOrb+NBASF(ISym)-NISH(ISym)-NASH(ISym)) = Zero
+    IOrb = IOrb+NBASF(ISym)-NISH(ISym)-NASH(ISym)
     ! Recording Printed NTO (PCMO)
-    do I=1,NSSH(ISym)*NBASF(ISYM)
-      IPCMO = IPCMO+1
-      PCMO(IPCMO) = Zero
-    end do
+    PCMO(IPCMO+1:IPCMO+NSSH(ISym)*NBASF(ISYM)) = Zero
+    IPCMO = IPCMO+NSSH(ISym)*NBASF(ISYM)
     ! Recording Printed NTO (PCMO)
   else
     ! If there is no active orbitals in this symmetry
-    do OrbNum=1,NBASF(ISym)
-      IOrb = IOrb+1
-      EigValArray(IOrb) = Zero
-    end do
+    EigValArray(IOrb+1:IOrb+NBASF(ISym)) = Zero
+    IOrb = IOrb+NBASF(ISym)
     ! Recording Printed NTO (PCMO)
-    do I=1,NBASF(ISYM)**2
-      IPCMO = IPCMO+1
-      PCMO(IPCMO) = Zero
-    end do
+    PCMO(IPCMO+1:IPCMO+NBASF(ISym)**2) = Zero
+    IPCMO = IPCMO+NBASF(ISym)**2
     ! Recording Printed NTO (PCMO)
   end if
 end do
@@ -152,9 +134,7 @@ end do
 call mma_deallocate(NOrbinSym)
 call mma_deallocate(OrbSymIndex)
 
-do I=1,NBST
-  EigValArray(I) = EigValArray(I)/SumEigVal
-end do
+EigValArray(:) = EigValArray(:)/SumEigVal
 
 LU = ISFREEUNIT(50)
 Note = '*  Natural Transition Orbitals'

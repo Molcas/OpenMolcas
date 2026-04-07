@@ -118,17 +118,12 @@ do NOPEN=MINOP,MAXOP
     ! The IFORM=1 case:
     ! Long loop over configurations
     do ICNF=1,NCNF
-      do IEL=1,NOCC
-        ORBARR(IEL) = ICNFTAB(KCNF-1+IEL+NWRD*(ICNF-1))
-      end do
+      ORBARR(1:NOCC) = ICNFTAB(KCNF+NWRD*(ICNF-1):KCNF+NWRD*(ICNF-1)+NOCC-1)
       ! Loop over spin couplings
       do ICPL=1,NCPL
-        do I=1,NLEV
-          ICASE(I) = 0
-        end do
+        ICASE(1:NLEV) = 0
         do I=1,NCLSD
-          IORB = ORBARR(I)
-          ICASE(IORB) = 3
+          ICASE(ORBARR(I)) = 3
         end do
         do I=1,NOPEN
           IORB = ORBARR(NCLSD+I)
@@ -165,17 +160,15 @@ do NOPEN=MINOP,MAXOP
           ICSYMG = NCSYMG
           if (IMODE == 0) then
             do I=1,NWLKLST
-              PHS = PHASE(I)
               ICSPLT = ICNUM(I)
               ICSYMG = NCSYMG+I
-              CINEW(ICSPLT) = CIOLD(ICSYMG)*PHS
+              CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
             end do
           else
             do I=1,NWLKLST
-              PHS = PHASE(I)
               ICSPLT = ICNUM(I)
               ICSYMG = NCSYMG+I
-              CINEW(ICSYMG) = CIOLD(ICSPLT)*PHS
+              CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
             end do
           end if
           NCSYMG = ICSYMG
@@ -205,12 +198,9 @@ do NOPEN=MINOP,MAXOP
       end do
       ! Loop over spin couplings
       do ICPL=1,NCPL
-        do I=1,NLEV
-          ICASE(I) = 0
-        end do
+        ICASE(1:NLEV) = 0
         do I=1,NCLSD
-          IORB = ORBARR(I)
-          ICASE(IORB) = 3
+          ICASE(ORBARR(I)) = 3
         end do
         do I=1,NOPEN
           IORB = ORBARR(NCLSD+I)
@@ -246,17 +236,15 @@ do NOPEN=MINOP,MAXOP
           ICSYMG = NCSYMG
           if (IMODE == 0) then
             do I=1,NWLKLST
-              PHS = PHASE(I)
               ICSPLT = ICNUM(I)
               ICSYMG = NCSYMG+I
-              CINEW(ICSPLT) = CIOLD(ICSYMG)*PHS
+              CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
             end do
           else
             do I=1,NWLKLST
-              PHS = PHASE(I)
               ICSPLT = ICNUM(I)
               ICSYMG = NCSYMG+I
-              CINEW(ICSYMG) = CIOLD(ICSPLT)*PHS
+              CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
             end do
           end if
           NCSYMG = ICSYMG
@@ -282,12 +270,9 @@ do NOPEN=MINOP,MAXOP
       end do
       ! Loop over spin couplings
       do ICPL=1,NCPL
-        do I=1,NLEV
-          ICASE(I) = 0
-        end do
+        ICASE(1:NLEV) = 0
         do I=1,NCLSD
-          IORB = ORBARR(I)
-          ICASE(IORB) = 3
+          ICASE(ORBARR(I)) = 3
         end do
         do I=1,NOPEN
           IORB = ORBARR(NCLSD+I)
@@ -323,17 +308,15 @@ do NOPEN=MINOP,MAXOP
           ICSYMG = NCSYMG
           if (IMODE == 0) then
             do I=1,NWLKLST
-              PHS = PHASE(I)
               ICSPLT = ICNUM(I)
               ICSYMG = NCSYMG+I
-              CINEW(ICSPLT) = CIOLD(ICSYMG)*PHS
+              CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
             end do
           else
             do I=1,NWLKLST
-              PHS = PHASE(I)
               ICSPLT = ICNUM(I)
               ICSYMG = NCSYMG+I
-              CINEW(ICSYMG) = CIOLD(ICSPLT)*PHS
+              CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
             end do
           end if
           NCSYMG = ICSYMG
@@ -367,12 +350,9 @@ do NOPEN=MINOP,MAXOP
       end do
       ! Loop over spin couplings
       do ICPL=1,NCPL
-        do I=1,NLEV
-          ICASE(I) = 0
-        end do
+        ICASE(1:NLEV) = 0
         do I=1,NCLSD
-          IORB = ORBARR(I)
-          ICASE(IORB) = 3
+          ICASE(ORBARR(I)) = 3
         end do
         do I=1,NOPEN
           IORB = ORBARR(NCLSD+I)
@@ -408,17 +388,15 @@ do NOPEN=MINOP,MAXOP
           ICSYMG = NCSYMG
           if (IMODE == 0) then
             do I=1,NWLKLST
-              PHS = PHASE(I)
               ICSPLT = ICNUM(I)
               ICSYMG = NCSYMG+I
-              CINEW(ICSPLT) = CIOLD(ICSYMG)*PHS
+              CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
             end do
           else
             do I=1,NWLKLST
-              PHS = PHASE(I)
               ICSPLT = ICNUM(I)
               ICSYMG = NCSYMG+I
-              CINEW(ICSYMG) = CIOLD(ICSPLT)*PHS
+              CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
             end do
           end if
           NCSYMG = ICSYMG
@@ -440,17 +418,15 @@ call W2SGORD(SGS,CIS,MWS2W,NWLKLST,KWALK,ICNUM)
 IWLKPOS = 1
 if (IMODE == 0) then
   do I=1,NWLKLST
-    PHS = PHASE(I)
     ICSPLT = ICNUM(I)
     ICSYMG = NCSYMG+I
-    CINEW(ICSPLT) = CIOLD(ICSYMG)*PHS
+    CINEW(ICSPLT) = CIOLD(ICSYMG)*PHASE(I)
   end do
 else
   do I=1,NWLKLST
-    PHS = PHASE(I)
     ICSPLT = ICNUM(I)
     ICSYMG = NCSYMG+I
-    CINEW(ICSYMG) = CIOLD(ICSPLT)*PHS
+    CINEW(ICSYMG) = CIOLD(ICSPLT)*PHASE(I)
   end do
 end if
 NCSYMG = NCSYMG+NWLKLST

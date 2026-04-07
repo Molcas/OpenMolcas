@@ -36,9 +36,7 @@ real(kind=wp), external :: OVERLAP_RASSI
 ! Nr of active spin-orbitals
 NASORB = IORBTAB(4)
 DYSAMP = Zero
-do ISORB=1,NASORB
-  DYSCOF(ISORB) = Zero
-end do
+DYSCOF(1:NASORB) = Zero
 
 if (IF10) then
   ! IF10 = Eliminate to the left (state 1)

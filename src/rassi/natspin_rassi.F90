@@ -63,9 +63,7 @@ LE = 1
 VEC(:) = Zero
 do ISYM=1,nIrrep
   NB = NBASF(ISYM)
-  do I=1,NB**2,(NB+1)
-    VEC(LV-1+I) = One
-  end do
+  call dcopy_(NB,[One],0,VEC(LV),NB+1)
   call JACOB(SZZ(LS),VEC(LV),NB,NB)
   ! SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
   LS1 = LS

@@ -20,7 +20,7 @@ use rassi_global_arrays, only: JBNUM, SFDYS, SODYSAMPS, SODYSAMPSI, SODYSAMPSR
 use OneDat, only: sNoNuc, sNoOri
 use Cntrl, only: DYSEXPORT, DYSEXPSO, MLTPLT, NSTATE
 use Symmetry_Info, only: nIrrep
-use rassi_data, only: NBASF, NOSH
+use rassi_data, only: NBASF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -28,9 +28,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: NSS, NZ
 real(kind=wp) :: USOR(NSS,NSS), USOI(NSS,NSS), DYSAMPS(NSTATE,NSTATE), SOENE(NSS)
-integer(kind=iwp) :: ICMP, IEIG, IOPT, IRC, ISTATE, ISY, ISYLAB, JEIG, JOB1, JSTATE, LUNIT, MPLET1, MSPROJ, NB, NDUM, NO, NOFF, &
-                     NPROD, NSSQ, NSZZ, ORBNUM, SFI, SFJ, SFTOT, SODYSCIND, SOTOT, ZI, ZJ
-real(kind=wp) :: AMPI, AMPLITUDE, AMPR, CII, CIMAG, CIR, CJI, CJR, CREAL, MSPROJI, MSPROJJ
+integer(kind=iwp) :: ICMP, IEIG, IOPT, IRC, ISTATE, ISY, ISYLAB, JEIG, JOB1, JSTATE, LUNIT, MPLET1, MSPROJ, NB, NDUM, NOFF, NSZZ, &
+                     ORBNUM, SFI, SFJ, SFTOT, SODYSCIND, SOTOT, ZI, ZJ
+real(kind=wp) :: AMPLITUDE, CII, CIMAG, CIR, CJI, CJR, CREAL, MSPROJI, MSPROJJ
 character(len=80) :: TITLE
 character(len=30) :: Filename
 character(len=8) :: Label
@@ -113,16 +113,7 @@ if (DYSEXPORT) then
   ! Read in the atomic overlap matrix, that will be needed below for
   ! for normalization of DOs
   ! (Code from mksxy)
-  NSZZ = 0
-  NSSQ = 0
-  NPROD = 0
-  do ISY=1,nIrrep
-    NO = NOSH(ISY)
-    NB = NBASF(ISY)
-    NSZZ = NSZZ+(NB*(NB+1))/2
-    NSSQ = max(NSSQ,NB**2)
-    NPROD = max(NPROD,NO*NB)
-  end do
+  NSZZ = sum(NBASF(1:nIrrep)*(NBASF(1:nIrrep)+1)/2)
   call mma_allocate(SZZ,NSZZ,Label='SZZ')
   IRC = -1
   IOPT = ibset(ibset(0,sNoOri),sNoNuc)
@@ -235,13 +226,10 @@ if (DYSEXPORT) then
 
       AMPLITUDE = Zero
 
-      do ZJ=1,NZ
-        do ZI=1,NZ
-          AMPR = SODYSCOFSR(ZJ)*SODYSCOFSR(ZI)+SODYSCOFSI(ZJ)*SODYSCOFSI(ZI)
-          AMPI = SODYSCOFSI(ZJ)*SODYSCOFSR(ZI)-SODYSCOFSR(ZJ)*SODYSCOFSI(ZI)
-          AMPLITUDE = AMPLITUDE+(AMPR+AMPI)*SZZFULL(ZJ,ZI)
-        end do ! ZI
-      end do ! ZJ
+      do ZI=1,NZ
+        AMPLITUDE = AMPLITUDE+sum(SZZFULL(:,ZI)*(SODYSCOFSR(:)*(SODYSCOFSR(ZI)-SODYSCOFSI(ZI))+ &
+                                                 SODYSCOFSI(:)*(SODYSCOFSR(ZI)+SODYSCOFSI(ZI))))
+      end do ! ZI
 
       AMPLITUDE = sqrt(AMPLITUDE)
       SODYSAMPS(JSTATE,ISTATE) = AMPLITUDE
@@ -249,11 +237,9 @@ if (DYSEXPORT) then
 
       ! Export Re and Im part of the coefficients
       if (AMPLITUDE > 1.0e-5_wp) then
-        do NDUM=1,NZ
-          SODYSCIND = SODYSCIND+1
-          SODYSCMOR(SODYSCIND) = SODYSCOFSR(NDUM)
-          SODYSCMOI(SODYSCIND) = SODYSCOFSI(NDUM)
-        end do
+        SODYSCMOR(SODYSCIND+1:SODYSCIND+NZ) = SODYSCOFSR(:)
+        SODYSCMOI(SODYSCIND+1:SODYSCIND+NZ) = SODYSCOFSI(:)
+        SODYSCIND = SODYSCIND+NZ
         ORBNUM = ORBNUM+1
         DYSEN(ORBNUM) = SOENE(ISTATE)-SOENE(JSTATE)
         AMPS(ORBNUM) = AMPLITUDE*AMPLITUDE

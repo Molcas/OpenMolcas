@@ -20,8 +20,8 @@ implicit none
 real(kind=wp) :: OVERLAP_RASSI
 integer(kind=iwp) :: IFSBTAB1(*), IFSBTAB2(*)
 real(kind=wp) :: PSI1(*), PSI2(*)
-integer(kind=iwp) :: IBLKPOS1, IBLKPOS2, IFSB1, IFSB2, ISPART, ISSTARR(50), KHSH2, KPOS1, KPOS2, KSTARR1, KSTARR2, NASPRT1, &
-                     NASPRT2, NBLKSIZ1, NBLKSIZ2, NDETS1, NDETS2, NFSB1, NFSB2, NHSH2
+integer(kind=iwp) :: IBLKPOS1, IBLKPOS2, IFSB1, IFSB2, ISSTARR(50), KHSH2, KPOS1, KPOS2, KSTARR1, KSTARR2, NASPRT1, NASPRT2, &
+                     NBLKSIZ1, NBLKSIZ2, NDETS1, NDETS2, NFSB1, NFSB2, NHSH2
 real(kind=wp), external :: ddot_
 
 NFSB1 = IFSBTAB1(3)
@@ -48,9 +48,7 @@ if (NDETS2 == 0) return
 ! Loop over FS blocks of the PSI1 wave function
 do IFSB1=1,NFSB1
   KPOS1 = KSTARR1+(NASPRT1+2)*(IFSB1-1)
-  do ISPART=1,NASPRT1
-    ISSTARR(ISPART) = IFSBTAB1(KPOS1-1+ISPART)
-  end do
+  ISSTARR(1:NASPRT1) = IFSBTAB1(KPOS1:KPOS1+NASPRT1-1)
   NBLKSIZ1 = IFSBTAB1(KPOS1+NASPRT1)
   IBLKPOS1 = IFSBTAB1(KPOS1+NASPRT1+1)
   ! Find this block in the PSI2 structure.

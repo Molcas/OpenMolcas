@@ -40,7 +40,7 @@ integer(kind=iwp), intent(in) :: istate, lsym, mplet, mspro, nacte, ntra, nsym, 
 real(kind=wp), intent(inout) :: tra(ntra)
 #ifdef _DMRG_
 integer(kind=iwp) :: i, ii, ista, isym, jorb, ni, no
-real(kind=wp) :: ckk, fac(1,1)
+real(kind=wp) :: fac
 real(kind=wp), allocatable :: tmat(:,:)
 
 ! tmat: active-active rotation matrix
@@ -67,18 +67,17 @@ write(lupri,'(1x,5f16.8)') (TRA(I),I=1,NTRA)
 #endif
 
 !> find first the scaling factor to transform wrt the inactive orbitals
-fac(1,1) = One
+fac = One
 ista = 1
 do isym=1,nsym
   no = nosh(isym)
   do i=1,nish(isym)
     ii = ista+(no+1)*(i-1)
-    ckk = tra(ii)
-    fac(1,1) = fac(1,1)*ckk
+    fac = fac*tra(ii)
   end do
   ista = ista+no**2
 end do
-fac(1,1) = fac(1,1)**2
+fac = fac**2
 #ifdef _DEBUGPRINT_
 write(lupri,*) ' scaling factor for MPS (inactive orbital rotations)',fac
 #endif
@@ -107,7 +106,7 @@ do isym=1,nsym
 end do
 
 ! rotate MPS
-call qcmaquis_mpssi_rotate(qcm_prefixes(job),istate,tmat,nash(1)**2,fac(1,1),mspro)
+call qcmaquis_mpssi_rotate(qcm_prefixes(job),istate,tmat,nash(1)**2,fac,mspro)
 
 if (allocated(tmat)) deallocate(tmat)
 !call mma_deallocate(tmat)

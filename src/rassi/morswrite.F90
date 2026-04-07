@@ -29,10 +29,6 @@ do I=1,len(STRING)
   IB = IB/2
   if (IBIT == 1) STRING(I:I) = '1'
 end do
-if (IB > 0) then
-  do I=1,len(STRING)
-    STRING(I:I) = '*'
-  end do
-end if
+if (IB > 0) STRING = repeat('*',len(STRING))
 
 end subroutine MorsWrite

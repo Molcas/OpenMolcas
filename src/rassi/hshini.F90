@@ -17,23 +17,15 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: NSIZE, INULL
 integer(kind=iwp), intent(out) :: ITAB(NSIZE,2)
-integer(kind=iwp) :: I, IFREE
+integer(kind=iwp) :: I
 
 if (NSIZE < NHASH) then
   write(u6,*) ' HSHINI: Table size must be at least as'
   write(u6,*) '         big as NHASH, presently =',NHASH
   call ABEND()
 end if
-do I=1,NHASH
-  ITAB(I,1) = INULL
-  ITAB(I,2) = INULL
-end do
-IFREE = NHASH+1
-do I=IFREE,NSIZE-1
-  ITAB(I,1) = I+1
-  ITAB(I,2) = INULL
-end do
-ITAB(NSIZE,1) = INULL
-ITAB(NSIZE,2) = IFREE
+ITAB(:,:) = INULL
+ITAB(NHASH+1:NSIZE-1,1) = [(I+1,I=NHASH+1,NSIZE-1)]
+ITAB(NSIZE,2) = NHASH+1
 
 end subroutine HSHINI

@@ -47,7 +47,7 @@ use fortran_strings, only: str
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NASH, NASHT, NBASF, NBST, NCMO, NISH, NISHT, NOSH
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -218,13 +218,9 @@ do I_NTO=1,N_NTO
   ONTO(:) = Zero
   UNTO(:) = Zero
   if (Spin(I_NTO) == 'a') then
-    do I=1,Ndge
-      TDM(I) = (TRAD(I)+TRASD(I))/Two
-    end do
+    TDM(1:Ndge) = Half*(TRAD(1:Ndge)+TRASD(1:Ndge))
   else
-    do I=1,Ndge
-      TDM(I) = (TRAD(I)-TRASD(I))/Two
-    end do
+    TDM(1:Ndge) = Half*(TRAD(1:Ndge)-TRASD(1:Ndge))
   end if
   do I=1,NASHT
     do J=1,NASHT
@@ -331,9 +327,7 @@ do I_NTO=1,N_NTO
   ! End of Printing NTOs
 
   call Get_cArray('Irreps',lIrrep,24)
-  do iSym=1,nIrrep
-    lIrrep(iSym) = adjustr(lIrrep(iSym))
-  end do
+  lIrrep(1:nIrrep) = adjustr(lIrrep(1:nIrrep))
 
   ! Putting particle-hole pairs in the output
   write(u6,*)

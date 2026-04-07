@@ -24,7 +24,7 @@ integer(kind=iwp) :: IMODE, ISORB, IORBTAB(*), ISSTAB(*), IFSBTAB1(*), IFSBTAB2(
 real(kind=wp) :: COEFF, SGM(*), PSI(*)
 integer(kind=iwp) :: I, IBLKPOS1, IBLKPOS2, IFSB1, IFSB2, IPOS1, IPOS2, ISBS1, ISBS2, ISP, ISPART, ISST, ISST1, ISST2, &
                      ISSTARR(50), ISUM, J, KHSH2, KOINFO, KPOS, KSBS1, KSBS2, KSBSAN, KSBSCR, KSBSOP, KSORB, KSSTAN, KSSTCR, &
-                     KSSTOP, KSSTTB, KSTARR1, KSTARR2, MORSBITS, NASPRT, NDI, NDJ, NFSB1, NHSH2, NPOP1, NSBS, NSBS1, NSBS2, NSSTP
+                     KSSTOP, KSSTTB, KSTARR1, KSTARR2, MORSBITS, NASPRT, NDI, NDJ, NFSB1, NHSH2, NPOP1, NSBS1, NSBS2, NSSTP
 real(kind=wp) :: CFFPHS, SCL
 integer(kind=iwp), allocatable :: SBSET(:)
 
@@ -62,32 +62,27 @@ call mma_allocate(SBSET,NSSTP,Label='SBSET')
 ISUM = 0
 do ISST=1,NSSTP
   SBSET(ISST) = ISUM
-  NSBS = ISSTAB(KSSTTB+5*(ISST-1))
-  ISUM = ISUM+NSBS
+  ISUM = ISUM+ISSTAB(KSSTTB+5*(ISST-1))
 end do
 
 ! Loop over FS blocks of the SGM wave function
 do IFSB1=1,NFSB1
   KPOS = KSTARR1+(NASPRT+2)*(IFSB1-1)
-  do ISP=1,NASPRT
-    ISSTARR(ISP) = IFSBTAB1(KPOS-1+ISP)
-  end do
+  ISSTARR(1:NASPRT) = IFSBTAB1(KPOS:KPOS+NASPRT-1)
   IBLKPOS1 = IFSBTAB1(KPOS+NASPRT+1)
   ! Initial values for lower and higher dimensions.
   ! Also, extra phase factor due to spin orbitals in higher substrings.
   NDI = 1
   do ISP=1,ISPART-1
     ISST1 = ISSTARR(ISP)
-    NSBS1 = ISSTAB(KSSTTB+5*(ISST1-1))
-    NDI = NDI*NSBS1
+    NDI = NDI*ISSTAB(KSSTTB+5*(ISST1-1))
   end do
   NDJ = 1
   CFFPHS = COEFF
   do ISP=ISPART+1,NASPRT
     ISST1 = ISSTARR(ISP)
-    NSBS1 = ISSTAB(KSSTTB+0+5*(ISST1-1))
     NPOP1 = ISSTAB(KSSTTB+1+5*(ISST1-1))
-    NDJ = NDJ*NSBS1
+    NDJ = NDJ*ISSTAB(KSSTTB+0+5*(ISST1-1))
     if (NPOP1 /= 2*(NPOP1/2)) CFFPHS = -CFFPHS
   end do
   ISST1 = ISSTARR(ISPART)

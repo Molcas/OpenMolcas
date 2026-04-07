@@ -12,11 +12,11 @@
 !***********************************************************************
 
 subroutine PART1(NDIMEN,NBLOCK,NSIZE,SXY,B,A,SCR,IPIV,BUF)
-!  PURPOSE: SEE SUBROUTINE PART.
-!  SUBDIVISION INTO TWO LEVELS OF ROUTINE CALLS IS MERELY TO
-!  FACILITATE HANDLING OF SYMMETRY AND INDEXING.
-!  ORIGINAL VERSION, MALMQUIST 84-04-04
-!  RASSCF VERSION,   MALMQUIST 89-11-15
+! PURPOSE: SEE SUBROUTINE PART.
+! SUBDIVISION INTO TWO LEVELS OF ROUTINE CALLS IS MERELY TO
+! FACILITATE HANDLING OF SYMMETRY AND INDEXING.
+! ORIGINAL VERSION, MALMQUIST 84-04-04
+! RASSCF VERSION,   MALMQUIST 89-11-15
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -27,20 +27,14 @@ real(kind=wp), intent(in) :: SXY(NDIMEN,NDIMEN)
 real(kind=wp), intent(out) :: B(NDIMEN,NDIMEN), A(NDIMEN,NDIMEN), BUF(NDIMEN)
 real(kind=wp), intent(inout) :: SCR(NDIMEN,NDIMEN)
 integer(kind=iwp), intent(out) :: IPIV(NDIMEN,2)
-integer(kind=iwp) :: I, J, K, KK, L, LIM1, LIM2, LIM3, M, NSZ
+integer(kind=iwp) :: I, J, K, L, LIM1, LIM2, LIM3, NSZ
 real(kind=wp) :: DET, T
 
 ! INITIALIZE A = INVERSE OF SXY, AND B = UNIT MATRIX:
-do I=1,NDIMEN
-  do J=1,NDIMEN
-    A(I,J) = zero
-    B(I,J) = Zero
-    SCR(I,J) = SXY(I,J)
-  end do
-  A(I,I) = One
-  B(I,I) = one
-end do
-call DOOL(NDIMEN,NDIMEN,NDIMEN,NDIMEN,SCR,A,DET,IPIV(1,1),IPIV(1,2),BUF)
+SCR(:,:) = SXY(:,:)
+call unitmat(A,NDIMEN)
+call unitmat(B,NDIMEN)
+call DOOL(NDIMEN,NDIMEN,NDIMEN,NDIMEN,SCR,A,DET,IPIV(:,1),IPIV(:,2),BUF)
 !---------------------------------------------------------------
 ! LOOP BACKWARDS OVER THE BLOCKS. KEEP THREE LIMITS UPDATED:
 ! LIM1= POS IMMEDIATELY BEFORE CURRENT BLOCK, LIM2= BEGINNING
@@ -54,25 +48,15 @@ do K=NBLOCK,2,-1
   !---------------------------------------------------------------
   ! CALCULATE (INVERSE OF CURRENT A-BLOCK)*(ALL TO THE LEFT OF IT)
   ! AND PUT IT INTO B-MATRIX. THEN CLEAR ALL TO THE LEFT OF THE A-BLOCK.
-  do I=LIM2,LIM3
-    do J=LIM2,LIM3
-      SCR(I,J) = A(I,J)
-    end do
-    do J=1,LIM1
-      B(I,J) = A(I,J)
-      A(I,J) = zero
-    end do
-  end do
+  SCR(LIM2:LIM3,LIM2:LIM3) = A(LIM2:LIM3,LIM2:LIM3)
+  B(LIM2:LIM3,1:LIM1) = A(LIM2:LIM3,1:LIM1)
+  A(LIM2:LIM3,1:LIM1) = Zero
   call DOOL(NDIMEN,NDIMEN,NSZ,LIM1,SCR(LIM2,LIM2),B(LIM2,1),DET,IPIV(1,1),IPIV(1,2),BUF)
   !---------------------------------------------------------------
   ! THEN UPDATE THE COLUMNS OF A TO THE LEFT OF THE CURRENT BLOCK:
   do J=1,LIM1
     do I=1,LIM1
-      T = A(I,J)
-      do KK=LIM2,LIM3
-        T = T-B(KK,J)*A(I,KK)
-      end do
-      A(I,J) = T
+      A(I,J) = A(I,J)-sum(B(LIM2:LIM3,J)*A(I,LIM2:LIM3))
     end do
   end do
 end do
@@ -92,26 +76,20 @@ call LU2(NDIMEN,NBLOCK,NSIZE,B,A,BUF)
 ! NOW CHANGE SIGN OF LOWER-TRIANGULAR PARTS AND
 ! INVERT UPPER-TRIANGULAR PARTS, AS INDICATED IN (VI.6):
 
-do I=2,NDIMEN
-  do J=1,I-1
-    A(I,J) = -A(I,J)
-    B(I,J) = -B(I,J)
-  end do
+do J=1,NDIMEN-1
+  A(J+1:NDIMEN,J) = -A(J+1:NDIMEN,J)
+  B(J+1:NDIMEN,J) = -B(J+1:NDIMEN,J)
 end do
 do L=NDIMEN,1,-1
   A(L,L) = One/A(L,L)
   B(L,L) = One/B(L,L)
-  do M=L+1,NDIMEN
-    A(L,M) = A(L,L)*A(L,M)
-    B(L,M) = B(L,L)*B(L,M)
-  end do
+  A(L,L+1:NDIMEN) = A(L,L)*A(L,L+1:NDIMEN)
+  B(L,L+1:NDIMEN) = B(L,L)*B(L,L+1:NDIMEN)
   do K=1,L-1
-    do M=L+1,NDIMEN
-      A(K,M) = A(K,M)-A(K,L)*A(L,M)
-      B(K,M) = B(K,M)-B(K,L)*B(L,M)
-    end do
-    A(K,L) = -(A(L,L)*A(K,L))
-    B(K,L) = -(B(L,L)*B(K,L))
+    A(K,L+1:NDIMEN) = A(K,L+1:NDIMEN)-A(K,L)*A(L,L+1:NDIMEN)
+    B(K,L+1:NDIMEN) = B(K,L+1:NDIMEN)-B(K,L)*B(L,L+1:NDIMEN)
+    A(K,L) = -A(L,L)*A(K,L)
+    B(K,L) = -B(L,L)*B(K,L)
   end do
 end do
 

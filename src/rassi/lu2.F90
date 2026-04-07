@@ -12,44 +12,36 @@
 !***********************************************************************
 
 subroutine LU2(NDIMEN,NBLOCK,NSIZE,CXA,CYB,SCR)
-!  GIVES A SIMULTANEOUS LU-PARTITIONING OF MATRICES CXA,CYB IN THE
-!  SENSE THAT CXA*X = L1*U1 AND CYB*X = L2*U2, WHERE X IS A BLOCK
-!  UNITARY MATRIX. X IS NEVER FORMED, BUT AT EACH STEP SUCH A
-!  TRANSFORMATION IS APPLIED THAT THE LU PARTITIONING CAN BE
-!  APPLIED IN AN OPTIMAL WAY -- THIS IS REFERRED TO AS A
-!  UNITARY PSEUDO-PIVOTATION. MATRICES CXA AND CYB ARE DESTROYED,
-!  AND WILL CONTAIN THE NONTRIVIAL ELEMENTS OF THE TRIANGULAR
-!  MATRICES.
-!                                         ( MALMQUIST 84-01-16 )
+! GIVES A SIMULTANEOUS LU-PARTITIONING OF MATRICES CXA,CYB IN THE
+! SENSE THAT CXA*X = L1*U1 AND CYB*X = L2*U2, WHERE X IS A BLOCK
+! UNITARY MATRIX. X IS NEVER FORMED, BUT AT EACH STEP SUCH A
+! TRANSFORMATION IS APPLIED THAT THE LU PARTITIONING CAN BE
+! APPLIED IN AN OPTIMAL WAY -- THIS IS REFERRED TO AS A
+! UNITARY PSEUDO-PIVOTATION. MATRICES CXA AND CYB ARE DESTROYED,
+! AND WILL CONTAIN THE NONTRIVIAL ELEMENTS OF THE TRIANGULAR
+! MATRICES.
+!                                        ( MALMQUIST 84-01-16 )
 
-use Constants, only: Zero, One, Two
+use Constants, only: One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NDIMEN, NBLOCK, NSIZE(NBLOCK)
 real(kind=wp), intent(inout) :: CXA(NDIMEN,NDIMEN), CYB(NDIMEN,NDIMEN), SCR(NDIMEN)
-integer(kind=iwp) :: I, IBLOCK, IEND, II, ISTA, J, NTOT
+integer(kind=iwp) :: I, IBLOCK, IEND, II, ISTA, NTOT
 real(kind=wp) :: S, S1, S2, S3, X, X1, X2
 real(kind=wp), parameter :: THR = 1.0e-6_wp
 
-NTOT = 0
-do IBLOCK=1,NBLOCK
-  NTOT = NTOT+NSIZE(IBLOCK)
-end do
+NTOT = sum(NSIZE(:))
 if (NTOT /= NDIMEN) write(u6,*) ' ERROR: NTOT /= NDIMEN IN LU2.'
 IEND = 0
 do IBLOCK=1,NBLOCK
   ISTA = IEND+1
   IEND = IEND+NSIZE(IBLOCK)
   do II=ISTA,IEND
-    S1 = Zero
-    S2 = Zero
-    S3 = Zero
-    do J=II,IEND
-      S1 = S1+CXA(II,J)**2
-      S2 = S2+CYB(II,J)**2
-      S3 = S3+CXA(II,J)*CYB(II,J)
-    end do
+    S1 = sum(CXA(II,II:IEND)**2)
+    S2 = sum(CYB(II,II:IEND)**2)
+    S3 = sum(CXA(II,II:IEND)*CYB(II,II:IEND))
     if ((S1 < THR) .or. (S2 < THR)) then
       write(u6,*) ' RASSI CANNOT CONTINUE. THE PROBLEM AT HAND'
       write(u6,*) ' IS PROBABLY NOT SOLUBLE. THE TWO ORBITAL'
@@ -63,58 +55,34 @@ do IBLOCK=1,NBLOCK
     end if
     X1 = One/sqrt(S1)
     X2 = One/sign(sqrt(S2),S3)
-    do I=II,IEND
-      SCR(I) = X1*CXA(II,I)+X2*CYB(II,I)
-    end do
+    SCR(II:IEND) = X1*CXA(II,II:IEND)+X2*CYB(II,II:IEND)
     S = Two*(One+X1*X2*S3)
     X = One/sign(sqrt(S),SCR(II))
-    do I=II,IEND
-      SCR(I) = X*SCR(I)
-    end do
+    SCR(II:IEND) = X*SCR(II:IEND)
     X = One/(One+SCR(II))
     do I=1,IEND
-      S = Zero
-      do J=II,IEND
-        S = S+CXA(I,J)*SCR(J)
-      end do
-      S2 = Zero
-      do J=II+1,IEND
-        S2 = S2+CXA(I,J)*SCR(J)
-      end do
+      S2 = sum(CXA(I,II+1:IEND)*SCR(II+1:IEND))
+      S = S2+CXA(I,II)*SCR(II)
       S2 = CXA(I,II)+X*S2
       CXA(I,II) = S
-      do J=II+1,IEND
-        CXA(I,J) = CXA(I,J)-S2*SCR(J)
-      end do
+      CXA(I,II+1:IEND) = CXA(I,II+1:IEND)-S2*SCR(II+1:IEND)
     end do
     do I=1,IEND
-      S = Zero
-      do J=II,IEND
-        S = S+CYB(I,J)*SCR(J)
-      end do
-      S2 = Zero
-      do J=II+1,IEND
-        S2 = S2+CYB(I,J)*SCR(J)
-      end do
+      S2 = sum(CYB(I,II+1:IEND)*SCR(II+1:IEND))
+      S = S2+CYB(I,II)*SCR(II)
       S2 = CYB(I,II)+X*S2
       CYB(I,II) = S
-      do J=II+1,IEND
-        CYB(I,J) = CYB(I,J)-S2*SCR(J)
-      end do
+      CYB(I,II+1:IEND) = CYB(I,II+1:IEND)-S2*SCR(II+1:IEND)
     end do
     X = One/CXA(II,II)
     do I=II+1,IEND
       CXA(I,II) = X*CXA(I,II)
-      do J=II+1,NTOT
-        CXA(I,J) = CXA(I,J)-CXA(I,II)*CXA(II,J)
-      end do
+      CXA(I,II+1:NTOT) = CXA(I,II+1:NTOT)-CXA(I,II)*CXA(II,II+1:NTOT)
     end do
     X = One/CYB(II,II)
     do I=II+1,IEND
       CYB(I,II) = X*CYB(I,II)
-      do J=II+1,NTOT
-        CYB(I,J) = CYB(I,J)-CYB(I,II)*CYB(II,J)
-      end do
+      CYB(I,II+1:NTOT) = CYB(I,II+1:NTOT)-CYB(I,II)*CYB(II,II+1:NTOT)
     end do
   end do
 end do

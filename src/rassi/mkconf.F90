@@ -102,10 +102,8 @@ IORB = 0
 do IGAS=1,NGAS
   do ISYM=1,nIrrep
     N = ICNFTAB(KGASORB+ISYM+(nIrrep+1)*IGAS)
-    do K=1,N
-      IORB = IORB+1
-      ISM(IORB) = ISYM
-    end do
+    ISM(IORB+1:IORB+N) = ISYM
+    IORB = IORB+N
   end do
 end do
 
@@ -142,9 +140,7 @@ outer: do NOPN=MINOP,MAXOP
   if (IFORM == 3) LENCNF = (NOCC+3)/4
   if (IFORM == 4) LENCNF = (NORB+14)/15
   ! Counter of configurations/symmetry for this nr of open shells:
-  do ISYM=1,nIrrep
-    NCNFSYM(ISYM) = 0
-  end do
+  NCNFSYM(1:nIrrep) = 0
   ! Loop over all ways of distributing NOPN open shells among
   ! the partitions. First make a start distribution:
   INIT1 = NGAS
@@ -156,10 +152,7 @@ outer: do NOPN=MINOP,MAXOP
     ! increment the next higher partition (if any).
     ! Let M=Max tot nr of open shells in lower partitions.
     if (INIT1 < NGAS) IOPDST(INIT1+1) = IOPDST(INIT1+1)+1
-    M = NOP1
-    do IGAS=INIT1,1,-1
-      M = M-LIMOP(1,IGAS)
-    end do
+    M = NOP1-sum(LIMOP(1,1:INIT1))
     if (M < 0) cycle OUTER
 
     ! But actually, we start with zero. So M open shells must be
@@ -208,10 +201,7 @@ outer: do NOPN=MINOP,MAXOP
         ! among the INIT2 lowest partitions, and increment the next higher
         ! partition (if any).
         if (INIT2 < NGAS) ICLDST(INIT2+1) = ICLDST(INIT2+1)+1
-        M = NCL2
-        do IGAS=INIT2,1,-1
-          M = M-LIMCL(1,IGAS)
-        end do
+        M = NCL2-sum(LIMCL(1,1:INIT2))
         if (M < 0) exit
         do IGAS=1,INIT2
           MORE = min(LIMCL(2,IGAS)-LIMCL(1,IGAS),M)
@@ -225,20 +215,14 @@ outer: do NOPN=MINOP,MAXOP
         IORB = 0
         do IGAS=1,NGAS
           NCL = ICLDST(IGAS)
-          do I=1,NCL
-            IORB = IORB+1
-            IOC(IORB) = 2
-          end do
+          IOC(IORB+1:IORB+NCL) = 2
+          IORB = IORB+NCL
           NOP = IOPDST(IGAS)
-          do I=1,NOP
-            IORB = IORB+1
-            IOC(IORB) = 1
-          end do
+          IOC(IORB+1:IORB+NOP) = 1
+          IORB = IORB+NOP
           NOR = ICNFTAB(KGASORB+(nIrrep+1)*IGAS)
-          do I=1,NOR-NCL-NOP
-            IORB = IORB+1
-            IOC(IORB) = 0
-          end do
+          IOC(IORB+1:IORB+NOR-NCL-NOP) = 0
+          IORB = IORB+NOR-NCL-NOP
         end do
         inner: do
           ! Here finally we will get all possible configurations, restricted
@@ -280,9 +264,7 @@ outer: do NOPN=MINOP,MAXOP
             end do
             ! Add this configuration to the configuration table:
             if (IFORM == 1) then
-              do I=1,NOCC
-                ICNFTAB(KPOS-1+I) = ICNF(I)
-              end do
+              ICNFTAB(KPOS:KPOS+NOCC-1) = ICNF(1:NOCC)
             else if (IFORM == 3) then
               do I=1,NOCC
                 IW = (3+I)/4
@@ -295,9 +277,7 @@ outer: do NOPN=MINOP,MAXOP
               end do
             else
               if (IFORM == 2) then
-                do I=1,NORB
-                  ICNFTAB(KPOS-1+I) = IOC(I)
-                end do
+                ICNFTAB(KPOS:KPOS+NORB-1) = IOC(1:NORB)
               else if (IFORM == 4) then
                 do I=1,NORB
                   IW = (14+I)/15
@@ -340,15 +320,9 @@ outer: do NOPN=MINOP,MAXOP
             ! then try the next one:
             N = ICLDST(IGAS)
             M = IOPDST(IGAS)
-            do IO=1,N
-              IOC(IOFF+IO) = 2
-            end do
-            do IO=N+1,N+M
-            IOC(IOFF+IO) = 1
-            end do
-            do IO=N+M+1,NOR
-              IOC(IOFF+IO) = 0
-            end do
+            IOC(IOFF+1:IOFF+N) = 2
+            IOC(IOFF+N+1:IOFF+N+M) = 1
+            IOC(IOFF+N+M+1:IOFF+NOR) = 0
             IOFF = IOFF+NOR
           end do
           if (Skip30) exit

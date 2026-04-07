@@ -37,9 +37,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: JOB
 logical(kind=iwp) :: READ_STATES
-integer(kind=iwp) :: I, IAD, IAD15, IDISK, IDUM(1), IERR, IPT2, ISNUM, ISTATE, ISY, IT, J, JSNUM, JSTATE, NEJOB, NHEFF, NIS, NIS1, &
+integer(kind=iwp) :: I, IAD, IAD15, IDISK, IDUM(1), IPT2, ISNUM, ISTATE, ISY, IT, J, JSNUM, JSTATE, NEJOB, NHEFF, NIS, NIS1, &
                      NMAYBE, NROOT0, NTIT1
-real(kind=wp) :: AEMAX, E, ENUCDUMMY, HIJ
+real(kind=wp) :: E, ENUCDUMMY, HIJ
 logical(kind=iwp) :: ISZERO
 real(kind=wp), allocatable :: EJOB(:), EREAD(:), H_Eff(:), Weight(:)
 #ifdef _HDF5_
@@ -139,9 +139,7 @@ if (mh5_is_hdf5(jbname(job))) then
   if (mh5_exists_attr(refwfn_id,'ROOT2STATE')) then
     call mh5_fetch_attr(refwfn_id,'ROOT2STATE',root2state)
   else
-    do i=1,ref_nroots
-      root2state(i) = i
-    end do
+    root2state(1:ref_nroots) = [(i,i=1,ref_nroots)]
   end if
   if (read_states) then
     ! Do not update the state number here, because it's already read in
@@ -149,10 +147,8 @@ if (mh5_is_hdf5(jbname(job))) then
     !NSTAT(JOB) = ref_nstates
     !NSTATE = NSTATE+ref_nstates
     ! store the root IDs of each state
-    do I=0,NSTAT(JOB)-1
-      LROOT(ISTAT(JOB)+I) = ref_rootid(I+1)
-      JBNUM(ISTAT(JOB)+I) = JOB
-    end do
+    LROOT(ISTAT(JOB):ISTAT(JOB)+NSTAT(JOB)-1) = ref_rootid(1:NSTAT(JOB))
+    JBNUM(ISTAT(JOB):ISTAT(JOB)+NSTAT(JOB)-1) = JOB
   end if
   LROT1 = ref_nroots
   do I=0,NSTAT(JOB)-1
@@ -292,17 +288,15 @@ if (mh5_is_hdf5(jbname(job))) then
 
   if (job == 1) then
     ! first wavefunction file, set global variables
-    do I=1,nIrrep
-      NFRO(I) = 0
-      NISH(I) = ref_nfro(I)+ref_nish(I)
-      NASH(I) = ref_nash(I)
-      NRS1(I) = ref_NRS1(I)
-      NRS2(I) = ref_NRS2(I)
-      NRS3(I) = ref_NRS3(I)
-      NOSH(I) = NISH(I)+NASH(I)
-      NDEL(I) = 0
-      NSSH(I) = NBASF(I)-NFRO(I)-NISH(I)-NASH(I)-NDEL(I)
-    end do
+    NFRO(1:nIrrep) = 0
+    NISH(1:nIrrep) = ref_nfro(1:nIrrep)+ref_nish(1:nIrrep)
+    NASH(1:nIrrep) = ref_nash(1:nIrrep)
+    NRS1(1:nIrrep) = ref_NRS1(1:nIrrep)
+    NRS2(1:nIrrep) = ref_NRS2(1:nIrrep)
+    NRS3(1:nIrrep) = ref_NRS3(1:nIrrep)
+    NOSH(1:nIrrep) = NISH(1:nIrrep)+NASH(1:nIrrep)
+    NDEL(1:nIrrep) = 0
+    NSSH(1:nIrrep) = NBASF(1:nIrrep)-NFRO(1:nIrrep)-NISH(1:nIrrep)-NASH(1:nIrrep)-NDEL(1:nIrrep)
   else
     ! subsequent wavefunction file, check against global variables
     if ((ref_nhole1 /= nhole1(1)) .or. (ref_nelec3 /= nele3(1))) then
@@ -393,10 +387,8 @@ else
 
     ! If unset yet, set now
     if (LROOT(ISTAT(JOB)) == 0) then
-      do I=0,NSTAT(JOB)-1
-        LROOT(ISTAT(JOB)+I) = IROOT1(I+1)
-        JBNUM(ISTAT(JOB)+I) = JOB
-      end do
+      LROOT(ISTAT(JOB):ISTAT(JOB)+NSTAT(JOB)-1) = IROOT1(1:NSTAT(JOB))
+      JBNUM(ISTAT(JOB):ISTAT(JOB)+NSTAT(JOB)-1) = JOB
     end if
   end if
   do I=0,NSTAT(JOB)-1
@@ -415,12 +407,7 @@ else
   ! table of energies/iteration is the last one with not all zeroes.
   NMAYBE = 0
   do IT=1,MXITER
-    AEMAX = Zero
-    do I=1,MXROOT
-      E = EJOB(MXROOT*(IT-1)+I)
-      AEMAX = max(AEMAX,abs(E))
-    end do
-    if (abs(AEMAX) <= 1.0e-12_wp) exit
+    if (maxval(abs(EJOB(MXROOT*(IT-1)+1:MXROOT*IT)))  <= 1.0e-12_wp) exit
     NMAYBE = IT
   end do
   call mma_allocate(EREAD,NSTATE,Label='EREAD')
@@ -478,7 +465,7 @@ else
       do I=1,NSTAT(JOB)
         ISTATE = ISTAT(JOB)-1+I
         ISNUM = LROOT(ISTATE)
-        HIJ = H_EFF(ISNUM+LROT1*(ISNUM-1))
+        HIJ = H_EFF(LROOT(ISTATE)+LROT1*(ISNUM-1))
         REFENE(istate) = HIJ
         HEff(iState,iState) = HIJ
       end do
@@ -514,41 +501,31 @@ else
   ! pure CASSCF cases, it may not bother to set the NRS1..NRS3 arrays.
   ! Check and repair:
   if (NHOL11+NELE31 == 0) then
-    IERR = 0
-    do I=1,NSYM1
-      if (NRS11(I) /= 0) IERR = 1
-      if (NRS21(I) /= NASH1(I)) IERR = 1
-      if (NRS31(I) /= 0) IERR = 1
-    end do
-    if (IERR == 1) then
+    if (any(NRS11(1:NSYM1) /= 0) .or. any(NRS21(1:NSYM1) /= NASH1(1:NSYM1)) .or. any(NRS31(1:NSYM1) /= 0)) then
       write(u6,*)
       write(u6,*) ' (NOTE: The nr of RAS1, RAS2 and RAS3 orbitals as recorded on the JOBIPH file do not match'
       write(u6,*) ' the number of active orbitals. But this is a pure CASSCF case. Maybe the RASSCF programmer did'
       write(u6,*) ' not bother with the RAS1..RAS3 arrays in that case. RASSI will reset these arrays as needed.)'
       write(u6,*)
-      do I=1,NSYM1
-        NRS11(I) = 0
-        NRS21(I) = NASH1(I)
-        NRS31(I) = 0
-      end do
+      NRS11(1:NSYM1) = 0
+      NRS21(1:NSYM1) = NASH1(NSYM1)
+      NRS31(1:NSYM1) = 0
     end if
   end if
 
   if (JOB == 1) then
     ! FIRST JOB FILE. TRANSFER DATA TO COMMON:
     nIrrep = NSYM1
-    do I=1,nIrrep
-      NFRO(I) = 0
-      NISH(I) = NFRO1(I)+NISH1(I)
-      NASH(I) = NASH1(I)
-      NRS1(I) = NRS11(I)
-      NRS2(I) = NRS21(I)
-      NRS3(I) = NRS31(I)
-      NOSH(I) = NISH(I)+NASH(I)
-      NDEL(I) = 0
-      NBASF(I) = NBAS1(I)
-      NSSH(I) = NBASF(I)-NFRO(I)-NISH(I)-NASH(I)-NDEL(I)
-    end do
+    NFRO(1:nIrrep) = 0
+    NISH(1:nIrrep) = NFRO1(1:nIrrep)+NISH1(1:nIrrep)
+    NASH(1:nIrrep) = NASH1(1:nIrrep)
+    NRS1(1:nIrrep) = NRS11(1:nIrrep)
+    NRS2(1:nIrrep) = NRS21(1:nIrrep)
+    NRS3(1:nIrrep) = NRS31(1:nIrrep)
+    NOSH(1:nIrrep) = NISH(1:nIrrep)+NASH(1:nIrrep)
+    NDEL(1:nIrrep) = 0
+    NBASF(1:nIrrep) = NBAS1(1:nIrrep)
+    NSSH(1:nIrrep) = NBASF(1:nIrrep)-NFRO(1:nIrrep)-NISH(1:nIrrep)-NASH(1:nIrrep)-NDEL(1:nIrrep)
   else
     ! THIS IS NOT THE FIRST JOBIPH.
     ! CHECK THAT DATA IS CONSISTENT WITH EARLIER:

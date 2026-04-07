@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: JOB
 real(kind=wp) :: CMO(NCMO)
-integer(kind=iwp) :: I, IAD, IDISK, ISY, L1, L2, Length, NB, NBUF
+integer(kind=iwp) :: I, IAD, IDISK, ISY, L1, L2, Length, NBUF
 #ifdef _HDF5_
 integer(kind=iwp) :: refwfn_id
 #endif
@@ -40,10 +40,7 @@ end if
 if (IPGLOB >= 4) write(u6,*) ' RDCMO_RASSI called for file '//trim(JBNAME(JOB))
 ! READ ORBITAL COEFFICIENTS FROM INTERFACE. ORIGINALLY ALL
 ! CMO COEFFS, INCLUDING VIRTUALS, WERE WRITTEN CONTIGUOUSLY.
-NBUF = 0
-do I=1,nIrrep
-  NBUF = NBUF+NBASF(I)**2
-end do
+NBUF = sum(NBASF(1:nIrrep)**2)
 call mma_allocate(BUF,NBUF,Label='BUF')
 
 #ifdef _HDF5_
@@ -83,11 +80,10 @@ end if
 L1 = 1
 L2 = 1
 do ISY=1,nIrrep
-  NB = NBASF(ISY)
-  Length = NOSH(ISY)*NB
+  Length = NOSH(ISY)*NBASF(ISY)
   if (Length > 0) call DCOPY_(Length,BUF(L1),1,CMO(L2),1)
   L2 = L2+Length
-  L1 = L1+NB**2
+  L1 = L1+NBASF(ISY)**2
 end do
 if (IPGLOB >= 5) then
   write(u6,*) ' Gathered CMO from array.'

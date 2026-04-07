@@ -24,7 +24,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: NPELA, NPELB, NPSDSZ, IPSDMS(NPELA+NPELB,NPSDSZ)
-integer(kind=iwp) :: ITMP(50), J, K, L, NDET, NPORB
+integer(kind=iwp) :: ITMP(50), K, L, NDET, NPORB
 integer(kind=iwp), parameter :: ASPIN = 1, BSPIN = 0
 integer(kind=iwp), external :: NOVERM
 
@@ -35,14 +35,10 @@ if ((NPELA < 0) .or. (NPELB < 0)) then
 end if
 NPORB = NPELA+NPELB
 if (NPORB == 0) return
-do K=1,NPELA
-  ITMP(K) = K
-  IPSDMS(K,1) = ASPIN
-end do
+ITMP(1:NPELA) = [(K,K=1,NPELA)]
+IPSDMS(1:NPELA,1) = ASPIN
 if (NPELA == NPORB) return
-do K=NPELA+1,NPORB
-  IPSDMS(K,1) = BSPIN
-end do
+IPSDMS(NPELA+1:NPORB,1) = BSPIN
 if (NPELA == 0) return
 
 NDET = NOVERM(NPORB,NPELA)
@@ -67,17 +63,13 @@ outer: do
     if (ITMP(K+1) /= 1+ITMP(K)) exit
   end do
   ITMP(K) = ITMP(K)+1
-  do L=1,K-1
-    ITMP(L) = L
-  end do
+  ITMP(1:K-1) = [(L,L=1,K-1)]
   NDET = NDET+1
   if (NDET > NPSDSZ) then
     write(u6,*) " Serious error in PROTOSD. Too many SD's are produced."
     call ABEND()
   end if
-  do J=1,NPORB
-    IPSDMS(J,NDET) = BSPIN
-  end do
+  IPSDMS(1:NPORB,NDET) = BSPIN
   do L=1,NPELA
     IPSDMS(ITMP(L),NDET) = ASPIN
   end do

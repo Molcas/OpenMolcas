@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: NZ
 real(kind=wp) :: DYSAMPS(NSTATE,NSTATE), SFDYS(NZ,NSTATE,NSTATE), ENERGY(NSTATE)
-integer(kind=iwp) :: DYSCIND, ISTATE, JSTATE, LUNIT, NDUM, ORBNUM
+integer(kind=iwp) :: DYSCIND, ISTATE, JSTATE, LUNIT, ORBNUM
 character(len=80) :: TITLE
 character(len=30) :: Filename
 real(kind=wp), allocatable :: AMPS(:), CMO(:), DYSEN(:)
@@ -59,10 +59,8 @@ do JSTATE=1,DYSEXPSF
   do ISTATE=JSTATE+1,NSTATE
 
     if (DYSAMPS(JSTATE,ISTATE) > 1.0e-5_wp) then
-      do NDUM=1,NZ
-        DYSCIND = DYSCIND+1
-        CMO(DYSCIND) = SFDYS(NDUM,ISTATE,JSTATE)
-      end do
+      CMO(DYSCIND+1:DYSCIND+NZ) = SFDYS(:,ISTATE,JSTATE)
+      DYSCIND = DYSCIND+NZ
       ORBNUM = ORBNUM+1
       DYSEN(ORBNUM) = ENERGY(ISTATE)-ENERGY(JSTATE)
       AMPS(ORBNUM) = DYSAMPS(JSTATE,ISTATE)*DYSAMPS(JSTATE,ISTATE)

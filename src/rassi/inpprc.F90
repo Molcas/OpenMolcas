@@ -30,9 +30,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: I, I1, I2, IADD, IATOM, IBYTE, ICMP, ICMPLST(MXPROP), IDUM(1), IERR, II, III, IMISS, IOPT, IPROP, IPRP, IRC, &
-                     IS, ISOPR, ISYLAB, ISYM, J, JOB1, JOB2, JPROP, JSOPR, MISSAMX, MISSAMY, MISSAMZ, MPROP, MSOPR, N, NATOM, NBI, &
-                     NLEV, NPRPLST
+integer(kind=iwp) :: I, I1, I2, IADD, IBYTE, ICMP, ICMPLST(MXPROP), IDUM(1), IERR, II, III, IMISS, IOPT, IPROP, IPRP, IRC, ISOPR, &
+                     ISYLAB, J, JOB1, JOB2, MISSAMX, MISSAMY, MISSAMZ, MPROP, MSOPR, N, NATOM, NPRPLST
 real(kind=wp) :: XAXIS, ZAXIS
 logical(kind=iwp) :: IsAvail(MXPROP), IsAvailSO(MXPROP), JOBMATCH
 character(len=8) :: LABEL, LABEL2, PRPLST(MXPROP)
@@ -64,31 +63,20 @@ if (SOTHR_PRT < Zero) then
 end if
 
 ! Some sizes:
+NBMX = maxval(NBASF(1:nIrrep))
 NBSQ = 0
-NBMX = 0
 IPRP = 0
 do I=1,nIrrep
-  NBI = NBASF(I)
-  NBMX = max(NBMX,NBI)
   NBSQPR(I) = NBSQ
-  NBSQ = NBSQ+NBI**2
+  NBSQ = NBSQ+NBASF(I)**2
 end do
 NBTRI = (NBSQ+NBST)/2
-NLEV = 0
-do I=1,nIrrep
-  NLEV = NLEV+NRS1(I)+NRS2(I)+NRS3(I)
-end do
 ! Sizes of some data sets:
 ! ACTUAL SIZES OF TDMAB AND TDMZZ DEPENDS ON BOTH LSYM1 AND LSYM2.
 ! HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
-NCMO = NOSH(1)*NBASF(1)
-NTRA = NOSH(1)**2
-NTDMZZ = NBASF(1)**2
-do IS=2,nIrrep
-  NCMO = NCMO+NOSH(IS)*NBASF(IS)
-  NTRA = NTRA+NOSH(IS)**2
-  NTDMZZ = NTDMZZ+NBASF(IS)**2
-end do
+NCMO = sum(NOSH(1:nIrrep)*NBASF(1:nIrrep))
+NTRA = sum(NOSH(1:nIrrep)**2)
+NTDMZZ = sum(NBASF(1:nIrrep)**2)
 NTDMAB = NTRA
 SaveDens = (IFTRD1 .or. IFTDM) .or. (SONATNSTATE > 0) .or. (SONTOSTATES > 0) .or. NATO .or. Do_TMOM
 if (SaveDens) then
@@ -399,11 +387,9 @@ if (NPROP == 0) then
   end if
   ! If no PROP input, copy the SOPR selection:
   NPROP = NSOPR
-  do IPROP=1,NPROP
-    PNAME(IPROP) = SOPRNM(IPROP)
-    PTYPE(IPROP) = SOPRTP(IPROP)
-    ICOMP(IPROP) = ISOCMP(IPROP)
-  end do
+  PNAME(1:NPROP) = SOPRNM(1:NPROP)
+  PTYPE(1:NPROP) = SOPRTP(1:NPROP)
+  ICOMP(1:NPROP) = ISOCMP(1:NPROP)
 
   !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
   !                                                                    C
@@ -414,11 +400,9 @@ else
   ! If no SOPR input, copy the PROP selection:
   if (NSOPR == 0) then
     NSOPR = NPROP
-    do ISOPR=1,NSOPR
-      SOPRNM(ISOPR) = PNAME(ISOPR)
-      SOPRTP(ISOPR) = PTYPE(ISOPR)
-      ISOCMP(ISOPR) = ICOMP(ISOPR)
-    end do
+    SOPRNM(1:NSOPR) = PNAME(1:NSOPR)
+    SOPRTP(1:NSOPR) = PTYPE(1:NSOPR)
+    ISOCMP(1:NSOPR) = ICOMP(1:NSOPR)
   end if
 
   !CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -433,12 +417,8 @@ end if
 
 ! Check if we need to activate IFJ2/IFJZ automatically
 if (natoms == 1) ifj2 = 1
-xaxis = Zero
-zaxis = Zero
-do iatom=1,natoms
-  xaxis = xaxis+abs(coor(1,iatom))+abs(coor(2,iatom))
-  zaxis = zaxis+abs(coor(3,iatom))
-end do
+xaxis = sum(abs(coor(1,1:natoms))+abs(coor(2,1:natoms)))
+zaxis = sum(abs(coor(3,1:natoms)))
 if ((xaxis < 1.0e-10_wp) .and. (zaxis > 0.1_wp)) ifjz = 1
 
 ! Check if angular momentum integrals have been computed
@@ -678,14 +658,10 @@ do IPROP=1,NPROP
       if (PNAME(IPROP+N) == 'DONE') exit
       if (PNAME(IPROP+N) /= 'REMOVE') exit
     end do
-    do JPROP=IPROP,MPROP-N
-      PNAME(JPROP) = PNAME(JPROP+N)
-      PTYPE(JPROP) = PTYPE(JPROP+N)
-      ICOMP(JPROP) = ICOMP(JPROP+N)
-    end do
-    do JPROP=MPROP-N+1,MPROP
-      PNAME(JPROP) = 'DONE'
-    end do
+    PNAME(IPROP:MPROP-N) = PNAME(IPROP+N:MPROP)
+    PTYPE(IPROP:MPROP-N) = PTYPE(IPROP+N:MPROP)
+    ICOMP(IPROP:MPROP-N) = ICOMP(IPROP+N:MPROP)
+    PNAME(MPROP-N+1:MPROP) = 'DONE'
     MPROP = MPROP-N
   end if
 end do
@@ -723,14 +699,10 @@ do ISOPR=1,NSOPR
       if (SOPRNM(ISOPR+N) == 'DONE') exit
       if (SOPRNM(ISOPR+N) /= 'REMOVE') exit
     end do
-    do JSOPR=ISOPR,MSOPR-N
-      SOPRNM(JSOPR) = SOPRNM(JSOPR+N)
-      SOPRTP(JSOPR) = SOPRTP(JSOPR+N)
-      ISOCMP(JSOPR) = ISOCMP(JSOPR+N)
-    end do
-    do JSOPR=MSOPR-N+1,MSOPR
-      SOPRNM(JSOPR) = 'DONE'
-    end do
+    SOPRNM(ISOPR:MSOPR-N) = SOPRNM(ISOPR+N:MSOPR)
+    SOPRTP(ISOPR:MSOPR-N) = SOPRTP(ISOPR+N:MSOPR)
+    ISOCMP(ISOPR:MSOPR-N) = ISOCMP(ISOPR+N:MSOPR)
+    SOPRNM(MSOPR-N+1:MSOPR) = 'DONE'
     MSOPR = MSOPR-N
   end if
 end do
@@ -739,9 +711,7 @@ if (.not. IFSO) NSOPR = 0
 
 ! IPUSED is used later for other purposes, and should be initialized
 ! to zero.
-do IPRP=1,NPRPLST
-  IPUSED(IPRP) = 0
-end do
+IPUSED(1:NPRPLST) = 0
 
 ! PTYPE and SOPRTP is set here if not already set above. Note that this
 ! is a fallback procedure that should not be used actively. This
@@ -795,9 +765,7 @@ end do
 ! Write out various input data:
 
 call Get_cArray('Irreps',lIrrep,24)
-do iSym=1,nIrrep
-  lIrrep(iSym) = adjustr(lIrrep(iSym))
-end do
+lIrrep(1:nIrrep) = adjustr(lIrrep(1:nIrrep))
 
 ! determine if there are any matching wavefunctions
 JOBMATCH = .false.
@@ -810,8 +778,10 @@ end do
 if (ifheff) then
   if (have_heff) then
     do J=1,NSTATE
-      do I=1,NSTATE
+      HAM(j,j) = HEFF(j,j)
+      do I=1,J-1
         HAM(i,j) = Half*(HEFF(i,j)+HEFF(j,i))
+        HAM(j,i) = HAM(i,j)
       end do
     end do
     if (jobmatch) call WarningMessage(1,'HEFF used for a situation where possible extra interaction between states is ignored!')
@@ -839,15 +809,15 @@ else if (.not. (ifhext .or. ifhdia .or. ifshft .or. ifhcom)) then
   if (have_heff .and. (.not. jobmatch)) then
     ifheff = .true.
     do J=1,NSTATE
-      do I=1,NSTATE
+      HAM(j,j) = HEff(j,j)
+      do I=1,J-1
         HAM(i,j) = Half*(HEff(i,j)+HEff(j,i))
+        HAM(j,i) = HAM(i,j)
       end do
     end do
   else if (have_diag) then
     ifhdia = .true.
-    do I=1,NSTATE
-      HDIAG(I) = REFENE(i)
-    end do
+    HDIAG(1:NSTATE) = REFENE(1:NSTATE)
   end if
 end if
 

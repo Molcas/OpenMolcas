@@ -106,9 +106,7 @@ else
   ! If the file does not exist, create a new one with the current vectors
   call DANAME(file1,filnam)
   ! Dummy table of contents is written
-  do I=1,3
-    IADR3(I) = 0
-  end do
+  IADR3(:) = 0
   IAD3 = 0
   call IDAFILE(file1,1,IADR3,3,IAD3)
   IADR3(1) = IAD3

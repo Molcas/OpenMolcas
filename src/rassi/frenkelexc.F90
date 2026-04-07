@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: ndim, nst1, nst2
 real(kind=wp), intent(inout) :: Frenkeltri(ndim*(ndim+1)/2)
-integer(kind=iwp) :: a, b, d1lines, d2lines, I, IO, iPL, J, K, L, LUT1, LUT3, ntrans, run, tri
+integer(kind=iwp) :: a, b, d1lines, d2lines, I, IO, iPL, J, K, L, LUT1, ntrans, run, tri
 real(kind=wp) :: DIPNORM, GS
 character(len=13) :: filnam, filnam1, filnam2, filnam3
 integer(kind=iwp), allocatable :: I1(:), I2(:), F1(:), F2(:)
@@ -59,8 +59,7 @@ else
 end if
 
 write(filnam2,'(A,I1)') 'stE',iTyp
-LuT3 = 11
-LuT1 = isFreeUnit(LuT3)
+LuT1 = isFreeUnit(11)
 
 call molcas_open(LuT1,filnam2)
 write(u6,'(A,1X,I1,A,I3.3)') 'Number of states of system',iTyp,'=',nst1
@@ -71,8 +70,7 @@ end do
 close(LuT1)
 
 write(filnam3,'(A,I1)') 'stE',jTyp
-LuT3 = 11
-LuT1 = isFreeUnit(LuT3)
+LuT1 = isFreeUnit(11)
 
 call molcas_open(LuT1,filnam3)
 do i=1,nst2
@@ -188,17 +186,13 @@ do i=1,ndim
 end do
 #endif
 
-ntrans = 0
-do i=1,ndim-1
-  ntrans = ntrans+i
-end do
+ntrans = ndim*(ndim-1)/2
 
 d1lines = 0
 d2lines = 0
 ! search for number of lines in the dipvec files
 write(filnam,'(A,I1)') 'dip_vec',iTyp
-LuT3 = 11
-LuT1 = isFreeUnit(LuT3)
+LuT1 = isFreeUnit(11)
 call molcas_open(LuT1,filnam)
 do
   read(LuT1,*,iostat=io)
@@ -208,8 +202,7 @@ end do
 close(LuT1)
 
 write(filnam1,'(A,I1)') 'dip_vec',jTyp
-LuT3 = 11
-LuT1 = isFreeUnit(LuT3)
+LuT1 = isFreeUnit(11)
 call molcas_open(LuT1,filnam1)
 do
   read(LuT1,*,iostat=io)
@@ -251,8 +244,7 @@ call mma_allocate(DipFrintermz,ndim,ndim)
 call mma_allocate(DipFrintermz2,ndim,ndim)
 
 write(filnam,'(A,I1)') 'dip_vec',iTyp
-LuT3 = 11
-LuT1 = isFreeUnit(LuT3)
+LuT1 = isFreeUnit(11)
 call molcas_open(LuT1,filnam)
 do i=1,d1lines
   read(LuT1,222) I1(i),F1(i),D1X(i),D1Y(i),D1Z(i)
@@ -260,8 +252,7 @@ end do
 close(LuT1)
 
 write(filnam1,'(A,I1)') 'dip_vec',jTyp
-LuT3 = 11
-LuT1 = isFreeUnit(LuT3)
+LuT1 = isFreeUnit(11)
 call molcas_open(LuT1,filnam1)
 do i=1,d2lines
   read(LuT1,222) I2(i),F2(i),D2X(i),D2Y(i),D2Z(i)

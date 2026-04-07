@@ -61,7 +61,6 @@ do IK=1,NA
     if (IP == IK) CPK = CPK-One
     if (abs(CPK) < 1.0e-14_wp) cycle
     call SIGMA1(SGS,CIS,EXS,IPLEV,IKLEV,CPK,LSM,TMP,CI)
-
   end do
 end do
 call mma_deallocate(ILEV)

@@ -48,10 +48,7 @@ do ISYM=1,NSYM
   PART(5+ISYM+(NSYM+1)*0) = ISUM
 end do
 do IPART=0,7
-  ISUM = 0
-  do ISYM=1,NSYM
-    ISUM = ISUM+PART(5+ISYM+(NSYM+1)*IPART)
-  end do
+  ISUM = sum(PART(6+(NSYM+1)*IPART:5+NSYM+(NSYM+1)*IPART))
   PART(5+(NSYM+1)*IPART) = ISUM
 end do
 

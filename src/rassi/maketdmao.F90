@@ -283,23 +283,19 @@ end do
 
 ! Store this density to DENSOUT
 if ((ITYPE == 3) .or. (ITYPE == 4)) then
-  do I=1,nbsts
-    DENSOUT(1,I) = SDMXYZR2(I,1)
-    DENSOUT(2,I) = SDMXYZR2(I,2)
-    DENSOUT(3,I) = SDMXYZR2(I,3)
-    DENSOUT(4,I) = SDMXYZI2(I,1)
-    DENSOUT(5,I) = SDMXYZI2(I,2)
-    DENSOUT(6,I) = SDMXYZI2(I,3)
-  end do
+  DENSOUT(1,:) = SDMXYZR2(:,1)
+  DENSOUT(2,:) = SDMXYZR2(:,2)
+  DENSOUT(3,:) = SDMXYZR2(:,3)
+  DENSOUT(4,:) = SDMXYZI2(:,1)
+  DENSOUT(5,:) = SDMXYZI2(:,2)
+  DENSOUT(6,:) = SDMXYZI2(:,3)
 else
-  do I=1,nbsts
-    DENSOUT(1,I) = SDMXYZR2(I,3)
-    DENSOUT(2,I) = SDMXYZR2(I,3)
-    DENSOUT(3,I) = SDMXYZR2(I,3)
-    DENSOUT(4,I) = SDMXYZI2(I,3)
-    DENSOUT(5,I) = SDMXYZI2(I,3)
-    DENSOUT(6,I) = SDMXYZI2(I,3)
-  end do
+  DENSOUT(1,:) = SDMXYZR2(:,3)
+  DENSOUT(2,:) = SDMXYZR2(:,3)
+  DENSOUT(3,:) = SDMXYZR2(:,3)
+  DENSOUT(4,:) = SDMXYZI2(:,3)
+  DENSOUT(5,:) = SDMXYZI2(:,3)
+  DENSOUT(6,:) = SDMXYZI2(:,3)
 end if
 
 ! Free memory

@@ -78,7 +78,7 @@ if (iOpt == 2) then
   nComp = 2
   call Allocate_Aux()
   ! Here we put in the k-vector
-  call FZero(CoorO,3*nComp)
+  CoorO(:) = Zero
   call dcopy_(3,wavevector,1,CoorO,1)
 
   ! The electromagnetic field operator contributes to all
@@ -262,7 +262,7 @@ if (iOpt <= 2) then
   nComp = 12
   call Allocate_Aux()
   ! Here we put in the k-vector
-  call FZero(CoorO,3*nComp)
+  CoorO(:) = Zero
   call dcopy_(3,wavevector,1,CoorO,1)
 
   ! The electromagnetic field operator contributes to all
@@ -286,7 +286,7 @@ if (iOpt > 2) then
   nComp = 2
   call Allocate_Aux()
   ! Here we put in the k-vector
-  call FZero(CoorO,3*nComp)
+  CoorO(:) = Zero
   call dcopy_(3,wavevector,1,CoorO,1)
   ! Change the argument to 2xA
   call dscal_(3,Two,CoorO,1)

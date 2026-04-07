@@ -18,7 +18,7 @@ implicit none
 integer(kind=iwp) :: IORBTAB(*), ISSTAB(*), IFSBTAB(*)
 real(kind=wp) :: PRTHR, CI(*)
 integer(kind=iwp) :: I, IBLKDET, ICI, ICREL, IFSB, IMORS, INDX, ISBS, ISORB, ISPART, ISST, ISSTARR(50), ISUM, KPOS, KSBSMRS, &
-                     KSPART, KSSTTB, KSTARR, N, NASPRT, NBLKDET, NDIMARR(50), NFSB, NPRINTED, NSBS, NSSTP
+                     KSPART, KSSTTB, KSTARR, N, NASPRT, NBLKDET, NDIMARR(50), NFSB, NPRINTED, NSSTP
 character(len=80) :: DETTXT
 integer(kind=iwp), allocatable :: SBSET(:)
 
@@ -38,23 +38,19 @@ call mma_allocate(SBSET,NSSTP,Label='SBSET')
 ISUM = 0
 do ISST=1,NSSTP
   SBSET(ISST) = ISUM
-  NSBS = ISSTAB(KSSTTB+5*(ISST-1))
-  ISUM = ISUM+NSBS
+  ISUM = ISUM+ISSTAB(KSSTTB+5*(ISST-1))
 end do
 ! Loop over FS blocks of the SGM wave function
 NPRINTED = 0
 do IFSB=1,NFSB
   KPOS = KSTARR+(NASPRT+2)*(IFSB-1)
-  do ISPART=1,NASPRT
-    ISSTARR(ISPART) = IFSBTAB(KPOS-1+ISPART)
-  end do
+  ISSTARR(1:NASPRT) = IFSBTAB(KPOS:KPOS+NASPRT-1)
   NBLKDET = IFSBTAB(KPOS+NASPRT)
   IBLKDET = IFSBTAB(KPOS+NASPRT+1)
   ! Dimension of each substring type:
   do ISPART=1,NASPRT
     ISST = ISSTARR(ISPART)
-    NSBS = ISSTAB(KSSTTB+5*(ISST-1))
-    NDIMARR(ISPART) = NSBS
+    NDIMARR(ISPART) = ISSTAB(KSSTTB+5*(ISST-1))
   end do
   do ICREL=1,NBLKDET
     ICI = IBLKDET-1+ICREL

@@ -125,9 +125,7 @@ do NOPEN=MINOP,MAXOP
   IWORD = 0 ! dummy initialize
   do ICNF=1,NCNF
     if (IFORM == 1) then
-      do IEL=1,NOCC
-        ORBARR(+IEL) = ICNFTAB(KCNF-1+IEL+NWRD*(ICNF-1))
-      end do
+      ORBARR(1:NOCC) = ICNFTAB(KCNF+NWRD*(ICNF-1):KCNF+NWRD*(ICNF-1)+NOCC-1)
     else if (IFORM == 2) then
       IEL2 = 0
       IEL1 = NCLSD
@@ -135,10 +133,10 @@ do NOPEN=MINOP,MAXOP
         IOCC = ICNFTAB(KCNF-1+IORB+NWRD*(ICNF-1))
         if (IOCC == 1) then
           IEL1 = IEL1+1
-          ORBARR(+IEL1) = IORB
+          ORBARR(IEL1) = IORB
         else
           IEL2 = IEL2+1
-          ORBARR(+IEL2) = IORB
+          ORBARR(IEL2) = IORB
         end if
       end do
     else if (IFORM == 3) then
@@ -148,7 +146,7 @@ do NOPEN=MINOP,MAXOP
         if (IREST == 0) IWORD = ICNFTAB(KCNF-1+IWRD+NWRD*(ICNF-1))
         IORB = mod(IWORD,256)
         IWORD = IWORD/256
-        ORBARR(+IEL) = IORB
+        ORBARR(IEL) = IORB
       end do
     else if (IFORM == 4) then
       IEL2 = 0
@@ -161,15 +159,15 @@ do NOPEN=MINOP,MAXOP
         IWORD = IWORD/4
         if (IOCC == 1) then
           IEL1 = IEL1+1
-          ORBARR(+IEL1) = IORB
+          ORBARR(IEL1) = IORB
         else
           IEL2 = IEL2+1
-          ORBARR(+IEL2) = IORB
+          ORBARR(IEL2) = IORB
         end if
       end do
     end if
 
-    !TEST write(u6,'(1x,a,10i5)') 'Configuration:',(ORBARR(+iel),iel=1,nocc)
+    !TEST write(u6,'(1x,a,10i5)') 'Configuration:',(ORBARR(iel),iel=1,nocc)
     !TEST write(u6,*) ' Loop over spin determinants.'
     ! Loop over spin determinants
     do ISPD=1,NSPD
@@ -180,21 +178,21 @@ do NOPEN=MINOP,MAXOP
       ! Construct occupation number array:
       call ICOPY(2*NORB,[0],0,OCCARR,1)
       do IEL=1,NCLSD
-        IORB = ORBARR(+IEL)
-        OCCARR(+2*IORB-1) = 1
-        OCCARR(+2*IORB) = 1
+        IORB = ORBARR(IEL)
+        OCCARR(2*IORB-1) = 1
+        OCCARR(2*IORB) = 1
       end do
       do I=1,NOPEN
         ! Spin of each electron is coded as 1 for alpha, 0 for beta.
         ISPN = ISPNTAB(KSPN-1+I+NOPEN*(ISPD-1))
         IEL = NCLSD+I
-        ISORB = 2*ORBARR(+IEL)-ISPN
-        OCCARR(+ISORB) = 1
+        ISORB = 2*ORBARR(IEL)-ISPN
+        OCCARR(ISORB) = 1
       end do
       ! Identify substrings:
       ! Loop over active partitions. Subdivide as needed into subpartitions.
       !TEST write(u6,*) ' Identify substrings.'
-      !TEST write(u6,'(1x,a,10i5)') 'Occupation array:',(OCCARR(+isorb),isorb=1,2*norb)
+      !TEST write(u6,'(1x,a,10i5)') 'Occupation array:',(OCCARR(isorb),isorb=1,2*norb)
       ! construct occupation array in 0,u,d,2 format
       do IORB=1,2*norb-1,2
         if ((OCCARR(IORB) == 1) .and. (OCCARR(1+IORB) == 1)) then
@@ -228,8 +226,8 @@ do NOPEN=MINOP,MAXOP
           IOSTA = IOEND+1
           IOEND = IOEND+NO
           !TEST write(u6,'(1x,a,10i5)') 'IOSTA,IOEND:',IOSTA,IOEND
-          !TEST write(u6,'(1x,a,10i5)') 'Occ array:',(OCCARR(+ISORB),ISORB=IOSTA,IOEND)
-          IMORS = OCC2MRS(NO,OCCARR(+IOSTA))
+          !TEST write(u6,'(1x,a,10i5)') 'Occ array:',(OCCARR(ISORB),ISORB=IOSTA,IOEND)
+          IMORS = OCC2MRS(NO,OCCARR(IOSTA))
           !TEST write(u6,'(1x,a,10i5)') 'IMORS=',IMORS
           ! Position in Morsel-to-Substring table:
           IPOS = KMRSSBS+2*(IMORS+(2**MORSBITS)*(ISPART-1))
@@ -249,13 +247,13 @@ do NOPEN=MINOP,MAXOP
           ! Substring type ISST, nr of such substrings is NDIM
           ISST = ISSTAB(IPOS+1)
           !TEST write(u6,'(1x,a,10i5)') 'ISST  :',ISST
-          STARR(+ISPART) = ISST
+          STARR(ISPART) = ISST
           ndim(ISPART) = ISSTAB(KSSTTB+5*(ISST-1))
           SSARR(ISPART) = ISBSTR-SBSET(ISST)
         end do
       end do
       !TEST write(u6,*) ' Finally, substring types and substrings:'
-      !TEST write(u6,'(1x,a,10i5)') 'Substr types:',(STARR(+ISPART),ISPART=1,NASPRT)
+      !TEST write(u6,'(1x,a,10i5)') 'Substr types:',(STARR(ISPART),ISPART=1,NASPRT)
       !TEST write(u6,'(1x,a,10i5)') 'Substrings  :',(SSARR(ISPART),ISPART=1,NASPRT)
       !TEST write(u6,'(1x,a,10i5)') 'Dimensions  :',(NDIM(ISPART),ISPART=1,NASPRT)
       ! Position within FS block:
@@ -266,7 +264,7 @@ do NOPEN=MINOP,MAXOP
       IPOS = IPOS+1
       ! Identify Fock Sector Block:
       !TEST write(u6,*) ' Arguments in HSHGET call:'
-      !TEST write(u6,'(1x,a,10i5)') 'Key:',(STARR(+ISPART),ISPART=1,NASPRT)
+      !TEST write(u6,'(1x,a,10i5)') 'Key:',(STARR(ISPART),ISPART=1,NASPRT)
       !TEST write(u6,'(1x,a,10i5)') 'Size of key:',NASPRT
       !TEST write(u6,'(1x,a,10i5)') 'Size of items stored:',NASPRT+2
       !TEST write(u6,'(1x,a,10i5)') 'Items stored at KSSTARR=',KSSTARR
@@ -282,15 +280,15 @@ do NOPEN=MINOP,MAXOP
       IERR = 0
       do ISPART=1,NASPRT
         JSST = IFSBTAB(KSSTARR-1+ISPART+(NASPRT+2)*(IFSB-1))
-        ISST = STARR(+ISPART)
+        ISST = STARR(ISPART)
         if (ISST /= JSST) IERR = 1
       end do
       if (IERR /= 0) then
         write(u6,*) ' SYGTOSD Error: Hash map returned the wrong FS block!'
         write(u6,'(1x,a,8I8)') 'NOPEN,ICNF,ISPN:',NOPEN,ICNF,ISPN
-        write(u6,'(1x,a,20I3)') 'Configuration:',(ORBARR(+IEL),IEL=1,NACTEL)
-        write(u6,'(1x,a,20I3)') 'Determinant:',(OCCARR(+ISORB),ISORB=1,2*NORB)
-        write(u6,'(1x,a,10I5)') 'Substring type combination:',(STARR(+ISPART),ISPART=1,NASPRT)
+        write(u6,'(1x,a,20I3)') 'Configuration:',(ORBARR(IEL),IEL=1,NACTEL)
+        write(u6,'(1x,a,20I3)') 'Determinant:',(OCCARR(ISORB),ISORB=1,2*NORB)
+        write(u6,'(1x,a,10I5)') 'Substring type combination:',(STARR(ISPART),ISPART=1,NASPRT)
         write(u6,'(1x,a,10I5)') 'Substring combination:',(SSARR(ISPART),ISPART=1,NASPRT)
         write(u6,'(1x,a,8I8)') 'Hash table says IFSB=',IFSB
         if ((IFSB > 0) .and. (IFSB <= NFSB)) then

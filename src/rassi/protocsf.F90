@@ -26,7 +26,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: NPEL, MLTPL, NPCSFSZ, IPCSFCP(NPEL,NPCSFSZ)
-integer(kind=iwp) :: ISP2, L, N, ND, NPCSF, NPELD, NPELU, NU
+integer(kind=iwp) :: ISP2, N, ND, NPCSF, NPELD, NPELU, NU
 integer(kind=iwp), parameter :: DWNCPL = 0, UPCPL = 1
 integer(kind=iwp), external :: NGENE
 
@@ -38,13 +38,9 @@ NPELU = (NPEL+ISP2)/2
 NPELD = (NPEL-ISP2)/2
 if (NPELU < NPELD) return
 if (NPELU+NPELD /= NPEL) return
-do N=1,NPELU
-  IPCSFCP(N,1) = UPCPL
-end do
+IPCSFCP(1:NPELU,1) = UPCPL
 if (NPELU == NPEL) return
-do N=NPELU+1,NPEL
-  IPCSFCP(N,1) = DWNCPL
-end do
+IPCSFCP(NPELU+1:NPEL,1) = DWNCPL
 
 NPCSF = NGENE(NPEL,MLTPL)
 if (NPCSF > NPCSFSZ) then
@@ -66,16 +62,10 @@ outer: do
     ND = N-NU
     if ((IPCSFCP(N,NPCSF) /= UPCPL) .and. (NU /= ND)) exit
   end do
-  do L=1,NU-1
-    IPCSFCP(L,NPCSF+1) = UPCPL
-  end do
-  do L=NU,N-1
-    IPCSFCP(L,NPCSF+1) = DWNCPL
-  end do
+  IPCSFCP(1:NU-1,NPCSF+1) = UPCPL
+  IPCSFCP(NU:N-1,NPCSF+1) = DWNCPL
   IPCSFCP(N,NPCSF+1) = UPCPL
-  do L=N+1,NPEL
-    IPCSFCP(L,NPCSF+1) = IPCSFCP(L,NPCSF)
-  end do
+  IPCSFCP(N+1:NPEL,NPCSF+1) = IPCSFCP(N+1:NPEL,NPCSF)
   NPCSF = NPCSF+1
 end do outer
 

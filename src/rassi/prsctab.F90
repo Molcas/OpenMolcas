@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: SCTAB(*)
 real(kind=wp), intent(in) :: TRANS(*)
-integer(kind=iwp) :: IBLK, IOPEN, ITYPE, KSPCPL, KSPDET, LTRANS, MAXOP, MINOP, MLTPL, MS2, N, NBLK, NCP, NCPL, ND, NSIZE, NTRANS
+integer(kind=iwp) :: IBLK, IOPEN, ITYPE, KSPCPL, KSPDET, LTRANS, MAXOP, MINOP, MLTPL, MS2, N, NBLK, NCPL, ND, NSIZE, NTRANS
 integer(kind=iwp), external :: ngene
 
 write(u6,*)
@@ -42,8 +42,7 @@ write(u6,'(1x,A,I16)') ' Transf data; wrds:',NTRANS
 ! Number of (non-trivial) values of IOPEN:
 N = 0
 do IOPEN=MINOP,MAXOP
-  NCP = NGENE(IOPEN,MLTPL)
-  if (NCP > 0) N = N+1
+  if (NGENE(IOPEN,MLTPL) > 0) N = N+1
 end do
 if (N == 0) then
   write(u6,*)

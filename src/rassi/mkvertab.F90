@@ -21,10 +21,10 @@ implicit none
 integer(kind=iwp) :: NACTEL, M2SPIN, LSYM, NPART, NGASORB(0:nIrrep,0:NPART), NGASLIM(2,NPART), ISSTAB(*), NFSB0, NRDETS0, NFSB, &
                      NRDETS
 integer(kind=iwp) :: IA, IADDR, IADDR1, IADDR2, IARC, IEND, IPART, IPOS, ISAVE, ISC1, ISC2, ISPART, ISPEND, ISPSTA, ISST, ISTA, &
-                     ISUM, ISW, ITRY(50), IVER1, IVER2, IVERT, IVIDX, IVUP, KEEP, KMS2, KMS2MAX, KPOP, KPOPLIM, KPOPMAX, KSSTP, &
-                     KSYM, LEVDWN, LEVUP, LIMARR(2,0:50), LOWEST, M2C1, M2C2, MAXEL, MINEL, MN1, MN2, MNL, MNR, MS2, MS2MAX, &
-                     MS2MIN, MSFACT, MX1, MX2, MXL, MXR, N, NARC, NARCLEV, NARCVRT, NASPRT, NDWNTAB, NEXT, NFSBARR, NGO, NO, &
-                     NOREM, NPC1, NPC2, NPOP, NSBS, NSDBLK, NSP, NSSTP, NSSTPTR, NSW, NVERT, NVERTAB, NVIDX
+                     ISUM, ISW, ITRY(50), IVER1, IVER2, IVERT, IVUP, KEEP, KMS2, KMS2MAX, KPOP, KPOPLIM, KPOPMAX, KSSTP, KSYM, &
+                     LEVDWN, LEVUP, LIMARR(2,0:50), LOWEST, M2C1, M2C2, MAXEL, MINEL, MN1, MN2, MNL, MNR, MS2, MS2MAX, MS2MIN, &
+                     MSFACT, MX1, MX2, MXL, MXR, N, NARC, NARCLEV, NARCVRT, NASPRT, NDWNTAB, NEXT, NFSBARR, NGO, NO, NOREM, NPC1, &
+                     NPC2, NPOP, NSBS, NSDBLK, NSP, NSSTP, NSSTPTR, NSW, NVERT, NVERTAB, NVIDX
 integer(kind=iwp), allocatable :: DWNTAB(:), LTDA(:), SSTARR(:), SSTPTR(:), SWITCH(:), VERTAB(:), VIDX(:), WEIGHT(:)
 
 !----------------------------------------------------------------
@@ -120,11 +120,7 @@ end do
 ! index limits (1:NSSTP).
 NSSTPTR = (KPOPMAX+2)*NASPRT
 call mma_allocate(SSTPTR,NSSTPTR,Label='SSTPTR')
-do ISPART=1,NASPRT
-  do KPOP=1,KPOPMAX+2
-    SSTPTR(KPOP+(KPOPMAX+2)*(ISPART-1)) = 0
-  end do
-end do
+SSTPTR(:) = 0
 call mma_allocate(SSTARR,NSSTP,Label='SSTARR')
 do ISST=1,NSSTP
   NPOP = ISSTAB(KSSTP+1+5*(ISST-1))
@@ -195,9 +191,7 @@ MSFACT = 1+(MS2MAX-MS2MIN)/2
 ! Allocate temporary counter array:
 NVIDX = nIrrep*MSFACT*(NACTEL+1)*(NASPRT+1)
 call mma_allocate(VIDX,NVIDX,Label='VIDX')
-do IVIDX=1,NVIDX
-  VIDX(IVIDX) = 0
-end do
+VIDX(:) = 0
 !----------------------------------
 ! Initialize top vertex:
 IPOS = LSYM+nIrrep*((M2SPIN-MS2MIN)/2+MSFACT*(NACTEL+(NACTEL+1)*NASPRT))
@@ -215,7 +209,7 @@ do LEVUP=NASPRT,1,-1
       if (M2C1 > MS2MAX) cycle
       do ISC1=1,nIrrep
         IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
-        IVER1 = VIDX(+IPOS)
+        IVER1 = VIDX(IPOS)
         if (IVER1 == 0) cycle
         ! This is a valid upper vertex on the upper level.
         ! Loop over valid arcs:
@@ -244,12 +238,12 @@ do LEVUP=NASPRT,1,-1
           if ((NPC2 == 0) .and. (ISC2 /= 1)) cycle
           ! Inspect the lower vertex: Is it a new one?
           IPOS = ISC2+nIrrep*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
-          IVER2 = VIDX(+IPOS)
+          IVER2 = VIDX(IPOS)
           if (IVER2 > 0) cycle
           ! This is a new vertex. Register its number
           IVERT = IVERT+1
           IVER2 = IVERT
-          VIDX(+IPOS) = IVER2
+          VIDX(IPOS) = IVER2
         end do
         ! Finished looping over possible arcs.
       end do
@@ -275,7 +269,7 @@ do LEVUP=1,NASPRT
       if (M2C1 > MS2MAX) cycle
       do ISC1=1,nIrrep
         IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
-        IVER1 = VIDX(+IPOS)
+        IVER1 = VIDX(IPOS)
         if (IVER1 == 0) cycle
         ! This is a valid upper vertex on the upper level.
         ! Is it reachable from below?
@@ -305,14 +299,14 @@ do LEVUP=1,NASPRT
           if ((NPC2 == 0) .and. (ISC2 /= 1)) cycle
           ! Inspect the lower vertex: Is it reachable?
           IPOS = ISC2+nIrrep*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
-          IVER2 = VIDX(+IPOS)
+          IVER2 = VIDX(IPOS)
           if (IVER2 > 0) NARCVRT = NARCVRT+1
         end do
         ! Finished looping over possible arcs.
         ! Remove this vertex if it was unreachable.
         if (NARCVRT == 0) then
           IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
-          VIDX(+IPOS) = 0
+          VIDX(IPOS) = 0
         end if
         NARC = NARC+NARCVRT
       end do
@@ -333,10 +327,10 @@ do LEVUP=NASPRT,0,-1
       if (M2C1 > MS2MAX) cycle
       do ISC1=1,nIrrep
         IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
-        IVER1 = VIDX(+IPOS)
+        IVER1 = VIDX(IPOS)
         if (IVER1 == 0) cycle
         NVERT = NVERT+1
-        VIDX(+IPOS) = NVERT
+        VIDX(IPOS) = NVERT
       end do
     end do
   end do
@@ -369,15 +363,15 @@ do LEVUP=NASPRT,1,-1
       if (M2C1 > MS2MAX) cycle
       do ISC1=1,nIrrep
         IPOS = ISC1+nIrrep*((M2C1-MS2MIN)/2+MSFACT*(NPC1+(NACTEL+1)*LEVUP))
-        IVER1 = VIDX(+IPOS)
+        IVER1 = VIDX(IPOS)
         if (IVER1 == 0) cycle
         ! This is a valid upper vertex on the upper level.
-        VERTAB(+1+6*(IVER1-1)) = LEVUP
-        VERTAB(+2+6*(IVER1-1)) = NPC1
-        VERTAB(+3+6*(IVER1-1)) = M2C1
-        VERTAB(+4+6*(IVER1-1)) = ISC1
-        VERTAB(+5+6*(IVER1-1)) = IARC+1
-        VERTAB(+6+6*(IVER1-1)) = 0
+        VERTAB(1+6*(IVER1-1)) = LEVUP
+        VERTAB(2+6*(IVER1-1)) = NPC1
+        VERTAB(3+6*(IVER1-1)) = M2C1
+        VERTAB(4+6*(IVER1-1)) = ISC1
+        VERTAB(5+6*(IVER1-1)) = IARC+1
+        VERTAB(6+6*(IVER1-1)) = 0
         ! Initialize counter of arcs from this upper vertex:
         NARCVRT = 0
         ! Loop over valid arcs:
@@ -405,7 +399,7 @@ do LEVUP=NASPRT,1,-1
           if ((NPC2 == 0) .and. (ISC2 /= 1)) cycle
           ! Is it a valid arc? See if a lower vertex exists.
           IPOS = ISC2+nIrrep*((M2C2-MS2MIN)/2+MSFACT*(NPC2+(NACTEL+1)*LEVDWN))
-          IVER2 = VIDX(+IPOS)
+          IVER2 = VIDX(IPOS)
           if (IVER2 == 0) cycle
           ! A valid arc has been found. The upper vertex IVER1 is
           ! joined to the lower vertex IVER2 by an arc associated
@@ -413,12 +407,12 @@ do LEVUP=NASPRT,1,-1
           NARCVRT = NARCVRT+1
           NARCLEV = NARCLEV+1
           IARC = IARC+1
-          DWNTAB(+1+3*(IARC-1)) = ISST
-          DWNTAB(+2+3*(IARC-1)) = IVER1
-          DWNTAB(+3+3*(IARC-1)) = IVER2
+          DWNTAB(1+3*(IARC-1)) = ISST
+          DWNTAB(2+3*(IARC-1)) = IVER1
+          DWNTAB(3+3*(IARC-1)) = IVER2
         end do
         ! Finished looping over possible arcs.
-        VERTAB(+6+6*(IVER1-1)) = NARCVRT
+        VERTAB(6+6*(IVER1-1)) = NARCVRT
       end do
     end do
   end do
@@ -426,12 +420,12 @@ do LEVUP=NASPRT,1,-1
   LTDA(1+2*LEVUP+1) = NARCLEV
 end do
 ! Finished loop over upper level, LEVUP.
-VERTAB(+1+6*(NVERT-1)) = 0
-VERTAB(+2+6*(NVERT-1)) = 0
-VERTAB(+3+6*(NVERT-1)) = 0
-VERTAB(+4+6*(NVERT-1)) = 1
-VERTAB(+5+6*(NVERT-1)) = IARC
-VERTAB(+6+6*(NVERT-1)) = 0
+VERTAB(1+6*(NVERT-1)) = 0
+VERTAB(2+6*(NVERT-1)) = 0
+VERTAB(3+6*(NVERT-1)) = 0
+VERTAB(4+6*(NVERT-1)) = 1
+VERTAB(5+6*(NVERT-1)) = IARC
+VERTAB(6+6*(NVERT-1)) = 0
 LTDA(1) = IARC
 LTDA(1+1) = 0
 !---------------------------------------------------------
@@ -442,27 +436,25 @@ call mma_deallocate(VIDX)
 !---------------------------------------------------------
 ! A graph has been constructed. We may construct a weight array:
 call mma_allocate(WEIGHT,NVERT,Label='WEIGHT')
-do IVERT=1,NVERT-1
-  WEIGHT(+IVERT) = 0
-end do
-WEIGHT(+NVERT) = 1
+WEIGHT(1:NVERT-1) = 0
+WEIGHT(NVERT) = 1
 do LEVUP=1,NASPRT
   LEVDWN = LEVUP-1
   ! Loop over arcs leading down from upper level:
   NARCLEV = LTDA(1+2*LEVUP+1)
   do IA=1,NARCLEV
     IARC = LTDA(1+2*LEVUP)-1+IA
-    ISST = DWNTAB(+1+3*(IARC-1))
-    IVER1 = DWNTAB(+2+3*(IARC-1))
-    IVER2 = DWNTAB(+3+3*(IARC-1))
-    ISUM = WEIGHT(+IVER1)+WEIGHT(+IVER2)
-    WEIGHT(+IVER1) = ISUM
+    ISST = DWNTAB(1+3*(IARC-1))
+    IVER1 = DWNTAB(2+3*(IARC-1))
+    IVER2 = DWNTAB(3+3*(IARC-1))
+    ISUM = WEIGHT(IVER1)+WEIGHT(IVER2)
+    WEIGHT(IVER1) = ISUM
   end do
 end do
 ! No more use for Level-to-Downarc array:
 call mma_deallocate(LTDA)
 !---------------------------------------------------------
-! Now, for any vertex iv, WEIGHT(+iv) is the total number of
+! Now, for any vertex iv, WEIGHT(iv) is the total number of
 ! downwalks that can reach vertex nr nvert (The bottom vertex).
 ! Traverse the graph. Use a swich array. The graph is traversed
 ! from the top. At each vertex, one of the available arcs downwards
@@ -470,9 +462,7 @@ call mma_deallocate(LTDA)
 ! LEVUP is the level of the upper vertex.
 call mma_allocate(SWITCH,NASPRT,Label='SWITCH')
 ! Initial values: Lowest walk
-do LEVUP=1,NASPRT
-  SWITCH(+LEVUP) = 1
-end do
+SWITCH(:) = 1
 ! The total number of walks in the graph:
 NFSB0 = WEIGHT(1)
 NFSBARR = (NASPRT+2)*NFSB0
@@ -487,17 +477,17 @@ do
   IVUP = 1
   LOWEST = NASPRT+1
   do LEVUP=NASPRT,1,-1
-    ISW = SWITCH(+LEVUP)
+    ISW = SWITCH(LEVUP)
     ! Select arc nr isw from those available to vertex ivup.
-    IARC = VERTAB(+5+6*(IVUP-1))-1+ISW
+    IARC = VERTAB(5+6*(IVUP-1))-1+ISW
     ! Could it be incremented?
-    NSW = VERTAB(+6+6*(IVUP-1))
+    NSW = VERTAB(6+6*(IVUP-1))
     !TEST write(u6,'(1x,a,8i8)') 'IVUP,ISW,NSW:',IVUP,ISW,NSW
     if (NSW > ISW) LOWEST = LEVUP
     ! Consult the downarc table:
-    ISST = DWNTAB(+1+3*(IARC-1))
-    IVER1 = DWNTAB(+2+3*(IARC-1))
-    IVER2 = DWNTAB(+3+3*(IARC-1))
+    ISST = DWNTAB(1+3*(IARC-1))
+    IVER1 = DWNTAB(2+3*(IARC-1))
+    IVER2 = DWNTAB(3+3*(IARC-1))
     !TEST write(u6,'(1x,a,8i8)') 'ISST,IVER1,IVER2:',ISST,IVER1,IVER2
     if (IVER1 /= IVUP) then
       write(u6,*) ' OOOOPS! THIS SHOULD NOT HAPPEN.'
@@ -530,9 +520,7 @@ do
   NRDETS0 = NRDETS0+NSDBLK
   if (KEEP == 1) then
     NFSB = NFSB+1
-    do ISPART=1,NASPRT
-      FSBARR(ISPART+(NASPRT+2)*(NFSB-1)) = ITRY(ISPART)
-    end do
+    FSBARR(1+(NASPRT+2)*(NFSB-1):NASPRT+(NASPRT+2)*(NFSB-1)) = ITRY(1:NASPRT)
     FSBARR(1+NASPRT+(NASPRT+2)*(NFSB-1)) = NSDBLK
     FSBARR(1+NASPRT+1+(NASPRT+2)*(NFSB-1)) = NRDETS+1
     NRDETS = NRDETS+NSDBLK
@@ -540,10 +528,8 @@ do
   end if
   ! Next walk: Lowest increasable switch value is at level lowest.
   if (LOWEST > NASPRT) exit
-  do LEVUP=1,LOWEST-1
-    SWITCH(+LEVUP) = 1
-  end do
-  SWITCH(+LOWEST) = 1+SWITCH(+LOWEST)
+  SWITCH(1:LOWEST-1) = 1
+  SWITCH(LOWEST) = 1+SWITCH(LOWEST)
 end do
 
 call mma_deallocate(SWITCH)

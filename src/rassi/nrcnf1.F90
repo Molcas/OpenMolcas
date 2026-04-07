@@ -33,7 +33,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: MaxEl, NORB, NGAS, NGASLIM(2,NGAS), NGASORB(nIrrep,NGAS), MXTMP
 integer(kind=iwp), intent(out) :: NCNF1(nIrrep,((MAXEL+1)*(MAXEL+2))/2), NCNF2(nIrrep,((MXTMP+1)*(MXTMP+2))/2)
-integer(kind=iwp) :: I, IGAS, II, IPOS, IPOSNW, IPOSOLD, ISYM, ISYMNW, ISYMOLD, MAXOCC, MXOCCOLD, NCLS, NCLSNW, NCLSOLD, NELMN, &
+integer(kind=iwp) :: IGAS, II, IPOS, IPOSNW, IPOSOLD, ISYM, ISYMNW, ISYMOLD, MAXOCC, MXOCCOLD, NCLS, NCLSNW, NCLSOLD, NELMN, &
                      NELMX, NEW, NG, NO, NOCC, NOCCMX, NOCCNW, NOCCOLD, NOPN, NOPNNW, NOPNOLD, NX, NY
 integer(kind=iwp), allocatable :: ISM(:)
 
@@ -47,16 +47,13 @@ NOCCMX = 0
 do IGAS=1,NGAS
   MXOCCOLD = NOCCMX
   ! Nr of orbitals in this partition
-  NO = 0
   II = 0
   do ISYM=1,nIrrep
     NG = NGASORB(ISYM,IGAS)
-    NO = NO+NG
-    do I=1,NG
-      II = II+1
-      ISM(II) = ISYM
-    end do
+    ISM(II+1:II+NG) = ISYM
+    II = II+NG
   end do
+  NO = sum(NGASORB(1:nIrrep,IGAS))
   NELMN = max(0,NGASLIM(1,IGAS))
   NELMX = min(2*NO,NGASLIM(2,IGAS))
   call NRCNF2(NO,ISM,NCNF2)

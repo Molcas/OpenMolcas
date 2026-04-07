@@ -20,7 +20,7 @@ integer(kind=iwp), intent(in) :: nDIM
 real(kind=wp), intent(inout) :: MATR(nDIM*(nDIM+1)/2), MATI(nDIM*(nDIM+1)/2)
 real(kind=wp), intent(out) :: EIGVECR(nDIM,nDIM), EIGVECI(nDIM,nDIM)
 
-integer(kind=iwp) :: I, INFO, J
+integer(kind=iwp) :: INFO, J
 real(kind=wp), allocatable :: CEIGVAL(:), RWORK(:)
 complex(kind=wp), allocatable :: CEIGVEC(:,:), MATFULL(:), ZWORK(:)
 
@@ -30,9 +30,7 @@ call mma_allocate(CEIGVEC,nDIM,nDIM,Label='CEIGVEC')
 call mma_allocate(ZWORK,2*nDIM-1,Label='ZWORK')
 call mma_allocate(RWORK,3*nDIM-2,Label='RWORK')
 
-do J=1,(nDIM*(nDIM+1)/2)
-  MATFULL(J) = cmplx(MATR(J),MATI(J),kind=wp)
-end do
+MATFULL(1:nDIM*(nDIM+1)/2) = cmplx(MATR(1:nDIM*(nDIM+1)/2),MATI(1:nDIM*(nDIM+1)/2),kind=wp)
 
 call zhpev_('V','U',nDIM,MATFULL,CEIGVAL,CEIGVEC,nDIM,ZWORK,RWORK,INFO)
 call mma_deallocate(MATFULL)
@@ -45,12 +43,8 @@ if (INFO /= 0) then
   call ABEND()
 end if
 
-do I=1,nDIM
-  do J=1,nDIM
-    EIGVECR(I,J) = real(CEIGVEC(I,J))
-    EIGVECI(I,J) = aimag(CEIGVEC(I,J))
-  end do
-end do
+EIGVECR(:,:) = real(CEIGVEC(:,:))
+EIGVECI(:,:) = aimag(CEIGVEC(:,:))
 
 call DCOPY_(nDIM*(nDIM+1)/2,[Zero],0,MATR,1)
 call DCOPY_(nDIM*(nDIM+1)/2,[Zero],0,MATI,1)

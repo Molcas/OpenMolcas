@@ -53,7 +53,7 @@ do ISY1=1,nIrrep
   NB2 = NBASF(ISY2)
   if (NB1*NB2 /= 0) then
     if (NO1*NO2 == 0) then
-      call FZERO(TDMZZ(ISTTZ),NB1*NB2)
+      TDMZZ(ISTTZ:ISTTZ+NB1*NB2-1) = Zero
     else
       call DGEMM_('N','T',NO1,NB2,NO2,One,TDMAB(ISTTA),NO1,CMOB(ISTCB),NB2,Zero,SCR,NO1)
       call DGEMM_('N','N',NB1,NB2,NO1,One,CMOA(ISTCA),NB1,SCR,NO1,Zero,TDMZZ(ISTTZ),NB1)

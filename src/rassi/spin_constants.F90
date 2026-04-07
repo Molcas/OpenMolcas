@@ -29,30 +29,17 @@ contains
 
 subroutine Setup_Spin_Moment_Matrix()
 
-  use Definitions, only: iwp
-
-  integer(kind=iwp) :: I9, IMULT9, IPAR9, J9, L9
-
   ! *************************************************
   ! *          SPIN moment matrix elements          *
   ! *************************************************
 
-  do L9=1,3
-    do IMULT9=1,17
-      IPAR9 = mod(IMULT9,2)
-      do I9=-(IMULT9-IPAR9)/2,(IMULT9-IPAR9)/2
-        do J9=-(IMULT9-IPAR9)/2,(IMULT9-IPAR9)/2
-          SPIN(L9,IMULT9,I9,J9) = cZero
-        end do
-      end do
-    end do
-  end do
+  SPIN(:,:,:,:) = cZero
 
   ! Multiplicity 1 (singlet)   S=0
 
-  SPIN(1,1,0,0) = cZero
-  SPIN(2,1,0,0) = cZero
-  SPIN(3,1,0,0) = cZero
+  !SPIN(1,1,0,0) = cZero
+  !SPIN(2,1,0,0) = cZero
+  !SPIN(3,1,0,0) = cZero
 
   ! Multiplicity 2 (doublet)   S=1/2
 
@@ -176,7 +163,7 @@ subroutine Setup_Spin_Moment_Matrix()
   SPIN(3,7,-3,-3) = -Three*cOne
   SPIN(3,7,-2,-2) = -Two*cOne
   SPIN(3,7,-1,-1) = -cOne
-  SPIN(3,7,0,0) = cZero
+  !SPIN(3,7,0,0) = cZero
   SPIN(3,7,1,1) = cOne
   SPIN(3,7,2,2) = Two*cOne
   SPIN(3,7,3,3) = Three*cOne
@@ -258,7 +245,7 @@ subroutine Setup_Spin_Moment_Matrix()
   SPIN(3,9,-3,-3) = -Three*cOne
   SPIN(3,9,-2,-2) = -Two*cOne
   SPIN(3,9,-1,-1) = -cOne
-  SPIN(3,9,0,0) = cZero
+  !SPIN(3,9,0,0) = cZero
   SPIN(3,9,1,1) = cOne
   SPIN(3,9,2,2) = Two*cOne
   SPIN(3,9,3,3) = Three*cOne
@@ -360,7 +347,7 @@ subroutine Setup_Spin_Moment_Matrix()
   SPIN(3,11,-3,-3) = -Three*cOne
   SPIN(3,11,-2,-2) = -Two*cOne
   SPIN(3,11,-1,-1) = -cOne
-  SPIN(3,11,0,0) = cZero
+  !SPIN(3,11,0,0) = cZero
   SPIN(3,11,1,1) = cOne
   SPIN(3,11,2,2) = Two*cOne
   SPIN(3,11,3,3) = Three*cOne
@@ -482,7 +469,7 @@ subroutine Setup_Spin_Moment_Matrix()
   SPIN(3,13,-3,-3) = -Three*cOne
   SPIN(3,13,-2,-2) = -Two*cOne
   SPIN(3,13,-1,-1) = -cOne
-  SPIN(3,13,0,0) = cZero
+  !SPIN(3,13,0,0) = cZero
   SPIN(3,13,1,1) = cOne
   SPIN(3,13,2,2) = Two*cOne
   SPIN(3,13,3,3) = Three*cOne
@@ -624,7 +611,7 @@ subroutine Setup_Spin_Moment_Matrix()
   SPIN(3,15,-3,-3) = -Three*cOne
   SPIN(3,15,-2,-2) = -Two*cOne
   SPIN(3,15,-1,-1) = -cOne
-  SPIN(3,15,0,0) = cZero
+  !SPIN(3,15,0,0) = cZero
   SPIN(3,15,1,1) = cOne
   SPIN(3,15,2,2) = Two*cOne
   SPIN(3,15,3,3) = Three*cOne
@@ -786,7 +773,7 @@ subroutine Setup_Spin_Moment_Matrix()
   SPIN(3,17,-3,-3) = -Three*cOne
   SPIN(3,17,-2,-2) = -Two*cOne
   SPIN(3,17,-1,-1) = -cOne
-  SPIN(3,17,0,0) = cZero
+  !SPIN(3,17,0,0) = cZero
   SPIN(3,17,1,1) = cOne
   SPIN(3,17,2,2) = Two*cOne
   SPIN(3,17,3,3) = Three*cOne

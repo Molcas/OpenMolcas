@@ -78,9 +78,7 @@ end do
 ISORB = 0
 ! First, active orbitals by partition, and by symmetry
 ! Previous MO indices within each symmetry.
-do ISYM=1,NSYM
-  INSYM(ISYM) = IPRTTAB(5+ISYM+(NSYM+1)*IPFR)+IPRTTAB(5+ISYM+(NSYM+1)*IPIN)
-end do
+INSYM(1:NSYM) = IPRTTAB(6+(NSYM+1)*IPFR:5+NSYM+(NSYM+1)*IPFR)+IPRTTAB(6+(NSYM+1)*IPIN:5+NSYM+(NSYM+1)*IPIN)
 ! Increase subpartition index as needed.
 ISPART = 0
 do IPART=1,NAPART
@@ -137,7 +135,7 @@ NASPRT = ISPART
 ! Inactive:
 ! Must set up start index within each symmetry.
 do ISYM=1,NSYM
-  INSYM(ISYM) = IPRTTAB(5+ISYM+(NSYM+1)*IPFR)
+  INSYM(1:NSYM) = IPRTTAB(6+(NSYM+1)*IPFR:5+NSYM+(NSYM+1)*IPFR)
 end do
 IPART = NAPART+1
 N = IPRTTAB(5+(NSYM+1)*IPART)

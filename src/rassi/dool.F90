@@ -37,10 +37,8 @@ real(kind=wp) :: AM, AMAX, C, DIAG, SUMMA
 
 IP = 0 ! dummy initialize
 JP = 0 ! dummy initialize
-do I=1,N
-  IPIV(I) = I
-  JPIV(I) = I
-end do
+IPIV(1:N) = [(i,i=1,N)]
+JPIV(1:N) = [(i,i=1,N)]
 DET = One
 do I=1,N
   ! NOW FIND BETTER PIVOT ELEMENT:

@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp) :: IPGLOB, nDIM
 complex(kind=wp) :: DIPSO2(3,nDIM,nDIM), ZIN(nDIM,nDIM), ZOUT(nDIM,nDIM)
 real(kind=wp) :: GMAIN(3)
-integer(kind=iwp) :: i, i1, i2, j, l, ms1, ms2, NPAR
+integer(kind=iwp) :: i, i2, j, l, ms1, ms2, NPAR
 real(kind=wp), allocatable :: ALFA(:)
 complex(kind=wp), allocatable :: PHS(:,:,:), Spin2(:,:,:), PHSA(:,:), PHSA2(:,:)
 
@@ -52,10 +52,8 @@ PHSA2(:,:) = cZero
 do l=1,3
   do i=1,nDIM
     do j=1,nDIM
-      do i1=1,nDIM
-        do i2=1,nDIM
-          PHS(l,i,j) = PHS(l,i,j)+DIPSO2(l,i1,i2)*conjg(ZIN(i1,i))*ZIN(i2,j)
-        end do
+      do i2=1,nDIM
+        PHS(l,i,j) = PHS(l,i,j)+sum(DIPSO2(l,:,i2)*conjg(ZIN(:,i))*ZIN(i2,j))
       end do
     end do
   end do
@@ -85,19 +83,13 @@ do i=1,nDIM
   end do
 end do
 
-do I=1,nDIM
-  ALFA(I) = Zero
-end do
-
+ALFA(1) = Zero
 do I=2,nDIM
   ALFA(I) = ALFA(I-1)+real(PHSA(I-1,I))
 end do
 
 do i=1,nDIM
-  do J=1,nDIM
-    ZOUT(J,I) = cZero
-    ZOUT(J,I) = exp(-ALFA(i)*Onei)*ZIN(j,i)
-  end do
+  ZOUT(:,I) = exp(-ALFA(i)*Onei)*ZIN(:,i)
 end do
 
 if (IPGLOB > 2) then

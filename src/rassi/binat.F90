@@ -39,10 +39,7 @@ real(kind=wp), external :: DDOT_
 ! IOFF_VEC, IOFF_SEV, IOFF_TDM, IOFF_ISV
 
 ! Nr of basis functions, total
-NBSQ = 0
-do ISYM=1,nIrrep
-  NBSQ = NBSQ+NBASF(ISYM)**2
-end do
+NBSQ = sum(NBASF(1:nIrrep)**2)
 !============================================================
 ! START BY CREATING A SET OF ORTHONORMAL VECTORS:
 call mma_allocate(ONBAS,NBSQ,Label='ONBAS')

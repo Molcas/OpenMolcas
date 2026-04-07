@@ -11,7 +11,6 @@
 
 subroutine MULMAT(NSS,XMATR,XMATI,ee,Z)
 
-use Constants, only: Zero, cZero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -19,16 +18,8 @@ integer(kind=iwp), intent(in) :: NSS
 real(kind=wp), intent(in) :: XMATR(NSS,NSS), XMATI(NSS,NSS)
 real(kind=wp), intent(out) :: ee
 complex(kind=wp), intent(out) :: Z(NSS,NSS)
-integer(kind=iwp) :: ISS, JSS
 
-ee = Zero
-Z(:,:) = cZero
-
-do ISS=1,NSS
-  do JSS=1,NSS
-    ee = ee+XMATR(ISS,JSS)**2+XMATI(ISS,JSS)**2
-    Z(ISS,JSS) = Z(ISS,JSS)+cmplx(XMATR(ISS,JSS),XMATI(ISS,JSS),kind=wp)
-  end do
-end do
+ee = sum(XMATR(:,:)**2+XMATI(:,:)**2)
+Z(:,:) = cmplx(XMATR(:,:),XMATI(:,:),kind=wp)
 
 end subroutine MULMAT

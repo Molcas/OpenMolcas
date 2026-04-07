@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NEL, NORB, MINOP, MAXOP, LSYM, NGAS, NGASORB(nIrrep,NGAS), NGASLIM(2,NGAS), IFORM, ICASE
-integer(kind=iwp) :: I, IFPOSS, IGAS, IPOS, ISUM, ISYM, KCNFEND, KCNFSTA, KINFO, L, LENCNF, MXO, NCLS, NCNF, NNCNF1, NNCNF2, NOCC, &
+integer(kind=iwp) :: IFPOSS, IGAS, IPOS, ISUM, ISYM, KCNFEND, KCNFSTA, KINFO, L, LENCNF, MXO, NCLS, NCNF, NNCNF1, NNCNF2, NOCC, &
                      NOPN, NTAB
 integer(kind=iwp), allocatable :: NCNF1(:), NCNF2(:)
 integer(kind=iwp), pointer :: CnfTab(:)
@@ -33,10 +33,7 @@ call mma_allocate(NCNF1,NNCNF1,Label='NCNF1')
 ! in any GAS subspace:
 MXO = 0
 do IGAS=1,NGAS
-  ISUM = 0
-  do ISYM=1,nIrrep
-    ISUM = ISUM+NGASORB(ISYM,IGAS)
-  end do
+  ISUM = sum(NGASORB(1:nIrrep,IGAS))
   MXO = max(MXO,ISUM)
 end do
 NNCNF2 = nIrrep*((MXO+1)*(MXO+2))/2
@@ -181,9 +178,7 @@ do NOPN=MINOP,MAXOP
         CnfTab(KINFO+1+3*(ISYM-1+nIrrep*(NOPN-MINOP))) = KCNFSTA
         ! INFO(3,ISYM,NOPN) = LENCNF
         CnfTab(KINFO+2+3*(ISYM-1+nIrrep*(NOPN-MINOP))) = LENCNF
-        do I=1,NCNF*LENCNF
-          CnfTab(KCNFSTA-1+I) = 0
-        end do
+        CnfTab(KCNFSTA:KCNFSTA+NCNF*LENCNF-1) = 0
       end if
     end do
   end if

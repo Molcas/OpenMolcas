@@ -30,20 +30,19 @@ integer(kind=iwp) :: NSS, JBNUM(NSTATE)
 real(kind=wp) :: PROP(NSTATE,NSTATE,NPROP), USOR(NSS,NSS), USOI(NSS,NSS), ENSOR(NSS), ENERGY(NSTATE), ESO(NSS), Boltz_k
 complex(kind=wp) :: DIPSOm(3,NSS,NSS)
 character :: xyzchr(3)
-integer(kind=iwp) :: I, IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6, IC, ICEN, ICOUNT, IERR, iFinal, IFUNCT, IJXYZ, IMLTPL, &
-                     IPROP, ISO, ISS, IStart, ISTATE, IT, IXYZ, J, JC, JOB, JSO, JSS, JSTATE, JXYZ, KDGN, KPROP, KXYZ, L, MPLET, &
-                     MPLET1, MPLET2, MSPROJ, MSPROJ1, MSPROJ2
-real(kind=wp) :: ACNT, Alpha, Alpha2, AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, CG0, CGM, CGP, CGX, CGY, CONTRIB, CurieT(3,3), &
-                 DCLEBS, DiamT(3,3), DIPSOM_SA, DLT_E, DLTTA, EDIFF, EEX, EEY, EEZ, EVI(3), EVR(3), FACT, FEGVAL, GSENERGY, &
-                 GTENS(3,3), GTIJ, GTOTAL(9), HFC_1(3,3), HFC_2(3,3), HFC_3(3,3), p_Boltz, S1, S2, SM1, SM2, TMPMAT(3,3), &
-                 TMPVEC(3,3), Zstat
+integer(kind=iwp) :: I, IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6, IC, ICEN, ICOUNT, IERR, iFinal, IFUNCT, IMLTPL, IPROP, &
+                     ISO, ISS, IStart, ISTATE, IT, IXYZ, J, JC, JOB, JSS, JSTATE, JXYZ, KDGN, KPROP, KXYZ, MPLET, MPLET1, MPLET2, &
+                     MSPROJ, MSPROJ1, MSPROJ2
+real(kind=wp) :: ACNT, Alpha, Alpha2, AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, CG0, CGM, CGP, CGX, CGY, CurieT(3,3), DCLEBS, &
+                 DiamT(3,3), DIPSOM_SA, DLT_E, DLTTA, EDIFF, EEX, EEY, EEZ, EVI(3), EVR(3), FACT, FEGVAL, GSENERGY, GTENS(3,3), &
+                 GTIJ, GTOTAL(3,3), HFC_1(3,3), HFC_2(3,3), HFC_3(3,3), p_Boltz, S1, S2, SM1, SM2, TMPMAT(3,3), TMPVEC(3,3), Zstat
 character(len=8) :: DMPPROP, PSOPROP, SDPROP
 integer(kind=iwp), allocatable :: MAPST(:), MAPSP(:), MAPMS(:)
 real(kind=wp), allocatable :: LXI(:,:), LYI(:,:), LZI(:,:), MXI(:,:), MXR(:,:), MYI(:,:), MYR(:,:), MZI(:,:), MZR(:,:), &
                               PNMR(:,:,:), PNMRC(:,:,:), PNMRCPS(:,:,:,:), PNMRD(:,:,:), PNMRT(:,:,:), SOPRI(:,:), SOPRR(:,:), &
                               TMPf(:), ZXYZI(:,:,:), ZXYZR(:,:,:)
 complex(kind=wp), allocatable :: DIMSO(:,:,:,:), DIPSOf(:,:,:), DIPSOfc(:,:,:), DIPSOfcsd(:,:,:), DIPSOfpso(:,:,:), &
-                                 DIPSOfsd(:,:,:), GCONT(:,:), SPNSFS(:,:,:), Z(:,:), ZEKL(:,:,:,:)
+                                 DIPSOfsd(:,:,:), GCONT(:,:,:), SPNSFS(:,:,:), Z(:,:), ZEKL(:,:,:,:)
 logical(kind=iwp), allocatable :: ISGS(:)
 real(kind=wp), parameter :: THRSH = 1.0e-10_wp
 
@@ -111,7 +110,7 @@ call mma_allocate(DIMSO,3,3,NSS,NSS,Label='DIMSO')
 call mma_allocate(SPNSFS,3,NSS,NSS,Label='SPNSFS')
 call mma_allocate(Z,NSS,NSS,Label='Z')
 call mma_allocate(ZEKL,2,2,3,NSTATE,Label='ZEKL')
-call mma_allocate(GCONT,9,NSTATE,Label='GCONT')
+call mma_allocate(GCONT,3,3,NSTATE,Label='GCONT')
 
 do IPROP=1,NPROP
   if ((PNAME(IPROP)(1:3) == 'ASD') .and. (ICOMP(IPROP) == 1)) then
@@ -298,26 +297,15 @@ do IPROP=1,NPROP
     ! Add analysis of different contributions
 
     ! Establish which spin components of SFS belong to the ground state
-    do I=1,NSS
-      ISGS(I) = .false.
-    end do
 
     GSENERGY = ENERGY(1)
     do ISTATE=2,NSTATE
       if (ENERGY(ISTATE) < GSENERGY) GSENERGY = ENERGY(ISTATE)
     end do
 
-    IMLTPL = 1
+    IMLTPL = 0
     do ISTATE=1,NSTATE
-      if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
-        do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-          ISGS(I) = .true.
-        end do
-      else
-        do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-          ISGS(I) = .false.
-        end do
-      end if
+      ISGS(IMLTPL+1:IMLTPL+MLTPLT(JBNUM(ISTATE))) = abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp
       IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
     end do
 
@@ -334,21 +322,13 @@ do IPROP=1,NPROP
     !    The contributions with other ES's are split between the ES's,
     !    counting them double (<i|Ze|j> and <j|Ze|i>) and divide by two later.
 
-    IMLTPL = 1
-    do ISTATE=1,NSTATE
-      do IXYZ=1,3
-        do J=1,2
-          do I=1,2
-            ZEKL(I,J,IXYZ,ISTATE) = cZero
-          end do
-        end do
-      end do
-    end do
+    ZEKL(:,:,:,:) = cZero
 
+    IMLTPL = 0
     do ISTATE=1,NSTATE
 
-      ISTART = IMLTPL
-      IFINAL = IMLTPL-1+MLTPLT(JBNUM(ISTATE))
+      ISTART = IMLTPL+1
+      IFINAL = IMLTPL+MLTPLT(JBNUM(ISTATE))
 
       if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -407,19 +387,12 @@ do IPROP=1,NPROP
     ! In the end, the outer division by 2 cancels on both sides, and the
     ! inner divisions by two combine to a division by 4.
 
-    do ISTATE=1,NSTATE
-      do IJXYZ=1,9
-        GCONT(IJXYZ,ISTATE) = cZero
-      end do
-    end do
-    do IJXYZ=1,9
-      GTOTAL(IJXYZ) = Zero
-    end do
+    GCONT(:,:,:) = cZero
+    GTOTAL(:,:) = Zero
 
     do ISTATE=1,NSTATE
       do IXYZ=1,3
         do JXYZ=1,3
-          IJXYZ = 3*(IXYZ-1)+JXYZ
 
           if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -428,8 +401,8 @@ do IPROP=1,NPROP
               if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) then
                 do I=1,2
                   do J=1,2
-                    GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                          (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                    GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                       ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                   end do
                 end do
               end if
@@ -441,11 +414,11 @@ do IPROP=1,NPROP
             do JSTATE=1,NSTATE
               do I=1,2
                 do J=1,2
-                  GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                        (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                  GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                     ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                   if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) &
-                    GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                          (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                    GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                       ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                 end do
               end do
             end do
@@ -455,17 +428,7 @@ do IPROP=1,NPROP
         end do
       end do
 
-      do IJXYZ=1,9
-        GTOTAL(IJXYZ) = GTOTAL(IJXYZ)+real(GCONT(IJXYZ,ISTATE),kind=wp)
-      end do
-    end do
-
-    do I=1,NSS
-      do J=1,NSS
-        do L=1,3
-          DIPSOf(L,I,J) = cZero
-        end do
-      end do
+      GTOTAL(:,:) = GTOTAL(:,:)+real(GCONT(:,:,ISTATE),kind=wp)
     end do
 
     ! Continue original calculation of G tensor (=gg^*)
@@ -473,37 +436,17 @@ do IPROP=1,NPROP
     call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
     call PRCMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1))
     call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
-    do ISS=1,NSS
-      do JSS=1,NSS
-        DIPSOf(1,ISS,JSS) = Z(ISS,JSS)
-      end do
-    end do
+    DIPSOf(1,:,:) = Z(:,:)
     call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
     call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
-    do ISS=1,NSS
-      do JSS=1,NSS
-        DIPSOf(2,ISS,JSS) = Z(ISS,JSS)
-      end do
-    end do
+    DIPSOf(2,:,:) = Z(:,:)
     call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
     call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
-    do ISS=1,NSS
-      do JSS=1,NSS
-        DIPSOf(3,ISS,JSS) = Z(ISS,JSS)
-      end do
-    end do
+    DIPSOf(3,:,:) = Z(:,:)
 
     if (IFSONCINI) then
 
-      do ic=1,3
-        do jc=1,3
-          do ISS=1,NSS
-            do JSS=1,NSS
-              DIMSO(ic,jc,ISS,JSS) = Zero
-            end do
-          end do
-        end do
-      end do
+      DIMSO(:,:,:,:) = Zero
       write(DMPPROP,'(a4,i4)') 'DMP ',ICEN
       write(u6,*) 'Looking for ',DMPPROP
       do KPROP=1,NPROP
@@ -520,73 +463,51 @@ do IPROP=1,NPROP
           ic = 0
           jc = 0
           !write(u6,*) 'ICOMP(KPROP)',ICOMP(KPROP)
-          if (ICOMP(KPROP) == 1) then
-            ic = 1
-            jc = 1
-          else if (ICOMP(KPROP) == 2) then
-            ic = 1
-            jc = 2
-          else if (ICOMP(KPROP) == 3) then
-            ic = 1
-            jc = 3
-          else if (ICOMP(KPROP) == 4) then
-            ic = 2
-            jc = 1
-          else if (ICOMP(KPROP) == 5) then
-            ic = 2
-            jc = 2
-          else if (ICOMP(KPROP) == 6) then
-            ic = 2
-            jc = 3
-          else if (ICOMP(KPROP) == 7) then
-            ic = 3
-            jc = 1
-          else if (ICOMP(KPROP) == 8) then
-            ic = 3
-            jc = 2
-          else
-            ic = 3
-            jc = 3
-          end if
+          select case (ICOMP(KPROP))
+            case (1)
+              ic = 1
+              jc = 1
+            case (2)
+              ic = 1
+              jc = 2
+            case (3)
+              ic = 1
+              jc = 3
+            case (4)
+              ic = 2
+              jc = 1
+            case (5)
+              ic = 2
+              jc = 2
+            case (6)
+              ic = 2
+              jc = 3
+            case (7)
+              ic = 3
+              jc = 1
+            case (8)
+              ic = 3
+              jc = 2
+            case (9)
+              ic = 3
+              jc = 3
+          end select
+          DIMSO(ic,jc,:,:) = 0
           do ISS=1,NSS
-            do JSS=1,NSS
-
-              if (ISS == JSS) then
-                !DIMSO(ICOMP(KPROP),ISS,JSS)=Z(ISS,JSS)
-                DIMSO(ic,jc,ISS,JSS) = Z(ISS,JSS)
-              else
-                DIMSO(ic,jc,ISS,JSS) = 0
-              end if
-            end do
+            !DIMSO(ICOMP(KPROP),ISS,ISS) = Z(ISS,ISS)
+            DIMSO(ic,jc,ISS,ISS) = Z(ISS,ISS)
           end do
           call mma_deallocate(SOPRR)
           call mma_deallocate(SOPRI)
         end if
 
       end do
-      iT = 0
-      do iT=1,NTP
-        do ic=1,3
-          do jc=1,3
-            PNMRT(iT,ic,jc) = Zero
-            PNMR(iT,ic,jc) = Zero
-            PNMRC(iT,ic,jc) = Zero
-            PNMRD(iT,ic,jc) = Zero
-          end do
-        end do
-      end do
+      PNMRT(:,:,:) = Zero
+      PNMR(:,:,:) = Zero
+      PNMRC(:,:,:) = Zero
+      PNMRD(:,:,:) = Zero
+      PNMRCPS(:,:,:,:) = Zero
 
-      do iT=1,NTP
-        do Iss=1,Nss
-          do ic=1,3
-            do jc=1,3
-              PNMRCPS(iT,Iss,ic,jc) = Zero
-            end do
-          end do
-        end do
-      end do
-
-      iT = 0
       do iT=1,NTP
         if (iT == 1) then
           TMPf(iT) = TMINP+1.0e-4_wp
@@ -597,35 +518,15 @@ do IPROP=1,NPROP
         Zstat = Zero
         do Iss=1,Nss
           p_Boltz = exp(-ESO(Iss)/Boltz_k/TMPf(iT))
-          !write(u6,*)'p_Boltz',p_Boltz
+          !write(u6,*) 'p_Boltz',p_Boltz
           Zstat = Zstat+p_Boltz
-          do IC=1,3
-            do JC=1,3
-              DiamT(IC,JC) = Zero
-            end do
-          end do
-          do IC=1,3
-            do JC=1,3
-              CurieT(IC,JC) = Zero
-            end do
-          end do
-          do IC=1,3
-            do JC=1,3
-              HFC_2(IC,JC) = Zero
-            end do
-          end do
-          do IC=1,3
-            do JC=1,3
-              HFC_3(IC,JC) = Zero
-            end do
-          end do
+          DiamT(:,:) = Zero
+          CurieT(:,:) = Zero
+          HFC_2(:,:) = Zero
+          HFC_3(:,:) = Zero
           do Jss=1,Nss
             dlt_E = Eso(Iss)-Eso(Jss)
-            do IC=1,3
-              do JC=1,3
-                HFC_1(IC,JC) = Zero
-              end do
-            end do
+            HFC_1(:,:) = Zero
             do ic=1,3
               do jc=1,3
 
@@ -657,51 +558,30 @@ do IPROP=1,NPROP
                   !                                  real(DIPSOm(ic,Iss,Jss)*conjg(DIPSOf(jc,Iss,Jss))))/dlt_E
 
                 end if
-
-                HFC_2(ic,jc) = HFC_2(ic,jc)+1.0e-6_wp*real(DIMSO(ic,jc,Iss,Jss))/(ALPHA2*auTocm)
-                DiamT(ic,jc) = DiamT(ic,jc)+1.0e-6_wp*real(DIMSO(ic,jc,Iss,Jss))/(ALPHA2*auTocm)
               end do
             end do
+            HFC_2(:,:) = HFC_2(:,:)+1.0e-6_wp*real(DIMSO(:,:,Iss,Jss))/(ALPHA2*auTocm)
+            DiamT(:,:) = DiamT(:,:)+1.0e-6_wp*real(DIMSO(:,:,Iss,Jss))/(ALPHA2*auTocm)
           end do !Jss
-          do ic=1,3
-            do jc=1,3
-              PNMRT(iT,ic,jc) = PNMRT(iT,ic,jc)+p_Boltz*HFC_2(ic,jc)
+          PNMRT(iT,:,:) = PNMRT(iT,:,:)+p_Boltz*HFC_2(:,:)
 
-              PNMR(iT,ic,jc) = PNMR(iT,ic,jc)+p_Boltz*HFC_3(ic,jc)
+          PNMR(iT,:,:) = PNMR(iT,:,:)+p_Boltz*HFC_3(:,:)
 
-              PNMRC(iT,ic,jc) = PNMRC(iT,ic,jc)+p_Boltz*CurieT(ic,jc)
+          PNMRC(iT,:,:) = PNMRC(iT,:,:)+p_Boltz*CurieT(:,:)
 
-              PNMRCPS(iT,Iss,ic,jc) = PNMRCPS(iT,Iss,ic,jc)+CurieT(ic,jc)
-              PNMRCPS(iT,Iss,ic,jc) = 1.0e6_wp*auTocm*ALPHA2*PNMRCPS(iT,Iss,ic,jc)
+          PNMRCPS(iT,Iss,:,:) = PNMRCPS(iT,Iss,:,:)+CurieT(:,:)
 
-              PNMRD(iT,ic,jc) = PNMRD(iT,ic,jc)+p_Boltz*DiamT(ic,jc)
-
-            end do
-          end do
+          PNMRD(iT,:,:) = PNMRD(iT,:,:)+p_Boltz*DiamT(:,:)
         end do !Iss
-        do ic=1,3
-          do jc=1,3
-            PNMRT(iT,ic,jc) = 1.0e6_wp*auTocm*ALPHA2*(PNMRT(iT,ic,jc)/Zstat)
-            PNMR(iT,ic,jc) = 1.0e6_wp*auTocm*ALPHA2*(PNMR(iT,ic,jc)/Zstat)
-            PNMRC(iT,ic,jc) = 1.0e6_wp*auTocm*ALPHA2*(PNMRC(iT,ic,jc)/Zstat)
-            PNMRD(iT,ic,jc) = 1.0e6_wp*auTocm*ALPHA2*(PNMRD(iT,ic,jc)/Zstat)
-            !write(u6,*) PNMRT(iT,ic,jc)
-            !auTocm*ALPHA2*
-          end do
-        end do
+        PNMRT(iT,:,:) = 1.0e6_wp*auTocm*ALPHA2*(PNMRT(iT,:,:)/Zstat)
+        PNMR(iT,:,:) = 1.0e6_wp*auTocm*ALPHA2*(PNMR(iT,:,:)/Zstat)
+        PNMRC(iT,:,:) = 1.0e6_wp*auTocm*ALPHA2*(PNMRC(iT,:,:)/Zstat)
+        PNMRD(iT,:,:) = 1.0e6_wp*auTocm*ALPHA2*(PNMRD(iT,:,:)/Zstat)
+        PNMRCPS(iT,:,:,:) = 1.0e6_wp*auTocm*ALPHA2*PNMRCPS(iT,:,:,:)
 
       end do ! iT
 
-      !IT = 0
-      !IC = 0
-      !JC = 0
-      !do IT=1,NTP
-      !  do IC=1,3
-      !    do JC=1,3
-      !      PNMRT(IT,IC,JC) = 1.0e6_wp*PNMRT(IT,IC,JC)
-      !    end do
-      !  end do
-      !end do
+      !PNMRT(:,:,:) = 1.0e6_wp*PNMRT(:,:,:)
 
       write(u6,'(/)')
       write(u6,'(A)') repeat('-',120)
@@ -788,11 +668,7 @@ do IPROP=1,NPROP
     ISS = 1
     do while ((ISS <= NSS) .and. (ENSOR(min(ISS,NSS))-ENSOR(1) <= EPRATHR))
 
-      do IXYZ=1,3
-        do JXYZ=1,3
-          GTENS(IXYZ,JXYZ) = Zero
-        end do
-      end do
+      GTENS(:,:) = Zero
 
       KDGN = 1
       do JSS=ISS+1,NSS
@@ -828,11 +704,11 @@ do IPROP=1,NPROP
           write(u6,'(a6,9(5x,a2,5x))') 'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
           write(u6,*)
           do ISTATE=1,NSTATE
-            write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,(dble(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
+            write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,real(GCONT(:,:,ISTATE))
           end do
 
           write(u6,*)
-          write(u6,'(A6,9(F12.6))') 'total ',(GTOTAL(IJXYZ),IJXYZ=1,9)
+          write(u6,'(A6,9(F12.6))') 'total ',GTOTAL(:,:)
         end if
 
         JSS = ISS+1
@@ -840,12 +716,8 @@ do IPROP=1,NPROP
         do IXYZ=1,3
           do JXYZ=1,3
             GTIJ = Zero
-            CONTRIB = Zero
             do ISO=ISS,JSS
-              do JSO=ISS,JSS
-                CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
-                GTIJ = GTIJ+CONTRIB
-              end do
+              GTIJ = GTIJ+sum(ZXYZR(ISO,ISS:JSS,IXYZ)*ZXYZR(ISS:JSS,ISO,JXYZ)-ZXYZI(ISO,ISS:JSS,IXYZ)*ZXYZI(ISS:JSS,ISO,JXYZ))
             end do
             GTENS(IXYZ,JXYZ) = Two*GTIJ
           end do
@@ -860,15 +732,9 @@ do IPROP=1,NPROP
         end do
         !end if
 
-        do I=1,3
-          EVR(I) = Zero
-          EVI(I) = Zero
-        end do
-        do IXYZ=1,3
-          do JXYZ=1,3
-            TMPMAT(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)
-          end do
-        end do
+        EVR(:) = Zero
+        EVI(:) = Zero
+        TMPMAT(:,:) = GTENS(:,:)
         call unitmat(TMPVEC,3)
 
         call XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
@@ -877,10 +743,7 @@ do IPROP=1,NPROP
         ! square root of the G eigenvalues
         do IXYZ=1,3
           do JXYZ=1,3
-            GTENS(IXYZ,JXYZ) = Zero
-            do KXYZ=1,3
-              GTENS(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)+TMPVEC(IXYZ,KXYZ)*sqrt(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
-            end do
+            GTENS(IXYZ,JXYZ) = sum(TMPVEC(IXYZ,:)*sqrt(EVR(:))*TMPVEC(JXYZ,:))
           end do
         end do
 
@@ -1050,43 +913,23 @@ do IPROP=1,NPROP
         end do
       end do
 
-      do I=1,NSS
-        ISGS(I) = .false.
-      end do
-
       GSENERGY = ENERGY(1)
       do ISTATE=2,NSTATE
         if (ENERGY(ISTATE) < GSENERGY) GSENERGY = ENERGY(ISTATE)
       end do
 
-      IMLTPL = 1
+      IMLTPL = 0
       do ISTATE=1,NSTATE
-        if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
-          do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-            ISGS(I) = .true.
-          end do
-        else
-          do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-            ISGS(I) = .false.
-          end do
-        end if
+        ISGS(IMLTPL+1:IMLTPL+MLTPLT(JBNUM(ISTATE))) = abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp
         IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
       end do
-      IMLTPL = 1
-      do ISTATE=1,NSTATE
-        do IXYZ=1,3
-          do J=1,2
-            do I=1,2
-              ZEKL(I,J,IXYZ,ISTATE) = cZero
-            end do
-          end do
-        end do
-      end do
+      ZEKL(:,:,:,:) = cZero
 
+      IMLTPL = 0
       do ISTATE=1,NSTATE
 
-        ISTART = IMLTPL
-        IFINAL = IMLTPL-1+MLTPLT(JBNUM(ISTATE))
+        ISTART = IMLTPL+1
+        IFINAL = IMLTPL+MLTPLT(JBNUM(ISTATE))
 
         if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -1130,19 +973,12 @@ do IPROP=1,NPROP
         IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
       end do
 
-      do ISTATE=1,NSTATE
-        do IJXYZ=1,9
-          GCONT(IJXYZ,ISTATE) = cZero
-        end do
-      end do
-      do IJXYZ=1,9
-        GTOTAL(IJXYZ) = Zero
-      end do
+      GCONT(:,:,:) = cZero
+      GTOTAL(:,:) = Zero
 
       do ISTATE=1,NSTATE
         do IXYZ=1,3
           do JXYZ=1,3
-            IJXYZ = 3*(IXYZ-1)+JXYZ
 
             if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -1151,8 +987,8 @@ do IPROP=1,NPROP
                 if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) then
                   do I=1,2
                     do J=1,2
-                      GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                            (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                      GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                         ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                     end do
                   end do
                 end if
@@ -1164,11 +1000,11 @@ do IPROP=1,NPROP
               do JSTATE=1,NSTATE
                 do I=1,2
                   do J=1,2
-                    GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                          (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                    GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                       ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                     if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) &
-                      GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                            (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                      GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                         ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                   end do
                 end do
               end do
@@ -1178,51 +1014,25 @@ do IPROP=1,NPROP
           end do
         end do
 
-        do IJXYZ=1,9
-          GTOTAL(IJXYZ) = GTOTAL(IJXYZ)+real(GCONT(IJXYZ,ISTATE))
-        end do
-      end do
-
-      do I=1,NSS
-        do J=1,NSS
-          do L=1,3
-            DIPSOfc(L,I,J) = cZero
-          end do
-        end do
+        GTOTAL(:,:) = GTOTAL(:,:)+real(GCONT(:,:,ISTATE))
       end do
 
       ! Continue original calculation of G tensor (=gg^*)
 
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
       call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfc(1,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfc(1,:,:) = Z(:,:)
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
       call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfc(2,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfc(2,:,:) = Z(:,:)
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
       call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfc(3,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfc(3,:,:) = Z(:,:)
 
       ISS = 1
       do while ((ENSOR(min(ISS,NSS))-ENSOR(1) <= EPRATHR) .and. (ISS <= NSS))
 
-        do IXYZ=1,3
-          do JXYZ=1,3
-            GTENS(IXYZ,JXYZ) = Zero
-          end do
-        end do
+        GTENS(:,:) = Zero
 
         KDGN = 1
         do JSS=ISS+1,NSS
@@ -1258,11 +1068,11 @@ do IPROP=1,NPROP
             write(u6,'(a6,9(5x,a2,5x))') 'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
             write(u6,*)
             do ISTATE=1,NSTATE
-              write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,(real(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
+              write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,real(GCONT(:,:,ISTATE))
             end do
 
             write(u6,*)
-            write(u6,'(A6,9(F12.6))') 'total ',(GTOTAL(IJXYZ),IJXYZ=1,9)
+            write(u6,'(A6,9(F12.6))') 'total ',GTOTAL(:,:)
           end if
 
           JSS = ISS+1
@@ -1270,12 +1080,8 @@ do IPROP=1,NPROP
           do IXYZ=1,3
             do JXYZ=1,3
               GTIJ = Zero
-              CONTRIB = Zero
               do ISO=ISS,JSS
-                do JSO=ISS,JSS
-                  CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
-                  GTIJ = GTIJ+CONTRIB
-                end do
+                GTIJ = GTIJ+sum(ZXYZR(ISO,ISS:JSS,IXYZ)*ZXYZR(ISS:JSS,ISO,JXYZ)-ZXYZI(ISO,ISS:JSS,IXYZ)*ZXYZI(ISS:JSS,ISO,JXYZ))
               end do
               GTENS(IXYZ,JXYZ) = Two*GTIJ
             end do
@@ -1290,24 +1096,17 @@ do IPROP=1,NPROP
           end do
           !end if
 
-          do I=1,3
-            EVR(I) = Zero
-            EVI(I) = Zero
-          end do
-          do IXYZ=1,3
-            do JXYZ=1,3
-              TMPMAT(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)
-            end do
-          end do
+          EVR(:) = Zero
+          EVI(:) = Zero
+          TMPMAT(:,:) = GTENS(:,:)
           call unitmat(TMPVEC,3)
 
           call XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
           do IXYZ=1,3
             do JXYZ=1,3
-              GTENS(IXYZ,JXYZ) = Zero
               do KXYZ=1,3
-                GTENS(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)+TMPVEC(IXYZ,KXYZ)*sqrt(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
+                GTENS(IXYZ,JXYZ) = sum(TMPVEC(IXYZ,:)*sqrt(EVR(:))*TMPVEC(JXYZ,:))
               end do
             end do
           end do
@@ -1439,44 +1238,24 @@ do IPROP=1,NPROP
         end do
       end do
 
-      do I=1,NSS
-        ISGS(I) = .false.
-      end do
-
       GSENERGY = ENERGY(1)
       do ISTATE=2,NSTATE
         if (ENERGY(ISTATE) < GSENERGY) GSENERGY = ENERGY(ISTATE)
       end do
 
-      IMLTPL = 1
+      IMLTPL = 0
       do ISTATE=1,NSTATE
-        if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
-          do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-            ISGS(I) = .true.
-          end do
-        else
-          do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-            ISGS(I) = .false.
-          end do
-        end if
+        ISGS(IMLTPL+1:IMLTPL+MLTPLT(JBNUM(ISTATE))) = abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp
         IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
       end do
 
-      IMLTPL = 1
-      do ISTATE=1,NSTATE
-        do IXYZ=1,3
-          do J=1,2
-            do I=1,2
-              ZEKL(I,J,IXYZ,ISTATE) = cZero
-            end do
-          end do
-        end do
-      end do
+      ZEKL(:,:,:,:) = cZero
 
+      IMLTPL = 0
       do ISTATE=1,NSTATE
 
-        ISTART = IMLTPL
-        IFINAL = IMLTPL-1+MLTPLT(JBNUM(ISTATE))
+        ISTART = IMLTPL+1
+        IFINAL = IMLTPL+MLTPLT(JBNUM(ISTATE))
 
         if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -1520,19 +1299,12 @@ do IPROP=1,NPROP
         IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
       end do
 
-      do ISTATE=1,NSTATE
-        do IJXYZ=1,9
-          GCONT(IJXYZ,ISTATE) = cZero
-        end do
-      end do
-      do IJXYZ=1,9
-        GTOTAL(IJXYZ) = Zero
-      end do
+      GCONT(:,:,:) = cZero
+      GTOTAL(:,:) = Zero
 
       do ISTATE=1,NSTATE
         do IXYZ=1,3
           do JXYZ=1,3
-            IJXYZ = 3*(IXYZ-1)+JXYZ
 
             if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -1541,8 +1313,8 @@ do IPROP=1,NPROP
                 if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) then
                   do I=1,2
                     do J=1,2
-                      GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                            (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                      GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                 ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                     end do
                   end do
                 end if
@@ -1554,11 +1326,11 @@ do IPROP=1,NPROP
               do JSTATE=1,NSTATE
                 do I=1,2
                   do J=1,2
-                    GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                          (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                    GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                       ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                     if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) &
-                      GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                            (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                      GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                         ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                   end do
                 end do
               end do
@@ -1568,51 +1340,25 @@ do IPROP=1,NPROP
           end do
         end do
 
-        do IJXYZ=1,9
-          GTOTAL(IJXYZ) = GTOTAL(IJXYZ)+real(GCONT(IJXYZ,ISTATE))
-        end do
-      end do
-
-      do I=1,NSS
-        do J=1,NSS
-          do L=1,3
-            DIPSOfsd(L,I,J) = cZero
-          end do
-        end do
+        GTOTAL(:,:) = GTOTAL(:,:)+real(GCONT(:,:,ISTATE))
       end do
 
       ! Continue original calculation of G tensor (=gg^*)
 
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
       call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfsd(1,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfsd(1,:,:) = Z(:,:)
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
       call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfsd(2,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfsd(2,:,:) = Z(:,:)
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
       call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfsd(3,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfsd(3,:,:) = Z(:,:)
 
       ISS = 1
       do while ((ENSOR(min(ISS,NSS))-ENSOR(1) <= EPRATHR) .and. (ISS <= NSS))
 
-        do IXYZ=1,3
-          do JXYZ=1,3
-            GTENS(IXYZ,JXYZ) = Zero
-          end do
-        end do
+        GTENS(:,:) = Zero
 
         KDGN = 1
         do JSS=ISS+1,NSS
@@ -1648,11 +1394,11 @@ do IPROP=1,NPROP
             write(u6,'(a6,9(5x,a2,5x))') 'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
             write(u6,*)
             do ISTATE=1,NSTATE
-              write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,(real(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
+              write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,real(GCONT(:,:,ISTATE))
             end do
 
             write(u6,*)
-            write(u6,'(A6,9(F12.6))') 'total ',(GTOTAL(IJXYZ),IJXYZ=1,9)
+            write(u6,'(A6,9(F12.6))') 'total ',GTOTAL(:,:)
           end if
 
           JSS = ISS+1
@@ -1660,12 +1406,8 @@ do IPROP=1,NPROP
           do IXYZ=1,3
             do JXYZ=1,3
               GTIJ = Zero
-              CONTRIB = Zero
               do ISO=ISS,JSS
-                do JSO=ISS,JSS
-                  CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
-                  GTIJ = GTIJ+CONTRIB
-                end do
+                GTIJ = GTIJ+sum(ZXYZR(ISO,ISS:JSS,IXYZ)*ZXYZR(ISS:JSS,ISO,JXYZ)-ZXYZI(ISO,ISS:JSS,IXYZ)*ZXYZI(ISS:JSS,ISO,JXYZ))
               end do
               GTENS(IXYZ,JXYZ) = Two*GTIJ
             end do
@@ -1680,25 +1422,16 @@ do IPROP=1,NPROP
           end do
           !end if
 
-          do I=1,3
-            EVR(I) = Zero
-            EVI(I) = Zero
-          end do
-          do IXYZ=1,3
-            do JXYZ=1,3
-              TMPMAT(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)
-            end do
-          end do
+          EVR(:) = Zero
+          EVI(:) = Zero
+          TMPMAT(:,:) = GTENS(:,:)
           call unitmat(TMPVEC,3)
 
           call XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
 
           do IXYZ=1,3
             do JXYZ=1,3
-              GTENS(IXYZ,JXYZ) = Zero
-              do KXYZ=1,3
-                GTENS(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)+TMPVEC(IXYZ,KXYZ)*sqrt(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
-              end do
+              GTENS(IXYZ,JXYZ) = sum(TMPVEC(IXYZ,:)*sqrt(EVR(:))*TMPVEC(JXYZ,:))
             end do
           end do
 
@@ -1857,10 +1590,6 @@ do IPROP=1,NPROP
         end do
       end do
 
-      do I=1,NSS
-        ISGS(I) = .false.
-      end do
-
       GSENERGY = ENERGY(1)
       do ISTATE=2,NSTATE
         if (ENERGY(ISTATE) < GSENERGY) then
@@ -1868,35 +1597,19 @@ do IPROP=1,NPROP
         end if
       end do
 
-      IMLTPL = 1
+      IMLTPL = 0
       do ISTATE=1,NSTATE
-        if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
-          do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-            ISGS(I) = .true.
-          end do
-        else
-          do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-            ISGS(I) = .false.
-          end do
-        end if
+        ISGS(IMLTPL+1:IMLTPL+MLTPLT(JBNUM(ISTATE))) = abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp
         IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
       end do
 
-      IMLTPL = 1
-      do ISTATE=1,NSTATE
-        do IXYZ=1,3
-          do J=1,2
-            do I=1,2
-              ZEKL(I,J,IXYZ,ISTATE) = cZero
-            end do
-          end do
-        end do
-      end do
+      ZEKL(:,:,:,:) = cZero
 
+      IMLTPL = 0
       do ISTATE=1,NSTATE
 
-        ISTART = IMLTPL
-        IFINAL = IMLTPL-1+MLTPLT(JBNUM(ISTATE))
+        ISTART = IMLTPL+1
+        IFINAL = IMLTPL+MLTPLT(JBNUM(ISTATE))
 
         if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -1934,19 +1647,12 @@ do IPROP=1,NPROP
 
         IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
       end do
-      do ISTATE=1,NSTATE
-        do IJXYZ=1,9
-          GCONT(IJXYZ,ISTATE) = cZero
-        end do
-      end do
-      do IJXYZ=1,9
-        GTOTAL(IJXYZ) = Zero
-      end do
+      GCONT(:,:,:) = cZero
+      GTOTAL(:,:) = Zero
 
       do ISTATE=1,NSTATE
         do IXYZ=1,3
           do JXYZ=1,3
-            IJXYZ = 3*(IXYZ-1)+JXYZ
 
             if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -1955,8 +1661,8 @@ do IPROP=1,NPROP
                 if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) then
                   do I=1,2
                     do J=1,2
-                      GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                            (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                      GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                         ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                     end do
                   end do
                 end if
@@ -1967,11 +1673,11 @@ do IPROP=1,NPROP
               do JSTATE=1,NSTATE
                 do I=1,2
                   do J=1,2
-                    GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                          (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                    GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                       ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                     if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) &
-                      GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                            (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                      GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                         ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                   end do
                 end do
               end do
@@ -1981,49 +1687,23 @@ do IPROP=1,NPROP
           end do
         end do
 
-        do IJXYZ=1,9
-          GTOTAL(IJXYZ) = GTOTAL(IJXYZ)+real(GCONT(IJXYZ,ISTATE))
-        end do
-      end do
-
-      do I=1,NSS
-        do J=1,NSS
-          do L=1,3
-            DIPSOfcsd(L,I,J) = cZero
-          end do
-        end do
+        GTOTAL(:,:) = GTOTAL(:,:)+real(GCONT(:,:,ISTATE))
       end do
 
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
       call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfcsd(1,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfcsd(1,:,:) = Z(:,:)
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
       call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfcsd(2,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfcsd(2,:,:) = Z(:,:)
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
       call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfcsd(3,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfcsd(3,:,:) = Z(:,:)
 
       ISS = 1
       do while ((ENSOR(min(ISS,NSS))-ENSOR(1) <= EPRATHR) .and. (ISS <= NSS))
 
-        do IXYZ=1,3
-          do JXYZ=1,3
-            GTENS(IXYZ,JXYZ) = Zero
-          end do
-        end do
+        GTENS(:,:) = Zero
 
         KDGN = 1
         do JSS=ISS+1,NSS
@@ -2059,23 +1739,19 @@ do IPROP=1,NPROP
             write(u6,'(a6,9(5x,a2,5x))') 'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
             write(u6,*)
             do ISTATE=1,NSTATE
-              write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,(real(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
+              write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,real(GCONT(:,:,ISTATE))
             end do
 
             write(u6,*)
-            write(u6,'(A6,9(F12.6))') 'total ',(GTOTAL(IJXYZ),IJXYZ=1,9)
+            write(u6,'(A6,9(F12.6))') 'total ',GTOTAL(:,:)
           end if
           JSS = ISS+1
 
           do IXYZ=1,3
             do JXYZ=1,3
               GTIJ = Zero
-              CONTRIB = Zero
               do ISO=ISS,JSS
-                do JSO=ISS,JSS
-                  CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
-                  GTIJ = GTIJ+CONTRIB
-                end do
+                GTIJ = GTIJ+sum(ZXYZR(ISO,ISS:JSS,IXYZ)*ZXYZR(ISS:JSS,ISO,JXYZ)-ZXYZI(ISO,ISS:JSS,IXYZ)*ZXYZI(ISS:JSS,ISO,JXYZ))
               end do
               GTENS(IXYZ,JXYZ) = Two*GTIJ
             end do
@@ -2090,15 +1766,9 @@ do IPROP=1,NPROP
           end do
           !end if
 
-          do I=1,3
-            EVR(I) = Zero
-            EVI(I) = Zero
-          end do
-          do IXYZ=1,3
-            do JXYZ=1,3
-              TMPMAT(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)
-            end do
-          end do
+          EVR(:) = Zero
+          EVI(:) = Zero
+          TMPMAT(:,:) = GTENS(:,:)
           call unitmat(TMPVEC,3)
 
           call XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
@@ -2107,10 +1777,7 @@ do IPROP=1,NPROP
           ! square root of the G eigenvalues
           do IXYZ=1,3
             do JXYZ=1,3
-              GTENS(IXYZ,JXYZ) = Zero
-              do KXYZ=1,3
-                GTENS(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)+TMPVEC(IXYZ,KXYZ)*sqrt(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
-              end do
+              GTENS(IXYZ,JXYZ) = sum(TMPVEC(IXYZ,:)*sqrt(EVR(:))*TMPVEC(JXYZ,:))
             end do
           end do
 
@@ -2153,44 +1820,24 @@ do IPROP=1,NPROP
 
       call Deallocate_PSOP()
 
-      do I=1,NSS
-        ISGS(I) = .false.
-      end do
-
       GSENERGY = ENERGY(1)
       do ISTATE=2,NSTATE
         if (ENERGY(ISTATE) < GSENERGY) GSENERGY = ENERGY(ISTATE)
       end do
 
-      IMLTPL = 1
+      IMLTPL = 0
       do ISTATE=1,NSTATE
-        if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
-          do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-            ISGS(I) = .true.
-          end do
-        else
-          do I=IMLTPL,IMLTPL-1+MLTPLT(JBNUM(ISTATE))
-            ISGS(I) = .false.
-          end do
-        end if
+        ISGS(IMLTPL+1:IMLTPL+MLTPLT(JBNUM(ISTATE))) = abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp
         IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
       end do
       !*****************************************************
-      IMLTPL = 1
-      do ISTATE=1,NSTATE
-        do IXYZ=1,3
-          do J=1,2
-            do I=1,2
-              ZEKL(I,J,IXYZ,ISTATE) = cZero
-            end do
-          end do
-        end do
-      end do
+      ZEKL(:,:,:,:) = cZero
 
+      IMLTPL = 0
       do ISTATE=1,NSTATE
 
-        ISTART = IMLTPL
-        IFINAL = IMLTPL-1+MLTPLT(JBNUM(ISTATE))
+        ISTART = IMLTPL+1
+        IFINAL = IMLTPL+MLTPLT(JBNUM(ISTATE))
 
         if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -2233,19 +1880,12 @@ do IPROP=1,NPROP
         IMLTPL = IMLTPL+MLTPLT(JBNUM(ISTATE))
       end do
 
-      do ISTATE=1,NSTATE
-        do IJXYZ=1,9
-          GCONT(IJXYZ,ISTATE) = cZero
-        end do
-      end do
-      do IJXYZ=1,9
-        GTOTAL(IJXYZ) = Zero
-      end do
+      GCONT(:,:,:) = cZero
+      GTOTAL(:,:) = Zero
 
       do ISTATE=1,NSTATE
         do IXYZ=1,3
           do JXYZ=1,3
-            IJXYZ = 3*(IXYZ-1)+JXYZ
 
             if (abs(ENERGY(ISTATE)-GSENERGY) < 1.0e-6_wp) then
 
@@ -2254,8 +1894,8 @@ do IPROP=1,NPROP
                 if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) then
                   do I=1,2
                     do J=1,2
-                      GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                            (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                      GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                         ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                     end do
                   end do
                 end if
@@ -2267,11 +1907,11 @@ do IPROP=1,NPROP
               do JSTATE=1,NSTATE
                 do I=1,2
                   do J=1,2
-                    GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                          (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                    GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                       ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                     if (abs(ENERGY(JSTATE)-GSENERGY) < 1.0e-6_wp) &
-                      GCONT(IJXYZ,ISTATE) = GCONT(IJXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE))*Quart+ &
-                                            (ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
+                      GCONT(JXYZ,IXYZ,ISTATE) = GCONT(JXYZ,IXYZ,ISTATE)+(ZEKL(I,J,IXYZ,ISTATE)*ZEKL(J,I,JXYZ,JSTATE)+ &
+                                                                         ZEKL(I,J,IXYZ,JSTATE)*ZEKL(J,I,JXYZ,ISTATE))*Quart
                   end do
                 end do
               end do
@@ -2281,51 +1921,25 @@ do IPROP=1,NPROP
           end do
         end do
 
-        do IJXYZ=1,9
-          GTOTAL(IJXYZ) = GTOTAL(IJXYZ)+real(GCONT(IJXYZ,ISTATE))
-        end do
-      end do
-
-      do I=1,NSS
-        do J=1,NSS
-          do L=1,3
-            DIPSOfpso(L,I,J) = cZero
-          end do
-        end do
+        GTOTAL(:,:) = GTOTAL(:,:)+real(GCONT(:,:,ISTATE))
       end do
 
       ! Continue original calculation of G tensor (=gg^*)
 
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,1),ZXYZI(:,:,1))
       call MULMAT(NSS,ZXYZR(:,:,1),ZXYZI(:,:,1),eex,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfpso(1,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfpso(1,:,:) = Z(:,:)
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,2),ZXYZI(:,:,2))
       call MULMAT(NSS,ZXYZR(:,:,2),ZXYZI(:,:,2),eey,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfpso(2,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfpso(2,:,:) = Z(:,:)
       call ZTRNSF(NSS,USOR,USOI,ZXYZR(:,:,3),ZXYZI(:,:,3))
       call MULMAT(NSS,ZXYZR(:,:,3),ZXYZI(:,:,3),eez,Z)
-      do ISS=1,NSS
-        do JSS=1,NSS
-          DIPSOfpso(3,ISS,JSS) = Z(ISS,JSS)
-        end do
-      end do
+      DIPSOfpso(3,:,:) = Z(:,:)
 
       ISS = 1
       do while ((ENSOR(min(ISS,NSS))-ENSOR(1) <= EPRATHR) .and. (ISS <= NSS))
 
-        do IXYZ=1,3
-          do JXYZ=1,3
-            GTENS(IXYZ,JXYZ) = Zero
-          end do
-        end do
+        GTENS(:,:) = Zero
 
         KDGN = 1
         do JSS=ISS+1,NSS
@@ -2361,11 +1975,11 @@ do IPROP=1,NPROP
             write(u6,'(a6,9(5x,a2,5x))') 'state ','xx','xy','xz','yx','yy','yz','zx','zy','zz'
             write(u6,*)
             do ISTATE=1,NSTATE
-              write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,(real(GCONT(IJXYZ,ISTATE)),IJXYZ=1,9)
+              write(u6,'(2x,I2,2x,9(F12.6))') ISTATE,real(GCONT(:,:,ISTATE))
             end do
 
             write(u6,*)
-            write(u6,'(A6,9(F12.6))') 'total ',(GTOTAL(IJXYZ),IJXYZ=1,9)
+            write(u6,'(A6,9(F12.6))') 'total ',GTOTAL(:,:)
           end if
 
           JSS = ISS+1
@@ -2373,14 +1987,8 @@ do IPROP=1,NPROP
           do IXYZ=1,3
             do JXYZ=1,3
               GTIJ = Zero
-              CONTRIB = Zero
               do ISO=ISS,JSS
-                do JSO=ISS,JSS
-                  CONTRIB = ZXYZR(ISO,JSO,IXYZ)*ZXYZR(JSO,ISO,JXYZ)-ZXYZI(ISO,JSO,IXYZ)*ZXYZI(JSO,ISO,JXYZ)
-
-                  GTIJ = GTIJ+CONTRIB
-
-                end do
+                GTIJ = GTIJ+sum(ZXYZR(ISO,ISS:JSS,IXYZ)*ZXYZR(ISS:JSS,ISO,JXYZ)-ZXYZI(ISO,ISS:JSS,IXYZ)*ZXYZI(ISS:JSS,ISO,JXYZ))
               end do
               GTENS(IXYZ,JXYZ) = Two*GTIJ
             end do
@@ -2395,15 +2003,9 @@ do IPROP=1,NPROP
           end do
           !end if
 
-          do I=1,3
-            EVR(I) = Zero
-            EVI(I) = Zero
-          end do
-          do IXYZ=1,3
-            do JXYZ=1,3
-              TMPMAT(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)
-            end do
-          end do
+          EVR(:) = Zero
+          EVI(:) = Zero
+          TMPMAT(:,:) = GTENS(:,:)
           call unitmat(TMPVEC,3)
 
           call XEIGEN(1,3,3,TMPMAT,EVR,EVI,TMPVEC,IERR)
@@ -2433,8 +2035,8 @@ do IPROP=1,NPROP
                     ICOUNT = 1
                   end if
                 end if
-                GTENS(IXYZ,JXYZ) = GTENS(IXYZ,JXYZ)+TMPVEC(IXYZ,KXYZ)*sqrt(EVR(KXYZ))*TMPVEC(JXYZ,KXYZ)
               end do
+              GTENS(IXYZ,JXYZ) = sum(TMPVEC(IXYZ,:)*sqrt(EVR(:))*TMPVEC(JXYZ,:))
             end do
           end do
           write(u6,*)
