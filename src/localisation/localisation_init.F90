@@ -28,7 +28,7 @@ integer(kind=iwp), parameter :: Occupied = 0
 real(kind=wp), parameter :: ThrsDef=1.0e-6_wp, & !functional change
                             ThrRotDef=1.0e-10_wp, & !rotation angle in jacobi sweeps
                             ThrGradDef=1.0e-4_wp,& !gradient norm
-                            ThrStepDef=1.0e-4_wp !kappa norm
+                            ThrStepDef=1.0e-2_wp !kappa norm
 
 do iSym=1,nSym
   nOrb2Loc(iSym) = 0

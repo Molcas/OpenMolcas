@@ -181,10 +181,15 @@ end select ! allocations
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
 if (.not. Silent) write(u6,"(/A)") "MO extension before localisation:"
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.not. Silent)
-call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
-FuncList(1) = -Functional
-GradList(:,1) = -Gradient(:)
-HdiagList(:,1) = -Hdiagvec(:)
+
+select case (OptMeth)
+
+case (2,4,5)
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Gradient(:), Hdiagvec(:)) ! gets the new gradient
+    FuncList(1) = -Functional
+    GradList(:,1) = -Gradient(:)
+    HdiagList(:,1) = -Hdiagvec(:)
+end select
 
 ! set defaults
 
@@ -204,15 +209,20 @@ IterGEK = 0
 
 
 ! Print iteration table header.
-
 if (.not. Silent) then
     call CWTime(C2,W2)
     TimC = C2-C1
     TimW = W2-W1
+    select case (OptMeth)
+    case(1)
+    write(u6,'(//,1X,A,/,1X,A)') &
+        '                                                         CPU       Wall', &
+        'nIter       Functional P        Delta     Gradient      (sec)     (sec) %Screen'
+    case (2,4,5)
     write(u6,'(//,1X,A,/,1X,A)') '                                                                   CPU       Wall', &
-    'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) %Screen, ndiis, largest'
+    'nIter       Functional P        Delta     Gradient   Microiter   (sec)     (sec) ndiis, largest'
+    end select
 end if
-
 
 ! ----------------------------------------------------------------------
 !                           Iterations
@@ -224,7 +234,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
 
     nIter = nIter+1
-
     !choose between optimization methods
     select case (OptMeth)
 
@@ -233,7 +242,6 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.false.)
         call GetGradnorm_PM(nAtoms,nOrb2Loc,PA,GradNorm)
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,PctSkp)
-
     case (2,4,5) ! Employing NxN rotations
 
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Ovlp_sqrt)
@@ -321,23 +329,28 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
 
     !check if converged
-
     Delta = Functional-OldFunctional
     OldFunctional = Functional
     if (.not. Silent) then
         call CWTime(C2,W2)
         TimC = C2-C1
         TimW = W2-W1
-        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,F7.2,1X,I5,1X,ES12.4)') &
-            nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,PctSkp,nDIIS,largest
+        select case (OptMeth)
+        case(1)
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),1X,2(1X,F9.1),1X,F7.2)') &
+            nIter,Functional,Delta,GradNorm,TimC,TimW,PctSkp
+        case (2,4,5)
+        write(u6,'(1X,I5,1X,F18.8,2(1X,ES12.4),3X,A6,1X,2(1X,F9.1),1X,1X,I5,1X,ES12.4)') &
+            nIter,Functional,Delta,GradNorm,UpMeth,TimC,TimW,nDIIS,largest
+        end select
     end if
 
-    StepNorm = sqrt(DDOT_(fsdim,Disp,1,Disp,1))
     select case(OptMeth)
     case(1)
         Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
     case(2,4,5)
-        !Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
+        StepNorm = sqrt(DDOT_(fsdim,Disp,1,Disp,1))
+        Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
         Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs) .and. (StepNorm <=ThrStep)
     end select
 end do !Iterations
@@ -357,7 +370,6 @@ if (.not. Silent) then
 
     write(u6,"(/A)") "MO extension after localisation:"
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,.true.)
-
     if (.not. Converged) then
         write(u6,'(/,A,I4,A)') 'No convergence after',nIter,' iterations.'
     else
@@ -373,6 +385,7 @@ if (.not. Silent) then
 end if
 
 !call Prpt()
+
 
 
 ! deallocations

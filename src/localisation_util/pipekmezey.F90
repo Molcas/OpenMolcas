@@ -53,7 +53,7 @@ kOffC = nBasT*nFroT+1
 
 
 if (ScrFac/=Zero) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],ScrFac)
-if (OptMeth == 2 .or. OptMeth == 4 .or. OptMeth == 5) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],0.5_wp)
+!if (OptMeth == 2 .or. OptMeth == 4 .or. OptMeth == 5) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],0.5_wp)
 
 Converged = .false.
 
