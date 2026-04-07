@@ -12,6 +12,8 @@
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
+!#define _SCR_DEFAULT_
+
 subroutine PipekMezey(Functional,CMO,nBas,nOrb2Loc,nFro,nSym,Converged)
 ! Author: Y. Carissan [modified by T.B. Pedersen].
 !
@@ -21,7 +23,11 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Localisation_globals, only: BName, nAtoms, ScrFac, Debug, OptMeth
+use Localisation_globals, only: BName, nAtoms, ScrFac, Debug
+
+#ifdef _SCR_DEFAULT_
+use Localisation_globals, only: OptMeth
+#endif
 
 implicit none
 real(kind=wp), intent(out) :: Functional
@@ -53,7 +59,9 @@ kOffC = nBasT*nFroT+1
 
 
 if (ScrFac/=Zero) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],ScrFac)
-!if (OptMeth == 2 .or. OptMeth == 4 .or. OptMeth == 5) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],0.5_wp)
+# ifdef _SCR_DEFAULT_
+if (OptMeth == 2 .or. OptMeth == 4 .or. OptMeth == 5) Call Scram(CMO(kOffC),nSym,[nBasT],[nOrb2LocT],0.5_wp)
+#endif
 
 Converged = .false.
 
