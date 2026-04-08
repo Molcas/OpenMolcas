@@ -14,7 +14,7 @@
 !***********************************************************************
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
-!#define _COORDSABS_
+#define _COORDSABS_
 
 subroutine S_GEK_localisation(nIter,IterGEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS)
 
@@ -53,41 +53,40 @@ character :: Step_Trunc
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
-dq_NR(:) = dq(:)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter S-GEK Optimizer'
 #endif
 
-! number of iterations used to build the subspace
 
-nDIIS = min(IterGEK,nWindow) !1 for first iteration; 2
+! number of iterations used to build the subspace
+nDIIS = min(IterGEK,nWindow)
+
+
+! leave this subroutine if not enough data points were collected
 if (nDIIS < mindp) then
-#   ifdef _DEBUG2_
-    write(u6,'(A,I4,A,I4,A)') "not enough data points for GEK yet (we have",ndiis,", we want min ",mindp,")"
-#   endif
     write(u6,*) 'Exit S-GEK Optimizer (not enough sampling points)', ndiis
     return
-else
-#   ifdef _DEBUG2_
-    write(u6,'(A,I4,A,I4,A)') "enough data points to build GEK (we have",ndiis,", we want min ",mindp,")"
-#   endif
 end if
 
+! find the list indeces corresponding to the first and last data point
 iFirst = nIter-nDIIS+1
 iLast = nIter
 
+
 # ifdef _DEBUG2_
-write(u6,'(A,6(I4))') "Iter,IterGEK,nDIIS,iFirst,iLast =",nIter,IterGEK,nDIIS,iFirst,iLast
-write(u6,*) "Iter    =",nIter
-write(u6,*) "IterGEK =",IterGEK
-write(u6,*) "nDIIS   =",nDIIS
-write(u6,*) "iFirst  =",iFirst
-write(u6,*) "iLast   =",iLast
+    write(u6,'(A,6(I4))') "Iter,IterGEK,nDIIS,iFirst,iLast =",nIter,IterGEK,nDIIS,iFirst,iLast
+    write(u6,*) "Iter    =",nIter
+    write(u6,*) "IterGEK =",IterGEK
+    write(u6,*) "nDIIS   =",nDIIS
+    write(u6,*) "iFirst  =",iFirst
+    write(u6,*) "iLast   =",iLast
 # endif
+
 
 call mma_Allocate(coords,fsdim, nDiis,Label="coords")
 call mma_Allocate(grads,fsdim, nDiis,Label="grads")
+
 
 ! compute product matrix U_1...n = U_1 * ... * U_n
 ! -------------------------------------------------
@@ -136,24 +135,27 @@ end do
 !we have to switch from relative to absolute coords for the GEK model:
 call mma_Allocate(CoordsAbs,fsdim, nDiis,Label="CoordsAbs")
 CoordsAbs(:,:) = Zero
-
+#ifdef _DEBUGPRINT_
 call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
+#endif
 CoordsAbs(:,:) = coords(:,:)
 do i = 1, ndiis-1
     CoordsAbs(:,i+1) = CoordsAbs(:,i+1) + CoordsAbs(:,i)
 end do
 
 coords(:,:ndiis) = CoordsAbs(:,:ndiis)
-coords(:,nDiis) = Zero
+!coords(:,nDiis) = Zero
+#ifdef _DEBUGPRINT_
 call RecPrt("abscoords(:,:)",' ',coords,fsdim, nDiis)
 
 do i=1,fsdim
     do j=1,ndiis
-        if (coords(i,j) > 0.01_wp) then
+        if (coords(i,j) > 0.1_wp) then
             write(u6,*) "coords(i,j) too big i,j =",i,j,coords(i,j)
         end if
     end do
 end do
+#endif
 
 !call RecPrt("CoordsAbs(:,:)",' ',coords,fsdim, nDiis)
 !call RecPrt("grads(:,:)",' ',grads,fsdim, nDiis)
@@ -389,8 +391,10 @@ dq_diis(:) = Zero
 
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
+dq_NR(:) = dq(:)
 if (SORange) then
-  SOFact = 1000.0_wp
+  !SOFact = 1000.0_wp
+  SOFact = One
 else
   SOFact = 10000000.0_wp
 end if
