@@ -299,7 +299,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         ! transform disp vec to matrix
         call vec2upper_triag(kappa(:,:),nOrb2Loc,Disp(:),fsdim,.true.)
 
-        DispList(:,nIter) = Disp(:) ! q_i
+        DispList(:,nIter+1) = Disp(:) ! q_i
 
         ! update CMO
         call RotateNxN(CMO,kappa,nOrb2Loc,nBasis,kappa_cnt,xkappa_cnt,unitary_mat,rotated_CMO)

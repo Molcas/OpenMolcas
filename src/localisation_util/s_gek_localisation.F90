@@ -41,15 +41,15 @@ real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact,dq_NR(fsdim)
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
-#ifdef _COORDSABS_
-real(kind=wp), allocatable :: CoordsAbs(:,:)
-#endif
 integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
-real(kind=wp),parameter :: bias = 10.0_wp
+real(kind=wp),parameter :: bias = 100.0_wp
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange
 character :: Step_Trunc
+#ifdef _COORDSABS_
+real(kind=wp), allocatable :: CoordsAbs(:,:)
+#endif
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
@@ -83,6 +83,8 @@ iLast = nIter
     write(u6,*) "iLast   =",iLast
 # endif
 
+    write(u6,*) "iFirst  =",iFirst
+    write(u6,*) "iLast   =",iLast
 
 
 ! read in coordinates and gradients to build the GEK model
@@ -112,6 +114,12 @@ call moveref()
     call RecPrt("grads(:,nDiis)",' ',grads(:,nDiis),fsdim, 1)
     call RecPrt("dq(:) = NR suggestion",' ',dq,fsdim, 1)
 #endif
+
+write(*,*) 'q(1,:)    ',coords(1,:)
+write(*,*) 'g(1,:)    ',grads(1,:)
+write(*,*) 'g(1,nDIIS)',grads(1,nDIIS)
+write(*,*) 'dq(1)     ',dq(1)
+
 
 
 
@@ -265,8 +273,8 @@ call mma_Allocate(q_diis,mDiis,nDiis+Max_IterGEK,Label='q_diis')
 q_diis(:,:) = Zero
 do i=1,nDiis ! we project only those q vectors that were used to build the subspace, so that they are fully expressed within it
     do k=1,mDiis
-        !q_diis(k,i) = sum( (coords(:,i)-coords(:,nDIIS)) * e_diis(:,k))
-        q_diis(k,i) = sum( (coords(:,nDIIS)-coords(:,i)) * e_diis(:,k))
+        q_diis(k,i) = sum( (coords(:,i)-coords(:,nDIIS)) * e_diis(:,k))
+        !q_diis(k,i) = sum( (coords(:,nDIIS)-coords(:,i)) * e_diis(:,k))
     end do
 end do
 
@@ -316,6 +324,10 @@ dq_diis(:) = Zero
     end do
     write(u6,*) ''
 #endif
+
+
+write(*,*) 'q_diis    ',q_diis(1,:nDIIS)
+write(*,*) 'g_diis    ',g_diis(1,:nDIIS)
 
 
 
@@ -391,6 +403,7 @@ write(u6,*) 'Exit S-GEK Optimizer'
 #endif
 
 
+write(*,*) 'dq        ',dq(1)
 
 contains
 
@@ -405,20 +418,35 @@ subroutine moveref()
 
 #ifdef _DEBUGPRINT_
     call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
-#endif
-
+    write(u6,,*)""
+    write(u6,*) "Displist  ",Displist(:,:nIter)
     CoordsAbs(:,:) = coords(:,:)
-    do i = 1, ndiis-1
-        CoordsAbs(:,i+1) = CoordsAbs(:,i+1) + CoordsAbs(:,i)
+    write(u6,*) "coords    ",coords(:,:)
+    do i = 1, ndiis
+        do j = i,ndiis
+            write(u6,*) "CoordsAbs(i)",CoordsAbs(:,i)
+            write(u6,*)"i,j, displist(j) = ",i,j,coords(:,j)
+            CoordsAbs(:,i) = CoordsAbs(:,i) - coords(:,j)
+            write(u6,*) "CoordsAbs(i)",CoordsAbs(:,i)
+        end do
     end do
     coords(:,:ndiis) = CoordsAbs(:,:ndiis)
-    !coords(:,nDiis) = Zero
+    write(u6,*) "coords    ",coords(:,:)
+    !coords(:,nDiis) = Zeo
+    write(u6,*)""
 
-
-#   ifdef _DEBUGPRINT_
     call RecPrt("CoordsAbs(:,:)",' ',coords,fsdim, nDiis)
-#   endif
 
+#else
+    CoordsAbs(:,:) = coords(:,:)
+    do i = 1, ndiis
+        do j = i,ndiis
+            CoordsAbs(:,i) = CoordsAbs(:,i) - coords(:,j)
+        end do
+    end do
+    coords(:,:ndiis) = CoordsAbs(:,:ndiis)
+
+#   endif
 call mma_Deallocate(CoordsAbs)
 
 end subroutine moveref
