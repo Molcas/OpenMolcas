@@ -484,7 +484,7 @@ C
            End Do
          End If
          Call mma_allocate(Temp,nBuf/2,Label='Temp')
-         Call NatOrb(D_K,CMO,CMON,OCCU)
+         Call NatOrb_MCLR(D_K,CMO,CMON,OCCU)
          Call dmat_MCLR(CMON,OCCU,Temp)
          Call Put_dArray('D1aoVar',Temp,nTot1)
          Call mma_deallocate(Temp)
@@ -612,7 +612,7 @@ c Diagonalize the effective density to be able to use Prpt
 c OCCU eigenvalues of eff dens
 c CMON eigenvectors (new orb coef)
 c
-         Call NatOrb(D_K,CMO,CMON,OCCU)
+         Call NatOrb_MCLR(D_K,CMO,CMON,OCCU)
          Call mma_Allocate(Tmp,nBuf/2,Label='Tmp')
          Call dmat_MCLR(CMON,OCCU,Tmp)
          Call Put_dArray('D1aoVar',Tmp,nTot1)
@@ -697,7 +697,7 @@ c Diagonalize the effective density to be able to use Prpt
 c OCCU eigenvalues of eff dens
 c CMON eigenvectors (new orb coef)
 c
-c      Call NatOrb(D_K,CMO,CMON,OCCU)
+c      Call NatOrb_MCLR(D_K,CMO,CMON,OCCU)
 c      Call mma_allocate(Temp,nBuf/2,Label='Temp')
 c      Call dmat_MCLR(CMON,OCCU,Temp)
 c      Call Put_dArray('D1aoVar',Temp,nTot1)
@@ -797,7 +797,7 @@ c
       End Do
       End Subroutine OITD
 
-      Subroutine NatOrb(Dens,CMOO,CMON,OCCN)
+      Subroutine NatOrb_MCLR(Dens,CMOO,CMON,OCCN)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use MCLR_Data, only: ipCM, ipMat, nDens2
@@ -853,4 +853,4 @@ C
       Call mma_deallocate(EVec)
       Call mma_deallocate(Eval)
 
-      End Subroutine NatOrb
+      End Subroutine NatOrb_MCLR

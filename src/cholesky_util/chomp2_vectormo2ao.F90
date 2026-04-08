@@ -60,13 +60,16 @@ use ChoMP2, only: nAOVir, nT1AOT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
 integer(kind=iwp), intent(in) :: iTyp, lDiag
 logical(kind=iwp), intent(in) :: Delete, DoDiag
 character(len=3), intent(in) :: BaseName_AO
 real(kind=wp), intent(in) :: CMO(*)
 real(kind=wp), intent(out) :: Diag(lDiag)
-integer(kind=iwp), intent(out) :: lU_AO(*), irc
+integer(kind=iwp), intent(_OUT_) :: lU_AO(*)
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: iClose, iCount, iOpen, iSym, iSyma, iSymb
 character(len=4) :: FullName_AO
 real(kind=wp), allocatable :: COcc(:), CVir(:)

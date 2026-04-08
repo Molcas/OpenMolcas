@@ -18,9 +18,9 @@
 *        the corresponding beta  strings,IBSTR
 *        the corresponding sign array   ,ISIGN
 *
-* Jeppe Olsen , Summer of 89
+* Jeppe Olsen, Summer of 89
 *
-* Ninob added , October 1991
+* Ninob added, October 1991
 *
 * Modified September 1993 for LUCIA
 *

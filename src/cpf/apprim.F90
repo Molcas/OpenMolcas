@@ -29,8 +29,7 @@ IP = IRC(4)
 do I=1,IP
   call TPQSET(ICASE,TPQ,I)
   T2(1:IP) = (EPP(1:IP)+EPB(1:IP))*TPQ(1:IP)/ENP(1:IP)
-  call VECSUM_CPFMCPF(T2,AP(I),IP)
-  AP(I) = AP(I)*ENP(I)
+  AP(I) = sum(T2(1:IP))*ENP(I)
 end do
 
 if (IPRINT > 5) write(u6,999) (AP(I),I=1,IP)

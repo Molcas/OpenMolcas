@@ -131,7 +131,7 @@ C        CALL RecPrt(' ',' ',FckOt,NA,NA)
 ******************************************************
 
       Subroutine GetGDMat(GDMat)
-      use rasscf_lucia, only: DStmp, Dtmp
+      use lucia_data, only: DStmp, Dtmp
       use stdalloc, only: mma_allocate, mma_deallocate
       use Lucia_Interface, only: Lucia_Util
       use rasscf_global, only: lRoots, nAc, iAdr15

@@ -11,7 +11,7 @@
 
 subroutine ORTHO_MOTRA(nSym,nBas,nDel,Ovlp,CMO)
 ! Objective: Orthonormalize input vectors
-!           (Gram-Schmidt orthogonaliztion)
+!           (Gram-Schmidt orthogonalization)
 
 use motra_global, only: N2MAX
 use stdalloc, only: mma_allocate, mma_deallocate

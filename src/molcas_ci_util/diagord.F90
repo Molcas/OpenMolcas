@@ -56,10 +56,9 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPDIM, IPORDCSF(MXPDIM), iter, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, &
-                                 IREOTS(NACTOB)
+integer(kind=iwp), intent(in) :: MXPDIM, iter, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IREOTS(NACTOB)
 real(kind=wp), intent(out) :: PHPCSF(MXPDIM), PHPCNF(NCONF)
-integer(kind=iwp), intent(out) :: IPORDCNF(NCONF)
+integer(kind=iwp), intent(out) :: IPORDCSF(MXPDIM), IPORDCNF(NCONF)
 real(kind=wp), intent(in) :: condition, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
 real(kind=wp), intent(_OUT_) :: SCR(*)
 integer(kind=iwp), intent(inout) :: NTEST
@@ -167,7 +166,7 @@ subroutine DIAGORD_INTERNAL(SCR)
     NPCNF = NPCNF+1
     IPORDCNF(NPCNF) = IMIN
     !write(u6,*)'NPCNF, IPORDCNF(NPCNF) :', NPCNF,IPORDCNF(NPCNF)
-    call ISTVC2(IPORDCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
+    IPORDCSF(NPCSF+1:NPCSF+NCSFMN) = [(i,i=ICSFMN,ICSFMN+NCSFMN-1)]
     !write(u6,*) 'IPORDCSF(NPCSF) :',(IPORDCSF(NPCSF+i),i=1,NCSFMN)
     !call IVCPRT('IPORDCSF(NPCSF) :',' ', IPORDCSF(NPCSF+1),NCSFMN)
     NPCSF = NPCSF+NCSFMN

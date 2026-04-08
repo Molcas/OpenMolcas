@@ -266,7 +266,7 @@ call mma_deallocate(XZ)
 return
 
 end subroutine check_commutation
-!=!=
+
 subroutine check_S_square(n,moment,dbg)
 ! valid also for J, L, S
 
@@ -325,7 +325,7 @@ call mma_deallocate(S2)
 return
 
 end subroutine check_S_square
-!=!=
+
 subroutine check_hermiticity_moment(n,moment,dbg)
 
 use Constants, only: cZero
@@ -359,7 +359,7 @@ end if
 return
 
 end subroutine check_hermiticity_moment
-!=!=
+
 subroutine check_hermiticity_matrix(n,matrix,dbg)
 
 use Constants, only: cZero
@@ -391,7 +391,7 @@ end if
 return
 
 end subroutine check_hermiticity_matrix
-!=!=
+
 !----------------------------------------------------------------------!
 !           HIGH LEVEL READING SUBROUTINES
 !----------------------------------------------------------------------!
@@ -496,7 +496,7 @@ end if
 return
 
 end subroutine read_magnetic_moment
-!=!=
+
 subroutine read_electric_moment(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -583,7 +583,7 @@ end if
 return
 
 end subroutine read_electric_moment
-!=!=
+
 subroutine read_spin_moment(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -694,7 +694,7 @@ if (dbg) write(u6,*) 'EXIT read_spin_moment'
 return
 
 end subroutine read_spin_moment
-!=!=
+
 subroutine read_angmom(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -733,7 +733,7 @@ if (dnrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_angmom::
 return
 
 end subroutine read_angmom
-!=!=
+
 subroutine read_edipmom(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -772,7 +772,7 @@ if (dnrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_edipmom:
 return
 
 end subroutine read_edipmom
-!=!=
+
 subroutine read_amfi(DATA_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -811,7 +811,7 @@ if (dnrm2_(3*n*n,moment,1) <= MINIMAL_REAL) call WarningMessage(1,'read_amfi:: t
 return
 
 end subroutine read_amfi
-!=!=
+
 subroutine read_nss(DATA_FILE,n,dbg)
 
 use Definitions, only: iwp
@@ -829,7 +829,7 @@ if (n <= 0) call WarningMessage(1,'read_nss:: nss value in DATA_FILE = 0. Is it 
 return
 
 end subroutine read_nss
-!=!=
+
 subroutine read_nstate(DATA_FILE,n,dbg)
 
 use Definitions, only: iwp
@@ -847,7 +847,7 @@ if (n <= 0) call WarningMessage(1,'read_nstate:: nstate value in DATA_FILE = 0. 
 return
 
 end subroutine read_nstate
-!=!=
+
 subroutine read_nmult(DATA_FILE,n,dbg)
 
 use Definitions, only: iwp
@@ -865,7 +865,7 @@ if (n <= 0) call WarningMessage(1,'read_nmult:: nmult value in DATA_FILE = 0. Is
 return
 
 end subroutine read_nmult
-!=!=
+
 subroutine read_multiplicity(DATA_FILE,n,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -890,7 +890,7 @@ end if
 return
 
 end subroutine read_multiplicity
-!=!=
+
 subroutine read_imult(DATA_FILE,n,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -911,7 +911,7 @@ end if
 return
 
 end subroutine read_imult
-!=!=
+
 subroutine read_format(DATA_FILE,n,dbg)
 
 use Definitions, only: iwp
@@ -930,7 +930,7 @@ if (n <= 0) call WarningMessage(2,'read_format:: FORMAT value in DATA_FILE = 0. 
 return
 
 end subroutine read_format
-!=!=
+
 subroutine read_nroot(DATA_FILE,n,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -952,7 +952,7 @@ end if
 return
 
 end subroutine read_nroot
-!=!=
+
 subroutine read_szproj(DATA_FILE,n,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -977,7 +977,7 @@ end if
 return
 
 end subroutine read_szproj
-!=!=
+
 subroutine read_eso(DATA_FILE,n,array,dbg)
 
 use Constants, only: Zero, Ten
@@ -1002,7 +1002,7 @@ end if
 return
 
 end subroutine read_eso
-!=!=
+
 subroutine read_esfs(DATA_FILE,n,array,dbg)
 
 use Constants, only: Zero, Ten
@@ -1027,7 +1027,7 @@ end if
 return
 
 end subroutine read_esfs
-!=!=
+
 subroutine read_hso(DATA_FILE,n,array,dbg)
 
 use Constants, only: Ten, cZero
@@ -1052,7 +1052,7 @@ end if
 return
 
 end subroutine read_hso
-!=!=
+
 subroutine read_eigen(DATA_FILE,n,array,dbg)
 
 use Constants, only: Ten, cZero
@@ -1077,7 +1077,7 @@ end if
 return
 
 end subroutine read_eigen
-!=!=
+
 subroutine read_gtens(DATA_FILE,nmult,gtens,axes,dbg)
 
 use Definitions, only: wp, iwp
@@ -1093,7 +1093,7 @@ call read_3d_real_array(DATA_FILE,'$gtens_axes',nmult,3,3,axes,dbg)
 return
 
 end subroutine read_gtens
-!=!=
+
 subroutine read_stev_cfp(DATA_FILE,s,n,cfp,dbg)
 
 use Constants, only: Zero
@@ -1134,7 +1134,7 @@ end if
 return
 
 end subroutine read_stev_cfp
-!=!=
+
 subroutine read_susc(DATA_FILE,s,n,field,zj,t,x,x_tens,dbg)
 ! n     : number of temperature points
 ! zj    : intermolecular interaction
@@ -1233,7 +1233,7 @@ end if
 return
 
 end subroutine read_susc
-!=!=
+
 subroutine read_magn(DATA_FILE,nt,nh,nd,nss,zj,t,h,x,y,z,w,m,mav,energy,dbg)
 ! nt        :  number of temperature points
 ! nh        :  number of field points
@@ -1325,7 +1325,7 @@ if (dbg) call xFlush(u6)
 return
 
 end subroutine read_magn
-!=!=
+
 subroutine read_complex_matrix(LU,key,n,matrix,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -1349,7 +1349,7 @@ call mma_deallocate(ri)
 return
 
 end subroutine read_complex_matrix
-!=!=
+
 subroutine write_complex_matrix(LU,key,n,matrix,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -1374,7 +1374,7 @@ call mma_deallocate(ri)
 return
 
 end subroutine write_complex_matrix
-!=!=
+
 !----------------------------------------------------------------------!
 !           HIGH LEVEL WRITING SUBROUTINES
 !----------------------------------------------------------------------!
@@ -1437,7 +1437,7 @@ call mma_deallocate(ri)
 return
 
 end subroutine write_magnetic_moment
-!=!=
+
 subroutine write_electric_moment(ANISO_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -1473,7 +1473,7 @@ call mma_deallocate(ri)
 return
 
 end subroutine write_electric_moment
-!=!=
+
 subroutine write_spin_moment(ANISO_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -1509,7 +1509,7 @@ call mma_deallocate(ri)
 return
 
 end subroutine write_spin_moment
-!=!=
+
 subroutine write_angmom(ANISO_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -1534,7 +1534,7 @@ call mma_deallocate(tmp)
 return
 
 end subroutine write_angmom
-!=!=
+
 subroutine write_edipmom(ANISO_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -1559,7 +1559,7 @@ call mma_deallocate(tmp)
 return
 
 end subroutine write_edipmom
-!=!=
+
 subroutine write_amfi(ANISO_FILE,n,moment,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -1584,7 +1584,7 @@ call mma_deallocate(tmp)
 return
 
 end subroutine write_amfi
-!=!=
+
 subroutine write_format(ANISO_FILE,n,dbg)
 
 use Definitions, only: iwp
@@ -1599,7 +1599,7 @@ call write_INTEGER_scalar(ANISO_FILE,'$format',n,dbg)
 return
 
 end subroutine write_format
-!=!=
+
 subroutine write_nss(ANISO_FILE,n,dbg)
 
 use Definitions, only: iwp
@@ -1613,7 +1613,7 @@ call write_INTEGER_scalar(ANISO_FILE,'$nss',n,dbg)
 return
 
 end subroutine write_nss
-!=!=
+
 subroutine write_nstate(ANISO_FILE,n,dbg)
 
 use Definitions, only: iwp
@@ -1627,7 +1627,7 @@ call write_INTEGER_scalar(ANISO_FILE,'$nstate',n,dbg)
 return
 
 end subroutine write_nstate
-!=!=
+
 subroutine write_nmult(ANISO_FILE,n,dbg)
 
 use Definitions, only: iwp
@@ -1641,7 +1641,7 @@ call write_INTEGER_scalar(ANISO_FILE,'$nmult',n,dbg)
 return
 
 end subroutine write_nmult
-!=!=
+
 subroutine write_multiplicity(ANISO_FILE,n,array,dbg)
 
 use Definitions, only: iwp
@@ -1655,7 +1655,7 @@ call write_1d_INTEGER_array(ANISO_FILE,'$multiplicity',n,array,dbg)
 return
 
 end subroutine write_multiplicity
-!=!=
+
 subroutine write_imult(ANISO_FILE,n,array,dbg)
 
 use Definitions, only: iwp
@@ -1669,7 +1669,7 @@ call write_1d_INTEGER_array(ANISO_FILE,'$imult',n,array,dbg)
 return
 
 end subroutine write_imult
-!=!=
+
 subroutine write_nroot(ANISO_FILE,n,array,dbg)
 
 use Definitions, only: iwp
@@ -1683,7 +1683,7 @@ call write_1d_INTEGER_array(ANISO_FILE,'$nroot',n,array,dbg)
 return
 
 end subroutine write_nroot
-!=!=
+
 subroutine write_szproj(ANISO_FILE,n,array,dbg)
 
 use Definitions, only: iwp
@@ -1697,7 +1697,7 @@ call write_1d_INTEGER_array(ANISO_FILE,'$szproj',n,array,dbg)
 return
 
 end subroutine write_szproj
-!=!=
+
 subroutine write_eso(ANISO_FILE,n,array,dbg)
 
 use Definitions, only: wp, iwp, u6
@@ -1713,7 +1713,7 @@ call write_1d_real_array(ANISO_FILE,'$eso',n,array,dbg)
 return
 
 end subroutine write_eso
-!=!=
+
 subroutine write_esfs(ANISO_FILE,n,array,dbg)
 
 use Definitions, only: wp, iwp
@@ -1728,7 +1728,7 @@ call write_1d_real_array(ANISO_FILE,'$esfs',n,array,dbg)
 return
 
 end subroutine write_esfs
-!=!=
+
 subroutine write_hso(ANISO_FILE,n,array,dbg)
 
 use Definitions, only: wp, iwp
@@ -1743,7 +1743,7 @@ call write_complex_matrix(ANISO_FILE,'$hso',n,array,dbg)
 return
 
 end subroutine write_hso
-!=!=
+
 subroutine write_eigen(ANISO_FILE,n,array,dbg)
 
 use Definitions, only: wp, iwp
@@ -1758,7 +1758,7 @@ call write_complex_matrix(ANISO_FILE,'$eigen',n,array,dbg)
 return
 
 end subroutine write_eigen
-!=!=
+
 subroutine write_gtens(ANISO_FILE,nmult,gtens,axes,dbg)
 
 use Definitions, only: wp, iwp
@@ -1774,7 +1774,7 @@ call write_3d_real_array(ANISO_FILE,'$gtens_axes',nmult,3,3,axes,dbg)
 return
 
 end subroutine write_gtens
-!=!=
+
 subroutine write_stev_cfp(ANISO_FILE,s,n,cfp,dbg)
 
 use Constants, only: Ten
@@ -1831,7 +1831,7 @@ call xFlush(ANISO_FILE)
 return
 
 end subroutine write_stev_cfp
-!=!=
+
 subroutine write_susc(ANISO_FILE,s,n,field,zj,t,z,x,x_tens,dbg)
 ! n     :  number of temperature points
 ! field :  applied field
@@ -1936,7 +1936,7 @@ if (dbg) call xFlush(u6)
 return
 
 end subroutine write_susc
-!=!=
+
 subroutine write_magn(ANISO_FILE,nt,nh,nd,nss,zj,t,h,x,y,z,w,m,mav,energy,dbg)
 ! nt        :  number of temperature points
 ! nh        :  number of field points
@@ -2032,7 +2032,7 @@ if (dbg) call xFlush(u6)
 return
 
 end subroutine write_magn
-!=!=
+
 !--------------------------------------------------------------------------------------------------!
 !  BASIC  OPEN FILE / CLOSE FILE / SEARCH KEY INSIDE FILE etc. functions
 !
@@ -2066,7 +2066,7 @@ call molcas_open(DATA_FILE,DATA_FILE_NAME)
 return
 
 end subroutine open_datafile_write
-!=!=
+
 subroutine open_aniso_file(ANISO_FILE,ANISO_FILE_NAME)
 
 use Definitions, only: iwp
@@ -2089,7 +2089,7 @@ call molcas_open(ANISO_FILE,ANISO_FILE_NAME)
 return
 
 end subroutine open_aniso_file
-!=!=
+
 subroutine open_datafile_read(DATA_FILE,DATA_FILE_NAME)
 
 use Definitions, only: iwp
@@ -2112,7 +2112,7 @@ call molcas_open(DATA_FILE,DATA_FILE_NAME)
 return
 
 end subroutine open_datafile_read
-!=!=
+
 subroutine close_datafile(DATA_FILE)
 
 use Definitions, only: iwp
@@ -2128,7 +2128,7 @@ if (ierr /= 0) call WarningMessage(2,'close_datafile:: Something went wrong clos
 return
 
 end subroutine close_datafile
-!=!=
+
 subroutine close_anisofile(ANISO_FILE)
 
 use Definitions, only: iwp
@@ -2144,7 +2144,7 @@ if (ierr /= 0) call WarningMessage(2,'close_datafile:: Something went wrong clos
 return
 
 end subroutine close_anisofile
-!=!=
+
 function key_found(DATA_FILE,key,dbg)
 
 use Definitions, only: iwp
@@ -2166,7 +2166,7 @@ if (index(line,trim(key)) /= 0) key_found = .true.
 return
 
 end function key_found
-!=!=
+
 subroutine file_advance_to_string(LU,key,line,ierr,dbg)
 
 use Definitions, only: iwp, u6
@@ -2210,7 +2210,7 @@ end if
 return
 
 end subroutine file_advance_to_string
-!=!=
+
 function inquire_key_presence(LU,key)
 
 use Definitions, only: iwp
@@ -2237,7 +2237,7 @@ line = ' '
 return
 
 end function inquire_key_presence
-!=!=
+
 !----------------------------------------------------------------------!
 !   READING  SUBROUTINES
 !----------------------------------------------------------------------!
@@ -2268,7 +2268,7 @@ end if
 return
 
 end subroutine read_INTEGER_scalar
-!=!=
+
 subroutine read_real_scalar(LU,key,r,dbg)
 
 use Constants, only: Zero
@@ -2296,7 +2296,7 @@ end if
 return
 
 end subroutine read_real_scalar
-!=!=
+
 subroutine read_complex_scalar(LU,key,c,dbg)
 
 use Constants, only: Zero, cZero
@@ -2329,7 +2329,7 @@ c = cmplx(rr,ri,kind=wp)
 return
 
 end subroutine read_complex_scalar
-!=!=
+
 subroutine read_string(LU,key,length,s,dbg)
 
 use Definitions, only: iwp, u6
@@ -2365,7 +2365,7 @@ end do
 return
 
 end subroutine read_string
-!=!=
+
 subroutine read_1d_size(LU,key,n,dbg)
 
 use Definitions, only: iwp, u6
@@ -2392,7 +2392,7 @@ end if
 return
 
 end subroutine read_1d_size
-!=!=
+
 subroutine read_2d_size(LU,key,n1,n2,dbg)
 
 use Definitions, only: iwp, u6
@@ -2421,7 +2421,7 @@ end if
 return
 
 end subroutine read_2d_size
-!=!=
+
 subroutine read_3d_size(LU,key,n1,n2,n3,dbg)
 
 use Definitions, only: iwp, u6
@@ -2452,7 +2452,7 @@ end if
 return
 
 end subroutine read_3d_size
-!=!=
+
 subroutine read_4d_size(LU,key,n1,n2,n3,n4,dbg)
 
 use Definitions, only: iwp, u6
@@ -2485,7 +2485,7 @@ end if
 return
 
 end subroutine read_4d_size
-!=!=
+
 subroutine read_1d_INTEGER_array(LU,key,n,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -2523,7 +2523,7 @@ if (dbg) write(u6,*) 'read_1d_INTEGER_array:: array =',(array(i),i=1,n)
 return
 
 end subroutine read_1d_INTEGER_array
-!=!=
+
 subroutine read_2d_INTEGER_array(LU,key,n1,n2,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -2567,7 +2567,7 @@ end do
 return
 
 end subroutine read_2d_INTEGER_array
-!=!=
+
 subroutine read_3d_INTEGER_array(LU,key,n1,n2,n3,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -2615,7 +2615,7 @@ end do
 return
 
 end subroutine read_3d_INTEGER_array
-!=!=
+
 subroutine read_4d_INTEGER_array(LU,key,n1,n2,n3,n4,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -2667,7 +2667,7 @@ end do
 return
 
 end subroutine read_4d_INTEGER_array
-!=!=
+
 subroutine read_1d_real_array(LU,key,n,array,dbg)
 
 use Constants, only: Zero
@@ -2706,7 +2706,7 @@ if (dbg) write(u6,*) 'read_1d_real_array:: array =',(array(i),i=1,n)
 return
 
 end subroutine read_1d_real_array
-!=!=
+
 subroutine read_2d_real_array(LU,key,n1,n2,array,dbg)
 
 use Constants, only: Zero
@@ -2756,7 +2756,7 @@ end do
 return
 
 end subroutine read_2d_real_array
-!=!=
+
 subroutine read_3d_real_array(LU,key,n1,n2,n3,array,dbg)
 
 use Constants, only: Zero
@@ -2805,7 +2805,7 @@ end do
 return
 
 end subroutine read_3d_real_array
-!=!=
+
 subroutine read_4d_real_array(LU,key,n1,n2,n3,n4,array,dbg)
 
 use Constants, only: Zero
@@ -2858,7 +2858,7 @@ end do
 return
 
 end subroutine read_4d_real_array
-!=!=
+
 subroutine read_1d_complex_array(LU,key,n,array,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -2904,7 +2904,7 @@ call mma_deallocate(ri)
 return
 
 end subroutine read_1d_complex_array
-!=!=
+
 subroutine read_2d_complex_array(LU,key,n1,n2,array,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -2957,7 +2957,7 @@ call mma_deallocate(ri)
 return
 
 end subroutine read_2d_complex_array
-!=!=
+
 subroutine read_3d_complex_array(LU,key,n1,n2,n3,array,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -3014,7 +3014,7 @@ call mma_deallocate(ri)
 return
 
 end subroutine read_3d_complex_array
-!=!=
+
 subroutine read_4d_complex_array(LU,key,n1,n2,n3,n4,array,dbg)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -3075,7 +3075,7 @@ call mma_deallocate(ri)
 return
 
 end subroutine read_4d_complex_array
-!=!=
+
 !----------------------------------------------------------------------!
 !  WRITING SUBROUTINES
 !----------------------------------------------------------------------!
@@ -3112,7 +3112,7 @@ call xFlush(LU)
 return
 
 end subroutine write_INTEGER_scalar
-!=!=
+
 subroutine write_real_scalar(LU,key,r,dbg)
 
 use Definitions, only: wp, iwp
@@ -3146,7 +3146,7 @@ call xFlush(LU)
 return
 
 end subroutine write_real_scalar
-!=!=
+
 subroutine write_complex_scalar(LU,key,c,dbg)
 
 use Definitions, only: wp, iwp
@@ -3180,7 +3180,7 @@ call xFlush(LU)
 return
 
 end subroutine write_complex_scalar
-!=!=
+
 subroutine write_string(LU,key,s,dbg)
 
 use Definitions, only: iwp
@@ -3212,7 +3212,7 @@ call xFlush(LU)
 return
 
 end subroutine write_string
-!=!=
+
 subroutine write_1d_INTEGER_array(LU,key,n,array,dbg)
 
 use Definitions, only: iwp
@@ -3254,7 +3254,7 @@ call xFlush(LU)
 return
 
 end subroutine write_1d_INTEGER_array
-!=!=
+
 subroutine write_2d_INTEGER_array(LU,key,n1,n2,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -3303,7 +3303,7 @@ call xFlush(LU)
 return
 
 end subroutine write_2d_INTEGER_array
-!=!=
+
 subroutine write_3d_INTEGER_array(LU,key,n1,n2,n3,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -3356,7 +3356,7 @@ call xFlush(LU)
 return
 
 end subroutine write_3d_INTEGER_array
-!=!=
+
 subroutine write_4d_INTEGER_array(LU,key,n1,n2,n3,n4,array,dbg)
 
 use Definitions, only: iwp, u6
@@ -3413,7 +3413,7 @@ call xFlush(LU)
 return
 
 end subroutine write_4d_INTEGER_array
-!=!=
+
 subroutine write_1d_real_array(LU,key,n,array,dbg)
 
 use Constants, only: Ten
@@ -3459,7 +3459,7 @@ call xFlush(LU)
 return
 
 end subroutine write_1d_real_array
-!=!=
+
 subroutine write_2d_real_array(LU,key,n1,n2,array,dbg)
 
 use Constants, only: Ten
@@ -3512,7 +3512,7 @@ call xFlush(LU)
 return
 
 end subroutine write_2d_real_array
-!=!=
+
 subroutine write_3d_real_array(LU,key,n1,n2,n3,array,dbg)
 
 use Constants, only: Ten
@@ -3569,7 +3569,7 @@ call xFlush(LU)
 return
 
 end subroutine write_3d_real_array
-!=!=
+
 subroutine write_4d_real_array(LU,key,n1,n2,n3,n4,array,dbg)
 
 use Constants, only: Ten
@@ -3630,7 +3630,7 @@ call xFlush(LU)
 return
 
 end subroutine write_4d_real_array
-!=!=
+
 subroutine write_1d_complex_array(LU,key,n,array,dbg)
 
 use Definitions, only: wp, iwp
@@ -3672,7 +3672,7 @@ call xFlush(LU)
 return
 
 end subroutine write_1d_complex_array
-!=!=
+
 subroutine write_2d_complex_array(LU,key,n1,n2,array,dbg)
 
 use Definitions, only: wp, iwp, u6
@@ -3721,7 +3721,7 @@ call xFlush(LU)
 return
 
 end subroutine write_2d_complex_array
-!=!=
+
 subroutine write_3d_complex_array(LU,key,n1,n2,n3,array,dbg)
 
 use Definitions, only: wp, iwp, u6
@@ -3774,7 +3774,7 @@ call xFlush(LU)
 return
 
 end subroutine write_3d_complex_array
-!=!=
+
 subroutine write_4d_complex_array(LU,key,n1,n2,n3,n4,array,dbg)
 
 use Definitions, only: wp, iwp, u6

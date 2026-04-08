@@ -45,7 +45,7 @@ subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 !***********************************************************************
 
 use csfbas, only: CONF
-use glbbas, only: CFTP
+use lucia_data, only: CFTP
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use general_data, only: JOBIPH, JOBOLD, LUDAVID, NACTEL, NCONF, NSEL, STSYM
 #ifdef _HDF5_

@@ -40,9 +40,7 @@ real(kind=wp) :: FINI
 logical(kind=iwp) :: Skip
 
 call COUNT_CPF(NINTGR,NSYM,NORB,MUL)
-if (IPRINT >= 2) then
-  write(6,*) ' NUMBER OF TWO-ELECTRON INTEGRALS:',NINTGR
-end if
+if (IPRINT >= 2) write(6,*) ' NUMBER OF TWO-ELECTRON INTEGRALS:',NINTGR
 IAD50 = 0
 call iDAFILE(Lu_TraInt,2,iTraToc,nTraToc,IAD50)
 KKBUF0 = (RTOI*(KBUFF1+2)-2)/(RTOI+1)

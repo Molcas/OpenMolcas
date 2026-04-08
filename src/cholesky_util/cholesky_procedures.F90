@@ -12,7 +12,9 @@
 ! This module contains procedures that need an interface
 module Cholesky_procedures
 
+implicit none
 private
+
 public :: Build_Mp2Dens, Cho_CGM_InfVec, Cho_GetLQ, Cho_P_GetLQ, Cho_VecBuf_Subtr, Cho_X_GetIP_InfVec
 
 contains

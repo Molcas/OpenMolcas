@@ -72,7 +72,7 @@ end do
 !
 ! All vectors we use are separated into one block for each symmetry.
 ! To know where a certain symmetry begins iPoVec(iSym) is added to
-! the vectors memory adress. nVec is the total length of the vector.
+! the vectors memory address. nVec is the total length of the vector.
 
 iAdr = 1
 iPoVec(1) = 0

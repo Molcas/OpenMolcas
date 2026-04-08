@@ -37,9 +37,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Cholesky, only: iiBstR, InfVec, iRS2F, NumCho
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
 integer(kind=iwp), intent(in) :: jSym
-integer(kind=iwp), intent(out) :: iSO_ab(2,*)
+integer(kind=iwp), intent(_OUT_) :: iSO_ab(2,*)
 integer(kind=iwp) :: iOff, jRab, jv, kRab
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: iRank, kv, nTot

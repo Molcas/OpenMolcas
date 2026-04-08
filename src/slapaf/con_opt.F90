@@ -1082,7 +1082,6 @@ return
 contains
 
 subroutine Backtrans_T(du,dq)
-  implicit none
   real(kind=wp), intent(in) :: du(nInter)
   real(kind=wp), intent(out) :: dq(nInter)
   call DGEMM_('N','N',nInter,1,nInter,One,T,nInter,du,nInter,Zero,dq,nInter)

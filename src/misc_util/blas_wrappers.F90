@@ -405,7 +405,7 @@ subroutine zaxpy_(n_,da,dx,incx_,dy,incy_)
   implicit none
   integer(kind=iwp), intent(in) :: n_, incx_, incy_
   complex(kind=BLASR8), intent(in) :: da, dx(*)
-  complex(kind=BLASR8), intent(out) :: dy(*)
+  complex(kind=BLASR8), intent(_OUT_) :: dy(*)
 # ifdef MOLCAS_TO_BLAS_INT
   integer(kind=BLASInt) :: n, incx, incy
   n = int(n_,kind=BLASInt)

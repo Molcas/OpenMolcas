@@ -29,13 +29,13 @@ module rassi_data
 ! NTRA   - SIZE OF TRANSFORMATION COEFFICIENT ARRAY.
 ! ChFracMem - fraction of memory for the Cholesky vectors buffer
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
-integer :: NAES(8), NASH(8), NASHT, NBASF(8), NBMX, NBSQ, NBSQPR(8), NBST, NBTRI, NCMO, NDEL(8), NFRO(8), NISH(8), NISHT, NOSH(8), &
-           NOSHT, NSSH(8), NSSHT, NSXY, NTDMAB, NTDMZZ, NTRA
+integer(kind=iwp) :: NAES(8), NASH(8), NASHT, NBASF(8), NBMX, NBSQ, NBSQPR(8), NBST, NBTRI, NCMO, NDEL(8), NFRO(8), NISH(8), &
+                     NISHT, NOSH(8), NOSHT, NSSH(8), NSSHT, NSXY, NTDMAB, NTDMZZ, NTRA
 character(len=8) :: WFTYPE
 real(kind=wp) :: ChFracMem, ENUC
 

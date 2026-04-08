@@ -17,7 +17,7 @@ subroutine reord2_cvb(cfrom,cto,imode)
 ! from SGA CSFs to split-graph-GUGA CSFs.
 
 use csfbas, only: conf
-use glbbas, only: cftp
+use lucia_data, only: cftp
 use rasscf_global, only: NAC
 use general_data, only: NACTEL, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate

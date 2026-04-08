@@ -14,7 +14,7 @@
 *  class ICLASS.
 *
 *  Construct array IVEC(ICLASS) giving first element of
-*  class ICLASS in full adressing
+*  class ICLASS in full addressing
 *
       IMPLICIT REAL*8          (A-H,O-Z)
       DIMENSION NVEC(*),IVEC(*)

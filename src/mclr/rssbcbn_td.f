@@ -16,7 +16,6 @@
      &                  NAEL,NBEL,
      &                  IJAGRP,IJBGRP,
      &                  SB,CB,IDOH2,
-     &                  ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX,
      &                  NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                  SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
      &                  XINT,C2,NSMOB,NSMST,NSMSX,NSMDX,
@@ -45,18 +44,10 @@
 * CB : Input c block
 * IDOH2 : = 0 => no two electron operator
 * IDOH2 : = 1 =>    two electron operator
-* ADASX : sym of a+, a => sym of a+a
-* ADSXA : sym of a+, a+a => sym of a
-* SXSTST : Sym of sx,!st> => sym of sx !st>
-* STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
-*          is nonvanishing by symmetry
-* DXSTST : Sym of dx,!st> => sym of dx !st>
-* STSTDX : Sym of !st>,dx!st'> => sym of dx so <st!dx!st'>
-*          is nonvanishing by symmetry
 * NTSOB  : Number of orbitals per type and symmetry
 * IBTSOB : base for orbitals of given type and symmetry
 * IBORB  : Orbitals of given type and symmetry
-* MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+* MAXI   : Largest Number of "spectator strings" treated simultaneously
 * MAXK   : Largest number of inner resolution strings treated at simult.
 *
 * IST, IDOH2 : See RASSG3 input description
@@ -80,11 +71,9 @@
 *
 * XINT : Scratch space for integrals.
 *
-* Jeppe Olsen , Winter of 1991
+* Jeppe Olsen, Winter of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER  ADSXA(*),SXSTST(*)
-      INTEGER  STSTSX(*),DXSTST(*),STSTDX(*),SXDXSX(*)
       Logical TimeDep
 *. Output
       DIMENSION CB(*),SB(*)
@@ -121,14 +110,14 @@
            SIGN = -1.0D0
          END IF
          IF(NBEL.GE.1) THEN
-            CALL RSBB1E(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
+            CALL RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &         IBEL1,IBEL3,JBEL1,JBEL3,
      &         SB,CB,
-     &         ADSXA,SXSTST,STSTSX,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
+     &         NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &         SSCR,CSCR,I1,XI1S,XINT,
      &         NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
 *
-*               Call RECPRT('SSCR after RSBB1E',' ',SSCR,5,1)
+*               Call RECPRT('SSCR after RSBB1E_MCLR',' ',SSCR,5,1)
          END IF
 *
 *         Two electron part
@@ -136,16 +125,15 @@
          IF((iand(icheck,1).eq.1).and.IDOH2.NE.0.AND.NBEL.GE.2)
      &   THEN
 *         Write(*,*)'Timedep in rssbcbn_td',TimeDep
-         CALL RSBB2A(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
+         CALL RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &                IBEL1,IBEL3,JBEL1,JBEL3,
      &                SB,CB,
-     &                ADSXA,DXSTST,STSTDX,SXDXSX,
      &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                SSCR,CSCR,I1,XI1S,XINT,
      &                NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,
      &                NOPART,TimeDep,ieaw )
 *
-*               Call RECPRT('SSCR after RSBB2A',' ',SSCR,5,1)
+*               Call RECPRT('SSCR after RSBB2A_MCLR',' ',SSCR,5,1)
          END IF
       END IF
 *
@@ -159,9 +147,9 @@
           ieaw=0
           if (ist.eq.2) ieaw=1
 *          Write(*,*)'ieaw in rssbcbn_td ',ieaw
-          CALL TRPMAT(CB,NJA,NJB,C2)
+          CALL TRNSPS(NJA,NJB,CB,C2)
           CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-          CALL TRPMAT(SB,NIA,NIB,C2)
+          CALL TRNSPS(NIA,NIB,SB,C2)
           CALL DCOPY_(NIA*NIB,C2,1,SB,1)
           IIITRNS = 1
           IF(IIITRNS.EQ.1.AND.NIB.GT.NIA.AND.NJB.GT.NJA) THEN
@@ -175,13 +163,12 @@
             IFACTOR = 1
           END IF
           IF (JJJTRNS.EQ.0) THEN
-          CALL RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,
+          CALL RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,
      &                JASM,JATP,JBSM,JBTP,NJA,NJB,
      &                IJAGRP,IJBGRP,
      &                IAEL1,IAEL3,JAEL1,JAEL3,
      &                IBEL1,IBEL3,JBEL1,JBEL3,
      &                SB,CB,
-     &                ADSXA,STSTSX,
      &                NTSOB,IBTSOB,ITSOB,MAXK,
      &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
      &                XINT,
@@ -189,21 +176,20 @@
      &                CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,
      &                TimeDep )
 *
-*          Call RECPRT('SSCR after RSBB2BN',' ',SSCR,5,1)
+*          Call RECPRT('SSCR after RSBB2BN_MCLR',' ',SSCR,5,1)
 *
           ELSE IF ( JJJTRNS.EQ.1) THEN
-            CALL TRPMAT(SB,NIB,NIA,C2)
+            CALL TRNSPS(NIB,NIA,SB,C2)
             CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-            CALL TRPMAT(CB,NJB,NJA,C2)
+            CALL TRNSPS(NJB,NJA,CB,C2)
             CALL DCOPY_(NJA*NJB,C2,1,CB,1)
 *
-            CALL RSBB2BN(IBSM,IBTP,IASM,IATP,NIB,NIA,
+            CALL RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,
      &                JbSM,JbTP,JaSM,JaTP,NJb,NJa,
      &                IJbGRP,IJaGRP,
      &                IbEL1,IbEL3,JbEL1,JbEL3,
      &                IaEL1,IaEL3,JaEL1,JaEL3,
      &                SB,CB,
-     &                ADSXA,STSTSX,
      &                NTSOB,IBTSOB,ITSOB,MAXK,
      &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
      &                XINT,
@@ -211,17 +197,17 @@
      &                CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,
      &                TimeDep)
 *
-*                Call RECPRT('SSCR after RSBB2BN',' ',SSCR,5,1)
+*                Call RECPRT('SSCR after RSBB2BN_MCLR',' ',SSCR,5,1)
 *
-            CALL TRPMAT(SB,NIA,NIB,C2)
+            CALL TRNSPS(NIA,NIB,SB,C2)
             CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-            CALL TRPMAT(CB,NJA,NJB,C2)
+            CALL TRNSPS(NJA,NJB,CB,C2)
             CALL DCOPY_(NJA*NJB,C2,1,CB,1)
           END IF
 *.        Restore order !
-          CALL TRPMAT(CB,NJB,NJA,C2)
+          CALL TRNSPS(NJB,NJA,CB,C2)
           CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-          CALL TRPMAT(SB,NIB,NIA,C2)
+          CALL TRNSPS(NIB,NIA,SB,C2)
           CALL DCOPY_(NIA*NIB,C2,1,SB,1)
       END IF
 *
@@ -232,45 +218,43 @@
 *. Transpose for alpha excitations
 *
       IF(NAEL.GE.1.AND.IBTP.EQ.JBTP.AND.IBSM.EQ.JBSM) THEN
-           CALL TRPMAT(CB,NJA,NJB,C2)
+           CALL TRNSPS(NJA,NJB,CB,C2)
            CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-           CALL TRPMAT(SB,NIA,NIB,C2)
+           CALL TRNSPS(NIA,NIB,SB,C2)
            CALL DCOPY_(NIA*NIB,C2,1,SB,1)
 *
 * alpha single excitation
 *
            SIGN = 1.0D0
-           CALL RSBB1E(IASM,IATP,JASM,JATP,IJAGRP,NIB,
+           CALL RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &                IAEL1,IAEL3,JAEL1,JAEL3,
      &                SB,CB,
-     &                ADSXA,SXSTST,STSTSX,
      &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                SSCR,CSCR,I1,XI1S,XINT,
      &                NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
 *
-*                Call RECPRT('SSCR after RSBB1E',' ',SSCR,5,1)
+*                Call RECPRT('SSCR after RSBB1E_MCLR',' ',SSCR,5,1)
 *
 * alpha double excitation
 *
            IF((iand(icheck,1).eq.1).and.NAEL.GE.2.AND.IDOH2.NE.0)
      &     Then
 *            Write(*,*)'Timedep in rssbcbn_td',TimeDep
-            CALL RSBB2A(IASM,IATP,JASM,JATP,IJAGRP,NIB,
+            CALL RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &           IAEL1,IAEL3,JAEL1,JAEL3,
      &           SB,CB,
-     &           ADSXA,DXSTST,STSTDX,SXDXSX,
      &           NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &           SSCR,CSCR,I1,XI1S,XINT,
      &           NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,
      &           NOPART,TimeDep,ieaw)
 *
-*                Call RECPRT('SSCR after RSBB2A',' ',SSCR,5,1)
+*                Call RECPRT('SSCR after RSBB2A_MCLR',' ',SSCR,5,1)
 *
            END IF
 * Restore order !
-           CALL TRPMAT(SB,NIB,NIA,C2)
+           CALL TRNSPS(NIB,NIA,SB,C2)
            CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-           CALL TRPMAT(CB,NJB,NJA,C2)
+           CALL TRNSPS(NJB,NJA,CB,C2)
            CALL DCOPY_(NJA*NJB,C2,1,CB,1)
       END IF
 *

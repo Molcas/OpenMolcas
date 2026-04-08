@@ -32,13 +32,11 @@ real(kind=wp) :: C0, DECORR, DELE, EENP, ENER, ETOTT
 call EPSBIS(JSY,INDX,C,W,EPB)
 call EPSPRIM(JSY,INDX,C,S,EPP)
 IP = IRC(4)
-call VECSUM_CPFMCPF(EPP,ENER,IP)
+ENER = sum(EPP(1:IP))
 ETOTT = ENER+POTNUC
 DELE = ETOTT-ETOT
 ETOT = ETOTT
-if (ITER == 1) then
-  write(u6,'(1X,A)') ' ITER      TOTAL ENERGY          CORR ENERGY           DECREASE'
-end if
+if (ITER == 1) write(u6,'(1X,A)') ' ITER      TOTAL ENERGY          CORR ENERGY           DECREASE'
 write(u6,'(1X,I3,3(5X,F16.8))') ITER,ETOT,ENER,DELE
 if ((abs(DELE) < ETHRE) .and. (ITPUL /= 1)) ICONV = 1
 if ((ICONV == 0) .and. (ITER /= MAXIT)) then
@@ -70,9 +68,7 @@ else
     write(u6,33) DECORR,C0
   end if
 
-  if (IPRINT > 5) then
-    if (IPRINT > 5) write(u6,34) (ENP(I),I=1,IRC(4))
-  end if
+  if (IPRINT > 5) write(u6,34) (ENP(I),I=1,IRC(4))
 end if
 
 return

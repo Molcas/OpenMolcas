@@ -35,7 +35,7 @@ end do
 return
 
 end subroutine prMom
-!=!=
+
 subroutine prMom_herm(a,m,n)
 
 use Constants, only: Three
@@ -61,7 +61,7 @@ end do
 return
 
 end subroutine prMom_herm
-!=!=
+
 subroutine pa_prMat(a,m,n)
 
 use Definitions, only: wp, iwp, u6
@@ -83,7 +83,7 @@ end do
 return
 
 end subroutine pa_prMat
-!=!=
+
 subroutine pa_prMatR(a,m,n)
 
 use Definitions, only: wp, iwp, u6
@@ -105,7 +105,7 @@ end do
 return
 
 end subroutine pa_prMatR
-!=!=
+
 subroutine print_ZFS(a,m,n)
 
 use Definitions, only: wp, iwp, u6
@@ -148,7 +148,7 @@ end do !j
 return
 
 end subroutine print_ZFS
-!=!=
+
 subroutine print_ZFS_eigenvectors(a,m,n)
 
 use Definitions, only: wp, iwp, u6
@@ -182,7 +182,7 @@ end do ! j
 return
 
 end subroutine print_ZFS_eigenvectors
-!=!=
+
 subroutine print_ZFS_naoya(A,M,N)
 
 use Definitions, only: wp, iwp, u6
@@ -225,7 +225,7 @@ end do ! j
 return
 
 end subroutine print_ZFS_naoya
-!=!=
+
 subroutine print_CFP_alpha(nlanth,n,B,C)
 
 use Constants, only: One
@@ -274,7 +274,7 @@ write(u6,'(2A)') repeat('-',76),'|'
 return
 
 end subroutine print_CFP_alpha
-!=!=
+
 subroutine print_CFP_LCLU(n,B,C,print_all)
 
 use Definitions, only: wp, iwp, u6
@@ -321,7 +321,7 @@ write(u6,'(2A)') repeat('-',59),'|'
 return
 
 end subroutine print_CFP_LCLU
-!=!=
+
 subroutine print_CFP_stev(n,B,print_all)
 
 use Definitions, only: wp, iwp, u6
@@ -382,7 +382,7 @@ write(u6,'(2A)') repeat('-',48),'|'
 return
 
 end subroutine print_CFP_stev
-!=!=
+
 subroutine print_CFP_naoya(N,A,print_all)
 
 use Definitions, only: wp, iwp, u6
@@ -449,7 +449,7 @@ write(u6,'(2A)') repeat('-',59),'|'
 return
 
 end subroutine print_cfp_naoya
-!=!=
+
 subroutine print_MOM_ITO_stev(n,B,print_all)
 
 use Definitions, only: wp, iwp, u6

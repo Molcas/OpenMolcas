@@ -3877,7 +3877,7 @@ subroutine ProcessBasis()
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  ! Automatic onset of muonic charge if the basis type is muonic.
+  ! Automatic set of muonic mass if the basis type is muonic.
   ! This will also automatically activate finite nuclear mass correction.
 
   KWord = ''

@@ -27,7 +27,7 @@
 #endif
 #endif
       use csfbas, only: CONF
-      use glbbas, only: CFTP
+      use lucia_data, only: CFTP
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
       use write_orbital_files, only: OrbFiles, write_orb_per_iter
@@ -120,8 +120,7 @@
      &                  POTNUC_MOLCAS,
      &                  I2ELIMINATED_IN_GAS_MOLCAS,
      &                  IELIMINATED_IN_GAS_MOLCAS,IGSOCCX_MOLCAS,
-     &                  ISPEED,NBAS_MOLCAS,NGSSH_MOLCAS,
-     &                  NISH_MOLCAS,NORB_MOLCAS
+     &                  ISPEED,NGSSH_MOLCAS
       use spinfo, only: DOBKAP,NGASBK,IOCCPSPC
 
 
@@ -3585,9 +3584,6 @@ C Test read failed. JOBOLD cannot be used.
 *
       Call iCopy(mxGAS*mxSym,ngssh,1,ngssh_Molcas,1)
       Call iCopy(mxGAS*2,igsoccx,1,igsoccx_Molcas,1)
-      Call iCopy(nSym,norb,1,norb_Molcas,1)
-      Call iCopy(nSym,nbas,1,nbas_Molcas,1)
-      Call iCopy(nSym,nish,1,nish_Molcas,1)
       potnuc_Molcas    = potnuc
       thre_Molcas      = thre
       nsym_Molcas      = nsym

@@ -37,7 +37,7 @@ character, intent(inout) :: Step_Trunc
 integer(kind=iwp), intent(in) :: nWndw, kIter
 integer(kind=iwp) :: iOpt_RS, iter_, nQQ
 real(kind=wp) :: Dummy(1), qBeta, qBeta_Disp
-logical Kriging_Hessian, Hide
+logical(kind=iwp) :: Kriging_Hessian, Hide
 real(kind=wp), allocatable :: t_qInt(:,:), t_Shift(:,:), tmp(:)
 
 !                                                                      *

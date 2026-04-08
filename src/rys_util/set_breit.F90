@@ -16,6 +16,7 @@ subroutine Set_Breit(n)
 use Breit, only: nOrdOp, nComp, Do_BP_Integrals
 use Definitions, only: iwp, u6
 
+implicit none
 integer(kind=iwp), intent(in) :: n
 
 nOrdOp = n

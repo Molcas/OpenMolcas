@@ -43,7 +43,7 @@ real(kind=wp), intent(out) :: dq(nInter), dqdq
 character(len=6), intent(out) :: UpMeth
 real(kind=wp), intent(inout) :: dqHdq
 character, intent(out) :: Step_Trunc
-integer :: I, iRoot, iStatus, Iter_i, IterMx, NumVal
+integer(kind=iwp) :: I, iRoot, iStatus, Iter_i, IterMx, NumVal
 real(kind=wp) :: A_RFO, A_RFO_Long, A_RFO_Short, DqDq_Long, DqDq_Short, EigVal, Fact, GG, Step_Lasttime = Pi, StepMax = One, Test, &
                  ZZ
 logical(kind=iwp) :: Iterate, Restart

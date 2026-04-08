@@ -13,7 +13,7 @@
      &                    MXRS1,MXRS3,NELEC,NOCTYP,NSTFTP
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
       use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
-      use csm_data, only: NSMST
+      use input_mclr, only: nIrrep
 
 *
 * Strings for internal space.
@@ -82,12 +82,12 @@
         CALL NSTRSO_MCLR(NELEC(ITYP),NORB1,NORB2,NORB3,
      &                   MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),
      &                   MXRS3(ITYP),KFREEL,NACOB,Str(ITYP)%NSTSO,
-     &                   NOCTYP(ITYP),NSMST,ITYP,IPRNT)
+     &                   NOCTYP(ITYP),nIrrep,ITYP,IPRNT)
 *. Corresponding offset array
         CALL ZBASE(Str(ITYP)%NSTSO,Str(ITYP)%ISTSO,
-     &             NSMST*NOCTYP(ITYP) )
+     &             nIrrep*NOCTYP(ITYP) )
 *. Symmetry and class index for each string
-         CALL ZSMCL(NSMST,NOCTYP(ITYP),Str(ITYP)%NSTSO,
+         CALL ZSMCL(nIrrep,NOCTYP(ITYP),Str(ITYP)%NSTSO,
      &              Str(ITYP)%STSM,Str(ITYP)%STCL )
         END IF
    30 CONTINUE
@@ -98,9 +98,9 @@
         IF(IUNIQTP(ITYP).EQ.ITYP) THEN
         CALL GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),
      &                   MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%ISTSO,
-     &                   NOCTYP(ITYP),NSMST,Str(ITYP)%Z,KFREEL,
+     &                   NOCTYP(ITYP),nIrrep,Str(ITYP)%Z,KFREEL,
      &                   Str(ITYP)%STREO,Str(ITYP)%OCSTR,
-     &                   KFREEL(1+NOCTYP(ITYP)*NSMST),ITYP,IPRNT)
+     &                   KFREEL(1+NOCTYP(ITYP)*nIrrep),ITYP,IPRNT)
         END IF
    40 CONTINUE
 *

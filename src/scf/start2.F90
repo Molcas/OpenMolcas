@@ -54,7 +54,7 @@ real(kind=wp), intent(in) :: Ovrlp(mBT)
 integer(kind=iwp) :: iBas, iD, iDum(7,8), iDummy(1), iErr, indx, iOff, isUHF, iSym, iWFtype, Lu_, nTmp(8)
 real(kind=wp) :: Dummy(1)
 character(len=6) :: OrbName
-integer, allocatable :: IndT(:,:)
+integer(kind=iwp), allocatable :: IndT(:,:)
 #ifdef _MSYM_
 type(c_ptr) :: msym_ctx
 #endif

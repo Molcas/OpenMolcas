@@ -34,9 +34,7 @@ call DENS_CPF(C,FC,ICASE,AA)
 call NPSET(JSY,INDX,C,TPQ,ENP,TEMP,S,W,EPP,ICASE_)
 
 call ONECT(C,S,W,THET,ENP,EPP,FC,BUFIN,A,B,FK,DBK)
-if (AA > One) then
-  write(u6,*) 'DENSCT_CPF Error: AA>1.0 (See code.)'
-end if
+if (AA > One) write(u6,*) 'DENSCT_CPF Error: AA>1.0 (See code.)'
 call NATCT(C,FC)
 
 return

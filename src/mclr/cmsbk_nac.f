@@ -148,7 +148,7 @@
        J=NACstates(2)
        Call CSF2SD(FinCI(1+(J-1)*NCSFs),CIL,state_sym)
        Call CSF2SD(FinCI(1+(I-1)*NCSFs),CIR,state_sym)
-       Call Densi2(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,
+       Call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,
      &              itri(ntash**2,ntash**2))
 
 *Copied from rhs_nac.f

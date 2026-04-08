@@ -47,11 +47,11 @@ subroutine Cho_TwoEl(iBatch,numV,LUINTM,iAddrIAD2M,iSymI,iSymJ,iSymA,iSymB)
 ! (IA/BJ) IF ISQ > ISR AND ISP /= ISQ                                  *
 ! (IA/JB) IF ISQ >= ISS AND ISP /= ISQ                                 *
 !                                                                      *
-!   IAD2M CONTAINS START ADRESS FOR EACH TYPE OF INTEGRALS:            *
+!   IAD2M CONTAINS START ADDRESS FOR EACH TYPE OF INTEGRALS:           *
 !    IAD2M(1,ISPQRS)   COULOMB INTEGRALS <AB|IJ>                       *
 !    IAD2M(2,ISPQRS)   EXCHANGE INTEGRALS <AB|IJ> FOR iSymI > iSymJ    *
 !    IAD2M(3,ISPQRS)   EXCHANGE INTEGRALS <AB|IJ> FOR iSymI < iSymJ    *
-!   THE LAST ADRESS IS ZERO IF iSymI = iSymJ                           *
+!   THE LAST ADDRESS IS ZERO IF iSymI = iSymJ                          *
 !                                                                      *
 !***********************************************************************
 

@@ -18,8 +18,7 @@
      &                  NAEL,IAGRP,NBEL,IBGRP,NOCTPA,NOCTPB,
      &                  NSMST,NSMOB,NSMSX,NSMDX,NTSOB,IBTSOB,ITSOB,
      &                  MAXIJ,MAXK,MAXI,ICSMOD,IINMOD,LI,LC,LS,
-     &                  XINT,CSCR,SSCR,SXSTSM,STSTSX,STSTDX,
-     &                  SXDXSX,ADSXA,ASXAD,
+     &                  XINT,CSCR,SSCR,SXSTSM,
      &                  IAEL1,IAEL3,
      &                  IBEL1,IBEL3,IDC,
      &                  ISOOSC,NSOOSC,ISOOSE,NSOOSE,
@@ -34,7 +33,7 @@
 *
 *      LOOP OVER SIGMA AND C VECTOR
 *
-* Jeppe Olsen , Winter of 1991
+* Jeppe Olsen, Winter of 1991
 * small modifications by eaw 96
 *
 * =====
@@ -106,10 +105,6 @@
       INTEGER NSSOB(NOCTPB,nsmst),ISSOB(NOCTPB,nsmst)
       INTEGER NTSOB(3,NSMOB),IBTSOB(3,NSMOB),ITSOB(mxporb)
       INTEGER SXSTSM(NSMSX,NSMST)
-      INTEGER STSTSX(NSMST,NSMST)
-      INTEGER STSTDX(NSMST,NSMST)
-      INTEGER SXDXSX(2*MXPOBS,4*MXPOBS)
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),ASXAD(MXPOBS,2*MXPOBS)
       INTEGER IAEL1(*),IAEL3(*)
       INTEGER IBEL1(*),IBEL3(*)
       INTEGER IDC
@@ -134,7 +129,6 @@
 
 *
 *     Local variables
-      INTEGER SXSTST(1), DXSTST(1) ! HMMMMMM
       INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
       REAL*8 PL
       INTEGER ISENSM,ISENTA,ISENTB,IFRSTS,ISSTSM,ISSTTA,NSBLK,ISFINI,
@@ -144,7 +138,7 @@
      &        JASM,JATP,NJA,NJB,IPERM,NPERM,LLASM,LLBSM,LLATP,LLBTP,
      &        NLLA,NLLB,LROW,LCOL,I1ASM,I1BSM,I1TA,I1TB,IOFF,LBLK,
      &        NCCMBC,NCCMBE,NONEWC,NONEWS,NSCMBC,NSCMBE,ISSTTB,JBTP,
-     &        JBSM
+     &        JBSM,DUM(1)
       REAL*8 XNORM2
       REAL*8, External:: DDot_
 *.
@@ -203,8 +197,7 @@
      &      ISBLTP,IDC,NONEWS,ISOCOC)
           END IF
         End Do
-*       CALL SETVEC(SB,ZERO ,LSBLK)
-        call dcopy_(LSBLK,[ZERO],0,SB,1)
+        SB(1:LSBLK) = Zero
 *. Initialize loop over blocks over C vector
         ICENSM = 1
         ICENTA = 1
@@ -293,7 +286,7 @@ C    &                      TimeDep)
                   IF(LTRP(IPERM).EQ.1) THEN
                     LROW = NSSOA(LATP(IPERM-1),LASM(IPERM-1))
                     LCOL = NSSOB(LBTP(IPERM-1),LBSM(IPERM-1))
-                    CALL TRPMAT(CB(ICOFF),LROW,LCOL,C2)
+                    CALL TRNSPS(LROW,LCOL,CB(ICOFF),C2)
                     call dcopy_(LROW*LCOL,C2,1,CB(iCOFF),1)
                   END IF
                   IF(LSGN(IPERM).EQ.-1)
@@ -316,7 +309,6 @@ C    &                      TimeDep)
      &                NAEL,NBEL,
      &                IAGRP,IBGRP,
      &                SB(ISOFF),CB(ICOFF),IDOH2,
-     &                ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX,
      &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,
      &                C2,NSMOB,NSMST,NSMSX,NSMDX,NIA,NIB,NLLA,NLLB,
@@ -334,7 +326,6 @@ C    &                      TimeDep)
      &                NAEL,NBEL,
      &                IAGRP,IBGRP,
      &                SB(ISOFF),CB(ICOFF),IDOH2,
-     &                ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX,
      &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,
      &                C2,NSMOB,NSMST,NSMSX,NSMDX,NIA,NIB,NLLA,NLLB,
@@ -344,7 +335,7 @@ C    &                      TimeDep)
  8765           CONTINUE
 *. Transpose or scale to restore order ??
                   IF(LTRP(NPERM+1).EQ.1) THEN
-                    CALL TRPMAT(CB(ICOFF),NJB,NJA,C2)
+                    CALL TRNSPS(NJB,NJA,CB(ICOFF),C2)
                     call dcopy_(NJA*NJB,C2,1,CB(ICOFF),1)
                   END IF
                   IF(LSGN(NPERM+1).EQ.-1)
@@ -397,7 +388,10 @@ C
 *. End of loop over batches of S blocks
 10002 CONTINUE
 ********************************************************************
-      IF(LUHC.GT.0) CALL ITODS([-1],1,LBLK,LUHC)
+      IF(LUHC.GT.0) THEN
+        DUM(1)=-1
+        CALL ITODS(DUM,1,LBLK,LUHC)
+      END IF
 
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
@@ -412,6 +406,5 @@ c Avoid unused argument warnings
         CALL Unused_integer(IINMOD)
         CALL Unused_integer(LI)
         CALL Unused_integer_array(SXSTSM)
-        CALL Unused_integer_array(ASXAD)
       END IF
       END SUBROUTINE RASSG4

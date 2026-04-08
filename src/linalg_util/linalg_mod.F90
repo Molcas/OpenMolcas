@@ -324,7 +324,7 @@ end subroutine mult_2D_raw
 subroutine sym_diagonalize(A,V,lambda,info)
   real(kind=wp), intent(in) :: A(:,:)
   real(kind=wp), intent(out) :: V(:,:), lambda(:)
-  integer(kind=iwp), optional, intent(out) :: info
+  integer(kind=iwp), intent(out), optional :: info
   integer(kind=iwp), parameter :: do_worksize_query = -1
   integer(kind=iwp) :: info_
   real(kind=wp), allocatable :: work(:)

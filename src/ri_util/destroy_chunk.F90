@@ -18,6 +18,8 @@ use Para_Info, only: Is_Real_Par
 #endif
 use stdalloc, only: mma_deallocate
 
+implicit none
+
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
   call GA_Destroy(ip_Chunk)

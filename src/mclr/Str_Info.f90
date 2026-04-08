@@ -19,7 +19,7 @@
 !        EL1          :        Number of electrons in RAS1 per sub type
 !        EL3          :        Number of electrons in RAS3 per sub type
 !        ACTP         :        is sub-type active
-!        Z            :         Lexical adressing of arrays
+!        Z            :        Lexical addressing of arrays
 !        EL123        :        -"-    But array
 !        STSTMI       :        Explicit offsets and lengths
 !        STSTMN       :                  "
@@ -139,7 +139,7 @@ Integer:: ISTAC(NSTTYP_MAX,2),                          &
 !     CFTP          :        BRANCHING DIAGRAMS FOR PROTO TYPES
 !     DTOC          :        CSF-DET TRANSFORMATION FOR PROTO TYPES
 !     CNSM(:)%ICONF :        NCNSM  CONFIGURATION EXPANSIONS
-!     CNSM(I)%ICTS  :        adress of determinant I in STRING ordering for
+!     CNSM(I)%ICTS  :        address of determinant I in STRING ordering for
 !                            determinant I in CSF ordering
 !                            reference symmetry IREFSM.
 Integer, Allocatable:: DFTP(:)

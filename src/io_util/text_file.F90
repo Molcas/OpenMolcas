@@ -93,7 +93,7 @@ subroutine extend_line(dynline,line,chop)
 
 character(len=:), allocatable, intent(inout) :: dynline
 character(len=*), intent(in) :: line
-logical(kind=iwp), optional, intent(in) :: chop
+logical(kind=iwp), intent(in), optional :: chop
 logical(kind=iwp) :: chop_
 character(len=:), allocatable :: aux
 

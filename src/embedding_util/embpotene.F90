@@ -62,7 +62,6 @@
 !
 !end function embPotEne1
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 function embPotEneSCF(density,embeddingInts,length)
 
 use Definitions, only: wp, iwp
@@ -79,7 +78,6 @@ embPotEneSCF = DDot_(length,density,1,embeddingInts,1)
 
 end function embPotEneSCF
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 function embPotEneMODensities(densityInactive,densityActive,embeddingInts,nBasPerSym,nBasTotSquare,nSym)
 
 use stdalloc, only: mma_allocate, mma_deallocate

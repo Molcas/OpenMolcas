@@ -45,7 +45,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rctfld_module, only: lRF
       Use casvb_global, Only: ifvb
-      use rasscf_lucia, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
+      use lucia_data, only: PAtmp, Pscr, Ptmp, DStmp, Dtmp
       use gas_data, only: iDoGAS
       use Constants, only: Zero
       use rasscf_global, only: KSDFT, ExFac, iPCMRoot, ITER, lRoots,

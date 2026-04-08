@@ -22,6 +22,8 @@
 
 module EFP
 
+implicit none
+
 contains
 
 dummy_empty_procedure(efp_mod)

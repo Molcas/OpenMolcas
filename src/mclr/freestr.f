@@ -29,9 +29,9 @@
 *=========
 * Pointers stored in common block /STRBAS/
 *
-* Jeppe Olsen , Winter of 1990
+* Jeppe Olsen, Winter of 1990
 *
-* Last Revision , Dec 24 1990 , Almaden
+* Last Revision, Dec 24 1990 , Almaden
 *
 * Updated with iuniqtp, dec 11, 1994
 * Modified for deallocation, Sept. 25, 2005.
@@ -70,7 +70,7 @@
           Call mma_deallocate(Str(ITYP)%ACTP_Hidden)
 CMS: New array introduced according to Jeppes new strinfo representation
           Call mma_deallocate(Str(ITYP)%EL123_Hidden)
-**. Lexical adressing of arrays: NB! Not allocated here in Jeppes new version!
+**. Lexical addressing of arrays: NB! Not allocated here in Jeppes new version!
           Call mma_deallocate(Str(ITYP)%Z_Hidden)
         ELSE
 *. redirect

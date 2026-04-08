@@ -43,7 +43,7 @@ contains
     call mma_allocate(spin_correlations, size(iroot))
     spin_correlations(:) = 0.0_wp
 
-    ! the following disk pointer logic is neccessary, because a user may
+    ! the following disk pointer logic is necessary, because a user may
     ! optimise less roots than included in the Davidson matrix, e.g.
     ! roots (1, 2, 5, 8, 10). In &RASSCF RDMs for all Lroots
     ! will be computed, hence the memory reference here needs to be

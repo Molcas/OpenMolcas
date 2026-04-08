@@ -58,7 +58,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-integer, parameter :: MxA = 1000, MxPar = 100
+integer(kind=iwp), parameter :: MxA = 1000, MxPar = 100
 integer(kind=iwp) :: iCharge_ref, ISlPar(MxPar), latato, lMax = -1, maxa, maxb, maxc, nCavxyz, nexpo, nGrid, nGrid_Eff, &
                      nGridAverage, nGridSeed, NOrdInp(MxA), nPCM_Info, NS, NSinit, nSparse = 0, nTs
 real(kind=wp) :: afac, clim = Zero, Cordsi(3,4) = Zero, dampIter = Zero, diedel, dipCutoff = Zero, dipsi = Zero, &

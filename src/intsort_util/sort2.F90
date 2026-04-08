@@ -158,7 +158,7 @@ do iSymi=1,nSym
                 !------------------------------------------------------*
                 ! Sort the IO-stack in ascending order, i.e., prefer-  *
                 ! ence is always given to the lowest available disk    *
-                ! adresses.                                            *
+                ! addresses.                                           *
                 !------------------------------------------------------*
 
                 call ILASRT('D',nStk,IOStk,iErr)

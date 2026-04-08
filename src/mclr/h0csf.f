@@ -90,7 +90,7 @@
 *   PSSIGN : Spin combination sign
 *
 * =========================================
-* Jeppe Olsen , Spring of 90 , from PHPCSF
+* Jeppe Olsen, Spring of 90 , from PHPCSF
 * =========================================
 *  Lucia Version, September 1993
 * =========================================
@@ -126,7 +126,7 @@
       INTEGER, POINTER :: iPTR(:)
       INTEGER NPCSF,ICSFMN,MXPQDM,ICNF,ITYP,NJCNF,NIRREP,IICNF,KLFREE,
      &        KLDIPQ,KLCONF,IFINIT,IMIN,ICSFOF,NCSFMN,KLFREI,KLIDEG,
-     &        IDEG,NDGVL,IDGVL,IDGCSF,IDGCNF,NPCNF,KLPHP,KLPHQ,IICSF
+     &        IDEG,NDGVL,IDGVL,IDGCSF,IDGCNF,NPCNF,KLPHP,KLPHQ,IICSF,i
       REAL*8 XMAX,XMIN,DIAVAL
       REAL*8, EXTERNAL:: FNDMNX
 *
@@ -142,6 +142,7 @@
       NPQCSF = 0
       NPQCNF = 0
       ICSFMN = 0 ! dummy initialize
+      NCSFMN = 0 ! dummy initialize
       MXPQDM = MXP1DM + MXP2DM + MXQDM
 *
 *
@@ -252,7 +253,8 @@
           NPQCNF = NPQCNF + 1
           IPQCNF(NPQCNF) = IMIN
           SCR(KLDIPQ-1+NPQCNF) = XMIN
-          CALL ISTVC2(IPQCSF(NPQCSF+1),ICSFMN-1,1,NCSFMN)
+          IPQCSF(NPQCSF+1:NPQCSF+NCSFMN) =
+     &      [(i,i=ICSFMN,ICSFMN+NCSFMN-1)]
           NPQCSF = NPQCSF + NCSFMN
 
 *. Mask
@@ -333,7 +335,7 @@
       END IF
 *. End if for IWAY = 2
 *
-*. This is not beautiful, but neccessary
+*. This is not beautiful, but necessary
       MXP1DM = NP1CSF
       MXP2DM = NP2CSF
       MXQDM = NQCSF

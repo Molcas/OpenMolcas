@@ -16,7 +16,7 @@ subroutine MkSrt0(iSquar,nIrrep,nBas,iSkip)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Set up all information needed to compute 2el integral   *
-!              adresses in the subroutine PLF2 and INDSFT2.            *
+!              addresses in the subroutine PLF2 and INDSFT2.           *
 !                                                                      *
 !     Called from: Sort0                                               *
 !                                                                      *

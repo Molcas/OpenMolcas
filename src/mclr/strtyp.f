@@ -32,8 +32,8 @@
 *========
 *   Common block /STRINP/
 *
-* Jeppe Olsen ,  Dec.24 ,Almaden
-*                Last Revision March 31
+* Jeppe Olsen,  Dec.24, Almaden
+*               Last Revision March 31
 *
 * Where INTXC is internal excitation level 1 => no int exc
 *                                          2 => single int exc

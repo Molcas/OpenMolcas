@@ -11,6 +11,7 @@
 
 set (sources
      main.F90
+     cls_gsswfn.F90
      cre_gsswfn.F90
      fckbyint.F90
      fmod1n.F90

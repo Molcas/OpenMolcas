@@ -23,7 +23,7 @@ use Constants, only: cZero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer, intent(in) :: nneq, neq(nneq), exch, nexch(nneq), nmax, lmax, NmaxPop
+integer(kind=iwp), intent(in) :: nneq, neq(nneq), exch, nexch(nneq), nmax, lmax, NmaxPop
 complex(kind=wp), intent(in) :: Z(exch,exch)
 integer(kind=iwp) :: i, i1, i2, il, isite, j, l, nb, nb1, nb2, nb3, tmp
 integer(kind=iwp), allocatable :: ibas(:,:), intc(:), nind(:,:)

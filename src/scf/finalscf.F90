@@ -57,7 +57,7 @@ character(len=80) :: Note
 character(len=60) :: Frmt
 character(len=8) :: Method, RlxLbl, What
 real(kind=wp), allocatable :: CMOn(:), DMat(:,:), E_Or(:,:), Epsn(:), Etan(:), GVFck(:,:), Scrt1(:,:), Scrt2(:,:), Temp(:)
-logical, external :: RF_On, Langevin_On, PCM_On
+logical(kind=iwp), external :: RF_On, Langevin_On, PCM_On
 #ifdef _HDF5_
 #include "Molcas.fh"
 integer(kind=iwp) :: IndTypeT(8,7), nSSh(mxSym), nZero(mxSym)

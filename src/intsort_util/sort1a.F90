@@ -26,14 +26,14 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !                                                                      *
 !     Called from: PLF2,INDSFT2                                        *
 !                                                                      *
-!     Calls to : PKI4,PKR8,SetVec,ISORTX,I4Len,R8Len                   *
+!     Calls to : PKI4,PKR8,ISORTX,I4Len,R8Len                          *
 !                                                                      *
 !     Calling Parameters:                                              *
 !     nUt    : number of 2el integrals in the buffers vInt,nSqNum      *
 !              and nSyBlk                                              *
 !     vInt   : Buffer of 2el integral values                           *
 !     nSqNum : sequence number of the integral relative to             *
-!              the first adress of the symmetry block                  *
+!              the first address of the symmetry block                 *
 !     nSyBlk : symmetry block number of an integral                    *
 !                                                                      *
 !----------------------------------------------------------------------*

@@ -18,7 +18,9 @@ subroutine CNHCN(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DT
 !              IREOTS added August 2003
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use lucia_data, only: PSSIGN
 use spinfo, only: NCSFTP, NDTFTP
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -88,7 +90,8 @@ subroutine CNHCN_INTERNAL(SCR)
 
   KLDHD = KLFREE
   KLFREE = KLFREE+NDETL*NDETR
-  call COMBINATIONS(ICOMBI,PSIGN)
+  PSIGN = PSSIGN
+  ICOMBI = merge(0,1,PSSIGN == Zero)
   call c_f_pointer(c_loc(SCR(KLDTLA)),iSCRla,[1])
   call c_f_pointer(c_loc(SCR(KLDTLB)),iSCRlb,[1])
   call c_f_pointer(c_loc(SCR(KLDTRA)),iSCRra,[1])

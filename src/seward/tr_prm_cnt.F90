@@ -34,7 +34,7 @@ real(kind=wp), allocatable :: Tr(:)
 ! lant(i): number of atoms in i:th symmetry bf
 ! expand the coefficient matrix into symmetry basis set
 ! auxiliary
-! icaddr(i): adresses in coeff for a symmetry adapted function
+! icaddr(i): addresses in coeff for a symmetry adapted function
 
 !                                                                      *
 ! THIS ROUTINE ONLY WORKS WITH SPHERICAL FUNCTIONS. NO CARTESIAN D:S!  *

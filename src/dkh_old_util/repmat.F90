@@ -44,7 +44,7 @@ real(kind=wp) :: sum_
 ! lant(i): number of atoms in i:th symmetry bf
 ! expand the coefficient matrix into symmetry basis set
 ! auxiliary
-! icaddr(i): adresses in coeff for a symmetry adapted function
+! icaddr(i): addresses in coeff for a symmetry adapted function
 
 !do i=1,12640
 !  write(67,'(es25.14)') bint(i)

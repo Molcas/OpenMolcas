@@ -70,7 +70,7 @@
 *
 * =========================================================
 * Obtain determinants for each configuration and determine
-* the corresponding adress and phaseshift to reform into
+* the corresponding address and phaseshift to reform into
 * string form and ordering.
 * ==========================================================
 *
@@ -93,7 +93,7 @@
      &                 PSSIGN,IPRNT)
 
 *
-* Obtain pointer abs(ICTSDT(I)) giving adress of determinant I in
+* Obtain pointer abs(ICTSDT(I)) giving address of determinant I in
 * STRING ordering for determinant I in CSF ordering.
 * Going between the two formats can involve a sign change . this is
 * stored in the sign of ICTSDT)
@@ -373,7 +373,7 @@ C?    END IF
       use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
       use MCLR_Data, only: MAXOP,MINOP,NCNATS
       use CandS, only: ICSM,ISSM,ICSPC,ISSPC
-      use csm_data, only: NSMST
+      use input_mclr, only: nIrrep
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
@@ -408,8 +408,8 @@ C     MXELR3 = MNR1IC(ISPC)
      &            Str(IATP)%EL1,Str(IATP)%EL3,
      &            Str(IBTP)%EL1,Str(IBTP)%EL3,
      &            SIOIO,IPRNT)
-      CALL mma_allocate(SBLTP,NSMST,Label='SBLTP')
-      NOOS = NOCTPA*NOCTPB*NSMST
+      CALL mma_allocate(SBLTP,nIrrep,Label='SBLTP')
+      NOOS = NOCTPA*NOCTPB*nIrrep
       CALL mma_allocate(IOOS1,NOOS,Label='IOOS1')
       CALL mma_allocate(NOOS1,NOOS,Label='NOOS1')
       CALL INTCSF(NACOB,NEL,iSpin,MS2,
@@ -427,9 +427,9 @@ C     MXELR3 = MNR1IC(ISPC)
       iA=0
       Do iSym=1,nSym
 *.OOS arrayy
-          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,SBLTP,idum)
+          CALL ZBLTP(ISMOST(1,ISYM),nIrrep,IDC,SBLTP,idum)
           CALL ZOOS(ISMOST(1,ISYM),SBLTP,
-     &          NSMST,SIOIO,
+     &          nIrrep,SIOIO,
      &          Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &          NOCTPA,NOCTPB,idc,IOOS1,NOOS1,NCOMB,0)
 *EAW           CALL CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,
@@ -468,7 +468,7 @@ c Avoid unused argument warnings
 *
 *----------------------------------------------------------------------
 *
-      SUBROUTINE CSFDET(NOPEN,IDET,NDET,ICSF,NCSF,CDC,PSSIGN,
+      SUBROUTINE CSFDET_MCLR(NOPEN,IDET,NDET,ICSF,NCSF,CDC,PSSIGN,
      &                  IPRCSF)
 
 * Expand csf's in terms of combinations with
@@ -518,7 +518,7 @@ c Avoid unused argument warnings
 C
 C.. OBTAIN INTERMEDIATE VALUES OF MS FOR ALL DETERMINANTS
       DO 10 JDET = 1, NDET
-        CALL MSSTRN(IDET(1,JDET),LMDET(1+(JDET-1)*NOPEN),NOPEN)
+        CALL MSSTRN_MCLR(IDET(1,JDET),LMDET(1+(JDET-1)*NOPEN),NOPEN)
    10 CONTINUE
 
 C
@@ -526,7 +526,7 @@ C
        IF( NTEST .GE. 105 ) WRITE(6,*) ' ....Output for CSF ',JCSF
 C
 C OBTAIN INTERMEDIATE COUPLINGS FOR CSF
-      CALL MSSTRN(ICSF(1,JCSF),LSCSF,NOPEN)
+      CALL MSSTRN_MCLR(ICSF(1,JCSF),LSCSF,NOPEN)
 C
       DO 900 JDET = 1, NDET
 C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
@@ -570,14 +570,14 @@ C
       END IF
 
 C
-      END SUBROUTINE CSFDET
+      END SUBROUTINE CSFDET_MCLR
 *
 *----------------------------------------------------------------------
 *
 *
 *----------------------------------------------------------------------
 *
-      SUBROUTINE SPNCOM(iwork,NOPEN,MS2,NDET,IABDET,
+      SUBROUTINE SPNCOM_MCLR(iwork,NOPEN,MS2,NDET,IABDET,
      &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
 *
 * Combinations of nopen unpaired electrons.Required
@@ -613,7 +613,7 @@ C
 * Determinants are considered as binary numbers,1=alpha,0=beta
 *
       MX=2 ** NOPEN
-      CALL ISETVC(IWORK,0,NOPEN+1)
+      IWORK(1:NOPEN+1) = 0
 * Loop over all possible binary numbers
       DO 200 I=1,MX
 C.. 1 : NEXT BINARY NUMBER
@@ -639,7 +639,7 @@ C
      &    .NOT.(PSSIGN.NE.0.0D0 .AND. IWORK(1).EQ.0)) THEN
           IF (IFLAG .LT. 3 ) THEN
             NDET=NDET+1
-            CALL ICOPVE(IWORK,IABDET(1,NDET),NOPEN)
+            IABDET(:,NDET) = IWORK(1:NOPEN)
           END IF
           IF (IFLAG .GT. 1 ) THEN
 C UPPER DET ?
@@ -656,7 +656,7 @@ C
    10       CONTINUE
             IF( LUPPER .EQ. 1 ) THEN
               NUPPER = NUPPER + 1
-              CALL ICOPVE(IWORK,IABUPP(1,NUPPER),NOPEN)
+              IABUPP(:,NUPPER) = IWORK(1:NOPEN)
             END IF
           END IF
         END  IF
@@ -666,7 +666,7 @@ C
 *     XMSD2=DBLE(MS2)/2
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IPRCSF)
-      END SUBROUTINE SPNCOM
+      END SUBROUTINE SPNCOM_MCLR
 *
 *----------------------------------------------------------------------
 *
@@ -718,14 +718,14 @@ c Avoid unused argument warnings
 *. Proto type determinants and upper determinants
           IF( MS2+1 .EQ. MULTS ) THEN
             IFLAG = 2
-            CALL SPNCOM(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
+            CALL SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
      &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
           ELSE
             IFLAG = 1
-            CALL SPNCOM(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
+            CALL SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
      &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
             IFLAG = 3
-            CALL SPNCOM(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),
+            CALL SPNCOM_MCLR(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),
      &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
           END IF
           CALL mma_deallocate(SCR7)
@@ -748,7 +748,7 @@ c Avoid unused argument warnings
         IF(IOPEN .EQ. 0 ) THEN
           DTOC(ICDCBS) = 1.0D0
         ELSE
-          CALL CSFDET(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),
+          CALL CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),
      &               ICFTP(ICSBS),NCPCNT(ITP),DTOC(ICDCBS),
      &               PSSIGN,IPRNT)
         END IF
@@ -775,7 +775,7 @@ c Avoid unused argument warnings
 * each symmetry
 *
 * find local memory requirements for CSF routines
-* Largest local memory requirements in CNFORD,CSFDET is returned in
+* Largest local memory requirements in CNFORD,CSFDET_MCLR is returned in
 * LLCSF
 *
 *             DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
@@ -927,7 +927,7 @@ C?    WRITE(6,*) ' MAXOP with RAS constraints :' ,MAXOP
         MXDT =   MAX(MXDT,NDPCNT(ITP) )
         MXPTBL = MAX(NDPCNT(ITP)*IOPEN,MXPTBL)
    11 CONTINUE
-*. local memory for CSFDET
+*. local memory for CSFDET_MCLR
       LCSFDT = MXPTBL + MAXOP
 *. local memory for CNFORD
       LCNFOR = MAX(2*NTYP+NACTOB,(MXDT+2)*NACTEL)
@@ -1581,7 +1581,7 @@ c Avoid unused argument warnings
 *
 *----------------------------------------------------------------------
 *
-      SUBROUTINE MSSTRN(INSTRN,UTSTRN,NOPEN)
+      SUBROUTINE MSSTRN_MCLR(INSTRN,UTSTRN,NOPEN)
 *
 * A STRING IS GIVEN IN FORM A SEQUENCE OF ZEROES
 * AND ONE ' S
@@ -1595,7 +1595,7 @@ c Avoid unused argument warnings
 *
 * 2 : THE INPUT STRING IS A CSF GIVEN IN A
 *     BRANCHING DIAGRAM, WHERE
-*     1'S INDICATE UPWARDS SPIN COUPLEING
+*     1'S INDICATE UPWARDS SPIN COUPLING
 *     WHILE THE 0'S INDICATES DOWNWARDS SPIN COUPLING ,
 *     REEXPRESS THIS AS S VALUES OF ALL COUPLINGS
 *
@@ -1613,7 +1613,7 @@ c Avoid unused argument warnings
         UTSTRN(IOPEN) = UTSTRN(IOPEN-1) +DBLE(INSTRN(IOPEN))-Half
       END DO
 *
-      END SUBROUTINE MSSTRN
+      END SUBROUTINE MSSTRN_MCLR
 *
 *----------------------------------------------------------------------
 *
@@ -1950,12 +1950,12 @@ C
      &                       MXSOOB,NICISP
       use DetDim, only: MXPCSM
       use Constants, only: Zero
-      use csm_data, only: NSMCI,NSMST
+      use input_mclr, only: nIrrep
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
 *
-* Jeppe Olsen , Winter 1991
+* Jeppe Olsen, Winter 1991
 * Last revision April 1991
       IMPLICIT None
       Integer IPRNT
@@ -1972,26 +1972,26 @@ C
 *
 *
 *.Local memory
-      Call mma_allocate(LBLTP,NSMST,Label='LBLTP')
+      Call mma_allocate(LBLTP,nIrrep,Label='LBLTP')
 *     IF(IDC.EQ.3 .OR. IDC .EQ. 4 )
-*    &Call mma_allocate(LCVST,NSMST,Label='LCVST')
-      Call mma_allocate(LCVST,NSMST,Label='LCVST')
+*    &Call mma_allocate(LCVST,nIrrep,Label='LCVST')
+      Call mma_allocate(LCVST,nIrrep,Label='LCVST')
 
 *. Obtain array giving symmetry of sigma v reflection times string
 *. symmetry.
-*     IF(IDC.EQ.3.OR.IDC.EQ.4) CALL SIGVST(LCVST,NSMST)
+*     IF(IDC.EQ.3.OR.IDC.EQ.4) CALL SIGVST(LCVST,nIrrep)
 
 *. Array defining symmetry combinations of internal strings
 *. Number of internal dets for each symmetry
-C            SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
-        CALL SMOST_MCLR(NSMST,NSMCI,MXPCSM,ISMOST)
+C            SMOST(nIrrep,nIrrep,MXPCSM,ISMOST)
+        CALL SMOST_MCLR(nIrrep,nIrrep,MXPCSM,ISMOST)
 
       MXSB = 0
       MXSOOB = 0
       MXCEXP = 0
       XISPSM(:,:) = Zero
       DO 100 ICI = 1, NICISP
-      DO  50 ISYM = 1, NSMCI
+      DO  50 ISYM = 1, nIrrep
         IATP = IASTFI(ICI)
         IBTP = IBSTFI(ICI)
 CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
@@ -2001,9 +2001,9 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
           IIDC = 1
         END IF
         IF(IACTI(ICI).EQ.1) THEN
-          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IIDC,LBLTP,LCVST)
+          CALL ZBLTP(ISMOST(1,ISYM),nIrrep,IIDC,LBLTP,LCVST)
           CALL NRASDT(MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI),
-     &         ISYM,NSMST,NOCTYP(IATP),NOCTYP(IBTP),Str(IATP)%EL1,
+     &         ISYM,nIrrep,NOCTYP(IATP),NOCTYP(IBTP),Str(IATP)%EL1,
      &         Str(IBTP)%EL1,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &         Str(IATP)%EL3,Str(IBTP)%EL3,
      &         NCOMB,XNCOMB,MXS,MXSOO,LBLTP)
@@ -2035,7 +2035,7 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
       DO 200 ICI = 1, MX
         IF(IACTI(ICI).EQ.1) THEN
           WRITE(6,*) ' Internal CI space ', ICI
-          CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
+          CALL WRTMAT(XISPSM(1,ICI),1,nIrrep,1,nIrrep)
         END IF
   200 CONTINUE
       WRITE(6,*) ' Largest CI space                 ',MXCEXP
@@ -2068,6 +2068,7 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
 *
 * Updated with IBLTP, Summer of 93
 *
+      use Symmetry_Info, only: Mul
       IMPLICIT None
       Integer MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,
      &                  NSMST,NOCTPA,NOCTPB
@@ -2089,7 +2090,7 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
       XNCOMB = 0.0D0
       DO 300 IASM = 1, NSMST
         IF(IBLTP(IASM).EQ.0) GOTO 300
-        CALL SYMCOM_MCLR(2,1,IASM,IBSM,ITOTSM)
+        IBSM = Mul(IASM,ITOTSM)
         LSB = 0
         IF(IBSM.NE.0) THEN
           IF(IBLTP(IASM).EQ.2) THEN

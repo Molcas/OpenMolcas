@@ -112,23 +112,23 @@ end type Alloc1DiArray_Type
 ! Allocate/deallocate data types
 interface Allocate_DT
   module procedure :: Allocate_DSBA, Allocate_SBA, Allocate_twxy, Allocate_NDSBA, Allocate_G2, Alloc_Alloc_DSBA, &
-                      Alloc_Alloc1DArray, Alloc2D_Alloc1DArray, Alloc_Alloc2DArray
+                      Alloc_Alloc1DArray, Alloc2D_Alloc1DArray, Alloc_Alloc2DArray, Alloc_Alloc1DiArray
 end interface Allocate_DT
 interface Deallocate_DT
   module procedure :: Deallocate_DSBA, Deallocate_SBA, Deallocate_twxy, Deallocate_NDSBA, Deallocate_G2, Free_Alloc_DSBA, &
-                      Free_Alloc1DArray, Free2D_Alloc1DArray, Free_Alloc2DArray
+                      Free_Alloc1DArray, Free2D_Alloc1DArray, Free_Alloc2DArray, Free_Alloc1DiArray
 end interface Deallocate_DT
 
 ! Private extensions to mma interfaces
 interface cptr2loff
-  module procedure :: dsba_cptr2loff, a1da_cptr2loff, a2da_cptr2loff
+  module procedure :: dsba_cptr2loff, a1da_cptr2loff, a2da_cptr2loff, a1ia_cptr2loff
 end interface
 interface mma_allocate
   module procedure :: dsba_mma_allo_1D, dsba_mma_allo_1D_lim, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_allo_2D, &
-                      a1da_mma_allo_2D_lim, a2da_mma_allo_1D, a2da_mma_allo_1D_lim
+                      a1da_mma_allo_2D_lim, a2da_mma_allo_1D, a2da_mma_allo_1D_lim, a1ia_mma_allo_1D, a1ia_mma_allo_1D_lim
 end interface
 interface mma_deallocate
-  module procedure :: dsba_mma_free_1D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D
+  module procedure :: dsba_mma_free_1D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D, a1ia_mma_free_1D
 end interface
 
 contains
@@ -895,6 +895,35 @@ subroutine Alloc_Alloc2DArray(Array,N,Label)
 
 end subroutine Alloc_Alloc2DArray
 
+subroutine Alloc_Alloc1DiArray(Array,N,Label)
+
+  type(Alloc1DiArray_Type), allocatable, intent(inout) :: Array(:)
+  integer(kind=iwp), intent(in) :: N(2)
+  character(len=*), intent(in) :: Label
+# ifdef _GARBLE_
+  interface
+    subroutine c_null_alloc3(A)
+      import :: iwp
+      integer(kind=iwp), allocatable :: A(:)
+    end subroutine c_null_alloc3
+  end interface
+  integer(kind=iwp) :: i
+# endif
+
+  call mma_allocate(Array,N,label=Label)
+# ifdef _GARBLE_
+  ! Garbling corrupts the allocation status of allocatable components, use a hack to reset it
+  ! (note c_null_alloc3 is just the same as c_null_alloc)
+  do i=N(1),N(2)
+    call c_null_alloc3(Array(i)%A)
+  end do
+# endif
+
+# include "macros.fh"
+  unused_proc(mma_allocate(Array,0))
+
+end subroutine Alloc_Alloc1DiArray
+
 subroutine Free_Alloc1DArray(Array)
 
   type(Alloc1DArray_Type), allocatable, intent(inout) :: Array(:)
@@ -933,10 +962,23 @@ subroutine Free_Alloc2DArray(Array)
 
 end subroutine Free_Alloc2DArray
 
+subroutine Free_Alloc1DiArray(Array)
+
+  type(Alloc1DiArray_Type), allocatable, intent(inout) :: Array(:)
+  integer(kind=iwp) :: i
+
+  do i=lbound(Array,1),ubound(Array,1)
+    call mma_deallocate(Array(i)%A,safe='*')
+  end do
+  call mma_deallocate(Array)
+
+end subroutine Free_Alloc1DiArray
+
 ! Define dsba_cptr2loff, dsba_mma_allo_1D, dsba_mma_allo_1D_lim, dsba_mma_free_1D
 !        a1da_cptr2loff, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_free_1D,
 !                        a1da_mma_allo_2D, a1da_mma_allo_2D_lim, a1da_mma_free_2D
 !        a2da_cptr2loff, a2da_mma_allo_1D, a2da_mma_allo_1D_lim, a2da_mma_free_1D
+!        a1ia_cptr2loff, a1ia_mma_allo_1D, a1ia_mma_allo_1D_lim, a1ia_mma_free_1D,
 
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(DSBA_Type)
@@ -979,6 +1021,18 @@ end subroutine Free_Alloc2DArray
 #  define _DEF_LABEL_ 'a2da_mma'
 #  include "mma_allo_template.fh"
 #  undef _SUBR_NAME_
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+#undef _TYPE_
+
+#define _TYPE_ type(Alloc1DiArray_Type)
+#  define _FUNC_NAME_ a1ia_cptr2loff
+#  include "cptr2loff_template.fh"
+#  undef _FUNC_NAME_
+#  define _SUBR_NAME_ a1ia_mma
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'a1ia_mma'
+#  include "mma_allo_template.fh"
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
 #undef _TYPE_

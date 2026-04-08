@@ -57,8 +57,8 @@ integer(kind=iwp), intent(out) :: IPCSF(MXPDIM), IPCNF(NCONF)
 real(kind=wp), intent(in) :: DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, DIAG(MXPDIM), TUVX(*), ExFac
 real(kind=wp), intent(_OUT_) :: SCR(*)
 integer(kind=iwp), intent(inout) :: NTEST
-integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, KLCONF, KLFREE, KLPHPS, MXCSFC, NCSFL, NCSFMN, NIRREP, &
-                     NJCNF, NPCNF, NPCSF
+integer(kind=iwp) :: i, ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, KLCONF, KLFREE, KLPHPS, MXCSFC, NCSFL, NCSFMN, &
+                     NIRREP, NJCNF, NPCNF, NPCSF
 real(kind=wp) :: Acc, XMAX, XMIN
 real(kind=wp), external :: FNDMNX
 
@@ -126,7 +126,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
     ! add new configuration
     NPCNF = NPCNF+1
     IPCNF(NPCNF) = IMIN
-    call ISTVC2(IPCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
+    IPCSF(NPCSF+1:NPCSF+NCSFMN) = [(i,i=ICSFMN,ICSFMN+NCSFMN-1)]
     if ((NPCSF+NCSFMN) <= MXSPLI) then
       iDimBlockA = NPCSF+NCSFMN
       iDimBlockACNF = NPCNF

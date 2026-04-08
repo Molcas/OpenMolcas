@@ -37,9 +37,7 @@ NSS = 0 ! dummy initialize
 
 IADD25 = IAD25S
 IAD27 = 0
-if (IREF0 > nCOP) then
-  write(u6,*) 'IJIJ_CPF Error: IREF0>nCOP (See code.)'
-end if
+if (IREF0 > nCOP) write(u6,*) 'IJIJ_CPF Error: IREF0>nCOP (See code.)'
 call dDAFILE(Lu_27,2,HDIAG,IRC(1),IAD27)
 
 IFS = 0

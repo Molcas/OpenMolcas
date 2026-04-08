@@ -52,6 +52,7 @@
       use fciqmc, only: DoNECI
       use CC_CI_mod, only: Do_CC_CI
 
+      use lucia_data, only: INT1, INT1O
       use rasscf_global, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
      &    noneq, potnuc, rfpert,
      &    tot_charge, tot_el_charge, tot_nuc_charge,
@@ -477,7 +478,10 @@ Cbjp
 ! and other external CI solvers.
       if (.not. any([DoNECI, Do_CC_CI, DumpOnly,
      &              doDMRG, doBlockDMRG])) then
-        CALL CP_ONE_INT(X0,ITU)
+        INT1(1:ITU) = X0(1:ITU)
+        INT1(ITU+1:) = Zero
+        INT1O(1:ITU) = X0(1:ITU)
+        INT1O(ITU+1:) = Zero
       endif
 
       Call mma_deallocate(X1)

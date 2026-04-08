@@ -99,7 +99,7 @@ struct mentry {
   INT offset;        /* offset relative to Fortran  xWrkSpc arrays */
   INT len;           /* len = numel*dsize(datatype)                */
   INT atime;         /* an unique ID based on the creation time    */
-  void *addr;        /* memory adress returned by malloc           */
+  void *addr;        /* memory address returned by malloc          */
 };
 
 typedef struct mstat mstat;
@@ -432,7 +432,7 @@ INT memop(char *op) {
 /*-----------------------------------------------------------------------------*/
 void dump_mentry(char *tag, mentry *curr) {
   if (curr) {
-    printf("MA_DUMP_INFO < %s > name=%s, datatype=%s, offset=%ld (adress=%p), len=%ld\n", tag, curr->elbl, curr->etyp,
+    printf("MA_DUMP_INFO < %s > name=%s, datatype=%s, offset=%ld (address=%p), len=%ld\n", tag, curr->elbl, curr->etyp,
            LIFMT(curr->offset), curr->addr, LIFMT(curr->len));
   } else {
     printf("MA_DUMP_INFO < %s >  EMPTY RECORD!\n", tag);
@@ -694,10 +694,10 @@ INT del_mentry(mstat *MM, mentry mentries[], mentry *tmp, INT i) {
 
   wrkspc = tgt->addr;
 # ifdef _DEBUGPRINT_MEM_
-  printf("Deallocating memory %s at adress %p\n", tgt->elbl, wrkspc);
+  printf("Deallocating memory %s at address %p\n", tgt->elbl, wrkspc);
 # endif
 
-  //    printf("Deallocating memory %s at adress %p\n",tgt->elbl, wrkspc);
+  //    printf("Deallocating memory %s at address %p\n",tgt->elbl, wrkspc);
   //    printf("Could you see me? - 00\n"); //yma
 
   if (tgt->len)

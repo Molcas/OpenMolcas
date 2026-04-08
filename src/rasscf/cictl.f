@@ -63,13 +63,12 @@
       use RASWfn, only: wfn_dens, wfn_spindens, wfn_cicoef
 #endif
       use csfbas, only: CONF
-      use glbbas, only: CFTP
       use casvb_global, only: ifvb
       use CMS, only: iCMSOpt,CMSGiveOpt
       use rctfld_module, only: lRF
-      use rasscf_lucia, only: PAtmp, Pscr, CIVEC, PTmp, DStmp, Dtmp
+      use lucia_data, only: CFTP, PAtmp, Pscr, PTmp, DStmp, Dtmp
 #ifdef _DMRG_
-      use rasscf_lucia, only: RF1, RF2
+      use lucia_data, only: RF1, RF2
       use RASWfn, only: wfn_dmrg_checkpoint
       use input_ras, only: KeyCION
 #endif
@@ -137,7 +136,7 @@
       real*8 rdum(1)
       Real*8, Allocatable:: CIV(:), RCT_F(:), RCT_FS(:), RCT(:),
      &                      RCT_S(:), P2MO(:), TmpDS(:), TmpD1S(:),
-     &                      RF(:), Temp(:)
+     &                      RF(:), Temp(:), CIVec(:)
       Integer, Allocatable:: kCnf(:)
       Integer LuVecDet
       Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal
@@ -330,7 +329,7 @@ C Local print level (if any)
                  Call mma_allocate(PAtmp,NACPR2,Label='PAtmp')
                  Call mma_allocate(Pscr,NACPR2,Label='Pscr')
                  CALL Lucia_Util('Densi',
-     &                           CI_Vector=CIVEC(:))
+     &                           CI_Vector=CIVEC)
                  If (SGS%IFRAS.GT.2 .OR. iDoGAS) Then
                    Call CISX(IDXSX,Dtmp,DStmp,Ptmp,PAtmp,Pscr)
                  End If
@@ -611,7 +610,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 
          If ( NAC.ge.1 ) Then
            if(.not.(doDMRG)) CALL Lucia_Util('Densi',
-     &                                       CI_Vector=CIVEC(:))
+     &                                       CI_Vector=CIVEC)
            IF ( IPRLEV.GE.INSANE  ) THEN
              write(6,*) 'At root number =', jroot
              CALL TRIPRT('D after lucia  ',' ',Dtmp,NAC)
@@ -715,7 +714,7 @@ C and for now don't bother with 2-electron active density matrices
 * compute density matrices
         If ( NAC.ge.1 ) Then
            CALL Lucia_Util('Densi',
-     &                     CI_Vector=CIVEC(:))
+     &                     CI_Vector=CIVEC)
            IF ( IPRLEV.GE.INSANE  ) THEN
              CALL TRIPRT('D after lucia',' ',Dtmp,NAC)
              CALL TRIPRT('DS after lucia',' ',DStmp,NAC)

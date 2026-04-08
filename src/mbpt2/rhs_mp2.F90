@@ -39,7 +39,7 @@ LIADOUT = 3*36*36
 
 call iDAFILE(LuIntM,2,IADOUT,LIADOUT,IAD13)
 
-! Sort startadresses for Virtual and occupied orbital
+! Sort start addresses for Virtual and occupied orbital
 ! energies in nice vectors
 
 nVirTot = 0

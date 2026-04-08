@@ -71,7 +71,6 @@ set (sources
      thetset.F90
      tpqset.F90
      twoct.F90
-     vecsum_cpfmcpf.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)
