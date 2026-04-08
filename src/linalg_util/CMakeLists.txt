@@ -11,7 +11,7 @@
 
 set (sources
      blockdiagonal_matrices.F90
-     dgeadd.F90
+     dgeacc.F90
      dgesub.F90
      dgetmi.F90
      dgetmo.F90

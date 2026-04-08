@@ -154,9 +154,8 @@ c
         End Do
        End Do
 
-       Call DGEADD(Fock(ipMat(is,js)+nbas(is)*nish(js)),nBas(is),'N',
-     &              QB(ipMatba(is,js)),nBas(is),'N',
-     %              Fock(ipMat(is,js)+nbas(is)*nish(js)),nBas(is),
+       Call DGEACC(Fock(ipMat(is,js)+nbas(is)*nish(js)),nBas(is),
+     &              QB(ipMatba(is,js)),nBas(is),
      &              nBas(is),nAsh(js))
        Call DGESUB(Fock(ipMat(is,js)+nish(is)),nBas(is),'N',
      &              QA(ipMatba(js,is)),nBas(js),'T',
