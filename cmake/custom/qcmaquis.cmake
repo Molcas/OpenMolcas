@@ -283,6 +283,8 @@ if (NOT MAQUIS_DMRG_FOUND) # Does the opposite work?
                        CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
                        LIST_SEPARATOR '\'
                        INSTALL_DIR ${LOCAL_QCM_INSTALL_PATH}
+                       UPDATE_COMMAND ""
+
   )
 
   ExternalProject_Add_Step (${EP_PROJECT} update_hash
