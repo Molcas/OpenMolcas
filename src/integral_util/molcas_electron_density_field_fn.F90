@@ -63,6 +63,8 @@ call mma_deallocate(D1ao)
 
 Molcas_ELECTRON_DENSITY_FIELD_FN = EFP_RESULT_SUCCESS
 
+end function Molcas_ELECTRON_DENSITY_FIELD_FN
+
 #elif ! defined (EMPTY_FILES)
 
 ! Some compilers do not like empty files

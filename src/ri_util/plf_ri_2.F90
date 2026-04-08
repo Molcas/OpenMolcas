@@ -51,8 +51,8 @@ real(kind=wp), external :: ddot_
 
 ! Note on the ordering of the basis functions (valence or auxiliary).
 !
-! 1) The basis functions are first order according to the order in which the basis sets appear in the input.
-!    Hence, for example, for a hetrodiatomic molecule the order of the basis set for the centers A and B occurs
+! 1) The basis functions are first ordered according to the order in which the basis sets appear in the input.
+!    Hence, for example, for a heterodiatomic molecule the order of the basis sets for the centers A and B occurs
 !    according to which center is first in the input.
 ! 2) For each basis set the basis functions are ordered in shells with fixed total angular momentum.
 !    These shells are given running shell indices, which are used to identify a particular angular shell, iS.
@@ -73,26 +73,26 @@ write(u6,*) ' Dot=',r2
 call RecPrt(' In Plf_RI_2: AOInt',' ',AOInt,ijkl,jCmp*lCmp)
 #endif
 
-! If the code can not handle all the contracted function at the same time the loop over them are partitioned.
+! If the code cannot handle all the contracted functions at the same time the loop over them is partitioned.
 ! iAOst(:) list the starting index -- if no partitioning the value is 0.
 iAOstj = iAOst(2)
 iAOstl = iAOst(4)
 
-! This is a index to be use in iAOtSO(:,:). This table list the canonical index of the first basis function with a
+! This is an index to be used in iAOtSO(:,:). This table lists the canonical index of the first basis function with a
 ! particular angular momentum element. As the basis is ordered the next contracted basis function with the same m
 ! value simply increment this value by one.
 !
-! NOTE: the auxiliary functions have canonical indicies starting after the valence functions!
+! NOTE: the auxiliary functions have canonical indices starting after the valence functions!
 
 iAOj = iAO(2)
 iAOl = iAO(4)
 
 iOff = nBas(0) ! Number of valence functions.
 
-iOffA_ = iOffA(1)  ! Offset to where the subsection of the A matrix starts for the jS shell starts
-mm_ =    iOffA(4)  ! mm_ (iOffA(4)): is the number of basis functions up to and including shell jS
-! nn:  the number of basis functions before shell jS
-nn = mm_-iOffA(2)  ! iOffA(2) is the number of basis functions of shell jS
+iOffA_ = iOffA(1)  ! Offset to where the subsection of the A matrix for the jS shell starts
+mm_ = iOffA(4)     ! mm_ (iOffA(4)): is the number of basis functions up to and including shell jS
+nn = mm_-iOffA(2)  ! nn:  the number of basis functions before shell jS
+                   ! iOffA(2) is the number of basis functions of shell jS
 mx = nTri_Elem(nn) ! mx: is the number of elements in A before the block belonging to shell jS
 
 #ifdef _DEBUGPRINT_
@@ -114,9 +114,9 @@ do i2=1,jCmp
       do jSOj=jSO,jSO+jBas-1
 
         iSO = iSO2Ind(jSOj)+nn
-        ij = iTri(iSO,lSOl) - mx + iOffA_
+        ij = iTri(iSO,lSOl)-mx+iOffA_
 
-        nijkl = nijkl + 1
+        nijkl = nijkl+1
         TInt(ij) = AOint(nijkl,i2,i4)
 
       end do

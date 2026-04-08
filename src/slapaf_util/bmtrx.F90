@@ -66,7 +66,7 @@ write(u6,*) ' Last structure from iteration',nIter
 call mma_allocate(TR,18*nsAtom,Label='TR')
 TR(:) = Zero
 
-call TRPGen(nDimBC,nsAtom,Cx(1,1,iRef),mTR,.false.,TR)
+call TRPGen(nDimBC,nsAtom,Cx(:,:,iRef),mTR,.false.,TR)
 
 call mma_allocate(TRnew,3*nsAtom*mTR,Label='TRNew')
 TRNew(:) = Zero

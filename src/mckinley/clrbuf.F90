@@ -58,7 +58,7 @@ call Timing(dum1,Time,dum2,dum3)
 ExFac = One
 
 if (ltri) then
-  if (nIrrep/=1) then
+  if (nIrrep /= 1) then
     !------------------------------------------------------------*
     !
     !   Get the size of the work area that should be contracted
@@ -154,7 +154,7 @@ if (ltri) then
       if (Indx(iCar,iCent) > 0) then
         iGr = Indx(iCar,iCent)-1
         ipFin = 1+iGr*nijkl*nabcd
-        if (nIrrep/=1) then
+        if (nIrrep /= 1) then
           call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3,ij4,Dkl1, &
                      mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk,nDjk,jk1, &
                      jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,rFinal(ipFin),nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert, &
@@ -188,7 +188,7 @@ if (ltri) then
           end if
         end do
 
-        if (nIrrep/=1) then
+        if (nIrrep /= 1) then
           call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3,ij4,Dkl1, &
                      mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk,nDjk,jk1, &
                      jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,Temp,nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert,iuvwx(iCent), &

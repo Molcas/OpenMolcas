@@ -192,7 +192,7 @@ do iS=1,mSkal
 
     nSO = 1
 
-    ! Decide on the partioning of the shells based on
+    ! Decide on the partitioning of the shells based on
     ! on the available memory and the requested memory
 
     ! Now do a dirty trick to avoid splitting of the first

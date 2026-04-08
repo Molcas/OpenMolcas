@@ -16,7 +16,7 @@
 subroutine PSOAO2(nSO,MemM,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemFck,nFT,MemFin,MemBuffer,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
-!  Object: to partion the SO and AO block. It will go to some length   *
+!  Object: to partition the SO and AO block. It will go to some length *
 !          before it will start and break up the SO block. This will   *
 !          reduce the total flop count. However, as we are breaking up *
 !          the AO block this will affect the vectorization. Hence, at  *

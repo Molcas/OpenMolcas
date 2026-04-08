@@ -35,7 +35,6 @@ set (sources
      dsq.F90
      dvcprt.F90
      dwrmck.F90
-     efp_on.F90
      expand_coor.F90
      fcidump_output.F90
      fix_symmetry.F90

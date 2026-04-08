@@ -301,13 +301,12 @@ do lDCRR=0,nDCRR-1
 
       call Timing(dum1,Time,dum2,dum3)
       CpuStat(nTwoDens) = CpuStat(nTwoDens)+Time
-      !------------------------------------------------------------*
+      !----------------------------------------------------------------*
       !
-      ! Fix the control matrixes for derivatives
-      ! and try to use translation invariance as
-      ! efficient as possible.
+      ! Fix the control matrices for derivatives and try to use
+      ! translation invariance as efficiently as possible.
       !
-      !------------------------------------------------------------*
+      !----------------------------------------------------------------*
       JfHss(:,:,:,:) = IfHss
       JfGrd(:,:) = IfGrd
       ifg(:) = .true.

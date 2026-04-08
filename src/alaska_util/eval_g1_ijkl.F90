@@ -13,7 +13,8 @@
 !***********************************************************************
 
 subroutine Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
-use Definitions, only: wp, iwp
+
+use Index_Functions, only: nTri_Elem
 use k2_arrays, only: Create_BraKet, Destroy_BraKet, Sew_Scr
 use iSD_data, only: iSD, nSD
 use stdalloc, only: mma_allocate, mma_maxDBLE
@@ -26,6 +27,7 @@ use Constants, only: Zero
 use setup, only: nSkal=>mSkal
 use RICD_Info, only: RI_3C, RI_2C
 use eval_arrays, only: PSO, Scr
+use Definitions, only: wp, iwp
 
 Implicit None
 integer(kind=iwp), intent(In):: iS, jS, kS, lS, nGrad
@@ -44,8 +46,8 @@ logical(kind=iwp), external :: EQ
 real(kind=wp) :: Coor(3,4), PMax
 
 PMax = Zero
-nPairs = nSkal*(nSkal+1)/2
-nQuad = nPairs*(nPairs+1)/2
+nPairs = nTri_Elem(nSkal)
+nQuad = nTri_Elem(nPairs)
 
 if (.not. allocated(Sew_Scr)) then
   call mma_MaxDBLE(MemMax)
@@ -54,7 +56,6 @@ if (.not. allocated(Sew_Scr)) then
 else
   MemMax = size(Sew_Scr)
 end if
-
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
@@ -71,19 +72,19 @@ if (No_batch) Return
 call Coor_Setup(iSD4,nSD,Coor)
 ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
 ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
-if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) Return
+if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) return
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
-!
+
 call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 
 !                                                                *
-!*****************************************************************
+!***********************************************************************
 !                                                                *
-! Decide on the partioning of the shells based on the
+! Decide on the partitioning of the shells based on the
 ! available memory and the requested memory.
 !
 ! Now check if all blocks can be computed and stored at once.
@@ -101,7 +102,7 @@ kBsInc= iSD4(4,3)
 lBsInc= iSD4(4,4)
 
 !                                                                *
-!*****************************************************************
+!***********************************************************************
 !                                                                *
 ! Scramble arrays (follow angular index)
 
@@ -111,7 +112,7 @@ do iCar=1,3
     if (RI_3C .and. (iSh == 1)) then
        JfGrad(iCar,iSh) = .false.
        JndGrd(iCar,iSh) = 0
-    Else if (RI_2C .and. ((iSh == 1) .or. (iSh == 3))) then
+    else if (RI_2C .and. ((iSh == 1) .or. (iSh == 3))) then
       JfGrad(iCar,iSh) = .false.
     else if (btest(iSD4(15,iSh),iCar-1)) then
       JfGrad(iCar,iSh) = .true.
@@ -149,7 +150,7 @@ do iBasAO=1,iBasi,iBsInc
         ! kappa = k, lambda = l
 
         call PGet0(nijkl,PSO,nSO,Scr,Size(Scr),nQuad,PMax,iSD4)
-        if (A_Int*PMax < CutInt) Return
+        if (A_Int*PMax < CutInt) return
 
         ! Compute gradients of shell quadruplet
 
@@ -169,4 +170,4 @@ Scr => Null()
 
 call Destroy_BraKet()
 
-End subroutine Eval_g1_ijkl
+end subroutine Eval_g1_ijkl

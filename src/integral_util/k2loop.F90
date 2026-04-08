@@ -360,6 +360,6 @@ do lDCRR=0,nDCRR-1
 # endif
 end do ! lDCRR
 
-Dij=>Null()
+Dij=> Null()
 
 end subroutine k2Loop

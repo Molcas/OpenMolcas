@@ -69,7 +69,7 @@ private
 type k2_type
   integer(kind=iwp) :: nZeta = 0, ijCmp = 0, nHm = 0
   integer(kind=iwp), pointer :: IndZ(:) => null()
-  real(kind=wp) :: EstI = Zero, ZetaM = Zero, abMax = Zero, abMaxD = Zero, abConMax=Zero
+  real(kind=wp) :: EstI = Zero, ZetaM = Zero, abMax = Zero, abMaxD = Zero, abConMax = Zero
   real(kind=wp), pointer :: Zeta(:) => null(), Kappa(:) => null(), PCoor(:,:) => null(), ZInv(:) => null(), ab(:) => null(), &
                             abG(:,:) => null(), abCon(:) => null(), Alpha(:) => null(), Beta(:) => null(), HrrMtrx(:,:) => null()
 end type k2_type

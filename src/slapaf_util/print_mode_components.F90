@@ -58,8 +58,8 @@ real(kind=wp) :: Bk_Beta, Bk_Beta_Disp, Bk_CnstWght, Bk_Delta, Bk_dMEPStep, Bk_G
 logical(kind=iwp) :: Bk_Analytic_Hessian, Bk_ApproxNADC, Bk_Baker, Bk_BSet, Bk_CallLast, Bk_Cubic, Bk_CurviLinear, &
                      Bk_DDV_Schlegel, Bk_EDiffZero, Bk_eMEPtest, Bk_FindTS, Bk_HrmFrq_Show, Bk_HSet, Bk_HWRS, Bk_isFalcon, &
                      Bk_lCtoF, Bk_lDoubleIso, Bk_Line_Search, Bk_lNmHss, Bk_lOld, Bk_lOld_Implicit, Bk_lSoft, Bk_lTherm, Bk_MEP, &
-                     Bk_MEPCons, Bk_NADC, Bk_Redundant, Bk_Request_Alaska, Bk_Request_RASSI, Bk_rMEP, Bk_SlStop, Bk_Track, &
-                     Bk_TSConstraints, Bk_TwoRunFiles, Bk_User_Def, Bk_VarR, Bk_VarT, Bk_WeightedConstraints, Found
+                     Bk_MEPCons, Bk_NADC, Bk_Numerical, Bk_Redundant, Bk_Request_Alaska, Bk_Request_RASSI, Bk_rMEP, Bk_SlStop, &
+                     Bk_Track, Bk_TSConstraints, Bk_TwoRunFiles, Bk_User_Def, Bk_VarR, Bk_VarT, Bk_WeightedConstraints, Found
 character(len=180) :: Line
 character(len=16) :: StdIn
 character(len=10) :: Bk_MEP_Type
@@ -349,6 +349,7 @@ Bk_iRow = iRow
 Bk_iRow_c = iRow_c
 Bk_nFix = nFix
 Bk_iInt = iInt
+Bk_Numerical = Numerical
 Bk_VarR = VarR
 Bk_VarT = VarT
 
@@ -604,6 +605,7 @@ iRow = Bk_iRow
 iRow_c = Bk_iRow_c
 nFix = Bk_nFix
 iInt = Bk_iInt
+Numerical = Bk_Numerical
 VarR = Bk_VarR
 VarT = Bk_VarT
 

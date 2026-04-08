@@ -108,7 +108,7 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
       IFRST = 1
       JFRST = 1
 *
-CSVC: determine optimum number of partions as the lowest multiple of
+CSVC: determine optimum number of partitions as the lowest multiple of
 C     NPROCS that satisfies a block size smaller than MAXI:
       NPART=0
       DO

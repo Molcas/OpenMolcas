@@ -34,12 +34,11 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep), nV_t(1:nIrrep)
+integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(nIrrep), nBas(nIrrep), nV_t(nIrrep)
 logical(kind=iwp), intent(in) :: SubAux
-integer(kind=iwp) :: i, iAdrQ, id, iOffQ1, iOpt, iost, ip_B, ip_B2, iSym, j, jSym, jVec, kSym, kVec, l_A_ht, l_A_t, l_B_t, l_Q, &
-                     lRealName, Lu_Q, LUGAMMA, LUAPT2, lVec, MaxMem, nBas2, nBasTri, NumCVt, nLR, nLRb(8), NumAux, NumCV, &
-                     NumVecJ, NumVecK, nVec, &
-                     NPROCS, myRank, nSkal2_, nCalAO, iAO, jAO, iAOstart, iAOlast, nCalAO_tot
+integer(kind=iwp) :: i, iAdrQ, iAO, iAOlast, iAOstart, id, iOffQ1, iOpt, iost, ip_B, ip_B2, iSym, j, jAO, jSym, jVec, kSym, kVec, &
+                     l_A_ht, l_A_t, l_B_t, l_Q, lRealName, Lu_Q, LUAPT2, LUGAMMA, lVec, MaxMem, myRank, nBas2, nBasTri, nCalAO, &
+                     nCalAO_tot, nLR, nLRb(8), NPROCS, nSkal2_, NumAux, NumCV, NumCVt, NumVecJ, NumVecK, nVec
 real(kind=wp) :: aaa, Fac, TotCPU0, TotCPU1, TotWall0, TotWall1
 logical(kind=iwp) :: is_error, Found
 character(len=4096) :: RealName
@@ -48,14 +47,24 @@ integer(kind=iwp), allocatable :: AOList(:,:), IWRK(:,:), LBList(:), nList_AO(:)
 real(kind=wp), allocatable :: A_ht(:), A_t(:), B_t(:), QVec(:)
 character(len=*), parameter :: SECNAM = 'Mult_with_Q_CASPT2'
 integer(kind=iwp), external :: IsFreeUnit
-
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-  logical bStat
-  logical(kind=iwp) :: use_GA
-  integer(kind=iwp) :: lg_V1, lg_V2, iLo1, iHi1, jLo1, jHi1, mV1, iLo2, iHi2, jLo2, jHi2, mV2, nDim
-  integer(kind=iwp), allocatable :: nList(:)
+logical(kind=iwp) :: bStat
+integer(kind=iwp) :: iHi1, iHi2, iLo1, iLo2, jHi1, jHi2, jLo1, jLo2, lg_V1, lg_V2, mV1, mV2, nDim
+integer(kind=iwp), allocatable :: nList(:)
+#endif
+
+#ifdef _MOLCAS_MPP_
+if (is_real_par()) then
+  NPROCS = GA_nNodes()
+  myRank = GA_NodeID()
+else
+#endif
+  NPROCS = 1
+  myRank = 0
+#ifdef _MOLCAS_MPP_
+end if
 #endif
 
 !                                                                      *
@@ -83,8 +92,8 @@ do iSym=1,nSym
 
   nBas2 = nLRb(iSym)
   !write(u6,*) 'nBas2 = ',nBas2
-  NumCV  = NumCho(iSym) ! local # of vecs in parallel run
-  NumCVt = nV_t(iSym)   ! total # of vecs
+  NumCV = NumCho(iSym) ! local # of vecs in parallel run
+  NumCVt = nV_t(iSym)  ! total # of vecs
   NumAux = nBas_Aux(iSym)-1
   if (SubAux) NumAux = nBas_Aux(iSym)-1
 
@@ -152,18 +161,6 @@ do iSym=1,nSym
   !*********************************************************************
   !                                                                    *
   ! Construct AO list for all nodes (should be ouside the symmetry loop)
-#ifdef _MOLCAS_MPP_
-  if (is_real_par()) then
-    NPROCS = GA_nNodes()
-    myRank = GA_NodeID()
-  else
-    NPROCS = 1
-    myRank = 0
-  end if
-#else
-  NPROCS = 1
-  myRank = 0
-#endif
 
   call mma_allocate(nList_Shell,NPROCS,Label='nList_Shell')
   call mma_allocate(nList_AO,NPROCS,Label='nList_AO')
@@ -172,21 +169,21 @@ do iSym=1,nSym
   nList_AO = 0
   AOList = 0
 
-  !! On exit, we will have the offset array of Shell and AO.
-  !! nCalAO is the number of AOs of the present rank,
-  !! and AOList is the AO index to be processed in the present rank
+  ! On exit, we will have the offset array of Shell and AO.
+  ! nCalAO is the number of AOs of the present rank,
+  ! and AOList is the AO index to be processed in the present rank
   nCalAO = 0
   call construct_AOList()
 
   call mma_allocate(IWRK,2,nCalAO,Label='IWRK')
-  IWRK(1:2,1:nCalAO) = AOList(1:2,1:nCalAO)
-  AOList = 0
-  AOList(1:2,iAOstart:iAOlast) = IWRK(1:2,1:nCalAO)
+  IWRK(:,:) = AOList(:,1:nCalAO)
+  AOList(:,:) = 0
+  AOList(:,iAOstart:iAOlast) = IWRK(:,:)
   call mma_deallocate(IWRK)
-#ifdef _MOLCAS_MPP_
+# ifdef _MOLCAS_MPP_
   if (is_real_par()) call GAIGOP(AOList,2*nCalAO_tot,'+')
-#endif
-  !! nCalAO will be the number of AOs to be computed in all nodes
+# endif
+  ! nCalAO will be the number of AOs to be computed in all nodes
   nCalAO = nCalAO_tot
   call mma_maxDBLE(MaxMem)
   MaxMem = 9*(MaxMem/10)
@@ -202,33 +199,30 @@ do iSym=1,nSym
   ip_B = 1+l_B_t
   ip_B2 = ip_B+l_B_t
 
-#ifdef _MOLCAS_MPP_
-  use_GA = .false.
+# ifdef _MOLCAS_MPP_
   if (is_real_par()) then
-    !! If GA is used, we do not use much replicated memory
+    ! If GA is used, we do not use much replicated memory
     call mma_deallocate(B_t)
     call mma_allocate(B_t,max(nBas2,NumAux),Label='B_t')
 
-    !! How to inquire the available GA memory?
-    !! original vector is vertial stripe
+    ! How to inquire the available GA memory?
+    ! original vector is vertial stripe
     call mma_allocate(nList,NPROCS,Label='nList')
     nList = 0
     nList(myRank+1) = NumCho(iSym)
     call GAIGOP(nList,NPROCS,'+')
     kVec = 1
-    do i = 1, NPROCS
+    do i=1,NPROCS
       lVec = nList(i)
       nList(i) = kVec
-      kVec = kVec + lVec
+      kVec = kVec+lVec
     end do
     bStat = GA_CREATE_IRREG(MT_DBL,nCalAO,NumCVt,'WRK1',[1],1,NLIST,NPROCS,LG_V1)
-    !! resultant vector is horizontal stripe
-    !! This global array is constructed so that each local memory corresponds to the AOs processed on each node
+    ! resultant vector is horizontal stripe
+    ! This global array is constructed so that each local memory corresponds to the AOs processed on each node
     bStat = bStat .and. GA_CREATE_IRREG(MT_DBL,nCalAO,NumCVt,'WRK2',nList_AO,NPROCS,[1],1,LG_V2)
 
-    use_GA = bStat !! This does not mean anything, actually
-
-    if (.not.use_GA) then
+    if (.not. bStat) then
       bStat = GA_destroy(lg_V1)
       bStat = GA_destroy(lg_V2)
       call mma_deallocate(B_t)
@@ -236,7 +230,7 @@ do iSym=1,nSym
     end if
     call mma_deallocate(nList)
   end if
-#endif
+# endif
 
   LuGAMMA = IsFreeUnit(65)
   call PrgmTranslate('GAMMA',RealName,lRealName)
@@ -249,17 +243,17 @@ do iSym=1,nSym
   ! The B-vectors should be read one batch at the time
   ! --------------------------------------------------
 
-#ifdef _MOLCAS_MPP_
-  !! Cholesky -> Auxiliary transformation using distributed arrays
+# ifdef _MOLCAS_MPP_
+  ! Cholesky -> Auxiliary transformation using distributed arrays
   if (is_real_par()) then
-    !! with sufficient (how to know?) distributed memory, use GA
-    !! lg_V1 is used as a working space, but probably inappropriate
+    ! with sufficient (how to know?) distributed memory, use GA
+    ! lg_V1 is used as a working space, but probably inappropriate
     call GA_Distribution(lg_V1,myRank,iLo1,iHi1,jLo1,jHi1)
     call GA_Access(lg_V1,iLo1,iHi1,jLo1,jHi1,mV1,nDim)
-    do lVec = 1, NumCV
-      read(Unit=LuGAMMA,Rec=lVec) B_t(1:nBas2)
+    do lVec=1,NumCV
+      read(LuGAMMA,rec=lVec) B_t(1:nBas2)
       ! symmetrize (mu nu | P)
-      do i = 1, nCalAO
+      do i=1,nCalAO
         iAO = AOList(1,i)
         jAO = AOList(2,i)
         aaa = B_t(iAO+nBas(1)*(jAO-1))+B_t(jAO+nBas(1)*(iAO-1))
@@ -267,36 +261,34 @@ do iSym=1,nSym
       end do
     end do
 
-    !! Put in lg_V2 (horizontal)
+    ! Put in lg_V2 (horizontal)
     call GA_Put(lg_V2,iLo1,iHi1,jLo1,jHi1,DBL_MB(mV1),nDim)
-    !! Destroy the vertical GA
+    ! Destroy the vertical GA
     call GA_Release(lg_V1,iLo1,iHi1,jLo1,jHi1)
     bStat = GA_destroy(lg_V1)
-    !! Remake a horizontal GA, it is used as a resultant array
+    ! Remake a horizontal GA, it is used as a resultant array
     bStat = GA_CREATE_IRREG(MT_DBL,nCalAO,NumAux,'WRK1',nList_AO,NPROCS,[1],1,lg_V1)
 
-    !! DGEMM can be done locally
+    ! DGEMM can be done locally
     call GA_Distribution(lg_V1,myRank,iLo1,iHi1,jLo1,jHi1)
     call GA_Access(lg_V1,iLo1,iHi1,jLo1,jHi1,mV1,nDim)
     call GA_Distribution(lg_V2,myRank,iLo2,iHi2,jLo2,jHi2)
     call GA_Access(lg_V2,iLo2,iHi2,jLo2,jHi2,mV2,nDim)
-    ndim = iAOlast - iAOstart + 1 !! Number of AOs processed in this node
-    call DGEMM_('N','T',ndim,NumAux,NumCVt, &
-                0.5d+00,DBL_MB(mV2),ndim,QVec,NumAux, &
-                0.0d+00,DBL_MB(mV1),ndim)
+    ndim = iAOlast-iAOstart+1 ! Number of AOs processed in this node
+    call DGEMM_('N','T',ndim,NumAux,NumCVt,Half,DBL_MB(mV2),ndim,QVec,NumAux,Zero,DBL_MB(mV1),ndim)
     call GA_Release(lg_V2,iLo2,iHi2,jLo2,jHi2)
     bStat = GA_destroy(lg_V2)
 
-    !! Get the local chunk and write to disk
-    !! It is of course possible to avoid using disk
-    do jVec = 1, ndim
+    ! Get the local chunk and write to disk
+    ! It is of course possible to avoid using disk
+    do jVec=1,ndim
       call DCopy_(NumAux,DBL_MB(mV1+jVec-1),nDim,B_t,1)
-      write(unit=LuGAMMA2,rec=jVec) B_t(1:NumAux)
+      write(LuGAMMA2,rec=jVec) B_t(1:NumAux)
     end do
     call GA_Release(lg_V1,iLo1,iHi1,jLo1,jHi1)
     bStat = GA_destroy(lg_V1)
   else
-#endif
+# endif
     do kVec=1,NumAux,nVec
       NumVecK = min(nVec,NumAux-(kVec-1))
 
@@ -304,10 +296,10 @@ do iSym=1,nSym
         NumVecJ = min(nVec,NumCV-(jVec-1))
 
         do lVec=1,NumVecJ
-          read(Unit=LuGAMMA,Rec=jVec+lVec-1) B_t(ip_B2:ip_B2+nBas2-1)
+          read(LuGAMMA,rec=jVec+lVec-1) B_t(ip_B2:ip_B2+nBas2-1)
           ! symmetrize (mu nu | P)
           ! only the lower triangle part is used
-          do i = 1, nCalAO
+          do i=1,nCalAO
             iAO = AOList(1,i)
             jAO = AOList(2,i)
             aaa = B_t(ip_B2+iAO-1+nBas(1)*(jAO-1))+B_t(ip_B2+jAO-1+nBas(1)*(iAO-1))
@@ -318,30 +310,27 @@ do iSym=1,nSym
         Fac = Zero
         if (jVec /= 1) Fac = One
         iOffQ1 = kVec+NumAux*(jVec-1)
-        call dGemm_('N','T',nCalAO,NumVecK,NumVecJ,One,B_t,nCalAO,QVec(iOffQ1),NumAux,Fac,B_t(ip_B),nCalAO)
+        call dGemm_('N','T',nCalAO,NumVecK,NumVecJ,Half,B_t,nCalAO,QVec(iOffQ1),NumAux,Fac,B_t(ip_B),nCalAO)
       end do
-
-      ! Because scaling with 0.5 is omitted when symmetrized
-      call DScal_(nCalAO*NumVecK,Half,B_t(ip_B),1)
 
       ! (mu nu | P) --> (P | mu nu)
       ! For parallel, write only the density used in their nodes
       if (max(NumCV,NumAux) == nVec) then
-        do jVec = iAOstart, iAOlast
+        do jVec=iAOstart,iAOlast
           call DCopy_(NumAux,B_t(ip_B+jVec-1),nCalAO,B_t,1)
-          write(unit=LuGAMMA2,rec=jVec-iAOstart+1) B_t(1:NumAux)
+          write(LuGAMMA2,rec=jVec-iAOstart+1) B_t(1:NumAux)
         end do
       else
-        do jVec= iAOstart, iAOlast
-          if (kVec /= 1) read(unit=LuGAMMA2,rec=jVec-iAOstart+1) B_t(1:kVec-1)
+        do jVec=iAOstart,iAOlast
+          if (kVec /= 1) read(LuGAMMA2,rec=jVec-iAOstart+1) B_t(1:kVec-1)
           call DCopy_(NumVecK,B_t(ip_B+jVec-1),nCalAO,B_t(kVec),1)
-          write(unit=LuGAMMA2,rec=jVec-iAOstart+1) B_t(1:kVec+NumVecK-1)
+          write(LuGAMMA2,rec=jVec-iAOstart+1) B_t(1:kVec+NumVecK-1)
         end do
       end if
     end do
-#ifdef _MOLCAS_MPP_
+# ifdef _MOLCAS_MPP_
   end if
-#endif
+# endif
 
   call mma_deallocate(nList_Shell)
   call mma_deallocate(nList_AO)
@@ -365,22 +354,19 @@ call CWTime(TotCPU1,TotWall1)
 
 contains
 
-  subroutine construct_AOList()
+subroutine construct_AOList()
 
-  use Constants, only: Zero
-  use Definitions, only: wp, iwp
   use Index_Functions, only: iTri, nTri_Elem
   use Gateway_Info, only: CutInt
   use Gateway_global, only: force_part_c
   use iSD_data, only: iSD
   use RI_glob, only: DMLT, iBDsh, nJDens
   use SOAO_Info, only: iAOtSO
+  use Constants, only: Zero
+  use Definitions, only: wp, iwp
 
-  implicit none
-
-  integer(kind=iwp) :: i3, i4, ij, ijQ, ijS, ij_Shell, iiQ, iloc, iS, iSO, iSkal, iSym_, indS, ish, jloc, jS, jSkal, jjQ, jsh, &
-                       kAO, kAOk, kBas, kBsInc, kCmp, kS, klS, kSO, kSOk, &
-                       lAO, lAOl, lBas, lBsInc, lCmp, lMaxDens, lS, lSO, lSOl, &
+  integer(kind=iwp) :: i3, i4, iiQ, ij, ij_Shell, ijQ, ijS, iloc, indS, iS, ish, iSkal, iSO, iSym_, jjQ, jloc, jS, jsh, jSkal, &
+                       kAO, kAOk, kBas, kBsInc, kCmp, klS, kS, kSO, kSOk, lAO, lAOl, lBas, lBsInc, lCmp, lMaxDens, lS, lSO, lSOl, &
                        nij_Shell, nSkal, nSkal_Auxiliary, nSkal_Valence
   real(kind=wp) :: A_int_ij, Dm_ij, ThrAO, TMax_all, XDm_ii, XDm_ij, XDm_jj, XDm_max
   logical(kind=iwp) :: DoFock, DoGrad, Indexation
@@ -394,8 +380,8 @@ contains
   call Set_Basis_Mode('Valence')
   call Nr_Shells(nSkal_Valence)
   call Set_Basis_Mode('WithAuxiliary')
-! Call Nr_Shells(nSkal)
-! nSkal = nSkal_Valence
+  !call Nr_Shells(nSkal)
+  !nSkal = nSkal_Valence
   call SetUp_iSD()
 
   Indexation = .false.
@@ -404,7 +390,7 @@ contains
   ThrAO = Zero
   call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 
-! nSkal_Valence = nSkal-nSkal_Auxiliary
+  !nSkal_Valence = nSkal-nSkal_Auxiliary
   call mma_allocate(TMax_Valence,nSkal_Valence,nSkal_Valence,Label='TMax_Valence')
 
   call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
@@ -419,14 +405,14 @@ contains
   end do
   call mma_deallocate(Tmp)
 
-! Calculate maximum density value for each shellpair
+  ! Calculate maximum density value for each shellpair
 
   lMaxDens = nTri_Elem(nSkal_Valence)
   call mma_allocate(MaxDens,lMaxDens,Label='MaxDens')
   MaxDens(:) = Zero
   do iSym_=0,nSym-1
     kS = 1+nSkal_Valence*iSym_ ! note diff wrt declaration of iBDsh
-!   do j=1,nBas(iSym_)
+    !do j=1,nBas(iSym_)
     do jloc=1,nBas(1)
       jsh = Cho_Irange(jloc,iBDsh(kS),nSkal_Valence,.true.)
       do iloc=1,jloc
@@ -450,7 +436,7 @@ contains
     iiQ = nTri_Elem(iSkal)
     XDm_ii = MaxDens(iiQ)
     do jSkal=1,iSkal
-      indS = indS + 1
+      indS = indS+1
       jjQ = nTri_Elem(jSkal)
       XDm_jj = MaxDens(jjQ)
       ijQ = iTri(iSkal,jSkal)
@@ -462,20 +448,20 @@ contains
           ij_Shell = ij_Shell+1
           iShij(1,ij_Shell) = iSkal
           iShij(2,ij_Shell) = jSkal
-! #     ifdef _DEBUGPRINT_
-!       write(u6,*) 'ij_Shell,iSkal,jSkal=',ij_Shell,iSkal,jSkal
-! #     endif
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'ij_Shell,iSkal,jSkal=',ij_Shell,iSkal,jSkal
+#         endif
         end if
       end if
     end do
   end do
   call mma_deallocate(MaxDens)
   call mma_deallocate(TMax_Valence)
-! write (*,*) "total pair = ", nskal_Valence*(nskal_Valence+1)/2
-! write (*,*) "actual pair= ", nij_shell
+  !write(u6,*) 'total pair = ',nTri_Elem(nSkal_Valence)
+  !write(u6,*) 'actual pair= ',nij_shell
 
-! call qpg_iArray('LBList',Found,nSkal2_)
-! write (*,*) "nSkal2_ = ", nSkal2_
+  !call qpg_iArray('LBList',Found,nSkal2_)
+  !write(u6,*) 'nSkal2_ = ',nSkal2_
   call mma_allocate(LBList,nSkal2_,Label='LBList')
   LBList = 0
   call Get_iArray('LBList',LBList,nSkal2_)
@@ -489,15 +475,15 @@ contains
 
     kS = iShij(1,klS)
     lS = iShij(2,klS)
-    indS = indS + 1
+    indS = indS+1
 
     kCmp = iSD(2,kS)
     kBas = iSD(3,kS)
-    kAO  = iSD(7,kS)
+    kAO = iSD(7,kS)
 
     lCmp = iSD(2,lS)
     lBas = iSD(3,lS)
-    lAO  = iSD(7,lS)
+    lAO = iSD(7,lS)
 
     if (force_part_c) then
       kBsInc = (kBas+1)/2
@@ -515,43 +501,43 @@ contains
           lSOl = lSO+lAOl
           do kAOk=0,min(kBsInc,kBas)-1
             kSOk = kSO+kAOk
-            nCalAO = nCalAO + 1
+            nCalAO = nCalAO+1
             AOList(1,nCalAO) = kSOk
             AOList(2,nCalAO) = lSOl
-!           write (*,*) ncalao,ksok,lsol
+            !write(u6,*) ncalao,ksok,lsol
           end do
         end do
       end do
     end do
   end do
 
-  !! Construct the offset array of shell and AO
+  ! Construct the offset array of shell and AO
   nList_Shell = 0
   nList_Shell(myRank+1) = indS
-#ifdef _MOLCAS_MPP_
+# ifdef _MOLCAS_MPP_
   if (is_real_par()) call GAIGOP(nList_Shell,NPROCS,'+')
-#endif
+# endif
   kS = 1
   nij_Shell = 0
-  do iloc = 1, NPROCS
+  do iloc=1,NPROCS
     lS = nList_Shell(iloc)
-    nij_Shell = nij_Shell + lS
+    nij_Shell = nij_Shell+lS
     nList_Shell(iloc) = kS
-    kS = kS + lS
+    kS = kS+lS
   end do
 
   nList_AO = 0
   nList_AO(myRank+1) = nCalAO
-#ifdef _MOLCAS_MPP_
+# ifdef _MOLCAS_MPP_
   if (is_real_par()) call GAIGOP(nList_AO,NPROCS,'+')
-#endif
+# endif
   kS = 1
   nij_Shell = 0
-  do iloc = 1, NPROCS
+  do iloc=1,NPROCS
     lS = nList_AO(iloc)
-    nij_Shell = nij_Shell + lS
+    nij_Shell = nij_Shell+lS
     nList_AO(iloc) = kS
-    kS = kS + lS
+    kS = kS+lS
   end do
   nCalAO_tot = kS-1
   iAOstart = nList_AO(myRank+1)
@@ -566,8 +552,6 @@ contains
   call Term_Ints()
   call Free_iSD()
 
-  return
-
-  end subroutine construct_AOList
+end subroutine construct_AOList
 
 end subroutine Mult_with_Q_CASPT2

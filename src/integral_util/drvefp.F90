@@ -19,7 +19,7 @@ use, intrinsic :: iso_c_binding, only: c_char, c_funloc, c_int, c_loc, c_ptr, c_
 use EFP_Module, only: Coor_Type, EFP_Coors, EFP_Instance, FRAG_Type, nEFP_FRAGMENTS
 use EFP, only: EFP_Add_Fragment, EFP_Add_Potential, EFP_Create, EFP_Get_Frag_Atom_Count, EFP_Prepare, &
                EFP_Set_Electron_Density_Field_FN, EFP_Set_Frag_Coordinates
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: First

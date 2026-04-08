@@ -68,7 +68,8 @@ C      r_J2au=2.29371049D+17 ! Convert joules to atomic units
         endif
 ************************************************************************
 *                                                                      *
-*      The Canonical partion function Q for indistinguishable molecules*
+*      The Canonical partition function Q for indistinguishable        *
+*      molecules                                                       *
 *                                                                      *
 *      is Q = q^N /N!, where N is the number of indistinguishable      *
 *                                                                      *
@@ -78,7 +79,7 @@ C      r_J2au=2.29371049D+17 ! Convert joules to atomic units
 *                                                                      *
 *      N = n * N_A (N_A is Avogrado's number) and the molecular        *
 *                                                                      *
-*      partion function is defined as q_m=q/n.                         *
+*      partition function is defined as q_m=q/n.                       *
 *                                                                      *
 *      We approximate q as follows                                     *
 *                                                                      *
@@ -141,7 +142,7 @@ C      r_J2au=2.29371049D+17 ! Convert joules to atomic units
        Write (6,*)
 *
 *------Iterate over vibrations, and compute the molecular
-*      partion functions of the vibrations
+*      partition functions of the vibrations
 *
        q_vib_Tot = One
        ZPVE  = Zero

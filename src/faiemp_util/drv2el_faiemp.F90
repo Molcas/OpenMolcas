@@ -25,6 +25,7 @@ subroutine Drv2El_FAIEMP()
 #ifdef _DEBUGPRINT_
 use k2_arrays, only: pDq, pFq
 #endif
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nBas_Frag, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
@@ -42,9 +43,9 @@ integer(kind=iwp) :: i, iCnt, iCnttp, iComp, iDpos, iFpos, iIrrep, ijS, iOpt, iR
 real(kind=wp) :: A_int, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TInt(nTInt), TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoGrad, EnergyWeight, Indexation, NoSkip
 character(len=8) :: Label
-real(kind=wp), allocatable, target :: Dens(:), Fock(:)
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: DMax(:,:), FragDensSO(:), OneHam(:), TMax(:,:)
+real(kind=wp), allocatable, target :: Dens(:), Fock(:)
 procedure(int_wrout) :: No_Routine
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -79,9 +80,9 @@ nBT = 0
 nBVT = 0
 do i=0,nIrrep-1
   nBas_Valence(i) = nBas(i)
-  nBVT = nBVT+nBas(i)*(nBas(i)+1)/2
+  nBVT = nBVT+nTri_Elem(nBas(i))
   nBas(i) = nBas(i)+nBas_Frag(i)
-  nBT = nBT+nBas(i)*(nBas(i)+1)/2
+  nBT = nBT+nTri_Elem(nBas(i))
 end do
 !                                                                      *
 !***********************************************************************
@@ -99,14 +100,14 @@ Fock(:) = Zero
 ! so allocate space for the largest possible density matrix
 maxDens = 0
 do iCnttp=1,nCnttp
-  if (dbsc(iCnttp)%nFragType > 0) maxDens = max(maxDens,dbsc(iCnttp)%nFragDens*(dbsc(iCnttp)%nFragDens+1)/2)
+  if (dbsc(iCnttp)%nFragType > 0) maxDens = max(maxDens,nTri_Elem(dbsc(iCnttp)%nFragDens))
 end do
 call mma_allocate(FragDensSO,maxDens,label='FragDSO')
 
 iDpos = 1 ! position in the total density matrix
 do iIrrep=0,nIrrep-1
   nBasC = nBas_Valence(iIrrep)
-  iDpos = iDpos+nBasC*(nBasC+1)/2
+  iDpos = iDpos+nTri_Elem(nBasC)
   mdc = 0
   do iCnttp=1,nCnttp
     if (dbsc(iCnttp)%nFragType <= 0) then
@@ -151,7 +152,7 @@ end do
 #ifdef _DEBUGPRINT_
 iFD = 0
 do iIrrep=0,nIrrep-1
-  nFD = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  nFD = nTri_Elem(nBas(iIrrep))
   call TriPrt('Combined density',' ',Dens(iFD+1:iFD+nFD),nBas(iIrrep))
   iFD = iFD+nFD
 end do
@@ -173,7 +174,7 @@ if (nIrrep == 1) then
 else
   iFD = 0
   do iIrrep=0,nIrrep-1
-    nFD = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    nFD = nTri_Elem(nBas(iIrrep))
     call TriPrt('Desymmetrized density',' ',pDq(iFD+1:iFD+nFD),nBas(iIrrep))
     iFD = iFD+nFD
   end do
@@ -215,7 +216,7 @@ call Shell_MxDens(Dens,DMax,nSkal)
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2,label='ij')
+call mma_allocate(Pair_Index,2,nTri_Elem(nSkal),label='ij')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
@@ -238,7 +239,6 @@ Int_PostProcess => No_Routine
 
 ijS = 1
 klS = 0
-
 
 do
   klS = klS+1
@@ -268,7 +268,7 @@ do
   end if
   NoSkip = NoSkip .and. (lS <= nSkal_Valence)
 
-  if (.NOT. NoSkip) Cycle
+  if (.not. NoSkip) cycle
 
   call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
@@ -279,9 +279,9 @@ do
   else
     iFD = 0
     do iIrrep=0,nIrrep-1
-      nFD = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      nFD = nTri_Elem(nBas(iIrrep))
       call TriPrt('updated Fock',' ',pFq(iFD+1:iFD+nFD),nBas(iIrrep))
-    iFD = iFD+nFD
+      iFD = iFD+nFD
     end do
   end if
 # endif
@@ -317,7 +317,7 @@ write(u6,'(a)') 'SO Integrals of type Frag2El Component 1'
 iFD = 0
 do iIrrep=0,nIrrep-1
   write(Line,'(1X,A,I1)') ' Diagonal Symmetry Block ',iIrrep+1
-  nFD = nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
+  nFD = nTri_Elem(nBas_Valence(iIrrep))
   call TriPrt(Line,' ',Fock(iFD+1:iFD+nFD),nBas_Valence(iIrrep))
   iFD = iFD+nFD
 end do
@@ -343,17 +343,17 @@ end if
 nOneHam = 1 ! counter in the OneHam matrices (small)
 nFock = 1   ! counter in the Fock matrices (larger)
 do iIrrep=0,nIrrep-1
-  nBVTi = nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
+  nBVTi = nTri_Elem(nBas_Valence(iIrrep))
   call daxpy_(nBVTi,One,Fock(nFock),1,OneHam(nOneHam),1)
   nOneHam = nOneHam+nBVTi
-  nFock = nFock+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  nFock = nFock+nTri_Elem(nBas(iIrrep))
 end do
 
 ! write out the results
 #ifdef _DEBUGPRINT_
 iFD = 0
 do iIrrep=0,nIrrep-1
-  nFD = nBas_Valence(iIrrep)*(nBas_Valence(iIrrep)+1)/2
+  nFD = nTri_Elem(nBas_Valence(iIrrep))
   call TriPrt('OneHam at end',' ',OneHam(iFD+1:iFD+nFD),nBas_Valence(iIrrep))
   iFD = iFD+nFD
 end do

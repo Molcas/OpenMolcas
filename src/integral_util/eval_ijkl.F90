@@ -138,16 +138,16 @@ if (nIrrep > 1) then
 else
   nSO = 0
 end if
-if (nIrrep>1 .and. nSO==0) return
+if ((nIrrep > 1) .and. (nSO == 0)) return
 nAO = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
-!
+
 call Coor_Setup(iSD4,nSD,Coor)
 call Int_Setup(Coor)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
-!
+
 call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 !                                                                      *
 !***********************************************************************

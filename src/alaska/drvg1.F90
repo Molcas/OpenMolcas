@@ -44,8 +44,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: i, iAng, ijMax, ijS, iOpt, iS, &
-                     j, jAng, jS,  kls, kS, lS, nHrrab, nij, nSkal
+integer(kind=iwp) :: i, iAng, ijMax, ijS, iOpt, iS, j, jAng, jS, kls, kS, lS, nHrrab, nij, nSkal
 real(kind=wp) :: A_int, Cnt, P_Eff, ThrAO, TMax_all, TskHi, TskLw
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, lDummy, Triangular
 character(len=8) :: Method_chk
@@ -186,10 +185,10 @@ do
   Cnt = TskLw
 
   Cnt = Cnt-One
-  klS=kls-1
+  klS = kls-1
   do
     Cnt = Cnt+One
-    if (Cnt-TskHi > 1.0e-10_wp) Exit
+    if (Cnt-TskHi > 1.0e-10_wp) exit
     klS = klS+1
     if (klS > ijS) then
       ijS = ijS+1
@@ -201,9 +200,9 @@ do
     lS = Pair_Index(2,klS)
 
     A_int = TMax(iS,jS)*TMax(kS,lS)
-    if (A_Int < CutInt) Cycle
+    if (A_Int < CutInt) cycle
 
-    Call Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
+    call Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
 
   end do
 
@@ -239,5 +238,6 @@ call Term_Ints()
 !                                                                      *
 call Free_iSD()
 
-Write (6,*) 'Exit Drvg1'
+write(6,*) 'Exit Drvg1'
+
 end subroutine Drvg1

@@ -31,8 +31,9 @@ use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, Init_Int_Options, PreSch, Thize, &
                        Quad_ijkl, W2Disc
+use Integral_interfaces, only: Int_PostProcess, int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Three, Eight
+use Constants, only: Zero, One, Three, Eight, Half
 use Definitions, only: wp, iwp
 
 implicit none
@@ -44,6 +45,7 @@ character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
+procedure(int_wrout) :: Integral_WrOut2
 logical(kind=iwp), external :: Rsv_GTList
 
 !                                                                      *
@@ -117,6 +119,7 @@ P_Eff = real(nij,kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Int_PostProcess => Integral_WrOut2
 Triangular = .true.
 call Init_TList(Triangular,P_Eff)
 call Init_PPList()
@@ -141,8 +144,8 @@ do
 
   ! Now do a quadruple loop over shells
 
-  ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
-  klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
+  ijS = int((One+sqrt(Eight*TskLw-Three))*Half)
+  klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)*Half)
   Quad_ijkl = TskLw
 
   Quad_ijkl = Quad_ijkl-One
@@ -160,19 +163,18 @@ do
     kS = Pair_Index(1,klS)
     lS = Pair_Index(2,klS)
 
-    ! Logic to avoid computing integrals in a mixed muonic and
-    ! electronic basis.
+    ! Logic to avoid computing integrals in a mixed muonic and electronic basis.
 
     iCnttp = iSD(13,iS)
     jCnttp = iSD(13,jS)
-    if (dbsc(iCnttp)%fMass /= dbsc(jCnttp)%fMass) Cycle
+    if (dbsc(iCnttp)%fMass /= dbsc(jCnttp)%fMass) cycle
     kCnttp = iSD(13,kS)
     lCnttp = iSD(13,lS)
-    if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) Cycle
+    if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) cycle
 
     S_Eff = real(ijS,kind=wp)
     T_Eff = real(klS,kind=wp)
-    ST_Eff = S_Eff*(S_Eff-One)/Two+T_Eff
+    ST_Eff = S_Eff*(S_Eff-One)*Half+T_Eff
     if (ST_Eff >= PP_Count) then
       write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff*100.0_wp,'% done so far.'
       call StatusLine('Seward: ',SLine)
@@ -180,7 +182,7 @@ do
     end if
 
     A_int = TMax(iS,jS)*TMax(kS,lS)
-    if (A_Int < CutInt) Cycle
+    if (A_Int < CutInt) cycle
 
     call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
@@ -210,5 +212,6 @@ call mma_deallocate(TMax)
 call Term_Ints()
 call Free_iSD()
 call Init_Int_Options()
+nullify(Int_PostProcess)
 
 end subroutine Drv2El

@@ -99,8 +99,8 @@ but additional keywords (:kword:`GRDT`) in the :program:`CASPT2` input block are
 precompute the necessary quantities used in :program:`MCLR` and :program:`alaska`.
 All quasi-degenerate variants of CASPT2 support the analytical gradients
 and NAC, as well as RASPT2. However, many of the features are available only
-in connection with the RI or CD approximation. Tests 430 through 439 and 442 cover most common scenarios
-for the use of the analytical gradients code, and we invite the user to
+in connection with the RI or CD approximation. Most common scenarios
+for the use of the analytical gradients code are covered in the tests, and we invite the user to
 have a look at them if they encounter difficulties in setting up the calculation.
 
 The CASPT2 method is based on second order perturbation theory. To be
@@ -694,9 +694,9 @@ Keywords
   However, using this keyword disables the calculation of the CSF term,
   resulting in either the non-adiabatic or inter-state coupling vector.
   It should be noted that employing this keyword slightly modifies the CI contribution,
-  due to the fact that the CI and CSF contributions cannot be fully separable in CASPT2, unlike in CASSCF.
+  due to the fact that the CI and CSF contributions cannot be fully separated in CASPT2, unlike in CASSCF.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NAC" APPEAR="CSF term" KIND="SINGLE" LEVEL="ADVANCED">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NOCSF" APPEAR="No CSF term" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: NOCSf <advanced>
               <HELP>
               Disable the calculation of the CSF term in the derivative coupling.

@@ -50,38 +50,38 @@ integer(kind=iwp), external :: MemSO2_P
 real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Work2(:), Work3(:), Work4(:), WorkX(:), Temp(:)
 
 PMax=Zero
-if (.not. allocated(Sew_Scr)) Then
+if (.not. allocated(Sew_Scr)) then
    call mma_MaxDBLE(MemMax)
    if (MemMax > 8000) MemMax = MemMax-8000
    call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 else
-   MemMax=Size(Sew_Scr)
+  MemMax = size(Sew_Scr)
 endif
 ipMOC = 1
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
-Call Coor_setup(iSD4,nSD,Coor)
+call Coor_setup(iSD4,nSD,Coor)
 !                                                                  *
-!*******************************************************************
+!***********************************************************************
 !                                                                  *
 ! The code is working in such away that the MO needs upper and lower
 ! triangular parts of ij kl but hessian needs only lower, check if the
 ! integralbatch is lower or upper!!
 
-lTri = iTri(iS,jS) >= iTri(kS,lS)
-if ((.not. lTri) .and. (nMethod /= RASSCF)) Return
+lTri = (iTri(iS,jS) >= iTri(kS,lS))
+if ((.not. lTri) .and. (nMethod /= RASSCF)) return
 lDot = (lTri .and. lHess)
 
 !                                                                  *
-!*******************************************************************
+!***********************************************************************
 !                                                                  *
 ! Allocate memory for zeta, eta, kappa, P and Q.
 ! Allocate also for Alpha, Beta , Gamma and Delta in expanded form.
 
 call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 !                                                                  *
-!*******************************************************************
+!***********************************************************************
 !                                                                  *
 ! Fix the 1st order density matrix
 
@@ -92,27 +92,27 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 if (lTri .and. lPick) call Dens_Infos(nMethod)
 
 !                                                                  *
-!*******************************************************************
+!***********************************************************************
 !                                                                  *
 ! Compute total size of the second order density matrix in SO basis.
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 nSO = MemSO2_P(nSD,iSD4)
 ldot2 = ldot
 if (nSO == 0) ldot2 = .false.
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 !
 ! Calculate which derivatives should be made.
 !
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 
 call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 !
-! Decide on the partioning of the shells based on the
+! Decide on the partitioning of the shells based on the
 ! available memory and the requested memory.
 !
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 
 call PSOAO2(nSO,MemMax,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
 
@@ -129,22 +129,22 @@ lBsInc = iSD4(4,4)
 kCmp = iSD(2,kS)
 lCmp = iSD(2,lS)
 
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 !
 ! Loop over basis function if we do not have enough of memory to
 ! calculate them in one step.
 !
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 do iBasAO=1,iBasi,iBsInc
   iBasn = min(iBsInc,iBasi-iBasAO+1)
   iSD4(8,1) = iBasAO-1
   iSD4(19,1) = iBasn
 
-  !----------------------------------------------------------------*
+  !--------------------------------------------------------------------*
   !
   ! Move appropriate portions of the desymmetrized 1st order density matrix.
   !
-  !----------------------------------------------------------------*
+  !--------------------------------------------------------------------*
   do jBasAO=1,jBasj,jBsInc
     jBasn = min(jBsInc,jBasj-jBasAO+1)
     iSD4(8,2) = jBasAO-1
@@ -173,7 +173,7 @@ do iBasAO=1,iBasi,iBsInc
           call Picky_Mck(nSD,iSD4,2,4,nMethod)
         end if
 
-        !----------------------------------------------------------*
+        !--------------------------------------------------------------*
 
         nijkl = iBasn*jBasn*kBasn*lBasn
 
@@ -210,11 +210,11 @@ do iBasAO=1,iBasi,iBsInc
         nTemp = Mem2+Mem3+MemX
         Temp(1:nTemp) => Sew_Scr(ipMem2:ipMem2+nTemp-1)
 
-        !----------------------------------------------------------*
+        !--------------------------------------------------------------*
         !
         ! Get the 2nd order density matrix in SO basis.
         !
-        !----------------------------------------------------------*
+        !--------------------------------------------------------------*
 
         if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
         if (ldot2) call PGet0(nijkl,PSO,nSO,Work2,Mem2,nQuad,PMax,iSD4)
@@ -235,7 +235,7 @@ do iBasAO=1,iBasi,iBsInc
         nullify(Work4)
         nullify(Temp)
 
-        !----------------------------------------------------------*
+        !--------------------------------------------------------------*
 
       end do
     end do

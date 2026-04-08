@@ -61,11 +61,10 @@ implicit none
 integer(kind=iwp), intent(in) :: nDens, nDisc
 real(kind=wp), target, intent(inout) :: Dens(nDens), TwoHam(nDens)
 logical(kind=iwp), intent(inout) :: FstItr
-
 integer(kind=iwp), parameter :: nTInt = 1
-integer(kind=iwp) :: ijS, iOpt, iS, jS, klS, kS, lS, mDens, nIJ, nSkal, iCnttp, jCnttp, kCnttp, lCnttp
-real(kind=wp) :: A_Int, Dtst, P_Eff, PP_Count, PP_Eff, PP_Eff_Delta, S_Eff, ST_Eff, T_Eff, ThrAO, TInt(nTInt), &
-                 TMax_All, TskHi, TskLw
+integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, mDens, nIJ, nSkal
+real(kind=wp) :: A_Int, Dtst, P_Eff, PP_Count, PP_Eff, PP_Eff_Delta, S_Eff, ST_Eff, T_Eff, ThrAO, TInt(nTInt), TMax_All, TskHi, &
+                 TskLw
 logical(kind=iwp) :: DoGrad, Indexation, Semi_Direct, Triangular
 character(len=72) :: SLine
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
@@ -183,7 +182,6 @@ end if
 iOpt = 0
 if ((.not. FstItr) .and. Semi_direct) iOpt = 2
 
-
 PP_Eff = P_Eff**2
 PP_Eff_delta = 0.1_wp*PP_Eff
 PP_Count = Zero
@@ -205,7 +203,7 @@ do
   Quad_ijkl = TskLw
 
   Quad_ijkl = Quad_ijkl-One
-  klS = klS - 1
+  klS = klS-1
   do
     Quad_ijkl = Quad_ijkl+One
     if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
@@ -219,15 +217,14 @@ do
     kS = Pair_Index(1,klS)
     lS = Pair_Index(2,klS)
 
-    ! Logic to avoid computing integrals in a mixed muonic and
-    ! electronic basis.
+    ! Logic to avoid computing integrals in a mixed muonic and electronic basis.
 
     iCnttp = iSD(13,iS)
     jCnttp = iSD(13,jS)
-    if (dbsc(iCnttp)%fMass /= dbsc(jCnttp)%fMass) Cycle
+    if (dbsc(iCnttp)%fMass /= dbsc(jCnttp)%fMass) cycle
     kCnttp = iSD(13,kS)
     lCnttp = iSD(13,lS)
-    if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) Cycle
+    if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) cycle
     S_Eff = real(ijS,kind=wp)
     T_Eff = real(klS,kind=wp)
     ST_Eff = S_Eff*(S_Eff-One)*Half+T_Eff
@@ -252,7 +249,7 @@ do
       !         threshold
       !         for the current iteration
 
-      if (A_Int < CutInt) Cycle
+      if (A_Int < CutInt) cycle
 
     else
 
@@ -264,11 +261,11 @@ do
         Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four,DMax(is,js),DMax(ks,ls))
       end if
 
-      if (A_int*Dtst < ThrInt) Cycle
+      if (A_int*Dtst < ThrInt) cycle
 
     end if
 
-    if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,kS))) Cycle
+    if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,kS))) cycle
     !                                                                  *
     !*******************************************************************
     !                                                                  *

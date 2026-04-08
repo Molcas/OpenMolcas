@@ -17,7 +17,7 @@ subroutine PrePre_g(mZeta,mEta,lZeta,lEta,PreScr,CutGrd,iOffZ,iOffE,k2Data1,k2Da
 !                                                                      *
 ! Object: to preprescreen the integral derivatives.                    *
 !                                                                      *
-!   mZeta, mEta : section length due to partioning. These are usually  *
+!   mZeta, mEta : section length due to partitioning. These are usually*
 !                 equal to nZeta and nEta.                             *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *

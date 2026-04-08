@@ -26,6 +26,7 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 !     based on Drvg1                                                   *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, MxPrm
 use k2_arrays, only: Sew_Scr
 use Basis_Info, only: nBas, nBas_Frag
@@ -36,23 +37,20 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use Definitions, only: wp, iwp, u6
+use Definitions, only: u6
 #endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-real(kind=wp) ::  A_int, Cnt, P_Eff, ThrAO, TMax_all, TskHi, TskLw
-integer(kind=iwp) :: nBas_Valence(0:7), nBT, nBVT, i, iAng, iS, jS, &
-                     ijS, iOpt, klS, kS, lS, nij, nSkal, nSkal_Valence
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: nSkal_Fragments
-#endif
-logical(kind=iwp) :: lDummy, DoGrad, DoFock, Indexation, Triangular, lNoSkip
+integer(kind=iwp) :: i, iAng, ijS, iOpt, iS, jS, klS, kS, lS, nBas_Valence(0:7), nBT, nBVT, nij, nSkal, nSkal_Valence
+real(kind=wp) :: A_int, Cnt, P_Eff, ThrAO, TMax_all, TskHi, TskLw
+logical(kind=iwp) :: DoFock, DoGrad, Indexation, lDummy, lNoSkip, Triangular
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: TMax(:,:)
 logical(kind=iwp), external :: Rsv_GTList
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -66,14 +64,14 @@ nBT = 0
 nBVT = 0
 do i=0,nIrrep-1
   nBas_Valence(i) = nBas(i)
-  nBVT = nBVT+nBas(i)*(nBas(i)+1)/2
+  nBVT = nBVT+nTri_Elem(nBas(i))
   nBas(i) = nBas(i)+nBas_Frag(i)
-  nBT = nBT+nBas(i)*(nBas(i)+1)/2
+  nBT = nBT+nTri_Elem(nBas(i))
 end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!-----Precompute k2 entities.
+! Precompute k2 entities.
 
 Indexation = .false.
 DoFock = .false.
@@ -82,14 +80,13 @@ ThrAO = Zero
 call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 mSkal = nSkal
 #ifdef _DEBUGPRINT_
-nSkal_Fragments = nSkal-nSkal_Valence
-write(u6,*) 'nSkal, nSkal_Valence, nSkal_Frag = ',nSkal,nSkal_Valence,nSkal_Fragments
+write(u6,*) 'nSkal, nSkal_Valence, nSkal_Frag = ',nSkal,nSkal_Valence,nSkal-nSkal_Valence
 #endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!-----Prepare handling of the combined two-particle density.
-!
+! Prepare handling of the combined two-particle density.
+
 call PrepP_FAIEMP(nBas_Valence,nBT,nBVT)
 !                                                                      *
 !***********************************************************************
@@ -101,7 +98,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!---  Compute entities for prescreening at shell level
+! Compute entities for prescreening at shell level
 
 call mma_allocate(TMax,nSkal,nSkal,label='TMax')
 call Shell_MxSchwz(nSkal,TMax)
@@ -116,7 +113,7 @@ end do
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2,label='Pair_Index')
+call mma_allocate(Pair_Index,2,nTri_Elem(nSkal),label='Pair_Index')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
@@ -153,7 +150,7 @@ do
   Cnt = TskLw
 
   Cnt = Cnt-One
-  klS=klS-1
+  klS = klS-1
   do
     Cnt = Cnt+One
     if (Cnt-TskHi > 1.0e-10_wp) exit
@@ -174,14 +171,14 @@ do
     ! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
     ! belonging to different regions)
     if (jS <= nSkal_Valence) then
-      lNoSkip = lNoSkip .and. kS > nSkal_Valence
+      lNoSkip = lNoSkip .and. (kS > nSkal_Valence)
     else
-      lNoSkip = lNoSkip .and. kS <= nSkal_Valence
+      lNoSkip = lNoSkip .and. (kS <= nSkal_Valence)
     end if
-    lNoSkip = lNoSkip .and. lS <= nSkal_Valence
-    If (.Not. lNoSkip) Cycle
+    lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
+    if (.not. lNoSkip) cycle
 
-    Call Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
+    call Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
 
   end do
 

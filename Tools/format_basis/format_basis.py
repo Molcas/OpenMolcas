@@ -135,7 +135,7 @@ def fit_num(f, n, m):
     out = '*'*n
   return out
 
-# Try to fit a number in n total places with m decimals, with a exponent (shift)
+# Try to fit a number in n total places with m decimals, with an exponent (shift)
 # Returns a string of asterisks if it fails
 def print_shifted(f, n, m, shift=0):
   fs = f.scaleb(shift)

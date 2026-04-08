@@ -124,7 +124,7 @@ kBask = iSD4(19,3)
 lBasl = iSD4(19,4)
 
 Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
-Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
+Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
 Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
 Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 
@@ -269,7 +269,7 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
     CoorAC(:,2) = Coor(:,4)
   end if
 
-  ! Loops to partion the primitives
+  ! Loops to partition the primitives
 
   IncZet = nAlpha*jPrInc
   IncEta = nGamma*lPrInc
@@ -282,7 +282,7 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
   end if
 
   nZeta_Tot = k2Data1(1)%IndZ(nZeta+1)
-  nEta_Tot  = k2Data2(1)%IndZ(nEta+1)
+  nEta_Tot = k2Data2(1)%IndZ(nEta+1)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'nZeta=',nZeta
   write(u6,*) 'nEta=',nEta
