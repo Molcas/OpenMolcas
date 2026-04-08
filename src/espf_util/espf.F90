@@ -55,7 +55,7 @@ end if
 ! Set on the System Bit 11
 
 call Get_iScalar('System Bitswitch',iOption)
-iOption = ior(iOption,2**11)
+iOption = ibset(iOption,11)
 call Put_iScalar('System Bitswitch',iOption)
 
 ! Some initializations

@@ -17,7 +17,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: i, Length, iErr
-integer(kind=iwp), parameter :: nFiles = 22
+integer(kind=iwp), parameter :: nFiles = 23
 character(len=1024) :: Names(nFiles), OldFile(nFiles), NewFile(nFiles)
 logical(kind=iwp) :: Found
 
@@ -35,6 +35,7 @@ Names(:) = [character(len=len(Names)) :: &
             'CCSDTINP', &
             'CHCCINP', &
             'CHT3INP', &
+            'FFPTINP', &
             'ESPFINP', &
             'FALSEINP', &
             'JOBIPH', &
@@ -77,7 +78,5 @@ end do
 ! The INPORB file is special...
 call f_inquire('../INPORB',Found)
 if (Found) call fcopy('../INPORB','./INPORB',iErr)
-
-return
 
 end subroutine SubWorkDir
