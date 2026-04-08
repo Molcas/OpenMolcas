@@ -84,107 +84,22 @@ iLast = nIter
 # endif
 
 
+
+! read in coordinates and gradients to build the GEK model
 call mma_Allocate(coords,fsdim, nDiis,Label="coords")
 call mma_Allocate(grads,fsdim, nDiis,Label="grads")
-
-
-! compute product matrix U_1...n = U_1 * ... * U_n
-! -------------------------------------------------
-! look later if this can be done in pipekmezey_iter, to save comp
-call mma_allocate(UmatProd,nOrb2Loc,nOrb2Loc,Label='UmatProd')
-call mma_allocate(xUmatProd,nOrb2Loc,nOrb2Loc,Label='xUmatProd')
-call mma_allocate(Umat_i,nOrb2Loc,nOrb2Loc,Label='Umat_i')
-
-xUmatProd(:,:) = Zero
-Umat_i(:,:) = Zero
-call unitmat(xUmatProd,nOrb2Loc)
-
-do i=iFirst,iLast
-    Umat_i(:,:) = UmatList(:,:,i)
-    !call RecPrt("UmatList(:,:,i) = ",' ',UmatList(:,:,i),nOrb2Loc,nOrb2Loc)
-
-    !call RecPrt("U_i = "," ",Umat_i,nOrb2Loc,nOrb2Loc)
-    call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,xUmatProd,nOrb2Loc,Umat_i,nOrb2Loc,Zero,UmatProd,norb2Loc)
-
-    !call RecPrt("U_1...i = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
-
-    xUmatProd(:,:) = UmatProd(:,:)
-end do
-!call RecPrt("U_1...n = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
-
-! -------------------------------------------------
-call mma_allocate(disp_summed,fsdim,Label="disp_summed")
-call mma_allocate(UmatKsum,nOrb2Loc,nOrb2Loc,Label="UmatKsum")
-disp_summed(:) = Zero
-UmatKsum(:,:) = Zero
 j = 0
 do i=iFirst,iLast
     j = i-iFirst+1
-    !write(u6,*) 'i,j,iter,ifirst,ilast=',i,j,IterGEK,ifirst,ilast
-    ! Coordinates
     coords(:,j) = DispList(:,i)
-    disp_summed(:) = disp_summed(:) + DispList(:,i)
-
-    ! Gradients
     grads(:,j) = GradList(:,i)
-
 end do
 
 #ifdef _COORDSABS_
-! DispList contains displacements relative to the CMO of each iteration
-!we have to switch from relative to absolute coords for the GEK model:
-call mma_Allocate(CoordsAbs,fsdim, nDiis,Label="CoordsAbs")
-CoordsAbs(:,:) = Zero
-#ifdef _DEBUGPRINT_
-call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
-#endif
-CoordsAbs(:,:) = coords(:,:)
-do i = 1, ndiis-1
-    CoordsAbs(:,i+1) = CoordsAbs(:,i+1) + CoordsAbs(:,i)
-end do
-
-coords(:,:ndiis) = CoordsAbs(:,:ndiis)
-!coords(:,nDiis) = Zero
-#ifdef _DEBUGPRINT_
-call RecPrt("abscoords(:,:)",' ',coords,fsdim, nDiis)
-
-do i=1,fsdim
-    do j=1,ndiis
-        if (coords(i,j) > 0.1_wp) then
-            write(u6,*) "coords(i,j) too big i,j =",i,j,coords(i,j)
-        end if
-    end do
-end do
+call moveref()
 #endif
 
-!call RecPrt("CoordsAbs(:,:)",' ',coords,fsdim, nDiis)
-!call RecPrt("grads(:,:)",' ',grads,fsdim, nDiis)
-!write(*,*) "funclist",funclist(:ndiis)
-call mma_Deallocate(CoordsAbs)
-#endif
 
-call mma_allocate(kappa_summed,nOrb2Loc,nOrb2Loc,Label="kappa_summed")
-
-
-call vec2upper_triag(kappa_summed,nOrb2Loc,disp_summed,fsdim,.true.)
-call expkap_localisation(kappa_summed,nOrb2Loc,Umat_i,xUmatProd,UmatKsum)
-
-
-
-norm = sqrt(DDot_(nOrb2Loc*nOrb2Loc,UmatProd-UmatKsum,1,UmatProd-UmatKsum,1))
-# ifdef _DEBUGPRINT_
-call RecPrt("-K_1-K_2-...-K_n = "," ",kappa_summed,nOrb2Loc,nOrb2Loc)
-call RecPrt("exp(-K_1-K_2-...-K_n) = "," ",UmatKsum,nOrb2Loc,nOrb2Loc)
-call RecPrt("U_1...n - exp(-K_1-K_2-...-K_n) = "," ",UmatProd-UmatKsum,nOrb2Loc,nOrb2Loc)
-write(u6,*) "norm of U_1...n - exp(-K_1-K_2-...-K_n):", norm, "ndiis =",ndiis
-# endif
-
-call mma_Deallocate(xUmatProd)
-call mma_Deallocate(Umat_i)
-call mma_Deallocate(UmatProd)
-call mma_Deallocate(UmatKsum)
-call mma_Deallocate(disp_summed)
-call mma_Deallocate(kappa_summed)
 
 #ifdef _DEBUGPRINT_
     write(u6,*) 'iFirst =',iFirst
@@ -197,6 +112,9 @@ call mma_Deallocate(kappa_summed)
     call RecPrt("grads(:,nDiis)",' ',grads(:,nDiis),fsdim, 1)
     call RecPrt("dq(:) = NR suggestion",' ',dq,fsdim, 1)
 #endif
+
+
+
 
 ! select subspace basis vectors; construct normalized e_diis
 ! -----------------------------------------------------------
@@ -268,6 +186,7 @@ do k=1,nDIIS-1
 end do
 call mma_deallocate(Aux_2)
 
+
 ! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
 j = j+1
 !current gradient
@@ -289,6 +208,10 @@ call mma_deallocate(Aux_1)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 end if !framework: fullspace/subspace
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
 ! orthogonalize e_diis; remove redundancies from linear dependences
 ! -----------------------------------------------------------------
 do l=1,2
@@ -308,10 +231,10 @@ do l=1,2
         end if
     end do
 end do
-
 ! normally mDIIS=2*nDIIS, but it can happen that not all unit vectors are linear independent (mDIIS<=2*nDIIS).
 ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
 mDIIS = j
+
 
 #ifdef _DEBUGPRINT_
 write(u6,*) '    fsdim:',fsdim
@@ -348,6 +271,8 @@ do i=1,nDiis ! we project only those q vectors that were used to build the subsp
 end do
 
 
+
+
 ! Compute projected gradients
 ! ---------------------------
 ! g_diis(u) = e_diis(Kxu)^T * g(K)
@@ -360,6 +285,8 @@ do i=1,nDIIS
 end do
 
 
+
+
 ! project also the Hessian (diagonal) onto the subspace
 ! -----------------------------------------------------
 ! H_diis(uxu) = e_diis(Kxu)^T * H(KxK) * e_diis(Kxu)
@@ -370,6 +297,8 @@ do i=1,mDiis
     H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
   end do
 end do
+
+
 
 
 ! define dq as null vector in the subspace
@@ -389,6 +318,8 @@ dq_diis(:) = Zero
 #endif
 
 
+
+
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
 dq_NR(:) = dq(:)
@@ -400,8 +331,17 @@ else
 end if
 !write(u6,*) "call GEK_Optimizer"
 
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 Call GEK_Optimizer(mDiis,nDiis,Max_IterGEK,q_diis(:,:),g_diis(:,:),dq_diis(:),FuncList(iFirst:),H_diis(:,:),dqdq,&
                    Step_Trunc,UpMeth,SOFact,bias)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
 ! project the resulting displacement dq_diis back into the fullspace
 ! ------------------------------------------------------------------
 #ifdef _DEBUGPRINT_
@@ -416,7 +356,8 @@ dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
 
 
-!compute angle between GEK result and NR suggestion
+! compute angle between GEK result and NR suggestion
+! --------------------------------------------------
 norm = sqrt(DDot_(fsdim,dq_NR,1,dq_NR,1))
 #ifdef _DEBUGPRINT_
 write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(fsdim,dq_NR,1,dq,1)/(norm*dqdq))/Pi*180.0_wp,&
@@ -425,6 +366,8 @@ write(u6,'(A,F12.6,2X,A,F12.3,2x,A,I4)') "Angle(dq_NR,dq) (deg) =", acos(DDot_(f
     write(u6,*) '||dq||=',dqdq
     call RecPrt('dq(:) after projecting out',' ',dq(:),size(dq),1)
 #endif
+
+
 
 ! deallocations
 ! -------------
@@ -437,6 +380,7 @@ call mma_Deallocate(g_diis)
 call mma_Deallocate(H_diis)
 call mma_Deallocate(dq_diis)
 
+
 ! print timing & finalize GEK
 ! ---------------------------
 call Timing(Cpu2,Tim1,Tim2,Tim3)
@@ -445,4 +389,115 @@ call Timing(Cpu2,Tim1,Tim2,Tim3)
 write(u6,*) 'CPU Time for GEK iteration',Cpu2-Cpu1
 write(u6,*) 'Exit S-GEK Optimizer'
 #endif
+
+
+
+contains
+
+subroutine moveref()
+
+    call mma_Allocate(CoordsAbs,fsdim, nDiis,Label="CoordsAbs")
+    CoordsAbs(:,:) = Zero
+
+    ! DispList contains displacements relative to the CMO of each iteration
+    !we have to switch from relative to absolute coords for the GEK model:
+
+
+#ifdef _DEBUGPRINT_
+    call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
+#endif
+
+    CoordsAbs(:,:) = coords(:,:)
+    do i = 1, ndiis-1
+        CoordsAbs(:,i+1) = CoordsAbs(:,i+1) + CoordsAbs(:,i)
+    end do
+    coords(:,:ndiis) = CoordsAbs(:,:ndiis)
+    !coords(:,nDiis) = Zero
+
+
+#   ifdef _DEBUGPRINT_
+    call RecPrt("CoordsAbs(:,:)",' ',coords,fsdim, nDiis)
+#   endif
+
+call mma_Deallocate(CoordsAbs)
+
+end subroutine moveref
+
+
+
+subroutine sizecontrol()
+
+do i=1,fsdim
+    do j=1,ndiis
+        if (coords(i,j) > 0.1_wp) then
+            write(u6,*) "coords(i,j) too big i,j =",i,j,coords(i,j)
+        end if
+    end do
+end do
+
+end subroutine sizecontrol
+
+
+
+
+subroutine getUtot()
+! compute product matrix U_1...n = U_1 * ... * U_n
+! -------------------------------------------------
+! look later if this can be done in pipekmezey_iter, to save comp
+call mma_allocate(UmatProd,nOrb2Loc,nOrb2Loc,Label='UmatProd')
+call mma_allocate(xUmatProd,nOrb2Loc,nOrb2Loc,Label='xUmatProd')
+call mma_allocate(Umat_i,nOrb2Loc,nOrb2Loc,Label='Umat_i')
+call mma_allocate(kappa_summed,nOrb2Loc,nOrb2Loc,Label="kappa_summed")
+call mma_allocate(disp_summed,fsdim,Label="disp_summed")
+call mma_allocate(UmatKsum,nOrb2Loc,nOrb2Loc,Label="UmatKsum")
+
+xUmatProd(:,:) = Zero
+Umat_i(:,:) = Zero
+call unitmat(xUmatProd,nOrb2Loc)
+
+do i=iFirst,iLast
+    Umat_i(:,:) = UmatList(:,:,i)
+    !call RecPrt("UmatList(:,:,i) = ",' ',UmatList(:,:,i),nOrb2Loc,nOrb2Loc)
+
+    !call RecPrt("U_i = "," ",Umat_i,nOrb2Loc,nOrb2Loc)
+    call dgemm_('N','N',nOrb2Loc,nOrb2Loc,nOrb2Loc,One,xUmatProd,nOrb2Loc,Umat_i,nOrb2Loc,Zero,UmatProd,norb2Loc)
+
+    !call RecPrt("U_1...i = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
+
+    xUmatProd(:,:) = UmatProd(:,:)
+end do
+!call RecPrt("U_1...n = "," ",UmatProd,nOrb2Loc,nOrb2Loc)
+
+
+disp_summed(:) = Zero
+UmatKsum(:,:) = Zero
+
+do i=iFirst,iLast
+    disp_summed(:) = disp_summed(:) + DispList(:,i)
+end do
+
+
+call vec2upper_triag(kappa_summed,nOrb2Loc,disp_summed,fsdim,.true.)
+call expkap_localisation(kappa_summed,nOrb2Loc,Umat_i,xUmatProd,UmatKsum)
+
+norm = sqrt(DDot_(nOrb2Loc*nOrb2Loc,UmatProd-UmatKsum,1,UmatProd-UmatKsum,1))
+# ifdef _DEBUGPRINT_
+call RecPrt("-K_1-K_2-...-K_n = "," ",kappa_summed,nOrb2Loc,nOrb2Loc)
+call RecPrt("exp(-K_1-K_2-...-K_n) = "," ",UmatKsum,nOrb2Loc,nOrb2Loc)
+call RecPrt("U_1...n - exp(-K_1-K_2-...-K_n) = "," ",UmatProd-UmatKsum,nOrb2Loc,nOrb2Loc)
+write(u6,*) "norm of U_1...n - exp(-K_1-K_2-...-K_n):", norm, "ndiis =",ndiis
+# endif
+
+call mma_Deallocate(xUmatProd)
+call mma_Deallocate(Umat_i)
+call mma_Deallocate(UmatProd)
+call mma_Deallocate(UmatKsum)
+call mma_Deallocate(disp_summed)
+call mma_Deallocate(kappa_summed)
+
+
+
+end subroutine getUtot
+
+
 end subroutine S_GEK_localisation
