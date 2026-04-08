@@ -137,7 +137,7 @@ call InitB(nMult,natom,nAtQM,nGrdPt,Cord,Grid%A,T,TT,TTT,Ext,B,IsMM)
 ! Now the analysis
 
 call mma_allocate(Mltp,nMult,label='ESPFMltp')
-call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp,Grid%A,IsMM,Ext,iPL+1)
+call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp,Grid%A,IsMM,Ext,iPL+1,Cord)
 call Add_Info('ESPF multipoles',Mltp,nMult,6)
 
 ! Save some data

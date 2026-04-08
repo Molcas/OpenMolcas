@@ -173,7 +173,7 @@ close(IPotFl)
 ! Compute the quantum atomic multipoles
 
 call mma_allocate(Mltp,nMult,label='ESPFMltp')
-call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp,Grid%A,IsMM,Ext,iPL-1)
+call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp,Grid%A,IsMM,Ext,iPL-1,Cord)
 
 ! Run Tinker
 

@@ -182,7 +182,7 @@ do
       ! H-H distances are only considered if the minimum distance
       ! (excluding H-H) is greater than HH_Thr
       iOff = (kSet-1)*iSet+lSet
-      if (SetDist(iOff) > HH_Thr**2) iOff = (lSet-1)*iSet+kSet-1
+      if (SetDist(iOff) > HH_Thr**2) iOff = (lSet-1)*iSet+kSet
       if (SetDist(iOff) < rShort) rShort = SetDist(iOff)
     end do
   end do
