@@ -14,7 +14,6 @@
 !***********************************************************************
 !#define _DEBUG2_
 !#define _DEBUGPRINT_
-#define _COORDSABS_
 
 subroutine S_GEK_localisation(nIter,IterGEK,hdiag,fsdim,dqdq,dq,UpMeth,SORange,nOrb2Loc,nDIIS)
 
@@ -47,9 +46,7 @@ real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange
 character :: Step_Trunc
-#ifdef _COORDSABS_
 real(kind=wp), allocatable :: CoordsAbs(:,:)
-#endif
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
@@ -83,10 +80,6 @@ iLast = nIter
     write(u6,*) "iLast   =",iLast
 # endif
 
-    write(u6,*) "iFirst  =",iFirst
-    write(u6,*) "iLast   =",iLast
-
-
 ! read in coordinates and gradients to build the GEK model
 call mma_Allocate(coords,fsdim, nDiis,Label="coords")
 call mma_Allocate(grads,fsdim, nDiis,Label="grads")
@@ -97,9 +90,7 @@ do i=iFirst,iLast
     grads(:,j) = GradList(:,i)
 end do
 
-#ifdef _COORDSABS_
 call moveref()
-#endif
 
 
 
@@ -114,14 +105,6 @@ call moveref()
     call RecPrt("grads(:,nDiis)",' ',grads(:,nDiis),fsdim, 1)
     call RecPrt("dq(:) = NR suggestion",' ',dq,fsdim, 1)
 #endif
-
-write(*,*) 'q(1,:)    ',coords(1,:)
-write(*,*) 'g(1,:)    ',grads(1,:)
-write(*,*) 'g(1,nDIIS)',grads(1,nDIIS)
-write(*,*) 'dq(1)     ',dq(1)
-
-
-
 
 
 ! select subspace basis vectors; construct normalized e_diis
@@ -326,10 +309,6 @@ dq_diis(:) = Zero
 #endif
 
 
-write(*,*) 'q_diis    ',q_diis(1,:nDIIS)
-write(*,*) 'g_diis    ',g_diis(1,:nDIIS)
-
-
 
 
 ! build the surrogate model & perform the optimization
@@ -402,9 +381,6 @@ write(u6,*) 'CPU Time for GEK iteration',Cpu2-Cpu1
 write(u6,*) 'Exit S-GEK Optimizer'
 #endif
 
-
-write(*,*) 'dq        ',dq(1)
-
 contains
 
 subroutine moveref()
@@ -420,33 +396,19 @@ subroutine moveref()
     call RecPrt("coords(:,:)",' ',coords,fsdim, nDiis)
     write(u6,,*)""
     write(u6,*) "Displist  ",Displist(:,:nIter)
+#endif
     CoordsAbs(:,:) = coords(:,:)
-    write(u6,*) "coords    ",coords(:,:)
     do i = 1, ndiis
         do j = i,ndiis
-            write(u6,*) "CoordsAbs(i)",CoordsAbs(:,i)
-            write(u6,*)"i,j, displist(j) = ",i,j,coords(:,j)
             CoordsAbs(:,i) = CoordsAbs(:,i) - coords(:,j)
-            write(u6,*) "CoordsAbs(i)",CoordsAbs(:,i)
         end do
     end do
     coords(:,:ndiis) = CoordsAbs(:,:ndiis)
-    write(u6,*) "coords    ",coords(:,:)
-    !coords(:,nDiis) = Zeo
-    write(u6,*)""
 
+#ifdef _DEBUGPRINT_
+    write(u6,*) "coords    ",coords(:,:)
     call RecPrt("CoordsAbs(:,:)",' ',coords,fsdim, nDiis)
-
-#else
-    CoordsAbs(:,:) = coords(:,:)
-    do i = 1, ndiis
-        do j = i,ndiis
-            CoordsAbs(:,i) = CoordsAbs(:,i) - coords(:,j)
-        end do
-    end do
-    coords(:,:ndiis) = CoordsAbs(:,:ndiis)
-
-#   endif
+#endif
 call mma_Deallocate(CoordsAbs)
 
 end subroutine moveref
