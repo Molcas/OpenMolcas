@@ -4,10 +4,17 @@ One marker per institution if possible
 */
 var dev_places = [
   {
+    "city": "Marseille, France",
+    "lat": 43.335910,
+    "lng": 5.412234,
+    "name": "Aix-Marseille University",
+    "url": "https://www.univ-amu.fr/en",
+  },
+  {
     "city": "Nantes, France",
     "lat": 47.23480,
     "lng": -1.55466,
-    "name": "CNRS, Nantes Univesity",
+    "name": "CNRS, Nantes University",
     "url": "https://www.cnrs.fr/en",
   },
   {

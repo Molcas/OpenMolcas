@@ -13,8 +13,8 @@ Muonic argon
 expert
 
 Basis set
-Ar.muonic
-mH    0.0     0.0     0.0
+Ar.muonic...18s14p.
+mH   0.0     0.0     0.0
 Nucl=0.45D9
 End of basis
 

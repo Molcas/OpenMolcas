@@ -26,27 +26,27 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 #include "LenIn.fh"
-real(kind=wp) :: Energy_Ref, FX(3), rDum(1), Dsp, EMinus, EPlus, Grada, Gradb, rDeg, rDelta, rMax, rTest, Sgn, TempX, TempY, &
+real(kind=wp) :: Dsp, EMinus, Energy_Ref, EPlus, FX(3), Grada, Gradb, rDeg, rDelta, rDum(1), rMax, rTest, Sgn, TempX, TempY, &
                  TempZ, x, x0, y, y0, z, z0
-integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, &
-                     id_Tsk, iData, iDisp, iEm, iEp, ii, iMlt, iPL, iPL_Save, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, &
-                     irlxroot2, iRoot, iSave, ITkQMMM, ixyz, j, LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
-                     nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym, iOption
-character(len=8) :: Method
+integer(kind=iwp) :: error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, iCoSet(0:7,0:7), id_Tsk, iData, iDisp, iDispXYZ(3), iEm, &
+                     iEp, ii, iMlt, iOper(0:7), iOption, iPL, iPL_Save, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, irlxroot2, &
+                     iRoot, iSave, ITkQMMM, ixyz, j, jStab(0:7), LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
+                     nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym, rc
+logical(kind=iwp) :: DispX, DispY, DispZ, Do_ESPF, Do_FFPT, DoDirect, DoFirst, DoTinker, DynExtPot, Exists, External_Coor_List, &
+                     Found, Is_Roots_Set, KeepOld, NMCart, StandAlone
 character(len=LenIn) :: Namei
-character(len=10) :: ESPFKey
 character(len=180) :: Line
-logical(kind=iwp) :: DispX, DispY, DispZ, Do_ESPF, DoDirect, DoFirst, DoTinker, DynExtPot, Exists, External_Coor_List, Found, &
-                     Is_Roots_Set, KeepOld, NMCart, StandAlone, Do_FFPT
+character(len=10) :: ESPFKey
+character(len=8) :: Method
 integer(kind=iwp), allocatable :: IsMM(:)
-real(kind=wp), allocatable :: EnergyArray(:,:), GradArray(:,:), OldGrads(:,:), Grad(:), GNew(:), MMGrd(:,:), BMtrx(:,:), &
-                              TMtrx(:,:), Coor(:,:), Energies_Ref(:), XYZ(:,:), AllC(:,:), Disp(:), Deg(:,:), Mltp(:), C(:,:), &
-                              Tmp2(:), Tmp(:,:)
+real(kind=wp), allocatable :: AllC(:,:), BMtrx(:,:), C(:,:), Coor(:,:), Deg(:,:), Disp(:), Energies_Ref(:), EnergyArray(:,:), &
+                              GNew(:), Grad(:), GradArray(:,:), Mltp(:), MMGrd(:,:), OldGrads(:,:), Tmp(:,:), Tmp2(:), TMtrx(:,:), &
+                              XYZ(:,:)
 character(len=LenIn), allocatable :: AtomLbl(:)
 real(kind=wp), parameter :: ToHartree = One/auTokcalmol
-integer(kind=iwp), external :: Read_Grad, IsFreeUnit, iPrintLevel, iChAtm, iDeg
+integer(kind=iwp), external :: iChAtm, iDeg, iPrintLevel, IsFreeUnit, Read_Grad
+logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
 character(len=180), external :: Get_Ln
-logical(kind=iwp), external :: Rsv_Tsk, Reduce_Prt
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
 character(len=80) :: SSTMNGR
 integer(kind=iwp) :: SSTMODE
@@ -75,7 +75,7 @@ ireturn = _RC_ALL_IS_WELL_
 call Get_cArray('Relax Method',Method,8)
 call DecideOnESPF(Do_ESPF)
 call Get_iScalar('System Bitswitch',iOption)
-Do_FFPT=btest(iOption,14)
+Do_FFPT = btest(iOption,14)
 
 Is_Roots_Set = .false.
 call Qpg_iScalar('Number of roots',Is_Roots_Set)
@@ -556,6 +556,7 @@ do
   end if
 
   ! Add stuff from the FFPT module
+
   if (Do_FFPT) then
     call StartLight('ffpt')
     call init_run_use()

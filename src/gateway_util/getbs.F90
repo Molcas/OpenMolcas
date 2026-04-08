@@ -349,13 +349,19 @@ do iAng=0,lAng
     call mma_allocate(Temp,nPrim,max(nCntrc,mCGTO(iAng)),Label='Temp')
     Temp(:,:) = Zero
     ! read the block in the library as it is
-    do iPrim=1,nPrim
-      call Read_v(lUnit,Temp,iPrim,nPrim*mCGTO(iAng),nPrim,Ierr)
-      if (Ierr /= 0) then
-        call WarningMessage(2,'GetBS: Error reading the block')
-        call Quit_OnUserError()
-      end if
-    end do
+    if (UnContracted) then
+      do i=1,nPrim
+        Temp(i,i) = One
+      end do
+    else
+      do iPrim=1,nPrim
+        call Read_v(lUnit,Temp,iPrim,nPrim*mCGTO(iAng),nPrim,Ierr)
+        if (Ierr /= 0) then
+          call WarningMessage(2,'GetBS: Error reading the block')
+          call Quit_OnUserError()
+        end if
+      end do
+    end if
 
     ! Order the exponents
 

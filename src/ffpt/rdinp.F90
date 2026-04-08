@@ -30,7 +30,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in):: LuRd
+integer(kind=iwp), intent(in) :: LuRd
 character(len=20) :: FmtLog
 character(len=72) :: Line, Temp1, Temp2
 character(len=4) :: Token
@@ -42,12 +42,12 @@ logical(kind=iwp) :: Op0(9) = .false., Op2(3) = .false., Op3(4) = .false., Op4(8
                      skip
 
 LCumulate = .false.
-Op0(:)=.false.
-Op2(:)=.false.
-Op3(:)=.false.
-Op4(:)=.false.
-Op5(:)=.false.
-Op6(:)=.false.
+Op0(:) = .false.
+Op2(:) = .false.
+Op3(:) = .false.
+Op4(:) = .false.
+Op5(:) = .false.
+Op6(:) = .false.
 
 !----------------------------------------------------------------------*
 !                                                                      *

@@ -49,9 +49,9 @@ character :: kAng(0:iTabMx)
 #ifdef _DEBUGPRINT_
 #define _TEST_ .true.
 #else
-#define _TEST_ .true.
+#define _TEST_ .false.
 #endif
-logical(kind=iwp), parameter :: IfTest = .false.
+logical(kind=iwp), parameter :: IfTest = _TEST_
 integer(kind=iwp), external :: Lbl2Nr
 character(len=180), external :: Get_Ln_Quit
 
@@ -230,9 +230,10 @@ do while (Do_Cycle)
   ! If a contraction sequence has been specified it must be identical
   ! to what is in the library file if the basis set type does not
   ! not allow any other contraction sequence.
+  ! (BasisTypes(1) == 6  ->  uncontracted)
 
   if ((CGTO /= '') .and. (bType(1:3) /= 'ANO') .and. (bType /= 'ECP') .and. (bType /= 'PSD') .and. (bType /= 'RYDBERG') .and. &
-      (Aux /= 'ECP')) then
+      (Aux /= 'ECP') .and. (BasisTypes(1) /= 6)) then
     Hit = .true.
     call Decode(BSLB(2:80),string,5,Hit)
     if (string /= CGTO) cycle
@@ -320,8 +321,8 @@ do i=1,80
 end do
 if (IfTest) then
   write(u6,'(2a)') 'Type=',bType
-  write(u6,*) 'nCGTO=',(nCGTO(k),k=0,lCGTO)
-  write(u6,*) 'mCGTO=',(mCGTO(k),k=0,lCGTO)
+  write(u6,*) 'nCGTO=',(nCGTO(k),k=0,lAngm)
+  write(u6,*) 'mCGTO=',(mCGTO(k),k=0,lAngm)
 end if
 !write(u6,*) ' lAngm=',lAngm
 if (lAngM < lAng) then

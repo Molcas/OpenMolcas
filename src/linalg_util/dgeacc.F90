@@ -23,21 +23,15 @@
 ! OUTPUT:
 ! A(*)    - Updated matrix containing A + B
 !--------------------------------------------------------
-subroutine dgeAcc(A, LDA, B, LDB, M, N)
-  use Definitions, only: wp, iwp
+subroutine dgeAcc(A,LDA,B,LDB,M,N)
 
-  implicit none
-  real(kind=wp), intent(inout) :: A(*)
-  real(kind=wp), intent(in) :: B(*)
-  integer(kind=iwp), intent(in) :: LDA, LDB, M, N
-  integer(kind=iwp) :: iCol, iRow
+use Definitions, only: wp, iwp
 
-  do iRow = 0, m-1
-    do iCol = 0, n-1
-      a(iRow+iCol*lda+1) = a(iRow+iCol*lda+1)+b(iRow+iCol*ldb+1)
-    end do
-  end do
+implicit none
+integer(kind=iwp), intent(in) :: LDA, LDB, M, N
+real(kind=wp), intent(inout) :: A(LDA,N)
+real(kind=wp), intent(in) :: B(LDB,N)
 
-  return
+A(1:M,:) = A(1:M,:)+B(1:M,:)
+
 end subroutine dgeAcc
-
