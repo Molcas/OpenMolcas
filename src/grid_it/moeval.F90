@@ -49,9 +49,7 @@ integer(kind=iwp), external :: NrOpr
 iRout = 112
 iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
-  write(u6,*) ' In MOEval'
-end if
+if (iPrint >= 99) write(u6,*) ' In MOEval'
 MOValue(:,:,:) = Zero
 
 ! Loop over shells.

@@ -1260,6 +1260,8 @@ its own keywords to compute reaction fields for excited states.
 
 Compulsory keywords
 
+.. class:: keywordlist
+
 :kword:`RF-Input`
   Activate reaction field options.
 
@@ -1267,8 +1269,6 @@ Compulsory keywords
             <HELP>
             Reaction field options.
             </HELP>
-
-.. class:: keywordlist
 
 :kword:`END Of RF-Input`
   This marks the end of the input to the reaction field utility.

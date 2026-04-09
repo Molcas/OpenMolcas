@@ -126,18 +126,17 @@ do iiUHF=0,merge(1,0,isUHF)
       ! FIXME: User can't define luscus input file name
       RC = -1
       if (Thename == ' ') then
-        if (.not. isUHF) TMPLUS(1:) = 'LUSCUS'
-        if (isUHF .and. (iiUHF == 0)) TMPLUS(1:8) = 'alph.lus'
-        if (isUHF .and. (iiUHF == 1)) TMPLUS(1:8) = 'beta.lus'
+        if (.not. isUHF) TMPLUS = 'LUSCUS'
+        if (isUHF) TMPLUS = 'AM2L'
         mm = len_trim(TMPLUS)
-        !write(u6,*) ' before 2 lusop', mm
+        !write(u6,*) ' before 2 lusop',mm
         RC = lusopen(LID,TMPLUS,mm)
       else
         mm = len_trim(RealName)
-        !write(u6,*) ' before 2 lusop', mm
+        !write(u6,*) ' before 2 lusop',mm
         RC = lusopen(LID,RealName,mm)
       end if
-      !rc = AixOpn(LID,'LUSCUS',.TRUE.)
+      !rc = AixOpn(LID,'LUSCUS',.true.)
       if (RC /= 0) then
         write(u6,*) 'ERROR: Can''t open luscus file!'
         call Abend()
@@ -158,9 +157,7 @@ do iiUHF=0,merge(1,0,isUHF)
         write(LuVal) g
         !end if
         write(LuVal) Title1
-      end if
-
-      if (iBinary == 0) then
+      else if (iBinary == 0) then
         call molcas_open(LuVal,RealName)
         !open(unit=LuVal,file=RealName,Form='FORMATTED')
         if (isLine) then
@@ -181,62 +178,60 @@ do iiUHF=0,merge(1,0,isUHF)
       end if
     end if
   else ! iiUHF
+    LuVal_ab = isFreeUnit(51)
     if (isLuscus) then
       ! FIXME: User can't define luscus input file name
+      RC = -1
       if (Thename == ' ') then
-        if (isUHF .and. (iiUHF == 0)) TMPLUS = 'AM2L'
-        if (isUHF .and. (iiUHF == 1)) TMPLUS = 'BM2L'
-        mm = 6
-        write(u6,*) ' before 1 lusop',mm
+        if (isUHF) TMPLUS = 'BM2L'
+        mm = len_trim(TMPLUS)
+        !write(u6,*) ' before 1 lusop',mm
         RC = lusopen(LID_ab,TMPLUS,mm)
       else
         mm = len_trim(RealName)
-        write(u6,*) ' before lusop',mm
+        !write(u6,*) ' before 1 lusop',mm
         RC = lusopen(LID_ab,RealName,mm)
       end if
-      !rc = AixOpn(LID,'LUSCUS',.TRUE.)
+      !rc = AixOpn(LID,'LUSCUS',.true.)
       if (RC /= 0) then
         write(u6,*) 'ERROR: Can''t open luscus file!'
         call Abend()
       end if
-    end if
-    LuVal_ab = isFreeUnit(51)
-
-    if (iBinary == 1) then
-      call molcas_open_ext2(LuVal_ab,RealName,'sequential','unformatted',istatus,.false.,irecl,'unknown',is_error)
-      !open(unit=LuVal_ab,access='sequential',form='unformatted',file=RealName)
-      !write(u6,*) '** Create Grid file',RealName(1:index(RealName,' '))
-      write(LuVal_ab) 'a'
-      !if (isMOPack) then
-      !  g = 2003.9_wp
-      !  i = 0
-      !  write(LuVal_ab) g
-      !  write(LuVal_ab) i
-      !else
-      g = 1999.0_wp
-      write(LuVal_ab) g
-      !end if
-      write(LuVal_ab) Title1
-    end if
-
-    if (iBinary == 0) then
-      call molcas_open(LuVal_ab,RealName)
-      !open(unit=LuVal_ab,file=RealName,Form='FORMATTED')
-      !write(u6,*) '** Create Grid file (in ASCII format):',RealName(1:index(RealName,' '))
-      if (isTheOne) then
-        write(LuVal_ab,'(a1)') '9'
-      else
+    else ! not luscus
+      if (iBinary == 1) then
+        call molcas_open_ext2(LuVal_ab,RealName,'sequential','unformatted',istatus,.false.,irecl,'unknown',is_error)
+        !open(unit=LuVal_ab,access='sequential',form='unformatted',file=RealName)
+        !write(u6,*) '** Create Grid file',RealName(1:index(RealName,' '))
+        write(LuVal_ab) 'a'
         !if (isMOPack) then
-        !  write(LuVal_ab,'(a1)') '1'
-        !  write(LuVal_ab,'(i5)') 0
+        !  g = 2003.9_wp
+        !  i = 0
+        !  write(LuVal_ab) g
+        !  write(LuVal_ab) i
         !else
-        write(LuVal_ab,'(a1)') '0'
+        g = 1999.0_wp
+        write(LuVal_ab) g
         !end if
-      end if
-      if (isDebug) then
-        write(Luval_ab,'(a,a)') Title1,' DEBUG'
-      else
-        write(Luval_ab,'(a)') Title1
+        write(LuVal_ab) Title1
+      else if (iBinary == 0) then
+        call molcas_open(LuVal_ab,RealName)
+        !open(unit=LuVal_ab,file=RealName,Form='FORMATTED')
+        !write(u6,*) '** Create Grid file (in ASCII format):',RealName(1:index(RealName,' '))
+        if (isTheOne) then
+          write(LuVal_ab,'(a1)') '9'
+        else
+          !if (isMOPack) then
+          !  write(LuVal_ab,'(a1)') '1'
+          !  write(LuVal_ab,'(i5)') 0
+          !else
+          write(LuVal_ab,'(a1)') '0'
+          !end if
+        end if
+        if (isDebug) then
+          write(Luval_ab,'(a,a)') Title1,' DEBUG'
+        else
+          write(Luval_ab,'(a)') Title1
+        end if
       end if
     end if
   end if

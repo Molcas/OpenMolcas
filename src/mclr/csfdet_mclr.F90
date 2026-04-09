@@ -14,7 +14,7 @@
 !#define _DEBUGPRINT_
 subroutine CSFDET_MCLR(NOPEN,IDET,NDET,ICSF,NCSF,CDC,PSSIGN)
 ! Expand csf's in terms of combinations with
-! the use of the Graebenstetter method (I.J.Q.C.10,P142(1976))
+! the use of the Grabenstetter method (I.J.Q.C. 10, P142 (1976))
 !
 ! Input :
 !         NOPEN : NUMBER OF OPEN ORBITALS
