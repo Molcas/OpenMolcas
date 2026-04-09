@@ -38,6 +38,7 @@ subroutine Drv_Fck_Inner(ip,Int1El,LenTot,lOper,nComp,rHrmt,iStabO,nStabO,nIC)
 !             Modified loop structure April 99                         *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
@@ -53,10 +54,10 @@ integer(kind=iwp), intent(in) :: nComp, ip(nComp), LenTot, lOper(nComp), iStabO(
 real(kind=wp), intent(inout) :: Int1El(LenTot)
 real(kind=wp), intent(in) :: rHrmt
 #include "print.fh"
-integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), iElem, ii, iIC, iIrrep, ijB, &
-                     ijC, iPrim, iPrint, iRout, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, &
-                     jCmp, jCnt, jCnttp, jElem, jPrim, jS, jShell, jShll, LmbdR, LambdT, lDCRR, lFinal, mdci, mdcj, mSO, nDCRR, &
-                     nDCRT, nOp(2), nSkal, nSO, nStabM
+integer(kind=iwp) :: i, iAng, iAO, iB, iBas, iC, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ii, iIC, iIrrep, ijB, ijC, &
+                     iPrim, iPrint, iRout, iS, iShell, iShll, iSmLbl, iSOBlk, iStabM(0:7), iTo, iuv, jAng, jAO, jB, jBas, jCmp, &
+                     jCnt, jCnttp, jPrim, jS, jShell, jShll, LmbdR, LambdT, lDCRR, lFinal, mdci, mdcj, mSO, nDCRR, nDCRT, nOp(2), &
+                     nSkal, nSO, nStabM
 real(kind=wp) :: A(3), B(3), Fact, RB(3)
 real(kind=wp), allocatable :: Zeta(:), ZI(:), SO(:), Fnl(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
@@ -65,7 +66,7 @@ iRout = 112
 iPrint = nPrint(iRout)
 !iPrint = 99
 
-!-----Auxiliary memory allocation.
+! Auxiliary memory allocation.
 
 call mma_allocate(Zeta,S%m2Max)
 call mma_allocate(ZI,S%m2Max)
@@ -76,7 +77,7 @@ call Nr_Shells(nSkal)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!-----Double loop over shells. These loops decide the integral type
+! Double loop over shells. These loops decide the integral type
 
 do iS=1,nSkal
   iShll = iSD(0,iS)
@@ -124,11 +125,8 @@ do iS=1,nSkal
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    ! Allocate memory for the final integrals all in the
-    ! primitive basis.
-    iElem = (iAng+1)*(iAng+2)/2
-    jElem = (jAng+1)*(jAng+2)/2
-    lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*iElem*jElem
+    ! Allocate memory for the final integrals all in the primitive basis.
+    lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call mma_allocate(Fnl,lFinal)
     Fnl(:) = Zero
     !                                                                  *
@@ -199,7 +197,7 @@ do iS=1,nSkal
           ijB = (jB-1)*iBas+iB
           do iC=1,iCmp
             ijC = (iC-1)*iCmp+iC
-            iTo = +(ijC-1)*iBas**2+ijB
+            iTo = (ijC-1)*iBas**2+ijB
 #           ifdef _DEBUGPRINT_
             write(u6,*) 'ijB,ijC=',ijB,ijC
             write(u6,*) 'Fnl(iTo),Shells(iShll)%FockOp(iB,jB)=',Fnl(iTo),Shells(iShll)%FockOp(iB,jB)
@@ -254,8 +252,7 @@ do iS=1,nSkal
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    ! Scatter the SO's on to the non-zero blocks of the
-    ! lower triangle.
+    ! Scatter the SO's on to the non-zero blocks of the lower triangle.
 
     iSOBlk = 1
     do iComp=1,nComp
@@ -270,14 +267,14 @@ do iS=1,nSkal
         iSOBlk = iSOBlk+mSO*iBas*jBas
       end if
     end do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
     call mma_deallocate(Fnl)
     call mma_deallocate(SO)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
   end do
 end do
 

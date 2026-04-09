@@ -306,7 +306,7 @@ do
   !write(u6,*) 'StepMax-dqdq=',StepMax-dqdq
   call Find_RFO_Root(A_RFO_long,dqdq_long,A_RFO_short,dqdq_short,A_RFO,dqdq,StepMax)
   if (Iter > IterMx) then
-    write(u6,*) ' Too many iterations in RF'
+    write(u6,*) ' Too many iterations in RS'
     exit
   end if
 end do

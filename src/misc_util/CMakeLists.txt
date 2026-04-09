@@ -28,7 +28,6 @@ set (sources
      decideondf.F90
      decideondirect.F90
      decideonespf.F90
-     dgemm_tri.F90
      diag_driver.F90
      dmpone.F90
      drdmck.F90
@@ -39,7 +38,6 @@ set (sources
      fcidump_output.F90
      fix_symmetry.F90
      fold.F90
-     full_svd.F90
      gen_int.F90
      gen_int_dccd.F90
      get_int.F90
@@ -77,7 +75,6 @@ set (sources
      jacord.F90
      langevin_on.F90
      lapack_wrappers.F90
-     large_svd.F90
      lineqsolv.F90
      mckdat.F90
      minv.F90

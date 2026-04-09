@@ -118,4 +118,5 @@ call NrmClc(Y,size(Y),'yHx','Y(:)')
 call RecPrt('yHx: Y',' ',Y,1,size(Y))
 #endif
 
+#undef _DEBUGPRINT_
 end subroutine yHx

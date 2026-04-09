@@ -14,9 +14,11 @@
 !               1995,1996, Martin Schuetz                              *
 !               2003, Valera Veryazov                                  *
 !               2016,2017,2022, Roland Lindh                           *
+!               2024, Daniel Wessling                                  *
+!               2024, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-#define _KRYLOV_
+!#define _DEBUGPRINT_
 subroutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
 !***********************************************************************
 !                                                                      *
@@ -42,10 +44,11 @@ use InfSCF, only: nBO
 use Interfaces_SCF, only: OptClc_X, TraClc_i
 use LnkLst, only: GetVec, LLDelt, LLGrad, LLx, LstPtr, PutVec, SCF_V
 use InfSCF, only: AccCon, Aufb, CMO, CMO_Ref, CPUItr, Damping, DIIS, DIISTh, DltNrm, DltnTh, DMOMax, DoCholesky, DSCF, DThr, E1V, &
-                  E2V, EDiff, Energy, EneV, EOrb, EThr, FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, iterSO, &
-                  iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, MaxFlip, MiniDn, mOV, MSYMON, MxIter, MxOptm, nAufb, nBas, &
-                  nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, One_Grid, Ovrlp, qNRTh, RGEK, &
-                  RSRFO, rTemp, S2Uhf, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, Two_Thresholds, WarnCfg, WarnPocc
+                  E2V, EDiff, Energy, EneV, EOrb, EThr, Expand, FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, &
+                  iterGEK, iterSO, iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, Loosen, MaxFlip, MiniDn, mOV, MSYMON, &
+                  MxIter, MxOptm, nAufb, nBas, nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, &
+                  One_Grid, Ovrlp, QNRTh, RGEK, RSRFO, rTemp, S2Uhf, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, &
+                  Two_Thresholds, WarnCfg, WarnPocc
 use Cholesky, only: ChFracMem
 use SCFFiles, only: LuOut
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -57,20 +60,23 @@ integer(kind=iwp), intent(out) :: iTerm
 character(len=*), intent(in) :: Meth
 logical(kind=iwp), intent(inout) :: FstItr
 real(kind=wp), intent(inout) :: SIntTh
-integer(kind=iwp) :: iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, Iter_DIIS, &
-                     Iter_no_DIIS, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
-real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &
-                 TWall2
-logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
+integer(kind=iwp) :: i, iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, &
+                     Iter_DIIS, Iter_DIIS_min, Iter_no_DIIS, iTrM, itSave, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
+real(kind=wp) :: ang, DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, GradNorm, LastStatus, LastStep = 0.1_wp, TCP1, &
+                 TCP2, TCPU1, TCPU2, TWall1, TWall2
+logical(kind=iwp) :: AllowFlip, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, Loosen_Active, QNR1st, Reset, Reset_GEK, &
+                     Reset_NQ, Reset_Thresh, SORange
 character(len=128) :: OrbName
 character(len=72) :: Note
+character(len=32) :: IterText
 character(len=10) :: Meth_
+character(len=9) :: StrSave
 #ifdef _MSYM_
 integer(kind=iwp) :: iD
 real(kind=wp) :: Whatever
 type(c_ptr) :: msym_ctx
 #endif
-real(kind=wp), allocatable :: CInter(:,:), D1Sao(:), Disp(:), Grd1(:), Xn(:), Xnp1(:)
+real(kind=wp), allocatable :: CInter(:,:), D1Sao(:), Disp(:), Grd1(:), Prev(:), Xn(:), Xnp1(:)
 real(kind=wp), parameter :: E2VTolerance = -1.0e-8_wp, StepMax = Ten
 real(kind=wp), external :: DDot_, Seconds
 
@@ -115,6 +121,7 @@ if (MiniDn) MinDMx = max(0,nIter(nIterP)-1)
 ! iOpt=1: DIIS extrapolation on gradients w.r.t orbital rot.
 ! iOpt=2: DIIS extrapolation on the anti-symmetrix X matrix.
 ! iOpt=3: RS-RFO in the space of the anti-symmetric X matrix.
+! iOpt=4: s-GEK/RVO in the space of the anti-symmetric X matrix.
 
 iOpt = 0
 QNR1st = .true.
@@ -136,9 +143,15 @@ end if
 !----------------------------------------------------------------------*
 !                                                                      *
 IterSO = 0        ! number of second order steps.
+IterGEK = 0       ! number of data points in S-GEK
 kOptim = 1
+Iter_Diis_min = 2
 Iter_no_Diis = 2
 Converged = .false.
+SORange = Damping ! within 2nd-order range for S-GEK
+Reset_GEK = .false.
+Reset_NQ = .false.
+IterText = 'Iterations'
 !                                                                      *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
@@ -150,7 +163,7 @@ Converged = .false.
 !                                                                      *
 DiisTh = max(DiisTh,QNRTh)
 
-! If DIIS is turned off make threhold for activation impossible
+! If DIIS is turned off make threshold for activation impossible
 
 if (.not. DIIS) then
   DiisTh = Zero
@@ -162,6 +175,7 @@ end if
 if (.not. Damping) then
   DiisTh = DiisTh*1.0e99_wp
   Iter_no_Diis = 1
+  Iter_Diis_min = 0
 end if
 
 ! turn temporarily off DIIS & QNR/DIIS, if Aufbau is active...
@@ -185,11 +199,12 @@ AufBau_Done = .false.
 
 Reset = .false.
 Reset_Thresh = .false.
-EThr_New = EThr*Ten**2
 
 ! pow: temporary disabling of threshold switching
 
 if ((DSCF .or. (KSDFT /= 'SCF')) .and. (nIter(nIterP) > 10)) then
+
+  EThr_New = EThr*Ten**2
 
   if (DSCF .and. (KSDFT == 'SCF') .and. Two_Thresholds) then
     Reset = .true.
@@ -220,12 +235,14 @@ end if
 ! Set some parameters to starting defaults.
 
 AllowFlip = .true.
+Loosen_Active = .false.
 iAufOK = 0
 Iter_DIIS = 0
 EDiff = Zero
-DMOMax = Zero
+DMOMax = 1.0e99_wp
 FMOMax = Zero
 DltNrm = Zero
+LastStatus = -One
 
 if (MSYMON) then
 # ifdef _MSYM_
@@ -251,6 +268,7 @@ do iter_=1,nIter(nIterP)
   if ((.not. Aufb) .and. (iter > MaxFlip)) AllowFlip = .false.
 
   TCP1 = seconds()
+  if (LastStatus < Zero) LastStatus = TCP1
 
   iDMin = iDMin+1
   if (iDMin > MinDMx) iDMin = MinDMx
@@ -298,7 +316,7 @@ do iter_=1,nIter(nIterP)
   !*********************************************************************
   !                                                                    *
   ! Test if this is a DIIS extrapolation iteration, alternatively
-  ! the the iteration is a DIIS interpolation iteration. The former
+  ! the iteration is a DIIS interpolation iteration. The former
   ! is activated if the DMOMax is lower than the threshold
   ! after a specific number of iteration, or if the condition
   ! has already been achieved.
@@ -315,14 +333,23 @@ do iter_=1,nIter(nIterP)
 
   ! Test if the DIIS scheme will be operating in an orbital
   ! rotation mode or linear combination of density matrices. This
-  ! option is avaliable only in the extrapolation mode of DIIS.
+  ! option is available only in the extrapolation mode of DIIS.
   !
   ! 2017-02-03: Make sure that the density based DIIS is in
   !             action for at least 2 iterations such that
   !             when the orbital rotation DIIS is turned on
   !             we are firmly in the NR region.
 
-  if ((iOpt >= 2) .or. ((iOpt == 1) .and. (DMOMax < QNRTh) .and. (Iter_DIIS >= 2))) then
+  if (RGEK .and. (.not. (Damping .or. Aufb))) then
+    iOpt = 4
+    if ((.not. SORange) .and. (Iter > 1)) then
+      call mma_allocate(Grd1,mOV,Label='Grd1')
+      call GetVec(iter-1,LLGrad,inode,Grd1,mOV)
+      GradNorm = sqrt(ddot_(mov,Grd1,1,Grd1,1))
+      call mma_deallocate(Grd1)
+      if (GradNorm < QNRTh) Reset_GEK = .true.
+    end if
+  else if ((iOpt >= 2) .or. ((iOpt == 1) .and. (DMOMax < QNRTh) .and. (Iter_DIIS >= Iter_DIIS_min))) then
     if (RSRFO .or. RGEK) then
       if (RSRFO) then
         iOpt = 3
@@ -401,7 +428,7 @@ do iter_=1,nIter(nIterP)
       end if
       call GrdClc(FrstDs)
 
-      call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
+      call DIIS_x(nD,CInter,nCI,.false.,Ind)
 
       ! Compute optimal density, dft potentials, and TwoHam
 
@@ -466,10 +493,10 @@ do iter_=1,nIter(nIterP)
 
       ! Set the reference set of parameters and the corresponding
       ! CMOs to be the current iteration.
-      Iter_Ref = Iter
-      CMO_Ref(:,:) = CMO(:,:)
 
       if (Iter == Iter_Start) then
+        Iter_Ref = Iter
+        CMO_Ref(:,:) = CMO(:,:)
         ! init 1st orb rot parameter X1 (set it to zero)
         call mma_allocate(Xn,mOV,Label='Xn')
         Xn(:) = Zero
@@ -478,26 +505,14 @@ do iter_=1,nIter(nIterP)
         call mma_deallocate(Xn)
       end if
 
-      ! Compute the gradient(s). Note that these gradients depends
-      ! CMO_Ref. As we progressively move the reference point along
-      ! all the gradients have to be recomputed.
-      Always_True = .true.
-      call GrdClc(Always_True)
+      ! Compute the current gradient
+      call SCF_Gradient()
 
-      ! As all gradients have change we have to recompute the list
-      ! of gradients differences.
-      call dGrd()
+      ! Set the reference set of parameters and the corresponding
+      ! CMOs to be the current iteration.
+      call Move_Ref(Iter)
 
-      ! We have to update the parameter sets so that the reference
-      ! set is assigned X=0
-      call XClc()
-
-      ! As the reference point slides we have to update the
-      ! differences of the parameter set between the iterations.
-      call dX()
-
-      ! Update the Fock Matrix from actual OneHam, Vxc & TwoHam
-      ! AO basis
+      ! Update the Fock Matrix from actual OneHam, Vxc & TwoHam AO basis
 
       call mk_FockAO(nIter(nIterP))
 
@@ -513,8 +528,7 @@ do iter_=1,nIter(nIterP)
       ! update the QNR iteration counter
       IterSO = min(IterSO+1,IterSO_Max)
 
-      ! Allocate memory for the current gradient and
-      ! displacement vector.
+      ! Allocate memory for the current gradient and displacement vector.
 
       call mma_allocate(Grd1,mOV,Label='Grd1')
       call mma_allocate(Disp,mOV,Label='Disp')
@@ -522,7 +536,7 @@ do iter_=1,nIter(nIterP)
 
       select case (iOpt)
 
-        case (2)  ! qNRC2DIIS
+        case (2) ! qNRC2DIIS
           !                                                            *
           !*************************************************************
           !*************************************************************
@@ -530,7 +544,7 @@ do iter_=1,nIter(nIterP)
           ! Compute extrapolated g_x(n) and X_x(n)
 
           do
-            call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
+            call DIIS_x(nD,CInter,nCI,.true.,Ind)
 
             call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
             call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)
@@ -538,22 +552,28 @@ do iter_=1,nIter(nIterP)
             ! compute new displacement vector delta
             ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 
-            call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+            call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
 
-            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+            DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
 
             if (DD > Pi) then
+#             ifdef _DEBUGPRINT_
               write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
               write(u6,*) 'DD=',DD
+#             endif
               if (kOptim /= 1) then
+#               ifdef _DEBUGPRINT_
                 write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
+#               endif
                 kOptim = 1
                 Iter_Start = Iter
                 IterSO = 1
                 cycle
               else
+#               ifdef _DEBUGPRINT_
                 write(u6,*) 'Scale the step to be within the threshold.'
                 write(u6,*) 'LastStep=',LastStep
+#               endif
                 Disp(:) = Disp(:)*(LastStep/DD)
               end if
             end if
@@ -573,20 +593,26 @@ do iter_=1,nIter(nIterP)
 
             Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
 
-            DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+            DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
 
             if (DD <= Pi) exit
+#           ifdef _DEBUGPRINT_
             write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
             write(u6,*) 'DD=',DD
+#           endif
             if (kOptim /= 1) then
+#             ifdef _DEBUGPRINT_
               write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
+#             endif
               kOptim = 1
               Iter_Start = Iter
               IterSO = 1
             else
+#             ifdef _DEBUGPRINT_
               write(u6,*) 'Scale the step to be within the threshold.'
+#             endif
               Disp(:) = Disp(:)*(LastStep/DD)
-              DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+              DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
               exit
             end if
           end do
@@ -595,8 +621,7 @@ do iter_=1,nIter(nIterP)
           !*************************************************************
           !*************************************************************
           !                                                            *
-        case (3,4) ! RS-RFO and S-GEK
-
+        case (3) ! RS-RFO
           !                                                            *
           !*************************************************************
           !*************************************************************
@@ -607,51 +632,27 @@ do iter_=1,nIter(nIterP)
           !                                                            *
           !*************************************************************
           !                                                            *
-          select case (iOpt)
-
-            case (3)
-
-              dqHdq = Zero
-              do
-                call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
-                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-                if (DD <= Pi) exit
-                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
-                write(u6,*) 'DD=',DD
-                if (kOptim /= 1) then
-                  write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
-                  kOptim = 1
-                  Iter_Start = Iter
-                  IterSO = 1
-                else
-                  write(u6,*) 'Probably a bug.'
-                  call Abend()
-                end if
-              end do
-
-            case (4)
-#             ifdef _KRYLOV_
-              dqHdq = Zero
-              do
-                call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9))
-                DD = sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-                if (DD <= Pi) exit
-                write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
-                write(u6,*) 'DD=',DD
-                if (kOptim /= 1) then
-                  write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
-                  kOptim = 1
-                  Iter_Start = Iter
-                  IterSO = 1
-                else
-                  write(u6,*) 'Probably a bug.'
-                  call Abend()
-                end if
-              end do
+          dqHdq = Zero
+          do
+            call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9),3)
+            DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+            if (DD <= Pi) exit
+#           ifdef _DEBUGPRINT_
+            write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
+            write(u6,*) 'DD=',DD
+#           endif
+            if (kOptim /= 1) then
+#             ifdef _DEBUGPRINT_
+              write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
 #             endif
-              call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9))
-
-          end select
+              kOptim = 1
+              Iter_Start = Iter
+              IterSO = 1
+            else
+              write(u6,*) 'Probably a bug.'
+              call Abend()
+            end if
+          end do
           !                                                            *
           !*************************************************************
           !                                                            *
@@ -660,7 +661,154 @@ do iter_=1,nIter(nIterP)
           call GetVec(iter,LLx,inode,Xnp1,mOV)
 
           Xnp1(:) = Xnp1(:)+Disp(:)
+          !                                                            *
+          !*************************************************************
+          !*************************************************************
+          !                                                            *
+        case (4) ! S-GEK
+          !                                                            *
+          !*************************************************************
+          !*************************************************************
+          !                                                            *
+          ! update the S-GEK iteration counter
+          if (Reset_GEK) then
+            ! Reset the GEK surrogate model if the NQ grid has been reset
+            if (Reset_NQ) IterGEK = 1
+            IterSO = 1
+            kOptim = 1
+            SORange = .true.
+            Reset_GEK = .false.
+            Reset_NQ = .false.
+#           ifdef _DEBUGPRINT_
+            write(u6,*) 'Reset GEK'
+#           endif
+          else
+            IterGEK = min(IterGEK+1,IterSO_Max)
+          end if
+          Iter_Start = max(Iter_Start,Iter-IterGEK+1)
+          IterText = 'Macro Iterations'
 
+          ! Get g(n)
+
+          call GetVec(iter,LLGrad,inode,Grd1,mOV)
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          ! Expand the subspace for GEK
+          StrSave = AccCon
+          itSave = Iter_Start
+          select case (Expand)
+            case (1) ! Use DIIS
+              ! Compute extrapolated g_x(n) and X_x(n)
+
+              call DIIS_x(nD,CInter,nCI,.true.,Ind)
+
+              call OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,LLGrad)
+              call OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,LLx)
+
+              ! compute new displacement vector delta
+              ! dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
+
+              ! Reduce the BFGS update depth until the step is reasonable
+              do i=1,IterSO
+                call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
+                DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+                if (DD <= Pi) exit
+#               ifdef _DEBUGPRINT_
+                if (i == 1) then
+                  write(u6,*) 'WfCtl_SCF: Total displacement is large.'
+                  write(u6,*) 'DD=',DD
+                end if
+#               endif
+                if (IterSO > 1) then
+                  if (i == 1) write(u6,*) 'Reset update depth in BFGS'
+                  IterSO = IterSO-1
+                  Iter_Start = Iter-IterSO+1
+                  kOptim = min(kOptim,IterSO)
+                end if
+              end do
+#             ifdef _DEBUGPRINT_
+              if (i > 1) write(u6,*) 'IterSO=',IterSO
+#             endif
+
+              ! from this, compute new orb rot parameter X(n+1)
+              !
+              ! X(n+1) = X_x(n) - H(-1)g_x(n)
+              ! X(n+1) = X_x(n) + dX_x(n)
+
+              Xnp1(:) = Xnp1(:)-Disp(:)
+
+              ! get address of actual X(n) in corresponding LList
+
+              jpXn = LstPtr(iter,LLx)
+
+              ! and compute actual displacement dX(n)=X(n+1)-X(n)
+
+              Disp(:) = Xnp1(:)-SCF_V(jpXn)%A(:)
+            case (2) ! Use BFGS
+              ! Reduce the BFGS update depth until the step is reasonable
+              do i=1,IterSO
+                call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
+                DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
+                if (DD <= Pi) exit
+#               ifdef _DEBUGPRINT_
+                if (i == 1) then
+                  write(u6,*) 'WfCtl_SCF: Total displacement is large.'
+                  write(u6,*) 'DD=',DD
+                end if
+#               endif
+                if (IterSO > 1) then
+#                 ifdef _DEBUGPRINT_
+                  if (i == 1) write(u6,*) 'Reset update depth in BFGS'
+#                 endif
+                  IterSO = IterSO-1
+                  Iter_Start = Iter-IterSO+1
+                  kOptim = min(kOptim,IterSO)
+                end if
+              end do
+#             ifdef _DEBUGPRINT_
+              if (i > 1) write(u6,*) 'IterSO=',IterSO
+#             endif
+            case (3) ! Use RS-RFO
+              dqHdq = Zero
+              call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9),1)
+          end select
+          AccCon = StrSave
+          Iter_Start = itSave
+
+          Loosen_Active = (Loosen%Factor > One)
+          call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),SORange)
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          ! Pick up X(n) and compute X(n+1)=X(n)+dX(n)
+
+          call GetVec(iter,LLx,inode,Xnp1,mOV)
+
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          ! Undershoot avoidance,
+          ! when consecutive steps have a large overlap
+
+          if ((Loosen%Step > One) .and. (iterGEK > 1)) then
+            call mma_allocate(Prev,mOV,Label='Prev')
+            call GetVec(iter-1,LLDelt,inode,Prev,mOV)
+            dqdq = DDot_(mOV,Disp,1,Disp,1)*DDot_(mOV,Prev,1,Prev,1)
+            ang = DDot_(mOV,Prev,1,Disp,1)/sqrt(dqdq)
+            if ((ang < Loosen%Thrs2) .or. (AccCon(9:9) /= ' ')) then
+              Loosen%Factor = One
+            else if (ang > Loosen%Thrs) then
+              Loosen%Factor = Loosen%Factor*Loosen%Step
+            end if
+            call mma_deallocate(Prev)
+          end if
+
+          Xnp1(:) = Xnp1(:)+Disp(:)
+          !                                                            *
+          !*************************************************************
+          !*************************************************************
+          !                                                            *
       end select
       !                                                                *
       !*****************************************************************
@@ -688,7 +836,7 @@ do iter_=1,nIter(nIterP)
       !*****************************************************************
       !*****************************************************************
       !                                                                *
-    case Default
+    case default
       write(u6,*) 'WfCtl_SCF: Illegal option'
       call Abend()
   end select
@@ -792,6 +940,12 @@ do iter_=1,nIter(nIterP)
 
   TCP2 = seconds()
   CpuItr = TCP2-TCP1
+  ! Update status every 10 seconds at most
+  if (TCP2-LastStatus > Ten) then
+    write(Note,'(A,I0)') 'Iteration ',Iter
+    call StatusLine('SCF: ',Note)
+    LastStatus = TCP2
+  end if
 
   call PrIte(iOpt >= 2,CMO,nBB,nD,Ovrlp,nBT,OccNo,nnB)
 
@@ -839,7 +993,7 @@ do iter_=1,nIter(nIterP)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  if ((EDiff > 1.0e-14_wp) .and. (.not. Reset)) EDiff = Ten*EThr
+  if ((EDiff > Zero) .and. (.not. Reset)) EDiff = Ten*EThr
   if ((iter /= 1) .and. (abs(EDiff) <= EThr) .and. (abs(FMOMax) <= FThr) .and. &
       (((abs(DMOMax) <= DThr) .and. (iOpt < 2)) .or. ((DltNrm <= DltNTh) .and. iOpt >= 2))) then
     !                                                                  *
@@ -863,7 +1017,11 @@ do iter_=1,nIter(nIterP)
       IterSO = 0
       if (Reset_Thresh) call Reset_Thresholds()
       if (KSDFT /= 'SCF') then
-        if (.not. One_Grid) call Reset_NQ_grid()
+        if (.not. One_Grid) then
+          call Reset_NQ_grid()
+          Reset_GEK = .true.
+          Reset_NQ = .true.
+        end if
         if (iOpt == 0) kOptim = 1
       end if
       cycle
@@ -871,10 +1029,15 @@ do iter_=1,nIter(nIterP)
 
     ! Here if we converged!
 
-    ! Branch out of the iterative loop! Done!!!
-
-    Converged = .true.
-    exit
+    if (Loosen_Active) then
+      ! If in loosen mode, disable it
+      Loosen%Factor = One
+      Loosen%Step = One
+    else
+      ! Branch out of the iterative loop! Done!!!
+      Converged = .true.
+      exit
+    end if
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -950,19 +1113,19 @@ if (Converged) then
 
   if (jPrint >= 2) then
     write(u6,*)
-    write(u6,'(6X,A,I3,A)') ' Convergence after ',iter,' Macro Iterations'
+    write(u6,'(6X,A,I3,1X,A)') ' Convergence after ',iter,trim(IterText)
   end if
 
 else
 
   ! Here if we didn't converge or if this was a forced one
-  ! iteration  calculation.
+  ! iteration calculation.
 
   iter = iter-1
   if (nIter(nIterP) > 1) then
     if (jPrint >= 1) then
       write(u6,*)
-      write(u6,'(6X,A,I3,A)') ' No convergence after ',iter,' Iterations'
+      write(u6,'(6X,A,I3,1X,A)') ' No convergence after ',iter,trim(IterText)
     end if
     iTerm = _RC_NOT_CONVERGED_
   else
@@ -976,7 +1139,11 @@ else
 
   if (Reset) then
     if (DSCF .and. (KSDFT == 'SCF')) call Reset_Thresholds()
-    if ((KSDFT /= 'SCF') .and. (.not. One_Grid)) call Reset_NQ_grid()
+    if ((KSDFT /= 'SCF') .and. (.not. One_Grid)) then
+      call Reset_NQ_grid()
+      Reset_GEK = .true.
+      Reset_NQ = .true.
+    end if
   end if
 
 end if

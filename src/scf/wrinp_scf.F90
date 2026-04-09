@@ -25,10 +25,11 @@ subroutine WrInp_SCF(SIntTh)
 
 use Functionals, only: Print_Info
 use KSDFT_Info, only: CoefR, CoefX
-use InfSCF, only: Algo, Aufb, DDnoff, DelThr, DIIS, DIISTh, DltNth, dmpk, DoCholesky, DSCF, DThr, EThr, FThr, Header, iAU_ab, &
-                  InVec, isHDF5, IterSO_Max, jPrint, jVOut, kIVO, kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nAufb, nBas, nCore, nD, &
-                  nDel, nDIsc, nFro, nIter, nMem, nOcc, NoExchange, nOrb, nSym, nTit, One_Grid, PreSch, QNRTh, ReOrd, RFPert, &
-                  rTemp, Scrmbl, StVec, Teee, TemFac, Thize, Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop, VTitle
+use InfSCF, only: Algo, Aufb, DDnoff, DelThr, DIIS, DIISTh, DltNth, dmpk, DoCholesky, DSCF, DThr, EThr, Expand, FThr, Header, &
+                  iAU_ab, InVec, isHDF5, IterSO_Max, jPrint, jVOut, kIVO, kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nAufb, nBas, &
+                  nCore, nD, nDel, nDIsc, nFro, nIter, nMem, nOcc, NoExchange, nOrb, nSym, nTit, One_Grid, PreSch, QNRTh, ReOrd, &
+                  RFPert, RGEK, rTemp, Scrmbl, StVec, Teee, TemFac, Thize, Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, &
+                  TStop, VTitle
 use Fock_util_global, only: Deco
 use RICD_Info, only: Do_DCCD
 use Definitions, only: wp, iwp, u6
@@ -37,8 +38,9 @@ implicit none
 real(kind=wp), intent(in) :: SIntTh
 integer(kind=iwp) :: i, iCharge, iDoRI, iSym, iTit, mTmp
 logical(kind=iwp) :: NonEq
-character(len=60) :: Frmt, FmtI, FmtR
 character(len=72) :: Line
+character(len=60) :: Frmt, FmtI, FmtR
+character(len=7) :: ExpMeth
 character(len=3) :: lIrrep(8)
 
 if (jPrint >= 2) then
@@ -344,6 +346,20 @@ if (jPrint >= 2) then
     write(u6,FmtI) 'Maximum depth in the BFGS Hessian update',IterSO_Max
     write(u6,FmtR) 'Threshold at which QNR/C2DIIS is turned on',QNRTh
     write(u6,FmtR) 'Threshold for Norm(delta) (QNR/C2DIIS)',DltNTh
+  end if
+  if (RGEK) then
+    write(u6,'(6X,A)') 'RVO optimization with a subspace GEK surrogate model'
+    select case(Expand)
+      case (1)
+        ExpMeth = 'DIIS'
+      case (2)
+        ExpMeth = 'BFGS'
+      case (3)
+        ExpMeth = 'RS-RFO'
+      case default
+        ExpMeth = 'Unknown'
+    end select
+    write(u6,'(6X,A,T50,A)') 'Subspace expansion method:',trim(ExpMeth)
   end if
   if (DSCF) write(u6,FmtR) 'Threshold for contribution to Fock matrix',SIntTh
 

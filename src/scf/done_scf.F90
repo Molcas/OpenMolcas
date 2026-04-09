@@ -145,4 +145,5 @@ end if
 
 return
 
+#undef _DEBUGPRINT_
 end subroutine DOne_SCF

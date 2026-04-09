@@ -141,7 +141,7 @@ set (sources
      rotder.F90
      rotder4.F90
      rowhessian.F90
-     rs-rfo.F90
+     rs_rfo.F90
      select_hidden.F90
      shfanm.F90
      slapaf_info.F90

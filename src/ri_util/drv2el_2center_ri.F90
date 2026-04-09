@@ -12,12 +12,12 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifndef _IN_MODULE_
 #error "This file must be compiled inside a module"
 #endif
 
+!#define _DEBUGPRINT_
 subroutine Drv2El_2Center_RI(ThrAO,A_Diag,MaxCntr)
 !***********************************************************************
 !                                                                      *
@@ -246,4 +246,6 @@ call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+
+#undef _DEBUGPRINT_
 end subroutine Drv2El_2Center_RI

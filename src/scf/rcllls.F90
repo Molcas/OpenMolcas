@@ -15,23 +15,27 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine RclLLs(iDskPt)
 
 use InfSCF, only: MemRsv
-use LnkLst, only: Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy, RclLst
-use SCFFiles, only: LuDel, LuDgd, LuGrd, Lux, Luy
+use LnkLst, only: Init_LLs, LLDelt, LLdGrd, LLGrad, LLlGrd, LLx, LLy, RclLst
+use SCFFiles, only: LuDel, LuDgd, LuGrd, LulGd, Lux, Luy
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(inout) :: iDskPt(5)
+integer(kind=iwp), intent(inout) :: iDskPt(6)
 
 call RclLst(LLGrad,LuGrd,iDskPt(1),MemRsv)
-call RclLst(LLDgrd,LuDGd,iDskPt(2),MemRsv)
-call RclLst(LLDelt,LuDel,iDskPt(3),MemRsv)
-call RclLst(LLy,Lux,iDskPt(4),MemRsv)
-call RclLst(LLx,Luy,iDskPt(5),MemRsv)
+call RclLst(LLlGrd,LulGd,iDskPt(2),MemRsv)
+call RclLst(LLDgrd,LuDGd,iDskPt(3),MemRsv)
+call RclLst(LLDelt,LuDel,iDskPt(4),MemRsv)
+call RclLst(LLy,Lux,iDskPt(5),MemRsv)
+call RclLst(LLx,Luy,iDskPt(6),MemRsv)
 Init_LLs = .true.
-!call StatLLs()
+#ifdef _DEBUGPRINT_
+call StatLLs()
+#endif
 
 return
 

@@ -37,6 +37,9 @@ set (sources
      egrad.F90
      eneclc.F90
      errv.F90
+     exp_series.F90
+     exp_series2.F90
+     exp_svd.F90
      expkap.F90
      fermipop.F90
      finalscf.F90
@@ -63,7 +66,6 @@ set (sources
      ivogen.F90
      kills.F90
      lnklst.F90
-     matexp.F90
      memalo.F90
      mk_eorb.F90
      mk_fockao.F90
@@ -85,6 +87,7 @@ set (sources
      padcmo.F90
      padeor.F90
      pickup.F90
+     pmat_scf.F90
      prbeg.F90
      prfin.F90
      prfin0.F90
@@ -103,9 +106,9 @@ set (sources
      reset_thresholds.F90
      rmldep.F90
      rotmos.F90
-     rs-rfo-scf.F90
+     rs_rfo_scf.F90
      rwdtg.F90
-     s-gek-optimizer.F90
+     s_gek_optimizer.F90
      scf.F90
      scf_energy.F90
      scf_init.F90
@@ -123,7 +126,6 @@ set (sources
      start3.F90
      start6.F90
      statlls.F90
-     stllst.F90
      swiopt.F90
      sym.F90
      trafck.F90
@@ -133,9 +135,17 @@ set (sources
      tw_corr.F90
      tw_corr_drv.F90
      vecfind.F90
+     voo2ov.F90
      wfctl_scf.F90
      wrinp_scf.F90
      xclc.F90
+     fix_ref.F90
+     log_svd.F90
+     move_ref.F90
+     scf_gradient.F90
+     trg_series.F90
+     trg_svd.F90
+     trgrad.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

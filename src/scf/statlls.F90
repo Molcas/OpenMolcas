@@ -17,13 +17,14 @@
 
 subroutine StatLLS()
 
-use LnkLst, only: Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy
+use LnkLst, only: Init_LLs, LLDelt, LLdGrd, LLGrad, LLlGrd, LLx, LLy, StlLst
 use Definitions, only: u6
 
 implicit none
 
 if (Init_LLs) then
   call StlLst(LLGrad)
+  call StlLst(LLlGrd)
   call StlLst(LLDgrd)
   call StlLst(LLDelt)
   call StlLst(LLy)

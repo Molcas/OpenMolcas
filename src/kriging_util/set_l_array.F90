@@ -16,10 +16,14 @@
 #error "This file must be compiled inside a module"
 #endif
 
+!#define _DEBUGPRINT_
 subroutine set_l_Array(Array_l,nInter,BaseLine,Hessian,HDiag)
 
 use Constants, only: Three, Five
 use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter
@@ -30,17 +34,15 @@ integer(kind=iwp) :: i
 real(kind=wp) :: Hss
 real(kind=wp), parameter :: H_min = 0.025_wp
 
-!#define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-!call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
-!write(u6,*) 'BaseLine=',BaseLine
-#endif
-
 ! Gives a Kriging Hessian for a single point of Kriging with
 ! a diagonal which is identical to the diagonal values of
 ! the HMF ad hoc Hessian.
 
 if (present(Hessian)) then
+# ifdef _DEBUGPRINT_
+  call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
+  write(u6,*) 'BaseLine=',BaseLine
+# endif
   do i=1,nInter
 
     ! Make sure that the characteristic length is not too long.
@@ -50,7 +52,11 @@ if (present(Hessian)) then
     Array_l(i) = sqrt(Five/Three*BaseLine/Hss)
 
   end do
-else
+else if (present(HDiag)) then
+# ifdef _DEBUGPRINT_
+  call RecPrt('set_l_Array: HDiag',' ',HDiag,1,nInter)
+  write(u6,*) 'BaseLine=',BaseLine
+# endif
   do i=1,nInter
 
     ! Make sure that the characteristic length is not too long.
@@ -63,10 +69,11 @@ else
 end if
 
 #ifdef _DEBUGPRINT_
-!write(u6,*) 'H_min=',H_Min
-!call RecPrt('Array_l',' ',Array_l,1,nInter)
+write(u6,*) 'H_min=',H_Min
+call RecPrt('Array_l',' ',Array_l,1,nInter)
 #endif
 
 return
 
+#undef _DEBUGPRINT_
 end subroutine set_l_Array

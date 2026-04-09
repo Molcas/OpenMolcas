@@ -102,4 +102,5 @@ call OneEl_Inner(Kernel,KrnlMm,Label,ip,lOper,nComp,CCoor,nOrdOp,rHrmt,iChO,iSta
 !                                                                      *
 return
 
+#undef _DEBUGPRINT_
 end subroutine OneEl_Integrals

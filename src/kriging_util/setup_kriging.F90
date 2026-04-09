@@ -16,6 +16,7 @@
 #error "This file must be compiled inside a module"
 #endif
 
+!#define _DEBUGPRINT_
 subroutine Setup_Kriging(nRaw,nInter,qInt,Grad,Energy,Hessian_HMF,HDiag)
 
 use kriging_mod, only: blavAI, nSet, layer_U, set_l
@@ -67,7 +68,6 @@ if (present(Hessian_HMF)) then
   ! the kriging hessian reproduce the diagonal value of the HMF
   ! Hessian of the current structure.
 
-!# define _DEBUGPRINT_
 # ifdef _DEBUGPRINT_
   call RecPrt('Setup_kriging: qInt',' ',qInt,nInter,nRaw)
   do i=1,nSet
@@ -143,4 +143,5 @@ call mma_deallocate(Array_l)
 !                                                                      *
 return
 
+#undef _DEBUGPRINT_
 end subroutine Setup_Kriging

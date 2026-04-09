@@ -10,10 +10,10 @@
 !                                                                      *
 ! Copyright (C) 2022, Danjo De Chavez                                  *
 !***********************************************************************
-!  matexp
+!  exp_series
 !
 !> @brief  Compute the exponential of the U matrix
-!> @author Danjo De Chavez (2022)
+!> @author Danjo De Chavez
 !>
 !> @details
 !> Computes the exponential of an antisymmetric real matrix U through
@@ -23,12 +23,14 @@
 !> \note
 !> Some equations in the reference are wrong.
 !>
+!> @see ::exp_series2, ::exp_svd, ::exp_schur, ::exp_eig
+!>
 !> @param[in]     N        Size of the square matrix
 !> @param[in]     No       Number of Occupied Orbitals
 !> @param[in,out] U        U matrix is replaced by its exponential
 !***********************************************************************
 
-subroutine matexp(N,No,U)
+subroutine exp_series(N,No,U)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -91,17 +93,16 @@ Uvo(:,:) = theta
 
 do while (thrsh < ithrsh)
   cnt = cnt+1
+  factor = factor*cnt
 
   if (mod(cnt,2) == 0) then
     call dgemm_('T','N',No,No,Nv,One,-theta,Nv,Kvo,Nv,Zero,Koo,No)
     call dgemm_('N','T',Nv,Nv,No,One,Kvo,Nv,-theta,Nv,Zero,Kvv,Nv)
-    factor = factor*cnt
     Uoo(:,:) = Uoo+Koo/factor
     Uvv(:,:) = Uvv+Kvv/factor
 
   else
     call dgemm_('N','N',Nv,No,No,One,theta,Nv,Koo,No,Zero,Kvo,Nv)
-    factor = factor*cnt
     Uvo(:,:) = Uvo+Kvo/factor
 
     ithrshoo = maxval(abs(Uoo-xUoo)/(abs(Uoo)+thrsh))
@@ -137,4 +138,4 @@ call mma_deallocate(theta)
 
 return
 
-end subroutine matexp
+end subroutine exp_series

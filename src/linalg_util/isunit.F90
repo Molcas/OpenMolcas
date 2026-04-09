@@ -9,27 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module Interfaces_SCF
+function isUnit(A,N,ldA,thrs)
 
-! Dummy modules to get correct order of compilation
-use InfSCF, only:
-use LnkLst, only:
+! Find out if a block of A is close enough to a unit matrix
+
+use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-private
+logical(kind=iwp) :: isunit
+integer(kind=iwp), intent(in) :: N, ldA
+real(kind=wp), intent(in) :: A(ldA,N), thrs
+integer(kind=iwp) :: i
 
-public :: dOne_SCF, MinDns, OccDef, OptClc_X, TraClc_i, vOO2OV_inner, yHx
+do i=1,N
+  if (abs(A(i,i)-One) > thrs) exit
+  if (any(abs(A(1:i-1,i)) > thrs)) exit
+  if (any(abs(A(i+1:N,i)) > thrs)) exit
+end do
+isunit = (i > N)
 
-contains
+return
 
-! Subroutines that need an explicit interface (target or allocatable arguments)
-#define _IN_MODULE_
-#include "done_scf.F90"
-#include "mindns.F90"
-#include "occdef.F90"
-#include "optclc_x.F90"
-#include "traclc_i.F90"
-#include "voo2ov_inner.F90"
-#include "yhx.F90"
-
-end module Interfaces_SCF
+end function isUnit

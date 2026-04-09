@@ -18,13 +18,14 @@
 subroutine KiLLs()
 ! dispose the diverse linked lists
 
-use LnkLst, only: Init_LLs, KilLst, LLDelt, LLdGrd, LLGrad, LLx, LLy
+use LnkLst, only: Init_LLs, KilLst, LLDelt, LLdGrd, LLGrad, LLlGrd, LLx, LLy
 use Definitions, only: u6
 
 implicit none
 
 if (Init_LLs) then
   call KilLst(LLGrad)
+  call KilLst(LLlGrd)
   call KilLst(LLDgrd)
   call KilLst(LLDelt)
   call KilLst(LLy)

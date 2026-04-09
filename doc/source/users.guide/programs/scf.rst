@@ -325,16 +325,42 @@ Below is a list of keywords that should cover the needs of most users.
               </KEYWORD>
 
 :kword:`RS-Rfo`
-  Use this keyword to optimize te SCF orbitals using the restricted step
+  Use this keyword to optimize the SCF orbitals using the restricted step
   rational function optimization (RS-RFO) procedure. Default is the use
   of the quasi-Newton-Raphson C2-DIIS procedure.
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="RS-RFO" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="RS-RFO" KIND="SINGLE" EXCLUSIVE="S-GEK" LEVEL="BASIC">
               %%Keyword: RS-RFO <basic>
               <HELP>
-              Use this keyword to optimize te SCF orbitals using the restricted step
+              Use this keyword to optimize the SCF orbitals using the restricted step
               rational function optimization (RS-RFO) procedure. Default is the use
               of the quasi-Newton-Raphson C2-DIIS procedure.
+              </HELP>
+              </KEYWORD>
+
+:kword:`S-GEk`
+  Use this keyword to optimize the SCF orbitals using the restricted variance
+  optimization (RVO) procedure, based on a subspace gradient-enhanced Kriging (S-GEK)
+  surrogate model. Default is the use of the quasi-Newton-Raphson C2-DIIS procedure.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="S-GEK" KIND="SINGLE" EXCLUSIVE="RS-RFO" LEVEL="BASIC">
+              %%Keyword: S-GEK <basic>
+              <HELP>
+              Use this keyword to optimize the SCF orbitals using the restricted variance
+              optimization (RVO) procedure, based on a subspace gradient-enhanced Kriging (S-GEK)
+              surrogate model. Default is the use of the quasi-Newton-Raphson C2-DIIS procedure.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EXPAnd`
+  Select method for subspace expansion in conjunction with the S-GEK method (see above).
+  Possible values are: ``1``: DIIS, ``2``: BFGS, ``3``: RS-RFO. The default is ``1``.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="EXPAND" KIND="CHOICE" LIST="1: DIIS,2: BFGS,3: RS-RFO" REQUIRE="S-GEK" LEVEL="ADVANCED">
+              %%Keyword: EXPAND <advanced>
+              <HELP>
+              Select method for subspace expansion in conjunction with the S-GEK method.
+              Possible values are: 1: DIIS, 2: BFGS, 3: RS-RFO. The default is 1.
               </HELP>
               </KEYWORD>
 
@@ -1334,7 +1360,6 @@ electron configuration :math:`\text{1a}_1^2 \text{2a}_1^2 \text{3a}_1^2 \text{1b
 
 
 .. xmldoc:: <KEYWORD MODULE="SCF" NAME="USECONVENTIONAL" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
-
 
 .. xmldoc:: <KEYWORD MODULE="SCF" NAME="FCKAUF" KIND="CHOICE" LIST="True,False" LEVEL="UNDOCUMENTED" />
 

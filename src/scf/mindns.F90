@@ -156,4 +156,5 @@ call mma_deallocate(AMat)
 call mma_deallocate(DCol)
 call mma_deallocate(DRow)
 
+#undef _DEBUGPRINT_
 end subroutine MinDns
