@@ -62,12 +62,10 @@ PROPerties
 'AngMom' 3
 SONORB
 2
-1
-2
+1 2
 SODIAG
 2
-1
-2
+1 2
 end of input
 
 >> FILE init.orb

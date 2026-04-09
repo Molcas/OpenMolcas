@@ -514,7 +514,7 @@ C
 C     This routine performs a simple check with the obtained spin functions,
 C     in order to determine the phase of the spin functions.
 C     IF the phase is not the same, then the spin functions will be multiplied
-C     with the correspondind coefficient that sets the same phase to all spin
+C     with the corresponding coefficient that sets the same phase to all spin
 C     eigenfunctions
 C
 
