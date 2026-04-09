@@ -28,6 +28,7 @@ use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp) :: dkhorder, dkhparam, i, i_Dim, iAngr, iBas, icnt, iCnttp, iComp, idbg, idum(1), iExp, iibas, iMEF, iOpt, &
@@ -45,7 +46,6 @@ real(kind=wp), allocatable :: iK(:), SS(:), V(:), pVp(:), K_Save(:), K_Done(:), 
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: nProp_Int
 #include "Molcas.fh"
-#include "print.fh"
 
 !                                                                      *
 !***********************************************************************

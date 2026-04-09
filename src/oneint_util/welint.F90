@@ -30,8 +30,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: i, ik, iOff, ip, ip1, ip2, ip3, ip4, ip5, ipA, ipGri, ipGrin, iPrint, ipScr, iPxyz, iRout, jsum, k
+integer(kind=iwp) :: i, ik, iOff, ip, ip1, ip2, ip3, ip4, ip5, ipA, ipGri, ipGrin, ipScr, iPxyz, jsum, k
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -46,14 +45,11 @@ unused_var(iStabM)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 122
-iPrint = nPrint(iRout)
-!iQ = 1
-if (iPrint >= 59) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' In WelInt'
   write(u6,*) ' r0, ExpB=',r0,ExpB
   write(u6,*) ' la,lb=',la,lb
-end if
+#endif
 
 k = la+lb
 jsum = 1
@@ -96,7 +92,9 @@ do ik=1,k
   call Traxyz(nZeta,ik,Array(iOff),Array(ipScr),Array(ipA))
   iOff = iOff+nZeta*3**ik
 end do
-if (iPrint >= 99) call RecPrt(' In WelInt: Array(ipGri)',' ',Array(ipGri),nZeta,jSum)
+#ifdef _DEBUGPRINT_
+call RecPrt(' In WelInt: Array(ipGri)',' ',Array(ipGri),nZeta,jSum)
+#endif
 ip = ip-nZeta*3**k
 ip = ip-nZeta*9
 
@@ -118,7 +116,5 @@ end if
 call TraPAB(nZeta,la,lb,rFinal,Array(ipgri),jSum,rKappa,Array(ip1),Array(ip2),Array(ip3),Array(ip4),Array(ip5),A,RB,P)
 ip = ip-nZeta*5
 ip = ip-nZeta*jsum
-
-return
 
 end subroutine WelInt

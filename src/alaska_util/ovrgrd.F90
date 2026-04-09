@@ -37,17 +37,14 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
-integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, iPrint, ipRnxyz, ipRxyz, iRout, nip
+integer(kind=iwp) :: iAlpha, iBeta, ip, ipAlph, ipAxyz, ipBeta, ipBxyz, ipRnxyz, ipRxyz, nip
 logical(kind=iwp) :: ABeq(3)
-#include "print.fh"
 
 #include "macros.fh"
 unused_var(ZInv)
 unused_var(iStabM)
 unused_var(nStabM)
 
-iRout = 122
-iPrint = nPrint(iRout)
 !write(u6,*) ' IfGrad=',IfGrad
 !write(u6,*) ' IndGrd=',IndGrd
 ABeq(:) = A == RB
@@ -71,13 +68,13 @@ if (nip-1 > nArr*nZeta) then
   call Abend()
 end if
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In OvrGrd: A',' ',A,1,3)
   call RecPrt(' In OvrGrd: RB',' ',RB,1,3)
   call RecPrt(' In OvrGrd: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In OvrGrd: P',' ',P,nZeta,3)
   write(u6,*) ' In OvrGrd: la,lb=',la,lb
-end if
+#endif
 
 ! Compute the cartesian values of the basis functions angular part
 

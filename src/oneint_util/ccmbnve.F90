@@ -20,20 +20,19 @@ subroutine CCmbnVe(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,nComp,Vxyz,KVector,P)
 
 use Index_Functions, only: C_Ind, nTri_Elem1
 use Constants, only: Half, Quart, OneHalf, Onei
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nComp
 complex(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+1,0:lb+1), Vxyz(nZeta,3,0:la,0:lb,2)
 real(kind=wp), intent(in) :: Zeta(nZeta), rKappa(nZeta), kVector(3), P(nZeta,3)
 real(kind=wp), intent(out) :: rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp)
-#include "print.fh"
-integer(kind=iwp) :: ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
+integer(kind=iwp) :: ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta
 real(kind=wp) :: Fact, k_dot_P, kModQ, rTemp
 complex(kind=wp) :: Temp1, Temp2, Tempm, Tempp
-
-iRout = 161
-iPrint = nPrint(iRout)
 
 kModQ = Quart*(kVector(1)**2+kVector(2)**2+kVector(3)**2)
 
@@ -82,7 +81,7 @@ do ixa=0,la
           rFinal(iZeta,ipa,ipb,9) = aimag(Tempp)
           rFinal(iZeta,ipa,ipb,12) = aimag(Tempm)
         end do
-        if (iPrint >= 99) then
+#       ifdef _DEBUGPRINT_
           write(u6,*) '(',ixa,iya,iza,ixb,iyb,izb,')'
           write(u6,*) 'x-component'
           write(u6,*) rFinal(1,ipa,ipb,1)
@@ -99,13 +98,11 @@ do ixa=0,la
           write(u6,*) rFinal(1,ipa,ipb,6)
           write(u6,*) rFinal(1,ipa,ipb,9)
           write(u6,*) rFinal(1,ipa,ipb,12)
-        end if
+#       endif
 
       end do
     end do
   end do
 end do
-
-return
 
 end subroutine CCmbnVe

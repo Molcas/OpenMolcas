@@ -38,8 +38,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iAnga_EF(4), iAnga_NA(4), iComp, iDCRT(0:7), ip3, ipEFInt, ipHRR, ipIn, ipNAInt, iPrint, ipRys, iRout, kab, &
+integer(kind=iwp) :: iAnga_EF(4), iAnga_NA(4), iComp, iDCRT(0:7), ip3, ipEFInt, ipHRR, ipIn, ipNAInt, ipRys, kab, &
                      kCnt, kCnttp, kdc, lab, labcd_EF, labcd_NA, lcd_EF, lcd_NA, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, &
                      mcdMax_EF, mcdMax_NA, mcdMin_EF, mcdMin_NA, nDCRT, nFLOP, nHRR, nMem, nOp, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappcd, TC(3)
@@ -62,8 +61,6 @@ unused_var(iAddPot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 200
-iPrint = nPrint(iRout)
 
 rFinal(:,:,:,:) = Zero
 
@@ -138,7 +135,9 @@ do kCnttp=1,nCnttp
   if (dbsc(kCnttp)%Charge == Zero) cycle
   do kCnt=1,dbsc(kCnttp)%nCntr
     C(1:3) = dbsc(kCnttp)%Coor(1:3,kCnt)
-    if (iPrint >= 99) call RecPrt('C',' ',C,1,3)
+#   ifdef _DEBUGPRINT_
+    call RecPrt('C',' ',C,1,3)
+#   endif
 
     ! Find the DCR for M and S
 
@@ -247,7 +246,4 @@ call mma_deallocate(rKappa_mod)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
-return
-
 end subroutine NAInt_GIAO

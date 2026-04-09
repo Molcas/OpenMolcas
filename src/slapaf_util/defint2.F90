@@ -36,8 +36,7 @@ character(len=8), intent(out) :: Lbl(mInt)
 logical(kind=iwp), intent(inout) :: lWrite
 real(kind=wp), intent(inout) :: Value0(nBVct)
 integer(kind=iwp), intent(out) :: iFlip(nBVct)
-#include "print.fh"
-integer(kind=iwp) :: i1, i2, i3, iBMtrx, iBVct, iEnd, iFrst, iInt, iLines, iPrint, iRout, iType, jBVct, jEnd, jLines, Lu_UDC, &
+integer(kind=iwp) :: i1, i2, i3, iBMtrx, iBVct, iEnd, iFrst, iInt, iLines, iType, jBVct, jEnd, jLines, Lu_UDC, &
                      mCntr, msAtom, n0, nCntr, neq, nGo, nGo2, nMinus, nPlus, nrInt0, nTemp
 real(kind=wp) :: Fact, MaxErr, Sgn, Tmp
 logical(kind=iwp) :: Found, InSlapaf, rInt0_in_memory, rInt0_on_file, Skip, Start
@@ -62,8 +61,6 @@ if (InSlapaf) call qpg_dArray('rInt0',rInt0_on_file,nrInt0)
 if (.not. rInt0_on_File) nrInt0 = mInt
 rInt0_in_memory = .false.
 
-iRout = 30
-iPrint = nPrint(iRout)
 Start = lIter == 1
 iFlip(:) = Flip
 
@@ -77,8 +74,9 @@ call molcas_open(Lu_UDC,filnam)
 rewind(Lu_UDC)
 
 rMult(:,:) = Zero
-if (iPrint >= 99) lWrite = .true.
-if ((iPrint >= 99) .or. lWrite) then
+#ifdef _DEBUGPRINT_
+lWrite = .true.
+if (lWrite) then
   write(u6,*)
   call CollapseOutput(1,'Constraints section')
   write(u6,'(34X,A)') 'CONSTRAINTS'
@@ -96,6 +94,7 @@ if ((iPrint >= 99) .or. lWrite) then
   write(u6,*) '*************************************************************'
   rewind(Lu_UDC)
 end if
+#endif
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -310,8 +309,10 @@ if (.not. Start) then
 end if
 Value0(:) = Val(:)
 
-if (iPrint >= 59) call RecPrt(' The B-vectors',' ',BVct,3*nAtom,nBVct)
-if (iPrint >= 19) call RecPrt(' Value of primitive internal coordinates / au or rad',' ',Val,nBVct,1)
+#ifdef _DEBUGPRINT_
+call RecPrt(' The B-vectors',' ',BVct,3*nAtom,nBVct)
+call RecPrt(' Value of primitive internal coordinates / au or rad',' ',Val,nBVct,1)
+#endif
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -586,12 +587,12 @@ do
   !                                                                    *
 end do
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' The B-matrix',' ',BMtrx,3*nAtom,mInt)
   do iInt=1,mInt
     call RecPrt(' The dB-matrix',' ',dBMtrx(:,:,iInt),3*nAtom,3*nAtom)
   end do
-end if
+#endif
 close(Lu_UDC)
 call mma_deallocate(tpc)
 if (rint0_in_memory) then
@@ -607,7 +608,7 @@ do iInt=1,mInt
 end do
 call Put_dScalar('Max error',MaxErr)
 
-if ((iPrint >= 99) .or. lWrite) then
+#ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*)
   write(u6,*) '*******************************************'
@@ -618,12 +619,10 @@ if ((iPrint >= 99) .or. lWrite) then
   write(u6,*)
   call CollapseOutput(0,'Constraints section')
   write(u6,*)
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call mma_deallocate(Labels)
-
-return
 
 end subroutine DefInt2

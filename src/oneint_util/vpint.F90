@@ -30,17 +30,14 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: i, iBeta, ipArr, ipB, ipOff, iPrint, ipS1, ipS2, iRout, kComp, kIC, kRys, mArr, nip, nRys
+integer(kind=iwp) :: iBeta, ipArr, ipB, ipOff, ipS1, ipS2, kComp, kIC, kRys, mArr, nip, nRys
 procedure(int_kernel) :: NAint
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
 
-iRout = 221
-iPrint = nPrint(iRout)
-
-if (iPrint >= 99) then
-  call RecPrt(' In VpInt: Alpha','(5ES20.13)',Alpha,nAlpha,1)
-  call RecPrt(' In VpInt: Beta','(5ES20.13)',Beta,nBeta,1)
-end if
+call RecPrt(' In VpInt: Alpha','(5ES20.13)',Alpha,nAlpha,1)
+call RecPrt(' In VpInt: Beta','(5ES20.13)',Beta,nBeta,1)
+#endif
 
 nRys = nHer
 
@@ -90,16 +87,16 @@ end if
 
 ! Assemble final integral from the derivative integrals
 
-if (iPrint >= 99) call RecPrt(' In VpInt: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
+#ifdef _DEBUGPRINT_
+call RecPrt(' In VpInt: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
+#endif
 
 call Util8(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2))
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   do i=1,3
     call RecPrt('VpInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
   end do
-end if
-
-return
+#endif
 
 end subroutine VPInt

@@ -36,17 +36,19 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: ia, iAnga(4), ib, iDCRT(0:7), ii, iM1xp, ip, ipAInt, ipIn, ipK, ipPx, ipPy, ipPz, iPrint, ipTmp, ipZ, ipZI, &
-                     iRout, iZeta, k, kCnt, kCnttp, kdc, l, lDCRT, LmbdT, mabMax, mabMin, mAInt, mArray, nDCRT, nFlop, nMem, nT
+integer(kind=iwp) :: iAnga(4), iDCRT(0:7), ii, iM1xp, ip, ipAInt, ipIn, ipK, ipPx, ipPy, ipPz, ipTmp, ipZ, ipZI, &
+                     iZeta, k, kCnt, kCnttp, kdc, l, lDCRT, LmbdT, mabMax, mabMin, mAInt, mArray, nDCRT, nFlop, nMem, nT
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
-character(len=80) :: Label
 logical(kind=iwp) :: NoSpecial
 procedure(cff2d_kernel) :: Cff2D
 procedure(modu2_kernel) :: Fake
 procedure(rys2d_kernel) :: XRys2D
 procedure(tval_kernel) :: TNAI
 logical(kind=iwp), external :: EQ
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib
+character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(Alpha)
@@ -60,15 +62,13 @@ unused_var(nOrdOp)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 193
-iPrint = nPrint(iRout)
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In M1Int: A',' ',A,1,3)
   call RecPrt(' In M1Int: RB',' ',RB,1,3)
   call RecPrt(' In M1Int: P',' ',P,nZeta,3)
   write(u6,*) ' In M1Int: la,lb=',' ',la,lb
-end if
+#endif
 
 iAnga(1) = la
 iAnga(2) = lb
@@ -180,10 +180,10 @@ do kCnttp=1,nCnttp
         Factor = -dbsc(kCnttp)%Charge*dbsc(kCnttp)%M1cf(iM1xp)*Fact
         l = nZeta*mAInt
         Array(ipAInt:ipAInt+l-1) = Array(ipAInt:ipAInt+l-1)+Factor*Array(ipTmp:ipTmp+l-1)
-        if (iPrint >= 99) then
+#       ifdef _DEBUGPRINT_
           call Recprt(' [a+b,0|A|0] in Array',' ',Array(ipTmp),nZeta,mAInt)
           call RecPrt(' [a+b,0|A|0] in AInt',' ',Array(ipAInt),nZeta,mAInt)
-        end if
+#       endif
 
       end do
     end do
@@ -197,7 +197,7 @@ ii = ipAInt+ipIn-1
 ! Move result
 call dcopy_(size(rFinal),Array(ii),1,rFinal,1)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' Result in M1Int'
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
@@ -205,8 +205,7 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',rFinal(:,ia,ib,1),nAlpha,nBeta)
     end do
   end do
-end if
+#endif
 
-return
 
 end subroutine M1Int

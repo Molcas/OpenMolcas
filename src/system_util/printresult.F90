@@ -16,6 +16,7 @@ subroutine PrintResult(iUnit,FRMT,STR,iCount,STR2,Val,iRank)
 !      write(iUnit,FRMT) STR,(Val(i),i=1,iRank)
 
 use Definitions, only: wp, iwp
+use Print, only: iColorize
 
 implicit none
 integer(kind=iwp), intent(in) :: iUnit, iCount, iRank
@@ -23,7 +24,6 @@ character(len=*), intent(in) :: FRMT, STR, STR2
 real(kind=wp), intent(in) :: Val(iRank)
 character(len=120) :: TMP
 character(len=*), parameter :: Marker = '::'
-#include "print.fh"
 
 if (icolorize == 1) then
   if (iCount == 0) then

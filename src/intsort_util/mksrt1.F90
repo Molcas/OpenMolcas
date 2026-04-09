@@ -34,9 +34,9 @@ subroutine MkSrt1()
 use sort_data, only: iDIBin, iDVBin, iStBin, lBin, lSll, mInt, mSyBlk, mxSyP, n_Int, nBin, nBs, nSkip, nSln, nSyOp, nRec, Square
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: iwp, u6, RtoI
+use Print, only: nPrint
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: ib, ibj, ij, iOff, iPrint, iRout, iSkip, iSyblj, iSyBlk, iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, &
                      kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, lSyml, lSymMx, MaxMem, mnBin, MxSrtA1, MxSrtA2, nij, &
                      nSlice, nSym

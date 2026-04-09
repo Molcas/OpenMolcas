@@ -41,13 +41,13 @@ use Integral_interfaces, only: prm_kernel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Six, Eight, Ten, Twelve
 use Definitions, only: wp, iwp, u6
+#ifdef _DEBUGPRINT_
+use Print, only: nPrint
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd
 #include "Molcas.fh"
-#ifdef _DEBUGPRINT_
-#include "print.fh"
-#endif
 integer(kind=iwp) :: BasisTypes(4), i, iAng, iAtom, iB, iBF, iC, iCmp_a, iCmp_r, iCnttp, iComp, iFerm, iFrom, ijB, ijC, ijTri, &
                      Indx, iShll, iShll_a, iShll_r, iTo, jB, jBF, jShll, kEval, Last, lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, naa, &
                      nBF, nCntrc_a, nCntrc_r, nCntrc_t, nCore, nHer, nOrdOp, nPrim_a, nPrim_r, nRemove, nSAA, nSAR, nSBB, nSCC, &

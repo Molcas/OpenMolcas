@@ -30,14 +30,11 @@ implicit none
 integer(kind=iwp), intent(in) :: na, nb, nZeta
 real(kind=wp), intent(out) :: Txyz(nZeta,3,0:na,0:nb)
 real(kind=wp), intent(in) :: Sxyz(nZeta,3,0:na+1,0:nb+1), Alpha(nZeta), Beta(nZeta)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout
+integer(kind=iwp) :: ia, ib, iCar
+#ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-iRout = 115
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
   call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
   call RecPrt(' In Kntc: Beta ',' ',Beta,nZeta,1)
   do ia=0,na+1
@@ -46,7 +43,8 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',Sxyz(:,:,ia,ib),nZeta,3)
     end do
   end do
-end if
+#endif
+
 do ia=0,na
   do ib=0,nb
     if ((ia /= 0) .and. (ib /= 0)) then
@@ -67,13 +65,11 @@ do ia=0,na
         Txyz(:,iCar,ia,ib) = Two*Alpha*Beta*Sxyz(:,iCar,ia+1,ib+1)
       end do
     end if
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,')'
       call RecPrt(Label,' ',Txyz(:,:,ia,ib),nZeta,3)
-    end if
+#   endif
   end do
 end do
-
-return
 
 end subroutine Kntc

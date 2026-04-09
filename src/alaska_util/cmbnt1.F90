@@ -30,15 +30,11 @@ real(kind=wp), intent(in) :: Rnxyz(nZeta,3,0:la+2,0:lb+2), Zeta(nZeta), Txyz(nZe
 real(kind=wp), intent(inout) :: rKappa(nZeta), Grad(nGrad)
 real(kind=wp), intent(out) :: rFinal(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
 logical(kind=iwp), intent(in) :: IfGrad(3,2)
-integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ipa, ipb, iPrint, iRout, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta, nDAO
+integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ipa, ipb, ixa, ixb, iya, iyaMax, iyb, iybMax, iza, izb, iZeta, nDAO
 real(kind=wp) :: Fact, ps, xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
 integer(kind=iwp), external :: iPrmt
 real(kind=wp), external :: DDot_
-#include "print.fh"
-
-iRout = 134
-iPrint = nPrint(iRout)
 
 !ii = la*(la+1)*(la+2)/6
 !jj = lb*(lb+1)*(lb+2)/6
@@ -269,10 +265,10 @@ end do
 ! Trace the gradient integrals
 
 nDAO = nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' T(1)',' ',rFinal,nDAO,6)
   call RecPrt('  D  ',' ',DAO,1,nDAO)
-end if
+#endif
 do iCn=1,2
   do iCar=1,3
     if (IndGrd(iCar,iCn) /= 0) then

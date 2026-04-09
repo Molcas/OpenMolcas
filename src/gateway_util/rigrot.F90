@@ -34,11 +34,11 @@ use Gateway_Info, only: CoM, PAX, Prin, rMI, TMass
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Eight, Half, auTocm, auToHz, uToau
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nAtm
 real(kind=wp), intent(in) :: CoorIn(3,nAtm), rM(nAtm)
-#include "print.fh"
 integer(kind=iwp) :: i, iAtom, iCar, iEn, ii, iPrint, iRout, j, jCar, k, k1, k2, kappa, kk, kk2, mDim, nEn, nHess, nTri
 real(kind=wp) :: A, B, C, keep, rKappa, XI(3)
 logical(kind=iwp) :: Linear, RR_Show
@@ -52,7 +52,6 @@ iPrint = nPrint(iRout)
 RR_Show = iPrint >= 6
 if (iprintlevel(-1) < 3) RR_Show = .false.
 #ifdef _DEBUGPRINT_
-iPrint = 99
 RR_Show = .true.
 #endif
 
@@ -69,10 +68,10 @@ if (TMass == Zero) then
   return
 end if
 Linear = .false.
-if (iPrint >= 99) then
+#ifdef _DEBUPRINT_
   call RecPrt(' In RigRot: CoorIn',' ',CoorIn,3,nAtm)
   call RecPrt(' In RigRot: Mass',' ',rM,1,nAtm)
-end if
+#endif
 if (RR_Show) then
   write(u6,*)
   write(u6,'(19X,A,F10.5)') ' Total mass (a) :',TMass/uToau
@@ -265,7 +264,9 @@ do j=0,S%jMax
   nTri = mDim*(mDim+1)/2
   Hess(1:nTri) = Zero
   call unitmat(Vec,mDim)
-  if (iPrint >= 99) call RecPrt(' Vec',' ',Vec,mDim,mDim)
+#ifdef _DEBUGPRINT_
+  call RecPrt(' Vec',' ',Vec,mDim,mDim)
+#endif
   k1 = 1
   do k=-j,j
     kk = k1*(k1+1)/2
@@ -284,9 +285,13 @@ do j=0,S%jMax
     end if
     k1 = k1+1
   end do
-  if (iPrint >= 99) call TriPrt(' Hessian',' ',Hess,mDim)
+#ifdef _DEBUGPRINT_
+  call TriPrt(' Hessian',' ',Hess,mDim)
+#endif
   call Jacob(Hess,Vec,mDim,mDim)
-  if (iPrint >= 99) call TriPrt(' Hessian',' ',Hess,mDim)
+#ifdef _DEBUGPRINT_
+  call TriPrt(' Hessian',' ',Hess,mDim)
+#endif
   do i=1,mDim
     En(iEn+I-1) = Hess(i*(i+1)/2)*auTocm
   end do
@@ -318,8 +323,6 @@ end if
 call mma_deallocate(En)
 
 call FinishUp()
-
-return
 
 contains
 

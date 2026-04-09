@@ -35,16 +35,14 @@ integer(kind=iwp), intent(in) :: na, nb, nZeta
 complex(kind=wp), intent(out) :: Vxyz(nZeta,3,0:na,0:nb,2)
 complex(kind=wp), intent(in) :: Sxyz(nZeta,3,0:na+1,0:nb+1)
 real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout
+integer(kind=iwp) :: ia, ib, iCar
+#ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-iRout = 160
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
   call RecPrt(' In CVelInt: Beta ',' ',Beta,nZeta,1)
-end if
+#endif
+
 do ia=0,na
   do ib=0,nb
     if ((ia /= 0) .and. (ib /= 0)) then
@@ -69,14 +67,14 @@ do ia=0,na
       end do
     end if
 
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       write(Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',ia,',',ib,',1)'
       call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,1),nZeta,3,'R')
       call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,1),nZeta,3,'I')
       write(Label,'(A,I2,A,I2,A)') ' In CVelInt: Vxyz(',ia,',',ib,',2)'
       call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,2),nZeta,3,'R')
       call CRecPrt(Label,' ',Vxyz(:,:,ia,ib,2),nZeta,3,'I')
-    end if
+#   endif
   end do
 end do
 

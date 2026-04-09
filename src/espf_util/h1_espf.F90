@@ -25,7 +25,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nh1
 real(kind=wp), intent(inout) :: h1(nh1), RepNuc
 logical(kind=iwp), intent(in) :: First, Do_DFT
-#include "print.fh"
 integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, iMlt, iMode, iPL, IPotFl, iQMchg, iRMax, ITkQMMM, jAt, MltOrd, nAtMM, natom, nAtQM, &
                      nChg, nGrdPt, nMult, nSym
 real(kind=wp) :: DeltaR, RealDummy, rms2, rms3, rms4, sum1, sum2, sum3, sum4

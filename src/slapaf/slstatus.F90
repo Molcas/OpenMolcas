@@ -24,6 +24,7 @@ subroutine SlStatus(kIter,Energy,rGrad,Ex,nLines,delE,HUpMet,Step_Trunc,Print_St
 use Slapaf_Info, only: GrdLbl, GrdMax, iNeg, StpLbl, StpMax, UpMeth
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: kIter, nLines
@@ -31,7 +32,6 @@ real(kind=wp), intent(in) :: Energy, rGrad, Ex, delE
 character(len=8), intent(in) :: HUpMet
 character, intent(in) :: Step_Trunc
 logical(kind=iwp), intent(in) :: Print_Status
-#include "print.fh"
 integer(kind=iwp) :: i, iPrint, iRout, iter, ivv, Lu_file, Lu_out, nvv
 character(len=8) :: lNeg
 character(len=128), allocatable :: Lines(:)

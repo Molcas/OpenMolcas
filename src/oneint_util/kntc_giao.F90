@@ -30,19 +30,10 @@ implicit none
 integer(kind=iwp), intent(in) :: na, nb, nZeta
 real(kind=wp), intent(in) :: Rxyz(nZeta,3,0:na+1,0:nb+1,0:1), Alpha(nZeta), Beta(nZeta)
 real(kind=wp), intent(out) :: Txyz(nZeta,3,0:na,0:nb,0:1), Wxyz(nZeta,3,0:na,0:nb,2)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout
+integer(kind=iwp) :: ia, ib, iCar
+#ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-iRout = 115
-iPrint = nPrint(iRout)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-if (iPrint >= 99) then
   call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
   call RecPrt(' In Kntc: Beta ',' ',Beta,nZeta,1)
   do ia=0,na+1
@@ -53,7 +44,7 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',Rxyz(:,:,ia,ib,1),nZeta,3)
     end do
   end do
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -93,7 +84,7 @@ do ia=0,na
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,',0)'
       call RecPrt(Label,' ',Txyz(:,:,ia,ib,0),nZeta,3)
       write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,',1)'
@@ -102,7 +93,7 @@ do ia=0,na
       call RecPrt(Label,' ',Wxyz(:,:,ia,ib,1),nZeta,3)
       write(Label,'(A,I2,A,I2,A)') ' In Kntc: Wxyz(',ia,',',ib,',2)'
       call RecPrt(Label,' ',Wxyz(:,:,ia,ib,2),nZeta,3)
-    end if
+#endif
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -111,7 +102,5 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
-return
 
 end subroutine Kntc_GIAO

@@ -32,10 +32,10 @@ subroutine MkSrt0(iSquar,nIrrep,nBas,iSkip)
 
 use sort_data, only: DimSyB, TriSyB, mxSyP, nBs, nSkip, nSyOp, Square
 use Definitions, only: iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: iSquar, nIrrep, nBas(nIrrep), iSkip(nIrrep)
-#include "print.fh"
 integer(kind=iwp) :: iBsi, iPrint, iRout, iSymi, jBsj, jSymj
 
 iRout = 80
@@ -88,7 +88,5 @@ do iSymi=1,nSyOp
     TriSyB(jSymj,iSymi) = jSymj+iSymi*(iSymi-1)/2
   end do
 end do
-
-return
 
 end subroutine MkSrt0

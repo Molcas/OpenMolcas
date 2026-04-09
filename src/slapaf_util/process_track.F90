@@ -17,9 +17,9 @@ use Slapaf_Info, only: Request_RASSI, RootMap
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: i, MaxId(2), nOv, nRoots
 logical(kind=iwp) :: Done, Found
 character(len=8) :: Method

@@ -29,17 +29,18 @@ integer(kind=iwp), intent(in) :: nInter, nIter
 real(kind=wp), intent(in) :: dq(nInter,nIter), g(nInter,nIter), Delta, q(nInter,nIter+1), DipM(3,nIter)
 logical(kind=iwp), intent(in) :: Cubic
 real(kind=wp), intent(out) :: Hess(nInter,nInter), FEq(merge(nInter,0,Cubic),nInter,nInter), dDipM(3,nInter)
-#include "print.fh"
-integer(kind=iwp) :: iCount, iInter, iPrint, iRout, jInter, kInter, kIter, kIter1, kIter2, kIter3, kIter4
+integer(kind=iwp) :: iCount, iInter, jInter, kInter, kIter, kIter1, kIter2, kIter3, kIter4
+#ifdef _DEBUGPRINT_
 
-iRout = 181
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
   call RecPrt('NmHess:  g',' ',g,nInter,nIter)
   call RecPrt('NmHess:  q',' ',q,nInter,nIter)
   call RecPrt('NmHess: dq',' ',dq,nInter,nIter)
-end if
+#else
+#include "macros.fh"
+unused_var(q)
+unused_var(dq)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -52,7 +53,6 @@ do iInter=1,nInter
   !write(u6,*) kIter1,kIter2
   dDipM(:,iInter) = (DipM(:,kIter1)-DipM(:,kIter2))/(Two*Delta)
 end do
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 call RecPrt('DipM',' ',DipM,3,nIter)
 call RecPrt('dDipM',' ',dDipM,3,nInter)
@@ -71,7 +71,9 @@ do jInter=1,nInter
   ! rather than gradients!!!
   Hess(:,jInter) = -(g(:,kIter1)-g(:,kIter2))/(Two*Delta)
 end do
-if (iPrint >= 99) call RecPrt(' Numerical Hessian',' ',Hess,nInter,nInter)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Numerical Hessian',' ',Hess,nInter,nInter)
+#endif
 
 ! Symmetrize
 
@@ -81,7 +83,9 @@ do iInter=1,nInter
     Hess(jInter,iInter) = Hess(iInter,jInter)
   end do
 end do
-if (iPrint >= 99) call RecPrt(' Symmetrized Hessian',' ',Hess,nInter,nInter)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Symmetrized Hessian',' ',Hess,nInter,nInter)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

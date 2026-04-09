@@ -31,11 +31,11 @@ use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
+use print, only: nPrint, Show
 
 implicit none
 integer(kind=iwp), intent(in) :: iOpt
 #include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iPrint, iRout, j, jCnt, jCnttp, mCnt, nc, ndc
 character(len=16) :: frmt
 character :: help_c
@@ -146,7 +146,5 @@ call mma_deallocate(Centr)
 !                                                                      *
 call CollapseOutput(0,'   Molecular structure info:')
 write(u6,*)
-
-return
 
 end subroutine Print_Geometry

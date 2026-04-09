@@ -50,13 +50,13 @@ use Para_Info, only: Is_Real_Par
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Four, Ten, Pi, Angstrom, mu2elmass, UtoAU
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint, Show
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd_
 logical(kind=iwp), intent(inout) :: lOPTO
 logical(kind=iwp), intent(out) :: Do_OneEl
 #include "Molcas.fh"
-#include "print.fh"
 #ifdef _HAVE_EXTRA_
 #include "hyper.fh"
 #endif

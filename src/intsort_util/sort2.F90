@@ -53,9 +53,9 @@ use sort_data, only: IndBin, lSll, LuTwo, MxOrd, mxSyP, nBs, nSkip, nSln, nSyOp,
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: ib, iBatch, iBin, ibj, iDisk, iErr, iOff, iOpt, iOrd, iPrint, iRout, iSkip, iSlice, iStk, iSyblj, iSyBlk, &
                      iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, &
                      lSrtA_, lStk, lStk_Max, lSyml, lSymMx, mxij, nij, nSlice, nStk, nSym

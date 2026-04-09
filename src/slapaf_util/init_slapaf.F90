@@ -12,19 +12,22 @@
 subroutine Init_SlapAf()
 
 use Symmetry_Info, only: iOper, nIrrep
-use Slapaf_Info, only: Analytic_Hessian, ANr, ApproxNADC, AtomLbl, Coor, Degen, dMass, Force_dB, Grd, Header, iCoSet, jStab, &
+use Slapaf_Info, only: Analytic_Hessian, ANr, ApproxNADC, Coor, Degen, dMass, Force_dB, Header, iCoSet, jStab, &
                        Line_Search, MaxItr, mB_Tot, mdB_Tot, mq, mTtAtm, MxItr, NADC, nDimBC, nStab, q_nuclear, RootMap, Smmtrc, &
                        ThrCons, ThrEne, ThrGrd, ThrMEP !, lRP, R12
+#ifdef _DEBUGPRINT_
+use Slapaf_Info, only: AtomLbl, Grd
+#endif
 use UnixInfo, only: SuperName
 use dcr_mod, only: DCR_Init
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Print, only: nPrint
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: Columbus, i, iAdd(0:7), iChxyz, iComp, iIrrep, iMAX, iMode, ind, iPL, isAtom, ISPIN1, ISPIN2, itest, jCoSet, &
-                     jPrint, jTest, LSYM1, LSYM2, n, nCoSet, nHess, nRM, nRoots, nStb
+                     jTest, LSYM1, LSYM2, n, nCoSet, nHess, nRM, nRoots, nStb
 real(kind=wp) :: tmp
 logical(kind=iwp) :: Do_ESPF, Exist_2, Found, Same, Skip
 character(len=8) :: CMAX
@@ -50,10 +53,6 @@ if (CMAX /= ' ') then
 else
   MxItr = MaxItr
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-jPrint = 10
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -319,8 +318,10 @@ call RecPrt('Degen',' ',Degen,3,size(Coor,2))
 ! Compute center of mass and molecular mass. The molecule is
 ! translated so origin and center of mass is identical.
 
-if (jPrint >= 99) call Prlist('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,size(Coor,2),Coor,3,size(Coor,2))
-if (jPrint >= 99) call PrList('Symmetry Distinct Nuclear Forces / au',AtomLbl,size(Coor,2),Grd,3,size(Coor,2))
+#ifdef _DEBUGPRINT_
+Call Prlist('Symmetry Distinct Nuclear Coordinates / bohr',AtomLbl,size(Coor,2),Coor,3,size(Coor,2))
+call PrList('Symmetry Distinct Nuclear Forces / au',AtomLbl,size(Coor,2),Grd,3,size(Coor,2))
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

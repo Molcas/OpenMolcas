@@ -34,12 +34,12 @@ use NAC, only: isNAC, NACStates
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "print.fh"
 integer(kind=iwp) :: iDFT, iEnd, iI, iJ, iIrrep, IK, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nAct(nIrrep), nDens, ng1, ng2, nRoots
 real(kind=wp) :: Dummy(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: Do_Grad, l_casdft

@@ -52,9 +52,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(in) :: ThrAO
 #include "Molcas.fh"
-#include "print.fh"
 integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,0:7), IncVec, iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, &
-                     iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSym, iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, &
+                     iPass, iPL, iPrint, irc, iRed, iS, iS_, iSeed, iSym, iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, &
                      kCnttp, klS_, kQv, kS, lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, &
                      mMuNu, mQv, MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
                      nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
@@ -74,7 +73,6 @@ logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 9
 
 ! Get global print level
 
@@ -88,14 +86,13 @@ else if (iPL == 4) then
 else if (iPL == 5) then
   iPL = 99
 end if
-nPrint(iRout) = iPL
+iPrint = iPL
 
 ! Reduce print level if iterating
 
 if (Reduce_Prt() .and. (iPL <= 5)) then
-  nPrint(iRout) = 4
+  iPrint = iPL
 end if
-iPrint = nPrint(iRout)
 
 if (iPrint >= 6) call CWTime(TC0,TW0)
 !                                                                      *

@@ -22,6 +22,7 @@ use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, dMass
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 character(len=*), intent(in) :: Strng
@@ -34,7 +35,6 @@ character(len=6), intent(in) :: Typ
 character(len=8), intent(in) :: Lbl
 logical(kind=iwp), intent(inout) :: lWrite
 logical(kind=iwp), intent(out) :: lAtom(nAtom)
-#include "print.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iEnd, iFrst, iIrrep, iPhase, iPrint, iRout, isAtom, ixyz, j, jsAtom, nCent, nPar1, nPar2
 real(kind=wp) :: Axis(3), Dummy(1), Perp_Axis(3,2), tx, ty, tz
@@ -49,7 +49,9 @@ iPrint = nPrint(iRout)
 ldB = .false.
 lWarn = lWrite
 if (iPrint > 20) lWrite = .true.
-if (iPrint >= 99) call RecPrt(' In Cllct: Coor',' ',Coor,3,nAtom)
+#ifdef _DEBUGPRINT_
+call RecPrt(' In Cllct: Coor',' ',Coor,3,nAtom)
+#endif
 
 iFrst = 1
 nCent = nCntr+mCntr
@@ -131,7 +133,9 @@ do ixyz=1,nCent
   iFrst = iEnd+1
 end do
 
-if (iPrint >= 99) call RecPrt(' Coordinates',' ',xyz,3,nCent)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Coordinates',' ',xyz,3,nCent)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -192,7 +196,9 @@ Deg = sqrt(Deg)
 ! Observe that the B matrix is defined in both symmetry adapted
 ! internal coordinates and symmetry adapted cartesian coordinates.
 
-if (iPrint >= 99) call RecPrt(' Transformation vector',' ',Temp,3,nCent)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Transformation vector',' ',Temp,3,nCent)
+#endif
 
 ! Symmetrization of P: 1/g Sum over G of X(G)*GPG
 !
@@ -236,10 +242,10 @@ do ixyz=1,nCent
   TMtrx(3,jsAtom,3,ixyz) = tz
 end do
 call dGeMV_('N',3*nAtom,3*nCent,One,TMtrx,3*nAtom,Temp,1,Zero,Vector,1)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt('TMtrx',' ',TMtrx,3*nAtom,3*nCent)
   call RecPrt(' symmetry adapted vector',' ',Vector,3,nAtom)
-end if
+#endif
 
 return
 

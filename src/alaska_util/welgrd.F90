@@ -34,8 +34,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iBeta, ik, iOff, ip, ip0m, ip0p, ip1, ip2, ip3, ip4, ip5, ipAlph, ipAMx, ipBeta, ipGri, ipGrin, &
-                     ipm0, ipp0, iPrint, ipScr, ipTGri, iPxyz, iRout, jp, jsumm, jsump, k, k0
-#include "print.fh"
+                     ipm0, ipp0, ipScr, ipTGri, iPxyz, jp, jsumm, jsump, k, k0
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -45,16 +44,13 @@ unused_var(nOrdOp)
 unused_var(iStabM)
 unused_var(nStabM)
 
-iRout = 122
-iPrint = nPrint(iRout)
-!iQ = 1
-if (iPrint >= 59) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' In WelGrd'
   write(u6,*) ' r0, ExpB=',r0,ExpB
   write(u6,*) ' la,lb=',la,lb
   write(u6,*) '  A=',A
   write(u6,*) ' RB=',RB
-end if
+#endif
 
 k = la+lb+1
 jsump = 1
@@ -85,7 +81,9 @@ end if
 call Rowel(nZeta,r0,expB,k,Zeta,P,Array(iPxyz),Array(ipGri),Array(ipGrin),jsump)
 ip = ip-nZeta
 ip = ip-nZeta*(k+1)*(k/2+1)*(k/4+1)
-if (iPrint >= 99) call RecPrt(' In WelGrd: Array(ipGri)l',' ',Array(ipGri),nZeta,jSumP)
+#ifdef _DEBUGPRINT_
+call RecPrt(' In WelGrd: Array(ipGri)l',' ',Array(ipGri),nZeta,jSumP)
+#endif
 
 ipAMx = ip
 ip = ip+nZeta*9
@@ -105,7 +103,9 @@ do ik=1,k
   call Traxyz(nZeta,ik,Array(iOff),Array(ipScr),Array(ipAMx))
   iOff = iOff+nZeta*3**ik
 end do
-if (iPrint >= 99) call RecPrt(' In WelGrd: Array(ipGri)g',' ',Array(ipGri),nZeta,jSumP)
+#ifdef _DEBUGPRINT_
+call RecPrt(' In WelGrd: Array(ipGri)g',' ',Array(ipGri),nZeta,jSumP)
+#endif
 call dcopy_(nZeta*jsump,Array(ipGri),1,Array(ipTGri),1)
 ip = ip-nZeta*3**k
 ip = ip-nZeta*9

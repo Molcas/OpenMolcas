@@ -30,10 +30,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, iPrint, iprV2, iprV4, ipRxyz, iRout, nip
+integer(kind=iwp) :: iBeta, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipQxyz, iprV2, iprV4, ipRxyz, nip
 logical(kind=iwp) :: ABeq(3)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ia, ib
 character(len=80) :: Label
+#endif
 
 #include "macros.fh"
 unused_var(ZInv)
@@ -43,8 +45,6 @@ unused_var(iStabM)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 190
-iPrint = nPrint(iRout)
 ABeq(:) = A == RB
 
 nip = 1
@@ -71,7 +71,7 @@ if (nip-1 > nArr*nZeta) then
   call Abend()
 end if
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In MVeInt: A',' ',A,1,3)
   call RecPrt(' In MVeInt: RB',' ',RB,1,3)
   call RecPrt(' In MVeInt: CoorO',' ',CoorO,1,3)
@@ -79,7 +79,7 @@ if (iPrint >= 49) then
   call RecPrt(' In MVeInt: Zeta',' ',Zeta,nZeta,1)
   call RecPrt(' In MVeInt: Roots',' ',HerR(iHerR(nHer)),nHer,1)
   write(u6,*) ' In MVeInt: la,lb=',la,lb
-end if
+#endif
 
 ! Compute the cartesian values of the basis functions angular part
 
@@ -117,15 +117,13 @@ call MVe(Array(iprV2),Array(iprV4),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZe
 
 call CmbnMV(Array(ipQxyz),nZeta,la,lb,nOrdOp-4,Zeta,rKappa,rFinal,nComp,Array(iprV2),Array(iprV4))
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   do ia=1,nTri_Elem1(la)
     do ib=1,nTri_Elem1(lb)
       write(Label,'(A,I2,A,I2,A)') 'Mass-Velocity(',ia,',',ib,')'
       call RecPrt(Label,' ',rFinal(:,ia,ib,:),nZeta,nComp)
     end do
   end do
-end if
-
-return
+#endif
 
 end subroutine MVeInt

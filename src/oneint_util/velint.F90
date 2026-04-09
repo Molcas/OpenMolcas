@@ -29,16 +29,14 @@ implicit none
 integer(kind=iwp), intent(in) :: na, nb, nZeta
 real(kind=wp), intent(out) :: Vxyz(nZeta,3,0:na,0:nb)
 real(kind=wp), intent(in) :: Sxyz(nZeta,3,0:na,0:nb+1), Beta(nZeta)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout
+integer(kind=iwp) :: ia, ib, iCar
+#ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-iRout = 160
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
-  call RecPrt(' In VelInt: Beta ',' ',Beta,nZeta,1)
-end if
+call RecPrt(' In VelInt: Beta ',' ',Beta,nZeta,1)
+#endif
+
 do ia=0,na
   do ib=0,nb
     if (ib == 0) then
@@ -51,13 +49,11 @@ do ia=0,na
       end do
     end if
 
-    if (iPrint >= 99) then
+#   ifdef _DEBUGPRINT_
       write(Label,'(A,I2,A,I2,A)') ' In VelInt: Vxyz(',ia,',',ib,')'
       call RecPrt(Label,' ',Vxyz(:,:,ia,ib),nZeta,3)
-    end if
+#   endif
   end do
 end do
-
-return
 
 end subroutine VelInt

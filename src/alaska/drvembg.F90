@@ -39,12 +39,12 @@ use OFembed, only: OFE_KSDFT
 use nq_Info, only: Grid_Type, Moving_Grid
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "print.fh"
 integer(kind=iwp) :: iEnd, iIrrep, iPrint, iRout, jPrint, LuWr, nDens
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: Do_Grad

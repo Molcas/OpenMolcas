@@ -20,15 +20,11 @@
       Use Cholesky, only: timings
       use ChoCASPT2
       Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
       Character(Len=180) KWord, Key, Get_Ln
       External Get_Ln
       Logical  DFonly
       character(len=16) SECNAM
       parameter (SECNAM = 'CHO_CASPT2_RDINP')
-*
-      iRout=1
-      iPrint=nPrint(iRout)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -113,7 +109,6 @@
       If (KWord(1:4).eq.'DECO') Go To 810
       If (KWord(1:4).eq.'TIME') Go To 820
       If (KWord(1:4).eq.'DCHK') Go To 830
-      If (KWord(1:4).eq.'PRIN') Go To 700
       If (KWord(1:4).eq.'ENDC') Go To 998
       If (KWord(1:4).eq.'END ') Go To 998
       If (KWord(1:4).eq.'ENDO') Go To 998
@@ -179,21 +174,6 @@
 *
       Go To 1000
 
-*                                                                      *
-****** PRIN ************************************************************
-*                                                                      *
-*-----Print level
-*
- 700  Key=Get_Ln(LuSpool)
-      KWord=Key
-      Call Get_I1(1,n)
-      Do i = 1, n
-         KWord=Get_Ln(LuSpool)
-         Call Get_I1(1,jRout)
-         Call Get_I1(2,iPrint)
-         nPrint(jRout)=iPrint
-      End Do
-      Go To 1000
 *                                                                      *
 ****** END  ************************************************************
 *                                                                      *

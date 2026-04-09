@@ -58,10 +58,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 use Integral_interfaces, only: Int_PostProcess, int_wrout
+use Print, only: nPrint, Show
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "print.fh"
 integer(kind=iwp) :: i, iOpt, iOption, iRC, iRout, Lu_One, LuSpool, MaxDax, nChoV(8), nDiff, nDNA
 real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), TCpu1, TCpu2, TWall1, Twall2
 logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl

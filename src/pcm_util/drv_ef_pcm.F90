@@ -38,19 +38,22 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
-use Symmetry_Info, only: ChOper, nIrrep
+use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
-use define_af, only: AngTp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+use define_af, only: AngTp
+use Symmetry_Info, only: ChOper
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nTs, nFD, lOper(nTs), nOrdOp
 real(kind=wp), intent(in) :: FactOp(nTs), FD(nFD), CCoor(4,nTs)
 real(kind=wp), intent(inout) :: VTessera(3,nTs)
-#include "print.fh"
-integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ipFnlc, iPrim, iPrint, iRout, iS, &
+integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7), iDCRT(0:7), ipFnlc, iPrim, iS, &
                      iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iTile, iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, &
                      jShell, jShll, kk, lDCRR, lDCRT, lFinal, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, &
                      niAng, njAng, nOp(3), nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO
@@ -58,9 +61,9 @@ real(kind=wp) :: A(3), B(3), C(3), FactNd, RB(3), TA(3), TRB(3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Fnl(:), Kappa(:), Kern(:), PCoor(:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 real(kind=wp), external :: DDot_
-
-iRout = 112
-iPrint = nPrint(iRout)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 
 ! Auxiliary memory allocation.
 
@@ -107,7 +110,9 @@ do iS=1,nSkal
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
     if (nSO == 0) cycle
-    if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#ifdef _DEBUGPRINT_
+    write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+#endif
 
     ! Call kernel routine to get memory requirement.
 
@@ -143,7 +148,9 @@ do iS=1,nSkal
     ! Find the DCR for A and B
 
     call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
-    if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+#ifdef _DEBUGPRINT_
+    write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+#endif
 
     ! Find the stabilizer for A and B
 
@@ -163,10 +170,10 @@ do iS=1,nSkal
     ! Project the Fock/1st order density matrix in AO
     ! basis on to the primitive basis.
 
-    if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
       call RecPrt(' Left side contraction',' ',Shells(iShll)%pCff,iPrim,iBas)
       call RecPrt(' Right side contraction',' ',Shells(jShll)%pCff,jPrim,jBas)
-    end if
+#endif
 
     ! Transform IJ,AB to J,ABi
     call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,DSO,iBas,Shells(iShll)%pCff,iPrim,Zero,DSOp,jBas*nSO)
@@ -176,7 +183,9 @@ do iS=1,nSkal
     call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOp,iPrim*jPrim)
     call mma_deallocate(DSO)
 
-    if (iPrint >= 99) call RecPrt(' Decontracted 1st order density/Fock matrix',' ',DSOp,iPrim*jPrim,nSO)
+#ifdef _DEBUGPRINT_
+    call RecPrt(' Decontracted 1st order density/Fock matrix',' ',DSOp,iPrim*jPrim,nSO)
+#endif
 
     ! Loops over symmetry operations.
 
@@ -196,11 +205,11 @@ do iS=1,nSkal
         ! Find the DCR for M and S
 
         call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
-        if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
           write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
           write(u6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),i=0,nStabO-1),')'
           write(u6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),i=0,nDCRT-1),')'
-        end if
+#endif
 
         ! Compute normalization factor due the DCR symmetrization
         ! of the two basis functions and the operator.
@@ -221,10 +230,10 @@ do iS=1,nSkal
 
           call OA(iDCRT(lDCRT),A,TA)
           call OA(iDCRT(lDCRT),RB,TRB)
-          if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
             write(u6,'(A,/,3(3F6.2,2X))') ' *** Centers A, B, C ***',(TA(i),i=1,3),(TRB(i),i=1,3),(C(i),i=1,3)
             write(u6,*) ' nOp=',nOp
-          end if
+#endif
 
           ! Desymmetrize the matrix with which we will contract the trace.
 
@@ -241,7 +250,9 @@ do iS=1,nSkal
             call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
                         RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,DAO,kk)
           end if
-          if (iPrint >= 99) call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,iPrim*jPrim,kk)
+#ifdef _DEBUGPRINT_
+          call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,iPrim*jPrim,kk)
+#endif
 
           ! Compute kappa and P.
 
@@ -258,17 +269,23 @@ do iS=1,nSkal
           !write(u6,*) Fnl(1),iPrim*jPrim,nComp,iAng,jAng,norder
           ! pcm_solvent end
           call EFPrm(Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,nComp,iAng,jAng,TA,TRB,Kern,MemKer,C,nOrdOp)
-          if (iPrint >= 49) call RecPrt(' Final Integrals',' ',Fnl,nDAO,nComp)
+#ifdef _DEBUGPRINT_
+          call RecPrt(' Final Integrals',' ',Fnl,nDAO,nComp)
+          call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,nDAO,1)
+#endif
 
           ! Trace with 1st order density matrix and accumulate
           ! to the potential at tessera iTile
 
-          if (iPrint >= 49) call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,nDAO,1)
           ipFnlc = 1
           do iComp=1,nComp
-            if (iPrint >= 49) call RecPrt('VTessera(iComp,iTile)',' ',VTessera(iComp,iTile),1,1)
+#ifdef _DEBUGPRINT_
+            call RecPrt('VTessera(iComp,iTile)',' ',VTessera(iComp,iTile),1,1)
+#endif
             VTessera(iComp,iTile) = VTessera(iComp,iTile)+DDot_(nDAO,DAO,1,Fnl(ipFnlc),1)
-            if (iPrint >= 49) call RecPrt('VTessera(iComp,iTile)',' ',VTessera(iComp,iTile),1,1)
+#ifdef _DEBUGPRINT_
+            call RecPrt('VTessera(iComp,iTile)',' ',VTessera(iComp,iTile),1,1)
+#endif
             ipFnlc = ipFnlc+nDAO
           end do
 
@@ -289,7 +306,5 @@ call mma_deallocate(Zeta)
 call mma_deallocate(ZI)
 call mma_deallocate(Kappa)
 call mma_deallocate(PCoor)
-
-return
 
 end subroutine drv_ef_PCM

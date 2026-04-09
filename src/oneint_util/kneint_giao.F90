@@ -33,9 +33,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "print.fh"
-integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipFnl, ipQxyz, iPrint, ipRxyz, ipTxyz, &
-                     ipWxyz, iRout, iStabO(0:7), lDCRT, llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipFnl, ipQxyz, ipRxyz, ipTxyz, &
+                     ipWxyz, iStabO(0:7), lDCRT, llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
@@ -45,8 +44,6 @@ unused_var(ZInv)
 unused_var(PtChrg)
 unused_var(iAddPot)
 
-iRout = 150
-iPrint = nPrint(iRout)
 ABeq(:) = A == RB
 
 nip = 1
@@ -78,13 +75,13 @@ if (nip-1 > nArr*nZeta) then
   call Abend()
 end if
 
-if (iPrint >= 49) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In KnEInt_GIAO: A',' ',A,1,3)
   call RecPrt(' In KnEInt_GIAO: RB',' ',RB,1,3)
   call RecPrt(' In KnEInt_GIAO: CoorO',' ',CoorO,1,3)
   call RecPrt(' In KnEInt_GIAO: P',' ',P,nZeta,3)
   write(u6,*) ' In KnEInt_GIAO: la,lb=',la,lb
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -146,7 +143,5 @@ do lDCRT=0,nDCRT-1
   call SymAdO(Array(ipFnl),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)
 
 end do
-
-return
 
 end subroutine KnEInt_GIAO

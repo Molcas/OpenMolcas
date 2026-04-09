@@ -13,12 +13,12 @@ subroutine LnSrch(Energy,q,dq,g,nInter,nIter,dqHdq)
 
 use Constants, only: Zero, One, Two, Three, Four, Half
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter, nIter
 real(kind=wp), intent(in) :: Energy(nIter)
 real(kind=wp), intent(inout) :: q(nInter,nIter), dq(nInter,nIter), g(nInter,nIter), dqHdq
-#include "print.fh"
 integer(kind=iwp) :: i, ii, iNew, iOld, iPrint, iRout, jj, nOrder
 real(kind=wp) :: A(0:4), B(4,0:3), dqdq, ENew, Fact, FVal(4), gdq, Projg(2), Test1, Test2, x0, x0g, x1, x1g, x2, x2g, x3, x3g, &
                  XHi, XLow, XMin, XStart
@@ -28,14 +28,14 @@ real(kind=wp), external :: DDot_
 
 iRout = 200
 iPrint = nPrint(iRout)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' Enter LnSrch'
   write(u6,*) 'dqHdq=',dqHdq
   call RecPrt('LnSrch: Energy',' ',Energy,1,nIter)
   call RecPrt('LnSrch: q',' ',q,nInter,nIter)
   call RecPrt('LnSrch:dq',' ',dq,nInter,nIter)
   call RecPrt('LnSrch: g',' ',g,nInter,nIter)
-end if
+#endif
 
 A(0) = Zero
 
@@ -172,13 +172,11 @@ dq(:,iNew-1) = q(:,iNew)-q(:,iNew-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt('LnSrch: q',' ',q,nInter,nIter)
   call RecPrt('LnSrch:dq',' ',dq,nInter,nIter)
   call RecPrt('LnSrch: g',' ',g,nInter,nIter)
   write(u6,*) ' Exit LnSrch'
-end if
-
-return
+#endif
 
 end subroutine LnSrch

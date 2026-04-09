@@ -14,9 +14,9 @@ subroutine Start_Last_Energy()
 use RunFile_procedures, only: Get_Coord_New
 use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp, u6
+use Print, only: nPrint
 
 implicit none
-#include "print.fh"
 integer(kind=iwp) :: iGO, lengthlast, LuInput, nCoord, nSaddle
 logical(kind=iwp) :: FoundLastEn, Saddle
 character(len=16) :: StdIn
@@ -112,9 +112,5 @@ write(LuInput,'(A)') '>export MOLCAS_TRAP=$SL_OLD_TRAP'
 write(LuInput,'(A)') '>ECHO ON'
 
 close(LuInput)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-return
 
 end subroutine Start_Last_Energy

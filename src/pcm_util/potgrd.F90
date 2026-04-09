@@ -17,12 +17,15 @@ use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(out) :: Grad(nGrad)
-integer(kind=iwp) :: ii, iIrrep, iPrint, iRout, lOper(1), nComp, nDens, nOrdOp
+integer(kind=iwp) :: iIrrep, lOper(1), nComp, nDens, nOrdOp
 real(kind=wp) :: C(3), TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DiffOp
 character(len=80) :: Label
@@ -30,11 +33,11 @@ character(len=8) :: Method
 real(kind=wp), allocatable :: D_Var(:)
 procedure(grd_kernel) :: PCMGrd1
 procedure(grd_mem) :: PCMMmG
-#include "print.fh"
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 
 ! Prologue
-iRout = 131
-iPrint = nPrint(iRout)
 call CWTime(TCpu1,TWall1)
 
 ! Allocate memory for density
@@ -54,7 +57,7 @@ call Get_cArray('Relax Method',Method,8)
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_var,nDens)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) 'variational 1st order density matrix'
   ii = 1
   do iIrrep=0,nIrrep-1
@@ -62,7 +65,7 @@ if (iPrint >= 99) then
     call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
     ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
   end do
-end if
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *

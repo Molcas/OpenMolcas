@@ -44,10 +44,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 use k2_arrays, only: DeDe
+use Print, only: nPrint, Show
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "print.fh"
 integer(kind=iwp) :: i, iCnttp, iDummer, iopt, iPrint, irc, iRout, lLine, nDiff, nGrad, nHess, nsAtom
 real(kind=wp) :: dum1, dum2, dum3, TCpu1, TCpu2, Time, TWall1, TWall2
 character(len=120) :: Lines

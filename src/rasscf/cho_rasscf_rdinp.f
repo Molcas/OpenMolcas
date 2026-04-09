@@ -23,11 +23,10 @@
       Implicit None
       Logical  DFonly
       Integer LuInput
-#include "print.fh"
       Character(LEN=180) KWord, Key
       Character(LEN=180), External :: Get_Ln
       character(LEN=16), parameter :: SECNAM = 'CHO_RASSCF_RDINP'
-      Integer iPrint, iChrct,Last,i,n,jRout,iCLast
+      Integer iChrct,Last,iCLast
       Real*8 DMPK_DFL
 *
 ***** Algorithms for using Cholesky vectors in RASSCF ******************
@@ -73,10 +72,6 @@
       dmpk_dfl=1.0d-1
 ************************************************************************
 *                                                                      *
-      iPrint=5
-*                                                                      *
-************************************************************************
-*                                                                      *
 *-----Process the input
 *
 *-------------------------------------------------------------------*
@@ -107,7 +102,6 @@
       If (KWord(1:4).eq.'TIME') Go To 830
       If (KWord(1:4).eq.'ESTI') Go To 840
       If (KWord(1:4).eq.'UPDA') Go To 850
-      If (KWord(1:4).eq.'PRIN') Go To 700
       If (KWord(1:4).eq.'ENDC') Go To 998
       If (KWord(1:4).eq.'END ') Go To 998
       If (KWord(1:4).eq.'ENDO') Go To 998
@@ -234,21 +228,6 @@ c     &'LK screening for Exchange matrices turned off !'
  830   Continue
        timings=.true.
 *
-      Go To 1000
-*                                                                      *
-****** PRIN ************************************************************
-*                                                                      *
-*-----Print level
-*
- 700  Key=Get_Ln(LuInput)
-      KWord=Key
-      Call Get_I1(1,n)
-      Do i = 1, n
-         KWord=Get_Ln(LuInput)
-         Call Get_I1(1,jRout)
-         Call Get_I1(2,iPrint)
-         nPrint(jRout)=iPrint
-      End Do
       Go To 1000
 *                                                                      *
 ****** END  ************************************************************

@@ -19,7 +19,8 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    use definitions, only: wp, iwp, i1, u6
    use printLevel, only: verbose
    use gugx, only: SGS
-   use caspt2_global, only: CompressMPS, iPrGlb
+   use caspt2_global, only: iPrGlb
+!  use caspt2_global, only: CompressMPS, iPrGlb
 
    implicit none
 

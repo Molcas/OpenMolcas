@@ -36,15 +36,11 @@ real(kind=wp), intent(inout) :: q(nInter,nIter+1), dq(nInter,nIter), g(nInter,nI
 real(kind=wp), intent(in) :: H(nInter,nInter)
 real(kind=wp), intent(out) :: error(nInter,nIter+1), B((nIter+1)**2), RHS(nIter+1), Scrt1(nScrt1)
 integer(kind=iwp), intent(out) :: iP(nIter)
-#include "print.fh"
-integer(kind=iwp) :: i, ii, iIter, iOff, iPrint, iRc, iRout, iSave, iVec, iVec_old, j, MaxWdw, MinWdw, mIter
+integer(kind=iwp) :: i, ii, iIter, iOff, iRc, iSave, iVec, iVec_old, j, MaxWdw, MinWdw, mIter
 real(kind=wp) :: Alpha, c2_new, c2_old, ee_new, ee_old, Err1, Err2, t1, t2, ThrCff, Thrhld, ThrLdp
 logical(kind=iwp) :: Fail
 real(kind=wp), allocatable :: A(:,:)
 real(kind=wp), external :: DDot_
-
-iRout = 121
-iPrint = nPrint(iRout)
 
 Error(:,:) = Zero
 
@@ -85,7 +81,9 @@ if (btest(iOptC,4) .or. btest(iOptC,5)) then
     Error(:,iIter) = Error(:,nIter)+q(:,nIter)-q(:,iIter)
   end do
 end if
-if (iPrint >= 99) call RecPrt(' Error vectors',' ',error,nInter,nIter)
+#ifdef _DEBUGPRINT_
+call RecPrt(' Error vectors',' ',error,nInter,nIter)
+#endif
 
 ! Set up small system of linear equations
 ! If more error vectors than degrees of freedom
@@ -138,7 +136,9 @@ do i=max(1,nIter-11),nIter-1
     iP(ii) = iSave
   end if
 end do
-if (iPrint >= 99) write(6,*) ' iP=',iP
+#ifdef _DEBUGPRINT_
+write(6,*) ' iP=',iP
+#endif
 
 !MaxWdw = max(3,3*(nInter-nFix)/4)
 MaxWdw = max(3,(nInter-nFix)/2)
@@ -162,13 +162,15 @@ do i=1,mIter
     end if
   end do
 end do
-if (iPrint >= 99) call TriPrt(' The B Matrix',' ',B,mIter)
+#ifdef _DEBUGPRINT_
+call TriPrt(' The B Matrix',' ',B,mIter)
+#endif
 call unitmat(Scrt1,mIter)
 call NIDiag_new(B,Scrt1,mIter,mIter)
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call TriPrt(' The B Matrix after diagonalization','(9ES10.2)',B,mIter)
   call RecPrt(' Eigenvectors','(9ES10.2)',Scrt1,mIter,mIter)
-end if
+#endif
 
 ! Renormalize the eigenvectors and eigenvalues to the
 ! C1-DIIS format.
@@ -182,11 +184,11 @@ do iVec=1,mIter
   Scrt1((iVec-1)*mIter+1:iVec*mIter) = Alpha*Scrt1((iVec-1)*mIter+1:iVec*mIter)
   B(iTri(iVec,iVec)) = B(iTri(iVec,iVec))*Alpha**2
 end do
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(6,*) ' After normalization to C1-DIIS format'
   call TriPrt(' The B Matrix after diagonalization','(9ES10.2)',B,mIter)
   call RecPrt(' Eigenvectors',' ',Scrt1,mIter,mIter)
-end if
+#endif
 
 ! Select a vector.
 
@@ -194,20 +196,28 @@ ee_old = 1.0D+72
 c2_old = 1.0D+72
 iVec_old = -99999999
 do iVec=1,mIter
-  if (iPrint >= 99) write(6,*) ' Scanning vector',iVec
+# ifdef _DEBUGPRINT_
+  write(6,*) ' Scanning vector',iVec
+# endif
   ee_new = B(iTri(iVec,iVec))
-  if (iPrint >= 99) write(6,*) ' ee_old, ee_new=',ee_old,ee_new
+# ifdef _DEBUGPRINT_
+  write(6,*) ' ee_old, ee_new=',ee_old,ee_new
+# endif
 
   ! Examine if <e|e> is too low (possible round-off) or linear dependency.
 
   if (ee_new < Thrhld) then
-    if (iPrint >= 99) write(6,*) ' <e|e> is low in DIIS, iVec,<e|e>=',iVec,ee_new
+#   ifdef _DEBUGPRINT_
+    write(6,*) ' <e|e> is low in DIIS, iVec,<e|e>=',iVec,ee_new
+#   endif
 
     ! Reject if coefficients are too large (linear dep.).
 
     c2_new = DDot_(mIter,Scrt1((iVec-1)*mIter+1),1,Scrt1((iVec-1)*mIter+1),1)
     if (c2_new > ThrCff) then
-      if (iPrint >= 99) write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
+#     ifdef _DEBUGPRINT_
+      write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
+#     endif
       cycle
     end if
   end if
@@ -216,7 +226,9 @@ do iVec=1,mIter
 
   c2_new = DDot_(mIter,Scrt1((iVec-1)*mIter+1),1,Scrt1((iVec-1)*mIter+1),1)
   if (c2_new > ThrLdp) then
-    if (iPrint >= 99) write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
+#   ifdef _DEBUGPRINT_
+    write(6,*) ' c**2 is too large in DIIS, iVec,c**2=',iVec,c2_new
+#   endif
     cycle
   end if
 
@@ -227,11 +239,15 @@ do iVec=1,mIter
     c2_old = c2_new
     ee_old = ee_new
     iVec_old = iVec
-    if (iPrint >= 99) write(6,*) 'New vector much lower eigenvalue',iVec_old
+#   ifdef _DEBUGPRINT_
+    write(6,*) 'New vector much lower eigenvalue',iVec_old
+#   endif
   else if (ee_new <= ee_old*Five) then
     ! New vector is close to the old vector.
     ! Selection based on relative weight of the last geometry.
-    if (iPrint >= 99) write(6,*) 'Eigenvalues are close',iVec_old,iVec
+#   ifdef _DEBUGPRINT_
+    write(6,*) 'Eigenvalues are close',iVec_old,iVec
+#   endif
     t1 = abs(Scrt1(iVec_old*mIter))/sqrt(c2_old)
     t2 = abs(Scrt1(iVec*mIter))/sqrt(c2_new)
     if (t2 > t1*1.2d0) then
@@ -239,16 +255,22 @@ do iVec=1,mIter
       c2_old = c2_new
       ee_old = ee_new
       iVec_old = iVec
-      if (iPrint >= 99) write(6,*) 'New vector much better relative weight',iVec_old
+#     ifdef _DEBUGPRINT_
+      write(6,*) 'New vector much better relative weight',iVec_old
+#     endif
     else if (t2*1.2d0 < t1) then
       ! Vectors are close in relative weight too!
       ! Select on eigenvalue only
-      if (iPrint >= 99) write(6,*) 'Relative weights are close',iVec_old,iVec
+#     ifdef _DEBUGPRINT_
+      write(6,*) 'Relative weights are close',iVec_old,iVec
+#     endif
       if (ee_new < ee_old) then
         c2_old = c2_new
         ee_old = ee_new
         iVec_old = iVec
-        if (iPrint >= 99) write(6,*) 'New vector has lower eigenvalue',iVec_old
+#       ifdef _DEBUGPRINT_
+        write(6,*) 'New vector has lower eigenvalue',iVec_old
+#       endif
       end if
     end if
   end if
@@ -260,10 +282,10 @@ if ((iVec_old < 1) .or. (iVec_old > mIter)) then
 end if
 RHS(1:mIter) = Scrt1((iVec_old-1)*mIter+1:iVec_old*mIter)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   write(u6,*) ' Selecting root',iVec_old
   call RecPrt(' The solution vector',' ',RHS,1,mIter)
-end if
+#endif
 
 ! Compute the interpolated parameter vector and
 ! the interpolated gradient vector.
@@ -291,11 +313,11 @@ do iIter=1,mIter
 
 end do
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' The iev',' ',Scrt1,1,nInter)
   call RecPrt(' The ipv',' ',q(:,nIter+1),1,nInter)
   call RecPrt(' The igv',' ',g(:,nIter+1),1,nInter)
-end if
+#endif
 
 ! Compute a new independent geometry by relaxation of
 ! the interpolated gradient vector.
@@ -307,17 +329,19 @@ if (iRC /= 0) then
   write(u6,*) 'C2DIIS(DPOTRS): iRC=',iRC
   call Abend()
 end if
-if (iPrint >= 99) call RecPrt(' dq',' ',dq(:,nIter),1,nInter)
+#ifdef _DEBUGPRINT_
+call RecPrt(' dq',' ',dq(:,nIter),1,nInter)
+#endif
 
 ! The shift is relative to the interpolated parameter
 ! vector and we have to change it so that it is relative to the
 ! actual parameter vector.
 
 dq(:,nIter) = dq(:,nIter)+q(:,nIter+1)-q(:,nIter)
-if (iPrint >= 99) call RecPrt(' dq(corr.)',' ',dq(:,nIter),1,nInter)
+#ifdef _DEBUGPRINT_
+call RecPrt(' dq(corr.)',' ',dq(:,nIter),1,nInter)
+#endif
 
 call mma_deallocate(A)
-
-return
 
 end subroutine C2DIIS

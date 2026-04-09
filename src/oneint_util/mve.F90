@@ -32,14 +32,13 @@ implicit none
 integer(kind=iwp), intent(in) :: na, nb, nZeta
 real(kind=wp), intent(out) :: rV2Int(nZeta,3,0:na,0:nb,2), rV4Int(nZeta,3,0:na,0:nb)
 real(kind=wp), intent(in) :: Sxyz(nZeta,3,0:na+2,0:nb+2), Alpha(nZeta), Beta(nZeta)
-#include "print.fh"
-integer(kind=iwp) :: ia, ib, iCar, iPrint, iRout
+integer(kind=iwp) :: ia, ib, iCar
+#ifdef _DEBUGPRINT_
 character(len=80) :: Label
+#endif
 
-iRout = 192
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In MVe: Alpha',' ',Alpha,nZeta,1)
   call RecPrt(' In MVe: Beta ',' ',Beta,nZeta,1)
   do ib=0,nb+2
@@ -48,8 +47,8 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',Sxyz(:,:,ia,ib),nZeta,3)
     end do
   end do
+#endif
 
-end if
 do ib=0,nb
   do ia=0,na
     do iCar=1,3
@@ -73,7 +72,7 @@ do ib=0,nb
   end do
 end do
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   do ib=0,nb
     do ia=0,na
       write(Label,'(A,I2,A,I2,A)') 'In MVe: rV2Int(',ia,',',ib,',1)'
@@ -84,8 +83,6 @@ if (iPrint >= 99) then
       call RecPrt(Label,' ',rV4Int(:,:,ia,ib),nZeta,3)
     end do
   end do
-end if
-
-return
+#endif
 
 end subroutine MVe
