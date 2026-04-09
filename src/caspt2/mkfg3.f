@@ -183,7 +183,7 @@ C Special pair index idx2ij allows true RAS cases to be handled:
         !! Compute approximate available memory in derfg3.f
         !! allocated in DENS
         memmax_safe = memmax_safe - 16*NBAST**2 - 3*NASHT**2
-        !! allocated in CLagX
+        !! allocated (additionally) in CLagX
         memmax_safe = memmax_safe - 2*(NG1+NG2+NG3)
         nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
         nbuf1_grad = nbuf1
