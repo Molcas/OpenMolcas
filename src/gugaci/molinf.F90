@@ -206,9 +206,9 @@ use gugaci_global, only: ibsm_ext, iesm_ext, int_dd_offset, iref_occ, logic_assi
 use Symmetry_Info, only: Mul
 use Constants, only: Half
 use Definitions, only: iwp, u6
+use Molcas, only: MxSym
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: i, idisk, idum(1), idx, im, im_lr_sta, iml, imr, imrcas_case, iorb, ispin, itmp, j, l, lr, nact_sm, &
                      nlsm_act(mxSym), nlsm_inn(mxSym), lsmtmp(mxSym), ngsm, ni, norb_all_tmp
 

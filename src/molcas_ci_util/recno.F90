@@ -44,7 +44,6 @@ implicit none
 integer(kind=iwp) :: RecNo
 integer(kind=iwp), intent(in) :: itype, iRoot
 integer(kind=iwp), external :: PageNo
-#include "rasdim.fh"
 
 select case (itype)
   case (1)

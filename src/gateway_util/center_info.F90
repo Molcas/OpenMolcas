@@ -14,13 +14,12 @@
 module Center_Info
 
 use Definitions, only: iwp
+use Molcas, only: LenIn4, MxAtom
 
 implicit none
 private
 
 public :: Center_Info_Dmp, Center_Info_Free, Center_Info_Get, Center_Info_Init, dc, n_dc
-
-#include "Molcas.fh"
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -64,7 +63,7 @@ contains
 !***********************************************************************
 !
 ! This to make either the initial allocation of dc according to the default sizes
-! as defined by the parameters in Molcas.fh or according to the actual sizes as recorded on the
+! as defined by the parameters in Molcas.F90 or according to the actual sizes as recorded on the
 ! run file.
 
 subroutine Center_Info_Init()

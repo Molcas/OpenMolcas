@@ -25,9 +25,9 @@ use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 use Definitions, only: iwp, u6
+use Molcas, only: MxAtom, Mxdbsc
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: iShll, mdc, nCnt, nCntrc, nPrim
 
 !                                                                      *

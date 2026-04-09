@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine GetCnt(NGROUP,IGROUP,NATOMS,ATLBL)
+      use Molcas, only: LenIn
       Implicit None
-#include "LenIn.fh"
       Integer NGROUP,IGROUP(8),NATOMS
       Character(LEN=LENIN) ATLBL(*)
 C Purpose: Read data from ONEINT

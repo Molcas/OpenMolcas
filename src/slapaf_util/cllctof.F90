@@ -28,6 +28,7 @@ use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: AtomLbl, Coor, dMass
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn, LenIn1
 
 implicit none
 character(len=*), intent(in) :: Strng
@@ -36,7 +37,6 @@ real(kind=wp), intent(out) :: xyz(3,nCntr+mCntr), Temp(3,nCntr+mCntr), qMss(nCnt
 integer(kind=iwp), intent(out) :: Ind(nCntr+mCntr,2)
 character(len=6), intent(in) :: Typ
 character(len=8), intent(in) :: Lbl
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iEnd, iFrst, iPhase, isAtom, ixyz, j, jsAtom, nAtom, nCent, nPar1, nPar2
 real(kind=wp) :: Axis(3), Dummy(1), Perp_Axis(3,2), Val
 logical(kind=iwp) :: ldB, lWarn, lWrite

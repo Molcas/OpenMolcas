@@ -18,9 +18,9 @@ use rasscf_global, only: iRoot, lRoots, NAC, NIN, nRoots
 use general_data, only: ispin, nactel, nash, nbas, nbas, ndel, nelec3, nfro, nhole1, nish, norb, nrs1, nrs1t, nrs2, nrs2t, nrs3, &
                         nrs3t, nssh, nsym, ntot, stsym
 use Definitions, only: iwp, u6
+use rasdim, only: MxAct, MxBas, MxIna, MxOrb, MxRoot
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp) :: ia0, ib0, ic0
 logical(kind=iwp) :: is_negative, is_too_large
 

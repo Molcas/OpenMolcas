@@ -26,9 +26,9 @@ use input_mclr, only: iSpin, iTOC, lRoots, nActEl, nConf, nCSF, nElec3, nHole1, 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use rasdim, only: MxIter, MxRoot
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp) :: i, iDisk, iDisk1, Iter
 real(kind=wp), allocatable :: OCIvec(:), Tmp(:,:)
 

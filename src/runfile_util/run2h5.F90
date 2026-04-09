@@ -29,10 +29,10 @@ subroutine run2h5_molinfo(fileid)
 use mh5, only: mh5_close_dset, mh5_create_dset_int, mh5_create_dset_real, mh5_create_dset_str, mh5_init_attr, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn, LenIn4
 
 implicit none
 integer(kind=iwp), intent(in) :: fileid
-#include "Molcas.fh"
 integer(kind=iwp) :: dsetid, i, isym, j, mcentr, natoms, nb, nbas(8), nbast, nbast1, nbast2, nPrim, nsym
 real(kind=wp) :: potnuc
 character :: lIrrep(24)

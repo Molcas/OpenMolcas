@@ -31,9 +31,9 @@ subroutine Rd1Int()
 use rasscf_global, only: BName, header, PotNuc
 use general_data, only: NBAS, NSYM
 use Definitions, only: iwp
+use rasdim, only: LenIn8
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp) :: nBas_tot
 
 !----------------------------------------------------------------------*

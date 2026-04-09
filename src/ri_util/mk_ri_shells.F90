@@ -33,10 +33,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: iwp, u6
 use Print, only: nPrint, Show
+use Molcas, only: MxAtom, Mxdbsc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd
-#include "Molcas.fh"
 integer(kind=iwp) :: BasisTypes(4), i, iAng, ib, iCnttp, iEnd, iEnds, Ierr, iLast3, Indx, iPrint, iRout, iSh, iShll, iSph, iStrt, &
                      j, jShll, lAng, lSTDINP, Lu_lib, mCnttp, mdc, n, nCnt, nCntrc, nn, nPrim, nSet
 logical(kind=iwp) :: Hit, IfTest

@@ -22,9 +22,9 @@ use guga_util_global, only: IAD10, nIOCR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u5, u6
+use Molcas, only: LenIn8, MxOrb
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: mxTit = 10
 integer(kind=iwp) :: I, IADD10, iCmd, IDISK, IIN, INTNUM, iOpt, IR, iRef, IRJ, istatus, iSym, IT, IU, IV, IVA, IX1, IX2, IX3, IX4, &
                      IY1, IY2, IY3, IY4, j, jCmd, jEnd, jStart, LN1, LN2, NAMSIZ, NASHI, NASHT, NBAST, NDEL(8), NDELI, NDELT, &

@@ -13,11 +13,11 @@ module gugaci_global
 
 use Constants, only: Two, Three, Half, OneHalf
 use Definitions, only: wp, iwp
+use Molcas, only: MxSym
 
 implicit none
 private
 
-#include "Molcas.fh"
 
 integer(kind=iwp), parameter :: lenintegral = 4, loputmp = 10000, max_atom = 200, max_extorb = 300, max_h0 = 13000, &
                                 max_innorb = 100, max_iter = 100, max_kspace = 40, max_lpext_mode = 60000, max_node = 36000, &

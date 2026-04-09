@@ -19,12 +19,12 @@ use mh5, only: mh5_create_file, mh5_init_attr, mh5_init_dset, mh5_create_dset_re
 use Dynamix_Globals, only: dyn_dt, dyn_etot, dyn_etot0, dyn_fileid, dyn_geom, dyn_mass, dyn_nh, dyn_time, dyn_vel, nh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn, LenIn4
 
 implicit none
 integer(kind=iwp) :: natoms, nsym, nstates, nconfs, ndata, dyn_dsetid, surf_dsetid, wfn_fileid, ii
 character(len=8) :: method
 real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), oldphase(:), overlap_save(:)
-#include "Molcas.fh"
 character(len=LenIn), allocatable :: atomlbl(:)
 logical(kind=iwp) :: found
 complex(kind=wp), allocatable :: amatrix(:)

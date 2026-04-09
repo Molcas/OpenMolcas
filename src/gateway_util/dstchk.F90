@@ -22,9 +22,9 @@ subroutine DstChk(xyz,Lbls,mCentr)
 
 use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn
 
 implicit none
-#include "LenIn.fh"
 integer(kind=iwp), intent(in) :: mCentr
 real(kind=wp), intent(in) :: xyz(3,mCentr)
 character(len=LenIn), intent(in) :: Lbls(mCentr)

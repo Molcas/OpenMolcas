@@ -30,9 +30,9 @@ use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
+use Molcas, only: LenIn6, LenIn4
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iDisp, iIrrep, mc, mdc, mDisp, nCnttp_Valence, nDisp(0:7)
 logical(kind=iwp) :: TstFnc
 integer(kind=iwp), allocatable :: DegDisp(:)

@@ -19,7 +19,6 @@ use jobiph_j, only: nash_j, nbas_j, nfro_j, nish_j, nsym_j
 use Definitions, only: iwp, u6
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp) :: i, ii, j
 logical(kind=iwp), parameter :: debug = .false.
 

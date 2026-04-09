@@ -17,11 +17,11 @@ use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)
 integer(kind=iwp), intent(out) :: MOsToKeep
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iB, iB1, iB2, icomp, iDiskUt, iM1, iM2, ind, ind1, ind2, indx, iopt, irc, iS1, iS2, iSmLbl, kaunt, Lu_One, &
                      Lu_Scratch, nMtK, nSize
 real(kind=wp) :: ChargeNonReduced, ChargeReduced, Det, DiffMax, DiffMegaMax, Dum, Dummy(1), Sqroot, ThrOcc, TraceFull, TraceRed, &

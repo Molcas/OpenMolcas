@@ -20,9 +20,9 @@ use define_af, only: Angtp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Molcas, only: Mxdbsc
 
 implicit none
-#include "Molcas.fh"
 character(len=8), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nComp, lOper(nComp), iAtmNr2(mxdbsc)
 real(kind=wp), intent(in) :: Charge2(mxdbsc)

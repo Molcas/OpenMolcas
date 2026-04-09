@@ -13,6 +13,7 @@ module InfSCF
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Molcas, only: MxSym, LenIn8, LenIn
 
 implicit none
 private
@@ -205,7 +206,6 @@ type Loosen_Type
   real(kind=wp) :: Thrs, Thrs2, Step, Factor
 end type Loosen_Type
 
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: IterSO_Max = 30, MxIter = 400, MxOptm = 20, nFld = 16, nStOpt = 8
 
 integer(kind=iwp) :: ALGO, Expand, fileorb_id, iAu_ab, iCoCo, iDisk(MxIter,2), iDKeep, iDMin, iDummy_run, indxC(16,2,8), InVec, &

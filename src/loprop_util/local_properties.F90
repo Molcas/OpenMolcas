@@ -29,12 +29,10 @@ real(kind=wp), intent(out) :: Sq_Temp(nTemp), Temp(nTemp)
 real(kind=wp), intent(inout) :: rMP(nij,0:nElem-1,0:nPert-1), rMPq(0:nElem-1), EC(3,nij)
 logical(kind=iwp), intent(in) :: Standard
 character(len=12), intent(in) :: Opt_Method
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAtom, ii, ii_, ij, ij_, iMu, iPert, ix, iy, j, jAtom, ji_, jj, l, mElem, Num_Warnings
 real(kind=wp) :: A(3), Acc
 integer(kind=iwp), allocatable :: T_sets(:), Warnings(:) !, center(:), Charge(:), NBFpA(:)
 real(kind=wp), allocatable :: T_values(:)
-!character(len=LenIn), allocatable :: CNAME(:)
 real(kind=wp), parameter :: Ref(3) = [Zero,Zero,Zero]
 
 #include "macros.fh"

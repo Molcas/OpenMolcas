@@ -14,12 +14,12 @@ subroutine Print_T_Values(T_Values,iT_Sets,iANr,EC,Bond_Threshold,nAtoms,nij,Sta
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn, Lenin4
 
 implicit none
 integer(kind=iwp), intent(in) :: nij, iT_Sets(nij), nAtoms, iANr(nAtoms), iWarnings(nij), Num_Warnings, iPrint
 real(kind=wp), intent(in) :: T_Values(nij), EC(3,nij), Bond_Threshold
 logical(kind=iwp), intent(in) :: Standard
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAtom, ii, ij, j, jAtom, jj, Last_NonBlank
 real(kind=wp) :: Bond_Length, Bond_Max, bs_t, Factor, Radius_i, Radius_j
 integer(kind=iwp), parameter :: iLength = 25

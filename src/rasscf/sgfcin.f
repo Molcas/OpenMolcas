@@ -69,7 +69,6 @@
       use output_ras, only: LF,IPRLOC
 
       implicit none
-#include "rasdim.fh"
       Character(LEN=16), Parameter :: ROUTINE='SGFCIN  '
 *
       real*8, intent(in) :: CMO(*), D1I(*), D1A(*)

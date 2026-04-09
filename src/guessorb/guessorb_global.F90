@@ -12,11 +12,11 @@
 module GuessOrb_Global
 
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn, LenIn8, MxSym, MxAtom
 
 implicit none
 private
 
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: MxBasis = 5000
 integer(kind=iwp) :: iPrFmt, nBas(MxSym), nDel(MxSym), nNuc, nOcc(MxSym), nSym, nVir(MxSym)
 real(kind=wp) :: GapThr, PrThr, SThr, TThr

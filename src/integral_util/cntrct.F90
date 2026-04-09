@@ -26,6 +26,7 @@ subroutine Cntrct(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,ma
 !***********************************************************************
 
 use Definitions, only: wp, iwp
+use Molcas, only: lCache
 #if defined (_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif
@@ -38,7 +39,6 @@ real(kind=wp), intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,
                              ACInt(n1*n2*n3*n4,nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1))
 real(kind=wp), intent(inout) :: ACOut(nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1),m1*m2*m3*m4)
 real(kind=wp), intent(out) :: Scrtch(nScrtch)
-#include "Molcas.fh"
 integer(kind=iwp) :: IncVec, ipA2, ipA3, lSize, mabcd, ncache_, nVec
 
 mabcd = nComp*(mabMax-mabMin+1)*(mcdMax-mcdMin+1)

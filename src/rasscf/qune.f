@@ -19,6 +19,7 @@ C
 C
 
       use Constants, only: Zero, One, Two
+      use rasdim, only: MxIter
       IMPLICIT None
       INTEGER NCALLS,NDIM
       REAL*8 ENOW,BK(NDIM),XSX(NDIM),VL(NDIM),VM(NDIM)
@@ -32,7 +33,6 @@ C
 !     local variables
       REAL*8, SAVE :: ELAST,FPLAST
       INTEGER, SAVE :: NVEC,NLS
-#include "rasdim.fh"
       REAL*8,Save:: ALPHA(mxiter+2),BETA(mxiter+2)
       INTEGER IAD,IVEC,NLM
       REAL*8 FP,X,Y,P1,P2,C0,C1,C2,C3,P,Q,TLM,T0,T1,ELM,EMIN,E0,E1,

@@ -14,12 +14,12 @@ subroutine GF_Print(EVal,EVec,dDipM,iel,nDoF,nDim,ictl,IRInt,RedM,Lu_10,iOff)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Three, Four, aTokg, cLight, diel, elcharge, rNAVO
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn6
 
 implicit none
 integer(kind=iwp), intent(in) :: iel, nDoF, nDim, ictl, Lu_10, iOff
 real(kind=wp), intent(in) :: EVal(nDim), EVec(nDoF,nDim), dDipM(nDim,iel), RedM(nDim)
 real(kind=wp), intent(out) :: IRInt(nDim)
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: Inc = 6
 integer(kind=iwp) :: i, iHarm, iInt, iIRInt, j, Jnc, l, nChDisp
 real(kind=wp) :: Tmp(Inc)

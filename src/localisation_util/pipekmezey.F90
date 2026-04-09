@@ -22,9 +22,9 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8
 
 implicit none
-#include "Molcas.fh"
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
 real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad

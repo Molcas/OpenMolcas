@@ -48,6 +48,7 @@ use Breit, only: nComp, Do_BP_Integrals
 use Definitions, only: iwp, u6
 use Constants, only: Zero
 use eval_arrays, only: SOInt, AOInt, Scr, PSO, PAO
+use Molcas, only: lCache
 
 use PSO_Stuff, only: lPSO, Gamma_On, nGamma, iFnc, MemPSO
 use SOAO_Info, only: iAOtSO
@@ -58,7 +59,6 @@ implicit none
 integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
 logical(kind=iwp), intent(in) :: DoFock
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
-#include "Molcas.fh"
 integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBsInc, jCmp, jPrim, jPrInc, kBas, kBsInc, kCmp, &
                      kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPack, lPrim, lPrInc, lSize, mabcd, mabMax, &
                      mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, &
@@ -412,8 +412,8 @@ do
   else
     MemPck = 0
   end if
-  Mem2 = max((MemPr+MemAux),(MemCon+MemAux),(MemSp1+MemAux),MemFck,MemPck, &
-             nGamma+MemAux0) ! Stuff to accomodate PGet0
+  Mem2 = max(max(MemPr,MemCon,MemSp1)+MemAux,MemFck,MemPck, &
+                 nGamma+MemAux0) ! Stuff to accomodate PGet0
   if (Mem2+1 > Mem0) then
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 Fail)

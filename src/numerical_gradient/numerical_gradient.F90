@@ -22,10 +22,10 @@ use spool, only: disable_spool, LuWr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-#include "LenIn.fh"
 real(kind=wp) :: Dsp, EMinus, Energy_Ref, EPlus, FX(3), Grada, Gradb, rDeg, rDelta, rDum(1), rMax, rTest, Sgn, TempX, TempY, &
                  TempZ, x, x0, y, y0, z, z0
 integer(kind=iwp) :: error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, iCoSet(0:7,0:7), id_Tsk, iData, iDisp, iDispXYZ(3), iEm, &

@@ -34,11 +34,10 @@ module Spinfo
 ! DoBKAP, NGASBK, IOCCPSPC
 
 use Definitions, only: wp, iwp
+use Molcas, only: MxSym, MxGas
 
 implicit none
 private
-
-#include "Molcas.fh"
 
 integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 

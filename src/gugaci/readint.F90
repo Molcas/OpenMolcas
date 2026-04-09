@@ -408,9 +408,9 @@ subroutine readtraonehead(nft,ecor,idisk)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn8, MaxBfn
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nft
 real(kind=wp), intent(out) :: ecor
 integer(kind=iwp), intent(out) :: idisk

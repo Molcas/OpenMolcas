@@ -50,9 +50,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use printlevel, only: USUAL
       use output_ras, only: LF
+      use rasdim, only: LenIn8, MxIter, MxOrb, MxRoot, MxSym, MxTit
       Implicit None
 
-#include "rasdim.fh"
       integer, intent(in) :: JobIph, iPrlev
 
       integer :: iDisk, iRt, iNDType(7, 8), lUVVVec

@@ -22,7 +22,6 @@ implicit none
 real(kind=wp), intent(inout) :: detvec(*)
 character(len=*), intent(in) :: fn
 logical(kind=iwp), intent(in) :: reord
-#include "rasdim.fh"
 integer(kind=iwp) :: i, iDisk, iwr, j, k, lujob, ncix(8), ndet_j
 real(kind=wp) :: rdum(1)
 real(kind=wp), allocatable :: CI(:), CI2(:)

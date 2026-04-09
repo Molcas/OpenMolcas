@@ -37,10 +37,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u5, u6
 use Print, only: Show, nPrint
+use Molcas, only: MxAtom
 
 implicit none
 logical(kind=iwp), intent(out) :: Run_MCLR
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idum, iDummer, iElem, iIrrep, ijSym, iOpt, ipert, iprint, iRC, iRout, &
                      istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nd(1), nDisp, &
                      nSlct

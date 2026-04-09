@@ -44,9 +44,9 @@ use rasscf_global, only: cCI, ITER, jCj, lRoots, nRoots
 use general_data, only: NCONF
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use rasdim, only: MxRef
 
 implicit none
-#include "rasdim.fh"
 integer(kind=iwp), intent(in) :: jRoot
 real(kind=wp), intent(inout) :: S1(lRoots,lRoots), S2(lRoots,lRoots)
 real(kind=wp), intent(in) :: CI_vec(nConf)

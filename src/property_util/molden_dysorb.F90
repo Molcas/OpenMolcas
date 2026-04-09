@@ -35,9 +35,9 @@ use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn, LenIn8, MaxBfn, MaxBfn_aux, MxAtom
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: NDO, NZ
 character(len=*), intent(in) :: filename
 real(kind=wp), intent(in) :: ENE(NDO), OCC(NDO), CMO(NZ*NDO)

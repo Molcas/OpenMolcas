@@ -62,7 +62,6 @@ character(len=8) :: Method, Method1
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: Cho_X_GetTol
 real(kind=wp), external :: ddot_, Seconds
-#include "Molcas.fh"
 
 !                                                                      *
 !***********************************************************************

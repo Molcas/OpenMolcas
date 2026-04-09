@@ -16,11 +16,11 @@ subroutine Cho_SetAtomShl(irc,iAtomShl,n)
 use Cholesky, only: IPRINT, iSOShl, LuPri, nBasT, nShell, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
+use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: n
 integer(kind=iwp), intent(out) :: irc, iAtomShl(n)
-#include "Molcas.fh"
 integer(kind=iwp) :: i, i1, i2, iAtom, iBatch, iSh, iSh0, iSh1, iSh2, nAtom, nBatch, nErr, nSh, numSh
 integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 character(len=LenIn8), allocatable :: AtomLabel(:)

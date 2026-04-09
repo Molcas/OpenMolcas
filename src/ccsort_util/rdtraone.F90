@@ -20,9 +20,9 @@ subroutine RdTraOne()
 use ccsort_global, only: nBasX, nDelX, nFroX, nSymX
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn8, MxOrb
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: iDisk, LuTraOne, nOrbX(8), TocTraOne(64)
 real(kind=wp) :: EcorX
 character(len=LenIn8), allocatable :: BsLbl(:)
@@ -39,7 +39,5 @@ call WR_MOTRA_Info(LuTraOne,2,iDisk,TocTraOne,64,EcorX,nSymX,nBasX,nOrbX,nFroX,n
 call mma_deallocate(BsLbl)
 
 call Daclos(LuTraOne)
-
-return
 
 end subroutine RdTraOne

@@ -41,10 +41,10 @@ use ccsort_global, only: cckey, clopkey, fullprint, IADR15, iokey, IPT2, ISCF, I
 use spool, only: SpoolInp, Close_LuSpool
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use rasdim, only: MxRoot, MxTit, LenIn8, MxOrb
 
 implicit none
 logical(kind=iwp), intent(out) :: run_triples, run_sort
-#include "rasdim.fh"
 integer(kind=iwp) :: IAD15, iCmd, IROOT(mxRoot), istatus, isym, jCmd, LROOTS, LuSpool, nhelp, NOSH, NRAS1(8), NRAS2(8), NRAS3(8), &
                      ntAsh, nTit
 real(kind=wp) :: POTNUC

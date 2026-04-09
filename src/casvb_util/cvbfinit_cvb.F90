@@ -17,9 +17,9 @@ subroutine cvbfinit_cvb()
 use casvb_global, only: corenrg, iprec, is_set, iwidth, mxaobf
 use Constants, only: Zero
 use Definitions, only: iwp
+use Molcas, only: MaxBfn
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: iset = 1
 
 mxaobf = maxbfn
@@ -32,7 +32,5 @@ if (is_set /= iset) then
   corenrg = Zero
 end if
 is_set = iset
-
-return
 
 end subroutine cvbfinit_cvb

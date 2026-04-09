@@ -19,11 +19,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
 use Print, only: nPrint
+use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: iStop
 logical(kind=iwp), intent(in) :: Just_Frequencies
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iDo_dDipM, iIrrep, iOff, iPrint, iRout, isAtom, iTemp, j, jsAtom, LOut, Lu_xyz, N_ZMAT, nCoord, nsAtom_p, &
                      nTemp
 real(kind=wp) :: r, r_Iter, x1, x2, xWeight, y1, y2, z1, z2

@@ -29,6 +29,7 @@ subroutine Cntrct_mck(First,Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,g1In
 !***********************************************************************
 
 use Definitions, only: wp, iwp
+use Molcas, only: lCache
 
 implicit none
 logical(kind=iwp), intent(inout) :: First
@@ -36,14 +37,7 @@ integer(kind=iwp), intent(in) :: n1, m1, n2, m2, n3, m3, n4, m4, nGr, nArr, ngr1
                                  IndEta(nEta), lEta
 real(kind=wp), intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,m4), xpre(nt)
 real(kind=wp), intent(inout) :: g1In(nT,nGr), Array(nArr), g1Out(nGr1)
-#include "Molcas.fh"
 integer(kind=iwp) :: iabcdg, IncVec, ip, ipA2, ipA3, lsize, nCache, nVec
-
-!iRout = 18
-!iPrint = nPrint(iRout)
-
-!if (iPrint >= 99) call RecPrt(' In Cntrct: ',' ',G1In,nt,nGr)
-!if ((iPrint >= 59) .and. (.not. First)) call RecPrt(' In Cntrct: Partial (a0|c0)',' ',G1Out,nGr,m1*m2*m3*m4)
 
 ! Cache size is 32 k word (real)
 

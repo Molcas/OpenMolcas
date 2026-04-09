@@ -20,6 +20,7 @@ use ChoMP2, only: DeMP2, MP2_small, shf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Molcas, only: MxBas
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -36,7 +37,6 @@ real(kind=wp) :: Dummy, STrDF, STrDP, tmp, TrDF(8), TrDP(8)
 integer(kind=iwp), allocatable :: iD(:)
 real(kind=wp), allocatable :: CMO(:,:), OrbE(:,:), X(:)
 real(kind=wp), external :: ddot_
-#include "Molcas.fh"
 
 irc = 0
 MP2_small = .false.

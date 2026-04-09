@@ -39,9 +39,9 @@ subroutine PRIMO(Header,PrOcc,PrEne,ThrOcc,ThrEne,nSym,nBas,nOrb,BName,Ene,Occ,C
 
 use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8, LenIn
 
 implicit none
-#include "Molcas.fh"
 character(len=*), intent(in) :: Header
 logical(kind=iwp), intent(in) :: PrOcc, PrEne
 real(kind=wp), intent(in) :: ThrOcc, ThrEne, Ene(*), Occ(*), CMO(*)

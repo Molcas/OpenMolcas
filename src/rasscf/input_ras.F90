@@ -11,7 +11,6 @@
 Module Input_RAS
 use definitions, only: iwp
 Private
-#include "rasdim.fh"
 ! Logical unit number for reading input:
       Integer(kind=iwp), Public:: LuInput
 ! Used for input processing

@@ -12,11 +12,11 @@
 module motra_global
 
 use Definitions, only: wp, iwp
+use Molcas, only: MxSym, LenIn8
 
 implicit none
 private
 
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: MxTit = 1
 !----------------------------------------------------------------------*
 ! Allocate space to store the system description                       *

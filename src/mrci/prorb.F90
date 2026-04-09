@@ -13,10 +13,10 @@ subroutine PRORB(CNO,OCC)
 
 use mrci_global, only: BNAME, NBAS, NBAST, NCMO, NSYM, THRORB
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8, LenIn
 
 implicit none
 real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST)
-#include "Molcas.fh"
 integer(kind=iwp) :: I, IEB, IEM, IEND, IST, ISYM, J, JEMO, JSMO, NB, NDIV, NPRT
 character(len=LenIn8), external :: CLEAN_BNAME
 
@@ -52,7 +52,5 @@ do ISYM=1,NSYM
   IEB = IEB+NB
   IEM = IEM+NB*NB
 end do
-
-return
 
 end subroutine PRORB

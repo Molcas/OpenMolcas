@@ -39,10 +39,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use print, only: nPrint, Show
+use Molcas, only: MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iRout, istatus, iSym(3), iTR, &
                      j, jIrrep, jOper, jPrint, jRout, jTR, k, ldsp, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, nElem, nGroup, &
                      nRoots, nSlct

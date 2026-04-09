@@ -17,6 +17,7 @@ use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, v
 use ddvdt, only: A_Bend, aAV, f_Const_Min, rAV, rkf
 use Constants, only: Zero, One, Two, Pi, deg2rad
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn4
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -29,7 +30,6 @@ real(kind=wp), intent(in) :: Cx(3,nsAtom,nIter), Thr_small
 logical(kind=iwp), intent(in) :: Process, Proc_dB
 real(kind=wp), intent(inout) :: Valu(nB,nIter), fconst(nB), rMult(nB), Grad_all(9,iGlow:iGhi,nIter), BM(nB_Tot), dBM(ndB_Tot)
 character(len=14), intent(inout) :: qLbl(nB)
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: mB = 3*3
 integer(kind=iwp) :: iAtom, iAtom_, iBond, iBondType, iDCR(3), iDCRR(0:7), iDCRT(0:7), ideg, iE1, iE2, iE3, iF1, iF2, iF3, Ind(3), &
                      iNeighbor, ir, iStabM(0:7), iStabN(0:7), jAtom, jAtom_, jBond, jBondType, jNeighbor, jr, k, kDCR, kDCRR, &

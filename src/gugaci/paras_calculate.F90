@@ -15,9 +15,9 @@ use gugaci_global, only: ibsm_ext, iesm_ext, iwt_orb_ext, iwt_sm_s_ext, jb_sys, 
                          !, n_electron, norb_all, norb_dbl, norb_dz, norb_ext
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
+use Molcas, only: MxSym
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: iaend, iaorb, iasta, ibend, iborb, ibsta, icnttmp, ijsm, isma, ismb, isumtmp, iwt_sm_sab(mxSym), iwttmp, ni, &
                      nij, nj
 !integer(kind=iwp), parameter :: inlptb_new(156) = [ &

@@ -20,9 +20,9 @@ use Localisation_globals, only: BName, CMO, EOrb, Ind, LC_FileOrb, nAtoms, nBas,
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp
+use Molcas, only: MxAtom, MxBas, MxSym
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iSym, kOff, n2Bas, nBasT, nOrbT
 character(len=80) :: Txt
 character(len=512) :: FName

@@ -33,6 +33,7 @@ subroutine Tcrtnc(Coef1,n1,m1,Coef2,n2,m2,Coef3,n3,m3,Coef4,n4,m4,ACInt,mabcd,Sc
 !***********************************************************************
 
 use Definitions, only: wp, iwp
+use Molcas, only: lCache
 #if defined (_DEBUGPRINT_) || defined (_CHECK_)
 use Definitions, only: u6
 #endif
@@ -45,7 +46,6 @@ real(kind=wp), intent(in) :: Coef1(n1,m1), Coef2(n2,m2), Coef3(n3,m3), Coef4(n4,
 real(kind=wp), intent(out) :: Scrtch(nScr)
 ! FIXME: This should be intent(out), but the aliasing/overlap (see above) prevents it
 real(kind=wp), intent(_OUT_) :: ACOut(lZeta*lEta,mabcd)
-#include "Molcas.fh"
 integer(kind=iwp) :: nCache, lsize, nVec, IncVec, ipA2, ipA3
 
 #ifdef _DEBUGPRINT_

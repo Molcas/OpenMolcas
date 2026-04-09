@@ -40,8 +40,8 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
+      use Molcas, only: MxBas, LenIn8
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
 *
       CHARACTER(LEN=LENIN8) NAME(*)
       CHARACTER(LEN=4) NAMFRO(*)

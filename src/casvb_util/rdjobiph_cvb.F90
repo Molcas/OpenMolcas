@@ -17,10 +17,10 @@ subroutine rdjobiph_cvb(fnjob)
 use jobiph_j, only: iadr15_j, iroot_j, ispin_j, lroots_j, lsym_j, nactel_j, nash_j, nbas_j, nconf_j, ndel_j, nelec3_j, nfro_j, &
                     nhole1_j, nish_j, nroots_j, nrs1_j, nrs2_j, nrs3_j, nsym_j, title_j, weight_j
 use Definitions, only: wp, iwp, u6
+use rasdim, only: LenIn8, MxOrb, MxRoot, MxSym, MxTit
 
 implicit none
 character(len=*), intent(in) :: fnjob
-#include "rasdim.fh"
 integer(kind=iwp) :: idisk, ii, ipt2_j, lujob
 real(kind=wp) :: potnuc_j
 character(len=LenIn8) :: name_j(mxorb)

@@ -25,7 +25,6 @@
 * Logical flags in 'input_ras.F90' are set according to input.
 * Return codes are _RC_ALL_IS_WELL_ or _RC_INPUT_ERROR_
 * ------------------------------------------------------------
-#include "rasdim.fh"
 #include "warnings.h"
 *
       Integer I, iCMD

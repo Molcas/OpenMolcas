@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+#include "Molcas.fh"
 #include "rasdim.fh"
       Integer    MxState,       MxExt
       Parameter (MxState=MxRoot,MxExt=MxBas-MxAct)

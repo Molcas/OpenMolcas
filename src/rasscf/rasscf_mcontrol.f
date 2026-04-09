@@ -17,7 +17,6 @@
       use rasscf_global, only: MaxIt, Thre, ThrSX, ThrTE
 
       Implicit None
-#include "rasdim.fh"
 *
       Integer id_call
 *

@@ -12,11 +12,11 @@
 module info_expbas_mod
 
 use Definitions, only: iwp
+use Molcas, only: MxSym, LenIn, MxAtom
 
 implicit none
 private
 
-#include "Molcas.fh"
 ! Exporting some useful parameters
 public :: LenIn, MxAtom, mxsym
 

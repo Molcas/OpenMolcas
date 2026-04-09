@@ -51,7 +51,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: ThrAO
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,0:7), IncVec, iOff_3C(3,0:7), iOff_Rv(0:7), ip_R, &
                      iPass, iPL, iPrint, irc, iRed, iS, iS_, iSeed, iSym, iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, &
                      kCnttp, klS_, kQv, kS, lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, &

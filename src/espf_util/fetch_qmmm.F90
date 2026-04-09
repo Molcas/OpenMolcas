@@ -20,11 +20,11 @@ use Isotopes, only: PTab
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten, Angstrom
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: nCastMM
 integer(kind=iwp), intent(in) :: CastMM(nCastMM)
-#include "LenIn.fh"
 integer(kind=iwp) :: iAtGMX, iAtNmbGMX, iAtOut, iCastMM, iFirst, iGrpGMX, iLast, iOk, LuXYZ, nAtGMX, nAtIn, nAtOut
 logical(kind=iwp) :: Exists
 character(len=LenIn) :: Symbol

@@ -44,7 +44,6 @@ use Print, only: nPrint
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iCnttp, iDKH_H_Order, iDKH_X_Order, iParam, iPrint, iRout, iTtl, LuWr, nTtl
 real(kind=wp) :: temp
 logical(kind=iwp) :: l_aCD_Thr, Found, lNoPair, lPam2, lECP, lPP

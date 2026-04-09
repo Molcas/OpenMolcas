@@ -13,6 +13,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: BName, IXSYM
       use general_data, only: NSYM,NBAS,NORB
+      use rasdim, only: LenIn3
 
       IMPLICIT None
       Real*8 CMO(*)
@@ -21,7 +22,6 @@
       Real*8 WGTLQN(0:9)
       LOGICAL IFTEST
       Integer, Allocatable:: LQN(:)
-#include "rasdim.fh"
       Integer I, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB,
      &        ISYM, ITP, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT,
      &        NO, NONZ

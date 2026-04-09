@@ -126,10 +126,10 @@
       use spinfo, only: DOBKAP
       use rasscf_global, only: IPCMROOT
       use DWSol, only: DWSolv, DWSol_final, DWSol_init
+      use rasdim, only: MxIter, MxRoot
 
       Implicit None
 
-#include "rasdim.fh"
 #include "warnings.h"
 
       Integer IReturn, RC_RAS

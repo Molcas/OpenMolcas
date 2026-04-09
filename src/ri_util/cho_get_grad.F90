@@ -126,7 +126,6 @@ real(kind=wp), intent(in) :: Txy(nTxy)
 logical(kind=iwp), intent(in) :: DoExchange, lSA, DoCAS, Estimate, Update
 real(kind=wp), intent(_OUT_) :: V_k(nV_k,*), U_k(*)
 real(kind=wp), intent(inout) :: Z_p_k(nZ_p_k,*)
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAdr, iaSh, iAvec, iBatch, ibcount, ibs, ibs_a, ibSh, iE, ij, ik, iLoc, iml, iMO1, iMO2, iMOleft, &
                      iMOright, ioff, iOffShb, iOffZp, iPrint, ipZp, ir, ired1, IREDC, iRout, iS, iSeed, ish, iShp, iSSa, iStart, &
                      iSwap, iSwap_lxy, ISYM, iSym1, iSym2, iSyma, iSymb, iSymv, iSymx, iSymy, it, itk, iTmp, iTxy, IVEC2, iVrs, j, &

@@ -15,13 +15,13 @@ use qmstat_global, only: CasOri, Cordst, iOrb, iPrint, iQn, nCent, nCnC_C, SavOr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, N, lmax
 real(kind=wp), intent(in) :: Ax, Ay, Az
 real(kind=wp), intent(out) :: AOint(nBaseQ,nBaseC), oV2(nBaseC,iOrb(2))
 logical(kind=iwp), intent(in) :: Inside(iQ_Atoms,nAtomsCC)
-#include "Molcas.fh"
 integer(kind=iwp) :: m
 real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), x, y, z
 logical(kind=iwp) :: PrEne, PrOcc

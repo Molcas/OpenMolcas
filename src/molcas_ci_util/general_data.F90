@@ -31,11 +31,10 @@ module general_data
 !              (binary, temporary)
 
 use Definitions, only: wp, iwp
+use Molcas, only: MxSym
 
 implicit none
 private
-
-#include "Molcas.fh"
 
 integer(kind=iwp), parameter :: MAXALTER = 16
 integer(kind=iwp) :: INVEC, ISPIN, ITERFILE, JOBIPH, JOBOLD, LUDAVID, LUINTA, LUINTM, LUONEL, LUQUNE, LUStartOrb, &

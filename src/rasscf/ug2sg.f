@@ -29,6 +29,7 @@ C
       use gugx, only: SGS,CIS, EXS
       use output_ras, only: LF
       use spinfo, only: NTYP,MINOP,NCNFTP,NCSFTP
+      use rasdim, only: MxAct, MxRef
       IMPLICIT None
       INTEGER NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,MXROOTS
       INTEGER ICONF(*),ISPIN(*)
@@ -36,7 +37,6 @@ C
       INTEGER ICI(MXROOTS,*),JCJ(MXROOTS,*)
       REAL*8 CCI(MXROOTS,*)
 C
-#include "rasdim.fh"
 C
       INTEGER IWALK(mxAct)
       INTEGER KCNF(mxAct)

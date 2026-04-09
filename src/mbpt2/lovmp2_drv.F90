@@ -27,9 +27,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use cOrbInf, only: nSym, nFro, nOcc, nDel, nExt
+use Molcas, only: LenIn8, LenIn, MxBas
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(out) :: EMP2
 real(kind=wp), intent(inout) :: CMO(*), EOcc(*), EVir(*)

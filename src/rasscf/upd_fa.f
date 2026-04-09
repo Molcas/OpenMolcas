@@ -33,11 +33,10 @@
 ************************************************************************
 
       use general_data, only: NSYM,NASH,NISH,NORB
+      use Molcas, only: MxSym
       Implicit None
 
       REAL*8 PUVX(*), F(*), D(*)
-
-#include "Molcas.fh"
 
       Integer case
       Integer off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)

@@ -17,6 +17,7 @@ module write_pdft_job
 
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use rasdim, only: MxRoot, MxIter
 
 implicit none
 private
@@ -37,7 +38,6 @@ subroutine writejob(e_states,nstates,si_pdft)
   integer(kind=iwp), intent(in) :: nstates
   real(kind=wp), intent(in) :: e_states(nstates)
   real(kind=wp), optional, intent(in) :: si_pdft(nstates,nstates)
-# include "rasdim.fh"
   real(kind=wp) :: energy(mxroot*mxiter)
   integer(kind=iwp) :: i, j
 

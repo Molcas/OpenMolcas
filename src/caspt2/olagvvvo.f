@@ -281,16 +281,16 @@ C
      &                    nBMX,CMO,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,
      *                    DIA,DI,FIFA,FIMO)
 
-      Implicit Real*8 (A-H,O-Z)
-#include "rasdim.fh"
+      use Definitions, only: wp, iwp
+      Implicit None
 
-      Integer nBas(8), nAsh(8), nSkipX(8), nfro(8)
-      Dimension CMO(*),T2AO(*),vLag(*)
-      Dimension DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
-      Dimension DIA(*),DI(*),FIFA(*),FIMO(*)
-      Logical DoCholesky!!,REORD,DECO
-C     Integer ALGO
-C     COMMON /CHORAS/ REORD,DECO,ALGO
+      Integer(kind=iwp)  nSym, iSym, iSymI,iSymJ,iSymK,iSymL
+      Integer(kind=iwp)  nBas(8), nAsh(8), nSkipX(8), nfro(8)
+      Integer(kind=iwp)  nOcc,nBasT,nBMX
+      real(kind=wp) CMO(*),T2AO(*),vLag(*)
+      real(kind=wp) DPT2AO(*),DPT2CAO(*),FPT2AO(*),FPT2CAO(*)
+      real(kind=wp) DIA(*),DI(*),FIFA(*),FIMO(*)
+      Logical(kind=iwp) DoCholesky
 
       Call DecideOncholesky(DoCholesky)
 
@@ -304,7 +304,6 @@ C     ELSE
 *
 * Standard building of the Fock matrix from Two-el integrals
 *
-C        write(6,*) "calling drv2"
          Call VVVO_Drv2(nSym,nBas,nAsh,nFro,nSkipX,
      *                  iSym,iSymI,iSymJ,iSymK,iSymL,
      &                  T2AO,vLag,nOcc,nBasT,
@@ -312,8 +311,6 @@ C        write(6,*) "calling drv2"
      *                  DIA,DI,FIFA,FIMO)
 
 C     ENDIF
-C
-      RETURN
 C
       END SUBROUTINE VVVO_Drv
 C

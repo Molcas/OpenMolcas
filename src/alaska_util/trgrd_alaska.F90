@@ -28,9 +28,9 @@ use Symmetry_Info, only: nIrrep
 use Disp, only: IndDsp
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Molcas, only: LenIn5, MxAtom
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(out) :: CGrad(3,MxAtom)
 character(len=LenIn5), intent(out) :: CNames(MxAtom)

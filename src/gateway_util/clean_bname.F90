@@ -29,9 +29,9 @@
 function Clean_BName(BName,Offset)
 
 use Definitions, only: iwp
+use Molcas, only: LenIn8
 
 implicit none
-#include "Molcas.fh"
 character(len=LenIn8) :: Clean_BName
 character(len=*), intent(in) :: BName
 integer(kind=iwp), intent(in) :: Offset

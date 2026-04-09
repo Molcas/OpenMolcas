@@ -46,6 +46,7 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp, u6
 use k2_arrays, only: Sew_Scr
 use eval_arrays, only: PSO, Scr
+use Molcas, only: lCache
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
@@ -56,7 +57,6 @@ integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), I
                      nabcd, nCache, nFac, nPam(4,0:7), nTmp1, nTmp2, nVec1, mijkl, nijkl, ipMem1, ipMem2, Mem1, Mem2, MemPrm
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
-#include "Molcas.fh"
 
 ! Compute memory request for the primitives, i.e.
 ! how much memory is needed up to the transfer

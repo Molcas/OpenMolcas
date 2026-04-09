@@ -9,13 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module Cntrl
-# include "rasdim.fh"
-! note this also includes implicitly Molcas.fh
-! The paramaters defined in Molcas.fh should be private
+use rasdim, only: mxRef,mxIter,mxCiIt,mxSxIt,mxTit
+use Molcas, only: MaxBfn,MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, mxact, mxina, mxbas, mxOrb, &
+                  mxSym, mxGAS, LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
+! The paramaters defined in module rasdin should be private
+Private mxRef,mxIter,mxCiIt,mxSxIt,mxTit
+! The paramaters defined in module Molcas should be private
 Private MaxBfn,MaxBfn_Aux, MxAO, mxAtom, mxroot, mxNemoAtom, Mxdbsc, lCache, mxact, mxina, mxbas, mxOrb, &
         mxSym, mxGAS, LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
-! The paramaters defined in rasdim.fh should be private
-Private mxRef,mxIter,mxCiIt,mxSxIt,mxTit
 
   INTEGER, PARAMETER :: MXJOB=100,MXPROP=30000
   INTEGER, PARAMETER :: MXDISP=500
@@ -188,8 +189,7 @@ Real*8, Allocatable, Public:: RefEne(:), HEff(:,:)
 
 INTEGER, Parameter:: MORSBITS=8
 
-
-! Note: MXATOM to be taken from Molcas.fh
+! Note: MXATOM to be taken from module Molcas
 INTEGER               NGROUP,IGROUP(8),NATOMS,COOR(3,MXATOM)
 ! Atom labels, 4 bytes each.
 CHARACTER(LEN=LENIN) ATLBL(MXATOM)

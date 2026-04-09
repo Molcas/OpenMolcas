@@ -20,6 +20,7 @@ use mh5, only: mh5_close_attr, mh5_close_dset, mh5_close_file, mh5_create_attr_i
 use Definitions, only: wp
 #endif
 use Definitions, only: iwp
+use Molcas, only: LenIn
 
 implicit none
 private
@@ -88,7 +89,6 @@ subroutine Chkpnt_init()
   use Index_Functions, only: nTri_Elem
   use Slapaf_Info, only: AtomLbl, Coor, dMass, dMEPStep, iCoSet, MEP, nDimBC, nStab, rMEP, Smmtrc
   use stdalloc, only: mma_allocate, mma_deallocate
-# include "Molcas.fh"
   character :: lIrrep(24)
   integer(kind=iwp) :: dsetid, i, j, k, mAtom
   integer(kind=iwp), allocatable :: desym(:,:), symdof(:,:)

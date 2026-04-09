@@ -18,9 +18,9 @@ use define_af, only: AngTp, iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8, LenIn4, Lenin, Lenin1, MxBas
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase, MxTyp, nNuc
 character(len=LenIn8), intent(in) :: UBNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)

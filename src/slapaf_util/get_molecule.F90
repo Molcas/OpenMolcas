@@ -16,9 +16,9 @@ use Symmetry_Info, only: VarR, VarT
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp, u6
+use Molcas, only: LenIn
 
 implicit none
-#include "LenIn.fh"
 integer(kind=iwp) :: Columbus, iGO, iMode, iPL, Length, nData, nsAtom
 logical(kind=iwp) :: Found
 integer(kind=iwp), external :: iPrintLevel

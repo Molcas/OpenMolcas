@@ -22,9 +22,9 @@ subroutine GenerateP(Ovlp,cMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_St
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8, LenIn
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nBasis, nOrb2Loc, nAtoms, nBas_per_Atom(*), nBas_Start(*)
 real(kind=wp), intent(in) :: Ovlp(nBasis,nBasis), cMO(nBasis,*)
 real(kind=wp), intent(out) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)

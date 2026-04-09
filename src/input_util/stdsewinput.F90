@@ -24,9 +24,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
 use Print, only: nPrint, Show
+use Molcas, only: MxAtom, LenIn, Mxdbsc
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), intent(in) :: LuRd, lSTDINP
 integer(kind=iwp), intent(inout) :: ifnr, mdc, iShll
 integer(kind=iwp), intent(out) :: BasisTypes(4), iErr

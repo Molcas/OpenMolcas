@@ -16,9 +16,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
+use Molcas, only: LenIn8
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iLen, irc, iStart, iStart_t, iSym, nUniqAt, nZero(8)
 real(kind=wp), allocatable :: CMO_t(:), EOrb_t(:)
 character(len=LenIn8), allocatable :: UBName(:)

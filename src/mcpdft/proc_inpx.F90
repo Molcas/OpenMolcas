@@ -26,11 +26,12 @@ use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr,
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use Definitions, only: wp, iwp, u6
+!use rasdim, only: MxTit, LenIn8, MxRoot, MxSym
+use rasdim
 
 implicit none
 logical(kind=iwp), intent(in) :: dscf
 integer(kind=iwp), intent(out) :: irc
-#include "rasdim.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, iad19, IADR19(15), iorbdata, iprlev, isym, ndiff
 real(kind=wp) :: potnucdummy

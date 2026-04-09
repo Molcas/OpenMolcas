@@ -24,9 +24,9 @@ use Cholesky, only: InfVec, LuPri, nBasT, nnBstRT, nSym, NumCho, NumChT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
+use Molcas, only: LenIn8, MxBas, LenIn
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp), parameter :: numAt = 6
 integer(kind=iwp) :: i, i1, i2, iA, iAt, iAt0, iAt1, iAt2, iAtA, iAtB, iAtom, iB, iBatch, iClass(4), iRS1, iVec, nAt, nAtom, &
                      nBatch, nChk, nPseudo, nTot1, nTot2

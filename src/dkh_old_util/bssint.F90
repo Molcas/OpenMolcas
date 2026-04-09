@@ -22,7 +22,6 @@ use Definitions, only: wp, iwp, u6
 use Print, only: nPrint
 
 implicit none
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAngr, iBas, iCmp, icnt, iCnttp, iComp, idbg, iExp, iip1, iOpt, ip1, iPrint, iRC, iRout, iSize, iSizea, &
                      iSizeab, iSizeb, iSizec, iSyma, iSymb, ixyz, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, L, &
                      lOper, Lu_One, n, na, nb, nBasMax, ncomp, nSym
