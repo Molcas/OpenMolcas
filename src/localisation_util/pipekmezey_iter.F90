@@ -59,7 +59,9 @@ integer(kind=iwp) :: IterGEK,large_elements
 
 real(kind=wp) :: DD,Thr
 !real(kind=wp),parameter :: gekthr_kappa=0.1_wp, gekthr_grad=0.1_wp
-real(kind=wp),parameter :: gekthr_kappa=0.010_wp, gekthr_grad=1.0_wp
+!real(kind=wp),parameter :: gekthr_kappa=0.010_wp, gekthr_grad=1.0_wp
+real(kind=wp),parameter :: gekthr_kappa=0.010_wp
+real(kind=wp) :: gekthr_grad
 
 #ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -68,6 +70,7 @@ character(len=8) :: fmt
 character(len=4) :: x1
 #endif
 
+gekthr_grad = 0.01_wp
 
 # ifdef _GETMOLDEN_
 
@@ -400,7 +403,9 @@ end subroutine rescale_disp
 
 #ifdef _FORCEGEKRANGE_
 subroutine force_GEKRange()
-    Thr= 0.01_wp
+    ! scales stepsize down to fulfill gekthr_kappa criterium; ignores the grad criterium by overwriting it
+    gekthr_grad = 100.0_wp
+    Thr = 0.99_wp*gekthr_kappa
     maxel = maxloc(abs(Disp),1)
     largest = Disp(maxel)
     if (abs(largest) > Thr) then
