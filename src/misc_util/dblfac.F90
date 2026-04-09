@@ -36,16 +36,16 @@ real(kind=wp), parameter :: cache(cache_len) = [1.0_wp,2.0_wp,3.0_wp,8.0_wp,15.0
 
 ! ideally, if n < 0 this is undefined, but in molcas it is expected to be 1
 if (n < 1) then
-  dblfac = one
-elseif (n <= cache_len) then
+  DblFac = One
+else if (n <= cache_len) then
   ! use cached values whenever possible
-  dblfac = cache(n)
+  DblFac = cache(n)
 else
-  dblfac = one
+  DblFac = One
   do i=n,2,-2
-    dblfac = dblfac*real(i,kind=wp)
+    DblFac = DblFac*real(i,kind=wp)
   end do
-endif
+end if
 
 return
 
