@@ -12,17 +12,19 @@ subroutine procinp_caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
   use inputData, only: input
-  use definitions, only: iwp,wp
+  use definitions, only: iwp,wp,RtoB
   use caspt2_global, only: iPrGlb, cmpThr, cntThr, dnmThr
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
   use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, &
-                             if_invar, iRoot1, iRoot2, if_invaria, &
-                             ConvInvar, if_equalW, if_SSDM, Weight
+                           if_invar, iParRHS, iRoot1, iRoot2, &
+                           if_invaria, ConvInvar, if_equalW, if_SSDM, &
+                           MAXBUF, Weight
   use caspt2_global, only: IDCIEX
   use PrintLevel, only: terse
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
+  use definitions, only: MPIInt
   use Para_Info, only:Is_Real_Par, nProcs
 #endif
 #ifdef _DMRG_
@@ -153,13 +155,25 @@ subroutine procinp_caspt2
   end if
 
 ! RHS algorithm selection
+  if (Input%PRHS == '0') Input%PRHS = 'DEFAULT'
+  if (Input%PRHS == '1') Input%PRHS = 'OLD'
+  if (Input%PRHS == '2') Input%PRHS = 'NEW'
+  if (Input%PRHS == '3') Input%PRHS = 'DIRECT'  ! synonym of the DIREct keyword (undocumented)
+  if (Input%PRHS /= 'DEFAULT' .and. Input%PRHS /= 'OLD' .and. Input%PRHS /= 'NEW' .and. Input%PRHS /= 'DIRECT') then
+    call WarningMessage(1,'The selected PRHS is not supported. Going to use the default strategy.')
+    Input%PRHS = 'DEFAULT'
+  end if
+  iParRHS = 1
 #ifdef _MOLCAS_MPP_
   ! The RHS on-demand algorithm doesn't handle serial calculations
   ! because it's not adapted for use with regular Work arrays, only
   ! global arrays, and needs to be switched off (using rhsall instead)
-  RHSDIRECT = (Is_Real_Par() .AND. Input%RHSD)
+  RHSDIRECT = (Is_Real_Par() .and. (Input%RHSD .or. Input%PRHS == 'DIRECT'))
+  if (Is_Real_Par() .and. (Input%PRHS == 'DEFAULT' .or. Input%PRHS == 'NEW') .and. .not.RHSDIRECT) iParRHS = 2
+  MAXBUF = (huge(1_MPIInt)-mod(huge(1_MPIInt),RtoB))/RtoB ! maximum number of real values handled by a single GADSUM call
 #else
   RHSDIRECT = .False.
+  MAXBUF = (huge(1_iwp)-mod(huge(1_iwp),RtoB))/RtoB ! compilers complaint huge(1_iwp)/RtoB with -Werror=integer-division
 #endif
 
   ! Cholesky: set defaults if it was not called during input

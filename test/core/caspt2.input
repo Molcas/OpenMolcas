@@ -170,7 +170,7 @@ OUTOrbitals = CANO
  &CASPT2
 MultiState = 2 1 2
 MaxIter = 20
-RHSD
+PRHS = Direct
 RFPert
 *OFEmbedding
 AFReeze
@@ -314,7 +314,7 @@ High Cholesky
  &CASPT2
 MultiState = 2 1 3
 MaxIter = 20
-RHSD
+PRHS = Direct
 
 >> CLONE refwfn.jobiph $Project.JobIph
  &CASPT2
