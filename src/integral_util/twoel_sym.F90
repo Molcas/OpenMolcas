@@ -488,7 +488,6 @@ do lDCRR=0,nDCRR-1
 
         kabcd = 0
         Do_TnsCtl = .false.
-        NoInts = .true.
         NoPInts = .true.
         ipAOInt_ = ipAOInt
         iW4_ = iW4
@@ -622,7 +621,7 @@ do lDCRR=0,nDCRR-1
       ! Transform from AO basis to SO basis
 
       if (DoIntegrals) call SymAdp(iAng,iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,iAO,kOp,nijkl,Aux,nAux,Wrk(ipAOInt), &
-                                   SOInt,nSOInt,NoInts)
+                                   SOInt,nSOInt)
 
     end do outer
   end do
