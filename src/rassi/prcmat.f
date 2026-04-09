@@ -80,7 +80,7 @@ C in parsable format
       WRITE(LU,*) "#NROW NCOL REAL IMAG"
       DO JSTA=1,NSS
         DO ISS=1,NSS
-        WRITE(LU,'(I4,I4,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
+        WRITE(LU,'(I6,1X,I6,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
      &   XMATR(ISS,JSTA),' ',XMATI(ISS,JSTA)
         END DO
       END DO
@@ -105,7 +105,7 @@ C Write out spin matrix elements in parsable format
       WRITE(Lu,*) "#NROW NCOL REAL IMAG"
       DO JSTA=1,NSS
         DO ISS=1,NSS
-        WRITE(Lu,'(I4,I4,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
+        WRITE(Lu,'(I6,1X,I6,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
      &   SMATR(ISS,JSTA),' ',SMATI(ISS,JSTA)
         END DO
       END DO
