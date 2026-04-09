@@ -260,11 +260,12 @@ end subroutine fmm_deallocate_mms_arrays
 
 subroutine fmm_read_in_raw_data(dens,mm_data)
 
+# include "intent.fh"
 # include "macros.fh"
 
   implicit none
-  real(REALK), intent(in)        :: dens(:,:)
-  type(raw_mm_data), intent(out) :: mm_data
+  real(REALK), intent(in)          :: dens(:,:)
+  type(raw_mm_data), intent(_OUT_) :: mm_data
   real(REALK) :: PX, PY, PZ, SPH
   integer(INTK) :: I, J, L, M, A, B, LM, X
   integer(INTK), external :: IsFreeUnit

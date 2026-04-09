@@ -49,7 +49,7 @@ parnell_status_t parnell_translate(char *src_name, char *dst_name) {
 
   /* check if source directory is work directory */
   tmp_name[FILENAME_MAX - 1] = '\0';
-  strncpy(tmp_name, src_name, FILENAME_MAX - 1);
+  memcpy(tmp_name, src_name, FILENAME_MAX - 1);
   dir_name = dirname(tmp_name);
   if (stat(dir_name, &src_info) == 0) {
     if (!S_ISDIR(src_info.st_mode)) {
@@ -57,9 +57,9 @@ parnell_status_t parnell_translate(char *src_name, char *dst_name) {
       status = PARNELL_ERROR;
       goto exit;
     } else if (src_info.st_ino == wrk_info.st_ino) {
-      strncpy(tmp_name, src_name, FILENAME_MAX - 1);
+      memcpy(tmp_name, src_name, FILENAME_MAX - 1);
       src_name[FILENAME_MAX - 1] = '\0';
-      strncpy(src_name, basename(tmp_name), FILENAME_MAX - 1);
+      memcpy(src_name, basename(tmp_name), FILENAME_MAX - 1);
     }
   } else {
     perror("cannot stat directory");
@@ -69,26 +69,26 @@ parnell_status_t parnell_translate(char *src_name, char *dst_name) {
   }
 
   /* check if destination directory is work directory */
-  strncpy(tmp_name, dst_name, FILENAME_MAX - 1);
+  memcpy(tmp_name, dst_name, FILENAME_MAX - 1);
   if (stat(dst_name, &dst_info) == 0) {
     if (S_ISDIR(dst_info.st_mode)) {
-      strncpy(tmp_name, src_name, FILENAME_MAX - 1);
+      memcpy(tmp_name, src_name, FILENAME_MAX - 1);
       if (dst_info.st_ino == wrk_info.st_ino) {
         dst_name[FILENAME_MAX - 1] = '\0';
-        strncpy(dst_name, basename(tmp_name), FILENAME_MAX - 1);
+        memcpy(dst_name, basename(tmp_name), FILENAME_MAX - 1);
       } else {
         strcat(dst_name, "/");
         strcat(dst_name, basename(tmp_name));
       }
     } else {
-      strncpy(tmp_name, dst_name, FILENAME_MAX - 1);
+      memcpy(tmp_name, dst_name, FILENAME_MAX - 1);
       dir_name = dirname(tmp_name);
       if (stat(dir_name, &dst_info) == 0) {
         if (S_ISDIR(dst_info.st_mode)) {
           if (dst_info.st_ino == wrk_info.st_ino) {
-            strncpy(tmp_name, dst_name, FILENAME_MAX - 1);
+            memcpy(tmp_name, dst_name, FILENAME_MAX - 1);
             dst_name[FILENAME_MAX - 1] = '\0';
-            strncpy(dst_name, basename(tmp_name), FILENAME_MAX - 1);
+            memcpy(dst_name, basename(tmp_name), FILENAME_MAX - 1);
           }
         } else {
           fprintf(stderr, "%d parnell_translate: no valid destination directory %s\n", MyRank, dir_name);
@@ -103,14 +103,14 @@ parnell_status_t parnell_translate(char *src_name, char *dst_name) {
       }
     }
   } else {
-    strncpy(tmp_name, dst_name, FILENAME_MAX - 1);
+    memcpy(tmp_name, dst_name, FILENAME_MAX - 1);
     dir_name = dirname(tmp_name);
     if (stat(dir_name, &dst_info) == 0) {
       if (S_ISDIR(dst_info.st_mode)) {
         if (dst_info.st_ino == wrk_info.st_ino) {
-          strncpy(tmp_name, dst_name, FILENAME_MAX - 1);
+          memcpy(tmp_name, dst_name, FILENAME_MAX - 1);
           dst_name[FILENAME_MAX - 1] = '\0';
-          strncpy(dst_name, basename(tmp_name), FILENAME_MAX - 1);
+          memcpy(dst_name, basename(tmp_name), FILENAME_MAX - 1);
         }
       } else {
         fprintf(stderr, "%d parnell_translate: no valid destination directory %s\n", MyRank, dir_name);
