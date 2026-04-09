@@ -28,11 +28,11 @@ use Gateway_global, only: Expert
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: Rtrnc
 use Symmetry_Info, only: nIrrep
+use PrintLevel, only: nPrint, Show
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
-use print, only: nPrint, Show
-use Molcas, only: LenIn, MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: iOpt
@@ -74,7 +74,7 @@ write(u6,frmt) ' ************************************************ '
 write(u6,*)
 if (iOpt == 0) then
   write(u6,'(A)') '     Center  Label                x              y              z'// &
-                               '                     x              y              z'
+                  '                     x              y              z'
 else
   write(u6,'(A)') '     Center  Label                x              y              z'
 end if

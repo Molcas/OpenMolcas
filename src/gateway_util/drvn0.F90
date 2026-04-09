@@ -29,9 +29,9 @@ use Phase_Info, only: iPhase
 use Gateway_global, only: Expert
 use Gateway_Info, only: PotNuc
 use Symmetry_Info, only: nIrrep
+use PrintLevel, only: Show
 use Constants, only: Zero, One, Two, Three, Four, Six, Half, Quart
 use Definitions, only: wp, iwp, u6
-use print, only: show
 
 implicit none
 integer(kind=iwp) :: iChxyz, iCnt, iCnttp, iDCRR(0:7), iDum, iFd, iM1xp, iM2xp, iR, iStb(0:7), jCnt, jCntMx, jCnttp, jCoSet(8,8), &

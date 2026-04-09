@@ -17,9 +17,10 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SIZES()
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: usual
+      use PrintLevel, only: USUAL
       USE SUPERINDEX, only: SUPINI
       use stdalloc, only: mma_MaxDBLE
       use caspt2_global, only: NCMO
@@ -31,9 +32,12 @@
      &                         IfRMS, nActEl, nAshT, nBasT, nBSqT,
      &                         nBTri, nCases, nConf, nFroT, nIMx,
      &                         nIshT, nOSqT, nOTri, nSMx, nState, nSym,
-     &                         Zeta, Mul, nTU, nTGTU, nAsh, nISh, nSsh,
+     &                         Zeta, nTU, nTGTU, nAsh, nISh, nSsh,
      &                         nOrb, nInDep, nASup, nISup
-      use pt2_guga, only: MxCI, nG1, nG2, nG3Tot, nPlBuf
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: NAMX
+#endif
+      use pt2_guga, only: MxCI, nG1, nG2, nG3Tot
 
       IMPLICIT none
 
@@ -53,10 +57,7 @@
      &                  nOMax, NPoly, nPrp, nPrp1, nPrp2, nRHSP, NS,
      &                  nSgm1, nSgm2, nSigma, nSigma_inner,
      &                  nSigma_outer, NSLag, nTG1, nTG2, nTG3, NumChT,
-     &                  nV, nVCUtil, nWLag, NX, M31, NIS2
-#ifdef _DEBUGPRINT_
-      integer(kind=iwp) NAMX
-#endif
+     &                  nV, nVCUtil, nWLag, NX, M31, NIS2, NPLBUF
       integer(kind=iwp), external :: iParDiv
       real(kind=wp) XX, YY
 
@@ -115,7 +116,7 @@ C SBMAT need:
 C Sizes and addresses to lists:
       DO ISL1=1,NSYM
        DO ISL3=1,NSYM
-        ISL2=MUL(ISL1,ISL3)
+        ISL2=Mul(ISL1,ISL3)
         NLIST(ISL1,ISL3,1)= NASH(ISL2)*NTU(ISL3)*2
         NLIST(ISL1,ISL3,2)= NLIST(ISL1,ISL3,1)
         NLIST(ISL1,ISL3,3)= NASH(ISL2)*NTU(ISL3)

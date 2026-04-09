@@ -25,10 +25,11 @@ C  University of Lund, Sweden, 1993
       use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2,
      &                       LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT,
      &                       LURHS, LUH0T, LUSOLV, LUSBT
-      use caspt2_module, only: Found2, IfChol, IfDirect
+      use caspt2_module, only: IfChol
       Implicit None
       CHARACTER(LEN=2) CVEC,CMAT
       integer(kind=iwp) iMat, iOpt, iRC, iVec, LUINTA
+      logical(kind=iwp) IfDirect, Found2
 *---------------------------------------------------------------------*
 C  Start
 *---------------------------------------------------------------------*

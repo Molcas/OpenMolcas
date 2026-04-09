@@ -19,8 +19,8 @@ use mh5, only: mh5_close_attr, mh5_close_dset, mh5_close_file, mh5_create_attr_i
                mh5_open_dset, mh5_open_file_rw, mh5_put_attr, mh5_put_dset, mh5_resize_dset
 use Definitions, only: wp
 #endif
-use Definitions, only: iwp
 use Molcas, only: LenIn
+use Definitions, only: iwp
 
 implicit none
 private

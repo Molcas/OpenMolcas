@@ -15,9 +15,10 @@
 
 module write_pdft_job
 
+use Molcas, only: MxRoot
+use RASDim, only: MxIter
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use rasdim, only: MxRoot, MxIter
 
 implicit none
 private

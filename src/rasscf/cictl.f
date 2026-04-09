@@ -92,7 +92,7 @@
 #endif
       use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
      &                         lRootSplit
-      use printlevel, only: DEBUG,INSANE,USUAL
+      use PrintLevel, only: DEBUG,INSANE,USUAL
       use output_ras, only: LF,IPRLOC
       use general_data, only: ISPIN,NACTEL,NCONF,NISH,JOBIPH,NASH,NTOT2,
      &                        STSYM
@@ -836,7 +836,7 @@ c         end if
      &             'energy=',ENER(I,ITER)
               If (KeyPRSD) Then
 !     Define filename to write GronOR vecdet files (tps/cdg 20210430)
-                write(filename,'(a7,i1)') 'VECDET.',i
+                write(filename,'(a7,i0)') 'VECDET.',i
 !     filename = 'VECDET.'//merge(str(i), 'x', i.lt.999)
                 LuVecDet=39
                 LuVecDet=IsFreeUnit(LuVecDet)
@@ -904,7 +904,7 @@ C.. printout of the wave function
             Write(LF,'(6X,A,F15.6)')
      &           'Split-energy=',ENER(lRootSplit,ITER)
 !     Open GronOR vecdet file (tps/cdg 20210430)
-            write(filename,'(a7,i1)') 'VECDET.',i
+            write(filename,'(a7,i0)') 'VECDET.',i
 !     filename = 'VECDET.'//merge(str(i),'x',i.lt.999)
             LuVecDet=39
             LuVecDet=IsFreeUnit(LuVecDet)

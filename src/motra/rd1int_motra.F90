@@ -23,10 +23,10 @@ subroutine Rd1Int_Motra()
 
 use motra_global, only: BsLbl, Header, HOne, iRFpert, Kine, n2max, nBas, nSym, nTot1, nTot2, Ovlp, PotNuc
 use OneDat, only: sNoNuc, sNoOri
+use Molcas, only: MxOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxOrb
 
 implicit none
 integer(kind=iwp) :: iBas, iComp, iOpt, iRc, iSyLbl, iSym, nDim, nTemp

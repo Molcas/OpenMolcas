@@ -72,13 +72,13 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In MVeInt: A',' ',A,1,3)
-  call RecPrt(' In MVeInt: RB',' ',RB,1,3)
-  call RecPrt(' In MVeInt: CoorO',' ',CoorO,1,3)
-  call RecPrt(' In MVeInt: P',' ',P,nZeta,3)
-  call RecPrt(' In MVeInt: Zeta',' ',Zeta,nZeta,1)
-  call RecPrt(' In MVeInt: Roots',' ',HerR(iHerR(nHer)),nHer,1)
-  write(u6,*) ' In MVeInt: la,lb=',la,lb
+call RecPrt(' In MVeInt: A',' ',A,1,3)
+call RecPrt(' In MVeInt: RB',' ',RB,1,3)
+call RecPrt(' In MVeInt: CoorO',' ',CoorO,1,3)
+call RecPrt(' In MVeInt: P',' ',P,nZeta,3)
+call RecPrt(' In MVeInt: Zeta',' ',Zeta,nZeta,1)
+call RecPrt(' In MVeInt: Roots',' ',HerR(iHerR(nHer)),nHer,1)
+write(u6,*) ' In MVeInt: la,lb=',la,lb
 #endif
 
 ! Compute the cartesian values of the basis functions angular part
@@ -118,12 +118,12 @@ call MVe(Array(iprV2),Array(iprV4),Array(ipQxyz),la,lb,Array(ipA),Array(ipB),nZe
 call CmbnMV(Array(ipQxyz),nZeta,la,lb,nOrdOp-4,Zeta,rKappa,rFinal,nComp,Array(iprV2),Array(iprV4))
 
 #ifdef _DEBUGPRINT_
-  do ia=1,nTri_Elem1(la)
-    do ib=1,nTri_Elem1(lb)
-      write(Label,'(A,I2,A,I2,A)') 'Mass-Velocity(',ia,',',ib,')'
-      call RecPrt(Label,' ',rFinal(:,ia,ib,:),nZeta,nComp)
-    end do
+do ia=1,nTri_Elem1(la)
+  do ib=1,nTri_Elem1(lb)
+    write(Label,'(A,I2,A,I2,A)') 'Mass-Velocity(',ia,',',ib,')'
+    call RecPrt(Label,' ',rFinal(:,ia,ib,:),nZeta,nComp)
   end do
+end do
 #endif
 
 end subroutine MVeInt

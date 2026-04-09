@@ -45,5 +45,4 @@ set (sources
      rhs_mp2_help2.F90
 )
 
-
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

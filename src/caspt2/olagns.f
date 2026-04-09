@@ -76,6 +76,7 @@
       SUBROUTINE OLagNS_Hel2(iCase,iSym,iSymA,iSymB,iSymI,iSymJ,nMaxOrb,
      &                       ERI1,Amp1,Scr,DPT2C,T2AO)
 
+      use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTU, KTUV, KTGEU, KTGTU, KAGEB, KAGTB,
      &                      KIGEJ, KIGTJ
       use caspt2_global, only: OLag
@@ -84,7 +85,7 @@
       use definitions, only: wp, iwp
       use fake_GA, only: GA_Arrays
       use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH,
-     &                         NAES, NSSH, NSES, NBAS, NBAST, MUL, NTU,
+     &                         NAES, NSSH, NSES, NBAS, NBAST, NTU,
      &                         NAGEB, NAGTB, NTUVES, NTUES, NTGEUES,
      &                         NTGTUES, NIGEJES, NIGTJES, NAGEBES,
      &                         NAGTBES, NASUP, NISUP
@@ -160,7 +161,7 @@
       DO iSymK = 1, nSym
         IOFF1(iSymK) = IO1
         IOFF2(iSymK) = IO2
-        iSymAB       = MUL(iSymK,iSym)
+        iSymAB       = Mul(iSymK,iSym)
         IO1          = IO1+nIsh(iSymK)*nAgeB(iSymAB)
         IO2          = IO2+nIsh(iSymK)*nAgtB(iSymAB)
       END DO

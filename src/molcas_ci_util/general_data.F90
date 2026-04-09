@@ -30,8 +30,8 @@ module general_data
 ! LUDAVID    : Intermediate results of the diagonalization
 !              (binary, temporary)
 
-use Definitions, only: wp, iwp
 use Molcas, only: MxSym
+use Definitions, only: wp, iwp
 
 implicit none
 private

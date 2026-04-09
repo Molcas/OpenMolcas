@@ -626,10 +626,11 @@
 !
       SUBROUTINE DERTG3(DOG3,LSYM1,LSYM2,CI1,CI2,OVL,DTG1,DTG2,NTG3,
      &                  DTG3,CLAG1,CLAG2)
+      use Symmetry_Info, only: Mul
       use gugx, only: SGS, L2ACT, CIS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp,u6
-      use caspt2_module, only: NACTEL, NASHT, MUL, ISCF, IASYM
+      use caspt2_module, only: NACTEL, NASHT, ISCF, IASYM
       use pt2_guga, only: MXCI
       use Constants, only: Zero, One
 
@@ -732,20 +733,20 @@
         ITU=IT+NASHT*(IU-1)
         ITS=IASYM(IT)
         IUS=IASYM(IU)
-        IS1=MUL(MUL(ITS,IUS),LSYM1)
+        IS1=Mul(Mul(ITS,IUS),LSYM1)
         DO IP2=1,IP1
          IV=L2ACT(P2LEV(LP2LEV1-1+IP2))
          IX=L2ACT(P2LEV(LP2LEV2-1+IP2))
          IVX=IV+NASHT*(IX-1)
          IVS=IASYM(IV)
          IXS=IASYM(IX)
-         IS2=MUL(MUL(IVS,IXS),IS1)
+         IS2=Mul(Mul(IVS,IXS),IS1)
          DO IP3=1,IP2
           IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
           IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
           IYS=IASYM(IY)
           IZS=IASYM(IZ)
-          IS3=MUL(MUL(IYS,IZS),IS2)
+          IS3=Mul(Mul(IYS,IZS),IS2)
           IF(IS3 == LSYM2) THEN
            IYZ=IY+NASHT*(IZ-1)
            IF(ITU < IVX) THEN
@@ -880,7 +881,7 @@
         IZ=L2ACT(JL)
         IYS=IASYM(IY)
         IZS=IASYM(IZ)
-        ISSG2=MUL(MUL(IYS,IZS),LSYM2)
+        ISSG2=Mul(Mul(IYS,IZS),LSYM2)
         TG3WRK(LTO:LTO+MXCI-1) = Zero
 ! LTO is first element of Sigma2 = E(YZ) Psi2
         CALL SIGMA1(SGS,CIS,EXS,
@@ -909,7 +910,7 @@
          IU=L2ACT(JL)
          ITS=IASYM(IT)
          IUS=IASYM(IU)
-         ISSG1=MUL(MUL(ITS,IUS),LSYM1)
+         ISSG1=Mul(Mul(ITS,IUS),LSYM1)
          TG3WRK(LTO:LTO+MXCI-1) = Zero
          CALL SIGMA1(SGS,CIS,EXS,
      &               IL,JL,One,LSYM1,CI1,TG3WRK(LTO))
@@ -932,7 +933,7 @@
          IYZ=IY+NASHT*(IZ-1)
          IYS=IASYM(IY)
          IZS=IASYM(IZ)
-         ISSG2=MUL(MUL(IYS,IZS),LSYM2)
+         ISSG2=Mul(Mul(IYS,IZS),LSYM2)
          IM=P2LEV(LP2LEV1-1+IP3)
          JM=P2LEV(LP2LEV2-1+IP3)
          DO IP2=IP3,IP1END
@@ -943,7 +944,7 @@
           IVX=IV+NASHT*(IX-1)
           IVS=IASYM(IV)
           IXS=IASYM(IX)
-          ISTAU=MUL(MUL(IVS,IXS),ISSG2)
+          ISTAU=Mul(Mul(IVS,IXS),ISSG2)
           NTAU=CIS%NCSF(ISTAU)
           TG3WRK(LTAU:LTAU+MXCI-1) = Zero
 ! LTAU  will be start element of Tau=E(VX) Sigma2=E(VX) E(YZ) Psi2
@@ -973,7 +974,7 @@
              IU=L2ACT(P2LEV(LP2LEV2-1+IP1))
              ITS=IASYM(IT)
              IUS=IASYM(IU)
-             ISSG1=MUL(MUL(ITS,IUS),LSYM1)
+             ISSG1=Mul(Mul(ITS,IUS),LSYM1)
              IF(ISSG1 == ISTAU) THEN
 !             L=LSGM1+MXCI*(IP1-IP1STA)
 !             VAL=DDOT_(NTAU,TG3WRK(LTAU),1,TG3WRK(L),1)
@@ -1048,7 +1049,7 @@
          IU=L2ACT(JL)
          ITS=IASYM(IT)
          IUS=IASYM(IU)
-         ISSG1=MUL(MUL(ITS,IUS),LSYM1)
+         ISSG1=Mul(Mul(ITS,IUS),LSYM1)
          CALL SIGMA1(SGS,CIS,EXS,IL,JL,One,LSYM1,DTU(1,LTO),CLAG1)
          LTO=LTO+1
         END DO
@@ -1063,7 +1064,7 @@
         IYZ=IY+NASHT*(IZ-1)
         IYS=IASYM(IY)
         IZS=IASYM(IZ)
-        ISSG2=MUL(MUL(IYS,IZS),LSYM2)
+        ISSG2=Mul(Mul(IYS,IZS),LSYM2)
         IM=P2LEV(LP2LEV1-1+IP3)
         JM=P2LEV(LP2LEV2-1+IP3)
 ! LTO is first element of Sigma2 = E(YZ) Psi2

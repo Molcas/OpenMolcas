@@ -35,9 +35,9 @@ use Symmetry_Info, only: ChOper, nIrrep
 use rmat, only: RMat_Type_Integrals
 use define_af, only: AngTp
 use property_label, only: PLabel
+use Molcas, only: LenIn, MxAtom
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxAtom, LenIn
 
 #include "intent.fh"
 

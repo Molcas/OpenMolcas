@@ -34,15 +34,14 @@ integer(kind=iwp) :: ia, ib, iCar
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-
-  call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
-  call RecPrt(' In Kntc: Beta ',' ',Beta,nZeta,1)
-  do ia=0,na+1
-    do ib=0,nb+1
-      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Sxyz(',ia,',',ib,')'
-      call RecPrt(Label,' ',Sxyz(:,:,ia,ib),nZeta,3)
-    end do
+call RecPrt(' In Kntc: Alpha',' ',Alpha,nZeta,1)
+call RecPrt(' In Kntc: Beta ',' ',Beta,nZeta,1)
+do ia=0,na+1
+  do ib=0,nb+1
+    write(Label,'(A,I2,A,I2,A)') ' In Kntc: Sxyz(',ia,',',ib,')'
+    call RecPrt(Label,' ',Sxyz(:,:,ia,ib),nZeta,3)
   end do
+end do
 #endif
 
 do ia=0,na
@@ -66,8 +65,8 @@ do ia=0,na
       end do
     end if
 #   ifdef _DEBUGPRINT_
-      write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,')'
-      call RecPrt(Label,' ',Txyz(:,:,ia,ib),nZeta,3)
+    write(Label,'(A,I2,A,I2,A)') ' In Kntc: Txyz(',ia,',',ib,')'
+    call RecPrt(Label,' ',Txyz(:,:,ia,ib),nZeta,3)
 #   endif
   end do
 end do

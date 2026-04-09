@@ -25,9 +25,6 @@ real(kind=wp), intent(in) :: rGamma(nDim), Delta(nDim)
 integer(kind=iwp) :: i
 real(kind=wp) :: dd, gd, gg, phi
 real(kind=wp), external :: DDot_
-#ifdef _DEBUGPRINT_
-real(kind=wp) :: e_msp
-#endif
 
 !                          T       T            ( T)
 !                |(1-phi)/d g phi/d d|        | (g )
@@ -40,14 +37,13 @@ gg = DDot_(nDim,rGamma,1,rGamma,1)
 phi = (One-((gd**2)/(dd*gg)))
 
 #ifdef _DEBUGPRINT_
-  e_msp = (gd/dd)**2*((Two/(One-Phi*sqrt(Phi)))-One)
-  call RecPrt(' MSP: Hessian',' ',B,nDim,nDim)
-  call RecPrt(' MSP: Delta',' ',Delta,nDim,1)
-  call RecPrt(' MSP: Gamma',' ',rGamma,nDim,1)
-  write(u6,*) 'MSP: Phi=',Phi
-  write(u6,*) 'gd,dd,gg=',gd,dd,gg
-  write(u6,*) 'MSP: a=',sqrt(Phi)
-  write(u6,*) 'MSP: E_msp=',E_msp
+call RecPrt(' MSP: Hessian',' ',B,nDim,nDim)
+call RecPrt(' MSP: Delta',' ',Delta,nDim,1)
+call RecPrt(' MSP: Gamma',' ',rGamma,nDim,1)
+write(u6,*) 'MSP: Phi=',Phi
+write(u6,*) 'gd,dd,gg=',gd,dd,gg
+write(u6,*) 'MSP: a=',sqrt(Phi)
+write(u6,*) 'MSP: E_msp=',(gd/dd)**2*((Two/(One-Phi*sqrt(Phi)))-One)
 #endif
 
 do i=1,nDim

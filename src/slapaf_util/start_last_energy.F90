@@ -12,9 +12,9 @@
 subroutine Start_Last_Energy()
 
 use RunFile_procedures, only: Get_Coord_New
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp) :: iGO, lengthlast, LuInput, nCoord, nSaddle

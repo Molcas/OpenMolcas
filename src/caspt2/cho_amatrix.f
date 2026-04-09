@@ -15,12 +15,13 @@
 ! Calculation of the "exchange" matrix for the G1,G2,G3 Fock operators
 ! from Cholesky vectors
 
+      use Symmetry_Info, only: Mul
       USE Index_Functions, ONLY: nTri_Elem
       USE Data_Structures, ONLY: Allocate_DT, Deallocate_DT, DSBA_Type
       USE CHOVEC_IO, ONLY: NVLOC_CHOBATCH
       USE stdalloc, ONLY: mma_allocate, mma_deallocate
       USE Constants, ONLY: Zero, One, Half
-      use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT, Mul,
+      use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOSqT,
      &                         nOrb, nBtch, nBtches
 
       IMPLICIT NONE
@@ -64,7 +65,7 @@
         END IF
         ! Max size for integral matrix
         DO JSYM=1,NSYM
-          I = MUL(ISYM,JSYM)
+          I = Mul(ISYM,JSYM)
           NINTS = MAX(NISH(I),NASH(I),NSSH(I))
           MXINT = MAX(MXINT,(NINTS*NASH(JSYM))**2)
         END DO
@@ -108,13 +109,13 @@
         ! Index of symmetry blocks in Cholesky vectors,
         ! according to the active orbital symmetry
         J = 0
-        ICI(MUL(ISYM,1)) = J
+        ICI(Mul(ISYM,1)) = J
         ICA(1) = 0
         ICV(1) = 0
         DO JSYM=1,NSYM-1
-          I = MUL(ISYM,JSYM)
+          I = Mul(ISYM,JSYM)
           J = J+NISH(JSYM)*NASH(I)
-          ICI(MUL(ISYM,JSYM+1)) = J
+          ICI(Mul(ISYM,JSYM+1)) = J
           ICA(JSYM+1) = ICA(JSYM)+NASH(JSYM)*NASH(I)
           ICV(JSYM+1) = ICV(JSYM)+NASH(JSYM)*NSSH(I)
         END DO
@@ -220,7 +221,7 @@
       !   t,u of symmetry TUSYM
       !   p,q of symmetry PQSYM
       DO TUSYM=1,NSYM
-        PQSYM = MUL(ISYM,TUSYM)
+        PQSYM = Mul(ISYM,TUSYM)
         NA = NASH(TUSYM)
         ! Reconstruct the (bBlock,Active|kBlock,Active) integrals
         NLB = NB(PQSYM)*NA

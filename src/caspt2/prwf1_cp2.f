@@ -17,11 +17,12 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR,nMidV)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, u6
       use gugx, only: SGS, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NSYM, ISPIN, PRSD, MUL
-      use pt2_guga, only: MxLev
+      use caspt2_module, only: NSYM, ISPIN, PRSD
+      use gugx, only: MxLev
       IMPLICIT None
       Integer(kind=iwp), Intent(In):: ISYCI, nMidV
       integer(kind=iwp), intent(in):: NOCSF(NSYM,NMIDV,NSYM),
@@ -86,7 +87,7 @@ C    WITH SPECIFIED MIDVERTEX MV, AND UPPERWALK SYMMETRY ISYUP.
           NCI=NOCSF(ISYUP,MV,ISYCI)
           IF(NCI==0) Cycle
           NUP=NOW(1,ISYUP,MV)
-          ISYDWN=MUL(ISYUP,ISYCI)
+          ISYDWN=Mul(ISYUP,ISYCI)
           NDWN=NOW(2,ISYDWN,MV)
           ICONF=IOCSF(ISYUP,MV,ISYCI)
           IUW0=1-NIPWLK+IOW(1,ISYUP,MV)

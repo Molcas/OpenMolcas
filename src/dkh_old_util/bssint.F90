@@ -16,10 +16,10 @@ use Symmetry_Info, only: Mul, nIrrep
 use DKH_Info, only: cLightAU
 use OneDat, only: sNoNuc, sNoOri
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp) :: i, iAngr, iBas, iCmp, icnt, iCnttp, iComp, idbg, iExp, iip1, iOpt, ip1, iPrint, iRC, iRout, iSize, iSizea, &

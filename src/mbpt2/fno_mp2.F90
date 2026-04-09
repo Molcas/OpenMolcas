@@ -17,10 +17,10 @@ subroutine FNO_MP2(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,CMOI,EOcc,EVir,vfrac,DoMP2,
 ! Author:   F. Aquilante  (Geneva, Nov  2008)
 
 use ChoMP2, only: DeMP2, MP2_small, shf
+use Molcas, only: MxBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxBas
 
 implicit none
 integer(kind=iwp), intent(out) :: irc

@@ -21,7 +21,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
 !
   use caspt2_global, only: iPrGlb
   use caspt2_global, only: do_grad, IDSAVGRD, iStpGrd
-  use PrintLevel, only: usual, verbose
+  use PrintLevel, only: USUAL, VERBOSE
   use definitions, only: iwp,wp,u6
   use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
   use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, &

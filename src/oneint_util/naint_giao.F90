@@ -38,9 +38,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iAnga_EF(4), iAnga_NA(4), iComp, iDCRT(0:7), ip3, ipEFInt, ipHRR, ipIn, ipNAInt, ipRys, kab, &
-                     kCnt, kCnttp, kdc, lab, labcd_EF, labcd_NA, lcd_EF, lcd_NA, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, &
-                     mcdMax_EF, mcdMax_NA, mcdMin_EF, mcdMin_NA, nDCRT, nFLOP, nHRR, nMem, nOp, nT
+integer(kind=iwp) :: iAnga_EF(4), iAnga_NA(4), iComp, iDCRT(0:7), ip3, ipEFInt, ipHRR, ipIn, ipNAInt, ipRys, kab, kCnt, kCnttp, &
+                     kdc, lab, labcd_EF, labcd_NA, lcd_EF, lcd_NA, lDCRT, llOper, LmbdT, mabMax, mabMin, mArr, mcdMax_EF, &
+                     mcdMax_NA, mcdMin_EF, mcdMin_NA, nDCRT, nFLOP, nHRR, nMem, nOp, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, rKappcd, TC(3)
 logical(kind=iwp) :: NoSpecial
 real(kind=wp), allocatable :: rKappa_mod(:)

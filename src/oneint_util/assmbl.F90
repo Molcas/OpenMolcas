@@ -33,10 +33,10 @@ integer(kind=iwp) :: ia, ib, iHer, ir
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-  call RecPrt(' In Assmbl:HerW',' ',HerW,1,nHer)
-  call RecPrt(' In Assmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1))
-  call RecPrt(' In Assmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1))
-  call RecPrt(' In Assmbl:Rxyz',' ',Rxyz,nZeta*3,nHer*(lr+1))
+call RecPrt(' In Assmbl:HerW',' ',HerW,1,nHer)
+call RecPrt(' In Assmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1))
+call RecPrt(' In Assmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1))
+call RecPrt(' In Assmbl:Rxyz',' ',Rxyz,nZeta*3,nHer*(lr+1))
 #endif
 
 Rnxyz(:,:,:,:) = Zero
@@ -53,8 +53,8 @@ do ia=0,la
       end do
 
 #     ifdef _DEBUGPRINT_
-        write(Label,'(A,I2,A,I2,A,I2,A)') ' In Assmbl: Rnxyz(',ia,',',ib,',',ir,')'
-        call RecPrt(Label,' ',Rnxyz(:,ia,ib,ir),nZeta,3)
+      write(Label,'(A,I2,A,I2,A,I2,A)') ' In Assmbl: Rnxyz(',ia,',',ib,',',ir,')'
+      call RecPrt(Label,' ',Rnxyz(:,ia,ib,ir),nZeta,3)
 #     endif
     end do
   end do

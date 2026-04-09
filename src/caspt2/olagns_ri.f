@@ -69,10 +69,11 @@
 !
       Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2)
 
+      use Symmetry_Info, only: Mul
       Use CHOVEC_IO, only: NVLOC_CHOBATCH
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_csf, iStpGrd
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use EQSOLV, only: IVECC2
       use ChoCASPT2, only: MaxVec_PT2
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -84,7 +85,7 @@
 #endif
       use caspt2_module, only: NACTEL, NSYM, NFRO, NISH, NIES, NASH,
      &                         NAES, NSSH, NSES, NORBT, NINABX,
-     &                         NSECBX, NBSQT, MUL
+     &                         NSECBX, NBSQT
       use caspt2_module, only: NTUV, NTU, NTGEU, NTGTU, NIGEJ, NIGTJ,
      &                         NAGEB, NAGTB, NTUVES, NTUES, NTGEUES,
      &                         NTGTUES, NIGEJES, NIGTJES, NAGEBES,
@@ -465,7 +466,7 @@
      &                      Cho_BraD,Cho_KetD)
 
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
 
       implicit none
 
@@ -488,7 +489,7 @@
       DO ISYI=1,NSYM
         NI=NSH(ISYI,ITI)
         IF(NI == 0) CYCLE
-        ISYP=MUL(ISYI,JSYM)
+        ISYP=Mul(ISYI,JSYM)
         NP=NSH(ISYP,ITP)
         IF(NP == 0) CYCLE
         NPI=NP*NI
@@ -498,7 +499,7 @@
         DO ISYK=1,NSYM
           NK=NSH(ISYK,ITK)
           IF(NK == 0) CYCLE
-          ISYQ=MUL(ISYK,JSYM)
+          ISYQ=Mul(ISYK,JSYM)
           NQ=NSH(ISYQ,ITQ)
           IF(NQ == 0) CYCLE
           NQK=NQ*NK
@@ -612,8 +613,8 @@
       ISYJ = ISYI
       ISYX = ISYK
 
-      ISYT=MUL(JSYM,ISYJ)
-      ISYV=MUL(JSYM,ISYX)
+      ISYT=Mul(JSYM,ISYJ)
+      ISYV=Mul(JSYM,ISYX)
       ISYM=ISYJ
       IF(NINDEP(ISYM,1) == 0) RETURN
       NAS=NTUV(ISYM)
@@ -743,10 +744,10 @@
       ISYJ = ISYI
       ISYL = ISYK
 
-      ISYT=MUL(JSYM,ISYJ)
-      ISYV=MUL(JSYM,ISYL)
+      ISYT=Mul(JSYM,ISYJ)
+      ISYV=Mul(JSYM,ISYL)
       IF(ISYT < ISYV) RETURN
-      ISYM=MUL(ISYJ,ISYL) !!
+      ISYM=Mul(ISYJ,ISYL) !!
 
       IF(NINDEP(ISYM,2) > 0) THEN
 * The plus combination:
@@ -938,8 +939,8 @@
       ISYU = ISYI
       ISYX = ISYK
 
-      ISYA=MUL(JSYM,ISYU)
-      ISYV=MUL(JSYM,ISYX)
+      ISYA=Mul(JSYM,ISYU)
+      ISYV=Mul(JSYM,ISYX)
       ISYM=ISYA !!
       IF(NINDEP(ISYM,4) == 0) RETURN
       NAS=NTUV(ISYM)
@@ -1078,13 +1079,13 @@
        IO=0
        DO ISA=1,NSYM
         IOFFD(ISA,ISW)=IO
-        ISI=MUL(ISA,ISW)
+        ISI=Mul(ISA,ISW)
         IO=IO+NSSH(ISA)*NISH(ISI)
        END DO
       END DO
 
-      ISYA=MUL(JSYM,ISYJ)
-      ISYV=MUL(JSYM,ISYX)
+      ISYA=Mul(JSYM,ISYJ)
+      ISYV=Mul(JSYM,ISYX)
       ISYM=JSYM !!!
       IF(NINDEP(ISYM,5) == 0) RETURN
       NAS1=NTU(ISYM)
@@ -1229,14 +1230,14 @@
        IO=0
        DO ISYA=1,NSYM
         IOFFD(ISYA,ISYW)=IO
-        ISYII=MUL(ISYA,ISYW)
+        ISYII=Mul(ISYA,ISYW)
         IO=IO+NSSH(ISYA)*NISH(ISYII)
        END DO
       END DO
 
-      ISYA=MUL(JSYM,ISYU)
-      ISYV=MUL(JSYM,ISYL)
-      ISYM=MUL(ISYU,ISYV)
+      ISYA=Mul(JSYM,ISYU)
+      ISYV=Mul(JSYM,ISYL)
+      ISYM=Mul(ISYU,ISYV)
       IF(NINDEP(ISYM,5) == 0) RETURN
       NAS1=NTU(ISYM)
       NAS=2*NAS1
@@ -1348,10 +1349,10 @@
       ISYJ = ISYI
       ISYL = ISYK
 
-      ISYA=MUL(JSYM,ISYJ)
-      ISYV=MUL(JSYM,ISYL)
+      ISYA=Mul(JSYM,ISYJ)
+      ISYV=Mul(JSYM,ISYL)
       ISYM=ISYV
-      ISYJL=MUL(ISYJ,ISYL)
+      ISYJL=Mul(ISYJ,ISYL)
 
 ! Set up offset table:
       IO1=0
@@ -1359,7 +1360,7 @@
       DO ISA=1,NSYM
         IOFF1(ISA)=IO1
         IOFF2(ISA)=IO2
-        ISIJ=MUL(ISA,ISYM)
+        ISIJ=Mul(ISA,ISYM)
         IO1=IO1+NSSH(ISA)*NIGEJ(ISIJ)
         IO2=IO2+NSSH(ISA)*NIGTJ(ISIJ)
       END DO
@@ -1587,9 +1588,9 @@
 
       IF(ISYU < ISYX) RETURN
 
-      ISYA=MUL(JSYM,ISYU)
-      ISYC=MUL(JSYM,ISYX)
-      ISYM=MUL(ISYU,ISYX) !!
+      ISYA=Mul(JSYM,ISYU)
+      ISYC=Mul(JSYM,ISYX)
+      ISYM=Mul(ISYU,ISYX) !!
 
       IF(NINDEP(ISYM,8) > 0) THEN
 * The plus combination:
@@ -1785,17 +1786,17 @@
       ISYU = ISYI
       ISYL = ISYK
 
-      ISYA=MUL(JSYM,ISYU)
-      ISYC=MUL(JSYM,ISYL)
+      ISYA=Mul(JSYM,ISYU)
+      ISYC=Mul(JSYM,ISYL)
       ISYM=ISYU
-      ISYAC=MUL(ISYA,ISYC)
+      ISYAC=Mul(ISYA,ISYC)
 ! Set up offset table:
       IO1=0
       IO2=0
       DO ISI=1,NSYM
         IOFF1(ISI)=IO1
         IOFF2(ISI)=IO2
-        ISAB=MUL(ISI,ISYM)
+        ISAB=Mul(ISI,ISYM)
         IO1=IO1+NISH(ISI)*NAGEB(ISAB)
         IO2=IO2+NISH(ISI)*NAGTB(ISAB)
       END DO
@@ -2042,9 +2043,9 @@
       ISYL = ISYK
 
       IF(ISYJ < ISYL) Return
-      ISYA=MUL(JSYM,ISYJ)
-      ISYC=MUL(JSYM,ISYL)
-      ISYM=MUL(ISYA,ISYC)
+      ISYA=Mul(JSYM,ISYJ)
+      ISYC=Mul(JSYM,ISYL)
+      ISYM=Mul(ISYA,ISYC)
       ISYAC=ISYM
       ISYJL=ISYM
 

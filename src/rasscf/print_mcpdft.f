@@ -22,7 +22,7 @@
 ******************************************************************
       use KSDFT_Info, only: Funcaa, Funcbb, Funccc
       use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
-      use printlevel, only: USUAL
+      use PrintLevel, only: USUAL
       use output_ras, only: IPRLOC
       Implicit None
       REAL*8 CASDFT_E

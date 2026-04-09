@@ -11,16 +11,20 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
       SUBROUTINE TRACHO2(CMO,NCMO,DREF,NDREF,FFAO,FIAO,FAAO,IF_TRNSF)
+      use Symmetry_Info, only: Mul
       USE CHOVEC_IO, only: NVLOC_CHOBATCH,NPQ_CHOTYPE,chovec_save,
      &                     chovec_load,chovec_coll
       use Cholesky, only: InfVec, nDimRS
       use ChoCASPT2, only: MXCHARR,MXNVC,NCHSPC,NFTSPC,NHTSPC,
      &                     NUMCHO_PT2
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nBTri, ECore, nBasT, nBSqT, nInaBx,
-     &                         nSecBx, nSym, PotNuc, nBas, nFro,
-     &                         nIsh, nAsh, RHSDirect, nBtches, Mul,
+      use caspt2_module, only: nBTri, nBasT, nBSqT, nInaBx,
+     &                         nSecBx, nSym, nBas, nFro,
+     &                         nIsh, nAsh, RHSDirect, nBtches,
      &                         nSsh, nBtch
+#ifdef _DEBUGPRINT_
+      use caspt2_module, only: PotNuc
+#endif
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "warnings.h"
@@ -31,8 +35,6 @@
 
       INTEGER NCES(8),ip_HTVec(8)
       INTEGER ISTART(8),NUSE(8)
-
-      REAL*8 E,ECORE1,ECORE2
 
       REAL*8 FACTC,FACTXA,FACTXI
 
@@ -53,11 +55,15 @@
 
       REAL*8 SCL
 
-      REAL*8, EXTERNAL :: DDOT_
       REAL*8, ALLOCATABLE:: OCC(:), CNAT(:), DF(:), DI(:), DA(:)
       REAL*8, ALLOCATABLE:: VEC(:), DF_RED(:), DI_RED(:), DA_RED(:)
       REAL*8, ALLOCATABLE:: FA_RED(:), FF_RED(:), FI_RED(:)
       REAL*8, ALLOCATABLE:: BUFFY(:), CHSPC(:), FTSPC(:), HTSPC(:)
+
+#ifdef _DEBUGPRINT_
+      REAL*8 E,ECORE,ECORE1,ECORE2
+      REAL*8, EXTERNAL :: DDOT_
+#endif
 
 ************************************************************************
 * ======================================================================
@@ -276,7 +282,7 @@ c Initialize Fock matrices in AO basis to zero:
 * Frozen half-transformation:
       NHTOFF=0
       DO ISYMA=1,NSYM
-       ISYMB=MUL(ISYMA,JSYM)
+       ISYMB=Mul(ISYMA,JSYM)
        IP_HTVEC(ISYMA)=IP_HTSPC+NHTOFF
        ISTART(ISYMA)=1
        NUSE(ISYMA)=NFRO(ISYMA)
@@ -288,7 +294,7 @@ c Initialize Fock matrices in AO basis to zero:
           FactXI=-1.0D0
           ISFF=1
           DO ISYMB=1,NSYM
-           iSymk = MUL(jSym,iSymb)
+           iSymk = Mul(jSym,iSymb)
 C ---------------------------------------------------------------------
 c *** Compute the LT part of the FROZEN exchange matrix ********
 C     FF(ab) = FF(ab) + FactXI * sum_Jk  LkJ,a * LkJ,b
@@ -312,7 +318,7 @@ C ---------------------------------------------------------------------
 * Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
-       ISYMB=MUL(ISYMA,JSYM)
+       ISYMB=Mul(ISYMA,JSYM)
        IP_HTVEC(ISYMA)=IP_HTSPC+NHTOFF
        ISTART(ISYMA)=NFRO(ISYMA)+1
        NUSE(ISYMA)=NISH(ISYMA)
@@ -324,7 +330,7 @@ C ---------------------------------------------------------------------
           FactXI=-1.0D0
           ISFI=1
           DO ISYMB=1,NSYM
-           iSymk = MUL(jSym,iSymb)
+           iSymk = Mul(jSym,iSymb)
 C ---------------------------------------------------------------------
 c *** Compute the LT part of the INACTIVE exchange matrix ********
 C     FI(ab) = FI(ab) + FactXI * sum_Jk  LkJ,a * LkJ,b
@@ -345,7 +351,7 @@ C ---------------------------------------------------------------------
       IF (IF_TRNSF) THEN
 * Loop over ISYQ
       DO ISYQ=1,NSYM
-       ISYP=MUL(ISYQ,JSYM)
+       ISYP=Mul(ISYQ,JSYM)
 
        N=NBAS(ISYP)
 * ---------------------------------------------------
@@ -408,7 +414,7 @@ C loop over secondary orbital index c is more efficient.
 * Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
-       ISYMB=MUL(ISYMA,JSYM)
+       ISYMB=Mul(ISYMA,JSYM)
        IP_HTVEC(ISYMA)=IP_HTSPC+NHTOFF
        ISTART(ISYMA)=NFRO(ISYMA)+NISH(ISYMA)+1
        NUSE(ISYMA)=NASH(ISYMA)
@@ -420,7 +426,7 @@ C loop over secondary orbital index c is more efficient.
       FactXA=-1.0D0
       ISFA=1
       DO ISYMB=1,NSYM
-       iSymw = MUL(jSym,iSymb)
+       iSymw = Mul(jSym,iSymb)
 C ---------------------------------------------------------------------
 c *** Compute the LT part of the ACTIVE exchange matrix ********
 C     FA(ab) = FA(ab) + FactXA * sum_Jw  LwJ,a * LwJ,b
@@ -447,7 +453,7 @@ C ---------------------------------------------------------------------
 
       IF (IF_TRNSF) THEN
       DO ISYQ=1,NSYM
-       ISYP=MUL(ISYQ,JSYM)
+       ISYP=Mul(ISYQ,JSYM)
 
        N=NBAS(ISYP)
 * ---------------------------------------------------
@@ -530,11 +536,12 @@ C ---------------------------------------------------------------------
       CALL GADGOP(FIAO,NBTRI,'+')
       CALL GADGOP(FAAO,NBTRI,'+')
 
-* Two-electron contribution to the effective core energy
-      ECORE2=0.5D0*DDOT_(NBTRI,DF,1,FFAO,1)
 c Add OneHam to finalize frozen Fock matrix in AO basis.
 c (It is in fact an effective one-electron Hamiltonian).
       CALL ADD1HAM(FFAO)
+#ifdef _DEBUGPRINT_
+* Two-electron contribution to the effective core energy
+      ECORE2=0.5D0*DDOT_(NBTRI,DF,1,FFAO,1)
 * The contraction of frozen Fock matrix with frozen density:
       E=DDOT_(NBTRI,DF,1,FFAO,1)
 * Correct for double-counting two-electron part:
@@ -544,7 +551,6 @@ c (It is in fact an effective one-electron Hamiltonian).
 * Nuclear repulsion energy:
       ECORE=POTNUC+ECORE1+ECORE2
 
-#ifdef _DEBUGPRINT_
        WRITE(6,'(6X,A,ES20.10)') 'NUCLEAR REPULSION ENERGY:',POTNUC
        WRITE(6,'(6X,A,ES20.10)') 'ONE-ELECTRON CORE ENERGY:',ECORE1
        WRITE(6,'(6X,A,ES20.10)') 'TWO-ELECTRON CORE ENERGY:',ECORE2

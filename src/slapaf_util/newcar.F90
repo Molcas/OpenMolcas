@@ -19,15 +19,14 @@ subroutine NewCar(Iter,nAtom,Coor,mTtAtm,Error)
 !***********************************************************************
 
 use Symmetry_Info, only: VarR, VarT
-use Slapaf_Info, only: BMx, BSet, Curvilinear, Cx, Degen, HSet, Lbl, lOld, qInt, RefGeo, Shift, User_Def, &
-                       WeightedConstraints
+use Slapaf_Info, only: BMx, BSet, Curvilinear, Cx, Degen, HSet, Lbl, lOld, qInt, RefGeo, Shift, User_Def, WeightedConstraints
 #ifdef _DEBUGPRINT_
 use Slapaf_Info, only: AtomLbl
 #endif
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: Iter, nAtom, mTtAtm
@@ -77,11 +76,11 @@ if (iPrint >= 11) then
 end if
 
 #ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,*) ' In NewCar: Shifts'
-  write(u6,*)
-  write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
-  call RecPrt(' In NewCar: qInt',' ',qInt,nQQ,Iter+1)
+write(u6,*)
+write(u6,*) ' In NewCar: Shifts'
+write(u6,*)
+write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
+call RecPrt(' In NewCar: qInt',' ',qInt,nQQ,Iter+1)
 #endif
 
 ! Compute the final internal coordinates, plus sign due to the use
@@ -195,10 +194,10 @@ do jter=1,iterMx
   end if
 
 # ifdef _DEBUGPRINT_
-    write(u6,*)
-    write(u6,*) ' Displacement of internal coordinates'
-    write(u6,*)
-    write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
+  write(u6,*)
+  write(u6,*) ' Displacement of internal coordinates'
+  write(u6,*)
+  write(u6,'(1X,A,2X,F10.4)') (Lbl(iInter),dss(iInter),iInter=1,nQQ)
 # endif
 
 end do

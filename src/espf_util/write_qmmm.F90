@@ -13,10 +13,10 @@ subroutine Write_QMMM(Coord,nAtIn,Iter)
 
 use espf_global, only: MMI, MMO, QM
 use Isotopes, only: PTab
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: Iter, nAtIn

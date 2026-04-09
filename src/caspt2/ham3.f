@@ -9,12 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS, CIS, EXS
-      use caspt2_module, only: NSYM,NASHT,ISCF,NACTEL,NCONF,IASYM,MUL
-      use pt2_guga, only: MxLev, MxCI
+      use caspt2_module, only: NSYM,NASHT,ISCF,NACTEL,NCONF,IASYM
+      use gugx, only: MxLev
+      use pt2_guga, only: MxCI
       IMPLICIT NONE
 
       integer(kind=iwp), intent(in):: NOP2,NOP3,ISYCI
@@ -76,8 +78,8 @@ C ordinal number of each active orbital.
       DO IZ=1,NASHT
        DO IY=1,NASHT
         IYZ=IY+(IZ-1)*NASHT
-        ISYZ=MUL(IASYM(IY),IASYM(IZ))
-        ISYM1=MUL(ISYZ,ISYCI)
+        ISYZ=Mul(IASYM(IY),IASYM(IZ))
+        ISYM1=Mul(ISYZ,ISYCI)
         NSGM1=CIS%NCSF(ISYM1)
         IF(NSGM1.EQ.0) CYCLE
         IF(ISCF.EQ.0) THEN
@@ -107,10 +109,10 @@ C Closed-shell or hi-spin case:
          IF(IX.EQ.IZ) IVMIN=IY
          DO IV=IVMIN,NASHT
           IVX=IV+(IX-1)*NASHT
-          ISVX=MUL(IASYM(IV),IASYM(IX))
-          ISVXYZ=MUL(ISVX,ISYZ)
+          ISVX=Mul(IASYM(IV),IASYM(IX))
+          ISVXYZ=Mul(ISVX,ISYZ)
           IVXYZ=(IVX*(IVX-1))/2+IYZ
-          ISYM2=MUL(ISVX,ISYM1)
+          ISYM2=Mul(ISVX,ISYM1)
           NSGM2=CIS%NCSF(ISYM2)
           IF(NSGM2.EQ.0) CYCLE
           IF(ISCF.EQ.0) THEN
@@ -141,7 +143,7 @@ C Closed-shell or hi-spin case:
            IF(IU.EQ.IX) ITMIN=IV
            DO IT=ITMIN,NASHT
             ITU=IT+(IU-1)*NASHT
-            ISTU=MUL(IASYM(IT),IASYM(IU))
+            ISTU=Mul(IASYM(IT),IASYM(IU))
             IF(ISTU.NE.ISVXYZ) CYCLE
             ITUVXYZ=((ITU+1)*ITU*(ITU-1))/6+IVXYZ
             X=OP3(ITUVXYZ)

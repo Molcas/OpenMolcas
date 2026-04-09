@@ -38,9 +38,9 @@ use Symmetry_Info, only: nIrrep
 use Gateway_global, only: GS_Mode, Onenly, Run_Mode, Prprt, Test
 use rctfld_module, only: lLangevin, lRF, PCM
 use rmat, only: RMat_On
+use PrintLevel, only: nPrint
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 logical(kind=iwp), intent(in) :: lOPTO

@@ -49,9 +49,9 @@ character(len=30) :: Label
 #ifdef _DEBUGPRINT_
 if (nabMax > 0) call RecPrt('xRys2D: PAWP',' ',PAWP,nArg*lRys,3)
 if (ncdMax > 0) call RecPrt('xRys2D: QCWQ',' ',QCWQ,nArg*lRys,3)
-!if (nabMax >=1) call RecPrt('xRys2D:  B10',' ',B10,nArg*lRys,3)
-!if (nabMax >=1 .or. ncdMax >=1) call RecPrt('xRys2D:  B00',' ',B00,nArg*lRys,3)
-!if (ncdMax >=1) call RecPrt('xRys2D:  B01',' ',B01,nArg*lRys,3)
+!if (nabMax >= 1) call RecPrt('xRys2D:  B10',' ',B10,nArg*lRys,3)
+!if ((nabMax >= 1) .or. (ncdMax >= 1)) call RecPrt('xRys2D:  B00',' ',B00,nArg*lRys,3)
+!if (ncdMax >= 1) call RecPrt('xRys2D:  B01',' ',B01,nArg*lRys,3)
 #endif
 
 ! Compute 2D integrals with index (0,0). Observe that the z

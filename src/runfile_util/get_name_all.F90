@@ -11,10 +11,10 @@
 
 subroutine Get_Name_All(LblCnt)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use Symmetry_Info, only: iOper, nIrrep, Symmetry_Info_Get
-use Definitions, only: wp, iwp
 use Molcas, only: LenIn
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 

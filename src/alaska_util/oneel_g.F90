@@ -42,18 +42,18 @@ use Basis_Info, only: dbsc, MolWgh, Shells
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: nTri_Elem1
+use Grd_interface, only: grd_kernel, grd_mem
+use NAC, only: IsCSF
+use PrintLevel, only: nPrint
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
 use define_af, only: AngTp
 use Definitions, only: u6
 #endif
-use Index_Functions, only: nTri_Elem1
-use Grd_interface, only: grd_kernel, grd_mem
-use NAC, only: IsCSF
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp
-use Print, only: nPrint
 
 implicit none
 procedure(grd_kernel) :: Kernel
@@ -67,14 +67,14 @@ integer(kind=iwp) :: iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(0:7
                      iRout, iS, iShell, iShll, iSmLbl, iStabM(0:7), iStabO(0:7), iuv, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, &
                      jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, nOp(2), &
                      nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 real(kind=wp) :: A(3), B(3), FactND, RB(3)
 logical(kind=iwp) :: FreeiSD, IfGrad(3,3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Krnl(:), PCoor(:,:), rFinal(:), Scr1(:), Scr2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 logical(kind=iwp), external :: EQ
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i
-#endif
 
 iRout = 112
 iPrint = nPrint(iRout)
@@ -213,8 +213,8 @@ do ijS=1,nTasks
   ! basis on to the primitive basis.
 
 # ifdef _DEBUGPRINT_
-    call RecPrt(' Left side contraction',' ',Shells(iShll)%pCff,iPrim,iBas)
-    call RecPrt(' Right side contraction',' ',Shells(jShll)%pCff,jPrim,jBas)
+  call RecPrt(' Left side contraction',' ',Shells(iShll)%pCff,iPrim,iBas)
+  call RecPrt(' Right side contraction',' ',Shells(jShll)%pCff,jPrim,jBas)
 # endif
 
   ! Transform IJ,AB to J,ABi
@@ -256,7 +256,7 @@ do ijS=1,nTasks
       end if
 
 #     ifdef _DEBUGPRINT_
-        write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
+      write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
 #     endif
 
       llOper = lOper(1)
@@ -278,7 +278,7 @@ do ijS=1,nTasks
       end if
 
 #     ifdef _DEBUGPRINT_
-        write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
+      write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
 #     endif
 
       ! Desymmetrize the matrix with which we will contract the trace.

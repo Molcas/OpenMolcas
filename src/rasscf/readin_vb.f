@@ -36,8 +36,8 @@
      &                        NFRO,NISH,NRS1,NRS2,NRS3,NDEL,NSYM,NTOT,
      &                        NTOT1,NTOT2,NDELT,NFROT,NTOTSP,NRS1T,
      &                        NRS2T,NRS3T,NASH,NBAS,NORB,NSSH,STSYM
-      use rasdim, only: MxTit, MxSym
-
+      use Molcas, only: MxSym
+      use RASDim, only: MxTit
 
       Implicit None
 #include "warnings.h"

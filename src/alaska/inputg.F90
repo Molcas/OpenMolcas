@@ -35,11 +35,11 @@ use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
 use pso_stuff, only: No_Nuc
 use Disp, only: ChDisp, CutGrd, Dirct, Disp_Fac, HF_Force, IndDsp, IndxEQ, InxDsp, l2DI, lDisp, lEQ, Mult_Disp, nTR, TRSymm
 use NAC, only: DoCSF, EDiff, isCSF, isNAC, NACStates
+use PrintLevel, only: nPrint, Show
+use Molcas, only: MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use print, only: nPrint, Show
-use Molcas, only: MxAtom
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -307,7 +307,7 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-      !-----Raise the printlevel to show gradient contributions
+      !-----Raise the print level to show gradient contributions
 
       if (iPL >= 2) then
         nPrint(112) = 15
@@ -600,9 +600,9 @@ if (TRSymm) then
   do i=1,3
     if (iSym(i) == 0) nTR = nTR+1
   end do
-#ifdef _DEBUGPRINT_
-write(LuWr,*) ' nTR=',nTR
-#endif
+# ifdef _DEBUGPRINT_
+  write(LuWr,*) ' nTR=',nTR
+# endif
   ! Rotational equations
   if (.not. T_Only) then
     do i=1,3
@@ -618,9 +618,9 @@ write(LuWr,*) ' nTR=',nTR
     TRSymm = .false.
     Skip = .true.
   else
-#ifdef _DEBUGPRINT_
+#   ifdef _DEBUGPRINT_
     write(LuWr,*) ' nTR=',nTR
-#endif
+#   endif
     call mma_allocate(Am,nTR,lDisp(0),Label='Am')
     call mma_allocate(Temp,nTR,lDisp(0),Label='Temp')
     call mma_allocate(C,4,lDisp(0),Label='C')
@@ -663,10 +663,10 @@ write(LuWr,*) ' nTR=',nTR
         end do
       end do
     end do
-#ifdef _DEBUGPRINT_
-      call RecPrt(' Information',' ',C,4,lDisp(0))
-      write(LuWr,*) (IndCar(i),i=1,lDisp(0))
-#endif
+#   ifdef _DEBUGPRINT_
+    call RecPrt(' Information',' ',C,4,lDisp(0))
+    write(LuWr,*) (IndCar(i),i=1,lDisp(0))
+#   endif
 
     ! Set up coefficient for the translational equations
 
@@ -705,9 +705,9 @@ write(LuWr,*) ' nTR=',nTR
         end if
       end do
     end if
-#ifdef _DEBUGPRINT_
+#   ifdef _DEBUGPRINT_
     call RecPrt(' The A matrix',' ',Am,nTR,lDisp(0))
-#endif
+#   endif
 
     ! orthonormalize the translational and coordinate vectors to generate
     ! rotational vectors
@@ -804,27 +804,27 @@ write(LuWr,*) ' nTR=',nTR
       Temp(:,iTR) = Am(:,iTemp(iTR))
       Am(:,iTemp(iTR)) = Zero
     end do
-#ifdef _DEBUGPRINT_
-      call RecPrt(' The A matrix',' ',Am,nTR,lDisp(0))
-      call RecPrt(' The T matrix',' ',Temp,nTR,nTR)
-      write(LuWr,*) (iTemp(iTR),iTR=1,nTR)
-#endif
+#   ifdef _DEBUGPRINT_
+    call RecPrt(' The A matrix',' ',Am,nTR,lDisp(0))
+    call RecPrt(' The T matrix',' ',Temp,nTR,nTR)
+    write(LuWr,*) (iTemp(iTR),iTR=1,nTR)
+#   endif
 
     ! Compute the inverse of the T matrix
 
     call MatInvert(Temp,nTR)
-#ifdef _DEBUGPRINT_
+#   ifdef _DEBUGPRINT_
     call RecPrt(' The T-1 matrix',' ',Temp,nTR,nTR)
-#endif
+#   endif
     call DScal_(nTR**2,-One,Temp,1)
 
     ! Generate the complete matrix
 
     call mma_allocate(Scr,nTR,lDisp(0),Label='Scr')
     call DGEMM_('N','N',nTR,lDisp(0),nTR,One,Temp,nTR,Am,nTR,Zero,Scr,nTR)
-#ifdef _DEBUGPRINT_
+#   ifdef _DEBUGPRINT_
     call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
-#endif
+#   endif
     call mma_deallocate(Am)
     call mma_allocate(Am,lDisp(0),lDisp(0),Label='Am')
     call unitmat(Am,lDisp(0))
@@ -832,9 +832,9 @@ write(LuWr,*) ' nTR=',nTR
       ldsp = iTemp(iTR)
       call dcopy_(lDisp(0),Scr(1,iTR),nTR,Am(1,lDisp),lDisp(0))
     end do
-#ifdef _DEBUGPRINT_
+#   ifdef _DEBUGPRINT_
     call RecPrt('Final A matrix',' ',Am,lDisp(0),lDisp(0))
-#endif
+#   endif
 
     call mma_deallocate(Scr)
     call mma_deallocate(IndCar)

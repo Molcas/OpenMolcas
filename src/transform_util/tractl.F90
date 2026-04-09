@@ -39,14 +39,15 @@ subroutine TRACTL(iPart)
 !
 ! 98-09-02 J.Hasegawa Modified for non-squared integrals.
 
+use Symmetry_Info, only: Mul
 use caspt2_global, only: CMO, LUINTM, NCMO
+use caspt2_module, only: nAsh, nBas, nBMx, nFro, nOrb, nOsh, nSym, OutFmt
 use Intgrl, only: IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ
 use trafo, only: IAD13, ISP, ISQ, ISR, ISS, ITP, ITQ, ITR, ITS, LMOP, LMOP2, LMOQ, LMOQ2, LMOR, LMOR2, LMOS, LMOS2, LRUPQ, LTUPQ, &
                  LURPQ, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
-use caspt2_module, only: nOsh, nBMx, nSym, OutFmt, nOrb, nBas, nAsh, nFro, Mul
 
 implicit none
 integer(kind=iwp), intent(in) :: iPart
@@ -100,7 +101,7 @@ end if
 !* PAM2007: For unknown reasons, one extra word is needed.
 !      lBuf = 1+MAX(255*255,NBMX**2)
 ! but note that tractl, being a utility, can be called from other
-! programs and should not take the value NBMX from caspt2_module.F90...
+! programs and should not take the value NBMX from caspt2_module...
 ! hence correction by AJS below.
 
 ! Correction by AJS, Jan. 12, 2009. Defines the value of NBMX
@@ -201,7 +202,7 @@ do NSP=1,NSYM
     NSymR = NSP
     if (iSquar) NSymR = NSYM
     do NSR=1,NSymR
-    !*JHend
+      !*JHend
       if (NSR /= 1) ITR = ITR+NASH(NSR-1)
       NBR = NBAS(NSR)
       if (NSR /= 1) LMOR1 = LMOR1+NBAS(NSR-1)**2
@@ -219,7 +220,7 @@ do NSP=1,NSYM
       if (NSP == NSR) NSymS = NSQ
       if (iSquar) NSymS = NSR
       do NSS=1,NSymS
-      !*JHend
+        !*JHend
         if (NSS /= 1) ITS = ITS+NASH(NSS-1)
         NBS = NBAS(NSS)
         if (NSS /= 1) LMOS1 = LMOS1+NBAS(NSS-1)**2
@@ -373,7 +374,7 @@ do NSP=1,NSYM
           end if
 
           LTUPQ = LTUPQX
-          call tr2NsA1(CMO,NCMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW3),LW4-LW3,W1(LW4),LW5-LW4,W1(LW5),LW6-LW5,W1(LW6),  &
+          call tr2NsA1(CMO,NCMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW3),LW4-LW3,W1(LW4),LW5-LW4,W1(LW5),LW6-LW5,W1(LW6), &
                        MEMX-(LW6-LW1),lBuf)
           call tr2NsA2(CMO,NCMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW5),LW6-LW5,W1(LW6),MEMX-(LW6-LW1))
           call tr2NsA3(CMO,NCMO,W1(LW1),LW2-LW1,W1(LW2),LW3-LW2,W1(LW4),LW5-LW4,W1(LW5),MEMX-(LW5-LW1))

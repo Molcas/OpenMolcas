@@ -16,7 +16,7 @@
      &                               nestlb, doexch, excl, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
-      use rasdim, only: MxRoot
+      use Molcas, only: MxRoot
 
       implicit none
 ! pick up MxRoot

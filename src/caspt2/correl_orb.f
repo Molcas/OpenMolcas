@@ -20,16 +20,17 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: NCMO
       use caspt2_global, only: LUONEM
-      use caspt2_module, only: IfChol, IfQCAN, NAME, nBSqT, nSym,
-     &                         nUniqAt, iAd1m, nFro, nIsh, nSsh, nDel,
-     &                         nBas, nAsh
+      use caspt2_module, only: IfChol, IfQCAN, BNAME, nBSqT, nSym,
+     &                         iAd1m, nFro, nIsh, nSsh, nDel, nBas, nAsh
       implicit none
 
       Real*8, Allocatable :: CMO_X(:), DPQ(:)
       Integer IDISK
       Integer ntri, NDPQ
       Real*8 Dummy(1)
-      Integer I, iRC, iSkp, iSym
+      Integer I, iRC, iSkp, iSym, nUniqAt
+
+      Call Get_iScalar('Unique atoms',nUniqAt)
 
 * memory to store MOs
       NCMO=NBSQT
@@ -63,7 +64,7 @@
         Enddo
         NDPQ=ntri
         CALL MMA_ALLOCATE(DPQ,NDPQ)
-        Call AFreez(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,NAME,
+        Call AFreez(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,BNAME,
      &    INPUT%NAMFRO,INPUT%LNFRO,DPQ,
      &    Input%THRFR,Input%THRDE,IFQCAN,CMO_X,NCMO)
         CALL MMA_DEALLOCATE(DPQ)
@@ -110,7 +111,7 @@
 
         EMP2=Zero
         Call Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &    NAME,nUniqAt,Input%thr_atm,IFQCAN,
+     &    BNAME,nUniqAt,Input%thr_atm,IFQCAN,
      &    Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO_X,NCMO)
 
         If (irc.ne.0) Then
@@ -201,7 +202,7 @@
      &  ' Deleted orbitals before selection:  ',(nDel(i),i=1,nSym)
 
         Call Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &          NAME,nUniqAt,Input%ThrGD,.True.,CMO_X,Dummy)
+     &          BNAME,nUniqAt,Input%ThrGD,.True.,CMO_X,Dummy)
 
         If (irc.ne.0) Then
           write(6,*) 'Delete_GHOSTS returned rc= ',irc

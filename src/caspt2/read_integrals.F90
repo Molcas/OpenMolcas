@@ -13,6 +13,7 @@
 
 subroutine read_integrals()
 
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -27,7 +28,7 @@ use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, &
       use caspt2_module, only: nState
 #endif
 use iso_c_binding, only: c_int
-      use caspt2_module, only: nAshT, nSym, nFro, nIsh, nAsh, nOsh, nOrb, Mul
+      use caspt2_module, only: nAshT, nSym, nFro, nIsh, nAsh, nOsh, nOrb
 
 implicit none
 

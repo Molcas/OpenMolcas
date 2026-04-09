@@ -33,8 +33,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipFnl, ipQxyz, ipRxyz, ipTxyz, &
-                     ipWxyz, iStabO(0:7), lDCRT, llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
+integer(kind=iwp) :: iBeta, iComp, iDCRT(0:7), ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipFnl, ipQxyz, ipRxyz, ipTxyz, ipWxyz, &
+                     iStabO(0:7), lDCRT, llOper, LmbdT, nB, nDCRT, nip, nOp, nStabO
 real(kind=wp) :: TC(3)
 logical(kind=iwp) :: ABeq(3)
 integer(kind=iwp), external :: NrOpr
@@ -76,11 +76,11 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In KnEInt_GIAO: A',' ',A,1,3)
-  call RecPrt(' In KnEInt_GIAO: RB',' ',RB,1,3)
-  call RecPrt(' In KnEInt_GIAO: CoorO',' ',CoorO,1,3)
-  call RecPrt(' In KnEInt_GIAO: P',' ',P,nZeta,3)
-  write(u6,*) ' In KnEInt_GIAO: la,lb=',la,lb
+call RecPrt(' In KnEInt_GIAO: A',' ',A,1,3)
+call RecPrt(' In KnEInt_GIAO: RB',' ',RB,1,3)
+call RecPrt(' In KnEInt_GIAO: CoorO',' ',CoorO,1,3)
+call RecPrt(' In KnEInt_GIAO: P',' ',P,nZeta,3)
+write(u6,*) ' In KnEInt_GIAO: la,lb=',la,lb
 #endif
 !                                                                      *
 !***********************************************************************

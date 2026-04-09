@@ -51,7 +51,7 @@
 *********************************************************
       use definitions, only: iwp, wp, u6
       use constants, only: Zero
-      use symmetry_info, only: MulD2h=>Mul
+      use Symmetry_Info, only: Mul
       use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas,
      &                    nDimRS, nnBstR, nSym
       Implicit None
@@ -81,7 +81,7 @@
 
       Do iSymp=1,nSym
          IF (nUse(iSymp).ne.0) THEN
-            iSymb = muld2h(JSYM,iSymp)
+            iSymb = Mul(JSYM,iSymp)
             nElem=nUse(iSymp)*nBas(iSymb)*NUMV
             Call dCopy_(nElem,[Zero],0,Work(ipChoT(iSymp)),1)
          ENDIF
@@ -181,7 +181,7 @@
 * iSyma = cho_isao(iag) = symmetry block of basis function iag
               iSyma = cho_isao(iag)
 * iSyma > isymb since jsym.ne.1 and a.ge.b
-              iSymb = muld2h(jSym,iSyma)
+              iSymb = Mul(jSym,iSyma)
               NUSEA=nUse(iSyma)
               NUSEB=nUse(iSymb)
 

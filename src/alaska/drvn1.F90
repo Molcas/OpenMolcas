@@ -33,9 +33,9 @@ use External_Centers, only: iXPolType, nOrd_XF, nXF, XF
 use rctfld_module, only: Conductor, lLangevin, lMax, lRF, MM, nTS, PCM
 use Disp, only: Dirct, IndDsp
 use Symmetry_Info, only: iChBas, nIrrep
+use PrintLevel, only: nPrint
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -351,8 +351,8 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
           if (dbsc(iCnttp)%Frag) cycle
           ZA = dbsc(iCnttp)%Charge
 #         ifdef _DEBUGPRINT_
-            write(u6,*) ' Charge=',ZA
-            call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,dbsc(iCnttp)%nCntr)
+          write(u6,*) ' Charge=',ZA
+          call RecPrt(' Centers',' ',dbsc(iCnttp)%Coor,3,dbsc(iCnttp)%nCntr)
 #         endif
           do iCnt=1,dbsc(iCnttp)%nCntr
             A(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
@@ -393,8 +393,8 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
             tempd(2) = MM(ip,2)*ZA*CCoMx*CCoMyd*CCoMz
             tempd(3) = MM(ip,2)*ZA*CCoMx*CCoMy*CCoMzd
 #           ifdef _DEBUGPRINT_
-              write(u6,*) CCoMx,CCoMy,CCoMz
-              write(u6,*) 'tempd=',tempd
+            write(u6,*) CCoMx,CCoMy,CCoMz
+            write(u6,*) 'tempd=',tempd
 #           endif
 
             ! Distribute gradient

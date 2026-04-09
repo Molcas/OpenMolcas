@@ -42,7 +42,7 @@
      &                         nRas3T, nSsh, nState, nSym, Root2State,
      &                         STSym, nOrb, nRas1T
 #endif
-      use caspt2_module, only: MxAct
+      use Molcas, only: MxAct
       implicit none
 #ifdef _HDF5_
 

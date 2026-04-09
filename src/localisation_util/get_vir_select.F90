@@ -12,17 +12,17 @@
 subroutine Get_Vir_Select(irc,CMO,XMO,Eorb,Smat,BName,NamAct,ind_V,nSym,nActa,mOrb,nBas,ortho,n_OK)
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn, LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: ind_V(*), nSym, nActa, mOrb(nSym), nBas(nSym)
 integer(kind=iwp), intent(out) :: irc, n_OK(nSym)
 real(kind=wp), intent(inout) :: CMO(*), Eorb(*)
 real(kind=wp), intent(in) :: XMO(*), Smat(*)
-character(len=LenIn8), intent(in) :: BName(*)
+character(len=LenIn+8), intent(in) :: BName(*)
 character(len=LenIn), intent(in) :: NamAct(nActa)
 logical(kind=iwp), intent(in) :: ortho
 integer(kind=iwp) :: i, iOff, iSym, j, ja, km, kx, lOff, mOx, n_KO, nBmx, nBx, nOrbmx, nOx

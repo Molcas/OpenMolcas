@@ -14,10 +14,10 @@ subroutine Gamma_new(Int1,Int2,Int1_2,Int2_2,Scr1)
 #include "intent.fh"
 
 use MBPT2_Global, only: CMO, EOcc, EVir, mAdOcc, mAdVir, nBas
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
-use cOrbInf, only: nSym, nOrb, nDel, nOcc, nFro, nExt
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

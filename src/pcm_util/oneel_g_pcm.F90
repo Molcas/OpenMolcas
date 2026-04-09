@@ -44,14 +44,14 @@ use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Print, only: nPrint
 #ifdef _DEBUGPRINT_
 use define_af, only: AngTp
-use Definitions, only: u6
 use Symmetry_Info, only: ChOper
+use Definitions, only: u6
 #endif
 
 implicit none
@@ -143,10 +143,10 @@ do ijS=1,nTasks
 
   call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
   if ((.not. DiffOp) .and. (nDCRR == 1) .and. EQ(A,B)) cycle
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
   write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
-#endif
+# endif
 
   ! Call kernel routine to get memory requirement.
 
@@ -203,10 +203,10 @@ do ijS=1,nTasks
   ! Project the Fock/1st order density matrix in AO
   ! basis on to the primitive basis.
 
-#ifdef _DEBUGPRINT_
-    call RecPrt(' Left side contraction',' ',Shells(iShll)%pCff,iPrim,iBas)
-    call RecPrt(' Right side contraction',' ',Shells(jShll)%pCff,jPrim,jBas)
-#endif
+# ifdef _DEBUGPRINT_
+  call RecPrt(' Left side contraction',' ',Shells(iShll)%pCff,iPrim,iBas)
+  call RecPrt(' Right side contraction',' ',Shells(jShll)%pCff,jPrim,jBas)
+# endif
 
   ! Transform IJ,AB to J,ABi
   call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,DSO,iBas,Shells(iShll)%pCff,iPrim,Zero,DSOp,jBas*nSO)
@@ -216,9 +216,9 @@ do ijS=1,nTasks
   call DGeTmO(DSO,nSO,nSO,iPrim*jPrim,DSOp,iPrim*jPrim)
   call mma_deallocate(DSO)
 
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call RecPrt(' Decontracted 1st order density/Fock matrix',' ',DSOp,iPrim*jPrim,nSO)
-#endif
+# endif
 
   ! Loops over symmetry operations.
 
@@ -240,9 +240,9 @@ do ijS=1,nTasks
         end do
       end if
 
-#ifdef _DEBUGPRINT_
-        write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
-#endif
+#     ifdef _DEBUGPRINT_
+      write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
+#     endif
 
       llOper = lOper(1)
       do iComp=2,nComp
@@ -262,9 +262,9 @@ do ijS=1,nTasks
         FactNd = sqrt(real(iuv,kind=wp))*real(nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp)
       end if
 
-#ifdef _DEBUGPRINT_
-        write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
-#endif
+#     ifdef _DEBUGPRINT_
+      write(u6,'(A,/,2(3F6.2,2X))') ' *** Centers A, RB ***',(A(i),i=1,3),(RB(i),i=1,3)
+#     endif
 
       ! Desymmetrize the matrix with which we will contract the trace.
 
@@ -282,9 +282,9 @@ do ijS=1,nTasks
         call SphCar(Scrt1,iCmp*jCmp,iPrim*jPrim,Scrt2,nScr2,RSph(ipSph(iAng)),iAng,Shells(iShll)%Transf,Shells(iShll)%Prjct, &
                     RSph(ipSph(jAng)),jAng,Shells(jShll)%Transf,Shells(jShll)%Prjct,DAO,kk)
       end if
-#ifdef _DEBUGPRINT_
+#     ifdef _DEBUGPRINT_
       call RecPrt(' Decontracted FD in the cartesian space',' ',DAO,iPrim*jPrim,kk)
-#endif
+#     endif
 
       ! Compute kappa and P.
 
@@ -295,9 +295,9 @@ do ijS=1,nTasks
 
       call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
                   MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,nComp,iStabM,nStabM)
-#ifdef _DEBUGPRINT_
+#     ifdef _DEBUGPRINT_
       call PrGrad_pcm(' In Oneel',Grad,nGrad,5)
-#endif
+#     endif
 
     end do
   end if

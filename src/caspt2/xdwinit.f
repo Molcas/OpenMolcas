@@ -19,7 +19,7 @@
       use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
       use caspt2_global, only: FIFA, DREF
       use caspt2_global, only: LUONEM
-      use PrintLevel, only: debug, insane, usual, verbose
+      use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nState, IfChol, iSCF, nAshT, nConf,
      &                         STSym, iAd1m, mState

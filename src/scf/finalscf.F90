@@ -43,10 +43,10 @@ use SCFWFn, only: wfn_mocoef, wfn_mocoef_a, wfn_mocoef_b, wfn_occnum, wfn_occnum
 use Embedding_Global, only: embPot, embWriteEsp
 use InfSCF, only: nAtoms
 #endif
+use Molcas, only: MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MxSym
 
 implicit none
 integer(kind=iwp) :: iBas, iCMO, iD, iFld, iFock, iiOrb, ij, IndType(7,8), iOpt, iOrb, iRC, iRef, iSym, iSymLb, iVirt, iWFType, &

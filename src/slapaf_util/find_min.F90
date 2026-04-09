@@ -11,9 +11,9 @@
 
 subroutine Find_Min(nOrder,XStart,A,XMin,RC,XLow,XHi,ENew)
 
+use PrintLevel, only: nPrint
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nOrder

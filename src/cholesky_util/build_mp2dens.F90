@@ -18,10 +18,10 @@ subroutine Build_Mp2Dens(TriDens,nTriDens,MP2X_e,CMO,mSym,nOrbAll,Diagonalize)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Data_Structures, only: V2
+use cOrbInf, only: nDel, nFro, nOcc, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use cOrbInf, only: nFro, nOcc, nDel, nOrb
 
 implicit none
 integer(kind=iwp), intent(in) :: nTriDens, mSym, nOrbAll(8)

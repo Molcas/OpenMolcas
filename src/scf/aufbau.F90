@@ -30,10 +30,10 @@ subroutine Aufbau(nAuf,Occup,nOccup,iOK,nD)
 !***********************************************************************
 
 use InfSCF, only: EOrb, nFro, nOcc, nOrb, nSym, rTemp, TEEE
+use Molcas, only: MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, Half
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

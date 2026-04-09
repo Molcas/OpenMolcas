@@ -41,8 +41,8 @@ use Definitions, only: u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ipIn, ipOff, kCnt, kCnttp, kdc, lc, ld, lDCRT, LmbdT, mabMax, &
-                     mabMin, mArr, mcdMax, mcdMin, nDCRT, nFLOP, nMem, nOp, nT
+integer(kind=iwp) :: i, iAnga(4), iDCRT(0:7), ipIn, ipOff, kCnt, kCnttp, kdc, lc, ld, lDCRT, LmbdT, mabMax, mabMin, mArr, mcdMax, &
+                     mcdMin, nDCRT, nFLOP, nMem, nOp, nT
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q_Nuc, rKappcd, TC(3)
 logical(kind=iwp) :: lECP, No3Cnt, NoSpecial
 real(kind=wp), allocatable :: rKappa_mod(:)
@@ -66,7 +66,6 @@ unused_var(CoorO)
 unused_var(nOrdOp)
 unused_var(PtChrg)
 unused_var(iAddPot)
-
 
 rFinal(:,:,:,:) = Zero
 
@@ -143,13 +142,13 @@ do kCnttp=1,nCnttp
     Fact = real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
 #   ifdef _DEBUGPRINT_
-      write(u6,*) ' m      =',nStabM
-      write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-      write(u6,*) ' s      =',dc(kdc+kCnt)%nStab
-      write(u6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),ii=0,dc(kdc+kCnt)%nStab-1)
-      write(u6,*) ' LambdaT=',LmbdT
-      write(u6,*) ' t      =',nDCRT
-      write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',dc(kdc+kCnt)%nStab
+    write(u6,'(9A)') '(S)=',(ChOper(dc(kdc+kCnt)%iStab(ii)),ii=0,dc(kdc+kCnt)%nStab-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
 #   endif
 
     do lDCRT=0,nDCRT-1
@@ -253,9 +252,9 @@ do kCnttp=1,nCnttp
       nOp = NrOpr(iDCRT(lDCRT))
       call SymAdO(Array(ipIn),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,-Fact*Q_Nuc)
 #     ifdef _DEBUGPRINT_
-        write(u6,*) Fact*Q_Nuc
-        call RecPrt('NaInt: Array(ipIn)',' ',Array(ipIn),nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
-        call RecPrt('NaInt: rFinal',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nIC)
+      write(u6,*) Fact*Q_Nuc
+      call RecPrt('NaInt: Array(ipIn)',' ',Array(ipIn),nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nComp)
+      call RecPrt('NaInt: rFinal',' ',rFinal,nZeta,nTri_Elem1(la)*nTri_Elem1(lb)*nIC)
 #     endif
 
     end do

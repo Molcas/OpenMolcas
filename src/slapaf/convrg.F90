@@ -12,17 +12,17 @@
 subroutine Convrg(iter,kIter,nInter,iStop,MxItr,mIntEff,mTtAtm,GoOn,Step_Trunc,Just_Frequencies)
 
 use Slapaf_Info, only: Analytic_Hessian, ApproxNADC, Baker, Coor, Cx, dqInt, E_Delta, EDiffZero, eMEPTest, Energy, FindTS, GNrm, &
-                       GrdMax, Gx, HUpMet, iNeg, iOptC, Lbl, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, qInt, rMEP, &
-                       SlStop, ThrCons, ThrEne, ThrGrd, ThrMEP
+                       GrdMax, Gx, HUpMet, iNeg, iOptC, Lbl, MaxItr, MEP, NADC, nLambda, nMEP, Numerical, qInt, rMEP, SlStop, &
+                       ThrCons, ThrEne, ThrGrd, ThrMEP
+
 #ifdef _DEBUGPRINT_
 use Slapaf_Info, only: Shift
 #endif
-
 use Chkpnt, only: Chkpnt_update_MEP
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Four, Six, Half
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: iter, kIter, nInter, MxItr, mIntEff, mTtAtm
@@ -58,12 +58,12 @@ nSaddle_Max = 100
 iRout = 116
 iPrint = nPrint(iRout)
 #ifdef _DEBUGPRINT_
-  call RecPrt('Convrg: Energy',' ',Energy,1,iter)
-  call RecPrt('Convrg: Shift',' ',Shift,nInter,iter)
-  call RecPrt('Convrg: qInt',' ',qInt,nInter,iter+1)
-  call RecPrt('Convrg: dqInt',' ',dqInt,nInter,iter)
-  call RecPrt('Convrg: Cx',' ',Cx,3*nAtom,iter+1)
-  call RecPrt('Convrg: Gx',' ',Gx,3*nAtom,iter+1)
+call RecPrt('Convrg: Energy',' ',Energy,1,iter)
+call RecPrt('Convrg: Shift',' ',Shift,nInter,iter)
+call RecPrt('Convrg: qInt',' ',qInt,nInter,iter+1)
+call RecPrt('Convrg: dqInt',' ',dqInt,nInter,iter)
+call RecPrt('Convrg: Cx',' ',Cx,3*nAtom,iter+1)
+call RecPrt('Convrg: Gx',' ',Gx,3*nAtom,iter+1)
 #endif
 
 call Get_iScalar('Saddle Iter',iter_S)

@@ -94,9 +94,9 @@ call RecPrt(' In VpInt: Beta (expanded)','(5ES20.13)',Array(ipB),nZeta,1)
 call Util8(Array(ipB),nZeta,rFinal,la,lb,Array(ipS1),Array(ipS2))
 
 #ifdef _DEBUGPRINT_
-  do i=1,3
-    call RecPrt('VpInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  end do
+do i=1,3
+  call RecPrt('VpInt: rFinal',' ',rFinal(:,:,:,i),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+end do
 #endif
 
 end subroutine VPInt

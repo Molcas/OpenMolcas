@@ -35,6 +35,7 @@ C so each chunk has all the row indices (full columns).
 
       SUBROUTINE SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
      &               X1,X2,lg_Y,LIST)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use Constants, only: One,  Half, Two, Three, Six
       use Fockof, only: IOFFIA, FIT, FTI, FIA, FAI, FTA, FAT
@@ -43,7 +44,7 @@ C so each chunk has all the row indices (full columns).
      &                      INCX3, INCY1, INCY2, INCY3, LEN1, LEN2,
      &                      nLst1, nLst2
       use fake_GA, only: GA_Arrays
-      use caspt2_module, only: Mul, nIsh, nAsh, nSSh, nSym, nISUP,
+      use caspt2_module, only: nIsh, nAsh, nSSh, nSym, nISUP,
      &                         nASUP, nIGEJ, nIGTJ, nAGEB, nAGTB, nTGEU,
      &                         nTUV, nTGTU, nTGEU
 #ifdef _DEBUGPRINT_
@@ -94,7 +95,7 @@ C SVC: IFCOUP is set in SIGMA_CASPT2
       KOD=IFCOUP(ICASE2,ICASE1)
       IF(KOD==0) RETURN
 
-      ISYM12=MUL(ISYM1,ISYM2)
+      ISYM12=Mul(ISYM1,ISYM2)
       NAS1=NASUP(ISYM1,ICASE1)
       NIS1=NISUP(ISYM1,ICASE1)
       NAS2=NASUP(ISYM2,ICASE2)
@@ -106,7 +107,7 @@ C SVC: IFCOUP is set in SIGMA_CASPT2
         ICGP=0
         ICGM=0
         DO JSYM=1,NSYM
-          IJSYM=MUL(ISYM,JSYM)
+          IJSYM=Mul(ISYM,JSYM)
           IOFCD(ISYM,JSYM)=ICD
           IOFCEP(ISYM,JSYM)=ICEP
           IOFCEM(ISYM,JSYM)=ICEM
@@ -273,7 +274,7 @@ C  A&EP One-el
           NT=NASH(ISYM1)
           IF(NT/=0) THEN
             DO ISYMIJ=1,NSYM
-            ISYMA=MUL(ISYMIJ,ISYM1)
+            ISYMA=Mul(ISYMIJ,ISYM1)
             NA=NSSH(ISYMA)
             NLST1=NLIST(ISYM1,ISYMIJ,14)
             IF(NA*NLST1/=0) THEN
@@ -309,7 +310,7 @@ C  A&EM One-el
           NT=NASH(ISYM1)
           IF(NT/=0) THEN
             DO ISYMIJ=1,NSYM
-            ISYMA=MUL(ISYMIJ,ISYM1)
+            ISYMA=Mul(ISYMIJ,ISYM1)
             NA=NSSH(ISYMA)
             NLST1=NLIST(ISYM1,ISYMIJ,15)
             IF(NA*NLST1/=0) THEN
@@ -560,7 +561,7 @@ C  C&GP One-el
         NT=NASH(ISYM1)
         IF(ISYM2==ISYM1 .AND.  NT/=0) THEN
           DO ISYMAB=1,NSYM
-          ISYMI=MUL(ISYMAB,ISYM1)
+          ISYMI=Mul(ISYMAB,ISYM1)
           NI=NISH(ISYMI)
           NLST1=NLIST(ISYM1,ISYMAB,16)
           IF(NI*NLST1/=0) THEN
@@ -594,7 +595,7 @@ C  C&GM One-el
         NT=NASH(ISYM1)
         IF(ISYM2==ISYM1 .AND. NT/=0) THEN
           DO ISYMAB=1,NSYM
-          ISYMI=MUL(ISYMAB,ISYM1)
+          ISYMI=Mul(ISYMAB,ISYM1)
           NI=NISH(ISYMI)
           NLST1=NLIST(ISYM1,ISYMAB,17)
           IF(NI*NLST1/=0) THEN
@@ -630,7 +631,7 @@ C  D&EP One-el
           DO ISYMI=1,NSYM
           NI=NISH(ISYMI)
           NA=NSSH(ISYMI)
-          ISYMIJ=MUL(ISYMI,ISYM2)
+          ISYMIJ=Mul(ISYMI,ISYM2)
           NLST1=NLIST(ISYMI,ISYMIJ,14)
           IF(NI*NA*NLST1/=0) THEN
             LLST1=LLIST(ISYMI,ISYMIJ,14)
@@ -664,9 +665,9 @@ C  D&EP Two-el
           VAL1(2)=-One
           DO ISYMA=1,NSYM
           NA=NSSH(ISYMA)
-          ISYMI=MUL(ISYMA,ISYM1)
+          ISYMI=Mul(ISYMA,ISYM1)
           NI=NISH(ISYMI)
-          ISYMIJ=MUL(ISYMI,ISYM12)
+          ISYMIJ=Mul(ISYMI,ISYM12)
           NLST2=NLIST(ISYMI,ISYMIJ,14)
           IF(NA*NI*NLST2/=0) THEN
             LLST2=LLIST(ISYMI,ISYMIJ,14)
@@ -701,7 +702,7 @@ C  D&EM One-el
           DO ISYMI=1,NSYM
           NI=NISH(ISYMI)
           NA=NSSH(ISYMI)
-          ISYMIJ=MUL(ISYMI,ISYM2)
+          ISYMIJ=Mul(ISYMI,ISYM2)
           NLST1=NLIST(ISYMI,ISYMIJ,15)
           IF(NI*NA*NLST1/=0) THEN
             LLST1=LLIST(ISYMI,ISYMIJ,15)
@@ -735,9 +736,9 @@ C  D&EM Two-el
           VAL1(2)= One
           DO ISYMA=1,NSYM
             NA=NSSH(ISYMA)
-            ISYMI=MUL(ISYMA,ISYM1)
+            ISYMI=Mul(ISYMA,ISYM1)
             NI=NISH(ISYMI)
-            ISYMIJ=MUL(ISYMI,ISYM12)
+            ISYMIJ=Mul(ISYMI,ISYM12)
             NLST2=NLIST(ISYMI,ISYMIJ,15)
             IF(NA*NI*NLST2/=0) THEN
               LLST2=LLIST(ISYMI,ISYMIJ,15)
@@ -774,9 +775,9 @@ C  D&GP Two-el
           VAL1(1)= One
           VAL1(2)= One
             DO ISYMA=1,NSYM
-            ISYMI=MUL(ISYMA,ISYM1)
+            ISYMI=Mul(ISYMA,ISYM1)
             NI=NISH(ISYMI)
-            ISYMAB=MUL(ISYMA,ISYM12)
+            ISYMAB=Mul(ISYMA,ISYM12)
             NLST2=NLIST(ISYMA,ISYMAB,16)
             IF(NI*NLST2/=0) THEN
               LLST2=LLIST(ISYMA,ISYMAB,16)
@@ -813,9 +814,9 @@ C  D&GM Two-el
           VAL1(1)=-One
           VAL1(2)= One
             DO ISYMA=1,NSYM
-            ISYMI=MUL(ISYMA,ISYM1)
+            ISYMI=Mul(ISYMA,ISYM1)
             NI=NISH(ISYMI)
-            ISYMAB=MUL(ISYMA,ISYM12)
+            ISYMAB=Mul(ISYMA,ISYM12)
             NLST2=NLIST(ISYMA,ISYMAB,17)
             IF(NI*NLST2/=0) THEN
               LLST2=LLIST(ISYMA,ISYMAB,17)
@@ -988,7 +989,7 @@ C  D&HP One-el
           NI=NISH(ISYMI)
           ISYMA=ISYMI
           NA=NSSH(ISYMA)
-          ISYMJ=MUL(ISYMI,ISYM2)
+          ISYMJ=Mul(ISYMI,ISYM2)
           NJ=NISH(ISYMJ)
           ISYMB=ISYMJ
           NB=NSSH(ISYMB)
@@ -1023,7 +1024,7 @@ C  D&HM One-el
           NI=NISH(ISYMI)
           ISYMA=ISYMI
           NA=NSSH(ISYMA)
-          ISYMJ=MUL(ISYMI,ISYM2)
+          ISYMJ=Mul(ISYMI,ISYM2)
           NJ=NISH(ISYMJ)
           ISYMB=ISYMJ
           NB=NSSH(ISYMB)

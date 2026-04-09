@@ -954,7 +954,7 @@ A list of these keywords is given below:
 :kword:`STAVerage`
   Specifies the number of roots to include in a state-average calculation.
   This is a simplified for of the :kword:`CIROot` keyword, and ``STAVerage = n`` is equivalent to ``CIROot = n n 1`` (see below).
-  Only one of :kword:`STAverage` and :kword:`CIROot` should be given.
+  Only one of :kword:`STAVerage` and :kword:`CIROot` should be given.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="STAVERAGE" APPEAR="State average" LEVEL="BASIC" KIND="INT" EXCLUSIVE="CIROOT" DEFAULT_VALUE="1" MIN_VALUE="1">
               %%Keyword: STAVerage <basic>

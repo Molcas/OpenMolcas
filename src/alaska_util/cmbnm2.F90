@@ -42,11 +42,11 @@ do iZeta=1,nZeta
   rKappa(iZeta) = Fact*rKappa(iZeta)*Zeta(iZeta)**exp32
 end do
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In CmbnM2: Zeta  ',' ',Zeta,1,nZeta)
-  call RecPrt(' In CmbnM2: rKappa',' ',rKappa,1,nZeta)
-  call RecPrt(' In CmbnM2: Alpha ',' ',Alpha,1,nZeta)
-  call RecPrt(' In CmbnM2: Beta  ',' ',Beta,1,nZeta)
-  call RecPrt(' In CmbnM2: Rnxyz ',' ',Rnxyz,nZeta*3,(la+2)*(lb+2))
+call RecPrt(' In CmbnM2: Zeta  ',' ',Zeta,1,nZeta)
+call RecPrt(' In CmbnM2: rKappa',' ',rKappa,1,nZeta)
+call RecPrt(' In CmbnM2: Alpha ',' ',Alpha,1,nZeta)
+call RecPrt(' In CmbnM2: Beta  ',' ',Beta,1,nZeta)
+call RecPrt(' In CmbnM2: Rnxyz ',' ',Rnxyz,nZeta*3,(la+2)*(lb+2))
 #endif
 do ixa=0,la
   iyaMax = la-ixa

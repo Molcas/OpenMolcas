@@ -58,10 +58,10 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In D1Int: A',' ',A,1,3)
-  call RecPrt(' In D1Int: RB',' ',RB,1,3)
-  call RecPrt(' In D1Int: P',' ',P,nZeta,3)
-  write(u6,*) ' In D1Int: la,lb=',la,lb
+call RecPrt(' In D1Int: A',' ',A,1,3)
+call RecPrt(' In D1Int: RB',' ',RB,1,3)
+call RecPrt(' In D1Int: P',' ',P,nZeta,3)
+write(u6,*) ' In D1Int: la,lb=',la,lb
 #endif
 
 ! Compute the contact terms.
@@ -69,12 +69,12 @@ end if
 call Darwin(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,rFinal,iStabM,nStabM,nComp,rKappa)
 
 #ifdef _DEBUGPRINT_
-  do ia=1,nTri_Elem1(la)
-    do ib=1,nTri_Elem1(lb)
-      write(Label,'(A,I2,A,I2,A)') 'Darwin contact(',ia,',',ib,')'
-      call RecPrt(Label,' ',rFinal(:,ia,ib,:),nZeta,nComp)
-    end do
+do ia=1,nTri_Elem1(la)
+  do ib=1,nTri_Elem1(lb)
+    write(Label,'(A,I2,A,I2,A)') 'Darwin contact(',ia,',',ib,')'
+    call RecPrt(Label,' ',rFinal(:,ia,ib,:),nZeta,nComp)
   end do
+end do
 #endif
 
 end subroutine D1Int

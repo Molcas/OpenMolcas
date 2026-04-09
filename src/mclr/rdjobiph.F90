@@ -35,10 +35,11 @@ use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iSpin
                       nBas, nCOnf, nCSF, nDel, nElec3, nFro, nHole1, nIsh, nOrb, nRoots, nRS1, nRS2, nRS3, nSym, ntAsh, ntASqr, &
                       ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, State_Sym, TitleJP, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
+use RASDim, only: MxIter, MxTit
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use rasdim, only: Lenin8, MxIter, MxOrb, MxRoot, MxSym, MxTit
 
 implicit none
 real(kind=wp), allocatable, intent(out) :: CIVec(:,:)
@@ -73,12 +74,12 @@ call iDaFile(LuJob,2,iToc,iTOCIPH,iDisk)
 !----------------------------------------------------------------------*
 !     Read the the system description                                  *
 !----------------------------------------------------------------------*
-call mma_allocate(TempTxt,LenIn8*MxOrb,Label='TempTxt')
+call mma_allocate(TempTxt,(LenIn+8)*MxOrb,Label='TempTxt')
 iDisk = iToc(1)
 
 !write(u6,*) 'if dmrg, it should be something else'
-call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,State_sym,nFro,nIsh,nAsh,nDel,nBas,MxSym,TempTxt,LenIn8*mxorb,nConf,HeaderJP, &
-                    144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
+call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,State_sym,nFro,nIsh,nAsh,nDel,nBas,MxSym,TempTxt,(LenIn+8)*mxorb,nConf, &
+                    HeaderJP,144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
 
 if (doDMRG) then ! yma
   nash(:) = LRras2(:)

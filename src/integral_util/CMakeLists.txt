@@ -41,7 +41,6 @@ set (sources
      conmax.F90
      coor_setup.F90
      contei.F90
-     corbinf.F90
      coset.F90
      covrad.F90
      covrad_data.F90
@@ -149,10 +148,10 @@ set (sources
      initia.F90
      int_options.F90
      int_setup.F90
+     integral_ijij.F90
      integral_interfaces.F90
      integral_wrout2.F90
      integral_wrout2_BP.F90
-     integral_ijij.F90
      inter.F90
      inter1.F90
      iobuf.F90
@@ -223,6 +222,7 @@ set (sources
      poti.F90
      prepp.F90
      priwel.F90
+     print.F90
      prmtrx.F90
      property_label.F90
      prrf.F90
@@ -317,7 +317,6 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      basis_mode.F90
-     corbinf.F90
      covrad_data.F90
      dcr_mod.F90
      define_af.F90
@@ -337,8 +336,8 @@ set (modfile_list
      mpmc.F90
      nac.F90
      nddo.F90
-     property_label.F90
      print.F90
+     property_label.F90
      rctfld_module.F90
      real_spherical.F90
      rmat.F90

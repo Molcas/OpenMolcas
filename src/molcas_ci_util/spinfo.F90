@@ -33,19 +33,19 @@ module Spinfo
 !
 ! DoBKAP, NGASBK, IOCCPSPC
 
+use Molcas, only: MxGAS, MxSym
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym, MxGas
 
 implicit none
 private
 
 integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 
-integer(kind=iwp) :: I2ELIMINATED_IN_GAS_MOLCAS(MXGAS), I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS(MXGAS), IEXPAND_MOLCAS, &
-                     igsoccx_molcas(mxgas,2), INOCALC_MOLCAS, IOCCPSPC(20,2), iprci_Molcas, ipt2_Molcas, ISAVE_EXP_MOLCAS, &
+integer(kind=iwp) :: I2ELIMINATED_IN_GAS_MOLCAS(MxGAS), I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS(MxGAS), IEXPAND_MOLCAS, &
+                     igsoccx_molcas(MxGAS,2), INOCALC_MOLCAS, IOCCPSPC(20,2), iprci_Molcas, ipt2_Molcas, ISAVE_EXP_MOLCAS, &
                      iSpeed(nSpeed), ispin_Molcas, itmax_Molcas, lsym_Molcas, MINOP, MS2, ms2_Molcas, N_2ELIMINATED_GAS_MOLCAS, &
-                     N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, NCNASM(mxSym), NCNFTP(MXTYP,MXSYM), NCSASM(mxSym), nCSF_HEXS, &
-                     NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), ngas_molcas, NGASBK, ngssh_molcas(mxgas,mxsym), &
+                     N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, NCNASM(mxSym), NCNFTP(MXTYP,mxSym), NCSASM(mxSym), nCSF_HEXS, &
+                     NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), ngas_molcas, NGASBK, ngssh_molcas(MxGAS,mxSym), &
                      nroots_Molcas, nsym_Molcas, NTYP
 real(kind=wp) :: potnuc_Molcas, thre_Molcas
 logical(kind=iwp) :: DoBKAP, DoComb

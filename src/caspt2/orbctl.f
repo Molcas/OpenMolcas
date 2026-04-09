@@ -16,21 +16,20 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE ORBCTL(CMO,NCMO)
+      SUBROUTINE ORBCTL(CMO_X,NCMO)
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only:iPrGlb
       use Printlevel, only: debug, verbose
-      use caspt2_global, only: CMO_X => CMO, FIMO, FIFA, HONE, DREF,
-     &                       TORB
+      use caspt2_global, only: CMO, FIMO, FIFA, HONE, DREF, TORB
       use caspt2_global, only: LUONEM
       use ChoCASPT2
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: iEOF1M, Name, nBas, nSym, OutFmt, PrOrb,
+      use caspt2_module, only: iEOF1M, bName, nBas, nSym, OutFmt, PrOrb,
      &                         ThrEne, ThrOcc, iAd1M, nFro, nOrb, nBasT,
      &                         EPS, nDel
       IMPLICIT NONE
       INTEGER NCMO
-      REAL*8 CMO(NCMO)
+      REAL*8 CMO_X(NCMO)
 
       INTEGER ISYM
       INTEGER I1,I2
@@ -58,7 +57,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
 * The CI arrays are on file with unit number LUCIEX. There is NSTATE
 * CI arrays, stored sequentially. The original set starts at disk address
 * IDCIEX, the transformed ones are written after IDTCEX.
-      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO,NCMO)
+      CALL MKRPTORB(FIFA,SIZE(FIFA),TORB,SIZE(TORB),CMO_X,NCMO)
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL back from MKRPTORB.'
       END IF
@@ -94,7 +93,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
       if (.not. DoFCIQMC) then
 C Save new MO coeffs, and the transformation matrices:
       IDISK=IAD1M(2)
-      CALL DDAFILE(LUONEM,1,CMO_X,NCMO,IDISK)
+      CALL DDAFILE(LUONEM,1,CMO,NCMO,IDISK)
       IAD1M(4)=IEOF1M
       IDISK=IAD1M(4)
       CALL DDAFILE(LUONEM,1,TORB,SIZE(TORB),IDISK)
@@ -143,8 +142,8 @@ C Print orbitals. Different options:
           THROCC=5.0d-04
         END IF
         CALL PRIMO(' Quasi-canonical orbitals',.FALSE.,.TRUE.,
-     &              THROCC,THRENE,NSYM,NBAS,NBAS,NAME,
-     &              ORBE,OCC_DUM,CMO,-1)
+     &              THROCC,THRENE,NSYM,NBAS,NBAS,BNAME,
+     &              ORBE,OCC_DUM,CMO_X,-1)
       END IF
 
       CALL mma_deallocate(ORBE)

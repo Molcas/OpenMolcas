@@ -57,7 +57,8 @@
      &                        NBAS,NDEL,NFRO,NISH,NRS1,NRS2,NRS3,NRS3,
      &                        NSSH
       use spinfo, only: I_ELIMINATE_GAS_MOLCAS,ISPEED
-      use rasdim, only: MxCIIt, MxIter, MxOrb, MxRoot, MxSXIt, MxSym
+      use Molcas, only: MxOrb, MxRoot, MxSym
+      use RASDim, only: MxCIIt, MxIter, MxSXIt
 
       Implicit None
       Integer IPRGLB_IN, IPRLOC_IN(7)

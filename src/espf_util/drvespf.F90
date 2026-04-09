@@ -18,9 +18,9 @@ use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Basis_Info, only: nBas
 use Grd_interface, only: grd_kernel, grd_mem
 use Symmetry_Info, only: nIrrep
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use Print, only: nPrint
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -30,8 +30,10 @@ integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 real(kind=wp), intent(in) :: CCoor(*)
-
 integer(kind=iwp) :: iIrrep, iPL, nComp, nDens, nOrdOp
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ii
+#endif
 logical(kind=iwp) :: DiffOp
 character(len=80) :: Label
 integer(kind=iwp), allocatable :: lOper(:)
@@ -39,11 +41,6 @@ real(kind=wp), allocatable :: D_Var(:)
 integer(kind=iwp), external :: iPL_espf
 procedure(grd_kernel) :: BdVGrd
 procedure(grd_mem) :: NAMmG
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ii
-#endif
-
-! Prologue
 
 ! Allocate memory for density matrix
 
@@ -58,13 +55,13 @@ end do
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_Var,nDens)
 #ifdef _DEBUGPRINT_
-  write(u6,*) 'variational 1st order density matrix'
-  ii = 1
-  do iIrrep=0,nIrrep-1
-    write(u6,*) 'symmetry block',iIrrep
-    call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
-    ii = ii+nTri_Elem(nBas(iIrrep))
-  end do
+write(u6,*) 'variational 1st order density matrix'
+ii = 1
+do iIrrep=0,nIrrep-1
+  write(u6,*) 'symmetry block',iIrrep
+  call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
+  ii = ii+nTri_Elem(nBas(iIrrep))
+end do
 #endif
 !                                                                      *
 !***********************************************************************

@@ -82,6 +82,8 @@ if (imethod > 0) then
 else
   call Untested('WfCtl_sp')
   ! These are uninitialized!
+  ips1 = -1
+  ips2 = -1
   ipst = -1
   ipcid = -1
 end if

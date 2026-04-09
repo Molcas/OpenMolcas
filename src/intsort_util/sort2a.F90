@@ -35,8 +35,8 @@ subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 use sort_data, only: iDaTmp, iDaTwo, iDIBin, iDVBin, IndBin, lBin, LuTmp, LuTwo, mInt, ValBin
 use TwoDat, only: lDaRec, lStRec, lTop, nSect
 use Pack_mod, only: isPack
+use PrintLevel, only: nPrint
 use Definitions, only: wp, iwp, u6, ItoB, RtoB
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: iBin, lSrtA, lStk

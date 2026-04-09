@@ -33,7 +33,8 @@
 subroutine FockOper(RC,Fock)
 
 #if _OLD_
-use GuessOrb_Global, only: AtName, Label, MxAtom, nBas, nNuc, nSym, xCharge
+use GuessOrb_Global, only: AtName, Label, nBas, nNuc, nSym, xCharge
+use Molcas, only: MxAtom
 use Constants, only: Zero, One, Three, Six, Seven, Eight
 #endif
 use Definitions, only: wp, iwp

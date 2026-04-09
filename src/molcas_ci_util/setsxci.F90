@@ -14,8 +14,8 @@ subroutine SETSXCI()
 use sxci, only: IDXCI, IDXSX
 use gas_data, only: NGAS, NGSSH
 use general_data, only: NSYM
+use Molcas, only: MxGAS
 use Definitions, only: iwp
-use rasdim, only: MxGAS
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

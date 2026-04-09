@@ -166,7 +166,7 @@
       subroutine read_single_neci_GUGA_RDM(
      &  iroot, DMAT, DSPN, PSMAT, PAMAT
      & )
-          use printlevel, only: DEBUG
+          use PrintLevel, only: DEBUG
           use output_ras, only: IPRLOC
           integer, intent(in) :: iroot
           real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
@@ -285,7 +285,7 @@
 !>  @param[out] PAMAT Average antisymm. 2-dens matrix
 !>
       subroutine read_single_neci_RDM(iroot, DMAT, DSPN, PSMAT, PAMAT)
-          use printlevel, only: DEBUG
+          use PrintLevel, only: DEBUG
           use output_ras, only: IPRLOC
           integer, intent(in) :: iroot
           real*8, intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
@@ -692,7 +692,7 @@
 
 
       subroutine read_hdf5_denmats(iroot, dmat, dspn, psmat, pamat)
-          use printlevel, only: DEBUG
+          use PrintLevel, only: DEBUG
           use output_ras, only: IPRLOC
           integer, intent(in) :: iroot
           real(wp), intent(_OUT_) :: dmat(:), dspn(:),psmat(:),pamat(:)

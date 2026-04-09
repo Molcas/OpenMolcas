@@ -11,8 +11,8 @@
 
 module MckDat
 
-use Definitions, only: iwp, ItoB
 use Molcas, only: MxSym
+use Definitions, only: iwp, ItoB
 
 implicit none
 private
@@ -74,7 +74,6 @@ private
 !   oAddr  - Disk address                                              *
 !                                                                      *
 !----------------------------------------------------------------------*
-
 
 type FInfo_type
   integer(kind=iwp) :: ID = 4097, VN = 1024

@@ -12,10 +12,10 @@
 subroutine AOIntegrate(nBaseQ,nBaseC,Ax,Ay,Az,iQ_Atoms,nAtomsCC,AOint,oV2,N,lmax,Inside)
 
 use qmstat_global, only: CasOri, Cordst, iOrb, iPrint, iQn, nCent, nCnC_C, SavOri, V3
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, N, lmax
@@ -26,7 +26,7 @@ integer(kind=iwp) :: m
 real(kind=wp) :: Dummy(1), Dx, Dy, Dz, Rot(3,3), x, y, z
 logical(kind=iwp) :: PrEne, PrOcc
 character(len=30) :: Snack
-character(len=LenIn8), allocatable :: BsLbl(:)
+character(len=LenIn+8), allocatable :: BsLbl(:)
 
 !----------------------------------------------------------------------*
 ! Call Transrot. There we compute the rotation matrix for the classical*
@@ -53,7 +53,7 @@ if (iPrint >= 25) then !Optional print-out.
   write(snack,'(A,I3)') 'Rotated orbitals for water ',N/nCent
   call mma_allocate(BsLbl,nBaseC,label='BsLbl')
   call NameRun('WRUNFIL')
-  call Get_cArray('Unique Basis Names',BsLbl,LenIn8*nBaseC)
+  call Get_cArray('Unique Basis Names',BsLbl,(LenIn+8)*nBaseC)
   Dummy(1) = Zero
   call Primo(Snack,PrOcc,PrEne,Zero,Zero,1,[nBaseC],iOrb(2),BsLbl,Dummy,Dummy,oV2,3)
   call mma_deallocate(BsLbl)

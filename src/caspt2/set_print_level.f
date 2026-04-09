@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Set_Print_Level
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: silent, usual
+      use PrintLevel, only: SILENT, USUAL
       Implicit None
       Integer, External :: iPrintLevel
       Logical, External :: Reduce_Prt

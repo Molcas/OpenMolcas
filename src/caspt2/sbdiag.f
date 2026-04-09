@@ -19,7 +19,7 @@
       SUBROUTINE SBDIAG()
       use definitions, only: iwp, wp
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: usual, verbose
+      use PrintLevel, only: USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -102,16 +102,15 @@ C usually print info on the total number of parameters
       END SUBROUTINE SBDIAG
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
-      use definitions, only: wp, iwp
+      use definitions, only: wp, iwp, ItoB
       use constants, only: Zero, One
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
      *                         idBoriMat
       use caspt2_global, only: LUSOLV, LUSBT
-      use PrintLevel, only: insane
+      use PrintLevel, only: INSANE
       use EQSOLV, only: IDTMAT, IDBMAT, IDSMAT, IDSTMAT
       use stdalloc, only: mma_allocate, mma_deallocate
-      use SysDef, only: ItoB
       use caspt2_module, only: BMatrix, BSpect, BTrans, IfDOrtho,
      &                         ThrShn, ThrShs, nASup, nISup, Cases,
      &                         nInDep
@@ -541,7 +540,7 @@ C divided over processors.
       use definitions, only: iwp, wp
       use Constants, only: Zero, One
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: insane
+      use PrintLevel, only: INSANE
       USE Para_Info, ONLY: King
       use caspt2_global, only: LUSBT
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,

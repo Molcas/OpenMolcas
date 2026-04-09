@@ -22,7 +22,7 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,
      &                         iCMSIterMin, NAC
-      use printlevel, only: USUAL
+      use PrintLevel, only: USUAL
       use output_ras, only: IPRLOC
       Implicit None
 

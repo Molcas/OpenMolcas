@@ -23,7 +23,7 @@
       use definitions, only: iwp, wp, u6
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: FIMO
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NASHT,NOMX
       IMPLICIT None
@@ -74,12 +74,13 @@ C INTEGRAL BUFFERS:
       END SUBROUTINE MKRHS
 
       SUBROUTINE MKRHSA(IVEC,FIMO,NFIMO,ERI,SCR)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero
       USE SUPERINDEX, only: KTUV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NISH,MUL,NASH,NISH,
+      use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NISH,NASH,NISH,
      &                         NAES,NTUVES,NACTEL
 
       IMPLICIT None
@@ -109,9 +110,9 @@ C Set up a matrix FWI(w,i)=FIMO(wi)
 C Compute W(tuv,i)=(ti,uv) + FIMO(t,i)*delta(u,v)/NACTEL
           LW=Allocate_GA_Array(NV,'WA')
           DO ISYMT=1,NSYM
-            ISYMUV=MUL(ISYMT,ISYM)
+            ISYMUV=Mul(ISYMT,ISYM)
             DO ISYMU=1,NSYM
-              ISYMV=MUL(ISYMU,ISYMUV)
+              ISYMV=Mul(ISYMU,ISYMUV)
               DO IT=1,NASH(ISYMT)
                 ITTOT=IT+NISH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
@@ -150,12 +151,13 @@ C Put W on disk:
       END SUBROUTINE MKRHSA
 
       SUBROUTINE MKRHSB(IVEC,ERI,SCR)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Quart, Half, Two
       USE SUPERINDEX, only: KTGEU,KTGTU,KIGEJ,KIGTJ
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module, only: NSYM,NINDEP,NTGEU,NIGEJ,NTGTU,NIGTJ,MUL,
+      use caspt2_module, only: NSYM,NINDEP,NTGEU,NIGEJ,NTGTU,NIGTJ,
      &                         NASH,NISH,NAES,NTGEUES,NTGTUES,NIGEJES,
      &                         NIES,NORB,NIGTJES
       IMPLICIT None
@@ -192,11 +194,11 @@ C   WP(tu,ij)=(W(tu,i,j)+W(tu,j,i))*(1-Kron(t,u)/2) /2
 C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ij))
 C   WM(tu,ij)=(W(tu,i,j)-W(tu,j,i))*(1-Kron(t,u)/2) /2
           DO ISYMT=1,NSYM
-            ISYMU=MUL(ISYMT,ISYM)
+            ISYMU=Mul(ISYMT,ISYM)
             IF(ISYMT.LT.ISYMU) CYCLE
             IF(NASH(ISYMT)*NASH(ISYMU).EQ.0) CYCLE
             DO ISYMI=1,NSYM
-              ISYMJ=MUL(ISYMI,ISYM)
+              ISYMJ=Mul(ISYMI,ISYM)
               IF(NISH(ISYMI)*NISH(ISYMJ).EQ.0) CYCLE
               DO IT=1,NASH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
@@ -287,11 +289,12 @@ C  Put WM on disk
       END SUBROUTINE MKRHSB
 
       SUBROUTINE MKRHSC(IVEC,FIMO,NFIMO,ERI,SCR)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       USE SUPERINDEX, only: KTUV
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NSSH,MUL,NASH,NISH,
+      use caspt2_module, only: NSYM,NORB,NINDEP,NTUV,NSSH,NASH,NISH,
      &                         NAES,NSSH,NTUVES,NASHT,NACTEL
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC, NFIMO
@@ -321,9 +324,9 @@ C First, just the two-electron integrals. Later, add correction.
 
           LW=Allocate_GA_Array(NV,'WC')
           DO ISYMT=1,NSYM
-            ISYMUV=MUL(ISYMT,ISYM)
+            ISYMUV=Mul(ISYMT,ISYM)
             DO ISYMU=1,NSYM
-              ISYMV=MUL(ISYMU,ISYMUV)
+              ISYMV=Mul(ISYMU,ISYMUV)
               DO IU=1,NASH(ISYMU)
                 IUTOT=IU+NISH(ISYMU)
                 IUABS=IU+NAES(ISYMU)
@@ -384,12 +387,13 @@ C   Put W on disk
       END SUBROUTINE MKRHSC
 
       SUBROUTINE MKRHSD(IVEC,FIMO,NFIMO,ERI1,ERI2,SCR)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: Zero
       USE SUPERINDEX, only: KTU
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module, only: NSYM,NINDEP,MUL,NSSH,NISH,NTU,NISUP,
+      use caspt2_module, only: NSYM,NINDEP,NSSH,NISH,NTU,NISUP,
      &                         NACTEL,NORB,NAES,NASH,NTUES
       IMPLICIT None
       integer(kind=iwp), intent(in):: IVEC, NFIMO
@@ -411,7 +415,7 @@ C Set up offset table:
           IO=0
           DO ISYMA=1,NSYM
             IOFF(ISYMA)=IO
-            ISYMI=MUL(ISYMA,ISYM)
+            ISYMI=Mul(ISYMA,ISYM)
             IO=IO+NSSH(ISYMA)*NISH(ISYMI)
           END DO
 C   Allocate W; W subdivided into W1,W2.
@@ -427,9 +431,9 @@ C Compute W2(tu,ai)=(ti,au)
           DO ISYMI=1,NSYM
             NFIMOES=NFSUM
             NFSUM=NFSUM+(NORB(ISYMI)*(NORB(ISYMI)+1))/2
-            ISYMA=MUL(ISYMI,ISYM)
+            ISYMA=Mul(ISYMI,ISYM)
             DO ISYMU=1,NSYM
-              ISYMT=MUL(ISYMU,ISYM)
+              ISYMT=Mul(ISYMU,ISYM)
               DO II=1,NISH(ISYMI)
                 DO IU=1,NASH(ISYMU)
                   IUABS=IU+NAES(ISYMU)
@@ -473,12 +477,13 @@ C   Put W on disk.
       END SUBROUTINE MKRHSD
 
       SUBROUTINE MKRHSE(IVEC,ERI1,ERI2,SCR)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: half, One, two, three
       USE SUPERINDEX, only: KIGEJ, KIGTJ
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module, only: NSYM,NINDEP,NISUP,MUL,NASH,NISH,NSSH,
+      use caspt2_module, only: NSYM,NINDEP,NISUP,NASH,NISH,NSSH,
      &                         NORB,NIGEJ,NIES,NIGEJES,NIGTJES,NIGTJ
       IMPLICIT NONE
       integer(kind=iwp), intent(in):: IVEC
@@ -508,7 +513,7 @@ C Set up offset table:
           DO ISYMA=1,NSYM
             IOFF1(ISYMA)=IO1
             IOFF2(ISYMA)=IO2
-            ISYMIJ=MUL(ISYMA,ISYM)
+            ISYMIJ=Mul(ISYMA,ISYM)
             IO1=IO1+NSSH(ISYMA)*NIGEJ(ISYMIJ)
             IO2=IO2+NSSH(ISYMA)*NIGTJ(ISYMIJ)
           END DO
@@ -527,9 +532,9 @@ C With new normalisation, divide by /SQRT(2+2*Kron(ij))
 C   WM(t,ij,a)=3*(W(t,i,j,a)-W(t,j,i,a))
 C With new normalisation, divide by /SQRT(6)
           DO ISYMA=1,NSYM
-            ISYMIJ=MUL(ISYMA,ISYM)
+            ISYMIJ=Mul(ISYMA,ISYM)
             DO ISYMI=1,NSYM
-              ISYMJ=MUL(ISYMI,ISYMIJ)
+              ISYMJ=Mul(ISYMI,ISYMIJ)
               IF(ISYMI.LT.ISYMJ) CYCLE
               DO II=1,NISH(ISYMI)
                 IIABS=II+NIES(ISYMI)
@@ -578,12 +583,13 @@ C   Put WP and WM on disk.
       END SUBROUTINE MKRHSE
 
       SUBROUTINE MKRHSF(IVEC,ERI1,ERI2,SCR)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only:  half, One, two
       USE SUPERINDEX, only: KTGEU,KAGEB,KTGTU,KAGTB
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module, only: NSYM,NINDEP,NASUP,NISUP,MUL,NASH,NAES,
+      use caspt2_module, only: NSYM,NINDEP,NASUP,NISUP,NASH,NAES,
      &                         NISH,NSSH,NSES,NORB,NTGEUES,NAGEBES,
      &                         NTGTUES,NAGTBES
       IMPLICIT NONE
@@ -618,10 +624,10 @@ C   WP(tu,ab)=(W(t,u,ab)+W(u,t,ab))*(1-Kron(t,u)/2) /2
 C With new normalisation, replace /2 with /(2*SQRT(1+Kron(ab))
 C   WM(tu,ab)=(W(t,u,ab)-W(u,t,ab))*(1-Kron(t,u)/2) /2
           DO ISYMA=1,NSYM
-            ISYMB=MUL(ISYMA,ISYM)
+            ISYMB=Mul(ISYMA,ISYM)
             IF(ISYMA.LT.ISYMB) CYCLE
             DO ISYMT=1,NSYM
-              ISYMU=MUL(ISYMT,ISYM)
+              ISYMU=Mul(ISYMT,ISYM)
               IF(ISYMT.LT.ISYMU) CYCLE
               DO IT=1,NASH(ISYMT)
                 ITABS=IT+NAES(ISYMT)
@@ -680,12 +686,13 @@ C   Put WM on disk
       END SUBROUTINE MKRHSF
 
       SUBROUTINE MKRHSG(IVEC,ERI1,ERI2,SCR)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: half, One, two, three
       USE SUPERINDEX, only: KAGEB,KAGTB
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module, only: NSYM,NINDEP,MUL,NISH,NAGEB,NAGTB,NASH,
+      use caspt2_module, only: NSYM,NINDEP,NISH,NAGEB,NAGTB,NASH,
      &                         NISUP,NISUP,NSSH,NSES,NORB,NAGEBES,
      &                         NAGTBES
       IMPLICIT NONE
@@ -713,7 +720,7 @@ C Set up offset table:
           DO ISYMI=1,NSYM
             IOFF1(ISYMI)=IO1
             IOFF2(ISYMI)=IO2
-            ISYMAB=MUL(ISYMI,ISYM)
+            ISYMAB=Mul(ISYMI,ISYM)
             IO1=IO1+NISH(ISYMI)*NAGEB(ISYMAB)
             IO2=IO2+NISH(ISYMI)*NAGTB(ISYMAB)
           END DO
@@ -733,8 +740,8 @@ C   WM(t,i,ab)=3*(W(t,i,a,b)-W(t,i,b,a))
 C With new normalisation, divide by /SQRT(6)
           DO ISYMA=1,NSYM
             DO ISYMB=1,ISYMA
-              ISYMAB=MUL(ISYMA,ISYMB)
-              ISYMI=MUL(ISYMAB,ISYM)
+              ISYMAB=Mul(ISYMA,ISYMB)
+              ISYMI=Mul(ISYMAB,ISYM)
               DO IT=1,NASH(ISYM)
                 ITTOT=IT+NISH(ISYM)
                 DO II=1,NISH(ISYMI)
@@ -785,12 +792,13 @@ C   Put WP and WM on disk.
       END SUBROUTINE MKRHSG
 
       SUBROUTINE MKRHSH(IVEC,ERI1,ERI2,SCR)
+      use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp
       use constants, only: half, One, two, three
       USE SUPERINDEX, only: KAGEB,KIGEJ,KAGTB,KIGTJ
       use fake_GA, only: GA_Arrays, Allocate_GA_Array,
      &                            Deallocate_GA_Array
-      use caspt2_module, only: NSYM,NAGEB,NIGEJ,NAGTB,NIGTJ,MUL,NISH,
+      use caspt2_module, only: NSYM,NAGEB,NIGEJ,NAGTB,NIGTJ,NISH,
      &                         NIES,NSES,NSSH,NORB,NASH,NAGEBES,NIGEJES,
      &                         NAGTBES,NIGTJES
       IMPLICIT None
@@ -823,10 +831,10 @@ C With new norm., divide by /SQRT(4*(1+Kron(ij))*(1+Kron(ab))
 C   VM(ij,ab)=6*((aibj)-(ajbi))
 C With new norm., divide by /SQRT(12)
           DO ISYMA=1,NSYM
-            ISYMB=MUL(ISYMA,ISYM)
+            ISYMB=Mul(ISYMA,ISYM)
             IF(ISYMA.LT.ISYMB) CYCLE
             DO ISYMI=1,NSYM
-              ISYMJ=MUL(ISYMI,ISYM)
+              ISYMJ=Mul(ISYMI,ISYM)
               IF(ISYMI.LT.ISYMJ) CYCLE
               DO II=1,NISH(ISYMI)
                 IIABS=II+NIES(ISYMI)

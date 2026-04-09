@@ -45,11 +45,11 @@ unused_var(iStabM)
 unused_var(nStabM)
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' In WelGrd'
-  write(u6,*) ' r0, ExpB=',r0,ExpB
-  write(u6,*) ' la,lb=',la,lb
-  write(u6,*) '  A=',A
-  write(u6,*) ' RB=',RB
+write(u6,*) ' In WelGrd'
+write(u6,*) ' r0, ExpB=',r0,ExpB
+write(u6,*) ' la,lb=',la,lb
+write(u6,*) '  A=',A
+write(u6,*) ' RB=',RB
 #endif
 
 k = la+lb+1

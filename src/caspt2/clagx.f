@@ -12,10 +12,10 @@
 ************************************************************************
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 
+      use PrintLevel, only: VERBOSE
       use caspt2_global, only:iPrGlb
       use Constants, only: Zero
       use definitions, only: wp, iwp, u6
-      use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS
       use caspt2_module, only: NCONF, NASHT, NASH, ISCF, NSTATE, JSTATE,
@@ -85,7 +85,7 @@
      &           DF1,DF2,DF3,DEASUM,
      &           DEPSA,VECROT)
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-      IF (IPRGLB >= verbose) THEN
+      IF (IPRGLB >= VERBOSE) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(u6,'(a,2f10.2)')' CLagD   : CPU/WALL TIME=', cput,wallt
@@ -1758,7 +1758,7 @@
 
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: iPrGlb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use gugx, only: L2ACT
       use caspt2_global, only: LUCIEX, IDTCEX, LUSOLV
       use definitions, only: wp, iwp, byte, u6
@@ -1835,7 +1835,7 @@
         CALL DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       End If
       CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-      IF (IPRGLB >= verbose) THEN
+      IF (IPRGLB >= VERBOSE) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(u6,*)
@@ -1964,7 +1964,7 @@
       Subroutine CLagFinal(CLag,SLag)
 
       use caspt2_global, only: iPrGlb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: REFENE, NCONF, ISCF, NSTATE
@@ -2088,10 +2088,11 @@
 !-----------------------------------------------------------------------
 !
       SUBROUTINE DENS1_RPT2_CLag (CI,SGM1,CLag,RDMEIG,nLev)
+      use Symmetry_Info, only: Mul
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
-      use caspt2_module, only: nConf, STSym, Mul
+      use caspt2_module, only: nConf, STSym
 #if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King, nProcs
 #endif
@@ -2161,8 +2162,8 @@
         LU=Task(iTask,2)
         ISU=SGS%ISM(LU)
         IU=L2ACT(LU)
-        ISTU=MUL(IST,ISU)
-        ISSG=MUL(ISTU,STSYM)
+        ISTU=Mul(IST,ISU)
+        ISSG=Mul(ISTU,STSYM)
         NSGM=CIS%NCSF(ISSG)
         IF(NSGM == 0) cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
@@ -2390,8 +2391,9 @@
      &                       DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,
      &                       G2,SC,idxG3)
 
+      use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
-      use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
+      use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
       use Constants, only: Zero
       use definitions, only: wp, iwp, byte
 
@@ -2423,8 +2425,8 @@
         iSX=IASYM(iX)
         iSY=IASYM(iY)
         iSZ=IASYM(iZ)
-        ituvs=MUL(IST,MUL(ISU,ISV))
-        ixyzs=MUL(ISX,MUL(ISY,ISZ))
+        ituvs=Mul(IST,Mul(ISU,ISV))
+        ixyzs=Mul(ISX,Mul(ISY,ISZ))
         F3VAL=Zero
         G3VAL=Zero
         if(ituvs /= ixyzs) cycle
@@ -2434,7 +2436,7 @@
 !-SVC20100829: 12 equivalent cases, of which the second
 !  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
 !  - G(tuvxyz) -> SA(xut,vyz)
-        jSYM=MUL(IASYM(iX),MUL(IASYM(iU),IASYM(iT)))
+        jSYM=Mul(IASYM(iX),Mul(IASYM(iU),IASYM(iT)))
         IF (jSYM == iSYM) THEN
           ISUP=KTUV(iX,iU,iT)-nTUVES(jSYM)
           JSUP=KTUV(iV,iY,iZ)-nTUVES(jSYM)
@@ -2444,7 +2446,7 @@
         if (iTU /= iVX .or. iVX /= iYZ) then
           if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 !  - G(vxtuyz) -> SA(uxv,tyz)
-            jSYM=MUL(IASYM(iU),MUL(IASYM(iX),IASYM(iV)))
+            jSYM=Mul(IASYM(iU),Mul(IASYM(iX),IASYM(iV)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iU,iX,iV)-nTUVES(jSYM)
               JSUP=KTUV(iT,iY,iZ)-nTUVES(jSYM)
@@ -2452,7 +2454,7 @@
               G3VAL = G3VAL + SDER(iSup,jSup)
             ENDIF
 !  - G(yzvxtu) -> SA(xzy,vtu)
-            jSYM=MUL(IASYM(iX),MUL(IASYM(iZ),IASYM(iY)))
+            jSYM=Mul(IASYM(iX),Mul(IASYM(iZ),IASYM(iY)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iX,iZ,iY)-nTUVES(jSYM)
               JSUP=KTUV(iV,iT,iU)-nTUVES(jSYM)
@@ -2460,7 +2462,7 @@
               G3VAL = G3VAL + SDER(iSup,jSup)
             ENDIF
 !  - G(tuyzvx) -> SA(zut,yvx)
-            jSYM=MUL(IASYM(iZ),MUL(IASYM(iU),IASYM(iT)))
+            jSYM=Mul(IASYM(iZ),Mul(IASYM(iU),IASYM(iT)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iZ,iU,iT)-nTUVES(jSYM)
               JSUP=KTUV(iY,iV,iX)-nTUVES(jSYM)
@@ -2469,7 +2471,7 @@
             ENDIF
           end if
 !  - G(yztuvx) -> SA(uzy,tvx)
-          jSYM=MUL(IASYM(iU),MUL(IASYM(iZ),IASYM(iY)))
+          jSYM=Mul(IASYM(iU),Mul(IASYM(iZ),IASYM(iY)))
           IF (jSYM == iSYM) THEN
             ISUP=KTUV(iU,iZ,iY)-nTUVES(jSYM)
             JSUP=KTUV(iT,iV,iX)-nTUVES(jSYM)
@@ -2477,7 +2479,7 @@
             G3VAL = G3VAL + SDER(iSup,jSup)
           ENDIF
 !  - G(vxyztu) -> SA(zxv,ytu)
-          jSYM=MUL(IASYM(iZ),MUL(IASYM(iX),IASYM(iV)))
+          jSYM=Mul(IASYM(iZ),Mul(IASYM(iX),IASYM(iV)))
           IF (jSYM == iSYM) THEN
             ISUP=KTUV(iZ,iX,iV)-nTUVES(jSYM)
             JSUP=KTUV(iY,iT,iU)-nTUVES(jSYM)
@@ -2491,7 +2493,7 @@
      &      (iX /= iV .or. iT /= iZ .or. iU /= iY) .and.
      &      (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
 !  - G(utxvzy) -> SA(vtu,xzy)
-          jSYM=MUL(IASYM(iV),MUL(IASYM(iT),IASYM(iU)))
+          jSYM=Mul(IASYM(iV),Mul(IASYM(iT),IASYM(iU)))
           IF (jSYM == iSYM) THEN
             ISUP=KTUV(iV,iT,iU)-nTUVES(jSYM)
             JSUP=KTUV(iX,iZ,iY)-nTUVES(jSYM)
@@ -2501,7 +2503,7 @@
           if (iTU /= iVX .or. iVX /= iYZ) then
             if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 !  - G(xvutzy) -> SA(tvx,uzy)
-              jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
+              jSYM=Mul(IASYM(iT),Mul(IASYM(iV),IASYM(iX)))
               IF (jSYM == iSYM) THEN
                 ISUP=KTUV(iT,iV,iX)-nTUVES(jSYM)
                 JSUP=KTUV(iU,iZ,iY)-nTUVES(jSYM)
@@ -2509,7 +2511,7 @@
                 G3VAL = G3VAL + SDER(iSup,jSup)
               ENDIF
 !  - G(zyxvut) -> SA(vyz,xut)
-              jSYM=MUL(IASYM(iV),MUL(IASYM(iY),IASYM(iZ)))
+              jSYM=Mul(IASYM(iV),Mul(IASYM(iY),IASYM(iZ)))
               IF (jSYM == iSYM) THEN
                 ISUP=KTUV(iV,iY,iZ)-nTUVES(jSYM)
                 JSUP=KTUV(iX,iU,iT)-nTUVES(jSYM)
@@ -2517,7 +2519,7 @@
                 G3VAL = G3VAL + SDER(iSup,jSup)
               ENDIF
 !  - G(utzyxv) -> SA(ytu,zxv)
-              jSYM=MUL(IASYM(iY),MUL(IASYM(iT),IASYM(iU)))
+              jSYM=Mul(IASYM(iY),Mul(IASYM(iT),IASYM(iU)))
               IF (jSYM == iSYM) THEN
                 ISUP=KTUV(iY,iT,iU)-nTUVES(jSYM)
                 JSUP=KTUV(iZ,iX,iV)-nTUVES(jSYM)
@@ -2526,7 +2528,7 @@
               ENDIF
             end if
 !  - G(zyutxv) -> SA(tyz,uxv)
-            jSYM=MUL(IASYM(iT),MUL(IASYM(iY),IASYM(iZ)))
+            jSYM=Mul(IASYM(iT),Mul(IASYM(iY),IASYM(iZ)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iT,iY,iZ)-nTUVES(jSYM)
               JSUP=KTUV(iU,iX,iV)-nTUVES(jSYM)
@@ -2534,7 +2536,7 @@
               G3VAL = G3VAL + SDER(iSup,jSup)
             ENDIF
 !  - G(xvzyut) -> SA(yvx,zut)
-            jSYM=MUL(IASYM(iY),MUL(IASYM(iV),IASYM(iX)))
+            jSYM=Mul(IASYM(iY),Mul(IASYM(iV),IASYM(iX)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iY,iV,iX)-nTUVES(jSYM)
               JSUP=KTUV(iZ,iU,iT)-nTUVES(jSYM)
@@ -2605,11 +2607,12 @@
       SUBROUTINE CLagDXA_FG3_MPP(ISYM,lg_BDER,lg_SDER,DG1,DG2,DG3,
      &                           DF1,DF2,DF3,DEPSA,G2,idxG3)
 
+      use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
-      use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
+      use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
       use pt2_guga, only: NG3
       use Constants, only: Zero
 
@@ -2692,8 +2695,8 @@
           iSX=IASYM(iX)
           iSY=IASYM(iY)
           iSZ=IASYM(iZ)
-          ituvs=MUL(IST,MUL(ISU,ISV))
-          ixyzs=MUL(ISX,MUL(ISY,ISZ))
+          ituvs=Mul(IST,Mul(ISU,ISV))
+          ixyzs=Mul(ISX,Mul(ISY,ISZ))
           if(ituvs == ixyzs) then
             iTU=iT+NASHT*(iU-1)
             iVX=iV+NASHT*(iX-1)
@@ -2702,7 +2705,7 @@
 !-SVC20100829: 12 equivalent cases, of which the second
 !  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
 !  - G(tuvxyz) -> SA(xut,vyz)
-            jSYM=MUL(IASYM(iX),MUL(IASYM(iU),IASYM(iT)))
+            jSYM=Mul(IASYM(iX),Mul(IASYM(iU),IASYM(iT)))
             IF (jSYM == iSYM) THEN
               IROW=KTUV(iX,iU,iT)-nTUVES(jSYM)
               ICOL=KTUV(iV,iY,iZ)-nTUVES(jSYM)
@@ -2714,7 +2717,7 @@
             if (iTU /= iVX .or. iVX /= iYZ) then
               if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 !  - G(vxtuyz) -> SA(uxv,tyz)
-                jSYM=MUL(IASYM(iU),MUL(IASYM(iX),IASYM(iV)))
+                jSYM=Mul(IASYM(iU),Mul(IASYM(iX),IASYM(iV)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iU,iX,iV)-nTUVES(jSYM)
                   ICOL=KTUV(iT,iY,iZ)-nTUVES(jSYM)
@@ -2724,7 +2727,7 @@
                   INDJ(NtotELB) = ICOL
                 ENDIF
 !  - G(yzvxtu) -> SA(xzy,vtu)
-                jSYM=MUL(IASYM(iX),MUL(IASYM(iZ),IASYM(iY)))
+                jSYM=Mul(IASYM(iX),Mul(IASYM(iZ),IASYM(iY)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iX,iZ,iY)-nTUVES(jSYM)
                   ICOL=KTUV(iV,iT,iU)-nTUVES(jSYM)
@@ -2734,7 +2737,7 @@
                   INDJ(NtotELB) = ICOL
                 ENDIF
 !  - G(tuyzvx) -> SA(zut,yvx)
-                jSYM=MUL(IASYM(iZ),MUL(IASYM(iU),IASYM(iT)))
+                jSYM=Mul(IASYM(iZ),Mul(IASYM(iU),IASYM(iT)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iZ,iU,iT)-nTUVES(jSYM)
                   ICOL=KTUV(iY,iV,iX)-nTUVES(jSYM)
@@ -2745,7 +2748,7 @@
                 ENDIF
               end if
 !  - G(yztuvx) -> SA(uzy,tvx)
-              jSYM=MUL(IASYM(iU),MUL(IASYM(iZ),IASYM(iY)))
+              jSYM=Mul(IASYM(iU),Mul(IASYM(iZ),IASYM(iY)))
               IF (jSYM == iSYM) THEN
                 IROW=KTUV(iU,iZ,iY)-nTUVES(jSYM)
                 ICOL=KTUV(iT,iV,iX)-nTUVES(jSYM)
@@ -2755,7 +2758,7 @@
                 INDJ(NtotELB) = ICOL
               ENDIF
 !  - G(vxyztu) -> SA(zxv,ytu)
-              jSYM=MUL(IASYM(iZ),MUL(IASYM(iX),IASYM(iV)))
+              jSYM=Mul(IASYM(iZ),Mul(IASYM(iX),IASYM(iV)))
               IF (jSYM == iSYM) THEN
                 IROW=KTUV(iZ,iX,iV)-nTUVES(jSYM)
                 ICOL=KTUV(iY,iT,iU)-nTUVES(jSYM)
@@ -2770,7 +2773,7 @@
      &          (iX /= iV .or. iT /= iZ .or. iU /= iY) .and.
      &          (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
 !  - G(utxvzy) -> SA(vtu,xzy)
-              jSYM=MUL(IASYM(iV),MUL(IASYM(iT),IASYM(iU)))
+              jSYM=Mul(IASYM(iV),Mul(IASYM(iT),IASYM(iU)))
               IF (jSYM == iSYM) THEN
                 IROW=KTUV(iV,iT,iU)-nTUVES(jSYM)
                 ICOL=KTUV(iX,iZ,iY)-nTUVES(jSYM)
@@ -2782,7 +2785,7 @@
               if (iTU /= iVX .or. iVX /= iYZ) then
                 if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 !  - G(xvutzy) -> SA(tvx,uzy)
-                  jSYM=MUL(IASYM(iT),MUL(IASYM(iV),IASYM(iX)))
+                  jSYM=Mul(IASYM(iT),Mul(IASYM(iV),IASYM(iX)))
                   IF (jSYM == iSYM) THEN
                     IROW=KTUV(iT,iV,iX)-nTUVES(jSYM)
                     ICOL=KTUV(iU,iZ,iY)-nTUVES(jSYM)
@@ -2792,7 +2795,7 @@
                     INDJ(NtotELB) = ICOL
                   ENDIF
 !  - G(zyxvut) -> SA(vyz,xut)
-                  jSYM=MUL(IASYM(iV),MUL(IASYM(iY),IASYM(iZ)))
+                  jSYM=Mul(IASYM(iV),Mul(IASYM(iY),IASYM(iZ)))
                   IF (jSYM == iSYM) THEN
                     IROW=KTUV(iV,iY,iZ)-nTUVES(jSYM)
                     ICOL=KTUV(iX,iU,iT)-nTUVES(jSYM)
@@ -2802,7 +2805,7 @@
                     INDJ(NtotELB) = ICOL
                   ENDIF
 !  - G(utzyxv) -> SA(ytu,zxv)
-                  jSYM=MUL(IASYM(iY),MUL(IASYM(iT),IASYM(iU)))
+                  jSYM=Mul(IASYM(iY),Mul(IASYM(iT),IASYM(iU)))
                   IF (jSYM == iSYM) THEN
                     IROW=KTUV(iY,iT,iU)-nTUVES(jSYM)
                     ICOL=KTUV(iZ,iX,iV)-nTUVES(jSYM)
@@ -2813,7 +2816,7 @@
                   ENDIF
                 end if
 !  - G(zyutxv) -> SA(tyz,uxv)
-                jSYM=MUL(IASYM(iT),MUL(IASYM(iY),IASYM(iZ)))
+                jSYM=Mul(IASYM(iT),Mul(IASYM(iY),IASYM(iZ)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iT,iY,iZ)-nTUVES(jSYM)
                   ICOL=KTUV(iU,iX,iV)-nTUVES(jSYM)
@@ -2823,7 +2826,7 @@
                   INDJ(NtotELB) = ICOL
                 ENDIF
 !  - G(xvzyut) -> SA(yvx,zut)
-                jSYM=MUL(IASYM(iY),MUL(IASYM(iV),IASYM(iX)))
+                jSYM=Mul(IASYM(iY),Mul(IASYM(iV),IASYM(iX)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iY,iV,iX)-nTUVES(jSYM)
                   ICOL=KTUV(iZ,iU,iT)-nTUVES(jSYM)
@@ -3193,8 +3196,9 @@
      &                       DF1,DF2,DF3,DG1,DG2,DG3,DEPSA,
      &                       G2,SC,idxG3)
 
+      use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
-      use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
+      use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
       use Constants, only: Zero
       use definitions, only: wp, iwp, byte
 
@@ -3226,8 +3230,8 @@
         iSX=IASYM(iX)
         iSY=IASYM(iY)
         iSZ=IASYM(iZ)
-        ituvs=MUL(IST,MUL(ISU,ISV))
-        ixyzs=MUL(ISX,MUL(ISY,ISZ))
+        ituvs=Mul(IST,Mul(ISU,ISV))
+        ixyzs=Mul(ISX,Mul(ISY,ISZ))
         F3VAL=Zero
         G3VAL=Zero
         if(ituvs /= ixyzs) cycle
@@ -3237,7 +3241,7 @@
 !-SVC20100829: 12 equivalent cases, of which the second
 !  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
 !  - G(tuvxyz) -> SC(vut,xyz)
-        jSYM=MUL(IASYM(iV),MUL(IASYM(iU),IASYM(iT)))
+        jSYM=Mul(IASYM(iV),Mul(IASYM(iU),IASYM(iT)))
         IF (jSYM == iSYM) THEN
           ISUP=KTUV(iV,iU,iT)-nTUVES(jSYM)
           JSUP=KTUV(iX,iY,iZ)-nTUVES(jSYM)
@@ -3247,7 +3251,7 @@
         if (iTU /= iVX .or. iVX /= iYZ) then
           if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 !  - G(vxtuyz) -> SC(txv,uyz)
-            jSYM=MUL(IASYM(iT),MUL(IASYM(iX),IASYM(iV)))
+            jSYM=Mul(IASYM(iT),Mul(IASYM(iX),IASYM(iV)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iT,iX,iV)-nTUVES(jSYM)
               JSUP=KTUV(iU,iY,iZ)-nTUVES(jSYM)
@@ -3255,7 +3259,7 @@
               G3VAL = G3VAL + SDER(iSup,jSup)
             ENDIF
 !  - G(yzvxtu) -> SC(vzy,xtu)
-            jSYM=MUL(IASYM(iV),MUL(IASYM(iZ),IASYM(iY)))
+            jSYM=Mul(IASYM(iV),Mul(IASYM(iZ),IASYM(iY)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iV,iZ,iY)-nTUVES(jSYM)
               JSUP=KTUV(iX,iT,iU)-nTUVES(jSYM)
@@ -3263,7 +3267,7 @@
               G3VAL = G3VAL + SDER(iSup,jSup)
             ENDIF
 !  - G(tuyzvx) -> SC(yut,zvx)
-            jSYM=MUL(IASYM(iY),MUL(IASYM(iU),IASYM(iT)))
+            jSYM=Mul(IASYM(iY),Mul(IASYM(iU),IASYM(iT)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iY,iU,iT)-nTUVES(jSYM)
               JSUP=KTUV(iZ,iV,iX)-nTUVES(jSYM)
@@ -3272,7 +3276,7 @@
             ENDIF
           end if
 !  - G(yztuvx) -> SC(tzy,uvx)
-          jSYM=MUL(IASYM(iT),MUL(IASYM(iZ),IASYM(iY)))
+          jSYM=Mul(IASYM(iT),Mul(IASYM(iZ),IASYM(iY)))
           IF (jSYM == iSYM) THEN
             ISUP=KTUV(iT,iZ,iY)-nTUVES(jSYM)
             JSUP=KTUV(iU,iV,iX)-nTUVES(jSYM)
@@ -3280,7 +3284,7 @@
             G3VAL = G3VAL + SDER(iSup,jSup)
           ENDIF
 !  - G(vxyztu) -> SC(yxv,ztu)
-          jSYM=MUL(IASYM(iY),MUL(IASYM(iX),IASYM(iV)))
+          jSYM=Mul(IASYM(iY),Mul(IASYM(iX),IASYM(iV)))
           IF (jSYM == iSYM) THEN
             ISUP=KTUV(iY,iX,iV)-nTUVES(jSYM)
             JSUP=KTUV(iZ,iT,iU)-nTUVES(jSYM)
@@ -3294,7 +3298,7 @@
      &      (iX /= iV .or. iT /= iZ .or. iU /= iY) .and.
      &      (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
 !  - G(utxvzy) -> SC(xtu,vzy)
-          jSYM=MUL(IASYM(iX),MUL(IASYM(iT),IASYM(iU)))
+          jSYM=Mul(IASYM(iX),Mul(IASYM(iT),IASYM(iU)))
           IF (jSYM == iSYM) THEN
             ISUP=KTUV(iX,iT,iU)-nTUVES(jSYM)
             JSUP=KTUV(iV,iZ,iY)-nTUVES(jSYM)
@@ -3304,7 +3308,7 @@
           if (iTU /= iVX .or. iVX /= iYZ) then
             if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 !  - G(xvutzy) -> SC(uvx,tzy)
-              jSYM=MUL(IASYM(iU),MUL(IASYM(iV),IASYM(iX)))
+              jSYM=Mul(IASYM(iU),Mul(IASYM(iV),IASYM(iX)))
               IF (jSYM == iSYM) THEN
                 ISUP=KTUV(iU,iV,iX)-nTUVES(jSYM)
                 JSUP=KTUV(iT,iZ,iY)-nTUVES(jSYM)
@@ -3312,7 +3316,7 @@
                 G3VAL = G3VAL + SDER(iSup,jSup)
               ENDIF
 !  - G(zyxvut) -> SC(xyz,vut)
-              jSYM=MUL(IASYM(iX),MUL(IASYM(iY),IASYM(iZ)))
+              jSYM=Mul(IASYM(iX),Mul(IASYM(iY),IASYM(iZ)))
               IF (jSYM == iSYM) THEN
                 ISUP=KTUV(iX,iY,iZ)-nTUVES(jSYM)
                 JSUP=KTUV(iV,iU,iT)-nTUVES(jSYM)
@@ -3320,7 +3324,7 @@
                 G3VAL = G3VAL + SDER(iSup,jSup)
               ENDIF
 !  - G(utzyxv) -> SC(ztu,yxv)
-              jSYM=MUL(IASYM(iZ),MUL(IASYM(iT),IASYM(iU)))
+              jSYM=Mul(IASYM(iZ),Mul(IASYM(iT),IASYM(iU)))
               IF (jSYM == iSYM) THEN
                 ISUP=KTUV(iZ,iT,iU)-nTUVES(jSYM)
                 JSUP=KTUV(iY,iX,iV)-nTUVES(jSYM)
@@ -3329,7 +3333,7 @@
               ENDIF
             end if
 !  - G(zyutxv) -> SC(uyz,txv)
-            jSYM=MUL(IASYM(iU),MUL(IASYM(iY),IASYM(iZ)))
+            jSYM=Mul(IASYM(iU),Mul(IASYM(iY),IASYM(iZ)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iU,iY,iZ)-nTUVES(jSYM)
               JSUP=KTUV(iT,iX,iV)-nTUVES(jSYM)
@@ -3337,7 +3341,7 @@
               G3VAL = G3VAL + SDER(iSup,jSup)
             ENDIF
 !  - G(xvzyut) -> SC(zvx,yut)
-            jSYM=MUL(IASYM(iZ),MUL(IASYM(iV),IASYM(iX)))
+            jSYM=Mul(IASYM(iZ),Mul(IASYM(iV),IASYM(iX)))
             IF (jSYM == iSYM) THEN
               ISUP=KTUV(iZ,iV,iX)-nTUVES(jSYM)
               JSUP=KTUV(iY,iU,iT)-nTUVES(jSYM)
@@ -3405,11 +3409,12 @@
       SUBROUTINE CLagDXC_FG3_MPP(ISYM,lg_BDER,lg_SDER,DG1,DG2,DG3,
      &                           DF1,DF2,DF3,DEPSA,G2,idxG3)
 
+      use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
       use definitions, only: iwp,RtoB,wp,byte
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
-      use caspt2_module, only: NASHT, MUL, IASYM, EPSA, NTUVES
+      use caspt2_module, only: NASHT, IASYM, EPSA, NTUVES
       use pt2_guga, only: NG3
       use Constants, only: Zero
 
@@ -3492,8 +3497,8 @@
           iSX=IASYM(iX)
           iSY=IASYM(iY)
           iSZ=IASYM(iZ)
-          ituvs=MUL(IST,MUL(ISU,ISV))
-          ixyzs=MUL(ISX,MUL(ISY,ISZ))
+          ituvs=Mul(IST,Mul(ISU,ISV))
+          ixyzs=Mul(ISX,Mul(ISY,ISZ))
           if(ituvs == ixyzs) then
             iTU=iT+NASHT*(iU-1)
             iVX=iV+NASHT*(iX-1)
@@ -3502,7 +3507,7 @@
 !-SVC20100829: 12 equivalent cases, of which the second
 !  half reflects the S(tuv,xyz)=S(xyz,tuv) symmetry:
 !  - F(tuvxyz) -> BC(vut,xyz)
-            jSYM=MUL(IASYM(iV),MUL(IASYM(iU),IASYM(iT)))
+            jSYM=Mul(IASYM(iV),Mul(IASYM(iU),IASYM(iT)))
             IF (jSYM == iSYM) THEN
               IROW=KTUV(iV,iU,iT)-nTUVES(jSYM)
               ICOL=KTUV(iX,iY,iZ)-nTUVES(jSYM)
@@ -3514,7 +3519,7 @@
             if (iTU /= iVX .or. iVX /= iYZ) then
               if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 !  - F(vxtuyz) -> BC(txv,uyz)
-                jSYM=MUL(IASYM(iT),MUL(IASYM(iX),IASYM(iV)))
+                jSYM=Mul(IASYM(iT),Mul(IASYM(iX),IASYM(iV)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iT,iX,iV)-nTUVES(jSYM)
                   ICOL=KTUV(iU,iY,iZ)-nTUVES(jSYM)
@@ -3524,7 +3529,7 @@
                   INDJ(NtotELB) = ICOL
                 ENDIF
 !  - F(yzvxtu) -> BC(vzy,xtu)
-                jSYM=MUL(IASYM(iV),MUL(IASYM(iZ),IASYM(iY)))
+                jSYM=Mul(IASYM(iV),Mul(IASYM(iZ),IASYM(iY)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iV,iZ,iY)-nTUVES(jSYM)
                   ICOL=KTUV(iX,iT,iU)-nTUVES(jSYM)
@@ -3534,7 +3539,7 @@
                   INDJ(NtotELB) = ICOL
                 ENDIF
 !  - F(tuyzvx) -> BC(yut,zvx)
-                jSYM=MUL(IASYM(iY),MUL(IASYM(iU),IASYM(iT)))
+                jSYM=Mul(IASYM(iY),Mul(IASYM(iU),IASYM(iT)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iY,iU,iT)-nTUVES(jSYM)
                   ICOL=KTUV(iZ,iV,iX)-nTUVES(jSYM)
@@ -3545,7 +3550,7 @@
                 ENDIF
               end if
 !  - F(yztuvx) -> BC(tzy,uvx)
-              jSYM=MUL(IASYM(iT),MUL(IASYM(iZ),IASYM(iY)))
+              jSYM=Mul(IASYM(iT),Mul(IASYM(iZ),IASYM(iY)))
               IF (jSYM == iSYM) THEN
                 IROW=KTUV(iT,iZ,iY)-nTUVES(jSYM)
                 ICOL=KTUV(iU,iV,iX)-nTUVES(jSYM)
@@ -3555,7 +3560,7 @@
                 INDJ(NtotELB) = ICOL
               ENDIF
 !  - F(vxyztu) -> BC(yxv,ztu)
-              jSYM=MUL(IASYM(iY),MUL(IASYM(iX),IASYM(iV)))
+              jSYM=Mul(IASYM(iY),Mul(IASYM(iX),IASYM(iV)))
               IF (jSYM == iSYM) THEN
                 IROW=KTUV(iY,iX,iV)-nTUVES(jSYM)
                 ICOL=KTUV(iZ,iT,iU)-nTUVES(jSYM)
@@ -3570,7 +3575,7 @@
      &          (iX /= iV .or. iT /= iZ .or. iU /= iY) .and.
      &          (iZ /= iY .or. iV /= iU .or. iX /= iT)) then
 !  - F(utxvzy) -> BC(xtu,vzy)
-              jSYM=MUL(IASYM(iX),MUL(IASYM(iT),IASYM(iU)))
+              jSYM=Mul(IASYM(iX),Mul(IASYM(iT),IASYM(iU)))
               IF (jSYM == iSYM) THEN
                 IROW=KTUV(iX,iT,iU)-nTUVES(jSYM)
                 ICOL=KTUV(iV,iZ,iY)-nTUVES(jSYM)
@@ -3582,7 +3587,7 @@
               if (iTU /= iVX .or. iVX /= iYZ) then
                 if (iTU /= iVX .and. iTU /= iYZ .and. iVX /= iYZ) then
 !  - F(xvutzy) -> BC(uvx,tzy)
-                  jSYM=MUL(IASYM(iU),MUL(IASYM(iV),IASYM(iX)))
+                  jSYM=Mul(IASYM(iU),Mul(IASYM(iV),IASYM(iX)))
                   IF (jSYM == iSYM) THEN
                     IROW=KTUV(iU,iV,iX)-nTUVES(jSYM)
                     ICOL=KTUV(iT,iZ,iY)-nTUVES(jSYM)
@@ -3592,7 +3597,7 @@
                     INDJ(NtotELB) = ICOL
                   ENDIF
 !  - F(zyxvut) -> BC(xyz,vut)
-                  jSYM=MUL(IASYM(iX),MUL(IASYM(iY),IASYM(iZ)))
+                  jSYM=Mul(IASYM(iX),Mul(IASYM(iY),IASYM(iZ)))
                   IF (jSYM == iSYM) THEN
                     IROW=KTUV(iX,iY,iZ)-nTUVES(jSYM)
                     ICOL=KTUV(iV,iU,iT)-nTUVES(jSYM)
@@ -3602,7 +3607,7 @@
                     INDJ(NtotELB) = ICOL
                   ENDIF
 !  - F(utzyxv) -> BC(ztu,yxv)
-                  jSYM=MUL(IASYM(iZ),MUL(IASYM(iT),IASYM(iU)))
+                  jSYM=Mul(IASYM(iZ),Mul(IASYM(iT),IASYM(iU)))
                   IF (jSYM == iSYM) THEN
                     IROW=KTUV(iZ,iT,iU)-nTUVES(jSYM)
                     ICOL=KTUV(iY,iX,iV)-nTUVES(jSYM)
@@ -3613,7 +3618,7 @@
                   ENDIF
                 end if
 !  - F(zyutxv) -> BC(uyz,txv)
-                jSYM=MUL(IASYM(iU),MUL(IASYM(iY),IASYM(iZ)))
+                jSYM=Mul(IASYM(iU),Mul(IASYM(iY),IASYM(iZ)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iU,iY,iZ)-nTUVES(jSYM)
                   ICOL=KTUV(iT,iX,iV)-nTUVES(jSYM)
@@ -3623,7 +3628,7 @@
                   INDJ(NtotELB) = ICOL
                 ENDIF
 !  - F(xvzyut) -> BC(zvx,yut)
-                jSYM=MUL(IASYM(iZ),MUL(IASYM(iV),IASYM(iX)))
+                jSYM=Mul(IASYM(iZ),Mul(IASYM(iV),IASYM(iX)))
                 IF (jSYM == iSYM) THEN
                   IROW=KTUV(iZ,iV,iX)-nTUVES(jSYM)
                   ICOL=KTUV(iY,iU,iT)-nTUVES(jSYM)
@@ -3956,11 +3961,12 @@
 #ifdef _MOLCAS_MPP_
       Subroutine DF3_DEPSA_MPP(DF3,DEPSA,lg_S,idxG3)
 
+      use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: KTUV
       USE Para_Info, only: nProcs
       use definitions, only: wp, iwp, byte
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: NASHT, MUL, IASYM, NTUVES
+      use caspt2_module, only: NASHT, IASYM, NTUVES
       use pt2_guga, only: NG3
 
       implicit none
@@ -4000,8 +4006,8 @@
           iSX=IASYM(iX)
           iSY=IASYM(iY)
           iSZ=IASYM(iZ)
-          ituvs=MUL(IST,MUL(ISU,ISV))
-          ixyzs=MUL(ISX,MUL(ISY,ISZ))
+          ituvs=Mul(IST,Mul(ISU,ISV))
+          ixyzs=Mul(ISX,Mul(ISY,ISZ))
           if(ituvs /= ixyzs) cycle
 
           F3VAL = DF3(iG3)
@@ -4035,8 +4041,9 @@
 !
       Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2,U0)
 
+      use Symmetry_Info, only: Mul
       use caspt2_global, only:IPrGlb
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
       use caspt2_global, only: ConvInvar,SLag
       use gugx, only: SGS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
@@ -4045,7 +4052,7 @@
       use Constants, only: Zero, One, Half
       use caspt2_module, only: IFXMS, IFRMS, NSYM, STSYM, NCONF, NFRO,
      &                         NISH, NASH, NASHT, NORB, NBAS,
-     &                         NBAST, MUL, ISCF, NSTATE, NBTCH, NBTCHES
+     &                         NBAST, ISCF, NSTATE, NBTCH, NBTCHES
 !     use caspt2_module, only: NSSH
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
@@ -4075,7 +4082,7 @@
 
       Thres = ConvInvar !! 1.0d-07
 
-      If (IPRGLB >= verbose) Then
+      If (IPRGLB >= VERBOSE) Then
         Write (u6,*)
         Write (u6,'(3X,"Linear Equation for Non-Invariant CASPT2",
      &                 " (threshold =",ES9.2,")")') Thres
@@ -4185,7 +4192,7 @@
       Delta  = DeltaC
       Delta0 = Delta
 !
-      If (IPRGLB >= verbose) Write(u6,*)
+      If (IPRGLB >= VERBOSE) Write(u6,*)
      &      ' Iteration       Delta           Res(CI)        '//
      &      '  DeltaC'
       VecCIT(1:nConf,1:nState) = Zero
@@ -4223,7 +4230,7 @@
           VecCId(1:nConf,1:nState)
      &      = Beta*VecCId(1:nConf,1:nState) + VecS2(1:nConf,1:nState)
 
-          If (IPRGLB >= verbose)
+          If (IPRGLB >= VERBOSE)
      &    Write(u6,'(I7,4X,ES17.9,ES17.9,ES17.9)')
      &           iter,delta/delta0,resci,deltac
 
@@ -4238,7 +4245,7 @@
         End If
       end if
 
-      If (IPRGLB >= verbose) Then
+      If (IPRGLB >= VERBOSE) Then
         CALL TIMING(CPTF1,CPE,TIOTF1,TIOE)
         CPUT =CPTF1-CPTF0
         WALLT=TIOTF1-TIOTF0
@@ -4286,7 +4293,7 @@
       Call CnstDEPSA(VecST,VecCIT,INT1,G2,INT2)
       call mma_deallocate(G2)
 
-      If (IPRGLB >= verbose) Then
+      If (IPRGLB >= VERBOSE) Then
         CALL TIMING(CPTF2,CPE,TIOTF2,TIOE)
         CPUT =CPTF2-CPTF1
         WALLT=TIOTF2-TIOTF1
@@ -4349,7 +4356,7 @@
      &         - DDOT_(nConf,CI2,1,CLag(1,ilStat),1)
           Scal = Scal/(REFENE(jlStat)-REFENE(ilStat))
           SLag(ijst) = SLag(ijst) + Scal
-          IF (IPRGLB >= verbose) THEN
+          IF (IPRGLB >= VERBOSE) THEN
             write(u6,'(1x,"SLag for State ",i1,"-",i1," = ",f20.10)')
      &         ilstat,jlstat,slag(ijst)
           END IF
@@ -4652,8 +4659,8 @@
           ! LTU=iTask
           ISU=SGS%ISM(LU)
           IU=L2ACT(LU)
-          ISTU=MUL(IST,ISU)
-          ISSG=MUL(ISTU,STSYM)
+          ISTU=Mul(IST,ISU)
+          ISSG=Mul(ISTU,STSYM)
           NSGM=CIS%NCSF(ISSG)
           IF(NSGM == 0) cycle
           !! <CIin|Etu
@@ -4672,7 +4679,7 @@
             DO LX=1,NLEV
               LVX=LVX+1
               ISX=SGS%ISM(LX)
-              ISVX=MUL(ISV,ISX)
+              ISVX=Mul(ISV,ISX)
               ! xras=.false.
               ! if (lx > nras1(1)+nras2(1)) xras=.true.
 !             if (vras.and.xras) cycle
@@ -4906,8 +4913,7 @@
 !
       !! PRWF1_CP2
       SUBROUTINE CnstPrec(ISYCI,PRE,CI,INT1,INT2,Fancy,nLev,nMidV)
-      use gugx, only: SGS, CIS
-      use pt2_guga, only: MXLEV
+      use gugx, only: SGS, CIS, MXLEV
       use Constants, only: Two, Four
       use caspt2_module, only: NROOTS
 
@@ -4960,7 +4966,7 @@
           NCI=CIS%NOCSF(ISYUP,MV,ISYCI)
           IF(NCI == 0) cycle
           NUP=CIS%NOW(1,ISYUP,MV)
-          ISYDWN=MUL(ISYUP,ISYCI)
+          ISYDWN=Mul(ISYUP,ISYCI)
           NDWN=CIS%NOW(2,ISYDWN,MV)
           ICONF=CIS%IOCSF(ISYUP,MV,ISYCI)
           IUW0=1-NIPWLK+CIS%IOW(1,ISYUP,MV)

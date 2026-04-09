@@ -16,10 +16,10 @@ use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, MxSymQ
 use Index_Functions, only: iTri, nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use TraToc, only: ITRATOC, NTRATOC
+use Molcas, only: LenIn, MaxBfn
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
-use Molcas, only: MaxBfn, LenIn8
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)
@@ -27,7 +27,7 @@ integer(kind=iwp) :: i, iDisk, iExt, ij, ik, il, iLu1, iLu2, iopt, irc, iSmLbl, 
                      llmax, Lu_One, nBasM(MxSymQ), nBTri, nBuf1, nBuf2, nDelM(MxSymQ), nFroM(MxSymQ), nMAX, nOrbM(MxSymQ), nSize, &
                      nSymM
 real(kind=wp) :: Ecor
-character(len=LenIn8) :: NameM(maxbfn)
+character(len=LenIn+8) :: NameM(maxbfn)
 character(len=10) :: firstind
 real(kind=wp), allocatable :: AOx(:), Buff(:), Fine(:,:), MOx(:), SqAO(:,:), TEMP(:,:)
 integer(kind=iwp), external :: IsFreeUnit
@@ -50,7 +50,7 @@ call DaName(iLu1,'TRAONE')
 call DaName(iLu2,'TRAINT')
 iDisk = 0
 ! This is special utility to read header of TRAONE.
-call Wr_Motra_Info(iLu1,2,iDisk,iToc,64,Ecor,nSymM,nBasM,nOrbM,nFroM,nDelM,MxSymQ,NameM,LenIn8*maxbfn)
+call Wr_Motra_Info(iLu1,2,iDisk,iToc,64,Ecor,nSymM,nBasM,nOrbM,nFroM,nDelM,MxSymQ,NameM,(LenIn+8)*maxbfn)
 
 ! One checks.
 

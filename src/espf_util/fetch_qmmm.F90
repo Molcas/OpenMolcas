@@ -17,10 +17,10 @@ subroutine Fetch_QMMM(CastMM,nCastMM)
 use, intrinsic :: iso_c_binding, only: c_char, c_int, c_loc, c_ptr
 use espf_global, only: MMI, MMO, QM, TPRDefName
 use Isotopes, only: PTab
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten, Angstrom
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(in) :: nCastMM

@@ -41,10 +41,10 @@ use Slapaf_Info, only: Analytic_Hessian, ANr, ApproxNADC, AtomLbl, Baker, Beta, 
                        nWndw, PrQ, Q_nuclear, qInt, Redundant, RefGeo, Request_Alaska, Request_RASSI, rFuzz, rHidden, rMEP, &
                        RootMap, RtRnc, Shift, SlStop, Smmtrc, ThrCons, ThrEne, ThrGrd, ThrMEP, Track, TSConstraints, TwoRunFiles, &
                        UpMeth, User_Def, UserP, UserT, WeightedConstraints, Weights
+use Molcas, only: LenIn, MxAtom
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn, MxAtom
 
 implicit none
 real(kind=wp), intent(in) :: Modes(*), Freq(*)

@@ -30,10 +30,9 @@ implicit none
 #include "modu2_interface.fh"
 integer(kind=iwp) :: iT
 
-
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In ModU2: U2',' ',U2,nRys,mT)
-  call RecPrt(' In ModU2: ZEInv',' ',ZEInv,1,mT)
+call RecPrt(' In ModU2: U2',' ',U2,nRys,mT)
+call RecPrt(' In ModU2: ZEInv',' ',ZEInv,1,mT)
 #endif
 
 if (nRys > 1) then

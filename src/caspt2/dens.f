@@ -29,7 +29,7 @@
       use caspt2_global, only: FIMO, FIFA
       use caspt2_global, only: DREF, DMIX, CMOPT2, TORB, NDREF
       use caspt2_global, only: IDCIEX, IDTCEX
-      use PrintLevel, only: debug, verbose
+      use PrintLevel, only: DEBUG, VERBOSE
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
       use caspt2_global, only: nCLag
@@ -138,7 +138,7 @@
         CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         Call CASPT2_Res(VECROT)
         CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-        IF (IPRGLB >= verbose) THEN
+        IF (IPRGLB >= VERBOSE) THEN
           CPUT =CPTF10-CPTF0
           WALLT=TIOTF10-TIOTF0
           write(u6,'(a,2f10.2)')' Lambda  : CPU/WALL TIME=', cput,wallt
@@ -170,7 +170,7 @@
 *       write(u6,*)' DPT after TRDNS2O.'
 *       WRITE(u6,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
         CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-        IF (IPRGLB >= verbose) THEN
+        IF (IPRGLB >= VERBOSE) THEN
           CPUT =CPTF10-CPTF0
           WALLT=TIOTF10-TIOTF0
           write(u6,'(a,2f10.2)')' TRDNS2DO: CPU/WALL TIME=', cput,wallt
@@ -290,7 +290,7 @@
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           Call SIGDER(iVecX,iVecR,VECROT(jState))
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          IF (IPRGLB >= verbose) THEN
+          IF (IPRGLB >= VERBOSE) THEN
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(u6,'(a,2f10.2)')
@@ -335,13 +335,13 @@
             End Do
 !         write(u6,*) 'after'
 !         call sqprt(depsa,nasht)
-          IF (IPRGLB >= debug)
+          IF (IPRGLB >= DEBUG)
      &      write(u6,*) 'depsa (sym) after removing off-diagonal blocks'
         Else
-          IF (IPRGLB >= debug)
+          IF (IPRGLB >= DEBUG)
      &      write(u6,*) 'depsa (sym)'
         End If
-        IF (IPRGLB >= verbose) call sqprt(depsa,nasht)
+        IF (IPRGLB >= VERBOSE) call sqprt(depsa,nasht)
 
         !! Configuration Lagrangian for MS-CASPT2
         !! This is the partial derivative of the transition reduced
@@ -350,7 +350,7 @@
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           Call DerHEff(CLag,VECROT)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          IF (IPRGLB >= verbose) THEN
+          IF (IPRGLB >= VERBOSE) THEN
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(u6,'(a,2f10.2)')
@@ -479,7 +479,7 @@
             CALL OLagNS2(iSym,DPT2C,T2AO)
           End If
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          IF (IPRGLB >= verbose) THEN
+          IF (IPRGLB >= VERBOSE) THEN
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(u6,'(a,2f10.2)')
@@ -517,7 +517,7 @@
         !   write(u6,*) 'olag after vvvo'
         !   call sqprt(olag,nbast)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          IF (IPRGLB >= verbose) THEN
+          IF (IPRGLB >= VERBOSE) THEN
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(u6,'(a,2f10.2)')
@@ -740,7 +740,7 @@
           !! Restore the diagonal elements
           Call DCopy_(nAshT,DEPSA_diag,1,DEPSA,nAshT+1)
           call mma_deallocate(DEPSA_diag)
-          IF (IPRGLB >= verbose) THEN
+          IF (IPRGLB >= VERBOSE) THEN
             write(u6,*) 'DEPSA computed again'
             call sqprt(depsa,nasht)
           END IF

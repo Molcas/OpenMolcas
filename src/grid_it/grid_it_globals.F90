@@ -11,8 +11,8 @@
 
 module grid_it_globals
 
-use Definitions, only: wp, iwp
 use Molcas, only: LenIn
+use Definitions, only: wp, iwp
 
 implicit none
 private

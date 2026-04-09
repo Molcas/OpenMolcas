@@ -17,7 +17,7 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
       use caspt2_global, only: LUONEM
-      use PrintLevel, only: debug
+      use PrintLevel, only: DEBUG
       use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_set_state
@@ -65,7 +65,7 @@
         if (DMRG) then
           ! set state number here because in poly1 we have no reference
           ! to which state we are computing
-          if (iPrGlb >= debug) then
+          if (iPrGlb >= DEBUG) then
             write (6,*) 'STINI setting DMRG state number to ',
      &                   mstate(i)-1
           endif

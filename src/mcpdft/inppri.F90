@@ -16,7 +16,7 @@ subroutine InpPri_m()
 
 use Functionals, only: Print_Info
 use KSDFT_Info, only: CoefR, CoefX
-use printlevel, only: silent, terse, usual, verbose
+use PrintLevel, only: SILENT, TERSE, USUAL, VERBOSE
 use mcpdft_output, only: iPrLoc
 use Fock_util_global, only: docholesky
 use mcpdft_input, only: mcpdft_options
@@ -39,7 +39,7 @@ call Put_dScalar('DFT corr coeff',CoefR)
 
 if (mcpdft_options%extparam) call CheckFuncParam(mcpdft_options%extparamfile)
 
-if (IPRLEV == silent) return
+if (IPRLEV == SILENT) return
 
 ! Define the paper width
 lPaper = 132
@@ -48,7 +48,7 @@ left = (lPaper-len(line))/2
 write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
 write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
 
-if (iPrLev >= verbose) then
+if (iPrLev >= VERBOSE) then
   ! Print the ONEINT file identifier
   write(u6,*)
   write(u6,Fmt1) 'Header of the ONEINT file:'
@@ -64,7 +64,7 @@ if (iPrLev >= verbose) then
 
 end if
 
-if (iPrLev >= usual) then
+if (iPrLev >= USUAL) then
   ! Print orbital and wavefunction specifications
   write(u6,*)
   Line = ' '
@@ -112,7 +112,7 @@ if (iPrLev >= usual) then
 
 end if
 
-if (iPrLev >= terse) then
+if (iPrLev >= TERSE) then
   write(u6,*)
   Line = ' '
   write(Line(left-2:),'(A)') 'MCPDFT specifications:'
@@ -148,7 +148,7 @@ if (iPrLev >= terse) then
   call Funi_Print()
 end if
 
-if (iPrLev >= usual) then
+if (iPrLev >= USUAL) then
   ! Print our DFT functional specifications
   write(u6,*)
   Line = ' '

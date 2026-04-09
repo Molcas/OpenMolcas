@@ -11,14 +11,14 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
       SUBROUTINE TRACHO3(CMO,NCMO)
+      use Symmetry_Info, only: Mul
       USE CHOVEC_IO, only: NVLOC_ChoBatch, npq_ChoType, ChoVec_Save,
      &                     ChoVec_load, ChoVec_Coll
       use Cholesky, only: InfVec
       use ChoCASPT2, only: MxNVc, nChSpc, nHtSpc, NumCho_PT2, nFtSpc
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nInaBx, nSecBx, nSym, RHSDirect, nBas,
-     &                         nBtches, Mul, nFro, nIsh, nAsh, nSsh,
-     &                         nBtch
+     &                         nBtches, nFro, nIsh, nAsh, nSsh, nBtch
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "warnings.h"
@@ -117,7 +117,7 @@
 * Frozen half-transformation:
       NHTOFF=0
       DO ISYMA=1,NSYM
-       ISYMB=MUL(ISYMA,JSYM)
+       ISYMB=Mul(ISYMA,JSYM)
        IP_HTVEC(ISYMA)=IP_HTSPC+NHTOFF
        ISTART(ISYMA)=1
        NUSE(ISYMA)=NFRO(ISYMA)
@@ -134,7 +134,7 @@
 * Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
-       ISYMB=MUL(ISYMA,JSYM)
+       ISYMB=Mul(ISYMA,JSYM)
        IP_HTVEC(ISYMA)=IP_HTSPC+NHTOFF
        ISTART(ISYMA)=NFRO(ISYMA)+1
        NUSE(ISYMA)=NISH(ISYMA)
@@ -145,7 +145,7 @@
 
 * Loop over ISYQ
       DO ISYQ=1,NSYM
-       ISYP=MUL(ISYQ,JSYM)
+       ISYP=Mul(ISYQ,JSYM)
 
        N=NBAS(ISYP)
 * ---------------------------------------------------
@@ -207,7 +207,7 @@ C loop over secondary orbital index c is more efficient.
 * Symmetry block ISYMA,ISYMB is found at HTSPC(IP_HTVEC(ISYMA)
       NHTOFF=0
       DO ISYMA=1,NSYM
-       ISYMB=MUL(ISYMA,JSYM)
+       ISYMB=Mul(ISYMA,JSYM)
        IP_HTVEC(ISYMA)=IP_HTSPC+NHTOFF
        ISTART(ISYMA)=NFRO(ISYMA)+NISH(ISYMA)+1
        NUSE(ISYMA)=NASH(ISYMA)
@@ -220,7 +220,7 @@ C loop over secondary orbital index c is more efficient.
 
 
       DO ISYQ=1,NSYM
-       ISYP=MUL(ISYQ,JSYM)
+       ISYP=Mul(ISYQ,JSYM)
 
        N=NBAS(ISYP)
 * ---------------------------------------------------

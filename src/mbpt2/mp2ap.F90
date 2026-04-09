@@ -13,10 +13,10 @@ subroutine MP2Ap(iSymIA,iSymJB,AP,P)
 ! A subroutine that calculates A*p_k in the PCG-algorithm
 
 use MBPT2_Global, only: EOcc, EVir, iPoVec, mAdDel, mAdFro, mAdOcc, mAdVir
+use cOrbInf, only: nDel, nExt, nFro, nOcc, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four, Half
 use Definitions, only: wp, iwp
-use cOrbInf, only: nSym, nOrb, nDel, nOcc, nFro, nExt
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymIA, iSymJB

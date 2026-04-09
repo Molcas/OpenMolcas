@@ -22,7 +22,8 @@
       use caspt2_global, only: LUCIEX, IDTCEX
       use caspt2_module, only: nAshT, iSCF, jState, nConf, nSym, STSym,
      &                         iASym, nAes, nAshT, nAsh
-      use pt2_guga, only: MxLev, MxCI
+      use gugx, only: MxLev
+      use pt2_guga, only: MxCI
       IMPLICIT NONE
 
       INTEGER IVEC, JVEC

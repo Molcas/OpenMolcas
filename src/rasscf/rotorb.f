@@ -24,7 +24,7 @@ c
       use stdalloc, only: mma_allocate, mma_deallocate
       use gas_data, only: iDoGAS, NGAS, NGSSH
       use rasscf_global, only: PURIFY, CMAX, ROTMAX, iXSym
-      use printlevel, only: DEBUG,VERBOSE,TERSE
+      use PrintLevel, only: DEBUG,VERBOSE,TERSE
       use output_ras, only: LF,IPRLOC
       use general_data, only: NSYM,NASH,NBAS,NDEL,NFRO,NISH,NORB,NRS1,
      &                        NRS2,NSSH,NTOT2

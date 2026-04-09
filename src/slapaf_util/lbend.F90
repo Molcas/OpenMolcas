@@ -26,11 +26,10 @@ real(kind=wp) :: Bfi1, Bfi3, Bfj1, Bfj3, BRij(3,2), BRjk(3,2), Co, Crap, dBRij(3
 logical(kind=iwp) :: Linear
 real(kind=wp), external :: ArCos, ArSin
 
-
 #ifdef _DEBUGPRINT_
-  write(u6,*) 'LBend: Force ',Force
-  call RecPrt('LBend: Axis',' ',Axis,3,1)
-  call RecPrt('LBend: Perp_Axis1',' ',Perp_Axis1,3,1)
+write(u6,*) 'LBend: Force ',Force
+call RecPrt('LBend: Axis',' ',Axis,3,1)
+call RecPrt('LBend: Perp_Axis1',' ',Perp_Axis1,3,1)
 #endif
 
 uVec(:,1) = Axis(:)
@@ -44,9 +43,9 @@ xxx(3,1) = Zero
 xxx(3,2) = Zero
 xxx(3,3) = Zero
 #ifdef _DEBUGPRINT_
-  call RecPrt('Original coordinates','(3F24.12)',Cent,3,3)
-  call RecPrt('uVec',' ',uVec,3,3)
-  call RecPrt('Projected coordinates','(3F24.12)',xxx,3,3)
+call RecPrt('Original coordinates','(3F24.12)',Cent,3,3)
+call RecPrt('uVec',' ',uVec,3,3)
+call RecPrt('Projected coordinates','(3F24.12)',xxx,3,3)
 #endif
 
 ! Swap atoms to ensure the complementary angle is always Pi
@@ -86,13 +85,13 @@ end do
 Crap = sqrt(Crap)
 Linear = .true.
 #ifdef _DEBUGPRINT_
-  call RecPrt('BRij','(3F24.12)',BRij,3,2)
-  call RecPrt('BRjk','(3F24.12)',BRjk,3,2)
-  write(u6,*) ' Rij1=',Rij1
-  write(u6,*) ' Rjk1=',Rjk1
-  write(u6,*) ' Diff=',abs(ArCos(Co)-Pi)
-  write(u6,'(A,F24.16)') ' Co=',Co
-  write(u6,'(A,F24.16)') ' Crap=',Crap
+call RecPrt('BRij','(3F24.12)',BRij,3,2)
+call RecPrt('BRjk','(3F24.12)',BRjk,3,2)
+write(u6,*) ' Rij1=',Rij1
+write(u6,*) ' Rjk1=',Rjk1
+write(u6,*) ' Diff=',abs(ArCos(Co)-Pi)
+write(u6,'(A,F24.16)') ' Co=',Co
+write(u6,'(A,F24.16)') ' Crap=',Crap
 #endif
 
 ! Special care for cases close to linearity
@@ -300,8 +299,8 @@ if (Middle /= 2) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt('Bf',' ',Bf,3,nCent)
-  if (ldB) call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
+call RecPrt('Bf',' ',Bf,3,nCent)
+if (ldB) call RecPrt('dBf',' ',dBf,3*nCent,3*nCent)
 #endif
 
 end subroutine LBend

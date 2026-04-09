@@ -34,9 +34,9 @@ subroutine Freeze(TrMat,nTrMat,OneHam,mBT)
 
 use Index_Functions, only: nTri_Elem
 use InfSCF, only: nBas, nBT, nFro, nOrb, nSym
+use Molcas, only: MxBas, MxSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use Molcas, only: MxSym, MxBas
 
 implicit none
 integer(kind=iwp), intent(in) :: nTrMat, mBT

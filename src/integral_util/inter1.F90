@@ -14,8 +14,8 @@ subroutine inter1(Label,iBas_Lab,Coor,ZNUC,N_Cent)
 use Basis_Info, only: DBSC, nCnttp
 use Center_Info, only: DC
 use Symmetry_Info, only: nIrrep
-use Definitions, only: wp, iwp
 use Molcas, only: LenIn
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 

@@ -14,13 +14,14 @@
 
 subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
 
+   use Symmetry_Info, only: Mul
    use stdalloc, only: mma_allocate, mma_deallocate
    use qcmaquis_interface
    use definitions, only: wp, iwp, i1, u6
    use printLevel, only: verbose
    use gugx, only: SGS
    use caspt2_global, only: iPrGlb
-   use caspt2_module, only: nAshT, jState, EPSA, Mul
+   use caspt2_module, only: nAshT, jState, EPSA
       use pt2_guga, only: nG3
 
    implicit none
@@ -73,7 +74,7 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    if (iff > 0) then
       do t = 1, nasht
          do u = 1, t
-            if (mul(SGS%ism(t), SGS%ism(u)) == 1) then
+            if (Mul(SGS%ism(t), SGS%ism(u)) == 1) then
                do w = 1, nasht
                   F1(t, u) = F1(t, u) + G2(t, u, w, w)*epsa(w)
                end do
@@ -88,7 +89,7 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
          do u = 1, nasht
             do v = 1, nasht
                do x = 1, nasht
-                  if (mul(SGS%ism(x), mul(SGS%ism(v), mul(SGS%ism(u), SGS%ism(t)))) == 1) then
+                  if (Mul(SGS%ism(x), Mul(SGS%ism(v), Mul(SGS%ism(u), SGS%ism(t)))) == 1) then
                      do w = 1, nasht
                         F2(t, u, v, x) = F2(t, u, v, x) + G3tmp(t, v, w, u, x, w)*epsa(w)
                      end do

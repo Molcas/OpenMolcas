@@ -36,8 +36,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iBeta, iCar, iCmp, iDCRT(0:7), iIrrep, iM2xp, ipA, ipAxyz, ipB, ipBxyz, ipK, ipPx, ipPy, ipPz, &
-                     ipQxyz, ipRxyz, ipZ, iStrt, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, lDCRT, LmbdT, &
-                     lOp(4), mGrad, mVec, nDAO, nDCRT, nDisp, nip
+                     ipQxyz, ipRxyz, ipZ, iStrt, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, lDCRT, LmbdT, lOp(4), mGrad, &
+                     mVec, nDAO, nDCRT, nDisp, nip
 real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
 logical(kind=iwp) :: ABeq(3), JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr
@@ -83,13 +83,13 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In M2Grd: A',' ',A,1,3)
-  call RecPrt(' In M2Grd: RB',' ',RB,1,3)
-  call RecPrt(' In M2Grd: Ccoor',' ',Ccoor,1,3)
-  call RecPrt(' In M2Grd: Kappa',' ',rKappa,nAlpha,nBeta)
-  call RecPrt(' In M2Grd: Zeta',' ',Zeta,nAlpha,nBeta)
-  call RecPrt(' In M2Grd: P',' ',P,nZeta,3)
-  write(u6,*) ' In M2Grd: la,lb,nHer=',la,lb,nHer
+call RecPrt(' In M2Grd: A',' ',A,1,3)
+call RecPrt(' In M2Grd: RB',' ',RB,1,3)
+call RecPrt(' In M2Grd: Ccoor',' ',Ccoor,1,3)
+call RecPrt(' In M2Grd: Kappa',' ',rKappa,nAlpha,nBeta)
+call RecPrt(' In M2Grd: Zeta',' ',Zeta,nAlpha,nBeta)
+call RecPrt(' In M2Grd: P',' ',P,nZeta,3)
+write(u6,*) ' In M2Grd: la,lb,nHer=',la,lb,nHer
 #endif
 
 iStrt = ipA
@@ -195,11 +195,11 @@ do kCnttp=1,nCnttp
           Array(ipPz+iZeta-1) = (Zeta(iZeta)*P(iZeta,3)+Gmma*TC(3))/Tmp0
         end do
 #       ifdef _DEBUGPRINT_
-          write(u6,*) ' The modified basis set'
-          call RecPrt(' In M2Grd: Kappa',' ',Array(ipK),nAlpha,nBeta)
-          call RecPrt(' In M2Grd: Zeta',' ',Array(ipZ),nAlpha,nBeta)
-          call RecPrt(' In M2Grd: P',' ',Array(ipPx),nZeta,3)
-          call RecPrt(' In M2Grd: TC',' ',TC,1,3)
+        write(u6,*) ' The modified basis set'
+        call RecPrt(' In M2Grd: Kappa',' ',Array(ipK),nAlpha,nBeta)
+        call RecPrt(' In M2Grd: Zeta',' ',Array(ipZ),nAlpha,nBeta)
+        call RecPrt(' In M2Grd: P',' ',Array(ipPx),nZeta,3)
+        call RecPrt(' In M2Grd: TC',' ',TC,1,3)
 #       endif
 
         ! Compute the cartesian values of the basis functions

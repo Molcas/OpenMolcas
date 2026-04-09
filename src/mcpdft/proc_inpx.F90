@@ -14,7 +14,7 @@ subroutine Proc_InpX(DSCF,iRc)
 use Index_Functions, only: nTri_Elem
 use Fock_util_global, only: DoCholesky
 use Cholesky, only: ChFracMem
-use printlevel, only: debug, insane, terse
+use PrintLevel, only: DEBUG, INSANE, TERSE
 use mcpdft_input, only: mcpdft_options
 use mcpdft_output, only: iPrLoc
 use rasscf_global, only: IPT2, iRoot, lRoots, NAC, NACPAR, NACPR2, NFR, NIN, NO2M, NORBT, NROOTS, NSEC, nTot3, nTot4, Weight
@@ -25,9 +25,9 @@ use rctfld_module, only: lrf
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+use Molcas, only: LenIn, MxOrb, MxRoot, MxSym
+use RASDim, only: MxTit
 use Definitions, only: wp, iwp, u6
-!use rasdim, only: MxTit, LenIn8, MxRoot, MxSym
-use rasdim
 
 implicit none
 logical(kind=iwp), intent(in) :: dscf
@@ -36,11 +36,11 @@ integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: i, iad19, IADR19(15), iorbdata, iprlev, isym, ndiff
 real(kind=wp) :: potnucdummy
 logical(kind=iwp) :: DBG, keyjobi, lExists, RunFile_Exists
-character(len=LenIn8*mxOrb) :: lJobH1
+character(len=(LenIn+8)*mxOrb) :: lJobH1
 character(len=72) :: JobTit(mxTit), ReadStatus
 character(len=2*72) :: lJobH2
 #ifdef _HDF5_
-integer(kind=iwp) :: mh5id, NBAS_L(8), nsym_l
+integer(kind=iwp) :: mh5id, NBAS_L(MxSym), nsym_l
 character, allocatable :: typestring(:)
 #endif
 integer(kind=iwp), external :: isFreeUnit
@@ -211,15 +211,15 @@ if (mcpdft_options%is_hdf5_wfn) then
 # endif
 end if
 
-iprlev = insane
+iprlev = INSANE
 
 !> read orbital space data AND CI optimiation parameters from JOBIPH
 if (IORBDATA == 0) then
   IAD19 = 0
   call IDaFile(JOBIPH,2,IADR19,10,IAD19)
   iAd19 = iAdr19(1)
-  call WR_RASSCF_Info(JobIPH,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,mxSym,lJobH1,LENIN8*mxOrb,NCONF,lJobH2,2*72, &
-                      JobTit,4*18*mxTit,POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
+  call WR_RASSCF_Info(JobIPH,2,iAd19,NACTEL,ISPIN,NSYM,STSYM,NFRO,NISH,NASH,NDEL,NBAS,mxSym,lJobH1,(LenIn+8)*mxOrb,NCONF,lJobH2, &
+                      2*72,JobTit,4*18*mxTit,POTNUCDUMMY,LROOTS,NROOTS,IROOT,mxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
 end if  !> IORBDATA
 
 !> read CI optimization parameters from HDF5 file

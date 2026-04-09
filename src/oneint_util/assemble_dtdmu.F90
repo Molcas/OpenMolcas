@@ -40,31 +40,30 @@ real(kind=wp) :: xyTmp, xzTmp, yxTmp, yzTmp, zxTmp, zyTmp
 integer(kind=iwp) :: ia, ib, ib_max, iComp
 character(len=80) :: Label
 
-
 !Fact = -1.0e6_wp*Half/c_in_au**2
-  write(u6,*) ' In Assemble_dTdmu la,lb=',la,lb
-  do ia=1,nTri_Elem1(la)
-    do ib=1,nTri_Elem1(lb+1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
-      call RecPrt(Label,' ',Elalbp(:,ia,ib,1),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',y)'
-      call RecPrt(Label,' ',Elalbp(:,ia,ib,2),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',z)'
-      call RecPrt(Label,' ',Elalbp(:,ia,ib,3),nZeta,1)
-    end do
+write(u6,*) ' In Assemble_dTdmu la,lb=',la,lb
+do ia=1,nTri_Elem1(la)
+  do ib=1,nTri_Elem1(lb+1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',x)'
+    call RecPrt(Label,' ',Elalbp(:,ia,ib,1),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',y)'
+    call RecPrt(Label,' ',Elalbp(:,ia,ib,2),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbp(',ia,',',ib,',z)'
+    call RecPrt(Label,' ',Elalbp(:,ia,ib,3),nZeta,1)
   end do
-  do ia=1,nTri_Elem1(la)
-    ib_max = nTri_Elem1(lb-1)
-    if (lb == 0) ib_max = 0
-    do ib=1,ib_max
-      write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',x)'
-      call RecPrt(Label,' ',Elalbm(:,ia,ib,1),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',y)'
-      call RecPrt(Label,' ',Elalbm(:,ia,ib,2),nZeta,1)
-      write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',z)'
-      call RecPrt(Label,' ',Elalbm(:,ia,ib,3),nZeta,1)
-    end do
+end do
+do ia=1,nTri_Elem1(la)
+  ib_max = nTri_Elem1(lb-1)
+  if (lb == 0) ib_max = 0
+  do ib=1,ib_max
+    write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',x)'
+    call RecPrt(Label,' ',Elalbm(:,ia,ib,1),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',y)'
+    call RecPrt(Label,' ',Elalbm(:,ia,ib,2),nZeta,1)
+    write(Label,'(A,I2,A,I2,A)') ' Elalbm(',ia,',',ib,',z)'
+    call RecPrt(Label,' ',Elalbm(:,ia,ib,3),nZeta,1)
   end do
+end do
 #endif
 
 do ixa=la,0,-1
@@ -108,10 +107,10 @@ do ixa=la,0,-1
 end do
 
 #ifdef _DEBUGPRINT_
-  do iComp=1,3
-    write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
-    call RecPrt(Label,' ',rFinal(:,:,:,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-  end do
+do iComp=1,3
+  write(Label,'(A,I2,A)') ' rFinal (',iComp,') '
+  call RecPrt(Label,' ',rFinal(:,:,:,iComp),nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+end do
 #endif
 
 end subroutine Assemble_dTdmu

@@ -67,10 +67,10 @@ integer(kind=iwp) :: iBin, iOpt, iUt, next
 !----------------------------------------------------------------------*
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) ' >>> Enter SORT1A <<<'
-  call dVcPrt('nSqNum',' ',nSqNum,nUt)
-  call dVcPrt('nSyBlk',' ',nSyBlk,nUt)
-  call dVcPrt('vInt',' ',vInt,nUt)
+write(u6,*) ' >>> Enter SORT1A <<<'
+call dVcPrt('nSqNum',' ',nSqNum,nUt)
+call dVcPrt('nSyBlk',' ',nSyBlk,nUt)
+call dVcPrt('vInt',' ',vInt,nUt)
 #endif
 
 if (RAMD%act) then

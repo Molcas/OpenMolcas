@@ -12,10 +12,10 @@
 subroutine CoSys(Cent,R,xyz)
 
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
 #ifdef _DEBUGPRINT_
 use Constants, only: Pi
 #endif
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: Cent(3,3)
@@ -25,8 +25,8 @@ real(kind=wp) :: Co, Crap, r11, r12, r2, R21j, R21k, R23j, R23k, RR, RR1, RR2, S
 logical(kind=iwp) :: Linear, Retry
 real(kind=wp), parameter :: ThrAcos = 1.0e-6_wp
 #ifdef _DEBUGPRINT_
-real(kind=wp), external :: ArCos, ArSin
 real(kind=wp) :: Fi
+real(kind=wp), external :: ArCos, ArSin
 
 call RecPrt('CoSys: Cent',' ',Cent,3,3)
 #endif
@@ -50,18 +50,18 @@ do i=1,3
 end do
 Crap = sqrt(Crap)
 #ifdef _DEBUGPRINT_
-  write(u6,*) 'Co=',Co
-  write(u6,*) 'Crap=',Crap
+write(u6,*) 'Co=',Co
+write(u6,*) 'Crap=',Crap
 #endif
 if (Crap < 1.0e-6_wp) then
   Si = Crap
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   if (Co < Zero) then
     Fi = Pi-ArSin(Si)
   else
     Fi = ArSin(Si)
   end if
-#endif
+# endif
 else
   if ((Co > One) .and. (Co < One+ThrAcos)) Co = One
   if ((Co < -One) .and. (Co > -One-ThrAcos)) Co = -One
@@ -71,13 +71,13 @@ else
     call Abend()
   end if
   Si = sqrt(One-Co**2)
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   Fi = ArCos(Co)
-#endif
+# endif
 end if
 #ifdef _DEBUGPRINT_
-  write(u6,*) 'Fi,Pi=',Fi,Pi
-  write(u6,*) 'Pi-Fi=',Pi-Fi
+write(u6,*) 'Fi,Pi=',Fi,Pi
+write(u6,*) 'Pi-Fi=',Pi-Fi
 #endif
 
 Linear = abs(Si) < 1.0e-13_wp
@@ -96,9 +96,9 @@ end if
 R(:) = R(:)/RR
 
 #ifdef _DEBUGPRINT_
-  write(u6,*) 'Linear=',Linear
-  write(u6,*) 'RR=',RR
-  call RecPrt('R',' ',R,3,1)
+write(u6,*) 'Linear=',Linear
+write(u6,*) 'RR=',RR
+call RecPrt('R',' ',R,3,1)
 #endif
 
 Retry = .true.
@@ -202,8 +202,8 @@ do while (Retry)
       end do
       xyz(:,1) = xyz(:,1)/sqrt(RR)
 #     ifdef _DEBUGPRINT_
-        write(u6,*) 'RR=',RR
-        call RecPrt('xyz',' ',xyz,3,2)
+      write(u6,*) 'RR=',RR
+      call RecPrt('xyz',' ',xyz,3,2)
 #     endif
     end if
 
@@ -211,8 +211,8 @@ do while (Retry)
 end do
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' Reference Axis',' ',R,3,1)
-  call RecPrt(' Perpendicular Axes',' ',xyz,3,2)
+call RecPrt(' Reference Axis',' ',R,3,1)
+call RecPrt(' Perpendicular Axes',' ',xyz,3,2)
 #endif
 
 end subroutine CoSys

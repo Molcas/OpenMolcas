@@ -22,7 +22,8 @@ subroutine expbas(ireturn)
 !                                                                      *
 !***********************************************************************
 
-use info_expbas_mod, only: EB_FileOrb, LenIn, n_orb_kinds, nBas1, nBas2, nSym1, nSym2
+use Molcas, only: LenIn
+use info_expbas_mod, only: EB_FileOrb, n_orb_kinds, nBas1, nBas2, nSym1, nSym2
 #ifdef _HDF5_
 use info_expbas_mod, only: wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 use mh5, only: mh5_close_file, mh5_is_hdf5, mh5_open_file_r, mh5_put_dset

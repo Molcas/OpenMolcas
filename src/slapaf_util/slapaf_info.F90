@@ -13,10 +13,10 @@
 
 module Slapaf_Info
 
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn
 
 implicit none
 private

@@ -41,16 +41,16 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, ia, iaC, iAng, ib, iC, iCar, iCb, iCent, iCmp, iDCRT(0:7), iGamma, iIrrep, ip, ipA, ipaC, ipAxyz, ipB, &
-                     ipBxyz, ipC, ipCb, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipK1, ipK2, ipP1, ipP2, ipQ1, ipRxyz, ipTmp, &
-                     ipZ1, ipZ2, ipZI1, ipZI2, iShll, iStrt, iuvwx(4), j, JndGrd(3,4), kCnt, kCnttp, kdc, ld, lDCRT, &
-                     LmbdT, lOp(4), mGrad, mVec, mVecAC, mVecCB, nac, ncb, nDAO, nDCRT, nDisp, nExpi, n_Her, nVecAC, nVecCB
+                     ipBxyz, ipC, ipCb, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipK1, ipK2, ipP1, ipP2, ipQ1, ipRxyz, ipTmp, ipZ1, ipZ2, &
+                     ipZI1, ipZI2, iShll, iStrt, iuvwx(4), j, JndGrd(3,4), kCnt, kCnttp, kdc, ld, lDCRT, LmbdT, lOp(4), mGrad, &
+                     mVec, mVecAC, mVecCB, nac, ncb, nDAO, nDCRT, nDisp, nExpi, n_Her, nVecAC, nVecCB
 real(kind=wp) :: C(3), Fact, TC(3)
 logical(kind=iwp) :: ABeq(3), JfGrad(3,4)
 logical(kind=iwp), external :: EQ, TF
 #ifdef _DEBUGPRINT_
-real(kind=wp), external :: DNrm2_
 integer(kind=iwp) :: iVec
 character(len=80) :: Label
+real(kind=wp), external :: DNrm2_
 #endif
 
 #include "macros.fh"
@@ -59,13 +59,12 @@ unused_var(ZInv)
 unused_var(rKappa)
 unused_var(nHer)
 
-
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In SROGrd: A',' ',A,1,3)
-  call RecPrt(' In SROGrd: RB',' ',RB,1,3)
-  call RecPrt(' In SROGrd: Ccoor',' ',Ccoor,1,3)
-  call RecPrt(' In SROGrd: P',' ',P,nZeta,3)
-  write(u6,*) ' In SROGrd: la,lb=',' ',la,lb
+call RecPrt(' In SROGrd: A',' ',A,1,3)
+call RecPrt(' In SROGrd: RB',' ',RB,1,3)
+call RecPrt(' In SROGrd: Ccoor',' ',Ccoor,1,3)
+call RecPrt(' In SROGrd: P',' ',P,nZeta,3)
+write(u6,*) ' In SROGrd: la,lb=',' ',la,lb
 #else
 unused_var(P)
 #endif
@@ -204,9 +203,9 @@ do kCnttp=1,nCnttp
         ABeq(3) = .false.
         call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(n_Her)),n_Her,ABeq)
 #       ifdef _DEBUGPRINT_
-          write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*nExpi*3*n_Her*(la+2),Array(ipAxyz),1)
-          write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*nExpi*3*n_Her*(iAng+1),Array(ipCxyz),1)
-          write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*nExpi*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
+        write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*nExpi*3*n_Her*(la+2),Array(ipAxyz),1)
+        write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*nExpi*3*n_Her*(iAng+1),Array(ipCxyz),1)
+        write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*nExpi*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
 #       endif
         call Assmbl(Array(ipQ1),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*nExpi,HerW(iHerW(n_Her)),n_Her)
         iStrt = ipA
@@ -215,14 +214,14 @@ do kCnttp=1,nCnttp
           iStrt = iStrt+nAlpha
         end do
 #       ifdef _DEBUGPRINT_
-          write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
+        write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
 #       endif
         call rKappa_Zeta(Array(ipK1),Array(ipZ1),nExpi*nAlpha)
         ld = 1
         call CmbnAC(Array(ipQ1),nAlpha*nExpi,la,iAng,Array(ipK1),Array(ipF1),Array(ipA),JfGrad(1,1),ld,nVecAC)
 #       ifdef _DEBUGPRINT_
-          write(u6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*nExpi*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
-          write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
+        write(u6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*nExpi*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
+        write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
 #       endif
         ip = ip-nAlpha*nExpi*(6+3*n_Her*(la+2)+3*n_Her*(iAng+1)+3*n_Her*(nOrdOp+1)+3*(la+2)*(iAng+1)*(nOrdOp+1)+1)
 
@@ -274,9 +273,9 @@ do kCnttp=1,nCnttp
         ABeq(3) = .false.
         call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(n_Her)),n_Her,ABeq)
 #       ifdef _DEBUGPRINT_
-          write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*nExpi*3*n_Her*(iAng+1),Array(ipCxyz),1)
-          write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*nExpi*3*n_Her*(lb+2),Array(ipBxyz),1)
-          write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*nExpi*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
+        write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*nExpi*3*n_Her*(iAng+1),Array(ipCxyz),1)
+        write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*nExpi*3*n_Her*(lb+2),Array(ipBxyz),1)
+        write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*nExpi*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
 #       endif
         call Assmbl(Array(ipQ1),Array(ipCxyz),iAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,nExpi*nBeta,HerW(iHerW(n_Her)),n_Her)
         iStrt = ipB
@@ -285,14 +284,14 @@ do kCnttp=1,nCnttp
           iStrt = iStrt+1
         end do
 #       ifdef _DEBUGPRINT_
-          write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
+        write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
 #       endif
         call rKappa_Zeta(Array(ipK2),Array(ipZ2),nExpi*nBeta)
         ld = 1
         call CmbnCB(Array(ipQ1),nExpi*nBeta,iAng,lb,Array(ipK2),Array(ipF2),Array(ipB),JfGrad(1,2),ld,nVecCB)
 #       ifdef _DEBUGPRINT_
-          write(u6,*) ' Array(ipQ1)=',DNrm2_(nExpi*nBeta*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
-          write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
+        write(u6,*) ' Array(ipQ1)=',DNrm2_(nExpi*nBeta*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
+        write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
 #       endif
         ip = ip-nBeta*nExpi*(6+3*n_Her*(lb+2)+3*n_Her*(iAng+1)+3*n_Her*(nOrdOp+1)+3*(lb+2)*(iAng+1)*(nOrdOp+1)+1)
         nac = nTri_Elem1(la)*nTri_Elem1(iAng)*nVecAC
@@ -394,8 +393,8 @@ do kCnttp=1,nCnttp
                     ipCb = (iCb-1)*nExpi*nBeta+ipF2a
 
 #                   ifdef _DEBUGPRINT_
-                      call RecPrt('<ia|iC>',' ',Array(ipaC),nAlpha,nExpi)
-                      call RecPrt('<iC|ib>',' ',Array(ipCb),nExpi,nBeta)
+                    call RecPrt('<ia|iC>',' ',Array(ipaC),nAlpha,nExpi)
+                    call RecPrt('<iC|ib>',' ',Array(ipCb),nExpi,nBeta)
 #                   endif
 
                     call DGEMM_('N','N',nAlpha,nExpi,nExpi,One,Array(ipaC),nAlpha,Array(ipC),nExpi,Zero,Array(ipTmp),nAlpha)
@@ -411,18 +410,18 @@ do kCnttp=1,nCnttp
         end do
 
 #       ifdef _DEBUGPRINT_
-          do iVec=1,mVec
-            write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal(:,:,:,1,iVec),1))
-          end do
-          write(u6,*) ' Result in SROGrd'
-          do ia=1,nTri_Elem1(la)
-            do ib=1,nTri_Elem1(lb)
-              do iVec=1,mVec
-                write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
-                call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
-              end do
+        do iVec=1,mVec
+          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal(:,:,:,1,iVec),1))
+        end do
+        write(u6,*) ' Result in SROGrd'
+        do ia=1,nTri_Elem1(la)
+          do ib=1,nTri_Elem1(lb)
+            do iVec=1,mVec
+              write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
+              call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
             end do
           end do
+        end do
 #       endif
 
         ! Distribute contributions to the gradient

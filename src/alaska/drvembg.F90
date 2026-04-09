@@ -37,9 +37,9 @@ use Symmetry_Info, only: nIrrep
 use Para_Info, only: King
 use OFembed, only: OFE_KSDFT
 use nq_Info, only: Grid_Type, Moving_Grid
+use PrintLevel, only: nPrint
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

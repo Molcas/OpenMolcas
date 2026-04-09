@@ -25,10 +25,10 @@ subroutine DefInt(nBVct,BMtrx,nQQ,nAtom,rInt,Lbl,Coor,nDim)
 !***********************************************************************
 
 use Slapaf_Info, only: AtomLbl, iRow, Redundant
+use PrintLevel, only: nPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, Pi
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint
 
 implicit none
 integer(kind=iwp), intent(in) :: nBVct, nQQ, nAtom, nDim

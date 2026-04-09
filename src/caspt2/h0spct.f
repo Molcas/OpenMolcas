@@ -13,7 +13,7 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only:dnmThr,cntThr,cmpThr
       use caspt2_global, only:LUSBT
-      use PrintLevel, only: verbose
+      use PrintLevel, only: VERBOSE
 #ifdef _MOLCAS_MPP_
       use allgather_wrapper, only : allgather_R, allgather_I
       USE Para_Info, ONLY: Is_Real_Par

@@ -15,9 +15,9 @@ subroutine Angle_List(nq,nsAtom,iIter,nIter,Cx,Process,Valu,nB,qLbl,iRef,fconst,
 use Symmetry_Info, only: iOper, nIrrep
 use Slapaf_Info, only: ANr, AtomLbl, Fragments_Bond, jStab, Magic_Bond, nStab, vdW_Bond
 use ddvdt, only: A_Bend, aAV, f_Const_Min, rAV, rkf
+use Molcas, only: LenIn
 use Constants, only: Zero, One, Two, Pi, deg2rad
 use Definitions, only: wp, iwp
-use Molcas, only: LenIn4
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -41,7 +41,7 @@ integer(kind=iwp) :: i
 real(kind=wp) :: A(3,3), Alpha, Axis(3), BB, Deg, delta, f_Const, f_Const_Ref, Fact, Grad(mB), Grad_Ref(9), Hess(mB**2), &
                  Perp_Axis(3,2), Prv(3,3), r0, Ref(3,3), rim2, rim2_Ref, rmj2, rmj2_Ref, Val, Val_Ref
 logical(kind=iwp) :: Help, MinBas
-character(len=LenIn4) :: Lbls(3)
+character(len=LenIn+4) :: Lbls(3)
 character(len=14) :: Label
 integer(kind=iwp), parameter :: iChOp(0:7) = [1,1,1,2,1,2,2,3]
 character(len=*), parameter :: ChOp(0:7) = ['E  ','X  ','Y  ','XY ','Z  ','XZ ','YZ ','XYZ']

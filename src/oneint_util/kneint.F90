@@ -33,8 +33,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-integer(kind=iwp) :: iBeta, icop, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipDi, ipqC, ipQxyz, ipRnr, ipRxyz, ipTxyz, &
-                     lsum, nip
+integer(kind=iwp) :: iBeta, icop, ipA, ipAOff, ipAxyz, ipB, ipBOff, ipBxyz, ipDi, ipqC, ipQxyz, ipRnr, ipRxyz, ipTxyz, lsum, nip
 logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
@@ -88,11 +87,11 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In KnEInt: A',' ',A,1,3)
-  call RecPrt(' In KnEInt: RB',' ',RB,1,3)
-  call RecPrt(' In KnEInt: CoorO',' ',CoorO,1,3)
-  call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
-  write(u6,*) ' In KnEInt: la,lb=',la,lb
+call RecPrt(' In KnEInt: A',' ',A,1,3)
+call RecPrt(' In KnEInt: RB',' ',RB,1,3)
+call RecPrt(' In KnEInt: CoorO',' ',CoorO,1,3)
+call RecPrt(' In KnEInt: P',' ',P,nZeta,3)
+write(u6,*) ' In KnEInt: la,lb=',la,lb
 #endif
 
 if (RMat_type_integrals) then

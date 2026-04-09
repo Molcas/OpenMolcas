@@ -24,8 +24,8 @@ subroutine FCOOR(LUT,COOR)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
-use Definitions, only: wp, iwp
 use Molcas, only: LenIn
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: LUT

@@ -63,11 +63,11 @@ if (nip-1 > nArr*nZeta) then
 end if
 
 #ifdef _DEBUGPRINT_
-  call RecPrt(' In CntInt: A',' ',A,1,3)
-  call RecPrt(' In CntInt: RB',' ',RB,1,3)
-  call RecPrt(' In CntInt: CoorO',' ',CoorO,1,3)
-  call RecPrt(' In CntInt: P',' ',P,nZeta,3)
-  write(u6,*) ' In CntInt: la,lb=',la,lb
+call RecPrt(' In CntInt: A',' ',A,1,3)
+call RecPrt(' In CntInt: RB',' ',RB,1,3)
+call RecPrt(' In CntInt: CoorO',' ',CoorO,1,3)
+call RecPrt(' In CntInt: P',' ',P,nZeta,3)
+write(u6,*) ' In CntInt: la,lb=',la,lb
 #endif
 
 ! Compute the contact terms.
@@ -76,14 +76,14 @@ call Contact(Zeta,P,nZeta,A,Array(ipAxyz),la,RB,Array(ipBxyz),lb,CoorO,lOper,iCh
              rKappa)
 
 #ifdef _DEBUGPRINT_
-  do iIC=1,nIC
-    do ia=1,nTri_Elem1(la)
-      do ib=1,nTri_Elem1(lb)
-        write(Label,'(A,I2,A,I2,A)') 'Contact term(',ia,',',ib,')'
-        call RecPrt(Label,' ',rFinal(:,ia,ib,iIC),1,nZeta)
-      end do
+do iIC=1,nIC
+  do ia=1,nTri_Elem1(la)
+    do ib=1,nTri_Elem1(lb)
+      write(Label,'(A,I2,A,I2,A)') 'Contact term(',ia,',',ib,')'
+      call RecPrt(Label,' ',rFinal(:,ia,ib,iIC),1,nZeta)
     end do
   end do
+end do
 #endif
 
 end subroutine CntInt

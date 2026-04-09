@@ -19,10 +19,10 @@ use Para_Info, only: MyRank, nProcs, Set_Do_Parallel
 use Para_Info, only: King
 #endif
 use spool, only: disable_spool, LuWr
+use Molcas, only: LenIn
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
-use Molcas, only: LenIn
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn

@@ -22,7 +22,7 @@
 ************************************************************************
       use definitions, only: iwp
       use caspt2_global, only:iPrGlb
-      use PrintLevel, only: silent
+      use PrintLevel, only: SILENT
       use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3,
      &                       LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS,
      &                       LUH0T, LUSOLV, LUSBT

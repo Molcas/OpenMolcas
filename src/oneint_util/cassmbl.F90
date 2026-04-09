@@ -34,11 +34,11 @@ integer(kind=iwp) :: ia, ib, iHer
 #ifdef _DEBUGPRINT_
 character(len=80) :: Label
 
-  call RecPrt(' In CAssmbl:HerW',' ',HerW,1,nHer)
-  call CRecPrt(' In CAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1),'R')
-  call CRecPrt(' In CAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1),'I')
-  call CRecPrt(' In CAssmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1),'R')
-  call CRecPrt(' In CAssmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1),'I')
+call RecPrt(' In CAssmbl:HerW',' ',HerW,1,nHer)
+call CRecPrt(' In CAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1),'R')
+call CRecPrt(' In CAssmbl:Axyz',' ',Axyz,nZeta*3,nHer*(la+1),'I')
+call CRecPrt(' In CAssmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1),'R')
+call CRecPrt(' In CAssmbl:Bxyz',' ',Bxyz,nZeta*3,nHer*(lb+1),'I')
 #endif
 
 ! Initialize to zero
@@ -57,9 +57,9 @@ do ia=0,la
     end do
 
 #   ifdef _DEBUGPRINT_
-      write(Label,'(A,I2,A,I2,A)') ' In CAssmbl: Rnxyz(',ia,',',ib,')'
-      call CRecPrt(Label,' ',Rnxyz(:,ia,ib),nZeta,3,'R')
-      call CRecPrt(Label,' ',Rnxyz(:,ia,ib),nZeta,3,'I')
+    write(Label,'(A,I2,A,I2,A)') ' In CAssmbl: Rnxyz(',ia,',',ib,')'
+    call CRecPrt(Label,' ',Rnxyz(:,ia,ib),nZeta,3,'R')
+    call CRecPrt(Label,' ',Rnxyz(:,ia,ib),nZeta,3,'I')
 #   endif
   end do
 end do
