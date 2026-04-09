@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
+
 subroutine caspt2_grad_invaria1(DPT2)
 !
 ! Put zero to wrong (incomplete) density matrix elements
@@ -16,14 +16,14 @@ subroutine caspt2_grad_invaria1(DPT2)
   use Constants, only: Zero
   use definitions, only: iwp,wp
   use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOrb
-!
+
   implicit none
-!
+
   real(kind=wp), intent(inout) :: DPT2(*)
-  integer(kind=iwp) :: IOFDIJ(8),IOFDAB(8)
-!
-  integer(kind=iwp) :: idij,is,ni,na,ns,no,idtu,idab,isym,ii,ij,ia,ib
-!
+  integer(kind=iwp) :: IOFDIJ(8), IOFDAB(8)
+
+  integer(kind=iwp) :: idij, is, ni, na, ns, no, idtu, idab, isym, ii, ij, ia, ib
+
   IDIJ = 0
   DO IS = 1,NSYM
     NI = NISH(IS)
@@ -35,7 +35,7 @@ subroutine caspt2_grad_invaria1(DPT2)
     IOFDAB(IS) = IDAB
     IDIJ = IDIJ+NO*NO
   END DO
-!
+
   do isym = 1, nsym
     NI = NISH(ISYM)
     NS = NSSH(ISYM)
@@ -55,7 +55,7 @@ subroutine caspt2_grad_invaria1(DPT2)
       end do
     end do
   end do
-!
+
 end subroutine caspt2_grad_invaria1
 !
 !-----------------------------------------------------------------------
@@ -70,22 +70,21 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
   use Constants, only: Half
   use definitions, only: iwp,wp
   use caspt2_module, only: nSym, nDel, nIsh, EPSI, nSsh, nAsh, EPSE, nBas, nFro
-!
+
   implicit none
-!
-!
+
   real(kind=wp), intent(inout) :: DPT2(*)
   real(kind=wp), intent(in)    :: OLag(*)
-!
-  integer(kind=iwp) :: iMO,iSym,nOrbI,nFroI,nIshI,nAshI,nSshI,iOrb,jOrb
+
+  integer(kind=iwp) :: iMO, iSym, nOrbI, nFroI, nIshI, nAshI, nSshI, iOrb, jOrb
   real(kind=wp) :: Tmp
-!
+
   iMO  = 1
   DO iSym = 1, nSym
     nOrbI = nBas(iSym)-nDel(iSym)
     nFroI = nFro(iSym)
     nIshI = nIsh(iSym)
-    If ((nOrbI > 0) .and. (nIshI > 0)) Then
+    If (nOrbI > 0 .and. nIshI > 0) Then
       Do iOrb = nFroI+1, nFroI+nIshI
         Do jOrb = iOrb+1, nFroI+nIshI
           Tmp = -Half*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))  &
@@ -99,7 +98,7 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
     End If
     nSshI = nSsh(iSym)
     nAshI = nAsh(iSym)
-    If ((nOrbI > 0) .and. (nSshI > 0)) Then
+    If (nOrbI > 0 .and. nSshI > 0) Then
       Do iOrb = nOrbI-nSshI+1, nOrbI
         Do jOrb = iOrb+1, nOrbI
           Tmp = -Half*(OLag(iMO+iOrb-1+nOrbI*(jOrb-1))  &
@@ -112,5 +111,5 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
     End If
     iMO  = iMO  + nOrbI*nOrbI
   End Do
-!
+
 end subroutine caspt2_grad_invaria2
