@@ -74,7 +74,7 @@ if (IZERO == 0) then
 
 else
   ! here if iZERO == 1
-  ! Use Jeppes version (it should be working)
+  ! Use Jeppe's version (it should be working)
   if (ITRNSP == 0) then
     ! ======
     ! C=A*B

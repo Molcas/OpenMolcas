@@ -32,7 +32,7 @@ integer(kind=iwp) :: IB, IJB, IJS, IK, iOpt, IRC, ISD, ISF, ISTLT(8), ISTSQ(8), 
 real(kind=wp) :: Factor, temp, temp_ab
 real(kind=wp), external :: DDot_
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: ISTLTT, ivv
+integer(kind=iwp) :: ISTLTT
 #endif
 
 ! This routine has been nicked from the MOTRA package. It was
@@ -129,6 +129,9 @@ contains
 subroutine FOCKTWO_scf_Sym()
 
   integer(kind=iwp) :: IP, IPQ, IS, ISYM, JQ, JS, KS, LS
+# ifdef _DEBUGPRINT_
+  integer(kind=iwp) :: ivv
+# endif
 
   do ISYM=2,NSYM
     NB = NBAS(ISYM-1)
@@ -320,6 +323,9 @@ end subroutine FOCKTWO_scf_Sym
 subroutine FOCKTWO_scf_NoSym()
 
   integer(kind=iwp) :: IP, IPQ, IS, JQ, JS, KS, LS
+# ifdef _DEBUGPRINT_
+  integer(kind=iwp) :: ivv
+# endif
 
   IS = 1
   IB = NBAS(IS)
@@ -418,6 +424,9 @@ subroutine FOCKTWO_scf_DCCD()
   use stdalloc, only: mma_allocate, mma_deallocate
 
   integer(kind=iwp) :: IB, IP, IP_, IPQ, IRP, IRQ, IRS, IS, ISP, ISQ, ISR, iVec1, J, JQ, JQ_, KR, KR_, LS, LS_, nData
+# ifdef _DEBUGPRINT_
+  integer(kind=iwp) :: ivv
+# endif
   logical(kind=iwp) :: Found
 
   IS = 1

@@ -13,7 +13,7 @@ subroutine DETCTL_GAS()
 
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, CONF_OCC, Deallocate_Local_Arrays, IADVICE, &
-                      IBSPGPFTP, IDC, IGSOCC, IPHGAS, IPRCIX, IREFSM, ISMOST, kvec3_length, LCSBLK, MAX_STR_OC_BLK, MAX_STR_SPGP, &
+                      IBSPGPFTP, IDC, IGSOCC, IPHGAS, IPRCIX, IREFSM, kvec3_length, LCSBLK, MAX_STR_OC_BLK, MAX_STR_SPGP, &
                       Memory_Needed_Lucia, MNHL, MXINKA, MXNSTR, MXNTTS, MXPCSM, MXPNGAS, MXPNSMST, MXPORB, MXSOOB, MXTSOB, &
                       NCONF_PER_OPEN, NCONF_PER_SYM, NCSF_HEXS, NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, NIRREP, &
                       NOBPT, NOBPTS, NOCOB, NOCSF, NOCTYP, NPCSCNF, NPDTCNF, NSD_PER_SYM, NSMOB, NSTFSMSPGP, NSTSO, NTOOB, PSSIGN, &
@@ -66,7 +66,7 @@ LBLOCK = max(LBLOCK,LCSBLK)
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
 if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 
-! Infomation about block structure- needed by new PICO2 routine.
+! Information about block structure- needed by new PICO2 routine.
 ! Memory for partitioning of C vector
 IATP = 1
 IBTP = 2
@@ -80,11 +80,11 @@ call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
 
 call IAIBCM(ICSPC,LCIOIO)
 call mma_allocate(SVST,1,Label='SVST')
-call ZBLTP(ISMOST(:,jsym),NIRREP,IDC,CBLTP,SVST)
+call ZBLTP(jsym,NIRREP,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 
 ! Batches  of C vector
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,LCIOIO,ISMOST(1,jsym),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,LCIOIO,jsym,NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
 ! Number of BLOCKS
 NBLOCK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 ! Length of each block

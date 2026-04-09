@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,IOCOC,ISMOST,NBATCH,LBATCH,LEBATCH,I1BATCH,IBATCH,ICOMP)
+subroutine PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,IOCOC,ICSM,NBATCH,LBATCH,LEBATCH,I1BATCH,IBATCH,ICOMP)
 ! Jeppe Olsen
 !
 ! Last update : May 1999 : ISIMSYM added
@@ -45,13 +45,14 @@ subroutine PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,IOCOC,ISMOST,NBATCH,LBA
 ! Jeppe Olsen, August 1995
 
 use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: IDC, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), IOCOC(NOCTPA,NOCTPB), &
-                                 ISMOST(NSMST), ICOMP
+integer(kind=iwp), intent(in) :: IDC, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), IOCOC(NOCTPA,NOCTPB), ICSM, &
+                                 ICOMP
 integer(kind=iwp), intent(out) :: NBATCH
 integer(kind=iwp), intent(_OUT_) :: LBATCH(*), LEBATCH(*), I1BATCH(*), IBATCH(8,*)
 integer(kind=iwp) :: IA, IASM, IB, IBLOCK, IBSM, IFINI, IFRST, INC, ISM, LBLOCK, LBLOCKP, LENGTH, LENGTHP, NBLOCK, NSTA, NSTB
@@ -72,8 +73,6 @@ write(u6,*) ' IDC = ',IDC
 write(u6,*)
 write(u6,*) ' IOCOC Array'
 call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-write(u6,*) ' ISMOST array'
-call IWRTMA(ISMOST,1,NSMST,1,NSMST)
 !write(u6,*) ' IBLTP array'
 !call IWRTMA(IBLTP,1,NSMST,1,NSMST)
 write(u6,*) ' NSSOA, NSSOB'
@@ -127,7 +126,7 @@ outer: do
     !LBLOCK_AS = 0
     !if ((ISIMSYM == 1) .and. (ISM == 1)) then
     !  do IASM=1,NSMST
-    !    IBSM = ISMOST(IASM)
+    !    IBSM = Mul(IASM,ICSM)
     !    NSTA = NSSOA(IASM,IA)
     !    NSTB = NSSOB(IBSM,IB)
     !    if (IBLTP(IASM) == 0) cycle
@@ -140,7 +139,7 @@ outer: do
     !end if
     ! Should this block be included
     IASM = ISM
-    IBSM = ISMOST(IASM)
+    IBSM = Mul(IASM,ICSM)
     if (IDC == 2) then
       if (IA < IB) cycle
       if ((IA == IB) .and. (IASM < IBSM)) cycle

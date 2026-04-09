@@ -112,7 +112,7 @@ if ((ITER /= 1) .or. (iterSplit /= 1)) then
   do iAlpha=NPCNF+1,NCONF ! Loop over alpha
     CNHCNM(:) = Zero
     !write(u6,*) 'iAlpha = ',iAlpha
-    call GETCNF_LUCIA(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
+    call GETCNF(ICNL,IATYP,IPCNF(iAlpha),ICONF,IREFSM,NEL)
     NCSFA = NCSFTP(IATYP)
     !write(u6,*) 'NCSFA = ',NCSFA
     call CNHCN(ICNL,IATYP,ICNL,IATYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
@@ -129,7 +129,7 @@ if ((ITER /= 1) .or. (iterSplit /= 1)) then
     do Mindex=1,NPCNF ! Loop over AB-Block
       CNHCNM(:) = Zero
       !write(u6,*) 'Mindex',Mindex
-      call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
+      call GETCNF(ICNR,ILTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
       NCSFL = NCSFTP(ILTYP)
       !write(u6,*) 'NCSFL = ',NCSFL
       call CNHCN(ICNL,IATYP,ICNR,ILTYP,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)
@@ -171,7 +171,7 @@ IILB = 1
 do Nindex=1,NPCNF ! Loop over the AA-block (vertical index)
   if (NTEST >= 30) write(u6,*) 'Nindex',Nindex
   !write(u6,*) 'IILB',IILB
-  call GETCNF_LUCIA(ICNR,ILTYP,IPCNF(Nindex),ICONF,IREFSM,NEL)
+  call GETCNF(ICNR,ILTYP,IPCNF(Nindex),ICONF,IREFSM,NEL)
   NCSFL = NCSFTP(ILTYP)
   !write(u6,*) 'NCSFL = ',NCSFL
 
@@ -179,7 +179,7 @@ do Nindex=1,NPCNF ! Loop over the AA-block (vertical index)
   do Mindex=1,Nindex ! Loop over the AA-block (horizontal index)
     PHPS(:) = Zero
     !write(u6,*) 'Nindex,Mindex',Nindex,Mindex
-    call GETCNF_LUCIA(ICNQ,IRTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
+    call GETCNF(ICNQ,IRTYP,IPCNF(Mindex),ICONF,IREFSM,NEL)
     NCSFR = NCSFTP(IRTYP)
     !write(u6,*) 'NCSFR = ',NCSFR
     call CNHCN(ICNR,ILTYP,ICNQ,IRTYP,PHPS,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DTOC,NACTOB,TUVX,NTEST,ExFac,IREOTS)

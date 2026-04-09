@@ -239,7 +239,7 @@ contains
     ! for now, non-histogramming remains the default, hopefully that will change soon.
     TransformToNormalOrder = .false.
 
-    rewind (LuIn)
+    rewind(LuIn)
     call RdNLst(LuIn,'CASPT2')
 
     ! beginning of reading loop

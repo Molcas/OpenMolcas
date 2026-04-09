@@ -16,7 +16,7 @@ subroutine T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
 ! to yield vector on file LUOUT
 ! (NK_operator is number operator for orbital K)
 !
-! Note LUCIN and LUCOUT are both rewinded before read/write
+! Note LUCIN and LUCOUT are both rewound before read/write
 ! Input
 ! =====
 !  T : Input constant

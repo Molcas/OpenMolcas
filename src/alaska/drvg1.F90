@@ -238,6 +238,6 @@ call Term_Ints()
 !                                                                      *
 call Free_iSD()
 
-write(6,*) 'Exit Drvg1'
+!write(6,*) 'Exit Drvg1'
 
 end subroutine Drvg1

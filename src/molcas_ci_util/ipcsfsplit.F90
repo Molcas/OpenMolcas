@@ -143,7 +143,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
     !    DIAVAL = SCR(IPCNF(IICNF))
     !    if (abs(DIAVAL-XMIN) > 1.0e-10_wp) exit
     !    NPCNF = NPCNF-1
-    !    call GETCNF_LUCIA(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
+    !    call GETCNF(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
     !    NPCSF = NPCSF-NCSFTP(ITYP)
     !  end do
     !end if
@@ -182,7 +182,7 @@ subroutine IPCSFSPLIT_INTERNAL(SCR)
   do ICNL=1,NCONF
     !write(u6,*) 'IILB',IILB
     call c_f_pointer(c_loc(SCR(KLCONF)),iSCR,[1])
-    call GETCNF_LUCIA(iSCR,ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
+    call GETCNF(iSCR,ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
     nullify(iSCR)
     NCSFL = NCSFTP(ILTYP)
     !write(u6,*) 'NCSFL = ',NCSFL

@@ -29,9 +29,9 @@ integer(kind=iwp), external :: IBINOM
 
 if ((NOPEN == 0) .and. (MULTS == 1)) then
   NCSF = 1
-elseif (mod(MULTS-1,2) /= mod(NOPEN,2)) then
+else if (mod(MULTS-1,2) /= mod(NOPEN,2)) then
   NCSF = 0
-elseif (mod(MULTS-1,2) == mod(NOPEN,2)) then
+else if (mod(MULTS-1,2) == mod(NOPEN,2)) then
   NCSF = MULTS*IBINOM(NOPEN+1,(NOPEN+1-MULTS)/2)/(NOPEN+1)
 end if
 

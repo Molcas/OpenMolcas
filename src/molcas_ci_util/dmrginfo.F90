@@ -23,7 +23,7 @@ private
 
 logical(kind=iwp) :: doDMRG, doMCLR
 
-integer(kind=iwp) :: LRras2(20), MS2_RGLR, ndets_RGLR, nele_RGLR, nstates_RGLR, RGras2(20)
+integer(kind=iwp) :: LRras2(8), MS2_RGLR, ndets_RGLR, nele_RGLR, nstates_RGLR, RGras2(8)
 
 public :: DoDMRG, DoMCLR, LRras2, MS2_RGLR, ndets_RGLR, nele_RGLR, nstates_RGLR, RGras2
 

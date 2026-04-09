@@ -61,7 +61,7 @@ if (IDOREO /= 0) then
   ! look for the position where the value is ilex
   if (ireo_new(1) == ilex+ib_occls-1) then
     n_fin = 1
-  elseif (ireo_new(length) == ilex+ib_occls-1) then
+  else if (ireo_new(length) == ilex+ib_occls-1) then
     n_fin = length
   else
     n_ini = 1

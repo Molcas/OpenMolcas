@@ -23,19 +23,17 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp) :: ISYMST
 integer(kind=iwp), intent(in) :: NEL, STRING(NEL)
-integer(kind=iwp) :: IEL, ISYM
+integer(kind=iwp) :: IEL
 
-ISYM = 1
+ISYMST = 1
 do IEL=1,NEL
-  ISYM = Mul(ISYM,ISMFTO(STRING(IEL)))
+  ISYMST = Mul(ISYMST,ISMFTO(STRING(IEL)))
 end do
-
-ISYMST = ISYM
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ISYMST, String and symmetry'
 call IWRTMA(STRING,1,NEL,1,NEL)
-write(u6,*) ISYM
+write(u6,*) ISYMST
 #endif
 
 end function ISYMST

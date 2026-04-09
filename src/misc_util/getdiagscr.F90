@@ -33,4 +33,3 @@ NScr = int(Scr(1))
 return
 
 end subroutine GetDiagScr
-

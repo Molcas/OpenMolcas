@@ -117,7 +117,7 @@ call mma_allocate(CIVEC,NCONF,label='CIVEC')
 !  return
 !end if
 
-if (NAC > 0) call CIDIA_CI_UTIL(NCONF,STSYM,CIVEC,LUDAVID)
+if (NAC > 0) call CIDIA(NCONF,STSYM,CIVEC,LUDAVID)
 !***********************************************************************
 ! iCaseSplit = 1  : there is NOT CI-RESTART.
 ! iCaseSplit = 2  : there is CIRESTART. The code will read the CI

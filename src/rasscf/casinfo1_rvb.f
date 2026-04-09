@@ -21,7 +21,7 @@ c  Information from molcas interface file 'JOBIPH' :
         write(6,'(/,a)')' Using JOBIPH interface file.'
 c        call systemf("cp -p JOBIPH JOBOLD")
        Call Copy_JobIph("JOBIPH","JOBOLD")
-      elseif(oldex)then
+      else if(oldex)then
         write(6,'(/,a)')' Using JOBOLD interface file.'
 c        call systemf("cp -p JOBOLD JOBIPH")
        Call Copy_JobIph("JOBOLD","JOBIPH")

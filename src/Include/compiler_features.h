@@ -97,7 +97,7 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #endif
 
 /* Allocatable arguments with BIND(C) */
-#if ((__INTEL_LLVM_COMPILER))
+#if (( __INTEL_LLVM_COMPILER ))
 #  define _ALLOC_BIND_C_
 #  define _BIND_C_ bind(C)
 #else
@@ -114,9 +114,16 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 
 /* Compiler bugs (see https://community.intel.com/t5/Intel-Fortran-Compiler/Wrong-results-with-ifx-2024-0-1/td-p/1554375         */
 /*                    https://community.intel.com/t5/Intel-Fortran-Compiler/Wrong-results-in-apparently-simple-loop/m-p/1592647) */
-#if (__INTEL_LLVM_COMPILER)
+#if ( __INTEL_LLVM_COMPILER )
 #  define _BUGGY_INTEL_LLVM_
 #endif
 #if (( __INTEL_COMPILER ) && ( __INTEL_COMPILER_BUILD_DATE < 20150000 ))
 #  define _BUGGY_INTEL_OPTIM_
+#endif
+
+/* Bogus warning about pointer lifetime */
+#if ( __GNUC__ )
+#  define _LIFETIME_BUG_
+#else
+#  undef _LIFETIME_BUG_
 #endif

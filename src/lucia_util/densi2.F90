@@ -50,8 +50,8 @@ subroutine DENSI2(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,LUL,LUR,EXPS2,IDOSRHO1,SRHO1,IPA
 
 use Index_Functions, only: nTri_Elem
 use CandS, only: ICSM, ISSM, ISSPC
-use lucia_data, only: ENVIRO, IADVICE, IBSPGPFTP, ICISTR, IDC, IOBPTS, IPHGAS, IPRCIX, IPRDEN, IREFSM, IREOST, ISMOST, LCSBLK, &
-                      MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXSB, MXSOOB, MXTSOB, NACOB, &
+use lucia_data, only: ENVIRO, IADVICE, IBSPGPFTP, ICISTR, IDC, IOBPTS, IPHGAS, IPRCIX, IPRDEN, IREFSM, IREOST, LCSBLK, &
+                      MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXSOOB, MXTSOB, NACOB, &
                       NACOBS, NELEC, NELFSPGP, NGAS, NHLFSPGP, NINOBS, NIRREP, NOBPTS, NOCOB, NOCTYP, NSMOB, NSTFSMSPGP, NSTSO, &
                       NTOOB, NTOOBS, OCSTR, PSSIGN, REO, VEC3, XISPSM, Z, ZSCR
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -155,7 +155,7 @@ MAXK = min(MXINKA,MXSTBL)
 ! Largest active orbital block belonging to given type and symmetry
 MXTSOB = max(0,maxval(NOBPTS(1:NGAS,1:NSMOB)))
 ! Local scratch arrays for blocks of C and sigma
-if (IPRDEN >= 2) write(u6,*) ' DENSI2 : MXSB MXTSOB MXSOOB ',MXSB,MXTSOB,MXSOOB
+if (IPRDEN >= 2) write(u6,*) ' DENSI2 : MXTSOB MXSOOB ',MXTSOB,MXSOOB
 !if (ISIMSYM /= 1) THEN
 LSCR1 = MXSOOB
 !else
@@ -217,8 +217,8 @@ call mma_allocate(CBLTP,NIRREP,Label='CBLTP')
 !else
 call mma_allocate(SVST,1,Label='SVST')
 !end if
-call ZBLTP(ISMOST(:,ISSM),NIRREP,IDC,SBLTP,SVST)
-call ZBLTP(ISMOST(:,ICSM),NIRREP,IDC,CBLTP,SVST)
+call ZBLTP(ISSM,NIRREP,IDC,SBLTP,SVST)
+call ZBLTP(ICSM,NIRREP,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 ! scratch space containing active one body
 call mma_allocate(RHO1S,NACOB**2,Label='RHO1S')
@@ -246,7 +246,7 @@ call mma_allocate(LLEBTL,NTTS,Label='LLEBTL')
 call mma_allocate(LI1BTL,NTTS,Label='LI1BTL')
 call mma_allocate(LIBTL,8*NTTS,Label='LIBTL')
 call mma_allocate(LSCLFCL,NTTS,Label='LSCLFCL')
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,SIOIO,ISMOST(:,ISSM),NBATCHL,LLBTL,LLEBTL,LI1BTL,LIBTL,0)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,SIOIO,ISSM,NBATCHL,LLBTL,LLEBTL,LI1BTL,LIBTL,0)
 ! Arrays for partitioning of Right  vector = C
 NTTS = MXNTTS
 call mma_allocate(LLBTR,NTTS,Label='LLBTR')
@@ -254,7 +254,7 @@ call mma_allocate(LLEBTR,NTTS,Label='LLEBTR')
 call mma_allocate(LI1BTR,NTTS,Label='LI1BTR')
 call mma_allocate(LIBTR,8*NTTS,Label='LIBTR')
 call mma_allocate(LSCLFCR,NTTS,Label='LSCLFCR')
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,CIOIO,ISMOST(:,ICSM),NBATCHR,LLBTR,LLEBTR,LI1BTR,LIBTR,0)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,CIOIO,ICSM,NBATCHR,LLBTR,LLEBTR,LI1BTR,LIBTR,0)
 
 if (ICISTR == 1) then
   write(u6,*) ' Sorry, ICISTR = 1 is out of fashion'

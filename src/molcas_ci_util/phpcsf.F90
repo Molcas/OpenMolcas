@@ -134,7 +134,7 @@ subroutine PHPCSF_INTERNAL(SCR)
       !  DIAVAL = SCR(IPCNF(IICNF))
       !  if (abs(DIAVAL-XMIN) > 1.0e-10_wp) exit
       !  NPCNF = NPCNF-1
-      !  call GETCNF_LUCIA(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
+      !  call GETCNF(SCR(NCONF+1),ITYP,IPCNF(IICNF),ICONF,IREFSM,NEL)
       !  NPCSF = NPCSF-NCSFTP(ITYP)
       !end do
     end if
@@ -183,13 +183,13 @@ subroutine PHPCSF_INTERNAL(SCR)
   IILB = 1
   do ICNL=1,NPCNF
     call c_f_pointer(c_loc(SCR(KLCONF)),iSCRl,[1])
-    call GETCNF_LUCIA(iSCRl,ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
+    call GETCNF(iSCRl,ILTYP,IPCNF(ICNL),ICONF,IREFSM,NEL)
     nullify(iSCRl)
     NCSFL = NCSFTP(ILTYP)
     IIRB = 1
     do ICNR=1,ICNL
       call c_f_pointer(c_loc(SCR(KRCONF)),iSCRr,[1])
-      call GETCNF_LUCIA(iSCRr,IRTYP,IPCNF(ICNR),ICONF,IREFSM,NEL)
+      call GETCNF(iSCRr,IRTYP,IPCNF(ICNR),ICONF,IREFSM,NEL)
       nullify(iSCRr)
       NCSFR = NCSFTP(IRTYP)
       call c_f_pointer(c_loc(SCR(KLCONF)),iSCRl,[1])

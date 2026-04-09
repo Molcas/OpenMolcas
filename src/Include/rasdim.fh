@@ -19,7 +19,7 @@
 !...  max number of reference configurations in root selectioning
       Integer, Parameter :: mxIter = 200
 !...  max number of macro iterations
-      Integer, Parameter ::  mxCiIt = 502
+      Integer, Parameter :: mxCiIt = 502
 !...  max number of micro iterations for the CI section
       Integer, Parameter :: mxSxIt = 100
 !...  max number of micro iterations for the SX section

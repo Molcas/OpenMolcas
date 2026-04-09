@@ -36,7 +36,7 @@ if (INIT == 0) then
     X = real(I,kind=wp)
     do J=2,I/2
       IPOS = IPOS+1
-      X = (X*real(I+1-J,kind=wp))/real(J,kind=wp)
+      X = X*real(I+1-J,kind=wp)/real(J,kind=wp)
       NOMTAB(IPOS) = nint(X)
     end do
   end do
@@ -48,7 +48,7 @@ if (N <= 32) then
 else
   X = real(IBINOM,kind=wp)
   do K=2,MM
-    X = (X*real(N+1-K,kind=wp))/real(K,kind=wp)
+    X = X*real(N+1-K,kind=wp)/real(K,kind=wp)
   end do
   IBINOM = nint(X)
   if (X /= real(IBINOM,kind=wp)) then

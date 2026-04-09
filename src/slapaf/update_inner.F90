@@ -616,7 +616,7 @@ else
   write(u6,*) '********************************************'
   write(u6,*) '* Lagrange multipliers for the constraints *'
   write(u6,*) '********************************************'
-  write(u6,'(1X,A,2X,ES13.6)') (Lbl(nQQ+iInt),-One*Lambda(iInt,mIter),iInt=1,nLambda)
+  write(u6,'(1X,A,2X,ES13.6)') (Lbl(nQQ+i),-One*Lambda(i,mIter),i=1,nLambda)
   write(u6,*)
 # endif
 

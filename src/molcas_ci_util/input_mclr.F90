@@ -85,8 +85,8 @@ integer(kind=iwp), parameter :: itociph = 64, mxPer = 255
 integer(kind=iwp) :: iaddressQDAT, iBreak, iMethod, iPt2, iRoot(mxRoot), iSpin, ispop, iToc(itociph), kprint, lRoots, &
                      LuAChoVec(8), LuChoInt(2), LuIChoVec(8), mTit, nActEl, nAsh(mxSym), nAtoms, nBas(mxSym), nConf, nCSF(8), &
                      nDel(mxSym), nDisp, nElec3, nFro(mxSym), nHole1, NIRREP, nIsh(mxSym), niter, nOrb(mxSym), nRoots, &
-                     nRs1(mxSym), nRs2(mxSym), nRs3(mxSym), nSkip(mxSym), NSMOB, nsRot, nSym, ntAsh, ntAsqr, ntAtri, ntBas, &
-                     ntBsqr, ntBtri, ntIsh, ntIsqr, ntItri, nTPert(mxPer), nUserPT, State_Sym
+                     nRs1(mxSym), nRs2(mxSym), nRs3(mxSym), nSkip(mxSym), nsRot, nSym, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, &
+                     ntBtri, ntIsh, ntIsqr, ntItri, nTPert(mxPer), nUserPT, State_Sym
 real(kind=wp) :: Coor(3,MxAtom), Eps, ERASSCF(mxroot), ESCF, Omega, PotNuc, rin_ene, UserP, UserT(64), Weight(mxroot)
 logical(kind=iwp) :: CASINT, debug, double, fail, iMCPD, iMSPD, lCalc(3*MxAtom+3), McKinley, newCho, page, PT2, RASSI, lSave, &
                      SPINPOL, Timedep, TwoStep
@@ -100,8 +100,8 @@ character(len=3) :: chirr(8)
 public :: AtLbl, CASINT, chirr, Coor, debug, double, Eps, ERASSCF, ESCF, fail, Header1I, HeaderJP, iaddressQDAT, iBreak, iMCPD, &
           iMethod, iMSPD, iPt2, iRoot, iSpin, ispop, iToc, itociph, kprint, lCalc, lRoots, LuAChoVec, LuChoInt, LuIChoVec, &
           McKinley, mTit, nActEl, nAsh, nAtoms, nBas, nConf, nCSF, nDel, nDisp, nElec3, newCho, nFro, nHole1, NIRREP, nIsh, niter, &
-          nOrb, nRoots, nRs1, nRs2, nRs3, nSkip, NSMOB, nsRot, nSym, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, ntIsqr, &
-          ntItri, nTPert, nUserPT, Omega, page, Perturbation, PotNuc, PT2, RASSI, rin_ene, lSave, SPINPOL, State_Sym, StepType, &
-          Timedep, TitleIN, TitleJp, TwoStep, UserP, UserT, Weight
+          nOrb, nRoots, nRs1, nRs2, nRs3, nSkip, nsRot, nSym, ntAsh, ntAsqr, ntAtri, ntBas, ntBsqr, ntBtri, ntIsh, ntIsqr, ntItri, &
+          nTPert, nUserPT, Omega, page, Perturbation, PotNuc, PT2, RASSI, rin_ene, lSave, SPINPOL, State_Sym, StepType, Timedep, &
+          TitleIN, TitleJp, TwoStep, UserP, UserT, Weight
 
 end module Input_MCLR

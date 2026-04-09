@@ -37,7 +37,7 @@ Private mxRef,mxIter,mxCiIt,mxSxIt,mxTit
   INTEGER OCAN,DCHO
   CHARACTER(LEN=16) :: OCAA(20)
 ! BP - SO Natural orbital information
-! RF - SO Natural transition orbital infomation
+! RF - SO Natural transition orbital information
 ! IFARGU           Do phase factor for SO-NTOs
 ! IFCURD           Do current density stuff
 ! Do_TMOM          Do (exact) Transition MOMents

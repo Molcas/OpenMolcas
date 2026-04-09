@@ -24,17 +24,11 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: ISYMSTR
 integer(kind=iwp), intent(in) :: NSTR, ISYM(NSTR)
-integer(kind=iwp) :: IISYM, JSTR
+integer(kind=iwp) :: JSTR
 
-if (NSTR == 0) then
-  IISYM = 1
-else
-  IISYM = ISYM(1)
-  do JSTR=2,NSTR
-    IISYM = Mul(IISYM,ISYM(JSTR))
-  end do
-end if
-
-ISYMSTR = IISYM
+ISYMSTR = 1
+do JSTR=1,NSTR
+  ISYMSTR = Mul(ISYMSTR,ISYM(JSTR))
+end do
 
 end function ISYMSTR

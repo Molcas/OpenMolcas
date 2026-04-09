@@ -137,7 +137,7 @@ C      If (nToken(KWord).gt.1) goto 988
       Write(LF,*)
      &'Default RASSCF algorithm reset to  ',ALGO
       Write(LF,*)
-      elseif(ALGO.eq.2)then
+      else if(ALGO.eq.2)then
       Write(LF,*)
      &'Default RASSCF algorithm reset to  ',ALGO
       Write(LF,*)

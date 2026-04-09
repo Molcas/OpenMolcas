@@ -52,7 +52,7 @@ if (IREFCI /= 1) then
   call mma_allocate(ICI,MBUF,label='ICI')
   call mma_allocate(CI,NCONF,label='CI')
   call mma_allocate(SGM,NCONF,label='SGM')
-  call CSTART(AREF,EREF,CI,ICI)
+  call CSTART_MRCI(AREF,EREF,CI,ICI)
   call MQCT(AREF,EREF,CI,SGM,ICI)
   call mma_deallocate(CI)
   call mma_deallocate(SGM)

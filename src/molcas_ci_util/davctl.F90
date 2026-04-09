@@ -78,7 +78,7 @@ call Ini_David(lRoots,nConf,nDet,nSel,n_keep,nAc,LuDavid)
 ! CIVEC: TEMPORARY CI VECTOR IN CSF BASIS
 
 call mma_allocate(CIVEC,NCONF,label='CIVEC')
-if (NAC > 0) call CIDIA_CI_UTIL(NCONF,STSYM,CIVEC,LUDAVID)
+if (NAC > 0) call CIDIA(NCONF,STSYM,CIVEC,LUDAVID)
 
 !-----------------------------------------------------------------------
 ! OBTAIN STARTING VECTORS
@@ -93,7 +93,7 @@ call mma_allocate(ExplV,m_Sel,mSel,label='ExplV')
 nMaxSel = nConf
 if (N_ELIMINATED_GAS_MOLCAS > 0) nmaxSel = nCSF_HEXS
 
-call CStart_CI_Util(CIVEC,LW1,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
+call CStart(CIVEC,LW1,TUVX,iSel,ExplE,ExplV,nMaxSel,IFINAL)
 
 !-----------------------------------------------------------------------
 ! DIAGONALIZATION SECTION

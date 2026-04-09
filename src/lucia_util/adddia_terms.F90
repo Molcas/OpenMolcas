@@ -47,8 +47,8 @@ real(kind=wp) :: EAA, EB, HB, RJBB, X
 
 IDUM(1) = 0
 I12 = 2
-!if (LUIN > 0) rewind LUIN
-!if (LUOUT > 0) rewind LUOUT
+!if (LUIN > 0) rewind(LUIN)
+!if (LUOUT > 0) rewind(LUOUT)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ======================'

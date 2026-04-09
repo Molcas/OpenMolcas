@@ -47,7 +47,7 @@ integer(kind=iwp) :: IAORC, IATP, IATPABS, IBTP, IBTPABS, IOBTP, ISM, ISMOB, ITO
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IATP_MX, IBTP_MX, IOBTP_MX, KATP_MX
 
-write(u6,*) ' MXRESC : MXPKA ',MXPKA
+write(u6,*) ' MXRESCPH : MXPKA ',MXPKA
 #endif
 
 ! matrix C(j,Ka,Ib)
@@ -224,7 +224,7 @@ do IAORC=1,2
 end do
 ! End of loop over creation/annihilation
 #ifdef _DEBUGPRINT_
-write(u6,*) 'MXRESC : MXADKBLK,MXCJ ',MXADKBLK,MXCJ
+write(u6,*) 'MXRESCPH : MXADKBLK,MXCJ ',MXADKBLK,MXCJ
 write(u6,*) ' MXCJ_ALLSYM = ',MXCJ_ALLSYM
 #endif
 
@@ -300,7 +300,7 @@ do IATP=1,NOCTPA
 end do
 
 #ifdef _DEBUGPRINT_
-write(u6,*) 'MXRESC : MXCIJA ',MXCIJA
+write(u6,*) 'MXRESCPH : MXCIJA ',MXCIJA
 #endif
 
 ! matrix C(ij,Ia,kb)
@@ -369,7 +369,7 @@ do IATP=1,NOCTPA
 end do
 
 #ifdef _DEBUGPRINT_
-write(u6,*) 'MXRESC : MXCIJB ',MXCIJB
+write(u6,*) 'MXRESCPH : MXCIJB ',MXCIJB
 #endif
 
 ! matrix C(ij,Ka,kb)
@@ -522,8 +522,8 @@ do IBTP=1,NOCTPB
 end do
 
 #ifdef _DEBUGPRINT_
-write(u6,*) 'MXRESC: MXSXBL : ',MXSXBL
-write(u6,*) ' MXRESC_PH : MXKAB = ',MXKAB
+write(u6,*) 'MXRESCPH: MXSXBL : ',MXSXBL
+write(u6,*) ' MXRESCPH : MXKAB = ',MXKAB
 write(u6,*) ' Info on largest C(Ka,j,Jb) block'
 write(u6,*) ' IATP_MX, IBTP_MX, KATP_MX, IOBTP_MX ',IATP_MX,IBTP_MX,KATP_MX,IOBTP_MX
 write(u6,*) ' MX_NSPII = ',MX_NSPII
