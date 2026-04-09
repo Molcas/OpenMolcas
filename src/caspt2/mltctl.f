@@ -52,7 +52,7 @@ C Write out the effective Hamiltonian, for use in e.g. RASSI:
 
 C Analyze the effective Hamiltonian:
       DSHIFT=Zero
-      IF(HEFF(1,1).LE.-100.0D0) THEN
+      IF(HEFF(1,1).LE.-100.0E0_wp) THEN
         DSHIFT=-DBLE(INT(-HEFF(1,1)))
       END IF
       DO I=1,NSTATE

@@ -29,6 +29,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav,nState)
                            TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC, TIOPRP, TIOPT2, TIORHS, TIOSBM, &
                            Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot, jState, &
                            nGroup, nGroupState, mState
+  use constants, only:Zero
   use definitions, only: iwp,wp,u6
 
   Implicit None
@@ -54,8 +55,8 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav,nState)
   Integer(kind=iwp) :: ICONV
 
 ! For verification only
-  INTEGER LAXITY,Cho_X_GetTol
-  EXTERNAL Cho_X_GetTol
+  INTEGER(kind=iwp) LAXITY
+  INTEGER(kind=iwp), EXTERNAL :: Cho_X_GetTol
 
   IDSAVGRD = 0
 
@@ -174,12 +175,12 @@ Subroutine Iter_Timing()
         CPUTOT=CPUTOT+CPUGIN
         TIOTOT=TIOTOT+TIOGIN
       ELSE
-        CPUGIN=0.0D0
-        TIOGIN=0.0D0
-        CPUFMB=0.0D0
-        TIOFMB=0.0D0
-        CPUINT=0.0D0
-        TIOINT=0.0D0
+        CPUGIN=Zero
+        TIOGIN=Zero
+        CPUFMB=Zero
+        TIOFMB=Zero
+        CPUINT=Zero
+        TIOINT=Zero
       END IF
 
       IF (IPRGLB >= VERBOSE) THEN

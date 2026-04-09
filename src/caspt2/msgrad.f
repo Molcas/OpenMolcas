@@ -1198,7 +1198,7 @@
           End If
           !! One of doubling is due to the scaling factor
           !! One of doubling is due to the symmetry of iStat and jStat
-!         Scal = SLag(iStat+nState*(jStat-1))*4.0d+00
+!         Scal = SLag(iStat+nState*(jStat-1))*Four
           Scal = SLag(iStat+nState*(jStat-1))*Two
           If (ABS(Scal) <= 1.0e-09_wp) Cycle
 

@@ -10,6 +10,7 @@
 !***********************************************************************
 Module fake_ga
 use stdalloc, only: mma_allocate, mma_deallocate
+use constants, only:Zero
 use definitions, only: iwp, wp, u6
 Private
 
@@ -47,7 +48,7 @@ Do i = 1, max_ga_arrays
       iga_arrays=iga_arrays+1
       Call mma_allocate(GA_arrays(i)%A,nSize,Label=Label)
       lg_A=i
-      GA_Arrays(lg_A)%A(:)=0.0D0
+      GA_Arrays(lg_A)%A(:)=Zero
       Return
    End If
 End Do

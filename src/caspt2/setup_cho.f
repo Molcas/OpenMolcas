@@ -18,11 +18,12 @@
 * each with sizes lsplit(1:nsym), and
 * %ip(:), with teh sizes nsym*lsplit(1:nsym)
 * -------------------------
-      use definitions, only: iwp, wp
       use stdalloc, only: mma_MaxDBLE
       use ChoCASPT2, only: Stuff,lsplit,nisplit,nasplit,nksh,nkes,npsh,
      &                     npes
       use stdalloc, only: mma_allocate, mma_deallocate
+      use constants, only: Two
+      use definitions, only: iwp, wp, u6
 
       Implicit None
 
@@ -162,10 +163,10 @@ C *********************************************************************
             Write(6,*)' used for the Cholesky vectors.'
             Write(6,*)' Too little memory is available at this point.'
             Write(6,*)' Details:'
-            xmb=xMemMx/1048576.0D0
+            xmb=xMemMx/1048576.0E0_wp
             Write(6,'(1x,a,1x,f10.3)')
      &              ' Largest contiguous allocatable memory (MB):',xmb
-            xmb=2.0D0*DBLE(NUMCHO(JSYM))/1048576.0D0
+            xmb=Two*DBLE(NUMCHO(JSYM))/1048576.0E0_wp
             Write(6,'(1x,a,1x,f10.3)')
      &              '                        2*NumCho(jSym) (MB):',xmb
             Write(6,*)' Divided up on jFrac pieces. jFrac=',jFrac
@@ -210,13 +211,13 @@ C *********************************************************************
             mRHS = Max( mRHS, Max(nAsh(jS),nSsh(jS)) )
          End Do
 
-C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
+C --- Conversion to real(kind=wp) to avoid integer overflow on 32-bit machines
 
 * PAM:Why would this be 'mem for right-hand side?'
 *         xRHS = dble(mRHS**2)           ! mem. for right hand side
 *         xLpk = dble(Mem1*nPmax*nKsp)   ! store Cholesky MO vectors
 *         xPIQK= dble((nPmax*nKsp)**2)   ! store integrals
-*         xmNeed= xO + xPIQK + Max(xLpk,2.0D0*xRHS) ! Fmat+integrals+rhs
+*         xmNeed= xO + xPIQK + Max(xLpk,Two*xRHS) ! Fmat+integrals+rhs
 
 * This also looks strange -- nIAc=all the inact+act orbitals no matter what.?
          nIAc =nOkrb
@@ -330,18 +331,18 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
       End Do
 
       if (iftest.ne.0) then
-      write(6,*)
-      write(6,*)' setup_cho report:'
-      write(6,*)
-      write(6,'(1x,a,8i4)')' Inactive :',(nIsh(isym),isym=1,nSym)
-      write(6,'(1x,a,8i4)')' Active   :',(nAsh(isym),isym=1,nSym)
-      write(6,'(1x,a,8i4)')' Secondary:',(nSsh(isym),isym=1,nSym)
-      write(6,*)
-      write(6,'(1x,a,8i4)')' NumCho   :',(NumCho(isym),isym=1,nSym)
-      write(6,*)
-      write(6,*)' Partition  Fixed orbitals       nPorb space'
+      Write(u6,*)
+      Write(u6,*)' setup_cho report:'
+      Write(u6,*)
+      Write(u6,'(1x,a,8i4)')' Inactive :',(nIsh(isym),isym=1,nSym)
+      Write(u6,'(1x,a,8i4)')' Active   :',(nAsh(isym),isym=1,nSym)
+      Write(u6,'(1x,a,8i4)')' Secondary:',(nSsh(isym),isym=1,nSym)
+      Write(u6,*)
+      Write(u6,'(1x,a,8i4)')' NumCho   :',(NumCho(isym),isym=1,nSym)
+      Write(u6,*)
+      Write(u6,*)' Partition  Fixed orbitals       nPorb space'
       do jsym=1,nsym
-       write(6,*)' Symm:',jSym
+       Write(u6,*)' Symm:',jSym
        kend=0
        do isp=1,nisplit(jsym)
         ksta=kend+1
@@ -349,11 +350,11 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
         kstasym=cho_irange(ksta,iIorb,nSym,.false.)
         kendsym=cho_irange(kend,iIorb,nSym,.false.)
         nPorb=Stuff(jSym)%np(isp)
-        write(6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
+        Write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
      &        isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-        write(6,'(1x,a,8i8)')' iP Offsets:',(Stuff(jSym)%ip(
+        Write(u6,'(1x,a,8i8)')' iP Offsets:',(Stuff(jSym)%ip(
      &                 nSym*(isp-1)+MulD2h(jSym,iS)),iS=1,nSym)
-       write(6,*)
+       Write(u6,*)
        end do
        kend=0
        do isp=1,nasplit(jsym)
@@ -362,12 +363,12 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
         kstasym=cho_irange(ksta,iAorb,nSym,.false.)
         kendsym=cho_irange(kend,iAorb,nSym,.false.)
         nPorb=Stuff(jSym)%np(nisplit(jSym)+isp)
-        write(6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
+        Write(u6,'(1x,i4,5x,i4,a4,i4,2x,i1,a4,i1,5x,i4)')
      &        isp,ksta,' -- ',kend,kstasym,' -- ',kendsym,nPorb
-        write(6,'(1x,a,8i8)')' iP Offsets:',
+        Write(u6,'(1x,a,8i8)')' iP Offsets:',
      &         (Stuff(jSym)%ip(nSym*(nisplit(jSym)+isp-1)+
      &                             MulD2h(jSym,iS)),iS=1,nSym)
-       write(6,*)
+       Write(u6,*)
        end do
       end do
       end if

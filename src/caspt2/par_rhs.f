@@ -369,7 +369,7 @@ C GA_Get in batches smaller than 2**31-1 bytes (I took 2**30).
           IF (NIS_BATCH.EQ.0) THEN
             WRITE(u6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
             WRITE(u6,'(1X,I12,A,I12)') NAS, ' > ', MAX_MESG_SIZE
-            CALL AbEnd
+            CALL AbEnd()
           END IF
           DO NIS_STA=1,NIS,NIS_BATCH
             NIS_END=MIN(NIS_STA+NIS_BATCH-1,NIS)
@@ -417,7 +417,7 @@ C which is 2**30 bytes).
             IF (NIS_BATCH.EQ.0) THEN
               WRITE(u6,'(1X,A)') 'RHS_GET: NAS exceeds MAX_MESG_SIZE:'
               WRITE(u6,'(1X,I12,A,I12)') NAS, ' > ', MAX_MESG_SIZE
-              CALL AbEnd
+              CALL AbEnd()
             END IF
             DO NIS_STA=1,NIS,NIS_BATCH
               NIS_END=MIN(NIS_STA+NIS_BATCH-1,NIS)
@@ -618,12 +618,15 @@ CSVC: this routine reads an RHS array in SR format from disk
       SUBROUTINE RHS_SCATTER (LDW,lg_W,Buff,idxW,nBuff)
 CSVC: this routine scatters + adds values of a buffer array into the RHS
 C     array at positions given by the buffer index array.
-      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       use fake_GA, only: GA_Arrays
+#ifdef _MOLCAS_MPP_
+      use constants, only: One
+#endif
+      use definitions, only: iwp, wp
       IMPLICIT None
       Integer(kind=iwp), intent(in):: LDW,lg_W,nBuff
       real(kind=wp), intent(in):: Buff(nBuff)
@@ -648,7 +651,7 @@ CSVC: global array RHS matrix expects 2 index buffers
           TMPW2(I)=(idxW(I)-1)/LDW+1
           TMPW1(I)=idxW(I)-LDW*(TMPW2(I)-1)
         END DO
-        CALL GA_Scatter_Acc (lg_W,Buff,TMPW1,TMPW2,nBuff,1.0D0)
+        CALL GA_Scatter_Acc (lg_W,Buff,TMPW1,TMPW2,nBuff,One)
         CALL mma_deallocate(TMPW1)
         CALL mma_deallocate(TMPW2)
       ELSE
@@ -832,7 +835,7 @@ CSVC: this routine multiplies the RHS array with FACT
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par()) THEN
         IF (FACT.EQ.Zero) THEN
-C          CALL GA_Fill (lg_W,0.0D0)
+C          CALL GA_Fill (lg_W,Zero)
            CALL GA_Zero (lg_W)
         ELSE
           IF (FACT.NE.One) THEN
@@ -993,15 +996,16 @@ C-SVC: get the local vertical stripes of the V1 and V2 vectors
       SUBROUTINE RHS_STRANS(NAS,NIS,ALPHA,lg_V1,lg_V2,ICASE,ISYM)
 CSVC: this routine transforms RHS array V1 by multiplying on the left
 C     with the S matrix and adds the result in V2: V2 <- V2 + alpha S*V1
-      use definitions, only: iwp, wp
-#ifdef _MOLCAS_MPP_
-      use definitions, only: u6
-      USE Para_Info, ONLY: Is_Real_Par
-#endif
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDSMAT
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+      use constants, only: One
+      use definitions, only: u6
+#endif
+      use definitions, only: iwp, wp
       IMPLICIT None
       integer(kind=iwp), intent(in):: NAS,NIS,lg_V1,lg_V2,ICASE,ISYM
       real(kind=wp), intent(in):: ALPHA
@@ -1024,7 +1028,7 @@ C      then use the dgemm from GA to operate.
           CALL PSBMAT_GETMEM('S',lg_S,NAS)
           CALL PSBMAT_READ('S',iCase,iSym,lg_S,NAS)
           CALL GA_DGEMM ('N','N',NAS,NIS,NAS,
-     &                   ALPHA,lg_S,lg_V1,1.0D0,lg_V2)
+     &                   ALPHA,lg_S,lg_V1,One,lg_V2)
           bStat = GA_Destroy(lg_S)
         ELSE
 C-SVC: if case is not A or C, the S/ST matrices are stored in replicate

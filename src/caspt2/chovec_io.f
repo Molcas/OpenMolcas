@@ -157,13 +157,13 @@ C as this is how they are used to compute the integrals for RHS.
 #include "mafdecls.fh"
 #endif
       INTEGER(KIND=IWP), INTENT(IN):: ICASE, nCHOBUF
-      REAL*8, INTENT(INOUT):: CHOBUF(nCHOBUF)
+      REAL(kind=wp), INTENT(INOUT):: CHOBUF(nCHOBUF)
 
       INTEGER(KIND=IWP) :: I,J,IOFF,IDISK
       INTEGER(KIND=IWP) :: IB,IBSTA,IBEND,IBOFF
       INTEGER(KIND=IWP) :: JSYM,ISYQ
       INTEGER(KIND=IWP) :: NBUF,NPQ,NV,NVTOT
-      REAL*8, ALLOCATABLE:: BUF(:)
+      REAL(kind=wp), ALLOCATABLE:: BUF(:)
 
       IOFF=0
       DO JSYM=1,NSYM
@@ -317,7 +317,7 @@ C always write the chunks to LUDRA, both for serial and parallel
 #  include "mafdecls.fh"
       integer(kind=MPIInt) IERROR4,ITYPE
       integer(kind=MPIInt), PARAMETER :: ONE4 = 1
-      INTEGER :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
+      INTEGER(kind=iwp) :: I,JNUM,JNUMT,NPQ,NUMSEND(1),IDISKT,IERROR
       INTEGER(kind=MPIInt), ALLOCATABLE:: DISP(:), SIZE(:)
       REAL(KIND=WP), ALLOCATABLE:: TRANSP(:), RECVBUF(:)
 #ifdef _DEBUGPRINT_

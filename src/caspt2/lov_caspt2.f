@@ -112,7 +112,7 @@
       IF(nBasT.GT.mxBas) then
        Write(u6,'(/6X,A)')
      & 'The number of basis functions exceeds the present limit'
-       Call Abend
+       Call Abend()
       Endif
 *
 *     nUniqAt = # of symm. unique atoms. Initialize NamAct to blanks.
@@ -445,7 +445,7 @@ C     -----------------------------------------------------------
          Call mma_allocate(Dmat,nVV+nOA,Label='DMat')
          ip_X=1
          ip_Y=ip_X+nVV
-         DMat(:)=0.0D0
+         DMat(:)=Zero
          Call FZero(XMO(iCMO),NCMO)
          iOff=0
          Do iSym=1,nSym
@@ -470,7 +470,7 @@ C     -----------------------------------------------------------
      &                      DMAT(ip_X),DMAT(ip_Y))
             If(irc.ne.0) then
               write(u6,*) 'Frozen region MP2 failed'
-              Call Abend
+              Call Abend()
             Endif
             iV=ip_X
             Do iSym=1,nSym
@@ -553,7 +553,7 @@ c         Write(6,*)
      &       ' This is presumably NOT what you want !!!          '
          Write(u6,*)' CASPT2 will Stop here. Bye Bye !! '
          Write(u6,*)
-         Call Abend
+         Call Abend()
       EndIf
 *
       IF (IFQCAN.NE.0) IFQCAN=0 ! MOs to be recanonicalized on exit
@@ -569,8 +569,9 @@ c         Write(6,*)
 *                                                                      *
 ************************************************************************
       Subroutine get_Saa(nSym,nBas,nOrb,Smn,nSmn,Xmo,nXmo,Saa,nSaa)
-      use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp
       Implicit None
       integer(kind=iwp), intent(in)::  nSym, nBas(nSym), nOrb(nSym)
       integer(kind=iwp), intent(in)::  nXmo, nSmn, nSaa
@@ -594,9 +595,9 @@ c         Write(6,*)
       Do iSym=1,nSym
          nBx=Max(1,nBas(iSym))
          Call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nBas(iSym),
-     &                      1.0d0,Smn(iX),nBx,
+     &                      One,Smn(iX),nBx,
      &                            Xmo(kX),nBx,
-     &                      0.0d0,Z,nBx)
+     &                      Zero,Z,nBx)
          Do j=0,nOrb(iSym)-1
             jK=nBas(iSym)*j
             lk=kX+jK
@@ -752,7 +753,7 @@ C
      &                   Dummy,Dummy)
          If(irc.ne.0) then
            write(u6,*) 'MP2 calculation failed in energy_AplusB !'
-           Call Abend
+           Call Abend()
          Endif
       Else
          write(u6,*)

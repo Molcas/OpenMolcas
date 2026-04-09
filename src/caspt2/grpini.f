@@ -149,27 +149,27 @@
 * elements of the Fock matrix as a sanity check of the diagonal
 * approximation within the generalized Bloch equation.
           if (IFDW.or.(.not.IFXMS)) then
-            write(6,*)
-            write(6,*) 'Fock matrix couplings'
-            write(6,*) '---------------------'
-            write(6,*)
-            write(6,'(10X,6X,A3,I4,A3)') ' | ', MSTATE(Jstate), ' > '
+            Write(u6,*)
+            Write(u6,*) 'Fock matrix couplings'
+            Write(u6,*) '---------------------'
+            Write(u6,*)
+            Write(u6,'(10X,6X,A3,I4,A3)') ' | ', MSTATE(Jstate), ' > '
             do Istate=1,Nstate
               if (Istate.ne.Jstate) then
 * Compute matrix element and print it out
                 call FOPAB(FIFA,SIZE(FIFA),Istate,Jstate,
      &                     H0(Istate,Jstate))
-                write(6,'(A3,I4,A3,F16.8)')
+                Write(u6,'(A3,I4,A3,F16.8)')
      &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
 * Then set it to zero because we are within the diagonal approximation
-                H0(Istate,Jstate) = 0.0d0
+                H0(Istate,Jstate) = Zero
               else
 * Just print out the already computed diagonal element
-                write(6,'(A3,I4,A3,F16.8)')
+                Write(u6,'(A3,I4,A3,F16.8)')
      &                  ' < ',MSTATE(Istate),' | ', H0(Istate,Jstate)
               end if
             end do
-            write(6,*)
+            Write(u6,*)
           end if
         end if
 

@@ -1644,7 +1644,7 @@
 
       integer(kind=iwp) :: idT, idB, iICB, jICB, idSD
       real(kind=wp) :: SCAL, EigI, EigJ, tmp
-      logical :: invar_act
+      logical(kind=iwp) :: invar_act
 
       !! sigma^P may not introduce non-invariance, so the name may be
       !! simply confusing. I just do not know how to apply the
@@ -4920,7 +4920,7 @@
           End Do
         End If
       End Do
-!     write(6,*) 'after 1'
+!     Write(u6,*) 'after 1'
 !     call sqprt(fock,nasht)
 
       !! 2) two-electron term (only CreQADD part)

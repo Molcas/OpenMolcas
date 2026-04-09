@@ -74,7 +74,7 @@
 
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
-!     REAL*8 BUFR(MXLEV**2)
+!     REAL(kind=wp) BUFR(MXLEV**2)
 
 !     integer(kind=iwp) :: LFCDer1,LFCDer2
       integer(kind=iwp) :: iTask_loc
@@ -320,7 +320,7 @@
 !     CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
 !     CPUT =CPTF10-CPTF0
 !     WALLT=TIOTF10-TIOTF0
-!     write(6,*) 'PREP    : CPU/WALL TIME=', cput,wallt
+!     Write(u6,*) 'PREP    : CPU/WALL TIME=', cput,wallt
 
       iG3OFF=0
       iTask_loc = 1
@@ -514,7 +514,7 @@
             End Do
 !           G1(it,iu)=DDOT_(nsgm1,ci,1,work(lto),1)
 !           IF(IFF /= 0) then
-!             F1sum=0.0D0
+!             F1sum=Zero
 !             do i=1,nsgm1
 !               F1sum=F1sum+CI(i)*work(lto-1+i)*bufd(i)
 !             end do

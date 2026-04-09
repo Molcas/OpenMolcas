@@ -36,7 +36,7 @@
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       use caspt2_module, only: DoCumulant
 #endif
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       IMPLICIT NONE
 C Transform to orbitals that diagonalize the diagonal blocks of FIFA.
 C Affected data sets are CMO, C EPS, EPSI, EPSA, and EPSE. Also, the
@@ -247,7 +247,7 @@ C Finally, loop again over symmetries, transforming the CI:
      &      logical(.false., c_bool))
           do I=1,NSTATE
             if (JSTATE .ne. I) then
-              write(6,*) "QCMaquis> Rotating tRDMs", JSTATE-1, I-1
+              Write(u6,*) "QCMaquis> Rotating tRDMs", JSTATE-1, I-1
             CALL qcmaquis_interface_rotate_rdms(int(JSTATE-1, c_int),
      &          int(I-1, c_int), int(0, c_int), XMAT,
      &          logical(.false., c_bool))
@@ -259,10 +259,11 @@ C Finally, loop again over symmetries, transforming the CI:
 
         if (DoFCIQMC) then
           if (NonDiagonal) then
-           write(6,*)'Transforming CASPT2 intermediates to '//
+           Write(u6,*)'Transforming CASPT2 intermediates to '//
      &               'pseudo-canonical orbitals.'
           else
-            write(6,*)'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
+            Write(u6,*)
+     & 'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
           end if
         else
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
@@ -297,7 +298,7 @@ C Finally, loop again over symmetries, transforming the CI:
           END IF
 #elif _ENABLE_CHEMPS2_DMRG_
           ELSE
-            write(6,*) 'CHEMPS2> MKRPTORB assumes '//
+            Write(u6,*) 'CHEMPS2> MKRPTORB assumes '//
      &    'PSEUDOCANONICAL orbitals!'
           END IF
 #endif

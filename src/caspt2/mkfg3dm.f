@@ -103,7 +103,7 @@ C
 
       ! result buffer, maximum size is the largest possible ip1 range,
       ! which is set to nbuf1 later, i.e. a maximum of nlev2 <= mxlev**2
-*     REAL*8 BUFR(MXLEV**2)
+*     REAL(kind=wp) BUFR(MXLEV**2)
 
 
 C Put in zeroes. Recognize special cases:
@@ -307,8 +307,8 @@ C-sigma vectors in the buffer.
          if(istu.eq.isp1) then
           ibuf1=ibuf1+1
           ip1_buf(ibuf1)=ip1i
-*         call dcopy_(nsgm1,[0.0D0],0,BUF1(:,ibuf1),1)
-*         CALL SIGMA1(IULEV,ITLEV,1.0D00,STSYM,CI,BUF1(:,ibuf1))
+*         call dcopy_(nsgm1,[Zero],0,BUF1(:,ibuf1),1)
+*         CALL SIGMA1(IULEV,ITLEV,One,STSYM,CI,BUF1(:,ibuf1))
          end if
         end do
         myBuffer=iTask
@@ -329,7 +329,7 @@ C-SVC20100301: necessary batch of sigma vectors is now in the buffer
 *         iu=L2ACT(iulev)
 *         G1(it,iu)=DDOT_(nsgm1,ci,1,BUF1(:,ib),1)
 *         IF(mkF) then
-*           F1sum=0.0D0
+*           F1sum=Zero
 *           do i=1,nsgm1
 *             F1sum=F1sum+CI(i)*BUF1(i,ib)*bufd(i)
 *           end do
@@ -365,8 +365,8 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *     nsgm2=CIS%ncsf(issg2)
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
-*     call dcopy_(nsgm2,0.0D0,0,BUF2,1)
-*     CALL SIGMA1(IYLEV,IZLEV,1.0D00,STSYM,CI,BUF2)
+*     call dcopy_(nsgm2,Zero,0,BUF2,1)
+*     CALL SIGMA1(IYLEV,IZLEV,One,STSYM,CI,BUF2)
 *     if(issg2.eq.issg1) then
 *       do ib=1,ibuf1
 *         idx=ip1_buf(ib)
@@ -376,7 +376,7 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *         iu=L2ACT(iulev)
 *         G2(it,iu,iy,iz)=DDOT_(nsgm1,BUF2,1,BUF1(:,ib),1)
 *         IF(mkF) THEN
-*           F2sum=0.0D0
+*           F2sum=Zero
 *           do i=1,nlev
 *             F2sum=F2sum+BUF2(i)*bufd(i)*BUF1(i,ib)
 *           end do
@@ -392,8 +392,8 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
         iv=L2ACT(ivlev)
         ix=L2ACT(ixlev)
         if(isvx==Mul(issg1,issg2)) THEN
-*       call dcopy_(nsgm1,[0.0D0],0,BUFT,1)
-*       CALL SIGMA1(IVLEV,IXLEV,1.0D00,ISSG2,BUF2,BUFT)
+*       call dcopy_(nsgm1,[Zero],0,BUFT,1)
+*       CALL SIGMA1(IVLEV,IXLEV,One,ISSG2,BUF2,BUFT)
 *-----------
 * Max and min values of index p1:
         ip1mx=ntri2
@@ -419,8 +419,8 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 
 *-----------
 * Contract the Sgm1 wave functions with the Tau wave function.
-*       call DGEMV_('T',nsgm1,nb,1.0D0,BUF1(:,ibmn),mxci,
-*    &       buft,1,0.0D0,bufr,1)
+*       call DGEMV_('T',nsgm1,nb,One,BUF1(:,ibmn),mxci,
+*    &       buft,1,Zero,bufr,1)
 * and distribute this result into G3:
 *       call DCOPY_(nb,bufr,1,G3(iG3OFF+1),1)
 * and copy the active indices into idxG3:
@@ -445,8 +445,8 @@ C G3(:,:,it,iu,iy,iz) loaded from disk, for each process...
 *    &           (bufd(icsf)-epsa(iv))*buft(icsf)
 *         end do
 * so Tau is now = Sum(eps(w)*E_vxww) Psi. Contract and distribute:
-*         call DGEMV_('T',nsgm1,nb,1.0D0,BUF1(:ibmn),mxci,
-*    &         buft,1,0.0D0,bufr,1)
+*         call DGEMV_('T',nsgm1,nb,One,BUF1(:ibmn),mxci,
+*    &         buft,1,Zero,bufr,1)
 *         call dcopy_(nb,bufr,1,F3(iG3OFF+1),1)
 *       END IF
         iG3OFF=iG3OFF+nb
