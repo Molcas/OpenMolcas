@@ -159,9 +159,9 @@ do iSym=1,nSym
       !write(u6,*) 'ddot orb-sigma',ddot_(nDensC,SKap,1,SKap,1)
       !write(u6,*) 'ddot orb-rhs',ddot_(nDensC,rKap1,1,rKap1,1)
 
-      call GADSum(Kap1,Length)
-      call GADSum(SKap,Length)
-      call GADSum(rKap1,Length)
+      call GADGOp(Kap1,Length,'+')
+      call GADGOp(SKap,Length,'+')
+      call GADGOp(rKap1,Length,'+')
 
       if (CI) then
         ilen = nconf1
@@ -182,33 +182,33 @@ do iSym=1,nSym
         !write(u6,*) 'ddot ci-sigma',ddot_(nConf1,W(ipSp)%A,1,W(ipSp)%A,1)
         !write(u6,*) 'ddot ci-rhs',ddot_(nConf1,W(iprp1)%A,1,W(iprp1)%A,1)
 
-        call GADSum(W(ipCIp1)%A,iLen)
-        call GADSum(W(ipSp)%A,iLen)
-        call GADSum(W(ipRp1)%A,iLen)
+        call GADGOp(W(ipCIp1)%A,iLen,'+')
+        call GADGOp(W(ipSp)%A,iLen,'+')
+        call GADGOp(W(ipRp1)%A,iLen,'+')
       end if
 
     else
 
       Length = nDensC
       Kap1(1:Length) = Zero
-      call GADSum(Kap1,Length)
+      call GADGOp(Kap1,Length,'+')
       sKap(1:Length) = Zero
-      call GADSum(SKap,Length)
+      call GADGOp(SKap,Length,'+')
       rKap1(1:Length) = Zero
-      call GADSum(rKap1,Length)
+      call GADGOp(rKap1,Length,'+')
 
       if (CI) then
 
         ilen = nconf1
         call ipin(ipCIp1)
         W(ipCIp1)%A(1:iLen) = Zero
-        call GADSum(W(ipCIp1)%A,iLen)
+        call GADGOp(W(ipCIp1)%A,iLen,'+')
         call ipin(ipSp)
         W(ipSp)%A(1:iLen) = Zero
-        call GADSum(W(ipSp)%A,iLen)
+        call GADGOp(W(ipSp)%A,iLen,'+')
         call ipin(ipRp1)
         W(ipRp1)%A(1:iLen) = Zero
-        call GADSum(W(ipRp1)%A,iLen)
+        call GADGOp(W(ipRp1)%A,iLen,'+')
 
       end if
 
@@ -242,8 +242,8 @@ do iSym=1,nSym
         call dDaFile(LuTemp,2,rKap2,Length,iDisk)
 
         call GASync()
-        call GADSum(Kap2,Length)
-        call GADSum(rKap2,Length)
+        call GADGOp(Kap2,Length,'+')
+        call GADGOp(rKap2,Length,'+')
 
         if (CI) then
           ilen = nconf1
@@ -257,8 +257,8 @@ do iSym=1,nSym
           rTempc1 = DDot_(nConf1,W(ipCIp2)%A,1,W(ipsp)%A,1)
 
           call GASync() ! <----------------- NOTE!
-          call GADSum(W(ipCIp2)%A,iLen)
-          call GADSum(W(iprp2)%A,iLen)
+          call GADGOp(W(ipCIp2)%A,iLen,'+')
+          call GADGOp(W(iprp2)%A,iLen,'+')
 
         else
           rtempc1 = Zero
@@ -269,18 +269,18 @@ do iSym=1,nSym
         call GASync()
         Length = nDensC
         Kap2(1:Length) = Zero
-        call GADSum(Kap2,Length)
+        call GADGOp(Kap2,Length,'+')
         rKap2(1:Length) = Zero
-        call GADSum(rKap2,Length)
+        call GADGOp(rKap2,Length,'+')
         if (CI) then
           ilen = nconf1
           call GASync()   ! <----------------- NOTE!
           call ipin(ipCIp2)
           W(ipCIp2)%A(1:iLen) = Zero
-          call GADSum(W(ipCIp2)%A,iLen)
+          call GADGOp(W(ipCIp2)%A,iLen,'+')
           call ipin(iprp2)
           W(iprp2)%A(1:iLen) = Zero
-          call GADSum(W(iprp2)%A,iLen)
+          call GADGOp(W(iprp2)%A,iLen,'+')
           call ipin(ipsp)
           rTempc1 = DDot_(nConf1,W(ipCIp2)%A,1,W(ipsp)%A,1)
         else
@@ -369,7 +369,7 @@ iopt = ibset(0,sLength)
 irc = 3*ndisp
 Label = 'DOTELGR'
 call drdMCk(irc,iopt,LaBeL,idum,EG,idum)
-call GADsum(Hss,nHss)
+call GADgop(Hss,nHss,'+')
 Hess2(:) = Hss(:)
 #ifdef _DEBUGPRINT_
 elec_On = .true.

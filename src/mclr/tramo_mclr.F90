@@ -202,7 +202,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
 
         if ((LPQ == NPQ) .and. (.not. NOFILE)) then
           call RDORD(IRC,IOPT,ISP,ISQ,ISR,ISS,Buffer(ipB),LBUF,NPQ)
-          call GADSum(Buffer(ipB),LBuf)
+          call GADGOp(Buffer(ipB),LBuf,'+')
           if (irc /= 0) then
             write(u6,*) 'TraMO_MCLR: error reading ORDINT!'
             call Abend()
@@ -498,11 +498,11 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
       end if ! nofile
     end do
     if (nAQ /= 0) then
-      !call GADSum(Buffer(ipX),nAQ*NAS*NBR*NBP)
+      !call GADGOp(Buffer(ipX),nAQ*NAS*NBR*NBP,'+')
       call dDafile(LUTRI2,ione,Buffer(ipX),nAQ*NAS*NBR*NBP,iAD24)
     end if
     if (iSP /= iSQ .and. nAP /= 0) then
-      !call GADSum(Buffer(ipY),NAP*NAS*NBR*NBQ)
+      !call GADGOp(Buffer(ipY),NAP*NAS*NBR*NBQ,'+')
       call dDafile(LUTRI3,ione,Buffer(ipY),NAP*NAS*NBR*NBQ,iAD14)
     end if
 
@@ -634,11 +634,11 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
         end if ! nofile
       end do
       if (nAQ /= 0) then
-        !call GADSum(Buffer(ipX),nAR*nAQ*nBS*nBP)
+        !call GADGOp(Buffer(ipX),nAR*nAQ*nBS*nBP,'+')
         call dDaFile(LuTri4,ione,Buffer(ipX),nAR*nAQ*nBS*nBP,iad23)
       end if
       if (iSP /= iSQ .and. nap /= 0) then
-        !call GADSum(Buffer(ipY),nAR*nAP*nBS*nBQ)
+        !call GADGOp(Buffer(ipY),nAR*nAP*nBS*nBQ,'+')
         call dDaFile(LuTri5,ione,Buffer(ipY),nAR*nAP*nBS*nBQ,iad13)
       end if
     end if

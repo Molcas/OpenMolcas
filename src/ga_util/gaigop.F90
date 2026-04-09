@@ -8,15 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Roland Lindh                                     *
+! Copyright (C) 1995, Martin Schuetz                                   *
+!               1998, Roland Lindh                                     *
+!               2000-2015, Steven Vancoillie                           *
 !***********************************************************************
-Module TList_Mod
-Real*8, Parameter:: Not_Used=-1.0D0
-Real*8 QLast(2),P,PQ
-Integer nTasks, igaTsk, iTCnSt, mTasks, iStrt_TList, iEnd_TList, iTskCan
-Real*8, Allocatable:: TskQ(:,:)
-Real*8, Allocatable:: TskM(:,:)
-Integer, Allocatable, Target:: TskL(:)
-Logical:: PP_Status=.False.
-Logical:: GT_Status=.False.
-End Module TList_Mod
+
+! integer global operation; stub routine to ga_igop...
+! k(n):     global vector
+! op:       global operation '+','*','max','min','absmax','absmin'
+subroutine GAIGOP(k,n,op)
+
+#ifdef _MOLCAS_MPP_
+use Para_Info, only: Is_Real_Par
+#endif
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(inout) :: k(n)
+character(len=*), intent(in) :: op
+#ifdef _MOLCAS_MPP_
+#include "mafdecls.fh"
+
+if (Is_Real_Par()) call ga_igop(MT_INT,k,n,op)
+#else
+#include "macros.fh"
+unused_var(k)
+unused_var(_str(op))
+#endif
+
+end subroutine GAIGOP

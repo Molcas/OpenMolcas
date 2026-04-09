@@ -168,7 +168,7 @@ C
         End Do
       End Do
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par().and.do_grad) call gadsum(DPT2,NDPT2)
+      IF (Is_Real_Par().and.do_grad) call gadgop(DPT2,NDPT2,'+')
 #endif
 
       END SUBROUTINE TRDNS2D

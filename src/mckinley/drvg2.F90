@@ -30,6 +30,7 @@ subroutine Drvg2(Hess,nHess,lGrad,lHess)
 !             Anders Bernhardsson 1995-1996                            *
 !***********************************************************************
 
+use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
 use setup, only: MxPrm
 use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, RASSCF
 use Index_Functions, only: nTri_Elem, nTri_Elem1
@@ -61,7 +62,6 @@ real(kind=wp), pointer :: Temp(:)
 integer(kind=iwp), parameter :: Nr_of_Densities = 1
 logical(kind=iwp), parameter :: Int_Direct = .true.
 integer(kind=iwp), external :: NrOpr
-logical(kind=iwp), external :: Rsv_Tsk
 
 !                                                                      *
 !***********************************************************************
@@ -392,7 +392,7 @@ call Free_Tsk(id_Tsk)
 
 ! YIPPIEEEE Finished OK fill it UP!!
 
-call GADSum(iInt,n_Int)
+call GADGOp(iInt,n_Int,'+')
 jDisp = 0
 do iIrr=0,nIrrep-1
   do iDisk=1,lDisp(iIrr)

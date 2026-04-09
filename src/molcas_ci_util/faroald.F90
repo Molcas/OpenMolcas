@@ -138,7 +138,7 @@ subroutine sigma_update(h,g,sgm,psi)
   call sigma3(g,sgm,psiT,ibsta,ibend)
 
   ! sum over all processes
-  call gadsum(sgm,ndeta*ndetb)
+  call gadgop(sgm,ndeta*ndetb,'+')
 
   if (mult == 1) then
     ! for Ms = 0 (only used for singlet), sgm := sgm + sgm^T

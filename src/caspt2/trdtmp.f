@@ -38,7 +38,7 @@ C not functioning in parallel, this part should be done only on the
 C master node:
       IF (KING()) call trdact(IVECC,IVECC,dtemp)
 
-      call GADSUM(DTEMP,NDTEMP)
+      call GADGOP(DTEMP,NDTEMP,'+')
 
       iofdpt=0
       do isym=1,nsym

@@ -29,10 +29,9 @@ implicit none
 integer(kind=iwp), intent(out) :: irc
 character(len=*), parameter :: SecNam = 'Cho_X_Init_Par_DF'
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: nV(8)
 logical(kind=iwp) :: isSerial
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: iSym
+integer(kind=iwp) :: iSym, nV(8)
 #endif
 
 irc = 0
@@ -58,7 +57,9 @@ end if
 ! the runfile.
 ! ---------------------------------------------------------------
 
+#ifdef _DEBUGPRINT_
 nV(1:nSym) = NumCho(1:nSym)
+#endif
 call Get_iArray('nVec_RI',NumCho,nSym)
 NumChT = sum(NumCho(1:nSym))
 

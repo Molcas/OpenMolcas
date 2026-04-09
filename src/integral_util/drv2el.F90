@@ -26,6 +26,7 @@ subroutine Drv2El(ThrAO)
 !             Modified driver. Jan. '98                                *
 !***********************************************************************
 
+use TList_Mod, only: Free_GTList, Free_PPList, Free_TList, Init_GTList, Init_PPList, Init_TList, Rsv_GTList
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
@@ -46,7 +47,6 @@ real(kind=wp), allocatable :: TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 procedure(int_wrout) :: Integral_WrOut2
-logical(kind=iwp), external :: Rsv_GTList
 
 !                                                                      *
 !***********************************************************************

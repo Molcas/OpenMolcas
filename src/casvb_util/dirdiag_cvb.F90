@@ -86,7 +86,7 @@ integer(kind=iwp), intent(inout) :: nvguess, nvrestart
 integer(kind=iwp), intent(out) :: ioptc, iter
 integer(kind=iwp) :: i, ifail, imacro, iorth, itdav, ivres, ndavvec, nroot
 real(kind=wp) :: e1, eig, eig_res, facn, resnrm
-logical(kind=iwp) :: done, is_converged
+logical(kind=iwp) :: is_converged
 real(kind=wp), external :: ddot_, dnrm2_
 
 e1 = Zero
@@ -133,18 +133,14 @@ outer: do imacro=1,mxiter
       iter = iter+1
       ! Ensure accurate orthogonalization:
       facn = dnrm2_(n,c(:,itdav),1)
-      done = .false.
       do iorth=1,nortiter
         c(:,itdav) = c(:,itdav)/facn
         call schmidtd2_cvb(c,sxc,itdav-1,c(:,itdav),1,n)
         call ddproj_cvb(c(:,itdav),n)
         facn = dnrm2_(n,c(:,itdav),1)
-        if (abs(One-facn) < orththr) then
-          done = .true.
-          exit
-        end if
+        if (abs(One-facn) < orththr) exit
       end do
-      if (.not. done) then
+      if (iorth > nortiter) then
         write(u6,*) ' Not able to achieve orthonormality in max number of attempts:',nortiter
         call abend_cvb()
       end if

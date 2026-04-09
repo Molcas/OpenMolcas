@@ -195,7 +195,7 @@ else  ! Cho-Fock
   call Deallocate_DT(CVa)
   call mma_deallocate(G2x)
 
-  call GADSum(Fock,nDens)
+  call GADGOp(Fock,nDens,'+')
 
 end if
 

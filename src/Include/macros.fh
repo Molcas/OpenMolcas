@@ -38,6 +38,14 @@
 !    For external procedures, associate doesn't work with all compilers
 #    define unused_proc(x) if (.false.) call x
 
+#    include "compiler_features.h"
+#    ifdef _ASSUMED_LENGTH_ASSOCIATE_
+#      define _str(x) x
+#    else
+!      Old gfortran chokes on assumed-length strings
+#      define _str(x) len(x)
+#    endif
+
 #  else
 
 #    define unused_var(x)

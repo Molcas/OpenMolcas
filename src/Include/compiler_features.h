@@ -138,3 +138,10 @@ With PGI 20 ( __PGIC__ >= 20 ) it compiles, but it appears to be buggy at runtim
 #else
 #  undef _LIFETIME_BUG_
 #endif
+
+/* Assumed-length association */
+#if (( __GNUC__ ) && ( GCC_VERSION < 50000 ))
+#  undef _ASSUMED_LENGTH_ASSOCIATE_
+#else
+#  define _ASSUMED_LENGTH_ASSOCIATE_
+#endif

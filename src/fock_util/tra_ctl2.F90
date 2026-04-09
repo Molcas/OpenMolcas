@@ -158,8 +158,8 @@ if (IPR >= 5) then
 end if
 
 ! Synchronize Fock matrices if running parallel:
-call GADsum(FI,nTot1)
-call GADsum(FA,nTot1)
+call GADgop(FI,nTot1,'+')
+call GADgop(FA,nTot1,'+')
 
 ! print FI and FA
 if (IPR >= 10) then
@@ -186,7 +186,7 @@ if (IPR >= 10) then
 end if
 
 ! Synchronize PUVX if running parallel:
-call GAdsum(PUVX,nPUVX)
+call GADgop(PUVX,nPUVX,'+')
 
 ! select integrals TUVX
 call Get_TUVX(PUVX,TUVX)

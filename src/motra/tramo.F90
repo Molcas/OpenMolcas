@@ -94,7 +94,7 @@ do NP=1,NBP
 
     if (LPQ == NPQ) then
       call RDORD(IRC,IOPT,ISP,ISQ,ISR,ISS,X1,LBUF,NPQ)
-      call GADSum(X1,LBUF)
+      call GADGOp(X1,LBUF,'+')
       IOPT = 2
       LPQ = 0
       IRSST = 1-NBRS

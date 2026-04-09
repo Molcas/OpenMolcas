@@ -128,7 +128,7 @@ do tSym=1,nSym
                 if (v .eq. t .and. u < x) then
                   cycle
                 end if
-                if (dabs(ERI(t,u)) < threshold) then
+                if (abs(ERI(t,u)) < threshold) then
                   cycle
                 end if
                 values(offset) = ERI(t,u)
@@ -157,7 +157,7 @@ do vSym=1,nSym
       t = max(v, x)
       u = min(v, x)
       n = u + t * (t - 1) / 2
-      if (dabs(FIMO(n)) < threshold) then
+      if (abs(FIMO(n)) < threshold) then
         cycle
       end if
       values(offset) = FIMO(n)
