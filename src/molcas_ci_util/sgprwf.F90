@@ -43,7 +43,7 @@ Line(1:16) = '      conf/sym  '
 iOff = 16
 iSym = SGS%ISm(1)
 do Lev=1,SGS%nLev
-
+  if (SGS%ISm(Lev) /= iSym) iOff = iOff+1
   write(Line(iOff+Lev:),'(I1)') SGS%ISm(Lev)
   if (SGS%ISm(Lev) /= iSym) iSym = SGS%ISm(Lev)
 end do
