@@ -21,15 +21,17 @@ C  written by:
 C  M.P. Fuelscher and P. AA. Malmqvist
 C  University of Lund, Sweden, 1993
 ************************************************************************
+      use definitions, only: iwp
       use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2,
      &                       LUHLF3, LUINTM, LUDMAT, LUDRA, LUDRATOT,
      &                       LURHS, LUH0T, LUSOLV, LUSBT
-      Implicit Real*8 (A-H,O-Z)
+      use caspt2_module, only: Found2, IfChol, IfDirect
+      Implicit None
       CHARACTER(LEN=2) CVEC,CMAT
+      integer(kind=iwp) iMat, iOpt, iRC, iVec, LUINTA
 *---------------------------------------------------------------------*
 C  Start
 *---------------------------------------------------------------------*
-#include "caspt2.fh"
 
 *---  define logical unit numbers ------------------------------------*
 C  AO two-electron integrals

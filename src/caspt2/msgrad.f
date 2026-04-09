@@ -16,12 +16,12 @@ C
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
 C     Compute the derivative of E^PT2 with respct to the T amplitude
 C
       Implicit Real*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       INTEGER IST,JST
@@ -100,6 +100,7 @@ C
       use PrintLevel, only: debug
       use EQSOLV
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 C Compute the coupling Hamiltonian element defined as
 C     HEL = < ROOT1 | H * OMEGA | ROOT2 >
@@ -114,7 +115,6 @@ C RHS arrays. There is now a main HCOUP subroutine that loops over cases
 C and irreps and gets access to the process-specific block of the RHS.
 C The coupling for that block is computed by the subroutine HCOUP_BLK.
 
-#include "caspt2.fh"
       Dimension TG1(NASHT,NASHT)
       Dimension TG2(NASHT,NASHT,NASHT,NASHT)
 C The dimension of TG3 is NTG3=(NASHT**2+2 over 3)
@@ -242,6 +242,7 @@ C
      &                         TG1,TG2,TG3,SCAL)
       USE SUPERINDEX
       use EQSOLV
+      use caspt2_module
 C Compute a contribution to the coupling Hamiltonian element (HEL)
 C defined as HEL = < ROOT1 | H * OMEGA | ROOT2 >. The contribution
 C arises from the block V_(A,I), with A=1,NAS and I=IISTA,IIEND,
@@ -250,7 +251,6 @@ C the inactive superindex is partitioned over processes, each process
 C only computes part of the HEL value, which is then sum reduced in the
 C calling subroutine.
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       DIMENSION V1(*), V2(*)
 
@@ -701,8 +701,8 @@ C
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
       implicit real(8) (A-H,O-Z)
-#include "caspt2.fh"
       character(len=1) Bas
       real(8) CI(Nconf),U0(nState,nState)
       integer ID, Istate
@@ -752,12 +752,11 @@ C
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension H0(nState,nState),U0(nState,nState),UEFF(nState,nState)
       Dimension SLag(nState*nState)
@@ -1155,12 +1154,12 @@ C
 C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: nProcs, Is_Real_Par
 #endif
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 C
       DIMENSION CLag(nConf,nState),RDMEIG(*),SLag(*)
@@ -1214,11 +1213,11 @@ C
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module, only: nConf
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
 * THIS PROGRAM CALCULATES THE 1-EL DENSITY
 * MATRIX FOR A CASSCF WAVE FUNCTION.
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       REAL*8, INTENT(IN) :: CI1(NCONF),CI2(NCONF)
@@ -1266,9 +1265,9 @@ C
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp
+      use caspt2_module, only: nConf, STSym, Mul
       IMPLICIT NONE
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       INTEGER, INTENT(IN):: nLev
@@ -1387,13 +1386,12 @@ C
       use caspt2_global, only: FIMO_all
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Real*8 INT1(nAshT,nAshT),INT2(nAshT,nAshT,nAshT,nAshT)
       integer(kind=iwp),allocatable :: BGRP(:,:)
@@ -1600,9 +1598,8 @@ C
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension DPT2Canti(*),UEFF(nState,nState),U0(*)
       real(kind=wp),allocatable :: CI1(:),CI2(:),SGM1(:),SGM2(:),TG1(:),
@@ -1728,9 +1725,9 @@ C
       use PrintLevel, only: debug
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp
+      use caspt2_module, only: iSCF, nActEl, nAshT, STSym, Mul
       IMPLICIT NONE
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
@@ -1853,10 +1850,9 @@ C
       Subroutine DWDER(OMGDER,HEFF,SLag)
 C
       use definitions, only:wp
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension OMGDER(nState,nState),HEFF(nState,nState),
      *          SLag(nState,nState)

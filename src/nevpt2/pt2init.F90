@@ -31,6 +31,7 @@ use info_orbital_space, only: datadim, file_id, ijklname, inforb_molcas, initial
 use nevpt2wfn, only: nevpt2wfn_init, nevpt2wfn_data
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use caspt2_module, only: nSym, nBas, nFro, nIsh, nAsh, nSsh, iSpin, nActEl, nBasT, nBSqT, nState, RefEne
 
 implicit none
 character(len=*), intent(in) :: refwfn_in
@@ -38,7 +39,6 @@ character(len=:), allocatable :: refwfnfile
 integer(kind=iwp) :: istate, ii, j, nDiff, nishprev, nfroprev
 integer(kind=iwp), allocatable :: nCore_local(:)
 real(kind=wp), allocatable :: readbuf(:,:)
-#include "caspt2.fh"
 
 ! Save current directory into the CurrDir string
 call GetEnvF('WorkDir',curr_dir)
@@ -100,7 +100,7 @@ call refwfn_info()
 call refwfn_data()
 call refwfn_close()
 
-!> fill nevpt2 configuration variables from caspt2.fh commons
+!> fill nevpt2 configuration variables from caspt2_module.F90
 !> ----------------------------------------------------------
 
 !> check if nr_states has been requested as 'all'
@@ -108,7 +108,7 @@ if (nr_states == 0) then
   ! using standard allocate and deallocate because MultGroup%State
   ! is deallocated somewhere in the external library
   if (allocated(MultGroup%State)) deallocate(MultGroup%State)
-  !> nstate from common block in caspt2.fh
+  !> nstate from caspt2_module.F90
   nr_states = nstate
   allocate(MultGroup%State(nr_states))
   do istate=1,nr_states
@@ -131,7 +131,7 @@ write(u6,'(a,i4)') ' Spin ............................. ',nspin
 ! Read orbital specifications and store them in the inforb_molcas
 ! variable from info_orbital_space
 
-! nish, nash and nssh are in caspt2.fh (Common /INPI/ and have been
+! nish, nash and nssh are in caspt2_module.F90 (and have been
 ! read by the refwfn module
 call initialize_inforb_molcas(nSym)
 

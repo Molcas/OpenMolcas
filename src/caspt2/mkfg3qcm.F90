@@ -20,11 +20,10 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    use printLevel, only: verbose
    use gugx, only: SGS
    use caspt2_global, only: iPrGlb
-!  use caspt2_global, only: CompressMPS, iPrGlb
+   use caspt2_module, only: nAshT, jState, EPSA, Mul
 
    implicit none
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
    Integer(kind=iwp), intent(in)  :: IFF

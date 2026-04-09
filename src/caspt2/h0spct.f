@@ -20,9 +20,8 @@
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"

@@ -17,11 +17,11 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRWF_CP2(ISYCI,NCO,CI,THR)
+      use definitions, only: wp, iwp
       use gugx, only: CIS
       IMPLICIT NONE
-      INTEGER, INTENT(IN) :: ISYCI, NCO
-      REAL*8, INTENT(IN) :: CI(NCO), THR
-#include "caspt2.fh"
+      INTEGER(KIND=IWP), INTENT(IN) :: ISYCI, NCO
+      REAL(KIND=WP), INTENT(IN) :: CI(NCO), THR
 
       INTEGER I, nMidV
 

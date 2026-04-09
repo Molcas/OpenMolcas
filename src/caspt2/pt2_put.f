@@ -18,13 +18,13 @@
 *--------------------------------------------*
       SUBROUTINE PT2_PUT(NSIZE,LAB,VEC)
       use caspt2_global, only: LUDMAT
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
       INTEGER NSIZE
       CHARACTER(len=*) LAB
       REAL*8 VEC(*)
 
       CHARACTER(len=8) LAB1
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       I=9-LEN(LAB)

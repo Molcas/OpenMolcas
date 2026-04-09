@@ -16,10 +16,13 @@
       use EQSOLV
       use ChoCASPT2
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nBTri, ECore, nBasT, nBSqT, nInaBx,
+     &                         nSecBx, nSym, PotNuc, nBas, nFro,
+     &                         nIsh, nAsh, RHSDirect, nBtches, Mul,
+     &                         nSsh, nBtch
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "warnings.h"
-#include "caspt2.fh"
       INTEGER NCMO, NDREF
       REAL*8 CMO(NCMO),DREF(NDREF),
      &       FFAO(NBTRI),FIAO(NBTRI),FAAO(NBTRI)

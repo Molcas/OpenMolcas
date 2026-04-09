@@ -25,12 +25,12 @@
       use caspt2_global, only: LUCIEX, LUONEM, LUHLF1, LUHLF2, LUHLF3,
      &                       LUINTM, LUDMAT, LUDRA, LUDRATOT, LURHS,
      &                       LUH0T, LUSOLV, LUSBT
+      use caspt2_module
       Implicit real*8 (a-h,o-z)
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *-------------------------------------- -------------------------------*
 
-#include "caspt2.fh"
       Call DaClos(LUCIEX)
 * PAM08
       Call DaClos(LUONEM)

@@ -64,8 +64,9 @@ C>                   to active indices
       use gugx, only: CIS, SGS, L2ACT, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use SysDef, only: RtoB
+      use caspt2_module, only: nActEl, nAshT, nBasT, nSym, STSym, Mul,
+     &                         EPSA
       IMPLICIT NONE
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
 

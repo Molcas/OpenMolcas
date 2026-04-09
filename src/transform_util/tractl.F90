@@ -46,10 +46,10 @@ use trafo, only: IAD13, ISP, ISQ, ISR, ISS, ITP, ITQ, ITR, ITS, LMOP, LMOP2, LMO
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
+use caspt2_module, only: nOsh, nBMx, nSym, OutFmt, nOrb, nBas, nAsh, nFro, Mul
 
 implicit none
 integer(kind=iwp), intent(in) :: iPart
-#include "caspt2.fh"
 integer(kind=iwp) :: I, IERR, iiPart, IRC, ISYM, Keep(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, L2, L2M, LATRU, LATUS, lBuf, LIADUT, &
                      LMOP1, LMOQ1, LMOR1, LMOS1, LPQRS, LPQTU, LRS, LRSmx, LRUPQM, LTARU, LTAUS, LTUPQM, LTUPQX, LTURS, LTURSM, &
                      LURPQM, LW1, LW2, LW2B, LW3, LW3B, LW4, LW4B, LW5, LW6, MaxRS, MEMLFT, MEMT, MEMX, Mxx1, Mxx2, Mxx3, &
@@ -100,7 +100,7 @@ end if
 !* PAM2007: For unknown reasons, one extra word is needed.
 !      lBuf = 1+MAX(255*255,NBMX**2)
 ! but note that tractl, being a utility, can be called from other
-! programs and should not take the value NBMX from caspt2.fh...
+! programs and should not take the value NBMX from caspt2_module.F90...
 ! hence correction by AJS below.
 
 ! Correction by AJS, Jan. 12, 2009. Defines the value of NBMX

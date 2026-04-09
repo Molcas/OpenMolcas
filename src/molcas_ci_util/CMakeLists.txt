@@ -13,6 +13,7 @@ set (sources
      alloc.F90
      cands.F90
      caspt2_global.F90
+     caspt2_module.F90
      check_invec.F90
      chksplit.F90
      cidia.F90
@@ -140,6 +141,7 @@ set (sources
 set (modfile_list
      cands.F90
      caspt2_global.F90
+     caspt2_module.F90
      csfbas.F90
      dmrginfo.F90
      general_data.F90

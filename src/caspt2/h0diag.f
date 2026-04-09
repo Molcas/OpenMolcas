@@ -18,11 +18,10 @@
 *--------------------------------------------*
       SUBROUTINE H0DIAG_CASPT2(ISYCI,DIAG,NOW,IOW,nMidV)
       use gugx, only: CIS
+      use caspt2_module, only: nSym, Mul
       IMPLICIT None
 C INPUT ARRAYS:
 
-! Pick up nSym
-#include "caspt2.fh"
 ! Pick up MXCI
 #include "pt2_guga.fh"
 

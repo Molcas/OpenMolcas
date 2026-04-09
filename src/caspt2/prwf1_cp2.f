@@ -19,6 +19,7 @@
       SUBROUTINE PRWF1_CP2(NOCSF,IOCSF,NOW,IOW,ISYCI,CI,THR,nMidV)
       use gugx, only: SGS, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
       Integer, Intent(In):: nMidV
       DIMENSION NOCSF(NSYM,NMIDV,NSYM),IOCSF(NSYM,NMIDV,NSYM)
@@ -28,7 +29,6 @@
       CHARACTER(LEN=1) CODE(0:3)
       DATA CODE /'0','u','d','2'/
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       INTEGER ICS(MXLEV)
       Integer :: nLev, nIpWlk

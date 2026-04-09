@@ -23,8 +23,8 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -108,10 +108,12 @@ C usually print info on the total number of parameters
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       use SysDef, only: ItoB
+      use caspt2_module, only: BMatrix, BSpect, BTrans, IfDOrtho,
+     &                         ThrShn, ThrShs, nASup, nISup, Cases,
+     &                         nInDep
 
       IMPLICIT None
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       integer(kind=iwp), Intent(in):: iSym, iCase
@@ -541,8 +543,8 @@ C divided over processors.
      *                         idBoriMat
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
 C-SVC20100902: global arrays header files
 #include "global.fh"
@@ -984,8 +986,8 @@ C replicate array.  FIXME: Should be removed later.
 
       SUBROUTINE S_SCALE (NAS,SCA,S,iLo,iHi,jLo,jHi,LDS)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       REAL*8 SCA(NAS),S(LDS,*)
       DO J=jLo,jHi
         DO I=iLo,iHi
@@ -996,8 +998,8 @@ C replicate array.  FIXME: Should be removed later.
 
       SUBROUTINE V_SCALE (EIG,SCA,V,nRows,NAS,LDV,NIN,COND)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       REAL*8 EIG(NAS),SCA(NAS),V(LDV,*),COND(NIN)
       jVEC=0
       DO J=1,NAS

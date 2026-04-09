@@ -10,8 +10,8 @@
 ************************************************************************
       SUBROUTINE TRANSFOCK(TORB,NTORB,F,NF,IDIR)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER NTORB, NF, IDIR
       REAL*8 TORB(NTORB),F(NF)
 

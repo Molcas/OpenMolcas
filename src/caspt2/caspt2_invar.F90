@@ -15,11 +15,9 @@ subroutine caspt2_grad_invaria1(DPT2)
 !
   use Constants, only: Zero
   use definitions, only: iwp,wp
-  use EQSOLV
+  use caspt2_module, only: nSym, nIsh, nAsh, nSsh, nOrb
 !
   implicit none
-!
-#include "caspt2.fh"
 !
   real(kind=wp), intent(inout) :: DPT2(*)
   integer(kind=iwp) :: IOFDIJ(8),IOFDAB(8)
@@ -71,10 +69,10 @@ subroutine caspt2_grad_invaria2(DPT2,OLag)
 !
   use Constants, only: Half
   use definitions, only: iwp,wp
+  use caspt2_module, only: nSym, nDel, nIsh, EPSI, nSsh, nAsh, EPSE, nBas, nFro
 !
   implicit none
 !
-#include "caspt2.fh"
 !
   real(kind=wp), intent(inout) :: DPT2(*)
   real(kind=wp), intent(in)    :: OLag(*)

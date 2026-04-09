@@ -10,8 +10,8 @@
 ************************************************************************
       SUBROUTINE TRANSDREF(TORB,NTORB,DREF,NDREF)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       INTEGER NDREF
       REAL*8 TORB(NTORB),DREF(NDREF)
 

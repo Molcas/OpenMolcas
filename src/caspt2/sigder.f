@@ -29,8 +29,8 @@ C     SUBROUTINE TRDNS2O(IVEC,JVEC,DPT2)
 #endif
       use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,
      &                   GA_Arrays
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 #if defined(_MOLCAS_MPP_) && defined(_GA_)
 #include "global.fh"
 #endif

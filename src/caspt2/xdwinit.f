@@ -21,10 +21,11 @@
       use caspt2_global, only: LUONEM
       use PrintLevel, only: debug, insane, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nState, IfChol, iSCF, nAshT, nConf,
+     &                         STSym, iAd1m, mState
 
       implicit none
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       Real(kind=wp),intent(inout) :: Heff(Nstate,Nstate)

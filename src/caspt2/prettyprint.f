@@ -12,9 +12,9 @@
 ************************************************************************
       subroutine prettyprint(A,N,M)
 * This subroutine pretty prints the NxM matrix A
+      use caspt2_module, only: mState
       implicit none
 
-#include "caspt2.fh"
 
 * Input arguments
       integer N,M
@@ -31,5 +31,4 @@
         write(6,*)
       end do
 
-      return
       end

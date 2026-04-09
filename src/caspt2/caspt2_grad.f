@@ -23,11 +23,10 @@ C
      *                           OMGDER,iTasks_grad
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
-C     use gugx, only: CIS
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 C
       character(len=128) :: FileName
@@ -210,13 +209,12 @@ C
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
       Character(Len=16) mstate1
@@ -558,10 +556,9 @@ C
 C
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       real(kind=wp),allocatable :: DMs1(:,:),DMs2(:,:)
 C
@@ -589,9 +586,8 @@ C
       use caspt2_global, only:ipea_shift
       use caspt2_global, only: if_invar
       use PrintLevel, only: usual
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       If ((.not.if_invar) .and. (IPRGLB >= USUAL)) Then
         Write (6,*)
@@ -610,9 +606,8 @@ C
       Subroutine GradPrep(UEFF,VECROT)
 C
       use caspt2_global, only: iRoot1, iRoot2, jStLag
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
 C#include "nadc.fh"
 C#include "nac.fh"
@@ -668,9 +663,8 @@ C
       use caspt2_global, only: OLagFull,WLag,nOLag
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension OLagLoc(*),Trf(*)
       real(kind=wp),allocatable :: WRK(:),WLagLoc(:)
@@ -757,10 +751,9 @@ C-----------------------------------------------------------------------
       use caspt2_global, only: FIMO, FIFA, CMOPT2
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 
       Implicit Real*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
       real(kind=wp),allocatable :: WRK1(:),WRK2(:)
 
@@ -885,10 +878,9 @@ C
       use definitions, only: wp
       use stdalloc, only: mma_allocate,mma_deallocate
       use caspt2_global, only: LUONEM
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       real(kind=wp), intent(in) :: DPT2(NBSQT),DPT2C(NBSQT)
       real(kind=wp), intent(inout) :: DPT2AO(NBSQT),DPT2CAO(NBSQT)

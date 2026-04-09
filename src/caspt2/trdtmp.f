@@ -12,10 +12,10 @@
       USE Para_Info, ONLY: King
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
-#include "caspt2.fh"
       Integer NDPT2
       Real*8 DPT2(NDPT2)
 

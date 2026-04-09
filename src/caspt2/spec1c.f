@@ -17,9 +17,9 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SPEC1C(IFC,FACT,ISYM,X,Y)
-      USE SUPERINDEX
+      USE SUPERINDEX, only: KTUV
+      use caspt2_module, only: nTUV, nAsh, nAES, nTUVES, nAshT, nSsh
       IMPLICIT NONE
-#include "caspt2.fh"
       INTEGER IFC,ISYM
       REAL*8 FACT,X(*),Y(*)
       INTEGER NAS,NT,NA,IT,ITQ,IUQ,ITUU
@@ -41,5 +41,4 @@ C the conjugate expression (summing into Y, values from X).
           END IF
   11    CONTINUE
   10  CONTINUE
-      RETURN
       END

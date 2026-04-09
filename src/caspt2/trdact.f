@@ -20,10 +20,10 @@
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: LUCIEX, IDTCEX
-      use EQSOLV
+      use caspt2_module, only: nAshT, iSCF, jState, nConf, nSym, STSym,
+     &                         iASym, nAes, nAshT, nAsh
       IMPLICIT NONE
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 
       INTEGER IVEC, JVEC

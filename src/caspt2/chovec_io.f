@@ -76,9 +76,8 @@ C as this is how they are used to compute the integrals for RHS.
 * the _lower_ orbital partition (e.g. inactive for active,inactive),
 * which is also the slowest varying index of the pair P,Q.
 ************************************************************************
-      use EQSOLV
+      use caspt2_module, only: Mul, nAsh, nIsh, nSSh
       IMPLICIT NONE
-#include "caspt2.fh"
 
       INTEGER :: ICASE,ISYQ,JSYM
       INTEGER :: ISYP,NP,NQ
@@ -111,9 +110,8 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
 * Allocate a buffer to hold all cholesky vectors of type ITK,ITQ
 ************************************************************************
-      use EQSOLV
+      use caspt2_module, only: nSym, Mul
       IMPLICIT NONE
-#include "caspt2.fh"
 
       INTEGER :: ICASE,NCHOBUF,IOFF(8,8)
       INTEGER :: ISYK,ISYQ,JSYM
@@ -143,10 +141,9 @@ C as this is how they are used to compute the integrals for RHS.
       use caspt2_global, only: LUDRATOT
 #endif
       use caspt2_global, only: LUDRA
-      use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module, only: nSym, nBtches, nBtch
       IMPLICIT NONE
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
@@ -212,9 +209,9 @@ C as this is how they are used to compute the integrals for RHS.
 ************************************************************************
       use caspt2_global, only: LUDRA
       use ChoCASPT2
+      use caspt2_module
       Implicit real*8 (a-h,o-z)
 #include "warnings.h"
-#include "caspt2.fh"
       DIMENSION CHOBUF(*)
 
 C always write the chunks to LUDRA, both for serial and parallel
@@ -242,9 +239,9 @@ C always write the chunks to LUDRA, both for serial and parallel
 ************************************************************************
       use caspt2_global, only: LUDRA
       use ChoCASPT2
+      use caspt2_module
       Implicit real*8 (a-h,o-z)
 #include "warnings.h"
-#include "caspt2.fh"
       DIMENSION CHOBUF(*)
 
 C always write the chunks to LUDRA, both for serial and parallel
@@ -277,11 +274,11 @@ C always write the chunks to LUDRA, both for serial and parallel
       use caspt2_global, only: LUDRATOT
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: MPIInt
+      use chocaspt2, only: NFTSPC_TOT
+      use caspt2_module, only: RHSDirect
 #endif
-      use ChoCASPT2
       IMPLICIT NONE
 #include "warnings.h"
-#include "caspt2.fh"
       REAL*8 :: CHOBUF(*)
       INTEGER :: ICASE,ISYQ,JSYM,IB
 

@@ -22,7 +22,10 @@
 #endif
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
+      use caspt2_module, only: nState, CPUFMB, CPUINT, DMRG, DoCumulant,
+     &                         IEOF1M, IfDW, IfsadRef, IfXMS, jState,
+     &                         nConf, STSym, TIOFMB, TIOINT, mState,
+     &                         iAd1m, IfChol
       IMPLICIT None
       Integer IGROUP,NGRP,JSTATE_OFF
 * 2012  PER-AKE MALMQVIST
@@ -33,7 +36,6 @@
 * group such that they diagonalize the H0 matrix.
 * The states in the group can be obtained from the ordered MSTATE array,
 * for which a group offset JSTATE_OFF is passed in.
-#include "caspt2.fh"
 #include "pt2_guga.fh"
 #include "warnings.h"
       real(8) Heff(Nstate,Nstate)

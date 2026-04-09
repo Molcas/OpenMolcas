@@ -24,10 +24,10 @@
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
+      use caspt2_module
 #define RHS_ X_RHS_
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       Integer IVEC, NDPT1
       REAL*8 DPT1(NDPT1)
 #ifdef _MOLCAS_MPP_

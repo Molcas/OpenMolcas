@@ -19,9 +19,9 @@
       SUBROUTINE OFFDNS(ISYM1,ICASE1,ISYM2,ICASE2,X1,X2,DPT2,Y,LIST)
       use EQSOLV
       use Sigma_data
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       DIMENSION X1(*),X2(*),Y(*)
       DIMENSION DPT2(*)
       DIMENSION LIST(*)

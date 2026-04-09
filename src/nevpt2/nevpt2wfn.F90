@@ -39,6 +39,7 @@ subroutine nevpt2wfn_init(create_h5)
   use gugx, only: L2ACT, Level
   use stdalloc, only: mma_allocate, mma_deallocate
   use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_str, mh5_create_dset_real, mh5_put_dset, mh5_close_dset
+  use caspt2_module, only: nSym, nBas, nBasT, nBSqT, nDel, nFro, nIsh, nRas1, nRas2, nRas3, nSsh, Root2State, STSym
 # endif
 
   logical(kind=iwp), intent(in) :: create_h5
@@ -46,7 +47,6 @@ subroutine nevpt2wfn_init(create_h5)
 # include "macros.fh"
   unused_var(create_h5)
 # else
-# include "caspt2.fh"
 # include "pt2_guga.fh"
   integer(kind=iwp) :: dsetid, i
   character, allocatable :: typestring(:)
@@ -172,7 +172,6 @@ subroutine nevpt2wfn_data()
   use stdalloc, only: mma_allocate, mma_deallocate
   use Definitions, only: wp
 
-# include "caspt2.fh"
   real(kind=wp), allocatable :: BUF(:)
   integer(kind=iwp) :: IDISK
 # ifdef _DMRG_

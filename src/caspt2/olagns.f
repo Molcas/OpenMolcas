@@ -14,9 +14,9 @@
 C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 C
       DIMENSION DPT2C(*),T2AO(*)
       real(kind=wp),allocatable :: Int1(:),Int2(:),Scr1(:),Amp1(:)
@@ -83,9 +83,9 @@ C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
       use fake_GA, only: GA_Arrays
+      use caspt2_module
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
       DIMENSION ERI1(*),ERI2(*),Amp1(nMaxOrb,nMaxOrb),
      *          Scr(nMaxOrb,nMaxOrb)
       DIMENSION DPT2C(*),T2AO(*)
@@ -1136,9 +1136,8 @@ C
 ! MO->AO or AO->MO transformation of 1-RDM
       Subroutine OLagTrf(mode,iSym,CMO,DPT2,DPT2AO,WRK)
 C
+      use caspt2_module
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension CMO(*),DPT2(*),DPT2AO(*),WRK(*)
 C

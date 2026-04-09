@@ -11,9 +11,9 @@
       SUBROUTINE HAM3(OP0,OP1,NOP2,OP2,NOP3,OP3,ISYCI,CI,SGM)
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGS, CIS, EXS
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
 #include "pt2_guga.fh"
       DIMENSION OP1(NASHT,NASHT),OP2(NOP2),OP3(NOP3)
       DIMENSION CI(*),SGM(*)

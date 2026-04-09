@@ -19,10 +19,10 @@
       SUBROUTINE RDSCTC(ISCT,ISYM,ICASE,IVEC,VSCT)
       use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VSCT(*)
 
-#include "caspt2.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
@@ -51,10 +51,9 @@ C Read coefficient vector from LUSOLV (C repres).
       SUBROUTINE RDBLKC(ISYM,ICASE,IVEC,VEC)
       use caspt2_global, only: LUSOLV, IDSCT
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION VEC(*)
-
-#include "caspt2.fh"
 
 C Read coefficient vector from LUSOLV (C repres).
 #ifdef _DEBUGPRINT_
@@ -94,9 +93,10 @@ C Read coefficient vector from LUSOLV (C repres).
       use caspt2_global, ONLY: iPrGlb
       USE PrintLevel, ONLY: usual
       use EQSOLV
-      IMPLICIT NONE
+      use caspt2_module, only: CPUSCA, nCases, nSym, TIOSCA, nInDep,
+     &                         niSup
 
-#include "caspt2.fh"
+      IMPLICIT NONE
 
       REAL*8 FACT
       INTEGER IVEC,JVEC
@@ -143,8 +143,8 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE POVLVEC (IVEC,JVEC,OVLAPS)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "caspt2.fh"
 
       REAL*8 OVLAPS(0:8,0:MXCASE)
 
@@ -197,9 +197,8 @@ C sum in OVLAPS(0,0).
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PLCVEC (ALPHA,BETA,IVEC,JVEC)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
-
-#include "caspt2.fh"
 
 C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 
@@ -252,9 +251,9 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOC (ITYPE,IVEC,JVEC)
       use EQSOLV
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
 
 C Transform RHS vectors from SR format to C format.
 C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
@@ -300,10 +299,18 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
       SUBROUTINE PTRTOSR (ITYPE,IVEC,JVEC)
-      use EQSOLV
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use definitions, only: iwp, wp
+      use Constants, only: Zero
+      use caspt2_module, only: nSym, nInDep, nASup, nISup, nCases,
+     &                         CPUVec, TIOVec
+      IMPLICIT None
 
-#include "caspt2.fh"
+      integer(kind=iwp), intent(In):: iTYPE, iVec, jVec
+
+      integer(kind=iwp) :: iCase, iSym, nIn, nAs, nIs
+      integer(kind=iwp) :: lg_v1, lg_v2
+      real(kind=wp) CPU1, CPU0, TIO1, TIO0, CPU, TIO
+
 
 C Transform RHS vectors from SR format to C format.
 C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
@@ -328,7 +335,7 @@ C ITYPE=0 uses only T matrix, ITYPE=1 uses S*T matrix
      &                       lg_V1,lg_V2,ICASE,ISYM)
               CALL RHS_FREE (lg_V2)
             ELSE
-              CALL RHS_SCAL (NIN,NIS,lg_V1,0.0D0)
+              CALL RHS_SCAL (NIN,NIS,lg_V1,Zero)
             END IF
           ELSE
             CALL RHS_READ (NIN,NIS,lg_V1,ICASE,ISYM,IVEC)

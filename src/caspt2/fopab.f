@@ -12,9 +12,9 @@
       use gugx, only: SGS, L2ACT, EXS, CIS
       use caspt2_global, only: LUCIEX, IDCIEX
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_module
       IMPLICIT REAL*8 (A-H,O-Z)
 
-#include "caspt2.fh"
       Integer NFIFA, IBRA, IKET
       Real*8 FIFA(NFIFA), FOPEL
 

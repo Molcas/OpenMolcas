@@ -11,10 +11,9 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine OLagFro0(DPT2_ori,DPT2)
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension DPT2_ori(*),DPT2(*)
 C
@@ -84,9 +83,8 @@ C
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension DIA(*),DI(*)
       Dimension RDMSA(*),Trf(*)
@@ -160,9 +158,8 @@ C
       Subroutine OLagFro1(DPT2,OLag)
 C
       use caspt2_global, only: FIFA_all
+      use caspt2_module
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension DPT2(*),OLag(*)
 C
@@ -201,10 +198,9 @@ C
 C-----------------------------------------------------------------------
 C
       Subroutine OLagFro2(DPT2,FPT2,ERI,Scr)
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension DPT2(*),FPT2(*),ERI(*),Scr(*)
 C
@@ -258,9 +254,8 @@ C
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension FIFA(*),FIMO(*),WRK1(*),WRK2(*)
       Character(Len=8) Label
@@ -335,10 +330,9 @@ C
 C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+      use caspt2_module
 C
       Implicit Real*8 (A-H,O-Z)
-C
-#include "caspt2.fh"
 C
       Dimension Ftr(*),Fsq(*)
       real(kind=wp),allocatable :: EPS_loc(:)
@@ -384,11 +378,11 @@ C
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
+      use caspt2_module
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "warnings.h"
-#include "caspt2.fh"
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #endif
