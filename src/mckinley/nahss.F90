@@ -39,7 +39,7 @@ implicit none
 #include "hss_interface.fh"
 integer(kind=iwp) :: iAnga(4), iBeta, iCar, iCent, iComp, iDAO, iDCRT(0:7), iIrrep, Indx(3,4), ipA, ipAOff, ipArr, ipB, ipBOff, &
                      ipDAO, iStop, iuvwx(4), jAtom, jCar, JndGrd(0:2,0:3,0:7), JndHss(0:3,0:2,0:3,0:2,0:7), kCnt, kCnttp, kdc, &
-                     lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, nnIrrep, nRys
+                     lDCRT, LmbdT, Maxi, Mini, mOp(4), nArray, nDAO, nDCRT, nDisp, nFinal, nip, nnIrrep
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3)
 logical(kind=iwp) :: IfG(0:3), JfGrd(0:2,0:3), JfHss(0:3,0:2,0:3,0:2), Tr(0:3)
 procedure(cff2d_kernel) :: Cff2D
@@ -58,7 +58,6 @@ unused_var(lOper)
 write(u6,*) ' In NAHss: nArr=',nArr
 #endif
 
-nRys = nHer
 
 nip = 1
 ipA = nip
