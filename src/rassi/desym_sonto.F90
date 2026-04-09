@@ -45,7 +45,7 @@ SCR(:) = Zero
 if (SYMLAB == 1) then
   ! Diagonal symmetry blocks.
   ! Dont need to do anything, just leave it be
-  call DCOPY_(SIZA,A(:),1,SCR,1)
+  SCR(:) = A(:)
 else
   ! Non-diagonal symmetry blocks
   ! note that only half of the total matrix has been stored

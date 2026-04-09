@@ -1266,9 +1266,9 @@ if (IFSO) then
                 Rtensor(5) = -0.375_wp*(RYZ+RZY+(RYYX+RXZZ-RXYY-RZZX))
                 Rtensor(6) = 0.75_wp*(RXX+RYY+(RXZY-RYZX))
                 if (abs(EDIFF) > 1.0e-8_wp) then
-                  call DSCAL_(6,AU2REDR/EDIFF,Rtensor,1)
+                  Rtensor(:) = AU2REDR/EDIFF*Rtensor(:)
                 else
-                  Rtensor(:) = ZERO
+                  Rtensor(:) = Zero
                 end if
                 if (Do_SK) then
                   ! k^T R k
@@ -1432,7 +1432,7 @@ if (IFSO) then
                 Rtensor(4) = 0.75_wp*(RXX+RZZ+EDIFF*(RYZX-RXYZ))
                 Rtensor(5) = -0.375_wp*(RYZ+RZY+EDIFF*(RYYX+RXZZ-RXYY-RZZX))
                 Rtensor(6) = 0.75_wp*(RXX+RYY+EDIFF*(RXZY-RYZX))
-                call DSCAL_(6,AU2REDR,Rtensor,1)
+                Rtensor(:) = AU2REDR*Rtensor(:)
                 if (Do_SK) then
                   ! k^T R k
                   R = k_vector(1,iVec)**2*Rtensor(1)+k_vector(2,iVec)**2*Rtensor(4)+k_vector(3,iVec)**2*Rtensor(6)+ &
@@ -1856,13 +1856,13 @@ else if (IFGCAL) then
   call SMMAT(PROP,ZXYZI(:,:,2),NSS,0,2)
   call SMMAT(PROP,ZXYZR(:,:,3),NSS,0,3)
 
-  call DSCAL_(NSS**2,FEGVAL,ZXYZR(:,:,1),1)
-  call DSCAL_(NSS**2,FEGVAL,ZXYZI(:,:,2),1)
-  call DSCAL_(NSS**2,FEGVAL,ZXYZR(:,:,3),1)
+  ZXYZR(:,:,1) = FEGVAL*ZXYZR(:,:,1)
+  ZXYZI(:,:,2) = FEGVAL*ZXYZI(:,:,2)
+  ZXYZR(:,:,3) = FEGVAL*ZXYZR(:,:,3)
 
-  call DAXPY_(NSS**2,One,LXI,1,ZXYZI(:,:,1),1)
-  call DAXPY_(NSS**2,One,LYI,1,ZXYZI(:,:,2),1)
-  call DAXPY_(NSS**2,One,LZI,1,ZXYZI(:,:,3),1)
+  ZXYZI(:,:,1) = ZXYZI(:,:,1)+LXI(:,:)
+  ZXYZI(:,:,2) = ZXYZI(:,:,2)+LYI(:,:)
+  ZXYZI(:,:,3) = ZXYZI(:,:,3)+LZI(:,:)
 
   call mma_deallocate(LXI)
   call mma_deallocate(LYI)
@@ -2309,13 +2309,13 @@ else if (IFXCAL) then
   call SMMAT(PROP,MXYZI(:,:,2),NSS,0,2)
   call SMMAT(PROP,MXYZR(:,:,3),NSS,0,3)
 
-  call DSCAL_(NSS**2,FEGVAL,MXYZR(:,:,1),1)
-  call DSCAL_(NSS**2,FEGVAL,MXYZI(:,:,2),1)
-  call DSCAL_(NSS**2,FEGVAL,MXYZR(:,:,3),1)
+  MXYZR(:,:,1) = FEGVAL*MXYZR(:,:,1)
+  MXYZI(:,:,2) = FEGVAL*MXYZI(:,:,2)
+  MXYZR(:,:,3) = FEGVAL*MXYZR(:,:,3)
 
-  call DAXPY_(NSS**2,One,LXI,1,MXYZI(:,:,1),1)
-  call DAXPY_(NSS**2,One,LYI,1,MXYZI(:,:,2),1)
-  call DAXPY_(NSS**2,One,LZI,1,MXYZI(:,:,3),1)
+  MXYZI(:,:,1) = MXYZI(:,:,1)+LXI(:,:)
+  MXYZI(:,:,2) = MXYZI(:,:,2)+LYI(:,:)
+  MXYZI(:,:,3) = MXYZI(:,:,3)+LZI(:,:)
 
   call mma_deallocate(LXI)
   call mma_deallocate(LYI)
@@ -2358,22 +2358,17 @@ else if (IFXCAL) then
 
     do IBSTEP=1,NBSTEP
       B = BSTART+BINCRE*(IBSTEP-1)
-      ZR(:,:) = Zero
-      ZI(:,:) = Zero
-      call DAXPY_(NSS**2,Half*B/auToT,MXYZR(:,:,IXYZ),1,ZR,1)
-      call DAXPY_(NSS**2,Half*B/auToT,MXYZI(:,:,IXYZ),1,ZI,1)
+      ZR(:,:) = Half*B/auToT*MXYZR(:,:,IXYZ)
+      ZI(:,:) = Half*B/auToT*MXYZI(:,:,IXYZ)
       do ISS=1,NSS
         ZR(ISS,ISS) = ZR(ISS,ISS)+ENSOR(ISS)
       end do
-      call DCOPY_(NSS**2,[Zero],0,UZR,1)
-      call DCOPY_(NSS,[One],0,UZR,NSS+1)
-      call DCOPY_(NSS**2,[Zero],0,UZI,1)
+      call unitmat(UZR,NSS)
+      UZI(:,:) = Zero
       call ZJAC(NSS,ZR,ZI,NSS,UZR,UZI)
       do JXYZ=1,3
-        call DCOPY_(NSS**2,MXYZR(:,:,JXYZ),1,ZXYZR(:,:,JXYZ),1)
-        call DCOPY_(NSS**2,MXYZI(:,:,JXYZ),1,ZXYZI(:,:,JXYZ),1)
-        call DSCAL_(NSS**2,-Half,ZXYZR(:,:,JXYZ),1)
-        call DSCAL_(NSS**2,-Half,ZXYZI(:,:,JXYZ),1)
+        ZXYZR(:,:,JXYZ) = -Half*MXYZR(:,:,JXYZ)
+        ZXYZI(:,:,JXYZ) = -Half*MXYZI(:,:,JXYZ)
         call ZTRNSF(NSS,UZR,UZI,ZXYZR(:,:,JXYZ),ZXYZI(:,:,JXYZ))
       end do
       do ITSTEP=1,NTSTEP
@@ -2454,26 +2449,17 @@ else if (IFXCAL) then
           BX = B*sin(THE)*cos(PHI)
           BY = B*sin(THE)*sin(PHI)
           BZ = B*cos(THE)
-          call DCOPY_(NSS**2,[Zero],0,ZR,1)
-          call DAXPY_(NSS**2,Half*BX/auToT,MXYZR(:,:,1),1,ZR,1)
-          call DAXPY_(NSS**2,Half*BY/auToT,MXYZR(:,:,2),1,ZR,1)
-          call DAXPY_(NSS**2,Half*BZ/auToT,MXYZR(:,:,3),1,ZR,1)
-          call DCOPY_(NSS**2,[Zero],0,ZI,1)
-          call DAXPY_(NSS**2,Half*BX/auToT,MXYZI(:,:,1),1,ZI,1)
-          call DAXPY_(NSS**2,Half*BY/auToT,MXYZI(:,:,2),1,ZI,1)
-          call DAXPY_(NSS**2,Half*BZ/auToT,MXYZI(:,:,3),1,ZI,1)
+          ZR(:,:) = Half/auToT*(BX*MXYZR(:,:,1)+BY*MXYZR(:,:,2)+BZ*MXYZR(:,:,3))
+          ZI(:,:) = Half/auToT*(BX*MXYZI(:,:,1)+BY*MXYZI(:,:,2)+BZ*MXYZI(:,:,3))
           do ISS=1,NSS
             ZR(ISS,ISS) = ZR(ISS,ISS)+ENSOR(ISS)
           end do
-          call DCOPY_(NSS**2,[Zero],0,UZR,1)
-          call DCOPY_(NSS,[One],0,UZR,NSS+1)
-          call DCOPY_(NSS**2,[Zero],0,UZI,1)
+          call unitmat(UZR,NSS)
+          UZI(:,:) = Zero
           call ZJAC(NSS,ZR,ZI,NSS,UZR,UZI)
           do IXYZ=1,3
-            call DCOPY_(NSS**2,MXYZR(:,:,IXYZ),1,ZXYZR(:,:,IXYZ),1)
-            call DCOPY_(NSS**2,MXYZI(:,:,IXYZ),1,ZXYZI(:,:,IXYZ),1)
-            call DSCAL_(NSS**2,-Half,ZXYZR(:,:,IXYZ),1)
-            call DSCAL_(NSS**2,-Half,ZXYZI(:,:,IXYZ),1)
+            ZXYZR(:,:,IXYZ) = -Half*MXYZR(:,:,IXYZ)
+            ZXYZI(:,:,IXYZ) = -Half*MXYZI(:,:,IXYZ)
             call ZTRNSF(NSS,UZR,UZI,ZXYZR(:,:,IXYZ),ZXYZI(:,:,IXYZ))
           end do
           do ITSTEP=1,NTSTEP

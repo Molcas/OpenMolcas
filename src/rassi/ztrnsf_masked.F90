@@ -73,8 +73,8 @@ call DGEMM_('T','N',NI,NJ,INUM,One,VI,INUM,TI,INUM,One,MR,NI)
 call DGEMM_('T','N',NI,NJ,INUM,One,VR,INUM,TI,INUM,Zero,MI,NI)
 call DGEMM_('T','N',NI,NJ,INUM,-One,VI,INUM,TR,INUM,One,MI,NI)
 
-call DCOPY_(N*N,[Zero],0,AR,1)
-call DCOPY_(N*N,[Zero],0,AI,1)
+AR(:,:) = Zero
+AI(:,:) = Zero
 do J=1,NJ
   JJ = IJ(3)+J-1
   do I=1,NI

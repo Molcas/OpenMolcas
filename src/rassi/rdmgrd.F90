@@ -126,9 +126,12 @@ do IS=1,nIrrep
     LT = 1+ITOFF(IS)
     IA1 = 1+IAOFF(IS)
     IA2 = 1+IAOFF(JS)
-    call DCOPY_(NBI*NBJ,TEMP(LT),1,ARRAY(IA1),1)
-    F = One
-    if (STYPE(1:4) == 'ANTI') F = -F
+    ARRAY(IA1:IA1+NBI*NBJ-1) = TEMP(LT:LT+NBI*NBJ-1)
+    if (STYPE(1:4) == 'ANTI') then
+      F = -One
+    else
+      F = One
+    end if
     do I=1,NBI
       do J=1,NBJ
         ARRAY(IA2-1+J+NBJ*(I-1)) = F*ARRAY(IA1-1+I+NBI*(J-1))

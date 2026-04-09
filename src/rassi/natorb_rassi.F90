@@ -62,8 +62,7 @@ LV = 1
 LE = 1
 do ISYM=1,nIrrep
   NB = NBASF(ISYM)
-  call DCOPY_(NB**2,[Zero],0,VEC(LV),1)
-  call DCOPY_(NB,[One],0,VEC(LV),NB+1)
+  call unitmat(VEC(LV:LV+NB**2-1),NB)
   call JACOB(SZZ(LS),VEC(LV),NB,NB)
   ! SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
   LS1 = LS
@@ -71,8 +70,7 @@ do ISYM=1,nIrrep
   LE1 = LE
   do I=1,NB
     EIG(LE1) = SZZ(LS1)
-    X = One/sqrt(max(SZZ(LS1),1.0e-14_wp))
-    call DSCAL_(NB,X,VEC(LV1),1)
+    VEC(LV1:LV1+NB-1) = VEC(LV1:LV1+NB-1)/sqrt(max(SZZ(LS1),1.0e-14_wp))
     LS1 = LS1+I+1
     LV1 = LV1+NB
     LE1 = LE1+1
@@ -86,7 +84,7 @@ call mma_deallocate(SZZ)
 ! VERY LONG LOOP OVER EIGENSTATES KEIG.
 do KEIG=1,NRNATO
 
-  call DCOPY_(NBSQ,[Zero],0,DMAT,1)
+  DMAT(:) = Zero
   ! DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS, TRIANGULAR.
   do I=1,NSTATE
     do J=1,I
@@ -97,13 +95,13 @@ do KEIG=1,NRNATO
       X = EIGVEC(I,KEIG)*EIGVEC(J,KEIG)
       if (abs(X) > 1.0e-12_wp) then
         iEmpty = iDisk_TDM(I,J,2)
-        if (iand(iEmpty,1) /= 0) then
+        if (btest(iEmpty,0)) then
           IDISK = iDisk_TDM(I,J,1)
           iOpt = 2
           iGo = 1
           call dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
           if (I == J) X = Half*X
-          call DAXPY_(NTDMZZ,X,TDMZZ,1,DMAT,1)
+          DMAT(1:NTDMZZ) = DMAT(1:NTDMZZ)+X*TDMZZ(:)
         end if
       end if
     end do
@@ -125,7 +123,7 @@ do KEIG=1,NRNATO
     ID2 = ID
     do I=1,NB
       call DSCAL_(NB,EIG(LE-1+I),DMAT(ID1),NB)
-      call DSCAL_(NB,EIG(LE-1+I),DMAT(ID2),1)
+      DMAT(ID2:ID2+NB-1) = EIG(LE-1+I)*DMAT(ID2:ID2+NB-1)
       ID1 = ID1+1
       ID2 = ID2+NB
     end do
@@ -140,8 +138,7 @@ do KEIG=1,NRNATO
       end do
     end do
     ! DIAGONALIZE THE DENSITY MATRIX BLOCK:
-    VEC2(:) = Zero
-    call DCOPY_(NB,[One],0,VEC2,NB+1)
+    call unitmat(VEC2,NB)
     call JACOB(SCR,VEC2,NB,NB)
     call JACORD(SCR,VEC2,NB,NB)
     ! JACORD ORDERS BY INCREASING EIGENVALUE. REVERSE THIS ORDER.
@@ -157,7 +154,7 @@ do KEIG=1,NRNATO
     I2 = INV+NB**2
     do I=1,NB
       I2 = I2-NB
-      call DCOPY_(NB,SCR(I1),1,VNAT(I2),1)
+      VNAT(I2:I2+NB-1) = SCR(I1:I1+NB-1)
       I1 = I1+NB
     end do
     ID = ID+NB**2

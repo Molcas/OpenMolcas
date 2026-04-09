@@ -38,7 +38,7 @@ nbast1 = sum(nTri_Elem(NBASF(1:nIrrep)))
 nbast2 = sum(NBASF(1:nIrrep)**2)
 
 call mma_allocate(DYSAB,NOSHT)
-call DCOPY_(NOSHT,DYSCMO,1,DYSAB,1)
+DYSAB(:) = DYSCMO(1:NOSHT)
 
 call mma_allocate(SAO,NBAST1)
 call mma_allocate(IAO,NBAST2)

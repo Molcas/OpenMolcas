@@ -59,7 +59,7 @@ if (ToFile) then
   call DaName(LuToM,FnToM)
   if (iCall == 0) then  !Make room for table-of-contents
     iDisk = 0
-    call ICOPY(nState*(nState+1)/2,[-1],0,TocM,1)
+    TocM(1:nState*(nState+1)/2) = -1
     call iDaFile(LuToM,1,TocM,nState*(nstate+1)/2,iDisk)
     TocM(1) = iDisk
     iDiskSav = iDisk

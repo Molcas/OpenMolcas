@@ -115,7 +115,7 @@ if (doDMRG .and. (nacte1 /= nacte2)) then
   call abend()
 end if
 
-!> Logical variables, controlling which GTDM''s to compute
+!> Logical variables, controlling which GTDM's to compute
 
 !>  Overlap
 IF00 = (NACTE1 == NACTE2) .and. (MPLET1 == MPLET2)
@@ -691,7 +691,7 @@ do JST=1,NSTAT(JOB2)
     else
       CI2(1) = One
     end if
-    if (DoGSOR) call DCOPY_(NCONF2,CI2,1,CI2_o,1)
+    if (DoGSOR) CI2_o(:) = CI2(:)
     DET2(:) = Zero
     ! Transform to bion basis, Split-Guga format
     if (TrOrb) call CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,TRA2,NCONF2,CI2)
@@ -744,7 +744,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
     if (doGSOR) then
       if (JOB1 /= JOB2) then
         Dot_prod = DDOT_(NCONF2,CI1,1,CI2,1)
-        call DAXPY_(NCONF2,Dot_prod,CI2_o,1,THETA1,1)
+        THETA1(:) = THETA1(:)+Dot_prod*CI2(:)
       end if
     end if
 
@@ -875,7 +875,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
         call MKTDZZ(CMO1,CMO2,TSDMAB,TSDMZZ,iRC)
         if (iRC == 1) iEmpty = iEmpty+2
 
-        !> WE-reduced TDM''s of triplet type:
+        !> WE-reduced TDM's of triplet type:
         call MKTDAB(Zero,WERD,WDMAB,iRC)
         !> transform to AO basis
         call MKTDZZ(CMO1,CMO2,WDMAB,WDMZZ,iRC)
@@ -933,11 +933,11 @@ job2_loop: do JST=1,NSTAT(JOB2)
               end if
 
               !> regular-TDM
-              call daxpy_(ntdmzz,fac1*fac2,tdmzz,1,mixed_1p_rtdm(:,i,j),1)
+              mixed_1p_rtdm(:,i,j) = mixed_1p_rtdm(:,i,j)+fac1*fac2*tdmzz(:)
               !> spin-TDM
-              call daxpy_(ntdmzz,fac1*fac2,tsdmzz,1,mixed_1p_stdm(:,i,j),1)
-              !> WE-reduced TDM''s of triplet type:
-              call daxpy_(ntdmzz,fac1*fac2,wdmzz,1,mixed_1p_wtdm(:,i,j),1)
+              mixed_1p_stdm(:,i,j) = mixed_1p_stdm(:,i,j)+fac1*fac2*tsdmzz(:)
+              !> WE-reduced TDM's of triplet type:
+              mixed_1p_wtdm(:,i,j) = mixed_1p_wtdm(:,i,j)+fac1*fac2*wdmzz(:)
               !> overlap
               mixed_1p_overlap(i,j) = mixed_1p_overlap(i,j)+fac1*fac2*sij
             end do
@@ -1036,7 +1036,7 @@ if (DoGSOR) then
   if (job1 /= job2) then
     dot_prod = DDOT_(NCONF2,THETA1,1,THETA1,1)
     Norm_Fac = One/sqrt(dot_prod)
-    call DSCAL_(NCONF2,Norm_Fac,THETA1,1)
+    THETA1(:) = Norm_Fac*THETA1(:)
 
     !Write theta1 to file.
     LUCITH = IsFreeUnit(87)
@@ -1052,15 +1052,15 @@ if (DoGSOR) then
     do JST=2,NSTAT(JOB2)
       JSTATE = ISTAT(JOB2)-1+JST
       call READCI(JSTATE,SGS(2),CIS(2),NCONF2,CI2)
-      call DCOPY_(NCONF2,CI2,1,CI2_o,1)
-      call DCOPY_(NDET2,[Zero],0,DET2,1)
+      CI2_o(:) = CI2(:)
+      DET2(:) = Zero
       if (TrOrb) call CITRA(WFTP2,SGS(2),CIS(2),EXS(2),LSYM2,TRA2,NCONF2,CI2)
       call PREPSD(WFTP2,SGS(2),CIS(2),LSYM2,CNFTAB2,SPNTAB2,SSTAB,FSBTAB2,NCONF2,CI2,DET2,detocc,detcoeff2,TRANS2)
 
       call mma_allocate(ThetaN,NCONF2,Label='ThetaN')
       ThetaN(:) = Zero
       Norm_Fac = DDOT_(NCONF2,THETA1,1,CI2_o,1)
-      call DAXPY_(NCONF2,-Norm_Fac,THETA1,1,ThetaN,1)
+      ThetaN(:) = ThetaN(:)-Norm_Fac*THETA1(:)
 
       LUCITH = IsFreeUnit(LUCITH)
       call Molcas_Open(LUCITH,'CI_THETA')
@@ -1077,7 +1077,7 @@ if (DoGSOR) then
           read(LUCITH,*) ThetaM(i)
         end do
         Dot_prod = DDOT_(NCONF2,ThetaM,1,CI2_o,1)
-        call DAXPY_(NCONF2,-Dot_prod,ThetaM,1,ThetaN,1)
+        ThetaN(:) = ThetaN(:)-Dot_prod*ThetaM(:)
 
       end do
       call mma_deallocate(detcoeff2)
@@ -1085,7 +1085,7 @@ if (DoGSOR) then
       ! Normalize
       dot_prod = DDOT_(NCONF2,ThetaN,1,ThetaN,1)
       Norm_Fac = One/sqrt(dot_prod)
-      call DSCAL_(NCONF2,Norm_Fac,ThetaN,1)
+      ThetaN(:) = Norm_Fac*ThetaN(:)
 
       !dot_prod = DDOT_(NCONF2,THETA1,1,THETA1,1)
       !dot_prod = DDOT_(NCONF2,ThetaN,1,THETA1,1)

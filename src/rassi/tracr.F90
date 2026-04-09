@@ -62,7 +62,7 @@ do NP=1,NBP
     if (ISR == ISS) then
       call SQUARE(X1(IRSST),X2,1,NBR,NBR)
     else
-      call DCOPY_(NBR*NBS,X1(IRSST),1,X2,1)
+      X2(1:NBR*NBS) = X1(IRSST:IRSST+NBR*NBS-1)
     end if
     ! X2 CONTAINS THE MATRIX JPQ TRANSPOSED, X2(IS,IR)=JPQ(R,S)=(PQ/RS).
     call DGEMM_('T','N',NBR,NAS,NBS,One,X2,NBS,CMO2(LMOS1),NBS,Zero,X3,NBR)
@@ -87,7 +87,7 @@ do IV=1,NAR
     if (ISP == ISQ) then
       call SQUARE(VXPQ(IPQST),X3,1,NBP,NBP)
     else
-      call DCOPY_(NBPQ,VXPQ(IPQST),1,X3,1)
+      X3(1:NBPQ) = VXPQ(IPQST:IPQST+NBPQ-1)
     end if
     ! X3 IS HALF-TRANSFORMED JVX MATRIX, TRANSPOSED. X3(IQ,IP)=(PQ/VX).
     ! WHEN TRANSFORMING, SKIP INDICES U=1..IUM.
@@ -172,7 +172,7 @@ if (ISR /= ISS) then
       end if
       LPQ = LPQ+1
       IRSST = IRSST+NBRS
-      call DCOPY_(NBR*NBS,X1(IRSST),1,X2,1)
+      X2(1:NBR*NBS) = X1(IRSST:IRSST+NBR*NBS-1)
       ! X2 CONTAINS THE MATRIX JPQ , X2(IS,IR)=JPQ(S,R)=(PQ/SR).
       ! NOTE THAT SYMMETRY OF R IS ISS AND SYMMETRY OF S IS ISR NOW.
       call DGEMM_('N','N',NBS,NAR,NBR,One,X2,NBS,CMO2(LMOR1),NBR,Zero,X3,NBS)
@@ -195,7 +195,7 @@ if (ISR /= ISS) then
       if (ISP == ISQ) then
         call SQUARE(VXPQ(IPQST),X3,1,NBP,NBP)
       else
-        call DCOPY_(NBPQ,VXPQ(IPQST),1,X3,1)
+        X3(1:NBPQ) = VXPQ(IPQST:IPQST+NBPQ-1)
       end if
       ! X3 IS HALF-TRANSFORMED JVX MATRIX, TRANSPOSED. X3(IQ,IP)=(PQ/VX).
       ! WHEN TRANSFORMING, SKIP INDICES U=1..IUM.

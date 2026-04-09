@@ -311,10 +311,10 @@ LWORK = max(1,int(SIZC(1)))
 call MMA_DEALLOCATE(SIZC)
 call MMA_ALLOCATE(RESI,LWORK,LABEL='RESI')
 ! Do SVD for TDMZZLC
-call ZCOPY_(nb2,[cZero],0,SVDU,1)
-call DCOPY_(nb,[Zero],0,SVDS,1)
-call ZCOPY_(nb2,[cZero],0,SVDVH,1)
-call ZCOPY_(LWORK,[cZero],0,RESI,1)
+SVDU(:) = cZero
+SVDS(:) = Zero
+SVDVH(:) = cZero
+RESI(1:LWORK) = cZero
 if (SumofTDMZZLC >= 1.0e-20_wp) call ZGESVD_('A','A',nb,nb,TDMZZLC,nb,SVDS,SVDU,nb,SVDVH,nb,RESI,LWORK,RESIR,INFO)
 if (INFO /= Zero) write(u6,*) 'SVD convergence issue'
 ! End testing SVD

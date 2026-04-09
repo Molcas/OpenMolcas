@@ -88,9 +88,9 @@ do IC=IC_Str,IC_End ! loop over reading X,Y, and Z AO Integrals
 
   if (iOpt == 1) then
     ! note reordering
-    call DAXPY_(NIP,ROTMAT(IC,1),IP,1,IPX,1)
-    call DAXPY_(NIP,ROTMAT(IC,2),IP,1,IPY,1)
-    call DAXPY_(NIP,ROTMAT(IC,3),IP,1,IPZ,1)
+    IPX(:) = IPX(:)+ROTMAT(IC,1)*IP(:)
+    IPY(:) = IPY(:)+ROTMAT(IC,2)*IP(:)
+    IPZ(:) = IPZ(:)+ROTMAT(IC,3)*IP(:)
   end if
 
 end do ! end loop over reading X,Y, and Z AO Integrals

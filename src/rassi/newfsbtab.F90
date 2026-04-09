@@ -61,7 +61,7 @@ select case (iCase)
     FSBTAB => FSBTAB1(:) !dummy
 end select
 NLEN = (NASPRT+2)*NFSB
-call ICOPY(NLEN,FSBARR(1:NLEN),1,FSBTAB(1+NHEAD:NLEN+NHEAD),1)
+FSBTAB(NHEAD+1:NHEAD+NLEN) = FSBARR(1:NLEN)
 call mma_deallocate(FSBARR)
 
 LSSTARR = 1+NHEAD

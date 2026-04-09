@@ -78,8 +78,8 @@ if (iOpt == 2) then
   nComp = 2
   call Allocate_Aux()
   ! Here we put in the k-vector
-  CoorO(:) = Zero
-  call dcopy_(3,wavevector,1,CoorO,1)
+  CoorO(1:3) = wavevector(:)
+  CoorO(4:) = Zero
 
   ! The electromagnetic field operator contributes to all
   ! irreducible irreps, hence OperI=255. Since the operator
@@ -88,7 +88,7 @@ if (iOpt == 2) then
   OperI(:) = 255
   OperC(:) = 0 ! Dummy
 
-  call dcopy_(nComp,[Zero],0,Nuc,1)
+  Nuc(:) = Zero
   call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Aux()
@@ -125,7 +125,7 @@ if (iOpt == 2) then
   do i=1,nIrrep
     do j=1,i
       ij = Mul(i,j)-1
-      if (iand(2**ij,iSyLbl_TMOM) /= 0) then
+      if (btest(iSyLbl_TMOM,ij)) then
         IOFF(i,j) = Length+1
         if (i == j) then
           Len_ = nBas(i-1)*(nBas(i-1)+1)/2
@@ -173,7 +173,7 @@ if (iOpt == 2) then
         do i=1,nIrrep
           do j=1,i
             ij = Mul(i,j)-1
-            if (iand(2**ij,iSyLbl) /= 0) then
+            if (btest(iSyLbl,ij)) then
               jOff = Length+1
               if (i == j) then
                 Len_ = nBas(i-1)*(nBas(i-1)+1)/2
@@ -182,10 +182,10 @@ if (iOpt == 2) then
               end if
               if (iCase == 1) then
                 ! Contribution to the real part
-                call DaXpY_(Len_,Fact,Temp_Int(jOff),1,Int_R(IOFF(i,j)),1)
+                Int_R(IOFF(i,j):IOFF(i,j)+Len_-1) = Int_R(IOFF(i,j):IOFF(i,j)+Len_-1)+Fact*Temp_Int(jOff:jOff+Len_-1)
               else
                 ! Contribution to the imaginary part
-                call DaXpY_(Len_,Fact,Temp_Int(jOff),1,Int_I(IOFF(i,j)),1)
+                Int_I(IOFF(i,j):IOFF(i,j)+Len_-1) = Int_I(IOFF(i,j):IOFF(i,j)+Len_-1)+Fact*Temp_Int(jOff:jOff+Len_-1)
               end if
               Length = Length+Len_
             end if
@@ -211,7 +211,7 @@ if (iOpt == 2) then
   do i=1,nIrrep
     do j=1,i
       ij = Mul(i,j)-1
-      if (iand(2**ij,iSyLbl_TMOM) /= 0) then
+      if (btest(iSyLbl_TMOM,ij)) then
         if (i == j) then
           Len_ = nBas(i-1)*(nBas(i-1)+1)/2
         else
@@ -262,8 +262,8 @@ if (iOpt <= 2) then
   nComp = 12
   call Allocate_Aux()
   ! Here we put in the k-vector
-  CoorO(:) = Zero
-  call dcopy_(3,wavevector,1,CoorO,1)
+  CoorO(1:3) = wavevector(:)
+  CoorO(4:) = Zero
 
   ! The electromagnetic field operator contributes to all
   ! irreducible irreps, hence OperI=255. Since the operator
@@ -272,7 +272,7 @@ if (iOpt <= 2) then
   OperI(:) = 255
   OperC(:) = 0 ! Dummy
 
-  call dcopy_(nComp,[Zero],0,Nuc,1)
+  Nuc(:) = Zero
   call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Aux()
@@ -286,10 +286,9 @@ if (iOpt > 2) then
   nComp = 2
   call Allocate_Aux()
   ! Here we put in the k-vector
-  CoorO(:) = Zero
-  call dcopy_(3,wavevector,1,CoorO,1)
   ! Change the argument to 2xA
-  call dscal_(3,Two,CoorO,1)
+  CoorO(1:3) = Two*wavevector(:)
+  CoorO(4:) = Zero
 
   ! The electromagnetic field operator contributes to all
   ! irreducible irreps, hence OperI=255. Since the operator
@@ -298,7 +297,7 @@ if (iOpt > 2) then
   OperI(:) = 255
   OperC(:) = 0 ! Dummy
 
-  call dcopy_(nComp,[Zero],0,Nuc,1)
+  Nuc(:) = Zero
   call OneEl(EMFInt,EMFMem,Label,ipList,OperI,nComp,CoorO,nOrdOp,Nuc,rHrmt,OperC,dum,1,0)
 
   call Deallocate_Aux()

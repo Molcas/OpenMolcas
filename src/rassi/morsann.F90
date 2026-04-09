@@ -16,14 +16,13 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: MorsAnn
 integer(kind=iwp) :: IMORS, IPOS
-integer(kind=iwp) :: ISGN, MASK
+integer(kind=iwp) :: ISGN
 integer(kind=iwp), external :: MorsParity
 
 MorsAnn = 999999
-MASK = 2**(IPOS-1)
-if (iand(MASK,IMORS) == 0) return
-MorsAnn = IMORS-MASK
-ISGN = MorsParity(MorsAnn/MASK)
+if (.not. btest(IMORS,IPOS-1)) return
+MorsAnn = ibclr(IMORS,IPOS-1)
+ISGN = MorsParity(MorsAnn/(2**(IPOS-1)))
 MorsAnn = ISGN*MorsAnn
 
 return

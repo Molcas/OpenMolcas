@@ -91,7 +91,7 @@ do ISYM=1,nIrrep
 end do
 !write(u6,*) 'FAC, FAC**2 ... ',FAC,FAC**2
 FAC = FAC**2
-call DSCAL_(NCO,FAC,CI,1)
+CI(:) = FAC*CI(:)
 !write(u6,*) ' CITRA. inactive done CI='
 !write(u6,'(1x,5f16.8)') (CI(I),I=1,NCO)
 ! THEN THE ACTIVE ONES:
@@ -111,7 +111,7 @@ if (WFTP /= 'EMPTY') then
       ISTA = ISTA+NO**2
     end do
     if (WFTP == 'CLOSED') FAC = FAC**2
-    call DSCAL_(NCO,FAC,CI,1)
+    CI(:) = FAC*CI(:)
   else
     ! The general case:
     call mma_allocate(TMP,NCO,Label='TMP')

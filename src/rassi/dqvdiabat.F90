@@ -94,7 +94,7 @@ call mma_allocate(TRQ,NSTATE,NSTATE,Label='TRQ')
 TRQ(:,:) = PROP(:,:,PNUM(4))+PROP(:,:,PNUM(5))+PROP(:,:,PNUM(6))
 
 call RecPrt('The TRQ matrix in DQVDiabat','',TRQ,NSTATE,NSTATE)
-write(u6,*) ''
+write(u6,*)
 
 call mma_allocate(TI,NSTATE,Label='TI')
 call mma_allocate(TJ,NSTATE,Label='TJ')
@@ -219,7 +219,7 @@ do i=1,itMAX
   if (THRSCH < THRS) then
     write(u6,*) 'Converged in this many iterations:'
     write(u6,*) i
-    write(u6,*) ''
+    write(u6,*)
     exit
   end if
 
@@ -242,14 +242,14 @@ call DGEMM_('N','N',NSTATE,NSTATE,NSTATE,One,TMP,NSTATE,TROT,NSTATE,Zero,HDIA,NS
 call mma_deallocate(TMP)
 call mma_deallocate(TROT)
 
-write(u6,*) ''
+write(u6,*)
 write(u6,*) 'The eigenvectors may no longer be in'
 write(u6,*) 'energetic order'
-write(u6,*) ''
+write(u6,*)
 call RecPrt('Diabatic Hamiltonian','',HDIA,NSTATE,NSTATE)
 
 call CollapseOutput(0,'DQV Diabatization section')
-write(u6,*) ''
+write(u6,*)
 
 ! Molcas verify calls
 call Add_Info('Adiabat1',HAM(1,1),1,4)

@@ -50,28 +50,28 @@ if (bdim > adim) then
 end if
 
 !write(u6,*) 'iState,jState=',iState,jState
-if (iand(iGo,1) /= 0) then
-  if (iand(iEmpty,1) /= 0) then
+if (btest(iGo,0)) then
+  if (btest(iEmpty,0)) then
     !if (iOpt == 1) write(u6,*) 'array1=',DDot_(bdim-1,Array1,1,Array1,1),Array1(bdim)
     call ddafile(lu,iOpt,array1,bdim,adr)
   else if (iOpt == 2) then
     array1(:) = Zero
   end if
-else if (iand(iEmpty,1) /= 0) then
+else if (btest(iEmpty,0)) then
   call ddafile(lu,0,array1,bdim,adr)
 end if
-if (iand(iGo,2) /= 0) then
-  if (iand(iEmpty,2) /= 0) then
+if (btest(iGo,1)) then
+  if (btest(iEmpty,1)) then
     !if (iOpt == 1) write(u6,*) 'array2=',DDot_(bdim-1,Array2,1,Array2,1),Array2(bdim)
     call ddafile(lu,iOpt,array2,bdim,adr)
   else if (iOpt == 2) then
     array2(:) = Zero
   end if
-else if (iand(iEmpty,2) /= 0) then
+else if (btest(iEmpty,1)) then
   call ddafile(lu,0,array2,bdim,adr)
 end if
-if (iand(iGo,4) /= 0) then
-  if (iand(iEmpty,4) /= 0) then
+if (btest(iGo,2)) then
+  if (btest(iEmpty,2)) then
     !if (iOpt == 1) write(u6,*) 'array3=',DDot_(bdim-1,Array3,1,Array3,1),Array3(bdim)
     call ddafile(lu,iOpt,array3,bdim,adr)
   else if (iOpt == 2) then
@@ -99,19 +99,19 @@ if ((.not. AO_Mode) .and. (iOpt == 2)) then
     call mma_deallocate(TRA1)
   end if
 
-  if ((iand(iGo,1) /= 0) .and. (iand(iEmpty,1) /= 0)) then
+  if (btest(iGo,0) .and. btest(iEmpty,0)) then
     !write(u6,*) 'array1=',DDot_(nasht_save**2,Array1,1,Array1,1),Array1(bdim)
     call MKTDAB(array1(bdim),array1,DMAB,iRC)
     call MKTDZZ(CMO1,CMO2,DMAB,array1,iRC)
   end if
 
-  if ((iand(iGo,2) /= 0) .and. (iand(iEmpty,2) /= 0)) then
+  if (btest(iGo,1) .and. btest(iEmpty,1)) then
     !write(u6,*) 'array2=',DDot_(nasht_save**2,Array2,1,Array2,1),Array2(bdim)
     call MKTDAB(array2(bdim),array2,DMAB,iRC)
     call MKTDZZ(CMO1,CMO2,DMAB,array2,iRC)
   end if
 
-  if ((iand(iGo,4) /= 0) .and. (iand(iEmpty,4) /= 0)) then
+  if (btest(iGo,2) .and. btest(iEmpty,2)) then
     !write(u6,*) 'array3=',DDot_(nasht_save**2,Array3,1,Array3,1),Array3(bdim)
     call MKTDAB(array3(bdim),array3,DMAB,iRC)
     call MKTDZZ(CMO1,CMO2,DMAB,array3,iRC)

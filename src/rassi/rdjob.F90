@@ -135,7 +135,7 @@ if (mh5_is_hdf5(jbname(job))) then
   call mma_allocate(ref_rootid,ref_nstates)
   call mh5_fetch_attr(refwfn_id,'STATE_ROOTID',ref_rootid)
   call mma_allocate(root2state,MxRoot,Label='root2state')
-  call iCopy(MxRoot,[0],0,root2state,1)
+  root2state(:) = 0
   if (mh5_exists_attr(refwfn_id,'ROOT2STATE')) then
     call mh5_fetch_attr(refwfn_id,'ROOT2STATE',root2state)
   else
@@ -430,7 +430,7 @@ else
   if (IFEJOB) then
     if (ITOC15(15) == -1) HAVE_HEFF = .true.
     if (NMAYBE == 0) then
-      write(u6,*) ' Sorry. Keyword ''EJOB'' has been used'
+      write(u6,*) " Sorry. Keyword 'EJOB' has been used"
       write(u6,*) ' but there are no energies available on'
       write(u6,*) ' the JOBIPH file nr',JOB
       call ABEND()

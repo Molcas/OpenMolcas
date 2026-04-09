@@ -68,8 +68,7 @@ LV = 1
 LE = 1
 do ISYM=1,nIrrep
   NB = NBASF(ISYM)
-  call DCOPY_(NB**2,[Zero],0,ONBAS(LV),1)
-  call DCOPY_(NB,[One],0,ONBAS(LV),NB+1)
+  call unitmat(ONBAS(LV:LV+NB**2-1),NB)
   call JACOB(SAO(LS),ONBAS(LV),NB,NB)
   ! SORT IN ORDER OF DECREASING EIGENVALUES.
   LS1 = LS
@@ -105,10 +104,9 @@ do ISYM=1,nIrrep
     S_EV = SAO(LS1)
     SEV(LE1) = S_EV
     if (S_EV > 1.0e-14_wp) then
-      X = One/sqrt(S_EV)
-      call DSCAL_(NB,X,ONBAS(LV1),1)
+      ONBAS(LV1:LV1+NB-1) = ONBAS(LV1:LV1+NB-1)/sqrt(S_EV)
     else
-      call DCOPY_(NB,[Zero],0,ONBAS(LV1),1)
+      ONBAS(LV1:LV1+NB-1) = Zero
     end if
     LS1 = LS1+I+1
     LV1 = LV1+NB
@@ -182,7 +180,7 @@ do IJPAIR=1,NBINA
       IEMPTY = iDisk_TDM(J,I,2)
       iOpt = 2
       iGo = 1
-      if (iand(iEMPTY,1) /= 0) then
+      if (btest(iEMPTY,0)) then
         if (I > J) then
           call dens2file(TDMAO,TDMAO,TDMAO,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,I,J)
         else
@@ -200,7 +198,7 @@ do IJPAIR=1,NBINA
             end do
           end do
         end if
-        call DAXPY_(NBSQ,X,TDMAO,1,TDMAT,1)
+        TDMAT(:) = TDMAT(:)+X*TDMAO(:)
       end if
     end do
   end do
@@ -242,7 +240,7 @@ do IJPAIR=1,NBINA
     end do
     ITD2 = ITD
     do I=1,NB2
-      call DSCAL_(NB1,SEV(LE2-1+I),TDMAT(1+ITD2),1)
+      TDMAT(1+ITD2:NB1+ITD2) = SEV(LE2-1+I)*TDMAT(1+ITD2:NB1+ITD2)
       ITD2 = ITD2+NB1
     end do
 
@@ -258,8 +256,8 @@ do IJPAIR=1,NBINA
     call DGEMM_('N','T',NB2,NB2,NB2,One,ONBAS(LV2),NB2,VTMAT,NB2,Zero,KETBNO(LK),NB2)
 
     ! Move the singular values into their proper places:
-    call DCOPY_(NBMIN,SVAL,1,SNGV1(1+IOFF_ISV(ISYM1)),1)
-    call DCOPY_(NBMIN,SVAL,1,SNGV2(1+IOFF_ISV(ISYM2)),1)
+    SNGV1(IOFF_ISV(ISYM1)+1:IOFF_ISV(ISYM1)+NBMIN) = SVAL(1:NBMIN)
+    SNGV2(IOFF_ISV(ISYM2)+1:IOFF_ISV(ISYM1)+NBMIN) = SVAL(1:NBMIN)
     ITD = ITD+NB1*NB2
   end do
 

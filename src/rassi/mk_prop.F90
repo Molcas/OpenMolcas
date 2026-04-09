@@ -91,7 +91,7 @@ do ISY1=1,nIrrep
   if (NB1 == 0) cycle
   do ISY2=1,ISY1
     I12 = MUL(ISY1,ISY2)
-    if (iand(2**(I12-1),ISCHK) == 0) cycle
+    if (.not. btest(ISCHK,I12-1)) cycle
     NB2 = NBASF(ISY2)
     if (NB2 == 0) cycle
     NB12 = NB1*NB2

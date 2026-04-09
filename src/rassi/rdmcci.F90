@@ -77,7 +77,7 @@ if (NTEMP > NARRAY) then
   call ABEND()
 end if
 ! Move buffer integrals into ARRAY in proper format:
-call DCOPY_(NTEMP,TEMP,1,ARRAY,1)
+ARRAY(1:NTEMP) = TEMP(:)
 ! Get rid of temporary buffer
 call mma_deallocate(TEMP)
 

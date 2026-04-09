@@ -66,9 +66,9 @@ else
       write(u6,'(1x,A,I16)') ' Addr of proto-CSF  :',KSPCPL
       write(u6,'(1x,A,I16)') ' Addr of proto-SD   :',KSPDET
       write(u6,'(1x,A,I16)') ' Addr of transf matr:',LTRANS
-      write(u6,*) ' proto-CSF''s:'
+      write(u6,*) " proto-CSF's:"
       call PRPCSF(IOPEN,NCPL,SCTAB(KSPCPL))
-      write(u6,*) ' proto-SD''s:'
+      write(u6,*) " proto-SD's:"
       call PRPDET(IOPEN,ND,SCTAB(KSPDET))
       write(u6,*) ' Transformation matrix:'
       call PRPTRA(ND,NCPL,TRANS)

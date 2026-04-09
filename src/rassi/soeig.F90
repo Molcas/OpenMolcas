@@ -39,8 +39,8 @@ real(kind=wp) :: AMFIX, AMFIY, AMFIZ, CG0, CGM, CGP, CGX, CGY, E0, E1, E2, E3, E
                  HSOR, HSOTOT, OMEGA, S1, S2, SM1, SM2, SOTHR_MIN, X, X_THR, XJEFF
 logical(kind=iwp) :: lJ2, lOMG
 integer(kind=iwp), allocatable :: IndexE(:), MAPMS(:), MAPSP(:), MAPST(:)
-real(kind=wp), allocatable :: ESO(:), HAMSOI(:,:), HAMSOR(:,:), HTOTI(:,:), HTOTR(:,:), J2I(:,:), J2R(:,:), JXI(:), JXR(:), &
-                              JYI(:), JYR(:), JZI(:), JZR(:), LXI(:), LYI(:), LZI(:), OMGI(:,:), OMGR(:,:)
+real(kind=wp), allocatable :: ESO(:), HAMSOR(:,:), HTOTI(:,:), HTOTR(:,:), J2I(:,:), J2R(:,:), JXI(:), JXR(:), JYI(:), JYR(:), &
+                              JZI(:), JZR(:), LXI(:), LYI(:), LZI(:), OMGI(:,:), OMGR(:,:)
 #ifdef _DMRG_
 integer(kind=iwp) :: info, lcwork
 real(kind=wp), allocatable :: rwork(:)
@@ -87,8 +87,6 @@ end do
 ! Complex hamiltonian matrix elements over spin states:
 call mma_allocate(HTOTR,NSS,NSS,Label='HTOTR')
 call mma_allocate(HTOTI,NSS,NSS,Label='HTOTI')
-HTOTR(:,:) = Zero
-HTOTI(:,:) = Zero
 
 if (IPGLOB >= 1) then
   write(u6,*)
@@ -230,21 +228,18 @@ if (IPGLOB >= 3) then
 end if
 ! save the Hamiltonian
 call mma_allocate(HAMSOR,NSS,NSS,'HAMSOR')
-call mma_allocate(HAMSOI,NSS,NSS,'HAMSOI')
-call dcopy_(NSS*NSS,HTOTR,1,HAMSOR,1)
-call dcopy_(NSS*NSS,HTOTI,1,HAMSOI,1)
-call put_darray('HAMSOR_SINGLE',HAMSOR,NSS*NSS)
-call put_darray('HAMSOI_SINGLE',HAMSOI,NSS*NSS)
+HAMSOR(:,:) = HTOTR(:,:)
+call put_darray('HAMSOR_SINGLE',HTOTR,NSS*NSS)
+call put_darray('HAMSOI_SINGLE',HTOTI,NSS*NSS)
 #ifdef _HDF5_
 ! unshift the diagonal
 do ISS=1,NSS
   HAMSOR(ISS,ISS) = HAMSOR(ISS,ISS)+EMIN
 end do
 call mh5_put_dset(wfn_sos_hsor,HAMSOR)
-call mh5_put_dset(wfn_sos_hsoi,HAMSOI)
+call mh5_put_dset(wfn_sos_hsoi,HTOTI)
 #endif
 call mma_deallocate(HAMSOR)
-call mma_deallocate(HAMSOI)
 
 !> use complex matrix diagonalization
 #ifdef _DMRG_
@@ -372,9 +367,9 @@ call SMMAT(PROP,JXR,NSS,0,1)
 call SMMAT(PROP,JYI,NSS,0,2)
 call SMMAT(PROP,JZR,NSS,0,3)
 
-call DAXPY_(NSS**2,One,LXI,1,JXI,1)
-call DAXPY_(NSS**2,One,LYI,1,JYI,1)
-call DAXPY_(NSS**2,One,LZI,1,JZI,1)
+JXI(:) = JXI(:)+LXI(:)
+JYI(:) = JYI(:)+LYI(:)
+JZI(:) = JZI(:)+LZI(:)
 
 call mma_deallocate(LXI)
 call mma_deallocate(LYI)

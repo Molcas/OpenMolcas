@@ -236,9 +236,9 @@ if (labb) then
           Salpha(1)%SB(1)%A1(run) = Salpha(1)%SB(1)%A1(run)+SDLT(1)%SB(1)%A1(run)
         end do
       end do
-      ! Salpha(1) besomces GAA
+      ! Salpha(1) becomes GAA
       integ = int(nbas_tot(1)*nbas_tot(1),kind=iwp)
-      call dscal_(integ,Half,Salpha(1)%A00(1),1)
+      Salpha(1)%A00(1:integ) = Half*Salpha(1)%A00(1:integ)
       ! Sbeta(1) becomes GBB
       run = 0
       do i=1,nbas_tot(1)
@@ -376,7 +376,7 @@ if (.not. LABB) then
       end do
       ! Salpha(1) becomes GAA
       integ = int(nbas_tot(1)*nbas_tot(1),kind=iwp)
-      call dscal_(integ,Half,Salpha(1)%A00(1),1)
+      Salpha(1)%A00(1:integ) = Half*Salpha(1)%A00(1:integ)
       ! Sbeta(1) becomes GBB
       run = 0
       do i=1,nbas_tot(1)
@@ -386,7 +386,7 @@ if (.not. LABB) then
         end do
       end do
     end if
-    !call daxpy_(integ,One,SDLT%A00(1),1,Salpha%A00(1),1)
+    !Salpha(1)%A00(1:integ) = Salpha(1)%A00(1:integ)+SDLT(1)%A00(1:integ)
     call mma_deallocate(STDMZZ_new)
     call mma_deallocate(STDMZZ_mtx)
     ! end EXCH
@@ -405,7 +405,7 @@ eNucB(ipNB) = ddot_(NNLTD,DLT(1)%A0,1,VNucB(1),1)
 ! from bsse calculation to get the cholesky vectors
 call NameRun('AUXRFIL1')
 call CHO_X_INIT(irc,ChFracMem)
-call CHO_TRDENS(irc,DLT,Salpha(1),istate,jstate,iTyp,DoExch,LABB)
+call CHO_TRDENS(irc,DLT,Salpha,istate,jstate,iTyp,DoExch,LABB)
 call NameRun('#Pop')    ! switch back to old RUNFILE
 call deallocate_DT(DLT(1))
 if (DOEXCH) then

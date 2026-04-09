@@ -53,7 +53,7 @@ LuEig = 27
 FnEig = 'EIGV'
 JBNAME(:) = 'UNDEFINE'
 do I=1,size(JBNAME)
-  write(MINAME(I),'(''MCK'',I3.3)') I
+  write(MINAME(I),"('MCK',I3.3)") I
 end do
 
 if (IPGLOB > 3) write(u6,*) ' OPENING ','ANNI'

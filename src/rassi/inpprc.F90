@@ -103,7 +103,7 @@ if (SaveDens) then
   if (.not. AO_Mode) then
     write(u6,*) '       TDMs in reduced format'
     call mma_allocate(JOB_INDEX,nState,Label='JOB_INDEX')
-    call ICopy(nState,JBNUM,1,JOB_INDEX,1)
+    JOB_INDEX(:) = JBNUM(1:nState)
     !write(u6,*) 'Job_Index=',Job_Index
     call mma_allocate(CMO1,nCMO,Label='CMO1')
     call mma_allocate(CMO2,nCMO,Label='CMO2')
@@ -475,7 +475,7 @@ do IPROP=1,NPROP
       write(u6,*) ' This record cannot be found. Some of the requested'
       write(u6,*) ' properties cannot be computed. Suggested fix: Try'
       write(u6,*) ' recomputing one-electron integrals with keyword'
-      write(u6,*) ' ''OneOnly'', and additional keywords for the'
+      write(u6,*) " 'OneOnly', and additional keywords for the"
       write(u6,*) ' properties needed.'
     else
       write(u6,*) ' Also missing:',PNAME(IPROP),ICOMP(IPROP)
@@ -502,7 +502,7 @@ do ISOPR=1,NSOPR
       write(u6,*) ' This record cannot be found. Some of the requested'
       write(u6,*) ' properties cannot be computed. Suggested fix: Try'
       write(u6,*) ' recomputing one-electron integrals with keyword'
-      write(u6,*) ' ''OneOnly'', and additional keywords for the'
+      write(u6,*) " 'OneOnly', and additional keywords for the"
       write(u6,*) ' properties needed.'
     else
       write(u6,*) ' Also missing:',SOPRNM(ISOPR),ISOCMP(ISOPR)

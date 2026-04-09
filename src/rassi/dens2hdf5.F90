@@ -64,7 +64,7 @@ subroutine UpdateIdx(IndexE,nSS,USOR,USOI,MapSt)
 
   if (.not. allocated(IdxState)) then
     call mma_Allocate(IdxState,nState,nState,Label='IdxState')
-    call iCopy(nState**2,[0],0,IdxState,1)
+    IdxState(:,:) = 0
   end if
   jEnd = nState
   if (nSS > 0) jEnd = nSS
@@ -160,9 +160,9 @@ subroutine StoreDens(EigVec)
   do iState=1,nState
     do jState=1,iState
       if (IdxState(iState,jState) == 0) cycle
-      call dCopy_(nTDMZZ,[Zero],0,TDMIJ,1)
-      call dCopy_(nTDMZZ,[Zero],0,TSDMIJ,1)
-      call dCopy_(nTDMZZ,[Zero],0,WDMIJ,1)
+      TDMIJ(:) = Zero
+      TSDMIJ(:) = Zero
+      WDMIJ(:) = Zero
       isZero = [.true.,.true.,.true.]
       do k=1,nState
         Job1 = JbNum(k)
@@ -180,28 +180,28 @@ subroutine StoreDens(EigVec)
           iGo = 3
           if (IfSO) iGo = iGo+4
           call dens2file(TDMZZ,TSDMZZ,WDMZZ,nTDMZZ,LuTDM,iDisk,iEmpty,iOpt,iGo,k,l)
-          if (iand(iEmpty,1) /= 0) then
+          if (btest(iEmpty,0)) then
             isZero(1) = .false.
-            if (abs(f1) >= Thrs) call daXpY_(nTDMZZ,f1,TDMZZ,1,TDMIJ,1)
+            if (abs(f1) >= Thrs) TDMIJ(:) = TDMIJ(:)+f1*TDMZZ(:)
             if ((k /= l) .and. (abs(f2) >= Thrs)) then
               call Transpose_TDM(TDMZZ,iSy12)
-              call daXpY_(nTDMZZ,f2,TDMZZ,1,TDMIJ,1)
+              TDMIJ(:) = TDMIJ(:)+f2*TDMZZ(:)
             end if
           end if
-          if (iand(iEmpty,2) /= 0) then
+          if (btest(iEmpty,1)) then
             isZero(2) = .false.
-            if (abs(f1) >= Thrs) call daXpY_(nTDMZZ,f1,TSDMZZ,1,TSDMIJ,1)
+            if (abs(f1) >= Thrs) TSDMIJ(:) = TSDMIJ(:)+f1*TSDMZZ(:)
             if ((k /= l) .and. (abs(f2) >= Thrs)) then
               call Transpose_TDM(TSDMZZ,iSy12)
-              call daXpY_(nTDMZZ,f2,TSDMZZ,1,TSDMIJ,1)
+              TSDMIJ(:) = TSDMIJ(:)+f2*TSDMZZ(:)
             end if
           end if
-          if (IFSO .and. (iand(iEmpty,4) /= 0)) then
+          if (IFSO .and. btest(iEmpty,2)) then
             isZero(3) = .false.
-            if (abs(f1) >= Thrs) call daXpY_(nTDMZZ,f1,WDMZZ,1,WDMIJ,1)
+            if (abs(f1) >= Thrs) WDMIJ(:) = WDMIJ(:)+f1*WDMZZ(:)
             if ((k /= l) .and. (abs(f2) >= Thrs)) then
               call Transpose_TDM(WDMZZ,iSy12)
-              call daXpY_(nTDMZZ,f2,WDMZZ,1,WDMIJ,1)
+              WDMIJ(:) = WDMIJ(:)+f2*WDMZZ(:)
             end if
           end if
         end do
@@ -259,7 +259,7 @@ subroutine Transpose_TDM(TDM,Symmetry)
   end do
   ! Make a copy so we can transpose in place
   call mma_Allocate(Tmp,nTot,Label='Tmp')
-  call dCopy_(nTot,TDM,1,Tmp,1)
+  Tmp(:) = TDM(1:nTot)
   ! Transpose symmetry block (a,b) onto symmetry block (b,a)
   do iSym1=1,nIrrep
     iSym2 = Mul(Symmetry,iSym1)

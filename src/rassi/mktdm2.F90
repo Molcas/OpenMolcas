@@ -35,7 +35,7 @@ integer(kind=iwp) :: IAAAA, IABAB, IABBA, IAKA, IAKB, IBAAB, IBABA, IBBBB, IBIA,
 real(kind=wp) :: GAAAA, GABAB, GABBA, GBAAB, GBABA, GBBBB, GVAL, SGNIK, SGNJL
 real(kind=wp), allocatable :: SPD2(:)
 
-! Given two CI expansions, using a biorthonormal set of SD''s,
+! Given two CI expansions, using a biorthonormal set of SD's,
 ! calculate the spin-summed 2-particle transition density matrix
 ! in the biorthonormal active orbital basis.
 

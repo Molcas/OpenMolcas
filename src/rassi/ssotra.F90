@@ -42,7 +42,7 @@ end do
 !TEST write(u6,*)' ISYM:',ISYM
 do IK=1,NA
   IKLEV = ILEV(IK)
-  call DCOPY_(NCO,[Zero],0,TMP,1)
+  TMP(:) = Zero
   do IP=1,NA
     IPLEV = ILEV(IP)
     CPK = TRA(NI+IP,NI+IK)
@@ -54,7 +54,7 @@ do IK=1,NA
   end do
   CKK = TRA(NI+IK,NI+IK)
   X = Three-CKK
-  call DAXPY_(NCO,X,TMP,1,CI,1)
+  CI(:) = CI(:)+X*TMP(:)
   do IP=1,NA
     IPLEV = ILEV(IP)
     CPK = TRA(NI+IP,NI+IK)

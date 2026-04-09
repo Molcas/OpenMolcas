@@ -25,7 +25,7 @@ character(len=8), intent(in) :: CHARTYPE
 integer(kind=iwp), intent(in) :: ASS, BSS
 integer(kind=iwp) :: I, I1, I2, ICMP, ID1, ID2, IDIR, iDummy(7,8), IEND, II, II2, IJ, INV, IOCC, IOPT, IRC, ISCR, ISTART, ISYLAB, &
                      ISYM, ITYPE, J, JI, LE, LE1, LS, LS1, LuXXVEC, LV, LV1, NB, NBMX2
-real(kind=wp) :: Dummy(1), X
+real(kind=wp) :: Dummy(1)
 character(len=25) :: FNAME
 character(len=16) :: FNUM, KNUM, XNUM
 character(len=8) :: LABEL
@@ -95,10 +95,9 @@ end if
 LS = 1
 LV = 1
 LE = 1
-VEC(:) = Zero
 do ISYM=1,nIrrep
   NB = NBASF(ISYM)
-  call dcopy_(NB,[One],0,VEC(LV),NB+1)
+  call unitmat(VEC(LV:LV+NB**2-1),NB)
   call JACOB(SZZ(LS),VEC,NB,NB)
   ! SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
   LS1 = LS
@@ -106,8 +105,7 @@ do ISYM=1,nIrrep
   LE1 = LE
   do I=1,NB
     EIG(LE1) = SZZ(LS1)
-    X = One/sqrt(max(SZZ(LS1),1.0e-14_wp))
-    call DSCAL_(NB,X,VEC(LV1),1)
+    VEC(LV1:LV1+NB-1) = VEC(LV1:LV1+NB-1)/sqrt(max(SZZ(LS1),1.0e-14_wp))
     LS1 = LS1+I+1
     LV1 = LV1+NB
     LE1 = LE1+1
@@ -151,7 +149,7 @@ do IDIR=ISTART,IEND
 
     ! expand the triangular matrix for this symmetry to a square matrix
     DMAT(:) = Zero
-    call DCOPY_(NBMX2,[Zero],0,SCR,1)
+    SCR(:) = Zero
     do J=1,NB
       do I=1,J
         II2 = II2+1
@@ -162,7 +160,6 @@ do IDIR=ISTART,IEND
           DMAT(JI) = DENS(IDIR,II2)/Two
         else
           DMAT(IJ) = DENS(IDIR,II2)
-          DMAT(JI) = DENS(IDIR,II2)
         end if
       end do
     end do
@@ -174,7 +171,7 @@ do IDIR=ISTART,IEND
     ID2 = 1
     do I=1,NB
       call DSCAL_(NB,EIG(LE-1+I),DMAT(ID1),NB)
-      call DSCAL_(NB,EIG(LE-1+I),DMAT(ID2),1)
+      DMAT(ID2:ID2+NB-1) = EIG(LE-1+I)*DMAT(ID2:ID2+NB-1)
       ID1 = ID1+1
       ID2 = ID2+NB
     end do
@@ -196,8 +193,7 @@ do IDIR=ISTART,IEND
     end do
 
     ! DIAGONALIZE THE DENSITY MATRIX BLOCK:
-    call DCOPY_(NBMX2,[Zero],0,VEC2,1)
-    call DCOPY_(NB,[One],0,VEC2,NB+1)
+    call unitmat(VEC2,NB)
 
     call JACOB(SCR,VEC2,NB,NB)
     call JACORD(SCR,VEC2,NB,NB)
@@ -216,7 +212,7 @@ do IDIR=ISTART,IEND
     I2 = INV+NB**2
     do I=1,NB
       I2 = I2-NB
-      call DCOPY_(NB,SCR(I1),1,VNAT(I2),1)
+      VNAT(I2:I2+NB-1) = SCR(I1:I1+NB-1)
       I1 = I1+NB
     end do
     INV = INV+NB**2

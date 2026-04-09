@@ -46,9 +46,8 @@ end if
 EIGVECR(:,:) = real(CEIGVEC(:,:))
 EIGVECI(:,:) = aimag(CEIGVEC(:,:))
 
-call DCOPY_(nDIM*(nDIM+1)/2,[Zero],0,MATR,1)
-call DCOPY_(nDIM*(nDIM+1)/2,[Zero],0,MATI,1)
-
+MATI(:) = Zero
+MATR(:) = Zero
 do J=1,nDIM
   MATR((J*(J-1)/2)+J) = CEIGVAL(J)
 end do

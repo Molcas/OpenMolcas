@@ -287,9 +287,9 @@ do IPROP=1,NPROP
       end do
     end do
 
-    call DAXPY_(NSS**2,One,LXI,1,ZXYZI(:,:,1),1)
-    call DAXPY_(NSS**2,One,LYI,1,ZXYZI(:,:,2),1)
-    call DAXPY_(NSS**2,One,LZI,1,ZXYZI(:,:,3),1)
+    ZXYZI(:,:,1) = ZXYZI(:,:,1)+LXI(:,:)
+    ZXYZI(:,:,2) = ZXYZI(:,:,2)+LYI(:,:)
+    ZXYZI(:,:,3) = ZXYZI(:,:,3)+LZI(:,:)
 
     call Deallocate_PSOP()
 
@@ -647,9 +647,9 @@ do IPROP=1,NPROP
         !write(u6,'(8X,A,9(7X,A))') 'T','(1,1)','(1,2)','(1,3)','(2,1)','(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
         write(u6,'(6X,A,8X,9(A,9X))') 'NSS','xx','xy','xz','yx','yy','yz','zx','zy','zz'
         write(u6,*)
-        !write(u6,*) ''
+        !write(u6,*)
         !write(u6,*) PNMRC(iT,3,3)
-        !write(u6,*) ''
+        !write(u6,*)
         do Iss=1,NSS
           write(u6,'(4X,I5,3X,11(F10.4,2X),F8.4)') Iss,((PNMRCPS(iT,Iss,ic,jc),jc=1,3),ic=1,3)
         end do
@@ -791,13 +791,12 @@ do IPROP=1,NPROP
       call SMMAT(PROP,MYI,NSS,0,2)
       call SMMAT(PROP,MZR,NSS,0,3)
 
-      call DSCAL_(NSS**2,FEGVAL,MXR,1)
-      call DSCAL_(NSS**2,FEGVAL,MYI,1)
-      call DSCAL_(NSS**2,FEGVAL,MZR,1)
+      MXR(:,:) = FEGVAL*MXR(:,:)
+      MZR(:,:) = FEGVAL*MZR(:,:)
 
-      call DAXPY_(NSS**2,One,LXI,1,MXI,1)
-      call DAXPY_(NSS**2,One,LYI,1,MYI,1)
-      call DAXPY_(NSS**2,One,LZI,1,MZI,1)
+      MXI(:,:) = MXI(:,:)+LXI(:,:)
+      MYI(:,:) = FEGVAL*MYI(:,:)+LYI(:,:)
+      MZI(:,:) = MZI(:,:)+LZI(:,:)
 
       call Deallocate_PSOP()
 
@@ -1814,9 +1813,9 @@ do IPROP=1,NPROP
 
       call Allocate_Z()
 
-      call DAXPY_(NSS**2,One,LXI,1,ZXYZI(:,:,1),1)
-      call DAXPY_(NSS**2,One,LYI,1,ZXYZI(:,:,2),1)
-      call DAXPY_(NSS**2,One,LZI,1,ZXYZI(:,:,3),1)
+      ZXYZI(:,:,1) = ZXYZI(:,:,1)+LXI(:,:)
+      ZXYZI(:,:,2) = ZXYZI(:,:,2)+LYI(:,:)
+      ZXYZI(:,:,3) = ZXYZI(:,:,3)+LZI(:,:)
 
       call Deallocate_PSOP()
 

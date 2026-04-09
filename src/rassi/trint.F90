@@ -364,10 +364,10 @@ do I=1,nIrrep
 end do
 
 call mma_allocate(Prod,nProd,Label='Prod')
-call FZero(PROD,NPROD)
+PROD(:) = Zero
 ISTFMO = 1
 ISTC = 1
-call FZERO(FOCKMO,NGAM1)
+FOCKMO(:) = Zero
 do ISYM=1,nIrrep
   NA = NASH(ISYM)
   NI = NISH(ISYM)

@@ -159,11 +159,9 @@ do ISET=1,NSETS
 # endif
 
   ! 1. PUT UNIT MATRIX INTO UU
-  UU(:) = Zero
-  call DCOPY_(MSTATE,[One],0,UU,MSTATE+1)
+  call unitmat(UU,MSTATE)
   ! 2. COPY OVERLAP MATRIX INTO TRIANGULAR STORAGE,
   !    and Hamiltonian into square storage:
-  call DCOPY_(NSTATE**2,[Zero],0,HSQ,1)
   IJ = 0
   do II=1,MSTATE
     I = STACK(II)
@@ -1722,7 +1720,7 @@ if (DOCD) then
               Rtensor(4) = 0.75_wp*(RXX+RZZ+(RYZX-RXYZ))
               Rtensor(5) = -0.375_wp*(RYZ+RZY+(RYYX+RXZZ-RXYY-RZZX))
               Rtensor(6) = 0.75_wp*(RXX+RYY+(RXZY-RYZX))
-              call DSCAL_(6,AU2REDR/EDIFF,Rtensor,1)
+              Rtensor(:) = AU2REDR/EDIFF*Rtensor(:)
               if (Do_SK) then
                 ! k^T R k
                 R = k_vector(1,iVec)**2*Rtensor(1)+k_vector(2,iVec)**2*Rtensor(4)+k_vector(3,iVec)**2*Rtensor(6)+ &
@@ -1900,7 +1898,7 @@ if (DOCD) then
               Rtensor(4) = 0.75_wp*(RXX+RZZ+EDIFF*(RYZX-RXYZ))
               Rtensor(5) = -0.375_wp*(RYZ+RZY+EDIFF*(RYYX+RXZZ-RXYY-RZZX))
               Rtensor(6) = 0.75_wp*(RXX+RYY+EDIFF*(RXZY-RYZX))
-              call DSCAL_(6,AU2REDR,Rtensor,1)
+              Rtensor(:) = AU2REDR*Rtensor(:)
               if (Do_SK) then
                 ! k^T R k
                 R = k_vector(1,iVec)**2*Rtensor(1)+k_vector(2,iVec)**2*Rtensor(4)+k_vector(3,iVec)**2*Rtensor(6)+ &
@@ -2058,7 +2056,7 @@ ip_TMR = ip_kvector+3
 ip_TMI = ip_TMR+3
 nData = ip_TMI+3-1
 call mma_allocate(Storage,nData,nQuad,nIJ,nVec,label='Storage')
-call dCopy_(size(Storage),[Zero],0,Storage,1)
+Storage(:,:,:,:) = Zero
 #endif
 ! MGD create the groups of indices
 ! Only with reduce loop to make things easier
@@ -2349,15 +2347,15 @@ do iVec=1,nVec
             ! Fix the triangular index because we are not storing the diagonal
             IJSF = IJ-ISTATE+1
             Storage(ip_w,iQuad,IJSF,iVec) = Weight
-            call DCopy_(3,Wavevector,1,Storage(ip_kvector,iQuad,IJSF,iVec),1)
-            call DCopy_(3,TM_R,1,Storage(ip_TMR,iQuad,IJSF,iVec),1)
-            call DCopy_(3,TM_I,1,Storage(ip_TMI,iQuad,IJSF,iVec),1)
+            Storage(ip_kvector:ip_kvector+2,iQuad,IJSF,iVec) = Wavevector(:)
+            Storage(ip_TMR:ip_TMR+2,iQuad,IJSF,iVec) = TM_R(:)
+            Storage(ip_TMI:ip_TMI+2,iQuad,IJSF,iVec) = TM_I(:)
 #           endif
 
             ! Project out the k direction from the real and imaginary components
 
-            call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
-            call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
+            TM_R(:) = TM_R(:)-DDot_(3,TM_R,1,UK,1)*UK(:)
+            TM_I(:) = TM_I(:)-DDot_(3,TM_I,1,UK,1)*UK(:)
 
             ! Implicitly integrate over all directions of the
             ! polarization vector to get the average value.
@@ -2376,21 +2374,20 @@ do iVec=1,nVec
               Aux(5,ij_) = TM_2-Half*Rng
               ! The direction for the maximum
               Ang = Half*atan2(Two*TM3,TM1-TM2)
-              call daXpY_(3,cos(Ang),TM_R,1,Aux(2,ij_),1)
-              call daXpY_(3,sin(Ang),TM_I,1,Aux(2,ij_),1)
+              Aux(2:4,ij_) = Aux(2:4,ij_)+cos(Ang)*TM_R(:)+sin(Ang)*TM_I(:)
               ! Normalize and compute the direction for the minimum
               ! as a cross product with k
               rNorm = DDot_(3,Aux(2,ij_),1,Aux(2,ij_),1)
               if (rNorm > 1.0e-12_wp) then
-                call dScal_(3,One/sqrt(rNorm),Aux(2,ij_),1)
+                Aux(2:4,ij_) = Aux(2:4,ij_)/sqrt(rNorm)
                 Aux(6,ij_) = Aux(3,ij_)*UK(3)-Aux(4,ij_)*UK(2)
                 Aux(7,ij_) = Aux(4,ij_)*UK(1)-Aux(2,ij_)*UK(3)
                 Aux(8,ij_) = Aux(2,ij_)*UK(2)-Aux(3,ij_)*UK(1)
                 rNorm = DDot_(3,Aux(6,ij_),1,Aux(6,ij_),1)
-                call dScal_(3,One/sqrt(rNorm),Aux(6,ij_),1)
+                Aux(6:8,ij_) = Aux(6:8,ij_)/sqrt(rNorm)
               else
-                call dCopy_(3,[Zero],0,Aux(2,ij_),1)
-                call dCopy_(3,[Zero],0,Aux(6,ij_),1)
+                Aux(2:4,ij_) = Zero
+                Aux(6:8,ij_) = Zero
               end if
             end if
 

@@ -87,8 +87,8 @@ if (.not. NOSO) then
   call DGEMM_('N','N',NSS,NSS,NSS,One,VMAT,NSS,USOI,NSS,Zero,UMATI,NSS)
 else
   ! Spinorbit contributions to this are disabled
-  call DCOPY_(NSS,VMAT,1,UMATR,1)
-  call DCOPY_(NSS,[Zero],0,UMATI,1)
+  UMATR(:) = pack(VMAT(:,:),.true.)
+  UMATI(:) = Zero
 end if
 
 ! SONTONSTATE = number of state pairs to calculate.

@@ -49,27 +49,27 @@ select case (IC)
     DA = Four/Three
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
     BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
     ICM = 5
     DA = -Two/Three
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
 
     ICM = 9
     DA = -Two/Three
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
 
   case (2)
     ! EF2(2) = MAG(2)*2
     ICM = 2
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
     BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
   case (3)
@@ -77,7 +77,7 @@ select case (IC)
     ICM = 3
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
     BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
   case (4)
@@ -86,27 +86,27 @@ select case (IC)
     DA = Four/Three
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
     BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
     ICM = 1
     DA = -Two/Three
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
 
     ICM = 9
     DA = -Two/Three
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
 
   case (5)
     ! EF2(5) = MAG(6)*2
     ICM = 6
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
     BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
   case (6)
@@ -114,18 +114,18 @@ select case (IC)
     ICM = 1
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
     BUFF(NSIZ+1:NBUFF) = TA(NSIZ+1:NBUFF)
 
     ICM = 5
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
 
     ICM = 9
     call RDONE(IRC,IOPT,LABEL,ICM,TA,ISCHK)
     if (IRC /= 0) call ErrStop()
-    call DAXPY_(NSIZ,DA,TA,1,BUFF,1)
+    BUFF(1:NSIZ) = BUFF(1:NSIZ)+DA*TA(1:NSIZ)
 
   case default
     write(u6,'(6X,A)') '*** ERROR IN SUBROUTINE HFCSD ***'

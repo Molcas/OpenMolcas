@@ -81,7 +81,7 @@ L1 = 1
 L2 = 1
 do ISY=1,nIrrep
   Length = NOSH(ISY)*NBASF(ISY)
-  if (Length > 0) call DCOPY_(Length,BUF(L1),1,CMO(L2),1)
+  CMO(L2:L2+Length-1) = BUF(L1:L1+Length-1)
   L2 = L2+Length
   L1 = L1+NBASF(ISY)**2
 end do

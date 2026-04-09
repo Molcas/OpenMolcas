@@ -46,7 +46,7 @@ character(len=52) :: STLNE2
 character(len=8) :: LABEL
 integer(kind=iwp), allocatable :: iMask(:), ISS_INDEX(:), iSSMask(:), jMask(:), jSSMask(:), TMOgrp1(:), TMOgrp2(:)
 real(kind=wp), allocatable :: Aux(:,:), DXI(:,:,:), DXIM(:,:,:), DXR(:,:,:), DXRM(:,:,:), IP(:), OscStr(:,:), pol_Vector(:,:), &
-                              RAW(:), Rquad(:,:), SCR(:,:), TDMZZ(:), TMI(:,:,:), TMP(:), TMR(:,:,:), TSDMZZ(:), VSOI(:,:), &
+                              RAW(:), Rquad(:,:), SCR(:,:), TDMZZ(:), TMI(:,:,:), TMP(:,:), TMR(:,:,:), TSDMZZ(:), VSOI(:,:), &
                               VSOR(:,:), WDMZZ(:)
 #ifdef _HDF5_
 integer(kind=iwp) :: ijSO_, ip_kVector, ip_TMi, ip_TMr, ip_W, nData, nij
@@ -215,7 +215,7 @@ call mma_allocate(DXR,NSS,NSS,3,Label='DXR')
 call mma_allocate(DXI,NSS,NSS,3,Label='DXI')
 call mma_allocate(DXRM,NSS,NSS,3,Label='DXRM')
 call mma_allocate(DXIM,NSS,NSS,3,Label='DXIM')
-call mma_Allocate(TMP,NSS**2,Label='TMP')
+call mma_Allocate(TMP,NSS,NSS,Label='TMP')
 call mma_allocate(TMR,NSS,NSS,3,Label='TMR')
 call mma_allocate(TMI,NSS,NSS,3,Label='TMI')
 
@@ -240,7 +240,7 @@ ip_TMR = ip_kvector+3
 ip_TMI = ip_TMR+3
 nData = ip_TMI+3-1
 call mma_allocate(Storage,nData,2*nQuad,nIJ,nVec,label='Storage')
-call dCopy_(size(Storage),[Zero],0,Storage,1)
+Storage(:,:,:,:) = Zero
 #endif
 !MGD group transitions
 TMOgroup = .false.
@@ -352,8 +352,8 @@ do iVec=1,nVec
       ENSOR1 = ENSOR(istart_)
     end if
     ! Screening
-    call iCopy(NState,[0],0,iMask,1)
-    call iCopy(NSS,[0],0,iSSMask,1)
+    iMask(:) = 0
+    iSSMask(:) = 0
     ISM = 0
     ISSM = 0
     ISFLoop: do ISF=1,NState
@@ -384,8 +384,8 @@ do iVec=1,nVec
       end if
       EDIFF_ = ENSOR2-ENSOR1
       ! Screening
-      call iCopy(NState,[0],0,jMask,1)
-      call iCopy(NSS,[0],0,jSSMask,1)
+      jMask(:) = 0
+      jSSMask(:) = 0
       JSM = 0
       JSSM = 0
       JSFLoop: do JSF=1,NState
@@ -544,16 +544,16 @@ do iVec=1,nVec
           ! The real part (symmetric and anti-symmetric) becomes imaginary
 
           call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(0+iCar),0,ISS_INDEX,iMask,ISM,jMask,JSM)
-          call DAXPY_(NSS**2,-One,TMP,1,DXI(:,:,iCar),1)
+          DXI(:,:,iCar) = DXI(:,:,iCar)-TMP(:,:)
           call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(6+iCar),0,ISS_INDEX,iMask,ISM,jMask,JSM)
-          call DAXPY_(NSS**2,-One,TMP,1,DXI(:,:,iCar),1)
+          DXI(:,:,iCar) = DXI(:,:,iCar)-TMP(:,:)
 
           ! The imaginary part (symmetric and anti-symmetric) becomes real
 
           call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(3+iCar),0,ISS_INDEX,iMask,ISM,jMask,JSM)
-          call DAXPY_(NSS**2,One,TMP,1,DXRM(:,:,iCar),1)
+          DXRM(:,:,iCar) = DXRM(:,:,iCar)+TMP(:,:)
           call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(9+iCar),0,ISS_INDEX,iMask,ISM,jMask,JSM)
-          call DAXPY_(NSS**2,One,TMP,1,DXRM(:,:,iCar),1)
+          DXRM(:,:,iCar) = DXRM(:,:,iCar)+TMP(:,:)
 
           ! (2) the spin-dependent part, magnetic
 
@@ -598,28 +598,28 @@ do iVec=1,nVec
 
           if (iCar == 1) then
             call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-            call DAXPY_(NSS**2,wavevector(2)*cst,TMP,1,DXIM(:,:,3),1)
-            call DAXPY_(NSS**2,-wavevector(3)*cst,TMP,1,DXIM(:,:,2),1)
+            DXIM(:,:,3) = DXIM(:,:,3)+wavevector(2)*cst*TMP(:,:)
+            DXIM(:,:,2) = DXIM(:,:,2)-wavevector(3)*cst*TMP(:,:)
             call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(14),iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-            call DAXPY_(NSS**2,-wavevector(2)*cst,TMP,1,DXR(:,:,3),1)
-            call DAXPY_(NSS**2,wavevector(3)*cst,TMP,1,DXR(:,:,2),1)
+            DXR(:,:,3) = DXR(:,:,3)-wavevector(2)*cst*TMP(:,:)
+            DXR(:,:,2) = DXR(:,:,2)+wavevector(3)*cst*TMP(:,:)
           else if (iCar == 2) then
             ! For the y-component we have to interchange the real and
             ! the imaginary components. The real component gets a
             ! minus sign due to the product i*i=-1
             call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(14),iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-            call DAXPY_(NSS**2,-wavevector(3)*cst,TMP,1,DXI(:,:,1),1)
-            call DAXPY_(NSS**2,wavevector(1)*cst,TMP,1,DXI(:,:,3),1)
+            DXI(:,:,1) = DXI(:,:,1)-wavevector(3)*cst*TMP(:,:)
+            DXI(:,:,3) = DXI(:,:,3)+wavevector(1)*cst*TMP(:,:)
             call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-            call DAXPY_(NSS**2,-wavevector(3)*cst,TMP,1,DXRM(:,:,1),1)
-            call DAXPY_(NSS**2,wavevector(1)*cst,TMP,1,DXRM(:,:,3),1)
+            DXRM(:,:,1) = DXRM(:,:,1)-wavevector(3)*cst*TMP(:,:)
+            DXRM(:,:,3) = DXRM(:,:,3)+wavevector(1)*cst*TMP(:,:)
           else if (iCar == 3) then
             call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(13),iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-            call DAXPY_(NSS**2,wavevector(1)*cst,TMP,1,DXIM(:,:,2),1)
-            call DAXPY_(NSS**2,-wavevector(2)*cst,TMP,1,DXIM(:,:,1),1)
+            DXIM(:,:,2) = DXIM(:,:,2)+wavevector(1)*cst*TMP(:,:)
+            DXIM(:,:,1) = DXIM(:,:,1)-wavevector(2)*cst*TMP(:,:)
             call SMMAT_MASKED(PROP,TMP,NSS,IPRTMOM(14),iCar,ISS_INDEX,iMask,ISM,jMask,JSM)
-            call DAXPY_(NSS**2,-wavevector(1)*cst,TMP,1,DXR(:,:,2),1)
-            call DAXPY_(NSS**2,wavevector(2)*cst,TMP,1,DXR(:,:,1),1)
+            DXR(:,:,2) = DXR(:,:,2)-wavevector(1)*cst*TMP(:,:)
+            DXR(:,:,1) = DXR(:,:,1)+wavevector(2)*cst*TMP(:,:)
           end if
         end do
 
@@ -628,10 +628,8 @@ do iVec=1,nVec
         do kp=1,2
 
           if (abs(kPhase(kp)) < Half) cycle
-          call DCOPY_(3*NSS**2,DXR(:,:,:),1,TMR(:,:,:),1)
-          call DCOPY_(3*NSS**2,DXI(:,:,:),1,TMI(:,:,:),1)
-          call DAXPY_(3*NSS**2,kPhase(kp),DXRM(:,:,:),1,TMR(:,:,:),1)
-          call DAXPY_(3*NSS**2,kPhase(kp),DXIM(:,:,:),1,TMI(:,:,:),1)
+          TMR(:,:,:) = DXR(:,:,:)+kPhase(kp)*DXRM(:,:,:)
+          TMI(:,:,:) = DXI(:,:,:)+kPhase(kp)*DXIM(:,:,:)
           do iCar=1,3
             call ZTRNSF_MASKED(NSS,VSOR,VSOI,TMR(:,:,iCar),TMI(:,:,iCar),IJSS,iSSMask,ISSM,jSSMask,JSSM)
           end do
@@ -651,15 +649,15 @@ do iVec=1,nVec
               IJSO_ = (JSO-1)*(JSO-2)/2+ISO
               iQuad_ = 2*(iQuad-1)+kp
               Storage(ip_w,iQuad_,IJSO_,iVec) = Weight
-              call DCopy_(3,kPhase(kp)*Wavevector,1,Storage(ip_kvector,iQuad_,IJSO_,iVec),1)
-              call DCopy_(3,TM_R,1,Storage(ip_TMR,iQuad_,IJSO_,iVec),1)
-              call DCopy_(3,TM_I,1,Storage(ip_TMI,iQuad_,IJSO_,iVec),1)
+              Storage(ip_kvector:ip_kvector+2,iQuad_,IJSO_,iVec) = kPhase(kp)*Wavevector(:)
+              Storage(ip_TMR:ip_TMR+2,iQuad_,IJSO_,iVec) = TM_R(:)
+              Storage(ip_TMI:ip_TMI+2,iQuad_,IJSO_,iVec) = TM_I(:)
 #             endif
 
               ! Project out the k direction from the real and imaginary components
 
-              call DaXpY_(3,-DDot_(3,TM_R,1,UK,1),UK,1,TM_R,1)
-              call DaXpY_(3,-DDot_(3,TM_I,1,UK,1),UK,1,TM_I,1)
+              TM_R(:) = TM_R(:)-DDot_(3,TM_R,1,UK,1)*UK(:)
+              TM_I(:) = TM_I(:)-DDot_(3,TM_I,1,UK,1)*UK(:)
 
               ! Implicitly integrate over all directions of the
               ! polarization vector to get the average value.
@@ -678,21 +676,20 @@ do iVec=1,nVec
                 Aux(5,ij_) = TM_2-Half*Rng
                 ! The direction for the maximum
                 Ang = Half*atan2(Two*TM3,TM1-TM2)
-                call daXpY_(3,cos(Ang),TM_R,1,Aux(2,ij_),1)
-                call daXpY_(3,sin(Ang),TM_I,1,Aux(2,ij_),1)
+                Aux(2:4,ij_) = Aux(2:4,ij_)+cos(Ang)*TM_R(:)+sin(Ang)*TM_I(:)
                 ! Normalize and compute the direction for the minimum
                 ! as a cross product with k
                 rNorm = DDot_(3,Aux(2,ij_),1,Aux(2,ij_),1)
                 if (rNorm > 1.0e-12_wp) then
-                  call dScal_(3,One/sqrt(rNorm),Aux(2,ij_),1)
+                  Aux(2:4,ij_) = Aux(2:4,ij_)/sqrt(rNorm)
                   Aux(6,ij_) = Aux(3,ij_)*UK(3)-Aux(4,ij_)*UK(2)
                   Aux(7,ij_) = Aux(4,ij_)*UK(1)-Aux(2,ij_)*UK(3)
                   Aux(8,ij_) = Aux(2,ij_)*UK(2)-Aux(3,ij_)*UK(1)
                   rNorm = DDot_(3,Aux(6,ij_),1,Aux(6,ij_),1)
-                  call dScal_(3,One/sqrt(rNorm),Aux(6,ij_),1)
+                  Aux(6:8,ij_) = Aux(6:8,ij_)/sqrt(rNorm)
                 else
-                  call dCopy_(3,[Zero],0,Aux(2,ij_),1)
-                  call dCopy_(3,[Zero],0,Aux(6,ij_),1)
+                  Aux(2:4,ij_) = Zero
+                  Aux(6:8,ij_) = Zero
                 end if
               end if
 

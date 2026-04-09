@@ -176,7 +176,7 @@ do NOPEN=MINOP,MAXOP
       ! count the determinants
       idet = idet+1
       ! Construct occupation number array:
-      call ICOPY(2*NORB,[0],0,OCCARR,1)
+      OCCARR(:) = 0
       do IEL=1,NCLSD
         IORB = ORBARR(IEL)
         OCCARR(2*IORB-1) = 1

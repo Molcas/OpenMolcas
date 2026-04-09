@@ -47,7 +47,7 @@ do iSym1=1,nIrrep
 end do
 ! Make a copy so we can transpose in place
 call mma_Allocate(Tmp,nTot,Label='Tmp')
-call dCopy_(nTot,TDM,1,Tmp,1)
+Tmp(:) = TDM(1:nTot)
 ! Transpose symmetry block (a,b) onto symmetry block (b,a)
 do iSym1=1,nIrrep
   iSym2 = Mul(Symmetry,iSym1)

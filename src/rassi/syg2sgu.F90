@@ -66,7 +66,7 @@ NWLKLST = 0
 IWLKPOS = 1
 ! Nr of integers used to store each total walk:
 MIPWLK = 1+(NLEV-1)/MXCPI
-! Max nr of Split-Graph CSF''s, stored as walks in the
+! Max nr of Split-Graph CSF's, stored as walks in the
 ! buffer KWALK
 MXWLK = NBUFFER/MIPWLK
 ! Pick up various data from conf and spin tables
@@ -91,7 +91,7 @@ KSPNINF = 9
 call mma_allocate(ORBARR,NACTEL,Label='OrbArr')
 
 ! Loop over nr of open shells
-! NCSYMG=Nr of Symmetric-Group CSF''s treated so far.
+! NCSYMG=Nr of Symmetric-Group CSF's treated so far.
 NCSYMG = 0
 do NOPEN=MINOP,MAXOP
   NCLSD = (NACTEL-NOPEN)/2

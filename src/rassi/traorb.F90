@@ -37,7 +37,7 @@ do IS=1,NSYM
   end if
   ISTA2 = ISTA2+NO**2
 end do
-call DCOPY_(NCMO,CNEW,1,CMO,1)
+CMO(:) = CNEW(:)
 call mma_deallocate(CNEW)
 
 end subroutine TRAORB

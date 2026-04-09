@@ -26,7 +26,7 @@ use Cntrl, only: ERFNuc, RFPert
 use Symmetry_Info, only: nIrrep
 use rassi_data, only: NBASF, NBSQ, NBTRI
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -57,7 +57,7 @@ if (RFpert) then
   call Get_dScalar('RF Self Energy',ERFNuc)
   call Get_dArray('Reaction field',Tmp,nBtri)
   if (Found) call NameRun('#Pop')
-  call Daxpy_(nBtri,One,Tmp,1,H1,1)
+  H1(:) = H1(:)+Tmp(:)
   call mma_deallocate(Tmp)
 end if
 IBUF = 1

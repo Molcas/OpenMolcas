@@ -26,7 +26,7 @@ character(len=8) :: CHARTYPE
 integer(kind=iwp) :: ASS, BSS
 integer(kind=iwp) :: I, I1, I1I, I2, ICMP, ID1, ID2, IDIR, IDUM(1), iDummy(7,8), IEND, II, II2, IJ, INV, INV2, IOCC, IOPT, IRC, &
                      ISCR, ISCRI, ISTART, ISYLAB, ISYM, ITYPE, J, JI, JOPT, LE, LE1, LS, LS1, LuXXVEC, LV, LV1, NB, NBMX2
-real(kind=wp) :: Dummy(1), SUMI, SUMR, X
+real(kind=wp) :: Dummy(1), SUMI, SUMR
 character(len=25) :: FNAME
 character(len=16) :: FNUM, KNUM, XNUM
 character(len=8) :: LABEL
@@ -103,10 +103,9 @@ end if
 LS = 1
 LV = 1
 LE = 1
-VEC(:) = Zero
 do ISYM=1,nIrrep
   NB = NBASF(ISYM)
-  call dcopy_(NB,[One],0,VEC(LV),NB+1)
+  call unitmat(VEC(LV:LV+NB**2-1),NB)
   call JACOB(SZZ(LS),VEC(LV),NB,NB)
   ! SCALE EACH VECTOR TO OBTAIN AN ORTHONORMAL BASIS.
   LS1 = LS
@@ -114,8 +113,7 @@ do ISYM=1,nIrrep
   LE1 = LE
   do I=1,NB
     EIG(LE1) = SZZ(LS1)
-    X = One/sqrt(max(SZZ(LS1),1.0e-14_wp))
-    call DSCAL_(NB,X,VEC(LV1),1)
+    VEC(LV1:LV1+NB-1) = VEC(LV1:LV1+NB-1)/sqrt(max(SZZ(LS1),1.0e-14_wp))
     LS1 = LS1+I+1
     LV1 = LV1+NB
     LE1 = LE1+1
@@ -239,9 +237,9 @@ do IDIR=ISTART,IEND
     ID2 = 1
     do I=1,NB
       call DSCAL_(NB,EIG(LE-1+I),DMAT(ID1),NB)
-      call DSCAL_(NB,EIG(LE-1+I),DMAT(ID2),1)
+      DMAT(ID2:ID2+NB-1) = EIG(LE-1+I)*DMAT(ID2:ID2+NB-1)
       call DSCAL_(NB,EIG(LE-1+I),DMATI(ID1),NB)
-      call DSCAL_(NB,EIG(LE-1+I),DMATI(ID2),1)
+      DMATI(ID2:ID2+NB-1) = EIG(LE-1+I)*DMATI(ID2:ID2+NB-1)
       ID1 = ID1+1
       ID2 = ID2+NB
     end do
@@ -290,8 +288,8 @@ do IDIR=ISTART,IEND
     I2 = INV+NB**2
     do I=1,NB
       I2 = I2-NB
-      call DCOPY_(NB,SCR(I1),1,VNAT(I2),1)
-      call DCOPY_(NB,SCRI(I1I),1,VNATI(I2),1)
+      VNAT(I2:I2+NB-1) = SCR(I1:I1+NB-1)
+      VNATI(I2:I2+NB-1) = SCRI(I1:I1+NB-1)
       I1 = I1+NB
       I1I = I1I+NB
     end do

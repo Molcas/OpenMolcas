@@ -127,7 +127,7 @@ do KSS=1,NSS
     ! Transition density matrices, TDMZZ, in AO basis.
     ! WDMZZ similar, but WE-reduced 'triplet' densities.
     ! TDMZZ will store either, depending on the type
-    call DCOPY_(NTDMZZ,[Zero],0,TDMZZ,1)
+    TDMZZ(:) = Zero
 
     !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     ! IDTDM: TOC array for transition 1-matrices
@@ -140,14 +140,14 @@ do KSS=1,NSS
       iGo = 4
       call dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
       ! NOTE-the TD matrix as read in has an incorrect sign
-      call DSCAL_(NTDMZZ,-One,TDMZZ,1)
+      TDMZZ(:) = -TDMZZ(:)
     else
       iGo = 1
       call dens2file(TDMZZ,TDMZZ,TDMZZ,nTDMZZ,LUTDM,IDISK,iEmpty,iOpt,iGo,KSF,LSF)
     end if
 
     ! Anti-hermitian properties need a little fixing
-    if (((ITYPE == 2) .or. (ITYPE == 4)) .and. (KSF <= LSF)) call DSCAL_(NTDMZZ,-One,TDMZZ,1)
+    if (((ITYPE == 2) .or. (ITYPE == 4)) .and. (KSF <= LSF)) TDMZZ(:) = -TDMZZ(:)
 
     ! CALCULATE THE SYMMETRIC AND ANTISYMMETRIC FOLDED TRANS D MATRICES
     ! AND SIMILAR WE-REDUCED SPIN DENSITY MATRICES
@@ -244,24 +244,18 @@ do KSS=1,NSS
     end if
 
     if (((ITYPE == 1) .or. (ITYPE == 2)) .and. (MPLETK == MPLETL) .and. (MSPROJK == MSPROJL)) then
-      call DAXPY_(NBTRI,One,SCR,1,SDMXYZR(:,3),1)
+      SDMXYZR(:,3) = SDMXYZR(:,3)+SCR(:)
     else if ((ITYPE == 3) .or. (ITYPE == 4)) then
       if (iOpt == 1) then
-        call DAXPY_(NBTRI,CGX*ROTMAT(1,1),SCR,1,SDMXYZR(:,1),1)
-        call DAXPY_(NBTRI,CGY*ROTMAT(2,1),SCR,1,SDMXYZI(:,1),1)
-        call DAXPY_(NBTRI,CG0*ROTMAT(3,1),SCR,1,SDMXYZR(:,1),1)
+        SDMXYZR(:,1) = SDMXYZR(:,1)+(CGX*ROTMAT(1,1)+CGY*ROTMAT(2,1)+CG0*ROTMAT(3,1))*SCR(:)
 
-        call DAXPY_(NBTRI,CGX*ROTMAT(1,2),SCR,1,SDMXYZR(:,2),1)
-        call DAXPY_(NBTRI,CGY*ROTMAT(2,2),SCR,1,SDMXYZI(:,2),1)
-        call DAXPY_(NBTRI,CG0*ROTMAT(3,2),SCR,1,SDMXYZR(:,2),1)
+        SDMXYZR(:,2) = SDMXYZR(:,2)+(CGX*ROTMAT(1,2)+CGY*ROTMAT(2,2)+CG0*ROTMAT(3,2))*SCR(:)
 
-        call DAXPY_(NBTRI,CGX*ROTMAT(1,3),SCR,1,SDMXYZR(:,3),1)
-        call DAXPY_(NBTRI,CGY*ROTMAT(2,3),SCR,1,SDMXYZI(:,3),1)
-        call DAXPY_(NBTRI,CG0*ROTMAT(3,3),SCR,1,SDMXYZR(:,3),1)
+        SDMXYZR(:,3) = SDMXYZR(:,3)+(CGX*ROTMAT(1,3)+CGY*ROTMAT(2,3)+CG0*ROTMAT(3,3))*SCR(:)
       else
-        call DAXPY_(NBTRI,CGX,SCR,1,SDMXYZR(:,1),1)
-        call DAXPY_(NBTRI,CGY,SCR,1,SDMXYZI(:,2),1)
-        call DAXPY_(NBTRI,CG0,SCR,1,SDMXYZR(:,3),1)
+        SDMXYZR(:,1) = SDMXYZR(:,1)+CGX*SCR(:)
+        SDMXYZI(:,2) = SDMXYZI(:,2)+CGY*SCR(:)
+        SDMXYZR(:,3) = SDMXYZR(:,3)+CG0*SCR(:)
       end if
     end if
 
@@ -276,20 +270,13 @@ do KSS=1,NSS
     UIL = USOI(KSS,ASS)
 
     do IDIR=1,3
-      call DCOPY_(NBTRI,[Zero],0,TMPR,1)
-      call DCOPY_(NBTRI,[Zero],0,TMPI,1)
-
       ! right side
-      call DAXPY_(NBTRI,URR,SDMXYZR(:,IDIR),1,TMPR,1)
-      call DAXPY_(NBTRI,-UIR,SDMXYZI(:,IDIR),1,TMPR,1)
-      call DAXPY_(NBTRI,UIR,SDMXYZR(:,IDIR),1,TMPI,1)
-      call DAXPY_(NBTRI,URR,SDMXYZI(:,IDIR),1,TMPI,1)
+      TMPR(:) = URR*SDMXYZR(:,IDIR)-UIR*SDMXYZI(:,IDIR)
+      TMPI(:) = UIR*SDMXYZR(:,IDIR)+URR*SDMXYZI(:,IDIR)
 
       ! left side
-      call DAXPY_(NBTRI,URL,TMPR,1,SDMXYZR2(:,IDIR),1)
-      call DAXPY_(NBTRI,UIL,TMPI,1,SDMXYZR2(:,IDIR),1)
-      call DAXPY_(NBTRI,URL,TMPI,1,SDMXYZI2(:,IDIR),1)
-      call DAXPY_(NBTRI,-UIL,TMPR,1,SDMXYZI2(:,IDIR),1)
+      SDMXYZR2(:,IDIR) = SDMXYZR2(:,IDIR)+URL*TMPR(:)+UIL*TMPI(:)
+      SDMXYZI2(:,IDIR) = SDMXYZI2(:,IDIR)+URL*TMPI(:)-UIL*TMPR(:)
     end do
     !ccccccccccccccccccccc
     ! END SPINORBIT STUFF

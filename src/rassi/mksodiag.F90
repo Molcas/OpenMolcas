@@ -66,12 +66,10 @@ call mma_allocate(SMATI,SODIAGNSTATE,SODIAGNSTATE,3,3,Label='SMATI')
 call mma_allocate(MUMAT2R,SODIAGNSTATE,SODIAGNSTATE,3,3,Label='MUMAT2R')
 call mma_allocate(MUMAT2I,SODIAGNSTATE,SODIAGNSTATE,3,3,Label='MUMAT2I')
 
-call DCOPY_(9*N**2,[Zero],0,LMATR,1)
-call DCOPY_(9*N**2,[Zero],0,LMATI,1)
-call DCOPY_(9*N**2,[Zero],0,SMATR,1)
-call DCOPY_(9*N**2,[Zero],0,SMATI,1)
-call DCOPY_(9*N**2,[Zero],0,MUMAT2R,1)
-call DCOPY_(9*N**2,[Zero],0,MUMAT2I,1)
+LMATR(:,:,:,:) = Zero
+LMATI(:,:,:,:) = Zero
+SMATR(:,:,:,:) = Zero
+SMATI(:,:,:,:) = Zero
 
 call mma_allocate(DMATTMP,3*(NBST*(NBST+1)),Label='DMATTMP')
 
@@ -340,12 +338,8 @@ do IDIR=1,3
 end do ! end loop over directions
 
 ! Final output
-call DCOPY_(9*SODIAGNSTATE**2,LMATR,1,MUMAT2R,1)
-call DCOPY_(9*SODIAGNSTATE**2,LMATI,1,MUMAT2I,1)
-call DSCAL_(9*SODIAGNSTATE**2,-One,MUMAT2R,1)
-call DSCAL_(9*SODIAGNSTATE**2,-One,MUMAT2I,1)
-call DAXPY_(9*SODIAGNSTATE**2,-ge,SMATR,1,MUMAT2R,1)
-call DAXPY_(9*SODIAGNSTATE**2,-ge,SMATI,1,MUMAT2I,1)
+MUMAT2R(:,:,:,:) = -LMATR(:,:,:,:)-ge*SMATR(:,:,:,:)
+MUMAT2I(:,:,:,:) = -LMATI(:,:,:,:)-ge*SMATI(:,:,:,:)
 
 ! we are only interested in the 1,1 state
 write(u6,*) '-----------------------------------------------------'
