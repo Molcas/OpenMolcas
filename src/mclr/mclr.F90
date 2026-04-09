@@ -46,13 +46,13 @@ use ipPage, only: ipclose
 use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FAMO_SpinM, FAMO_SpinP, FIMO, Fm, Fp, G1m, G1p, G1t, G2mm, G2mp, G2pp, &
                      G2sq, G2t, Hss, iAllo, Int1, INT2, LuPT2, nA, nAcPar, nAcPr2, NACSTATES, nNA, nrec, PDFT_Ratio, pINT1, pINT2, &
                      SA, SFock, SS, WF_Ratio
+use PCM_grad, only: PCM_grad_final
 use dmrginfo, only: DoDMRG, DoMCLR, RGRAS2
 use input_mclr, only: double, Fail, iMCPD, iMethod, iMSPD, LuAChoVec, LuChoInt, LuIChoVec, McKinley, nAsh, nDisp, NewCho, nRS2, &
                       nSym, ntAsh, ntASqr, ntAtri, PT2, RASSI, SpinPol, StepType, TimeDep, TwoStep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6, RtoB
-use pcm_grad, only: PCM_grad_final
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
@@ -380,9 +380,9 @@ call mma_deallocate(SS,safe='*')
 ! Close files
 
 call ClsFls_MCLR()
-if (RF_On() .and. (SA.or.PT2)) then
-  Call Free_RctFld()
-  Call PCM_grad_final()
+if (RF_On() .and. (SA .or. PT2)) then
+  call Free_RctFld()
+  call PCM_grad_final()
 end if
 
 if (NewCho) then

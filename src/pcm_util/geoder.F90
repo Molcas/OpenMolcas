@@ -11,10 +11,10 @@
 
 subroutine GeoDer(nAt,Cond,nTs,nS,Eps,Sphere,ISphe,NOrd,Tessera,Q1,Q2,DerDM,Grd,DerTes,DerPunt,DerRad,DerCentr)
 
-use Constants, only: Zero, One, Half, Two
-use Definitions, only: wp, iwp
 use PCM_alaska, only: lSA
 use NAC, only: isNAC
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nAt, nTs, nS, ISphe(nTs), NOrd(nS)
@@ -36,11 +36,11 @@ if (Cond .and. (abs(Eps-One) <= 1.0e-10_wp)) return
 
 do IAtom=1,nAt
   do IXYZ=1,3
-    ! Dielectric model
     if (.not. Cond) then
+      ! Dielectric model
       call Over(IAtom,IXYZ,GeoGrd,nAt,nTs,nS,Eps,Sphere,ISphe,NOrd,Tessera,Q1,DerRad,DerCentr)
-    ! Conductor model
-    else if (Cond) then
+    else
+      ! Conductor model
       GeoGrd = Zero
       call DerD(IAtom,IXYZ,Tessera,ISphe,DerDM,DerTes,DerPunt,DerCentr,nTs,nAt,nS)
       if (lSA) then
@@ -54,10 +54,8 @@ do IAtom=1,nAt
         else
           do iTs=1,nTs
             do jTs=1,nTs
-              GeoGrd = GeoGrd+(Q1(1,iTs)*Q2(1,jTs) &
-                             +Two*Q1(2,iTs)*Q2(2,jTs) &
-                             +Two*Q1(1,iTs)*Q2(2,jTs) &
-                             -Q1(2,iTs)*Q1(2,jTs))*DerDM(iTs,jTs)
+              GeoGrd = GeoGrd+ &
+                       (Q1(1,iTs)*Q2(1,jTs)+Two*Q1(2,iTs)*Q2(2,jTs)+Two*Q1(1,iTs)*Q2(2,jTs)-Q1(2,iTs)*Q1(2,jTs))*DerDM(iTs,jTs)
             end do
           end do
         end if

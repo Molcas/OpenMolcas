@@ -157,7 +157,7 @@ if (king() .or. HF_Force) then
   ! per default NADC must not have nuclear contributions added
   ! If SA-CASSCF/PCM, call DrvN1 for PCM-related contributions
 
-  if ((NO_NUC .and. .not.(lRF .and. PCM .and. lSA)) .or. ((Columbus == 1) .and. (colgradmode == 3))) then
+  if ((NO_NUC .and. (.not.(lRF .and. PCM .and. lSA))) .or. ((Columbus == 1) .and. (colgradmode == 3))) then
     write(u6,*) 'Skipping Nuclear Charge Contribution'
     iRout = 33 !! as done in DrvN1
     iPrint = nPrint(iRout)
@@ -280,7 +280,7 @@ if (.not. Test) then
   !*********************************************************************
   !                                                                    *
 end if
-if (lRF .and. PCM .and. lSA) call PCM_alaska_final()
+if (lRF) call PCM_alaska_final()
 !                                                                      *
 !***********************************************************************
 !                                                                      *

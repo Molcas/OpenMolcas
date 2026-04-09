@@ -32,60 +32,60 @@
 !   Specifies the distribution function (see DWSol_func). Only DWTYPE = 1 is working.
 !   I think we just need to update DWSol_func and DWSol_Der (zeroth- and first-order derivatives
 !   wrt the energy)
-!
-Module DWSol
 
-  use Constants, only: Zero, Half, One, Two, Three
-  use Definitions, only: iwp, u6, wp
-  use stdalloc, only: mma_allocate, mma_deallocate
+module DWSol
 
-  Type type_DW
-    logical(kind=iwp) :: do_DW   = .false.
-    integer(kind=iwp) :: DWType  = -99_iwp
-    integer(kind=iwp) :: DWRoot  = 0_iwp
-    real(kind=wp)     :: DWZeta  = Zero
-  End Type type_DW
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Three, Half
+use Definitions, only: wp, iwp, u6
 
-  !! DWSolv: dynamically weighted solvation
-  !! DWSCF : dynamically weighted MCSCF
-  Type (type_DW), target :: DWSolv, DWSCF
+implicit none
 
-  integer(kind=iwp) :: IPCMROOT  = 0_iwp
-  integer(kind=iwp) :: nRoots    = 0_iwp
+type type_DW
+  logical(kind=iwp) :: do_DW = .false.
+  integer(kind=iwp) :: DWType = -99
+  integer(kind=iwp) :: DWRoot = 0
+  real(kind=wp) :: DWZeta = Zero
+end type type_DW
 
-  real(kind=wp), allocatable :: W_SOLV(:)
+!! DWSolv: dynamically weighted solvation
+!! DWSCF : dynamically weighted MCSCF
+type(type_DW), target :: DWSolv, DWSCF
+
+integer(kind=iwp) :: IPCMROOT = 0, nRoots = 0
+
+real(kind=wp), allocatable :: W_SOLV(:)
 
 contains
-!
+
 !-----------------------------------------------------------------------
-!
+
 ! dummy subroutine for initialization things
-Subroutine DWSol_dummy()
-return
-End Subroutine DWSol_dummy
-!
+subroutine DWSol_dummy()
+
+  return
+
+end subroutine DWSol_dummy
+
 !-----------------------------------------------------------------------
-!
+
 ! should be called somewhere in RASSCF or MCLR after nRoots and
 ! IPCMROOT are determined
-Subroutine DWSol_init(IPCMROOT_,nRoots_,NonEq_)
+subroutine DWSol_init(IPCMROOT_,nRoots_,NonEq_)
 
-  use rctfld_module, only: iSLPar,rSlPar
+  use rctfld_module, only: iSLPar, rSlPar
   use input_mclr, only: Weight_MCLR => Weight
   use rasscf_global, only: Weight_RASSCF => Weight
   use UnixInfo, only: ProgName
 
-  implicit none
-
-  integer(kind=iwp), intent(in) :: IPCMROOT_,nRoots_
+  integer(kind=iwp), intent(in) :: IPCMROOT_, nRoots_
   logical(kind=iwp), intent(in) :: NonEq_
-
-  integer(kind=iwp) :: i,istate,jstate,mData
-  real(kind=wp)     :: wgt
+  integer(kind=iwp) :: i, istate, jstate, mData
+  real(kind=wp) :: wgt
   logical(kind=iwp) :: Found
 
-  IPCMROOT      = IPCMROOT_
-  nRoots        = nRoots_
+  IPCMROOT = IPCMROOT_
+  nRoots = nRoots_
 
   DWSolv%DWType = ISlPar(17)
   DWSolv%DWRoot = IPCMROOT
@@ -97,25 +97,23 @@ Subroutine DWSol_init(IPCMROOT_,nRoots_,NonEq_)
   W_SOLV(:) = Zero
 
   call qpg_dArray('SolventWeight',Found,mData)
-  if (Found .and. mData /= 0) then
-    if (mData /= nRoots) then
-      call warningMessage(1,'The number of roots specified by FIXRFROOT/DWROOT and CIROOT may be inconsistent.')
-    end if
-    Call Get_dArray('SolventWeight',W_SOLV,min(mData,nRoots))
+  if (Found .and. (mData /= 0)) then
+    if (mData /= nRoots) call warningMessage(1,'The number of roots specified by FIXRFROOT/DWROOT and CIROOT may be inconsistent.')
+    call Get_dArray('SolventWeight',W_SOLV,min(mData,nRoots))
     DWSolv%DWZeta = -12345.0_wp
   else
-    if (DWSolv%DWZeta == 0.0_wp) then
+    if (DWSolv%DWZeta == Zero) then
       if (IPCMROOT > 0) then
         W_SOLV(IPCMROOT) = One
       else
         if (ProgName(1:6) == 'rasscf') W_SOLV(1:nRoots) = Weight_RASSCF(1:nRoots)
-        if (ProgName(1:4) == 'mclr')   W_SOLV(1:nRoots) = Weight_MCLR(1:nRoots)
+        if (ProgName(1:4) == 'mclr') W_SOLV(1:nRoots) = Weight_MCLR(1:nRoots)
       end if
     else if (DWSolv%DWZeta < Zero) then
       !! fixed averaging
-      Call DWSol_fixed(istate,jstate)
-      do i = 1, nRoots
-        if (i == istate .or. i == jstate) then
+      call DWSol_fixed(istate,jstate)
+      do i=1,nRoots
+        if ((i == istate) .or. (i == jstate)) then
           wgt = Half
         else
           wgt = Zero
@@ -127,75 +125,69 @@ Subroutine DWSol_init(IPCMROOT_,nRoots_,NonEq_)
     end if
   end if
 
-End Subroutine DWSol_init
-!
+end subroutine DWSol_init
+
 !-----------------------------------------------------------------------
-!
+
 ! should be called somewhere in RASSCF or MCLR after nRoots and
 ! IPCMROOT are determined
-Subroutine DWSCF_init(mode,nRoots_)
+subroutine DWSCF_init(mode,nRoots_)
 
-  implicit none
-
-  integer(kind=iwp), intent(in) :: mode,nRoots_
+  integer(kind=iwp), intent(in) :: mode, nRoots_
   integer(kind=iwp) :: idum
   real(kind=wp) :: rdum
 
-  nRoots    = nRoots_
+  nRoots = nRoots_
 
   if (mode == 1) then
     !! call from RASSCF, nothing is done
   else if (mode == 2) then
     !! call from MCLR, read from RunFile(?)
-    Call Get_iScalar('DWTypeSCF',idum)
-    Call Get_dScalar('DWZetaSCF',rdum)
+    call Get_iScalar('DWTypeSCF',idum)
+    call Get_dScalar('DWZetaSCF',rdum)
     DWSCF%DWRoot = ibits(idum,16,16)
-    DWSCF%DWType = ibits(idum, 0,16)
+    DWSCF%DWType = ibits(idum,0,16)
     DWSCF%DWZeta = rdum
   end if
 
   DWSCF%do_DW = .false.
   if (DWSCF%DWROOT /= 0) then
-    write (u6,*) 'DW-MCSCF is enabled'
+    write(u6,*) 'DW-MCSCF is enabled'
     DWSCF%do_DW = .true.
     if (DWSCF%DWType == -99) then
-      write (u6,*) 'DWTYpe has not been specified.'
-      write (u6,*) 'The default value DWTYpe = 0 will be used.'
+      write(u6,*) 'DWTYpe has not been specified.'
+      write(u6,*) 'The default value DWTYpe = 0 will be used.'
       DWSCF%DWType = 0
     end if
     if (DWSCF%DWZeta == Zero) then
-      if (DWSCF%DWType == -1) DWSCF%DWZeta = One
-      if (DWSCF%DWType ==  0) DWSCF%DWZeta = One
-      if (DWSCF%DWType ==  1) DWSCF%DWZeta = One
+      select case (DWSCF%DWType)
+        case (-1,0,1)
+          DWSCF%DWZeta = One
+      end select
     end if
   end if
 
-End Subroutine DWSCF_init
-!
+end subroutine DWSCF_init
+
 !-----------------------------------------------------------------------
-!
-Subroutine DWSol_DWRO(LuInput,nRoots_,iall)
 
-  implicit none
+subroutine DWSol_DWRO(LuInput,nRoots_,i_all)
 
-  integer(kind=iwp), intent(in) :: LuInput,iall
+  integer(kind=iwp), intent(in) :: LuInput, i_all
   integer(kind=iwp), intent(inout) :: nRoots_
-
   integer(kind=iwp) :: i, iError, iSum
+  character(len=180) :: KWord
   integer(kind=iwp), allocatable :: IROOT(:), Temp1(:)
   real(kind=wp), allocatable :: W_local(:)
-  character(len=180) :: KWord
-
-! integer(kind=iwp), external :: nToken
+  !integer(kind=iwp), external :: nToken
   character(len=180), external :: Get_Ln
 
-!
-! Determine the roots to be used for solvation by reading RFROOT
-!
-! iall = 0
-! call Get_I1(1,nRoots_)
-! call Get_I1(2,lRoots_) !! this is not used
-! if (nToken(KWord_) > 3) call Get_I1(3,iall)
+  ! Determine the roots to be used for solvation by reading RFROOT
+  !
+  !i_all = 0
+  !call Get_I1(1,nRoots_)
+  !call Get_I1(2,lRoots_) !! this is not used
+  !if (nToken(KWord_) > 3) call Get_I1(3,i_all)
 
   call mma_allocate(W_local,nRoots_,Label='W_local')
   call mma_allocate(IROOT,nRoots_,Label='IROOT')
@@ -203,86 +195,80 @@ Subroutine DWSol_DWRO(LuInput,nRoots_,iall)
   W_local(1:nRoots_) = Zero
   IROOT(1:nRoots_) = 0
 
-  if (iall == 1) then
-    Do i = 1, nRoots_
-     iroot(i)=i
-     W_local(i) = One/dble(nRoots_)
-    END DO
+  if (i_all == 1) then
+    do i=1,nRoots_
+      iroot(i) = i
+      W_local(i) = One/real(nRoots_,kind=wp)
+    end do
   else
-    KWord=Get_Ln(LuInput)
-    Read(KWord,*,IOSTAT=iError) (IROOT(I),I=1,nRoots_)
+    KWord = Get_Ln(LuInput)
+    read(KWord,*,iostat=iError) (IROOT(I),I=1,nRoots_)
     if (iError /= 0) call Error(iError)
-    if (nRoots_== 1) then
+    if (nRoots_ == 1) then
       W_local(1) = One
     else
-      KWord=Get_Ln(LuInput)
+      KWord = Get_Ln(LuInput)
 
       call mma_allocate(Temp1,nRoots_,Label='Temp1')
-      Read(KWord,*,IOSTAT=iError) (Temp1(I),I=1,nRoots_)
+      read(KWord,*,iostat=iError) (Temp1(I),I=1,nRoots_)
       if (iError /= 0) call Error(iError)
 
-      iSum=0
-      do i = 1, nRoots_
-         iSum = iSum + Temp1(i)
+      iSum = 0
+      do i=1,nRoots_
+        iSum = iSum+Temp1(i)
       end do
-      do i = 1, nRoots_
+      do i=1,nRoots_
         if (Temp1(i) == 0) then
           W_local(i) = Zero
         else
-          W_local(i) = DBLE(Temp1(i))/DBLE(iSum)
+          W_local(i) = real(Temp1(i),kind=wp)/real(iSum,kind=wp)
         end if
       end do
       call mma_deallocate(Temp1)
     end if
   end if
 
-  Call Put_dArray('SolventWeight',W_local,nRoots_)
+  call Put_dArray('SolventWeight',W_local,nRoots_)
 
   ! Set IPCMROOT
-  if (iall == 1) then
+  if (i_all == 1) then
     nRoots_ = 0
   else
-    nRoots_ = MAXLOC(W_local(1:nRoots_),1)
+    nRoots_ = maxloc(W_local(1:nRoots_),1)
   end if
 
   call mma_deallocate(W_local)
   call mma_deallocate(IROOT)
 
-  return
-
 contains
 
-subroutine Error(rc)
+  subroutine Error(rc)
 
-  integer(kind=iwp), intent(in) :: rc
+    integer(kind=iwp), intent(in) :: rc
 
-  if (rc > 0) then
-    write(u6,*) 'DWSol_DWRO: Error while reading input'
-  else
-    write(u6,*) 'DWSol_DWRORdInp: Premature end of input file'
-  end if
-  write(u6,'(A,A)') 'Last command:',KWord
-  call Abend()
+    if (rc > 0) then
+      write(u6,*) 'DWSol_DWRO: Error while reading input'
+    else
+      write(u6,*) 'DWSol_DWRORdInp: Premature end of input file'
+    end if
+    write(u6,'(A,A)') 'Last command:',KWord
+    call Abend()
 
-end subroutine Error
+  end subroutine Error
 
-End Subroutine DWSol_DWRO
-!
+end subroutine DWSol_DWRO
+
 !-----------------------------------------------------------------------
-!
-Subroutine DWSol_final()
 
-  implicit none
+subroutine DWSol_final()
 
-  call mma_deallocate(W_SOLV,safe='*')
+  call mma_deallocate(W_SOLV)
 
-End Subroutine DWSol_final
-!
+end subroutine DWSol_final
+
 !-----------------------------------------------------------------------
-!
-Subroutine DWSCF_final()
 
-  implicit none
+subroutine DWSCF_final()
 
   integer(kind=iwp) :: idum
   real(kind=wp) :: rdum
@@ -297,33 +283,35 @@ Subroutine DWSCF_final()
     rdum = Zero
   end if
 
-  Call Put_iScalar('DWTypeSCF',idum)
-  Call Put_dScalar('DWZetaSCF',rdum)
+  call Put_iScalar('DWTypeSCF',idum)
+  call Put_dScalar('DWZetaSCF',rdum)
 
-End Subroutine DWSCF_final
-!
+end subroutine DWSCF_final
+
 !-----------------------------------------------------------------------
-!
-Subroutine DWSol_wgt(mode,ENER,weight)
 
-  implicit none
+subroutine DWSol_wgt(mode,ENER,weight)
 
-  integer(kind=iwp),intent(in) :: mode
-  real(kind=wp),intent(in) :: ENER(*)
-  real(kind=wp),intent(out),optional :: weight(*)
-
-  real(kind=wp), allocatable :: W_local(:)
-  real(kind=wp)     :: Ealpha,Ebeta,Egamma,wgt,Wtot,xi_ab,xi_ag
+  integer(kind=iwp), intent(in) :: mode
+  real(kind=wp), intent(in) :: ENER(*)
+  real(kind=wp), intent(out), optional :: weight(*)
   integer(kind=iwp) :: i
+  real(kind=wp) :: Ealpha, Ebeta, Egamma, wgt, Wtot, xi_ab, xi_ag
+  type(type_DW), pointer :: DWlocal
+  real(kind=wp), allocatable :: W_local(:)
 
-  Type (type_DW), pointer :: DWlocal
-
-  !! DW-MCSCF
-  if (mode == 1) DWlocal => DWSCF
-  !! DW solvation
-  if (mode == 2) DWlocal => DWSolv
-  !! DW CASPT2?
-! if (mode == 3)
+  select case (mode)
+    case (1)
+      !! DW-MCSCF
+      DWlocal => DWSCF
+    case (2)
+      !! DW solvation
+      DWlocal => DWSolv
+    !case (3)
+    !  !! DW CASPT2?
+    case default
+      nullify(DWlocal)
+  end select
 
   if (DWlocal%DWZeta <= Zero) return
 
@@ -333,166 +321,171 @@ Subroutine DWSol_wgt(mode,ENER,weight)
   !! Normalization
   Wtot = Zero
   Ealpha = ENER(DWlocal%DWRoot)
-  do i = 1, nRoots
+  do i=1,nRoots
     Egamma = ENER(i)
     xi_ag = Ealpha-Egamma
     wgt = DWSol_func(xi_ag,DWlocal)
-    Wtot = Wtot + wgt
+    Wtot = Wtot+wgt
   end do
 
   W_local = Zero
-  do i = 1, nRoots
+  do i=1,nRoots
     Ebeta = ENER(i)
     xi_ab = Ealpha-Ebeta
     wgt = DWSol_func(xi_ab,DWlocal)
     W_local(i) = wgt/Wtot
   end do
 
-  if (mode == 1) weight(1:nRoots) = W_local(1:nRoots)
-  if (mode == 2) W_SOLV(1:nRoots) = W_local(1:nRoots)
+  select case (mode)
+    case (1)
+      weight(1:nRoots) = W_local(1:nRoots)
+    case (2)
+      W_SOLV(1:nRoots) = W_local(1:nRoots)
+  end select
 
   call mma_deallocate(W_local)
 
-End Subroutine DWSol_wgt
-!
-!-----------------------------------------------------------------------
-!
-Function DWSol_func(xx,DWlocal)
+end subroutine DWSol_wgt
 
-  implicit none
+!-----------------------------------------------------------------------
+
+function DWSol_func(xx,DWlocal)
 
   real(kind=wp) :: DWSol_func
   real(kind=wp), intent(in) :: xx
   type(type_DW), intent(in) :: DWlocal
 
   DWSol_func = Zero
-  if (DWlocal%DWType == -1) then
-    !! the oldest (?) DW-CASSCF (J. Chem. Phys. 120, 7281 (2004)
-    DWSol_func = cosh(xx/DWlocal%DWZeta)**2
-  else if (DWlocal%DWType == 0) then
-    !! new (?) DW-CASSCF: J. Chem. Phys. 141, 171102 (2014)
-    if (xx <= Zero) then
-      DWSol_func = One/nRoots
-    else if (xx <= DWlocal%DWZeta) then
-      DWSol_func = One &
-                 - Three*(xx/DWlocal%DWZeta)**2 &
-                 + Two*(xx/DWlocal%DWZeta)**3
-    else
-      DWSol_func = Zero
-    end if
-  else if (DWlocal%DWType == 1) then
-    !! Boltzmann factor (XDW-CASPT2 with DWType = 1)
-    DWSol_func = exp(-DWlocal%DWZeta*xx*xx)
-  else
-    write (u6,*) 'Unrecognized DWType in DWSol...'
-    call abend()
-  end if
+  select case (DWlocal%DWType)
+    case (-1)
+      !! the oldest (?) DW-CASSCF (J. Chem. Phys. 120, 7281 (2004)
+      DWSol_func = cosh(xx/DWlocal%DWZeta)**2
+    case (0)
+      !! new (?) DW-CASSCF: J. Chem. Phys. 141, 171102 (2014)
+      if (xx <= Zero) then
+        DWSol_func = One/nRoots
+      else if (xx <= DWlocal%DWZeta) then
+        DWSol_func = One-Three*(xx/DWlocal%DWZeta)**2+Two*(xx/DWlocal%DWZeta)**3
+      else
+        DWSol_func = Zero
+      end if
+    case (1)
+      !! Boltzmann factor (XDW-CASPT2 with DWType = 1)
+      DWSol_func = exp(-DWlocal%DWZeta*xx**2)
+    case default
+      write(u6,*) 'Unrecognized DWType in DWSol...'
+      call abend()
+  end select
 
   return
 
-End Function DWSol_func
-!
+end function DWSol_func
+
 !-----------------------------------------------------------------------
-!
-Subroutine DWSol_fixed(istate,jstate)
 
-  implicit none
+subroutine DWSol_fixed(istate,jstate)
 
-  integer(kind=iwp), intent(out) :: istate,jstate
+  integer(kind=iwp), intent(out) :: istate, jstate
+  integer(kind=iwp) :: DWZetaInt
 
-  if (DWSolv%DWZeta == -2.0_wp) then
-    istate = 1
-    jstate = 2
-  else if (DWSolv%DWZeta == -6.0_wp) then
-    istate = 2
-    jstate = 3
-  else if (DWSolv%DWZeta == -12.0_wp) then
-    istate = 3
-    jstate = 4
-  else if (DWSolv%DWZeta == -20.0_wp) then
-    istate = 4
-    jstate = 5
-  else if (DWSolv%DWZeta == -30.0_wp) then
-    istate = 5
-    jstate = 6
-  else if (DWSolv%DWZeta == -42.0_wp) then
-    istate = 6
-    jstate = 7
-  else if (DWSolv%DWZeta == -56.0_wp) then
-    istate = 7
-    jstate = 8
-  else if (DWSolv%DWZeta == -72.0_wp) then
-    istate = 8
-    jstate = 9
-  else if (DWSolv%DWZeta == -90.0_wp) then
-    istate = 9
-    jstate = 10
-  else
-    write (u6,*) 'Unrecognized negative DWZeta ...'
-    istate = 0
-    jstate = 0
-  end if
+  DWZetaInt = int(DWSolv%DWZeta,kind=iwp)
+  if (real(DWZetaInt,kind=wp) /= DWSolv%DWZeta) DWZetaInt = 0
+  select case (DWZetaInt)
+    case (-2)
+      istate = 1
+      jstate = 2
+    case (-6)
+      istate = 2
+      jstate = 3
+    case (-12)
+      istate = 3
+      jstate = 4
+    case (-20)
+      istate = 4
+      jstate = 5
+    case (-30)
+      istate = 5
+      jstate = 6
+    case (-42)
+      istate = 6
+      jstate = 7
+    case (-56)
+      istate = 7
+      jstate = 8
+    case (-72)
+      istate = 8
+      jstate = 9
+    case (-90)
+      istate = 9
+      jstate = 10
+    case default
+      write(u6,*) 'Unrecognized negative DWZeta ...'
+      istate = 0
+      jstate = 0
+  end select
 
-  return
+end subroutine DWSol_fixed
 
-End Subroutine DWSol_fixed
-!
 !-----------------------------------------------------------------------
-!
-Subroutine DWSol_der(mode,DEROMG,DERHII,ENER,weight)
 
-  implicit none
+subroutine DWSol_der(mode,DEROMG,DERHII,ENER,weight)
 
   integer(kind=iwp), intent(in) :: mode
-  real(kind=wp), intent(in) :: DEROMG(:),ENER(:)
-  real(kind=wp), intent(in), optional :: weight(1:nRoots)
+  real(kind=wp), intent(in) :: DEROMG(:), ENER(:)
   !! partial derivative (pseudo-density, more precisely) of H_{II}
   real(kind=wp), intent(inout) :: DERHII(:)
-
-  integer(kind=iwp) :: i,j,k
-  real(kind=wp)     :: Ealpha,Ebeta,Egamma,Scal
+  real(kind=wp), intent(in), optional :: weight(1:nRoots)
+  integer(kind=iwp) :: i, j, k
+  real(kind=wp) :: Ealpha, Ebeta, Egamma, Scal
+  type(type_DW), pointer :: DWlocal
   real(kind=wp), allocatable :: W_local(:)
-  Type (type_DW), pointer :: DWlocal
 
-  !! DW-MCSCF
-  if (mode == 1) DWlocal => DWSCF
-  !! DW solvation
-  if (mode == 2) DWlocal => DWSolv
+  select case (mode)
+    case (1)
+      !! DW-MCSCF
+      DWlocal => DWSCF
+    case (2)
+      !! DW solvation
+      DWlocal => DWSolv
+    case default
+      nullify(DWlocal)
+  end select
 
   DERHII(1:nRoots) = Zero
   if (DWlocal%DWZeta <= Zero) return
 
   call mma_allocate(W_local,nRoots,Label='W_local')
 
-  !! DW-MCSCF
-  if (mode == 1) W_local(1:nRoots) = weight(1:nRoots)
-  !! DW solvation
-  if (mode == 2) W_local(1:nRoots) = W_SOLV(1:nRoots)
+  select case (mode)
+    case (1)
+      !! DW-MCSCF
+      W_local(1:nRoots) = weight(1:nRoots)
+    case (2)
+      !! DW solvation
+      W_local(1:nRoots) = W_SOLV(1:nRoots)
+  end select
 
   i = DWlocal%DWRoot
   Ealpha = ENER(i)
 
-  do j = 1, nRoots
-    if (DWlocal%DWType == 1) then
+  if (DWlocal%DWType == 1) then
+    do j=1,nRoots
       Ebeta = ENER(j)
       Scal = -Two*DWlocal%DWZeta*W_local(j)*(Ealpha-Ebeta)*DEROMG(j)
-      DERHII(i) = DERHII(i) - Scal
-      DERHII(j) = DERHII(j) + Scal
+      DERHII(i) = DERHII(i)-Scal
+      DERHII(j) = DERHII(j)+Scal
 
-      do k = 1, nRoots
+      do k=1,nRoots
         Egamma = ENER(k)
         Scal = Two*DWlocal%DWZeta*W_local(j)*W_local(k)*(Ealpha-Egamma)*DEROMG(j)
-        DERHII(i) = DERHII(i) - Scal
-        DERHII(k) = DERHII(k) + Scal
+        DERHII(i) = DERHII(i)-Scal
+        DERHII(k) = DERHII(k)+Scal
       end do
-    else
-    end if
-  end do
+    end do
+  end if
 
   call mma_deallocate(W_local)
 
-  return
+end subroutine DWSol_Der
 
-End Subroutine DWSol_Der
-
-End Module DWSol
+end module DWSol

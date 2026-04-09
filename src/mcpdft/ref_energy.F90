@@ -43,7 +43,7 @@ if (mcpdft_options%mspdft) then
     mcscf_energy(state) = heff(state,state)
   end do
 else
-  if (iprglb >= usual) write(u6,*) 'Reference MC-SCF energies taken from ',mcpdft_options%wfn_file
+  if (iprglb >= usual) write(u6,*) 'Reference MC-SCF energies taken from ',trim(mcpdft_options%wfn_file)
   if (.not. mcpdft_options%is_hdf5_wfn) then
     iadr19(:) = 0
     iad19 = 0

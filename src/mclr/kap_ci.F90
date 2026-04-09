@@ -15,10 +15,10 @@ use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI, nConf1
 use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: nCSF, nRoots, State_Sym
+use ISRotation, only: unequal_SA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
 use Definitions, only: wp, iwp
-use ISRotation, only: unequal_SA
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nh2, ipS1

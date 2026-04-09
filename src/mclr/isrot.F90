@@ -46,75 +46,73 @@
 ! (InvSCF, InvEne) = (.false., .true.)
 !   -> unequally (including dynamically) weighted SA-MCSCF w/o PCM
 !      The initial residue of the internal rotation is zero, though.
-!
-Module ISRotation
 
-  use Constants, only: Zero, Half, One, Two, Quart
-  use definitions, only: iwp,wp,u6
-  use stdalloc, only: mma_allocate, mma_deallocate
+module ISRotation
 
-  Implicit None
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-  ! Whether the "target" energy, specified by RLXROOT, is invariant or
-  ! non-invariant wrt internal state rotations. The conventional
-  ! SA-MCSCF is invariant, so InvEne = .true. For the above cases, the
-  ! energy is non-invariant, so InvEne = .false. (for instance, CASPT2
-  ! or SA-MCSCF with PCM etc.). This flag only controls the evaluation
-  ! of the initial internal rotation parameter.
-  logical(kind=iwp) :: InvEne = .true.
-  ! Whether the reference "state-averaged" SCF energy is invariant or
-  ! not with respect to rotations between internal states. If they are
-  ! invariant (InvSCF = .true.), the rotation parameters can be
-  ! non-iteratively determined. If non-invariant (InvSCF = .false.),
-  ! they have to be iteratively determined during the Z-vector
-  ! procedure. The rotation parameters for InvSCF = .true. can be
-  ! iteratively determined as well; this will end up with the same
-  ! result with InvSCF = .false. See the above note for details.
-  logical(kind=iwp) :: InvSCF = .true.
-  ! Whether we consider the off-diagonal block (O-S and C-S) couplings.
-  ! Purely development purpose
-  logical(kind=iwp) :: IntRotOff = .true.
-  ! unequal state-average?
-  logical(kind=iwp) :: unequal_SA = .false.
-  ! InvSol is true only if the ASCs are polarized by the state-averaged
-  ! density matrix. If .not.InvSCF, InvSol is always false, but the
-  ! converse may not be true.
-  logical(kind=iwp) :: InvSol = .true.
-  ! Whether state rotations are scaled with the weight factor.
-  ! This option should not affect the computed results but I'm not sure.
-  ! Purely development purpose
-  logical(kind=iwp) :: ScalWeight = .false.
+implicit none
 
-  type ISR_param
-    real(kind=wp), Allocatable :: Ap(:,:)   ! results of A*p
-    real(kind=wp), Allocatable :: p(:,:)    ! trial vector during CG
-    real(kind=wp), Allocatable :: Rvec(:,:) ! initial residue (RHS)
-    real(kind=wp), Allocatable :: prec(:,:) ! preconditioned something
-    real(kind=wp), Allocatable :: Xvec(:,:) ! solution
-    real(kind=wp), Allocatable :: Pvec(:,:) ! P vector (for CGS)
-    real(kind=wp), Allocatable :: Qvec(:,:) ! Q vector (for CGS)
-    real(kind=wp), Allocatable :: Uvec(:,:) ! U vector (for CGS)
-    real(kind=wp), Allocatable :: R0(:,:)   ! initial residue (for CGS)
-  end type ISR_param
+! Whether the "target" energy, specified by RLXROOT, is invariant or
+! non-invariant wrt internal state rotations. The conventional
+! SA-MCSCF is invariant, so InvEne = .true. For the above cases, the
+! energy is non-invariant, so InvEne = .false. (for instance, CASPT2
+! or SA-MCSCF with PCM etc.). This flag only controls the evaluation
+! of the initial internal rotation parameter.
+logical(kind=iwp) :: InvEne = .true.
+! Whether the reference "state-averaged" SCF energy is invariant or
+! not with respect to rotations between internal states. If they are
+! invariant (InvSCF = .true.), the rotation parameters can be
+! non-iteratively determined. If non-invariant (InvSCF = .false.),
+! they have to be iteratively determined during the Z-vector
+! procedure. The rotation parameters for InvSCF = .true. can be
+! iteratively determined as well; this will end up with the same
+! result with InvSCF = .false. See the above note for details.
+logical(kind=iwp) :: InvSCF = .true.
+! Whether we consider the off-diagonal block (O-S and C-S) couplings.
+! Purely development purpose
+logical(kind=iwp) :: IntRotOff = .true.
+! unequal state-average?
+logical(kind=iwp) :: unequal_SA = .false.
+! InvSol is true only if the ASCs are polarized by the state-averaged
+! density matrix. If .not.InvSCF, InvSol is always false, but the
+! converse may not be true.
+logical(kind=iwp) :: InvSol = .true.
+! Whether state rotations are scaled with the weight factor.
+! This option should not affect the computed results but I'm not sure.
+! Purely development purpose
+logical(kind=iwp) :: ScalWeight = .false.
 
-  type(ISR_param) :: ISR
+type ISR_param
+  real(kind=wp), allocatable :: Ap(:,:)   ! results of A*p
+  real(kind=wp), allocatable :: p(:,:)    ! trial vector during CG
+  real(kind=wp), allocatable :: Rvec(:,:) ! initial residue (RHS)
+  real(kind=wp), allocatable :: prec(:,:) ! preconditioned something
+  real(kind=wp), allocatable :: Xvec(:,:) ! solution
+  real(kind=wp), allocatable :: Pvec(:,:) ! P vector (for CGS)
+  real(kind=wp), allocatable :: Qvec(:,:) ! Q vector (for CGS)
+  real(kind=wp), allocatable :: Uvec(:,:) ! U vector (for CGS)
+  real(kind=wp), allocatable :: R0(:,:)   ! initial residue (for CGS)
+end type ISR_param
 
-  logical(kind=iwp), pointer :: do_RF
+type(ISR_param) :: ISR
+
+logical(kind=iwp), pointer :: do_RF
 
 contains
-!
+
 !-----------------------------------------------------------------------
-!
-  Subroutine ISR_init(iPL,do_RF_,def_solv)
-! use DWSol, only: DWSCF
+
+subroutine ISR_init(iPL,do_RF_,def_solv)
+
+  !use DWSol, only: DWSCF
   use cgs_mod, only: CGS
   use input_mclr, only: nRoots, PT2, weight
 
-  implicit none
-
-  integer(kind=iwp), intent(in) :: iPL,def_solv
+  integer(kind=iwp), intent(in) :: iPL, def_solv
   logical(kind=iwp), intent(in), target :: do_RF_
-
   integer(kind=iwp) :: iR
 
   !! Check whether we need to consider internal state rotations
@@ -122,281 +120,255 @@ contains
   InvEne = .true.
   unequal_SA = .false.
 
-  if (.not.InvSCF) InvEne = .false.
-  if (PT2 .and. nRoots > 0) InvEne = .false.
-  if (do_RF_ .and. def_solv /= 3) InvEne = .false.
-  do iR = 2, nRoots
+  if (.not. InvSCF) InvEne = .false.
+  if (PT2 .and. (nRoots > 0)) InvEne = .false.
+  if (do_RF_ .and. (def_solv /= 3)) InvEne = .false.
+  do iR=2,nRoots
     if (weight(1) /= weight(iR)) then
       unequal_SA = .true.
       InvSCF = .false.
-      if (do_RF_ .and. def_solv == 3) InvEne = .false.
+      if (do_RF_ .and. (def_solv == 3)) InvEne = .false.
     end if
   end do
 
-  do_RF             => do_RF_
+  do_RF => do_RF_
 
   !! If InvEnv = .false., we need internal state rotations
   !! Rvec may be allocated for all cases
   call mma_allocate(ISR%Rvec,nRoots,nRoots,Label='ISR%Rvec')
   ISR%Rvec(:,:) = Zero
-  if (.not.InvSCF) then
-    call mma_allocate(ISR%Ap  ,nRoots,nRoots,Label='ISR%Ap')
-    call mma_allocate(ISR%p   ,nRoots,nRoots,Label='ISR%p')
+  if (.not. InvSCF) then
+    call mma_allocate(ISR%Ap,nRoots,nRoots,Label='ISR%Ap')
+    call mma_allocate(ISR%p,nRoots,nRoots,Label='ISR%p')
     call mma_allocate(ISR%prec,nRoots,nRoots,Label='ISR%prec')
     call mma_allocate(ISR%Xvec,nRoots,nRoots,Label='ISR%Xvec')
 
-    ISR%Ap(:,:)   = Zero
-    ISR%p(:,:)    = Zero
+    ISR%Ap(:,:) = Zero
+    ISR%p(:,:) = Zero
     ISR%prec(:,:) = Zero
     ISR%Xvec(:,:) = Zero
   end if
 
   !! The rest is for CGS
   !! actually, if InvSCF = .false., it is usually better to use CGS
-  CGS = CGS .or. do_RF! .or. DWSCF%do_DW
+  CGS = CGS .or. do_RF ! .or. DWSCF%do_DW
   if (CGS) then
 
     call mma_allocate(ISR%Pvec,nRoots,nRoots,Label='ISR%Pvec')
     call mma_allocate(ISR%Qvec,nRoots,nRoots,Label='ISR%Qvec')
     call mma_allocate(ISR%Uvec,nRoots,nRoots,Label='ISR%Uvec')
-    call mma_allocate(ISR%R0  ,nRoots,nRoots,Label='ISR%R0')
+    call mma_allocate(ISR%R0,nRoots,nRoots,Label='ISR%R0')
 
     ISR%Pvec(:,:) = Zero
     ISR%Qvec(:,:) = Zero
     ISR%Uvec(:,:) = Zero
-    ISR%R0(:,:)   = Zero
+    ISR%R0(:,:) = Zero
   end if
 
   if (iPL >= 2) then
-    if (.not.InvEne) Write(u6,'(1X,A)') 'Target energy is non-invariant with respect to internal state rotations'
-    if (.not.InvSCF) Write(u6,'(1X,A)') 'Internal rotations are iteratively determined'
-    if (.not.InvSol) Write(u6,'(1X,A)') 'Solvent ESP is non-invariant with respect to internal state rotations'
-    if (CGS)         Write(u6,'(1X,A)') 'Preconditioned conjugate gradient squared (CGS) method is used'
-    if (.not.InvEne .or. .not.InvSCF .or. .not.InvSol .or. CGS) Write(u6,*)
+    if (.not. InvEne) write(u6,'(1X,A)') 'Target energy is non-invariant with respect to internal state rotations'
+    if (.not. InvSCF) write(u6,'(1X,A)') 'Internal rotations are iteratively determined'
+    if (.not. InvSol) write(u6,'(1X,A)') 'Solvent ESP is non-invariant with respect to internal state rotations'
+    if (CGS) write(u6,'(1X,A)') 'Preconditioned conjugate gradient squared (CGS) method is used'
+    if (.not. InvEne .or. (.not. InvSCF) .or. (.not. InvSol) .or. CGS) write(u6,*)
   end if
 
-  End Subroutine ISR_init
-!
+end subroutine ISR_init
+
 !-----------------------------------------------------------------------
-!
-  Subroutine ISR_final()
+
+subroutine ISR_final()
 
   use cgs_mod, only: CGS
 
-  implicit none
-
-  call mma_deallocate(ISR%Rvec,safe='*')
+  call mma_deallocate(ISR%Rvec)
 
   !! Not quite safe for unequally weighted SA-RASSCF...
-  if (.not.InvSCF) then
-    call mma_deallocate(ISR%Ap,safe='*')
-!   call mma_deallocate(ISR%p,safe='*') ! deallocated in ISR_final2
-    call mma_deallocate(ISR%prec,safe='*')
-    call mma_deallocate(ISR%Xvec,safe='*')
+  if (.not. InvSCF) then
+    call mma_deallocate(ISR%Ap)
+    !call mma_deallocate(ISR%p) ! deallocated in ISR_final2
+    call mma_deallocate(ISR%prec)
+    call mma_deallocate(ISR%Xvec)
   end if
 
   if (CGS) then
-    call mma_deallocate(ISR%Pvec,safe='*')
-    call mma_deallocate(ISR%Qvec,safe='*')
-    call mma_deallocate(ISR%Uvec,safe='*')
-    call mma_deallocate(ISR%R0,safe='*')
+    call mma_deallocate(ISR%Pvec)
+    call mma_deallocate(ISR%Qvec)
+    call mma_deallocate(ISR%Uvec)
+    call mma_deallocate(ISR%R0)
   end if
 
-  End Subroutine ISR_final
-!
+end subroutine ISR_final
+
 !-----------------------------------------------------------------------
-!
-  Subroutine ISR_final2()
 
-  implicit none
+subroutine ISR_final2()
 
-  if (.not.InvSCF) call mma_deallocate(ISR%p,safe='*')
+  if (.not. InvSCF) call mma_deallocate(ISR%p)
 
-  End Subroutine ISR_final2
-!
+end subroutine ISR_final2
+
 !-----------------------------------------------------------------------
-!
-  Subroutine ISR_RHS(CI,CIDER)
+
+subroutine ISR_RHS(CI,CIDER)
 
   use input_mclr, only: ERASSCF, ncsf, nRoots, State_Sym
 
-  implicit none
-
-  real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots),CIDER(ncsf(State_Sym),nRoots)
-
-  integer(kind=iwp) :: i,j
+  real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots), CIDER(ncsf(State_Sym),nRoots)
+  integer(kind=iwp) :: i, j
   real(kind=wp) :: scal
   real(kind=wp), external :: ddot_
-!
-! Construct the RHS (with minus) of state rotation
-!
-  do i = 1, nRoots
-    do j = 1, i-1
-      scal = DDot_(ncsf(State_Sym),CI(1,i),1,CIDER(1,j),1) &
-           - DDot_(ncsf(State_Sym),CI(1,j),1,CIDER(1,i),1)
+
+  ! Construct the RHS (with minus) of state rotation
+
+  do i=1,nRoots
+    do j=1,i-1
+      scal = DDot_(ncsf(State_Sym),CI(:,i),1,CIDER(:,j),1)-DDot_(ncsf(State_Sym),CI(:,j),1,CIDER(:,i),1)
       if (InvSCF) then
         ! non-iterative internal state rotations, if invariant
-        ISR%Rvec(i,j) = ISR%Rvec(i,j) + scal/(ERASSCF(j)-ERASSCF(i))
-      else if (.not.InvSCF) then
+        ISR%Rvec(i,j) = ISR%Rvec(i,j)+scal/(ERASSCF(j)-ERASSCF(i))
+      else
         ! initial residue (for iterative solution)
-        ISR%Rvec(i,j) = ISR%Rvec(i,j) + scal
+        ISR%Rvec(i,j) = ISR%Rvec(i,j)+scal
       end if
     end do
   end do
 
-! write (6,*) "initial state rotation"
-! call sqprt(isr%rvec,nroots)
+  !write(6,*) 'initial state rotation'
+  !call sqprt(isr%rvec,nroots)
 
-  Return
+end subroutine ISR_RHS
 
-  End Subroutine ISR_RHS
-!
 !-----------------------------------------------------------------------
-!
-  Subroutine ISR_projection(CI,CIDER)
+
+subroutine ISR_projection(CI,CIDER)
 
   use input_mclr, only: ncsf, nRoots, State_Sym
 
-  implicit none
-
   real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots)
   real(kind=wp), intent(inout) :: CIDER(ncsf(State_Sym),nRoots)
-
-  integer(kind=iwp) :: i,j
+  integer(kind=iwp) :: i, j
   real(kind=wp) :: scal
   real(kind=wp), external :: ddot_
-!
-! Project out the internal rotation contribution
-!
-  do i = 1, nRoots
-    do j = 1, nRoots
-      scal = DDot_(ncsf(State_Sym),CI(1,i),1,CIDER(1,j),1)
-      CIDER(:,j) = CIDER(:,j) - Scal*CI(:,i)
+
+  ! Project out the internal rotation contribution
+
+  do i=1,nRoots
+    do j=1,nRoots
+      scal = DDot_(ncsf(State_Sym),CI(:,i),1,CIDER(:,j),1)
+      CIDER(:,j) = CIDER(:,j)-Scal*CI(:,i)
     end do
   end do
 
-  Return
+end subroutine ISR_projection
 
-  End Subroutine ISR_projection
-!
 !-----------------------------------------------------------------------
-!
-  Subroutine ISR_TimesE2(MODE,CI,CIDER)
+
+subroutine ISR_TimesE2(MODE,CI,CIDER)
 
   use input_mclr, only: ERASSCF, ncsf, nRoots, State_Sym, Weight
-
-! use DWSol, only: DWSCF, DWSol_Der
-
-  implicit none
+  !use DWSol, only: DWSCF, DWSol_Der
 
   integer(kind=iwp), intent(in) :: MODE
   real(kind=wp), intent(in) :: CI(ncsf(State_Sym),nRoots)
   real(kind=wp), intent(inout) :: CIDER(ncsf(State_Sym),nRoots)
-
-  integer(kind=iwp) :: i,j
-  real(kind=wp) :: scal,fact
+  integer(kind=iwp) :: i, j
+  real(kind=wp) :: fact, scal
+  !real(kind=wp), allocatable :: DERHII(:), DEROMG(:)
   real(kind=wp), external :: ddot_
-! real(kind=wp), allocatable :: DERHII(:),DEROMG(:)
-#include "macros.fh"
-unused_var(mode)
-!
-! Compute the C-S and S-S blocks of the Ap operation
-!
+
+# include "macros.fh"
+  unused_var(mode)
+
+  ! Compute the C-S and S-S blocks of the Ap operation
+
   !! if do_RF and unequal_SA are true, this subroutine is called twice, so the S-S block has to be halved
   fact = One
   if (do_RF .and. unequal_SA) fact = Half
 
-  if (.not.InvSCF) then
-    do i = 1, nRoots
-      do j = 1, i-1
+  if (.not. InvSCF) then
+    do i=1,nRoots
+      do j=1,i-1
         scal = Zero
         if (IntRotOff) then
           !! Note that CIDER has been multiplied by Weight or W_SOLV
-          scal = DDot_(ncsf(State_Sym),CI(1,i),1,CIDER(1,j),1) &
-               - DDot_(ncsf(State_Sym),CI(1,j),1,CIDER(1,i),1)
+          scal = DDot_(ncsf(State_Sym),CI(:,i),1,CIDER(:,j),1)-DDot_(ncsf(State_Sym),CI(:,j),1,CIDER(:,i),1)
         end if
-        if (ScalWeight .and. abs(Weight(i)-Weight(j)) > 1.0e-09_wp) then
-          ISR%Ap(i,j) = ISR%Ap(i,j) + scal + (ERASSCF(i)-ERASSCF(j))*ISR%p(i,j)*Two*fact*(Weight(i)-Weight(j))
+        if (ScalWeight .and. (abs(Weight(i)-Weight(j)) > 1.0e-9_wp)) then
+          ISR%Ap(i,j) = ISR%Ap(i,j)+scal+(ERASSCF(i)-ERASSCF(j))*ISR%p(i,j)*Two*fact*(Weight(i)-Weight(j))
         else
-          ISR%Ap(i,j) = ISR%Ap(i,j) + scal + (ERASSCF(i)-ERASSCF(j))*ISR%p(i,j)*Two*fact
+          ISR%Ap(i,j) = ISR%Ap(i,j)+scal+(ERASSCF(i)-ERASSCF(j))*ISR%p(i,j)*Two*fact
         end if
       end do
       !! The diagonal contribution is for dynamically weighted methods
-      ISR%Ap(i,i) = ISR%Ap(i,i) + ISR%p(i,i)*fact
+      ISR%Ap(i,i) = ISR%Ap(i,i)+ISR%p(i,i)*fact
     end do
   end if
 
   !! Derivative of H for DW-MCSCF is evaluated with CI derivatives
   !! DW solvation is evaluated in DWder_MCLR
-! if (mode==1.and.DWSCF%do_DW) then
-!   call mma_allocate(DEROMG,nRoots,Label='DEROMG')
-!   DEROMG = Zero
-!   if (IntRotOff) then
-!     do i = 1, nRoots
-!       ! CIDER has been scaled with the weight in cisigma_sa
-!       if (weight(i) >= 1.0e-08_wp) then
-!         DEROMG(i) = DDot_(ncsf(State_Sym),CI(1,i),1,CIDER(1,i),1)/weight(i)
-!       else
-!         DEROMG(i) = Zero !! under consideration
-!       end if
-!     end do
-!   end if
+  !if ((mode == 1) .and. DWSCF%do_DW) then
+  !  call mma_allocate(DEROMG,nRoots,Label='DEROMG')
+  !  DEROMG = Zero
+  !  if (IntRotOff) then
+  !    do i=1,nRoots
+  !      ! CIDER has been scaled with the weight in cisigma_sa
+  !      if (weight(i) >= 1.0e-8_wp) then
+  !        DEROMG(i) = DDot_(ncsf(State_Sym),CI(:,i),1,CIDER(:,i),1)/weight(i)
+  !      else
+  !        DEROMG(i) = Zero !! under consideration
+  !      end if
+  !    end do
+  !  end if
+  !
+  !  call mma_allocate(DERHII,nRoots,Label='DERHII')
+  !  DERHII(:) = Zero
+  !  call DWSol_Der(mode,DEROMG,DERHII,ERASSCF,weight)
+  !
+  !  do i=1,nRoots
+  !    !! not sure why 1/4
+  !    !! One reason is CIDER has been scaled by two, and the other is ?
+  !    ISR%Ap(i,i) = ISR%Ap(i,i)+DERHII(i)*Quart
+  !  end do
+  !  call mma_deallocate(DERHII)
+  !  call mma_deallocate(DEROMG)
+  !end if
 
-!   call mma_allocate(DERHII,nRoots,Label='DERHII')
-!   DERHII(:) = Zero
-!   call DWSol_Der(mode,DEROMG,DERHII,ERASSCF,weight)
+end subroutine ISR_TimesE2
 
-!   do i = 1, nRoots
-!     !! not sure why 1/4
-!     !! One reason is CIDER has been scaled by two, and the other is ?
-!     ISR%Ap(i,i) = ISR%Ap(i,i) + DERHII(i)*Quart
-!   end do
-!   call mma_deallocate(DERHII)
-!   call mma_deallocate(DEROMG)
-! end if
-
-  Return
-
-  End Subroutine ISR_TimesE2
-!
 !-----------------------------------------------------------------------
-!
-  Subroutine DMInvISR(ISRotIn,ISRotOut)
+
+subroutine DMInvISR(ISRotIn,ISRotOut)
 
   use input_mclr, only: ERASSCF, nRoots, Weight
 
-  implicit none
-
-  real(kind=wp), intent(in)    :: ISRotIn(nRoots,nRoots)
+  real(kind=wp), intent(in) :: ISRotIn(nRoots,nRoots)
   real(kind=wp), intent(inout) :: ISRotOut(nRoots,nRoots)
-
-  integer(kind=iwp) :: i,j
+  integer(kind=iwp) :: i, j
   logical(kind=iwp) :: Edeg, Wdeg
-!
-! diagonal preconditioning for the internal state rotation Hessian
-!
-  do i = 1, nRoots
-    do j = 1, i-1
+
+  ! diagonal preconditioning for the internal state rotation Hessian
+
+  do i=1,nRoots
+    do j=1,i-1
       Edeg = .false.
-      if (abs(ERASSCF(i)-ERASSCF(j)) < 1.0e-09_wp) Edeg = .true.
+      if (abs(ERASSCF(i)-ERASSCF(j)) < 1.0e-9_wp) Edeg = .true.
       Wdeg = .false.
-      if (ScalWeight .and. abs(Weight(i)-Weight(j)) < 1.0e-09_wp) Wdeg = .true.
+      if (ScalWeight .and. (abs(Weight(i)-Weight(j)) < 1.0e-9_wp)) Wdeg = .true.
       ! How to avoid the zero divsion for degenerated states?
       if (Edeg .and. Wdeg) then
-        ISRotOut(i,j) = +Half*ISRotIn(i,j)
-      else if (Wdeg .or. .not.ScalWeight) then
-        ISRotOut(i,j) = +Half*ISRotIn(i,j)/(ERASSCF(i)-ERASSCF(j))
+        ISRotOut(i,j) = Half*ISRotIn(i,j)
+      else if (Wdeg .or. (.not. ScalWeight)) then
+        ISRotOut(i,j) = Half*ISRotIn(i,j)/(ERASSCF(i)-ERASSCF(j))
       else if (Edeg .and. ScalWeight) then
-        ISRotOut(i,j) = +Half*ISRotIn(i,j)/(Weight(i)-Weight(j))
+        ISRotOut(i,j) = Half*ISRotIn(i,j)/(Weight(i)-Weight(j))
       else
-        ISRotOut(i,j) = +Half*ISRotIn(i,j)/((ERASSCF(i)-ERASSCF(j))*(Weight(i)-Weight(j)))
+        ISRotOut(i,j) = Half*ISRotIn(i,j)/((ERASSCF(i)-ERASSCF(j))*(Weight(i)-Weight(j)))
       end if
     end do
     ISRotOut(i,i) = ISRotIn(i,i)
   end do
 
-  Return
+end subroutine DMInvISR
 
-  End Subroutine DMInvISR
-
-End Module ISRotation
+end module ISRotation

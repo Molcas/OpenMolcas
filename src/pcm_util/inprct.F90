@@ -22,12 +22,11 @@ subroutine InpRct(LuSpool)
 use rctfld_module, only: aFac, CLim, Conductor, CORDSI, DampIter, DieDel, DipCutOff, DipSI, DistSparse, Eps, Eps_USER, EpsInf, &
                          EpsInf_USER, gAtom, iSLPar, lAmberPol, LATATO, lDamping, lDipRestart, lGridAverage, lLangevin, lMax, lRF, &
                          lRFCav, lSparse, MXA, nExpo, nGridAverage, nGridSeed, nOrdInp, nSparse, PCM, PolSI, PreFac, RadInp, &
-                         RadLat, rDS, RotAlpha, RotBeta, RotGamma, rSca, rSLPar, Scaaa, Scal14, Scala, Scalb, Scalc, Solvent, &
-                         TK
+                         RadLat, rDS, RotAlpha, RotBeta, RotGamma, rSca, rSLPar, Scaaa, Scal14, Scala, Scalb, Scalc, Solvent, TK
 use CovRad_Data, only: CovRadT_
+use DWSol, only: DWSolv
 use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, deg2rad, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6
-use DWSol, only: DWSolv
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -154,8 +153,8 @@ Solvent = 'WATER'
 ISlPar(15) = NumSolv(Solvent)
 
 ! dynamically weighted state-averaging (in DWSol)
-DWSolv%DWZeta = 0.0_wp
-DWSolv%DWType = 1_iwp
+DWSolv%DWZeta = Zero
+DWSolv%DWType = 1
 
 !                                                                      *
 !***********************************************************************

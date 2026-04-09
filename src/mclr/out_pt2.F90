@@ -15,16 +15,14 @@ use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO, ESTERR, ipCI, ipCM, ipMat, IRLXROOT, ISNAC, ISTATE, LuJob, LuPT2, LuTEMP, n1Dens, n2Dens, nA, NACSTATES, &
                      nConf1, nDens, nDensC, OVERRIDE
-use input_mclr, only: iRoot, iTOC, nAsh, nBas, nCSF, nDisp, nIsh, nRoots, nSym, ntAsh, PT2, State_Sym
+use input_mclr, only: iRoot, iTOC, nAsh, nBas, nCSF, nDisp, nIsh, nRoots, nSym, ntAsh, ntBtri, PT2, State_Sym
+use PCM_grad, only: DSCFAO, DSSAO, PCM_grad_D2v, PCMSCFAO, PCMSCFMO
+use rctfld_module, only: lRF
+use ISRotation, only: ISR_final2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
-
-use input_mclr, only: ntBtri
-use PCM_grad, only: DSCFAO, DSSAO, PCMSCFAO, PCMSCFMO, PCM_grad_D2v
-use rctfld_module, only: lRF
-use ISRotation, only: ISR_final2
 
 implicit none
 integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
@@ -643,7 +641,7 @@ call Put_cArray('MCLR Root',mstate,16)
 !! In the end, it may be useful to generate ASCs using the relaxed
 !! density matrix for non-equilibrium solvation model
 if (lRF) then
-  Call Get_dArray('D1aoVar',DSSAO,ntBtri)
+  call Get_dArray('D1aoVar',DSSAO,ntBtri)
   call unfold(DSSAO,ntot1,DSCFAO,nLCMO,nSym,nBas)
   call PCM_grad_D2V(DSCFAO,PCMSCFMO,PCMSCFAO,.false.,.false.,.false.,.false.)
 end if

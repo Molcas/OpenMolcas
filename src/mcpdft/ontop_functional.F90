@@ -84,8 +84,8 @@ function new(otxc,lambda)
     write(u6,*) ' EXAMPLE:                          '
     write(u6,*) '  tPBE0 = 75% tPBE + 25% MCSCF.    '
     write(u6,*) ' Usage:                            '
-    write(u6,*) '  KSDFT=T:PBE                      '
-    write(u6,*) '  LAMB =0.25                       '
+    write(u6,*) '  FUNC=T:PBE                       '
+    write(u6,*) '  LAMB=0.25                        '
     write(u6,*) ' **********************************'
     call abend()
   end if

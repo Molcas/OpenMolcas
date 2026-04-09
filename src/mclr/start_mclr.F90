@@ -23,18 +23,16 @@ subroutine Start_MCLR()
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use transform_procedures, only: SetUp_CASPT2_Tra
-use MCLR_Data, only: CMO, CMO_Inv, FnMotra, FnQDat, FnTri1, LuHlf2, LuHlf3, LuMotra, LuQDat, LuTri1, LuTri2, nDens
-use input_mclr, only: kPrint, LuAChoVec, LuChoInt, LuIChoVec, nAsh, nBas, nDel, NewCho, nFro, nIsh, nOrb, nSym, StepType, TwoStep
+use MCLR_Data, only: CMO, CMO_Inv, FnMotra, FnQDat, FnTri1, INT1, LuHlf2, LuHlf3, LuMotra, LuQDat, LuTri1, LuTri2, nDens, SA
+use input_mclr, only: ERASSCF, kPrint, LuAChoVec, LuChoInt, LuIChoVec, nAsh, nBas, nDel, NewCho, nFro, nIsh, nOrb, nSym, PT2, &
+                      StepType, TwoStep
+use PCM_grad, only: do_RF, PCM_grad_init, PCM_mod_ERASSCF, PrepPCM
+use rctfld_module, only: iCharge_Ref, NonEQ_Ref, PCM
+!use DWSol, only: DWSCF_init
+use ISRotation, only: InvEne, InvSCF, InvSol
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-
-use MCLR_Data, only: INT1, SA
-use input_mclr, only: ERASSCF, PT2
-use pcm_grad, only: do_RF, PCM_grad_init, PrepPCM, PCM_mod_ERASSCF
-use rctfld_module, only: iCharge_Ref, NonEQ_Ref, PCM
-! use DWSol, only: DWSCF_init
-use ISRotation, only: InvEne, InvSCF, InvSol
 
 implicit none
 integer(kind=iwp) :: i, iComp, Indx, iOff, iOff1, iOff2, iOpt, iRC, iSeed, iSym, iSymLbl, iType, j, lSqrDens, lTriDens, nOrbBas
@@ -175,16 +173,16 @@ InvSol = .true.
 if (RF_On()) then
   if (NonEq_Ref) then
     call WarningMessage(2,'Error in MCLR')
-    write(u6,*) 'NonEq=.True., invalid option'
+    write(u6,*) 'NonEq=.true., invalid option'
     call Abend()
   end if
   call Init_RctFld(.false.,iCharge_Ref)
-  if (.not.SA .and. .not.PT2) then ! only for SA-CASSCF grad
+  if ((.not. SA) .and. (.not. PT2)) then ! only for SA-CASSCF grad
     call WarningMessage(2,'Error in MCLR')
     write(u6,*) 'PCM can be combined with SA-CASSCF or CASPT2 gradient only'
     call Abend()
   end if
-  if (.not.PCM) then
+  if (.not. PCM) then
     call WarningMessage(2,'Error in MCLR')
     write(u6,*) 'PCM-model must be used in RF-Input'
     call Abend()

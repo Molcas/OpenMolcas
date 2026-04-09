@@ -34,6 +34,8 @@ subroutine Drvh1(Grad,Temp,nGrad)
 !***********************************************************************
 
 use PCM_arrays, only: PCM_SQ
+use PCM_alaska, only: DSA_AO, lSA, PCM_SQ_ind
+use NAC, only: isNAC
 use External_Centers, only: nWel, XF, Wel_Info
 use Basis_Info, only: nCnttp, dbsc, ExpB, nBas, r0
 use Symmetry_Info, only: nIrrep
@@ -47,8 +49,6 @@ use Disp, only: HF_Force
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use PCM_alaska, only: DSA_AO, lSA, PCM_SQ_ind
-use NAC, only: isNAC
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -355,7 +355,7 @@ if (.not. HF_Force) then
     ! The PCM / COSMO model
 
     if (iCOSMO <= 0) then
-!     iPrint = 15
+      !iPrint = 15
       PCM_SQ(:,:) = PCM_SQ(:,:)/real(nIrrep,kind=wp)
       if (lSA) PCM_SQ_ind(:,:) = PCM_SQ_ind(:,:)/real(nIrrep,kind=wp)
     end if
@@ -386,17 +386,17 @@ if (.not. HF_Force) then
           PCM_SQ(1,:) = Zero
           ! PCM_SQ contains q^{e,SS} only (no nuclear contributions)
         else
-          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS) - PCM_SQ_ind(1:2,1:nTS)
+          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS)-PCM_SQ_ind(1:2,1:nTS)
           ! PCM_SQ contains q^{e,SA} - q^{e,SS} only (no nuclear contributions)
         end if
         call OneEl_g(PCMGrd,PCMMmG,TempPCM,nGrad,DiffOp,Coor,DSA_AO,nDens,lOper,nComp,nOrdOp,Label)
         if (isNAC) then
           PCM_SQ(1,:) = PCM_SQ_ind(1,:)
           call dswap_(2*nTS,PCM_SQ_ind,1,PCM_SQ,1)
-          Temp(1:nGrad) = Temp(1:nGrad) + TempPCM(1:nGrad)
+          Temp(1:nGrad) = Temp(1:nGrad)+TempPCM(1:nGrad)
         else
-          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS) + PCM_SQ_ind(1:2,1:nTS)
-          Temp(1:nGrad) = Temp(1:nGrad) - TempPCM(1:nGrad)
+          PCM_SQ(1:2,1:nTS) = PCM_SQ(1:2,1:nTS)+PCM_SQ_ind(1:2,1:nTS)
+          Temp(1:nGrad) = Temp(1:nGrad)-TempPCM(1:nGrad)
         end if
         call mma_deallocate(TempPCM)
       end if
@@ -407,8 +407,10 @@ if (.not. HF_Force) then
     end if
 
     Grad(:) = Grad(:)+Temp(:)
-    if (iCOSMO == 0) PCM_SQ(:,:) = PCM_SQ(:,:)*real(nIrrep,kind=wp)
-    if (iCOSMO == 0 .and. lSA) PCM_SQ_ind(:,:) = PCM_SQ_ind(:,:)*real(nIrrep,kind=wp)
+    if (iCOSMO == 0) then
+      PCM_SQ(:,:) = PCM_SQ(:,:)*real(nIrrep,kind=wp)
+      if (lSA) PCM_SQ_ind(:,:) = PCM_SQ_ind(:,:)*real(nIrrep,kind=wp)
+    end if
 
   end if
 end if

@@ -65,7 +65,7 @@ subroutine save_energies(e_states)
   use general_data, only: jobiph
   use mcpdft_input, only: mcpdft_options
 # ifdef _HDF5_
-  use mh5, only: mh5_close_file, mh5_open_dset, mh5_open_file_rw, mh5_put_dset
+  use mh5, only: mh5_close_file, mh5_open_attr, mh5_open_dset, mh5_open_file_rw, mh5_put_attr, mh5_put_dset
 # endif
 
 # include "intent.fh"
@@ -73,7 +73,7 @@ subroutine save_energies(e_states)
   real(kind=wp), intent(_IN_) :: e_states(:)
   integer(kind=iwp) :: adr19(15), disk
 # ifdef _HDF5_
-  integer(kind=iwp) :: refwfn_id, wfn_energy
+  integer(kind=iwp) :: module_name, refwfn_id, wfn_energy
 # endif
 
   if (.not. mcpdft_options%is_hdf5_wfn) then
@@ -85,6 +85,8 @@ subroutine save_energies(e_states)
 # ifdef _HDF5_
   else
     refwfn_id = mh5_open_file_rw(mcpdft_options%wfn_file)
+    module_name = mh5_open_attr(refwfn_id,'MOLCAS_MODULE')
+    call mh5_put_attr(module_name,'MCPDFT')
     wfn_energy = mh5_open_dset(refwfn_id,'ROOT_ENERGIES')
     call mh5_put_dset(wfn_energy,e_states)
     call mh5_close_file(refwfn_id)
@@ -130,7 +132,7 @@ subroutine save_ci(si_pdft,nstates)
 # endif
   end if
 
-  call mma_allocate(tCI,nstates,ncon,label='tCI')
+  call mma_allocate(tCI,ncon,nstates,label='tCI')
   call mma_allocate(ci_rot,nstates,ncon,label='CI Rot')
 
   if (.not. mcpdft_options%is_hdf5_wfn) then

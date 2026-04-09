@@ -44,22 +44,22 @@ integer(kind=iwp), intent(in) :: LuSpool
 #include "Molcas.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iRout, istatus, iSym(3), iTR, &
-                     j, jIrrep, jOper, jPrint, jRout, jTR, k, ldsp, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, &
-                     nElem, nGroup, nRoots, nSlct
+                     j, jIrrep, jOper, jPrint, jRout, jTR, k, ldsp, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, nElem, nGroup, &
+                     nRoots, nSlct
 real(kind=wp) :: alpha, Fact
 logical(kind=iwp) :: TstFnc, ltype, Slct, T_Only, No_Input_OK, Skip
 character(len=80) :: KWord, Key
+#ifdef _NOTUSED_
+integer(kind=iwp) :: jTR, kTR
+real(kind=wp) :: ovlp
+real(kind=wp), allocatable :: Scr(:,:)
+#endif
 integer(kind=iwp), allocatable :: IndCar(:), iTemp(:)
 real(kind=wp), allocatable :: Tmp(:), C(:,:), Temp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrintLevel, iPrmt, NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: Reduce_Prt
-#ifdef _NOTUSED_
-integer(kind=iwp) :: jTR, kTR
-real(kind=wp) :: ovlp
-real(kind=wp), allocatable :: Scr(:,:)
-#endif
 
 iRout = 99
 iPrint = nPrint(iRout)
@@ -713,10 +713,10 @@ if (TRSymm) then
     do iTR=1,nTR
       do jTR=1,iTR-1
         alpha = DDot_(ldisp(0),Am(jTR,1),nTR,Am(iTR,1),nTR)
-        Am(iTR,:) = Am(iTr,:) - alpha*Am(jTR,:)
+        Am(iTR,:) = Am(iTr,:)-alpha*Am(jTR,:)
       end do
       alpha = DDot_(ldisp(0),Am(iTR,1),nTR,Am(iTR,1),nTR)
-      if (abs(alpha) <= 1.0e-09_wp) then
+      if (abs(alpha) <= 1.0e-9_wp) then
         Am(iTR,:) = Zero ! if linearly dependent etc...
       else
         Am(iTR,:) = Am(iTR,:)/sqrt(alpha)
@@ -736,7 +736,7 @@ if (TRSymm) then
     call mma_deallocate(C)
     call mma_deallocate(IndCar)
 
-#ifdef _NOTUSED_
+#   ifdef _NOTUSED_
 
     ! Now, transfer the coefficient of those gradients which will
     ! not be computed directly.
@@ -836,7 +836,7 @@ if (TRSymm) then
       ldsp = iTemp(iTR)
       Dirct(ldsp) = .false.
     end do
-#endif
+#   endif
 
     write(LuWr,*)
     write(LuWr,'(20X,A)') ' Automatic utilization of translational and rotational invariance of the energy is employed.'
