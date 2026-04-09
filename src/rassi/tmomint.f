@@ -14,41 +14,48 @@
 * Object: driver for computation of TMOM integrals                     *
 *                                                                      *
 ************************************************************************
+      use definitions, only: iwp, wp
       Use MpmC
       Use Integral_interfaces, only: int_kernel, int_mem
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+      use definitions, only: u6
       use OneDat, only: sOpSiz
       use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas
-      use Symmetry_Info, only: nIrrep
+      use Symmetry_Info, only: nIrrep, MulTab=>Mul
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
-      use Constants, only: Zero, One
-      Implicit Real*8 (A-H,O-Z)
+      use Constants, only: Zero, One, Two
+      Implicit None
       Procedure(int_kernel) :: EMFInt
       Procedure(int_mem) :: EMFMem
+      Real(kind=wp), intent(in):: wavevector(3)
+      integer(kind=iwp), Intent(in):: iOpt
+
 *     ipList: list of pointers to the integrals of each component
 *             of the operator
 *     OperI: list which irreps a particular component of the operator
 *            belongs to
 *     OperC: list the character of each component of the operator
 *     CoorO: list of origins of the operator, one for each component
-      Integer, Dimension(:), Allocatable :: ipList, OperI, OperC
-      Real*8, Dimension(:), Allocatable :: CoorO, Nuc
-      Real*8 wavevector(3)
+      Integer(kind=iwp), Allocatable :: ipList(:), OperI(:), OperC(:)
+      Real(kind=wp), Allocatable :: CoorO(:), Nuc(:)
 #ifdef _DEBUGPRINT_
-      Real*8, Allocatable :: Int_R(:), Int_I(:), Temp_Int(:)
-      Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
-      Integer IOFF(8,8)
+      Real(kind=wp), Allocatable :: Int_R(:), Int_I(:), Temp_Int(:)
+      Real(kind=wp), Allocatable :: Int_R_O(:), Int_I_O(:)
+      integer(kind=iwp) IOFF(8,8)
 #endif
 #include "warnings.h"
       Character(LEN=8) Label
-      REAL*8 dum(1)
+      real(kind=wp) dum(1), rHrmt
+      Integer(kind=iwp) nComp,nOrdOp
 *
 #ifdef _DEBUGPRINT_
-      Integer idum(1)
-      MulTab(i,j)=iEor(i-1,j-1)+1
+      Integer(kind=iwp) idum(1),i,iCase,ij,ilen,iMltpl,iOpt0,iOpt1,iRc,
+     &                  iSyLbl,ix,iy,iz,j,jOff,Len,Len_,nInts,iComp,
+     &                  iSyLbl_TMOM, nInts_TMOM
+      real(kind=wp) Fact, Phase, Temp, x, xy, xyz
 #endif
 *
       Call Set_Basis_Mode('Valence')
@@ -94,9 +101,9 @@
 #ifdef _DEBUGPRINT_
 *
       Call mma_allocate(CoorO,6,Label='CoorO')
-      CoorO(:)=0.0D0
+      CoorO(:)=Zero
       CoorO(1:3)=wavevector
-      Write (6,*) 'Wavevector=',Wavevector
+      Write (u6,*) 'Wavevector=',Wavevector
 *
 *     This section of the code is for pure debugging and will replace
 *     exact operator with truncated expansions of the operator in
@@ -110,7 +117,6 @@
 *     Pick up the size and the symmetry label.
       Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl_TMOM)
       nInts_TMOM=idum(1)
-!     Write (*,*) 'nInts_TMOM=',nInts_TMOM
       Call mma_allocate(Int_R,nInts_TMOM+4,Label='Int_R')
       Call mma_allocate(Int_I,nInts_TMOM+4,Label='Int_I')
       Call mma_allocate(Int_R_O,nInts_TMOM+4,Label='Int_R_O')
@@ -136,19 +142,15 @@
             End If
          End Do
       End Do
-!     Write (*,*) 'Len=',Len
-!     Do I = 1, 8
-!        Write (6,*) (IOFF(I,J),J=1,8)
-!     End Do
 *
-      Int_R(:)=0.0D0
+      Int_R(:)=Zero
       Int_R(nInts_TMOM+1:nInts_TMOM+3)=CoorO
-      Int_I(:)=0.0D0
+      Int_I(:)=Zero
       Int_I(nInts_TMOM+1:nInts_TMOM+3)=CoorO
 *
       S%nMltpl=9
       iCase=1
-      Phase=1.0D0
+      Phase=One
       Do iMltpl= 0, S%nMltpl
          Write (Label,'(A,I2)') 'Mltpl ',iMltpl
          nComp=(iMltpl+1)*(iMltpl+2)/2
@@ -160,28 +162,20 @@
                iz = iMltpl-ix-iy
                xyz=xy*CoorO(3)**iz
 *
-               Fact=Phase*xyz/(Gamma(Dble(ix)+1.0D0)
-     &                        *Gamma(Dble(iy)+1.0D0)
-     &                        *Gamma(Dble(iz)+1.0D0))
-*
-*              Write (*,*) 'Fact=',Fact
-*              Write (6,*) CoorO(1)**ix, ix
-*              Write (6,*) CoorO(2)**iy, iy
-*              Write (6,*) CoorO(3)**iz, iz
+               Fact=Phase*xyz/(Gamma(Dble(ix)+One)
+     &                        *Gamma(Dble(iy)+One)
+     &                        *Gamma(Dble(iz)+One))
 *
                iComp=iComp+1
-               If (Fact.eq.0.0D0) cycle
+               If (Fact.eq.Zero) cycle
                Call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
-!              Write (*,*) 'iRC=',iRC
                If (iRC.ne.0) Then
-                  Write (6,*) 'TMOMINT: Error reading ',Label
+                  Write (u6,*) 'TMOMINT: Error reading ',Label
                   Call Abend()
                End If
                nInts=idum(1)
-!              Write (6,*) 'nInts=',nInts
                Call mma_allocate(Temp_Int,nInts+4,Label='Temp_Int')
                Call RdOne(iRc,iOpt0,Label,iComp,Temp_Int,iSyLbl)
-!              Write (*,*) 'Temp_Int(1)',Temp_Int(1)
 *
                Len=0
                Do i=1,nIrrep
@@ -194,8 +188,6 @@
                         Else
                            Len_=nBas(i-1)*nBas(j-1)
                         End If
-!                       Write (*,*) 'jOff,IOFF(i,j),Len_=',
-!    &                               jOff,IOFF(i,j),Len_
                         If (iCase.eq.1) Then
 *                          Contribution to the real part
                            Call DaXpY_(Len_,Fact,Temp_Int(jOff),1,
@@ -204,32 +196,6 @@
 *                          Contribution to the imaginary part
                            Call DaXpY_(Len_,Fact,Temp_Int(jOff),1,
      &                                 Int_I(IOFF(i,j)),1)
-*                          If (i.eq.1.and.j.eq.1.and.nIrrep.eq.1) Then
-*                             Write (6,*) nBas(i-1),nBas(j-1)
-*                             Write (*,*) 'Fact=',Fact
-*                             Write (6,*) CoorO(1)**ix, ix
-*                             Write (6,*) CoorO(2)**iy, iy
-*                             Write (6,*) CoorO(3)**iz, iz
-*                             Write (6,*) 'Temp_Int(385)=',
-*    &                                     Temp_Int(jOff+384)
-*                             Write (6,*) 'Int_I(385)=',
-*    &                                     Int_I(IOFF(i,j)+384)
-*                             Write (6,*) 'Int_I_O(385)=',
-*    &                                     Int_I_O(IOFF(i,j)+384)
-*                          End If
-*                          If (i.eq.2.and.j.eq.1.and.nIrrep.eq.8) Then
-*                             Write (6,*) nBas(i-1),nBas(j-1)
-*                             Write (*,*) 'Fact=',Fact
-*                             Write (6,*) CoorO(1)**ix, ix
-*                             Write (6,*) CoorO(2)**iy, iy
-*                             Write (6,*) CoorO(3)**iz, iz
-*                             Write (6,*) 'Temp_Int(55)=',
-*    &                                     Temp_Int(jOff+54)
-*                             Write (6,*) 'Int_I(55)=',
-*    &                                     Int_I(IOFF(i,j)+54)
-*                             Write (6,*) 'Int_I_O(55)=',
-*    &                                     Int_I_O(IOFF(i,j)+54)
-*                          End If
                         End If
                         Len = Len + Len_
                      End If
@@ -262,37 +228,23 @@
                   Len_=nBas(i-1)*nBas(j-1)
                End If
                Do iLen = 1, Len_
-*                    Write (6,*) 'isym,jsym,iLen=',i,j,iLen
-*                    Write (*,*) 'Int_R,Int_Q=',Int_R_O(Len+iLen),
-*    &                                          Int_R(Len+iLen)
-*                    Write (*,*) 'Int_I,Int_J=',Int_I_O(Len+iLen),
-*    &                                          Int_I(Len+iLen)
                   temp= Abs(Int_R_O(Len+iLen)-Int_R(Len+iLen))/
      &                  Max(Abs(Int_R_O(Len+iLen)),
      &                      Abs(Int_R(Len+iLen)),1.0D-8)
                   If (temp.gt.1.0D-2) Then
-                     Write (6,*) 'isym,jsym,iLen=',i,j,iLen
-                     Write (6,*) 'Int_R,Int_Q=',Int_R_O(Len+iLen),
+                     Write (u6,*) 'isym,jsym,iLen=',i,j,iLen
+                     Write (u6,*) 'Int_R,Int_Q=',Int_R_O(Len+iLen),
      &                                          Int_R(Len+iLen)
                   End If
                   temp= Abs(Int_I_O(Len+iLen)-Int_I(Len+iLen))/
      &                  Max(Abs(Int_I_O(Len+iLen)),
      &                      Abs(Int_I(Len+iLen)),1.0D-8)
                   If (temp.gt.1.0D-2) Then
-                     Write (6,*) 'isym,jsym,iLen=',i,j,iLen
-                     Write (6,*) 'Int_I,Int_J=',Int_I_O(Len+iLen),
+                     Write (u6,*) 'isym,jsym,iLen=',i,j,iLen
+                     Write (u6,*) 'Int_I,Int_J=',Int_I_O(Len+iLen),
      &                                          Int_I(Len+iLen)
                   End If
                End Do
-!     Write (*,*) 'i,j=',i,j
-!     Write (*,*) 'Int_R,Int_Q=',Int_R_O(Len+1),Int_R(Len+1)
-!     Write (*,*) 'Int_I,Int_J=',Int_I_O(Len+1),Int_I(Len+1)
-!     Write (*,*) 'Int_R,Int_Q=',
-!    &                     DDOT_(Len_,1.0D0,0,Int_R_O(Len+1),1),
-!    &                     DDOT_(Len_,1.0D0,0,Int_R(Len+1),1)
-!     Write (*,*) 'Int_I,Int_J=',
-!    &                     DDOT_(Len_,1.0D0,0,Int_I_O(Len+1),1),
-!    &                     DDOT_(Len_,1.0D0,0,Int_I(Len+1),1)
                Len = Len + Len_
             End If
          End Do
@@ -355,7 +307,7 @@
       Call FZero(CoorO,3*nComp)
       Call dcopy_(3,wavevector,1,CoorO,1)
 *     Change the argument to 2xA
-      Call dscal_(3,2.0D0,CoorO,1)
+      Call dscal_(3,Two,CoorO,1)
 *
 *     The electromagnetic field operator contributes to all
 *     irreducible irreps, hence OperI=255. Since the operator
@@ -378,7 +330,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 *
       Contains
       Subroutine Allocate_Aux()
@@ -391,7 +342,6 @@
       Call mma_Allocate(CoorO,3*nComp,Label='CoorO')
       Call mma_Allocate(Nuc,nComp,Label='Nuc')
 *
-      Return
       End Subroutine Allocate_Aux
       Subroutine Deallocate_Aux()
       Use stdalloc, Only: mma_deallocate
@@ -403,7 +353,6 @@
       Call mma_Deallocate(CoorO)
       Call mma_Deallocate(Nuc)
 *
-      Return
       End Subroutine Deallocate_Aux
 *
       End Subroutine TMOMInt

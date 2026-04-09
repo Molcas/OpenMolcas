@@ -9,14 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine cpinp(LUnit,iRc)
+      use definitions, only: iwp
       use UnixInfo, only: ProgName
       use spool, only: SpoolInp, Disable_Spool, Close_LuSpool
-      implicit integer (a-z)
-      character*180 line
-      character*1 ch
+      implicit none
+      integer(iwp), intent(out):: LUnit
+      integer(iwp), intent(out):: iRC
+
+      character(LEN=180) line
+      character(LEN=1) ch
+      integer(iwp) LUSpool
+      integer(iwp), external:: IsFreeUnit
 
 #ifdef _DMRG_
-      character*180 line2
+      character(LEN=180) line2
 #endif
 
 #include "warnings.h"
@@ -78,5 +84,4 @@
  9910 continue
 * Something went wrong...Let the caller handle it:
       iRc=_RC_INPUT_ERROR_
-      return
-      end
+      end subroutine cpinp

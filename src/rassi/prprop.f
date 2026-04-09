@@ -11,6 +11,7 @@
 #include "macros.fh"
       SUBROUTINE PRPROP(PROP,USOR,USOI,ENSOR,NSS,OVLP,ENERGY,JBNUM,
      &                  EigVec)
+
       use rassi_aux, only: ipglob
       use rassi_global_arrays, only: SODYSAMPS
       USE kVectors
@@ -3825,32 +3826,37 @@ C backtransformation in two steps, -phi and -theta
       END SUBROUTINE PRPROP
 
       SUBROUTINE SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS,DIPSOm_SA)
-!      IMPLICIT NONE
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER KDGN,IFUNCT,NSS,l,Iso1,Jso2,Ico1,i,j
-      COMPLEX*16 DIPSOm(3,NSS,NSS),DIPSOmSA(3,KDGN,KDGN)
-      COMPLEX*16 SPNSOSA(3,KDGN,KDGN)
-      COMPLEX*16 Z(NSS,NSS),MATL(NSS,NSS),FINL(NSS,NSS)
-      COMPLEX*16 SPNSO(3,NSS,NSS),SPNSFS(3,NSS,NSS)
-      real*8 UMATR(NSS,NSS),UMATI(NSS,NSS),gtens(3),maxes(3,3)
+      use definitions, only: iwp, wp, u6
+      IMPLICIT NONE
+      INTEGER(kind=iwp), intent(in):: KDGN,IFUNCT,NSS
+      COMPLEX(kind=wp), intent(in):: DIPSOm(3,NSS,NSS)
+      COMPLEX(kind=wp), intent(in):: SPNSFS(3,NSS,NSS)
+      real(kind=wp), intent(in):: DIPSOm_SA
+
+      COMPLEX(kind=wp) DIPSOmSA(3,KDGN,KDGN)
+      INTEGER(kind=iwp) l,Iso1,Jso2,Ico1,i,j,jCo1
+      COMPLEX(kind=wp) SPNSOSA(3,KDGN,KDGN)
+      COMPLEX(kind=wp) Z(NSS,NSS),MATL(NSS,NSS),FINL(NSS,NSS)
+      COMPLEX(kind=wp) SPNSO(3,NSS,NSS)
+      real(kind=wp) UMATR(NSS,NSS),UMATI(NSS,NSS),gtens(3),maxes(3,3)
       CHARACTER(LEN=1) angm
 
       if(.FALSE.) then
-      write(6,'(/)')
-      write(6,'(10A)') (('############'),J=1,10)
-      write(6,'(25X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT IN '//
+      write(u6,'(/)')
+      write(u6,'(10A)') (('############'),J=1,10)
+      write(u6,'(25X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT IN '//
      &'THE BASIS OF SPIN ORBIT STATES'
-      write(6,'(10A)') (('############'),J=1,10)
+      write(u6,'(10A)') (('############'),J=1,10)
 
       do l=1,3
       if(l.eq.1)  angm='X'
       if(l.eq.2)  angm='Y'
       if(l.eq.3)  angm='Z'
-      write(6,'(/)')
-      write(6,'(4X,A12,A2)') 'PROJECTION: ', angm
-      write(6,'(/)')
+      write(u6,'(/)')
+      write(u6,'(4X,A12,A2)') 'PROJECTION: ', angm
+      write(u6,'(/)')
        do Iso1=1,NSS
-      write(6,'(20(2X,2F10.6))') (DIPSOm(l,Iso1,Jso2), Jso2=1,NSS)
+      write(u6,'(20(2X,2F10.6))') (DIPSOm(l,Iso1,Jso2), Jso2=1,NSS)
        enddo
       enddo
       write(6,'(/)')
@@ -3880,15 +3886,15 @@ C backtransformation in two steps, -phi and -theta
         enddo
 
          if(.False.) then
-      write(6,*)
-      write(6,'(10X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT '//
+      write(u6,*)
+      write(u6,'(10X,A)') 'MATRIX ELEMENTS OF THE MAGNETIC MOMENT '//
      & 'IN THE BASIS OF SPIN-ORBIT FUNCTIONS'
       do l=1,3
-      write(6,'(/)')
-      write(6,'(5X,A6,I3)') 'AXIS= ',l
-      write(6,*)
+      write(u6,'(/)')
+      write(u6,'(5X,A6,I3)') 'AXIS= ',l
+      write(u6,*)
        do Ico1=1,KDGN
-      write(6,'(16(2F12.8,2x))') (DIPSOmSA(l,Ico1,Jco1), Jco1=1,KDGN)
+      write(u6,'(16(2F12.8,2x))') (DIPSOmSA(l,Ico1,Jco1), Jco1=1,KDGN)
        enddo
       enddo
 
@@ -3900,11 +3906,11 @@ C backtransformation in two steps, -phi and -theta
 
           call get_dArray('UMATR_SINGLE',UMATR,NSS**2)
           call get_dArray('UMATI_SINGLE',UMATI,NSS**2)
-       write(6,'(/)')
-       write(6,'(5x,a)') 'umatr and umati'
-       write(6,'(/)')
+       write(u6,'(/)')
+       write(u6,'(5x,a)') 'umatr and umati'
+       write(u6,'(/)')
        do i=1,NSS
-       write(6,'(5x,10(2f14.10,2x))') (UMATR(i,j),UMATI(i,j),j=1,NSS)
+       write(u6,'(5x,10(2f14.10,2x))') (UMATR(i,j),UMATI(i,j),j=1,NSS)
        enddo
 
         do I=1,NSS
@@ -3947,21 +3953,21 @@ C backtransformation in two steps, -phi and -theta
          enddo
       enddo !l
 
-      write(6,'(/)')
-      write(6,'(10A)') (('############'),J=1,10)
-      write(6,'(30X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT IN '//
+      write(u6,'(/)')
+      write(u6,'(10A)') (('############'),J=1,10)
+      write(u6,'(30X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT IN '//
      & 'THE BASIS OF SPIN ORBIT STATES'
-      write(6,'(10A)') (('############'),J=1,10)
-      write(6,'(/)')
+      write(u6,'(10A)') (('############'),J=1,10)
+      write(u6,'(/)')
       do l=1,3
       if(l.eq.1)  angm='X'
       if(l.eq.2)  angm='Y'
       if(l.eq.3)  angm='Z'
-      write(6,'(/)')
-      write(6,'(4X,A,A)') 'PROJECTION: ', angm
-      write(6,'(/)')
+      write(u6,'(/)')
+      write(u6,'(4X,A,A)') 'PROJECTION: ', angm
+      write(u6,'(/)')
        do Iso1=1,NSS
-      write(6,'(20(2F10.6,2X))') (SPNSO(l,Iso1,Jso2), Jso2=1,NSS)
+      write(u6,'(20(2F10.6,2X))') (SPNSO(l,Iso1,Jso2), Jso2=1,NSS)
        enddo
       enddo
 
@@ -3983,15 +3989,15 @@ C backtransformation in two steps, -phi and -theta
         enddo
         enddo
 
-      write(6,*)
-      write(6,'(10X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT '//
+      write(u6,*)
+      write(u6,'(10X,A)') 'MATRIX ELEMENTS OF THE SPIN MOMENT '//
      & 'IN THE BASIS OF SPIN-ORBIT FUNCTIONS'
       do l=1,3
-      write(6,'(/)')
-      write(6,'(5X,A6,I3)') 'AXIS= ',l
-      write(6,*)
+      write(u6,'(/)')
+      write(u6,'(5X,A6,I3)') 'AXIS= ',l
+      write(u6,*)
        do Ico1=1,KDGN
-      write(6,'(16(2F12.8,2x))') (SPNSOSA(l,Ico1,Jco1), Jco1=1,KDGN)
+      write(u6,'(16(2F12.8,2x))') (SPNSOSA(l,Ico1,Jco1), Jco1=1,KDGN)
        enddo
       enddo
 
@@ -4015,37 +4021,48 @@ c Avoid unused argument warnings
       END SUBROUTINE SINANI
 
       SUBROUTINE ADARASSI(N,A,D,DROT)
+      use definitions, only: iwp, wp
+      use constants, only: Zero,One
 
       IMPLICIT NONE
-      INTEGER I, J,  N
-      COMPLEX*16  A(N,N), D(N,N), DROT(N,N), TEMP(N,N)
+      INTEGER(kind=iwp), intent(in):: N
+      COMPLEX(kind=wp), intent(in)::  A(N,N), D(N,N)
+      COMPLEX(kind=wp), intent(out)::  DROT(N,N)
+
+      INTEGER(kind=iwp) I, J
+      COMPLEX(kind=wp)  TEMP(N,N)
 
 C initialization
       do I=1,N
        do J=1,N
-      DROT(I,J)=(0.0D0,0.0D0)
-      TEMP(I,J)=(0.0D0,0.0D0)
+      DROT(I,J)=(Zero,Zero)
+      TEMP(I,J)=(Zero,Zero)
        enddo
       enddo
 
 C actual multiplication
-      call ZGEMM('C','N',N,N,N,(1.0D0,0.0D0),A,N,D,N,(0.0D0,0.0D0),
+      call ZGEMM('C','N',N,N,N,(One,Zero),A,N,D,N,(Zero,Zero),
      &TEMP,N)
-      call ZGEMM('N','N',N,N,N,(1.0D0,0.0D0),TEMP,N,A,N,(0.0D0,0.0D0),
+      call ZGEMM('N','N',N,N,N,(One,Zero),TEMP,N,A,N,(Zero,Zero),
      &DROT,N)
 
       END SUBROUTINE ADARASSI
 
       SUBROUTINE ZECON(NSTATE,N,UR,UI,AR,AI,ZEKL,IXYZ,ISTATE,ISS,JSS)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION UR(N,N),UI(N,N)
-      DIMENSION AR(N,N),AI(N,N)
-      COMPLEX*16 ZEKL(2,2,3,NSTATE)
+      use definitions, only: iwp, wp
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: NSTATE,N,IXYZ,ISTATE,ISS,JSS
+      real(kind=wp), intent(in):: UR(N,N),UI(N,N)
+      real(kind=wp), intent(in):: AR(N,N),AI(N,N)
+      COMPLEX(kind=wp), intent(inout):: ZEKL(2,2,3,NSTATE)
+
+      real(kind=wp) TMPR1,TMPR2,TMPI1,TMPI2
 
       TMPR1=AR(ISS,JSS)*UR(JSS,1)-AI(ISS,JSS)*UI(JSS,1)
       TMPR2=AR(ISS,JSS)*UR(JSS,2)-AI(ISS,JSS)*UI(JSS,2)
       TMPI1=AI(ISS,JSS)*UR(JSS,1)+AR(ISS,JSS)*UI(JSS,1)
       TMPI2=AI(ISS,JSS)*UR(JSS,2)+AR(ISS,JSS)*UI(JSS,2)
+
       ZEKL(1,1,IXYZ,ISTATE)=ZEKL(1,1,IXYZ,ISTATE)+
      $     CMPLX(UR(ISS,1)*TMPR1+UI(ISS,1)*TMPI1,
      $     UR(ISS,1)*TMPI1-UI(ISS,1)*TMPR1,kind=8)

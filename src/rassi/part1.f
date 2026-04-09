@@ -12,10 +12,19 @@
 ************************************************************************
 C---------------------------------------------------------------
       SUBROUTINE PART1(NDIMEN,NBLOCK,NSIZE,SXY,B,A,SCR,IPIV,BUF)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION SXY(NDIMEN,NDIMEN),A(NDIMEN,NDIMEN),B(NDIMEN,NDIMEN)
-      DIMENSION SCR(NDIMEN,NDIMEN),BUF(NDIMEN),IPIV(NDIMEN,2)
-      DIMENSION NSIZE(NBLOCK)
+      use definitions, only: iwp, wp
+      use constants, only: zero, one
+      IMPLICIT NONE
+      integer(kind=iwp), intent(in):: NDIMEN, NBLOCK
+      real(kind=wp), intent(in):: SXY(NDIMEN,NDIMEN)
+      real(kind=wp), intent(out):: A(NDIMEN,NDIMEN),B(NDIMEN,NDIMEN)
+      real(kind=wp), intent(inout):: SCR(NDIMEN,NDIMEN)
+      real(kind=wp), intent(out):: BUF(NDIMEN)
+      integer(kind=iwp), intent(out):: IPIV(NDIMEN,2)
+      integer(kind=iwp), intent(in):: NSIZE(NBLOCK)
+
+      integer(kind=iwp) I,J,LIM1,K,NSZ,LIM3,LIM2,KK,L,M
+      real(kind=wp) DET,T
 C
 C  PURPOSE: SEE SUBROUTINE PART.
 C  SUBDIVISION INTO TWO LEVELS OF ROUTINE CALLS IS MERELY TO
@@ -26,12 +35,12 @@ C---------------------------------------------------------------
 C INITIALIZE A = INVERSE OF SXY, AND B = UNIT MATRIX:
       DO I=1,NDIMEN
         DO J=1,NDIMEN
-          A(I,J)=0.0D00
-          B(I,J)=0.0D00
+          A(I,J)=zero
+          B(I,J)=Zero
           SCR(I,J)=SXY(I,J)
         END DO
-        A(I,I)=1.0D00
-        B(I,I)=1.0D00
+        A(I,I)=One
+        B(I,I)=one
       END DO
       CALL DOOL (NDIMEN,NDIMEN,NDIMEN,NDIMEN,SCR,A,DET,
      *           IPIV(1,1),IPIV(1,2),BUF)
@@ -54,7 +63,7 @@ C AND PUT IT INTO B-MATRIX. THEN CLEAR ALL TO THE LEFT OF THE A-BLOCK.
           END DO
           DO J=1,LIM1
             B(I,J)=A(I,J)
-            A(I,J)=0.0D00
+            A(I,J)=zero
           END DO
         END DO
         CALL DOOL(NDIMEN,NDIMEN,NSZ,LIM1,SCR(LIM2,LIM2),B(LIM2,1),DET,
@@ -94,8 +103,8 @@ C
         END DO
       END DO
       DO L=NDIMEN,1,-1
-        A(L,L)=1.0D0/A(L,L)
-        B(L,L)=1.0D0/B(L,L)
+        A(L,L)=One/A(L,L)
+        B(L,L)=One/B(L,L)
         DO M=L+1,NDIMEN
           A(L,M)=A(L,L)*A(L,M)
           B(L,M)=B(L,L)*B(L,M)

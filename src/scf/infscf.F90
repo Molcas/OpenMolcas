@@ -127,7 +127,7 @@ private
 ! Atom    - name of atom *LenIn                                        *
 ! BType   - type of basis function *8                                  *
 ! BName   - Atom = BName(1:LenIn); BType = BName(LenIn+1:LenIn+8)      *
-! AccCon  - acceleration convergence scheeme used in iteration         *
+! AccCon  - acceleration convergence scheme used in iteration          *
 !----------------------------------------------------------------------*
 ! For second order update info                                         *
 !----------------------------------------------------------------------*
