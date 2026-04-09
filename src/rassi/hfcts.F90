@@ -34,8 +34,8 @@ integer(kind=iwp) :: I, IAMFI1, IAMFI2, IAMFI3, IAMFI4, IAMFI5, IAMFI6, IC, ICEN
                      ISO, ISS, IStart, ISTATE, IT, IXYZ, J, JC, JOB, JSS, JSTATE, JXYZ, KDGN, KPROP, KXYZ, MPLET, MPLET1, MPLET2, &
                      MSPROJ, MSPROJ1, MSPROJ2
 real(kind=wp) :: ACNT, Alpha, Alpha2, AMFI1, AMFI2, AMFI3, AMFI4, AMFI5, AMFI6, CG0, CGM, CGP, CGX, CGY, CurieT(3,3), DCLEBS, &
-                 DiamT(3,3), DIPSOM_SA, DLT_E, DLTTA, EDIFF, EEX, EEY, EEZ, EVI(3), EVR(3), FACT, FEGVAL, GSENERGY, GTENS(3,3), &
-                 GTIJ, GTOTAL(3,3), HFC_1(3,3), HFC_2(3,3), HFC_3(3,3), p_Boltz, S1, S2, SM1, SM2, TMPMAT(3,3), TMPVEC(3,3), Zstat
+                 DiamT(3,3), DLT_E, DLTTA, EDIFF, EEX, EEY, EEZ, EVI(3), EVR(3), FACT, FEGVAL, GSENERGY, GTENS(3,3), GTIJ, &
+                 GTOTAL(3,3), HFC_1(3,3), HFC_2(3,3), HFC_3(3,3), p_Boltz, S1, S2, SM1, SM2, TMPMAT(3,3), TMPVEC(3,3), Zstat
 character(len=8) :: DMPPROP, PSOPROP, SDPROP
 integer(kind=iwp), allocatable :: MAPST(:), MAPSP(:), MAPMS(:)
 real(kind=wp), allocatable :: LXI(:,:), LYI(:,:), LZI(:,:), MXI(:,:), MXR(:,:), MYI(:,:), MYR(:,:), MZI(:,:), MZR(:,:), &
@@ -689,7 +689,7 @@ do IPROP=1,NPROP
       !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       if (IFATCALSA) then
         if (ISS == 1) IFUNCT = 0
-        call SINANI(KDGN,IFUNCT,NSS,DIPSOf,SPNSFS,DIPSOm_SA)
+        call SINANI(KDGN,IFUNCT,NSS,DIPSOf,SPNSFS)
         IFUNCT = IFUNCT+KDGN
       end if
       !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1052,7 +1052,7 @@ do IPROP=1,NPROP
         !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if (IFATCALSA) then
           if (ISS == 1) IFUNCT = 0
-          call SINANI(KDGN,IFUNCT,NSS,DIPSOfc,SPNSFS,DIPSOm_SA)
+          call SINANI(KDGN,IFUNCT,NSS,DIPSOfc,SPNSFS)
           IFUNCT = IFUNCT+KDGN
         end if
         !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1378,7 +1378,7 @@ do IPROP=1,NPROP
         !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if (IFATCALSA) then
           if (ISS == 1) IFUNCT = 0
-          call SINANI(KDGN,IFUNCT,NSS,DIPSOfsd,SPNSFS,DIPSOm_SA)
+          call SINANI(KDGN,IFUNCT,NSS,DIPSOfsd,SPNSFS)
           IFUNCT = IFUNCT+KDGN
         end if
         !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1723,7 +1723,7 @@ do IPROP=1,NPROP
         !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if (IFATCALSA) then
           if (ISS == 1) IFUNCT = 0
-          call SINANI(KDGN,IFUNCT,NSS,DIPSOfcsd,SPNSFS,DIPSOm_SA)
+          call SINANI(KDGN,IFUNCT,NSS,DIPSOfcsd,SPNSFS)
           IFUNCT = IFUNCT+KDGN
         end if
         !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1959,7 +1959,7 @@ do IPROP=1,NPROP
         !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if (IFATCALSA) then
           if (ISS == 1) IFUNCT = 0
-          call SINANI(KDGN,IFUNCT,NSS,DIPSOfpso,SPNSFS,DIPSOm_SA)
+          call SINANI(KDGN,IFUNCT,NSS,DIPSOfpso,SPNSFS)
           IFUNCT = IFUNCT+KDGN
         end if
         !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

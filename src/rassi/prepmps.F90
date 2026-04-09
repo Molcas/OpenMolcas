@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !ifdef _DEBUGPRINT_
-subroutine prepMPS(trorb,istate,lsym,mplet,mspro,nacte,tra,ntra,nish,nash,nosh,nsym,lupri,istatereal,job,ist)
+subroutine prepMPS(trorb,istate,lsym,mplet,mspro,nacte,tra,ntra,nish,nash,nosh,nsym,lupri,job,ist)
 !-------------------------------------------------------------------------------
 !
 !    driver routine for the MPS rotation wrt the orbital transformation matrix
@@ -35,8 +35,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp), intent(in) :: trorb
-integer(kind=iwp), intent(in) :: istate, lsym, mplet, mspro, nacte, ntra, nsym, nish(nsym), nash(nsym), nosh(nsym), lupri, &
-                                 istatereal, job, ist
+integer(kind=iwp), intent(in) :: istate, lsym, mplet, mspro, nacte, ntra, nsym, nish(nsym), nash(nsym), nosh(nsym), lupri, job, ist
 real(kind=wp), intent(inout) :: tra(ntra)
 #ifdef _DMRG_
 integer(kind=iwp) :: i, ii, ista, isym, jorb, ni, no
@@ -111,33 +110,23 @@ call qcmaquis_mpssi_rotate(qcm_prefixes(job),istate,tmat,nash(1)**2,fac,mspro)
 if (allocated(tmat)) deallocate(tmat)
 !call mma_deallocate(tmat)
 
-! Avoid unused variable warnings
-if (.false.) then
-  call unused_integer(istatereal)
-  call unused_integer(ist)
-end if
 #else
 write(lupri,*) ' calling prepMPS w/o DMRG interface - foolish!'
 write(lupri,*) ' ... no actual task is performed.'
 ! Avoid unused variable warnings if DMRG is disabled
-if (.false.) then
-  call unused_real_array(tra)
-  call unused_integer(istate)
-  call unused_integer(istatereal)
-  call unused_integer(job)
-  call unused_integer(ist)
-  call unused_integer(lsym)
-  call unused_integer(mplet)
-  call unused_integer(mspro)
-  call unused_integer(nacte)
-  call unused_integer(nsym)
-  call unused_integer(ntra)
-  call unused_integer(lupri)
-  call unused_integer_array(nish)
-  call unused_integer_array(nash)
-  call unused_integer_array(nosh)
-  call unused_logical(trorb)
-end if
+#include "macros.fh"
+unused_var(trorb)
+unused_var(istate)
+unused_var(lsym)
+unused_var(mplet)
+unused_var(mspro)
+unused_var(nacte)
+unused_var(tra)
+unused_var(nish)
+unused_var(nash)
+unused_var(nosh)
+unused_var(job)
+unused_var(ist)
 #endif
 
 end subroutine prepMPS

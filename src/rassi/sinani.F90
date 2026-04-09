@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS,DIPSOm_SA)
+subroutine SINANI(KDGN,IFUNCT,NSS,DIPSOm,SPNSFS)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: cZero, cOne
@@ -19,7 +19,6 @@ implicit none
 integer(kind=iwp), intent(in) :: KDGN, IFUNCT, NSS
 complex(kind=wp), intent(in) :: DIPSOm(3,NSS,NSS)
 complex(kind=wp), intent(in) :: SPNSFS(3,NSS,NSS)
-real(kind=wp), intent(in) :: DIPSOm_SA
 integer(kind=iwp) :: i, Ico1, Iso1, j, jCo1, Jso2, l
 real(kind=wp) :: gtens(3), maxes(3,3)
 character :: angm
@@ -164,9 +163,5 @@ end if
 !    end do
 !  end do
 !end do
-
-! Avoid unused argument warnings
-#include "macros.fh"
-unused_var(DIPSOm_SA)
 
 end subroutine SINANI

@@ -39,16 +39,16 @@ integer(kind=iwp) :: I, I2Tot, I_Have_DL, I_Have_DV, i_print, I_Print_Header, iA
                      iXYZ, J, JC, JEND, JSS, JSTART, jState, jXYZ, K, KDGN, LMStep, MPLET, MPLET1, MPLET2, nCol, nMiss, NORIENT, &
                      nPhiStep, nTheStep, nVec, SECORD(4)
 real(kind=wp) :: A, AFactor, AX, AY, AZ, B, BFinal, bPhiRes, Bx, By, Bz, c_1(3,3), c_2(3,3), Chi(3), COMPARE, CONTRIB, curit(3,3), &
-                 D_MXI, D_MXR, D_MYI, D_MYR, D_MZI, D_MZR, D_XI, D_XR, D_YI, D_YR, D_ZI, D_ZR, DELTA, DIPSOM_SA, DLT_E, DLTT, &
-                 DTENS(3,3), DTIJ, DX2, DXX2, DXXDYY, DXXDZZ, DXXXDX, DXXYDY, DXXZDZ, DXY2, DXYDZ, DXZ2, DXZDY, DY2, DysThr, &
-                 DYXDZ, DYY2, DYYDZZ, DYYXDX, DYYYDY, DYYZDZ, DYZ2, DYZDX, DZ2, DZXDY, DZYDX, DZZ2, DZZXDX, DZZYDY, DZZZDZ, EDiff, &
-                 EDIFF2, EDIFF3, EEX, EEY, EEZ, EVI(3), EVR(3), F, Fact, FACT0, FACTM, Factor, FACTP, FX, FXX, FXXFYY, FXXFZZ, &
-                 FXXX, FXXY, FXXZ, FXY, FXZ, FY, FYX, FYY, FYYFZZ, FYYX, FYYY, FYYZ, FYZ, FZ, FZX, FZY, FZZ, FZZX, FZZY, FZZZ, G, &
-                 GSEnergy, GSTENS(3,3), GTENS(3,3), GTij, GTOTAL(3,3), OSthr, OSThr2, p_Boltz, paramt(3,3), Phi, PLIMIT, PMAX, &
-                 Q_XXI, Q_XXR, Q_XYI, Q_XYR, Q_XZI, Q_XZR, Q_YYI, Q_YYR, Q_YZI, Q_YZR, Q_ZZI, Q_ZZR, R, RKT, RMAGM(3), rMagMO, &
-                 RPart, Rtensor(6), RXX, RXXY, RXXZ, RXY, RXYX, RXYY, RXYZ, RXZ, RXZX, RXZY, RXZZ, RYX, RYY, RYYX, RYYZ, RYZ, &
-                 RYZX, RYZY, RYZZ, RZX, RZY, RZZ, RZZX, RZZY, S, S1, S2, SOSTERM(3,3), T, TFinal, THE, ThreEJ, TMPm(NTS), &
-                 TMPMAT(3,3), TMPVEC(3,3), Zstat
+                 D_MXI, D_MXR, D_MYI, D_MYR, D_MZI, D_MZR, D_XI, D_XR, D_YI, D_YR, D_ZI, D_ZR, DELTA, DLT_E, DLTT, DTENS(3,3), &
+                 DTIJ, DX2, DXX2, DXXDYY, DXXDZZ, DXXXDX, DXXYDY, DXXZDZ, DXY2, DXYDZ, DXZ2, DXZDY, DY2, DysThr, DYXDZ, DYY2, &
+                 DYYDZZ, DYYXDX, DYYYDY, DYYZDZ, DYZ2, DYZDX, DZ2, DZXDY, DZYDX, DZZ2, DZZXDX, DZZYDY, DZZZDZ, EDiff, EDIFF2, &
+                 EDIFF3, EEX, EEY, EEZ, EVI(3), EVR(3), F, Fact, FACT0, FACTM, Factor, FACTP, FX, FXX, FXXFYY, FXXFZZ, FXXX, FXXY, &
+                 FXXZ, FXY, FXZ, FY, FYX, FYY, FYYFZZ, FYYX, FYYY, FYYZ, FYZ, FZ, FZX, FZY, FZZ, FZZX, FZZY, FZZZ, G, GSEnergy, &
+                 GSTENS(3,3), GTENS(3,3), GTij, GTOTAL(3,3), OSthr, OSThr2, p_Boltz, paramt(3,3), Phi, PLIMIT, PMAX, Q_XXI, Q_XXR, &
+                 Q_XYI, Q_XYR, Q_XZI, Q_XZR, Q_YYI, Q_YYR, Q_YZI, Q_YZR, Q_ZZI, Q_ZZR, R, RKT, RMAGM(3), rMagMO, RPart, &
+                 Rtensor(6), RXX, RXXY, RXXZ, RXY, RXYX, RXYY, RXYZ, RXZ, RXZX, RXZY, RXZZ, RYX, RYY, RYYX, RYYZ, RYZ, RYZX, RYZY, &
+                 RYZZ, RZX, RZY, RZZ, RZZX, RZZY, S, S1, S2, SOSTERM(3,3), T, TFinal, THE, ThreEJ, TMPm(NTS), TMPMAT(3,3), &
+                 TMPVEC(3,3), Zstat
 complex(kind=wp) :: T0(3), TM1
 logical(kind=iwp) :: IFAMFI, IFANGM, IFDIP1
 integer(kind=iwp), allocatable :: PMAP(:)
@@ -2169,7 +2169,7 @@ else if (IFGCAL) then
     !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if (IFGTCALSA) then
       if (ISS == 1) IFUNCT = 0
-      call SINANI(KDGN,IFUNCT,NSS,DIPSOn,SPNSFS,DIPSOm_SA)
+      call SINANI(KDGN,IFUNCT,NSS,DIPSOn,SPNSFS)
       IFUNCT = IFUNCT+KDGN
     end if
     !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

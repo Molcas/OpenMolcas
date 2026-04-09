@@ -9,10 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#include "macros.fh"
-
-subroutine MKTDM2(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,DET1,DET2,NTDM2,TDM2,ISTATE,JSTATE, &
-                  OrbTab)
+subroutine MKTDM2(LSYM1,MSPROJ1,IFSBTAB1,LSYM2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,DET1,DET2,NTDM2,TDM2,OrbTab)
 
 #ifdef _DMRG_
 use rasscf_global, only: doDMRG
@@ -26,8 +23,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: LSYM1, MPLET1, MSPROJ1, IFSBTAB1(*), LSYM2, MPLET2, MSPROJ2, IFSBTAB2(*), ISSTAB(*), MAPORB(*), NTDM2, &
-                     ISTATE, JSTATE, OrbTab(*)
+integer(kind=iwp) :: LSYM1, MSPROJ1, IFSBTAB1(*), LSYM2, MSPROJ2, IFSBTAB2(*), ISSTAB(*), MAPORB(*), NTDM2, OrbTab(*)
 real(kind=wp) :: DET1(*), DET2(*), TDM2(NTDM2)
 integer(kind=iwp) :: IAAAA, IABAB, IABBA, IAKA, IAKB, IBAAB, IBABA, IBBBB, IBIA, IBKA, IBKB, IJ, IJIJ, IORB, IORBA, IORBB, ISYOP, &
                      ITABS, ITU, ITUVX, IUABS, IVABS, IVX, IXABS, JALA, JALB, JBJA, JBLA, JBLB, JORB, JORBA, JORBB, KORB, KORBA, &
@@ -225,10 +221,5 @@ do IJ=1,NASHT**2
 end do
 
 return
-
-unused_var(MPLET1)
-unused_var(MPLET2)
-unused_var(ISTATE)
-unused_var(JSTATE)
 
 end subroutine MKTDM2

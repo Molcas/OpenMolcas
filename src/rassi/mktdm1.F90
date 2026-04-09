@@ -9,10 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-#include "macros.fh"
-
 subroutine MKTDM1(LSYM1,MPLET1,MSPROJ1,IFSBTAB1,LSYM2,MPLET2,MSPROJ2,IFSBTAB2,ISSTAB,MAPORB,DET1,DET2,SIJ,NASHT,TDM1,TSDM1,WTDM1, &
-                  ISTATE,JSTATE,job1,job2,ist,jst,OrbTab)
+                  ISTATE,JSTATE,job1,job2,OrbTab)
 ! Given two CI expansions, using a biorthonormal set of SD's,
 ! calculate the following quantities:
 ! (1) The overlap
@@ -35,7 +33,7 @@ implicit none
 integer(kind=iwp) :: LSYM1, MPLET1, MSPROJ1, IFSBTAB1(*), LSYM2, MPLET2, MSPROJ2, IFSBTAB2(*), ISSTAB(*), MAPORB(*), NASHT, &
                      OrbTab(*)
 real(kind=wp) :: DET1(*), DET2(*), SIJ, TDM1(NASHT,NASHT), TSDM1(NASHT,NASHT), WTDM1(NASHT,NASHT)
-integer(kind=iwp), intent(in) :: ISTATE, JSTATE, job1, job2, ist, jst
+integer(kind=iwp), intent(in) :: ISTATE, JSTATE, job1, job2
 integer(kind=iwp) :: IORB, ISORB, ISYOP, ITABS, IUABS, JORB, JSORB, MS2OP, NASORB, NSPD1
 real(kind=wp) :: CGCOEF, DCLEBS, FACT, GAA, GAB, GBA, GBB, RED, S1, S2, SM, SM1, SM2, TMATEL
 real(kind=wp), allocatable :: SPD1(:)
@@ -194,14 +192,6 @@ do IORB=1,NASHT
   end do
 end do
 
-! Avoid unused argument warnings
-unused_var(ISTATE)
-unused_var(JSTATE)
-unused_var(job1)
-unused_var(job2)
-unused_var(ist)
-unused_var(jst)
-
 #ifdef _DMRG_
 if (.not. doDMRG) then
 #endif
@@ -212,6 +202,13 @@ else
   call mma_deallocate(TDMAA)
   call mma_deallocate(TDMBB)
 end if
+#else
+#include "macros.fh"
+! Avoid unused argument warnings
+unused_var(ISTATE)
+unused_var(JSTATE)
+unused_var(job1)
+unused_var(job2)
 #endif
 
 end subroutine MKTDM1

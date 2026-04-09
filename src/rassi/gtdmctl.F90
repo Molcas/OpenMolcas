@@ -669,7 +669,7 @@ do IST=1,NSTAT(JOB1)
 
 # ifdef _DMRG_
   else ! doDMRG
-    call prepMPS(TRORB,LROOT(ISTATE),LSYM1,MPLET1,MSPROJ1,NACTE1,TRA1,NTRA,NISH,NASH,NOSH,nIrrep,6,ISTATE,job1,ist)
+    call prepMPS(TRORB,LROOT(ISTATE),LSYM1,MPLET1,MSPROJ1,NACTE1,TRA1,NTRA,NISH,NASH,NOSH,nIrrep,6,job1,ist)
 # endif
   end if
 end do
@@ -713,7 +713,7 @@ do JST=1,NSTAT(JOB2)
 
   else
 #   ifdef _DMRG_
-    call prepMPS(TRORB,lroot(JSTATE),LSYM2,MPLET2,MSPROJ2,NACTE2,TRA2,NTRA,NISH,NASH,NOSH,nIrrep,6,JSTATE,job2,jst)
+    call prepMPS(TRORB,lroot(JSTATE),LSYM2,MPLET2,MSPROJ2,NACTE2,TRA2,NTRA,NISH,NASH,NOSH,nIrrep,6,job2,jst)
 #   endif
   end if
 end do
@@ -841,7 +841,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
     ! General 1-particle transition density matrix:
     if (IF11) then
       call MKTDM1(LSYM1,MPLET1,MSPROJ1,FSBTAB1,LSYM2,MPLET2,MSPROJ2,FSBTAB2,SSTAB,OMAP,DET1,DET2,SIJ,NASHT,TRAD,TRASD,WERD,ISTATE, &
-                  JSTATE,job1,job2,ist,jst,OrbTab)
+                  JSTATE,job1,job2,OrbTab)
       ! Calculate Natural Transition Orbital (NTO):
       if (IFNTO) then
         DoNTO = job1 /= job2
@@ -968,7 +968,7 @@ job2_loop: do JST=1,NSTAT(JOB2)
 
     !> General 2-particle transition density matrix:
     if (IF22) then
-      call MKTDM2(LSYM1,MPLET1,MSPROJ1,FSBTAB1,LSYM2,MPLET2,MSPROJ2,FSBTAB2,SSTAB,OMAP,DET1,DET2,NTDM2,TDM2,ISTATE,JSTATE,OrbTab)
+      call MKTDM2(LSYM1,MSPROJ1,FSBTAB1,LSYM2,MSPROJ2,FSBTAB2,SSTAB,OMAP,DET1,DET2,NTDM2,TDM2,OrbTab)
 
       !> Compute 2-electron contribution to Hamiltonian matrix element:
       if (IFTWO .and. (MPLET1 == MPLET2)) HTWO = DDOT_(NTDM2,TDM2,1,TUVX,1)
