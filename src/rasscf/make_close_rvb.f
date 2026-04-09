@@ -8,11 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine make_close_rvb
-      implicit real*8(a-h,o-z)
-      integer find_lu
-      external find_lu
-      character*8 vec(11)
+      subroutine make_close_rvb()
+      use definitions, only: iwp
+      implicit None
+      integer(kind=iwp), external ::find_lu
+      integer(kind=iwp) il,i,n
+      character(LEN=8) vec(11)
       vec(1)='TMP01'
       vec(2)='TMP02'
       vec(3)='TMP03'
@@ -29,5 +30,4 @@ c  Preassign some file names to identifiers :
         n=find_lu(vec(i))
         if(n.gt.0)call daclos(n)
       enddo
-      return
-      end
+      end subroutine make_close_rvb
