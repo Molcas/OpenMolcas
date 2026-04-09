@@ -30,8 +30,8 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
 use Cholesky, only: Span, ThrCom
 use RICD_Info, only: Chol => Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, Skip_High_AC, Thrshld_CD
-use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
-                          NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
+use Gateway_global, only: DirInt, Expert, ExtBasDir, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, &
+                          iPack, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 use rctfld_module, only: lLangevin, lRF, PCM, RDS
 use rmat, only: bParm, Dipol, Dipol1, EpsAbs, EpsQ, EpsRel, QCoul, RMat_On, RMatR
 use define_af, only: AngTp, iTabMx
@@ -79,7 +79,7 @@ logical(kind=iwp) :: AnyMode, Basis_test, BasisSet, CholeskyWasSet, Convert, Coo
                      WriteZMat
 character(len=LenIn) :: CtrLDK(10), dbas
 character(len=512) :: Align_Weights = 'MASS'
-character(len=256) :: BasLib, Basis_lib, Directory, ExtBasDir, Fname, GeoDir, KeepBasis, Message, Project, temp1, temp2
+character(len=256) :: BasLib, Basis_lib, Directory, Fname, GeoDir, KeepBasis, Message, Project, temp1, temp2
 character(len=180) :: filename, KeepGroup, Key, KWord, Ref(2)
 character(len=80) :: BSLbl, ChSkip, Title(10) = ''
 character(len=72) :: Header(2) = ''

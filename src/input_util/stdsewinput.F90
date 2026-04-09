@@ -20,11 +20,12 @@ use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc, n_dc
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: UnNorm, Do_FckInt
+use Gateway_global, only: ExtBasDir
+use Print, only: nPrint, Show
+use Molcas, only: LenIn, MxAtom, Mxdbsc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Angstrom
 use Definitions, only: wp, iwp, u6
-use Print, only: nPrint, Show
-use Molcas, only: MxAtom, LenIn, Mxdbsc
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd, lSTDINP
@@ -111,7 +112,7 @@ do
   jShll = iShll
   dbsc(nCnttp)%Bsl_old = dbsc(nCnttp)%Bsl
   dbsc(nCnttp)%mdci = mdc
-  call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,.true.,.true.,' ')
+  call GetBS(Fname,dbsc(nCnttp)%Bsl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,.true.,.true.,ExtBasDir)
 
   Do_FckInt = Do_FckInt .and. dbsc(nCnttp)%FOp
   if (itype == 0) then

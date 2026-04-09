@@ -8,7 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2021,2024,2025, Ignacio Fdez. Galván                   *
+# Copyright (C) 2021,2024-2026, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
 import sys
@@ -19,7 +19,7 @@ import numpy as np
 from fractions import Fraction
 import h5py
 
-version = '2.2'
+version = '2.3'
 
 ################################################################################
 # FUNCTIONS
@@ -980,7 +980,7 @@ else:
 
     fo.attrs.create('MORT_version', np.array(f'MORT v{version}', dtype='S'))
 
-    module = fi.attrs['MOLCAS_MODULE'].decode()
+    module = fi.attrs.get('MOLCAS_MODULE', b'').decode()
 
     # Pick up the data needed for desymmetrization, which includes reordering MOs
     if do_desym:

@@ -118,7 +118,10 @@ subroutine mma_oom(label,bufsize,mma_avail)
 
   character(len=*), intent(in) :: label
   integer(kind=iwp), intent(in) :: bufsize, mma_avail
+  integer(kind=iwp) :: iDum
 
+  iDum = 0
+  call getmem('Finish','LIST','REAL',iDum,0)
   write(u6,'(1x,a)') '?mma_allo_?D: error: out-of-memory'
   write(u6,'(1x,a,a)') 'label: ',trim(label)
   write(u6,'(1x,a,1x,i12)') ' available (kB):',nint(mma_avail*1.0e-3_wp)
