@@ -67,6 +67,8 @@ interface mma_allocate
   module procedure :: dmma_allo_4D, dmma_allo_4D_lim, imma_allo_4D, imma_allo_4D_lim, zmma_allo_4D, zmma_allo_4D_lim
   ! 5D allocate
   module procedure :: dmma_allo_5D, dmma_allo_5D_lim, imma_allo_5D, imma_allo_5D_lim, zmma_allo_5D, zmma_allo_5D_lim
+  ! 6D allocate
+  module procedure :: dmma_allo_6D, dmma_allo_6D_lim
   ! 7D allocate
   module procedure :: dmma_allo_7D, dmma_allo_7D_lim
 end interface
@@ -87,6 +89,8 @@ interface mma_deallocate
   module procedure :: dmma_free_4D, imma_free_4D, zmma_free_4D
   ! 5D deallocate
   module procedure :: dmma_free_5D, imma_free_5D, zmma_free_5D
+  ! 6D deallocate
+  module procedure :: dmma_free_6D
   ! 7D deallocate
   module procedure :: dmma_free_7D
 end interface
@@ -245,11 +249,17 @@ end subroutine mma_maxBYTES
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
 
+#  define _DIMENSIONS_ 6
+#  define _DEF_LABEL_ 'dmma_6D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+
 #  define _DIMENSIONS_ 7
 #  define _DEF_LABEL_ 'dmma_7D'
 #  include "mma_allo_template.fh"
 #  undef _DIMENSIONS_
-#undef _DEF_LABEL_
+#  undef _DEF_LABEL_
 
 #undef _SUBR_NAME_
 #undef _TYPE_

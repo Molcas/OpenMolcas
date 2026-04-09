@@ -30,7 +30,7 @@ use lucia_data, only: I2ELIMINATED_IN_GAS, I_AM_OUT, I_ELIMINATE_GAS, IBSPGPFTP,
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NBATCH, IBATCH(8,*), LBATCH(max(NBATCH,2)), I1BATCH(max(NBATCH,2))
+integer(kind=iwp), intent(in) :: NBATCH, IBATCH(8,*), LBATCH(NBATCH), I1BATCH(NBATCH)
 integer(kind=iwp) :: I, IBLOCK, IEL, IGAS, IGAS_ELIM, IITYPE, IMATCH_ALPHA, IMATCH_ALPHAM1, IMATCH_BETA, IMATCH_BETAM1, &
                      IMATCH_BLOCK, IMAX_OCC(2,NGAS,2), IOFF, ISPGP, ITYPE_A, ITYPE_B, J, JBATCH, MAX_E_GAS_ALPHA(2,MXPSTT), &
                      MAX_E_GAS_BETA(2,MXPSTT), MAXM1_E_GAS_ALPHA(2,MXPSTT), MAXM1_E_GAS_BETA(2,MXPSTT), NALPHA, NALPHAM1, NBETA, &
@@ -62,7 +62,7 @@ end if
 
 IMAX_OCC = 0
 
-do JBATCH=1,2 ! only alpha and beta
+do JBATCH=1,min(NBATCH,2) ! only alpha and beta
   do IBLOCK=I1BATCH(JBATCH),I1BATCH(JBATCH)+LBATCH(JBATCH)-1
     do ISPGP=1,NSPGPFTP(JBATCH)
       IOFF = IBSPGPFTP(JBATCH)
@@ -79,7 +79,7 @@ do JBATCH=1,2 ! only alpha and beta
 end do
 
 #ifdef _DEBUGPRINT_
-do JBATCH=1,2
+do JBATCH=1,min(NBATCH,2)
   if (JBATCH == 1) then
     write(u6,*) ' Maximum number of alpha electrons in each GAS'
   else
@@ -101,7 +101,7 @@ NALPHA = 0
 NBETA = 0
 NALPHAM1 = 0
 NBETAM1 = 0
-do JBATCH=1,2 ! only alpha and beta
+do JBATCH=1,min(NBATCH,2) ! only alpha and beta
   do IBLOCK=I1BATCH(JBATCH),I1BATCH(JBATCH)+LBATCH(JBATCH)-1
     do ISPGP=1,NSPGPFTP(JBATCH)
       IOFF = IBSPGPFTP(JBATCH)
