@@ -9,11 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GDMAT(NSYM,NBAS,ISTART,NUSE,CNAT,OCC,GDAO)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CNAT(*),OCC(*)
-      DIMENSION GDAO(*)
-      DIMENSION ISTART(NSYM),NUSE(NSYM),NBAS(NSYM)
+      use definitions, only: wp, iwp
+      use constants, only: Zero
+      IMPLICIT None
+      real(kind=wp), intent(in):: CNAT(*),OCC(*)
+      real(kind=wp), intent(out):: GDAO(*)
+      integer(kind=iwp), intent(in):: NSYM
+      integer(kind=iwp), intent(in):: ISTART(NSYM),NUSE(NSYM),NBAS(NSYM)
 
+      integer(kind=iwp) IOEND, ICEND, IDAB, ISYM, NB, NW, IW1, IW2, IA,
+     &                  IB, IW
+      real(kind=wp) DAB
 * General density matrix, in the sense of using a specified
 * but arbitrary range of orbitals in each symmetry, and an
 * occupation number.
@@ -45,8 +51,8 @@
       IDAB=0
       DO ISYM=1,NSYM
        NB=NBAS(ISYM)
-       IF (NB.GT.0) THEN
-         CALL DCOPY_( (NB*(NB+1))/2,[0.0D0],0,GDAO(IDAB+1),1)
+       IF (NB>0) THEN
+         CALL DCOPY_( (NB*(NB+1))/2,[Zero],0,GDAO(IDAB+1),1)
          NW=NUSE(ISYM)
          IF(NW.GT.0) THEN
           IW1=ISTART(ISYM)
@@ -70,5 +76,4 @@
        END IF
       END DO
 
-      RETURN
-      END
+      END SUBROUTINE GDMAT

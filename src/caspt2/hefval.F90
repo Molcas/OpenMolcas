@@ -13,7 +13,7 @@ subroutine hefval(ist, jst, dvalue)
   use definitions, only: wp, iwp, u6
   use caspt2_global, only: luciex, idtcex, iPrGlb
   use printLevel, only: debug
-  use eqsolv
+  use eqsolv, only: iVecC, iVecW
   use stdalloc, only: mma_allocate, mma_deallocate
   use caspt2_module, only: iSCF, nAshT, nConf, nState, STSym
 #if defined _DMRG_

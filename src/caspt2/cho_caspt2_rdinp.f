@@ -17,14 +17,18 @@
 *
 ************************************************************************
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, REORD
+      use definitions, only: iwp, u6
       Use Cholesky, only: timings
-      use ChoCASPT2
-      Implicit Real*8 (A-H,O-Z)
-      Character(Len=180) KWord, Key, Get_Ln
-      External Get_Ln
-      Logical  DFonly
-      character(len=16) SECNAM
-      parameter (SECNAM = 'CHO_CASPT2_RDINP')
+      use ChoCASPT2, only: iAlGO
+      Implicit None
+      Logical(kind=iwp), intent(in)::  DFonly
+      integer(kind=iwp), intent(in):: LuSpool
+
+      Character(Len=180) KWord, Key
+      Character(Len=180), External:: Get_Ln
+      character(len=16), parameter:: SECNAM = 'CHO_CASPT2_RDINP'
+      integer(kind=iwp) iChrct, Last
+      integer(kind=iwp), External:: iCLast
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -72,7 +76,7 @@
          DECO  =.true.
          DensityCheck=.false.
          timings=.false.
-         goto 999  !return flag
+         RETURN
       ENDIF
 *
 *    set some parameters if not specified in ChoInput section
@@ -90,7 +94,7 @@
 *-------------------------------------------------------------------*
 * The big turning point.                                            *
 *-------------------------------------------------------------------*
-1000  Continue
+      DO
 *-------------------------------------------------------------------*
 * Use Get_Ln to read the lines.                                     *
 *-------------------------------------------------------------------*
@@ -101,102 +105,67 @@
 * The keywords and their labels.                                    *
 *-------------------------------------------------------------------*
 
-      If (KWord(1:1).eq.'*')    Go To 1000
-      If (KWord.eq.'')       Go To 1000
-      If (KWord(1:4).eq.'ALGO') Go To 900
-      If (KWord(1:4).eq.'IALG') Go To 950
-      If (KWord(1:4).eq.'REOR') Go To 800
-      If (KWord(1:4).eq.'DECO') Go To 810
-      If (KWord(1:4).eq.'TIME') Go To 820
-      If (KWord(1:4).eq.'DCHK') Go To 830
-      If (KWord(1:4).eq.'ENDC') Go To 998
-      If (KWord(1:4).eq.'END ') Go To 998
-      If (KWord(1:4).eq.'ENDO') Go To 998
+      If (KWord(1:1).eq.'*')    Cycle
+      If (KWord.eq.'')          Cycle
 
-*-------------------------------------------------------------------*
-* Control section                                                   *
-*-------------------------------------------------------------------*
-      iChrct=Len(KWord)
-      Last=iCLast(KWord,iChrct)
-      WRITE(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-      WRITE(6,*) SECNAM, ' Error in keyword.'
-      CALL ABEND()
+      Select case (KWord(1:4))
 *                                                                      *
 ****** ALGO ************************************************************
 *                                                                      *
 *-----Read Cholesky algorithm parameters
 *
- 900  Continue
+      Case ('ALGO')
 *
        READ(LuSpool,*) ALGO
-*
-*
-      Go To 1000
 *                                                                      *
 ****** IALG ************************************************************
 *                                                                      *
- 950   Continue
+      Case ('IALG')
        READ(LuSpool,*) iALGO
-*
-      Go To 1000
 *                                                                      *
 ****** REOR ************************************************************
 *                                                                      *
- 800   Continue
+      Case ('REOR')
        REORD=.true.
-      WRITE(6,*)
-     &'Vectors reordered on FILE'
-      WRITE(6,*)
-*
-      Go To 1000
+      WRITE(u6,*) 'Vectors reordered on FILE'
+      WRITE(u6,*)
 *                                                                      *
 ****** DECO ************************************************************
 *                                                                      *
- 810   Continue
+      Case ('DECO')
        DECO=.true.
-      WRITE(6,*)
-     &'Decomposed densty matrix'
-      WRITE(6,*)
-*
-      Go To 1000
+      WRITE(u6,*) 'Decomposed densty matrix'
+      WRITE(u6,*)
 *                                                                      *
 ****** TIME ************************************************************
 *                                                                      *
- 820   Continue
+      Case ('TIME')
        timings=.true.
-*
-      Go To 1000
 *                                                                      *
 ****** DCHK ************************************************************
 *                                                                      *
- 830   Continue
+      Case ('DCHK')
        DensityCheck=.true.
 *
-      Go To 1000
-
 *                                                                      *
 ****** END  ************************************************************
 *                                                                      *
 *-----End of input
 *
- 998  Continue
+      Case ('END ','ENDO')
+      RETURN
+*-------------------------------------------------------------------*
+* Control section                                                   *
+*-------------------------------------------------------------------*
+      Case Default
+         iChrct=Len(KWord)
+         Last=iCLast(KWord,iChrct)
+         WRITE(u6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
+         WRITE(u6,*) SECNAM, ' Error in keyword.'
+         CALL ABEND()
+      END SELECT
+      END DO
 *                                                                      *
 ************************************************************************
 *                                                                      *
-999   Continue
-* SB: this printout is misleading if one does not use the Cholesky
-* approximation and superfluous otherwise, since the algorithms
-* are not documented. The user ignores it anyway.
-      ! If (IPRGLB.ge.TERSE) Then
-      !    WRITE(6,'(1X,A,I4)') 'Cholesky algorithm in CASPT2 = ',iALGO
-      !    WRITE(6,*)
-      ! End If
-
-      Return
-*                                                                      *
-************************************************************************
-*                                                                      *
-*-----Error handling
-*
-*
-      End
+      End SubRoutine CHO_CASPT2_RDINP

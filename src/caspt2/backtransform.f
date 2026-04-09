@@ -11,12 +11,17 @@
 * Copyright (C) 2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE Backtransform(Heff,Ueff,U0)
+      use definitions, only: wp
+      use constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: Nstate, IFXMS, IFRMS
+      IMPLICIT None
 C Back-transform Heff and Ueff to the basis of the original
 C CASSCF states.
-      real(8) Heff(Nstate,Nstate),Ueff(Nstate,Nstate),U0(Nstate,Nstate)
+      real(kind=wp), intent(inout) :: Heff(Nstate,Nstate),
+     &                                Ueff(Nstate,Nstate)
+      real(kind=wp), intent(in) :: U0(Nstate,Nstate)
+
       real(8),allocatable :: U0transpose(:,:),Utmp(:,:)
 
 
@@ -36,8 +41,8 @@ C CASSCF states.
 * i.e. simply combine the two transf matrices: Ueff = U0 * Ueff
         call mma_allocate(Utmp,Nstate,Nstate,Label='Utmp')
         call dgemm_('N','N',Nstate,Nstate,Nstate,
-     &               1.0d0,U0,Nstate,Ueff,Nstate,
-     &               0.0d0,Utmp,Nstate)
+     &               One,U0,Nstate,Ueff,Nstate,
+     &               Zero,Utmp,Nstate)
         Ueff=Utmp
         call mma_deallocate(Utmp)
 

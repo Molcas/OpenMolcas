@@ -39,11 +39,11 @@
       use definitions, only: iwp, wp
       use Constants, only: Zero, Two
       use caspt2_module, only: nSym, nBas
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       real(kind=wp), intent(in):: CMO(*) , OCC(*)
       real(kind=wp), intent(out):: D(*)
 
-      integer(kind=iwp) iOff1, iOff2, iOff3, iSym, iBas, i, ii, j
+      integer(kind=iwp) iOff1, iOff2, iOff3, iSym, iBas, i, ii, j, k
       real(kind=wp) :: Sum
 
       iOff1 = 0

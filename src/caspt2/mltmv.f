@@ -17,14 +17,21 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MLTMV (IMLTOP,LST1,X,F,Y)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: MyRank, nProcs, Is_Real_Par
 #endif
-      use Sigma_data
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION X(*),F(*),Y(*)
-      DIMENSION LST1(4,NLST1)
+      use Sigma_data, only: NLST1, INCF1, INCF2, INCX1, INCY2, INCY3,
+     &                      LEN1, LEN2, NFMV, VAL1, INCY1, INCX2
+      IMPLICIT None
+      integer(kind=iwp), intent(in):: IMLTOP
+      real(kind=wp), intent(inout):: X(*),F(*),Y(*)
+      integer(kind=iwp), intent(in):: LST1(4,NLST1)
 
+      integer(kind=iwp) ILST1_IOFF, ILST1_SKIP, ILST1, L1, L2, L3, L4,
+     &                  I, IF, IX, IY
+      real(kind=wp) A, V
+      real(kind=wp), external:: DDot_
 C Given a lists with entries LST1(4,ITEM), ITEM=1,NLST1, the
 C four entries called L1,L2,L3,L4 for short, for a given
 C item, and with V=VAL1(L4),
@@ -53,7 +60,8 @@ CSVC: determine outer loop properties
       ENDIF
 #endif
 
-      IF(IMLTOP.EQ.0) THEN
+      SELECT CASE (IMLTOP)
+      CASE(0)
         DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
           L1=LST1(1,ILST1)
           L2=LST1(2,ILST1)
@@ -70,7 +78,7 @@ C    X(L1,i) := Add V*F(L2,a)*Y(L3,i,a), i=1..LEN1, a=1..LEN2
             IY=IY+INCY2
           END DO
         END DO
-      ELSE IF(IMLTOP.EQ.1) THEN
+      CASE(1)
         DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
           L1=LST1(1,ILST1)
           L2=LST1(2,ILST1)
@@ -88,7 +96,7 @@ C or Y(L3,i,a):= Add V*F(L2,a)*X(L1,i), i=1..LEN1, a=1..LEN2
             IF=IF+INCF2
           END DO
         END DO
-      ELSE
+      CASE DEFAULT
         DO ILST1=ILST1_IOFF,NLST1,ILST1_SKIP
           L1=LST1(1,ILST1)
           L2=LST1(2,ILST1)
@@ -106,9 +114,8 @@ C     F(L2,a) := Add V*X(L1,i)*Y(L3,i,a)
             IY=IY+INCY2
           END DO
         END DO
-      END IF
+      END SELECT
 
       NFMV =NFMV +2*NLST1*LEN1*LEN2
 
-      RETURN
-      END
+      END SUBROUTINE MLTMV

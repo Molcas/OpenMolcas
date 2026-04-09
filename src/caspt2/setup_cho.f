@@ -18,18 +18,30 @@
 * each with sizes lsplit(1:nsym), and
 * %ip(:), with teh sizes nsym*lsplit(1:nsym)
 * -------------------------
+      use definitions, only: iwp, wp
       use stdalloc, only: mma_MaxDBLE
-      use ChoCASPT2
+      use ChoCASPT2, only: Stuff,lsplit,nisplit,nasplit,nksh,nkes,npsh,
+     &                     npes
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-      Integer nSym,nIsh(8),nAsh(8),nSsh(8)
-      Integer NumCho(8)
-      Integer iAorb(8),iIorb(8),iKorb(8)
-      Character(len=*) mode
-      Character(len=4) modecopy
 
-      Integer  cho_irange
-      External cho_irange
+      Implicit None
+
+      integer(kind=iwp), intent(in):: nSym,nIsh(nSym),nAsh(nSym),
+     &                                nSsh(nSym)
+      integer(kind=iwp), intent(in):: NumCho(nSym)
+      Character(len=*), intent(in):: mode
+
+      integer(kind=iwp) iAorb(8),iIorb(8),iKorb(8)
+      Character(len=4) modecopy
+      integer(kind=iwp), External :: cho_irange
+      integer(kind=iwp) I, J, IfTest, iK, iK1, iK2, ioff, iS, iSP, iSym,
+     &                  iw, jfrac, jIAc, jS, jSym, kEnd, kEndSym, kFrac,
+     &                  kS, kSta, kStaSym, lS, mDiff, Mem1, MemMx, mRHS,
+     &                  nA, nAO, nI, nIAc, nIO, nKsp, nkSum, nMin, nO,
+     &                  nOkrb, nOrb, nP, nPMax, nPOrb, npSum, nS
+      real(kind=wp) xmb, xMemMx
+      integer(kind=iwp) MulD2h, nIc, nAc
+
 
 C *********************************************************************
       nIc(i,j) = Stuff(j)%sp(i)
@@ -360,6 +372,4 @@ C --- Conversion to real*8 to avoid integer overflow on 32-bit machines
       end do
       end if
 
-
-      Return
-      End
+      End Subroutine setup_cho

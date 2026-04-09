@@ -49,26 +49,28 @@
 *                Can be set to -1 by the calling routine
 *
 *********************************************************
+      use definitions, only: iwp, wp, u6
+      use constants, only: Zero
+      use symmetry_info, only: MulD2h=>Mul
       use Cholesky, only: iBas, iiBstR, InfVec, IndRed, iRS2F, nBas,
      &                    nDimRS, nnBstR, nSym
-      Implicit Real*8 (a-h,o-z)
-      Integer irc, lscr
-      Real*8  Scr(lscr)
-      Integer jVref,JVEC1,JNUM,NUMV,JSYM,JREDC,NCMO
-      Real*8 CMO(NCMO)
-      Integer ISTART(8),NUSE(8),ipChoT(8),nWork
-      REAL*8 Work(nWork)
+      Implicit None
+      Integer(kind=iwp), intent(inout):: irc
+      Integer(kind=iwp), intent(in):: lscr
+      Real(kind=wp), intent(inout)::  Scr(lscr)
+      Integer(kind=iwp), intent(in):: jVref,JVEC1,JNUM,NUMV,JSYM,NCMO
+      Integer(kind=iwp), intent(inout):: JREDC
+      Real(kind=wp), intent(in):: CMO(NCMO)
+      Integer(kind=iwp), intent(in):: ISTART(8),NUSE(8),ipChoT(8),nWork
+      REAL(kind=wp), intent(out):: Work(nWork)
 
-      Integer IOFFC(8)
-* Integer function cho_isao
-      Integer, External :: cho_isao
-
-************************************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
-************************************************************************
-
+      Integer(kind=iwp) IOFFC(8)
+      Integer(kind=iwp), External :: cho_isao
 * iLoc = 3 means 'use scratch location in reduced index arrays'
-      iLoc = 3
+      Integer(kind=iwp), parameter:: iLoc = 3
+      Integer(kind=iwp) IOC,ISYM,iSymp,nElem,NREAD,JVEC,JVTRNS,JRED,
+     &                  iag,ias,ibg,ibs,iRab,ISCA,ISCB,iSyma,iSymb,
+     &                  jRab, kchot,kRab,kscr,NBA,NBB,NUSEA,NUSEB
 
 * Offset counter into CMO array:
       IOC=0
@@ -81,7 +83,7 @@
          IF (nUse(iSymp).ne.0) THEN
             iSymb = muld2h(JSYM,iSymp)
             nElem=nUse(iSymp)*nBas(iSymb)*NUMV
-            Call dCopy_(nElem,[0.0D0],0,Work(ipChoT(iSymp)),1)
+            Call dCopy_(nElem,[Zero],0,Work(ipChoT(iSymp)),1)
          ENDIF
       End Do
 
@@ -96,12 +98,12 @@
          IF (JRED .NE. JREDC) THEN
 * It is not. Tables must be regenerated with information that is
 * common to this reduced set.
-        write(6,*)' Rats! It was assumed that the Cholesky vectors'
-        write(6,*)' in HALFTRNSF all belonged to a given reduced'
-        write(6,*)' set, but they don''t!'
-        write(6,*)' JRED, JREDC:',JRED,JREDC
-        write(6,*)' Back to the drawing board?'
-        write(6,*)' Let the program continue and see what happens.'
+        write(u6,*)' Rats! It was assumed that the Cholesky vectors'
+        write(u6,*)' in HALFTRNSF all belonged to a given reduced'
+        write(u6,*)' set, but they don''t!'
+        write(u6,*)' JRED, JREDC:',JRED,JREDC
+        write(u6,*)' Back to the drawing board?'
+        write(u6,*)' Let the program continue and see what happens.'
             Call Cho_X_SetRed(irc,iLoc,JRED)
             JREDC = JRED
          END IF
@@ -233,6 +235,4 @@
 
       irc=0
 
-
-      Return
-      END
+      END SUBROUTINE HALFTRNSF

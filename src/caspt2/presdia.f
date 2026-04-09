@@ -33,23 +33,24 @@
 !> @param[out]    JVEC   Vector position where the result is saved
 !> @param[in]     OVLAPS Array containing the overlaps
       SUBROUTINE PRESDIA(IVEC,JVEC,OVLAPS)
+      use definitions, only: iwp, wp
       use caspt2_global, only: LUSBT
-      use EQSOLV
+      use EQSOLV, only: IDBMAT
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nISup, nASup, nInDep, MxCase, nSym
       IMPLICIT NONE
 
 
-      INTEGER IVEC,JVEC
-      REAL*8 OVLAPS(0:8,0:MXCASE)
+      INTEGER(kind=iwp), intent(in):: IVEC,JVEC
+      REAL(kind=wp), intent(inout):: OVLAPS(0:8,0:MXCASE)
 
-      INTEGER ICASE,ISYM
-      INTEGER NAS,NIS,NIN
-      INTEGER lg_V
-      INTEGER JD
+      INTEGER(kind=iwp) ICASE,ISYM
+      INTEGER(kind=iwp) NAS,NIS,NIN
+      INTEGER(kind=iwp) lg_V
+      INTEGER(kind=iwp) JD
 
-      REAL*8 OVL,DOVL,OVLSUM,OVLTOT
-      REAL*8, ALLOCATABLE:: BD(:), ID(:)
+      REAL(kind=wp) OVL,DOVL,OVLSUM,OVLTOT
+      REAL(kind=wp), ALLOCATABLE:: BD(:), ID(:)
 
 C Apply the resolvent of the diagonal part of H0 to a coefficient
 C vector in vector nr. IVEC on LUSOLV. Put the results in vector

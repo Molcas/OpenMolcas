@@ -11,10 +11,11 @@
 * Copyright (C) Per Ake Malmqvist                                      *
 ************************************************************************
       SUBROUTINE TRACHO2(CMO,NCMO,DREF,NDREF,FFAO,FIAO,FAAO,IF_TRNSF)
-      USE CHOVEC_IO
+      USE CHOVEC_IO, only: NVLOC_CHOBATCH,NPQ_CHOTYPE,chovec_save,
+     &                     chovec_load,chovec_coll
       use Cholesky, only: InfVec, nDimRS
-      use EQSOLV
-      use ChoCASPT2
+      use ChoCASPT2, only: MXCHARR,MXNVC,NCHSPC,NFTSPC,NHTSPC,
+     &                     NUMCHO_PT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nBTri, ECore, nBasT, nBSqT, nInaBx,
      &                         nSecBx, nSym, PotNuc, nBas, nFro,

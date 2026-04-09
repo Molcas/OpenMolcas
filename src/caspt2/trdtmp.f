@@ -9,29 +9,37 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRDTMP(DPT2,NDPT2)
+      use definitions, only: iwp, wp
+      use constants, only: Zero
       USE Para_Info, ONLY: King
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use EQSOLV, only: iVecc
+      use caspt2_module, only: nSym, nIsh, nAsh, nOrb, nAES, nAshT
+      IMPLICIT None
 
 
-      Integer NDPT2
-      Real*8 DPT2(NDPT2)
+      integer(kind=iwp), intent(in)::  NDPT2
+      real(kind=wp), intent(inout):: DPT2(NDPT2)
 
-      Real*8, Allocatable:: DTemp(:)
-      if(nasht.eq.0) return
+      real(kind=wp), Allocatable:: DTemp(:,:)
+      integer(kind=iwp) idpt, iofdpt, isym, it, itabs, itq, iu, iuabs,
+     &                  iuq, na, ndtemp, ni, no
+      real(kind=wp) Value
+
+      if(nasht==0) return
 
 
       ndtemp=nasht**2
-      call mma_allocate(dtemp,ndtemp,Label='DTemp')
-      DTemp(:)=0.0D0
+      call mma_allocate(dtemp,nAshT,nAshT,Label='DTemp')
+      DTemp(:,:)=Zero
 CSVC: trdact is still serial and expects to work on the LUSOLV file,
 C which is only on the master node. As long as the MKWW subroutines are
 C not functioning in parallel, this part should be done only on the
 C master node:
       IF (KING()) call trdact(IVECC,IVECC,dtemp)
+
       call GADSUM(DTEMP,NDTEMP)
+
       iofdpt=0
       do isym=1,nsym
         ni=nish(isym)
@@ -43,9 +51,9 @@ C master node:
           do iu=1,na
             iuq=ni+iu
             iuabs=naes(isym)+iu
-            value=dtemp(itabs+nasht*(iuabs-1))
+            value=dtemp(itabs,iuabs)
             idpt=iofdpt+itq+no*(iuq-1)
-            dpt2(idpt)=dpt2(idpt)+value
+            DPT2(idpt)=DPT2(idpt)+value
           end do
         end do
         iofdpt=iofdpt+no**2

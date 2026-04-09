@@ -46,9 +46,9 @@ character(len=30) :: Label
 #ifdef _DEBUGPRINT_
 if (nabMax > 0) call RecPrt('vRys2D: PAWP',' ',PAWP,lRys,nArg*3)
 if (ncdMax > 0) call RecPrt('vRys2D: QCWQ',' ',QCWQ,lRys,nArg*3)
-call RecPrt('vRys2D:  B10',' ',B10(:,1),lRys,nArg)
-call RecPrt('vRys2D:  B00',' ',B00(:,1),lRys,nArg)
-call RecPrt('vRys2D:  B01',' ',B01(:,1),lRys,nArg)
+!if (nabMax >=2) call RecPrt('xRys2D:  B10',' ',B10,nArg*lRys,3)
+!if (nabMax >=2 .or. ncdMax >=2) call RecPrt('xRys2D:  B00',' ',B00,nArg*lRys,3)
+!if (ncdMax >=2) call RecPrt('xRys2D:  B01',' ',B01,nArg*lRys,3)
 #endif
 
 if ((nabMax /= 0) .or. (ncdMax /= 0)) then

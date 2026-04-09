@@ -23,7 +23,9 @@
 #endif
 #ifdef _DMRG_
       use, intrinsic :: iso_c_binding, only: c_bool, c_int
-      use qcmaquis_interface
+      use qcmaquis_interface, only:
+     &    qcmaquis_interface_compute_and_store_123rdm_full,
+     &    qcmaquis_interface_compute_and_store_trans_123rdm_full
       use caspt2_module, only: DMRG
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate

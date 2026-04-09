@@ -9,28 +9,33 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MODRHS(IVEC,FIMO,NFIMO)
-      USE SUPERINDEX
-      use EQSOLV
+      use definitions, only: iwp, wp
+      USE SUPERINDEX, only: KTUV, KTU
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER IVEC, NFIMO
-      REAL*8 FIMO(NFIMO)
+      use caspt2_module, only: NSYM,NINDEP,NTUV,NISH,NASH,NAES,NACTEL,
+     &                         NASHT,NTUVES,NORB,NSSH,NISUP,NASUP,NTUES
+      IMPLICIT None
+      integer(kind=iwp), intent(In):: IVEC, NFIMO
+      real(kind=wp), Intent(in):: FIMO(NFIMO)
 
-      REAL*8, ALLOCATABLE:: WA(:), WC(:), WD(:)
-
+      real(kind=wp), ALLOCATABLE:: WA(:), WC(:), WD(:)
+      integer(kind=iwp) ICASE, IFOFF, ISYM, NAS, NIS, NWA, ISYJ, ISYT,
+     &                         NAT, NIT, IT, ITTOT, ITABS, IJ, IVABS,
+     &                         IW1, IW2, IA, IAJ, IATOT, ISYU, IU,
+     &                         IUABS, IUU, IWD, IX, IXABS, IXTOT, IYABS,
+     &                         IYYW, lg_A, lg_C, lg_D, NAJ, NAX, NIJ,
+     &                         NIX, NO, NSJ, NSX, NWC, NWD, IYYWA
+      real(kind=wp) ONEADD, SUM, VALUE
 
 ***************************************************************
 * Case A:
       ICASE=1
       IFOFF=0
       DO ISYM=1,NSYM
-       IF(NINDEP(ISYM,1).EQ.0) GOTO 100
-
        NAS=NTUV(ISYM)
        NIS=NISH(ISYM)
        NWA=NAS*NIS
-       IF(NWA.EQ.0) GOTO 100
+       IF(NINDEP(ISYM,1)*NWA/=0) THEN
        CALL mma_allocate(WA,NWA,Label='WA')
        CALL RHS_ALLO (NAS,NIS,lg_A)
 C Read W from disk:
@@ -60,7 +65,7 @@ C Put W on disk:
        CALL RHS_FREE (lg_A)
        CALL mma_deallocate(WA)
 
- 100   CONTINUE
+       END IF
 * End of loop over ISYM.
        NO=NORB(ISYM)
        IFOFF=IFOFF+(NO*(NO+1))/2
@@ -71,11 +76,10 @@ C Put W on disk:
       ICASE=4
       IFOFF=0
       DO ISYM=1,NSYM
-       IF(NINDEP(ISYM,4).EQ.0) GOTO 200
        NAS=NTUV(ISYM)
        NIS=NSSH(ISYM)
        NWC=NAS*NIS
-       IF(NWC.EQ.0) GOTO 200
+       IF(NINDEP(ISYM,4)*NWC/=0) THEN
        CALL mma_allocate(WC,NWC,LABEL='WC')
        CALL RHS_ALLO (NAS,NIS,lg_C)
 C Read W from disk:
@@ -111,7 +115,7 @@ C Put W on disk:
        CALL RHS_FREE (lg_C)
        CALL mma_deallocate(WC)
 
- 200   CONTINUE
+       END IF
 * End of loop over ISYM.
        NO=NORB(ISYM)
        IFOFF=IFOFF+(NO*(NO+1))/2
@@ -121,12 +125,11 @@ C Put W on disk:
 * Case D1:
       ICASE=5
       ISYM=1
-      IF(NINDEP(ISYM,5).EQ.0) RETURN
 
       NAS=NASUP(ISYM,5)
       NIS=NISUP(ISYM,5)
       NWD=NAS*NIS
-      IF(NWD.EQ.0) RETURN
+      IF(NINDEP(ISYM,5)*NWD/=0) THEN
       CALL mma_allocate(WD,NWD,LABEL='WD')
       CALL RHS_ALLO (NAS,NIS,lg_D)
 C Read W from disk:
@@ -165,5 +168,6 @@ C Put W on disk:
       CALL RHS_SAVE (NAS,NIS,lg_D,ICASE,ISYM,IVEC)
       CALL RHS_FREE (lg_D)
       CALL mma_deallocate(WD)
+      END IF
 
       END SUBROUTINE MODRHS

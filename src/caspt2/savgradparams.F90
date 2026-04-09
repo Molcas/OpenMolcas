@@ -29,7 +29,7 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   use caspt2_global, only: LUSOLV, LUSBT
   use definitions, only: iwp,wp,byte
   use stdalloc, only: mma_allocate, mma_deallocate
-  use EQSOLV
+  use EQSOLV, only: IDSMAT, IDBMAT, IDSTMAT, IVECX, IDTMAT
   use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
   USE Para_Info, ONLY: Is_Real_Par, King, myRank

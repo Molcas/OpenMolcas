@@ -17,27 +17,31 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE TRDNS1(IVEC,DPT1,NDPT1)
+      use definitions, only: iwp, wp
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use EQSOLV
-      use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
       use fake_GA, only: GA_Arrays
-      use caspt2_module
+      use caspt2_module, only: nActel, nSym, nIsh, nAsh, nSsh, nInDep,
+     &                         nISup, nASup, nAsh, nOrb
 #define RHS_ X_RHS_
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT none
 
-      Integer IVEC, NDPT1
-      REAL*8 DPT1(NDPT1)
+      integer(kind=iwp), intent(in):: IVEC, NDPT1
+      real(kind=wp), intent(inout):: DPT1(NDPT1)
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
 #endif
-      REAL*8, ALLOCATABLE:: WTI(:), WAT(:), WAI(:)
+      real(kind=wp), ALLOCATABLE:: WTI(:), WAT(:), WAI(:)
 #ifdef _MOLCAS_MPP_
-      REAL*8, ALLOCATABLE:: TMP(:)
+      real(kind=wp), ALLOCATABLE:: TMP(:)
 #endif
+      real(kind=wp) FACT
+      integer(kind=iwp) IA, ICASE, ID, IDOFF, II, IMLTOP, ISYM, IT,
+     &                  ITTOT, IW, IWAI, IWAT, IWOFF, IWTI, lVec, NA,
+     &                  NAS, NI, NIS, NO, NS, NVEC, NWAI, NWAT, NWTI
 
 C Add to the transition density matrix DPT1,
 C    DPT1(p,q) = Add <IVEC| E(p,q) |0>.

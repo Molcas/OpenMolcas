@@ -17,16 +17,19 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE W1TW2(IVEC,JVEC,CI,SGM)
+      use definitions, only: iwp, wp
       use stdalloc, only: mma_allocate, mma_deallocate
-      use EQSOLV
-      use caspt2_module
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use caspt2_module, only: nAshT, STSym
+      implicit none
 
 
-      Integer IVEC, JVEC
-      Real*8 ci(*),sgm(*)
+      integer(kind=iwp), intent(in):: IVEC, JVEC
+      Real(kind=wp), intent(in):: ci(*)
+      Real(kind=wp), intent(inout)::  sgm(*)
 
-      Real*8, Allocatable:: OP1(:), OP2(:), OP3(:)
+      integer(kind=iwp) :: nOp1, nOp2, nOp3
+      Real(kind=wp), Allocatable:: OP1(:), OP2(:), OP3(:)
+      Real(kind=wp):: OP0
 
 C Given contravariant indices of two wave operators W1 and W2,
 C in the vectors numbered IVEC and JVEC on file (unit LUSOLV),

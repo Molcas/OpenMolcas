@@ -10,25 +10,37 @@
 ************************************************************************
       SUBROUTINE ADD1HAM(H1EFF)
 * NOT TESTED (used for OFEmbed below)
-#if 0
+!#define _OFEmbed_
+#ifdef _OFEmbed_
       use RunFile_procedures, only: Get_dExcdRa
       use OFembed, only: Do_OFemb, FMAux, OFE_First
 #endif
+      use definitions, only: iwp, wp
+#ifdef _DEBUGPRINT_
+      use definitions, only: u6
+#endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use OneDat, only: sNoNuc, sNoOri
-      use caspt2_module
-      Implicit real*8 (a-h,o-z)
-      Dimension H1EFF(*)
+      use caspt2_module, only: ERFSelf, NBTRI, nSym, PotNuc, RFpert,
+     &                         nBas
+
+      Implicit None
+
+      real(kind=wp), intent(inout):: H1EFF(*)
 * ----------------------------------------------------------------
 * Purpose: Reads and adds one-electron naked Hamiltonian into H1EFF.
 * Dress it with reaction field (if any).
 * Also get POTNUC at the same time.
 *
       character(len=8) :: Label
-      Logical Found
-      Real*8, allocatable:: ONEHAM(:), Temp(:)
-#if 0
-      Real*8, allocatable:: Coul(:)
+      Logical(kind=iwp) Found
+      real(kind=wp), allocatable:: ONEHAM(:), Temp(:)
+      integer(kind=iwp) ICOMP, IOPT, IRC, ISYLBL, iSym, nTemp
+#ifdef _DEBUGPRINT_
+      integer(kind=iwp) ISTLT
+#endif
+#ifdef _OFEmbed_
+      real(kind=wp), allocatable:: Coul(:)
 #endif
 
 c Add naked one-el Hamiltonian in AO basis to H1EFF:
@@ -69,19 +81,18 @@ c the nuclear attraction by the cavity self-energy
       End If
 
 #ifdef _DEBUGPRINT_
-         WRITE(6,*)' 1-EL HAMILTONIAN (MAY INCLUDE REACTION FIELD)'
+         WRITE(u6,*)' 1-EL HAMILTONIAN (MAY INCLUDE REACTION FIELD)'
          ISTLT=0
          DO ISYM=1,NSYM
            IF ( NBAS(ISYM).GT.0 ) THEN
-             WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
+             WRITE(u6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
              CALL TRIPRT(' ',' ',H1EFF(1+ISTLT),NBAS(ISYM))
              ISTLT=ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
            END IF
          END DO
 #endif
 
-* NOT TESTED
-#if 0
+#ifdef _OFEmbed_
 c If this is a perturbative Orbital-Free Embedding (OFE) calculation
 c then modify the one-electron Hamiltonian by the OFE potential and
 c the nuclear attraction by the Rep_EN
@@ -91,7 +102,7 @@ c the nuclear attraction by the Rep_EN
             nTemp=nTemp+nBas(iSym)*(nBas(iSym)+1)/2
          End Do
          Call mma_allocate(Coul,nTemp,Label='Coul')
-         Coul(:)=0.0D=
+         Coul(:)=0.0D0
          If (OFE_First) Then
             Call mma_allocate(FMaux,nTemp,Label='FMaux')
             Call Coul_DMB(.true.,1,Rep_EN,FMaux,Coul,Coul,nTemp)
@@ -104,18 +115,18 @@ c the nuclear attraction by the Rep_EN
          Call Get_dExcdRa(Vxc,nVxc)
          Call DaXpY_(nTemp,1.0d0,Vxc,1,H1EFF,1)
          If (nVxc.eq.2*nTemp) Then ! but fix for Nuc Attr added twice
-            Call DaXpY_(nTemp,1.0d0,Vxc(1+nTemp:),1,H1EFF,1)
+            Call DaXpY_(nTemp,1.0d0,Vxc(1+nTemp:2*nTemp),1,H1EFF,1)
             Call Get_dArray('Nuc Potential',Vxc,nTemp)
             Call DaXpY_(nTemp,-1.0d0,Vxc,1,H1EFF,1)
          EndIf
          Call mma_deallocate(Vxc)
          Call NameRun('#Pop')    ! switch back to old RUNFILE
 #ifdef _DEBUGPRINT_
-             WRITE(6,*)' 1-EL HAMILTONIAN INCLUDING OFE POTENTIAL'
+             WRITE(u6,*)' 1-EL HAMILTONIAN INCLUDING OFE POTENTIAL'
              ISTLT=0
              DO ISYM=1,NSYM
                IF ( NBAS(ISYM).GT.0 ) THEN
-                 WRITE(6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
+                 WRITE(u6,'(6X,A,I2)')' SYMMETRY SPECIES:',ISYM
                  CALL TRIPRT(' ',' ',H1EFF(1+ISTLT),NBAS(ISYM))
                  ISTLT=ISTLT+NBAS(ISYM)*(NBAS(ISYM)+1)/2
                END IF
@@ -124,6 +135,4 @@ c the nuclear attraction by the Rep_EN
       End If
 #endif
 
-*
-      RETURN
-      END
+      END SUBROUTINE ADD1HAM

@@ -17,37 +17,44 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3)
+      use definitions, only: iwp, wp, byte
+      use constants, only: Zero, One, Two
       use gugx, only: SGS, LEVEL
-      use caspt2_module
-      use pt2_guga
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
-      DIMENSION F1(NASHT,NASHT),F2(NASHT,NASHT,NASHT,NASHT),F3(*)
-      INTEGER*1 idxG3(6,*)
-      INTEGER I1
-      PARAMETER (I1=KIND(idxG3))
+      use caspt2_module, only: nAshT, iSCF, nActel
+      use pt2_guga, only: NG1, NG2, NG3, ETA
+      IMPLICIT None
+      real(kind=wp), intent(out) ::
+     &                 G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
+      real(kind=wp), intent(out) ::
+     &                 F1(NASHT,NASHT),F2(NASHT,NASHT,NASHT,NASHT),F3(*)
+      INTEGER(kind=byte), intent(Out) ::  idxG3(6,*)
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
+      INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
+      LOGICAL(kind=iwp) RSV_TSK
+      Integer(kind=iwp) :: nLev
+      real(kind=wp) ESUM, Occ, Val
+      Integer(kind=iwp) :: I, ID, IG3, IND1, IND2, IND3, IT, IT1, IT2,
+     &                     IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1,
+     &                     LU2, LU3, NLEV2, NLEV4, NTASK
 
-      LOGICAL RSV_TSK
-      Integer :: nLev
+
       nLev = SGS%nLev
 
+      CALL DCOPY_(NG1,[Zero],0,G1,1)
+      CALL DCOPY_(NG2,[Zero],0,G2,1)
+      CALL DCOPY_(NG3,[Zero],0,G3,1)
+      CALL DCOPY_(NG1,[Zero],0,F1,1)
+      CALL DCOPY_(NG2,[Zero],0,F2,1)
+      CALL DCOPY_(NG3,[Zero],0,F3,1)
 
-      CALL DCOPY_(NG1,[0.0D0],0,G1,1)
-      CALL DCOPY_(NG2,[0.0D0],0,G2,1)
-      CALL DCOPY_(NG3,[0.0D0],0,G3,1)
-      CALL DCOPY_(NG1,[0.0D0],0,F1,1)
-      CALL DCOPY_(NG2,[0.0D0],0,F2,1)
-      CALL DCOPY_(NG3,[0.0D0],0,F3,1)
-
-      ESUM=0.0D0
+      ESUM=Zero
       DO I=1,NLEV
         ESUM=ESUM+ETA(I)
       END DO
 C ISCF=1 for closed-shell, =2 for hispin
-      OCC=2.0D0
-      IF(ISCF.EQ.2) OCC=1.0D0
+      OCC=Two
+      IF(ISCF.EQ.2) OCC=One
       DO IT=1,NASHT
         G1(IT,IT)=OCC
         LT=LEVEL(IT)
@@ -56,7 +63,7 @@ C ISCF=1 for closed-shell, =2 for hispin
 
       IF(NACTEL.EQ.1) THEN
         NG3=0
-        GOTO 999
+        Return
       END IF
 
       DO IT=1,NASHT
@@ -76,7 +83,7 @@ C ISCF=1 for closed-shell, =2 for hispin
 
       IF(NACTEL.EQ.2) THEN
         NG3=0
-        GOTO 999
+        Return
       END IF
 
       NLEV2=NLEV**2
@@ -87,15 +94,17 @@ C ISCF=1 for closed-shell, =2 for hispin
 C SVC20100908 initialize the series of tasks
       Call Init_Tsk(ID, nTask)
 
- 500  CONTINUE
+      Outer : Do
 #ifdef _MOLCAS_MPP_
-      IF ((NG3-iG3).LT.NLEV2) GOTO 501
+      IF ((NG3-iG3).LT.NLEV2) Exit Outer
 #endif
- 502  IF (.NOT.Rsv_Tsk(ID,iTask)) GOTO 501
 
-      IND1=MOD(iTask-1,NLEV2)+1
-      IND2=((iTask-IND1)/(NLEV2))+1
-      IF(IND2.GT.IND1) GOTO 502
+      Inner : Do
+         IF (.NOT.Rsv_Tsk(ID,iTask)) Exit Outer
+         IND1=MOD(iTask-1,NLEV2)+1
+         IND2=((iTask-IND1)/(NLEV2))+1
+         IF(IND2<=IND1) Exit Inner
+      End Do Inner
 
       IT1=MOD(IND1-1,NASHT)+1
       IU1=(IND1-IT1)/NASHT+1
@@ -107,7 +116,7 @@ C SVC20100908 initialize the series of tasks
       DO IT3=1,NLEV
        DO IU3=1,NLEV
         IND3=IT3+NASHT*(IU3-1)
-        IF(IND3.GT.IND2) GOTO 198
+        IF(IND3.GT.IND2) Cycle
         LU3=LEVEL(IU3)
         VAL=G1(IT1,IU1)*G1(IT2,IU2)*G1(IT3,IU3)
 
@@ -146,7 +155,6 @@ C VAL is now =<PSI1|E(IT1,IU1,IT2,IU2,IT3,IU3)|PSI2>
         G3(iG3)=VAL
         F3(iG3)=(ESUM*OCC-ETA(LU1)-ETA(LU2)-ETA(LU3))*VAL
 
- 198    CONTINUE
         END DO
       END DO
 
@@ -155,15 +163,11 @@ C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
 
-      GO TO 500
- 501  CONTINUE
+      End Do Outer
 
 C SVC2010: no more tasks, wait here for the others.
       CALL Free_Tsk(ID)
 
       NG3=iG3
 
- 999  CONTINUE
-
-      RETURN
-      END
+      END SUBROUTINE SPECIAL
