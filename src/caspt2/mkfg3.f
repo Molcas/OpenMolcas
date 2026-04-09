@@ -63,9 +63,9 @@ C>                   to active indices
       use PrintLevel, only: debug, verbose
       use gugx, only: CIS, SGS, L2ACT, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
+      use SysDef, only: RtoB
       IMPLICIT NONE
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "pt2_guga.fh"
 
 

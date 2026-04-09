@@ -10,29 +10,22 @@
 ************************************************************************
       Subroutine Pos_QLast(Disc)
       use TList_Mod
+      use SysDef, only: RtoI
       Implicit Real*8 (a-h,o-z)
       Integer iWR(2)
       Real*8 Dummy(1)
-      Logical Copy,NoCopy
-#include "SysDef.fh"
-
-      Data Copy/.True./, NoCopy/.False./
+      Logical :: Copy=.True., NoCopy=.False.
 *
       if(.NOT.Allocated(TskQ)) return
 
-c     Write (*,'(A,4I9)') 'iTCnSt_c,nTasks,iTskCan=',
-c    &                     iTCnSt_c,nTasks,iTskCan
-c     Call RecPrt('TskQ',' ',TskQ,2,nTasks)
       Quad_ijkl  =TskQ(1,iTskCan)
       RST_triplet=TskQ(2,iTskCan)
       If (Quad_ijkl.eq.Not_Used) Return
 *
 *---- If already at the right position return
 *
-c     Write (*,*) 'Pos_QLast: Going for ',Quad_ijkl,RST_triplet
       If (Quad_ijkl.eq.QLast(1) .and.
      &    RST_triplet.eq.QLast(2)) Return
-c     Write (*,*) 'Pos_QLast: Didn''t find tail ...'
 *
  1111 Continue
 c     Call Diskat
@@ -43,15 +36,10 @@ c     Call Diskat
      &    QLast(2).eq.RST_triplet) Then
          If (mInts.gt.0) Call dRBuf(Dummy,mInts,NoCopy)
          Disc = Disc + DBLE(2/RtoI + 2 + mInts)
-c        Write (*,*) 'Pos_QLast: found tail @ ',QLast
-c        Write (*,*)
-c        Call XFlush(6)
          Return
       Else If (QLast(1).le.Quad_ijkl ) Then
          If (mInts.gt.0) Call dRBuf(Dummy,mInts,NoCopy)
          Disc = Disc + DBLE(2/RtoI + 2 + mInts)
-c        Write (*,*) 'Pos_QLast: skipping ',Q
-c        Call XFlush(6)
          Go To 1111
       Else
          Write (6,*) 'Pos_QLast: batch is lost!'
@@ -61,10 +49,10 @@ c        Call XFlush(6)
          Call RecPrt('TskQ',' ',TskQ,2,iTskCan)
          Write (6,*)
          Call XFlush(6)
-         Call Abend
+         Call Abend()
       End If
 *
       Write (6,*) 'Pos_QLast: Fatal problem!'
       Call XFlush(6)
       Call Abend
-      End
+      End Subroutine Pos_QLast

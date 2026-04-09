@@ -71,6 +71,7 @@ set (sources
      sysvaluewarnmsg.F90
      syswarnfilemsg.F90
      syswarnmsg.F90
+     SysDef.F90
      timing.F90
      timingc.c
      unixinfo.F90
@@ -99,6 +100,7 @@ set (modfile_list
      fortran_strings.F90
      para_info.F90
      printlevel.F90
+     SysDef.F90
      unixinfo.F90
 )
 

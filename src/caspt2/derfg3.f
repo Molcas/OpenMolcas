@@ -25,9 +25,9 @@
       use gugx, only: CIS, L2ACT, SGS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
+      use SysDef, only: RtoB
       IMPLICIT NONE
 #include "caspt2.fh"
-#include "SysDef.fh"
 #include "pt2_guga.fh"
 
       LOGICAL, External:: RSV_TSK
