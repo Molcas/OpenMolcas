@@ -29,7 +29,7 @@ use Constants, only: Zero, One, Pi
 use Definitions, only: wp, iwp, u6
 use Molcas, only: LenIn
 use Localisation_globals, only: Thrs,ThrGrad, Silent, nMxIter, OptMeth, ChargeType, FuncList, GradList, DispList,&
-                                UmatList,ThrStep
+                                UmatList,ThrStep, GEKThr_Kappa, GEKThr_Grad, SOFact, bias
 #ifdef _GETMOLDEN_
 use filesystem, only: getcwd_, mkdir_
 #endif
@@ -58,10 +58,6 @@ character(len=6):: UpMeth
 integer(kind=iwp) :: IterGEK,large_elements
 
 real(kind=wp) :: DD,Thr
-!real(kind=wp),parameter :: gekthr_kappa=0.1_wp, gekthr_grad=0.1_wp
-!real(kind=wp),parameter :: gekthr_kappa=0.010_wp, gekthr_grad=1.0_wp
-real(kind=wp),parameter :: gekthr_kappa=0.010_wp
-real(kind=wp) :: gekthr_grad
 
 #ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
@@ -70,7 +66,13 @@ character(len=8) :: fmt
 character(len=4) :: x1
 #endif
 
-gekthr_grad = 0.01_wp
+if (OptMeth == 4 .or. OptMeth == 5) then
+    write(u6,*) "doing GEK Opt with:"
+    write(u6,*) "GEKThrKappa =",GEKThr_Kappa
+    write(u6,*) "GEKThrGrad  =",GEKThr_Grad
+    write(u6,*) "SOFact      =",SOFact
+    write(u6,*) "bias        =",bias
+end if
 
 # ifdef _GETMOLDEN_
 

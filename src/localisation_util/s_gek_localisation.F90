@@ -26,7 +26,7 @@ use Constants, only: Pi
 #endif
 
 use Definitions, only: u6
-use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,UmatList
+use Localisation_globals, only: Loosen,OptMeth,FuncList,GradList,DispList,UmatList,bias,SOFact
 
 implicit none
 
@@ -36,12 +36,11 @@ integer(kind=iwp), intent(inout) :: IterGEK
 real(kind=wp),intent(in) :: Hdiag(fsdim)
 real(kind=wp), intent(inout) :: dqdq,dq(fsdim)
 integer(kind=iwp) :: iFirst,i,j,k,l,nExplicit,mDiis, iLast
-real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, SOFact,dq_NR(fsdim)
+real(kind=wp) :: gg,Cpu1,Cpu2, Tim1, Tim2, Tim3, norm,thr, dq_NR(fsdim)
 real(kind=wp), allocatable :: coords(:,:),grads(:,:),Aux_1(:),Aux_2(:),e_diis(:,:),q_diis(:,:),g_diis(:,:),H_diis(:,:),dq_diis(:),&
                               w(:,:),D(:,:),UmatProd(:,:),xUmatProd(:,:),Umat_i(:,:),disp_summed(:),kappa_summed(:,:),&
                               UmatKsum(:,:)
 integer(kind=iwp), parameter :: nWindow = 20, Max_IterGEK = 50, minDP = 1
-real(kind=wp),parameter :: bias = 100.0_wp
 real(kind=wp), External :: DDot_
 character(len=6),intent(out) :: UpMeth
 logical, intent(in) :: SORange
@@ -314,12 +313,11 @@ dq_diis(:) = Zero
 ! build the surrogate model & perform the optimization
 ! ----------------------------------------------------
 dq_NR(:) = dq(:)
-if (SORange) then
-  !SOFact = 1000.0_wp
-  SOFact = One
-else
-  SOFact = 10000000.0_wp
-end if
+!if (SORange) then
+!  SOFact = One
+!else
+!  SOFact = 10000000.0_wp
+!end if
 !write(u6,*) "call GEK_Optimizer"
 
 
