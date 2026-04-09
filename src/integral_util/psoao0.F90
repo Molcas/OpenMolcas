@@ -66,14 +66,15 @@ integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBs
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 ! Variable for the use for the optional handling of the 2-particle density matrix in PGet0 in the case of the computation
 ! of Breit-Pauli integrals.
-integer(kind=iwp) :: nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4)
+integer(kind=iwp) :: nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4), iAngV(4)
 integer(kind=iwp), external:: MemTra
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Compute memory request for the primitives, i.e.
 ! how much memory is needed up to the transfer equation.
-call MemRys(iSD4(1,:),MemPrm)
+iAngV(:)=iSD4(1,:)
+call MemRys(iAngV(:),MemPrm)
 
 iFnc(:)=0
 
