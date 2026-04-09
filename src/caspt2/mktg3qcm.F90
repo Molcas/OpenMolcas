@@ -24,8 +24,6 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
 
   implicit none
 
-! #include "pt2_guga.fh"
-
   ! state 1: bra
   ! state 2: ket
   Integer(kind=iwp), intent(in)  :: lsym1, lsym2, state1, state2, ntg3

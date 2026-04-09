@@ -24,7 +24,6 @@
 *
       IMPLICIT NONE
 *
-#include "pt2_guga.fh"
 *
       INTEGER, INTENT(IN) :: IFF
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)

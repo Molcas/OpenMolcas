@@ -15,9 +15,9 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, nProcs, MyRank
 #endif
+      use pt2_guga
       IMPLICIT REAL*8 (a-h,o-z)
 
-#include "pt2_guga.fh"
       INTEGER LSYM1, LSYM2
       REAL*8  CI1(MXCI),CI2(MXCI)
       REAL*8  OVL

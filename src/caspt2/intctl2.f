@@ -17,7 +17,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nBTri
       IMPLICIT None
-#include "pt2_guga.fh"
       LOGICAL IF_TRNSF
 
       Real*8, Allocatable:: FFAO(:), FIAO(:), FAAO(:)

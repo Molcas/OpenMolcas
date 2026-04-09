@@ -18,9 +18,8 @@
       Subroutine mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
       use gugx, only: SGS
       use caspt2_module, only: jState, nActel, Mul, EPSA, mState
+      use pt2_guga
       IMPLICIT NONE
-
-#include "pt2_guga.fh"
 
       INTEGER, INTENT(IN) :: IFF, NLEV
       REAL*8, INTENT(OUT) :: G1(NLEV,NLEV),G2(NLEV,NLEV,NLEV,NLEV)

@@ -112,9 +112,8 @@ C usually print info on the total number of parameters
      &                         ThrShn, ThrShs, nASup, nISup, Cases,
      &                         nInDep
 
+      use pt2_guga, only: nG3
       IMPLICIT None
-
-#include "pt2_guga.fh"
 
       integer(kind=iwp), Intent(in):: iSym, iCase
       real(kind=wp), Intent(out):: CondNr, CPU

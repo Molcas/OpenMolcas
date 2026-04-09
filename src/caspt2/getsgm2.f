@@ -19,9 +19,9 @@
       SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
       use Symmetry_Info, only: Mul
       use gugx, only:  SGS, CIS, EXS
+      use pt2_guga, only: MxCI
       IMPLICIT None
 
-#include "pt2_guga.fh"
 
       Integer :: ILEV, JLEV, ISYCI
       Real*8, Intent(In) ::  CI(MXCI)

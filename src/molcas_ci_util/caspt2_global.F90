@@ -64,11 +64,11 @@ use caspt2_module, only: jState, mState, nActel
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use pt2_guga, only: nG3
 
 implicit none
 private
 
-#include "pt2_guga.fh"
 public :: jState, mState, nActEl, nG3
 
 integer(kind=iwp), parameter :: iVecG = 8, iVecL = 7

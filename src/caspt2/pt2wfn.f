@@ -44,7 +44,6 @@
 #endif
       use caspt2_module, only: MxAct
       implicit none
-#include "pt2_guga.fh"
 #ifdef _HDF5_
 
       integer :: dsetid, ndmat, i

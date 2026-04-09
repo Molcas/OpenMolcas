@@ -40,9 +40,9 @@
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "pt2_guga.fh"
       DIMENSION DMAT(*),UEFF(nState,nState),U0(nState,nState)
       Dimension VECROT(nState)
       real(kind=wp),allocatable :: DPT(:),DSUM(:),DPT2(:),DPT2_AO(:),

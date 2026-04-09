@@ -234,8 +234,7 @@ subroutine refwfn_data()
   use caspt2_module, only: RefEne, DMRG, DoCumulant, IEOF1M, IFQCAN, ISCF, MxAct, MxIter, &
                            MXRoot, nBSqt, nConf, nRoots, nState, OrbIn, iAd1m, mState
 
-# include "pt2_guga.fh"
-
+  implicit none
   integer(kind=iwp) :: I, IAD15, II, IDISK, ID, IAD, NEJOB, IT, NMAYBE, ISNUM
   real(kind=wp) :: Root_Energies(mxRoot), AEMAX, E
   real(kind=wp), allocatable :: tmp(:), ejob(:,:)

@@ -23,10 +23,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nState, IfChol, iSCF, nAshT, nConf,
      &                         STSym, iAd1m, mState
+      use pt2_guga, only: CIThr
 
       implicit none
-
-#include "pt2_guga.fh"
 
       Real(kind=wp),intent(inout) :: Heff(Nstate,Nstate)
       Real(kind=wp),intent(inout) :: H0(Nstate,Nstate)

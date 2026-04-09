@@ -24,10 +24,9 @@ C
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
       use caspt2_module
+      use pt2_guga
 C
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "pt2_guga.fh"
 C
       character(len=128) :: FileName
       character(len=4096) :: RealName

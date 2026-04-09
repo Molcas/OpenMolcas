@@ -50,7 +50,6 @@ subroutine prinp_caspt2()
 #endif
   implicit none
 
-#include "pt2_guga.fh"
 
   integer(kind=iwp)  :: i,iSym,left,lLine,lPaper
   character(len=8)   :: fmt1, fmt2

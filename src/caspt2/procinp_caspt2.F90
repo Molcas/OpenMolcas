@@ -45,9 +45,9 @@ subroutine procinp_caspt2
                            IFMSCoup, IfMix, IfDW, IfDOrtho, IfDens, IfChol, ieoF1m, HZero, G1SECIN, FockType,     &
                            DWType, DoCumulant, BTrans, BSpect, BMatrix, DMRG
 
+      use pt2_guga, only: CIThr
   implicit none
 
-#include "pt2_guga.fh"
 
   integer(kind=iwp) :: iDummy
 

@@ -19,6 +19,7 @@
       SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3)
       use gugx, only: SGS, LEVEL
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
       DIMENSION F1(NASHT,NASHT),F2(NASHT,NASHT,NASHT,NASHT),F3(*)
@@ -27,7 +28,6 @@
       PARAMETER (I1=KIND(idxG3))
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
       Integer :: nLev

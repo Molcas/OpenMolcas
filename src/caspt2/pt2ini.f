@@ -33,7 +33,6 @@
      &                         nOTri, nBasT, nBSqT, nSsh, nState,
      &                         nUniqAT
       IMPLICIT NONE
-#include "pt2_guga.fh"
 #include "compiler_features.h"
 
       INTEGER LuSpool

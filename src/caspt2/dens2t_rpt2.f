@@ -25,9 +25,9 @@
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: iSCF, nActEl, nAshT, nConf, STSym, Mul
+      use pt2_guga, only: MxCI, nG1, nG2
       IMPLICIT NONE
 
-#include "pt2_guga.fh"
 
       LOGICAL RSV_TSK
       Integer, Intent(In):: nLev
@@ -88,7 +88,7 @@ c Special code for closed-shell:
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.fh
+* Translation tables L2ACT and LEVEL, in pt2_guga.F90
 
 C-SVC20100311: set up a task table with LT,LU
       nTasks=(nLev**2+nLev)/2

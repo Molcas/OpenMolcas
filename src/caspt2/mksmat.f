@@ -24,9 +24,9 @@
       use caspt2_global, only: LUSOLV, LUSBT
       use EQSOLV
       use caspt2_module
+      use pt2_guga
       IMPLICIT REAL*8 (A-H,O-Z)
 C     Set up S matrices for cases 1..13.
-#include "pt2_guga.fh"
       REAL*8 DUM(1)
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 
