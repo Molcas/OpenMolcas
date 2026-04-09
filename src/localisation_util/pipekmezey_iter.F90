@@ -61,9 +61,6 @@ real(kind=wp) :: DD,Thr
 !real(kind=wp),parameter :: gekthr_kappa=0.1_wp, gekthr_grad=0.1_wp
 real(kind=wp),parameter :: gekthr_kappa=0.010_wp, gekthr_grad=1.0_wp
 
-#ifdef _DEBUGPRINT_
-real(kind=wp) :: CtS(nOrb2Loc,nBasis),CtSC(nOrb2Loc,nOrb2Loc)
-#endif
 #ifdef _GETMOLDEN_
 character(len=1024) :: Sub, WorkDir, NewDir, SubmitDir, imfile
 integer(kind=iwp) :: rc
