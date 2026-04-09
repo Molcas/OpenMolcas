@@ -9,16 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module EQSOLV
-INTEGER, PARAMETER, Private:: MXCASE=13
-INTEGER, PARAMETER :: MXVEC=6, MXBLK=40*256*256
+use definitions, only: iwp
+INTEGER(kind=iwp), PARAMETER, Private:: MXCASE=13
+INTEGER(kind=iwp), PARAMETER :: MXVEC=6, MXBLK=40*256*256
 
-INTEGER IDSMAT(8,MXCASE),IDBMAT(8,MXCASE),IDTMAT(8,MXCASE),           &
-        IDSTMAT(8,MXCASE),MODVEC(8,MXCASE),NLIST(8,8,17),             &
-        LLIST(8,8,17),NLSTOT, MXSCT
+INTEGER(kind=iwp) IDSMAT(8,MXCASE),IDBMAT(8,MXCASE),IDTMAT(8,MXCASE),           &
+                  IDSTMAT(8,MXCASE),MODVEC(8,MXCASE),NLIST(8,8,17),             &
+                  LLIST(8,8,17),NLSTOT, MXSCT
 
-INTEGER IRHS,IVECX,IVECR,IVECC,IVECC2,IVECW
+INTEGER(kind=iwp) IRHS,IVECX,IVECR,IVECC,IVECC2,IVECW
 
-INTEGER :: IFCOUP(MXCASE,MXCASE)=reshape(                                 &
+INTEGER(kind=iwp) :: IFCOUP(MXCASE,MXCASE)=reshape(                       &
                                  [0, 1, 2, 0, 3, 4, 5, 0, 0, 0, 0, 0, 0,  &
                                   0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0,  &
                                   0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0,  &

@@ -16,11 +16,12 @@
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_ga, only: GA_arrays, Allocate_GA_Array
+      use definitions, only: iwp
       IMPLICIT None
 CSVC2010: create square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, create
 C tridiagonal local array at Work(lg_M)
-      Integer lg_M, nSize
+      Integer(kind=iwp) lg_M, nSize
       CHARACTER(len=*) cNAME
 
       Integer nTri
@@ -45,16 +46,17 @@ C tridiagonal local array at Work(lg_M)
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_ga, only: Deallocate_GA_Array
+      use definitions, only: iwp
       IMPLICIT NONE
 CSVC2010: destroy square global array S/B for symmetry iSYM
 C with integer handle lg_M or if replicate or serial, free the
 C tridiagonal local array at Work(lg_M)
-      Integer lg_M
+      Integer(kind=iwp) lg_M
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      LOGICAL bStat
+      LOGICAL(kind=iwp) bStat
 #endif
 
 
@@ -81,17 +83,18 @@ C or if replicate or serial, write WORK(lg_M) to LUSBT
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
       use fake_ga, only: GA_arrays
+      use definitions, only: iwp
       implicit none
-      Integer iCase, iSym, lg_M, nSize
+      Integer(kind=iwp) iCase, iSym, lg_M, nSize
       CHARACTER(LEN=*) cNAME
 
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      Integer LU, myRank, ISTA,IEND,JSTA,JEND, mpt_M, LDM
+      Integer(kind=iwp) LU, myRank, ISTA,IEND,JSTA,JEND, mpt_M, LDM
 #endif
-      Integer IDISK, nBlock
+      Integer(kind=iwp) IDISK, nBlock
 
 
       IF (CNAME.EQ.'S') THEN
@@ -152,16 +155,17 @@ C LUSBT into WORK(lg_M)
       use caspt2_global, only: LUSBT
       use EQSOLV, only: IDSMAT, IDBMAT, IDTMAT, IDSTMAT
       use fake_ga, only: GA_arrays
+      use definitions, only: iwp
       IMPLICIT None
-      INTEGER iCASE,iSym,lg_M,nSize
+      INTEGER(kind=iwp) iCASE,iSym,lg_M,nSize
       CHARACTER(LEN=*) cNAME
 
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-      INTEGER LU, myRank, iSTA, IEND, JSTA, JEND, mpt_M, LDM
+      INTEGER(kind=iwp) LU, myRank, iSTA, IEND, JSTA, JEND, mpt_M, LDM
 #endif
-      INTEGER IDISK, nBlock
+      INTEGER(kind=iwp) IDISK, nBlock
 
 
       IF (CNAME.EQ.'S') THEN
@@ -211,16 +215,18 @@ C LUSBT into WORK(lg_M)
 
       END SUBROUTINE PSBMAT_READ
 
-      REAL*8 FUNCTION PSBMAT_FPRINT(lg_M,NM)
+      FUNCTION PSBMAT_FPRINT(lg_M,NM)
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
       use fake_ga, only: GA_arrays
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER lg_M, NM
+      real(kind=wp) PSBMAT_FPRINT
+      INTEGER(kind=iwp) lg_M, NM
 
-      INTEGER nTri
-      REAL*8, External::DNRM2_
+      INTEGER(kind=iwp) nTri
+      REAL(kind=wp), External::DNRM2_
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"

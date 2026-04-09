@@ -15,14 +15,16 @@
 **
       subroutine eigen(A,U,N)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp
       implicit None
 
-      integer N
-      real(8) A(N,N)
-      real(8) U(N,N)
+      integer(kind=iwp) N
+      real(kind=wp) A(N,N)
+      real(kind=wp) U(N,N)
 
-      integer:: NSCR, IJ, I, J
-      real(8), allocatable:: SCR(:)
+      integer(kind=iwp):: NSCR, IJ, I, J
+      real(kind=wp), allocatable:: SCR(:)
 
 
 
@@ -38,8 +40,8 @@
       end do
 
 * Initialize U as the identity matrix
-      U=0.0d0
-      call dcopy_(N,[1.0D0],0,U,N+1)
+      U(:,:)=Zero
+      call dcopy_(N,[One],0,U,N+1)
 
 * Call Jacobi algorithm
       call JACOB(SCR,U,N,N)
