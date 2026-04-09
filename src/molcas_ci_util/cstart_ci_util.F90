@@ -48,6 +48,7 @@ use csfbas, only: CONF
 use lucia_data, only: CFTP
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
 use general_data, only: JOBIPH, JOBOLD, LUDAVID, NACTEL, NCONF, NSEL, STSYM
+use gas_data, only: iDoGas
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 use general_data, only: STARTORBFILE
@@ -130,7 +131,11 @@ if (Start_Vectors) then
         call mma_allocate(vkcnf,nactel,label='kcnf')
         do i=1,lRoots
           call mh5_fetch_dset(mh5id,'CI_VECTORS',Tmp1,[nconf,1],[0,i-1])
-          call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
+          if (.not. iDoGas) then
+            call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
+          else
+            C(1:nConf) = Tmp1(1:nConf)
+          end if
           call Save_CI_vec(i,nConf,C,LuDavid)
         end do
         call mma_deallocate(Tmp1)
@@ -169,7 +174,11 @@ if (Start_Vectors) then
       call mma_allocate(vkcnf,nactel,label='kcnf')
       do i=1,lRoots
         call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
-        call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
+        if (.not. iDoGas) then
+          call Reord2(NAC,NACTEL,STSYM,1,CONF,CFTP,Tmp1,C,vkcnf)
+        else
+          C(1:nConf) = Tmp1(1:nConf)
+        end if
         call Save_CI_vec(i,nConf,C,LuDavid)
         if (IPRLEV >= INSANE) then
           write(String,'(A,I2)') 'Start vector of root',i
