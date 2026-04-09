@@ -589,12 +589,14 @@ C
      &                  DoFNO, EOSMP2, ForceBatch, l_Dii, MxQual_Def,
      &                  MxQualMP2, OED_Thr, set_cd_thr, shf, SOS_mp2,
      &                  Span_Def, SpanMP2, ThrMP2, Verbose
-      Implicit REAL*8 (A-H,O-Z)
-      Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-      Logical isFNO
-C
-#include "corbinf.fh"
-C
+      use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
+      Implicit none
+      Integer, intent(in) :: mSym
+      Integer, intent(in) :: lnOrb(8), lnOcc(8), lnFro(8), lnDel(8),
+     &                    lnVir(8)
+      Logical, intent(in) ::  isFNO
+
+      Integer iSym
 C
       nSym = mSym
 C

@@ -17,12 +17,12 @@ use MBPT2_Global, only: CMO, EOcc, EVir, mAdOcc, mAdVir, nBas
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
+use cOrbInf, only: nSym, nOrb, nDel, nOcc, nFro, nExt
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-#include "corbinf.fh"
 real(kind=wp), intent(_OUT_) :: Int1(*), Int2(*), Int1_2(*), Int2_2(*), Scr1(*)
 integer(kind=iwp) :: i, iA, iAdrBin, iAdrGam, iAdrRdBin, iB, iBB, iBin, iBinLength, iBinSize, iBlock, iI, iIA, iJ, iJJ, iKap, &
                      iLam, iLamKap1, iLamKap2, iLastAdr, iLen, iMaxBas, iMaxBasProd, iMaxOccVir, iMemAvail, iMemNeeded, iMu, &

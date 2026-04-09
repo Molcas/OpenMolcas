@@ -16,10 +16,10 @@ subroutine FnoSCF_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir)
 
 use ChoMP2, only: DoFNO, l_Dii
 use Definitions, only: iwp
+use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 integer(kind=iwp), intent(in) :: mSym, lnOrb(mSym), lnOcc(mSym), lnFro(mSym), lnDel(mSym), lnVir(mSym)
-#include "corbinf.fh"
 
 nSym = mSym
 
@@ -31,7 +31,5 @@ nExt(1:nSym) = lnVir(:)
 
 DoFNO = .true.
 l_Dii = sum(nOcc(:))
-
-return
 
 end subroutine FnoSCF_putInf

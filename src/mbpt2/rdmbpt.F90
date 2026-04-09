@@ -35,6 +35,7 @@ use MBPT2_Global, only: CMO, CMO_Internal, EOrb, nBas, nDsto, nnB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 integer(kind=iwp) :: i, iLen, iStart, iStart_t, iSym, lthCMO, lthEOr
@@ -42,7 +43,6 @@ logical(kind=iwp) :: Found
 character(len=24) :: Label
 real(kind=wp), allocatable :: CMO_t(:), EOrb_t(:)
 logical(kind=iwp), parameter :: Debug = .false.
-#include "corbinf.fh"
 
 ! Read nSym, nBas, nOrb, nOcc, nFro, CMO and orbital energies from RUNFILE
 

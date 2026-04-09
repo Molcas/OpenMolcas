@@ -50,6 +50,7 @@ use trafo, only: IADOUT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use cOrbInf, only: nSym, nOrb, nFro, nOcc, nDel, nExt
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
@@ -62,7 +63,6 @@ logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: Cho_X_GetTol
 real(kind=wp), external :: ddot_, Seconds
 #include "Molcas.fh"
-#include "corbinf.fh"
 
 !                                                                      *
 !***********************************************************************

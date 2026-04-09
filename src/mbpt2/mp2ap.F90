@@ -16,6 +16,7 @@ use MBPT2_Global, only: EOcc, EVir, iPoVec, mAdDel, mAdFro, mAdOcc, mAdVir
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Four, Half
 use Definitions, only: wp, iwp
+use cOrbInf, only: nSym, nOrb, nDel, nOcc, nFro, nExt
 
 implicit none
 integer(kind=iwp), intent(in) :: iSymIA, iSymJB
@@ -24,7 +25,6 @@ real(kind=wp), intent(in) :: P(*)
 integer(kind=iwp) :: iA, iB, iI, iJ, index1, index2, iSym1, iSym2, nB, nJ, nMaxOrb
 real(kind=wp) :: E_a, E_i, Ediff, Fac, xiajb, xibja, xijab
 real(kind=wp), allocatable :: Int1(:), Int2(:), IntC(:), Scr1(:)
-#include "corbinf.fh"
 
 nMaxOrb = 0
 do iSym1=1,nSym

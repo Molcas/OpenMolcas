@@ -18,11 +18,10 @@ subroutine ChoMP2_GetInf(lnOrb,lnOcc,lnFro,lnDel,lnVir)
 ! Purpose: get info from conventional MP2 common blocks.
 
 use Definitions, only: iwp
+use cOrbInf, only: nSym, nOrb, nOcc, nFro, nDel, nExt
 
 implicit none
 integer(kind=iwp), intent(out) :: lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
-#include "corbinf.fh"
-
 lnOrb(1:nSym) = nOrb(1:nSym)
 lnOcc(1:nSym) = nOcc(1:nSym)
 lnFro(1:nSym) = nFro(1:nSym)
