@@ -26,7 +26,7 @@ except ImportError:
 from os import environ, access, W_OK, X_OK, listdir, remove, rmdir, getpid, getcwd, makedirs, symlink, devnull
 from os.path import isfile, isdir, isabs, join, basename, splitext, getmtime, abspath, exists, relpath, realpath
 from datetime import datetime
-from shutil import copy2, move, Error
+from shutil import copy2, move, copytree, Error
 from subprocess import check_output, STDOUT, CalledProcessError
 from re import compile as re_compile, search, sub, MULTILINE, IGNORECASE
 from io import BytesIO
@@ -91,6 +91,8 @@ hcbanner = '''#
 # MOLCAS_TIME
 # MOLCAS_UNIX_SECURE
 # MOLCAS_ZOMBIE
+
+
 
 class MolcasException(Exception):
   pass
@@ -915,7 +917,7 @@ class Molcas_wrapper(object):
         if (not isabs(dest)):
           dest = join(self.scratch, dest)
         try:
-          copy2(orig, dest)
+          _copy_any(orig, dest)
         # would use SameFileError, but that's only available since python 3.4,
         # so use this workaround
         except Error as e:
@@ -1031,6 +1033,18 @@ _rc_match = re_compile(r'\$(\w+)\s*=\s*(\d+)\s*;')
 _emil_newln = re_compile(r'[ \t]*[=][ \t]*')
 _emil_leadb = re_compile(r'^[ \t]*', flags=MULTILINE)
 _emil_endofinput = re_compile(r'^end\s*of\s*input', flags=MULTILINE|IGNORECASE)
+
+def _copy_any(src, dest):
+  """ Copies either file or directory from src to dest. """
+  if isfile(src):
+    copy2(src, dest)
+  elif isdir(src):
+    # append src name such that dir is copied to subdirectory with same name
+    if basename(dest) != basename(src):
+      dest = join(dest, basename(src))
+    copytree(src, dest)
+  else:
+    raise ValueError(f"Source {src} is neither a file nor a directory.")
 
 # TODO: custom .prgm, gracefully fail
 def parse_prgm(prgm_file):
@@ -1206,7 +1220,7 @@ class Molcas_module(object):
       return
     files_to_copy = sorted([(k,v[0]) for (k,v) in self._files.items() if 's' in v[1]])
     files_to_move = sorted([(k,v[0]) for (k,v) in self._files.items() if 'm' in v[1]])
-    files = self._copy_or_move(copy2, dest, files_to_copy)
+    files = self._copy_or_move(_copy_any, dest, files_to_copy)
     files.extend(self._copy_or_move(move, dest, files_to_move))
     if (len(files) > 0):
       listfiles = ' '.join(files)

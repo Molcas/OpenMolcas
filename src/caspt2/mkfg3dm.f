@@ -34,7 +34,7 @@ C
 
 #include "compiler_features.h"
 
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined _DMRG_
       SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
@@ -514,8 +514,15 @@ C
       Call mma_deallocate(G3TMP)
 #endif
 
+! TODO: @kszenes: this should be wrapped in an if statement
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Call mkfg3chemps2(IFF,NLEV,G1,F1,G2,F2,G3,F3,idxG3)
+#endif
+
+#ifdef _DMRG_
+      if (DMRG) then
+        call mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
+      endif
 #endif
 
       IF(iPrGlb.GE.DEBUG) THEN

@@ -161,13 +161,13 @@ subroutine refwfn_info()
     call mma_deallocate(typestring)
     ! Leon 14/6/2017 -- do not read CI vectors if NEVPT2 is attempted
     ! because for now we only support DMRG-NEVPT2
-    if (ProgName(1:6) == 'caspt2') then
-      if (.not. mh5_exists_dset(refwfn_id,'CI_VECTORS')) then
-        write(u6,'(1X,A)') 'The HDF5 file does not contain CI vectors,'
-        write(u6,'(1X,A)') 'make sure it was created by rasscf/caspt2.'
-        call AbEnd()
-      end if
-    end if
+    ! if (ProgName(1:6) == 'caspt2') then
+    !   if (.not. mh5_exists_dset(refwfn_id,'CI_VECTORS')) then
+    !     write(u6,'(1X,A)') 'The HDF5 file does not contain CI vectors,'
+    !     write(u6,'(1X,A)') 'make sure it was created by rasscf/caspt2.'
+    !     call AbEnd()
+    !   end if
+    ! end if
     if (.not. mh5_exists_dset(refwfn_id,'MO_VECTORS')) then
       write(u6,'(1X,A)') 'The HDF5 file does not contain MO vectors,'
       write(u6,'(1X,A)') 'make sure it was created by rasscf/caspt2/nevpt2.'
@@ -275,7 +275,15 @@ subroutine refwfn_data()
 #       ifdef _HDF5_
         if (refwfn_is_h5) then
           !---  Read the CI coefficients from the HDF5 file
-          call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tmp,[nconf,1],[0,ISNUM-1])
+          if (.not. DMRG) then
+            call mh5_fetch_dset(refwfn_id,'CI_VECTORS',tmp,[nconf,1],[0,ISNUM-1])
+          else
+            ! if this is a DMRG calculation we fake the CI array,
+            ! for each state we store a CI array of one element
+            ! on LUCIEX with a 1.0 inside
+            tmp(1) = 1.0_wp
+            call DDAFILE(LUCIEX,1,tmp,NCONF,ID)
+          end if
         else
 #       endif
           !---  Read the CI coefficients from the JOBIPH file
@@ -305,7 +313,7 @@ subroutine refwfn_data()
     else
       ! If this is Closed-shell or Hi-spin SCF case
       ! Just in case...
-      if (.not. DoCumulant .and. (NSTATE /= 1 .or. NCONF /= 1)) then
+      if (.not. DoCumulant .and. (NSTATE /= 1 .or. NCONF /= 1) .and. (.not. DMRG)) then
         write(u6,*) ' readin_caspt2: A Closed-shell or Hi-spin SCF'
         write(u6,*) ' but nr of states is: NSTATE=',NSTATE
         write(u6,*) ' and nr of CSFs is    NCONF= ',NCONF

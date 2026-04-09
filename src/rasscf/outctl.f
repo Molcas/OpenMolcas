@@ -47,7 +47,7 @@
      &                         Tot_El_Charge, Tot_Nuc_Charge, via_DFT,
      &                         iRoot, Weight, iCI, cCI, ixSym, iADR15,
      &                         Ener
-#if defined (_ENABLE_CHEMPS2_DMRG_) || defined (_DMRG_)
+#if defined (_ENABLE_CHEMPS2_DMRG_)
       use rasscf_global, only: ThrE
 #endif
 
@@ -100,9 +100,6 @@
 *      DIMENSION NXSYM(mxOrb),nUND(mxOrb)
 
       Integer, External :: Cho_X_GetTol
-#ifdef _DMRG_
-      character(len=100) :: dmrg_start_guess
-#endif
       Real*8 Dum(1)
       Integer iDum(56)
 
@@ -293,26 +290,8 @@ C Local print level (if any)
  113  Continue
 #endif
 
-      Line=''
-      if(doDMRG)then ! yingjin - dmrg output
-        Write(Line(left-2:),'(A)') 'DMRG specifications:'
-        Call CollapseOutput(1,Line)
-        Write(LF,Fmt2//'A)')'----------------------------'
-        Write(LF,*)
-#ifdef _DMRG_
-       if(dmrg_warmup%docideas .and. nsym > 1)then
-          Write(LF,*) ' CI-DEAS decativated for point group symmetry'//
-     &                ' other than C1'
-          dmrg_warmup%docideas = .false.
-       end if
-       if(dmrg_orbital_space%initial_occ(1,1) > 0)then
-         dmrg_start_guess = "Single determinant"
-       else
-         dmrg_start_guess = "Random numbers (default)"
-       end if
-       call print_dmrg_info(lf,fmt2,2,dmrg_start_guess,nroots,thre)
-#endif
-      else
+      if (.not. doDMRG) then
+        Line=''
         Write(Line(left-2:),'(A)') 'CI expansion specifications:'
         Call CollapseOutput(1,Line)
         Write(LF,Fmt2//'A)')'----------------------------'

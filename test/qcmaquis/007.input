@@ -42,7 +42,7 @@ OOptimizationSettings
 EndOOptimizationSettings
 >> COPY $Project.JobIph JOBOLD
 >> COPY $Project.dmrgscf.h5 $Project.trip.h5
->> EXEC mv $CurrDir/$Project.checkpoint_state.0.h5 $CurrDir/$Project.trip.checkpoint_state.0.h5
+>> EXEC mv $WorkDir/$Project.checkpoint_state.0.h5 $WorkDir/$Project.trip.checkpoint_state.0.h5
 >> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.trip.h5 -q
   &DMRGSCF
 ActiveSpaceOptimizer=QCMaquis
@@ -58,7 +58,7 @@ NActEl=6,0,0
 JobIph
 EndOOptimizationSettings
 >> COPY $Project.dmrgscf.h5 $Project.sing.h5
->> EXEC mv $CurrDir/$Project.checkpoint_state.0.h5 $CurrDir/$Project.sing.checkpoint_state.0.h5
+>> EXEC mv $WorkDir/$Project.checkpoint_state.0.h5 $WorkDir/$Project.sing.checkpoint_state.0.h5
 >> EXEC $MOLCAS/Tools/qcmaquis/qcm_checkpoint_rename.py $Project.sing.h5 -q
 &MPSSI
 Nrof
