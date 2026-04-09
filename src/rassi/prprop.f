@@ -31,8 +31,8 @@
       use Cntrl, only: NSTATE, NPROP, NTS, PRXVE, PRMEE, LPRPR,
      &                 PRMES, IFSO, NSOPR, DIPR, OSThr_DIPR, QIPR,
      &                 OSthr_QIPR, QIALL, RSPR, RSThr, ReduceLoop,
-     &                 LoopDivide, Do_SK, PRDIPCOM, Tolerance, DoCD,
-     &                 DYSO, Do_TMom, IfGCAL, EPrThr,
+     &                 LoopDivide, LoopMax, Do_SK, PRDIPCOM, Tolerance,
+     &                 DoCD, DYSO, Do_TMom, IfGCAL, EPrThr,
      &                 IfvanVleck, TMins, TMaxs, IfGTCALSA, IfGTSHSA,
      &                 MULTIP, IfACAL, IfXCal, BStart, NBSTep, BIncre,
      &                 TStart, nTStep, TIncre, IfMCal, BAngRes, iComp,
@@ -150,8 +150,8 @@
       REAL*8, Parameter:: ONEOVER9C2=One/(Nine*c_in_au**2)
 
       Integer nCol, iProp,               I, ISTA, IEND, J, ICMP, NPMSIZ,
-     &        nMiss, iSOPr, JSTART, I_Have_DL, I_Have_DV, nVec, i_print,
-     &        ISS, JSS, K, I_Print_Header, IfAnyM, IfAnyS, IfAnyQ,
+     &        nMiss, iSOPr, JSTART, JEND, I_Have_DL, I_Have_DV, nVec,
+     &      i_print,ISS, JSS, K, I_Print_Header, IfAnyM, IfAnyS, IfAnyQ,
      &        IfAnyO, I2Tot, iAMFIx, iAMFIy, iAMFIz, iXYZ, jXYZ, iState,
      &        MPLET1, jState, MPLET2, iAMx, iAMy, iAMz, MPLET, kXYZ,
      &        iERR, iMLTPL, iStart, iFinal, ijXYZ, IT, IC, JC, KDGN,
@@ -594,9 +594,11 @@ C printing threshold
 !     Reducing the loop over states - good for X-rays
 !     At the moment memory is not reduced
 !
+      JEND = NSS
       IF(REDUCELOOP) THEN
         IEND = LOOPDIVIDE
         JSTART = LOOPDIVIDE+1
+        IF(LOOPMAX.GT.0) JEND=MIN(NSS, LOOPDIVIDE + LOOPMAX)
       ELSE
         IEND = NSS
         JSTART = 1
@@ -633,7 +635,7 @@ C printing threshold
          i_Print=0
 
          DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+          DO JSS=JSTART,JEND
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
@@ -760,7 +762,7 @@ C printing threshold
          i_Print=0
 
          DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+          DO JSS=JSTART,JEND
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
@@ -864,7 +866,7 @@ C printing threshold
 !
           I_PRINT_HEADER = 0
           DO I=1,IEND
-            DO J=JSTART,NSS
+            DO J=JSTART,JEND
                EDIFF=ENSOR(J)-ENSOR(I)
                IF(EDIFF.LT.0.0D0) CYCLE
              COMPARE=0.0D0
@@ -1355,7 +1357,7 @@ C printing threshold
      &   WRITE(6,*) 'Electric-dipole - magnetic-quadrupole not included'
          i_Print=0
          DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+          DO JSS=JSTART,JEND
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
@@ -1460,7 +1462,7 @@ C printing threshold
 !
          g = FEGVAL
          DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+          DO JSS=JSTART,JEND
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN
@@ -1650,7 +1652,7 @@ C printing threshold
 !
          g = FEGVAL
          DO ISS=1,IEND
-          DO JSS=JSTART,NSS
+          DO JSS=JSTART,JEND
            EDIFF=ENSOR(JSS)-ENSOR(ISS)
            IF (ABS(EDIFF)<1.0D-8) Cycle
            IF(EDIFF.GT.0.0D0) THEN

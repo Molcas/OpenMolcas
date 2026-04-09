@@ -27,7 +27,8 @@
      &                 ONLY_OVERLAPS, DIPR, OSThr_DipR, QIPR,
      &                 OSThr_QIPR, QIALL, DYSO, DYSEXPORT, TDYS, OCAN,
      &                 DCHS, DCHO, DO_TMOM, PRRAW, PRWEIGHT, TOLERANCE,
-     &                 REDUCELOOP, LOOPDIVIDE, TMGR_Thrs, Do_SK, Do_Pol,
+     &                 REDUCELOOP, LOOPDIVIDE, LOOPMAX, TMGR_Thrs,
+     &                 Do_SK, Do_Pol,
      &                 L_Eff, DoCD, RSThr, RSPR, FORCE_NON_AO_TDM,
      &                 IFDCPL, LPRPR, LHAMI, IFATCALSA, IFGTCALSA,
      &                 IFGTSHSA, IFACAL, IFACALFC, IFACALSD, NOSO,
@@ -175,6 +176,7 @@ C DEFAULT FLAGS:
       TOLERANCE=0.1D0
       REDUCELOOP=.FALSE.
       LOOPDIVIDE=0
+      LOOPMAX=-1
       TMGr_thrs=-1.0d0
       Do_SK  =.FALSE.
       Do_Pol  =.FALSE.

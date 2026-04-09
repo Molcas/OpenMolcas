@@ -46,7 +46,8 @@
      &                 OSTHR_QIPR, QIALL, RSPR, RSThr, DOCD, DYSO,
      &                 DYSEXPORT, DYSEXPSO, TDYS, OCAN, DCHS, DCHO,
      &                 DO_TMOM, TMGR_Thrs, PRRAW, PRWEIGHT, TOLERANCE,
-     &                 REDUCELOOP, LOOPDIVIDE, l_Eff, Do_SK, Do_Pol,
+     &                 REDUCELOOP, LOOPDIVIDE, LOOPMAX,
+     &                 l_Eff, Do_SK, Do_Pol,
      &                 RHODYN, MXJOB, JBNAME, SOPRNM, PNAME, PRDIPCOM,
      &                 EPrThr, LPRPR, lHami, IfACAL, IFACALFCON,
      &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
@@ -862,6 +863,13 @@ C ------------------------------------------
 ! Reduce looping in intensities. Set limit for the inner and outer loop
         REDUCELOOP=.TRUE.
         Read(LuIn,*,ERR=997) LOOPDIVIDE
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'NFIN')THEN
+! Reduce looping in intensities. Set number of final states
+        Read(LuIn,*,ERR=997) LOOPMAX
         LINENR=LINENR+1
         GOTO 100
       END IF
