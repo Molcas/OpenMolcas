@@ -1,0 +1,96 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+
+subroutine Mod_P2(P2mo,nP2Act,D1mo,nD1mo,DS1mo,ExFac,nDet)
+
+use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
+use nq_Info, only: iOff_Ash, mIrrep, nAsh
+use Constants, only: One, Two, Quart
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp), intent(in) :: nP2Act, nD1mo, nDet
+real(kind=wp), intent(inout) :: P2mo(nP2Act)
+real(kind=wp), intent(in) :: D1mo(nD1mo), DS1mo(nD1mo), ExFac
+integer(kind=iwp) :: i, i_, iIrrep, ij, ijIrrep, ijkIrrep, ijkl, ik, il, j, j_, jIrrep, jk, jl, k, k_, kIrrep, kl, l, l_
+real(kind=wp) :: Fact, P2Act
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+iOff_Ash(0) = 0
+do iIrrep=1,mIrrep-1
+  iOff_Ash(iIrrep) = iOff_Ash(iIrrep-1)+nAsh(iIrrep-1)
+end do
+!
+!***********************************************************************
+!
+! active space Ptvxy
+
+if (nDet == 1) then
+
+  P2Act = real(nP2Act,kind=wp)
+  call Put_Temp('nP2Act  ',[P2Act],1)
+  call Put_Temp('P2_RAW  ',P2mo,nP2Act)
+
+  do iIrrep=0,mIrrep-1
+    do jIrrep=0,mIrrep-1
+      ijIrrep = Mul(iIrrep+1,jIrrep+1)-1
+      do kIrrep=0,mIrrep-1
+        ijkIrrep = Mul(ijIrrep+1,kIrrep+1)-1
+
+        do k_=1,nASh(kIrrep)
+          k = iOff_Ash(kIrrep)+k_
+          do l_=1,nASh(ijkIrrep)
+            l = iOff_Ash(ijkIrrep)+l_
+            if (l > k) exit
+            kl = iTri(k,l)
+            do i_=1,nASh(iIrrep)
+              i = iOff_Ash(iIrrep)+i_
+              il = iTri(i,l)
+              ik = iTri(i,k)
+              do j_=1,nASh(jIrrep)
+                j = iOff_Ash(jIrrep)+j_
+                if (j > i) cycle
+                ij = iTri(i,j)
+                if (kl > ij) cycle
+                ijkl = iTri(ij,kl)
+                jk = iTri(j,k)
+                jl = iTri(j,l)
+
+                Fact = One
+                if ((iIrrep == jIrrep) .and. (k == l)) Fact = Two
+                P2mo(ijkl) = Fact*P2mo(ijkl)
+
+                if (iIrrep == ijkIrrep) P2mo(ijkl) = P2mo(ijkl)+(One-ExFac)*Quart*(D1mo(jk)*D1mo(il)+DS1mo(jk)*DS1mo(il))
+
+                if (iIrrep == kIrrep) P2mo(ijkl) = P2mo(ijkl)+(One-ExFac)*Quart*(D1mo(jl)*D1mo(ik)+DS1mo(jl)*DS1mo(ik))
+
+                P2mo(ijkl) = P2mo(ijkl)/Fact
+
+              end do
+            end do
+          end do
+        end do
+
+      end do
+    end do
+  end do
+  call Put_Temp('P2_KS   ',P2mo,nP2Act)
+else
+  write(u6,*) ' Not implemented yet!!! nDet=',nDet
+  call Abend()
+end if
+
+return
+
+end subroutine Mod_P2

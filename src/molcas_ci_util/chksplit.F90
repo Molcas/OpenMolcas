@@ -24,8 +24,7 @@ subroutine ChkSplit()
 
 use general_data, only: nConf
 use splitcas_data, only: iDimBlockA, lRootSplit, ThrSplit
-use output_ras, only: LF
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: IERR
@@ -38,15 +37,15 @@ real(kind=wp), parameter :: min_ThrSplit = 1.0e-12_wp
 IERR = 0
 if (lRootSplit > nConf) IERR = 1
 if (IERR == 1) then
-  write(LF,*)
-  write(LF,*) '******************** ERROR *********************'
-  write(LF,'(1X,A)') 'Input Error:'
-  write(LF,*) ' Root you are looking for is not reachable within'
-  write(LF,*) ' the selected active space.'
-  write(LF,*) ' Try to select a bigger active space!'
-  write(LF,*) ' Root selected by user = ',lRootSplit
-  write(LF,*) ' Root reachable = ',nConf
-  write(LF,*) '************************************************'
+  write(u6,*)
+  write(u6,*) '******************** ERROR *********************'
+  write(u6,'(1X,A)') 'Input Error:'
+  write(u6,*) ' Root you are looking for is not reachable within'
+  write(u6,*) ' the selected active space.'
+  write(u6,*) ' Try to select a bigger active space!'
+  write(u6,*) ' Root selected by user = ',lRootSplit
+  write(u6,*) ' Root reachable = ',nConf
+  write(u6,*) '************************************************'
   call Quit(_RC_INPUT_ERROR_)
 end if
 
@@ -54,33 +53,33 @@ end if
 IERR = 0
 if (iDimBlockA < lRootSplit) IERR = 1
 if (IERR == 1) then
-  write(LF,*)
-  write(LF,*) '******************** ERROR **********************'
-  write(LF,*) 'Input Error: AA-Block selected is too small!'
-  write(LF,'(1X,A,I5)') ' Root to be optimized :',lRootSplit
-  write(LF,'(1X,A,I5)') ' AA-Block dimension   :',iDimBlockA
-  write(LF,*) 'AA-Block must be always equal or greater than root.'
-  write(LF,*) 'In a NUSP calculation increase iDimBlockA'
-  write(LF,*) 'In a ENSP calculation increase the energy-gap'
-  write(LF,*) 'In a PESP calculation increase the percentage'
-  write(LF,*) '*************************************************'
+  write(u6,*)
+  write(u6,*) '******************** ERROR **********************'
+  write(u6,*) 'Input Error: AA-Block selected is too small!'
+  write(u6,'(1X,A,I5)') ' Root to be optimized :',lRootSplit
+  write(u6,'(1X,A,I5)') ' AA-Block dimension   :',iDimBlockA
+  write(u6,*) 'AA-Block must be always equal or greater than root.'
+  write(u6,*) 'In a NUSP calculation increase iDimBlockA'
+  write(u6,*) 'In a ENSP calculation increase the energy-gap'
+  write(u6,*) 'In a PESP calculation increase the percentage'
+  write(u6,*) '*************************************************'
   call Quit(_RC_INPUT_ERROR_)
   !iDimBlockA = lRootSplit
   !ircWar = 1
-  !write(LF,'(1X,A,I8)') 'iDimBlockA has been reset to =',iDimBlockA
+  !write(u6,'(1X,A,I8)') 'iDimBlockA has been reset to =',iDimBlockA
 end if
 
 IERR = 0
 if (iDimBlockA > mxDimBlockA) IERR = 1
 if (IERR == 1) then
-  write(LF,*)
-  write(LF,*) '***************** ERROR *****************'
-  write(LF,'(1X,A,I6)') 'Input Error: Max dim. BlockA exceeded',mxDimBlockA
-  write(LF,*) 'iDimBlockA selected by user = ',iDimBlockA
-  write(LF,*) 'If you are running a NUSP calculation, please, decrease the value of iDimBlockA!'
-  write(LF,*) 'If you are running a ENSP calculation, please, decrease the energy-gap!'
-  write(LF,*) 'If you are running a PESP calculation, please, decrease the percentage!'
-  write(LF,*) '************************************************'
+  write(u6,*)
+  write(u6,*) '***************** ERROR *****************'
+  write(u6,'(1X,A,I6)') 'Input Error: Max dim. BlockA exceeded',mxDimBlockA
+  write(u6,*) 'iDimBlockA selected by user = ',iDimBlockA
+  write(u6,*) 'If you are running a NUSP calculation, please, decrease the value of iDimBlockA!'
+  write(u6,*) 'If you are running a ENSP calculation, please, decrease the energy-gap!'
+  write(u6,*) 'If you are running a PESP calculation, please, decrease the percentage!'
+  write(u6,*) '************************************************'
   call Quit(_RC_INPUT_ERROR_)
 end if
 !end If
@@ -89,12 +88,12 @@ end if
 IERR = 0
 if (ThrSplit < min_ThrSplit) IERR = 1
 if (IERR == 1) then
-  write(LF,*)
-  write(LF,*) '***************** ERROR *****************'
-  write(LF,'(1X,A,I6)') 'Input Error: ThrSplit too small'
-  write(LF,'(1X,A,I6)') 'minimum value ThrSplit = ',min_ThrSplit
-  write(LF,*) 'ThrSplit selected by user = ',ThrSplit
-  write(LF,*) '************************************************'
+  write(u6,*)
+  write(u6,*) '***************** ERROR *****************'
+  write(u6,'(1X,A,I6)') 'Input Error: ThrSplit too small'
+  write(u6,'(1X,A,I6)') 'minimum value ThrSplit = ',min_ThrSplit
+  write(u6,*) 'ThrSplit selected by user = ',ThrSplit
+  write(u6,*) '************************************************'
   call Quit(_RC_INPUT_ERROR_)
 end if
 
