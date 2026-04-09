@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine CoW(Coor,CoF,W,nAtom,T)
 !***********************************************************************
@@ -25,16 +26,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nAtom
 real(kind=wp), intent(in) :: Coor(3,nAtom), W(nAtom)
 real(kind=wp), intent(out) :: CoF(3), T
-#include "print.fh"
-integer(kind=iwp) :: iAtom, iPrint, iRout
+integer(kind=iwp) :: iAtom
 
-iRout = 140
-iPrint = nPrint(iRout)
 
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In CoW: Coor',' ',Coor,3,nAtom)
   call RecPrt(' In CoW: W',' ',W,nAtom,1)
-end if
+#endif
 T = Zero
 do iAtom=1,nAtom
   T = T+W(iAtom)
@@ -48,11 +46,9 @@ if (T /= Zero) then
 else
   CoF(:) = Zero
 end if
-if (iPrint >= 99) then
+#ifdef _DEBUGPRINT_
   call RecPrt(' In CoW: CoF',' ',CoF,1,3)
   call RecPrt(' In CoW: T',' ',[T],1,1)
-end if
-
-return
+#endif
 
 end subroutine CoW

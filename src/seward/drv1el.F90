@@ -167,7 +167,7 @@ end if
 do iMltpl=iLow,S%nMltpl
   write(Label,'(A,I2)') 'Mltpl ',iMltpl
   nComp = (iMltpl+1)*(iMltpl+2)/2
-  Ccoor(:) = Coor_MPM(:,iMltpl+1)
+  Ccoor(:) = Coor_MPM(:,iMltpl)
   call Allocate_Auxiliary()
   iComp = 0
   do ix=iMltpl,0,-1
@@ -198,7 +198,7 @@ do iMltpl=iLow,S%nMltpl
 
       OperI(1+iComp) = MltLbl(iSymX,MltLbl(iSymY,iSymZ))
       OperC(1+iComp) = iChO
-      CoorO(iComp*3+1:iComp*3+3) = Coor_MPM(:,iMltpl+1)
+      CoorO(iComp*3+1:iComp*3+3) = Coor_MPM(:,iMltpl)
       iComp = iComp+1
     end do
   end do
@@ -750,9 +750,9 @@ if (Vlct .and. (S%nMltpl >= 2) .and. (.not. Primitive_Pass)) then
 
   ! Use origin for quadrupole moment
   do iComp=1,nComp
-    CoorO((iComp-1)*3+1:iComp*3) = Coor_MPM(:,3)
+    CoorO((iComp-1)*3+1:iComp*3) = Coor_MPM(:,2)
   end do
-  Ccoor(:) = Coor_MPM(:,3)
+  Ccoor(:) = Coor_MPM(:,2)
 
   ixyz = 1
   iSymX = 2**IrrFnc(ixyz)
@@ -1425,7 +1425,7 @@ if (GIAO .and. (.not. Primitive_Pass)) then
     write(Label,'(A,I2)') 'dMP/dB',iMltpl
     mComp = (iMltpl+1)*(iMltpl+2)/2
     nComp = mComp*nB
-    Ccoor(:) = Coor_MpM(:,iMltpl+1)
+    Ccoor(:) = Coor_MpM(:,iMltpl)
     call Allocate_Auxiliary()
 
     iComp = 0
@@ -1481,21 +1481,21 @@ if (GIAO .and. (.not. Primitive_Pass)) then
         OperC(1+(iB-1)*mComp+iComp) = iChOx
         iSymBx = MltLbl(iSymRy,iSymRz)
         OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBx)
-        CoorO(((iB-1)*mComp+iComp)*3:((iB-1)*mComp+iComp)*3+2) = Coor_MPM(:,iMltpl+1)
+        CoorO(((iB-1)*mComp+iComp)*3:((iB-1)*mComp+iComp)*3+2) = Coor_MPM(:,iMltpl)
 
         iB = 2
         iChOy = mod(ix+1,2)*iChBas(2)+mod(iy,2)*iChBas(3)+mod(iz+1,2)*iChBas(4)
         OperC(1+(iB-1)*mComp+iComp) = iChOy
         iSymBy = MltLbl(iSymRz,iSymRx)
         OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBy)
-        CoorO(((iB-1)*mComp+iComp)*3:((iB-1)*mComp+iComp)*3+2) = Coor_MPM(:,iMltpl+1)
+        CoorO(((iB-1)*mComp+iComp)*3:((iB-1)*mComp+iComp)*3+2) = Coor_MPM(:,iMltpl)
 
         iB = 3
         iChOz = mod(ix+1,2)*iChBas(2)+mod(iy+1,2)*iChBas(3)+mod(iz,2)*iChBas(4)
         OperC(1+(iB-1)*mComp+iComp) = iChOz
         iSymBz = MltLbl(iSymRx,iSymRy)
         OperI(1+(iB-1)*mComp+iComp) = MltLbl(iTemp,iSymBz)
-        CoorO(((iB-1)*mComp+iComp)*3:((iB-1)*mComp+iComp)*3+2) = Coor_MPM(:,iMltpl+1)
+        CoorO(((iB-1)*mComp+iComp)*3:((iB-1)*mComp+iComp)*3+2) = Coor_MPM(:,iMltpl)
 
         iComp = iComp+1
       end do

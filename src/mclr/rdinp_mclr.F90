@@ -477,7 +477,7 @@ do i=1,3
   write(Swlbl(id),'(a,i2)') 'MLTPL ',1
   iRc = -1
   iOpt = ibset(0,sOpSiz)
-  call iRdOne(iRc,iOpt,swlbl(id),dspvec(id),idum,iSyLbl)
+  call iRdOne(iRc,iOpt,swlbl(id),DspVec(id),idum,iSyLbl)
 end do
 
 if (Timedep) then

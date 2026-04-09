@@ -19,6 +19,7 @@ TITLE = Molcas-SP
 BASIS = STO-3G
 
 &SEWARD
+CENTER = 1; 1 0.0 0.0 0.0
 
 &SCF
 

@@ -66,7 +66,7 @@ integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nTot, lpole
 real(kind=wp), intent(in) :: cen1(3), cen2(3), Occ(nTot), ThrSV
 real(kind=wp), intent(inout) :: PrEl(nTot,(lpole+1)*(lpole+2)/2), PrNu((lpole+1)*(lpole+2)/2)
 integer(kind=iwp) :: i, icen, icen1, ilab, inp, ip_, iPL, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, izz, j, jMax, maxlab
-real(kind=wp) :: Fact, Molecular_Charge = Zero, sig, tmp, X_Coor, Y_Coor, Z_Coor
+real(kind=wp) :: Fact, Molecular_Charge = Zero, sig, tmp, X_Coor, Y_Coor, Z_Coor, CoM(3)
 logical(kind=iwp) :: StoreInfo
 integer(kind=iwp), parameter :: lmax = 16
 character(len=lmax) :: lab
@@ -208,7 +208,11 @@ if (lab4 == 'MLTP') then
       tmp = sqrt(PrTot(1)**2+PrTot(2)**2+PrTot(3)**2)
       write(u6,'(4X,4(A,A,ES12.4))') labs(1),'=',PrTot(1)*Fact,labs(2),'=',PrTot(2)*Fact,labs(3),'=',PrTot(3)*Fact, &
                                      '           Total','=',tmp*Fact
+      call Put_DArray('Dipole moment',PrTot,3)
+      call xml_dDump('dipole','Dipole moment','debye',1,PrTot,3,1)
       if (abs(Molecular_Charge) > 0.9_wp) then
+        Call Get_dArray('Center of Mass',CoM,3)
+        PrTot(:)=PrTot(:)+CoM(:)/Molecular_Charge
         write(u6,'(6X,A)') 'Center of Charge (angstrom)'
         X_Coor = Angstrom*(PrTot(1)/Molecular_Charge)
         Y_Coor = Angstrom*(PrTot(2)/Molecular_Charge)
@@ -216,11 +220,6 @@ if (lab4 == 'MLTP') then
         write(u6,'(6X,3(A,A,F14.8))') labs(1),'=',X_Coor,labs(2),'=',Y_Coor,labs(3),'=',Z_Coor
         Molecular_Charge = Zero
       end if
-      call Put_DArray('Dipole moment',PrTot,3)
-      !call peek_iScalar('xml opened',isopen)
-      !if (isopen == 1) then
-      call xml_dDump('dipole','Dipole moment','debye',1,PrTot,3,1)
-      !end if
     else if (lPole >= 2) then
       tmp = Zero
       do i=1,Maxlab
