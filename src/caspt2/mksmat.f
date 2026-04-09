@@ -18,21 +18,18 @@
 *--------------------------------------------*
       SUBROUTINE MKSMAT()
       use definitions, only: iwp, wp, u6, byte
-      use constants, only: One
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: DEBUG, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_global, only: DREF, PREF, LUSOLV, LUSBT
-      use EQSOLV, only: IDSMAT
-      use caspt2_module, only: NASHT, NSYM, NINDEP
-      use pt2_guga, only: NG3
+      use caspt2_global, only: DREF, PREF, LUSOLV
+      use caspt2_module, only: NASHT
+      use caspt2_module, only: NG3
       IMPLICIT None
 C     Set up S matrices for cases 1..13.
-      real(kind=wp) DUM(1)
       INTEGER(kind=byte), ALLOCATABLE :: idxG3(:,:)
 
       real(kind=wp), ALLOCATABLE:: G3(:)
-      integer(kind=iwp) nDREF, nPREF, ICASE, IDISK, iLUID, ISYM, NIN
+      integer(kind=iwp) iLUID
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -50,26 +47,38 @@ C For the cases A and C, begin by reading in the local storage
 C  part of the three-electron density matrix G3:
         CALL mma_allocate(G3,NG3,Label='G3')
         CALL PT2_GET(NG3,'GAMMA3',G3)
+
         CALL mma_allocate(idxG3,6,NG3,label='idxG3')
         iLUID=0
         CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
-        nDREF=SIZE(DREF)
-        nPREF=SIZE(PREF)
-        CALL MKSA(DREF,nDREF,PREF,nPREF,NG3,G3,idxG3)
-        CALL MKSC(DREF,nDREF,PREF,nPREF,NG3,G3,idxG3)
+        CALL MKSA(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
+        CALL MKSC(DREF,SIZE(DREF),PREF,SIZE(PREF),NG3,G3,idxG3)
 
         CALL mma_deallocate(G3)
         CALL mma_deallocate(idxG3)
 
 C-SVC20100902: For the remaining cases that do not need G3, use replicate arrays
-        CALL MKSB(DREF,nDREF,PREF,nPREF)
-        CALL MKSD(DREF,nDREF,PREF,nPREF)
-        CALL MKSE(DREF,nDREF)
-        CALL MKSF(PREF,nPREF)
-        CALL MKSG(DREF,nDREF)
+        CALL MKSB(DREF,SIZE(DREF),PREF,SIZE(PREF))
+        CALL MKSD(DREF,SIZE(DREF),PREF,SIZE(PREF))
+        CALL MKSE(DREF,SIZE(DREF))
+        CALL MKSF(PREF,SIZE(PREF))
+        CALL MKSG(DREF,SIZE(DREF))
       END IF
 
+      Call MKSH()
+
+      END SUBROUTINE MKSMAT
+
+      Subroutine MKSH()
+      use caspt2_module, only: NSYM, NINDEP
+      use caspt2_global, only: LUSBT
+      use EQSOLV, only: IDSMAT
+      use constants, only: One
+      use definitions, only: iwp, wp
+      Implicit none
+      real(kind=wp) Dum(1)
+      integer(kind=iwp) ISYM,ICASE,IDISK,NIN
 C For completeness, even case H has formally S and B
 C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest  of the routines.
@@ -83,8 +92,8 @@ C looping, etc in the rest  of the routines.
           END IF
         END DO
       END DO
+      End Subroutine MKSH
 
-      END SUBROUTINE MKSMAT
 
 ********************************************************************************
 * Case A (ICASE=1)
@@ -109,9 +118,10 @@ C looping, etc in the rest  of the routines.
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
-      integer(kind=iwp) MYRANK,ILO,IHI,JLO,JHI,MA,LDA
+      integer(kind=iwp) MYRANK,MA
 #endif
-      integer(kind=iwp) ICASE, ISYM, lg_SA, NAS, NIN, NSA
+      integer(kind=iwp) ILO,IHI,JLO,JHI,LDA
+      integer(kind=iwp) ICASE, ISYM, lg_SA, NAS, NIN, NSA, MSA
       real(kind=wp), external:: PSBMAT_FPRINT
       real(kind=wp) DSA
 
@@ -144,8 +154,10 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
             CALL GA_ACCESS (LG_SA,ILO,IHI,JLO,JHI,MA,LDA)
             CALL MKSA_G3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
      &                       NG3,G3,IDXG3)
+            MSA=LDA*(jHi-jLo+1)
             CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &                   ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
+     &                   ISYM,DBL_MB(MA),MSA,
+     &                   ILO,IHI,JLO,JHI,LDA)
             CALL GA_RELEASE_UPDATE (LG_SA,ILO,IHI,JLO,JHI)
           ELSE
             CALL MKSA_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDA,
@@ -153,9 +165,16 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
           END IF
         ELSE
 #endif
-          CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),NG3,G3,IDXG3)
+          iLo=1
+          iHi=NAS
+          jLo=1
+          jHi=NAS
+          LDA=0
+          MSA=NAS*(NAS+1)/2
+          CALL MKSA_G3(ISYM,GA_Arrays(lg_SA)%A(:),MSA,NG3,G3,IDXG3)
           CALL MKSA_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SA)%A(:),1,NAS,1,NAS,0)
+     &                 ISYM,GA_Arrays(lg_SA)%A(:),MSA,
+     &                 ILO,IHI,JLO,JHI,LDA)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -172,15 +191,15 @@ C         - dxu Gvtyz - dxu dyt Gvz +2 dtx Gvuyz + 2 dtx dyu Gvz
 
       END SUBROUTINE MKSA
 
-      SUBROUTINE MKSA_G3(ISYM,SA,NG3,G3,idxG3)
+      SUBROUTINE MKSA_G3(ISYM,SA,NSA,NG3,G3,idxG3)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, Byte
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NASHT, IASYM, NTUVES
       IMPLICIT None
 
-      INTEGER(kind=iwp), intent(in):: ISYM,NG3
-      real(kind=wp), intent(out):: SA(*)
+      INTEGER(kind=iwp), intent(in):: ISYM,NSA,NG3
+      real(kind=wp), intent(out):: SA(NSA)
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
@@ -369,7 +388,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
 #include "mafdecls.fh"
 
       integer(kind=iwp), intent(in):: ISYM,iLo,iHi,jLo,jHi,LDA,NG3
-      real(kind=wp), intent(out):: SA(LDA,*)
+      real(kind=wp), intent(out):: SA(LDA,(jHi-jLo+1))
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
@@ -423,7 +442,7 @@ C  - G(xvzyut) -> SA(yvx,zut)
       ! we need two real and four integer values per element
       iscal = (MPIInt*4 + wp*2)/RtoB ! RtoB from module Definitions
       !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
+      MAXBUF=MIN(NINT(0.95E0_wp*MAXMEM)/iscal,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
       ! This guarantees that e.g. if all processes send all their data
@@ -837,7 +856,7 @@ c Avoid unused argument warnings
 #endif
 
       SUBROUTINE MKSA_DP (DREF,NDREF,PREF,NPREF,
-     &                    iSYM,SA,iLo,iHi,jLo,jHi,LDA)
+     &                    iSYM,SA,NSA,iLo,iHi,jLo,jHi,LDA)
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDA is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDA passed is zero.
@@ -846,10 +865,10 @@ C storage uses a triangular scheme, and the LDA passed is zero.
       USE SUPERINDEX, only: MTUV
       use caspt2_module, only: NASHT, nTUVES
       IMPLICIT None
-      integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,
+      integer(kind=iwp), intent(in):: NDREF,NPREF,iSYM,NSA,
      &                                iLo,iHi,jLo,jHi,LDA
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
-      real(kind=wp), intent(out):: SA(*)
+      real(kind=wp), intent(inout):: SA(NSA)
 
       integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
      &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,
@@ -960,9 +979,10 @@ C Add -dyu Gvzxt
 
 #ifdef _MOLCAS_MPP_
       real(kind=wp) Dummy(1)
-      INTEGER(kind=iwp) MYRANK,ILO,IHI,JLO,JHI,MC,LDC
+      INTEGER(kind=iwp) MYRANK,MC
 #endif
-      INTEGER(kind=iwp) ICASE,ISYM,lg_SC,NAS,NIN,NSC
+      INTEGER(kind=iwp) ILO,IHI,JLO,JHI,LDC
+      INTEGER(kind=iwp) ICASE,ISYM,lg_SC,NAS,NIN,NSC,MSC
       real(kind=wp) DSC
       real(kind=wp), EXTERNAL:: PSBMAT_FPRINT
 
@@ -996,8 +1016,10 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
             CALL GA_ACCESS (LG_SC,ILO,IHI,JLO,JHI,MC,LDC)
             CALL MKSC_G3_MPP(ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC,
      &                       NG3,G3,IDXG3)
+            MSC=LDC*(jHi-jLo+1)
             CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &                   ISYM,DBL_MB(MC),ILO,IHI,JLO,JHI,LDC)
+     &                   ISYM,DBL_MB(MC),MSC,
+     &                   ILO,IHI,JLO,JHI,LDC)
             CALL GA_RELEASE_UPDATE (LG_SC,ILO,IHI,JLO,JHI)
           ELSE
             CALL MKSC_G3_MPP(ISYM,DUMMY,ILO,IHI,JLO,JHI,LDC,
@@ -1005,9 +1027,16 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
           END IF
         ELSE
 #endif
-          CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),NG3,G3,IDXG3)
+          iLo=1
+          iHi=NAS
+          jLo=1
+          jHi=NAS
+          LDC=0
+          MSC=NAS*(NAS+1)/2
+          CALL MKSC_G3(ISYM,GA_Arrays(lg_SC)%A(:),MSC,NG3,G3,IDXG3)
           CALL MKSC_DP(DREF,NDREF,PREF,NPREF,
-     &                 ISYM,GA_Arrays(lg_SC)%A(:),1,NAS,1,NAS,0)
+     &                 ISYM,GA_Arrays(lg_SC)%A(:),MSC,
+     &                 ILO,IHI,JLO,JHI,LDC)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -1024,15 +1053,15 @@ C    = Gvutxyz +dyu Gvztx + dyx Gvutz + dtu Gvxyz + dtu dyx Gvz
 
       END SUBROUTINE MKSC
 
-      SUBROUTINE MKSC_G3(ISYM,SC,NG3,G3,idxG3)
+      SUBROUTINE MKSC_G3(ISYM,SC,NSC,NG3,G3,idxG3)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, Byte
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NASHT, IASYM, NTUVES
       IMPLICIT None
 
-      integer(kind=iwp), intent(in):: ISYM,NG3
-      real(kind=wp), intent(out):: SC(*)
+      integer(kind=iwp), intent(in):: ISYM,NSC,NG3
+      real(kind=wp), intent(out):: SC(NSC)
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
@@ -1213,7 +1242,7 @@ C  - G(xvzyut) -> SC(zvx,yut)
 #include "mafdecls.fh"
 
       integer(kind=iwp) ISYM,iLo,iHi,jLo,jHi,LDC,NG3
-      real(kind=wp), intent(out):: SC(LDC,*)
+      real(kind=wp), intent(out):: SC(LDC,jHi-jLo+1)
       real(kind=wp), intent(in):: G3(NG3)
       INTEGER(kind=Byte), intent(in):: idxG3(6,NG3)
 
@@ -1668,7 +1697,7 @@ c Avoid unused argument warnings
 #endif
 
       SUBROUTINE MKSC_DP (DREF,NDREF,PREF,NPREF,
-     &                    iSYM,SC,iLo,iHi,jLo,jHi,LDC)
+     &                    iSYM,SC,NSC,iLo,iHi,jLo,jHi,LDC)
 C In parallel, this subroutine is called on a local chunk of memory
 C and LDC is set. In serial, the whole array is passed but then the
 C storage uses a triangular scheme, and the LDC passed is zero.
@@ -1677,10 +1706,10 @@ C storage uses a triangular scheme, and the LDC passed is zero.
       USE SUPERINDEX, only: MTUV
       use caspt2_module, only: NASHT, nTUVES
       IMPLICIT None
-      integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,
+      integer(kind=iwp), intent(in) :: NDREF,NPREF,iSYM,NSC,
      &                                 iLo,iHi,jLo,jHi,LDC
       real(kind=wp), intent(in):: DREF(NDREF),PREF(NPREF)
-      real(kind=wp), intent(out):: SC(*)
+      real(kind=wp), intent(inout):: SC(NSC)
 
       integer(kind=iwp) ISADR,IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,
      &                  ITUVABS,ITABS,IUABS,IVABS,IVU,IYZ,IP1,

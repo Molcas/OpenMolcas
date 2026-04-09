@@ -16,17 +16,19 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,SGM)
+      SUBROUTINE GETSGM2(ILEV,JLEV,ISYCI,CI,nCI,SGM,MSGM)
       use Symmetry_Info, only: Mul
       use gugx, only:  SGS, CIS, EXS
-      use pt2_guga, only: MxCI
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
 
 
-      Integer :: ILEV, JLEV, ISYCI
-      Real*8, Intent(In) ::  CI(MXCI)
-      Real*8, Intent(Out)::  SGM(MXCI)
-      Integer IS, JS, IJS, ISSG, NSGM
+      Integer(kind=iwp), intent(in) :: ILEV, JLEV, ISYCI, nCI, MSGM
+      Real(kind=wp), Intent(In) ::  CI(nCI)
+      Real(kind=wp), Intent(inOut)::  SGM(MSGM)
+
+      Integer(kind=iwp) IS, JS, IJS, ISSG, NSGM
 
 C GIVEN CI COUPLING LEVELS ILEV, JLEV, COMPUTE SGM=E(ILEV,JLEV)*CI
 C ILEV,JLEV ARE IN PRINCIPLE ACTIVE ORBITAL NUMBERS, BUT POSSIBLY
@@ -41,14 +43,18 @@ C NOTE!! THE EARLIER CALL GETSGM(ILEV,JLEV,IDARR,SGM) IS REPLACED BY
 C GETSGM2(ILEV,JLEV,CI,SGM)!!
 C!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+      SGM(1:MSGM)=Zero
       IS=SGS%ISM(ILEV)
       JS=SGS%ISM(JLEV)
       IJS=Mul(IS,JS)
       ISSG=Mul(IJS,ISYCI)
       NSGM=CIS%NCSF(ISSG)
+      If (NSGM>MSGM) THEN
+         Write (u6,*) 'GETSGM2: NSGM>MSGM'
+         Call Abend()
+      End If
       IF(NSGM.EQ.0) RETURN
 
-      SGM(1:NSGM)=0.0D0
-      CALL SIGMA1(SGS,CIS,EXS,ILEV,JLEV,1.0D00,ISYCI,CI,SGM)
+      CALL SIGMA1(SGS,CIS,EXS,ILEV,JLEV,One,ISYCI,CI,SGM)
 
       END SUBROUTINE GETSGM2

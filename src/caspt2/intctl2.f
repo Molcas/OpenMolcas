@@ -8,32 +8,37 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE INTCTL2(IF_TRNSF)
+      SUBROUTINE INTCTL2(CMO,nCMO,DREF,nDREF,FIFA,NFIFA,HONE,nHONE,
+     &                   FIMO,nFIMO)
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
-      use caspt2_global, only: CMO, FIMO, FAMO, HONE, DREF
       use PrintLevel, only: DEBUG
-      use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nBTri
+      use definitions, only: iwp, wp
       IMPLICIT None
-      LOGICAL IF_TRNSF
+      integer(kind=iwp), intent(in):: nCMO, nDREF, NFIFA, nHONE, nFIMO
+      Real(kind=wp), intent(in):: CMO(nCMO), DREF(nDREF), HONE(nHONE)
+      Real(kind=wp), intent(out):: FIFA(NFIFA),FIMO(nFIMO)
 
-      Real*8, Allocatable:: FFAO(:), FIAO(:), FAAO(:)
+      LOGICAL(KIND=IWP), parameter:: IF_TRNSF=.False.
+      Real(kind=wp), Allocatable:: FFAO(:), FIAO(:), FAAO(:)
 
 * Compute using Cholesky vectors.
 * Frozen, inactive and active Fock matrix in AO basis:
       Call mma_allocate(FFAO,NBTRI,LABEL='FFAO')
       Call mma_allocate(FIAO,NBTRI,LABEL='FIAO')
       Call mma_allocate(FAAO,NBTRI,LABEL='FAAO')
+
 * tracho2 makes many allocations but should deallocate everything
 * before its return.
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 calling TRACHO2...'
         CALL XFLUSH(6)
       END IF
-      Call TraCho2(CMO,SIZE(CMO),DREF,SIZE(DREF),FFAO,FIAO,FAAO,
-     &             IF_TRNSF)
+
+      Call TraCho2(CMO,nCMO,DREF,nDREF,FFAO,FIAO,FAAO,IF_TRNSF)
+
       IF (IPRGLB.GE.DEBUG) THEN
         WRITE(6,*)' INTCTL2 back from TRACHO2.'
         CALL XFLUSH(6)
@@ -42,19 +47,15 @@
 
 * For gradient calculation, it is good to have FIAO and FAAO
       IF (do_grad.or.nStpGrd.eq.2) THEN
+
         !! FFAO has one-electron Hamiltonian
-        CALL DCOPY_(NBTRI,FFAO,1,FIMO_all,1)
-        CALL DAXPY_(NBTRI,One,FIAO,1,FIMO_all,1)
-        CALL DCOPY_(NBTRI,FIMO_all,1,FIFA_all,1)
-        CALL DAXPY_(NBTRI,One,FAAO,1,FIFA_all,1)
+        FIMO_all(1:NBTri)=FFAO(1:NBTri) + FIAO(1:NBTri)
+        FIFA_all(1:NBTri)=FIMO_all(1:NBTri) + FAAO(1:NBTri)
+
       END IF
-* Transform them to MO basis:
-      HONE(:)=Zero
-      FIMO(:)=Zero
-      FAMO(:)=Zero
-c Compute FIMO, FAMO, ...  to workspace:
-      Call FMat_Cho(CMO,SIZE(CMO),FFAO,FIAO,FAAO,
-     &              HONE,SIZE(HONE),FIMO,SIZE(FIMO),FAMO,SIZE(FAMO))
+
+* Transform to MO basis: generating HONE, FIMO and FIFA
+      Call FMat_Cho(CMO,nCMO,FIAO,FAAO,HONE,nHONE,FIMO,nFIMO,FIFA,nFIFA)
 
       Call mma_deallocate(FFAO)
       Call mma_deallocate(FIAO)

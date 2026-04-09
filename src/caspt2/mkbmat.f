@@ -22,15 +22,15 @@
       use PrintLevel, only: DEBUG, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_global, only: DREF, PREF
-      use caspt2_global, only: LUSOLV, LUSBT
+      use caspt2_global, only: LUSOLV
       use caspt2_module, only: NASHT
-      use pt2_guga, only: NG1, NG2, NG3
+      use caspt2_module, only: NG1, NG2, NG3
       IMPLICIT NONE
 C Set up B matrices for cases 1..13.
 
       INTEGER(kind=Byte), ALLOCATABLE :: idxG3(:,:)
       real(kind=wp), ALLOCATABLE:: F1(:), F2(:), F3(:), FD(:), FP(:)
-      INTEGER(kind=iwp) NFD, NFP, iLUID
+      INTEGER(kind=iwp) iLUID
 
       IF(IPRGLB.GE.VERBOSE) THEN
         WRITE(6,*)
@@ -40,25 +40,22 @@ C Set up B matrices for cases 1..13.
       IF(NASHT/=0) THEN
 
       CALL mma_allocate(F1,NG1,Label='F1')
-      NFD=SIZE(PREF)
-      CALL mma_allocate(FD,NFD,Label='FD')
-
       CALL PT2_GET(NG1,'DELTA1',F1)
-      CALL MKDREF_RPT2(NASHT,F1,FD)
+
+      CALL mma_allocate(FD,SIZE(DREF),Label='FD')
+      CALL MKDREF_RPT2(NASHT,F1,FD,SIZE(DREF))
 
       CALL mma_deallocate(F1)
-      CALL mma_allocate(F2,NG2,Label='F2')
 
+      CALL mma_allocate(F2,NG2,Label='F2')
       CALL PT2_GET(NG2,'DELTA2',F2)
 
-      NFP=SIZE(PREF)
-      CALL mma_allocate(FP,NFP,Label='FP')
-
-      CALL MKPREF_RPT2(NASHT,F2,FP)
+      CALL mma_allocate(FP,SIZE(PREF),Label='FP')
+      CALL MKPREF_RPT2(NASHT,F2,FP,SIZE(PREF))
 
       CALL mma_deallocate(F2)
-      CALL mma_allocate(F3,NG3,Label='F3')
 
+      CALL mma_allocate(F3,NG3,Label='F3')
       CALL PT2_GET(NG3,'DELTA3',F3)
 
       IF(IPRGLB.GE.DEBUG) THEN
@@ -81,6 +78,7 @@ C Set up B matrices for cases 1..13.
       CALL MKBE(DREF,SIZE(DREF),FD)
       CALL MKBF(DREF,SIZE(DREF),PREF,SIZE(PREF),FP)
       CALL MKBG(DREF,SIZE(DREF),FD)
+
       CALL mma_deallocate(FP)
       CALL mma_deallocate(FD)
 
@@ -88,7 +86,7 @@ C Set up B matrices for cases 1..13.
 
       CALL MKBH()
 
-      CONTAINS
+      END SUBROUTINE MKBMAT
 
       SUBROUTINE MKBH()
 C For completeness, even case H has formally S and B
@@ -96,7 +94,9 @@ C matrices. This costs nothing, and saves conditional
 C looping, etc in the rest of the routines.
       use constants, only: Zero
       use EQSOLV, only: IDBMAT
+      use caspt2_global, only: LUSBT
       use caspt2_module, only: NSYM, NINDEP
+      use definitions, only: iwp, wp
       implicit None
       real(kind=wp) DUM(1)
       integer(kind=iwp) ISYM, ICASE, NIN, IDISK
@@ -114,7 +114,6 @@ C looping, etc in the rest of the routines.
       END DO
       END SUBROUTINE MKBH
 
-      END SUBROUTINE MKBMAT
 
 ********************************************************************************
 * Case A (ICASE=1)
@@ -139,9 +138,10 @@ C looping, etc in the rest of the routines.
       INTEGER(KIND=Byte), INTENT(IN):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       Real(KIND=WP) Dummy(1)
-      INTEGER(KIND=IWP) MYRANK,ILO,IHI,JLO,JHI,MA,LDA
+      INTEGER(KIND=IWP) MYRANK,MA
 #endif
-      INTEGER(KIND=IWP) ICASE,ISYM,NIN,NAS,NBA,lg_BA
+      INTEGER(KIND=IWP) ILO,IHI,JLO,JHI,LDA
+      INTEGER(KIND=IWP) ICASE,ISYM,NIN,NAS,NBA,lg_BA,MBA
       Real(KIND=WP) DBA
       Real(KIND=WP), EXTERNAL:: PSBMAT_FPRINT
 
@@ -179,8 +179,10 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
             CALL GA_ACCESS (LG_BA,ILO,IHI,JLO,JHI,MA,LDA)
+            MBA=LDA*(JHI-JLO+1)
             CALL MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
-     &                   DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
+     &                   DBL_MB(MA),MBA,
+     &                   ILO,IHI,JLO,JHI,LDA)
             CALL MKBA_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
      &                       NG3,F3,IDXG3)
             CALL GA_RELEASE_UPDATE (LG_BA,ILO,IHI,JLO,JHI)
@@ -190,9 +192,16 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           END IF
         ELSE
 #endif
+          LDA=0
+          ILO=1
+          IHI=NAS
+          JLO=1
+          JHI=NAS
+          MBA=NAS*(NAS+1)/2
           CALL MKBA_DP(DREF,NDREF,PREF,NPREF,FD,FP,
-     &                 ISYM,GA_Arrays(lg_BA)%A(:),1,NAS,1,NAS,0)
-          CALL MKBA_F3(ISYM,GA_Arrays(lg_BA)%A(:),NG3,F3,IDXG3)
+     &                 ISYM,GA_Arrays(lg_BA)%A(:),MBA,
+     &                 ILO,IHI,JLO,JHI,LDA)
+          CALL MKBA_F3(ISYM,GA_Arrays(lg_BA)%A(:),MBA,NG3,F3,IDXG3)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -210,7 +219,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       END SUBROUTINE MKBA
 
       SUBROUTINE MKBA_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
-     &                    BA,iLo,iHi,jLo,jHi,LDA)
+     &                    BA,MBA,iLo,iHi,jLo,jHi,LDA)
       use definitions, only: iwp, wp
       use constants, only: Half, Two, Four
       USE SUPERINDEX, only: MTUV
@@ -218,10 +227,10 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       use caspt2_module, only: EASUM,NASHT,NTUVES,EPSA,NTUVES
       IMPLICIT None
       INTEGER(KIND=IWP), INTENT(IN):: NDREF, NPREF, iSYM,
-     &                                iLo, iHi, jLo, jHi, LDA
+     &                                MBA,iLo, iHi, jLo, jHi, LDA
       REAL(KIND=WP), INTENT(IN):: DREF(NDREF),PREF(NPREF)
       REAL(KIND=WP), INTENT(IN):: FD(NDREF),FP(NPREF)
-      REAL(KIND=WP), INTENT(OUT):: BA(*)
+      REAL(KIND=WP), INTENT(INOUT):: BA(MBA)
 
       INTEGER(KIND=IWP) IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUVABS,ITABS,
      &                  IUABS,IVABS,ISADR,IVZ,IXT,IP1,IP2,IP,ID,ID1,
@@ -315,15 +324,15 @@ CGG End
       END DO
       END SUBROUTINE MKBA_DP
 
-      SUBROUTINE MKBA_F3(ISYM,BA,NG3,F3,idxG3)
+      SUBROUTINE MKBA_F3(ISYM,BA,MBA,NG3,F3,idxG3)
       use Symmetry_Info, only: Mul
       use definitions, only: iwp, wp, Byte
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NASHT,IASYM,nTUVES
       IMPLICIT NONE
 
-      INTEGER(KIND=IWP), INTENT(IN):: ISYM, NG3
-      REAL(KIND=WP), INTENT(INOUT):: BA(*)
+      INTEGER(KIND=IWP), INTENT(IN):: ISYM, MBA, NG3
+      REAL(KIND=WP), INTENT(INOUT):: BA(MBA)
       REAL(KIND=WP), INTENT(IN):: F3(NG3)
       INTEGER(KIND=Byte), INTENT(IN):: idxG3(6,NG3)
 
@@ -493,19 +502,19 @@ C  - F(xvzyut) -> BA(yvx,zut)
       SUBROUTINE MKBA_F3_MPP(ISYM,BA,iLo,iHi,jLo,jHi,LDA,
      &                       NG3,F3,idxG3)
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp, Byte
       USE MPI
       USE SUPERINDEX, only: KTUV
       use stdalloc, only: mma_MaxDBLE
-      use definitions, only: MPIInt,RtoB,wp
       use caspt2_module, only: IASYM,NASHT,NTUVES
+      use definitions, only: MPIInt,RtoB
+      use definitions, only: iwp, wp, Byte
       IMPLICIT NONE
 
 #include "global.fh"
 #include "mafdecls.fh"
 
       INTEGER(KIND=IWP), INTENT(IN):: ISYM,iLo,iHi,jLo,jHi,LDA,NG3
-      REAL(KIND=WP), INTENT(INOUT):: BA(LDA,*)
+      REAL(KIND=WP), INTENT(INOUT):: BA(LDA,jHi-jLo+1)
       REAL(KIND=WP),INTENT(IN):: F3(NG3)
       INTEGER(KIND=Byte),INTENT(IN):: idxG3(6,NG3)
 
@@ -557,7 +566,7 @@ C  - F(xvzyut) -> BA(yvx,zut)
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
       iscal = (MPIInt*4 + wp*2)/RtoB
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
+      MAXBUF=MIN(NINT(0.95E0_wp*MAXMEM)/iscal,2000000000/8)
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
       ! This guarantees that e.g. if all processes send all their data
@@ -983,8 +992,9 @@ c Avoid unused argument warnings
       INTEGER(KIND=Byte), INTENT(IN):: idxG3(6,NG3)
 #ifdef _MOLCAS_MPP_
       Real(KIND=WP) Dummy(1)
-      INTEGER(KIND=IWP) MYRANK,ILO,IHI,JLO,JHI,MA,LDA
+      INTEGER(KIND=IWP) MYRANK,MA
 #endif
+      INTEGER(KIND=IWP) ILO,IHI,JLO,JHI,LDA,MBC
       INTEGER(KIND=IWP) ICASE,ISYM,NIN,NAS,NBC,lg_BC
       Real(KIND=WP) DBC
       Real(KIND=WP), EXTERNAL:: PSBMAT_FPRINT
@@ -1025,8 +1035,10 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           END IF
           IF (ILO.GT.0 .AND. JLO.GT.0) THEN
             CALL GA_ACCESS (LG_BC,ILO,IHI,JLO,JHI,MA,LDA)
+            MBC=LDA*(JHI-JLO+1)
             CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
-     &                   DBL_MB(MA),ILO,IHI,JLO,JHI,LDA)
+     &                   DBL_MB(MA),MBC,
+     &                   ILO,IHI,JLO,JHI,LDA)
             CALL MKBC_F3_MPP(ISYM,DBL_MB(MA),ILO,IHI,JLO,JHI,LDA,
      &                       NG3,F3,IDXG3)
             CALL GA_RELEASE_UPDATE (LG_BC,ILO,IHI,JLO,JHI)
@@ -1036,9 +1048,16 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
           END IF
         ELSE
 #endif
+          ILO=1
+          IHI=NAS
+          JLO=1
+          JHI=NAS
+          LDA=0
+          MBC=NAS*(NAS+1)/2
           CALL MKBC_DP(DREF,NDREF,PREF,NPREF,FD,FP,
-     &                 ISYM,GA_Arrays(lg_BC)%A(:),1,NAS,1,NAS,0)
-          CALL MKBC_F3(ISYM,GA_Arrays(lg_BC)%A(:),NG3,F3,IDXG3)
+     &                 ISYM,GA_Arrays(lg_BC)%A(:),MBC,
+     &                 ILO,IHI,JLO,JHI,LDA)
+          CALL MKBC_F3(ISYM,GA_Arrays(lg_BC)%A(:),MBC,NG3,F3,IDXG3)
 
 #ifdef _MOLCAS_MPP_
         END IF
@@ -1057,18 +1076,18 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       END SUBROUTINE MKBC
 
       SUBROUTINE MKBC_DP (DREF,NDREF,PREF,NPREF,FD,FP,iSYM,
-     &                    BC,iLo,iHi,jLo,jHi,LDC)
+     &                    BC,MBC,iLo,iHi,jLo,jHi,LDC)
       use definitions, only: iwp, wp
       use constants, only: Half, Two, Four
       USE SUPERINDEX, only: MTUV
       use caspt2_global, only:ipea_shift
       use caspt2_module, only: EASUM,NASHT,NTUVES,EPSA
       IMPLICIT NONE
-      INTEGER(KIND=IWP), intent(in):: NDREF,NPREF, iSYM,
+      INTEGER(KIND=IWP), intent(in):: NDREF,NPREF, iSYM,MBC,
      &                                iLo,iHi,jLo,jHi,LDC
       REAL(KIND=WP), intent(in):: DREF(NDREF),PREF(NPREF)
       REAL(KIND=WP), intent(in):: FD(NDREF),FP(NPREF)
-      REAL(KIND=WP), intent(inout):: BC(*)
+      REAL(KIND=WP), intent(inout):: BC(MBC)
 
       INTEGER(KIND=IWP) IXYZ,IXYZABS,IXABS,IYABS,IZABS,ITUV,ITUVABS,
      &                  ITABS,IUABS,IVABS,ISADR,IVZ,ITX,IVU,ITZ,IP1,
@@ -1147,15 +1166,16 @@ CGG End
       END DO
       END SUBROUTINE MKBC_DP
 
-      SUBROUTINE MKBC_F3(ISYM,BC,NG3,F3,idxG3)
+      SUBROUTINE MKBC_F3(ISYM,BC,NBC,NG3,F3,idxG3)
       use Symmetry_Info, only: Mul
-      use definitions, only: iwp, wp, Byte
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: NASHT,IASYM,nTUVES
+      use definitions, only: iwp, wp, Byte
+
       IMPLICIT NONE
 
-      INTEGER(KIND=IWP), INTENT(IN):: ISYM, NG3
-      REAL(KIND=WP), INTENT(INOUT):: BC(*)
+      INTEGER(KIND=IWP), INTENT(IN):: ISYM, NBC,NG3
+      REAL(KIND=WP), INTENT(INOUT):: BC(NBC)
       REAL(KIND=WP), INTENT(IN):: F3(NG3)
       INTEGER(KIND=BYTE), INTENT(IN):: idxG3(6,NG3)
 
@@ -1337,7 +1357,7 @@ C  - F(xvzyut) -> BC(zvx,yut)
 #include "mafdecls.fh"
 
       INTEGER(KIND=IWP), INTENT(IN):: ISYM,iLo,iHi,jLo,jHi,LDC,NG3
-      REAL(KIND=WP), INTENT(INOUT):: BC(LDC,*)
+      REAL(KIND=WP), INTENT(INOUT):: BC(LDC,jHi-jLo+1)
       REAL(KIND=WP), INTENT(IN):: F3(NG3)
       INTEGER(kind=Byte),INTENT(IN):: idxG3(6,NG3)
 
@@ -1920,24 +1940,28 @@ CGG.Nov03  Load in SDP the diagonal elements of SBP matrix:
           CALL mma_deallocate(SP)
 CGG End
         END IF
+
         NASM=NTGTU(ISYM)
         NBBM=(NASM*(NASM+1))/2
         IF(NBBM.GT.0) THEN
           CALL mma_allocate(BBM,NBBM,Label='BBM')
 CGG.Nov03  Load in SDM the diagonal elements of SBM matrix:
           NSM=(NASM*(NASM+1))/2
-          CALL mma_allocate(SM,NSM,Label='SM')
           CALL mma_allocate(SDM,NASM,Label='SDM')
-          IDSM=IDSMAT(ISYM,3)
-          CALL DDAFILE(LUSBT,2,SM,NSM,IDSM)
-          IDIAG=0
-          DO I=1,NASM
-            IDIAG=IDIAG+I
-            SDM(I)=SM(IDIAG)
-          END DO
-          CALL mma_deallocate(SM)
+          IF (NINDEP(ISYM,3)>0) THEN
+             CALL mma_allocate(SM,NSM,Label='SM')
+             IDSM=IDSMAT(ISYM,3)
+             CALL DDAFILE(LUSBT,2,SM,NSM,IDSM)
+             IDIAG=0
+             DO I=1,NASM
+               IDIAG=IDIAG+I
+               SDM(I)=SM(IDIAG)
+             END DO
+             CALL mma_deallocate(SM)
+          END IF
 CGG End
         END IF
+
         INSM=1
         DO ITGEU=1,NASP
           ITGEUABS=ITGEU+NTGEUES(ISYM)
@@ -1972,6 +1996,7 @@ CGG.Nov03
      &                          (DREF(IDT)+DREF(IDU))*SDP(ITGEU)
             ENDIF
 CGG End
+            IF (NINDEP(ISYM,3)<1) CYCLE
             IF(ITABS.EQ.IUABS) CYCLE
             IF(IXABS.EQ.IYABS) CYCLE
             ITGTU=KTGTU(ITABS,IUABS)-NTGTUES(ISYM)

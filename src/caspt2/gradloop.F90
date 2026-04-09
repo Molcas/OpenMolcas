@@ -11,7 +11,7 @@
 ! Copyright (C) 2023, Yoshio Nishimoto                                 *
 !***********************************************************************
 
-Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
+Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav,nState)
 !
 ! Gradient loop for MS-CASPT2 variants
 ! Usually, we do not solve the CASPT2 equation again; the excitation
@@ -22,35 +22,36 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   use caspt2_global, only: iPrGlb
   use caspt2_global, only: do_grad, IDSAVGRD, iStpGrd
   use PrintLevel, only: USUAL, VERBOSE
-  use definitions, only: iwp,wp,u6
   use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
   use caspt2_module, only: CPUEIG, CPUFG3, CPUFMB, CPUGIN, CPUGRD, CPUINT, CPULCS, CPUNAD, CPUOVL, CPUPCG, &
                            CPUSCA, CPUSER, CPUSGM, CPUSIN, CPUVEC, CPUPRP, CPUPT2, CPURHS, CPUSBM, &
                            TIOEIG, TIOFG3, TIOFMB, TIOGIN, TIOGRD, TIOINT, TIOLCS, TIONAD, TIOOVL, TIOPCG, &
                            TIOSCA, TIOSER, TIOSGM, TIOSIN, TIOVEC, TIOPRP, TIOPT2, TIORHS, TIOSBM, &
                            Energy, IfChol, IfDens, IfDW, IfMSCoup, IfProp, IfRMS, IfXMS, iRlxRoot, jState, &
-                           nGroup, nState, nGroupState, mState
+                           nGroup, nGroupState, mState
+  use definitions, only: iwp,wp,u6
 
   Implicit None
 
 #include "warnings.h"
+  Integer(kind=iwp), intent(in) :: nState
+! Effective Hamiltonian
+! Real(kind=wp), Allocatable :: Heff(:,:), Ueff(:,:)
+  Real(kind=wp), intent(inout) :: Heff(nState,nState), Ueff(nState,nState)
+! Zeroth-order Hamiltonian
+! Real(kind=wp), Allocatable :: H0(:,:), U0(:,:)
+  Real(kind=wp), intent(inout) :: H0(nState,nState), U0(nState,nState), H0Sav(nState,nState)
 
   character(len=60) :: STLNE2
 
 ! Timers
-  Real(kind=wp) :: CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14, &
-     &            TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14, &
+  Real(kind=wp) :: CPTF0, CPTF11, CPTF12, CPTF13, CPTF14, &
+     &            TIOTF0,TIOTF11,TIOTF12,TIOTF13,TIOTF14, &
      &               CPE,CPUTOT,TIOE,TIOTOT
 ! Indices
   Integer(kind=iwp) :: I,ISTATE,IGROUP,JSTATE_OFF
 ! Convergence check
   Integer(kind=iwp) :: ICONV
-! Effective Hamiltonian
-! Real(kind=wp), Allocatable :: Heff(:,:), Ueff(:,:)
-  Real(kind=wp) :: Heff(*), Ueff(*)
-! Zeroth-order Hamiltonian
-! Real(kind=wp), Allocatable :: H0(:,:), U0(:,:)
-  Real(kind=wp) :: H0(*), U0(*), H0Sav(*)
 
 ! For verification only
   INTEGER LAXITY,Cho_X_GetTol
@@ -79,12 +80,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       WRITE(u6,*)
     END IF
 
-    CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-    CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0)
-!   If ((IFXMS.and.IFDW).OR.IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
-    CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-    CPUGIN=CPTF10-CPTF0
-    TIOGIN=TIOTF10-TIOTF0
+    CALL GRPINI(IGROUP,NGROUPSTATE(IGROUP),JSTATE_OFF,HEFF,H0,U0,nState)
 
     If (do_grad) CALL CNSTFIFAFIMO(1)
 
@@ -92,11 +88,11 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       JSTATE = JSTATE_OFF + ISTATE
 
       CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
-      !CALL STINI()
+      !CALL STINI(JSTATE)
       CALL RHS_INIT() !! somehow
       Call SavGradParams(2,IDSAVGRD)
-      Call SavGradParams2(2,UEFF,U0,H0)
-      If ((IFXMS .and. IFDW) .OR. IFRMS) Call DCopy_(nState*nState,H0Sav,1,H0,1)
+      Call SavGradParams2(2,UEFF,U0,H0,nState)
+      If ((IFXMS .and. IFDW) .OR. IFRMS) H0(:,:)=H0Sav(:,:)
       CALL TIMING(CPTF11,CPE,TIOTF11,TIOE)
       CPUSIN=CPTF11-CPTF0
       TIOSIN=TIOTF11-TIOTF0
@@ -133,12 +129,9 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       END IF
 
       IF (IFPROP.OR.(do_grad.and.(IRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP))) THEN
-        IF (IPRGLB.GE.USUAL) THEN
-          WRITE(u6,*)
-          WRITE(u6,'(20A4)')('****',I=1,20)
-          WRITE(u6,*)' CASPT2 PROPERTY SECTION'
-        END IF
-        CALL PRPCTL(0,UEFF,U0)
+
+        CALL PRPCTL(0,UEFF,U0,nState)
+
       ELSE
         IF (IPRGLB.GE.USUAL) THEN
           WRITE(u6,*)
@@ -158,6 +151,25 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       CPUTOT=CPTF14-CPTF0
       TIOTOT=TIOTF14-TIOTF0
 
+      Call Iter_Timing()
+
+! End of long loop over states in the group
+    END DO
+
+    IF (IPRGLB >= USUAL) THEN
+      CALL CollapseOutput(0,'CASPT2 computation for group ')
+      WRITE(u6,*)
+    END IF
+! End of long loop over groups
+    JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
+  END DO STATELOOP2
+
+Contains
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+Subroutine Iter_Timing()
       IF (ISTATE == 1) THEN
         CPUTOT=CPUTOT+CPUGIN
         TIOTOT=TIOTOT+TIOGIN
@@ -203,16 +215,5 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
         WRITE(u6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
         WRITE(u6,*)
       END IF
-
-! End of long loop over states in the group
-    END DO
-
-    IF (IPRGLB >= USUAL) THEN
-      CALL CollapseOutput(0,'CASPT2 computation for group ')
-      WRITE(u6,*)
-    END IF
-! End of long loop over groups
-    JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
-  END DO STATELOOP2
-
+End Subroutine Iter_Timing
 End Subroutine GradLoop

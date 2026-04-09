@@ -16,7 +16,7 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MKLIST(LIST)
+      SUBROUTINE MKLIST(LIST,mList)
       use Symmetry_Info, only: Mul
       USE SUPERINDEX, only: MTU, KTUV, MTGEU, MTGTU, KTU, KTGEU, KTGTU,
      &                      KIGEJ, KIGTJ, KAGEB, KAGTB
@@ -26,23 +26,26 @@
      &                         NTGTU, NTGEUES, NTGTUES, NIES, NIGEJES,
      &                         NIGTJES, NIGEJES, NIGTJES, nIsh, NSES,
      &                         NAGEBES, NAGTBES, NAGEBES, nSsh
+      use definitions, only: iwp
       IMPLICIT NONE
 C Subroutine for setting up the 17 lists of coupling
 C  coefficients -- See sgm.f and sgm.ol for usage.
 
-      INTEGER LIST(*)
+      INTEGER(kind=iwp), intent(in):: mLIST
+      INTEGER(kind=iwp), intent(out):: LIST(mList)
 
-      INTEGER IA,IB,II,IJ,IT,IU
-      INTEGER IAB,IIJ,ITU,ITU1,ITU2,IUT1,IUT2,IUV,IUU2
-      INTEGER ITUV,IUTV,IUVT,IVTU,IVUT
-      INTEGER IAQ,IBQ,IIQ,IJQ,ITQ,IUQ,IVQ,IUVQ
-      INTEGER ILIST,ISL1,ISL2,ISL3
-      INTEGER LADR,LADR1,LADR2,LADR3,LADR4,LADR5,LADR6,LADR7,LADR8,
-     &        LADR9,LADR10,LADR11,LADR12,LADR13,LADR14,LADR15,
-     &        LADR16,LADR17
-      INTEGER NOFF
+      INTEGER(kind=iwp) IA,IB,II,IJ,IT,IU
+      INTEGER(kind=iwp) IAB,IIJ,ITU,ITU1,ITU2,IUT1,IUT2,IUV,IUU2
+      INTEGER(kind=iwp) ITUV,IUTV,IUVT,IVTU,IVUT
+      INTEGER(kind=iwp) IAQ,IBQ,IIQ,IJQ,ITQ,IUQ,IVQ,IUVQ
+      INTEGER(kind=iwp) ILIST,ISL1,ISL2,ISL3
+      INTEGER(kind=iwp) LADR,LADR1,LADR2,LADR3,LADR4,LADR5,LADR6,LADR7,
+     &                  LADR8,LADR9,LADR10,LADR11,LADR12,LADR13,LADR14,
+     &                  LADR15,LADR16,LADR17
+      INTEGER(kind=iwp) NOFF
 
 
+      LIST(:)=0
       LADR=1
       DO ILIST=1,17
        DO ISL1=1,NSYM
@@ -495,4 +498,4 @@ C Add to list 16: IA,IB,IAB,V= Sqr(2)
         END DO
        END DO
 
-      END
+      END SUBROUTINE MKLIST

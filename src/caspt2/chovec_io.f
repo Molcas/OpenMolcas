@@ -211,7 +211,7 @@ C as this is how they are used to compute the integrals for RHS.
       END SUBROUTINE CHOVEC_READ
 
 ************************************************************************
-      SUBROUTINE CHOVEC_SAVE(CHOBUF,ICASE,ISYQ,JSYM,IB)
+      SUBROUTINE CHOVEC_SAVE(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 ************************************************************************
 * Write Cholesky vectors to disk.
 ************************************************************************
@@ -221,8 +221,8 @@ C as this is how they are used to compute the integrals for RHS.
 #endif
       IMPLICIT NONE
 #include "warnings.h"
-      INTEGER(KIND=IWP), INTENT(IN):: ICASE,ISYQ,JSYM,IB
-      REAL(KIND=WP), INTENT(INOUT):: CHOBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NCHOBUF,ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(INOUT):: CHOBUF(NCHOBUF)
 
       INTEGER(KIND=IWP) NPQ, JNUM, IDISK
 #ifdef _DEBUGPRINT_
@@ -250,7 +250,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       END SUBROUTINE CHOVEC_SAVE
 
 ************************************************************************
-      SUBROUTINE CHOVEC_LOAD(CHOBUF,ICASE,ISYQ,JSYM,IB)
+      SUBROUTINE CHOVEC_LOAD(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 ************************************************************************
 * Read Cholesky vectors from disk.
 ************************************************************************
@@ -260,8 +260,8 @@ C always write the chunks to LUDRA, both for serial and parallel
 #endif
       IMPLICIT NONE
 #include "warnings.h"
-      INTEGER(KIND=IWP), INTENT(IN):: ICASE,ISYQ,JSYM,IB
-      REAL(KIND=WP), INTENT(OUT):: CHOBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NCHOBUF,ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(OUT):: CHOBUF(NCHOBUF)
 
       INTEGER(KIND=IWP) NPQ, JNUM, IDISK
 #ifdef _DEBUGPRINT_
@@ -288,7 +288,7 @@ C always write the chunks to LUDRA, both for serial and parallel
       END SUBROUTINE CHOVEC_LOAD
 
 ************************************************************************
-      SUBROUTINE CHOVEC_COLL(CHOBUF,ICASE,ISYQ,JSYM,IB)
+      SUBROUTINE CHOVEC_COLL(CHOBUF,NCHOBUF,ICASE,ISYQ,JSYM,IB)
 ************************************************************************
 * Routine to gather locally available cholesky vectors and collect
 * all of them on each process in case of parallel run.
@@ -309,8 +309,8 @@ C always write the chunks to LUDRA, both for serial and parallel
 #endif
       IMPLICIT NONE
 #include "warnings.h"
-      REAL(KIND=WP), INTENT(INOUT) :: CHOBUF(*)
-      INTEGER(KIND=IWP), INTENT(IN) :: ICASE,ISYQ,JSYM,IB
+      INTEGER(KIND=IWP), INTENT(IN) :: NCHOBUF,ICASE,ISYQ,JSYM,IB
+      REAL(KIND=WP), INTENT(INOUT) :: CHOBUF(NCHOBUF)
 
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
@@ -356,8 +356,8 @@ C compute offsets into the receiving array
 C collect the vectors
         CALL mma_allocate(RECVBUF,NFTSPC_TOT,Label='RECVBUF')
         CALL MPI_Barrier(MPI_COMM_WORLD, IERROR4)
-        CALL MPI_Allgatherv_(CHOBUF,NUMSEND(1),MPI_REAL8,
-     &                       RECVBUF,SIZE,DISP,
+        CALL MPI_Allgatherv_(CHOBUF,NCHOBUF,NUMSEND(1),MPI_REAL8,
+     &                       RECVBUF,NFTSPC_TOT,SIZE,DISP,NPROCS,
      &                       MPI_REAL8,MPI_COMM_WORLD, IERROR)
 
         JNUMT=NVGLB_CHOBATCH(IB)
@@ -401,19 +401,23 @@ C Avoid unused argument warnings
 
 #ifdef _MOLCAS_MPP_
 ************************************************************************
-      SUBROUTINE MPI_Allgatherv_(SENDBUF,NSEND,MPITYPES,
-     &                     RCVBUF,NRCV,NOFF,MPITYPER,MPICOMM,IERROR)
+      SUBROUTINE MPI_Allgatherv_(SENDBUF,NSENDBUF,NSEND,MPITYPES,
+     &                           RCVBUF,NRCVBUF,NRCV,NOFF,MPROCS,
+     &                           MPITYPER,MPICOMM,IERROR)
 ************************************************************************
 * Wrapper to MPI_Allgatherv dealing with ILP64 incompatibility.
 ************************************************************************
       USE MPI, only: MPI_COMM_WORLD
       use definitions, only: MPIInt
       IMPLICIT NONE
-      REAL(KIND=WP), INTENT(INOUT):: SENDBUF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NSENDBUF
+      REAL(KIND=WP), INTENT(INOUT):: SENDBUF(NSENDBUF)
       INTEGER(KIND=IWP), INTENT(IN):: NSEND
       integer(kind=MPIInt), INTENT(IN) :: MPITYPES
-      REAL(KIND=WP), INTENT(INOUT):: RCVBUF(*)
-      integer(kind=MPIInt), INTENT(IN) :: NRCV(*), NOFF(*)
+      INTEGER(KIND=IWP), INTENT(IN):: NRCVBUF
+      REAL(KIND=WP), INTENT(INOUT):: RCVBUF(NRCVBUF)
+      INTEGER(KIND=IWP), INTENT(IN):: MPROCS
+      integer(kind=MPIInt), INTENT(IN) :: NRCV(MPROCS), NOFF(MPROCS)
       integer(kind=MPIInt), INTENT(IN) :: MPITYPER, MPICOMM
       INTEGER(KIND=IWP), INTENT(OUT) :: IERROR
 

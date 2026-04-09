@@ -63,10 +63,11 @@
           ntri=ntri+(nbas(isym)+nbas(isym)**2)/2
         Enddo
         NDPQ=ntri
-        CALL MMA_ALLOCATE(DPQ,NDPQ)
+        CALL MMA_ALLOCATE(DPQ,NDPQ,Label='DPQ')
         Call AFreez(NSYM,NBAS,NFRO,NISH,NASH,NSSH,NDEL,BNAME,
-     &    INPUT%NAMFRO,INPUT%LNFRO,DPQ,
-     &    Input%THRFR,Input%THRDE,IFQCAN,CMO_X,NCMO)
+     &              SIZE(BNAME),
+     &              INPUT%NAMFRO,INPUT%LNFRO,DPQ,nDPQ,
+     &              Input%THRFR,Input%THRDE,IFQCAN,CMO_X,NCMO)
         CALL MMA_DEALLOCATE(DPQ)
         Write(6,'(A,8I4)')
      &  ' Frozen orbitals after selection     ',(nfro(i),i=1,nsym)
@@ -111,8 +112,9 @@
 
         EMP2=Zero
         Call Lov_CASPT2(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,
-     &    BNAME,nUniqAt,Input%thr_atm,IFQCAN,
-     &    Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO_X,NCMO)
+     &                  BNAME,SIZE(BNAME),nUniqAt,Input%thr_atm,IFQCAN,
+     &                  Input%DoMP2,Input%DoEnv,Input%VIRA,EMP2,CMO_X,
+     &                  NCMO)
 
         If (irc.ne.0) Then
           write(6,*) 'LovCASPT2 returned rc= ',irc

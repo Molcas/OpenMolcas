@@ -20,7 +20,7 @@
       use caspt2_module, only: DMRG, nAshT
 #endif
       use caspt2_global, only: do_grad, iStpGrd
-      use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
+      use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
      &                       NDREF, NPREF, NCMO
       use stdalloc, only: mma_allocate
@@ -31,12 +31,18 @@
       use caspt2_module, only: nSym, Header, ifChol, jState,
      &                         bName, nAsh, nBas, nIsh,
      &                         nOTri, nBasT, nBSqT, nSsh, nState
+      use definitions, only: iwp
       IMPLICIT NONE
 #include "compiler_features.h"
 
-      INTEGER LuSpool
+      INTEGER(kind=iwp) LuSpool
 C     Cholesky
-      Integer iSym, iRC
+      Integer(kind=iwp) iSym, iRC
+
+      CALL SETTIM()
+
+* Probe the environment to globally set the IPRGLB value
+      Call Set_Print_Level()
 
 *
 * Probe the RunFile for some basic information
@@ -111,12 +117,8 @@ C     Cholesky
 *
 * The total fock matrix (sum of inactive and active contrib.)
       CALL mma_allocate(FIFA,NOTRI,Label='FIFA')
-* The one-electron Hamiltonian
-      CALL mma_allocate(HONE,NOTRI,Label='HONE')
 * The fock matrix with contributions from inactive orbitals, only.
       CALL mma_allocate(FIMO,NOTRI,Label='FIMO')
-* The fock matrix with contributions from active orbitals, only.
-      CALL mma_allocate(FAMO,NOTRI,Label='FAMO')
 * Density matrices, active indices.
       CALL mma_allocate(DREF,NDREF,Label='DREF')
       CALL mma_allocate(PREF,NPREF,Label='PREF')
@@ -173,8 +175,9 @@ C Initialize sizes, offsets etc used in equation solver.
       USE SUPERINDEX, ONLY: SUPFREE
       use PT2WFN, ONLY: PT2WFN_CLOSE
       use gugx, only: SGS, CIS, EXS
-      use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
-     &                       DWGT, CMOPT2, TAT, TORB, IDSCT, Weight
+      use caspt2_global, only: FIMO, FIFA, DREF, PREF, DMIX,
+     &                         DWGT, CMOPT2, TAT, TORB, IDSCT, Weight,
+     &                         IDCIEX, IDTCEX
       use stdalloc, only: mma_deallocate
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_deinit
@@ -188,11 +191,12 @@ C Initialize sizes, offsets etc used in equation solver.
 #endif
       use ChoCASPT2, only: NASplit,NISplit,NumCho_PT2
       use caspt2_module, only: IfChol, nAsh, nIsh, nSsh, nSym
+      use definitions, only: iwp
       IMPLICIT NONE
 
-      Integer iSym
+      Integer(kind=iwp) iSym
 C     Cholesky return code
-      INTEGER irc
+      INTEGER(kind=iwp) irc
 C     size of idsct array
 
       If (IfChol) then
@@ -233,10 +237,10 @@ C     size of idsct array
 C     Deallocate MAGEB, etc, superindex tables:
       CALL SUPFREE()
 * Deallocate global array for Fock matrix, etc:
+      CALL mma_deallocate(IDCIEX)
+      CALL mma_deallocate(IDTCEX)
       CALL mma_deallocate(FIFA)
-      CALL mma_deallocate(HONE)
       CALL mma_deallocate(FIMO)
-      CALL mma_deallocate(FAMO)
       CALL mma_deallocate(DREF)
       CALL mma_deallocate(PREF)
       CALL mma_deallocate(DMIX)

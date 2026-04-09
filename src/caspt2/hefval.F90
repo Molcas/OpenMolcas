@@ -19,7 +19,7 @@ subroutine hefval(ist, jst, dvalue)
 #if defined _DMRG_
   use caspt2_module, only: DMRG
 #endif
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
   implicit none
   ! Apart from input call parameters, we need two vectors stored on
   ! LUSOLV. Vector nr IVECC (presently=2) contains the contravariant
@@ -65,7 +65,7 @@ subroutine hefval(ist, jst, dvalue)
     call mma_allocate(ci2, mxci, label='CI2')
     if (iscf == 0) then
       ! Read root vectors nr. IST and JST from LUCI.
-      idci = idtcex
+      idci = idtcex(1)
       do i = 1, nstate
         if (i == ist) then
           call ddafile(luciex, 2, ci1, nconf, idci)
@@ -91,7 +91,7 @@ subroutine hefval(ist, jst, dvalue)
   end if
 #endif
 
-  call hcoup(ivecw, ivecc, ovl, tg1, tg2, tg3, dvalue)
+  call hcoup(ivecw, ivecc, ovl, tg1, tg2, nAshT, tg3, ntg3, dvalue)
 
   call mma_deallocate(tg1)
   call mma_deallocate(tg2)

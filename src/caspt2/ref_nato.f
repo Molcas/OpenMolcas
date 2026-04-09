@@ -8,16 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE REF_NATO(DREF,CMO,OCC,CNAT)
-      use definitions, only: iwp, wp
+      SUBROUTINE REF_NATO(DREF,nDREF,CMO,nCMO,OCC,nOcc,CNAT,nCNAT)
       use constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: NSYM,NFRO,NISH,NASH,NBAS
+      use definitions, only: iwp, wp
 
       IMPLICIT None
 
-      real(kind=wp), intent(In):: DREF(*),CMO(*)
-      real(kind=wp), intent(out):: OCC(*),CNAT(*)
+      integer(kind=iwp), intent(In):: nDREF,nCMO,nOcc,nCNAT
+      real(kind=wp), intent(In):: DREF(nDREF),CMO(nCMO)
+      real(kind=wp), intent(out):: OCC(nOcc),CNAT(nCNAT)
 
       real(kind=wp), ALLOCATABLE:: TMP(:)
       integer(kind=iwp) IDREF, IOCC, ICMO, ISYM, NF, NI, NA, NB, I, II,

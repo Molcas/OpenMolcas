@@ -104,6 +104,4 @@ call mma_deallocate(W1,safe='*')
 call mma_deallocate(W2,safe='*')
 call Deallocate_DT(WFSQ(1))
 
-return
-
 end subroutine FockTwo_Drv

@@ -219,7 +219,8 @@ C the SGM subroutines
 #endif
 C Compute contribution SGM2 <- CX, and SGM1 <- CX  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 SGM1,SGM2,LCX,LISTS)
+     &                 SGM1,SIZE(SGM1),SGM2,SIZE(SGM2),LCX,
+     &                 LISTS,SIZE(LISTS))
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 CALL RHS_FREE(lg_CX)
@@ -273,11 +274,14 @@ C part (This requires a non-empty active space.)
           IF(NSGM1.GT.0) THEN
             FACT=One/(DBLE(MAX(1,NACTEL)))
             IF (ICASE1.EQ.1) THEN
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,SGM2,SGM1)
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),
+     &                                      SGM1,SIZE(SGM1))
             ELSE IF(ICASE1.EQ.4) THEN
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,SGM2,SGM1)
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,SGM2,SIZE(SGM2),
+     &                                      SGM1,SIZE(SGM1))
             ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
-              CALL SPEC1D(IMLTOP,FACT,SGM2,SGM1)
+              CALL SPEC1D(IMLTOP,FACT,SGM2,SIZE(SGM2),
+     &                                SGM1,SIZE(SGM1))
             END IF
 
             XTST=DDOT_(NSGM2,SGM2,1,SGM2,1)
@@ -379,21 +383,21 @@ CPAM Sanity check:
             IF(ND1.GT.0) THEN
               CALL mma_allocate(D1,ND1,Label='D1')
               D1(:)=Zero
-              CALL SPEC1A(IMLTOP,FACT,ISYM1,D2,D1)
+              CALL SPEC1A(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           ELSE IF(ICASE1.EQ.4) THEN
             ND1=NASH(ISYM1)*NSSH(ISYM1)
             IF(ND1.GT.0) THEN
               CALL mma_allocate(D1,ND1,Label='D1')
               D1(:)=Zero
-              CALL SPEC1C(IMLTOP,FACT,ISYM1,D2,D1)
+              CALL SPEC1C(IMLTOP,FACT,ISYM1,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           ELSE IF(ICASE1.EQ.5.AND.ISYM1.EQ.1) THEN
             ND1=NIS1
             IF(ND1.GT.0) THEN
               CALL mma_allocate(D1,ND1,Label='D1')
               D1(:)=Zero
-              CALL SPEC1D(IMLTOP,FACT,D2,D1)
+              CALL SPEC1D(IMLTOP,FACT,D2,SIZE(D2),D1,SIZE(D1))
             END IF
           END IF
           If (.NOT.ALLOCATED(D1)) CALL mma_allocate(D1,1,Label='D1')
@@ -444,7 +448,8 @@ CPAM Sanity check:
 #endif
 C Compute contribution SGMX <- D2, and SGMX <- D1  if any
               CALL SGM(IMLTOP,ISYM1,ICASE1,ISYM2,ICASE2,
-     &                 D1,D2,LSGMX,LISTS)
+     &                 D1,SIZE(D1),D2,SIZE(D2),LSGMX,
+     &                 LISTS,SIZE(LISTS))
 
               IF (ICASE2.EQ.12 .OR. ICASE2.EQ.13) THEN
                 XTST=RHS_DDOT(NAS2,NIS2,lg_SGMX,lg_SGMX)

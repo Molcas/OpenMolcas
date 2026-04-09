@@ -22,27 +22,28 @@
       use caspt2_global, only: LUCIEX, IDTCEX
       use caspt2_module, only: nAshT, iSCF, jState, nConf, nSym, STSym,
      &                         iASym, nAes, nAshT, nAsh
-      use gugx, only: MxLev
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
+      use molcas, only: MxLev
+      use constants, only: Zero, One, Two
+      use definitions, only: iwp, wp
       IMPLICIT NONE
 
-      INTEGER IVEC, JVEC
-      REAL*8 DTU(NASHT,NASHT)
+      INTEGER(kind=iwp) IVEC, JVEC
+      REAL(kind=wp) DTU(NASHT,NASHT)
 C Local array:
-      INTEGER IATOG(MXLEV)
+      INTEGER(kind=iwp) IATOG(MXLEV)
 
-      REAL*8, ALLOCATABLE :: TRDOP1(:), TRDOP2(:), TRDOP3(:)
-      INTEGER :: NOP1, NOP2, NOP3
+      REAL(kind=wp), ALLOCATABLE :: TRDOP1(:), TRDOP2(:), TRDOP3(:)
+      INTEGER(kind=iwp) :: NOP1, NOP2, NOP3
 
-      REAL*8, ALLOCATABLE :: TRDTMP(:), TRDCI(:), TRDSGM(:)
-      INTEGER :: NTMP
+      REAL(kind=wp), ALLOCATABLE :: TRDTMP(:), TRDCI(:), TRDSGM(:)
 
-      INTEGER :: I, J, ID
-      INTEGER :: ISYM, ISYMT
-      INTEGER :: ITABS, ITLEV, IU, IUABS, IULEV
-      REAL*8 :: OP0, OCCNUM, SCP, DDOT_
+      INTEGER(kind=iwp) :: I, ID
+      INTEGER(kind=iwp) :: ISYM, ISYMT
+      INTEGER(kind=iwp) :: ITABS, ITLEV, IU, IUABS, IULEV
+      REAL(kind=wp) :: OP0, OCCNUM, SCP, DDOT_
+      Integer(kind=iwp) :: nLev
 
-      Integer :: nLev
       nLev = SGS%nLev
 
 C Add to the active-active block of transition density matrix,
@@ -66,23 +67,17 @@ C (1): Compute a representation of the operator PCAS*W1T*W2
 C (2): Compute the state vector |Temp> = (PCAS*W1T*W2) |0>
 C First modify the coefficients, see subroutine MODOP.
       CALL MODOP(TRDOP1,NOP2,TRDOP2,NOP3,TRDOP3)
-      NTMP=NCONF
-      CALL MMA_ALLOCATE(TRDTMP,NTMP)
+      CALL MMA_ALLOCATE(TRDTMP,NCONF)
       CALL MMA_ALLOCATE(TRDCI,NCONF)
       IF(ISCF.EQ.0) THEN
-*PAM07 Eliminate the unsafe IPOSFILE call
-*        ID=IDTCEX+iPosFile(NCONF)*(JSTATE-1)
-*PAM07 Use instead dummy operations:
-        ID=IDTCEX
-        DO J=1,JSTATE-1
-         CALL DDAFILE(LUCIEX,0,TRDCI,NCONF,ID)
-        END DO
+        ID=IDTCEX(JSTATE)
         CALL DDAFILE(LUCIEX,2,TRDCI,NCONF,ID)
       ELSE
-        TRDCI=1.0D0
+        TRDCI(1)=One
       END IF
-      CALL DCOPY_(NTMP,[0.0D0],0,TRDTMP,1)
-      CALL HAM3(OP0,TRDOP1,NOP2,TRDOP2,NOP3,TRDOP3,STSYM,TRDCI,TRDTMP)
+      TRDTMP(:)=Zero
+      CALL HAM3(OP0,TRDOP1,NOP2,TRDOP2,NOP3,TRDOP3,STSYM,
+     &          TRDCI,TRDTMP,nCONF)
 C No more need for the operators:
       CALL MMA_DEALLOCATE(TRDOP1)
       CALL MMA_DEALLOCATE(TRDOP2)
@@ -110,22 +105,20 @@ C ordinal number of each active orbital.
           DO IU=1,NASH(ISYMT)
             IUABS=NAES(ISYMT)+IU
             IULEV=IATOG(IUABS)
-CPAM00          CALL GETSGM(IULEV,ITLEV,IDEX,TRDSGM)
-CPAM00 GETSGM replaced by GETSGM2
-            CALL GETSGM2(IULEV,ITLEV,STSYM,TRDCI,TRDSGM)
+            CALL GETSGM2(IULEV,ITLEV,STSYM,TRDCI,NCONF,TRDSGM,NCONF)
             SCP=DDOT_(NCONF,TRDSGM,1,TRDTMP,1)
             DTU(ITABS,IUABS)=DTU(ITABS,IUABS)+SCP
           END DO
         END DO
         CALL MMA_DEALLOCATE(TRDSGM)
       ELSE
-        OCCNUM=2.0D0
-        IF(ISCF.EQ.2) OCCNUM=1.0D0
+        OCCNUM=Two
+        IF(ISCF.EQ.2) OCCNUM=One
         DO ITABS=1,NASHT
           DTU(ITABS,ITABS)=DTU(ITABS,ITABS)+OCCNUM
         END DO
       END IF
-CPAM00 No more need for CI array
+C No more need for CI array
       CALL MMA_DEALLOCATE(TRDCI)
 C No more need for the TMP state vector
       CALL MMA_DEALLOCATE(TRDTMP)

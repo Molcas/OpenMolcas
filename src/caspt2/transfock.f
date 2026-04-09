@@ -23,7 +23,7 @@
       integer(kind=iwp) NT, NI, NR1, NR2, NR3, NS, NO, IJOFF,
      &                  ITOFF, I, J, II, JJ, IJ, ISYM, IOFF
 * Purpose: given an orbital transformation array and some
-* one-electron matrix in storage format as e.g. HONE, FIFA,
+* one-electron matrix in storage format as e.g. FIFA and FIMO
 * transform the matrix to use the new orbital basis.
 
       NT=0
@@ -38,9 +38,11 @@
         NOMX=MAX(NOMX,NO)
         NT=NT+NI**2+NR1**2+NR2**2+NR3**2+NS**2
       END DO
+
       CALL mma_allocate(FSQ,NOMX**2,LABEL='FSQ')
       CALL mma_allocate(TSQ,NOMX**2,LABEL='TSQ')
       CALL mma_allocate(TMP,NOMX**2,LABEL='TMP')
+
       IJOFF=0
       ITOFF=0
       DO ISYM=1,NSYM
@@ -51,6 +53,7 @@
         NS=NSSH(ISYM)
         NO=NI+NR1+NR2+NR3+NS
         IF (NO.eq.0) Cycle
+
 * Copy the matrices to square storage: first fill with zeroes.
         TSQ(1:NO**2)=Zero
 * Copy inactive TORB block to TSQ
@@ -111,17 +114,27 @@
          END DO
         END DO
        IF (IDIR.GE.0) THEN
+! T^T F T
 * Transform, first do FSQ*TSQ -> TMP...
-        CALL DGEMM_('N','N',NO,NO,NO,One,FSQ,NO,TSQ,NO,
+        CALL DGEMM_('N','N',NO,NO,NO,
+     &              One,FSQ,NO,
+     &                  TSQ,NO,
      &              Zero,TMP,NO)
 * ... and then do TSQ(transpose)*TMP -> FSQ.
-        CALL DGEMM_('T','N',NO,NO,NO,One,TSQ,NO,TMP,NO,
+        CALL DGEMM_('T','N',NO,NO,NO,
+     &              One,TSQ,NO,
+     &              TMP,NO,
      &              Zero,FSQ,NO)
        ELSE
+! T F T^T
 * Or inverse transformation
-        CALL DGEMM_('N','T',NO,NO,NO,One,FSQ,NO,TSQ,NO,
+        CALL DGEMM_('N','T',NO,NO,NO,
+     &              One,FSQ,NO,
+     &                  TSQ,NO,
      &              Zero,TMP,NO)
-        CALL DGEMM_('N','N',NO,NO,NO,One,TSQ,NO,TMP,NO,
+        CALL DGEMM_('N','N',NO,NO,NO,
+     &              One,TSQ,NO,
+     &              TMP,NO,
      &              Zero,FSQ,NO)
        END IF
 * Transfer FSQ values back to F, in triangular storage.

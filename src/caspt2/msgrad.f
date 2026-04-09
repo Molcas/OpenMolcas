@@ -15,10 +15,10 @@
       use caspt2_global, only: LUCIEX, IDTCEX
       use EQSOLV, only: IVECC, IVECC2, IVECW
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: wp, iwp
       use caspt2_module, only: STSYM, NCONF, NASHT, ISCF, NSTATE
-      use pt2_guga, only: MXCI
+      use caspt2_module, only: MXCI
       use Constants, only: Zero
+      use definitions, only: wp, iwp
 !
 !     Compute the derivative of E^PT2 with respct to the T amplitude
 !
@@ -53,8 +53,8 @@
       call mma_allocate(CI2,MXCI,Label='MCCI2')
       IF(ISCF == 0) THEN
 ! Read root vectors nr. IST and JST from LUCI.
-        IDCI=IDTCEX
         DO I=1,NSTATE
+          IDCI=IDTCEX(I)
           IF(I == IST) THEN
             CALL DDAFILE(LUCIEX,2,CI1,NCONF,IDCI)
             IF(I == JST) THEN
@@ -220,7 +220,8 @@
         END DO
 
         WRITE(u6,'(20a4)')('----',i=1,20)
-       WRITE(u6,*)'HCOUP: The contributions to the Hamiltonian coupling'
+        WRITE(u6,*)
+     &          'HCOUP: The contributions to the Hamiltonian coupling'
         WRITE(u6,*)' elements, by case and by symmetry label.'
         DO IC=1,13
           WRITE(u6,'(1X,A8,9F12.8)')
@@ -713,37 +714,46 @@
       real(kind=wp), intent(inout) :: CI(Nconf)
       real(kind=wp), intent(in) :: U0(nState,nState)
 
-      integer(kind=iwp) :: ID, I
-      real(kind=wp),allocatable :: WRK(:)
 !
 !     MODE=0 is equivalent to LoadCI (XMS basis)
 !     MODE=1 constructs the CI vector in CASSCF basis (back-transformed)
 !     CSF in natural (Bas=N) or quasi-canonical (Bas=C) orbital basis
 !
       If (Bas == 'N' .or. Bas == 'n') Then
-        ID = IDCIEX !! natural
+        Call READ_CI(iState,IDCIEX,SIZE(IDCIEX))
+!       ID = IDCIEX(1) !! natural
       Else If (Bas == 'C' .or. Bas == 'c') Then
-        ID = IDTCEX !! quasi-canonical
+        Call READ_CI(iState,IDTCEX,SIZE(IDTCEX))
+!       ID = IDTCEX(1) !! quasi-canonical
       ELse
         write (u6,*)'the first argument in LoadCI_XMS should be either',
      &              'N (natural) or C (quasi-canonical)'
         call abend()
       End If
 
+      Contains
+
+      Subroutine READ_CI(iState,IDEX,nIDEX)
+      implicit none
+      integer(kind=iwp), intent(in) :: iState, nIDEX, IDEX(nIDEX)
+
+      integer(kind=iwp) :: ID, I
+      real(kind=wp),allocatable :: WRK(:)
+
       If (Mode == 0 .or. (.not.IFXMS .and. .not.IFRMS)) Then
-        do I = 1, iState-1
-          call ddafile(LUCIEX,0,CI,Nconf,ID)
-        end do
+        ID = IDEX(iState)
         call ddafile(LUCIEX,2,CI,Nconf,ID)
       Else If (Mode == 1) Then
         CI(1:nconf) = Zero
         call mma_allocate(WRK,nconf,Label='WRK')
         do I = 1, nState
+          ID = IDEX(I)
           call ddafile(LUCIEX,2,WRK,Nconf,ID)
           CI(1:nconf) = CI(1:nconf) + U0(iState,I)*WRK(1:nconf)
         end do
         call mma_deallocate(WRK)
       End If
+      End Subroutine READ_CI
 
       End Subroutine LoadCI_XMS
 !
@@ -833,8 +843,6 @@
             Else
               Scal = UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
             End If
-!       write (*,*) ' scal in xms'
-!       write (*,*) istat,jstat,scal
             if (IFDW .and. zeta >= Zero) then
               scal = scal + OMGDER(iStat,jStat)
             end if
@@ -861,9 +869,6 @@
      &              One,U0,nState,UEFF,nState,
      &              Zero,SLag,nState)
         Call DCopy_(nState**2,SLag,1,UEFF,1)
-!     write (u6,*) 'ueff in casscf basis'
-!     call sqprt(ueff,nstate)
-
         call mma_deallocate(DG1)
         call mma_deallocate(DG2)
 
@@ -881,7 +886,6 @@
         !! The diagonal element is always zero.
         !! The code has an additional scaling with 0.5,
         !! because some contributions are doubled.
-!     write (*,*) 'istat,jstat,scal'
         SLag(:) = Zero
         Do iStat = 1, nState
           Call LoadCI_XMS('N',0,CI1,iStat,U0)
@@ -895,7 +899,6 @@
 
               Scal = DDOT_(nConf,CI1,1,CLagFull(1,jStat),1)
      &             - DDOT_(nConf,CI2,1,CLagFull(1,iStat),1)
-!      write (*,*) 'original scal = ', scal
               If (do_csf) Then
                 !! JCTC 2017, 13, 2561: eq.(66)
                 !! iStat and jStat: XMS
@@ -910,11 +913,8 @@
                   End Do
                 End Do
                 Scal = Scal+fact*(ENERGY(iRoot2)-ENERGY(iRoot1))*Two
-!      write (*,*) 'scal after= ', scal
-!      write (*,*) fact,energy(iroot2)-energy(iroot1)
               End If
               Scal = Quart*Scal/(EEJ-EEI)
-!           write (*,*) istat,jstat,scal
               SLag(iStat+nState*(jStat-1)) = Scal
               SLag(jStat+nState*(iStat-1)) = Scal
             End If
@@ -938,13 +938,9 @@
             Call Dens1T_RPT2(CI1,CI2,
      &                       SGM1,TG1,nLev)
             Scal = SLag(iStat+nState*(jStat-1))*Two
-!         write (*,*) 'istat,jstat=',istat,jstat
-!         write (*,*) 'scal = ', scal
             Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
           End Do
         End Do
-!     write (*,*) 'G1'
-!     call sqprt(G1,nasht)
 
         call mma_deallocate(CI1)
         call mma_deallocate(CI2)
@@ -1049,8 +1045,6 @@
 !       ----- Calculate CI derivatives -----
 !
         !! use quasi-canonical CSF rather than natural CSF
-!     ISAV = IDCIEX
-!     IDCIEX = IDTCEX
         CLag(:,:) = Zero
 
         !! 1) Explicit CI derivative
@@ -1066,7 +1060,6 @@
 !       call sqprt(g1),nasht)
         !! Transform quasi-canonical to natural
         nCor = nFro(1)+nIsh(1)
-!     write (*,*) nfro(1),nish(1)
 !     call sqprt(trf,nbast)
         Call DGemm_('N','N',nAshT,nAshT,nAshT,
      &              One,Trf(1+nBasT*nCor+nCor),nBasT,G1,nAshT,
@@ -1155,7 +1148,6 @@
 
       !! Finally, add to the total CI derivative array
       CLagFull(:,:) = CLagFull(:,:) + CLag(:,:)
-!     IDCIEX = ISAV
 
       End Subroutine XMS_Grad
 !
@@ -1232,7 +1224,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp
       use caspt2_module, only: nConf
-      use pt2_guga, only: MxCI, iAdr10, cLab10
+      use caspt2_module, only: MxCI, iAdr10, cLab10
 
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07
@@ -1255,7 +1247,7 @@
       END IF
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in pt2_guga.F90
+* The fields IADR10 and CLAB10 are kept in caspt2_module.F90
 * CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
@@ -1282,7 +1274,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: nConf, STSym
-      use pt2_guga, only: MxCI
+      use caspt2_module, only: MxCI
 
       IMPLICIT NONE
 
@@ -1303,7 +1295,7 @@
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.F90
+* Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 * SVC20100311: set up a task table with LT,LU
 * SB20190319: maybe it doesn't even make sense to parallelize the 1-RDM
@@ -1355,10 +1347,10 @@
         IF(NSGM == 0) cycle
 * GETSGM2 computes E_UT acting on CI and saves it on SGM1
         IF(ISTU == 1) THEN
-          CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
           CLag2(1:NSGM) = CLag2(1:NSGM)
      &      + SCAL*RDMEIG(IT,IU)*SGM1(1:NSGM)
-          CALL GETSGM2(LU,LT,STSYM,CI2,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI2,MXCI,SGM1,NSGM)
           CLag1(1:NSGM) = CLag1(1:NSGM)
      &      + SCAL*RDMEIG(IT,IU)*SGM1(1:NSGM)
         END IF
@@ -1470,7 +1462,7 @@
             !! int2(tuvx) = (tu|vx)/2
             !! This can be computed without frozen orbitals
             Call Get_Cholesky_Vectors(Active,Active,JSYM,
-     &                                KET,nKet,
+     &                                KET,SIZE(KET),nKet,
      &                                IBSTA,IBEND)
 
             If (IBGRP == 1) SCAL = Zero
@@ -1573,7 +1565,6 @@
           Scal = UEFF(iStat,iRoot2)*UEFF(jStat,iRoot1)
      &         - UEFF(jStat,iRoot2)*UEFF(iStat,iRoot1)
           Scal = Scal*Half
-!         write (*,*) istat,jstat,scal
 !         call sqprt(tg1,5)
           Call DaXpY_(nAshT**2,Scal,TG1,1,G1,1)
         End Do
@@ -1612,9 +1603,6 @@
         iMO1 = iMO1 + nOrbI1*nOrbI1
         iMO2 = iMO2 + nOrbI2*nOrbI2
       End Do
-!     write (*,*) 'dpt2anti after'
-!     call sqprt(dpt2canti,nbast)
-
       call mma_deallocate(G1)
 
       !! Add orbital response
@@ -1629,8 +1617,6 @@
      &            WRK1,nBas(1),'T',
      &            WRK2,nBas(1),
      &            nBas(1),nBas(1))
-!      write (*,*) 'wrk1'
-!      call sqprt(wrk),nbast)
 
       !! Probably, the way CSF term is computed in MOLCAS is different
       !! from in BAGEL; see Eqs.(51)--(53). In the active space, i.e.
@@ -1653,12 +1639,6 @@
           DPT2Canti(j+nBasT*(i-1)) = -Scal*Half
         End Do
       End Do
-!     write (*,*) 'dpt2anti sym'
-!     call sqprt(dpt2canti,nbast)
-!     write (*,*) 'dpt2c'
-!     call sqprt(dpt2c_tot,nbast)
-
-      Return
 
       End Subroutine CnstAntiC
 !
@@ -1674,7 +1654,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp, iwp, u6
       use caspt2_module, only: iSCF, nActEl, nAshT, STSym
-      use pt2_guga, only: MxCI, nG1
+      use caspt2_module, only: MxCI, nG1
       use Constants, only: Zero, One, Two
 
       IMPLICIT NONE
@@ -1712,7 +1692,7 @@
 * have to take account of orbital order.
 * We will use level inices LT,LU... in these calls, but produce
 * the density matrices with usual active orbital indices.
-* Translation tables L2ACT and LEVEL, in pt2_guga.F90
+* Translation tables L2ACT and LEVEL, in caspt2_module.F90
 
 !-SVC20100311: set up a task table with LT,LU
         nTasks=(nLev**2+nLev)/2
@@ -1750,7 +1730,7 @@
           ISSG=Mul(ISTU,STSYM)
           NSGM=CIS%NCSF(ISSG)
           IF(NSGM == 0) cycle
-          CALL GETSGM2(LU,LT,STSYM,CI1,SGM1)
+          CALL GETSGM2(LU,LT,STSYM,CI1,MXCI,SGM1,NSGM)
           IF(ISTU == 1) THEN
             GTU=DDOT_(NSGM,CI2,1,SGM1,1)
             G1(IT,IU)=G1(IT,IU)+GTU

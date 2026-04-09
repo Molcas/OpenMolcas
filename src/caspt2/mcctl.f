@@ -17,36 +17,42 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE MCCTL(HEFF)
+      SUBROUTINE MCCTL(HEFF,NSTATE,JSTATE)
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nState, E2Corr, jState, NLYRoot, mState
+      use caspt2_module, only: E2Corr, NLYRoot, mState
+      use constants, only: Zero
+      use definitions, only: iwp,wp,u6
       IMPLICIT NONE
-      REAL*8 HEFF(NSTATE,NSTATE)
+      INTEGER(kind=iwp), intent(in):: NSTATE, JSTATE
+      REAL(kind=wp), intent(inout):: HEFF(NSTATE,NSTATE)
 
-      INTEGER ISTATE
-      REAL*8 DVALUE
-      REAL*8 TOTCPU1, TOTWALL1, TOTCPU2, TOTWALL2
+      INTEGER(kind=iwp) ISTATE
+      REAL(kind=wp) DVALUE
+      REAL(kind=wp) TOTCPU1, TOTWALL1, TOTCPU2, TOTWALL2
       Character(len=160) string
-      real*8, allocatable :: cpu_timing(:), wall_timing(:)
+      real(kind=wp), allocatable :: cpu_timing(:), wall_timing(:)
 
 
       Call mma_allocate( cpu_timing,nstate,'timing in mcctl')
       Call mma_allocate(wall_timing,nstate,'timing in mcctl')
-      Call dcopy_(nstate,[0.0d0],0, cpu_timing,1)
-      Call dcopy_(nstate,[0.0d0],0,wall_timing,1)
+      cpu_timing(:)=Zero
+      wall_timing(:)=Zero
+
 C The ket state is JSTATE.
 C Loop over the bra states
+
       DO ISTATE=1,NSTATE
+
         Write(string,'(A,I0,A,I0,A,I0)')
      &     'Multistate coupling between state ',ISTATE,' and ',JSTATE,
      &     ' out of ',NSTATE
         Call StatusLine('CASPT2: MCCTL: ',string)
-        TOTCPU1=0.0d0; TOTWALL1=0.0d0; TOTCPU2=0.0d0; TOTWALL2=0.0d0;
+        TOTCPU1=Zero; TOTWALL1=Zero; TOTCPU2=Zero; TOTWALL2=Zero;
         Call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        IF(ISTATE.EQ.JSTATE) THEN
+        IF(ISTATE==JSTATE) THEN
           HEFF(ISTATE,JSTATE)=HEFF(ISTATE,JSTATE)+E2CORR
         ELSE
 C Compute the effective Hamiltonian:
@@ -57,33 +63,33 @@ C Compute the effective Hamiltonian:
         Call CWTIME(TOTCPU2,TOTWALL2)
         cpu_timing(istate)=TOTCPU2-TOTCPU1
         wall_timing(istate)=TOTWALL2-TOTWALL1
+
       END DO
 
       IF ((IPRGLB.GE.VERBOSE).OR.(NLYROOT.NE.0)) THEN
-       WRITE(6,*)
-       WRITE(6,*) 'Hamiltonian Effective Couplings'
-       WRITE(6,*) '-------------------------------'
-       WRITE(6,*)
-       WRITE(6,'(10X,6X,A3,I4,A3)') ' | ', MSTATE(JSTATE), ' > '
+       WRITE(u6,*)
+       WRITE(u6,*) 'Hamiltonian Effective Couplings'
+       WRITE(u6,*) '-------------------------------'
+       WRITE(u6,*)
+       WRITE(u6,'(10X,6X,A3,I4,A3)') ' | ', MSTATE(JSTATE), ' > '
        DO ISTATE=1,NSTATE
-        WRITE(6,'(A3,I4,A3,ES22.14)')
+        WRITE(u6,'(A3,I4,A3,ES22.14)')
      &   ' < ',MSTATE(ISTATE),' | ', HEFF(ISTATE,JSTATE)
        ENDDO
       ENDIF
 
       IF ((IPRGLB.GE.VERBOSE).OR.(NLYROOT.NE.0)) THEN
-       WRITE(6,*)
-       WRITE(6,'(A,I4,A)')
+       WRITE(u6,*)
+       WRITE(u6,'(A,I4,A)')
      &           'Time spent for multi-state couplings for root ',
      &            MSTATE(JSTATE),':'
-       WRITE(6,*) '----------------- CPU TIME  -------- WALL TIME'
+       WRITE(u6,*) '----------------- CPU TIME  -------- WALL TIME'
        DO ISTATE=1,NSTATE
-        WRITE(6,'(A3,I4,A,F18.3,2x,F18.3)') ' < ',MSTATE(ISTATE),' |',
+        WRITE(u6,'(A3,I4,A,F18.3,2x,F18.3)') ' < ',MSTATE(ISTATE),' |',
      &    cpu_timing(istate),  wall_timing(istate)
        ENDDO
       ENDIF
       Call mma_deallocate(cpu_timing)
       Call mma_deallocate(wall_timing)
 
-      RETURN
-      END
+      END SUBROUTINE MCCTL

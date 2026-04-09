@@ -16,37 +16,38 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3)
-      use Task_Manager, only: Free_Tsk, Init_Tsk, Rsv_Tsk
-      use definitions, only: iwp, wp, byte
+      SUBROUTINE SPECIAL(G1,G2,G3,F1,F2,F3,idxG3,nLev,mG3)
       use constants, only: Zero, One, Two
-      use gugx, only: SGS, LEVEL
-      use caspt2_module, only: nAshT, iSCF, nActel
-      use pt2_guga, only: NG1, NG2, NG3, ETA
+      use gugx, only: LEVEL
+!     use caspt2_module, only: iSCF, nActel
+      use caspt2_module, only: iSCF
+      use Task_Manager, only: Init_Tsk, Free_Tsk, Rsv_Tsk
+      use caspt2_module, only: NG3, ETA
+      use definitions, only: iwp, wp, byte
       IMPLICIT None
-      real(kind=wp), intent(out) ::
-     &                 G1(NASHT,NASHT),G2(NASHT,NASHT,NASHT,NASHT),G3(*)
-      real(kind=wp), intent(out) ::
-     &                 F1(NASHT,NASHT),F2(NASHT,NASHT,NASHT,NASHT),F3(*)
-      INTEGER(kind=byte), intent(Out) ::  idxG3(6,*)
+      integer(kind=iwp), intent(in):: nLev, mG3
+      real(kind=wp), intent(out) ::G1(nLev,nLev),
+     &                             G2(nLev,nLev,nLev,nLev),
+     &                             G3(mG3)
+      real(kind=wp), intent(out) ::F1(nLev,nLev),
+     &                             F2(nLev,nLev,nLev,nLev),
+     &                             F3(mG3)
+      INTEGER(kind=byte), intent(Out) ::  idxG3(6,mG3)
 C SPECIAL-CASE ROUTINE. DELIVERS G AND F MATRICES FOR A HIGH-SPIN
 C OR CLOSED-SHELL SCF CASE.
       INTEGER(kind=iwp), PARAMETER :: I1=KIND(idxG3)
-      Integer(kind=iwp) :: nLev
       real(kind=wp) ESUM, Occ, Val
       Integer(kind=iwp) :: I, ID, IG3, IND1, IND2, IND3, IT, IT1, IT2,
      &                     IT3, ITASK, IU, IU1, IU2, IU3, LT, LU, LU1,
      &                     LU2, LU3, NLEV2, NLEV4, NTASK
 
 
-      nLev = SGS%nLev
-
-      CALL DCOPY_(NG1,[Zero],0,G1,1)
-      CALL DCOPY_(NG2,[Zero],0,G2,1)
-      CALL DCOPY_(NG3,[Zero],0,G3,1)
-      CALL DCOPY_(NG1,[Zero],0,F1,1)
-      CALL DCOPY_(NG2,[Zero],0,F2,1)
-      CALL DCOPY_(NG3,[Zero],0,F3,1)
+      G1(:,:)=Zero
+      G2(:,:,:,:)=Zero
+      G3(:)=Zero
+      F1(:,:)=Zero
+      F2(:,:,:,:)=Zero
+      F3(:)=Zero
 
       ESUM=Zero
       DO I=1,NLEV
@@ -54,21 +55,25 @@ C OR CLOSED-SHELL SCF CASE.
       END DO
 C ISCF=1 for closed-shell, =2 for hispin
       OCC=Two
-      IF(ISCF.EQ.2) OCC=One
-      DO IT=1,NASHT
+      IF(ISCF==2) OCC=One
+      DO IT=1,nLev
         G1(IT,IT)=OCC
         LT=LEVEL(IT)
         F1(IT,IT)=(ESUM*OCC-ETA(LT))*G1(IT,IT)
       END DO
 
-      IF(NACTEL.EQ.1) THEN
-        NG3=0
-        Return
-      END IF
+!     This code can be activated once the subsequent code can handle it.
+!     As it is now the code process G3 regardless of the setting here.
+!     If nG3=0 this results in NAN processing. Until this is explicitly
+!     taken case of this code should remain commented out.
+!     IF(NACTEL.EQ.1) THEN
+!       NG3=0
+!       Return
+!     END IF
 
-      DO IT=1,NASHT
+      DO IT=1,nLev
        LT=LEVEL(IT)
-       DO IU=1,NASHT
+       DO IU=1,nLev
         LU=LEVEL(IU)
         G2(IT,IT,IU,IU)=G1(IT,IT)*G1(IU,IU)
         IF(IU.EQ.IT) THEN
@@ -81,10 +86,10 @@ C ISCF=1 for closed-shell, =2 for hispin
        END DO
       END DO
 
-      IF(NACTEL.EQ.2) THEN
-        NG3=0
-        Return
-      END IF
+!     IF(NACTEL.EQ.2) THEN
+!       NG3=0
+!       Return
+!     END IF
 
       NLEV2=NLEV**2
       NLEV4=NLEV**4
@@ -106,16 +111,16 @@ C SVC20100908 initialize the series of tasks
          IF(IND2<=IND1) Exit Inner
       End Do Inner
 
-      IT1=MOD(IND1-1,NASHT)+1
-      IU1=(IND1-IT1)/NASHT+1
+      IT1=MOD(IND1-1,nLev)+1
+      IU1=(IND1-IT1)/nLev+1
       LU1=LEVEL(IU1)
-      IT2=MOD(IND2-1,NASHT)+1
-      IU2=(IND2-IT2)/NASHT+1
+      IT2=MOD(IND2-1,nLev)+1
+      IU2=(IND2-IT2)/nLev+1
       LU2=LEVEL(IU2)
 
       DO IT3=1,NLEV
        DO IU3=1,NLEV
-        IND3=IT3+NASHT*(IU3-1)
+        IND3=IT3+nLev*(IU3-1)
         IF(IND3.GT.IND2) Cycle
         LU3=LEVEL(IU3)
         VAL=G1(IT1,IU1)*G1(IT2,IU2)*G1(IT3,IU3)

@@ -33,13 +33,13 @@ Subroutine SavGradParams(Mode,IDSAVGRD)
   use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
   USE Para_Info, ONLY: Is_Real_Par, myRank
-      use pt2_guga, only: iAdr10, cLab10
+      use caspt2_module, only: iAdr10, cLab10
 #endif
 
   use caspt2_module, only: E2Tot, EASum, ERef, jState, MxCase, nAshT, nBTri, nState, nSym, RFPert, nCases, &
                            nInDep, nISup, nASup, RefEne
 
-      use pt2_guga, only: nG1, nG2, nG3, nG3Tot
+      use caspt2_module, only: nG1, nG2, nG3, nG3Tot
   Implicit None
 
 #ifdef _MOLCAS_MPP_
@@ -224,8 +224,10 @@ logical(kind=iwp) bStat
 #endif
           if (NAS > 0) then
             ID = IDSMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,2,WRK1,NAS*(NAS+1)/2,ID)
-            CALL DDAFILE(LUGRAD,1,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
+            If (ID>=0) THEN
+               CALL DDAFILE(LUSBT,2,WRK1,NAS*(NAS+1)/2,ID)
+               CALL DDAFILE(LUGRAD,1,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
+            End If
           end if
 #ifdef _MOLCAS_MPP_
         end if
@@ -307,9 +309,11 @@ logical(kind=iwp) bStat
         else
 #endif
           if (NAS > 0) then
-            CALL DDAFILE(LUGRAD,2,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
             ID = IDSMAT(ISYM,ICASE)
-            CALL DDAFILE(LUSBT,1,WRK1,NAS*(NAS+1)/2,ID)
+            If (ID>=0) THEN
+               CALL DDAFILE(LUGRAD,2,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
+               CALL DDAFILE(LUSBT,1,WRK1,NAS*(NAS+1)/2,ID)
+            END IF
           end if
 #ifdef _MOLCAS_MPP_
         end if
@@ -517,7 +521,7 @@ Contains
 
 End Subroutine SavGradParams
 
-Subroutine SavGradParams2(Mode,UEFF,U0,H0)
+Subroutine SavGradParams2(Mode,UEFF,U0,H0,nState)
 !
 ! It seems that values that are unchanged during the gradient loop
 ! have to be separately saved and restored
@@ -527,12 +531,12 @@ Subroutine SavGradParams2(Mode,UEFF,U0,H0)
   use caspt2_global, only: LUGRAD
   use definitions, only: iwp,wp
   use stdalloc, only: mma_allocate, mma_deallocate
-  use caspt2_module, only: Energy, ERFSelf, nBTri, nState, RFPert
+  use caspt2_module, only: Energy, ERFSelf, nBTri, RFPert
 
   Implicit None
 
-  integer(kind=iwp), intent(in) :: Mode
-  real(kind=wp)    , intent(inout) :: UEFF(*),U0(*),H0(*)
+  integer(kind=iwp), intent(in) :: Mode, nState
+  real(kind=wp)    , intent(inout) :: UEFF(nState,nState),U0(nState,nstate),H0(nSTate,nState)
 
   integer(kind=iwp) :: IORW,ID
   real(kind=wp), allocatable :: lTemp(:)

@@ -84,7 +84,7 @@ if (DoCholesky) then
 
 else
 
-  call TRACTL(iPart)
+  call TRACTL(nCMO,CMO,iPart)
 
 end if
 

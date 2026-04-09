@@ -16,28 +16,32 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE SPEC1A(IFC,FACT,ISYM,X,Y)
+      SUBROUTINE SPEC1A(IFC,FACT,ISYM,X,nX,Y,nY)
       USE SUPERINDEX, only: KTUV
       use caspt2_module, only: nTUV, nAsh, nIsh, nAES, nTUVES, nAshT
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-      INTEGER IFC,ISYM
-      REAL*8 FACT,X(*),Y(*)
-      INTEGER NAS,NT,NI,IT,ITQ,IUQ,ITUU
+      INTEGER(kind=iwp), intent(in):: IFC,ISYM, nX, nY
+      REAL(kind=wp), intent(in):: FACT
+      REAL(kind=wp), intent(inout):: X(nX),Y(nY)
+
+      INTEGER(kind=iwp) NAS,NT,NI,IT,ITQ,IUQ,ITUU
 C If IFC=0, compute
 C X(tuu,i) <- X(tuu,i)+FACT*Y(t,i), else
 C the conjugate expression (summing into Y, values from X).
+      NI=NISH(ISYM)
+      IF (NI<=0) RETURN
       NAS=NTUV(ISYM)
       NT=NASH(ISYM)
-      NI=NISH(ISYM)
-      DO 10 IT=1,NT
+      DO IT=1,NT
         ITQ=IT+NAES(ISYM)
-        DO 11 IUQ=1,NASHT
+        DO IUQ=1,NASHT
           ITUU=KTUV(ITQ,IUQ,IUQ)-NTUVES(ISYM)
-          IF(IFC.EQ.0) THEN
+          IF(IFC==0) THEN
             CALL DAXPY_(NI,FACT,Y(IT),NT,X(ITUU),NAS)
           ELSE
             CALL DAXPY_(NI,FACT,X(ITUU),NAS,Y(IT),NT)
           END IF
-  11    CONTINUE
-  10  CONTINUE
-      END
+        END DO
+      END DO
+      END SUBROUTINE SPEC1A

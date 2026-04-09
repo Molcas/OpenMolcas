@@ -11,10 +11,10 @@
 * Copyright (C) 2012, Per Ake Malmqvist                                *
 *               2019, Stefano Battaglia                                *
 ************************************************************************
-      SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
+      SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0,nState)
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, FIFA, DREF, DMIX,
-     &                       CMOPT2, NCMO, Weight
+     &                       CMOPT2, NCMO, Weight, TORB, FIMO
       use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
 #ifdef _DMRG_
@@ -22,13 +22,15 @@
 #endif
       use PrintLevel, only: DEBUG, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nState, CPUFMB, CPUINT, DMRG, DoCumulant,
+      use caspt2_module, only: CPUFMB, CPUINT, DMRG, DoCumulant,
      &                         IEOF1M, IfDW, IfsadRef, IfXMS, jState,
      &                         nConf, STSym, TIOFMB, TIOINT, mState,
-     &                         iAd1m, IfChol
-      use pt2_guga, only: CIThr
+     &                         iAd1m, IfChol, CPUGIN, TIOGIN, NoTri
+      use caspt2_module, only: CIThr
+      use Constants, only: Zero, One
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
-      Integer IGROUP,NGRP,JSTATE_OFF
+      Integer(kind=iwp), intent(in):: IGROUP,NGRP,JSTATE_OFF,nState
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
 * Purpose: For a selected set IGROUP, create a set of CMO coefficients
@@ -38,51 +40,65 @@
 * The states in the group can be obtained from the ordered MSTATE array,
 * for which a group offset JSTATE_OFF is passed in.
 #include "warnings.h"
-      real(8) Heff(Nstate,Nstate)
-      real(8) H0(Nstate,Nstate)
-      real(8) U0(Nstate,Nstate)
+      real(kind=wp), intent(inout):: Heff(Nstate,Nstate)
+      real(kind=wp), intent(inout):: H0(Nstate,Nstate)
+      real(kind=wp), intent(inout):: U0(Nstate,Nstate)
 
-      LOGICAL IF_TRNSF
       CHARACTER(LEN=27)  STLNE2
-      real(8), allocatable:: CIRef(:,:), CIXMS(:)
-      Integer I,J,iDisk,K,iState
-      Real*8 Wij,CPU1,CPU0,TIO1,TIO0,CPU,TIO
+      real(kind=wp), allocatable:: CIRef(:,:), CIXMS(:), HONE(:)
+      Integer(kind=iwp) I,J,iDisk,K,iState
+      Real(kind=wp) CPU1,CPU0,TIO1,TIO0,CPU,TIO
+      Real(kind=wp) CPE,TIOE,CPTF0,TIOTF0,CPTF10,TIOTF10
+      logical(kind=iwp) Initiate
 
+* ---------------------------------------------------------------------
+      CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 * ---------------------------------------------------------------------
 * Number of states in this group.
       IF (IPRGLB.EQ.DEBUG) THEN
-        write(6,*)' Entered GRPINI.'
-        write(6,*)' NSTATE=',NSTATE
-        write(6,*)' The MSTATE array:'
-        write(6,'(1x,20I4)')(MSTATE(J),J=1,NSTATE)
-        write(6,*)' IGROUP,NGRP=',IGROUP,NGRP
+        write(u6,*)' Entered GRPINI.'
+        write(u6,*)' NSTATE=',NSTATE
+        write(u6,*)' The MSTATE array:'
+        write(u6,'(1x,20I4)')(MSTATE(J),J=1,NSTATE)
+        write(u6,*)' IGROUP,NGRP=',IGROUP,NGRP
       END IF
 
       IF (NGRP.EQ.0) THEN
-        WRITE(6,*) ' Number of states in the (X)MS group is 0!'
-        WRITE(6,*) ' This should never happen, aborting...'
-        CALL ABEND
+        WRITE(u6,*) ' Number of states in the (X)MS group is 0!'
+        WRITE(u6,*) ' This should never happen, aborting...'
+        CALL ABEND()
       END IF
 
       Write(STLNE2,'(A,I0)')'Initial phase for group ',IGROUP
       Call StatusLine('CASPT2: ',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
-        WRITE(6,'(20A4)')('****',I=1,20)
-        WRITE(6,'(A,I3)')
+        WRITE(u6,'(20A4)')('****',I=1,20)
+        WRITE(u6,'(A,I3)')
      &  ' Multi-State initialization phase begins for group ',IGROUP
-        WRITE(6,'(20A4)')('----',I=1,20)
+        WRITE(u6,'(20A4)')('----',I=1,20)
         CALL XFlush(6)
       END IF
+*
 * ---------------------------------------------------------------------
-
-* Load CASSCF MO coefficients
+*
+* Load the CASSCF naural orbital MO coefficients
       call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
       CMO=>CMO_Internal
+
       IDISK=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,IDISK)
-      IAD1M(2)=IDISK
-      call ddafile(LUONEM,1,CMO,NCMO,IDISK)
+
+!     IEOF1M is the next free disk address on LUOneM
       IEOF1M=IDISK
+
+!     Allocate memory for HONE, used exclusivly in MkFock.
+!     Since MkFock might be called several times with the same
+!     CMOs but different density matrices we controll the computation
+!     of the one- and two-electron integrals from the outside. This to
+!     remove redundant work.
+
+      Call mma_allocate(HONE,NoTri,Label='HONE')
+      Initiate=.TRUE.
 
 * Loop over states, selecting those belonging to this group.
 * For each such state, compute the Fock matrix in original MO basis,
@@ -100,36 +116,26 @@
           !! This DREF is used only for constructing the Fock in H0.
           !! DREF used in other places will be constructed in elsewhere
           !! (STINI).
-          DREF(:)=0.0D0
+          DREF(:)=Zero
           Do K = 1, Nstate
-            wij = Weight(K)
-            CALL DAXPY_(SIZE(DREF),wij,DMIX(:,K),1,DREF,1)
+            DREF(:)=DREF(:)+Weight(K)*DMIX(:,K)
           End Do
         Else
-         CALL DCOPY_(SIZE(DREF),DMIX(:,Jstate),1,DREF,1)
+         DREF(:)=DMIX(:,Jstate)
         End If
 
 * Compute the Fock matrix in MO basis for state Jstate
-* INTCTL1/INTCTL2 call TRACTL(0) and other routines to compute the
-* Fock matrix in MO basis: FIMO, FAMO, FIFA and orbital energies
-        if (IfChol) then
-* INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis
-          IF_TRNSF=.FALSE.
-          call INTCTL2(IF_TRNSF)
-        else
-* INTCTL1 uses TRAONE and FOCK_RPT2, to get the matrices in MO basis
-          call INTCTL1(CMO,NCMO)
-          CMOPT2(:)=CMO(:)
-        end If
-
-c Modify the Fock matrix if needed
-c You don't have to be beautiful to turn me on
-        CALL NEWFOCK(FIFA,SIZE(FIFA),CMO,NCMO)
+        Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),
+     &              FIFA,SIZE(FIFA),DREF,SIZE(DREF),
+     &              HONE,SIZE(HONE),Initiate)
 
 * NN.15, TODO:
 * the following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
-        IF (DoCumulant .or. DoFCIQMC .or. DMRG) GoTo 100
+        IF (DoCumulant .or. DoFCIQMC .or. DMRG) THEN
+           Call  GPRINI_FINISH()
+           Return
+        End If
 
 * Loop over bra functions
         do I=1,Ngrp
@@ -169,7 +175,6 @@ c You don't have to be beautiful to turn me on
 
 * End of long loop over Jstate
       end do
-
 * End timer Fock matrix build
       call timing(CPU1,CPU,TIO1,TIO)
       CPUFMB=CPU1-CPU0
@@ -185,8 +190,8 @@ c You don't have to be beautiful to turn me on
 
 * In case of XMS-CASPT2, printout H0 in original basis
         if (IPRGLB.ge.USUAL) then
-          write(6,*)
-          write(6,*)' H0 in the original model space basis:'
+          write(u6,*)
+          write(u6,*)' H0 in the original model space basis:'
           call prettyprint(H0,Ngrp,Ngrp)
         end if
 * Diagonalize H0 and save eigenvectors in U0
@@ -195,18 +200,18 @@ c You don't have to be beautiful to turn me on
 * Transform the Fock matrix in the new basis
         call transmat(H0,U0,Ngrp)
         if (IPRGLB.ge.USUAL) then
-          write(6,*)' H0 eigenvectors:'
+          write(u6,*)' H0 eigenvectors:'
           call prettyprint(U0,Ngrp,Ngrp)
         end if
         if (IPRGLB.ge.DEBUG) then
-          write(6,*)' H0 in the rotated model space basis:'
+          write(u6,*)' H0 in the rotated model space basis:'
           call prettyprint(H0,Ngrp,Ngrp)
         end if
 
 * As well as Heff
         call transmat(Heff,U0,Ngrp)
         if (IPRGLB.ge.VERBOSE) then
-          write(6,*)' Heff[1] in the rotated model space basis:'
+          write(u6,*)' Heff[1] in the rotated model space basis:'
           call prettyprint(Heff,Ngrp,Ngrp)
         end if
 
@@ -214,9 +219,9 @@ c You don't have to be beautiful to turn me on
 * put all the original ones in memory, but put the resulting vectors
 * one by one in a buffer.
         if (IPRGLB.ge.VERBOSE) then
-          write(6,'(A)')' The CASSCF states are now rotated'//
+          write(u6,'(A)')' The CASSCF states are now rotated'//
      &                  ' according to the H0 eigenvectors'
-          write(6,*)
+          write(u6,*)
         end if
 
         call mma_allocate(CIref,Nconf,Ngrp,Label='CIRef')
@@ -229,8 +234,8 @@ c You don't have to be beautiful to turn me on
         do J=1,Ngrp
 * Transform the states
           call dgemm_('N','N',Nconf,1,Ngrp,
-     &               1.0D0,CIREF,Nconf,U0(:,J),Ngrp,
-     &               0.0D0,CIXMS,Nconf)
+     &               One,CIREF,Nconf,U0(:,J),Ngrp,
+     &               Zero,CIXMS,Nconf)
 
 * Write the rotated CI coefficients back into LUCIEX and REPLACE the
 * original unrotated CASSCF states. Note that the original states
@@ -238,7 +243,7 @@ c You don't have to be beautiful to turn me on
           call writeCI(CIXMS,J)
 
           if (IPRGLB.ge.VERBOSE) then
-            write(6,'(1x,a,i3)')
+            write(u6,'(1x,a,i3)')
      &      ' The CI coefficients of rotated model state nr. ',MSTATE(J)
             call PRWF_CP2(STSYM,NCONF,CIXMS,CITHR)
           end if
@@ -249,8 +254,13 @@ c You don't have to be beautiful to turn me on
 
       end if
 
- 100  continue
+      Call  GPRINI_FINISH()
 
+      Contains
+
+      Subroutine  GPRINI_FINISH()
+
+      Call mma_deallocate(HONE)
 * We now know FIFA as expressed in initial RAS (natural) orbitals.
 * Transform it to a new basis in which the non-diagonal couplings
 * between subspaces (inactive, ras1, etc) are zero. As a by-product,
@@ -258,7 +268,8 @@ c You don't have to be beautiful to turn me on
 * model functions, but using the new orbitals.
 * Note that the matrices FIFA, FIMO, etc are transformed as well
 
-      CALL ORBCTL(CMO,NCMO)
+      CALL ORBCTL(CMO,NCMO,TORB,SIZE(TORB),FIFA,SIZE(FIFA),
+     &            FIMO,SIZE(FIMO))
 
 * In subroutine stini, the individual RHS, etc, arrays will be computed
 * for the states. If this is a true XMS calculation (Ngrp > 1) then
@@ -270,12 +281,13 @@ c You don't have to be beautiful to turn me on
 
 * TRACHO3 computes MO-transformed Cholesky vectors without computing
 * Fock matrices
-* TRACTL(0) computes transformed 2-body MO integrals
+* TRACTL(nCMO,CMO,0) computes transformed 2-body MO integrals
       if (IfChol) then
           call TRACHO3(CMO,NCMO)
       else
-          if (.not. DoFCIQMC) call TRACTL(0)
+          if (.not. DoFCIQMC) call TRACTL(nCMO,CMO,0)
       end if
+
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUINT=CPU1-CPU0
       TIOINT=TIO1-TIO0
@@ -299,4 +311,10 @@ c You don't have to be beautiful to turn me on
         ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
       end if
 #endif
+* ---------------------------------------------------------------------
+      CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+      CPUGIN=CPTF10-CPTF0
+      TIOGIN=TIOTF10-TIOTF0
+* ---------------------------------------------------------------------
+      End Subroutine  GPRINI_FINISH
       end SUBROUTINE GRPINI

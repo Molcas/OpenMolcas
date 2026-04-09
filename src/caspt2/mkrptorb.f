@@ -27,46 +27,46 @@
 #endif
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_DMRG_)
       use caspt2_module, only: jState, nAshT
+      use constants, only: zero
 #endif
       use caspt2_module, only: iSCF, nConf, nOMx,
-     &                         nState, nSym, STSym, nIsh, nAsh, nRas1,
+     &                         nState, nSym, STSym, nIsh, nRas1,
      &                         nRas2, nRas3, nSsh, nOrb, nBas, nFro,
-     &                         EPS, EPSI, EPSA, nDel, nAES,
-     &                         EPSE
+     &                         EPS, EPSI, EPSA, nDel, EPSE
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       use caspt2_module, only: DoCumulant
 #endif
+      use definitions, only: iwp, wp
       IMPLICIT NONE
-C Transform to orbitals that diagonalize the diagonal
-C blocks of FIFA. Affected data sets are CMO,
-C EPS, EPSI, EPSA, and EPSE. Also, the CI arrays are
-C transformed on file LUCIEX. Note: FIFA is unchanged
-C and is not valid for the new orbitals. It will be
-C recomputed later.
+C Transform to orbitals that diagonalize the diagonal blocks of FIFA.
+C Affected data sets are CMO, C EPS, EPSI, EPSA, and EPSE. Also, the
+C CI arrays are transformed on file LUCIEX.
+C Note: FIFA is unchanged  and is not valid for the new orbitals.
+C It will be recomputed later.
 C The transformation matrices are returned in TORB.
-      INTEGER, INTENT(IN) :: NFIFA,NTORB,NCMO
-      REAL*8, INTENT(IN) :: FIFA(NFIFA)
+      INTEGER(kind=iwp), INTENT(IN) :: NFIFA,NTORB,NCMO
+      REAL(kind=wp), INTENT(IN) :: FIFA(NFIFA)
 * -------------------------------------------
-      REAL*8, INTENT(OUT) :: TORB(NTORB)
-      REAL*8, INTENT(INOUT) :: CMO(NCMO)
+      REAL(kind=wp), INTENT(OUT) :: TORB(NTORB)
+      REAL(kind=wp), INTENT(INOUT) :: CMO(NCMO)
 
 C     indices
-      INTEGER I,II,IST,ISYM,ISTART
-      INTEGER ITO,ITOSTA,ITOEND
-      INTEGER ICMOSTA,ICMOEND
-      INTEGER IDR,IDW
-      INTEGER IEPS,IEPSI,IEPSA,IEPSE
-      INTEGER IOSTA,IOEND
-      INTEGER NFOCK,NFES
+      INTEGER(kind=iwp) I,II,IST,ISYM
+      INTEGER(kind=iwp) ITOSTA,ITOEND
+      INTEGER(kind=iwp) ICMOSTA,ICMOEND
+      INTEGER(kind=iwp) IDR,IDW
+      INTEGER(kind=iwp) IEPS,IEPSI,IEPSA,IEPSE
+      INTEGER(kind=iwp) IOSTA,IOEND
+      INTEGER(kind=iwp) NFOCK,NFES
 #if defined(_ENABLE_BLOCK_DMRG_) || defined(_DMRG_)
-      INTEGER NXMAT
-      REAL*8, ALLOCATABLE:: XMAT(:)
+      INTEGER(kind=iwp) NXMAT
+      REAL(kind=wp), ALLOCATABLE:: XMAT(:)
 #endif
 C     #orbitals per symmetry
-      INTEGER NI,NA,NR1,NR2,NR3,NS,NO,NB
-      INTEGER NSCT,NCMOSCT
+      INTEGER(kind=iwp) NO,NB
+      INTEGER(kind=iwp) NSCT,NCMOSCT
 C     work-arrays
-      REAL*8, ALLOCATABLE:: FOCK(:), CMO2(:), CI(:)
+      REAL(kind=wp), ALLOCATABLE:: FOCK(:), CMO2(:), CI(:)
 
 
 * Allocate space for temporary square Fock matrix in each symmetry:
@@ -92,12 +92,6 @@ C     work-arrays
 * ICMOSTA,ICMOEND: Section of CMO for each subspace.
       ICMOEND=0
       DO ISYM=1,NSYM
-        NI=NISH(ISYM)
-        NA=NASH(ISYM)
-        NR1=NRAS1(ISYM)
-        NR2=NRAS2(ISYM)
-        NR3=NRAS3(ISYM)
-        NS=NSSH(ISYM)
         NO=NORB(ISYM)
         NB=NBAS(ISYM)
 * Put Fock matrix in square format in FOCK
@@ -231,19 +225,21 @@ C     work-arrays
 
 * Actually, we will not use the old CMO array any more, so just
 * overwrite it with the new ones and get rid of the allocated array.
-      CALL DCOPY_(NCMO,CMO2,1,CMO,1)
+      CMO(:)=CMO2(:)
       CALL mma_deallocate(CMO2)
+
 * We will not use the Fock matrix either. It was just used temporarily
 * for each turn of the symmetry loop. Skip it.
       CALL mma_deallocate(FOCK)
 
 C Finally, loop again over symmetries, transforming the CI:
+
       IF(ISCF.EQ.0) THEN
 #ifdef _DMRG_
         if (DMRG) then
           NXMAT=NASHT**2
           CALL mma_allocate(XMAT,NXMAT,LABEL='XMAT')
-          XMAT(:)=0.0D0
+          XMAT(:)=Zero
           CALL MKXMAT(TORB,XMAT)
 
           CALL qcmaquis_interface_rotate_rdms(int(JSTATE-1, c_int),
@@ -273,41 +269,13 @@ C Finally, loop again over symmetries, transforming the CI:
           IF(.NOT.DoCumulant) THEN
 #endif
             CALL mma_allocate(CI,NCONF,Label='CI')
-            IDR=IDCIEX
-            IDW=IDTCEX
             DO IST=1,NSTATE
+             IDR=IDCIEX(IST)
              CALL DDAFILE(LUCIEX,2,CI,NCONF,IDR)
-             ITOEND=0
-             DO ISYM=1,NSYM
-              NI=NISH(ISYM)
-              NA=NASH(ISYM)
-              NR1=NRAS1(ISYM)
-              NR2=NRAS2(ISYM)
-              NR3=NRAS3(ISYM)
-              NS=NSSH(ISYM)
-              NO=NORB(ISYM)
-              NB=NBAS(ISYM)
-              ITOSTA=ITOEND+1
-              ITOEND=ITOEND+NI**2+NR1**2+NR2**2+NR3**2+NS**2
 
-              ITO=ITOSTA+NI**2
-              IF(NA.GT.0) THEN
-                IF(NR1.GT.0) THEN
-                  ISTART=NAES(ISYM)+1
-                  CALL TRACI_RPT2(ISTART,NR1,TORB(ITO),STSYM,NCONF,CI)
-                END IF
-                ITO=ITO+NR1**2
-                IF(NR2.GT.0) THEN
-                  ISTART=NAES(ISYM)+NR1+1
-                  CALL TRACI_RPT2(ISTART,NR2,TORB(ITO),STSYM,NCONF,CI)
-                END IF
-                ITO=ITO+NR2**2
-                IF(NR3.GT.0) THEN
-                  ISTART=NAES(ISYM)+NR1+NR2+1
-                  CALL TRACI_RPT2(ISTART,NR3,TORB(ITO),STSYM,NCONF,CI)
-                END IF
-              END IF
-             END DO
+             Call mkTraCI(nTORB,TORB,STSYM,nConf,CI)
+
+             IDW=IDTCEX(IST)
              CALL DDAFILE(LUCIEX,1,CI,NCONF,IDW)
             END DO
             CALL mma_deallocate(CI)
@@ -319,7 +287,7 @@ C Finally, loop again over symmetries, transforming the CI:
           NXMAT=NASHT**2
 * Workspace for transformation matrix
             CALL mma_allocate(XMAT,NXMAT,LABEL='XMAT')
-            XMAT(:)=0.0D0
+            XMAT(:)=Zero
             CALL MKXMAT(TORB,XMAT)
 
             CALL block_tran2pdm(NASHT,XMAT,JSTATE,JSTATE)

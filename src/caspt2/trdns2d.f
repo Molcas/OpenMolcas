@@ -101,11 +101,13 @@ C full array in case we are running in parallel
               CALL mma_allocate(VEC1,NVEC,Label='VEC1')
               CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
               IF(IVEC==JVEC) THEN
-                CALL DIADNS(ISYM,ICASE,VEC1,VEC1,DPT2,LISTS)
+                CALL DIADNS(ISYM,ICASE,VEC1,nVEC,VEC1,nVEC,DPT2,nDPT2,
+     &                      LISTS,SIZE(LISTS))
               ELSE
                 CALL mma_allocate(VEC2,NVEC,Label='VEC2')
                 CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
-                CALL DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LISTS)
+                CALL DIADNS(ISYM,ICASE,VEC1,nVEC,VEC2,nVec,DPT2,nDPT2,
+     &                      LISTS,SIZE(LISTS))
                 CALL mma_deallocate(VEC2)
               END IF
               CALL mma_deallocate(VEC1)
@@ -113,8 +115,11 @@ C full array in case we are running in parallel
             CALL GASYNC()
           ELSE
 #endif
-            CALL DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%A,
-     &                             GA_Arrays(lg_V2)%A,DPT2,LISTS)
+            CALL DIADNS(ISYM,ICASE,
+     &                  GA_Arrays(lg_V1)%A,NVEC,
+     &                  GA_Arrays(lg_V2)%A,NVEC,
+     &                  DPT2,nDPT2,
+     &                  LISTS,Size(LISTS))
 #ifdef _MOLCAS_MPP_
           END IF
 #endif
@@ -140,11 +145,13 @@ C
                 CALL mma_allocate(VEC1,NVEC,Label='VEC1')
                 CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
                 IF(IVEC==JVEC) THEN
-                  CALL DIADNS(ISYM,ICASE,VEC1,VEC1,DPT2,LISTS)
+                  CALL DIADNS(ISYM,ICASE,VEC1,nVEC,VEC1,nVec,
+     &                        DPT2,nDPT2,LISTS,SIZE(LISTS))
                 ELSE
                   CALL mma_allocate(VEC2,NVEC,Label='VEC2')
                   CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
-                  CALL DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LISTS)
+                  CALL DIADNS(ISYM,ICASE,VEC1,nVec,VEC2,nVec,
+     &                        DPT2,nDPT2,LISTS,SIZE(LISTS))
                   CALL mma_deallocate(VEC2)
                 END IF
                 CALL mma_deallocate(VEC1)
@@ -153,8 +160,10 @@ C
               CALL GASYNC()
             ELSE
 #endif
-              CALL DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%A,
-     &                               GA_Arrays(lg_V2)%A,DPT2,LISTS)
+              CALL DIADNS(ISYM,ICASE,
+     &                    GA_Arrays(lg_V1)%A,NVEC,
+     &                    GA_Arrays(lg_V2)%A,NVEC,
+     &                    DPT2,nDPT2,LISTS,SIZE(LISTS))
 #ifdef _MOLCAS_MPP_
             END IF
 #endif

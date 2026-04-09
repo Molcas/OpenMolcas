@@ -8,19 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE full2red(XLT,Xab)
-      use definitions, only: iwp, wp
+      SUBROUTINE full2red(XLT,nXLT,Xab,nXab)
       use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR,
      &                    nSym
+      use constants, only: Zero
+      use definitions, only: iwp, wp
       Implicit None
-      real(kind=wp), intent(in):: XLT(*)
-      real(kind=wp), intent(out):: Xab(*)
+      Integer(kind=iwp), intent(in):: nXLT, nXab
+      real(kind=wp), intent(in):: XLT(nXLT)
+      real(kind=wp), intent(out):: Xab(nXab)
 
       Integer(kind=iwp) ISLT(8)
       Integer(kind=iwp), External:: cho_isao
       Integer(kind=iwp) iLoc,jSym,IS,ISYM,NB
       Integer(kind=iwp) jRab,kRab,iRab,iag,ibg,iSyma,ias,ibs,iab,kfrom
 
+       Xab(:)=Zero
 * Select table column for use with caspt2:
       iLoc=3
 * jSym=1 always: Used for density matrices.
@@ -53,13 +56,14 @@ c Offsets to symmetry block in the LT matrix
 
       End SUBROUTINE full2red
 
-      SUBROUTINE red2full(XLT,Xab)
-      use definitions, only: iwp, wp
+      SUBROUTINE red2full(XLT,nXLT,Xab,nXab)
       use Cholesky, only: iBas, iiBstR, IndRed, iRS2F, nBas, nnBstR,
      &                    nSym
+      use definitions, only: iwp, wp
       Implicit None
-      real(kind=wp), intent(out):: XLT(*)
-      real(kind=wp), intent(in):: Xab(*)
+      Integer(kind=iwp), intent(in):: nXLT, nXab
+      real(kind=wp), intent(in):: Xab(nXab)
+      real(kind=wp), intent(inout):: XLT(nXLT)
 
       Integer(kind=iwp) ISLT(8)
       Integer(kind=iwp), External:: cho_isao

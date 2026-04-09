@@ -103,8 +103,8 @@ C Allocate space for one section of excitation amplitudes:
         CALL mma_allocate(W1,NAS*MDVEC,LABEL='W1')
         CALL mma_allocate(W2,NAS*MDVEC,Label='W2')
 C Pick up a symmetry block of W1 and W2
-*        CALL RDBLKC(ISYM,ICASE,IVEC,W1)
-*        CALL RDBLKC(ISYM,ICASE,JVEC,W2)
+*        CALL RDBLKC(ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+*        CALL RDBLKC(ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Allocate space for the contraction:
         NWSCT=MIN(NAS,1000)
         NWPROD=NWSCT**2
@@ -115,8 +115,8 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 * End of addition
 C Loop over sections of WW1 and WW2:
         DO ITUVSTA=1,NAS,NWSCT
@@ -327,8 +327,8 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA+MDVEC-1,MDVEC)
          NCOL=IIEND-IISTA+1
-        CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-        IF (IVEC.NE.JVEC) CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+        CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+        IF (IVEC.NE.JVEC) CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
         CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
@@ -423,8 +423,8 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
         CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
@@ -553,8 +553,8 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Loop over sections of WW1 and WW2:
         DO ITUVSTA=1,NAS,NWSCT
           LW1A=ITUVSTA
@@ -733,8 +733,8 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Multiply WProd = (W1)*(W2 transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
@@ -852,8 +852,8 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Multiply WProd = (W1)*(W2 transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
@@ -950,8 +950,8 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
@@ -1030,8 +1030,8 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Multiply WProd = (W1 sect )*(W2 sect transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
@@ -1133,8 +1133,8 @@ C Allocate space for the contraction:
          ISCT=ISCT+1
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Multiply WProd = (W1)*(W2 transpose)
          CALL DGEMM_('N','T',
      &              NAS,NAS,NCOL,
@@ -1208,8 +1208,8 @@ C Allocate space for one section of excitation amplitudes:
          IIEND=MIN(IISTA-1+MDVEC,NIS)
          NCOL=1+IIEND-IISTA
          NSCT=NAS*NCOL
-         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1)
-         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2)
+         CALL RDSCTC(ISCT,ISYM,ICASE,IVEC,W1,NAS*MDVEC)
+         CALL RDSCTC(ISCT,ISYM,ICASE,JVEC,W2,NAS*MDVEC)
 C Pick up a symmetry block of W1 and W2
          OP0=OP0+DDOT_(NSCT,W1,1,W2,1)
         END DO

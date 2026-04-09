@@ -17,7 +17,6 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SBDIAG()
-      use definitions, only: iwp, wp
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: USUAL, VERBOSE
 #ifdef _MOLCAS_MPP_
@@ -25,6 +24,7 @@
 #endif
       use caspt2_module, only: nSym, ThrShn, ThrShs, Cases, nASup,
      &  nISup, nInDep
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
 
       real(kind=wp) CondNr, CPU
@@ -32,12 +32,12 @@
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,*)
-        WRITE(6,*)' Find transformation matrices to eigenbasis'//
+        WRITE(u6,*)
+        WRITE(u6,*)' Find transformation matrices to eigenbasis'//
      &     ' of block-diagonal part of H0.'
-        WRITE(6,*)' Eliminate linear dependency. Thresholds for:'
-        WRITE(6,'(A,G12.4)')'   Initial squared norm  :',THRSHN
-        WRITE(6,'(A,G12.4)')'   Eigenvalue of scaled S:',THRSHS
+        WRITE(u6,*)' Eliminate linear dependency. Thresholds for:'
+        WRITE(u6,'(A,G12.4)')'   Initial squared norm  :',THRSHN
+        WRITE(u6,'(A,G12.4)')'   Eigenvalue of scaled S:',THRSHS
       END IF
 
 C SVC.20100904: there are now two SBDIAG versions: a replicate
@@ -52,12 +52,12 @@ C still use the replicate routines for the other cases as they have more
 C modest array sizes.
 
       IF(IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,*)
-        WRITE(6,*)' Condition numbers are computed after diagonal'//
+        WRITE(u6,*)
+        WRITE(u6,*)' Condition numbers are computed after diagonal'//
      &     ' scaling and after removal of'
-        WRITE(6,*)' linear dependency. Resulting sizes, condition'//
+        WRITE(u6,*)' linear dependency. Resulting sizes, condition'//
      &     ' numbers, and times:'
-        WRITE(6,'(3X,A10,4A12,A9)')
+        WRITE(u6,'(3X,A10,4A12,A9)')
      &     'CASE(SYM)','NASUP','NISUP','NINDEP','COND NR','CPU (s)'
       ENDIF
 
@@ -74,7 +74,7 @@ C modest array sizes.
             END IF
 #endif
             IF (IPRGLB.GE.VERBOSE) THEN
-              WRITE(6,'(3X,A6,A1,I1,A1,1X,3I12,G11.2,I9)')
+              WRITE(u6,'(3X,A6,A1,I1,A1,1X,3I12,G11.2,I9)')
      &         CASES(ICASE),'(',ISYM,')',
      &         NASUP(ISYM,ICASE),NISUP(ISYM,ICASE),
      &         NINDEP(ISYM,ICASE),CONDNR,NINT(CPU)
@@ -93,16 +93,15 @@ C usually print info on the total number of parameters
         END DO
       END DO
       IF(IPRGLB.GE.USUAL) THEN
-        WRITE(6,*)
-        WRITE(6,*)' Total nr of CASPT2 parameters:'
-        WRITE(6,'(a,i12)')'   Before reduction:',IPAR0
-        WRITE(6,'(a,i12)')'   After  reduction:',IPAR1
+        WRITE(u6,*)
+        WRITE(u6,*)' Total nr of CASPT2 parameters:'
+        WRITE(u6,'(a,i12)')'   Before reduction:',IPAR0
+        WRITE(u6,'(a,i12)')'   After  reduction:',IPAR1
       ENDIF
 
       END SUBROUTINE SBDIAG
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
-      use definitions, only: wp, iwp, ItoB
       use constants, only: Zero, One
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
@@ -113,9 +112,8 @@ C usually print info on the total number of parameters
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: BMatrix, BSpect, BTrans, IfDOrtho,
      &                         ThrShn, ThrShs, nASup, nISup, Cases,
-     &                         nInDep
-
-      use pt2_guga, only: nG3
+     &                         nInDep, nG3
+      use definitions, only: wp, iwp, ItoB, u6
       IMPLICIT None
 
       integer(kind=iwp), Intent(in):: iSym, iCase
@@ -167,7 +165,7 @@ C for temporary storage.
       IF(NCOEF.EQ.0) RETURN
 
       IF (IPRGLB.GE.INSANE) THEN
-        WRITE(6,'("DEBUG> ",A12,A7,I2,A2,A6,A2,A5,I1)')
+        WRITE(u6,'("DEBUG> ",A12,A7,I2,A2,A6,A2,A5,I1)')
      &  'SBDIAG_SER: ','CASE ',ICASE,' (',CASES(ICASE),') ','SYM ',ISYM
       END IF
 
@@ -184,7 +182,7 @@ C for temporary storage.
       CALL DDAFILE(LUSBT,2,S,NS,IDS)
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NS,S,1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM: ', FP
+        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM: ', FP
       END IF
 
 C For some purposes, we need to save the diagonal elements:
@@ -213,7 +211,7 @@ C Extremely small values give scale factor exactly zero.
         Else
           IF(SDiag.GT.THRSHN) THEN
 * Small variations of the scale factor were beneficial
-            SCA(I)=(One+DBLE(I)*3.0D-6)/SQRT(SDiag)
+            SCA(I)=(One+DBLE(I)*3.0E-6_wp)/SQRT(SDiag)
           ELSE
             SCA(I)=Zero
           END IF
@@ -229,7 +227,8 @@ C Extremely small values give scale factor exactly zero.
 C End of addition.
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NS,S,1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM AFTER SCALING: ', FP
+        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM AFTER SCALING: ',
+     &        FP
       END IF
 
 C DIAGONALIZE THE SCALED S MATRIX:
@@ -257,7 +256,7 @@ C DIAGONALIZE THE SCALED S MATRIX:
       ! fingerprint eigenvalues
       if (iprglb >= insane) then
         fp = dnrm2_(nas,eig,1)
-        write(6,'("DEBUG> ",A,ES21.14)') 'Smat eigval norm: ', fp
+        write(u6,'("DEBUG> ",A,ES21.14)') 'Smat eigval norm: ', fp
       end if
 
 C Form orthonormal vectors by scaling eigenvectors
@@ -285,7 +284,7 @@ C Addition, for the scaled symmetric ON.
       CALL mma_deallocate(SCA)
 C The condition number, after scaling, disregarding linear dep.
       IF(NIN.GE.2) THEN
-        SZMIN=1.0D99
+        SZMIN=1.0E99_wp
         SZMAX=Zero
         DO I=1,NIN
           SZ=DNRM2_(NAS,VEC(1+NAS*(I-1):),1)
@@ -307,7 +306,7 @@ C Just write the transformation matrix and branch out:
         CALL DDAFILE(LUSBT,1,VEC,NAS*NIN,IDT)
         CALL mma_deallocate(VEC)
         IF (IPRGLB.GE.INSANE) THEN
-          WRITE(6,'("DEBUG> ",A)') 'SBDIAG: skip B matrix'
+          WRITE(u6,'("DEBUG> ",A)') 'SBDIAG: skip B matrix'
         END IF
         RETURN
       ELSE IF (BTRANS.NE.'YES') THEN
@@ -334,7 +333,7 @@ C Now, the transformation matrix can be written out.
         CALL DDAFILE(LUSBT,1,VEC,NAS*NIN,IDT)
         CALL mma_deallocate(VEC)
         DO I=1,NAS
-          SDiag=SD(I)+1.0d-15
+          SDiag=SD(I)+1.0e-15_wp
           BD(I)=BD(I)/SDiag
         END DO
         IDB=IDBMAT(ISYM,ICASE)
@@ -342,8 +341,9 @@ C Now, the transformation matrix can be written out.
         CALL mma_deallocate(SD)
         CALL mma_deallocate(BD)
         IF (IPRGLB.GE.INSANE) THEN
-          WRITE(6,'("DEBUG> ",A)')'SBDIAG: skip B matrix transformation'
-          WRITE(6,'("DEBUG> ",A)')'        but keep B_ii/S_ii values'
+          WRITE(u6,'("DEBUG> ",A)')
+     &         'SBDIAG: skip B matrix transformation'
+          WRITE(u6,'("DEBUG> ",A)')'        but keep B_ii/S_ii values'
         END IF
         RETURN
       END IF
@@ -363,7 +363,7 @@ C READ BACK (SEE BELOW).
       END DO
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NAS**2,VEC,1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)')
+        WRITE(u6,'("DEBUG> ",A,ES21.14)')
      &   'EIGENVECTOR NORM BEFORE B TRANS: ', FP
       END IF
 
@@ -379,7 +379,7 @@ C TRANSFORM B. NEW B WILL OVERWRITE AND DESTROY VEC
       End If
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NB,B,1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM: ', FP
+        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM: ', FP
       END IF
 
       CALL mma_allocate(BX,NAS,Label='BX')
@@ -421,7 +421,7 @@ C COPY TO TRIANGULAR STORAGE.
       CALL mma_deallocate(VEC)
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NBNEW,B,1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM AFTER TRANS: ', FP
+        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'BMAT NORM AFTER TRANS: ', FP
       END IF
 
 C DIAGONALIZE THE TRANSFORMED B MATRIX.
@@ -457,7 +457,7 @@ C - Alt 0: Use diagonal approxim., if allowed:
       CPU=CPU+CPU2-CPU1
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NIN,EIG,1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'BMAT EIGENVALUE NORM: ', FP
+        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'BMAT EIGENVALUE NORM: ', FP
       END IF
 
 C The eigenvalues are written back at same position as the
@@ -504,7 +504,7 @@ C full matrices, plus an additional 19 columns of results.
       CALL DDAFILE(LUSBT,1,TRANS,NAS*NIN,IDT)
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NAS*NIN,TRANS,1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', FP
+        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', FP
       END IF
 
 C-SVC: compute S*T and store on disk for later use by RHS vector
@@ -522,7 +522,7 @@ C      utilities.
       CALL DDAFILE(LUSBT,1,ST,NAS*NIN,IDST)
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NAS*NIN,ST,1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'STMAT NORM: ', FP
+        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'STMAT NORM: ', FP
       END IF
       CALL mma_deallocate(ST)
 
@@ -540,8 +540,6 @@ C divided over processors.
 #ifdef _SCALAPACK_
       use scalapack_mod, only: GA_PDSYEVX_
 #endif
-      use definitions, only: iwp, wp
-      use Constants, only: Zero, One
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: INSANE
       USE Para_Info, ONLY: King
@@ -552,6 +550,8 @@ C divided over processors.
       use stdalloc, only: mma_allocate, mma_deallocate
       use caspt2_module, only: nASup, nISup, Cases, IfDOrtho, ThrShn,
      &                         ThrShs, nInDep, BMATRIX, BTRANS, BSPECT
+      use Constants, only: Zero, One
+      use definitions, only: iwp, wp, u6
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: iSym, iCase
@@ -589,7 +589,7 @@ C overwritten by BD(MU) and T(I,MU), which is stored in a DRA metafile.
 C Initialize the DRA I/O subsystem with default values.
 
       IF (iCASE.NE.1.AND.iCASE.NE.4) THEN
-        WRITE(6,*) 'Invalid CASE number used for global SBDIAG, Abort'
+        WRITE(u6,*) 'Invalid CASE number used for global SBDIAG, Abort'
         CALL AbEnd()
       END IF
 
@@ -605,7 +605,7 @@ C Start a long loop over irreps:
       IF(NCOEF.EQ.0) RETURN
 
       IF (IPRGLB.GE.INSANE) THEN
-        WRITE(6,'("DEBUG> ",A12,A5,I2,A2,A6,A2,A5,I1)')
+        WRITE(u6,'("DEBUG> ",A12,A5,I2,A2,A6,A2,A5,I1)')
      &  'SBDIAG_MPP: ','CASE ',ICASE,' (',CASES(ICASE),') ','SYM ',ISYM
       END IF
 
@@ -662,7 +662,7 @@ C Calculate the scaling factors and store them in array SCA.
           SCA(I)=One
         ELSE
           IF(SDiag.GT.THRSHN) THEN
-            SCA(I)=(One+DBLE(I)*3.0D-6)/SQRT(SDiag)
+            SCA(I)=(One+DBLE(I)*3.0E-6_wp)/SQRT(SDiag)
           ELSE
             SCA(I)=Zero
           END IF
@@ -682,7 +682,7 @@ C Scale the elements S(I,J) with the factor SCA(I)*SCA(J).
 
       IF (IPRGLB.GE.INSANE) THEN
         FP=PSBMAT_FPRINT(lg_S,NAS)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT NORM AFTER SCALING: ', FP
+        WRITE(u6,'("DEBUG> ",A,ES21.14)')'SMAT NORM AFTER SCALING: ', FP
       END IF
 
       CALL mma_allocate(EIG,NAS,Label='EIG')
@@ -723,7 +723,7 @@ C eigenvectors back to a global array.  Then distribute the eigenvalues.
 
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NAS,EIG,1)
-        WRITE(6,'("DEBUG> ",A,ES21.14)') 'SMAT EIGENVALUE NORM: ', FP
+        WRITE(u6,'("DEBUG> ",A,ES21.14)') 'SMAT EIGENVALUE NORM: ', FP
       END IF
 
       NIN=0
@@ -751,7 +751,7 @@ C Form orthonormal transformation vectors by scaling the eigenvectors.
       IF (iLo.NE.0) THEN
         call GA_Access (lg_V, iLo, iHi, jLo, jHi, mV, LDV)
         IF ((jHi-jLo+1).NE.NAS) THEN
-          WRITE(6,*) 'SBDIAG_MPP: error in striping of lg_V, ABORT'
+          WRITE(u6,*) 'SBDIAG_MPP: error in striping of lg_V, ABORT'
           CALL ABEND()
         END IF
         call V_SCALE (EIG,SCA(iLo),DBL_MB(mV),
@@ -767,7 +767,7 @@ C The condition number, after scaling, disregarding linear dep.
 C FIXME: adapt to local subroutine for global array lg_V
       IF(NIN.GE.2) THEN
         CALL GADGOP (COND,NIN,'+')
-        SZMIN=1.0D99
+        SZMIN=1.0E99_wp
         SZMAX=Zero
         DO I=1,NIN
           SZ=COND(I)
@@ -795,7 +795,7 @@ C resident arrays only.
           call GA_Get (lg_T, 1, NAS, 1, NIN, TRANS, NAS)
           IF (iPrGlb.GE.INSANE) THEN
             dTRANS=dNRM2_(NAS*NIN,TRANS,1)
-            WRITE(6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', dTRANS
+            WRITE(u6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', dTRANS
           END IF
           IDT=IDTMAT(ISYM,ICASE)
           CALL DDAFILE(LUSBT,1,TRANS,NAS*NIN,IDT)
@@ -826,7 +826,7 @@ C eigenvalues would go in ordinary CASPT2.
         CALL GADGOP (BD,NAS,'+')
         bStat = GA_Destroy (lg_B)
         DO I=1,NAS
-          SDiag=SD(I)+1.0d-15
+          SDiag=SD(I)+1.0E-15_wp
           BD(I)=BD(I)/SDiag
         END DO
         IDB=IDBMAT(ISYM,ICASE)
@@ -840,7 +840,7 @@ C stored as disk resident arrays only.
           call GA_Get (lg_T, 1, NAS, 1, NIN, TRANS, NAS)
           IF (iPrGlb.GE.INSANE) THEN
             dTRANS=dNRM2_(NAS*NIN,TRANS,1)
-            WRITE(6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', dTRANS
+            WRITE(u6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', dTRANS
           END IF
           IDT=IDTMAT(ISYM,ICASE)
           CALL DDAFILE(LUSBT,1,TRANS,NAS*NIN,IDT)
@@ -856,7 +856,7 @@ C TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
 
       IF (IPRGLB.GE.INSANE) THEN
         FP=PSBMAT_FPRINT(lg_T,NAS)
-        WRITE(6,'(1X,A,ES21.14)')
+        WRITE(u6,'(1X,A,ES21.14)')
      &   'EIGENVECTOR NORM BEFORE B TRANS: ', FP
       END IF
 
@@ -873,7 +873,7 @@ C TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
       End If
 
       IF (IPRGLB.GE.INSANE) THEN
-        WRITE(6,'(1X,A,ES21.14)') 'BMAT NORM: ', FP
+        WRITE(u6,'(1X,A,ES21.14)') 'BMAT NORM: ', FP
       END IF
 
 C FIXME: Perform transformation of B using horizontal stripes of B or
@@ -892,7 +892,7 @@ C by the available memory, which is now scaling as approx. 3*(NAS**2).
 
       IF (IPRGLB.GE.INSANE) THEN
         FP=PSBMAT_FPRINT(lg_B,NIN)
-        WRITE(6,'(1X,A,ES21.14)') 'BMAT NORM AFTER TRANS: ', FP
+        WRITE(u6,'(1X,A,ES21.14)') 'BMAT NORM AFTER TRANS: ', FP
       END IF
 
       CALL TIMING(CPU1,CPUE,TIO,TIOE)
@@ -910,7 +910,7 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
 *         EIG(I)=B(IDIAG)/SD
 *         IDIAG=IDIAG+1+NIN-I
 *       END DO
-        WRITE(6,*) 'GLOB_SBDIAG: option not implemented'
+        WRITE(u6,*) 'GLOB_SBDIAG: option not implemented'
         call AbEnd()
       ELSE
 #ifdef _SCALAPACK_
@@ -943,7 +943,7 @@ C FIXME: this original code seemed wrong, using uninitialized SD?
 
       IF (IPRGLB.GE.INSANE) THEN
         FP=DNRM2_(NIN,EIG,1)
-        WRITE(6,'(1X,A,ES21.14)') 'BMAT EIGENVALUE NORM: ', FP
+        WRITE(u6,'(1X,A,ES21.14)') 'BMAT EIGENVALUE NORM: ', FP
       END IF
 
 C The eigenvalues are written back at same position as the
@@ -990,7 +990,7 @@ C replicate array.  FIXME: Should be removed later.
         call GA_Get (lg_T, 1, NAS, 1, NIN, TRANS, NAS)
         dTRANS=dNRM2_(NAS*NIN,TRANS,1)
         IF (iPrGlb.GE.INSANE) THEN
-          WRITE(6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', dTRANS
+          WRITE(u6,'("DEBUG> ",A,ES21.14)') 'TMAT NORM: ', dTRANS
         END IF
         IDT=IDTMAT(ISYM,ICASE)
         CALL DDAFILE(LUSBT,1,TRANS,NAS*NIN,IDT)
@@ -1024,9 +1024,9 @@ C replicate array.  FIXME: Should be removed later.
       END SUBROUTINE S_SCALE
 
       SUBROUTINE V_SCALE (EIG,SCA,V,nRows,NAS,LDV,NIN,COND)
-      use definitions, only: iwp, wp
-      use constants, only: Zero, One
       use caspt2_module, only: ThrShS
+      use constants, only: Zero, One
+      use definitions, only: iwp, wp, u6
 
       IMPLICIT None
 
@@ -1052,7 +1052,7 @@ C replicate array.  FIXME: Should be removed later.
         END IF
       END DO
       IF (jVEC.NE.NIN) THEN
-        WRITE(6,*) 'V_SCALE: '//
+        WRITE(u6,*) 'V_SCALE: '//
      &      'inconsitency in linear dependence removal, ABORT'
         call AbEnd()
       END IF

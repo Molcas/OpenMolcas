@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
-      use definitions, only: iwp, wp
+      use definitions, only: iwp, wp, u6
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: nStpGrd, do_grad, iStpGrd
       use PrintLevel, only: INSANE, USUAL, VERBOSE
@@ -47,19 +47,20 @@ C At position IVEC=IVECW, the RHS array, in contravariant repr.
       integer(kind=iwp), EXTERNAL :: Cho_X_GetTol
 
 
-      If (iStpGrd.EQ.1) Then
+      If (iStpGrd==1) Then
+
         IF (IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,'(1X,A)')
-          WRITE(6,'(1X,A)') 'Computing the S/B matrices'
-          WRITE(6,'(1X,A)') '--------------------------'
+          WRITE(u6,'(1X,A)')
+          WRITE(u6,'(1X,A)') 'Computing the S/B matrices'
+          WRITE(u6,'(1X,A)') '--------------------------'
         END IF
 
 C Compute S and (possibly) B matrices and write them on LUSBT
 C this uses previously stored data on LUSOLV!!
-CPAM98      IF(SMATRIX.NE.'NO      ')CALL SBMAT
         CALL GASync()
         CALL TIMING(CPU0,CPU,TIO0,TIO)
-* PAM14 Necessary to reset NINDEP to conservative estimate. It gets its
+
+* Necessary to reset NINDEP to conservative estimate. It gets its
 * final value after SBDIAG call, but must have its original value when
 * calling MKSMAT and MKBMAT.
         DO ICASE=1,13
@@ -68,14 +69,12 @@ CPAM98      IF(SMATRIX.NE.'NO      ')CALL SBMAT
           IF(NISUP(ISYM,ICASE).EQ.0) NINDEP(ISYM,ICASE)=0
          END DO
         END DO
-        IF(SMATRIX.NE.'NO      ') THEN
-          CALL MKSMAT()
-          CALL MKBMAT()
-        END IF
+
+        IF (SMATRIX/='NO      ') CALL MKSBMAT()
+
 C Modify B matrices, if necessary:
-        IF(HZERO.EQ.'CUSTOM') THEN
-          CALL NEWB()
-        END IF
+        IF(HZERO.EQ.'CUSTOM') CALL NEWB()
+
         CALL GASync()
         CALL TIMING(CPU1,CPU,TIO1,TIO)
         CPUSBM=CPU1-CPU0
@@ -85,14 +84,15 @@ C Linear dependence removal, ON transformation of S matrix,
 C and spectral resolution of H0:
         CALL GASync()
         CALL TIMING(CPU0,CPU,TIO0,TIO)
-        IF(SDECOM.NE.'NO      ') THEN
-          CALL SBDIAG()
-        END IF
+
+        IF(SDECOM/='NO      ') CALL SBDIAG()
+
         CALL GASync()
         CALL TIMING(CPU1,CPU,TIO1,TIO)
         CPUEIG=CPU1-CPU0
         TIOEIG=TIO1-TIO0
       End If
+
 C The transformation matrices have now been computed and
 C written at disk addresses given by IDTMAT().
 C The B matrices were destroyed here. In their place,
@@ -115,13 +115,13 @@ C of S.
 
       CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
+
 C Non-active part of diagonal elements of H0 are computed
 C and written to LUSBT:
       CALL NADIAG()
 C Modify diagonal elements, if requested:
-      IF(HZERO.EQ.'CUSTOM') THEN
-        CALL NEWDIA()
-      END IF
+      IF(HZERO.EQ.'CUSTOM') CALL NEWDIA()
+
 C A second set of energy parameters may now have been
 C computed and written to LUSBT.
       CALL GASync()
@@ -130,9 +130,9 @@ C computed and written to LUSBT.
       TIONAD=TIO1-TIO0
 
       IF (IPRGLB.GE.VERBOSE) THEN
-        WRITE(6,'(1X,A)')
-        WRITE(6,'(1X,A)') 'Computing the right-hand side (RHS) elements'
-        WRITE(6,'(1X,A)') '--------------------------------------------'
+        WRITE(u6,'(1X,A)')
+        WRITE(u6,'(1X,A)')'Computing the right-hand side (RHS) elements'
+        WRITE(u6,'(1X,A)')'--------------------------------------------'
       END IF
 
       IRHS  =1
@@ -144,6 +144,7 @@ C computed and written to LUSBT.
 
       CALL GASync()
       CALL TIMING(CPU0,CPU,TIO0,TIO)
+
 C-SVC: initialize the RHS array offsets
       CALL RHS_INIT()
 C at this point LUSOLV is not used as a temporary disk anymore, so it's
@@ -164,15 +165,15 @@ C Set up right-hand side matrix elements.
       ELSE
         CALL MKRHS(IVECW)
       END IF
+
       CALL GASync()
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPURHS=CPU1-CPU0
       TIORHS=TIO1-TIO0
 
       IF (IPRGLB.GE.INSANE) THEN
-        WRITE(6,'("DEBUG> ")')
-        WRITE(6,'("DEBUG> ",A)')
-     &   'Norms of the RHS blocks:'
+        WRITE(u6,'("DEBUG> ")')
+        WRITE(u6,'("DEBUG> ",A)') 'Norms of the RHS blocks:'
         CALL RHS_FPRINT('C',IVECW)
       END IF
 
@@ -194,8 +195,8 @@ C Transform RHS of CASPT2 equations to eigenbasis for H0:
       CALL PTRTOSR(1,IVECW,IRHS)
 
       IF (IPRGLB.GE.INSANE) THEN
-        WRITE(6,'("DEBUG> ")')
-        WRITE(6,'("DEBUG> ",A)')
+        WRITE(u6,'("DEBUG> ")')
+        WRITE(u6,'("DEBUG> ",A)')
      &   'Norms of the RHS blocks (H0 eigenbasis):'
         CALL RHS_FPRINT('SR',IRHS)
       END IF

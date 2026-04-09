@@ -16,9 +16,8 @@
 * UNIVERSITY OF LUND                         *
 * SWEDEN                                     *
 *--------------------------------------------*
-      SUBROUTINE PRPCTL(MODE,UEFF,U0)
-      use definitions, only: iwp, wp, u6
-      use constants, only: Zero, Half, One, Five
+      SUBROUTINE PRPCTL(MODE,UEFF,U0,nState)
+      use constants, only: Zero, Half, One, Two,Five
       USE PT2WFN, only: PT2WFN_DENSSTORE
       use caspt2_global, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
@@ -33,17 +32,18 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV, only: IVECX, NLSTOT
-      use caspt2_module, only: NSTATE, IFMSCOUP, IFPROP, irlxroot,
+      use caspt2_module, only: IFMSCOUP, IFPROP, irlxroot,
      &                         ISCF, JSTATE, BNAME, NASHT, NBAST, NCONF,
      &                         NSYM, OUTFMT, PRORB, THRENE, THROCC,
      &                         NORB, NBAS, NISH, NASH, IAD1M, NFRO,
      &                         NRAS1, NRAS2, NRAS3, MSTATE, NDEL,
      &                         Energy, MSTATE
+      use definitions, only: iwp, wp, u6
 
       IMPLICIT None
 
-      integer(kind=iwp), intent(in):: Mode
-      real(kind=wp), intent(in):: UEFF(NSTATE,NSTATE),U0(*)
+      integer(kind=iwp), intent(in):: Mode, nState
+      real(kind=wp), intent(in):: UEFF(NSTATE,NSTATE),U0(nState,nState)
 
       Logical(kind=iwp) FullMlk,lSave,Do_ESPF
       Character(Len=8) Label
@@ -59,6 +59,12 @@
      &                  iSyLbl, ISYM, iUHF, KSTATE, LUTMP, N, nDens,
      &                  NDMAT, NO, NOCC
       integer(kind=iwp), external:: IsFreeUnit
+
+      IF (IPRGLB.GE.USUAL) THEN
+         WRITE(6,*)
+         WRITE(6,'(20A4)')('****',I=1,20)
+         WRITE(6,*)' CASPT2 PROPERTY SECTION'
+      END IF
 
 #ifdef _MOLCAS_MPP_
       IF (Is_Real_Par() .AND. IPRGLB.GE.USUAL .AND. .not.do_grad) THEN
@@ -119,7 +125,7 @@ C This density matrix may be approximated in several ways, see DENS.
         call mma_allocate(DMAT,NDMAT,Label='DMAT')
         CALL DCOPY_(NDMAT,[Zero],0,DMAT,1)
         CALL mma_allocate(LISTS,NLSTOT,LABEL='LISTS')
-        CALL MKLIST(LISTS)
+        CALL MKLIST(LISTS,NLSTOT)
         CALL DENS(IVECX,DMAT,UEFF,U0)
         CALL mma_deallocate(LISTS)
       ELSE
@@ -145,11 +151,11 @@ C This density matrix may be approximated in several ways, see DENS.
             DO IJ = 1, II
               !! second-order (DPT2) and first-order (DPT2C)
               DMAT(1+IDMAT) = DPT2_TOT(IDMOFF+II+NO*(IJ-1))
-     *                      + DPT2C_TOT(IDMOFF+II+NO*(IJ-1))*0.25d+00
+     *                      + DPT2C_TOT(IDMOFF+II+NO*(IJ-1))*0.25e+00_wp
               IF (.NOT.DO_NAC) THEN
                 !! Add the reference density matrix (inactive)
                 IF (II.EQ.IJ .and. II.LE.NFRO(ISYM)+NISH(ISYM))
-     *            DMAT(1+IDMAT) = DMAT(1+IDMAT) + 2.0D+00
+     *            DMAT(1+IDMAT) = DMAT(1+IDMAT) + Two
               END IF
               IDMAT = IDMAT + 1
             END DO
@@ -173,7 +179,7 @@ C This density matrix may be approximated in several ways, see DENS.
               IF (ISTATE.EQ.IROOT1.AND.KSTATE.EQ.IROOT2)
      *          SCAL = SCAL + One
             END IF
-            IF (ABS(SCAL).LE.1.0D-09) CYCLE
+            IF (ABS(SCAL).LE.1.0e-09_wp) CYCLE
             IF (ISCF.NE.0) THEN
               CI2(1)=One
             ELSE
@@ -219,7 +225,7 @@ C Compute natural orbitals of CASPT2 wave function.
       END IF
       call mma_allocate(CNAT,NCMO,Label='CNAT')
       call mma_allocate(OCC,NOCC,Label='OCC')
-      CALL NATORB_CASPT2(DMAT,CMO,OCC,CNAT)
+      CALL NATORB_CASPT2(DMAT,nDMAT,CMO,nCMO,OCC,nOCC,CNAT,nCMO)
       CALL mma_deallocate(CMO_Internal)
       nullify(CMO)
 C Backtransform density matrix to original MO basis before storing
@@ -312,11 +318,11 @@ C Write natural orbitals to standard output.
        WRITE(u6,'(A)')' A new RasOrb file named PT2ORB is prepared.'
        IF (PRORB) THEN
          IF ( OUTFMT.EQ.'LONG    ' ) THEN
-           THRENE=2.0d0**31
-           THROCC=-2.0d0**31
+           THRENE=Two**31
+           THROCC=-Two**31
          ELSE IF ( OUTFMT.EQ.'DEFAULT ' ) THEN
            THRENE=Five
-           THROCC=5.0d-04
+           THROCC=5.0e-04_wp
          END IF
          CALL PRIMO('Output orbitals from CASPT2',
      &           .TRUE.,.FALSE.,THROCC,THRENE,NSYM,NBAS,
@@ -361,7 +367,7 @@ C Write natural orbitals to standard output.
       End Do
       call mma_allocate(Scr,NDENS,Label='Scr')
 *
-      Call DOne_Caspt2(CNAT,OCC,Scr)
+      Call DOne_Caspt2(CNAT,nCMO,OCC,nOcc,Scr,nDENS)
       Call Put_dArray('D1ao',Scr,nDens)
 *
       Note='Temporary orbital file used by prpt.'

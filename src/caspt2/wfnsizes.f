@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      subroutine wfnsizes
+      subroutine wfnsizes()
 ************************************************************************
 *
 * Compute various orbital sizes
@@ -26,17 +26,18 @@
      &                         nRas1, nRas2, nRas3, nBas, OrbNam,
      &                         IINAIS, iExtIS,
      &                         iiSym, iaSym, ISNAM
-      use pt2_guga, only: nG1, nG2, nG3Tot
+      use caspt2_module, only: nG1, nG2, nG3Tot
+      use definitions, only: iwp, u6
       implicit none
 
-      Integer NASHT2
-      Integer NI, NR1, NR2, NR3, NS, N123
-      Integer I, iSym
+      Integer(kind=iwp) NASHT2
+      Integer(kind=iwp) NI, NR1, NR2, NR3, NS, N123
+      Integer(kind=iwp) I, iSym
 
 * Table sizes
-      Integer IIABS, ITABS
-      Integer IS, IO
-      Integer ITOT, IINA, IEXT
+      Integer(kind=iwp) IIABS, ITABS
+      Integer(kind=iwp) IS, IO
+      Integer(kind=iwp) ITOT, IINA, IEXT
 
       NFROT=0
       NISHT=0
@@ -189,23 +190,23 @@ C  Identify the wave function type
 *---  Check consistency of the orbitals
       If ( NISHT.gt.MXINA ) Then
         Call WarningMessage(2,'Too many inactive orbitals.')
-        WRITE(6,'(a,2i8)')' NISHT >  MXINA:',NISHT,MXINA
-        Call Quit_OnUserError
+        WRITE(u6,'(a,2i8)')' NISHT >  MXINA:',NISHT,MXINA
+        Call Quit_OnUserError()
       End If
       If ( NASHT.gt.MXACT ) Then
         Call WarningMessage(2,'Too many active orbitals.')
-        WRITE(6,'(a,2i8)')' NASHT > MXACT:',NASHT,MXACT
-        Call Quit_OnUserError
+        WRITE(u6,'(a,2i8)')' NASHT > MXACT:',NASHT,MXACT
+        Call Quit_OnUserError()
       End If
       If ( NSSHT.gt.MXEXT ) Then
         Call WarningMessage(2,'Too many secondary orbitals.')
-        WRITE(6,'(a,2i8)')' NSSHT > MXEXT:',NSSHT,MXEXT
-        Call Quit_OnUserError
+        WRITE(u6,'(a,2i8)')' NSSHT > MXEXT:',NSSHT,MXEXT
+        Call Quit_OnUserError()
       End If
       If ( NBAST.gt.MXORB ) Then
         Call WarningMessage(2,'Too many basis functions.')
-        WRITE(6,'(a,2i8)')' NBAST > MXORB:',NBAST,MXORB
-        Call Quit_OnUserError
+        WRITE(u6,'(a,2i8)')' NBAST > MXORB:',NBAST,MXORB
+        Call Quit_OnUserError()
       End If
 
 *
@@ -219,5 +220,4 @@ C  Identify the wave function type
       Call Put_iArray('nDelPT',nDel,nSym)
       Call Put_iArray('nBas'  ,nBas,nSym)
 
-      RETURN
-      END
+      END subroutine wfnsizes

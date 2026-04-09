@@ -121,6 +121,4 @@ end if
 
 rc = 0
 
-return
-
 end subroutine CHO_SUM

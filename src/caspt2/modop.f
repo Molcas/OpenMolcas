@@ -9,8 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE MODOP(OP1,NOP2,OP2,NOP3,OP3)
-      use definitions, only: iwp, wp
       use caspt2_module, only: NASHT, NACTEL
+      use definitions, only: iwp, wp
       IMPLICIT None
 
       integer(kind=iwp), intent(in):: NOP2, NOP3
@@ -41,7 +41,7 @@ C operators rather than normal-ordered products.
             IF(MN.GT.KL) CYCLE
             IJKLMN=((IJ+1)*IJ*(IJ-1))/6+(KL*(KL-1))/2+MN
             X=OP3(IJKLMN)
-            IF(ABS(X).LT.1.0D-15) CYCLE
+            IF(ABS(X).LT.1.0E-15_wp) CYCLE
 
             IF(K.EQ.J) THEN
               IL=I+NASHT*(L-1)

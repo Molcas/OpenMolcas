@@ -11,22 +11,23 @@
 * Copyright (C) 2012, Per Ake Malmqvist                                *
 *               2019, Stefano Battaglia                                *
 ************************************************************************
-      subroutine xdwinit(Heff,H0,U0)
+      subroutine xdwinit(Heff,H0,U0, nState)
 
       use definitions, only: wp, iwp, u6
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad
       use caspt2_global, only: CMO, CMO_Internal, CMOPT2, NCMO
-      use caspt2_global, only: FIFA, DREF
+      use caspt2_global, only: FIFA, DREF, FIMO
       use caspt2_global, only: LUONEM
       use PrintLevel, only: DEBUG, INSANE, USUAL, VERBOSE
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_module, only: nState, IfChol, iSCF, nAshT, nConf,
+      use caspt2_module, only: iSCF, nAshT, nConf, NoTri,
      &                         STSym, iAd1m, mState
-      use pt2_guga, only: CIThr
+      use caspt2_module, only: CIThr
 
       implicit none
 
+      Integer(kind=iwp),intent(in):: NState
       Real(kind=wp),intent(inout) :: Heff(Nstate,Nstate)
       Real(kind=wp),intent(inout) :: H0(Nstate,Nstate)
       Real(kind=wp),intent(inout) :: U0(Nstate,Nstate)
@@ -35,7 +36,8 @@
 
       Integer(kind=iwp) :: iState,iDisk,I,J
       Real(kind=wp), allocatable:: CI(:), DAVE(:), CIRef(:,:),
-     &                              CIXMS(:)
+     &                              CIXMS(:), HONE(:)
+      Logical(kind=iwp) Initiate
 
 
 * Allocate memory for CI array state averaged 1-RDM
@@ -64,9 +66,11 @@
         call GETDREF(DREF,SIZE(DREF))
 
 * Average the density
-        call DAXPY_(SIZE(DREF),wgt,DREF,1,DAVE,1)
+        DAVE(:) = DAVE(:) + DREF(:)
+!       call DAXPY_(SIZE(DREF),wgt,DREF,1,DAVE,1)
 
       end do
+      DAVE(:) = Wgt * DAVE(:)
 
       if (IPRGLB.GE.INSANE) then
         write(u6,*)' State-average 1-RDM'
@@ -88,14 +92,17 @@
       iDisk=IAD1M(1)
       call ddafile(LUONEM,2,CMO,NCMO,iDisk)
 
+* Allocate memory for HONE and call for the computation of the
+* one- and two-electron in the CMO basis.
+      Call mma_allocate(HONE,NoTri,Label='HONE')
+      Initiate=.True.
+
 * Build the state-average Fock matrix in MO basis
-      if (IfChol) then
-* INTCTL2 uses TraCho2 and FMatCho to get matrices in MO basis.
-        call INTCTL2(.false.)
-      else
-* INTCTL1 uses TRAONE and FOCK_RPT2 to get the matrices in MO basis.
-        call INTCTL1(CMO,SIZE(CMO))
-      end if
+      Call MkFock(CMO,nCMO,FIMO,SIZE(FIMO),
+     &            FIFA,SIZE(FIFA),DREF,SIZE(DREF),
+     &            HONE,SIZE(HONE),Initiate)
+
+      Call mma_deallocate(HONE)
 
 * Loop again over all states to compute H0 in the model space
 * Loop over ket functions
@@ -171,7 +178,6 @@
         end if
       end do
 C
-      If (do_grad) call dcopy_(NCMO,CMO,1,CMOPT2,1)
       If (do_grad) CMOPT2(:)=CMO(:)
 
 * Release all memory
