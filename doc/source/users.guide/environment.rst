@@ -381,7 +381,7 @@ The complete list of |molcas|-related environment variables:
 
 :variable:`MOLCAS_FIM`
   Activates the Files In Memory I/O layer. See :numref:`MT:sec:fim` for more details.
-  *Note that this setting is available only in |molcas| compiled without Global
+  *Note that this setting is available only in* |molcas| *compiled without Global
   Arrays.*
 
   .. warning::
